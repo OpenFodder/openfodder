@@ -1,0 +1,34 @@
+
+class cVideoWindow;
+class cSurface;
+
+class cScreen {
+private:
+	string					 mWindowTitle;
+
+	cSurface				*mSurface;
+	SDL_Surface				*mSDLSurfaceScaled;
+	
+	cVideoWindow			*mWindow;
+
+	bool					 mFullScreen;
+	size_t					 mScale;
+
+public:
+
+							 cScreen( string pWindowTitle );
+	void					 blit( cSurface *pSurface, size_t pDestX = 0, size_t pDestY = 0 );
+
+	void					 scaleSet( byte pScale ) ;
+	SDL_Surface				*scaleUp( );
+	SDL_Surface				*scaleGet()	{ return mSDLSurfaceScaled; }
+
+	SDL_Surface				*surfaceGet();
+
+	void					 windowUpdate();
+	void					 levelNameSet( string pName );
+
+	void					 wipe( size_t pColor = 0x00 );
+	void					 wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor );
+
+};
