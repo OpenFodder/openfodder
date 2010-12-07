@@ -1,4 +1,4 @@
-#include "stdafx.hpp"
+#include "stdafx.h"
 #include "graphics/window.h"
 #include "screen.hpp"
 #include "graphics/scale/scalebit.h"

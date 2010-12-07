@@ -41,6 +41,12 @@
     <ClCompile Include="..\..\src\graphics\scale\scalebit.cpp">
       <Filter>Source Files\graphics\scale</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\screen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\surface.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\fodder.hpp">
@@ -66,6 +72,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\graphics\scale\scalebit.h">
       <Filter>Source Files\graphics\scale</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\screen.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\surface.hpp">
+      <Filter>Source Files\graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

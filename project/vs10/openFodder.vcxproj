@@ -84,18 +84,22 @@
     <ClCompile Include="..\..\src\graphics\scale\scale2x.cpp" />
     <ClCompile Include="..\..\src\graphics\scale\scale3x.cpp" />
     <ClCompile Include="..\..\src\graphics\scale\scalebit.cpp" />
+    <ClCompile Include="..\..\src\graphics\surface.cpp" />
     <ClCompile Include="..\..\src\graphics\window.cpp" />
     <ClCompile Include="..\..\src\resources.cpp" />
     <ClCompile Include="..\..\src\fodder.cpp" />
+    <ClCompile Include="..\..\src\screen.cpp" />
     <ClCompile Include="..\..\src\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\graphics\scale\scale2x.h" />
     <ClInclude Include="..\..\src\graphics\scale\scale3x.h" />
     <ClInclude Include="..\..\src\graphics\scale\scalebit.h" />
+    <ClInclude Include="..\..\src\graphics\surface.hpp" />
     <ClInclude Include="..\..\src\graphics\window.h" />
     <ClInclude Include="..\..\src\resources.hpp" />
     <ClInclude Include="..\..\src\fodder.hpp" />
+    <ClInclude Include="..\..\src\screen.hpp" />
     <ClInclude Include="..\..\src\stdafx.h" />
     <ClInclude Include="..\..\src\types.hpp" />
   </ItemGroup>
