@@ -21,11 +21,9 @@ int eventFilter( const SDL_Event *e ) {
     return 1; // return 1 so all events are added to queue
 }
 
-void cFodder::windowSize( size_t pWidth, size_t pHeight ) {
-	mScreen->resize( pWidth, pHeight );
-}
-
 cFodder::cFodder() {
+	mRedraw = true;
+
 	mResources = new cResources();
 
 	mScreen = new cScreen("Open Fodder");
@@ -81,19 +79,28 @@ void cFodder::showImage( string pFilename ) {
 	mScreen->windowUpdate();
 }
 
+void cFodder::windowSize( size_t pWidth, size_t pHeight ) {
+	mScreen->resize( pWidth, pHeight );
+	screenDraw();
+}
+
+void cFodder::screenDraw() {
+	mRedraw = false;
+		
+	mScreen->blit( &tile, 0, 0 );
+	mScreen->windowUpdate();
+}
+
 void cFodder::Start() {
 	//showImage( "junsub0.blk" );
 
 	mMission->mapLoad(true);
-
+	
 	byte *tileB = mMission->mapGet()->tilesGet()->tileGet(387);
-
 	cSurface tile(16,16);
 	tile.decode( tileB, 16 * 16, 0, 0 );
 	tile.paletteLoad( mMission->mapGet()->tilesGet()->mPaletteGet(), 0x100 );
 
-	mScreen->blit( &tile, 0, 0 );
-	mScreen->windowUpdate();
 
     while(!mQuit) {
         SDL_Event e;
@@ -104,7 +111,8 @@ void cFodder::Start() {
                 mQuit = true;
         }
 
-		
+		if(mRedraw)
+			screenDraw();	
 	}
 
 }

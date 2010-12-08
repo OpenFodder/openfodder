@@ -11,7 +11,10 @@ private:
 
 	size_t					 mMapCurrent;
 
-	bool					 mQuit;
+	bool					 mRedraw, mQuit;
+
+
+	void					 screenDraw();
 
 public:
 		

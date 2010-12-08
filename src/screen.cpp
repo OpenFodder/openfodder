@@ -16,7 +16,7 @@ cScreen::cScreen( string pWindowTitle ) {
 	
 	mWindowTitle = pWindowTitle;
 
-	mScale = false;
+	mScale = 0;
 	mFullScreen = false;
 }
 
@@ -41,9 +41,9 @@ void cScreen::scaleSet( byte pScale ) {
 		return;
 
 	// Cleanup previous resources
-	SDL_FreeSurface( mSDLSurfaceScaled );
 	delete mWindow;
 	delete mSurface;
+	SDL_FreeSurface( mSDLSurfaceScaled );
 
 	// Set new scale level
 	mScale = pScale;

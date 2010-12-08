@@ -34,6 +34,10 @@ cTiles::cTiles( string pFileBase, string pFileSub0 ) {
 }
 
 cTiles::~cTiles() {
+	vector< byte* >::iterator		tileIT;
+
+	for( tileIT = mTiles.begin(); tileIT != mTiles.end(); ++tileIT )
+		delete (*tileIT);
 
 	delete mPalette;
 }
