@@ -1,8 +1,10 @@
 #include <sdl.h>
 
+const size_t		 g_MaxColors = 0x100;
+
 class cSurface {
 protected:
-	dword			 mPalette[ 16 ];
+	dword			 mPalette[ g_MaxColors ];
 	dword			 mColorKey;
 
 	byte			*mSurfaceBuffer;								// Loaded Image (uses palette indexs)
@@ -12,29 +14,19 @@ protected:
 
 	size_t			 mWidth, mHeight;
 
-	void			 paletteColorSet(	byte id, byte red, byte green, byte blue );	// Set a color in the palette
+	void			 paletteColorSet(	size_t id, byte red, byte green, byte blue );	// Set a color in the palette
 	
 public:
-	
 	
 					 cSurface( size_t pWidth, size_t pHeight );
 					~cSurface();
 
-	void			 blit( cSurface *pSource, word destX, word destY, dword colorKey, dword colorKey2, word pMaxHeight = 0 );
-	void			 unblit( cSurface	*Source, word destX, word destY, dword colorKey );
+	void			 blitFrom( cSurface *pSource, word destX, word destY, dword colorKey, dword colorKey2, word pMaxHeight = 0 );
 
-	virtual void	 decode( size_t numBits, byte colorMask, const byte *buffer, size_t bufferSize);
-
+	virtual void	 decode( byte *pBuffer, size_t pSize, size_t pStart, size_t pColors );
 	void			 draw( size_t pX = 0 , size_t pY = 0);					// Draw image to SDL Surface
-	void			 drawStrips( size_t pX = 0, size_t pY = 0 );
 
-	void			 fade( size_t pStepSize );
-
-	void			 imageLoadPaletteDraw( const byte *pBuffer, size_t &pSize );
-	void			 imageLoad( const byte *pBuffer, size_t &pSize, size_t pNumBits = 4, byte pColorMask = 0, bool pStrips = false );
-
-	void			 paletteLoad( const byte  *pBuffer );			// Load a palette
-	byte			 paletteIndexGet( dword pColor );
+	void			 paletteLoad( const byte  *pBuffer, size_t pColors );	// Load a palette
 
 	dword			*pixelGet( word pX = 0,	word pY = 0 );
 

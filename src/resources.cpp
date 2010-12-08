@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "resources.hpp"
+#include "graphics/surface.hpp"
 
 #include <algorithm>
 
@@ -90,6 +91,17 @@ byte *cResources::fileGet( string pFilename, size_t &pFileSize ) {
 	}
 
 	return 0;
+}
+
+cSurface *cResources::imageLoad( string pFilename, size_t pColors ) {
+	size_t fileSize = 0;
+	byte *fileBuffer = fileGet(pFilename, fileSize);
+
+	cSurface *surface = new cSurface(320, 200);
+
+	surface->decode( fileBuffer, fileSize, 0, 0x100 );
+	
+	return surface;
 }
 
 byte *cResources::file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode ) {

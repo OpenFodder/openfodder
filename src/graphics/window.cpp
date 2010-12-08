@@ -26,8 +26,10 @@
 #include "stdafx.h"
 #include "window.h"
 
+int eventFilter( const SDL_Event *e );
+
 cVideoWindow::cVideoWindow( size_t pWidth, size_t pHeight, size_t pBytesPixel, bool pFullScreen ) {
-	size_t flags = SDL_ANYFORMAT;
+	size_t flags = SDL_ANYFORMAT | SDL_RESIZABLE;
 
 	if( pFullScreen )
 		flags |= SDL_FULLSCREEN;
@@ -40,6 +42,8 @@ cVideoWindow::cVideoWindow( size_t pWidth, size_t pHeight, size_t pBytesPixel, b
 	atexit ( SDL_Quit ) ;
 
 	_surface = SDL_SetVideoMode ( pWidth , pHeight , pBytesPixel * 8 , flags ) ;
+	
+	SDL_SetEventFilter( &eventFilter );
 
 	if(!_surface) {
 		//cout << "Surface creation at SDL_SetVideoMode failed" << endl;

@@ -12,7 +12,7 @@ private:
 	cVideoWindow			*mWindow;
 
 	bool					 mFullScreen;
-	size_t					 mScale;
+	size_t					 mScale, mWidth, mHeight;
 
 public:
 
@@ -22,6 +22,8 @@ public:
 	void					 scaleSet( byte pScale ) ;
 	SDL_Surface				*scaleUp( );
 	SDL_Surface				*scaleGet()	{ return mSDLSurfaceScaled; }
+	
+	void					 resize( size_t pWidth, size_t pHeight );
 
 	SDL_Surface				*surfaceGet();
 

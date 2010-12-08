@@ -1,3 +1,5 @@
+class cSurface;
+
 struct cResource_File {
 	string		 mName;
 	dword		 mAddressStart;
@@ -46,4 +48,5 @@ public:
 
 	vector< cResource_File >		*filesGet( ) { return &mFiles; }
 
+	cSurface						*imageLoad( string pFilename, size_t pColors );
 };

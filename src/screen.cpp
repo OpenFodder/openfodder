@@ -5,10 +5,11 @@
 #include "graphics/surface.hpp"
 #include "../rev.h"
 
-const word gWidth = 320, gHeight = 200;
-
 cScreen::cScreen( string pWindowTitle ) {
-	mSurface = new cSurface( gWidth, gHeight );
+	mWidth = 320;
+	mHeight = 200;
+	
+	mSurface = 0;
 	mSDLSurfaceScaled = 0;
 
 	mWindow = 0;
@@ -42,24 +43,34 @@ void cScreen::scaleSet( byte pScale ) {
 	// Cleanup previous resources
 	SDL_FreeSurface( mSDLSurfaceScaled );
 	delete mWindow;
+	delete mSurface;
 
 	// Set new scale level
 	mScale = pScale;
 
 	// Set new width/height
-	width = gWidth * mScale;
-	height = gHeight * mScale;
+	width = mWidth * mScale;
+	height = mHeight * mScale;
 
 	// Create window and a surface to scale to
 	mWindow = new cVideoWindow( width, height, 4, mFullScreen );
+	mSurface = new cSurface( mWidth, mHeight );
 
 	mSDLSurfaceScaled =	SDL_CreateRGBSurface(	SDL_SWSURFACE,	width, height,	 32, 0, 0, 0, 0);
 }
 
+void cScreen::resize( size_t pWidth, size_t pHeight ) {
+	mWidth = pWidth / mScale;
+	mHeight = pHeight / mScale;
+
+	scaleSet(mScale);
+}
+
 void cScreen::blit( cSurface *pSurface, size_t pDestX, size_t pDestY ) {
 	
-	mSurface->blit( pSurface, pDestX, pDestY, 0x00, 0xFF  );
+	mSurface->blitFrom( pSurface, pDestX, pDestY, 0x00, 0xFF  );
 }
+
 SDL_Surface *cScreen::surfaceGet() {
 	return mSurface->surfaceGet();
 }
@@ -93,4 +104,3 @@ void cScreen::wipe( size_t pColor ) {
 void cScreen::wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor ) {
 	mSurface->wipe( pX, pY, pSizeX, pSizeY, pColor );
 }
-

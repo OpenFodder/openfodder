@@ -1,11 +1,17 @@
 class cResources;
-class cVideoWindow;
+class cScreen;
+class cMission;
 
 class cFodder {
 
 private:
 	cResources				*mResources;
-	cVideoWindow			*mWindow;
+	cScreen					*mScreen;
+	cMission				*mMission;
+
+	size_t					 mMapCurrent;
+
+	bool					 mQuit;
 
 public:
 		
@@ -14,6 +20,13 @@ public:
 							~cFodder();
 
 	void					 extractDat( string pOutPath = "data");
+	void					 showImage( string pFilename );
 
 	void					 Start();
+
+	void					 windowSize( size_t pWidth, size_t pHeight );
+
+	inline cResources		*resourcesGet() { return mResources; }
 };
+
+extern cFodder	*g_Fodder;

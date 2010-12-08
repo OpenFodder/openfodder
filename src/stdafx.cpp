@@ -3,12 +3,14 @@
 
 #include "fodder.hpp"
 
+cFodder	*g_Fodder = 0;
+
 int main() {
-	cFodder *Fodder = new cFodder();
+	g_Fodder = new cFodder();
 
-	Fodder->Start();
+	g_Fodder->Start();
 
-	delete Fodder;
+	delete g_Fodder;
 }
 
 byte *local_FileRead( string pFile, size_t	&pFileSize, bool pDataSave ) {
