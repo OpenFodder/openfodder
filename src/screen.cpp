@@ -59,9 +59,14 @@ void cScreen::scaleSet( byte pScale ) {
 	mSDLSurfaceScaled =	SDL_CreateRGBSurface(	SDL_SWSURFACE,	width, height,	 32, 0, 0, 0, 0);
 }
 
-void cScreen::resize( size_t pWidth, size_t pHeight ) {
-	mWidth = pWidth / mScale;
-	mHeight = pHeight / mScale;
+void cScreen::resize( size_t pWidth, size_t pHeight, bool pUseScale ) {
+	mWidth = pWidth;
+	mHeight = pHeight;
+	
+	if( pUseScale ) {
+		mWidth /= mScale;
+		mHeight /= mScale;
+	}
 
 	scaleSet(mScale);
 }

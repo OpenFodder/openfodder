@@ -22,13 +22,16 @@ public:
 							 cFodder();
 							~cFodder();
 
+	// Tools
 	void					 extractDat( string pOutPath = "data");
 	void					 showImage( string pFilename );
 
+	void					 playfieldDraw();
 	void					 Start();
 
-	void					 windowSize( size_t pWidth, size_t pHeight );
+	bool					 windowSize( size_t pWidth, size_t pHeight );
 
+	inline cScreen			*screenGet()	{ return mScreen; }
 	inline cResources		*resourcesGet() { return mResources; }
 };
 

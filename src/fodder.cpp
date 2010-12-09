@@ -13,9 +13,10 @@
 int eventFilter( const SDL_Event *e ) {
     if( e->type == SDL_VIDEORESIZE ) {
 
-		g_Fodder->windowSize( e->resize.w,e->resize.h );
+		if( g_Fodder->windowSize( e->resize.w,e->resize.h ) == false ) {
 
-		//draw();
+			return -1;
+		}
     }
 
     return 1; // return 1 so all events are added to queue
@@ -79,15 +80,49 @@ void cFodder::showImage( string pFilename ) {
 	mScreen->windowUpdate();
 }
 
-void cFodder::windowSize( size_t pWidth, size_t pHeight ) {
-	mScreen->resize( pWidth, pHeight );
+bool cFodder::windowSize( size_t pWidth, size_t pHeight ) {
+	size_t scale = mScreen->mScaleGet();
+	size_t maxX = (mMission->mapGet()->mTilesXGet() + 1) * 16;
+	size_t maxY = (mMission->mapGet()->mTilesYGet() + 1) * 16;
+
+	maxX *= scale;
+	maxY *= scale;
+
+	if( pWidth > maxX )
+		pWidth = maxX;
+
+	if( pHeight > maxY )
+		pHeight = maxY;
+
+	if( pWidth < 16 )
+		pWidth = 16;
+
+	if( pHeight < 16 * scale )
+		pHeight = 16 * scale;
+
+	mScreen->resize( pWidth, pHeight, true );
 	screenDraw();
+	return true;
 }
 
 void cFodder::screenDraw() {
 	mRedraw = false;
-		
-	mScreen->blit( &tile, 0, 0 );
+	
+	playfieldDraw();
+}
+
+void cFodder::playfieldDraw() {
+	size_t width = mScreen->mWidthGet(), height = mScreen->mHeightGet();
+
+	// number of tiles to draw
+	width /= 16; height /= 16; 
+
+	++width; ++height;
+
+	cSurface *surface = mMission->mapGet()->surfaceLandscapeGet(width,height);
+	surface->paletteLoad( mMission->mapGet()->tilesGet()->mPaletteGet(0), 0x100 );
+	
+	mScreen->blit( surface, 0, 0 );
 	mScreen->windowUpdate();
 }
 
@@ -95,12 +130,6 @@ void cFodder::Start() {
 	//showImage( "junsub0.blk" );
 
 	mMission->mapLoad(true);
-	
-	byte *tileB = mMission->mapGet()->tilesGet()->tileGet(387);
-	cSurface tile(16,16);
-	tile.decode( tileB, 16 * 16, 0, 0 );
-	tile.paletteLoad( mMission->mapGet()->tilesGet()->mPaletteGet(), 0x100 );
-
 
     while(!mQuit) {
         SDL_Event e;

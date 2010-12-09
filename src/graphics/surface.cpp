@@ -14,6 +14,9 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 
 	mSurfaceBuffer = new byte[ mWidth * mHeight ];
 	mSurfaceBufferSize = mWidth * mHeight;
+	
+	for( int i = 0; i < mSurfaceBufferSize; ++i )
+		mSurfaceBuffer[i] = 0;
 
 	wipe();
 }
@@ -25,7 +28,7 @@ cSurface::~cSurface() {
 }
 
 void cSurface::wipe( dword pColor ) {
-	
+
 	SDL_FillRect( mSDLSurface, 0, pColor );
 }
 
@@ -178,5 +181,24 @@ void cSurface::decode( byte *pBuffer, size_t pSize, size_t pStart, size_t pColor
 		paletteLoad( pBuffer + dataSize, pColors );
 
 		draw();
+	}
+}
+
+void cSurface::loadBuffer( byte *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY ) {
+	byte	*destPtr = mSurfaceBuffer;
+	byte	*destPtrRow = 0;
+
+	destPtr += (mWidth * pDestY);
+	
+	for( int y = 0; y < pMaxY; ++y ) {
+		destPtrRow = destPtr;
+		
+		destPtr += pDestX;
+
+		for( int x = 0; x < pMaxX; ++x ) {
+			*destPtr++ = *pBuffer++;
+		}
+
+		destPtr = destPtrRow + mWidth;
 	}
 }

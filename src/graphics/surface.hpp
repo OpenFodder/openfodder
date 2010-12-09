@@ -22,6 +22,8 @@ public:
 					~cSurface();
 
 	void			 blitFrom( cSurface *pSource, word destX, word destY, dword colorKey, dword colorKey2, word pMaxHeight = 0 );
+	void			 loadBuffer( byte *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY );
+
 
 	virtual void	 decode( byte *pBuffer, size_t pSize, size_t pStart, size_t pColors );
 	void			 draw( size_t pX = 0 , size_t pY = 0);					// Draw image to SDL Surface

@@ -12,19 +12,21 @@ class cSurface;
 class cTiles {
 private:
 	vector< byte* >		 mTiles;
-	string				 mFileBase, mFileSub0;
-	byte				*mPalette;
+	vector< byte* >		 mPalette;
 
+	string				 mFileBase, mFileSub;
+
+private:
 	void				 landscapeLoad( );
 
 	byte				*tileLoad( byte *pBuffer, size_t pIndex );
+	void				 tileSetLoad( string pFilename );
 
 public:
-
 						 cTiles( string pFileBase, string pFileSub0);
 						~cTiles();
 
 	byte				*tileGet( size_t pIndex );
 
-	byte				*mPaletteGet() { return mPalette; }
+	byte				*mPaletteGet( size_t pIndex );
 };

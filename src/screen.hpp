@@ -23,7 +23,7 @@ public:
 	SDL_Surface				*scaleUp( );
 	SDL_Surface				*scaleGet()	{ return mSDLSurfaceScaled; }
 	
-	void					 resize( size_t pWidth, size_t pHeight );
+	void					 resize( size_t pWidth, size_t pHeight, bool pUseScale );
 
 	SDL_Surface				*surfaceGet();
 
@@ -32,5 +32,9 @@ public:
 
 	void					 wipe( size_t pColor = 0x00 );
 	void					 wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor );
+
+	inline size_t			 mWidthGet() { return mWidth; }
+	inline size_t			 mHeightGet() { return mHeight; }
+	inline size_t			 mScaleGet()	{ return mScale; }
 
 };
