@@ -60,10 +60,10 @@ void cTiles::tileSetLoad( string pFilename ) {
 	byte *buffer = 0, *palette = 0;
 	size_t size = 0;
 
-	buffer = g_Fodder->resourcesGet()->fileGet( mFileBase, size );
+	buffer = g_Fodder->resourcesGet()->fileGet( pFilename, size );
 	for( int i = 0; i < 0xF0; ++i )
 		mTiles.push_back( tileLoad( buffer, i ) );
-	
+
 	// Add palette
 	palette = new byte[0x300];
 	memcpy( palette, buffer + (size - 0x300), 0x300 );
@@ -93,6 +93,8 @@ byte *cTiles::tileLoad( byte *pBuffer, size_t pIndex ) {
 }
 
 byte *cTiles::tileGet( size_t pIndex ) {
+	if(pIndex >= mTiles.size())
+		return 0;
 
 	return mTiles[pIndex];
 }

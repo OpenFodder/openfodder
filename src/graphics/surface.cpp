@@ -188,6 +188,9 @@ void cSurface::loadBuffer( byte *pBuffer, size_t pDestX, size_t pDestY, size_t p
 	byte	*destPtr = mSurfaceBuffer;
 	byte	*destPtrRow = 0;
 
+	if(!pBuffer)
+		return;
+
 	destPtr += (mWidth * pDestY);
 	
 	for( int y = 0; y < pMaxY; ++y ) {

@@ -127,7 +127,7 @@ void cFodder::playfieldDraw() {
 }
 
 void cFodder::Start() {
-	//showImage( "junsub0.blk" );
+	//showImage( "junbase.blk" );
 
 	mMission->mapLoad(true);
 

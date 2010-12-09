@@ -6,7 +6,7 @@
 cMission::cMission() {
 
 	mMissionNumber = 0;
-	mMapNumber = 0;
+	mMapNumber = 1;
 	mPhase = 0;
 	mPhaseCount = 1;
 	mPhaseRemain = 1;
