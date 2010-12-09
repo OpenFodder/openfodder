@@ -94,8 +94,8 @@ bool cFodder::windowSize( size_t pWidth, size_t pHeight ) {
 	if( pHeight > maxY )
 		pHeight = maxY;
 
-	if( pWidth < 16 )
-		pWidth = 16;
+	if( pWidth < 16 * scale)
+		pWidth = 16 * scale;
 
 	if( pHeight < 16 * scale )
 		pHeight = 16 * scale;
