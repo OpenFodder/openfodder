@@ -42,6 +42,7 @@
     <OutDir>$(SolutionDir)..\..\run</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
     <IncludePath>C:\Users\Robert\Documents\Visual Studio 2010\Projects\openFodder\head\src;$(IncludePath)</IncludePath>
+    <CustomBuildBeforeTargets>Build</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -59,6 +60,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glu32.lib;sdl.lib;sdlmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>cd ../..
+rev.cmd</Command>
+      <Outputs>rev.h</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -95,6 +101,7 @@
     <ClCompile Include="..\..\src\tiles.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\rev.h" />
     <ClInclude Include="..\..\src\graphics\scale\scale2x.h" />
     <ClInclude Include="..\..\src\graphics\scale\scale3x.h" />
     <ClInclude Include="..\..\src\graphics\scale\scalebit.h" />

@@ -5,6 +5,7 @@ class cSurface;
 class cScreen {
 private:
 	string					 mWindowTitle;
+	string					 mLevelName;
 
 	cSurface				*mSurface;
 	SDL_Surface				*mSDLSurfaceScaled;

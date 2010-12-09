@@ -27,7 +27,7 @@ cFodder::cFodder() {
 
 	mResources = new cResources();
 
-	mScreen = new cScreen("Open Fodder");
+	mScreen = new cScreen("Open Cannon Fodder");
 	mScreen->scaleSet(2);
 
 	mMission = new cMission();

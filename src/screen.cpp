@@ -22,11 +22,14 @@ cScreen::cScreen( string pWindowTitle ) {
 
 void cScreen::levelNameSet( string pName ) {
 	stringstream windowTitle;
-
-	windowTitle << mWindowTitle;
-	windowTitle << ". '";
-	windowTitle << pName;
-	windowTitle << "' (SVN: " << SVNREV;
+	
+	windowTitle << mWindowTitle << "";
+	if(pName.size()) {
+		windowTitle << " '";
+		windowTitle << pName << "'";
+	}
+	mLevelName = pName;
+	windowTitle << " (SVN: " << SVNREV;
 	windowTitle << "-" << SVNDATE << ")";
 
 	if(mWindow)
@@ -54,6 +57,7 @@ void cScreen::scaleSet( byte pScale ) {
 
 	// Create window and a surface to scale to
 	mWindow = new cVideoWindow( width, height, 4, mFullScreen );
+	levelNameSet(mLevelName);
 	mSurface = new cSurface( mWidth, mHeight );
 
 	mSDLSurfaceScaled =	SDL_CreateRGBSurface(	SDL_SWSURFACE,	width, height,	 32, 0, 0, 0, 0);
