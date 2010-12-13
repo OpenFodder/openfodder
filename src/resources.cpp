@@ -37,8 +37,10 @@ const byte cResources::byte_29A21[0xFF] = {
 cResources::cResources() {
 	mData = 0;
 	mDataSize = 0;
+	mExeDataSize = 0;
 
 	mData = local_FileRead( "CF_ENG.DAT", mDataSize, false );
+	mExeData = local_FileRead( "CF_EXE.DAT", mExeDataSize, false );
 
 	headerLoad();
 }
@@ -99,8 +101,30 @@ cSurface *cResources::imageLoad( string pFilename, size_t pColors ) {
 
 	cSurface *surface = new cSurface(320, 200);
 
-	surface->decode( fileBuffer, fileSize, 0, 0x100 );
+	surface->decode( fileBuffer, fileSize, 0, pColors );
 	
+	return surface;
+}
+
+cSurface *cResources::spriteLoad( string pFilename, size_t pSpriteIndex ) {
+	size_t fileSize = 0;
+	byte *fileBuffer = fileGet(pFilename, fileSize);
+	
+	byte *data = spriteDataGet( pSpriteIndex );
+
+	word dataPtrSeg = readLEWord( data );
+	word dataPtr = readLEWord( data + 2 );
+
+	word colCount = readLEWord( data + 8 );
+	word rowCount = readLEWord( data + 0x0A );
+
+	signed short ax = (signed short) *(data + 0x0E);
+	
+	//seg001:066A
+
+	cSurface *surface = new cSurface( colCount, rowCount );
+	surface->decodeSprite( fileBuffer, fileSize, data );
+
 	return surface;
 }
 
@@ -599,4 +623,11 @@ void cResources::sub_26B11() {
 
 		++dx;
 	}
+}
+
+byte *cResources::spriteDataGet( size_t pIndex ) {
+
+	word ptrTable = readLEWord( mExeData + 0xE1C + (pIndex * 4) );
+	
+	return mExeData + ptrTable;
 }

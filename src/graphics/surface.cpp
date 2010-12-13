@@ -98,38 +98,71 @@ void cSurface::blitFrom( cSurface *pSource, word destX, word destY, dword colorK
 	}
 }
 
-void cSurface::paletteLoad( const byte  *pBuffer, size_t pColors ) {
-	size_t	colorID;
-	byte  colorRed, colorGreen, colorBlue;
+void cSurface::paletteLoad( const byte  *pBuffer, size_t pColors, size_t pColorID ) {
+	size_t colorStartID = pColorID;
 
-	if( pColors > g_MaxColors )
-		pColors = g_MaxColors;
+	if( pColors >= g_MaxColors )
+		pColors = g_MaxColors-1;
 
-	for( colorID = 0; colorID < pColors; colorID++) {
+	for(; pColorID < pColors + colorStartID; pColorID++) {
 		
 		// Get the next color values
-		colorRed	=	*pBuffer++;
-		colorGreen	=	*pBuffer++;
-		colorBlue	=	*pBuffer++;
-
-		// 
-		colorRed <<= 1;
-		colorGreen <<= 1;
-		colorBlue <<= 1;
-
-		// Set the color in the palette
-		paletteColorSet( colorID, colorRed, colorGreen, colorBlue );
+		mPaletteNew[ pColorID ].mRed =		*pBuffer++;
+		mPaletteNew[ pColorID ].mGreen =	*pBuffer++;
+		mPaletteNew[ pColorID ].mBlue =		*pBuffer++;
 	}
+}
+
+void cSurface::paletteFade() {
+	
+	for( int cx = 0x0; cx < 0x100; ++cx ) {
+
+		for( int i = 0; i < 3; ++i ) {
+			byte al = mPaletteNew[cx].getPos(i);
+			byte bl = mPalette[cx].getPos(i);
+			al -= bl;
+			if(!al)
+				continue;
+
+			if( al != 1 ) {
+				al >>= 1;
+				if( al != 1 ) {
+					al >>= 1;
+					if( al != 1 )
+						al >>= 1;
+				}
+			}
+
+			// loc_13918
+			mPalette[cx].setPos(i, bl + al );
+		}
+	}
+
+	paletteLoadSDL();
+}
+
+void cSurface::paletteLoadSDL() {
+
+	for( int cx = 0; cx < g_MaxColors; ++cx )
+		paletteSDLColorSet( cx, &mPalette[cx] );
 
 	draw();
 }
 
-inline void cSurface::paletteColorSet( size_t id, byte red, byte green, byte blue ) {
+void cSurface::paletteLoadNewSDL() {
+
+	for( int cx = 0; cx < g_MaxColors; ++cx )
+		paletteSDLColorSet( cx, &mPaletteNew[cx] );
+
+	draw();
+}
+
+inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
 	if(id >= g_MaxColors)
 		return;
 
 	// Get the palette color for the provided RGB values
-	mPalette[id] = SDL_MapRGB (	mSDLSurface->format , red , green , blue ) ;
+	mPaletteSDL[id] = SDL_MapRGB (	mSDLSurface->format , pPalette->mRed, pPalette->mGreen, pPalette->mBlue ) ;
 }
 
 dword *cSurface::pixelGet( word x,	word y ) {
@@ -161,7 +194,7 @@ void cSurface::draw( size_t pX, size_t pY ) {
 			break;
 
 		if( *bufferCurrent < g_MaxColors )
-			*bufferTarget = mPalette[ *bufferCurrent ];
+			*bufferTarget = mPaletteSDL[ *bufferCurrent ];
 		else
 			*bufferTarget = 0;
 
@@ -180,7 +213,94 @@ void cSurface::decode( byte *pBuffer, size_t pSize, size_t pStart, size_t pColor
 	if(pColors) {
 		paletteLoad( pBuffer + dataSize, pColors );
 
-		draw();
+		paletteLoadNewSDL();
+	}
+}
+
+void cSurface::decodeSprite( byte *pBuffer, size_t pSize, byte *pSpriteData ) {
+	byte *buffer			= pBuffer;
+	byte *dstBufferStart	= mSurfaceBuffer;
+	byte *dstBuffer			= dstBufferStart;
+
+	size_t colCount = mWidth >> 1;
+	
+	size_t word_42074 = 0xA0 - colCount;
+
+	colCount >>= 1;
+	size_t word_42076 = mWidth - colCount;
+
+	mHeight = 1;
+	byte al = 0;
+	for( int y = 0; y < mHeight; ++y ) {
+		for( int x = 0; x < colCount; ++x ) {
+			word ax = *buffer++;
+			byte al = ax >> 4;
+
+			if(al) 
+				*dstBuffer = al | 0xF0;
+
+			++dstBuffer;
+			++buffer;
+		}
+		buffer += word_42074;
+		dstBuffer += word_42076;
+	}
+
+
+	buffer = pBuffer;
+	dstBuffer = ++dstBufferStart;
+
+	for( int y = 0; y < mHeight; ++y ) {
+		for( int x = 0; x < colCount; ++x ) {
+			word ax = *buffer++;
+
+			al = ax & 0x0F;
+			if(al)
+				*dstBuffer = al | 0xF0;
+
+			++dstBuffer;
+			++buffer;
+		}
+		buffer += word_42074;
+		dstBuffer += word_42076;
+	}
+	
+	buffer = ++pBuffer;
+	dstBuffer = ++dstBufferStart;
+	
+	for( int y = 0; y < mHeight; ++y ) {
+		for( int x = 0; x < colCount; ++x ) {
+			
+			byte al = *buffer++;
+			al >>= 4;
+
+			if(al)
+				*dstBuffer = al | 0xF0;
+
+			++buffer;
+			++dstBuffer;
+		}
+
+		buffer += word_42074;
+		dstBuffer += word_42076;
+	}
+
+	buffer = pBuffer;
+	dstBuffer = ++dstBufferStart;
+
+	for( int y = 0; y < mHeight; ++y ) {
+		for( int x = 0; x < colCount; ++x ) {
+			word ax = *buffer++;
+
+			al = ax & 0x0F;
+			if(al)
+				*dstBuffer = al | 0xF0;
+
+			++dstBuffer;
+			++buffer;
+		}
+		buffer += word_42074;
+		dstBuffer += word_42076;
 	}
 }
 

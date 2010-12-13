@@ -13,7 +13,9 @@ struct cResource_File {
 class cResources {
 private:
 	byte							*mData, *mDataCurrent;
-	size_t							 mDataSize;
+	byte							*mExeData;
+
+	size_t							 mDataSize, mExeDataSize;
 
 	vector< cResource_File >		 mFiles;
 	
@@ -29,7 +31,6 @@ private:
 	short int						 mBytesRead, word_26DA8, word_26DBA, word_26DBC;
 	word							 word_26DAA, word_26DB4, saveSI, saveBP;
 
-	
 	bool							 headerLoad();
 
 	byte							*file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode );
@@ -49,4 +50,8 @@ public:
 	vector< cResource_File >		*filesGet( ) { return &mFiles; }
 
 	cSurface						*imageLoad( string pFilename, size_t pColors );
+	cSurface						*spriteLoad( string pFilename, size_t pSpriteIndex );
+
+	byte							*spriteDataGet( size_t pIndex );
+
 };

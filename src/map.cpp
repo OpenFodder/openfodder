@@ -78,6 +78,7 @@ bool cMap::loadMap() {
 	mTilesY = readBEWord( &mapBuffer[0x56] );
 
 	// Create the map
+	delete mMapPieces;
 	mMapPieces = new cMapPiece[ mTilesX * mTilesY];
 
 	//
@@ -88,10 +89,13 @@ bool cMap::loadMap() {
 	byte *mapPieces = (mapBuffer + 0x60);
 
 	for( int index = 0; index < mapTiles; ++index ) {
+		// Read tile type, and get pointer to buffer
 		byte *tile = mTiles->tileGet( readBEWord( mapPieces ) & 0x1FF );
 
+		// Next Piece
 		mapPieces += 2;
 
+		// Save current tile
 		mMapPieces[index].tileSet( tile );
 	}
 

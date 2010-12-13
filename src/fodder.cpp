@@ -73,11 +73,19 @@ void cFodder::extractDat( string pOutPath ) {
 }
 
 void cFodder::showImage( string pFilename ) {
+	size_t size = 0, size2 = 0;
 
-	cSurface *img = mResources->imageLoad( pFilename, 0x100 );
-	
+	byte *buffer = mResources->fileGet("junarmy.dat", size );
+	cSurface *img = mResources->spriteLoad( pFilename, 0 );
+
+	img->paletteLoad( buffer + 0xD200, 0x10, 0xF0 );
+
+	for(;;) {
+	img->paletteFade();
+
 	mScreen->blit( img, 0, 0 );
 	mScreen->windowUpdate();
+	}
 }
 
 bool cFodder::windowSize( size_t pWidth, size_t pHeight ) {
@@ -127,7 +135,7 @@ void cFodder::playfieldDraw() {
 }
 
 void cFodder::Start() {
-	//showImage( "junbase.blk" );
+	showImage( "junarmy.dat" );
 
 	mMission->mapLoad(true);
 
