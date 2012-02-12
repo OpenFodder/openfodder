@@ -4,11 +4,16 @@
 #include "graphics/scale/scalebit.h"
 #include "graphics/surface.hpp"
 #include "../rev.h"
+#include "fodder.hpp"
+#include "mission.hpp"
+#include "map.hpp"
+#include "tiles.hpp"
 
 cScreen::cScreen( string pWindowTitle ) {
 	mWidth = 320;
 	mHeight = 200;
 	
+	mSurfaceTiles = 0;
 	mSurface = 0;
 	mSDLSurfaceScaled = 0;
 
@@ -78,6 +83,24 @@ void cScreen::resize( size_t pWidth, size_t pHeight, bool pUseScale ) {
 void cScreen::blit( cSurface *pSurface, size_t pDestX, size_t pDestY ) {
 	
 	mSurface->blitFrom( pSurface, pDestX, pDestY, 0x00, 0xFF  );
+}
+
+void cScreen::draw() {
+
+	drawTiles();
+
+	mSurfaceTiles->paletteFade();
+	blit( mSurfaceTiles, 0, 0 );
+	windowUpdate();
+}
+
+void cScreen::drawTiles() {
+
+	if(!mSurfaceTiles) {
+		mSurfaceTiles =  g_Fodder->missionGet()->mapGet()->surfaceLandscapeGet((mWidth / 16) + 1,(mHeight / 16) + 1);
+
+		mSurfaceTiles->paletteLoad( g_Fodder->missionGet()->mapGet()->tilesGet()->mPaletteGet(0), 0x100 );
+	}
 }
 
 SDL_Surface *cScreen::surfaceGet() {

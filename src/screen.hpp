@@ -7,7 +7,7 @@ private:
 	string					 mWindowTitle;
 	string					 mLevelName;
 
-	cSurface				*mSurface;
+	cSurface				*mSurface, *mSurfaceTiles;
 	SDL_Surface				*mSDLSurfaceScaled;
 	
 	cVideoWindow			*mWindow;
@@ -19,6 +19,9 @@ public:
 
 							 cScreen( string pWindowTitle );
 	void					 blit( cSurface *pSurface, size_t pDestX = 0, size_t pDestY = 0 );
+
+	void					 draw();
+	void					 drawTiles();
 
 	void					 scaleSet( byte pScale ) ;
 	SDL_Surface				*scaleUp( );

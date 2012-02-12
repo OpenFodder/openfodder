@@ -116,26 +116,11 @@ bool cFodder::windowSize( size_t pWidth, size_t pHeight ) {
 void cFodder::screenDraw() {
 	mRedraw = false;
 	
-	playfieldDraw();
-}
-
-void cFodder::playfieldDraw() {
-	size_t width = mScreen->mWidthGet(), height = mScreen->mHeightGet();
-
-	// number of tiles to draw
-	width /= 16; height /= 16; 
-
-	++width; ++height;
-
-	cSurface *surface = mMission->mapGet()->surfaceLandscapeGet(width,height);
-	surface->paletteLoad( mMission->mapGet()->tilesGet()->mPaletteGet(0), 0x100 );
-	
-	mScreen->blit( surface, 0, 0 );
-	mScreen->windowUpdate();
+	mScreen->draw();
 }
 
 void cFodder::Start() {
-	showImage( "junarmy.dat" );
+	//showImage( "junarmy.dat" );
 
 	mMission->mapLoad(true);
 
@@ -148,7 +133,7 @@ void cFodder::Start() {
                 mQuit = true;
         }
 
-		if(mRedraw)
+		//if(mRedraw)
 			screenDraw();	
 	}
 

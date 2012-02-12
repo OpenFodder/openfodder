@@ -111,6 +111,7 @@ void cSurface::paletteLoad( const byte  *pBuffer, size_t pColors, size_t pColorI
 		mPaletteNew[ pColorID ].mGreen =	*pBuffer++;
 		mPaletteNew[ pColorID ].mBlue =		*pBuffer++;
 	}
+	paletteLoadNewSDL();
 }
 
 void cSurface::paletteFade() {

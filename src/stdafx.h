@@ -6,6 +6,9 @@
 #include "types.hpp"
 
 using namespace std;
+class cFodder;
+
+extern cFodder	*g_Fodder;
 
 byte			*local_FileRead( string pFile, size_t	&pFileSize, bool pDataSave );
 void			 tool_EndianSwap( byte *pBuffer, size_t pSize );

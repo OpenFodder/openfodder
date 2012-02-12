@@ -31,6 +31,7 @@ public:
 
 	bool					 windowSize( size_t pWidth, size_t pHeight );
 
+	inline cMission			*missionGet()	{ return mMission; }
 	inline cScreen			*screenGet()	{ return mScreen; }
 	inline cResources		*resourcesGet() { return mResources; }
 };
