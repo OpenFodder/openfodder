@@ -1,3 +1,25 @@
+#/*
+ *  Cannon Fodder
+ *  ------------------------
+ *
+ *  Copyright (C) 2008-2015 Robert Crossfield
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
 #include "stdafx.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
@@ -10,6 +32,145 @@ const char* mBinTable[] = { "rjnull.bin",
 const uint16 mMissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
 										02, 05, 03, 06, 01, 03, 03, 02,
 										01, 05, 01, 04, 01, 04, 05, 06 };
+
+const sIntroString mIntro_1[] = {
+	{ 0xCC, "A Sensible Software Game" },
+	0
+};
+
+const sIntroString mIntro_2[] = {
+	{ 0x64, "STARRING" },
+	0
+};
+
+const sIntroString mIntro_3[] = {
+	{ 0xA4, "JOOLS" },
+	{ 0xB5, "as" },
+	{ 0xC8, "James Dean" },
+	0
+};
+
+const sIntroString mIntro_4[] = {
+	{ 0xA4, "STOO" },
+	{ 0xB4, "as" },
+	{ 0xC8, "Elvis" },
+	0
+};
+
+const sIntroString mIntro_5[] = {
+	{ 0xA4, "RICHARD JOSEPH" },
+	{ 0xB4, "as" },
+	{ 0xC8, "Sgt. Bilko" },
+	0
+};
+
+const sIntroString mIntro_6[] = {
+	{ 0x64, "Co. STARRING" },
+	0
+};
+
+const sIntroString mIntro_7[] = {
+	{ 0xA4, "CHRIS YATES" },
+	{ 0xB4, "as" },
+	{ 0xC8, "JR out of Dallas" },
+	0
+};
+
+const sIntroString mIntro_8[] = {
+	{ 0xA4, "JON HARE" },
+	{ 0xB5, "as" },
+	{ 0xC8, "Vera Lynn" },
+	0
+};
+
+const sIntroString mIntro_9[] = {
+	{ 0x64, "SPECIAL GUEST STAR" },
+	0
+};
+
+const sIntroString mIntro_10[] = {
+	{ 0xA4, "CHRIS CHAPMAN" },
+	{ 0xB4, "as" },
+	{ 0xC8, "Norman Wisdom" },
+	0
+};
+
+const sIntroString mIntro_11[] = {
+	{ 0x50, "Jools" },
+	{ 0x8C, "Stoo" },
+	{ 0x3C, "Program Design" },
+	{ 0x78, "Graphic Design" },
+	0
+};
+
+const sIntroString mIntro_12[] = {
+	{ 0x32, "Richard Joseph" },
+	{ 0x6E, "Jon Hare" },
+	{ 0xAA, "David Hindley" },
+	{ 0x1E, "Sound effects and Music" },
+	{ 0x5A, "Original Soundtrack"},
+	{ 0x96, "Cameraman" },
+	0
+};
+
+const sIntroString mIntro_13[] = {
+	{ 0x28, "Steve Cook" },
+	{ 0x5A, "Graftgold" },
+	{ 0x8C, "Hammonds Hire" },
+	{ 0xBE, "Peter Hickman" },
+	{ 0x19, "Vehicle and Stunts" },
+	{ 0x46, "Flatbed Scanning" },
+	{ 0x78, "Costumes" },
+	{ 0xAA, "Mr Virgin" },
+	0
+};
+
+const sIntroString mIntro_14[] = {
+	{ 0x19, "An Audio Visual Magic" },
+	{ 0x2D, "Entertainment Conversion" },
+	{ 0x4B, "PC Programming" },
+	{ 0x5F, "Adrian Youlden" },
+	{ 0x7D, "PC Graphics" },
+	{ 0x91, "Mark Smith" },
+	{ 0xAF, "PC Sound and Music" },
+	{ 0xC3, "Nigel Taylor" },
+	0
+};
+
+const sIntroString mIntro_15[] = {
+	{ 0x19, "PC Version Produced" },
+	{ 0x2D, "by" },
+	{ 0x4B, "Gavid Wade" },
+	{ 0x5F, "and" },
+	{ 0x73, "Scott Walsh" },
+	0
+};
+
+const sIntroString mIntro_16[] = {
+	{ 0xD2, "Sensible Software." },
+	{ 0xBE, "Designed By" },
+	0
+};
+
+const sIntroText mIntroText[] = {
+	{ 0x31, mIntro_1 },
+	{ 0xFF, mIntro_2 },
+	{ 0x32, mIntro_3 },
+	{ 0x33, mIntro_4 },
+	{ 0x34, mIntro_5 },
+	{ 0xFF, mIntro_6 },
+	{ 0x36, mIntro_7 },
+	{ 0x35, mIntro_8 },
+	{ 0xFF, mIntro_9 },
+	{ 0x37, mIntro_10 },
+	{ 0xFF, mIntro_11 },
+	{ 0xFF, mIntro_12 },
+	{ 0xFF, mIntro_13 },
+	{ 0xFF, mIntro_14 },
+	{ 0xFF, mIntro_15 },
+	{ 0x38, mIntro_16 },
+	0
+};
 
 cFodder::cFodder() {
 
@@ -152,7 +313,10 @@ void cFodder::sub_10D61() {
 	word_39F02 = 0;
 	word_39F04 = 0;
 	//word_39F06 = 0;
-
+	word_3B2CD = 0;
+	word_3B2CF = 0;
+	word_3B447 = 0;
+	word_3B4F3 = 0;
 }
 
 void cFodder::sub_10D9F() {
@@ -451,15 +615,92 @@ void cFodder::Prepare() {
 	memory_XMS_Detect();
 }
 
+void cFodder::sub_18C45( cSurface* pImage, const sIntroString* pString ) {
+
+}
+
 int16 cFodder::introPlayText() {
-	
+	cSurface* CurrentImage = 0;
+
 	//video_Draw_unk_0();
 	//setSpriteDataPtrToBase();
+	word_3B2CF = 0;
+
 	//loc_165F2
 	for (;;) {
 
+		if (mIntroText[word_3B2CF].mImageNumber == 0)
+			break;
+
+		word_3B447 = 0x288;
+
+		if (mIntroText[word_3B2CF].mImageNumber != -1) {
+			//17A7
+			std::stringstream ImageName;
+			size_t ImageSize = 0;
+			ImageName << mIntroText[word_3B2CF].mImageNumber;
+			ImageName << ".dat";
+
+			delete CurrentImage;
+			CurrentImage = g_Resource.image4PlaneLoad( ImageName.str(), 0x100 );
+			//g_Window.RenderAt( Image, cPosition() );
+			//g_Window.FrameEnd();
+
+		}
+		else {
+			//loc_166A0
+
+			word_3B447 = 0xAF;
+			
+		}
+
+		//loc_166BE
+		const sIntroString* IntroString = mIntroText[word_3B2CF].mText;
+		while (IntroString->mPosition) {
+
+			sub_18C45( CurrentImage, IntroString );
+			++IntroString;
+		}
+		//loc_16710
+		
+		int16 Duration = word_3B447;
+		int16 Fade = -1;
+		bool DoBreak = false;
+
+		while( Fade == -1 || DoBreak == false  ) {
+			g_Window.EventCheck();
+
+			--Duration;
+
+			if (Duration) {
+				if (Fade)
+					Fade = CurrentImage->paletteFade();
+
+				mouse_GetData();
+				if (mouse_Button_Status) {
+					word_3B2CF = 15;
+					word_3B4F3 = -1;
+					CurrentImage->paletteFadeOut();
+					Fade = -1;
+					DoBreak = true;
+				}
+			}
+			else {
+				CurrentImage->paletteFadeOut();
+				Fade = -1;
+				DoBreak = true;
+			}
+
+			g_Window.RenderAt( CurrentImage, cPosition() );
+			g_Window.FrameEnd();
+			//videoSleep();
+		}
+
+		//seg003:18D2
+		++word_3B2CF;
 	}
 
+	delete CurrentImage;
 	return 0;
 }
 

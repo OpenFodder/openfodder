@@ -1,3 +1,25 @@
+/*
+ *  Cannon Fodder
+ *  ------------------------
+ *
+ *  Copyright (C) 2008-2015 Robert Crossfield <robcrossfield@gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
 struct sMouseData {
 	uint16	anonymous_0;
 	uint16	anonymous_1;
@@ -20,6 +42,16 @@ struct sMission_unk0 {
 	uint16 field_4;
 	uint16 field_5;
 	uint16 field_6; 
+};
+
+struct sIntroString {
+	int8		mPosition;
+	const char* mText;
+};
+
+struct sIntroText {
+	int8				mImageNumber;
+	const sIntroString*	mText;
 };
 
 class cFodder : public cSingleton < cFodder > {
@@ -105,7 +137,9 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9B2;
 	uint16			word_3A9F7;
 	int16			word_3AA43;
-	
+	int16			word_3B2CD;
+	int16			word_3B2CF;
+	int16			word_3B447;
 	int16			word_3B4F3;
 
 	uint16			word_3BDAF;
@@ -173,6 +207,7 @@ protected:
 	void			sub_10D61();
 	void			sub_10D9F();
 	void			sub_10DEC();
+	void			sub_18C45( cSurface* pImage, const sIntroString* pString );
 
 	int16			introPlayText();
 	void			intro();
