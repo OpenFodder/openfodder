@@ -45,19 +45,19 @@ public:
 class cSurface {
 protected:
 	cPalette		mPaletteOriginal[g_MaxColors];
-	cPalette		 mPalette[ g_MaxColors ];
-	cPalette		 mPaletteNew[ g_MaxColors ];
+	cPalette		mPalette[ g_MaxColors ];
+	cPalette		mPaletteNew[ g_MaxColors ];
 
-	uint32			 mPaletteSDL[ g_MaxColors ];
-	uint32			 mColorKey;
+	uint32			mPaletteSDL[ g_MaxColors ];
+	uint32			mColorKey;
 
-	uint8			*mSurfaceBuffer;								// Loaded Image (uses palette indexs)
-	size_t			 mSurfaceBufferSize;
+	uint8*			mSurfaceBuffer;								// Loaded Image (uses palette indexs)
+	size_t			mSurfaceBufferSize;
 
 	SDL_Surface*	mSDLSurface;
 	SDL_Texture*	mTexture;
 
-	size_t			 mWidth, mHeight;
+	size_t			mWidth, mHeight;
 
 	void			paletteSDLColorSet( size_t id, cPalette *pPalette  );	// Set a color in the palette
 	void			paletteLoadSDL();
