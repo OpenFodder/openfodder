@@ -301,6 +301,13 @@ unsigned char mFontWidths[] =
   0x00, 0x00
 };
 
+unsigned char mUnkStringModifier[] =
+{
+  0x27, 0x2E, 0x2C, 0x21, 0x93, 0x82, 0x87, 0x2D, 0x81, 0x8E, 
+  0x99, 0x9A, 0x84, 0x94, 0xA4, 0xA0, 0xA3, 0xA1, 0x3F, 0xA8, 
+  0xA5, 0xFF
+};
+
 cFodder::cFodder() {
 
 	mResources = new cResources();
@@ -442,10 +449,16 @@ void cFodder::sub_10D61() {
 	word_39F02 = 0;
 	word_39F04 = 0;
 	//word_39F06 = 0;
+
+	word_3AC19 = 0;
+	word_3AC21 = 0;
+
 	word_3B2CD = 0;
 	word_3B2CF = 0;
 	word_3B301 = 0;
 	word_3B303 = 0;
+	word_3B305 = 0;
+	word_3B307 = 0;
 	word_3B447 = 0;
 	word_3B4F3 = 0;
 }
@@ -746,20 +759,42 @@ void cFodder::Prepare() {
 	memory_XMS_Detect();
 }
 
+void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
+
+	word_42062 = mSpriteDataPtr[pParam00][pParam04].field_0;
+	int16 bx = mSpriteDataPtr[pParam00][pParam04].field_2;
+
+	word_42064 = *bx;
+
+	word_42068 = pParam08 + 0x10;
+	word_4206A = pParam0C + 0x10;
+	word_4206C = mSpriteDataPtr[pParam00][pParam04].mColCount;
+	word_4206E = mSpriteDataPtr[pParam00][pParam04].mRowCount;
+	if (word_3B307 > pParam00) 
+		word_3B307 = pParam00;
+	
+	byte_42070 = mSpriteDataPtr[pParam00][pParam04].field_C;
+	
+	if (sub_1429B() )
+		video_Draw_Sprite_();
+
+}
+
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosX,  const sIntroString* pString ) {
 
 	String_CalculateWidth( 320, mFontWidths, pString );
-	String_Print( pImage, pPosX, pString->mText );
+	String_Print( pImage, mFontWidths, pPosX, 0, word_3B301, pString->mText );
 }
 
-void cFodder::String_Print( cSurface* pImage, int32 pPosX, const char* pText ) {
+void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, const char* pText ) {
 
 	word_3B305 = pPosX;
 	word_3B307 = 0;
 
-	//loc_29C7A
 	for (;;) {
+	loc_29C7A:;
 		uint8 NextChar = *pText++;
+		uint8 NextChar10;
 
 		//seg007:0170
 		if (NextChar == 0xFD) {
@@ -773,10 +808,77 @@ void cFodder::String_Print( cSurface* pImage, int32 pPosX, const char* pText ) {
 
 		else {
 			//seg007:01A1
+			NextChar10 = NextChar;
+
+			if (!(NextChar & 0x80)) {
+
+				//01AB
+				if (word_3AC19) {
+					if (NextChar == 0x20) {
+						NextChar = word_3AC19;
+						goto loc_29D71;
+					}
+				} else {
+				//1C4
+					if (NextChar == 0x20)
+						goto loc_29DC7;
+				}
+				//1CD
+				if (NextChar <= 0x39) {
+					if (NextChar >= 0x30) {
+						NextChar -= 0x30;
+						NextChar += 0x1A;
+						goto loc_29D71;
+					}
+				}
+				else {
+					//loc_29D07
+					if (NextChar > 0x5A) {
+						NextChar -= 0x61;
+						NextChar += 0x39;
+						goto loc_29D71;
+					}
+					else {
+						if (NextChar >= 0x41) {
+							NextChar -= 0x41;
+							NextChar += pParam0;
+							goto loc_29D71;
+						}
+					}
+				}
+			}
+
+			// 20D
+			//loc_29D2D
+			int32 unk14 = -1;
+			uint8 al;
+			uint8* ptr = mUnkStringModifier;
+			do {
+				if (*ptr == 0xFF)
+					goto loc_29C7A;
+				++unk14;
+
+				al = *ptr++;
+
+			} while(al != NextChar);
+
+			NextChar = unk14;
+			NextChar += 0x24;
+
+			loc_29D71:;
+
+			if (word_3AC21) {
+				//sub_145AF( pParam0 + NextChar, pPosX );
+			}
+			else			//0		// C    // 4	   // 8
+				sub_13C1C( pParam0, pPosX, NextChar, pParam08 );
 
 		}
-		//loc_29DC7
+		loc_29DC7:;
 		//seg007:02A7
+		NextChar10 = pWidths[NextChar10];
+
+		pParam08 += NextChar10;
 	}
 }
 

@@ -49,20 +49,20 @@ struct sSpriteSheet {
 	int16 field_2;
 	int16 field_4;
 	int16 field_6;
-	int16 field_8;
-	int16 field_A;
+	int16 mColCount;
+	int16 mRowCount;
 	int16 field_C;
 	int8 field_E;
 	int8 field_F;
 };
 
 struct sIntroString {
-	int8		mPosition;
+	uint8		mPosition;
 	const char* mText;
 };
 
 struct sIntroText {
-	int8				mImageNumber;
+	uint8				mImageNumber;
 	const sIntroString*	mText;
 };
 
@@ -153,10 +153,18 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9B2;
 	uint16			word_3A9F7;
 	int16			word_3AA43;
+
+	int16			word_3AC19;
+	int16			word_3AC21;
+
 	int16			word_3B2CD;
 	int16			word_3B2CF;
 	int16			word_3B301;
 	int16			word_3B303;
+
+	int16			word_3B305;
+	int16			word_3B307;
+
 	int16			word_3B447;
 	int16			word_3B4F3;
 
@@ -225,10 +233,11 @@ protected:
 	void			sub_10D61();
 	void			sub_10D9F();
 	void			sub_10DEC();
+	void			sub_13C1C( int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
-	void			String_Print( cSurface* pImage, int32 pPosX, const char* pText );
+	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, const char* pText );
 
 	int16			introPlayText();
 	void			intro();
