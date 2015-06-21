@@ -172,6 +172,135 @@ const sIntroText mIntroText[] = {
 	0
 };
 
+const sSpriteSheet mFontSpriteSheet[83] = {
+  { 0, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 8, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 16, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 24, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 32, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 40, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 48, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 56, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 64, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 72, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 80, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 88, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 96, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 104, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 112, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 120, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 128, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 136, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 144, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 152, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2720, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2728, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2736, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2744, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2752, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2760, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5536, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5544, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5552, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5560, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5568, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5576, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5584, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5592, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 8160, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 8168, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 10896, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 8192, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 8200, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 8208, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 0, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 8, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 16, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 24, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 32, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 40, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 48, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 56, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 64, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 72, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 80, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 88, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 96, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 104, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 112, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 120, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 128, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2768, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2776, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2784, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2792, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2800, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2808, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2816, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2824, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2832, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2840, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2848, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2856, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2864, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 2872, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5440, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5448, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5456, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5464, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5472, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5480, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5488, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5496, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5504, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5512, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5520, 17159, 0, 0, 16, 17, 208, 0, 0 },
+  { 5528, 17159, 0, 0, 16, 17, 208, 0, 0 }
+};
+
+const sSpriteSheet* mFontSpriteSheetPtr[] = { mFontSpriteSheet };
+
+unsigned char mFontWidths[] =
+{
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+  0x00, 0x00, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 
+  0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x04, 0x00, 0x09, 0x07, 
+  0x08, 0x08, 0x09, 0x08, 0x09, 0x08, 0x09, 0x09, 0x0C, 0x00, 
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x0E, 0x0B, 0x0C, 0x0C, 0x0A, 
+  0x0A, 0x0D, 0x0C, 0x05, 0x07, 0x0C, 0x0B, 0x0E, 0x0C, 0x0D, 
+  0x0A, 0x0D, 0x0C, 0x09, 0x0B, 0x0C, 0x0E, 0x0E, 0x0D, 0x0D, 
+  0x0B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x09, 0x08, 
+  0x09, 0x08, 0x07, 0x09, 0x0A, 0x05, 0x05, 0x0A, 0x05, 0x0F, 
+  0x0A, 0x09, 0x09, 0x09, 0x08, 0x08, 0x07, 0x09, 0x0A, 0x0E, 
+  0x0A, 0x0A, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB0, 0xB0, 
+  0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 
+  0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 
+  0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 
+  0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 
+  0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 
+  0xA0, 0xA0, 0x90, 0x90, 0x80, 0x80, 0x70, 0x70, 0x60, 0x60, 
+  0x50, 0x50, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
+  0x40, 0x40, 0x50, 0x50, 0x60, 0x60, 0x70, 0x70, 0x80, 0x80, 
+  0x90, 0x90, 0xA0, 0xA0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 
+  0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 0xB0, 
+  0x00, 0x00
+};
+
 cFodder::cFodder() {
 
 	mResources = new cResources();
@@ -315,6 +444,8 @@ void cFodder::sub_10D61() {
 	//word_39F06 = 0;
 	word_3B2CD = 0;
 	word_3B2CF = 0;
+	word_3B301 = 0;
+	word_3B303 = 0;
 	word_3B447 = 0;
 	word_3B4F3 = 0;
 }
@@ -615,15 +746,65 @@ void cFodder::Prepare() {
 	memory_XMS_Detect();
 }
 
-void cFodder::sub_18C45( cSurface* pImage, const sIntroString* pString ) {
+void cFodder::sub_18C45( cSurface* pImage, int32 pPosX,  const sIntroString* pString ) {
 
+	String_CalculateWidth( 320, mFontWidths, pString );
+	String_Print( pImage, pPosX, pString->mText );
+}
+
+void cFodder::String_Print( cSurface* pImage, int32 pPosX, const char* pText ) {
+
+	word_3B305 = pPosX;
+	word_3B307 = 0;
+
+	//loc_29C7A
+	for (;;) {
+		uint8 NextChar = *pText++;
+
+		//seg007:0170
+		if (NextChar == 0xFD) {
+			//sub_29DE2(0x10);
+
+		} else if (NextChar == 0xFE) {
+			//sub_29DE2(0x0F);
+
+		} else if (NextChar == 0xFF)
+			break;
+
+		else {
+			//seg007:01A1
+
+		}
+		//loc_29DC7
+		//seg007:02A7
+	}
+}
+
+void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString ) {
+	int32 PositionX = 0;
+
+	for (const char* Text = pString->mText; *Text; ++Text) {
+
+		PositionX += pWidths[*Text];
+	}
+
+	pPosX -= PositionX;
+	if (pPosX < 0) {
+		pPosX = 0;
+		PositionX = 318;
+	}
+
+	pPosX >>= 1;
+	word_3B301 = pPosX;
+	word_3B303 = PositionX;
 }
 
 int16 cFodder::introPlayText() {
 	cSurface* CurrentImage = 0;
 
 	//video_Draw_unk_0();
-	//setSpriteDataPtrToBase();
+	mSpriteDataBasePtr = mFontSpriteSheetPtr;
+	Sprite_SetDataPtrToBase();
 	word_3B2CF = 0;
 
 	//loc_165F2
@@ -658,7 +839,7 @@ int16 cFodder::introPlayText() {
 		const sIntroString* IntroString = mIntroText[word_3B2CF].mText;
 		while (IntroString->mPosition) {
 
-			sub_18C45( CurrentImage, IntroString );
+			sub_18C45( CurrentImage, IntroString->mPosition - 0x19, IntroString );
 			++IntroString;
 		}
 		//loc_16710
@@ -704,6 +885,21 @@ int16 cFodder::introPlayText() {
 	return 0;
 }
 
+void cFodder::Sprite_SetDataPtrToBase() {
+
+	mSpriteDataPtr = mSpriteDataBasePtr;
+}
+
+void cFodder::Load_Sprite_Font() {
+	
+	delete mDataPStuff;
+	mDataPStuff = g_Resource.fileGet( "font.dat", mDataPStuffSize );
+
+	mSpriteDataBasePtr = mFontSpriteSheetPtr;
+	Sprite_SetDataPtrToBase();
+
+}
+
 void cFodder::intro() {
 
 	//copyprotection();
@@ -711,7 +907,7 @@ void cFodder::intro() {
 	//video_Draw_unk_0();
 
 	word_3B4F3 = 0;
-	//video_Font_Load();
+	Load_Sprite_Font();
 	//intro_Music_Play();
 	if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
 		goto introDone;

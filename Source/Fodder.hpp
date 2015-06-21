@@ -44,6 +44,18 @@ struct sMission_unk0 {
 	uint16 field_6; 
 };
 
+struct sSpriteSheet {
+	int16 field_0;
+	int16 field_2;
+	int16 field_4;
+	int16 field_6;
+	int16 field_8;
+	int16 field_A;
+	int16 field_C;
+	int8 field_E;
+	int8 field_F;
+};
+
 struct sIntroString {
 	int8		mPosition;
 	const char* mText;
@@ -61,10 +73,14 @@ class cFodder : public cSingleton < cFodder > {
 	cResources*				mResources;
 	cWindow*				mWindow;
 
+	const sSpriteSheet**	mSpriteDataBasePtr;
+	const sSpriteSheet**	mSpriteDataPtr;
+
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
 
 	uint8*			mDataPStuff;
+	size_t			mDataPStuffSize;
 
 	uint32			dword_37AA0;
 	uint32			dword_3901A;
@@ -139,6 +155,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA43;
 	int16			word_3B2CD;
 	int16			word_3B2CF;
+	int16			word_3B301;
+	int16			word_3B303;
 	int16			word_3B447;
 	int16			word_3B4F3;
 
@@ -207,7 +225,10 @@ protected:
 	void			sub_10D61();
 	void			sub_10D9F();
 	void			sub_10DEC();
-	void			sub_18C45( cSurface* pImage, const sIntroString* pString );
+	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
+
+	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
+	void			String_Print( cSurface* pImage, int32 pPosX, const char* pText );
 
 	int16			introPlayText();
 	void			intro();
@@ -220,6 +241,9 @@ protected:
 	void			Load_File( const std::string& pFilename );
 	void			Load_PlayerBin();
 	
+	void			Load_Sprite_Font();
+	void			Sprite_SetDataPtrToBase();
+
 	void			videoSleep();
 
 	void			sleepLoop( int64 pMilliseconds );
