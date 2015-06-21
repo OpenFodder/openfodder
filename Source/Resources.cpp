@@ -135,7 +135,7 @@ cSurface* cResources::image4PlaneLoad( const std::string &pFilename, size_t pCol
 	surface->decode4Plane( fileBuffer, (fileSize - (pColors * 3)) );
 
 	if(pColors) {
-		surface->paletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xF0 );
+		surface->paletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xf0 );
 	}
 
 	return surface;
