@@ -785,7 +785,7 @@ void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32
 			break;
 	}
 
-	word_42068 = pParam08 + 0x10;
+	word_42068 = pParam08;
 	word_4206A = pParam0C + 0x10;
 	word_4206C = mSpriteDataPtr[pParam00][pParam04].mColCount;
 	word_4206E = mSpriteDataPtr[pParam00][pParam04].mRowCount;
@@ -808,14 +808,16 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 
 	ax = word_42068;
 	ax += word_40054;
-	ax >>= 2;
+	//ax >>= 2;
 	
 	di += ax;
 	word_42066 = di;
 	cx = word_42068;
 	cx += word_40054;
 	cx &= 3;
-	
+
+	uint8 Plane = 0;
+
 	byte_42071 = 1 << cx;
 	byte bl = byte_42070;
 	
@@ -825,7 +827,6 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	
 	word_42076 = 320 - (word_4206C*4);
 	
-	uint8 Plane = byte_42071;
 	di += Plane;
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
@@ -842,13 +843,12 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 		di += word_42076;
 	}
 
-	byte_42071 <<= 1;
-	if( byte_42071 & 0x10 ) {
-		byte_42071 = 1;
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
 		++word_42066;
 	}
-	
-	Plane = byte_42071 - 1;
+
 	si = word_42062;
 	di = word_42066;
 	di += Plane;
@@ -867,13 +867,12 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 		di += word_42076;
 	}
 
-	byte_42071 <<= 1;
-	if( byte_42071 & 0x10 ) {
-		byte_42071 = 1;
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
 		++word_42066;
 	}
 	
-	Plane = byte_42071 - 4;
 	++word_42062;
 	si = word_42062;
 	di = word_42066;
@@ -894,13 +893,12 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 		di += word_42076;
 	}
 
-	byte_42071 <<= 1;
-	if( byte_42071 & 0x10 ) {
-		byte_42071 = 1;
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
 		++word_42066;
 	}
-	
-	Plane = byte_42071 + 3;
+
 	si = word_42062;
 	di = word_42066;
 	di += Plane;
@@ -999,15 +997,15 @@ bool cFodder::sub_1429B() {
 	return true;
 }
 
-void cFodder::sub_18C45( cSurface* pImage, int32 pPosX,  const sIntroString* pString ) {
+void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
 
 	String_CalculateWidth( 320, mFontWidths, pString );
-	String_Print( pImage, mFontWidths, pPosX, 0, word_3B301, pString->mText );
+	String_Print( pImage, mFontWidths, pPosY, 0, word_3B301, pString->mText );
 }
 
-void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, const char* pText ) {
+void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32 pParam0, int32 pParam08, const char* pText ) {
 
-	word_3B305 = pPosX;
+	word_3B305 = pPosY;
 	word_3B307 = 0;
 
 	for (;;) {
@@ -1090,7 +1088,7 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32
 				//sub_145AF( pParam0 + NextChar, pPosX );
 			}
 			else			//0		// C    // 4	   // 8
-				sub_13C1C( pImage, pParam0, pPosX, NextChar, pParam08 );
+				sub_13C1C( pImage, pParam0, pPosY, NextChar, pParam08 );
 
 		}
 		loc_29DC7:;
@@ -1098,9 +1096,6 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32
 		NextChar10 = pWidths[NextChar10];
 
 		pParam08 += NextChar10;
-
-		// TEMP
-		break;
 	}
 }
 
@@ -1129,37 +1124,28 @@ int16 cFodder::introPlayText() {
 	//video_Draw_unk_0();
 	mSpriteDataBasePtr = mFontSpriteSheetPtr;
 	Sprite_SetDataPtrToBase();
-	word_3B2CF = 0;
+	
 
-	//loc_165F2
-	for (;;) {
-
-		if (mIntroText[word_3B2CF].mImageNumber == 0)
-			break;
+	for ( word_3B2CF = 0; mIntroText[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
 
 		word_3B447 = 0x288;
-
+		
+		delete CurrentImage;
 		if (mIntroText[word_3B2CF].mImageNumber != 0xFF) {
-			//17A7
+
 			std::stringstream ImageName;
 			size_t ImageSize = 0;
 			ImageName << mIntroText[word_3B2CF].mImageNumber;
 			ImageName << ".dat";
 
-			delete CurrentImage;
 			CurrentImage = g_Resource.image4PlaneLoad( ImageName.str(), 0x100 );
-			//g_Window.RenderAt( Image, cPosition() );
-			//g_Window.FrameEnd();
-
 		}
 		else {
-			//loc_166A0
-
+			CurrentImage = new cSurface( 320, 230 );
 			word_3B447 = 0xAF;
 			
 		}
 
-		//loc_166BE
 		const sIntroString* IntroString = mIntroText[word_3B2CF].mText;
 		while (IntroString->mPosition) {
 
@@ -1200,9 +1186,6 @@ int16 cFodder::introPlayText() {
 			g_Window.FrameEnd();
 			//videoSleep();
 		}
-
-		//seg003:18D2
-		++word_3B2CF;
 	}
 
 	delete CurrentImage;
@@ -1233,8 +1216,8 @@ void cFodder::intro() {
 	word_3B4F3 = 0;
 	Load_Sprite_Font();
 	//intro_Music_Play();
-	//if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
-	//	goto introDone;
+	if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
+		goto introDone;
 
 	if (introPlayText())
 		goto introDone;
