@@ -759,12 +759,12 @@ void cFodder::Prepare() {
 	memory_XMS_Detect();
 }
 
-void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
+void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
 
 	word_42062 = mSpriteDataPtr[pParam00][pParam04].field_0;
-	int16 bx = mSpriteDataPtr[pParam00][pParam04].field_2;
-
-	word_42064 = *bx;
+	//int16 bx = mSpriteDataPtr[pParam00][pParam04].field_2;
+	// TODO
+	//word_42064 = *bx;
 
 	word_42068 = pParam08 + 0x10;
 	word_4206A = pParam0C + 0x10;
@@ -776,13 +776,13 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 	byte_42070 = mSpriteDataPtr[pParam00][pParam04].field_C;
 	
 	if (sub_1429B() )
-		video_Draw_Sprite_();
+		video_Draw_Sprite_( pImage );
 
 }
 
-void cFodder::video_Draw_Sprite_() {
+void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	
-	uint8*	di = word_4005A;
+	uint8*	di = pImage->GetSurfaceBuffer();
 	uint8* 	si = word_42062;
 	int16	ax, cx;
 	
@@ -1070,7 +1070,7 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32
 				//sub_145AF( pParam0 + NextChar, pPosX );
 			}
 			else			//0		// C    // 4	   // 8
-				sub_13C1C( pParam0, pPosX, NextChar, pParam08 );
+				sub_13C1C( pImage, pParam0, pPosX, NextChar, pParam08 );
 
 		}
 		loc_29DC7:;
