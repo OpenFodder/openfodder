@@ -331,6 +331,7 @@ cFodder::cFodder() {
 	word_39EF6 = word_39EFA = 0;
 	word_39EFC = word_39F04 = 0;
 	word_3AA43 = 0;
+	word_3ABA7 = 0;
 	word_3A9B2 = 0;
 
 	word_40054 = 0;
@@ -1236,6 +1237,11 @@ introDone:;
 	mIntroDone = -1;
 	//sub_1645F();
 
+	delete mDataPStuff;
+	mDataPStuff = g_Resource.fileGet( "pstuff.dat", mDataPStuffSize );
+
+	//Sound_Unk();
+	//Music_Unk();
 }
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
@@ -1386,7 +1392,7 @@ void cFodder::Start() {
 		for (unsigned int x = 0; x < 0x30; ++x)
 			byte_3DDA2[x] = mDataPStuff[0xA000 + x];
 
-		//loc_1042E
+		//loc_1042E:;
 		for (;;) {
 			//video_?_1();
 
@@ -1414,6 +1420,44 @@ void cFodder::Start() {
 				dword_3901A = 0x12345678;
 
 			//loc_10496
+			sub_10EA4();
+			sub_10EC3();
+			if (word_390EA) {
+				word_390EA = 0;
+
+				map_Load_Spt();
+				word_3ABA7 = -1;
+
+				map_Load_Info();
+				map_Load_Players();
+				sub_1142D();
+				sub_115F7();
+
+				word_3ABA7 = 0;
+				Show_Hill();
+				sub_2E04C();
+
+				if (!word_3B2FD) {
+					if (word_3B2FF) {
+						word_390B8 = -1;
+						word_390EA = -1;
+						word_3A9B2 = -1;
+						continue;	// goto loc_1042E;
+					}
+					word_390B8 = 0;
+					sub_10CE7();
+					word_3ABE9 = 0;
+					word_3ABEB = 0;
+
+					phase_Intro_Brief();
+				}
+			}
+
+			//loc_10513
+			sub_18908();
+			map_Load_TileSet();
+			map_Load_Spt();
+
 		}
 	}
 }
