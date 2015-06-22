@@ -234,6 +234,8 @@ protected:
 	void			sub_10D9F();
 	void			sub_10DEC();
 	void			sub_13C1C( int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
+	void			video_Draw_Sprite_();
+	void			sub_1429B();
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
