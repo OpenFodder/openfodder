@@ -204,6 +204,18 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3E75B;
 
+	uint16			word_40054;
+	uint8*			word_42062;
+	uint8*			word_42066;
+	int16			word_42068;
+	uint16			word_4206A;
+	int16			word_4206C;
+	int16			word_4206E;
+	uint8			byte_42070;
+	uint8			byte_42071;
+	int16			word_42074;
+	int16			word_42076;
+
 	int16			word_42851;
 
 	/* Configuration Settings (SETUP.DAT) */
@@ -235,7 +247,7 @@ protected:
 	void			sub_10DEC();
 	void			sub_13C1C( cSurface* pImage, int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
 	void			video_Draw_Sprite_( cSurface* pImage );
-	void			sub_1429B();
+	bool			sub_1429B();
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
