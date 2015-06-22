@@ -72,9 +72,9 @@ public:
 
 
 	void			 decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColors );
-	void			decode4Plane( uint8* pBuffer, size_t pSize );
+	void			decode4Plane( uint8* pBuffer, size_t pSize, size_t pWidth, size_t pHeight );
+	void			decode4Plane2( uint8* pBuffer, size_t pSize, size_t pWidth, size_t pHeight );
 
-	void			 decodeSprite( uint8 *pBuffer, size_t pSize, uint8 *pSpriteData );
 
 	void			 draw( size_t pX = 0 , size_t pY = 0);					// Draw image to SDL Surface
 

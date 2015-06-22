@@ -260,110 +260,26 @@ void cSurface::decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColo
 	}
 }
 
-void cSurface::decode4Plane( uint8* pBuffer, size_t pSize ) {
+void cSurface::decode4Plane( uint8* pBuffer, size_t pSize, size_t pWidth, size_t pHeight ) {
 	uint8* SrcBuffer = pBuffer;
 	uint8 *Buffer = mSurfaceBuffer;
 	wipe();
 
+	if (pWidth > mWidth || pHeight > mHeight)
+		return;
+
 	for (unsigned int Plane = 0; Plane < 4; Plane++) {
 		Buffer = mSurfaceBuffer;
 		
-		for (unsigned int Y = 0; Y < mHeight; ++Y) {
+		for (unsigned int Y = 0; Y < pHeight; ++Y) {
 
-			for (unsigned int X = Plane; X < mWidth; X += 4 ) {
+			for (unsigned int X = Plane; X < pWidth; X += 4 ) {
 
 				Buffer[X] = *SrcBuffer++;
 			}
 
 			Buffer += mWidth;
 		}
-	}
-}
-
-void cSurface::decodeSprite( uint8 *pBuffer, size_t pSize, uint8 *pSpriteData ) {
-	uint8 *buffer			= pBuffer;
-	uint8 *dstBufferStart	= mSurfaceBuffer;
-	uint8 *dstBuffer			= dstBufferStart;
-
-	size_t colCount = mWidth >> 1;
-	
-	size_t word_42074 = 0xA0 - colCount;
-
-	colCount >>= 1;
-	size_t word_42076 = mWidth - colCount;
-
-	mHeight = 1;
-	uint8 al = 0;
-	for( int y = 0; y < mHeight; ++y ) {
-		for( int x = 0; x < colCount; ++x ) {
-			uint16 ax = *buffer++;
-			uint8 al = ax >> 4;
-
-			if(al) 
-				*dstBuffer = al | 0xF0;
-
-			++dstBuffer;
-			++buffer;
-		}
-		buffer += word_42074;
-		dstBuffer += word_42076;
-	}
-
-
-	buffer = pBuffer;
-	dstBuffer = ++dstBufferStart;
-
-	for( int y = 0; y < mHeight; ++y ) {
-		for( int x = 0; x < colCount; ++x ) {
-			uint16 ax = *buffer++;
-
-			al = ax & 0x0F;
-			if(al)
-				*dstBuffer = al | 0xF0;
-
-			++dstBuffer;
-			++buffer;
-		}
-		buffer += word_42074;
-		dstBuffer += word_42076;
-	}
-	
-	buffer = ++pBuffer;
-	dstBuffer = ++dstBufferStart;
-	
-	for( int y = 0; y < mHeight; ++y ) {
-		for( int x = 0; x < colCount; ++x ) {
-			
-			uint8 al = *buffer++;
-			al >>= 4;
-
-			if(al)
-				*dstBuffer = al | 0xF0;
-
-			++buffer;
-			++dstBuffer;
-		}
-
-		buffer += word_42074;
-		dstBuffer += word_42076;
-	}
-
-	buffer = pBuffer;
-	dstBuffer = ++dstBufferStart;
-
-	for( int y = 0; y < mHeight; ++y ) {
-		for( int x = 0; x < colCount; ++x ) {
-			uint16 ax = *buffer++;
-
-			al = ax & 0x0F;
-			if(al)
-				*dstBuffer = al | 0xF0;
-
-			++dstBuffer;
-			++buffer;
-		}
-		buffer += word_42074;
-		dstBuffer += word_42076;
 	}
 }
 

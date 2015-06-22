@@ -333,6 +333,18 @@ cFodder::cFodder() {
 	word_3AA43 = 0;
 	word_3A9B2 = 0;
 
+	word_40054 = 0;
+	word_42062 = 0;
+	word_42066 = 0;
+	word_42068 = 0;
+	word_4206A = 0;
+	word_4206C = 0;
+	word_4206E = 0;
+	byte_42070 = 0;
+	byte_42071 = 0;
+	word_42074 = 0;
+	word_42076 = 0;
+
 	mouseData0 = new sMouseData();
 	mouseData1 = new sMouseData();
 
@@ -761,10 +773,17 @@ void cFodder::Prepare() {
 
 void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
 
-	word_42062 = mSpriteDataPtr[pParam00][pParam04].field_0;
-	//int16 bx = mSpriteDataPtr[pParam00][pParam04].field_2;
-	// TODO
-	//word_42064 = *bx;
+	uint16 bx = mSpriteDataPtr[pParam00][pParam04].field_0;
+
+	switch ( mSpriteDataPtr[pParam00][pParam04].field_2) {
+		case 0x4307:
+			word_42062 = mDataPStuff + bx;
+			pImage->paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
+			break;
+
+		default:
+			break;
+	}
 
 	word_42068 = pParam08 + 0x10;
 	word_4206A = pParam0C + 0x10;
@@ -781,12 +800,11 @@ void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32
 }
 
 void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
-	
 	uint8*	di = pImage->GetSurfaceBuffer();
 	uint8* 	si = word_42062;
 	int16	ax, cx;
 	
-	di += 0x58 * word_4206A;
+	di += 320 * word_4206A;
 
 	ax = word_42068;
 	ax += word_40054;
@@ -799,25 +817,25 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	cx &= 3;
 	
 	byte_42071 = 1 << cx;
-	bl = byte_42070;
+	byte bl = byte_42070;
 	
 	word_4206C >>= 1;
 	word_42074 = 0xA0 - word_4206C;
 	word_4206C >>= 1;
 	
-	word_42076 = 0x58 - word_4206C;
+	word_42076 = 320 - (word_4206C*4);
 	
 	uint8 Plane = byte_42071;
-	
+	di += Plane;
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
-		for( cx = word_4206C; cx > 0; --cx ) {
-			al = (*si) >> 4;
+		for( cx = 0; cx < word_4206C; ++cx ) {
+			byte al = (*si) >> 4;
 			if(al)
 				*di = al | bl;
 			
 			si += 2;
-			++di;
+			di+=4;
 		}
 		
 		si += word_42074;
@@ -830,80 +848,82 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 		++word_42066;
 	}
 	
-	Plane = byte_42071;
+	Plane = byte_42071 - 1;
 	si = word_42062;
 	di = word_42066;
-	
+	di += Plane;
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
-			al = (*si) & 0x0F;
+			byte al = (*si) & 0x0F;
 			if( al )
 				*di = al | bl;
 			
 			si += 2;
-			++di;
+			di+=4;
 		}
 		
 		si += word_42074;
 		di += word_42076;
 	}
-	
+
 	byte_42071 <<= 1;
 	if( byte_42071 & 0x10 ) {
 		byte_42071 = 1;
 		++word_42066;
 	}
 	
-	Plane = byte_42071;
+	Plane = byte_42071 - 4;
 	++word_42062;
 	si = word_42062;
 	di = word_42066;
-	
+	di += Plane;
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
 			
-			al = (*si) >> 4;
+			byte al = (*si) >> 4;
 			if( al )
 				*di = al | bl;
 			
 			si += 2;
-			+=di;
+			di+=4;
 			
 		}
 		si += word_42074;
 		di += word_42076;
 	}
-	
+
 	byte_42071 <<= 1;
 	if( byte_42071 & 0x10 ) {
 		byte_42071 = 1;
 		++word_42066;
 	}
 	
-	Plane = byte_42071;
+	Plane = byte_42071 + 3;
 	si = word_42062;
 	di = word_42066;
-	
+	di += Plane;
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
 			
-			al = (*si) & 0x0F;
+			byte al = (*si) & 0x0F;
 			if( al ) 
 				*di = al | bl;
 			
 			si += 2;
-			++di;
+			di+=4;
 		}
 		
 		si += word_42074;
 		di += word_42076;
 	}
+
+	pImage->draw();
 }
 
-void cFodder::sub_1429B() {
+bool cFodder::sub_1429B() {
 	int16 ax;
 	
 	if( word_4206A < 0 ) {
@@ -919,7 +939,7 @@ void cFodder::sub_1429B() {
 		word_4206A += ax;
 		word_4206E -= ax;
 		ax *= 0xA0;
-		dword_42062 += ax;
+		word_42062 += ax;
 	}
 	
 	ax = word_4206A + word_4206E;
@@ -951,7 +971,7 @@ void cFodder::sub_1429B() {
 		word_42068 += ax;
 		word_4206C -= ax;
 		ax >>= 1;
-		dword_42062 += ax;
+		word_42062 += ax;
 	}
 
 	ax = word_42068 + word_4206C;
@@ -1002,7 +1022,7 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32
 		} else if (NextChar == 0xFE) {
 			//sub_29DE2(0x0F);
 
-		} else if (NextChar == 0xFF)
+		} else if (NextChar == 0x00)
 			break;
 
 		else {
@@ -1078,6 +1098,9 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32
 		NextChar10 = pWidths[NextChar10];
 
 		pParam08 += NextChar10;
+
+		// TEMP
+		break;
 	}
 }
 
@@ -1116,7 +1139,7 @@ int16 cFodder::introPlayText() {
 
 		word_3B447 = 0x288;
 
-		if (mIntroText[word_3B2CF].mImageNumber != -1) {
+		if (mIntroText[word_3B2CF].mImageNumber != 0xFF) {
 			//17A7
 			std::stringstream ImageName;
 			size_t ImageSize = 0;
@@ -1210,8 +1233,8 @@ void cFodder::intro() {
 	word_3B4F3 = 0;
 	Load_Sprite_Font();
 	//intro_Music_Play();
-	if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
-		goto introDone;
+	//if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
+	//	goto introDone;
 
 	if (introPlayText())
 		goto introDone;

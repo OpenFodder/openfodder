@@ -130,35 +130,13 @@ cSurface* cResources::image4PlaneLoad( const std::string &pFilename, size_t pCol
 	size_t fileSize = 0;
 	uint8* fileBuffer = fileGet(pFilename, fileSize);
 
-	cSurface *surface = new cSurface(320, 200);
+	cSurface *surface = new cSurface(320, 230);
 
-	surface->decode4Plane( fileBuffer, (fileSize - (pColors * 3)) );
+	surface->decode4Plane( fileBuffer, (fileSize - (pColors * 3)), 320, 200 );
 
 	if(pColors) {
-		surface->paletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xf0 );
+		surface->paletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xd0 );
 	}
-
-	return surface;
-}
-
-cSurface *cResources::spriteLoad( std::string pFilename, size_t pSpriteIndex ) {
-	size_t fileSize = 0;
-	uint8* fileBuffer = fileGet(pFilename, fileSize);
-	
-	uint8* data = spriteDataGet( pSpriteIndex );
-
-	uint16 dataPtrSeg = readLEWord( data );
-	uint16 dataPtr = readLEWord( data + 2 );
-
-	uint16 colCount = readLEWord( data + 8 );
-	uint16 rowCount = readLEWord( data + 0x0A );
-
-	signed short ax = (signed short) *(data + 0x0E);
-	
-	//seg001:066A
-
-	cSurface *surface = new cSurface( 320, 336 );
-	surface->decodeSprite( fileBuffer, fileSize, data );
 
 	return surface;
 }

@@ -73,7 +73,6 @@ public:
 
 	cSurface						*imageLoad( std::string pFilename, size_t pColors );
 	cSurface						*image4PlaneLoad( const std::string &pFilename, size_t pColors );
-	cSurface						*spriteLoad( std::string pFilename, size_t pSpriteIndex );
 
 	uint8							*spriteDataGet( size_t pIndex );
 
