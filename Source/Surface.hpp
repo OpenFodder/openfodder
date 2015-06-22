@@ -88,4 +88,5 @@ public:
 	void			 wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor = 0);
 
 	inline SDL_Texture* GetTexture() const { return mTexture; };
+	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }
 };
