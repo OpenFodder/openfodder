@@ -780,6 +780,205 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 
 }
 
+void cFodder::video_Draw_Sprite_() {
+	
+	uint8*	di = word_4005A;
+	uint8* 	si = word_42062;
+	int16	ax, cx;
+	
+	di += 0x58 * word_4206A;
+
+	ax = word_42068;
+	ax += word_40054;
+	ax >>= 2;
+	
+	di += ax;
+	word_42066 = di;
+	cx = word_42068;
+	cx += word_40054;
+	cx &= 3;
+	
+	byte_42071 = 1 << cx;
+	bl = byte_42070;
+	
+	word_4206C >>= 1;
+	word_42074 = 0xA0 - word_4206C;
+	word_4206C >>= 1;
+	
+	word_42076 = 0x58 - word_4206C;
+	
+	uint8 Plane = byte_42071;
+	
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = word_4206C; cx > 0; --cx ) {
+			al = (*si) >> 4;
+			if(al)
+				*di = al | bl;
+			
+			si += 2;
+			++di;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+
+	byte_42071 <<= 1;
+	if( byte_42071 & 0x10 ) {
+		byte_42071 = 1;
+		++word_42066;
+	}
+	
+	Plane = byte_42071;
+	si = word_42062;
+	di = word_42066;
+	
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = word_4206C; cx > 0; --cx ) {
+			al = (*si) & 0x0F;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			++di;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+	
+	byte_42071 <<= 1;
+	if( byte_42071 & 0x10 ) {
+		byte_42071 = 1;
+		++word_42066;
+	}
+	
+	Plane = byte_42071;
+	++word_42062;
+	si = word_42062;
+	di = word_42066;
+	
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = word_4206C; cx > 0; --cx ) {
+			
+			al = (*si) >> 4;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			+=di;
+			
+		}
+		si += word_42074;
+		di += word_42076;
+	}
+	
+	byte_42071 <<= 1;
+	if( byte_42071 & 0x10 ) {
+		byte_42071 = 1;
+		++word_42066;
+	}
+	
+	Plane = byte_42071;
+	si = word_42062;
+	di = word_42066;
+	
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = word_4206C; cx > 0; --cx ) {
+			
+			al = (*si) & 0x0F;
+			if( al ) 
+				*di = al | bl;
+			
+			si += 2;
+			++di;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+}
+
+void cFodder::sub_1429B() {
+	int16 ax;
+	
+	if( word_4206A < 0 ) {
+		ax = word_4206A + word_4206E;
+		--ax;
+		if( ax < 0 )
+			return false;
+		
+		ax -= 0;
+		ax -= word_4206E;
+		++ax;
+		ax = -ax;
+		word_4206A += ax;
+		word_4206E -= ax;
+		ax *= 0xA0;
+		dword_42062 += ax;
+	}
+	
+	ax = word_4206A + word_4206E;
+	--ax;
+	if( ax > 0xE7 ) {
+		if( word_4206A > 0xE7 )
+			return false;
+		
+		ax -= 0xE7;
+		word_4206E -= ax;
+		
+	}
+
+	if( word_42068 < 0 ) {
+		ax = word_42068 + word_4206C;
+		--ax;
+		if( ax < 0 )
+			return false;
+		
+		ax -= 0;
+		ax - word_4206C;
+		++ax;
+		ax = -ax;
+		--ax;
+		
+		while( ax & 3 )
+			++ax;
+		
+		word_42068 += ax;
+		word_4206C -= ax;
+		ax >>= 1;
+		dword_42062 += ax;
+	}
+
+	ax = word_42068 + word_4206C;
+	--ax;
+	
+	if( ax > 0x15F ) {
+		if( word_42068 >= 0x15F )
+			return false;
+		
+		ax -= 0x15F;
+		--ax;
+		
+		while( ax & 3 )
+			++ax;
+		
+		word_4206C -= ax;
+	}
+
+	if( word_4206C <= 0 )
+		return false;
+	
+	if( word_4206E <= 0 )
+		return false;
+	
+	return true;
+}
+
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosX,  const sIntroString* pString ) {
 
 	String_CalculateWidth( 320, mFontWidths, pString );
