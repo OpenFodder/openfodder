@@ -153,6 +153,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9B2;
 	uint16			word_3A9F7;
 	int16			word_3AA43;
+	int16			word_3ABA7;
 
 	int16			word_3AC19;
 	int16			word_3AC21;
