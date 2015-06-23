@@ -80,8 +80,11 @@ class cFodder : public cSingleton < cFodder > {
 	uint32			mMouseButtons;
 
 	uint8*			mDataPStuff;
+	uint8* 			mDataHillBits;
+	
 	size_t			mDataPStuffSize;
-
+	size_t			mDataHillBitsSize;
+	
 	uint32			dword_37AA0;
 	uint32			dword_3901A;
 	uint16			word_3901E;
@@ -246,9 +249,15 @@ protected:
 	void			sub_10D61();
 	void			sub_10D9F();
 	void			sub_10DEC();
+	void			sub_10EA4();
+	void			sub_10EC3();
+	void			sub_10EE3();
+	void			map_Load_Spt();
+	
 	void			sub_13C1C( cSurface* pImage, int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
 	void			video_Draw_Sprite_( cSurface* pImage );
 	bool			sub_1429B();
+	void			Show_Hill();
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );

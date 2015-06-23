@@ -350,7 +350,8 @@ cFodder::cFodder() {
 	mouseData1 = new sMouseData();
 
 	mDataPStuff = 0;
-
+	mDataHillBits = 0;
+	
 	for (unsigned int x = 0; x < 30; ++x)
 		dword_3A3FD[x] = 0;
 
@@ -463,6 +464,14 @@ void cFodder::sub_10D61() {
 	word_39F04 = 0;
 	//word_39F06 = 0;
 
+	dword_39F98 = 0;
+	dword_39F9C = 0;
+	word_39FCE = 0 ;
+	
+	dword_3A000 = 0;
+	dword_3A004 = 0;
+	dword_3A008 = 0;
+	
 	word_3AC19 = 0;
 	word_3AC21 = 0;
 
@@ -569,6 +578,40 @@ void cFodder::sub_10DEC() {
 	dword_3A745[0] = -1;
 	dword_3A7BD[0] = -1;
 	dword_3A835[0] = -1;
+}
+
+void cFodder::sub_10EA4() {
+	dword_39F98 = 0;
+	dword_39F9C = 0;
+	word_37AE0 = 0x8000;
+	word_39FCE = 0;
+}
+
+void cFodder::sub_10EC3() {
+	sub_10EE3();
+	dword_3A000 = 0;
+	dword_3A004 = 0;
+	dword_3A008 = 0;
+
+}
+
+void cFodder::sub_10EE3() {
+	// TODO:
+	uint16* Data = word_37AE0;
+	for( int16 count = 0x2C; count >= 0; --count ) {
+		
+		for( int16 count2 = 0x75; count2 >= 0; --count2 ) {
+			*Data++ = 0;
+		}
+		*(Data - 0x3B) = 0x8000;
+	}
+	*(Data - 0x3B) = 0xFFFF;
+}
+
+void cFodder::map_Load_Spt() {
+	
+	sub_2CED3();
+	//TODO
 }
 
 void cFodder::sub_12AB1() {
@@ -996,6 +1039,93 @@ bool cFodder::sub_1429B() {
 		return false;
 	
 	return true;
+}
+
+void cFodder::Show_Hill() {
+	
+	mouse_Setup();
+	sub_2F5DD();
+	
+	cSurface* ImageHill = g_Resource.image4PlaneLoad( "hill.dat", 0x50 );
+	
+	delete mDataHillBits;
+	mDataHillBits = g_Resource.fileGet( "hillbits.dat", mDataHillBitsSize );
+
+	dword_3B1FB = unk_373BA;
+	word_3AAD1 = -1;
+	word_3AB39 = -1;
+	
+	mSpriteDataBasePtr = mHillBitsSpriteSheetPtr;
+	Sprite_SetDataPtrToBase();
+	video_Draw_unk_0();
+
+	sub_16BC3();
+	sub_16C6C();
+	sub_16C93();
+	sub_168F7();
+	sub_17B64();
+	
+	mSpriteDataBasePtr = off_35E42;
+	Sprite_SetDataPtrToBase();
+	
+	sub_17CD3();
+	sub_1693D();
+	
+	word_3BEC1 = 0;
+	word_3BEC3 = 0x1D;
+	word_39020 = 0;
+	
+	sub_17368();
+	
+	word_3AAC9 = 0;
+	word_3AACB = word_3B60A;
+	
+	int16 ax = word_397D4;
+	ax -= 1;
+	if( ax >= 0 ) {
+		
+		while( ax > 0 ) 
+			sub_17429();
+	}
+
+	word_3AA51 = -1;
+	word_3A016 = 0;
+	word_3AA67 = 0;
+	word_3AA71 = word_397D2;
+	sub_1787C();
+	sub_17592();
+	sub_13837();
+	sub_17592();
+	sub_13837();
+	
+	si = byte_3D7D2;
+	di = byte_3DAD2;
+	sub_138A8( 1 );
+	
+	word_39F02 = 0;
+	
+	for( ;; ) {
+		if( word_39F02 ) {
+			word_39F02 = 0;
+			
+			if( sub_18C7A() )
+				break;
+		}
+		
+		sub_17C30();
+	}
+	
+	//loc_168CC
+	word_3A9F7 = 0x23;
+	word_3AA51 = 0;
+	
+	si = byte_3DAD2;
+	di = byte_3D7D2;
+	sub_138A8(0);
+	
+	while( word_40044 == -1 ) {
+		sub_17C30();
+	}
 }
 
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
