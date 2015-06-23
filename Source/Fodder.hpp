@@ -279,7 +279,7 @@ protected:
 	void			sub_13C1C( cSurface* pImage, int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
 	void			video_Draw_Sprite_( cSurface* pImage );
 	bool			sub_1429B();
-	void			Show_Hill();
+	void			Show_Recruits();
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
