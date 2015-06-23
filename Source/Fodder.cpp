@@ -1121,7 +1121,7 @@ bool cFodder::sub_1429B() {
 	return true;
 }
 
-void cFodder::Show_Hill() {
+void cFodder::Show_Recruits() {
 	
 	mouse_Setup();
 	map_ClearSpt();
@@ -1141,15 +1141,15 @@ void cFodder::Show_Hill() {
 
 	sub_16BC3();
 	sub_16C6C();
-	sub_16C93();
-	sub_168F7();
+	Recruit_Draw_LeftMenu();
+	Recruit_Draw_Hill();
 	sub_17B64();
 	
 	mSpriteDataBasePtr = off_35E42;
 	Sprite_SetDataPtrToBase();
 	
 	sub_17CD3();
-	sub_1693D();
+	video_Draw_Unk_2();
 	
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
@@ -1560,10 +1560,6 @@ void cFodder::WonGame() {
 	//seg003:3E6D
 	cSurface* img = g_Resource.image4PlaneLoad( "won.dat", 0x100 );
 
-	//cSurface* img = g_Resource.imageLoad( "junarmy.dat", 0x40 );
-	//cSurface* img = g_Resource.image4PlaneLoad( "junarmy.dat", 0x10 );
-	//img->paletteLoad( WonDat + 0xD200, 0x10, 0xF0 );
-
 	while(img->paletteFade()) {
 
 		g_Window.RenderAt( img, cPosition() );
@@ -1650,7 +1646,7 @@ void cFodder::Start() {
 				sub_115F7();
 
 				word_3ABA7 = 0;
-				Show_Hill();
+				Show_Recruits();
 				sub_2E04C();
 
 				if (!word_3B2FD) {
