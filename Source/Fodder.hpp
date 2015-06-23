@@ -66,6 +66,12 @@ struct sIntroText {
 	const sIntroString*	mText;
 };
 
+struct struct_0 {
+	int16	field_0;
+	int16	field_2;
+	int16	field_4;
+};
+
 class cFodder : public cSingleton < cFodder > {
 
 	std::vector<cEvent>		mEvents;
@@ -73,6 +79,7 @@ class cFodder : public cSingleton < cFodder > {
 	cResources*				mResources;
 	cWindow*				mWindow;
 
+	int16*					mMapSpt_Loaded;
 	const sSpriteSheet**	mSpriteDataBasePtr;
 	const sSpriteSheet**	mSpriteDataPtr;
 
@@ -125,6 +132,11 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39EFC;
 	int16			word_39F04;
 	int32			dword_39F7C;
+
+	int16			dword_39F98;
+	int16			dword_39F9C;
+	int16			word_39FCE;
+
 	int16			word_39FD0;
 	int16			word_39FD4;
 	
@@ -134,6 +146,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			dword_3A8DB;
 	uint8			byte_3A8DF;
 
+	int16			dword_3A000;
+	int16			dword_3A004;
+	int16			dword_3A008;
 	uint16			word_3A024;
 	uint16			word_3A054;
 	uint32			dword_3A05A;
@@ -155,11 +170,16 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9AC;
 	uint16			word_3A9B2;
 	uint16			word_3A9F7;
+	int16			word_3AAD1;
+
 	int16			word_3AA43;
+	int16			word_3AB39;
 	int16			word_3ABA7;
 
 	int16			word_3AC19;
 	int16			word_3AC21;
+	
+	const struct_0*		dword_3B1FB;
 
 	int16			word_3B2CD;
 	int16			word_3B2CF;
@@ -171,6 +191,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3B447;
 	int16			word_3B4F3;
+
+	uint16*			mMapSptPtr;
 
 	uint16			word_3BDAF;
 	uint16			word_3BDB1;
@@ -266,6 +288,7 @@ protected:
 	int16			introPlayText();
 	void			intro();
 
+	void			map_ClearSpt();
 	void			mission_PhaseNext();
 
 	void			sub_12AB1();
