@@ -406,6 +406,7 @@ cFodder::cFodder() {
 	word_3AA43 = 0;
 	word_3ABA7 = 0;
 	word_3A9B2 = 0;
+	word_3E1B7 = 0;
 	
 	mMapSptPtr = new uint16[2655];
 
@@ -507,6 +508,8 @@ void cFodder::sub_10BBC() {
 
 	for (unsigned int x = 0; x < 25; ++x)
 		byte_3978E[x] = 0;
+	
+	mTroopsAvailable = 0;
 }
 
 void cFodder::sub_10B6D() {
@@ -690,8 +693,142 @@ void cFodder::sub_10EE3() {
 
 void cFodder::map_Load_Spt() {
 	
-	sub_2CED3();
-	//TODO
+	std::string Filename_Map = map_Filename_MapGet();
+	std::string Filename_Spt = map_Filename_SptGet();
+
+	mMapSptPtr = g_Resource.fileGet(Filename_Spt, mMapSptSize);
+	tool_endianSwap( mMapSptPtr, mMapSptSize );
+	
+	// TODO: Test
+	word_3AA17 = 0;
+	word_3AA19 = 0;
+	
+	uint16* dword_37AC0 = mMapSptPtr;
+	mMap_Spt_Data = mMapSpt_Loaded;
+	
+	dword_37AC8 = dword_37AC0 + mMapSptSize;
+	dword_37ABC = 0x0A;
+
+	for(uint16 mTmpCount = 0; dword_37AC0 != dword_37AC8; dword_37AC0 += 2 ) {
+		
+		uint16* si = mMap_Spt_Data;
+		si[0x04] = 0x7C;
+		
+		uint16 ax = mTmpCount / 8;
+		
+		si[0x19] = ax;
+		++dword_37AC0;
+		ax = dword_37AC0[0];
+		++dword_37AC0;
+		
+		ax += 0x10;
+		si[0x00] = ax;
+		si[0x13] = ax;
+		
+		ax = dword_37AC0[0];
+		++dword_37AC0;
+		si[0x02] = ax;
+		si[0x14] = ax;
+		
+		ax = dword_37AC0[0];
+		++dword_37AC0;
+		si[0x0C] = ax;
+		
+		if( si[0x0C] == 0x6A || si[0x0C] == 0x48 ) {
+				
+			++word_3AA19;
+		}
+		
+		if( si[0x0C] != 0 ) {
+			//10EE
+			if( si[0x0C] == 0x24 ) {
+				si[0x11] = 1;
+				++word_3AA17;
+				
+			} else {
+				if( mMap_Spt_Data[mTmpCount] == 5 )
+					++word_3AA17;
+			}
+			
+			dword_37ABC += 0x0A;
+			if( si[0x31] > 4 )
+				dword_37ABC = 0;
+			
+			si[0x25] = dword_37ABC;
+			
+		} else {
+			// 113C
+			++mTmpCount;
+			si[0x25] = 0;
+		}
+		
+		// 114B
+		mMap_Spt_Data += 0x3B;
+	}
+}
+
+std::string cFodder::map_Filename_Get() {
+	stringstream	filename;
+	
+	filename << "mapm";
+	filename << mMapNumber;
+
+	return filename.str();
+}
+
+string cFodder::map_Filename_MapGet() {
+	string	filename = map_Filename_Get();
+
+	filename.append(".map");
+
+	return filename;
+}
+
+string cFodder::map_Filename_SptGet() {
+	string	filename = map_Filename_Get();
+
+	filename.append(".spt");
+
+	return filename;
+}
+
+void cFodder::map_Load_Info() {
+	word_33B22 = 0;
+	dword_37AC0 = mMapSpt_Loaded;
+	
+	for( int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount ) {
+		int16* si = dword_37AC0;
+		if( si != -32768 ) {
+			
+			if( si[0x0C] == 0 )
+				++word_33B22;
+		}
+		dword_37AC0 += 0x3B;
+	}
+	
+	word_397D4 = 0;
+	
+	for( int16 x = 7; x > 0; --x ) {
+		
+		if( stru_390FA[x]->field_0 != -1 ) {
+			--word_33B22;
+			++word_397D4;
+		}
+	}
+	
+	int16 ax = word_397D2;
+	
+	if( ax >= 0 ) {
+		
+		if( ax >= word_390CE )
+			ax = word_390CE;
+		
+		word_397D2 = ax;
+		word_390CE -= ax;
+	}
+	
+	ax += word_397D4;
+	mTroopsAvailable = ax;
 }
 
 void cFodder::sub_12AB1() {
@@ -1045,6 +1182,126 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	pImage->draw();
 }
 
+void cFodder::sub_13F58(  cSurface* pImage ) {
+	uint8*	di = pImage->GetSurfaceBuffer();
+	uint8* 	si = word_42062;
+	int16	ax, cx;
+	
+	di += 320 * word_4206A;
+
+	ax = word_42068;
+	ax += word_40054;
+	//ax >>= 2;
+	
+	di += ax;
+	word_42066 = di;
+	cx = word_42068;
+	cx += word_40054;
+	cx &= 3;
+
+	uint8 Plane = 0;
+
+	byte_42071 = 1 << cx;
+	word_42074 = word_42078 - word_4206C;
+		                 
+	word_4206C >>= 2;
+	word_42076 = 320 - (word_4206C*4); // correct?
+
+	di += Plane;
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = 0; cx < word_4206C; ++cx ) {
+			byte al = *si;
+			if(al)
+				*di = al;
+			
+			si += 3;
+			di += 4;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++word_42066;
+	}
+	
+	++word_42062;
+	si = word_42062;
+	di = word_42066;
+	
+	di += Plane;
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = 0; cx < word_4206C; ++cx ) {
+			byte al = *si;
+			if(al)
+				*di = al;
+			
+			si += 3;
+			di += 4;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++word_42066;
+	}
+	
+	++word_42062;
+	si = word_42062;
+	di = word_42066;
+	di += Plane;
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = 0; cx < word_4206C; ++cx ) {
+			byte al = *si;
+			if(al)
+				*di = al;
+			
+			si += 3;
+			di += 4;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++word_42066;
+	}
+	
+	++word_42062;
+	si = word_42062;
+	di = word_42066;
+	di += Plane;
+	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = 0; cx < word_4206C; ++cx ) {
+			byte al = *si;
+			if(al)
+				*di = al;
+			
+			si += 3;
+			di += 4;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+	
+	pImage->draw();
+}
+
 bool cFodder::sub_1429B() {
 	int16 ax;
 	
@@ -1126,7 +1383,10 @@ void cFodder::Show_Recruits() {
 	mouse_Setup();
 	map_ClearSpt();
 	
-	cSurface* ImageHill = g_Resource.image4PlaneLoad( "hill.dat", 0x50 );
+	cSurface* ImageHill = new cSurface(320,200);
+	
+	delete word_3E1B7;
+	word_3E1B7 = g_Resource.fileGet( "hill.dat", word_3E1B7_zize );
 	
 	delete mDataHillBits;
 	mDataHillBits = g_Resource.fileGet( "hillbits.dat", mDataHillBitsSize );
@@ -1142,14 +1402,14 @@ void cFodder::Show_Recruits() {
 	sub_16BC3();
 	sub_16C6C();
 	Recruit_Draw_LeftMenu();
-	Recruit_Draw_Hill();
+	Recruit_Draw_Hill( ImageHill );
 	sub_17B64();
 	
 	mSpriteDataBasePtr = off_35E42;
 	Sprite_SetDataPtrToBase();
 	
 	sub_17CD3();
-	video_Draw_Unk_2();
+	video_Draw_Unk_2( ImageHill );
 	
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
@@ -1206,6 +1466,29 @@ void cFodder::Show_Recruits() {
 	while( word_40044 == -1 ) {
 		sub_17C30();
 	}
+	
+	delete ImageHill;
+}
+
+void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
+	word_42062 = word_3E1B7 + 0x0A00;
+	
+	word_42068 = 0x40;
+	word_4206A = 0x28;
+	word_4206C = 0x110;
+	word_4206E = 0xB0;
+	word_42078 = 0x140;
+	
+	sub_13F58( pImage );
+	
+	// TODO: Why?
+	//for( uint32 x = 0; x < 0xA000; ++x) {
+	//	word_3E1B7[x] = 0;
+	//}
+}
+
+void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
+	
 }
 
 void cFodder::map_ClearSpt() {
