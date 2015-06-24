@@ -1213,10 +1213,10 @@ void cFodder::sub_13F58(  cSurface* pImage ) {
 	word_42076 = 320 - word_4206C;
 
 	di += Plane;
-	unsigned int count = 0;
-	for( int16 dx = 225; dx > 0; --dx ) {
+	uint16 count = 0;
+	for( int16 dx = 192; dx > 0; --dx ) {
 		
-		for( cx = 0; cx <= word_4206C; ++cx ) {
+		for( cx = 0; cx < 320; ++cx ) {
 			byte al = *si;
 			if(al)
 				*di = al;
@@ -1225,7 +1225,7 @@ void cFodder::sub_13F58(  cSurface* pImage ) {
 			di ++;
 			++count;
 		}
-		
+
 		//si += word_42074;
 		//di += word_42076;
 	}
