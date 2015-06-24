@@ -1187,7 +1187,7 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	pImage->draw();
 }
 
-void cFodder::sub_13F58(  cSurface* pImage ) {
+void cFodder::video_Draw_Linear_To_Planar(  cSurface* pImage ) {
 	uint8*	di = pImage->GetSurfaceBuffer();
 	uint8* 	si = word_42062;
 	int16	ax, cx;
@@ -1497,7 +1497,7 @@ void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
 	word_4206E = 0xB0;
 	word_42078 = 0x140;
 	
-	sub_13F58( pImage );
+	video_Draw_Linear_To_Planar( pImage );
 	
 	// TODO: Why?
 	//for( uint32 x = 0; x < 0xA000; ++x) {

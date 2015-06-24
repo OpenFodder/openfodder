@@ -289,7 +289,7 @@ protected:
 	
 	void			sub_13C1C( cSurface* pImage, int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
 	void			video_Draw_Sprite_( cSurface* pImage );
-	void			sub_13F58(  cSurface* pImage );
+	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			sub_1429B();
 	void			Show_Recruits();
 	void			Recruit_Draw_Hill( cSurface *pImage );
