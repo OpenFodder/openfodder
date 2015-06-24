@@ -79,7 +79,7 @@ class cFodder : public cSingleton < cFodder > {
 	cResources*				mResources;
 	cWindow*				mWindow;
 
-	int16*					mMapSpt_Loaded;
+	int16					mMapSpt_Loaded[2655];
 	const sSpriteSheet**	mSpriteDataBasePtr;
 	const sSpriteSheet**	mSpriteDataPtr;
 
@@ -91,7 +91,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	size_t			mDataPStuffSize;
 	size_t			mDataHillBitsSize;
-	
+
 	uint32			dword_37AA0;
 	uint32			dword_3901A;
 	uint16			word_3901E;
@@ -123,6 +123,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16*			dword_3977E;
 
 	int8			byte_3978E[25];
+
+	int16			word_397D2;
+	int16			word_397D4;
 	int16			mTroopsAvailable;
 	
 	int16			mButtonPressLeft, mButtonPressRight;
@@ -171,6 +174,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9AC;
 	uint16			word_3A9B2;
 	uint16			word_3A9F7;
+	int16			word_3AA17;
+	int16			word_3AA19;
 	int16			word_3AAD1;
 
 	int16			word_3AA43;
@@ -194,7 +199,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4F3;
 
 	uint16*			mMapSptPtr;
-	uint32			mMapSptSize;
+	size_t			mMapSptSize;
 	
 	uint16			word_3BDAF;
 	uint16			word_3BDB1;
@@ -231,7 +236,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			byte_3DDA2[0x30];
 	
 	uint8*			word_3E1B7;
-	uint32			word_3E1B7_size;
+	size_t			word_3E1B7_size;
 	
 	int16			word_3E75B;
 
@@ -246,6 +251,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint8			byte_42071;
 	int16			word_42074;
 	int16			word_42076;
+	uint16			word_42078;
 
 	int16			word_42851;
 
@@ -297,7 +303,8 @@ protected:
 	std::string		map_Filename_Get();
 	std::string		map_Filename_MapGet();
 	std::string		map_Filename_SptGet();
-	
+	void			map_Troops_Prepare();
+
 	int16			introPlayText();
 	void			intro();
 

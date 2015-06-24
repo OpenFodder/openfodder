@@ -509,6 +509,8 @@ void cFodder::sub_10BBC() {
 	for (unsigned int x = 0; x < 25; ++x)
 		byte_3978E[x] = 0;
 	
+	word_397D2 = 0;
+	word_397D4 = 0;
 	mTroopsAvailable = 0;
 }
 
@@ -550,14 +552,17 @@ void cFodder::sub_10D61() {
 	dword_3A004 = 0;
 	dword_3A008 = 0;
 
-	dword_3B1FB = 0;
-	
+	word_3A9F7 = 0;
+	word_3AA17 = 0;
+	word_3AA19 = 0;
+
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
 	word_3AC19 = 0;
 	word_3AC21 = 0;
 
-
+	dword_3B1FB = 0;
+	
 	word_3B2CD = 0;
 	word_3B2CF = 0;
 	word_3B301 = 0;
@@ -683,7 +688,7 @@ void cFodder::sub_10EE3() {
 	int16* Data = mMapSpt_Loaded;
 	for( int16 count = 0x2C; count >= 0; --count ) {
 		
-		for( int16 count2 = 0x3B; count2 >= 0; --count2 ) {
+		for( int16 count2 = 0x3A; count2 >= 0; --count2 ) {
 			*Data++ = 0;
 		}
 		*(Data - 0x3B) = -32768;
@@ -696,26 +701,26 @@ void cFodder::map_Load_Spt() {
 	std::string Filename_Map = map_Filename_MapGet();
 	std::string Filename_Spt = map_Filename_SptGet();
 
-	mMapSptPtr = g_Resource.fileGet(Filename_Spt, mMapSptSize);
-	tool_endianSwap( mMapSptPtr, mMapSptSize );
+	mMapSptPtr = (uint16*) g_Resource.fileGet(Filename_Spt, mMapSptSize);
+	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
 	
-	// TODO: Test
 	word_3AA17 = 0;
 	word_3AA19 = 0;
 	
 	uint16* dword_37AC0 = mMapSptPtr;
-	mMap_Spt_Data = mMapSpt_Loaded;
+	int16* dword_37AC4 = mMapSpt_Loaded;
 	
-	dword_37AC8 = dword_37AC0 + mMapSptSize;
-	dword_37ABC = 0x0A;
+	uint16* dword_37AC8 = dword_37AC0 + (mMapSptSize / 2);
+	int16 dword_37ABC = 0x0A;
 
-	for(uint16 mTmpCount = 0; dword_37AC0 != dword_37AC8; dword_37AC0 += 2 ) {
-		
-		uint16* si = mMap_Spt_Data;
+	for(uint16 mTmpCount = 0; dword_37AC0 != dword_37AC8; dword_37AC4 += 0x3B ) {
+		++dword_37AC0;
+
+		int16* si = dword_37AC4;
 		si[0x04] = 0x7C;
 		
 		uint16 ax = mTmpCount / 8;
-		
+
 		si[0x19] = ax;
 		++dword_37AC0;
 		ax = dword_37AC0[0];
@@ -746,7 +751,7 @@ void cFodder::map_Load_Spt() {
 				++word_3AA17;
 				
 			} else {
-				if( mMap_Spt_Data[mTmpCount] == 5 )
+				if( si[0x0C] == 5 )
 					++word_3AA17;
 			}
 			
@@ -763,45 +768,44 @@ void cFodder::map_Load_Spt() {
 		}
 		
 		// 114B
-		mMap_Spt_Data += 0x3B;
 	}
 }
 
 std::string cFodder::map_Filename_Get() {
-	stringstream	filename;
+	std::stringstream	filename;
 	
 	filename << "mapm";
-	filename << mMapNumber;
+	filename << (mMapNumber + 1);
 
 	return filename.str();
 }
 
-string cFodder::map_Filename_MapGet() {
-	string	filename = map_Filename_Get();
+std::string cFodder::map_Filename_MapGet() {
+	std::string	filename = map_Filename_Get();
 
 	filename.append(".map");
 
 	return filename;
 }
 
-string cFodder::map_Filename_SptGet() {
-	string	filename = map_Filename_Get();
+std::string cFodder::map_Filename_SptGet() {
+	std::string	filename = map_Filename_Get();
 
 	filename.append(".spt");
 
 	return filename;
 }
 
-void cFodder::map_Load_Info() {
-	word_33B22 = 0;
-	dword_37AC0 = mMapSpt_Loaded;
+void cFodder::map_Troops_Prepare() {
+	word_397D2 = 0;
+	int16* dword_37AC0 = mMapSpt_Loaded;
 	
 	for( int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount ) {
 		int16* si = dword_37AC0;
-		if( si != -32768 ) {
+		if( *si != -32768 ) {
 			
 			if( si[0x0C] == 0 )
-				++word_33B22;
+				++word_397D2;
 		}
 		dword_37AC0 += 0x3B;
 	}
@@ -810,17 +814,17 @@ void cFodder::map_Load_Info() {
 	
 	for( int16 x = 7; x > 0; --x ) {
 		
-		if( stru_390FA[x]->field_0 != -1 ) {
-			--word_33B22;
+		if( stru_390FA[x].field_0 != -1 ) {
+			--word_397D2;
 			++word_397D4;
 		}
 	}
 	
 	int16 ax = word_397D2;
 	
-	if( ax >= 0 ) {
-		
-		if( ax >= word_390CE )
+	if( word_397D2 >= 0 ) {
+
+		if( ax > word_390CE )
 			ax = word_390CE;
 		
 		word_397D2 = ax;
@@ -866,6 +870,7 @@ void cFodder::memory_XMS_Detect() {
 }
 
 void cFodder::eventProcess() {
+	g_Window.EventCheck();
 
 	for (std::vector<cEvent>::iterator EventIT = mEvents.begin(); EventIT != mEvents.end(); ++EventIT) {
 
@@ -1089,7 +1094,7 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	word_42076 = 320 - (word_4206C*4);
 	
 	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = 0; cx < word_4206C; ++cx ) {
 			byte al = (*si) >> 4;
@@ -1113,7 +1118,7 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	si = word_42062;
 	di = word_42066;
 	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
 			byte al = (*si) & 0x0F;
@@ -1138,7 +1143,7 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	si = word_42062;
 	di = word_42066;
 	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
 			
@@ -1163,7 +1168,7 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	si = word_42062;
 	di = word_42066;
 	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
 			
@@ -1204,24 +1209,29 @@ void cFodder::sub_13F58(  cSurface* pImage ) {
 	byte_42071 = 1 << cx;
 	word_42074 = word_42078 - word_4206C;
 		                 
-	word_4206C >>= 2;
-	word_42076 = 320 - (word_4206C*4); // correct?
+	//word_4206C >>= 1;
+	word_42076 = 320 - word_4206C;
 
 	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+	unsigned int count = 0;
+	for( int16 dx = 225; dx > 0; --dx ) {
 		
-		for( cx = 0; cx < word_4206C; ++cx ) {
+		for( cx = 0; cx <= word_4206C; ++cx ) {
 			byte al = *si;
 			if(al)
 				*di = al;
 			
-			si += 3;
-			di += 4;
+			si ++;
+			di ++;
+			++count;
 		}
 		
-		si += word_42074;
-		di += word_42076;
+		//si += word_42074;
+		//di += word_42076;
 	}
+
+	pImage->draw();
+	return;
 
 	++Plane;
 	if (Plane == 4) {
@@ -1234,7 +1244,7 @@ void cFodder::sub_13F58(  cSurface* pImage ) {
 	di = word_42066;
 	
 	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = 0; cx < word_4206C; ++cx ) {
 			byte al = *si;
@@ -1242,32 +1252,7 @@ void cFodder::sub_13F58(  cSurface* pImage ) {
 				*di = al;
 			
 			si += 3;
-			di += 4;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++word_42066;
-	}
-	
-	++word_42062;
-	si = word_42062;
-	di = word_42066;
-	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = 0; cx < word_4206C; ++cx ) {
-			byte al = *si;
-			if(al)
-				*di = al;
-			
-			si += 3;
-			di += 4;
+			di ++;
 		}
 		
 		si += word_42074;
@@ -1284,7 +1269,7 @@ void cFodder::sub_13F58(  cSurface* pImage ) {
 	si = word_42062;
 	di = word_42066;
 	di += Plane;
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = 0; cx < word_4206C; ++cx ) {
 			byte al = *si;
@@ -1292,7 +1277,32 @@ void cFodder::sub_13F58(  cSurface* pImage ) {
 				*di = al;
 			
 			si += 3;
-			di += 4;
+			di ++;
+		}
+		
+		si += word_42074;
+		di += word_42076;
+	}
+
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++word_42066;
+	}
+	
+	++word_42062;
+	si = word_42062;
+	di = word_42066;
+	di += Plane;
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
+		
+		for( cx = 0; cx < word_4206C; ++cx ) {
+			byte al = *si;
+			if(al)
+				*di = al;
+			
+			si += 3;
+			di ++;
 		}
 		
 		si += word_42074;
@@ -1383,11 +1393,12 @@ void cFodder::Show_Recruits() {
 	mouse_Setup();
 	map_ClearSpt();
 	
-	cSurface* ImageHill = new cSurface(320,200);
+	cSurface* ImageHill = new cSurface(320,260);
 	
 	delete word_3E1B7;
-	word_3E1B7 = g_Resource.fileGet( "hill.dat", word_3E1B7_zize );
-	
+	word_3E1B7 = g_Resource.fileGet( "hill.dat", word_3E1B7_size );
+	ImageHill->paletteLoad( word_3E1B7 + 0xFA00, 0x50 );
+
 	delete mDataHillBits;
 	mDataHillBits = g_Resource.fileGet( "hillbits.dat", mDataHillBitsSize );
 
@@ -1399,11 +1410,18 @@ void cFodder::Show_Recruits() {
 	Sprite_SetDataPtrToBase();
 	//video_Draw_unk_0();
 
-	sub_16BC3();
+	/*sub_16BC3();
 	sub_16C6C();
-	Recruit_Draw_LeftMenu();
+	Recruit_Draw_LeftMenu();*/
 	Recruit_Draw_Hill( ImageHill );
-	sub_17B64();
+
+	g_Window.RenderAt( ImageHill, cPosition() );
+	g_Window.FrameEnd();
+	for (;;) {
+
+	}
+
+	/*sub_17B64();
 	
 	mSpriteDataBasePtr = off_35E42;
 	Sprite_SetDataPtrToBase();
@@ -1466,14 +1484,14 @@ void cFodder::Show_Recruits() {
 	while( word_40044 == -1 ) {
 		sub_17C30();
 	}
-	
+	*/
 	delete ImageHill;
 }
 
 void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
-	word_42062 = word_3E1B7 + 0x0A00;
+	word_42062 = word_3E1B7 + 0xA00;
 	
-	word_42068 = 0x40;
+	word_42068 = 0x30;
 	word_4206A = 0x28;
 	word_4206C = 0x110;
 	word_4206E = 0xB0;
@@ -1493,8 +1511,8 @@ void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
 
 void cFodder::map_ClearSpt() {
 	
-	for (uint16 cx = 0; cx < 2655; ++cx )
-		mMapSptPtr[cx] = 0;
+	//for (uint16 cx = 0; cx < 2655; ++cx )
+	//	mMapSptPtr[cx] = 0;
 }
 
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
@@ -1749,7 +1767,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 	cSurface* img = g_Resource.image4PlaneLoad( pFilename, 0x100 );
 
 	while( Fade == -1 || DoBreak == false  ) {
-		g_Window.EventCheck();
+		eventProcess();
 
 		--pDuration;
 
@@ -1923,15 +1941,15 @@ void cFodder::Start() {
 				map_Load_Spt();
 				word_3ABA7 = -1;
 
-				map_Load_Info();
-				map_Load_Players();
-				sub_1142D();
-				sub_115F7();
+				map_Troops_Prepare();
+				//map_Load_Players();
+				//sub_1142D();
+				//sub_115F7();
 
 				word_3ABA7 = 0;
 				Show_Recruits();
-				sub_2E04C();
-
+				//sub_2E04C();
+				/*
 				if (!word_3B2FD) {
 					if (word_3B2FF) {
 						word_390B8 = -1;
@@ -1945,12 +1963,12 @@ void cFodder::Start() {
 					word_3ABEB = 0;
 
 					phase_Intro_Brief();
-				}
+				}*/
 			}
 
 			//loc_10513
-			sub_18908();
-			map_Load_TileSet();
+			//sub_18908();
+			//map_Load_TileSet();
 			map_Load_Spt();
 
 		}
