@@ -35,7 +35,7 @@ struct sMouseData {
 };
 
 struct sMission_unk0 {
-	uint16 field_0;
+	int16 field_0;
 	uint8 field_1;
 	uint8 field_2;
 	uint16 field_3;
@@ -123,7 +123,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16*			dword_3977E;
 
 	int8			byte_3978E[25];
-
+	int16			mTroopsAvailable;
+	
 	int16			mButtonPressLeft, mButtonPressRight;
 	int16			word_39EF8;
 	int16			word_39F02;
@@ -193,7 +194,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4F3;
 
 	uint16*			mMapSptPtr;
-
+	uint32			mMapSptSize;
+	
 	uint16			word_3BDAF;
 	uint16			word_3BDB1;
 	uint16			word_3BDB3;
@@ -227,7 +229,10 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mIntroDone;
 
 	uint16			byte_3DDA2[0x30];
-
+	
+	uint8*			word_3E1B7;
+	uint32			word_3E1B7_size;
+	
 	int16			word_3E75B;
 
 	uint16			word_40054;
@@ -278,13 +283,21 @@ protected:
 	
 	void			sub_13C1C( cSurface* pImage, int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
 	void			video_Draw_Sprite_( cSurface* pImage );
+	void			sub_13F58(  cSurface* pImage );
 	bool			sub_1429B();
 	void			Show_Recruits();
+	void			Recruit_Draw_Hill( cSurface *pImage );
+	void			video_Draw_Unk_2( cSurface* pImage );
+	
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, const char* pText );
 
+	std::string		map_Filename_Get();
+	std::string		map_Filename_MapGet();
+	std::string		map_Filename_SptGet();
+	
 	int16			introPlayText();
 	void			intro();
 
