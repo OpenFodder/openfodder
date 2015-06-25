@@ -304,6 +304,13 @@ class cFodder : public cSingleton < cFodder > {
 	sMouseData*		mouseData1;
 
 	uint16			word_427D4;
+	
+	int32			dword_44A36;
+	int32			dword_44A3E;
+	int32			dword_44A3A;
+	int32			dword_44A42;
+	int32			dword_44A46;
+
 	int64			mTicks;
 	int64			mTicksDiff;
 
@@ -342,9 +349,11 @@ protected:
 	
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
-	uint32			sub_2AE81( int16 *pData0, int16 *pData4 );
+	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
-	void			sub_2AF19( int16 pData0, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, int16* pData20 );
+	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
+	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
+	void			sub_2B016( uint8* pDi, uint8 pAl );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, const char* pText );

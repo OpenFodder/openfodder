@@ -1855,12 +1855,12 @@ void cFodder::Show_Recruits() {
 	mSpriteDataBasePtr = off_35E42;
 	Sprite_SetDataPtrToBase();
 	
-	sub_17CD3();
+	//sub_17CD3();
 	video_Draw_Unk_2( ImageHill );
 	
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
-	word_39020 = 0;
+	//word_39020 = 0;
 	/*
 	sub_17368();
 	
@@ -2180,14 +2180,14 @@ void cFodder::sub_16F78() {
 }
 
 void cFodder::sub_17B64() {
-	const struct_3* Data20 = stru_35C70;
+	const struct_3* stru = stru_35C70;
 
-	for (; Data20->field_0 != -1;) {
-		int16 word_3B19F = Data20->field_0;
-		int16 word_3B1A1 = Data20->field_2;
-		int16 word_3B1A3 = Data20->field_4;
-		int16 word_3B1A5 = Data20->field_6;
-		int16* Data34 = Data20->field_8;
+	for (; stru->field_0 != -1;) {
+		int16 word_3B19F = stru->field_0;
+		int16 word_3B1A1 = stru->field_2;
+		int16 word_3B1A3 = stru->field_4;
+		int16 word_3B1A5 = stru->field_6;
+		int16* Data34 = stru->field_8;
 
 		for (;;) {
 			int16 Data0 = word_3B19F;
@@ -2195,43 +2195,53 @@ void cFodder::sub_17B64() {
 			int16 Data8 = word_3B1A3;
 			int16 DataC = word_3B1A5;
 
-			int16 Dataa20 = sub_2AE81( &Data0, &Data4 );
+			uint8* Data20 = sub_2AE81( &Data0, &Data4 );
 
 			Data8 = *Data34++;
-			if (Data8 >= 0) {
-				++Data20;
+			if (Data8 < 0) {
+				++stru;
 				break;
 			}
 
 			sub_2AEB6( Data0, Data4, &Data8, &DataC );
-			int16 Data10 = word_3B1A3;
-			Data10 += 0x08;
+			int16 Data10 = word_3B1A3 + 0x08;
 			int16 Data14 = word_3B1A5;
-			sub_2AF19( Data0, Data8, Data10, Data14, DataC );
+			sub_2AF19( Data0, Data4, Data8, Data10, Data14, DataC, Data20 );
 			word_3B1A3 += 0x10;
 		}
 	}
 
 }
 
-uint32 cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
+uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
 	const sSpriteSheet* Sheet = &mSpriteDataPtr[*pData0][*pData4];
-
-	int16 Data20 = Sheet->field_0;
-	int16 Data22 = Sheet->field_2;
 
 	*pData0 = Sheet->mColCount;
 	*pData4 = Sheet->mRowCount;
 
-	return (Data22 << 8) + Data20;
+	uint8* Data20;
+
+	switch (Sheet->field_2) {
+		case 0x4307:
+			Data20 = mDataPStuff;
+			break;
+
+		case 0x4309:
+			Data20 = mDataHillBits;
+			break;
+
+		default:
+			break;
+	}
+	return Data20 + Sheet->field_0;
 }
  
-void cFodder::sub_2AF19( int16 pData0, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, int16* pData20 ) {
+void cFodder::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
 	pData0 &= 0xFFFF;
-	pData8 &= 0xFFFF;	// WHY?
+	pData4 &= 0xFFFF;
 
-	int16 *si = pData20;
-	int8* es = word_3E1B7;
+	uint8 *si = pData20;
+	uint8* es = word_3E1B7;
 
 	pData8 >>= 1;
 
@@ -2239,52 +2249,40 @@ void cFodder::sub_2AF19( int16 pData0, int16 pData8, int16 pData10, int16 pData1
 	dword_44A3E = dword_44A36;
 
 	dword_44A3A = pData14 - (pDataC >> 1);
-	int32 eax = pData8 << 0x10;
+	int32 eax = (pData8 << 0x10);
 	if (eax <= 0)
 		return;
 
-	eax /= pData0;
-	word_44A42 = eax;
-	eax >>= 0x10;
-	word_44A44 = eax;
-	eax = pDataC & 0xFFFF;
-	eax >> 0x10;
+	dword_44A42 = eax / pData0;
+	eax = pDataC << 0x10;
 	if (eax <= 0)
 		return;
 
-seg007:1482 66 33 D2                    xor     edx, edx
-seg007:1485 66 64 F7 36+                div     dword ptr fs:4
-seg007:148B 64 A3 A6 CF                 mov     word ptr fs:dword_44A46, ax
-seg007:148F 66 C1 E8 10                 shr     eax, 10h
-seg007:1493 64 A3 A8 CF                 mov     word ptr fs:dword_44A46+2, ax
-seg007:1497 33 DB                       xor     bx, bx
-seg007:1499
-seg007:1499             loc_2AFB9:                              ; CODE XREF: sub_2AF19+D8j
-seg007:1499 66 64 A1 9E+                mov     eax, fs:dword_44A3E
-seg007:149E 66 64 A3 96+                mov     fs:dword_44A36, eax
-seg007:14A3 33 C9                       xor     cx, cx
-seg007:14A5
-seg007:14A5             loc_2AFC5:                              ; CODE XREF: sub_2AF19+C5j
-seg007:14A5 0E                          push    cs
-seg007:14A6 E8 2C 00                    call    near ptr sub_2AFF5
-seg007:14A9 0E                          push    cs
-seg007:14AA E8 49 00                    call    near ptr sub_2B016
-seg007:14AD 66 64 A1 A2+                mov     eax, fs:dword_44A42
-seg007:14B2 66 64 01 06+                add     fs:dword_44A36, eax
-seg007:14B8 41                          inc     cx
-seg007:14B9 64 3B 0E 00+                cmp     cx, fs:0
-seg007:14BE 75 E5                       jnz     short loc_2AFC5
-seg007:14C0 66 64 A1 A6+                mov     eax, fs:dword_44A46
-seg007:14C5 66 64 01 06+                add     fs:dword_44A3A, eax
-seg007:14CB 43                          inc     bx
-seg007:14CC 64 3B 1E 04+                cmp     bx, fs:4
-seg007:14D1 75 C6                       jnz     short loc_2AFB9
-seg007:14D3
-seg007:14D3             loc_2AFF3:                              ; CODE XREF: sub_2AF19+64j
-seg007:14D3                                                     ; sub_2AF19+66j ...
-seg007:14D3 1F                          pop     ds
-seg007:14D4 CB                          retf
+	dword_44A46 = eax / pData4;
+	for (int16 bx = 0; bx != pData4; ++bx) {
+		dword_44A36 = dword_44A3E;
+
+		for (int16 cx = 0; cx != pData0; ++cx) {
+			uint8 al = sub_2AFF5( si, bx, cx );
+			sub_2B016( es, al );
+			dword_44A36 += dword_44A42;
+		}
+
+		dword_44A3A += dword_44A46;
+   	}
+
 }
+
+uint8 cFodder::sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx ) {
+	uint8 ax = 0xA0 * pBx;
+	pSi += ax;
+	pSi += (pCx >> 1);
+	if (pCx & 1)
+		return (*pSi) & 0x0F;
+
+	return (*pSi) >> 4;
+}
+
 void cFodder::sub_2AEB6( int16 pData0, int16 pData4, int16* pData8, int16* pDataC ) {
 	int32	Data = pData0 * *pData8;
 	pData0 = (int16) Data / 0x64;
@@ -2295,6 +2293,21 @@ void cFodder::sub_2AEB6( int16 pData0, int16 pData4, int16* pData8, int16* pData
 	*pDataC = (int16) Data / 0x64;
 
 	*pData8 = Final8;
+}
+
+void cFodder::sub_2B016( uint8* pDi, uint8 pAl ) {
+	
+	pDi += 0xA0 * dword_44A3A;
+	pDi += dword_44A36 >> 1;
+
+	if (dword_44A36 & 1) {
+		*pDi &= 0xF0;
+		*pDi |= pAl & 0x0F;
+		return;
+	}
+
+	*pDi &= 0x0F;
+	*pDi |= pAl << 4;
 }
 
 void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
