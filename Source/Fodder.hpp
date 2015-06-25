@@ -92,6 +92,13 @@ struct struct_Troops {
 	uint8 field_8;
 };
 
+struct struct_3 {
+	int16	field_0;
+	int16	field_2;
+	int16	field_4;
+	int16	field_6;
+	int16*	field_8;
+};
 
 class cFodder : public cSingleton < cFodder > {
 
@@ -225,7 +232,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
-	
+
 	int16*			word_3BDAD;
 	uint16			word_3BDAF;
 	uint16			word_3BDB1;
@@ -328,11 +335,16 @@ protected:
 	void			Recruit_Draw_LeftMenu( cSurface *pImage );
 	void			sub_16DF2();
 	void			sub_16F78();
-	
+	void			sub_17B64();
+
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Recruitment */
 	
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
+
+	uint32			sub_2AE81( int16 *pData0, int16 *pData4 );
+	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
+	void			sub_2AF19( int16 pData0, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, int16* pData20 );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, const char* pText );

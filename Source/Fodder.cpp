@@ -616,6 +616,69 @@ const struct_2 stru_44B50[209] =
   { 192, 113, 48, 10 }
 };
 
+int16 word_35DFE[] = {
+	0x21, 0x32, 0x42, 0x55,
+	0x64, -1,
+};
+
+int16 word_35E0A[] = {
+	0x21, 0x32, 0x42,
+	0x55, 0x64, -1
+};
+
+int16 word_35E16[] = {
+	0x21, 0x30, 0x42, 0x55, 0x64, -1,
+};
+
+int16 word_35E22[] = {
+	0x21, 0x28, 0x42, 0x55, 0x64, -1,
+};
+
+int16 word_35E2E[] = {
+	0x21, 0x3C, 0x42, 0x55, 0x64, -1
+};
+
+int16 word_35E3A[] = {
+	0x32, 0x52, 0x64, -1
+};
+
+const struct_3 stru_35C70[34] =
+{
+  { 0, 0, 48, 40, word_35DFE },
+  { 0, 1, 48, 56, word_35E0A },
+  { 0, 2, 48, 72, word_35E16 },
+  { 0, 3, 48, 88, word_35E22 },
+  { 0, 4, 48, 104, word_35E2E },
+  { 0, 5, 48, 120, word_35E0A },
+  { 0, 6, 48, 136, word_35E0A },
+  { 0, 7, 48, 152, word_35E0A },
+  { 0, 8, 48, 168, word_35E0A },
+  { 1, 0, 144, 40, word_35E3A },
+  { 1, 1, 192, 40, word_35E3A },
+  { 2, 0, 240, 40, word_35E3A },
+  { 2, 1, 144, 56, word_35E3A },
+  { 3, 0, 192, 56, word_35E3A },
+  { 3, 1, 240, 56, word_35E3A },
+  { 4, 0, 144, 72, word_35E3A },
+  { 4, 1, 192, 72, word_35E3A },
+  { 5, 0, 240, 72, word_35E3A },
+  { 5, 1, 144, 88, word_35E3A },
+  { 6, 0, 192, 88, word_35E3A },
+  { 6, 1, 240, 88, word_35E3A },
+  { 7, 0, 144, 104, word_35E3A },
+  { 7, 1, 192, 104, word_35E3A },
+  { 8, 0, 240, 104, word_35E3A },
+  { 8, 1, 144, 120, word_35E3A },
+  { 9, 0, 192, 120, word_35E3A },
+  { 9, 1, 240, 120, word_35E3A },
+  { 10, 0, 144, 136, word_35E3A },
+  { 10, 1, 192, 136, word_35E3A },
+  { 11, 0, 240, 136, word_35E3A },
+  { 11, 1, 144, 152, word_35E3A },
+  { 12, 0, 192, 152, word_35E3A },
+  { 12, 1, 240, 152, word_35E3A },
+  { -1 }
+};
 
 cFodder::cFodder() {
 
@@ -644,7 +707,7 @@ cFodder::cFodder() {
 	word_3A9B2 = 0;
 	word_3E1B7 = 0;
 	
-	mMapSptPtr = new uint16[9600];
+	mMapSptPtr = new uint16[4800];
 
 	word_40054 = 0;
 	word_42062 = 0;
@@ -1758,7 +1821,7 @@ void cFodder::Show_Recruits() {
 	mouse_Setup();
 	map_ClearSpt();
 	
-	cSurface* ImageHill = new cSurface(320,260);
+	cSurface* ImageHill = new cSurface(320,230);
 	
 	delete word_3E1B7;
 	word_3E1B7 = g_Resource.fileGet( "hill.dat", word_3E1B7_size );
@@ -1780,12 +1843,13 @@ void cFodder::Show_Recruits() {
 	Recruit_Draw_LeftMenu( ImageHill );
 	Recruit_Draw_Hill( ImageHill );
 
+	/* Temp for testing
 	g_Window.RenderAt( ImageHill, cPosition() );
 	g_Window.FrameEnd();
 	for (;;) {
 
-	}
-
+	}*/
+	
 	sub_17B64();
 	
 	mSpriteDataBasePtr = off_35E42;
@@ -2115,14 +2179,132 @@ void cFodder::sub_16F78() {
 	}
 }
 
+void cFodder::sub_17B64() {
+	const struct_3* Data20 = stru_35C70;
+
+	for (; Data20->field_0 != -1;) {
+		int16 word_3B19F = Data20->field_0;
+		int16 word_3B1A1 = Data20->field_2;
+		int16 word_3B1A3 = Data20->field_4;
+		int16 word_3B1A5 = Data20->field_6;
+		int16* Data34 = Data20->field_8;
+
+		for (;;) {
+			int16 Data0 = word_3B19F;
+			int16 Data4 = word_3B1A1;
+			int16 Data8 = word_3B1A3;
+			int16 DataC = word_3B1A5;
+
+			int16 Dataa20 = sub_2AE81( &Data0, &Data4 );
+
+			Data8 = *Data34++;
+			if (Data8 >= 0) {
+				++Data20;
+				break;
+			}
+
+			sub_2AEB6( Data0, Data4, &Data8, &DataC );
+			int16 Data10 = word_3B1A3;
+			Data10 += 0x08;
+			int16 Data14 = word_3B1A5;
+			sub_2AF19( Data0, Data8, Data10, Data14, DataC );
+			word_3B1A3 += 0x10;
+		}
+	}
+
+}
+
+uint32 cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
+	const sSpriteSheet* Sheet = &mSpriteDataPtr[*pData0][*pData4];
+
+	int16 Data20 = Sheet->field_0;
+	int16 Data22 = Sheet->field_2;
+
+	*pData0 = Sheet->mColCount;
+	*pData4 = Sheet->mRowCount;
+
+	return (Data22 << 8) + Data20;
+}
+ 
+void cFodder::sub_2AF19( int16 pData0, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, int16* pData20 ) {
+	pData0 &= 0xFFFF;
+	pData8 &= 0xFFFF;	// WHY?
+
+	int16 *si = pData20;
+	int8* es = word_3E1B7;
+
+	pData8 >>= 1;
+
+	dword_44A36 = pData10 - (pData8 >> 1);
+	dword_44A3E = dword_44A36;
+
+	dword_44A3A = pData14 - (pDataC >> 1);
+	int32 eax = pData8 << 0x10;
+	if (eax <= 0)
+		return;
+
+	eax /= pData0;
+	word_44A42 = eax;
+	eax >>= 0x10;
+	word_44A44 = eax;
+	eax = pDataC & 0xFFFF;
+	eax >> 0x10;
+	if (eax <= 0)
+		return;
+
+seg007:1482 66 33 D2                    xor     edx, edx
+seg007:1485 66 64 F7 36+                div     dword ptr fs:4
+seg007:148B 64 A3 A6 CF                 mov     word ptr fs:dword_44A46, ax
+seg007:148F 66 C1 E8 10                 shr     eax, 10h
+seg007:1493 64 A3 A8 CF                 mov     word ptr fs:dword_44A46+2, ax
+seg007:1497 33 DB                       xor     bx, bx
+seg007:1499
+seg007:1499             loc_2AFB9:                              ; CODE XREF: sub_2AF19+D8j
+seg007:1499 66 64 A1 9E+                mov     eax, fs:dword_44A3E
+seg007:149E 66 64 A3 96+                mov     fs:dword_44A36, eax
+seg007:14A3 33 C9                       xor     cx, cx
+seg007:14A5
+seg007:14A5             loc_2AFC5:                              ; CODE XREF: sub_2AF19+C5j
+seg007:14A5 0E                          push    cs
+seg007:14A6 E8 2C 00                    call    near ptr sub_2AFF5
+seg007:14A9 0E                          push    cs
+seg007:14AA E8 49 00                    call    near ptr sub_2B016
+seg007:14AD 66 64 A1 A2+                mov     eax, fs:dword_44A42
+seg007:14B2 66 64 01 06+                add     fs:dword_44A36, eax
+seg007:14B8 41                          inc     cx
+seg007:14B9 64 3B 0E 00+                cmp     cx, fs:0
+seg007:14BE 75 E5                       jnz     short loc_2AFC5
+seg007:14C0 66 64 A1 A6+                mov     eax, fs:dword_44A46
+seg007:14C5 66 64 01 06+                add     fs:dword_44A3A, eax
+seg007:14CB 43                          inc     bx
+seg007:14CC 64 3B 1E 04+                cmp     bx, fs:4
+seg007:14D1 75 C6                       jnz     short loc_2AFB9
+seg007:14D3
+seg007:14D3             loc_2AFF3:                              ; CODE XREF: sub_2AF19+64j
+seg007:14D3                                                     ; sub_2AF19+66j ...
+seg007:14D3 1F                          pop     ds
+seg007:14D4 CB                          retf
+}
+void cFodder::sub_2AEB6( int16 pData0, int16 pData4, int16* pData8, int16* pDataC ) {
+	int32	Data = pData0 * *pData8;
+	pData0 = (int16) Data / 0x64;
+	
+	int16 Final8 = pData0;
+	
+	Data = pData4 * *pData8;
+	*pDataC = (int16) Data / 0x64;
+
+	*pData8 = Final8;
+}
+
 void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
 	
 }
 
 void cFodder::map_ClearSpt() {
 	
-	//for (uint16 cx = 0; cx < 2655; ++cx )
-	//	mMapSptPtr[cx] = 0;
+	for (uint16 cx = 0; cx < 4800; ++cx )
+		mMapSptPtr[cx] = 0;
 }
 
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
