@@ -23,6 +23,7 @@
 #include "stdafx.hpp"
 #include "SpriteData.hpp"
 #include "IntroData.hpp"
+#include "Troops.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
 							"rjnull.bin", 
@@ -381,6 +382,241 @@ const struct_0 stru_373BA[294] =
   { 65535, 65535, 0 }
 };
 
+int16 word_3E115[] =
+{
+  0x00, 0x01, 0x02, 0x03, 0x04, 
+  0x05, 0x06, 0x09, 0x0A, 0x0B, 
+  0x09, 
+  // word_3E12B
+  0x09, 0x0A, 0x0B, 0x09, -1, 
+};
+
+int16 word_3E12B[] = { 
+	0x09, 0x0A, 0x0B, 0x09, -1 };
+
+int16 word_3E135[] = {
+	0x07, 0x07, 0x09, 0x09, 0x08, 0x08, 0x07, 0x07, 0x07, 0x07,
+	0x09, 0x09, 0x08, 0x08, 0x07, 0x07, 0x09, 0x09, 0x09, -1
+};
+
+int16 word_3E15D[] = {
+	0x06, 0x05, 0x05, 0x04, 0x04, 0x03, 0x03, 0x02, 0x02, 0x01, 0x01, 0x00, -1
+};
+
+const struct_2 stru_44B50[209] =
+{
+  { 0, 79, 48, 13 },
+  { 48, 79, 48, 13 },
+  { 96, 79, 48, 13 },
+  { 0, 160, 48, 13 },
+  { 48, 160, 48, 13 },
+  { 96, 160, 48, 13 },
+  { 0, 160, 48, 13 },
+  { 96, 160, 48, 13 },
+  { 48, 160, 48, 13 },
+  { 48, 0, 16, 11 },
+  { 64, 0, 16, 11 },
+  { 80, 0, 16, 11 },
+  { 96, 0, 16, 11 },
+  { 112, 0, 16, 11 },
+  { 128, 0, 16, 11 },
+  { 144, 0, 16, 11 },
+  { 160, 0, 16, 11 },
+  { 176, 0, 16, 11 },
+  { 192, 0, 16, 11 },
+  { 208, 0, 16, 11 },
+  { 224, 0, 16, 11 },
+  { 240, 0, 16, 11 },
+  { 256, 0, 16, 11 },
+  { 272, 0, 16, 11 },
+  { 288, 0, 16, 11 },
+  { 304, 0, 16, 11 },
+  { 0, 12, 16, 11 },
+  { 16, 12, 16, 11 },
+  { 32, 12, 16, 11 },
+  { 48, 12, 16, 11 },
+  { 64, 12, 16, 11 },
+  { 80, 12, 16, 11 },
+  { 96, 12, 16, 11 },
+  { 112, 12, 16, 11 },
+  { 128, 12, 16, 11 },
+  { 64, 113, 16, 15 },
+  { 80, 113, 16, 15 },
+  { 0, 113, 16, 15 },
+  { 16, 113, 16, 15 },
+  { 32, 113, 16, 15 },
+  { 48, 113, 16, 15 },
+  { 0, 24, 16, 7 },
+  { 16, 24, 16, 7 },
+  { 32, 24, 16, 7 },
+  { 48, 24, 16, 7 },
+  { 64, 24, 16, 7 },
+  { 80, 24, 16, 7 },
+  { 96, 24, 16, 7 },
+  { 112, 24, 16, 7 },
+  { 128, 24, 16, 7 },
+  { 144, 24, 16, 7 },
+  { 160, 24, 16, 7 },
+  { 176, 24, 16, 7 },
+  { 192, 24, 16, 7 },
+  { 208, 24, 16, 7 },
+  { 224, 24, 16, 7 },
+  { 240, 24, 16, 7 },
+  { 256, 24, 16, 7 },
+  { 272, 24, 16, 7 },
+  { 288, 24, 16, 7 },
+  { 304, 24, 16, 7 },
+  { 0, 32, 16, 7 },
+  { 16, 32, 16, 7 },
+  { 32, 32, 16, 7 },
+  { 48, 32, 16, 7 },
+  { 64, 32, 16, 7 },
+  { 80, 32, 16, 7 },
+  { 96, 32, 16, 7 },
+  { 112, 32, 16, 7 },
+  { 128, 32, 16, 7 },
+  { 144, 32, 16, 7 },
+  { 160, 32, 16, 7 },
+  { 176, 32, 16, 7 },
+  { 192, 32, 16, 7 },
+  { 208, 32, 16, 7 },
+  { 224, 32, 16, 7 },
+  { 240, 32, 16, 7 },
+  { 0, 40, 16, 7 },
+  { 16, 40, 16, 7 },
+  { 32, 40, 16, 7 },
+  { 48, 40, 16, 7 },
+  { 64, 40, 16, 7 },
+  { 80, 40, 16, 7 },
+  { 96, 40, 16, 7 },
+  { 112, 40, 16, 7 },
+  { 128, 40, 16, 7 },
+  { 144, 40, 16, 7 },
+  { 160, 40, 16, 7 },
+  { 176, 40, 16, 7 },
+  { 192, 40, 16, 7 },
+  { 208, 40, 16, 7 },
+  { 224, 40, 16, 7 },
+  { 240, 40, 16, 7 },
+  { 256, 40, 16, 7 },
+  { 272, 40, 16, 7 },
+  { 288, 40, 16, 7 },
+  { 304, 40, 16, 7 },
+  { 0, 48, 16, 7 },
+  { 16, 48, 16, 7 },
+  { 32, 48, 16, 7 },
+  { 48, 48, 16, 7 },
+  { 64, 48, 16, 7 },
+  { 80, 48, 16, 7 },
+  { 96, 48, 16, 7 },
+  { 112, 48, 16, 7 },
+  { 128, 48, 16, 7 },
+  { 144, 48, 16, 7 },
+  { 160, 48, 16, 7 },
+  { 176, 48, 16, 7 },
+  { 192, 48, 16, 7 },
+  { 208, 48, 16, 7 },
+  { 224, 48, 16, 7 },
+  { 240, 48, 16, 7 },
+  { 0, 56, 16, 7 },
+  { 16, 56, 16, 7 },
+  { 32, 56, 16, 7 },
+  { 48, 56, 16, 7 },
+  { 64, 56, 16, 7 },
+  { 80, 56, 16, 7 },
+  { 96, 56, 16, 7 },
+  { 112, 56, 16, 7 },
+  { 128, 56, 16, 7 },
+  { 144, 56, 16, 7 },
+  { 160, 56, 16, 7 },
+  { 176, 56, 16, 7 },
+  { 192, 56, 16, 7 },
+  { 208, 56, 16, 7 },
+  { 224, 56, 16, 7 },
+  { 240, 56, 16, 7 },
+  { 256, 56, 16, 7 },
+  { 272, 56, 16, 7 },
+  { 288, 56, 16, 7 },
+  { 304, 56, 16, 7 },
+  { 0, 64, 16, 7 },
+  { 16, 64, 16, 7 },
+  { 32, 64, 16, 7 },
+  { 48, 64, 16, 7 },
+  { 64, 64, 16, 7 },
+  { 80, 64, 16, 7 },
+  { 96, 64, 16, 7 },
+  { 112, 64, 16, 7 },
+  { 128, 64, 16, 7 },
+  { 144, 64, 16, 7 },
+  { 160, 64, 16, 7 },
+  { 176, 64, 16, 7 },
+  { 192, 64, 16, 7 },
+  { 208, 64, 16, 7 },
+  { 224, 64, 16, 7 },
+  { 240, 64, 16, 7 },
+  { 160, 72, 32, 19 },
+  { 192, 72, 32, 19 },
+  { 224, 72, 32, 19 },
+  { 256, 72, 32, 19 },
+  { 288, 72, 32, 19 },
+  { 0, 93, 32, 19 },
+  { 32, 93, 32, 19 },
+  { 64, 93, 32, 19 },
+  { 96, 93, 32, 19 },
+  { 128, 93, 32, 19 },
+  { 0, 140, 32, 19 },
+  { 32, 140, 32, 19 },
+  { 64, 140, 32, 19 },
+  { 96, 140, 32, 19 },
+  { 128, 140, 32, 19 },
+  { 160, 140, 32, 19 },
+  { 192, 140, 32, 19 },
+  { 224, 140, 32, 19 },
+  { 256, 140, 32, 19 },
+  { 288, 140, 32, 19 },
+  { 0, 0, 48, 11 },
+  { 0, 0, 48, 11 },
+  { 144, 12, 48, 11 },
+  { 192, 12, 48, 11 },
+  { 96, 113, 48, 13 },
+  { 144, 113, 48, 13 },
+  { 0, 72, 16, 6 },
+  { 16, 72, 16, 6 },
+  { 32, 72, 16, 6 },
+  { 48, 72, 16, 6 },
+  { 64, 72, 16, 6 },
+  { 80, 72, 16, 6 },
+  { 96, 72, 16, 6 },
+  { 112, 72, 16, 6 },
+  { 128, 72, 16, 6 },
+  { 144, 72, 16, 6 },
+  { 0, 131, 16, 6 },
+  { 16, 131, 16, 6 },
+  { 32, 131, 16, 6 },
+  { 48, 131, 16, 6 },
+  { 64, 131, 16, 6 },
+  { 80, 131, 16, 6 },
+  { 96, 131, 16, 6 },
+  { 112, 131, 16, 6 },
+  { 128, 131, 16, 6 },
+  { 144, 131, 16, 6 },
+  { 192, 93, 16, 19 },
+  { 224, 93, 16, 19 },
+  { 208, 93, 16, 19 },
+  { 240, 93, 16, 19 },
+  { 256, 93, 16, 19 },
+  { 272, 93, 16, 19 },
+  { 288, 93, 16, 19 },
+  { 160, 93, 32, 19 },
+  { 0, 175, 48, 23 },
+  { 48, 175, 16, 15 },
+  { 64, 175, 48, 2 },
+  { 64, 178, 48, 2 },
+  { 64, 181, 48, 2 },
+  { 192, 113, 48, 10 }
+};
+
+
 cFodder::cFodder() {
 
 	mResources = new cResources();
@@ -408,7 +644,7 @@ cFodder::cFodder() {
 	word_3A9B2 = 0;
 	word_3E1B7 = 0;
 	
-	mMapSptPtr = new uint16[2655];
+	mMapSptPtr = new uint16[9600];
 
 	word_40054 = 0;
 	word_42062 = 0;
@@ -427,8 +663,10 @@ cFodder::cFodder() {
 
 	mDataPStuff = 0;
 	mDataHillBits = 0;
-	word_3BDAD = new uint16[4800];
-	
+	word_3BDAD = new int16[4800];
+	word_3A3BB = 0;
+	word_3A3BD = 0;
+
 	for (unsigned int x = 0; x < 30; ++x)
 		dword_3A3FD[x] = 0;
 
@@ -561,7 +799,8 @@ void cFodder::sub_10D61() {
 	word_3A9F7 = 0;
 	word_3AA17 = 0;
 	word_3AA19 = 0;
-
+	word_3AA55 = 0;
+	word_3AAC7 = 0;
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
 	word_3AC19 = 0;
@@ -707,9 +946,11 @@ void cFodder::map_Load_Spt() {
 	std::string Filename_Map = map_Filename_MapGet();
 	std::string Filename_Spt = map_Filename_SptGet();
 
-	mMapSptPtr = (uint16*) g_Resource.fileGet(Filename_Spt, mMapSptSize);
+	uint8* Map = g_Resource.fileGet(Filename_Spt, mMapSptSize);
 	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
-	
+	memcpy( mMapSptPtr, Map, mMapSptSize / 2 );
+	delete[] Map;
+
 	word_3AA17 = 0;
 	word_3AA19 = 0;
 	
@@ -1395,7 +1636,7 @@ bool cFodder::sub_1429B() {
 }
 
 void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
-	struct_2* str2 = stru_44B50[pData0];
+	const struct_2* str2 = &stru_44B50[pData0];
 	
 	int16 cx = str2->field_4;
 	int16 dx = str2->field_6;
@@ -1406,19 +1647,19 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	uint16 bx = str2->field_0 >> 1;
 	ax += bx;
 	
-	uint8* dword_42062 = mDataPStuff + ax;
+	word_42062 = mDataPStuff + ax;
 	
 	byte_42070 = 0xF0;
 	
-	word_42066 = 0x0C * pDataC;
-	word_42066 += pData8 >> 2;
+	uint16 w42066 = 0x0C * pDataC;
+	w42066 += pData8 >> 2;
 	
 	ax = pData8 & 3;
 	ax *= 0x960;
-	word_42066 += ax;
+	w42066 += ax;
 	
-	uint8* di = mMapSptPtr + word_42066;
-	uint8* si = dword_42062;
+	uint8* di = ((uint8*)mMapSptPtr) + w42066;
+	uint8* si = word_42062;
 	
 	byte bl = byte_42070;
 	word_4206C >>= 1;
@@ -1443,12 +1684,12 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		di += word_42076;
 	}
 
-	word_42066 += 0x960;
-	if( word_42066 >= 0x2580 )
-		word_42066 -= 0x257F;
+	w42066 += 0x960;
+	if( w42066 >= 0x2580 )
+		w42066 -= 0x257F;
 	
-	si = dword_42062;
-	di = word_42066;
+	si = word_42062;
+	di =  ((uint8*)mMapSptPtr) + w42066;
 	
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
@@ -1465,12 +1706,12 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		di += word_42076;
 	}
 
-	word_42066 += 0x960;
-	if( word_42066 >= 0x2580 )
-		word_42066 -= 0x257F;
+	w42066 += 0x960;
+	if( w42066 >= 0x2580 )
+		w42066 -= 0x257F;
 	
-	si = dword_42062;
-	di = word_42066;
+	si = word_42062;
+	di =  ((uint8*)mMapSptPtr) + w42066;
 	
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
@@ -1488,12 +1729,12 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		di += word_42076;
 	}
 	
-	word_42066 += 0x960;
-	if( word_42066 >= 0x2580 )
-		word_42066 -= 0x257F;
+	w42066 += 0x960;
+	if( w42066 >= 0x2580 )
+		w42066 -= 0x257F;
 
-	si = dword_42062;
-	di = word_42066;
+	si = word_42062;
+	di =  ((uint8*)mMapSptPtr) + w42066;
 	
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
@@ -1545,7 +1786,7 @@ void cFodder::Show_Recruits() {
 
 	}
 
-	/*sub_17B64();
+	sub_17B64();
 	
 	mSpriteDataBasePtr = off_35E42;
 	Sprite_SetDataPtrToBase();
@@ -1556,7 +1797,7 @@ void cFodder::Show_Recruits() {
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
 	word_39020 = 0;
-	
+	/*
 	sub_17368();
 	
 	word_3AAC9 = 0;
@@ -1630,23 +1871,23 @@ void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
 }
 
 void cFodder::sub_16BC3() {
-	int16*	di = word_3BDAD;	// 20h
+	int16* di = word_3BDAD;	// 20h
 	int16  ax = word_397D2;
 	int16  count;
 	
 	if( ax > 0 ) {
 		
-		sub_16C45( di, word_3E115 );
+		sub_16C45( &di, word_3E115 );
 		count = word_397D2;
 		count -= 2;
 
 		while( count >= 0 ) {
-			sub_16C45( di, byte_3E135 );
+			sub_16C45( &di, word_3E135 );
 			--count;
 		}
 		
-		sub_16C45( di, byte_3E12B );
-		sub_16C45( di, byte_3E15D );
+		sub_16C45( &di, word_3E12B );
+		sub_16C45( &di, word_3E15D );
 	}
 
 	*di++ = 0;
@@ -1671,7 +1912,7 @@ void cFodder::sub_16C6C() {
 	int16 *si = word_391D2;
 	
 	while( *si != -1 ) {
-		uint8* si1 = (int8*) si;
+		uint8* si1 = (uint8*) si;
 		
 		*(si1+1) += 1;
 		++si;
@@ -1687,7 +1928,7 @@ void cFodder::Recruit_Draw_LeftMenu( cSurface *pImage ) {
 	
 	struct_1* Data20 = stru_3978E;
 	int16 Data14 = 0x0E;
-	int16 Data0 = 4;
+	Data0 = 4;
 	
 	for( struct_1* Data20 = stru_3978E; Data0 >= 0; --Data0, ++Data20  ) {
 		if( Data20->field_0 == -1 )
@@ -1733,7 +1974,7 @@ void cFodder::Recruit_Draw_LeftMenu( cSurface *pImage ) {
 	} while( DataC < 0xA0 );
 
 	word_3BEC9 = 0xB8;
-	byte_3AA55 = 0x0F;
+	word_3AA55 = 0x0F;
 	word_3AAC7 = -1;
 	sub_16F78();
 	sub_16DF2();
@@ -1741,7 +1982,8 @@ void cFodder::Recruit_Draw_LeftMenu( cSurface *pImage ) {
 	word_3AAC7 = 0;
 	word_3AA55 = 0x0FFC5;
 	
-	sub_171A3();
+	// TODO
+	//sub_171A3();
 	word_3AA55 = 0;
 }
 
@@ -1750,54 +1992,51 @@ void cFodder::sub_16DF2() {
 	word_3A3BB = 7;
 	word_3A3BD = 0;
 	
-	int16* Data20 = 
 	for( uint16 x = 0; x < 8; ++x, --word_3A3BB ) {
-		sMission_unk0* Data2C = stru_390FA[x];
+		sMission_unk0* Data2C = &stru_390FA[x];
 		
-		int16 Data0 = Data38->field_4;
+		int16 Data0 = Data2C->field_4;
 		
 		if( Data0 == -1 )
 			continue;
 		
 		int16* Data20 = mMapSpt_Loaded;
-		Data4 = word_39FD0;
-		
+
 		int16* si = Data20 + Data0;
-		if( Data4 != si[0x19])
+		if( word_39FD0 != si[0x19])
 			continue;
 		
 		//Data0 = Data2C->field_0;
 		//Data0 *= 9;
-		struct_Troops* Data28 = stru_36712[Data2C->field_0];
+		struct_Troops* Data28 = &stru_36712[Data2C->field_0];
+		int16 Data14;
 
 		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
 			
-			if( Data28->field_0[Data14] == 0x20 ] )
+			if( Data28->field_0[Data14] == 0x20 )
 				break;
 			
 		} 
 		
 		Data0 = Data14;
 		Data14 <= 2;
-		Data18 = 0x30;
-		Data18 -= Data14;
-		Data18 >>= 1;
-		word_3A05F = Data18;
+		int16 word_3A05F = (0x30 - Data14) >> 1;
+
 		if( word_3AAC7 )
 			word_3A05F -= 1;
 		
 		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
 			
 			Data0 = Data28->field_0[Data14];
-			if( Data0 !== 0x20 ) {
+			if( Data0 != 0x20 ) {
 				Data0 = Data28->field_0[Data14];
 				Data0 -= 0x41;
 				Data0 += 0x29;
 				
-				Data8 = Data14;
+				int16 Data8 = Data14;
 				Data8 <<= 2;
 				Data8 += word_3A05F;
-				DataC = 0x4B;
+				int16 DataC = 0x4B;
 				DataC += word_3A3BD;
 				DataC += word_3AA55;
 				
@@ -1813,13 +2052,13 @@ void cFodder::sub_16F78() {
 	int16 Data0;
 	int16* Data34 = mMapSpt_Loaded;
 
-	word_3A061 = 7;
+	int16 word_3A061 = 7;
 	word_3A3BD = 0;
 	
 	int16 Data4;
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A061 ) {
-		sMission_unk0* Data38 = stru_390FA[x];
+		sMission_unk0* Data38 = &stru_390FA[x];
 		Data0 = Data38->field_4;
 		
 		if( Data0 == -1 )
@@ -1831,8 +2070,8 @@ void cFodder::sub_16F78() {
 		if( Data4 != si[0x19]  )
 			continue;
 		
-		Data8 = 0;
-		DataC = word_3A3BD;
+		int16 Data8 = 0;
+		int16 DataC = word_3A3BD;
 		DataC += 0x4A;
 		DataC += word_3AA55;
 		
@@ -1853,9 +2092,10 @@ void cFodder::sub_16F78() {
 			
 		} else {
 			//loc_17033
-			Data10 = 0x43;
+			//TODO
+			//Data10 = 0x43;
 			Data4 = Data38->field_A;
-			sub_170A4();
+			//sub_170A4();
 			
 		}
 		

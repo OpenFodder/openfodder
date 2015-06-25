@@ -86,7 +86,7 @@ struct struct_2 {
 };
 
 struct struct_Troops {
-	char field_0[6];
+	char field_0[7];	// increased to 7, to allow the null terminator
 	uint8 field_6;
 	uint8 field_7;
 	uint8 field_8;
@@ -178,8 +178,10 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A054;
 	uint32			dword_3A05A;
 	uint8			byte_3A05E;
+	uint16			word_3A05F;
 	uint32			dword_3A39D;
-
+	int16			word_3A3BB;
+	int16			word_3A3BD;
 	int32			dword_3A3FD[30];
 	int32			dword_3A475[30];
 	int32			dword_3A4ED[30];
@@ -197,6 +199,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9F7;
 	int16			word_3AA17;
 	int16			word_3AA19;
+	int16			word_3AA55;
+	int16			word_3AAC7;
 	int16			word_3AAD1;
 
 	int16			word_3AA43;
