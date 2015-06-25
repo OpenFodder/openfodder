@@ -36,12 +36,12 @@ struct sMouseData {
 
 struct sMission_unk0 {
 	int16 field_0;
-	uint8 field_1;
 	uint8 field_2;
-	uint16 field_3;
+	uint8 field_3;
 	uint16 field_4;
-	uint16 field_5;
-	uint16 field_6; 
+	uint16 field_6;
+	uint16 field_8;
+	uint16 field_A; 
 };
 
 struct sSpriteSheet {
@@ -71,6 +71,27 @@ struct struct_0 {
 	int16	field_2;
 	int16	field_4;
 };
+
+struct struct_1 {
+	int8	field_0;
+	int16	field_1;
+	int16	field_3;
+};
+
+struct struct_2 {
+	int16	field_0;
+	int16	field_2;
+	int16	field_4;
+	int16	field_6;
+};
+
+struct struct_Troops {
+	char field_0[6];
+	uint8 field_6;
+	uint8 field_7;
+	uint8 field_8;
+};
+
 
 class cFodder : public cSingleton < cFodder > {
 
@@ -122,7 +143,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_394AC[361];
 	int16*			dword_3977E;
 
-	int8			byte_3978E[25];
+	struct_1		stru_3978E[5];
 
 	int16			word_397D2;
 	int16			word_397D4;
@@ -201,6 +222,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
 	
+	int16*			word_3BDAD;
 	uint16			word_3BDAF;
 	uint16			word_3BDB1;
 	uint16			word_3BDB3;
@@ -291,9 +313,20 @@ protected:
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			sub_1429B();
+	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+	
+	/* Recruitment */
 	void			Show_Recruits();
 	void			Recruit_Draw_Hill( cSurface *pImage );
+	void			sub_16BC3();
+	void			sub_16C45( int16** pDi, int16* pSource );
+	void			sub_16C6C();
+	void			Recruit_Draw_LeftMenu( cSurface *pImage );
+	void			sub_16DF2();
+	void			sub_16F78();
+	
 	void			video_Draw_Unk_2( cSurface* pImage );
+	/* End Recruitment */
 	
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 
