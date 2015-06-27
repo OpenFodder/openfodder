@@ -344,6 +344,7 @@ protected:
 	void			sub_16DF2();
 	void			sub_16F78();
 	void			Recruit_Draw_TroopList();
+	void			sub_170A4( int16 pData4, int16 pData10 );
 	void			sub_17B64();
 	void			sub_17CD3( cSurface* pImage );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );

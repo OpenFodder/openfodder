@@ -94,3 +94,21 @@ void tool_EndianSwap( uint8 *pBuffer, size_t pSize ) {
 		*pDest++ = al;
 	}
 }
+
+std::string	tool_NumToString( uint32 pValue ) {
+   std::stringstream Result;
+
+   Result << pValue;
+   return Result.str();
+}
+
+std::string tool_StripLeadingZero( const std::string& pValue ) {
+	std::string Final = pValue;
+
+	while (*Final.begin() == 0x30) {
+
+		Final.erase( Final.begin() );
+	}
+
+	return Final;
+}
