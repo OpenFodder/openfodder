@@ -37,6 +37,8 @@
 std::string local_PathGenerate( std::string pFile, std::string pPath );
 uint8*		local_FileRead( std::string pFile, std::string pPath, size_t& pFileSize );
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
+std::string	tool_NumToString( uint32 pValue );
+std::string tool_StripLeadingZero( const std::string& pValue );
 
 // Read a word from the buffer
 inline uint16 readBEWord( const void *buffer ) {

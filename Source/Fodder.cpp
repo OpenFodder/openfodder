@@ -1807,7 +1807,7 @@ bool cFodder::sub_1429B() {
 			return false;
 		
 		ax -= 0;
-		ax - word_4206C;
+		ax -= word_4206C;
 		++ax;
 		ax = -ax;
 		--ax;
@@ -2270,7 +2270,7 @@ void cFodder::sub_16DF2() {
 		} 
 		
 		Data0 = Data14;
-		Data14 <= 2;
+		Data14 <<= 2;
 		int16 word_3A05F = (0x30 - Data14) >> 1;
 
 		if( word_3AAC7 )
@@ -2413,6 +2413,23 @@ void cFodder::Recruit_Draw_TroopList() {
 
 		sub_170A4( Data2C->field_3, 0x67 );
 		word_3A3BD += 0x0C;
+	}
+}
+
+void cFodder::sub_170A4( int16 pData4, int16 pData10 ) {
+	
+	pData10 -= 0x30;
+	std::string Data20 = tool_StripLeadingZero(tool_NumToString( pData4 ));
+	int16 Data0 = Data20.length() * 4;
+
+	int16 Data8 = 0x30 - Data0;
+	int16 DataC = 0x4B + word_3A3BD + word_3AA55;
+
+	for (std::string::iterator CharIT = Data20.begin(); CharIT != Data20.end(); ++CharIT) {
+
+		Data0 = (*CharIT & 0xFF) + pData10;
+		sub_145AF( Data0, Data8, DataC );
+		Data8 += 4;
 	}
 }
 
