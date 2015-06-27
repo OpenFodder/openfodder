@@ -2004,25 +2004,21 @@ void cFodder::Show_Recruits() {
 	Sprite_SetDataPtrToBase();
 	
 	sub_17CD3( ImageHill );
-	video_Draw_Unk_2( ImageHill );
+	//video_Draw_Unk_2( ImageHill );
 	
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
 	//word_39020 = 0;
-	/*
+	
 	sub_17368();
 	
 	word_3AAC9 = 0;
 	word_3AACB = word_3B60A;
 	
-	int16 ax = word_397D4;
-	ax -= 1;
-	if( ax >= 0 ) {
-		
-		while( ax > 0 ) 
-			sub_17429();
-	}
+	for (int16 ax = word_397D4 - 1; ax >= 0;--ax )
+		sub_17429();
 
+	/*
 	word_3AA51 = -1;
 	word_3A016 = 0;
 	word_3AA67 = 0;
@@ -2076,10 +2072,9 @@ void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
 	
 	video_Draw_Linear_To_Planar( pImage );
 	
-	// TODO: Why?
-	//for( uint32 x = 0; x < 0xA000; ++x) {
-	//	word_3E1B7[x] = 0;
-	//}
+	for( uint32 x = 0; x < 0xA000; ++x) {
+		word_3E1B7[x] = 0;
+	}
 }
 
 void cFodder::sub_16BC3() {
@@ -2241,8 +2236,7 @@ void cFodder::Recruit_Draw_LeftMenu( cSurface *pImage ) {
 	word_3AAC7 = 0;
 	word_3AA55 = 0x0FFC5;
 	
-	// TODO
-	//sub_171A3();
+	sub_171A3();
 	word_3AA55 = 0;
 }
 
@@ -2264,9 +2258,7 @@ void cFodder::sub_16DF2() {
 		int16* si = Data20 + Data0;
 		if( word_39FD0 != si[0x19])
 			continue;
-		
-		//Data0 = Data2C->field_0;
-		//Data0 *= 9;
+
 		struct_Troops* Data28 = &stru_36712[Data2C->field_0];
 		int16 Data14;
 
@@ -2302,6 +2294,7 @@ void cFodder::sub_16DF2() {
 				sub_145AF( Data0, Data8, DataC );
 			}
 		}
+
 		word_3A3BD += 0x0C;
 	}
 
@@ -2374,8 +2367,57 @@ void cFodder::sub_16F78() {
 	}
 }
 
+void cFodder::Recruit_Draw_TroopList() {
+	const struct_1* Data2C = stru_3978E;
+
+	word_3A3BB = 4;
+	word_3A3BD = 0;
+
+	for (word_3A3BB = 4; word_3A3BB >= 0; --word_3A3BB, ++Data2C ) {
+
+		if (Data2C->field_1 < 0)
+			continue;
+
+		int16 DataC = (word_3A3BD - 1) + (0x4A + word_3A3BD + 0x19);
+		
+		sub_145AF( Data2C->field_0 + 9, 0, DataC );
+
+		const struct_Troops* Data28 = &stru_36712[ Data2C->field_1 ];
+		int16 Data14 = 0;
+		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
+			
+			if( Data28->field_0[Data14] == 0x20 )
+				break;
+		} 
+		Data14 <<= 2;
+
+		word_3A05F = ((0x30 - Data14) >> 1) - 1;
+
+		for (Data14 = 0; Data14 <= 5; ++Data14 ) {
+			uint8 Character = Data28->field_0[Data14];
+			if (Character == 0x20)
+				continue;
+			
+			Character -= 0x41;
+			Character += 0x29;
+
+			int16 Data8 = Data14;
+			Data8 <<= 2;
+			Data8 += word_3A05F;
+			DataC = 0x4B + word_3A3BD;
+			DataC += word_3AA55;
+
+			sub_145AF( Character, Data8, DataC );
+
+		}
+
+		sub_170A4( Data2C->field_3, 0x67 );
+		word_3A3BD += 0x0C;
+	}
+}
+
 void cFodder::sub_17B64() {
-	//TODO: DEBUG
+
 	const struct_3* stru = stru_35C70;
 
 	for (; stru->field_0 != -1;) {
@@ -2423,6 +2465,7 @@ uint8* cFodder::GetSpriteData( uint16 pSegment ) {
 		default:
 			break;
 	}
+	return 0;
 }
 
 uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
@@ -2437,8 +2480,6 @@ uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
 void cFodder::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
 	pData0 &= 0xFFFF;
 	pData4 &= 0xFFFF;
-
-	// TODO: DEBUG
 
 	uint8 *si = pData20;
 	uint8* es = word_3E1B7;
