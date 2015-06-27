@@ -2433,6 +2433,61 @@ void cFodder::sub_170A4( int16 pData4, int16 pData10 ) {
 	}
 }
 
+void cFodder::sub_171A3() {
+	const struct_1* Data2C = stru_3978E;
+
+	word_3A3BB = 4;
+	word_3A3BD = 0;
+
+	for (word_3A3BB = 4; word_3A3BB >= 0; --word_3A3BB, ++Data2C) {
+
+		if (Data2C->field_1 < 0)
+			continue;
+
+		int16 Data0 = Data2C->field_0 + 9;
+		int16 Data8 = 0;
+		int16 DataC = word_3A3BD - 1;
+		DataC += 0x4A + word_3AA55+ 0x19;
+
+		sub_145AF( Data0, Data8, DataC );
+
+		struct_Troops* Data28 = &stru_36712[ Data2C->field_1 ];
+
+		int16 Data14;
+		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
+			
+			if( Data28->field_0[Data14] == 0x20 )
+				break;
+		} 
+
+		Data0 = Data14;
+		Data14 <<= 2;
+		word_3A05F = (0x30 - Data14) >> 1;
+		--word_3A05F;
+
+		for (Data14 = 0; Data14 <= 5; ++Data14) {
+			Data0 = 0;
+
+			uint8 Character = Data28->field_0[Data14];
+			if (Character == 0x20)
+				continue;
+
+			Character -= 0x41;
+			Character += 0x29;
+			Data8 = Data14;
+			Data8 <<= 2;
+			Data8 += word_3A05F;
+			DataC += 0x4B;
+			DataC += word_3A3BD + word_3AA55;
+
+			sub_145AF( Character, Data8, DataC );
+		}
+
+		sub_170A4( Data2C->field_3, 0x67 );
+		word_3A3BD += 0x0C;
+	}
+}
+
 void cFodder::sub_17B64() {
 
 	const struct_3* stru = stru_35C70;
