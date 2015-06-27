@@ -1843,11 +1843,11 @@ void cFodder::Show_Recruits() {
 	Recruit_Draw_LeftMenu( ImageHill );
 	Recruit_Draw_Hill( ImageHill );
 
-	/* Temp for testing
-	g_Window.RenderAt( ImageHill, cPosition() );
+	/* Temp for testing*/
+	/*g_Window.RenderAt( ImageHill, cPosition() );
 	g_Window.FrameEnd();
 	for (;;) {
-
+	
 	}*/
 	
 	sub_17B64();
@@ -2180,6 +2180,7 @@ void cFodder::sub_16F78() {
 }
 
 void cFodder::sub_17B64() {
+	//TODO: DEBUG
 	const struct_3* stru = stru_35C70;
 
 	for (; stru->field_0 != -1;) {
@@ -2213,42 +2214,44 @@ void cFodder::sub_17B64() {
 
 }
 
+uint8* cFodder::GetSpriteData( uint16 pSegment ) {
+	
+	switch ( pSegment ) {
+		case 0x4307:
+			return mDataPStuff;
+			break;
+
+		case 0x4309:
+			return mDataHillBits;
+			break;
+
+		default:
+			break;
+	}
+}
+
 uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
 	const sSpriteSheet* Sheet = &mSpriteDataPtr[*pData0][*pData4];
 
 	*pData0 = Sheet->mColCount;
 	*pData4 = Sheet->mRowCount;
 
-	uint8* Data20;
-
-	switch (Sheet->field_2) {
-		case 0x4307:
-			Data20 = mDataPStuff;
-			break;
-
-		case 0x4309:
-			Data20 = mDataHillBits;
-			break;
-
-		default:
-			break;
-	}
-	return Data20 + Sheet->field_0;
+	return GetSpriteData( Sheet->field_2 ) + Sheet->field_0;
 }
  
 void cFodder::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
 	pData0 &= 0xFFFF;
 	pData4 &= 0xFFFF;
 
+	// TODO: DEBUG
+
 	uint8 *si = pData20;
 	uint8* es = word_3E1B7;
 
-	pData8 >>= 1;
-
-	dword_44A36 = pData10 - (pData8 >> 1);
+	dword_44A36 = pData10 - (pData8 >> 1) << 16;
 	dword_44A3E = dword_44A36;
 
-	dword_44A3A = pData14 - (pDataC >> 1);
+	dword_44A3A = pData14 - (pDataC >> 1) << 16;
 	int32 eax = (pData8 << 0x10);
 	if (eax <= 0)
 		return;
@@ -2274,8 +2277,8 @@ void cFodder::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10
 }
 
 uint8 cFodder::sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx ) {
-	uint8 ax = 0xA0 * pBx;
-	pSi += ax;
+
+	pSi += 0xA0 * pBx;
 	pSi += (pCx >> 1);
 	if (pCx & 1)
 		return (*pSi) & 0x0F;
@@ -2297,10 +2300,10 @@ void cFodder::sub_2AEB6( int16 pData0, int16 pData4, int16* pData8, int16* pData
 
 void cFodder::sub_2B016( uint8* pDi, uint8 pAl ) {
 	
-	pDi += 0xA0 * dword_44A3A;
-	pDi += dword_44A36 >> 1;
+	pDi += 0xA0 * (dword_44A3A >> 16); 
+	pDi += (dword_44A36 >> 16) >> 1;
 
-	if (dword_44A36 & 1) {
+	if ((dword_44A36 >> 16) & 1) {
 		*pDi &= 0xF0;
 		*pDi |= pAl & 0x0F;
 		return;

@@ -316,6 +316,7 @@ class cFodder : public cSingleton < cFodder > {
 
 protected:
 
+	uint8*			GetSpriteData( uint16 pSegment );
 	void			sub_10BBC();
 	void			sub_10B6D();
 	void			sub_10BFA();
