@@ -646,7 +646,7 @@ void cFodder::mouse_Handle() {
 	mouse_GetData();
 	mouse_ButtonCheck();
 
-	g_Window.SetMousePosition( cPosition( 160, 100 ) );
+	//g_Window.SetMousePosition( cPosition( 160, 100 ) );
 
 	int16 dword_37AA4 = mouse_Pos_Column - 0x70;
 	word_3BDB3 = dword_37AA4;
@@ -738,11 +738,21 @@ void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32
 			pImage->paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 			break;
 
+		case 0x4309:
+			word_42062 = mDataHillBits + bx;
+			pImage->paletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
+			break;
+		
+		case 0x6717:
+			word_42062 = word_3E1B7 + bx;
+			break;
+
 		default:
+			std::cout << "Invalid Sprite Pointer\n";
 			break;
 	}
 
-	word_42068 = pParam08;
+	word_42068 = (pParam08 + 0x10) - 16;
 	word_4206A = pParam0C + 0x10;
 	word_4206C = mSpriteDataPtr[pParam00][pParam04].mColCount;
 	word_4206E = mSpriteDataPtr[pParam00][pParam04].mRowCount;
@@ -756,7 +766,7 @@ void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32
 
 }
 
-void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC ) {
+void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) {
 	uint16 bx = mSpriteDataPtr[pData0][pData4].field_0;
 
 	switch ( mSpriteDataPtr[pData0][pData4].field_2) {
@@ -765,12 +775,17 @@ void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pDa
 			pImage->paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 			break;
 
+		case 0x6717:
+			word_42062 = word_3E1B7 + bx;
+			break;
+
 		default:
+			std::cout << "Invalid Sprite Pointer\n";
 			break;
 	}
 
-	word_42068 = pData8 + 0x10;
-	word_4206A = pDataC + 0x10;
+	word_42068 = (pPosX + 0x10) - 16;
+	word_4206A = pPosY + 0x10;
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
@@ -928,9 +943,9 @@ void cFodder::video_Draw_Linear_To_Planar(  cSurface* pImage ) {
 	word_42076 = 320 - word_4206C;
 
 	di += Plane;
-	for( int16 dx = 192; dx > 0; --dx ) {
+	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
-		for( cx = 0; cx < 320; ++cx ) {
+		for( cx = word_4206C; cx > 0; --cx ) {
 			byte al = *si;
 			if(al)
 				*di = al;
@@ -939,8 +954,8 @@ void cFodder::video_Draw_Linear_To_Planar(  cSurface* pImage ) {
 			di ++;
 		}
 
-		//si += word_42074;
-		//di += word_42076;
+		si += word_42074;
+		di += word_42076;
 	}
 
 	pImage->draw();
@@ -1287,7 +1302,7 @@ void cFodder::Show_Recruits() {
 			if( sub_18C7A() )
 				break;
 		}
-		
+
 		Recruit_Draw( ImageHill );
 	}
 	
@@ -1825,8 +1840,8 @@ void cFodder::Recruit_Draw_Actors( cSurface* pImage ) {
 
 	word_42072 = 2;
 
-	sub_17AD0( pImage );
-	sub_17745( pImage );
+	Recruit_Draw_Truck( pImage );
+	Recruit_Draw_Troops( pImage );
 
 	bp = mouseData1;
 	bp->anonymous_0 = 0;
@@ -1911,7 +1926,7 @@ loc_17686:;
 
 }
 
-void cFodder::sub_17745( cSurface *pImage ) {
+void cFodder::Recruit_Draw_Troops( cSurface *pImage ) {
 
 	if (word_3B1EF) {
 		sub_175C0();
@@ -1951,7 +1966,7 @@ void cFodder::sub_17745( cSurface *pImage ) {
 			if (DataC >= 0xB7)
 				Data0 += 4;
 			else if (DataC > 0x7C )
-				Data0 += 2;
+				Data0 += 2; //FIXME. should this be a one?
 
 			Data4 = 0;
 
@@ -1974,8 +1989,6 @@ void cFodder::sub_17745( cSurface *pImage ) {
 			--DataC;
 			sub_13C8A( pImage, Data0, Data4, Data8, DataC );
 		}
-
-		
 	}
 }
 
@@ -2052,7 +2065,7 @@ loc_179B2:;
 		return;
 
 	word_3B1ED = 0;
-	Data0 = word_3B1CF[0];
+	Data0 = word_3B1CF[0] / 6;
 	Data8 = 5;
 
 	for ( ; ; Data0++ ) {
@@ -2115,7 +2128,7 @@ loc_179B2:;
 		word_3B1EF = -1;
 }
 
-void cFodder::sub_17AD0( cSurface* pImage ) {
+void cFodder::Recruit_Draw_Truck( cSurface* pImage ) {
 	int16 Data0 = 0x22;
 	int16 Data4 = word_3AACD;
 	int16 Data8 = 0x31;
@@ -2192,9 +2205,6 @@ void cFodder::Recruit_Draw( cSurface *pImage ) {
 	/* Temp for testing*/
 	g_Window.RenderAt( pImage, cPosition() );
 	g_Window.FrameEnd();
-	for (;;) {
-	
-	}
 }
 
 uint8* cFodder::GetSpriteData( uint16 pSegment ) {
@@ -2209,6 +2219,7 @@ uint8* cFodder::GetSpriteData( uint16 pSegment ) {
 			break;
 
 		default:
+			std::cout << "Invalid Sprite\n";
 			break;
 	}
 	return 0;
@@ -2333,10 +2344,10 @@ void cFodder::map_ClearSpt() {
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
 
 	String_CalculateWidth( 320, mFontWidths, pString );
-	String_Print( pImage, mFontWidths, pPosY, 0, word_3B301, pString->mText );
+	String_Print( pImage, mFontWidths, pPosY, 0, word_3B301, pString->mPosition, pString->mText );
 }
 
-void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32 pParam0, int32 pParam08, const char* pText ) {
+void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
 
 	word_3B305 = pPosY;
 	word_3B307 = 0;
@@ -2418,7 +2429,7 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32
 			loc_29D71:;
 
 			if (word_3AC21) {
-				//sub_145AF( pParam0 + NextChar, pPosX );
+				sub_145AF( pParam0 + NextChar, pParam08, pParamC );
 			}
 			else			//0		// C    // 4	   // 8
 				sub_13C1C( pImage, pParam0, pPosY, NextChar, pParam08 );
