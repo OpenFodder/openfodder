@@ -46,7 +46,7 @@ struct sMission_unk0 {
 
 struct sSpriteSheet {
 	uint16 field_0;
-	int16 field_2;
+	uint16 field_2;
 	int16 field_4;
 	int16 field_6;
 	int16 mColCount;
@@ -346,8 +346,8 @@ protected:
 	void			sub_10EE3();
 	void			map_Load_Spt();
 	
-	void			sub_13C1C( cSurface* pImage, int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
-	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC );
+	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
+	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
 
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
@@ -371,11 +371,11 @@ protected:
 	void			sub_17480( int16 Data0, int16 Data4, int16 Data8, uint8*& Data20 );
 	void			Recruit_Draw_Actors( cSurface* pImage );
 	void			sub_175C0();
-	void			sub_17745( cSurface *pImage );
+	void			Recruit_Draw_Troops( cSurface *pImage );
 	void			sub_1787C();
 	void			sub_178DD();
 	void			sub_17911();
-	void			sub_17AD0( cSurface* pImage );
+	void			Recruit_Draw_Truck( cSurface* pImage );
 	void			sub_17B64();
 	void			Recruit_Draw( cSurface *pImage );
 	void			sub_17CD3( cSurface* pImage );
@@ -394,7 +394,7 @@ protected:
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
-	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, const char* pText );
+	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
 
 	std::string		map_Filename_Get();
 	std::string		map_Filename_MapGet();
