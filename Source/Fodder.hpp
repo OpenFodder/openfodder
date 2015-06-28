@@ -45,7 +45,7 @@ struct sMission_unk0 {
 };
 
 struct sSpriteSheet {
-	int16 field_0;
+	uint16 field_0;
 	int16 field_2;
 	int16 field_4;
 	int16 field_6;
@@ -66,10 +66,11 @@ struct sIntroText {
 	const sIntroString*	mText;
 };
 
-struct struct_0 {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
+struct struct_Troops {
+	char field_0[7];	// increased to 7, to allow the null terminator
+	uint8 field_6;
+	uint8 field_7;
+	uint8 field_8;
 };
 
 struct struct_1 {
@@ -85,19 +86,18 @@ struct struct_2 {
 	int16	field_6;
 };
 
-struct struct_Troops {
-	char field_0[7];	// increased to 7, to allow the null terminator
-	uint8 field_6;
-	uint8 field_7;
-	uint8 field_8;
-};
-
 struct struct_3 {
 	int16	field_0;
 	int16	field_2;
 	int16	field_4;
 	int16	field_6;
 	int16*	field_8;
+};
+
+struct struct_4 {
+	int16	field_0;
+	int16	field_2;
+	int16	field_4;
 };
 
 class cFodder : public cSingleton < cFodder > {
@@ -116,7 +116,9 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint8*			mDataPStuff;
 	uint8* 			mDataHillBits;
-	
+	uint8*			mDataArmy;
+	uint8*			mDataSubBlk;
+
 	size_t			mDataPStuffSize;
 	size_t			mDataHillBitsSize;
 
@@ -181,6 +183,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			dword_3A000;
 	int16			dword_3A004;
 	int16			dword_3A008;
+	int16			word_3A016;
 	uint16			word_3A024;
 	uint16			word_3A054;
 	uint32			dword_3A05A;
@@ -206,8 +209,12 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9F7;
 	int16			word_3AA17;
 	int16			word_3AA19;
+	int16			word_3AA51;
 	int16			word_3AA55;
+	int16			word_3AA67;
+	int16			word_3AA71;
 	int16			word_3AAC7;
+	int16*			dword_3AAC9;
 	int16			word_3AAD1;
 
 	int16			word_3AA43;
@@ -216,8 +223,11 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3AC19;
 	int16			word_3AC21;
-	
-	const struct_0*		dword_3B1FB;
+	int16			word_3B1CF[0x10];
+	int16			word_3B1EF;
+	int16			word_3B1F1;
+
+	const struct_4*		dword_3B1FB;
 
 	int16			word_3B2CD;
 	int16			word_3B2CF;
@@ -346,6 +356,11 @@ protected:
 	void			Recruit_Draw_TroopList();
 	void			sub_170A4( int16 pData4, int16 pData10 );
 	void			sub_171A3();
+	void			sub_17368();
+	void			sub_17429();
+	void			sub_17480( int16 Data0, int16 Data4, int16 Data8, uint8*& Data20 );
+	void			sub_17592();
+	void			sub_1787C();
 	void			sub_17B64();
 	void			sub_17CD3( cSurface* pImage );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
