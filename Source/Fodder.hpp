@@ -215,6 +215,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA71;
 	int16			word_3AAC7;
 	int16*			dword_3AAC9;
+	int16			word_3AACD;
+	int16			word_3AACF;
 	int16			word_3AAD1;
 
 	int16			word_3AA43;
@@ -223,7 +225,9 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3AC19;
 	int16			word_3AC21;
-	int16			word_3B1CF[0x10];
+	int32			dword_3B1CB;
+	int16			word_3B1CF[0x0F];
+	int16			word_3B1ED;
 	int16			word_3B1EF;
 	int16			word_3B1F1;
 
@@ -231,6 +235,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3B2CD;
 	int16			word_3B2CF;
+	int16			word_3B2FD;
+	int16			word_3B2FF;
 	int16			word_3B301;
 	int16			word_3B303;
 
@@ -244,7 +250,7 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			mMapSptSize;
 
 	int16*			word_3BDAD;
-	uint16			word_3BDAF;
+	int16			word_3BDAF;
 	uint16			word_3BDB1;
 	uint16			word_3BDB3;
 	uint16			word_3BDB5;
@@ -277,7 +283,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mIntroDone;
 
 	uint16			byte_3DDA2[0x30];
-	
+	int16			word_3E0E5[0x18];
+
 	uint8*			word_3E1B7;
 	size_t			word_3E1B7_size;
 	
@@ -313,6 +320,7 @@ class cFodder : public cSingleton < cFodder > {
 	sMouseData*		mouseData0;
 	sMouseData*		mouseData1;
 
+	int16			word_42072;
 	uint16			word_427D4;
 	
 	int32			dword_44A36;
@@ -339,6 +347,8 @@ protected:
 	void			map_Load_Spt();
 	
 	void			sub_13C1C( cSurface* pImage, int32 pParam0, int32 pPosX, int32 NextChar, int32 pParam08 );
+	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC );
+
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			sub_1429B();
@@ -350,7 +360,7 @@ protected:
 	void			sub_16BC3();
 	void			sub_16C45( int16** pDi, int16* pSource );
 	void			sub_16C6C();
-	void			Recruit_Draw_LeftMenu( cSurface *pImage );
+	void			Recruit_Render_LeftMenu( cSurface *pImage );
 	void			sub_16DF2();
 	void			sub_16F78();
 	void			Recruit_Draw_TroopList();
@@ -359,9 +369,15 @@ protected:
 	void			sub_17368();
 	void			sub_17429();
 	void			sub_17480( int16 Data0, int16 Data4, int16 Data8, uint8*& Data20 );
-	void			sub_17592();
+	void			Recruit_Draw_Actors( cSurface* pImage );
+	void			sub_175C0();
+	void			sub_17745( cSurface *pImage );
 	void			sub_1787C();
+	void			sub_178DD();
+	void			sub_17911();
+	void			sub_17AD0( cSurface* pImage );
 	void			sub_17B64();
+	void			Recruit_Draw( cSurface *pImage );
 	void			sub_17CD3( cSurface* pImage );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
 
@@ -369,6 +385,7 @@ protected:
 	/* End Recruitment */
 	
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
+	bool			sub_18C7A();
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
