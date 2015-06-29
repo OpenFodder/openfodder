@@ -2697,7 +2697,18 @@ void cFodder::WonGame() {
 		g_Window.EventCheck();
 	}
 }
+void cFodder::sub_2E04C() {
+	
+	if( word_3B2FD ) {
+		sub_2E72B();
+		return;
+	} 
 
+	if( word_3B2FF ) {
+		sub_2E064();
+	}
+	
+}
 void cFodder::Start() {
 
 	mouse_Setup();
@@ -2774,8 +2785,8 @@ void cFodder::Start() {
 
 				word_3ABA7 = 0;
 				Show_Recruits();
-				//sub_2E04C();
-				/*
+				sub_2E04C();
+				
 				if (!word_3B2FD) {
 					if (word_3B2FF) {
 						word_390B8 = -1;
@@ -2789,7 +2800,7 @@ void cFodder::Start() {
 					word_3ABEB = 0;
 
 					phase_Intro_Brief();
-				}*/
+				}
 			}
 
 			//loc_10513
