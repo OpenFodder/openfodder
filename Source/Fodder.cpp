@@ -917,7 +917,7 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	pImage->draw();
 }
 
-void cFodder::video_Draw_Linear_To_Planar(  cSurface* pImage ) {
+void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
 	uint8*	di = pImage->GetSurfaceBuffer();
 	uint8* 	si = word_42062;
 	int16	ax, cx;
@@ -1275,7 +1275,7 @@ void cFodder::Show_Recruits() {
 	
 	sub_17368();
 	
-	dword_3AAC9 = 0;
+	//dword_3AAC9 = mDataSubBlk;
 	
 	for (int16 ax = word_397D4 - 1; ax >= 0;--ax )
 		sub_17429();
@@ -1955,7 +1955,6 @@ void cFodder::Recruit_Draw_Troops( cSurface *pImage ) {
 		if (Data4 == 0)
 			continue;
 
-		
 		--Data4;
 		if (Data4 >= 3) {
 			//loc_177E3
@@ -1966,7 +1965,7 @@ void cFodder::Recruit_Draw_Troops( cSurface *pImage ) {
 			if (DataC >= 0xB7)
 				Data0 += 4;
 			else if (DataC > 0x7C )
-				Data0 += 2; //FIXME. should this be a one?
+				Data0 += 2;
 
 			Data4 = 0;
 
@@ -2065,12 +2064,12 @@ loc_179B2:;
 		return;
 
 	word_3B1ED = 0;
-	Data0 = word_3B1CF[0] / 6;
+	Data0 = word_3B1CF[0];
 	Data8 = 5;
 
-	for ( ; ; Data0++ ) {
+	for ( ; ; Data0+=6 ) {
 
-		Data4 = (Data24 + Data0)->field_4;
+		Data4 = (Data24 + (Data0/6))->field_4;
 		if (Data4) {
 			if (Data4 > 3) {
 				word_3B1ED = -1;
@@ -2080,7 +2079,7 @@ loc_179B2:;
 				continue;
 		}
 		else {
-			if (Data0 == 0x110) {
+			if (Data0 == 0x660) {
 				word_3B1ED = -1;
 				break;
 			}
@@ -2101,23 +2100,23 @@ loc_179B2:;
 
 	for (int16 DData8 = 0x0E; DData8 >= 0; --DData8) {
 
-		Data0 = (*Data20 / 6);
+		Data0 = *Data20;
 		if (Data0 >= 0) {
 			Data4 = (dword_3B1CB >> 16);
 
 			Data4 += *Data2C++;
-			if ((Data24 + Data0)->field_0 < 0)
+			if ((Data24 + (Data0/6))->field_0 < 0)
 				Data0 = 0;
 
-			if ((Data24 + Data0)->field_4)
-				Data0 ++;
+			if ((Data24 + (Data0/6))->field_4)
+				Data0 += 6;
 
-			(Data24 + Data0)->field_4 = Data4;
+			(Data24 + (Data0/6))->field_4 = Data4;
 		}
 		// 17A9D
 
 		if (!word_3B1ED)
-			Data0 ++;
+			Data0 += 6;
 
 		//loc_17AA9
 		*Data20 = Data0;
@@ -2698,7 +2697,8 @@ void cFodder::WonGame() {
 	}
 }
 void cFodder::sub_2E04C() {
-	
+
+	/*
 	if( word_3B2FD ) {
 		sub_2E72B();
 		return;
@@ -2706,9 +2706,9 @@ void cFodder::sub_2E04C() {
 
 	if( word_3B2FF ) {
 		sub_2E064();
-	}
-	
+	}*/
 }
+
 void cFodder::Start() {
 
 	mouse_Setup();
@@ -2795,11 +2795,11 @@ void cFodder::Start() {
 						continue;	// goto loc_1042E;
 					}
 					word_390B8 = 0;
-					sub_10CE7();
-					word_3ABE9 = 0;
-					word_3ABEB = 0;
+					//sub_10CE7();
+					//word_3ABE9 = 0;
+					//word_3ABEB = 0;
 
-					phase_Intro_Brief();
+					//phase_Intro_Brief();
 				}
 			}
 

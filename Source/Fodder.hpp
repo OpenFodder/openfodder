@@ -393,6 +393,8 @@ protected:
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 
+	void			sub_2E04C();
+
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
 
