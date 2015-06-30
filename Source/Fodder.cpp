@@ -1234,6 +1234,10 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 }
 
+void cFodder::sub_144A2() {
+		
+}
+
 void cFodder::Show_Recruits() {
 	
 	mouse_Setup();
@@ -1332,6 +1336,31 @@ void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
 	for( uint32 x = 0; x < 0xA000; ++x) {
 		word_3E1B7[x] = 0;
 	}
+}
+
+void cFodder::Recruit_Draw_HomeAway( cSurface* pImage ) {
+	const char* strHomeAndAway = "HOME                AWAY";
+	
+	mSpriteDataBasePtr = mHillBitsSpriteSheetPtr;
+	Sprite_SetDataPtrToBase();
+	
+	Data0 = 0x18;
+	Data4 = 0;
+	Data8 = 0;
+	DataC = 0;
+	sub_13C1C( pImage, pData0, pDataC, Data4, pData8 );
+	
+	Data20 = word_3E0E5;
+	Data4 = mMissionNumber;
+	--Data4;
+	Data4 <<= 1;
+	
+	Data4 = word_3E0E5[ Data4 ];
+	Data8 = 0x130;
+	DataC = 0;
+	
+	sub_13C1C( pImage, pData0, pDataC, Data4, pData8 );
+	
 }
 
 void cFodder::sub_16BC3() {
@@ -2188,8 +2217,8 @@ void cFodder::Recruit_Draw( cSurface *pImage ) {
 	mouse_Handle();
 
 	Recruit_Draw_Actors( pImage );
-	//Recruit_Draw_LeftMenu();
-	//Recruit_Draw_HomeAway();
+	sub_144A2();
+	Recruit_Draw_HomeAway();
 	//Mouse_DrawCursor();
 	//sub_13800();
 
