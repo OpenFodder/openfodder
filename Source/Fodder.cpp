@@ -1361,6 +1361,13 @@ void cFodder::Recruit_Draw_HomeAway( cSurface* pImage ) {
 	
 	sub_13C1C( pImage, pData0, pDataC, Data4, pData8 );
 	
+	String_CalculateWidth( 320, word_438EF, strHomeAndAway );
+	String_Print( pImage, word_438EF, Data4, 0x0D, word_3B301, 0x0A, strHomeAndAway );
+	
+	sub_13C1C( pImage, 0x0E, 0x0A, 0, 0x9B );
+	
+	Data4 = word_397AE;
+	
 }
 
 void cFodder::sub_16BC3() {
@@ -2375,9 +2382,9 @@ void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pSt
 	String_Print( pImage, mFontWidths, pPosY, 0, word_3B301, pString->mPosition, pString->mText );
 }
 
-void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
+void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam4, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
 
-	word_3B305 = pPosY;
+	word_3B305 = pParamC;
 	word_3B307 = 0;
 
 	for (;;) {
