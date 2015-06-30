@@ -1349,6 +1349,38 @@ void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
 	}
 }
 
+void cFodder::Recruit_Draw_HomeAway( cSurface* pImage ) {
+	const char* strHomeAndAway = "HOME                AWAY";
+	
+	mSpriteDataBasePtr = mHillBitsSpriteSheetPtr;
+	Sprite_SetDataPtrToBase();
+	
+	Data0 = 0x18;
+	Data4 = 0;
+	Data8 = 0;
+	DataC = 0;
+	sub_13C1C( pImage, pData0, pDataC, Data4, pData8 );
+	
+	Data20 = word_3E0E5;
+	Data4 = mMissionNumber;
+	--Data4;
+	Data4 <<= 1;
+	
+	Data4 = word_3E0E5[ Data4 ];
+	Data8 = 0x130;
+	DataC = 0;
+	
+	sub_13C1C( pImage, pData0, pDataC, Data4, pData8 );
+	
+	String_CalculateWidth( 320, word_438EF, strHomeAndAway );
+	String_Print( pImage, word_438EF, Data4, 0x0D, word_3B301, 0x0A, strHomeAndAway );
+	
+	sub_13C1C( pImage, 0x0E, 0x0A, 0, 0x9B );
+	
+	Data4 = word_397AE;
+	
+}
+
 void cFodder::sub_16BC3() {
 	int16* di = word_3BDAD;	// 20h
 	int16  ax = word_397D2;
@@ -2363,9 +2395,9 @@ void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pSt
 	String_Print( pImage, mFontWidths, pPosY, 0, word_3B301, pString->mPosition, pString->mText );
 }
 
-void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
+void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam4, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
 
-	word_3B305 = pPosY;
+	word_3B305 = pParamC;
 	word_3B307 = 0;
 
 	for (;;) {
@@ -2448,7 +2480,7 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32
 				sub_145AF( pParam0 + NextChar, pParam08, pParamC );
 			}
 			else			//0		// C    // 4	   // 8
-				sub_13C1C( pImage, pParam0, pPosY, NextChar, pParam08 );
+				sub_13C1C( pImage, pParam0, pParam4, NextChar, pParam08 );
 
 		}
 		loc_29DC7:;
