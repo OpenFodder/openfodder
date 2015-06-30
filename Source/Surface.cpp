@@ -25,6 +25,7 @@
 cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mWidth = pWidth; 
 	mHeight = pHeight;
+	mFaded = false;
 
 	mColorKey = 0xFF;
 
@@ -35,10 +36,13 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	//SDL_SetColorKey(mSDLSurface, 1, 0xFFFFFFFF	);
 
 	mSurfaceBuffer = new uint8[ mWidth * mHeight ];
+	mSurfaceBufferSaved = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSize = mWidth * mHeight;
 	
-	for( int i = 0; i < mSurfaceBufferSize; ++i )
+	for (int i = 0; i < mSurfaceBufferSize; ++i) {
 		mSurfaceBuffer[i] = 0;
+		mSurfaceBufferSaved[i] = 0;
+	}
 
 	wipe();
 }
@@ -63,64 +67,15 @@ void cSurface::wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t 
 
 	SDL_FillRect( mSDLSurface, &dest, pColor );
 }
-/*
-void cSurface::blitFrom( cSurface *pSource, uint16 destX, uint16 destY, uint32 colorKey, uint32 colorKey2, uint16 pMaxHeight ) {
 
-	if(!pSource)
-		return;
+void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID ) {
 
-	SDL_Surface *sdlSurface = pSource->surfaceGet();
-	uint32		*srcSurface = (uint32*) sdlSurface->pixels;
-	uint32		*srcEnd		= (uint32*) sdlSurface->pixels + (sdlSurface->pitch * sdlSurface->h);
-	uint32		*dstSurface	= 0;
-
-	uint16 x, y, maxX, maxY;
-
-	maxX = destX + pSource->widthGet();
-
-	if( pMaxHeight )
-		maxY = destY + pMaxHeight;
-	else
-		maxY = destY + pSource->heightGet();
-
-	uint32 difference = mWidth - pSource->widthGet();
-
-	uint16	maxWidth = mWidth, maxHeight = mHeight;
-
-	for(y = destY; y < maxY; ++y) {
-		for(x = destX; x < maxX; ++x) {
-
-			if(srcSurface >= srcEnd)
-				break;
-
-			// Ensure we're drawing inside the screen 
-			// (skip the bytes if its outside the screen area)
-			if( x < 0 || y < 0 || x >= maxWidth || y >= maxHeight ) {
-				dstSurface = 0;
-				++srcSurface;
-				continue;
-
-			} else {
-
-				// Make sure we got a surface to draw to
-				if(!dstSurface)
-					dstSurface = pixelGet( x, y );
-
-				// If its nots a match of either key colors
-				if( *srcSurface != colorKey && *srcSurface != colorKey2 ) {
-					*dstSurface = *srcSurface;
-				}
-			}
-
-			++srcSurface;
-			++dstSurface;
-		}
-
-		if(dstSurface)
-			dstSurface += difference;
+	for (uint32 ColorID = pColorID; ColorID < g_MaxColors; ++ColorID) {
+		mPaletteNew[ColorID] = pPalette[ColorID];
 	}
+	paletteLoadSDL();
 }
-*/
+
 void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID ) {
 	size_t colorStartID = pColorID;
 
@@ -135,15 +90,12 @@ void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColor
 		mPaletteNew[ pColorID ].mBlue =		*pBuffer++;
 	}
 
-	for (unsigned int x = 0; x < g_MaxColors; ++x) {
-		mPaletteOriginal[x] = mPaletteNew[x];
-	}
-
 	paletteLoadNewSDL();
 }
 
 void cSurface::paletteFadeOut() {
-	
+	mFaded = false;
+
 	for (int cx = 0; cx < g_MaxColors; ++cx) {
 		mPaletteNew[cx].mBlue = 0;
 		mPaletteNew[cx].mRed = 0;
@@ -155,6 +107,7 @@ void cSurface::paletteFadeOut() {
 
 int16 cSurface::paletteFade() {
 	int bx = 0;
+	mFaded = true;
 
 	for( int cx = 0x0; cx < 0x100; ++cx ) {
 
@@ -177,11 +130,11 @@ int16 cSurface::paletteFade() {
 			// loc_13918
 			mPalette[cx].setPos(i, bl + al );
 			bx = -1;
+			mFaded = false;
 		}
 	}
 
 	paletteLoadSDL();
-
 	return bx;
 }
 
@@ -249,6 +202,16 @@ void cSurface::draw( size_t pX, size_t pY ) {
 	}
 
 	SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
+}
+
+void cSurface::Save() {
+
+	memcpy( mSurfaceBufferSaved, mSurfaceBuffer, mSurfaceBufferSize );
+}
+
+void cSurface::Restore() {
+	
+	memcpy( mSurfaceBuffer, mSurfaceBufferSaved, mSurfaceBufferSize );
 }
 
 void cSurface::decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColors ) {
