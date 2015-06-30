@@ -44,7 +44,6 @@ public:
 
 class cSurface {
 protected:
-	cPalette		mPaletteOriginal[g_MaxColors];
 	cPalette		mPalette[ g_MaxColors ];
 	cPalette		mPaletteNew[ g_MaxColors ];
 
@@ -52,12 +51,14 @@ protected:
 	uint32			mColorKey;
 
 	uint8*			mSurfaceBuffer;								// Loaded Image (uses palette indexs)
+	uint8*			mSurfaceBufferSaved;
 	size_t			mSurfaceBufferSize;
 
 	SDL_Surface*	mSDLSurface;
 	SDL_Texture*	mTexture;
 
 	size_t			mWidth, mHeight;
+	bool			mFaded;
 
 	void			paletteSDLColorSet( size_t id, cPalette *pPalette  );	// Set a color in the palette
 	void			paletteLoadSDL();
@@ -78,6 +79,10 @@ public:
 
 	void			 draw( size_t pX = 0 , size_t pY = 0);					// Draw image to SDL Surface
 
+	void			Save();
+	void			Restore();
+
+	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0 );
 	void			 paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );	// Load a palette
 	int16			 paletteFade();
 	void			 paletteFadeOut();
@@ -89,4 +94,5 @@ public:
 
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }
+	inline bool			GetFaded() { return mFaded; }
 };

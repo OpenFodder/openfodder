@@ -108,7 +108,6 @@ class cFodder : public cSingleton < cFodder > {
 	cWindow*				mWindow;
 
 	int16					mMapSpt_Loaded[2655];
-	const sSpriteSheet**	mSpriteDataBasePtr;
 	const sSpriteSheet**	mSpriteDataPtr;
 
 	cPosition		mMousePosition;
@@ -214,7 +213,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA67;
 	int16			word_3AA71;
 	int16			word_3AAC7;
-	int16*			dword_3AAC9;
+	uint8*			dword_3AAC9;
 	int16			word_3AACD;
 	int16			word_3AACF;
 	int16			word_3AAD1;
@@ -332,6 +331,8 @@ class cFodder : public cSingleton < cFodder > {
 	int64			mTicks;
 	int64			mTicksDiff;
 
+	cPalette		mPalette[ g_MaxColors ];
+
 protected:
 
 	uint8*			GetSpriteData( uint16 pSegment );
@@ -346,19 +347,18 @@ protected:
 	void			sub_10EE3();
 	void			map_Load_Spt();
 	
+	void			sub_13800();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
 
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			sub_1429B();
-	void			sub_144A2();
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	
 	/* Recruitment */
-	void			Show_Recruits();
-	void			Recruit_Draw_Hill( cSurface* pImage );
-	void			Recruit_Draw_HomeAway( cSurface* pImage );
+	void			Recruit_Show();
+	void			Recruit_Draw_Hill( cSurface *pImage );
 	void			sub_16BC3();
 	void			sub_16C45( int16** pDi, int16* pSource );
 	void			sub_16C6C();
@@ -370,7 +370,7 @@ protected:
 	void			sub_171A3();
 	void			sub_17368();
 	void			sub_17429();
-	void			sub_17480( int16 Data0, int16 Data4, int16 Data8, uint8*& Data20 );
+	void			sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint8*& Data20 );
 	void			Recruit_Draw_Actors( cSurface* pImage );
 	void			sub_175C0();
 	void			Recruit_Draw_Troops( cSurface *pImage );
@@ -418,12 +418,14 @@ protected:
 	void			Load_PlayerBin();
 	
 	void			Load_Sprite_Font();
-	void			Sprite_SetDataPtrToBase();
+	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
 
 	void			videoSleep();
 
 	void			sleepLoop( int64 pMilliseconds );
 	int16			ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );
+
+	void			paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID );
 
 	void			memory_XMS_Detect();
 	void			mouse_Setup();

@@ -503,7 +503,7 @@ void cFodder::map_Troops_Prepare() {
 	
 	word_397D4 = 0;
 	
-	for( int16 x = 7; x > 0; --x ) {
+	for( int16 x = 7; x >= 0; --x ) {
 		
 		if( stru_390FA[x].field_0 != -1 ) {
 			--word_397D2;
@@ -728,6 +728,27 @@ void cFodder::Prepare() {
 	memory_XMS_Detect();
 }
 
+void cFodder::sub_13800() {
+
+	videoSleep();
+	videoSleep();
+}
+
+void cFodder::paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID ) {
+		size_t colorStartID = pColorID;
+
+	if( pColors >= g_MaxColors )
+		pColors = g_MaxColors-1;
+
+	for(; pColorID < pColors + colorStartID; pColorID++) {
+		
+		// Get the next color values
+		mPalette[ pColorID ].mRed =		*pBuffer++;
+		mPalette[ pColorID ].mGreen =	*pBuffer++;
+		mPalette[ pColorID ].mBlue =	*pBuffer++;
+	}
+}
+
 void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
 
 	uint16 bx = mSpriteDataPtr[pParam00][pParam04].field_0;
@@ -735,12 +756,10 @@ void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32
 	switch ( mSpriteDataPtr[pParam00][pParam04].field_2) {
 		case 0x4307:
 			word_42062 = mDataPStuff + bx;
-			pImage->paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 			break;
 
 		case 0x4309:
 			word_42062 = mDataHillBits + bx;
-			pImage->paletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
 			break;
 		
 		case 0x6717:
@@ -772,7 +791,6 @@ void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPo
 	switch ( mSpriteDataPtr[pData0][pData4].field_2) {
 		case 0x4307:
 			word_42062 = mDataPStuff + bx;
-			pImage->paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 			break;
 
 		case 0x6717:
@@ -960,7 +978,7 @@ void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
 
 	pImage->draw();
 	return;
-
+	/*
 	++Plane;
 	if (Plane == 4) {
 		Plane = 0;
@@ -1037,7 +1055,7 @@ void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
 		di += word_42076;
 	}
 	
-	pImage->draw();
+	pImage->draw();*/
 }
 
 bool cFodder::sub_1429B() {
@@ -1234,11 +1252,7 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 }
 
-void cFodder::sub_144A2() {
-		
-}
-
-void cFodder::Show_Recruits() {
+void cFodder::Recruit_Show() {
 	
 	mouse_Setup();
 	map_ClearSpt();
@@ -1247,18 +1261,17 @@ void cFodder::Show_Recruits() {
 	
 	delete word_3E1B7;
 	word_3E1B7 = g_Resource.fileGet( "hill.dat", word_3E1B7_size );
-	ImageHill->paletteLoad( word_3E1B7 + 0xFA00, 0x50 );
+	paletteLoad( word_3E1B7 + 0xFA00, 0x50, 0x00 );
 
 	delete mDataHillBits;
 	mDataHillBits = g_Resource.fileGet( "hillbits.dat", mDataHillBitsSize );
+	paletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
 
 	dword_3B1FB = stru_373BA;
 	word_3AAD1 = -1;
 	word_3AB39 = -1;
 	
-	mSpriteDataBasePtr = mHillBitsSpriteSheetPtr;
-	Sprite_SetDataPtrToBase();
-	//video_Draw_unk_0();
+	Sprite_SetDataPtrToBase( mHillBitsSpriteSheetPtr );
 
 	sub_16BC3();
 	sub_16C6C();
@@ -1267,23 +1280,23 @@ void cFodder::Show_Recruits() {
 	
 	sub_17B64();
 	
-	mSpriteDataBasePtr = off_35E42;
-	Sprite_SetDataPtrToBase();
+	Sprite_SetDataPtrToBase( off_35E42 );
 	
 	sub_17CD3( ImageHill );
-	//video_Draw_Unk_2( ImageHill );
-	
+
+	ImageHill->Save();
+	ImageHill->paletteSet( mPalette );
+
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
 	//word_39020 = 0;
 	
 	sub_17368();
 	
-	//dword_3AAC9 = mDataSubBlk;
+	dword_3AAC9 = mDataSubBlk;
 	
 	for (int16 ax = word_397D4 - 1; ax >= 0;--ax )
 		sub_17429();
-
 	
 	word_3AA51 = -1;
 	word_3A016 = 0;
@@ -1293,9 +1306,7 @@ void cFodder::Show_Recruits() {
 	sub_1787C();
 
 	Recruit_Draw_Actors( ImageHill );
-	//video_unk_0_1();
 	Recruit_Draw_Actors( ImageHill );
-	//video_unk_0_1();
 	
 	word_39F02 = 0;
 	
@@ -1315,9 +1326,9 @@ void cFodder::Show_Recruits() {
 	
 	ImageHill->paletteFadeOut();
 	
-	//while( word_40044 == -1 ) {
-	//	Recruit_Draw();
-	//}
+	while( ImageHill->GetFaded() == false ) {
+		Recruit_Draw( ImageHill );
+	}
 	
 	delete ImageHill;
 }
@@ -1336,38 +1347,6 @@ void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
 	for( uint32 x = 0; x < 0xA000; ++x) {
 		word_3E1B7[x] = 0;
 	}
-}
-
-void cFodder::Recruit_Draw_HomeAway( cSurface* pImage ) {
-	const char* strHomeAndAway = "HOME                AWAY";
-	
-	mSpriteDataBasePtr = mHillBitsSpriteSheetPtr;
-	Sprite_SetDataPtrToBase();
-	
-	Data0 = 0x18;
-	Data4 = 0;
-	Data8 = 0;
-	DataC = 0;
-	sub_13C1C( pImage, pData0, pDataC, Data4, pData8 );
-	
-	Data20 = word_3E0E5;
-	Data4 = mMissionNumber;
-	--Data4;
-	Data4 <<= 1;
-	
-	Data4 = word_3E0E5[ Data4 ];
-	Data8 = 0x130;
-	DataC = 0;
-	
-	sub_13C1C( pImage, pData0, pDataC, Data4, pData8 );
-	
-	String_CalculateWidth( 320, word_438EF, strHomeAndAway );
-	String_Print( pImage, word_438EF, Data4, 0x0D, word_3B301, 0x0A, strHomeAndAway );
-	
-	sub_13C1C( pImage, 0x0E, 0x0A, 0, 0x9B );
-	
-	Data4 = word_397AE;
-	
 }
 
 void cFodder::sub_16BC3() {
@@ -1808,21 +1787,22 @@ void cFodder::sub_17368() {
 }
 
 void cFodder::sub_17429() {
-	int16* Data24 = dword_3AAC9;
+	uint8* Data24 = dword_3AAC9;
 
-	if (*Data24 < 0)
+	if (*((uint32*)Data24) < 0)
 		return;
 
 	uint8* Data20 = (uint8*) *((uint32*)Data24);
-	Data24 += 2;
+	Data24 += 4;
 
-	int16 Data0 = *Data24++;
+	uint16 Data0 = *((uint16*)Data24);
+	Data24 += 2;
 
 	dword_3AAC9 = Data24;
 	sub_17480( Data0, 0x0C, -1, Data20 );
 }
 
-void cFodder::sub_17480( int16 pData0, int16 pData4, int16 pData8, uint8*& pData20 ) {
+void cFodder::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint8*& pData20 ) {
 	pData0 += 0x18;
 
 	if (pData8 == 0) {
@@ -1890,29 +1870,28 @@ void cFodder::sub_175C0() {
 	if (word_3B1F1 > 0) {
 
 		struct_4* Data20 = &stru_373BA[293];
-		for (; Data20 != &stru_373BA[0]; ) {
+		do {
+			if (Data20 == &stru_373BA[0])
+				return;
+
 			--Data20;
 
-			if (Data20->field_4 == 0)
-				continue;
+		} while (Data20->field_4 == 0 || Data20->field_4 < 4);
 
-			if (Data20->field_4 < 4)
-				continue;
+		int16 Data0 = Data20->field_4;
+		Data20->field_4 = 0;
+		Data0 ^= 1;
 
-			int16 Data0 = Data20->field_4;
-			Data20->field_4 = 0;
-			Data0 ^= 1;
-
-			if ((Data20 + 1)->field_0 >= 0) {
-				(Data20 + 1)->field_4 = Data0;
-			}
-			else {
-				--word_3B1F1;
-				sub_17429();
-			}
+		if ((Data20 + 1)->field_0 >= 0) {
+			(Data20 + 1)->field_4 = Data0;
+		} else {
+			--word_3B1F1;
+			sub_17429();
 		}
 	}
-	uint16 aa = !(dword_3B1CB >> 16);
+	//loc_17652
+
+	uint16 aa = ~(dword_3B1CB >> 16);
 
 	dword_3B1CB = (aa << 16) | (dword_3B1CB & 0xFFFF);
 
@@ -1949,7 +1928,7 @@ loc_17686:;
 
 		int16 Data0 = Data20->field_4;
 		Data20->field_4 = 0;
-		if ((dword_3B1CB >> 16) >= 0)
+		if ((dword_3B1CB >> 16) < 0)
 			Data0 ^= 1;
 
 		if ((Data20 + 1)->field_4) {
@@ -2005,10 +1984,10 @@ void cFodder::Recruit_Draw_Troops( cSurface *pImage ) {
 
 			Data4 = 0;
 
-			if (Data20 > &stru_373BA[46]) {
+			if (Data20 > &stru_373BA[0x46]) {
 				Data4 = 1;
 
-				if (Data20 > &stru_373BA[122])
+				if (Data20 > &stru_373BA[0x7A])
 					Data4 = 2;
 			}
 		}
@@ -2078,21 +2057,21 @@ void cFodder::sub_17911() {
 
 	// loc_1795E
 	--Data0;
-	int16 Data4 = 0x110;
+	int16 Data4 = 0x660;
 
 	//loc_17968
 	for (; Data0 >= 0; --Data0) {
 
 		if (Data4 >= 0) {
-			if ((Data24 + Data4)->field_4)
-				--Data4;
+			if ((Data24 + (Data4/6))->field_4)
+				Data4 -= 6;
 
-			(Data24 + Data4)->field_4 = *(Data2C + Data8);
+			(Data24 + (Data4/6))->field_4 = *(Data2C + (Data8/2));
 		}
 
 		Data8 += 2;
 		Data8 &= 0x1F;
-		Data4 -= 0x04;
+		Data4 -= 0x18;
 	}
 
 loc_179B2:;
@@ -2127,7 +2106,7 @@ loc_179B2:;
 	//seg003:2B6D
 	if (!word_3B1ED) {
 		dword_3B1CB += 0x8000;
-		dword_3B1CB &= 0x10000;
+		dword_3B1CB &= 0x1FFFF;
 	}
 	else
 		dword_3B1CB = 0x10000;
@@ -2224,12 +2203,13 @@ void cFodder::Recruit_Draw( cSurface *pImage ) {
 	mouse_Handle();
 
 	Recruit_Draw_Actors( pImage );
-	sub_144A2();
-	Recruit_Draw_HomeAway();
+	//Recruit_Draw_LeftMenu();
+	//Recruit_Draw_HomeAway();
 	//Mouse_DrawCursor();
-	//sub_13800();
+	sub_13800();
 
-	//video_Palette_FadeIn();
+	if (pImage->GetFaded() == false )
+		pImage->paletteFade();
 
 	word_42068 = 0x40;
 	word_4206A = 0x28;
@@ -2237,9 +2217,10 @@ void cFodder::Recruit_Draw( cSurface *pImage ) {
 	word_4206E = 0xB0;
 
 	//sub_14367();
-	/* Temp for testing*/
+
 	g_Window.RenderAt( pImage, cPosition() );
 	g_Window.FrameEnd();
+	pImage->Restore();
 }
 
 uint8* cFodder::GetSpriteData( uint16 pSegment ) {
@@ -2382,9 +2363,9 @@ void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pSt
 	String_Print( pImage, mFontWidths, pPosY, 0, word_3B301, pString->mPosition, pString->mText );
 }
 
-void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam4, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
+void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pPosY, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
 
-	word_3B305 = pParamC;
+	word_3B305 = pPosY;
 	word_3B307 = 0;
 
 	for (;;) {
@@ -2500,10 +2481,7 @@ void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroSt
 int16 cFodder::introPlayText() {
 	cSurface* CurrentImage = 0;
 
-	//video_Draw_unk_0();
-	mSpriteDataBasePtr = mFontSpriteSheetPtr;
-	Sprite_SetDataPtrToBase();
-	
+	Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
 
 	for ( word_3B2CF = 0; mIntroText[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
 
@@ -2517,10 +2495,12 @@ int16 cFodder::introPlayText() {
 			ImageName << mIntroText[word_3B2CF].mImageNumber;
 			ImageName << ".dat";
 
-			CurrentImage = g_Resource.image4PlaneLoad( ImageName.str(), 0x100 );
+			CurrentImage = g_Resource.image4PlaneLoad( ImageName.str(), 0xD0 );
+			CurrentImage->paletteSet( mPalette, 0xD0 );
 		}
 		else {
 			CurrentImage = new cSurface( 320, 230 );
+			CurrentImage->paletteSet( mPalette, 0xD0 );
 			word_3B447 = 0xAF;
 			
 		}
@@ -2538,7 +2518,7 @@ int16 cFodder::introPlayText() {
 		bool DoBreak = false;
 
 		while( Fade == -1 || DoBreak == false  ) {
-			g_Window.EventCheck();
+			eventProcess();
 
 			--Duration;
 
@@ -2568,12 +2548,12 @@ int16 cFodder::introPlayText() {
 	}
 
 	delete CurrentImage;
-	return 0;
+	return word_3B4F3;
 }
 
-void cFodder::Sprite_SetDataPtrToBase() {
+void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 
-	mSpriteDataPtr = mSpriteDataBasePtr;
+	mSpriteDataPtr = pSpriteSheet;
 }
 
 void cFodder::Load_Sprite_Font() {
@@ -2581,9 +2561,8 @@ void cFodder::Load_Sprite_Font() {
 	delete mDataPStuff;
 	mDataPStuff = g_Resource.fileGet( "font.dat", mDataPStuffSize );
 
-	mSpriteDataBasePtr = mFontSpriteSheetPtr;
-	Sprite_SetDataPtrToBase();
-
+	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
+	Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
 }
 
 void cFodder::intro() {
@@ -2617,7 +2596,7 @@ introDone:;
 
 	delete mDataPStuff;
 	mDataPStuff = g_Resource.fileGet( "pstuff.dat", mDataPStuffSize );
-
+	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 	//Sound_Unk();
 	//Music_Unk();
 }
@@ -2626,7 +2605,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 	bool DoBreak = false;
 	int16 Fade = -1;
 	cSurface* img = g_Resource.image4PlaneLoad( pFilename, 0x100 );
-
+	
 	while( Fade == -1 || DoBreak == false  ) {
 		eventProcess();
 
@@ -2820,7 +2799,7 @@ void cFodder::Start() {
 				//sub_115F7();
 
 				word_3ABA7 = 0;
-				Show_Recruits();
+				Recruit_Show();
 				sub_2E04C();
 				
 				if (!word_3B2FD) {
