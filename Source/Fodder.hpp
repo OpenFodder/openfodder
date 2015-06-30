@@ -352,11 +352,13 @@ protected:
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			sub_1429B();
+	void			sub_144A2();
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	
 	/* Recruitment */
 	void			Show_Recruits();
-	void			Recruit_Draw_Hill( cSurface *pImage );
+	void			Recruit_Draw_Hill( cSurface* pImage );
+	void			Recruit_Draw_HomeAway( cSurface* pImage );
 	void			sub_16BC3();
 	void			sub_16C45( int16** pDi, int16* pSource );
 	void			sub_16C6C();
