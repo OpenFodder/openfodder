@@ -359,6 +359,7 @@ protected:
 	/* Recruitment */
 	void			Recruit_Show();
 	void			Recruit_Draw_Hill( cSurface *pImage );
+	void			Recruit_Draw_HomeAway( cSurface* pImage );
 	void			sub_16BC3();
 	void			sub_16C45( int16** pDi, int16* pSource );
 	void			sub_16C6C();
