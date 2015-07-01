@@ -671,7 +671,7 @@ void cFodder::sub_115F7() {
 			continue;
 
 		--word_3A016;
-		if (word_3A016 >= 0) {
+		if (word_3A016 < 0) {
 			Data34->field_4 = -1;
 			Data20[0] = -32768;
 			Data20[0x0C] = 4;
