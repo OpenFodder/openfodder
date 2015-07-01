@@ -397,8 +397,10 @@ void cFodder::map_Load_Spt() {
 	std::string Filename_Spt = map_Filename_SptGet();
 
 	uint8* Map = g_Resource.fileGet(Filename_Spt, mMapSptSize);
-	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
-	memcpy( mMapSptPtr, Map, mMapSptSize / 2 );
+	tool_EndianSwap( (uint8*) Map, mMapSptSize );
+	//memset( mMapSpt_Loaded, 0, sizeof(mMapSpt_Loaded));
+
+	memcpy( mMapSptPtr, Map, mMapSptSize );
 	delete[] Map;
 
 	word_3AA17 = 0;
