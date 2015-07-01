@@ -40,7 +40,8 @@ struct sMission_unk0 {
 	uint8 field_3;
 	uint16 field_4;
 	uint16 field_6;
-	uint16 field_8;
+	uint8 field_8;
+	uint8 field_9;
 	uint16 field_A; 
 };
 
@@ -136,11 +137,12 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390D0;
 	uint16			word_390D2;
 	int16			word_390D4;
-	uint16			word_390D6;
+	uint16			word_390D6[8];
 	uint16			word_390E8;
 	int16			word_390EA;
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
+	uint16			word_390F4;
 	sMission_unk0	stru_390FA[8];
 	int16			word_3915A;
 	int16			word_3915E;
@@ -152,7 +154,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16*			dword_3977E;
 
 	struct_1		stru_3978E[5];
-
+	int16			word_397AC;
+	int16			word_397AE;
 	int16			word_397D2;
 	int16			word_397D4;
 	int16			mTroopsAvailable;
@@ -345,8 +348,14 @@ protected:
 	void			sub_10EA4();
 	void			sub_10EC3();
 	void			sub_10EE3();
+
 	void			map_Load_Spt();
-	
+	void			map_Troops_Prepare();
+	void			map_Load_Players();
+	void			sub_1142D();
+	void			sub_1152F();
+	void			sub_115F7();
+
 	void			sub_13800();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
@@ -354,12 +363,14 @@ protected:
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			sub_1429B();
+	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	
 	/* Recruitment */
 	void			Recruit_Show();
 	void			Recruit_Draw_Hill( cSurface *pImage );
-	void			Recruit_Draw_HomeAway( cSurface* pImage );
+	void			Recruit_Draw_HomeAway( cSurface *pImage );
+	void			sub_16B55( cSurface* pImage, int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			sub_16BC3();
 	void			sub_16C45( int16** pDi, int16* pSource );
 	void			sub_16C6C();
@@ -371,7 +382,7 @@ protected:
 	void			sub_171A3();
 	void			sub_17368();
 	void			sub_17429();
-	void			sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint8*& Data20 );
+	void			sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32* Data20 );
 	void			Recruit_Draw_Actors( cSurface* pImage );
 	void			sub_175C0();
 	void			Recruit_Draw_Troops( cSurface *pImage );
@@ -398,13 +409,14 @@ protected:
 
 	void			sub_2E04C();
 
-	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const sIntroString* pString );
-	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pPosX, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
+	void			sub_301F7();
+
+	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
+	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
 
 	std::string		map_Filename_Get();
 	std::string		map_Filename_MapGet();
 	std::string		map_Filename_SptGet();
-	void			map_Troops_Prepare();
 
 	int16			introPlayText();
 	void			intro();
