@@ -105,7 +105,7 @@ std::string	tool_NumToString( uint32 pValue ) {
 std::string tool_StripLeadingZero( const std::string& pValue ) {
 	std::string Final = pValue;
 
-	while (*Final.begin() == 0x30) {
+	while (*Final.begin() == 0x30 && Final.length() > 1 ) {
 
 		Final.erase( Final.begin() );
 	}
