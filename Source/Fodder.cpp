@@ -23,7 +23,7 @@
 #include "stdafx.hpp"
 #include "SpriteData.hpp"
 #include "IntroData.hpp"
-#include "Troops.hpp"
+#include "Recruits.hpp"
 #include "UnknownData.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
@@ -155,13 +155,13 @@ void cFodder::sub_10BBC() {
 	word_390F4 = 0;
 
 	for (unsigned int x = 0; x < 8; ++x) {
-		stru_390FA[x].field_0 = 0;
-		stru_390FA[x].mRank = 0;
-		stru_390FA[x].field_3 = 0;
-		stru_390FA[x].field_4 = 0;
-		stru_390FA[x].field_6 = 0;
-		stru_390FA[x].field_8 = 0;
-		stru_390FA[x].mNumberOfKills = 0;
+		mTroopsCurrent[x].mRecruitID = 0;
+		mTroopsCurrent[x].mRank = 0;
+		mTroopsCurrent[x].field_3 = 0;
+		mTroopsCurrent[x].field_4 = 0;
+		mTroopsCurrent[x].field_6 = 0;
+		mTroopsCurrent[x].field_8 = 0;
+		mTroopsCurrent[x].mNumberOfKills = 0;
 	}
 
 	word_3915A = 0;
@@ -179,9 +179,9 @@ void cFodder::sub_10BBC() {
 	dword_3977E = 0;
 
 	for (unsigned int x = 0; x < 5; ++x) {
-		stru_3978E[x].field_0 = 0;
-		stru_3978E[x].field_1 = 0;
-		stru_3978E[x].field_3 = 0;
+		mHeroes[x].mRecruitID = 0;
+		mHeroes[x].field_1 = 0;
+		mHeroes[x].mKills = 0;
 	}
 	word_397AC = 0;
 	word_397AE = 0;
@@ -190,24 +190,24 @@ void cFodder::sub_10BBC() {
 	mTroopsAvailable = 0;
 }
 
-void cFodder::sub_10B6D() {
+void cFodder::Troops_Clear() {
 	word_3915E = -1;
 	word_3915A = -1;
 
 	for (unsigned int x = 0; x < 8; ++x) {
-		stru_390FA[x].field_4 = -1;
-		stru_390FA[x].field_0 = -1;
-		stru_390FA[x].mRank = 0;
-		stru_390FA[x].field_3 = 0;
+		mTroopsCurrent[x].field_4 = -1;
+		mTroopsCurrent[x].mRecruitID = -1;
+		mTroopsCurrent[x].mRank = 0;
+		mTroopsCurrent[x].field_3 = 0;
 	}
 }
 
-void cFodder::sub_10BFA() {
+void cFodder::Heroes_Clear() {
 	
 	for (unsigned int x = 0; x < 5; ++x) {
-		stru_3978E[x].field_0 = -1;
-		stru_3978E[x].field_1 = -1;
-		stru_3978E[x].field_3 = -1;
+		mHeroes[x].mRecruitID = -1;
+		mHeroes[x].field_1 = -1;
+		mHeroes[x].mKills = -1;
 	}
 }
 
@@ -513,7 +513,7 @@ void cFodder::map_Troops_Prepare() {
 	
 	for( int16 x = 7; x >= 0; --x ) {
 		
-		if( stru_390FA[x].field_0 != -1 ) {
+		if( mTroopsCurrent[x].mRecruitID != -1 ) {
 			--word_397D2;
 			++word_397D4;
 		}
@@ -537,34 +537,34 @@ void cFodder::map_Troops_Prepare() {
 void cFodder::map_Load_Players() {
 
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
-		sMission_unk0* Data20 = stru_390FA;
+		sMission_Troop* Data20 = mTroopsCurrent;
 
 		for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 
-			if (Data20->field_0 == -1) {
+			if (Data20->mRecruitID == -1) {
 
-				sMission_unk0* Data24 = Data20 + 1;
-				sMission_unk0* Data28 = Data20;
+				sMission_Troop* Data24 = Data20 + 1;
+				sMission_Troop* Data28 = Data20;
 
 				*Data28 = *Data24;
-				Data28->field_0 = -1;
+				Data28->mRecruitID = -1;
 				Data28->mRank = 0;
 			}
 		}
 	}
 	
-	sMission_unk0* Data20 = stru_390FA;
+	sMission_Troop* Data20 = mTroopsCurrent;
 
 	//seg000:1347
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
-		sMission_unk0* Data24 = stru_390FA;
+		sMission_Troop* Data24 = mTroopsCurrent;
 
 		for (int16 Data18 = 7; Data18 >= 0; --Data18, ++Data24) {
 
 			if (Data20 == Data24)
 				continue;
 
-			if (Data20->field_0 == -1 || Data24->field_0 == -1)
+			if (Data20->mRecruitID == -1 || Data24->mRecruitID == -1)
 				continue;
 
 			if (Data20->mRank != Data24->mRank)
@@ -573,7 +573,7 @@ void cFodder::map_Load_Players() {
 			if (Data20->mNumberOfKills <= Data24->mNumberOfKills)
 				continue;
 
-			sMission_unk0 Spare = *Data20;
+			sMission_Troop Spare = *Data20;
 
 			*Data20 = *Data24;
 			*Data24 = Spare;
@@ -587,7 +587,7 @@ void cFodder::sub_1142D() {
 	if (!word_3ABA7) {
 
 		if (word_390D4) {
-			sMission_unk0* Data20 = stru_390FA;
+			sMission_Troop* Data20 = mTroopsCurrent;
 			uint16* Data24 = word_390D6;
 
 			for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
@@ -597,7 +597,7 @@ void cFodder::sub_1142D() {
 
 		//seg000:1481                loc_11481:
 		word_390D4 = -1;
-		sMission_unk0* Data20 = stru_390FA;
+		sMission_Troop* Data20 = mTroopsCurrent;
 		uint16* Data24 = word_390D6;
 		for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 			*Data24++ = Data20->field_4;
@@ -615,7 +615,7 @@ void cFodder::sub_1142D() {
 		return;
 
 	Data1C = mTroopsAvailable;
-	sMission_unk0* Data20 = stru_390FA;
+	sMission_Troop* Data20 = mTroopsCurrent;
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 
 		if (Data20->field_4 == -1)
@@ -630,18 +630,18 @@ void cFodder::sub_1142D() {
 }
 
 void cFodder::sub_1152F() {
-	sMission_unk0* Data20 = stru_390FA;
+	sMission_Troop* Data20 = mTroopsCurrent;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0) {
 
-		if (Data20->field_0 == -1) {
+		if (Data20->mRecruitID == -1) {
 
 			if (word_390F4 >= 360)
 				return;
 
-			Data20->field_0 = word_390F4;
+			Data20->mRecruitID = word_390F4;
 
-			struct_Troops* Data24 = stru_36712;
+			sRecruit* Data24 = mRecruits;
 			Data24 += word_390F4;
 
 			Data20->mRank =  (mMissionNumber - 1) / 3;
@@ -660,7 +660,7 @@ void cFodder::sub_115F7() {
 
 	word_3A016 = mTroopsAvailable;
 	int16* Data20 = mMapSpt_Loaded;
-	sMission_unk0* Data34 = stru_390FA;
+	sMission_Troop* Data34 = mTroopsCurrent;
 
 	for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, Data20 += 0x3B ) {
 
@@ -1664,12 +1664,12 @@ void cFodder::Recruit_Render_LeftMenu( cSurface *pImage ) {
 	// Draw Heroes Heading
 	sub_145AF( Data0, Data8, DataC );
 	
-	struct_1* Data20 = stru_3978E;
+	sHero* Data20 = mHeroes;
 	int16 Data14 = 0x0E;
 	Data0 = 4;
 	
-	for( struct_1* Data20 = stru_3978E; Data0 >= 0; --Data0, ++Data20  ) {
-		if( Data20->field_0 == -1 )
+	for( sHero* Data20 = mHeroes; Data0 >= 0; --Data0, ++Data20  ) {
+		if( Data20->mRecruitID == -1 )
 			break;
 		
 		Data14 += 0x0C;
@@ -1734,7 +1734,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 	word_3A3BD = 0;
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A3BB ) {
-		sMission_unk0* Data2C = &stru_390FA[x];
+		sMission_Troop* Data2C = &mTroopsCurrent[x];
 		
 		int16 Data0 = Data2C->field_4;
 		
@@ -1747,12 +1747,12 @@ void cFodder::Recruit_Render_Squad_Names() {
 		if( word_39FD0 != si[0x19])
 			continue;
 
-		struct_Troops* Data28 = &stru_36712[Data2C->field_0];
+		sRecruit* Data28 = &mRecruits[Data2C->mRecruitID];
 		int16 Data14;
 
 		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
 			
-			if( Data28->field_0[Data14] == 0x20 )
+			if( Data28->mName[Data14] == 0x20 )
 				break;
 			
 		} 
@@ -1767,8 +1767,8 @@ void cFodder::Recruit_Render_Squad_Names() {
 		// Draw Troop name to list
 		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
 			
-			if( Data28->field_0[Data14] != 0x20 ) {
-				Data0 = Data28->field_0[Data14];
+			if( Data28->mName[Data14] != 0x20 ) {
+				Data0 = Data28->mName[Data14];
 				Data0 -= 0x41;
 				Data0 += 0x29;
 				
@@ -1798,7 +1798,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 	int16 Data4;
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A061 ) {
-		sMission_unk0* Data38 = &stru_390FA[x];
+		sMission_Troop* Data38 = &mTroopsCurrent[x];
 
 		if( Data38->field_4 == -1 )
 			continue;
@@ -1866,29 +1866,29 @@ void cFodder::sub_170A4( int16 pData4, int16 pData10 ) {
 }
 
 void cFodder::Recruit_Render_HeroList() {
-	const struct_1* Data2C = stru_3978E;
+	const sHero* Hero = mHeroes;
 
 	word_3A3BB = 4;
 	word_3A3BD = 0;
 
-	for (word_3A3BB = 4; word_3A3BB >= 0; --word_3A3BB, ++Data2C) {
+	for (word_3A3BB = 4; word_3A3BB >= 0; --word_3A3BB, ++Hero) {
 
-		if (Data2C->field_1 < 0)
+		if (Hero->mRecruitID < 0)
 			continue;
 
-		int16 Data0 = Data2C->field_0 + 9;
+		int16 Data0 = Hero->mRecruitID + 9;
 		int16 Data8 = 0;
 		int16 DataC = word_3A3BD - 1;
 		DataC += 0x4A + word_3AA55+ 0x19;
 
 		sub_145AF( Data0, Data8, DataC );
 
-		struct_Troops* Data28 = &stru_36712[ Data2C->field_1 ];
+		sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
 
 		int16 Data14;
 		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
 			
-			if( Data28->field_0[Data14] == 0x20 )
+			if( Troop->mName[Data14] == 0x20 )
 				break;
 		} 
 
@@ -1900,7 +1900,7 @@ void cFodder::Recruit_Render_HeroList() {
 		for (Data14 = 0; Data14 <= 5; ++Data14) {
 			Data0 = 0;
 
-			uint8 Character = Data28->field_0[Data14];
+			uint8 Character = Troop->mName[Data14];
 			if (Character == 0x20)
 				continue;
 
@@ -1915,7 +1915,7 @@ void cFodder::Recruit_Render_HeroList() {
 			sub_145AF( Character, Data8, DataC  + 0x19 );
 		}
 
-		sub_170A4( Data2C->field_3, 0x67 );
+		sub_170A4( Hero->mKills, 0x67 );
 		word_3A3BD += 0x0C;
 	}
 }
@@ -2810,7 +2810,7 @@ void cFodder::mission_PhaseNext() {
 		return;
 
 	for (unsigned int x = 0; x < 8; ++x) {
-		stru_390FA[x].field_3 = 0;
+		mTroopsCurrent[x].field_3 = 0;
 	}
 
 	word_390D0 = mMissionNumber;
@@ -2901,8 +2901,8 @@ void cFodder::Start() {
 		mMapNumber = 0;
 		word_3901E = 0x3333;
 
-		sub_10B6D();
-		sub_10BFA();
+		Troops_Clear();
+		Heroes_Clear();
 
 		dword_394A4 = word_391D2;
 		word_391D2[0] = -1;
@@ -2997,7 +2997,7 @@ void cFodder::Exit( unsigned int pExitCode ) {
 }
 
 void cFodder::sub_301F7() {
-	sMission_unk0* Data38 = stru_390FA;
+	sMission_Troop* Data38 = mTroopsCurrent;
 	
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
 
