@@ -660,7 +660,7 @@ void cFodder::sub_115F7() {
 
 	word_3A016 = mTroopsAvailable;
 	int16* Data20 = mMapSpt_Loaded;
-	sMission_Troop* Data34 = mTroopsCurrent;
+	sMission_Troop* Troop = mTroopsCurrent;
 
 	for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, Data20 += 0x3B ) {
 
@@ -672,23 +672,23 @@ void cFodder::sub_115F7() {
 
 		--word_3A016;
 		if (word_3A016 < 0) {
-			Data34->field_4 = -1;
+			Troop->field_4 = -1;
 			Data20[0] = -32768;
 			Data20[0x0C] = 4;
 			Data20[0x08] = 0x7C;
-			++Data34;
+			++Troop;
 		}
 		else {
 			// loc_1166B
-			*((uint32*)&Data20[0x23]) = (uint32)Data34;
+			*((uint32*)&Data20[0x23]) = (uint32)Troop;
 
 			int16 Data24 = (int16)(Data20 - &mMapSpt_Loaded[0]);
 
-			Data34->field_4 = Data24;
+			Troop->field_4 = Data24;
 			Data20[0x08] = 0x40;
 			Data20[0x11] = 0;
 
-			++Data34;
+			++Troop;
 		}
 	}
 }
