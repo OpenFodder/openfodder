@@ -34,8 +34,8 @@ struct sMouseData {
 	uint16	anonymous_10;
 };
 
-struct sMission_unk0 {
-	int16 field_0;
+struct sMission_Troop {
+	int16 mRecruitID;
 	uint8 mRank;
 	uint8 field_3;
 	int16 field_4;
@@ -67,17 +67,17 @@ struct sIntroText {
 	const sIntroString*	mText;
 };
 
-struct struct_Troops {
-	char field_0[7];	// increased to 7, to allow the null terminator
+struct sRecruit {
+	char  mName[7];	// increased to 7, to allow the null terminator
 	uint8 field_6;
 	uint8 field_7;
 	uint8 field_8;
 };
 
-struct struct_1 {
-	int8	field_0;
+struct sHero {
+	int8	mRecruitID;
 	int16	field_1;
-	int16	field_3;
+	int16	mKills;
 };
 
 struct struct_2 {
@@ -143,7 +143,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
 	uint16			word_390F4;
-	sMission_unk0	stru_390FA[8];
+	sMission_Troop	mTroopsCurrent[8];
 	int16			word_3915A;
 	int16			word_3915E;
 
@@ -153,7 +153,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_394AC[361];
 	int16*			dword_3977E;
 
-	struct_1		stru_3978E[5];
+	sHero			mHeroes[5];
 	int16			word_397AC;
 	int16			word_397AE;
 	int16			word_397D2;
@@ -340,8 +340,8 @@ protected:
 
 	uint8*			GetSpriteData( uint16 pSegment );
 	void			sub_10BBC();
-	void			sub_10B6D();
-	void			sub_10BFA();
+	void			Troops_Clear();
+	void			Heroes_Clear();
 	void			sub_10D61();
 	void			sub_10D9F();
 	void			sub_10DEC();
