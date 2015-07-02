@@ -61,6 +61,8 @@ cFodder::cFodder() {
 	word_39EFC = word_39F04 = 0;
 	word_3AA43 = 0;
 	word_3ABA7 = 0;
+	word_3ABE9 = 0;
+	word_3ABEB = 0;
 	word_3A9B2 = 0;
 	word_3E1B7 = 0;
 	
@@ -209,6 +211,10 @@ void cFodder::Heroes_Clear() {
 		mHeroes[x].field_1 = -1;
 		mHeroes[x].mKills = -1;
 	}
+}
+
+void cFodder::sub_10CE7() {
+	
 }
 
 void cFodder::sub_10D61() {
@@ -1416,6 +1422,13 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		si += word_42074;
 		di += word_42076;
 	}
+
+}
+
+void cFodder::Mission_Brief() {
+
+	map_Load_Unk();
+	Sprite_SetDataPtrToBase( off_42918 );
 
 }
 
@@ -2975,11 +2988,11 @@ void cFodder::Start() {
 						continue;	// goto loc_1042E;
 					}
 					word_390B8 = 0;
-					//sub_10CE7();
-					//word_3ABE9 = 0;
-					//word_3ABEB = 0;
+					//sub_10CE7(); //TODO: This backs up a heap of mission variables
+					word_3ABE9 = 0;
+					word_3ABEB = 0;
 
-					//phase_Intro_Brief();
+					Mission_Brief();
 				}
 			}
 

@@ -224,6 +224,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA43;
 	int16			word_3AB39;
 	int16			word_3ABA7;
+	int16			word_3ABE9;
+	int16			word_3ABEB;
 
 	int16			word_3AC19;
 	int16			word_3AC21;
@@ -342,6 +344,7 @@ protected:
 	void			sub_10BBC();
 	void			Troops_Clear();
 	void			Heroes_Clear();
+	void			sub_10CE7();
 	void			sub_10D61();
 	void			sub_10D9F();
 	void			sub_10DEC();
@@ -366,6 +369,8 @@ protected:
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	
+	void			Mission_Brief();
+
 	/* Recruitment */
 	void			Recruit_Show();
 	void			Recruit_Draw_Hill( cSurface *pImage );
