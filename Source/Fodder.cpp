@@ -156,12 +156,12 @@ void cFodder::sub_10BBC() {
 
 	for (unsigned int x = 0; x < 8; ++x) {
 		stru_390FA[x].field_0 = 0;
-		stru_390FA[x].field_2 = 0;
+		stru_390FA[x].mRank = 0;
 		stru_390FA[x].field_3 = 0;
 		stru_390FA[x].field_4 = 0;
 		stru_390FA[x].field_6 = 0;
 		stru_390FA[x].field_8 = 0;
-		stru_390FA[x].field_A = 0;
+		stru_390FA[x].mNumberOfKills = 0;
 	}
 
 	word_3915A = 0;
@@ -197,7 +197,7 @@ void cFodder::sub_10B6D() {
 	for (unsigned int x = 0; x < 8; ++x) {
 		stru_390FA[x].field_4 = -1;
 		stru_390FA[x].field_0 = -1;
-		stru_390FA[x].field_2 = 0;
+		stru_390FA[x].mRank = 0;
 		stru_390FA[x].field_3 = 0;
 	}
 }
@@ -548,7 +548,7 @@ void cFodder::map_Load_Players() {
 
 				*Data28 = *Data24;
 				Data28->field_0 = -1;
-				Data28->field_2 = 0;
+				Data28->mRank = 0;
 			}
 		}
 	}
@@ -567,10 +567,10 @@ void cFodder::map_Load_Players() {
 			if (Data20->field_0 == -1 || Data24->field_0 == -1)
 				continue;
 
-			if (Data20->field_2 != Data24->field_2)
+			if (Data20->mRank != Data24->mRank)
 				continue;
 
-			if (Data20->field_A <= Data24->field_A)
+			if (Data20->mNumberOfKills <= Data24->mNumberOfKills)
 				continue;
 
 			sMission_unk0 Spare = *Data20;
@@ -644,7 +644,7 @@ void cFodder::sub_1152F() {
 			struct_Troops* Data24 = stru_36712;
 			Data24 += word_390F4;
 
-			Data20->field_2 =  (mMissionNumber - 1) / 3;
+			Data20->mRank =  (mMissionNumber - 1) / 3;
 			Data20->field_8 = 0;
 			Data20->field_6 = 3;
 			++word_390F4;
@@ -682,9 +682,9 @@ void cFodder::sub_115F7() {
 			// loc_1166B
 			*((uint32*)&Data20[0x23]) = (uint32)Data34;
 
-			int16* Data24 = Data20;
-			Data24 -= 0x20;
-			Data34->field_4 = (uint16)Data24;
+			int16 Data24 = (int16)(Data20 - &mMapSpt_Loaded[0]);
+
+			Data34->field_4 = Data24;
 			Data20[0x08] = 0x40;
 			Data20[0x11] = 0;
 
@@ -1278,11 +1278,10 @@ void cFodder::sub_144A2( cSurface* pImage ) {
 	uint8*	Buffer = pImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mMapSptPtr;
 
-	Buffer += 16 * 320;
+	Buffer += 16 * 320; // 0x584
 	byte_42071 = 1 << word_40054;
 
 	word_42066 = Buffer;
-
 	for (unsigned int Plane = 0; Plane < 4; Plane++) {
 
 		Buffer = word_42066;
@@ -1293,7 +1292,7 @@ void cFodder::sub_144A2( cSurface* pImage ) {
 
 				Buffer[X] = *si++;
 			}
-
+			
 			Buffer += 320;
 		}
 	}
@@ -1375,7 +1374,8 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	w42066 += 0x960;
 	if( w42066 >= 0x2580 )
 		w42066 -= 0x257F;
-		++word_42062;
+	
+	++word_42062;
 	si = word_42062;
 	di =  ((uint8*)mMapSptPtr) + w42066;
 	
@@ -1660,7 +1660,8 @@ void cFodder::Recruit_Render_LeftMenu( cSurface *pImage ) {
 	int16 Data0 = 0xAD;
 	int16 Data8 = 0;
 	int16 DataC	= 0x18;
-
+	
+	// Draw Heroes Heading
 	sub_145AF( Data0, Data8, DataC );
 	
 	struct_1* Data20 = stru_3978E;
@@ -1674,8 +1675,8 @@ void cFodder::Recruit_Render_LeftMenu( cSurface *pImage ) {
 		Data14 += 0x0C;
 	}
 
+	// Draw Empty Hero Slots
 	DataC = 0x0E;
-	
 	do {
 		
 		Data0 = 0xA9;
@@ -1689,6 +1690,8 @@ void cFodder::Recruit_Render_LeftMenu( cSurface *pImage ) {
 	} while( DataC < 0x4A );
 
 	//seg003:1E89
+
+	// Draw Squad Heading
 	Data0 = 0xAE;
 	Data8 = 0;
 	DataC = 0x4A + 0x18;
@@ -1699,6 +1702,7 @@ void cFodder::Recruit_Render_LeftMenu( cSurface *pImage ) {
 	DataC = 0x58;
 	Data14 += DataC;
 
+	// Draw Used Slot into Temporary Area
 	do {
 		Data0 = 0xA9;
 		if( DataC >= Data14 )
@@ -1713,17 +1717,18 @@ void cFodder::Recruit_Render_LeftMenu( cSurface *pImage ) {
 	word_3BEC9 = 0xB8;
 	word_3AA55 = 0x0F;
 	word_3AAC7 = -1;
-	sub_16F78();
-	sub_16DF2();
+
+	Recruit_Render_Squad_RankKills();
+	Recruit_Render_Squad_Names();
 	
 	word_3AAC7 = 0;
 	word_3AA55 = -59;
 	
-	sub_171A3();
+	Recruit_Render_HeroList();
 	word_3AA55 = 0;
 }
 
-void cFodder::sub_16DF2() {
+void cFodder::Recruit_Render_Squad_Names() {
 
 	word_3A3BB = 7;
 	word_3A3BD = 0;
@@ -1759,10 +1764,10 @@ void cFodder::sub_16DF2() {
 		if( word_3AAC7 )
 			word_3A05F -= 1;
 		
+		// Draw Troop name to list
 		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
 			
-			Data0 = Data28->field_0[Data14];
-			if( Data0 != 0x20 ) {
+			if( Data28->field_0[Data14] != 0x20 ) {
 				Data0 = Data28->field_0[Data14];
 				Data0 -= 0x41;
 				Data0 += 0x29;
@@ -1773,8 +1778,8 @@ void cFodder::sub_16DF2() {
 				int16 DataC = 0x4B;
 				DataC += word_3A3BD;
 				DataC += word_3AA55;
-				
-				sub_145AF( Data0, Data8, DataC );
+
+				sub_145AF( Data0, Data8, DataC + 0x19 );
 			}
 		}
 
@@ -1783,7 +1788,7 @@ void cFodder::sub_16DF2() {
 
 }
 
-void cFodder::sub_16F78() {
+void cFodder::Recruit_Render_Squad_RankKills() {
 	int16 Data0;
 	int16* Data34 = mMapSpt_Loaded;
 
@@ -1794,13 +1799,12 @@ void cFodder::sub_16F78() {
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A061 ) {
 		sMission_unk0* Data38 = &stru_390FA[x];
-		Data0 = Data38->field_4;
-		
-		if( Data0 == -1 )
+
+		if( Data38->field_4 == -1 )
 			continue;
 		
 		Data4 = word_39FD0;
-		int16* si = Data34 + Data0;
+		int16* si = Data34 + Data38->field_4;
 		
 		if( Data4 != si[0x19]  )
 			continue;
@@ -1812,7 +1816,7 @@ void cFodder::sub_16F78() {
 		
 		if( !word_3AAC7 ) {
 			Data0 = 0;
-			Data0 = Data38->field_2;
+			Data0 = Data38->mRank;
 			Data0 += 9;
 			Data8 = 0x23;
 			DataC = word_3A3BD;
@@ -1826,75 +1830,20 @@ void cFodder::sub_16F78() {
 			DataC -= 0x19;
 			
 		} else {
-			//loc_17033
-			//TODO
-			//Data10 = 0x43;
-			Data4 = Data38->field_A;
-			//sub_170A4();
+			// Draw Kills
+			sub_170A4( Data38->mNumberOfKills, 0x43 );
 			
 		}
 		
-		//loc_1704A
-		Data0 = Data38->field_2;
-		Data0 += 9;
-		Data8 = 0;
-		DataC = word_3A3BD;
-		DataC -= 1;
+		//Draw Rank
+		Data0 = Data38->mRank + 9;
+		DataC = word_3A3BD - 1;
+
 		DataC += 0x4A;
 		DataC += word_3AA55;
 		DataC += 0x19;
-		
-		sub_145AF( Data0, Data8, DataC );
+		sub_145AF( Data0, 0, DataC );
 		DataC -= 0x19;
-		word_3A3BD += 0x0C;
-	}
-}
-
-void cFodder::Recruit_Draw_TroopList() {
-	const struct_1* Data2C = stru_3978E;
-
-	word_3A3BB = 4;
-	word_3A3BD = 0;
-
-	for (word_3A3BB = 4; word_3A3BB >= 0; --word_3A3BB, ++Data2C ) {
-
-		if (Data2C->field_1 < 0)
-			continue;
-
-		int16 DataC = (word_3A3BD - 1) + (0x4A + word_3A3BD + 0x19);
-		
-		sub_145AF( Data2C->field_0 + 9, 0, DataC );
-
-		const struct_Troops* Data28 = &stru_36712[ Data2C->field_1 ];
-		int16 Data14 = 0;
-		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
-			
-			if( Data28->field_0[Data14] == 0x20 )
-				break;
-		} 
-		Data14 <<= 2;
-
-		word_3A05F = ((0x30 - Data14) >> 1) - 1;
-
-		for (Data14 = 0; Data14 <= 5; ++Data14 ) {
-			uint8 Character = Data28->field_0[Data14];
-			if (Character == 0x20)
-				continue;
-			
-			Character -= 0x41;
-			Character += 0x29;
-
-			int16 Data8 = Data14;
-			Data8 <<= 2;
-			Data8 += word_3A05F;
-			DataC = 0x4B + word_3A3BD;
-			DataC += word_3AA55;
-
-			sub_145AF( Character, Data8, DataC );
-
-		}
-
-		sub_170A4( Data2C->field_3, 0x67 );
 		word_3A3BD += 0x0C;
 	}
 }
@@ -1911,12 +1860,12 @@ void cFodder::sub_170A4( int16 pData4, int16 pData10 ) {
 	for (std::string::iterator CharIT = Data20.begin(); CharIT != Data20.end(); ++CharIT) {
 
 		Data0 = (*CharIT & 0xFF) + pData10;
-		sub_145AF( Data0, Data8, DataC );
+		sub_145AF( Data0, Data8, DataC + 0x19 );
 		Data8 += 4;
 	}
 }
 
-void cFodder::sub_171A3() {
+void cFodder::Recruit_Render_HeroList() {
 	const struct_1* Data2C = stru_3978E;
 
 	word_3A3BB = 4;
@@ -1963,7 +1912,7 @@ void cFodder::sub_171A3() {
 			DataC += 0x4B;
 			DataC += word_3A3BD + word_3AA55;
 
-			sub_145AF( Character, Data8, DataC );
+			sub_145AF( Character, Data8, DataC  + 0x19 );
 		}
 
 		sub_170A4( Data2C->field_3, 0x67 );
@@ -1972,18 +1921,17 @@ void cFodder::sub_171A3() {
 }
 
 void cFodder::sub_17368() {
-	uint8* Data20 = mDataArmy;
+	uint32* Data20 = (uint32*) mDataArmy;
 
 	uint16* Data24 = (uint16*) mDataSubBlk;
 
 	for ( int16 Data0 = 0x58; Data0 < 0xA0; Data0 += 0x0C) {
-		uint8* eax = Data20;
-		*((uint32*)Data24) = (uint32) eax;
+		*((uint32*)Data24) = (uint32) Data20;
 		Data24 += 2;
 
 		*Data24++ = Data0;
 
-		sub_17480( Data0, 0x0C, 0, (uint32*) Data20 );
+		sub_17480( Data0, 0x0C, 0, Data20 );
 	}
 
 	//seg003:2532
@@ -2010,14 +1958,17 @@ void cFodder::sub_17429() {
 	Data24 += 2;
 
 	dword_3AAC9 = Data24;
-	sub_17480( Data0, 0x0C, -1, (uint32*) Data20 );
+	uint32* Dataa20 =  (uint32*) Data20;
+	sub_17480( Data0, 0x0C, -1, Dataa20 );
 }
 
-void cFodder::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32* pData20 ) {
+void cFodder::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
 	pData0 += 0x18;
 
+	uint8* SptPtr = (uint8*)mMapSptPtr;
+
 	if (pData8 == 0) {
-		uint32* esi = (uint32*)(mMapSptPtr + ((0x0C * pData0)/2));
+		uint32* esi = (uint32*)(SptPtr + (0x0C * pData0));
 
 		for (int16 cx = pData4; cx > 0; --cx) {
 			*pData20++ = *esi;
@@ -2040,7 +1991,7 @@ void cFodder::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32* pDat
 		}
 	}
 	else {
-		uint32* edi = (uint32*)(mMapSptPtr + ((0x0C * pData0)/2));
+		uint32* edi = (uint32*)(SptPtr + (0x0C * pData0));
 
 		for (int16 cx = pData4; cx > 0; --cx) {
 			*edi = *pData20++;
