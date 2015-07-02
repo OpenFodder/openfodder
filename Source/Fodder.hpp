@@ -36,13 +36,13 @@ struct sMouseData {
 
 struct sMission_unk0 {
 	int16 field_0;
-	uint8 field_2;
+	uint8 mRank;
 	uint8 field_3;
-	uint16 field_4;
+	int16 field_4;
 	uint16 field_6;
 	uint8 field_8;
 	uint8 field_9;
-	uint16 field_A; 
+	uint16 mNumberOfKills; 
 };
 
 struct sSpriteSheet {
@@ -375,14 +375,13 @@ protected:
 	void			sub_16C45( int16** pDi, int16* pSource );
 	void			sub_16C6C();
 	void			Recruit_Render_LeftMenu( cSurface *pImage );
-	void			sub_16DF2();
-	void			sub_16F78();
-	void			Recruit_Draw_TroopList();
+	void			Recruit_Render_Squad_Names();
+	void			Recruit_Render_Squad_RankKills();
 	void			sub_170A4( int16 pData4, int16 pData10 );
-	void			sub_171A3();
+	void			Recruit_Render_HeroList();
 	void			sub_17368();
 	void			sub_17429();
-	void			sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32* Data20 );
+	void			sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
 	void			Recruit_Draw_Actors( cSurface* pImage );
 	void			sub_175C0();
 	void			Recruit_Draw_Troops( cSurface *pImage );
