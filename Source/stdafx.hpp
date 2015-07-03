@@ -25,6 +25,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include <SDL.h>
 #include <SDL_image.h>
