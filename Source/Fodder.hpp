@@ -34,7 +34,7 @@ struct sMouseData {
 	uint16	anonymous_10;
 };
 
-struct sMission_Troop {
+struct sSquad_Member {
 	int16 mRecruitID;
 	uint8 mRank;
 	uint8 field_3;
@@ -117,10 +117,9 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			mDataPStuff;
 	uint8* 			mDataHillBits;
 	uint8*			mDataArmy;
+	uint8*			mMap;
+	uint8*			mDataBaseBlk;
 	uint8*			mDataSubBlk;
-
-	size_t			mDataPStuffSize;
-	size_t			mDataHillBitsSize;
 
 	uint32			dword_37AA0;
 	uint32			dword_3901A;
@@ -143,7 +142,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
 	uint16			word_390F4;
-	sMission_Troop	mTroopsCurrent[8];
+	sSquad_Member	mSquad[8];
 	int16			word_3915A;
 	int16			word_3915E;
 
@@ -175,7 +174,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_39FD0;
 	int16			word_39FD4;
-	
+
+	int16			word_3A01A;
 	int16			word_3A06B;
 	int16			word_3A28D;
 
@@ -237,6 +237,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	const struct_4*		dword_3B1FB;
 
+	int16			mMap_TileSet;
 	int16			word_3B2CD;
 	int16			word_3B2CF;
 	int16			word_3B2FD;
@@ -294,6 +295,12 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			word_3E75B;
 
+		/* Configuration Settings (SETUP.DAT) */
+	uint16			word_3E7ED;
+	uint16			mEffectDriver;
+	uint16			mMusicDriver;
+	/* End Configuration Settings */
+
 	uint16			word_40054;
 	uint8*			word_42062;
 	uint8*			word_42066;
@@ -308,13 +315,13 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_42078;
 
 	int16			word_42851;
-
-	/* Configuration Settings (SETUP.DAT) */
-	uint16			word_3E7ED;
-	uint16			mEffectDriver;
-	uint16			mMusicDriver;
-	/* End Configuration Settings */
-
+	uint8*			word_42861;
+	uint8*			word_42863;
+	uint8*			word_42865;
+	uint8*			word_42867;
+	uint8*			word_42869;
+	uint16*			word_4286B;
+	
 	uint8			mErrorCode;
 
 	int16			mouse_Button_Status;
@@ -358,6 +365,8 @@ protected:
 	void			sub_1142D();
 	void			sub_1152F();
 	void			sub_115F7();
+	
+	void			map_SetTileType();
 
 	void			sub_13800();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
@@ -368,8 +377,14 @@ protected:
 	bool			sub_1429B();
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
-	
+	void			sub_14FF5( cSurface *pImage );
+
 	void			Mission_Brief();
+
+	void			sub_15DF0( cSurface* pImage );
+	void			Mission_Brief_Name_Prepare( cSurface* pImage );
+	\
+	void			map_Load_Resources();
 
 	/* Recruitment */
 	void			Recruit_Show();

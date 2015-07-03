@@ -25,6 +25,7 @@
 #include "IntroData.hpp"
 #include "Recruits.hpp"
 #include "UnknownData.hpp"
+#include "MapNames.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
 							"rjnull.bin", 
@@ -36,6 +37,15 @@ const char* mBinTable[] = { "rjnull.bin",
 const uint16 mMissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
 										02, 05, 03, 06, 01, 03, 03, 02,
 										01, 05, 01, 04, 01, 04, 05, 06 };
+
+std::string mMapTypes[] = {
+	"jun",
+	"des",
+	"ice",
+	"mor",
+	"int",
+	"hid"
+};
 
 cFodder::cFodder() {
 
@@ -66,8 +76,6 @@ cFodder::cFodder() {
 	word_3A9B2 = 0;
 	word_3E1B7 = 0;
 	
-	mMapSptPtr = new uint16[4800];
-
 	word_40054 = 0;
 	word_42062 = 0;
 	word_42066 = 0;
@@ -83,12 +91,8 @@ cFodder::cFodder() {
 	mouseData0 = new sMouseData();
 	mouseData1 = new sMouseData();
 
-	mDataPStuff = 0;
-	mDataHillBits = 0;
-	mDataArmy = new uint8[54528];
-	mDataSubBlk = new uint8[64768];
+	mMap = 0;
 
-	word_3BDAD = new int16[4800];
 	word_3A3BB = 0;
 	word_3A3BD = 0;
 	word_42072 = 0;
@@ -157,13 +161,13 @@ void cFodder::sub_10BBC() {
 	word_390F4 = 0;
 
 	for (unsigned int x = 0; x < 8; ++x) {
-		mTroopsCurrent[x].mRecruitID = 0;
-		mTroopsCurrent[x].mRank = 0;
-		mTroopsCurrent[x].field_3 = 0;
-		mTroopsCurrent[x].field_4 = 0;
-		mTroopsCurrent[x].field_6 = 0;
-		mTroopsCurrent[x].field_8 = 0;
-		mTroopsCurrent[x].mNumberOfKills = 0;
+		mSquad[x].mRecruitID = 0;
+		mSquad[x].mRank = 0;
+		mSquad[x].field_3 = 0;
+		mSquad[x].field_4 = 0;
+		mSquad[x].field_6 = 0;
+		mSquad[x].field_8 = 0;
+		mSquad[x].mNumberOfKills = 0;
 	}
 
 	word_3915A = 0;
@@ -197,10 +201,10 @@ void cFodder::Troops_Clear() {
 	word_3915A = -1;
 
 	for (unsigned int x = 0; x < 8; ++x) {
-		mTroopsCurrent[x].field_4 = -1;
-		mTroopsCurrent[x].mRecruitID = -1;
-		mTroopsCurrent[x].mRank = 0;
-		mTroopsCurrent[x].field_3 = 0;
+		mSquad[x].field_4 = -1;
+		mSquad[x].mRecruitID = -1;
+		mSquad[x].mRank = 0;
+		mSquad[x].field_3 = 0;
 	}
 }
 
@@ -236,6 +240,7 @@ void cFodder::sub_10D61() {
 	dword_3A004 = 0;
 	dword_3A008 = 0;
 	word_3A016 = 0;
+	word_3A01A = 0;
 	word_3A9F7 = 0;
 	word_3AA17 = 0;
 	word_3AA19 = 0;
@@ -399,15 +404,10 @@ void cFodder::sub_10EE3() {
 
 void cFodder::map_Load_Spt() {
 	
-	std::string Filename_Map = map_Filename_MapGet();
 	std::string Filename_Spt = map_Filename_SptGet();
 
-	uint8* Map = g_Resource.fileGet(Filename_Spt, mMapSptSize);
-	tool_EndianSwap( (uint8*) Map, mMapSptSize );
-	//memset( mMapSpt_Loaded, 0, sizeof(mMapSpt_Loaded));
-
-	memcpy( mMapSptPtr, Map, mMapSptSize );
-	delete[] Map;
+	mMapSptSize = g_Resource.fileLoadTo( Filename_Spt, (uint8*) mMapSptPtr );
+	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
 
 	word_3AA17 = 0;
 	word_3AA19 = 0;
@@ -519,7 +519,7 @@ void cFodder::map_Troops_Prepare() {
 	
 	for( int16 x = 7; x >= 0; --x ) {
 		
-		if( mTroopsCurrent[x].mRecruitID != -1 ) {
+		if( mSquad[x].mRecruitID != -1 ) {
 			--word_397D2;
 			++word_397D4;
 		}
@@ -543,14 +543,14 @@ void cFodder::map_Troops_Prepare() {
 void cFodder::map_Load_Players() {
 
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
-		sMission_Troop* Data20 = mTroopsCurrent;
+		sSquad_Member* Data20 = mSquad;
 
 		for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 
 			if (Data20->mRecruitID == -1) {
 
-				sMission_Troop* Data24 = Data20 + 1;
-				sMission_Troop* Data28 = Data20;
+				sSquad_Member* Data24 = Data20 + 1;
+				sSquad_Member* Data28 = Data20;
 
 				*Data28 = *Data24;
 				Data28->mRecruitID = -1;
@@ -559,11 +559,11 @@ void cFodder::map_Load_Players() {
 		}
 	}
 	
-	sMission_Troop* Data20 = mTroopsCurrent;
+	sSquad_Member* Data20 = mSquad;
 
 	//seg000:1347
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
-		sMission_Troop* Data24 = mTroopsCurrent;
+		sSquad_Member* Data24 = mSquad;
 
 		for (int16 Data18 = 7; Data18 >= 0; --Data18, ++Data24) {
 
@@ -579,7 +579,7 @@ void cFodder::map_Load_Players() {
 			if (Data20->mNumberOfKills <= Data24->mNumberOfKills)
 				continue;
 
-			sMission_Troop Spare = *Data20;
+			sSquad_Member Spare = *Data20;
 
 			*Data20 = *Data24;
 			*Data24 = Spare;
@@ -593,7 +593,7 @@ void cFodder::sub_1142D() {
 	if (!word_3ABA7) {
 
 		if (word_390D4) {
-			sMission_Troop* Data20 = mTroopsCurrent;
+			sSquad_Member* Data20 = mSquad;
 			uint16* Data24 = word_390D6;
 
 			for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
@@ -603,7 +603,7 @@ void cFodder::sub_1142D() {
 
 		//seg000:1481                loc_11481:
 		word_390D4 = -1;
-		sMission_Troop* Data20 = mTroopsCurrent;
+		sSquad_Member* Data20 = mSquad;
 		uint16* Data24 = word_390D6;
 		for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 			*Data24++ = Data20->field_4;
@@ -621,7 +621,7 @@ void cFodder::sub_1142D() {
 		return;
 
 	Data1C = mTroopsAvailable;
-	sMission_Troop* Data20 = mTroopsCurrent;
+	sSquad_Member* Data20 = mSquad;
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 
 		if (Data20->field_4 == -1)
@@ -636,7 +636,7 @@ void cFodder::sub_1142D() {
 }
 
 void cFodder::sub_1152F() {
-	sMission_Troop* Data20 = mTroopsCurrent;
+	sSquad_Member* Data20 = mSquad;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0) {
 
@@ -666,7 +666,7 @@ void cFodder::sub_115F7() {
 
 	word_3A016 = mTroopsAvailable;
 	int16* Data20 = mMapSpt_Loaded;
-	sMission_Troop* Troop = mTroopsCurrent;
+	sSquad_Member* Troop = mSquad;
 
 	for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, Data20 += 0x3B ) {
 
@@ -697,6 +697,31 @@ void cFodder::sub_115F7() {
 			++Troop;
 		}
 	}
+}
+
+void cFodder::map_SetTileType() {
+
+	char Type[3];
+
+	Type[0] = mMap[0];
+	Type[1] = mMap[1];
+	Type[2] = mMap[2];
+
+	for (unsigned int x = 0; x < 6; ++x) {
+		if (mMapTypes[x][0] != Type[0])
+			continue;
+	
+		if (mMapTypes[x][1] != Type[1])
+			continue;
+
+		if (mMapTypes[x][2] != Type[2])
+			continue;
+
+		mMap_TileSet = x;
+		return;
+	}
+
+	mMap_TileSet = 0;
 }
 
 void cFodder::sub_12AB1() {
@@ -892,6 +917,15 @@ void cFodder::mouse_ButtonCheck() {
 void cFodder::Prepare() {
 
 	mWindow->InitWindow( "Open Fodder" );
+
+	mDataPStuff = new uint8[0xA03 * 16];
+	mDataBaseBlk = new uint8[0xFD0 * 16];
+	mMap = new uint8[0x346 * 16];
+	mDataSubBlk = new uint8[0xFD0 * 16];
+	mDataHillBits = new uint8[0xD5A * 16];
+	mDataArmy = new uint8[0xD50 * 16];
+	word_3BDAD = (int16*) new uint8[0x258 * 16];
+	mMapSptPtr = (uint16*) new uint8[0x258 * 16];
 
 	Load_File("setup.dat");
 	sub_12AB1();
@@ -1425,11 +1459,140 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 }
 
+void cFodder::sub_14FF5( cSurface* pImage ) {
+	
+	word_4286F = 0;
+	word_42871 = 0;
+	word_42873 = 0;
+	word_42875 = 0;
+
+	dword_42062 = word_4286B;
+
+	byte_42070 = 0xE0;
+
+	pImage->paletteSet( mPalette );
+
+
+	// TEMP
+	for (;;) {
+		pImage->paletteFade();
+		g_Window.RenderAt( pImage, cPosition() );
+		g_Window.FrameEnd();
+	}
+}
+
 void cFodder::Mission_Brief() {
 
-	map_Load_Unk();
+	map_Load_Resources();
 	Sprite_SetDataPtrToBase( off_42918 );
+	//video_Draw_unk_0();
 
+	cSurface* Image = new cSurface( 320, 260 );
+
+	sub_15DF0( Image );
+	//video_unk_0_1();
+	sub_15DF0( Image );
+
+	switch (mMap_TileSet) {
+	case 0:
+		sub_14FF5( Image );
+		break;
+
+	case 1:
+		//sub_15397();
+		break;
+
+	case 2:
+		//sub_151C6();
+		break;
+
+	case 3:
+		//sub_15568();
+		break;
+
+	case 4:
+		//sub_15739();
+		break;
+	}
+
+	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
+}
+
+void cFodder::map_Load_Resources() {
+	std::string MapName = map_Filename_MapGet();
+	std::string JunData1 = "p1.dat";
+	std::string JunData2 = "p2.dat";
+	std::string JunData3 = "p3.dat";
+	std::string JunData4 = "p4.dat";
+	std::string JunData5 = "p5.dat";
+
+	g_Resource.fileLoadTo( MapName, mMap );
+
+	map_SetTileType();
+
+	JunData1.insert( 0, mMapTypes[mMap_TileSet] );
+	JunData2.insert( 0, mMapTypes[mMap_TileSet] );
+	JunData3.insert( 0, mMapTypes[mMap_TileSet] );
+	JunData4.insert( 0, mMapTypes[mMap_TileSet] );
+	JunData5.insert( 0, mMapTypes[mMap_TileSet] );
+
+	size_t DataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mDataBaseBlk );
+	g_Resource.fileLoadTo( JunData2, mDataSubBlk );
+	word_42861 = mDataSubBlk;
+
+	g_Resource.fileLoadTo( JunData3, mDataHillBits );
+	g_Resource.fileLoadTo( JunData4, mDataArmy );
+	g_Resource.fileLoadTo( JunData5, mDataPStuff );
+	g_Resource.fileLoadTo( "paraheli.dat", (uint8*) mMapSptPtr );
+
+	word_4286B = mMapSptPtr;
+
+	uint8* si = ((uint8*)mMapSptPtr) + 0xF00;
+	si += 0x30 * mMap_TileSet;
+
+	memcpy( (word_42861 + DataBaseBlkSize) - 0x60, si, 0x30 );
+	memcpy( (word_42861 + DataBaseBlkSize) - 0x30, mDataPStuff + 0xA000, 0x30 );
+}
+
+void cFodder::sub_15DF0( cSurface* pImage ) {
+
+	word_3A01A = 0xB5;
+	Mission_Brief_Name_Prepare( pImage );
+
+}
+
+void cFodder::Mission_Brief_Name_Prepare( cSurface* pImage ) {
+	
+	std::stringstream Mission;
+	Mission << "MISSION ";
+
+	word_3AC19 = 0x25;
+	Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
+
+	String_CalculateWidth( 0x140, byte_4382F, Mission.str().c_str() );
+	String_Print( pImage, byte_4382F, 1, word_3B301, 0, Mission.str().c_str() );
+	
+	int16 Data0 = mMissionNumber;
+	const char** Data20 = mMapNames;
+
+	if (word_3A01A != 0xB5) {
+		Data20 = mMapPhaseNames;
+		Data0 = mMapNumber + 1;
+	}
+
+	Data0 -= 1;
+	Data20 += Data0;
+
+	String_CalculateWidth( 0x140, byte_4382F, *Data20 );
+	Data0 = mMissionNumber;
+	Data20 = mMapNames; 
+	if (word_3A01A != 0xB5) {
+		Data20 = mMapPhaseNames;
+		Data0 = mMapNumber + 1;
+	}
+	Data0 -= 1;
+	Data20 += Data0;
+	String_Print( pImage, byte_4382F, 1, word_3B301, word_3A01A, *Data20 );
 }
 
 void cFodder::Recruit_Show() {
@@ -1439,12 +1602,11 @@ void cFodder::Recruit_Show() {
 	
 	cSurface* ImageHill = new cSurface(320,230);
 	
-	delete word_3E1B7;
-	word_3E1B7 = g_Resource.fileGet( "hill.dat", word_3E1B7_size );
+	word_3E1B7 = mDataBaseBlk;
+	g_Resource.fileLoadTo( "hill.dat", mDataBaseBlk );
 	paletteLoad( word_3E1B7 + 0xFA00, 0x50, 0x00 );
 
-	delete mDataHillBits;
-	mDataHillBits = g_Resource.fileGet( "hillbits.dat", mDataHillBitsSize );
+	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
 	paletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
 
 	dword_3B1FB = stru_373BA;
@@ -1747,7 +1909,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 	word_3A3BD = 0;
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A3BB ) {
-		sMission_Troop* Data2C = &mTroopsCurrent[x];
+		sSquad_Member* Data2C = &mSquad[x];
 		
 		int16 Data0 = Data2C->field_4;
 		
@@ -1811,7 +1973,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 	int16 Data4;
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A061 ) {
-		sMission_Troop* Data38 = &mTroopsCurrent[x];
+		sSquad_Member* Data38 = &mSquad[x];
 
 		if( Data38->field_4 == -1 )
 			continue;
@@ -2736,8 +2898,7 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 
 void cFodder::Load_Sprite_Font() {
 	
-	delete mDataPStuff;
-	mDataPStuff = g_Resource.fileGet( "font.dat", mDataPStuffSize );
+	g_Resource.fileLoadTo( "font.dat", mDataPStuff );
 
 	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 	Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
@@ -2772,8 +2933,7 @@ introDone:;
 	mIntroDone = -1;
 	//sub_1645F();
 
-	delete mDataPStuff;
-	mDataPStuff = g_Resource.fileGet( "pstuff.dat", mDataPStuffSize );
+	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
 	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xF0 );
 	//Sound_Unk();
 	//Music_Unk();
@@ -2823,7 +2983,7 @@ void cFodder::mission_PhaseNext() {
 		return;
 
 	for (unsigned int x = 0; x < 8; ++x) {
-		mTroopsCurrent[x].field_3 = 0;
+		mSquad[x].field_3 = 0;
 	}
 
 	word_390D0 = mMissionNumber;
@@ -2929,8 +3089,7 @@ void cFodder::Start() {
 		word_39096 = -1;
 
 		size_t StuffSize = 0;
-		delete mDataPStuff;
-		mDataPStuff = g_Resource.fileGet( "pstuff.dat", StuffSize );
+		g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
 
 		for (unsigned int x = 0; x < 0x30; ++x)
 			byte_3DDA2[x] = mDataPStuff[0xA000 + x];
@@ -3010,7 +3169,7 @@ void cFodder::Exit( unsigned int pExitCode ) {
 }
 
 void cFodder::sub_301F7() {
-	sMission_Troop* Data38 = mTroopsCurrent;
+	sSquad_Member* Data38 = mSquad;
 	
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
 
