@@ -122,6 +122,8 @@ size_t cResources::fileLoadTo( std::string pFilename, uint8* pTarget ) {
 
 	memcpy( pTarget, File, Size );
 
+	delete[] File;
+
 	return Size;
 }
 
