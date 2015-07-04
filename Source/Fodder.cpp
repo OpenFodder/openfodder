@@ -25,7 +25,7 @@
 #include "IntroData.hpp"
 #include "Recruits.hpp"
 #include "UnknownData.hpp"
-#include "MapNames.hpp"
+#include "MissionNames.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
 							"rjnull.bin", 
@@ -1461,24 +1461,183 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 void cFodder::sub_14FF5( cSurface* pImage ) {
 	
-	word_4286F = 0;
-	word_42871 = 0;
-	word_42873 = 0;
-	word_42875 = 0;
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
 
-	dword_42062 = word_4286B;
+	word_42062 = (uint8*) word_4286B;
 
 	byte_42070 = 0xE0;
 
+
+	sub_1590B();
+
 	pImage->paletteSet( mPalette );
 
+	int16 Faded = -1;
 
-	// TEMP
 	for (;;) {
-		pImage->paletteFade();
+		if (word_428D6 == -1)
+			sub_159A6();
+
+		if( Faded == -1 )
+			pImage->paletteFade();
+
+		word_42859 = 0x30;
+		word_4285B = 0x0C64;
+
+		sub_15B86( pImage, word_42867, word_42875 );
+
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
 	}
+}
+
+void cFodder::sub_1590B() {
+	word_428BE = 0x150;
+	word_428BC = 0;
+	word_428C2 = 0x26;
+	word_428C0 = 0;
+
+	word_428C6 = word_428DC[0];
+	word_428C4 = word_428DC[1];
+	word_428C8 = word_428DC[2];
+	word_428CA = &word_428DC[3];
+	word_428CC = 0;
+	word_428D6 = -1;
+	word_428D8 = -1;
+
+	sub_1594F();
+}
+
+void cFodder::sub_159A6() {
+	uint16 bx = (word_428B6 / 2) & 0xFF;
+
+	int32 ax = word_3EABF[ bx ];
+
+	ax >>= 2;
+	ax *= word_428B8;
+
+	word_428BC += ax & 0xFFFF;
+	word_428BE += (ax >> 16);
+
+	bx += 0x40;
+	bx &= 0xFF;
+
+	ax = word_3EABF[bx];
+	ax >>= 2;
+	ax *= word_428B8;
+
+	word_428C0 += ax & 0xFFFF;
+	word_428C2 += (ax >> 16);
+
+	bx = word_428C6 - word_428B6;
+	bx >>= 5;
+	--bx;
+	bx ^= 0x0F;
+	bx &= 0x0F;
+
+	int16 al = byte_3E98F[bx];
+	al <<= 2;
+	word_428B6 += al;
+	word_428B6 &= 0x1FE;
+
+	if (word_428C4 != word_428B8) {
+		if (word_428C4 >= word_428B8)
+			word_428B8 -= 4;
+		else
+			word_428B8 += 4;
+	}
+
+	word_428CC += 2;
+	if (word_428CC == 8)
+		word_428CC = 0;
+
+	--word_428BA;
+	if (word_428BA <= 0)
+		sub_1594F();
+
+}
+
+void cFodder::sub_1594F() {
+
+	word_428B6 = word_428C6;
+	word_428B8 = word_428C4;
+	word_428BA = word_428C8;
+	word_428C6 = *word_428CA++;
+	word_428C4 = *word_428CA++;
+	word_428C8 = *word_428CA++;
+
+	if (word_428B6 == -1) {
+		word_428D6 = 0;
+		word_428D8 = 0;
+
+		paletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+	}
+
+}
+
+void cFodder::sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx ) {
+
+	if (word_3E75B != 0)
+		sub_15B98( pImage, pDs, pCx );
+	else
+		sub_15CE8( pImage, pDs, pCx );
+}
+
+void cFodder::sub_15B98( cSurface* pImage, uint8* pDsSi, int16 pCx ) {
+	int16 ax = pCx >> 2;
+	int16 dx = ax;
+
+	ax -= 0x50;
+	word_4285F = -ax;
+
+	word_4285D = pImage->GetSurfaceBuffer() + word_4285B + dx;
+	//cx &= 3;
+
+	++dx;
+	
+	uint8* di = word_4285D;
+
+	for (int16 bx = word_42859; bx > 0; --bx) {
+		int16 cx = word_4285F;
+
+		if (cx & 1)
+			*di++ = *pDsSi++;
+
+		cx >>= 1;
+		while (cx > 0) {
+			*di++ = *pDsSi++;
+			*di++ = *pDsSi++;
+			--cx;
+		}
+		cx = dx;
+		di -= 0x51;
+		--pDsSi;
+		if ( cx & 1 )
+			*di++ = *pDsSi++;
+
+		cx >>= 1;
+		while (cx > 0) {
+			*di++ = *pDsSi++;
+			*di++ = *pDsSi++;
+			--cx;
+		}
+
+		di += 320;
+	}
+/*
+	ah <<= 1;
+	if (ah & 0x10) {
+		ah = 1;
+		++word_4285D;
+	}*/
+	pImage->draw();
+}
+
+void cFodder::sub_15CE8( cSurface* pImage, uint8* pDs, int16 pCx ) {
+	//todo
 }
 
 void cFodder::Mission_Brief() {
@@ -1537,14 +1696,22 @@ void cFodder::map_Load_Resources() {
 	JunData5.insert( 0, mMapTypes[mMap_TileSet] );
 
 	size_t DataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mDataBaseBlk );
+	word_42861 = mDataBaseBlk;
+	word_4286D = DataBaseBlkSize;
+
 	g_Resource.fileLoadTo( JunData2, mDataSubBlk );
-	word_42861 = mDataSubBlk;
-
+	word_42863 = mDataSubBlk;
+	
 	g_Resource.fileLoadTo( JunData3, mDataHillBits );
-	g_Resource.fileLoadTo( JunData4, mDataArmy );
-	g_Resource.fileLoadTo( JunData5, mDataPStuff );
-	g_Resource.fileLoadTo( "paraheli.dat", (uint8*) mMapSptPtr );
+	word_42865 = mDataHillBits;
 
+	g_Resource.fileLoadTo( JunData4, mDataArmy );
+	word_42867 = mDataArmy;
+
+	g_Resource.fileLoadTo( JunData5, mDataPStuff );
+	word_42869 = mDataPStuff;
+
+	g_Resource.fileLoadTo( "paraheli.dat", (uint8*) mMapSptPtr );
 	word_4286B = mMapSptPtr;
 
 	uint8* si = ((uint8*)mMapSptPtr) + 0xF00;
@@ -1558,7 +1725,6 @@ void cFodder::sub_15DF0( cSurface* pImage ) {
 
 	word_3A01A = 0xB5;
 	Mission_Brief_Name_Prepare( pImage );
-
 }
 
 void cFodder::Mission_Brief_Name_Prepare( cSurface* pImage ) {
@@ -2051,37 +2217,34 @@ void cFodder::Recruit_Render_HeroList() {
 		if (Hero->mRecruitID < 0)
 			continue;
 
-		int16 Data0 = Hero->mRecruitID + 9;
 		int16 Data8 = 0;
 		int16 DataC = word_3A3BD - 1;
 		DataC += 0x4A + word_3AA55+ 0x19;
 
-		sub_145AF( Data0, Data8, DataC );
+		sub_145AF( Hero->mRecruitID + 9, Data8, DataC );
 
 		sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
 
-		int16 Data14;
-		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
+		int16 Position;
+		for( Position = 0; Position <= 5; ++Position ) {
 			
-			if( Troop->mName[Data14] == 0x20 )
+			if( Troop->mName[Position] == 0x20 )
 				break;
 		} 
 
-		Data0 = Data14;
-		Data14 <<= 2;
-		word_3A05F = (0x30 - Data14) >> 1;
+		Position <<= 2;
+		word_3A05F = (0x30 - Position) >> 1;
 		--word_3A05F;
 
-		for (Data14 = 0; Data14 <= 5; ++Data14) {
-			Data0 = 0;
+		for (Position = 0; Position <= 5; ++Position) {
 
-			uint8 Character = Troop->mName[Data14];
+			uint8 Character = Troop->mName[Position];
 			if (Character == 0x20)
 				continue;
 
 			Character -= 0x41;
 			Character += 0x29;
-			Data8 = Data14;
+			Data8 = Position;
 			Data8 <<= 2;
 			Data8 += word_3A05F;
 			DataC += 0x4B;

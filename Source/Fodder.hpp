@@ -315,13 +315,34 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_42078;
 
 	int16			word_42851;
+	int16			word_42859;
+	int16			word_4285B;
+	uint8*			word_4285D;
+	int16			word_4285F;
+
 	uint8*			word_42861;
 	uint8*			word_42863;
 	uint8*			word_42865;
+	int16			word_428B6;
 	uint8*			word_42867;
+	int16			word_428B8;
 	uint8*			word_42869;
+	int16			word_428BA;
 	uint16*			word_4286B;
-	
+
+	uint16			word_4286D;
+	int16			word_428BE;
+	int16			word_428BC;
+	int16			word_428C2;
+	int16			word_428C0;
+	int16			word_428C6;
+	int16			word_428C4;
+	int16			word_428C8;
+	const int16*	word_428CA;
+	int16			word_428CC;
+	int16			word_428D6;
+	int16			word_428D8;
+
 	uint8			mErrorCode;
 
 	int16			mouse_Button_Status;
@@ -381,9 +402,17 @@ protected:
 
 	void			Mission_Brief();
 
+	void			sub_1590B();
+	void			sub_1594F();
+	void			sub_159A6();
+
+	void			sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx );
+	void			sub_15B98( cSurface* pImage, uint8* pDs, int16 pCx );
+	void			sub_15CE8( cSurface* pImage, uint8* pDs, int16 pCx );
+
 	void			sub_15DF0( cSurface* pImage );
 	void			Mission_Brief_Name_Prepare( cSurface* pImage );
-	\
+	
 	void			map_Load_Resources();
 
 	/* Recruitment */
