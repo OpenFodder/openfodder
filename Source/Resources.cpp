@@ -127,17 +127,6 @@ size_t cResources::fileLoadTo( std::string pFilename, uint8* pTarget ) {
 	return Size;
 }
 
-cSurface *cResources::imageLoad( std::string pFilename, size_t pColors ) {
-	size_t fileSize = 0;
-	uint8* fileBuffer = fileGet(pFilename, fileSize);
-
-	cSurface *surface = new cSurface(320, 200);
-
-	surface->decode( fileBuffer, fileSize, 0, pColors );
-	
-	return surface;
-}
-
 cSurface* cResources::image4PlaneLoad( const std::string &pFilename, size_t pColors ) {
 	size_t fileSize = 0;
 	uint8* fileBuffer = fileGet(pFilename, fileSize);

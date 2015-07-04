@@ -276,6 +276,9 @@ void cFodder::sub_10D61() {
 	word_3B305 = 0;
 	word_3B307 = 0;
 	word_3B447 = 0;
+	for (uint16 x = 0; x < 7; ++x)
+		mMapGoals[x] = 0;
+
 	word_3B4F3 = 0;
 }
 
@@ -1298,8 +1301,9 @@ bool cFodder::sub_1429B() {
 		ax -= 0x15F;
 		--ax;
 		
-		while( ax & 3 )
+		do {
 			++ax;
+		} while (ax & 3);
 		
 		word_4206C -= ax;
 	}
@@ -1473,32 +1477,89 @@ void cFodder::sub_14FF5( cSurface* pImage ) {
 
 	sub_1590B();
 
+	paletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+
 	pImage->paletteSet( mPalette );
 
 	int16 Faded = -1;
 
-	for (;;) {
+	do {
 		if (word_428D6 == -1)
 			sub_159A6();
 
 		if( Faded == -1 )
-			pImage->paletteFade();
+			Faded = pImage->paletteFade();
 
+		// Clouds
 		word_42859 = 0x30;
-		word_4285B = 0x0C64;
+		word_4285B = 320 * 36;// 0x0C64;
 
 		sub_15B86( pImage, word_42867, word_42875 );
 
+		word_42859 = 0x38;
+		word_4285B = 320 * 46; //80;	//0x102C
+
+		sub_15A36( pImage, word_42865, word_42873 );
+
+		word_42859 = 0x12;
+		word_4285B = 320 * 85; //96;	//0x1D3C
+		
+		sub_15A36( pImage, word_42863 , word_42871 );
+
+		// Trees (Main)
+		word_42859 = 0x5C;
+		word_4285B = 320 * 103;	// 0x236C
+
+		sub_15B86( pImage, word_42869, word_42871 );
+
+		int16 word_428CE[] = {
+			0x00, 0x20, 0x40, 0x60 
+		};
+		word_42062 = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+
+		word_42068 = word_428BC >> 16;
+		word_4206A = word_428C0 >> 16;
+		word_4206C = 0x40;
+		word_4206E = 0x18;
+		if (sub_1429B())
+			video_Draw_Sprite_( pImage );
+
+		word_42859 = 0x2D;
+		word_4285B = 320 * 151; //0x33EC
+		sub_15A36( pImage, word_42861, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
-	}
+
+		eventProcess();
+		mouse_GetData();
+		if (mouse_Button_Status) {
+			word_428D8 = 0;
+			pImage->paletteFadeOut();
+			Faded = -1;
+		}
+	} while (word_428D8 != 0 || Faded == -1);
 }
 
 void cFodder::sub_1590B() {
-	word_428BE = 0x150;
-	word_428BC = 0;
-	word_428C2 = 0x26;
-	word_428C0 = 0;
+	word_428BC = 0x01500000;
+	word_428C0 = 0x00260000;
 
 	word_428C6 = word_428DC[0];
 	word_428C4 = word_428DC[1];
@@ -1512,25 +1573,21 @@ void cFodder::sub_1590B() {
 }
 
 void cFodder::sub_159A6() {
-	uint16 bx = (word_428B6 / 2) & 0xFF;
+	word_428B6 &= 0x1FE;
+	uint16 bx = word_428B6;
 
-	int32 ax = word_3EABF[ bx ];
+	uint32 ax = word_3EABF[ (bx / 2) & 0xFF ];
 
 	ax >>= 2;
-	ax *= word_428B8;
 
-	word_428BC += ax & 0xFFFF;
-	word_428BE += (ax >> 16);
+	word_428BC += ax* word_428B8;
 
-	bx += 0x40;
-	bx &= 0xFF;
+	bx += 0x80;
+	bx &= 0x1FE;
 
-	ax = word_3EABF[bx];
+	ax = word_3EABF[bx / 2];
 	ax >>= 2;
-	ax *= word_428B8;
-
-	word_428C0 += ax & 0xFFFF;
-	word_428C2 += (ax >> 16);
+	word_428C0 += ax * word_428B8;
 
 	bx = word_428C6 - word_428B6;
 	bx >>= 5;
@@ -1578,6 +1635,53 @@ void cFodder::sub_1594F() {
 
 }
 
+void cFodder::sub_15A36( cSurface* pImage, uint8* pDs, int16 pCx ) {
+	int16 ax = pCx >> 2;
+	int16 dx = ax;
+
+	ax -= 0x50;
+	word_4285F = -ax;
+
+	word_4285D = pImage->GetSurfaceBuffer() + word_4285B + (dx*4) + 4;
+	pCx &= 3;
+	int8 ah = 1;
+	ah << pCx;
+
+	++dx;
+	
+	uint8* di = word_4285D;
+
+	
+	for (uint8 Plane = 0; Plane < 4; ++Plane) {
+		di = word_4285D + Plane;
+
+		for (int16 bx = word_42859; bx > 0; --bx) {
+			int16 cx;
+			for (cx = word_4285F; cx > 0; --cx) {
+				uint8 al = *pDs++;
+				if (al)
+					*di = al;
+
+				di += 4;
+			}
+
+			di -= 0x51 * 4;
+			--pDs;
+			for (cx = dx; cx > 0; --cx) {
+				uint8 al = *pDs++;
+				if (al)
+					*di = al;
+
+				di += 4;
+			}
+
+			di += 0x50 * 4;
+		}
+	}
+
+	pImage->draw();
+}
+
 void cFodder::sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx ) {
 
 	if (word_3E75B != 0)
@@ -1593,46 +1697,59 @@ void cFodder::sub_15B98( cSurface* pImage, uint8* pDsSi, int16 pCx ) {
 	ax -= 0x50;
 	word_4285F = -ax;
 
-	word_4285D = pImage->GetSurfaceBuffer() + word_4285B + dx;
-	//cx &= 3;
+	word_4285D = pImage->GetSurfaceBuffer() + word_4285B + (dx*4);
+	pCx &= 3;
+	int8 ah = 1;
+	ah << pCx;
 
 	++dx;
 	
 	uint8* di = word_4285D;
 
-	for (int16 bx = word_42859; bx > 0; --bx) {
-		int16 cx = word_4285F;
+	for (uint8 Plane = 0; Plane < 4; ++Plane) {
+		di = word_4285D + Plane;
 
-		if (cx & 1)
-			*di++ = *pDsSi++;
+		for (int16 bx = word_42859; bx > 0; --bx) {
+			int16 cx = word_4285F;
 
-		cx >>= 1;
-		while (cx > 0) {
-			*di++ = *pDsSi++;
-			*di++ = *pDsSi++;
-			--cx;
+			if (cx & 1) {
+				*di = *pDsSi++;
+				di += 4;
+			}
+
+			cx >>= 1;
+			while (cx > 0) {
+				*di = *pDsSi++;
+				di += 4;
+
+				*di = *pDsSi++;
+				di += 4;
+
+				--cx;
+			}
+
+			cx = dx;
+			di -= 0x51 * 4;
+			--pDsSi;
+			if (cx & 1) {
+				*di = *pDsSi++;
+				di += 4;
+			}
+
+			cx >>= 1;
+			while (cx > 0) {
+				*di = *pDsSi++;
+				di += 4;
+
+				*di = *pDsSi++;
+				di += 4;
+
+				--cx;
+			}
+			di += 0x50 * 4;
 		}
-		cx = dx;
-		di -= 0x51;
-		--pDsSi;
-		if ( cx & 1 )
-			*di++ = *pDsSi++;
-
-		cx >>= 1;
-		while (cx > 0) {
-			*di++ = *pDsSi++;
-			*di++ = *pDsSi++;
-			--cx;
-		}
-
-		di += 320;
 	}
-/*
-	ah <<= 1;
-	if (ah & 0x10) {
-		ah = 1;
-		++word_4285D;
-	}*/
+	
 	pImage->draw();
 }
 
@@ -1646,7 +1763,7 @@ void cFodder::Mission_Brief() {
 	Sprite_SetDataPtrToBase( off_42918 );
 	//video_Draw_unk_0();
 
-	cSurface* Image = new cSurface( 320, 260 );
+	cSurface* Image = new cSurface( 320, 230 );
 
 	sub_15DF0( Image );
 	//video_unk_0_1();
@@ -2861,6 +2978,84 @@ void cFodder::map_ClearSpt() {
 		mMapSptPtr[cx] = 0;
 }
 
+void cFodder::Mission_Brief_Show( cSurface* pImage ) {
+	const char* Brief = "BRIEFING";
+
+	word_3AC19 = 0x25;
+
+	String_CalculateWidth( 320, byte_4382F, Brief );
+	String_Print( pImage, byte_4382F, 0x03, word_3B301, 0x4E, Brief );
+	
+	sub_18B74( 1, 0x49, 0x13E, 0x6B, 0xF3 );
+	sub_18B74( 0, 0x48, 0x13E, 0x6B, 0xF2 );
+	
+	word_3AC19 = 0;
+
+	std::stringstream Phase;
+
+	Phase << "PHASE " << tool_StripLeadingZero( tool_NumToString( mMissionPhase ) );
+	Phase << " OF " << tool_StripLeadingZero( tool_NumToString( mMissionPhases ));
+
+	String_CalculateWidth( 320, byte_4388F, Phase.str().c_str() );
+	String_Print( pImage, byte_4388F, 0, word_3B301, 0x1D, Phase.str().c_str() );
+	
+	sub_126DD();
+
+	int16 DataC = 0x84;
+	const char* Data20 = 0;
+	const char** Data28 = mMissionGoals;
+	int16* Data24 = mMapGoals;
+
+	for (int16 Data0 = 7 ;Data0>=0; ++Data28, --Data0 ) {
+		if (*Data24++) {
+
+			Data20 = *Data28;
+			String_CalculateWidth( 0x140, byte_4388F, Data20 );
+			String_Print( pImage, byte_4388F, 0, word_3B301, DataC - 0x12, Data20 );
+			DataC += 0x0C;
+		}
+	}
+}
+
+void cFodder::sub_18908() {
+	cSurface* Image = new cSurface( 320, 260 );
+
+	//video_Draw_unk_0();
+	Sprite_SetDataPtrToBase( off_42918 );
+	word_3A01A = 0x2C;
+
+	Mission_Brief_Name_Prepare( Image );
+	Mission_Brief_Show( Image );
+
+	Image->paletteFadeOut();
+	do {
+		g_Window.RenderAt( Image, cPosition() );
+		g_Window.FrameEnd();
+	} while (Image->paletteFade() == -1);
+}
+
+void cFodder::sub_18B74( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
+	pData0 += 0x10;
+	pData4 += 0x10;
+
+	bx = pData0;
+	cx = pData4;
+
+	dx = bx + pData8;
+	si = pData10;
+
+	sub_18C11( pImage );
+
+}
+
+void cFodder::sub_18BDF( cSurface* pImage ) {
+	
+}
+
+void cFodder::sub_18C11( cSurface* pImage ) {
+	
+}
+
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
 
 	String_CalculateWidth( 320, mFontWidths, pString->mText );
@@ -3192,7 +3387,7 @@ void cFodder::sleepLoop( int64 pMilliseconds ) {
 		if (GetTickCount() >= TimeFinish)
 			break;
 
-		_sleep( 10 );
+		Sleep( 10 );
 
 	} while (1);
 
@@ -3319,8 +3514,8 @@ void cFodder::Start() {
 			}
 
 			//loc_10513
-			//sub_18908();
-			//map_Load_TileSet();
+			sub_18908();
+			map_Load_TileSet();
 			map_Load_Spt();
 
 		}
