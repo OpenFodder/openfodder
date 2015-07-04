@@ -447,9 +447,9 @@ protected:
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Recruitment */
 	
-	void			Mission_Brief_Show( cSurface* pImage );
+	void			Briefing_Show( cSurface* pImage );
 	void			sub_18908();
-	void			sub_18B74( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	void			sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi );
 	void			sub_18C11( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
