@@ -703,9 +703,15 @@ void cFodder::sub_115F7() {
 }
 
 void cFodder::sub_126DD() {
-	const int8* Data20 = off_3D5F1[0];
-	Data0 = mMapNumber;
+	const int8* Data20 = off_3D5F1[mMapNumber];
 
+	for (; *Data20 != -1; ++Data20) {
+
+		int8 Data0 = *Data20;
+		
+		mMapGoals[Data0-1] = -1;
+
+	}
 }
 
 void cFodder::map_SetTileType() {
@@ -2984,7 +2990,7 @@ void cFodder::map_ClearSpt() {
 		mMapSptPtr[cx] = 0;
 }
 
-void cFodder::Mission_Brief_Show( cSurface* pImage ) {
+void cFodder::Briefing_Show( cSurface* pImage ) {
 	const char* Brief = "BRIEFING";
 
 	word_3AC19 = 0x25;
@@ -2992,14 +2998,14 @@ void cFodder::Mission_Brief_Show( cSurface* pImage ) {
 	String_CalculateWidth( 320, byte_4382F, Brief );
 	String_Print( pImage, byte_4382F, 0x03, word_3B301, 0x4E, Brief );
 	
-	sub_18B74( pImage, 1, 0x49, 0x13E, 0x6B, 0xF3 );
-	sub_18B74( pImage, 0, 0x48, 0x13E, 0x6B, 0xF2 );
+	Briefing_DrawBox( pImage, 1, 0x47, 0x13B, 0x6B, 0xF3 );
+	Briefing_DrawBox( pImage, 0, 0x46, 0x13D, 0x6B, 0xF2 );
 	
 	word_3AC19 = 0;
 
 	std::stringstream Phase;
 
-	Phase << "PHASE " << tool_StripLeadingZero( tool_NumToString( mMissionPhase ) );
+	Phase << "PHASE " << tool_StripLeadingZero( tool_NumToString( mMissionPhase + 1 ) );
 	Phase << " OF " << tool_StripLeadingZero( tool_NumToString( mMissionPhases ));
 
 	String_CalculateWidth( 320, byte_4388F, Phase.str().c_str() );
@@ -3025,23 +3031,23 @@ void cFodder::Mission_Brief_Show( cSurface* pImage ) {
 
 void cFodder::sub_18908() {
 	cSurface* Image = new cSurface( 320, 260 );
+	Image->paletteSet( mPalette );
 
 	//video_Draw_unk_0();
 	Sprite_SetDataPtrToBase( off_42918 );
 	word_3A01A = 0x2C;
 
 	Mission_Brief_Name_Prepare( Image );
-	Mission_Brief_Show( Image );
+	Briefing_Show( Image );
 
-	Image->paletteFadeOut();
 	do {
 		g_Window.RenderAt( Image, cPosition() );
 		g_Window.FrameEnd();
 	} while (Image->paletteFade() == -1);
 }
 
-void cFodder::sub_18B74( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
-	pData0 += 0x10;
+void cFodder::Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
+	//pData0 += 0x10;
 	pData4 += 0x10;
 
 	int16 bx = pData0;
@@ -3050,22 +3056,25 @@ void cFodder::sub_18B74( cSurface* pImage, int16 pData0, int16 pData4, int16 pDa
 	int16 dx = bx + pData8;
 	int16 si = pData10;
 
+	// Top and Bottom
 	sub_18C11( pImage, pData0, pData0 + pData8, pData4, pData10 );
 
 	sub_18C11( pImage, pData0, pData0 + pData8, pData4 + pDataC, pData10 );
 
-	sub_18C2B( pImage, pData0, pData4 + pDataC, pData4, pData10 );
+	// Sides of box
+	sub_18C2B( pImage, pData0 * 4, pData4 + pDataC, pData4, pData10 );
 	
-	sub_18C2B( pImage, pData0 + pData8, pData4 + pDataC, pData4, pData10 );
+	sub_18C2B( pImage, (pData0 + pData8 + 2) * 4, pData4 + pDataC, pData4, pData10 );
 }
 
 void cFodder::sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi ) {
 	uint8* di = pImage->GetSurfaceBuffer();
 
-	di += 0x58 * pCx;
+	di += 320 * pCx;
 	di += pBx >> 2;
 	pBx &= 3;
 
+	di += pBx;
 	*di = pSi;
 }
 
@@ -3074,7 +3083,7 @@ void cFodder::sub_18C11( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint
 	do {
 		sub_18BDF( pImage, pBx, pCx, pSi );
 		++pBx;
-	} while (pBx <= pDx);
+	} while ( pBx <= pDx * 4 );
 }
 
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
@@ -3088,7 +3097,7 @@ void cFodder::sub_18C2B( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint
 	do {
 		sub_18BDF( pImage, pBx, pCx, pSi );
 		++pCx;
-	} while (pCx <= pDx);
+	} while (pCx <= pDx );
 }
 
 void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
@@ -3544,7 +3553,7 @@ void cFodder::Start() {
 
 			//loc_10513
 			sub_18908();
-			map_Load_TileSet();
+			//map_Load_TileSet();
 			map_Load_Spt();
 
 		}
