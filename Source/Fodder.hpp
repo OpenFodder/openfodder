@@ -386,6 +386,8 @@ protected:
 	void			sub_1152F();
 	void			sub_115F7();
 	
+	void			sub_126DD();
+
 	void			map_SetTileType();
 
 	void			sub_13800();
@@ -448,11 +450,12 @@ protected:
 	void			Mission_Brief_Show( cSurface* pImage );
 	void			sub_18908();
 	void			sub_18B74( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
-	void			sub_18BDF( cSurface* pImage );
-	void			sub_18C11( cSurface* pImage );
+	void			sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi );
+	void			sub_18C11( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 	bool			sub_18C7A();
+	void			sub_18C2B( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );

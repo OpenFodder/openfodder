@@ -702,6 +702,10 @@ void cFodder::sub_115F7() {
 	}
 }
 
+void cFodder::sub_126DD() {
+	
+}
+
 void cFodder::map_SetTileType() {
 
 	char Type[3];
@@ -2986,8 +2990,8 @@ void cFodder::Mission_Brief_Show( cSurface* pImage ) {
 	String_CalculateWidth( 320, byte_4382F, Brief );
 	String_Print( pImage, byte_4382F, 0x03, word_3B301, 0x4E, Brief );
 	
-	sub_18B74( 1, 0x49, 0x13E, 0x6B, 0xF3 );
-	sub_18B74( 0, 0x48, 0x13E, 0x6B, 0xF2 );
+	sub_18B74( pImage, 1, 0x49, 0x13E, 0x6B, 0xF3 );
+	sub_18B74( pImage, 0, 0x48, 0x13E, 0x6B, 0xF2 );
 	
 	word_3AC19 = 0;
 
@@ -3038,28 +3042,51 @@ void cFodder::sub_18B74( cSurface* pImage, int16 pData0, int16 pData4, int16 pDa
 	pData0 += 0x10;
 	pData4 += 0x10;
 
-	bx = pData0;
-	cx = pData4;
+	int16 bx = pData0;
+	int16 cx = pData4;
 
-	dx = bx + pData8;
-	si = pData10;
+	int16 dx = bx + pData8;
+	int16 si = pData10;
 
-	sub_18C11( pImage );
+	sub_18C11( pImage, pData0, pData0 + pData8, pData4, pData10 );
 
+	sub_18C11( pImage, pData0, pData0 + pData8, pData4 + pDataC, pData10 );
+
+	sub_18C2B( pImage, pData0, pData4 + pDataC, pData4, pData10 );
+	
+	sub_18C2B( pImage, pData0 + pData8, pData4 + pDataC, pData4, pData10 );
 }
 
-void cFodder::sub_18BDF( cSurface* pImage ) {
-	
+void cFodder::sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi ) {
+	uint8* di = pImage->GetSurfaceBuffer();
+
+	di += 0x58 * pCx;
+	di += pBx >> 2;
+	pBx &= 3;
+
+	*di = pSi;
 }
 
-void cFodder::sub_18C11( cSurface* pImage ) {
+void cFodder::sub_18C11( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
 	
+	do {
+		sub_18BDF( pImage, pBx, pCx, pSi );
+		++pBx;
+	} while (pBx <= pDx);
 }
 
 void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pString ) {
 
 	String_CalculateWidth( 320, mFontWidths, pString->mText );
 	String_Print( pImage, mFontWidths, 0, word_3B301, pPosY, pString->mText );
+}
+
+void cFodder::sub_18C2B( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
+	
+	do {
+		sub_18BDF( pImage, pBx, pCx, pSi );
+		++pCx;
+	} while (pCx <= pDx);
 }
 
 void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
