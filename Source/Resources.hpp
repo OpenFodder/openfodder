@@ -73,7 +73,6 @@ public:
 
 	std::vector< cResource_File >	*filesGet( ) { return &mFiles; }
 
-	cSurface						*imageLoad( std::string pFilename, size_t pColors );
 	cSurface						*image4PlaneLoad( const std::string &pFilename, size_t pColors );
 
 	uint8							*spriteDataGet( size_t pIndex );

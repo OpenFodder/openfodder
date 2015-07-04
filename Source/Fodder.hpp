@@ -247,7 +247,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3B305;
 	int16			word_3B307;
-
+	
+	int16			mMapGoals[8];
 	int16			word_3B447;
 	int16			word_3B4F3;
 
@@ -305,7 +306,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			word_42062;
 	uint8*			word_42066;
 	int16			word_42068;
-	uint16			word_4206A;
+	int16			word_4206A;
 	int16			word_4206C;
 	int16			word_4206E;
 	uint8			byte_42070;
@@ -315,8 +316,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_42078;
 
 	int16			word_42851;
-	int16			word_42859;
-	int16			word_4285B;
+	uint16			word_42859;
+	uint16			word_4285B;
 	uint8*			word_4285D;
 	int16			word_4285F;
 
@@ -327,19 +328,17 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			word_42867;
 	int16			word_428B8;
 	uint8*			word_42869;
-	int16			word_428BA;
+	uint16			word_428BA;
 	uint16*			word_4286B;
 
 	uint16			word_4286D;
-	int16			word_428BE;
-	int16			word_428BC;
-	int16			word_428C2;
-	int16			word_428C0;
+	uint32			word_428BC;
+	uint32			word_428C0;
 	int16			word_428C6;
 	int16			word_428C4;
 	int16			word_428C8;
 	const int16*	word_428CA;
-	int16			word_428CC;
+	uint16			word_428CC;
 	int16			word_428D6;
 	int16			word_428D8;
 
@@ -405,7 +404,7 @@ protected:
 	void			sub_1590B();
 	void			sub_1594F();
 	void			sub_159A6();
-
+	void			sub_15A36( cSurface* pImage, uint8* pDs, int16 pCx );
 	void			sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx );
 	void			sub_15B98( cSurface* pImage, uint8* pDs, int16 pCx );
 	void			sub_15CE8( cSurface* pImage, uint8* pDs, int16 pCx );
@@ -446,6 +445,12 @@ protected:
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Recruitment */
 	
+	void			Mission_Brief_Show( cSurface* pImage );
+	void			sub_18908();
+	void			sub_18B74( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			sub_18BDF( cSurface* pImage );
+	void			sub_18C11( cSurface* pImage );
+
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 	bool			sub_18C7A();
 
