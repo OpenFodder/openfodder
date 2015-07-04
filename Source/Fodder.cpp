@@ -703,7 +703,9 @@ void cFodder::sub_115F7() {
 }
 
 void cFodder::sub_126DD() {
-	
+	const int8* Data20 = off_3D5F1[0];
+	Data0 = mMapNumber;
+
 }
 
 void cFodder::map_SetTileType() {
