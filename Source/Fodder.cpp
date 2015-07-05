@@ -702,6 +702,70 @@ void cFodder::sub_115F7() {
 	}
 }
 
+void cFodder::map_Load_TileSet() {
+	std::string MapName = map_Filename_MapGet();
+
+	size_t Size = g_Resource.fileLoadTo( MapName, mMap );
+	tool_EndianSwap( mMap + 0x60, Size - 0x60 );
+
+	std::string BaseName,SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
+	BaseName.append( mMap, mMap + 11 );
+	SubName.append( mMap + 0x10, mMap + 0x10 + 11 );
+
+	BaseBaseSet.append( mMap, mMap + 3 );
+	BaseSubSet.append( mMap + 0x10, mMap + 0x10 + 3 );
+
+	BaseBase.append( mMap, mMap + 7 );
+	BaseSub.append( mMap + 0x10, mMap + 0x10 + 7 );
+
+
+	g_Resource.fileLoadTo( BaseName, mDataBaseBlk );
+	paletteLoad( mDataBaseBlk + 0xFA00, 0x80, 0x00 );
+
+	g_Resource.fileLoadTo( SubName, mDataSubBlk );
+
+	mMapWidth = readBEWord( &mMap[0x54] );
+	writeLEWord( &mMap[0x54], mMapWidth );
+
+	mMapHeight = readBEWord( &mMap[0x56] );
+	writeLEWord( &mMap[0x56], mMapHeight );
+
+	std::string JunCopt = sub_12AA1( BaseBaseSet, "copt.dat" );
+	std::string JunBaseSwp = sub_12AA1( BaseBase, ".swp" );
+	std::string JunBaseHit = sub_12AA1( BaseBase, ".hit" );
+	std::string JunBaseBht = sub_12AA1( BaseBase, ".bht" );
+	std::string JunArmy = sub_12AA1( BaseSubSet, "army.dat" );
+	std::string JunSubSwp = sub_12AA1( BaseSub, ".swp" );
+	std::string JunSubHit = sub_12AA1( BaseSub, ".hit" );
+	std::string JunSubBht = sub_12AA1( BaseSub, ".bht" );
+
+	g_Resource.fileLoadTo( JunCopt, mDataHillBits );
+	paletteLoad( mDataHillBits + 0xD2A0, 0x40, 0xB0 );
+	paletteLoad( mDataHillBits + 0xD360, 0x10, 0x90 );
+	g_Resource.fileLoadTo( JunArmy, mDataArmy );
+	paletteLoad( mDataArmy + 0xD200, 0x10, 0xA0 );
+
+	Size = g_Resource.fileLoadTo( JunBaseSwp, (uint8*) &word_3D03D[0] );
+	tool_EndianSwap( (uint8*)&word_3D03D[0], Size );
+	
+	Size = g_Resource.fileLoadTo( JunSubSwp, (uint8*) &word_3D21D[0] );
+	tool_EndianSwap( (uint8*)&word_3D21D[0], Size );
+
+	Size = g_Resource.fileLoadTo( JunBaseHit, (uint8*) &word_3C09D[0] );
+	tool_EndianSwap( (uint8*)&word_3C09D[0], Size );
+	
+	Size = g_Resource.fileLoadTo( JunSubHit, (uint8*) &graphicsSub0[0] );
+	tool_EndianSwap( (uint8*)&graphicsSub0[0], Size );
+	
+	Size = g_Resource.fileLoadTo( JunBaseBht, (uint8*) &graphicsBaseBht[0] );
+	tool_EndianSwap( (uint8*)&graphicsBaseBht[0], Size );
+
+	Size = g_Resource.fileLoadTo( JunSubBht, (uint8*) &graphicsSub0Bht[0] );
+	tool_EndianSwap( (uint8*)&graphicsSub0Bht[0], Size );
+	
+	Sprite_SetDataPtrToBase( off_32C0C );
+}
+
 void cFodder::sub_126DD() {
 	const int8* Data20 = off_3D5F1[mMapNumber];
 
@@ -710,8 +774,16 @@ void cFodder::sub_126DD() {
 		int8 Data0 = *Data20;
 		
 		mMapGoals[Data0-1] = -1;
-
 	}
+}
+
+std::string	cFodder::sub_12AA1( std::string pBase, const char* pFinish ) {
+	std::string Final;
+
+	Final.append( pBase );
+	Final.append( pFinish );
+
+	return Final;
 }
 
 void cFodder::map_SetTileType() {
@@ -3270,7 +3342,6 @@ int16 cFodder::introPlayText() {
 				DoBreak = true;
 			}
 
-			videoSleep();
 			g_Window.RenderAt( CurrentImage, cPosition() );
 			g_Window.FrameEnd();
 		}
@@ -3358,7 +3429,6 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 
 		g_Window.RenderAt( img, cPosition() );
 		g_Window.FrameEnd();
-		//videoSleep();
 	}
 
 	delete img;
@@ -3546,9 +3616,21 @@ void cFodder::Start() {
 
 			//loc_10513
 			sub_18908();
-			//map_Load_TileSet();
+			
+			map_Load_TileSet();
 			map_Load_Spt();
 
+			/*word_3AA4D = readLEWord( &mMap[0x54] ) << 4;
+			word_3AA4F = readLEWord( &mMap[0x56] ) << 4;
+
+			map_Troops_Prepare();
+			map_Load_Players();
+			sub_1142D();
+			sub_115F7();
+			graphicsBlkPtrsPrepare();
+
+			map_Tiles_Load();
+			phase_Wait();*/
 		}
 	}
 }

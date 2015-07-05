@@ -115,7 +115,7 @@ uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
 	return 0;
 }
 
-size_t cResources::fileLoadTo( std::string pFilename, uint8* pTarget ) {
+size_t cResources::fileLoadTo( const std::string& pFilename, uint8* pTarget ) {
 	size_t Size = 0;
 
 	uint8* File = fileGet( pFilename, Size );

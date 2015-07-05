@@ -69,7 +69,7 @@ public:
 	 								 cResources();
 									~cResources();
 
-	size_t							 fileLoadTo( std::string pFilename, uint8* pTarget );
+	size_t							 fileLoadTo( const std::string& pFilename, uint8* pTarget );
 
 	std::vector< cResource_File >	*filesGet( ) { return &mFiles; }
 
