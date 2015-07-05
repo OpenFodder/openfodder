@@ -114,6 +114,9 @@ class cFodder : public cSingleton < cFodder > {
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
 
+	uint16			mMapWidth;
+	uint16			mMapHeight;
+
 	uint8*			mDataPStuff;
 	uint8* 			mDataHillBits;
 	uint8*			mDataArmy;
@@ -288,6 +291,13 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint16			mIntroDone;
 
+	int16			word_3C09D[240];
+	int16			graphicsSub0[160];
+	int16			graphicsBaseBht[960];
+	int16			graphicsSub0Bht[640];
+	int16			word_3D03D[240];
+	int16			word_3D21D[161];
+
 	uint16			byte_3DDA2[0x30];
 	int16			word_3E0E5[0x18];
 
@@ -385,8 +395,10 @@ protected:
 	void			sub_1142D();
 	void			sub_1152F();
 	void			sub_115F7();
-	
+	void			map_Load_TileSet();
+
 	void			sub_126DD();
+	std::string		sub_12AA1( std::string pBase, const char* pFinish );
 
 	void			map_SetTileType();
 
