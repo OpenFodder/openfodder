@@ -3878,7 +3878,7 @@ void cFodder::Start() {
 			sub_115F7();
 			graphicsBlkPtrsPrepare();
 
-			map_Tiles_Load();
+			//map_Tiles_Load();
 			Briefing_Wait();
 			if (word_3B4F5 == -1) {
 
@@ -3891,6 +3891,12 @@ void cFodder::Start() {
 				word_3901E = -1;
 				continue;
 			}
+			cSurface* Image = new cSurface( 320, 230 );
+			Image->paletteSet( mPalette, 0, true );
+
+			Sprite_SetDataPtrToBase( off_32C0C );
+			map_Tiles_Draw( Image );
+
 		}
 	}
 }
@@ -3913,6 +3919,10 @@ void cFodder::graphicsBlkPtrsPrepare() {
 
 		bx += 0x1400;
 	}
+}
+
+void cFodder::map_Tiles_Draw( cSurface* pImage ) {
+	
 }
 
 void cFodder::Exit( unsigned int pExitCode ) {
