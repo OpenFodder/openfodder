@@ -1065,3 +1065,7 @@ const int8* off_3D5F1[] = {
 	byte_3D7CE,
 	byte_3D7D0
 };
+
+const int16 word_428CE[] = {
+	0x00, 0x20, 0x40, 0x60 
+};
