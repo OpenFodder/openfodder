@@ -95,10 +95,12 @@ void cWindow::EventCheck() {
 		switch (SysEvent.type) {
 			case SDL_KEYDOWN:
 				Event.mType = eEvent_KeyDown;
+				Event.mButton = SysEvent.key.keysym.scancode;
 				break;
 
 			case SDL_KEYUP:
 				Event.mType = eEvent_KeyUp;
+				Event.mButton = SysEvent.key.keysym.scancode;
 				break;
 
 			case SDL_MOUSEMOTION:

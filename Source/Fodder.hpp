@@ -111,11 +111,15 @@ class cFodder : public cSingleton < cFodder > {
 	int16					mMapSpt_Loaded[2655];
 	const sSpriteSheet**	mSpriteDataPtr;
 
+	cSurface*		mSurfaceMapTiles;
+
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
 
+	int32			mGraphicBlkPtrs[480];
 	uint16			mMapWidth;
 	uint16			mMapHeight;
+	uint8			mKeyCode;
 
 	uint8*			mDataPStuff;
 	uint8* 			mDataHillBits;
@@ -211,9 +215,13 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9AA;
 	uint16			word_3A9AC;
 	uint16			word_3A9B2;
+	int16			word_3A9B4;
+	int16			word_3A9D0;
 	uint16			word_3A9F7;
 	int16			word_3AA17;
 	int16			word_3AA19;
+	int16			word_3AA4D;
+	int16			word_3AA4F;
 	int16			word_3AA51;
 	int16			word_3AA55;
 	int16			word_3AA67;
@@ -253,7 +261,10 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMapGoals[8];
 	int16			word_3B447;
+	int16			word_3B4DB;
+	int16			word_3B4F1;
 	int16			word_3B4F3;
+	int16			word_3B4F5;
 
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
@@ -312,6 +323,15 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMusicDriver;
 	/* End Configuration Settings */
 
+	int32			dword_3F946;
+	int32			dword_3F94A;
+	int16			word_3F94E;
+	int16			word_3F950;
+
+	int32			dword_3E9A3[70];
+	int16			word_3FA1F;
+	int16			mKeyControlPressed;
+
 	uint16			word_40054;
 	uint8*			word_42062;
 	uint8*			word_42066;
@@ -353,6 +373,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_428D8;
 
 	uint8			mErrorCode;
+	int16			mKeyNumberPressed;
 
 	int16			mouse_Button_Status;
 	int16			mouse_Pos_Column;
@@ -400,6 +421,7 @@ protected:
 	void			sub_126DD();
 	std::string		sub_12AA1( std::string pBase, const char* pFinish );
 
+	void			map_Tiles_Load();
 	void			map_SetTileType();
 
 	void			sub_13800();
@@ -461,7 +483,10 @@ protected:
 	
 	void			Briefing_Show( cSurface* pImage );
 	void			sub_18908();
+	void			Briefing_Wait();
+	void			Briefing_Draw_With( cSurface* pImage );
 	void			Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+
 	void			sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi );
 	void			sub_18C11( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
@@ -474,6 +499,9 @@ protected:
 	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 	void			sub_2B016( uint8* pDi, uint8 pAl );
+	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
+
+	void			graphicsBlkPtrsPrepare();
 
 	void			sub_2E04C();
 
@@ -515,6 +543,7 @@ protected:
 	void			mouse_GetData();
 
 	void			eventProcess();
+	void			keyProcess( uint8 pKeyCode, bool pPressed );
 
 public:
 
