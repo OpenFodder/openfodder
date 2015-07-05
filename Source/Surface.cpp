@@ -49,6 +49,7 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 
 cSurface::~cSurface() {
 	delete[] mSurfaceBuffer;
+	delete[] mSurfaceBufferSaved;
 
 	SDL_FreeSurface( mSDLSurface );
 	SDL_DestroyTexture( mTexture );
@@ -68,12 +69,20 @@ void cSurface::wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t 
 	SDL_FillRect( mSDLSurface, &dest, pColor );
 }
 
-void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID ) {
+void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, bool pUseNow ) {
 
-	for (uint32 ColorID = pColorID; ColorID < g_MaxColors; ++ColorID) {
-		mPaletteNew[ColorID] = pPalette[ColorID];
+	if (pUseNow) {
+		for (uint32 ColorID = pColorID; ColorID < g_MaxColors; ++ColorID) {
+			mPalette[ColorID] = pPalette[ColorID];
+		}
+		paletteLoadSDL();
 	}
-	paletteLoadSDL();
+	else {
+		for (uint32 ColorID = pColorID; ColorID < g_MaxColors; ++ColorID) {
+			mPaletteNew[ColorID] = pPalette[ColorID];
+		}
+	}
+
 }
 
 void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID ) {

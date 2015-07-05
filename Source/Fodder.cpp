@@ -74,6 +74,7 @@ cFodder::cFodder() {
 	word_3ABE9 = 0;
 	word_3ABEB = 0;
 	word_3A9B2 = 0;
+	word_3B4F5 = 0;
 	word_3E1B7 = 0;
 	
 	word_40054 = 0;
@@ -87,7 +88,9 @@ cFodder::cFodder() {
 	byte_42071 = 0;
 	word_42074 = 0;
 	word_42076 = 0;
+	mKeyCode = 0;
 
+	mSurfaceMapTiles = 0;
 	mouseData0 = new sMouseData();
 	mouseData1 = new sMouseData();
 
@@ -95,6 +98,7 @@ cFodder::cFodder() {
 
 	word_3A3BB = 0;
 	word_3A3BD = 0;
+	word_3FA1F = -1;
 	word_42072 = 0;
 
 	for (unsigned int x = 0; x < 30; ++x)
@@ -241,9 +245,14 @@ void cFodder::sub_10D61() {
 	dword_3A008 = 0;
 	word_3A016 = 0;
 	word_3A01A = 0;
+	word_3A9B2 = 0;
+	word_3A9B4 = 0;
+	word_3A9D0 = 0;
 	word_3A9F7 = 0;
 	word_3AA17 = 0;
 	word_3AA19 = 0;
+	word_3AA4D = 0;
+	word_3AA4F = 0;
 	word_3AA51 = 0;
 	word_3AA55 = 0;
 	word_3AA67 = 0;
@@ -279,6 +288,8 @@ void cFodder::sub_10D61() {
 	for (uint16 x = 0; x < 7; ++x)
 		mMapGoals[x] = 0;
 
+	word_3B4DB = 0;
+	word_3B4F1 = 0;
 	word_3B4F3 = 0;
 }
 
@@ -730,6 +741,9 @@ void cFodder::map_Load_TileSet() {
 	mMapHeight = readBEWord( &mMap[0x56] );
 	writeLEWord( &mMap[0x56], mMapHeight );
 
+	delete mSurfaceMapTiles;
+	mSurfaceMapTiles = new cSurface( mMapWidth * 16, mMapHeight * 16 );
+
 	std::string JunCopt = sub_12AA1( BaseBaseSet, "copt.dat" );
 	std::string JunBaseSwp = sub_12AA1( BaseBase, ".swp" );
 	std::string JunBaseHit = sub_12AA1( BaseBase, ".hit" );
@@ -784,6 +798,110 @@ std::string	cFodder::sub_12AA1( std::string pBase, const char* pFinish ) {
 	Final.append( pFinish );
 
 	return Final;
+}
+
+void cFodder::map_Tiles_Load() {
+	if (mMapNumber == word_3FA1F)
+		return;
+
+	word_3FA1F = mMapNumber;
+
+	for (int16 cx = 0x45; cx >= 0; --cx) {
+		dword_3E9A3[cx] = 0;
+	}
+
+	int16* Di = (int16*) (mMap + 0x60);
+
+	int16 Data8;
+	int16 DataC;
+
+	if (readLEWord( &mMap[0x56] ) <= readLEWord( &mMap[0x54] ) ) {
+		int32 eax = 0x1100000;
+		int32 ebx = readLEWord( &mMap[0x54] );
+		ebx &= 0xFFFF;
+
+		eax /= ebx;
+		dword_3F946 = eax;
+		eax >>= 0x10;
+		Data8 = eax;
+
+		eax = 0x0C80000;
+		ebx = readLEWord( &mMap[0x54] );
+		ebx &= 0xFFFF;
+		eax /= ebx;
+		dword_3F94A = eax;
+		eax >>= 0x10;
+		DataC = eax;
+	}
+	else {
+		//loc_12FDD
+		int32 eax = 0x1100000;
+		int32 ebx = readLEWord( &mMap[0x56] );
+		ebx &= 0xFFFF;
+
+		eax /= ebx;
+		dword_3F946 = eax;
+		eax >>= 0x10;
+		Data8 = eax;
+
+		eax = 0x0C80000;
+		ebx = readLEWord( &mMap[0x56] );
+		ebx &= 0xFFFF;
+		eax /= ebx;
+		dword_3F94A = eax;
+		eax >>= 0x10;
+		DataC = eax;
+	}
+
+	int32 eax = dword_3F946;
+	int32 ebx = readLEWord( &mMap[0x54] ) & 0xFFFF;
+	eax *= ebx;
+	eax >>= 0x11;
+	eax -= 0x88;
+	eax = -eax;
+	word_3F94E = eax;
+
+	eax = dword_3F94A;
+	ebx = readLEWord( &mMap[0x56] ) & 0xFFFF;
+	eax *= ebx;
+	eax >>= 0x11;
+	eax -= 0x64;
+	eax = -eax;
+	word_3F950 = eax;
+	int16 Data0 = 0x10;
+	int16 Data4 = 0x10;
+
+	eax = Data8 + 1;
+	eax <<= 0x10;
+	eax /= Data0;
+	dword_44A42 = eax;
+
+	eax = DataC + 1;
+	eax >>= 0x10;
+	eax /= Data4;
+	dword_44A46 = eax;
+
+	//uint16 dx = readLEWord( &mMap[0x56] );
+	//int32 Data14 = 0;
+	//int16 Data16 = word_3F950;
+
+	for (uint16 dx = 0; dx < mMapHeight; ++dx) {
+		//uint16 cx = readLEWord( &mMap[0x54] );
+
+		//int32 Data10 = 0;
+		//int16 Data12 = word_3F94E;
+
+		for (uint16 cx = 0; cx < mMapWidth; ++cx) {
+
+			sub_2B04B( (uint8*) mGraphicBlkPtrs[ *Di & 0x1FF], cx, dx );
+
+			++Di;
+			//Data10 += dword_3F946;
+		}
+
+		//Data14 += dword_3F94A;
+	}
+
 }
 
 void cFodder::map_SetTileType() {
@@ -851,6 +969,14 @@ void cFodder::eventProcess() {
 	for (std::vector<cEvent>::iterator EventIT = mEvents.begin(); EventIT != mEvents.end(); ++EventIT) {
 
 		switch (EventIT->mType) {
+			case eEvent_KeyDown:
+				keyProcess( EventIT->mButton, false );
+				break;
+
+			case eEvent_KeyUp:
+				keyProcess( EventIT->mButton, true );
+				break;
+
 			case eEvent_MouseLeftDown:
 				mMousePosition = EventIT->mPosition;
 				mMouseButtons |= 1;
@@ -883,6 +1009,39 @@ void cFodder::eventProcess() {
 	}
 
 	mEvents.clear();
+}
+
+void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
+	
+	if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
+		if (pPressed)
+			mKeyControlPressed = -1;
+		else
+			mKeyControlPressed = 0;
+	}
+	
+	if (pKeyCode == SDL_SCANCODE_P)
+		word_3A9D0 = !word_3A9D0;
+	
+	if (pKeyCode == SDL_SCANCODE_ESCAPE)
+		word_3A9B2 = -1;
+
+	if (pKeyCode == SDL_SCANCODE_SPACE)
+		++word_3A9B4;
+
+	if (pKeyCode == SDL_SCANCODE_M) {
+		if (word_3B4F1 == 0)
+			word_3B4DB = -1;
+	}
+
+	if (pKeyCode == SDL_SCANCODE_1)
+		mKeyNumberPressed = 2;
+	
+	if (pKeyCode == SDL_SCANCODE_2)
+		mKeyNumberPressed = 3;
+
+	if (pKeyCode == SDL_SCANCODE_3)
+		mKeyNumberPressed = 4;
 }
 
 void cFodder::mouse_Setup() {
@@ -920,6 +1079,7 @@ void cFodder::mouse_Setup() {
 }
 
 void cFodder::mouse_GetData() {
+	eventProcess();
 
 	mouse_Pos_Column = (int16) mMousePosition.mX;
 	mouse_Pos_Row = (int16) mMousePosition.mY;
@@ -1624,7 +1784,6 @@ void cFodder::sub_14FF5( cSurface* pImage ) {
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
 
-		eventProcess();
 		mouse_GetData();
 		if (mouse_Button_Status) {
 			word_428D8 = 0;
@@ -1868,6 +2027,7 @@ void cFodder::Mission_Brief() {
 		break;
 	}
 
+	delete Image;
 	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
 }
 
@@ -3045,6 +3205,22 @@ void cFodder::sub_2B016( uint8* pDi, uint8 pAl ) {
 	*pDi |= pAl << 4;
 }
 
+void cFodder::sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY ) {
+	uint8* Target = mSurfaceMapTiles->GetSurfaceBuffer();
+
+	pDestX *= 16;
+
+	Target += (pDestY * 16) * (mMapWidth*16);
+	Target += pDestX;
+
+	for (uint16 i = 0; i < 16; ++i) {
+
+		memcpy( Target, pTileGraphicPtr, 16 );
+		pTileGraphicPtr += 0x140;
+		Target += (mMapWidth*16);
+	}
+}
+
 void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
 	
 }
@@ -3095,7 +3271,7 @@ void cFodder::Briefing_Show( cSurface* pImage ) {
 }
 
 void cFodder::sub_18908() {
-	cSurface* Image = new cSurface( 320, 260 );
+	cSurface* Image = new cSurface( 320, 230 );
 	Image->paletteSet( mPalette );
 
 	//video_Draw_unk_0();
@@ -3109,6 +3285,83 @@ void cFodder::sub_18908() {
 		g_Window.RenderAt( Image, cPosition() );
 		g_Window.FrameEnd();
 	} while (Image->paletteFade() == -1);
+
+	delete Image;
+}
+
+void cFodder::Briefing_Wait() {
+	cSurface* Image = new cSurface( 320, 230 );
+	Image->paletteSet( mPalette, 0, true );
+
+	Sprite_SetDataPtrToBase( off_42918 );
+
+	word_3A01A = 0x2C;
+	Briefing_Draw_MissionName( Image );
+	Briefing_Show( Image );
+	Briefing_Draw_With( Image );
+
+	g_Window.RenderAt( Image, cPosition() );
+	g_Window.FrameEnd();
+
+	do {
+		eventProcess();
+		mouse_Handle();
+
+		if (word_3A9B2 == -1) {
+			word_3B4F5 = -1;
+			break;
+		}
+
+	} while (!word_39F02);
+
+	word_39F02 = 0;
+
+	do {
+		g_Window.RenderAt( Image, cPosition() );
+		g_Window.FrameEnd();
+	} while (Image->paletteFade() == -1);
+
+	while (!mouse_Button_Status) {
+		mouse_GetData();
+	}
+
+	mouse_Setup();
+	delete Image;
+}
+
+void cFodder::Briefing_Draw_With( cSurface* pImage ) {
+	std::stringstream With;
+	
+	With << "WITH ";
+	With << tool_StripLeadingZero( tool_NumToString( mTroopsAvailable ) );
+
+	if (mTroopsAvailable == 1) {
+		With << " SOLDIER YOU MUST";
+	}
+	else {
+		With << " SOLDIERS YOU MUST";
+	}
+
+	String_CalculateWidth( 0x140, byte_4388F, With.str().c_str() );
+	String_Print( pImage, byte_4388F, 0, word_3B301, 0x64, With.str().c_str() );
+	With.str("");
+
+	if (!word_390CE) {
+		With << "THIS IS YOUR LAST CHANCE";
+	}
+	else {
+		With << word_390CE;
+		if (word_390CE == 1)
+			With << " RECRUIT REMAINING";
+		else
+			With << " RECRUITS REMAINING";
+	}
+
+	String_CalculateWidth( 0x140, byte_4388F, With.str().c_str() );
+	String_Print( pImage, byte_4388F, 0, word_3B301, 0xA8, With.str().c_str() );
+	
+	String_CalculateWidth( 0x140, byte_4382F, "GO FOR IT" );
+	String_Print( pImage, byte_4382F, 3, word_3B301, 0xB8, "GO FOR IT" );
 }
 
 void cFodder::Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
@@ -3319,8 +3572,6 @@ int16 cFodder::introPlayText() {
 		bool DoBreak = false;
 
 		while( Fade == -1 || DoBreak == false  ) {
-			eventProcess();
-
 			--Duration;
 
 			if (Duration) {
@@ -3405,8 +3656,6 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 	cSurface* img = g_Resource.image4PlaneLoad( pFilename, 0x100 );
 	
 	while( Fade == -1 || DoBreak == false  ) {
-		eventProcess();
-
 		--pDuration;
 
 		if (pDuration) {
@@ -3620,7 +3869,7 @@ void cFodder::Start() {
 			map_Load_TileSet();
 			map_Load_Spt();
 
-			/*word_3AA4D = readLEWord( &mMap[0x54] ) << 4;
+			word_3AA4D = readLEWord( &mMap[0x54] ) << 4;
 			word_3AA4F = readLEWord( &mMap[0x56] ) << 4;
 
 			map_Troops_Prepare();
@@ -3630,8 +3879,39 @@ void cFodder::Start() {
 			graphicsBlkPtrsPrepare();
 
 			map_Tiles_Load();
-			phase_Wait();*/
+			Briefing_Wait();
+			if (word_3B4F5 == -1) {
+
+				//TODO
+				//sub_10D24();
+				
+				word_390B8 = -1;
+				word_390EA = -1;
+				word_3A9B2 = -1;
+				word_3901E = -1;
+				continue;
+			}
 		}
+	}
+}
+
+void cFodder::graphicsBlkPtrsPrepare() {
+	int32* di = mGraphicBlkPtrs;
+	uint16 bx = 0;
+
+	for (int16 cx1 = 0x0C; cx1 > 0; --cx1) {
+
+		uint16 bx2 = bx;
+		for (int16 cx2 = 0x14; cx2 > 0; --cx2) {
+
+			*di = (uint32) mDataBaseBlk + bx2;
+			*(di + 0xF0) = (uint32) mDataSubBlk + bx2;
+
+			++di;
+			bx2 += 0x10;
+		}
+
+		bx += 0x1400;
 	}
 }
 
