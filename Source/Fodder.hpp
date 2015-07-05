@@ -502,6 +502,7 @@ protected:
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 
 	void			graphicsBlkPtrsPrepare();
+	void			map_Tiles_Draw( cSurface* pImage );
 
 	void			sub_2E04C();
 
