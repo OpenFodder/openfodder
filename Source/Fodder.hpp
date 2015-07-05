@@ -305,8 +305,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_40054;
 	uint8*			word_42062;
 	uint8*			word_42066;
-	int16			word_42068;
-	int16			word_4206A;
+	int16			mDrawSpritePositionX;
+	int16			mDrawSpritePositionY;
 	int16			word_4206C;
 	int16			word_4206E;
 	uint8			byte_42070;
@@ -332,8 +332,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16*			word_4286B;
 
 	uint16			word_4286D;
-	uint32			word_428BC;
-	uint32			word_428C0;
+	uint32			mHelicopterPosX;
+	uint32			mHelicopterPosY;
 	int16			word_428C6;
 	int16			word_428C4;
 	int16			word_428C8;
@@ -412,7 +412,7 @@ protected:
 	void			sub_15CE8( cSurface* pImage, uint8* pDs, int16 pCx );
 
 	void			sub_15DF0( cSurface* pImage );
-	void			Mission_Brief_Name_Prepare( cSurface* pImage );
+	void			Briefing_Draw_MissionName( cSurface* pImage );
 	
 	void			map_Load_Resources();
 

@@ -79,8 +79,8 @@ cFodder::cFodder() {
 	word_40054 = 0;
 	word_42062 = 0;
 	word_42066 = 0;
-	word_42068 = 0;
-	word_4206A = 0;
+	mDrawSpritePositionX = 0;
+	mDrawSpritePositionY = 0;
 	word_4206C = 0;
 	word_4206E = 0;
 	byte_42070 = 0;
@@ -952,8 +952,7 @@ void cFodder::Prepare() {
 
 void cFodder::sub_13800() {
 
-	//videoSleep();
-	//videoSleep();
+	videoSleep();
 }
 
 void cFodder::paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID ) {
@@ -977,8 +976,8 @@ void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32
 
 	word_42062 = GetSpriteData( mSpriteDataPtr[pParam00][pParam04].field_2 ) + bx;
 
-	word_42068 = (pParam08 + 0x10) - 16;
-	word_4206A = pParam0C + 0x10;
+	mDrawSpritePositionX = (pParam08 + 0x10) - 16;
+	mDrawSpritePositionY = pParam0C + 0x10;
 	word_4206C = mSpriteDataPtr[pParam00][pParam04].mColCount;
 	word_4206E = mSpriteDataPtr[pParam00][pParam04].mRowCount;
 	if (word_3B307 > pParam00) 
@@ -996,8 +995,8 @@ void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPo
 
 	word_42062 = GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + bx;
 	
-	word_42068 = (pPosX + 0x10) - 16;
-	word_4206A = pPosY + 0x10;
+	mDrawSpritePositionX = (pPosX + 0x10) - 16;
+	mDrawSpritePositionY = pPosY + 0x10;
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
@@ -1012,15 +1011,15 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 	uint8* 	si = word_42062;
 	int16	ax, cx;
 	
-	di += 320 * word_4206A;
+	di += 320 * mDrawSpritePositionY;
 
-	ax = word_42068;
+	ax = mDrawSpritePositionX;
 	ax += word_40054;
 	//ax >>= 2;
 	
 	di += ax;
 	word_42066 = di;
-	cx = word_42068;
+	cx = mDrawSpritePositionX;
 	cx += word_40054;
 	cx &= 3;
 
@@ -1134,15 +1133,15 @@ void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
 	uint8* 	si = word_42062;
 	int16	ax, cx;
 	
-	di += 320 * word_4206A;
+	di += 320 * mDrawSpritePositionY;
 
-	ax = word_42068;
+	ax = mDrawSpritePositionX;
 	ax += word_40054;
 	//ax >>= 2;
 	
 	di += ax;
 	word_42066 = di;
-	cx = word_42068;
+	cx = mDrawSpritePositionX;
 	cx += word_40054;
 	cx &= 3;
 
@@ -1255,8 +1254,8 @@ void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
 bool cFodder::sub_1429B() {
 	int16 ax;
 	
-	if( word_4206A < 0 ) {
-		ax = word_4206A + word_4206E;
+	if( mDrawSpritePositionY < 0 ) {
+		ax = mDrawSpritePositionY + word_4206E;
 		--ax;
 		if( ax < 0 )
 			return false;
@@ -1265,16 +1264,16 @@ bool cFodder::sub_1429B() {
 		ax -= word_4206E;
 		++ax;
 		ax = -ax;
-		word_4206A += ax;
+		mDrawSpritePositionY += ax;
 		word_4206E -= ax;
 		ax *= 0xA0;
 		word_42062 += ax;
 	}
 	
-	ax = word_4206A + word_4206E;
+	ax = mDrawSpritePositionY + word_4206E;
 	--ax;
 	if( ax > 0xE7 ) {
-		if( word_4206A > 0xE7 )
+		if( mDrawSpritePositionY > 0xE7 )
 			return false;
 		
 		ax -= 0xE7;
@@ -1282,8 +1281,8 @@ bool cFodder::sub_1429B() {
 		
 	}
 
-	if( word_42068 < 0 ) {
-		ax = word_42068 + word_4206C;
+	if( mDrawSpritePositionX < 0 ) {
+		ax = mDrawSpritePositionX + word_4206C;
 		--ax;
 		if( ax < 0 )
 			return false;
@@ -1297,20 +1296,20 @@ bool cFodder::sub_1429B() {
 		while( ax & 3 )
 			++ax;
 		
-		word_42068 += ax;
+		mDrawSpritePositionX += ax;
 		word_4206C -= ax;
 		ax >>= 1;
 		word_42062 += ax;
 	}
 
-	ax = word_42068 + word_4206C;
+	ax = mDrawSpritePositionX + word_4206C;
 	--ax;
 	
-	if( ax > 0x15F ) {
-		if( word_42068 >= 0x15F )
+	if( ax > 320 ) {
+		if( mDrawSpritePositionX > 320 )
 			return false;
 		
-		ax -= 0x15F;
+		ax -= 320;
 		--ax;
 		
 		do {
@@ -1505,32 +1504,25 @@ void cFodder::sub_14FF5( cSurface* pImage ) {
 		// Clouds
 		word_42859 = 0x30;
 		word_4285B = 320 * 36;// 0x0C64;
-
 		sub_15B86( pImage, word_42867, word_42875 );
 
 		word_42859 = 0x38;
 		word_4285B = 320 * 46; //80;	//0x102C
-
 		sub_15A36( pImage, word_42865, word_42873 );
 
 		word_42859 = 0x12;
 		word_4285B = 320 * 85; //96;	//0x1D3C
-		
 		sub_15A36( pImage, word_42863 , word_42871 );
 
 		// Trees (Main)
 		word_42859 = 0x5C;
 		word_4285B = 320 * 103;	// 0x236C
-
 		sub_15B86( pImage, word_42869, word_42871 );
 
-		int16 word_428CE[] = {
-			0x00, 0x20, 0x40, 0x60 
-		};
 		word_42062 = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
 
-		word_42068 = word_428BC >> 16;
-		word_4206A = word_428C0 >> 16;
+		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
+		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
 		word_4206C = 0x40;
 		word_4206E = 0x18;
 		if (sub_1429B())
@@ -1556,6 +1548,7 @@ void cFodder::sub_14FF5( cSurface* pImage ) {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
+		videoSleep();
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -1570,8 +1563,8 @@ void cFodder::sub_14FF5( cSurface* pImage ) {
 }
 
 void cFodder::sub_1590B() {
-	word_428BC = 0x01500000;
-	word_428C0 = 0x00260000;
+	mHelicopterPosX = 0x01500000;
+	mHelicopterPosY = 0x00260000;
 
 	word_428C6 = word_428DC[0];
 	word_428C4 = word_428DC[1];
@@ -1588,18 +1581,18 @@ void cFodder::sub_159A6() {
 	word_428B6 &= 0x1FE;
 	uint16 bx = word_428B6;
 
-	uint32 ax = word_3EABF[ (bx / 2) & 0xFF ];
+	int32 ax = word_3EABF[ (bx / 2) & 0xFF ];
 
 	ax >>= 2;
 
-	word_428BC += ax* word_428B8;
+	mHelicopterPosX += ax* word_428B8;
 
 	bx += 0x80;
 	bx &= 0x1FE;
 
-	ax = word_3EABF[bx / 2];
+	ax = word_3EABF[ (bx / 2) & 0xFF];
 	ax >>= 2;
-	word_428C0 += ax * word_428B8;
+	mHelicopterPosY += ax * word_428B8;
 
 	bx = word_428C6 - word_428B6;
 	bx >>= 5;
@@ -1613,7 +1606,7 @@ void cFodder::sub_159A6() {
 	word_428B6 &= 0x1FE;
 
 	if (word_428C4 != word_428B8) {
-		if (word_428C4 >= word_428B8)
+		if (word_428B8 >= word_428C4)
 			word_428B8 -= 4;
 		else
 			word_428B8 += 4;
@@ -1853,10 +1846,10 @@ void cFodder::map_Load_Resources() {
 void cFodder::sub_15DF0( cSurface* pImage ) {
 
 	word_3A01A = 0xB5;
-	Mission_Brief_Name_Prepare( pImage );
+	Briefing_Draw_MissionName( pImage );
 }
 
-void cFodder::Mission_Brief_Name_Prepare( cSurface* pImage ) {
+void cFodder::Briefing_Draw_MissionName( cSurface* pImage ) {
 	
 	std::stringstream Mission;
 	Mission << "MISSION ";
@@ -1973,8 +1966,8 @@ void cFodder::Recruit_Show() {
 void cFodder::Recruit_Draw_Hill( cSurface* pImage ) {
 	word_42062 = word_3E1B7 + 0xA00;
 	
-	word_42068 = 0x30;
-	word_4206A = 0x28;
+	mDrawSpritePositionX = 0x30;
+	mDrawSpritePositionY = 0x28;
 	word_4206C = 0x110;
 	word_4206E = 0xB0;
 	word_42078 = 0x140;
@@ -2840,8 +2833,8 @@ void cFodder::Recruit_Draw( cSurface *pImage ) {
 	if (pImage->GetFaded() == false )
 		pImage->paletteFade();
 
-	word_42068 = 0x40;
-	word_4206A = 0x28;
+	mDrawSpritePositionX = 0x40;
+	mDrawSpritePositionY = 0x28;
 	word_4206C = 0x110;
 	word_4206E = 0xB0;
 
@@ -3037,7 +3030,7 @@ void cFodder::sub_18908() {
 	Sprite_SetDataPtrToBase( off_42918 );
 	word_3A01A = 0x2C;
 
-	Mission_Brief_Name_Prepare( Image );
+	Briefing_Draw_MissionName( Image );
 	Briefing_Show( Image );
 
 	do {
@@ -3277,9 +3270,9 @@ int16 cFodder::introPlayText() {
 				DoBreak = true;
 			}
 
+			videoSleep();
 			g_Window.RenderAt( CurrentImage, cPosition() );
 			g_Window.FrameEnd();
-			//videoSleep();
 		}
 	}
 
@@ -3406,9 +3399,9 @@ void cFodder::videoSleep() {
 
 	mTicksDiff = GetTickCount() - mTicksDiff;
 
-	mTicks = mTicksDiff * 60 / 1000;
+	mTicks = mTicksDiff * 50 / 1000;
 
-	sleepLoop(delta * 1000 / 60 - mTicksDiff);
+	sleepLoop(delta * 1000 / 50 - mTicksDiff);
 
 	mTicksDiff = GetTickCount();
 }
