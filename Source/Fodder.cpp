@@ -3529,8 +3529,12 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 	Data4 = Data0 = Sprite->field_32;
 
 	word_3AA1D = word_3BED5[Data0];
-
 	//seg004:0183
+
+	if (byte_3BF1B[Sprite->field_32] >= 0 || Sprite->field_32 == word_39FD0 ) {
+		//seg004:01B6
+	}
+
 }
 
 void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
