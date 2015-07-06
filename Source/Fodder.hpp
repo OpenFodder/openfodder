@@ -111,7 +111,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16					mMapSpt_Loaded[2655];
 	const sSpriteSheet**	mSpriteDataPtr;
 
-	cSurface*		mSurfaceMapTiles;
+	cSurface*		mSurfaceMapOverview;
+	cSurface*		mSurfacePlayfield;
 
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
@@ -173,6 +174,20 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39EFA;
 	int16			word_39EFC;
 	int16			word_39F04;
+	int32			dword_39F18;
+	int32			dword_39F1C;
+	int32			dword_39F20;
+	int32			dword_39F24;
+	int32			dword_39F28;
+	int32			dword_39F2C;
+	int32			dword_39F30;
+	int16			word_39F34;
+	int16			word_39F38;
+	int16			word_39F4C;
+	int16			word_39F50;
+	int32			dword_39F42;
+	int32			dword_39F46;
+	int32			dword_39F56;
 	int32			dword_39F7C;
 
 	int16			dword_39F98;
@@ -181,6 +196,12 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_39FD0;
 	int16			word_39FD4;
+
+	int16			word_39FF2;
+	int16			word_39FF4;
+	int16			word_39FF6;
+	int16			word_39FF8;
+	int16			word_39FFA;
 
 	int16			word_3A01A;
 	int16			word_3A06B;
@@ -266,6 +287,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4F3;
 	int16			word_3B4F5;
 
+	int16			word_3B60C;
+	int16			word_3B60E;
+	int16			word_3B610;
+	int16			word_3B612;
+	int16			word_3B614;
+
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
 
@@ -309,6 +336,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D03D[240];
 	int16			word_3D21D[161];
 
+	int16			word_3D473;
+	int16			word_3D475;
+
 	uint16			byte_3DDA2[0x30];
 	int16			word_3E0E5[0x18];
 
@@ -333,6 +363,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mKeyControlPressed;
 
 	uint16			word_40054;
+	uint16			word_40056;
 	uint8*			word_42062;
 	uint8*			word_42066;
 	int16			mDrawSpritePositionX;
@@ -385,6 +416,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_42072;
 	uint16			word_427D4;
 	
+	int16			word_44A20;
 	int32			dword_44A36;
 	int32			dword_44A3E;
 	int32			dword_44A3A;
@@ -418,10 +450,11 @@ protected:
 	void			sub_115F7();
 	void			map_Load_TileSet();
 
+	void			sub_12083();
 	void			sub_126DD();
 	std::string		sub_12AA1( std::string pBase, const char* pFinish );
 
-	void			map_Tiles_Load();
+	void			Map_Overview_Prepare();
 	void			map_SetTileType();
 
 	void			sub_13800();
@@ -488,11 +521,15 @@ protected:
 	void			Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 
 	void			sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi );
-	void			sub_18C11( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	void			Brief_Draw_Horizontal_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
 	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
 	bool			sub_18C7A();
-	void			sub_18C2B( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	void			Brief_Draw_Vertical_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	void			sub_18D5E();
+	void			sub_18DD3();
+
+	void			sub_18E2E( int16 *pData20 );
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
@@ -502,9 +539,10 @@ protected:
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 
 	void			graphicsBlkPtrsPrepare();
-	void			map_Tiles_Draw( cSurface* pImage );
+	void			map_Tiles_Draw();
+	void			video_Draw_MapTile( uint16 pTile, uint16 pPosX, uint16 pPosY );
 
-	void			sub_2E04C();
+	void			sub_2E0v4C();
 
 	void			sub_301F7();
 
@@ -546,6 +584,7 @@ protected:
 	void			eventProcess();
 	void			keyProcess( uint8 pKeyCode, bool pPressed );
 
+	void			sub_2E04C();
 public:
 
 					cFodder();

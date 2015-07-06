@@ -26,6 +26,7 @@
 #include "Recruits.hpp"
 #include "UnknownData.hpp"
 #include "MissionNames.hpp"
+#include "Sprites.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
 							"rjnull.bin", 
@@ -69,6 +70,14 @@ cFodder::cFodder() {
 	word_39EF8 = word_39F02 = 0;
 	word_39EF6 = word_39EFA = 0;
 	word_39EFC = word_39F04 = 0;
+	word_39FF4 = 0;
+	
+	word_39FF2 = 0;
+	word_39FF4 = 0;
+	word_39FF6 = 0;
+	word_39FF8 = 0;
+	word_39FFA = 0;
+
 	word_3AA43 = 0;
 	word_3ABA7 = 0;
 	word_3ABE9 = 0;
@@ -90,7 +99,8 @@ cFodder::cFodder() {
 	word_42076 = 0;
 	mKeyCode = 0;
 
-	mSurfaceMapTiles = 0;
+	mSurfacePlayfield = 0;
+	mSurfaceMapOverview = 0;
 	mouseData0 = new sMouseData();
 	mouseData1 = new sMouseData();
 
@@ -138,6 +148,8 @@ cFodder::cFodder() {
 
 cFodder::~cFodder() {
 	
+	delete mSurfaceMapOverview;
+	delete mSurfacePlayfield;
 }
 
 void cFodder::sub_10BBC() {
@@ -741,8 +753,8 @@ void cFodder::map_Load_TileSet() {
 	mMapHeight = readBEWord( &mMap[0x56] );
 	writeLEWord( &mMap[0x56], mMapHeight );
 
-	delete mSurfaceMapTiles;
-	mSurfaceMapTiles = new cSurface( mMapWidth * 16, mMapHeight * 16 );
+	delete mSurfaceMapOverview;
+	mSurfaceMapOverview = new cSurface( mMapWidth * 16, mMapHeight * 16 );
 
 	std::string JunCopt = sub_12AA1( BaseBaseSet, "copt.dat" );
 	std::string JunBaseSwp = sub_12AA1( BaseBase, ".swp" );
@@ -780,6 +792,23 @@ void cFodder::map_Load_TileSet() {
 	Sprite_SetDataPtrToBase( off_32C0C );
 }
 
+void cFodder::sub_12083() {
+	dword_39F18 = 0;
+	dword_39F1C = 0;
+	dword_39F20 = 0;
+	dword_39F24 = 0;
+	dword_39F28 = 0;
+	dword_39F2C = 0;
+	dword_39F30 = 0;
+	word_39F34 = 0;
+	word_39F38 = 0;
+	word_39F4C = 0;
+	word_39F50 = 0;
+	dword_39F42 = 0;
+	dword_39F46 = 0;
+	dword_39F56 = 0;
+}
+
 void cFodder::sub_126DD() {
 	const int8* Data20 = off_3D5F1[mMapNumber];
 
@@ -800,7 +829,7 @@ std::string	cFodder::sub_12AA1( std::string pBase, const char* pFinish ) {
 	return Final;
 }
 
-void cFodder::map_Tiles_Load() {
+void cFodder::Map_Overview_Prepare() {
 	if (mMapNumber == word_3FA1F)
 		return;
 
@@ -3206,7 +3235,7 @@ void cFodder::sub_2B016( uint8* pDi, uint8 pAl ) {
 }
 
 void cFodder::sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY ) {
-	uint8* Target = mSurfaceMapTiles->GetSurfaceBuffer();
+	uint8* Target = mSurfaceMapOverview->GetSurfaceBuffer();
 
 	pDestX *= 16;
 
@@ -3375,14 +3404,14 @@ void cFodder::Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, in
 	int16 si = pData10;
 
 	// Top and Bottom
-	sub_18C11( pImage, pData0, pData0 + pData8, pData4, pData10 );
+	Brief_Draw_Horizontal_Line( pImage, pData0, pData0 + pData8, pData4, pData10 );
 
-	sub_18C11( pImage, pData0, pData0 + pData8, pData4 + pDataC, pData10 );
+	Brief_Draw_Horizontal_Line( pImage, pData0, pData0 + pData8, pData4 + pDataC, pData10 );
 
 	// Sides of box
-	sub_18C2B( pImage, pData0 * 4, pData4 + pDataC, pData4, pData10 );
+	Brief_Draw_Vertical_Line( pImage, pData0 * 4, pData4 + pDataC, pData4, pData10 );
 	
-	sub_18C2B( pImage, (pData0 + pData8 + 2) * 4, pData4 + pDataC, pData4, pData10 );
+	Brief_Draw_Vertical_Line( pImage, (pData0 + pData8 + 2) * 4, pData4 + pDataC, pData4, pData10 );
 }
 
 void cFodder::sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi ) {
@@ -3396,7 +3425,7 @@ void cFodder::sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi ) {
 	*di = pSi;
 }
 
-void cFodder::sub_18C11( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
+void cFodder::Brief_Draw_Horizontal_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
 	
 	do {
 		sub_18BDF( pImage, pBx, pCx, pSi );
@@ -3410,12 +3439,98 @@ void cFodder::sub_18C45( cSurface* pImage, int32 pPosY,  const sIntroString* pSt
 	String_Print( pImage, mFontWidths, 0, word_3B301, pPosY, pString->mText );
 }
 
-void cFodder::sub_18C2B( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
+void cFodder::Brief_Draw_Vertical_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
 	
 	do {
 		sub_18BDF( pImage, pBx, pCx, pSi );
 		++pCx;
 	} while (pCx <= pDx );
+}
+
+void cFodder::sub_18D5E() {
+	word_39FF4 -= 1;
+	if (word_39FF4 < 0) {
+		word_39FF4 = 3;
+
+		word_39FF2 += word_3BEB9;
+		if (word_39FF2 == 0 || word_39FF2 == 2)
+			word_3BEB9 ^= -2;
+
+		word_39FF6 += word_3BEBB;
+		if (word_3BEBB == 0 || word_3BEBB == 2)
+			word_3BEBB ^= -2;
+	}
+
+	//loc_18DA7
+	word_39FF8 -= 1;
+	if (word_39FF8 < 0) {
+		word_39FF8 = 1;
+
+		word_39FFA += word_3BEBD;
+		if (word_39FFA == 0 || word_39FFA == 2)
+			word_3BEBD ^= -2;
+	}
+}
+
+void cFodder::sub_18DD3() {
+	int16* Data20 = mMapSpt_Loaded;
+
+	for (int16 Data1C = 0x2B; Data1C > 0; --Data1C, Data20 += 0x3B ) {
+		
+		if (*Data20 == -32768)
+			continue;
+
+		word_44A20 = *(Data20 + 0xC);
+		int16 Data4 = *(Data20 + 0xC);
+
+		switch (Data4) {
+		case 0:
+			sub_18E2E( Data20 );
+			break;
+
+		default:
+			std::cout << "Function not implemented: " << Data4 << "\n";
+			break;
+		}
+	}
+}
+
+void cFodder::sub_18E2E( int16 *pData20 ) {
+	sSprite_0* Sprite = (sSprite_0*)pData20;
+
+	if (Sprite->field_6E) {
+		sub_22AA9();
+		return;
+	}
+
+	if (Sprite->field_75 & 2) {
+
+		if (Sprite->field_38 <= 0x32)
+			Sprite->field_38 = 0;
+
+		Sprite->field_5B = 0;
+		Sprite->field_64 = 0;
+	}
+
+	if (sub_1E05A())
+		return;
+
+	if (Sprite->field_38)
+		return;
+
+	if (sub_1F21E())
+		return;
+
+	//loc_18E8D
+	sub_22B71();
+	word_3AA41 = 0;
+	uint16* Data24 = word_3BED5;
+
+	Data4 = Data0 = Sprite->field_32;
+
+	word_3AA1D = word_3BED5[Data0];
+
+	//seg004:0183
 }
 
 void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
@@ -3758,7 +3873,7 @@ void cFodder::WonGame() {
 	}
 }
 void cFodder::sub_2E04C() {
-
+	//TODO
 	/*
 	if( word_3B2FD ) {
 		sub_2E72B();
@@ -3878,7 +3993,7 @@ void cFodder::Start() {
 			sub_115F7();
 			graphicsBlkPtrsPrepare();
 
-			//map_Tiles_Load();
+			Map_Overview_Prepare();
 			Briefing_Wait();
 			if (word_3B4F5 == -1) {
 
@@ -3891,12 +4006,15 @@ void cFodder::Start() {
 				word_3901E = -1;
 				continue;
 			}
-			cSurface* Image = new cSurface( 320, 230 );
-			Image->paletteSet( mPalette, 0, true );
 
+			sub_12083();;
 			Sprite_SetDataPtrToBase( off_32C0C );
-			map_Tiles_Draw( Image );
-
+			map_Tiles_Draw();
+			sub_12083();
+			map_SetTileType();
+			mouse_Handle();
+			sub_18D5E();
+			sub_18DD3();
 		}
 	}
 }
@@ -3921,8 +4039,56 @@ void cFodder::graphicsBlkPtrsPrepare() {
 	}
 }
 
-void cFodder::map_Tiles_Draw( cSurface* pImage ) {
-	
+void cFodder::map_Tiles_Draw() {
+	delete mSurfacePlayfield;
+	mSurfacePlayfield =  new cSurface( 0x16 * 0x10, 0x0F * 0x10 );
+	mSurfacePlayfield->paletteSet( mPalette, 0, true );
+
+	word_40054 = 0;
+	word_3B60E = 0;
+	word_3B610 = 0;
+
+	word_3B60C = (0x60 - 8) - (readLEWord( &mMap[0x54] ) << 1);
+	word_3B612 = 0;
+	word_3B614 = 0;
+	word_3D473 = 0;
+	word_3D475 = 0;
+
+	uint8* si = &mMap[word_3B60C];
+	//di = word_40056;
+
+	for (uint16 cx = 0; cx < 0x0F; ++cx) {
+
+		uint8* si2 = si;
+
+		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+
+			video_Draw_MapTile( readLEWord(si2), cx2, cx );
+
+			si2 += 2;
+		}
+
+		si += (mMapWidth << 1);
+	}
+}
+
+void cFodder::video_Draw_MapTile( uint16 pTile, uint16 pPosX, uint16 pPosY ) {
+	uint8* Target = mSurfacePlayfield->GetSurfaceBuffer();
+
+	pPosX *= 16;
+	pPosY *= 16;
+
+	Target += pPosY * 352;
+	Target += pPosX;
+
+	uint8* TilePtr = (uint8*)mGraphicBlkPtrs[pTile & 0x1FF];
+
+	for (uint16 i = 0; i < 16; ++i) {
+
+		memcpy( Target, TilePtr, 16 );
+		TilePtr += 0x140;
+		Target += 352;
+	}
 }
 
 void cFodder::Exit( unsigned int pExitCode ) {
