@@ -3534,10 +3534,45 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 	if (byte_3BF1B[Sprite->field_32] < 0 && Sprite->field_32 != word_39FD0 ) {
 		//loc_18F12
 		//seg004:01C2
-	}
-
+		word_3AA41 = -1;
+		Data0 <<= 1;
+		Data1C = Sprite->field_5E;
+		Data28 = mMapSpt_Loaded[ Data1C ];
+		
+		if( *Data28 != -32768 ) {
+			
+			if( *(Data28 + 0x0C ) == 0x05 ) {
+				if( *(Data28 + 0x1C ) == 0x00 ) {
+				
+					//seg004:021A 
+					if( Sprite->field_4F == 0 ) {
+						//seg004:0228
+						Data0 = Sprite->field_0;
+						Data4 = Sprite->field_4;
+						
+						Data8 = *(Data20);
+						DataC = *(Data20 + 4);
+						sub_29E30();
+						if( Data0 >= 0xD2 ) 
+							goto loc_1901C;
+						
+						if( Data0 <= 0x28 )
+							goto loc_1904A;
+						
+						//seg004:0270
+						word_3AA4B = Data0;
+						Data0 = Sprite->field_0;
+						Data4 = Sprite->field_4;
+						//seg004:0291
+					}
+				}
+			}
+		}
+		loc_1901C:;
+		
+	} else
 	if (word_3A9CE) {
-
+		//loc_190E8
 	}
 	// loc_191C3
 }
