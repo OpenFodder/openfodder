@@ -222,16 +222,16 @@ class cFodder : public cSingleton < cFodder > {
 	uint32			dword_3A39D;
 	int16			word_3A3BB;
 	int16			word_3A3BD;
-	int32			dword_3A3FD[30];
-	int32			dword_3A475[30];
-	int32			dword_3A4ED[30];
-	int32			dword_3A565[30];
-	int32			dword_3A5DD[30];
-	int32			dword_3A655[30];
-	int32			dword_3A6CD[30];
-	int32			dword_3A745[30];
-	int32			dword_3A7BD[30];
-	int32			dword_3A835[30];
+	int16			word_3A3FD[60];
+	int16			word_3A475[60];
+	int16			word_3A4ED[60];
+	int16			word_3A565[60];
+	int16			word_3A5DD[60];
+	int16			word_3A655[60];
+	int16			word_3A6CD[60];
+	int16			word_3A745[60];
+	int16			word_3A7BD[60];
+	int16			word_3A835[60];
 
 	int16			word_3A9AA;
 	uint16			word_3A9AC;
@@ -323,7 +323,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BED5[5];
 	uint16			word_3BEDF[10];
 	
-	int32*			off_3BEF3[10];
+	int16*			off_3BEF3[10];
 	int16			word_3BF1B;
 	int16			word_3BF1E[6];
 
