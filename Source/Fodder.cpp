@@ -111,35 +111,35 @@ cFodder::cFodder() {
 	word_3FA1F = -1;
 	word_42072 = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A3FD[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A3FD[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A475[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A475[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A4ED[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A4ED[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A565[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A565[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A5DD[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A5DD[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A655[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A655[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A6CD[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A6CD[x] = 0;
 	 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A745[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A745[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A7BD[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A7BD[x] = 0;
 
-	for (unsigned int x = 0; x < 30; ++x)
-		dword_3A835[x] = 0;
+	for (unsigned int x = 0; x < 60; ++x)
+		word_3A835[x] = 0;
 
 	for (unsigned int x = 0; x < 0x18; ++x) {
 		word_3E0E5[x] = 0;
@@ -353,16 +353,16 @@ void cFodder::sub_10D9F() {
 	word_3BEDF[8] = 0;
 	word_3BEDF[9] = 0;
 
-	off_3BEF3[0] = dword_3A3FD;
-	off_3BEF3[1] = dword_3A475;
-	off_3BEF3[2] = dword_3A4ED;
-	off_3BEF3[3] = dword_3A565;
-	off_3BEF3[4] = dword_3A5DD;
-	off_3BEF3[5] = dword_3A655;
-	off_3BEF3[6] = dword_3A6CD;
-	off_3BEF3[7] = dword_3A745;
-	off_3BEF3[8] = dword_3A7BD;
-	off_3BEF3[9] = dword_3A835;
+	off_3BEF3[0] = word_3A3FD;
+	off_3BEF3[1] = word_3A475;
+	off_3BEF3[2] = word_3A4ED;
+	off_3BEF3[3] = word_3A565;
+	off_3BEF3[4] = word_3A5DD;
+	off_3BEF3[5] = word_3A655;
+	off_3BEF3[6] = word_3A6CD;
+	off_3BEF3[7] = word_3A745;
+	off_3BEF3[8] = word_3A7BD;
+	off_3BEF3[9] = word_3A835;
 
 	word_3BF1B = -1;
 	word_3BF1E[0] = 0;
@@ -388,16 +388,16 @@ void cFodder::sub_10DEC() {
 	byte_3A8DF = 0;
 	word_3A06B = -1;
 	word_3A28D = 0x0C;
-	dword_3A3FD[0] = -1;
-	dword_3A475[0] = -1;
-	dword_3A4ED[0] = -1;
-	dword_3A565[0] = -1;
-	dword_3A5DD[0] = -1;
-	dword_3A655[0] = -1;
-	dword_3A6CD[0] = -1;
-	dword_3A745[0] = -1;
-	dword_3A7BD[0] = -1;
-	dword_3A835[0] = -1;
+	word_3A3FD[0] = -1;
+	word_3A475[0] = -1;
+	word_3A4ED[0] = -1;
+	word_3A565[0] = -1;
+	word_3A5DD[0] = -1;
+	word_3A655[0] = -1;
+	word_3A6CD[0] = -1;
+	word_3A745[0] = -1;
+	word_3A7BD[0] = -1;
+	word_3A835[0] = -1;
 }
 
 void cFodder::sub_10EA4() {
@@ -3550,31 +3550,160 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 						Data0 = Sprite->field_0;
 						Data4 = Sprite->field_4;
 						
-						Data8 = *(Data20);
-						DataC = *(Data20 + 4);
-						sub_29E30();
-						if( Data0 >= 0xD2 ) 
-							goto loc_1901C;
-						
-						if( Data0 <= 0x28 )
-							goto loc_1904A;
-						
-						//seg004:0270
-						word_3AA4B = Data0;
-						Data0 = Sprite->field_0;
-						Data4 = Sprite->field_4;
-						//seg004:0291
+						Data8 = *(Data28);
+						DataC = *(Data28 + 2);
+						Data0 = sub_29E30( Data0, Data4, Data8, DataC );
+						if (Data0 < 0xD2) {
+
+							if (Data0 <= 0x28)
+								goto loc_1904A;
+
+							//seg004:0270
+							word_3AA4B = Data0;
+							Data0 = Sprite->field_0;
+							Data4 = Sprite->field_4;
+							Data8 = *(Data28);
+							DataC = *(Data28 + 2);
+
+							if (sub_2A4A2( Data0, Data4, Data8, DataC ) == 0) {
+								Data0 = word_3AA4B;
+								goto loc_1904A;
+							}
+							if (word_3AA4B < 0x40)
+								goto loc_1904A;
+						}
 					}
 				}
 			}
 		}
-		loc_1901C:;
+
+	loc_1901C:;
+		Sprite->field_4A = 0;
+		Sprite->field_5E += 0x76;
+		if (Sprite->field_5E < 0x13D2)
+			goto loc_191C3;
+
+		Sprite->field_5E = 0;
+		goto loc_191C3;
+
+	loc_1904A:;
+		sub_2A030();
+		Data0 &= 0x1F;
+		if (Data0 == 5)
+			goto loc_1901C;
+
+		Sprite->field_5A = -1;
+		word_3A00C = 0;
+		word_3A00E = 0;
+		word_3A010 = 0;
+
+		Sprite->field_2E = *(Data28);
+
+		// WHAT THE?
+		//seg004:0337
+		Sprite->field_30 += 0x07;
+
+		Sprite->field_30 = *(Data28 + 2);
+		Sprite->field_30 -= 0x0E;
+
+		if (Sprite->field_4A <= 0) {
+			//loc_190B9
+			sub_2A030();
+			Data0 &= 0x0F;
+			++Data0;
+			Sprite->field_4A = Data0;
+			sub_2A030();
+			Data0 &= 0x3F;
+			if (Data0 == 0x2A)
+				goto loc_1918C;
+		}
 		
-	} else
-	if (word_3A9CE) {
-		//loc_190E8
+	loc_190E8:;
+		word_3A00C = 0;
+		word_3A00E = 0;
+		word_3A010 = 0;
+
+		if (Sprite->field_4F) {
+			word_3A010 = -1;
+			word_3A00E = -1;
+			word_3A00C = -1;
+		}
+		else {
+			//loc_19118
+			Data0 = Sprite;
+			Data0 -= 0x40;
+			if (Data0 == word_39EFC && word_39EFC != 0) {
+
+				Data0 = word_3AC3F[ Sprite->field_32 ];
+				if (Data0 == 3) {
+					word_3A00C = -1;
+					word_3A00E = -1;
+				} else {
+					if (Data0 == 1) {
+						word_3A010 = -1;
+						word_3A00E = -1;
+					}
+					else
+						goto loc_19198;
+				}
+				//loc_1918C
+				Sprite->field_4A = 1;
+				goto loc_191BF;
+			}
+
+		loc_19198:;
+			word_3A00C = -1;
+			word_3A010 = -1;
+
+			uint8* eax = (uint8*) Sprite->field_46;
+			Data0 = (eax + 6);
+
+		loc_191BF:;
+			sub_1F429();
+		}
 	}
-	// loc_191C3
+	else {
+
+		if (word_3A9CE) {
+			goto loc_190E8;
+			
+		}
+	}
+
+loc_191C3:;
+	if (Sprite->field_22)
+		goto loc_1921E;
+
+	//TODO: Check this
+	// seg004:047F
+	int16* Data30 = off_3BEF3[Sprite->field_32];
+	int16*  Dat30 = &Data30[Sprite->field_40];
+	int32   eax = readLEDWord( (Dat30 + 1) );
+
+	//seg004:04CC
+	if (eax < 0) {
+loc_1921E:;
+
+		if (Sprite->field_0 == Sprite->field_26 && Sprite->field_4 == Sprite->field_28)
+			goto loc_1931E;
+	}
+	//loc_1925C
+	if (Sprite->field_54 != 2 && Sprite->field_54 != 1)
+		goto loc_19338;
+
+	//loc_19274
+	if (word_3AA1D != 2)
+		goto loc_1931E;
+
+	word_3A399 = Sprite->field_A;
+	Sprite->field_5A = 0;
+
+	if (word_3AA41)
+		sub_1F5A0();
+	else
+		sub_1F5CA();
+
+
 }
 
 void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
