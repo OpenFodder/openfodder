@@ -20,6 +20,8 @@
  *
  */
 
+#include "Sprites.hpp"
+
 struct sMouseData {
 	uint16	anonymous_0;
 	uint16	anonymous_1;

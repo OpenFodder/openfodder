@@ -26,7 +26,6 @@
 #include "Recruits.hpp"
 #include "UnknownData.hpp"
 #include "MissionNames.hpp"
-#include "Sprites.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
 							"rjnull.bin", 
