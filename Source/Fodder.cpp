@@ -3499,7 +3499,7 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 	sSprite_0* Sprite = (sSprite_0*)pData20;
 
 	if (Sprite->field_6E) {
-		sub_22AA9();
+		sub_22AA9( Sprite );
 		return;
 	}
 
@@ -3703,6 +3703,193 @@ loc_1921E:;
 	else
 		sub_1F5CA();
 
+	Data0 = Sprite->field_26;
+	if( Data0 < 0 )
+		goto loc_1946D;
+	
+	Data4 = Sprite->field_28;
+	if( Data4 < 0 )
+		goto loc_1946D;
+	
+	sub_1F623();
+	
+	if( sub_2A1F0() >= 0 ) {
+		sub_1F66F();
+		sub_1F6F4();
+	}
+		
+	Data0 = Sprite->field_0;
+	if( Data0 == Sprite->field_26 ) {
+		Data0 = Sprite->field_4;
+		
+		if( Data0 == Sprite->field_28 )
+			sub_2D91E();
+	}
+	//loc_19314
+	if( word_3ABAD == 0 )
+		return;
+	
+	loc_1931E:;
+	
+	if( Sprite->field_5A )
+		goto loc_19403;
+	
+	sub_1F5CA();
+	sub_1F762();
+	return;
+	
+	loc_19338:;
+	Sprite->field_43 = 0;
+	word_3A399 = Sprite->field_A;
+	word_3A9C6 = 0;
+	
+	sub_1FCF2();
+	Data0 = Sprite->field_26;
+	if( Data0 < 0 )
+		goto loc_1946D;
+	Data4 = Sprite->field_28;
+	if( Data4 < 0 )
+		goto loc_1946D;
+	
+	if( Sprite->Field_44 ) {
+		Sprite->Field_44 -= 1;
+		goto loc_193D6;
+		
+	} 
+	
+	//loc_19392
+	if( sub_2A1F0() >= 0 )
+		goto loc_193D6;
+	
+
+	if( Sprite->field_0 == Sprite->field_26 ) {
+		if( Sprite->field_4 == Sprite->field_28 )
+			sub_2D91E();
+	}
+	//loc_193D3
+	goto loc_1946D;
+	
+loc_193D6:;
+	sub_1F623();
+	sub_2A3D4();
+	
+	if( !Sprite->field_5A ) {
+		if( !Sprite->field_45 )
+			goto loc_19424;
+		
+		Sprite->field_45 -= 1;
+		return;
+	}
+	
+loc_19403:;
+	Sprite->field_5A = 0;
+	sub_1FDE7();
+	return;
+	
+loc_19414:;
+	Sprite->field_5A = 0;
+	sub_1F5CA();
+	return;
+	
+loc_19424:;
+	sub_1F6F4();
+	
+	if( Sprite->field_0 == Sprite->field_26 ) {
+		
+		if( Sprite->field_4 == Sprite->field_28 )
+			sub_2D91E();
+		
+	}
+	//loc_19463
+	if( word_3ABAD )
+		goto loc_19414;
+	
+	goto loc_1957A;
+	
+loc_1946D:;
+	if( Sprite->field_5A )
+		goto loc_19403;
+	
+	if( !Sprite->field_45 )
+		goto loc_194A0;
+	
+	Sprite->field_45 -= 1;
+	goto loc_19414;
+
+loc_19490:;
+	Sprite->field_5A = 0;
+	sub_1F5CA();
+	return;
+
+loc_194A0:;
+	Sprite->field_43 = -1;
+	
+	if( !word_3AA1D ) {
+		word_3A8CF = 0;
+		sub_1F762();
+		Sprite->field_A = 0;
+		return;
+		
+	}
+	//loc_194CB
+	
+	if( word_39FD0 == Sprite->field_32 )
+		goto loc_19490;
+	
+	sub_1F5CA();
+	return;
+	/*
+seg004:0798                   ; ---------------------------------------------------------------------------
+seg004:0798 C4 36 20 00                       les     si, ds:20h
+seg004:079C 26 81 7C 08 38 00                 cmp     word ptr es:[si+8], 38h ; '8'
+seg004:07A2 74 40                             jz      short loc_19534
+seg004:07A4 C4 36 20 00                       les     si, ds:20h
+seg004:07A8 26 83 44 3A 01                    add     word ptr es:[si+3Ah], 1
+seg004:07AD C4 36 20 00                       les     si, ds:20h
+seg004:07B1 26 83 7C 3A 10                    cmp     word ptr es:[si+3Ah], 10h
+seg004:07B6 0F 8C 7F 00                       jl      locret_19589
+seg004:07BA C4 36 20 00                       les     si, ds:20h
+seg004:07BE 26 C7 44 3A 10 00                 mov     word ptr es:[si+3Ah], 10h
+seg004:07C4 C4 36 20 00                       les     si, ds:20h
+seg004:07C8 26 C7 44 0A 00 00                 mov     word ptr es:[si+0Ah], 0
+seg004:07CE C4 36 20 00                       les     si, ds:20h
+seg004:07D2 26 C7 44 2A 01 00                 mov     word ptr es:[si+2Ah], 1
+seg004:07D8 C4 36 20 00                       les     si, ds:20h
+seg004:07DC 26 C7 44 08 38 00                 mov     word ptr es:[si+8], 38h ; '8'
+seg004:07E2 EB 55                             jmp     short locret_19589
+seg004:07E4                   ; ---------------------------------------------------------------------------
+seg004:07E4
+seg004:07E4                   loc_19534:                              ; CODE XREF: sub_18E2E+6C4j
+seg004:07E4 C4 36 20 00                       les     si, ds:20h
+seg004:07E8 26 83 7C 0A 05                    cmp     word ptr es:[si+0Ah], 5
+seg004:07ED 75 13                             jnz     short loc_19552
+seg004:07EF C4 36 20 00                       les     si, ds:20h
+seg004:07F3 26 83 6C 3A 01                    sub     word ptr es:[si+3Ah], 1
+seg004:07F8 75 3F                             jnz     short locret_19589
+seg004:07FA C4 36 20 00                       les     si, ds:20h
+seg004:07FE 26 F7 5C 2A                       neg     word ptr es:[si+2Ah]
+seg004:0802
+seg004:0802                   loc_19552:                              ; CODE XREF: sub_18E2E+70Fj
+seg004:0802 C4 36 20 00                       les     si, ds:20h
+seg004:0806 26 8B 44 2A                       mov     ax, es:[si+2Ah]
+seg004:080A A3 00 00                          mov     ds:0, ax
+seg004:080D 0B C0                             or      ax, ax
+seg004:080F A1 00 00                          mov     ax, ds:0
+seg004:0812 C4 36 20 00                       les     si, ds:20h
+seg004:0816 26 01 44 0A                       add     es:[si+0Ah], ax
+seg004:081A 74 02                             jz      short loc_1956E
+seg004:081C EB 1B                             jmp     short locret_19589
+seg004:081E                   ; ---------------------------------------------------------------------------
+seg004:081E
+seg004:081E                   loc_1956E:                              ; CODE XREF: sub_18E2E+73Cj
+seg004:081E C4 36 20 00                       les     si, ds:20h
+seg004:0822 26 C7 44 2A 00 00                 mov     word ptr es:[si+2Ah], 0
+seg004:0828 EB 0F                             jmp     short locret_19589
+seg004:082A                   ; ---------------------------------------------------------------------------*/
+
+loc_1957A:;
+	Sprite->field_3A = 0;
+	sub_1F762();
 
 }
 
@@ -4045,6 +4232,34 @@ void cFodder::WonGame() {
 		g_Window.EventCheck();
 	}
 }
+
+void cFodder::sub_22AA9( sSprite_0* pSprite ) {
+	pSprite->field_8 = 0x7C;
+	pSprite->field_A = 0;
+	pSprite->field_38 = 0;
+	
+	Data24 = (int16*) pSprite->field_6A;
+	if( (*Data24) == -32768 || *(Data24 + 0x0C )  == 0x0C ) {
+		//loc_22AEE
+		pSprite->field_6E = 0;
+		pSprite->field_66 = 0;
+		pSprite->field_6A = 0;
+		pSprite->field_38 = 1;
+		pSprite->field_64 = -1;
+		
+		sub_2A030();
+		
+		Data0 &= 0x1FE;
+		pSprite->field_10 = Data0;
+	}
+	
+	//loc_22B3C
+
+	Sprite->field_0 = *Data24;
+	Sprite->field_4 = *(Data24+2);
+	Sprite->field_20 = *(Data24 + 0x10);
+}
+
 void cFodder::sub_2E04C() {
 	//TODO
 	/*
