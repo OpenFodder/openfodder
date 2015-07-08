@@ -109,7 +109,13 @@ cFodder::cFodder() {
 	word_3A3BB = 0;
 	word_3A3BD = 0;
 	word_3FA1F = -1;
+
 	word_42072 = 0;
+
+	word_44A2E = 0;
+	word_44A30 = 0;
+	word_44A32 = 0;
+	word_44A34 = 0;
 
 	for (unsigned int x = 0; x < 60; ++x)
 		word_3A3FD[x] = 0;
@@ -255,10 +261,17 @@ void cFodder::sub_10D61() {
 	dword_3A000 = 0;
 	dword_3A004 = 0;
 	dword_3A008 = 0;
+	word_3A00C = 0;
+	word_3A00E = 0;
+	word_3A010 = 0;
 	word_3A016 = 0;
 	word_3A01A = 0;
+	word_3A399 = 0;
+	word_3A8CF = 0;
 	word_3A9B2 = 0;
 	word_3A9B4 = 0;
+	word_3A9C6 = 0;
+	word_3A9CE = 0;
 	word_3A9D0 = 0;
 	word_3A9F7 = 0;
 	word_3AA17 = 0;
@@ -275,8 +288,15 @@ void cFodder::sub_10D61() {
 	word_3AACF = 0;
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
+	word_3ABAD = 0;
 	word_3AC19 = 0;
 	word_3AC21 = 0;
+	word_3AC3F[0] = 0;
+	word_3AC3F[1] = 0;
+	word_3AC3F[2] = 0;
+	word_3AC3F[3] = 0;
+	word_3AC3F[4] = 0;
+	word_3AC3F[5] = 0;
 	dword_3B1CB = 0;
 
 	for (uint16 x = 0; x < 0x0F; ++x ) 
@@ -364,7 +384,10 @@ void cFodder::sub_10D9F() {
 	off_3BEF3[8] = word_3A7BD;
 	off_3BEF3[9] = word_3A835;
 
-	word_3BF1B = -1;
+	byte_3BF1B[0] = -1;
+	byte_3BF1B[1] = -1;
+	byte_3BF1B[2] = -1;
+
 	word_3BF1E[0] = 0;
 	word_3BF1E[1] = 0;
 	word_3BF1E[2] = 0;
@@ -3153,6 +3176,65 @@ bool cFodder::sub_18C7A() {
 	return true;
 }
 
+int16 cFodder::sub_2A030() {
+	int16 Data0 = word_44A2E;
+	int16 Data2 = word_44A30;
+	int16 Data4 = word_44A32;
+	int16 Data6 = word_44A34;
+	
+	uint32 Dat4 = Data4 | (Data6 << 16);
+
+	uint8 CF = Data4 & 1;
+	int32 Data8 = Data0 | (Data2 << 16);
+
+	Data8 >>= 1;
+	uint8 CF2 = Data8 & 1;
+
+	Data8 >>= 1;
+	if (CF)
+		Data8 |= 0x80000000;
+
+	Dat4 += CF2;
+	Data4 = Dat4 & 0xFFFF;
+	Data6 = Dat4 >> 16;
+
+	for (uint16 cx = 0x0C; cx > 0; --cx) {
+		CF = 0;
+
+		if (Data0 & 0x8000)
+			CF = 1;
+		Data0 <<= 1;
+		Data2 <<= 1;
+		if (CF)
+			Data2 |= 1;
+	}
+
+	int16 DataA = Data8 >> 16;
+
+	//seg007:0575
+	Data0 ^= Data8;
+	Data2 ^= DataA;
+	Data8 = Data0;
+	DataA = Data2;
+
+	//seg007:058F
+	int16 ax = Data8;
+	int16 bx = DataA;
+	Data8 = bx;
+	DataA = ax;
+
+	Data8 >>= 4;
+	Data0 ^= Data8;
+
+	word_44A2E = Data0;
+	word_44A30 = Data2;
+	word_44A32 = Data4;
+	word_44A34 = Data6;
+
+	Data2 = 0;
+	return Data0;
+}
+
 uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
 	const sSpriteSheet* Sheet = &mSpriteDataPtr[*pData0][*pData4];
 
@@ -3512,7 +3594,7 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 		Sprite->field_64 = 0;
 	}
 
-	if (sub_1E05A())
+	if (sub_1E05A( Sprite ))
 		return;
 
 	if (Sprite->field_38)
@@ -3524,20 +3606,17 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 	//loc_18E8D
 	sub_22B71();
 	word_3AA41 = 0;
-	uint16* Data24 = word_3BED5;
 
-	Data4 = Data0 = Sprite->field_32;
-
-	word_3AA1D = word_3BED5[Data0];
+	word_3AA1D = word_3BED5[Sprite->field_32];
 	//seg004:0183
 
 	if (byte_3BF1B[Sprite->field_32] < 0 && Sprite->field_32 != word_39FD0 ) {
 		//loc_18F12
 		//seg004:01C2
 		word_3AA41 = -1;
-		Data0 <<= 1;
-		Data1C = Sprite->field_5E;
-		Data28 = mMapSpt_Loaded[ Data1C ];
+		//Data0 <<= 1;   UNUSED?
+
+		int16* Data28 = &mMapSpt_Loaded[ Sprite->field_5E / 2 ];
 		
 		if( *Data28 != -32768 ) {
 			
@@ -3547,11 +3626,12 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 					//seg004:021A 
 					if( Sprite->field_4F == 0 ) {
 						//seg004:0228
-						Data0 = Sprite->field_0;
-						Data4 = Sprite->field_4;
+						int16 Data0 = Sprite->field_0;
+						int16 Data4 = Sprite->field_4;
 						
-						Data8 = *(Data28);
-						DataC = *(Data28 + 2);
+						int16 Data8 = *(Data28);
+						int16 DataC = *(Data28 + 2);
+						
 						Data0 = sub_29E30( Data0, Data4, Data8, DataC );
 						if (Data0 < 0xD2) {
 
@@ -3587,8 +3667,8 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 		goto loc_191C3;
 
 	loc_1904A:;
-		sub_2A030();
-		Data0 &= 0x1F;
+		int16 Data0 = sub_2A030() & 0x1F;
+
 		if (Data0 == 5)
 			goto loc_1901C;
 
@@ -3630,9 +3710,9 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 		}
 		else {
 			//loc_19118
-			Data0 = Sprite;
-			Data0 -= 0x40;
-			if (Data0 == word_39EFC && word_39EFC != 0) {
+			int8* TmpData0 = (int8*) Sprite;
+			TmpData0 -= 0x40;
+			if (TmpData0 == word_39FCE && word_39EFC != 0) {
 
 				Data0 = word_3AC3F[ Sprite->field_32 ];
 				if (Data0 == 3) {
@@ -3646,7 +3726,7 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 					else
 						goto loc_19198;
 				}
-				//loc_1918C
+			loc_1918C:;
 				Sprite->field_4A = 1;
 				goto loc_191BF;
 			}
@@ -3655,8 +3735,8 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 			word_3A00C = -1;
 			word_3A010 = -1;
 
-			uint8* eax = (uint8*) Sprite->field_46;
-			Data0 = (eax + 6);
+			uint16* eax = (uint16*) Sprite->field_46;
+			Data0 = *(eax + 3);
 
 		loc_191BF:;
 			sub_1F429();
@@ -3682,10 +3762,13 @@ loc_191C3:;
 
 	//seg004:04CC
 	if (eax < 0) {
-loc_1921E:;
+	loc_1921E:;
+		if (word_3AA41) {
 
-		if (Sprite->field_0 == Sprite->field_26 && Sprite->field_4 == Sprite->field_28)
-			goto loc_1931E;
+			if (Sprite->field_0 == Sprite->field_26 &&
+				 Sprite->field_4 == Sprite->field_28)
+				 goto loc_1931E;
+		}
 	}
 	//loc_1925C
 	if (Sprite->field_54 != 2 && Sprite->field_54 != 1)
@@ -3713,7 +3796,7 @@ loc_1921E:;
 	
 	sub_1F623();
 	
-	if( sub_2A1F0() >= 0 ) {
+	if( sub_2A1F0( Data0, Data4 ) >= 0 ) {
 		sub_1F66F();
 		sub_1F6F4();
 	}
@@ -3751,8 +3834,8 @@ loc_1921E:;
 	if( Data4 < 0 )
 		goto loc_1946D;
 	
-	if( Sprite->Field_44 ) {
-		Sprite->Field_44 -= 1;
+	if( Sprite->field_44 ) {
+		Sprite->field_44 -= 1;
 		goto loc_193D6;
 		
 	} 
@@ -3890,6 +3973,11 @@ seg004:082A                   ; ------------------------------------------------
 loc_1957A:;
 	Sprite->field_3A = 0;
 	sub_1F762();
+
+}
+
+int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
+	
 
 }
 
@@ -4238,7 +4326,7 @@ void cFodder::sub_22AA9( sSprite_0* pSprite ) {
 	pSprite->field_A = 0;
 	pSprite->field_38 = 0;
 	
-	Data24 = (int16*) pSprite->field_6A;
+	int16* Data24 = (int16*) pSprite->field_6A;
 	if( (*Data24) == -32768 || *(Data24 + 0x0C )  == 0x0C ) {
 		//loc_22AEE
 		pSprite->field_6E = 0;
@@ -4247,17 +4335,15 @@ void cFodder::sub_22AA9( sSprite_0* pSprite ) {
 		pSprite->field_38 = 1;
 		pSprite->field_64 = -1;
 		
-		sub_2A030();
-		
-		Data0 &= 0x1FE;
+		int16 Data0 = sub_2A030() & 0x1FE;
 		pSprite->field_10 = Data0;
 	}
 	
 	//loc_22B3C
 
-	Sprite->field_0 = *Data24;
-	Sprite->field_4 = *(Data24+2);
-	Sprite->field_20 = *(Data24 + 0x10);
+	pSprite->field_0 = *Data24;
+	pSprite->field_4 = *(Data24+2);
+	pSprite->field_20 = *(Data24 + 0x10);
 }
 
 void cFodder::sub_2E04C() {

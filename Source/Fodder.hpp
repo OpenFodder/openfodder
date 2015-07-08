@@ -192,7 +192,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			dword_39F98;
 	int16			dword_39F9C;
-	int16			word_39FCE;
+	int8*			word_39FCE;
 
 	int16			word_39FD0;
 	int16			word_39FD4;
@@ -213,12 +213,16 @@ class cFodder : public cSingleton < cFodder > {
 	int16			dword_3A000;
 	int16			dword_3A004;
 	int16			dword_3A008;
+	int16			word_3A00C;
+	int16			word_3A00E;
+	int16			word_3A010;
 	int16			word_3A016;
 	uint16			word_3A024;
 	uint16			word_3A054;
 	uint32			dword_3A05A;
 	uint8			byte_3A05E;
 	uint16			word_3A05F;
+	int16			word_3A399;
 	uint32			dword_3A39D;
 	int16			word_3A3BB;
 	int16			word_3A3BD;
@@ -232,15 +236,21 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A745[60];
 	int16			word_3A7BD[60];
 	int16			word_3A835[60];
+	int16			word_3A8CF;
 
 	int16			word_3A9AA;
 	uint16			word_3A9AC;
 	uint16			word_3A9B2;
 	int16			word_3A9B4;
+	int16			word_3A9C6;
+	int16			word_3A9CE;
 	int16			word_3A9D0;
 	uint16			word_3A9F7;
 	int16			word_3AA17;
 	int16			word_3AA19;
+	int16			word_3AA1D;
+	int16			word_3AA41;
+	int16			word_3AA4B;
 	int16			word_3AA4D;
 	int16			word_3AA4F;
 	int16			word_3AA51;
@@ -256,11 +266,13 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA43;
 	int16			word_3AB39;
 	int16			word_3ABA7;
+	int16			word_3ABAD;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
 
 	int16			word_3AC19;
 	int16			word_3AC21;
+	int16			word_3AC3F[6];
 	int32			dword_3B1CB;
 	int16			word_3B1CF[0x0F];
 	int16			word_3B1ED;
@@ -324,7 +336,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BEDF[10];
 	
 	int16*			off_3BEF3[10];
-	int16			word_3BF1B;
+	int8			byte_3BF1B[3];
 	int16			word_3BF1E[6];
 
 	uint16			mIntroDone;
@@ -417,6 +429,11 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_427D4;
 	
 	int16			word_44A20;
+	int16			word_44A2E;
+	int16			word_44A30;
+	int16			word_44A32;
+	int16			word_44A34;
+
 	int32			dword_44A36;
 	int32			dword_44A3E;
 	int32			dword_44A3A;
@@ -530,8 +547,11 @@ protected:
 	void			sub_18DD3();
 
 	void			sub_18E2E( int16 *pData20 );
+	int16			sub_1E05A( sSprite_0* pSprite );
+
 	void			sub_22AA9( sSprite_0* pSprite );
 	
+	int16			sub_2A030();
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
 	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
