@@ -3786,11 +3786,11 @@ loc_191C3:;
 	else
 		sub_1F5CA();
 
-	Data0 = Sprite->field_26;
+	int16 Data0 = Sprite->field_26;
 	if( Data0 < 0 )
 		goto loc_1946D;
 	
-	Data4 = Sprite->field_28;
+	int16 Data4 = Sprite->field_28;
 	if( Data4 < 0 )
 		goto loc_1946D;
 	
