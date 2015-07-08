@@ -530,7 +530,8 @@ protected:
 	void			sub_18DD3();
 
 	void			sub_18E2E( int16 *pData20 );
-
+	void			sub_22AA9( sSprite_0* pSprite );
+	
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
 	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
