@@ -63,5 +63,5 @@ struct sSprite_0 {
 	int16 field_70;
 	int16 field_72;
 	int8 field_74;
-	int8 field_75
+	int8 field_75;
 };
