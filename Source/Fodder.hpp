@@ -550,7 +550,7 @@ protected:
 
 	void			sub_18E2E( int16 *pData20 );
 	int16			sub_1E05A( sSprite_0* pSprite );
-
+	int16			sub_1F21E( sSprite_0* pSprite );
 	void			sub_22AA9( sSprite_0* pSprite );
 	
 	int16			sub_2A030();
