@@ -3976,8 +3976,135 @@ loc_1957A:;
 }
 
 int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
-	
 
+}
+
+int16 cFodder::sub_1F21E( sSprite_0* pSprite ) {
+
+	if( !word_3A9B2 ) {
+		if( !word_3A9AC )
+			return 0;
+		
+	Data0 = -1;
+	Data4 = 8;
+	
+	sub_2A7F7();
+	
+	if( Data4 == 6 ) {
+		Data0 = pSprite->field_20;
+		Data0 -= 8;
+		
+		if( Data0 >= 0 ) {
+			Data0 = 0;
+		} else {
+			Data0 = -Data0;
+			if( Data0 > 8 )
+				Data0 = 8;
+		}
+		
+		pSprite->field_52 = Data0;
+	}
+	//loc_1F283
+	
+	if( pSprite->field_8 == 0x41 )
+		goto loc_1F3C4;
+	
+	if( pSprite->field_8 == 0x9F )
+		goto loc_1F340;
+	
+	if( pSprite->field_8 == 0x38 )
+		goto loc_1F3A2;
+	
+	pSprite->field_A = 0;
+	pSprite->field_36 = 0;
+	
+	if( !word_3A9B2 ) {
+		
+		sub_2A030();
+		Data0 &= 1;
+		if(Data0 == 0)
+			goto loc_1F32C;
+	
+		if( !pSprite->field_52 ) {
+			sub_2A030();
+			Data0 &= 1;
+			
+			if( !Data0 ) {
+				//loc_1F2F9
+				pSprite->field_8 = 0x41;
+				sub_2A030();
+				Data0 &= 3;
+				pSprite->field_A = Data0;
+				pSprite->field_2A = 1;
+				sub_1FE35();
+				goto loc_1F3C4;
+			}
+		}
+	}
+	
+	//loc_1F2EC
+	pSprite->field_9 = 0x38;
+	goto loc_1F3A2;
+
+	loc_1F32C:;
+	pSprite->field_8 = 0x9F;
+	pSprite->field_2A = 0;
+	
+	loc_1F340:;
+	
+	Data0 = pSprite->field_2A;
+	
+	Data24 = byte_3D487[ Data0 ];
+	
+	pSprite->field_A = *Data24;
+	pSprite->field_36 ^= -32768;
+	if(pSprite->field_36 < 0)
+		goto loc_1F41D;
+	
+	pSprite->field_2A += 1;
+	if( pSprite->field_2A < 7)
+		goto loc_1F41D;
+	
+	pSprite->field_2A = 3;
+	goto loc_1F41D;
+	
+	loc_1F3A2:;
+	pSprite->field_36 ^= -32768;
+	if( pSprite->field_36 < 0 )
+		goto loc_1F3C2;
+	
+	if( pSprite->field_A >= 5 )
+		goto loc_1F41D;
+	
+	pSprite->field_A += 1;
+	loc_1F3C2:;
+	goto loc_1F41D;
+	
+	loc_1F3C4:;
+
+	pSprite->field_A += pSprite->field_2A;
+	if( !pSprite->field_A )
+		goto loc_1F3E9;
+	
+	if( pSprite->field_A != 5 )
+		goto loc_1F3F1;
+	
+	loc_1F3E9:;
+	pSprite->field_2A = -pSprite->field_2A;
+	
+	loc_1F3F1:;
+	Data0 = pSprite->field_A;
+	Data0 -= 1;
+	if( Data0 < 0)
+		Data0 = 0;
+	
+	Data0 <<= 3;
+	pSprite->field_20 = Data0;
+	
+	loc_1F41D:;
+	Data0 = -1;
+	
+	return -1;
 }
 
 void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
