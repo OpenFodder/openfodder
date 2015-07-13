@@ -63,7 +63,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		//TTF_GetError();
 	}
 
-	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mDimensionWindow.mWidth, mDimensionWindow.mHeight, SDL_WINDOW_SHOWN);
+	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mDimensionWindow.mWidth, mDimensionWindow.mHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE );
 	if (!mWindow) {
 		// TODO: Log Error
 		//SDL_GetError();
