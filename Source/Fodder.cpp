@@ -3234,6 +3234,71 @@ int16 cFodder::sub_2A030() {
 	return Data0;
 }
 
+int16 cFodder::sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 ) {
+
+	pData0 += pSprite->field_4;
+	if (pData0 >= 0) {
+		
+		int16 Data14 = pData0;
+		pData4 += pSprite->field_0;
+		if (pData4 >= 0) {
+			int16 Data10 = pData4;
+
+			return sub_2A839( pData0, pData4, Data10, Data14 );
+		}
+	}
+
+	pData0 = -1;
+	pData4 = 0;
+		
+	return 0;
+}
+
+int16 cFodder::sub_2A839( int16& pData0, int16& pData4, int16& pData10, int16& pData14 ) {
+	pData0 >>= 4;
+
+	uint8* es = mMap;
+
+	uint32 Data0 = pData0 * readLEWord( &es[0x54] );
+	pData4 >>= 4;
+
+	Data0 += pData4;
+	Data0 <<= 1;
+
+	Data0 = es[0x60 + Data0] & 0x1FF;
+	//Data0 <<= 1;
+
+	int16* Data24 = word_3C09D;
+	Data24 += Data0;
+
+	int16 Data4 = *Data24;
+	if (Data4 < 0) {
+		//loc_2A8D9
+		pData10 >>= 1;
+		pData10 &= 0x07;
+
+		int16 Data8 = 7;
+		Data8 -= pData10;
+
+		pData14 >>= 1;
+		pData14 &= 0x07;
+
+		Data0 <<= 2;
+		int8* Data28 = (int8*) graphicsBaseBht;
+		pData4 += Data0;
+
+		byte al = 1 << Data8;
+		Data28 += pData14;
+		if (*Data28 & al)
+			pData4 >>= 4;
+	}
+
+	Data4 &= 0x0F;
+	pData0 = byte_3D4A5[Data4];
+
+	return pData0;
+}
+
 uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
 	const sSpriteSheet* Sheet = &mSpriteDataPtr[*pData0][*pData4];
 
@@ -3599,7 +3664,7 @@ void cFodder::sub_18E2E( int16 *pData20 ) {
 	if (Sprite->field_38)
 		return;
 
-	if (sub_1F21E())
+	if (sub_1F21E( Sprite ))
 		return;
 
 	//loc_18E8D
@@ -3781,7 +3846,7 @@ loc_191C3:;
 	Sprite->field_5A = 0;
 
 	if (word_3AA41)
-		sub_1F5A0();
+		sub_1F5A0( Sprite );
 	else
 		sub_1F5CA();
 
@@ -3981,14 +4046,14 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 
 int16 cFodder::sub_1F21E( sSprite_0* pSprite ) {
 
-	if( !word_3A9B2 ) {
+	if( !word_3A9B2 )
 		if( !word_3A9AC )
 			return 0;
 		
-	Data0 = -1;
-	Data4 = 8;
+	int16 Data0 = -1;
+	int16 Data4 = 8;
 	
-	sub_2A7F7();
+	sub_2A7F7( pSprite, Data0, Data4 );
 	
 	if( Data4 == 6 ) {
 		Data0 = pSprite->field_20;
@@ -4043,7 +4108,7 @@ int16 cFodder::sub_1F21E( sSprite_0* pSprite ) {
 	}
 	
 	//loc_1F2EC
-	pSprite->field_9 = 0x38;
+	pSprite->field_8 = 0x38;
 	goto loc_1F3A2;
 
 	loc_1F32C:;

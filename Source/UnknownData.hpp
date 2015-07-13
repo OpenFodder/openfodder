@@ -1069,3 +1069,11 @@ const int8* off_3D5F1[] = {
 const int16 word_428CE[] = {
 	0x00, 0x20, 0x40, 0x60 
 };
+
+unsigned char word_3D487[] = { 
+	0, 1, 2, 3, 2, 1, 2 
+};
+
+uint8 byte_3D4A5[] = { 
+	0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};

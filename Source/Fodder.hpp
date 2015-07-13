@@ -551,9 +551,14 @@ protected:
 	void			sub_18E2E( int16 *pData20 );
 	int16			sub_1E05A( sSprite_0* pSprite );
 	int16			sub_1F21E( sSprite_0* pSprite );
+	void			sub_1F5A0( sSprite_0* pSprite );
+
 	void			sub_22AA9( sSprite_0* pSprite );
 	
 	int16			sub_2A030();
+	int16			sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 );
+	int16			sub_2A839( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
+
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
 	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
