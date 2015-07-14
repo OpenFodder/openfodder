@@ -12,8 +12,7 @@ struct sSprite_0 {
 	int16 field_14;
 	int16 field_16;
 	int16 field_18;
-	int16 field_1A;
-	int16 field_1C;
+	int32 field_1A;
 	int16 field_1E;
 	int16 field_20;
 	int16 field_22;

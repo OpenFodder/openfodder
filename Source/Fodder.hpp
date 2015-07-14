@@ -274,6 +274,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3AC19;
 	int16			word_3AC21;
+	int16			word_3AC2B;
 	int16			word_3AC3F[6];
 	int32			dword_3B1CB;
 	int16			word_3B1CF[0x0F];
@@ -556,6 +557,11 @@ protected:
 	void			sub_22AA9( sSprite_0* pSprite );
 	
 	int16			sub_2A030();
+	void			sub_2A0FA( sSprite_0* pSprite );
+
+	void			sub_2A3D4( sSprite_0* pSprite );
+
+	int16			sub_2A7E2( int16& pData0, int16& pData4 );
 	int16			sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	int16			sub_2A839( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
 
@@ -570,9 +576,10 @@ protected:
 	void			map_Tiles_Draw();
 	void			video_Draw_MapTile( uint16 pTile, uint16 pPosX, uint16 pPosY );
 
-	void			sub_2E0v4C();
+	void			sub_2E04C();
 
 	void			sub_301F7();
+	void			sub_305D5();
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
@@ -612,7 +619,6 @@ protected:
 	void			eventProcess();
 	void			keyProcess( uint8 pKeyCode, bool pPressed );
 
-	void			sub_2E04C();
 public:
 
 					cFodder();
