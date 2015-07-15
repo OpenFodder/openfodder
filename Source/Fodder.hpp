@@ -209,7 +209,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A06B;
 	int16			word_3A28D;
 
-	int16			dword_3A8DB;
+	int16			word_3A8D9;
+	int8*			dword_3A8DB;
 	uint8			byte_3A8DF;
 
 	int16			dword_3A000;
@@ -221,7 +222,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A016;
 	uint16			word_3A024;
 	uint16			word_3A054;
-	uint32			dword_3A05A;
+	int8			byte_3A05A[4];
 	uint8			byte_3A05E;
 	uint16			word_3A05F;
 	int16			word_3A399;
@@ -248,6 +249,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9CE;
 	int16			word_3A9D0;
 	uint16			word_3A9F7;
+	int16			word_3AA05[3];
+	int16			word_3AA0B[3];
+	int16			word_3AA11[3];
 	int16			word_3AA17;
 	int16			word_3AA19;
 	int16			word_3AA1D;
@@ -276,6 +280,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC21;
 	int16			word_3AC2B;
 	int16			word_3AC3F[6];
+	int16			word_3B173;
 	int32			dword_3B1CB;
 	int16			word_3B1CF[0x0F];
 	int16			word_3B1ED;
@@ -297,6 +302,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMapGoals[8];
 	int16			word_3B447;
+	int16*			dword_3B48B[16];
 	int16			word_3B4DB;
 	int16			word_3B4F1;
 	int16			word_3B4F3;
@@ -486,7 +492,7 @@ protected:
 	bool			sub_1429B();
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
-	void			sub_14FF5( cSurface *pImage );
+	void			Briefing_Intro_Jungle( cSurface *pImage );
 
 	void			Mission_Brief();
 
@@ -496,6 +502,7 @@ protected:
 	void			sub_15A36( cSurface* pImage, uint8* pDs, int16 pCx );
 	void			sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx );
 	void			sub_15B98( cSurface* pImage, uint8* pDs, int16 pCx );
+
 	void			sub_15CE8( cSurface* pImage, uint8* pDs, int16 pCx );
 
 	void			sub_15DF0( cSurface* pImage );
@@ -571,6 +578,8 @@ protected:
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
+	void			sub_2D06C();
+	int16			sub_2D91E( sSprite_0* pSprite );
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
