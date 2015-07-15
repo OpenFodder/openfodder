@@ -100,6 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,12 +146,18 @@
     <ClInclude Include="..\..\Source\Dimension.hpp" />
     <ClInclude Include="..\..\Source\Event.hpp" />
     <ClInclude Include="..\..\Source\Fodder.hpp" />
+    <ClInclude Include="..\..\Source\IntroData.hpp" />
+    <ClInclude Include="..\..\Source\MissionNames.hpp" />
     <ClInclude Include="..\..\Source\Position.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
     <ClInclude Include="..\..\Source\Singleton.hpp" />
+    <ClInclude Include="..\..\Source\SpriteData.hpp" />
+    <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\stdafx.hpp" />
     <ClInclude Include="..\..\Source\Surface.hpp" />
+    <ClInclude Include="..\..\Source\Recruits.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
+    <ClInclude Include="..\..\Source\UnknownData.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
