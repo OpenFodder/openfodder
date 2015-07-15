@@ -55,10 +55,10 @@ struct sSprite_0 {
 	int16 field_62;
 	int8 field_64;
 	int8 field_65;
-	int16 field_66;
-	int16 field_68;
+	int32 field_66;			// Possible should be a pointer
 	int32 field_6A;
-	int16 field_6E;
+	int8 field_6E;
+	int8 field_6F;
 	int16 field_70;
 	int16 field_72;
 	int8 field_74;
