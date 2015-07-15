@@ -57,10 +57,8 @@ const uint8 cResources::byte_29A21[0xFF] = {
 cResources::cResources() {
 	mData = 0;
 	mDataSize = 0;
-	mExeDataSize = 0;
 
 	mData = local_FileRead( "CF_ENG.DAT", "", mDataSize );
-	mExeData = local_FileRead( "CF_ENG.EXE", "", mExeDataSize );
 
 	headerLoad();
 }
@@ -637,11 +635,4 @@ void cResources::sub_26B11() {
 
 		++dx;
 	}
-}
-
-uint8 *cResources::spriteDataGet( size_t pIndex ) {
-
-	uint16 ptrTable = readLEWord( mExeData + 0x241F0 + 0xE1C + (pIndex * 4) );
-	
-	return mExeData + 0x241F0 + ptrTable;
 }

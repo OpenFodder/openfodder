@@ -35,9 +35,8 @@ struct cResource_File {
 class cResources : public cSingleton<cResources> {
 private:
 	uint8							*mData, *mDataCurrent;
-	uint8							*mExeData;
 
-	size_t							 mDataSize, mExeDataSize;
+	size_t							 mDataSize;
 
 	std::vector< cResource_File >	 mFiles;
 	
@@ -74,7 +73,4 @@ public:
 	std::vector< cResource_File >	*filesGet( ) { return &mFiles; }
 
 	cSurface						*image4PlaneLoad( const std::string &pFilename, size_t pColors );
-
-	uint8							*spriteDataGet( size_t pIndex );
-
 };
