@@ -82,6 +82,7 @@ cFodder::cFodder() {
 	word_3ABE9 = 0;
 	word_3ABEB = 0;
 	word_3A9B2 = 0;
+	word_3B173 = 0;
 	word_3B4F5 = 0;
 	word_3E1B7 = 0;
 	
@@ -273,6 +274,13 @@ void cFodder::sub_10D61() {
 	word_3A9CE = 0;
 	word_3A9D0 = 0;
 	word_3A9F7 = 0;
+
+	for (uint16 x = 0; x < 3; ++x) {
+		word_3AA05[x] = 0;
+		word_3AA0B[x] = 0;
+		word_3AA11[x] = 0;
+	}
+
 	word_3AA17 = 0;
 	word_3AA19 = 0;
 	word_3AA4D = 0;
@@ -405,8 +413,14 @@ void cFodder::sub_10DEC() {
 	word_3A9AC = 0;
 	dword_39F7C = 0;
 	word_3A9F7 = 0x23;
-	dword_3A05A = 0;
+
+	byte_3A05A[0] = 0;
+	byte_3A05A[1] = 0;
+	byte_3A05A[2] = 0;
+	byte_3A05A[3] = 0;
+
 	byte_3A05E = 0;
+	word_3A8D9 = 0;
 	dword_3A8DB = 0;
 	byte_3A8DF = 0;
 	word_3A06B = -1;
@@ -1758,7 +1772,7 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 }
 
-void cFodder::sub_14FF5( cSurface* pImage ) {
+void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {
 	
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;
@@ -2059,7 +2073,7 @@ void cFodder::Mission_Brief() {
 
 	switch (mMap_TileSet) {
 	case 0:
-		sub_14FF5( Image );
+		Briefing_Intro_Jungle( Image );
 		break;
 
 	case 1:
@@ -3241,6 +3255,44 @@ void cFodder::sub_2A0FA( sSprite_0* pSprite ) {
 		return;
 
 	//loc_2A10D
+	const int16* Data24 = word_3EABF;
+	pSprite->field_10 &= 0x1FE;
+	int16 Data4 = pSprite->field_10;
+
+	int16 Data8 = *(Data24 + Data4);
+
+	Data4 += 0x80;
+	Data4 *= 0x1FE;
+	int16 DataC = *(Data24 + Data4);
+	Data8 >>= 2;
+	DataC >>= 2;
+	//seg007:064F
+
+	int32 DataaC = (int32)DataC;
+	int32 Dataa8 = (int32)Data8;
+
+	Data4 = pSprite->field_36;
+	Dataa8 *= Data4;
+
+	DataaC *= Data4;
+
+	int32 tmp = pSprite->field_0 | pSprite->field_2 << 16;
+	tmp += Dataa8;
+	if (tmp < 0) {
+		tmp = 0;
+		word_3B173 = -1;
+	}
+	pSprite->field_0 = tmp & 0xFFFF;
+	pSprite->field_2 = tmp >> 16;
+
+	tmp = pSprite->field_4 | pSprite->field_6 << 16;
+	tmp += DataaC;
+	if (tmp < 0) {
+		tmp = 0;
+		word_3B173 = -1;
+	}
+	pSprite->field_4 = tmp & 0xFFFF;
+	pSprite->field_6 = tmp >> 16;
 }
 
 void cFodder::sub_2A3D4( sSprite_0* pSprite ) {
@@ -3438,6 +3490,161 @@ void cFodder::sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY ) 
 		pTileGraphicPtr += 0x140;
 		Target += (mMapWidth*16);
 	}
+}
+
+void cFodder::sub_2D06C() {
+	int16** Data34 = dword_3B48B;
+	int8* Data24 = byte_3A05A;
+
+	Data24[0] = 0;
+	Data24[1] = 0;
+	Data24[2] = 0;
+	Data24[3] = 0;
+	byte_3A05E = 0;
+
+	int16 Data14 = 0;
+
+	int32** Data28 = off_3BDEF;
+	sSquad_Member* Data2C = mSquad;
+	int16 Data0 = -32768;
+	int32 Data4 = -1;
+
+	dword_3BE03[0] = -1;
+	dword_3BE27[0] = -1;
+	dword_3BE4B[0] = -1;
+	dword_3BE6F[0] = -1;
+	dword_3BE93[0] = -1;
+
+	for (int8 Data1C = 8; Data1C >= 0; --Data1C, ++Data2C) {
+
+		if (Data2C->field_4 < 0)
+			continue;
+
+		// This will need fixing (field_4, prob needs / 2)
+		int16* Data20 = &mMapSpt_Loaded[ Data2C->field_4 ];
+
+		sSprite_0* Sprite = (sSprite_0*)Data20;
+		if (!(Sprite->field_75 & 2)) {
+			if (Sprite->field_38 < 32) {
+				if (Sprite->field_38) {
+					if (!Sprite->field_6E)
+						continue;
+
+					Sprite->field_38 = 0;
+				}
+			}
+		}
+		//loc_2D165
+
+		uint8 Data10 = Data24[ Sprite->field_32 ] & 0xFF;
+		Data24[ Sprite->field_32 ] += 1;
+		++Data14;
+
+		int32* Data30 = Data28[ Sprite->field_32 ];
+		//seg009:0151
+		Data30[Data10] = (int32)Sprite;
+		Data30[Data10 + 4] = Data4;
+		*Data34 = (int16*)Sprite;
+		++Data34;
+	}
+	//seg009:019E
+
+	if (!Data14)
+		word_3A9AA = -1;
+
+	dword_3A8DB = byte_3A05A;
+	byte_3A8DF = byte_3A05E;
+
+	Data0 = 2;
+	int8* Data2CC = byte_3A05A;
+	int8* Data30 = byte_3BF1B;
+
+	do {
+
+		int8 al = Data2CC[Data0];
+		if (al)
+			continue;
+
+		Data30[Data0] = -1;
+	} while (Data0 >= 0);
+
+	Data34[0] = (int16*) -1;
+	Data34[1] = (int16*) -1;
+}
+
+int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
+
+	int16* Data24 = off_3BEF3[ pSprite->field_32 ];
+
+	int16 Data0 = Data24[pSprite->field_40];
+
+	if (Data0 >= 0) {
+		int16 Data4 = Data24[pSprite->field_40 + 2];
+		pSprite->field_26 = Data0;
+		pSprite->field_28 = Data4;
+		pSprite->field_40 += 4;
+		pSprite->field_42 = -1;
+	loc_2D9AB:;
+		return 0;
+
+	loc_2D9B4:;
+		Data0 = -1;
+		return -1;
+	}
+
+	//loc_2D9C0
+	if (!pSprite->field_42)
+		goto loc_2D9B4;
+
+	pSprite->field_42 = 0;
+
+loc_2D9D5:;
+	int16 Data14 = pSprite->field_32;
+
+	int16 Data18 = byte_3BF1B[Data14];
+	if (Data18 < 0)
+		goto loc_2D9B4;
+
+	Data18 &= 0xFF;
+	int8* Data2C = byte_3A05A + Data14;
+
+	if (*Data2C > 8)
+		goto loc_2D9B4;
+
+	uint8* Dataa24 = (uint8*) pSprite->field_46;
+	*(Dataa24 + 9) &= 0xFE;
+
+	Data24 = off_3BEF3[Data18];
+	Data0 = 0;
+
+	for (;;) {
+
+		int16 eax = *Data24;
+		++Data24;
+		if (eax < 0)
+			break;
+
+		Data0+=4;
+	}
+	//loc_2DA86
+	pSprite->field_40 = Data0;
+	pSprite->field_32 = Data18;
+	sub_2D06C();
+
+	word_3BEDF[Data14] = 0;
+	word_39FD0 = Data18;
+		
+	word_3AA05[Data18] += word_3AA05[Data14];
+
+	//seg010:0232
+	word_3AA05[Data0] = 0;
+
+	word_3AA0B[Data18] += word_3AA0B[Data0];
+	word_3AA0B[Data0] = 0;
+	sub_305D5();
+	word_3AC2B = 0;
+	word_3A8D9 = 0;
+	goto loc_2D9B4;
 }
 
 void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
@@ -3914,7 +4121,7 @@ loc_191C3:;
 		Data0 = Sprite->field_4;
 		
 		if( Data0 == Sprite->field_28 )
-			sub_2D91E();
+			sub_2D91E( Sprite );
 	}
 	//loc_19314
 	if( word_3ABAD == 0 )
@@ -3955,7 +4162,7 @@ loc_191C3:;
 
 	if( Sprite->field_0 == Sprite->field_26 ) {
 		if( Sprite->field_4 == Sprite->field_28 )
-			sub_2D91E();
+			sub_2D91E( Sprite );
 	}
 	//loc_193D3
 	goto loc_1946D;
@@ -3988,7 +4195,7 @@ loc_19424:;
 	if( Sprite->field_0 == Sprite->field_26 ) {
 		
 		if( Sprite->field_4 == Sprite->field_28 )
-			sub_2D91E();
+			sub_2D91E( Sprite );
 		
 	}
 	//loc_19463
@@ -4555,7 +4762,7 @@ loc_1ED5B:;
 	sub_1F623();
 	word_3A399 = pSprite->field_A;
 
-	sub_2A0FA();
+	sub_2A0FA( pSprite );
 	sub_20478();
 	sub_1FFC6();
 
