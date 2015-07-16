@@ -6128,13 +6128,104 @@ void cFodder::sub_211BA( sSprite_0* pSprite, int16& pData0, sSprite_0*& pData2C 
 
 loc_21217:;
 
-	Data28 = pData2C;
-	sub_212C4( Data28 );
+	sub_212C4( pData2C );
 	pData0 = 0;
 	return;
 
 loc_21234:;
+	pData2C = (sSprite_0*) mMapSpt_Loaded;
+	Data1C = 0x29;
+	for( Data1C = 0x29; Data1C >= 0; --Data1C, ++Data2C ) {
+		
+		if( pData2C->field_0 != -32768 )
+			continue;
+		
+		if( (pData2C+1)->field_0 == -32768 )
+			goto loc_2128F;
+	}
+	
+	pData2C = &word_3B4F7;
+	pData30 = &word_3B4F7;
+	pData0 = -1;
+	word_3B15D = pData0;
+	return;
 
+loc_2128F:;
+	pData30 = pData2C + 1;
+
+	sub_212C4( pData2C );
+	sub_212C4( pData30 );
+	pData0 = 0;
+	return;
+}
+
+void cFodder::sub_212C4( sSprite_0* pSprite ) {
+	pSprite->field_0 = -32768;
+	pSprite->field_2 = 0;
+	pSprite->field_4 = 0;
+	pSprite->field_6 = 0;
+	pSprite->field_8 = 0;
+	pSprite->field_A = 0;
+	pSprite->field_C = 0;
+	pSprite->field_E = 0;
+	pSprite->field_10 = 0;
+	pSprite->field_12 = 0;
+	pSprite->field_14 = 0;
+	pSprite->field_16 = 0;
+	pSprite->field_18 = 0;
+	pSprite->field_1A = 0;
+	pSprite->field_1E = 0;
+	pSprite->field_20 = 0;
+	pSprite->field_22 = 0;
+	pSprite->field_24 = 0;
+	pSprite->field_26 = 0;
+	pSprite->field_28 = 0;
+	pSprite->field_2A = 0;
+	pSprite->field_2C = 0;
+	pSprite->field_2E = 0;
+	pSprite->field_30 = 0;
+	pSprite->field_32 = 0;
+	pSprite->field_34 = 0;
+	pSprite->field_36 = 0;
+	pSprite->field_38 = 0;
+	pSprite->field_3A = 0;
+	pSprite->field_3C = 0;
+	pSprite->field_3E = 0;
+	pSprite->field_40 = 0;
+	pSprite->field_42 = 0;
+	pSprite->field_43 = 0;
+	pSprite->field_44 = 0;
+	pSprite->field_45 = 0;
+	pSprite->field_46 = 0;
+	pSprite->field_4A = 0;
+	pSprite->field_4C = 0;
+	pSprite->field_4D = 0;
+	pSprite->field_4E = 0;
+	pSprite->field_4F = 0;
+	pSprite->field_50 = 0;
+	pSprite->field_52 = 0;
+	pSprite->field_54 = 0;
+	pSprite->field_55 = 0;
+	pSprite->field_56 = 0;
+	pSprite->field_58 = 0;
+	pSprite->field_59 = 0;
+	pSprite->field_5A = 0;
+	pSprite->field_5B = 0;
+	pSprite->field_5C = 0;
+	pSprite->field_5E = 0;
+	pSprite->field_60 = 0;
+	pSprite->field_61 = 0;
+	pSprite->field_62 = 0;
+	pSprite->field_64 = 0;
+	pSprite->field_65 = 0;
+	pSprite->field_66 = 0;
+	pSprite->field_6A = 0;
+	pSprite->field_6E = 0;
+	pSprite->field_6F = 0;
+	pSprite->field_70 = 0;
+	pSprite->field_72 = 0;
+	pSprite->field_74 = 0;
+	pSprite->field_75 = 0;
 }
 
 void cFodder::sub_223B2( sSprite_0* pSprite ) {
