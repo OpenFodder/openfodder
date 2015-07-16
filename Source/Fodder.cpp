@@ -4745,7 +4745,7 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 	if (!Data0)
 		pSprite->field_3A = pSprite->field_10;
 
-	sub_1FF1A();
+	sub_1FF1A(pSprite);
 	pSprite->field_26 = -1;
 	if (pSprite->field_38 != 9)
 		goto loc_1E3D2;
@@ -4768,7 +4768,7 @@ loc_1E2F4:;
 	//seg004:55F3 
 
 	if (!Data0) {
-		sub_1FF1A();
+		sub_1FF1A(pSprite);
 
 		if (pSprite->field_A)
 			pSprite->field_A = 0;
@@ -4795,7 +4795,7 @@ loc_1E3D2:;
 
 	if (pSprite->field_40 == 0x9876) {
 		pSprite->field_28 += 1;
-		sub_1FF1A();
+		sub_1FF1A(pSprite);
 
 		if (!(pSprite->field_28 & 7)) {
 			Data0 = sub_2A030() & 7;
@@ -4887,7 +4887,7 @@ loc_1E3D2:;
 	if (pSprite->field_26) {
 
 		if (!pSprite->field_20) {
-			sub_1FF1A();
+			sub_1FF1A(pSprite);
 			pSprite->field_26 = 0;
 		}
 	}
@@ -5426,6 +5426,35 @@ void cFodder::sub_1F66F( sSprite_0* pSprite ) {
 	}
 
 	pSprite->field_36 = word_3D495[Data4 / 2];;
+}
+
+void cFodder::sub_1FF1A( sSprite_0* pSprite ) {
+	int16 Data0;
+	sSprite_0* Data2C;
+
+	Data0 = 1;
+	
+	sub_211BA( pSprite, Data0, Data2C );
+
+	if (!Data0) {
+		Data2C->field_0 = pSprite->field_0;
+		Data2C->field_2 = pSprite->field_2;
+		Data2C->field_4 = pSprite->field_4;
+		Data2C->field_6 = pSprite->field_6;
+
+		Data2C->field_0 += 3;
+		Data2C->field_4 -= 8;
+		Data2C->field_8 = 0x96;
+		Data2C->field_A = 0;
+		Data2C->field_18 = 0x17;
+		Data2C->field_20 = pSprite->field_20;
+		Data2C->field_32 = -1;
+		Data2C->field_2C = 1;
+		Data2C->field_52 = 0;
+		Data2C->field_12 = 1;
+		Data0 = 0;
+
+	}
 }
 
 void cFodder::sub_1FFC6( sSprite_0* pSprite ) {
@@ -6073,6 +6102,39 @@ void cFodder::sub_20E5C( sSprite_0* pSprite ) {
 	pSprite->field_3C = Data0;
 
 	word_3A8CF = 0;
+}
+
+void cFodder::sub_211BA( sSprite_0* pSprite, int16& pData0, sSprite_0*& pData2C ) {
+	if (!word_3B15D) {
+
+		if (pData0 == 2)
+			goto loc_21234;
+
+		pData2C = (sSprite_0*) mMapSpt_Loaded + 0x9AE;
+
+		for (int16 Data1C = 0x2A; Data1C >= 0; --Data1C) {
+			if (pData2C->field_0 == -32768)
+				goto loc_21217;
+
+			pData2C--;
+		}
+	}
+	//loc_211F0
+	pData2C = &word_3B4F7;
+	pData30 = &word_3B4F7;
+	pData0 = -1;
+	word_3B15D = pData0;
+	return;
+
+loc_21217:;
+
+	Data28 = pData2C;
+	sub_212C4( Data28 );
+	pData0 = 0;
+	return;
+
+loc_21234:;
+
 }
 
 void cFodder::sub_223B2( sSprite_0* pSprite ) {
