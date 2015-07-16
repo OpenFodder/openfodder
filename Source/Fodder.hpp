@@ -577,6 +577,7 @@ protected:
 	int16			sub_1F21E( sSprite_0* pSprite );
 	void			sub_1F5A0( sSprite_0* pSprite );
 	void			sub_1F5CA( sSprite_0* pSprite );
+	void			sub_1F623( sSprite_0* pSprite );
 	void			sub_1F66F( sSprite_0* pSprite );
 	void			sub_1FF1A( sSprite_0* pSprite );
 	void			sub_1FFC6( sSprite_0* pSprite );
