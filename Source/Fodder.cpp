@@ -5402,6 +5402,13 @@ void cFodder::sub_1F5CA( sSprite_0* pSprite ) {
 	pSprite->field_A = word_3ABAF;
 }
 
+void cFodder::sub_1F623( sSprite_0* pSprite ) {
+	word_3ABAD = 0;
+	
+	dword_3A391 = pSprite->field_0 | pSprite->field_2 << 16;
+	dword_3A395 = pSprite->field_4 | pSprite->field_6 << 16;
+}
+
 void cFodder::sub_1F66F( sSprite_0* pSprite ) {
 	sub_1FCF2( pSprite );
 
