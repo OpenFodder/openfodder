@@ -113,6 +113,9 @@ class cFodder : public cSingleton < cFodder > {
 	cWindow*				mWindow;
 
 	int16					mMapSpt_Loaded[2655];
+	sSprite_0				word_3B4F7;
+	//sSprite_0				mSprites[45];
+
 	const sSpriteSheet**	mSpriteDataPtr;
 
 	cSurface*		mSurfaceMapOverview;
@@ -575,11 +578,13 @@ protected:
 	void			sub_1F5A0( sSprite_0* pSprite );
 	void			sub_1F5CA( sSprite_0* pSprite );
 	void			sub_1F66F( sSprite_0* pSprite );
+	void			sub_1FF1A( sSprite_0* pSprite );
 	void			sub_1FFC6( sSprite_0* pSprite );
 
 	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
 	void			sub_20478( sSprite_0* pSprite );
 	void			sub_20E5C( sSprite_0* pSprite );
+	void			sub_211BA( sSprite_0* pSprite, int16& pData0, sSprite_0*& pData2C );
 
 	void			sub_223B2( sSprite_0* pSprite );
 	void			sub_22AA9( sSprite_0* pSprite );
