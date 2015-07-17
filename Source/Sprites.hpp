@@ -12,7 +12,8 @@ struct sSprite_0 {
 	int16 field_14;
 	int16 field_16;
 	int16 field_18;
-	int32 field_1A;
+	int32 field_1A;		// possible sprite pointer
+
 	int16 field_1E;
 	int16 field_20;
 	int16 field_22;
@@ -35,7 +36,7 @@ struct sSprite_0 {
 	int8 field_43;
 	int8 field_44;
 	int8 field_45;
-	int32 field_46;
+	int32 field_46;	// should be pointer
 	int16 field_4A;
 	int8 field_4C;
 	int8 field_4D;
@@ -45,7 +46,8 @@ struct sSprite_0 {
 	int16 field_52;
 	int8 field_54;
 	int8 field_55;
-	int16 field_56;
+	int8 field_56;
+	int8 field_57;
 	int8 field_58;
 	int8 field_59;
 	int8 field_5A;
@@ -58,7 +60,7 @@ struct sSprite_0 {
 	int8 field_64;
 	int8 field_65;
 	int32 field_66;			// Possible should be a pointer
-	int32 field_6A;
+	int32 field_6A;			// Possible sprite pointer
 	int8 field_6E;
 	int8 field_6F;
 	int16 field_70;
