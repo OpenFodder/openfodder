@@ -582,7 +582,9 @@ protected:
 	void			sub_1F5CA( sSprite_0* pSprite );
 	void			sub_1F623( sSprite_0* pSprite );
 	void			sub_1F66F( sSprite_0* pSprite );
+	void			sub_1F6F4( sSprite_0* pSprite );
 	void			sub_1F762( sSprite_0* pSprite );
+	void			sub_1FCF2( sSprite_0* pSprite );
 	void			sub_1FDE7( sSprite_0* pSprite );
 	void			sub_1FE35( sSprite_0* pSprite );
 	void			sub_1FF1A( sSprite_0* pSprite );
