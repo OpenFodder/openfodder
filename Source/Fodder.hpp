@@ -281,6 +281,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AAD1;
 
 	int16			word_3AA43;
+	int8			byte_3ABA9;
 	int16			word_3ABB1;
 	int16			word_3AB39;
 	int16			word_3ABA7;
@@ -365,7 +366,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16*			off_3BEF3[10];
 	int8			byte_3BF1B[3];
-	int16			word_3BF1E[6];
+	sSprite_0*		word_3BF1E[6];
 
 	uint16			mIntroDone;
 
@@ -560,6 +561,8 @@ protected:
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Recruitment */
 	
+	int16			loc_2D9D5( sSprite_0* pSprite );
+
 	void			Briefing_Show( cSurface* pImage );
 	void			sub_18908();
 	void			Briefing_Wait();
@@ -593,9 +596,12 @@ protected:
 	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
 	void			sub_20478( sSprite_0* pSprite );
 	void			sub_20E5C( sSprite_0* pSprite );
+	int16			sub_20E91( sSprite_0* pSprite );
+	void			sub_20F19( sSprite_0* pSprite );
+
 	void			sub_211BA( sSprite_0* pSprite, int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	void			sub_212C4( sSprite_0* pSprite );
-	
+
 	void			sub_223B2( sSprite_0* pSprite );
 	void			sub_22AA9( sSprite_0* pSprite );
 	void			sub_22B71( sSprite_0* pSprite );
@@ -622,6 +628,7 @@ protected:
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 	void			sub_2D06C();
 	int16			sub_2D91E( sSprite_0* pSprite );
+	int16			sub_2DBA3( sSprite_0* pSprite );
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
