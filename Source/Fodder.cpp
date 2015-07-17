@@ -4516,7 +4516,7 @@ loc_191C3:;
 	
 	if( sub_2A1F0( Sprite, Data0, Data4 ) >= 0 ) {
 		sub_1F66F( Sprite );
-		sub_1F6F4();
+		sub_1F6F4( Sprite );
 	}
 		
 	Data0 = Sprite->field_0;
@@ -4544,7 +4544,7 @@ loc_191C3:;
 	word_3A399 = Sprite->field_A;
 	word_3A9C6 = 0;
 	
-	sub_1FCF2();
+	sub_1FCF2( Sprite );
 	Data0 = Sprite->field_26;
 	if( Data0 < 0 )
 		goto loc_1946D;
@@ -5437,6 +5437,40 @@ void cFodder::sub_1F66F( sSprite_0* pSprite ) {
 	pSprite->field_36 = word_3D495[Data4 / 2];;
 }
 
+void cFodder::sub_1F6F4( sSprite_0* pSprite ) {
+	
+	if (!sub_20E91( pSprite )) {
+		sub_20F19( pSprite );
+		sub_2A0FA( pSprite );
+	}
+
+	sub_2DBA3();
+	sub_20478( pSprite );
+
+	byte_3ABA9 = pSprite->field_60;
+	sub_1FFC6( pSprite );
+
+	int16 Data0 = byte_3ABA9;
+	int16 Data4 = pSprite->field_60;
+	if (Data0 != 6)
+		goto loc_1F75D;
+
+	if (Data4 == 4)
+		goto loc_1F753;
+
+	if (Data4 == 5)
+		goto loc_1F75D;
+
+	pSprite->field_52 = 5;
+	goto loc_1F75D;
+
+loc_1F753:;
+	pSprite->field_52 = 3;
+
+loc_1F75D:;
+	sub_21041();
+}
+
 void cFodder::sub_1F762( sSprite_0* pSprite ) {
 	if (!pSprite->field_22)
 		goto loc_1F7CE;
@@ -5654,6 +5688,55 @@ loc_1FCD7:;
 
 	pSprite->field_A = word_3A399;
 	word_3A9C6 = 0;
+}
+
+void cFodder::sub_1FCF2( sSprite_0* pSprite ) {
+	int16 Data0;
+
+	pSprite->field_36 = 0x10;
+
+	if (pSprite->field_18 == 5) {
+		Data0 = 0x0C;
+		Data0 += pSprite->field_62;
+		if (Data0 > 0x1A)
+			Data0 = 0x1A;
+		pSprite->field_36 = Data0;
+		goto loc_1FD80;
+	}
+
+	//loc_1FD36
+	Data0 =  word_3BED5[pSprite->field_32];
+	if (!Data0)
+		pSprite->field_36 >>= 1;
+	else {
+		if (Data0)
+			pSprite->field_36 = 0x18;
+	}
+loc_1FD80:;
+	if (pSprite->field_4F)
+		goto loc_1FDDC;
+
+	Data0 = pSprite->field_52;
+	if (Data0 == pSprite->field_50)
+		goto loc_1FDD5;
+	if (Data0 < pSprite->field_50)
+		goto loc_1FDC3;
+
+	Data0--;
+	if (Data0 == pSprite->field_50)
+		goto loc_1FDD5;
+	Data0--;
+	goto loc_1FDC8;
+
+loc_1FDC3:;
+	Data0++;
+loc_1FDC8:;
+	pSprite->field_52 = Data0;
+loc_1FDD5:;
+	if (!Data0)
+		return;
+loc_1FDDC:;
+	pSprite->field_36 = 6;
 }
 
 void cFodder::sub_1FDE7( sSprite_0* pSprite ) {
