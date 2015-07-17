@@ -262,6 +262,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9D0;
 	int8			byte_3A9D2[4];
 	int8			byte_3A9D6[4];
+	int16			word_3A9E4;
 	int16			word_3A9E6;
 	uint16			word_3A9F7;
 	int16			word_3AA05[3];
@@ -287,10 +288,15 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA43;
 	int8			byte_3ABA9;
 	int16			word_3ABB1;
+	int16			word_3ABB9;
+	int16			word_3ABBF;
 	int16			word_3AB39;
 	int16			word_3ABA7;
 	int16			word_3ABAD;
 	int16			word_3ABAF;
+	int16			word_3ABBB;
+	int16			word_3ABC3;
+	int16			word_3ABC5;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
 
@@ -303,6 +309,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B15D;
 	int16			word_3B173;
 	int32			dword_3B1CB;
+	int16			word_3B1AB;
 	int16			word_3B1CF[0x0F];
 	int16			word_3B1ED;
 	int16			word_3B1EF;
