@@ -297,6 +297,7 @@ void cFodder::sub_10D61() {
 	dword_3AAC9 = 0;
 	word_3AACD = 0;
 	word_3AACF = 0;
+	byte_3ABA9 = 0;
 	word_3ABB1 = 0;
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
@@ -4002,22 +4003,32 @@ int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
 	pSprite->field_42 = 0;
 
 loc_2D9D5:;
+	loc_2D9D5( pSprite );
+}
+
+int16 cFodder::loc_2D9D5( sSprite_0* pSprite ) {
 	int16 Data14 = pSprite->field_32;
+	int16 Data0;
 
 	int16 Data18 = byte_3BF1B[Data14];
-	if (Data18 < 0)
-		goto loc_2D9B4;
+	if (Data18 < 0) {
+		//goto loc_2D9B4;
+		Data0 = -1;
+		return -1;
+	}
 
 	Data18 &= 0xFF;
 	int8* Data2C = byte_3A05A + Data14;
 
-	if (*Data2C > 8)
-		goto loc_2D9B4;
-
+	if (*Data2C > 8) {
+		//goto loc_2D9B4;
+		Data0 = -1;
+		return -1;
+	}
 	uint8* Dataa24 = (uint8*) pSprite->field_46;
 	*(Dataa24 + 9) &= 0xFE;
 
-	Data24 = off_3BEF3[Data18];
+	int16* Data24 = off_3BEF3[Data18];
 	Data0 = 0;
 
 	for (;;) {
@@ -4047,7 +4058,56 @@ loc_2D9D5:;
 	sub_305D5();
 	word_3AC2B = 0;
 	word_3A8D9 = 0;
-	goto loc_2D9B4;
+	//goto loc_2D9B4;
+	Data0 = -1;
+	return -1;
+}
+
+int16 cFodder::sub_2DBA3( sSprite_0* pSprite ) {
+	int8 Data2C = byte_3BF1B[pSprite->field_32];
+	int16 Data0;
+
+	if (Data2C < 0) {
+		//goto loc_2D9B4;
+		Data0 = -1;
+		return -1;
+	}
+
+	int16 Data8 = pSprite->field_32;
+
+	sSprite_0* Dataa2C = word_3BF1E[Data8];
+	if (Dataa2C->field_18 != 0) {
+		//goto loc_2D9B4;
+		Data0 = -1;
+		return -1;
+	}
+	Data8 = word_39FD0;
+
+	sSprite_0** Data30 = off_3BDEF[Data8];
+	int16 Data1C = 0;
+
+	for (Data1C = 0x0C;;) {
+		if (*Data30 < 0)
+			break;
+
+		sSprite_0* eax = *Data30;
+		++Data30;
+		if (pSprite == eax)
+			break;
+		Data1C += 8;
+	}
+
+	int16 Data0 = Dataa2C->field_0;
+	int16 Data4 = Dataa2C->field_4;
+	Data8 = pSprite->field_0;
+	int16 DataC = pSprite->field_4;
+	sub_29E30( Data0, Data4, Data8, DataC );
+	if (Data0 <= Data1C)
+		goto loc_2DCAD;
+	//goto loc_2D9AB;
+	return 0;
+loc_2DCAD:;
+	return loc_2D9D5(pSprite);
 }
 
 void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
@@ -4593,7 +4653,7 @@ loc_19414:;
 	return;
 	
 loc_19424:;
-	sub_1F6F4();
+	sub_1F6F4( Sprite );
 	
 	if( Sprite->field_0 == Sprite->field_26 ) {
 		
@@ -5242,7 +5302,7 @@ loc_1EF28:;
 		goto loc_1F043;
 
 	pSprite->field_36 = 0x30;
-	sub_1F6F4();
+	sub_1F6F4( pSprite );
 	goto loc_1E737;
 
 }
@@ -5444,7 +5504,7 @@ void cFodder::sub_1F6F4( sSprite_0* pSprite ) {
 		sub_2A0FA( pSprite );
 	}
 
-	sub_2DBA3();
+	sub_2DBA3( pSprite );
 	sub_20478( pSprite );
 
 	byte_3ABA9 = pSprite->field_60;
@@ -6460,6 +6520,104 @@ void cFodder::sub_20E5C( sSprite_0* pSprite ) {
 	pSprite->field_3C = Data0;
 
 	word_3A8CF = 0;
+}
+
+int16 cFodder::sub_20E91( sSprite_0* pSprite ) {
+
+	if (pSprite->field_36 <= 8)
+		return 0;
+
+	int16 Data0 = pSprite->field_26;
+	int16 Data4 = pSprite->field_28;
+
+	int16 Data8 = pSprite->field_0;
+	int16 DataC = pSprite->field_4;
+
+	sub_29E30( Data0, Data4, Data8, DataC );
+	if (Data0 > 2)
+		return 0;
+
+	pSprite->field_0 = pSprite->field_26;
+	pSprite->field_4 = pSprite->field_28;
+
+	word_3ABAD = -1;
+	Data0 = -1;
+	return -1;
+}
+
+void cFodder::sub_20F19( sSprite_0* pSprite ) {
+
+	if (pSprite->field_60 != 0x0D)
+		goto loc_20FBB;
+
+	int16 Data0 = pSprite->field_10;
+	//seg005:1843
+
+	if (Data0 < 0xD0)
+		goto loc_20F63;
+
+	if (Data0 < 0x130)
+		goto loc_20FD1;
+
+	if (Data0 <= 0x170)
+		goto loc_20FD9;
+
+	if (Data0 <= 0x190)
+		return;
+
+	if (Data0 <= 0x1C0)
+		goto loc_20F9B;
+
+	goto loc_20F7B;
+
+loc_20F63:;
+	if (Data0 >= 0x90)
+		goto loc_20FD9;
+
+	if (Data0 >= 0x70)
+		return;
+
+	if (Data0 >= 0x40)
+		goto loc_20F9B;
+
+loc_20F7B:;
+	Data0 = pSprite->field_36;
+	Data0 >>= 2;
+	pSprite->field_36 += Data0;
+	return;
+
+loc_20F9B:;
+	Data0 = pSprite->field_36;
+	Data0 >>= 3;
+	pSprite->field_36 += Data0;
+	return;
+
+loc_20FBB:;
+	if (pSprite->field_60 == 1)
+		goto loc_20FD1;
+
+	if (pSprite->field_60 != 2)
+		goto loc_20FE3;
+
+loc_20FD1:;
+	pSprite->field_36 >>= 1;
+
+loc_20FD9:;
+	pSprite->field_36 >>= 1;
+	return;
+loc_20FE3:;
+	if (pSprite->field_60 != 7)
+		return;
+
+	Data0 = pSprite->field_0;
+	Data0 += pSprite->field_4;
+	Data0 &= 3;
+	if (Data0 == 0)
+		return;
+	Data0 = pSprite->field_36;
+	Data0 >>= 2;
+	int16 Data4 = pSprite->field_36;
+	pSprite->field_36 -= Data0;
 }
 
 void cFodder::sub_211BA( sSprite_0* pSprite, int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 ) {
