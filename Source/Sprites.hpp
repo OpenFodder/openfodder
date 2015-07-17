@@ -52,7 +52,8 @@ struct sSprite_0 {
 	int8 field_59;
 	int8 field_5A;
 	int8 field_5B;
-	int16 field_5C;
+	int8 field_5C;
+	int8 field_5D;
 	int16 field_5E;
 	int8 field_60;
 	int8 field_61;
