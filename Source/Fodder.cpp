@@ -67,6 +67,7 @@ cFodder::cFodder() {
 
 	mButtonPressLeft = mButtonPressRight = 0;
 	word_39EF8 = word_39F02 = 0;
+	word_39F06 = 0;
 	word_39EF6 = word_39EFA = 0;
 	word_39EFC = word_39F04 = 0;
 	word_39FF4 = 0;
@@ -79,6 +80,7 @@ cFodder::cFodder() {
 
 	word_3AA43 = 0;
 	word_3ABA7 = 0;
+	word_3ABE7 = 0;
 	word_3ABE9 = 0;
 	word_3ABEB = 0;
 	word_3A9B2 = 0;
@@ -255,7 +257,7 @@ void cFodder::sub_10D61() {
 	word_39EFC = 0;
 	word_39F02 = 0;
 	word_39F04 = 0;
-	//word_39F06 = 0;
+	word_39F06 = 0;
 
 	dword_39F98 = 0;
 	dword_39F9C = 0;
@@ -299,6 +301,7 @@ void cFodder::sub_10D61() {
 
 	word_3AA17 = 0;
 	word_3AA19 = 0;
+	word_3AA1B = 0;
 	word_3AA1D = 0;
 	word_3AA41 = 0;
 	word_3AA47 = 0;
@@ -472,6 +475,8 @@ void cFodder::sub_10DEC() {
 	for (uint16 x = 0; x < 200; ++x )
 		byte_3A8DE[x] = 0;
 
+	word_3A067 = 0;
+	word_3A069 = 0;
 	word_3A06B = -1;
 	word_3A28D = 0x0C;
 	word_3A3FD[0] = -1;
@@ -7757,6 +7762,7 @@ void cFodder::Start() {
 	mouse_Setup();
 	mouse_Handle();
 
+loc_103BF:;
 	for (;;) {
 		sub_10BBC();
 
@@ -7883,7 +7889,7 @@ void cFodder::Start() {
 			sub_18D5E();
 			sub_18DD3();
 			//seg000:05D1
-
+			word_3AA1B
 			sub_124DB();
 			word_39F06 = 0;
 			sub_21C6F();
@@ -7891,6 +7897,69 @@ void cFodder::Start() {
 			word_3A067 = Data40;
 			word_3A069 = Data44;
 
+			word_3909A = -1;
+			word_3909A = 0;
+
+			Data0 = 0x0D;
+			word_3ABE9 = 0;
+			word_3ABEB = 0;
+			word_3ABE7 = 0;
+
+			Data0 = readLEWord( &mMap[0x54] );
+			if (Data0 == 0x11) {
+				Data0 = readLEWord( &mMap[0x56] );
+				if (Data0 == 0x0C)
+					word_3ABB7 = -1;
+			}
+			dword_3AC53 = -1;
+			word_390A6 = -1;
+			sub_11CAD();
+			word_3BEC1 = 0;
+			word_3BEC3 = 4;
+			word_3AA1B = 1;
+			sub_2D7C0();
+			sub_2D7FF();
+			sub_126DD();
+			nullsub_1();
+			word_3BEC9 = 0xE0;
+			sub_2EACA();
+			sub_2F0D7();
+			sub_126BB();
+			sub_13102();
+			sub_13148();
+			word_3A9B2 = 0;
+			word_3A9D0 = 0;
+			word_3A9F7 = 0x23;
+			word_3B20F = -1;
+			word_3B4F1 = 0;
+			word_3B4DB = 0;
+			word_3EABD = 0x40BC;
+			
+			if (!mission_Phase_PlayLoop()) {
+				word_3B20F = 0;
+				sub_12A5F();
+				word_390EC = -1;
+			}
+			else {
+				word_3B20F = 0;
+				if (!word_390CE) {
+					sub_17DB3();
+					goto loc_103BF;
+				}
+			}
+		//loc_106F1
+			if (word_3A9AA) {
+				word_390EC = -1;
+				continue;
+			}
+
+			if (word_3A9B2)
+				continue;
+
+			if (mMissionPhaseRemain > 1)
+				continue;
+
+			sub_17DB3();
 		}
 	}
 }
