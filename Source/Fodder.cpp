@@ -347,6 +347,11 @@ void cFodder::sub_10D61() {
 	word_3AC3F[3] = 0;
 	word_3AC3F[4] = 0;
 	word_3AC3F[5] = 0;
+	
+	dword_3AF0B = 0;
+	dword_3B11B = 0;
+	dword_3B11F = 0;
+
 	dword_3AC53 = 0;
 
 	dword_3B1CB = 0;
@@ -375,6 +380,10 @@ void cFodder::sub_10D61() {
 	word_3B305 = 0;
 	word_3B307 = 0;
 	word_3B447 = 0;
+	word_3B487 = 0;
+	word_3B4CB = 0;
+	word_3B4D3 = 0;
+	word_3B4D5 = 0;
 	for (uint16 x = 0; x < 3; ++x)
 		word_3B461[x] = 0;
 
@@ -825,6 +834,16 @@ void cFodder::sub_115F7() {
 	}
 }
 
+void cFodder::sub_11CAD() {
+
+	word_39F5E = dword_39F2C;
+	word_39F60 = dword_39F30;
+	word_39F52 = 0;
+	word_39F54 = 0;
+	word_39F4C = 0;
+	word_39F50 = 0;
+}
+
 void cFodder::map_Load_TileSet() {
 	std::string MapName = map_Filename_MapGet();
 
@@ -904,6 +923,10 @@ void cFodder::sub_12083() {
 	word_39F38 = 0;
 	word_39F4C = 0;
 	word_39F50 = 0;
+	word_39F52 = 0;
+	word_39F54 = 0;
+	word_39F5E = 0;
+	word_39F60 = 0;
 	dword_39F42 = 0;
 	dword_39F46 = 0;
 	dword_39F56 = 0;
@@ -928,6 +951,14 @@ void cFodder::sub_124DB() {
 	stru_3ABB9 = *Dataa20;
 }
 
+void cFodder::sub_126BB() {
+	dword_3B11B = &dword_3AF0B;
+	dword_3B11F = &dword_3AF0B;
+
+	dword_3AF0B = -1;
+
+}
+
 void cFodder::sub_126DD() {
 	const int8* Data20 = off_3D5F1[mMapNumber];
 
@@ -946,6 +977,17 @@ std::string	cFodder::sub_12AA1( std::string pBase, const char* pFinish ) {
 	Final.append( pFinish );
 
 	return Final;
+}
+
+void cFodder::sub_12A5F() {
+	sSquad_Member* Data20 = mSquad;
+
+	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
+		if (Data20->field_4 < 0)
+			continue;
+
+		++Data20->field_3;
+	}
 }
 
 void cFodder::Map_Overview_Prepare() {
@@ -1329,6 +1371,28 @@ void cFodder::Prepare() {
 	//Load_EffectDriver();
 	//Load_MusicDriver();
 	memory_XMS_Detect();
+}
+
+void cFodder::sub_13102() {
+	
+	sSprite_0* Data20 = (sSprite_0*) mMapSpt_Loaded;
+	int16 Data0 = 0;
+	for (int16 Data4 = 0x1D; Data4 >= 0; Data4 -= 4 ) {
+
+		if (Data20->field_18 == 0x63) {
+			++Data0;
+		}
+
+		++Data20;
+	}
+
+	word_3B487 = Data0;
+	word_3B4CB = -1;
+}
+
+void cFodder::sub_13148() {
+	word_3B4D5 = 0x64;
+	word_3B4D3 = 0x28;
 }
 
 void cFodder::sub_13800() {

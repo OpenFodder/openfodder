@@ -205,9 +205,14 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39F38;
 	int16			word_39F4C;
 	int16			word_39F50;
+	int16			word_39F52;
+	int16			word_39F54;
+
 	int32			dword_39F42;
 	int32			dword_39F46;
 	int32			dword_39F56;
+	int16			word_39F5E;
+	int16			word_39F60;
 	int32			dword_39F7C;
 
 	int16			dword_39F98;
@@ -326,6 +331,9 @@ class cFodder : public cSingleton < cFodder > {
 	int8			byte_3AC39[2];
 	int16			word_3AC3F[6];
 	int32			dword_3AC53;
+	int32			dword_3AF0B;
+	int32*			dword_3B11B;
+	int32*			dword_3B11F;
 	int16			word_3B15D;
 	int16			word_3B173;
 	int32			dword_3B1CB;
@@ -356,7 +364,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMapGoals[8];
 	int16			word_3B447;
 	int16			word_3B461[3];
+	int16			word_3B487;
 	int16*			dword_3B48B[16];
+	int16			word_3B4CB;
+	int16			word_3B4D3;
+	int16			word_3B4D5;
+
 	int16			word_3B4DB;
 	int16			word_3B4F1;
 	int16			word_3B4F3;
@@ -531,16 +544,21 @@ protected:
 	void			sub_1142D();
 	void			sub_1152F();
 	void			sub_115F7();
+	void			sub_11CAD();
 	void			map_Load_TileSet();
 
 	void			sub_12083();
 	void			sub_124DB();
+	void			sub_126BB();
 	void			sub_126DD();
 	std::string		sub_12AA1( std::string pBase, const char* pFinish );
+	void			sub_12A5F();
 
 	void			Map_Overview_Prepare();
 	void			map_SetTileType();
 
+	void			sub_13102();
+	void			sub_13148();
 	void			sub_13800();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
