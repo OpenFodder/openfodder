@@ -172,6 +172,7 @@ void cFodder::sub_10BBC() {
 	mMissionNumber = 0;
 	mMissionPhase = 0;
 	word_39096 = 0;
+	word_3909A = 0;
 	word_390CE = 0;
 	word_390D0 = 0;
 	word_390D2 = 0;
@@ -183,6 +184,7 @@ void cFodder::sub_10BBC() {
 
 	word_390E8 = 0;
 	word_390EA = 0;
+	word_390EC = 0;
 	mMissionPhaseRemain = 0;
 	mMissionPhases = 0;
 	word_390F4 = 0;
@@ -318,6 +320,7 @@ void cFodder::sub_10D61() {
 	word_3AACF = 0;
 	byte_3ABA9 = 0;
 	word_3ABB1 = 0;
+	word_3ABB7 = 0;
 	word_3ABB9 = 0;
 	word_3ABBF = 0;
 	word_3AAD1 = 0;
@@ -334,12 +337,15 @@ void cFodder::sub_10D61() {
 	byte_3AC33[1] = 0;
 	byte_3AC39[0] = 0;
 	byte_3AC39[1] = 0;
+
 	word_3AC3F[0] = 0;
 	word_3AC3F[1] = 0;
 	word_3AC3F[2] = 0;
 	word_3AC3F[3] = 0;
 	word_3AC3F[4] = 0;
 	word_3AC3F[5] = 0;
+	dword_3AC53 = 0;
+
 	dword_3B1CB = 0;
 
 	word_3B1AB = 0;
@@ -352,7 +358,7 @@ void cFodder::sub_10D61() {
 	dword_3B1FB = 0;
 	
 	dword_3B20B = 0;
-
+	word_3B20F = 0;
 	word_3B25B = 0;
 	word_3B2CB = 0;
 	word_3B2CD = 0;
@@ -1052,6 +1058,7 @@ void cFodder::map_SetTileType() {
 void cFodder::sub_12AB1() {
 	
 	word_3E75B = -1;
+	word_3EABD = 0;
 }
 
 void cFodder::Load_PlayerBin() {
@@ -7889,7 +7896,8 @@ loc_103BF:;
 			sub_18D5E();
 			sub_18DD3();
 			//seg000:05D1
-			word_3AA1B
+			int16 Data40 = 0, Data44 = 0;
+
 			sub_124DB();
 			word_39F06 = 0;
 			sub_21C6F();
@@ -7900,7 +7908,7 @@ loc_103BF:;
 			word_3909A = -1;
 			word_3909A = 0;
 
-			Data0 = 0x0D;
+			int16 Data0 = 0x0D;
 			word_3ABE9 = 0;
 			word_3ABEB = 0;
 			word_3ABE7 = 0;
@@ -7920,7 +7928,7 @@ loc_103BF:;
 			sub_2D7C0();
 			sub_2D7FF();
 			sub_126DD();
-			nullsub_1();
+//			nullsub_1();
 			word_3BEC9 = 0xE0;
 			sub_2EACA();
 			sub_2F0D7();

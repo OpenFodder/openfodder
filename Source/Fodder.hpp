@@ -148,6 +148,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint32			dword_3901A;
 	uint16			word_3901E;
 	int16			word_39096;
+	int16			word_3909A;
 	uint16			word_390A4;
 	uint16			word_390A6;
 	uint16			word_390AE;
@@ -162,6 +163,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390D6[8];
 	uint16			word_390E8;
 	int16			word_390EA;
+	int16			word_390EC;
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
 	uint16			word_390F4;
@@ -304,6 +306,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA43;
 	int8			byte_3ABA9;
 	int16			word_3ABB1;
+	int16			word_3ABB7;
 	int16			word_3ABB9;
 	int16			word_3ABBF;
 	int16			word_3AB39;
@@ -323,6 +326,7 @@ class cFodder : public cSingleton < cFodder > {
 	int8			byte_3AC33[2];
 	int8			byte_3AC39[2];
 	int16			word_3AC3F[6];
+	int32			dword_3AC53;
 	int16			word_3B15D;
 	int16			word_3B173;
 	int32			dword_3B1CB;
@@ -336,6 +340,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMap_TileSet;
 	int16			dword_3B20B;
+	INT32			word_3B20F;
 	int16			word_3B25B;
 	int16			word_3B2CB;
 	int16			word_3B2CD;
@@ -423,6 +428,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mEffectDriver;
 	uint16			mMusicDriver;
 	/* End Configuration Settings */
+
+	int16			word_3EABD;
 
 	int32			dword_3F946;
 	int32			dword_3F94A;
