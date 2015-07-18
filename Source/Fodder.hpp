@@ -673,6 +673,7 @@ protected:
 	void			sub_21041( sSprite_0* pSprite );
 	void			sub_211BA( sSprite_0* pSprite, int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	void			sub_212C4( sSprite_0* pSprite );
+	void			sub_21C6F( sSprite_0* pSprite );
 
 	void			sub_223B2( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
@@ -702,6 +703,8 @@ protected:
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 	void			sub_2D06C();
 	void			sub_2D26A( int32 pData24, int16& pData8 );
+	void			sub_2D7C0();
+
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
 

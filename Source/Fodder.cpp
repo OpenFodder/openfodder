@@ -4160,6 +4160,14 @@ void cFodder::sub_2D26A( int32 pData24, int16& pData8 ) {
 
 }
 
+void cFodder::sub_2D7C0() {
+	Data0 = mTroopsAvailable;
+	Data4 = Data0;
+
+	word_3AA05 = Data4;
+
+}
+
 int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
 
 	int16* Data24 = off_3BEF3[ pSprite->field_32 ];
@@ -4304,9 +4312,10 @@ void cFodder::sub_17DB3() {
 
 	Sprite_SetDataPtrToBase( off_43963 );
 
+	//TODO:
 	//Music_Unk();
-	sub_17E30();
-	sub_17F15();
+//	sub_17E30();
+//	sub_17F15();
 	mouse_Setup();
 
 	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
@@ -7627,6 +7636,24 @@ void cFodder::sub_212C4( sSprite_0* pSprite ) {
 	pSprite->field_72 = 0;
 	pSprite->field_74 = 0;
 	pSprite->field_75 = 0;
+}
+
+void cFodder::sub_21C6F( sSprite_0* pSprite ) {
+	sSprite_0* Data2C = 0, *Data30 = 0;
+	int16 Data0 = 1;
+	sub_211BA( pSprite, Data0, Data2C, Data30 );
+
+	if (Data0)
+		return;
+
+	Data2C->field_8 = 0x7C;
+	Data2C->field_A = 0;
+	Data2C->field_18 = 0x15;
+	Data2C->field_0 = 0;
+	Data2C->field_4 = 0;
+	Data2C->field_22 = -1;
+	Data2C->field_10 = 1;
+	Data2C->field_3A = 0;
 }
 
 void cFodder::sub_223B2( sSprite_0* pSprite ) {
