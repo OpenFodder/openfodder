@@ -321,8 +321,11 @@ void cFodder::sub_10D61() {
 	byte_3ABA9 = 0;
 	word_3ABB1 = 0;
 	word_3ABB7 = 0;
-	word_3ABB9 = 0;
-	word_3ABBF = 0;
+	stru_3ABB9.field_0 = 0;
+	stru_3ABB9.field_2 = 0;
+	stru_3ABB9.field_4 = 0;
+	stru_3ABB9.field_6 = 0;
+	stru_3ABB9.field_8 = 0;
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
 	word_3ABAD = 0;
@@ -904,6 +907,25 @@ void cFodder::sub_12083() {
 	dword_39F42 = 0;
 	dword_39F46 = 0;
 	dword_39F56 = 0;
+}
+
+void cFodder::sub_124DB() {
+	if (dword_3B48B < 0 || dword_3B48B == 0)
+		return;
+
+	sSprite_0* Data20 = (sSprite_0*) dword_3B48B;
+	Data20 = (sSprite_0*)Data20->field_46;
+	int16 Data0 = 0;
+
+	Data0 = Data20->field_2;
+	Data0 += 8;
+	if (Data0 > 0x0F)
+		Data0 = 0x0F;
+
+	//Data0 *= 0x0A
+	const struct_5* Dataa20 = &stru_3D35F[Data0];
+	//seg000:254F
+	stru_3ABB9 = *Dataa20;
 }
 
 void cFodder::sub_126DD() {
@@ -6991,7 +7013,7 @@ loc_207CF:;
 	if (pSprite->field_22)
 		goto loc_2087D;
 
-	Data0 = word_3ABB9;
+	Data0 = stru_3ABB9.field_0;
 	Data0 += word_3ABC5;
 	Data2C->field_4A = Data0;
 
@@ -7052,7 +7074,7 @@ loc_209B3:;
 	if (!word_3B1AB)
 		goto loc_209F3;
 
-	Data8 = word_3ABBF;
+	Data8 = stru_3ABB9.field_6;
 loc_209C7:;
 	Data0 = sub_2A030();
 	int16 Data4 = Data0;
@@ -7887,7 +7909,7 @@ loc_103BF:;
 				continue;
 			}
 
-			sub_12083();;
+			sub_12083();
 			Sprite_SetDataPtrToBase( off_32C0C );
 			map_Tiles_Draw();
 			sub_12083();
