@@ -77,9 +77,9 @@ struct sRecruit {
 };
 
 struct sHero {
-	int8	mRecruitID;
-	int16	field_1;
-	int16	mKills;
+	int8	mRecruitID;	//field_0
+	int16	field_1;	//field_2
+	int16	mKills;		//field_3
 };
 
 struct struct_2 {
@@ -175,7 +175,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_394AC[361];
 	int16*			dword_3977E;
 
-	sHero			mHeroes[5];
+	sHero			mHeroes[6];
+
 	int16			word_397AC;
 	int16			word_397AE;
 	int16			word_397D2;
@@ -270,6 +271,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9D0;
 	int8			byte_3A9D2[4];
 	int8			byte_3A9D6[4];
+	int16			byte_3A9DA[10];
 	int16			word_3A9E4;
 	int16			word_3A9E6;
 	uint16			word_3A9F7;
@@ -280,6 +282,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA19;
 	int16			word_3AA1D;
 	int16			word_3AA41;
+	int16			word_3AA47;
 	int16			word_3AA4B;
 	int16			word_3AA4D;
 	int16			word_3AA4F;
@@ -477,7 +480,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_42072;
 	uint16			word_427D4;
-	
+	int8			byte_427E6;
+	int8			byte_427EE;
 	int16			word_44A20;
 	int16			word_44A2E;
 	int16			word_44A30;
@@ -533,6 +537,7 @@ protected:
 	bool			sub_1429B();
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+	void			sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 );
 	void			Briefing_Intro_Jungle( cSurface *pImage );
 
 	void			Mission_Brief();
@@ -601,6 +606,10 @@ protected:
 
 	void			sub_18E2E( int16 *pData20 );
 	int16			sub_1E05A( sSprite_0* pSprite );
+	int16			sub_1EF47( sSprite_0* pSprite );
+	int16			loc_1F043( sSprite_0* pSprite );
+	void			loc_1F092( sSprite_0* pSprite, sSprite_0* pData24 );
+
 	int16			sub_1F21E( sSprite_0* pSprite );
 	void			sub_1F429( sSprite_0* pSprite );
 	void			sub_1F5A0( sSprite_0* pSprite );
@@ -619,6 +628,10 @@ protected:
 
 	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
 	void			sub_20478( sSprite_0* pSprite );
+	void			sub_20534( sSprite_0* pSprite );
+
+	int16			sub_2060F( sSprite_0* pSprite );
+	int16			sub_2061C( sSprite_0* pSprite );
 	int16			sub_20653( sSprite_0* pSprite );
 	int16			sub_20A39( sSprite_0* pSprite );
 	void			sub_20E5C( sSprite_0* pSprite );
