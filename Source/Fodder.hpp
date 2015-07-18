@@ -186,6 +186,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mButtonPressLeft, mButtonPressRight;
 	int16			word_39EF8;
 	int16			word_39F02;
+	int16			word_39F06;
+
 	int16			word_39EF6;
 	int16			word_39EFA;
 	int16			word_39EFC;
@@ -220,6 +222,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FFA;
 
 	int16			word_3A01A;
+	int16			word_3A067;
+	int16			word_3A069;
 	int16			word_3A06B;
 	int16			word_3A28D;
 
@@ -280,6 +284,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA11[3];
 	int16			word_3AA17;
 	int16			word_3AA19;
+	int16			word_3AA1B;
 	int16			word_3AA1D;
 	int16			word_3AA41;
 	int16			word_3AA47;
@@ -308,6 +313,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABBB;
 	int16			word_3ABC3;
 	int16			word_3ABC5;
+	int16			word_3ABE7;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
 
