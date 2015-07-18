@@ -304,12 +304,11 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AAD1;
 
 	int16			word_3AA43;
+	int16			word_3AB39;
 	int8			byte_3ABA9;
 	int16			word_3ABB1;
 	int16			word_3ABB7;
-	int16			word_3ABB9;
-	int16			word_3ABBF;
-	int16			word_3AB39;
+	struct_5		stru_3ABB9;
 	int16			word_3ABA7;
 	int16			word_3ABAD;
 	int16			word_3ABAF;
@@ -535,6 +534,7 @@ protected:
 	void			map_Load_TileSet();
 
 	void			sub_12083();
+	void			sub_124DB();
 	void			sub_126DD();
 	std::string		sub_12AA1( std::string pBase, const char* pFinish );
 
