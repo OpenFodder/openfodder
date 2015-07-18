@@ -614,6 +614,7 @@ protected:
 	void			Recruit_Draw( cSurface *pImage );
 	void			sub_17CD3( cSurface* pImage );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
+	void			sub_17DB3();
 
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Recruitment */

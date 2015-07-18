@@ -4294,6 +4294,24 @@ loc_2DCAD:;
 	return loc_2D9D5(pSprite);
 }
 
+void cFodder::sub_17DB3() {
+	//Correct?
+	g_Resource.fileLoadTo( "rankfont.dat", mDataHillBits );
+	paletteLoad( mDataHillBits + 0x60F2, 0x80, 0x40 );
+
+	g_Resource.fileLoadTo( "morphbig.dat", mDataBaseBlk );
+	paletteLoad( mDataBaseBlk + 0x6032, 0x40, 0x00 );
+
+	Sprite_SetDataPtrToBase( off_43963 );
+
+	//Music_Unk();
+	sub_17E30();
+	sub_17F15();
+	mouse_Setup();
+
+	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
+}
+
 void cFodder::video_Draw_Unk_2( cSurface* pImage ) {
 	
 }
