@@ -3995,6 +3995,20 @@ void cFodder::sub_2D06C() {
 	Data34[1] = (int16*) -1;
 }
 
+void cFodder::sub_2D26A( int32 pData24, int16& pData8 ) {
+	// This will be broken :)
+	int16 Data0 = *(((int8*)pData24) + 2);
+	Data0 += 8;
+
+	if (Data0 > 0x0F)
+		Data0 = 0x0F;
+
+	//Data0 *= 0x0A;
+
+	pData8 = stru_3D35F[Data0].field_6;
+
+}
+
 int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
 
 	int16* Data24 = off_3BEF3[ pSprite->field_32 ];
@@ -6775,7 +6789,7 @@ loc_208A6:;
 		goto loc_209B3;
 
 	Data24 = pSprite->field_46;
-	sub_2D26A( Data24 );
+	sub_2D26A( Data24, Data8 );
 	goto loc_209C7;
 
 loc_209B3:;

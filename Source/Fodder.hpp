@@ -103,6 +103,14 @@ struct struct_4 {
 	int16	field_4;
 };
 
+struct struct_5 {
+	int16	field_0;
+	int16	field_2;
+	int16	field_4;
+	int16	field_6;
+	int16	field_8;
+};
+
 extern struct sRecruit mRecruits[360];
 
 class cFodder : public cSingleton < cFodder > {
@@ -648,6 +656,7 @@ protected:
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 	void			sub_2D06C();
+	void			sub_2D26A( int32 pData24, int16& pData8 );
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
 
