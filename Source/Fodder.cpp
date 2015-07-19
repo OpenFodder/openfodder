@@ -88,7 +88,7 @@ cFodder::cFodder() {
 	word_3B173 = 0;
 	word_3B4F5 = 0;
 	word_3E1B7 = 0;
-	
+
 	word_40054 = 0;
 	word_42062 = 0;
 	word_42066 = 0;
@@ -109,9 +109,12 @@ cFodder::cFodder() {
 
 	mMap = 0;
 
+	word_3A3B9 = 0;
 	word_3A3BB = 0;
 	word_3A3BD = 0;
 	word_3FA1F = -1;
+	word_3FA21 = 0;
+	word_3FA37 = 0;
 
 	word_42072 = 0;
 	byte_427E6 = 0;
@@ -163,10 +166,113 @@ cFodder::~cFodder() {
 	delete mSurfacePlayfield;
 }
 
+int16 cFodder::Mission_Loop() {
+	int16 Faded = -1;
+	cSurface* Image = new cSurface( 320, 230 );
+	Image->paletteSet( mPalette );
+
+	for (;;) {
+		sub_12018();
+		Camera_Pan();
+
+		word_3A9FB = 0;
+		mouse_unk_0();
+		++word_390B0;
+		word_39F06 = 0;
+		word_3A9FB = -1;
+
+		if (word_3AA1B >= 0) {
+			sub_11CD6();
+			word_3AA1B = -1;
+			continue;
+		}
+		//loc_1074E
+		if (word_3AC2B >= 0 && !word_3A9AA)
+			sub_2F9B3();
+		else
+			sub_2F5ED();
+
+		//loc_10768
+		sub_12790();
+		word_3B489 = 0;
+		if (word_3A9B8 >= 0)
+			--word_3A9B8;
+
+		sub_12AEE();
+
+		if (word_3FA21 == -1 && mKeyCode == 0x1C)
+			word_3A9AC = -1;
+		else
+			sub_125A5();
+
+		//loc_1079C
+		sub_2A470();
+		sub_2D06C();
+
+		Sprite_unk();
+		sub_31033();
+		sub_144A2( Image );
+		Mouse_DrawCursor();
+
+		if (word_3A9D0 != 0) {
+			Mission_Paused();
+			//video_?_0();
+
+			while (word_3A9D0) {
+				eventProcess();
+			}
+			word_3FA37 = -1;
+
+		}
+		else {
+			//video_?_0
+		}
+
+		if( Faded == -1 )
+			Faded = Image->paletteFade();
+
+		sub_11FCD();
+		if (word_3FA37 == -1) {
+			//video_Palette_?_0
+			word_3FA37 = 0;
+		}
+
+		sub_14445();
+		if (word_3B4DB) {
+			sub_12D00();
+			word_3B4DB = 0;
+		}
+
+		if (word_3A3B9) {
+			if (word_3A9B2)
+				sub_2D767(); 
+
+			if (!word_3A9AA)
+				return 0;
+
+			sub_2D725();
+
+			return -1;
+		}
+		//loc_10841
+		sub_124DB();
+		sub_12C69();
+		sub_12B6E();
+
+		if (word_39FD0 < 0 && word_3AA47)
+			word_3AA47 = 0x14;
+
+		sub_13155();
+		sub_131A2();
+
+	}
+}
+
 void cFodder::sub_10BBC() {
 	word_390A4 = 0;
 	word_390A6 = 0;
 	word_390AE = 0;
+	word_390B0 = 0;
 	word_390B8 = 0;
 	word_390BE = 0;
 	word_390C0 = 0;
@@ -284,6 +390,7 @@ void cFodder::sub_10D61() {
 	word_3A8CF = 0;
 	word_3A9B2 = 0;
 	word_3A9B4 = 0;
+	word_3A9B8 = 0;
 	word_3A9C6 = 0;
 	dword_3A9C8 = 0;
 	word_3A9CE = 0;
@@ -299,6 +406,7 @@ void cFodder::sub_10D61() {
 	word_3A9E4 = 0;
 	word_3A9E6 = 0;
 	word_3A9F7 = 0;
+	word_3A9FB = 0;
 
 	for (uint16 x = 0; x < 3; ++x) {
 		word_3AA05[x] = 0;
@@ -339,6 +447,13 @@ void cFodder::sub_10D61() {
 	word_3ABC3 = 0;
 	word_3ABC5 = 0;
 	word_3AC19 = 0;
+	word_3AC1B = 0;
+	word_3AC1D = 0;
+	word_3AC1F = 0;
+	word_3AC2D[0] = 0;
+	word_3AC2D[1] = 0;
+	word_3AC2D[2] = 0;
+
 	word_3AC21 = 0;
 	word_3AC29 = 0;
 	word_3AC2B = 0;
@@ -354,12 +469,21 @@ void cFodder::sub_10D61() {
 	word_3AC3F[4] = 0;
 	word_3AC3F[5] = 0;
 	word_3AC45 = 0;
+	word_3AC47 = 0;
 
 	dword_3AF0B = 0;
 	dword_3B11B = 0;
 	dword_3B11F = 0;
 
-	dword_3AC53 = 0;
+	for (uint16 x = 0; x < 42; ++x) {
+		stru_3AC53[x].field_0 = 0;
+		stru_3AC53[x].field_4 = 0;
+		stru_3AC53[x].field_6 = 0;
+		stru_3AC53[x].field_8 = 0;
+		stru_3AC53[x].field_A = 0;
+		stru_3AC53[x].field_C = 0;
+	}
+
 	dword_3AEF3 = 0;
 
 	dword_3B1CB = 0;
@@ -389,6 +513,7 @@ void cFodder::sub_10D61() {
 	word_3B307 = 0;
 	word_3B447 = 0;
 	word_3B487 = 0;
+	word_3B489 = 0;
 	word_3B4CB = 0;
 	word_3B4D3 = 0;
 	word_3B4D5 = 0;
@@ -1863,7 +1988,7 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		w42066 -= 0x257F;
 	
 	si = word_42062;
-	di =  ((uint8*)mMapSptPtr) + w42066;
+	di =  ((uint8*)word_3D5B7) + w42066;
 	
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
@@ -1886,7 +2011,7 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	
 	++word_42062;
 	si = word_42062;
-	di =  ((uint8*)mMapSptPtr) + w42066;
+	di =  ((uint8*)word_3D5B7) + w42066;
 	
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
@@ -1909,7 +2034,7 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		w42066 -= 0x257F;
 
 	si = word_42062;
-	di =  ((uint8*)mMapSptPtr) + w42066;
+	di =  ((uint8*)word_3D5B7) + w42066;
 	
 	for( uint16 dx = word_4206E; dx > 0; --dx ) {
 		
@@ -4373,7 +4498,7 @@ void cFodder::sub_2EACA() {
 	word_3AC45 = -1;
 	sub_30465();
 
-	dword_3AEF3 = &dword_3AC53;
+	dword_3AEF3 = stru_3AC53;
 	int16 Data8 = -1;
 	int16 DataC = -1;
 
@@ -4382,20 +4507,20 @@ void cFodder::sub_2EACA() {
 	word_3AC29 = 0;
 	int16 Data0 = 0;
 	int16 Data4 = 0;
-	sub_2EB53();
+	sub_2EB53(Data0, Data4);
 
 	Data0 = 1;
 	Data4 = word_3AC29;
 	if (Data4)
 		Data4 += 5;
-	sub_2EB53();
+	sub_2EB53(Data0, Data4);
 
 	Data0 = 2;
 	Data4 = word_3AC29;
 	if (Data4)
 		Data4 += 5;
 
-	sub_2EB53();
+	sub_2EB53(Data0, Data4);
 	sub_2EBC4();
 
 	word_3AC45 = 0;
@@ -4404,11 +4529,58 @@ void cFodder::sub_2EACA() {
 	word_39EFC = 0;
 }
 
-void cFodder::sub_2EBC4() {
-	Data20 = dword_3AEF3;
-	Data24 = off_3DEDC;
+void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
+	word_3AC1B = pData0;
+	word_3AC1D = pData4;
+	word_3AC47 = 0;
 
-	sub_2EC0E( Data20, Data24 );
+	if (pData0 == word_39FD0)
+		word_3AC47 = -1;
+
+	pData0 <<= 1;
+	word_3AC1F = pData0;
+}
+
+void cFodder::sub_2EB53( int16 pData0, int16 pData4 ) {
+	
+	sub_2EBE0( pData0, pData4 );
+
+	word_3AC2D[pData0] = pData4;
+	sub_2D06C();
+	
+	pData0 = word_3AC1B;
+
+	if (!byte_3A05A[pData0])
+		return;
+
+	sub_2ECDF();
+	//TODO
+	/*sub_2EE02();
+	sub_2EF8A();
+	sub_2ED17();
+	sub_2F01D();
+	sub_2FAAA();
+	sub_2FB95();
+	sub_2F452();
+	sub_2F13F();
+	sub_2FCB7();*/
+}
+
+void cFodder::sub_2EBC4() {
+	struct_6* Data20 = dword_3AEF3;
+
+	//TODO
+	//Data24 = off_3DEDC;
+	//sub_2EC0E( Data20, Data24 );
+}
+
+void cFodder::sub_2ECDF() {
+
+	int16 Data0 = word_3DEF0[word_3AC1F];
+	int16 Data8 = 0;
+	int16 DataC = word_3AC1D;
+
+	sub_145AF( Data0, Data8, DataC );
 }
 
 void cFodder::sub_17DB3() {
@@ -8159,7 +8331,7 @@ loc_103BF:;
 				if (Data0 == 0x0C)
 					word_3ABB7 = -1;
 			}
-			dword_3AC53 = -1;
+			stru_3AC53[0].field_0 = -1;
 			word_390A6 = -1;
 			sub_11CAD();
 			word_3BEC1 = 0;
@@ -8183,7 +8355,7 @@ loc_103BF:;
 			word_3B4DB = 0;
 			word_3EABD = 0x40BC;
 			
-			if (!mission_Phase_PlayLoop()) {
+			if (!Mission_Loop()) {
 				word_3B20F = 0;
 				sub_12A5F();
 				word_390EC = -1;
