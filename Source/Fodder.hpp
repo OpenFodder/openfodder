@@ -111,6 +111,15 @@ struct struct_5 {
 	int16	field_8;
 };
 
+struct struct_6 {
+	int32	field_0;
+	int16	field_4;
+	int16	field_6;
+	int16	field_8;
+	int16	field_A;
+	int32	field_C;
+};
+
 extern struct sRecruit mRecruits[360];
 
 class cFodder : public cSingleton < cFodder > {
@@ -152,6 +161,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390A4;
 	uint16			word_390A6;
 	uint16			word_390AE;
+	int16			word_390B0;
 	uint16			word_390B8;
 	int16			word_390BE;
 	int16			word_390C0;
@@ -261,6 +271,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint32			dword_3A395;
 	int16			word_3A399;
 	uint32			dword_3A39D;
+	int16			word_3A3B9;
 	int16			word_3A3BB;
 	int16			word_3A3BD;
 	int16			word_3A3FD[60];
@@ -281,6 +292,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9AE;
 	uint16			word_3A9B2;
 	int16			word_3A9B4;
+	int16			word_3A9B8;
 	int16			word_3A9C6;
 	sSprite_0**		dword_3A9C8;
 	int16			word_3A9CE;
@@ -291,6 +303,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9E4;
 	int16			word_3A9E6;
 	uint16			word_3A9F7;
+	int16			word_3A9FB;
 	int16			word_3AA05[3];
 	int16			word_3AA0B[3];
 	int16			word_3AA11[3];
@@ -330,6 +343,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABEB;
 
 	int16			word_3AC19;
+	int16			word_3AC1B;
+	int16			word_3AC1D;
+	int16			word_3AC1F;
+	int16			word_3AC2D[3];
 	int16			word_3AC21;
 	int16			word_3AC29;
 	int16			word_3AC2B;
@@ -337,8 +354,9 @@ class cFodder : public cSingleton < cFodder > {
 	int8			byte_3AC39[2];
 	int16			word_3AC3F[6];
 	int16			word_3AC45;
-	int32			dword_3AC53;
-	int32*			dword_3AEF3;
+	int16			word_3AC47;
+	struct_6		stru_3AC53[42]; //Correct?
+	struct_6*		dword_3AEF3;
 	int32			dword_3AF0B;
 	int32*			dword_3B11B;
 	int32*			dword_3B11F;
@@ -373,6 +391,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B447;
 	int16			word_3B461[3];
 	int16			word_3B487;
+	int16			word_3B489;
 	int16*			dword_3B48B[16];
 	int16			word_3B4CB;
 	int16			word_3B4D3;
@@ -459,6 +478,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	int32			dword_3E9A3[70];
 	int16			word_3FA1F;
+	int16			word_3FA21;
+	int16			word_3FA37;
 	int16			mKeyControlPressed;
 
 	uint16			word_40054;
@@ -536,6 +557,8 @@ class cFodder : public cSingleton < cFodder > {
 protected:
 
 	uint8*			GetSpriteData( uint16 pSegment );
+	int16			Mission_Loop();
+
 	void			sub_10BBC();
 	void			Troops_Clear();
 	void			Heroes_Clear();
@@ -718,7 +741,10 @@ protected:
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
 	void			sub_2EACA();
+	void			sub_2EBE0( int16& pData0, int16& pData4 );
+	void			sub_2EB53( int16 pData0, int16 pData4 );
 	void			sub_2EBC4();
+	void			sub_2ECDF();
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
