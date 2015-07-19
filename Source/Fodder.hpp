@@ -40,7 +40,7 @@ struct sSquad_Member {
 	int16 mRecruitID;
 	uint8 mRank;
 	uint8 field_3;
-	int16 field_4;
+	int16 field_4;		// Sprite ID?
 	uint16 field_6;
 	uint8 field_8;
 	uint8 field_9;
@@ -204,7 +204,18 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39EF8;
 	int16			word_39F02;
 	int16			word_39F06;
+	int16			word_39FA0;
+	int16			word_39FA2;
+	int16			word_39FA4;
+	int16			word_39FA6;
+	int16			word_39FA8;
+	int16			word_39FAA;
+	int16			word_39FAC;
 
+	int16			word_39FAE;
+	int16			word_39FBA;
+
+	int16			word_39FBC;
 	int16			word_39EF6;
 	int16			word_39EFA;
 	int16			word_39EFC;
@@ -216,6 +227,11 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F28;
 	int32			dword_39F2C;
 	int32			dword_39F30;
+	int32			dword_39F84;
+	int32			dword_39F88;
+	int32			dword_39F8C;
+	int32			dword_39F90;
+
 	int16			word_39F34;
 	int16			word_39F38;
 	int16			word_39F4C;
@@ -232,6 +248,10 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			dword_39F98;
 	int16			dword_39F9C;
+	int16			word_39FB2;
+	int16			word_39FB4;
+	int16			word_39FB6;
+	int16			word_39FB8;
 	int8*			word_39FCE;
 
 	int16			word_39FD0;
@@ -407,6 +427,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B610;
 	int16			word_3B612;
 	int16			word_3B614;
+	int16			word_3B616;
 
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
@@ -559,6 +580,7 @@ protected:
 	uint8*			GetSpriteData( uint16 pSegment );
 	int16			Mission_Loop();
 
+	void			mouse_unk_0();
 	void			sub_10BBC();
 	void			Troops_Clear();
 	void			Heroes_Clear();
@@ -579,6 +601,7 @@ protected:
 	void			sub_11CAD();
 	void			map_Load_TileSet();
 
+	void			sub_12018();
 	void			sub_12083();
 	void			sub_124DB();
 	void			sub_126BB();
@@ -731,8 +754,14 @@ protected:
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
 	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
+
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
+
+	void			Camera_Pan();
+	void			sub_2CF6D();
+	void			sub_2CFEA();
+
 	void			sub_2D06C();
 	void			sub_2D26A( int32 pData24, int16& pData8 );
 	void			sub_2D7C0();

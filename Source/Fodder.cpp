@@ -88,6 +88,7 @@ cFodder::cFodder() {
 	word_3B173 = 0;
 	word_3B4F5 = 0;
 	word_3E1B7 = 0;
+	word_3B616 = 0;
 
 	word_40054 = 0;
 	word_42062 = 0;
@@ -101,6 +102,11 @@ cFodder::cFodder() {
 	word_42074 = 0;
 	word_42076 = 0;
 	mKeyCode = 0;
+
+	dword_39F84 = 0;
+	dword_39F88 = 0;
+	dword_39F8C = 0;
+	dword_39F90 = 0;
 
 	mSurfacePlayfield = 0;
 	mSurfaceMapOverview = 0;
@@ -268,6 +274,77 @@ int16 cFodder::Mission_Loop() {
 	}
 }
 
+void cFodder::mouse_unk_0() {
+	sSprite_0* Sprite = 0;
+
+	if (!word_390A6 || !word_3A9D0) {
+
+		++word_39F06;
+		word_390A4 = -1;
+		++word_390AE;
+
+		mouse_Handle();
+
+		if (word_390A6) {
+			sub_10937();
+			sub_10937();
+			sub_10937();
+
+			if (!word_3B4F1)
+				sub_306D0( Sprite );
+		}
+	}
+
+	//loc_108AE
+	if (word_3A9B4) {
+		--word_3A9B4;
+		sub_304D0();
+	}
+
+	if (word_3AA51)
+		Mouse_DrawCursor();
+
+	if (!word_390A6)
+		return;
+	if (!word_3B20F)
+		return;
+
+	if (word_3A9AE)
+		goto loc_10930;
+
+	if (word_3D469)
+		goto loc_10930;
+
+	if (word_3A9AC)
+		goto loc_10930;
+
+	if (word_3A9AA)
+		goto loc_10930;
+
+	if (word_3A9B2)
+		goto loc_10930; 
+
+	int16 Data0 = word_390AE;
+	Data0 &= 3;
+
+	if (!word_3B44F)
+		return;
+
+	int8 al = byte_427E6 | byte_427EE;
+	if (al)
+		return;
+
+	int16 Data4 = word_3B44F;
+	int16 Data8 = 0;
+	sub_14B84( pSprite, Data4, Data8 );
+	word_3B44F = 0;
+	return;
+
+loc_10930:;
+	word_3B4F1 = -1;
+
+}
+
 void cFodder::sub_10BBC() {
 	word_390A4 = 0;
 	word_390A6 = 0;
@@ -368,13 +445,32 @@ void cFodder::sub_10D61() {
 	word_39EF8 = 0;
 	word_39EFA = 0;
 	word_39EFC = 0;
+
 	word_39F02 = 0;
 	word_39F04 = 0;
 	word_39F06 = 0;
 
+	dword_39F84 = 0;
+	dword_39F88 = 0;
+	dword_39F8C = 0;
+	dword_39F90 = 0;
+
 	dword_39F98 = 0;
 	dword_39F9C = 0;
-	word_39FCE = 0 ;
+	word_39FA0 = 0;
+	word_39FA2 = 0;
+	word_39FA4 = 0;
+	word_39FA6 = 0;
+	word_39FA8 = 0;
+	word_39FAA = 0;
+	word_39FAC = 0;
+
+	word_39FCE = 0;
+	word_39FB2 = 0;
+	word_39FB4 = 0;
+	word_39FB6 = 0;
+	word_39FB8 = 0;
+	word_39FBA = 0;
 	
 	dword_3A000 = 0;
 	dword_3A004 = 0;
@@ -1042,6 +1138,26 @@ void cFodder::map_Load_TileSet() {
 	tool_EndianSwap( (uint8*)&graphicsSub0Bht[0], Size );
 	
 	Sprite_SetDataPtrToBase( off_32C0C );
+}
+
+void cFodder::sub_12018() {
+	int16 Data0 = dword_39F2C;
+	Data0 -= dword_39F84;
+
+	dword_39F9C = Data0;
+
+	Data0 = dword_39F30;
+	Data0 -= dword_39F88;
+
+	dword_39F9C = Data0;
+
+	dword_39F8C = dword_39F24;
+	dword_39F90 = dword_39F28;
+	dword_39F84 = dword_39F2C;
+	dword_39F88 = dword_39F30;
+	word_39FB2 = word_39FB6;
+	word_39FB4 = word_39FB8;
+
 }
 
 void cFodder::sub_12083() {
@@ -4198,6 +4314,114 @@ void cFodder::sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY ) 
 		pTileGraphicPtr += 0x140;
 		Target += (mMapWidth*16);
 	}
+}
+
+void cFodder::Camera_Pan() {
+	
+	sub_2CF6D();
+	sub_2CFEA();
+
+	int16 bx = word_3D473;
+	int16 cx = word_39FA8;
+	word_3D473 = cx;
+
+	cx -= bx;
+
+	mouseData1->anonymous_0 -= cx;
+	mouseData0->anonymous_0 -= cx;
+
+	if (cx) {
+		if (cx < 0) {
+			word_3B616 = -cx;
+			//sub_2CA3F();
+		}
+		else {
+			word_3B616 = cx;
+			//sub_2C7E1();
+		}
+	}
+
+	bx = word_3D475;
+	cx = word_39FAA;
+	word_3D475 = cx;
+	mouseData1->anonymous_1 -= cx;
+	mouseData0->anonymous_1 -= cx;
+
+	if (!cx)
+		return;
+
+	if (cx < 0) {
+		word_3B616 = -cx;
+		//sub_2CDC0();
+	}
+	else {
+		word_3B616 = cx;
+		//sub_2CCA2();
+	}
+
+}
+
+void cFodder::sub_2CF6D() {
+	int16 Data0 = word_39FB4;
+
+	if (Data0 < 0)
+		Data0 = -1;
+	else
+		Data0 = 1;
+
+	if (Data0 != word_39FA2)
+		goto loc_2CFBE;
+
+loc_2CF93:;
+	word_39FBC = 0;
+	word_39FAA = dword_39F88;
+	word_39FAE = dword_39F90;
+	word_39FA6 = 0xF0;
+
+	if (word_39FB4 < 0)
+		word_39FA6 = -16;
+	return;
+
+loc_2CFBE:;
+	word_39FA2 = Data0;
+	Data0 = dword_39F90;
+	int16 Data4 = word_39FAE;
+
+	Data0 >>= 4;
+	Data4 >>= 4;
+	if (Data4 == Data0)
+		goto loc_2CF93;
+}
+
+void cFodder::sub_2CFEA() {
+	int16 Data0 = word_39FB2;
+
+	if (Data0 < 0)
+		Data0 = -1;
+	else
+		Data0 = 1;
+
+	if (Data0 != word_39FA0)
+		goto loc_2D03B;
+
+loc_2D010:;
+	word_39FBA = 0;
+	word_39FA8 = dword_39F84;
+	word_39FAC = dword_39F8C;
+	word_39FA4 = 0x130;
+
+	if (word_39FB2 < 0)
+		word_39FA4 = -1;
+	return;
+
+loc_2D03B:;
+	word_39FA0 = Data0;
+	Data0 = dword_39F8C;
+	int16 Data4 = word_39FAC;
+	Data0 >>= 4;
+	Data4 >>= 4;
+	if (Data0 == Data4)
+		goto loc_2D010;
 }
 
 void cFodder::sub_2D06C() {
