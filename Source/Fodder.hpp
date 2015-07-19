@@ -153,6 +153,11 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390A6;
 	uint16			word_390AE;
 	uint16			word_390B8;
+	int16			word_390BE;
+	int16			word_390C0;
+	int16			word_390C2;
+	int16			word_390C4;
+	int16			word_390C6;
 	uint16			mMapNumber;
 	uint16			mMissionNumber = 0;
 	uint16			mMissionPhase = 0;
@@ -326,11 +331,14 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3AC19;
 	int16			word_3AC21;
+	int16			word_3AC29;
 	int16			word_3AC2B;
 	int8			byte_3AC33[2];
 	int8			byte_3AC39[2];
 	int16			word_3AC3F[6];
+	int16			word_3AC45;
 	int32			dword_3AC53;
+	int32*			dword_3AEF3;
 	int32			dword_3AF0B;
 	int32*			dword_3B11B;
 	int32*			dword_3B11F;
@@ -426,6 +434,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3D473;
 	int16			word_3D475;
+	int16*			word_3D5B7;
 
 	uint16			byte_3DDA2[0x30];
 	int16			word_3E0E5[0x18];
@@ -671,9 +680,9 @@ protected:
 	void			sub_20F19( sSprite_0* pSprite );
 
 	void			sub_21041( sSprite_0* pSprite );
-	void			sub_211BA( sSprite_0* pSprite, int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
+	void			sub_211BA( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	void			sub_212C4( sSprite_0* pSprite );
-	void			sub_21C6F( sSprite_0* pSprite );
+	void			sub_21C6F( );
 
 	void			sub_223B2( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
@@ -704,17 +713,23 @@ protected:
 	void			sub_2D06C();
 	void			sub_2D26A( int32 pData24, int16& pData8 );
 	void			sub_2D7C0();
-
+	void			sub_2D7FF();
+	void			sub_2D8AF( sSprite_0* pSprite );
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
+	void			sub_2EACA();
+	void			sub_2EBC4();
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
 	void			video_Draw_MapTile( uint16 pTile, uint16 pPosX, uint16 pPosY );
 
 	void			sub_2E04C();
+	void			sub_2F0D7();
 
 	void			sub_301F7();
+	void			sub_30465();
+	void			sub_30480();
 	void			sub_305D5();
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
