@@ -680,14 +680,14 @@ void cFodder::map_Load_Spt() {
 	word_3AA17 = 0;
 	word_3AA19 = 0;
 	
-	uint16* dword_37AC0 = mMapSptPtr;
+	uint16* 20h = mMapSptPtr;
 	int16* dword_37AC4 = mMapSpt_Loaded;
 	
-	uint16* dword_37AC8 = dword_37AC0 + (mMapSptSize / 2);
+	uint16* dword_37AC8 = 20h + (mMapSptSize / 2);
 	int16 dword_37ABC = 0x0A;
 
-	for(uint16 mTmpCount = 0; dword_37AC0 != dword_37AC8; dword_37AC4 += 0x3B ) {
-		++dword_37AC0;
+	for(uint16 mTmpCount = 0; 20h != dword_37AC8; dword_37AC4 += 0x3B ) {
+		++20h;
 
 		int16* si = dword_37AC4;
 		si[0x04] = 0x7C;
@@ -695,21 +695,21 @@ void cFodder::map_Load_Spt() {
 		uint16 ax = mTmpCount / 8;
 
 		si[0x19] = ax;
-		++dword_37AC0;
-		ax = dword_37AC0[0];
-		++dword_37AC0;
+		++20h;
+		ax = 20h[0];
+		++20h;
 		
 		ax += 0x10;
 		si[0x00] = ax;
 		si[0x13] = ax;
 		
-		ax = dword_37AC0[0];
-		++dword_37AC0;
+		ax = 20h[0];
+		++20h;
 		si[0x02] = ax;
 		si[0x14] = ax;
 		
-		ax = dword_37AC0[0];
-		++dword_37AC0;
+		ax = 20h[0];
+		++20h;
 		si[0x0C] = ax;
 		
 		if( si[0x0C] == 0x6A || si[0x0C] == 0x48 ) {
@@ -771,16 +771,16 @@ std::string cFodder::map_Filename_SptGet() {
 
 void cFodder::map_Troops_Prepare() {
 	word_397D2 = 0;
-	int16* dword_37AC0 = mMapSpt_Loaded;
+	int16* 20h = mMapSpt_Loaded;
 	
 	for( int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount ) {
-		int16* si = dword_37AC0;
+		int16* si = 20h;
 		if( *si != -32768 ) {
 			
 			if( si[0x0C] == 0 )
 				++word_397D2;
 		}
-		dword_37AC0 += 0x3B;
+		20h += 0x3B;
 	}
 	
 	word_397D4 = 0;
@@ -1084,6 +1084,76 @@ void cFodder::sub_124DB() {
 	stru_3ABB9 = *Dataa20;
 }
 
+void cFodder::sub_125A5() {
+	
+	sSprite_0* Data20 = (sSprite_0*) mMapSpt_Loaded;
+	Data8 = 0;
+	DataC = 0;
+	Data0 = 0x2B;
+	
+	for(Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20 ) {
+		
+		if( Data20->field_0 == -32768)
+			continue;
+
+		Data10 = Data20->field_18;
+		if(Data10 == 0x6C || Data10 == 0x6D || Data10 == 0x6E || Data10 == 0x58 || Data10 == 0x64 )
+			goto loc_12620;
+		
+		if(Data10 == 0x19 )
+			goto loc_12615;
+		
+		if(Data10 != 0x14 )
+			goto loc_12632;
+		
+	loc_12615:;
+		if(Data20->field_38 == 5 )
+			continue;
+		
+	loc_12620:;
+		if(Data20->field_38 == 7)
+			continue;
+		
+		++DataC;
+		continue;
+		
+		loc_12632:;
+		Data24 = byte_3D593;
+		
+		loc_1263E:;
+		if(*Data24 < 0)
+			continue;
+		
+		if( Data10 != *Data24++ )
+			goto loc_1263E;
+		
+		++Data8;
+	}
+	
+	word_3A9B0 = DataC;
+	if(!mMapGoals[1]) {
+		if( DataC )
+			return;
+	}
+	
+	if(mMapGoals[0]) {
+		if(Data8)
+			return;
+	}
+	
+	if(!mMapGoals[4]) {
+		if(!map_Goals[2])
+			goto loc_126A6;
+	}
+	
+	if( word_3AA19 )
+		return;
+	
+	loc_126A6:;
+	if(!word_3B475 || word_3B47B ) 
+		 word_3A9AC = -1;
+}
+
 void cFodder::sub_126BB() {
 	dword_3B11B = &dword_3AF0B;
 	dword_3B11F = &dword_3AF0B;
@@ -1121,6 +1191,35 @@ void cFodder::sub_12A5F() {
 
 		++Data20->field_3;
 	}
+}
+
+void cFodder::sub_12AEE() {
+	
+	if(word_3B211)
+		return;
+	
+	word_3B211 = -1;
+	sSprite_0* Data20 = (sSprite_0*) mMapSpt_Loaded;
+	sSprite_0** Data24 = byte_3B213;
+
+	for( int16 Data1C = 0x1D; Data1C >= 0; --Data1C, ++Data20 ) {
+		
+		if( Data20->field_0 == -32768)
+			continue;
+		
+		if( Data20->field_22 )
+			continue;
+		
+		if( !Data20->field_65 )
+			continue;
+		
+		*Data24 = Data20;
+		++Data24;
+	}
+	
+	*Data24 = (sSprite_0*) -1;
+	++Data24;
+
 }
 
 void cFodder::Map_Overview_Prepare() {

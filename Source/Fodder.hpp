@@ -581,11 +581,13 @@ protected:
 
 	void			sub_12083();
 	void			sub_124DB();
+	void			sub_125A5();
 	void			sub_126BB();
 	void			sub_126DD();
 	std::string		sub_12AA1( std::string pBase, const char* pFinish );
 	void			sub_12A5F();
-
+	void			sub_12AEE();
+	
 	void			Map_Overview_Prepare();
 	void			map_SetTileType();
 
