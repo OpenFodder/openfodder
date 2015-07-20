@@ -234,18 +234,22 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_39F34;
 	int16			word_39F38;
+	int32			dword_39F4A;
 	int16			word_39F4C;
+	int16			word_39F4E;
 	int16			word_39F50;
 	int16			word_39F52;
 	int16			word_39F54;
-
 	int32			dword_39F42;
 	int32			dword_39F46;
 	int32			dword_39F56;
+	int32			dword_39F5A;
 	int16			word_39F5E;
 	int16			word_39F60;
 	int32			dword_39F7C;
 
+	int16			word_39F94;
+	int16			word_39F96;
 	int16			dword_39F98;
 	int16			dword_39F9C;
 	int16			word_39FB2;
@@ -325,6 +329,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9E6;
 	uint16			word_3A9F7;
 	int16			word_3A9FB;
+	int32			dword_3A9FD;
 	int16			word_3AA05[3];
 	int16			word_3AA0B[3];
 	int16			word_3AA11[3];
@@ -588,6 +593,7 @@ protected:
 	int16			Mission_Loop();
 
 	void			mouse_unk_0();
+	void			sub_10937();
 	void			sub_10BBC();
 	void			Troops_Clear();
 	void			Heroes_Clear();
@@ -605,11 +611,16 @@ protected:
 	void			sub_1142D();
 	void			sub_1152F();
 	void			sub_115F7();
+	void			sub_11B06();
 	void			sub_11CAD();
 	void			map_Load_TileSet();
 
 	void			sub_12018();
 	void			sub_12083();
+	void			sub_120F6();
+	void			sub_121B6( int32* pData20 );
+	void			sub_12245();
+	void			sub_1229C();
 	void			sub_124DB();
 	void			sub_125A5();
 	void			sub_126BB();
