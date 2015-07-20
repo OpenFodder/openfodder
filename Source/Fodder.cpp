@@ -351,6 +351,10 @@ void cFodder::sub_10937() {
 	}
 }
 
+void cFodder::sub_1096B() {
+	
+}
+
 void cFodder::sub_10BBC() {
 	word_390A4 = 0;
 	word_390A6 = 0;

@@ -600,6 +600,7 @@ protected:
 
 	void			mouse_unk_0();
 	void			sub_10937();
+	void			sub_1096B();
 	void			sub_10BBC();
 	void			Troops_Clear();
 	void			Heroes_Clear();
