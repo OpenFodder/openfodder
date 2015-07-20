@@ -227,6 +227,9 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F28;
 	int32			dword_39F2C;
 	int32			dword_39F30;
+	int32			dword_39F36;
+	int16			word_39F3A;
+
 	int32			dword_39F84;
 	int32			dword_39F88;
 	int32			dword_39F8C;
@@ -268,6 +271,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FFA;
 
 	int16			word_3A01A;
+	int16			word_3A063;
+	int16			word_3A065;
 	int16			word_3A067;
 	int16			word_3A069;
 	int16			word_3A06B;
@@ -611,6 +616,7 @@ protected:
 	void			sub_1142D();
 	void			sub_1152F();
 	void			sub_115F7();
+	void			sub_11885();
 	void			sub_11B06();
 	void			sub_11CAD();
 	void			map_Load_TileSet();

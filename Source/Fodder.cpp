@@ -455,6 +455,10 @@ void cFodder::sub_10D61() {
 	word_39F04 = 0;
 	word_39F06 = 0;
 
+	dword_39F30 = 0;
+	dword_39F36 = 0;
+	word_39F3A = 0;
+
 	dword_39F42 = 0;
 	dword_39F46 = 0;
 	dword_39F4A = 0;
@@ -500,6 +504,9 @@ void cFodder::sub_10D61() {
 	word_3A010 = 0;
 	word_3A016 = 0;
 	word_3A01A = 0;
+	word_3A063 = 0;
+	word_3A065 = 0;
+	word_3A067 = 0;
 	dword_3A391 = 0;
 	dword_3A395 = 0;
 	word_3A399 = 0;
@@ -1089,6 +1096,89 @@ void cFodder::sub_115F7() {
 			++Troop;
 		}
 	}
+}
+
+void cFodder::sub_11885() {
+	int16 Data4 = word_3A065;
+	Data4 -= 0x6C;
+
+	if (Data4 < 0)
+		Data4 = 0;
+
+	int16 Data0 = word_3A063;
+	Data0 -= 0x80;
+
+	if (Data0 < 0)
+		Data0 = 0;
+	
+	//loc_118B0
+	int16 Data8 = dword_39F2C >> 16;
+	int16 DataC = dword_39F30 >> 16;
+
+	int16 Data0_Saved = Data0;
+	int16 Data4_Saved = Data4;
+	int16 Data8_Saved = Data8;
+	int16 DataC_Saved = DataC;
+
+	sub_29E30( Data0, Data4, Data8, DataC );
+	if (Data0 > 0x10) {
+		Data4 = word_39F3A;
+
+		if (Data4 <= (dword_39F36 >> 16)) {
+			dword_39F36 = Data4 << 16 | dword_39F36 & 0xFFFF;
+		}
+		else {
+			dword_39F36 += 0x8000;
+		}
+	}
+	else {
+		//loc_118FC
+		dword_39F36 = 0;
+	}
+
+	DataC = DataC_Saved;
+	Data8 = Data8_Saved;
+	Data4 = Data4_Saved;
+	Data0 = Data0_Saved;
+	if (sub_119E1() >= 0) {
+
+		// This area probably needs fixing...
+		Data0 &= 0x1FE;
+		word_39F34 = Data0;
+		if (!dword_39F36)
+			return;
+		Data4 = word_39F34;
+
+		// Here
+		Data8 = word_3EABF[Data4];
+		Data4 += 0x80;
+		Data4 &= 0x1FE;
+
+		DataC = word_3EABF[Data4];
+		Data8 >>= 2;
+		DataC >>= 2;
+
+		//seg000:197D
+		int32 Dataa8 = (int32)Data8;
+		int32 DataaC = (int32)DataC;
+
+		Data4 = (dword_39F36 >> 16);
+		Dataa8 *= Data4;
+		DataaC *= Data4;
+
+		dword_39F42 = Dataa8;
+		dword_39F46 = DataaC;
+
+	} else {
+
+		//loc_119C6
+		dword_39F36 -= 0x8000;
+		if (dword_39F36 < 0) {
+			dword_39F36 = 0;
+			word_3A054 = -1;
+		}
+	}
+
 }
 
 void cFodder::sub_11B06() {
