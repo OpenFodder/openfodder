@@ -520,6 +520,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3FA37;
 	int16			mKeyControlPressed;
 
+	int16			mImageFaded;
 	uint16			word_40054;
 	uint16			word_40056;
 	uint8*			word_42062;
@@ -654,9 +655,9 @@ protected:
 
 	void			Mission_Brief();
 
-	void			sub_1590B();
-	void			sub_1594F();
-	void			sub_159A6();
+	void			sub_1590B( cSurface* pImage );
+	void			sub_1594F( cSurface* pImage );
+	void			sub_159A6( cSurface* pImage );
 	void			sub_15A36( cSurface* pImage, uint8* pDs, int16 pCx );
 	void			sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx );
 	void			sub_15B98( cSurface* pImage, uint8* pDs, int16 pCx );
