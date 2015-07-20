@@ -55,6 +55,7 @@ cFodder::cFodder() {
 	mTicksDiff = 0;
 	mTicks = 0;
 
+	word_3D469 = 0;
 	mIntroDone = 0;
 	mErrorCode = 0;
 	word_427D4 = -1;
@@ -78,14 +79,18 @@ cFodder::cFodder() {
 	word_39FF8 = 0;
 	word_39FFA = 0;
 
+	word_3A9B0 = 0;
+	word_3A9B2 = 0;
 	word_3AA43 = 0;
 	word_3ABA7 = 0;
 	word_3ABE7 = 0;
 	word_3ABE9 = 0;
 	word_3ABEB = 0;
-	word_3A9B2 = 0;
+
+
 	word_3B15D = 0;
 	word_3B173 = 0;
+	word_3B44F = 0;
 	word_3B4F5 = 0;
 	word_3E1B7 = 0;
 	word_3B616 = 0;
@@ -336,7 +341,7 @@ void cFodder::mouse_unk_0() {
 
 	int16 Data4 = word_3B44F;
 	int16 Data8 = 0;
-	sub_14B84( pSprite, Data4, Data8 );
+	sub_14B84( Sprite, Data4, Data8 );
 	word_3B44F = 0;
 	return;
 
@@ -595,6 +600,11 @@ void cFodder::sub_10D61() {
 	
 	dword_3B20B = 0;
 	word_3B20F = 0;
+	word_3B211 = 0;
+	for (uint16 x = 0; x < 15; ++x) {
+		dword_3B213[x] = 0;
+	}
+
 	word_3B25B = 0;
 	word_3B2CB = 0;
 	word_3B2CD = 0;
@@ -608,17 +618,19 @@ void cFodder::sub_10D61() {
 	word_3B305 = 0;
 	word_3B307 = 0;
 	word_3B447 = 0;
-	word_3B487 = 0;
-	word_3B489 = 0;
-	word_3B4CB = 0;
-	word_3B4D3 = 0;
-	word_3B4D5 = 0;
+
 	for (uint16 x = 0; x < 3; ++x)
 		word_3B461[x] = 0;
 
 	for (uint16 x = 0; x < 7; ++x)
 		mMapGoals[x] = 0;
 
+	word_3B47B = 0;
+	word_3B487 = 0;
+	word_3B489 = 0;
+	word_3B4CB = 0;
+	word_3B4D3 = 0;
+	word_3B4D5 = 0;
 	word_3B4DB = 0;
 	word_3B4F1 = 0;
 	word_3B4F3 = 0;
@@ -776,14 +788,14 @@ void cFodder::map_Load_Spt() {
 	word_3AA17 = 0;
 	word_3AA19 = 0;
 	
-	uint16* 20h = mMapSptPtr;
+	uint16* dword_37AC0 = mMapSptPtr;
 	int16* dword_37AC4 = mMapSpt_Loaded;
 	
-	uint16* dword_37AC8 = 20h + (mMapSptSize / 2);
+	uint16* dword_37AC8 = dword_37AC0 + (mMapSptSize / 2);
 	int16 dword_37ABC = 0x0A;
 
-	for(uint16 mTmpCount = 0; 20h != dword_37AC8; dword_37AC4 += 0x3B ) {
-		++20h;
+	for(uint16 mTmpCount = 0; dword_37AC0 != dword_37AC8; dword_37AC4 += 0x3B ) {
+		++dword_37AC0;
 
 		int16* si = dword_37AC4;
 		si[0x04] = 0x7C;
@@ -791,21 +803,21 @@ void cFodder::map_Load_Spt() {
 		uint16 ax = mTmpCount / 8;
 
 		si[0x19] = ax;
-		++20h;
-		ax = 20h[0];
-		++20h;
+		++dword_37AC0;
+		ax = dword_37AC0[0];
+		++dword_37AC0;
 		
 		ax += 0x10;
 		si[0x00] = ax;
 		si[0x13] = ax;
 		
-		ax = 20h[0];
-		++20h;
+		ax = dword_37AC0[0];
+		++dword_37AC0;
 		si[0x02] = ax;
 		si[0x14] = ax;
 		
-		ax = 20h[0];
-		++20h;
+		ax = dword_37AC0[0];
+		++dword_37AC0;
 		si[0x0C] = ax;
 		
 		if( si[0x0C] == 0x6A || si[0x0C] == 0x48 ) {
@@ -867,16 +879,16 @@ std::string cFodder::map_Filename_SptGet() {
 
 void cFodder::map_Troops_Prepare() {
 	word_397D2 = 0;
-	int16* 20h = mMapSpt_Loaded;
+	int16* dword_37AC0 = mMapSpt_Loaded;
 	
 	for( int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount ) {
-		int16* si = 20h;
+		int16* si = dword_37AC0;
 		if( *si != -32768 ) {
 			
 			if( si[0x0C] == 0 )
 				++word_397D2;
 		}
-		20h += 0x3B;
+		dword_37AC0 += 0x3B;
 	}
 	
 	word_397D4 = 0;
@@ -1203,16 +1215,16 @@ void cFodder::sub_124DB() {
 void cFodder::sub_125A5() {
 	
 	sSprite_0* Data20 = (sSprite_0*) mMapSpt_Loaded;
-	Data8 = 0;
-	DataC = 0;
-	Data0 = 0x2B;
+	int16 Data8 = 0;
+	int16 DataC = 0;
+	int16 Data0 = 0x2B;
 	
 	for(Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20 ) {
 		
 		if( Data20->field_0 == -32768)
 			continue;
 
-		Data10 = Data20->field_18;
+		int16 Data10 = Data20->field_18;
 		if(Data10 == 0x6C || Data10 == 0x6D || Data10 == 0x6E || Data10 == 0x58 || Data10 == 0x64 )
 			goto loc_12620;
 		
@@ -1234,7 +1246,7 @@ void cFodder::sub_125A5() {
 		continue;
 		
 		loc_12632:;
-		Data24 = byte_3D593;
+		const int16* Data24 = word_3D593;
 		
 		loc_1263E:;
 		if(*Data24 < 0)
@@ -1258,7 +1270,7 @@ void cFodder::sub_125A5() {
 	}
 	
 	if(!mMapGoals[4]) {
-		if(!map_Goals[2])
+		if(!mMapGoals[2])
 			goto loc_126A6;
 	}
 	
@@ -1266,7 +1278,7 @@ void cFodder::sub_125A5() {
 		return;
 	
 	loc_126A6:;
-	if(!word_3B475 || word_3B47B ) 
+	if(!mMapGoals[7] || word_3B47B ) 
 		 word_3A9AC = -1;
 }
 
@@ -1316,7 +1328,7 @@ void cFodder::sub_12AEE() {
 	
 	word_3B211 = -1;
 	sSprite_0* Data20 = (sSprite_0*) mMapSpt_Loaded;
-	sSprite_0** Data24 = byte_3B213;
+	sSprite_0** Data24 = dword_3B213;
 
 	for( int16 Data1C = 0x1D; Data1C >= 0; --Data1C, ++Data20 ) {
 		
@@ -2309,7 +2321,7 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	Data0 = Saved0;
 	pData4 = Saved4;
 
-	// TODO: seg002:05089
+	// TODO: seg002:0508
 }
 
 void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {
@@ -8793,6 +8805,16 @@ void cFodder::sub_2F0D7() {
 	byte_3AC39[word_39FD0] = -1;
 }
 
+void cFodder::sub_2FC4F() {
+	
+	if (word_3AC3F[word_39FD0] == 3)
+		return;
+
+	word_3AC3F[word_39FD0] = 3;
+	byte_3AC39[word_39FD0] = -1;
+	byte_3AC33[word_39FD0] = -1;
+}
+
 void cFodder::sub_301F7() {
 	sSquad_Member* Data38 = mSquad;
 	
@@ -8819,6 +8841,22 @@ void cFodder::sub_30480() {
 	}
 
 	word_3D5B7 = (int16*) mMapSptPtr;
+}
+
+void cFodder::sub_304D0() {
+	
+	if (!word_390A6 || word_3B4F1)
+		return;
+
+	if (word_3AC3F[word_39FD0] != 3) {
+		if (word_3AA0B[word_39FD0])
+			sub_2FC4F();
+	}
+	else {
+		if (word_3AA05[word_39FD0])
+			sub_2F0D7();
+	}
+
 }
 
 void cFodder::sub_305D5() {
