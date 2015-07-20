@@ -310,6 +310,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9AA;
 	uint16			word_3A9AC;
 	int16			word_3A9AE;
+	int16			word_3A9B0;
 	uint16			word_3A9B2;
 	int16			word_3A9B4;
 	int16			word_3A9B8;
@@ -393,7 +394,9 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMap_TileSet;
 	int16			dword_3B20B;
-	INT32			word_3B20F;
+	int32			word_3B20F;
+	int16			word_3B211;
+	sSprite_0*		dword_3B213[15];
 	int16			word_3B25B;
 	int16			word_3B2CB;
 	int16			word_3B2CD;
@@ -409,7 +412,10 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMapGoals[8];
 	int16			word_3B447;
+	int16			word_3B44F;
+
 	int16			word_3B461[3];
+	int16			word_3B47B;
 	int16			word_3B487;
 	int16			word_3B489;
 	int16*			dword_3B48B[16];
@@ -472,6 +478,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D03D[240];
 	int16			word_3D21D[161];
 
+	int16			word_3D469;
 	int16			word_3D473;
 	int16			word_3D475;
 	int16*			word_3D5B7;
@@ -783,10 +790,12 @@ protected:
 
 	void			sub_2E04C();
 	void			sub_2F0D7();
+	void			sub_2FC4F();
 
 	void			sub_301F7();
 	void			sub_30465();
 	void			sub_30480();
+	void			sub_304D0();
 	void			sub_305D5();
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
