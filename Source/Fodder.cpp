@@ -181,7 +181,7 @@ int16 cFodder::Mission_Loop() {
 	int16 Faded = -1;
 	cSurface* Image = new cSurface( 320, 230 );
 	Image->paletteSet( mPalette );
-
+	
 	for (;;) {
 		sub_12018();
 		Camera_Pan();
@@ -275,8 +275,9 @@ int16 cFodder::Mission_Loop() {
 
 		sub_13155();
 		sub_131A2();
-
 	}
+
+	return 0;
 }
 
 void cFodder::mouse_unk_0() {
@@ -2620,20 +2621,20 @@ void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {
 	byte_42070 = 0xE0;
 
 
-	sub_1590B();
+	sub_1590B( pImage );
 
 	paletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
 
 	pImage->paletteSet( mPalette );
 
-	int16 Faded = -1;
+	mImageFaded = -1;
 
 	do {
 		if (word_428D6 == -1)
-			sub_159A6();
+			sub_159A6( pImage );
 
-		if( Faded == -1 )
-			Faded = pImage->paletteFade();
+		if( mImageFaded == -1 )
+			mImageFaded = pImage->paletteFade();
 
 		// Clouds
 		word_42859 = 0x30;
@@ -2690,12 +2691,12 @@ void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {
 		if (mouse_Button_Status) {
 			word_428D8 = 0;
 			pImage->paletteFadeOut();
-			Faded = -1;
+			mImageFaded = -1;
 		}
-	} while (word_428D8 != 0 || Faded == -1);
+	} while (word_428D8 || mImageFaded != 0);
 }
 
-void cFodder::sub_1590B() {
+void cFodder::sub_1590B( cSurface* pImage ) {
 	mHelicopterPosX = 0x01500000;
 	mHelicopterPosY = 0x00260000;
 
@@ -2707,10 +2708,10 @@ void cFodder::sub_1590B() {
 	word_428D6 = -1;
 	word_428D8 = -1;
 
-	sub_1594F();
+	sub_1594F( pImage );
 }
 
-void cFodder::sub_159A6() {
+void cFodder::sub_159A6( cSurface* pImage ) {
 	word_428B6 &= 0x1FE;
 	uint16 bx = word_428B6;
 
@@ -2751,11 +2752,11 @@ void cFodder::sub_159A6() {
 
 	--word_428BA;
 	if (word_428BA <= 0)
-		sub_1594F();
+		sub_1594F( pImage );
 
 }
 
-void cFodder::sub_1594F() {
+void cFodder::sub_1594F( cSurface* pImage ) {
 
 	word_428B6 = word_428C6;
 	word_428B8 = word_428C4;
@@ -2769,6 +2770,8 @@ void cFodder::sub_1594F() {
 		word_428D8 = 0;
 
 		paletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+		pImage->paletteFadeOut();
+		mImageFaded = -1;
 	}
 
 }
