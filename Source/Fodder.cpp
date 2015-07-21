@@ -352,7 +352,117 @@ void cFodder::sub_10937() {
 }
 
 void cFodder::sub_1096B() {
+	Data14 = word_39FCE;
+	if(Data14 < 0 )
+		return;
 	
+	sSprite_0* Data20 = (sSprite_0*) mMapSpt_Loaded;
+	Data8 = Data20[Data14]->field_0;
+	Data8 += 0x18;
+	
+	DataC = Data20[Data14]->field_4;
+	Data18 = Data8;
+	Data1C = DataC;
+	
+	word_39F3A = 0x14;
+	if(word_3ABFB >= 0) {
+		word_3ABFB = 0;
+		dword_39F36 = 0;
+	}
+
+	if( word_3BDAF > 0x0F )
+		goto loc_10A43;
+	
+	if( word_39F40 ) {
+		Data0 = Data8;
+		Data0 -= word_39F3C;
+		Data0 += word_3A063;
+		Data4 = DataC;
+		Data4 -= word_39F3E;
+		
+		word_3A065 += Data4;
+		word_39F3C = Data8;
+		word_39F3E = DataC;
+		
+	} else {
+		//loc_10A11
+		word_39F40 = -1;
+		Data0 = dword_39F2C >> 16;
+		Data0 += 0x80;
+		
+		word_3A063 = Data0;
+		Data4 = dword_39F30 >> 16;
+		Data4 += 0x6C;
+		word_3A065 = Data4;
+		
+	}
+	//loc_10A3A
+	word_3A054 = 0;
+	return;
+	
+loc_10A43:;
+	word_39F40 = 0;
+	word_39F3C = Data8;
+	word_39F3E = DataC;
+	Data0 = word_3BDAF;
+	Data0 += dword_39F2C >> 16;
+	Data4 = word_3BDB1;
+	Data4 += dword_39F30 >> 16;
+
+	int16 Data0_Saved = Data0;
+	int16 Data4_Saved = Data4;
+	int16 Data8_Saved = Data8;
+	int16 DataC_Saved = DataC;
+	
+	sub_29E30( Data0, Data4, Data8, DataC );
+	
+	if( dword_3B20B ) {
+	
+		if( Data0 >= 0x64 )
+			Data0 = 0x64;
+	} else {
+		
+		if( Data0 >= 0x8C )
+			Data0 = 0x8C;
+	}
+	//loc_10AAA
+	word_3ABFD = 0;
+	
+	DataC = DataC_Saved;
+	Data8 = Data8_Saved;
+	Data4 = Data4_Saved;
+	Data0 = Data0_Saved;
+	
+	// Needs params?
+	if(sub_29EC2(Data0, Data4, Data8,DataC) < 0 )
+		return;
+	
+	Data20 = (sSprite_0*) mMapSpt_Loaded;
+	Data8 = 0;
+
+	Data8 = Data20[Data4]->field_0;	// fIx data4
+	Data4 += 0x80;
+	Data4 *= 0X1FE;
+	DataC = 0;
+	
+	DataC = Data20[Data4]->field_0; // fix data4
+	
+	int32 Dataa8 = Data8 * word_3ABFD;
+	int32 DataaC = DataC * word_3ABFD;
+	
+	Data8 = Dataa8 >> 16;
+	DataC = DataaC >> 16;
+	
+	Data18 += Data8;
+	Data1C += DataC;
+	Data18 -= 0x18;
+	
+	if(Data18 < 0 )
+		Data18 = 0;
+
+	word_3A063 = Data18;
+	word_3A065 = Data1C;
+	word_3A054 = 0;
 }
 
 void cFodder::sub_10BBC() {
