@@ -229,6 +229,8 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F30;
 	int32			dword_39F36;
 	int16			word_39F3A;
+	int16			word_39F3C;
+	int16			word_39F3E;
 
 	int32			dword_39F84;
 	int32			dword_39F88;
@@ -237,6 +239,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_39F34;
 	int16			word_39F38;
+	int16			word_39F40;
 	int32			dword_39F4A;
 	int16			word_39F4C;
 	int16			word_39F4E;
@@ -259,7 +262,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FB4;
 	int16			word_39FB6;
 	int16			word_39FB8;
-	int8*			word_39FCE;
+	sSprite_0*		word_39FCE;	// This stores the number of bytes, inside the sSprite array
 
 	int16			word_39FD0;
 	int16			word_39FD4;
@@ -372,6 +375,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABE7;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
+	int16			word_3ABFB;
+	int16			word_3ABFD;
 
 	int16			word_3AC19;
 	int16			word_3AC1B;
