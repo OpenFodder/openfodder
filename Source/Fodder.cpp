@@ -1298,6 +1298,10 @@ void cFodder::sub_11885() {
 
 }
 
+int16 cFodder::sub_119E1() {
+	
+}
+
 void cFodder::sub_11B06() {
 	
 	dword_39F42 = dword_39F4A;
@@ -1592,6 +1596,50 @@ void cFodder::sub_1229C() {
 
 	if (word_39F54)
 		dword_39F46 = 0;
+}
+
+void cFodder::sub_122BD() {
+
+	if (word_39FCE < 0)
+		return;
+
+	sSprite_0* Data20 = word_39FCE;
+
+	int16 Data4 = Data20->field_0 + 0x40;
+	int16 Data8 = Data20->field_4 + 0x10;
+
+	Data4 -= dword_39F2C >> 16;
+	Data8 -= dword_39F30 >> 16;
+
+	if (word_39F52 && Data4 > 0x90 && Data4 < 0xCF) {
+		word_39F52 = 0;
+		dword_39F4A = dword_39F4A & 0xFFFF;
+	}
+
+	if (word_39F54 && Data8 > 0x60 && Data8 < 0x87) {
+		word_39F54 = 0;
+		word_39F50 = 0;
+	}
+	//loc_1234F
+	if (Data4 <= 0x40) {
+		dword_39F4A = dword_39F4A & 0xFFFF | (0xFFFE << 16);
+		word_39F52 = -1;
+	}
+	//loc_12362
+	if (Data4 >= 0x150) {
+		dword_39F4A = dword_39F4A & 0xFFFF | (2 << 16);
+		word_39F52 = -1;
+	}
+
+	if (Data8 <= 0x10) {
+		word_39F50 = -2;
+		word_39F54 = -1;
+	}
+
+	if (Data8 >= 0xD8) {
+		word_39F50 = 2;
+		word_39F54 = -1;
+	}
 }
 
 void cFodder::sub_124DB() {
@@ -4221,6 +4269,91 @@ void cFodder::sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDa
 
 loc_29EBB:;
 	pData0 = 0x3E8;
+}
+
+int16 cFodder::sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
+	const int16* Data24 = word_3F0C1;
+	int16 Data10 = 0, Data14 = 0;
+	//TODO: Debug this function
+	pData0 -= pData8;
+	pData4 -= pDataC;
+	if (pData0 < 0)
+		Data10 = 1;
+
+	Data10 = -Data10;
+	if (pData0 < 0)
+		pData0 = -1;
+	else
+
+	if (pData4 < 0)
+		Data14 = 1;
+
+	Data14 = -Data14;
+	if (pData4 < 0)
+		pData4 = -pData4;
+
+	pData8 = 9;
+	do {
+		int32 eax = 1 << pData8;
+
+		if (pData0 & eax)
+			break;
+
+		if (pData4 & eax)
+			break;
+
+	} while (--pData8 >= 0);
+
+	pData8 -= 4;
+	if (pData8 >= 0) {
+		pData0 >> pData8;
+		pData4 >> pData8;
+	}
+
+	pData4 <<= 5;
+	pData4 |= pData0;
+	//pData4 <<= 1;
+	pData4 = Data24[pData4];
+	if (pData4 < 0)
+		return pData4;
+
+	pData4 <<= 1;
+
+	if (Data10 < 0)
+		goto loc_29FC2;
+
+	if (Data14 < 0)
+		goto loc_29FAD;
+
+	pData0 = 0x80;
+	pData0 -= pData4;
+	pData0 &= 0x1FE;
+
+	pData4 = pData0;
+	pData0 = 0;
+	return 0;
+
+loc_29FAD:;
+	pData4 += 0x80;
+	pData4 &= 0x1FE;
+	pData0 = 0;
+	return 0;
+
+loc_29FC2:;
+	if (Data14 >= 0) {
+		pData4 += 0x180;
+		pData4 &= 0x1FE;
+		pData0 = 0;
+		return 0;
+	}
+
+	pData0 = 0x180;
+	pData0 -= pData4;
+	pData0 &= 0x1FE;
+	pData4 = pData0;
+	pData0 = 0;
+
+	return 0;
 }
 
 int16 cFodder::sub_2A030() {
@@ -9244,7 +9377,7 @@ void cFodder::sub_304D0() {
 	}
 }
 
-void cFodder::sub_305D5() {
+int16 cFodder::sub_305D5() {
 	
 	int16 Data0 = word_39FD0;
 
@@ -9296,11 +9429,57 @@ void cFodder::sub_305D5() {
 	goto loc_306BE;
 
 loc_306AD:;
+	Data20 = (sSprite_0*) -1;
 	word_39FD0 = -1;
 
 loc_306BE:;
 	if (dword_3B20B)
-		return;
+		return 1;
 
 	word_39FCE = Data20;
+	if (Data20 < 0)
+		return -1;
+
+	return 1;
+}
+
+void cFodder::sub_31033() {
+
+	if (!word_3AA47)
+		return;
+
+	--word_3AA47;
+	if (word_3AA47)
+		return;
+
+	if (word_39FD0 <= 0)
+		return;
+
+	int16 Data0 = 2;
+
+	do {
+
+		if (byte_3A05A[Data0]) {
+			sub_31075(Data0);
+			return;
+		}
+
+	} while (--Data0 >= 0);
+}
+
+void cFodder::sub_31075( int16 pData0 ) {
+	
+	if (!byte_3A05A[pData0])
+		return;
+
+	word_39FD0 = pData0;
+
+	if (sub_305D5() >= 0) {
+		word_3A067 = byte_3A05A[0];
+		word_3A069 = byte_3A05A[4];
+		word_3AA1B = 1;
+		word_3A054 = 0;
+	}
+
+	word_3AC2B = 0;
 }

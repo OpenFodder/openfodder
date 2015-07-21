@@ -624,6 +624,8 @@ protected:
 	void			sub_1152F();
 	void			sub_115F7();
 	void			sub_11885();
+	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+
 	void			sub_11B06();
 	void			sub_11CAD();
 	void			map_Load_TileSet();
@@ -634,6 +636,7 @@ protected:
 	void			sub_121B6( int32* pData20 );
 	void			sub_12245();
 	void			sub_1229C();
+	void			sub_122BD();
 	void			sub_124DB();
 	void			sub_125A5();
 	void			sub_126BB();
@@ -769,6 +772,7 @@ protected:
 	void			sub_22AA9( sSprite_0* pSprite );
 	void			sub_22B71( sSprite_0* pSprite );
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	int16			sub_2A030();
 	void			sub_2A0FA( sSprite_0* pSprite );
@@ -820,7 +824,9 @@ protected:
 	void			sub_30465();
 	void			sub_30480();
 	void			sub_304D0();
-	void			sub_305D5();
+	int16			sub_305D5();
+	void			sub_31033();
+	void			sub_31075( int16 pData0 );
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
