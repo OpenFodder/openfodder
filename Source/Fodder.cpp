@@ -1257,7 +1257,8 @@ void cFodder::sub_11885() {
 	Data8 = Data8_Saved;
 	Data4 = Data4_Saved;
 	Data0 = Data0_Saved;
-	if (sub_119E1() >= 0) {
+
+	if (sub_119E1( Data0, Data4, Data8, DataC ) >= 0) {
 
 		// This area probably needs fixing...
 		Data0 &= 0x1FE;
@@ -1298,8 +1299,82 @@ void cFodder::sub_11885() {
 
 }
 
-int16 cFodder::sub_119E1() {
+int16 cFodder::sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
 	
+	int16 Data10 = 0, Data14 = 0;
+
+	pData0 -= pData8;
+	pData4 -= pDataC;
+
+	if (pData0 < 0)
+		Data10 = 1;
+	
+	Data10 = -Data10;
+	if (pData0 < 0 )
+		pData0 = -pData0;
+
+
+	if (pData4 < 0)
+		Data14 = 1;
+
+	Data14 = -Data14;
+	if (pData4 < 0)
+		pData4 = -pData4;
+
+	pData8 = 0x0E;
+
+	do {
+		int32 eax = 1 << pData8;
+		if (pData0 & eax)
+			break;
+
+		if (pData4 & eax)
+			break;
+	} while (pData8 >= 0);
+
+	pData8 -= 4;
+	if (pData8 >= 0) {
+		pData0 >>= pData8;
+		pData4 >>= pData8;
+	}
+	pData4 <<= 5;
+	pData4 |= pData0;
+	//pData4 <<= 1;
+
+	pData4 = word_3F0C1[pData4];
+	if (pData4 < 0)
+		return -1;
+
+	pData4 <<= 1;
+	if (Data10 < 0)
+		goto loc_11AD2;
+
+	if (Data14 < 0)
+		goto loc_11ABC;
+
+	pData0 = 0x80;
+	pData0 -= pData4;
+	pData4 = 0;
+	return 0;
+
+loc_11ABC:;
+	pData0 = 0x80;
+	pData0 += pData4;
+	pData4 = 0;
+	return 0;
+
+loc_11AD2:;
+	if (Data14 >= 0) {
+		pData0 = 0x180;
+		pData0 += pData4;
+		pData4 = 0;
+		return 0;
+	}
+//loc_11AEF
+	pData0 = 0x180;
+	pData0 -= pData4;
+	pData4 = 0;
+	return 0;
 }
 
 void cFodder::sub_11B06() {
@@ -2254,7 +2329,7 @@ void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPo
 	mDrawSpritePositionY = pPosY + 0x10;
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
 	word_42078 = 0x140;
 
 	if (sub_1429B())
@@ -2734,7 +2809,7 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 
 	int8 al = byte_3A9DA[0];
 	if (pData8 >= al) {
-		byte_3A9DA[0] = pData8;
+		byte_3A9DA[0] = pData8 & 0xFF;
 	}
 	else {
 		al = byte_427E6;
@@ -2742,7 +2817,7 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 		if (al)
 			return;
 
-		al = pData8;
+		al = pData8 & 0xFF;
 		byte_3A9DA[0] = al;
 	}
 	//loc_14BD4
@@ -2950,7 +3025,7 @@ void cFodder::sub_15A36( cSurface* pImage, uint8* pDs, int16 pCx ) {
 	word_4285D = pImage->GetSurfaceBuffer() + word_4285B + (dx*4) + 4;
 	pCx &= 3;
 	int8 ah = 1;
-	ah << pCx;
+	ah <<= pCx;
 
 	++dx;
 	
@@ -3005,7 +3080,7 @@ void cFodder::sub_15B98( cSurface* pImage, uint8* pDsSi, int16 pCx ) {
 	word_4285D = pImage->GetSurfaceBuffer() + word_4285B + (dx*4);
 	pCx &= 3;
 	int8 ah = 1;
-	ah << pCx;
+	ah <<= pCx;
 
 	++dx;
 	
@@ -4306,8 +4381,8 @@ int16 cFodder::sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pD
 
 	pData8 -= 4;
 	if (pData8 >= 0) {
-		pData0 >> pData8;
-		pData4 >> pData8;
+		pData0 >>= pData8;
+		pData4 >>= pData8;
 	}
 
 	pData4 <<= 5;
@@ -5616,7 +5691,7 @@ void cFodder::Briefing_Draw_With( cSurface* pImage ) {
 	String_Print( pImage, byte_4382F, 3, word_3B301, 0xB8, "GO FOR IT" );
 }
 
-void cFodder::Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
+void cFodder::Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 ) {
 	//pData0 += 0x10;
 	pData4 += 0x10;
 
@@ -5624,7 +5699,6 @@ void cFodder::Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, in
 	int16 cx = pData4;
 
 	int16 dx = bx + pData8;
-	int16 si = pData10;
 
 	// Top and Bottom
 	Brief_Draw_Horizontal_Line( pImage, pData0, pData0 + pData8, pData4, pData10 );
@@ -6116,7 +6190,7 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 
 	pSprite->field_64 = 0;
 	if (word_3A9AA)
-		pSprite->field_40 = 0x9876;
+		pSprite->field_40 = -26506;
 
 	if (!pSprite->field_58) {
 		sub_1FE35( pSprite );
@@ -6298,7 +6372,7 @@ loc_1E3D2:;
 		}
 	}
 	//loc_1E619
-	Data4 -= 0x18000;
+	Data4 -= 0x18000;	// should be int32...
 	pSprite->field_1A = Data4;
 	if (pSprite->field_36) {
 		pSprite->field_36 -= 2;
@@ -6432,7 +6506,7 @@ loc_1E831:;
 	dword_3A395 = pSprite->field_4;
 	Data0 = 8;
 	Data0 += pSprite->field_26;
-	Data4 = -3.;
+	Data4 = -3;
 	Data4 += pSprite->field_28;
 
 	sub_2A7E2( Data0, Data4 );
@@ -7500,7 +7574,7 @@ void cFodder::sub_1FFC6( sSprite_0* pSprite ) {
 	if (sub_2A7F7( pSprite, Data0, Data4 ))
 		goto loc_20236;
 
-	pSprite->field_60 = Data4;
+	pSprite->field_60 = Data4 & 0xFF;
 	pSprite->field_50 = 0;
 	pSprite->field_4F = 0;
 
@@ -8158,7 +8232,7 @@ void cFodder::sub_20534( sSprite_0* pSprite ) {
 	} while (++Data4 < 4);
 
 	//seg005:0EDD
-	mHeroes[X].mRecruitID = pSprite->field_2;
+	mHeroes[X].mRecruitID = pSprite->field_2 & 0xFF;
 	mHeroes[X].field_1 = pSprite->field_0;
 	mHeroes[X].mKills = pSprite->field_A;
 }
@@ -8893,8 +8967,12 @@ loc_22622:;
 	Data30->field_10 = 1;
 	Data2C->field_36 = 0x64;
 	Data30->field_36 = 0x64;
-	Data2C->field_1E = 0x0A0000;
+	Data2C->field_1E = 0x0000;
+	Data2C->field_20 = 0x0A;
+
 	Data30->field_1E = 0;
+	Data2C->field_20 = 0;
+
 	Data2C->field_4++;
 	Data2C->field_0 += 3;
 	if (!pSprite->field_22)
@@ -9322,6 +9400,30 @@ void cFodder::sub_2F0D7() {
 	word_3AC3F[word_39FD0] = 1;
 	byte_3AC33[word_39FD0] = -1;
 	byte_3AC39[word_39FD0] = -1;
+}
+
+void cFodder::sub_2F9B3() {
+	
+	int16 Data0 = word_3AC2B;
+	int16 Data4 = Data0;
+
+	Data4++;
+	word_3AC2B = Data4;
+
+	switch (Data0) {
+		case 0: //loc_2FA05
+		case 1: //loc_2FA1D
+		case 2: //loc_2FA44
+		case 3: //loc_2FA5B
+		case 4: //loc_2FA75
+		case 5: //loc_2FA8F
+			std::cout << "sub_2F9B3(): Missing Function " << Data0;
+			break;
+
+		case 6:
+			word_3AC2B = -1;
+			return;
+	}
 }
 
 void cFodder::sub_2FC4F() {

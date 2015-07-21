@@ -332,7 +332,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9D0;
 	int8			byte_3A9D2[4];
 	int8			byte_3A9D6[4];
-	int16			byte_3A9DA[10];
+	int8			byte_3A9DA[10];
 	int16			word_3A9E4;
 	int16			word_3A9E6;
 	uint16			word_3A9F7;
@@ -716,7 +716,7 @@ protected:
 	void			sub_18908();
 	void			Briefing_Wait();
 	void			Briefing_Draw_With( cSurface* pImage );
-	void			Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 );
 
 	void			sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi );
 	void			Brief_Draw_Horizontal_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
@@ -818,6 +818,7 @@ protected:
 
 	void			sub_2E04C();
 	void			sub_2F0D7();
+	void			sub_2F9B3();
 	void			sub_2FC4F();
 
 	void			sub_301F7();
