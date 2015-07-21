@@ -192,7 +192,7 @@ uint8* cResources::file_Get( cResource_File *pFile, size_t &pFileSize, bool pDec
 
 		if( (ax & 0xFF00) == 0 ) {
 
-			result.push_back(ax);
+			result.push_back(ax & 0xFF);
 
 			uint16 bx = word_26DB4;
 			byte_27EE6[bx] = ax & 0xFF;
