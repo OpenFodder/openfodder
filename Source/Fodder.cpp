@@ -4675,6 +4675,19 @@ void cFodder::sub_2A3D4( sSprite_0* pSprite ) {
 	word_3A8CF = DataC;
 }
 
+void cFodder::sub_2A470() {
+	int16* Data34 = word_3A9C0;
+
+	for( int16 Data0 = 2; Data0 >= 0; --Data2 ) {
+		
+		int16 ax = *Data34++;
+		if(!ax)
+			continue;
+		
+		*(Data34-1) -= 1;
+	}
+}
+
 int16 cFodder::sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
 	pData0 >>= 4;
 	pData4 >>= 4;
@@ -9400,6 +9413,81 @@ void cFodder::sub_2F0D7() {
 	word_3AC3F[word_39FD0] = 1;
 	byte_3AC33[word_39FD0] = -1;
 	byte_3AC39[word_39FD0] = -1;
+}
+
+void cFodder::sub_2F5ED() {
+	map_CheckFinal();
+	sub_2F757();
+	
+	Data0 = 2;
+	Data4 = 2;
+	
+	Data20 = &byte_3AC33[2]; //byte_3AC35; 
+	Data24 = &byte_3AC39[2]; //byte_3AC3B;
+	Data28 = word_3AA05;
+	Data2C = word_3AA0B;
+	Data30 = word_3AC3F;
+	
+	for( Data0 = 2; Data0 >= 0; --Data0 ) {
+		
+		if( ! *Data20 )
+			goto loc_2F67A;
+		
+		if( *(Data28 + Data4) 
+			goto loc_2F67A;
+		
+		if( *(Data30 + Data4) != 1 )
+			goto loc_2F67A;
+		
+		*(Data30 + Data4) = 3;
+		*Data24 = -1;
+		
+		loc_2F67A:;
+		if(! *Data24 )
+			goto loc_2F6B7;
+		
+		if( *(Data2C + Data4 ))
+			goto loc_2F6B7;
+		
+		if( *(Data30 + Data4) != 3 )
+			goto loc_2F6B7;
+		
+		*(Data30 + Data4) = 1;
+		*(Data20) = -1;
+		
+	loc_2F6B7:;
+		--Data20;
+		--Data24;
+		Data4--;
+
+	}
+	Data20 = &byte_3AC33[2];
+	
+	for(int16 Data0 = 2; Data0 >= 0; --Data0, --Data20 ) {
+		
+		if( !*Data20 )
+			goto loc_2F707;
+		
+		*Data20 = 0;
+		
+		sub_2F7E4();
+		
+	loc_2F707:;
+		--Data20;
+		--Data0;
+		
+		if(Data0>=0) {
+			Data0 = 2;
+			Data20 = &byte_3AC39[2];
+		}
+		
+		if(!*Data20)
+			continue;
+		
+		*Data20 = 0;
+		
+		sub_2F87E();
+	}
 }
 
 void cFodder::sub_2F9B3() {
