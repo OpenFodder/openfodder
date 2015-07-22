@@ -154,6 +154,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			mDataSubBlk;
 
 	uint32			dword_37AA0;
+	int32*			dword_37AC0;
 	uint32			dword_3901A;
 	uint16			word_3901E;
 	int16			word_39096;
@@ -182,6 +183,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
 	uint16			word_390F4;
+	int16			word_390F8;
 	sSquad_Member	mSquad[8];
 	int16			word_3915A;
 	int16			word_3915E;
@@ -346,6 +348,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA19;
 	int16			word_3AA1B;
 	int16			word_3AA1D;
+	int16			word_3AA1F;
 	int16			word_3AA41;
 	int16			word_3AA47;
 	int16			word_3AA4B;
@@ -394,7 +397,11 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC47;
 	struct_6		stru_3AC53[42]; //Correct?
 	struct_6*		dword_3AEF3;
+	int16			word_3AF01;
+	int16			word_3AF03;
+	int16			word_3AF05;
 	int32			dword_3AF0B;
+	int16			word_3AF07;
 	int32*			dword_3B11B;
 	int32*			dword_3B11F;
 	int16			word_3B15D;
@@ -436,10 +443,13 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B489;
 	int16*			dword_3B48B[16];
 	int16			word_3B4CB;
+	int16			word_3B4CD;
+	sSprite_0*		dword_3B4CF;
 	int16			word_3B4D3;
 	int16			word_3B4D5;
-
+	int16			word_3B4D7;
 	int16			word_3B4DB;
+	int16			word_3B4EB;
 	int16			word_3B4F1;
 	int16			word_3B4F3;
 	int16			word_3B4F5;
@@ -494,6 +504,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D03D[240];
 	int16			word_3D21D[161];
 
+	int16			word_3D465;
+	int16			word_3D467;
 	int16			word_3D469;
 	int16			word_3D473;
 	int16			word_3D475;
@@ -629,7 +641,10 @@ protected:
 
 	void			sub_11B06();
 	void			sub_11CAD();
+	void			sub_11CD6( cSurface* pImage );
 	void			map_Load_TileSet();
+	void			sub_11E60();
+	void			sub_11FCD();
 
 	void			sub_12018();
 	void			sub_12083();
@@ -642,6 +657,13 @@ protected:
 	void			sub_125A5();
 	void			sub_126BB();
 	void			sub_126DD();
+	void			sub_12790( cSurface* pImage );
+	void			sub_12838();
+	void			sub_12877( sSprite_0* pData2C );
+	void			sub_128A9( sSprite_0* pData2C );
+	void			sub_128DB( sSprite_0* pData2C );
+	void			sub_128F4( sSprite_0* pData2C );
+
 	std::string		sub_12AA1( std::string pBase, const char* pFinish );
 	void			sub_12A5F();
 	void			sub_12AEE();
@@ -651,6 +673,9 @@ protected:
 
 	void			sub_13102();
 	void			sub_13148();
+	void			sub_13155();
+	void			sub_131A2();
+	int16			sub_131DE();
 	void			sub_13800();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
@@ -802,11 +827,14 @@ protected:
 
 	void			sub_2D06C();
 	void			sub_2D26A( int32 pData24, int16& pData8 );
+	void			sub_2D725();
+	void			sub_2D767();
 	void			sub_2D7C0();
 	void			sub_2D7FF();
 	void			sub_2D8AF( sSprite_0* pSprite );
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
+	void			sub_2DE2C( cSurface* pImage );
 	void			sub_2EACA();
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
 	void			sub_2EB53( int16 pData0, int16 pData4 );
