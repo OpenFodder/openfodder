@@ -2772,8 +2772,23 @@ void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPo
 		video_Draw_Linear_To_Planar( pImage );
 }
 
-void cFodder::sub_13CF0( cSurface* pImage, int16 pData0, int16 pData4 ) {
+void cFodder::sub_13CF0( cSurface* pImage, sSprite_0* pDi, int16 pData0, int16 pData4 ) {
+
+	word_42062 = GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
 	
+	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
+	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount - pDi->field_52;
+
+	mDrawSpritePositionX = (mSpriteDataPtr[pData0][pData4].field_E + pDi->field_0) - word_39FA8 + 0x40;
+	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].field_F + pDi->field_4) - word_4206E - pDi->field_20 - word_39FAA;
+	mDrawSpritePositionY += 0x10;
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
+	
+	++word_42072;
+	if (sub_1429B())
+		video_Draw_Sprite_( pImage );
+
+	pDi->field_5C = 0;
 }
 
 void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
@@ -3117,7 +3132,7 @@ void cFodder::Mission_Sprite_Draw( cSurface* pImage ) {
 			int16 Data0 = eax->field_8;
 			int16 Data4 = eax->field_A;
 
-			sub_13CF0( pImage, Data0, Data4 );
+			sub_13CF0( pImage, eax, Data0, Data4 );
 		}
 	}
 	//seg001:0D5E
