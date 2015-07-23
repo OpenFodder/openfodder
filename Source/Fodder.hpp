@@ -153,7 +153,6 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			mDataBaseBlk;
 	uint8*			mDataSubBlk;
 
-	uint32			dword_37AA0;
 	int32*			dword_37AC0;
 	uint32			dword_3901A;
 	uint16			word_3901E;
@@ -281,6 +280,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A067;
 	int16			word_3A069;
 	int16			word_3A06B;
+	sSprite_0*		dword_3A071[20];
+	sSprite_0*		dword_3A125[45];
+	sSprite_0*		dword_3A1D9[45];
 	int16			word_3A28D;
 
 	int16			word_3A8D5;
@@ -301,6 +303,7 @@ class cFodder : public cSingleton < cFodder > {
 	int8			byte_3A05A[4];
 	uint8			byte_3A05E;
 	uint16			word_3A05F;
+	sSprite_0*		dword_3A291[14];
 	int32			dword_3A391;
 	uint32			dword_3A395;
 	int16			word_3A399;
@@ -405,6 +408,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32*			dword_3B11B;
 	int32*			dword_3B11F;
 	int16			word_3B15D;
+	int16			word_3B15F;
 	int16			word_3B173;
 	int32			dword_3B1CB;
 	int16			word_3B1AB;
@@ -653,6 +657,8 @@ protected:
 	void			sub_12245();
 	void			sub_1229C();
 	void			sub_122BD();
+	void			sub_1239E( cSurface* pImage );
+	void			sub_12419();
 	void			sub_124DB();
 	void			sub_125A5();
 	void			sub_126BB();
@@ -679,16 +685,21 @@ protected:
 	void			sub_13800();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
+	void			sub_13CF0( cSurface* pImage, int16 pData0, int16 pData4 );
 
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			sub_1429B();
+	void			Mission_Sprite_Draw( cSurface* pImage );
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	void			sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 );
+	
+	// 14EAC
+	void			Mission_Brief();
+
 	void			Briefing_Intro_Jungle( cSurface *pImage );
 
-	void			Mission_Brief();
 
 	void			sub_1590B( cSurface* pImage );
 	void			sub_1594F( cSurface* pImage );
