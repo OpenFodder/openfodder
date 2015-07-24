@@ -6071,6 +6071,17 @@ loc_2DFC7:;
 	sub_140F1( pImage );
 }
 
+void cFodder::sub_2E01C() {
+	
+	int32* Data20 = dword_3B11F;
+	++Data20;
+	
+	if( Data20 >= word_3B10B ) 
+		Data20 = dword_3AF0B;
+	
+	dword_3B11F = Data20;
+}
+
 void cFodder::sub_2EACA() {
 	word_3AC45 = -1;
 	sub_30465();
@@ -10106,6 +10117,27 @@ void cFodder::sub_2F5ED() {
 		
 		sub_2F87E();
 	}
+}
+
+void cFodder::sub_2F757() {
+	
+	word_3AC1B = 0;
+	word_3AC1F = 0;
+	
+	for( word_3AC1B = 0; word_3AC1B < 3; ++word_3AC1B, ++word_3AC1F ) {
+
+		word_3AC1D = word_3AC2D[word_3AC1F];
+		
+		if( !byte_3A05A[word_3AC1D] )
+			continue;
+		
+		word_3AC47 = 0;
+		
+		if( Data0 == word_39FD0 )
+			word_3AC47 = -1;
+		
+		if( sub_2F4CB() )
+			sub_2F45B();
 }
 
 void cFodder::sub_2F9B3() {
