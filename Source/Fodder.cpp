@@ -8789,8 +8789,8 @@ int16 cFodder::sub_313CD() {
 	const int16* Data30 = word_4555C;
 	const int16* Data34 = word_4563A;
 
-	Data0 = word_3BDAF;
-	Data4 = word_3BDB1;
+	int16 Data0 = word_3BDAF;
+	int16 Data4 = word_3BDB1;
 
 	Data0 += dword_39F2C >> 16;
 	Data4 += dword_39F30 >> 16;
@@ -8808,8 +8808,8 @@ int16 cFodder::sub_313CD() {
 	if (Data20->field_22)
 		goto loc_31689;
 
-	Data18 = Data20->field_18;
-	Data8 = Data20->field_0;
+	int16 Data18 = Data20->field_18;
+	int16 Data8 = Data20->field_0;
 	if (Data0 < Data8)
 		goto loc_31689;
 
@@ -8852,11 +8852,11 @@ loc_31514:;
 
 //seg011:2A84
 	word_3B461[Data0] = 0;
-	sSprite_0* Dataa2C = Data28[Data0];
+	sSprite_0** Dataa2C = Data28[Data0];
 
 	//loc_31578
-	for (;;) {
-		sSprite_0* eax = (sSprite_0*) (Dataa2C->field_0 | Dataa2C->field_4 << 16);
+	for (; Data18 >= 0; --Data18) {
+		sSprite_0* eax = *Dataa2C;
 
 		if (eax < 0)
 			goto loc_31668;
@@ -8866,17 +8866,46 @@ loc_31514:;
 
 		++Dataa2C;
 		if (!Data24->field_6E)
-			goto loc_31660;
+			continue;
 
 		//seg011:2AE9 
 
+		Data24->field_6E = 0;
+		sSprite_0* Dataa30 = (sSprite_0*) Data24->field_6A;
+		Data24->field_6A = 0;
+		Data24->field_66 = 0;
+
+		Data24->field_0 = Dataa30->field_0;
+		Data24->field_4 = Dataa30->field_4;
+		if (!Data24->field_6F)
+			goto loc_3162B;
+
+		if (Data24->field_6F == 1)
+			goto loc_3162B;
+
+		Data24->field_0 += 0x0F;
+		Data24->field_4 += -10;
+
+	loc_3162B:;
+		Data24->field_26 = Data24->field_0;
+		Data24->field_28 = Data24->field_4;
+		Data24->field_26 -= 6;
+		Data24->field_28 += 0x10;
 	}
-	//loc_31668;
+
+loc_31668:;
 	word_39F00 = -1;
 	Data20->field_6E = -1;
+	word_39EFC = 0;
 loc_3167D:;
 	Data0 = -1;
 	return -1;
+
+loc_31689:;
+	Data20->field_6E = 0;
+loc_31692:;
+	Data0 = 0;
+	return 0;
 }
 
 void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString ) {
@@ -10232,7 +10261,7 @@ loc_103BF:;
 				if (Data0 == 0x0C)
 					word_3ABB7 = -1;
 			}
-			stru_3AC53[0].field_0 = -1;
+			stru_3AC53[0].field_0 = 0;
 			word_390A6 = -1;
 			sub_11CAD();
 			word_3BEC1 = 0;
@@ -10638,7 +10667,7 @@ void cFodder::sub_306D0() {
 	for (;;) {
 		struct_6* Data20 = dword_3A02A;
 
-		if (Data20->field_0 < 0)
+		if (Data20->field_0 <= 0)
 			goto loc_307DF;
 
 		int16 Data0 = Data20->field_0();
