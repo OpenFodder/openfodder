@@ -37,14 +37,14 @@ struct sMouseData {
 };
 
 struct sSquad_Member {
-	int16 mRecruitID;
-	uint8 mRank;
-	uint8 field_3;
-	int16 field_4;		// Sprite ID?
-	uint16 field_6;
-	uint8 field_8;
-	uint8 field_9;
-	uint16 mNumberOfKills; 
+	int16		mRecruitID;
+	uint8		mRank;
+	uint8		field_3;
+	sSprite_0*	field_4;
+	uint16		field_6;
+	uint8		field_8;
+	uint8		field_9;
+	uint16		mNumberOfKills; 
 };
 
 struct sSpriteSheet {
@@ -180,7 +180,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390D0;
 	uint16			word_390D2;
 	int16			word_390D4;
-	uint16			word_390D6[8];
+	sSprite_0*		word_390D6[8];
 	uint16			word_390E8;
 	int16			word_390EA;
 	int16			word_390EC;
@@ -319,6 +319,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3B9;
 	int16			word_3A3BB;
 	int16			word_3A3BD;
+	int16			word_3A3BF;
 	int16*			dword_3A3F9;
 	int16			word_3A3FD[60];
 	int16			word_3A475[60];
@@ -391,6 +392,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABC3;
 	int16			word_3ABC5;
 	int16			word_3ABC7;
+	sSprite_0*		dword_3ABC9;
 	int16			word_3ABE7;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
@@ -882,12 +884,14 @@ protected:
 
 	void			sub_2E04C();
 	void			sub_2F0D7();
+	int16			sub_2F4CB();
 	void			sub_2F5ED();
 	void			sub_2F757();
 	void			sub_2F9B3();
 	void			sub_2FC4F();
 
 	int16			sub_30E0B();
+	void			sub_30E49();
 	void			sub_301F7();
 	void			sub_30465();
 	void			sub_30480();
