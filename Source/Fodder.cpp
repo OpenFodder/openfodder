@@ -8852,12 +8852,31 @@ loc_31514:;
 
 //seg011:2A84
 	word_3B461[Data0] = 0;
-	Data2C = Data28[Data0];
+	sSprite_0* Dataa2C = Data28[Data0];
 
+	//loc_31578
 	for (;;) {
-		
+		sSprite_0* eax = (sSprite_0*) (Dataa2C->field_0 | Dataa2C->field_4 << 16);
+
+		if (eax < 0)
+			goto loc_31668;
+
+		++Dataa2C;
+		sSprite_0* Data24 = eax;
+
+		++Dataa2C;
+		if (!Data24->field_6E)
+			goto loc_31660;
+
+		//seg011:2AE9 
+
 	}
 	//loc_31668;
+	word_39F00 = -1;
+	Data20->field_6E = -1;
+loc_3167D:;
+	Data0 = -1;
+	return -1;
 }
 
 void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString ) {
