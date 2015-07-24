@@ -897,6 +897,7 @@ protected:
 	void			sub_31033();
 	void			sub_31075( int16 pData0 );
 	void			sub_310CB();
+	int16			sub_313CD();
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
