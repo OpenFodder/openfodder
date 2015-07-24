@@ -846,6 +846,7 @@ protected:
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
 	void			sub_2DE2C( cSurface* pImage );
+	void			sub_2E01C();
 	void			sub_2EACA();
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
 	void			sub_2EB53( int16 pData0, int16 pData4 );
@@ -859,6 +860,7 @@ protected:
 	void			sub_2E04C();
 	void			sub_2F0D7();
 	void			sub_2F5ED();
+	void			sub_2F757();
 	void			sub_2F9B3();
 	void			sub_2FC4F();
 
