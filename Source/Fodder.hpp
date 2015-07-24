@@ -120,6 +120,11 @@ struct struct_6 {
 	int32	field_C;
 };
 
+struct struct_7 {
+	int16	field_0;
+	int16	field_2;
+};
+
 extern struct sRecruit mRecruits[360];
 
 class cFodder : public cSingleton < cFodder > {
@@ -203,6 +208,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mButtonPressLeft, mButtonPressRight;
 	int16			word_39EF8;
+	int16			word_39F00;
 	int16			word_39F02;
 	int16			word_39F06;
 	int16			word_39FA0;
@@ -275,6 +281,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FFA;
 
 	int16			word_3A01A;
+	struct_6*		dword_3A02A;
+	int32			dword_3A030;
 	int16			word_3A063;
 	int16			word_3A065;
 	int16			word_3A067;
@@ -311,6 +319,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3B9;
 	int16			word_3A3BB;
 	int16			word_3A3BD;
+	int16*			dword_3A3F9;
 	int16			word_3A3FD[60];
 	int16			word_3A475[60];
 	int16			word_3A4ED[60];
@@ -341,6 +350,8 @@ class cFodder : public cSingleton < cFodder > {
 	int8			byte_3A9DA[10];
 	int16			word_3A9E4;
 	int16			word_3A9E6;
+	int16			word_3A9F3;
+	int16			word_3A9F5;
 	uint16			word_3A9F7;
 	int16			word_3A9FB;
 	int32			dword_3A9FD;
@@ -379,6 +390,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABBB;
 	int16			word_3ABC3;
 	int16			word_3ABC5;
+	int16			word_3ABC7;
 	int16			word_3ABE7;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
@@ -403,10 +415,11 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AF01;
 	int16			word_3AF03;
 	int16			word_3AF05;
-	int32			dword_3AF0B;
 	int16			word_3AF07;
-	int32*			dword_3B11B;
-	int32*			dword_3B11F;
+	struct_7		stru_3AF0B[128];
+
+	struct_7*		dword_3B11B;
+	struct_7*		dword_3B11F;
 	int16			word_3B15D;
 	int16			word_3B15F;
 	int16			word_3B173;
@@ -420,14 +433,16 @@ class cFodder : public cSingleton < cFodder > {
 	const struct_4*		dword_3B1FB;
 	
 	int16			mMap_TileSet;
-	int16			dword_3B20B;
+	sSprite_0*		dword_3B20B;
 	int32			word_3B20F;
 	int16			word_3B211;
 	sSprite_0*		dword_3B213[15];
+	sSprite_0*		dword_3B24F[3];
 	int16			word_3B25B;
 	int16			word_3B2CB;
 	int16			word_3B2CD;
 	int16			word_3B2CF;
+	int16			word_3B2F1;
 	int16			word_3B2F3;
 	int16			word_3B2FD;
 	int16			word_3B2FF;
@@ -648,6 +663,8 @@ protected:
 	void			sub_11CD6( cSurface* pImage );
 	void			map_Load_TileSet();
 	void			sub_11E60();
+	void			sub_11E6C();
+	void			sub_11EC2();
 	void			sub_11FCD();
 
 	void			sub_12018();
@@ -669,11 +686,15 @@ protected:
 	void			sub_128A9( sSprite_0* pData2C );
 	void			sub_128DB( sSprite_0* pData2C );
 	void			sub_128F4( sSprite_0* pData2C );
+	void			sub_12952();
+	void			sub_1298C( sSprite_0* pData2C );
+	void			sub_129B6( sSprite_0* pData2C );
 
 	std::string		sub_12AA1( std::string pBase, const char* pFinish );
 	void			sub_12A5F();
 	void			sub_12AEE();
-	
+	void			sub_12B6E();
+
 	void			Map_Overview_Prepare();
 	void			map_SetTileType();
 
@@ -682,6 +703,8 @@ protected:
 	void			sub_13155();
 	void			sub_131A2();
 	int16			sub_131DE();
+	void			sub_13255();
+	void			sub_13277( sSprite_0* pData2C );
 	void			sub_13800();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
@@ -864,13 +887,16 @@ protected:
 	void			sub_2F9B3();
 	void			sub_2FC4F();
 
+	int16			sub_30E0B();
 	void			sub_301F7();
 	void			sub_30465();
 	void			sub_30480();
 	void			sub_304D0();
 	int16			sub_305D5();
+	void			sub_306D0();
 	void			sub_31033();
 	void			sub_31075( int16 pData0 );
+	void			sub_310CB();
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
