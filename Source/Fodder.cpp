@@ -8784,6 +8784,82 @@ void cFodder::sub_310CB() {
 	Data20->field_28 = Data4;
 }
 
+int16 cFodder::sub_313CD() {
+	const int16* Data2C = word_4547E;
+	const int16* Data30 = word_4555C;
+	const int16* Data34 = word_4563A;
+
+	Data0 = word_3BDAF;
+	Data4 = word_3BDB1;
+
+	Data0 += dword_39F2C >> 16;
+	Data4 += dword_39F30 >> 16;
+
+	Data0 -= 0x0F;
+	Data4 -= 3;
+
+	if (!dword_3B20B)
+		goto loc_31692;
+
+	sSprite_0* Data20 = dword_3B20B;
+	if (Data20->field_0 == -32768)
+		goto loc_31689;
+
+	if (Data20->field_22)
+		goto loc_31689;
+
+	Data18 = Data20->field_18;
+	Data8 = Data20->field_0;
+	if (Data0 < Data8)
+		goto loc_31689;
+
+	Data8 += Data2C[Data18];
+	if (Data0 > Data8)
+		goto loc_31689;
+
+	//seg011:29DA
+	Data8 = Data20->field_4;
+	Data8 -= Data20->field_20;
+
+	Data8 -= Data30[Data18];
+	Data8 -= 0x14;
+	if (Data4 < Data8)
+		goto loc_31689;
+
+	Data8 = Data20->field_4;
+	Data8 -= Data20->field_20;
+	if (Data4 > Data8)
+		goto loc_31689;
+
+	if (!Data20->field_20)
+		goto loc_31514;
+
+	Data20->field_6E = -1;
+	word_39F00 = -1;
+	goto loc_3167D;
+
+loc_31514:;
+	Data0 = -3;
+	Data4 = 8;
+
+	if (sub_2A7F7(Data20, Data0,Data4))
+		goto loc_31689;
+
+	sSprite_0*** Data28 = off_3BDEF;
+	Data0 = word_39FD0;
+	if (Data0 < 0)
+		goto loc_31668;
+
+//seg011:2A84
+	word_3B461[Data0] = 0;
+	Data2C = Data28[Data0];
+
+	for (;;) {
+		
+	}
+	//loc_31668;
+}
+
 void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString ) {
 	int32 PositionX = 0;
 
