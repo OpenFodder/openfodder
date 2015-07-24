@@ -112,12 +112,12 @@ struct struct_5 {
 };
 
 struct struct_6 {
-	int32	field_0;
+	int		(*field_0)();
 	int16	field_4;
 	int16	field_6;
 	int16	field_8;
 	int16	field_A;
-	int32	field_C;
+	void	(*field_C)();
 };
 
 struct struct_7 {
