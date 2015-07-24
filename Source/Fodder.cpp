@@ -126,6 +126,7 @@ cFodder::cFodder() {
 	word_3A3B9 = 0;
 	word_3A3BB = 0;
 	word_3A3BD = 0;
+	dword_3A3F9 = 0;
 	word_3FA1F = -1;
 	word_3FA21 = 0;
 	word_3FA37 = 0;
@@ -253,7 +254,7 @@ int16 cFodder::Mission_Loop() {
 
 		sub_14445();
 		if (word_3B4DB) {
-			sub_12D00();
+			//sub_12D00();
 			word_3B4DB = 0;
 		}
 
@@ -300,7 +301,7 @@ void cFodder::mouse_unk_0() {
 			sub_10937();
 
 			if (!word_3B4F1)
-				sub_306D0( Sprite );
+				sub_306D0();
 		}
 	}
 
@@ -569,6 +570,7 @@ void cFodder::sub_10D61() {
 	word_39EFA = 0;
 	word_39EFC = 0;
 
+	word_39F00 = 0;
 	word_39F02 = 0;
 	word_39F04 = 0;
 	word_39F06 = 0;
@@ -625,6 +627,7 @@ void cFodder::sub_10D61() {
 	word_3A010 = 0;
 	word_3A016 = 0;
 	word_3A01A = 0;
+	dword_3A030 = 0;
 	word_3A063 = 0;
 	word_3A065 = 0;
 	word_3A067 = 0;
@@ -662,6 +665,8 @@ void cFodder::sub_10D61() {
 
 	word_3A9E4 = 0;
 	word_3A9E6 = 0;
+	word_3A9F3 = 0;
+	word_3A9F5 = 0;
 	word_3A9F7 = 0;
 	word_3A9FB = 0;
 	dword_3A9FD = 0;
@@ -705,6 +710,7 @@ void cFodder::sub_10D61() {
 	word_3ABBB = 0;
 	word_3ABC3 = 0;
 	word_3ABC5 = 0;
+	word_3ABC7 = 0;
 	word_3AC19 = 0;
 	word_3AC1B = 0;
 	word_3AC1D = 0;
@@ -733,7 +739,12 @@ void cFodder::sub_10D61() {
 	word_3AF01 = 0;
 	word_3AF03 = 0;
 	word_3AF05 = 0;
-	dword_3AF0B = 0;
+
+	for (uint16 x = 0; x < 128; ++x) {
+		stru_3AF0B[x].field_0 = 0;
+		stru_3AF0B[x].field_2 = 2;
+	}
+
 	word_3AF07 = 0;
 	dword_3B11B = 0;
 	dword_3B11F = 0;
@@ -767,10 +778,15 @@ void cFodder::sub_10D61() {
 		dword_3B213[x] = 0;
 	}
 
+	for (uint16 x = 0; x < 3; ++x) {
+		dword_3B24F[x] = 0;
+	}
+
 	word_3B25B = 0;
 	word_3B2CB = 0;
 	word_3B2CD = 0;
 	word_3B2CF = 0;
+	word_3B2F1 = 0;
 	word_3B2F3 = 0;
 	word_3B2FD = 0;
 	word_3B2FF = 0;
@@ -1661,6 +1677,90 @@ void cFodder::sub_11E60() {
 	//Music_Unk();
 }
 
+void cFodder::sub_11E6C() {
+	sub_11EC2();
+
+	int32 Saved_dword_3A9FD = dword_3A9FD;
+	dword_3A9FD = 0x100000;
+	sub_11B06();
+	dword_3A9FD = Saved_dword_3A9FD;
+
+	sub_120F6();
+
+	int16 Data0 = dword_39F24 >> 16;
+	Data0 >>= 3;
+	Data0 -= 2;
+
+	if (Data0 < 0)
+		Data0 += 0x28;
+
+	// TODO: Check this
+	// seg000:1EA4
+	Data0 &= 0x0FFFE;
+
+	dword_39F20 = Data0;
+
+	sub_12018();
+	Camera_Pan();
+}
+
+void cFodder::sub_11EC2() {
+	word_3AA1F = 2;
+	dword_39F42 = 0;
+	dword_39F46 = 0;
+
+	int16 Data0 = word_3A063;
+	Data0 -= 0x88;
+	if (Data0 < 0)
+		Data0 = 0;
+
+	Data0 >>= 4;
+	int16 Data4 = word_3A065;
+	Data4 -= 0x6C;
+	if (Data4 < 0)
+		Data4 = 0;
+
+	Data4 >>= 4;
+
+	int16 Data8 = readLEWord( &mMap[0x54] );
+	Data8 -= 0x12;
+	if (Data8 < 0)
+		Data8 = 0;
+
+	if (Data0 >= Data8)
+		Data0 = Data8;
+	
+	Data8 = readLEWord( &mMap[0x56] );
+	Data8 -= 0x10;
+	if (Data8 < 0)
+		Data8 = 0;
+
+	if (Data4 >= Data8)
+		Data4 = Data8;
+
+	Data8 = dword_39F2C >> 16;
+	Data8 >>= 4;
+	int16 DataC = dword_39F30 >> 16;
+	DataC >>= 4;
+
+	if (Data8 == Data0) {
+		--word_3AA1F;
+	} 
+	else if (Data8 > Data0) {
+		dword_39F42 = dword_39F42 & 0xFFFF0000 | -8;
+	} else 
+		dword_39F42 = dword_39F42 & 0xFFFF0000 | 8;
+
+	//loc_11FAC
+	if (DataC == Data4) {
+		--word_3AA1F;
+	} 
+	else if (DataC > Data4) {
+		dword_39F46 = dword_39F46 & 0xFFFF0000 | -8;
+	} else 
+		dword_39F46 = dword_39F46 & 0xFFFF0000 | 8;
+}
+
 void cFodder::sub_11FCD() {
 	
 	if (!word_3A054) {
@@ -2063,11 +2163,11 @@ void cFodder::sub_125A5() {
 }
 
 void cFodder::sub_126BB() {
-	dword_3B11B = &dword_3AF0B;
-	dword_3B11F = &dword_3AF0B;
+	dword_3B11B = stru_3AF0B;
+	dword_3B11F = stru_3AF0B;
 
-	dword_3AF0B = -1;
-
+	stru_3AF0B[0].field_0 = -1;
+	stru_3AF0B[0].field_2 = -1;
 }
 
 void cFodder::sub_126DD() {
@@ -2195,6 +2295,36 @@ void cFodder::sub_128F4( sSprite_0* pData2C ) {
 	pData2C->field_2C = 1;
 }
 
+void cFodder::sub_12952() {
+	sSprite_0* Data24 = (sSprite_0*)mMapSpt_Loaded + 0x938; // [40]
+	sub_2061C( Data24 );
+
+	sSprite_0* Data2C = (sSprite_0*)mMapSpt_Loaded + 0x973; // [41]
+	sub_1298C( Data2C );
+
+	Data2C = (sSprite_0*)mMapSpt_Loaded + 0x9AE; // [42]
+	sub_129B6( Data2C );
+
+	//TODO
+	//Music_Unk(0x0F);
+}
+
+void cFodder::sub_1298C( sSprite_0* pData2C ) {
+	sub_128F4( pData2C );
+	pData2C->field_4 -= 0x14;
+	pData2C->field_0 += 0x12;
+	pData2C->field_8 = 0xCA;
+	pData2C->field_18 = 0x3A;
+
+}
+
+void cFodder::sub_129B6( sSprite_0* pData2C ) {
+	sub_128F4( pData2C );
+
+	pData2C->field_8 = 0xCB;
+	pData2C->field_18 = 0x3B;
+}
+
 std::string	cFodder::sub_12AA1( std::string pBase, const char* pFinish ) {
 	std::string Final;
 
@@ -2242,6 +2372,46 @@ void cFodder::sub_12AEE() {
 	*Data24 = (sSprite_0*) -1;
 	++Data24;
 
+}
+
+void cFodder::sub_12B6E() {
+	int16 Data8 = word_39FD0;
+	if (Data8 >= 0) {
+		sSprite_0** Data20 = off_3BDEF[Data8];
+
+		dword_3B24F[Data8] = 0;
+
+		//Data34 = byte_3E75D;
+		int16 Data0 = 0;
+		int16 Data10 = 0;
+
+		for (;;) {
+			if (*Data20 > 0) {
+				sSprite_0* Data24 = *Data20++;
+				if (!Data24->field_6E)
+					goto loc_12C5F;
+
+				dword_3B20B = (sSprite_0*) Data24->field_6A;
+				Data0 = -1;
+				continue;
+
+			}
+			else {
+				//loc_12C2B
+				if (Data0 < 0)
+					goto loc_12C5F;
+
+				sSprite_0* Dataa0 = dword_3B20B;
+				dword_3B24F[Data8] = Dataa0;
+				word_39FCE = Dataa0;
+				return;
+			}
+		}
+
+	}
+
+loc_12C5F:;
+	dword_3B20B = 0;
 }
 
 void cFodder::Map_Overview_Prepare() {
@@ -2719,6 +2889,23 @@ int16 cFodder::sub_131DE() {
 void cFodder::sub_13800() {
 
 	videoSleep();
+}
+
+void cFodder::sub_13255() {
+	sSprite_0* Data24 = (sSprite_0*)mMapSpt_Loaded + 0x938; // [40]
+	sub_2061C( Data24 );
+
+	sSprite_0* Data2C =  (sSprite_0*)mMapSpt_Loaded + 0x973; // [41]
+	sub_13277( Data2C );
+}
+
+void cFodder::sub_13277( sSprite_0* pData2C ) {
+	sub_128F4( pData2C );
+	pData2C->field_8 = 0xC1;
+	pData2C->field_18 = 0x22;
+
+	//TODO
+	//Music_Unk(8);
 }
 
 void cFodder::paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID ) {
@@ -6073,11 +6260,11 @@ loc_2DFC7:;
 
 void cFodder::sub_2E01C() {
 	
-	int32* Data20 = dword_3B11F;
+	struct_7* Data20 = dword_3B11F;
 	++Data20;
 	
-	if( Data20 >= word_3B10B ) 
-		Data20 = dword_3AF0B;
+	if( Data20 >= &stru_3AF0B[128] ) 
+		Data20 = stru_3AF0B;
 	
 	dword_3B11F = Data20;
 }
@@ -8552,6 +8739,51 @@ void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int
 	}
 }
 
+void cFodder::sub_310CB() {
+	
+	if (!mButtonPressLeft) {
+		word_39F00 = 0;
+		return;
+	}
+
+	if (word_39F00)
+		return;
+
+	if (sub_30E0B() >= 0)
+		if (sub_313CD() < 0)
+			return;
+
+	sSprite_0* Data20 = word_39FCE;
+
+	if (Data20 < 0)
+		return;
+	int16 Data0 = word_3BDAF;
+	int16 Data4 = word_3BDB1;
+	Data0 += dword_39F2C >> 16;
+	Data4 += dword_39F30 >> 16;
+	Data0 -= 0x1C;
+	if (Data0 < 0)
+		Data0 = 0;
+	Data4 += 6;
+	if (Data4 < 0)
+		Data4 = 0x14;
+
+	if (Data4 < 0x14)
+		Data4 = 0x14;
+
+	if (Data20->field_6F >= 5) {
+		if (Data20->field_50 <= 8)
+			Data4 += 0x20;
+	}
+
+	word_3A063 = Data0;
+	word_3A065 = Data4;
+	word_3A054 = 0;
+
+	Data20->field_26 = Data0;
+	Data20->field_28 = Data4;
+}
+
 void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString ) {
 	int32 PositionX = 0;
 
@@ -10124,20 +10356,21 @@ void cFodder::sub_2F757() {
 	word_3AC1B = 0;
 	word_3AC1F = 0;
 	
-	for( word_3AC1B = 0; word_3AC1B < 3; ++word_3AC1B, ++word_3AC1F ) {
+	for (word_3AC1B = 0; word_3AC1B < 3; ++word_3AC1B, ++word_3AC1F) {
 
 		word_3AC1D = word_3AC2D[word_3AC1F];
-		
-		if( !byte_3A05A[word_3AC1D] )
+
+		if (!byte_3A05A[word_3AC1D])
 			continue;
-		
+
 		word_3AC47 = 0;
-		
-		if( Data0 == word_39FD0 )
+
+		if (word_3AC1F == word_39FD0)
 			word_3AC47 = -1;
-		
-		if( sub_2F4CB() )
+
+		if (sub_2F4CB())
 			sub_2F45B();
+	}
 }
 
 void cFodder::sub_2F9B3() {
@@ -10172,6 +10405,15 @@ void cFodder::sub_2FC4F() {
 	word_3AC3F[word_39FD0] = 3;
 	byte_3AC39[word_39FD0] = -1;
 	byte_3AC33[word_39FD0] = -1;
+}
+
+int16 cFodder::sub_30E0B() {
+	if (word_39EF8 >= 0) {
+		//pData0 = -1;
+		return -1; 
+	}
+	word_39EF8 = 1;
+	return 1;
 }
 
 void cFodder::sub_301F7() {
@@ -10281,6 +10523,199 @@ loc_306BE:;
 		return -1;
 
 	return 1;
+}
+
+void cFodder::sub_306D0() {
+	if (word_3AC45)
+		return;
+
+	if (word_3B20F)
+		sub_30AB0();
+
+	if (dword_3A030) {
+		// TODO: Function pointer call, but appears not to be used
+		//dword_3A030();
+		return;
+	}
+
+	dword_3A02A = stru_3AC53;
+
+	for (;;) {
+		struct_6* Data20 = dword_3A02A;
+
+		if (Data20->field_0 < 0)
+			goto loc_307DF;
+
+		int16 Data0 = Data20->field_0();
+		if (Data0 < 0)
+			return;
+
+		Data20 = dword_3A02A;
+		Data0 = word_3BEC1;
+		Data0 += Data20->field_4;
+		int16 Data4 = word_3BDAF;
+		Data4 += 0x20;
+
+		if (Data0 > Data4)
+			goto loc_307CF;
+
+		Data0 += Data20->field_6;
+		if (Data0 < Data4)
+			goto loc_307CF;
+
+		Data0 = word_3BEC3;
+		Data0 += Data20->field_8;
+		if (Data0 > word_3BDB1)
+			goto loc_307CF;
+
+		Data0 += Data20->field_A;
+		if (Data0 < word_3BDB1)
+			goto loc_307CF;
+
+		Data20->field_C();
+		return;
+
+	loc_307CF:;
+		++dword_3A02A;
+
+	}
+loc_307DF:;
+	if (!mButtonPressRight)
+		goto loc_30814;
+
+	if (word_39FD0 < 0)
+		return;
+
+	if (word_3A9F7 < 0) {
+		word_3A9F7 = 0x24;
+		word_3A9F3 = -8;
+		word_3A9F5 = -8;
+	}
+	sub_30CDC();
+	if (!dword_3B20B)
+		return;
+
+loc_30814:;
+
+	if (dword_3B20B) {
+		sub_310CB();
+		return;
+	}
+
+	if (sub_30E0B() < 0)
+		return;
+
+	if (word_3AA43)
+		return;
+
+	if (word_3A9F7 < 0) {
+		word_3A9F7 = 0x23;
+		word_3A9F3 = 0;
+		word_3A9F5 = 0;
+	}
+
+	sSprite_0** Data24 = off_3BDEF[word_39FD0];
+	sSprite_0* Dataa24 = *Data24;
+
+	if (Dataa24->field_6E)
+		return;
+
+	if (word_39FD0 < 0) {
+		sub_30E49();
+		return;
+	}
+
+
+	if (word_3B2F1) {
+		word_3B2F1 = 0;
+	}
+	else {
+		sub_311A7();
+	}
+
+	word_3ABC7 = 0;
+	sub_30E49();
+
+	if (!word_3ABC7)
+		goto loc_308F6;
+
+	int8* Data20 = byte_3A05A;
+	int8 al;
+
+	//TODO 
+	// Why is this here??
+	for (int16 Data0 = 2; Data0 >= 0; --Data0) {
+		al = *Data20;
+		if (!al)
+			return;
+	}
+	return;
+
+loc_308F6:;
+	sSprite_0* Dataa20 = word_39FCE;
+
+	if (Dataa20 < 0)
+		return;
+
+	int16 Data0 = word_3BDAF;
+	int16 Data4 = word_3BDB1;
+	Data0 += dword_39F2C >> 16;
+	Data4 += dword_39F30;
+
+	Data0 += -22;
+	if (Data0 < 0)
+		Data0 = 0;
+
+	Data4 += -3;
+	if (Data4 < 0)
+		Data4 = 3;
+
+	if (Data4 < 3)
+		Data4 = 3;
+
+	word_3A063 = Data0;
+	word_3A065 = Data4;
+	word_3A054 = 0;
+
+	dword_3A3F9 = off_3BEF3[word_39FD0];
+
+	sSquad_Member* SquadMember = mSquad;
+
+	int8 Data14 = 0;
+
+	for (int16 Data18 = 7; Data18 >= 0; --Data18, ++SquadMember) {
+
+		int16 Data1C = SquadMember->field_4;
+		if (Data1C < 0)
+			continue;
+		
+		sSprite_0* tmp = Dataa20 + Data1C;
+		if (word_39FD0 != tmp->field_32)
+			continue;
+
+		tmp->field_44 = Data14;
+		tmp->field_2 = 0;
+		tmp->field_6 = 0;
+	}
+
+	sSprite_0* Saved_Data20 = Dataa20;
+
+	int16 Data10 = Dataa20->field_0;
+	Data14 = Dataa20->field_4;
+	int16 DataC = Dataa20->field_32;
+	int16 Data8 = Data4;
+	Data4 = Data0;
+
+	sub_2A932();
+	Dataa20 = Saved_Data20;
+
+	for (Data0 = 2; Data0 >= 0; --Data0) {
+
+		if (word_39FD0 != byte_3BF1B[Data0])
+			continue;
+
+		byte_3BF1B[Data0] = -1;
+	}
 }
 
 void cFodder::sub_31033() {
