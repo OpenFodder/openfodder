@@ -6122,7 +6122,7 @@ int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
 		int32 Data4 = Data24[pSprite->field_40 + 2];
 		pSprite->field_26 = Data0;
 		pSprite->field_28 = Data4;
-		pSprite->field_40 += 4;
+		pSprite->field_40 ++;
 		pSprite->field_42 = -1;
 	loc_2D9AB:;
 		return 0;
@@ -7296,7 +7296,7 @@ loc_1E2F4:;
 
 loc_1E3D2:;
 
-	if (pSprite->field_40 == 0x9876) {
+	if (pSprite->field_40 == -26506) {
 		pSprite->field_28 += 1;
 		sub_1FF1A(pSprite);
 
@@ -11480,7 +11480,7 @@ loc_308F6:;
 
 	for (int16 Data18 = 7; Data18 >= 0; --Data18, ++SquadMember) {
 
-		if (SquadMember->field_4 < 0)
+		if (SquadMember->field_4 == (sSprite_0*) -1 || SquadMember->field_4 == 0 )
 			continue;
 		
 		sSprite_0* tmp = SquadMember->field_4;
