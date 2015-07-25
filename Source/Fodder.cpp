@@ -141,34 +141,34 @@ cFodder::cFodder() {
 	word_44A32 = 0;
 	word_44A34 = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A3FD[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A475[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A4ED[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A565[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A5DD[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A655[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A6CD[x] = 0;
 	 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A745[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A7BD[x] = 0;
 
-	for (unsigned int x = 0; x < 60; ++x)
+	for (unsigned int x = 0; x < 30; ++x)
 		word_3A835[x] = 0;
 
 	for (unsigned int x = 0; x < 0x18; ++x) {
@@ -2416,6 +2416,29 @@ void cFodder::sub_12B6E() {
 
 loc_12C5F:;
 	dword_3B20B = 0;
+}
+
+void cFodder::sub_12C69() {
+	int16* Data24 = word_3B461;
+
+	for (int16 Data0 = 0; Data0 < 3; ++Data0) {
+		if (!word_3B461[Data0])
+			continue;
+
+		word_3B461[Data0]--;
+		if (word_3B461[Data0])
+			continue;
+
+		sSprite_0** Data2C = off_3BDEF[Data0];
+
+		for (;;) {
+			if (*Data2C == (sSprite_0*) -1 )
+				break;
+
+			sSprite_0* Data30 = *Data2C++;
+			Data30->field_38 = 0x5A;
+		}
+	}
 }
 
 void cFodder::Map_Overview_Prepare() {
@@ -6018,12 +6041,12 @@ void cFodder::sub_2D8AF( sSprite_0* pSprite ) {
 
 int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
 
-	int16* Data24 = off_3BEF3[ pSprite->field_32 ];
+	int32* Data24 = off_3BEF3[ pSprite->field_32 ];
 
 	int16 Data0 = Data24[pSprite->field_40];
 
 	if (Data0 >= 0) {
-		int16 Data4 = Data24[pSprite->field_40 + 2];
+		int32 Data4 = Data24[pSprite->field_40 + 2];
 		pSprite->field_26 = Data0;
 		pSprite->field_28 = Data4;
 		pSprite->field_40 += 4;
@@ -6068,12 +6091,12 @@ int16 cFodder::loc_2D9D5( sSprite_0* pSprite ) {
 	uint8* Dataa24 = (uint8*) pSprite->field_46;
 	*(Dataa24 + 9) &= 0xFE;
 
-	int16* Data24 = off_3BEF3[Data18];
+	int32* Data24 = off_3BEF3[Data18];
 	Data0 = 0;
 
 	for (;;) {
 
-		int16 eax = *Data24;
+		int32 eax = *Data24;
 		++Data24;
 		if (eax < 0)
 			break;
@@ -6148,6 +6171,23 @@ int16 cFodder::sub_2DBA3( sSprite_0* pSprite ) {
 	return 0;
 loc_2DCAD:;
 	return loc_2D9D5(pSprite);
+}
+
+void cFodder::sub_2DCB0( int16 pData0 ) {
+	int32* Dataa24 = off_3BEF3[pData0];
+
+	*Dataa24 = -1;
+	sSprite_0** Data24 = off_3BDEF[pData0];
+
+	for (;;) {
+
+		if (*Data24 == (sSprite_0*)-1)
+			break;
+
+		sSprite_0* Data28 = *Data24++;
+
+	}
+
 }
 
 void cFodder::sub_2DE2C( cSurface* pImage ) {
@@ -6795,9 +6835,8 @@ loc_191C3:;
 
 	//TODO: Check this
 	// seg004:047F
-	int16* Data30 = off_3BEF3[Sprite->field_32];
-	int16*  Dat30 = &Data30[Sprite->field_40];
-	int32   eax = readLEDWord( (Dat30 + 1) );
+	int32* Data30 = off_3BEF3[Sprite->field_32];
+	int32  eax = Data30[Sprite->field_40];
 
 	//seg004:04CC
 	if (eax < 0) {
@@ -7342,7 +7381,7 @@ loc_1E831:;
 		pSprite->field_28 += Data0;
 		Data8 = pSprite->field_28;
 
-		int16* Data30 = off_3BEF3[pSprite->field_32];
+		int32* Data30 = off_3BEF3[pSprite->field_32];
 		//seg004:5C49
 		Data0 = pSprite->field_40;
 		if (Data30[Data0] >= 0)
@@ -8100,7 +8139,7 @@ loc_1F7FF:;
 	if (pSprite->field_22)
 		goto loc_1F98B;
 
-	int16* Data30 = off_3BEF3[pSprite->field_32];
+	int32* Data30 = off_3BEF3[pSprite->field_32];
 	if (Data30[pSprite->field_40] >= 0)
 		goto loc_1F9C0;
 
@@ -8624,11 +8663,11 @@ loc_2035C:;
 	pSprite->field_26 = pSprite->field_0;
 	pSprite->field_28 = pSprite->field_4;
 
-	int16* Data30 = off_3BEF3[ pSprite->field_32 ];
+	int32* Data30 = off_3BEF3[ pSprite->field_32 ];
 	Data4 = 0;
 
 	for (;;) {
-		int16 eax = *Data30;
+		int32 eax = *Data30;
 		Data30 += 2;
 
 		if (eax < 0)

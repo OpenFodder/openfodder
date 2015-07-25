@@ -320,17 +320,17 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3BB;
 	int16			word_3A3BD;
 	int16			word_3A3BF;
-	int16*			dword_3A3F9;
-	int16			word_3A3FD[60];
-	int16			word_3A475[60];
-	int16			word_3A4ED[60];
-	int16			word_3A565[60];
-	int16			word_3A5DD[60];
-	int16			word_3A655[60];
-	int16			word_3A6CD[60];
-	int16			word_3A745[60];
-	int16			word_3A7BD[60];
-	int16			word_3A835[60];
+	int32*			dword_3A3F9;
+	int32			word_3A3FD[30];
+	int32			word_3A475[30];
+	int32			word_3A4ED[30];
+	int32			word_3A565[30];
+	int32			word_3A5DD[30];
+	int32			word_3A655[30];
+	int32			word_3A6CD[30];
+	int32			word_3A745[30];
+	int32			word_3A7BD[30];
+	int32			word_3A835[30];
 	int16			word_3A8CF;
 
 	int16			word_3A9A6[2];
@@ -512,7 +512,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BED5[5];
 	uint16			word_3BEDF[10];
 	
-	int16*			off_3BEF3[10];
+	int32*			off_3BEF3[10];
 	int8			byte_3BF1B[3];
 	sSprite_0*		word_3BF1E[6];
 
@@ -696,6 +696,7 @@ protected:
 	void			sub_12A5F();
 	void			sub_12AEE();
 	void			sub_12B6E();
+	void			sub_12C69();
 
 	void			Map_Overview_Prepare();
 	void			map_SetTileType();
@@ -870,6 +871,7 @@ protected:
 	void			sub_2D8AF( sSprite_0* pSprite );
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
+	void			sub_2DCB0( int16 pData0 );
 	void			sub_2DE2C( cSurface* pImage );
 	void			sub_2E01C();
 	void			sub_2EACA();
