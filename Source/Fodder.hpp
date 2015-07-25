@@ -20,6 +20,7 @@
  *
  */
 
+
 #include "Sprites.hpp"
 
 struct sMouseData {
@@ -677,7 +678,7 @@ protected:
 	void			sub_12245();
 	void			sub_1229C();
 	void			sub_122BD();
-	void			sub_1239E( cSurface* pImage );
+	void			Mission_Sidebar_Draw( cSurface* pImage );
 	void			sub_12419();
 	void			sub_124DB();
 	void			sub_125A5();
@@ -816,7 +817,7 @@ protected:
 
 	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
 	void			sub_20478( sSprite_0* pSprite );
-	void			sub_20534( sSprite_0* pSprite );
+	void			sub_20534( sSquad_Member* pSquadMember );
 
 	int16			sub_2060F( sSprite_0* pSprite );
 	int16			sub_2061C( sSprite_0* pSprite );
@@ -869,7 +870,7 @@ protected:
 	void			sub_2CFEA();
 
 	void			sub_2D06C();
-	void			sub_2D26A( int32 pData24, int16& pData8 );
+	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
 	void			sub_2D2D4();
 	void			sub_2D725();
 	void			sub_2D767();
