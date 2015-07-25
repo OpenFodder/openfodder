@@ -134,9 +134,8 @@ class cFodder : public cSingleton < cFodder > {
 	cResources*				mResources;
 	cWindow*				mWindow;
 
-	int16					mMapSpt_Loaded[2655];
 	sSprite_0				word_3B4F7;
-	//sSprite_0				mSprites[45];
+	sSprite_0				mSprites[45];
 
 	const sSpriteSheet**	mSpriteDataPtr;
 
@@ -464,7 +463,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B47B;
 	int16			word_3B487;
 	int16			word_3B489;
-	int16*			dword_3B48B[16];
+	sSprite_0*		dword_3B48B[16];
 	int16			word_3B4CB;
 	int16			word_3B4CD;
 	sSprite_0*		dword_3B4CF;
@@ -711,6 +710,7 @@ protected:
 	void			sub_13255();
 	void			sub_13277( sSprite_0* pData2C );
 	void			sub_13800();
+	void			Mouse_DrawCursor();
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
 	void			sub_13CF0( cSurface* pImage, sSprite_0* pDi, int16 pData0, int16 pData4 );
@@ -792,7 +792,7 @@ protected:
 	void			sub_18D5E();
 	void			sub_18DD3();
 
-	void			sub_18E2E( int16 *pData20 );
+	void			sub_18E2E( sSprite_0 *pData20 );
 	int16			sub_1E05A( sSprite_0* pSprite );
 	int16			sub_1EF47( sSprite_0* pSprite );
 	int16			loc_1F043( sSprite_0* pSprite );
@@ -829,6 +829,8 @@ protected:
 	void			sub_21041( sSprite_0* pSprite );
 	void			sub_211BA( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	void			sub_212C4( sSprite_0* pSprite );
+	int16			sub_21914( int16& pData8, int16& pDataC );
+	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
 	void			sub_21C6F( );
 
 	void			sub_223B2( sSprite_0* pSprite );
@@ -861,6 +863,8 @@ protected:
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 
 	void			Camera_Pan( cSurface* pImage );
+	void			sub_2CCA2( cSurface* pImage );
+
 	void			sub_2CF6D();
 	void			sub_2CFEA();
 
