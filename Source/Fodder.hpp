@@ -793,7 +793,8 @@ protected:
 	void			sub_18D5E();
 	void			sub_18DD3();
 
-	void			sub_18E2E( sSprite_0 *pData20 );
+	void			sub_18E2E( sSprite_0* pSprite );
+	void			sub_199F3( sSprite_0* pSprite );
 	int16			sub_1E05A( sSprite_0* pSprite );
 	int16			sub_1EF47( sSprite_0* pSprite );
 	int16			loc_1F043( sSprite_0* pSprite );

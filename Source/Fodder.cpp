@@ -6726,6 +6726,10 @@ void cFodder::sub_18DD3() {
 			sub_18E2E( Data20 );
 			break;
 
+		case 5:
+			sub_199F3( Data20 );
+			break;
+
 		default:
 			std::cout << "Function not implemented: " << Data4 << "\n";
 			break;
@@ -7079,6 +7083,66 @@ loc_1957A:;
 	Sprite->field_3A = 0;
 	sub_1F762( Sprite );
 
+}
+
+void cFodder::sub_199F3( sSprite_0* pSprite ) {
+	if (sub_1E05A( pSprite ))
+		return;
+
+	if (pSprite->field_38)
+		return;
+
+	word_3AA41 = 0;
+	if (pSprite->field_44) {
+		pSprite->field_44--;
+	}
+	else {
+		//sub_21CD1( pSprite );
+		sub_1F429( pSprite );
+
+		word_3A399 = pSprite->field_A;
+		int16 Data0 = pSprite->field_26;
+		if (Data0 < 0)
+			goto loc_19A89;
+
+		int16 Data4 = pSprite->field_28;
+		if (Data4 < 0)
+			goto loc_19A89;
+
+		if (sub_2A1F0( pSprite, Data0, Data4 ) < 0)
+			goto loc_19A89;
+	}
+	//loc_19A5D
+	sub_1F623( pSprite );
+	sub_2A3D4( pSprite );
+	sub_1FCF2( pSprite );
+
+	if (pSprite->field_45) {
+		pSprite->field_45--;
+		if (pSprite->field_45)
+			return;
+	}
+	sub_1F6F4( pSprite );
+	goto loc_19A96;
+
+loc_19A89:;
+	word_3ABB1 = 0;
+	sub_1FDE7( pSprite );
+	goto loc_19A9C;
+
+loc_19A96:;
+	word_3ABB1 = -1;
+
+loc_19A9C:;
+	pSprite->field_22 = 1;
+	sub_1F762( pSprite );
+
+	if (word_3ABB1)
+		return;
+	if (word_3AA41)
+		return;
+
+	pSprite->field_A = 1;
 }
 
 int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
@@ -8206,6 +8270,7 @@ loc_1F7FF:;
 	Data8 &= 0x0E;
 
 	pSprite->field_3C = Data8;
+	Data8 /= 2;
 	Data0 = pSprite->field_22;
 
 	int16* Data28 = off_32AE4[pSprite->field_22];
@@ -8223,7 +8288,7 @@ loc_1F7FF:;
 	sSprite_0* Dataa30 = off_3BDEF[pSprite->field_32][0];
 
 	// TODO: Does this work
-	if (Dataa30 < 0)
+	if (Dataa30 == (sSprite_0*) -1 || Dataa30 == 0 )
 		goto loc_1F9C0;
 
 	//seg005:020C
@@ -8289,9 +8354,9 @@ loc_1FA39:;
 	if (pSprite->field_54 != 1)
 		goto loc_1FB00;
 
-	Data0 = pSprite->field_50;
+	Data0 = *(Data28 + Data8 + 0x28);
 	//TODO: Fix?
-	if (Data0 != *(Data28 + Data8 + 4)) {
+	if (Data0 != pSprite->field_8 ) {
 		pSprite->field_8 = *(Data28 + Data8 + 0x28);
 		pSprite->field_55 = 0;
 		pSprite->field_A = 0;
