@@ -188,6 +188,9 @@ int16 cFodder::Mission_Loop() {
 	mImageFaded = -1;
 
 	for (;;) {
+		g_Window.RenderAt( Image, cPosition() );
+		g_Window.FrameEnd();
+
 		sub_12018();
 		Camera_Pan( Image );
 
@@ -225,7 +228,7 @@ int16 cFodder::Mission_Loop() {
 		sub_2A470();
 		sub_2D06C();
 
-		sub_1239E( Image );
+		Mission_Sidebar_Draw( Image );
 		sub_31033();
 		sub_144A2( Image );
 		Mouse_DrawCursor();
@@ -1246,7 +1249,7 @@ void cFodder::sub_115F7() {
 		}
 		else {
 			// loc_1166B
-			Data20->field_46 = (int32) Troop;
+			Data20->field_46 = (int32*) Troop;
 
 			Troop->field_4 = Data20;
 			Data20->field_10 = 0x40;
@@ -1565,7 +1568,7 @@ loc_11D8A:;
 	word_39F54 = 0;
 	word_39F50 = 0;
 
-	pImage->paletteFadeOut();
+	//pImage->paletteFadeOut();
 
 	do {
 		mImageFaded = pImage->paletteFade();
@@ -1591,14 +1594,14 @@ loc_11D8A:;
 			break;
 	}
 
-	sub_1239E( pImage );
+	Mission_Sidebar_Draw( pImage );
 	sub_144A2( pImage );
 	Mouse_DrawCursor();
 	sub_11CAD();
 
 	word_390A6 = -1;
 
-	pImage->paletteFadeOut();
+	//pImage->paletteFadeOut();
 
 loc_11E5B:;
 	sub_11E60();
@@ -1963,7 +1966,7 @@ void cFodder::sub_122BD() {
 	}
 }
 
-void cFodder::sub_1239E( cSurface* pImage ) {
+void cFodder::Mission_Sidebar_Draw( cSurface* pImage ) {
 
 	sub_18D5E();
 	sub_18DD3();
@@ -3334,7 +3337,7 @@ void cFodder::Mission_Sprite_Draw( cSurface* pImage ) {
 
 	for (;;) {
 		sSprite_0* eax = *si++;
-		if (eax < 0)
+		if (eax == (sSprite_0*) -1 || eax == 0 )
 			break;
 
 		if (eax->field_24) {
@@ -4961,15 +4964,15 @@ void cFodder::sub_22B71( sSprite_0* pSprite ) {
 	if (!pSprite->field_66)
 		return;
 
-	int16* Data28 = (int16*)pSprite->field_66;
+	sSprite_0* Data28 = pSprite->field_66;
 	
-	int16 Data0 = *(Data28);
+	int16 Data0 = Data28->field_0;
 	Data0 += 0x10;
 
-	if (*(Data28 + 0x37) || *(Data28 + 0x37) == 1)
+	if (Data28->field_6F || Data28->field_6F == 1)
 		Data0 -= 0x0C;
 
-	int16 Data4 = *(Data28 + 2);
+	int16 Data4 = Data28->field_4;
 	Data4 -= 9;
 	int16 Data8 = pSprite->field_0;
 	Data8 += 4;
@@ -4981,7 +4984,7 @@ void cFodder::sub_22B71( sSprite_0* pSprite ) {
 	if (Data0 >= 0x0D)
 		return;
 
-	pSprite->field_6A = (int32) Data28;
+	pSprite->field_6A = Data28;
 	pSprite->field_6E = -1;
 	sub_305D5();
 
@@ -5917,22 +5920,21 @@ void cFodder::sub_2D06C() {
 	int8* Data2CC = byte_3A05A;
 	int8* Data30 = byte_3BF1B;
 
-	do {
+	for (Data0 = 2; Data0 >= 0; --Data0 ) {
 
 		int8 al = Data2CC[Data0];
 		if (al)
 			continue;
 
 		Data30[Data0] = -1;
-	} while (Data0 >= 0);
+	}
 
 	Data34[0] = (sSprite_0*) -1;
-	Data34[1] = (sSprite_0*) -1;
 }
 
-void cFodder::sub_2D26A( int32 pData24, int16& pData8 ) {
-	// This will be broken :)
-	int16 Data0 = *(((int8*)pData24) + 2);
+void cFodder::sub_2D26A( sSquad_Member* pData24, int16& pData8 ) {
+
+	int16 Data0 = pData24->mRank;
 	Data0 += 8;
 
 	if (Data0 > 0x0F)
@@ -6770,7 +6772,7 @@ void cFodder::sub_18E2E( sSprite_0 *pData20 ) {
 		word_3AA41 = -1;
 		//Data0 <<= 1;   UNUSED?
 
-		sSprite_0* Data28 = (sSprite_0*) Sprite->field_5E;
+		sSprite_0* Data28 = &mSprites[Sprite->field_5E];
 		
 		if( Data28->field_0 != -32768 ) {
 			
@@ -6813,8 +6815,8 @@ void cFodder::sub_18E2E( sSprite_0 *pData20 ) {
 
 	loc_1901C:;
 		Sprite->field_4A = 0;
-		Sprite->field_5E += 0x76;
-		if (Sprite->field_5E < 0x13D2)
+		Sprite->field_5E++;
+		if (Sprite->field_5E < 43)
 			goto loc_191C3;
 
 		Sprite->field_5E = 0;
@@ -7154,12 +7156,14 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 	pSprite->field_A = 0;
 	pSprite->field_2A = 0;
 
-	if (pSprite->field_1A < 0x0B0000) {
-		Data0 = sub_2A030() & 0x07;
-		Data0 += 2;
-		Data0 = (Data0 << 16);
+	// TODO: is this even close to correct?
+	if (pSprite->field_1A < (int32*) &mSprites[0]) {
+		int32 Dataa0 = sub_2A030() & 0x07;
+		Dataa0 += 2;
+		Dataa0 = (Data0 << 16);
 
-		pSprite->field_1A = Data0;
+		// lol?
+		pSprite->field_1A = (int32*) Dataa0;
 	}
 	//loc_1E232
 	pSprite->field_12 = 2;
@@ -7295,23 +7299,23 @@ loc_1E3D2:;
 		}
 	}
 	//loc_1E5A7
-	Data4 = pSprite->field_1A;
+	int32 Dataa4 = (int32) pSprite->field_1A;
 
 	// Probably going to be issues here
-	pSprite->field_1E += pSprite->field_1A;
+	pSprite->field_1E += (int32) pSprite->field_1A;
 	if (pSprite->field_1E < 0) {
 		pSprite->field_1E = 0;
-		Data4 = -Data4;
-		Data4 >>= 2;
+		Dataa4 = -Dataa4;
+		Dataa4 >>= 2;
 
 		if (pSprite->field_52) {
 			pSprite->field_36 = 0;
-			Data4 = 0;
+			Dataa4 = 0;
 		}
 	}
 	//loc_1E619
 	Data4 -= 0x18000;	// should be int32...
-	pSprite->field_1A = Data4;
+	pSprite->field_1A = (int32*) Dataa4;
 	if (pSprite->field_36) {
 		pSprite->field_36 -= 2;
 
@@ -7686,13 +7690,14 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 		goto loc_1F0EA;
 
 	++word_397AC;
-	int8* Data24 = (int8*) pSprite->field_46;
 	//TODO: Fix this messy function
-	sub_20534( (sSprite_0*) Data24 );
+	sSquad_Member* Data24 = (sSquad_Member*) pSprite->field_46;
+
+	sub_20534( Data24 );
 
 	int8* Data28 = (int8*) dword_394A4;
 
-	Data28[0] = Data24[2];
+	Data28[0] = Data24->mRank;
 	++Data28;
 	Data28[0] = 0;
 	++Data28;
@@ -7701,8 +7706,7 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 	dword_394A4 = (int16*) Data28;
 
 	Data28 = (int8*) dword_3977E;
-	Data28[0] = Data24[0];
-	Data28[1] = Data24[1];
+	writeLEWord( Data28, Data24->mRecruitID );
 
 	Data28 += 2;
 	//seg004:627D
@@ -7710,11 +7714,10 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 	Data28[1] = -1;
 	dword_3977E = (int16*) Data28;
 
-	Data24[0] = -1;
-	Data24[1] = -1;
-	Data24[2] = 0;
-	Data24[4] = -1;
-	Data24[5] = -1;
+	Data24->field_4 = (sSprite_0*) -1;
+	Data24->mRecruitID = -1;
+	Data24->mRank = 0;
+	
 	if (word_39FD0 < 0) {
 		word_3AC2B = 0;
 		word_3AA47 = 0;
@@ -8459,8 +8462,8 @@ void cFodder::sub_1FE35( sSprite_0* pSprite ) {
 	if (Data0)
 		return;
 
-	Data2C->field_1A = (int32) pSprite;
-	Data2C->field_6A = (int32) pSprite;
+	Data2C->field_1A = (int32*) pSprite;
+	Data2C->field_6A = pSprite;
 
 	Data2C->field_0 = pSprite->field_0;
 	Data2C->field_4 = pSprite->field_4;
@@ -8970,7 +8973,7 @@ void cFodder::sub_311A7() {
 				goto loc_313C6;
 
 			sSprite_0* Data28 = *Data24++;
-			Data28->field_66 = (int32) Data20;
+			Data28->field_66 = Data20;
 		}
 	}
 
@@ -9416,12 +9419,12 @@ loc_20521:;
 	word_3ABAD = -1;
 }
 
-void cFodder::sub_20534( sSprite_0* pSprite ) {
+void cFodder::sub_20534( sSquad_Member* pSquadMember ) {
 	sHero* Hero = &mHeroes[4];
 	int16 Data4;
 
 	for (Data4 = 4; Data4 >= 0; --Data4, --Hero ) {
-		int16 Data0 = pSprite->field_A;
+		int16 Data0 = pSquadMember->mNumberOfKills;
 		if (!Data0)
 			break;
 
@@ -9431,7 +9434,7 @@ void cFodder::sub_20534( sSprite_0* pSprite ) {
 		if (Data0 > Hero->mKills)
 			continue;
 
-		Data0 = pSprite->field_2;
+		Data0 = pSquadMember->mRecruitID;
 		if (Data0 <= Hero->mRecruitID)
 			break;
 	}
@@ -9446,9 +9449,9 @@ void cFodder::sub_20534( sSprite_0* pSprite ) {
 	} while (++Data4 < 4);
 
 	//seg005:0EDD
-	mHeroes[X].mRecruitID = pSprite->field_2 & 0xFF;
-	mHeroes[X].field_1 = pSprite->field_0;
-	mHeroes[X].mKills = pSprite->field_A;
+	mHeroes[X + 1].mRecruitID = pSquadMember->mRank;
+	mHeroes[X + 1].field_1 = pSquadMember->mRecruitID;
+	mHeroes[X + 1].mKills = pSquadMember->mNumberOfKills;
 }
 
 int16 cFodder::sub_2060F( sSprite_0* pSprite ) {
@@ -9517,12 +9520,10 @@ int16 cFodder::sub_20653( sSprite_0* pSprite ) {
 	goto loc_207CF;
 
 loc_20777:;
-	Data0 = pSprite->field_46;
-	Data0 -= 0x165A; // mSquad ??
 
-	Data2C->field_5E = Data0;
+	Data2C->field_5E = (int64) mSquad - (int64) pSprite->field_46;
 	Data2C->field_5D = -1;
-	int32 Data24 = pSprite->field_46;
+	sSquad_Member* Data24 = (sSquad_Member*) pSprite->field_46;
 
 	Data0 = word_3ABBB;
 	Data0 += word_3ABC3;
@@ -9568,8 +9569,7 @@ loc_208A6:;
 	Data2C->field_52 = 0;
 	Data2C->field_3A = 0;
 
-	// TODO: Fix
-	Data2C->field_1A = (int32) pSprite;
+	Data2C->field_1A = (int32*) pSprite;
 	Data2C->field_2A = 2;
 	Data2C->field_16 = 0;
 	Data2C->field_14 = 2;
@@ -9588,8 +9588,7 @@ loc_208A6:;
 	if (pSprite == word_39FCE)
 		goto loc_209B3;
 
-	Data24 = pSprite->field_46;
-	sub_2D26A( Data24, Data8 );
+	sub_2D26A( (sSquad_Member*) pSprite->field_46, Data8 );
 	goto loc_209C7;
 
 loc_209B3:;
@@ -9738,7 +9737,7 @@ loc_20B6E:;
 	if (Dataa0 > 0x0E0000)
 		Dataa0 = 0x0E0000;
 
-	Data2C->field_1A = Dataa0;
+	Data2C->field_1A = (int32*) Dataa0;
 	Data2C->field_18 = 2;
 	Data30->field_18 = 3;
 	Data2C->field_52 = 0;
@@ -9753,7 +9752,7 @@ loc_20B6E:;
 	if (pSprite->field_18 == 5)
 		Data2C->field_12 += 0x1C;
 	Data2C->field_56 = 4;
-	Data2C->field_46 = (int32) pSprite;
+	Data2C->field_46 = (int32*)pSprite;
 
 	if (pSprite == word_39FCE)
 		word_39EFC = 0;
@@ -10245,9 +10244,9 @@ loc_22622:;
 	if (!sub_228B5(pSprite, Data34))
 		goto loc_227EB;
 
-	Data2C->field_1A = (int32) Data34;
+	Data2C->field_1A = (int32*)Data34;
 	Data2C->field_18 = 0x61;
-	Data2C->field_6A = 0x10000;
+	Data2C->field_6A = (sSprite_0*) 0x10000;
 	Data2C->field_26 = pSprite->field_2E;
 	Data2C->field_28 = pSprite->field_30;
 	Data2C->field_28 += 0x10;
@@ -10263,7 +10262,7 @@ loc_227EB:;
 
 loc_22801:;
 	Data2C->field_18 = 0x21;
-	Data2C->field_46 = (int32) pSprite;
+	Data2C->field_46 = (int32*) pSprite; //TODO: This is weird...
 
 loc_2281B:;
 	Data30->field_18 = 3;
@@ -10831,7 +10830,7 @@ void cFodder::sub_2F5ED( cSurface *pImage ) {
 		--Data20;
 		--Data0;
 
-		if (Data0 >= 0) {
+		if (Data0 < 0) {
 			Data0 = 2;
 			Data20 = &byte_3AC39[2];
 		}

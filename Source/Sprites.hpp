@@ -1,3 +1,5 @@
+struct sSquad_Member;
+
 struct sSprite_0 {
 	int16 field_0;
 	int16 field_2;
@@ -12,7 +14,7 @@ struct sSprite_0 {
 	int16 field_14;
 	int16 field_16;
 	int16 field_18;
-	int32 field_1A;		// possible sprite pointer
+	int32* field_1A;
 
 	int16 field_1E;
 	int16 field_20;
@@ -36,7 +38,7 @@ struct sSprite_0 {
 	int8 field_43;
 	int8 field_44;
 	int8 field_45;
-	int32 field_46;	// should be pointer
+	int32* field_46;
 	int16 field_4A;
 	int8 field_4C;
 	int8 field_4D;
@@ -54,14 +56,14 @@ struct sSprite_0 {
 	int8 field_5B;
 	int8 field_5C;
 	int8 field_5D;
-	int16 field_5E;			// Should be sprite pointer
+	int16 field_5E;			// Byte counter inside mSprites
 	int8 field_60;
 	int8 field_61;
 	int16 field_62;
 	int8 field_64;
 	int8 field_65;
-	int32 field_66;			// Possible should be a pointer
-	int32 field_6A;			// Possible sprite pointer
+	sSprite_0* field_66;
+	sSprite_0* field_6A;
 	int8 field_6E;
 	int8 field_6F;
 	int16 field_70;
