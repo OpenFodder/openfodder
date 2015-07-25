@@ -206,7 +206,7 @@ int16 cFodder::Mission_Loop() {
 		if (word_3AC2B >= 0 && !word_3A9AA)
 			sub_2F9B3();
 		else
-			sub_2F5ED();
+			sub_2F5ED( Image );
 
 		//loc_10768
 		sub_12790( Image );
@@ -8751,7 +8751,7 @@ loc_2035C:;
 	pSprite->field_4C = -1;
 }
 
-void cFodder::String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
+void cFodder::String_Print( cSurface* pImage, const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
 
 	word_3B305 = pParamC;
 	word_3B307 = 0;
@@ -9122,7 +9122,7 @@ void cFodder::sub_3169B() {
 	Data20->field_30 = DataC;
 }
 
-void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString ) {
+void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString ) {
 	int32 PositionX = 0;
 
 	for (const char* Text = pString; *Text; ++Text) {
@@ -10604,6 +10604,56 @@ void cFodder::Exit( unsigned int pExitCode ) {
 
 }
 
+void cFodder::sub_2ED17( cSurface* pImage ) {
+	int16 Data0 = word_3AC1F;
+
+	if (!word_3AA05[word_3AC1F])
+		goto loc_2ED63;
+
+	int16 Data14 = word_3AC1F;
+
+	if (word_3AC3F[word_3AC1F] != 1)
+		goto loc_2ED63;
+
+	if (!word_3AC47) {
+	loc_2ED63:;
+		Data0 = 0xC4;
+	}
+	else {
+		Data0 = 0xC3;
+	}
+
+	int16 Data8 = 0;
+	int16 DataC = word_3AC1D;
+	DataC += 0x0E;
+
+	sub_145AF( Data0, Data8, DataC );
+	
+	Data0 = word_3AA05[word_3AC1F];
+	if (!Data0)
+		return;
+
+	int16 Data4 = 0;
+	Data8 = 0x0D;
+	DataC = word_3AC1D;
+	DataC += 0x19;
+	int16 Data10 = 0xAF;
+	Data14 = word_3AC1F;
+
+	if (word_3AC3F[Data14] != 1)
+		goto loc_2EDF7;
+
+	if (word_3AC47)
+		goto loc_2EDFD;
+
+loc_2EDF7:;
+	Data10 = 0xB9;
+
+loc_2EDFD:;
+	sub_302DE( pImage, Data4, Data8, DataC, Data10 );
+
+}
+
 void cFodder::sub_2F0D7() {
 
 	if (word_3AC3F[word_39FD0] == 1)
@@ -10612,6 +10662,28 @@ void cFodder::sub_2F0D7() {
 	word_3AC3F[word_39FD0] = 1;
 	byte_3AC33[word_39FD0] = -1;
 	byte_3AC39[word_39FD0] = -1;
+}
+
+void cFodder::sub_2F45B() {
+	
+	int16 Data0 = word_3AA11[word_3AC1F];
+
+	const int16* Data20 = 0;
+
+	if (word_3AC47) {
+		Data20 = word_3DF05;
+	}
+	else {
+		Data20 = word_3DF1B;
+	}
+
+
+	Data0 = Data20[Data0];
+	int16 Data8 = 0x0C;
+	int16 DataC = word_3AC1D;
+	DataC += 0x0E;
+
+	sub_145AF( Data0, Data8, DataC );
 }
 
 int16 cFodder::sub_2F4CB() {
@@ -10651,7 +10723,7 @@ loc_2F593:;
 	return -1;
 }
 
-void cFodder::sub_2F5ED() {
+void cFodder::sub_2F5ED( cSurface *pImage ) {
 	map_CheckFinal();
 	sub_2F757();
 	
@@ -10699,30 +10771,30 @@ void cFodder::sub_2F5ED() {
 
 	Data20 = &byte_3AC33[2];
 	
-	for(int16 Data0 = 2; Data0 >= 0; --Data0, --Data20 ) {
-		
-		if( !*Data20 )
+	for (int16 Data0 = 2; Data0 >= 0; --Data0, --Data20) {
+
+		if (!*Data20)
 			goto loc_2F707;
-		
+
 		*Data20 = 0;
-		
-		sub_2F7E4();
-		
+
+		sub_2F7E4( pImage, Data0 );
+
 	loc_2F707:;
 		--Data20;
 		--Data0;
-		
-		if(Data0>=0) {
+
+		if (Data0 >= 0) {
 			Data0 = 2;
 			Data20 = &byte_3AC39[2];
 		}
-		
-		if(!*Data20)
+
+		if (!*Data20)
 			continue;
-		
+
 		*Data20 = 0;
-		
-		sub_2F87E();
+
+		sub_2F87E( pImage, Data0 );
 	}
 }
 
@@ -10748,8 +10820,94 @@ void cFodder::sub_2F757() {
 	}
 }
 
-void cFodder::sub_2F87E() {
+void cFodder::sub_2F7E4( cSurface* pImage, int16 pData0 ) {
 
+	int16 Data4 = word_3AC2D[pData0];
+
+	sub_2EBE0(pData0, Data4);
+	sub_2ED17( pImage );
+
+	if (!word_3AA05[word_3AC1F])
+		return;
+
+	if (!word_3AC47)
+		return;
+
+	if (!sub_2F90B())
+		return;
+
+	if (word_3BDE7 == 2)
+		return;
+
+	int16 Data0 = 0xC7;
+	Data0 += word_3BDE7;
+
+	int16 Data8 = 0;
+	int16 DataC = word_3AC1D;
+	DataC += 0x0E;
+
+	sub_145AF( Data0, Data8, DataC );
+}
+
+void cFodder::sub_2F87E( cSurface* pImage, int16 pData0 ) {
+
+	int16 Data4 = word_3AC2D[pData0];
+	sub_2EBE0( pData0, Data4 );
+	sub_2FAAA( pImage );
+
+	if (!word_3AA0B[word_3AC1F])
+		return;
+
+	if (!word_3AC47)
+		return;
+
+	if (!sub_2F90B())
+		return;
+
+	if (word_3BDE9 == 2)
+		return;
+
+	pData0 = 0xC7;
+	pData0 += word_3BDE9;
+
+	int16 Data8 = 0x24;
+	int16 DataC = word_3AC1D;
+	DataC += 0x0E;
+
+	sub_145AF( pData0, Data8, DataC );
+}
+
+int16 cFodder::sub_2F90B() {
+	sSquad_Member* Data38 = mSquad;
+
+	sSprite_0* Data34 = (sSprite_0*)mMapSpt_Loaded;
+	int16 Data18 = word_39FD0;
+
+	int16 Data10 = 0;
+
+	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data34) {
+
+		if (Data38->field_4 == (sSprite_0*)-1)
+			continue;
+
+		if (Data18 != Data38->field_4->field_32)
+			continue;
+
+		if (!(Data38->field_9 & 1))
+			continue;
+
+		Data10++;
+	}
+
+	int16 Data0 = byte_3A05A[word_39FD0];
+	if (Data10 == Data0)
+		return Data0;
+
+	if (Data10)
+		return Data10;
+
+	Data0 = 0;
+	return 0;
 }
 
 void cFodder::sub_2F9B3() {
@@ -10777,6 +10935,52 @@ void cFodder::sub_2F9B3() {
 	}
 }
 
+void cFodder::sub_2FAAA( cSurface* pImage ) {
+	
+	if (!word_3AA0B[word_3AC1F])
+		goto loc_2FAF6;
+
+	if (word_3AC3F[word_3AC1F] != 3)
+		goto loc_2FAF6;
+
+	int16 Data0;
+
+	if (!word_3AC47) {
+		loc_2FAF6:;
+		Data0 = 0xC6;
+	}
+	else {
+		Data0 = 0xC5;
+	}
+
+	//loc_2FB04
+	int16 Data8 = 0x20;
+	int16 DataC = word_3AC1D;
+	DataC += 0x0E;
+	sub_145AF( Data0, Data8, DataC );
+
+	Data0 = word_3AA0B[word_3AC1F];
+	if (!Data0)
+		return;
+
+	int16 Data4 = 0x24;
+	Data8 = 0x0D;
+	DataC = word_3AC1D;
+	DataC += 0x19;
+	int16 Data14 = word_3AC1F;
+
+	if (word_3AC3F[Data14] != 3)
+		goto loc_2FB8A;
+
+	int16 Data10 = 0xAF;
+	if (!word_3AC47) {
+	loc_2FB8A:;
+		Data10 = 0xB8;
+	}
+
+	sub_302DE( pImage, Data4, Data8, DataC, Data10 );
+}
+
 void cFodder::sub_2FC4F() {
 	
 	if (word_3AC3F[word_39FD0] == 3)
@@ -10785,6 +10989,29 @@ void cFodder::sub_2FC4F() {
 	word_3AC3F[word_39FD0] = 3;
 	byte_3AC39[word_39FD0] = -1;
 	byte_3AC33[word_39FD0] = -1;
+}
+
+void cFodder::sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
+	pData10 -= 0x1A;
+	int16 Data10_Saved = pData10;
+
+	int16 word_3AC23 = pData4;
+	int16 word_3AC25 = pData8;
+	int16 word_3AC27 = pDataC;
+
+	std::stringstream Tmp;
+	Tmp << tool_StripLeadingZero( tool_NumToString( pData4 ) );
+
+	String_CalculateWidth( pData8, byte_3DF85, Tmp.str().c_str() );
+	
+	pData8 += word_3AC23;
+	int16 Data0 = Data10_Saved;
+	word_3AC21 = -1;
+	pDataC = word_3AC27;
+
+	String_Print( pImage, byte_3DF85, Data0, pData8, pDataC, Tmp.str().c_str() );
+	
+	word_3AC21 = 0;
 }
 
 int16 cFodder::sub_30E0B() {
