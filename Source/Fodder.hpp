@@ -888,14 +888,20 @@ protected:
 	void			video_Draw_MapTile( uint16 pTile, uint16 pPosX, uint16 pPosY );
 
 	void			sub_2E04C();
+	void			sub_2ED17( cSurface* pImage );
 	void			sub_2F0D7();
+	void			sub_2F45B();
 	int16			sub_2F4CB();
-	void			sub_2F5ED();
+	void			sub_2F5ED( cSurface *pImage );
 	void			sub_2F757();
-	void			sub_2F87E();
+	void			sub_2F7E4( cSurface* pImage, int16 pData0 );
+	void			sub_2F87E( cSurface* pImage, int16 pData0 );
+	int16			sub_2F90B();
 	void			sub_2F9B3();
+	void			sub_2FAAA( cSurface* pImage );
 	void			sub_2FC4F();
 
+	void			sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	int16			sub_30E0B();
 	void			sub_30E49();
 	void			sub_301F7();
@@ -913,8 +919,8 @@ protected:
 	int16			sub_313CD();
 	void			sub_3169B();
 
-	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
-	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
+	void			String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString );
+	void			String_Print( cSurface* pImage, const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
 
 	std::string		map_Filename_Get();
 	std::string		map_Filename_MapGet();
