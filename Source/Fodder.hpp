@@ -383,6 +383,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AB39;
 	int8			byte_3ABA9;
 	int16			word_3ABB1;
+	int16			word_3ABB3;
+	int16			word_3ABB5;
 	int16			word_3ABB7;
 	struct_5		stru_3ABB9;
 	int16			word_3ABA7;
@@ -864,6 +866,7 @@ protected:
 
 	void			sub_2D06C();
 	void			sub_2D26A( int32 pData24, int16& pData8 );
+	void			sub_2D2D4();
 	void			sub_2D725();
 	void			sub_2D767();
 	void			sub_2D7C0();
@@ -889,6 +892,7 @@ protected:
 	int16			sub_2F4CB();
 	void			sub_2F5ED();
 	void			sub_2F757();
+	void			sub_2F87E();
 	void			sub_2F9B3();
 	void			sub_2FC4F();
 
@@ -900,11 +904,14 @@ protected:
 	void			sub_304D0();
 	int16			sub_305D5();
 	void			sub_306D0();
+	void			sub_30CDC();
+	int16			sub_30E2A();
 	void			sub_31033();
 	void			sub_31075( int16 pData0 );
 	void			sub_310CB();
 	void			sub_311A7();
 	int16			sub_313CD();
+	void			sub_3169B();
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
 	void			String_Print( cSurface* pImage, uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );

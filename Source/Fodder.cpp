@@ -702,6 +702,8 @@ void cFodder::sub_10D61() {
 	word_3AACF = 0;
 	byte_3ABA9 = 0;
 	word_3ABB1 = 0;
+	word_3ABB3 = 0;
+	word_3ABB5 = 0;
 	word_3ABB7 = 0;
 	stru_3ABB9.field_0 = 0;
 	stru_3ABB9.field_2 = 0;
@@ -5940,6 +5942,73 @@ void cFodder::sub_2D26A( int32 pData24, int16& pData8 ) {
 
 }
 
+void cFodder::sub_2D2D4() {
+	if (word_39F04) 
+		word_39F04 = 0;
+	else {
+		word_3ABB3 -= 2;
+		if (word_3ABB3 >= 0)
+			return;
+	}
+
+	//loc_2D2EB
+	sSprite_0* Data20 = word_39FCE;
+	if (Data20 == (sSprite_0*) -1 )
+		return;
+
+	Data20 = (sSprite_0*) Data20->field_46;
+
+	word_3ABB3 = stru_3ABB9.field_4;
+	word_3ABC3 = 0;
+	word_3ABC5 = 0;
+
+	if (Data20->field_2 > 0x14) {
+
+		if (word_39FD0 >= 0) {
+
+			if (byte_3A05A[word_39FD0] == 1) {
+				word_3ABB3 = 1;
+				word_3ABC3 = -3;
+				word_3ABC5 = 0x0A;
+			}
+		}
+	}
+	//loc_2D381
+	int16 Data0 = word_39FD0;
+	if (Data0 < 0)
+		return;
+
+	int16 Data8 = Data0;
+	Data0 = byte_3A05A[Data0];
+	Data0 &= 0xFF;
+	--Data0;
+	int16 DataC = Data0;
+
+	if (DataC < 0)
+		return;
+
+	const int16* Dataa20 = off_3D4B5[Data0];
+
+	int16 Data4 = Dataa20[word_3ABB5];
+	if (Data4 < 0 || Data4 > DataC) {
+		Data4 = 0;
+		Data0 = 0;
+	}
+
+	Data0++;
+	if (Dataa20[Data0] < 0)
+		Data0 = 0;
+
+	word_3ABB5 = Data0;
+	sSprite_0** Dat20 = off_3BDEF[Data8];
+	Data20 = Dat20[Data4];
+
+	if (Data20->field_45)
+		return;
+
+	Data20->field_4A = -1;
+}
+
 void cFodder::sub_2D725() {
 	sSprite_0* Data20 = (sSprite_0*)mMapSpt_Loaded;
 	
@@ -9031,6 +9100,28 @@ loc_31692:;
 	return 0;
 }
 
+void cFodder::sub_3169B() {
+
+	if (sub_30E2A() < 0)
+		return;
+
+	sSprite_0* Data20 = dword_3B20B;
+	Data20->field_54 = -1;
+
+	int16 Data8 = word_3BDAF;
+	int16 DataC = word_3BDB1;
+	Data8 += dword_39F2C >> 16;
+	DataC += dword_39F30 >> 16;
+	Data8 -= 0x10;
+
+	if (!Data8)
+		Data8 = 1;
+
+	DataC -= 8;
+	Data20->field_2E = Data8;
+	Data20->field_30 = DataC;
+}
+
 void cFodder::String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString ) {
 	int32 PositionX = 0;
 
@@ -10657,6 +10748,10 @@ void cFodder::sub_2F757() {
 	}
 }
 
+void cFodder::sub_2F87E() {
+
+}
+
 void cFodder::sub_2F9B3() {
 	
 	int16 Data0 = word_3AC2B;
@@ -10665,6 +10760,7 @@ void cFodder::sub_2F9B3() {
 	Data4++;
 	word_3AC2B = Data4;
 
+	//TODO 
 	switch (Data0) {
 		case 0: //loc_2FA05
 		case 1: //loc_2FA1D
@@ -11076,6 +11172,74 @@ loc_308F6:;
 
 		byte_3BF1B[Data0] = -1;
 	}
+}
+
+void cFodder::sub_30CDC() {
+	
+	if (dword_3B20B) {
+		sub_3169B();
+		return;
+	}
+
+	word_3A9CE = -1;
+	if (word_3A9B8 < 0) {
+		word_3A9B8 = 0x30;
+
+		if (word_39FCE)
+			word_39FCE->field_4A = 0;
+	}
+
+	int16 Data8 = word_3BDAF;
+	int16 DataC = word_3BDB1;
+	Data8 += dword_39F2C >> 16;
+	DataC += dword_39F30 >> 16;
+
+	Data8 -= 0x10;
+	if (!Data8)
+		Data8 = 1;
+
+	DataC -= 8;
+	int16 Data0 = word_39FD0;
+
+	if (Data0 < 0)
+		goto loc_30E05;
+
+	int16 Data10 = 0;
+	Data10 = byte_3A05A[Data0];
+
+	int16 Data14 = Data10;
+	--Data14;
+	if (Data14 < 0)
+		goto loc_30E05;
+
+	sSprite_0** Data20 = off_3BDEF[Data0];
+
+	for (;;) {
+
+		if ((*Data20)->field_0 == -32768)
+			break;
+
+		//seg011:230A 66 A1 24 00                    mov     eax, ds:24h
+		//seg011:230E 66 A3 28 00                    mov     ds:28h, eax
+		
+		sSprite_0* Data24 = *Data20++;
+
+		Data24->field_2E = Data8;
+		Data24->field_30 = DataC;
+	}
+
+loc_30E05:;
+	sub_2D2D4();
+}
+
+int16 cFodder::sub_30E2A() {
+
+	if (word_39EFA < 0) {
+		word_39EFA = 1;
+		return 1;
+	}
+
+	return -1;
 }
 
 void cFodder::sub_31033() {
