@@ -54,7 +54,7 @@ struct sSprite_0 {
 	int8 field_5B;
 	int8 field_5C;
 	int8 field_5D;
-	int16 field_5E;
+	int16 field_5E;			// Should be sprite pointer
 	int8 field_60;
 	int8 field_61;
 	int16 field_62;
