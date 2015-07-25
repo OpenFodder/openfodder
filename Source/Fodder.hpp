@@ -665,7 +665,7 @@ protected:
 	void			sub_11CD6( cSurface* pImage );
 	void			map_Load_TileSet();
 	void			sub_11E60();
-	void			sub_11E6C();
+	void			sub_11E6C( cSurface* pImage );
 	void			sub_11EC2();
 	void			sub_11FCD();
 
@@ -858,7 +858,7 @@ protected:
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 
-	void			Camera_Pan();
+	void			Camera_Pan( cSurface* pImage );
 	void			sub_2CF6D();
 	void			sub_2CFEA();
 
@@ -903,6 +903,7 @@ protected:
 	void			sub_31033();
 	void			sub_31075( int16 pData0 );
 	void			sub_310CB();
+	void			sub_311A7();
 	int16			sub_313CD();
 
 	void			String_CalculateWidth( int32 pPosX, uint8* pWidths, const char* pString );
