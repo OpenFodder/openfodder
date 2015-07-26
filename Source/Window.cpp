@@ -25,7 +25,7 @@
 cWindow::cWindow() {
 
 	mDimensionWindow.mWidth = 1280;
-	mDimensionWindow.mHeight = 960;
+	mDimensionWindow.mHeight = 920;
 
 	mDimensionPlayfield.mWidth = mDimensionWindow.mWidth;
 	mDimensionPlayfield.mHeight = mDimensionWindow.mHeight;
@@ -77,7 +77,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 
-	SDL_RenderSetLogicalSize(mRenderer, 320, 200);
+	SDL_RenderSetLogicalSize(mRenderer, 320, 230);
 
 	SetCursor();
 	return true;
@@ -159,10 +159,10 @@ void cWindow::EventCheck() {
 
 void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 	SDL_Rect Src;
-	Src.w = mDimensionPlayfield.mWidth;
-	Src.h = mDimensionPlayfield.mHeight;
+	Src.w = 320;
+	Src.h = 200;
 	Src.x = pSource.mX;
-	Src.y = pSource.mY;
+	Src.y = pSource.mY + 16;
 
 	//Draw the texture
 	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);

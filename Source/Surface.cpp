@@ -243,7 +243,7 @@ void cSurface::decode4Plane( uint8* pBuffer, size_t pSize, size_t pWidth, size_t
 		return;
 
 	for (unsigned int Plane = 0; Plane < 4; Plane++) {
-		Buffer = mSurfaceBuffer;
+		Buffer = mSurfaceBuffer + (16 * pWidth);
 		
 		for (unsigned int Y = 0; Y < pHeight; ++Y) {
 

@@ -144,6 +144,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	cSurface*		mSurfaceMapOverview;
 	cSurface*		mSurfacePlayfield;
+	cSurface*		mImage;
 
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
@@ -296,6 +297,7 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite_0*		dword_3A1D9[45];
 	int16			word_3A28D;
 
+	int16			word_3A8B1;
 	int16			word_3A8D5;
 	int16			word_3A8D7;
 	int16			word_3A8D9;
@@ -368,6 +370,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA1B;
 	int16			word_3AA1D;
 	int16			word_3AA1F;
+	int16			word_3AA21;
 	int16			word_3AA41;
 	int16			word_3AA47;
 	int16			word_3AA4B;
@@ -418,8 +421,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC3F[6];
 	int16			word_3AC45;
 	int16			word_3AC47;
+	int16			word_3AC49;
 	int16			word_3AC4B;
 	int16			word_3AC4D;
+	int16			word_3AC4F;
 	int16			word_3AC51;
 	struct_6		stru_3AC53[42]; //Correct?
 	struct_6*		dword_3AEF3;
@@ -910,6 +915,7 @@ protected:
 	void			sub_2EED3();
 	void			sub_2EEDE( int16 pData4 );
 	void			sub_2EF3E();
+	void			sub_2EF8A();
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
@@ -917,12 +923,20 @@ protected:
 
 	void			sub_2E04C();
 	void			sub_2ED17( cSurface* pImage );
+
+	void			sub_2F01D();
+	void			sub_2F0A6();
 	void			sub_2F0D7();
-	void			sub_2F45B();
+	void			Mission_Sidebar_TroopList_Draw();
+	void			Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, sRecruit* pData28 );
+	void			sub_2F452();
+	void			Mission_Sidebar_SquadIcon_Draw();
 	int16			sub_2F4CB();
 	void			sub_2F5ED( cSurface *pImage );
 	void			sub_2F757();
+	void			sub_2F7D7( cSurface* pImage );
 	void			sub_2F7E4( cSurface* pImage, int16 pData0 );
+	void			sub_2F871( cSurface* pImage );
 	void			sub_2F87E( cSurface* pImage, int16 pData0 );
 	int16			sub_2F90B();
 	void			sub_2F9B3( cSurface* pImage );
@@ -933,6 +947,8 @@ protected:
 	void			sub_2FA75( cSurface* pImage );
 	void			sub_2FA8F();
 	void			sub_2FAAA( cSurface* pImage );
+	void			sub_2FB95();
+	void			sub_2FC1E();
 	void			sub_2FC4F();
 	int16			sub_2FF41();
 
@@ -942,10 +958,13 @@ protected:
 	void			sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	void			Mission_Sidebar_MapButton_Render();
 	void			sub_302C9();
+	void			sub_304CB( cSurface* pImage );
 	void			sub_30AB0();
 	int16			sub_30E0B();
 	void			sub_30E49();
 	void			sub_301F7();
+	void			sub_303AE();
+	void			sub_303DA();
 	void			sub_30465();
 	void			sub_30480();
 	void			sub_304D0();
