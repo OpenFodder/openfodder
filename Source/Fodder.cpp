@@ -2756,39 +2756,51 @@ void cFodder::mouse_Handle() {
 
 	//g_Window.SetMousePosition( cPosition( 0xA0, 0x64 ) );
 
-	int16 dword_37AA4 = mouse_Pos_Column;// -0x70;
-	word_3BDB3 = dword_37AA4;
+	int16 Data4 = mouse_Pos_Column;// -0x70;
+	word_3BDB3 = Data4;
 
-	dword_37AA4 += word_3BDAF;
+	Data4 += word_3BDAF;
 
-	if ((word_3A024 == 0 && dword_37AA4 < -32 ) || dword_37AA4 < -16) {
-		//loc_13B41
-		if (word_3A024)
-			dword_37AA4 = -16;
-		else
-			dword_37AA4 = -32;
-	} else {
-		//loc_13B58
-		if (dword_37AA4 > 287)
-			dword_37AA4 = 287;
-	}
+	if( word_3A024 == 0 )
+		goto loc_13B3A;
+	
+	if( Data4 >= -16 )
+		goto loc_13B58;
+	
+	goto loc_13B41;
+	
+loc_13B3A:;
+	if( Data4 >= -32 )
+		goto loc_13B58;
+	
+loc_13B41:;
+	if(word_3A024)
+		Data4 = -16;
+	else 
+		Data4 = -32;
+	
+	goto loc_13B66;
+	
+loc_13B58:;
+	if(Data4 > 287 )
+		Data4 = 287;
+	
+loc_13B66:;
+	word_3BDAF = Data4;
+	
+	int16 Data0 = mouse_Pos_Row;// - 88;
+	word_3BDB5 = Data0;
+	Data0 += word_3BDB1;
 
-	//loc_13B66
-	word_3BDAF = mouse_Pos_Column;
-	int16 dword_37AA0 = mouse_Pos_Row;// -88;
-
-	word_3BDB5 = dword_37AA0;
-	dword_37AA0 += word_3BDB1;
-
-	if (dword_37AA0 < 4)
-		dword_37AA0 = 4;
+	if (Data0 < 4)
+		Data0 = 4;
 	else {
 
-		if (dword_37AA0 > 203)
-			dword_37AA0 = 203;
+		if (Data0 > 203)
+			Data0 = 203;
 	}
 
-	word_3BDB1 = mouse_Pos_Row;
+	word_3BDB1 = Data0;
 }
 
 void cFodder::mouse_ButtonCheck() {
@@ -12251,11 +12263,11 @@ void cFodder::sub_306D0() {
 
 	dword_3A02A = stru_3AC53;
 
-	for (;;) {
+	for (;;++dword_3A02A) {
 		struct_6* Data20 = dword_3A02A;
 
 		if (Data20->field_0 == 0)
-			goto loc_307DF;
+			break;
 
 		int16 Data0 = (*this.*Data20->field_0)();
 		if (Data0 < 0)
@@ -12268,29 +12280,25 @@ void cFodder::sub_306D0() {
 		Data4 += 0x20;
 
 		if (Data0 > Data4)
-			goto loc_307CF;
+			continue;
 
 		Data0 += Data20->field_6;
 		if (Data0 < Data4)
-			goto loc_307CF;
+			continue;
 
 		Data0 = word_3BEC3;
 		Data0 += Data20->field_8;
 		if (Data0 > word_3BDB1)
-			goto loc_307CF;
+			continue;
 
 		Data0 += Data20->field_A;
 		if (Data0 < word_3BDB1)
-			goto loc_307CF;
+			continue;
 
 		(*this.*Data20->field_C)();
 		return;
-
-	loc_307CF:;
-		++dword_3A02A;
-
 	}
-loc_307DF:;
+	
 	if (!mButtonPressRight)
 		goto loc_30814;
 
