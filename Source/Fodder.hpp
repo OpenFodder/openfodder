@@ -112,13 +112,15 @@ struct struct_5 {
 	int16	field_8;
 };
 
+class cFodder;
+
 struct struct_6 {
-	int		(*field_0)();
+	int16	(cFodder::*field_0)();
 	int16	field_4;
 	int16	field_6;
 	int16	field_8;
 	int16	field_A;
-	void	(*field_C)();
+	void	(cFodder::*field_C)();
 };
 
 struct struct_7 {
@@ -272,6 +274,7 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite_0*		word_39FCE;	// This stores the number of bytes, inside the sSprite array
 
 	int16			word_39FD0;
+	int16			word_39FD2;
 	int16			word_39FD4;
 
 	int16			word_39FF2;
@@ -356,6 +359,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9F7;
 	int16			word_3A9FB;
 	int32			dword_3A9FD;
+	int16			word_3AA01;
 	int16			word_3AA05[3];
 	int16			word_3AA0B[3];
 	int16			word_3AA11[3];
@@ -394,7 +398,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABC3;
 	int16			word_3ABC5;
 	int16			word_3ABC7;
-	sSprite_0*		dword_3ABC9;
+	sSquad_Member*	dword_3ABC9;
 	int16			word_3ABE7;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
@@ -414,6 +418,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC3F[6];
 	int16			word_3AC45;
 	int16			word_3AC47;
+	int16			word_3AC4B;
+	int16			word_3AC4D;
+	int16			word_3AC51;
 	struct_6		stru_3AC53[42]; //Correct?
 	struct_6*		dword_3AEF3;
 	int16			word_3AF01;
@@ -471,6 +478,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4D3;
 	int16			word_3B4D5;
 	int16			word_3B4D7;
+	int16			word_3B4D9;
 	int16			word_3B4DB;
 	int16			word_3B4EB;
 	int16			word_3B4F1;
@@ -487,7 +495,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
 
-	int16*			word_3BDAD;
+	uint16*			word_3BDAD;
 	int16			word_3BDAF;
 	uint16			word_3BDB1;
 	uint16			word_3BDB3;
@@ -532,9 +540,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D469;
 	int16			word_3D473;
 	int16			word_3D475;
-	int16*			word_3D5B7;
+	uint16*			word_3D5B7;
 
 	uint16			byte_3DDA2[0x30];
+	struct_6		stru_3DEDC[2];
 	int16			word_3E0E5[0x18];
 
 	uint8*			word_3E1B7;
@@ -634,10 +643,12 @@ class cFodder : public cSingleton < cFodder > {
 
 	cPalette		mPalette[ g_MaxColors ];
 
+	void(cFodder::*off_3DEF6[3])(void);
+
 protected:
 
 	uint8*			GetSpriteData( uint16 pSegment );
-	int16			Mission_Loop();
+	int16			Mission_Loop( cSurface* pImage );
 
 	void			mouse_unk_0();
 	void			sub_10937();
@@ -678,7 +689,7 @@ protected:
 	void			sub_12245();
 	void			sub_1229C();
 	void			sub_122BD();
-	void			Mission_Sidebar_Draw( cSurface* pImage );
+	void			Mission_Sprites_Draw( cSurface* pImage );
 	void			sub_12419();
 	void			sub_124DB();
 	void			sub_125A5();
@@ -750,7 +761,7 @@ protected:
 	void			Recruit_Draw_HomeAway( cSurface *pImage );
 	void			sub_16B55( cSurface* pImage, int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			sub_16BC3();
-	void			sub_16C45( int16** pDi, int16* pSource );
+	void			sub_16C45( uint16** pDi, int16* pSource );
 	void			sub_16C6C();
 	void			Recruit_Render_LeftMenu( cSurface *pImage );
 	void			Recruit_Render_Squad_Names();
@@ -840,6 +851,7 @@ protected:
 	int16			sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 );
 	void			sub_22AA9( sSprite_0* pSprite );
 	void			sub_22B71( sSprite_0* pSprite );
+
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
@@ -883,11 +895,21 @@ protected:
 	void			sub_2DCB0( int16 pData0 );
 	void			sub_2DE2C( cSurface* pImage );
 	void			sub_2E01C();
-	void			sub_2EACA();
+	int16			sub_2EAC2();
+	void			sub_2EAC3();
+	void			sub_2EACA( cSurface *pImage );
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
-	void			sub_2EB53( int16 pData0, int16 pData4 );
+	void			sub_2EB53( cSurface* pImage, int16 pData0, int16 pData4 );
 	void			sub_2EBC4();
-	void			sub_2ECDF();
+	void			sub_2EC0E( struct_6* pData20, struct_6* pData24 );
+	void			sub_2ECC7( struct_6 *pData20 );
+	void			Mission_Sidebar_SplitButton_Draw();
+	void			sub_2EE02();
+	void			sub_2EEBD();
+	void			sub_2EEC8();
+	void			sub_2EED3();
+	void			sub_2EEDE( int16 pData4 );
+	void			sub_2EF3E();
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
@@ -903,18 +925,31 @@ protected:
 	void			sub_2F7E4( cSurface* pImage, int16 pData0 );
 	void			sub_2F87E( cSurface* pImage, int16 pData0 );
 	int16			sub_2F90B();
-	void			sub_2F9B3();
+	void			sub_2F9B3( cSurface* pImage );
+	void			sub_2FA05();
+	void			Mission_Sidebar_MapButton_Prepare();
+	void			sub_2FA44( cSurface* pImage );
+	void			sub_2FA5B( cSurface* pImage );
+	void			sub_2FA75( cSurface* pImage );
+	void			sub_2FA8F();
 	void			sub_2FAAA( cSurface* pImage );
 	void			sub_2FC4F();
+	int16			sub_2FF41();
 
+	void			sub_30082();
+
+	void			Mission_Sidebar_MapButton_RenderWrapper();
 	void			sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			Mission_Sidebar_MapButton_Render();
+	void			sub_302C9();
+	void			sub_30AB0();
 	int16			sub_30E0B();
 	void			sub_30E49();
 	void			sub_301F7();
 	void			sub_30465();
 	void			sub_30480();
 	void			sub_304D0();
-	int16			sub_305D5();
+	int16			sub_305D5( sSprite_0*& pData20 );
 	void			sub_306D0();
 	void			sub_30CDC();
 	int16			sub_30E2A();
