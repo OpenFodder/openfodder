@@ -10739,8 +10739,8 @@ int16 cFodder::sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 ) {
 	int16 Data8 = word_3BDAF;
 	int16 DataC = word_3BDB1;
 
-	Data8 += dword_39F2C & 0xFFFF;
-	DataC += dword_39F30 & 0xFFFF;
+	Data8 += dword_39F2C >> 16;
+	DataC += dword_39F30 >> 16;
 
 	Data8 -= 0x10;
 	if (!Data8)
