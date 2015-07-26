@@ -369,7 +369,7 @@ void cFodder::sub_10937() {
 
 void cFodder::sub_1096B() {
 	sSprite_0* Data14 = word_39FCE;
-	if(Data14 < 0 )
+	if(Data14 == (sSprite_0*)-1 || Data14 == 0 )
 		return;
 	
 	int16 Data8 = Data14->field_0;
@@ -966,7 +966,7 @@ void cFodder::sub_10EA4() {
 	dword_39F98 = 0;
 	dword_39F9C = 0;
 	mSprites[0].field_0 = -32768;
-	word_39FCE = 0;
+	word_39FCE = &mSprites[0];
 }
 
 void cFodder::sub_10EC3() {
@@ -1944,7 +1944,7 @@ void cFodder::sub_1229C() {
 
 void cFodder::sub_122BD() {
 
-	if (word_39FCE < 0)
+	if (word_39FCE == (sSprite_0*)-1 || word_39FCE == 0 )
 		return;
 
 	sSprite_0* Data20 = word_39FCE;
@@ -2422,7 +2422,7 @@ void cFodder::sub_12B6E() {
 			}
 			else {
 				//loc_12C2B
-				if (Data0 < 0)
+				if (Data0 == 0)
 					goto loc_12C5F;
 
 				sSprite_0* Dataa0 = dword_3B20B;
@@ -7080,7 +7080,7 @@ void cFodder::sub_18DD3() {
 			break;
 
 		case 5:
-			//sub_199F3( Data20 );
+//			sub_199F3( Data20 );
 			break;
 
 		default:
@@ -12001,8 +12001,8 @@ void cFodder::sub_30E49() {
 	int16 Data0 = word_3BDAF;
 	int16 Data4 = word_3BDB1;
 
-	Data0 += dword_39F2C >> 16;
-	Data4 += dword_39F30 >> 16;
+	Data0 += dword_39F2C & 0xFFFF;
+	Data4 += dword_39F30 & 0xFFFF;
 	Data0 -= 0x0F;
 	Data4 -= 3;
 
