@@ -51,6 +51,7 @@ cFodder::cFodder() {
 
 	mResources = new cResources();
 	mWindow = new cWindow();
+	mImage = 0;
 
 	mTicksDiff = 0;
 	mTicks = 0;
@@ -192,9 +193,10 @@ cFodder::~cFodder() {
 int16 cFodder::Mission_Loop( cSurface* pImage ) {
 
 	for (;;) {
+		
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
-
+		pImage->Restore();
 		sub_12018();
 		Camera_Pan( pImage );
 
@@ -699,6 +701,7 @@ void cFodder::sub_10D61() {
 	word_3AA1B = 0;
 	word_3AA1D = 0;
 	word_3AA1F = 0;
+	word_3AA21 = 0;
 	word_3AA41 = 0;
 	word_3AA47 = 0;
 	word_3AA4B = 0;
@@ -755,8 +758,10 @@ void cFodder::sub_10D61() {
 	word_3AC3F[5] = 0;
 	word_3AC45 = 0;
 	word_3AC47 = 0;
+	word_3AC49 = 0;
 	word_3AC4B = 0;
 	word_3AC4D = 0;
+	word_3AC4F = 0;
 	word_3AC51 = 0;
 
 	word_3AF01 = 0;
@@ -5027,6 +5032,10 @@ void cFodder::sub_302C9() {
 	word_3B4DB = -1;
 }
 
+void cFodder::sub_304CB( cSurface* pImage ) {
+	sub_2F871( pImage );
+}
+
 void cFodder::sub_30AB0() {
 
 	if (word_3BDAF < 0x10) {
@@ -6592,7 +6601,7 @@ void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
 	if (pData0 == word_39FD0)
 		word_3AC47 = -1;
 
-	pData0 <<= 1;
+	//pData0 <<= 1;
 	word_3AC1F = pData0;
 }
 
@@ -6611,13 +6620,13 @@ void cFodder::sub_2EB53( cSurface* pImage, int16 pData0, int16 pData4 ) {
 	Mission_Sidebar_SplitButton_Draw();
 
 	sub_2EE02();
-	//sub_2EF8A();
+	sub_2EF8A();
 	sub_2ED17( pImage );
-	//sub_2F01D();
+	sub_2F01D();
 	sub_2FAAA( pImage );
-	//sub_2FB95();
-	//sub_2F452();
-	//sub_2F13F();
+	sub_2FB95();
+	sub_2F452();
+	Mission_Sidebar_TroopList_Draw();
 	//sub_2FCB7();
 }
 
@@ -6739,6 +6748,34 @@ void cFodder::sub_2EF3E() {
 
 	word_3AA47 = 1;
 	word_3AC2B = 0;
+}
+
+void cFodder::sub_2EF8A() {
+	int16 Data0 = word_3AC1F;
+
+	int16* Data20 = word_3AC3F;
+	int16* Data24 = word_3AA05;
+	int16* Data28 = word_3AA0B;
+
+	if (Data20[Data0] == 1) {
+
+		if (Data24[Data0])
+			return;
+		if (!Data28[Data0])
+			return;
+
+		Data20[Data0] = 3;
+		return;
+	}
+
+	//loc_2EFF1
+	if (Data28[Data0])
+		return;
+
+	if (!Data24[Data0])
+		return;
+
+	Data20[Data0] = 1;
 }
 
 void cFodder::sub_17DB3() {
@@ -10703,7 +10740,6 @@ void cFodder::sub_2E04C() {
 }
 
 void cFodder::Start() {
-	cSurface* Image = 0;
 
 	mouse_Setup();
 	mouse_Handle();
@@ -10870,12 +10906,12 @@ loc_103BF:;
 
 			word_3BEC9 = 0xE0;
 
-			delete Image;
-			Image = new cSurface( 320, 230 );
-			Image->paletteSet( mPalette );
+			delete mImage;
+			mImage = new cSurface( 320, 230 );
+			mImage->paletteSet( mPalette );
 			mImageFaded = -1;
 
-			sub_2EACA( Image );
+			sub_2EACA( mImage );
 			sub_2F0D7();
 			sub_126BB();
 			sub_13102();
@@ -10888,7 +10924,7 @@ loc_103BF:;
 			word_3B4DB = 0;
 			word_3EABD = 0x40BC;
 			
-			if (!Mission_Loop( Image )) {
+			if (!Mission_Loop( mImage )) {
 				word_3B20F = 0;
 				sub_12A5F();
 				word_390EC = -1;
@@ -11043,6 +11079,41 @@ loc_2EDFD:;
 
 }
 
+void cFodder::sub_2F01D() {
+	if (!word_3AC47)
+		return;
+
+	struct_6* Data20 = dword_3AEF3;
+	Data20->field_0 = &cFodder::sub_2EAC2;
+	Data20->field_4 = 0;
+	Data20->field_6 = 0x0C;
+	Data20->field_8 =  word_3AC1D + 0x0E;
+	Data20->field_A = 0x14;
+	Data20->field_C = &cFodder::sub_2F0A6;
+
+	++Data20;
+	sub_2ECC7( Data20 );
+}
+
+void cFodder::sub_2F0A6() {
+	
+	if (sub_30E0B() < 0)
+		return;
+
+	if (!sub_2F90B()) {
+		sub_2F0D7();
+		return;
+	}
+
+	word_3AC49 = word_3BDE7;
+	++word_3BDE7;
+	if (word_3BDE7 >= 3)
+		word_3BDE7 = 0;
+
+	sub_303AE();
+
+}
+
 void cFodder::sub_2F0D7() {
 
 	if (word_3AC3F[word_39FD0] == 1)
@@ -11053,19 +11124,155 @@ void cFodder::sub_2F0D7() {
 	byte_3AC39[word_39FD0] = -1;
 }
 
-void cFodder::sub_2F45B() {
+void cFodder::Mission_Sidebar_TroopList_Draw() {
+
+	int16 Data0 = 0;
+	int8 Data4 = byte_3A05A[word_3AC1B];
+	int16 DataC = word_3AC1D;
+
+	int8 Data4_Saved = Data4;
+
+	DataC += 0x22;
+	Data4 -= 1;
+	if (Data4 < 0)
+		goto loc_2F1BC;
+
+	for (;Data4 >= 0;--Data4) {
+
+		if (!word_3AC47)
+			Data0 = 0xAB;
+		else
+			Data0 = 0xA9;
+
+		sub_145AF( Data0, 0, DataC );
+		DataC += 0x0C;
+	}
+loc_2F1BC:;
+
+	word_3AC29 = DataC;
+	Data4 = Data4_Saved;
+	if (Data4 < 0)
+		return;
+
+	sSquad_Member* Data38 = mSquad;
+
+	DataC = word_3AC1D;
+	DataC += 0x23;
+	word_3A3BD = DataC;
+
+	for (int16 word_3A061 = 7; word_3A061 >= 0; --word_3A061, ++Data38 ) {
+		
+		sSprite_0* Data34 = Data38->field_4;
+
+		if (Data34 == (sSprite_0*)-1 || Data34 == 0)
+			continue;
+
+		Data4 = word_3AC1B;
+
+		if (Data4 != Data34->field_32)
+			continue;
+
+		if (Data34->field_38 >= 0x32)
+			goto loc_2F25C;
+
+		if ((Data34->field_75 & 2))
+			goto loc_2F25C;
+
+		if (Data34->field_38)
+			continue;
+
+	loc_2F25C:;
+		Data0 = 0;
+		Data0 = Data38->mRank;
+		Data0 += 9;
+		int16 Data8 = 0;
+		int16 DataC = word_3A3BD;
+
+		sub_145AF( Data0, Data8, DataC );
+		Data0 = Data38->mRank + 9;
+		Data8 = 0x23;
+		DataC = word_3A3BD;
+
+		sub_145AF( Data0, Data8, DataC );
+		Data0 = 0;
+
+		sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
+		if (!word_3AC47) {
+			Data0 = 2;
+		}
+		else {
+			Data0 = 0;
+			Data0 = Data38->field_9;
+			Data0 &= 1;
+		}
+		//loc_2F318
+		Data4 = 3;
+		word_3A8B1 = 6;
+		DataC = word_3A3BD;
+		DataC += 2;
+
+		Mission_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28 );
+		word_3A3BD += 0x0C;
+	}
+}
+
+void cFodder::Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, sRecruit* pData28 ) {
+
+	const int8* Data20 = byte_3DF02;
+
+	word_3AA21 =  Data20[pData0];
+
+	int16 Data14;
+
+	for (Data14 = 0; Data14 <= word_3BDEB; ++Data14) {
+		if (word_3BDEB == 5) {
+
+			if (pData28->mName[Data14] == 0x20)
+				break;
+		}
+
+		if (pData28->mName[Data14] == 0)
+			break;
+
+	}
+
+	Data14 <<= 2;
+
+	int16 Data18 = 0x30;
+	Data18 -= Data14;
+	Data18 >>= 1;
+	word_3A05F = Data18;
+
+	for( Data14 = 0; Data14 <= word_3BDEB; ++Data14 ) {
+			
+		if( pData28->mName[Data14] != 0x20 ) {
+			pData0 = pData28->mName[Data14];
+			pData0 -= 0x41;
+			pData0 += word_3AA21;
+				
+			pData8 = Data14;
+			pData8 <<= 2;
+			pData8 += word_3A05F;
+
+			sub_145AF( pData0, pData8, pDataC );
+		}
+	}
+}
+
+void cFodder::sub_2F452() {
+
+	sub_2F4CB();
+	Mission_Sidebar_SquadIcon_Draw();
+}
+
+void cFodder::Mission_Sidebar_SquadIcon_Draw() {
 	
 	int16 Data0 = word_3AA11[word_3AC1F];
 
-	const int16* Data20 = 0;
+	const int16* Data20 = word_3DF05;
 
-	if (word_3AC47) {
-		Data20 = word_3DF05;
-	}
-	else {
+	if (!word_3AC47) 
 		Data20 = word_3DF1B;
-	}
-
 
 	Data0 = Data20[Data0];
 	int16 Data8 = 0x0C;
@@ -11094,7 +11301,7 @@ int16 cFodder::sub_2F4CB() {
 	DataC = Data2C->field_6F;
 	const int16* Dataa2C = word_3DF31;
 
-	for (;; ++Data2C ) {
+	for (;; Dataa2C += 2) {
 		if (*Dataa2C < 0)
 			goto loc_2F593;
 
@@ -11105,7 +11312,7 @@ loc_2F586:;
 	Data1C = *(Dataa2C + 1);
 
 loc_2F593:;
-	if (Data1C != word_3AA11[word_3AC1F])
+	if (Data1C == word_3AA11[word_3AC1F])
 		return 0;
 
 	word_3AA11[word_3AC1F] = Data1C;
@@ -11205,8 +11412,12 @@ void cFodder::sub_2F757() {
 			word_3AC47 = -1;
 
 		if (sub_2F4CB())
-			sub_2F45B();
+			Mission_Sidebar_SquadIcon_Draw();
 	}
+}
+
+void cFodder::sub_2F7D7( cSurface* pImage ) {
+	sub_2F7E4( pImage, word_39FD0 );
 }
 
 void cFodder::sub_2F7E4( cSurface* pImage, int16 pData0 ) {
@@ -11236,6 +11447,11 @@ void cFodder::sub_2F7E4( cSurface* pImage, int16 pData0 ) {
 	DataC += 0x0E;
 
 	sub_145AF( Data0, Data8, DataC );
+}
+
+void cFodder::sub_2F871( cSurface* pImage ) {
+
+	sub_2F87E( pImage, word_39FD0 );
 }
 
 void cFodder::sub_2F87E( cSurface* pImage, int16 pData0 ) {
@@ -11440,6 +11656,42 @@ void cFodder::sub_2FAAA( cSurface* pImage ) {
 	}
 
 	sub_302DE( pImage, Data4, Data8, DataC, Data10 );
+}
+
+void cFodder::sub_2FB95() {
+
+	if (!word_3AC47)
+		return;
+
+	struct_6* Data20 = dword_3AEF3;
+	Data20->field_0 = &cFodder::sub_2EAC2;
+	Data20->field_4 = 0x24;
+	Data20->field_6 = 0x0C;
+	Data20->field_8 = word_3AC1D + 0x0E;
+	Data20->field_A = 0x14;
+	Data20->field_C = &cFodder::sub_2FC1E;
+	++Data20;
+
+	sub_2ECC7( Data20 );
+}
+
+void cFodder::sub_2FC1E() {
+
+	if (sub_30E0B() < 0)
+		return;
+
+	if (!sub_2F90B()) {
+		sub_2FC4F();
+		return;
+	}
+
+	word_3AC4F = word_3BDE9;
+	++word_3BDE9;
+
+	if (word_3BDE9 >= 3)
+		word_3BDE9 = 0;
+
+	sub_304CB( mImage );
 }
 
 void cFodder::sub_2FC4F() {
@@ -11686,6 +11938,38 @@ void cFodder::sub_301F7() {
 		Data38->field_9 &= 0;
 
 	}
+}
+
+void cFodder::sub_303AE() {
+	sub_2F7D7( mImage );
+	sub_303DA();
+}
+
+void cFodder::sub_303DA() {
+	int8* Data20 = byte_3A05A;
+	int16 Data0;
+
+	for (Data0 = 0; Data0 < 3; ++Data0) {
+		if (!Data20[Data0])
+			goto loc_30409;
+
+	}
+	return;
+
+loc_30409:;
+
+	int16 Data4 = word_39FD0;
+	if (Data4 < 0)
+		return;
+
+	int16 Data8 = Data4;
+	Data4 += Data8;
+	Data4 += Data0;
+
+	Data0 = word_3DF73[Data4];
+	int16 DataC = word_3AC1D;
+
+	sub_145AF( Data0, Data8, DataC );
 }
 
 void cFodder::sub_30465() {
@@ -12054,16 +12338,14 @@ void cFodder::sub_31033() {
 	if (word_39FD0 <= 0)
 		return;
 
-	int16 Data0 = 2;
-
-	do {
+	for (int16 Data0 = 2; Data0 >= 0; --Data0 ) {
 
 		if (byte_3A05A[Data0]) {
 			sub_31075(Data0);
 			return;
 		}
 
-	} while (--Data0 >= 0);
+	}
 }
 
 void cFodder::sub_31075( int16 pData0 ) {
