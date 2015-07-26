@@ -101,6 +101,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3E1B7 = 0;
 	word_3B616 = 0;
 
+	word_40050 = 0;
 	word_40054 = 0;
 	word_42062 = 0;
 	word_42066 = 0;
@@ -203,7 +204,7 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 		Camera_Pan( pImage );
 
 		word_3A9FB = 0;
-		mouse_unk_0();
+		mouse_unk_0( pImage );
 		++word_390B0;
 		word_39F06 = 0;
 		word_3A9FB = -1;
@@ -239,7 +240,7 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 		Mission_Sprites_Draw( pImage );
 		sub_31033();
 		sub_144A2( pImage );
-		Mouse_DrawCursor();
+		Mouse_DrawCursor( pImage );
 
 		if (word_3A9D0 != 0) {
 			//Mission_Paused();
@@ -296,7 +297,7 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 	return 0;
 }
 
-void cFodder::mouse_unk_0() {
+void cFodder::mouse_unk_0( cSurface* pImage ) {
 	sSprite_0* Sprite = 0;
 
 	if (!word_390A6 || !word_3A9D0) {
@@ -324,7 +325,7 @@ void cFodder::mouse_unk_0() {
 	}
 
 	if (word_3AA51)
-		Mouse_DrawCursor();
+		Mouse_DrawCursor( pImage );
 
 	if (!word_390A6)
 		return;
@@ -1616,7 +1617,7 @@ loc_11D8A:;
 
 	Mission_Sprites_Draw( pImage );
 	sub_144A2( pImage );
-	Mouse_DrawCursor();
+	Mouse_DrawCursor( pImage );
 	sub_11CAD();
 
 	word_390A6 = -1;
@@ -2753,9 +2754,9 @@ void cFodder::mouse_Handle() {
 	mouse_GetData();
 	mouse_ButtonCheck();
 
-	//g_Window.SetMousePosition( cPosition( 160, 100 ) );
+	//g_Window.SetMousePosition( cPosition( 0xA0, 0x64 ) );
 
-	int16 dword_37AA4 = mouse_Pos_Column - 0x70;
+	int16 dword_37AA4 = mouse_Pos_Column;// -0x70;
 	word_3BDB3 = dword_37AA4;
 
 	dword_37AA4 += word_3BDAF;
@@ -2773,8 +2774,8 @@ void cFodder::mouse_Handle() {
 	}
 
 	//loc_13B66
-	word_3BDAF = dword_37AA4;
-	int16 dword_37AA0 = mouse_Pos_Row - 88;
+	word_3BDAF = mouse_Pos_Column;
+	int16 dword_37AA0 = mouse_Pos_Row;// -88;
 
 	word_3BDB5 = dword_37AA0;
 	dword_37AA0 += word_3BDB1;
@@ -2787,7 +2788,7 @@ void cFodder::mouse_Handle() {
 			dword_37AA0 = 203;
 	}
 
-	word_3BDB1 = dword_37AA0;
+	word_3BDB1 = mouse_Pos_Row;
 }
 
 void cFodder::mouse_ButtonCheck() {
@@ -2971,8 +2972,37 @@ void cFodder::paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID ) {
 	}
 }
 
-void cFodder::Mouse_DrawCursor() {
-	
+void cFodder::Mouse_DrawCursor( cSurface* pImage ) {
+	int16 cx = word_3BDAF + word_3A9F3;
+	int16 dx = word_3BDB1 + word_3A9F5;
+
+	//cx += 15;
+	dx += 14;
+
+	mouseData1->mColumn = cx;
+	mouseData1->mRow = dx;
+
+	mDrawSpritePositionX = cx;
+	mDrawSpritePositionY = dx;
+
+	if (word_3A9F7 >= 0) {
+		word_40050 = word_3A9F7;
+		word_3A9F7 = -1;
+	}
+
+	const struct_2* di = &stru_44B50[word_40050];
+	mouseData1->anonymous_5 = di->field_4;
+	mouseData1->anonymous_6 = di->field_6;
+
+	word_4206C = di->field_4;
+	word_4206E = di->field_6;
+
+	int16 ax = di->field_2 * 160;
+	int16 bx = di->field_0 >> 1;
+
+	word_42062 = mDataPStuff + (ax +bx);
+	byte_42070 = 0xF0;
+	video_Draw_Sprite_( pImage );
 }
 
 void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
@@ -4914,7 +4944,7 @@ void cFodder::Recruit_Draw( cSurface *pImage ) {
 	Recruit_Draw_Actors( pImage );
 	sub_144A2( pImage );
 	Recruit_Draw_HomeAway( pImage );
-	//Mouse_DrawCursor();
+	Mouse_DrawCursor( pImage );
 	sub_13800();
 
 	if (pImage->GetFaded() == false )
