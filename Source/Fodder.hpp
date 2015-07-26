@@ -358,7 +358,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9E6;
 	int16			word_3A9F3;
 	int16			word_3A9F5;
-	uint16			word_3A9F7;
+	int16			word_3A9F7;
 	int16			word_3A9FB;
 	int32			dword_3A9FD;
 	int16			word_3AA01;
@@ -577,6 +577,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mKeyControlPressed;
 
 	int16			mImageFaded;
+	int16			word_40050;
 	uint16			word_40054;
 	uint16			word_40056;
 	uint8*			word_42062;
@@ -656,7 +657,7 @@ protected:
 	uint8*			GetSpriteData( uint16 pSegment );
 	int16			Mission_Loop( cSurface* pImage );
 
-	void			mouse_unk_0();
+	void			mouse_unk_0( cSurface* pImage );
 	void			sub_10937();
 	void			sub_1096B();
 	void			sub_10BBC();
@@ -728,7 +729,7 @@ protected:
 	void			sub_13255();
 	void			sub_13277( sSprite_0* pData2C );
 	void			sub_13800();
-	void			Mouse_DrawCursor();
+	void			Mouse_DrawCursor( cSurface* pImage );
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
 	void			sub_13CF0( cSurface* pImage, sSprite_0* pDi, int16 pData0, int16 pData4 );

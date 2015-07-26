@@ -27,8 +27,6 @@ class cWindow : public cSingleton<cWindow> {
 		SDL_Renderer*		mRenderer;
 		cDimension			mDimensionWindow, mDimensionPlayfield;
 		
-		TTF_Font*			mFont;
-
 	public:
 
 							cWindow();
@@ -40,8 +38,6 @@ class cWindow : public cSingleton<cWindow> {
 		void				FrameEnd();
 
 		void				RenderAt( cSurface* pImage, cPosition pSource );
-	/*	void				RenderAt( cImage* pImage, cPosition pSource, cDimension pSourceDimension, cPosition pDestination, cDimension pDestinationDimension );
-		cImage*				RenderText( const std::wstring& pString );*/
 
 		void				SetCursor();
 		void				SetMousePosition( const cPosition& pPosition );
