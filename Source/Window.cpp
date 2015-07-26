@@ -25,7 +25,7 @@
 cWindow::cWindow() {
 
 	mDimensionWindow.mWidth = 1280;
-	mDimensionWindow.mHeight = 920;
+	mDimensionWindow.mHeight = 800;
 
 	mDimensionPlayfield.mWidth = mDimensionWindow.mWidth;
 	mDimensionPlayfield.mHeight = mDimensionWindow.mHeight;
@@ -77,7 +77,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 
-	SDL_RenderSetLogicalSize(mRenderer, 320, 230);
+	SDL_RenderSetLogicalSize(mRenderer, 320, 200);
 
 	SetCursor();
 	return true;

@@ -47,7 +47,9 @@ std::string mMapTypes[] = {
 	"hid"
 };
 
-cFodder::cFodder() {
+cFodder::cFodder( bool pSkipIntro ) {
+	
+	mSkipIntro = pSkipIntro;
 
 	mResources = new cResources();
 	mWindow = new cWindow();
@@ -787,7 +789,7 @@ void cFodder::sub_10D61() {
 	}
 
 	dword_3AEF3 = 0;
-
+	word_3AEFB = 0;
 	dword_3B1CB = 0;
 
 	word_3B1AB = 0;
@@ -5032,6 +5034,49 @@ void cFodder::sub_302C9() {
 	word_3B4DB = -1;
 }
 
+void cFodder::sub_3037A( cSurface* pImage ) {
+	
+	if (sub_2F90B()) {
+
+		if (word_3AC4B < 0)
+			return;
+
+		word_3AC4B = -1;
+		sub_303AE();
+		return;
+	}
+
+	if (!word_3AC4B)
+		return;
+
+	word_3AC4B = 0;
+	word_3BDE7 = 1;
+
+	sub_2F7D7( pImage );
+	sub_2F7D7( pImage );
+}
+
+void cFodder::sub_3049B( cSurface* pImage ) {
+
+	if (sub_2F90B()) {
+
+		if (word_3AC4D < 0)
+			return;
+
+		word_3AC4D = -1;
+		sub_304CB( pImage );
+		return;
+	}
+
+	if (word_3AC4D) {
+		word_3AC4D = 0;
+		word_3BDE9 = 1;
+
+		sub_2F871( pImage );
+	}
+}
+
+
 void cFodder::sub_304CB( cSurface* pImage ) {
 	sub_2F871( pImage );
 }
@@ -6627,7 +6672,7 @@ void cFodder::sub_2EB53( cSurface* pImage, int16 pData0, int16 pData4 ) {
 	sub_2FB95();
 	sub_2F452();
 	Mission_Sidebar_TroopList_Draw();
-	//sub_2FCB7();
+	sub_2FCB7();
 }
 
 void cFodder::sub_2EBC4() {
@@ -9610,6 +9655,10 @@ void cFodder::intro() {
 
 	word_3B4F3 = 0;
 	Load_Sprite_Font();
+	
+	if (mSkipIntro)
+		goto introDone;
+
 	//intro_Music_Play();
 	if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
 		goto introDone;
@@ -11702,6 +11751,95 @@ void cFodder::sub_2FC4F() {
 	word_3AC3F[word_39FD0] = 3;
 	byte_3AC39[word_39FD0] = -1;
 	byte_3AC33[word_39FD0] = -1;
+}
+
+void cFodder::sub_2FCB7() {
+	
+	if (word_39FD0 != word_3AC1B)
+		return;
+
+	for (int16 Data4 = 2; Data4 >= 0; --Data4) {
+		if (!byte_3A05A[Data4])
+			goto loc_2FCF4;
+	}
+
+	return;
+
+loc_2FCF4:;
+	word_3AEFB = word_3AC1D;
+	struct_6* Data20 = dword_3AEF3;
+
+	Data20->field_0 = &cFodder::sub_2EAC2;
+	Data20->field_4 = 0;
+	Data20->field_6 = 0x2F;
+	Data20->field_8 = word_3AC1D + 0x22;
+
+	Data20->field_A = byte_3A05A[word_39FD0] * 0x0C;
+	Data20->field_C = &cFodder::sub_2FDB8;
+
+	++Data20;
+	sub_2ECC7( Data20 );
+}
+
+void cFodder::sub_2FDB8() {
+
+	if (sub_30E0B() < 0) {
+		if (sub_30E2A() < 0)
+			return;
+	}
+
+	if (word_39FD0 < 0)
+		return;
+
+	int16 Data0 = word_3BDB1;
+	Data0 -= word_3BEC3;
+	Data0 -= word_3AEFB;
+	Data0 -= 0x22;
+
+	Data0 /= 0x0C;
+
+	int16 Data4 = byte_3A05A[word_39FD0];
+
+	if (Data0 >= Data4)
+		return;
+
+	word_3A3BF = Data0;
+
+	sSquad_Member* Data38 = mSquad;
+	Data4 = word_39FD0;
+	int16 Data8 = word_3A3BF;
+
+	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38) {
+
+		sSprite_0* Data34 = Data38->field_4;
+
+		if (Data34 == (sSprite_0*)-1 || Data34 == 0 )
+			continue;
+
+		if (Data4 != Data34->field_32)
+			continue;
+
+		--Data8;
+		if (Data8 < 0)
+			break;
+	}
+
+	Data38->field_9 ^= 1;
+
+	sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
+	Data0 = Data38->field_9 & 1;
+	Data4 = 3;
+	Data8 = word_3A3BF;
+	Data8 *= 0x0C;
+
+	Data8 += word_3AEFB;
+	Data8 += 0x25;
+	word_3A8B1 = 6;
+	int16 DataC = Data8;
+
+	Mission_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28 );
+	sub_3049B( mImage );
+	sub_3037A( mImage );
 }
 
 int16 cFodder::sub_2FF41() {

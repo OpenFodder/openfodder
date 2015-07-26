@@ -131,7 +131,7 @@ struct struct_7 {
 extern struct sRecruit mRecruits[360];
 
 class cFodder : public cSingleton < cFodder > {
-
+	bool					mSkipIntro;
 	std::vector<cEvent>		mEvents;
 
 	cResources*				mResources;
@@ -428,6 +428,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC51;
 	struct_6		stru_3AC53[42]; //Correct?
 	struct_6*		dword_3AEF3;
+	int16			word_3AEFB;
 	int16			word_3AF01;
 	int16			word_3AF03;
 	int16			word_3AF05;
@@ -950,6 +951,8 @@ protected:
 	void			sub_2FB95();
 	void			sub_2FC1E();
 	void			sub_2FC4F();
+	void			sub_2FCB7();
+	void			sub_2FDB8();
 	int16			sub_2FF41();
 
 	void			sub_30082();
@@ -958,6 +961,8 @@ protected:
 	void			sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	void			Mission_Sidebar_MapButton_Render();
 	void			sub_302C9();
+	void			sub_3037A( cSurface* pImage );
+	void			sub_3049B( cSurface* pImage );
 	void			sub_304CB( cSurface* pImage );
 	void			sub_30AB0();
 	int16			sub_30E0B();
@@ -1019,7 +1024,7 @@ protected:
 
 public:
 
-					cFodder();
+					cFodder( bool pSkipIntro );
 					~cFodder();
 
 	bool			EventAdd( cEvent pEvent );

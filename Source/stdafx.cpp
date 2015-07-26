@@ -23,8 +23,14 @@
 #include "stdafx.hpp"
 
 int main(int argc, char *args[]) {
+	bool SkipIntro = false;
 
-	cFodder* Fodder = new cFodder();
+	if (argc > 1) {
+		if (strcmp( args[1], "skipintro" ) == 0)
+			SkipIntro = true;
+	}
+
+	cFodder* Fodder = new cFodder(SkipIntro);
 
 	Fodder->Prepare();
 	Fodder->Start();
