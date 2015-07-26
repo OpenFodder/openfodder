@@ -12001,8 +12001,8 @@ void cFodder::sub_30E49() {
 	int16 Data0 = word_3BDAF;
 	int16 Data4 = word_3BDB1;
 
-	Data0 += dword_39F2C & 0xFFFF;
-	Data4 += dword_39F30 & 0xFFFF;
+	Data0 += dword_39F2C >> 16;
+	Data4 += dword_39F30 >> 16;
 	Data0 -= 0x0F;
 	Data4 -= 3;
 
