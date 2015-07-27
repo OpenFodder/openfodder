@@ -2744,8 +2744,8 @@ void cFodder::mouse_Setup() {
 void cFodder::mouse_GetData() {
 	eventProcess();
 
-	mouse_Pos_Column = (int16) mMousePosition.mX;
-	mouse_Pos_Row = (int16) mMousePosition.mY;
+	mouse_Pos_Column = (int16) mMousePosition.mX - 48;
+	mouse_Pos_Row = (int16) mMousePosition.mY - 12;
 	mouse_Button_Status = mMouseButtons;
 }
 
@@ -2760,7 +2760,7 @@ void cFodder::mouse_Handle() {
 	word_3BDB3 = Data4;
 
 	//Data4 += mMouseX;
-	/*
+	
 	if( word_3A024 == 0 )
 		goto loc_13B3A;
 	
@@ -2779,14 +2779,12 @@ loc_13B41:;
 	else 
 		Data4 = -32;
 	
-	goto loc_13B66;*/
+	goto loc_13B66;
 	
 loc_13B58:;
-	if (Data4 < 0)
-		Data4 = 0;
 
-	if(Data4 > 320 )
-		Data4 = 320;
+	if(Data4 > 287 )
+		Data4 = 287;
 	
 loc_13B66:;
 	mMouseX = Data4;
@@ -2991,8 +2989,8 @@ void cFodder::Mouse_DrawCursor( cSurface* pImage ) {
 	int16 cx = mMouseX + word_3A9F3;
 	int16 dx = mMouseY + word_3A9F5;
 
-	//ccx += 15;
-	dx += 14;
+	cx += 48;
+	dx += 12;
 
 	mouseData1->mColumn = cx;
 	mouseData1->mRow = dx;
@@ -3668,7 +3666,7 @@ void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {
 
 		word_42859 = 0x2D;
 		word_4285B = 0x33EC * 4;
-		//sub_15A36( pImage, word_42861, word_4286F );
+		sub_15A36( pImage, word_42861, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
