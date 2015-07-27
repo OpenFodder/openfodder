@@ -167,7 +167,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39096;
 	int16			word_3909A;
 	uint16			word_390A4;
-	uint16			word_390A6;
+	int16			word_390A6;
 	uint16			word_390AE;
 	int16			word_390B0;
 	uint16			word_390B8;
@@ -251,9 +251,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39F38;
 	int16			word_39F40;
 	int32			dword_39F4A;
-	int16			word_39F4C;
-	int16			word_39F4E;
-	int16			word_39F50;
+	int32			dword_39F4E;
 	int16			word_39F52;
 	int16			word_39F54;
 	int32			dword_39F42;
@@ -346,6 +344,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9B2;
 	int16			word_3A9B4;
 	int16			word_3A9B8;
+	int16			word_3A9BA[3];
 	int16			word_3A9C0[3];
 	int16			word_3A9C6;
 	sSprite_0**		dword_3A9C8;
@@ -439,6 +438,8 @@ class cFodder : public cSingleton < cFodder > {
 	struct_7*		dword_3B11F;
 	int16			word_3B15D;
 	int16			word_3B15F;
+	int16			word_3B161;
+	int16			word_3B163;
 	int16			word_3B173;
 	int32			dword_3B1CB;
 	int16			word_3B1AB;
@@ -874,6 +875,7 @@ protected:
 	int16			sub_2A7E2( int16& pData0, int16& pData4 );
 	int16			sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	int16			sub_2A839( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
+	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
