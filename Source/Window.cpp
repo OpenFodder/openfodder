@@ -146,7 +146,7 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 	SDL_Rect Src;
 	Src.w = 320;
 	Src.h = 200;
-	Src.x = pSource.mX;
+	Src.x = pSource.mX + 16;
 	Src.y = pSource.mY + 16;
 
 	//Draw the texture

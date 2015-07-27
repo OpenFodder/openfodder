@@ -243,11 +243,11 @@ void cSurface::decode4Plane( uint8* pBuffer, size_t pSize, size_t pWidth, size_t
 		return;
 
 	for (unsigned int Plane = 0; Plane < 4; Plane++) {
-		Buffer = mSurfaceBuffer + (16 * pWidth);
+		Buffer = mSurfaceBuffer + (16 * mWidth) + 16;
 		
-		for (unsigned int Y = 0; Y < pHeight; ++Y) {
+		for (unsigned int Y = 0; Y < 200; ++Y) {
 
-			for (unsigned int X = Plane; X < pWidth; X += 4 ) {
+			for (unsigned int X = Plane; X < 320; X += 4 ) {
 
 				Buffer[X] = *SrcBuffer++;
 			}
@@ -264,7 +264,7 @@ void cSurface::loadBuffer( uint8 *pBuffer, size_t pDestX, size_t pDestY, size_t 
 	if(!pBuffer)
 		return;
 
-	destPtr += (mWidth * pDestY);
+	destPtr += (mWidth * pDestY) + 16;
 	
 	for( int y = 0; y < pMaxY; ++y ) {
 		destPtrRow = destPtr;

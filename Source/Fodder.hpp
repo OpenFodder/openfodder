@@ -358,7 +358,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9E6;
 	int16			word_3A9F3;
 	int16			word_3A9F5;
-	int16			word_3A9F7;
+	int16			mMouseSpriteNew;
 	int16			word_3A9FB;
 	int32			dword_3A9FD;
 	int16			word_3AA01;
@@ -502,8 +502,8 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			mMapSptSize;
 
 	uint16*			word_3BDAD;
-	int16			word_3BDAF;
-	uint16			word_3BDB1;
+	uint16			mMouseX;
+	uint16			mMouseY;
 	uint16			word_3BDB3;
 	uint16			word_3BDB5;
 	
@@ -577,7 +577,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mKeyControlPressed;
 
 	int16			mImageFaded;
-	int16			word_40050;
+	int16			mMouseSpriteCurrent;
 	uint16			word_40054;
 	uint16			word_40056;
 	uint8*			word_42062;
