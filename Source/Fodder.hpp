@@ -502,8 +502,8 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			mMapSptSize;
 
 	uint16*			word_3BDAD;
-	uint16			mMouseX;
-	uint16			mMouseY;
+	int16			mMouseX;
+	int16			mMouseY;
 	uint16			word_3BDB3;
 	uint16			word_3BDB5;
 	
