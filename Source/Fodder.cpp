@@ -764,7 +764,7 @@ void cFodder::sub_10D61() {
 
 	for (uint16 x = 0; x < 128; ++x) {
 		stru_3AF0B[x].field_0 = 0;
-		stru_3AF0B[x].field_2 = 2;
+		stru_3AF0B[x].field_2 = 0;
 	}
 
 	word_3AF07 = 0;
