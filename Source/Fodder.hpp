@@ -128,6 +128,15 @@ struct struct_7 {
 	int16	field_2;
 };
 
+union struct_8 {
+	int32 asInt;
+
+	struct {
+		int16	field_0;
+		int16	field_2;
+	};
+};
+
 extern struct sRecruit mRecruits[360];
 
 class cFodder : public cSingleton < cFodder > {
@@ -299,7 +308,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A8D5;
 	int16			word_3A8D7;
 	int16			word_3A8D9;
-	int8*			dword_3A8DB;
+	int32			dword_3A8DB;
 	uint8			byte_3A8DE[200];
 
 	int16			dword_3A000;
@@ -323,17 +332,17 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3BB;
 	int16			word_3A3BD;
 	int16			word_3A3BF;
-	int32*			dword_3A3F9;
-	int32			word_3A3FD[30];
-	int32			word_3A475[30];
-	int32			word_3A4ED[30];
-	int32			word_3A565[30];
-	int32			word_3A5DD[30];
-	int32			word_3A655[30];
-	int32			word_3A6CD[30];
-	int32			word_3A745[30];
-	int32			word_3A7BD[30];
-	int32			word_3A835[30];
+	struct_8*		dword_3A3F9;
+	struct_8		stru_3A3FD[30];
+	struct_8		stru_3A475[30];
+	struct_8		stru_3A4ED[30];
+	struct_8		stru_3A565[30];
+	struct_8		stru_3A5DD[30];
+	struct_8		stru_3A655[30];
+	struct_8		stru_3A6CD[30];
+	struct_8		stru_3A745[30];
+	struct_8		stru_3A7BD[30];
+	struct_8		stru_3A835[30];
 	int16			word_3A8CF;
 
 	int16			word_3A9A6[2];
@@ -344,7 +353,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A9B2;
 	int16			word_3A9B4;
 	int16			word_3A9B8;
-	int16			word_3A9BA[3];
+	int16			word_3A9BA[3];	// values here, seem to be a byte count originally.. now its an index
 	int16			word_3A9C0[3];
 	int16			word_3A9C6;
 	sSprite_0**		dword_3A9C8;
@@ -415,8 +424,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC21;
 	int16			word_3AC29;
 	int16			word_3AC2B;
-	int8			byte_3AC33[2];
-	int8			byte_3AC39[2];
+	int8			byte_3AC33[3];
+	int8			byte_3AC39[3];
 	int16			word_3AC3F[6];
 	int16			word_3AC45;
 	int16			word_3AC47;
@@ -524,12 +533,12 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BEBB;
 	uint16			word_3BEBD;
 	uint16			word_3BEC1;
-	uint16			word_3BEC3;
+	int16			word_3BEC3;
 	uint16			word_3BEC9;
 	uint16			word_3BED5[5];
 	uint16			word_3BEDF[10];
 	
-	int32*			off_3BEF3[10];
+	struct_8*		off_3BEF3[10];
 	int8			byte_3BF1B[3];
 	sSprite_0*		word_3BF1E[6];
 
@@ -908,7 +917,7 @@ protected:
 	void			sub_2EAC3();
 	void			sub_2EACA( cSurface *pImage );
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
-	void			sub_2EB53( cSurface* pImage, int16 pData0, int16 pData4 );
+	void			Mission_Sidebar_Prepare( cSurface* pImage, int16 pData0, int16 pData4 );
 	void			sub_2EBC4();
 	void			sub_2EC0E( struct_6* pData20, struct_6* pData24 );
 	void			sub_2ECC7( struct_6 *pData20 );
@@ -926,7 +935,7 @@ protected:
 	void			video_Draw_MapTile( uint16 pTile, uint16 pPosX, uint16 pPosY );
 
 	void			sub_2E04C();
-	void			sub_2ED17( cSurface* pImage );
+	void			Mission_Sidebar_Grenades_Draw( cSurface* pImage );
 
 	void			sub_2F01D();
 	void			sub_2F0A6();
@@ -950,7 +959,7 @@ protected:
 	void			sub_2FA5B( cSurface* pImage );
 	void			sub_2FA75( cSurface* pImage );
 	void			sub_2FA8F();
-	void			sub_2FAAA( cSurface* pImage );
+	void			Mission_Sidebar_Rockets_Draw( cSurface* pImage );
 	void			sub_2FB95();
 	void			sub_2FC1E();
 	void			sub_2FC4F();
