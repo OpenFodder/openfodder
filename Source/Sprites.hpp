@@ -1,12 +1,12 @@
 struct sSquad_Member;
 
 struct sSprite_0 {
-	int16 field_0;
-	int16 field_2;
-	int16 field_4;
+	int16 field_0;		// X
+	int16 field_2;		
+	int16 field_4;		// Y
 	int16 field_6;
-	int16 field_8;
-	int16 field_A;
+	int16 field_8;		// mSpriteDataPtr[field_8][field_a]
+	int16 field_A;		// mSpriteDataPtr[field_8][field_a]
 	int16 field_C;
 	int16 field_E;
 	int16 field_10;
