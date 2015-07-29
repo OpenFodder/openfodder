@@ -274,7 +274,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39F94;
 	int16			word_39F96;
 	int16			dword_39F98;
-	int16			dword_39F9C;
+	int16			word_39F9C;
+	int16			word_39F9E;
 	int16			word_39FB2;
 	int16			word_39FB4;
 	int16			word_39FB6;
@@ -461,7 +462,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMap_TileSet;
 	sSprite_0*		dword_3B20B;
-	int32			word_3B20F;
+	int16			word_3B20F;
 	int16			word_3B211;
 	sSprite_0*		dword_3B213[15];
 	sSprite_0*		dword_3B24F[3];
