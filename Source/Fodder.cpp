@@ -5750,7 +5750,7 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 		}
 		//loc_2A6A1
 		pData0 = readLEWord( Data20 );
-		pData0 = readLEWord( Data20 + pData0 );
+		pData0 = Data2C[pData0];
 		if (pData0 >= 0) {
 			pData0 &= 0x0F;
 
