@@ -27,6 +27,7 @@ class cPosition {
 	public:
 				cPosition() : mX( 0 ), mY( 0 ) {}
 				cPosition( unsigned int pX, unsigned int pY ) : mX( pX ), mY( pY ) {}
+				cPosition( const cDimension pDimension ) { mX = pDimension.mWidth; mY = pDimension.mHeight; }
 
 		void	Set( unsigned int pX, unsigned int pY ) { mX = pX; mY = pY; }
 
