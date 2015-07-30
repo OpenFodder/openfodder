@@ -44,4 +44,5 @@ class cWindow : public cSingleton<cWindow> {
 
 		SDL_Renderer*		GetRenderer() const;
 
+		const cDimension	GetWindowSize() const { return mDimensionWindow; }
 };

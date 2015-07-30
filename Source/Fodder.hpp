@@ -219,7 +219,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mTroopsAvailable;
 	
 	int16			mButtonPressLeft, mButtonPressRight;
-	int16			word_39EF8;
+	int16			mMouse_Button_Left_Toggle;
 	int16			word_39F00;
 	int16			word_39F02;
 	int16			word_39F06;
@@ -668,7 +668,7 @@ protected:
 	uint8*			GetSpriteData( uint16 pSegment );
 	int16			Mission_Loop( cSurface* pImage );
 
-	void			mouse_unk_0( cSurface* pImage );
+	void			Mouse_Handle( cSurface* pImage );
 	void			sub_10937();
 	void			sub_1096B();
 	void			sub_10BBC();
@@ -874,17 +874,17 @@ protected:
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	int16			sub_2A030();
-	void			sub_2A0FA( sSprite_0* pSprite );
+	void			Movement_Calculate( sSprite_0* pSprite );
 	int16			sub_2A1F0( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	void			sub_2A3D4( sSprite_0* pSprite );
-	void			sub_2A470();
+	void			Mission_Goals_Check();
 	int16			sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_2A4FD( int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C );
 	int16			sub_2A622( int16& pData0 );
 	void			sub_2A74F( int16& pData0, int16& pData4, int16& pData8, int16& pData10, int16& pDataC );
 	int16			sub_2A7E2( int16& pData0, int16& pData4 );
 	int16			sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 );
-	int16			sub_2A839( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
+	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
 	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
@@ -987,7 +987,7 @@ protected:
 	void			sub_30480();
 	void			sub_304D0();
 	int16			sub_305D5( sSprite_0*& pData20 );
-	void			sub_306D0();
+	void			Mouse_Inputs_Check();
 	void			sub_30CDC();
 	int16			sub_30E2A();
 	void			sub_31033();
@@ -1028,7 +1028,7 @@ protected:
 
 	void			memory_XMS_Detect();
 	void			mouse_Setup();
-	void			mouse_Handle();
+	void			Mouse_Inputs_Get();
 	void			mouse_ButtonCheck();
 	void			mouse_GetData();
 
