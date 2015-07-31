@@ -65,19 +65,19 @@ protected:
 	void			paletteLoadNewSDL();
 public:
 	
-					 cSurface( size_t pWidth, size_t pHeight );
+					cSurface( size_t pWidth, size_t pHeight );
 					~cSurface();
 
-	void			 blitFrom( cSurface *pSource, uint16 destX, uint16 destY, uint32 colorKey, uint32 colorKey2, uint16 pMaxHeight = 0 );
-	void			 loadBuffer( uint8 *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY );
+	void			load( cSurface* pImage );
+	void			loadBuffer( uint8 *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY );
 
 
-	void			 decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColors );
+	void			decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColors );
 	void			decode4Plane( uint8* pBuffer, size_t pSize, size_t pWidth, size_t pHeight );
 	void			decode4Plane2( uint8* pBuffer, size_t pSize, size_t pWidth, size_t pHeight );
 
 
-	void			 draw( size_t pX = 0 , size_t pY = 0);					// Draw image to SDL Surface
+	void			draw( size_t pX = 0 , size_t pY = 0);					// Draw image to SDL Surface
 
 	void			Save();
 	void			Restore();
@@ -94,5 +94,7 @@ public:
 
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }
+	inline size_t		GetSurfaceBufferSize() const { return mSurfaceBufferSize; }
+
 	inline bool			GetFaded() { return mFaded; }
 };

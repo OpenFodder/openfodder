@@ -213,6 +213,14 @@ void cSurface::draw( size_t pX, size_t pY ) {
 	SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 }
 
+void cSurface::load( cSurface* pImage ) {
+	size_t size = pImage->GetSurfaceBufferSize();
+	if (size > mSurfaceBufferSize)
+		size = mSurfaceBufferSize;
+
+	memcpy( mSurfaceBuffer, pImage->GetSurfaceBuffer(), size );
+}
+
 void cSurface::Save() {
 
 	memcpy( mSurfaceBufferSaved, mSurfaceBuffer, mSurfaceBufferSize );
