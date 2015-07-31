@@ -180,13 +180,20 @@ cFodder::~cFodder() {
 
 int16 cFodder::Mission_Loop( cSurface* pImage ) {
 
+	pImage->paletteSet( mPalette );
+
+	//pImage->load( mSurfacePlayfield );
+	//pImage->Save();
+
 	for (;;) {
-		
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
 		pImage->Restore();
+
 		sub_12018();
 		Camera_Pan( pImage );
+
+		pImage->Save();
 
 		word_3A9FB = 0;
 		Mouse_Handle( pImage );
@@ -216,10 +223,10 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 		if (word_3FA21 == -1 && mKeyCode == 0x1C)
 			word_3A9AC = -1;
 		else
-			sub_125A5();
+			Mission_Goals_Check();
 
 		//loc_1079C
-		Mission_Goals_Check();
+		sub_2A470();
 		sub_2D06C();
 
 		Mission_Sprites_Draw( pImage );
@@ -823,12 +830,16 @@ void cFodder::sub_10D61() {
 	for (uint16 x = 0; x < 3; ++x)
 		word_3B461[x] = 0;
 
-	for (uint16 x = 0; x < 7; ++x)
+	for (uint16 x = 0; x < 8; ++x)
 		mMapGoals[x] = 0;
 
 	word_3B47B = 0;
 	word_3B487 = 0;
 	word_3B489 = 0;
+
+	for (uint16 x = 0; x < 16; ++x) {
+		dword_3B48B[x] = 0;
+	}
 	word_3B4CB = 0;
 	word_3B4CD = 0;
 	word_3B4D3 = 0;
@@ -1981,7 +1992,7 @@ void cFodder::sub_122BD() {
 void cFodder::Mission_Sprites_Draw( cSurface* pImage ) {
 
 	sub_18D5E();
-	sub_18DD3();
+	Sprite_Handle_Loop();
 
 	sub_12419();
 
@@ -2108,7 +2119,7 @@ void cFodder::sub_124DB() {
 	stru_3ABB9 = *Dataa20;
 }
 
-void cFodder::sub_125A5() {
+void cFodder::Mission_Goals_Check() {
 	
 	sSprite_0* Data20 = mSprites;
 	int16 Data8 = 0;
@@ -2939,6 +2950,15 @@ int16 cFodder::sub_131DE() {
 	return Data0;
 }
 
+void cFodder::sub_136D0() {
+	
+	word_40056 = 0;
+	word_40058 = 0;
+	word_4005A = 0x5280;
+	word_4005C = 0xA500;
+	word_40054 = 0;
+}
+
 void cFodder::sub_13800() {
 
 	videoSleep();
@@ -3183,8 +3203,6 @@ void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
 		si += word_42074;
 		di += word_42076;
 	}
-
-	pImage->draw();
 }
 
 void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
@@ -3227,87 +3245,6 @@ void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
 		si += word_42074;
 		di += word_42076;
 	}
-
-	pImage->draw();
-	return;
-	/*
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++word_42066;
-	}
-	
-	++word_42062;
-	si = word_42062;
-	di = word_42066;
-	
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = 0; cx < word_4206C; ++cx ) {
-			byte al = *si;
-			if(al)
-				*di = al;
-			
-			si += 3;
-			di ++;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++word_42066;
-	}
-	
-	++word_42062;
-	si = word_42062;
-	di = word_42066;
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = 0; cx < word_4206C; ++cx ) {
-			byte al = *si;
-			if(al)
-				*di = al;
-			
-			si += 3;
-			di ++;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++word_42066;
-	}
-	
-	++word_42062;
-	si = word_42062;
-	di = word_42066;
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = 0; cx < word_4206C; ++cx ) {
-			byte al = *si;
-			if(al)
-				*di = al;
-			
-			si += 3;
-			di ++;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-	
-	pImage->draw();*/
 }
 
 bool cFodder::sub_1429B() {
@@ -3435,8 +3372,6 @@ void cFodder::sub_144A2( cSurface* pImage ) {
 			Buffer += 352;
 		}
 	}
-
-	pImage->draw();
 }
 
 void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
@@ -3812,8 +3747,6 @@ void cFodder::sub_15A36( cSurface* pImage, uint8* pDs, int16 pCx ) {
 			di += 0x58 * 4;
 		}
 	}
-
-	pImage->draw();
 }
 
 void cFodder::sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx ) {
@@ -3883,8 +3816,6 @@ void cFodder::sub_15B98( cSurface* pImage, uint8* pDsSi, int16 pCx ) {
 			di += 0x58 * 4;
 		}
 	}
-	
-	pImage->draw();
 }
 
 void cFodder::sub_15CE8( cSurface* pImage, uint8* pDs, int16 pCx ) {
@@ -3895,7 +3826,7 @@ void cFodder::Mission_Brief() {
 
 	map_Load_Resources();
 	Sprite_SetDataPtrToBase( off_42918 );
-	//video_Draw_unk_0();
+	sub_136D0();
 
 	cSurface* Image = new cSurface( 352, 230 );
 
@@ -5433,7 +5364,7 @@ void cFodder::Mission_Sidebar_MapButton_Render() {
 
 }
 
-void cFodder::Movement_Calculate( sSprite_0* pSprite ) {
+void cFodder::Sprite_Movement_Calculate( sSprite_0* pSprite ) {
 	word_3B173 = 0;
 	if (!pSprite->field_36)
 		return;
@@ -5623,7 +5554,7 @@ void cFodder::sub_2A3D4( sSprite_0* pSprite ) {
 	word_3A8CF = DataC;
 }
 
-void cFodder::Mission_Goals_Check() {
+void cFodder::sub_2A470() {
 	int16* Data34 = word_3A9C0;
 
 	for (int16 Data0 = 2; Data0 >= 0; --Data0) {
@@ -6139,8 +6070,47 @@ void cFodder::Camera_Pan( cSurface* pImage ) {
 }
 
 void cFodder::sub_2CCA2( cSurface* pImage ) {
-	
+	return;
+	int16 cx = word_3B616;
+	int16 ax = word_3B60E;
+	ax &= 3;
 
+	int16 word_39707 = 0;
+	int16 word_39709 = 0;
+
+	for (;cx > 0; --cx) {
+		uint8* di = pImage->GetSurfaceBuffer() + (0x4D00 * 3) + word_40056;
+
+		ax = word_3B60E >> 2;
+		di -= ax * 4;
+
+		int16 bp = word_3B60C;
+		bp += (mMapWidth << 1) * 0x0E;
+
+		for (uint16 i = 0; i < 16; ++i) {
+			
+			int16 Tile = readLEWord( &mMap[bp] );
+			uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile & 0x1FF];
+
+			TilePtr += 0x140 * word_3B610;
+
+			memcpy( di, TilePtr, 16 );
+			di += 16;
+			bp += 2;
+		}
+
+		++word_3B610;
+		word_3B610 &= 0x0F;
+		if (!word_3B610) {
+			word_3B60C += mMapWidth << 1;
+			++word_3B614;
+		}
+
+		word_40056 += 0x58;
+		word_40058 += 0x58;
+		word_4005A += 0x58;
+		word_4005C += 0x58;
+	}
 }
 
 void cFodder::sub_2CF6D() {
@@ -6219,7 +6189,6 @@ void cFodder::sub_2D06C() {
 	int16 Data14 = 0;
 
 	sSprite_0*** Data28 = off_3BDEF;
-	sSquad_Member* Data2C = mSquad;
 	int16 Data0 = -32768;
 	sSprite_0* Data4 = (sSprite_0*) -1;
 
@@ -6229,7 +6198,8 @@ void cFodder::sub_2D06C() {
 	dword_3BE6F[0] = (sSprite_0*) -1;
 	dword_3BE93[0] = (sSprite_0*) -1;
 
-	for (int8 Data1C = 8; Data1C >= 0; --Data1C, ++Data2C) {
+	for (int8 Data1C = 0; Data1C < 8; ++Data1C) {
+		sSquad_Member* Data2C = &mSquad[Data1C];
 
 		if (Data2C->field_4 == (sSprite_0*) -1 || Data2C->field_4 == 0 )
 			continue;
@@ -7035,12 +7005,13 @@ void cFodder::sub_18908() {
 	cSurface* Image = new cSurface( 352, 230 );
 	Image->paletteSet( mPalette );
 
-	//video_Draw_unk_0();
+	sub_136D0();
 	Sprite_SetDataPtrToBase( off_42918 );
 	word_3A01A = 0x2C;
 
 	Briefing_Draw_MissionName( Image );
 	Briefing_Show( Image );
+	Image->paletteFade();
 
 	do {
 		g_Window.RenderAt( Image, cPosition() );
@@ -7203,7 +7174,7 @@ void cFodder::sub_18D5E() {
 	}
 }
 
-void cFodder::sub_18DD3() {
+void cFodder::Sprite_Handle_Loop() {
 	sSprite_0* Data20 = mSprites;
 
 	for (int16 Data1C = 0x2B; Data1C > 0; --Data1C, ++Data20) {
@@ -7216,7 +7187,7 @@ void cFodder::sub_18DD3() {
 
 		switch (Data4) {
 		case 0:
-			sub_18E2E( Data20 );
+			Sprite_Handle_Player( Data20 );
 			break;
 
 		case 5:
@@ -7227,11 +7198,11 @@ void cFodder::sub_18DD3() {
 			std::cout << "Function not implemented: " << Data4 << "\n";
 			break;
 		}
-		break;
+		
 	}
 }
 
-void cFodder::sub_18E2E( sSprite_0 *pData20 ) {
+void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 	sSprite_0* Sprite = (sSprite_0*)pData20;
 
 	if (Sprite->field_6E) {
@@ -7829,7 +7800,7 @@ loc_1E3D2:;
 	//loc_1E50A
 	sub_1F623( pSprite );
 	word_3A399 = pSprite->field_A;
-	Movement_Calculate( pSprite );
+	Sprite_Movement_Calculate( pSprite );
 
 	if (pSprite->field_20 < 0x0C) {
 
@@ -8160,7 +8131,7 @@ loc_1ED5B:;
 	sub_1F623( pSprite );
 	word_3A399 = pSprite->field_A;
 
-	Movement_Calculate( pSprite );
+	Sprite_Movement_Calculate( pSprite );
 	sub_20478( pSprite );
 	sub_1FFC6( pSprite );
 
@@ -8696,7 +8667,7 @@ void cFodder::sub_1F6F4( sSprite_0* pSprite ) {
 	
 	if (!sub_20E91( pSprite )) {
 		sub_20F19( pSprite );
-		Movement_Calculate( pSprite );
+		Sprite_Movement_Calculate( pSprite );
 	}
 
 	sub_2DBA3( pSprite );
@@ -9795,7 +9766,7 @@ void cFodder::intro() {
 
 	//copyprotection();
 	word_42851 = 0;
-	//video_Draw_unk_0();
+	sub_136D0();
 
 	word_3B4F3 = 0;
 	Load_Sprite_Font();
@@ -11061,7 +11032,7 @@ loc_103BF:;
 			map_SetTileType();
 			Mouse_Inputs_Get();
 			sub_18D5E();
-			sub_18DD3();
+			Sprite_Handle_Loop();
 			//seg000:05D1
 
 			sub_124DB();

@@ -591,6 +591,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMouseSpriteCurrent;
 	uint16			word_40054;
 	uint16			word_40056;
+	uint16			word_40058;
+	uint16			word_4005A;
+	uint16			word_4005C;
 	uint8*			word_42062;
 	uint8*			word_42066;
 	int16			mDrawSpritePositionX;
@@ -710,7 +713,7 @@ protected:
 	void			Mission_Sprites_Draw( cSurface* pImage );
 	void			sub_12419();
 	void			sub_124DB();
-	void			sub_125A5();
+	void			Mission_Goals_Check();
 	void			sub_126BB();
 	void			sub_126DD();
 	void			sub_12790( cSurface* pImage );
@@ -739,6 +742,7 @@ protected:
 	int16			sub_131DE();
 	void			sub_13255();
 	void			sub_13277( sSprite_0* pData2C );
+	void			sub_136D0();
 	void			sub_13800();
 	void			Mouse_DrawCursor( cSurface* pImage );
 	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
@@ -820,9 +824,9 @@ protected:
 	bool			sub_18C7A();
 	void			Brief_Draw_Vertical_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 	void			sub_18D5E();
-	void			sub_18DD3();
+	void			Sprite_Handle_Loop();
 
-	void			sub_18E2E( sSprite_0* pSprite );
+	void			Sprite_Handle_Player( sSprite_0* pSprite );
 	void			sub_199F3( sSprite_0* pSprite );
 	int16			sub_1E05A( sSprite_0* pSprite );
 	int16			sub_1EF47( sSprite_0* pSprite );
@@ -874,10 +878,10 @@ protected:
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	int16			sub_2A030();
-	void			Movement_Calculate( sSprite_0* pSprite );
+	void			Sprite_Movement_Calculate( sSprite_0* pSprite );
 	int16			sub_2A1F0( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	void			sub_2A3D4( sSprite_0* pSprite );
-	void			Mission_Goals_Check();
+	void			sub_2A470();
 	int16			sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_2A4FD( int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C );
 	int16			sub_2A622( int16& pData0 );

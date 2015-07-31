@@ -149,6 +149,8 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 	Src.x = pSource.mX + 16;
 	Src.y = pSource.mY + 16;
 
+	pImage->draw();
+
 	//Draw the texture
 	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
 }
