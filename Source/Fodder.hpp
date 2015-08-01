@@ -167,6 +167,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint8* 			mDataHillBits;
 	uint8*			mDataArmy;
 	uint8*			mMap;
+	size_t			mMapSize;
 	uint8*			mDataBaseBlk;
 	uint8*			mDataSubBlk;
 
@@ -710,7 +711,7 @@ protected:
 	void			sub_12245();
 	void			sub_1229C();
 	void			sub_122BD();
-	void			Mission_Sprites_Draw( cSurface* pImage );
+	void			Mission_Sprites_Handle( cSurface* pImage );
 	void			sub_12419();
 	void			sub_124DB();
 	void			Mission_Goals_Check();
@@ -751,7 +752,7 @@ protected:
 
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
-	bool			sub_1429B();
+	bool			Video_OnScreen_Check();
 	void			Mission_Sprite_Draw( cSurface* pImage );
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
@@ -900,8 +901,11 @@ protected:
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 
 	void			Camera_Pan( cSurface* pImage );
-	void			sub_2CCA2( cSurface* pImage );
 
+	void			sub_2C7E1( cSurface* pImage );
+	void			sub_2CA3F( cSurface* pImage );
+	void			sub_2CCA2( cSurface* pImage );
+	void			sub_2CDC0( cSurface* pImage );
 	void			sub_2CF6D();
 	void			sub_2CFEA();
 
@@ -937,7 +941,8 @@ protected:
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
-	void			video_Draw_MapTile( uint16 pTile, uint16 pPosX, uint16 pPosY );
+	void			map_Tiles_Draw_();
+	void			video_Draw_MapTile( cSurface* pImage, uint16 pTile, uint16 pPosX, uint16 pPosY );
 
 	void			sub_2E04C();
 	void			Mission_Sidebar_Grenades_Draw( cSurface* pImage );

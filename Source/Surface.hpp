@@ -68,6 +68,8 @@ public:
 					cSurface( size_t pWidth, size_t pHeight );
 					~cSurface();
 
+	void			CopyFrom( cSurface* pSource, uint16 pStartOffset );
+	
 	void			load( cSurface* pImage );
 	void			loadBuffer( uint8 *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY );
 
@@ -95,6 +97,9 @@ public:
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }
 	inline size_t		GetSurfaceBufferSize() const { return mSurfaceBufferSize; }
+
+	inline size_t		GetWidth() const { return mWidth; }
+	inline size_t		GetHeight() const { return mHeight; }
 
 	inline bool			GetFaded() { return mFaded; }
 };
