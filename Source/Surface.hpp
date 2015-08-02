@@ -68,8 +68,6 @@ public:
 					cSurface( size_t pWidth, size_t pHeight );
 					~cSurface();
 
-	void			CopyFrom( cSurface* pSource, uint16 pStartOffset );
-	
 	void			load( cSurface* pImage );
 	void			loadBuffer( uint8 *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY );
 

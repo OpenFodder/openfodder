@@ -221,34 +221,6 @@ void cSurface::load( cSurface* pImage ) {
 	memcpy( mSurfaceBuffer, pImage->GetSurfaceBuffer(), size );
 }
 
-void cSurface::CopyFrom( cSurface* pSource, uint16 pStartOffset ) {
-
-	int16 TileS = pStartOffset / 0x58;
-
-	
-	TileS *= pSource->GetWidth();
-	TileS += pStartOffset % 0x58;
-
-	uint8* SourceBuffer = pSource->GetSurfaceBuffer() + ((TileS));
-	uint8* DestBuffer = mSurfaceBuffer;
-
-	// Width 0x16 * 0x10,  Height 0x0F * 0x10 
-
-	for (int16 Row = 0; Row < 0x0F * 0x10; ++Row) {
-
-		memcpy( DestBuffer, SourceBuffer, mWidth );
-
-		SourceBuffer += pSource->GetWidth();
-		DestBuffer += mWidth;
-
-		if ((DestBuffer + mWidth) > mSurfaceBuffer + mSurfaceBufferSize)
-			break;
-
-		if (SourceBuffer + mWidth > pSource->GetSurfaceBuffer() + pSource->GetSurfaceBufferSize())
-			break;
-	}
-}
-
 void cSurface::Save() {
 
 	memcpy( mSurfaceBufferSaved, mSurfaceBuffer, mSurfaceBufferSize );
