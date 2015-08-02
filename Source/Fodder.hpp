@@ -152,7 +152,6 @@ class cFodder : public cSingleton < cFodder > {
 	const sSpriteSheet**	mSpriteDataPtr;
 
 	cSurface*		mSurfaceMapOverview;
-	cSurface*		mSurfacePlayfield;
 	cSurface*		mImage;
 
 	cPosition		mMousePosition;
@@ -902,10 +901,10 @@ protected:
 
 	void			Camera_Pan( cSurface* pImage );
 
-	void			sub_2C7E1( cSurface* pImage );
-	void			sub_2CA3F( cSurface* pImage );
-	void			sub_2CCA2( cSurface* pImage );
-	void			sub_2CDC0( cSurface* pImage );
+	void			Camera_Scroll_Right( cSurface* pImage );
+	void			Camera_Scroll_Left( cSurface* pImage );
+	void			Camera_Scroll_Down( cSurface* pImage );
+	void			Camera_Scroll_Up( cSurface* pImage );
 	void			sub_2CF6D();
 	void			sub_2CFEA();
 
@@ -941,7 +940,6 @@ protected:
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
-	void			map_Tiles_Draw_();
 	void			video_Draw_MapTile( cSurface* pImage, uint16 pTile, uint16 pPosX, uint16 pPosY );
 
 	void			sub_2E04C();
