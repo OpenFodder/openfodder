@@ -3040,7 +3040,7 @@ void cFodder::sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32
 	
 	byte_42070 = (uint8) mSpriteDataPtr[pParam00][pParam04].field_C;
 	
-	if (Video_OnScreen_Check() )
+	if (Sprite_OnScreen_Check() )
 		video_Draw_Sprite_( pImage );
 
 }
@@ -3057,7 +3057,7 @@ void cFodder::sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPo
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
 	word_42078 = 0x140;
 
-	if (Video_OnScreen_Check())
+	if (Sprite_OnScreen_Check())
 		video_Draw_Linear_To_Planar( pImage );
 }
 
@@ -3075,7 +3075,7 @@ void cFodder::sub_13CF0( cSurface* pImage, sSprite_0* pDi, int16 pData0, int16 p
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
 	
 	++word_42072;
-	if (Video_OnScreen_Check())
+	if (Sprite_OnScreen_Check())
 		video_Draw_Sprite_( pImage );
 
 	pDi->field_5C = 0;
@@ -3243,7 +3243,7 @@ void cFodder::video_Draw_Linear_To_Planar( cSurface* pImage ) {
 	}
 }
 
-bool cFodder::Video_OnScreen_Check() {
+bool cFodder::Sprite_OnScreen_Check() {
 	int16 ax;
 	
 	if( mDrawSpritePositionY < 0 ) {
@@ -3583,7 +3583,7 @@ void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
 		word_4206C = 0x40;
 		word_4206E = 0x18;
-		if (Video_OnScreen_Check())
+		if (Sprite_OnScreen_Check())
 			video_Draw_Sprite_( pImage );
 
 		word_42859 = 0x2D;
@@ -6035,11 +6035,11 @@ void cFodder::Camera_Pan( cSurface* pImage ) {
 	if (cx) {
 		if (cx < 0) {
 			word_3B616 = -cx;
-			Camera_Scroll_Left( pImage );
+			Camera_Pan_Left( pImage );
 		}
 		else {
 			word_3B616 = cx;
-			Camera_Scroll_Right( pImage );
+			Camera_Pan_Right( pImage );
 		}
 	}
 
@@ -6055,27 +6055,27 @@ void cFodder::Camera_Pan( cSurface* pImage ) {
 
 	if (cx < 0) {
 		word_3B616 = -cx;
-		Camera_Scroll_Up( pImage );
+		Camera_Pan_Up( pImage );
 	}
 	else {
 		word_3B616 = cx;
-		Camera_Scroll_Down( pImage );
+		Camera_Pan_Down( pImage );
 	}
 
 }
 
-void cFodder::Camera_Scroll_Right( cSurface* pImage ) {
+void cFodder::Camera_Pan_Right( cSurface* pImage ) {
 
 	for (int16 cx = word_3B616; cx > 0; --cx) {
 
 		++word_3B60E;
 		word_3B60E &= 0x0F;
 		if (!word_3B60E) {
-			word_3B60C += 2;
+			mMapTilePtr += 2;
 			++word_3B612;
 		}
 
-		++word_40054;
+		//++word_40054;
 		word_40054 &= 3;
 		if (!word_40054) {
 			++word_40056;
@@ -6085,23 +6085,21 @@ void cFodder::Camera_Scroll_Right( cSurface* pImage ) {
 		}
 	}
 
-	
-	//map_Tiles_Draw_();
-	//pImage->CopyFrom( mSurfacePlayfield,  word_40056 - 0x54 );
+	map_Tiles_Draw_();
 }
 
-void cFodder::Camera_Scroll_Left( cSurface* pImage ) {
+void cFodder::Camera_Pan_Left( cSurface* pImage ) {
 
 	for (int16 cx = word_3B616; cx > 0; --cx) {
 		
 		--word_3B60E;
 		word_3B60E &= 0x0F;
 		if (word_3B60E == 0x0F) {
-			word_3B60C -= 2;
+			mMapTilePtr -= 2;
 			--word_3B612;
 		}
 		
-		--word_40054;
+		//--word_40054;
 		word_40054 &= 3;
 		if (word_40054 == 3) {
 			--word_40056;
@@ -6110,72 +6108,12 @@ void cFodder::Camera_Scroll_Left( cSurface* pImage ) {
 			--word_4005C;
 		}
 
-		uint8* di = pImage->GetSurfaceBuffer() + 0x40 + (word_40056 * 4);
-		int16 bp = word_3B60C;
-
-		int16 Tile = readLEWord( &mMap[bp] );
-		uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile & 0x1FF];
-		TilePtr += word_3B60E;
-		TilePtr += 0x140 * word_3B60E;
-
-		int16 Counter = word_3B610 - 0x10;
-		Counter = -Counter;
-
-		for (; Counter > 0; --Counter) {
-			*di = *TilePtr;
-			TilePtr += 0x140;
-			di += 0x58 * 4;
-		}
-
-		bp += mMapWidth << 1;
-
-		for (Counter = 0x0D; Counter > 0; --Counter) {
-			Tile = readLEWord( &mMap[bp] );
-			TilePtr = (uint8*)mGraphicBlkPtrs[Tile & 0x1FF];
-			TilePtr += word_3B60E;
-
-			*di = *TilePtr;
-			*(di + 352) = *(TilePtr + 0x140);
-			*(di + 704) = *(TilePtr + 0x280);
-			*(di + 1056) = *(TilePtr + 0x3C0);
-			*(di + 1408) = *(TilePtr + 0x500);
-			*(di + 1760) = *(TilePtr + 0x640);
-			*(di + 2112) = *(TilePtr + 0x780);
-			*(di + 2464) = *(TilePtr + 0x8C0);
-			*(di + 2816) = *(TilePtr + 0xA00);
-			*(di + 3168) = *(TilePtr + 0xB40);
-			*(di + 3520) = *(TilePtr + 0xC80);
-			*(di + 3872) = *(TilePtr + 0xDC0);
-			*(di + 4224) = *(TilePtr + 0xF00);
-			*(di + 4576) = *(TilePtr + 0x1040);
-			*(di + 4928) = *(TilePtr + 0x1180);
-			*(di + 5280) = *(TilePtr + 0x12C0);
-
-			di += 0x580;
-
-			bp += mMapWidth << 1;
-		}
-
-		if (word_3B610) {
-
-			Tile = readLEWord( &mMap[bp] );
-			TilePtr = (uint8*)mGraphicBlkPtrs[Tile & 0x1FF];
-			TilePtr += word_3B60E;
-
-			Counter = word_3B610;
-
-			for (; Counter > 0; --Counter) {
-				*di = *TilePtr;
-				TilePtr += 0x140;
-				di += 0x58 * 4;
-			}
-
-		}
-
 	}
+
+	map_Tiles_Draw_();
 }
 
-void cFodder::Camera_Scroll_Down( cSurface* pImage ) {
+void cFodder::Camera_Pan_Down( cSurface* pImage ) {
 
 	int16 ax = word_3B60E;
 	ax &= 3;
@@ -6184,30 +6122,11 @@ void cFodder::Camera_Scroll_Down( cSurface* pImage ) {
 	int16 word_39709 = 0;
 
 	for (int16 cx = word_3B616; cx > 0; --cx) {
-		/*uint8* di = pImage->GetSurfaceBuffer() + (0x4D00) + word_40056;
-
-		ax = word_3B60E >> 2;
-		di -= ax * 4;
-
-		int16 bp = word_3B60C;
-		bp += (mMapWidth << 1) * 0x0E;
-
-		for (uint16 i = 0; i < 16; ++i) {
-			
-			int16 Tile = readLEWord( &mMap[bp] );
-			uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile & 0x1FF];
-
-			TilePtr += 0x140 * word_3B610;
-
-			memcpy( di, TilePtr, 16 );
-			di += 16;
-			bp += 2;
-		}*/
 
 		++word_3B610;
 		word_3B610 &= 0x0F;
 		if (!word_3B610) {
-			word_3B60C += mMapWidth << 1;
+			mMapTilePtr += mMapWidth << 1;
 			++word_3B614;
 		}
 
@@ -6217,11 +6136,10 @@ void cFodder::Camera_Scroll_Down( cSurface* pImage ) {
 		word_4005C += 0x58;
 	}
 	
-	//map_Tiles_Draw_();
-	//pImage->CopyFrom( mSurfacePlayfield,  word_40056 - (word_3B60E >> 2) );
+	map_Tiles_Draw_();
 }
 
-void cFodder::Camera_Scroll_Up( cSurface* pImage ) {
+void cFodder::Camera_Pan_Up( cSurface* pImage ) {
 	int16 word_39707 = 0;
 	int16 word_39709 = 0;
 
@@ -6230,7 +6148,7 @@ void cFodder::Camera_Scroll_Up( cSurface* pImage ) {
 		--word_3B610;
 		word_3B610 &= 0x0F;
 		if (word_3B610 == 0x0F) {
-			word_3B60C -= mMapWidth << 1;
+			mMapTilePtr -= mMapWidth << 1;
 			--word_3B614;
 		}
 
@@ -6242,8 +6160,7 @@ void cFodder::Camera_Scroll_Up( cSurface* pImage ) {
 
 	}
 
-	//map_Tiles_Draw_();
-	//pImage->CopyFrom( mSurfacePlayfield, word_40056 - (word_3B60E >> 2) );
+	map_Tiles_Draw_();
 }
 
 void cFodder::sub_2CF6D() {
@@ -7324,7 +7241,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 5:
-//			sub_199F3( Data20 );
+			//sub_199F3( Data20 );
 			break;
 
 		default:
@@ -11278,14 +11195,14 @@ void cFodder::map_Tiles_Draw() {
 	word_3B60E = 0;
 	word_3B610 = 0;
 
-	word_3B60C = (0x60 - 8) - (readLEWord( &mMap[0x54] ) << 1);
+	mMapTilePtr = (0x60 - 8) - (readLEWord( &mMap[0x54] ) << 1);
 	word_3B612 = 0;
 	word_3B614 = 0;
 	word_3D473 = 0;
 	word_3D475 = 0;
 
 
-	uint8* si = &mMap[word_3B60C];
+	uint8* si = &mMap[mMapTilePtr];
 
 	for (uint16 cx = 0; cx < 0x0F ; ++cx) {
 
@@ -11293,13 +11210,71 @@ void cFodder::map_Tiles_Draw() {
 
 		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
 
-			video_Draw_MapTile( mImage, readLEWord(si2), cx2, cx );
+			//video_Draw_MapTile( mImage, readLEWord(si2), cx2, cx );
 
 			si2 += 2;
 		}
 
 		si += (mMapWidth << 1);
 	}
+}
+
+void cFodder::map_Tiles_Draw_() {
+
+	uint8* Target = mImage->GetSurfaceBuffer();
+	Target += 0x10 * mImage->GetWidth();
+
+	uint8* CurrentMapPtr = &mMap[mMapTilePtr];
+
+	Target = mImage->GetSurfaceBuffer();
+
+	// Y
+	for (uint16 cx = 0; cx < 0x0F; ++cx) {
+		uint8* MapPtr = CurrentMapPtr;
+		uint8* TargetRow = Target;
+
+		int16 StartY = 0;
+
+		if (cx == 0) {
+			StartY = word_3B610;
+		}
+		else
+			StartY = 0;
+
+		// X
+		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+			uint8* TargetTmp = TargetRow;
+
+			uint16 Tile = readLEWord( MapPtr );
+			uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile & 0x1FF];
+			int16 StartX = 0;
+
+			TilePtr += StartY * 0x140;
+
+			if (cx2 == 0) {
+				StartX = word_3B60E;
+			}
+			else
+				StartX = 0;
+
+			// Each Tile Row
+			for (uint16 i = StartX; i < 16; ++i) {
+
+				memcpy( TargetTmp, TilePtr + StartX, 16 - StartX );
+				TilePtr += 0x140;
+				TargetTmp += mImage->GetWidth();
+			}
+
+			MapPtr += 2;
+			TargetRow += (16-StartX);
+		}
+
+		Target += mImage->GetWidth() * (16-StartY);
+		CurrentMapPtr += mMapWidth << 1;
+
+	}
+	
+	return;
 }
 
 void cFodder::video_Draw_MapTile( cSurface* pImage, uint16 pTile, uint16 pPosX, uint16 pPosY ) {
