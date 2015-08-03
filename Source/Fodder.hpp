@@ -502,7 +502,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4F3;
 	int16			word_3B4F5;
 
-	int16			word_3B60C;
+	int16			mMapTilePtr;
 	int16			word_3B60E;
 	int16			word_3B610;
 	int16			word_3B612;
@@ -751,7 +751,7 @@ protected:
 
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
-	bool			Video_OnScreen_Check();
+	bool			Sprite_OnScreen_Check();
 	void			Mission_Sprite_Draw( cSurface* pImage );
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
@@ -901,10 +901,10 @@ protected:
 
 	void			Camera_Pan( cSurface* pImage );
 
-	void			Camera_Scroll_Right( cSurface* pImage );
-	void			Camera_Scroll_Left( cSurface* pImage );
-	void			Camera_Scroll_Down( cSurface* pImage );
-	void			Camera_Scroll_Up( cSurface* pImage );
+	void			Camera_Pan_Right( cSurface* pImage );
+	void			Camera_Pan_Left( cSurface* pImage );
+	void			Camera_Pan_Down( cSurface* pImage );
+	void			Camera_Pan_Up( cSurface* pImage );
 	void			sub_2CF6D();
 	void			sub_2CFEA();
 
@@ -940,6 +940,7 @@ protected:
 
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
+	void			map_Tiles_Draw_();
 	void			video_Draw_MapTile( cSurface* pImage, uint16 pTile, uint16 pPosX, uint16 pPosY );
 
 	void			sub_2E04C();
