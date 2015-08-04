@@ -26,6 +26,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <ctime>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -40,6 +41,7 @@ uint8*		local_FileRead( std::string pFile, std::string pPath, size_t& pFileSize 
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
 std::string	tool_NumToString( uint32 pValue );
 std::string tool_StripLeadingZero( const std::string& pValue );
+uint16		tool_DecimalToBinaryCodedDecimal( uint16 pDecimal );
 
 // Read a word from the buffer
 inline uint16 readBEWord( const void *buffer ) {

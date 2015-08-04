@@ -118,3 +118,8 @@ std::string tool_StripLeadingZero( const std::string& pValue ) {
 
 	return Final;
 }
+
+uint16 tool_DecimalToBinaryCodedDecimal(uint16 pDecimal) {
+
+	return ((pDecimal/10)<<4)+(pDecimal%10);
+}
