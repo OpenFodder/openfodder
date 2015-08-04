@@ -2591,7 +2591,7 @@ void cFodder::map_SetTileType() {
 }
 
 void cFodder::sub_12AB1() {
-	
+
 	word_3E75B = -1;
 	word_3EABD = 0;
 }
@@ -2839,6 +2839,7 @@ void cFodder::mouse_ButtonCheck() {
 void cFodder::Prepare() {
 
 	mWindow->InitWindow( "Open Fodder" );
+	tool_RandomSeed();
 
 	mDataPStuff = new uint8[0xA03 * 16];
 	mDataBaseBlk = new uint8[0xFD0 * 16];
@@ -2933,13 +2934,13 @@ int16 cFodder::sub_131DE() {
 	}
 
 	Data2C->field_0 = dword_39F84 >> 16;
-	Data0 = sub_2A030() & 0xFF;
+	Data0 = tool_RandomGet() & 0xFF;
 	Data0 += 0x0A;
 
 	Data2C->field_0 += Data0;
 	Data2C->field_4 = dword_39F88 >> 16;
 
-	Data0 = sub_2A030() & 0xFF;
+	Data0 = tool_RandomGet() & 0xFF;
 	Data0 -= 0x14;
 
 	Data2C->field_4 += Data0;
@@ -3076,10 +3077,11 @@ void cFodder::sub_13CF0( cSurface* pImage, sSprite_0* pDi, int16 pData0, int16 p
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
 	
 	++word_42072;
-	if (Sprite_OnScreen_Check())
+	if (Sprite_OnScreen_Check()) {
+		pDi->field_5C = 1;
 		video_Draw_Sprite_( pImage );
-
-	pDi->field_5C = 0;
+	} else 
+		pDi->field_5C = 0;
 }
 
 void cFodder::video_Draw_Sprite_( cSurface* pImage ) {
@@ -5280,21 +5282,35 @@ loc_29FC2:;
 	return 0;
 }
 
-int16 cFodder::sub_2A030() {
+void cFodder::tool_RandomSeed() {
+	time_t now = time(0);
+
+	tm *ltm = localtime(&now);
+
+	uint16 ax = tool_DecimalToBinaryCodedDecimal( ltm->tm_sec );
+	ax |= tool_DecimalToBinaryCodedDecimal(ltm->tm_min) << 8;
+	ax += 0x40B;
+
+	word_44A30 = -ax;
+	word_44A2E = ax;
+	word_44A32 = 1;
+	word_44A34 = 0;
+}
+
+int16 cFodder::tool_RandomGet() {
 	int16 Data0 = word_44A2E;
 	int16 Data2 = word_44A30;
 	int16 Data4 = word_44A32;
 	int16 Data6 = word_44A34;
 	
 	uint32 Dat4 = Data4 | (Data6 << 16);
-
+	//seg007:053F
 	uint8 CF = Data4 & 1;
-	int32 Data8 = Data0 | (Data2 << 16);
+	uint32 Data8 = Data0 | (Data2 << 16);
 
-	Data8 >>= 1;
 	uint8 CF2 = Data8 & 1;
-
 	Data8 >>= 1;
+
 	if (CF)
 		Data8 |= 0x80000000;
 
@@ -5316,7 +5332,7 @@ int16 cFodder::sub_2A030() {
 	int16 DataA = Data8 >> 16;
 
 	//seg007:0575
-	Data0 ^= Data8;
+	Data0 ^= Data8 & 0xFFFF;
 	Data2 ^= DataA;
 	Data8 = Data0;
 	DataA = Data2;
@@ -7258,7 +7274,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 66:
-			sub_1C797( Data20 );
+			Sprite_Handle_Bird( Data20 );
 			break;
 
 		default:
@@ -7359,7 +7375,7 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 		goto loc_191C3;
 
 	loc_1904A:;
-		int16 Data0 = sub_2A030() & 0x1F;
+		int16 Data0 = tool_RandomGet() & 0x1F;
 
 		if (Data0 == 5)
 			goto loc_1901C;
@@ -7380,11 +7396,11 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 
 		if (Sprite->field_4A <= 0) {
 			//loc_190B9
-			sub_2A030();
+			tool_RandomGet();
 			Data0 &= 0x0F;
 			++Data0;
 			Sprite->field_4A = Data0;
-			sub_2A030();
+			tool_RandomGet();
 			Data0 &= 0x3F;
 			if (Data0 == 0x2A)
 				goto loc_1918C;
@@ -7767,7 +7783,7 @@ loc_1AF63:;
 	pSprite->field_A = 0;
 }
 
-void cFodder::sub_1C797( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Bird( sSprite_0* pSprite ) {
 	
 	pSprite->field_8 = 0xD3;
 	pSprite->field_2C = 1;
@@ -7777,7 +7793,7 @@ void cFodder::sub_1C797( sSprite_0* pSprite ) {
 		pSprite->field_57 = 8;
 		pSprite->field_12 = 1;
 
-		int16 Data0 = sub_2A030();
+		int16 Data0 = tool_RandomGet();
 		int16 Data4 = Data0;
 		Data0 &= 3;
 		Data0 += 1;
@@ -7799,18 +7815,23 @@ void cFodder::sub_1C797( sSprite_0* pSprite ) {
 	pSprite->field_12 = Data0;
 
 loc_1C82D:;
-	int32 field = pSprite->field_0 | pSprite->field_2 << 16;
-	field -= -32768 << 16;
-	field -= 1;
+	bool cf = false;
 
-	pSprite->field_2 = field >> 16;
-	pSprite->field_0 = field & 0xFFFF;
+	if (pSprite->field_2 >= 0 && pSprite->field_2 - 32768 < 0)
+		cf = true;
+
+	pSprite->field_2 -= 32768;
+	pSprite->field_0 -= 1 + (cf == true ? 1 : 0);
+
 
 	if (Data0 < 0) {
-		field -= -32768 << 16;
+		if (pSprite->field_2 >= 0 && pSprite->field_2 - 32768 < 0)
+			cf = true;
+		else
+			cf = false;
 
-		pSprite->field_2 = field >> 16;
-		pSprite->field_0 = field & 0xFFFF;
+		pSprite->field_2 -= 32768;
+		pSprite->field_0 -= 0 + (cf == true ? 1 : 0);
 	}
 
 	if (pSprite->field_5C)
@@ -7825,13 +7846,13 @@ loc_1C82D:;
 loc_1C87E:;
 	
 	pSprite->field_57 = 0x3F;
-	Data0 = sub_2A030() & 0x3F;
+	Data0 = tool_RandomGet() & 0x3F;
 
 	Data0 += dword_39F84 >> 16;
 	Data0 += 0x140;
 	pSprite->field_0 = Data0;
 
-	Data0 = sub_2A030() & 0xFF;
+	Data0 = tool_RandomGet() & 0xFF;
 	Data0 += dword_39F88 >> 16;
 	pSprite->field_4 = Data0;
 
@@ -7851,7 +7872,7 @@ void cFodder::sub_14D6D( sSprite_0* pSprite, int16 pData4 ) {
 	if (word_3A9AE)
 		return;
 
-	int16 Data0 = sub_2A030() * 0x7F;
+	int16 Data0 = tool_RandomGet() * 0x7F;
 	if (Data0 == 0x0E)
 		return;
 
@@ -7941,7 +7962,7 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 
 	// TODO: is this even close to correct?
 	if (pSprite->field_1A < (int32*) &mSprites[0]) {
-		int32 Dataa0 = sub_2A030() & 0x07;
+		int32 Dataa0 = tool_RandomGet() & 0x07;
 		Dataa0 += 2;
 		Dataa0 = (Data0 << 16);
 
@@ -7950,7 +7971,7 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 	}
 	//loc_1E232
 	pSprite->field_12 = 2;
-	Data0 = sub_2A030();
+	Data0 = tool_RandomGet();
 	int16 Data4 = 0;
 	Data0 &= 7;
 	Data4 = byte_3D477[Data0];
@@ -7963,7 +7984,7 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 
 	pSprite->field_3E = pSprite->field_10;
 	pSprite->field_3A = -1;
-	Data0 = sub_2A030() & 0x01;
+	Data0 = tool_RandomGet() & 0x01;
 	if (!Data0)
 		pSprite->field_3A = pSprite->field_10;
 
@@ -8003,10 +8024,10 @@ loc_1E2F4:;
 	if (pSprite->field_2A >= 0)
 		goto loc_1E737;
 
-	Data0 = sub_2A030() & 7;
+	Data0 = tool_RandomGet() & 7;
 	Data0 += 8;
 	pSprite->field_2A = Data0;
-	Data0 = sub_2A030() & 7;
+	Data0 = tool_RandomGet() & 7;
 
 	Data4 = byte_3D477[Data0];
 	Data8 = 0;
@@ -8020,7 +8041,7 @@ loc_1E3D2:;
 		sub_1FF1A(pSprite);
 
 		if (!(pSprite->field_28 & 7)) {
-			Data0 = sub_2A030() & 7;
+			Data0 = tool_RandomGet() & 7;
 			Data4 = byte_3D477[Data0];
 			Data8 = 0x14;
 			sub_14B84( pSprite, Data4, Data8 );
@@ -8135,7 +8156,7 @@ loc_1E3D2:;
 	if (!pSprite->field_52) {
 		if (!pSprite->field_50) {
 
-			Data0 = sub_2A030() & 0x7F;
+			Data0 = tool_RandomGet() & 0x7F;
 			if (!Data0) {
 
 				pSprite->field_3A = 0x1F4;
@@ -8216,7 +8237,7 @@ loc_1E831:;
 
 		pSprite->field_52 = 0x0E;
 		pSprite->field_12 = 0x14;
-		Data0 = sub_2A030() & 0x07;
+		Data0 = tool_RandomGet() & 0x07;
 		Data4 = byte_3D477[Data0];
 		Data8 = 0x0A;
 		sub_14B84( pSprite, Data4, Data8 );
@@ -8365,7 +8386,7 @@ loc_1ECA6:;
 	pSprite->field_38 = 0x33;
 	pSprite->field_36 = 0x24;
 
-	Data0 = sub_2A030() & 6;
+	Data0 = tool_RandomGet() & 6;
 	Data0 = byte_3D47F[Data0];
 
 	Data0 += pSprite->field_10;
@@ -8432,7 +8453,7 @@ loc_1EE59:;
 	pSprite->field_38 = 0x33;
 	pSprite->field_36 = 0x2E;
 
-	Data0 = sub_2A030() & 0x1F;
+	Data0 = tool_RandomGet() & 0x1F;
 
 	pSprite->field_10 += Data0;
 	pSprite->field_8 = 0xA4;
@@ -8647,19 +8668,19 @@ int16 cFodder::sub_1F21E( sSprite_0* pSprite ) {
 	
 	if( !word_3A9B2 ) {
 		
-		sub_2A030();
+		tool_RandomGet();
 		Data0 &= 1;
 		if(Data0 == 0)
 			goto loc_1F32C;
 	
 		if( !pSprite->field_52 ) {
-			sub_2A030();
+			tool_RandomGet();
 			Data0 &= 1;
 			
 			if( !Data0 ) {
 				//loc_1F2F9
 				pSprite->field_8 = 0x41;
-				sub_2A030();
+				tool_RandomGet();
 				Data0 &= 3;
 				pSprite->field_A = Data0;
 				pSprite->field_2A = 1;
@@ -8777,7 +8798,7 @@ loc_1F477:;
 	if (mMapNumber <= 4)
 		goto loc_1F4DB;
 
-	int16 Data0 = sub_2A030() & 0x1F;
+	int16 Data0 = tool_RandomGet() & 0x1F;
 	if (Data0)
 		goto loc_1F4DB;
 
@@ -9428,7 +9449,7 @@ loc_201CC:;
 	if (pSprite->field_20)
 		return;
 
-	Data0 = sub_2A030() & 0x3F;
+	Data0 = tool_RandomGet() & 0x3F;
 	if (Data0)
 		return;
 
@@ -10336,7 +10357,7 @@ loc_207CF:;
 	Data0 += word_3ABC5;
 	Data2C->field_4A = Data0;
 
-	Data0 = sub_2A030() & 0x0F;
+	Data0 = tool_RandomGet() & 0x0F;
 	Data0 <<= 3;
 	Data2C->field_36 = Data0;
 	goto loc_208A6;
@@ -10390,7 +10411,7 @@ loc_209B3:;
 
 	Data8 = stru_3ABB9.field_6;
 loc_209C7:;
-	Data0 = sub_2A030();
+	Data0 = tool_RandomGet();
 	int16 Data4 = Data0;
 
 	Data0 &= Data8;
@@ -10400,7 +10421,7 @@ loc_209C7:;
 	Data2C->field_50 = Data0;
 loc_209F3:;
 	Data2C->field_64 = 0;
-	Data0 = sub_2A030() & 1;
+	Data0 = tool_RandomGet() & 1;
 	if (Data0)
 		Data4 = 0x11;
 	else
@@ -10489,7 +10510,7 @@ loc_20B6E:;
 	Data2C->field_A = 0;
 	Data30->field_A = 0;
 	Data2C->field_12 = 0x10;
-	Data0 = sub_2A030();
+	Data0 = tool_RandomGet();
 	int16 Data18 = Data0;
 	Data0 &= 0x0F;
 	Data2C->field_12 = Data0;
@@ -10929,10 +10950,10 @@ loc_213F7:;
 	pSprite->field_1E = 0x0000;
 	pSprite->field_20 = 0x1;
 
-	Data0 = sub_2A030() & 0x1FE;
+	Data0 = tool_RandomGet() & 0x1FE;
 	pSprite->field_10 = Data0;
 
-	Data0 = sub_2A030() & 0x1F;
+	Data0 = tool_RandomGet() & 0x1F;
 	Data0 += 0x14;
 
 	pSprite->field_36 = Data0;
@@ -11250,7 +11271,7 @@ void cFodder::sub_22AA9( sSprite_0* pSprite ) {
 		pSprite->field_38 = 1;
 		pSprite->field_64 = -1;
 		
-		int16 Data0 = sub_2A030() & 0x1FE;
+		int16 Data0 = tool_RandomGet() & 0x1FE;
 		pSprite->field_10 = Data0;
 	}
 	

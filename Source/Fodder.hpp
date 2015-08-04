@@ -827,13 +827,13 @@ protected:
 	void			sub_18D5E();
 	void			Sprite_Handle_Loop();
 
-	void			Sprite_Handle_Player( sSprite_0* pSprite );
-	void			sub_199F3( sSprite_0* pSprite );
-	void			sub_1ABD3( sSprite_0* pSprite );
-	void			Sprite_Handle_Tree( sSprite_0* pSprite );
+	void			Sprite_Handle_Player( sSprite_0* pSprite );				// 0
+	void			sub_199F3( sSprite_0* pSprite );						// 5
+	void			sub_1ABD3( sSprite_0* pSprite );						// 13
+	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
 
-	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );
-	void			sub_1C797( sSprite_0* pSprite );
+	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
+	void			Sprite_Handle_Bird( sSprite_0* pSprite );				// 66
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
 	int16			sub_1EF47( sSprite_0* pSprite );
@@ -887,7 +887,8 @@ protected:
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
-	int16			sub_2A030();
+	void			tool_RandomSeed();
+	int16			tool_RandomGet();
 	void			Sprite_Movement_Calculate( sSprite_0* pSprite );
 	int16			sub_2A1F0( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	void			sub_2A3D4( sSprite_0* pSprite );
