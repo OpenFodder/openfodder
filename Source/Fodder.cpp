@@ -7258,7 +7258,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 5:
-			//sub_199F3( Data20 );
+			sub_199F3( Data20 );
 			break;
 
 		case 13:
@@ -7645,7 +7645,7 @@ void cFodder::sub_199F3( sSprite_0* pSprite ) {
 		pSprite->field_44--;
 	}
 	else {
-		//sub_21CD1( pSprite );
+		sub_21CD1( pSprite );
 		sub_1F429( pSprite );
 
 		word_3A399 = pSprite->field_A;
@@ -9171,7 +9171,11 @@ loc_1FBA4:;
 	//loc_1FC61
 	//TODO: This is broken
 	sSquad_Member* Data24 = (sSquad_Member*) pSprite->field_46;
-	Data0 = Data24->field_6;
+	//HACK:
+	if (Data24 == 0)
+		Data0 = 0x70;
+	else
+		Data0 = Data24->field_6;
 
 	if (Data0 == 3)
 		pSprite->field_8 = *(Data28 + Data8 + 0);
@@ -10870,7 +10874,6 @@ void cFodder::sub_212C4( sSprite_0* pSprite ) {
 	pSprite->field_6E = 0;
 	pSprite->field_6F = 0;
 	pSprite->field_70 = 0;
-	pSprite->field_72 = 0;
 	pSprite->field_74 = 0;
 	pSprite->field_75 = 0;
 }
@@ -11054,6 +11057,203 @@ void cFodder::sub_21C6F( ) {
 	Data2C->field_22 = -1;
 	Data2C->field_10 = 1;
 	Data2C->field_3A = 0;
+}
+
+void cFodder::sub_21CD1( sSprite_0* pSprite ) {
+	word_3A00E = 0;
+	word_3A00C = -1;
+	word_3A010 = -1;
+	word_3A8CF = 0;
+	word_3AA41 = -1;
+
+	int16 Data1C = pSprite->field_5E;
+	sSprite_0* Data0;
+
+	if (Data1C < 0) {
+
+		pSprite->field_5E += 1;
+		word_3AA41 = 0;
+
+		Data0 = word_39FCE;
+		if (Data0 == (sSprite_0*)-1)
+			goto loc_22125;
+
+		goto loc_22053;
+	}
+
+	sSprite_0* Data28 = dword_3BE03[Data1C];
+	if (Data28 == (sSprite_0*)-1)
+		goto loc_21E4A;
+
+	int16 Dataa0 = tool_RandomGet() & 0x3F;
+	if (Dataa0 == 0)
+		goto loc_21E4A;
+
+	if (Data28->field_0 == -32768)
+		goto loc_21E4A;
+
+	if (Data28->field_18 == 0)
+		goto loc_21E4A;
+
+	if (Data28->field_38 < 0x32) {
+		if (Data28->field_38)
+			goto loc_21E4A;
+	}
+
+	if (Data28->field_20 >= 0x0D)
+		goto loc_21E4A;
+
+	Dataa0 = pSprite->field_0;
+	int16 Data4 = pSprite->field_4;
+
+	int16 Data8 = Data28->field_0;
+	int16 DataC = Data28->field_4;
+
+	sub_29E30( Dataa0, Data4, Data8, DataC );
+
+	word_3AA4B = Dataa0;
+	if (Dataa0 > 0xC8)
+		goto loc_21E4A;
+
+	if (Dataa0 <= 0x28)
+		goto loc_21F77;
+
+	Dataa0 = pSprite->field_0;
+	Data4 = pSprite->field_4;
+	Data8 = Data28->field_0;
+	DataC = Data28->field_4;
+
+	if (!sub_2A4A2( Dataa0, Data4, Data8, DataC )) {
+		Dataa0 = word_3AA4B;
+		goto loc_21F77;
+	}
+
+	if (word_3AA4B < 0x40)
+		goto loc_21F8A;
+
+loc_21E4A:;
+
+	if (!pSprite->field_70)
+		goto loc_21EE1;
+
+	sSprite_0* Data24 = pSprite->field_70;
+	if (Data24->field_0 == -32768)
+		goto loc_21E81;
+
+	if (Data24->field_18 == 0x48)
+		goto loc_21E90;
+
+loc_21E81:;
+	pSprite->field_70 = 0;
+	goto loc_21EE1;
+
+loc_21E90:;
+	pSprite->field_5E += 1;
+	if (pSprite->field_5E >= 0x1E)
+		pSprite->field_5E = 0;
+
+	word_3AA41 = 0;
+	pSprite->field_26 = Data24->field_0;
+	pSprite->field_26 += 0x0C;
+	pSprite->field_28 = Data24->field_4;
+	return;
+
+loc_21EE1:;
+
+	Dataa0 = tool_RandomGet() & 0x0F;
+	if (!Dataa0) {
+		Dataa0 = tool_RandomGet() & 0xFF;
+		Dataa0 = (int16)Dataa0;
+		pSprite->field_2E += Dataa0;
+
+		Dataa0 = tool_RandomGet() & 0xFF;
+		pSprite->field_30 += Dataa0;
+	}
+
+	pSprite->field_26 = pSprite->field_0;
+	pSprite->field_28 = pSprite->field_4;
+	pSprite->field_4A = 0;
+	pSprite->field_5E += 1;
+	if (pSprite->field_5E <= 0x1E)
+		goto loc_22000;
+
+	pSprite->field_5E = 0;
+	goto loc_22000;
+
+loc_21F77:;
+	pSprite->field_70 = 0;
+	word_3AA41 = 0;
+
+loc_21F8A:;
+	if (Dataa0 > 0x87)
+		goto loc_22000;
+
+	//seg005:28A2
+	std::cout << "TODO: Where does Data30 come from?\n";
+
+loc_22000:;
+	if (word_3AA41)
+		goto loc_22125;
+
+	Dataa0 = pSprite->field_5E;
+
+	if (dword_3BE03[Dataa0] == (sSprite_0*)-1)
+		goto loc_22125;
+
+	Data0 = dword_3BE03[Dataa0];
+
+loc_22053:;
+
+	Data8 = (pSprite - mSprites) / sizeof(sSprite_0);
+	Data8 *= 0x76;
+	Data8 &= 0x1FE;
+
+	DataC = word_3EABF[Data8 / 2];
+	Data8 += 0x80;
+	Data8 &= 0x1FE;
+	int16 Data10 = word_3EABF[Data8 / 2];
+
+	//seg005:29B2
+	DataC >>= 8;
+	Data10 >>= 8;
+
+	Data4 = Data0->field_0;
+	pSprite->field_2E = Data4;
+	pSprite->field_26 = DataC;
+
+	Data4 = Data0->field_4;
+	pSprite->field_30 = Data4;
+	Data4 += Data10;
+	pSprite->field_28 = Data4;
+
+loc_22125:;
+	sub_2212A( pSprite );
+}
+
+void cFodder::sub_2212A( sSprite_0* pSprite ) {
+	
+	if (pSprite->field_4A)
+		return;
+
+	int16 Data0 = tool_RandomGet();
+
+	int16 Data8 = pSprite->field_62;
+	int16 DataC = Data8;
+	DataC <<= 2;
+	Data8 >>= 2;
+	int16 Data4 = 0x1F;
+	Data4 >>= Data8;
+	Data0 &= Data4;
+	Data4 = 0x32;
+	Data4 -= DataC;
+	if (Data4 < 0)
+		Data4 = 0;
+
+	Data0 += Data4;
+	if (Data0 < 5)
+		Data0 = 5;
+
+	pSprite->field_4A = Data0;
 }
 
 void cFodder::sub_223B2( sSprite_0* pSprite ) {

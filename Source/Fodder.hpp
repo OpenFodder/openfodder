@@ -877,7 +877,9 @@ protected:
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
 	void			sub_21C6F( );
+	void			sub_21CD1( sSprite_0* pSprite );
 
+	void			sub_2212A( sSprite_0* pSprite );
 	void			sub_223B2( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
 	int16			sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 );
