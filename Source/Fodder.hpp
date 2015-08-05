@@ -371,6 +371,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9FB;
 	int32			dword_3A9FD;
 	int16			word_3AA01;
+	int16			word_3AA03;
 	int16			word_3AA05[3];
 	int16			word_3AA0B[3];
 	int16			word_3AA11[3];
@@ -381,6 +382,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA1F;
 	int16			word_3AA21;
 	int16			word_3AA41;
+	int16			word_3AA45;
 	int16			word_3AA47;
 	int16			word_3AA4B;
 	int16			word_3AA4D;
@@ -828,8 +830,8 @@ protected:
 	void			Sprite_Handle_Loop();
 
 	void			Sprite_Handle_Player( sSprite_0* pSprite );				// 0
-	void			sub_199F3( sSprite_0* pSprite );						// 5
-	void			sub_19AC4( sSprite_0* pSprite );						// 6
+	void			Sprite_Handle_Enemy( sSprite_0* pSprite );				// 5
+	void			Sprite_Handle_Bullet( sSprite_0* pSprite );				// 6
 	void			sub_1ABD3( sSprite_0* pSprite );						// 13
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
 
@@ -874,7 +876,8 @@ protected:
 	void			sub_212C4( sSprite_0* pSprite );
 	void			sub_212F9( sSprite_0* pSprite );
 	void			sub_21483( sSprite_0* pSprite );
-	
+	int16			sub_21618( sSprite_0* pSprite );
+
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
 	void			sub_21C6F( );
@@ -904,6 +907,7 @@ protected:
 	int16			sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
 	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	int16			sub_2AC06( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
@@ -925,6 +929,7 @@ protected:
 	void			sub_2D06C();
 	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
 	void			sub_2D2D4();
+	int16			sub_2D490( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			sub_2D725();
 	void			sub_2D767();
 	void			sub_2D7C0();
