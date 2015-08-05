@@ -828,6 +828,7 @@ protected:
 	void			Sprite_Handle_Loop();
 
 	void			Sprite_Handle_Player( sSprite_0* pSprite );
+	void			sub_19AC4( sSprite_0* pSprite );
 	void			sub_199F3( sSprite_0* pSprite );
 	void			sub_1ABD3( sSprite_0* pSprite );
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );
