@@ -916,6 +916,7 @@ protected:
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
+	void			sub_2B378( int16& Data0, int16& Data4, int16& Data8, int16& DataC );
 
 	void			Camera_Pan( cSurface* pImage );
 
