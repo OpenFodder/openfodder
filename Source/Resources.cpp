@@ -320,7 +320,7 @@ uint16 cResources::sub_26CDF() {
 
 	for( ; cx > 0; --cx ) {
 		if( dl == 0 ) {
-			// seg006:3FC
+			// seg006:0445
 			uint8 al, ah;
 
 			ah = data_Read();
@@ -471,11 +471,11 @@ uint16 cResources::sub_26C06() {
 				//++di; 
 				++dx;
 
-				if( bp > (uint16) word_26DBE[0x620 + di] ) {
+				if( bp > word_26DBE[0x620 + di] ) {
 
 					do {
 						++di;
-					} while( bp > (uint16) word_26DBE[0x620 + di] );
+					} while( bp > word_26DBE[0x620 + di] );
 
 					--di;
 					dx = di;
