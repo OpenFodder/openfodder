@@ -42,14 +42,14 @@ private:
 	
 	uint8							*mCurPtr;
 
-	short int						 word_26DBE[0x1000];
+	uint16							 word_26DBE[0x1000];
 	uint8							 byte_27EE6[0x1A3C];
 	static const uint8				 byte_29921[0x100];
 	static const uint8				 byte_29A21[0xFF];
 
 	uint8							 byte_26DB0;
 
-	short int						 mBytesRead, word_26DA8, word_26DBA, word_26DBC;
+	int16							 mBytesRead, word_26DA8, word_26DBA, word_26DBC;
 	uint16							 word_26DAA, word_26DB4, saveSI, saveBP;
 
 	bool							 headerLoad();
