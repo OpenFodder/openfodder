@@ -20,8 +20,8 @@ struct sSprite_0 {
 	int16 field_20;
 	int16 field_22;
 	int16 field_24;
-	int16 field_26;
-	int16 field_28;
+	int16 field_26;	// Target X
+	int16 field_28;	// Target Y
 	int16 field_2A;
 	int16 field_2C;
 	int16 field_2E;

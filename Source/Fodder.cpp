@@ -3528,15 +3528,15 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	DataC -= pSprite->field_4;
 	int16 Saved0 = Data0;
 	int16 Saved4 = pData4;
-	//TODO:
-	//sub_2B378();
+
+	sub_2B378( Data0, pData4, pData8, DataC );
 
 	Data0 /= 0x10;
 	pData8 = 0x28;
 	pData8 -= Data0;
 
 	//TODO: Correct?
-	if (pData8 > 0)
+	if (pData8 <= 0)
 		pData8 = 4;
 
 	Data0 = Saved0;
@@ -6151,6 +6151,46 @@ void cFodder::sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY ) 
 	}
 }
 
+void cFodder::sub_2B378( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
+	const int8* Data24 = byte_3ECC0;
+
+	pData8 -= pData0;
+	if (pData8 < 0)
+		pData8 = -pData8;
+
+	if (pData8 >= 0x280)
+		goto loc_2B403;
+
+	pDataC -= pData4;
+	if (pDataC < 0)
+		pDataC = -pDataC;
+
+	if (pDataC >= 0x280)
+		goto loc_2B403;
+
+	int16 Data10 = 0;
+	for (;;) {
+		if (pData8 <= 0x1F)
+			if (pDataC <= 0x1F)
+				break;
+
+		pData8 >>= 1;
+		pDataC >>= 1;
+		Data10 += 1;
+	}
+
+	pDataC <<= 5;
+	pDataC |= pData8;
+	pData0 = 0;
+	pData0 = Data24[pDataC];
+
+	pData0 <<= Data10;
+	return;
+
+loc_2B403:;
+	pData0 = 0x280;
+}
+
 void cFodder::Camera_Pan( cSurface* pImage ) {
 	
 	sub_2CF6D();
@@ -7543,6 +7583,7 @@ void cFodder::Sprite_Handle_Loop() {
 
 void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 	sSprite_0* Sprite = (sSprite_0*)pData20;
+	sSprite_0* Data30 = 0;
 
 	if (Sprite->field_6E) {
 		sub_22AA9( Sprite );
@@ -7647,16 +7688,16 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 		//seg004:0337
 		Sprite->field_30 += 0x07;
 
-		Sprite->field_30 = Data28->field_2;
+		Sprite->field_30 = Data28->field_4;
 		Sprite->field_30 -= 0x0E;
 
 		if (Sprite->field_4A <= 0) {
 			//loc_190B9
-			tool_RandomGet();
+			Data0 = tool_RandomGet();
 			Data0 &= 0x0F;
 			++Data0;
 			Sprite->field_4A = Data0;
-			tool_RandomGet();
+			Data0 = tool_RandomGet();
 			Data0 &= 0x3F;
 			if (Data0 == 0x2A)
 				goto loc_1918C;
@@ -7718,8 +7759,8 @@ loc_191C3:;
 
 	//TODO: Check this
 	// seg004:047F
-	struct_8* Data30 = off_3BEF3[Sprite->field_32];
-	int32  eax = Data30[Sprite->field_40].field_2 | Data30[Sprite->field_40 + 1].field_0 << 16;
+	struct_8* Dataa30 = off_3BEF3[Sprite->field_32];
+	int32  eax = Dataa30[Sprite->field_40].field_2 | Dataa30[Sprite->field_40 + 1].field_0 << 16;
 
 	//seg004:04CC
 	if (eax < 0) {
@@ -7890,6 +7931,7 @@ loc_1957A:;
 }
 
 void cFodder::Sprite_Handle_Enemy( sSprite_0* pSprite ) {
+
 	if (sub_1E05A( pSprite ))
 		return;
 
@@ -9959,13 +10001,13 @@ loc_20307:;
 	Data0 &= 0x3F;
 	Data0 -= 0x20;
 	Data0 &= 0x1FE;
-	pSprite->field_10 = Data0;
+	pSprite->field_10 += Data0;
 	pSprite->field_4 = dword_3A395;
 
 	Data0 = word_390AE;
 	Data0 &= 0x1F;
 	Data0 += 0x0C;
-	pSprite->field_4 = Data0;
+	pSprite->field_44 = Data0;
 	return;
 
 loc_2035C:;
@@ -11674,7 +11716,9 @@ loc_21F8A:;
 		goto loc_22000;
 
 	//seg005:28A2
-	std::cout << "TODO: Where does Data30 come from?\n";
+	const uint8* Data30 = byte_3D4A5;
+	// TODO: Does this bit even get used in the original
+	//std::cout << "TODO: Where does Data30 come from?\n";
 
 loc_22000:;
 	if (word_3AA41)
@@ -11687,9 +11731,9 @@ loc_22000:;
 
 	Data0 = dword_3BE03[Dataa0];
 
-loc_22053:;
+loc_22053:;		// Movement Target?
 
-	Data8 = (pSprite - mSprites) / sizeof(sSprite_0);
+	Data8 = (pSprite - mSprites);
 	Data8 *= 0x76;
 	Data8 &= 0x1FE;
 
@@ -11701,13 +11745,18 @@ loc_22053:;
 	//seg005:29B2
 	DataC >>= 8;
 	Data10 >>= 8;
+	DataC >>= 2;
+	Data10 >>= 2;
 
 	Data4 = Data0->field_0;
 	pSprite->field_2E = Data4;
-	pSprite->field_26 = DataC;
+
+	Data4 += DataC;
+	pSprite->field_26 = Data4;
 
 	Data4 = Data0->field_4;
 	pSprite->field_30 = Data4;
+
 	Data4 += Data10;
 	pSprite->field_28 = Data4;
 
