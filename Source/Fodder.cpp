@@ -8955,7 +8955,6 @@ loc_1EEEC:;
 		goto loc_1E743;
 	}
 
-loc_1EF07:;
 	pSprite->field_38 = 0x5B;
 	pSprite->field_8 = 0xCC;
 	pSprite->field_A = 4;
@@ -8964,7 +8963,7 @@ loc_1EF07:;
 loc_1EF28:;
 	pSprite->field_A -= 1;
 	if (pSprite->field_A < 0)
-		loc_1F043(pSprite);
+		return loc_1F043(pSprite);
 
 	pSprite->field_36 = 0x30;
 	sub_1F6F4( pSprite );
