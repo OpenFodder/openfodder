@@ -104,6 +104,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3B616 = 0;
 
 	mMouseSpriteCurrent = 0;
+	word_40048 = 0;
 	word_40054 = 0;
 	word_42062 = 0;
 	word_42066 = 0;
@@ -630,6 +631,7 @@ void cFodder::sub_10D61() {
 	word_3A00C = 0;
 	word_3A00E = 0;
 	word_3A010 = 0;
+	word_3A014 = 0;
 	word_3A016 = 0;
 	word_3A01A = 0;
 	word_3A024 = 0;
@@ -725,6 +727,7 @@ void cFodder::sub_10D61() {
 	stru_3ABB9.field_4 = 0;
 	stru_3ABB9.field_6 = 0;
 	stru_3ABB9.field_8 = 0;
+
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
 	word_3ABAD = 0;
@@ -733,6 +736,12 @@ void cFodder::sub_10D61() {
 	word_3ABC5 = 0;
 	word_3ABC7 = 0;
 	dword_3ABC9 = 0;
+
+	for (uint16 x = 0; x < 9; ++x )
+		word_3ABFF[x] = 0;
+
+	dword_3AC11 = 0;
+
 	word_3AC19 = 0;
 	word_3AC1B = 0;
 	word_3AC1D = 0;
@@ -997,15 +1006,15 @@ void cFodder::map_Load_Spt() {
 	
 	std::string Filename_Spt = map_Filename_SptGet();
 
-	//mMapSptSize = g_Resource.fileLoadTo( Filename_Spt, (uint8*) mMapSptPtr );
-
+	mMapSptSize = g_Resource.fileLoadTo( Filename_Spt, (uint8*) mMapSptPtr );
+	/*
 	uint8 TmpSpt[] = { 0x00,0x7C,0x00,0x00,0x00,0x8B,0x00,0xD5,0x00,0x00,
 					   0x00,0x7C,0x00,0x00,0x00,0x51,0x00,0x31,0x00,0x05 };
 	mMapSptSize = sizeof( TmpSpt );
 
 	memset( mMapSptPtr, 0, 0x258 * 16 );
 	memcpy( mMapSptPtr, TmpSpt, sizeof( TmpSpt ) );
-
+	*/
 	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
 
 	word_3AA17 = 0;
@@ -7303,20 +7312,22 @@ void cFodder::sub_17DB3() {
 
 	//TODO:
 	//Music_Unk();
-	sub_17E30();
-//	sub_17F15();
+	Service_KillInAction();
+	Service_Promoted();
 	mouse_Setup();
 
 	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
 }
 
-void cFodder::sub_17E30() {
+void cFodder::Service_KillInAction() {
 	sub_136D0();
 	mouse_Setup();
 	mFontWidths[168] = 0;
 
 	if (sub_18006() < 0)
 		return;
+
+	mImage->wipe();
 
 	sub_13C1C( mImage, 5, 0, 0, 0x34 );
 	sub_13C8A( mImage, 7, 0, 0, 0x31 );
@@ -7338,16 +7349,68 @@ void cFodder::sub_17E30() {
 
 		sub_18149();
 		sub_13800();
-		sub_14445();
-		sub_181BD();
+		//sub_14445();
+		//sub_181BD();
+
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
 
 	} while (mImageFaded == -1 || word_40048 == 0);
 }
 
-int16 cFodder::sub_18006() {
+void cFodder::Service_Promoted() {
+	sub_136D0();
+	mouse_Setup();
+	mFontWidths[168] = 0;
+	sub_185D7();
+
+	if (sub_1804C() < 0)
+		goto loc_18001;
+
+	mImage->wipe();
+
+	sub_13C1C( mImage, 6, 0, 0, 0x34 );
+	sub_13C8A( mImage, 8, 0, 0, 0x31 );
+	sub_13C8A( mImage, 8, 0, 0xF0, 0x31 );
+
+	video_Draw_Unk_2( mImage );
+
+	mImage->paletteFadeOut();
+
+	word_39F02 = 0;
+
 	
+	do {
+		Mouse_Inputs_Get();
+		if (mFontWidths[0x168] == -1 || word_39F02 ) {
+			word_39F02 = 0;
+			mImage->paletteFadeOut();
+		}
+
+		if (mImageFaded == -1)
+			mImage->paletteFade();
+
+		sub_18698();
+		sub_18149();
+		//sub_13800();
+		//sub_14445();
+		//sub_181BD();
+
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+	} while (mImageFaded == -1 || word_40048 == 0);
+
+loc_18001:;
+	sub_186C7();
+
+}
+
+int16 cFodder::sub_18006() {
+	uint16* di = (uint16*) mDataPStuff;
+
 	mDrawSpritePositionY = 0xE8;
-	sub_18520();
+	sub_18520( di );
 	mDrawSpritePositionY += 0x40;
 
 	int16* si = word_394AC;
@@ -7365,20 +7428,285 @@ int16 cFodder::sub_18006() {
 		++bp;
 		dword_394A8 = bp;
 
-		sub_18099();
+		sub_18099( di, ax, bl );
 		mDrawSpritePositionY += 0x40;
 	}
 }
 
-void cFodder::sub_18520() {
+int16 cFodder::sub_1804C() {
+	uint16* di = (uint16*) mDataPStuff;
+
+	
+	mDrawSpritePositionY = 0xE8;
+	sub_18520( di );
+	mDrawSpritePositionY += 0x40;
+
+	sSquad_Member* si = mSquad;
+
+	for (int16 word_3ABE1 = 7; word_3ABE1 >= 0; --word_3ABE1, ++si) {
+
+		if (si->field_4 >= 0) {
+			int16 ax = si->mRecruitID;
+			int8 bl = si->mRank;
+
+			bl &= 0xFF;
+
+			sub_18099( di, ax, bl );
+
+			mDrawSpritePositionY += 0x40;
+		}
+	}
+	if (di == (uint16*) mDataPStuff)
+		return -1;
+
+	return 0;
+}
+
+void cFodder::sub_18099( uint16*& pDi, int16 ax, int16 bx) {
+	word_3A014 = ax;
+	word_3A016 = bx;
+
+	*pDi++ = 9;
+	*pDi++ = 0;
+	*pDi++ = 0x60;
+	*pDi++ = mDrawSpritePositionY;
+	*pDi++ = 2;
+	*pDi++ = word_3A016;
+	*pDi++ = 0x64;
+	*pDi++ = mDrawSpritePositionY + 4;
+	*pDi++ = 2;
+	*pDi++ = word_3A016;
+	*pDi++ = 0xCC;
+	*pDi++ = mDrawSpritePositionY + 4;
+
+	//seg003:3237
+	int16 cx = 5;
+	char* si = mRecruits[word_3A014].mName;
+	std::stringstream tmpString;
+
+	for (cx = 5; cx >= 0; --cx) {
+		if (*si == 0x20)
+			break;
+
+		tmpString << *si++;
+	}
+
+	String_CalculateWidth( 0x140, byte_4422D, tmpString.str().c_str() );
+	sub_181E6( pDi, tmpString.str().c_str(), byte_4422D, 3, word_3B301, mDrawSpritePositionY + 6 );
+}
+
+void cFodder::sub_18149() {
+
+	word_42072 = 0;
+	int16 *di = (int16*) mDataPStuff;
+
+	for (;;) {
+		if (*di < 0)
+			break;
+
+		int16 Data0 = *di++;
+		int16 Data4 = *di++;
+		int16 Data8 = *di++;
+		int16 DataC = *di++;
+
+		//if (sub_1828A( Data0, Data4, Data8, DataC ))
+			//	sub_17B2A();
+	}
+}
+
+void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28, int16 pData0, int16 pData8, int16 pDataC ) {
+
+	const char* Data20 = pText.c_str();
+
+	for (;;) {
+		int16 Data4 = *Data20++;
+		if (Data4 == 0)
+			break;
+
+		int16 Data10 = Data4;
+
+		if (word_3AC19) {
+
+			if (Data4 == 0x20)
+				goto loc_18229;
+
+			Data4 = word_3AC19;
+			goto loc_18259;
+		}
+		//loc_18222
+		if (Data4 == 0x20)
+			goto loc_1826D;
+	loc_18229:;
+		if (Data4 > 0x39)
+			goto loc_1823C;
+
+		Data4 -= 0x30;
+		Data4 += 0x1A;
+		goto loc_18259;
+	loc_1823C:;
+		if (Data4 >= 0x5A) {
+			Data4 -= 0x61;
+			Data4 += 0x39;
+		}
+		else {
+			Data4 -= 0x41;
+			Data4 += 0;
+		}
+
+	loc_18259:;
+		*pDi++ = pData0;
+		*pDi++ = Data4;
+		*pDi++ = pData8;
+		*pDi++ = pDataC;
+
+	loc_1826D:;
+
+		Data10 = pData28[Data10];
+		pData8 += Data10;
+	}
+}
+
+int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
+	
+	word_42062 = GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
+
+	mDrawSpritePositionX = pData8 + 0x10;
+	mDrawSpritePositionY = pDataC + 0x10;
+
+	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
+	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
+
+	if (sub_184C7()) {
+		sub_182EA();
+		return 1;
+	}
+	return 0;
+}
+
+void cFodder::sub_182EA() {
+	uint8* bp = &mFontWidths[0x80];
+
+	uint8* di = mImage->GetSurfaceBuffer() + 0x58 * mDrawSpritePositionY;
+
+	di += (mDrawSpritePositionX + word_40054) >> 2;
+	word_42066 = di;
+
+	uint8* si = word_42062;
+
+	word_4206C >>= 1;
+	word_42074 = 0xA0 - word_4206C;
+	word_4206C >>= 1;
+
+	word_42076 = 0x58 - word_4206C;
+	uint8 Plane = 0;
+
+	for (int16 dx = 0; dx < word_4206E; ++dx ) {
+
+		int16 bx = mDrawSpritePositionY;
+		bx += dx;
+
+		uint8 bl = *(bp + bx);
+
+		for (int16 cx = word_4206C; cx > 0; --cx) {
+			uint8 al = *si++;
+			al >>= 4;
+			if (al) {
+				al |= bl;
+				*di = al;
+			}
+			
+			++di;
+		}
+
+		si += word_42074;
+		di += word_42076;
+	}
+	
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++word_42066;
+	}
+
+	si = word_42062;
+	di = word_42066;
+
+}
+
+int16 cFodder::sub_184C7() {
+	int16 ax;
+
+	if (mDrawSpritePositionY < 0x2C) {
+		ax = mDrawSpritePositionY;
+		ax += word_4206E;
+		--ax;
+		if (ax < 0x2C)
+			return -1;
+
+		ax -= 0x2C;
+		ax -= word_4206E;
+		++ax;
+		ax = -ax;
+		ax += mDrawSpritePositionY;
+
+		ax *= 0xA0;
+		word_42062 += ax;
+	}
+	//loc_184FC
+
+	ax = mDrawSpritePositionY;
+	ax += word_4206E;
+	--ax;
+
+	if (ax <= 0xE7)
+		return 0;
+
+	if (mDrawSpritePositionY > 0xE7)
+		return -1;
+
+	ax -= 0xE7;
+	word_4206E -= ax;
+	return 0;
+}
+
+void cFodder::sub_18520( uint16*& pTarget ) {
 	std::stringstream Mission;
 	Mission << "MISSION ";
 
 	Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
 
-	String_CalculateWidth( 0x140, byte_4382F, Mission.str().c_str() );
+	String_CalculateWidth( 0x140, byte_4428D, Mission.str().c_str() );
 
-	sub_181E6();
+	sub_181E6( pTarget, Mission.str(), byte_4428D, 4, word_3B301, mDrawSpritePositionY );
+
+}
+
+void cFodder::sub_185D7() {
+	int16* Data28 = word_3ABFF;
+	dword_3AC11 = Data28;
+
+	int16 Data8 = mMissionPhaseTable[ mMissionNumber - 1 ];
+
+	sSquad_Member* Data20 = mSquad;
+
+	for (int16 Data0 = 7; Data0 >= 7; --Data0, ++Data20) {
+		if (Data20->mRecruitID == -1)
+			continue;
+
+		if (Data20->field_4 < 0)
+			continue;
+
+		int16 Data4 = Data20->field_3;
+		Data4 += Data20->mRank;
+
+		if (Data4 > 0x0F)
+			Data4 = 0x0F;
+
+		*Data28++ = Data4;
+	}
+
+	*Data28 = -1;
 }
 
 void cFodder::video_Draw_Unk_2( cSurface* pImage ) {

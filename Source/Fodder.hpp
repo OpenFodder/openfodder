@@ -292,9 +292,22 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FF8;
 	int16			word_39FFA;
 
+	int16			dword_3A000;
+	int16			dword_3A004;
+	int16			dword_3A008;
+	int16			word_3A00C;
+	int16			word_3A00E;
+	int16			word_3A010;
+	int16			word_3A014;
+	int16			word_3A016;
 	int16			word_3A01A;
+	uint16			word_3A024;
 	struct_6*		dword_3A02A;
 	int32			dword_3A030;
+	uint16			word_3A054;
+	int8			byte_3A05A[4];
+	uint8			byte_3A05E;
+	uint16			word_3A05F;
 	int16			word_3A063;
 	int16			word_3A065;
 	int16			word_3A067;
@@ -312,19 +325,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_3A8DB;
 	uint8			byte_3A8DE[200];
 
-	int16			dword_3A000;
-	int16			dword_3A004;
-	int16			dword_3A008;
-	int16			word_3A00C;
-	int16			word_3A00E;
-	int16			word_3A010;
-	int16			word_3A016;
-	uint16			word_3A024;
-	uint16			word_3A054;
-	int8			byte_3A05A[4];
-	uint8			byte_3A05E;
-	uint16			word_3A05F;
-	sSprite_0*		dword_3A291[14];
+	sSprite_0*		dword_3A291[64];
 	int32			dword_3A391;
 	uint32			dword_3A395;
 	int16			word_3A399;
@@ -417,7 +418,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABEB;
 	int16			word_3ABFB;
 	int16			word_3ABFD;
-
+	int16			word_3ABFF[9];
+	int16*			dword_3AC11;
 	int16			word_3AC19;
 	int16			word_3AC1B;
 	int16			word_3AC1D;
@@ -591,6 +593,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			mImageFaded;
 	int16			mMouseSpriteCurrent;
+	int16			word_40048;
 	uint16			word_40054;
 	uint16			word_40056;
 	uint16			word_40058;
@@ -807,14 +810,27 @@ protected:
 	void			sub_17CD3( cSurface* pImage );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
 	void			sub_17DB3();
-	void			sub_17E30();
 
+	/* End Recruitment */
+
+	/* Promotion / Heroes */
+	void			Service_KillInAction();
+	void			Service_Promoted();
 	int16			sub_18006();
-	void			sub_18520();
+	int16			sub_1804C();
+	void			sub_18099( uint16*& pDi,int16 ax, int16 bx );
+	void			sub_18149();
+	void			sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
+	int16			sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+	void			sub_182EA();
+	int16			sub_184C7();
+	void			sub_18520( uint16*& pTarget );
+	void			sub_185D7();
+
 
 	void			video_Draw_Unk_2( cSurface* pImage );
-	/* End Recruitment */
-	
+	/* End Promotion / Heroes */
+
 	int16			loc_2D9D5( sSprite_0* pSprite );
 
 	void			Briefing_Show( cSurface* pImage );
