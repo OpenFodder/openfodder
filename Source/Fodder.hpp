@@ -399,16 +399,15 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3AA43;
 	int16			word_3AB39;
+	int16			word_3ABA7;
 	int8			byte_3ABA9;
+	int16			word_3ABAD;
+	int16			word_3ABAF;
 	int16			word_3ABB1;
 	int16			word_3ABB3;
 	int16			word_3ABB5;
 	int16			word_3ABB7;
 	struct_5		stru_3ABB9;
-	int16			word_3ABA7;
-	int16			word_3ABAD;
-	int16			word_3ABAF;
-	int16			word_3ABBB;
 	int16			word_3ABC3;
 	int16			word_3ABC5;
 	int16			word_3ABC7;
@@ -836,6 +835,7 @@ protected:
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
 
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
+	void			sub_1B07C( sSprite_0* pSprite );						// 23
 	void			Sprite_Handle_Bird( sSprite_0* pSprite );				// 66
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );

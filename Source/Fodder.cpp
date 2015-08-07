@@ -729,7 +729,6 @@ void cFodder::sub_10D61() {
 	word_3AB39 = 0;
 	word_3ABAD = 0;
 	word_3ABAF = 0;
-	word_3ABBB = 0;
 	word_3ABC3 = 0;
 	word_3ABC5 = 0;
 	word_3ABC7 = 0;
@@ -2112,18 +2111,18 @@ void cFodder::sub_124DB() {
 		return;
 
 	sSprite_0* Data20 = dword_3B48B[0];
-	Data20 = (sSprite_0*)Data20->field_46;
+	sSquad_Member* Dataa20 = (sSquad_Member*)Data20->field_46;
 	int16 Data0 = 0;
 
-	Data0 = Data20->field_2;
+	Data0 = Dataa20->mRank;
 	Data0 += 8;
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
 
 	//Data0 *= 0x0A
-	const struct_5* Dataa20 = &stru_3D35F[Data0];
+	const struct_5* Dataaa20 = &stru_3D35F[Data0];
 	//seg000:254F
-	stru_3ABB9 = *Dataa20;
+	stru_3ABB9 = *Dataaa20;
 }
 
 void cFodder::Mission_Goals_Check() {
@@ -7022,7 +7021,7 @@ loc_2DF7B:;
 		return;
 
 	word_3AF07 = 1;
-	*Data24 = Data4;
+	writeLEWord( Data24, Data4 );
 	word_3AF01 = Data4;
 	sub_2E01C();
 
@@ -7567,6 +7566,10 @@ void cFodder::Sprite_Handle_Loop() {
 
 		case 21:
 			Sprite_Handle_Player_Rank( Data20 );
+			break;
+
+		case 23:
+			sub_1B07C( Data20 );
 			break;
 
 		case 66:
@@ -8264,6 +8267,23 @@ loc_1AF27:;
 loc_1AF63:;
 	pSprite->field_8 = 0x7C;
 	pSprite->field_A = 0;
+}
+
+void cFodder::sub_1B07C( sSprite_0* pSprite ) {
+	
+	if (pSprite->field_20)
+		--pSprite->field_20;
+
+	--pSprite->field_12;
+	if (pSprite->field_12 >= 0)
+		return;
+
+	pSprite->field_12 = 1;
+	pSprite->field_A += 1;
+	if (pSprite->field_A < 4)
+		return;
+
+	sub_2060F( pSprite );
 }
 
 void cFodder::Sprite_Handle_Bird( sSprite_0* pSprite ) {
@@ -10818,11 +10838,11 @@ int16 cFodder::sub_20653( sSprite_0* pSprite ) {
 
 loc_20777:;
 
-	Data2C->field_5E = (int64) mSquad - (int64) pSprite->field_46;
+	Data2C->field_5E = mSquad - (sSquad_Member*) pSprite->field_46;
 	Data2C->field_5D = -1;
 	sSquad_Member* Data24 = (sSquad_Member*) pSprite->field_46;
 
-	Data0 = word_3ABBB;
+	Data0 = stru_3ABB9.field_2;
 	Data0 += word_3ABC3;
 	Data2C->field_12 = Data0;
 
@@ -13684,7 +13704,6 @@ loc_308F6:;
 	sSprite_0* Saved_Data20 = Dataa20;
 
 	int16 Data10 = Dataa20->field_0;
-	Data14 = Dataa20->field_4;
 	int16 DataC = Dataa20->field_32;
 	int16 Data8 = Data4;
 	Data4 = Data0;
