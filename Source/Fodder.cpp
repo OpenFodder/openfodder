@@ -6569,7 +6569,7 @@ int16 cFodder::sub_2D490( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8,
 	const int16* Data30 = word_4555C;
 	const int16* Data34 = word_4563A;
 
-	for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C) {
+	for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pData24) {
 		int16 Data4 = pData24->field_18;
 
 		if (!Data28[Data4])
@@ -8621,7 +8621,7 @@ loc_1E3D2:;
 		}
 	}
 	//loc_1E619
-	Data4 -= 0x18000;	// should be int32...
+	Dataa4 -= 0x18000;
 	pSprite->field_1A = (int32*) Dataa4;
 	if (pSprite->field_36) {
 		pSprite->field_36 -= 2;
@@ -9781,11 +9781,12 @@ void cFodder::sub_1FE35( sSprite_0* pSprite ) {
 
 	Data2C->field_0 = pSprite->field_0;
 	Data2C->field_4 = pSprite->field_4;
-	Data2C->field_4 += 4;
+	Data2C->field_0 += 4;
 	Data2C->field_8 = 0x8D;
 	Data2C->field_A = 2;
 	Data2C->field_2 = pSprite->field_2;
 	Data2C->field_6 = pSprite->field_6;
+	Data2C->field_18 = 0x16;
 	Data2C->field_62 = pSprite->field_18;
 	Data2C->field_20 = 0;
 	Data2C->field_32 = -1;
