@@ -348,7 +348,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3A9A6[2];
 	int16			word_3A9AA;
-	uint16			word_3A9AC;
+	int16			word_3A9AC;
 	int16			word_3A9AE;
 	int16			word_3A9B0;
 	uint16			word_3A9B2;
@@ -807,6 +807,10 @@ protected:
 	void			sub_17CD3( cSurface* pImage );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
 	void			sub_17DB3();
+	void			sub_17E30();
+
+	int16			sub_18006();
+	void			sub_18520();
 
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Recruitment */
@@ -835,7 +839,10 @@ protected:
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
 
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
+	void			sub_1AF78( sSprite_0* pSprite );						// 22
 	void			sub_1B07C( sSprite_0* pSprite );						// 23
+	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );		// 28
+	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
 	void			Sprite_Handle_Bird( sSprite_0* pSprite );				// 66
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
