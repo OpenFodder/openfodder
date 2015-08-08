@@ -55,7 +55,6 @@ private:
 	bool							 headerLoad();
 
 	uint8							*file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode );
-	uint8							*fileGet( std::string pFilename, size_t &pFileSize );
 
 	uint8							 data_Read();
 
@@ -68,6 +67,7 @@ public:
 	 								 cResources();
 									~cResources();
 
+	uint8							*fileGet( std::string pFilename, size_t &pFileSize );
 	size_t							 fileLoadTo( const std::string& pFilename, uint8* pTarget );
 
 	std::vector< cResource_File >	*filesGet( ) { return &mFiles; }

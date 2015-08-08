@@ -609,6 +609,17 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_42076;
 	uint16			word_42078;
 
+	struct sVocLoaded {
+		uint8*		mBuffer;
+		size_t		mSize;
+	};
+	sVocLoaded*		word_42316[5];
+	sVocLoaded		dword_42320[0x3C];
+	sVocLoaded		dword_42410[0x3C];
+	sVocLoaded		dword_42500[0x3C];
+	sVocLoaded		dword_425F0[0x3C];
+	sVocLoaded		dword_426E0[0x3C];
+
 	int16			word_42851;
 	uint16			word_42859;
 	uint16			word_4285B;
@@ -759,6 +770,7 @@ protected:
 	void			Mission_Sprite_Draw( cSurface* pImage );
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+	void			Voc_Load();
 	void			sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 );
 	
 	// 14EAC

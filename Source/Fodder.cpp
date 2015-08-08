@@ -173,11 +173,34 @@ cFodder::cFodder( bool pSkipIntro ) {
 	off_3DEF6[0] = &cFodder::sub_2EEBD;
 	off_3DEF6[1] = &cFodder::sub_2EEC8;
 	off_3DEF6[2] = &cFodder::sub_2EED3;
+
+	for (unsigned int x = 0; x < 0x3C; ++x) {
+		dword_42320[x].mBuffer = 0;
+		dword_42410[x].mBuffer = 0;
+		dword_42500[x].mBuffer = 0;
+		dword_425F0[x].mBuffer = 0;
+		dword_426E0[x].mBuffer = 0;
+	}
+
+	word_42316[0] = dword_42320;
+	word_42316[1] = dword_42410;
+	word_42316[2] = dword_42500;
+	word_42316[3] = dword_425F0;
+	word_42316[4] = dword_426E0;
 }
 
 cFodder::~cFodder() {
 	
 	delete mSurfaceMapOverview;
+
+	for (unsigned int x = 0; x < 0x3C; ++x) {
+
+		delete[] dword_42320[x].mBuffer;
+		delete[] dword_42410[x].mBuffer;
+		delete[] dword_42500[x].mBuffer;
+		delete[] dword_425F0[x].mBuffer;
+		delete[] dword_426E0[x].mBuffer;
+	}
 }
 
 int16 cFodder::Mission_Loop( cSurface* pImage ) {
@@ -3510,6 +3533,46 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 }
 
+void cFodder::Voc_Load() {
+	if (mEffectDriver < 5)
+		return;
+
+	for (unsigned int x = 0; x < 0x3C; ++x) {
+		dword_42320[x].mSize = 0;
+		dword_42410[x].mSize = 0;
+		dword_42500[x].mSize = 0;
+		dword_425F0[x].mSize = 0;
+	}
+
+	struct_Voc* Voc = mVocTable;
+
+	for (; Voc->field_0 != 0xFF; ++Voc) {
+		size_t bx = 0;
+
+		uint8* VocFile = g_Resource.fileGet( Voc->mFilename, bx );
+		//bx += 8;
+		//bx &= 0x0FFF8;
+
+		if (Voc->field_0 != 9) {
+			sVocLoaded* eax = word_42316[Voc->field_0];
+			eax[Voc->field_1].mBuffer = VocFile;
+			eax[Voc->field_1].mSize = bx;
+		} else {
+
+			dword_42320[Voc->field_1].mBuffer = VocFile;
+			dword_42320[Voc->field_1].mSize = bx;
+			dword_42410[Voc->field_1].mBuffer = VocFile;
+			dword_42410[Voc->field_1].mSize = bx;
+			dword_42500[Voc->field_1].mBuffer = VocFile;
+			dword_42500[Voc->field_1].mSize = bx;
+			dword_425F0[Voc->field_1].mBuffer = VocFile;
+			dword_425F0[Voc->field_1].mSize = bx;
+			dword_426E0[Voc->field_1].mBuffer = VocFile;
+			dword_426E0[Voc->field_1].mSize = bx;
+		}
+	}
+}
+
 void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	int16 Data0 = 0;
 
@@ -3551,10 +3614,18 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	Data0 = Saved0;
 	pData4 = Saved4;
 
-	// TODO: seg002:0508
 	int16 bx = mMap_TileSet;
 	
-	mVocTable[bx + pData4].mFilename;
+	sVocLoaded* eax = &word_42316[bx][pData4];
+	if (eax->mSize == 0)
+		return;
+
+	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, eax->mSize );
+
+	Mix_Chunk* chunk = Mix_LoadWAV_RW( rw, 1 );
+	Mix_PlayChannel( -1, chunk, 0 );
+	
+	//TODO Free chunks
 
 }
 
@@ -9029,8 +9100,8 @@ void cFodder::sub_14D6D( sSprite_0* pSprite, int16 pData4 ) {
 	if (word_3A9AE)
 		return;
 
-	int16 Data0 = tool_RandomGet() * 0x7F;
-	if (Data0 == 0x0E)
+	int16 Data0 = tool_RandomGet() & 0x7F;
+	if (Data0 != 0x0E)
 		return;
 
 	pData4 = word_3B4DD;
@@ -11195,6 +11266,8 @@ void cFodder::Load_Sprite_Font() {
 
 	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 	Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
+
+	Voc_Load();
 }
 
 void cFodder::intro() {
