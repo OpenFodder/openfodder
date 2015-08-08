@@ -39,11 +39,7 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mSurfaceBufferSaved = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSize = mWidth * mHeight;
 	
-	for (int i = 0; i < mSurfaceBufferSize; ++i) {
-		mSurfaceBuffer[i] = 0;
-		mSurfaceBufferSaved[i] = 0;
-	}
-
+	clearBuffer();
 	wipe();
 }
 
@@ -211,6 +207,15 @@ void cSurface::draw( size_t pX, size_t pY ) {
 	}
 
 	SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
+}
+
+void cSurface::clearBuffer() {
+	for (int i = 0; i < mSurfaceBufferSize; ++i) {
+		mSurfaceBuffer[i] = 0;
+		mSurfaceBufferSaved[i] = 0;
+	}
+
+	wipe();
 }
 
 void cSurface::load( cSurface* pImage ) {

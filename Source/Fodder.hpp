@@ -200,9 +200,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionPhases;
 	uint16			word_390F4;
 	int16			word_390F8;
-	sSquad_Member	mSquad[8];
-	int16			word_3915A;
-	int16			word_3915E;
+	sSquad_Member	mSquad[9];
 
 	int16			word_391D2[361];
 	int16*			dword_394A4;
@@ -652,6 +650,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_427D4;
 	int8			byte_427E6;
 	int8			byte_427EE;
+	int16			word_44475;
 	int16			word_44A20;
 	int16			word_44A2E;
 	int16			word_44A30;
@@ -820,13 +819,14 @@ protected:
 	int16			sub_1804C();
 	void			sub_18099( uint16*& pDi,int16 ax, int16 bx );
 	void			sub_18149();
+	void			sub_181BD();
 	void			sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
 	int16			sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_182EA();
 	int16			sub_184C7();
 	void			sub_18520( uint16*& pTarget );
 	void			sub_185D7();
-
+	void			sub_18698();
 
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Promotion / Heroes */
