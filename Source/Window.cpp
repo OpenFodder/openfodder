@@ -42,7 +42,7 @@ cWindow::~cWindow() {
 
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
 		// TODO: Log error
 		//SDL_GetError();
 		return false;
@@ -62,6 +62,15 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 
+	int audio_rate = 22050;
+	Uint16 audio_format = AUDIO_S16SYS;
+	int audio_channels = 2;
+	int audio_buffers = 4096;
+ 
+	if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
+		//TODO:  Mix_GetError();
+		return false;
+	}
 	SDL_RenderSetLogicalSize(mRenderer, 352, 216);
 
 	SetCursor();

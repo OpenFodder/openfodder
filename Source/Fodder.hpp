@@ -813,9 +813,9 @@ protected:
 	/* End Recruitment */
 
 	/* Promotion / Heroes */
-	void			Service_KillInAction();
-	void			Service_Promoted();
-	int16			sub_18006();
+	void			Service_KIA_Loop();
+	void			Service_Promotion_Loop();
+	int16			Service_KIA_Troop_Prepare();
 	int16			sub_1804C();
 	void			sub_18099( uint16*& pDi,int16 ax, int16 bx );
 	void			sub_18149();
@@ -827,6 +827,7 @@ protected:
 	void			Service_Mission_Text_Prepare( uint16*& pTarget );
 	void			Service_Promotion_Prepare();
 	void			Service_Promotion_Check();
+	void			Service_Promotion_SetNewRanks();
 
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Promotion / Heroes */
