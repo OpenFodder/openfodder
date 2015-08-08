@@ -26,6 +26,7 @@
 #include "Recruits.hpp"
 #include "UnknownData.hpp"
 #include "MissionNames.hpp"
+#include "VocTable.hpp"
 
 const char* mBinTable[] = { "rjnull.bin", 
 							"rjnull.bin", 
@@ -3551,6 +3552,10 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	pData4 = Saved4;
 
 	// TODO: seg002:0508
+	int16 bx = mMap_TileSet;
+	
+	mVocTable[bx + pData4].mFilename;
+
 }
 
 void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {
@@ -7318,40 +7323,46 @@ void cFodder::sub_17DB3() {
 
 	//TODO:
 	//Music_Unk();
-	Service_KillInAction();
-	Service_Promoted();
+	Service_KIA_Loop();
+	Service_Promotion_Loop();
 	mouse_Setup();
 
 	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
 }
 
-void cFodder::Service_KillInAction() {
+void cFodder::Service_KIA_Loop() {
 	sub_136D0();
 	mouse_Setup();
 	word_44475 = 0;
 
-	if (sub_18006() < 0)
+	if (Service_KIA_Troop_Prepare() < 0)
 		return;
 
-	mImage->wipe();
+	mImage->clearBuffer();
 
 	sub_13C1C( mImage, 5, 0, 0, 0x34 );
 	sub_13C8A( mImage, 7, 0, 0, 0x31 );
 	sub_13C8A( mImage, 7, 0, 0xF0, 0x31 );
 
 	video_Draw_Unk_2( mImage );
-	mImage->paletteFadeOut();
+
+	mImageFaded = -1;
 	word_39F02 = 0;
+	mImage->Save();
 
 	do {
 		Mouse_Inputs_Get();
+
 		if (word_44475 == -1 || word_39F02 ) {
 			word_39F02 = 0;
 			mImage->paletteFadeOut();
+			mImageFaded = -1;
+			word_40048 = 1;
 		}
 
 		if (mImageFaded == -1)
-			mImage->paletteFade();
+			mImageFaded = mImage->paletteFade();
+
 
 		sub_18149();
 		sub_13800();
@@ -7360,11 +7371,12 @@ void cFodder::Service_KillInAction() {
 
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
+		mImage->Restore();
 
 	} while (mImageFaded == -1 || word_40048 == 0);
 }
 
-void cFodder::Service_Promoted() {
+void cFodder::Service_Promotion_Loop() {
 	sub_136D0();
 	mouse_Setup();
 	word_44475 = 0;
@@ -7382,7 +7394,9 @@ void cFodder::Service_Promoted() {
 	video_Draw_Unk_2( mImage );
 
 	mImageFaded = -1;
+	word_40048 = 0;
 	word_39F02 = 0;
+	mImage->paletteSet( mPalette );
 	mImage->Save();
 
 	do {
@@ -7411,11 +7425,11 @@ void cFodder::Service_Promoted() {
 	} while (mImageFaded == -1 || word_40048 == 0);
 
 loc_18001:;
-	//sub_186C7();
-
+	
+	Service_Promotion_SetNewRanks();
 }
 
-int16 cFodder::sub_18006() {
+int16 cFodder::Service_KIA_Troop_Prepare() {
 	uint16* di = (uint16*) mDataPStuff;
 
 	mDrawSpritePositionY = 0xE8;
@@ -7430,7 +7444,7 @@ int16 cFodder::sub_18006() {
 	for (;;) {
 		int16 ax = *si++;
 		if (ax == -1 )
-			return 0;
+			break;
 
 		int16* bp = dword_394A8;
 		int8 bl = *bp & 0xFF;
@@ -7440,6 +7454,9 @@ int16 cFodder::sub_18006() {
 		sub_18099( di, ax, bl );
 		mDrawSpritePositionY += 0x40;
 	}
+
+	*di++ = -1;
+	return 0;
 }
 
 int16 cFodder::sub_1804C() {
@@ -7846,6 +7863,23 @@ void cFodder::Service_Promotion_Check() {
 
 		*(es - 3) = ax;
 		*(es + 1) = ax;
+	}
+}
+
+void cFodder::Service_Promotion_SetNewRanks() {
+	int16* Data28 = word_3ABFF;
+	sSquad_Member* Data20 = mSquad;
+
+	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
+		
+		if (Data20->mRecruitID == -1)
+			continue;
+
+		int16 ax = *Data28++;
+		if (ax < 0)
+			return;
+
+		Data20->mRank = ax;
 	}
 }
 
@@ -9399,7 +9433,7 @@ loc_1E831:;
 	if (Data4 == 9)
 		goto loc_1E737;
 
-loc_1E9EC:;
+loc_1E9EC:;	// Troop Falling?
 	if (pSprite->field_12 < 0x0C) {
 		pSprite->field_3E = 0;
 		pSprite->field_56 = 0;
