@@ -824,9 +824,9 @@ protected:
 	int16			sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_182EA();
 	int16			sub_184C7();
-	void			sub_18520( uint16*& pTarget );
-	void			sub_185D7();
-	void			sub_18698();
+	void			Service_Mission_Text_Prepare( uint16*& pTarget );
+	void			Service_Promotion_Prepare();
+	void			Service_Promotion_Check();
 
 	void			video_Draw_Unk_2( cSurface* pImage );
 	/* End Promotion / Heroes */
