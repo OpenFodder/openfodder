@@ -63,7 +63,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	}
 
 	int audio_rate = 22050;
-	Uint16 audio_format = AUDIO_S16SYS;
+	Uint16 audio_format = AUDIO_U8;
 	int audio_channels = 2;
 	int audio_buffers = 4096;
  
