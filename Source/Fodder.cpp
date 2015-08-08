@@ -7368,7 +7368,7 @@ void cFodder::Service_Promoted() {
 	sub_136D0();
 	mouse_Setup();
 	word_44475 = 0;
-	sub_185D7();
+	Service_Promotion_Prepare();
 
 	if (sub_1804C() < 0)
 		goto loc_18001;
@@ -7398,7 +7398,7 @@ void cFodder::Service_Promoted() {
 		if (mImageFaded == -1)
 			mImageFaded = mImage->paletteFade();
 
-		sub_18698();
+		Service_Promotion_Check();
 		sub_18149();
 		sub_13800();
 		//sub_14445();
@@ -7419,7 +7419,7 @@ int16 cFodder::sub_18006() {
 	uint16* di = (uint16*) mDataPStuff;
 
 	mDrawSpritePositionY = 0xE8;
-	sub_18520( di );
+	Service_Mission_Text_Prepare( di );
 	mDrawSpritePositionY += 0x40;
 
 	int16* si = word_394AC;
@@ -7447,7 +7447,7 @@ int16 cFodder::sub_1804C() {
 
 	
 	mDrawSpritePositionY = 0xE8;
-	sub_18520( di );
+	Service_Mission_Text_Prepare( di );
 	mDrawSpritePositionY += 0x40;
 
 	sSquad_Member* si = mSquad;
@@ -7767,7 +7767,8 @@ int16 cFodder::sub_184C7() {
 		ax -= word_4206E;
 		++ax;
 		ax = -ax;
-		ax += mDrawSpritePositionY;
+		mDrawSpritePositionY += ax;
+		word_4206E -= ax;
 
 		ax *= 0xA0;
 		word_42062 += ax;
@@ -7789,7 +7790,7 @@ int16 cFodder::sub_184C7() {
 	return 0;
 }
 
-void cFodder::sub_18520( uint16*& pTarget ) {
+void cFodder::Service_Mission_Text_Prepare( uint16*& pTarget ) {
 	std::stringstream Mission;
 	Mission << "MISSION ";
 
@@ -7798,10 +7799,9 @@ void cFodder::sub_18520( uint16*& pTarget ) {
 	String_CalculateWidth( 0x140, byte_4428D, Mission.str().c_str() );
 
 	sub_181E6( pTarget, Mission.str(), byte_4428D, 4, word_3B301, mDrawSpritePositionY );
-
 }
 
-void cFodder::sub_185D7() {
+void cFodder::Service_Promotion_Prepare() {
 	int16* Data28 = word_3ABFF;
 	dword_3AC11 = Data28;
 
@@ -7828,7 +7828,7 @@ void cFodder::sub_185D7() {
 	*Data28 = -1;
 }
 
-void cFodder::sub_18698() {
+void cFodder::Service_Promotion_Check() {
 	int16* si = word_3ABFF;
 	int16* es = (int16*)mDataPStuff;
 
