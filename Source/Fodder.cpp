@@ -362,7 +362,7 @@ void cFodder::Mouse_Handle( cSurface* pImage ) {
 
 	int16 Data4 = word_3B44F;
 	int16 Data8 = 0;
-	sub_14B84( Sprite, Data4, Data8 );
+	Sound_Voc_Play( Sprite, Data4, Data8 );
 	word_3B44F = 0;
 	return;
 
@@ -3546,7 +3546,7 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 }
 
-void cFodder::Voc_Load() {
+void cFodder::Sound_Voc_Load() {
 	if (mEffectDriver < 5)
 		return;
 
@@ -3586,7 +3586,7 @@ void cFodder::Voc_Load() {
 	}
 }
 
-void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
+void cFodder::Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	int16 Data0 = 0;
 
 	int8 al = byte_3A9DA[0];
@@ -3638,6 +3638,7 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	sVocPlaying Playing;
 	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
 	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
+
 	if (Playing.mChannel == -1) {
 		Mix_FreeChunk( Playing.mCurrentChunk );
 		return;
@@ -5829,7 +5830,7 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 		if (pData0 == 0)
 			goto loc_2A728;
 
-		if (readLEDWord( Data28 ) == 0)
+		if (readLEDWord( Data28 ) == -1)
 			goto loc_2A728;
 
 		if (readLEWord( Data28 ) == 0)
@@ -9127,7 +9128,7 @@ void cFodder::sub_14D6D( sSprite_0* pSprite, int16 pData4 ) {
 	if (mMap_TileSet == 4 || mMap_TileSet == 3)
 		Data8 = 0x7F;
 
-	sub_14B84( pSprite, pData4, Data8 );
+	Sound_Voc_Play( pSprite, pData4, Data8 );
 }
 
 int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
@@ -9222,7 +9223,7 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 	Data4 = byte_3D477[Data0];
 	//seg004:5508
 	Data8 = 0x14;
-	sub_14B84( pSprite, Data4, Data8 );
+	Sound_Voc_Play( pSprite, Data4, Data8 );
 
 	if (pSprite->field_36 < 0x1E)
 		pSprite->field_36 += 0x0F;
@@ -9276,7 +9277,7 @@ loc_1E2F4:;
 
 	Data4 = byte_3D477[Data0];
 	Data8 = 0;
-	sub_14B84( pSprite, Data4, Data8 );
+	Sound_Voc_Play( pSprite, Data4, Data8 );
 	goto loc_1E737;
 
 loc_1E3D2:;
@@ -9289,7 +9290,7 @@ loc_1E3D2:;
 			Data0 = tool_RandomGet() & 7;
 			Data4 = byte_3D477[Data0];
 			Data8 = 0x14;
-			sub_14B84( pSprite, Data4, Data8 );
+			Sound_Voc_Play( pSprite, Data4, Data8 );
 		}
 	}
 	//loc_1E437
@@ -9431,7 +9432,7 @@ loc_1E74C:;
 		Data4 = 0x0E;
 		Data8 = 0x0A;
 
-		sub_14B84( pSprite, Data4, Data8 );
+		Sound_Voc_Play( pSprite, Data4, Data8 );
 		pSprite->field_8 = 0x38;
 		if (pSprite->field_22)
 			pSprite->field_8 = 0x7A;
@@ -9485,7 +9486,7 @@ loc_1E831:;
 		Data0 = tool_RandomGet() & 0x07;
 		Data4 = byte_3D477[Data0];
 		Data8 = 0x0A;
-		sub_14B84( pSprite, Data4, Data8 );
+		Sound_Voc_Play( pSprite, Data4, Data8 );
 		goto loc_1E9EC;
 	}
 	//loc_1E8D6
@@ -9742,7 +9743,7 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 	//TODO: Fix this messy function
 	sSquad_Member* Data24 = (sSquad_Member*) pSprite->field_46;
 
-	sub_20534( Data24 );
+	Hero_Add( Data24 );
 
 	int8* Data28 = (int8*) dword_394A4;
 
@@ -10054,7 +10055,7 @@ loc_1F4DB:;
 	if (Data0)
 		goto loc_1F50F;
 
-	if (!sub_20653( pSprite ))
+	if (!Troop_Fire_Bullet( pSprite ))
 		goto loc_1F4F5;
 
 	pSprite->field_4A = -1;
@@ -11284,7 +11285,7 @@ void cFodder::Load_Sprite_Font() {
 	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
 	Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
 
-	Voc_Load();
+	Sound_Voc_Load();
 }
 
 void cFodder::intro() {
@@ -11481,7 +11482,7 @@ loc_20521:;
 	word_3ABAD = -1;
 }
 
-void cFodder::sub_20534( sSquad_Member* pSquadMember ) {
+void cFodder::Hero_Add( sSquad_Member* pSquadMember ) {
 	sHero* Hero = &mHeroes[4];
 	int16 Data4;
 
@@ -11531,7 +11532,7 @@ int16 cFodder::sub_2061C( sSprite_0* pSprite ) {
 	return 1;
 }
 
-int16 cFodder::sub_20653( sSprite_0* pSprite ) {
+int16 cFodder::Troop_Fire_Bullet( sSprite_0* pSprite ) {
 	if (word_3A9E4)
 		--word_3A9E4;
 
@@ -11678,7 +11679,7 @@ loc_209F3:;
 		Data4 = 0x10;
 
 	Data8 = 0;
-	sub_14B84( pSprite, Data4, Data8 );
+	Sound_Voc_Play( pSprite, Data4, Data8 );
 	return 0;
 
 loc_20A2D:;
@@ -12319,7 +12320,7 @@ int16 cFodder::sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC ) {
 	Data4 += 5;
 
 	int16 Data8 = 0x1E;
-	sub_14B84( Data20, Data4, Data8 );
+	Sound_Voc_Play( Data20, Data4, Data8 );
 
 	pData2C->field_18 = 0x27;
 	pData2C->field_8 = 0x8E;

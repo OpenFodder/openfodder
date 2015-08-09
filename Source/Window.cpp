@@ -70,7 +70,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	int audio_rate = 22050;
 	Uint16 audio_format = AUDIO_U8;
 	int audio_channels = 2;
-	int audio_buffers = 4096;
+	int audio_buffers = 2048;
  
 	if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
 		//TODO:  Mix_GetError();
