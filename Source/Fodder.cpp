@@ -205,10 +205,8 @@ cFodder::~cFodder() {
 
 int16 cFodder::Mission_Loop( cSurface* pImage ) {
 
-	pImage->paletteSet( mPalette );
-
 	pImage->Save();
-	
+
 	for (;;) {
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
@@ -1634,14 +1632,14 @@ loc_11D8A:;
 	dword_39F4E &= 0x0000FFFF;
 
 	//pImage->paletteFadeOut();
-
+	/*
 	do {
 		mImageFaded = pImage->paletteFade();
 
 		g_Window.RenderAt( pImage, cPosition() );
 		g_Window.FrameEnd();
 
-	} while (mImageFaded == -1);
+	} while (mImageFaded == -1);*/
 
 	//sub_14445();
 	//sub_14445();
@@ -13033,8 +13031,6 @@ void cFodder::graphicsBlkPtrsPrepare() {
 }
 
 void cFodder::map_Tiles_Draw() {
-	mImage->paletteSet( mPalette, 0, true );
-
 	word_40054 = 0;
 	word_3B60E = 0;
 	word_3B610 = 0;
@@ -13045,33 +13041,14 @@ void cFodder::map_Tiles_Draw() {
 	word_3D473 = 0;
 	word_3D475 = 0;
 
-	/*
-	uint8* si = &mMap[mMapTilePtr];
-
-	for (uint16 cx = 0; cx < 0x0F ; ++cx) {
-
-		uint8* si2 = si;
-
-		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
-
-			//video_Draw_MapTile( mImage, readLEWord(si2), cx2, cx );
-
-			si2 += 2;
-		}
-
-		si += (mMapWidth << 1);
-	}*/
 	map_Tiles_Draw_();
 }
 
 void cFodder::map_Tiles_Draw_() {
 
 	uint8* Target = mImage->GetSurfaceBuffer();
-	Target += 0x10 * mImage->GetWidth();
 
 	uint8* CurrentMapPtr = &mMap[mMapTilePtr];
-
-	Target = mImage->GetSurfaceBuffer();
 
 	// Y
 	for (uint16 cx = 0; cx < 0x0F; ++cx) {
