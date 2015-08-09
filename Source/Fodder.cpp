@@ -48,9 +48,26 @@ std::string mMapTypes[] = {
 	"hid"
 };
 
+void cFodder::Music_Play( const char* pFilename ) {
+	std::string Filename = "Data\\MP3\\";
+	Filename.append( pFilename );
+
+	Mix_FreeMusic( mMusicPlaying );
+
+	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
+
+	Mix_PlayMusic( mMusicPlaying, -1 );
+}
+
+void cFodder::Music_Stop() {
+
+	Mix_FadeOutMusic(500);
+}
+
 cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
+	mMusicPlaying = 0;
 
 	mResources = new cResources();
 	mWindow = new cWindow();
@@ -1741,7 +1758,7 @@ void cFodder::sub_11E60() {
 	int16 ax = mMap_TileSet + 0x32;
 
 	//TODO:
-	//Music_Unk();
+	Music_Unk(0x32);
 }
 
 void cFodder::sub_11E6C( cSurface* pImage ) {
@@ -2324,8 +2341,7 @@ void cFodder::sub_12877( sSprite_0* pData2C ) {
 	pData2C->field_8 = 0xA2;
 	pData2C->field_18 = 0x1D;
 
-	//TODO
-	// Music_Unk( 6 );
+	Music_Unk( 6 );
 }
 
 void cFodder::sub_128A9( sSprite_0* pData2C ) {
@@ -2336,8 +2352,7 @@ void cFodder::sub_128A9( sSprite_0* pData2C ) {
 	pData2C->field_8 = 0xA1;
 	pData2C->field_18 = 0x1E;
 
-	//TODO
-	// Music_Unk( 0x0C );
+	Music_Unk( 0x0C );
 }
 
 void cFodder::sub_128DB( sSprite_0* pData2C ) {
@@ -2372,7 +2387,7 @@ void cFodder::sub_12952() {
 	sub_129B6( Data2C );
 
 	//TODO
-	//Music_Unk(0x0F);
+	Music_Unk(0x0F);
 }
 
 void cFodder::sub_1298C( sSprite_0* pData2C ) {
@@ -3031,7 +3046,7 @@ void cFodder::sub_13277( sSprite_0* pData2C ) {
 	pData2C->field_18 = 0x22;
 
 	//TODO
-	//Music_Unk(8);
+	Music_Unk(8);
 }
 
 void cFodder::paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID ) {
@@ -3586,6 +3601,71 @@ void cFodder::Sound_Voc_Load() {
 	}
 }
 
+void cFodder::Music_Unk( int16 pTrack ) {
+	
+	const char* Tracks[] = {
+		"rjp.JON(1).mp3",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"rjp.JON(7).mp3",
+		"rjp.JON(8).mp3",
+		"",
+		"",
+		"",
+		"",
+		"rjp.JON(13).mp3",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"rjp.JUNBASE(2).mp3",
+	/*		"des",
+			"ice",
+			"mor",
+			"int",
+			"hid"*/
+	};
+
+	Music_Play( Tracks[pTrack] );
+
+}
+
 void cFodder::Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	int16 Data0 = 0;
 
@@ -3936,6 +4016,7 @@ void cFodder::Mission_Brief() {
 
 	map_Load_Resources();
 	Sprite_SetDataPtrToBase( off_42918 );
+	Music_Unk( 0x07 );
 	sub_136D0();
 
 	cSurface* Image = new cSurface( 352, 230 );
@@ -7411,7 +7492,7 @@ void cFodder::sub_17DB3() {
 	Sprite_SetDataPtrToBase( off_43963 );
 
 	//TODO:
-	//Music_Unk();
+	Music_Unk( 0 );
 	Service_KIA_Loop();
 	Service_Promotion_Loop();
 	mouse_Setup();
@@ -11300,7 +11381,7 @@ void cFodder::intro() {
 	if (mSkipIntro)
 		goto introDone;
 
-	//intro_Music_Play();
+	intro_Music_Play();
 	if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
 		goto introDone;
 
@@ -11320,11 +11401,17 @@ void cFodder::intro() {
 introDone:;
 	mIntroDone = -1;
 	//sub_1645F();
+	Music_Stop();
 
 	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
 	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xF0 );
 	//Sound_Unk();
-	//Music_Unk();
+	Music_Unk( 0 );
+}
+
+void cFodder::intro_Music_Play() {
+
+	Music_Play( "rjp.WARX4(1).mp3" );
 }
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
@@ -12914,6 +13001,8 @@ loc_103BF:;
 				word_390EA = -1;
 				word_3A9B2 = -1;
 				word_3901E = -1;
+
+				Music_Unk( 0 );
 				continue;
 			}
 
