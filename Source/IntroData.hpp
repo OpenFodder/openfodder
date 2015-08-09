@@ -20,6 +20,13 @@
  *
  */
 
+const sIntroString mIntro_0[] = {
+	{ 0x58, "This game is not in any way" },
+	{ 0x72, "endorsed by the" },
+	{ 0x8C, "ROYAL BRITISH LEGION" },
+	0
+};
+
 const sIntroString mIntro_1[] = {
 	{ 0xCC, "A Sensible Software Game" },
 	0
