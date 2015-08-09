@@ -347,7 +347,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3A9A6[2];
 	int16			word_3A9AA;
-	int16			word_3A9AC;
+	int16			mMissionComplete;
 	int16			word_3A9AE;
 	int16			word_3A9B0;
 	uint16			word_3A9B2;
