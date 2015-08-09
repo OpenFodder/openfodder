@@ -100,6 +100,10 @@ uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
 
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
 
+	uint8* File = local_FileRead( pFilename, "Data", pFileSize );
+	if (File)
+		return File;
+
 	for( fileIT = mFiles.begin(); fileIT != mFiles.end(); ++fileIT ) {
 
 		if( fileIT->mName == pFilename ) {

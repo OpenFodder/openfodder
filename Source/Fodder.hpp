@@ -776,8 +776,8 @@ protected:
 	void			Mission_Sprite_Draw( cSurface* pImage );
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
-	void			Voc_Load();
-	void			sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 );
+	void			Sound_Voc_Load();
+	void			Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 );
 	
 	// 14EAC
 	void			Mission_Brief();
@@ -903,11 +903,11 @@ protected:
 
 	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
 	void			sub_20478( sSprite_0* pSprite );
-	void			sub_20534( sSquad_Member* pSquadMember );
+	void			Hero_Add( sSquad_Member* pSquadMember );
 
 	int16			sub_2060F( sSprite_0* pSprite );
 	int16			sub_2061C( sSprite_0* pSprite );
-	int16			sub_20653( sSprite_0* pSprite );
+	int16			Troop_Fire_Bullet( sSprite_0* pSprite );
 	int16			sub_20A39( sSprite_0* pSprite );
 	void			sub_20E5C( sSprite_0* pSprite );
 	int16			sub_20E91( sSprite_0* pSprite );

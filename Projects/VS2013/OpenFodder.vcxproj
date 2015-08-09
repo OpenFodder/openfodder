@@ -71,8 +71,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.3\include;D:\Systems\Librarys\SDL2_image-2.0.0\include;D:\Systems\Librarys\SDL2_ttf-2.0.12\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2_image-2.0.0\lib\x64;D:\Systems\Librarys\SDL2-2.0.3\lib\x64;D:\Systems\Librarys\SDL2_ttf-2.0.12\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Systems\Librarys\SDL2-2.0.3\include;D:\Systems\Librarys\SDL2_image-2.0.0\include;D:\Systems\Librarys\SDL2_ttf-2.0.12\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Systems\Librarys\SDL2_image-2.0.0\lib\x64;D:\Systems\Librarys\SDL2-2.0.3\lib\x64;D:\Systems\Librarys\SDL2_ttf-2.0.12\lib\x64;D:\Systems\Librarys\SDL2_mixer-2.0.0\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,6 +159,7 @@
     <ClInclude Include="..\..\Source\Recruits.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
     <ClInclude Include="..\..\Source\UnknownData.hpp" />
+    <ClInclude Include="..\..\Source\VocTable.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
