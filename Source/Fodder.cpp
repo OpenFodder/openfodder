@@ -2878,6 +2878,19 @@ void cFodder::mouse_ButtonCheck() {
 
 }
 
+void cFodder::MixerChannelFinished( int32 pChannel ) {
+
+	for (std::vector<sVocPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
+		
+		if (ChannelIT->mChannel == pChannel) {
+			Mix_FreeChunk( ChannelIT->mCurrentChunk );
+
+			mMixerChunks.erase( ChannelIT );
+			return;
+		}
+	}
+}
+
 void cFodder::Prepare() {
 
 	mWindow->InitWindow( "Open Fodder" );
@@ -3622,11 +3635,15 @@ void cFodder::sub_14B84( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 
 	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, eax->mSize );
 
-	Mix_Chunk* chunk = Mix_LoadWAV_RW( rw, 1 );
-	Mix_PlayChannel( -1, chunk, 0 );
-	
-	//TODO Free chunks
+	sVocPlaying Playing;
+	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
+	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
+	if (Playing.mChannel == -1) {
+		Mix_FreeChunk( Playing.mCurrentChunk );
+		return;
+	}
 
+	mMixerChunks.push_back( Playing );
 }
 
 void cFodder::Briefing_Intro_Jungle( cSurface* pImage ) {

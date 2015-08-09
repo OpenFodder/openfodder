@@ -613,6 +613,12 @@ class cFodder : public cSingleton < cFodder > {
 		uint8*		mBuffer;
 		size_t		mSize;
 	};
+	struct sVocPlaying {
+		int32		mChannel;
+		Mix_Chunk*	mCurrentChunk;
+	};
+	std::vector<sVocPlaying> mMixerChunks;
+
 	sVocLoaded*		word_42316[5];
 	sVocLoaded		dword_42320[0x3C];
 	sVocLoaded		dword_42410[0x3C];
@@ -1105,7 +1111,7 @@ public:
 					~cFodder();
 
 	bool			EventAdd( cEvent pEvent );
-
+	void			MixerChannelFinished( int32 pChannel );
 	void			Prepare();
 	void			Start();
 	void			Exit( unsigned int pExitCode );
