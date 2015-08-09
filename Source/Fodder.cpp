@@ -245,7 +245,7 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 		sub_12AEE();
 
 		if (word_3FA21 == -1 && mKeyCode == 0x1C)
-			word_3A9AC = -1;
+			mMissionComplete = -1;
 		else
 			Mission_Goals_Check();
 
@@ -348,7 +348,7 @@ void cFodder::Mouse_Handle( cSurface* pImage ) {
 	if (!word_3B20F)
 		return;
 
-	if (word_3A9AE || word_3D469 || word_3A9AC || word_3A9AA || word_3A9B2 )
+	if (word_3A9AE || word_3D469 || mMissionComplete || word_3A9AA || word_3A9B2 )
 		goto loc_10930;
 
 	int16 Data0 = word_390AE;
@@ -963,7 +963,7 @@ void cFodder::sub_10DEC() {
 	word_3A9A6[0] = 0;
 	word_3A9A6[1] = 0;
 	word_3A9AA = 0;
-	word_3A9AC = 0;
+	mMissionComplete = 0;
 	word_3A9AE = 0;
 	dword_39F7C = 0;
 	mMouseSpriteNew = 0x23;
@@ -1181,8 +1181,8 @@ void cFodder::map_Load_Players() {
 				sSquad_Member* Data28 = Data20;
 
 				*Data28 = *Data24;
-				Data28->mRecruitID = -1;
-				Data28->mRank = 0;
+				Data24->mRecruitID = -1;
+				Data24->mRank = 0;
 			}
 		}
 	}
@@ -1962,7 +1962,7 @@ void cFodder::sub_12245() {
 	
 	dword_3A9FD = 0x20000;
 
-	if (!word_3A9B2 && !word_3A9AA && !word_3A9AC)
+	if (!word_3A9B2 && !word_3A9AA && !mMissionComplete)
 		return;
 
 	int16 Data0 = 0;
@@ -2224,7 +2224,7 @@ void cFodder::Mission_Goals_Check() {
 	
 	loc_126A6:;
 	if(!mMapGoals[7] || word_3B47B ) 
-		 word_3A9AC = -1;
+		 mMissionComplete = -1;
 }
 
 void cFodder::sub_126BB() {
@@ -2248,7 +2248,7 @@ void cFodder::sub_126DD() {
 
 void cFodder::sub_12790( cSurface* pImage ) {
 	
-	if (word_3A9AC >= 0)
+	if (mMissionComplete >= 0)
 		if (!word_3A9B2)
 			if (!word_3A9AA)
 				return;
@@ -2264,7 +2264,7 @@ void cFodder::sub_12790( cSurface* pImage ) {
 		goto loc_127E8;
 	}
 
-	if (word_3A9AC) {
+	if (mMissionComplete) {
 		if (word_3A9AA)
 			goto loc_127E8;
 
@@ -9875,7 +9875,7 @@ loc_1F0BE:;
 int16 cFodder::sub_1F21E( sSprite_0* pSprite ) {
 
 	if( !word_3A9B2 )
-		if( !word_3A9AC )
+		if( !mMissionComplete )
 			return 0;
 		
 	int16 Data0 = -1;
@@ -12803,7 +12803,7 @@ loc_103BF:;
 	for (;;) {
 		sub_10BBC();
 
-		word_3A9AC = 0;
+		mMissionComplete = 0;
 		mMapNumber = 0;
 		word_3901E = 0x3333;
 
