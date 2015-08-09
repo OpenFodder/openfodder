@@ -22,6 +22,11 @@
 
 #include "stdafx.hpp"
 
+void Mixer_ChannelFinished(int32 pChannel) {
+
+	g_Fodder.MixerChannelFinished( pChannel );
+}
+
 cWindow::cWindow() {
 
 	mDimensionWindow.mWidth = 1280;
@@ -71,6 +76,9 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		//TODO:  Mix_GetError();
 		return false;
 	}
+
+	Mix_ChannelFinished(Mixer_ChannelFinished);
+
 	SDL_RenderSetLogicalSize(mRenderer, 352, 216);
 
 	SetCursor();
