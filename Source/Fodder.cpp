@@ -4533,7 +4533,7 @@ void cFodder::Recruit_Render_HeroList() {
 			Data8 = Position;
 			Data8 <<= 2;
 			Data8 += word_3A05F;
-			DataC += 0x4B;
+			DataC = 0x4B;
 			DataC += word_3A3BD + word_3AA55;
 
 			sub_145AF( Character, Data8, DataC  + 0x19 );
@@ -11504,10 +11504,10 @@ void cFodder::Hero_Add( sSquad_Member* pSquadMember ) {
 	if (Data4 == 4)
 		return;
 
-	uint16 X = 4;
+	int16 X = 4;
 
 	do {
-		mHeroes[X] = mHeroes[X+1];
+		mHeroes[X + 1] = mHeroes[X];
 		--X;
 	} while (++Data4 < 4);
 
@@ -13043,7 +13043,7 @@ void cFodder::map_Tiles_Draw() {
 	word_3D473 = 0;
 	word_3D475 = 0;
 
-
+	/*
 	uint8* si = &mMap[mMapTilePtr];
 
 	for (uint16 cx = 0; cx < 0x0F ; ++cx) {
@@ -13058,7 +13058,8 @@ void cFodder::map_Tiles_Draw() {
 		}
 
 		si += (mMapWidth << 1);
-	}
+	}*/
+	map_Tiles_Draw_();
 }
 
 void cFodder::map_Tiles_Draw_() {
@@ -13087,8 +13088,11 @@ void cFodder::map_Tiles_Draw_() {
 		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
 			uint8* TargetTmp = TargetRow;
 
-			uint16 Tile = readLEWord( MapPtr );
-			uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile & 0x1FF];
+			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
+			if (Tile > 0x1DF)
+				Tile = 0x1DF;
+
+			uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile];
 			int16 StartX = 0;
 
 			TilePtr += StartY * 0x140;
