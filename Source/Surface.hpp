@@ -84,6 +84,7 @@ public:
 	void			Save();
 	void			Restore();
 
+	void			paletteClear();
 	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, bool pUseNow = false );
 	void			 paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );	// Load a palette
 	int16			 paletteFade();
