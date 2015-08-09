@@ -141,6 +141,7 @@ extern struct sRecruit mRecruits[360];
 
 class cFodder : public cSingleton < cFodder > {
 	bool					mSkipIntro;
+	Mix_Music*				mMusicPlaying;
 	std::vector<cEvent>		mEvents;
 
 	cResources*				mResources;
@@ -688,6 +689,8 @@ class cFodder : public cSingleton < cFodder > {
 	void(cFodder::*off_3DEF6[3])(void);
 
 protected:
+	void			Music_Play( const char* pFilename );
+	void			Music_Stop();
 
 	uint8*			GetSpriteData( uint16 pSegment );
 	int16			Mission_Loop( cSurface* pImage );
@@ -778,7 +781,8 @@ protected:
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	void			Sound_Voc_Load();
 	void			Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 );
-	
+	void			Music_Unk( int16 pTrack );
+
 	// 14EAC
 	void			Mission_Brief();
 
@@ -1076,6 +1080,7 @@ protected:
 
 	int16			introPlayText();
 	void			intro();
+	void			intro_Music_Play();
 
 	void			map_ClearSpt();
 	void			Mission_PhaseNext();
