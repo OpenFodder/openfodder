@@ -1078,6 +1078,7 @@ protected:
 	std::string		map_Filename_MapGet();
 	std::string		map_Filename_SptGet();
 
+	void			intro_LegionMessage();
 	int16			introPlayText();
 	void			intro();
 	void			intro_Music_Play();

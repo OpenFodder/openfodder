@@ -11284,6 +11284,42 @@ void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const ch
 	word_3B303 = PositionX;
 }
 
+void cFodder::intro_LegionMessage() {
+	int16 Duration = 300;
+	bool DoBreak = false;
+
+	cSurface* CurrentImage = new cSurface( 352, 230 );
+	CurrentImage->paletteSet( mPalette, 0xD0 );
+
+	mImageFaded = -1;
+
+	sub_18C45( CurrentImage, mIntro_0[0].mPosition - 0x19, &mIntro_0[0] );
+	sub_18C45( CurrentImage, mIntro_0[1].mPosition - 0x19, &mIntro_0[1] );
+	sub_18C45( CurrentImage, mIntro_0[2].mPosition - 0x19, &mIntro_0[2] );
+
+	while( mImageFaded == -1 || DoBreak == false  ) {
+		
+		if (mImageFaded)
+			mImageFaded = CurrentImage->paletteFade();
+
+		if (Duration > 1)
+			--Duration;
+		else {
+			if (DoBreak == false) {
+				CurrentImage->paletteFadeOut();
+				mImageFaded = -1;
+				Duration = 0;
+				DoBreak = true;
+			}
+		}
+
+		g_Window.RenderAt( CurrentImage, cPosition() );
+		g_Window.FrameEnd();
+	}
+
+	delete CurrentImage;
+}
+
 int16 cFodder::introPlayText() {
 	cSurface* CurrentImage = 0;
 
@@ -11382,6 +11418,9 @@ void cFodder::intro() {
 		goto introDone;
 
 	intro_Music_Play();
+
+	intro_LegionMessage();
+
 	if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
 		goto introDone;
 
