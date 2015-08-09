@@ -558,8 +558,8 @@ void cFodder::sub_10BBC() {
 	}
 	word_397AC = 0;
 	word_397AE = 0;
-	word_397D2 = 0;
-	word_397D4 = 0;
+	mMapPlayerTroopCount = 0;
+	mSquadMemberCount = 0;
 	mTroopsAvailable = 0;
 }
 
@@ -1131,45 +1131,46 @@ std::string cFodder::map_Filename_SptGet() {
 	return filename;
 }
 
-void cFodder::map_Troops_Prepare() {
-	word_397D2 = 0;
+void cFodder::Squad_Member_Count() {
+	mMapPlayerTroopCount = 0;
 	sSprite_0* dword_37AC0 = mSprites;
 	
 	for( int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount, ++dword_37AC0 ) {
 		if( dword_37AC0->field_0 != -32768 ) {
 			
 			if( dword_37AC0->field_18 == 0 )
-				++word_397D2;
+				++mMapPlayerTroopCount;
 		}
 	}
 	
-	word_397D4 = 0;
+	mSquadMemberCount = 0;
 	
 	for( int16 x = 7; x >= 0; --x ) {
 		
 		if( mSquad[x].mRecruitID != -1 ) {
-			--word_397D2;
-			++word_397D4;
+			--mMapPlayerTroopCount;
+			++mSquadMemberCount;
 		}
 	}
 	
-	int16 ax = word_397D2;
+	int16 ax = mMapPlayerTroopCount;
 	
-	if( word_397D2 >= 0 ) {
+	if( mMapPlayerTroopCount >= 0 ) {
 
 		if( ax > word_390CE )
 			ax = word_390CE;
 		
-		word_397D2 = ax;
+		mMapPlayerTroopCount = ax;
 		word_390CE -= ax;
 	}
 	
-	ax += word_397D4;
+	ax += mSquadMemberCount;
 	mTroopsAvailable = ax;
 }
 
-void cFodder::map_Load_Players() {
+void cFodder::Squad_Member_Sort() {
 
+	// Remove any 'dead' troops
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
 		sSquad_Member* Data20 = mSquad;
 
@@ -1187,8 +1188,9 @@ void cFodder::map_Load_Players() {
 		}
 	}
 	
-	sSquad_Member* Data20 = mSquad;
+	// Sort by kills
 
+	sSquad_Member* Data20 = mSquad;
 	//seg000:1347
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
 		sSquad_Member* Data24 = mSquad;
@@ -1239,7 +1241,7 @@ void cFodder::sub_1142D() {
 
 	}
 	//seg000:14C6                loc_114C6:
-	int16 Data1C = word_397D2 - 1;
+	int16 Data1C = mMapPlayerTroopCount - 1;
 	while (Data1C >= 0) {
 		sub_1152F();
 		--Data1C;
@@ -4096,13 +4098,13 @@ void cFodder::Recruit_Show() {
 	
 	dword_3AAC9 = mDataSubBlk;
 	
-	for (int16 ax = word_397D4 - 1; ax >= 0;--ax )
+	for (int16 ax = mSquadMemberCount - 1; ax >= 0;--ax )
 		sub_17429();
 	
 	word_3AA51 = -1;
 	word_3A016 = 0;
 	word_3AA67 = 0;
-	word_3AA71 = word_397D2;
+	word_3AA71 = mMapPlayerTroopCount;
 	
 	sub_1787C();
 
@@ -4196,13 +4198,13 @@ void cFodder::sub_16B55( cSurface* pImage, int16 pParam0, int16 pParam8, int16 p
 
 void cFodder::sub_16BC3() {
 	uint16* di = word_3BDAD;	// 20h
-	int16  ax = word_397D2;
+	int16  ax = mMapPlayerTroopCount;
 	int16  count;
 	
 	if( ax > 0 ) {
 		
 		sub_16C45( &di, word_3E115 );
-		count = word_397D2;
+		count = mMapPlayerTroopCount;
 		count -= 2;
 
 		while( count >= 0 ) {
@@ -4331,7 +4333,7 @@ void cFodder::Recruit_Render_LeftMenu( cSurface *pImage ) {
 	DataC = 0x4A + 0x18;
 	sub_145AF( Data0, Data8, DataC );
 	
-	Data14 = word_397D2 + word_397D4;
+	Data14 = mMapPlayerTroopCount + mSquadMemberCount;
 	Data14 /= 0x0C;
 	DataC = 0x58;
 	Data14 += DataC;
@@ -4797,7 +4799,7 @@ void cFodder::sub_1787C() {
 	if (word_390B8)
 		return;
 	
-	word_3B1F1 = word_397D2;
+	word_3B1F1 = mMapPlayerTroopCount;
 	word_3B1EF = 0;
 
 	int16 Data0 = 0xB4;
@@ -11361,7 +11363,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 	return word_3B4F3;
 }
 
-void cFodder::mission_PhaseNext() {
+void cFodder::Mission_PhaseNext() {
 	mMissionPhase += 1;
 	mMissionPhaseRemain -= 1;
 	if (mMissionPhaseRemain)
@@ -12816,7 +12818,7 @@ loc_103BF:;
 		mMissionPhaseRemain = 1;
 		mMissionNumber = 0;
 
-		mission_PhaseNext();
+		Mission_PhaseNext();
 
 		word_3A9AA = -1;
 		word_39096 = -1;
@@ -12837,7 +12839,7 @@ loc_103BF:;
 					WonGame();
 
 				++mMapNumber;
-				mission_PhaseNext();
+				Mission_PhaseNext();
 				word_3901E = 0x3333;
 			}
 
@@ -12863,8 +12865,8 @@ loc_103BF:;
 				map_Load_Spt();
 				word_3ABA7 = -1;
 
-				map_Troops_Prepare();
-				map_Load_Players();
+				Squad_Member_Count();
+				Squad_Member_Sort();
 				sub_1142D();
 				sub_115F7();
 
@@ -12897,8 +12899,8 @@ loc_103BF:;
 			word_3AA4D = readLEWord( &mMap[0x54] ) << 4;
 			word_3AA4F = readLEWord( &mMap[0x56] ) << 4;
 
-			map_Troops_Prepare();
-			map_Load_Players();
+			Squad_Member_Count();
+			Squad_Member_Sort();
 			sub_1142D();
 			sub_115F7();
 			graphicsBlkPtrsPrepare();

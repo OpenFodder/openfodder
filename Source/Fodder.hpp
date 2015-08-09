@@ -212,8 +212,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_397AC;
 	int16			word_397AE;
-	int16			word_397D2;
-	int16			word_397D4;
+	int16			mMapPlayerTroopCount;
+	int16			mSquadMemberCount;
 	int16			mTroopsAvailable;
 	
 	int16			mButtonPressLeft, mButtonPressRight;
@@ -707,8 +707,8 @@ protected:
 	void			sub_10EE3();
 
 	void			map_Load_Spt();
-	void			map_Troops_Prepare();
-	void			map_Load_Players();
+	void			Squad_Member_Count();
+	void			Squad_Member_Sort();
 	void			sub_1142D();
 	void			sub_1152F();
 	void			sub_115F7();
@@ -1078,7 +1078,7 @@ protected:
 	void			intro();
 
 	void			map_ClearSpt();
-	void			mission_PhaseNext();
+	void			Mission_PhaseNext();
 
 	void			sub_12AB1();
 	void			WonGame();
