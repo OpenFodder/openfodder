@@ -230,7 +230,7 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 		pImage->Restore();
 
 		sub_12018();
-		Camera_Pan( pImage );
+		Camera_Pan( );
 
 		pImage->Save();
 
@@ -1783,7 +1783,7 @@ void cFodder::sub_11E6C( cSurface* pImage ) {
 	dword_39F20 = Data0;
 
 	sub_12018();
-	Camera_Pan( pImage );
+	Camera_Pan();
 }
 
 void cFodder::sub_11EC2() {
@@ -1984,8 +1984,8 @@ void cFodder::sub_12245() {
 
 	int16 Data0 = 0;
 
-	dword_39F4A = (dword_39F4A & 0xFFFF) + Data0 << 16;
-	dword_39F4E = (dword_39F4E & 0xFFFF) + Data0 << 16;
+	dword_39F4A = (dword_39F4A & 0xFFFF) + (Data0 << 16);
+	dword_39F4E = (dword_39F4E & 0xFFFF) + (Data0 << 16);
 	dword_39F42 = Data0;
 	dword_39F46 = Data0;
 	dword_3A9FD = 0;
@@ -3683,11 +3683,11 @@ void cFodder::Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 		byte_3A9DA[0] = al;
 	}
 	//loc_14BD4
-	pData8 = dword_39F2C;
+	pData8 = dword_39F2C >> 16;
 	pData8 += 0x88;
 
 	pData8 -= pSprite->field_0;
-	int16 DataC = dword_39F30;
+	int16 DataC = dword_39F30 >> 16;
 	DataC += 0x6C;
 
 	DataC -= pSprite->field_4;
@@ -5482,10 +5482,12 @@ loc_29FC2:;
 void cFodder::tool_RandomSeed() {
 	time_t now = time(0);
 
-	tm *ltm = localtime(&now);
+	tm ltm;
+	
+	localtime_s( &ltm, &now );
 
-	uint16 ax = tool_DecimalToBinaryCodedDecimal( ltm->tm_sec );
-	ax |= tool_DecimalToBinaryCodedDecimal(ltm->tm_min) << 8;
+	uint16 ax = tool_DecimalToBinaryCodedDecimal( ltm.tm_sec );
+	ax |= tool_DecimalToBinaryCodedDecimal(ltm.tm_min) << 8;
 	ax += 0x40B;
 
 	word_44A30 = -ax;
@@ -6378,7 +6380,7 @@ loc_2B403:;
 	pData0 = 0x280;
 }
 
-void cFodder::Camera_Pan( cSurface* pImage ) {
+void cFodder::Camera_Pan() {
 	
 	sub_2CF6D();
 	sub_2CFEA();
@@ -6395,11 +6397,11 @@ void cFodder::Camera_Pan( cSurface* pImage ) {
 	if (cx) {
 		if (cx < 0) {
 			word_3B616 = -cx;
-			Camera_Pan_Left( pImage );
+			Camera_Pan_Left( );
 		}
 		else {
 			word_3B616 = cx;
-			Camera_Pan_Right( pImage );
+			Camera_Pan_Right( );
 		}
 	}
 
@@ -6415,16 +6417,16 @@ void cFodder::Camera_Pan( cSurface* pImage ) {
 
 	if (cx < 0) {
 		word_3B616 = -cx;
-		Camera_Pan_Up( pImage );
+		Camera_Pan_Up( );
 	}
 	else {
 		word_3B616 = cx;
-		Camera_Pan_Down( pImage );
+		Camera_Pan_Down( );
 	}
 
 }
 
-void cFodder::Camera_Pan_Right( cSurface* pImage ) {
+void cFodder::Camera_Pan_Right() {
 
 	for (int16 cx = word_3B616; cx > 0; --cx) {
 
@@ -6448,7 +6450,7 @@ void cFodder::Camera_Pan_Right( cSurface* pImage ) {
 	map_Tiles_Draw_();
 }
 
-void cFodder::Camera_Pan_Left( cSurface* pImage ) {
+void cFodder::Camera_Pan_Left() {
 
 	for (int16 cx = word_3B616; cx > 0; --cx) {
 		
@@ -6473,7 +6475,7 @@ void cFodder::Camera_Pan_Left( cSurface* pImage ) {
 	map_Tiles_Draw_();
 }
 
-void cFodder::Camera_Pan_Down( cSurface* pImage ) {
+void cFodder::Camera_Pan_Down( ) {
 
 	int16 ax = word_3B60E;
 	ax &= 3;
@@ -6499,7 +6501,7 @@ void cFodder::Camera_Pan_Down( cSurface* pImage ) {
 	map_Tiles_Draw_();
 }
 
-void cFodder::Camera_Pan_Up( cSurface* pImage ) {
+void cFodder::Camera_Pan_Up() {
 	int16 word_39707 = 0;
 	int16 word_39709 = 0;
 
@@ -10851,7 +10853,7 @@ loc_20307:;
 	Data0 = word_390AE;
 	Data0 &= 0x1F;
 	Data0 += 0x0C;
-	pSprite->field_44 = Data0;
+	pSprite->field_44 = (int8) Data0;
 	return;
 
 loc_2035C:;
@@ -12400,7 +12402,7 @@ int16 cFodder::sub_21618( sSprite_0* pSprite ) {
 
 	word_3AA45 = 1;
 	sSprite_0* Data24 = 0;
-	if (sub_2D490(pSprite, Data24, Data8, DataC, Data10, Data14 ) >= 0)
+	if (sub_2D490(pSprite, Data24, Data8, DataC, Data10, Data14 ) < 0)
 		return 0;
 
 	if (Data24->field_18 == 5) {
@@ -13049,7 +13051,7 @@ loc_103BF:;
 			Sprite_SetDataPtrToBase( off_32C0C );
 			
 			delete mImage;
-			mImage = new cSurface( 352, 241 );
+			mImage = new cSurface( 352, 300 );
 
 			map_Tiles_Draw();
 			sub_12083();
@@ -13395,9 +13397,7 @@ loc_2F1BC:;
 		if (Data34 == (sSprite_0*)-1 || Data34 == 0)
 			continue;
 
-		Data4 = word_3AC1B;
-
-		if (Data4 != Data34->field_32)
+		if (word_3AC1B != Data34->field_32)
 			continue;
 
 		if (Data34->field_38 >= 0x32)

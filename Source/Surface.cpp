@@ -110,8 +110,6 @@ void cSurface::paletteFadeOut() {
 		mPaletteNew[cx].mRed = 0;
 		mPaletteNew[cx].mGreen = 0;
 	}
-
-	draw();
 }
 
 int16 cSurface::paletteFade() {
@@ -151,16 +149,12 @@ void cSurface::paletteLoadSDL() {
 
 	for( int cx = 0; cx < g_MaxColors; ++cx )
 		paletteSDLColorSet( cx, &mPalette[cx] );
-
-	draw();
 }
 
 void cSurface::paletteLoadNewSDL() {
 
 	for( int cx = 0; cx < g_MaxColors; ++cx )
 		paletteSDLColorSet( cx, &mPaletteNew[cx] );
-
-	draw();
 }
 
 inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
@@ -171,19 +165,6 @@ inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
 	mPaletteSDL[id] = SDL_MapRGB (	mSDLSurface->format , pPalette->mRed << 2, pPalette->mGreen << 2, pPalette->mBlue << 2) ;
 }
 
-uint32 *cSurface::pixelGet( uint16 x,	uint16 y ) {
-	register uint32 *position = (uint32*) mSDLSurface->pixels ;
-		
-	// Offset by Y
-	position +=  (y * (mSDLSurface->pitch / 4) );		// 4 Bytes per Pixel
-
-	// Offset by X
-	position +=  x;
-
-	return position;
-}
-
-
 void cSurface::draw( size_t pX, size_t pY ) {
 
 	wipe();
@@ -191,7 +172,7 @@ void cSurface::draw( size_t pX, size_t pY ) {
 	uint8 *bufferCurrent = mSurfaceBuffer;
 	uint8 *bufferCurrentMax = (mSurfaceBuffer + mSurfaceBufferSize);
 
-	uint32 *bufferTarget = (uint32*) pixelGet( pX, pY );
+	uint32 *bufferTarget = (uint32*)mSDLSurface->pixels;
 	uint32 *bufferTargetMax = (uint32*) (((uint8*) mSDLSurface->pixels) + (mSDLSurface->h * mSDLSurface->pitch));
 
 	while( bufferTarget < bufferTargetMax ) {
