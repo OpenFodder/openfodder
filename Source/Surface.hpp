@@ -90,8 +90,6 @@ public:
 	int16			 paletteFade();
 	void			 paletteFadeOut();
 
-	uint32			*pixelGet( uint16 pX = 0,	uint16 pY = 0 );
-
 	void			 wipe( uint32 pColor = 0 );						// Clear the surface
 	void			 wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor = 0);
 

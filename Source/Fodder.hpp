@@ -78,9 +78,9 @@ struct sRecruit {
 };
 
 struct sHero {
-	int8	mRecruitID;	//field_0
-	int16	field_1;	//field_2
-	int16	mKills;		//field_3
+	int8	mRecruitID;
+	int16	field_1;
+	int16	mKills;	
 };
 
 struct struct_2 {
@@ -964,12 +964,12 @@ protected:
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 	void			sub_2B378( int16& Data0, int16& Data4, int16& Data8, int16& DataC );
 
-	void			Camera_Pan( cSurface* pImage );
+	void			Camera_Pan();
 
-	void			Camera_Pan_Right( cSurface* pImage );
-	void			Camera_Pan_Left( cSurface* pImage );
-	void			Camera_Pan_Down( cSurface* pImage );
-	void			Camera_Pan_Up( cSurface* pImage );
+	void			Camera_Pan_Right();
+	void			Camera_Pan_Left();
+	void			Camera_Pan_Down();
+	void			Camera_Pan_Up();
 	void			sub_2CF6D();
 	void			sub_2CFEA();
 
