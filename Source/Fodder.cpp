@@ -119,7 +119,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3B44F = 0;
 	word_3B4F5 = 0;
 	word_3E1B7 = 0;
-	word_3B616 = 0;
+	mCamera_Pan_RowCount = 0;
 
 	mMouseSpriteCurrent = 0;
 	word_40048 = 0;
@@ -649,8 +649,8 @@ void cFodder::sub_10D61() {
 	word_39FA2 = 0;
 	word_39FA4 = 0;
 	word_39FA6 = 0;
-	word_39FA8 = 0;
-	word_39FAA = 0;
+	mCamera_Column = 0;
+	mCamera_Row = 0;
 	word_39FAC = 0;
 
 	word_39FCE = 0;
@@ -1535,7 +1535,7 @@ void cFodder::sub_11B06() {
 	//loc_11B9C
 	Data0 = word_3AA4D;
 	Data0 -= 0x110;
-	Data0 = Data0 << 16 | Data0 >> 16;
+	Data0 = (Data0 << 16) | (Data0 >> 16);
 
 	int32 Data4 = dword_39F2C;
 	Data4 += dword_39F42;
@@ -1547,7 +1547,7 @@ void cFodder::sub_11B06() {
 	//loc_11BE8
 	Data0 = word_3AA4F;
 	Data0 -= 0xC8;
-	Data0 = Data0 << 16 | Data0 >> 16;
+	Data0 = (Data0 << 16) | (Data0 >> 16);
 
 	Data4 = dword_39F30;
 	Data4 += dword_39F46;
@@ -1757,7 +1757,6 @@ void cFodder::map_Load_TileSet() {
 void cFodder::sub_11E60() {
 	int16 ax = mMap_TileSet + 0x32;
 
-	//TODO:
 	Music_Unk(0x32);
 }
 
@@ -1829,18 +1828,18 @@ void cFodder::sub_11EC2() {
 		--word_3AA1F;
 	} 
 	else if (Data8 > Data0) {
-		dword_39F42 = dword_39F42 & 0xFFFF | -8 << 16;
+		dword_39F42 = (dword_39F42 & 0xFFFF) | -8 << 16;
 	} else 
-		dword_39F42 = dword_39F42 & 0xFFFF | 8 << 16;
+		dword_39F42 = (dword_39F42 & 0xFFFF) | 8 << 16;
 
 	//loc_11FAC
 	if (DataC == Data4) {
 		--word_3AA1F;
 	} 
 	else if (DataC > Data4) {
-		dword_39F46 = dword_39F46 & 0xFFFF | -8 << 16;
+		dword_39F46 = (dword_39F46 & 0xFFFF) | -8 << 16;
 	} else 
-		dword_39F46 = dword_39F46 & 0xFFFF | 8 << 16;
+		dword_39F46 = (dword_39F46 & 0xFFFF) | 8 << 16;
 }
 
 void cFodder::sub_11FCD() {
@@ -1968,7 +1967,7 @@ void cFodder::sub_121B6( int32* pData20 ) {
 	Data0 += dword_39F56;
 
 	dword_39F28 += Data0;
-	dword_39F28 &= (0xFF << 16) | 0xFFFF;
+	dword_39F28 &= (0x00FF << 16) | 0xFFFF;
 
 	Data0 = dword_39F28 >> 16;
 	Data0 *= 0x28;
@@ -2049,7 +2048,7 @@ void cFodder::Mission_Sprites_Handle( cSurface* pImage ) {
 	sub_18D5E();
 	Sprite_Handle_Loop();
 
-	sub_12419();
+	Sprite_Sort_DrawList();
 
 	int16 Data0 = dword_39F2C >> 16;
 	Data0 -= dword_39F84 >> 16;
@@ -2071,7 +2070,7 @@ void cFodder::Mission_Sprites_Handle( cSurface* pImage ) {
 	Mission_Sprite_Draw( pImage );
 }
 
-void cFodder::sub_12419() {
+void cFodder::Sprite_Sort_DrawList() {
 	sSprite_0* si = mSprites;
 	sSprite_0** di = dword_3A071;
 	sSprite_0** bx = dword_3A125;
@@ -3140,8 +3139,8 @@ void cFodder::sub_13CF0( cSurface* pImage, sSprite_0* pDi, int16 pData0, int16 p
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount - pDi->field_52;
 
-	mDrawSpritePositionX = (mSpriteDataPtr[pData0][pData4].field_E + pDi->field_0) - word_39FA8 + 0x40;
-	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].field_F + pDi->field_4) - word_4206E - pDi->field_20 - word_39FAA;
+	mDrawSpritePositionX = (mSpriteDataPtr[pData0][pData4].field_E + pDi->field_0) - mCamera_Column + 0x40;
+	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].field_F + pDi->field_4) - word_4206E - pDi->field_20 - mCamera_Row;
 	mDrawSpritePositionY += 0x10;
 
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
@@ -6385,9 +6384,9 @@ void cFodder::Camera_Pan() {
 	sub_2CF6D();
 	sub_2CFEA();
 
-	int16 bx = word_3D473;
-	int16 cx = word_39FA8;
-	word_3D473 = cx;
+	int16 bx = mCamera_Column_Previous;
+	int16 cx = mCamera_Column;
+	mCamera_Column_Previous = cx;
 
 	cx -= bx;
 
@@ -6396,18 +6395,18 @@ void cFodder::Camera_Pan() {
 
 	if (cx) {
 		if (cx < 0) {
-			word_3B616 = -cx;
+			mCamera_Pan_RowCount = -cx;
 			Camera_Pan_Left( );
 		}
 		else {
-			word_3B616 = cx;
+			mCamera_Pan_RowCount = cx;
 			Camera_Pan_Right( );
 		}
 	}
 
-	bx = word_3D475;
-	cx = word_39FAA;
-	word_3D475 = cx;
+	bx = mCamera_Row_Previous;
+	cx = mCamera_Row;
+	mCamera_Row_Previous = cx;
 	cx -= bx;
 	mouseData1->anonymous_1 -= cx;
 	mouseData0->anonymous_1 -= cx;
@@ -6416,11 +6415,11 @@ void cFodder::Camera_Pan() {
 		return;
 
 	if (cx < 0) {
-		word_3B616 = -cx;
+		mCamera_Pan_RowCount = -cx;
 		Camera_Pan_Up( );
 	}
 	else {
-		word_3B616 = cx;
+		mCamera_Pan_RowCount = cx;
 		Camera_Pan_Down( );
 	}
 
@@ -6428,7 +6427,7 @@ void cFodder::Camera_Pan() {
 
 void cFodder::Camera_Pan_Right() {
 
-	for (int16 cx = word_3B616; cx > 0; --cx) {
+	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
 		++word_3B60E;
 		word_3B60E &= 0x0F;
@@ -6452,7 +6451,7 @@ void cFodder::Camera_Pan_Right() {
 
 void cFodder::Camera_Pan_Left() {
 
-	for (int16 cx = word_3B616; cx > 0; --cx) {
+	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 		
 		--word_3B60E;
 		word_3B60E &= 0x0F;
@@ -6483,7 +6482,7 @@ void cFodder::Camera_Pan_Down( ) {
 	int16 word_39707 = 0;
 	int16 word_39709 = 0;
 
-	for (int16 cx = word_3B616; cx > 0; --cx) {
+	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
 		++word_3B610;
 		word_3B610 &= 0x0F;
@@ -6505,7 +6504,7 @@ void cFodder::Camera_Pan_Up() {
 	int16 word_39707 = 0;
 	int16 word_39709 = 0;
 
-	for (int16 cx = word_3B616; cx > 0; --cx) {
+	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
 		--word_3B610;
 		word_3B610 &= 0x0F;
@@ -6538,7 +6537,7 @@ void cFodder::sub_2CF6D() {
 
 loc_2CF93:;
 	word_39FBC = 0;
-	word_39FAA = dword_39F88 >> 16;
+	mCamera_Row = dword_39F88 >> 16;
 	word_39FAE = dword_39F90 >> 16;
 	word_39FA6 = 0xF0;
 
@@ -6570,7 +6569,7 @@ void cFodder::sub_2CFEA() {
 
 loc_2D010:;
 	word_39FBA = 0;
-	word_39FA8 = dword_39F84 >> 16;
+	mCamera_Column = dword_39F84 >> 16;
 	word_39FAC = dword_39F8C >> 16;
 	word_39FA4 = 0x130;
 
@@ -8051,7 +8050,7 @@ void cFodder::Service_Promotion_SetNewRanks() {
 		if (ax < 0)
 			return;
 
-		Data20->mRank = ax;
+		Data20->mRank = (int8) ax;
 	}
 }
 
@@ -13168,8 +13167,8 @@ void cFodder::map_Tiles_Draw() {
 	mMapTilePtr = (0x60 - 8) - (readLEWord( &mMap[0x54] ) << 1);
 	word_3B612 = 0;
 	word_3B614 = 0;
-	word_3D473 = 0;
-	word_3D475 = 0;
+	mCamera_Column_Previous = 0;
+	mCamera_Row_Previous = 0;
 
 	map_Tiles_Draw_();
 }
