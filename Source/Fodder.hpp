@@ -226,8 +226,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FA2;
 	int16			word_39FA4;
 	int16			word_39FA6;
-	int16			word_39FA8;
-	int16			word_39FAA;
+	int16			mCamera_Column;
+	int16			mCamera_Row;
 	int16			word_39FAC;
 
 	int16			word_39FAE;
@@ -510,7 +510,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B610;
 	int16			word_3B612;
 	int16			word_3B614;
-	int16			word_3B616;
+	int16			mCamera_Pan_RowCount;	// Number of rows to move the camera
 
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
@@ -558,8 +558,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D465;
 	int16			word_3D467;
 	int16			word_3D469;
-	int16			word_3D473;
-	int16			word_3D475;
+	int16			mCamera_Column_Previous;
+	int16			mCamera_Row_Previous;
 	uint16*			word_3D5B7;
 
 	uint16			byte_3DDA2[0x30];
@@ -735,7 +735,7 @@ protected:
 	void			sub_1229C();
 	void			sub_122BD();
 	void			Mission_Sprites_Handle( cSurface* pImage );
-	void			sub_12419();
+	void			Sprite_Sort_DrawList();
 	void			sub_124DB();
 	void			Mission_Goals_Check();
 	void			sub_126BB();
