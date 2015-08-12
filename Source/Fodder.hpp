@@ -243,7 +243,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F20;
 	int32			dword_39F24;
 	int32			dword_39F28;
-	int32			dword_39F2C;
+	int32			mCamera_Adjust_Col;
 	int32			mCamera_Adjust_Row;
 	int32			dword_39F36;
 	int16			word_39F3A;
