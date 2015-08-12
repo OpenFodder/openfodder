@@ -970,8 +970,8 @@ protected:
 	void			Camera_Pan_Left();
 	void			Camera_Pan_Down();
 	void			Camera_Pan_Up();
-	void			sub_2CF6D();
-	void			sub_2CFEA();
+	void			Camera_Update_Row();
+	void			Camera_Update_Column();
 
 	void			sub_2D06C();
 	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );

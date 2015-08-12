@@ -1942,12 +1942,12 @@ void cFodder::sub_120F6() {
 		}
 	}
 	//loc_1219F
-	sub_121B6( Data20 );
+	Camera_Adjust_Row( Data20 );
 	dword_39F42 = 0;
 	dword_39F46 = 0;
 }
 
-void cFodder::sub_121B6( int32* pData20 ) {
+void cFodder::Camera_Adjust_Row( int32* pData20 ) {
 
 	dword_39F5A = dword_39F30;
 
@@ -6381,8 +6381,8 @@ loc_2B403:;
 
 void cFodder::Camera_Pan() {
 	
-	sub_2CF6D();
-	sub_2CFEA();
+	Camera_Update_Row();
+	Camera_Update_Column();
 
 	int16 bx = mCamera_Column_Previous;
 	int16 cx = mCamera_Column;
@@ -6524,7 +6524,7 @@ void cFodder::Camera_Pan_Up() {
 	map_Tiles_Draw_();
 }
 
-void cFodder::sub_2CF6D() {
+void cFodder::Camera_Update_Row() {
 	int16 Data0 = word_39FB4;
 
 	if (Data0 < 0)
@@ -6556,7 +6556,7 @@ loc_2CFBE:;
 		goto loc_2CF93;
 }
 
-void cFodder::sub_2CFEA() {
+void cFodder::Camera_Update_Column() {
 	int16 Data0 = word_39FB2;
 
 	if (Data0 < 0)
