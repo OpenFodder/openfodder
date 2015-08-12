@@ -35,10 +35,6 @@ const char* mBinTable[] = { "rjnull.bin",
 							"player.bin", 
 							"player.bin" };
 
-const uint16 mMissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
-										02, 05, 03, 06, 01, 03, 03, 02,
-										01, 05, 01, 04, 01, 04, 05, 06 };
-
 std::string mMapTypes[] = {
 	"jun",
 	"des",
@@ -297,9 +293,9 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 		}
 
 		//sub_14445();
-		if (word_3B4DB) {
+		if (mMission_ShowMapOverview) {
 			//sub_12D00();
-			word_3B4DB = 0;
+			mMission_ShowMapOverview = 0;
 		}
 
 		if (word_3A3B9) {
@@ -892,7 +888,7 @@ void cFodder::sub_10D61() {
 	word_3B4D5 = 0;
 	word_3B4D7 = 0;
 	word_3B4D9 = 0;
-	word_3B4DB = 0;
+	mMission_ShowMapOverview = 0;
 	word_3B4DD = 0;
 	word_3B4EB = 0;
 	word_3B4F1 = 0;
@@ -1369,7 +1365,7 @@ void cFodder::sub_11885() {
 		Data4 = word_39F3A;
 
 		if (Data4 <= (dword_39F36 >> 16)) {
-			dword_39F36 = Data4 << 16 | dword_39F36 & 0xFFFF;
+			dword_39F36 = (Data4 << 16) | (dword_39F36 & 0xFFFF);
 		}
 		else {
 			dword_39F36 += 0x8000;
@@ -2067,7 +2063,7 @@ void cFodder::Mission_Sprites_Handle( cSurface* pImage ) {
 	word_39FB4 = word_39FB8;
 
 	sub_2DE2C( pImage );
-	Mission_Sprite_Draw( pImage );
+	Sprite_Draw( pImage );
 }
 
 void cFodder::Sprite_Sort_DrawList() {
@@ -2749,7 +2745,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 
 	if (pKeyCode == SDL_SCANCODE_M) {
 		if (word_3B4F1 == 0)
-			word_3B4DB = -1;
+			mMission_ShowMapOverview = -1;
 	}
 
 	if (pKeyCode == SDL_SCANCODE_1)
@@ -3391,7 +3387,7 @@ bool cFodder::Sprite_OnScreen_Check() {
 	return true;
 }
 
-void cFodder::Mission_Sprite_Draw( cSurface* pImage ) {
+void cFodder::Sprite_Draw( cSurface* pImage ) {
 	sSprite_0** si = dword_3A291;
 	word_42072 = 2;
 
@@ -5191,7 +5187,7 @@ void cFodder::sub_302C9() {
 	if (sub_30E0B() < 0)
 		return;
 
-	word_3B4DB = -1;
+	mMission_ShowMapOverview = -1;
 }
 
 void cFodder::sub_3037A( cSurface* pImage ) {
@@ -8328,6 +8324,14 @@ void cFodder::Sprite_Handle_Loop() {
 			Sprite_Handle_Text_Mission( Data20 );
 			break;
 
+		case 58:
+			sub_1C4E7( Data20 );
+			break;
+
+		case 59:
+			sub_1C52D( Data20 );
+			break;
+
 		case 66:
 			Sprite_Handle_Bird( Data20 );
 			break;
@@ -9104,6 +9108,34 @@ void cFodder::Sprite_Handle_Text_Mission( sSprite_0* pSprite ) {
 
 	int16 Data0 = dword_39F88 >> 16;
 	Data0 += 0x63;
+
+	if (Data0 < pSprite->field_4)
+		return;
+
+	pSprite->field_4 = Data0;
+}
+
+void cFodder::sub_1C4E7( sSprite_0* pSprite ) {
+	pSprite->field_0 = dword_39F84 >> 16;
+	pSprite->field_0 += 0x71;
+	pSprite->field_4 -= 0x20;
+
+	int16 Data0 = dword_39F88 >> 16;
+	Data0 += 0x63;
+
+	if (Data0 < pSprite->field_4)
+		return;
+
+	pSprite->field_4 = Data0;
+}
+
+void cFodder::sub_1C52D( sSprite_0* pSprite ) {
+	pSprite->field_0 = dword_39F84 >> 16;
+	pSprite->field_0 += 0x57;
+	pSprite->field_4 -= 0x20;
+
+	int16 Data0 = dword_39F88 >> 16;
+	Data0 += 0x75;
 
 	if (Data0 < pSprite->field_4)
 		return;
@@ -12401,7 +12433,7 @@ int16 cFodder::sub_21618( sSprite_0* pSprite ) {
 
 	word_3AA45 = 1;
 	sSprite_0* Data24 = 0;
-	if (sub_2D490(pSprite, Data24, Data8, DataC, Data10, Data14 ) < 0)
+	if (sub_2D490(pSprite, Data24, Data8, DataC, Data10, Data14 ) >= 0)
 		return 0;
 
 	if (Data24->field_18 == 5) {
@@ -13107,7 +13139,7 @@ loc_103BF:;
 			mMouseSpriteNew = 0x23;
 			word_3B20F = -1;
 			word_3B4F1 = 0;
-			word_3B4DB = 0;
+			mMission_ShowMapOverview = 0;
 			word_3EABD = 0x40BC;
 			
 			if (!Mission_Loop( mImage )) {
