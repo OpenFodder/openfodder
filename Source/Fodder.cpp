@@ -9918,7 +9918,7 @@ loc_1F0EA:;
 	//loc_1F13E
 	sSprite_0** Dataa24 = off_3BDEF[word_39FD0];
 	sSprite_0* eax = Dataa24[0];
-	if (eax < 0)
+	if (eax == (sSprite_0*) -1 || eax == 0 )
 		goto loc_1F218;
 
 	// TODO: Correct?
@@ -9934,7 +9934,7 @@ loc_1F19A:;
 	Data0 &= 0xFFFF;
 	Data0 *= 0x0C;
 
-	if (Data0 >= 8)
+	if (Data0 >= 0x60)
 		Data0 = 0;
 loc_1F1DD:;
 	DataFinal = (uint8*) (DataFinal + Data0);
