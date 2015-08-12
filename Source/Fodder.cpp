@@ -418,7 +418,7 @@ void cFodder::sub_1096B() {
 	}
 
 	if( mMouseX > 0x0F )
-		goto loc_10A43;
+		goto Mouse_In_Playfield;
 	
 	int16 Data0;
 	int16 Data4;
@@ -442,7 +442,7 @@ void cFodder::sub_1096B() {
 		Data0 += 0x80;
 		
 		word_3A063 = Data0;
-		Data4 = dword_39F30 >> 16;
+		Data4 = mCamera_Adjust_Row >> 16;
 		Data4 += 0x6C;
 		word_3A065 = Data4;
 		
@@ -451,14 +451,14 @@ void cFodder::sub_1096B() {
 	word_3A054 = 0;
 	return;
 	
-loc_10A43:;
+Mouse_In_Playfield:;
 	word_39F40 = 0;
 	word_39F3C = Data8;
 	word_39F3E = DataC;
 	Data0 = mMouseX;
 	Data0 += dword_39F2C >> 16;
 	Data4 = mMouseY;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 
 	int16 Data0_Saved = Data0;
 	int16 Data4_Saved = Data4;
@@ -616,7 +616,7 @@ void cFodder::sub_10D61() {
 	word_39F04 = 0;
 	word_39F06 = 0;
 
-	dword_39F30 = 0;
+	mCamera_Adjust_Row = 0;
 	dword_39F36 = 0;
 	word_39F3A = 0;
 	word_39F3C = 0;
@@ -1357,7 +1357,7 @@ void cFodder::sub_11885() {
 	
 	//loc_118B0
 	int16 Data8 = dword_39F2C >> 16;
-	int16 DataC = dword_39F30 >> 16;
+	int16 DataC = mCamera_Adjust_Row >> 16;
 
 	int16 Data0_Saved = Data0;
 	int16 Data4_Saved = Data4;
@@ -1377,7 +1377,7 @@ void cFodder::sub_11885() {
 	}
 	else {
 		//loc_118FC
-		dword_39F36 = 0;
+		dword_39F36 = Data0 << 16;
 	}
 
 	DataC = DataC_Saved;
@@ -1549,11 +1549,11 @@ void cFodder::sub_11B06() {
 	Data0 -= 0xC8;
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
-	Data4 = dword_39F30;
+	Data4 = mCamera_Adjust_Row;
 	Data4 += dword_39F46;
 
 	if (Data4 > Data0) {
-		Data0 -= dword_39F30;
+		Data0 -= mCamera_Adjust_Row;
 		dword_39F46 = Data0;
 	}
 
@@ -1587,7 +1587,7 @@ void cFodder::sub_11B06() {
 void cFodder::sub_11CAD() {
 
 	word_39F5E = dword_39F2C >> 16;
-	word_39F60 = dword_39F30 >> 16;
+	word_39F60 = mCamera_Adjust_Row >> 16;
 	word_39F52 = 0;
 	word_39F54 = 0;
 	dword_39F4A &= 0x0000FFFF;
@@ -1596,7 +1596,7 @@ void cFodder::sub_11CAD() {
 
 void cFodder::sub_11CD6( cSurface* pImage ) {
 	int16 Data0 = dword_39F2C >> 16;
-	int16 Data4 = dword_39F30 >> 16;
+	int16 Data4 = mCamera_Adjust_Row >> 16;
 
 	int16 Data8 = word_3A067;
 	Data8 -= 0x88;
@@ -1821,7 +1821,7 @@ void cFodder::sub_11EC2() {
 
 	Data8 = dword_39F2C >> 16;
 	Data8 >>= 4;
-	int16 DataC = dword_39F30 >> 16;
+	int16 DataC = mCamera_Adjust_Row >> 16;
 	DataC >>= 4;
 
 	if (Data8 == Data0) {
@@ -1851,7 +1851,7 @@ void cFodder::sub_11FCD() {
 			Data0 -= word_39F5E;
 
 			mMouseX -= Data0;
-			Data0 = dword_39F30 >> 16;
+			Data0 = mCamera_Adjust_Row >> 16;
 			Data0 -= word_39F60;
 			mMouseY -= Data0;
 
@@ -1859,7 +1859,7 @@ void cFodder::sub_11FCD() {
 	}
 	//loc_12007
 	word_39F5E = dword_39F2C >> 16;
-	word_39F60 = dword_39F30 >> 16;
+	word_39F60 = mCamera_Adjust_Row >> 16;
 }
 
 void cFodder::sub_12018() {
@@ -1868,7 +1868,7 @@ void cFodder::sub_12018() {
 
 	word_39F9C = Data0;
 
-	Data0 = dword_39F30 >> 16;
+	Data0 = mCamera_Adjust_Row >> 16;
 	Data0 -= dword_39F88 >> 16;
 
 	word_39F9E = Data0;
@@ -1876,7 +1876,7 @@ void cFodder::sub_12018() {
 	dword_39F8C = dword_39F24;
 	dword_39F90 = dword_39F28;
 	dword_39F84 = dword_39F2C;
-	dword_39F88 = dword_39F30;
+	dword_39F88 = mCamera_Adjust_Row;
 	word_39FB2 = word_39FB6;
 	word_39FB4 = word_39FB8;
 
@@ -1889,7 +1889,7 @@ void cFodder::sub_12083() {
 	dword_39F24 = 0;
 	dword_39F28 = 0;
 	dword_39F2C = 0;
-	dword_39F30 = 0;
+	mCamera_Adjust_Row = 0;
 	word_39F34 = 0;
 	dword_39F36 &= 0x0000FFFF;
 	dword_39F4A &= 0x0000FFFF;
@@ -1949,18 +1949,18 @@ void cFodder::sub_120F6() {
 
 void cFodder::Camera_Adjust_Row( int32* pData20 ) {
 
-	dword_39F5A = dword_39F30;
+	dword_39F5A = mCamera_Adjust_Row;
 
 	int32 Data0 = dword_39F46;
-	dword_39F30 += Data0;
+	mCamera_Adjust_Row += Data0;
 
-	if (dword_39F30 < 0) {
+	if (mCamera_Adjust_Row < 0) {
 		dword_39F46 = dword_39F5A;
 
 		if (dword_39F46)
 			dword_39F46 = -dword_39F46;
 
-		dword_39F30 = 0;
+		mCamera_Adjust_Row = 0;
 	}
 	//loc_121F2
 	Data0 = dword_39F46;
@@ -2010,7 +2010,7 @@ void cFodder::sub_122BD() {
 	int16 Data8 = Data20->field_4 + 0x10;
 
 	Data4 -= dword_39F2C >> 16;
-	Data8 -= dword_39F30 >> 16;
+	Data8 -= mCamera_Adjust_Row >> 16;
 
 	if (word_39F52 && Data4 > 0x90 && Data4 < 0xCF) {
 		word_39F52 = 0;
@@ -2055,12 +2055,12 @@ void cFodder::Mission_Sprites_Handle( cSurface* pImage ) {
 
 	word_39F9C = Data0;
 
-	Data0 = dword_39F30 >> 16;
+	Data0 = mCamera_Adjust_Row >> 16;
 	Data0 -= dword_39F88 >> 16;
 
 	word_39F9E = Data0;
 	dword_39F84 = dword_39F2C;
-	dword_39F88 = dword_39F30;
+	dword_39F88 = mCamera_Adjust_Row;
 	dword_39F8C = dword_39F24;
 	dword_39F90 = dword_39F28;
 	word_39FB2 = word_39FB6;
@@ -3686,7 +3686,7 @@ void cFodder::Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	pData8 += 0x88;
 
 	pData8 -= pSprite->field_0;
-	int16 DataC = dword_39F30 >> 16;
+	int16 DataC = mCamera_Adjust_Row >> 16;
 	DataC += 0x6C;
 
 	DataC -= pSprite->field_4;
@@ -5261,7 +5261,7 @@ void cFodder::sub_30AB0() {
 	int16 Data4 = mMouseY;
 
 	Data0 += dword_39F2C >> 16;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 
 	Data0 -= 0x0F;
 	Data4 -= 3;
@@ -10208,7 +10208,7 @@ void cFodder::sub_1F5CA( sSprite_0* pSprite ) {
 
 	Data0 -= 0x18;
 	int16 Data4 = mMouseY;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 
 	sub_2A1F0( pSprite, Data0, Data4 );
 	sub_20E5C( pSprite );
@@ -11011,7 +11011,7 @@ void cFodder::sub_310CB() {
 	int16 Data0 = mMouseX;
 	int16 Data4 = mMouseY;
 	Data0 += dword_39F2C >> 16;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 	Data0 -= 0x1C;
 	if (Data0 < 0)
 		Data0 = 0;
@@ -11058,7 +11058,7 @@ void cFodder::sub_311A7() {
 	int16 Data4 = mMouseY;
 
 	Data0 += dword_39F2C >> 16;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 
 	Data0 -= 0x0F;
 	Data4 -= 3;
@@ -11129,7 +11129,7 @@ int16 cFodder::sub_313CD() {
 	int16 Data4 = mMouseY;
 
 	Data0 += dword_39F2C >> 16;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 
 	Data0 -= 0x0F;
 	Data4 -= 3;
@@ -11255,7 +11255,7 @@ void cFodder::sub_3169B() {
 	int16 Data8 = mMouseX;
 	int16 DataC = mMouseY;
 	Data8 += dword_39F2C >> 16;
-	DataC += dword_39F30 >> 16;
+	DataC += mCamera_Adjust_Row >> 16;
 	Data8 -= 0x10;
 
 	if (!Data8)
@@ -12843,7 +12843,7 @@ int16 cFodder::sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 ) {
 	int16 DataC = mMouseY;
 
 	Data8 += dword_39F2C >> 16;
-	DataC += dword_39F30 >> 16;
+	DataC += mCamera_Adjust_Row >> 16;
 
 	Data8 -= 0x10;
 	if (!Data8)
@@ -14180,7 +14180,7 @@ void cFodder::sub_30E49() {
 	int16 Data4 = mMouseY;
 
 	Data0 += dword_39F2C >> 16;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 	Data0 -= 0x0F;
 	Data4 -= 3;
 
@@ -14520,7 +14520,7 @@ loc_308F6:;
 	Data0 = mMouseX;
 	Data4 = mMouseY;
 	Data0 += dword_39F2C >> 16;
-	Data4 += dword_39F30 >> 16;
+	Data4 += mCamera_Adjust_Row >> 16;
 
 	Data0 += -22;
 	if (Data0 < 0)
@@ -14594,7 +14594,7 @@ void cFodder::sub_30CDC() {
 	int16 Data8 = mMouseX;
 	int16 DataC = mMouseY;
 	Data8 += dword_39F2C >> 16;
-	DataC += dword_39F30 >> 16;
+	DataC += mCamera_Adjust_Row >> 16;
 
 	Data8 -= 0x10;
 	if (!Data8)
