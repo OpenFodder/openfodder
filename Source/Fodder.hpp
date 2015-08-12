@@ -250,8 +250,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39F3C;
 	int16			word_39F3E;
 
-	int32			dword_39F84;
-	int32			dword_39F88;
+	int32			dword_39F84;		// X : Unknown
+	int32			dword_39F88;		// Y 
 	int32			dword_39F8C;
 	int32			dword_39F90;
 
@@ -498,7 +498,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4D5;
 	int16			word_3B4D7;
 	int16			word_3B4D9;
-	int16			word_3B4DB;
+	int16			mMission_ShowMapOverview;
 	int16			word_3B4DD;
 	int16			word_3B4EB;
 	int16			word_3B4F1;
@@ -776,7 +776,7 @@ protected:
 	void			video_Draw_Sprite_( cSurface* pImage );
 	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
 	bool			Sprite_OnScreen_Check();
-	void			Mission_Sprite_Draw( cSurface* pImage );
+	void			Sprite_Draw( cSurface* pImage );
 	void			sub_144A2( cSurface* pImage );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	void			Sound_Voc_Load();
@@ -882,6 +882,8 @@ protected:
 	void			sub_1B07C( sSprite_0* pSprite );						// 23
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );		// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
+	void			sub_1C4E7( sSprite_0* pSprite );						// 58
+	void			sub_1C52D( sSprite_0* pSprite );						// 59
 	void			Sprite_Handle_Bird( sSprite_0* pSprite );				// 66
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
