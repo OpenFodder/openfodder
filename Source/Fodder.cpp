@@ -8287,6 +8287,9 @@ void cFodder::Sprite_Handle_Loop() {
 		case 0:
 			Sprite_Handle_Player( Data20 );
 			break;
+		
+		case 4:	// nullsub_3
+			break;
 
 		case 5:
 			Sprite_Handle_Enemy( Data20 );
@@ -8333,7 +8336,11 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 66:
-			Sprite_Handle_Bird( Data20 );
+			Sprite_Handle_Bird_Left( Data20 );
+			break;
+
+		case 67:
+			Sprite_Handle_Bird_Right( Data20 );
 			break;
 
 		default:
@@ -9143,7 +9150,7 @@ void cFodder::sub_1C52D( sSprite_0* pSprite ) {
 	pSprite->field_4 = Data0;
 }
 
-void cFodder::Sprite_Handle_Bird( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Bird_Left( sSprite_0* pSprite ) {
 	
 	pSprite->field_8 = 0xD3;
 	pSprite->field_2C = 1;
@@ -9224,6 +9231,77 @@ loc_1C8C5:;
 	if (mMap_TileSet == 2)
 		sub_14D6D(pSprite, 0x1F);
 
+}
+
+void cFodder::Sprite_Handle_Bird_Right( sSprite_0* pSprite ) {
+	pSprite->field_8 = 0xD4;
+	pSprite->field_2C = 1;
+
+	if (!pSprite->field_12) {
+		pSprite->field_57 = 8;
+		pSprite->field_12 = 1;
+
+		int16 Data0 = tool_RandomGet();
+		int16 Data4 = Data0;
+		Data0 &= 3;
+		Data0 += 1;
+
+		pSprite->field_A = Data0;
+		if (Data4 < 0)
+			pSprite->field_12 = -1;
+	}
+
+	//loc_1C950
+	int16 Data0 = pSprite->field_12;
+	pSprite->field_A += Data0;
+	if (!pSprite->field_A || pSprite->field_A >= 5) {
+		Data0 = -Data0;
+		pSprite->field_12 = Data0;
+	}
+
+	bool cf = false;
+
+	if (pSprite->field_2 < 0 && pSprite->field_2 + 32768 > 0)
+		cf = true;
+
+	pSprite->field_2 += 32768;
+	pSprite->field_0 += 1 + (cf == true ? 1 : 0);
+
+	if (Data0 < 0) {
+		if (pSprite->field_2 < 0 && pSprite->field_2 + 32768 > 0)
+			cf = true;
+		else
+			cf = false;
+
+		pSprite->field_2 += 32768;
+		pSprite->field_0 += 0 + (cf == true ? 1 : 0);
+	}
+
+	//loc_1C9B0
+	if (pSprite->field_5C)
+		goto loc_1CA20;
+
+	if (pSprite->field_57) {
+		pSprite->field_57 -= 1;
+		goto loc_1CA20;
+	}
+	//loc_1C9D3
+	pSprite->field_57 = 0x3F;
+	Data0 = tool_RandomGet() & 0x3F;
+	Data0 = -Data0;
+	Data0 += dword_39F84 >> 16;
+
+	pSprite->field_0 = Data0;
+	Data0 = tool_RandomGet() & 0xFF;
+	Data0 += dword_39F88 >> 16;
+	pSprite->field_4 = Data0;
+
+loc_1CA20:;
+	if (mMap_TileSet == 0)
+		sub_14D6D(pSprite, 0x1A);
+
+	if (mMap_TileSet == 2)
+		sub_14D6D(pSprite, 0x1F);
 }
 
 void cFodder::sub_14D6D( sSprite_0* pSprite, int16 pData4 ) {
@@ -9728,7 +9806,7 @@ loc_1EB87:;
 	sub_1FFC6( pSprite );
 	pSprite->field_52 = Field_52;
 
-	if (!pSprite->field_4F || pSprite->field_50) {
+	if (pSprite->field_4F || pSprite->field_50) {
 		if (pSprite->field_52 >= 0x0D)
 			pSprite->field_52 = 0x0B;
 		pSprite->field_52 += 2;
