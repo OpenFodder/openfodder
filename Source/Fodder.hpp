@@ -884,7 +884,9 @@ protected:
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
 	void			sub_1C4E7( sSprite_0* pSprite );						// 58
 	void			sub_1C52D( sSprite_0* pSprite );						// 59
-	void			Sprite_Handle_Bird( sSprite_0* pSprite );				// 66
+	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );			// 66
+	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );			// 67
+
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
 	int16			sub_1EF47( sSprite_0* pSprite );
