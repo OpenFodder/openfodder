@@ -13846,7 +13846,7 @@ int16 cFodder::sub_2F90B() {
 
 	int16 Data10 = 0;
 
-	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data34) {
+	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38) {
 
 		if (Data38->field_4 == (sSprite_0*)-1 || Data38->field_4 == 0 )
 			continue;
