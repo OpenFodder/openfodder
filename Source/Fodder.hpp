@@ -120,7 +120,7 @@ struct struct_6 {
 	int16	field_6;
 	int16	field_8;
 	int16	field_A;
-	void	(cFodder::*field_C)();
+	void	(cFodder::*mMouseInsideFuncPtr)();	// field_c
 };
 
 struct struct_7 {
@@ -1006,7 +1006,7 @@ protected:
 	void			sub_2EEC8();
 	void			sub_2EED3();
 	void			sub_2EEDE( int16 pData4 );
-	void			GUI_Handle_Btn_SplitSquad();
+	void			GUI_Handle_Button_SplitSquad();
 	void			sub_2EF8A();
 
 	void			graphicsBlkPtrsPrepare();
@@ -1017,8 +1017,8 @@ protected:
 	void			sub_2E04C();
 	void			Mission_Sidebar_Grenades_Draw( cSurface* pImage );
 
-	void			sub_2F01D();
-	void			sub_2F0A6();
+	void			GUI_Prepare_Button_Grenade();
+	void			GUI_Handle_Button_Grenades();
 	void			sub_2F0D7();
 	void			Mission_Sidebar_TroopList_Draw();
 	void			Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, sRecruit* pData28 );
@@ -1040,11 +1040,11 @@ protected:
 	void			sub_2FA75( cSurface* pImage );
 	void			sub_2FA8F();
 	void			Mission_Sidebar_Rockets_Draw( cSurface* pImage );
-	void			sub_2FB95();
-	void			sub_2FC1E();
+	void			GUI_Prepare_Button_Rockets();
+	void			GUI_Handle_Button_Rockets();
 	void			sub_2FC4F();
-	void			sub_2FCB7();
-	void			sub_2FDB8();
+	void			GUI_Prepare_Button_TroopName();
+	void			GUI_Handle_Button_TroopName();
 	int16			sub_2FF41();
 
 	void			sub_30082();
@@ -1052,7 +1052,7 @@ protected:
 	void			Mission_Sidebar_MapButton_RenderWrapper();
 	void			sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	void			Mission_Sidebar_MapButton_Render();
-	void			sub_302C9();
+	void			GUI_Handle_Button_ShowOverview();
 	void			sub_3037A( cSurface* pImage );
 	void			sub_3049B( cSurface* pImage );
 	void			sub_304CB( cSurface* pImage );

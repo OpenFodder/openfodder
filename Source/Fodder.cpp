@@ -827,7 +827,7 @@ void cFodder::sub_10D61() {
 		stru_3AC53[x].field_6 = 0;
 		stru_3AC53[x].field_8 = 0;
 		stru_3AC53[x].field_A = 0;
-		stru_3AC53[x].field_C = 0;
+		stru_3AC53[x].mMouseInsideFuncPtr = 0;
 	}
 
 	dword_3AEF3 = 0;
@@ -5180,7 +5180,7 @@ void cFodder::sub_22B71( sSprite_0* pSprite ) {
 	word_3B461[pSprite->field_32] = 0x190;
 }
 
-void cFodder::sub_302C9() {
+void cFodder::GUI_Handle_Button_ShowOverview() {
 
 	if (word_3B4F1)
 		return;
@@ -5563,7 +5563,7 @@ void cFodder::Mission_Sidebar_MapButton_Render() {
 	Data20->field_6 = 0x2F;
 	Data20->field_8 = 0xBD;
 	Data20->field_A = 0x0B;
-	Data20->field_C = &cFodder::sub_302C9;
+	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;
 	++Data20;
 
 	sub_2ECC7( Data20 );
@@ -7321,12 +7321,12 @@ void cFodder::Mission_Sidebar_Prepare( cSurface* pImage, int16 pData0, int16 pDa
 	sub_2EE02();
 	sub_2EF8A();
 	Mission_Sidebar_Grenades_Draw( pImage );
-	sub_2F01D();
+	GUI_Prepare_Button_Grenade();
 	Mission_Sidebar_Rockets_Draw( pImage );
-	sub_2FB95();
+	GUI_Prepare_Button_Rockets();
 	sub_2F452();
 	Mission_Sidebar_TroopList_Draw();
-	sub_2FCB7();
+	GUI_Prepare_Button_TroopName();
 }
 
 void cFodder::sub_2EBC4() {
@@ -7344,7 +7344,7 @@ void cFodder::sub_2EC0E( struct_6* pData20, struct_6* pData24 ) {
 		pData20->field_6 = pData24->field_6;
 		pData20->field_8 = pData24->field_8;
 		pData20->field_A = pData24->field_A;
-		pData20->field_C = pData24->field_C;
+		pData20->mMouseInsideFuncPtr = pData24->mMouseInsideFuncPtr;
 
 		++pData20;
 		++pData24;
@@ -7379,10 +7379,10 @@ void cFodder::sub_2EE02() {
 	Data20->field_A = 0x0E;
 
 	if (word_3AC1B != mSquad_Selected) {
-		Data20->field_C = off_3DEF6[word_3AC1B];
+		Data20->mMouseInsideFuncPtr = off_3DEF6[word_3AC1B];
 	}
 	else {
-		Data20->field_C = &cFodder::GUI_Handle_Btn_SplitSquad;
+		Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_SplitSquad;
 	}
 
 	++Data20;
@@ -7424,7 +7424,7 @@ void cFodder::sub_2EEDE( int16 pData4 ) {
 	word_3AC4D = 0;
 }
 
-void cFodder::GUI_Handle_Btn_SplitSquad() {
+void cFodder::GUI_Handle_Button_SplitSquad() {
 
 	if (sub_30E0B() < 0)
 		return;
@@ -13437,7 +13437,7 @@ loc_2EDFD:;
 
 }
 
-void cFodder::sub_2F01D() {
+void cFodder::GUI_Prepare_Button_Grenade() {
 	if (!word_3AC47)
 		return;
 
@@ -13447,13 +13447,13 @@ void cFodder::sub_2F01D() {
 	Data20->field_6 = 0x0C;
 	Data20->field_8 =  word_3AC1D + 0x0E;
 	Data20->field_A = 0x14;
-	Data20->field_C = &cFodder::sub_2F0A6;
+	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Grenades;
 
 	++Data20;
 	sub_2ECC7( Data20 );
 }
 
-void cFodder::sub_2F0A6() {
+void cFodder::GUI_Handle_Button_Grenades() {
 	
 	if (sub_30E0B() < 0)
 		return;
@@ -14014,7 +14014,7 @@ void cFodder::Mission_Sidebar_Rockets_Draw( cSurface* pImage ) {
 	sub_302DE( pImage, Data4, Data8, DataC, Data10 );
 }
 
-void cFodder::sub_2FB95() {
+void cFodder::GUI_Prepare_Button_Rockets() {
 
 	if (!word_3AC47)
 		return;
@@ -14025,13 +14025,13 @@ void cFodder::sub_2FB95() {
 	Data20->field_6 = 0x0C;
 	Data20->field_8 = word_3AC1D + 0x0E;
 	Data20->field_A = 0x14;
-	Data20->field_C = &cFodder::sub_2FC1E;
+	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Rockets;
 	++Data20;
 
 	sub_2ECC7( Data20 );
 }
 
-void cFodder::sub_2FC1E() {
+void cFodder::GUI_Handle_Button_Rockets() {
 
 	if (sub_30E0B() < 0)
 		return;
@@ -14060,7 +14060,7 @@ void cFodder::sub_2FC4F() {
 	byte_3AC33[mSquad_Selected] = -1;
 }
 
-void cFodder::sub_2FCB7() {
+void cFodder::GUI_Prepare_Button_TroopName() {
 	
 	if (mSquad_Selected != word_3AC1B)
 		return;
@@ -14082,13 +14082,13 @@ loc_2FCF4:;
 	Data20->field_8 = word_3AC1D + 0x22;
 
 	Data20->field_A = mSquads_TroopCount[mSquad_Selected] * 0x0C;
-	Data20->field_C = &cFodder::sub_2FDB8;
+	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_TroopName;
 
 	++Data20;
 	sub_2ECC7( Data20 );
 }
 
-void cFodder::sub_2FDB8() {
+void cFodder::GUI_Handle_Button_TroopName() {
 
 	if (sub_30E0B() < 0) {
 		if (sub_30E2A() < 0)
@@ -14562,7 +14562,7 @@ void cFodder::Mouse_Inputs_Check() {
 		if (Data0 < mMouseY)
 			continue;
 
-		(*this.*Data20->field_C)();
+		(*this.*Data20->mMouseInsideFuncPtr)();
 		return;
 	}
 	
