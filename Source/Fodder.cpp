@@ -314,7 +314,7 @@ int16 cFodder::Mission_Loop( cSurface* pImage ) {
 		sub_12C69();
 		sub_12B6E();
 
-		if (word_39FD0 < 0 && word_3AA47)
+		if (mSquad_Selected < 0 && word_3AA47)
 			word_3AA47 = 0x14;
 
 		sub_13155();
@@ -655,7 +655,7 @@ void cFodder::sub_10D61() {
 	word_39FB6 = 0;
 	word_39FB8 = 0;
 	word_39FBA = 0;
-	word_39FD0 = 0;
+	mSquad_Selected = 0;
 	word_39FD2 = 0;
 	word_39FD4 = 0;
 
@@ -970,7 +970,7 @@ void cFodder::sub_10DEC() {
 	word_39FD4 = 0;
 	word_3A054 = 0;
 	dword_3A39D = 0;
-	word_39FD0 = 0;
+	mSquad_Selected = 0;
 	word_3A9A6[0] = 0;
 	word_3A9A6[1] = 0;
 	word_3A9AA = 0;
@@ -979,10 +979,10 @@ void cFodder::sub_10DEC() {
 	dword_39F7C = 0;
 	mMouseSpriteNew = 0x23;
 
-	byte_3A05A[0] = 0;
-	byte_3A05A[1] = 0;
-	byte_3A05A[2] = 0;
-	byte_3A05A[3] = 0;
+	mSquads_TroopCount[0] = 0;
+	mSquads_TroopCount[1] = 0;
+	mSquads_TroopCount[2] = 0;
+	mSquads_TroopCount[3] = 0;
 
 	byte_3A05E = 0;
 	word_3A8D5 = 0;
@@ -2451,7 +2451,7 @@ void cFodder::sub_12AEE() {
 }
 
 void cFodder::sub_12B6E() {
-	int16 Data8 = word_39FD0;
+	int16 Data8 = mSquad_Selected;
 	if (Data8 >= 0) {
 		sSprite_0** Data20 = off_3BDEF[Data8];
 
@@ -3418,7 +3418,7 @@ void cFodder::sub_144A2( cSurface* pImage ) {
 	uint8* 	si = (uint8*) mMapSptPtr;
 
 	//TODO: BUG?
-	Buffer += 16 * 352 + 16; // 0x584
+	Buffer += (16 * 352) + 16; // 0x584
 	byte_42071 = 1 << word_40054;
 
 	word_42066 = Buffer;
@@ -4450,7 +4450,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 		if( Data2C->field_4 == (sSprite_0*) -1 ||  Data2C->field_4 == 0 )
 			continue;
 		
-		if( word_39FD0 != Data2C->field_4->field_32)
+		if( mSquad_Selected != Data2C->field_4->field_32)
 			continue;
 
 		sRecruit* Data28 = &mRecruits[Data2C->mRecruitID];
@@ -4507,7 +4507,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 		if( Data38->field_4 == (sSprite_0*) -1 || Data38->field_4 == 0 )
 			continue;
 		
-		Data4 = word_39FD0;
+		Data4 = mSquad_Selected;
 		sSprite_0* Data34 = Data38->field_4;
 		
 		if( Data4 != Data34->field_32  )
@@ -6586,7 +6586,7 @@ loc_2D03B:;
 
 void cFodder::sub_2D06C() {
 	sSprite_0** Data34 = dword_3B48B;
-	int8* Data24 = byte_3A05A;
+	int8* Data24 = mSquads_TroopCount;
 
 	Data24[0] = 0;
 	Data24[1] = 0;
@@ -6642,11 +6642,11 @@ void cFodder::sub_2D06C() {
 	if (!Data14)
 		word_3A9AA = -1;
 
-	dword_3A8DB = readLEDWord( &byte_3A05A );
+	dword_3A8DB = readLEDWord( &mSquads_TroopCount );
 	byte_3A8DE[1] = byte_3A05E;
 
 	Data0 = 2;
-	int8* Data2CC = byte_3A05A;
+	int8* Data2CC = mSquads_TroopCount;
 	int8* Data30 = byte_3BF1B;
 
 	for (Data0 = 2; Data0 >= 0; --Data0 ) {
@@ -6697,9 +6697,9 @@ void cFodder::sub_2D2D4() {
 
 	if (Data20->field_2 > 0x14) {
 
-		if (word_39FD0 >= 0) {
+		if (mSquad_Selected >= 0) {
 
-			if (byte_3A05A[word_39FD0] == 1) {
+			if (mSquads_TroopCount[mSquad_Selected] == 1) {
 				word_3ABB3 = 1;
 				word_3ABC3 = -3;
 				word_3ABC5 = 0x0A;
@@ -6707,12 +6707,12 @@ void cFodder::sub_2D2D4() {
 		}
 	}
 	//loc_2D381
-	int16 Data0 = word_39FD0;
+	int16 Data0 = mSquad_Selected;
 	if (Data0 < 0)
 		return;
 
 	int16 Data8 = Data0;
-	Data0 = byte_3A05A[Data0];
+	Data0 = mSquads_TroopCount[Data0];
 	Data0 &= 0xFF;
 	--Data0;
 	int16 DataC = Data0;
@@ -7021,7 +7021,7 @@ int16 cFodder::loc_2D9D5( sSprite_0* pSprite ) {
 	}
 
 	Data18 &= 0xFF;
-	int8* Data2C = byte_3A05A + Data14;
+	int8* Data2C = mSquads_TroopCount + Data14;
 
 	if (*Data2C > 8) {
 		//goto loc_2D9B4;
@@ -7048,7 +7048,7 @@ int16 cFodder::loc_2D9D5( sSprite_0* pSprite ) {
 	sub_2D06C();
 
 	word_3BEDF[Data14] = 0;
-	word_39FD0 = Data18;
+	mSquad_Selected = Data18;
 		
 	word_3AA05[Data18] += word_3AA05[Data14];
 
@@ -7084,7 +7084,7 @@ int16 cFodder::sub_2DBA3( sSprite_0* pSprite ) {
 		Data0 = -1;
 		return -1;
 	}
-	Data8 = word_39FD0;
+	Data8 = mSquad_Selected;
 
 	sSprite_0** Data30 = off_3BDEF[Data8];
 	int16 Data1C = 0;
@@ -7297,7 +7297,7 @@ void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
 	word_3AC1D = pData4;
 	word_3AC47 = 0;
 
-	if (pData0 == word_39FD0)
+	if (pData0 == mSquad_Selected)
 		word_3AC47 = -1;
 
 	//pData0 <<= 1;
@@ -7313,7 +7313,7 @@ void cFodder::Mission_Sidebar_Prepare( cSurface* pImage, int16 pData0, int16 pDa
 	
 	pData0 = word_3AC1B;
 
-	if (!byte_3A05A[pData0])
+	if (!mSquads_TroopCount[pData0])
 		return;
 
 	Mission_Sidebar_SplitButton_Draw();
@@ -7378,7 +7378,7 @@ void cFodder::sub_2EE02() {
 	Data20->field_8 = word_3AC1D;
 	Data20->field_A = 0x0E;
 
-	if (word_3AC1B != word_39FD0) {
+	if (word_3AC1B != mSquad_Selected) {
 		Data20->field_C = off_3DEF6[word_3AC1B];
 	}
 	else {
@@ -7406,7 +7406,7 @@ void cFodder::sub_2EEDE( int16 pData4 ) {
 	if (sub_30E0B() < 0)
 		return;
 
-	word_39FD0 = pData4;
+	mSquad_Selected = pData4;
 	sub_301F7();
 	sub_2D06C();
 	
@@ -7439,7 +7439,7 @@ void cFodder::GUI_Handle_Btn_SplitSquad() {
 	word_3AC4B = 0;
 	word_3AC4D = 0;
 
-	sub_2DCB0( word_39FD0 );
+	sub_2DCB0( mSquad_Selected );
 	sub_2D06C();
 
 	sSprite_0* Data20 = 0;
@@ -8390,7 +8390,7 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 	word_3AA1D = word_3BED5[Sprite->field_32];
 	//seg004:0183
 
-	if (byte_3BF1B[Sprite->field_32] < 0 && Sprite->field_32 != word_39FD0 ) {
+	if (byte_3BF1B[Sprite->field_32] < 0 && Sprite->field_32 != mSquad_Selected ) {
 		//loc_18F12
 		//seg004:01C2
 		word_3AA41 = -1;
@@ -8693,7 +8693,7 @@ loc_194A0:;
 	}
 	//loc_194CB
 	
-	if( word_39FD0 == Sprite->field_32 )
+	if( mSquad_Selected == Sprite->field_32 )
 		goto loc_19490;
 	
 	Camera_Adjust_ToSprite( Sprite );
@@ -8963,7 +8963,7 @@ void cFodder::Sprite_Handle_Tree( sSprite_0* pSprite ) {
 
 void cFodder::Sprite_Handle_Player_Rank( sSprite_0* pSprite ) {
 	
-	if (word_39FD0 < 0)
+	if (mSquad_Selected < 0)
 		goto loc_1AF63;
 
 	sSprite_0* Data24 = word_39FCE;
@@ -8973,7 +8973,7 @@ void cFodder::Sprite_Handle_Player_Rank( sSprite_0* pSprite ) {
 		goto loc_1AF63;
 
 	if (!word_3A9AE) {
-		Data4 = word_39FD0;
+		Data4 = mSquad_Selected;
 
 		if (word_3A9C0[Data4])
 			goto loc_1AF63;
@@ -9979,7 +9979,7 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 	Data24->mRecruitID = -1;
 	Data24->mRank = 0;
 	
-	if (word_39FD0 < 0) {
+	if (mSquad_Selected < 0) {
 		word_3AC2B = 0;
 		word_3AA47 = 0;
 	}
@@ -10013,7 +10013,7 @@ loc_1F0EA:;
 			goto loc_1F19A;
 	}
 	//loc_1F13E
-	sSprite_0** Dataa24 = off_3BDEF[word_39FD0];
+	sSprite_0** Dataa24 = off_3BDEF[mSquad_Selected];
 	sSprite_0* eax = Dataa24[0];
 	if (eax == (sSprite_0*) -1 || eax == 0 )
 		goto loc_1F218;
@@ -11165,10 +11165,10 @@ void cFodder::sub_310CB() {
 }
 
 void cFodder::sub_311A7() {
-	if (word_39FD0 < 0)
+	if (mSquad_Selected < 0)
 		return;
 
-	sSprite_0** Data24 = off_3BDEF[word_39FD0];
+	sSprite_0** Data24 = off_3BDEF[mSquad_Selected];
 
 	for (;;) {
 
@@ -11231,7 +11231,7 @@ void cFodder::sub_311A7() {
 		if (Data4 > Data8)
 			continue;
 
-		Data0 = word_39FD0;
+		Data0 = mSquad_Selected;
 		if (Data0 < 0)
 			break;
 
@@ -11311,7 +11311,7 @@ loc_31514:;
 		goto loc_31689;
 
 	sSprite_0*** Data28 = off_3BDEF;
-	Data0 = word_39FD0;
+	Data0 = mSquad_Selected;
 	if (Data0 < 0)
 		goto loc_31668;
 
@@ -13474,18 +13474,18 @@ void cFodder::sub_2F0A6() {
 
 void cFodder::sub_2F0D7() {
 
-	if (word_3AC3F[word_39FD0] == 1)
+	if (word_3AC3F[mSquad_Selected] == 1)
 		return;
 
-	word_3AC3F[word_39FD0] = 1;
-	byte_3AC33[word_39FD0] = -1;
-	byte_3AC39[word_39FD0] = -1;
+	word_3AC3F[mSquad_Selected] = 1;
+	byte_3AC33[mSquad_Selected] = -1;
+	byte_3AC39[mSquad_Selected] = -1;
 }
 
 void cFodder::Mission_Sidebar_TroopList_Draw() {
 
 	int16 Data0 = 0;
-	int8 Data4 = byte_3A05A[word_3AC1B];
+	int8 Data4 = mSquads_TroopCount[word_3AC1B];
 	int16 DataC = word_3AC1D;
 
 	int8 Data4_Saved = Data4;
@@ -13641,7 +13641,7 @@ void cFodder::Mission_Sidebar_SquadIcon_Draw() {
 int16 cFodder::sub_2F4CB() {
 	int16 Data1C = 0;
 
-	int16 Data8 = byte_3A05A[ word_3AC1B ];
+	int16 Data8 = mSquads_TroopCount[ word_3AC1B ];
 	if (!Data8)
 		return 0;
 
@@ -13759,12 +13759,12 @@ void cFodder::sub_2F757() {
 
 		word_3AC1D = word_3AC2D[word_3AC1F];
 
-		if (!byte_3A05A[word_3AC1D])
+		if (!mSquads_TroopCount[word_3AC1D])
 			continue;
 
 		word_3AC47 = 0;
 
-		if (word_3AC1F == word_39FD0)
+		if (word_3AC1F == mSquad_Selected)
 			word_3AC47 = -1;
 
 		if (sub_2F4CB())
@@ -13773,7 +13773,7 @@ void cFodder::sub_2F757() {
 }
 
 void cFodder::sub_2F7D7( cSurface* pImage ) {
-	sub_2F7E4( pImage, word_39FD0 );
+	sub_2F7E4( pImage, mSquad_Selected );
 }
 
 void cFodder::sub_2F7E4( cSurface* pImage, int16 pData0 ) {
@@ -13807,7 +13807,7 @@ void cFodder::sub_2F7E4( cSurface* pImage, int16 pData0 ) {
 
 void cFodder::sub_2F871( cSurface* pImage ) {
 
-	sub_2F87E( pImage, word_39FD0 );
+	sub_2F87E( pImage, mSquad_Selected );
 }
 
 void cFodder::sub_2F87E( cSurface* pImage, int16 pData0 ) {
@@ -13842,7 +13842,7 @@ int16 cFodder::sub_2F90B() {
 	sSquad_Member* Data38 = mSquad;
 
 	sSprite_0* Data34 = mSprites;
-	int16 Data18 = word_39FD0;
+	int16 Data18 = mSquad_Selected;
 
 	int16 Data10 = 0;
 
@@ -13860,7 +13860,7 @@ int16 cFodder::sub_2F90B() {
 		Data10++;
 	}
 
-	int16 Data0 = byte_3A05A[word_39FD0];
+	int16 Data0 = mSquads_TroopCount[mSquad_Selected];
 	if (Data10 == Data0)
 		return Data0;
 
@@ -14052,21 +14052,21 @@ void cFodder::sub_2FC1E() {
 
 void cFodder::sub_2FC4F() {
 	
-	if (word_3AC3F[word_39FD0] == 3)
+	if (word_3AC3F[mSquad_Selected] == 3)
 		return;
 
-	word_3AC3F[word_39FD0] = 3;
-	byte_3AC39[word_39FD0] = -1;
-	byte_3AC33[word_39FD0] = -1;
+	word_3AC3F[mSquad_Selected] = 3;
+	byte_3AC39[mSquad_Selected] = -1;
+	byte_3AC33[mSquad_Selected] = -1;
 }
 
 void cFodder::sub_2FCB7() {
 	
-	if (word_39FD0 != word_3AC1B)
+	if (mSquad_Selected != word_3AC1B)
 		return;
 
 	for (int16 Data4 = 2; Data4 >= 0; --Data4) {
-		if (!byte_3A05A[Data4])
+		if (!mSquads_TroopCount[Data4])
 			goto loc_2FCF4;
 	}
 
@@ -14081,7 +14081,7 @@ loc_2FCF4:;
 	Data20->field_6 = 0x2F;
 	Data20->field_8 = word_3AC1D + 0x22;
 
-	Data20->field_A = byte_3A05A[word_39FD0] * 0x0C;
+	Data20->field_A = mSquads_TroopCount[mSquad_Selected] * 0x0C;
 	Data20->field_C = &cFodder::sub_2FDB8;
 
 	++Data20;
@@ -14095,17 +14095,16 @@ void cFodder::sub_2FDB8() {
 			return;
 	}
 
-	if (word_39FD0 < 0)
+	if (mSquad_Selected < 0)
 		return;
 
 	int16 Data0 = mMouseY;
 	Data0 -= word_3BEC3;
 	Data0 -= word_3AEFB;
 	Data0 -= 0x22;
-
 	Data0 /= 0x0C;
 
-	int16 Data4 = byte_3A05A[word_39FD0];
+	int16 Data4 = mSquads_TroopCount[mSquad_Selected];
 
 	if (Data0 >= Data4)
 		return;
@@ -14113,7 +14112,7 @@ void cFodder::sub_2FDB8() {
 	word_3A3BF = Data0;
 
 	sSquad_Member* Data38 = mSquad;
-	Data4 = word_39FD0;
+	Data4 = mSquad_Selected;
 	int16 Data8 = word_3A3BF;
 
 	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38) {
@@ -14156,14 +14155,14 @@ int16 cFodder::sub_2FF41() {
 
 	int16 Data0;
 	for (Data0 = 0; Data0 < 3; ++Data0) {
-		if (!byte_3A05A[Data0])
+		if (!mSquads_TroopCount[Data0])
 			goto loc_2FF79;
 	}
 	return 0;
 
 loc_2FF79:;
 	int16 Data14 = Data0;
-	int16 Data18 = word_39FD0;
+	int16 Data18 = mSquad_Selected;
 
 	word_39FD2 = Data18;
 	int16 Data10 = Data14;
@@ -14193,7 +14192,7 @@ loc_2FF79:;
 		Data34->field_28 += 4;
 	}
 
-	word_39FD0 = Data14;
+	mSquad_Selected = Data14;
 	sub_301F7();
 
 	return -1;
@@ -14203,7 +14202,7 @@ void cFodder::sub_30082() {
 	int16* Data20 = word_3AA05;
 
 	int16 Data0 = word_39FD2;
-	int16 Data4 = word_39FD0;
+	int16 Data4 = mSquad_Selected;
 
 	if (!word_3BDE7)
 		goto loc_300F9;
@@ -14229,7 +14228,7 @@ loc_3011E:;
 
 	Data20 = word_3AA0B;
 	Data0 = word_39FD2;
-	Data4 = word_39FD0;
+	Data4 = mSquad_Selected;
 
 	if (!word_3BDE9)
 		goto loc_30195;
@@ -14254,7 +14253,7 @@ loc_30195:;
 loc_301BA:;
 	Data20 = word_3AC3F;
 	Data0 = word_39FD2;
-	Data4 = word_39FD0;
+	Data4 = mSquad_Selected;
 
 	Data20[Data4] = Data20[Data0];
 }
@@ -14321,7 +14320,7 @@ void cFodder::sub_30E49() {
 		sSprite_0* Data20 = Data24->field_4;
 		int16 Data10 = Data20->field_32;
 
-		if (Data10 == word_39FD0)
+		if (Data10 == mSquad_Selected)
 			++word_3A3BF;
 
 		Data10 = Data20->field_0;
@@ -14344,7 +14343,7 @@ void cFodder::sub_30E49() {
 			continue;
 
 		Data10 = Data20->field_32;
-		Data14 = word_39FD0;
+		Data14 = mSquad_Selected;
 
 		if (Data14 < 0) {
 			Data0 = Data10;
@@ -14357,8 +14356,8 @@ void cFodder::sub_30E49() {
 			return;
 		}
 
-		Data0 = byte_3A05A[Data10];
-		Data0 += byte_3A05A[Data14];
+		Data0 = mSquads_TroopCount[Data10];
+		Data0 += mSquads_TroopCount[Data14];
 		if (Data0 > 8)
 			return;
 
@@ -14391,7 +14390,7 @@ void cFodder::sub_303AE() {
 }
 
 void cFodder::sub_303DA() {
-	int8* Data20 = byte_3A05A;
+	int8* Data20 = mSquads_TroopCount;
 	int16 Data0;
 
 	for (Data0 = 0; Data0 < 3; ++Data0) {
@@ -14403,7 +14402,7 @@ void cFodder::sub_303DA() {
 
 loc_30409:;
 
-	int16 Data4 = word_39FD0;
+	int16 Data4 = mSquad_Selected;
 	if (Data4 < 0)
 		return;
 
@@ -14440,19 +14439,19 @@ void cFodder::sub_304D0() {
 	if (!word_390A6 || word_3B4F1)
 		return;
 
-	if (word_3AC3F[word_39FD0] != 3) {
-		if (word_3AA0B[word_39FD0])
+	if (word_3AC3F[mSquad_Selected] != 3) {
+		if (word_3AA0B[mSquad_Selected])
 			sub_2FC4F();
 	}
 	else {
-		if (word_3AA05[word_39FD0])
+		if (word_3AA05[mSquad_Selected])
 			sub_2F0D7();
 	}
 }
 
 int16 cFodder::sub_305D5( sSprite_0*& pData20 ) {
 	
-	int16 Data0 = word_39FD0;
+	int16 Data0 = mSquad_Selected;
 
 	if (Data0 < 0)
 		goto loc_306AD;
@@ -14500,7 +14499,7 @@ int16 cFodder::sub_305D5( sSprite_0*& pData20 ) {
 
 loc_306AD:;
 	pData20 = (sSprite_0*) -1;
-	word_39FD0 = -1;
+	mSquad_Selected = -1;
 
 loc_306BE:;
 	if (dword_3B20B)
@@ -14570,7 +14569,7 @@ void cFodder::Mouse_Inputs_Check() {
 	if (!mButtonPressRight)
 		goto loc_30814;
 
-	if (word_39FD0 < 0)
+	if (mSquad_Selected < 0)
 		return;
 
 	if (mMouseSpriteNew < 0) {
@@ -14602,14 +14601,14 @@ loc_30814:;
 	}
 
 	// segra: I've moved this as it looks like a bug
-	if (word_39FD0 < 0) {
+	if (mSquad_Selected < 0) {
 
 		//TODO: Can this happen?
 		sub_30E49();
 		return;
 	}
 
-	sSprite_0** Data24 = off_3BDEF[word_39FD0];
+	sSprite_0** Data24 = off_3BDEF[mSquad_Selected];
 	sSprite_0* Dataa24 = *Data24;
 
 	if (Dataa24->field_6E)
@@ -14631,7 +14630,7 @@ loc_30814:;
 	if (!word_3ABC7)
 		goto loc_308F6;
 
-	int8* Data20 = byte_3A05A;
+	int8* Data20 = mSquads_TroopCount;
 	int8 al;
 
 	//TODO 
@@ -14669,7 +14668,7 @@ loc_308F6:;
 	word_3A065 = Data4;
 	word_3A054 = 0;
 
-	dword_3A3F9 = off_3BEF3[word_39FD0];
+	dword_3A3F9 = off_3BEF3[mSquad_Selected];
 
 	sSquad_Member* SquadMember = mSquad;
 
@@ -14681,7 +14680,7 @@ loc_308F6:;
 			continue;
 		
 		sSprite_0* tmp = SquadMember->field_4;
-		if (word_39FD0 != tmp->field_32)
+		if (mSquad_Selected != tmp->field_32)
 			continue;
 
 		tmp->field_44 = Data14;
@@ -14701,7 +14700,7 @@ loc_308F6:;
 
 	for (Data0 = 2; Data0 >= 0; --Data0) {
 
-		if (word_39FD0 != byte_3BF1B[Data0])
+		if (mSquad_Selected != byte_3BF1B[Data0])
 			continue;
 
 		byte_3BF1B[Data0] = -1;
@@ -14733,13 +14732,13 @@ void cFodder::sub_30CDC() {
 		Data8 = 1;
 
 	DataC -= 8;
-	int16 Data0 = word_39FD0;
+	int16 Data0 = mSquad_Selected;
 
 	if (Data0 < 0)
 		goto loc_30E05;
 
 	int16 Data10 = 0;
-	Data10 = byte_3A05A[Data0];
+	Data10 = mSquads_TroopCount[Data0];
 
 	int16 Data14 = Data10;
 	--Data14;
@@ -14781,12 +14780,12 @@ void cFodder::sub_31033() {
 	if (word_3AA47)
 		return;
 
-	if (word_39FD0 <= 0)
+	if (mSquad_Selected <= 0)
 		return;
 
 	for (int16 Data0 = 2; Data0 >= 0; --Data0 ) {
 
-		if (byte_3A05A[Data0]) {
+		if (mSquads_TroopCount[Data0]) {
 			sub_31075(Data0);
 			return;
 		}
@@ -14796,15 +14795,15 @@ void cFodder::sub_31033() {
 
 void cFodder::sub_31075( int16 pData0 ) {
 	
-	if (!byte_3A05A[pData0])
+	if (!mSquads_TroopCount[pData0])
 		return;
 
-	word_39FD0 = pData0;
+	mSquad_Selected = pData0;
 	sSprite_0* Data20 = 0;
 
 	if (sub_305D5( Data20 ) >= 0) {
-		word_3A067 = byte_3A05A[0];
-		word_3A069 = byte_3A05A[4];
+		word_3A067 = mSquads_TroopCount[0];
+		word_3A069 = mSquads_TroopCount[4];
 		word_3AA1B = 1;
 		word_3A054 = 0;
 	}

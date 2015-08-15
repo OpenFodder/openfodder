@@ -281,7 +281,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FB8;
 	sSprite_0*		word_39FCE;	// This stores the number of bytes, inside the sSprite array
 
-	int16			word_39FD0;
+	int16			mSquad_Selected;
 	int16			word_39FD2;
 	int16			word_39FD4;
 
