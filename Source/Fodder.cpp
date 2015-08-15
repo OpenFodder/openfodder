@@ -3417,6 +3417,7 @@ void cFodder::sub_144A2( cSurface* pImage ) {
 	uint8*	Buffer = pImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mMapSptPtr;
 
+	//TODO: BUG?
 	Buffer += 16 * 352 + 16; // 0x584
 	byte_42071 = 1 << word_40054;
 
@@ -7381,7 +7382,7 @@ void cFodder::sub_2EE02() {
 		Data20->field_C = off_3DEF6[word_3AC1B];
 	}
 	else {
-		Data20->field_C = &cFodder::sub_2EF3E;
+		Data20->field_C = &cFodder::GUI_Handle_Btn_SplitSquad;
 	}
 
 	++Data20;
@@ -7423,7 +7424,7 @@ void cFodder::sub_2EEDE( int16 pData4 ) {
 	word_3AC4D = 0;
 }
 
-void cFodder::sub_2EF3E() {
+void cFodder::GUI_Handle_Btn_SplitSquad() {
 
 	if (sub_30E0B() < 0)
 		return;
@@ -8327,6 +8328,10 @@ void cFodder::Sprite_Handle_Loop() {
 			Sprite_Handle_Text_Mission( Data20 );
 			break;
 
+		case 30:
+			Sprite_Handle_Text_Phase( Data20 );
+			break;
+
 		case 58:
 			sub_1C4E7( Data20 );
 			break;
@@ -8556,7 +8561,7 @@ loc_191C3:;
 	if (word_3AA41)
 		sub_1F5A0( Sprite );
 	else
-		sub_1F5CA( Sprite );
+		Camera_Adjust_ToSprite( Sprite );
 
 	int16 Data0 = Sprite->field_26;
 	if( Data0 < 0 )
@@ -8589,7 +8594,7 @@ loc_191C3:;
 	if( Sprite->field_5A )
 		goto loc_19403;
 	
-	sub_1F5CA( Sprite );
+	Camera_Adjust_ToSprite( Sprite );
 	sub_1F762( Sprite );
 	return;
 	
@@ -8643,7 +8648,7 @@ loc_19403:;
 	
 loc_19414:;
 	Sprite->field_5A = 0;
-	sub_1F5CA( Sprite );
+	Camera_Adjust_ToSprite( Sprite );
 	return;
 	
 loc_19424:;
@@ -8673,7 +8678,7 @@ loc_1946D:;
 
 loc_19490:;
 	Sprite->field_5A = 0;
-	sub_1F5CA( Sprite );
+	Camera_Adjust_ToSprite( Sprite );
 	return;
 
 loc_194A0:;
@@ -8691,7 +8696,7 @@ loc_194A0:;
 	if( word_39FD0 == Sprite->field_32 )
 		goto loc_19490;
 	
-	sub_1F5CA( Sprite );
+	Camera_Adjust_ToSprite( Sprite );
 	return;
 
 loc_1957A:;
@@ -9111,6 +9116,20 @@ void cFodder::Sprite_Handle_Text_Complete( sSprite_0* pSprite ) {
 void cFodder::Sprite_Handle_Text_Mission( sSprite_0* pSprite ) {
 	pSprite->field_0 = dword_39F84 >> 16;
 	pSprite->field_0 += 0x56;
+	pSprite->field_4 -= 0x20;
+
+	int16 Data0 = dword_39F88 >> 16;
+	Data0 += 0x63;
+
+	if (Data0 < pSprite->field_4)
+		return;
+
+	pSprite->field_4 = Data0;
+}
+
+void cFodder::Sprite_Handle_Text_Phase( sSprite_0* pSprite ) {
+	pSprite->field_0 = dword_39F84 >> 16;
+	pSprite->field_0 += 0x5F;
 	pSprite->field_4 -= 0x20;
 
 	int16 Data0 = dword_39F88 >> 16;
@@ -10311,7 +10330,7 @@ void cFodder::sub_1F5A0( sSprite_0* pSprite ) {
 	sub_1F762( pSprite );
 }
 
-void cFodder::sub_1F5CA( sSprite_0* pSprite ) {
+void cFodder::Camera_Adjust_ToSprite( sSprite_0* pSprite ) {
 
 	int16 Data0 = mMouseX;
 	Data0 += mCamera_Adjust_Col >> 16;
@@ -14582,18 +14601,21 @@ loc_30814:;
 		word_3A9F5 = 0;
 	}
 
-	sSprite_0** Data24 = off_3BDEF[word_39FD0];
-	sSprite_0* Dataa24 = *Data24;
-
-	if (Dataa24->field_6E)
-		return;
-
+	// segra: I've moved this as it looks like a bug
 	if (word_39FD0 < 0) {
 
 		//TODO: Can this happen?
 		sub_30E49();
 		return;
 	}
+
+	sSprite_0** Data24 = off_3BDEF[word_39FD0];
+	sSprite_0* Dataa24 = *Data24;
+
+	if (Dataa24->field_6E)
+		return;
+
+
 
 
 	if (word_3B2F1) {

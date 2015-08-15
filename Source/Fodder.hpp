@@ -882,6 +882,7 @@ protected:
 	void			sub_1B07C( sSprite_0* pSprite );						// 23
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );		// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
+	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );			// 30
 	void			sub_1C4E7( sSprite_0* pSprite );						// 58
 	void			sub_1C52D( sSprite_0* pSprite );						// 59
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );			// 66
@@ -896,7 +897,7 @@ protected:
 	int16			sub_1F21E( sSprite_0* pSprite );
 	void			sub_1F429( sSprite_0* pSprite );
 	void			sub_1F5A0( sSprite_0* pSprite );
-	void			sub_1F5CA( sSprite_0* pSprite );
+	void			Camera_Adjust_ToSprite( sSprite_0* pSprite );
 	void			sub_1F623( sSprite_0* pSprite );
 	void			sub_1F649( sSprite_0* pSprite );
 
@@ -1005,7 +1006,7 @@ protected:
 	void			sub_2EEC8();
 	void			sub_2EED3();
 	void			sub_2EEDE( int16 pData4 );
-	void			sub_2EF3E();
+	void			GUI_Handle_Btn_SplitSquad();
 	void			sub_2EF8A();
 
 	void			graphicsBlkPtrsPrepare();
