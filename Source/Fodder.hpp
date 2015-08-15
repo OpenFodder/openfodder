@@ -304,7 +304,7 @@ class cFodder : public cSingleton < cFodder > {
 	struct_6*		dword_3A02A;
 	int32			dword_3A030;
 	uint16			word_3A054;
-	int8			byte_3A05A[4];
+	int8			mSquads_TroopCount[4];
 	uint8			byte_3A05E;
 	uint16			word_3A05F;
 	int16			word_3A063;
