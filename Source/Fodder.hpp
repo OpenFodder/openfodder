@@ -693,9 +693,9 @@ protected:
 	void			Music_Stop();
 
 	uint8*			GetSpriteData( uint16 pSegment );
-	int16			Mission_Loop( cSurface* pImage );
+	int16			Mission_Loop( );
 
-	void			Mouse_Handle( cSurface* pImage );
+	void			Mouse_Handle( );
 	void			sub_10937();
 	void			sub_1096B();
 	void			sub_10BBC();
@@ -720,10 +720,10 @@ protected:
 
 	void			sub_11B06();
 	void			sub_11CAD();
-	void			sub_11CD6( cSurface* pImage );
+	void			sub_11CD6( );
 	void			map_Load_TileSet();
 	void			sub_11E60();
-	void			sub_11E6C( cSurface* pImage );
+	void			sub_11E6C( );
 	void			sub_11EC2();
 	void			sub_11FCD();
 
@@ -734,13 +734,13 @@ protected:
 	void			sub_12245();
 	void			sub_1229C();
 	void			sub_122BD();
-	void			Mission_Sprites_Handle( cSurface* pImage );
+	void			Mission_Sprites_Handle( );
 	void			Sprite_Sort_DrawList();
 	void			sub_124DB();
 	void			Mission_Goals_Check();
 	void			sub_126BB();
 	void			sub_126DD();
-	void			sub_12790( cSurface* pImage );
+	void			sub_12790( );
 	void			sub_12838();
 	void			sub_12877( sSprite_0* pData2C );
 	void			sub_128A9( sSprite_0* pData2C );
@@ -768,16 +768,16 @@ protected:
 	void			sub_13277( sSprite_0* pData2C );
 	void			sub_136D0();
 	void			sub_13800();
-	void			Mouse_DrawCursor( cSurface* pImage );
-	void			sub_13C1C( cSurface* pImage, int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
-	void			sub_13C8A( cSurface* pImage, int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
-	void			sub_13CF0( cSurface* pImage, sSprite_0* pDi, int16 pData0, int16 pData4 );
+	void			Mouse_DrawCursor( );
+	void			sub_13C1C(  int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
+	void			sub_13C8A(  int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
+	void			sub_13CF0(  sSprite_0* pDi, int16 pData0, int16 pData4 );
 
-	void			video_Draw_Sprite_( cSurface* pImage );
-	void			video_Draw_Linear_To_Planar(  cSurface* pImage );
+	void			video_Draw_Sprite_( );
+	void			video_Draw_Linear_To_Planar(  );
 	bool			Sprite_OnScreen_Check();
-	void			Sprite_Draw( cSurface* pImage );
-	void			sub_144A2( cSurface* pImage );
+	void			Sprite_Draw( );
+	void			sub_144A2( );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	void			Sound_Voc_Load();
 	void			Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 );
@@ -786,32 +786,32 @@ protected:
 	// 14EAC
 	void			Mission_Brief();
 
-	void			Briefing_Intro_Jungle( cSurface *pImage );
+	void			Briefing_Intro_Jungle();
 
 
-	void			sub_1590B( cSurface* pImage );
-	void			sub_1594F( cSurface* pImage );
-	void			sub_159A6( cSurface* pImage );
-	void			sub_15A36( cSurface* pImage, uint8* pDs, int16 pCx );
-	void			sub_15B86( cSurface* pImage, uint8* pDs, int16 pCx );
-	void			sub_15B98( cSurface* pImage, uint8* pDs, int16 pCx );
+	void			sub_1590B( );
+	void			sub_1594F( );
+	void			sub_159A6( );
+	void			sub_15A36(  uint8* pDs, int16 pCx );
+	void			sub_15B86(  uint8* pDs, int16 pCx );
+	void			sub_15B98(  uint8* pDs, int16 pCx );
 
-	void			sub_15CE8( cSurface* pImage, uint8* pDs, int16 pCx );
+	void			sub_15CE8(  uint8* pDs, int16 pCx );
 
-	void			sub_15DF0( cSurface* pImage );
-	void			Briefing_Draw_MissionName( cSurface* pImage );
+	void			sub_15DF0( );
+	void			Briefing_Draw_MissionName( );
 	
 	void			map_Load_Resources();
 
 	/* Recruitment */
 	void			Recruit_Show();
-	void			Recruit_Draw_Hill( cSurface *pImage );
-	void			Recruit_Draw_HomeAway( cSurface *pImage );
-	void			sub_16B55( cSurface* pImage, int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
+	void			Recruit_Draw_Hill();
+	void			Recruit_Draw_HomeAway();
+	void			sub_16B55(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			sub_16BC3();
 	void			sub_16C45( uint16** pDi, int16* pSource );
 	void			sub_16C6C();
-	void			Recruit_Render_LeftMenu( cSurface *pImage );
+	void			Recruit_Render_LeftMenu();
 	void			Recruit_Render_Squad_Names();
 	void			Recruit_Render_Squad_RankKills();
 	void			sub_170A4( int16 pData4, int16 pData10 );
@@ -819,16 +819,16 @@ protected:
 	void			sub_17368();
 	void			sub_17429();
 	void			sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
-	void			Recruit_Draw_Actors( cSurface* pImage );
+	void			Recruit_Draw_Actors( );
 	void			sub_175C0();
-	void			Recruit_Draw_Troops( cSurface *pImage );
+	void			Recruit_Draw_Troops();
 	void			sub_1787C();
 	void			sub_178DD();
 	void			sub_17911();
-	void			Recruit_Draw_Truck( cSurface* pImage );
+	void			Recruit_Draw_Truck( );
 	void			sub_17B64();
-	void			Recruit_Draw( cSurface *pImage );
-	void			sub_17CD3( cSurface* pImage );
+	void			Recruit_Draw();
+	void			sub_17CD3( );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
 	void			sub_17DB3();
 
@@ -851,23 +851,23 @@ protected:
 	void			Service_Promotion_Check();
 	void			Service_Promotion_SetNewRanks();
 
-	void			video_Draw_Unk_2( cSurface* pImage );
+	void			video_Draw_Unk_2( );
 	/* End Promotion / Heroes */
 
 	int16			loc_2D9D5( sSprite_0* pSprite );
 
-	void			Briefing_Show( cSurface* pImage );
+	void			Briefing_Show( );
 	void			sub_18908();
 	void			Briefing_Wait();
-	void			Briefing_Draw_With( cSurface* pImage );
-	void			Briefing_DrawBox( cSurface* pImage, int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 );
+	void			Briefing_Draw_With( );
+	void			Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 );
 
-	void			sub_18BDF( cSurface* pImage, int16 pBx, int16 pCx, uint8 pSi );
-	void			Brief_Draw_Horizontal_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	void			sub_18BDF( int16 pBx, int16 pCx, uint8 pSi );
+	void			Brief_Draw_Horizontal_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
-	void			sub_18C45( cSurface* pImage, int32 pPosX, const sIntroString* pString );
+	void			sub_18C45( int32 pPosX, const sIntroString* pString );
 	bool			sub_18C7A();
-	void			Brief_Draw_Vertical_Line( cSurface* pImage, int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	void			Brief_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 	void			sub_18D5E();
 	void			Sprite_Handle_Loop();
 
@@ -990,13 +990,13 @@ protected:
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
 	void			sub_2DCB0( int16 pData0 );
-	void			sub_2DE2C( cSurface* pImage );
+	void			sub_2DE2C( );
 	void			sub_2E01C();
 	int16			sub_2EAC2();
 	void			sub_2EAC3();
-	void			sub_2EACA( cSurface *pImage );
+	void			sub_2EACA();
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
-	void			Mission_Sidebar_Prepare( cSurface* pImage, int16 pData0, int16 pData4 );
+	void			Mission_Sidebar_Prepare( int16 pData0, int16 pData4 );
 	void			sub_2EBC4();
 	void			sub_2EC0E( struct_6* pData20, struct_6* pData24 );
 	void			sub_2ECC7( struct_6 *pData20 );
@@ -1014,7 +1014,7 @@ protected:
 	void			map_Tiles_Draw_();
 
 	void			sub_2E04C();
-	void			Mission_Sidebar_Grenades_Draw( cSurface* pImage );
+	void			Mission_Sidebar_Grenades_Draw( );
 
 	void			GUI_Prepare_Button_Grenade();
 	void			GUI_Handle_Button_Grenades();
@@ -1024,21 +1024,21 @@ protected:
 	void			sub_2F452();
 	void			Mission_Sidebar_SquadIcon_Draw();
 	int16			sub_2F4CB();
-	void			sub_2F5ED( cSurface *pImage );
+	void			sub_2F5ED();
 	void			sub_2F757();
-	void			sub_2F7D7( cSurface* pImage );
-	void			sub_2F7E4( cSurface* pImage, int16 pData0 );
-	void			sub_2F871( cSurface* pImage );
-	void			sub_2F87E( cSurface* pImage, int16 pData0 );
+	void			sub_2F7D7( );
+	void			sub_2F7E4(  int16 pData0 );
+	void			sub_2F871( );
+	void			sub_2F87E(  int16 pData0 );
 	int16			sub_2F90B();
-	void			sub_2F9B3( cSurface* pImage );
+	void			sub_2F9B3( );
 	void			sub_2FA05();
 	void			Mission_Sidebar_MapButton_Prepare();
-	void			sub_2FA44( cSurface* pImage );
-	void			sub_2FA5B( cSurface* pImage );
-	void			sub_2FA75( cSurface* pImage );
+	void			sub_2FA44( );
+	void			sub_2FA5B( );
+	void			sub_2FA75( );
 	void			sub_2FA8F();
-	void			Mission_Sidebar_Rockets_Draw( cSurface* pImage );
+	void			Mission_Sidebar_Rockets_Draw( );
 	void			GUI_Prepare_Button_Rockets();
 	void			GUI_Handle_Button_Rockets();
 	void			sub_2FC4F();
@@ -1052,9 +1052,9 @@ protected:
 	void			sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	void			Mission_Sidebar_MapButton_Render();
 	void			GUI_Handle_Button_ShowOverview();
-	void			sub_3037A( cSurface* pImage );
-	void			sub_3049B( cSurface* pImage );
-	void			sub_304CB( cSurface* pImage );
+	void			sub_3037A( );
+	void			sub_3049B( );
+	void			sub_304CB( );
 	void			sub_30AB0();
 	int16			sub_30E0B();
 	void			sub_30E49();
@@ -1076,7 +1076,7 @@ protected:
 	void			sub_3169B();
 
 	void			String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString );
-	void			String_Print( cSurface* pImage, const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
+	void			String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
 
 	std::string		map_Filename_Get();
 	std::string		map_Filename_MapGet();

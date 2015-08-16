@@ -127,19 +127,16 @@ size_t cResources::fileLoadTo( const std::string& pFilename, uint8* pTarget ) {
 	return Size;
 }
 
-cSurface* cResources::image4PlaneLoad( const std::string &pFilename, size_t pColors ) {
+void cResources::image4PlaneLoad( cSurface* pImage, const std::string &pFilename, size_t pColors ) {
 	size_t fileSize = 0;
 	uint8* fileBuffer = fileGet(pFilename, fileSize);
 
-	cSurface *surface = new cSurface(352, 230);
-
-	surface->decode4Plane( fileBuffer, (fileSize - (pColors * 3)), 320, 200 );
+	pImage->decode4Plane( fileBuffer, (fileSize - (pColors * 3)), 320, 200 );
 
 	if(pColors) {
-		surface->paletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xf0 );
+		pImage->paletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xf0 );
 	}
 
-	return surface;
 }
 
 uint8* cResources::file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode ) {
@@ -475,11 +472,11 @@ uint16 cResources::sub_26C06() {
 				//++di; 
 				++dx;
 
-				if( bp > word_26DBE[0x620 + di] ) {
+				if( bp > (uint16) word_26DBE[0x620 + di] ) {
 
 					do {
 						++di;
-					} while( bp > word_26DBE[0x620 + di] );
+					} while( bp > (uint16) word_26DBE[0x620 + di] );
 
 					--di;
 					dx = di;

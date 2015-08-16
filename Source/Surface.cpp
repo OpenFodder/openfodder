@@ -66,8 +66,14 @@ void cSurface::wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t 
 }
 
 void cSurface::paletteClear() {
-	paletteFadeOut();
-	paletteLoadNewSDL();
+	for(int16 ColorID = 0; ColorID < g_MaxColors; ColorID++) {
+		
+		// Get the next color values
+		mPalette[ColorID].mRed = 0;
+		mPalette[ColorID].mGreen = 0;
+		mPalette[ColorID].mBlue = 0;
+	}
+	paletteLoadSDL();
 }
 
 void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, bool pUseNow ) {
