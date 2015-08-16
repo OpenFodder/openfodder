@@ -183,9 +183,9 @@ cFodder::cFodder( bool pSkipIntro ) {
 	stru_3DEDC[0] = { &cFodder::sub_2EAC2, 0, 47, 0, 225, &cFodder::sub_2EAC3 };
 	stru_3DEDC[1] = { 0, 0, 0, 0, 0, 0 };
 
-	off_3DEF6[0] = &cFodder::sub_2EEBD;
-	off_3DEF6[1] = &cFodder::sub_2EEC8;
-	off_3DEF6[2] = &cFodder::sub_2EED3;
+	mGUI_Handle_Button_SelectSquad_Array[0] = &cFodder::GUI_Handle_Button_SelectSquad_0;
+	mGUI_Handle_Button_SelectSquad_Array[1] = &cFodder::GUI_Handle_Button_SelectSquad_1;
+	mGUI_Handle_Button_SelectSquad_Array[2] = &cFodder::GUI_Handle_Button_SelectSquad_2;
 
 	for (unsigned int x = 0; x < 0x3C; ++x) {
 		dword_42320[x].mBuffer = 0;
@@ -797,9 +797,7 @@ void cFodder::sub_10D61() {
 	word_3AC3F[0] = 0;
 	word_3AC3F[1] = 0;
 	word_3AC3F[2] = 0;
-	word_3AC3F[3] = 0;
-	word_3AC3F[4] = 0;
-	word_3AC3F[5] = 0;
+
 	word_3AC45 = 0;
 	word_3AC47 = 0;
 	word_3AC49 = 0;
@@ -5594,8 +5592,8 @@ void cFodder::Sprite_Movement_Calculate( sSprite_0* pSprite ) {
 	int32 Dataa8 = (int32)Data8;
 
 	Data4 = pSprite->field_36;
-	Dataa8 *= (int32) Data4;
 
+	Dataa8 *= Data4;
 	DataaC *= Data4;
 
 	int32 tmp = (pSprite->field_2 & 0xFFFF | pSprite->field_0 << 16);
@@ -5721,7 +5719,7 @@ loc_2A2F5:;
 		pData0 -= pData4;
 		pData0 &= 0x1FE;
 		pSprite->field_10 = pData0;
-		word_3B25B = 0;
+ 		word_3B25B = 0;
 		return 0;
 	}
 
@@ -6689,13 +6687,13 @@ void cFodder::sub_2D2D4() {
 	if (Data20 == (sSprite_0*) -1 || Data20 == 0 )
 		return;
 
-	Data20 = (sSprite_0*) Data20->field_46;
+	sSquad_Member* Dataa20 = (sSquad_Member*) Data20->field_46;
 
 	word_3ABB3 = stru_3ABB9.field_4;
 	word_3ABC3 = 0;
 	word_3ABC5 = 0;
 
-	if (Data20->field_2 > 0x14) {
+	if (Dataa20->mRank > 0x14) {
 
 		if (mSquad_Selected >= 0) {
 
@@ -6720,16 +6718,16 @@ void cFodder::sub_2D2D4() {
 	if (DataC < 0)
 		return;
 
-	const int16* Dataa20 = off_3D4B5[Data0];
+	const int16* Dataaa20 = off_3D4B5[Data0];
 
-	int16 Data4 = Dataa20[word_3ABB5];
+	int16 Data4 = Dataaa20[word_3ABB5];
 	if (Data4 < 0 || Data4 > DataC) {
 		Data4 = 0;
 		Data0 = 0;
 	}
 
 	Data0++;
-	if (Dataa20[Data0] < 0)
+	if (Dataaa20[Data0] < 0)
 		Data0 = 0;
 
 	word_3ABB5 = Data0;
@@ -6882,6 +6880,7 @@ void cFodder::sub_2D725() {
 	sSprite_0* Data20 = mSprites;
 	
 	for (int16 Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20 ) {
+
 		if (Data20->field_0 == -32768)
 			continue;
 
@@ -6921,6 +6920,7 @@ void cFodder::sub_2D7C0() {
 
 	if (mMapNumber < 5)
 		word_3AA05[0] = 0;
+
 	if (mMapNumber < 0x0A)
 		word_3AA0B[0] = 0;
 }
@@ -7317,14 +7317,18 @@ void cFodder::Mission_Sidebar_Prepare( cSurface* pImage, int16 pData0, int16 pDa
 		return;
 
 	Mission_Sidebar_SplitButton_Draw();
+	GUI_Prepare_Button_Squad();
 
-	sub_2EE02();
 	sub_2EF8A();
+
 	Mission_Sidebar_Grenades_Draw( pImage );
 	GUI_Prepare_Button_Grenade();
+
 	Mission_Sidebar_Rockets_Draw( pImage );
 	GUI_Prepare_Button_Rockets();
+
 	sub_2F452();
+
 	Mission_Sidebar_TroopList_Draw();
 	GUI_Prepare_Button_TroopName();
 }
@@ -7369,7 +7373,7 @@ void cFodder::Mission_Sidebar_SplitButton_Draw() {
 	sub_145AF( Data0, Data8, DataC );
 }
 
-void cFodder::sub_2EE02() {
+void cFodder::GUI_Prepare_Button_Squad() {
 	struct_6* Data20 = dword_3AEF3;
 
 	Data20->field_0 = &cFodder::sub_2EAC2;
@@ -7379,7 +7383,7 @@ void cFodder::sub_2EE02() {
 	Data20->field_A = 0x0E;
 
 	if (word_3AC1B != mSquad_Selected) {
-		Data20->mMouseInsideFuncPtr = off_3DEF6[word_3AC1B];
+		Data20->mMouseInsideFuncPtr = mGUI_Handle_Button_SelectSquad_Array[word_3AC1B];
 	}
 	else {
 		Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_SplitSquad;
@@ -7389,19 +7393,19 @@ void cFodder::sub_2EE02() {
 	sub_2ECC7( Data20 );
 }
 
-void cFodder::sub_2EEBD() {
-	sub_2EEDE( 0 );
+void cFodder::GUI_Handle_Button_SelectSquad_0() {
+	Squad_Select( 0 );
 }
 
-void cFodder::sub_2EEC8() {
-	sub_2EEDE( 1 );
+void cFodder::GUI_Handle_Button_SelectSquad_1() {
+	Squad_Select( 1 );
 }
 
-void cFodder::sub_2EED3() {
-	sub_2EEDE( 2 );
+void cFodder::GUI_Handle_Button_SelectSquad_2() {
+	Squad_Select( 2 );
 }
 
-void cFodder::sub_2EEDE( int16 pData4 ) {
+void cFodder::Squad_Select( int16 pData4 ) {
 	
 	if (sub_30E0B() < 0)
 		return;
@@ -7478,7 +7482,7 @@ void cFodder::sub_2EF8A() {
 }
 
 void cFodder::sub_17DB3() {
-	//Correct?
+
 	g_Resource.fileLoadTo( "rankfont.dat", mDataHillBits );
 	paletteLoad( mDataHillBits + 0xA000, 0x80, 0x40 );
 
@@ -7489,7 +7493,6 @@ void cFodder::sub_17DB3() {
 
 	Sprite_SetDataPtrToBase( off_43963 );
 
-	//TODO:
 	Music_Unk( 0 );
 	Service_KIA_Loop();
 	Service_Promotion_Loop();
@@ -7530,7 +7533,6 @@ void cFodder::Service_KIA_Loop() {
 
 		if (mImageFaded == -1)
 			mImageFaded = mImage->paletteFade();
-
 
 		sub_18149();
 		sub_13800();
@@ -8767,6 +8769,7 @@ loc_19A9C:;
 }
 
 void cFodder::Sprite_Handle_Bullet( sSprite_0* pSprite ) {
+
 	pSprite->field_64 += 1;
 	
 	if(!pSprite->field_2A)
@@ -10391,7 +10394,7 @@ void cFodder::sub_1F66F( sSprite_0* pSprite ) {
 		Data0 &= 0x0E;
 	}
 
-	pSprite->field_36 = word_3D495[Data4];
+	pSprite->field_36 = word_3D495[Data4 / 2];
 }
 
 void cFodder::sub_1F6F4( sSprite_0* pSprite ) {
@@ -10623,10 +10626,10 @@ loc_1FBA4:;
 		pSprite->field_A = 0;
 		goto loc_1FCD7;
 	}
+
 	//loc_1FC61
-	//TODO: This is broken
 	sSquad_Member* Data24 = (sSquad_Member*) pSprite->field_46;
-	//HACK:
+
 	if (Data24 == 0)
 		Data0 = 0x70;
 	else
@@ -11789,7 +11792,7 @@ int16 cFodder::sub_2061C( sSprite_0* pSprite ) {
 }
 
 int16 cFodder::Troop_Fire_Bullet( sSprite_0* pSprite ) {
-	if (word_3A9E4)
+  	if (word_3A9E4)
 		--word_3A9E4;
 
 	if (word_3A9AE)
@@ -11929,13 +11932,12 @@ loc_209C7:;
 loc_209F3:;
 	Data2C->field_64 = 0;
 	Data0 = tool_RandomGet() & 1;
-	if (Data0)
+	if (!Data0)
 		Data4 = 0x11;
 	else
 		Data4 = 0x10;
 
-	Data8 = 0;
-	Sound_Voc_Play( pSprite, Data4, Data8 );
+	Sound_Voc_Play( pSprite, Data4, 0 );
 	return 0;
 
 loc_20A2D:;
@@ -14536,13 +14538,12 @@ void cFodder::Mouse_Inputs_Check() {
 		if (Data20->field_0 == 0)
 			break;
 
-		Data0 = (*this.*Data20->field_0)();
-		if (Data0 < 0)
+		if ( (*this.*Data20->field_0)() < 0 )
 			return;
 
 		Data20 = dword_3A02A;
-		Data0 = word_3BEC1;
-		Data0 += Data20->field_4;
+		Data0 = word_3BEC1 + Data20->field_4;
+
 		int16 Data4 = mMouseX;
 		Data4 += 0x20;
 
@@ -14613,9 +14614,6 @@ loc_30814:;
 
 	if (Dataa24->field_6E)
 		return;
-
-
-
 
 	if (word_3B2F1) {
 		word_3B2F1 = 0;

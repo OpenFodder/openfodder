@@ -429,7 +429,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC2B;
 	int8			byte_3AC33[3];
 	int8			byte_3AC39[3];
-	int16			word_3AC3F[6];
+	int16			word_3AC3F[3];
 	int16			word_3AC45;
 	int16			word_3AC47;
 	int16			word_3AC49;
@@ -686,7 +686,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	cPalette		mPalette[ g_MaxColors ];
 
-	void(cFodder::*off_3DEF6[3])(void);
+	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 protected:
 	void			Music_Play( const char* pFilename );
@@ -1001,11 +1001,11 @@ protected:
 	void			sub_2EC0E( struct_6* pData20, struct_6* pData24 );
 	void			sub_2ECC7( struct_6 *pData20 );
 	void			Mission_Sidebar_SplitButton_Draw();
-	void			sub_2EE02();
-	void			sub_2EEBD();
-	void			sub_2EEC8();
-	void			sub_2EED3();
-	void			sub_2EEDE( int16 pData4 );
+	void			GUI_Prepare_Button_Squad();
+	void			GUI_Handle_Button_SelectSquad_0();
+	void			GUI_Handle_Button_SelectSquad_1();
+	void			GUI_Handle_Button_SelectSquad_2();
+	void			Squad_Select( int16 pData4 );
 	void			GUI_Handle_Button_SplitSquad();
 	void			sub_2EF8A();
 
