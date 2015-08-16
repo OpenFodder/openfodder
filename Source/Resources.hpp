@@ -72,5 +72,5 @@ public:
 
 	std::vector< cResource_File >	*filesGet( ) { return &mFiles; }
 
-	cSurface						*image4PlaneLoad( const std::string &pFilename, size_t pColors );
+	void							image4PlaneLoad( cSurface *pImage, const std::string &pFilename, size_t pColors );
 };
