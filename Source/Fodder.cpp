@@ -13181,7 +13181,7 @@ loc_103BF:;
 			Sprite_SetDataPtrToBase( off_32C0C );
 			
 			delete mImage;
-			mImage = new cSurface( 352, 300 );
+			mImage = new cSurface( 352, 230 );
 
 			map_Tiles_Draw();
 			sub_12083();
@@ -13315,7 +13315,7 @@ void cFodder::map_Tiles_Draw_() {
 		uint8* MapPtr = CurrentMapPtr;
 		uint8* TargetRow = Target;
 
-		int16 StartY = 0;
+		uint16 StartY = 0;
 
 		if (cx == 0) {
 			StartY = word_3B610;
@@ -13332,7 +13332,7 @@ void cFodder::map_Tiles_Draw_() {
 				Tile = 0x1DF;
 
 			uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile];
-			int16 StartX = 0;
+			uint16 StartX = 0;
 
 			TilePtr += StartY * 0x140;
 
@@ -13356,32 +13356,9 @@ void cFodder::map_Tiles_Draw_() {
 
 		Target += mImage->GetWidth() * (16-StartY);
 		CurrentMapPtr += mMapWidth << 1;
-
 	}
 	
 	return;
-}
-
-void cFodder::video_Draw_MapTile( cSurface* pImage, uint16 pTile, uint16 pPosX, uint16 pPosY ) {
-	uint8* Target = pImage->GetSurfaceBuffer();
-
-	pPosX *= 16;
-	pPosY *= 16;
-
-	Target += pPosY * pImage->GetWidth();
-	Target += pPosX;
-
-	uint8* TilePtr = (uint8*)mGraphicBlkPtrs[pTile & 0x1FF];
-
-	for (uint16 i = 0; i < 16; ++i) {
-
-		memcpy( Target, TilePtr, 16 );
-		TilePtr += 0x140;
-		Target += pImage->GetWidth();
-
-		if (Target > pImage->GetSurfaceBuffer() + pImage->GetSurfaceBufferSize())
-			break;
-	}
 }
 
 void cFodder::Exit( unsigned int pExitCode ) {

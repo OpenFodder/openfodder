@@ -606,8 +606,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_4206E;
 	uint8			byte_42070;
 	uint8			byte_42071;
-	int16			word_42074;
-	int16			word_42076;
+	uint16			word_42074;
+	uint16			word_42076;
 	uint16			word_42078;
 
 	struct sVocLoaded {
@@ -1012,7 +1012,6 @@ protected:
 	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
 	void			map_Tiles_Draw_();
-	void			video_Draw_MapTile( cSurface* pImage, uint16 pTile, uint16 pPosX, uint16 pPosY );
 
 	void			sub_2E04C();
 	void			Mission_Sidebar_Grenades_Draw( cSurface* pImage );
