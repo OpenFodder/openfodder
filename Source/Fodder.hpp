@@ -372,8 +372,8 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_3A9FD;
 	int16			word_3AA01;
 	int16			word_3AA03;
-	int16			word_3AA05[3];
-	int16			word_3AA0B[3];
+	int16			mSquad_Grenades[3];
+	int16			mSquad_Rockets[3];
 	int16			word_3AA11[3];
 	int16			word_3AA17;
 	int16			word_3AA19;
@@ -883,6 +883,7 @@ protected:
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );		// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
 	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );			// 30
+	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );			// 37
 	void			sub_1C4E7( sSprite_0* pSprite );						// 58
 	void			sub_1C52D( sSprite_0* pSprite );						// 59
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );			// 66
@@ -936,6 +937,7 @@ protected:
 
 	void			sub_2212A( sSprite_0* pSprite );
 	void			sub_223B2( sSprite_0* pSprite );
+	int16			sub_2244B( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
 	int16			sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 );
 	void			sub_22AA9( sSprite_0* pSprite );
@@ -1049,7 +1051,7 @@ protected:
 	void			sub_30082();
 
 	void			Mission_Sidebar_MapButton_RenderWrapper();
-	void			sub_302DE( cSurface *pImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			sub_302DE( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	void			Mission_Sidebar_MapButton_Render();
 	void			GUI_Handle_Button_ShowOverview();
 	void			sub_3037A( );
