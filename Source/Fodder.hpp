@@ -307,8 +307,8 @@ class cFodder : public cSingleton < cFodder > {
 	int8			mSquads_TroopCount[4];
 	uint8			byte_3A05E;
 	uint16			word_3A05F;
-	int16			word_3A063;
-	int16			word_3A065;
+	int16			mCamera_Position_Column;
+	int16			mCamera_Position_Row;
 	int16			word_3A067;
 	int16			word_3A069;
 	int16			word_3A06B;
@@ -587,7 +587,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_3E9A3[70];
 	int16			word_3FA1F;
 	int16			word_3FA21;
-	int16			word_3FA37;
+	int16			mPaused;
 	int16			mKeyControlPressed;
 
 	int16			mImageFaded;
@@ -715,7 +715,7 @@ protected:
 	void			sub_1142D();
 	void			sub_1152F();
 	void			sub_115F7();
-	void			sub_11885();
+	void			Camera_Position_Update();
 	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	void			sub_11B06();
