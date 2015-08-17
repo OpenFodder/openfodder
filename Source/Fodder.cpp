@@ -726,8 +726,8 @@ void cFodder::sub_10D61() {
 	word_3AA03 = 0;
 
 	for (uint16 x = 0; x < 3; ++x) {
-		word_3AA05[x] = 0;
-		word_3AA0B[x] = 0;
+		mSquad_Grenades[x] = 0;
+		mSquad_Rockets[x] = 0;
 		word_3AA11[x] = 0;
 	}
 
@@ -6912,14 +6912,14 @@ void cFodder::sub_2D7C0() {
 	int16 Data4 = Data0;
 
 	Data0 <<= 1;
-	word_3AA05[0] = Data0;
-	word_3AA0B[0] = Data4;
+	mSquad_Grenades[0] = Data0;
+	mSquad_Rockets[0] = Data4;
 
 	if (mMapNumber < 5)
-		word_3AA05[0] = 0;
+		mSquad_Grenades[0] = 0;
 
 	if (mMapNumber < 0x0A)
-		word_3AA0B[0] = 0;
+		mSquad_Rockets[0] = 0;
 }
 
 void cFodder::sub_2D7FF() {
@@ -7047,13 +7047,13 @@ int16 cFodder::loc_2D9D5( sSprite_0* pSprite ) {
 	word_3BEDF[Data14] = 0;
 	mSquad_Selected = Data18;
 		
-	word_3AA05[Data18] += word_3AA05[Data14];
+	mSquad_Grenades[Data18] += mSquad_Grenades[Data14];
 
 	//seg010:0232
-	word_3AA05[Data0] = 0;
+	mSquad_Grenades[Data0] = 0;
 
-	word_3AA0B[Data18] += word_3AA0B[Data0];
-	word_3AA0B[Data0] = 0;
+	mSquad_Rockets[Data18] += mSquad_Rockets[Data0];
+	mSquad_Rockets[Data0] = 0;
 
 	sub_305D5( pSprite );
 	word_3AC2B = 0;
@@ -7454,8 +7454,8 @@ void cFodder::sub_2EF8A() {
 	int16 Data0 = word_3AC1F;
 
 	int16* Data20 = word_3AC3F;
-	int16* Data24 = word_3AA05;
-	int16* Data28 = word_3AA0B;
+	int16* Data24 = mSquad_Grenades;
+	int16* Data28 = mSquad_Rockets;
 
 	if (Data20[Data0] == 1) {
 
@@ -8333,6 +8333,10 @@ void cFodder::Sprite_Handle_Loop() {
 			Sprite_Handle_Text_Phase( Data20 );
 			break;
 
+		case 37:
+			Sprite_Handle_GrenadeBox( Data20 );
+			break;
+
 		case 58:
 			sub_1C4E7( Data20 );
 			break;
@@ -9146,6 +9150,25 @@ void cFodder::Sprite_Handle_Text_Phase( sSprite_0* pSprite ) {
 		return;
 
 	pSprite->field_4 = Data0;
+}
+
+void cFodder::Sprite_Handle_GrenadeBox( sSprite_0* pSprite ) {
+	
+	if (pSprite->field_38) {
+		pSprite->field_18 = 0x0C;
+		return;
+	}
+
+	pSprite->field_8 = 0xC2;
+	if (sub_2244B( pSprite ))
+		return;
+
+	int16 Data0 = mSquad_Selected;
+	byte_3AC33[Data0] = -1;
+	byte_3AC39[Data0] = -1;
+	mSquad_Grenades[Data0] += 4;
+	
+	sub_2060F( pSprite );
 }
 
 void cFodder::sub_1C4E7( sSprite_0* pSprite ) {
@@ -11985,10 +12008,10 @@ loc_20B0A:;
 
 	Data0 = pSprite->field_32;
 	Data4 = Data0;
-	if (!word_3AA05[Data0])
+	if (!mSquad_Grenades[Data0])
 		goto loc_20ADE;
 
-	--word_3AA05[Data0];
+	--mSquad_Grenades[Data0];
 	byte_3AC33[Data4] = -1;
 
 loc_20B6E:;
@@ -12825,6 +12848,36 @@ void cFodder::sub_223B2( sSprite_0* pSprite ) {
 	pSprite->field_A = 0;
 }
 
+int16 cFodder::sub_2244B( sSprite_0* pSprite ) {
+	if (dword_3B20B)
+		return 1;
+
+	if (word_39FCE == (sSprite_0*)-1 || word_39FCE == 0 )
+		return 1;
+
+	if (word_39FCE->field_6E)
+		return 1;
+
+	if (word_39FCE->field_38)
+		return 1;
+
+	int16 Data0 = pSprite->field_0;
+	int16 Data4 = pSprite->field_4;
+
+	int16 Data8 = word_39FCE->field_0;
+	int16 DataC = word_39FCE->field_4;
+	int16 Data10 = 0x20;
+
+	DataC += 2;
+
+	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	if (Data0 >= 6)
+		return 1;
+
+	Data4 = 0;
+	return 0;
+}
+
 int16 cFodder::sub_224ED( sSprite_0* pSprite ) {
 	if (word_3A9AE)
 		goto loc_22592;
@@ -12868,7 +12921,7 @@ loc_225BE:;
 	if (pSprite->field_18 != 0)
 		goto loc_22622;
 
-	int16* Data24 = word_3AA0B;
+	int16* Data24 = mSquad_Rockets;
 	Data0 = pSprite->field_32;
 	Data4 = Data0;
 
@@ -13059,7 +13112,7 @@ loc_103BF:;
 		sub_10BBC();
 
 		mMissionComplete = 0;
-		mMapNumber = 1;
+		mMapNumber = 2;
 		word_3901E = 0x3333;
 
 		Troops_Clear();
@@ -13361,7 +13414,7 @@ void cFodder::Exit( unsigned int pExitCode ) {
 void cFodder::Mission_Sidebar_Grenades_Draw( ) {
 	int16 Data0 = word_3AC1F;
 
-	if (!word_3AA05[word_3AC1F])
+	if (!mSquad_Grenades[word_3AC1F])
 		goto loc_2ED63;
 
 	int16 Data14 = word_3AC1F;
@@ -13384,7 +13437,7 @@ void cFodder::Mission_Sidebar_Grenades_Draw( ) {
 
 	sub_145AF( Data0, Data8, DataC );
 	
-	Data0 = word_3AA05[word_3AC1F];
+	Data0 = mSquad_Grenades[word_3AC1F];
 	if (!Data0)
 		return;
 
@@ -13405,7 +13458,7 @@ loc_2EDF7:;
 	Data10 = 0xB9;
 
 loc_2EDFD:;
-	sub_302DE( mImage, Data4, Data8, DataC, Data10 );
+	sub_302DE( Data0, Data4, Data8, DataC, Data10 );
 
 }
 
@@ -13656,8 +13709,8 @@ void cFodder::sub_2F5ED() {
 	
 	int8* Data20 = &byte_3AC33[2]; //byte_3AC35; 
 	int8* Data24 = &byte_3AC39[2]; //byte_3AC3B;
-	int16* Data28 = word_3AA05;
-	int16* Data2C = word_3AA0B;
+	int16* Data28 = mSquad_Grenades;
+	int16* Data2C = mSquad_Rockets;
 	int16* Data30 = word_3AC3F;
 	
 	for( Data0 = 2; Data0 >= 0; --Data0 ) {
@@ -13755,7 +13808,7 @@ void cFodder::sub_2F7E4(  int16 pData0 ) {
 	sub_2EBE0(pData0, Data4);
 	Mission_Sidebar_Grenades_Draw();
 
-	if (!word_3AA05[word_3AC1F])
+	if (!mSquad_Grenades[word_3AC1F])
 		return;
 
 	if (!word_3AC47)
@@ -13788,7 +13841,7 @@ void cFodder::sub_2F87E(  int16 pData0 ) {
 	sub_2EBE0( pData0, Data4 );
 	Mission_Sidebar_Rockets_Draw();
 
-	if (!word_3AA0B[word_3AC1F])
+	if (!mSquad_Rockets[word_3AC1F])
 		return;
 
 	if (!word_3AC47)
@@ -13942,7 +13995,7 @@ void cFodder::sub_2FA8F() {
 
 void cFodder::Mission_Sidebar_Rockets_Draw( ) {
 	
-	if (!word_3AA0B[word_3AC1F])
+	if (!mSquad_Rockets[word_3AC1F])
 		goto loc_2FAF6;
 
 	if (word_3AC3F[word_3AC1F] != 3)
@@ -13964,7 +14017,7 @@ void cFodder::Mission_Sidebar_Rockets_Draw( ) {
 	DataC += 0x0E;
 	sub_145AF( Data0, Data8, DataC );
 
-	Data0 = word_3AA0B[word_3AC1F];
+	Data0 = mSquad_Rockets[word_3AC1F];
 	if (!Data0)
 		return;
 
@@ -13983,7 +14036,7 @@ void cFodder::Mission_Sidebar_Rockets_Draw( ) {
 		Data10 = 0xB8;
 	}
 
-	sub_302DE( mImage, Data4, Data8, DataC, Data10 );
+	sub_302DE( Data0, Data4, Data8, DataC, Data10 );
 }
 
 void cFodder::GUI_Prepare_Button_Rockets() {
@@ -14171,7 +14224,7 @@ loc_2FF79:;
 }
 
 void cFodder::sub_30082() {
-	int16* Data20 = word_3AA05;
+	int16* Data20 = mSquad_Grenades;
 
 	int16 Data0 = word_39FD2;
 	int16 Data4 = mSquad_Selected;
@@ -14198,7 +14251,7 @@ loc_300F9:;
 
 loc_3011E:;
 
-	Data20 = word_3AA0B;
+	Data20 = mSquad_Rockets;
 	Data0 = word_39FD2;
 	Data4 = mSquad_Selected;
 
@@ -14239,7 +14292,7 @@ void cFodder::Mission_Sidebar_MapButton_RenderWrapper() {
 	Mission_Sidebar_MapButton_Render();
 }
 
-void cFodder::sub_302DE( cSurface *mImage, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
+void cFodder::sub_302DE( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
 	pData10 -= 0x1A;
 	int16 Data10_Saved = pData10;
 
@@ -14248,7 +14301,7 @@ void cFodder::sub_302DE( cSurface *mImage, int16 pData4, int16 pData8, int16 pDa
 	int16 word_3AC27 = pDataC;
 
 	std::stringstream Tmp;
-	Tmp << tool_StripLeadingZero( tool_NumToString( pData4 ) );
+	Tmp << tool_StripLeadingZero( tool_NumToString( pData0 ) );
 
 	String_CalculateWidth( pData8, byte_3DF85, Tmp.str().c_str() );
 	
@@ -14412,11 +14465,11 @@ void cFodder::sub_304D0() {
 		return;
 
 	if (word_3AC3F[mSquad_Selected] != 3) {
-		if (word_3AA0B[mSquad_Selected])
+		if (mSquad_Rockets[mSquad_Selected])
 			sub_2FC4F();
 	}
 	else {
-		if (word_3AA05[mSquad_Selected])
+		if (mSquad_Grenades[mSquad_Selected])
 			sub_2F0D7();
 	}
 }
