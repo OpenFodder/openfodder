@@ -150,7 +150,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	dword_3A3F9 = 0;
 	word_3FA1F = -1;
 	word_3FA21 = 0;
-	word_3FA37 = 0;
+	mPaused = 0;
 
 	word_42072 = 0;
 	byte_427E6 = 0;
@@ -276,7 +276,7 @@ int16 cFodder::Mission_Loop( ) {
 			while (word_3A9D0) {
 				eventProcess();
 			}
-			word_3FA37 = -1;
+			mPaused = -1;
 
 		}
 		else {
@@ -287,9 +287,9 @@ int16 cFodder::Mission_Loop( ) {
 			mImageFaded = mImage->paletteFade();
 
 		sub_11FCD();
-		if (word_3FA37 == -1) {
+		if (mPaused == -1) {
 			//video_Palette_?_0
-			word_3FA37 = 0;
+			mPaused = 0;
 		}
 
 		//sub_14445();
@@ -389,7 +389,7 @@ void cFodder::sub_10937() {
 		sub_12245();
 		sub_11B06();
 		sub_120F6();
-		sub_11885();
+		Camera_Position_Update();
 		sub_1096B();
 		sub_122BD();
 	}
@@ -422,12 +422,12 @@ void cFodder::sub_1096B() {
 	if( word_39F40 ) {
 		Data0 = Data8;
 		Data0 -= word_39F3C;
-		word_3A063 += Data0;
+		mCamera_Position_Column += Data0;
 
 		Data4 = DataC;
 		Data4 -= word_39F3E;
 		
-		word_3A065 += Data4;
+		mCamera_Position_Row += Data4;
 		word_39F3C = Data8;
 		word_39F3E = DataC;
 		
@@ -437,10 +437,10 @@ void cFodder::sub_1096B() {
 		Data0 = mCamera_Adjust_Col >> 16;
 		Data0 += 0x80;
 		
-		word_3A063 = Data0;
+		mCamera_Position_Column = Data0;
 		Data4 = mCamera_Adjust_Row >> 16;
 		Data4 += 0x6C;
-		word_3A065 = Data4;
+		mCamera_Position_Row = Data4;
 		
 	}
 	//loc_10A3A
@@ -503,8 +503,8 @@ Mouse_In_Playfield:;
 	if(Data18 < 0 )
 		Data18 = 0;
 
-	word_3A063 = Data18;
-	word_3A065 = Data1C;
+	mCamera_Position_Column = Data18;
+	mCamera_Position_Row = Data1C;
 	word_3A054 = 0;
 }
 
@@ -670,8 +670,8 @@ void cFodder::sub_10D61() {
 	word_3A01A = 0;
 	word_3A024 = 0;
 	dword_3A030 = 0;
-	word_3A063 = 0;
-	word_3A065 = 0;
+	mCamera_Position_Column = 0;
+	mCamera_Position_Row = 0;
 	word_3A067 = 0;
 
 	for (int16 x = 0; x < 20; ++x)
@@ -1336,15 +1336,15 @@ void cFodder::sub_115F7() {
 	}
 }
 
-void cFodder::sub_11885() {
-	int16 Data4 = word_3A065;
-	Data4 -= 0x6C;
+void cFodder::Camera_Position_Update() {
+	int16 Data4 = mCamera_Position_Row;
+	Data4 -= 108; // 108;
 
 	if (Data4 < 0)
 		Data4 = 0;
 
-	int16 Data0 = word_3A063;
-	Data0 -= 0x80;
+	int16 Data0 = mCamera_Position_Column;
+	Data0 -= 128; // 128;
 
 	if (Data0 < 0)
 		Data0 = 0;
@@ -1619,8 +1619,8 @@ void cFodder::sub_11CD6( ) {
 			goto loc_11D8A;
 	}
 	//loc_11D62
-	word_3A063 = word_3A067;
-	word_3A065 = word_3A069;
+	mCamera_Position_Column = word_3A067;
+	mCamera_Position_Row = word_3A069;
 
 	//mImage->paletteFadeOut();
 	sub_11E60();
@@ -1635,8 +1635,8 @@ loc_11D8A:;
 	word_39FBC = 6;
 	word_390A6 = 0;
 
-	word_3A063 = word_3A067;
-	word_3A065 = word_3A069;
+	mCamera_Position_Column = word_3A067;
+	mCamera_Position_Row = word_3A069;
 	word_39F52 = 0;
 	dword_39F4A &= 0x0000FFFF;
 	word_39F54 = 0;
@@ -1784,13 +1784,13 @@ void cFodder::sub_11EC2() {
 	dword_39F42 = 0;
 	dword_39F46 = 0;
 
-	int16 Data0 = word_3A063;
+	int16 Data0 = mCamera_Position_Column;
 	Data0 -= 0x88;
 	if (Data0 < 0)
 		Data0 = 0;
 
 	Data0 >>= 4;
-	int16 Data4 = word_3A065;
+	int16 Data4 = mCamera_Position_Row;
 	Data4 -= 0x6C;
 	if (Data4 < 0)
 		Data4 = 0;
@@ -3174,11 +3174,6 @@ void cFodder::video_Draw_Sprite_( ) {
 	word_4206C >>= 1;
 	
 	word_42076 = 352 - (word_4206C*4);
-	
-	if (mImage && di < mImage->GetSurfaceBuffer() || mImage && di > mImage->GetSurfaceBuffer() + mImage->GetSurfaceBufferSize()) {
-		std::cout << "test";
-	}
-
 
 	di += Plane;
 	for( int16 dx = word_4206E; dx > 0; --dx ) {
@@ -3195,9 +3190,7 @@ void cFodder::video_Draw_Sprite_( ) {
 		si += word_42074;
 		di += word_42076;
 	}
-	if (mImage && di < mImage->GetSurfaceBuffer() || mImage && di > mImage->GetSurfaceBuffer() + mImage->GetSurfaceBufferSize()) {
-		std::cout << "test";
-	}
+
 	++Plane;
 	if (Plane == 4) {
 		Plane = 0;
@@ -3272,9 +3265,6 @@ void cFodder::video_Draw_Sprite_( ) {
 		si += word_42074;
 		di += word_42076;
 	}
-		if (mImage && di < mImage->GetSurfaceBuffer() || mImage && di > mImage->GetSurfaceBuffer() + mImage->GetSurfaceBufferSize()) {
-		std::cout << "test";
-	}
 }
 
 void cFodder::video_Draw_Linear_To_Planar( ) {
@@ -3316,9 +3306,6 @@ void cFodder::video_Draw_Linear_To_Planar( ) {
 
 		si += word_42074;
 		di += word_42076;
-	}
-		if (mImage && di < mImage->GetSurfaceBuffer() || mImage && di > mImage->GetSurfaceBuffer() + mImage->GetSurfaceBufferSize()) {
-		std::cout << "test";
 	}
 }
 
@@ -7850,9 +7837,7 @@ void cFodder::sub_182EA() {
 		si += word_42074;
 		di += word_42076;
 	}
-		if (mImage && di < mImage->GetSurfaceBuffer() || mImage && di > mImage->GetSurfaceBuffer() + mImage->GetSurfaceBufferSize()) {
-		std::cout << "test";
-	}
+
 	++Plane;
 	if (Plane == 4) {
 		Plane = 0;
@@ -7949,9 +7934,6 @@ void cFodder::sub_182EA() {
 
 		si += word_42074;
 		di += word_42076;
-	}
-		if (mImage && di < mImage->GetSurfaceBuffer() || mImage && di > mImage->GetSurfaceBuffer() + mImage->GetSurfaceBufferSize()) {
-		std::cout << "test";
 	}
 }
 
@@ -11172,8 +11154,8 @@ void cFodder::sub_310CB() {
 			Data4 += 0x20;
 	}
 
-	word_3A063 = Data0;
-	word_3A065 = Data4;
+	mCamera_Position_Column = Data0;
+	mCamera_Position_Row = Data4;
 	word_3A054 = 0;
 
 	Data20->field_26 = Data0;
@@ -13068,7 +13050,7 @@ loc_103BF:;
 		sub_10BBC();
 
 		mMissionComplete = 0;
-		mMapNumber = 0;
+		mMapNumber = 1;
 		word_3901E = 0x3333;
 
 		Troops_Clear();
@@ -14641,8 +14623,8 @@ loc_308F6:;
 	if (Data4 < 3)
 		Data4 = 3;
 
-	word_3A063 = Data0;
-	word_3A065 = Data4;
+	mCamera_Position_Column = Data0;
+	mCamera_Position_Row = Data4;
 	word_3A054 = 0;
 
 	dword_3A3F9 = off_3BEF3[mSquad_Selected];
