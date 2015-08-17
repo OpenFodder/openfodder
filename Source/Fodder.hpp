@@ -876,7 +876,7 @@ protected:
 	void			Sprite_Handle_Bullet( sSprite_0* pSprite );				// 6
 	void			sub_1ABD3( sSprite_0* pSprite );						// 13
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
-
+	void			sub_1ABF3( sSprite_0* pSprite );						// 15
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
 	void			sub_1AF78( sSprite_0* pSprite );						// 22
 	void			sub_1B07C( sSprite_0* pSprite );						// 23
