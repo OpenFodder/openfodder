@@ -8305,6 +8305,10 @@ void cFodder::Sprite_Handle_Loop() {
 			Sprite_Handle_Tree( Data20 );
 			break;
 
+		case 15:
+			sub_1ABF3( Data20 );
+			break;
+
 		case 21:
 			Sprite_Handle_Player_Rank( Data20 );
 			break;
@@ -8956,6 +8960,11 @@ void cFodder::sub_1ABD3( sSprite_0* pSprite ) {
 
 void cFodder::Sprite_Handle_Tree( sSprite_0* pSprite ) {
 	pSprite->field_8 = 0x90;
+	sub_212F9( pSprite );
+}
+
+void cFodder::sub_1ABF3( sSprite_0* pSprite ) {
+	pSprite->field_8 = 0x91;
 	sub_212F9( pSprite );
 }
 
