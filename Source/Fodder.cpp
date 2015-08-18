@@ -1561,7 +1561,7 @@ void cFodder::sub_11B06() {
 		if ((dword_39F42 >> 16) < 0)
 			Data0 = -Data0;
 
-		dword_39F42 = 0;
+		dword_39F42 = Data0;
 	}
 	//loc_11C6D
 	Data0 = dword_39F46;
@@ -1575,7 +1575,7 @@ void cFodder::sub_11B06() {
 	if ((dword_39F46 >> 16) < 0)
 		Data0 = -Data0;
 
-	dword_39F46 = 0;
+	dword_39F46 = Data0;
 }
 
 void cFodder::sub_11CAD() {
@@ -2017,12 +2017,12 @@ void cFodder::sub_122BD() {
 	}
 	//loc_1234F
 	if (Data4 <= 0x40) {
-		dword_39F4A = dword_39F4A & 0xFFFF | (-2 << 16);
+		dword_39F4A = (dword_39F4A & 0xFFFF) | (-2 << 16);
 		word_39F52 = -1;
 	}
 	//loc_12362
 	if (Data4 >= 0x150) {
-		dword_39F4A = dword_39F4A & 0xFFFF | (2 << 16);
+		dword_39F4A = (dword_39F4A & 0xFFFF) | (2 << 16);
 		word_39F52 = -1;
 	}
 
@@ -14749,20 +14749,15 @@ void cFodder::sub_30CDC() {
 		Data8 = 1;
 
 	DataC -= 8;
-	int16 Data0 = mSquad_Selected;
-
-	if (Data0 < 0)
+	if (mSquad_Selected < 0)
 		goto loc_30E05;
 
-	int16 Data10 = 0;
-	Data10 = mSquads_TroopCount[Data0];
-
-	int16 Data14 = Data10;
+	int16 Data14 = mSquads_TroopCount[mSquad_Selected];
 	--Data14;
 	if (Data14 < 0)
 		goto loc_30E05;
 
-	sSprite_0** Data20 = off_3BDEF[Data0];
+	sSprite_0** Data20 = off_3BDEF[mSquad_Selected];
 
 	for (;;) {
 		if (*Data20 == (sSprite_0*)-1 || *Data20 == 0)
