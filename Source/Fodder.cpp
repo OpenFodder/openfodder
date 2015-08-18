@@ -14301,7 +14301,7 @@ void cFodder::sub_302DE( int16 pData0, int16 pData4, int16 pData8, int16 pDataC,
 
 	String_CalculateWidth( pData8, byte_3DF85, Tmp.str().c_str() );
 	
-	pData8 += word_3AC23;
+	pData8 = word_3B301 + word_3AC23;
 	int16 Data0 = Data10_Saved;
 	word_3AC21 = -1;
 	pDataC = word_3AC27;
