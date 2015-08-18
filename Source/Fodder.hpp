@@ -234,7 +234,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FBA;
 
 	int16			word_39FBC;
-	int16			word_39EF6;
 	int16			word_39EFA;
 	int16			word_39EFC;
 	int16			word_39F04;
@@ -876,7 +875,7 @@ protected:
 	void			Sprite_Handle_Bullet( sSprite_0* pSprite );				// 6
 	void			sub_1ABD3( sSprite_0* pSprite );						// 13
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
-	void			sub_1ABF3( sSprite_0* pSprite );						// 15
+	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );		// 15
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
 	void			sub_1AF78( sSprite_0* pSprite );						// 22
 	void			sub_1B07C( sSprite_0* pSprite );						// 23
@@ -918,7 +917,7 @@ protected:
 	int16			sub_2060F( sSprite_0* pSprite );
 	int16			sub_2061C( sSprite_0* pSprite );
 	int16			Troop_Fire_Bullet( sSprite_0* pSprite );
-	int16			sub_20A39( sSprite_0* pSprite );
+	int16			Troop_Throw_Grenade( sSprite_0* pSprite );
 	void			sub_20E5C( sSprite_0* pSprite );
 	int16			sub_20E91( sSprite_0* pSprite );
 	void			sub_20F19( sSprite_0* pSprite );
@@ -986,7 +985,7 @@ protected:
 	int16			sub_2D490( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			sub_2D725();
 	void			sub_2D767();
-	void			sub_2D7C0();
+	void			Squad_Prepare_GrenadesAndRockets();
 	void			sub_2D7FF();
 	void			sub_2D8AF( sSprite_0* pSprite );
 	int16			sub_2D91E( sSprite_0* pSprite );

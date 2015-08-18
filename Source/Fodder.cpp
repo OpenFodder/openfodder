@@ -88,7 +88,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mButtonPressLeft = mButtonPressRight = 0;
 	mMouse_Button_Left_Toggle = word_39F02 = 0;
 	word_39F06 = 0;
-	word_39EF6 = word_39EFA = 0;
+	word_39EFA = 0;
 	word_39EFC = word_39F04 = 0;
 	word_39FF4 = 0;
 	
@@ -2862,7 +2862,7 @@ void cFodder::mouse_ButtonCheck() {
 			mMouse_Button_Left_Toggle = -1;
 			word_39F02 = -1;
 
-			if (word_39EF6) {
+			if (mButtonPressRight) {
 				word_39EFC = -1;
 				word_3AA43 = -1;
 			}
@@ -6907,13 +6907,10 @@ void cFodder::sub_2D767() {
 	}
 }
 
-void cFodder::sub_2D7C0() {
-	int16 Data0 = mTroopsAvailable;
-	int16 Data4 = Data0;
+void cFodder::Squad_Prepare_GrenadesAndRockets() {
 
-	Data0 <<= 1;
-	mSquad_Grenades[0] = Data0;
-	mSquad_Rockets[0] = Data4;
+	mSquad_Grenades[0] = mTroopsAvailable << 1;
+	mSquad_Rockets[0] = mTroopsAvailable;
 
 	if (mMapNumber < 5)
 		mSquad_Grenades[0] = 0;
@@ -7050,10 +7047,10 @@ int16 cFodder::loc_2D9D5( sSprite_0* pSprite ) {
 	mSquad_Grenades[Data18] += mSquad_Grenades[Data14];
 
 	//seg010:0232
-	mSquad_Grenades[Data0] = 0;
+	mSquad_Grenades[Data14] = 0;
 
-	mSquad_Rockets[Data18] += mSquad_Rockets[Data0];
-	mSquad_Rockets[Data0] = 0;
+	mSquad_Rockets[Data18] += mSquad_Rockets[Data14];
+	mSquad_Rockets[Data14] = 0;
 
 	sub_305D5( pSprite );
 	word_3AC2B = 0;
@@ -8306,7 +8303,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 15:
-			sub_1ABF3( Data20 );
+			Sprite_Handle_BuildingRoof( Data20 );
 			break;
 
 		case 21:
@@ -8518,8 +8515,8 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 			word_3A00C = -1;
 			word_3A010 = -1;
 
-			uint16* eax = (uint16*) Sprite->field_46;
-			Data0 = *(eax + 3);
+			sSquad_Member* eax = (sSquad_Member*) Sprite->field_46;
+			Data0 = eax->field_6;
 
 		loc_191BF:;
 			sub_1F429( Sprite );
@@ -8967,7 +8964,7 @@ void cFodder::Sprite_Handle_Tree( sSprite_0* pSprite ) {
 	sub_212F9( pSprite );
 }
 
-void cFodder::sub_1ABF3( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_BuildingRoof( sSprite_0* pSprite ) {
 	pSprite->field_8 = 0x91;
 	sub_212F9( pSprite );
 }
@@ -9163,10 +9160,9 @@ void cFodder::Sprite_Handle_GrenadeBox( sSprite_0* pSprite ) {
 	if (sub_2244B( pSprite ))
 		return;
 
-	int16 Data0 = mSquad_Selected;
-	byte_3AC33[Data0] = -1;
-	byte_3AC39[Data0] = -1;
-	mSquad_Grenades[Data0] += 4;
+	byte_3AC33[mSquad_Selected] = -1;
+	byte_3AC39[mSquad_Selected] = -1;
+	mSquad_Grenades[mSquad_Selected] += 4;
 	
 	sub_2060F( pSprite );
 }
@@ -10310,11 +10306,11 @@ loc_1F4FF:;
 	pSprite->field_45 = 0x0F;
 
 loc_1F50F:;
-	word_3A00E = 0;
+	word_3A00E  = 0;
 	if (word_3A00C)
 		goto loc_1F549;
 
-	if (!sub_20A39( pSprite ))
+	if (!Troop_Throw_Grenade( pSprite ))
 		goto loc_1F52F;
 
 	pSprite->field_4A = -1;
@@ -11963,7 +11959,7 @@ loc_20A2D:;
 	return -1;
 }
 
-int16 cFodder::sub_20A39( sSprite_0* pSprite ) {
+int16 cFodder::Troop_Throw_Grenade( sSprite_0* pSprite ) {
 
 	if (word_3A9AE)
 		goto loc_20ADE;
@@ -13112,7 +13108,7 @@ loc_103BF:;
 		sub_10BBC();
 
 		mMissionComplete = 0;
-		mMapNumber = 2;
+		mMapNumber = 0;
 		word_3901E = 0x3333;
 
 		Troops_Clear();
@@ -13265,7 +13261,7 @@ loc_103BF:;
 			word_3BEC1 = 0;
 			word_3BEC3 = 4;
 			word_3AA1B = 1;
-			sub_2D7C0();
+			Squad_Prepare_GrenadesAndRockets();
 			sub_2D7FF();
 			sub_126DD();
 //			nullsub_1();
