@@ -51,6 +51,7 @@ void cFodder::Music_Play( const char* pFilename ) {
 	Filename.append( pFilename );
 
 	Mix_FreeMusic( mMusicPlaying );
+	Sleep( 100 );
 
 	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
 
@@ -13314,22 +13315,19 @@ loc_103BF:;
 }
 
 void cFodder::graphicsBlkPtrsPrepare() {
-	int32* di = mGraphicBlkPtrs;
-	uint16 bx = 0;
+	uint16 bx = 0, dx = 0;
 
-	for (int16 cx1 = 0x0C; cx1 > 0; --cx1) {
+	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		uint16 bx2 = bx;
-		for (int16 cx2 = 0x14; cx2 > 0; --cx2) {
+		mGraphicBlkPtrs[cx + 0x00] = mDataBaseBlk + bx;
+		mGraphicBlkPtrs[cx + 0xF0] = mDataSubBlk + bx;
 
-			*di = (uint32) mDataBaseBlk + bx2;
-			*(di + 0xF0) = (uint32) mDataSubBlk + bx2;
-
-			++di;
-			bx2 += 0x10;
+		++dx;
+		bx += 0x10;
+		if (dx % 0x14 == 0) {
+			dx = 0;
+			bx += 0x12C0;
 		}
-
-		bx += 0x1400;
 	}
 }
 
@@ -13371,10 +13369,10 @@ void cFodder::map_Tiles_Draw_() {
 			uint8* TargetTmp = TargetRow;
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
-			if (Tile > 0x1DF)
-				Tile = 0x1DF;
+			if (Tile > 0x1DE)
+				Tile = 0x1DE;
 
-			uint8* TilePtr = (uint8*)mGraphicBlkPtrs[Tile];
+			uint8* TilePtr = mGraphicBlkPtrs[Tile];
 			uint16 StartX = 0;
 
 			TilePtr += StartY * 0x140;
