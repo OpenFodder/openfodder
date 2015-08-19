@@ -532,10 +532,10 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite_0*		dword_3BE93[9];
 	
 	sSprite_0**		off_3BDEF[5];
-	uint16			word_3BEB9;
-	uint16			word_3BEBB;
-	uint16			word_3BEBD;
-	uint16			word_3BEC1;
+	int16			word_3BEB9;
+	int16			word_3BEBB;
+	int16			word_3BEBD;
+	int16			word_3BEC1;
 	int16			word_3BEC3;
 	uint16			word_3BEC9;
 	uint16			word_3BED5[5];
@@ -897,7 +897,7 @@ protected:
 	int16			sub_1F21E( sSprite_0* pSprite );
 	void			sub_1F429( sSprite_0* pSprite );
 	void			sub_1F5A0( sSprite_0* pSprite );
-	void			Camera_Adjust_ToSprite( sSprite_0* pSprite );
+	void			sub_1F5CA( sSprite_0* pSprite );
 	void			sub_1F623( sSprite_0* pSprite );
 	void			sub_1F649( sSprite_0* pSprite );
 

@@ -28,6 +28,8 @@
 #include "MissionNames.hpp"
 #include "VocTable.hpp"
 
+#define INVALID_SPRITE_PTR (sSprite_0*) -1
+
 const char* mBinTable[] = { "rjnull.bin", 
 							"rjnull.bin", 
 							"player.bin", 
@@ -397,7 +399,7 @@ void cFodder::sub_10937() {
 
 void cFodder::sub_1096B() {
 	sSprite_0* Data14 = word_39FCE;
-	if(Data14 == (sSprite_0*)-1 || Data14 == 0 )
+	if(Data14 == INVALID_SPRITE_PTR || Data14 == 0 )
 		return;
 	
 	int16 Data8 = Data14->field_0;
@@ -576,10 +578,10 @@ void cFodder::sub_10BBC() {
 
 void cFodder::Troops_Clear() {
 	mSquad[8].mRecruitID = -1;
-	mSquad[8].field_4 = (sSprite_0*)-1;
+	mSquad[8].field_4 = INVALID_SPRITE_PTR;
 
 	for (unsigned int x = 0; x < 8; ++x) {
-		mSquad[x].field_4 = (sSprite_0*) -1;
+		mSquad[x].field_4 = INVALID_SPRITE_PTR;
 		mSquad[x].mRecruitID = -1;
 		mSquad[x].mRank = 0;
 		mSquad[x].field_3 = 0;
@@ -904,21 +906,21 @@ void cFodder::sub_10D9F() {
 	off_3BDEF[3] = dword_3BE6F;
 	off_3BDEF[4] = dword_3BE93;
 	
-	for (unsigned int x = 0; x < 9; ++x) {
-		dword_3BE03[x] = (sSprite_0*) -1;
-	}
-	for (unsigned int x = 0; x < 9; ++x) {
-		dword_3BE27[x] = (sSprite_0*) -1;
-	}
-	for (unsigned int x = 0; x < 9; ++x) {
-		dword_3BE4B[x] = (sSprite_0*) -1;
-	}
-	for (unsigned int x = 0; x < 9; ++x) {
-		dword_3BE6F[x] = (sSprite_0*) -1;
-	}
-	for (unsigned int x = 0; x < 9; ++x) {
-		dword_3BE93[x] = (sSprite_0*) -1;
-	}
+	for (unsigned int x = 0; x < 9; ++x)
+		dword_3BE03[x] = INVALID_SPRITE_PTR;
+	
+	for (unsigned int x = 0; x < 9; ++x)
+		dword_3BE27[x] = INVALID_SPRITE_PTR;
+	
+	for (unsigned int x = 0; x < 9; ++x)
+		dword_3BE4B[x] = INVALID_SPRITE_PTR;
+	
+	for (unsigned int x = 0; x < 9; ++x)
+		dword_3BE6F[x] = INVALID_SPRITE_PTR;
+	
+	for (unsigned int x = 0; x < 9; ++x)
+		dword_3BE93[x] = INVALID_SPRITE_PTR;
+	
 	word_3BEB9 = 1;
 	word_3BEBB = 1;
 	word_3BEBD = 1;
@@ -1263,13 +1265,13 @@ void cFodder::sub_1142D() {
 	sSquad_Member* Data20 = mSquad;
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 
-		if (Data20->field_4 == (sSprite_0*) -1)
+		if (Data20->field_4 == INVALID_SPRITE_PTR)
 			continue;
 
 		if (Data1C)
 			--Data1C;
 		else
-			Data20->field_4 = (sSprite_0*) -1;
+			Data20->field_4 = INVALID_SPRITE_PTR;
 	}
 
 }
@@ -1317,7 +1319,7 @@ void cFodder::sub_115F7() {
 
 		--word_3A016;
 		if (word_3A016 < 0) {
-			Troop->field_4 = (sSprite_0*) -1;
+			Troop->field_4 = INVALID_SPRITE_PTR;
 			Data20->field_0 = -32768;
 			Data20->field_18 = 4;
 			Data20->field_8 = 0x7C;
@@ -1995,7 +1997,7 @@ void cFodder::sub_1229C() {
 
 void cFodder::sub_122BD() {
 
-	if (word_39FCE == (sSprite_0*)-1 || word_39FCE == 0 )
+	if (word_39FCE == INVALID_SPRITE_PTR || word_39FCE == 0 )
 		return;
 
 	sSprite_0* Data20 = word_39FCE;
@@ -2088,15 +2090,15 @@ void cFodder::Sprite_Sort_DrawList() {
 		*bp++ = si;
 	}
 
-	*di = (sSprite_0*) -1;
-	*bx = (sSprite_0*) -1;
-	*bp = (sSprite_0*) -1;
+	*di = INVALID_SPRITE_PTR;
+	*bx = INVALID_SPRITE_PTR;
+	*bp = INVALID_SPRITE_PTR;
 
 	sSprite_0** Si = dword_3A125 - 1;
 	//seg000:247C
 	for (;;) {
 		++Si;
-		if (*Si == (sSprite_0*)-1)
+		if (*Si == INVALID_SPRITE_PTR)
 			break;
 
 		di = Si;
@@ -2104,7 +2106,7 @@ void cFodder::Sprite_Sort_DrawList() {
 
 	loc_1248D:;
 		++di;
-		if (*di == (sSprite_0*)-1)
+		if (*di == INVALID_SPRITE_PTR)
 			continue;
 
 		int16 cx = (*di)->field_4;
@@ -2124,7 +2126,7 @@ void cFodder::Sprite_Sort_DrawList() {
 
 	for(;;) {
 		sSprite_0* ax = *Si++;
-		if (ax == (sSprite_0*)-1)
+		if (ax == INVALID_SPRITE_PTR)
 			break;
 
 		*di++ = ax;
@@ -2133,7 +2135,7 @@ void cFodder::Sprite_Sort_DrawList() {
 	Si = dword_3A125;
 	for(;;) {
 		sSprite_0* ax = *Si++;
-		if (ax == (sSprite_0*)-1)
+		if (ax == INVALID_SPRITE_PTR)
 			break;
 
 		*di++ = ax;
@@ -2143,13 +2145,13 @@ void cFodder::Sprite_Sort_DrawList() {
 		sSprite_0* ax = *Si++;
 		*di++ = ax;
 		
-		if (ax == (sSprite_0*)-1)
+		if (ax == INVALID_SPRITE_PTR)
 			break;
 	}
 }
 
 void cFodder::sub_124DB() {
-	if (dword_3B48B[0] == (sSprite_0*) -1 || dword_3B48B[0] == 0)
+	if (dword_3B48B[0] == INVALID_SPRITE_PTR || dword_3B48B[0] == 0)
 		return;
 
 	sSprite_0* Data20 = dword_3B48B[0];
@@ -2412,7 +2414,7 @@ void cFodder::sub_12A5F() {
 	sSquad_Member* Data20 = mSquad;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
-		if (Data20->field_4 == (sSprite_0*) -1 || Data20->field_4 == 0 )
+		if (Data20->field_4 == INVALID_SPRITE_PTR || Data20->field_4 == 0 )
 			continue;
 
 		++Data20->field_3;
@@ -2443,7 +2445,7 @@ void cFodder::sub_12AEE() {
 		++Data24;
 	}
 	
-	*Data24 = (sSprite_0*) -1;
+	*Data24 = INVALID_SPRITE_PTR;
 	++Data24;
 
 }
@@ -2460,7 +2462,7 @@ void cFodder::sub_12B6E() {
 		int16 Data10 = 0;
 
 		for (;;) {
-			if (*Data20 != (sSprite_0*)-1 && *Data20 != 0 ) {
+			if (*Data20 != INVALID_SPRITE_PTR && *Data20 != 0 ) {
 				sSprite_0* Data24 = *Data20++;
 				if (!Data24->field_6E)
 					goto loc_12C5F;
@@ -2502,7 +2504,7 @@ void cFodder::sub_12C69() {
 		sSprite_0** Data2C = off_3BDEF[Data0];
 
 		for (;;) {
-			if (*Data2C == (sSprite_0*) -1 )
+			if (*Data2C == INVALID_SPRITE_PTR )
 				break;
 
 			sSprite_0* Data30 = *Data2C++;
@@ -3393,7 +3395,7 @@ void cFodder::Sprite_Draw( ) {
 
 	for (;;) {
 		sSprite_0* eax = *si++;
-		if (eax == (sSprite_0*) -1 || eax == 0 )
+		if (eax == INVALID_SPRITE_PTR || eax == 0 )
 			break;
 
 		if (eax->field_24) {
@@ -4442,7 +4444,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 	for( uint16 x = 0; x < 8; ++x, --word_3A3BB ) {
 		sSquad_Member* Data2C = &mSquad[x];
 		
-		if( Data2C->field_4 == (sSprite_0*) -1 ||  Data2C->field_4 == 0 )
+		if( Data2C->field_4 == INVALID_SPRITE_PTR ||  Data2C->field_4 == 0 )
 			continue;
 		
 		if( mSquad_Selected != Data2C->field_4->field_32)
@@ -4499,7 +4501,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 	for( uint16 x = 0; x < 8; ++x, --word_3A061 ) {
 		sSquad_Member* Data38 = &mSquad[x];
 
-		if( Data38->field_4 == (sSprite_0*) -1 || Data38->field_4 == 0 )
+		if( Data38->field_4 == INVALID_SPRITE_PTR || Data38->field_4 == 0 )
 			continue;
 		
 		Data4 = mSquad_Selected;
@@ -5263,7 +5265,7 @@ void cFodder::sub_30AB0() {
 	//loc_30B36
 	for (int16 Data1C = 4; Data1C >= 0; --Data1C) {
 
-		if (*Data24 == (sSprite_0*)-1 )
+		if (*Data24 == INVALID_SPRITE_PTR )
 			goto loc_30CBC;
 
 		if (*Data24 == 0)
@@ -6066,7 +6068,7 @@ void cFodder::sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10
 	sSprite_0** Saved_Data24 = Data24;
 
 	for (;;) {
-		if (*Data24++ == (sSprite_0*)-1)
+		if (*Data24++ == INVALID_SPRITE_PTR)
 			break;
 
 		++Data1C;
@@ -6097,7 +6099,7 @@ void cFodder::sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10
 	for (;;) {
 		sSprite_0* Data28 = *Data24++;
 
-		if (Data28 == (sSprite_0*)-1)
+		if (Data28 == INVALID_SPRITE_PTR)
 			break;
 
 		if (Data28->field_5B)
@@ -6141,7 +6143,7 @@ int16 cFodder::sub_2AC06( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 
 
 		sSprite_0* Data2C = Data28->field_4;
 
-		if (Data2C == (sSprite_0*)-1)
+		if (Data2C == INVALID_SPRITE_PTR)
 			continue;
 
 		int16 Data0 = Data2C->field_0;
@@ -6593,18 +6595,18 @@ void cFodder::sub_2D06C() {
 
 	sSprite_0*** Data28 = off_3BDEF;
 	int16 Data0 = -32768;
-	sSprite_0* Data4 = (sSprite_0*) -1;
+	sSprite_0* Data4 = INVALID_SPRITE_PTR;
 
-	dword_3BE03[0] = (sSprite_0*) -1;
-	dword_3BE27[0] = (sSprite_0*) -1;
-	dword_3BE4B[0] = (sSprite_0*) -1;
-	dword_3BE6F[0] = (sSprite_0*) -1;
-	dword_3BE93[0] = (sSprite_0*) -1;
+	dword_3BE03[0] = INVALID_SPRITE_PTR;
+	dword_3BE27[0] = INVALID_SPRITE_PTR;
+	dword_3BE4B[0] = INVALID_SPRITE_PTR;
+	dword_3BE6F[0] = INVALID_SPRITE_PTR;
+	dword_3BE93[0] = INVALID_SPRITE_PTR;
 
 	for (int8 Data1C = 0; Data1C < 8; ++Data1C) {
 		sSquad_Member* Data2C = &mSquad[Data1C];
 
-		if (Data2C->field_4 == (sSprite_0*) -1 || Data2C->field_4 == 0 )
+		if (Data2C->field_4 == INVALID_SPRITE_PTR || Data2C->field_4 == 0 )
 			continue;
 
 		sSprite_0* Sprite = Data2C->field_4;
@@ -6653,7 +6655,7 @@ void cFodder::sub_2D06C() {
 		Data30[Data0] = -1;
 	}
 
-	*Data34 = (sSprite_0*) -1;
+	*Data34 = INVALID_SPRITE_PTR;
 }
 
 void cFodder::sub_2D26A( sSquad_Member* pData24, int16& pData8 ) {
@@ -6681,7 +6683,7 @@ void cFodder::sub_2D2D4() {
 
 	//loc_2D2EB
 	sSprite_0* Data20 = word_39FCE;
-	if (Data20 == (sSprite_0*) -1 || Data20 == 0 )
+	if (Data20 == INVALID_SPRITE_PTR || Data20 == 0 )
 		return;
 
 	sSquad_Member* Dataa20 = (sSquad_Member*) Data20->field_46;
@@ -7115,7 +7117,7 @@ void cFodder::sub_2DCB0( int16 pData0 ) {
 
 	for (;;) {
 
-		if (*Data24 == (sSprite_0*)-1)
+		if (*Data24 == INVALID_SPRITE_PTR)
 			break;
 
 		sSprite_0* Data28 = *Data24++;
@@ -7635,7 +7637,7 @@ int16 cFodder::sub_1804C() {
 
 	for (int16 word_3ABE1 = 7; word_3ABE1 >= 0; --word_3ABE1, ++si) {
 
-		if (si->field_4 != (sSprite_0*) -1 ) {
+		if (si->field_4 != INVALID_SPRITE_PTR ) {
 			int16 ax = si->mRecruitID;
 			int8 bl = si->mRank;
 
@@ -7994,7 +7996,7 @@ void cFodder::Service_Promotion_Prepare() {
 		if (Data20->mRecruitID == -1)
 			continue;
 
-		if (Data20->field_4 == (sSprite_0*) -1 )
+		if (Data20->field_4 == INVALID_SPRITE_PTR )
 			continue;
 
 		int16 Data4 = Data20->field_3;
@@ -8563,7 +8565,7 @@ loc_191C3:;
 	if (word_3AA41)
 		sub_1F5A0( Sprite );
 	else
-		Camera_Adjust_ToSprite( Sprite );
+		sub_1F5CA( Sprite );
 
 	int16 Data0 = Sprite->field_26;
 	if( Data0 < 0 )
@@ -8596,7 +8598,7 @@ loc_191C3:;
 	if( Sprite->field_5A )
 		goto loc_19403;
 	
-	Camera_Adjust_ToSprite( Sprite );
+	sub_1F5CA( Sprite );
 	sub_1F762( Sprite );
 	return;
 	
@@ -8650,7 +8652,7 @@ loc_19403:;
 	
 loc_19414:;
 	Sprite->field_5A = 0;
-	Camera_Adjust_ToSprite( Sprite );
+	sub_1F5CA( Sprite );
 	return;
 	
 loc_19424:;
@@ -8680,7 +8682,7 @@ loc_1946D:;
 
 loc_19490:;
 	Sprite->field_5A = 0;
-	Camera_Adjust_ToSprite( Sprite );
+	sub_1F5CA( Sprite );
 	return;
 
 loc_194A0:;
@@ -8698,7 +8700,7 @@ loc_194A0:;
 	if( mSquad_Selected == Sprite->field_32 )
 		goto loc_19490;
 	
-	Camera_Adjust_ToSprite( Sprite );
+	sub_1F5CA( Sprite );
 	return;
 
 loc_1957A:;
@@ -8977,7 +8979,7 @@ void cFodder::Sprite_Handle_Player_Rank( sSprite_0* pSprite ) {
 	sSprite_0* Data24 = word_39FCE;
 	int16 Data4;
 
-	if (Data24 == (sSprite_0*) -1)
+	if (Data24 == INVALID_SPRITE_PTR)
 		goto loc_1AF63;
 
 	if (!word_3A9AE) {
@@ -10001,7 +10003,7 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 	Data28[1] = -1;
 	dword_3977E = (int16*) Data28;
 
-	Data24->field_4 = (sSprite_0*) -1;
+	Data24->field_4 = INVALID_SPRITE_PTR;
 	Data24->mRecruitID = -1;
 	Data24->mRank = 0;
 	
@@ -10041,7 +10043,7 @@ loc_1F0EA:;
 	//loc_1F13E
 	sSprite_0** Dataa24 = off_3BDEF[mSquad_Selected];
 	sSprite_0* eax = Dataa24[0];
-	if (eax == (sSprite_0*) -1 || eax == 0 )
+	if (eax == INVALID_SPRITE_PTR || eax == 0 )
 		goto loc_1F218;
 
 	// TODO: Correct?
@@ -10356,7 +10358,7 @@ void cFodder::sub_1F5A0( sSprite_0* pSprite ) {
 	sub_1F762( pSprite );
 }
 
-void cFodder::Camera_Adjust_ToSprite( sSprite_0* pSprite ) {
+void cFodder::sub_1F5CA( sSprite_0* pSprite ) {
 
 	int16 Data0 = mMouseX;
 	Data0 += mCamera_Adjust_Col >> 16;
@@ -10513,8 +10515,7 @@ loc_1F7FF:;
 	//seg005:01CC
 	sSprite_0* Dataa30 = off_3BDEF[pSprite->field_32][0];
 
-	// TODO: Does this work
-	if (Dataa30 == (sSprite_0*) -1 || Dataa30 == 0 )
+	if (Dataa30 == INVALID_SPRITE_PTR || Dataa30 == 0 )
 		goto loc_1F9C0;
 
 	//seg005:020C
@@ -11198,7 +11199,7 @@ void cFodder::sub_311A7() {
 
 	for (;;) {
 
-		if (*Data24 == (sSprite_0*) -1)
+		if (*Data24 == INVALID_SPRITE_PTR)
 			break;
 
 		sSprite_0* Data28 = *Data24++;
@@ -11263,7 +11264,7 @@ void cFodder::sub_311A7() {
 
 		Data24 = off_3BDEF[Data0];
 		for (;;) {
-			if (*Data24 == (sSprite_0*)-1)
+			if (*Data24 == INVALID_SPRITE_PTR)
 				goto loc_313C6;
 
 			sSprite_0* Data28 = *Data24++;
@@ -12218,7 +12219,7 @@ void cFodder::sub_21041( sSprite_0* pSprite ) {
 	sSprite_0** Data34 = Data30;
 
 	for (;;) {
-		if (*Data30 == (sSprite_0*) -1 )
+		if (*Data30 == INVALID_SPRITE_PTR )
 			return;
 
 		sSprite_0* eax = *Data30;
@@ -12640,14 +12641,14 @@ void cFodder::sub_21CD1( sSprite_0* pSprite ) {
 		word_3AA41 = 0;
 
 		Data0 = word_39FCE;
-		if (Data0 == (sSprite_0*)-1)
+		if (Data0 == INVALID_SPRITE_PTR)
 			goto loc_22125;
 
 		goto loc_22053;
 	}
 
 	sSprite_0* Data28 = dword_3BE03[Data1C];
-	if (Data28 == (sSprite_0*)-1)
+	if (Data28 == INVALID_SPRITE_PTR)
 		goto loc_21E4A;
 
 	int16 Dataa0 = tool_RandomGet() & 0x3F;
@@ -12764,7 +12765,7 @@ loc_22000:;
 
 	Dataa0 = pSprite->field_5E;
 
-	if (dword_3BE03[Dataa0] == (sSprite_0*)-1)
+	if (dword_3BE03[Dataa0] == INVALID_SPRITE_PTR)
 		goto loc_22125;
 
 	Data0 = dword_3BE03[Dataa0];
@@ -12848,7 +12849,7 @@ int16 cFodder::sub_2244B( sSprite_0* pSprite ) {
 	if (dword_3B20B)
 		return 1;
 
-	if (word_39FCE == (sSprite_0*)-1 || word_39FCE == 0 )
+	if (word_39FCE == INVALID_SPRITE_PTR || word_39FCE == 0 )
 		return 1;
 
 	if (word_39FCE->field_6E)
@@ -13543,7 +13544,7 @@ loc_2F1BC:;
 		
 		sSprite_0* Data34 = Data38->field_4;
 
-		if (Data34 == (sSprite_0*)-1 || Data34 == 0)
+		if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
 			continue;
 
 		if (word_3AC1B != Data34->field_32)
@@ -13869,7 +13870,7 @@ int16 cFodder::sub_2F90B() {
 
 	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38) {
 
-		if (Data38->field_4 == (sSprite_0*)-1 || Data38->field_4 == 0 )
+		if (Data38->field_4 == INVALID_SPRITE_PTR || Data38->field_4 == 0 )
 			continue;
 
 		if (Data18 != Data38->field_4->field_32)
@@ -14140,7 +14141,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
 		sSprite_0* Data34 = Data38->field_4;
 
-		if (Data34 == (sSprite_0*)-1 || Data34 == 0 )
+		if (Data34 == INVALID_SPRITE_PTR || Data34 == 0 )
 			continue;
 
 		if (Data4 != Data34->field_32)
@@ -14197,7 +14198,7 @@ loc_2FF79:;
 	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38 ) {
 		sSprite_0* Data34 = Data38->field_4;
 
-		if (Data34 == (sSprite_0*)-1 || Data34 == 0)
+		if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
 			continue;
 
 		if (Data18 != Data34->field_32)
@@ -14335,7 +14336,7 @@ void cFodder::sub_30E49() {
 
 	for (; Data1C >= 0; --Data1C, ++Data24 ) {
 
-		if ( Data24->field_4 == (sSprite_0*) -1 || Data24->field_4 == 0 )
+		if ( Data24->field_4 == INVALID_SPRITE_PTR || Data24->field_4 == 0 )
 			continue;
 
 		sSprite_0* Data20 = Data24->field_4;
@@ -14478,11 +14479,11 @@ int16 cFodder::sub_305D5( sSprite_0*& pData20 ) {
 		goto loc_306AD;
 
 	sSprite_0** Data30 = off_3BDEF[Data0];
-	if (*Data30 == (sSprite_0*) -1 || *Data30 == 0)
+	if (*Data30 == INVALID_SPRITE_PTR || *Data30 == 0)
 		goto loc_306AD;
 
 	do {
-		if (*Data30 ==  (sSprite_0*) -1 || *Data30 == 0 )
+		if (*Data30 ==  INVALID_SPRITE_PTR || *Data30 == 0 )
 			goto loc_306AD;
 
 		pData20 = *Data30;
@@ -14519,7 +14520,7 @@ int16 cFodder::sub_305D5( sSprite_0*& pData20 ) {
 	goto loc_306BE;
 
 loc_306AD:;
-	pData20 = (sSprite_0*) -1;
+	pData20 = INVALID_SPRITE_PTR;
 	mSquad_Selected = -1;
 
 loc_306BE:;
@@ -14527,7 +14528,7 @@ loc_306BE:;
 		return 1;
 
 	word_39FCE = pData20;
-	if (pData20 == (sSprite_0*) -1 || pData20 == 0 )
+	if (pData20 == INVALID_SPRITE_PTR || pData20 == 0 )
 		return -1;
 
 	return 1;
@@ -14662,7 +14663,7 @@ loc_30814:;
 loc_308F6:;
 	sSprite_0* Dataa20 = word_39FCE;
 
-	if (Dataa20 == (sSprite_0*) -1 || Dataa20 == 0 )
+	if (Dataa20 == INVALID_SPRITE_PTR || Dataa20 == 0 )
 		return;
 
 	Data0 = mMouseX;
@@ -14693,7 +14694,7 @@ loc_308F6:;
 
 	for (int16 Data18 = 7; Data18 >= 0; --Data18, ++SquadMember) {
 
-		if (SquadMember->field_4 == (sSprite_0*) -1 || SquadMember->field_4 == 0 )
+		if (SquadMember->field_4 == INVALID_SPRITE_PTR || SquadMember->field_4 == 0 )
 			continue;
 		
 		sSprite_0* tmp = SquadMember->field_4;
@@ -14760,7 +14761,7 @@ void cFodder::sub_30CDC() {
 	sSprite_0** Data20 = off_3BDEF[mSquad_Selected];
 
 	for (;;) {
-		if (*Data20 == (sSprite_0*)-1 || *Data20 == 0)
+		if (*Data20 == INVALID_SPRITE_PTR || *Data20 == 0)
 			break;
 
 		sSprite_0* Data24 = *Data20++;
