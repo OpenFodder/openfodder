@@ -8285,7 +8285,15 @@ void cFodder::Sprite_Handle_Loop() {
 		case 0:
 			Sprite_Handle_Player( Data20 );
 			break;
-		
+
+		case 2:
+			sub_19658( Data20 );
+			break;
+
+		case 3:
+			sub_199B2( Data20 );
+			break;
+
 		case 4:	// nullsub_3
 			break;
 
@@ -8707,6 +8715,87 @@ loc_194A0:;
 loc_1957A:;
 	Sprite->field_3A = 0;
 	sub_1F762( Sprite );
+
+}
+
+void cFodder::sub_19658( sSprite_0* pSprite ) {
+
+	if (pSprite->field_38)
+		goto loc_1992D;
+
+	if (!pSprite->field_12)
+		goto loc_1992D;
+
+	if (!pSprite->field_56)
+		goto loc_19701;
+
+	--pSprite->field_56;
+	if (!pSprite->field_56)
+		Sound_Voc_Play( pSprite, 0x0F, 0x0F );
+	
+	sSprite_0* Data24 = (sSprite_0*) pSprite->field_46;
+	pSprite->field_0 = Data24->field_0;
+	pSprite->field_2 = Data24->field_2;
+	pSprite->field_4 = Data24->field_4;
+	pSprite->field_6 = Data24->field_6;
+	pSprite->field_4 += 1;
+	pSprite->field_0 += 3;
+	pSprite->field_8 = 0x7C;
+	pSprite->field_A = 0;
+	return;
+
+loc_19701:;
+	pSprite->field_8 = 0x7D;
+	int16 Data0 = pSprite->field_26;
+	int16 Data4 = pSprite->field_28;
+	int16 Data8 = pSprite->field_0;
+	int16 DataC = pSprite->field_4;
+	
+	sub_29E30( Data0, Data4, Data8, DataC );
+	if (Data0 <= 1)
+		pSprite->field_36 = 0;
+
+	if (Data0 <= 4)
+		pSprite->field_36 >>= 1;
+
+	if (pSprite->field_36) {
+		pSprite->field_36 -= 1;
+		sub_1F623( pSprite );
+
+		word_3A399 = pSprite->field_A;
+		Data0 = pSprite->field_26;
+		Data4 = pSprite->field_28;
+
+		sub_2A1F0( pSprite, Data0, Data4 );
+		Sprite_Movement_Calculate( pSprite );
+		sub_21525();
+
+		(pSprite + 1)->field_10 = pSprite->field_10;
+	}
+
+	//loc_197C5
+	if (!pSprite->field_50) {
+		if (pSprite->field_52) {
+			pSprite->field_36 = 0;
+			goto loc_198D3;
+		}
+	}
+	//loc_197EA
+	int32 a1 = (int32) pSprite->field_1A;
+
+	if ((a1 >> 16) < 0)
+		if ((a1 >> 16) < -8)
+			pSprite->field_1A = (int32*) ((a1 & 0xFFFF) | -8);
+
+
+}
+
+void cFodder::sub_199B2( sSprite_0* pSprite ) {
+	sSprite_0* Data24 = pSprite - 1;
+
+	pSprite->field_0 = Data24->field_0;
+	pSprite->field_4 = Data24->field_4;
+	pSprite->field_52 = Data24->field_52;
 
 }
 
