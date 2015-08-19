@@ -158,7 +158,7 @@ class cFodder : public cSingleton < cFodder > {
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
 
-	int32			mGraphicBlkPtrs[480];
+	uint8*			mGraphicBlkPtrs[480];
 	uint16			mMapWidth;
 	uint16			mMapHeight;
 	uint8			mKeyCode;
