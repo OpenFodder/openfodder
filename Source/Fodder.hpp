@@ -871,6 +871,8 @@ protected:
 	void			Sprite_Handle_Loop();
 
 	void			Sprite_Handle_Player( sSprite_0* pSprite );				// 0
+	void			sub_19658( sSprite_0* pSprite );						// 2
+	void			sub_199B2( sSprite_0* pSprite );						// 3
 	void			Sprite_Handle_Enemy( sSprite_0* pSprite );				// 5
 	void			Sprite_Handle_Bullet( sSprite_0* pSprite );				// 6
 	void			sub_1ABD3( sSprite_0* pSprite );						// 13
