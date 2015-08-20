@@ -872,6 +872,7 @@ protected:
 
 	void			Sprite_Handle_Player( sSprite_0* pSprite );				// 0
 	void			sub_19658( sSprite_0* pSprite );						// 2
+	void			sub_1998C( sSprite_0* pSprite );
 	void			sub_199B2( sSprite_0* pSprite );						// 3
 	void			Sprite_Handle_Enemy( sSprite_0* pSprite );				// 5
 	void			Sprite_Handle_Bullet( sSprite_0* pSprite );				// 6
@@ -929,6 +930,7 @@ protected:
 	void			sub_212C4( sSprite_0* pSprite );
 	void			sub_212F9( sSprite_0* pSprite );
 	void			sub_21483( sSprite_0* pSprite );
+	void			sub_21525( sSprite_0* pSprite );
 	int16			sub_21618( sSprite_0* pSprite );
 
 	int16			sub_21914( int16& pData8, int16& pDataC );
