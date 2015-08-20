@@ -8768,7 +8768,7 @@ loc_19701:;
 
 		sub_2A1F0( pSprite, Data0, Data4 );
 		Sprite_Movement_Calculate( pSprite );
-		sub_21525();
+		sub_21525( pSprite );
 
 		(pSprite + 1)->field_10 = pSprite->field_10;
 	}
@@ -8787,7 +8787,79 @@ loc_19701:;
 		if ((a1 >> 16) < -8)
 			pSprite->field_1A = (int32*) ((a1 & 0xFFFF) | -8);
 
+	pSprite->field_1A -= 0x18000;
+	Data4 = (int32) pSprite->field_1A;
 
+	if (!pSprite->field_50)
+		goto loc_19877;
+
+	if (Data4 >= 0)
+		goto loc_19877;
+
+	if (pSprite->field_20 >= 2)
+		goto loc_19877;
+	
+	pSprite->field_1E = 0;
+
+loc_19855:;
+
+	Data4 = (Data4 >> 16) | ((Data4 & 0xFFFF) << 16);
+	if (pSprite->field_52 >= 0x0A)
+		goto loc_198D3;
+
+	pSprite->field_52 -= Data4;
+	goto loc_198D3;
+
+loc_19877:;
+	pSprite->field_1E += Data4;
+	if (pSprite->field_20 < 0) {
+		pSprite->field_1E = 0;
+
+		if (pSprite->field_50)
+			goto loc_19855;
+
+		Data4 = (int32) pSprite->field_1A;
+		Data4 = -Data4;
+		Data4 >>= 1;
+		pSprite->field_1A = (int32*) Data4;
+	}
+
+loc_198D3:;
+	if (!pSprite->field_36)
+		pSprite->field_20 = 0;
+
+	Data4 = pSprite->field_20;
+	Data4 >>= 4;
+	if (Data4 > 3)
+		Data4 = 3;
+
+	pSprite->field_A = Data4;
+	(pSprite + 1)->field_A = Data4;
+	pSprite->field_12 -= 1;
+	return;
+
+loc_1992D:;
+
+	if (pSprite->field_52 < 8) {
+		pSprite->field_18 = 0x0C;
+		sub_1998C( pSprite );
+		sub_2061C( pSprite + 1 );
+		return;
+	}
+	//loc_19957
+	sub_1998C( pSprite );
+	pSprite->field_0 = 0;
+	pSprite->field_4 = 0;
+
+	sub_2061C( pSprite );
+	sub_2061C( pSprite + 1 );
+}
+
+void cFodder::sub_1998C( sSprite_0* pSprite ) {
+	int16 Data0 = pSprite->field_22;
+
+	int8* Data24 = byte_3A9D2;
+	--Data24[Data0];
 }
 
 void cFodder::sub_199B2( sSprite_0* pSprite ) {
@@ -12605,6 +12677,56 @@ void cFodder::sub_21483( sSprite_0* pSprite ) {
 	Data2C->field_32 = -1;
 	Data2C->field_2C = -1;
 	Data2C->field_52 = 0;
+}
+
+void cFodder::sub_21525( sSprite_0* pSprite ) {
+	int16 Data0 = -3;
+	int16 Data4 = 2;
+
+	if (sub_2A7F7( pSprite, Data0, Data4 ))
+		goto loc_21599;
+
+	if (Data4 == 9 || Data4 == 0x0A) {
+
+		if (pSprite->field_20 <= 1) {
+			pSprite->field_12 = 1;
+			return;
+		}
+	}
+	//loc_21561
+	if (Data4 == 4 || Data4 == 5 || Data4 == 6) {
+
+		if (pSprite->field_20)
+			return;
+
+		pSprite->field_52 = 6;
+		(pSprite + 1)->field_52 = 6;
+		return;
+	}
+	//loc_21597
+	return;
+
+loc_21599:;
+	if (pSprite->field_20 >= 8)
+		return;
+
+	pSprite->field_0 = dword_3A391 >> 16;
+	Data0 = -3;
+	Data4 = 2;
+
+	if (!sub_2A7F7( pSprite, Data0, Data4 )) {
+		Data0 = 0x100;
+		Data0 -= pSprite->field_10;
+		Data0 &= 0x1FE;
+		pSprite->field_10 = Data0;
+	}
+	else {
+		Data0 = 0x200;
+		Data0 -= pSprite->field_10;
+		Data0 &= 0x1FE;
+		pSprite->field_10 = Data0;
+	}
+	sub_1F649( pSprite );
 }
 
 int16 cFodder::sub_21618( sSprite_0* pSprite ) {
