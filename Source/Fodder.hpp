@@ -876,6 +876,7 @@ protected:
 	void			sub_199B2( sSprite_0* pSprite );						// 3
 	void			Sprite_Handle_Enemy( sSprite_0* pSprite );				// 5
 	void			Sprite_Handle_Bullet( sSprite_0* pSprite );				// 6
+	void			sub_1A8A5( sSprite_0* pSprite );						// 12
 	void			sub_1ABD3( sSprite_0* pSprite );						// 13
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
 	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );		// 15
@@ -943,6 +944,7 @@ protected:
 	int16			sub_2244B( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
 	int16			sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 );
+	int16			sub_22A55( sSprite_0* pSprite );
 	void			sub_22AA9( sSprite_0* pSprite );
 	void			sub_22B71( sSprite_0* pSprite );
 

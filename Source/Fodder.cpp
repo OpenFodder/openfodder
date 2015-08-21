@@ -8305,6 +8305,10 @@ void cFodder::Sprite_Handle_Loop() {
 			Sprite_Handle_Bullet( Data20 );
 			break;
 			
+		case 12:
+			sub_1A8A5( Data20 );
+			break;
+
 		case 13:
 			sub_1ABD3( Data20 );
 			break;
@@ -9116,6 +9120,56 @@ loc_19E50:;
 	pSprite->field_0 = 0;
 	pSprite->field_4 = 0x1000;
 	goto loc_19E3D;
+}
+
+void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
+	if (pSprite->field_8 == 0x7C) {
+		sub_22A55( pSprite );
+		return;
+	}
+
+	if (pSprite->field_8 == 0xC0 || pSprite->field_8 == 0x8E) {
+		//loc_1A8D1
+
+		int16 Data8 = pSprite->field_0;
+		Data8 += 8;
+
+		if (pSprite->field_26 == 0x5F5F)
+			Data8 += pSprite->field_28;
+
+		int16 DataC = pSprite->field_0;
+		DataC += 0x24;
+		int16 Data10 = pSprite->field_4;
+		Data10 -= 0x20;
+		int16 Data14 = pSprite->field_4;
+		Data14 -= 6;
+
+		const int16* Data2C = word_3D5B9;
+		int16 Data0 = pSprite->field_A;
+		if (pSprite->field_8 == 0xC0)
+			Data0 += 2;
+		Data0 -= 1;
+		if (Data0 >= 0) {
+
+			do {
+				Data8 -= *Data2C;
+				DataC -= *(Data2C + 1);
+				Data10 += *Data2C;
+
+				++Data2C;
+				Data14 += *Data2C;
+				++Data2C;
+
+			} while (--Data0 >= 0);
+		}
+		//loc_1A99D
+
+	}
+	else {
+		//loc_1AA9F
+	}
+
+
 }
 
 void cFodder::sub_1ABD3( sSprite_0* pSprite ) {
@@ -13270,6 +13324,10 @@ int16 cFodder::sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 ) {
 	}
 	
 	return 0;
+}
+
+int16 cFodder::sub_22A55( sSprite_0* pSprite ) {
+	return sub_2060F( pSprite );
 }
 
 void cFodder::sub_22AA9( sSprite_0* pSprite ) {
