@@ -9163,6 +9163,28 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 			} while (--Data0 >= 0);
 		}
 		//loc_1A99D
+		sSprite_0* Data24 = 0;
+
+		pSprite->field_62 = !pSprite->field_62;
+		if (pSprite->field_62 >= 0)
+			sub_2AC06( pSprite, Data8, DataC, Data10, Data14 );
+		else
+			sub_2D490( pSprite, Data24, Data8, DataC, Data10, Data14 );
+
+		pSprite->field_12 -= 1;
+		if (pSprite->field_12 >= 0)
+			return;
+
+		pSprite->field_12 = 1;
+
+		Data2C = word_3D5B9;
+		int16 Data4 = pSprite->field_A;
+		if (pSprite->field_8 == 0xC0)
+			Data4 += 2;
+		
+		Data4 = Data2C[Data4];
+		Data4 |= Data2C[Data4 + 1] << 16;
+		//seg004:1CC9
 
 	}
 	else {
