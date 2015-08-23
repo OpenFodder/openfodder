@@ -997,6 +997,7 @@ protected:
 	int16			sub_2D91E( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
 	void			sub_2DCB0( int16 pData0 );
+	void			sub_2DD50( sSprite_0* pSprite );
 	void			sub_2DE2C( );
 	void			sub_2E01C();
 	int16			sub_2EAC2();

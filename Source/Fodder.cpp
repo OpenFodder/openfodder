@@ -7129,6 +7129,44 @@ void cFodder::sub_2DCB0( int16 pData0 ) {
 
 }
 
+void cFodder::sub_2DD50( sSprite_0* pSprite ) {
+	word_3B4E9 = 0;
+	if (pSprite->field_18 == 0x59)
+		word_3B4E9 = -1;
+
+	struct_7* Data28 = dword_3B11B;
+
+	int16 Data0 = pSprite->field_0;
+	Data0 += 4;
+	int16 Data4 = pSprite->field_4;
+
+	Data4 -= 8;
+	const int16* Data24 = word_3DDD2;
+
+	for (;;) {
+		if (*Data24 == -32768)
+			break;
+
+		Data0 += *Data24++;
+		Data4 += *Data24++;
+
+		Data28->field_0 = Data0;
+		Data28->field_2 = Data4;
+		++Data28;
+
+		if (word_3B4E9)
+			(Data28 - 1)->field_2 = -Data4;
+
+		if (Data28 >= &stru_3AF0B[128])
+			Data28 = stru_3AF0B;
+	}
+
+	Data28->field_0 = -1;
+	Data28->field_2 = -1;
+
+	dword_3B11B = Data28;
+}
+
 void cFodder::sub_2DE2C( ) {
 	
 	if (word_3AF07) {
@@ -9205,12 +9243,61 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 
 		return;
 	}
-	else {
-		//loc_1AA9F
 
+	//loc_1AA9F
+	if (pSprite->field_5C) {
+		sub_2DD50();
+		int16 Data0 = tool_RandomGet() & 0x1FE;
+		int16 Data18 = Data0;
+		sub_21702();
+		Data18 += 0x100;
+		Data18 &= 0x1FE;
+		sub_21702();
+
+		word_3A3AB = -1;
+		word_3A3AD = 0;
+		word_3A3AF = 0;
+		word_3A3A1 = 9;
+		word_3A3A7 = -1;
+		word_3A3A9 = -1;
+	}
+	//loc_1AAFD
+	pSprite->field_0 -= 6;
+	if (pSprite->field_0 < 0) {
+		sub_22A3D();
+		return;
 	}
 
+	//loc_1AB0D
+	pSprite->field_4 += 4;
+	if (pSprite->field_4 < 0) {
+		sub_22A3D();
+		return;
+	}
 
+	int16 Data0 = pSprite->field_26;
+	if (Data0 < 0) {
+		Data0 &= 0x7FFF;
+		pSprite->field_0 += Data0;
+		if (pSprite->field_0 < 0) {
+			sub_22A3D();
+			return;
+		}
+		pSprite->field_26 = 0;
+	}
+	//loc_1AB6F
+	int16 Data4 = word_390AE;
+	Data4 &= 3;
+	Data4 += 5;
+
+	Sound_Voc_Play( pSprite, Data4, 0x1E );
+	pSprite->field_8 = 0x8E;
+	pSprite->field_A = 0;
+	pSprite->field_12 = 1;
+	pSprite->field_52 = 0;
+	pSprite->field_22 = -1;
+	pSprite->field_32 = -1;
+	pSprite->field_2C = -1;
 }
 
 void cFodder::sub_1ABD3( sSprite_0* pSprite ) {
