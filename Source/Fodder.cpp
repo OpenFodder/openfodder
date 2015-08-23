@@ -9196,10 +9196,18 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 		return;
 
 	loc_1AA63:;
+		if (pSprite->field_20 || pSprite->field_A >= 2) {
+			pSprite->field_8 = 0xC0;
+			pSprite->field_A = 0;
+		}
+		if (pSprite->field_A >= 7)
+			sub_2060F( pSprite );
 
+		return;
 	}
 	else {
 		//loc_1AA9F
+
 	}
 
 
