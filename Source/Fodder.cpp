@@ -692,6 +692,12 @@ void cFodder::sub_10D61() {
 	dword_3A391 = 0;
 	dword_3A395 = 0;
 	word_3A399 = 0;
+	word_3A3AB = 0;
+	word_3A3AD = 0;
+	word_3A3AF = 0;
+	word_3A3A1 = 0;
+	word_3A3A7 = 0;
+	word_3A3A9 = 0;
 	word_3A3B9 = 0;
 	word_3A3BB = 0;
 	word_3A3BD = 0;
@@ -891,6 +897,7 @@ void cFodder::sub_10D61() {
 	word_3B4D9 = 0;
 	mMission_ShowMapOverview = 0;
 	word_3B4DD = 0;
+	word_3B4E9 = 0;
 	word_3B4EB = 0;
 	word_3B4F1 = 0;
 	word_3B4F3 = 0;
@@ -9246,13 +9253,13 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 
 	//loc_1AA9F
 	if (pSprite->field_5C) {
-		sub_2DD50();
+		sub_2DD50( pSprite );
 		int16 Data0 = tool_RandomGet() & 0x1FE;
 		int16 Data18 = Data0;
-		sub_21702();
+		sub_21702( pSprite, Data18 );
 		Data18 += 0x100;
 		Data18 &= 0x1FE;
-		sub_21702();
+		sub_21702( pSprite, Data18 );
 
 		word_3A3AB = -1;
 		word_3A3AD = 0;
@@ -9264,14 +9271,14 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 	//loc_1AAFD
 	pSprite->field_0 -= 6;
 	if (pSprite->field_0 < 0) {
-		sub_22A3D();
+		sub_22A3D( pSprite );
 		return;
 	}
 
 	//loc_1AB0D
 	pSprite->field_4 += 4;
 	if (pSprite->field_4 < 0) {
-		sub_22A3D();
+		sub_22A3D( pSprite );
 		return;
 	}
 
@@ -9280,7 +9287,7 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 		Data0 &= 0x7FFF;
 		pSprite->field_0 += Data0;
 		if (pSprite->field_0 < 0) {
-			sub_22A3D();
+			sub_22A3D( pSprite );
 			return;
 		}
 		pSprite->field_26 = 0;
@@ -12956,6 +12963,46 @@ int16 cFodder::sub_21618( sSprite_0* pSprite ) {
 	return 0;
 }
 
+void cFodder::sub_21702( sSprite_0* pSprite, int16 pData18 ) {
+	int16 Data0 = 2;
+	sSprite_0* Data2C, *Data30;
+
+	sub_211BA( Data0, Data2C, Data30 );
+	if (!Data0)
+		return;
+
+	Data30 = Data2C + 1;
+	Data2C->field_0 = pSprite->field_0;
+	Data2C->field_2 = pSprite->field_2;
+	Data2C->field_0 += 2;
+	Data2C->field_4 = pSprite->field_4;
+	Data2C->field_6 = pSprite->field_6;
+	Data2C->field_4 -= 4;
+
+	Data30->field_0 = Data2C->field_0;
+	Data30->field_4 = Data2C->field_4;
+	
+	Data2C->field_1E = pSprite->field_1E;
+	Data30->field_20 = 0;
+	Data2C->field_8 = 0xC5;
+	Data30->field_8 = 0x7E;
+	Data2C->field_A = 0;
+	Data30->field_A = 0;
+	Data2C->field_36 = 0x0C;
+	Data30->field_36 = 0x0C;
+	Data2C->field_18 = 0x2F;
+	Data30->field_18 = 0x03;
+	Data2C->field_52 = 0;
+	Data30->field_52 = 0;
+	Data2C->field_2C = 0;
+	Data30->field_2C = -1;
+	Data2C->field_38 = 0;
+
+	Data2C->field_10 = pData18;
+	Data2C->field_1A = (int32*)0x0A8000;
+
+}
+
 int16 cFodder::sub_21914( int16& pData8, int16& pDataC ) {
 	int16 Data0 = 1;
 	sSprite_0* Data2C, *Data30;
@@ -13452,6 +13499,13 @@ int16 cFodder::sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 ) {
 	}
 	
 	return 0;
+}
+
+void cFodder::sub_22A3D( sSprite_0* pSprite ) {
+	pSprite->field_0 = 1;
+	pSprite->field_4 = 1;
+
+	sub_22A55( pSprite );
 }
 
 int16 cFodder::sub_22A55( sSprite_0* pSprite ) {
