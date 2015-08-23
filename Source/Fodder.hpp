@@ -328,6 +328,12 @@ class cFodder : public cSingleton < cFodder > {
 	uint32			dword_3A395;
 	int16			word_3A399;
 	uint32			dword_3A39D;
+	int16			word_3A3AB;
+	int16			word_3A3AD;
+	int16			word_3A3AF;
+	int16			word_3A3A1;
+	int16			word_3A3A7;
+	int16			word_3A3A9;
 	int16			word_3A3B9;
 	int16			word_3A3BB;
 	int16			word_3A3BD;
@@ -499,6 +505,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4D9;
 	int16			mMission_ShowMapOverview;
 	int16			word_3B4DD;
+	int16			word_3B4E9;
 	int16			word_3B4EB;
 	int16			word_3B4F1;
 	int16			word_3B4F3;
@@ -933,6 +940,7 @@ protected:
 	void			sub_21483( sSprite_0* pSprite );
 	void			sub_21525( sSprite_0* pSprite );
 	int16			sub_21618( sSprite_0* pSprite );
+	void			sub_21702( sSprite_0* pSprite, int16 pData18 );
 
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
@@ -944,6 +952,7 @@ protected:
 	int16			sub_2244B( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
 	int16			sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 );
+	void			sub_22A3D( sSprite_0* pSprite );
 	int16			sub_22A55( sSprite_0* pSprite );
 	void			sub_22AA9( sSprite_0* pSprite );
 	void			sub_22B71( sSprite_0* pSprite );
