@@ -9182,9 +9182,20 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 		if (pSprite->field_8 == 0xC0)
 			Data4 += 2;
 		
-		Data4 = Data2C[Data4];
-		Data4 |= Data2C[Data4 + 1] << 16;
 		//seg004:1CC9
+		pSprite->field_0 -= Data2C[Data4];
+		pSprite->field_4 += Data2C[Data4 + 1];
+		pSprite->field_A += 1;
+		if (pSprite->field_8 != 0xC0)
+			goto loc_1AA63;
+
+		if (pSprite->field_A < 4)
+			return;
+
+		sub_2060F( pSprite );
+		return;
+
+	loc_1AA63:;
 
 	}
 	else {
