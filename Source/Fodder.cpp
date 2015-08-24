@@ -9526,7 +9526,46 @@ void cFodder::sub_1B07C( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_1B303( sSprite_0* pSprite ) {
+	pSprite->field_8 = 0x9E;
 
+	if (!pSprite->field_12) {
+		pSprite->field_12 = 0x10;
+		pSprite->field_10 = 0x100;
+	}
+
+	if (pSprite->field_10 <= 0x100)
+		goto loc_1B35A;
+
+	if (pSprite->field_12 == 0x10)
+		goto loc_1B350;
+
+	pSprite->field_12 = 0x10;
+	goto loc_1B35A;
+
+loc_1B350:;
+	pSprite->field_12 = -16;
+loc_1B35A:;
+
+	sub_1F623( pSprite );
+	Sprite_Movement_Calculate( pSprite );
+	int16 Data0 = -3;
+	int16 Data4 = 8;
+	sub_2A7F7( pSprite, Data0, Data4 );
+	if (Data4 < 4 || Data4 > 6) {
+		pSprite->field_0 = dword_3A391 >> 16;
+		pSprite->field_4 = dword_3A395 >> 16;
+		pSprite->field_36 = 0;
+		Data0 = pSprite->field_12;
+
+		pSprite->field_10 += Data0;
+		pSprite->field_10 &= 0x1FE;
+	}
+
+	//loc_1B3CA
+	if (pSprite->field_36 < 4)
+		pSprite->field_36++;
+
+	pSprite->field_2C = 0;
 }
 
 void cFodder::Sprite_Handle_Text_Complete( sSprite_0* pSprite ) {
