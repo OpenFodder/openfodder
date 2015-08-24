@@ -194,6 +194,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390D2;
 	int16			word_390D4;
 	sSprite_0*		word_390D6[8];
+	int16			word_390E6;
 	uint16			word_390E8;
 	int16			word_390EA;
 	int16			word_390EC;
@@ -887,9 +888,11 @@ protected:
 	void			sub_1ABD3( sSprite_0* pSprite );						// 13
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
 	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );		// 15
+	void			sub_1ACC5( sSprite_0* pSprite );						// 20
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
 	void			sub_1AF78( sSprite_0* pSprite );						// 22
 	void			sub_1B07C( sSprite_0* pSprite );						// 23
+	void			sub_1B303( sSprite_0* pSprite );						// 27
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );		// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
 	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );			// 30
@@ -941,13 +944,17 @@ protected:
 	void			sub_21525( sSprite_0* pSprite );
 	int16			sub_21618( sSprite_0* pSprite );
 	void			sub_21702( sSprite_0* pSprite, int16 pData18 );
-
+	void			sub_218E2( sSprite_0* pSprite );
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
+	int16			sub_219F1( sSprite_0* pSprite );
+	void			sub_21B15( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
+	void			sub_21C00( sSprite_0* pData2C );
 	void			sub_21C6F( );
 	void			sub_21CD1( sSprite_0* pSprite );
 
 	void			sub_2212A( sSprite_0* pSprite );
+	int16			sub_221A6( sSprite_0* pSprite );
 	void			sub_223B2( sSprite_0* pSprite );
 	int16			sub_2244B( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
