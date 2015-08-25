@@ -888,7 +888,7 @@ protected:
 	void			sub_1ABD3( sSprite_0* pSprite );						// 13
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
 	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );		// 15
-	void			sub_1ACC5( sSprite_0* pSprite );						// 20
+	void			Sprite_Handle_BuildingDoor( sSprite_0* pSprite );		// 20
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
 	void			sub_1AF78( sSprite_0* pSprite );						// 22
 	void			sub_1B07C( sSprite_0* pSprite );						// 23
@@ -897,6 +897,7 @@ protected:
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
 	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );			// 30
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );			// 37
+	void			sub_1BB11( sSprite_0* pSprite );						// 39
 	void			sub_1C4E7( sSprite_0* pSprite );						// 58
 	void			sub_1C52D( sSprite_0* pSprite );						// 59
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );			// 66

@@ -8368,7 +8368,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 20:
-			sub_1ACC5( Data20 );
+			Sprite_Handle_BuildingDoor( Data20 );
 			break;
 
 		case 21:
@@ -8401,6 +8401,10 @@ void cFodder::Sprite_Handle_Loop() {
 
 		case 37:
 			Sprite_Handle_GrenadeBox( Data20 );
+			break;
+
+		case 39:
+			sub_1BB11( Data20 );
 			break;
 
 		case 58:
@@ -9331,7 +9335,7 @@ void cFodder::Sprite_Handle_BuildingRoof( sSprite_0* pSprite ) {
 	sub_212F9( pSprite );
 }
 
-void cFodder::sub_1ACC5( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_BuildingDoor( sSprite_0* pSprite ) {
 	
 	if (sub_221A6( pSprite ))
 		return;
@@ -9625,6 +9629,96 @@ void cFodder::Sprite_Handle_GrenadeBox( sSprite_0* pSprite ) {
 	byte_3AC39[mSquad_Selected] = -1;
 	mSquad_Grenades[mSquad_Selected] += 4;
 	
+	sub_2060F( pSprite );
+}
+
+void cFodder::sub_1BB11( sSprite_0* pSprite ) {
+	if (pSprite->field_8 == 0x7C) {
+		sub_22A55( pSprite );
+		return;
+	}
+
+	pSprite->field_62 = !pSprite->field_62;
+	if (pSprite->field_62 < 0)
+		goto loc_1BC07;
+
+
+	int16 Data8 = pSprite->field_0;
+	Data8 += 8;
+	if (pSprite->field_26 != 0x5F5F)
+		Data8 += pSprite->field_28;
+	
+	int16 DataC = pSprite->field_0;
+	DataC += 0x24;
+
+	int16 Data10 = pSprite->field_4;
+	Data10 -= 0x20;
+	int16 Data14 = pSprite->field_4;
+	Data14 -= 6;
+
+	const int16* Data2C = word_3D5B9;
+	int16 Data0 = pSprite->field_A;
+
+	if (pSprite->field_8 == 0xC0)
+		Data0 += 2;
+	Data0 -= 1;
+
+	for (; Data0 >= 0; --Data0) {
+		Data8 -= *Data2C;
+		DataC -= *Data2C++;
+		Data10 += *Data2C;
+		Data14 += *Data2C++;
+	}
+
+	sub_2AC06( pSprite, Data8, DataC, Data10, Data14 );
+	goto loc_1BC48;
+
+loc_1BC07:;
+	Data8 = pSprite->field_0;
+	DataC = pSprite->field_0;
+	DataC += 0x1E;
+	Data10 = pSprite->field_4;
+	Data10 += -30;
+	Data14 = pSprite->field_4;
+
+	sSprite_0* Data24 = 0;
+	sub_2D490( pSprite, Data24, Data8, DataC, Data10, Data14 );
+loc_1BC48:;
+
+	Data2C = word_3D5B9;
+	int16 Data4 = pSprite->field_A;
+	if (pSprite->field_8 == 0xC0)
+		Data4 += 2;
+
+	//Data4 <<= 1;
+	Data2C += Data4;
+
+	Data4 = *Data2C;
+	int16 Data6 = *(Data2C + 1);
+	//TODO: These could be backwards
+	//seg004:2F2F   CHECK
+	pSprite->field_0 -= Data4;
+	pSprite->field_4 -= Data6;
+
+	pSprite->field_A += 1;
+	if (pSprite->field_8 == 0xC0) {
+		if (pSprite->field_A < 4)
+			return;
+
+		sub_2060F( pSprite );
+		return;
+	}
+
+	if (!pSprite->field_20 || pSprite->field_A < 2)
+		goto loc_1BD06;
+
+	pSprite->field_8 = 0xC0;
+	pSprite->field_A = 0;
+loc_1BD06:;
+
+	if (pSprite->field_A < 3)
+		return;
+
 	sub_2060F( pSprite );
 }
 
