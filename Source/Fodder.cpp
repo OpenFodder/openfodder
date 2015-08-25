@@ -9336,7 +9336,7 @@ void cFodder::Sprite_Handle_BuildingRoof( sSprite_0* pSprite ) {
 }
 
 void cFodder::Sprite_Handle_BuildingDoor( sSprite_0* pSprite ) {
-	
+
 	if (sub_221A6( pSprite ))
 		return;
 
@@ -9352,7 +9352,7 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite_0* pSprite ) {
 
 	pSprite->field_43 -= 1;
 	if (pSprite->field_43 == 0x14 || pSprite->field_43 == 0x0A) {
-		sub_219F1(pSprite);
+		Troop_Deploy(pSprite);
 		return;
 	}
 
@@ -9384,7 +9384,7 @@ loc_1AD86:;
 	pSprite->field_43 = Data0;
 	pSprite->field_8 = 0x7C;
 
-	if (!sub_219F1(pSprite))
+	if (!Troop_Deploy(pSprite))
 		return;
 
 	pSprite->field_12 = -1;
@@ -9548,6 +9548,7 @@ void cFodder::sub_1B303( sSprite_0* pSprite ) {
 
 loc_1B350:;
 	pSprite->field_12 = -16;
+
 loc_1B35A:;
 
 	sub_1F623( pSprite );
@@ -9556,8 +9557,8 @@ loc_1B35A:;
 	int16 Data4 = 8;
 	sub_2A7F7( pSprite, Data0, Data4 );
 	if (Data4 < 4 || Data4 > 6) {
-		pSprite->field_0 = dword_3A391 >> 16;
-		pSprite->field_4 = dword_3A395 >> 16;
+		pSprite->field_0 = dword_3A391 & 0xFFFF;
+		pSprite->field_4 = dword_3A395 & 0xFFFF;
 		pSprite->field_36 = 0;
 		Data0 = pSprite->field_12;
 
@@ -13258,7 +13259,7 @@ int16 cFodder::sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC ) {
 	return 0;
 }
 
-int16 cFodder::sub_219F1( sSprite_0* pSprite ) {
+int16 cFodder::Troop_Deploy( sSprite_0* pSprite ) {
 	
 	if (mMissionComplete || word_3AA17 >= 0x0A)
 		return -1;
@@ -13299,7 +13300,7 @@ int16 cFodder::sub_219F1( sSprite_0* pSprite ) {
 
 	word_390E6 += 1;
 	word_390E6 &= 0x0F;
-	if (!word_390E6 & word_390C2 < 0x1E)
+	if (!word_390E6 && word_390C2 < 0x1E)
 		++word_390C2;
 
 	++word_3AA17;
