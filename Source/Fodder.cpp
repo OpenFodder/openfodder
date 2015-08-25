@@ -220,7 +220,7 @@ cFodder::~cFodder() {
 }
 
 int16 cFodder::Mission_Loop( ) {
-	mImage->clearBuffer();
+	//mImage->clearBuffer();
 	mImage->Save();
 
 	for (;;) {
@@ -9690,7 +9690,7 @@ loc_1BC48:;
 	if (pSprite->field_8 == 0xC0)
 		Data4 += 2;
 
-	//Data4 <<= 1;
+	Data4 <<= 1;
 	Data2C += Data4;
 
 	Data4 = *Data2C;
@@ -14216,8 +14216,8 @@ void cFodder::map_Tiles_Draw_() {
 			uint8* TargetTmp = TargetRow;
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
-			if (Tile > 0x1DE)
-				Tile = 0x1DE;
+			if (Tile > 0x1DD)
+				Tile = 0x1DD;
 
 			uint8* TilePtr = mGraphicBlkPtrs[Tile];
 			uint16 StartX = 0;
