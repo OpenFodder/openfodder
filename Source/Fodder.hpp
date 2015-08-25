@@ -948,7 +948,7 @@ protected:
 	void			sub_218E2( sSprite_0* pSprite );
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
-	int16			sub_219F1( sSprite_0* pSprite );
+	int16			Troop_Deploy( sSprite_0* pSprite );
 	void			sub_21B15( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	void			sub_21C00( sSprite_0* pData2C );
 	void			sub_21C6F( );
