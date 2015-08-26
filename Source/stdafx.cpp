@@ -24,16 +24,21 @@
 
 int main(int argc, char *args[]) {
 	bool SkipIntro = false;
+	int16 MapNumber = 0;
 
 	if (argc > 1) {
 		if (strcmp( args[1], "skipintro" ) == 0)
 			SkipIntro = true;
+
+		if (strcmp( args[2], "map" ) == 0) {
+			MapNumber = atoi( args[3] );
+		}
 	}
 
 	cFodder* Fodder = new cFodder(SkipIntro);
 
 	Fodder->Prepare();
-	Fodder->Start();
+	Fodder->Start( MapNumber );
 
 	delete Fodder;
 
