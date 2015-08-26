@@ -1148,7 +1148,7 @@ public:
 	bool			EventAdd( cEvent pEvent );
 	void			MixerChannelFinished( int32 pChannel );
 	void			Prepare();
-	void			Start();
+	void			Start( int16 pStartMap );
 	void			Exit( unsigned int pExitCode );
 
 };

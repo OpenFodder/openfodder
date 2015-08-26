@@ -8424,7 +8424,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		default:
-			std::cout << "Function not implemented: " << Data4 << "\n";
+			std::cout << "Sprite Function not implemented: " << Data4 << "\n";
 			break;
 		}
 		
@@ -13316,7 +13316,7 @@ void cFodder::sub_21B15( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30
 
 	int16 Data1C = 29;
 	pData2C = &mSprites[29];
-	for (; Data1C >= 0; --Data1C, pData2C ) {
+	for (; Data1C >= 0; --Data1C, --pData2C ) {
 
 		if (pData2C->field_0 == -32768)
 			goto loc_21B72;
@@ -13360,7 +13360,7 @@ loc_21BEC:;
 
 void cFodder::sub_21C00( sSprite_0* pData2C ) {
 	int16 Data8 = word_390C4;
-	pData2C->field_52 = Data8;
+	pData2C->field_62 = Data8;
 
 	int16 Data4 = word_390C6;
 	Data8 += Data4;
@@ -13947,7 +13947,7 @@ void cFodder::sub_2E04C() {
 	}*/
 }
 
-void cFodder::Start() {
+void cFodder::Start( int16 pStartMap ) {
 	mImage = new cSurface( 352, 250 );
 
 	mouse_Setup();
@@ -13958,7 +13958,7 @@ loc_103BF:;
 		sub_10BBC();
 
 		mMissionComplete = 0;
-		mMapNumber = 0;
+		mMapNumber = pStartMap;
 		word_3901E = 0x3333;
 
 		Troops_Clear();
