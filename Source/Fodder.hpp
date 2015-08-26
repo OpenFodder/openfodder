@@ -381,7 +381,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSquad_Grenades[3];
 	int16			mSquad_Rockets[3];
 	int16			word_3AA11[3];
-	int16			word_3AA17;
+	int16			mTroops_Enemy_Count;
 	int16			word_3AA19;
 	int16			word_3AA1B;
 	int16			word_3AA1D;
@@ -878,30 +878,30 @@ protected:
 	void			sub_18D5E();
 	void			Sprite_Handle_Loop();
 
-	void			Sprite_Handle_Player( sSprite_0* pSprite );				// 0
-	void			sub_19658( sSprite_0* pSprite );						// 2
+	void			Sprite_Handle_Player( sSprite_0* pSprite );					// 0
+	void			sub_19658( sSprite_0* pSprite );							// 2
 	void			sub_1998C( sSprite_0* pSprite );
-	void			sub_199B2( sSprite_0* pSprite );						// 3
-	void			Sprite_Handle_Enemy( sSprite_0* pSprite );				// 5
-	void			Sprite_Handle_Bullet( sSprite_0* pSprite );				// 6
-	void			sub_1A8A5( sSprite_0* pSprite );						// 12
-	void			sub_1ABD3( sSprite_0* pSprite );						// 13
-	void			Sprite_Handle_Tree( sSprite_0* pSprite );				// 14
-	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );		// 15
-	void			Sprite_Handle_BuildingDoor( sSprite_0* pSprite );		// 20
-	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );		// 21
-	void			sub_1AF78( sSprite_0* pSprite );						// 22
-	void			sub_1B07C( sSprite_0* pSprite );						// 23
-	void			sub_1B303( sSprite_0* pSprite );						// 27
-	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );		// 28
-	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );		// 29
-	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );			// 30
-	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );			// 37
-	void			sub_1BB11( sSprite_0* pSprite );						// 39
-	void			sub_1C4E7( sSprite_0* pSprite );						// 58
-	void			sub_1C52D( sSprite_0* pSprite );						// 59
-	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );			// 66
-	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );			// 67
+	void			sub_199B2( sSprite_0* pSprite );							// 3
+	void			Sprite_Handle_Enemy( sSprite_0* pSprite );					// 5
+	void			Sprite_Handle_Bullet( sSprite_0* pSprite );					// 6
+	void			sub_1A8A5( sSprite_0* pSprite );							// 12
+	void			sub_1ABD3( sSprite_0* pSprite );							// 13
+	void			Sprite_Handle_Tree( sSprite_0* pSprite );					// 14
+	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );			// 15
+	void			Sprite_Handle_BuildingDoor( sSprite_0* pSprite );			// 20
+	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );			// 21
+	void			sub_1AF78( sSprite_0* pSprite );							// 22
+	void			sub_1B07C( sSprite_0* pSprite );							// 23
+	void			Sprite_Handle_Floating_Dead_Soldier( sSprite_0* pSprite );	// 27
+	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );			// 28
+	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );			// 29
+	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );				// 30
+	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
+	void			sub_1BB11( sSprite_0* pSprite );							// 39
+	void			sub_1C4E7( sSprite_0* pSprite );							// 58
+	void			sub_1C52D( sSprite_0* pSprite );							// 59
+	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
+	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
