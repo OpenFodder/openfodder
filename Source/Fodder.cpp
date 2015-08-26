@@ -741,7 +741,7 @@ void cFodder::sub_10D61() {
 		word_3AA11[x] = 0;
 	}
 
-	word_3AA17 = 0;
+	mTroops_Enemy_Count = 0;
 	word_3AA19 = 0;
 	word_3AA1B = 0;
 	word_3AA1D = 0;
@@ -1060,7 +1060,7 @@ void cFodder::map_Load_Spt() {
 	*/
 	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
 
-	word_3AA17 = 0;
+	mTroops_Enemy_Count = 0;
 	word_3AA19 = 0;
 	
 	uint16* dword_37AC0 = mMapSptPtr;
@@ -1103,11 +1103,11 @@ void cFodder::map_Load_Spt() {
 			//10EE
 			if(Data24->field_18 == 0x24 ) {
 				Data24->field_22 = 1;
-				++word_3AA17;
+				++mTroops_Enemy_Count;
 				
 			} else {
 				if( Data24->field_18 == 5 )
-					++word_3AA17;
+					++mTroops_Enemy_Count;
 			}
 			
 			dword_37ABC += 0x0A;
@@ -8384,7 +8384,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 27:
-			sub_1B303( Data20 );
+			Sprite_Handle_Floating_Dead_Soldier( Data20 );
 			break;
 
 		case 28:
@@ -9340,7 +9340,7 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite_0* pSprite ) {
 	if (sub_221A6( pSprite ))
 		return;
 
-	if (word_3AA17 >= 0x0A) {
+	if (mTroops_Enemy_Count >= 0x0A) {
 		pSprite->field_8 = 0x99;
 		return;
 	}
@@ -9529,7 +9529,8 @@ void cFodder::sub_1B07C( sSprite_0* pSprite ) {
 	sub_2060F( pSprite );
 }
 
-void cFodder::sub_1B303( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Floating_Dead_Soldier( sSprite_0* pSprite ) {
+
 	pSprite->field_8 = 0x9E;
 
 	if (!pSprite->field_12) {
@@ -10103,11 +10104,11 @@ loc_1E3D2:;
 		Data8 &= 0x0E;
 
 		Data28 = off_32AE4[pSprite->field_22];
-		pSprite->field_8 = Data28[Data8 + 0x20];
+		pSprite->field_8 = Data28[ (Data8 + 0x20) / 2 ];
 
 		if (pSprite->field_59) {
 
-			pSprite->field_8 = Data28[Data8 + 0x10];
+			pSprite->field_8 = Data28[ (Data8 + 0x10) / 2];
 		}
 
 	}
@@ -10351,10 +10352,10 @@ loc_1EA82:;
 	Data8 &= 0x0E;
 
 	Data28 = off_32AE4[pSprite->field_22];
-	pSprite->field_8 = Data28[Data8 + 0x20];
+	pSprite->field_8 = Data28[ (Data8 + 0x20) / 2 ];
 
 	if (pSprite->field_59)
-		pSprite->field_8 = Data28[Data8 + 0x10];
+		pSprite->field_8 = Data28[ (Data8 + 0x10) / 2 ];
 	
 loc_1EB0E:;
 	int16 Field_52 = pSprite->field_52;
@@ -10397,10 +10398,10 @@ loc_1EB87:;
 	Data8 &= 0x0E;
 
 	Data28 = off_32AE4[pSprite->field_22];
-	pSprite->field_8 = Data28[Data8 + 0x20 ];
+	pSprite->field_8 = Data28[ (Data8 + 0x20) / 2 ];
 
 	if (pSprite->field_59)
-		pSprite->field_8 = Data28[Data8 + 0x10];
+		pSprite->field_8 = Data28[ (Data8 + 0x10) / 2 ];
 	
 	//loc_1EC4F
 	Field_52 = pSprite->field_52;
@@ -10465,10 +10466,10 @@ loc_1ED5B:;
 
 	//seg004:606C
 	Data28 = off_32AE4[pSprite->field_22];
-	Data0 = Data28[0x60 + Data8];
+	Data0 = Data28[ (0x60 + Data8) / 2 ];
 
 	if (Data0 != pSprite->field_8) {
-		pSprite->field_8 = Data28[0x60 + Data8];
+		pSprite->field_8 = Data28[ (0x60 + Data8) / 2 ];
 		pSprite->field_A = 0;
 
 	loc_1EE31:;
@@ -10585,7 +10586,7 @@ loc_1F0EA:;
 	int16 Data0;
 
 	++word_397AE;
-	--word_3AA17;
+	--mTroops_Enemy_Count;
 	if (pSprite->field_5D) {
 		pSprite->field_5D = 0;
 		DataFinal = (uint8*) mSquad;
@@ -10594,6 +10595,9 @@ loc_1F0EA:;
 		if (pSprite->field_5E >= 0)
 			goto loc_1F19A;
 	}
+	if (mSquad_Selected == -1)
+		goto loc_1F218;
+
 	//loc_1F13E
 	sSprite_0** Dataa24 = off_3BDEF[mSquad_Selected];
 	sSprite_0* eax = Dataa24[0];
@@ -13261,7 +13265,7 @@ int16 cFodder::sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC ) {
 
 int16 cFodder::Troop_Deploy( sSprite_0* pSprite ) {
 	
-	if (mMissionComplete || word_3AA17 >= 0x0A)
+	if (mMissionComplete || mTroops_Enemy_Count >= 0x0A)
 		return -1;
 	int16 Data0 = 1;
 	sSprite_0* Data2C = 0, *Data30 = 0;
@@ -13303,7 +13307,7 @@ int16 cFodder::Troop_Deploy( sSprite_0* pSprite ) {
 	if (!word_390E6 && word_390C2 < 0x1E)
 		++word_390C2;
 
-	++word_3AA17;
+	++mTroops_Enemy_Count;
 	return 0;
 }
 
