@@ -93,8 +93,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_39F06 = 0;
 	word_39EFA = 0;
 	word_39EFC = word_39F04 = 0;
-	word_39FF4 = 0;
-	
+
 	word_39FF2 = 0;
 	word_39FF4 = 0;
 	word_39FF6 = 0;
@@ -662,6 +661,12 @@ void cFodder::sub_10D61() {
 	mSquad_Selected = 0;
 	word_39FD2 = 0;
 	word_39FD4 = 0;
+
+	word_39FF2 = 0;
+	word_39FF4 = 0;
+	word_39FF6 = 0;
+	word_39FF8 = 0;
+	word_39FFA = 0;
 
 	dword_3A000 = 0;
 	dword_3A004 = 0;
@@ -8292,6 +8297,7 @@ void cFodder::Brief_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 
 }
 
 void cFodder::sub_18D5E() {
+
 	word_39FF4 -= 1;
 	if (word_39FF4 < 0) {
 		word_39FF4 = 3;
