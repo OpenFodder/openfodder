@@ -2920,10 +2920,12 @@ void cFodder::Prepare() {
 	mWindow->InitWindow( "Open Fodder" );
 	tool_RandomSeed();
 
+	mDataBlkSize = 0xFD0 * 16;
+
 	mDataPStuff = new uint8[0xA03 * 16];
-	mDataBaseBlk = new uint8[0xFD0 * 16];
+	mDataBaseBlk = new uint8[mDataBlkSize];
+	mDataSubBlk = new uint8[mDataBlkSize];
 	mMap = new uint8[0x346 * 16];
-	mDataSubBlk = new uint8[0xFD0 * 16];
 	mDataHillBits = new uint8[0xD5A * 16];
 	mDataArmy = new uint8[0xD50 * 16];
 	word_3BDAD = (uint16*) new uint8[0x258 * 16];
@@ -8405,6 +8407,10 @@ void cFodder::Sprite_Handle_Loop() {
 			Sprite_Handle_Text_Phase( Data20 );
 			break;
 
+		case 34:
+			Sprite_Handle_Text_GaveOver( Data20 );
+			break;
+
 		case 37:
 			Sprite_Handle_GrenadeBox( Data20 );
 			break;
@@ -8415,6 +8421,10 @@ void cFodder::Sprite_Handle_Loop() {
 
 		case 47:
 			sub_1C1C0( Data20 );
+			break;
+
+		case 48:
+			sub_1C268( Data20 );
 			break;
 
 		case 58:
@@ -9626,6 +9636,21 @@ void cFodder::Sprite_Handle_Text_Phase( sSprite_0* pSprite ) {
 	pSprite->field_4 = Data0;
 }
 
+void cFodder::Sprite_Handle_Text_GaveOver( sSprite_0* pSprite ) {
+
+	pSprite->field_0 = dword_39F84 >> 16;
+	pSprite->field_0 += 0x5B;
+	pSprite->field_4 -= 0x20;
+
+	int16 Data0 = dword_39F88 >> 16;
+	Data0 += 0x77;
+	
+	if (Data0 < pSprite->field_4)
+		return;
+
+	pSprite->field_4 = Data0;
+}
+
 void cFodder::Sprite_Handle_GrenadeBox( sSprite_0* pSprite ) {
 	
 	if (pSprite->field_38) {
@@ -9772,6 +9797,19 @@ loc_1C248:;
 
 loc_1C262:;
 	sub_2183B( pSprite );
+}
+
+void cFodder::sub_1C268( sSprite_0* pSprite ) {
+	pSprite->field_2A += 1;
+	pSprite->field_2A &= 1;
+	if (pSprite->field_2A)
+		return;
+
+	pSprite->field_A += 1;
+	if (pSprite->field_A != 4)
+		return;
+
+	sub_2060F( pSprite );
 }
 
 void cFodder::sub_1C4E7( sSprite_0* pSprite ) {
@@ -12883,7 +12921,7 @@ void cFodder::sub_21041( sSprite_0* pSprite ) {
 	word_3B2F3 = -1;
 }
 
-void cFodder::sub_211BA( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 ) {
+int16 cFodder::sub_211BA( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 ) {
 	if (!word_3B15D) {
 
 		if (pData0 == 2)
@@ -12903,13 +12941,13 @@ void cFodder::sub_211BA( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30
 	pData30 = &word_3B4F7;
 	pData0 = -1;
 	word_3B15D = pData0;
-	return;
+	return -1;
 
 loc_21217:;
 
 	sub_212C4( pData2C );
 	pData0 = 0;
-	return;
+	return 0;
 
 loc_21234:;
 	pData2C = mSprites;
@@ -12927,7 +12965,7 @@ loc_21234:;
 	pData30 = &word_3B4F7;
 	pData0 = -1;
 	word_3B15D = pData0;
-	return;
+	return -1;
 
 loc_2128F:;
 	pData30 = pData2C + 1;
@@ -12935,7 +12973,7 @@ loc_2128F:;
 	sub_212C4( pData2C );
 	sub_212C4( pData30 );
 	pData0 = 0;
-	return;
+	return 0;
 }
 
 void cFodder::sub_212C4( sSprite_0* pSprite ) {
@@ -13265,7 +13303,31 @@ void cFodder::sub_2183B( sSprite_0* pSprite ) {
 	if (!pSprite->field_5C)
 		return;
 
+	//  cmp     ds:word_3B1A9, 14h
+	int16 Data0 = 1;
+	sSprite_0* Data2C = 0, *Data30 = 0;
+	
+	if (sub_211BA( Data0, Data2C, Data30 ))
+		return;
 
+	Data2C->field_0 = pSprite->field_0;
+	Data2C->field_2 = pSprite->field_2;
+	Data2C->field_4 = pSprite->field_4;
+	Data2C->field_6 = pSprite->field_6;
+
+	if (dword_3B213[0x0E] == 0) {
+		Data2C->field_4 -= 3;
+	}
+	else {
+		Data2C->field_4 += 2;
+		dword_3B213[0x0E] = 0;
+	}
+
+	Data2C->field_20 = pSprite->field_20;
+	Data2C->field_52 = 0;
+	Data2C->field_8 = 0xC6;
+	Data2C->field_A = 0;
+	Data2C->field_18 = 0x30;
 }
 
 void cFodder::sub_218E2( sSprite_0* pSprite ) {
@@ -14229,8 +14291,15 @@ void cFodder::graphicsBlkPtrsPrepare() {
 
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		mGraphicBlkPtrs[cx + 0x00] = mDataBaseBlk + bx;
-		mGraphicBlkPtrs[cx + 0xF0] = mDataSubBlk + bx;
+		if (mDataBaseBlk + bx < mDataBaseBlk + mDataBlkSize)
+			mGraphicBlkPtrs[cx + 0x00] = mDataBaseBlk + bx;
+		else
+			mGraphicBlkPtrs[cx + 0x00] = 0;
+
+		if (mDataSubBlk + bx < mDataSubBlk + mDataBlkSize)
+			mGraphicBlkPtrs[cx + 0xF0] = mDataSubBlk + bx;
+		else
+			mGraphicBlkPtrs[cx + 0xF0] = 0;
 
 		++dx;
 		bx += 0x10;
@@ -14286,7 +14355,7 @@ void cFodder::map_Tiles_Draw_() {
 			uint16 StartX = 0;
 
 			TilePtr += StartY * 0x140;
-
+			
 			if (cx2 == 0) {
 				StartX = word_3B60E;
 			}
@@ -14295,6 +14364,8 @@ void cFodder::map_Tiles_Draw_() {
 
 			// Each Tile Row
 			for (uint16 i = StartX; i < 16; ++i) {
+				if (!TilePtr)
+					continue;
 
 				memcpy( TargetTmp, TilePtr + StartX, 16 - StartX );
 				TilePtr += 0x140;
