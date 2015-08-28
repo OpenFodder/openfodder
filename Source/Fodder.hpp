@@ -898,6 +898,7 @@ protected:
 	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );				// 30
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
+	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C4E7( sSprite_0* pSprite );							// 58
 	void			sub_1C52D( sSprite_0* pSprite );							// 59
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
@@ -945,6 +946,7 @@ protected:
 	void			sub_21525( sSprite_0* pSprite );
 	int16			sub_21618( sSprite_0* pSprite );
 	void			sub_21702( sSprite_0* pSprite, int16 pData18 );
+	void			sub_2183B( sSprite_0* pSprite );
 	void			sub_218E2( sSprite_0* pSprite );
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
