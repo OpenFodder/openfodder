@@ -8413,6 +8413,10 @@ void cFodder::Sprite_Handle_Loop() {
 			sub_1BB11( Data20 );
 			break;
 
+		case 47:
+			sub_1C1C0( Data20 );
+			break;
+
 		case 58:
 			sub_1C4E7( Data20 );
 			break;
@@ -9653,7 +9657,7 @@ void cFodder::sub_1BB11( sSprite_0* pSprite ) {
 
 	int16 Data8 = pSprite->field_0;
 	Data8 += 8;
-	if (pSprite->field_26 != 0x5F5F)
+	if (pSprite->field_26 == 0x5F5F)
 		Data8 += pSprite->field_28;
 	
 	int16 DataC = pSprite->field_0;
@@ -9728,6 +9732,46 @@ loc_1BD06:;
 		return;
 
 	sub_2060F( pSprite );
+}
+
+void cFodder::sub_1C1C0( sSprite_0* pSprite ) {
+	Sprite_Movement_Calculate( pSprite );
+	int32 Data0 = (int32) pSprite->field_1A;
+
+	Data0 += pSprite->field_1E;
+
+	pSprite->field_1E = Data0;
+	pSprite->field_20 = Data0 >> 16;
+
+	if (Data0 < 0) {
+		pSprite->field_1E = 0;
+		pSprite->field_20 = 0;
+		Data0 = -Data0;
+		Data0 >>= 1;
+	}
+
+	Data0 -= 0x22000;
+	pSprite->field_1A = (int32*) Data0;
+
+	Data0 = Data0 >> 16;
+	if (!pSprite->field_A)
+		goto loc_1C248;
+
+	if (pSprite->field_20)
+		goto loc_1C262;
+
+	if (Data0 > 1)
+		goto loc_1C262;
+
+loc_1C248:;
+	pSprite->field_A++;
+	if (pSprite->field_A >= 3) {
+		sub_2060F( pSprite );
+		return;
+	}
+
+loc_1C262:;
+	sub_2183B( pSprite );
 }
 
 void cFodder::sub_1C4E7( sSprite_0* pSprite ) {
@@ -13181,7 +13225,7 @@ void cFodder::sub_21702( sSprite_0* pSprite, int16 pData18 ) {
 	sSprite_0* Data2C, *Data30;
 
 	sub_211BA( Data0, Data2C, Data30 );
-	if (!Data0)
+	if (Data0)
 		return;
 
 	Data30 = Data2C + 1;
@@ -13213,6 +13257,14 @@ void cFodder::sub_21702( sSprite_0* pSprite, int16 pData18 ) {
 
 	Data2C->field_10 = pData18;
 	Data2C->field_1A = (int32*)0x0A8000;
+
+}
+
+void cFodder::sub_2183B( sSprite_0* pSprite ) {
+
+	if (!pSprite->field_5C)
+		return;
+
 
 }
 
