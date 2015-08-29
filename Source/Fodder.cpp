@@ -14420,6 +14420,10 @@ void cFodder::map_Tiles_Draw_() {
 
 			// Each Tile Row
 			for (uint16 i = StartX; i < 16; ++i) {
+
+				// Sadly this can happen, because the game renders
+				// A. Outside the actual map terrain
+				// B. Tiles which 'should' be valid, but arnt... (0x1FF...)
 				if (!TilePtr)
 					continue;
 
