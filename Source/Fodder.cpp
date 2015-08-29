@@ -15634,7 +15634,7 @@ void cFodder::Mouse_Inputs_Check() {
 		word_3A9F3 = -8;
 		word_3A9F5 = -8;
 	}
-	sub_30CDC();
+	Squad_Member_Target_Set();
 	if (!dword_3B20B)
 		return;
 
@@ -15765,7 +15765,7 @@ loc_308F6:;
 	}
 }
 
-void cFodder::sub_30CDC() {
+void cFodder::Squad_Member_Target_Set() {
 	
 	if (dword_3B20B) {
 		sub_3169B();
@@ -15780,16 +15780,16 @@ void cFodder::sub_30CDC() {
 			word_39FCE->field_4A = 0;
 	}
 
-	int16 Data8 = mMouseX;
-	int16 DataC = mMouseY;
-	Data8 += mCamera_Adjust_Col >> 16;
-	DataC += mCamera_Adjust_Row >> 16;
+	int16 TargetX = mMouseX;
+	int16 TargetY = mMouseY;
+	TargetX += mCamera_Adjust_Col >> 16;
+	TargetY += mCamera_Adjust_Row >> 16;
 
-	Data8 -= 0x10;
-	if (!Data8)
-		Data8 = 1;
+	TargetX -= 0x10;
+	if (!TargetX)
+		TargetX = 1;
 
-	DataC -= 8;
+	TargetY -= 8;
 	if (mSquad_Selected < 0)
 		goto loc_30E05;
 
@@ -15806,8 +15806,8 @@ void cFodder::sub_30CDC() {
 
 		sSprite_0* Data24 = *Data20++;
 
-		Data24->field_2E = Data8;
-		Data24->field_30 = DataC;
+		Data24->field_2E = TargetX;
+		Data24->field_30 = TargetY;
 	}
 
 loc_30E05:;
@@ -15833,7 +15833,7 @@ void cFodder::sub_31033() {
 	if (word_3AA47)
 		return;
 
-	if (mSquad_Selected <= 0)
+	if (mSquad_Selected >= 0)
 		return;
 
 	for (int16 Data0 = 2; Data0 >= 0; --Data0 ) {
