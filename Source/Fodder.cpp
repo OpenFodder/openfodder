@@ -8904,9 +8904,15 @@ loc_19855:;
 	goto loc_198D3;
 
 loc_19877:;
-	pSprite->field_1E += Data4;
+	int32 tmp = pSprite->field_1E | pSprite->field_20 << 16;
+	tmp += Data4;
+
+	pSprite->field_1E = tmp;
+	pSprite->field_20 = tmp >> 16;
+
 	if (pSprite->field_20 < 0) {
 		pSprite->field_1E = 0;
+		pSprite->field_20 = 0;
 
 		if (pSprite->field_50)
 			goto loc_19855;
@@ -11591,7 +11597,7 @@ loc_20108:;
 
 loc_2014D:;
 	pSprite->field_52 = 0;
-	if (!pSprite->field_61) {
+	if (pSprite->field_61) {
 		if (pSprite->field_20 >= 6)
 			return;
 
@@ -13338,6 +13344,7 @@ void cFodder::sub_21702( sSprite_0* pSprite, int16 pData18 ) {
 	Data30->field_4 = Data2C->field_4;
 	
 	Data2C->field_1E = pSprite->field_1E;
+	Data2C->field_20 = pSprite->field_20;
 	Data30->field_20 = 0;
 	Data2C->field_8 = 0xC5;
 	Data30->field_8 = 0x7E;
@@ -13443,7 +13450,8 @@ int16 cFodder::sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC ) {
 
 int16 cFodder::Troop_Deploy( sSprite_0* pSprite ) {
 	
-	if (mMissionComplete || mTroops_Enemy_Count >= 0x0A)
+	// TODO: CHANGE BACK TO 0x0A
+	if (mMissionComplete || mTroops_Enemy_Count >= 0x02)
 		return -1;
 	int16 Data0 = 1;
 	sSprite_0* Data2C = 0, *Data30 = 0;
@@ -13981,7 +13989,7 @@ loc_22622:;
 	Data2C->field_20 = 0x0A;
 
 	Data30->field_1E = 0;
-	Data2C->field_20 = 0;
+	Data30->field_20 = 0;
 
 	Data2C->field_4++;
 	Data2C->field_0 += 3;
@@ -14096,8 +14104,8 @@ void cFodder::sub_22AA9( sSprite_0* pSprite ) {
 	pSprite->field_A = 0;
 	pSprite->field_38 = 0;
 	
-	int16* Data24 = (int16*) pSprite->field_6A;
-	if( (*Data24) == -32768 || *(Data24 + 0x0C )  == 0x0C ) {
+	sSprite_0* Data24 = pSprite->field_6A;
+	if( Data24->field_0 == -32768 || Data24->field_18 == 0x0C ) {
 		//loc_22AEE
 		pSprite->field_6E = 0;
 		pSprite->field_66 = 0;
@@ -14111,9 +14119,9 @@ void cFodder::sub_22AA9( sSprite_0* pSprite ) {
 	
 	//loc_22B3C
 
-	pSprite->field_0 = *Data24;
-	pSprite->field_4 = *(Data24+2);
-	pSprite->field_20 = *(Data24 + 0x10);
+	pSprite->field_0 = Data24->field_0;
+	pSprite->field_4 = Data24->field_4;
+	pSprite->field_20 = Data24->field_20;
 }
 
 void cFodder::sub_2E04C() {
