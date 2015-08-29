@@ -67,8 +67,8 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 
-	int audio_rate = 48000;// 22050;
-	Uint16 audio_format = MIX_DEFAULT_FORMAT;
+	int audio_rate = 22050;// 22050;
+	Uint16 audio_format = AUDIO_U8;// MIX_DEFAULT_FORMAT;
 	int audio_channels = 2;
 	int audio_buffers = 1024;
  

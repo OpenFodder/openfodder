@@ -47,8 +47,10 @@ std::string mMapTypes[] = {
 };
 
 void cFodder::Music_Play( const char* pFilename ) {
-	std::string Filename = "Data\\MP3\\";
+
+	std::string Filename = "Data\\WAV\\";
 	Filename.append( pFilename );
+	Filename.append( ".wav" );
 
 	Mix_FreeMusic( mMusicPlaying );
 	Sleep( 100 );
@@ -223,6 +225,8 @@ int16 cFodder::Mission_Loop( ) {
 	mImage->Save();
 
 	for (;;) {
+		videoSleep_50();
+
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 		mImage->Restore();
@@ -230,7 +234,7 @@ int16 cFodder::Mission_Loop( ) {
 		sub_12018();
 		Camera_Pan( );
 
-		mImage->Save();
+		//mImage->Save();
 
 		word_3A9FB = 0;
 		Mouse_Handle();
@@ -567,7 +571,7 @@ void cFodder::sub_10BBC() {
 
 	for (unsigned int x = 0; x < 6; ++x) {
 		mHeroes[x].mRecruitID = 0;
-		mHeroes[x].field_1 = 0;
+		mHeroes[x].mRank = 0;
 		mHeroes[x].mKills = 0;
 	}
 	word_397AC = 0;
@@ -593,7 +597,7 @@ void cFodder::Heroes_Clear() {
 	
 	for (unsigned int x = 0; x < 6; ++x) {
 		mHeroes[x].mRecruitID = -1;
-		mHeroes[x].field_1 = -1;
+		mHeroes[x].mRank = -1;
 		mHeroes[x].mKills = -1;
 	}
 }
@@ -3618,25 +3622,19 @@ void cFodder::Sound_Voc_Load() {
 void cFodder::Music_Unk( int16 pTrack ) {
 	
 	const char* Tracks[] = {
-		"rjp.JON(1).mp3",
+		"rjp.JON(1)",
 		"",
 		"",
 		"",
 		"",
 		"",
-		"rjp.JON(7).mp3",
-		"rjp.JON(8).mp3",
+		"rjp.JON(7)",
+		"rjp.JON(8)",
 		"",
 		"",
 		"",
 		"",
-		"rjp.JON(13).mp3",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
+		"rjp.JON(13)",
 		"",
 		"",
 		"",
@@ -3668,7 +3666,13 @@ void cFodder::Music_Unk( int16 pTrack ) {
 		"",
 		"",
 		"",
-		"rjp.JUNBASE(2).mp3",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"rjp.JUNBASE(2)",
 	/*		"des",
 			"ice",
 			"mor",
@@ -5986,7 +5990,7 @@ int16 cFodder::sub_2A7E2( int16& pData0, int16& pData4 ) {
 	return Map_Terrain_Check( pData0, pData4, Data10, Data14 );
 }
 
-int16 cFodder::sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 ) {
+int16 cFodder::Map_Sprite_Check_Position( sSprite_0* pSprite, int16& pData0, int16& pData4 ) {
 
 	pData0 += pSprite->field_4;
 	if (pData0 >= 0) {
@@ -6146,7 +6150,7 @@ loc_2ABF8:;
 	Data34[Data0] = 8;
 }
 
-int16 cFodder::Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
+int16 cFodder::SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
 	
 	if (word_3B4F1)
 		goto loc_2AE33;
@@ -6231,7 +6235,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pD
 		Data2C->field_10 += 0x100;
 		Data2C->field_10 &= 0x1FE;
 
-	loc_2ADC3:;	// Hit Something
+	loc_2ADC3:;	// Hit
 		if (Data2C->field_18)
 			goto loc_2ADFF;
 
@@ -6755,7 +6759,7 @@ void cFodder::sub_2D2D4() {
 	Data20->field_4A = -1;
 }
 
-int16 cFodder::sub_2D490( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
+int16 cFodder::Sprite_Find_In_Region( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
 
 	if (word_3B4F1)
 		goto loc_2D719;
@@ -6836,7 +6840,7 @@ int16 cFodder::sub_2D490( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8,
 		pData24->field_38 = 5;
 
 	loc_2D636:;
-		pData24->field_54 = -1;
+		pData24->field_64 = -1;
 		goto loc_2D6ED;
 
 	loc_2D642:;
@@ -7285,7 +7289,7 @@ loc_2DFC7:;
 	word_4206E = 0x10;
 
 	map_Tiles_Draw_();
-	mImage->Save();
+	//mImage->Save();
 
 	//sub_140F1();
 }
@@ -9131,7 +9135,7 @@ loc_19D24:;
 	if( pSprite->field_64 > 2 ) {
 		Data0 = -9;
 		Data4 = 0;
-		if(sub_2A7F7(pSprite, Data0, Data4))
+		if(Map_Sprite_Check_Position(pSprite, Data0, Data4))
 			goto loc_19DCF;
 	}
 
@@ -9252,9 +9256,9 @@ void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
 
 		pSprite->field_62 = ~pSprite->field_62;
 		if (pSprite->field_62 >= 0)
-			Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
+			SquadMember_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
 		else
-			sub_2D490( pSprite, Data24, Data8, DataC, Data10, Data14 );
+			Sprite_Find_In_Region( pSprite, Data24, Data8, DataC, Data10, Data14 );
 
 		pSprite->field_12 -= 1;
 		if (pSprite->field_12 >= 0)
@@ -9583,7 +9587,7 @@ loc_1B35A:;
 	Sprite_Movement_Calculate( pSprite );
 	int16 Data0 = -3;
 	int16 Data4 = 8;
-	sub_2A7F7( pSprite, Data0, Data4 );
+	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
 	if (Data4 < 4 || Data4 > 6) {
 		pSprite->field_0 = dword_3A391 & 0xFFFF;
 		pSprite->field_4 = dword_3A395 & 0xFFFF;
@@ -9750,7 +9754,7 @@ void cFodder::sub_1BB11( sSprite_0* pSprite ) {
 		Data14 += *Data2C++;
 	}
 
-	Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
+	SquadMember_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
 	goto loc_1BC48;
 
 loc_1BC07:;
@@ -9762,7 +9766,7 @@ loc_1BC07:;
 	Data14 = pSprite->field_4;
 
 	sSprite_0* Data24 = 0;
-	sub_2D490( pSprite, Data24, Data8, DataC, Data10, Data14 );
+	Sprite_Find_In_Region( pSprite, Data24, Data8, DataC, Data10, Data14 );
 loc_1BC48:;
 
 	Data2C = word_3D5B9;
@@ -10274,11 +10278,14 @@ loc_1E3D2:;
 	}
 	//loc_1E5A7
 	int32 Dataa4 = (int32) pSprite->field_1A;
+	Dataa4 += (pSprite->field_1E | (pSprite->field_20 << 16));
 
 	// Probably going to be issues here
-	pSprite->field_1E += (int32) pSprite->field_1A;
+	pSprite->field_1E = Dataa4;
+	pSprite->field_20 = Dataa4 >> 16;
 	if (pSprite->field_1E < 0) {
 		pSprite->field_1E = 0;
+		pSprite->field_20 = 0;
 		Dataa4 = -Dataa4;
 		Dataa4 >>= 2;
 
@@ -10504,8 +10511,7 @@ loc_1EB0E:;
 
 		pSprite->field_52 += 2;
 	}
-	//loc_1EB7B
-	Data0 = -1;
+
 	return -1;
 
 loc_1EB87:;
@@ -10808,7 +10814,7 @@ int16 cFodder::sub_1F21E( sSprite_0* pSprite ) {
 	int16 Data0 = -1;
 	int16 Data4 = 8;
 	
-	sub_2A7F7( pSprite, Data0, Data4 );
+	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
 	
 	if( Data4 == 6 ) {
 		Data0 = pSprite->field_20;
@@ -11496,7 +11502,7 @@ void cFodder::sub_1FFC6( sSprite_0* pSprite ) {
 	int16 Data0 = -3;
 	int16 Data4 = 8;
 
-	if (sub_2A7F7( pSprite, Data0, Data4 ))
+	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
 		goto loc_20236;
 
 	pSprite->field_60 = Data4 & 0xFF;
@@ -11655,7 +11661,7 @@ loc_20251:;
 
 	Data0 = -3;
 	Data4 = 8;
-	if (sub_2A7F7( pSprite, Data0, Data4 ))
+	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
 		goto loc_202E5;
 
 	if (Data4 == 9)
@@ -11706,7 +11712,7 @@ loc_2035C:;
 
 	Data0 = -3;
 	Data4 = 8;
-	if (!sub_2A7F7( pSprite, Data0, Data4 ))
+	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
 		return;
 
 	pSprite->field_0 = word_3A9E6;
@@ -11714,7 +11720,7 @@ loc_2035C:;
 
 	Data0 = -3;
 	Data4 = 8;
-	if (!sub_2A7F7( pSprite, Data0, Data4 ))
+	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
 		return;
 
 	//loc_203BA
@@ -12022,7 +12028,7 @@ loc_31514:;
 	Data0 = -3;
 	Data4 = 8;
 
-	if (sub_2A7F7(Data20, Data0,Data4))
+	if (Map_Sprite_Check_Position(Data20, Data0,Data4))
 		goto loc_31689;
 
 	sSprite_0*** Data28 = off_3BDEF;
@@ -12288,7 +12294,7 @@ introDone:;
 
 void cFodder::intro_Music_Play() {
 
-	Music_Play( "rjp.WARX4(1).mp3" );
+	Music_Play( "rjp.WARX4(1)" );
 }
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
@@ -12354,6 +12360,18 @@ void cFodder::Mission_PhaseNext() {
 }
 
 void cFodder::videoSleep() {
+	static uint64_t delta = 2;
+
+	mTicksDiff = GetTickCount() - mTicksDiff;
+
+	mTicks = mTicksDiff * 60 / 1000;
+
+	sleepLoop(delta * 1000 / 60 - mTicksDiff);
+
+	mTicksDiff = GetTickCount();
+}
+
+void cFodder::videoSleep_50() {
 	static uint64_t delta = 1;
 
 	mTicksDiff = GetTickCount() - mTicksDiff;
@@ -12475,8 +12493,8 @@ void cFodder::Hero_Add( sSquad_Member* pSquadMember ) {
 	} while (++Data4 < 4);
 
 	//seg005:0EDD
-	mHeroes[X + 1].mRecruitID = pSquadMember->mRank;
-	mHeroes[X + 1].field_1 = pSquadMember->mRecruitID;
+	mHeroes[X + 1].mRecruitID = pSquadMember->mRecruitID;
+	mHeroes[X + 1].mRank = pSquadMember->mRank;
 	mHeroes[X + 1].mKills = pSquadMember->mNumberOfKills;
 }
 
@@ -13133,7 +13151,7 @@ loc_2132A:;
 	int16 Data0 = -3;
 	int16 Data4 = 0x0C;
 
-	sub_2A7F7( pSprite, Data0, Data4 );
+	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
 
 	if (pSprite->field_20)
 		return;
@@ -13209,7 +13227,7 @@ void cFodder::sub_21525( sSprite_0* pSprite ) {
 	int16 Data0 = -3;
 	int16 Data4 = 2;
 
-	if (sub_2A7F7( pSprite, Data0, Data4 ))
+	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
 		goto loc_21599;
 
 	if (Data4 == 9 || Data4 == 0x0A) {
@@ -13240,7 +13258,7 @@ loc_21599:;
 	Data0 = -3;
 	Data4 = 2;
 
-	if (!sub_2A7F7( pSprite, Data0, Data4 )) {
+	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 )) {
 		Data0 = 0x100;
 		Data0 -= pSprite->field_10;
 		Data0 &= 0x1FE;
@@ -13268,7 +13286,7 @@ int16 cFodder::sub_21618( sSprite_0* pSprite ) {
 		Data14 -= 4;
 		word_3AA45 = 1;
 
-		Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
+		SquadMember_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
 
 		return 0;
 	}
@@ -13286,7 +13304,7 @@ int16 cFodder::sub_21618( sSprite_0* pSprite ) {
 
 	word_3AA45 = 1;
 	sSprite_0* Data24 = 0;
-	if (sub_2D490(pSprite, Data24, Data8, DataC, Data10, Data14 ) >= 0)
+	if (Sprite_Find_In_Region(pSprite, Data24, Data8, DataC, Data10, Data14 ) >= 0)
 		return 0;
 
 	if (Data24->field_18 == 5) {
@@ -13814,7 +13832,7 @@ loc_22235:;	// Door moving
 
 	Data0 = -3;
 	Data4 = 2;
-	if (sub_2A7F7( pSprite, Data0, Data4 ))
+	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
 		goto loc_2227F;
 
 	if (pSprite->field_36 <= 0)
@@ -14388,8 +14406,6 @@ void cFodder::map_Tiles_Draw_() {
 			uint8* TargetTmp = TargetRow;
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
-			if (Tile > 0x1DD)
-				Tile = 0x1DD;
 
 			uint8* TilePtr = mGraphicBlkPtrs[Tile];
 			uint16 StartX = 0;
@@ -14419,7 +14435,7 @@ void cFodder::map_Tiles_Draw_() {
 		Target += mImage->GetWidth() * (16-StartY);
 		CurrentMapPtr += mMapWidth << 1;
 	}
-	
+	mImage->Save();
 	return;
 }
 
@@ -15643,13 +15659,17 @@ loc_30814:;
 	// segra: I've moved this as it looks like a bug
 	if (mSquad_Selected < 0) {
 
-		//TODO: Can this happen?
 		sub_30E49();
 		return;
 	}
 
 	sSprite_0** Data24 = off_3BDEF[mSquad_Selected];
 	sSprite_0* Dataa24 = *Data24;
+
+	if (Dataa24 == INVALID_SPRITE_PTR) {
+		sub_30E49();
+		return;
+	}
 
 	if (Dataa24->field_6E)
 		return;

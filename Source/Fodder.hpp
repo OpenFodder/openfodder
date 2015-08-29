@@ -79,7 +79,7 @@ struct sRecruit {
 
 struct sHero {
 	int8	mRecruitID;
-	int16	field_1;
+	int16	mRank;
 	int16	mKills;	
 };
 
@@ -985,10 +985,10 @@ protected:
 	int16			sub_2A622( int16& pData0 );
 	void			sub_2A74F( int16& pData0, int16& pData4, int16& pData8, int16& pData10, int16& pDataC );
 	int16			sub_2A7E2( int16& pData0, int16& pData4 );
-	int16			sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 );
+	int16			Map_Sprite_Check_Position( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
 	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
-	int16			Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+	int16			SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
@@ -1011,7 +1011,7 @@ protected:
 	void			sub_2D06C();
 	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
 	void			sub_2D2D4();
-	int16			sub_2D490( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+	int16			Sprite_Find_In_Region( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			sub_2D725();
 	void			sub_2D767();
 	void			Squad_Prepare_GrenadesAndRockets();
@@ -1131,6 +1131,7 @@ protected:
 	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
 
 	void			videoSleep();
+	void			videoSleep_50();
 
 	void			sleepLoop( int64 pMilliseconds );
 	int16			ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );
