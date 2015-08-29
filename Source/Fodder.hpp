@@ -1010,7 +1010,7 @@ protected:
 
 	void			sub_2D06C();
 	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
-	void			sub_2D2D4();
+	void			Squad_Member_Rotate_Can_Fire();
 	int16			Sprite_Find_In_Region( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			sub_2D725();
 	void			sub_2D767();

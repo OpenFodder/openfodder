@@ -39,7 +39,7 @@ struct sSprite_0 {
 	int8 field_44;
 	int8 field_45;
 	int32* field_46;	//sSquad_Member mostly
-	int16 field_4A;
+	int16 field_4A;		// Player: Fire if mouse pressed
 	int8 field_4C;
 	int8 field_4D;
 	int8 field_4E;
