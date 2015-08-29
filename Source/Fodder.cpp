@@ -14357,15 +14357,8 @@ void cFodder::graphicsBlkPtrsPrepare() {
 
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		if (mDataBaseBlk + bx < mDataBaseBlk + mDataBlkSize)
-			mGraphicBlkPtrs[cx + 0x00] = mDataBaseBlk + bx;
-		else
-			mGraphicBlkPtrs[cx + 0x00] = 0;
-
-		if (mDataSubBlk + bx < mDataSubBlk + mDataBlkSize)
-			mGraphicBlkPtrs[cx + 0xF0] = mDataSubBlk + bx;
-		else
-			mGraphicBlkPtrs[cx + 0xF0] = 0;
+		mGraphicBlkPtrs[cx + 0x00] = mDataBaseBlk + bx;
+		mGraphicBlkPtrs[cx + 0xF0] = mDataSubBlk + bx;
 
 		++dx;
 		bx += 0x10;
@@ -14403,9 +14396,8 @@ void cFodder::map_Tiles_Draw_() {
 
 		uint16 StartY = 0;
 
-		if (cx == 0) {
+		if (cx == 0)
 			StartY = word_3B610;
-		}
 		else
 			StartY = 0;
 
@@ -14414,26 +14406,21 @@ void cFodder::map_Tiles_Draw_() {
 			uint8* TargetTmp = TargetRow;
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
+			if (Tile > 0x1E0)
+				Tile = 0;
 
 			uint8* TilePtr = mGraphicBlkPtrs[Tile];
 			uint16 StartX = 0;
 
 			TilePtr += StartY * 0x140;
 			
-			if (cx2 == 0) {
+			if (cx2 == 0)
 				StartX = word_3B60E;
-			}
 			else
 				StartX = 0;
 
 			// Each Tile Row
 			for (uint16 i = StartX; i < 16; ++i) {
-
-				// Sadly this can happen, because the game renders
-				// A. Outside the actual map terrain
-				// B. Tiles which 'should' be valid, but arnt... (0x1FF...)
-				if (!TilePtr)
-					continue;
 
 				memcpy( TargetTmp, TilePtr + StartX, 16 - StartX );
 				TilePtr += 0x140;
@@ -14447,8 +14434,8 @@ void cFodder::map_Tiles_Draw_() {
 		Target += mImage->GetWidth() * (16-StartY);
 		CurrentMapPtr += mMapWidth << 1;
 	}
+
 	mImage->Save();
-	return;
 }
 
 void cFodder::Exit( unsigned int pExitCode ) {
