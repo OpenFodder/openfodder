@@ -320,7 +320,7 @@ int16 cFodder::Mission_Loop( ) {
 		sub_12C69();
 		sub_12B6E();
 
-		if (mSquad_Selected < 0 && word_3AA47)
+		if (mSquad_Selected < 0 && !word_3AA47)
 			word_3AA47 = 0x14;
 
 		sub_13155();
