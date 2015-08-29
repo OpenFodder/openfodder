@@ -315,11 +315,13 @@ int16 cFodder::Mission_Loop( ) {
 
 			return -1;
 		}
+
 		//loc_10841
 		sub_124DB();
 		sub_12C69();
 		sub_12B6E();
 
+		// No squad is selected, so set count down timer
 		if (mSquad_Selected < 0 && !word_3AA47)
 			word_3AA47 = 0x14;
 
@@ -13452,8 +13454,7 @@ int16 cFodder::sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC ) {
 
 int16 cFodder::Troop_Deploy( sSprite_0* pSprite ) {
 	
-	// TODO: CHANGE BACK TO 0x0A
-	if (mMissionComplete || mTroops_Enemy_Count >= 0x02)
+	if (mMissionComplete || mTroops_Enemy_Count >= 0x0A)
 		return -1;
 	int16 Data0 = 1;
 	sSprite_0* Data2C = 0, *Data30 = 0;
