@@ -3819,7 +3819,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
-		videoSleep();
+		videoSleep_50();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -10283,8 +10283,9 @@ loc_1E3D2:;
 		}
 	}
 	//loc_1E5A7
-	int32 Dataa4 = (int32) pSprite->field_1A;
-	Dataa4 += (pSprite->field_1E | (pSprite->field_20 << 16));
+	int32 Dataa0 = (int32) pSprite->field_1A;
+	int32 Dataa4 = Dataa0;
+	Dataa0 += (pSprite->field_1E | (pSprite->field_20 << 16));
 
 	// Probably going to be issues here
 	pSprite->field_1E = Dataa4;
