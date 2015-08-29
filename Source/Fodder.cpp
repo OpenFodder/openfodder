@@ -6692,7 +6692,7 @@ void cFodder::sub_2D26A( sSquad_Member* pData24, int16& pData8 ) {
 
 }
 
-void cFodder::sub_2D2D4() {
+void cFodder::Squad_Member_Rotate_Can_Fire() {
 	if (word_39F04) 
 		word_39F04 = 0;
 	else {
@@ -6738,8 +6738,9 @@ void cFodder::sub_2D2D4() {
 		return;
 
 	const int16* Dataaa20 = off_3D4B5[Data0];
+	Data0 = word_3ABB5;
 
-	int16 Data4 = Dataaa20[word_3ABB5];
+	int16 Data4 = Dataaa20[Data0];
 	if (Data4 < 0 || Data4 > DataC) {
 		Data4 = 0;
 		Data0 = 0;
@@ -8596,7 +8597,7 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 		}
 		else {
 			//loc_19118
-			if (Sprite == word_39FCE && word_39EFC != 0) {
+			if (Sprite == word_39FCE && word_39EFC ) {
 
 				Data0 = word_3AC3F[ Sprite->field_32 ];
 				if (Data0 == 3) {
@@ -12572,7 +12573,7 @@ int16 cFodder::Troop_Fire_Bullet( sSprite_0* pSprite ) {
 
 loc_20777:;
 
-	Data2C->field_5E = mSquad - (sSquad_Member*) pSprite->field_46;
+	Data2C->field_5E = (sSquad_Member*) pSprite->field_46 - mSquad;
 	Data2C->field_5D = -1;
 	sSquad_Member* Data24 = (sSquad_Member*) pSprite->field_46;
 
@@ -15810,7 +15811,7 @@ void cFodder::sub_30CDC() {
 	}
 
 loc_30E05:;
-	sub_2D2D4();
+	Squad_Member_Rotate_Can_Fire();
 }
 
 int16 cFodder::sub_30E2A() {
