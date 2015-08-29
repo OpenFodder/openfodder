@@ -880,7 +880,7 @@ protected:
 	void			Sprite_Handle_Loop();
 
 	void			Sprite_Handle_Player( sSprite_0* pSprite );					// 0
-	void			sub_19658( sSprite_0* pSprite );							// 2
+	void			Sprite_Handle_Grenade( sSprite_0* pSprite );				// 2
 	void			sub_1998C( sSprite_0* pSprite );
 	void			sub_199B2( sSprite_0* pSprite );							// 3
 	void			Sprite_Handle_Enemy( sSprite_0* pSprite );					// 5
