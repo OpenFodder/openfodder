@@ -163,7 +163,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMapHeight;
 	uint8			mKeyCode;
 
-	uint8*			mDataPStuff;sub_1B863
+	uint8*			mDataPStuff;
 	uint8* 			mDataHillBits;
 	uint8*			mDataArmy;
 	uint8*			mMap;
@@ -897,7 +897,8 @@ protected:
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );			// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );			// 29
 	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );				// 30
-	void			Sprite_Handle_Text_GaveOver( sSprite_0* pSprite );			// 34
+	void			Sprite_Handle_Text_GameOver( sSprite_0* pSprite );			// 34
+	void			sub_1B8A9( sSprite_0* pSprite );							// 35
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
@@ -987,7 +988,7 @@ protected:
 	int16			sub_2A7F7( sSprite_0* pSprite, int16& pData0, int16& pData4 );
 	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
 	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
-	int16			sub_2AC06( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+	int16			Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
