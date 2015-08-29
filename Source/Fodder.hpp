@@ -280,7 +280,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FB4;
 	int16			word_39FB6;
 	int16			word_39FB8;
-	sSprite_0*		word_39FCE;	// This stores the number of bytes, inside the sSprite array
+	sSprite_0*		word_39FCE;
 
 	int16			mSquad_Selected;
 	int16			word_39FD2;
@@ -1097,7 +1097,7 @@ protected:
 	void			sub_304D0();
 	int16			sub_305D5( sSprite_0*& pData20 );
 	void			Mouse_Inputs_Check();
-	void			sub_30CDC();
+	void			Squad_Member_Target_Set();
 	int16			sub_30E2A();
 	void			sub_31033();
 	void			sub_31075( int16 pData0 );
