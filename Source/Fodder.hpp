@@ -479,6 +479,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2CB;
 	int16			word_3B2CD;
 	int16			word_3B2CF;
+	int16			word_3B2D1[6];
 	int16			word_3B2F1;
 	int16			word_3B2F3;
 	int16			word_3B2FD;
@@ -494,7 +495,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B44F;
 
 	int16			word_3B461[3];
+	sSprite_0*		dword_3B477;
 	int16			word_3B47B;
+	int16			word_3B47D;
+	int16			word_3B47F;
+	int16			word_3B481;
+	int16			word_3B483;
 	int16			word_3B487;
 	int16			word_3B489;
 	sSprite_0*		dword_3B48B[16];
@@ -893,6 +899,8 @@ protected:
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );			// 21
 	void			sub_1AF78( sSprite_0* pSprite );							// 22
 	void			sub_1B07C( sSprite_0* pSprite );							// 23
+	void			sub_1B0C0( sSprite_0* pSprite );							// 24
+	void			sub_1B1C1( sSprite_0* pSprite );							// 25
 	void			Sprite_Handle_Floating_Dead_Soldier( sSprite_0* pSprite );	// 27
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );			// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );			// 29
@@ -905,6 +913,8 @@ protected:
 	void			sub_1C268( sSprite_0* pSprite );							// 48
 	void			sub_1C4E7( sSprite_0* pSprite );							// 58
 	void			sub_1C52D( sSprite_0* pSprite );							// 59
+	void			Sprite_Handle_BoilingPot( sSprite_0* pSprite );				// 60
+	void			Sprite_Handle_Civilian( sSprite_0* pSprite );				// 61
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 
@@ -954,7 +964,7 @@ protected:
 	void			sub_218E2( sSprite_0* pSprite );
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
-	int16			Troop_Deploy( sSprite_0* pSprite );
+	int16			Troop_Deploy( sSprite_0* pSprite, sSprite_0*& pData2C );
 	void			sub_21B15( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	void			sub_21C00( sSprite_0* pData2C );
 	void			sub_21C6F( );
@@ -962,6 +972,7 @@ protected:
 
 	void			sub_2212A( sSprite_0* pSprite );
 	int16			sub_221A6( sSprite_0* pSprite );
+	int16			sub_222A3( sSprite_0* pSprite );
 	void			sub_223B2( sSprite_0* pSprite );
 	int16			sub_2244B( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
@@ -970,6 +981,14 @@ protected:
 	int16			sub_22A55( sSprite_0* pSprite );
 	void			sub_22AA9( sSprite_0* pSprite );
 	void			sub_22B71( sSprite_0* pSprite );
+
+	void			sub_258C6( sSprite_0* pSprite );
+	int16			sub_25680( sSprite_0* pSprite );
+	void			sub_257D1( sSprite_0* pSprite );
+	void			sub_2593D( sSprite_0* pSprite );
+	void			sub_25A31( sSprite_0* pSprite );
+	void			sub_25A66( sSprite_0* pSprite );
+	int16			sub_25AAE( sSprite_0* pSprite );
 
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
@@ -997,6 +1016,9 @@ protected:
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
+	int16			sub_2B232( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
+	int16			sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
+
 	void			sub_2B378( int16& Data0, int16& Data4, int16& Data8, int16& DataC );
 
 	void			Camera_Pan();
