@@ -5352,9 +5352,14 @@ void cFodder::sub_30AB0() {
 			continue;
 
 		Data8 += Data2C[Data18];
+		if (Data0 > Data8)
+			continue;
+
+		Data8 = Data20->field_4;
 		Data8 -= Data20->field_20;
 		Data8 -= Data30[Data18];
 		Data8 -= 0x14;
+
 		if (Data4 < Data8)
 			continue;
 
