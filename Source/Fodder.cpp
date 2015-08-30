@@ -2190,7 +2190,7 @@ void cFodder::sub_124DB() {
 }
 
 void cFodder::Mission_Goals_Check() {
-	
+
 	sSprite_0* Data20 = mSprites;
 	int16 Data8 = 0;
 	int16 DataC = 0;
@@ -8351,7 +8351,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 2:
-			sub_19658( Data20 );
+			Sprite_Handle_Grenade( Data20 );
 			break;
 
 		case 3:
@@ -8814,7 +8814,7 @@ loc_1957A:;
 
 }
 
-void cFodder::sub_19658( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Grenade( sSprite_0* pSprite ) {
 
 	if (pSprite->field_38)
 		goto loc_1992D;
@@ -10263,7 +10263,7 @@ loc_1E3D2:;
 	if (pSprite->field_20 < 0x0C) {
 
 		int16 Field10 = pSprite->field_10;
-		sub_1FFC6( pSprite );
+		sub_1FFC6( pSprite, Data4 );
 		pSprite->field_10 = Field10;
 	}
 	else {
@@ -10272,7 +10272,7 @@ loc_1E3D2:;
 		int16 Field4 = pSprite->field_4;
 		int16 Field10 = pSprite->field_10;
 
-		sub_1FFC6( pSprite );
+		sub_1FFC6( pSprite, Data4 );
 
 		pSprite->field_10 = Field10;
 		pSprite->field_4 = Field4;
@@ -10456,7 +10456,7 @@ loc_1E831:;
 			Data30[Data0].field_2 = Data8;
 	}
 	//loc_1E9CD;
-	sub_1FFC6( pSprite );
+	sub_1FFC6( pSprite, Data4 );
 	if (pSprite->field_12 > 5)
 		sub_223B2( pSprite );
 
@@ -10508,7 +10508,7 @@ loc_1EB0E:;
 	int16 Field_52 = pSprite->field_52;
 	int16 Field_0 = pSprite->field_0;
 	int16 Field_4 = pSprite->field_4;
-	sub_1FFC6( pSprite );
+	sub_1FFC6( pSprite, Data4 );
 	pSprite->field_4 = Field_4;
 	pSprite->field_0 = Field_0;
 	pSprite->field_52 = Field_52;
@@ -10551,7 +10551,7 @@ loc_1EB87:;
 	
 	//loc_1EC4F
 	Field_52 = pSprite->field_52;
-	sub_1FFC6( pSprite );
+	sub_1FFC6( pSprite, Data4 );
 	pSprite->field_52 = Field_52;
 
 	if (pSprite->field_4F || pSprite->field_50) {
@@ -10594,7 +10594,7 @@ loc_1ED5B:;
 
 	Sprite_Movement_Calculate( pSprite );
 	sub_20478( pSprite );
-	sub_1FFC6( pSprite );
+	sub_1FFC6( pSprite, Data4 );
 
 	if (pSprite->field_38 != 0x33)
 		goto loc_1EE3E;
@@ -11127,7 +11127,8 @@ void cFodder::sub_1F66F( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_1F6F4( sSprite_0* pSprite ) {
-	
+	int16 Data4 = 0;
+
 	if (!sub_20E91( pSprite )) {
 		sub_20F19( pSprite );
 		Sprite_Movement_Calculate( pSprite );
@@ -11137,10 +11138,10 @@ void cFodder::sub_1F6F4( sSprite_0* pSprite ) {
 	sub_20478( pSprite );
 
 	byte_3ABA9 = pSprite->field_60;
-	sub_1FFC6( pSprite );
+	sub_1FFC6( pSprite, Data4 );
 
 	int16 Data0 = byte_3ABA9;
-	int16 Data4 = pSprite->field_60;
+	Data4 = pSprite->field_60;
 	if (Data0 != 6)
 		goto loc_1F75D;
 
@@ -11508,18 +11509,18 @@ void cFodder::sub_1FF1A( sSprite_0* pSprite ) {
 	}
 }
 
-void cFodder::sub_1FFC6( sSprite_0* pSprite ) {
+void cFodder::sub_1FFC6( sSprite_0* pSprite, int16& pData4 ) {
 	int16 Data0 = -3;
-	int16 Data4 = 8;
+	pData4 = 8;
 
-	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
 		goto loc_20236;
 
-	pSprite->field_60 = Data4 & 0xFF;
+	pSprite->field_60 = pData4 & 0xFF;
 	pSprite->field_50 = 0;
 	pSprite->field_4F = 0;
 
-	if (Data4 == 0x0A) {
+	if (pData4 == 0x0A) {
 		if (pSprite->field_18 == 5)
 			goto loc_20251;
 
@@ -11533,7 +11534,7 @@ void cFodder::sub_1FFC6( sSprite_0* pSprite ) {
 	}
 
 	//loc_20044
-	if (Data4 == 9) {
+	if (pData4 == 9) {
 
 		if (pSprite->field_18 == 5)
 			goto loc_20251;
@@ -11547,13 +11548,13 @@ void cFodder::sub_1FFC6( sSprite_0* pSprite ) {
 
 	//loc_20072
 	pSprite->field_56 = 0;
-	if (Data4 == 8)
+	if (pData4 == 8)
 		goto loc_201CC;
 
-	if (Data4 == 1)
+	if (pData4 == 1)
 		goto loc_20108;
 
-	if (Data4 == 2)
+	if (pData4 == 2)
 		goto loc_2014D;
 
 	if (!pSprite->field_61)
@@ -11570,13 +11571,13 @@ loc_200B7:;
 	pSprite->field_61 = 0;
 
 loc_200C0:;
-	if (Data4 == 4)
+	if (pData4 == 4)
 		goto loc_2019E;
 
-	if (Data4 == 5)
+	if (pData4 == 5)
 		goto loc_201AB;
 
-	if (Data4 != 6)
+	if (pData4 != 6)
 		goto loc_201B8;
 
 	if (pSprite->field_22 == 2)
@@ -11624,7 +11625,7 @@ loc_201AB:;
 	return;
 
 loc_201B8:;
-	if (Data4 == 0x0B)
+	if (pData4 == 0x0B)
 		goto loc_2022C;
 
 	pSprite->field_52 = 0;
@@ -11655,7 +11656,7 @@ loc_2022C:;
 	return;
 
 loc_20236:;
-	if (Data4 == 9 || Data4 == 0x0A) {
+	if (pData4 == 9 || pData4 == 0x0A) {
 		pSprite->field_38 = 2;
 		return;
 	}
@@ -11670,17 +11671,17 @@ loc_20251:;
 	pSprite->field_0 = dword_3A391;
 
 	Data0 = -3;
-	Data4 = 8;
-	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	pData4 = 8;
+	if (Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
 		goto loc_202E5;
 
-	if (Data4 == 9)
+	if (pData4 == 9)
 		goto loc_202E5;
 
-	if (Data4 == 0x0A)
+	if (pData4 == 0x0A)
 		goto loc_202E5;
 
-	if (pSprite->field_22 == 2 && Data4 == 6)
+	if (pSprite->field_22 == 2 && pData4 == 6)
 		goto loc_202E5;
 
 	Data0 = pSprite->field_10;
@@ -11721,16 +11722,16 @@ loc_2035C:;
 	pSprite->field_0 = dword_3A391;
 
 	Data0 = -3;
-	Data4 = 8;
-	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	pData4 = 8;
+	if (!Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
 		return;
 
 	pSprite->field_0 = word_3A9E6;
 	pSprite->field_4 = dword_3A395;
 
 	Data0 = -3;
-	Data4 = 8;
-	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	pData4 = 8;
+	if (!Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
 		return;
 
 	//loc_203BA
@@ -11740,7 +11741,7 @@ loc_2035C:;
 	pSprite->field_28 = pSprite->field_4;
 
 	struct_8* Data30 = off_3BEF3[ pSprite->field_32 ];
-	Data4 = 0;
+	pData4 = 0;
 
 	for (;;) {
 		struct_8 eax = *Data30++;
@@ -11748,10 +11749,10 @@ loc_2035C:;
 		if (eax.asInt < 0)
 			break;
 
-		Data4++;
+		pData4++;
 	}
 
-	pSprite->field_40 = Data4;
+	pSprite->field_40 = pData4;
 	pSprite->field_4C = -1;
 }
 

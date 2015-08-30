@@ -928,7 +928,7 @@ protected:
 	void			sub_1FDE7( sSprite_0* pSprite );
 	void			sub_1FE35( sSprite_0* pSprite );
 	void			sub_1FF1A( sSprite_0* pSprite );
-	void			sub_1FFC6( sSprite_0* pSprite );
+	void			sub_1FFC6( sSprite_0* pSprite, int16& pData4 );
 
 	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
 	void			sub_20478( sSprite_0* pSprite );
