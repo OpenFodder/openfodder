@@ -11667,8 +11667,7 @@ loc_20251:;
 	if (!pSprite->field_22)
 		goto loc_2035C;
 
-	// TODO: Check
-	pSprite->field_0 = dword_3A391;
+	pSprite->field_0 = dword_3A391 & 0xFFFF;
 
 	Data0 = -3;
 	pData4 = 8;
