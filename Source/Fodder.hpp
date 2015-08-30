@@ -460,6 +460,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B161;
 	int16			word_3B163;
 	int16			word_3B173;
+	int16			word_3B175;
 	int32			dword_3B1CB;
 	int16			word_3B1AB;
 	int16			word_3B1CF[0x0F];
@@ -476,12 +477,15 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite_0*		dword_3B213[15];
 	sSprite_0*		dword_3B24F[3];
 	int16			word_3B25B;
+	int16			word_3B25D;
 	int16			word_3B2CB;
 	int16			word_3B2CD;
 	int16			word_3B2CF;
 	int16			word_3B2D1[6];
 	int16			word_3B2F1;
 	int16			word_3B2F3;
+	int16			word_3B2F5;
+	int16			word_3B2F7;
 	int16			word_3B2FD;
 	int16			word_3B2FF;
 	int16			word_3B301;
@@ -492,6 +496,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMapGoals[8];
 	int16			word_3B447;
+	int16			word_3B449;
 	int16			word_3B44F;
 
 	int16			word_3B461[3];
@@ -793,6 +798,8 @@ protected:
 	void			Sprite_Draw( );
 	void			sub_144A2( );
 	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+	void			sub_14CCB( int16& pData0 );
+
 	void			Sound_Voc_Load();
 	void			Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 );
 	void			Music_Unk( int16 pTrack );
@@ -895,6 +902,8 @@ protected:
 	void			sub_1ABD3( sSprite_0* pSprite );							// 13
 	void			Sprite_Handle_Tree( sSprite_0* pSprite );					// 14
 	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );			// 15
+	void			sub_1AC03( sSprite_0* pSprite );							// 16
+	void			sub_1AC13( sSprite_0* pSprite );							// 17
 	void			Sprite_Handle_BuildingDoor( sSprite_0* pSprite );			// 20
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );			// 21
 	void			sub_1AF78( sSprite_0* pSprite );							// 22
@@ -905,16 +914,23 @@ protected:
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );			// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );			// 29
 	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );				// 30
+	void			sub_1B4BB( sSprite_0* pSprite );
+	void			Sprite_Handle_Rocket( sSprite_0* pSprite );					// 33
 	void			Sprite_Handle_Text_GameOver( sSprite_0* pSprite );			// 34
 	void			sub_1B8A9( sSprite_0* pSprite );							// 35
+	void			sub_1B989( sSprite_0* pSprite );							// 36
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
+	void			Sprite_Handle_RocketBox( sSprite_0* pSprite );				// 38
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
+	void			sub_1C364( sSprite_0* pSprite );							// 55
 	void			sub_1C4E7( sSprite_0* pSprite );							// 58
 	void			sub_1C52D( sSprite_0* pSprite );							// 59
 	void			Sprite_Handle_BoilingPot( sSprite_0* pSprite );				// 60
-	void			Sprite_Handle_Civilian( sSprite_0* pSprite );				// 61
+	void			Sprite_Handle_Indigenous( sSprite_0* pSprite );				// 61
+	void			sub_1C70A( sSprite_0* pSprite );							// 63
+	void			sub_1C719( sSprite_0* pSprite );							// 64
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 
@@ -977,11 +993,23 @@ protected:
 	int16			sub_2244B( sSprite_0* pSprite );
 	int16			sub_224ED( sSprite_0* pSprite );
 	int16			sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 );
+	void			sub_229C9( sSprite_0* pSprite );
 	void			sub_22A3D( sSprite_0* pSprite );
 	int16			sub_22A55( sSprite_0* pSprite );
 	void			sub_22AA9( sSprite_0* pSprite );
 	void			sub_22B71( sSprite_0* pSprite );
-
+	void			sub_22C87( sSprite_0* pSprite );
+	void			sub_22CD7( sSprite_0* pSprite, int16& Data0, int16& Data4 );
+	void			sub_22DFC( sSprite_0* pSprite );
+	void			sub_2315D( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
+	int16			sub_2329D( sSprite_0* pSprite );
+	int16			sub_23367( sSprite_0* pSprite );
+	void			sub_233D4( sSprite_0* pSprite );
+	int16			sub_23444( sSprite_0* pSprite );
+	void			sub_243E9( sSprite_0* pSprite );
+	int16			sub_2449E( sSprite_0* pSprite );
+	void			sub_245BF( sSprite_0* pSprite );
+	int16			sub_246CC( sSprite_0* pSprite );
 	void			sub_258C6( sSprite_0* pSprite );
 	int16			sub_25680( sSprite_0* pSprite );
 	void			sub_257D1( sSprite_0* pSprite );
@@ -1016,6 +1044,8 @@ protected:
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
+	void			sub_2B12E( sSprite_0* pSprite );
+	void			sub_2B1A3( sSprite_0* pSprite, int16& pData1C );
 	int16			sub_2B232( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 	int16			sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 
