@@ -2208,7 +2208,7 @@ void cFodder::sub_124DB() {
 }
 
 void cFodder::Mission_Goals_Check() {
-	return;
+
 	sSprite_0* Data20 = mSprites;
 	int16 Data8 = 0;
 	int16 DataC = 0;
