@@ -9508,7 +9508,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 63:
-			sub_1C70A( Data20 );
+			Sprite_Handle_Skidu( Data20 );
 			break;
 
 		case 66:
@@ -11397,7 +11397,7 @@ void cFodder::Sprite_Handle_Indigenous( sSprite_0* pSprite ) {
 	sub_25A66( pSprite );
 }
 
-void cFodder::sub_1C70A( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Skidu( sSprite_0* pSprite ) {
 
 	pSprite->field_6F = 2;
 	sub_233D4( pSprite );
