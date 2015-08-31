@@ -758,7 +758,7 @@ protected:
 	void			sub_124DB();
 	void			Mission_Goals_Check();
 	void			sub_126BB();
-	void			sub_126DD();
+	void			Mission_Goals_Set();
 	void			sub_12790( );
 	void			sub_12838();
 	void			sub_12877( sSprite_0* pData2C );
@@ -918,7 +918,7 @@ protected:
 	void			Sprite_Handle_Rocket( sSprite_0* pSprite );					// 33
 	void			Sprite_Handle_Text_GameOver( sSprite_0* pSprite );			// 34
 	void			sub_1B8A9( sSprite_0* pSprite );							// 35
-	void			sub_1B989( sSprite_0* pSprite );							// 36
+	void			Sprite_Handle_Enemy_Rocket( sSprite_0* pSprite );			// 36
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
 	void			Sprite_Handle_RocketBox( sSprite_0* pSprite );				// 38
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
@@ -1153,7 +1153,7 @@ protected:
 	int16			sub_30E2A();
 	void			sub_31033();
 	void			sub_31075( int16 pData0 );
-	void			sub_310CB();
+	void			Vehicle_Input_Handle();
 	void			sub_311A7();
 	int16			sub_313CD();
 	void			sub_3169B();
