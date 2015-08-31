@@ -1099,7 +1099,7 @@ const int8 byte_3D7CA[] = {1, 7, 2, -1 };
 const int8 byte_3D7CE[] = {5, -1 };      
 const int8 byte_3D7D0[] = {2, -1 };      
 
-const int8* off_3D5F1[] = {
+const int8* mMission_Goals[] = {
 	byte_3D711,
 	byte_3D713,
 	byte_3D715,

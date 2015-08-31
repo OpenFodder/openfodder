@@ -334,7 +334,6 @@ int16 cFodder::Mission_Loop( ) {
 }
 
 void cFodder::Mouse_Handle( ) {
-	sSprite_0* Sprite = 0;
 
 	if (!word_390A6 || !word_3A9D0) {
 
@@ -382,7 +381,7 @@ void cFodder::Mouse_Handle( ) {
 
 	int16 Data4 = word_3B44F;
 	int16 Data8 = 0;
-	Sound_Voc_Play( Sprite, Data4, Data8 );
+	Sound_Voc_Play( word_39FCE, Data4, Data8 );
 	word_3B44F = 0;
 	return;
 
@@ -2285,8 +2284,8 @@ void cFodder::sub_126BB() {
 	stru_3AF0B[0].field_2 = -1;
 }
 
-void cFodder::sub_126DD() {
-	const int8* Data20 = off_3D5F1[mMapNumber];
+void cFodder::Mission_Goals_Set() {
+	const int8* Data20 = mMission_Goals[mMapNumber];
 
 	for (; *Data20 != -1; ++Data20) {
 
@@ -5516,8 +5515,8 @@ void cFodder::sub_22DFC( sSprite_0* pSprite ) {
 	if (sub_23367( pSprite ))
 		goto loc_22F30;
 
-	int16 Data0 = 0x0F;
-	int16 Data4 = -10;
+	int16 Data4 = 0x0F;
+	int16 Data0 = -10;
 	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
 
 	pSprite->field_60 = Data4;
@@ -5708,7 +5707,7 @@ void cFodder::sub_2315D( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 p
 		if (Data24->field_18 == 0x6A)
 			continue;
 
-		if (pData8 > pSprite->field_0)
+		if (pData8 > Data24->field_0)
 			continue;
 
 		if (pDataC < Data24->field_0)
@@ -9163,7 +9162,7 @@ void cFodder::Briefing_Show( ) {
 	String_CalculateWidth( 320, byte_4388F, Phase.str().c_str() );
 	String_Print( byte_4388F, 0, word_3B301, 0x1D, Phase.str().c_str() );
 	
-	sub_126DD();
+	Mission_Goals_Set();
 
 	int16 DataC = 0x84;
 	const char* Data20 = 0;
@@ -9465,7 +9464,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 36:
-			sub_1B989( Data20 );
+			Sprite_Handle_Enemy_Rocket( Data20 );
 			break;
 
 		case 37:
@@ -11081,7 +11080,7 @@ void cFodder::sub_1B8A9( sSprite_0* pSprite ) {
 		pSprite->field_8 = 0x7C;
 }
 
-void cFodder::sub_1B989( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Enemy_Rocket( sSprite_0* pSprite ) {
 	
 	if (sub_1E05A( pSprite ))
 		return;
@@ -13365,7 +13364,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 	}
 }
 
-void cFodder::sub_310CB() {
+void cFodder::Vehicle_Input_Handle() {
 	
 	if (!mButtonPressLeft) {
 		word_39F00 = 0;
@@ -13381,7 +13380,7 @@ void cFodder::sub_310CB() {
 
 	sSprite_0* Data20 = word_39FCE;
 
-	if (Data20 < 0)
+	if (Data20 == INVALID_SPRITE_PTR)
 		return;
 	int16 Data0 = mMouseX;
 	int16 Data4 = mMouseY;
@@ -13569,13 +13568,12 @@ loc_31514:;
 	for (; Data18 >= 0; --Data18) {
 		sSprite_0* eax = *Dataa2C;
 
-		if (eax < 0)
+		if (eax == INVALID_SPRITE_PTR)
 			goto loc_31668;
 
 		++Dataa2C;
 		sSprite_0* Data24 = eax;
 
-		++Dataa2C;
 		if (!Data24->field_6E)
 			continue;
 
@@ -15883,7 +15881,7 @@ loc_103BF:;
 			word_3AA1B = 1;
 			Squad_Prepare_GrenadesAndRockets();
 			sub_2D7FF();
-			sub_126DD();
+			Mission_Goals_Set();
 //			nullsub_1();
 
 			word_3BEC9 = 0xE0;
@@ -17129,7 +17127,7 @@ int16 cFodder::sub_305D5( sSprite_0*& pData20 ) {
 		if (!pData20->field_6E)
 			break;
 
-	} while (*Data30 >= 0);
+	} while (*Data30 != INVALID_SPRITE_PTR );
 	//loc_3069A
 	goto loc_306BE;
 
@@ -17219,7 +17217,7 @@ void cFodder::Mouse_Inputs_Check() {
 loc_30814:;
 
 	if (dword_3B20B) {
-		sub_310CB();
+		Vehicle_Input_Handle();
 		return;
 	}
 
