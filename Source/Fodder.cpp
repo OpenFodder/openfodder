@@ -7312,7 +7312,7 @@ void cFodder::sub_2B1A3( sSprite_0* pSprite, int16& pData1C ) {
 
 	Data0 -= Data4;
 	Data4 = Data0;
-
+	Data4 &= 0x0F;
 	int16 DataC = (int16) byte_3E98F[Data4];
 	if (!DataC)
 		return;
