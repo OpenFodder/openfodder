@@ -929,8 +929,8 @@ protected:
 	void			sub_1C52D( sSprite_0* pSprite );							// 59
 	void			Sprite_Handle_BoilingPot( sSprite_0* pSprite );				// 60
 	void			Sprite_Handle_Indigenous( sSprite_0* pSprite );				// 61
-	void			Sprite_Handle_Skidu( sSprite_0* pSprite );							// 63
-	void			sub_1C719( sSprite_0* pSprite );							// 64
+	void			Sprite_Handle_Skidu( sSprite_0* pSprite );					// 63
+	void			Sprite_Handle_Truck( sSprite_0* pSprite );					// 64
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 
