@@ -9511,6 +9511,10 @@ void cFodder::Sprite_Handle_Loop() {
 			Sprite_Handle_Skidu( Data20 );
 			break;
 
+		case 64:
+			Sprite_Handle_Truck( Data20 );
+			break;
+
 		case 66:
 			Sprite_Handle_Bird_Left( Data20 );
 			break;
@@ -11403,7 +11407,7 @@ void cFodder::Sprite_Handle_Skidu( sSprite_0* pSprite ) {
 	sub_233D4( pSprite );
 }
 
-void cFodder::sub_1C719( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Truck( sSprite_0* pSprite ) {
 
 	pSprite->field_6F = 3;
 	sub_233D4( pSprite );
