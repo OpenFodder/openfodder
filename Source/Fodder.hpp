@@ -924,6 +924,7 @@ protected:
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
 	void			Sprite_Handle_RocketBox( sSprite_0* pSprite );				// 38
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
+	void			sub_1BD54( sSprite_0* pSprite );							// 41
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
 	void			sub_1C364( sSprite_0* pSprite );							// 55
@@ -938,6 +939,7 @@ protected:
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68
+	void			sub_1C689( sSprite_0* pSprite );							// 70
 	void			sub_1D4BA( sSprite_0* pSprite );							// 75
 	void			sub_1D4C6( sSprite_0* pSprite );							// 76
 

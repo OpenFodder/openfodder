@@ -8996,11 +8996,11 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
 int16 cFodder::sub_1804C() {
 	uint16* di = (uint16*) mDataPStuff;
 
-	
 	mDrawSpritePositionY = 0xE8;
 	Service_Mission_Text_Prepare( di );
 	mDrawSpritePositionY += 0x40;
 
+	uint16* di2 = di;
 	sSquad_Member* si = mSquad;
 
 	for (int16 word_3ABE1 = 7; word_3ABE1 >= 0; --word_3ABE1, ++si) {
@@ -9016,7 +9016,7 @@ int16 cFodder::sub_1804C() {
 			mDrawSpritePositionY += 0x40;
 		}
 	}
-	if (di == (uint16*) mDataPStuff)
+	if (di == di2)
 		return -1;
 
 	*di++ = -1;
@@ -9765,6 +9765,10 @@ void cFodder::Sprite_Handle_Loop() {
 			sub_1BB11( Data20 );
 			break;
 
+		case 41:
+			sub_1BD54( Data20 );
+			break;
+
 		case 47:
 			sub_1C1C0( Data20 );
 			break;
@@ -9819,6 +9823,10 @@ void cFodder::Sprite_Handle_Loop() {
 
 		case 68:
 			Sprite_Handle_Seal( Data20 );
+			break;
+
+		case 70:
+			sub_1C689( Data20 );
 			break;
 
 		case 75:
@@ -11547,6 +11555,22 @@ loc_1BD06:;
 	sub_2060F( pSprite );
 }
 
+void cFodder::sub_1BD54( sSprite_0* pSprite ) {
+	
+	pSprite->field_2C = 0;
+	pSprite->field_8 = 0xC4;
+
+	pSprite->field_43++;
+	pSprite->field_43 &= 1;
+	if (!pSprite->field_43) {
+		pSprite->field_A++;
+		pSprite->field_A &= 3;
+	}
+
+	pSprite->field_4 += 0x18;
+	pSprite->field_20 += 0x18;
+}
+
 void cFodder::sub_1C1C0( sSprite_0* pSprite ) {
 	Sprite_Movement_Calculate( pSprite );
 	int32 Data0 = (int32) pSprite->field_1A;
@@ -11943,6 +11967,36 @@ void cFodder::Sprite_Handle_Seal( sSprite_0* pSprite ) {
 	if (mMap_TileSet == 2) {
 		sub_14D6D( pSprite, 0x1E );
 	}
+}
+
+void cFodder::sub_1C689( sSprite_0* pSprite ) {
+	pSprite->field_22 = 1;
+	if (pSprite->field_38) {
+		sub_257D1( pSprite );
+		return;
+	}
+
+	pSprite->field_22 = 2;
+	pSprite->field_8 = 0xD0;
+
+	if (mMap_TileSet == 3)
+		sub_14D6D( pSprite, 0x26 );
+	
+	if (mMap_TileSet == 4)
+		sub_14D6D( pSprite, 0x1F );
+
+	int16 ax = sub_25680( pSprite );
+	if (ax > 0)
+		return;
+	if (ax)
+		sub_258C6( pSprite );
+
+	pSprite->field_36 = 0x0C;
+
+	sub_2593D( pSprite );
+	sub_25A31( pSprite );
+	sub_25A66( pSprite );
+	sub_25863( pSprite );
 }
 
 void cFodder::sub_1D4BA( sSprite_0* pSprite ) {
