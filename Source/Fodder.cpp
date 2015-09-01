@@ -5502,7 +5502,7 @@ loc_22DED:;
 	Data1C = 1;
 
 loc_22DF6:;
-	sub_2B1A3( pSprite, Data1C );
+	Sprite_Skidu_Direction_Update( pSprite, Data1C );
 
 }
 
@@ -7302,7 +7302,7 @@ void cFodder::sub_2B12E( sSprite_0* pSprite ) {
 	word_3A8CF = DataC;
 }
 
-void cFodder::sub_2B1A3( sSprite_0* pSprite, int16& pData1C ) {
+void cFodder::Sprite_Skidu_Direction_Update( sSprite_0* pSprite, int16& pData1C ) {
 	int16 Data4 = word_3B2F5;
 	Data4 >>= 5;
 	Data4 -= 1;
@@ -10919,7 +10919,7 @@ loc_1B5D2:;
 		goto loc_1B655;
 
 	pSprite->field_36 += 3;
-	if (pSprite->field_18 == 0x52)
+	if (pSprite->field_18 != 0x52)
 		goto loc_1B640;
 
 	pSprite->field_36 = 0x14;
