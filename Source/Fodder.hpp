@@ -461,8 +461,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B163;
 	int16			word_3B173;
 	int16			word_3B175;
-	int32			dword_3B1CB;
+	int16			word_3B1A9;
 	int16			word_3B1AB;
+	int32			dword_3B1CB;
 	int16			word_3B1CF[0x0F];
 	int16			word_3B1ED;
 	int16			word_3B1EF;
@@ -482,6 +483,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2CD;
 	int16			word_3B2CF;
 	int16			word_3B2D1[6];
+	int16			word_3B2EF;
 	int16			word_3B2F1;
 	int16			word_3B2F3;
 	int16			word_3B2F5;
@@ -925,14 +927,19 @@ protected:
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
 	void			sub_1C364( sSprite_0* pSprite );							// 55
+	void			sub_1C4C2( sSprite_0* pSprite );							// 57
 	void			sub_1C4E7( sSprite_0* pSprite );							// 58
 	void			sub_1C52D( sSprite_0* pSprite );							// 59
 	void			Sprite_Handle_BoilingPot( sSprite_0* pSprite );				// 60
 	void			Sprite_Handle_Indigenous( sSprite_0* pSprite );				// 61
+	void			sub_1C62F( sSprite_0* pSprite );							// 62
 	void			Sprite_Handle_Skidu( sSprite_0* pSprite );					// 63
 	void			Sprite_Handle_Truck( sSprite_0* pSprite );					// 64
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
+	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68
+	void			sub_1D4BA( sSprite_0* pSprite );							// 75
+	void			sub_1D4C6( sSprite_0* pSprite );							// 76
 
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
@@ -953,7 +960,7 @@ protected:
 	void			sub_1FCF2( sSprite_0* pSprite );
 	void			sub_1FDE7( sSprite_0* pSprite );
 	void			sub_1FE35( sSprite_0* pSprite );
-	void			sub_1FF1A( sSprite_0* pSprite );
+	int16			sub_1FF1A( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	void			sub_1FFC6( sSprite_0* pSprite, int16& pData4 );
 
 	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
@@ -1010,6 +1017,7 @@ protected:
 	int16			sub_2449E( sSprite_0* pSprite );
 	void			sub_245BF( sSprite_0* pSprite );
 	int16			sub_246CC( sSprite_0* pSprite );
+	void			sub_25863( sSprite_0* pSprite );
 	void			sub_258C6( sSprite_0* pSprite );
 	int16			sub_25680( sSprite_0* pSprite );
 	void			sub_257D1( sSprite_0* pSprite );
@@ -1017,6 +1025,10 @@ protected:
 	void			sub_25A31( sSprite_0* pSprite );
 	void			sub_25A66( sSprite_0* pSprite );
 	int16			sub_25AAE( sSprite_0* pSprite );
+	int16			sub_25B6B( sSprite_0* pSprite );
+	int16			sub_25DCF( sSprite_0* pSprite );
+	void			sub_264B0( sSprite_0* pSprite );
+	int16			sub_265D6( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData30 );
 
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
