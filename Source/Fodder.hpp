@@ -1045,7 +1045,7 @@ protected:
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 	void			sub_2B12E( sSprite_0* pSprite );
-	void			sub_2B1A3( sSprite_0* pSprite, int16& pData1C );
+	void			Sprite_Skidu_Direction_Update( sSprite_0* pSprite, int16& pData1C );
 	int16			sub_2B232( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 	int16			sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 
