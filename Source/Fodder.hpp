@@ -955,6 +955,7 @@ protected:
 	void			sub_1D756( sSprite_0* pSprite );							// 79
 	void			sub_1D81C( sSprite_0* pSprite );							// 88
 
+	int16			sub_1D92E( sSprite_0* pSprite );
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
 	int16			sub_1EF47( sSprite_0* pSprite );
