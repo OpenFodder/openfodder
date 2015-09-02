@@ -10289,7 +10289,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 78:
-			sub_1D73D( Data20 );
+			Sprite_Handle_Turret( Data20 );
 			break;
 
 		case 79:
@@ -12509,7 +12509,7 @@ void cFodder::sub_1D4C6( sSprite_0* pSprite ) {
 	sub_264B0(pSprite);
 }
 
-void cFodder::sub_1D73D( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Turret( sSprite_0* pSprite ) {
 	pSprite->field_22 = 0;
 	pSprite->field_6F = 0;
 
@@ -12583,7 +12583,64 @@ loc_1D928:;
 }
 
 int16 cFodder::sub_1D92E( sSprite_0* pSprite ) {
-	
+	if (pSprite->field_38 == 7)
+		goto loc_1D95B;
+
+	if (pSprite->field_38 == 6)
+		goto loc_1D9C9;
+
+	if (pSprite->field_58)
+		goto loc_1D9C9;
+
+	return 0;
+
+loc_1D95B:;
+	pSprite->field_38 = 6;
+	pSprite->field_8 = 0xE0;
+
+	int16 Data0 = tool_RandomGet();
+	int16 Data4 = Data0;
+	Data0 &= 0x1E;
+	if (Data4 < 0)
+		Data0 = -Data0;
+
+	Data0 += 0x1C0;
+	pSprite->field_10 = Data0;
+
+	Data4 &= 3;
+	Data4 += 5;
+
+	pSprite->field_44 = Data4;
+	pSprite->field_36 = 0x78;
+	pSprite->field_58 = -1;
+
+loc_1D9C9:;
+	pSprite->field_44 -= 1;
+	if (!pSprite->field_44)
+		goto loc_1DA13;
+
+	Sprite_Movement_Calculate( pSprite );
+	if (word_3B173)
+		goto loc_1DA13;
+
+	Data0 = -3;
+	Data4 = 2;
+	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+		goto loc_1DA13;
+
+	if (pSprite->field_36 <= 0)
+		goto loc_1DA13;
+
+	return -1;
+
+loc_1DA13:;
+	pSprite->field_0 -= 8;
+	if (pSprite->field_0 < 0)
+		pSprite->field_0 = 0;
+
+	pSprite->field_4 -= 8;
+	sub_218E2( pSprite );
+	return -1;
 }
 
 void cFodder::sub_14D6D( sSprite_0* pSprite, int16 pData4 ) {

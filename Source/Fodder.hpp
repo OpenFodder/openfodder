@@ -951,7 +951,7 @@ protected:
 	void			sub_1C689( sSprite_0* pSprite );							// 70
 	void			sub_1D4BA( sSprite_0* pSprite );							// 75
 	void			sub_1D4C6( sSprite_0* pSprite );							// 76
-	void			sub_1D73D( sSprite_0* pSprite );							// 78
+	void			Sprite_Handle_Turret( sSprite_0* pSprite );					// 78
 	void			sub_1D756( sSprite_0* pSprite );							// 79
 	void			sub_1D81C( sSprite_0* pSprite );							// 88
 
