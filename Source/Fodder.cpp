@@ -12524,6 +12524,65 @@ void cFodder::sub_1D756( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_1D81C( sSprite_0* pSprite ) {
+	sSprite_0* Data2C = 0;
+
+	if (sub_1D92E( pSprite ))
+		return;
+
+	if (mTroops_Enemy_Count >= 0x0A) {
+		pSprite->field_8 = 0xE0;
+		return;
+	}
+
+	pSprite->field_2C = -1;
+	if (pSprite->field_43 < 0)
+		goto loc_1D8DC;
+
+	pSprite->field_43 -= 1;
+	if (pSprite->field_43 == 0x14 || pSprite->field_43 == 0x0A)
+		goto loc_1D928;
+
+	if (pSprite->field_43 >= 0) {
+		pSprite->field_8 = 0x7C;
+		return;
+	}
+
+	pSprite->field_8 = 0xE0;
+	Sound_Voc_Play( pSprite, 0x10, 1 );
+
+	int16 Data0 = tool_RandomGet() & 0x0F;
+	int16 Data4 = 0x14 - word_390C2;
+
+	if (Data4 < 0)
+		Data0 = 0;
+
+	Data4 <<= 3;
+	Data4 += Data0;
+	pSprite->field_12 = Data4;
+
+loc_1D8DC:;
+
+	pSprite->field_12 -= 1;
+	if (pSprite->field_12 >= 0)
+		return;
+
+	Data0 = tool_RandomGet() & 0x0F;
+	Data0 += 6;
+	pSprite->field_43 = Data0;
+	pSprite->field_8 = 0x7C;
+
+	if (!Troop_Deploy( pSprite, Data2C ))
+		return;
+
+	pSprite->field_12 = -1;
+	pSprite->field_43 = -1;
+	return;
+
+loc_1D928:;
+	Troop_Deploy( pSprite, Data2C );
+}
+
+int16 cFodder::sub_1D92E( sSprite_0* pSprite ) {
 	
 }
 
