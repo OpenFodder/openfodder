@@ -1047,16 +1047,16 @@ void cFodder::sub_10DEC() {
 	word_3A069 = 0;
 	word_3A06B = -1;
 	word_3A28D = 0x0C;
-	stru_3A3FD[0].field_0 = -1;
-	stru_3A475[0].field_0 = -1;
-	stru_3A4ED[0].field_0 = -1;
-	stru_3A565[0].field_0 = -1;
-	stru_3A5DD[0].field_0 = -1;
-	stru_3A655[0].field_0 = -1;
-	stru_3A6CD[0].field_0 = -1;
-	stru_3A745[0].field_0 = -1;
-	stru_3A7BD[0].field_0 = -1;
-	stru_3A835[0].field_0 = -1;
+	stru_3A3FD[0].asInt = -1;
+	stru_3A475[0].asInt = -1;
+	stru_3A4ED[0].asInt = -1;
+	stru_3A565[0].asInt = -1;
+	stru_3A5DD[0].asInt = -1;
+	stru_3A655[0].asInt = -1;
+	stru_3A6CD[0].asInt = -1;
+	stru_3A745[0].asInt = -1;
+	stru_3A7BD[0].asInt = -1;
+	stru_3A835[0].asInt = -1;
 }
 
 void cFodder::sub_10EA4() {
@@ -18411,6 +18411,7 @@ loc_308F6:;
 	sSprite_0* Saved_Data20 = Dataa20;
 
 	int16 Data10 = Dataa20->field_0;
+	Data14 = Dataa20->field_4;
 	int16 DataC = Dataa20->field_32;
 	int16 Data8 = Data4;
 	Data4 = Data0;
