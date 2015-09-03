@@ -1102,7 +1102,7 @@ protected:
 	void			Squad_Prepare_GrenadesAndRockets();
 	void			sub_2D7FF();
 	void			sub_2D8AF( sSprite_0* pSprite );
-	int16			sub_2D91E( sSprite_0* pSprite );
+	int16			Sprite_Next_WalkTarget_Set( sSprite_0* pSprite );
 	int16			sub_2DBA3( sSprite_0* pSprite );
 	void			sub_2DCB0( int16 pData0 );
 	void			sub_2DD50( sSprite_0* pSprite );

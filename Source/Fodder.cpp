@@ -7279,7 +7279,7 @@ void cFodder::Sprite_Movement_Calculate( sSprite_0* pSprite ) {
 	Dataa8 *= Data4;
 	DataaC *= Data4;
 
-	int32 tmp = (pSprite->field_2 & 0xFFFF | pSprite->field_0 << 16);
+	int32 tmp = (pSprite->field_2 & 0xFFFF) | pSprite->field_0 << 16;
 	tmp += Dataa8;
 
 	pSprite->field_2 = tmp & 0xFFFF; 
@@ -7291,7 +7291,7 @@ void cFodder::Sprite_Movement_Calculate( sSprite_0* pSprite ) {
 		word_3B173 = -1;
 	}
 
-	tmp = (pSprite->field_6 & 0xFFFF | pSprite->field_4 << 16);
+	tmp = (pSprite->field_6 & 0xFFFF) | pSprite->field_4 << 16;
 	tmp += DataaC;
 	pSprite->field_6 = tmp & 0xFFFF;
 	pSprite->field_4 = tmp >> 16;
@@ -8751,7 +8751,7 @@ void cFodder::sub_2D8AF( sSprite_0* pSprite ) {
 	word_390C4 = Data8;
 }
 
-int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
+int16 cFodder::Sprite_Next_Target_Set( sSprite_0* pSprite ) {
 
 	struct_8* Data24 = off_3BEF3[ pSprite->field_32 ];
 
@@ -8764,15 +8764,11 @@ int16 cFodder::sub_2D91E( sSprite_0* pSprite ) {
 		pSprite->field_40++;
 		pSprite->field_42 = -1;
 		return 0;
-
-	loc_2D9B4:;
-		Data0 = -1;
-		return -1;
 	}
 
 	//loc_2D9C0
 	if (!pSprite->field_42)
-		goto loc_2D9B4;
+		return -1;
 
 	pSprite->field_42 = 0;
 
@@ -10487,7 +10483,7 @@ loc_191C3:;
 	//TODO: Check this
 	// seg004:047F
 	struct_8* Dataa30 = off_3BEF3[Sprite->field_32];
-	int32  eax = Dataa30[Sprite->field_40].field_2 | Dataa30[Sprite->field_40 + 1].field_0 << 16;
+	int16  eax = Dataa30[Sprite->field_40].field_2;
 
 	//seg004:04CC
 	if (eax < 0) {
@@ -10535,7 +10531,7 @@ loc_191C3:;
 		Data0 = Sprite->field_4;
 		
 		if( Data0 == Sprite->field_28 )
-			sub_2D91E( Sprite );
+			Sprite_Next_Target_Set( Sprite );
 	}
 	//loc_19314
 	if( word_3ABAD == 0 )
@@ -10576,7 +10572,7 @@ loc_191C3:;
 
 	if( Sprite->field_0 == Sprite->field_26 ) {
 		if( Sprite->field_4 == Sprite->field_28 )
-			sub_2D91E( Sprite );
+			Sprite_Next_Target_Set( Sprite );
 	}
 	//loc_193D3
 	goto loc_1946D;
@@ -10609,7 +10605,7 @@ loc_19424:;
 	if( Sprite->field_0 == Sprite->field_26 ) {
 		
 		if( Sprite->field_4 == Sprite->field_28 )
-			sub_2D91E( Sprite );
+			Sprite_Next_Target_Set( Sprite );
 		
 	}
 	//loc_19463
