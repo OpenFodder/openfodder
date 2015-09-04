@@ -61,6 +61,7 @@ protected:
 	bool			mFaded;
 
 	void			paletteSDLColorSet( size_t id, cPalette *pPalette  );	// Set a color in the palette
+	
 	void			paletteLoadSDL();
 	void			paletteLoadNewSDL();
 public:
@@ -86,12 +87,14 @@ public:
 
 	void			paletteClear();
 	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, bool pUseNow = false );
-	void			 paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );	// Load a palette
-	int16			 paletteFade();
-	void			 paletteFadeOut();
+	void			paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );			// Load a palette
+	void			paletteLoad_Amiga(  const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );
 
-	void			 wipe( uint32 pColor = 0 );						// Clear the surface
-	void			 wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor = 0);
+	int16			paletteFade();
+	void			paletteFadeOut();
+
+	void			wipe( uint32 pColor = 0 );						// Clear the surface
+	void			wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor = 0);
 
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }

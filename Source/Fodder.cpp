@@ -43,7 +43,8 @@ std::string mMapTypes[] = {
 	"ice",
 	"mor",
 	"int",
-	"hid"
+	"hid",
+	"afx"		// Amiga Format Christmas Special
 };
 
 void cFodder::Music_Play( const char* pFilename ) {
@@ -70,7 +71,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mSkipIntro = pSkipIntro;
 	mMusicPlaying = 0;
 
-	mResources = new cResources();
+	mGraphics = new cGraphics_Amiga();
+	mResources = new cResources( "Data\\AmigaFormat_XMAS" );
 	mWindow = new cWindow();
 	mImage = 0;
 
@@ -202,11 +204,13 @@ cFodder::cFodder( bool pSkipIntro ) {
 		dword_426E0[x].mBuffer = 0;
 	}
 
-	word_42316[0] = dword_42320;
-	word_42316[1] = dword_42410;
-	word_42316[2] = dword_42500;
+	word_42316[0] = dword_42320;	// Jun
+	word_42316[1] = dword_42410;	// Des
+	word_42316[2] = dword_42500;	// Ice
 	word_42316[3] = dword_425F0;
 	word_42316[4] = dword_426E0;
+	word_42316[5] = 0;
+	word_42316[6] = dword_42500;	// Amiga Format Xmas
 }
 
 cFodder::~cFodder() {
@@ -1733,7 +1737,7 @@ loc_11E5B:;
 	sub_11E60();
 }
 
-void cFodder::map_Load_TileSet() {
+void cFodder::map_Load_Resources() {
 	std::string MapName = map_Filename_MapGet();
 
 	mMapSize = g_Resource.fileLoadTo( MapName, mMap );
@@ -1749,11 +1753,10 @@ void cFodder::map_Load_TileSet() {
 	BaseBase.append( mMap, mMap + 7 );
 	BaseSub.append( mMap + 0x10, mMap + 0x10 + 7 );
 
-
-	g_Resource.fileLoadTo( BaseName, mDataBaseBlk );
+	mDataBaseBlkSize = g_Resource.fileLoadTo( BaseName, mDataBaseBlk );
 	paletteLoad( mDataBaseBlk + 0xFA00, 0x80, 0x00 );
 
-	g_Resource.fileLoadTo( SubName, mDataSubBlk );
+	mDataSubBlkSize = g_Resource.fileLoadTo( SubName, mDataSubBlk );
 
 	mMapWidth = readBEWord( &mMap[0x54] );
 	writeLEWord( &mMap[0x54], mMapWidth );
@@ -2656,7 +2659,7 @@ void cFodder::Map_Overview_Prepare() {
 
 		for (uint16 cx = 0; cx < mMapWidth; ++cx) {
 
-			sub_2B04B( (uint8*) mGraphicBlkPtrs[ *Di & 0x1FF], cx, dx );
+			//sub_2B04B( (uint8*) mGraphicBlkPtrs[ *Di & 0x1FF], cx, dx );
 
 			++Di;
 			//Data10 += dword_3F946;
@@ -2675,7 +2678,7 @@ void cFodder::map_SetTileType() {
 	Type[1] = mMap[1];
 	Type[2] = mMap[2];
 
-	for (unsigned int x = 0; x < 6; ++x) {
+	for (unsigned int x = 0; x < 7; ++x) {
 		if (mMapTypes[x][0] != Type[0])
 			continue;
 	
@@ -4080,7 +4083,7 @@ void cFodder::sub_15CE8(  uint8* pDs, int16 pCx ) {
 
 void cFodder::Mission_Brief() {
 
-	map_Load_Resources();
+	Briefing_Load_Resources();
 	Sprite_SetDataPtrToBase( off_42918 );
 	Music_Unk( 0x07 );
 	sub_136D0();
@@ -4115,7 +4118,7 @@ void cFodder::Mission_Brief() {
 	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
 }
 
-void cFodder::map_Load_Resources() {
+void cFodder::Briefing_Load_Resources() {
 	std::string MapName = map_Filename_MapGet();
 	std::string JunData1 = "p1.dat";
 	std::string JunData2 = "p2.dat";
@@ -4133,9 +4136,9 @@ void cFodder::map_Load_Resources() {
 	JunData4.insert( 0, mMapTypes[mMap_TileSet] );
 	JunData5.insert( 0, mMapTypes[mMap_TileSet] );
 
-	size_t DataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mDataBaseBlk );
+	mDataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mDataBaseBlk );
 	word_42861 = mDataBaseBlk;
-	word_4286D = DataBaseBlkSize;
+	word_4286D = mDataBaseBlkSize;
 
 	g_Resource.fileLoadTo( JunData2, mDataSubBlk );
 	word_42863 = mDataSubBlk;
@@ -4155,8 +4158,8 @@ void cFodder::map_Load_Resources() {
 	uint8* si = ((uint8*)mMapSptPtr) + 0xF00;
 	si += 0x30 * mMap_TileSet;
 
-	memcpy( (word_42861 + DataBaseBlkSize) - 0x60, si, 0x30 );
-	memcpy( (word_42861 + DataBaseBlkSize) - 0x30, mDataPStuff + 0xA000, 0x30 );
+	memcpy( (word_42861 + mDataBaseBlkSize) - 0x60, si, 0x30 );
+	memcpy( (word_42861 + mDataBaseBlkSize) - 0x30, mDataPStuff + 0xA000, 0x30 );
 }
 
 void cFodder::sub_15DF0( ) {
@@ -8213,7 +8216,7 @@ void cFodder::Camera_Pan_Right() {
 		}
 	}
 
-	map_Tiles_Draw_();
+	g_Graphics.map_Tiles_Draw();
 }
 
 void cFodder::Camera_Pan_Left() {
@@ -8238,7 +8241,7 @@ void cFodder::Camera_Pan_Left() {
 
 	}
 
-	map_Tiles_Draw_();
+	g_Graphics.map_Tiles_Draw();
 }
 
 void cFodder::Camera_Pan_Down( ) {
@@ -8264,7 +8267,7 @@ void cFodder::Camera_Pan_Down( ) {
 		word_4005C += 0x58;
 	}
 	
-	map_Tiles_Draw_();
+	g_Graphics.map_Tiles_Draw();
 }
 
 void cFodder::Camera_Pan_Up() {
@@ -8288,7 +8291,7 @@ void cFodder::Camera_Pan_Up() {
 
 	}
 
-	map_Tiles_Draw_();
+	g_Graphics.map_Tiles_Draw();
 }
 
 void cFodder::Camera_Update_Row() {
@@ -8751,7 +8754,7 @@ void cFodder::sub_2D8AF( sSprite_0* pSprite ) {
 	word_390C4 = Data8;
 }
 
-int16 cFodder::Sprite_Next_Target_Set( sSprite_0* pSprite ) {
+int16 cFodder::Sprite_Next_WalkTarget_Set( sSprite_0* pSprite ) {
 
 	struct_8* Data24 = off_3BEF3[ pSprite->field_32 ];
 
@@ -9034,12 +9037,11 @@ loc_2DFC7:;
 
 	mDrawSpritePositionY = ax;
 
-	word_42062 = (uint8*) mGraphicBlkPtrs[word_3AF01];
+	//word_42062 = (uint8*) mGraphicBlkPtrs[word_3AF01];
 	word_4206C = 0x10;
 	word_4206E = 0x10;
 
-	map_Tiles_Draw_();
-	//mImage->Save();
+	g_Graphics.map_Tiles_Draw();
 
 	//sub_140F1();
 }
@@ -10531,7 +10533,7 @@ loc_191C3:;
 		Data0 = Sprite->field_4;
 		
 		if( Data0 == Sprite->field_28 )
-			Sprite_Next_Target_Set( Sprite );
+			Sprite_Next_WalkTarget_Set( Sprite );
 	}
 	//loc_19314
 	if( word_3ABAD == 0 )
@@ -10572,7 +10574,7 @@ loc_191C3:;
 
 	if( Sprite->field_0 == Sprite->field_26 ) {
 		if( Sprite->field_4 == Sprite->field_28 )
-			Sprite_Next_Target_Set( Sprite );
+			Sprite_Next_WalkTarget_Set( Sprite );
 	}
 	//loc_193D3
 	goto loc_1946D;
@@ -10605,7 +10607,7 @@ loc_19424:;
 	if( Sprite->field_0 == Sprite->field_26 ) {
 		
 		if( Sprite->field_4 == Sprite->field_28 )
-			Sprite_Next_Target_Set( Sprite );
+			Sprite_Next_WalkTarget_Set( Sprite );
 		
 	}
 	//loc_19463
@@ -16798,6 +16800,7 @@ void cFodder::sub_2E04C() {
 }
 
 void cFodder::Start( int16 pStartMap ) {
+
 	mImage = new cSurface( 352, 250 );
 
 	mouse_Setup();
@@ -16895,7 +16898,7 @@ loc_103BF:;
 			//loc_10513
 			sub_18908();
 			
-			map_Load_TileSet();
+			map_Load_Resources();
 			map_Load_Spt();
 
 			word_3AA4D = readLEWord( &mMap[0x54] ) << 4;
@@ -16905,7 +16908,7 @@ loc_103BF:;
 			Squad_Member_Sort();
 			sub_1142D();
 			sub_115F7();
-			graphicsBlkPtrsPrepare();
+			g_Graphics.graphicsBlkPtrsPrepare();
 
 			Map_Overview_Prepare();
 			Briefing_Wait();
@@ -17012,22 +17015,7 @@ loc_103BF:;
 	}
 }
 
-void cFodder::graphicsBlkPtrsPrepare() {
-	uint16 bx = 0, dx = 0;
 
-	for (uint16 cx = 0; cx < 240; ++cx) {
-
-		mGraphicBlkPtrs[cx + 0x00] = mDataBaseBlk + bx;
-		mGraphicBlkPtrs[cx + 0xF0] = mDataSubBlk + bx;
-
-		++dx;
-		bx += 0x10;
-		if (dx % 0x14 == 0) {
-			dx = 0;
-			bx += 0x12C0;
-		}
-	}
-}
 
 void cFodder::map_Tiles_Draw() {
 	word_40054 = 0;
@@ -17040,62 +17028,7 @@ void cFodder::map_Tiles_Draw() {
 	mCamera_Column_Previous = 0;
 	mCamera_Row_Previous = 0;
 
-	map_Tiles_Draw_();
-}
-
-void cFodder::map_Tiles_Draw_() {
-
-	uint8* Target = mImage->GetSurfaceBuffer();
-
-	uint8* CurrentMapPtr = &mMap[mMapTilePtr];
-
-	// Y
-	for (uint16 cx = 0; cx < 0x0F; ++cx) {
-		uint8* MapPtr = CurrentMapPtr;
-		uint8* TargetRow = Target;
-
-		uint16 StartY = 0;
-
-		if (cx == 0)
-			StartY = word_3B610;
-		else
-			StartY = 0;
-
-		// X
-		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
-			uint8* TargetTmp = TargetRow;
-
-			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
-			if (/*Tile > 0xE0 && Tile < 0xF0 ||*/ Tile > 0x1DF)
-				Tile = 0;
-
-			uint8* TilePtr = mGraphicBlkPtrs[Tile];
-			uint16 StartX = 0;
-
-			TilePtr += StartY * 0x140;
-			
-			if (cx2 == 0)
-				StartX = word_3B60E;
-			else
-				StartX = 0;
-
-			// Each Tile Row
-			for (uint16 i = StartX; i < 16; ++i) {
-
-				memcpy( TargetTmp, TilePtr + StartX, 16 - StartX );
-				TilePtr += 0x140;
-				TargetTmp += mImage->GetWidth();
-			}
-
-			MapPtr += 2;
-			TargetRow += (16-StartX);
-		}
-
-		Target += mImage->GetWidth() * (16-StartY);
-		CurrentMapPtr += mMapWidth << 1;
-	}
-
-	mImage->Save();
+	g_Graphics.map_Tiles_Draw();
 }
 
 void cFodder::Exit( unsigned int pExitCode ) {

@@ -4,6 +4,12 @@
     <Filter Include="Source">
       <UniqueIdentifier>{46fbab7a-9497-411a-8042-6ccc101bfb20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Amiga">
+      <UniqueIdentifier>{2828e52a-a2fb-4a12-9740-38c46718b133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\PC">
+      <UniqueIdentifier>{dacbcc4e-e2ff-4c41-a759-8e3deffe95a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -57,6 +63,15 @@
     <ClInclude Include="..\..\Source\VocTable.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Graphics.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -76,6 +91,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Surface.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp">
+      <Filter>Source\Amiga</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

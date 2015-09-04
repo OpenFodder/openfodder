@@ -34,6 +34,8 @@ struct cResource_File {
 
 class cResources : public cSingleton<cResources> {
 private:
+	std::string						 mDataPath;
+
 	uint8							*mData, *mDataCurrent;
 
 	size_t							 mDataSize;
@@ -64,7 +66,7 @@ private:
 	uint16							 sub_26CDF();
 
 public:
-	 								 cResources();
+	 								 cResources( std::string pDataPath = "" );
 									~cResources();
 
 	uint8							*fileGet( std::string pFilename, size_t &pFileSize );
