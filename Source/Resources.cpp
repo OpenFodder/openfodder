@@ -52,9 +52,11 @@ const uint8 cResources::byte_29A21[0xFF] = {
 	0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E
 };
 
-cResources::cResources() {
+cResources::cResources( std::string pDataPath ) {
 	mData = 0;
 	mDataSize = 0;
+
+	mDataPath = pDataPath;
 
 	mData = local_FileRead( "CF_ENG.DAT", "", mDataSize );
 
@@ -99,8 +101,12 @@ uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
+	
+	uint8* File = local_FileRead( pFilename, mDataPath.c_str(), pFileSize );
+	if (File)
+		return File;
 
-	uint8* File = local_FileRead( pFilename, "Data", pFileSize );
+	File = local_FileRead( pFilename, "Data", pFileSize );
 	if (File)
 		return File;
 

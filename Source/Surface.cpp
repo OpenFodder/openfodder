@@ -107,7 +107,30 @@ void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColor
 
 	paletteLoadNewSDL();
 }
+void cSurface::paletteLoad_Amiga( const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 ) {
+	int16  color;
+	byte  colorID, colorRed, colorGreen, colorBlue;
 
+	for( colorID = 0; colorID < 16; colorID++) {
+		
+		// Get the next color codes
+		color = readBEWord( pBuffer );
+		pBuffer+=2;
+
+		// Extract each color from the word
+		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
+		colorRed	=	(color >> 8) & 0xF;
+		colorGreen	=	(color >> 4) & 0xF;
+		colorBlue	=	(color >> 0) & 0xF;
+		
+		colorRed	<<= 5;
+		colorGreen	<<= 5;
+		colorBlue	<<= 5;
+
+		// Set the color in the palette
+		paletteColorSet( colorID, colorRed, colorGreen, colorBlue );
+	}
+}
 void cSurface::paletteFadeOut() {
 	mFaded = false;
 

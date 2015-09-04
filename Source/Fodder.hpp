@@ -140,10 +140,13 @@ union struct_8 {
 extern struct sRecruit mRecruits[360];
 
 class cFodder : public cSingleton < cFodder > {
+	public:
+
 	bool					mSkipIntro;
 	Mix_Music*				mMusicPlaying;
 	std::vector<cEvent>		mEvents;
 
+	cGraphics*				mGraphics;
 	cResources*				mResources;
 	cWindow*				mWindow;
 
@@ -158,7 +161,6 @@ class cFodder : public cSingleton < cFodder > {
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
 
-	uint8*			mGraphicBlkPtrs[480];
 	uint16			mMapWidth;
 	uint16			mMapHeight;
 	uint8			mKeyCode;
@@ -171,6 +173,8 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			mDataBlkSize;
 	uint8*			mDataBaseBlk;
 	uint8*			mDataSubBlk;
+	int32			mDataBaseBlkSize;
+	int32			mDataSubBlkSize;
 
 	int32*			dword_37AC0;
 	uint32			dword_3901A;
@@ -649,7 +653,7 @@ class cFodder : public cSingleton < cFodder > {
 	};
 	std::vector<sVocPlaying> mMixerChunks;
 
-	sVocLoaded*		word_42316[5];
+	sVocLoaded*		word_42316[7];
 	sVocLoaded		dword_42320[0x3C];
 	sVocLoaded		dword_42410[0x3C];
 	sVocLoaded		dword_42500[0x3C];
@@ -750,7 +754,7 @@ protected:
 	void			sub_11B06();
 	void			sub_11CAD();
 	void			sub_11CD6( );
-	void			map_Load_TileSet();
+	void			map_Load_Resources();
 	void			sub_11E60();
 	void			sub_11E6C( );
 	void			sub_11EC2();
@@ -832,7 +836,7 @@ protected:
 	void			sub_15DF0( );
 	void			Briefing_Draw_MissionName( );
 	
-	void			map_Load_Resources();
+	void			Briefing_Load_Resources();
 
 	/* Recruitment */
 	void			Recruit_Show();
@@ -1125,9 +1129,7 @@ protected:
 	void			GUI_Handle_Button_SplitSquad();
 	void			sub_2EF8A();
 
-	void			graphicsBlkPtrsPrepare();
 	void			map_Tiles_Draw();
-	void			map_Tiles_Draw_();
 
 	void			sub_2E04C();
 	void			Mission_Sidebar_Grenades_Draw( );

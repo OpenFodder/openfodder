@@ -102,6 +102,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <BufferSecurityCheck>true</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>C:\Users\Robbie\Documents\Visual Studio 2013\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,11 +145,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
     <ClInclude Include="..\..\Source\Event.hpp" />
     <ClInclude Include="..\..\Source\Fodder.hpp" />
+    <ClInclude Include="..\..\Source\Graphics.hpp" />
     <ClInclude Include="..\..\Source\IntroData.hpp" />
     <ClInclude Include="..\..\Source\MissionNames.hpp" />
+    <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\Position.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
     <ClInclude Include="..\..\Source\Singleton.hpp" />
@@ -163,8 +167,10 @@
     <ClInclude Include="..\..\Source\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp" />
     <ClCompile Include="..\..\Source\Event.cpp" />
     <ClCompile Include="..\..\Source\Fodder.cpp" />
+    <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\Resources.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
