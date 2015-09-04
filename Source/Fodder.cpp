@@ -71,7 +71,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mSkipIntro = pSkipIntro;
 	mMusicPlaying = 0;
 
-	mResources = new cResources( "Data\\AmigaFormat_XMAS" );
 	mWindow = new cWindow();
 
 	mTicksDiff = 0;
@@ -16799,8 +16798,11 @@ void cFodder::sub_2E04C() {
 
 void cFodder::Start( int16 pStartMap ) {
 	mImage = new cSurface( 352, 250 );
-	mGraphics = new cGraphics_Amiga();
 
+	//mResources = new cResources( "Data\\AmigaFormat_XMAS" );
+	//mGraphics = new cGraphics_Amiga();
+	mResources = new cResources( "" );
+	mGraphics = new cGraphics_PC();
 	mouse_Setup();
 	Mouse_Inputs_Get();
 
