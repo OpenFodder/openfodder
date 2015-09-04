@@ -71,10 +71,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mSkipIntro = pSkipIntro;
 	mMusicPlaying = 0;
 
-	mGraphics = new cGraphics_Amiga();
 	mResources = new cResources( "Data\\AmigaFormat_XMAS" );
 	mWindow = new cWindow();
-	mImage = 0;
 
 	mTicksDiff = 0;
 	mTicks = 0;
@@ -5893,7 +5891,7 @@ loc_234D8:;
 	return 0;
 }
 
-int16 cFodder::sub_239C9( sSprite_0* pSprite, sSprite_0* pData2C ) {
+int16 cFodder::sub_239C9( sSprite_0* pSprite, sSprite_0*& pData2C ) {
 	if (word_3A9AE)
 		return 0;
 
@@ -16800,8 +16798,8 @@ void cFodder::sub_2E04C() {
 }
 
 void cFodder::Start( int16 pStartMap ) {
-
 	mImage = new cSurface( 352, 250 );
+	mGraphics = new cGraphics_Amiga();
 
 	mouse_Setup();
 	Mouse_Inputs_Get();
@@ -16970,7 +16968,8 @@ loc_103BF:;
 //			nullsub_1();
 
 			word_3BEC9 = 0xE0;
-			mImage->paletteSet( mPalette );
+			g_Graphics.PaletteSet();
+
 			mImageFaded = -1;
 
 			sub_2EACA();

@@ -98,5 +98,8 @@
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp">
       <Filter>Source\Amiga</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Graphics.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

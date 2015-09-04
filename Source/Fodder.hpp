@@ -1032,7 +1032,7 @@ protected:
 	int16			sub_23367( sSprite_0* pSprite );
 	void			sub_233D4( sSprite_0* pSprite );
 	int16			sub_23444( sSprite_0* pSprite );
-	int16			sub_239C9( sSprite_0* pSprite, sSprite_0* pData2C );
+	int16			sub_239C9( sSprite_0* pSprite, sSprite_0*& pData2C );
 	void			sub_23C70( sSprite_0* pData2C );
 	void			sub_23EFD( sSprite_0* pSprite );
 	void			sub_24173( sSprite_0* pSprite, sSprite_0* pData34 );
