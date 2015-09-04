@@ -15,11 +15,18 @@ void cGraphics_PC::graphicsBlkPtrsPrepare() {
 			bx += 0x12C0;
 		}
 	}
+
+				
+}
+
+void cGraphics_PC::PaletteSet() {
+
+	mImage->paletteSet( g_Fodder.mPalette );
 }
 
 void cGraphics_PC::map_Tiles_Draw() {
 
-	uint8* Target = g_Fodder.mImage->GetSurfaceBuffer();
+	uint8* Target = mImage->GetSurfaceBuffer();
 
 	uint8* CurrentMapPtr = &g_Fodder.mMap[g_Fodder.mMapTilePtr];
 
@@ -58,16 +65,16 @@ void cGraphics_PC::map_Tiles_Draw() {
 
 				memcpy( TargetTmp, TilePtr + StartX, 16 - StartX );
 				TilePtr += 0x140;
-				TargetTmp += g_Fodder.mImage->GetWidth();
+				TargetTmp += mImage->GetWidth();
 			}
 
 			MapPtr += 2;
 			TargetRow += (16-StartX);
 		}
 
-		Target += g_Fodder.mImage->GetWidth() * (16-StartY);
+		Target += mImage->GetWidth() * (16-StartY);
 		CurrentMapPtr += g_Fodder.mMapWidth << 1;
 	}
 
-	g_Fodder.mImage->Save();
+	mImage->Save();
 }

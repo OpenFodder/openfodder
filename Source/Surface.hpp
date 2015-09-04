@@ -88,7 +88,7 @@ public:
 	void			paletteClear();
 	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, bool pUseNow = false );
 	void			paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );			// Load a palette
-	void			paletteLoad_Amiga(  const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );
+	void			paletteLoad_Amiga(  const uint8  *pBuffer );
 
 	int16			paletteFade();
 	void			paletteFadeOut();

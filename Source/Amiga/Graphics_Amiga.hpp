@@ -1,4 +1,4 @@
-class cGraphics_Amiga : public cGraphics_PC {
+class cGraphics_Amiga : public cGraphics {
 
 	uint8*				mBlkData;
 	uint8*				mPalette;
@@ -9,4 +9,5 @@ class cGraphics_Amiga : public cGraphics_PC {
 
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		map_Tiles_Draw();
+	virtual void		PaletteSet();
 };
