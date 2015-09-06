@@ -21,7 +21,8 @@
  */
 
 #include "stdafx.hpp"
-#include "SpriteData.hpp"
+#include "PC/SpriteData_PC.hpp"
+#include "Amiga/SpriteData_Amiga.hpp"
 #include "IntroData.hpp"
 #include "Recruits.hpp"
 #include "UnknownData.hpp"
