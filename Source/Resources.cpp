@@ -102,7 +102,10 @@ uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
 
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
 	
-	uint8* File = local_FileRead( pFilename, mDataPath.c_str(), pFileSize );
+	std::string Path = "Data\\";
+	Path.append( mDataPath.c_str() );
+
+	uint8* File = local_FileRead( pFilename, Path.c_str(), pFileSize );
 	if (File)
 		return File;
 

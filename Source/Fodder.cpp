@@ -1765,14 +1765,17 @@ void cFodder::map_Load_Resources() {
 	delete mSurfaceMapOverview;
 	mSurfaceMapOverview = new cSurface( mMapWidth * 16, mMapHeight * 16 );
 
-	std::string JunCopt = sub_12AA1( BaseBaseSet, "copt.dat" );
+	std::string JunCopt = sub_12AA1( BaseBaseSet, "copt." );
 	std::string JunBaseSwp = sub_12AA1( BaseBase, ".swp" );
 	std::string JunBaseHit = sub_12AA1( BaseBase, ".hit" );
 	std::string JunBaseBht = sub_12AA1( BaseBase, ".bht" );
-	std::string JunArmy = sub_12AA1( BaseSubSet, "army.dat" );
+	std::string JunArmy = sub_12AA1( BaseSubSet, "army." );
 	std::string JunSubSwp = sub_12AA1( BaseSub, ".swp" );
 	std::string JunSubHit = sub_12AA1( BaseSub, ".hit" );
 	std::string JunSubBht = sub_12AA1( BaseSub, ".bht" );
+
+	JunCopt = sub_12AA1( JunCopt, mVersion->mImageExtension );
+	JunArmy = sub_12AA1( JunArmy, mVersion->mImageExtension );
 
 	g_Resource.fileLoadTo( JunCopt, mDataHillBits );
 	paletteLoad( mDataHillBits + 0xD2A0, 0x40, 0xB0 );
@@ -1798,7 +1801,16 @@ void cFodder::map_Load_Resources() {
 	Size = g_Resource.fileLoadTo( JunSubBht, (uint8*) &graphicsSub0Bht[0] );
 	tool_EndianSwap( (uint8*)&graphicsSub0Bht[0], Size );
 	
-	Sprite_SetDataPtrToBase( off_32C0C );
+	switch (mVersion->mPlatform) {
+		case Platform::Amiga:
+			Sprite_SetDataPtrToBase( off_8BFB8 );
+			break;
+
+		case Platform::PC:
+			Sprite_SetDataPtrToBase( off_32C0C );
+			break;
+	}
+
 }
 
 void cFodder::sub_11E60() {
@@ -2952,7 +2964,16 @@ void cFodder::MixerChannelFinished( int32 pChannel ) {
 	}
 }
 
-void cFodder::Prepare() {
+void cFodder::Prepare( const char* pKey ) {
+	mVersion = 0;
+
+	for (uint16 x = 0; x < 3; ++x) {
+
+		if (_stricmp( Versions[x].mKey, pKey ) == 0) {
+			mVersion = &Versions[x];
+		}
+	}
+
 
 	mWindow->InitWindow( "Open Fodder" );
 	tool_RandomSeed();
@@ -16800,10 +16821,19 @@ void cFodder::sub_2E04C() {
 void cFodder::Start( int16 pStartMap ) {
 	mImage = new cSurface( 352, 250 );
 
-	//mResources = new cResources( "Data\\AmigaFormat_XMAS" );
-	//mGraphics = new cGraphics_Amiga();
-	mResources = new cResources( "" );
-	mGraphics = new cGraphics_PC();
+	mGraphics = 0;
+	mResources = new cResources( mVersion->mDataPath );
+
+	switch (mVersion->mPlatform) {
+		case Platform::PC:
+			mGraphics = new cGraphics_PC();
+			break;
+
+		case Platform::Amiga:
+			mGraphics = new cGraphics_Amiga();
+			break;
+	}
+
 	mouse_Setup();
 	Mouse_Inputs_Get();
 

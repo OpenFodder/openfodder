@@ -56,8 +56,8 @@ struct sSpriteSheet {
 	int16 mColCount;
 	int16 mRowCount;
 	int16 field_C;
-	int8 field_E;
-	int8 field_F;
+	uint8 field_E;
+	uint8 field_F;
 };
 
 struct sIntroString {
@@ -145,6 +145,8 @@ class cFodder : public cSingleton < cFodder > {
 	bool					mSkipIntro;
 	Mix_Music*				mMusicPlaying;
 	std::vector<cEvent>		mEvents;
+	
+	const sVersion*			mVersion;
 
 	cGraphics*				mGraphics;
 	cResources*				mResources;
@@ -1241,7 +1243,7 @@ public:
 
 	bool			EventAdd( cEvent pEvent );
 	void			MixerChannelFinished( int32 pChannel );
-	void			Prepare();
+	void			Prepare( const char* pKey = "Dos" );
 	void			Start( int16 pStartMap );
 	void			Exit( unsigned int pExitCode );
 

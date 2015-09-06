@@ -77,12 +77,15 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Surface.hpp"
 #include "Resources.hpp"
 
+#include "Versions.hpp"
+
 #include "Window.hpp"
 #include "Graphics.hpp"
 #include "Fodder.hpp"
 
 #include "PC\Graphics_PC.hpp"
 #include "Amiga\Graphics_Amiga.hpp"
+
 
 #define g_Fodder cFodder::GetSingleton()
 #define g_Window cWindow::GetSingleton()
