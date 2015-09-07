@@ -231,14 +231,16 @@ const sSpriteSheet stru_325A0[36] =
   { 2680, 17161, 0, 0, 16, 13, 176, 0, 0 }
 };
 
-const sSpriteSheet stru_327E0[1] =
-{ 2688, 17161, 0, 0, 16, 13, 176, 0, 0 };
+const sSpriteSheet stru_327E0[1] = {
+	{ 2688, 17161, 0, 0, 16, 13, 176, 0, 0 }
+};
+const sSpriteSheet stru_327F0[1] = {
+	{ 2696, 17161, 0, 0, 16, 13, 176, 0, 0 }
+};
 
-const sSpriteSheet stru_327F0[1] =
-{ 2696, 17161, 0, 0, 16, 13, 176, 0, 0 };
-
-const sSpriteSheet stru_32800[1] =
-{ 2704, 17161, 0, 0, 16, 13, 176, 0, 0 };
+const sSpriteSheet stru_32800[1] = {
+	{ 2704, 17161, 0, 0, 16, 13, 176, 0, 0 }
+};
 
 const sSpriteSheet stru_32810[23] =
 {
@@ -267,11 +269,13 @@ const sSpriteSheet stru_32810[23] =
   { 16504, 17161, 0, 0, 16, 19, 176, 0, 0 }
 };
 
-const sSpriteSheet stru_32980[1] =
-{ 16480, 17161, 0, 0, 16, 19, 176, 0, 0 };
+const sSpriteSheet stru_32980[1] = {
+	{ 16480, 17161, 0, 0, 16, 19, 176, 0, 0 }
+};
 
-const sSpriteSheet stru_32990[1] =
-{ 38528, 17161, 0, 0, 16, 1, 176, 0, 0 };
+const sSpriteSheet stru_32990[1] = {
+	{ 38528, 17161, 0, 0, 16, 1, 176, 0, 0 } 
+};
 
 const sSpriteSheet stru_329A0[3] =
 {
@@ -296,14 +300,17 @@ const sSpriteSheet stru_329D0[12] =
   { 9736, 17161, 0, 0, 16, 18, 176, 0, 0 }
 };
 
-const sSpriteSheet stru_32A90[1] =
-{ 5904, 17161, 0, 0, 32, 22, 176, 0, 0 };
+const sSpriteSheet stru_32A90[1] = {
+	{ 5904, 17161, 0, 0, 32, 22, 176, 0, 0 }
+};
 
-const sSpriteSheet stru_32AA0[1] =
-{ 5904, 17161, 0, 0, 16, 16, 176, 0, 0 };
+const sSpriteSheet stru_32AA0[1] = {
+	{ 5904, 17161, 0, 0, 16, 16, 176, 0, 0 }
+};
 
-const sSpriteSheet stru_32AB0[1] =
-{ 10952, 17161, 0, 0, 16, 24, 176, 0, 0 };
+const sSpriteSheet stru_32AB0[1] = {
+	{ 10952, 17161, 0, 0, 16, 24, 176, 0, 0 }
+};
 
 const sSpriteSheet stru_32AC0[2] =
 {
@@ -902,29 +909,37 @@ sSpriteSheet stru_3327C[3] =
   { 4536, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_332AC[] =
-{ 4544, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_332AC[] = {
+	{ 4544, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_332BC[] =
-{ 4552, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_332BC[] = {
+{ 4552, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_332CC[] =
-{ 4560, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_332CC[] = {
+{ 4560, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_332DC[] =
-{ 4568, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_332DC[] = {
+{ 4568, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_332EC[] =
-{ 4576, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_332EC[] = {
+{ 4576, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_332FC[] =
-{ 4584, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_332FC[] = {
+{ 4584, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_3330C[] =
-{ 4592, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_3330C[] = {
+{ 4592, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_3331C[] =
-{ 4600, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_3331C[] = {
+{ 4600, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
 sSpriteSheet stru_3332C[2] =
 {
@@ -974,11 +989,13 @@ sSpriteSheet stru_3340C[2] =
   { 6808, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_3342C[] =
-{ 6816, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_3342C[] = {
+	{ 6816, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_3343C[] =
-{ 6824, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_3343C[] = {
+	{ 6824, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
 sSpriteSheet stru_3344C[2] =
 {
@@ -1315,29 +1332,37 @@ sSpriteSheet stru_33CCC[3] =
   { 26936, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_33CFC[] =
-{ 26944, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33CFC[] = {
+	{ 26944, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_33D0C[] =
-{ 26952, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33D0C[] = {
+{ 26952, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_33D1C[] =
-{ 26960, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33D1C[] = {
+{ 26960, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_33D2C[] =
-{ 26968, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33D2C[] = {
+{ 26968, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_33D3C[] =
-{ 26976, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33D3C[] = {
+{ 26976, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_33D4C[] =
-{ 26984, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33D4C[] = {
+{ 26984, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_33D5C[] =
-{ 26992, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33D5C[] = {
+{ 26992, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_33D6C[] =
-{ 27000, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_33D6C[] = {
+{ 27000, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
 sSpriteSheet stru_33D7C[2] =
 {
@@ -1636,22 +1661,26 @@ sSpriteSheet stru_3455C[7] =
   { 6768, 17161, 0, 0, 48, 42, 192, 0, 0 }
 };
 
-sSpriteSheet stru_345CC[] =
-{ 7752, 17161, 0, 0, 32, 16, 176, 0, 0 };
+sSpriteSheet stru_345CC[] = {
+{ 7752, 17161, 0, 0, 32, 16, 176, 0, 0 }
+};
 
-sSpriteSheet stru_345DC[] =
-{ 7768, 17161, 0, 0, 16, 28, 176, 0, 0 };
+sSpriteSheet stru_345DC[] = {
+{ 7768, 17161, 0, 0, 16, 28, 176, 0, 0 }
+};
+sSpriteSheet stru_345EC[] = {
+{ 10976, 17161, 0, 0, 32, 12, 144, 0, 0 }
+};
 
-sSpriteSheet stru_345EC[] =
-{ 10976, 17161, 0, 0, 32, 12, 144, 0, 0 };
+sSpriteSheet stru_345FC[] = {
+{ 10880, 17161, 0, 0, 16, 16, 176, 0, 0 }
+};
 
-sSpriteSheet stru_345FC[] =
-{ 10880, 17161, 0, 0, 16, 16, 176, 0, 0 };
+sSpriteSheet stru_3460C[] = {
+{ 10888, 17161, 0, 0, 32, 15, 176, 0, 0 }
+};
 
-sSpriteSheet stru_3460C[] =
-{ 10888, 17161, 0, 0, 32, 15, 176, 0, 0 };
-
-sSpriteSheet stru_3461C[3] =
+sSpriteSheet stru_3461C[3] = 
 {
   { 23840, 17161, 0, 0, 16, 30, 176, 0, 0 },
   { 23848, 17161, 0, 0, 16, 30, 176, 0, 0 },
@@ -1746,14 +1775,17 @@ sSpriteSheet stru_3490C[4] =
   { 15704, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_3494C[] =
-{ 31840, 17161, 0, 0, 128, 20, 192, 0, 0 };
+sSpriteSheet stru_3494C[] = {
+{ 31840, 17161, 0, 0, 128, 20, 192, 0, 0 }
+};
 
-sSpriteSheet stru_3495C[] =
-{ 28216, 17161, 0, 0, 80, 20, 192, 0, 0 };
+sSpriteSheet stru_3495C[] = {
+{ 28216, 17161, 0, 0, 80, 20, 192, 0, 0 }
+};
 
-sSpriteSheet stru_3496C[] =
-{ 28640, 17161, 0, 0, 112, 20, 192, 0, 0 };
+sSpriteSheet stru_3496C[] = {
+{ 28640, 17161, 0, 0, 112, 20, 192, 0, 0 }
+};
 
 sSpriteSheet stru_3497C[16] =
 {
@@ -1876,54 +1908,54 @@ sSpriteSheet stru_34DDC[3] =
   { 40376, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_34E0C[] =
-{ 11232, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E1C[] =
-{ 11240, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E2C[] =
-{ 11248, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E3C[] =
-{ 11256, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E4C[] =
-{ 11264, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E5C[] =
-{ 11272, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E6C[] =
-{ 11280, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E7C[] =
-{ 11288, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E8C[] =
-{ 33632, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34E9C[] =
-{ 33640, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34EAC[] =
-{ 33648, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34EBC[] =
-{ 33656, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34ECC[] =
-{ 33664, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34EDC[] =
-{ 33672, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34EEC[] =
-{ 33680, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
-sSpriteSheet stru_34EFC[] =
-{ 33688, 17163, 0, 0, 16, 14, 160, 0, 0 };
-
+sSpriteSheet stru_34E0C[] = {
+{ 11232, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E1C[] = {
+{ 11240, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E2C[] = {
+{ 11248, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E3C[] = {
+{ 11256, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E4C[] = {
+{ 11264, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E5C[] = {
+{ 11272, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E6C[] = {
+{ 11280, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E7C[] = {
+{ 11288, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E8C[] = {
+{ 33632, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34E9C[] = {
+{ 33640, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34EAC[] = {
+{ 33648, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34EBC[] = {
+{ 33656, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34ECC[] = {
+{ 33664, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34EDC[] = {
+{ 33672, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34EEC[] = {
+{ 33680, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
+sSpriteSheet stru_34EFC[] = {
+{ 33688, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 sSpriteSheet stru_34F0C[4] =
 {
   { 24, 17161, 0, 0, 48, 34, 192, 0, 0 },
@@ -1932,14 +1964,17 @@ sSpriteSheet stru_34F0C[4] =
   { 96, 17161, 0, 0, 48, 48, 192, 0, 0 }
 };
 
-sSpriteSheet stru_34F4C[] =
-{ 24064, 17161, 0, 0, 96, 25, 192, 0, 0 };
+sSpriteSheet stru_34F4C[] = {
+	{ 24064, 17161, 0, 0, 96, 25, 192, 0, 0 }
+};
 
-sSpriteSheet stru_34F5C[] =
-{ 10312, 17161, 0, 0, 16, 13, 176, 0, 0 };
+sSpriteSheet stru_34F5C[] = {
+	{ 10312, 17161, 0, 0, 16, 13, 176, 0, 0 }
+};
 
-sSpriteSheet stru_34F6C[] =
-{ 10320, 17161, 0, 0, 16, 13, 176, 0, 0 };
+sSpriteSheet stru_34F6C[] = {
+	{ 10320, 17161, 0, 0, 16, 13, 176, 0, 0 }
+};
 
 sSpriteSheet stru_34F7C[4] =
 {
@@ -1964,11 +1999,13 @@ sSpriteSheet stru_34FEC[4] =
   { 24312, 17161, 0, 0, 16, 6, 176, 0, 0 }
 };
 
-sSpriteSheet stru_3502C[] =
-{ 26272, 17161, 0, 0, 16, 4, 176, 0, 0 };
+sSpriteSheet stru_3502C[] = {
+	{ 26272, 17161, 0, 0, 16, 4, 176, 0, 0 }
+};
 
-sSpriteSheet stru_3503C[] =
-{ 26280, 17161, 0, 0, 16, 13, 176, 0, 0 };
+sSpriteSheet stru_3503C[] = {
+	{ 26280, 17161, 0, 0, 16, 13, 176, 0, 0 }
+};
 
 sSpriteSheet stru_3504C[5] =
 {
@@ -1979,11 +2016,13 @@ sSpriteSheet stru_3504C[5] =
   { 38112, 17161, 0, 0, 16, 17, 176, 0, 0 }
 };
 
-sSpriteSheet stru_3509C[] =
-{ 38120, 17161, 0, 0, 64, 17, 192, 0, 0 };
+sSpriteSheet stru_3509C[] = {
+	{ 38120, 17161, 0, 0, 64, 17, 192, 0, 0 }
+};
 
-sSpriteSheet stru_350AC[] =
-{ 38152, 17161, 0, 0, 96, 17, 192, 10, 0 };
+sSpriteSheet stru_350AC[] = {
+	{ 38152, 17161, 0, 0, 96, 17, 192, 10, 0 }
+};
 
 sSpriteSheet stru_350BC[5] =
 {
@@ -2203,11 +2242,13 @@ sSpriteSheet stru_359FC[10] =
   { 51672, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_35A9C[] =
-{ 35960, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_35A9C[] = {
+	{ 35960, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_35AAC[] =
-{ 50736, 17161, 0, 0, 32, 20, 208, 0, 0 };
+sSpriteSheet stru_35AAC[] = {
+	{ 50736, 17161, 0, 0, 32, 20, 208, 0, 0 }
+};
 
 sSpriteSheet stru_35ABC[5] =
 {
@@ -2228,8 +2269,9 @@ sSpriteSheet stru_35B0C[6] =
   { 51624, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_35B6C[] =
-{ 26288, 17161, 0, 0, 16, 13, 176, 0, 0 };
+sSpriteSheet stru_35B6C[] = {
+	{ 26288, 17161, 0, 0, 16, 13, 176, 0, 0 }
+};
 
 sSpriteSheet stru_35B7C[4] =
 {
@@ -2246,17 +2288,21 @@ sSpriteSheet stru_35BBC[3] =
   { 35984, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-sSpriteSheet stru_35BEC[] =
-{ 42624, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_35BEC[] = {
+{ 42624, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_35BFC[] =
-{ 42640, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_35BFC[] = {
+{ 42640, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_35C0C[] =
-{ 42648, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_35C0C[] = {
+{ 42648, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
-sSpriteSheet stru_35C1C[] =
-{ 42656, 17163, 0, 0, 16, 14, 160, 0, 0 };
+sSpriteSheet stru_35C1C[] = {
+	{ 42656, 17163, 0, 0, 16, 14, 160, 0, 0 }
+};
 
 sSpriteSheet stru_35C2C[4] =
 {
