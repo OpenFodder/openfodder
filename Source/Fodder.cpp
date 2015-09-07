@@ -371,11 +371,10 @@ void cFodder::Mouse_Handle( ) {
 	if (!word_3B20F)
 		return;
 
-	if (word_3A9AE || word_3D469 || mMissionComplete || word_3A9AA || word_3A9B2 )
-		goto loc_10930;
-
-	int16 Data0 = word_390AE;
-	Data0 &= 3;
+	if (word_3A9AE || word_3D469 || mMissionComplete || word_3A9AA || word_3A9B2) {
+		word_3B4F1 = -1;
+		return;
+	}
 
 	if (!word_3B44F)
 		return;
@@ -383,15 +382,8 @@ void cFodder::Mouse_Handle( ) {
 	if ((byte_427E6 | byte_427EE))
 		return;
 
-	int16 Data4 = word_3B44F;
-	int16 Data8 = 0;
-	Sound_Voc_Play( word_39FCE, Data4, Data8 );
+	Sound_Voc_Play( word_39FCE, word_3B44F, 0 );
 	word_3B44F = 0;
-	return;
-
-loc_10930:;
-	word_3B4F1 = -1;
-
 }
 
 void cFodder::sub_10937() {
@@ -1814,9 +1806,8 @@ void cFodder::map_Load_Resources() {
 }
 
 void cFodder::sub_11E60() {
-	int16 ax = mMap_TileSet + 0x32;
 
-	Music_Unk(0x32);
+	Music_Unk(mMap_TileSet + 0x32);
 }
 
 void cFodder::sub_11E6C( ) {
@@ -1986,7 +1977,7 @@ void cFodder::sub_120F6() {
 		if ((dword_39F24 >> 16) < 0) {
 
 			dword_39F24 += (0x140 << 16);
-			dword_39F56 = (0xFFFF << 16) | dword_39F56 & 0xFFFF;
+			dword_39F56 = (0xFFFF << 16) | (dword_39F56 & 0xFFFF);
 			word_39F94 -= 0x28;
 			word_39F96 -= 1;
 		}
@@ -1995,7 +1986,7 @@ void cFodder::sub_120F6() {
 		//loc_12181
 		if ((dword_39F24 >> 16) >= 0x140) {
 			dword_39F24 -= (0x140 << 16);
-			dword_39F56 = (1 << 16) | dword_39F56 & 0xFFFF;
+			dword_39F56 = (1 << 16) | (dword_39F56 & 0xFFFF);
 			word_39F94 += 0x28;
 			++word_39F96;
 		}
@@ -2522,7 +2513,6 @@ void cFodder::sub_12B6E() {
 
 		//Data34 = byte_3E75D;
 		int16 Data0 = 0;
-		int16 Data10 = 0;
 
 		for (;;) {
 			if (*Data20 != INVALID_SPRITE_PTR && *Data20 != 0 ) {
@@ -2554,7 +2544,6 @@ loc_12C5F:;
 }
 
 void cFodder::sub_12C69() {
-	int16* Data24 = word_3B461;
 
 	for (int16 Data0 = 0; Data0 < 3; ++Data0) {
 		if (!word_3B461[Data0])
@@ -4462,7 +4451,6 @@ void cFodder::Recruit_Render_LeftMenu() {
 	// Draw Heroes Heading
 	sub_145AF( Data0, Data8, DataC );
 	
-	sHero* Data20 = mHeroes;
 	int16 Data14 = 0x0E;
 	Data0 = 4;
 	

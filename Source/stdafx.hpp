@@ -71,6 +71,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #ifndef _WIN32
 	#include <unistd.h>
     #define	 Sleep( a ) usleep( a * 1000 );
+
+	#define _stricmp( a, b) stricmp(a, b)
 #endif
 
 #include "Singleton.hpp"
