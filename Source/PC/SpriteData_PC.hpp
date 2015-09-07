@@ -1727,9 +1727,9 @@ sSpriteSheet stru_347AC[2] =
 	{ 23872, 17161, 0, 0, 16, 13, 176, 0, 0 }
 };
 
-sSpriteSheet stru_347CC[] =
-{ 23880, 17161, 0, 0, 16, 15, 176, 0, 0 };
-
+sSpriteSheet stru_347CC[] = {
+	{ 23880, 17161, 0, 0, 16, 15, 176, 0, 0 }
+};
 sSpriteSheet stru_347DC[4] =
 {
 	{ 25176, 17161, 0, 0, 16, 11, 176, 0, 0 },
@@ -1738,8 +1738,9 @@ sSpriteSheet stru_347DC[4] =
 	{ 25200, 17161, 0, 0, 16, 11, 176, 0, 0 }
 };
 
-sSpriteSheet stru_3481C[] =
-{ 23888, 17161, 0, 0, 16, 15, 176, 0, 0 };
+sSpriteSheet stru_3481C[] = {
+	{ 23888, 17161, 0, 0, 16, 15, 176, 0, 0 }
+};
 
 sSpriteSheet stru_3482C[4] =
 {
@@ -2547,11 +2548,13 @@ const sSpriteSheet* off_32C0C[] = {
 	stru_35C2C
 };
 
-sSpriteSheet stru_4398B[] =
-{ 3000, 17161, 0, 0, 24, 22, 128, 0, 0 };
+sSpriteSheet stru_4398B[] = {
+	{ 3000, 17161, 0, 0, 24, 22, 128, 0, 0 }
+};
 
-sSpriteSheet stru_4399B[] =
-{ 3016, 17161, 0, 0, 24, 22, 64, 0, 0 };
+sSpriteSheet stru_4399B[] = {
+	{ 3016, 17161, 0, 0, 24, 22, 64, 0, 0 }
+};
 
 sSpriteSheet stru_439AB[26] =
 {
@@ -2693,21 +2696,25 @@ sSpriteSheet stru_43CEB[76] =
 	{ 14808, 17161, 0, 0, 16, 15, 64, 0, 0 }
 };
 
-sSpriteSheet stru_441AB[] =
-{ 34240, 17161, 0, 0, 216, 28, 64, 0, 0 };
+sSpriteSheet stru_441AB[] = {
+	{ 34240, 17161, 0, 0, 216, 28, 64, 0, 0 }
+};
 
-sSpriteSheet stru_441BB[] =
-{ 29760, 17161, 0, 0, 216, 28, 64, 0, 0 };
+sSpriteSheet stru_441BB[] = {
+	{ 29760, 17161, 0, 0, 216, 28, 64, 0, 0 }
+};
 
-sSpriteSheet stru_441CB[] =
-{ 0, 15208, 0, 0, 80, 142, 0, 0, 0 };
+sSpriteSheet stru_441CB[] = {
+	{ 0, 15208, 0, 0, 80, 142, 0, 0, 0 }
+};
 
-sSpriteSheet stru_441DB[] =
-{ 80, 15208, 0, 0, 80, 142, 0, 0, 0 };
+sSpriteSheet stru_441DB[] = {
+	{ 80, 15208, 0, 0, 80, 142, 0, 0, 0 }
+};
 
-sSpriteSheet stru_441EB[] =
-{ 2936, 17161, 0, 0, 128, 22, 64, 0, 0 };
-
+sSpriteSheet stru_441EB[] = {
+	{ 2936, 17161, 0, 0, 128, 22, 64, 0, 0 }
+};
 
 const sSpriteSheet* off_43963[] = {
 	stru_4398B,
