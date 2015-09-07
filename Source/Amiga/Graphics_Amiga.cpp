@@ -28,7 +28,6 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 }
 
 void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
-	uint16 bx = 0, dx = 0;
 
 	delete mBlkData;
 	delete mPalette;

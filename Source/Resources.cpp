@@ -423,7 +423,6 @@ uint16 cResources::sub_26C06() {
 
 	uint16 si = word_26DBE[0x61F];
 
-	uint16 ax = 0;
 	uint16 bp = saveBP;
 	uint16 cx = 0;
 
