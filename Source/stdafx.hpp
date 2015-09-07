@@ -35,7 +35,7 @@
 
 #include "Types.hpp"
 
-#include <Windows.h>
+//#include <Windows.h>
 
 std::string local_PathGenerate( std::string pFile, std::string pPath );
 uint8*		local_FileRead( std::string pFile, std::string pPath, size_t& pFileSize );
@@ -83,8 +83,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Graphics.hpp"
 #include "Fodder.hpp"
 
-#include "PC\Graphics_PC.hpp"
-#include "Amiga\Graphics_Amiga.hpp"
+#include "PC/Graphics_PC.hpp"
+#include "Amiga/Graphics_Amiga.hpp"
 
 
 #define g_Fodder cFodder::GetSingleton()

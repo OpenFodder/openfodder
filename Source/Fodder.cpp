@@ -3243,7 +3243,7 @@ void cFodder::video_Draw_Sprite_( ) {
 	uint8 Plane = 0;
 
 	byte_42071 = 1 << cx;
-	byte bl = byte_42070;
+	int8 bl = byte_42070;
 	
 	word_4206C >>= 1;
 	word_42074 = 160 - word_4206C;
@@ -3255,7 +3255,7 @@ void cFodder::video_Draw_Sprite_( ) {
 	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = 0; cx < word_4206C; ++cx ) {
-			byte al = (*si) >> 4;
+			int8 al = (*si) >> 4;
 			if(al)
 				*di = al | bl;
 			
@@ -3279,7 +3279,7 @@ void cFodder::video_Draw_Sprite_( ) {
 	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
-			byte al = (*si) & 0x0F;
+			int8 al = (*si) & 0x0F;
 			if( al )
 				*di = al | bl;
 			
@@ -3305,7 +3305,7 @@ void cFodder::video_Draw_Sprite_( ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
 			
-			byte al = (*si) >> 4;
+			int8 al = (*si) >> 4;
 			if( al )
 				*di = al | bl;
 			
@@ -3330,7 +3330,7 @@ void cFodder::video_Draw_Sprite_( ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
 			
-			byte al = (*si) & 0x0F;
+			int8 al = (*si) & 0x0F;
 			if( al ) 
 				*di = al | bl;
 			
@@ -3372,7 +3372,7 @@ void cFodder::video_Draw_Linear_To_Planar( ) {
 	for( int16 dx = word_4206E; dx > 0; --dx ) {
 		
 		for( cx = word_4206C; cx > 0; --cx ) {
-			byte al = *si;
+			int8 al = *si;
 			if(al)
 				*di = al;
 			
@@ -3540,7 +3540,7 @@ void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	uint8* di = ((uint8*)word_3D5B7) + w42066;
 	uint8* si = word_42062;
 	
-	byte bl = byte_42070;
+	int8 bl = byte_42070;
 	word_4206C >>= 1;
 	
 	word_42074 = 0xA0 - word_4206C;
@@ -7727,7 +7727,7 @@ int16 cFodder::Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, 
 		int8* Data28 = (int8*) graphicsBaseBht;
 		pData14 += pData0;
 
-		byte al = 1 << Data8;
+		int8 al = 1 << Data8;
 		Data28 += pData14;
 		if (*((int16*)Data28) & al)
 			pData4 >>= 4;
