@@ -41,7 +41,6 @@ cWindow::~cWindow() {
 	SDL_DestroyRenderer( mRenderer );
 	SDL_DestroyWindow( mWindow );
 
-	IMG_Quit();
 	SDL_Quit();
 }
 
