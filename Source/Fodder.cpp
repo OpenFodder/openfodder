@@ -6016,6 +6016,7 @@ void cFodder::sub_23C70( sSprite_0* pData2C ) {
 void cFodder::sub_23EFD( sSprite_0* pSprite ) {
 	sSprite_0* Data28 = 0;
 	sSprite_0* Data34 = 0;
+	int16 Data0, Data4, Data8, DataC, Data10;
 
 	if (mMap_TileSet == 3 || mMap_TileSet == 4)
 		if (pSprite->field_38 == 5)
@@ -6040,11 +6041,11 @@ void cFodder::sub_23EFD( sSprite_0* pSprite ) {
 		goto loc_24075;
 
 	word_3B4DF = 0;
-	int16 Data0 = 0;
-	int16 Data4 = -1;
-	int16 Data8 = -1;	// Correct??
-	int16 DataC = -1;
-	int16 Data10 = -1;
+	Data0 = 0;
+	Data4 = -1;
+	Data8 = -1;	// Correct??
+	DataC = -1;
+	Data10 = -1;
 
 	if (mMapGoals[7]) {
 		Data4 = 0x3D;
