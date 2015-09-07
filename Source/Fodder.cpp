@@ -4701,8 +4701,10 @@ void cFodder::sub_17368() {
 
 	uint16* Data24 = (uint16*) mDataSubBlk;
 
+	//TODO: This needs fixing
+
 	for ( int16 Data0 = 0x58; Data0 < 0xA0; Data0 += 0x0C) {
-		*((uint32*)Data24) = (uint32) Data20;
+		*((uint64*)Data24) = (uint64) Data20;
 		Data24 += 2;
 
 		*Data24++ = Data0;
@@ -4979,7 +4981,7 @@ void cFodder::sub_17911() {
 	int16*    Data2C = word_3E197;
 
 	uint32 Data8 = (uint32) dword_394A4;
-	int16 Data0;
+	int16 Data0, Data4;
 
 	Data8 -= (uint32) word_391D2;
 	Data8 >>= 1;
@@ -4995,7 +4997,7 @@ void cFodder::sub_17911() {
 
 	// loc_1795E
 	--Data0;
-	int16 Data4 = 0x660;
+	Data4 = 0x660;
 
 	//loc_17968
 	for (; Data0 >= 0; --Data0) {
@@ -5763,7 +5765,8 @@ void cFodder::sub_2315D( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 p
 }
 
 int16 cFodder::sub_2329D( sSprite_0* pSprite ) {
-	
+	sSprite_0* Data24 = 0;
+
 	if (pSprite->field_38 == 5)
 		goto loc_232DE;
 
@@ -5785,7 +5788,7 @@ loc_232DE:;
 	pSprite->field_18 = 0x0C;
 	pSprite->field_26 = 0x1F56;
 	pSprite->field_28 = -9;
-	sSprite_0* Data24 = pSprite + 1;
+	Data24 = pSprite + 1;
 
 	sub_2061C( Data24 );
 	if (!pSprite->field_22)
@@ -10311,7 +10314,8 @@ void cFodder::Sprite_Handle_Loop() {
 
 void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 	sSprite_0* Sprite = (sSprite_0*)pData20;
-	int16 Data0, Data4;
+	int16 Data0, Data4, eax;
+	sSprite_0* Data28 = 0;
 
 	if (Sprite->field_6E) {
 		sub_22AA9( Sprite );
@@ -10349,7 +10353,7 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 		word_3AA41 = -1;
 		//Data0 <<= 1;   UNUSED?
 
-		sSprite_0* Data28 = &mSprites[Sprite->field_5E];
+		Data28 = &mSprites[Sprite->field_5E];
 		
 		if( Data28->field_0 != -32768 ) {
 			
@@ -10400,7 +10404,7 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 		goto loc_191C3;
 
 	loc_1904A:;
-		int16 Data0 = tool_RandomGet() & 0x1F;
+		Data0 = tool_RandomGet() & 0x1F;
 
 		if (Data0 == 5)
 			goto loc_1901C;
@@ -10466,8 +10470,7 @@ void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 			word_3A00C = -1;
 			word_3A010 = -1;
 
-			sSquad_Member* eax = (sSquad_Member*) Sprite->field_46;
-			Data0 = eax->field_6;
+			Data0 =  ((sSquad_Member*) Sprite->field_46)->field_6;
 
 		loc_191BF:;
 			sub_1F429( Sprite );
@@ -10485,10 +10488,8 @@ loc_191C3:;
 	if (Sprite->field_22)
 		goto loc_1921E;
 
-	//TODO: Check this
 	// seg004:047F
-	struct_8* Dataa30 = off_3BEF3[Sprite->field_32];
-	int16  eax = Dataa30[Sprite->field_40].field_2;
+	eax = off_3BEF3[Sprite->field_32][Sprite->field_40].field_2;
 
 	//seg004:04CC
 	if (eax < 0) {
