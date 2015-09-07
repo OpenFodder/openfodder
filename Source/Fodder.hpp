@@ -364,7 +364,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMissionComplete;
 	int16			word_3A9AE;
 	int16			word_3A9B0;
-	uint16			word_3A9B2;
+	int16			word_3A9B2;
 	int16			word_3A9B4;
 	int16			word_3A9B8;
 	int16			word_3A9BA[3];	// values here, seem to be a byte count originally.. now its an index
