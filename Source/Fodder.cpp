@@ -7177,13 +7177,21 @@ loc_29FC2:;
 
 void cFodder::tool_RandomSeed() {
 	const time_t now = time(0);
+	tm* ltm;
 
-	tm* ltm = localtime( &now );
+#ifndef _WIN32
+	ltm = localtime( &now );
+#else
+	ltm = new tm();
+	localtime_s( ltm, &now );
+#endif
 
 	uint16 ax = tool_DecimalToBinaryCodedDecimal( ltm->tm_sec );
 	ax |= tool_DecimalToBinaryCodedDecimal(ltm->tm_min) << 8;
 	ax += 0x40B;
-
+#ifdef _WIN32
+	delete ltm;
+#endif
 	word_44A30 = -ax;
 	word_44A2E = ax;
 	word_44A32 = 1;
