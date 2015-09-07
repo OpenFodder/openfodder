@@ -55,7 +55,7 @@ void cFodder::Music_Play( const char* pFilename ) {
 	Filename.append( ".wav" );
 
 	Mix_FreeMusic( mMusicPlaying );
-	Sleep( 100 );
+	SDL_Delay( 100 );
 
 	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
 
@@ -14988,40 +14988,40 @@ void cFodder::Mission_PhaseNext() {
 void cFodder::videoSleep() {
 	static uint64_t delta = 2;
 
-	mTicksDiff = GetTickCount() - mTicksDiff;
+	mTicksDiff = SDL_GetTicks() - mTicksDiff;
 
 	mTicks = mTicksDiff * 60 / 1000;
 
 	sleepLoop(delta * 1000 / 60 - mTicksDiff);
 
-	mTicksDiff = GetTickCount();
+	mTicksDiff = SDL_GetTicks();
 }
 
 void cFodder::videoSleep_50() {
 	static uint64_t delta = 1;
 
-	mTicksDiff = GetTickCount() - mTicksDiff;
+	mTicksDiff = SDL_GetTicks() - mTicksDiff;
 
 	mTicks = mTicksDiff * 50 / 1000;
 
 	sleepLoop(delta * 1000 / 50 - mTicksDiff);
 
-	mTicksDiff = GetTickCount();
+	mTicksDiff = SDL_GetTicks();
 }
 
 void cFodder::sleepLoop( int64 pMilliseconds ) {
 
-	uint64 TimeStarted = GetTickCount();
+	uint64 TimeStarted = SDL_GetTicks();
 	uint64 TimeFinish = TimeStarted + pMilliseconds;
 
 	do {
 		//_system->updateScreen();
 		mWindow->EventCheck();
 
-		if (GetTickCount() >= TimeFinish)
+		if (SDL_GetTicks() >= TimeFinish)
 			break;
 
-		Sleep( 10 );
+		SDL_Delay( 10 );
 
 	} while (1);
 

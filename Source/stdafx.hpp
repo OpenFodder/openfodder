@@ -68,6 +68,11 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 	*wordBytes = pValue;
 }
 
+#ifndef _WIN32
+	#include <unistd.h>
+    #define	 Sleep( a ) usleep( a * 1000 );
+#endif
+
 #include "Singleton.hpp"
 
 #include "Dimension.hpp"

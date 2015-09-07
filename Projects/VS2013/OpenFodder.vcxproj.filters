@@ -42,9 +42,6 @@
     <ClInclude Include="..\..\Source\Surface.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SpriteData.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\IntroData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -70,6 +67,15 @@
       <Filter>Source\Amiga</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Versions.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp">
       <Filter>Source\PC</Filter>
     </ClInclude>
   </ItemGroup>
