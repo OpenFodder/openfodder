@@ -21,7 +21,7 @@
  */
 
 enum Platform {
-	PC		= 0,
+	PC	= 0,
 	Amiga	= 1
 };
 

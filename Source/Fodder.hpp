@@ -40,11 +40,11 @@ struct sMouseData {
 struct sSquad_Member {
 	int16		mRecruitID;
 	uint8		mRank;
-	uint8		field_3;
+	int8		field_3;
 	sSprite_0*	field_4;
 	uint16		field_6;
-	uint8		field_8;
-	uint8		field_9;
+	int8		field_8;
+	int8		field_9;
 	uint16		mNumberOfKills; 
 };
 
@@ -56,8 +56,8 @@ struct sSpriteSheet {
 	int16 mColCount;
 	int16 mRowCount;
 	int16 field_C;
-	uint8 field_E;
-	uint8 field_F;
+	int8 field_E;
+	int8 field_F;
 };
 
 struct sIntroString {
@@ -73,8 +73,8 @@ struct sIntroText {
 struct sRecruit {
 	char  mName[7];	// increased to 7, to allow the null terminator
 	uint8 field_6;
-	uint8 field_7;
-	uint8 field_8;
+	int8 field_7;
+	int8 field_8;
 };
 
 struct sHero {
