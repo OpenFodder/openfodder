@@ -8959,9 +8959,10 @@ void cFodder::sub_2DD50( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_2DE2C( ) {
+	uint8* Data24 = 0;
 	const int16* Data30 = off_3DE38[mMap_TileSet];
 	int16* Data20 = 0;
-	int16 Data0, Data4;
+	int16 Data0, Data4, Data8, Data10, DataC;
 
 	if (word_3AF07) {
 		--word_3AF07;
@@ -8993,11 +8994,11 @@ loc_2DE3C:;
 	Data4 += Data0;
 	Data4 <<= 1;
 
-	uint8* Data24 = &mMap[0x60 + Data4];
+	Data24 = &mMap[0x60 + Data4];
 
-	int16 Data10 = readLEWord( Data24 );
+	Data10 = readLEWord( Data24 );
 	Data10 &= 0x1FF;
-	int16 DataC = Data10;
+	DataC = Data10;
 
 	Data4 = word_3D03D[Data10];
 	if (Data4 < 0)
@@ -9027,7 +9028,7 @@ loc_2DF55:;
 
 loc_2DF7B:;
 
-	int16 Data8 = word_3AF03;
+	Data8 = word_3AF03;
 	DataC = word_3AF05;
 	Data0 = sub_21914(Data8, DataC);
 
@@ -9083,7 +9084,7 @@ int16 cFodder::sub_2EAC2() {
 }
 
 void cFodder::sub_2EAC3() {
-	int16 Data0 = -1;
+	//int16 Data0 = -1;
 	return;
 }
 
@@ -9092,8 +9093,6 @@ void cFodder::sub_2EACA() {
 	sub_30465();
 
 	dword_3AEF3 = stru_3AC53;
-	int16 Data8 = -1;
-	int16 DataC = -1;
 
 	map_ClearSpt();
 
@@ -9822,7 +9821,7 @@ void cFodder::Service_Promotion_Prepare() {
 	int16* Data28 = word_3ABFF;
 	dword_3AC11 = Data28;
 
-	int16 Data8 = mMissionPhaseTable[ mMissionNumber - 1 ];
+	//int16 Data8 = mMissionPhaseTable[ mMissionNumber - 1 ];
 
 	sSquad_Member* Data20 = mSquad;
 
@@ -10028,11 +10027,6 @@ void cFodder::Briefing_Draw_With( ) {
 void cFodder::Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 ) {
 	pData0 += 0x10;
 	pData4 += 0x10;
-
-	int16 bx = pData0;
-	int16 cx = pData4;
-
-	int16 dx = bx + pData8;
 
 	// Top and Bottom
 	Brief_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4, pData10 );
@@ -10329,7 +10323,7 @@ void cFodder::Sprite_Handle_Loop() {
 
 void cFodder::Sprite_Handle_Player( sSprite_0 *pData20 ) {
 	sSprite_0* Sprite = (sSprite_0*)pData20;
-	sSprite_0* Data30 = 0;
+	int16 Data0, Data4;
 
 	if (Sprite->field_6E) {
 		sub_22AA9( Sprite );
@@ -10534,11 +10528,11 @@ loc_191C3:;
 	else
 		sub_1F5CA( Sprite );
 
-	int16 Data0 = Sprite->field_26;
+	Data0 = Sprite->field_26;
 	if( Data0 < 0 )
 		goto loc_1946D;
 	
-	int16 Data4 = Sprite->field_28;
+	Data4 = Sprite->field_28;
 	if( Data4 < 0 )
 		goto loc_1946D;
 	
