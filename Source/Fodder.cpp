@@ -8273,9 +8273,6 @@ void cFodder::Camera_Pan_Down( ) {
 	int16 ax = word_3B60E;
 	ax &= 3;
 
-	int16 word_39707 = 0;
-	word_39709 = 0;
-
 	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
 		++word_3B610;
@@ -8295,8 +8292,6 @@ void cFodder::Camera_Pan_Down( ) {
 }
 
 void cFodder::Camera_Pan_Up() {
-	int16 word_39707 = 0;
-	int16 word_39709 = 0;
 
 	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
@@ -8542,8 +8537,10 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 
 int16 cFodder::Sprite_Find_In_Region( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
 
-	if (word_3B4F1)
-		goto loc_2D719;
+	if (word_3B4F1) {
+		word_3AA45 = 0;
+		return word_3AA03;
+	}
 
 	word_3AA03 = 0;
 
@@ -8667,13 +8664,11 @@ int16 cFodder::Sprite_Find_In_Region( sSprite_0* pSprite, sSprite_0*& pData24, i
 		pData24->field_10 = pSprite->field_10;
 
 	loc_2D705:;
-		if (word_3AA45)
-			goto loc_2D719;
+		if (word_3AA45) {
+			word_3AA45 = 0;
+			return word_3AA03;
+		}
 	}
-
-loc_2D719:;
-	word_3AA45 = 0;
-	return word_3AA03;
 }
 
 void cFodder::sub_2D725() {
@@ -8964,17 +8959,20 @@ void cFodder::sub_2DD50( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_2DE2C( ) {
-	
+	const int16* Data30 = off_3DE38[mMap_TileSet];
+	int16* Data20 = 0;
+	int16 Data0, Data4;
+
 	if (word_3AF07) {
 		--word_3AF07;
 		goto loc_2DFC7;
 	}
 
 loc_2DE3C:;
-	int16* Data20 = (int16*) dword_3B11F;
+	Data20 = (int16*) dword_3B11F;
 
-	int16 Data0 = *Data20;
-	int16 Data4 = *(Data20 + 1);
+	Data0 = *Data20;
+	Data4 = *(Data20 + 1);
 
 	if (Data0 < 0)
 		return;
@@ -9009,7 +9007,6 @@ loc_2DE3C:;
 		goto loc_2DF7B;
 
 	//seg010:0608 
-	const int16* Data30 = off_3DE38[mMap_TileSet];
 
 	int16 ax;
 	do {
