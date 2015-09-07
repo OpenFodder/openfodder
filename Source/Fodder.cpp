@@ -4980,7 +4980,7 @@ void cFodder::sub_17911() {
 	struct_4* Data24 = stru_373BA;
 	int16*    Data2C = word_3E197;
 
-	uint32 Data8 = (uint32) dword_394A4;
+	uint64 Data8 = (uint64) dword_394A4;
 	int16 Data0, Data4;
 
 	Data8 -= (uint32) word_391D2;
@@ -5674,7 +5674,7 @@ loc_23056:;
 	Data0 += 3;
 	pSprite->field_20 = Data0;
 	Data0 = -Data0;
-	pSprite->field_1A = (int32*) (((int32)pSprite->field_1A) | Data0 << 16);
+	pSprite->field_1A = (int32*) (((int64)pSprite->field_1A) | Data0 << 16);
 	return;
 
 loc_230B0:;
@@ -11762,27 +11762,27 @@ loc_1B6A2:;
 }
 
 void cFodder::Sprite_Handle_Rocket( sSprite_0* pSprite ) {
-	
-	if (!pSprite->field_56)
-		goto loc_1B791;
+	sSprite_0* Data24 = 0;
 
-	pSprite->field_56 -= 1;
-	if (!pSprite->field_56)
-		Sound_Voc_Play( pSprite, 0x2E, 0x0F );
-	
-	sSprite_0* Data24 = (sSprite_0*) pSprite->field_46;
-	pSprite->field_0 = Data24->field_0;
-	pSprite->field_2 = Data24->field_2;
-	pSprite->field_4 = Data24->field_4;
-	pSprite->field_6 = Data24->field_6;
+	if (pSprite->field_56) {
 
-	pSprite->field_4 += 1;
-	pSprite->field_0 += 3;
-	pSprite->field_8 = 0x7C;
-	pSprite->field_A = 0;
-	return;
+		pSprite->field_56 -= 1;
+		if (!pSprite->field_56)
+			Sound_Voc_Play( pSprite, 0x2E, 0x0F );
 
-loc_1B791:;
+		Data24 = (sSprite_0*)pSprite->field_46;
+		pSprite->field_0 = Data24->field_0;
+		pSprite->field_2 = Data24->field_2;
+		pSprite->field_4 = Data24->field_4;
+		pSprite->field_6 = Data24->field_6;
+
+		pSprite->field_4 += 1;
+		pSprite->field_0 += 3;
+		pSprite->field_8 = 0x7C;
+		pSprite->field_A = 0;
+		return;
+	}
+
 	pSprite->field_8 = 0xA3;
 	int16 Data0 = pSprite->field_26;
 	int16 Data4 = pSprite->field_28;
@@ -12100,6 +12100,8 @@ void cFodder::sub_1C268( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_1C364( sSprite_0* pSprite ) {
+	int16 Data0;
+
 	pSprite->field_2C = -1;
 	if (pSprite->field_38)
 		goto loc_1C406;
@@ -12110,7 +12112,7 @@ void cFodder::sub_1C364( sSprite_0* pSprite ) {
 			goto loc_1C406;
 	}
 
-	int16 Data0 = 0;
+	Data0 = 0;
 	pSprite->field_8 = 0xC8;
 	if (sub_2244B( pSprite, Data0 ))
 		return;
@@ -12136,12 +12138,14 @@ loc_1C406:;
 }
 
 void cFodder::sub_1C411( sSprite_0* pSprite ) {
+	sSprite_0* Data28 = word_39FCE;
+	int16 Data0 = 0;
+
 	pSprite->field_8 = 0xC9;
 
 	if (pSprite->field_A)
 		goto loc_1C4AD;
 
-	int16 Data0 = 0;
 	if (sub_2244B( pSprite, Data0 ))
 		return;
 
@@ -12151,7 +12155,6 @@ void cFodder::sub_1C411( sSprite_0* pSprite ) {
 	if (Data0 == 5)
 		goto loc_1C4AD;
 
-	sSprite_0* Data28 = word_39FCE;
 	Data28->field_0 = pSprite->field_0;
 	Data28->field_0 -= 3;
 	Data28->field_4 = pSprite->field_4;
@@ -12534,6 +12537,7 @@ void cFodder::sub_1D756( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_1D81C( sSprite_0* pSprite ) {
+	int16 Data0, Data4;
 	sSprite_0* Data2C = 0;
 
 	if (sub_1D92E( pSprite ))
@@ -12560,8 +12564,8 @@ void cFodder::sub_1D81C( sSprite_0* pSprite ) {
 	pSprite->field_8 = 0xE0;
 	Sound_Voc_Play( pSprite, 0x10, 1 );
 
-	int16 Data0 = tool_RandomGet() & 0x0F;
-	int16 Data4 = 0x14 - word_390C2;
+	Data0 = tool_RandomGet() & 0x0F;
+	Data4 = 0x14 - word_390C2;
 
 	if (Data4 < 0)
 		Data0 = 0;
