@@ -11486,7 +11486,9 @@ void cFodder::sub_1B0C0( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_1B1C1( sSprite_0* pSprite ) {
-	
+	int16 Data0, Data4;
+	sSprite_0* Data2C = 0;
+
 	if (sub_222A3(pSprite))
 		return;
 
@@ -11514,8 +11516,8 @@ void cFodder::sub_1B1C1( sSprite_0* pSprite ) {
 	pSprite->field_8 = 0x9B;
 
 	Sound_Voc_Play( pSprite, 0x10, 1 );
-	int16 Data0 = tool_RandomGet() & 0x0F;
-	int16 Data4 = 0x14;
+	Data0 = tool_RandomGet() & 0x0F;
+	Data4 = 0x14;
 
 	Data4 -= word_390C2;
 	if (Data4 < 0)
@@ -11526,7 +11528,6 @@ void cFodder::sub_1B1C1( sSprite_0* pSprite ) {
 	pSprite->field_12 = Data4;
 
 loc_1B285:;
-
 	pSprite->field_12 -= 1;
 	if (pSprite->field_12 >= 0)
 		return;
@@ -11537,7 +11538,7 @@ loc_1B285:;
 	pSprite->field_8 = 0x7C;
 
 loc_1B2B6:;
-	sSprite_0* Data2C = 0;
+	
 	if (!Troop_Deploy( pSprite, Data2C )) {
 		Data2C->field_4 -= 4;
 		return;
@@ -11548,6 +11549,7 @@ loc_1B2B6:;
 }
 
 void cFodder::Sprite_Handle_Floating_Dead_Soldier( sSprite_0* pSprite ) {
+	int16 Data0, Data4;
 
 	pSprite->field_8 = 0x9E;
 
@@ -11572,8 +11574,8 @@ loc_1B35A:;
 
 	sub_1F623( pSprite );
 	Sprite_Movement_Calculate( pSprite );
-	int16 Data0 = -3;
-	int16 Data4 = 8;
+	Data0 = -3;
+	Data4 = 8;
 	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
 	if (Data4 < 4 || Data4 > 6) {
 		pSprite->field_0 = dword_3A391 & 0xFFFF;
@@ -11637,6 +11639,7 @@ void cFodder::Sprite_Handle_Text_Phase( sSprite_0* pSprite ) {
 void cFodder::sub_1B4BB( sSprite_0* pSprite ) {
 	int16 Data0 = 2;
 	int16 Data4 = pSprite->field_36;
+	int16 Data8, DataC;
 
 	if (!Data4) {
 		if (!pSprite->field_22) {
@@ -11675,8 +11678,8 @@ loc_1B523:;
 
 	Data0 = pSprite->field_26;
 	Data4 = pSprite->field_28;
-	int16 Data8 = pSprite->field_0;
-	int16 DataC = pSprite->field_4;
+	Data8 = pSprite->field_0;
+	DataC = pSprite->field_4;
 	
 	sub_29E30( Data0, Data4, Data8, DataC );
 	if (Data0 >= 0x1E)
@@ -11937,6 +11940,8 @@ void cFodder::Sprite_Handle_RocketBox( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_1BB11( sSprite_0* pSprite ) {
+	int16 Data0, Data4, Data6, Data8, DataC, Data10, Data14;
+	const int16* Data2C = word_3D5B9;
 
 	if (pSprite->field_8 == 0x7C) {
 		sub_22A55( pSprite );
@@ -11948,21 +11953,20 @@ void cFodder::sub_1BB11( sSprite_0* pSprite ) {
 		goto loc_1BC07;
 
 
-	int16 Data8 = pSprite->field_0;
+	Data8 = pSprite->field_0;
 	Data8 += 8;
 	if (pSprite->field_26 == 0x5F5F)
 		Data8 += pSprite->field_28;
 	
-	int16 DataC = pSprite->field_0;
+	DataC = pSprite->field_0;
 	DataC += 0x24;
 
-	int16 Data10 = pSprite->field_4;
+	Data10 = pSprite->field_4;
 	Data10 -= 0x20;
-	int16 Data14 = pSprite->field_4;
+	Data14 = pSprite->field_4;
 	Data14 -= 6;
 
-	const int16* Data2C = word_3D5B9;
-	int16 Data0 = pSprite->field_A;
+	Data0 = pSprite->field_A;
 
 	if (pSprite->field_8 == 0xC0)
 		Data0 += 2;
@@ -11991,7 +11995,7 @@ loc_1BC07:;
 loc_1BC48:;
 
 	Data2C = word_3D5B9;
-	int16 Data4 = pSprite->field_A;
+	Data4 = pSprite->field_A;
 	if (pSprite->field_8 == 0xC0)
 		Data4 += 2;
 
@@ -11999,7 +12003,7 @@ loc_1BC48:;
 	Data2C += Data4;
 	
 	Data4 = *(Data2C + 1);
-	int16 Data6 = *Data2C;
+	Data6 = *Data2C;
 
 	pSprite->field_0 -= Data4;
 	pSprite->field_4 += Data6;
@@ -12044,7 +12048,7 @@ void cFodder::sub_1BD54( sSprite_0* pSprite ) {
 
 void cFodder::sub_1C1C0( sSprite_0* pSprite ) {
 	Sprite_Movement_Calculate( pSprite );
-	int32 Data0 = (int32) pSprite->field_1A;
+	int64 Data0 = (int64) pSprite->field_1A;
 
 	Data0 += pSprite->field_1E;
 
