@@ -7736,7 +7736,9 @@ int16 cFodder::Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, 
 }
 
 void cFodder::sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
-	
+	int16 Data1C;
+	sSprite_0** Saved_Data24 = 0;
+
 	if (pDataC >= 3)
 		return;
 
@@ -7765,9 +7767,9 @@ void cFodder::sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10
 
 	//loc_2AA4C
 	pData10 = 0;
-	int16 Data1C = -1;
+	Data1C = -1;
 
-	sSprite_0** Saved_Data24 = Data24;
+	Saved_Data24 = Data24;
 
 	for (;;) {
 		if (*Data24++ == INVALID_SPRITE_PTR)
@@ -7834,8 +7836,10 @@ loc_2ABF8:;
 
 int16 cFodder::SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
 	
-	if (word_3B4F1)
-		goto loc_2AE33;
+	if (word_3B4F1) {
+		word_3AA45 = 0;
+		return word_3AA03;
+	}
 
 	word_3AA03 = 0;
 
@@ -7933,7 +7937,6 @@ int16 cFodder::SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pDat
 			break;
 	}
 
-loc_2AE33:;
 	word_3AA45 = 0;
 	return word_3AA03;
 }
@@ -10880,6 +10883,8 @@ loc_19A9C:;
 }
 
 void cFodder::Sprite_Handle_Bullet( sSprite_0* pSprite ) {
+	int16 Data8, DataC, Data0, Data4;
+	int8 al;
 
 	pSprite->field_64 += 1;
 	
@@ -10888,8 +10893,8 @@ void cFodder::Sprite_Handle_Bullet( sSprite_0* pSprite ) {
 	
 	sSprite_0* Data28 = (sSprite_0*) pSprite->field_1A;
 	
-	int16 Data0 = Data28->field_0;
-	int16 Data4 = Data28->field_4;
+	Data0 = Data28->field_0;
+	Data4 = Data28->field_4;
 	
 	Data0 += pSprite->field_16;
 	Data4 += pSprite->field_14;
@@ -10961,8 +10966,8 @@ loc_19BA8:;
 	
 	Data0 = pSprite->field_0;
 	Data4 = pSprite->field_4;
-	int16 Data8 = pSprite->field_2E;
-	int16 DataC = pSprite->field_30;
+	Data8 = pSprite->field_2E;
+	DataC = pSprite->field_30;
 	
 	sub_29E30( Data0, Data4, Data8, DataC );
 	
@@ -11026,7 +11031,7 @@ loc_19DB0:;
 	return;
 	
 loc_19DCF:;
-	int8 al = pSprite->field_43;
+	al = pSprite->field_43;
 	if(al)
 		goto loc_19E1C;
 	
