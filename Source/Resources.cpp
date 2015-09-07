@@ -76,7 +76,8 @@ bool cResources::headerLoad() {
 	mFiles.clear();
 
 	for( uint16 ptr = 4; ptr != ptrEnd; ) {
-		std::string	filename = std::string( (char*) &mData[ptr], mData[ptr++] );
+		std::string	filename = std::string( (char*) &mData[ptr+1], mData[ptr] );
+		++ptr;
 
 		std::transform( filename.begin(), filename.end(), filename.begin(), ::tolower );
 
