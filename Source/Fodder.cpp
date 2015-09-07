@@ -4726,7 +4726,7 @@ void cFodder::sub_17368() {
 void cFodder::sub_17429() {
 	uint8* Data24 = dword_3AAC9;
 
-	if (*((uint32*)Data24) < 0)
+	if (*((int32*)Data24) < 0)
 		return;
 
 	uint8* Data20 = (uint8*) *((uint32*)Data24);
