@@ -10756,7 +10756,7 @@ loc_19855:;
 	goto loc_198D3;
 
 loc_19877:;
-	int32 tmp = pSprite->field_1E | pSprite->field_20 << 16;
+	int32 tmp = (pSprite->field_1E) | (pSprite->field_20 << 16);
 	tmp += Data4;
 
 	pSprite->field_1E = tmp;
@@ -10884,15 +10884,16 @@ loc_19A9C:;
 }
 
 void cFodder::Sprite_Handle_Bullet( sSprite_0* pSprite ) {
-	int16 Data8, DataC, Data0, Data4;
+	int16 Data8, DataC, Data0, Data4, Data1C;
 	int8 al;
+	sSprite_0* Data28;
 
 	pSprite->field_64 += 1;
 	
 	if(!pSprite->field_2A)
 		goto loc_19BA8;
 	
-	sSprite_0* Data28 = (sSprite_0*) pSprite->field_1A;
+	Data28 = (sSprite_0*) pSprite->field_1A;
 	
 	Data0 = Data28->field_0;
 	Data4 = Data28->field_4;
@@ -10934,7 +10935,6 @@ loc_19BA8:;
 	
 	sub_1F623( pSprite );
 	
-	int16 Data1C = pSprite->field_10;
 	if(pSprite->field_59)
 		goto loc_19C6B;
 	
@@ -11239,6 +11239,7 @@ void cFodder::sub_1AC13( sSprite_0* pSprite ) {
 }
 
 void cFodder::Sprite_Handle_BuildingDoor( sSprite_0* pSprite ) {
+	int16 Data0, Data4;
 	sSprite_0* Data2C = 0;
 
 	if (sub_221A6( pSprite ))
@@ -11268,9 +11269,9 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite_0* pSprite ) {
 
 	pSprite->field_8 = 0x99;
 	Sound_Voc_Play( pSprite, 0x10, 0x01 );
-	int16 Data0 = tool_RandomGet() & 0x0F;
+	Data0 = tool_RandomGet() & 0x0F;
 
-	int16 Data4 = 0x14 - word_390C2;
+	Data4 = 0x14 - word_390C2;
 	if (Data4 < 0)
 		Data4 = 0;
 
@@ -11297,12 +11298,11 @@ loc_1AD86:;
 }
 
 void cFodder::Sprite_Handle_Player_Rank( sSprite_0* pSprite ) {
+	sSprite_0* Data24 = word_39FCE;
+	int16 Data4, Data0;
 	
 	if (mSquad_Selected < 0)
 		goto loc_1AF63;
-
-	sSprite_0* Data24 = word_39FCE;
-	int16 Data4;
 
 	if (Data24 == INVALID_SPRITE_PTR)
 		goto loc_1AF63;
@@ -11329,10 +11329,9 @@ loc_1AE64:;
 
 loc_1AE76:;
 
-	int16 Data0 = Data24->field_0;
+	Data0 = Data24->field_0;
 	if (Data0 < 0)
 		goto loc_1AF63;
-
 
 	Data0 += 3;
 	Data4 = Data24->field_4;
@@ -11345,8 +11344,7 @@ loc_1AE76:;
 
 	pSprite->field_8 = 0x95;
 
-	sSquad_Member* Data28 = (sSquad_Member*) Data24->field_46;
-	Data0 = Data28->mRank;
+	Data0 = ((sSquad_Member*) Data24->field_46)->mRank;
 
 	pSprite->field_A = Data0;
 	Data0 = pSprite->field_3A;
