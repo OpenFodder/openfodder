@@ -5326,6 +5326,9 @@ void cFodder::sub_304CB( ) {
 }
 
 void cFodder::sub_30AB0() {
+	int16 Data0, Data4, Data8, Data18;
+	sSprite_0* Data20 = 0;
+	sSprite_0** Data24 = 0;
 
 	if (mMouseX < 0x10) {
 		mMouseSpriteNew = 0x23;
@@ -5337,12 +5340,8 @@ void cFodder::sub_30AB0() {
 	if (mButtonPressRight)
 		goto loc_30CBC;
 
-	const int16* Data2C = word_4547E;
-	const int16* Data30 = word_4555C;
-	const int16* Data34 = word_4563A;
-
-	int16 Data0 = mMouseX;
-	int16 Data4 = mMouseY;
+	Data0 = mMouseX;
+	Data4 = mMouseY;
 
 	Data0 += mCamera_Adjust_Col >> 16;
 	Data4 += mCamera_Adjust_Row >> 16;
@@ -5350,7 +5349,7 @@ void cFodder::sub_30AB0() {
 	Data0 -= 0x0F;
 	Data4 -= 3;
 	
-	sSprite_0** Data24 = dword_3B213;
+	Data24 = dword_3B213;
 
 	//loc_30B36
 	for (int16 Data1C = 4; Data1C >= 0; --Data1C) {
@@ -5361,7 +5360,7 @@ void cFodder::sub_30AB0() {
 		if (*Data24 == 0)
 			continue;
 
-		sSprite_0* Data20 = *Data24++;
+		Data20 = *Data24++;
 		if (Data20->field_0 < 0)
 			continue;
 
@@ -5371,8 +5370,8 @@ void cFodder::sub_30AB0() {
 		if (Data20->field_22)
 			continue;
 
-		int16 Data18 = Data20->field_18;
-		int16 Data8 = Data20->field_0;
+		Data18 = Data20->field_18;
+		Data8 = Data20->field_0;
 		if (Data20->field_6F == 0)
 			goto loc_30BB9;
 		if (Data20->field_6F == 1)
@@ -5385,13 +5384,13 @@ void cFodder::sub_30AB0() {
 		if (Data0 < Data8)
 			continue;
 
-		Data8 += Data2C[Data18];
+		Data8 += word_4547E[Data18];
 		if (Data0 > Data8)
 			continue;
 
 		Data8 = Data20->field_4;
 		Data8 -= Data20->field_20;
-		Data8 -= Data30[Data18];
+		Data8 -= word_4555C[Data18];
 		Data8 -= 0x14;
 
 		if (Data4 < Data8)
@@ -5464,6 +5463,8 @@ void cFodder::sub_22C87( sSprite_0* pSprite ) {
 
 void cFodder::sub_22CD7( sSprite_0* pSprite, int16& pData0, int16& pData4 ) {
 	
+	int16 Data1C;
+
 	pSprite->field_3C = pSprite->field_10;
 
 	sub_2A1F0( pSprite, pData0, pData4 );
@@ -5511,8 +5512,6 @@ void cFodder::sub_22CD7( sSprite_0* pSprite, int16& pData0, int16& pData4 ) {
 
 	if (!word_390B0 & 1)
 		return;
-
-	int16 Data1C;
 
 loc_22DC4:;
 	if (pSprite->field_36 <= 8)
@@ -8136,6 +8135,7 @@ int16 cFodder::sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int
 
 void cFodder::sub_2B378( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
 	const int8* Data24 = byte_3ECC0;
+	int16 Data10 = 0;
 
 	pData8 -= pData0;
 	if (pData8 < 0)
@@ -8151,7 +8151,6 @@ void cFodder::sub_2B378( int16& pData0, int16& pData4, int16& pData8, int16& pDa
 	if (pDataC >= 0x280)
 		goto loc_2B403;
 
-	int16 Data10 = 0;
 	for (;;) {
 		if (pData8 <= 0x1F)
 			if (pDataC <= 0x1F)
@@ -8275,7 +8274,7 @@ void cFodder::Camera_Pan_Down( ) {
 	ax &= 3;
 
 	int16 word_39707 = 0;
-	int16 word_39709 = 0;
+	word_39709 = 0;
 
 	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
