@@ -1220,7 +1220,6 @@ protected:
 	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
 
 	void			videoSleep();
-	void			videoSleep_50();
 
 	void			sleepLoop( int64 pMilliseconds );
 	int16			ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );
