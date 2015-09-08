@@ -50,7 +50,7 @@ std::string mMapTypes[] = {
 
 void cFodder::Music_Play( const char* pFilename ) {
 
-	std::string Filename = "Data\\WAV\\";
+	std::string Filename = "Data/WAV/";
 	Filename.append( pFilename );
 	Filename.append( ".wav" );
 
@@ -59,7 +59,8 @@ void cFodder::Music_Play( const char* pFilename ) {
 
 	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
 
-	Mix_PlayMusic( mMusicPlaying, -1 );
+	if (mMusicPlaying)
+		Mix_PlayMusic( mMusicPlaying, -1 );
 }
 
 void cFodder::Music_Stop() {
@@ -230,7 +231,7 @@ int16 cFodder::Mission_Loop( ) {
 	mImage->Save();
 
 	for (;;) {
-		videoSleep_50();
+		videoSleep();
 
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
@@ -3878,7 +3879,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
-		videoSleep_50();
+		videoSleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -4699,14 +4700,10 @@ void cFodder::Recruit_Render_HeroList() {
 void cFodder::sub_17368() {
 	uint32* Data20 = (uint32*) mDataArmy;
 
-	uint16* Data24 = (uint16*) mDataSubBlk;
-
-	//TODO: This needs fixing
+	uint64* Data24 = (uint64*) mDataSubBlk;
 
 	for ( int16 Data0 = 0x58; Data0 < 0xA0; Data0 += 0x0C) {
-		*((uint64*)Data24) = (uint64) Data20;
-		Data24 += 2;
-
+		*Data24++ = (uint64) Data20;
 		*Data24++ = Data0;
 
 		sub_17480( Data0, 0x0C, 0, Data20 );
@@ -4726,14 +4723,14 @@ void cFodder::sub_17368() {
 void cFodder::sub_17429() {
 	uint8* Data24 = dword_3AAC9;
 
-	if (*((int32*)Data24) < 0)
+	if (*((int64*)Data24) < 0)
 		return;
 
-	uint8* Data20 = (uint8*) *((uint32*)Data24);
-	Data24 += 4;
+	uint64* Data20 = (uint64*) *((uint64*)Data24);
+	Data24 += 8;
 
-	uint16 Data0 = *((uint16*)Data24);
-	Data24 += 2;
+	uint64 Data0 = *((uint64*)Data24);
+	Data24 += 8;
 
 	dword_3AAC9 = Data24;
 	uint32* Dataa20 =  (uint32*) Data20;
@@ -15015,18 +15012,6 @@ void cFodder::videoSleep() {
 
 	mTicksDiff = SDL_GetTicks() - mTicksDiff;
 
-	mTicks = mTicksDiff * 60 / 1000;
-
-	sleepLoop(delta * 1000 / 60 - mTicksDiff);
-
-	mTicksDiff = SDL_GetTicks();
-}
-
-void cFodder::videoSleep_50() {
-	static uint64_t delta = 1;
-
-	mTicksDiff = SDL_GetTicks() - mTicksDiff;
-
 	mTicks = mTicksDiff * 50 / 1000;
 
 	sleepLoop(delta * 1000 / 50 - mTicksDiff);
@@ -18446,8 +18431,7 @@ void cFodder::Squad_Member_Target_Set() {
 	if (mSquad_Selected < 0)
 		goto loc_30E05;
 
-	--mSquads_TroopCount[mSquad_Selected];
-	if (mSquads_TroopCount[mSquad_Selected] < 0)
+	if ((mSquads_TroopCount[mSquad_Selected] - 1) < 0)
 		goto loc_30E05;
 
 	Data20 = off_3BDEF[mSquad_Selected];
