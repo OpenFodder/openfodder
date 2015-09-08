@@ -98,6 +98,10 @@ bool cResources::headerLoad() {
 	return true;
 }
 
+void cResources::decodeILBM( uint8 *pDataPtr ) {
+	
+}
+
 uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
 	std::vector< cResource_File >::iterator		fileIT;
 

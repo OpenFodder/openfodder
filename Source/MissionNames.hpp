@@ -24,7 +24,7 @@ const uint16 mMissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
 										02, 05, 03, 06, 01, 03, 03, 02,
 										01, 05, 01, 04, 01, 04, 05, 06 };
 
-const char* mMapNames[] = {
+const char* mMissionNames[] = {
 	"THE SENSIBLE INITIATION",
 	"ONWARD VIRGIN SOLDIERS",
 	"ANTARCTIC ADVENTURE",
@@ -51,7 +51,7 @@ const char* mMapNames[] = {
 	"BOMB THE BASE",
 };
 
-const char* mMapPhaseNames[] = {
+const char* mMissionPhaseNames[] = {
 	"IT'S A JUNGLE OUT THERE",
 	"BRIDGE OVER THE RIVER PIE",
 	"TRASH ENEMY HQ",

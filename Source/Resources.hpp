@@ -34,45 +34,47 @@ struct cResource_File {
 
 class cResources : public cSingleton<cResources> {
 private:
-	std::string						 mDataPath;
+	std::string						mDataPath;
 
-	uint8							*mData, *mDataCurrent;
+	uint8*							mData, *mDataCurrent;
 
-	size_t							 mDataSize;
+	size_t							mDataSize;
 
-	std::vector< cResource_File >	 mFiles;
+	std::vector< cResource_File >	mFiles;
 	
-	uint8							*mCurPtr;
+	uint8*							mCurPtr;
 
-	uint16							 word_26DBE[0x1000];
-	uint8							 byte_27EE6[0x1A3C];
-	static const uint8				 byte_29921[0x100];
-	static const uint8				 byte_29A21[0xFF];
+	uint16							word_26DBE[0x1000];
+	uint8							byte_27EE6[0x1A3C];
+	static const uint8				byte_29921[0x100];
+	static const uint8				byte_29A21[0xFF];
 
-	uint8							 byte_26DB0;
+	uint8							byte_26DB0;
 
-	int16							 mBytesRead, word_26DA8, word_26DBA, word_26DBC;
-	uint16							 word_26DAA, word_26DB4, saveSI, saveBP;
+	int16							mBytesRead, word_26DA8, word_26DBA, word_26DBC;
+	uint16							word_26DAA, word_26DB4, saveSI, saveBP;
 
-	bool							 headerLoad();
+	bool							headerLoad();
 
-	uint8							*file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode );
+	uint8*							file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode );
 
-	uint8							 data_Read();
+	uint8							data_Read();
 
-	void							 sub_26AA4();
-	void							 sub_26B11();
-	uint16							 sub_26C06();
-	uint16							 sub_26CDF();
+	void							sub_26AA4();
+	void							sub_26B11();
+	uint16							sub_26C06();
+	uint16							sub_26CDF();
 
 public:
-	 								 cResources( std::string pDataPath = "" );
+	 								cResources( std::string pDataPath = "" );
 									~cResources();
+									 
+	void							decodeILBM( uint8 *pDataPtr );
 
-	uint8							*fileGet( std::string pFilename, size_t &pFileSize );
-	size_t							 fileLoadTo( const std::string& pFilename, uint8* pTarget );
+	uint8*							fileGet( std::string pFilename, size_t &pFileSize );
+	size_t							fileLoadTo( const std::string& pFilename, uint8* pTarget );
 
-	std::vector< cResource_File >	*filesGet( ) { return &mFiles; }
+	std::vector< cResource_File >*	filesGet( ) { return &mFiles; }
 
 	void							image4PlaneLoad( cSurface *pImage, const std::string &pFilename, size_t pColors );
 };
