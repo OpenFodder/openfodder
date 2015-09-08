@@ -27,6 +27,7 @@ int main(int argc, char *args[]) {
 	int16 MapNumber = 0;
 
 	if (argc > 1) {
+
 		if (strcmp( args[1], "skipintro" ) == 0)
 			SkipIntro = true;
 
@@ -37,7 +38,7 @@ int main(int argc, char *args[]) {
 
 	cFodder* Fodder = new cFodder(SkipIntro);
 
-	Fodder->Prepare("AFX");
+	Fodder->Prepare("Dos");
 	Fodder->Start( MapNumber );
 
 	delete Fodder;
