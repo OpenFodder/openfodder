@@ -31,13 +31,6 @@
 
 #define INVALID_SPRITE_PTR (sSprite_0*) -1
 
-const char* mBinTable[] = { "rjnull.bin", 
-							"rjnull.bin", 
-							"player.bin", 
-							"player.bin", 
-							"player.bin", 
-							"player.bin" };
-
 std::string mMapTypes[] = {
 	"jun",
 	"des",
@@ -4189,10 +4182,10 @@ void cFodder::Briefing_Draw_MissionName( ) {
 	String_Print( byte_4382F, 1, word_3B301, 0, Mission.str().c_str() );
 	
 	int16 Data0 = mMissionNumber;
-	const char** Data20 = mMapNames;
+	const char** Data20 = mMissionNames;
 
 	if (word_3A01A != 0xB5) {
-		Data20 = mMapPhaseNames;
+		Data20 = mMissionPhaseNames;
 		Data0 = mMapNumber + 1;
 	}
 
@@ -4201,9 +4194,9 @@ void cFodder::Briefing_Draw_MissionName( ) {
 
 	String_CalculateWidth( 0x140, byte_4382F, *Data20 );
 	Data0 = mMissionNumber;
-	Data20 = mMapNames; 
+	Data20 = mMissionNames; 
 	if (word_3A01A != 0xB5) {
-		Data20 = mMapPhaseNames;
+		Data20 = mMissionPhaseNames;
 		Data0 = mMapNumber + 1;
 	}
 	Data0 -= 1;
