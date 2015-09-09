@@ -59,7 +59,10 @@ cResources::cResources( std::string pDataPath ) {
 	mDataPath = pDataPath;
 
 	mData = local_FileRead( "CF_ENG.DAT", "", mDataSize );
-
+	if (!mData) {
+		std::cout << "CF_ENG.DAT not found\n";
+		exit( 1 );
+	}
 	headerLoad();
 }
 
@@ -96,10 +99,6 @@ bool cResources::headerLoad() {
 	}
 
 	return true;
-}
-
-void cResources::decodeILBM( uint8 *pDataPtr ) {
-	
 }
 
 uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {

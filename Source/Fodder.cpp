@@ -1789,6 +1789,9 @@ void cFodder::map_Load_Resources() {
 	
 	switch (mVersion->mPlatform) {
 		case Platform::Amiga:
+			((cGraphics_Amiga*)mGraphics)->DecodeIFF( mDataHillBits );
+			((cGraphics_Amiga*)mGraphics)->DecodeIFF( mDataArmy );
+
 			Sprite_SetDataPtrToBase( off_8BFB8 );
 			break;
 

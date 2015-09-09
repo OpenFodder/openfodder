@@ -47,11 +47,17 @@ std::string	tool_NumToString( uint32 pValue );
 std::string tool_StripLeadingZero( const std::string& pValue );
 uint16		tool_DecimalToBinaryCodedDecimal( uint16 pDecimal );
 
-// Read a word from the buffer
+// Read a BE word from the buffer
 inline uint16 readBEWord( const void *buffer ) {
 	const uint8* bytes = (const uint8*) buffer;
 
 	return (bytes[0] << 8) | bytes[1];
+}
+
+inline uint32 readBEDWord( const void *buffer ) {
+	const uint8* bytes = (const uint8*) buffer;
+
+	return (bytes[0] << 24) | bytes[1] << 16 | (bytes[2] << 8) | bytes[3];
 }
 
 // Read a word from the buffer
