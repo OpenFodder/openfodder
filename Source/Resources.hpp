@@ -69,8 +69,6 @@ public:
 	 								cResources( std::string pDataPath = "" );
 									~cResources();
 									 
-	void							decodeILBM( uint8 *pDataPtr );
-
 	uint8*							fileGet( std::string pFilename, size_t &pFileSize );
 	size_t							fileLoadTo( const std::string& pFilename, uint8* pTarget );
 
