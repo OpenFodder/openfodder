@@ -1751,55 +1751,34 @@ void cFodder::map_Load_Resources() {
 	delete mSurfaceMapOverview;
 	mSurfaceMapOverview = new cSurface( mMapWidth * 16, mMapHeight * 16 );
 
-	std::string JunCopt = sub_12AA1( BaseBaseSet, "copt." );
-	std::string JunBaseSwp = sub_12AA1( BaseBase, ".swp" );
-	std::string JunBaseHit = sub_12AA1( BaseBase, ".hit" );
-	std::string JunBaseBht = sub_12AA1( BaseBase, ".bht" );
-	std::string JunArmy = sub_12AA1( BaseSubSet, "army." );
-	std::string JunSubSwp = sub_12AA1( BaseSub, ".swp" );
-	std::string JunSubHit = sub_12AA1( BaseSub, ".hit" );
-	std::string JunSubBht = sub_12AA1( BaseSub, ".bht" );
+	mFilenameCopt = sub_12AA1( BaseBaseSet, "copt." );
+	mFilenameBaseSwp = sub_12AA1( BaseBase, ".swp" );
+	mFilenameBaseHit = sub_12AA1( BaseBase, ".hit" );
+	mFilenameBaseBht = sub_12AA1( BaseBase, ".bht" );
+	mFilenameArmy = sub_12AA1( BaseSubSet, "army." );
+	mFilenameSubSwp = sub_12AA1( BaseSub, ".swp" );
+	mFilenameSubHit = sub_12AA1( BaseSub, ".hit" );
+	mFilenameSubBht = sub_12AA1( BaseSub, ".bht" );
 
-	JunCopt = sub_12AA1( JunCopt, mVersion->mImageExtension );
-	JunArmy = sub_12AA1( JunArmy, mVersion->mImageExtension );
-
-	g_Resource.fileLoadTo( JunCopt, mDataHillBits );
-	paletteLoad( mDataHillBits + 0xD2A0, 0x40, 0xB0 );
-	paletteLoad( mDataHillBits + 0xD360, 0x10, 0x90 );
-	g_Resource.fileLoadTo( JunArmy, mDataArmy );
-	paletteLoad( mDataArmy + 0xD200, 0x10, 0xA0 );
-
-	size_t Size = g_Resource.fileLoadTo( JunBaseSwp, (uint8*) &word_3D03D[0] );
+	size_t Size = g_Resource.fileLoadTo( mFilenameBaseSwp, (uint8*) &word_3D03D[0] );
 	tool_EndianSwap( (uint8*)&word_3D03D[0], Size );
 	
-	Size = g_Resource.fileLoadTo( JunSubSwp, (uint8*) &word_3D21D[0] );
+	Size = g_Resource.fileLoadTo( mFilenameSubSwp, (uint8*) &word_3D21D[0] );
 	tool_EndianSwap( (uint8*)&word_3D21D[0], Size );
 
-	Size = g_Resource.fileLoadTo( JunBaseHit, (uint8*) &word_3C09D[0] );
+	Size = g_Resource.fileLoadTo( mFilenameBaseHit, (uint8*) &word_3C09D[0] );
 	tool_EndianSwap( (uint8*)&word_3C09D[0], Size );
 	
-	Size = g_Resource.fileLoadTo( JunSubHit, (uint8*) &graphicsSub0[0] );
+	Size = g_Resource.fileLoadTo( mFilenameSubHit, (uint8*) &graphicsSub0[0] );
 	tool_EndianSwap( (uint8*)&graphicsSub0[0], Size );
 	
-	Size = g_Resource.fileLoadTo( JunBaseBht, (uint8*) &graphicsBaseBht[0] );
+	Size = g_Resource.fileLoadTo( mFilenameBaseBht, (uint8*) &graphicsBaseBht[0] );
 	tool_EndianSwap( (uint8*)&graphicsBaseBht[0], Size );
 
-	Size = g_Resource.fileLoadTo( JunSubBht, (uint8*) &graphicsSub0Bht[0] );
+	Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &graphicsSub0Bht[0] );
 	tool_EndianSwap( (uint8*)&graphicsSub0Bht[0], Size );
 	
-	switch (mVersion->mPlatform) {
-		case Platform::Amiga:
-			((cGraphics_Amiga*)mGraphics)->DecodeIFF( mDataHillBits );
-			((cGraphics_Amiga*)mGraphics)->DecodeIFF( mDataArmy );
-
-			Sprite_SetDataPtrToBase( off_8BFB8 );
-			break;
-
-		case Platform::PC:
-			Sprite_SetDataPtrToBase( off_32C0C );
-			break;
-	}
-
+	mGraphics->map_Load_Resources();
 }
 
 void cFodder::sub_11E60() {

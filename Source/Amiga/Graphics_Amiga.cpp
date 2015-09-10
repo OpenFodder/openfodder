@@ -44,9 +44,8 @@ void cGraphics_Amiga::PaletteSet() {
 	mImage->paletteLoad_Amiga( mPalette );
 }
 
-bool cGraphics_Amiga::DecodeIFF( uint8* pData ) {
-	uint8* pDataDest = pData;
-	
+bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest ) {
+
 	if (readBEDWord( pData ) != 'FORM')
 		return false;
 	pData += 4;
@@ -90,6 +89,8 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData ) {
 			int16 Height = BMHD.mHeight - 1;
 
 			for (int16 Y = Height; Y >= 0; --Y) {
+				uint8* DataDest = pDataDest;
+
 				for (int8 Plane = 0; Plane < BMHD.mPlanes; ++Plane) {
 
 					for (int16 X = Width; X > 0;) {
@@ -100,34 +101,42 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData ) {
 							if(d0 == -128)
 								continue;
 							
-							d1 = -d0;
+							int8 d1 = -d0;
 							
 							--FileSize;
 							d0 = *pData++;
 							
 							do {
-								*pDataDest++ = d0;
+								*DataDest++ = d0;
 								--X;
-							} while( d1-- >= 0 );
+							} while( d1-- > 0 );
 							
 							continue;
 							
 						} else {
 							
 							do {
-								*pDataDest++ = *pData++;
+								*DataDest++ = *pData++;
 								--X;
-							} while( d0-- >= 0 );
+								--FileSize;
+							} while( d0-- > 0 );
 							
 						}
 					}
 					
-					pData -= Width;
-				}
-			}
-		}
-			
+					// Move the destination back to start of row
+					DataDest -= Width;
 
+					// Move it to the next palette
+					DataDest += Width * BMHD.mHeight;
+				}
+
+				// Next Row
+				pDataDest += Width;
+			}
+
+			break;
+		}
 
 		case 'CMAP':
 		default:
@@ -217,4 +226,21 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 	}
 	
 	mImage->Save();
+}
+
+void cGraphics_Amiga::map_Load_Resources() {
+	g_Fodder.mFilenameCopt = g_Fodder.sub_12AA1( g_Fodder.mFilenameCopt, "lbm" );
+	g_Fodder.mFilenameArmy = g_Fodder.sub_12AA1( g_Fodder.mFilenameArmy, "lbm" );
+
+	size_t Size = 0;
+	uint8* Copt = g_Resource.fileGet( g_Fodder.mFilenameCopt, Size );
+	uint8* Army = g_Resource.fileGet( g_Fodder.mFilenameArmy, Size );
+
+	DecodeIFF( Copt, g_Fodder.mDataHillBits );
+	DecodeIFF( Army, g_Fodder.mDataArmy );
+
+	delete[] Copt;
+	delete[] Army;
+
+	g_Fodder.Sprite_SetDataPtrToBase( off_8BFB8 );
 }

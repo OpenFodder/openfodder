@@ -157,6 +157,15 @@ class cFodder : public cSingleton < cFodder > {
 
 	const sSpriteSheet**	mSpriteDataPtr;
 
+	std::string		mFilenameCopt;
+	std::string		mFilenameBaseSwp;
+	std::string		mFilenameBaseHit;
+	std::string		mFilenameBaseBht;
+	std::string		mFilenameArmy;
+	std::string		mFilenameSubSwp;
+	std::string		mFilenameSubHit;
+	std::string		mFilenameSubBht;
+
 	cSurface*		mSurfaceMapOverview;
 	cSurface*		mImage;
 
@@ -723,7 +732,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
-protected:
+public:
 	void			Music_Play( const char* pFilename );
 	void			Music_Stop();
 
@@ -1217,14 +1226,11 @@ protected:
 	void			Load_PlayerBin();
 	
 	void			Load_Sprite_Font();
-	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
 
 	void			videoSleep();
 
 	void			sleepLoop( int64 pMilliseconds );
 	int16			ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );
-
-	void			paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID );
 
 	void			memory_XMS_Detect();
 	void			mouse_Setup();
@@ -1239,6 +1245,9 @@ public:
 
 					cFodder( bool pSkipIntro );
 					~cFodder();
+
+	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
+	void			paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID );
 
 	bool			EventAdd( cEvent pEvent );
 	void			MixerChannelFinished( int32 pChannel );
