@@ -31,10 +31,10 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	
 	switch (pSegment) {
 	case 0:
-		return g_Fodder.mDataHillBits;
+		return g_Fodder.mDataArmy;
 		
 	case 1:
-		return g_Fodder.mDataArmy;
+		return g_Fodder.mDataHillBits;
 
 	}
 }
@@ -65,7 +65,7 @@ void cGraphics_Amiga::PaletteSet() {
 	mImage->paletteLoad_Amiga( mPalette );
 }
 
-bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest ) {
+bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD ) {
 
 	if (readBEDWord( pData ) != 'FORM')
 		return false;
@@ -81,7 +81,6 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest ) {
 
 	uint32 Header = 0;
 	uint32 Size = 0;
-	sILBM_BMHD BMHD;
 
 	while (FileSize > 0) {
 		Header = readBEDWord( pData );
@@ -91,28 +90,28 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest ) {
 
 		switch (Header) {
 		case 'BMHD':
-			BMHD.mWidth = readBEWord( pData ); pData += 2;
-			BMHD.mHeight = readBEWord( pData ); pData += 2;
+			pBMHD->mWidth = readBEWord( pData ); pData += 2;
+			pBMHD->mHeight = readBEWord( pData ); pData += 2;
 			pData += 2; pData += 2;	// X, Y
-			BMHD.mPlanes = *pData++;
-			BMHD.mMask = *pData++;
-			BMHD.mCompression = *pData++;
+			pBMHD->mPlanes = *pData++;
+			pBMHD->mMask = *pData++;
+			pBMHD->mCompression = *pData++;
 			pData += 2; ++pData; ++pData; ++pData;
 			pData += 2; pData += 2;
 			FileSize -= Size;
 			break;
 		
 		case 'BODY': {
-			int16 Width = BMHD.mWidth + 0x0F;
+			int16 Width = pBMHD->mWidth + 0x0F;
 			Width >>= 4;
 			Width <<= 1;
 
-			int16 Height = BMHD.mHeight - 1;
+			int16 Height = pBMHD->mHeight - 1;
 
 			for (int16 Y = Height; Y >= 0; --Y) {
 				uint8* DataDest = pDataDest;
 
-				for (int8 Plane = 0; Plane < BMHD.mPlanes; ++Plane) {
+				for (int8 Plane = 0; Plane < pBMHD->mPlanes; ++Plane) {
 
 					for (int16 X = Width; X > 0;) {
 						--FileSize;
@@ -148,8 +147,8 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest ) {
 					// Move the destination back to start of row
 					DataDest -= Width;
 
-					// Move it to the next palette
-					DataDest += Width * BMHD.mHeight;
+					// Move it to the next plane
+					DataDest += (Width * pBMHD->mHeight);
 				}
 
 				// Next Row
@@ -257,8 +256,8 @@ void cGraphics_Amiga::map_Load_Resources() {
 	uint8* Copt = g_Resource.fileGet( g_Fodder.mFilenameCopt, Size );
 	uint8* Army = g_Resource.fileGet( g_Fodder.mFilenameArmy, Size );
 
-	DecodeIFF( Copt, g_Fodder.mDataHillBits );
-	DecodeIFF( Army, g_Fodder.mDataArmy );
+	DecodeIFF( Copt, g_Fodder.mDataHillBits, &mBMHDCopt );
+	DecodeIFF( Army, g_Fodder.mDataArmy, &mBMHDArmy );
 
 	delete[] Copt;
 	delete[] Army;
@@ -325,6 +324,10 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 			TargetTmp += Fodder->word_42076;
 		}
 
-		si += 0x2828;
+		int16 Width = mBMHDArmy.mWidth + 0x0F;
+			Width >>= 4;
+			Width <<= 1;
+
+		si += mBMHDArmy.mHeight * Width;
 	}
 }

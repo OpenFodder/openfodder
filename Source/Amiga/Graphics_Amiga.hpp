@@ -39,6 +39,8 @@ class cGraphics_Amiga : public cGraphics {
 	uint8*				mBlkData;
 	uint8*				mPalette;
 	size_t				mPaletteSize;
+	sILBM_BMHD			mBMHDArmy;
+	sILBM_BMHD			mBMHDCopt;
 
 	protected:
 
@@ -46,7 +48,7 @@ class cGraphics_Amiga : public cGraphics {
 	public:
 						cGraphics_Amiga();
 
-	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest );
+	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD );
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		graphicsBlkPtrsPrepare();
