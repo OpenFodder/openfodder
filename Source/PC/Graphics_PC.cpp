@@ -22,6 +22,45 @@
 
 #include "stdafx.hpp"
 
+uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
+	
+	switch ( pSegment ) {
+		case 0x3B68:
+			return g_Fodder.mDataBaseBlk;
+			break;
+
+		case 0x4307:
+			return g_Fodder.mDataPStuff;
+			break;
+
+		case 0x4309:
+			return g_Fodder.mDataHillBits;
+			break;
+
+		case 0x430B:
+			return g_Fodder.mDataArmy;
+			break;
+
+		case 0x6717:
+			return g_Fodder.word_3E1B7;
+			break;
+
+		default:
+			std::cout << "Invalid Sprite\n";
+			break;
+	}
+	return 0;
+}
+
+void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
+	
+	switch (pSpriteType) {
+		case eSPRITE_IN_GAME:
+			g_Fodder.Sprite_SetDataPtrToBase( off_32C0C );
+			return;
+	}
+}
+
 void cGraphics_PC::graphicsBlkPtrsPrepare() {
 	uint16 bx = 0, dx = 0;
 
@@ -113,5 +152,128 @@ void cGraphics_PC::map_Load_Resources() {
 	g_Resource.fileLoadTo( g_Fodder.mFilenameArmy, g_Fodder.mDataArmy );
 	g_Fodder.paletteLoad( g_Fodder.mDataArmy + 0xD200, 0x10, 0xA0 );
 
-	g_Fodder.Sprite_SetDataPtrToBase( off_32C0C );
+	SetSpritePtr( eSPRITE_IN_GAME );
+}
+
+
+void cGraphics_PC::video_Draw_Sprite() {
+	cFodder* Fodder = cFodder::GetSingletonPtr();
+
+	uint8*	di = mImage->GetSurfaceBuffer();
+	uint8* 	si = Fodder->word_42062;
+	int16	ax, cx;
+	
+	di += 352 * Fodder->mDrawSpritePositionY;
+
+	ax = Fodder->mDrawSpritePositionX;
+	ax += Fodder->word_40054;
+	//ax >>= 2;
+	
+	di += ax;
+	Fodder->word_42066 = di;
+	cx = Fodder->mDrawSpritePositionX;
+	cx += Fodder->word_40054;
+	cx &= 3;
+
+	uint8 Plane = 0;
+
+	Fodder->byte_42071 = 1 << cx;
+	int8 bl = Fodder->byte_42070;
+	
+	Fodder->word_4206C >>= 1;
+	Fodder->word_42074 = 160 - Fodder->word_4206C;
+	Fodder->word_4206C >>= 1;
+	
+	Fodder->word_42076 = 352 - (Fodder->word_4206C*4);
+
+	di += Plane;
+	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+		
+		for( cx = 0; cx < Fodder->word_4206C; ++cx ) {
+			int8 al = (*si) >> 4;
+			if(al)
+				*di = al | bl;
+			
+			si += 2;
+			di+=4;
+		}
+		
+		si += Fodder->word_42074;
+		di += Fodder->word_42076;
+	}
+
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++Fodder->word_42066;
+	}
+
+	si = Fodder->word_42062;
+	di = Fodder->word_42066;
+	di += Plane;
+	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+		
+		for( cx = Fodder->word_4206C; cx > 0; --cx ) {
+			int8 al = (*si) & 0x0F;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			di+=4;
+		}
+		
+		si += Fodder->word_42074;
+		di += Fodder->word_42076;
+	}
+
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++Fodder->word_42066;
+	}
+	
+	++Fodder->word_42062;
+	si = Fodder->word_42062;
+	di = Fodder->word_42066;
+	di += Plane;
+	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+		
+		for( cx = Fodder->word_4206C; cx > 0; --cx ) {
+			
+			int8 al = (*si) >> 4;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			di+=4;
+			
+		}
+		si += Fodder->word_42074;
+		di += Fodder->word_42076;
+	}
+
+	++Plane;
+	if (Plane == 4) {
+		Plane = 0;
+		++Fodder->word_42066;
+	}
+
+	si = Fodder->word_42062;
+	di = Fodder->word_42066;
+	di += Plane;
+	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+		
+		for( cx = Fodder->word_4206C; cx > 0; --cx ) {
+			
+			int8 al = (*si) & 0x0F;
+			if( al ) 
+				*di = al | bl;
+			
+			si += 2;
+			di+=4;
+		}
+		
+		si += Fodder->word_42074;
+		di += Fodder->word_42076;
+	}
 }

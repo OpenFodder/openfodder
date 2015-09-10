@@ -20,6 +20,10 @@
  *
  */
 
+enum eSpriteType {
+	eSPRITE_IN_GAME = 0,
+};
+
 class cGraphics : public cSingleton<cGraphics> {
 	
 protected:
@@ -28,8 +32,12 @@ protected:
 public:
 						cGraphics();
 
+	virtual uint8*		GetSpriteData( uint16 pSegment ) = 0;
 	virtual void		graphicsBlkPtrsPrepare() = 0;
 	virtual void		map_Tiles_Draw() = 0;
 	virtual void		map_Load_Resources() = 0;
 	virtual void		PaletteSet() = 0;
+
+	virtual void		video_Draw_Sprite() = 0;
+	virtual void		SetSpritePtr( eSpriteType pSpriteType ) = 0;
 };

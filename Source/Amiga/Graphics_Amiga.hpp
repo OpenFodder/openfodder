@@ -48,8 +48,12 @@ class cGraphics_Amiga : public cGraphics {
 
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest );
 
+	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		map_Tiles_Draw();
 	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();
+	virtual void		video_Draw_Sprite();
+
+	virtual void		SetSpritePtr( eSpriteType pSpriteType );
 };

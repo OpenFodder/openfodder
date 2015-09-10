@@ -27,7 +27,7 @@ enum Platform {
 
 struct sVersion {
 	const char* mName;
-	const char* mKey;
+	std::string mKey;
 	Platform	mPlatform;
 	const char* mDataPath;
 };

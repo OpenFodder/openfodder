@@ -736,7 +736,6 @@ public:
 	void			Music_Play( const char* pFilename );
 	void			Music_Stop();
 
-	uint8*			GetSpriteData( uint16 pSegment );
 	int16			Mission_Loop( );
 
 	void			Mouse_Handle( );
@@ -817,7 +816,6 @@ public:
 	void			sub_13C8A(  int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
 	void			sub_13CF0(  sSprite_0* pDi, int16 pData0, int16 pData4 );
 
-	void			video_Draw_Sprite_( );
 	void			video_Draw_Linear_To_Planar(  );
 	bool			Sprite_OnScreen_Check();
 	void			Sprite_Draw( );
@@ -830,7 +828,7 @@ public:
 	void			Music_Unk( int16 pTrack );
 
 	// 14EAC
-	void			Mission_Brief();
+	void			Briefing_Intro();
 
 	void			Briefing_Intro_Jungle();
 
@@ -903,7 +901,7 @@ public:
 	int16			loc_2D9D5( sSprite_0* pSprite );
 
 	void			Briefing_Show( );
-	void			sub_18908();
+	void			Briefing_Prepare();
 	void			Briefing_Wait();
 	void			Briefing_Draw_With( );
 	void			Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 );
