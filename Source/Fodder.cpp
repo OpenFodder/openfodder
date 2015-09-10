@@ -2934,7 +2934,7 @@ void cFodder::Prepare( const char* pKey ) {
 
 	for (uint16 x = 0; x < 3; ++x) {
 
-		if (_stricmp( Versions[x].mKey, pKey ) == 0) {
+		if ( Versions[x].mKey == pKey) {
 			mVersion = &Versions[x];
 		}
 	}
@@ -3128,14 +3128,14 @@ void cFodder::Mouse_DrawCursor( ) {
 
 	word_42062 = mDataPStuff + (ax +bx);
 	byte_42070 = 0xF0;
-	video_Draw_Sprite_();
+	mGraphics->video_Draw_Sprite();
 }
 
 void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
 
 	uint16 bx = mSpriteDataPtr[pParam00][pParam04].field_0;
 
-	word_42062 = GetSpriteData( mSpriteDataPtr[pParam00][pParam04].field_2 ) + bx;
+	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pParam00][pParam04].field_2 ) + bx;
 
 	mDrawSpritePositionX = (pParam08 + 0x10);
 	mDrawSpritePositionY = pParam0C + 0x10;
@@ -3147,14 +3147,14 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 	byte_42070 = (uint8) mSpriteDataPtr[pParam00][pParam04].field_C;
 	
 	if (Sprite_OnScreen_Check() )
-		video_Draw_Sprite_();
+		mGraphics->video_Draw_Sprite();
 
 }
 
 void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) {
 	uint16 bx = mSpriteDataPtr[pData0][pData4].field_0;
 
-	word_42062 = GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + bx;
+	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + bx;
 	
 	mDrawSpritePositionX = (pPosX + 0x10);
 	mDrawSpritePositionY = pPosY + 0x10;
@@ -3169,7 +3169,7 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 
 void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
 
-	word_42062 = GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
+	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
 	
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount - pDi->field_52;
@@ -3183,129 +3183,9 @@ void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
 	++word_42072;
 	if (Sprite_OnScreen_Check()) {
 		pDi->field_5C = 1;
-		video_Draw_Sprite_();
+		mGraphics->video_Draw_Sprite();
 	} else 
 		pDi->field_5C = 0;
-}
-
-void cFodder::video_Draw_Sprite_( ) {
-	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = word_42062;
-	int16	ax, cx;
-	
-	di += 352 * mDrawSpritePositionY;
-
-	ax = mDrawSpritePositionX;
-	ax += word_40054;
-	//ax >>= 2;
-	
-	di += ax;
-	word_42066 = di;
-	cx = mDrawSpritePositionX;
-	cx += word_40054;
-	cx &= 3;
-
-	uint8 Plane = 0;
-
-	byte_42071 = 1 << cx;
-	int8 bl = byte_42070;
-	
-	word_4206C >>= 1;
-	word_42074 = 160 - word_4206C;
-	word_4206C >>= 1;
-	
-	word_42076 = 352 - (word_4206C*4);
-
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = 0; cx < word_4206C; ++cx ) {
-			int8 al = (*si) >> 4;
-			if(al)
-				*di = al | bl;
-			
-			si += 2;
-			di+=4;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++word_42066;
-	}
-
-	si = word_42062;
-	di = word_42066;
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = word_4206C; cx > 0; --cx ) {
-			int8 al = (*si) & 0x0F;
-			if( al )
-				*di = al | bl;
-			
-			si += 2;
-			di+=4;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++word_42066;
-	}
-	
-	++word_42062;
-	si = word_42062;
-	di = word_42066;
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = word_4206C; cx > 0; --cx ) {
-			
-			int8 al = (*si) >> 4;
-			if( al )
-				*di = al | bl;
-			
-			si += 2;
-			di+=4;
-			
-		}
-		si += word_42074;
-		di += word_42076;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++word_42066;
-	}
-
-	si = word_42062;
-	di = word_42066;
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = word_4206C; cx > 0; --cx ) {
-			
-			int8 al = (*si) & 0x0F;
-			if( al ) 
-				*di = al | bl;
-			
-			si += 2;
-			di+=4;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
 }
 
 void cFodder::video_Draw_Linear_To_Planar( ) {
@@ -3832,7 +3712,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		word_4206C = 0x40;
 		word_4206E = 0x18;
 		if (Sprite_OnScreen_Check())
-			video_Draw_Sprite_();
+			mGraphics->video_Draw_Sprite();
 
 		word_42859 = 0x2D;
 		word_4285B = 0x33EC * 4;
@@ -4065,7 +3945,7 @@ void cFodder::sub_15CE8(  uint8* pDs, int16 pCx ) {
 	//todo
 }
 
-void cFodder::Mission_Brief() {
+void cFodder::Briefing_Intro() {
 
 	Briefing_Load_Resources();
 	Sprite_SetDataPtrToBase( off_42918 );
@@ -5132,36 +5012,6 @@ void cFodder::Recruit_Draw() {
 	g_Window.RenderAt( mImage, cPosition() );
 	g_Window.FrameEnd();
 	mImage->Restore();
-}
-
-uint8* cFodder::GetSpriteData( uint16 pSegment ) {
-	
-	switch ( pSegment ) {
-		case 0x3B68:
-			return mDataBaseBlk;
-			break;
-
-		case 0x4307:
-			return mDataPStuff;
-			break;
-
-		case 0x4309:
-			return mDataHillBits;
-			break;
-
-		case 0x430B:
-			return mDataArmy;
-			break;
-
-		case 0x6717:
-			return word_3E1B7;
-			break;
-
-		default:
-			std::cout << "Invalid Sprite\n";
-			break;
-	}
-	return 0;
 }
 
 bool cFodder::sub_18C7A() {
@@ -7925,7 +7775,7 @@ uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
 	*pData0 = Sheet->mColCount;
 	*pData4 = Sheet->mRowCount;
 
-	return GetSpriteData( Sheet->field_2 ) + Sheet->field_0;
+	return mGraphics->GetSpriteData( Sheet->field_2 ) + Sheet->field_0;
 }
  
 void cFodder::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
@@ -9584,7 +9434,7 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28,
 
 int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
 	
-	word_42062 = GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
+	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
 
 	mDrawSpritePositionX = pData8 + 0x10;
 	mDrawSpritePositionY = pDataC + 0x10;
@@ -9903,7 +9753,7 @@ void cFodder::Briefing_Show( ) {
 	}
 }
 
-void cFodder::sub_18908() {
+void cFodder::Briefing_Prepare() {
 	mImage->clearBuffer();
 	mImage->paletteSet( mPalette );
 
@@ -16875,8 +16725,10 @@ loc_103BF:;
 			//video_?_1();
 			word_390A6 = 0;
 
-			if (!mIntroDone)
-				intro();
+			if (mVersion->mKey != "AFX") {
+				if (!mIntroDone)
+					intro();
+			}
 
 			if (dword_3901A != 0x12345678)
 				dword_3901A = 0x12345678;
@@ -16896,7 +16748,12 @@ loc_103BF:;
 				sub_115F7();
 
 				word_3ABA7 = 0;
-				Recruit_Show();
+				if (mVersion->mKey != "AFX")
+					Recruit_Show();
+				else {
+					//TODO: Show AFX Menu
+				}
+
 				sub_2E04C();
 				
 				if (!word_3B2FD) {
@@ -16911,12 +16768,14 @@ loc_103BF:;
 					word_3ABE9 = 0;
 					word_3ABEB = 0;
 
-					Mission_Brief();
+					if (mVersion->mKey != "AFX")
+						Briefing_Intro();
 				}
 			}
 
 			//loc_10513
-			sub_18908();
+			if (mVersion->mKey != "AFX")
+				Briefing_Prepare();
 			
 			map_Load_Resources();
 			map_Load_Spt();
@@ -16930,8 +16789,10 @@ loc_103BF:;
 			sub_115F7();
 			g_Graphics.graphicsBlkPtrsPrepare();
 
-			Map_Overview_Prepare();
-			Briefing_Wait();
+			if (mVersion->mKey != "AFX") {
+				Map_Overview_Prepare();
+				Briefing_Wait();
+			}
 			if (word_3B4F5 == -1) {
 
 				//TODO
@@ -16947,8 +16808,8 @@ loc_103BF:;
 			}
 
 			sub_12083();
-			Sprite_SetDataPtrToBase( off_32C0C );
-			
+			mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+	
 			map_Tiles_Draw();
 			sub_12083();
 			map_SetTileType();

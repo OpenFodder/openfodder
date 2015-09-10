@@ -27,8 +27,12 @@ class cGraphics_PC : public cGraphics {
 
 	public:
 
+	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		map_Tiles_Draw();
 	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();
+	virtual void		SetSpritePtr( eSpriteType pSpriteType );
+
+	virtual void		video_Draw_Sprite();
 };

@@ -27,6 +27,27 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mPalette = 0;
 }
 
+uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
+	
+	switch (pSegment) {
+	case 0:
+		return g_Fodder.mDataHillBits;
+		
+	case 1:
+		return g_Fodder.mDataArmy;
+
+	}
+}
+
+void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
+
+	switch (pSpriteType) {
+		case eSPRITE_IN_GAME:
+			g_Fodder.Sprite_SetDataPtrToBase( off_8BFB8 );
+			return;
+	}
+}
+
 void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 
 	delete mBlkData;
@@ -242,5 +263,68 @@ void cGraphics_Amiga::map_Load_Resources() {
 	delete[] Copt;
 	delete[] Army;
 
-	g_Fodder.Sprite_SetDataPtrToBase( off_8BFB8 );
+	SetSpritePtr( eSPRITE_IN_GAME );
+}
+
+void cGraphics_Amiga::video_Draw_Sprite() {
+	cFodder* Fodder = cFodder::GetSingletonPtr();
+
+	uint8*	di = mImage->GetSurfaceBuffer();
+	uint8* 	si = Fodder->word_42062;
+	int16	ax, cx;
+	
+	di += mImage->GetWidth() * Fodder->mDrawSpritePositionY;
+
+	ax = Fodder->mDrawSpritePositionX;
+	ax += Fodder->word_40054;
+	//ax >>= 2;
+	
+	di += ax;
+	Fodder->word_42066 = di;
+	cx = Fodder->mDrawSpritePositionX;
+	cx += Fodder->word_40054;
+	cx &= 3;
+
+	Fodder->byte_42071 = 1 << cx;
+	int8 bl = Fodder->byte_42070;
+	
+	Fodder->word_4206C >>= 1;
+	Fodder->word_42074 = 20 - Fodder->word_4206C;
+
+	Fodder->word_42076 = 352 - (Fodder->word_4206C*16);
+
+
+	// Each bitfield
+	for (uint16 BitField = 0; BitField < 4; ++BitField) {
+		uint8* SourceTmp = si;
+		uint8* TargetTmp = di;
+
+		// Height
+		for (int16 dx = Fodder->word_4206E; dx > 0; --dx) {
+
+			// Width
+			for (cx = 0; cx < Fodder->word_4206C; ++cx) {
+
+				uint16 RowData = readBEWord( SourceTmp );
+				SourceTmp += 2;
+
+				// Each Pixel
+				for (uint16 x = 0; x < 16; ++x) {
+					uint8 Bit = (RowData & 0x8000) ? 1 : 0;
+					RowData <<= 1;
+
+					if (Bit)
+						*(TargetTmp + x) |= (Bit << BitField);
+
+				}
+
+				TargetTmp += 16;
+			}
+
+			SourceTmp += Fodder->word_42074;
+			TargetTmp += Fodder->word_42076;
+		}
+
+		si += 0x2828;
+	}
 }
