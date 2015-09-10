@@ -45,7 +45,8 @@ void cGraphics_Amiga::PaletteSet() {
 }
 
 bool cGraphics_Amiga::DecodeIFF( uint8* pData ) {
-
+	uint8* pDataDest = pData;
+	
 	if (readBEDWord( pData ) != 'FORM')
 		return false;
 	pData += 4;
@@ -91,10 +92,37 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData ) {
 			for (int16 Y = Height; Y >= 0; --Y) {
 				for (int8 Plane = 0; Plane < BMHD.mPlanes; ++Plane) {
 
-					for (int16 X = Width; X > 0; --X) {
-
+					for (int16 X = Width; X > 0;) {
+						--FileSize;
 						int8 d0 = *pData++;
+						
+						if(d0 < 0) {
+							if(d0 == -128)
+								continue;
+							
+							d1 = -d0;
+							
+							--FileSize;
+							d0 = *pData++;
+							
+							do {
+								*pDataDest++ = d0;
+								--X;
+							} while( d1-- >= 0 );
+							
+							continue;
+							
+						} else {
+							
+							do {
+								*pDataDest++ = *pData++;
+								--X;
+							} while( d0-- >= 0 );
+							
+						}
 					}
+					
+					pData -= Width;
 				}
 			}
 		}
