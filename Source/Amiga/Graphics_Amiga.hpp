@@ -19,6 +19,9 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
+
+const extern sSpriteSheet* off_8BFB8[];
+
 struct sILBM_BMHD {
 	uint16	mWidth, mHeight;
 	uint16	mX, mY;
@@ -43,9 +46,10 @@ class cGraphics_Amiga : public cGraphics {
 	public:
 						cGraphics_Amiga();
 
-	virtual bool		DecodeIFF( uint8* pData );
+	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest );
 
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		map_Tiles_Draw();
+	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();
 };

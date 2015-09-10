@@ -30,5 +30,6 @@ public:
 
 	virtual void		graphicsBlkPtrsPrepare() = 0;
 	virtual void		map_Tiles_Draw() = 0;
+	virtual void		map_Load_Resources() = 0;
 	virtual void		PaletteSet() = 0;
 };

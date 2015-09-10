@@ -100,3 +100,18 @@ void cGraphics_PC::map_Tiles_Draw() {
 
 	mImage->Save();
 }
+
+
+void cGraphics_PC::map_Load_Resources() {
+	g_Fodder.mFilenameCopt = g_Fodder.sub_12AA1( g_Fodder.mFilenameCopt, "dat" );
+	g_Fodder.mFilenameArmy = g_Fodder.sub_12AA1( g_Fodder.mFilenameArmy, "dat" );
+
+	g_Resource.fileLoadTo( g_Fodder.mFilenameCopt, g_Fodder.mDataHillBits );
+	g_Fodder.paletteLoad( g_Fodder.mDataHillBits + 0xD2A0, 0x40, 0xB0 );
+	g_Fodder.paletteLoad( g_Fodder.mDataHillBits + 0xD360, 0x10, 0x90 );
+
+	g_Resource.fileLoadTo( g_Fodder.mFilenameArmy, g_Fodder.mDataArmy );
+	g_Fodder.paletteLoad( g_Fodder.mDataArmy + 0xD200, 0x10, 0xA0 );
+
+	g_Fodder.Sprite_SetDataPtrToBase( off_32C0C );
+}

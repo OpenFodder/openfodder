@@ -29,12 +29,11 @@ struct sVersion {
 	const char* mName;
 	const char* mKey;
 	Platform	mPlatform;
-	const char* mImageExtension;
 	const char* mDataPath;
 };
 
 const sVersion Versions[3] = {
-	{ "",								"Dos",	 Platform::PC,		"dat", "" },
-	{ "",								"Amiga", Platform::Amiga,	"lbm", "Amiga" },
-	{ "Amiga Format Christmas Special",	"AFX",	 Platform::Amiga,	"lbm", "AmigaFormat_XMAS" }
+	{ "",								"Dos",	 Platform::PC,		"" },
+	{ "",								"Amiga", Platform::Amiga,	"Amiga" },
+	{ "Amiga Format Christmas Special",	"AFX",	 Platform::Amiga,	"AmigaFormat_XMAS" }
 };
