@@ -36,17 +36,41 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	
 	switch (pSegment) {
 	case 0:
+		mFodder->byte_42070 = 0;
 		mHeight = mBMHDArmy.mHeight;
-		return g_Fodder.mDataArmy;
+		return mFodder->mDataArmy;
 		
 	case 1:
+		mFodder->byte_42070 = 0;
 		mHeight = mBMHDCopt.mHeight;
-		return g_Fodder.mDataHillBits;
+		return mFodder->mDataHillBits;
 
 	case 2:
+		mFodder->byte_42070 = 0xF0;
 		mHeight = mBMHDPStuff.mHeight;
-		return g_Fodder.mDataPStuff;
+		return mFodder->mDataPStuff;
 	}
+}
+
+void cGraphics_Amiga::Mouse_DrawCursor() {
+	const struct_2* di = &stru_44B50[mFodder->mMouseSpriteCurrent];
+	mFodder->mouseData1->anonymous_5 = di->field_4;
+	mFodder->mouseData1->anonymous_6 = di->field_6;
+
+	mFodder->word_4206C = di->field_4 >> 3;	// d4
+	mFodder->word_4206E = di->field_6;	// d5
+
+	int16 ax = di->field_2 & 0xFF;	// d1
+	int16 bx = di->field_0 >> 3 & -2;	// d0
+
+	ax <<= 3;
+	int16 d1 = ax;
+
+	ax <<= 2;
+	ax += d1;
+
+	mFodder->word_42062 = GetSpriteData(2) + (ax +bx);
+	video_Draw_Sprite();
 }
 
 void cGraphics_Amiga::LoadpStuff() {
@@ -54,7 +78,7 @@ void cGraphics_Amiga::LoadpStuff() {
 	size_t Size = 0;
 	uint8* pstuff = g_Resource.fileGet( "pstuff.lbm", Size );
 
-	DecodeIFF( pstuff, g_Fodder.mDataPStuff, &mBMHDPStuff, mPalletePStuff );
+	DecodeIFF( pstuff, mFodder->mDataPStuff, &mBMHDPStuff, mPalletePStuff );
 
 	delete[] pstuff;
 }
@@ -63,7 +87,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 
 	switch (pSpriteType) {
 		case eSPRITE_IN_GAME:
-			g_Fodder.Sprite_SetDataPtrToBase( off_8BFB8 );
+			mFodder->Sprite_SetDataPtrToBase( off_8BFB8 );
 			return;
 	}
 }
@@ -73,18 +97,18 @@ void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 	delete mBlkData;
 	delete mPalette;
 
-	mBlkData = new uint8[g_Fodder.mDataBaseBlkSize + g_Fodder.mDataSubBlkSize];
+	mBlkData = new uint8[mFodder->mDataBaseBlkSize + mFodder->mDataSubBlkSize];
 	mPalette = g_Resource.fileGet( "afxbase.pal", mPaletteSize );
 
-	memcpy( mBlkData, g_Fodder.mDataBaseBlk, g_Fodder.mDataBaseBlkSize );
-	memcpy( mBlkData + g_Fodder.mDataBaseBlkSize, g_Fodder.mDataSubBlk, g_Fodder.mDataSubBlkSize );
+	memcpy( mBlkData, mFodder->mDataBaseBlk, mFodder->mDataBaseBlkSize );
+	memcpy( mBlkData + mFodder->mDataBaseBlkSize, mFodder->mDataSubBlk, mFodder->mDataSubBlkSize );
 }
 
 void cGraphics_Amiga::PaletteSet() {
 
 	mImage->paletteLoad_Amiga( mPalette, 0 );
-	mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x0 );
-	//mImage->paletteLoad_Amiga( mPaletteCopt, 0x0 );
+	//mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x80 );
+	mImage->paletteLoad_Amiga( (uint8*) mPalletePStuff, 0xF0 );
 }
 
 
@@ -223,7 +247,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 	mImage->clearBuffer();
 	uint8* Target = mImage->GetSurfaceBuffer();
 
-	uint8* CurrentMapPtr = &g_Fodder.mMap[g_Fodder.mMapTilePtr];
+	uint8* CurrentMapPtr = &mFodder->mMap[mFodder->mMapTilePtr];
 
 	// Y
 	for (uint16 cx = 0; cx < 0x0F; ++cx) {
@@ -234,7 +258,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 		uint16 StartY = 0;
 
 		if (cx == 0)
-			StartY = g_Fodder.word_3B610;
+			StartY = mFodder->word_3B610;
 		else
 			StartY = 0;
 
@@ -254,7 +278,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 			TilePtr += StartY * 2;
 			
 			if (cx2 == 0)
-				StartX = g_Fodder.word_3B60E;
+				StartX = mFodder->word_3B60E;
 			else
 				StartX = 0;
 
@@ -291,22 +315,22 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 		}
 
 		Target += mImage->GetWidth() * (16-StartY);
-		CurrentMapPtr += g_Fodder.mMapWidth << 1;
+		CurrentMapPtr += mFodder->mMapWidth << 1;
 	}
 	
 	mImage->Save();
 }
 
 void cGraphics_Amiga::map_Load_Resources() {
-	g_Fodder.mFilenameCopt = g_Fodder.sub_12AA1( g_Fodder.mFilenameCopt, "lbm" );
-	g_Fodder.mFilenameArmy = g_Fodder.sub_12AA1( g_Fodder.mFilenameArmy, "lbm" );
+	mFodder->mFilenameCopt = mFodder->sub_12AA1( mFodder->mFilenameCopt, "lbm" );
+	mFodder->mFilenameArmy = mFodder->sub_12AA1( mFodder->mFilenameArmy, "lbm" );
 
 	size_t Size = 0;
-	uint8* Copt = g_Resource.fileGet( g_Fodder.mFilenameCopt, Size );
-	uint8* Army = g_Resource.fileGet( g_Fodder.mFilenameArmy, Size );
+	uint8* Copt = g_Resource.fileGet( mFodder->mFilenameCopt, Size );
+	uint8* Army = g_Resource.fileGet( mFodder->mFilenameArmy, Size );
 
-	DecodeIFF( Copt, g_Fodder.mDataHillBits, &mBMHDCopt, mPaletteCopt );
-	DecodeIFF( Army, g_Fodder.mDataArmy, &mBMHDArmy, mPaletteArmy );
+	DecodeIFF( Copt, mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
+	DecodeIFF( Army, mFodder->mDataArmy, &mBMHDArmy, mPaletteArmy );
 
 	delete[] Copt;
 	delete[] Army;
@@ -315,71 +339,68 @@ void cGraphics_Amiga::map_Load_Resources() {
 }
 
 void cGraphics_Amiga::video_Draw_Sprite() {
-	uint16 height = mHeight;
-
-	cFodder* Fodder = cFodder::GetSingletonPtr();
 
 	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = Fodder->word_42062;
+	uint8* 	si = mFodder->word_42062;
 	int16	ax, cx;
 	
-	di += mImage->GetWidth() * Fodder->mDrawSpritePositionY;
+	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
 
-	ax = Fodder->mDrawSpritePositionX;
-	ax += Fodder->word_40054;
+	ax = mFodder->mDrawSpritePositionX;
+	ax += mFodder->word_40054;
 	//ax >>= 2;
 	
 	di += ax;
-	Fodder->word_42066 = di;
-	cx = Fodder->mDrawSpritePositionX;
-	cx += Fodder->word_40054;
+	mFodder->word_42066 = di;
+	cx = mFodder->mDrawSpritePositionX;
+	cx += mFodder->word_40054;
 	cx &= 3;
 
-	Fodder->byte_42071 = 1 << cx;
-	int8 bl = Fodder->byte_42070;
+	mFodder->byte_42071 = 1 << cx;
+	int8 bl = mFodder->byte_42070;
 	
 	
-	Fodder->word_42074 = 40 - Fodder->word_4206C;
-	Fodder->word_4206C >>= 1;
-	Fodder->word_42076 = 352 - (Fodder->word_4206C*16);
+	mFodder->word_42074 = 40 - mFodder->word_4206C;
+	mFodder->word_4206C >>= 1;
+	mFodder->word_42076 = 352 - (mFodder->word_4206C*16);
 
 	// Height
-	for (int16 dx = Fodder->word_4206E; dx > 0; --dx) {
+	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
 
 		// Width
-		for (cx = 0; cx < Fodder->word_4206C; ++cx) {
+		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
 
 			// Each Pixel
 			for (uint16 x = 0; x < 16; ++x) {
 
-				int8 Pixel = GetPixel( x, height, si );
+				int8 Pixel = GetPixel( x, si );
 
 				if (Pixel)
-					*(di + x) = Pixel;
+					*(di + x) = mFodder->byte_42070 | Pixel;
 			}
 
 			di += 16;
 			si += 2;
 		}
 
-		si += Fodder->word_42074;
-		di += Fodder->word_42076;
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
 	}
 }
 
-uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint16 height, uint8* pSource ) {
+uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint8* pSource ) {
 	uint8 Result = 0;
 	uint16 Bits = readBEWord( pSource );
 
 	Result = (Bits << pixel) & 0x8000 ? 1 : 0;
 
-	Bits = readBEWord( pSource + (height * 40) );
+	Bits = readBEWord( pSource + (mHeight * 40) );
 	Result |= (Bits << pixel) & 0x8000 ? 2 : 0;
 
-	Bits = readBEWord( pSource + ((height * 40) * 2));
+	Bits = readBEWord( pSource + ((mHeight * 40) * 2));
 	Result |= (Bits << pixel) & 0x8000 ? 4 : 0;
 
-	Bits = readBEWord( pSource + ((height * 40) * 3));
+	Bits = readBEWord( pSource + ((mHeight * 40) * 3));
 	Result |= (Bits << pixel) & 0x8000 ? 8 : 0;
 
 	return Result;

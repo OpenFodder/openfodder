@@ -28,6 +28,8 @@ class cGraphics_PC : public cGraphics {
 	public:
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
+	virtual void		Mouse_DrawCursor();
+
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		LoadpStuff();
 

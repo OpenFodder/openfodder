@@ -138,6 +138,7 @@ union struct_8 {
 };
 
 extern struct sRecruit mRecruits[360];
+extern const struct_2 stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
 	public:

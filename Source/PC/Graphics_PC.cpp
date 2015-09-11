@@ -52,6 +52,24 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 	return 0;
 }
 
+void cGraphics_PC::Mouse_DrawCursor() {
+	
+	const struct_2* di = &stru_44B50[mFodder->mMouseSpriteCurrent];
+	mFodder->mouseData1->anonymous_5 = di->field_4;
+	mFodder->mouseData1->anonymous_6 = di->field_6;
+
+	mFodder->word_4206C = di->field_4;
+	mFodder->word_4206E = di->field_6;
+
+	int16 ax = di->field_2 * 160;
+	int16 bx = di->field_0 >> 1;
+
+	mFodder->word_42062 = mFodder->mDataPStuff + (ax +bx);
+	mFodder->byte_42070 = 0xF0;
+	
+	video_Draw_Sprite();
+}
+
 void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 	
 	switch (pSpriteType) {
