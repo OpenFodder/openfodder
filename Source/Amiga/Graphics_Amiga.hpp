@@ -55,8 +55,10 @@ class cGraphics_Amiga : public cGraphics {
 
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint16* pPalette );
 
-	virtual uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint16 height, uint8* pSource );
+	virtual uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint8* pSource );
 	virtual uint8*		GetSpriteData( uint16 pSegment );
+	virtual void		Mouse_DrawCursor();
+
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		LoadpStuff();
 	virtual void		map_Tiles_Draw();

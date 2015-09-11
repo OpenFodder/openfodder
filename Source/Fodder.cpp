@@ -3116,25 +3116,15 @@ void cFodder::Mouse_DrawCursor( ) {
 		mMouseSpriteNew = -1;
 	}
 
-	const struct_2* di = &stru_44B50[mMouseSpriteCurrent];
-	mouseData1->anonymous_5 = di->field_4;
-	mouseData1->anonymous_6 = di->field_6;
-
-	word_4206C = di->field_4;
-	word_4206E = di->field_6;
-
-	int16 ax = di->field_2 * 160;
-	int16 bx = di->field_0 >> 1;
-
-	word_42062 = mDataPStuff + (ax +bx);
-	byte_42070 = 0xF0;
-	mGraphics->video_Draw_Sprite();
+	mGraphics->Mouse_DrawCursor();
 }
 
 void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
 
 	uint16 bx = mSpriteDataPtr[pParam00][pParam04].field_0;
-
+	
+	byte_42070 = (uint8) mSpriteDataPtr[pParam00][pParam04].field_C;
+	
 	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pParam00][pParam04].field_2 ) + bx;
 
 	mDrawSpritePositionX = (pParam08 + 0x10);
@@ -3144,8 +3134,7 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 	if (word_3B307 > pParam00) 
 		word_3B307 = pParam00;
 	
-	byte_42070 = (uint8) mSpriteDataPtr[pParam00][pParam04].field_C;
-	
+
 	if (Sprite_OnScreen_Check() )
 		mGraphics->video_Draw_Sprite();
 
@@ -3153,14 +3142,13 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 
 void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) {
 	uint16 bx = mSpriteDataPtr[pData0][pData4].field_0;
-
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
 	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + bx;
 	
 	mDrawSpritePositionX = (pPosX + 0x10);
 	mDrawSpritePositionY = pPosY + 0x10;
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
 	word_42078 = 0x140;
 
 	if (Sprite_OnScreen_Check())
@@ -3168,7 +3156,9 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 }
 
 void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
-
+	
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
+	
 	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
 	
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
@@ -3178,8 +3168,6 @@ void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
 	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].field_F + pDi->field_4) - word_4206E - pDi->field_20 - mCamera_Row;
 	mDrawSpritePositionY += 0x10;
 
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
-	
 	++word_42072;
 	if (Sprite_OnScreen_Check()) {
 		pDi->field_5C = 1;
@@ -9433,7 +9421,8 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28,
 }
 
 int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
-	
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
+
 	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
 
 	mDrawSpritePositionX = pData8 + 0x10;
@@ -9441,7 +9430,6 @@ int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pD
 
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
 
 	if (!sub_184C7()) {
 		sub_182EA();
