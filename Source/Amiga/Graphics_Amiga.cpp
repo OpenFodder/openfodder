@@ -25,15 +25,21 @@
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = 0;
 	mPalette = 0;
+	mHeight = 0;
+
+	memset( &mPaletteArmy, 0, 0x30 );
+	memset( &mPaletteCopt, 0, 0x30 );
 }
 
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	
 	switch (pSegment) {
 	case 0:
+		mHeight = mBMHDArmy.mHeight;
 		return g_Fodder.mDataArmy;
 		
 	case 1:
+		mHeight = mBMHDCopt.mHeight;
 		return g_Fodder.mDataHillBits;
 
 	}
@@ -62,10 +68,13 @@ void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 
 void cGraphics_Amiga::PaletteSet() {
 
-	mImage->paletteLoad_Amiga( mPalette );
+	mImage->paletteLoad_Amiga( mPalette, 0 );
+	mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x0 );
+	//mImage->paletteLoad_Amiga( mPaletteCopt, 0x0 );
 }
 
-bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD ) {
+
+bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint16* pPalette ) {
 
 	if (readBEDWord( pData ) != 'FORM')
 		return false;
@@ -159,6 +168,32 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 		}
 
 		case 'CMAP':
+			for (int16 i = 0; i < 0x10; ++i) {
+				int16 d0 = (int16) *pData++;
+				int16 Final = 0;
+
+				d0 >>= 4;
+				d0 <<= 8;
+				Final += d0;
+
+				d0 = *pData++;
+				d0 >>= 4;
+				d0 = (int16)d0;
+				d0 <<= 4;
+				Final += d0;
+
+				d0 = *pData++;
+				d0 >>= 4;
+				d0 = (int16)d0;
+				Final += d0;
+
+				writeBEWord( pPalette, Final );
+				pPalette++;
+
+			}
+			FileSize -= 0x30;
+			break;
+
 		default:
 			if (Size & 1)
 				++Size;
@@ -256,8 +291,8 @@ void cGraphics_Amiga::map_Load_Resources() {
 	uint8* Copt = g_Resource.fileGet( g_Fodder.mFilenameCopt, Size );
 	uint8* Army = g_Resource.fileGet( g_Fodder.mFilenameArmy, Size );
 
-	DecodeIFF( Copt, g_Fodder.mDataHillBits, &mBMHDCopt );
-	DecodeIFF( Army, g_Fodder.mDataArmy, &mBMHDArmy );
+	DecodeIFF( Copt, g_Fodder.mDataHillBits, &mBMHDCopt, mPaletteCopt );
+	DecodeIFF( Army, g_Fodder.mDataArmy, &mBMHDArmy, mPaletteArmy );
 
 	delete[] Copt;
 	delete[] Army;
@@ -266,6 +301,8 @@ void cGraphics_Amiga::map_Load_Resources() {
 }
 
 void cGraphics_Amiga::video_Draw_Sprite() {
+	uint16 height = mHeight;
+
 	cFodder* Fodder = cFodder::GetSingletonPtr();
 
 	uint8*	di = mImage->GetSurfaceBuffer();
@@ -287,47 +324,49 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	Fodder->byte_42071 = 1 << cx;
 	int8 bl = Fodder->byte_42070;
 	
+	
+	Fodder->word_42074 = 40 - Fodder->word_4206C;
 	Fodder->word_4206C >>= 1;
-	Fodder->word_42074 = 20 - Fodder->word_4206C;
-
 	Fodder->word_42076 = 352 - (Fodder->word_4206C*16);
 
+	// Height
+	for (int16 dx = Fodder->word_4206E; dx > 0; --dx) {
 
-	// Each bitfield
-	for (uint16 BitField = 0; BitField < 4; ++BitField) {
-		uint8* SourceTmp = si;
-		uint8* TargetTmp = di;
+		// Width
+		for (cx = 0; cx < Fodder->word_4206C; ++cx) {
 
-		// Height
-		for (int16 dx = Fodder->word_4206E; dx > 0; --dx) {
+			// Each Pixel
+			for (uint16 x = 0; x < 16; ++x) {
 
-			// Width
-			for (cx = 0; cx < Fodder->word_4206C; ++cx) {
+				int8 Pixel = GetPixel( x, height, si );
 
-				uint16 RowData = readBEWord( SourceTmp );
-				SourceTmp += 2;
-
-				// Each Pixel
-				for (uint16 x = 0; x < 16; ++x) {
-					uint8 Bit = (RowData & 0x8000) ? 1 : 0;
-					RowData <<= 1;
-
-					if (Bit)
-						*(TargetTmp + x) |= (Bit << BitField);
-
-				}
-
-				TargetTmp += 16;
+				if (Pixel)
+					*(di + x) = Pixel;
 			}
 
-			SourceTmp += Fodder->word_42074;
-			TargetTmp += Fodder->word_42076;
+			di += 16;
+			si += 2;
 		}
 
-		int16 Width = mBMHDArmy.mWidth + 0x0F;
-			Width >>= 4;
-			Width <<= 1;
-
-		si += mBMHDArmy.mHeight * Width;
+		si += Fodder->word_42074;
+		di += Fodder->word_42076;
 	}
+}
+
+uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint16 height, uint8* pSource ) {
+	uint8 Result = 0;
+	uint16 Bits = readBEWord( pSource );
+
+	Result = (Bits << pixel) & 0x8000 ? 1 : 0;
+
+	Bits = readBEWord( pSource + (height * 40) );
+	Result |= (Bits << pixel) & 0x8000 ? 2 : 0;
+
+	Bits = readBEWord( pSource + ((height * 40) * 2));
+	Result |= (Bits << pixel) & 0x8000 ? 4 : 0;
+
+	Bits = readBEWord( pSource + ((height * 40) * 3));
+	Result |= (Bits << pixel) & 0x8000 ? 8 : 0;
+
+	return Result;
 }
