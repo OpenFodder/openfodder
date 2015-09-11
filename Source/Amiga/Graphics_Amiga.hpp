@@ -37,10 +37,13 @@ struct sILBM_BMHD {
 class cGraphics_Amiga : public cGraphics {
 
 	uint8*				mBlkData;
+	uint16				mPaletteArmy[0x10];
+	uint16				mPaletteCopt[0x10];
 	uint8*				mPalette;
 	size_t				mPaletteSize;
 	sILBM_BMHD			mBMHDArmy;
 	sILBM_BMHD			mBMHDCopt;
+	uint16				mHeight;
 
 	protected:
 
@@ -48,8 +51,9 @@ class cGraphics_Amiga : public cGraphics {
 	public:
 						cGraphics_Amiga();
 
-	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD );
+	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint16* pPalette );
 
+	virtual uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint16 height, uint8* pSource );
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		map_Tiles_Draw();

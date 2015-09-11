@@ -108,11 +108,11 @@ void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColor
 	paletteLoadNewSDL();
 }
 
-void cSurface::paletteLoad_Amiga( const uint8  *pBuffer ) {
+void cSurface::paletteLoad_Amiga( const uint8  *pBuffer, uint32 pColorID ) {
 	int16  color;
-	int8  colorID;
+	int16  ColorID = pColorID;
 
-	for( colorID = 0; colorID < 16; colorID++) {
+	for( ; pColorID < ColorID + 16; pColorID++) {
 		
 		// Get the next color codes
 		color = readBEWord( pBuffer );
@@ -121,13 +121,14 @@ void cSurface::paletteLoad_Amiga( const uint8  *pBuffer ) {
 		// Extract each color from the word
 		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
 
-		mPaletteNew[colorID].mRed	= ((color >> 8) & 0xF)   << 2;	// Why 2? no idea, but it works.. 1 is too dark, and 3 causes incorrect colours
-		mPaletteNew[colorID].mGreen = ((color >> 4) & 0xF) << 2;
-		mPaletteNew[colorID].mBlue	= ((color >> 0) & 0xF)  << 2;
+		mPaletteNew[pColorID].mRed		= ((color >> 8) & 0xF)   << 2;	// Why 2? no idea, but it works.. 1 is too dark, and 3 causes incorrect colours
+		mPaletteNew[pColorID].mGreen	= ((color >> 4) & 0xF) << 2;
+		mPaletteNew[pColorID].mBlue		= ((color >> 0) & 0xF)  << 2;
 	}
 
 	//paletteLoadNewSDL();
 }
+
 void cSurface::paletteFadeOut() {
 	mFaded = false;
 

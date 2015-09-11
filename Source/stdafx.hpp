@@ -54,6 +54,14 @@ inline uint16 readBEWord( const void *buffer ) {
 	return (bytes[0] << 8) | bytes[1];
 }
 
+inline void writeBEWord( const void *buffer, uint16 pValue ) {
+	uint8* bytes = (uint8*) buffer;
+
+	bytes[0] = pValue >> 8;
+	bytes[1] = pValue & 0xFF;
+}
+
+
 inline uint32 readBEDWord( const void *buffer ) {
 	const uint8* bytes = (const uint8*) buffer;
 
