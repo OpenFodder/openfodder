@@ -33,6 +33,7 @@ public:
 						cGraphics();
 
 	virtual uint8*		GetSpriteData( uint16 pSegment ) = 0;
+	virtual void		LoadpStuff() = 0;
 	virtual void		graphicsBlkPtrsPrepare() = 0;
 	virtual void		map_Tiles_Draw() = 0;
 	virtual void		map_Load_Resources() = 0;

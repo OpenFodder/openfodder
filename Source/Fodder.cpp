@@ -3979,7 +3979,7 @@ void cFodder::Briefing_Intro() {
 		break;
 	}
 
-	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
+	mGraphics->LoadpStuff();
 }
 
 void cFodder::Briefing_Load_Resources() {
@@ -9149,7 +9149,7 @@ void cFodder::sub_17DB3() {
 	Service_Promotion_Loop();
 	mouse_Setup();
 
-	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
+	mGraphics->LoadpStuff();
 }
 
 void cFodder::Service_KIA_Loop() {
@@ -14759,7 +14759,7 @@ introDone:;
 	//sub_1645F();
 	Music_Stop();
 
-	g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
+	mGraphics->LoadpStuff();
 	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xF0 );
 	//Sound_Unk();
 	Music_Unk( 0 );
@@ -16699,7 +16699,7 @@ loc_103BF:;
 		word_3A9AA = -1;
 		word_39096 = -1;
 
-		g_Resource.fileLoadTo( "pstuff.dat", mDataPStuff );
+		mGraphics->LoadpStuff();
 
 		for (unsigned int x = 0; x < 0x30; ++x)
 			byte_3DDA2[x] = mDataPStuff[0xA000 + x];
@@ -16768,8 +16768,11 @@ loc_103BF:;
 					word_3ABE9 = 0;
 					word_3ABEB = 0;
 
-					if (mVersion->mKey != "AFX")
+					if (mVersion->mKey != "AFX") 
 						Briefing_Intro();
+					else {
+						mGraphics->LoadpStuff();
+					}
 				}
 			}
 

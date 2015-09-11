@@ -27,8 +27,9 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mPalette = 0;
 	mHeight = 0;
 
-	memset( &mPaletteArmy, 0, 0x30 );
-	memset( &mPaletteCopt, 0, 0x30 );
+	memset( &mPaletteArmy, 0, 0x20 );
+	memset( &mPaletteCopt, 0, 0x20 );
+	memset( &mPalletePStuff, 0, 0x20 );
 }
 
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
@@ -42,7 +43,20 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mHeight = mBMHDCopt.mHeight;
 		return g_Fodder.mDataHillBits;
 
+	case 2:
+		mHeight = mBMHDPStuff.mHeight;
+		return g_Fodder.mDataPStuff;
 	}
+}
+
+void cGraphics_Amiga::LoadpStuff() {
+
+	size_t Size = 0;
+	uint8* pstuff = g_Resource.fileGet( "pstuff.lbm", Size );
+
+	DecodeIFF( pstuff, g_Fodder.mDataPStuff, &mBMHDPStuff, mPalletePStuff );
+
+	delete[] pstuff;
 }
 
 void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {

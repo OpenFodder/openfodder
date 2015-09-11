@@ -61,6 +61,11 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 	}
 }
 
+void cGraphics_PC::LoadpStuff() {
+
+	g_Resource.fileLoadTo( "pstuff.dat", g_Fodder.mDataPStuff );
+}
+
 void cGraphics_PC::graphicsBlkPtrsPrepare() {
 	uint16 bx = 0, dx = 0;
 

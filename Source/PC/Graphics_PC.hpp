@@ -29,6 +29,8 @@ class cGraphics_PC : public cGraphics {
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		graphicsBlkPtrsPrepare();
+	virtual void		LoadpStuff();
+
 	virtual void		map_Tiles_Draw();
 	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();

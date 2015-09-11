@@ -39,10 +39,12 @@ class cGraphics_Amiga : public cGraphics {
 	uint8*				mBlkData;
 	uint16				mPaletteArmy[0x10];
 	uint16				mPaletteCopt[0x10];
+	uint16				mPalletePStuff[0x10];
 	uint8*				mPalette;
 	size_t				mPaletteSize;
 	sILBM_BMHD			mBMHDArmy;
 	sILBM_BMHD			mBMHDCopt;
+	sILBM_BMHD			mBMHDPStuff;
 	uint16				mHeight;
 
 	protected:
@@ -56,6 +58,7 @@ class cGraphics_Amiga : public cGraphics {
 	virtual uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint16 height, uint8* pSource );
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		graphicsBlkPtrsPrepare();
+	virtual void		LoadpStuff();
 	virtual void		map_Tiles_Draw();
 	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();
