@@ -25,11 +25,12 @@
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = 0;
 	mPalette = 0;
-	mHeight = 0;
 
-	memset( &mPaletteArmy, 0, 0x20 );
-	memset( &mPaletteCopt, 0, 0x20 );
-	memset( &mPalletePStuff, 0, 0x20 );
+	memset( &mPaletteArmy, 0, 0x10 );
+	memset( &mPaletteCopt, 0, 0x10 );
+	memset( &mPalletePStuff, 0, 0x10 );
+	memset( &mPalleteAfx, 0, 0x20 );
+	
 }
 
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
@@ -37,17 +38,17 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	switch (pSegment) {
 	case 0:
 		mFodder->byte_42070 = 0;
-		mHeight = mBMHDArmy.mHeight;
+		mBMHD_Current = &mBMHDArmy;
 		return mFodder->mDataArmy;
 		
 	case 1:
 		mFodder->byte_42070 = 0;
-		mHeight = mBMHDCopt.mHeight;
+		mBMHD_Current = &mBMHDCopt;
 		return mFodder->mDataHillBits;
 
 	case 2:
-		mFodder->byte_42070 = 0xF0;
-		mHeight = mBMHDPStuff.mHeight;
+		mFodder->byte_42070 = mCursorPalette;
+		mBMHD_Current = &mBMHDPStuff;
 		return mFodder->mDataPStuff;
 	}
 }
@@ -81,6 +82,23 @@ void cGraphics_Amiga::LoadpStuff() {
 	DecodeIFF( pstuff, mFodder->mDataPStuff, &mBMHDPStuff, mPalletePStuff );
 
 	delete[] pstuff;
+}
+
+void cGraphics_Amiga::LoadAFXMenu() {
+	size_t Size = 0;
+	uint8* apmenu = g_Resource.fileGet( "apmenu.lbm", Size );
+
+	DecodeIFF( apmenu, mFodder->mDataBaseBlk, &mBMHDAfx, mPalleteAfx);
+
+	mImage->paletteLoad_Amiga( (uint8*) mPalleteAfx, 0, 32 );
+
+	mBMHD_Current = &mBMHDAfx;
+
+	delete[] apmenu;
+}
+
+void cGraphics_Amiga::SetCursorPalette( uint16 pIndex ) {
+	mCursorPalette = pIndex;
 }
 
 void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
@@ -206,7 +224,7 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 		}
 
 		case 'CMAP':
-			for (int16 i = 0; i < 0x10; ++i) {
+			for (int16 i = 0; i < Size / 3; ++i) {
 				int16 d0 = (int16) *pData++;
 				int16 Final = 0;
 
@@ -227,9 +245,9 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 
 				writeBEWord( pPalette, Final );
 				pPalette++;
+				FileSize -= 3;
 
 			}
-			FileSize -= 0x30;
 			break;
 
 		default:
@@ -338,6 +356,52 @@ void cGraphics_Amiga::map_Load_Resources() {
 	SetSpritePtr( eSPRITE_IN_GAME );
 }
 
+void cGraphics_Amiga::video_Draw_Linear() {
+	
+	uint8*	di = mImage->GetSurfaceBuffer();
+	uint8* 	si = mFodder->word_42062;
+	int16	ax, cx;
+	
+	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
+
+	ax = mFodder->mDrawSpritePositionX;
+	ax += mFodder->word_40054;
+	//ax >>= 2;
+	
+	di += ax;
+	mFodder->word_42066 = di;
+
+	int8 bl = mFodder->byte_42070;
+	
+	mFodder->word_4206C >>= 3;
+	mFodder->word_42074 = 40 - mFodder->word_4206C;
+	mFodder->word_4206C >>= 1;
+	mFodder->word_42076 = 352 - (mFodder->word_4206C*16);
+
+	// Height
+	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
+
+		// Width
+		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
+
+			// Each Pixel
+			for (uint16 x = 0; x < 16; ++x) {
+
+				int8 Pixel = GetPixel( x, si );
+
+				if (Pixel)
+					*(di + x) = bl | Pixel;
+			}
+
+			di += 16;
+			si += 2;
+		}
+
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
+}
+
 void cGraphics_Amiga::video_Draw_Sprite() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
@@ -354,7 +418,10 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	mFodder->word_42066 = di;
 
 	int8 bl = mFodder->byte_42070;
-	
+	if (mFodder->word_4206C & 1)
+		mFodder->word_4206C += 3;
+
+
 	mFodder->word_42074 = 40 - mFodder->word_4206C;
 	mFodder->word_4206C >>= 1;
 	mFodder->word_42076 = 352 - (mFodder->word_4206C*16);
@@ -389,14 +456,20 @@ uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint8* pSource ) {
 
 	Result = (Bits << pixel) & 0x8000 ? 1 : 0;
 
-	Bits = readBEWord( pSource + (mHeight * 40) );
+	Bits = readBEWord( pSource + (mBMHD_Current->mHeight * 40) );
 	Result |= (Bits << pixel) & 0x8000 ? 2 : 0;
 
-	Bits = readBEWord( pSource + ((mHeight * 40) * 2));
+	Bits = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * 2));
 	Result |= (Bits << pixel) & 0x8000 ? 4 : 0;
 
-	Bits = readBEWord( pSource + ((mHeight * 40) * 3));
+	Bits = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * 3));
 	Result |= (Bits << pixel) & 0x8000 ? 8 : 0;
+
+	if (mBMHD_Current->mPlanes < 5)
+		return Result;
+
+	Bits = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * 4));
+	Result |= (Bits << pixel) & 0x8000 ? 16 : 0;
 
 	return Result;
 }

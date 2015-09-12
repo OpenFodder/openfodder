@@ -108,11 +108,11 @@ void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColor
 	paletteLoadNewSDL();
 }
 
-void cSurface::paletteLoad_Amiga( const uint8  *pBuffer, uint32 pColorID ) {
+void cSurface::paletteLoad_Amiga( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
 	int16  color;
 	int16  ColorID = pColorID;
 
-	for( ; pColorID < ColorID + 16; pColorID++) {
+	for( ; pColorID < ColorID + pColors; pColorID++) {
 		
 		// Get the next color codes
 		color = readBEWord( pBuffer );

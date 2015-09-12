@@ -161,7 +161,7 @@ void cWindow::EventCheck() {
 void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 	SDL_Rect Src;
 	Src.w = 320;
-	Src.h = 200;
+	Src.h = 200;// pImage->GetHeight() - 16;
 	Src.x = pSource.mX + 16;
 	Src.y = pSource.mY + 16;
 

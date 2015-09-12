@@ -726,6 +726,8 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_44A42;
 	int32			dword_44A46;
 
+	int16			word_82132;
+
 	int64			mTicks;
 	int64			mTicksDiff;
 
@@ -734,6 +736,7 @@ class cFodder : public cSingleton < cFodder > {
 	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
+	void			AFX_Show();
 	void			Music_Play( const char* pFilename );
 	void			Music_Stop();
 
@@ -817,7 +820,6 @@ public:
 	void			sub_13C8A(  int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
 	void			sub_13CF0(  sSprite_0* pDi, int16 pData0, int16 pData4 );
 
-	void			video_Draw_Linear_To_Planar(  );
 	bool			Sprite_OnScreen_Check();
 	void			Sprite_Draw( );
 	void			sub_14CCB( int16& pData0 );
@@ -1123,6 +1125,11 @@ public:
 	int16			sub_2EAC2();
 	void			sub_2EAC3();
 	void			sub_2EACA();
+	
+	void			sub_9B94E( const struct_6 *pA0 );
+	void			sub_A03EE();
+	void			sub_A0400();
+
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
 	void			Mission_Sidebar_Prepare( int16 pData0, int16 pData4 );
 	void			sub_2EBC4();
