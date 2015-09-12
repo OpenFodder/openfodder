@@ -6241,6 +6241,13 @@ int16 cFodder::sub_24C47( sSprite_0* pSprite, sSprite_0* pData2C, sSprite_0* pDa
 	return -1;
 }
 
+void cFodder::sub_24ED7( sSprite_0* pSprite ) {
+	if (pSprite->field_38 == 1)
+		pSprite->field_38 = 0;
+
+	//todo
+}
+
 void cFodder::sub_25863( sSprite_0* pSprite ) {
 	if (!pSprite->field_5C)
 		return;
@@ -9978,6 +9985,10 @@ void cFodder::Sprite_Handle_Loop() {
 			sub_1BB11( Data20 );
 			break;
 
+		case 40:
+			sub_1BD18( Data20 );
+			break;
+
 		case 41:
 			sub_1BD54( Data20 );
 			break;
@@ -9988,6 +9999,10 @@ void cFodder::Sprite_Handle_Loop() {
 
 		case 48:
 			sub_1C268( Data20 );
+			break;
+
+		case 54:
+			sub_1C331( Data20 );
 			break;
 
 		case 55:
@@ -11793,6 +11808,12 @@ loc_1BD06:;
 	sub_2060F( pSprite );
 }
 
+void cFodder::sub_1BD18( sSprite_0* pSprite ) {
+
+	pSprite->field_6F = 6;
+	sub_24ED7( pSprite );
+}
+
 void cFodder::sub_1BD54( sSprite_0* pSprite ) {
 	
 	pSprite->field_2C = 0;
@@ -11860,6 +11881,19 @@ void cFodder::sub_1C268( sSprite_0* pSprite ) {
 		return;
 
 	sub_2060F( pSprite );
+}
+
+void cFodder::sub_1C331( sSprite_0* pSprite ) {
+	pSprite->field_2C = -1;
+
+	if (!pSprite->field_38) {
+		int16 Data0;
+		pSprite->field_8 = 0xC7;
+		sub_2244B( pSprite, Data0 );
+	}
+	else {
+		pSprite->field_18 = 0x59;
+	}
 }
 
 void cFodder::sub_1C364( sSprite_0* pSprite ) {
