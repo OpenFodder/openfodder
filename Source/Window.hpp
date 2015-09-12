@@ -26,7 +26,8 @@ class cWindow : public cSingleton<cWindow> {
 		SDL_Window*			mWindow;
 		SDL_Renderer*		mRenderer;
 		cDimension			mDimensionWindow, mDimensionPlayfield;
-		
+		cDimension			mScreenSize;
+
 	public:
 
 							cWindow();
@@ -41,6 +42,8 @@ class cWindow : public cSingleton<cWindow> {
 
 		void				SetCursor();
 		void				SetMousePosition( const cPosition& pPosition );
+		void				SetScreenSize( const cDimension& pDimension );
+		void				SetLogicalSize( const cDimension& pDimension );
 
 		SDL_Renderer*		GetRenderer() const;
 

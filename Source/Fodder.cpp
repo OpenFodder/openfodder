@@ -2886,9 +2886,14 @@ loc_13B66:;
 	if (Data0 < 4)
 		Data0 = 4;
 	else {
-
-		if (Data0 > 203)
-			Data0 = 203;
+		if (mVersion->mPlatform == Platform::Amiga) {
+			if (Data0 > 259)
+				Data0 = 259;
+		}
+		else {
+			if (Data0 > 203)
+				Data0 = 203;
+		}
 	}
 
 	mMouseY = Data0;
@@ -2950,8 +2955,13 @@ void cFodder::Prepare( const char* pKey ) {
 		}
 	}
 
+	std::stringstream Title;
+	Title << "Open Fodder";
+	if (strlen( mVersion->mName )) {
+		Title << ": " << mVersion->mName;
+	}
+	mWindow->InitWindow( Title.str() );
 
-	mWindow->InitWindow( "Open Fodder" );
 	tool_RandomSeed();
 
 	mDataBlkSize = 0xFD0 * 16;
@@ -3893,7 +3903,7 @@ void cFodder::AFX_Show() {
 	word_42062 = word_3E1B7;
 	
 	mDrawSpritePositionX = 16;
-	mDrawSpritePositionY = 16;
+	mDrawSpritePositionY = 22;
 	word_4206C = 0x140;
 	word_4206E = 0x101;
 	word_42078 = 0x101;
@@ -3905,6 +3915,8 @@ void cFodder::AFX_Show() {
 
 	mImage->Save();
 	mImage->paletteFade();
+	mWindow->SetScreenSize( cDimension( 320, 260 ) );
+	mWindow->SetLogicalSize( cDimension( 352 , 250 ) );
 
 	for( ;; ) {
 		sub_13800();
@@ -3934,6 +3946,9 @@ void cFodder::AFX_Show() {
 	}
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xF0 );
+	mWindow->SetScreenSize( cDimension( 320, 200) );
+	mWindow->SetLogicalSize( cDimension( 352, 216 ) );
+
 }
 
 void cFodder::Recruit_Show() {
@@ -16575,7 +16590,7 @@ void cFodder::sub_2E04C() {
 }
 
 void cFodder::Start( int16 pStartMap ) {
-	mImage = new cSurface( 352, 270 );
+	mImage = new cSurface( 352, 280 );
 
 	mGraphics = 0;
 	mResources = new cResources( mVersion->mDataPath );
@@ -17722,6 +17737,9 @@ loc_301BA:;
 void cFodder::Mission_Sidebar_MapButton_RenderWrapper() {
 
 	if (mMapNumber == 0x47)
+		return;
+
+	if (mVersion->mKey == "AFX")
 		return;
 
 	word_3B4D9 = 0;

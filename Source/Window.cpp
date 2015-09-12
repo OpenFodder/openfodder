@@ -34,6 +34,9 @@ cWindow::cWindow() {
 
 	mDimensionPlayfield.mWidth = mDimensionWindow.mWidth;
 	mDimensionPlayfield.mHeight = mDimensionWindow.mHeight;
+
+	mScreenSize.mWidth = 320;
+	mScreenSize.mHeight = 200;
 }
 
 cWindow::~cWindow() {
@@ -160,8 +163,8 @@ void cWindow::EventCheck() {
 
 void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 	SDL_Rect Src;
-	Src.w = 320;
-	Src.h = 200;// pImage->GetHeight() - 16;
+	Src.w = mScreenSize.mWidth;
+	Src.h = mScreenSize.mHeight;
 	Src.x = pSource.mX + 16;
 	Src.y = pSource.mY + 16;
 
@@ -187,6 +190,16 @@ void cWindow::SetCursor() {
 void cWindow::SetMousePosition( const cPosition& pPosition ) {
 
 	SDL_WarpMouseInWindow( mWindow, pPosition.mX, pPosition.mY );
+}
+
+void cWindow::SetScreenSize( const cDimension& pDimension ) {
+
+	mScreenSize = pDimension;
+}
+
+void cWindow::SetLogicalSize( const cDimension& pDimension ) {
+	
+	SDL_RenderSetLogicalSize(mRenderer, pDimension.mWidth, pDimension.mHeight);
 }
 
 SDL_Renderer* cWindow::GetRenderer() const {
