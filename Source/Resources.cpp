@@ -58,12 +58,15 @@ cResources::cResources( std::string pDataPath ) {
 
 	mDataPath = pDataPath;
 
-	mData = local_FileRead( "CF_ENG.DAT", "", mDataSize );
-	if (!mData) {
-		std::cout << "CF_ENG.DAT not found\n";
-		exit( 1 );
+	if (g_Fodder.mVersion->mKey == "Dos") {
+		mData = local_FileRead( "CF_ENG.DAT", "", mDataSize );
+		if (!mData) {
+			std::cout << "CF_ENG.DAT not found\n";
+			exit( 1 );
+		}
+
+		headerLoad();
 	}
-	headerLoad();
 }
 
 cResources::~cResources() {

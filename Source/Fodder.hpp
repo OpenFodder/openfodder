@@ -946,9 +946,11 @@ public:
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
 	void			Sprite_Handle_RocketBox( sSprite_0* pSprite );				// 38
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
+	void			sub_1BD18( sSprite_0* pSprite );							// 40
 	void			sub_1BD54( sSprite_0* pSprite );							// 41
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
+	void			sub_1C331( sSprite_0* pSprite );							// 54
 	void			sub_1C364( sSprite_0* pSprite );							// 55
 	void			sub_1C411( sSprite_0* pSprite );							// 56
 	void			sub_1C4C2( sSprite_0* pSprite );							// 57
@@ -1052,6 +1054,7 @@ public:
 	void			sub_245BF( sSprite_0* pSprite );
 	int16			sub_246CC( sSprite_0* pSprite );
 	int16			sub_24C47( sSprite_0* pSprite, sSprite_0* Data2C, sSprite_0* pData34 );
+	void			sub_24ED7( sSprite_0* pSprite );
 	void			sub_25863( sSprite_0* pSprite );
 	void			sub_258C6( sSprite_0* pSprite );
 	int16			sub_25680( sSprite_0* pSprite );
