@@ -271,7 +271,7 @@ int16 cFodder::Mission_Loop( ) {
 
 		Mission_Sprites_Handle();
 		sub_31033();
-		sub_144A2();
+		mGraphics->sub_144A2();
 		Mouse_DrawCursor();
 
 		if (word_3A9D0 != 0) {
@@ -1709,7 +1709,7 @@ loc_11D8A:;
 	}
 
 	Mission_Sprites_Handle();
-	sub_144A2();
+	mGraphics->sub_144A2();
 	Mouse_DrawCursor();
 	sub_11CAD();
 
@@ -3321,151 +3321,6 @@ void cFodder::Sprite_Draw( ) {
 	// mousedata... ? TODO??
 }
 
-void cFodder::sub_144A2( ) {
-	
-	uint8*	Buffer = mImage->GetSurfaceBuffer();
-	uint8* 	si = (uint8*) mMapSptPtr;
-
-	//TODO: BUG?
-	Buffer += (16 * 352) + 16; // 0x584
-	byte_42071 = 1 << word_40054;
-
-	word_42066 = Buffer;
-	for (unsigned int Plane = 0; Plane < 4; Plane++) {
-
-		Buffer = word_42066;
-
-		for (unsigned int Y = 0; Y < 200; ++Y) {
-
-			for (unsigned int X = Plane; X < 0x30; X += 4) {
-
-				Buffer[X] = *si++;
-			}
-			
-			Buffer += 352;
-		}
-	}
-}
-
-void cFodder::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
-	const struct_2* str2 = &stru_44B50[pData0];
-	
-	int16 cx = str2->field_4;
-	int16 dx = str2->field_6;
-	word_4206C = cx;
-	word_4206E = dx;
-	
-	uint16 ax = 0xA0 * str2->field_2;
-	uint16 bx = str2->field_0 >> 1;
-	ax += bx;
-	
-	word_42062 = mDataPStuff + ax;
-	
-	byte_42070 = 0xF0;
-	
-	uint16 w42066 = 0x0C * pDataC;
-	w42066 += pData8 >> 2;
-	
-	ax = pData8 & 3;
-	ax *= 0x960;
-	w42066 += ax;
-	
-	uint8* di = ((uint8*)word_3D5B7) + w42066;
-	uint8* si = word_42062;
-	
-	int8 bl = byte_42070;
-	word_4206C >>= 1;
-	
-	word_42074 = 0xA0 - word_4206C;
-	word_4206C >>= 1;
-	word_42076 = 0x0C - word_4206C;
-	
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( uint16 cx = word_4206C; cx > 0; --cx ) {
-			
-			uint8 al = (*si) >> 4;
-			if( al )
-				*di = al | bl;
-			
-			si += 2;
-			++di;
-		}
-			
-		si += word_42074;
-		di += word_42076;
-	}
-
-	w42066 += 0x960;
-	if( w42066 >= 0x2580 )
-		w42066 -= 0x257F;
-	
-	si = word_42062;
-	di =  ((uint8*)word_3D5B7) + w42066;
-	
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( uint16 cx = word_4206C; cx > 0; --cx ) {
-			uint8 al = (*si) & 0x0F;
-			if( al )
-				*di = al | bl;
-			
-			si += 2;
-			++di;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-		
-	w42066 += 0x960;
-	if( w42066 >= 0x2580 )
-		w42066 -= 0x257F;
-	
-	++word_42062;
-	si = word_42062;
-	di =  ((uint8*)word_3D5B7) + w42066;
-	
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( uint16 cx = word_4206C; cx > 0; --cx ) {
-			
-			uint8 al = (*si) >> 4;
-			if( al )
-				*di = al | bl;
-			
-			si += 2;
-			++di;
-		}
-			
-		si += word_42074;
-		di += word_42076;
-	}
-
-	w42066 += 0x960;
-	if( w42066 >= 0x2580 )
-		w42066 -= 0x257F;
-
-	si = word_42062;
-	di =  ((uint8*)word_3D5B7) + w42066;
-	
-	for( uint16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( uint16 cx = word_4206C; cx > 0; --cx ) {
-			uint8 al = (*si) & 0x0F;
-			if( al )
-				*di = al | bl;
-			
-			si += 2;
-			++di;
-		}
-		
-		si += word_42074;
-		di += word_42076;
-	}
-
-}
-
 void cFodder::sub_14CCB( int16 &pData0 ) {
 
 	word_3B449 = pData0;
@@ -4293,7 +4148,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 	int16 DataC	= 0x18;
 	
 	// Draw Heroes Heading
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 	
 	int16 Data14 = 0x0E;
 	Data0 = 4;
@@ -4314,7 +4169,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 			Data0 = 0xAB;
 		
 		Data8 = 0;
-		sub_145AF( Data0, Data8, DataC + 0x18 );
+		mGraphics->sub_145AF( Data0, Data8, DataC + 0x18 );
 		DataC += 0x0C;
 		
 	} while( DataC < 0x4A );
@@ -4325,7 +4180,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 	Data0 = 0xAE;
 	Data8 = 0;
 	DataC = 0x4A + 0x18;
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 	
 	Data14 = mMapPlayerTroopCount + mSquadMemberCount;
 	Data14 /= 0x0C;
@@ -4339,7 +4194,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 			Data0 = 0xAB;
 
 		Data8 = 0;
-		sub_145AF( Data0, Data8, DataC + 0x18 );
+		mGraphics->sub_145AF( Data0, Data8, DataC + 0x18 );
 		DataC += 0x0C;
 		
 	} while( DataC < 0xA0 );
@@ -4403,7 +4258,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 				DataC += word_3A3BD;
 				DataC += word_3AA55;
 
-				sub_145AF( Data0, Data8, DataC + 0x19 );
+				mGraphics->sub_145AF( Data0, Data8, DataC + 0x19 );
 			}
 		}
 
@@ -4448,7 +4303,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 			DataC += word_3AA55;
 			DataC += 0x19;
 			
-			sub_145AF( Data0, Data8, DataC );
+			mGraphics->sub_145AF( Data0, Data8, DataC );
 			
 			DataC -= 0x19;
 			
@@ -4465,7 +4320,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 		DataC += 0x4A;
 		DataC += word_3AA55;
 		DataC += 0x19;
-		sub_145AF( Data0, 0, DataC );
+		mGraphics->sub_145AF( Data0, 0, DataC );
 		DataC -= 0x19;
 		word_3A3BD += 0x0C;
 	}
@@ -4483,7 +4338,7 @@ void cFodder::sub_170A4( int16 pData4, int16 pData10 ) {
 	for (std::string::iterator CharIT = Data20.begin(); CharIT != Data20.end(); ++CharIT) {
 
 		Data0 = (*CharIT & 0xFF) + pData10;
-		sub_145AF( Data0, Data8, DataC + 0x19 );
+		mGraphics->sub_145AF( Data0, Data8, DataC + 0x19 );
 		Data8 += 4;
 	}
 }
@@ -4503,7 +4358,7 @@ void cFodder::Recruit_Render_HeroList() {
 		int16 DataC = word_3A3BD - 1;
 		DataC += 0x4A + word_3AA55+ 0x19;
 
-		sub_145AF( Hero->mRecruitID + 9, Data8, DataC );
+		mGraphics->sub_145AF( Hero->mRecruitID + 9, Data8, DataC );
 
 		sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
 
@@ -4532,7 +4387,7 @@ void cFodder::Recruit_Render_HeroList() {
 			DataC = 0x4B;
 			DataC += word_3A3BD + word_3AA55;
 
-			sub_145AF( Character, Data8, DataC  + 0x19 );
+			mGraphics->sub_145AF( Character, Data8, DataC  + 0x19 );
 		}
 
 		sub_170A4( Hero->mKills, 0x67 );
@@ -4557,7 +4412,7 @@ void cFodder::sub_17368() {
 	int16 DataC = 0x58;
 
 	for (int16 Data4 = 5; Data4 >= 0; --Data4) {
-		sub_145AF( 0xAC, 0, DataC + 0x18 );
+		mGraphics->sub_145AF( 0xAC, 0, DataC + 0x18 );
 
 		DataC += 0x0C;
 	}
@@ -4982,7 +4837,7 @@ void cFodder::Recruit_Draw() {
 	Mouse_Inputs_Get();
 
 	Recruit_Draw_Actors();
-	sub_144A2();
+	mGraphics->sub_144A2();
 	Recruit_Draw_HomeAway();
 	Mouse_DrawCursor();
 	sub_13800();
@@ -7071,7 +6926,7 @@ void cFodder::Mission_Sidebar_MapButton_Render() {
 	if (word_3B4D9)
 		return;
 
-	sub_145AF( 0xD0, 0, 0xBD );
+	mGraphics->sub_145AF( 0xD0, 0, 0xBD );
 
 	struct_6* Data20 = dword_3AEF3;
 	Data20->field_0 = &cFodder::sub_2EAC2;
@@ -9009,7 +8864,7 @@ void cFodder::Mission_Sidebar_SplitButton_Draw() {
 	int16 Data8 = 0;
 	int16 DataC = word_3AC1D;
 
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 }
 
 void cFodder::GUI_Prepare_Button_Squad() {
@@ -14288,7 +14143,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 			loc_29D71:;
 
 			if (word_3AC21) {
-				sub_145AF( pParam0 + NextChar, pParam08, pParamC );
+				mGraphics->sub_145AF( pParam0 + NextChar, pParam08, pParamC );
 			}
 			else			         //0	// C     // 4	   // 8
 				sub_13C1C(  pParam0, pParamC, NextChar, pParam08 );
@@ -16933,7 +16788,7 @@ void cFodder::Mission_Sidebar_Grenades_Draw( ) {
 	DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 	
 	Data0 = mSquad_Grenades[word_3AC1F];
 	if (!Data0)
@@ -17025,7 +16880,7 @@ void cFodder::Mission_Sidebar_TroopList_Draw() {
 		else
 			Data0 = 0xA9;
 
-		sub_145AF( Data0, 0, DataC );
+		mGraphics->sub_145AF( Data0, 0, DataC );
 		DataC += 0x0C;
 	}
 loc_2F1BC:;
@@ -17067,12 +16922,12 @@ loc_2F1BC:;
 		int16 Data8 = 0;
 		int16 DataC = word_3A3BD;
 
-		sub_145AF( Data0, Data8, DataC );
+		mGraphics->sub_145AF( Data0, Data8, DataC );
 		Data0 = Data38->mRank + 9;
 		Data8 = 0x23;
 		DataC = word_3A3BD;
 
-		sub_145AF( Data0, Data8, DataC );
+		mGraphics->sub_145AF( Data0, Data8, DataC );
 		Data0 = 0;
 
 		sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
@@ -17133,7 +16988,7 @@ void cFodder::Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, i
 			pData8 <<= 2;
 			pData8 += word_3A05F;
 
-			sub_145AF( pData0, pData8, pDataC );
+			mGraphics->sub_145AF( pData0, pData8, pDataC );
 		}
 	}
 }
@@ -17158,7 +17013,7 @@ void cFodder::Mission_Sidebar_SquadIcon_Draw() {
 	int16 DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 }
 
 int16 cFodder::sub_2F4CB() {
@@ -17325,7 +17180,7 @@ void cFodder::sub_2F7E4(  int16 pData0 ) {
 	int16 DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 }
 
 void cFodder::sub_2F871( ) {
@@ -17358,7 +17213,7 @@ void cFodder::sub_2F87E(  int16 pData0 ) {
 	int16 DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	sub_145AF( pData0, Data8, DataC );
+	mGraphics->sub_145AF( pData0, Data8, DataC );
 }
 
 int16 cFodder::sub_2F90B() {
@@ -17401,7 +17256,6 @@ void cFodder::sub_2F9B3() {
 	Data4++;
 	word_3AC2B = Data4;
 
-	//TODO 
 	switch (Data0) {
 		case 0: //loc_2FA05
 			sub_2FA05();
@@ -17512,7 +17366,7 @@ void cFodder::Mission_Sidebar_Rockets_Draw( ) {
 	Data8 = 0x20;
 	DataC = word_3AC1D;
 	DataC += 0x0E;
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 
 	Data0 = mSquad_Rockets[word_3AC1F];
 	if (!Data0)
@@ -17935,7 +17789,7 @@ loc_30409:;
 	Data0 = word_3DF73[Data4];
 	int16 DataC = word_3AC1D;
 
-	sub_145AF( Data0, Data8, DataC );
+	mGraphics->sub_145AF( Data0, Data8, DataC );
 }
 
 void cFodder::sub_30465() {

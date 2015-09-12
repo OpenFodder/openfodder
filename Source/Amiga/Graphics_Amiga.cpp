@@ -352,13 +352,8 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	
 	di += ax;
 	mFodder->word_42066 = di;
-	cx = mFodder->mDrawSpritePositionX;
-	cx += mFodder->word_40054;
-	cx &= 3;
 
-	mFodder->byte_42071 = 1 << cx;
 	int8 bl = mFodder->byte_42070;
-	
 	
 	mFodder->word_42074 = 40 - mFodder->word_4206C;
 	mFodder->word_4206C >>= 1;
@@ -376,7 +371,7 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 				int8 Pixel = GetPixel( x, si );
 
 				if (Pixel)
-					*(di + x) = mFodder->byte_42070 | Pixel;
+					*(di + x) = bl | Pixel;
 			}
 
 			di += 16;
@@ -404,4 +399,82 @@ uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint8* pSource ) {
 	Result |= (Bits << pixel) & 0x8000 ? 8 : 0;
 
 	return Result;
+}
+
+void cGraphics_Amiga::sub_144A2( ) {
+	
+	uint8*	Buffer = mImage->GetSurfaceBuffer();
+	uint8* 	si = (uint8*) mFodder->mMapSptPtr;
+
+	Buffer += (16 * 352) + 16; // 0x584
+	mFodder->byte_42071 = 1 << mFodder->word_40054;
+	mFodder->word_42066 = Buffer;
+
+	Buffer = mFodder->word_42066;
+
+	for (unsigned int Y = 0; Y < 200; ++Y) {
+
+		for (unsigned int X = 0; X < 0x30; X++) {
+
+			Buffer[X] = *si++;
+		}
+			
+		Buffer += 352;
+	}
+	
+}
+
+void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
+	
+	const struct_2* str2 = &stru_44B50[pData0];
+	
+	int16 cx = str2->field_4;
+	int16 dx = str2->field_6;
+	mFodder->word_4206C = cx >> 3;
+	mFodder->word_4206E = dx;
+	
+	uint16 ax = str2->field_2 & 0xFF;
+	uint16 bx = str2->field_0 >> 3 & -2;
+
+	ax <<= 3;
+	int16 d1 = ax;
+
+	ax <<= 2;
+	ax += d1;
+
+	mFodder->word_42062 = GetSpriteData(2) + (ax+bx);
+	
+	int8 bl = mFodder->byte_42070;
+	
+	mFodder->word_42074 = 40 - mFodder->word_4206C;
+	mFodder->word_4206C >>= 1;
+	mFodder->word_42076 = 0x30 - (mFodder->word_4206C * 16);
+
+	uint16 w42066 = (0x30 * pDataC) + pData8;
+
+	uint8* di = ((uint8*)mFodder->word_3D5B7) + w42066;
+	uint8* si = mFodder->word_42062;
+
+	// Height
+	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
+
+		// Width
+		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
+
+			// Each Pixel
+			for (uint16 x = 0; x < 16; ++x) {
+
+				int8 Pixel = GetPixel( x, si );
+
+				if (Pixel)
+					*(di + x) = bl | Pixel;
+			}
+
+			di += 16;
+			si += 2;
+		}
+		
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
 }

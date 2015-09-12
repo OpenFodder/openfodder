@@ -39,4 +39,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		SetSpritePtr( eSpriteType pSpriteType );
 
 	virtual void		video_Draw_Sprite();
+
+	virtual void		sub_144A2();
+	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 };
