@@ -21,7 +21,7 @@
  */
 
 enum Platform {
-	PC	= 0,
+	PC		= 0,
 	Amiga	= 1
 };
 
@@ -33,7 +33,7 @@ struct sVersion {
 };
 
 const sVersion Versions[3] = {
-	{ "",								"Dos",	 Platform::PC,		"" },
-	{ "",								"Amiga", Platform::Amiga,	"Amiga" },
-	{ "Amiga Format Christmas Special",	"AFX",	 Platform::Amiga,	"AmigaFormat_XMAS" }
+	{ "",								"Dos",		Platform::PC,		"",					},
+	{ "",								"Amiga",	Platform::Amiga,	"Amiga",			},
+	{ "Amiga Format Christmas Special",	"AFX",		Platform::Amiga,	"AmigaFormat_XMAS"	}
 };

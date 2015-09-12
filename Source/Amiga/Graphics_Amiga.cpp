@@ -268,7 +268,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 	uint8* CurrentMapPtr = &mFodder->mMap[mFodder->mMapTilePtr];
 
 	// Y
-	for (uint16 cx = 0; cx < 0x0F; ++cx) {
+	for (uint16 cx = 0; cx < 0x10; ++cx) {
 
 		uint8* MapPtr = CurrentMapPtr;
 		uint8* TargetRow = Target;
@@ -281,7 +281,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 			StartY = 0;
 
 		// X
-		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+		for (uint16 cx2 = 0; cx2 < 0x17; ++cx2) {
 			uint8* TargetTmp = TargetRow;
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
@@ -485,11 +485,14 @@ void cGraphics_Amiga::sub_144A2( ) {
 
 	Buffer = mFodder->word_42066;
 
-	for (unsigned int Y = 0; Y < 200; ++Y) {
+	for (unsigned int Y = 0; Y < 230; ++Y) {
 
 		for (unsigned int X = 0; X < 0x30; X++) {
 
-			Buffer[X] = *si++;
+			if (si >= ((uint8*)mFodder->mMapSptPtr) + (0x258 * 16))
+				Buffer[X] = 0;
+			else
+				Buffer[X] = *si++;
 		}
 			
 		Buffer += 352;
