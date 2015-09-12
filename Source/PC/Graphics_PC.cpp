@@ -300,3 +300,148 @@ void cGraphics_PC::video_Draw_Sprite() {
 		di += Fodder->word_42076;
 	}
 }
+
+void cGraphics_PC::sub_144A2( ) {
+	
+	uint8*	Buffer = mImage->GetSurfaceBuffer();
+	uint8* 	si = (uint8*) mFodder->mMapSptPtr;
+
+	//TODO: BUG?
+	Buffer += (16 * 352) + 16; // 0x584
+	mFodder->byte_42071 = 1 << mFodder->word_40054;
+
+	mFodder->word_42066 = Buffer;
+	for (unsigned int Plane = 0; Plane < 4; Plane++) {
+
+		Buffer = mFodder->word_42066;
+
+		for (unsigned int Y = 0; Y < 200; ++Y) {
+
+			for (unsigned int X = Plane; X < 0x30; X += 4) {
+
+				Buffer[X] = *si++;
+			}
+			
+			Buffer += 352;
+		}
+	}
+}
+
+void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
+	const struct_2* str2 = &stru_44B50[pData0];
+	
+	int16 cx = str2->field_4;
+	int16 dx = str2->field_6;
+	mFodder->word_4206C = cx;
+	mFodder->word_4206E = dx;
+	
+	uint16 ax = 0xA0 * str2->field_2;
+	uint16 bx = str2->field_0 >> 1;
+	ax += bx;
+	
+	mFodder->word_42062 = mFodder->mDataPStuff + ax;
+	
+	mFodder->byte_42070 = 0xF0;
+	
+	uint16 w42066 = 0x0C * pDataC;
+	w42066 += pData8 >> 2;
+	
+	ax = pData8 & 3;
+	ax *= 0x960;
+	w42066 += ax;
+	
+	uint8* di = ((uint8*)mFodder->word_3D5B7) + w42066;
+	uint8* si = mFodder->word_42062;
+	
+	int8 bl = mFodder->byte_42070;
+	mFodder->word_4206C >>= 1;
+	
+	mFodder->word_42074 = 0xA0 - mFodder->word_4206C;
+	mFodder->word_4206C >>= 1;
+	mFodder->word_42076 = 0x0C - mFodder->word_4206C;
+	
+	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+		
+		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+			
+			uint8 al = (*si) >> 4;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			++di;
+		}
+			
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
+
+	w42066 += 0x960;
+	if( w42066 >= 0x2580 )
+		w42066 -= 0x257F;
+	
+	si = mFodder->word_42062;
+	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
+	
+	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+		
+		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+			uint8 al = (*si) & 0x0F;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			++di;
+		}
+		
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
+		
+	w42066 += 0x960;
+	if( w42066 >= 0x2580 )
+		w42066 -= 0x257F;
+	
+	++mFodder->word_42062;
+	si = mFodder->word_42062;
+	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
+	
+	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+		
+		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+			
+			uint8 al = (*si) >> 4;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			++di;
+		}
+			
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
+
+	w42066 += 0x960;
+	if( w42066 >= 0x2580 )
+		w42066 -= 0x257F;
+
+	si = mFodder->word_42062;
+	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
+	
+	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+		
+		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+			uint8 al = (*si) & 0x0F;
+			if( al )
+				*di = al | bl;
+			
+			si += 2;
+			++di;
+		}
+		
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
+
+}

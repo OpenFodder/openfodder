@@ -45,4 +45,6 @@ public:
 
 	virtual void		video_Draw_Sprite() = 0;
 	virtual void		SetSpritePtr( eSpriteType pSpriteType ) = 0;
+	virtual void		sub_144A2() = 0;
+	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
 };

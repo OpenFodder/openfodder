@@ -67,4 +67,7 @@ class cGraphics_Amiga : public cGraphics {
 	virtual void		video_Draw_Sprite();
 
 	virtual void		SetSpritePtr( eSpriteType pSpriteType );
+
+	virtual void		sub_144A2();
+	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 };

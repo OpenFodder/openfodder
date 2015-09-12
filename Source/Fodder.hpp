@@ -820,8 +820,6 @@ public:
 	void			video_Draw_Linear_To_Planar(  );
 	bool			Sprite_OnScreen_Check();
 	void			Sprite_Draw( );
-	void			sub_144A2( );
-	void 			sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	void			sub_14CCB( int16& pData0 );
 
 	void			Sound_Voc_Load();
