@@ -41,6 +41,15 @@ std::string mMapTypes[] = {
 	"afx"		// Amiga Format Christmas Special
 };
 
+const struct_6 mCoverDisk_Buttons[] = {
+	{ &cFodder::sub_2EAC2, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::sub_2EAC3 },
+	{ &cFodder::sub_2EAC2, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
+	{ &cFodder::sub_2EAC2, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::sub_A0400 },
+	{ &cFodder::sub_2EAC2, 0x02, 0x9D, 0x81, 0x63, &cFodder::sub_A03EE },
+	{ &cFodder::sub_2EAC2, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_A0400 },
+	{ 0 }
+};
+
 void cFodder::Music_Play( const char* pFilename ) {
 
 	std::string Filename = "Data/WAV/";
@@ -203,6 +212,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_42316[4] = dword_426E0;
 	word_42316[5] = 0;
 	word_42316[6] = dword_42500;	// Amiga Format Xmas
+
+	word_82132 = 0;
 }
 
 cFodder::~cFodder() {
@@ -3134,7 +3145,6 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 	if (word_3B307 > pParam00) 
 		word_3B307 = pParam00;
 	
-
 	if (Sprite_OnScreen_Check() )
 		mGraphics->video_Draw_Sprite();
 
@@ -3152,7 +3162,7 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 	word_42078 = 0x140;
 
 	if (Sprite_OnScreen_Check())
-		video_Draw_Linear_To_Planar();
+		mGraphics->video_Draw_Linear();
 }
 
 void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
@@ -3168,54 +3178,17 @@ void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
 	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].field_F + pDi->field_4) - word_4206E - pDi->field_20 - mCamera_Row;
 	mDrawSpritePositionY += 0x10;
 
+	if (pDi->field_18 == 58) {
+		std::cout << "Test\n";
+	}
+
+
 	++word_42072;
 	if (Sprite_OnScreen_Check()) {
 		pDi->field_5C = 1;
 		mGraphics->video_Draw_Sprite();
 	} else 
 		pDi->field_5C = 0;
-}
-
-void cFodder::video_Draw_Linear_To_Planar( ) {
-	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = word_42062;
-	int16	ax, cx;
-	
-	di += 352 * mDrawSpritePositionY;
-
-	ax = mDrawSpritePositionX;
-	ax += word_40054;
-	//ax >>= 2;
-	
-	di += ax;
-	word_42066 = di;
-	cx = mDrawSpritePositionX;
-	cx += word_40054;
-	cx &= 3;
-
-	uint8 Plane = 0;
-
-	byte_42071 = 1 << cx;
-	word_42074 = word_42078 - word_4206C;
-		                 
-	//word_4206C >>= 1;
-	word_42076 = 352 - word_4206C;
-
-	di += Plane;
-	for( int16 dx = word_4206E; dx > 0; --dx ) {
-		
-		for( cx = word_4206C; cx > 0; --cx ) {
-			int8 al = *si;
-			if(al)
-				*di = al;
-			
-			si ++;
-			di ++;
-		}
-
-		si += word_42074;
-		di += word_42076;
-	}
 }
 
 bool cFodder::Sprite_OnScreen_Check() {
@@ -3909,6 +3882,60 @@ void cFodder::Briefing_Draw_MissionName( ) {
 	String_Print( byte_4382F, 1, word_3B301, word_3A01A, *Data20 );
 }
 
+void cFodder::AFX_Show() {
+
+	Music_Stop();
+
+	((cGraphics_Amiga*)mGraphics)->LoadAFXMenu();
+	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
+
+	word_3E1B7 = mDataBaseBlk;
+	word_42062 = word_3E1B7;
+	
+	mDrawSpritePositionX = 16;
+	mDrawSpritePositionY = 16;
+	word_4206C = 0x140;
+	word_4206E = 0x101;
+	word_42078 = 0x101;
+	word_82132 = 0;
+	byte_42070 = 0;
+
+	mImage->clearBuffer();
+ 	mGraphics->video_Draw_Linear();
+
+	mImage->Save();
+	mImage->paletteFade();
+
+	for( ;; ) {
+		sub_13800();
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+		if (mButtonPressLeft)
+			sub_9B94E( mCoverDisk_Buttons );
+		
+		if (word_82132)
+			break;
+
+		if (mImage->GetFaded() == false )
+			mImage->paletteFade();
+
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+		mImage->Restore(); 
+	}
+		
+	mImage->paletteFadeOut();
+	
+	while( mImage->GetFaded() == false ) {
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+		mImage->paletteFade();
+	}
+
+	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xF0 );
+}
+
 void cFodder::Recruit_Show() {
 	mImage->clearBuffer();
 
@@ -3995,7 +4022,7 @@ void cFodder::Recruit_Draw_Hill( ) {
 	word_4206E = 0xB0;
 	word_42078 = 0x140;
 	
-	video_Draw_Linear_To_Planar();
+	mGraphics->video_Draw_Linear();
 	
 	for( uint32 x = 0; x < 0xA000; ++x) {
 		word_3E1B7[x] = 0;
@@ -8784,6 +8811,52 @@ void cFodder::sub_2EACA() {
 
 	sub_30480();
 	word_39EFC = 0;
+}
+
+void cFodder::sub_9B94E( const struct_6 *pA0 ) {
+	for (;; ++pA0) {
+		const struct_6* Data20 = pA0;
+
+		if (Data20->field_0 == 0)
+			break;
+
+		if ((*this.*Data20->field_0)() < 0)
+			return;
+
+		int16 Data0 = word_3BEC1 + Data20->field_4;
+
+		int16 Data4 = mMouseX;
+		Data4 += 0x20;
+
+		if (Data0 > Data4)
+			continue;
+
+		Data0 += Data20->field_6;
+		if (Data0 < Data4)
+			continue;
+
+		Data0 = word_3BEC3;
+		Data0 += Data20->field_8;
+		if (Data0 > mMouseY)
+			continue;
+
+		Data0 += Data20->field_A;
+		if (Data0 < mMouseY)
+			continue;
+
+		(*this.*Data20->mMouseInsideFuncPtr)();
+		return;
+	}
+}
+
+void cFodder::sub_A03EE() {
+	mMapNumber = 0;
+	word_82132 = 1;
+}
+
+void cFodder::sub_A0400() {
+	mMapNumber = 1;
+	word_82132 = 1;
 }
 
 void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
@@ -16502,7 +16575,7 @@ void cFodder::sub_2E04C() {
 }
 
 void cFodder::Start( int16 pStartMap ) {
-	mImage = new cSurface( 352, 250 );
+	mImage = new cSurface( 352, 270 );
 
 	mGraphics = 0;
 	mResources = new cResources( mVersion->mDataPath );
@@ -16553,6 +16626,13 @@ loc_103BF:;
 
 			if (!word_3A9B2 && !word_3A9AA) {
 
+				if (mVersion->mKey == "AFX") {
+					if (mMapNumber == 3) {
+						mMapNumber = 0;
+					}
+
+				}
+
 				if (mMapNumber == 71)
 					WonGame();
 
@@ -16594,7 +16674,7 @@ loc_103BF:;
 				if (mVersion->mKey != "AFX")
 					Recruit_Show();
 				else {
-					//TODO: Show AFX Menu
+					AFX_Show();
 				}
 
 				sub_2E04C();
@@ -16726,6 +16806,10 @@ loc_103BF:;
 					goto loc_103BF;
 				}
 			}
+
+			if (mVersion->mKey == "AFX")
+				break;
+
 		//loc_106F1
 			if (word_3A9AA) {
 				word_390EC = -1;

@@ -43,6 +43,7 @@ public:
 	virtual void		map_Load_Resources() = 0;
 	virtual void		PaletteSet() = 0;
 
+	virtual void		video_Draw_Linear() = 0;
 	virtual void		video_Draw_Sprite() = 0;
 	virtual void		SetSpritePtr( eSpriteType pSpriteType ) = 0;
 	virtual void		sub_144A2() = 0;

@@ -40,12 +40,16 @@ class cGraphics_Amiga : public cGraphics {
 	uint16				mPaletteArmy[0x10];
 	uint16				mPaletteCopt[0x10];
 	uint16				mPalletePStuff[0x10];
+	uint16				mPalleteAfx[0x20];
 	uint8*				mPalette;
 	size_t				mPaletteSize;
 	sILBM_BMHD			mBMHDArmy;
 	sILBM_BMHD			mBMHDCopt;
 	sILBM_BMHD			mBMHDPStuff;
-	uint16				mHeight;
+	sILBM_BMHD			mBMHDAfx;
+
+	sILBM_BMHD*			mBMHD_Current;
+	uint16				mCursorPalette;
 
 	protected:
 
@@ -55,7 +59,10 @@ class cGraphics_Amiga : public cGraphics {
 
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint16* pPalette );
 
-	virtual uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint8* pSource );
+	virtual void		LoadAFXMenu();
+	virtual void		SetCursorPalette( uint16 pIndex );
+
+	virtual uint8		GetPixel( uint8 pixel, uint8* pSource );
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();
 
@@ -64,6 +71,8 @@ class cGraphics_Amiga : public cGraphics {
 	virtual void		map_Tiles_Draw();
 	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();
+
+	virtual void		video_Draw_Linear();
 	virtual void		video_Draw_Sprite();
 
 	virtual void		SetSpritePtr( eSpriteType pSpriteType );

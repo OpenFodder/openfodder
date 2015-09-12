@@ -38,6 +38,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		PaletteSet();
 	virtual void		SetSpritePtr( eSpriteType pSpriteType );
 
+	virtual void		video_Draw_Linear();
 	virtual void		video_Draw_Sprite();
 
 	virtual void		sub_144A2();

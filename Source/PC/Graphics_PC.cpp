@@ -26,23 +26,23 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 	
 	switch ( pSegment ) {
 		case 0x3B68:
-			return g_Fodder.mDataBaseBlk;
+			return mFodder->mDataBaseBlk;
 			break;
 
 		case 0x4307:
-			return g_Fodder.mDataPStuff;
+			return mFodder->mDataPStuff;
 			break;
 
 		case 0x4309:
-			return g_Fodder.mDataHillBits;
+			return mFodder->mDataHillBits;
 			break;
 
 		case 0x430B:
-			return g_Fodder.mDataArmy;
+			return mFodder->mDataArmy;
 			break;
 
 		case 0x6717:
-			return g_Fodder.word_3E1B7;
+			return mFodder->word_3E1B7;
 			break;
 
 		default:
@@ -74,14 +74,14 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 	
 	switch (pSpriteType) {
 		case eSPRITE_IN_GAME:
-			g_Fodder.Sprite_SetDataPtrToBase( off_32C0C );
+			mFodder->Sprite_SetDataPtrToBase( off_32C0C );
 			return;
 	}
 }
 
 void cGraphics_PC::LoadpStuff() {
 
-	g_Resource.fileLoadTo( "pstuff.dat", g_Fodder.mDataPStuff );
+	g_Resource.fileLoadTo( "pstuff.dat", mFodder->mDataPStuff );
 }
 
 void cGraphics_PC::graphicsBlkPtrsPrepare() {
@@ -89,8 +89,8 @@ void cGraphics_PC::graphicsBlkPtrsPrepare() {
 
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		mGraphicBlkPtrs[cx + 0x00] = g_Fodder.mDataBaseBlk + bx;
-		mGraphicBlkPtrs[cx + 0xF0] = g_Fodder.mDataSubBlk + bx;
+		mGraphicBlkPtrs[cx + 0x00] = mFodder->mDataBaseBlk + bx;
+		mGraphicBlkPtrs[cx + 0xF0] = mFodder->mDataSubBlk + bx;
 
 		++dx;
 		bx += 0x10;
@@ -105,14 +105,14 @@ void cGraphics_PC::graphicsBlkPtrsPrepare() {
 
 void cGraphics_PC::PaletteSet() {
 
-	mImage->paletteSet( g_Fodder.mPalette );
+	mImage->paletteSet( mFodder->mPalette );
 }
 
 void cGraphics_PC::map_Tiles_Draw() {
 
 	uint8* Target = mImage->GetSurfaceBuffer();
 
-	uint8* CurrentMapPtr = &g_Fodder.mMap[g_Fodder.mMapTilePtr];
+	uint8* CurrentMapPtr = &mFodder->mMap[mFodder->mMapTilePtr];
 
 	// Y
 	for (uint16 cx = 0; cx < 0x0F; ++cx) {
@@ -122,7 +122,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 		uint16 StartY = 0;
 
 		if (cx == 0)
-			StartY = g_Fodder.word_3B610;
+			StartY = mFodder->word_3B610;
 		else
 			StartY = 0;
 
@@ -140,7 +140,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 			TilePtr += StartY * 0x140;
 			
 			if (cx2 == 0)
-				StartX = g_Fodder.word_3B60E;
+				StartX = mFodder->word_3B60E;
 			else
 				StartX = 0;
 
@@ -157,7 +157,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 		}
 
 		Target += mImage->GetWidth() * (16-StartY);
-		CurrentMapPtr += g_Fodder.mMapWidth << 1;
+		CurrentMapPtr += mFodder->mMapWidth << 1;
 	}
 
 	mImage->Save();
@@ -165,19 +165,60 @@ void cGraphics_PC::map_Tiles_Draw() {
 
 
 void cGraphics_PC::map_Load_Resources() {
-	g_Fodder.mFilenameCopt = g_Fodder.sub_12AA1( g_Fodder.mFilenameCopt, "dat" );
-	g_Fodder.mFilenameArmy = g_Fodder.sub_12AA1( g_Fodder.mFilenameArmy, "dat" );
+	mFodder->mFilenameCopt = mFodder->sub_12AA1( mFodder->mFilenameCopt, "dat" );
+	mFodder->mFilenameArmy = mFodder->sub_12AA1( mFodder->mFilenameArmy, "dat" );
 
-	g_Resource.fileLoadTo( g_Fodder.mFilenameCopt, g_Fodder.mDataHillBits );
-	g_Fodder.paletteLoad( g_Fodder.mDataHillBits + 0xD2A0, 0x40, 0xB0 );
-	g_Fodder.paletteLoad( g_Fodder.mDataHillBits + 0xD360, 0x10, 0x90 );
+	g_Resource.fileLoadTo( mFodder->mFilenameCopt, mFodder->mDataHillBits );
+	mFodder->paletteLoad( mFodder->mDataHillBits + 0xD2A0, 0x40, 0xB0 );
+	mFodder->paletteLoad( mFodder->mDataHillBits + 0xD360, 0x10, 0x90 );
 
-	g_Resource.fileLoadTo( g_Fodder.mFilenameArmy, g_Fodder.mDataArmy );
-	g_Fodder.paletteLoad( g_Fodder.mDataArmy + 0xD200, 0x10, 0xA0 );
+	g_Resource.fileLoadTo( mFodder->mFilenameArmy, mFodder->mDataArmy );
+	mFodder->paletteLoad( mFodder->mDataArmy + 0xD200, 0x10, 0xA0 );
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }
 
+void cGraphics_PC::video_Draw_Linear( ) {
+	uint8*	di = mImage->GetSurfaceBuffer();
+	uint8* 	si = mFodder->word_42062;
+	int16	ax, cx;
+	
+	di += 352 * mFodder->mDrawSpritePositionY;
+
+	ax = mFodder->mDrawSpritePositionX;
+	ax += mFodder->word_40054;
+	//ax >>= 2;
+	
+	di += ax;
+	mFodder->word_42066 = di;
+	cx = mFodder->mDrawSpritePositionX;
+	cx += mFodder->word_40054;
+	cx &= 3;
+
+	uint8 Plane = 0;
+
+	mFodder->byte_42071 = 1 << cx;
+	mFodder->word_42074 = mFodder->word_42078 - mFodder->word_4206C;
+		                 
+	//word_4206C >>= 1;
+	mFodder->word_42076 = 352 - mFodder->word_4206C;
+
+	di += Plane;
+	for( int16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+		
+		for( cx = mFodder->word_4206C; cx > 0; --cx ) {
+			int8 al = *si;
+			if(al)
+				*di = al;
+			
+			si ++;
+			di ++;
+		}
+
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
+}
 
 void cGraphics_PC::video_Draw_Sprite() {
 	cFodder* Fodder = cFodder::GetSingletonPtr();
