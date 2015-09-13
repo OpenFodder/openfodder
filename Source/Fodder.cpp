@@ -3145,7 +3145,7 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 
 	uint16 bx = mSpriteDataPtr[pParam00][pParam04].field_0;
 	
-	byte_42070 = (uint8) mSpriteDataPtr[pParam00][pParam04].field_C;
+	byte_42070 = mSpriteDataPtr[pParam00][pParam04].field_C & 0xFF;
 	
 	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pParam00][pParam04].field_2 ) + bx;
 
@@ -5700,7 +5700,7 @@ void cFodder::sub_23C70( sSprite_0* pData2C ) {
 	if (Data4 < 0)
 		Data0 = -Data0;
 
-	pData2C->field_26 = Data0;
+	pData2C->field_26 += Data0;
 
 	Data0 = tool_RandomGet();
 	Data4 = Data0;
@@ -5712,7 +5712,7 @@ void cFodder::sub_23C70( sSprite_0* pData2C ) {
 	if (Data4 < 0)
 		Data0 = -Data0;
 
-	pData2C->field_28 = Data0;
+	pData2C->field_28 += Data0;
 }
 
 int16 cFodder::sub_23D57( sSprite_0* pSprite ) {
@@ -6290,7 +6290,7 @@ int16 cFodder::sub_2494C( sSprite_0* pSprite ) {
 	Data2C->field_12 = Data0;
 	Data2C->field_36 = 0x32;
 	Data30->field_36 = 0x32;
-	Data0 = pSprite->field_2;
+	Data0 = pSprite->field_20;
 	Data0 += 2;
 
 	Data2C->field_1E = 0;
@@ -10496,11 +10496,11 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 58:
-			sub_1C4E7( Data20 );
+			Sprite_Handle_Text_Try( Data20 );
 			break;
 
 		case 59:
-			sub_1C52D( Data20 );
+			Sprite_Handle_Text_Again( Data20 );
 			break;
 
 		case 60:
@@ -12820,7 +12820,7 @@ void cFodder::sub_1C4C2( sSprite_0* pSprite ) {
 	sub_2060F( pSprite );
 }
 
-void cFodder::sub_1C4E7( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Text_Try( sSprite_0* pSprite ) {
 	pSprite->field_0 = dword_39F84 >> 16;
 	pSprite->field_0 += 0x71;
 	pSprite->field_4 -= 0x20;
@@ -12834,7 +12834,7 @@ void cFodder::sub_1C4E7( sSprite_0* pSprite ) {
 	pSprite->field_4 = Data0;
 }
 
-void cFodder::sub_1C52D( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Text_Again( sSprite_0* pSprite ) {
 	pSprite->field_0 = dword_39F84 >> 16;
 	pSprite->field_0 += 0x57;
 	pSprite->field_4 -= 0x20;

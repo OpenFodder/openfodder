@@ -425,35 +425,47 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	mFodder->word_42066 = di;
 
 	int8 bl = mFodder->byte_42070;
-	if (mFodder->word_4206C & 1)
-		mFodder->word_4206C += 1;
 
+	//if (mFodder->word_4206C & 1)
+	//	++mFodder->word_4206C;
 
-	mFodder->word_42074 = 40 - mFodder->word_4206C;
-	mFodder->word_4206C >>= 1;
-	mFodder->word_42076 = 352 - (mFodder->word_4206C*16);
+	mFodder->word_42074 = 40 - (mFodder->word_4206C);
+	//mFodder->word_4206C >>= 1;
+	mFodder->word_42076 = 352 - (mFodder->word_4206C*8);
 
 	// Height
 	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
+		uint8* Row = di;
+		uint8* Src = si;
 
 		// Width
 		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
-
+			
 			// Each Pixel
-			for (uint16 x = 0; x < 16; ++x) {
+			for (uint16 x = 0; x < 8; ++x) {
+				uint8 Bits = *Src;
 
-				int8 Pixel = GetPixel( x, si );
+				uint8 Result = (Bits << x) & 0x80 ? 1 : 0;
 
-				if (Pixel)
-					*(di + x) = bl | Pixel;
+				Bits = *( Src + (mBMHD_Current->mHeight * 40) );
+				Result |= (Bits << x) & 0x80 ? 2 : 0;
+
+				Bits = *( Src + ((mBMHD_Current->mHeight * 40) * 2) );
+				Result |= (Bits << x) & 0x80 ? 4 : 0;
+
+				Bits = *( Src + ((mBMHD_Current->mHeight * 40) * 3) );
+				Result |= (Bits << x) & 0x80 ? 8 : 0;
+
+				if (Result)
+					*(Row + x) = bl | Result;
 			}
 
-			di += 16;
-			si += 2;
+			Row += 8;
+			Src += 1;
 		}
 
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += 40;
+		di += 352;
 	}
 }
 

@@ -959,8 +959,8 @@ public:
 	void			sub_1C364( sSprite_0* pSprite );							// 55
 	void			sub_1C411( sSprite_0* pSprite );							// 56
 	void			sub_1C4C2( sSprite_0* pSprite );							// 57
-	void			sub_1C4E7( sSprite_0* pSprite );							// 58
-	void			sub_1C52D( sSprite_0* pSprite );							// 59
+	void			Sprite_Handle_Text_Try( sSprite_0* pSprite );				// 58
+	void			Sprite_Handle_Text_Again( sSprite_0* pSprite );				// 59
 	void			Sprite_Handle_BoilingPot( sSprite_0* pSprite );				// 60
 	void			Sprite_Handle_Indigenous( sSprite_0* pSprite );				// 61
 	void			sub_1C62F( sSprite_0* pSprite );							// 62
