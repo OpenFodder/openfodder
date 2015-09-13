@@ -948,8 +948,11 @@ public:
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
 	void			Sprite_Handle_RocketBox( sSprite_0* pSprite );				// 38
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
-	void			sub_1BD18( sSprite_0* pSprite );							// 40
+	void			Sprite_Handle_Helicopter( sSprite_0* pSprite );				// 40
 	void			sub_1BD54( sSprite_0* pSprite );							// 41
+	void			sub_1BD27( sSprite_0* pSprite );							// 42
+	void			sub_1BD36( sSprite_0* pSprite );							// 43
+	void			sub_1BD45( sSprite_0* pSprite );							// 44
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
 	void			sub_1C331( sSprite_0* pSprite );							// 54

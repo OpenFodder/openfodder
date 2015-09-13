@@ -20,20 +20,26 @@
  *
  */
 
-enum Platform {
+enum ePlatform {
 	PC		= 0,
 	Amiga	= 1
+};
+
+enum eRelease {
+	Retail = 0,
+	Demo = 1
 };
 
 struct sVersion {
 	const char* mName;
 	std::string mKey;
-	Platform	mPlatform;
+	ePlatform	mPlatform;
+	eRelease	mRelease;
 	const char* mDataPath;
 };
 
 const sVersion Versions[3] = {
-	{ "",								"Dos",		Platform::PC,		"",					},
-	{ "",								"Amiga",	Platform::Amiga,	"Amiga",			},
-	{ "Amiga Format Christmas Special",	"AFX",		Platform::Amiga,	"AmigaFormat_XMAS"	}
+	{ "",								"Dos",		ePlatform::PC,		eRelease::Retail,	"",					},
+	{ "",								"Amiga",	ePlatform::Amiga,	eRelease::Retail,	"Amiga",			},
+	{ "Amiga Format Christmas Special",	"AFX",		ePlatform::Amiga,	eRelease::Demo,		"AmigaFormat_XMAS"	}
 };
