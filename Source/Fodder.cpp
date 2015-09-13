@@ -6562,24 +6562,29 @@ void cFodder::sub_24ED7( sSprite_0* pSprite ) {
 	if (Data0 > 0x14)
 		goto loc_250D2;
 
-	if (pSprite->field_62 >= 0x1F4) {
+	Data8 = pSprite->field_62;
+	if ((uint16) Data8 >= 0x1F4) {
 		if (pSprite->field_18 == 0x6B)
 			if (word_3B4CB < 0)
 				goto loc_24FF1;
 
-		if (!tool_RandomGet() & 1)
+		if (!(tool_RandomGet() & 1))
 			goto loc_2500F;
 	}
 
 loc_24FF1:;
-	Data8 += 1;
-	bool of = false;
-	if (Data8 + word_390BE > 65535)
-		of = true;
+	if (mVersion->mRelease == eRelease::Demo) {
+		Data8 += 0x20;
+		if (Data8)
+			pSprite->field_62 = Data8;
 
-	Data8 += word_390BE;
-	if (!of)
-		pSprite->field_62 = Data8;
+	} else {
+		Data8 += 1;
+		Data8 += word_390BE;
+
+		if (Data8 >= 0)
+			pSprite->field_62 = Data8;
+	}
 
 	goto loc_25239;
 
