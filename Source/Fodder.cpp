@@ -120,6 +120,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3B163 = 0;
 	word_3B173 = 0;
 	word_3B175 = 0;
+	word_3B177 = 0;
 	word_3B189 = 0;
 	word_3B18B = 0;
 	word_3B44F = 0;
@@ -5719,6 +5720,91 @@ void cFodder::sub_23C70( sSprite_0* pData2C ) {
 	pData2C->field_28 = Data0;
 }
 
+int16 cFodder::sub_23D57( sSprite_0* pSprite ) {
+	int16 Data4 = 0x0F;
+	int16 Data0 = -10;
+
+	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	switch (Data4) {
+		case 1:
+		case 4:
+		case 5:
+		case 6:
+		case 0x0B:
+			Data0 = 0x0C;
+			break;
+
+		case 3:
+			Data0 = 0x14;
+			break;
+		case 2:
+		case 9:
+		case 0x0A:
+			Data0 = 0x0E;
+			break;
+
+		default:
+			return 0;	// Correct?
+	}
+
+	Data4 = pSprite->field_20;
+	if (Data4 >= Data0)
+		return 0;
+
+	++pSprite->field_20;
+	return -1;
+}
+
+void cFodder::sub_23E01( sSprite_0* pSprite, int16& pData0, int16& pData4 ) {
+	if (pSprite->field_44) {
+		pSprite->field_44 -= 1;
+
+		if (pSprite->field_44)
+			goto loc_23E2F;
+	}
+
+	pSprite->field_3C = pSprite->field_10;
+	sub_2A1F0( pSprite, pData0, pData4 );
+
+loc_23E2F:;
+	sub_2B12E( pSprite );
+
+	pSprite->field_10 = pSprite->field_3C;
+	pData0 = word_3A8CF;
+	pData0 <<= 3;
+
+	if (pSprite->field_36 > 0x18)
+		pData0 <<= 1;
+	pSprite->field_10 = pData0;
+	pSprite->field_10 &= 0x1FE;
+
+	sub_20E5C( pSprite );
+
+	int16 Data8 = pSprite->field_3C;
+	if (!pSprite->field_36)
+		return;
+
+	pSprite->field_A = Data8 >> 1;
+}
+
+void cFodder::sub_23EA6( sSprite_0* pSprite ) {
+	
+	for (sSprite_0** Data24 = dword_3B213; *Data24 != INVALID_SPRITE_PTR; ++Data24) {
+
+		if (*Data24 != pSprite)
+			continue;
+
+		do {
+			sSprite_0* eax = *(Data24+1);
+			*Data24 = eax;
+
+			++Data24;
+		} while (*Data24 != INVALID_SPRITE_PTR);
+
+		return;
+	}
+}
+
 void cFodder::sub_23EFD( sSprite_0* pSprite ) {
 	sSprite_0* Data28 = 0;
 	sSprite_0* Data34 = 0;
@@ -6155,6 +6241,96 @@ int16 cFodder::sub_246CC( sSprite_0* pSprite ) {
 	return 0;
 }
 
+int16 cFodder::sub_2494C( sSprite_0* pSprite ) {
+	int16 Data0, Data4, Data8, DataC;
+
+	if (word_3A9AE)
+		return 0;
+
+	if (byte_3A9D2[pSprite->field_22] == 2)
+		return 0;
+
+	if (!pSprite->field_2E)
+		return 0;
+
+	Data0 = 2;
+	sSprite_0* Data2C, *Data30;
+	if (!sub_211BA( Data0, Data2C, Data30 ))
+		return 0;
+
+	++byte_3A9D2[pSprite->field_22];
+	Data30 = Data2C + 1;
+	Data2C->field_0 = pSprite->field_0;
+	Data30->field_0 = pSprite->field_0;
+	Data2C->field_4 = pSprite->field_4;
+	Data30->field_4 = pSprite->field_4;
+	Data2C->field_8 = 0x7D;
+	Data30->field_8 = 0x7E;
+	Data2C->field_A = 0;
+	Data30->field_A = 0;
+
+	Data8 = pSprite->field_2E;
+	DataC = pSprite->field_30;
+	DataC += 6;
+
+	Data2C->field_26 = Data8;
+	Data2C->field_28 = DataC;
+
+	if (pSprite->field_22)
+		sub_23C70( Data2C );
+
+	Data0 = pSprite->field_0;
+	Data4 = pSprite->field_4;
+
+	sub_29E30( Data0, Data4, Data8, DataC );
+	if (Data0 < 0x28)
+		Data0 = 0x28;
+
+	Data0 = Data0 / 5;
+	if (Data0 > 0x64)
+		Data0 = 0x64;
+
+	Data2C->field_12 = Data0;
+	Data2C->field_36 = 0x32;
+	Data30->field_36 = 0x32;
+	Data0 = pSprite->field_2;
+	Data0 += 2;
+
+	Data2C->field_1E = 0;
+	Data2C->field_20 = Data0;
+	Data30->field_1E = 0;
+	Data30->field_20 = 0;
+
+	Data2C->field_4 += 1;
+	Data2C->field_0 += 3;
+
+	int32 Dataa0 = Data2C->field_12 << 16;
+	Dataa0 >>= 1;
+	if (Data0 > 0xE0000)
+		Data0 = 0xE0000;
+
+	Data2C->field_1A = (int32*) Data0;
+	Data2C->field_1A = 0;
+	Data2C->field_18 = 2;
+	Data30->field_18 = 3;
+
+	Data2C->field_52 = 0;
+	Data30->field_52 = 0;
+	Data2C->field_50 = 0;
+
+	Data2C->field_22 = pSprite->field_22;
+	Data30->field_22 = pSprite->field_22;
+
+	Data2C->field_2C = 0;
+	Data30->field_2C = -1;
+	Data2C->field_38 = 0;
+	
+	if (pSprite->field_22)
+		Data2C->field_12 += 0x0A;
+
+	return -1;
+}
+
 int16 cFodder::sub_24C47( sSprite_0* pSprite, sSprite_0* pData2C, sSprite_0* pData34 ) {
 	
 	if (word_3A9AE)
@@ -6241,11 +6417,299 @@ int16 cFodder::sub_24C47( sSprite_0* pSprite, sSprite_0* pData2C, sSprite_0* pDa
 	return -1;
 }
 
+int16 cFodder::sub_2531F( sSprite_0* pSprite, sSprite_0* pData30 ) {
+	int16 Data0;
+	sSprite_0* Data2C = 0;
+
+	if (pSprite->field_6F == 6)
+		goto loc_25344;
+
+	if (pSprite->field_6F == 7)
+		goto loc_253E7;
+
+	if (pSprite->field_6F == 8)
+		goto loc_253E7;
+
+loc_25344:;
+	pSprite->field_26 = pData30->field_0;
+	pSprite->field_26 += 0x14;
+	pSprite->field_28 = pData30->field_4;
+	pSprite->field_26 -= 0x1E;
+	if (pSprite->field_26 < 0)
+		pSprite->field_26 = 0;
+
+	pSprite->field_2E = pData30->field_0;
+	pSprite->field_30 = pData30->field_4;
+	if (pSprite->field_20 <= 0x1F)
+		goto loc_253D2;
+
+	Data0 = word_390B0;
+	Data0 &= 0x0F;
+	if (Data0)
+		goto loc_253D2;
+
+	sub_2494C(pSprite);
+	Data0 = tool_RandomGet() & 0x0F;
+	if (!Data0)
+		goto loc_253DE;
+
+loc_253D2:;
+	return -1;
+
+loc_253DE:;
+	return 0;
+
+loc_253E7:;
+	pSprite->field_26 = pData30->field_0;
+	pSprite->field_28 = pData30->field_4;
+	pSprite->field_2E = pData30->field_0;
+	pSprite->field_30 = pData30->field_4;
+
+	Data0 = word_3B177;
+	if (Data0 <= 0x3C)
+		goto loc_254C7;
+	if (Data0 >= 0x8C)
+		goto loc_254E7;
+
+	if (pSprite->field_20 < 0x19)
+		goto loc_254A4;
+
+	Data0 = word_390B0;
+	Data0 &= 0x0F;
+	if (Data0)
+		goto loc_254A4;
+
+	word_3B189 = 0x0E;
+	word_3B18B = -12;
+	if (pSprite->field_6F == 8)
+		goto loc_2547F;
+
+	sub_239C9( pSprite, Data2C );
+	goto loc_254A4;
+
+loc_2547F:;
+	sSprite_0* Data34 = pData30;
+	if (!sub_24C47( pSprite, Data2C, Data34 ))
+		goto loc_254A4;
+
+	Data2C->field_6A = (sSprite_0*) 0x2000;
+	Data2C->field_36 = 0x14;
+
+loc_254A4:;
+	if (pSprite->field_36 < 0)
+		goto loc_254E7;
+
+	pSprite->field_36 -= 4;
+	if (pSprite->field_36 < 0)
+		pSprite->field_36 = 0;
+	goto loc_254E7;
+
+loc_254C7:;
+
+	if (pSprite->field_36 >= 0)
+		goto loc_254DE;
+	
+	if (pSprite->field_36 < -34)
+		goto loc_254E7;
+loc_254DE:;
+	pSprite->field_36 -= 3;
+
+loc_254E7:;
+	Data0 = tool_RandomGet() & 0x0F;
+	if (!Data0)
+		return 0;
+
+	return -1;
+}
+
 void cFodder::sub_24ED7( sSprite_0* pSprite ) {
+	int16 Data0;
+	int16 Data4;
+	int16 Data8;
+	int16 DataC;
+	int16 Data10, Data14, Data1C;
+	const int8* Data28 = byte_3E7DD;
+	sSprite_0* Data24 = 0;
+
 	if (pSprite->field_38 == 1)
 		pSprite->field_38 = 0;
 
-	//todo
+	if (pSprite->field_38) {
+		word_3B175 = -1;
+
+		pSprite->field_22 = 1;
+		sub_19E65( pSprite );
+		pSprite->field_22 = 1;
+
+		word_3B175 = 0;
+		goto loc_25288;
+	}
+
+	if (!pSprite->field_43) {
+		pSprite->field_46 = (int32*) ((pSprite->field_0 << 16) | pSprite->field_4);
+		pSprite->field_43 = -1;
+	}
+
+	if (pSprite->field_4C)
+		--pSprite->field_4C;
+
+	if (pSprite->field_20)
+		goto loc_250D2;
+
+	Data0 = pSprite->field_0;
+	Data4 = pSprite->field_4;
+	Data8 = ((int32) pSprite->field_46) >> 16;
+	DataC = ((int32) pSprite->field_46) & 0xFFFF;
+
+	sub_29E30( Data0, Data8, Data8, DataC );
+	if (Data0 > 0x14)
+		goto loc_250D2;
+
+	Data8 = pSprite->field_62;
+	if (Data8 >= 0x1F4) {
+		if (pSprite->field_18 == 0x6B)
+			if (word_3B4CB < 0)
+				goto loc_24FF1;
+
+		Data0 = tool_RandomGet() & 1;
+		if (!Data0)
+			goto loc_2500F;
+	}
+
+loc_24FF1:;
+	Data8 += 1;
+	bool of = false;
+	if (Data8 + word_390BE > 65535)
+		of = true;
+
+	Data8 += word_390BE;
+	if (!of)
+		pSprite->field_62 = Data8;
+
+	goto loc_25239;
+
+loc_2500F:;
+	if (pSprite->field_4C)
+		goto loc_25239;
+
+	Data0 = tool_RandomGet() & 0x7F;
+	Data0 += 4;
+	if (Data0 > readLEWord(&mMap[0x54]))
+		goto loc_25239;
+
+	Data8 = Data0;
+	Data0 = tool_RandomGet() & 0x3F;
+	Data0 += 4;
+
+	if (Data0 > readLEWord(&mMap[0x56]))
+		goto loc_25239;
+
+	DataC = Data0;
+	Data8 <<= 4;
+	Data0 = tool_RandomGet() & 0x0F;
+	Data8 += Data0;
+
+	Data0 = tool_RandomGet() & 0x0F;
+	DataC += Data0;
+
+	if (sub_2B232( Data28, Data8, DataC, Data10, Data14 ))
+		goto loc_25239;
+
+	pSprite->field_26 = Data10;
+	pSprite->field_28 = Data14;
+	pSprite->field_4C = 0x5A;
+	goto loc_25239;
+
+loc_250D2:;
+
+	if (pSprite->field_6F == 5)
+		goto loc_251D2;
+
+	Data1C = pSprite->field_5E;
+	Data1C <<= 2;
+	sSprite_0** Dataa30 = dword_3BE03;
+	sSprite_0* Data30 = *Dataa30;
+	if (Data30 == INVALID_SPRITE_PTR)
+		goto loc_251B4;
+
+	if (Data30->field_52)
+		goto loc_251B4;
+
+	Data8 = Data30->field_0;
+	Data8 += 8;
+	DataC = Data30->field_4;
+	DataC += -5;
+
+	if (sub_2B232( byte_3E7BD, Data8, DataC, Data10, Data14 ))
+		goto loc_251B4;
+	
+	Data0 = Data30->field_0;
+	Data4 = Data30->field_4;
+	Data8 = pSprite->field_0;
+	DataC = pSprite->field_4;
+	sub_29E30( Data0, Data4, Data8, DataC );
+
+	word_3B177 = Data0;
+	if (Data0 < 0xFA)
+		if (sub_2531F( pSprite, Data30 ))
+			goto loc_251D2;
+
+loc_251B4:;
+	pSprite->field_5E += 1;
+	if (pSprite->field_5E >= 0x1E)
+		pSprite->field_5E = 0;
+
+loc_251D2:;
+	if (pSprite->field_62) {
+		--pSprite->field_62;
+	}
+	else {
+		pSprite->field_26 = ((int32)pSprite->field_46) >> 16;
+		pSprite->field_28 = ((int32)pSprite->field_46) & 0xFFFF;
+		goto loc_25239;
+	}
+
+loc_2520F:;
+	Data0 = tool_RandomGet() & 0x1F;
+	if (!Data0)
+		goto loc_2500F;
+
+	if (!pSprite->field_20) {
+		Data0 = tool_RandomGet() & 0x0F;
+		if (!Data0) {
+			sSprite_0* Data2C;
+			Troop_Deploy( pSprite, Data2C );
+		}
+	}
+
+loc_25239:;
+	word_3B175 = -1;
+	pSprite->field_22 = 1;
+	sub_19E65(pSprite);
+
+	pSprite->field_22 = 1;
+	word_3B175 = 0;
+	Data24 = pSprite + 1;
+	Data24->field_18 = 4;
+	++Data24;
+	Data24->field_18 = 4;
+
+loc_25288:;
+
+	Data24 = pSprite + 3;
+	Data24->field_18 = 0x29;
+	Data0 = pSprite->field_A;
+
+	Data0 <<= 1;
+	Data4 = pSprite->field_0;
+	Data4 += word_3E8D6[Data0];
+	Data24->field_0 = Data4;
+
+	Data4 = pSprite->field_4;
+	Data4 += word_3E8D6[Data0 + 1];
+	Data24->field_4 = Data4;
+
+	Data24->field_20 = pSprite->field_20;
 }
 
 void cFodder::sub_25863( sSprite_0* pSprite ) {
@@ -10846,6 +11310,348 @@ loc_19E50:;
 	pSprite->field_0 = 0;
 	pSprite->field_4 = 0x1000;
 	goto loc_19E3D;
+}
+
+void cFodder::sub_19E65( sSprite_0* pSprite ) {
+	word_3B4ED[0] = 0;
+	int16 Data0 = tool_RandomGet() & 0x0E;
+	int16 Data4, Data8, DataC, Data10, Data14, Data18, Data1C;
+
+	Data0 = word_3E7CD[Data0];
+	if (pSprite->field_22)
+		goto loc_19EB5;
+
+	if (pSprite->field_20 >= 2)
+		goto loc_19EC0;
+
+	if (pSprite != dword_3B20B)
+		goto loc_19EE5;
+
+	goto loc_19EC0;
+
+loc_19EB5:;
+	if (pSprite->field_20 <= 1)
+		goto loc_19EE5;
+
+loc_19EC0:;
+	word_3B4ED[0] = -1;
+	Data4 = pSprite->field_20;
+	if (Data4 < 0x10)
+		Data4 = 0x10;
+
+	sub_14CCB( Data0 );
+loc_19EE5:;
+	pSprite->field_65 = -1;
+
+	if (!pSprite->field_38)
+		goto loc_1A149;
+
+	if (pSprite->field_18 == 0x6B)
+		if (word_3B4CB >= 0)
+			goto loc_1A042;
+	
+	if (pSprite->field_26 == 0x7171)
+		goto loc_19F50;
+
+	pSprite->field_26 = 0x7171;
+	pSprite->field_1A = (int32*) 0x10000;
+
+	Data0 = tool_RandomGet() & 0x0F;
+	Data0 += 0x13;
+
+	pSprite->field_2A = Data0;
+loc_19F50:;
+	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+
+	sub_23444( pSprite );
+	Sprite_Movement_Calculate( pSprite );
+
+	pSprite->field_1A = (int32*) (((int32)pSprite->field_1A ) + 0x2000);
+	Data0 = ((int32)pSprite->field_1A) >> 16;
+	pSprite->field_A += Data0;
+	pSprite->field_A &= 0x0F;
+	pSprite->field_2A -= 1;
+	if (pSprite->field_2A < 0)
+		goto loc_19FBC;
+
+	int32 Field_1E = pSprite->field_1E | pSprite->field_20 << 16;
+	Field_1E -= 0x18000;
+	pSprite->field_1E = Field_1E & 0xFFFF;
+	pSprite->field_20 = Field_1E >> 16;
+	if (Field_1E >= 0)
+		goto loc_1A404;
+
+	pSprite->field_1E = 0;
+	pSprite->field_20 = 0;
+
+loc_19FBC:;
+	pSprite->field_18 = 0x0C;
+	pSprite->field_26 = 0x1F50;
+	pSprite->field_28 = -9;
+	(pSprite+1)->field_18 = 0x35;
+
+	Data0 = tool_RandomGet() & 0x1FE;
+	(pSprite + 1)->field_10 = Data0;
+	(pSprite + 1)->field_36 = 0x60;
+
+	sSprite_0* Data24 = pSprite + 2;
+	sub_2061C( Data24 );
+
+	if (!pSprite->field_22)
+		sub_23EA6(pSprite);
+
+	if (!word_3B175)
+		return;
+
+loc_1A042:;
+	if (pSprite->field_75 != 0x71) {
+		pSprite->field_75 = 0x71;
+		Data0 = pSprite->field_A;
+		pSprite->field_74 = Data0;
+	}
+
+	pSprite->field_A += 1;
+	pSprite->field_A &= 0x0F;
+
+	Data0 = pSprite->field_A;
+	if (Data0 == pSprite->field_74) {
+		pSprite->field_75 = 0;
+		pSprite->field_38 = 0;
+	}
+
+	Data24 = pSprite + 1;
+
+	Data24->field_8 = 0x8C;
+	Data24->field_0 = pSprite->field_0;
+	Data24->field_4 = pSprite->field_4;
+	Data24->field_4 += 1;
+	Data24->field_20 = pSprite->field_20 + 0x0E;
+
+	if (!word_3B4ED)
+		if (!pSprite->field_1E && !pSprite->field_20)
+			return;
+	
+	if (pSprite->field_20 < 0x0C)
+		if (word_390B0 & 1)
+			return;
+
+	Data24->field_A += 1;
+	Data24->field_A &= 3;
+	return;
+
+loc_1A149:;
+	pSprite->field_8 = 0x8B;
+	if (pSprite->field_44)
+		goto loc_1A217;
+
+	Data0 = pSprite->field_0;
+	Data4 = pSprite->field_4;
+	Data8 = pSprite->field_26;
+	DataC = pSprite->field_28;
+
+	sub_29E30( Data0, Data4, Data8, DataC );
+	dword_3B213[0x0E] = (sSprite_0*) Data0;
+
+	if (Data0 >= 0x60)
+		goto loc_1A217;
+
+	Data0 >>= 1;
+
+	if (Data0 > pSprite->field_36)
+		goto loc_1A217;
+
+	if (pSprite->field_22)
+		goto loc_1A205;
+
+	pSprite->field_36 = Data0;
+	if (!pSprite->field_6E)
+		goto loc_1A316;
+
+	Field_1E = pSprite->field_1E | pSprite->field_20 << 16;
+	Field_1E -= 0xC000;
+	pSprite->field_1E = Field_1E & 0xFFFF;
+	pSprite->field_20 = Field_1E >> 16;
+	if (Field_1E < 0) {
+		pSprite->field_1E = 0;
+		pSprite->field_20 = 0;
+	}
+	sub_23D57( pSprite );
+	goto loc_1A316;
+
+loc_1A205:;
+	pSprite->field_36 = Data0;
+	if (!Data0)
+		goto loc_1A287;
+	goto loc_1A316;
+
+loc_1A217:;
+	if (pSprite->field_20 < 0x20) {
+		pSprite->field_20++;
+		if (pSprite->field_20 < 0x12)
+			goto loc_1A316;
+	}
+	//loc_1A239
+	if (pSprite->field_36 >= 0x30)
+		goto loc_1A316;
+
+	pSprite->field_36 += 2;
+	if (dword_3B213[0x0E] >= (sSprite_0*)0x60)
+		goto loc_1A316;
+
+	if (!pSprite->field_6E)
+		goto loc_1A316;
+
+	Field_1E = pSprite->field_1E | pSprite->field_20 << 16;
+	Field_1E -= 0xC000;
+	pSprite->field_1E = Field_1E & 0xFFFF;
+	pSprite->field_20 = Field_1E >> 16;
+	if (Field_1E < 0) {
+		pSprite->field_1E = 0;
+		pSprite->field_20 = 0;
+	}
+	goto loc_1A316;
+
+loc_1A287:;
+	Data8 = pSprite->field_0;
+	DataC = pSprite->field_4;
+
+	if (sub_2B232( byte_3E7DD, Data8, DataC, Data10, Data14 ))
+		goto loc_1A316;
+	
+	Data8 = pSprite->field_0;
+	Data8 -= 0x10;
+	DataC = pSprite->field_4;
+
+	if (sub_2B232( byte_3E7DD, Data8, DataC, Data10, Data14 ))
+		goto loc_1A316;
+
+	Data8 = pSprite->field_0;
+	Data8 += 0x10;
+	DataC = pSprite->field_4;
+
+	if (sub_2B232( byte_3E7DD, Data8, DataC, Data10, Data14 ))
+		goto loc_1A316;
+
+	Field_1E = pSprite->field_1E | pSprite->field_20 << 16;
+	Field_1E -= 0x8000;
+	pSprite->field_1E = Field_1E & 0xFFFF;
+	pSprite->field_20 = Field_1E >> 16;
+
+loc_1A316:;
+	Data0 = pSprite->field_26;
+	if (Data0 < 0)
+		goto loc_1A345;
+
+	Data4 = pSprite->field_28;
+	if (Data4 < 0)
+		goto loc_1A345;
+
+	if (!pSprite->field_20)
+		goto loc_1A345;
+
+	Sprite_Movement_Calculate( pSprite );
+
+loc_1A345:;
+
+	if (pSprite->field_22)
+		goto loc_1A3AB;
+
+	if (pSprite->field_36)
+		goto loc_1A3AB;
+
+	if (pSprite->field_20 < 0x20)
+		goto loc_1A3AB;
+
+	Data0 = mMouseX + (mCamera_Adjust_Col >> 16);
+	Data0 -= 0x10;
+
+	Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
+	Data4 += 0x20;
+	pSprite->field_36 = 0x1E;
+	sub_23E01( pSprite, Data0, Data4 );
+	pSprite->field_36 = 0;
+	goto loc_1A3D2;
+
+loc_1A3AB:;
+	word_3B2F7 = 0x3A;
+	Data0 = pSprite->field_26;
+	Data4 = pSprite->field_28;
+	sub_22CD7( pSprite, Data0, Data4 );
+	goto loc_1A404;
+
+loc_1A3D2:;
+
+	Data8 = pSprite->field_3C;
+	if (pSprite->field_22) {
+		if (!pSprite->field_36)
+			goto loc_1A404;
+	}
+	pSprite->field_A = Data8;
+
+loc_1A404:;
+	Data24 = pSprite + 1;
+	Data24->field_8 = 0x8C;
+	Data24->field_0 = pSprite->field_0;
+	Data24->field_4 = pSprite->field_4;
+	Data24->field_4 += 1;
+	Data0 = pSprite->field_20;
+	Data0 += 0x0E;
+	Data24->field_20 = Data0;
+
+	if (!word_3B4ED)
+		if (!(pSprite->field_1E | pSprite->field_20 << 16))
+			goto loc_1A49C;
+
+	if (pSprite->field_20 < 0x0C)
+		if (word_390B0 & 1)
+			goto loc_1A49C;
+
+	Data24->field_A += 1;
+	Data24->field_A &= 3;
+
+loc_1A49C:;
+	Data24++;
+	Data24->field_8 = 0x8D;
+	Data0 = pSprite->field_20;
+
+	Data0 >>= 4;
+	if (Data0 > 2)
+		Data0 = 2;
+
+	Data24->field_A = Data0;
+	Data24->field_2C = -1;
+	Data0 = pSprite->field_20;
+	Data0 >>= 1;
+	Data4 = Data0;
+	Data0 += 9;
+
+	Data0 += pSprite->field_0;
+	Data24->field_0 = Data0;
+	Data4 -= 1;
+	Data4 += pSprite->field_4;
+	Data24->field_4 = Data4;
+
+	if (pSprite->field_22)
+		goto loc_1A5A7;
+
+	if (!pSprite->field_20)
+		goto loc_1A5A7;
+
+	Data8 = pSprite->field_0;
+	DataC = pSprite->field_0;
+	DataC += 0x1E;
+	Data10 = pSprite->field_4;
+	Data10 -= 0x14;
+	Data14 = pSprite->field_4;
+	Data18 = pSprite->field_20;
+	Data1C = Data18;
+	Data1C += 0x0E;
+
+	sub_2315D( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
+
+loc_1A5A7:;
+
+	pSprite->field_22 = 0;
 }
 
 void cFodder::sub_1A8A5( sSprite_0* pSprite ) {
