@@ -50,7 +50,12 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mFodder->byte_42070 = mCursorPalette;
 		mBMHD_Current = &mBMHDPStuff;
 		return mFodder->mDataPStuff;
+
+	default:
+		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
+		return 0;
 	}
+
 }
 
 void cGraphics_Amiga::Mouse_DrawCursor() {
@@ -259,6 +264,8 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 			break;
 		}
 	}
+
+	return true;
 }
 
 void cGraphics_Amiga::map_Tiles_Draw() {
@@ -419,7 +426,7 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 
 	int8 bl = mFodder->byte_42070;
 	if (mFodder->word_4206C & 1)
-		mFodder->word_4206C += 3;
+		mFodder->word_4206C += 1;
 
 
 	mFodder->word_42074 = 40 - mFodder->word_4206C;
