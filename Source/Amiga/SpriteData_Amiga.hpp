@@ -924,10 +924,10 @@ const sSpriteSheet stru_8E3F8[] = {
   { 9526, 1, 0, 0, 2, 17, 13480, 0x0, 0 },
   { 9528, 1, 0, 0, 2, 17, 13480, 0x0, 0 },
 };
-const sSpriteSheet stru_8E448[] = {
+const sSpriteSheet SpriteSheet_Text_Try[] = {
   { 9530, 1, 0, 0, 5, 17, 13480, 0x0, 0 },
 };
-const sSpriteSheet stru_8E458[] = {
+const sSpriteSheet SpriteSheet_Text_Again[] = {
   { 9538, 1, 0, 0, 7, 17, 13480, 0xA, 0 },
 };
 const sSpriteSheet stru_8E468[] = {
@@ -1375,8 +1375,8 @@ const sSpriteSheet* off_8BFB8[] = {
 	stru_8E3D8,
 	stru_8E3E8,
 	stru_8E3F8,
-	stru_8E448,
-	stru_8E458,
+	SpriteSheet_Text_Try,
+	SpriteSheet_Text_Again,
 	stru_8E468,
 	stru_8E4B8,
 	stru_8E4F8,
