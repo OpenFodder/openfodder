@@ -947,9 +947,14 @@ public:
 	void			sub_1BD36( sSprite_0* pSprite );							// 43
 	void			sub_1BD45( sSprite_0* pSprite );							// 44
 	void			Sprite_Handle_Missile( sSprite_0* pSprite );				// 45
+	void			sub_1BEFB( sSprite_0* pSprite );							// 46
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
-
+	void			sub_1C2A5( sSprite_0* pSprite );							// 49
+	void			sub_1C296( sSprite_0* pSprite );							// 50
+	void			sub_1C2B4( sSprite_0* pSprite );							// 51
+	void			sub_1C2C3( sSprite_0* pSprite );							// 52
+	void			sub_1C2D2( sSprite_0* pSprite );							// 53
 	void			sub_1C331( sSprite_0* pSprite );							// 54
 	void			sub_1C364( sSprite_0* pSprite );							// 55
 	void			sub_1C411( sSprite_0* pSprite );							// 56
@@ -965,12 +970,17 @@ public:
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68
 	void			sub_1C689( sSprite_0* pSprite );							// 70
+	void			sub_1CE80( sSprite_0* pSprite );							// 71
 	void			sub_1D4BA( sSprite_0* pSprite );							// 75
 	void			sub_1D4C6( sSprite_0* pSprite );							// 76
 	void			Sprite_Handle_Turret( sSprite_0* pSprite );					// 78
 	void			sub_1D756( sSprite_0* pSprite );							// 79
+	void			sub_1D6F2( sSprite_0* pSprite );							// 84
+	void			sub_1D70B( sSprite_0* pSprite );							// 85
 	void			sub_1D81C( sSprite_0* pSprite );							// 88
 	void			sub_1DA43( sSprite_0* pSprite );							// 89
+	void			sub_1BEF6( sSprite_0* pSprite );							// 97
+	void			sub_1D724( sSprite_0* pSprite );							// 105
 
 	int16			sub_1D92E( sSprite_0* pSprite );
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
@@ -1047,6 +1057,7 @@ public:
 	int16			sub_23444( sSprite_0* pSprite );
 	int16			sub_239C9( sSprite_0* pSprite, sSprite_0*& pData2C );
 	void			sub_23C70( sSprite_0* pData2C );
+	void			sub_23CDD( sSprite_0* pSprite );
 	int16			sub_23D57( sSprite_0* pSprite );
 	void			sub_23E01( sSprite_0* pSprite, int16& pData0, int16& pData4  );
 	void			sub_23EA6( sSprite_0* pSprite );
@@ -1057,9 +1068,10 @@ public:
 	int16			sub_2449E( sSprite_0* pSprite );
 	void			sub_245BF( sSprite_0* pSprite );
 	int16			sub_246CC( sSprite_0* pSprite );
+	void			sub_248B7( sSprite_0* pSprite );
 	int16			sub_2494C( sSprite_0* pSprite );
-	int16			sub_24C47( sSprite_0* pSprite, sSprite_0* Data2C, sSprite_0* pData34 );
-	int16			sub_2531F( sSprite_0* pSprite, sSprite_0* pData30 );
+	int16			sub_24C47( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData34 );
+	int16			sub_2531F( sSprite_0* pSprite, sSprite_0*& pData30 );
 	void			sub_24ED7( sSprite_0* pSprite );
 	void			sub_25863( sSprite_0* pSprite );
 	void			sub_258C6( sSprite_0* pSprite );
