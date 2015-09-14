@@ -70,13 +70,6 @@ struct sIntroText {
 	const sIntroString*	mText;
 };
 
-struct sRecruit {
-	char  mName[7];	// increased to 7, to allow the null terminator
-	uint8 field_6;
-	int8 field_7;
-	int8 field_8;
-};
-
 struct sHero {
 	int8	mRecruitID;
 	int16	mRank;
@@ -137,7 +130,6 @@ union struct_8 {
 	};
 };
 
-extern struct sRecruit mRecruits[360];
 extern const struct_2 stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
@@ -948,13 +940,16 @@ public:
 	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
 	void			Sprite_Handle_RocketBox( sSprite_0* pSprite );				// 38
 	void			sub_1BB11( sSprite_0* pSprite );							// 39
+
 	void			Sprite_Handle_Helicopter( sSprite_0* pSprite );				// 40
 	void			sub_1BD54( sSprite_0* pSprite );							// 41
 	void			sub_1BD27( sSprite_0* pSprite );							// 42
 	void			sub_1BD36( sSprite_0* pSprite );							// 43
 	void			sub_1BD45( sSprite_0* pSprite );							// 44
+	void			Sprite_Handle_Missile( sSprite_0* pSprite );				// 45
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
+
 	void			sub_1C331( sSprite_0* pSprite );							// 54
 	void			sub_1C364( sSprite_0* pSprite );							// 55
 	void			sub_1C411( sSprite_0* pSprite );							// 56
@@ -975,6 +970,7 @@ public:
 	void			Sprite_Handle_Turret( sSprite_0* pSprite );					// 78
 	void			sub_1D756( sSprite_0* pSprite );							// 79
 	void			sub_1D81C( sSprite_0* pSprite );							// 88
+	void			sub_1DA43( sSprite_0* pSprite );							// 89
 
 	int16			sub_1D92E( sSprite_0* pSprite );
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );

@@ -48,9 +48,6 @@
     <ClInclude Include="..\..\Source\UnknownData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Recruits.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\MissionNames.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -77,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp">
       <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Recruits.hpp">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +105,9 @@
       <Filter>Source\Amiga</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Graphics.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Recruits.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
