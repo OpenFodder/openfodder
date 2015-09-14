@@ -21,9 +21,9 @@
  */
 
 const sIntroString mIntro_0[] = {
-	{ 0x58, "This game is not in any way" },
-	{ 0x72, "endorsed by the" },
-	{ 0x8C, "ROYAL BRITISH LEGION" },
+	{ 0x50, "This game is not in any way" },
+	{ 0x68, "endorsed by the" },
+	{ 0x82, "ROYAL BRITISH LEGION" },
 	{ 0 }
 };
 
