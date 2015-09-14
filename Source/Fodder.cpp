@@ -24,7 +24,6 @@
 #include "PC/SpriteData_PC.hpp"
 #include "Amiga/SpriteData_Amiga.hpp"
 #include "IntroData.hpp"
-#include "Recruits.hpp"
 #include "UnknownData.hpp"
 #include "MissionNames.hpp"
 #include "VocTable.hpp"
@@ -49,26 +48,6 @@ const struct_6 mCoverDisk_Buttons[] = {
 	{ &cFodder::sub_2EAC2, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_A0400 },
 	{ 0 }
 };
-
-void cFodder::Music_Play( const char* pFilename ) {
-
-	std::string Filename = "Data/WAV/";
-	Filename.append( pFilename );
-	Filename.append( ".wav" );
-
-	Mix_FreeMusic( mMusicPlaying );
-	SDL_Delay( 100 );
-
-	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
-
-	if (mMusicPlaying)
-		Mix_PlayMusic( mMusicPlaying, -1 );
-}
-
-void cFodder::Music_Stop() {
-
-	Mix_FadeOutMusic(500);
-}
 
 cFodder::cFodder( bool pSkipIntro ) {
 	
@@ -3143,11 +3122,9 @@ void cFodder::Mouse_DrawCursor( ) {
 
 void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 ) {
 
-	uint16 bx = mSpriteDataPtr[pParam00][pParam04].field_0;
-	
 	byte_42070 = mSpriteDataPtr[pParam00][pParam04].field_C & 0xFF;
-	
-	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pParam00][pParam04].field_2 ) + bx;
+	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pParam00][pParam04].field_2 );
+	word_42062 += mSpriteDataPtr[pParam00][pParam04].field_0;
 
 	mDrawSpritePositionX = (pParam08 + 0x10);
 	mDrawSpritePositionY = pParam0C + 0x10;
@@ -3162,10 +3139,11 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 }
 
 void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) {
-	uint16 bx = mSpriteDataPtr[pData0][pData4].field_0;
+
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
-	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + bx;
-	
+	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 );
+	word_42062 += mSpriteDataPtr[pData0][pData4].field_0;
+
 	mDrawSpritePositionX = (pPosX + 0x10);
 	mDrawSpritePositionY = pPosY + 0x10;
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
@@ -3179,8 +3157,8 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
 	
 	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
-	
-	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
+	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 );
+	word_42062 += mSpriteDataPtr[pData0][pData4].field_0;
 	
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount - pDi->field_52;
@@ -3296,8 +3274,6 @@ void cFodder::Sprite_Draw( ) {
 			sub_13CF0( eax, Data0, Data4 );
 		}
 	}
-	//seg001:0D5E
-	// mousedata... ? TODO??
 }
 
 void cFodder::sub_14CCB( int16 &pData0 ) {
@@ -3354,6 +3330,26 @@ void cFodder::Sound_Voc_Load() {
 			dword_426E0[Voc->field_1].mSize = bx;
 		}
 	}
+}
+
+void cFodder::Music_Play( const char* pFilename ) {
+
+	std::string Filename = "Data/WAV/";
+	Filename.append( pFilename );
+	Filename.append( ".wav" );
+
+	Mix_FreeMusic( mMusicPlaying );
+	SDL_Delay( 100 );
+
+	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
+
+	if (mMusicPlaying)
+		Mix_PlayMusic( mMusicPlaying, -1 );
+}
+
+void cFodder::Music_Stop() {
+
+	Mix_FadeOutMusic(500);
 }
 
 void cFodder::Music_Unk( int16 pTrack ) {
@@ -5138,7 +5134,7 @@ loc_30CBC:;
 void cFodder::sub_22C87( sSprite_0* pSprite ) {
 	
 	int64 Data0 = (int64) pSprite->field_1A;
-	int32 tmp = pSprite->field_1E | pSprite->field_20 << 16;
+	int32 tmp = pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16;
 	tmp += Data0;
 
 	pSprite->field_1E = Data0;
@@ -6193,7 +6189,7 @@ int16 cFodder::sub_246CC( sSprite_0* pSprite ) {
 	Data2C->field_12 = 9;
 	Data2C->field_18 = 0x4D;
 
-	int32 Field_1E = pSprite->field_1E | (pSprite->field_20 << 16);
+	int32 Field_1E = pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16);
 	Field_1E += 0x60000;
 	Data2C->field_1E = Field_1E & 0xFFFF;
 	Data2C->field_20 = Field_1E >> 16;
@@ -8660,6 +8656,8 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 		return;
 
 	sSquad_Member* Dataa20 = (sSquad_Member*) Data20->field_46;
+	if (Dataa20 == 0)
+		return;
 
 	word_3ABB3 = stru_3ABB9.field_4;
 	word_3ABC3 = 0;
@@ -10470,6 +10468,9 @@ void cFodder::Sprite_Handle_Loop() {
 			sub_1BD45( Data20 );
 			break;
 
+		case 45:
+			Sprite_Handle_Missile( Data20 );
+			break;
 
 		case 47:
 			sub_1C1C0( Data20 );
@@ -10557,6 +10558,10 @@ void cFodder::Sprite_Handle_Loop() {
 
 		case 88:
 			sub_1D81C( Data20 );
+			break;
+
+		case 89:
+			sub_1DA43( Data20 );
 			break;
 
 		default:
@@ -11615,7 +11620,7 @@ loc_1A404:;
 	Data24->field_20 = Data0;
 
 	if (!word_3B4ED[0])
-		if (!(pSprite->field_1E | pSprite->field_20 << 16))
+		if (!(pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16))
 			goto loc_1A49C;
 
 	if (pSprite->field_20 < 0x0C)
@@ -12670,6 +12675,73 @@ void cFodder::sub_1BD45( sSprite_0* pSprite ) {
 	sub_24ED7( pSprite );
 }
 
+void cFodder::Sprite_Handle_Missile( sSprite_0* pSprite ) {
+	
+	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+	sub_2183B( pSprite );
+
+	pSprite->field_8 = 0xA3;
+	int16 Data0 = pSprite->field_26;
+	int16 Data4 = pSprite->field_28;
+	int16 Data8 = pSprite->field_0;
+	int16 DataC = pSprite->field_4;
+	int16 Data10 = 0x10;
+
+	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	if (Data0 <= 7)
+		goto loc_1BECD;
+
+	if (pSprite->field_20 > 4) {
+		int32 tmp = pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16;
+		tmp -= 0xA000;
+
+		pSprite->field_1E = Data0;
+		pSprite->field_20 = Data0 >> 16;
+	}
+
+	Data0 = pSprite->field_26;
+	Data4 = pSprite->field_28;
+
+	sub_2A1F0( pSprite, Data0, Data4 );
+	Sprite_Movement_Calculate( pSprite );
+
+	if (word_3B173)
+		goto loc_1BECD;
+
+	Data0 = pSprite->field_10;
+
+	Data0 >>= 5;
+	Data0 -= 1;
+	Data0 ^= 0x0F;
+	Data0 &= 0x0F;
+	pSprite->field_A = Data0;
+
+	if (pSprite->field_36 < 0x60)
+		pSprite->field_36 += pSprite->field_3A;
+
+	Data0 = word_390B0;
+	Data0 &= 3;
+
+	if (!Data0)
+		pSprite->field_3A <<= 1;
+
+	if (!pSprite->field_32)
+		return;
+
+	Data0 = -9;
+	Data4 = 2;
+	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+		return;
+
+loc_1BECD:;
+
+	pSprite->field_18 = 0x59;
+	pSprite->field_4 -= 4;
+	sub_229C9( pSprite );
+
+	sub_2061C( pSprite + 1 );
+}
+
 void cFodder::sub_1C1C0( sSprite_0* pSprite ) {
 	Sprite_Movement_Calculate( pSprite );
 	int64 Data0 = (int64) pSprite->field_1A;
@@ -13233,6 +13305,11 @@ loc_1D928:;
 	Troop_Deploy( pSprite, Data2C );
 }
 
+void cFodder::sub_1DA43( sSprite_0* pSprite ) {
+
+	sub_1A8A5( pSprite );
+}
+
 int16 cFodder::sub_1D92E( sSprite_0* pSprite ) {
 	int16 Data0, Data4;
 
@@ -13547,7 +13624,7 @@ loc_1E3D2:;
 	//loc_1E5A7
 	Dataa0 = (int64) pSprite->field_1A;
 	Dataa4 = Dataa0;
-	Dataa0 += (pSprite->field_1E | (pSprite->field_20 << 16));
+	Dataa0 += (pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16));
 
 	// Probably going to be issues here
 	pSprite->field_1E = Dataa4;
@@ -16394,7 +16471,7 @@ loc_2132A:;
 	Sprite_Movement_Calculate( pSprite );
 
 	Dat0 = (int64) pSprite->field_1A;
-	Dat4 = pSprite->field_1E | pSprite->field_20 << 16;
+	Dat4 = pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16;
 
 	Dat0 -= 0x28000;
 
