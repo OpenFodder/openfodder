@@ -30,17 +30,17 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	memset( &mPaletteCopt, 0, 0x10 );
 	memset( &mPalletePStuff, 0, 0x10 );
 	memset( &mPalleteAfx, 0, 0x20 );
-	
+
 }
 
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
-	
+
 	switch (pSegment) {
 	case 0:
 		mFodder->byte_42070 = 0;
 		mBMHD_Current = &mBMHDArmy;
 		return mFodder->mDataArmy;
-		
+
 	case 1:
 		mFodder->byte_42070 = 0;
 		mBMHD_Current = &mBMHDCopt;
@@ -63,11 +63,11 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 	mFodder->mouseData1->anonymous_5 = di->field_4;
 	mFodder->mouseData1->anonymous_6 = di->field_6;
 
-	mFodder->word_4206C = di->field_4 >> 3;	// d4
-	mFodder->word_4206E = di->field_6;	// d5
+	mFodder->word_4206C = di->field_4 >> 3;
+	mFodder->word_4206E = di->field_6;
 
-	int16 ax = di->field_2 & 0xFF;	// d1
-	int16 bx = di->field_0 >> 3 & -2;	// d0
+	int16 ax = di->field_2 & 0xFF;
+	int16 bx = di->field_0 >> 3 & -2;
 
 	ax <<= 3;
 	int16 d1 = ax;
@@ -75,7 +75,7 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 	ax <<= 2;
 	ax += d1;
 
-	mFodder->word_42062 = GetSpriteData(2) + (ax +bx);
+	mFodder->word_42062 = GetSpriteData( 2 ) + (ax + bx);
 	video_Draw_Sprite();
 }
 
@@ -93,9 +93,9 @@ void cGraphics_Amiga::LoadAFXMenu() {
 	size_t Size = 0;
 	uint8* apmenu = g_Resource.fileGet( "apmenu.lbm", Size );
 
-	DecodeIFF( apmenu, mFodder->mDataBaseBlk, &mBMHDAfx, mPalleteAfx);
+	DecodeIFF( apmenu, mFodder->mDataBaseBlk, &mBMHDAfx, mPalleteAfx );
 
-	mImage->paletteLoad_Amiga( (uint8*) mPalleteAfx, 0, 32 );
+	mImage->paletteLoad_Amiga( (uint8*)mPalleteAfx, 0, 32 );
 
 	mBMHD_Current = &mBMHDAfx;
 
@@ -109,9 +109,9 @@ void cGraphics_Amiga::SetCursorPalette( uint16 pIndex ) {
 void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 
 	switch (pSpriteType) {
-		case eSPRITE_IN_GAME:
-			mFodder->Sprite_SetDataPtrToBase( off_8BFB8 );
-			return;
+	case eSPRITE_IN_GAME:
+		mFodder->Sprite_SetDataPtrToBase( off_8BFB8 );
+		return;
 	}
 }
 
@@ -131,7 +131,7 @@ void cGraphics_Amiga::PaletteSet() {
 
 	mImage->paletteLoad_Amiga( mPalette, 0 );
 	//mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x80 );
-	mImage->paletteLoad_Amiga( (uint8*) mPalletePStuff, 0xF0 );
+	mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xF0 );
 }
 
 
@@ -170,7 +170,7 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 			pData += 2; pData += 2;
 			FileSize -= Size;
 			break;
-		
+
 		case 'BODY': {
 			int16 Width = pBMHD->mWidth + 0x0F;
 			Width >>= 4;
@@ -186,34 +186,35 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 					for (int16 X = Width; X > 0;) {
 						--FileSize;
 						int8 d0 = *pData++;
-						
-						if(d0 < 0) {
-							if(d0 == -128)
+
+						if (d0 < 0) {
+							if (d0 == -128)
 								continue;
-							
+
 							int8 d1 = -d0;
-							
+
 							--FileSize;
 							d0 = *pData++;
-							
+
 							do {
 								*DataDest++ = d0;
 								--X;
-							} while( d1-- > 0 );
-							
+							} while (d1-- > 0);
+
 							continue;
-							
-						} else {
-							
+
+						}
+						else {
+
 							do {
 								*DataDest++ = *pData++;
 								--X;
 								--FileSize;
-							} while( d0-- > 0 );
-							
+							} while (d0-- > 0);
+
 						}
 					}
-					
+
 					// Move the destination back to start of row
 					DataDest -= Width;
 
@@ -230,7 +231,7 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 
 		case 'CMAP':
 			for (int16 i = 0; i < Size / 3; ++i) {
-				int16 d0 = (int16) *pData++;
+				int16 d0 = (int16)*pData++;
 				int16 Final = 0;
 
 				d0 >>= 4;
@@ -301,7 +302,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 			uint16 StartX = 0;
 
 			TilePtr += StartY * 2;
-			
+
 			if (cx2 == 0)
 				StartX = mFodder->word_3B60E;
 			else
@@ -336,13 +337,13 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 			}
 
 			MapPtr += 2;
-			TargetRow += (16-StartX);
+			TargetRow += (16 - StartX);
 		}
 
-		Target += mImage->GetWidth() * (16-StartY);
+		Target += mImage->GetWidth() * (16 - StartY);
 		CurrentMapPtr += mFodder->mMapWidth << 1;
 	}
-	
+
 	mImage->Save();
 }
 
@@ -364,26 +365,24 @@ void cGraphics_Amiga::map_Load_Resources() {
 }
 
 void cGraphics_Amiga::video_Draw_Linear() {
-	
+
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->word_42062;
 	int16	ax, cx;
-	
+
 	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
 
 	ax = mFodder->mDrawSpritePositionX;
 	ax += mFodder->word_40054;
 	//ax >>= 2;
-	
+
 	di += ax;
 	mFodder->word_42066 = di;
 
-	int8 bl = mFodder->byte_42070;
-	
 	mFodder->word_4206C >>= 3;
 	mFodder->word_42074 = 40 - mFodder->word_4206C;
 	mFodder->word_4206C >>= 1;
-	mFodder->word_42076 = 352 - (mFodder->word_4206C*16);
+	mFodder->word_42076 = 352 - (mFodder->word_4206C * 16);
 
 	// Height
 	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
@@ -391,14 +390,7 @@ void cGraphics_Amiga::video_Draw_Linear() {
 		// Width
 		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
 
-			// Each Pixel
-			for (uint16 x = 0; x < 16; ++x) {
-
-				int8 Pixel = GetPixel( x, si );
-
-				if (Pixel)
-					*(di + x) = bl | Pixel;
-			}
+			DrawPixels_16( si, di );
 
 			di += 16;
 			si += 2;
@@ -408,95 +400,45 @@ void cGraphics_Amiga::video_Draw_Linear() {
 		di += mFodder->word_42076;
 	}
 }
-
 void cGraphics_Amiga::video_Draw_Sprite() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->word_42062;
 	int16	ax, cx;
-	
+
 	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
 
 	ax = mFodder->mDrawSpritePositionX;
 	ax += mFodder->word_40054;
-	//ax >>= 2;
-	
 	di += ax;
-	mFodder->word_42066 = di;
 
-	int8 bl = mFodder->byte_42070;
-
-	//if (mFodder->word_4206C & 1)
-	//	++mFodder->word_4206C;
+	mFodder->word_4206C -= 1;
+	mFodder->word_4206C <<= 1;
 
 	mFodder->word_42074 = 40 - (mFodder->word_4206C);
-	//mFodder->word_4206C >>= 1;
-	mFodder->word_42076 = 352 - (mFodder->word_4206C*8);
+	mFodder->word_42076 = 352 - (mFodder->word_4206C * 8);
 
 	// Height
 	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
-		uint8* Row = di;
-		uint8* Src = si;
 
 		// Width
 		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
-			
-			// Each Pixel
-			for (uint16 x = 0; x < 8; ++x) {
-				uint8 Bits = *Src;
 
-				uint8 Result = (Bits << x) & 0x80 ? 1 : 0;
+			DrawPixels_8( si, di );
 
-				Bits = *( Src + (mBMHD_Current->mHeight * 40) );
-				Result |= (Bits << x) & 0x80 ? 2 : 0;
-
-				Bits = *( Src + ((mBMHD_Current->mHeight * 40) * 2) );
-				Result |= (Bits << x) & 0x80 ? 4 : 0;
-
-				Bits = *( Src + ((mBMHD_Current->mHeight * 40) * 3) );
-				Result |= (Bits << x) & 0x80 ? 8 : 0;
-
-				if (Result)
-					*(Row + x) = bl | Result;
-			}
-
-			Row += 8;
-			Src += 1;
+			di += 8;
+			si += 1;
 		}
 
-		si += 40;
-		di += 352;
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
 	}
 }
 
-uint8 cGraphics_Amiga::GetPixel( uint8 pixel, uint8* pSource ) {
-	uint8 Result = 0;
-	uint16 Bits = readBEWord( pSource );
+void cGraphics_Amiga::sub_144A2() {
 
-	Result = (Bits << pixel) & 0x8000 ? 1 : 0;
-
-	Bits = readBEWord( pSource + (mBMHD_Current->mHeight * 40) );
-	Result |= (Bits << pixel) & 0x8000 ? 2 : 0;
-
-	Bits = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * 2));
-	Result |= (Bits << pixel) & 0x8000 ? 4 : 0;
-
-	Bits = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * 3));
-	Result |= (Bits << pixel) & 0x8000 ? 8 : 0;
-
-	if (mBMHD_Current->mPlanes < 5)
-		return Result;
-
-	Bits = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * 4));
-	Result |= (Bits << pixel) & 0x8000 ? 16 : 0;
-
-	return Result;
-}
-
-void cGraphics_Amiga::sub_144A2( ) {
-	
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
-	uint8* 	si = (uint8*) mFodder->mMapSptPtr;
+	uint8* 	si = (uint8*)mFodder->mMapSptPtr;
 
 	Buffer += (16 * 352) + 16; // 0x584
 	mFodder->byte_42071 = 1 << mFodder->word_40054;
@@ -513,21 +455,21 @@ void cGraphics_Amiga::sub_144A2( ) {
 			else
 				Buffer[X] = *si++;
 		}
-			
+
 		Buffer += 352;
 	}
-	
+
 }
 
 void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
-	
+
 	const struct_2* str2 = &stru_44B50[pData0];
-	
+
 	int16 cx = str2->field_4;
 	int16 dx = str2->field_6;
 	mFodder->word_4206C = cx >> 3;
 	mFodder->word_4206E = dx;
-	
+
 	uint16 ax = str2->field_2 & 0xFF;
 	uint16 bx = str2->field_0 >> 3 & -2;
 
@@ -537,10 +479,8 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	ax <<= 2;
 	ax += d1;
 
-	mFodder->word_42062 = GetSpriteData(2) + (ax+bx);
-	
-	int8 bl = mFodder->byte_42070;
-	
+	mFodder->word_42062 = GetSpriteData( 2 ) + (ax + bx);
+
 	mFodder->word_42074 = 40 - mFodder->word_4206C;
 	mFodder->word_4206C >>= 1;
 	mFodder->word_42076 = 0x30 - (mFodder->word_4206C * 16);
@@ -556,20 +496,61 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		// Width
 		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
 
-			// Each Pixel
-			for (uint16 x = 0; x < 16; ++x) {
-
-				int8 Pixel = GetPixel( x, si );
-
-				if (Pixel)
-					*(di + x) = bl | Pixel;
-			}
+			DrawPixels_16( si, di );
 
 			di += 16;
 			si += 2;
 		}
-		
+
 		si += mFodder->word_42074;
 		di += mFodder->word_42076;
+	}
+}
+
+void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
+	uint8	Result = 0;
+	uint16	Planes[5];
+	uint8	bl = mFodder->byte_42070;
+
+	// Load bits for all planes
+	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
+		Planes[Plane] = *(pSource + ((mBMHD_Current->mHeight * 40) * Plane) );
+
+	// Loop each pixel 
+	for (uint8 X = 0; X < 8; ++X) {
+		uint16 Bit = (0x80 >> X);
+		uint8 Result = 0;
+
+		// Value for each plane
+		for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane) {
+			Result |= Planes[Plane] & Bit ? (1 << Plane) : 0;
+		}
+
+		if (Result)
+			pDestination[X] = bl | Result;
+	}
+}
+
+void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
+	uint8	Result = 0;
+	uint16	Planes[5];
+	uint8	bl = mFodder->byte_42070;
+
+	// Load bits for all planes
+	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
+		Planes[Plane] = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * Plane) );
+
+	// Loop each pixel 
+	for (uint8 X = 0; X < 16; ++X) {
+		uint16 Bit = (0x8000 >> X);
+		uint8 Result = 0;
+
+		// Value for each plane
+		for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane) {
+			Result |= Planes[Plane] & Bit ? (1 << Plane) : 0;
+		}
+
+		if (Result)
+			pDestination[X] = bl | Result;
 	}
 }

@@ -61,8 +61,10 @@ class cGraphics_Amiga : public cGraphics {
 
 	virtual void		LoadAFXMenu();
 	virtual void		SetCursorPalette( uint16 pIndex );
+	
+	virtual void		DrawPixels_8( uint8* pSource, uint8* pDestination );
+	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination );
 
-	virtual uint8		GetPixel( uint8 pixel, uint8* pSource );
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();
 
