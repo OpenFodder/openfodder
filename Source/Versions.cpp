@@ -20,27 +20,11 @@
  *
  */
 
-enum ePlatform {
-	PC		= 0,
-	Amiga	= 1
-};
+#include "stdafx.hpp"
 
-enum eRelease {
-	Retail = 0,
-	Demo = 1
+const sVersion Versions[] = {
+	{ "",								"Dos",		ePlatform::PC,		eRelease::Retail,	"",					},
+	{ "",								"Amiga",	ePlatform::Amiga,	eRelease::Retail,	"Amiga",			},
+	{ "Amiga Format Christmas Special",	"AFX",		ePlatform::Amiga,	eRelease::Demo,		"AmigaFormat_XMAS"	},
+	{ 0 }
 };
-
-struct sVersion {
-	const char* mName;
-	std::string mKey;
-	ePlatform	mPlatform;
-	eRelease	mRelease;
-	const char* mDataPath;
-};
-
-struct sFile {
-	const char* mName;
-	const char* mChecksum;
-};
-
-extern const sVersion Versions[];

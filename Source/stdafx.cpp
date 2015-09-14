@@ -38,7 +38,7 @@ int main(int argc, char *args[]) {
 
 	cFodder* Fodder = new cFodder(SkipIntro);
 
-	Fodder->Prepare("AFX");
+	Fodder->Prepare("Dos");
 	Fodder->Start( MapNumber );
 
 	delete Fodder;
