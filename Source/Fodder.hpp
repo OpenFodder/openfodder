@@ -739,7 +739,7 @@ public:
 	void			sub_10937();
 	void			sub_1096B();
 	void			sub_10BBC();
-	void			Troops_Clear();
+	void			Squad_Clear();
 	void			Heroes_Clear();
 	void			sub_10CE7();
 	void			sub_10D61();
@@ -753,7 +753,7 @@ public:
 	void			Squad_Member_Count();
 	void			Squad_Member_Sort();
 	void			sub_1142D();
-	void			sub_1152F();
+	void			Squad_PrepareMember();
 	void			sub_115F7();
 	void			Camera_Position_Update();
 	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );

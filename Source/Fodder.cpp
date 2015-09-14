@@ -564,7 +564,7 @@ void cFodder::sub_10BBC() {
 	mTroopsAvailable = 0;
 }
 
-void cFodder::Troops_Clear() {
+void cFodder::Squad_Clear() {
 	mSquad[8].mRecruitID = -1;
 	mSquad[8].field_4 = INVALID_SPRITE_PTR;
 
@@ -1283,7 +1283,7 @@ void cFodder::sub_1142D() {
 	//seg000:14C6                loc_114C6:
 	int16 Data1C = mMapPlayerTroopCount - 1;
 	while (Data1C >= 0) {
-		sub_1152F();
+		Squad_PrepareMember();
 		--Data1C;
 	}
 
@@ -1305,7 +1305,7 @@ void cFodder::sub_1142D() {
 
 }
 
-void cFodder::sub_1152F() {
+void cFodder::Squad_PrepareMember() {
 	sSquad_Member* Data20 = mSquad;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0) {
@@ -1320,7 +1320,23 @@ void cFodder::sub_1152F() {
 			sRecruit* Data24 = mRecruits;
 			Data24 += word_390F4;
 
-			Data20->mRank =  (mMissionNumber - 1) / 3;
+			// Demo sets static ranks
+			if (mVersion->mRelease == eRelease::Demo) {
+
+				Data20->mRank = (mMissionNumber - 1) >> 1;
+
+				// Jops
+				if (Data20->mRecruitID == 1)
+					Data20->mRank = 2;
+
+				// Jools
+				if (Data20->mRecruitID == 0)
+					Data20->mRank = 4;
+			}
+			else {
+				Data20->mRank = (mMissionNumber - 1) / 3;
+			}
+
 			Data20->field_8 = 0;
 			Data20->field_6 = 3;
 			++word_390F4;
@@ -18063,7 +18079,7 @@ loc_103BF:;
 		mMapNumber = pStartMap;
 		word_3901E = 0x3333;
 
-		Troops_Clear();
+		Squad_Clear();
 		Heroes_Clear();
 
 		dword_394A4 = word_391D2;
@@ -18090,7 +18106,7 @@ loc_103BF:;
 
 				if (mVersion->mKey == "AFX") {
 					if (mMapNumber == 3) {
-						mMapNumber = 0;
+						goto loc_103BF;
 					}
 
 				}
