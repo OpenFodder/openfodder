@@ -16011,9 +16011,9 @@ void cFodder::intro_LegionMessage() {
 
 	mImageFaded = -1;
 
-	sub_18C45( mIntro_0[0].mPosition - 0x19, &mIntro_0[0] );
-	sub_18C45( mIntro_0[1].mPosition - 0x19, &mIntro_0[1] );
-	sub_18C45( mIntro_0[2].mPosition - 0x19, &mIntro_0[2] );
+	sub_18C45( mIntro_0[0].mPosition , &mIntro_0[0] );
+	sub_18C45( mIntro_0[1].mPosition , &mIntro_0[1] );
+	sub_18C45( mIntro_0[2].mPosition , &mIntro_0[2] );
 
 	while( mImageFaded == -1 || DoBreak == false  ) {
 		
