@@ -5821,7 +5821,6 @@ void cFodder::sub_23EA6( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_23EFD( sSprite_0* pSprite ) {
-	return;
 	sSprite_0* Data28 = 0;
 	sSprite_0* Data34 = 0;
 	int16 Data0, Data4, Data8, DataC, Data10;
