@@ -2968,7 +2968,7 @@ void cFodder::VersionSelect() {
 	sSprite_0 Sprite;
 
 	Sprite.field_0 = 0x10;
-	Sprite.field_4 = 19;
+	Sprite.field_4 = 0x25;
 	Sprite.field_52 = 0;
 	Sprite.field_20 = 0;
 	
@@ -2979,9 +2979,18 @@ void cFodder::VersionSelect() {
 
 	word_3AC21 = 0;
 	Sprite_SetDataPtrToBase( off_42918 );
-	int16 Pos = 0x20;
+	int16 Pos = 0x10;
 	int Count = 0;
 
+	std::string Name = "OPEN FODDER";
+	std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
+
+	word_3AC19 = 0x25;
+	String_CalculateWidth( 320, byte_4382F, Name.c_str() );
+	String_Print( byte_4382F, 1, word_3B301, Pos , Name.c_str() );
+	word_3AC19 = 0;
+
+	Pos += 0x30;
 	for (std::vector<const sVersion*>::const_iterator VersionIT = mVersions.begin(); VersionIT != mVersions.end(); ++VersionIT) {
 		std::string Name = (*VersionIT)->mName;
 		std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
