@@ -21,6 +21,7 @@
  */
 
 const extern sSpriteSheet* off_32C0C[];
+const extern sSpriteSheet* mFontSpriteSheetPtr[];
 
 class cGraphics_PC : public cGraphics {
 	uint8*				mGraphicBlkPtrs[480];
@@ -32,10 +33,11 @@ class cGraphics_PC : public cGraphics {
 
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		LoadpStuff();
-
+	virtual void		Load_Sprite_Font();
 	virtual void		map_Tiles_Draw();
 	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();
+	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 	virtual void		SetSpritePtr( eSpriteType pSpriteType );
 
 	virtual void		video_Draw_Linear();

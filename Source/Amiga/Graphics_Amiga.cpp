@@ -89,6 +89,20 @@ void cGraphics_Amiga::LoadpStuff() {
 	delete[] pstuff;
 }
 
+void cGraphics_Amiga::Load_Sprite_Font() {
+	size_t Size = 0;
+
+	g_Resource.fileLoadTo( "font.raw", mFodder->mDataPStuff );
+
+	uint8* Font = g_Resource.fileGet( "font.pl8", Size );
+
+	PaletteLoad( Font, 0xD0, 0x04 );
+
+	SetSpritePtr( eSPRITE_FONT );
+
+	delete[] Font;
+}
+
 void cGraphics_Amiga::LoadAFXMenu() {
 	size_t Size = 0;
 	uint8* apmenu = g_Resource.fileGet( "apmenu.lbm", Size );
@@ -102,6 +116,25 @@ void cGraphics_Amiga::LoadAFXMenu() {
 	delete[] apmenu;
 }
 
+void cGraphics_Amiga::PaletteLoad( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
+	int16  color;
+	int16  ColorID = pColorID;
+
+	for( ; pColorID < ColorID + pColors; pColorID++) {
+		
+		// Get the next color codes
+		color = readBEWord( pBuffer );
+		pBuffer+=2;
+
+		// Extract each color from the word
+		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
+
+		mFodder->mPalette[pColorID].mRed	= ((color >> 8) & 0xF)   << 2;	// Why 2? no idea, but it works.. 1 is too dark, and 3 causes incorrect colours
+		mFodder->mPalette[pColorID].mGreen	= ((color >> 4) & 0xF) << 2;
+		mFodder->mPalette[pColorID].mBlue	= ((color >> 0) & 0xF)  << 2;
+	}
+}
+
 void cGraphics_Amiga::SetCursorPalette( uint16 pIndex ) {
 	mCursorPalette = pIndex;
 }
@@ -112,6 +145,10 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 	case eSPRITE_IN_GAME:
 		mFodder->Sprite_SetDataPtrToBase( off_8BFB8 );
 		return;
+
+	case eSPRITE_FONT:
+
+		return;
 	}
 }
 
@@ -121,7 +158,7 @@ void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 	delete mPalette;
 
 	mBlkData = new uint8[mFodder->mDataBaseBlkSize + mFodder->mDataSubBlkSize];
-	mPalette = g_Resource.fileGet( "afxbase.pal", mPaletteSize );
+	mPalette = g_Resource.fileGet( mFodder->mFilenameBasePal, mPaletteSize );
 
 	memcpy( mBlkData, mFodder->mDataBaseBlk, mFodder->mDataBaseBlkSize );
 	memcpy( mBlkData + mFodder->mDataBaseBlkSize, mFodder->mDataSubBlk, mFodder->mDataSubBlkSize );

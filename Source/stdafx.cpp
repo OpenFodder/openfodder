@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "md5.hpp"
 
 int main(int argc, char *args[]) {
 	bool SkipIntro = false;
@@ -38,7 +39,7 @@ int main(int argc, char *args[]) {
 
 	cFodder* Fodder = new cFodder(SkipIntro);
 
-	Fodder->Prepare("Dos");
+	Fodder->Prepare();
 	Fodder->Start( MapNumber );
 
 	delete Fodder;
@@ -51,12 +52,39 @@ std::string local_PathGenerate( std::string pFile, std::string pPath ) {
 	std::stringstream	 filePathFinal;
 
 	if( pPath.size() )
-		filePathFinal << pPath << "/";
+		filePathFinal << "Data/" << pPath << "/";
 
 	filePathFinal << pFile;
 
 	return filePathFinal.str();
 }
+
+std::string local_FileMD5( std::string pFile, std::string pPath ) {
+	md5_context ctx;
+	size_t Size = 0;
+	unsigned char MD5[16];
+
+	uint8* File = local_FileRead( pFile, pPath, Size );
+	if (!File)
+		return "";
+
+	md5_starts( &ctx );
+	md5_update( &ctx, File, Size );
+	md5_finish( &ctx, MD5 );
+	delete[] File;
+
+	std::string FinalMD5;
+	FinalMD5.reserve(32);
+
+	for (std::size_t i = 0; i != 16; ++i) {
+	  FinalMD5 += "0123456789ABCDEF"[MD5[i] / 16];
+	  FinalMD5 += "0123456789ABCDEF"[MD5[i] % 16];
+	}
+
+
+	return FinalMD5;
+}
+	
 
 uint8 *local_FileRead( std::string pFile, std::string pPath, size_t	&pFileSize ) {
 	std::ifstream*		fileStream;

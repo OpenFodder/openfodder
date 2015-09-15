@@ -44,6 +44,7 @@ class cWindow : public cSingleton<cWindow> {
 		void				SetMousePosition( const cPosition& pPosition );
 		void				SetScreenSize( const cDimension& pDimension );
 		void				SetLogicalSize( const cDimension& pDimension );
+		void				SetWindowTitle( const std::string& pWindowTitle );
 
 		SDL_Renderer*		GetRenderer() const;
 
