@@ -30,17 +30,19 @@ enum eRelease {
 	Demo = 1
 };
 
+struct sFile {
+	const char* mName;
+	const char* mChecksum;
+};
+
 struct sVersion {
 	const char* mName;
 	std::string mKey;
 	ePlatform	mPlatform;
 	eRelease	mRelease;
 	const char* mDataPath;
-};
-
-struct sFile {
-	const char* mName;
-	const char* mChecksum;
+	const sFile* mFiles;
 };
 
 extern const sVersion Versions[];
+std::vector<const sVersion*> FindFodderVersions();

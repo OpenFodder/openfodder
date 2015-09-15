@@ -53,7 +53,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
 	mMusicPlaying = 0;
-
+	mResources = 0;
+	mGraphics = 0;
 	mWindow = new cWindow();
 
 	mTicksDiff = 0;
@@ -1745,7 +1746,7 @@ void cFodder::map_Load_Resources() {
 	BaseSub.append( mMap + 0x10, mMap + 0x10 + 7 );
 
 	mDataBaseBlkSize = g_Resource.fileLoadTo( BaseName, mDataBaseBlk );
-	paletteLoad( mDataBaseBlk + 0xFA00, 0x80, 0x00 );
+	mGraphics->PaletteLoad( mDataBaseBlk + 0xFA00, 0x80, 0x00 );
 
 	mDataSubBlkSize = g_Resource.fileLoadTo( SubName, mDataSubBlk );
 
@@ -1766,6 +1767,7 @@ void cFodder::map_Load_Resources() {
 	mFilenameSubSwp = sub_12AA1( BaseSub, ".swp" );
 	mFilenameSubHit = sub_12AA1( BaseSub, ".hit" );
 	mFilenameSubBht = sub_12AA1( BaseSub, ".bht" );
+	mFilenameBasePal  = sub_12AA1( BaseBase, ".pal" );
 
 	size_t Size = g_Resource.fileLoadTo( mFilenameBaseSwp, (uint8*) &word_3D03D[0] );
 	tool_EndianSwap( (uint8*)&word_3D03D[0], Size );
@@ -2941,22 +2943,153 @@ void cFodder::MixerChannelFinished( int32 pChannel ) {
 	}
 }
 
-void cFodder::Prepare( const char* pKey ) {
-	mVersion = 0;
+void cFodder::VersionSelect_0() {
+	
+	VersionLoad( mVersions[0] );
+	word_82132 = 1;
+}
 
-	for (uint16 x = 0; x < 3; ++x) {
+void cFodder::VersionSelect_1() {
 
-		if ( Versions[x].mKey == pKey) {
-			mVersion = &Versions[x];
+	VersionLoad( mVersions[1] );
+	word_82132 = 1;
+}
+
+void cFodder::VersionSelect_2() {
+
+	VersionLoad( mVersions[2] );
+	word_82132 = 1;
+}
+
+void cFodder::VersionSelect() {
+	struct_6 *Buttons = new struct_6[mVersions.size() + 1];
+
+	bool DoBreak = false;
+	sSprite_0 Sprite;
+
+	Sprite.field_0 = 0x10;
+	Sprite.field_4 = 19;
+	Sprite.field_52 = 0;
+	Sprite.field_20 = 0;
+	
+	mGraphics->LoadpStuff();
+
+	map_Load_Resources();
+	mGraphics->PaletteSet();
+
+	word_3AC21 = 0;
+	Sprite_SetDataPtrToBase( off_42918 );
+	int16 Pos = 0x20;
+	int Count = 0;
+
+	for (std::vector<const sVersion*>::const_iterator VersionIT = mVersions.begin(); VersionIT != mVersions.end(); ++VersionIT) {
+		std::string Name = (*VersionIT)->mName;
+		std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
+
+		String_CalculateWidth( 320, byte_4388F, Name.c_str() );
+		String_Print( byte_4388F, 0, word_3B301, Pos , Name.c_str() );
+
+		Buttons[Count].field_0 = &cFodder::sub_2EAC2;
+		Buttons[Count].field_4 = word_3B301 - 6;
+		Buttons[Count].field_6 = word_3B303;
+		Buttons[Count].field_8 = Pos - 2;
+		Buttons[Count].field_A = 5;
+
+		switch (Count) {
+			case 0:
+				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_0;
+				break;
+
+			case 1:
+				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_1;
+				break;
+
+			case 2:
+				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_2;
+				break;
+
 		}
+		Pos += 30;
+		++Count;
 	}
+
+	Buttons[Count].field_0 = 0;
+
+	mImage->Save();
+
+	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+
+	mImageFaded = -1;
+	mMouseSpriteNew = 0x24;
+
+	for( ;; ) {
+		sub_13CF0( &Sprite, 6, 0 );
+
+		if (mImageFaded)
+			mImageFaded = mImage->paletteFade();
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+		if (mButtonPressLeft)
+			sub_9B94E( Buttons );
+
+		if (word_82132)
+			break;
+
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+		mImage->Restore();
+	}
+	
+	mImage->paletteFadeOut();
+	
+	while( mImage->GetFaded() == false ) {
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+		mImage->paletteFade();
+	}
+
+	delete[] Buttons;
+}
+
+void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 	std::stringstream Title;
 	Title << "Open Fodder";
-	if (strlen( mVersion->mName )) {
-		Title << ": " << mVersion->mName;
+	if (mVersion)
+		if (strlen( pVersion->mName ))
+			Title << ": " << pVersion->mName;
+	
+	mVersion = pVersion;
+
+	mWindow->SetWindowTitle( Title.str() );
+
+	delete mGraphics;
+	delete mResources;
+
+	switch (mVersion->mPlatform) {
+		case ePlatform::PC:
+			mResources = new cResource_PC_CD( mVersion->mDataPath );
+			mGraphics = new cGraphics_PC();
+			break;
+
+		case ePlatform::Amiga:
+			mResources = new cResources( mVersion->mDataPath );
+			mGraphics = new cGraphics_Amiga();
+			break;
 	}
-	mWindow->InitWindow( Title.str() );
+
+	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+	mGraphics->LoadpStuff();
+	map_Load_Resources();
+	mGraphics->graphicsBlkPtrsPrepare();
+	mGraphics->PaletteSet();
+}
+
+void cFodder::Prepare( ) {
+	mVersions = FindFodderVersions();
+
+	mWindow->InitWindow( "Open Fodder" );
 
 	tool_RandomSeed();
 
@@ -2978,6 +3111,14 @@ void cFodder::Prepare( const char* pKey ) {
 	//Load_EffectDriver();
 	//Load_MusicDriver();
 	memory_XMS_Detect();
+
+	mImage = new cSurface( 352, 280 );
+
+	VersionLoad( mVersions[0] );
+
+	// Show the version selection, if we have more than 1 option
+	if (mVersions.size() > 1)
+		VersionSelect( );
 }
 
 void cFodder::sub_13102() {
@@ -3098,21 +3239,6 @@ void cFodder::sub_13277( sSprite_0* pData2C ) {
 
 	//TODO
 	Music_Unk(8);
-}
-
-void cFodder::paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID ) {
-		size_t colorStartID = pColorID;
-
-	if( pColors >= g_MaxColors )
-		pColors = g_MaxColors-1;
-
-	for(; pColorID < pColors + colorStartID; pColorID++) {
-		
-		// Get the next color values
-		mPalette[ pColorID ].mRed =		*pBuffer++;
-		mPalette[ pColorID ].mGreen =	*pBuffer++;
-		mPalette[ pColorID ].mBlue =	*pBuffer++;
-	}
 }
 
 void cFodder::Mouse_DrawCursor( ) {
@@ -3508,7 +3634,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 
 	sub_1590B();
 
-	paletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
 
 	mImage->paletteSet( mPalette );
 
@@ -3654,7 +3780,7 @@ void cFodder::sub_1594F( ) {
 		word_428D6 = 0;
 		word_428D8 = 0;
 
-		paletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+		mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
 		mImage->paletteFadeOut();
 		mImageFaded = -1;
 	}
@@ -3967,10 +4093,10 @@ void cFodder::Recruit_Show() {
 	
 	word_3E1B7 = mDataBaseBlk;
 	g_Resource.fileLoadTo( "hill.dat", mDataBaseBlk );
-	paletteLoad( word_3E1B7 + 0xFA00, 0x50, 0x00 );
+	mGraphics->PaletteLoad( word_3E1B7 + 0xFA00, 0x50, 0x00 );
 
 	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
-	paletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
+	mGraphics->PaletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
 
 	dword_3B1FB = stru_373BA;
 	word_3AAD1 = -1;
@@ -9628,10 +9754,10 @@ void cFodder::sub_2EF8A() {
 void cFodder::sub_17DB3() {
 
 	g_Resource.fileLoadTo( "rankfont.dat", mDataHillBits );
-	paletteLoad( mDataHillBits + 0xA000, 0x80, 0x40 );
+	mGraphics->PaletteLoad( mDataHillBits + 0xA000, 0x80, 0x40 );
 
 	g_Resource.fileLoadTo( "morphbig.dat", mDataBaseBlk );
-	paletteLoad( mDataBaseBlk + 0xFA00, 0x40, 0x00 );
+	mGraphics->PaletteLoad( mDataBaseBlk + 0xFA00, 0x40, 0x00 );
 
 	mImage->paletteSet(mPalette);
 
@@ -16007,6 +16133,7 @@ void cFodder::intro_LegionMessage() {
 	int16 Duration = 300;
 	bool DoBreak = false;
 
+	mImage->clearBuffer();
 	mImage->paletteSet( mPalette, 0xD0 );
 
 	mImageFaded = -1;
@@ -16106,16 +16233,6 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 	mSpriteDataPtr = pSpriteSheet;
 }
 
-void cFodder::Load_Sprite_Font() {
-	
-	g_Resource.fileLoadTo( "font.dat", mDataPStuff );
-
-	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xD0 );
-	Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
-
-	Sound_Voc_Load();
-}
-
 void cFodder::intro() {
 
 	//copyprotection();
@@ -16123,7 +16240,7 @@ void cFodder::intro() {
 	sub_136D0();
 
 	word_3B4F3 = 0;
-	Load_Sprite_Font();
+	mGraphics->Load_Sprite_Font();
 	
 	if (mSkipIntro)
 		goto introDone;
@@ -16154,7 +16271,7 @@ introDone:;
 	Music_Stop();
 
 	mGraphics->LoadpStuff();
-	paletteLoad( mDataPStuff + 0xA000, 0x10, 0xF0 );
+	mGraphics->PaletteLoad( mDataPStuff + 0xA000, 0x10, 0xF0 );
 	//Sound_Unk();
 	Music_Unk( 0 );
 }
@@ -16166,27 +16283,27 @@ void cFodder::intro_Music_Play() {
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
 	bool DoBreak = false;
-	int16 Fade = -1;
 	g_Resource.image4PlaneLoad( mImage, pFilename, 0x100 );
 	
-	while( Fade == -1 || DoBreak == false  ) {
+	mImageFaded = -1;
+	while( mImageFaded == -1 || DoBreak == false  ) {
 		--pDuration;
 
 		if (pDuration) {
-			if (Fade)
-				Fade = mImage->paletteFade();
+			if (mImageFaded)
+				mImageFaded = mImage->paletteFade();
 
 			mouse_GetData();
 			if (mouse_Button_Status) {
 				word_3B4F3 = -1;
 				mImage->paletteFadeOut();
-				Fade = -1;
+				mImageFaded = -1;
 				DoBreak = true;
 			}
 		}
 		else {
 			mImage->paletteFadeOut();
-			Fade = -1;
+			mImageFaded = -1;
 			DoBreak = true;
 		}
 
@@ -18053,21 +18170,6 @@ void cFodder::sub_2E04C() {
 }
 
 void cFodder::Start( int16 pStartMap ) {
-	mImage = new cSurface( 352, 280 );
-
-	mGraphics = 0;
-	mResources = new cResources( mVersion->mDataPath );
-
-	switch (mVersion->mPlatform) {
-		case ePlatform::PC:
-			mGraphics = new cGraphics_PC();
-			break;
-
-		case ePlatform::Amiga:
-			mGraphics = new cGraphics_Amiga();
-			break;
-	}
-
 	mouse_Setup();
 	Mouse_Inputs_Get();
 
@@ -18514,9 +18616,7 @@ loc_2F1BC:;
 
 void cFodder::Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, sRecruit* pData28 ) {
 
-	const int8* Data20 = byte_3DF02;
-
-	word_3AA21 =  Data20[pData0];
+	word_3AA21 =  byte_3DF02[pData0];
 
 	int16 Data14;
 

@@ -25,11 +25,9 @@ http://www.cr0.net:8040/code/crypto/
  */
 
 #include <string.h>
-
+#include "Types.hpp"
 #include "md5.hpp"
-/* uncomment the following line to run the test suite */
 
-/* #define TEST  */
 
 #define GET_UINT32(n,b,i)                       \
 {                                               \
@@ -252,103 +250,3 @@ void md5_finish( md5_context *ctx, uint8 digest[16] )
 	PUT_UINT32( ctx->state[2], digest, 8 );
 	PUT_UINT32( ctx->state[3], digest, 12 );
 }
-
-#ifdef TEST
-
-#include <stdlib.h>
-#include <stdio.h>
-
-/*
- * those are the standard RFC 1321 test vectors
- */
-
-static char *msg[] =
-{
-	"",
-	"a",
-	"abc",
-	"message digest",
-	"abcdefghijklmnopqrstuvwxyz",
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
-	"12345678901234567890123456789012345678901234567890123456789012" \
-	"345678901234567890"
-};
-
-static char *val[] =
-{
-	"d41d8cd98f00b204e9800998ecf8427e",
-	"0cc175b9c0f1b6a831c399e269772661",
-	"900150983cd24fb0d6963f7d28e17f72",
-	"f96b697d7cb7938d525a2f31aaf161d0",
-	"c3fcd3d76192e4007dfb496cca67e13b",
-	"d174ab98d277d9f5a5611c2c9f419d9f",
-	"57edf4a22be3c955ac49da2e2107b67a"
-};
-
-int main( int argc, char *argv[] )
-{
-	FILE *f;
-	int i, j;
-	char output[33];
-	md5_context ctx;
-	unsigned char buf[1000];
-	unsigned char md5sum[16];
-
-	if( argc < 2 )
-	{
-		printf( "\n MD5 Validation Tests:\n\n" );
-
-		for( i = 0; i < 7; i++ )
-		{
-			printf( " Test %d ", i + 1 );
-
-			md5_starts( &ctx );
-			md5_update( &ctx, (uint8 *) msg[i], strlen( msg[i] ) );
-			md5_finish( &ctx, md5sum );
-
-			for( j = 0; j < 16; j++ )
-			{
-				sprintf( output + j * 2, "%02x", md5sum[j] );
-			}
-
-			if( memcmp( output, val[i], 32 ) )
-			{
-				printf( "failed!\n" );
-				return( 1 );
-			}
-
-			printf( "passed.\n" );
-		}
-
-		printf( "\n" );
-	}
-	else
-	{
-		if( ! ( f = fopen( argv[1], "rb" ) ) )
-		{
-			perror( "fopen" );
-			return( 1 );
-		}
-
-		md5_starts( &ctx );
-
-		while( ( i = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
-		{
-			md5_update( &ctx, buf, i );
-		}
-
-		md5_finish( &ctx, md5sum );
-
-		for( j = 0; j < 16; j++ )
-		{
-			printf( "%02x", md5sum[j] );
-		}
-
-		printf( "  %s\n", argv[1] );
-	}
-
-	return( 0 );
-}
-
-#endif
-

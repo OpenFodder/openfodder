@@ -47,6 +47,11 @@ cWindow::~cWindow() {
 	SDL_Quit();
 }
 
+void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
+
+	SDL_SetWindowTitle( mWindow, pWindowTitle.c_str() );
+}
+
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {

@@ -70,9 +70,12 @@ class cGraphics_Amiga : public cGraphics {
 
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		LoadpStuff();
+	virtual void		Load_Sprite_Font();
+
 	virtual void		map_Tiles_Draw();
 	virtual void		map_Load_Resources();
 	virtual void		PaletteSet();
+	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 
 	virtual void		video_Draw_Linear();
 	virtual void		video_Draw_Sprite();

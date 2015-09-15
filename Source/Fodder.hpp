@@ -134,6 +134,7 @@ extern const struct_2 stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
 	public:
+	std::vector<const sVersion*> mVersions;
 
 	bool					mSkipIntro;
 	Mix_Music*				mMusicPlaying;
@@ -158,6 +159,7 @@ class cFodder : public cSingleton < cFodder > {
 	std::string		mFilenameSubSwp;
 	std::string		mFilenameSubHit;
 	std::string		mFilenameSubBht;
+	std::string		mFilenameBasePal;
 
 	cSurface*		mSurfaceMapOverview;
 	cSurface*		mImage;
@@ -1250,8 +1252,6 @@ public:
 	void			Load_File( const std::string& pFilename );
 	void			Load_PlayerBin();
 	
-	void			Load_Sprite_Font();
-
 	void			videoSleep();
 
 	void			sleepLoop( int64 pMilliseconds );
@@ -1272,12 +1272,17 @@ public:
 					~cFodder();
 
 	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
-	void			paletteLoad( uint8* pBuffer, uint16 pColors, uint16 pColorID );
 
 	bool			EventAdd( cEvent pEvent );
 	void			MixerChannelFinished( int32 pChannel );
-	void			Prepare( const char* pKey = "Dos" );
+	void			Prepare();
 	void			Start( int16 pStartMap );
 	void			Exit( unsigned int pExitCode );
+
+	void			VersionLoad( const sVersion* pVersion );
+	void			VersionSelect();
+	void			VersionSelect_0();
+	void			VersionSelect_1();
+	void			VersionSelect_2();
 
 };

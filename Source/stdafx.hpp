@@ -38,14 +38,13 @@
 
 #include "Types.hpp"
 
-//#include <Windows.h>
-
 std::string local_PathGenerate( std::string pFile, std::string pPath );
 uint8*		local_FileRead( std::string pFile, std::string pPath, size_t& pFileSize );
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
 std::string	tool_NumToString( uint32 pValue );
 std::string tool_StripLeadingZero( const std::string& pValue );
 uint16		tool_DecimalToBinaryCodedDecimal( uint16 pDecimal );
+std::string	local_FileMD5( std::string pFile, std::string pPath );
 
 // Read a BE word from the buffer
 inline uint16 readBEWord( const void *buffer ) {
@@ -100,6 +99,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "Surface.hpp"
 #include "Resources.hpp"
+#include "PC/Resource_PC_CD.hpp"
 
 #include "Versions.hpp"
 

@@ -76,12 +76,27 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 		case eSPRITE_IN_GAME:
 			mFodder->Sprite_SetDataPtrToBase( off_32C0C );
 			return;
+
+		case eSPRITE_FONT:
+			mFodder->Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
+			return;
 	}
 }
 
 void cGraphics_PC::LoadpStuff() {
 
 	g_Resource.fileLoadTo( "pstuff.dat", mFodder->mDataPStuff );
+	PaletteLoad( mFodder->mDataPStuff + 0xA000, 0x10, 0xF0 );
+}
+
+void cGraphics_PC::Load_Sprite_Font() {
+	
+	g_Resource.fileLoadTo( "font.dat", mFodder->mDataPStuff );
+
+	PaletteLoad( mFodder->mDataPStuff + 0xA000, 0x10, 0xD0 );
+	SetSpritePtr( eSPRITE_FONT );
+
+	mFodder->Sound_Voc_Load();
 }
 
 void cGraphics_PC::graphicsBlkPtrsPrepare() {
@@ -101,6 +116,21 @@ void cGraphics_PC::graphicsBlkPtrsPrepare() {
 	}
 
 				
+}
+
+void cGraphics_PC::PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID ) {
+	size_t colorStartID = pColorID;
+
+	if (pColors >= g_MaxColors)
+		pColors = g_MaxColors - 1;
+
+	for (; pColorID < pColors + colorStartID; pColorID++) {
+
+		// Get the next color values
+		mFodder->mPalette[pColorID].mRed = *pBuffer++;
+		mFodder->mPalette[pColorID].mGreen = *pBuffer++;
+		mFodder->mPalette[pColorID].mBlue = *pBuffer++;
+	}
 }
 
 void cGraphics_PC::PaletteSet() {
@@ -169,11 +199,11 @@ void cGraphics_PC::map_Load_Resources() {
 	mFodder->mFilenameArmy = mFodder->sub_12AA1( mFodder->mFilenameArmy, "dat" );
 
 	g_Resource.fileLoadTo( mFodder->mFilenameCopt, mFodder->mDataHillBits );
-	mFodder->paletteLoad( mFodder->mDataHillBits + 0xD2A0, 0x40, 0xB0 );
-	mFodder->paletteLoad( mFodder->mDataHillBits + 0xD360, 0x10, 0x90 );
+	PaletteLoad( mFodder->mDataHillBits + 0xD2A0, 0x40, 0xB0 );
+	PaletteLoad( mFodder->mDataHillBits + 0xD360, 0x10, 0x90 );
 
 	g_Resource.fileLoadTo( mFodder->mFilenameArmy, mFodder->mDataArmy );
-	mFodder->paletteLoad( mFodder->mDataArmy + 0xD200, 0x10, 0xA0 );
+	PaletteLoad( mFodder->mDataArmy + 0xD200, 0x10, 0xA0 );
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }

@@ -22,6 +22,7 @@
 
 enum eSpriteType {
 	eSPRITE_IN_GAME = 0,
+	eSPRITE_FONT	= 1,
 };
 
 class cFodder;
@@ -38,11 +39,13 @@ public:
 	virtual uint8*		GetSpriteData( uint16 pSegment ) = 0;
 	virtual void		Mouse_DrawCursor() = 0;
 	virtual void		LoadpStuff() = 0;
+	virtual void		Load_Sprite_Font() = 0;
+
 	virtual void		graphicsBlkPtrsPrepare() = 0;
 	virtual void		map_Tiles_Draw() = 0;
 	virtual void		map_Load_Resources() = 0;
 	virtual void		PaletteSet() = 0;
-
+	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 ) = 0;
 	virtual void		video_Draw_Linear() = 0;
 	virtual void		video_Draw_Sprite() = 0;
 	virtual void		SetSpritePtr( eSpriteType pSpriteType ) = 0;

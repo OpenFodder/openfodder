@@ -78,6 +78,12 @@
     <ClInclude Include="..\..\Source\Recruits.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\md5.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -109,6 +115,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Recruits.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\md5.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Versions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
+      <Filter>Source\PC</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
