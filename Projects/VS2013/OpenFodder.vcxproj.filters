@@ -84,6 +84,12 @@
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp">
       <Filter>Source\PC</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\dernc.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -124,6 +130,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
       <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\dernc.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp">
+      <Filter>Source\Amiga</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
