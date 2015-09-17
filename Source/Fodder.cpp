@@ -2420,7 +2420,6 @@ void cFodder::sub_12952() {
 	Data2C = &mSprites[42];
 	sub_129B6( Data2C );
 
-	//TODO
 	Music_Unk(0x0F);
 }
 
@@ -2753,7 +2752,7 @@ void cFodder::eventProcess() {
 				break;
 
 			case eEvent_Quit:
-
+				Exit( 0 );
 				break;
 		}
 
@@ -3016,7 +3015,6 @@ void cFodder::VersionSelect() {
 			case 2:
 				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_2;
 				break;
-
 		}
 		Pos += 30;
 		++Count;
@@ -3065,7 +3063,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 	std::stringstream Title;
 	Title << "Open Fodder";
-	if (mVersion)
+	if (mVersion || mVersions.size() == 1 )
 		if (strlen( pVersion->mName ))
 			Title << ": " << pVersion->mName;
 	
@@ -3083,7 +3081,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			break;
 
 		case ePlatform::Amiga:
-			mResources = new cResources( mVersion->mDataPath );
+			mResources = new cResource_Amiga_File( mVersion->mDataPath );
 			mGraphics = new cGraphics_Amiga();
 			break;
 	}
@@ -3557,6 +3555,8 @@ void cFodder::Music_Unk( int16 pTrack ) {
 		"",
 		"",
 		"rjp.JUNBASE(2)",
+		"",
+		"",
 	/*		"des",
 			"ice",
 			"mor",
@@ -18434,6 +18434,7 @@ void cFodder::map_Tiles_Draw() {
 
 void cFodder::Exit( unsigned int pExitCode ) {
 
+	exit( 0 );
 }
 
 void cFodder::Mission_Sidebar_Grenades_Draw( ) {

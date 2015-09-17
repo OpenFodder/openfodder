@@ -145,7 +145,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Amiga\dernc.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp" />
+    <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp" />
     <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
     <ClInclude Include="..\..\Source\Event.hpp" />
@@ -171,7 +173,9 @@
     <ClInclude Include="..\..\Source\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Amiga\dernc.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp" />
+    <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp" />
     <ClCompile Include="..\..\Source\Event.cpp" />
     <ClCompile Include="..\..\Source\Fodder.cpp" />
     <ClCompile Include="..\..\Source\Graphics.cpp" />
