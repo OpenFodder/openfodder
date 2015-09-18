@@ -931,6 +931,8 @@ public:
 	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );			// 15
 	void			sub_1AC03( sSprite_0* pSprite );							// 16
 	void			sub_1AC13( sSprite_0* pSprite );							// 17
+	void			sub_1AC23( sSprite_0* pSprite );							// 18
+	void			sub_1AC7C( sSprite_0* pSprite );							// 19
 	void			Sprite_Handle_BuildingDoor( sSprite_0* pSprite );			// 20
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );			// 21
 	void			sub_1AF78( sSprite_0* pSprite );							// 22
@@ -975,6 +977,7 @@ public:
 	void			sub_1C62F( sSprite_0* pSprite );							// 62
 	void			Sprite_Handle_Skidu( sSprite_0* pSprite );					// 63
 	void			Sprite_Handle_Truck( sSprite_0* pSprite );					// 64
+	void			sub_1C728( sSprite_0* pSprite );							// 65
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68
@@ -996,6 +999,9 @@ public:
 	void			sub_1D802( sSprite_0* pSprite );							// 87
 	void			sub_1D81C( sSprite_0* pSprite );							// 88
 	void			sub_1DA43( sSprite_0* pSprite );							// 89
+	void			sub_1DA48( sSprite_0* pSprite );							// 90
+	void			sub_1DACF( sSprite_0* pSprite );							// 91
+	void			sub_1DB58( sSprite_0* pSprite );							// 92
 	void			Sprite_Handle_RankToGeneral( sSprite_0* pSprite );			// 93
 	void			Sprite_Handle_Set50Rockets( sSprite_0* pSprite );			// 94
 	void			sub_1BEF6( sSprite_0* pSprite );							// 97
