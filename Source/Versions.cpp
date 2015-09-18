@@ -324,9 +324,9 @@ const sFile mAmigaFormatFiles[] = {
 };
 
 const sVersion Versions[] = {
-	{ "Dos", "Dos", ePlatform::PC, eRelease::Retail, "Dos_CD", mDosFiles },
-//	{ "Amiga", "Amiga", ePlatform::Amiga, eRelease::Retail, "Amiga", mAmigaFiles },
-	{ "Amiga Format Christmas Special", "AFX", ePlatform::Amiga, eRelease::Demo, "AmigaFormat_XMAS", mAmigaFormatFiles },
+	{ "Dos", "Dos", ePlatform::PC, eRelease::Retail, &mMissionData_Retail, "Dos_CD", mDosFiles },
+//	{ "Amiga", "Amiga", ePlatform::Amiga, eRelease::Retail, &mMissionData_Retail ,"Amiga", mAmigaFiles },
+	{ "Amiga Format Christmas Special", "AFX", ePlatform::Amiga, eRelease::Demo, &mMissionData_AmigaFormat, "AmigaFormat_XMAS", mAmigaFormatFiles },
 	{ 0 }
 };
 

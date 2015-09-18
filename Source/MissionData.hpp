@@ -20,30 +20,12 @@
  *
  */
 
-enum ePlatform {
-	PC		= 0,
-	Amiga	= 1
+struct sMissionData {
+	const char**	mMissionNames;
+	const char**	mMissionPhaseNames;
+	const uint16*	mMissionPhases;
 };
 
-enum eRelease {
-	Retail = 0,
-	Demo = 1
-};
-
-struct sFile {
-	const char* mName;
-	const char* mChecksum;
-};
-
-struct sVersion {
-	const char* mName;
-	std::string mKey;
-	ePlatform	mPlatform;
-	eRelease	mRelease;
-	const sMissionData* mMissionData;
-	const char* mDataPath;
-	const sFile* mFiles;
-};
-
-extern const sVersion Versions[];
-std::vector<const sVersion*> FindFodderVersions();
+extern const sMissionData mMissionData_AmigaFormat;
+extern const sMissionData mMissionData_Retail;
+extern const char*	mMissionGoals[];

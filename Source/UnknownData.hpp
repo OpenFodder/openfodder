@@ -1661,6 +1661,10 @@ const int16 word_3E952[] = {
 	2, 2, 1, 1, 1, 1
 };
 
+const int16 word_3E94A[] = {
+	0, 1, 2, 1
+};
+
 const int16 word_3E972[] = {
 	1, 2, 3, 2
 };

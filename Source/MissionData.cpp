@@ -19,12 +19,20 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
+#include "stdafx.hpp"
 
-const uint16 mMissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
-										02, 05, 03, 06, 01, 03, 03, 02,
-										01, 05, 01, 04, 01, 04, 05, 06 };
+const uint16 mRetail_MissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
+												02, 05, 03, 06, 01, 03, 03, 02,
+												01, 05, 01, 04, 01, 04, 05, 06 };
 
-const char* mMissionNames[] = {
+const uint16 mAmigaFormat_MissionPhaseTable[] = { 01, 01 };
+
+const char* mAmigaFormat_MissionNames[] = {
+	"LAND OF HOPE AND GLORY",
+	"IT'S SNOW TIME!"
+};
+
+const char* mRetail_MissionNames[] = {
 	"THE SENSIBLE INITIATION",
 	"ONWARD VIRGIN SOLDIERS",
 	"ANTARCTIC ADVENTURE",
@@ -51,7 +59,7 @@ const char* mMissionNames[] = {
 	"BOMB THE BASE",
 };
 
-const char* mMissionPhaseNames[] = {
+const char* mRetail_MissionPhaseNames[] = {
 	"IT'S A JUNGLE OUT THERE",
 	"BRIDGE OVER THE RIVER PIE",
 	"TRASH ENEMY HQ",
@@ -135,4 +143,16 @@ const char* mMissionGoals[] = {
 	"DESTROY FACTORY",
 	"DESTROY COMPUTER",
 	"GET CIVILIAN HOME"
+};
+
+const sMissionData mMissionData_AmigaFormat = {
+	mAmigaFormat_MissionNames,
+	mAmigaFormat_MissionNames,
+	mAmigaFormat_MissionPhaseTable
+};
+
+const sMissionData mMissionData_Retail = {
+	mRetail_MissionNames,
+	mRetail_MissionPhaseNames,
+	mRetail_MissionPhaseTable
 };
