@@ -325,7 +325,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A067;
 	int16			word_3A069;
 	int16			word_3A06B;
-	sSprite_0*		dword_3A071[20];
+	sSprite_0*		dword_3A071[45];
 	sSprite_0*		dword_3A125[45];
 	sSprite_0*		dword_3A1D9[45];
 	int16			word_3A28D;
@@ -977,7 +977,7 @@ public:
 	void			sub_1C62F( sSprite_0* pSprite );							// 62
 	void			Sprite_Handle_Skidu( sSprite_0* pSprite );					// 63
 	void			Sprite_Handle_Truck( sSprite_0* pSprite );					// 64
-	void			sub_1C728( sSprite_0* pSprite );							// 65
+	void			Sprite_Handle_Tank( sSprite_0* pSprite );					// 65
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68

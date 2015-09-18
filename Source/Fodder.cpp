@@ -11161,7 +11161,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 65:
-			sub_1C728( Data20 );
+			Sprite_Handle_Tank( Data20 );
 			break;
 
 		case 66:
@@ -13440,8 +13440,8 @@ void cFodder::Sprite_Handle_Missile( sSprite_0* pSprite ) {
 		int32 tmp = pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16;
 		tmp -= 0xA000;
 
-		pSprite->field_1E = Data0;
-		pSprite->field_20 = Data0 >> 16;
+		pSprite->field_1E = tmp;
+		pSprite->field_20 = tmp >> 16;
 	}
 
 	Data0 = pSprite->field_26;
@@ -13951,7 +13951,7 @@ void cFodder::Sprite_Handle_Truck( sSprite_0* pSprite ) {
 	sub_233D4( pSprite );
 }
 
-void cFodder::sub_1C728( sSprite_0* pSprite ) {
+void cFodder::Sprite_Handle_Tank( sSprite_0* pSprite ) {
 	
 	if (pSprite->field_38 == 5)
 		pSprite->field_38 = 0;
