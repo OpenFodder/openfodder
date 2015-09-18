@@ -551,6 +551,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4F3;
 	int16			word_3B4F5;
 
+	sSprite_0*		dword_3B5F5;
 	int16			mMapTilePtr;
 	int16			word_3B60E;
 	int16			word_3B610;
@@ -984,6 +985,8 @@ public:
 	void			sub_1CB1F( sSprite_0* pSprite );							// 69
 	void			sub_1C689( sSprite_0* pSprite );							// 70
 	void			sub_1CE80( sSprite_0* pSprite );							// 71
+	void			sub_1D1A2( sSprite_0* pSprite );							// 72
+	void			sub_1D483( sSprite_0* pSprite );							// 73
 	void			sub_1D4AE( sSprite_0* pSprite );							// 74
 	void			sub_1D4BA( sSprite_0* pSprite );							// 75
 	void			sub_1D4C6( sSprite_0* pSprite );							// 76
@@ -1004,7 +1007,14 @@ public:
 	void			sub_1DB58( sSprite_0* pSprite );							// 92
 	void			Sprite_Handle_RankToGeneral( sSprite_0* pSprite );			// 93
 	void			Sprite_Handle_Set50Rockets( sSprite_0* pSprite );			// 94
+	void			sub_1DD4C( sSprite_0* pSprite );							// 95
 	void			sub_1BEF6( sSprite_0* pSprite );							// 97
+	void			sub_1DF2C( sSprite_0* pSprite );							// 99
+	void			sub_1DFD2( sSprite_0* pSprite );							// 100
+	void			sub_1E004( sSprite_0* pSprite );							// 101
+	void			sub_1E00E( sSprite_0* pSprite );							// 102
+	void			sub_1E018( sSprite_0* pSprite );							// 103
+	void			sub_1E022( sSprite_0* pSprite );							// 104
 	void			sub_1D724( sSprite_0* pSprite );							// 105
 
 	int16			sub_1D92E( sSprite_0* pSprite );
@@ -1114,6 +1124,8 @@ public:
 	int16			sub_25DCF( sSprite_0* pSprite );
 	void			sub_264B0( sSprite_0* pSprite );
 	int16			sub_265D6( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData30 );
+	int16			sub_266CE( sSprite_0* pSprite, sSprite_0*& pData2C );
+	void			sub_26781( sSprite_0* pSprite );
 
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
