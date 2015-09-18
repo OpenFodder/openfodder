@@ -14559,6 +14559,8 @@ loc_1D18D:;
 }
 
 void cFodder::sub_1D1A2( sSprite_0* pSprite ) {
+	int16 Data0, Data4;
+
 	if (pSprite->field_6E)
 		goto loc_1D349;
 
@@ -14568,7 +14570,7 @@ void cFodder::sub_1D1A2( sSprite_0* pSprite ) {
 	word_3B2D1[2] = pSprite->field_0;
 	word_3B2D1[3] = pSprite->field_2;
 	word_3B2D1[4] = pSprite->field_4;
-	word_3B2D1[5] = pSprite->field_5;
+	word_3B2D1[5] = pSprite->field_6;
 
 	sub_25FDA( pSprite );
 	sub_258C6( pSprite );
@@ -14580,6 +14582,101 @@ void cFodder::sub_1D1A2( sSprite_0* pSprite ) {
 	sub_263F6( pSprite );
 	//seg004:44B6
 
+	int16 Sprite_Field_10 = pSprite->field_10;
+	pSprite->field_10 += 0x20;
+	pSprite->field_10 &= 0x1C0;
+
+	sub_26450( pSprite );
+	pSprite->field_10 = Sprite_Field_10;
+	sub_25F2B( pSprite );
+
+	if (pSprite->field_18 != 0x6A)
+		return;
+
+	sSprite_0* Data24 = pSprite + 1;
+
+	//seg004:4505
+	if (pSprite->field_5E) {
+		Data24->field_18 = 4;
+		Data24->field_8 = 0x7C;
+		Data24->field_A = 0;
+	}
+
+	Data24->field_18 = 0x29;
+
+	Data4 = pSprite->field_0;
+	Data4 += 6;
+
+	Data24->field_0 = Data4;
+	Data4 = pSprite->field_4 - 0x0B;
+	Data4 += pSprite->field_52;
+	Data24->field_4 = Data4;
+	Data24->field_20 = pSprite->field_20;
+
+	if (pSprite->field_6E) {
+		Data24->field_18 = 4;
+		Data24->field_8 = 0x7C;
+		Data24->field_A = 0;
+	}
+
+	Data0 = pSprite->field_0;
+	if (Data0 = dword_3A391) {
+		Data0 = pSprite->field_4;
+		if (Data0 == dword_3A395)
+			return;
+	}
+	pSprite->field_8 = 0xD8;
+	return;
+
+loc_1D349:;
+	pSprite->field_38 = 0;
+	sSprite_0* Data28 = &mSprites[pSprite->field_5E];
+	if (Data28->field_6E)
+		goto loc_1D44C;
+
+	pSprite->field_0 = Data28->field_0;
+	pSprite->field_4 = Data28->field_4;
+	pSprite->field_0 += 8;
+	pSprite->field_4 += 0x0A;
+	dword_3A395 = pSprite->field_4;
+
+loc_1D3C6:;
+	Data0 = -3;
+	Data4 = 8;
+	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+		goto loc_1D411;
+
+	pSprite->field_4 -= 1;
+	if (pSprite->field_4 >= 0)
+		goto loc_1D3C6;
+
+	pSprite->field_4 = dword_3A395;
+	pSprite->field_0 -= 1;
+	if (pSprite->field_0 >= 0)
+		goto loc_1D3C6;
+
+	pSprite->field_0 = 0;
+	pSprite->field_38 = 5;
+
+loc_1D411:;
+	Data4 = pSprite->field_4;
+	Data0 = word_3AA4F;
+
+	if (Data4 < Data0)
+		goto loc_1D441;
+
+	Data0 -= 1;
+	pSprite->field_4 = Data0;
+
+loc_1D441:;
+	pSprite->field_6E = 0;
+	return;
+
+loc_1D44C:;
+	pSprite->field_8 = 0x7C;
+	pSprite->field_A = 0;
+	pSprite->field_0 = Data28->field_0;
+	pSprite->field_4 = Data28->field_4;
 }
 
 void cFodder::sub_1D483( sSprite_0* pSprite ) {
