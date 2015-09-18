@@ -48,18 +48,20 @@ int main(int argc, char *args[]) {
 
 }
 
-std::string local_PathGenerate( std::string pFile, std::string pPath ) {
+std::string local_PathGenerate( const std::string& pFile, const std::string& pPath ) {
 	std::stringstream	 filePathFinal;
 
+	filePathFinal << "Data/";
+
 	if( pPath.size() )
-		filePathFinal << "Data/" << pPath << "/";
+		filePathFinal << pPath << "/";
 
 	filePathFinal << pFile;
 
 	return filePathFinal.str();
 }
 
-std::string local_FileMD5( std::string pFile, std::string pPath ) {
+std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) {
 	md5_context ctx;
 	size_t Size = 0;
 	unsigned char MD5[16];
@@ -81,12 +83,11 @@ std::string local_FileMD5( std::string pFile, std::string pPath ) {
 	  FinalMD5 += "0123456789ABCDEF"[MD5[i] % 16];
 	}
 
-
 	return FinalMD5;
 }
 	
 
-uint8 *local_FileRead( std::string pFile, std::string pPath, size_t	&pFileSize ) {
+uint8 *local_FileRead( const std::string& pFile, const std::string& pPath, size_t& pFileSize ) {
 	std::ifstream*		fileStream;
 	uint8*				fileBuffer = 0;
 
@@ -108,8 +109,6 @@ uint8 *local_FileRead( std::string pFile, std::string pPath, size_t	&pFileSize )
 			delete fileBuffer;
 			fileBuffer = 0;
 		}
-
-	} else {
 
 	}
 

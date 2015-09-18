@@ -179,6 +179,19 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
 }
 
+void cWindow::RenderShrunk( cSurface* pImage ) {
+	SDL_Rect Src;
+	Src.w = pImage->GetWidth();
+	Src.h = pImage->GetHeight();
+	Src.x = 0;
+	Src.y = 0;
+
+	pImage->draw();
+
+	//Draw the texture
+	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
+}
+
 void cWindow::FrameEnd() {
 
 	SDL_RenderPresent( mRenderer );

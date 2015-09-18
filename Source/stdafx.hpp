@@ -38,13 +38,15 @@
 
 #include "Types.hpp"
 
-std::string local_PathGenerate( std::string pFile, std::string pPath );
-uint8*		local_FileRead( std::string pFile, std::string pPath, size_t& pFileSize );
+std::string	local_FileMD5( const std::string& pFile, const std::string& pPath );
+uint8*		local_FileRead( const std::string& pFile, const std::string& pPath, size_t& pFileSize );
+std::string local_PathGenerate(  const std::string& pFile, const std::string& pPath );
+
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
 std::string	tool_NumToString( uint32 pValue );
 std::string tool_StripLeadingZero( const std::string& pValue );
 uint16		tool_DecimalToBinaryCodedDecimal( uint16 pDecimal );
-std::string	local_FileMD5( std::string pFile, std::string pPath );
+
 
 // Read a BE word from the buffer
 inline uint16 readBEWord( const void *buffer ) {

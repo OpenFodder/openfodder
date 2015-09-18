@@ -193,6 +193,23 @@ void cGraphics_PC::map_Tiles_Draw() {
 	mImage->Save();
 }
 
+void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
+	uint8* Target = mFodder->mSurfaceMapOverview->GetSurfaceBuffer();
+
+	pDestX *= 16;
+
+	Target += (pDestY * 16) * (mFodder->mMapWidth*16);
+	Target += pDestX;
+	
+	uint8* TilePtr = mGraphicBlkPtrs[pTile];
+
+	for (uint16 i = 0; i < 16; ++i) {
+
+		memcpy( Target, TilePtr, 16 );
+		TilePtr += 0x140;
+		Target += (mFodder->mMapWidth*16);
+	}
+}
 
 void cGraphics_PC::map_Load_Resources() {
 	mFodder->mFilenameCopt = mFodder->sub_12AA1( mFodder->mFilenameCopt, "dat" );
@@ -257,7 +274,7 @@ void cGraphics_PC::video_Draw_Sprite() {
 	uint8* 	si = Fodder->word_42062;
 	int16	ax, cx;
 	
-	di += 352 * Fodder->mDrawSpritePositionY;
+	di += mImage->GetWidth() * Fodder->mDrawSpritePositionY;
 
 	ax = Fodder->mDrawSpritePositionX;
 	ax += Fodder->word_40054;
@@ -278,7 +295,7 @@ void cGraphics_PC::video_Draw_Sprite() {
 	Fodder->word_42074 = 160 - Fodder->word_4206C;
 	Fodder->word_4206C >>= 1;
 	
-	Fodder->word_42076 = 352 - (Fodder->word_4206C*4);
+	Fodder->word_42076 = mImage->GetWidth() - (Fodder->word_4206C*4);
 
 	di += Plane;
 	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
