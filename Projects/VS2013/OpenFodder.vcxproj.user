@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>skipintro map 36 38</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>skipintrao maap 36 38</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

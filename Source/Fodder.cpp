@@ -25,7 +25,6 @@
 #include "Amiga/SpriteData_Amiga.hpp"
 #include "IntroData.hpp"
 #include "UnknownData.hpp"
-#include "MissionNames.hpp"
 #include "VocTable.hpp"
 
 #define INVALID_SPRITE_PTR (sSprite_0*) -1
@@ -879,7 +878,7 @@ void cFodder::sub_10D61() {
 	word_3B2E1 = 0;
 	word_3B2E3 = 0;
 	word_3B2E5 = 0;
-
+	word_3B2ED = 0;
 	word_3B2EF = 0;
 	word_3B2F1 = 0;
 	word_3B2F3 = 0;
@@ -3178,22 +3177,27 @@ void cFodder::WindowTitleSet( bool pInMission ) {
 	std::stringstream Title;
 	Title << mTitle.str();
 
-	if (mVersion->mRelease == eRelease::Retail) {
+	if (pInMission) {
+		if (mVersion->mRelease == eRelease::Demo) {
 
-		if (pInMission) {
+			Title << " ( Mission:";
+			Title << " " << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
+
+		} else {
 			Title << " ( Mission: " << mMissionNumber;
-			Title << " " << mMissionNames[mMissionNumber - 1];
+			Title << " " << mVersion->mMissionData->mMissionNames[mMissionNumber - 1];
+
 			Title << "  Phase: " << (mMissionPhase + 1) << " ";
 
 			if (mMissionPhases > 1) {
 				Title << "of " << mMissionPhases;
-				Title << " " << mMissionPhaseNames[mMapNumber];
+				Title << " " << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
 			}
 			else
-				Title << mMissionPhaseNames[mMapNumber];
-
-			Title << " )";
+				Title << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
 		}
+
+		Title << " )";
 	}
 
 	mWindow->SetWindowTitle( Title.str() );
@@ -3698,7 +3702,9 @@ void cFodder::Music_Unk( int16 pTrack ) {
 		"rjp.ICEBASE(2)",
 		"rjp.MORBASE(2)",
 		"rjp.INTBASE(2)",
-		""
+		"",
+		"",
+		"",
 	};
 
 	Music_Play( Tracks[pTrack] );
@@ -4153,10 +4159,10 @@ void cFodder::Briefing_Draw_MissionName( ) {
 	String_Print( byte_4382F, 1, word_3B301, 0, Mission.str().c_str() );
 	
 	int16 Data0 = mMissionNumber;
-	const char** Data20 = mMissionNames;
+	const char** Data20 = mVersion->mMissionData->mMissionNames;
 
 	if (word_3A01A != 0xB5) {
-		Data20 = mMissionPhaseNames;
+		Data20 = mVersion->mMissionData->mMissionPhaseNames;
 		Data0 = mMapNumber + 1;
 	}
 
@@ -4165,9 +4171,9 @@ void cFodder::Briefing_Draw_MissionName( ) {
 
 	String_CalculateWidth( 0x140, byte_4382F, *Data20 );
 	Data0 = mMissionNumber;
-	Data20 = mMissionNames; 
+	Data20 = mVersion->mMissionData->mMissionNames; 
 	if (word_3A01A != 0xB5) {
-		Data20 = mMissionPhaseNames;
+		Data20 = mVersion->mMissionData->mMissionPhaseNames;
 		Data0 = mMapNumber + 1;
 	}
 	Data0 -= 1;
@@ -7736,6 +7742,241 @@ loc_25E8F:;
 	pSprite->field_26 = 0x1F45;
 	pSprite->field_28 = -3;
 	return -1;
+}
+
+void cFodder::sub_25F2B( sSprite_0* pSprite ) {
+	
+	if (word_3B2ED) {
+		pSprite->field_8 = 0xD8;
+		pSprite->field_A = 1;
+		sub_1F649( pSprite );
+		return;
+	}
+
+	if (word_3B2D1[2] != pSprite->field_0 || word_3B2D1[3] != pSprite->field_2)
+		return;
+
+	if (word_3B2D1[4] != pSprite->field_4 || word_3B2D1[5] != pSprite->field_6)
+		return;
+
+	pSprite->field_8 = 0xDA;
+
+	int16 Data0 = word_390B0 & 0x0F;
+	if (!Data0) {
+		Data0 = tool_RandomGet() & 0x06;
+		pSprite->field_32 = word_3E94A[Data0 / 2];
+	}
+
+	pSprite->field_A = pSprite->field_32;
+}
+
+void cFodder::sub_25FDA( sSprite_0* pSprite ) {
+	int16 Data0, Data4, Data8, DataC, Data10;
+	sSprite_0* Data24 = 0, *Data28 = 0, *Data2C = 0;
+
+	if (pSprite->field_18 == 0x6A)
+		goto loc_2625B;
+
+	if (!dword_3B5F5)
+		goto loc_2608B;
+
+	if (pSprite->field_74) {
+		pSprite->field_74 -= 1;
+		goto loc_2608B;
+	}
+	//loc_2600B
+
+	pSprite->field_74 = 0xC8;
+	Data24 = dword_3B5F5;
+
+	Data8 = Data24->field_0;
+	Data8 += 0x0A;
+	DataC = Data24->field_4;
+	DataC -= 5;
+	Data0 = pSprite->field_0;
+	Data4 = pSprite->field_4;
+	Data10 = 0x80;
+
+	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	if (Data10 < 0x7F) {
+		// CHECK if this works as expected
+		pSprite->field_5E = (dword_3B5F5 - mSprites);
+	}
+
+loc_2608B:;
+	word_3B2ED = 0;
+	Data0 = 0x49;
+	Data4 = 5;
+	Data8 = 0;
+	DataC = -1;
+	if (sub_24285( pSprite, Data0, Data4, Data8, DataC, Data10, Data28 ))
+		return; 
+
+	if (Data4 != 0x49)
+		goto loc_2614F;
+
+	pSprite->field_26 = Data28->field_0;
+	pSprite->field_26 += 0x0A;
+	pSprite->field_28 = Data28->field_4;
+	pSprite->field_28 -= 5;
+
+	Data0 = pSprite->field_0;
+	Data4 = pSprite->field_4;
+	Data8 = pSprite->field_26;
+	DataC = pSprite->field_28;
+	Data10 = 0x10;
+	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	if (Data10 >= 0x10)
+		goto loc_2620F;
+
+	if (Data0 >= 3)
+		return;
+
+	word_3AA19 -= 1;
+	sub_2060F( pSprite );
+	return;
+
+loc_2614F:;
+	if (Data4 == 5)
+		goto loc_26221;
+
+	pSprite->field_26 = Data28->field_0;
+	pSprite->field_26 += 4;
+	pSprite->field_28 = Data28->field_4;
+	pSprite->field_28 -= 6;
+
+	if (!pSprite->field_6E)
+		goto loc_2620F;
+
+	Data2C = Data28->field_6A;
+	if (Data2C->field_36 > 2)
+		goto loc_2620F;
+	if (Data2C->field_20 > 3)
+		goto loc_2620F;
+
+	Data0 = Data2C->field_0;
+	Data4 = Data2C->field_4;
+	Data8 = pSprite->field_0;
+	DataC = pSprite->field_4;
+	Data10 = 0x10;
+
+	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	if (Data0 > 0x0A)
+		goto loc_2620F;
+	pSprite->field_6E = -1;
+	return;
+
+loc_2620F:;
+	Data0 = tool_RandomGet() & 0x3F;
+	if (Data0)
+		return;
+
+	sub_26490(pSprite);
+	return;
+
+loc_26221:;
+	Data28->field_70 = pSprite;
+	pSprite->field_26 = pSprite->field_0;
+	pSprite->field_28 = pSprite->field_4;
+	word_3B2ED = -1;
+	return;
+
+loc_2625B:;
+	word_3B2ED = 0;
+	Data0 = 0;
+	Data4 = 0x49;
+	Data8 = -1;
+	if (sub_24285( pSprite, Data0, Data4, Data8, DataC, Data10, Data28 ))
+		return;
+
+	if (Data4 != 0x49)
+		goto loc_2631F;
+
+	pSprite->field_26 = Data28->field_0 + 0x0A;
+	pSprite->field_28 = Data28->field_4 - 0x05;
+
+	Data0 = pSprite->field_0;
+	Data4 = pSprite->field_4;
+	Data8 = pSprite->field_26;
+	DataC = pSprite->field_28;
+	Data10 = 0x10;
+	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	if (Data0 >= 3)
+		return;
+	word_3AA19 -= 1;
+
+	sub_2061C( pSprite + 1 );
+	sub_2060F( pSprite );
+	return;
+
+loc_2631F:;
+	word_3B2ED = -1;
+	pSprite->field_8 = 0xD8;
+	pSprite->field_26 = Data28->field_0 + 4;
+	pSprite->field_28 = Data28->field_4 - 6;
+	if (!Data28->field_6E)
+		goto loc_263E5;
+
+	Data2C = Data28->field_6A;
+	if (Data2C->field_36 > 2)
+		goto loc_263E5;
+	if (Data2C->field_20 > 3)
+		goto loc_263E5;
+
+	Data0 = Data2C->field_0;
+	Data4 = Data2C->field_4;
+	Data8 = pSprite->field_0;
+	DataC = pSprite->field_4;
+	Data10 = 0x10;
+	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	if (Data0 <= 0x0F) {
+		pSprite->field_6E = -1;
+		return;
+	}
+
+loc_263E5:;
+	Data0 = tool_RandomGet() & 7;
+	if (Data0)
+		return;
+
+	sub_26490( pSprite );
+}
+
+void cFodder::sub_263F6( sSprite_0* pSprite ) {
+	int16 Data0 = pSprite->field_4A;
+
+	pSprite->field_2A += 1;
+	pSprite->field_2A &= 1;
+	if (!pSprite->field_2A)
+		Data0 += 2;
+
+	Data0 &= 6;
+
+	pSprite->field_4A = Data0;
+	pSprite->field_A = word_3E94A[Data0 / 2];
+
+}
+
+void cFodder::sub_26450( sSprite_0* pSprite ) {
+	int16 Data0 = pSprite->field_10;
+	Data0 >>= 5;
+	Data0 -= 1;
+	Data0 ^= 0x0F;
+	Data0 &= 0x0E;
+
+	int16 Data4 = Data0;
+	Data4 >>= 1;
+	Data4 += Data0;
+
+	pSprite->field_A += Data4;
+}
+
+void cFodder::sub_26490( sSprite_0* pSprite ) {
+	++pSprite->field_5E;
+	if (pSprite->field_5E < 43)
+		return;
+
+	pSprite->field_5E = 0;
 }
 
 void cFodder::sub_264B0( sSprite_0* pSprite ) {
@@ -17554,7 +17795,7 @@ void cFodder::Mission_PhaseNext() {
 	word_390D2 = mMapNumber;
 	--word_390D2;
 
-	mMissionPhaseRemain = mMissionPhases = mMissionPhaseTable[mMissionNumber];
+	mMissionPhaseRemain = mMissionPhases = mVersion->mMissionData->mMissionPhases[mMissionNumber];
 	mMissionPhase = 0;
 	++mMissionNumber;
 	word_390CE += 0x0F;

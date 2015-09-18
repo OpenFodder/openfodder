@@ -155,7 +155,7 @@
     <ClInclude Include="..\..\Source\Graphics.hpp" />
     <ClInclude Include="..\..\Source\IntroData.hpp" />
     <ClInclude Include="..\..\Source\md5.hpp" />
-    <ClInclude Include="..\..\Source\MissionNames.hpp" />
+    <ClInclude Include="..\..\Source\MissionData.hpp" />
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp" />
     <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp" />
@@ -180,6 +180,7 @@
     <ClCompile Include="..\..\Source\Fodder.cpp" />
     <ClCompile Include="..\..\Source\Graphics.cpp" />
     <ClCompile Include="..\..\Source\md5.cpp" />
+    <ClCompile Include="..\..\Source\MissionData.cpp" />
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />
     <ClCompile Include="..\..\Source\Recruits.cpp" />

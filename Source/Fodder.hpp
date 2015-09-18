@@ -506,6 +506,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2E1;
 	int16			word_3B2E3;
 	int16			word_3B2E5;
+	int16			word_3B2ED;
 	int16			word_3B2EF;
 	int16			word_3B2F1;
 	int16			word_3B2F3;
@@ -1122,6 +1123,11 @@ public:
 	int16			sub_25AAE( sSprite_0* pSprite );
 	int16			sub_25B6B( sSprite_0* pSprite );
 	int16			sub_25DCF( sSprite_0* pSprite );
+	void			sub_25F2B( sSprite_0* pSprite );
+	void			sub_25FDA( sSprite_0* pSprite );
+	void			sub_263F6( sSprite_0* pSprite );
+	void			sub_26450( sSprite_0* pSprite );
+	void			sub_26490( sSprite_0* pSprite );
 	void			sub_264B0( sSprite_0* pSprite );
 	int16			sub_265D6( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	int16			sub_266CE( sSprite_0* pSprite, sSprite_0*& pData2C );
