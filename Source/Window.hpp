@@ -39,6 +39,7 @@ class cWindow : public cSingleton<cWindow> {
 		void				FrameEnd();
 
 		void				RenderAt( cSurface* pImage, cPosition pSource );
+		void				RenderShrunk( cSurface* pImage );
 
 		void				SetCursor();
 		void				SetMousePosition( const cPosition& pPosition );

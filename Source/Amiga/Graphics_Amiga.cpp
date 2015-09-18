@@ -189,7 +189,7 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 	uint32 Header = 0;
 	uint32 Size = 0;
 
-	while (FileSize > 0) {
+	while (FileSize > 8) {
 		Header = readBEDWord( pData );
 		pData += 4; FileSize -= 4;
 		Size = readBEDWord( pData );
@@ -382,6 +382,10 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 	}
 
 	mImage->Save();
+}
+
+void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
+
 }
 
 void cGraphics_Amiga::map_Load_Resources() {

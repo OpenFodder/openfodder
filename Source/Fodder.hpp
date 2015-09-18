@@ -150,6 +150,8 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite_0				mSprites[45];
 
 	const sSpriteSheet**	mSpriteDataPtr;
+	
+	std::stringstream		mTitle;
 
 	std::string		mFilenameCopt;
 	std::string		mFilenameBaseSwp;
@@ -472,6 +474,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B173;
 	int16			word_3B175;
 	int16			word_3B177;
+	int16			word_3B179;
+	int16			word_3B17B;
+	int16			word_3B17D;
+	int16			word_3B17F;
 	int16			word_3B189;
 	int16			word_3B18B;
 	int16			word_3B1A9;
@@ -783,12 +789,12 @@ public:
 	void			sub_126BB();
 	void			Mission_Goals_Set();
 	void			sub_12790( );
-	void			sub_12838();
+	void			Mission_Show_Complete();
 	void			sub_12877( sSprite_0* pData2C );
 	void			sub_128A9( sSprite_0* pData2C );
 	void			sub_128DB( sSprite_0* pData2C );
 	void			sub_128F4( sSprite_0* pData2C );
-	void			sub_12952();
+	void			Mission_Show_TryAgain();
 	void			sub_1298C( sSprite_0* pData2C );
 	void			sub_129B6( sSprite_0* pData2C );
 
@@ -797,6 +803,7 @@ public:
 	void			sub_12AEE();
 	void			sub_12B6E();
 	void			sub_12C69();
+	void			sub_12D00();
 
 	void			Map_Overview_Prepare();
 	void			map_SetTileType();
@@ -971,16 +978,26 @@ public:
 	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68
+	void			sub_1CB1F( sSprite_0* pSprite );							// 69
 	void			sub_1C689( sSprite_0* pSprite );							// 70
 	void			sub_1CE80( sSprite_0* pSprite );							// 71
+	void			sub_1D4AE( sSprite_0* pSprite );							// 74
 	void			sub_1D4BA( sSprite_0* pSprite );							// 75
 	void			sub_1D4C6( sSprite_0* pSprite );							// 76
+	void			sub_1D4D2( sSprite_0* pSprite );							// 77
 	void			Sprite_Handle_Turret( sSprite_0* pSprite );					// 78
 	void			sub_1D756( sSprite_0* pSprite );							// 79
+	void			sub_1D76F( sSprite_0* pSprite );							// 80
+	void			sub_1D77E( sSprite_0* pSprite );							// 81
+	void			sub_1D78D( sSprite_0* pSprite );							// 82
 	void			sub_1D6F2( sSprite_0* pSprite );							// 84
 	void			sub_1D70B( sSprite_0* pSprite );							// 85
+	void			sub_1D7DD( sSprite_0* pSprite );							// 86
+	void			sub_1D802( sSprite_0* pSprite );							// 87
 	void			sub_1D81C( sSprite_0* pSprite );							// 88
 	void			sub_1DA43( sSprite_0* pSprite );							// 89
+	void			Sprite_Handle_RankToGeneral( sSprite_0* pSprite );			// 93
+	void			Sprite_Handle_Set50Rockets( sSprite_0* pSprite );			// 94
 	void			sub_1BEF6( sSprite_0* pSprite );							// 97
 	void			sub_1D724( sSprite_0* pSprite );							// 105
 
@@ -1056,7 +1073,10 @@ public:
 	int16			sub_2329D( sSprite_0* pSprite );
 	int16			sub_23367( sSprite_0* pSprite );
 	void			sub_233D4( sSprite_0* pSprite );
-	int16			sub_23444( sSprite_0* pSprite );
+	int16			sub_23444( sSprite_0* pSprite, sSprite_0*& pData2C  );
+	void			sub_23525( sSprite_0* pSprite );
+	void			sub_236F7( sSprite_0* pSprite );
+	void			sub_23879( sSprite_0* pSprite );
 	int16			sub_239C9( sSprite_0* pSprite, sSprite_0*& pData2C );
 	void			sub_23C70( sSprite_0* pData2C );
 	void			sub_23CDD( sSprite_0* pSprite );
@@ -1074,6 +1094,7 @@ public:
 	int16			sub_2494C( sSprite_0* pSprite );
 	int16			sub_24C47( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData34 );
 	int16			sub_2531F( sSprite_0* pSprite, sSprite_0*& pData30 );
+	void			sub_254F9( sSprite_0* pSprite );
 	void			sub_24ED7( sSprite_0* pSprite );
 	void			sub_25863( sSprite_0* pSprite );
 	void			sub_258C6( sSprite_0* pSprite );
@@ -1113,7 +1134,6 @@ public:
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );
-	void			sub_2B04B( uint8* pTileGraphicPtr, uint16 pDestX, uint16 pDestY );
 	void			sub_2B12E( sSprite_0* pSprite );
 	void			Sprite_Skidu_Direction_Update( sSprite_0* pSprite, int16& pData1C );
 	int16			sub_2B232( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
@@ -1247,6 +1267,7 @@ public:
 	void			Mission_PhaseNext();
 
 	void			sub_12AB1();
+
 	void			WonGame();
 
 	void			Load_File( const std::string& pFilename );
@@ -1278,6 +1299,8 @@ public:
 	void			Prepare();
 	void			Start( int16 pStartMap );
 	void			Exit( unsigned int pExitCode );
+
+	void			WindowTitleSet( bool pInMission );
 
 	void			VersionLoad( const sVersion* pVersion );
 	void			VersionSelect();
