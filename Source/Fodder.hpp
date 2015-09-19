@@ -935,6 +935,7 @@ public:
 	void			sub_1AC13( sSprite_0* pSprite );							// 17
 	void			sub_1AC23( sSprite_0* pSprite );							// 18
 	void			sub_1AC7C( sSprite_0* pSprite );							// 19
+
 	void			Sprite_Handle_BuildingDoor( sSprite_0* pSprite );			// 20
 	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );			// 21
 	void			sub_1AF78( sSprite_0* pSprite );							// 22
@@ -944,6 +945,7 @@ public:
 	void			Sprite_Handle_Floating_Dead_Soldier( sSprite_0* pSprite );	// 27
 	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );			// 28
 	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );			// 29
+
 	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );				// 30
 	void			sub_1B4BB( sSprite_0* pSprite );
 	void			Sprite_Handle_Rocket( sSprite_0* pSprite );					// 33
@@ -964,6 +966,7 @@ public:
 	void			sub_1C1C0( sSprite_0* pSprite );							// 47
 	void			sub_1C268( sSprite_0* pSprite );							// 48
 	void			sub_1C2A5( sSprite_0* pSprite );							// 49
+
 	void			sub_1C296( sSprite_0* pSprite );							// 50
 	void			sub_1C2B4( sSprite_0* pSprite );							// 51
 	void			sub_1C2C3( sSprite_0* pSprite );							// 52
@@ -974,6 +977,7 @@ public:
 	void			sub_1C4C2( sSprite_0* pSprite );							// 57
 	void			Sprite_Handle_Text_Try( sSprite_0* pSprite );				// 58
 	void			Sprite_Handle_Text_Again( sSprite_0* pSprite );				// 59
+
 	void			Sprite_Handle_BoilingPot( sSprite_0* pSprite );				// 60
 	void			Sprite_Handle_Indigenous( sSprite_0* pSprite );				// 61
 	void			sub_1C62F( sSprite_0* pSprite );							// 62
@@ -984,6 +988,7 @@ public:
 	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
 	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68
 	void			sub_1CB1F( sSprite_0* pSprite );							// 69
+
 	void			sub_1C689( sSprite_0* pSprite );							// 70
 	void			sub_1CE80( sSprite_0* pSprite );							// 71
 	void			sub_1D1A2( sSprite_0* pSprite );							// 72
@@ -994,29 +999,40 @@ public:
 	void			sub_1D4D2( sSprite_0* pSprite );							// 77
 	void			Sprite_Handle_Turret( sSprite_0* pSprite );					// 78
 	void			sub_1D756( sSprite_0* pSprite );							// 79
+
 	void			sub_1D76F( sSprite_0* pSprite );							// 80
 	void			sub_1D77E( sSprite_0* pSprite );							// 81
 	void			sub_1D78D( sSprite_0* pSprite );							// 82
+	void			sub_1D7B6( sSprite_0* pSprite );							// 83
 	void			sub_1D6F2( sSprite_0* pSprite );							// 84
 	void			sub_1D70B( sSprite_0* pSprite );							// 85
 	void			sub_1D7DD( sSprite_0* pSprite );							// 86
 	void			sub_1D802( sSprite_0* pSprite );							// 87
 	void			sub_1D81C( sSprite_0* pSprite );							// 88
 	void			sub_1DA43( sSprite_0* pSprite );							// 89
+
 	void			sub_1DA48( sSprite_0* pSprite );							// 90
 	void			sub_1DACF( sSprite_0* pSprite );							// 91
 	void			sub_1DB58( sSprite_0* pSprite );							// 92
 	void			Sprite_Handle_RankToGeneral( sSprite_0* pSprite );			// 93
 	void			Sprite_Handle_Set50Rockets( sSprite_0* pSprite );			// 94
 	void			sub_1DD4C( sSprite_0* pSprite );							// 95
+	void			sub_1DD91( sSprite_0* pSprite );							// 96
 	void			sub_1BEF6( sSprite_0* pSprite );							// 97
+	void			sub_1DE38( sSprite_0* pSprite );							// 98
 	void			sub_1DF2C( sSprite_0* pSprite );							// 99
+
 	void			sub_1DFD2( sSprite_0* pSprite );							// 100
 	void			sub_1E004( sSprite_0* pSprite );							// 101
 	void			sub_1E00E( sSprite_0* pSprite );							// 102
 	void			sub_1E018( sSprite_0* pSprite );							// 103
 	void			sub_1E022( sSprite_0* pSprite );							// 104
 	void			sub_1D724( sSprite_0* pSprite );							// 105
+	void			sub_1E02C( sSprite_0* pSprite );							// 106
+	void			sub_1E031( sSprite_0* pSprite );							// 107
+	void			sub_1E036( sSprite_0* pSprite );							// 108
+	void			sub_1E042( sSprite_0* pSprite );							// 109
+	void			sub_1E04E( sSprite_0* pSprite );							// 110
 
 	int16			sub_1D92E( sSprite_0* pSprite );
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
@@ -1132,6 +1148,7 @@ public:
 	int16			sub_265D6( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData30 );
 	int16			sub_266CE( sSprite_0* pSprite, sSprite_0*& pData2C );
 	void			sub_26781( sSprite_0* pSprite );
+	void			sub_2682B( sSprite_0* pSprite, int16 pData1C );
 
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
