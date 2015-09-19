@@ -108,8 +108,13 @@ void cGraphics_Amiga::LoadAFXMenu() {
 	uint8* apmenu = g_Resource.fileGet( "apmenu.lbm", Size );
 
 	DecodeIFF( apmenu, mFodder->mDataBaseBlk, &mBMHDAfx, mPalleteAfx );
-
 	mImage->paletteLoad_Amiga( (uint8*)mPalleteAfx, 0, 32 );
+	/*
+	mFodder->mDataBaseBlk = g_Resource.fileGet( "VIRGPRES.RAW", Size );
+	mBMHDAfx.mWidth = 320;
+	mBMHDAfx.mHeight = 256;
+	mBMHDAfx.mPlanes = 5;*/
+
 
 	mBMHD_Current = &mBMHDAfx;
 
@@ -421,9 +426,9 @@ void cGraphics_Amiga::video_Draw_Linear() {
 	mFodder->word_42066 = di;
 
 	mFodder->word_4206C >>= 3;
-	mFodder->word_42074 = 40 - mFodder->word_4206C;
+	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - mFodder->word_4206C;
 	mFodder->word_4206C >>= 1;
-	mFodder->word_42076 = 352 - (mFodder->word_4206C * 16);
+	mFodder->word_42076 = mImage->GetWidth() - (mFodder->word_4206C * 16);
 
 	// Height
 	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
