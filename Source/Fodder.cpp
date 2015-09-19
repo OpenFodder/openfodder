@@ -12043,7 +12043,8 @@ void cFodder::Sprite_Handle_Grenade( sSprite_0* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
 	sSprite_0* Data24;
 	int32 tmp = 0;
-	int64 a1;
+	int16 a1;
+	int32 Dataa4;
 
 	if (pSprite->field_38)
 		goto loc_1992D;
@@ -12106,40 +12107,43 @@ loc_19701:;
 		}
 	}
 	//loc_197EA
-	a1 = (int64) pSprite->field_1A;
+	a1 = (int16) (((int32)pSprite->field_1A) >> 16);
 
-	if ((a1 >> 16) < 0)
-		if ((a1 >> 16) < -8)
-			pSprite->field_1A = (int32*) ((a1 & 0xFFFF) | -8);
+	if (a1 < 0)
+		if (a1 < -8)
+			pSprite->field_1A = (int32*)(((int32)pSprite->field_1A & 0xFFFF) | (-8 << 16));
+	Dataa4 = (int32)pSprite->field_1A;
+	Dataa4 -= 0x18000;
 
-	pSprite->field_1A -= 0x18000;
-	Data4 = (int64) pSprite->field_1A;
+	pSprite->field_1A = (int32*)Dataa4;
+	Dataa4 = (int32) pSprite->field_1A;
 
 	if (!pSprite->field_50)
 		goto loc_19877;
 
-	if (Data4 >= 0)
+	if (Dataa4 >= 0)
 		goto loc_19877;
 
 	if (pSprite->field_20 >= 2)
 		goto loc_19877;
 	
 	pSprite->field_1E = 0;
+	pSprite->field_20 = 0;
 
 loc_19855:;
 
-	Data4 = (Data4 >> 16) | ((Data4 & 0xFFFF) << 16);
+	Dataa4 = (Dataa4 >> 16) | ((Dataa4 & 0xFFFF) << 16);
 	if (pSprite->field_52 >= 0x0A)
 		goto loc_198D3;
 
-	pSprite->field_52 -= Data4;
+	pSprite->field_52 -= Dataa4;
 	goto loc_198D3;
 
 loc_19877:;
-	tmp = (pSprite->field_1E) | (pSprite->field_20 << 16);
-	tmp += Data4;
+	tmp = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
+	tmp += Dataa4;
 
-	pSprite->field_1E = tmp;
+	pSprite->field_1E = tmp & 0xFFFF;
 	pSprite->field_20 = tmp >> 16;
 
 	if (pSprite->field_20 < 0) {
@@ -12149,10 +12153,10 @@ loc_19877:;
 		if (pSprite->field_50)
 			goto loc_19855;
 
-		Data4 = (int64) pSprite->field_1A;
-		Data4 = -Data4;
-		Data4 >>= 1;
-		pSprite->field_1A = (int32*) Data4;
+		Dataa4 = (int32) pSprite->field_1A;
+		Dataa4 = -Dataa4;
+		Dataa4 >>= 1;
+		pSprite->field_1A = (int32*) Dataa4;
 	}
 
 loc_198D3:;
