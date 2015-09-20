@@ -47,11 +47,6 @@ cWindow::~cWindow() {
 	SDL_Quit();
 }
 
-void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
-
-	SDL_SetWindowTitle( mWindow, pWindowTitle.c_str() );
-}
-
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
@@ -218,6 +213,11 @@ void cWindow::SetScreenSize( const cDimension& pDimension ) {
 void cWindow::SetLogicalSize( const cDimension& pDimension ) {
 	
 	SDL_RenderSetLogicalSize(mRenderer, pDimension.mWidth, pDimension.mHeight);
+}
+
+void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
+
+	SDL_SetWindowTitle( mWindow, pWindowTitle.c_str() );
 }
 
 SDL_Renderer* cWindow::GetRenderer() const {

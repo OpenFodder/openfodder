@@ -21,7 +21,7 @@
  */
 
 const extern sSpriteSheet* off_32C0C[];
-const extern sSpriteSheet* mFontSpriteSheetPtr[];
+const extern sSpriteSheet* mSpriteSheetPtr_Font_PC[];
 
 class cGraphics_PC : public cGraphics {
 	uint8*				mGraphicBlkPtrs[480];

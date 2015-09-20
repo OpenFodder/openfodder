@@ -60,16 +60,6 @@ struct sSpriteSheet {
 	int8 field_F;
 };
 
-struct sIntroString {
-	uint8		mPosition;
-	const char* mText;
-};
-
-struct sIntroText {
-	uint8				mImageNumber;
-	const sIntroString*	mText;
-};
-
 struct sHero {
 	int8	mRecruitID;
 	int16	mRank;
@@ -740,7 +730,7 @@ class cFodder : public cSingleton < cFodder > {
 
 public:
 	void			AFX_Show();
-	void			Music_Play( const char* pFilename );
+	void			Music_PlayFile( const char* pFilename );
 	void			Music_Stop();
 
 	int16			Mission_Loop( );
@@ -800,7 +790,7 @@ public:
 	void			sub_1298C( sSprite_0* pData2C );
 	void			sub_129B6( sSprite_0* pData2C );
 
-	std::string		sub_12AA1( std::string pBase, const char* pFinish );
+	std::string		sub_12AA1( const std::string& pBase, const char* pFinish );
 	void			sub_12A5F();
 	void			sub_12AEE();
 	void			sub_12B6E();
@@ -830,7 +820,7 @@ public:
 
 	void			Sound_Voc_Load();
 	void			Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 );
-	void			Music_Unk( int16 pTrack );
+	void			Music_Play( int16 pTrack );
 
 	// 14EAC
 	void			Briefing_Intro();
@@ -879,7 +869,7 @@ public:
 	void			Recruit_Draw();
 	void			sub_17CD3( );
 	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
-	void			sub_17DB3();
+	void			Service_Show();
 
 	/* End Recruitment */
 

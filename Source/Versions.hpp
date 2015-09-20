@@ -36,13 +36,15 @@ struct sFile {
 };
 
 struct sVersion {
-	const char* mName;
-	std::string mKey;
-	ePlatform	mPlatform;
-	eRelease	mRelease;
-	const sMissionData* mMissionData;
-	const char* mDataPath;
-	const sFile* mFiles;
+	const char*				mName;
+	std::string				mKey;
+	ePlatform				mPlatform;
+	cDimension				mScreenDimension;
+	eRelease				mRelease;
+	const sMissionData*		mMissionData;
+	const sIntroText*		mIntroData;
+	const char*				mDataPath;
+	const sFile*			mFiles;
 };
 
 extern const sVersion Versions[];

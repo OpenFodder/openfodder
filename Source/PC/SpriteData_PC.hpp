@@ -20,7 +20,7 @@
  *
  */
 
-const sSpriteSheet mFontSpriteSheet[83] = {
+const sSpriteSheet mSpriteSheet_Font_PC[83] = {
 	{ 0, 17159, 0, 0, 16, 17, 208, 0, 0 },
 	{ 8, 17159, 0, 0, 16, 17, 208, 0, 0 },
 	{ 16, 17159, 0, 0, 16, 17, 208, 0, 0 },
@@ -590,8 +590,8 @@ sSpriteSheet stru_3664E[12] =
 	{ 9736, 17161, 0, 0, 16, 18, 176, 0, 0 }
 };
 
-const sSpriteSheet* mFontSpriteSheetPtr[] = {
-	mFontSpriteSheet
+const sSpriteSheet* mSpriteSheetPtr_Font_PC[] = {
+	mSpriteSheet_Font_PC
 };
 
 const sSpriteSheet* mHillBitsSpriteSheetPtr[] = {

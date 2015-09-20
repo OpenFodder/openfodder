@@ -42,9 +42,6 @@
     <ClInclude Include="..\..\Source\Surface.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\IntroData.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\UnknownData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -66,12 +63,6 @@
     <ClInclude Include="..\..\Source\Versions.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp">
-      <Filter>Source\Amiga</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp">
-      <Filter>Source\PC</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Recruits.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -88,6 +79,15 @@
       <Filter>Source\Amiga</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MissionData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IntroData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
@@ -139,6 +139,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\MissionData.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\IntroData_Amiga.cpp">
+      <Filter>Source\Amiga</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
