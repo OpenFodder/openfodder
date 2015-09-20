@@ -121,7 +121,36 @@ void cGraphics_Amiga::LoadAFXMenu() {
 	delete[] apmenu;
 }
 
-void cGraphics_Amiga::PaletteLoad( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
+void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pColors ) {
+	sILBM_BMHD	Header;
+	uint16		Palette[0x20];
+
+	size_t Size = 0;
+	uint8* File = g_Resource.fileGet( pFilename, Size );
+
+	DecodeIFF( File, mFodder->mDataBaseBlk, &Header, Palette );
+	
+	mBMHD_Current = &Header;
+	g_Fodder.word_42062 = g_Fodder.mDataBaseBlk;
+	
+	g_Fodder.mDrawSpritePositionX = 16;
+	g_Fodder.mDrawSpritePositionY = 22;
+	g_Fodder.word_4206C = 0x140;
+	g_Fodder.word_4206E = 0x101;
+	g_Fodder.word_42078 = 0x101;
+	g_Fodder.word_82132 = 0;
+	g_Fodder.byte_42070 = 0;
+
+	mImage->clearBuffer();
+ 	video_Draw_Linear();
+	mImage->paletteLoad_Amiga( (uint8*)Palette, 0, 32 );
+
+	mBMHD_Current = 0;
+
+	delete[] File;
+}
+
+ void cGraphics_Amiga::PaletteLoad( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
 	int16  color;
 	int16  ColorID = pColorID;
 
@@ -446,6 +475,7 @@ void cGraphics_Amiga::video_Draw_Linear() {
 		di += mFodder->word_42076;
 	}
 }
+
 void cGraphics_Amiga::video_Draw_Sprite() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();

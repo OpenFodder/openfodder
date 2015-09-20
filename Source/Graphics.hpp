@@ -43,17 +43,24 @@ public:
 	virtual void		Load_Sprite_Font() = 0;
 
 	virtual void		graphicsBlkPtrsPrepare() = 0;
+	
+	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors ) = 0;
+
 	virtual void		map_Tiles_Draw() = 0;
 	virtual void		map_Load_Resources() = 0;
+
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) = 0;
 
 	virtual void		PaletteSet() = 0;
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 ) = 0;
+
 	virtual void		video_Draw_Linear() = 0;
 	virtual void		video_Draw_Sprite() = 0;
+
 	virtual void		SetSpritePtr( eSpriteType pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );
 	virtual void		SetImageOriginal();
+
 	virtual void		sub_144A2() = 0;
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
 };

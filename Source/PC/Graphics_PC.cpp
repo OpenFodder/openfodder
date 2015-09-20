@@ -92,8 +92,8 @@ void cGraphics_PC::LoadpStuff() {
 void cGraphics_PC::Load_Sprite_Font() {
 	
 	g_Resource.fileLoadTo( "font.dat", mFodder->mDataPStuff );
-
 	PaletteLoad( mFodder->mDataPStuff + 0xA000, 0x10, 0xD0 );
+
 	SetSpritePtr( eSPRITE_FONT );
 
 	mFodder->Sound_Voc_Load();
@@ -394,8 +394,7 @@ void cGraphics_PC::sub_144A2( ) {
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mFodder->mMapSptPtr;
 
-	//TODO: BUG?
-	Buffer += (16 * 352) + 16; // 0x584
+	Buffer += (16 * 352) + 16;
 	mFodder->byte_42071 = 1 << mFodder->word_40054;
 
 	mFodder->word_42066 = Buffer;
@@ -532,4 +531,33 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		di += mFodder->word_42076;
 	}
 
+}
+
+void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors ) {
+	size_t fileSize = 0;
+	uint8* fileBuffer = g_Resource.fileGet(pFilename, fileSize);
+	uint8* srcBuffer = fileBuffer;
+
+	uint8 *Buffer = 0;
+
+	mImage->clearBuffer();
+
+	for (unsigned int Plane = 0; Plane < 4; Plane++) {
+		Buffer = mImage->GetSurfaceBuffer() + (16 * mImage->GetWidth()) + 16;
+		
+		for (unsigned int Y = 0; Y < 200; ++Y) {
+
+			for (unsigned int X = Plane; X < 320; X += 4 ) {
+
+				Buffer[X] = *srcBuffer++;
+			}
+
+			Buffer += mImage->GetWidth();
+		}
+	}
+
+	if(pColors)
+		PaletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xd0 );
+
+	delete[] fileBuffer;
 }

@@ -17792,6 +17792,7 @@ void cFodder::intro_LegionMessage() {
 			}
 		}
 
+		eventProcess();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 	}
@@ -17805,21 +17806,22 @@ int16 cFodder::introPlayText() {
 
 		word_3B447 = 0x288;
 		
+		mImage->paletteClear();
+
 		if (mIntroText[word_3B2CF].mImageNumber != 0xFF) {
 
 			std::stringstream ImageName;
 			ImageName << mIntroText[word_3B2CF].mImageNumber;
 			ImageName << ".dat";
 
-			g_Resource.image4PlaneLoad( mImage, ImageName.str(), 0xD0 );
-			mImage->paletteSet( mPalette, 0xD0 );
+			mGraphics->imageLoad( ImageName.str(), 0xD0 );
 		}
 		else {
-			mImage->paletteSet( mPalette, 0xD0 );
 			word_3B447 = 0xAF;
-			
+			mImage->clearBuffer();
 		}
 
+		mImage->paletteSet( mPalette );
 		const sIntroString* IntroString = mIntroText[word_3B2CF].mText;
 		while (IntroString->mPosition) {
 
@@ -17917,8 +17919,9 @@ void cFodder::intro_Music_Play() {
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
 	bool DoBreak = false;
-	g_Resource.image4PlaneLoad( mImage, pFilename, 0x100 );
-	
+	g_Graphics.imageLoad( pFilename, 0x100 );
+	mImage->paletteSet( mPalette );
+
 	mImageFaded = -1;
 	while( mImageFaded == -1 || DoBreak == false  ) {
 		--pDuration;
@@ -18008,7 +18011,8 @@ void cFodder::sleepLoop( int64 pMilliseconds ) {
 
 void cFodder::WonGame() {
 	//seg003:3E6D
-	g_Resource.image4PlaneLoad( mImage, "won.dat", 0x100 );
+	mGraphics->imageLoad( "won.dat", 0x100 );
+	mImage->paletteSet( mPalette );
 
 	while(mImage->paletteFade()) {
 
