@@ -51,6 +51,11 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mBMHD_Current = &mBMHDPStuff;
 		return mFodder->mDataPStuff;
 
+	case 3:
+		mFodder->byte_42070 = 0xD0;
+		mBMHD_Current = &mBMHDFont;
+		return mFodder->mDataPStuff;
+
 	default:
 		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
 		return 0;
@@ -67,7 +72,7 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 	mFodder->word_4206E = di->field_6;
 
 	int16 ax = di->field_2 & 0xFF;
-	int16 bx = di->field_0 >> 3 & -2;
+	int16 bx = (di->field_0 >> 3) & -2;
 
 	ax <<= 3;
 	int16 d1 = ax;
@@ -92,59 +97,65 @@ void cGraphics_Amiga::LoadpStuff() {
 void cGraphics_Amiga::Load_Sprite_Font() {
 	size_t Size = 0;
 
-	g_Resource.fileLoadTo( "font.raw", mFodder->mDataPStuff );
+	uint8* Font = g_Resource.fileGet( "font.raw", Size );
+	memcpy( mFodder->mDataPStuff, Font + 0x20, Size - 0x20 );
 
-	uint8* Font = g_Resource.fileGet( "font.pl8", Size );
+	PaletteLoad( Font, 0xD0, 16 );
 
-	PaletteLoad( Font, 0xD0, 0x04 );
-
-	SetSpritePtr( eSPRITE_FONT );
+	mBMHDFont.mWidth = 0x140;
+	mBMHDFont.mHeight = 0x100;
+	mBMHDFont.mPlanes = 4;
 
 	delete[] Font;
-}
+	//Font = g_Resource.fileGet( "font.pl8", Size );
+	//PaletteLoad( Font, 0x0, 0x08 );
+	//delete[] Font;
+	SetSpritePtr( eSPRITE_FONT );
 
-void cGraphics_Amiga::LoadAFXMenu() {
-	size_t Size = 0;
-	uint8* apmenu = g_Resource.fileGet( "apmenu.lbm", Size );
-
-	DecodeIFF( apmenu, mFodder->mDataBaseBlk, &mBMHDAfx, mPalleteAfx );
-	mImage->paletteLoad_Amiga( (uint8*)mPalleteAfx, 0, 32 );
-	/*
-	mFodder->mDataBaseBlk = g_Resource.fileGet( "VIRGPRES.RAW", Size );
-	mBMHDAfx.mWidth = 320;
-	mBMHDAfx.mHeight = 256;
-	mBMHDAfx.mPlanes = 5;*/
-
-
-	mBMHD_Current = &mBMHDAfx;
-
-	delete[] apmenu;
+	
 }
 
 void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pColors ) {
 	sILBM_BMHD	Header;
 	uint16		Palette[0x20];
+	std::string	Filename = pFilename;
+
+	if (Filename.find('.') == std::string::npos )
+		Filename.append( ".raw" );
 
 	size_t Size = 0;
-	uint8* File = g_Resource.fileGet( pFilename, Size );
+	uint8* File = g_Resource.fileGet( Filename, Size );
 
-	DecodeIFF( File, mFodder->mDataBaseBlk, &Header, Palette );
+	if (DecodeIFF( File, mFodder->mDataBaseBlk, &Header, Palette ) == false) {
+		int Colors = 16;
+
+		if (Size == 51464) {
+			Header.mPlanes = 5;
+			Colors = 32;
+		} else
+			Header.mPlanes = 4;
+
+		// Not an iff, so its probably a RAW file
+		memcpy( mFodder->mDataBaseBlk, File + (Colors*2), Size - (Colors*2));
+		PaletteLoad( File, 0, Colors );
+		
+		Header.mWidth = 0x140;
+		Header.mHeight = 0x101;
+	}
 	
 	mBMHD_Current = &Header;
 	g_Fodder.word_42062 = g_Fodder.mDataBaseBlk;
 	
 	g_Fodder.mDrawSpritePositionX = 16;
 	g_Fodder.mDrawSpritePositionY = 22;
-	g_Fodder.word_4206C = 0x140;
-	g_Fodder.word_4206E = 0x101;
-	g_Fodder.word_42078 = 0x101;
-	g_Fodder.word_82132 = 0;
+	g_Fodder.word_4206C = Header.mWidth;
+	g_Fodder.word_4206E = Header.mHeight;
 	g_Fodder.byte_42070 = 0;
 
 	mImage->clearBuffer();
- 	video_Draw_Linear();
-	mImage->paletteLoad_Amiga( (uint8*)Palette, 0, 32 );
+	mImage->paletteLoad_Amiga( (uint8*)Palette, 0, pColors );
 
+ 	video_Draw_Linear();
 	mBMHD_Current = 0;
 
 	delete[] File;
@@ -163,9 +174,9 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 		// Extract each color from the word
 		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
 
-		mFodder->mPalette[pColorID].mRed	= ((color >> 8) & 0xF)   << 2;	// Why 2? no idea, but it works.. 1 is too dark, and 3 causes incorrect colours
+		mFodder->mPalette[pColorID].mRed	= ((color >> 8) & 0xF) << 2;	// Why 2? no idea, but it works.. 1 is too dark, and 3 causes incorrect colours
 		mFodder->mPalette[pColorID].mGreen	= ((color >> 4) & 0xF) << 2;
-		mFodder->mPalette[pColorID].mBlue	= ((color >> 0) & 0xF)  << 2;
+		mFodder->mPalette[pColorID].mBlue	= ((color >> 0) & 0xF) << 2;
 	}
 }
 
@@ -181,7 +192,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 		return;
 
 	case eSPRITE_FONT:
-
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_Amiga );
 		return;
 	}
 }
@@ -491,8 +502,8 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	mFodder->word_4206C -= 1;
 	mFodder->word_4206C <<= 1;
 
-	mFodder->word_42074 = 40 - (mFodder->word_4206C);
-	mFodder->word_42076 = 352 - (mFodder->word_4206C * 8);
+	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - (mFodder->word_4206C);
+	mFodder->word_42076 = mImage->GetWidth() - (mFodder->word_4206C * 8);
 
 	// Height
 	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
@@ -516,7 +527,7 @@ void cGraphics_Amiga::sub_144A2() {
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*)mFodder->mMapSptPtr;
 
-	Buffer += (16 * 352) + 16; // 0x584
+	Buffer += (16 * 352) + 16;
 	mFodder->byte_42071 = 1 << mFodder->word_40054;
 	mFodder->word_42066 = Buffer;
 
@@ -585,7 +596,7 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 	uint8	Result = 0;
-	uint16	Planes[5];
+	uint8	Planes[5];
 	uint8	bl = mFodder->byte_42070;
 
 	// Load bits for all planes

@@ -20,19 +20,15 @@
  *
  */
 
-// DOS: Floppy Positions
+#include "Types.hpp"
+#include "IntroData.hpp"
+
 const sIntroString mIntro_0[] = {
 	{ 0x46, "This game is not in any way" },
 	{ 0x5e, "endorsed by the" },
 	{ 0x78, "ROYAL BRITISH LEGION" },
 	{ 0 }
 };
-
-// Amiga:
-// 0x50
-// 0x68
-// 0x82
-
 
 const sIntroString mIntro_1[] = {
 	{ 0xCC, "A Sensible Software Game" },
@@ -153,7 +149,8 @@ const sIntroString mIntro_16[] = {
 	{ 0 }
 };
 
-const sIntroText mIntroText[] = {
+const sIntroText mIntroText_PC[] = {
+	{ 0xFF, mIntro_0 },
 	{ 0x31, mIntro_1 },
 	{ 0xFF, mIntro_2 },
 	{ 0x32, mIntro_3 },

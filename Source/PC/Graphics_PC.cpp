@@ -78,7 +78,7 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 			return;
 
 		case eSPRITE_FONT:
-			mFodder->Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_PC );
 			return;
 	}
 }
@@ -113,9 +113,7 @@ void cGraphics_PC::graphicsBlkPtrsPrepare() {
 			dx = 0;
 			bx += 0x12C0;
 		}
-	}
-
-				
+	}			
 }
 
 void cGraphics_PC::PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID ) {
@@ -534,8 +532,13 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 }
 
 void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors ) {
+	std::string Filename = pFilename;
+
+	if (Filename.find('.') == std::string::npos )
+		Filename.append( ".dat" );
+
 	size_t fileSize = 0;
-	uint8* fileBuffer = g_Resource.fileGet(pFilename, fileSize);
+	uint8* fileBuffer = g_Resource.fileGet(Filename, fileSize);
 	uint8* srcBuffer = fileBuffer;
 
 	uint8 *Buffer = 0;

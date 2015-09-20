@@ -1,0 +1,148 @@
+/*
+ *  Cannon Fodder
+ *  ------------------------
+ *
+ *  Copyright (C) 2008-2015 Robert Crossfield
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
+#include "Types.hpp"
+#include "IntroData.hpp"
+
+const sIntroString mIntro_0[] = {
+	{ 0x50, "This game is not in any way" },
+	{ 0x68, "endorsed by the" },
+	{ 0x82, "ROYAL BRITISH LEGION" },
+	{ 0 }
+};
+
+const sIntroString mIntro_1[] = {
+	{ 0xCC, "A Sensible Software Game" },
+	{ 0 }
+};
+
+const sIntroString mIntro_2[] = {
+	{ 0x64, "STARRING" },
+	{ 0 }
+};
+
+const sIntroString mIntro_3[] = {
+	{ 0xA4, "JOOLS" },
+	{ 0xB5, "as" },
+	{ 0xC8, "James Dean" },
+	{ 0 }
+};
+
+const sIntroString mIntro_4[] = {
+	{ 0xA4, "STOO" },
+	{ 0xB4, "as" },
+	{ 0xC8, "Elvis" },
+	{ 0 }
+};
+
+const sIntroString mIntro_5[] = {
+	{ 0xA4, "RICHARD JOSEPH" },
+	{ 0xB4, "as" },
+	{ 0xC8, "Sgt. Bilko" },
+	{ 0 }
+};
+
+const sIntroString mIntro_6[] = {
+	{ 0x64, "Co. STARRING" },
+	{ 0 }
+};
+
+const sIntroString mIntro_7[] = {
+	{ 0xA4, "CHRIS YATES" },
+	{ 0xB4, "as" },
+	{ 0xC8, "JR out of Dallas" },
+	{ 0 }
+};
+
+const sIntroString mIntro_8[] = {
+	{ 0xA4, "JON HARE" },
+	{ 0xB5, "as" },
+	{ 0xC8, "Vera Lynn" },
+	{ 0 }
+};
+
+const sIntroString mIntro_9[] = {
+	{ 0x64, "SPECIAL GUEST STAR" },
+	{ 0 }
+};
+
+const sIntroString mIntro_10[] = {
+	{ 0xA4, "CHRIS CHAPMAN" },
+	{ 0xB4, "as" },
+	{ 0xC8, "Norman Wisdom" },
+	{ 0 }
+};
+
+const sIntroString mIntro_11[] = {
+	{ 0x50, "Jools" },
+	{ 0x8C, "Stoo" },
+	{ 0x3C, "Program Design" },
+	{ 0x78, "Graphic Design" },
+	{ 0 }
+};
+
+const sIntroString mIntro_12[] = {
+	{ 0x32, "Richard Joseph" },
+	{ 0x6E, "Jon Hare" },
+	{ 0xAA, "David Hindley" },
+	{ 0x1E, "Sound effects and Music" },
+	{ 0x5A, "Original Soundtrack"},
+	{ 0x96, "Cameraman" },
+	{ 0 }
+};
+
+const sIntroString mIntro_13[] = {
+	{ 0x28, "Steve Cook" },
+	{ 0x5A, "Graftgold" },
+	{ 0x8C, "Hammonds Hire" },
+	{ 0xBE, "Peter Hickman" },
+	{ 0x14, "Vehicle and Stunts" },
+	{ 0x46, "Flatbed Scanning" },
+	{ 0x78, "Costumes" },
+	{ 0xAA, "Mr Virgin" },
+	{ 0 }
+};
+
+const sIntroString mIntro_14[] = {
+	{ 0xD2, "Sensible Software." },
+	{ 0xBE, "Designed By" },
+	{ 0 }
+};
+
+const sIntroText mIntroText_Amiga[] = {
+	{ 0xFF, mIntro_0 },
+	{ 0x31, mIntro_1 },
+	{ 0xFF, mIntro_2 },
+	{ 0x32, mIntro_3 },
+	{ 0x33, mIntro_4 },
+	{ 0x34, mIntro_5 },
+	{ 0xFF, mIntro_6 },
+	{ 0x36, mIntro_7 },
+	{ 0x35, mIntro_8 },
+	{ 0xFF, mIntro_9 },
+	{ 0x37, mIntro_10 },
+	{ 0xFF, mIntro_11 },
+	{ 0xFF, mIntro_12 },
+	{ 0xFF, mIntro_13 },
+	{ 0x38, mIntro_14 },
+	{ 0 }
+};

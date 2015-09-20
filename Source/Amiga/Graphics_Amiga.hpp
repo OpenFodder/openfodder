@@ -21,6 +21,7 @@
  */
 
 const extern sSpriteSheet* off_8BFB8[];
+const extern sSpriteSheet* mSpriteSheetPtr_Font_Amiga[];
 
 struct sILBM_BMHD {
 	uint16	mWidth, mHeight;
@@ -47,6 +48,7 @@ class cGraphics_Amiga : public cGraphics {
 	sILBM_BMHD			mBMHDArmy;
 	sILBM_BMHD			mBMHDCopt;
 	sILBM_BMHD			mBMHDPStuff;
+	sILBM_BMHD			mBMHDFont;
 	sILBM_BMHD			mBMHDAfx;
 
 	sILBM_BMHD*			mBMHD_Current;
@@ -60,13 +62,12 @@ class cGraphics_Amiga : public cGraphics {
 
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint16* pPalette );
 
-	virtual void		LoadAFXMenu();
 	virtual void		SetCursorPalette( uint16 pIndex );
 	
 	virtual void		DrawPixels_8( uint8* pSource, uint8* pDestination );
 	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination );
 
-	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors );
+	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors = 0 );
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();

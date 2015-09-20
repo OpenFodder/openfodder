@@ -23,7 +23,6 @@
 #include "stdafx.hpp"
 #include "PC/SpriteData_PC.hpp"
 #include "Amiga/SpriteData_Amiga.hpp"
-#include "IntroData.hpp"
 #include "UnknownData.hpp"
 #include "VocTable.hpp"
 
@@ -1226,9 +1225,8 @@ void cFodder::Squad_Member_Sort() {
 			if (Data20->mRecruitID == -1) {
 
 				sSquad_Member* Data24 = Data20 + 1;
-				sSquad_Member* Data28 = Data20;
 
-				*Data28 = *Data24;
+				*Data20 = *Data24;
 				Data24->mRecruitID = -1;
 				Data24->mRank = 0;
 			}
@@ -1795,7 +1793,7 @@ void cFodder::map_Load_Resources() {
 
 void cFodder::sub_11E60() {
 
-	Music_Unk(mMap_TileSet + 0x32);
+	Music_Play(mMap_TileSet + 0x32);
 }
 
 void cFodder::sub_11E6C( ) {
@@ -2378,7 +2376,7 @@ void cFodder::sub_12877( sSprite_0* pData2C ) {
 	pData2C->field_8 = 0xA2;
 	pData2C->field_18 = 0x1D;
 
-	Music_Unk( 6 );
+	Music_Play( 6 );
 }
 
 void cFodder::sub_128A9( sSprite_0* pData2C ) {
@@ -2389,7 +2387,7 @@ void cFodder::sub_128A9( sSprite_0* pData2C ) {
 	pData2C->field_8 = 0xA1;
 	pData2C->field_18 = 0x1E;
 
-	Music_Unk( 0x0C );
+	Music_Play( 0x0C );
 }
 
 void cFodder::sub_128DB( sSprite_0* pData2C ) {
@@ -2423,7 +2421,7 @@ void cFodder::Mission_Show_TryAgain() {
 	Data2C = &mSprites[42];
 	sub_129B6( Data2C );
 
-	Music_Unk(0x0F);
+	Music_Play(0x0F);
 }
 
 void cFodder::sub_1298C( sSprite_0* pData2C ) {
@@ -2442,7 +2440,7 @@ void cFodder::sub_129B6( sSprite_0* pData2C ) {
 	pData2C->field_18 = 0x3B;
 }
 
-std::string	cFodder::sub_12AA1( std::string pBase, const char* pFinish ) {
+std::string	cFodder::sub_12AA1( const std::string& pBase, const char* pFinish ) {
 	std::string Final;
 
 	Final.append( pBase );
@@ -3228,6 +3226,12 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			mGraphics = new cGraphics_Amiga();
 			break;
 	}
+	
+	mWindow->SetScreenSize( cDimension(	mVersion->mScreenDimension.mWidth - 32, 
+										mVersion->mScreenDimension.mHeight - 32) );
+
+	mWindow->SetLogicalSize(cDimension( mVersion->mScreenDimension.mWidth, 
+										mVersion->mScreenDimension.mHeight - 16)  );
 
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	mGraphics->LoadpStuff();
@@ -3387,8 +3391,7 @@ void cFodder::sub_13277( sSprite_0* pData2C ) {
 	pData2C->field_8 = 0xC1;
 	pData2C->field_18 = 0x22;
 
-	//TODO
-	Music_Unk(8);
+	Music_Play(8);
 }
 
 void cFodder::Mouse_DrawCursor( ) {
@@ -3419,7 +3422,7 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 	word_42062 += mSpriteDataPtr[pParam00][pParam04].field_0;
 
 	mDrawSpritePositionX = (pParam08 + 0x10);
-	mDrawSpritePositionY = pParam0C + 0x10;
+	mDrawSpritePositionY = (pParam0C + 0x10);
 	word_4206C = mSpriteDataPtr[pParam00][pParam04].mColCount;
 	word_4206E = mSpriteDataPtr[pParam00][pParam04].mRowCount;
 	if (word_3B307 > pParam00) 
@@ -3624,7 +3627,7 @@ void cFodder::Sound_Voc_Load() {
 	}
 }
 
-void cFodder::Music_Play( const char* pFilename ) {
+void cFodder::Music_PlayFile( const char* pFilename ) {
 
 	std::string Filename = "Data/WAV/";
 	Filename.append( pFilename );
@@ -3644,7 +3647,7 @@ void cFodder::Music_Stop() {
 	Mix_FadeOutMusic(500);
 }
 
-void cFodder::Music_Unk( int16 pTrack ) {
+void cFodder::Music_Play( int16 pTrack ) {
 	
 	const char* Tracks[] = {
 		"rjp.JON(1)",
@@ -3707,7 +3710,7 @@ void cFodder::Music_Unk( int16 pTrack ) {
 		"",
 	};
 
-	Music_Play( Tracks[pTrack] );
+	Music_PlayFile( Tracks[pTrack] );
 
 }
 
@@ -3749,7 +3752,6 @@ void cFodder::Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	pData8 = 0x28;
 	pData8 -= Data0;
 
-	//TODO: Correct?
 	if (pData8 <= 0)
 		pData8 = 4;
 
@@ -4064,7 +4066,7 @@ void cFodder::Briefing_Intro() {
 
 	Briefing_Load_Resources();
 	Sprite_SetDataPtrToBase( off_42918 );
-	Music_Unk( 0x07 );
+	Music_Play( 0x07 );
 	sub_136D0();
 
 	sub_15DF0();
@@ -4182,30 +4184,15 @@ void cFodder::Briefing_Draw_MissionName( ) {
 }
 
 void cFodder::AFX_Show() {
+	word_82132 = 0;
 
 	Music_Stop();
 
-	((cGraphics_Amiga*)mGraphics)->LoadAFXMenu();
+	mGraphics->imageLoad( "apmenu.lbm", 32 );
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
-
-	word_3E1B7 = mDataBaseBlk;
-	word_42062 = word_3E1B7;
-	
-	mDrawSpritePositionX = 16;
-	mDrawSpritePositionY = 22;
-	word_4206C = 0x140;
-	word_4206E = 0x101;
-	word_42078 = 0x101;
-	word_82132 = 0;
-	byte_42070 = 0;
-
-	mImage->clearBuffer();
- 	mGraphics->video_Draw_Linear();
 
 	mImage->Save();
 	mImage->paletteFade();
-	mWindow->SetScreenSize( cDimension( 320, 260 ) );
-	mWindow->SetLogicalSize( cDimension( 352 , 250 ) );
 
 	for( ;; ) {
 		sub_13800();
@@ -4235,9 +4222,6 @@ void cFodder::AFX_Show() {
 	}
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xF0 );
-	mWindow->SetScreenSize( cDimension( 320, 200) );
-	mWindow->SetLogicalSize( cDimension( 352, 216 ) );
-
 }
 
 void cFodder::Recruit_Show() {
@@ -4689,7 +4673,7 @@ void cFodder::Recruit_Render_HeroList() {
 		int16 DataC = word_3A3BD - 1;
 		DataC += 0x4A + word_3AA55+ 0x19;
 
-		mGraphics->sub_145AF( Hero->mRecruitID + 9, Data8, DataC );
+		mGraphics->sub_145AF( Hero->mRank + 9, Data8, DataC );
 
 		sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
 
@@ -10412,6 +10396,9 @@ void cFodder::Squad_Select( int16 pData4 ) {
 	sSprite_0* Data20 = 0;
 	sub_305D5( Data20 );
 
+	if (Data20 == INVALID_SPRITE_PTR)
+		return;
+
 	word_3A067 = Data20->field_0;
 	word_3A069 = Data20->field_4;
 	word_3AA1B = 1;
@@ -10476,7 +10463,7 @@ void cFodder::sub_2EF8A() {
 	Data20[Data0] = 1;
 }
 
-void cFodder::sub_17DB3() {
+void cFodder::Service_Show() {
 	WindowTitleSet( false );
 
 	g_Resource.fileLoadTo( "rankfont.dat", mDataHillBits );
@@ -10489,7 +10476,7 @@ void cFodder::sub_17DB3() {
 
 	Sprite_SetDataPtrToBase( off_43963 );
 
-	Music_Unk( 0 );
+	Music_Play( 0 );
 	Service_KIA_Loop();
 	Service_Promotion_Loop();
 	mouse_Setup();
@@ -10515,6 +10502,7 @@ void cFodder::Service_KIA_Loop() {
 
 	mImageFaded = -1;
 	word_39F02 = 0;
+	word_40048 = 0;
 	mImage->Save();
 
 	do {
@@ -11227,6 +11215,10 @@ void cFodder::Brief_Draw_Horizontal_Line( int16 pBx, int16 pDx, int16 pCx, uint8
 
 void cFodder::sub_18C45( int32 pPosY,  const sIntroString* pString ) {
 
+	if (mVersion->mPlatform == ePlatform::PC)
+		pPosY -= 0x19;
+	else
+		pPosY += 0x9;
 	String_CalculateWidth( 320, mFontWidths, pString->mText );
 	String_Print(  mFontWidths, 0, word_3B301, pPosY, pString->mText );
 }
@@ -15748,13 +15740,12 @@ int16 cFodder::sub_1E05A( sSprite_0* pSprite ) {
 	pSprite->field_A = 0;
 	pSprite->field_2A = 0;
 
-	// TODO: is this even close to correct?
-	if (pSprite->field_1A < (int32*) &mSprites[0]) {
+	if (pSprite->field_1A < (int32*) 0xB0000) {
 		int32 Dataa0 = tool_RandomGet() & 0x07;
 		Dataa0 += 2;
-		Dataa0 = (Data0 << 16);
+		Dataa0 = (Dataa0 << 16);
+		Dataa0 += (int32) pSprite->field_1A;
 
-		// lol?
 		pSprite->field_1A = (int32*) Dataa0;
 	}
 	//loc_1E232
@@ -16294,7 +16285,7 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 		goto loc_1F0EA;
 
 	++word_397AC;
-	//TODO: Fix this messy function
+
 	Data24 = (sSquad_Member*) pSprite->field_46;
 
 	Hero_Add( Data24 );
@@ -16361,23 +16352,11 @@ loc_1F0EA:;
 	if (eax == INVALID_SPRITE_PTR || eax == 0 )
 		goto loc_1F218;
 
-	// TODO: Correct?
 	DataFinal = (uint8*)eax->field_46;
 	goto loc_1F1E9;
 
 loc_1F19A:;
-	if (!Data0)
-		goto loc_1F1DD;
-
-	Data0 &= 0xFFF;
-	Data0 /= 0x0C;
-	Data0 &= 0xFFFF;
-	Data0 *= 0x0C;
-
-	if (Data0 >= 0x60)
-		Data0 = 0;
-loc_1F1DD:;
-	DataFinal = (uint8*) (DataFinal + Data0);
+	DataFinal = (uint8*) &mSquad[Data0];
 
 loc_1F1E9:;
 
@@ -16903,7 +16882,7 @@ loc_1FA39:;
 		goto loc_1FB00;
 
 	Data0 = *(Data28 + Data8 + 0x28);
-	//TODO: Fix?
+
 	if (Data0 != pSprite->field_8 ) {
 		pSprite->field_8 = *(Data28 + Data8 + 0x28);
 		pSprite->field_55 = 0;
@@ -17424,7 +17403,10 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 					//loc_29D07
 					if (NextChar > 0x5A) {
 						NextChar -= 0x61;
-						NextChar += 0x39;
+						if (mVersion->mPlatform == ePlatform::Amiga)
+							NextChar += 0x28;
+						else
+							NextChar += 0x39;
 						goto loc_29D71;
 					}
 					else {
@@ -17772,9 +17754,9 @@ void cFodder::intro_LegionMessage() {
 
 	mImageFaded = -1;
 
-	sub_18C45( mIntro_0[0].mPosition , &mIntro_0[0] );
-	sub_18C45( mIntro_0[1].mPosition , &mIntro_0[1] );
-	sub_18C45( mIntro_0[2].mPosition , &mIntro_0[2] );
+	sub_18C45( mVersion->mIntroData[0].mText[0].mPosition, &mVersion->mIntroData[0].mText[0] );
+	sub_18C45( mVersion->mIntroData[0].mText[1].mPosition, &mVersion->mIntroData[0].mText[1] );
+	sub_18C45( mVersion->mIntroData[0].mText[2].mPosition, &mVersion->mIntroData[0].mText[2] );
 
 	while( mImageFaded == -1 || DoBreak == false  ) {
 		
@@ -17800,19 +17782,18 @@ void cFodder::intro_LegionMessage() {
 
 int16 cFodder::introPlayText() {
 
-	Sprite_SetDataPtrToBase( mFontSpriteSheetPtr );
+	mGraphics->SetSpritePtr( eSpriteType::eSPRITE_FONT );
 
-	for ( word_3B2CF = 0; mIntroText[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
+	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
 
 		word_3B447 = 0x288;
 		
 		mImage->paletteClear();
 
-		if (mIntroText[word_3B2CF].mImageNumber != 0xFF) {
+		if (mVersion->mIntroData[word_3B2CF].mImageNumber != 0xFF) {
 
 			std::stringstream ImageName;
-			ImageName << mIntroText[word_3B2CF].mImageNumber;
-			ImageName << ".dat";
+			ImageName << mVersion->mIntroData[word_3B2CF].mImageNumber;
 
 			mGraphics->imageLoad( ImageName.str(), 0xD0 );
 		}
@@ -17822,10 +17803,10 @@ int16 cFodder::introPlayText() {
 		}
 
 		mImage->paletteSet( mPalette );
-		const sIntroString* IntroString = mIntroText[word_3B2CF].mText;
+		const sIntroString* IntroString = mVersion->mIntroData[word_3B2CF].mText;
 		while (IntroString->mPosition) {
 
-			sub_18C45( IntroString->mPosition - 0x19, IntroString );
+			sub_18C45( IntroString->mPosition, IntroString );
 			++IntroString;
 		}
 		//loc_16710
@@ -17870,7 +17851,6 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 }
 
 void cFodder::intro() {
-
 	//copyprotection();
 	word_42851 = 0;
 	sub_136D0();
@@ -17885,20 +17865,20 @@ void cFodder::intro() {
 
 	intro_LegionMessage();
 
-	if (ShowImage_ForDuration( "cftitle.dat", 0x1F8 ))
+	if (ShowImage_ForDuration( "cftitle", 0x1F8 ))
 		goto introDone;
 
 	if (introPlayText())
 		goto introDone;
 
-	if (ShowImage_ForDuration( "virgpres.dat", 0x2D0 ))
+	if (ShowImage_ForDuration( "virgpres", 0x2D0 ))
 		goto introDone;
 	
-	if (ShowImage_ForDuration( "sensprod.dat", 0x2D0 ))
+	if (ShowImage_ForDuration( "sensprod", 0x2D0 ))
 		goto introDone;
 	
 	word_42851 = -1;
-	if (ShowImage_ForDuration( "cftitle.dat", 0x318 ))
+	if (ShowImage_ForDuration( "cftitle", 0x318 ))
 		goto introDone;
 
 introDone:;
@@ -17909,12 +17889,12 @@ introDone:;
 	mGraphics->LoadpStuff();
 	mGraphics->PaletteLoad( mDataPStuff + 0xA000, 0x10, 0xF0 );
 	//Sound_Unk();
-	Music_Unk( 0 );
+	Music_Play( 0 );
 }
 
 void cFodder::intro_Music_Play() {
 
-	Music_Play( "rjp.WARX4(1)" );
+	Music_PlayFile( "rjp.WARX4(1)" );
 }
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
@@ -18086,7 +18066,7 @@ void cFodder::Hero_Add( sSquad_Member* pSquadMember ) {
 		if (pSquadMember->mNumberOfKills > Hero->mKills)
 			continue;
 
-		if (pSquadMember->mRecruitID <= Hero->mRecruitID)
+		if (pSquadMember->mRank <= Hero->mRank)
 			break;
 	}
 	if (Data4 == 4)
@@ -19805,6 +19785,10 @@ void cFodder::sub_2E04C() {
 }
 
 void cFodder::Start( int16 pStartMap ) {
+
+	if (mVersion->mRelease == eRelease::Demo)
+		pStartMap = 0;
+
 	mouse_Setup();
 	Mouse_Inputs_Get();
 
@@ -19948,7 +19932,7 @@ loc_103BF:;
 				word_3A9B2 = -1;
 				word_3901E = -1;
 
-				Music_Unk( 0 );
+				Music_Play( 0 );
 				continue;
 			}
 
@@ -20021,7 +20005,7 @@ loc_103BF:;
 			else {
 				word_3B20F = 0;
 				if (!word_390CE) {
-					sub_17DB3();
+					Service_Show();
 					goto loc_103BF;
 				}
 			}
@@ -20029,7 +20013,7 @@ loc_103BF:;
 			if (mVersion->mKey == "AFX")
 				break;
 
-		//loc_106F1
+			//loc_106F1
 			if (word_3A9AA) {
 				word_390EC = -1;
 				continue;
@@ -20041,7 +20025,7 @@ loc_103BF:;
 			if (mMissionPhaseRemain > 1)
 				continue;
 
-			sub_17DB3();
+			Service_Show();
 		}
 	}
 }
@@ -21043,9 +21027,6 @@ void cFodder::sub_30E49() {
 			return;
 
 		word_3BF1E[Data14] = Data20;
-		//seg011:251C
-		//TODO: Check whats going on here
-
 		byte_3BF1B[Data14] = Data10;
 		Data0 = Data10;
 
@@ -21280,7 +21261,6 @@ loc_30814:;
 		word_3A9F5 = 0;
 	}
 
-	// segra: I've moved this as it looks like a bug
 	if (mSquad_Selected < 0) {
 
 		sub_30E49();
@@ -21298,12 +21278,10 @@ loc_30814:;
 	if (Dataa24->field_6E)
 		return;
 
-	if (word_3B2F1) {
+	if (word_3B2F1)
 		word_3B2F1 = 0;
-	}
-	else {
+	else
 		sub_311A7();
-	}
 
 	word_3ABC7 = 0;
 	sub_30E49();
@@ -21316,7 +21294,7 @@ loc_30814:;
 		//TODO 
 		// Why is this here??
 		for (Data0 = 2; Data0 >= 0; --Data0) {
-			al = *Data20;
+			al = *Data20++;
 			if (!al)
 				return;
 		}

@@ -385,3 +385,4 @@ struct sRecruit mRecruits[360] =
   { "LOSER ", '\x02', '\xFF', '\0' },
   { "FODDER", '\x02', '\xFF', '\0' }
 };
+
