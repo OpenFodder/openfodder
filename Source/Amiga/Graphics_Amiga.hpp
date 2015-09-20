@@ -43,6 +43,7 @@ class cGraphics_Amiga : public cGraphics {
 	uint16				mPalleteAfx[0x20];
 	uint8*				mPalette;
 	size_t				mPaletteSize;
+
 	sILBM_BMHD			mBMHDArmy;
 	sILBM_BMHD			mBMHDCopt;
 	sILBM_BMHD			mBMHDPStuff;
@@ -64,6 +65,8 @@ class cGraphics_Amiga : public cGraphics {
 	
 	virtual void		DrawPixels_8( uint8* pSource, uint8* pDestination );
 	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination );
+
+	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors );
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();

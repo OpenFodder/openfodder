@@ -89,6 +89,8 @@ void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, bool pUseNow ) {
 		}
 	}
 	paletteLoadSDL();
+	if (!pUseNow)
+		mFaded = false;
 }
 
 void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID ) {
@@ -256,29 +258,6 @@ void cSurface::decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColo
 	
 	if(pColors) {
 		paletteLoad( pBuffer + dataSize, pColors );
-	}
-}
-
-void cSurface::decode4Plane( uint8* pBuffer, size_t pSize, size_t pWidth, size_t pHeight ) {
-	uint8* SrcBuffer = pBuffer;
-	uint8 *Buffer = mSurfaceBuffer;
-	wipe();
-
-	if (pWidth > mWidth || pHeight > mHeight)
-		return;
-
-	for (unsigned int Plane = 0; Plane < 4; Plane++) {
-		Buffer = mSurfaceBuffer + (16 * mWidth) + 16;
-		
-		for (unsigned int Y = 0; Y < 200; ++Y) {
-
-			for (unsigned int X = Plane; X < 320; X += 4 ) {
-
-				Buffer[X] = *SrcBuffer++;
-			}
-
-			Buffer += mWidth;
-		}
 	}
 }
 

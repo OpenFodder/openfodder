@@ -31,11 +31,11 @@ class cResource_PC_CD : public cResources {
 
 	public:
 	
-										cResource_PC_CD( std::string pDataPath = "" );
-										~cResource_PC_CD();
+									cResource_PC_CD( std::string pDataPath = "" );
+									~cResource_PC_CD();
 
-		virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
+	virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
 
-		std::vector< cResource_File >*	filesGet( ) { return &mFiles; }
-
+	std::vector< cResource_File >*	filesGet( ) { return &mFiles; }
+		
 };

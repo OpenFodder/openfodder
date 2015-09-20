@@ -62,15 +62,3 @@ size_t cResources::fileLoadTo( const std::string& pFilename, uint8* pTarget ) {
 
 	return Size;
 }
-
-void cResources::image4PlaneLoad( cSurface* pImage, const std::string &pFilename, size_t pColors ) {
-	size_t fileSize = 0;
-	uint8* fileBuffer = fileGet(pFilename, fileSize);
-
-	pImage->decode4Plane( fileBuffer, (fileSize - (pColors * 3)), 320, 200 );
-
-	if(pColors) {
-		pImage->paletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xf0 );
-	}
-
-}
