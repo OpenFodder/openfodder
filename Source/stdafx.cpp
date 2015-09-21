@@ -48,10 +48,13 @@ int main(int argc, char *args[]) {
 
 }
 
-std::string local_PathGenerate( const std::string& pFile, const std::string& pPath ) {
+std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, bool pData = true ) {
 	std::stringstream	 filePathFinal;
 
-	filePathFinal << "Data/";
+	if (pData)
+		filePathFinal << "Data/";
+	else
+		filePathFinal << "Saves/";
 
 	if( pPath.size() )
 		filePathFinal << pPath << "/";
@@ -156,3 +159,114 @@ uint16 tool_DecimalToBinaryCodedDecimal(uint16 pDecimal) {
 
 	return ((pDecimal/10)<<4)+(pDecimal%10);
 }
+
+#ifdef WIN32
+#include "Windows.h"
+#include <direct.h>
+
+std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension) {
+    WIN32_FIND_DATA fdata;
+    HANDLE dhandle;
+	std::vector<std::string> results;
+
+	char path[2000];
+	_getcwd(path, 2000);
+
+	// Build the file path
+	std::stringstream finalPath;
+
+	if(pPath.size())
+		finalPath << pPath;
+
+	finalPath << "/*" << pExtension;
+
+	size_t size = MultiByteToWideChar( 0,0, finalPath.str().c_str(), (int) finalPath.str().length(), 0, 0);
+	WCHAR    *pathFin = new WCHAR[ size + 1];
+	memset( pathFin, 0, size + 1);
+
+	size = MultiByteToWideChar( 0,0, finalPath.str().c_str(), (int) size, pathFin, (int) size);
+	pathFin[size] = 0;
+
+	if((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
+		delete pathFin;
+		return results;
+	}
+	
+	delete pathFin;
+	char *file = new char[ wcslen(fdata.cFileName) + 1];
+	memset(file, 0, wcslen(fdata.cFileName) + 1 );
+	size_t tmp = 0;
+
+	wcstombs_s( &tmp, file, wcslen(fdata.cFileName), fdata.cFileName, wcslen(fdata.cFileName) );
+    results.push_back(std::string(file));
+	delete file;
+
+    while(1) {
+            if(FindNextFile(dhandle, &fdata)) {
+				char *file = new char[ wcslen(fdata.cFileName) + 1];
+				memset(file, 0, wcslen(fdata.cFileName) + 1 );
+			
+				wcstombs_s( &tmp, file, wcslen(fdata.cFileName), fdata.cFileName, wcslen(fdata.cFileName) );
+				results.push_back(std::string(file));
+				delete file;
+				
+            } else {
+                    if(GetLastError() == ERROR_NO_MORE_FILES) {
+                            break;
+                    } else {
+                            FindClose(dhandle);
+                            return results;
+                    }
+            }
+    }
+
+    FindClose(dhandle);
+
+	return results;
+}
+
+#else
+
+vector<string> local_DirectoryList(string pPath, string pExtension, bool pDataSave) {
+	struct dirent		**directFiles;
+	vector<string>		  results;
+
+	char path[2000];
+	#ifndef FREEBSD
+        #ifdef _MACOSX
+            strcpy(&path[0],"/Applications/DrCreep");
+        #else
+            getcwd(path, 2000);
+        #endif
+    #else
+	strcpy(&path[0],"/usr/local/share/drcreep");
+	#endif
+
+	// Build the file path
+	stringstream finalPath;
+
+	finalPath << path << "/";
+
+	if(!pDataSave)
+		finalPath << gDataPath;
+	else
+		finalPath << gSavePath;
+
+	if(pPath.size())
+		finalPath << pPath;
+
+	findType = pExtension;
+		
+    transform( findType.begin(), findType.end(), findType.begin(), ::toupper);
+
+	int count = scandir(finalPath.str().c_str(), (dirent***) &directFiles, file_select, 0);
+	
+	for( int i = 0; i < count; ++i ) {
+
+		results.push_back( string( directFiles[i]->d_name ) );
+	}
+	
+	return results;
+}
+
+#endif

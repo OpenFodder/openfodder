@@ -1196,6 +1196,8 @@ public:
 	void			sub_2DD50( sSprite_0* pSprite );
 	void			sub_2DE2C( );
 	void			sub_2E01C();
+	void			sub_2E72B();
+
 	int16			sub_2EAC2();
 	void			sub_2EAC3();
 	void			sub_2EACA();

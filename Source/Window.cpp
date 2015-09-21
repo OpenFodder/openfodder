@@ -220,6 +220,11 @@ void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
 	SDL_SetWindowTitle( mWindow, pWindowTitle.c_str() );
 }
 
+void cWindow::SetWindowSize( const cDimension& pDimension ) {
+
+	SDL_SetWindowSize( mWindow, pDimension.mWidth, pDimension.mHeight );
+}
+
 SDL_Renderer* cWindow::GetRenderer() const {
 
 	return mRenderer;
