@@ -22,6 +22,8 @@
 
 const extern sSpriteSheet* off_32C0C[];
 const extern sSpriteSheet* mSpriteSheetPtr_Font_PC[];
+const extern sSpriteSheet* mHillSpriteSheetPtr_PC[];
+const extern sSpriteSheet* off_35E42[];
 
 class cGraphics_PC : public cGraphics {
 	uint8*				mGraphicBlkPtrs[480];
@@ -34,6 +36,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
+	virtual void		Load_Hill_Data();
 
 	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors );
 
@@ -50,4 +53,6 @@ class cGraphics_PC : public cGraphics {
 
 	virtual void		sub_144A2();
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+
+	virtual void		Recruit_Draw_Hill();
 };

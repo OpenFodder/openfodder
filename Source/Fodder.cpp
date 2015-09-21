@@ -214,13 +214,12 @@ cFodder::~cFodder() {
 }
 
 int16 cFodder::Mission_Loop( ) {
-	//mImage->clearBuffer();
 	mImage->Save();
 
 	for (;;) {
 		videoSleep();
 
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 		mImage->Restore();
 
@@ -1679,7 +1678,7 @@ void cFodder::sub_11CD6( ) {
 	mCamera_Position_Column = word_3A067;
 	mCamera_Position_Row = word_3A069;
 
-	mImage->paletteFadeOut();
+	//mImage->paletteFadeOut();
 	sub_11E60();
 	return;
 
@@ -1733,7 +1732,7 @@ loc_11D8A:;
 
 	word_390A6 = -1;
 
-	mImage->paletteSet( mPalette );
+	mGraphics->PaletteSet();
 	mImageFaded = -1;
 
 loc_11E5B:;
@@ -3501,7 +3500,13 @@ bool cFodder::Sprite_OnScreen_Check() {
 		ax = -ax;
 		mDrawSpritePositionY += ax;
 		word_4206E -= ax;
-		ax *= 0xA0;
+
+		if (mVersion->mPlatform == ePlatform::PC)
+			ax *= 0xA0;
+
+		if (mVersion->mPlatform == ePlatform::Amiga)
+			ax *= 40;
+
 		word_42062 += ax;
 	}
 	
@@ -4251,32 +4256,30 @@ void cFodder::Recruit_Show() {
 	map_ClearSpt();
 	
 	word_3E1B7 = mDataBaseBlk;
-	g_Resource.fileLoadTo( "hill.dat", mDataBaseBlk );
-	mGraphics->PaletteLoad( word_3E1B7 + 0xFA00, 0x50, 0x00 );
 
-	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
-	mGraphics->PaletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
+	mGraphics->Load_Hill_Data();
 
 	dword_3B1FB = stru_373BA;
 	word_3AAD1 = -1;
 	word_3AB39 = -1;
 	
-	Sprite_SetDataPtrToBase( mHillBitsSpriteSheetPtr );
+	mGraphics->SetSpritePtr( eSPRITE_HILL );
 
 	sub_16BC3();
 	sub_16C6C();
 	Recruit_Render_LeftMenu();
-	Recruit_Draw_Hill();
+	mGraphics->Recruit_Draw_Hill();
 	
 	sub_17B64();
 	
-	Sprite_SetDataPtrToBase( off_35E42 );
+	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
 	
 	sub_17CD3();
 
 	mImage->Save();
-	mImage->paletteSet( mPalette );
+	mGraphics->PaletteSet();
 	mImage->paletteFade();
+
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
 	//word_39020 = 0;
@@ -4321,27 +4324,11 @@ void cFodder::Recruit_Show() {
 	}
 }
 
-void cFodder::Recruit_Draw_Hill( ) {
-	word_42062 = word_3E1B7 + 0xA00;
-	
-	mDrawSpritePositionX = 0x40;
-	mDrawSpritePositionY = 0x28;
-	word_4206C = 0x110;
-	word_4206E = 0xB0;
-	word_42078 = 0x140;
-	
-	mGraphics->video_Draw_Linear();
-	
-	for( uint32 x = 0; x < 0xA000; ++x) {
-		word_3E1B7[x] = 0;
-	}
-}
-
 void cFodder::Recruit_Draw_HomeAway( ) {
 	const char* strHomeAndAway = "HOME                AWAY";
 	
-	Sprite_SetDataPtrToBase( mHillBitsSpriteSheetPtr );
-	
+	mGraphics->SetSpritePtr( eSPRITE_HILL );
+
 	sub_13C1C( 0x18, 0, 0, 0 );
 	
 	int16 Data4 = word_3E0E5[ (mMissionNumber - 1) ];
@@ -4359,7 +4346,7 @@ void cFodder::Recruit_Draw_HomeAway( ) {
 	std::string Away = tool_StripLeadingZero(tool_NumToString( word_397AC ));
 	sub_16B55( 0x0D, 0xAA, 0x0A, Away );
 
-	Sprite_SetDataPtrToBase( off_35E42 );
+	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
 }
 
 void cFodder::sub_16B55(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString ) {
@@ -10207,7 +10194,7 @@ void cFodder::sub_2E72B() {
 	
 	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
 	mGraphics->PaletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
-	Sprite_SetDataPtrToBase( mHillBitsSpriteSheetPtr );
+	mGraphics->SetSpritePtr( eSPRITE_HILL );
 
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( g_Fodder.mVersion->mKey, "", false ), ".cf" );
 

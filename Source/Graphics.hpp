@@ -23,6 +23,9 @@
 enum eSpriteType {
 	eSPRITE_IN_GAME = 0,
 	eSPRITE_FONT	= 1,
+	eSPRITE_HILL	= 2,
+	eSPRITE_HILL_UNK = 3,
+
 };
 
 class cFodder;
@@ -41,6 +44,7 @@ public:
 	virtual void		Mouse_DrawCursor() = 0;
 	virtual void		LoadpStuff() = 0;
 	virtual void		Load_Sprite_Font() = 0;
+	virtual void		Load_Hill_Data() = 0;
 
 	virtual void		graphicsBlkPtrsPrepare() = 0;
 	
@@ -63,4 +67,6 @@ public:
 
 	virtual void		sub_144A2() = 0;
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
+
+	virtual void		Recruit_Draw_Hill() = 0;
 };

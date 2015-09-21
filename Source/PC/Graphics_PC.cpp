@@ -80,6 +80,14 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 		case eSPRITE_FONT:
 			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_PC );
 			return;
+
+		case eSPRITE_HILL:
+			mFodder->Sprite_SetDataPtrToBase( mHillSpriteSheetPtr_PC );
+			return;
+
+		case eSPRITE_HILL_UNK:
+			mFodder->Sprite_SetDataPtrToBase( off_35E42 );
+			return;
 	}
 }
 
@@ -97,6 +105,15 @@ void cGraphics_PC::Load_Sprite_Font() {
 	SetSpritePtr( eSPRITE_FONT );
 
 	mFodder->Sound_Voc_Load();
+}
+
+void cGraphics_PC::Load_Hill_Data() {
+	
+	g_Resource.fileLoadTo( "hill.dat", mFodder->mDataBaseBlk );
+	PaletteLoad( mFodder->word_3E1B7 + 0xFA00, 0x50, 0x00 );
+
+	g_Resource.fileLoadTo( "hillbits.dat", mFodder->mDataHillBits );
+	PaletteLoad( mFodder->mDataHillBits + 0x6900, 0x10, 0xB0 );
 }
 
 void cGraphics_PC::graphicsBlkPtrsPrepare() {
@@ -530,7 +547,22 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	}
 
 }
+void cGraphics_PC::Recruit_Draw_Hill( ) {
 
+	mFodder->word_42062 = mFodder->word_3E1B7 + 0xA00;
+
+	mFodder->mDrawSpritePositionX = 0x40;
+	mFodder->mDrawSpritePositionY = 0x28;
+	mFodder->word_4206C = 0x110;
+	mFodder->word_4206E = 0xB0;
+	mFodder->word_42078 = 0x140;
+
+	video_Draw_Linear();
+	
+	for( uint32 x = 0; x < 0xA000; ++x) {
+		mFodder->word_3E1B7[x] = 0;
+	}
+}
 void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors ) {
 	std::string Filename = pFilename;
 

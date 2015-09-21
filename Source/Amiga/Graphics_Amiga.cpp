@@ -29,8 +29,7 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	memset( &mPaletteArmy, 0, 0x10 );
 	memset( &mPaletteCopt, 0, 0x10 );
 	memset( &mPalletePStuff, 0, 0x10 );
-	memset( &mPalleteAfx, 0, 0x20 );
-
+	memset( &mPalleteHill, 0, 0x10 );
 }
 
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
@@ -47,7 +46,11 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		return mFodder->mDataHillBits;
 
 	case 2:
-		mFodder->byte_42070 = mCursorPalette;
+		if (mFodder->mVersion->mKey == "AFX")
+			mFodder->byte_42070 = mCursorPalette;
+		else
+			mFodder->byte_42070 = 0xF0;
+
 		mBMHD_Current = &mBMHDPStuff;
 		return mFodder->mDataPStuff;
 
@@ -56,6 +59,10 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mBMHD_Current = &mBMHDFont;
 		return mFodder->mDataPStuff;
 
+	case 4:
+		mFodder->byte_42070 = 0xD0;
+		mBMHD_Current = &mBMHDHill;
+		return mFodder->mDataBaseBlk;
 	default:
 		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
 		return 0;
@@ -90,6 +97,16 @@ void cGraphics_Amiga::LoadpStuff() {
 	uint8* pstuff = g_Resource.fileGet( "pstuff.lbm", Size );
 
 	DecodeIFF( pstuff, mFodder->mDataPStuff, &mBMHDPStuff, mPalletePStuff );
+
+	delete[] pstuff;
+}
+
+void cGraphics_Amiga::Load_Hill_Data() {
+	
+	size_t Size = 0;
+	uint8* pstuff = g_Resource.fileGet( "hills.lbm", Size );
+
+	DecodeIFF( pstuff, mFodder->mDataBaseBlk, &mBMHDHill, mPalleteHill );
 
 	delete[] pstuff;
 }
@@ -194,6 +211,14 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 	case eSPRITE_FONT:
 		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_Amiga );
 		return;
+		
+	case eSPRITE_HILL:
+		mFodder->Sprite_SetDataPtrToBase( mHillSpriteSheetPtr_Amiga );
+		return;
+
+	case eSPRITE_HILL_UNK:
+		mFodder->Sprite_SetDataPtrToBase( off_90F10 );
+		return;
 	}
 }
 
@@ -214,6 +239,7 @@ void cGraphics_Amiga::PaletteSet() {
 	mImage->paletteLoad_Amiga( mPalette, 0 );
 	//mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x80 );
 	mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xF0 );
+	mImage->paletteLoad_Amiga( (uint8*)mPalleteHill, 0xD0 );
 }
 
 
@@ -593,7 +619,24 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		di += mFodder->word_42076;
 	}
 }
+void cGraphics_Amiga::Recruit_Draw_Hill( ) {
+	mFodder->word_42062 = mFodder->word_3E1B7 + (29 * 40) + 6;
 
+	mBMHD_Current = &mBMHDHill;
+	mFodder->byte_42070 = 0xD0;
+
+	mFodder->mDrawSpritePositionX = 0x40;
+	mFodder->mDrawSpritePositionY = 0x28;
+	mFodder->word_4206C = 0x110;	//W
+	mFodder->word_4206E = 0xB8;		// H
+	mFodder->word_42078 = 0x140;
+	
+	video_Draw_Linear();
+	
+	for( uint32 x = 0; x < 0xA000; ++x) {
+		mFodder->word_3E1B7[x] = 0;
+	}
+}
 void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 	uint8	Result = 0;
 	uint8	Planes[5];
