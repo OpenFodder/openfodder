@@ -226,10 +226,23 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 }
 
 #else
+#include <dirent.h>
+std::string findType;
 
-vector<string> local_DirectoryList(string pPath, string pExtension, bool pDataSave) {
+int file_select(const struct dirent *entry) {
+	std::string name = entry->d_name;
+
+	transform( name.begin(), name.end(), name.begin(), ::toupper );
+   	
+	if( name.find( findType ) == std::string::npos )
+		return false;
+	
+	return true;
+}
+
+std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension) {
 	struct dirent		**directFiles;
-	vector<string>		  results;
+	std::vector<std::string>		  results;
 
 	char path[2000];
 	#ifndef FREEBSD
@@ -243,17 +256,12 @@ vector<string> local_DirectoryList(string pPath, string pExtension, bool pDataSa
 	#endif
 
 	// Build the file path
-	stringstream finalPath;
-
-	finalPath << path << "/";
-
-	if(!pDataSave)
-		finalPath << gDataPath;
-	else
-		finalPath << gSavePath;
+	std::stringstream finalPath;
 
 	if(pPath.size())
 		finalPath << pPath;
+
+	finalPath << pPath << "/";
 
 	findType = pExtension;
 		
@@ -263,7 +271,7 @@ vector<string> local_DirectoryList(string pPath, string pExtension, bool pDataSa
 	
 	for( int i = 0; i < count; ++i ) {
 
-		results.push_back( string( directFiles[i]->d_name ) );
+		results.push_back( std::string( directFiles[i]->d_name ) );
 	}
 	
 	return results;
