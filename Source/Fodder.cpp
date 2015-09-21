@@ -1592,7 +1592,12 @@ void cFodder::sub_11B06() {
 	}
 	//loc_11BE8
 	Data0 = word_3AA4F;
-	Data0 -= 0xC8;
+	if (mVersion->mPlatform == ePlatform::PC )
+		Data0 -= 200;
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		Data0 -= 224;
+
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
 	Data4 = mCamera_Adjust_Row;
@@ -3227,11 +3232,20 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			break;
 	}
 	
-	mWindow->SetScreenSize( cDimension(	mVersion->mScreenDimension.mWidth - 32, 
-										mVersion->mScreenDimension.mHeight - 32) );
+	mImage->clearBuffer();
+	mWindow->RenderAt( mImage );
 
-	mWindow->SetLogicalSize(cDimension( mVersion->mScreenDimension.mWidth, 
-										mVersion->mScreenDimension.mHeight - 16)  );
+	if (mVersion->mPlatform == ePlatform::PC) {
+		mWindow->SetScreenSize( cDimension( 320, 200 ));
+		mWindow->SetLogicalSize(cDimension( 352, 216 ) );
+		mWindow->SetWindowSize( cDimension( 1280, 800 - 16 ) );
+	}
+
+	if (mVersion->mPlatform == ePlatform::Amiga) {
+		mWindow->SetScreenSize( cDimension( 320, 224 ));
+		mWindow->SetLogicalSize(cDimension( 352, 240 ) );
+		mWindow->SetWindowSize( cDimension( 1244, 864 - 16  ) );
+	}
 
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	mGraphics->LoadpStuff();
@@ -3266,7 +3280,7 @@ void cFodder::Prepare( ) {
 	//Load_MusicDriver();
 	memory_XMS_Detect();
 
-	mImage = new cSurface( 352, 280 );
+	mImage = new cSurface( 352, 300 );
 
 	VersionLoad( mVersions[0] );
 
@@ -4193,6 +4207,7 @@ void cFodder::AFX_Show() {
 
 	mImage->Save();
 	mImage->paletteFade();
+	mWindow->SetScreenSize( cDimension( 320, 260 ));
 
 	for( ;; ) {
 		sub_13800();
@@ -4220,6 +4235,9 @@ void cFodder::AFX_Show() {
 		g_Window.FrameEnd();
 		mImage->paletteFade();
 	}
+
+	mImage->clearBuffer();
+	mWindow->SetScreenSize( cDimension( 320, 224 ));
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xF0 );
 }
@@ -10181,6 +10199,17 @@ void cFodder::sub_2E01C() {
 		Data20 = stru_3AF0B;
 	
 	dword_3B11F = Data20;
+}
+
+void cFodder::sub_2E72B() {
+	
+	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
+	mGraphics->PaletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
+	Sprite_SetDataPtrToBase( mHillBitsSpriteSheetPtr );
+
+	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( g_Fodder.mVersion->mKey, "", false ), ".cf" );
+
+	//TODO
 }
 
 int16 cFodder::sub_2EAC2() {
@@ -19772,13 +19801,12 @@ void cFodder::sub_22AA9( sSprite_0* pSprite ) {
 }
 
 void cFodder::sub_2E04C() {
-	//TODO
-	/*
+	
 	if( word_3B2FD ) {
 		sub_2E72B();
 		return;
 	} 
-
+	/* TODO
 	if( word_3B2FF ) {
 		sub_2E064();
 	}*/

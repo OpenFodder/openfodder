@@ -38,9 +38,11 @@
 
 #include "Types.hpp"
 
+std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension );
+
 std::string	local_FileMD5( const std::string& pFile, const std::string& pPath );
 uint8*		local_FileRead( const std::string& pFile, const std::string& pPath, size_t& pFileSize );
-std::string local_PathGenerate(  const std::string& pFile, const std::string& pPath );
+std::string local_PathGenerate(  const std::string& pFile, const std::string& pPath, bool pData );
 
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
 std::string	tool_NumToString( uint32 pValue );

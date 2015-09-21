@@ -23,10 +23,11 @@
 #include "Types.hpp"
 #include "IntroData.hpp"
 
+// Intro_0 has had +0x19 added to each string
 const sIntroString mIntro_0[] = {
-	{ 0x46, "This game is not in any way" },
-	{ 0x5e, "endorsed by the" },
-	{ 0x78, "ROYAL BRITISH LEGION" },
+	{ 0x5F, "This game is not in any way" },
+	{ 0x77, "endorsed by the" },
+	{ 0x91, "ROYAL BRITISH LEGION" },
 	{ 0 }
 };
 

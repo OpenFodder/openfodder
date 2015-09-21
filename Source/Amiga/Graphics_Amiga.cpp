@@ -371,7 +371,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 			StartY = 0;
 
 		// X
-		for (uint16 cx2 = 0; cx2 < 0x17; ++cx2) {
+		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
 			uint8* TargetTmp = TargetRow;
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
@@ -527,7 +527,7 @@ void cGraphics_Amiga::sub_144A2() {
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*)mFodder->mMapSptPtr;
 
-	Buffer += (16 * 352) + 16;
+	Buffer += (16 * mImage->GetWidth()) + 16;
 	mFodder->byte_42071 = 1 << mFodder->word_40054;
 	mFodder->word_42066 = Buffer;
 
@@ -543,7 +543,7 @@ void cGraphics_Amiga::sub_144A2() {
 				Buffer[X] = *si++;
 		}
 
-		Buffer += 352;
+		Buffer += mImage->GetWidth();
 	}
 
 }

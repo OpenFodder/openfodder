@@ -38,7 +38,7 @@ class cWindow : public cSingleton<cWindow> {
 
 		void				FrameEnd();
 
-		void				RenderAt( cSurface* pImage, cPosition pSource );
+		void				RenderAt( cSurface* pImage, cPosition pSource = cPosition(0,0) );
 		void				RenderShrunk( cSurface* pImage );
 
 		void				SetCursor();
@@ -46,6 +46,7 @@ class cWindow : public cSingleton<cWindow> {
 		void				SetScreenSize( const cDimension& pDimension );
 		void				SetLogicalSize( const cDimension& pDimension );
 		void				SetWindowTitle( const std::string& pWindowTitle );
+		void				SetWindowSize( const cDimension& pDimension );
 
 		SDL_Renderer*		GetRenderer() const;
 

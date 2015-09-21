@@ -39,7 +39,6 @@ struct sVersion {
 	const char*				mName;
 	std::string				mKey;
 	ePlatform				mPlatform;
-	cDimension				mScreenDimension;
 	eRelease				mRelease;
 	const sMissionData*		mMissionData;
 	const sIntroText*		mIntroData;
