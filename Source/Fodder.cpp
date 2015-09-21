@@ -1679,7 +1679,7 @@ void cFodder::sub_11CD6( ) {
 	mCamera_Position_Column = word_3A067;
 	mCamera_Position_Row = word_3A069;
 
-	//mImage->paletteFadeOut();
+	mImage->paletteFadeOut();
 	sub_11E60();
 	return;
 
@@ -1698,17 +1698,18 @@ loc_11D8A:;
 	dword_39F4A &= 0x0000FFFF;
 	word_39F54 = 0;
 	dword_39F4E &= 0x0000FFFF;
-
-	//mImage->paletteFadeOut();
-	/*
+	
+	mImage->paletteFadeOut();
+	
 	do {
+		eventProcess();
 		mImageFaded = mImage->paletteFade();
 
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 
-	} while (mImageFaded == -1);*/
-
+	} while (mImageFaded == -1);
+	
 	//sub_14445();
 	//sub_14445();
 
@@ -1732,7 +1733,8 @@ loc_11D8A:;
 
 	word_390A6 = -1;
 
-	//mImage->paletteFadeOut();
+	mImage->paletteSet( mPalette );
+	mImageFaded = -1;
 
 loc_11E5B:;
 	sub_11E60();
@@ -21482,8 +21484,8 @@ void cFodder::sub_31075( int16 pData0 ) {
 	sSprite_0* Data20 = 0;
 
 	if (sub_305D5( Data20 ) >= 0) {
-		word_3A067 = mSquads_TroopCount[0];
-		word_3A069 = mSquads_TroopCount[4];
+		word_3A067 = Data20->field_0;
+		word_3A069 = Data20->field_4;
 		word_3AA1B = 1;
 		word_3A054 = 0;
 	}
