@@ -22,6 +22,8 @@
 
 const extern sSpriteSheet* off_8BFB8[];
 const extern sSpriteSheet* mSpriteSheetPtr_Font_Amiga[];
+const extern sSpriteSheet* mHillSpriteSheetPtr_Amiga[];
+const extern sSpriteSheet* off_90F10[];
 
 struct sILBM_BMHD {
 	uint16	mWidth, mHeight;
@@ -41,7 +43,7 @@ class cGraphics_Amiga : public cGraphics {
 	uint16				mPaletteArmy[0x10];
 	uint16				mPaletteCopt[0x10];
 	uint16				mPalletePStuff[0x10];
-	uint16				mPalleteAfx[0x20];
+	uint16				mPalleteHill[0x10];
 	uint8*				mPalette;
 	size_t				mPaletteSize;
 
@@ -49,7 +51,7 @@ class cGraphics_Amiga : public cGraphics {
 	sILBM_BMHD			mBMHDCopt;
 	sILBM_BMHD			mBMHDPStuff;
 	sILBM_BMHD			mBMHDFont;
-	sILBM_BMHD			mBMHDAfx;
+	sILBM_BMHD			mBMHDHill;
 
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
@@ -75,6 +77,7 @@ class cGraphics_Amiga : public cGraphics {
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
+	virtual void		Load_Hill_Data();
 	
 	virtual void		map_Load_Resources();
 	virtual void		map_Tiles_Draw();
@@ -90,4 +93,6 @@ class cGraphics_Amiga : public cGraphics {
 
 	virtual void		sub_144A2();
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+
+	virtual void		Recruit_Draw_Hill();
 };

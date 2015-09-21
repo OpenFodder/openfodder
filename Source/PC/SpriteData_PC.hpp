@@ -594,7 +594,7 @@ const sSpriteSheet* mSpriteSheetPtr_Font_PC[] = {
 	mSpriteSheet_Font_PC
 };
 
-const sSpriteSheet* mHillBitsSpriteSheetPtr[] = {
+const sSpriteSheet* mHillSpriteSheetPtr_PC[] = {
 	stru_32390,
 	stru_32420,
 	stru_32440,
