@@ -384,7 +384,7 @@ void cResource_PC_CD::sub_26AA4() {
 		++dx;
 	}
 	
-	word_26DBE[0x893] = -1;
+	word_26DBE[0x893] = 0xFFFF;
 	word_26DBE[0x272] = 0;
 }
 
