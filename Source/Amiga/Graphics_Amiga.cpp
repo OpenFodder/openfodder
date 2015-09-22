@@ -638,7 +638,6 @@ void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 	}
 }
 void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
-	uint8	Result = 0;
 	uint8	Planes[5];
 	uint8	bl = mFodder->byte_42070;
 
@@ -662,7 +661,6 @@ void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 }
 
 void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
-	uint8	Result = 0;
 	uint16	Planes[5];
 	uint8	bl = mFodder->byte_42070;
 

@@ -20,7 +20,7 @@
  *
  */
 
-const size_t		 g_MaxColors = 0x100;
+const size_t		 g_MaxColors = 0xFF;
 
 class cPalette {
 public:
