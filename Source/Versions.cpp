@@ -328,7 +328,7 @@ const sVersion Versions[] = {
 	{ "Dos",							"Dos",		ePlatform::PC,		eRelease::Retail, &mMissionData_Retail, mIntroText_PC, "Dos_CD", mDosFiles },
 	{ "Amiga",							"Amiga",	ePlatform::Amiga,	eRelease::Retail, &mMissionData_Retail, mIntroText_Amiga, "Amiga", mAmigaFiles },
 	{ "Amiga Format Christmas Special", "AFX",		ePlatform::Amiga,	eRelease::Demo, &mMissionData_AmigaFormat, mIntroText_Amiga, "AmigaFormat_XMAS", mAmigaFormatFiles },
-	0 }
+	0
 };
 
 std::vector<const sVersion*> FindFodderVersions() {
