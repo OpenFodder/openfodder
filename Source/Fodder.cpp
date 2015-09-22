@@ -2799,6 +2799,7 @@ void cFodder::eventProcess() {
 	for (std::vector<cEvent>::iterator EventIT = mEvents.begin(); EventIT != mEvents.end(); ++EventIT) {
 
 		switch (EventIT->mType) {
+			
 			case eEvent_KeyDown:
 				keyProcess( EventIT->mButton, false );
 				break;
@@ -2831,6 +2832,7 @@ void cFodder::eventProcess() {
 				mMousePosition = EventIT->mPosition;
 				break;
 
+			case eEvent_None:
 			case eEvent_MouseWheelUp:
 			case eEvent_MouseWheelDown:
 				break;
@@ -7290,7 +7292,6 @@ loc_251D2:;
 		goto loc_25239;
 	}
 
-loc_2520F:;
 	Data0 = tool_RandomGet() & 0x1F;
 	if (!Data0)
 		goto loc_2500F;
@@ -14158,7 +14159,7 @@ void cFodder::sub_1C2D2( sSprite_0* pSprite ) {
 	if (pSprite->field_36 < 0)
 		pSprite->field_36 = 0;
 
-	Field_1E = pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16);
+	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E -= 0x8000;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
@@ -14813,7 +14814,6 @@ loc_1D00F:;
 			goto loc_1D0F6;
 	}
 
-loc_1D035:;
 	if (sub_21618( pSprite ))
 		goto loc_1D07B;
 
@@ -15335,7 +15335,6 @@ void cFodder::sub_1DACF( sSprite_0* pSprite ) {
 	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
 
-	int16 Data10 = 0x20;
 	sub_29E30( Data0, Data4, Data8, DataC );
 	if (Data0 > 0x14)
 		return;
@@ -15916,7 +15915,7 @@ loc_1E3D2:;
 	//loc_1E5A7
 	Dataa0 = (int64) pSprite->field_1A;
 	Dataa4 = Dataa0;
-	Dataa0 += (pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16));
+	Dataa0 += ((pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16));
 
 	// Probably going to be issues here
 	pSprite->field_1E = Dataa4;
