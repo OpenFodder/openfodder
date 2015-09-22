@@ -1,0 +1,11 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+
+before_install: 
+  - echo "yes" | sudo apt-add-repository ppa:zoogie/sdl2-snapshots 
+  - sudo apt-get update
+install: sudo apt-get install libsdl2-dev
+before_script: mkdir obj
+script: make
