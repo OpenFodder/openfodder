@@ -17391,7 +17391,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 	for (;;) {
 	loc_29C7A:;
 		uint8 NextChar = *pText++;
-		uint8 NextChar10;
+		uint8 NextChar10 = 0;
 
 		//seg007:0170
 		if (NextChar == 0xFD) {

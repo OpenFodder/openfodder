@@ -336,7 +336,7 @@ std::vector<const sVersion*> FindFodderVersions() {
 
 	// Loop all versions
 	for (uint16 x = 0; Versions[x].mName != 0; ++x) {
-	{ 	int16 FileCount = 0, FileMatches = 0 }, FileFound = 0;
+	 	int16 FileCount = 0, FileMatches = 0 }, FileFound = 0;
 
 		//Count the number of files
 		for (uint16 FileNo = 0; Versions[x].mFiles[FileNo].mName != 0; ++FileNo)
@@ -345,7 +345,7 @@ std::vector<const sVersion*> FindFodderVersions() {
 		// Loop each file in this version
 		for (uint16 FileNo = 0; Versions[x].mFiles[FileNo].mName != 0; ++FileNo) {
 				
-	{ 		std::string MD5 = local_FileMD5( Versions[x].mFiles[FileNo].mName }, Versions[x].mDataPath );
+	 		std::string MD5 = local_FileMD5( Versions[x].mFiles[FileNo].mName }, Versions[x].mDataPath );
 
 			if (MD5 != Versions[x].mFiles[FileNo].mChecksum) {
 				std::cout << Versions[x].mName << ": ";
