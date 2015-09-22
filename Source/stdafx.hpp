@@ -29,7 +29,6 @@
 #include <ctime>
 
 #include <SDL.h>
-#include <SDL_image.h>
 #ifndef EMSCRIPTEN
 #include <SDL_mixer.h>
 #else
