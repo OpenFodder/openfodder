@@ -24,7 +24,7 @@
 
 const sFile mDosFiles[] = {
 	{ "CF_ENG.DAT", "EEB82D5A6B14E7E59C8F7B5169BFCD55" },
-	0
+	{ 0 }
 };
 
 const sFile mAmigaFiles[] = {
@@ -296,7 +296,7 @@ const sFile mAmigaFiles[] = {
 	{ "WARX4.SNG",		"189EB4A63C441A024173F24F089420E4" },
 	{ "WON.RAW",		"2A8D87B71856865220376E38287AF2F9" },
 //	{ 	"FODDERC",	"EA2356ECD64DBD9A1504E3E3A10C6EC3" },
-	0
+	{ 0 }
 };
 
 const sFile mAmigaFormatFiles[] = {
@@ -320,7 +320,7 @@ const sFile mAmigaFormatFiles[] = {
 	{ "mapm2.spt", "4E2DA0890E5E3C3A7AC34039B654ECA6" },
 	{ "pstuff.lbm", "631BA67C90A5502391226A30A3849DC5" },
 //	{ "FODDERC",		"310C0ABF5D60DDB859330C4E529F4811" },
-	0
+	{ 0 }
 };
 
 const sVersion Versions[] = {
@@ -328,7 +328,7 @@ const sVersion Versions[] = {
 	{ "Dos",							"Dos",		ePlatform::PC,		eRelease::Retail, &mMissionData_Retail, mIntroText_PC, "Dos_CD", mDosFiles },
 	{ "Amiga",							"Amiga",	ePlatform::Amiga,	eRelease::Retail, &mMissionData_Retail, mIntroText_Amiga, "Amiga", mAmigaFiles },
 	{ "Amiga Format Christmas Special", "AFX",		ePlatform::Amiga,	eRelease::Demo, &mMissionData_AmigaFormat, mIntroText_Amiga, "AmigaFormat_XMAS", mAmigaFormatFiles },
-	0
+		{ 0 }
 };
 
 std::vector<const sVersion*> FindFodderVersions() {

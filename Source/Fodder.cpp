@@ -2831,6 +2831,10 @@ void cFodder::eventProcess() {
 				mMousePosition = EventIT->mPosition;
 				break;
 
+			case eEvent_MouseWheelUp:
+			case eEvent_MouseWheelDown:
+				break;
+			
 			case eEvent_Quit:
 				Exit( 0 );
 				break;
@@ -3050,11 +3054,7 @@ void cFodder::VersionSelect_2() {
 void cFodder::VersionSelect() {
 	struct_6 *Buttons = new struct_6[mVersions.size() + 1];
 
-	bool DoBreak = false;
-	
-	int16 Data0 = 3;
 	sSprite_0* Sprite, *Sprite2, *Sprite3;
-
 
 	Sprite = &mSprites[0];
 	Sprite2 = Sprite + 1;
@@ -6698,7 +6698,7 @@ int16 cFodder::sub_246CC( sSprite_0* pSprite ) {
 	Data2C->field_12 = 9;
 	Data2C->field_18 = 0x4D;
 
-	int32 Field_1E = pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16);
+	int32 Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E += 0x60000;
 	Data2C->field_1E = Field_1E & 0xFFFF;
 	Data2C->field_20 = Field_1E >> 16;
@@ -7164,7 +7164,7 @@ void cFodder::sub_24ED7( sSprite_0* pSprite ) {
 	}
 
 	if (!pSprite->field_43) {
-		pSprite->field_46 = (int32*) ((pSprite->field_0 << 16) | pSprite->field_4 & 0xFFFF);
+		pSprite->field_46 = (int32*) ((pSprite->field_0 << 16) | (pSprite->field_4 & 0xFFFF));
 		pSprite->field_43 = -1;
 	}
 
@@ -8877,7 +8877,6 @@ void cFodder::sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10
 	pData10 = word_3A9BA[Data0];
 
 	struct_8* Data38 = off_3BEF3[Data0];
-	int16 Data18 = 3 - word_3BED5[Data0];
 
 	sSprite_0** Data24 = off_3BDEF[Data0];
 	int16* Data34 = word_3A9C0;
@@ -12279,7 +12278,7 @@ loc_19A9C:;
 }
 
 void cFodder::Sprite_Handle_Bullet( sSprite_0* pSprite ) {
-	int16 Data8, DataC, Data0, Data4, Data1C;
+	int16 Data8, DataC, Data0, Data4;
 	int8 al;
 	sSprite_0* Data28;
 
@@ -12758,7 +12757,7 @@ loc_1A404:;
 	Data24->field_20 = Data0;
 
 	if (!word_3B4ED[0])
-		if (!(pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16))
+		if (!((pSprite->field_1E & 0xFFFF) | pSprite->field_20 << 16))
 			goto loc_1A49C;
 
 	if (pSprite->field_20 < 0x0C)
@@ -13862,7 +13861,7 @@ void cFodder::Sprite_Handle_Missile( sSprite_0* pSprite ) {
 		goto loc_1BECD;
 
 	if (pSprite->field_20 > 4) {
-		int32 tmp = pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16;
+		int32 tmp = (pSprite->field_1E & 0xFFFF) | pSprite->field_20 << 16;
 		tmp -= 0xA000;
 
 		pSprite->field_1E = tmp & 0xFFFF;
@@ -13950,7 +13949,7 @@ void cFodder::sub_1BEFB( sSprite_0* pSprite ) {
 	if (Data4 > Data34->field_20)
 		goto loc_1BFD0;
 
-	Field_1E = pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16);
+	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E += 0x8000;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
@@ -13958,7 +13957,7 @@ void cFodder::sub_1BEFB( sSprite_0* pSprite ) {
 	goto loc_1C087;
 loc_1BFD0:;
 
-	Field_1E = pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16);
+	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E -= 0x8000;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
@@ -13989,14 +13988,14 @@ loc_1C012:;
 	if (pSprite->field_20 >= 0x18)
 		goto loc_1C087;
 
-	Field_1E = pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16);
+	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E += 0x28000;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
 	goto loc_1C087;
 loc_1C06F:;
 	if (pSprite->field_20 > 8) {
-		Field_1E = pSprite->field_1E & 0xFFFF | (pSprite->field_20 << 16);
+		Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 		Field_1E -= 0x12000;
 		pSprite->field_1E = Field_1E & 0xFFFF;
 		pSprite->field_20 = Field_1E >> 16;
@@ -18744,7 +18743,7 @@ loc_2132A:;
 	Sprite_Movement_Calculate( pSprite );
 
 	Dat0 = (int64) pSprite->field_1A;
-	Dat4 = pSprite->field_1E & 0xFFFF | pSprite->field_20 << 16;
+	Dat4 = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 
 	Dat0 -= 0x28000;
 
