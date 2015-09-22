@@ -37,6 +37,13 @@ struct sILBM_BMHD {
 	uint16	mPageWidth, mPageHeight;
 };
 
+struct sRecruitSprite_Amiga {
+	int16	field_0;
+	int16	field_2;
+	int16	field_4;
+	int16	field_6;
+};
+
 class cGraphics_Amiga : public cGraphics {
 
 	uint8*				mBlkData;
