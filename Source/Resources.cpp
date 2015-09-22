@@ -22,8 +22,6 @@
 
 #include "stdafx.hpp"
 
-#include <algorithm>;
-
 cResources::cResources( std::string pDataPath ) {
 
 
