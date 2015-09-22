@@ -25,14 +25,6 @@ const extern sSpriteSheet* mSpriteSheetPtr_Font_PC[];
 const extern sSpriteSheet* mHillSpriteSheetPtr_PC[];
 const extern sSpriteSheet* off_35E42[];
 
-struct sRecruitSprite_PC {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-	int16	field_6;
-	int16*	field_8;
-};
-
 class cGraphics_PC : public cGraphics {
 	uint8*				mGraphicBlkPtrs[480];
 
