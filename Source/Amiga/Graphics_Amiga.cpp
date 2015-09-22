@@ -116,8 +116,7 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 
 	uint8* Font = g_Resource.fileGet( "font.raw", Size );
 	memcpy( mFodder->mDataPStuff, Font + 0x20, Size - 0x20 );
-
-	PaletteLoad( Font, 0xD0, 16 );
+	memcpy( mPalleteHill, Font, 0x20 );
 
 	mBMHDFont.mWidth = 0x140;
 	mBMHDFont.mHeight = 0x100;

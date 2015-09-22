@@ -3245,7 +3245,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	}
 
 	if (mVersion->mPlatform == ePlatform::Amiga) {
-		mWindow->SetScreenSize( cDimension( 320, 224 ));
+		mWindow->SetScreenSize( cDimension( 320, 260) );
 		mWindow->SetLogicalSize(cDimension( 352, 240 ) );
 		mWindow->SetWindowSize( cDimension( 1244, 864 - 16  ) );
 	}
@@ -4286,7 +4286,7 @@ void cFodder::Recruit_Show() {
 	word_3BEC3 = 0x1D;
 	//word_39020 = 0;
 	
-	sub_17368();
+	//sub_17368();
 	
 	dword_3AAC9 = mDataSubBlk;
 	
@@ -5124,7 +5124,7 @@ void cFodder::Recruit_Draw_Truck( ) {
 
 void cFodder::sub_17B64() {
 
-	const struct_3* stru = stru_35C70;
+	const sRecruitSprite_PC* stru = mRecruitSprite_PC;
 
 	for (; stru->field_0 != -1;) {
 		int16 word_3B19F = stru->field_0;
@@ -17777,7 +17777,7 @@ void cFodder::intro_LegionMessage() {
 	bool DoBreak = false;
 
 	mImage->clearBuffer();
-	mImage->paletteSet( mPalette, 0xD0 );
+	mGraphics->PaletteSet();
 
 	mImageFaded = -1;
 
@@ -17914,9 +17914,11 @@ introDone:;
 	Music_Stop();
 
 	mGraphics->LoadpStuff();
-	mGraphics->PaletteLoad( mDataPStuff + 0xA000, 0x10, 0xF0 );
 	//Sound_Unk();
 	Music_Play( 0 );
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize( cDimension( 320, 224 ));
 }
 
 void cFodder::intro_Music_Play() {

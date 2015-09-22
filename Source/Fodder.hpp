@@ -73,14 +73,6 @@ struct struct_2 {
 	int16	field_6;
 };
 
-struct struct_3 {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-	int16	field_6;
-	int16*	field_8;
-};
-
 struct struct_4 {
 	int16	field_0;
 	int16	field_2;

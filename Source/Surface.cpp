@@ -210,7 +210,10 @@ void cSurface::draw( size_t pX, size_t pY ) {
 			break;
 
 		if (*bufferCurrent) {
-			*bufferTarget = mPaletteSDL[*bufferCurrent];
+			if (*bufferCurrent < g_MaxColors)
+				*bufferTarget = mPaletteSDL[*bufferCurrent];
+			else
+				*bufferTarget = 0;
 		}
 
 		++bufferTarget; 
