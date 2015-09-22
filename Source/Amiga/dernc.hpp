@@ -18,7 +18,7 @@ long rnc_unpack (void *packed, void *unpacked);
 #else
 long rnc_unpack (void *packed, void *unpacked, long *leeway);
 #endif
-char *rnc_error (long errcode);
+const char *rnc_error (long errcode);
 long rnc_crc (void *data, long len);
 
 /*
