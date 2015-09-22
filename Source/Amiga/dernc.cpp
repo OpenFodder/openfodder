@@ -47,8 +47,8 @@ static unsigned long mirror (unsigned long x, int n);
 /*
  * Return an error string corresponding to an error return code.
  */
-char *rnc_error (long errcode) {
-    static char* errors[] = {
+const char *rnc_error (long errcode) {
+    static const char* errors[] = {
 		"No error",
 		"File is not RNC-1 format",
 		"Huffman decode error",
