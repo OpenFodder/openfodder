@@ -14951,7 +14951,7 @@ void cFodder::sub_1D1A2( sSprite_0* pSprite ) {
 	}
 
 	Data0 = pSprite->field_0;
-	if (Data0 = dword_3A391) {
+	if (Data0 == dword_3A391) {
 		Data0 = pSprite->field_4;
 		if (Data0 == dword_3A395)
 			return;
