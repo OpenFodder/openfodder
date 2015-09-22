@@ -669,7 +669,7 @@ int16 word_35E3A[] = {
 	0x32, 0x52, 0x64, -1
 };
 
-const sRecruitSprite_PC mRecruitSprite_PC[34] =
+const sRecruitSpritePos mRecruitSprite[34] =
 {
   { 0, 0, 48, 40, word_35DFE },
   { 0, 1, 48, 56, word_35E0A },

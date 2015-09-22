@@ -1921,7 +1921,7 @@ const sSpriteSheet* off_90F10[] = {
 	stru_9171C
 };
 
-const sRecruitSprite_Amiga stru_A5BC0[] = {
+const sStruct3_Amiga stru_A5BC0[] = {
 	{ 0x12, 0, 0x90, 0xA8 },
 	{ 0x12, 1, 0xA0, 0xA8 },
 	{ 0x12, 2, 0xC0, 0xA8 },

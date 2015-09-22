@@ -37,7 +37,7 @@ struct sILBM_BMHD {
 	uint16	mPageWidth, mPageHeight;
 };
 
-struct sRecruitSprite_Amiga {
+struct sStruct3_Amiga {
 	int16	field_0;
 	int16	field_2;
 	int16	field_4;

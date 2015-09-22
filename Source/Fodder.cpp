@@ -4286,10 +4286,10 @@ void cFodder::Recruit_Show() {
 	word_3BEC3 = 0x1D;
 	//word_39020 = 0;
 	
-	//sub_17368();
+	sub_17368();
 	
 	dword_3AAC9 = mDataSubBlk;
-	
+
 	for (int16 ax = mSquadMemberCount - 1; ax >= 0;--ax )
 		sub_17429();
 	
@@ -5124,7 +5124,7 @@ void cFodder::Recruit_Draw_Truck( ) {
 
 void cFodder::sub_17B64() {
 
-	const sRecruitSprite_PC* stru = mRecruitSprite_PC;
+	const sRecruitSpritePos* stru = mRecruitSprite;
 
 	for (; stru->field_0 != -1;) {
 		int16 word_3B19F = stru->field_0;
@@ -7779,7 +7779,7 @@ void cFodder::sub_25FDA( sSprite_0* pSprite ) {
 	}
 	//loc_2600B
 
-	pSprite->field_74 = 0xC8;
+	pSprite->field_74 = -56;
 	Data24 = dword_3B5F5;
 
 	Data8 = Data24->field_0;
