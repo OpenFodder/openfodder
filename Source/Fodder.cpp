@@ -4287,7 +4287,7 @@ void cFodder::Recruit_Show() {
 	//word_39020 = 0;
 	
 	sub_17368();
-	
+
 	dword_3AAC9 = mDataSubBlk;
 
 	for (int16 ax = mSquadMemberCount - 1; ax >= 0;--ax )
@@ -5106,6 +5106,9 @@ void cFodder::Recruit_Draw_Truck( ) {
 	int16 Data4 = word_3AACD;
 	int16 Data8 = 0x31;
 	int16 DataC = 0xB6;
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		DataC = 0xBE;
 
 	sub_13C1C(  Data0, DataC, Data4, Data8 );
 
