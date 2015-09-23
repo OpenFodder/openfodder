@@ -4272,8 +4272,15 @@ void cFodder::Recruit_Show() {
 	Recruit_Render_LeftMenu();
 	mGraphics->Recruit_Draw_Hill();
 	
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mGraphics->Load_Hill_Data();
 	sub_17B64();
 	
+	if (mVersion->mPlatform == ePlatform::Amiga) {
+		
+		((cGraphics_Amiga*)mGraphics)->sub_A5B46();
+	}
+
 	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
 	
 	sub_17CD3();
@@ -4921,9 +4928,9 @@ void cFodder::Recruit_Draw_Troops() {
 			break;
 
 		int16 Data0;
-		int16 Data8 = Data20->field_0;
-		int16 DataC = Data20->field_2;
-		int16 Data4 = Data20->field_4;
+		int16 Data8 = Data20->field_0;	// d2
+		int16 DataC = Data20->field_2;	// d3 
+		int16 Data4 = Data20->field_4;	// d1
 		++Data20;
 		dword_3B1C7 = Data20;
 		if (Data4 == 0)
@@ -5142,12 +5149,17 @@ void cFodder::sub_17B64() {
 			int16 Data8 = word_3B1A3;
 			int16 DataC = word_3B1A5;
 
-			uint8* Data20 = sub_2AE81( &Data0, &Data4 );
+			uint8* Data20 = sub_2AE81( Data0, Data4 );
 
 			Data8 = *Data34++;
 			if (Data8 < 0) {
 				++stru;
 				break;
+			}
+
+			if (mVersion->mPlatform == ePlatform::Amiga) {
+				Data0 -= 1;
+				Data0 <<= 4;
 			}
 
 			sub_2AEB6( Data0, Data4, &Data8, &DataC );
@@ -9075,11 +9087,11 @@ int16 cFodder::SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pDat
 	return word_3AA03;
 }
 
-uint8* cFodder::sub_2AE81( int16 *pData0, int16 *pData4 ) {
-	const sSpriteSheet* Sheet = &mSpriteDataPtr[*pData0][*pData4];
+uint8* cFodder::sub_2AE81( int16& pData0, int16& pData4 ) {
+	const sSpriteSheet* Sheet = &mSpriteDataPtr[pData0][pData4];
 
-	*pData0 = Sheet->mColCount;
-	*pData4 = Sheet->mRowCount;
+	pData0 = Sheet->mColCount;
+	pData4 = Sheet->mRowCount;
 
 	return mGraphics->GetSpriteData( Sheet->field_2 ) + Sheet->field_0;
 }

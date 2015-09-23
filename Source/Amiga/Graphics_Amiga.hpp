@@ -88,6 +88,7 @@ class cGraphics_Amiga : public cGraphics {
 	
 	virtual void		map_Load_Resources();
 	virtual void		map_Tiles_Draw();
+	virtual void		sub_A5B46();
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY );
 
 	virtual void		PaletteSet();
