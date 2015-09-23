@@ -54,10 +54,13 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mResources = 0;
 	mGraphics = 0;
 	mWindow = new cWindow();
+	mMapNumber = 0;
 
 	mTicksDiff = 0;
 	mTicks = 0;
 
+	word_3A9F3 = 0;
+	word_3A9F5 = 0;
 	word_3D465 = 0;
 	word_3D467 = 0;
 	word_3D469 = 0;
@@ -107,6 +110,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3B18B = 0;
 	word_3B44F = 0;
 	word_3B4F5 = 0;
+	word_3BEC1 = 0;
+	word_3BEC3 = 0;
 	word_3E1B7 = 0;
 	mCamera_Pan_RowCount = 0;
 
@@ -197,6 +202,11 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_42316[6] = dword_42500;	// Amiga Format Xmas
 
 	word_82132 = 0;
+
+	for (int16 x = 0; x < 45; ++x) {
+		sub_212C4( &mSprites[x] );
+	}
+	sub_10D61();
 }
 
 cFodder::~cFodder() {
