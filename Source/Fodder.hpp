@@ -1158,7 +1158,7 @@ public:
 	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	int16			SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
-	uint8*			sub_2AE81( int16 *pData0, int16 *pData4 );
+	uint8*			sub_2AE81( int16& pData0, int16& pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
 	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );

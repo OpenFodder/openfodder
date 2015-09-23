@@ -22,6 +22,26 @@
 
 #include "stdafx.hpp"
 
+const sStruct3_Amiga stru_A5BC0[] = {
+	{ 0x12, 0, 0x90, 0xA8 },
+	{ 0x12, 1, 0xA0, 0xA8 },
+	{ 0x12, 2, 0xC0, 0xA8 },
+	{ 0x13, 0, 0x30, 0xC8 },
+	{ 0x13, 1, 0x40, 0xC8 },
+	{ 0x13, 2, 0x50, 0xC8 },
+	{ 0x13, 3, 0x60, 0xC8 },
+	{ 0x13, 4, 0x70, 0xC8 },
+	{ 0x13, 5, 0x80, 0xC8 },
+	{ 0x13, 6, 0x90, 0xC8 },
+	{ 0x13, 7, 0xA0, 0xC8 },
+	{ 0x13, 8, 0xB0, 0xC8 },
+	{ 0x13, 9, 0xC0, 0xC8 },
+	{ 0x13, 0xA, 0xD0, 0xC8 },
+	{ 0x13, 0xB, 0xE0, 0xC8 },
+	{ -1 }
+};
+
+
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = 0;
 	mPalette = 0;
@@ -454,8 +474,61 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 	mImage->Save();
 }
 
-void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
+void cGraphics_Amiga::sub_A5B46() {
+	const sStruct3_Amiga* a3 = stru_A5BC0;
 
+	for (; a3->field_0 != -1; ++a3) {
+
+		int16 d0 = a3->field_0;
+		int16 d1 = a3->field_2;
+
+		uint8* a0 = mFodder->sub_2AE81( d0, d1 );
+		
+		d1 -= 1;
+		d0 >>= 4;
+		d0 -= 1;
+
+		uint8* a1 = mFodder->mDataBaseBlk;
+
+		int16 d2 = a3->field_4;
+		d2 >>= 3;
+		d2 &= 0xFFE;
+
+		a1 += d2;
+		d2 = a3->field_6;
+		int16 d1_s = d1;
+		d2 <<= 3;
+		d1 = d2;
+		d2 <<= 2;
+		d2 += d1;
+		d1 = d1_s;
+
+		a1 += d2;
+		uint8* a4 = a0;
+		uint8* a5 = a1;
+
+		do {
+
+			for (d2 = d1; d2 >= 0; --d2) {
+
+				writeBEWord( a5 , readBEWord( a4 ) );
+				writeBEWord( a5 + 0x2828, readBEWord( a4 + 0x2800 ) );
+				writeBEWord( a5 + 0x5050, readBEWord( a4 + 0x5000 ) );
+				writeBEWord( a5 + 0x7878, readBEWord( a4 + 0x7800 ) );
+
+				a4 += 0x28;
+				a5 += 0x28;
+			}
+
+			a4 = a0 + 2;
+			a5 = a1 + 2;
+
+		} while (--d0 >= 0);
+	}
+}
+
+void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
+	//TODO
 }
 
 void cGraphics_Amiga::map_Load_Resources() {
