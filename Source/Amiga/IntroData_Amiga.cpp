@@ -144,5 +144,5 @@ const sIntroText mIntroText_Amiga[] = {
 	{ 0xFF, mIntro_12 },
 	{ 0xFF, mIntro_13 },
 	{ 0x38, mIntro_14 },
-	{ 0 }
+	{ 0, 0 }
 };
