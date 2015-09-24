@@ -17801,7 +17801,7 @@ int16 cFodder::introPlayText() {
 
 	mGraphics->SetSpritePtr( eSpriteType::eSPRITE_FONT );
 
-	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ) {
+	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF ) {
 
 		word_3B447 = 0x288;
 		
@@ -17844,8 +17844,7 @@ int16 cFodder::introPlayText() {
 
 				mouse_GetData();
 				if (mouse_Button_Status) {
-					if (word_3B2CF != 16)
-						word_3B2CF = 16;
+					word_3B2CF = 16;
 					word_3B4F3 = -1;
 					mImage->paletteFadeOut();
 					Fade = -1;
@@ -17862,7 +17861,7 @@ int16 cFodder::introPlayText() {
 			g_Window.FrameEnd();
 		}
 
-		++word_3B2CF;
+		
 	}
 
 	return word_3B4F3;

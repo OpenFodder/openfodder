@@ -628,7 +628,7 @@ void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors
 	}
 
 	if(pColors)
-		PaletteLoad( fileBuffer + (fileSize - (pColors * 3)), 0xd0 );
+		PaletteLoad( fileBuffer + (fileSize - (0x100 * 3)), pColors );
 
 	delete[] fileBuffer;
 }
