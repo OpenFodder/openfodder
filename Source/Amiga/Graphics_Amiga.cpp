@@ -709,6 +709,142 @@ void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 		mFodder->word_3E1B7[x] = 0;
 	}
 }
+
+void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* a0 ) {
+	int32 d0, d1, d2, d3, d4, d5, d6;
+
+	d0 = pD0; 
+	d1 = pD1;
+	d2 = pD2; 
+	d3 = pD3;
+	d4 = pD4;
+	d5 = pD5;
+	
+	uint8* a1 = mFodder->word_3E1B7;
+
+	int32 word_8271A = d0;
+	int32 word_8271C = d1;
+	int32 word_8271E = d2;
+	if (d2 <= 0)
+		return;
+
+	int32 word_82720 = d3;
+	if (d3 <= 0)
+		return;
+
+	d6 = word_8271E;
+	d6 >>= 1;
+	d4 -= d6;
+
+	int32 D1_Saved = d1;
+	d5 <<= 3;
+	d1 = d5;
+	d5 <<= 2;
+	d5 += d1;
+
+	d1 = D1_Saved;
+	d1 += d5;
+	d6 = d4;
+	d6 >>= 3;
+
+	a1 += d6;
+	d4 &= 7;
+	d6 = 7;
+	d6 -= d4;
+
+	int32 word_82726 = d6;
+	d4 = d2;
+	d4 >>= 3;
+	int32 word_82722 = d4;
+	d0 &= 0xFFF;
+	d1 &= 0xFFF;
+
+	d0 /= d2;
+	d1 /= d3;
+
+	int32 word_8154A = d0;
+	int32 word_8154C = d1;
+	d0 = 0;
+
+	d0 = d1 = d2 = d3 = 0;
+
+	d0 = word_8271A;
+	d1 = word_8271C;
+	d0 /= word_8271E;
+
+	int32 word_8159E = d0 & 0xFFFF;
+	d0 &= 0xFFFF0000;
+	d0 /= word_8271E;
+	d0 = (d0 >> 16) | (d0 << 16);
+
+	d0 = (d0 & 0xFFFF0000) | word_8159E;
+	d0 = (d0 >> 16) | (d0 << 16);
+
+	d1 /= word_82720;
+	word_8159E = d1 & 0xFFFF;
+	d1 &= 0xFFFF0000;
+	d1 /= word_82720;
+	d1 = (d1 >> 16) | (d1 << 16);
+	d1 = (d1 & 0xFFFF0000) | word_8159E;
+
+	//loc_A0850
+	do {
+		uint8* a3 = a0;
+		uint8* a6 = a1;
+
+		d2 = 0;
+		d4 = 7;
+		d5 = word_8271E;
+		d6 = word_82726;
+
+	loc_A0864:;
+		do {
+			--d5;
+			if (d5 < 0)
+				goto loc_A08A8;
+
+			if (*a3 & (1 << d4))
+				*a6 |= (1 << d6);
+
+			if (*(a3 + 0x2800) & (1 << d4))
+				*(a6 + 0x2828) |= (1 << d6);
+
+			if (*(a3 + 0x5000) & (1 << d4))
+				*(a6 + 0x5050) |= (1 << d6);
+
+			if (*(a3 + 0x7800) & (1 << d4))
+				*(a6 + 0x7878) |= (1 << d6);
+
+			d2 += d0;
+			int32 d7 = d2;
+			d4 = 7;
+			d4 -= (d7 & 0xFFFF);
+			d7 >>= 3;
+			a3 = a0 + d7;
+		} while (--d6 >= 0);
+
+		++a6;
+		d6 = 7;
+		goto loc_A0864;
+
+	loc_A08A8:;
+		
+		a1 += 0x28;
+		d3 += d1;
+		D1_Saved = d1;
+
+		d3 <<= 3;
+		d1 = d3;
+		d3 <<= 2;
+		d3 += d1;
+		d1 = D1_Saved;
+		a0 += d3;
+		d3 = d3 >> 16;
+
+	} while (--word_82720 > 0);
+
+}
+
 void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 	uint8	Planes[5];
 	uint8	bl = mFodder->byte_42070;

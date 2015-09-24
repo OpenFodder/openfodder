@@ -1160,7 +1160,6 @@ public:
 
 	uint8*			sub_2AE81( int16& pData0, int16& pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
-	void			sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );

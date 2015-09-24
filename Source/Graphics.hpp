@@ -67,6 +67,7 @@ public:
 
 	virtual void		sub_144A2() = 0;
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
+	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) = 0;
 
 	virtual void		Recruit_Draw_Hill() = 0;
 };

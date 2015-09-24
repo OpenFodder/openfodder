@@ -168,5 +168,5 @@ const sIntroText mIntroText_PC[] = {
 	{ 0xFF, mIntro_14 },
 	{ 0xFF, mIntro_15 },
 	{ 0x38, mIntro_16 },
-	{ 0 }
+	{ 0, 0 }
 };

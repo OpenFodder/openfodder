@@ -563,6 +563,42 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 		mFodder->word_3E1B7[x] = 0;
 	}
 }
+
+void cGraphics_PC::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
+	pData0 &= 0xFFFF;
+	pData4 &= 0xFFFF;
+
+	uint8 *si = pData20;
+	uint8* es = mFodder->word_3E1B7;
+
+	mFodder->dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
+	mFodder->dword_44A3E = mFodder->dword_44A36;
+
+	mFodder->dword_44A3A = (pData14 - (pDataC >> 1)) << 16;
+	int32 eax = (pData8 << 0x10);
+	if (eax <= 0)
+		return;
+
+	mFodder->dword_44A42 = eax / pData0;
+	eax = pDataC << 0x10;
+	if (eax <= 0)
+		return;
+
+	mFodder->dword_44A46 = eax / pData4;
+	for (int16 bx = 0; bx != pData4; ++bx) {
+		mFodder->dword_44A36 = mFodder->dword_44A3E;
+
+		for (int16 cx = 0; cx != pData0; ++cx) {
+			uint8 al = mFodder->sub_2AFF5( si, bx, cx );
+			mFodder->sub_2B016( es, al );
+			mFodder->dword_44A36 += mFodder->dword_44A42;
+		}
+
+		mFodder->dword_44A3A += mFodder->dword_44A46;
+   	}
+
+}
+
 void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors ) {
 	std::string Filename = pFilename;
 

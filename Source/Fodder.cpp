@@ -5167,6 +5167,7 @@ void cFodder::sub_17B64() {
 				break;
 			}
 
+			// Originally Inside sub_A094C
 			if (mVersion->mPlatform == ePlatform::Amiga) {
 				Data0 -= 1;
 				Data0 <<= 4;
@@ -5175,11 +5176,10 @@ void cFodder::sub_17B64() {
 			sub_2AEB6( Data0, Data4, &Data8, &DataC );
 			int16 Data10 = word_3B1A3 + 0x08;
 			int16 Data14 = word_3B1A5;
-			sub_2AF19( Data0, Data4, Data8, Data10, Data14, DataC, Data20 );
+			mGraphics->sub_2AF19( Data0, Data4, Data8, Data10, Data14, DataC, Data20 );
 			word_3B1A3 += 0x10;
 		}
 	}
-
 }
 
 void cFodder::Recruit_Draw() {
@@ -9104,41 +9104,6 @@ uint8* cFodder::sub_2AE81( int16& pData0, int16& pData4 ) {
 	pData4 = Sheet->mRowCount;
 
 	return mGraphics->GetSpriteData( Sheet->field_2 ) + Sheet->field_0;
-}
- 
-void cFodder::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
-	pData0 &= 0xFFFF;
-	pData4 &= 0xFFFF;
-
-	uint8 *si = pData20;
-	uint8* es = word_3E1B7;
-
-	dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
-	dword_44A3E = dword_44A36;
-
-	dword_44A3A = (pData14 - (pDataC >> 1)) << 16;
-	int32 eax = (pData8 << 0x10);
-	if (eax <= 0)
-		return;
-
-	dword_44A42 = eax / pData0;
-	eax = pDataC << 0x10;
-	if (eax <= 0)
-		return;
-
-	dword_44A46 = eax / pData4;
-	for (int16 bx = 0; bx != pData4; ++bx) {
-		dword_44A36 = dword_44A3E;
-
-		for (int16 cx = 0; cx != pData0; ++cx) {
-			uint8 al = sub_2AFF5( si, bx, cx );
-			sub_2B016( es, al );
-			dword_44A36 += dword_44A42;
-		}
-
-		dword_44A3A += dword_44A46;
-   	}
-
 }
 
 uint8 cFodder::sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx ) {
@@ -17836,11 +17801,14 @@ int16 cFodder::introPlayText() {
 
 	mGraphics->SetSpritePtr( eSpriteType::eSPRITE_FONT );
 
-	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
+	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ) {
 
 		word_3B447 = 0x288;
 		
 		mImage->paletteClear();
+
+		if (mVersion->mIntroData[word_3B2CF].mImageNumber == 0 && mVersion->mIntroData[word_3B2CF].mText == 0 )
+			break;
 
 		if (mVersion->mIntroData[word_3B2CF].mImageNumber != 0xFF) {
 
@@ -17876,7 +17844,8 @@ int16 cFodder::introPlayText() {
 
 				mouse_GetData();
 				if (mouse_Button_Status) {
-					word_3B2CF = 15;
+					if (word_3B2CF != 16)
+						word_3B2CF = 16;
 					word_3B4F3 = -1;
 					mImage->paletteFadeOut();
 					Fade = -1;
@@ -17892,6 +17861,8 @@ int16 cFodder::introPlayText() {
 			g_Window.RenderAt( mImage, cPosition() );
 			g_Window.FrameEnd();
 		}
+
+		++word_3B2CF;
 	}
 
 	return word_3B4F3;
