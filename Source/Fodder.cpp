@@ -17815,7 +17815,8 @@ int16 cFodder::introPlayText() {
 			std::stringstream ImageName;
 			ImageName << mVersion->mIntroData[word_3B2CF].mImageNumber;
 
-			mGraphics->imageLoad( ImageName.str(), 0xD0 );
+			mGraphics->imageLoad( ImageName.str(), 0x100 );
+			mGraphics->Load_Sprite_Font();
 		}
 		else {
 			word_3B447 = 0xAF;
@@ -17923,6 +17924,7 @@ void cFodder::intro_Music_Play() {
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
 	bool DoBreak = false;
+
 	g_Graphics.imageLoad( pFilename, 0x100 );
 	mImage->paletteSet( mPalette );
 
