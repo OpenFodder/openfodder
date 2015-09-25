@@ -47,11 +47,13 @@ struct sStruct3_Amiga {
 class cGraphics_Amiga : public cGraphics {
 
 	uint8*				mBlkData;
+	uint16				mPalette[0x40];
 	uint16				mPaletteArmy[0x10];
 	uint16				mPaletteCopt[0x10];
 	uint16				mPalletePStuff[0x10];
 	uint16				mPalleteHill[0x10];
-	uint8*				mPalette;
+	uint16				mPalleteFont[0x10];
+
 	size_t				mPaletteSize;
 
 	sILBM_BMHD			mBMHDArmy;

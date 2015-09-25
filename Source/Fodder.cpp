@@ -17816,14 +17816,13 @@ int16 cFodder::introPlayText() {
 			ImageName << mVersion->mIntroData[word_3B2CF].mImageNumber;
 
 			mGraphics->imageLoad( ImageName.str(), 0x100 );
-			mGraphics->Load_Sprite_Font();
 		}
 		else {
 			word_3B447 = 0xAF;
 			mImage->clearBuffer();
 		}
 
-		mImage->paletteSet( mPalette );
+		mGraphics->PaletteSet();
 		const sIntroString* IntroString = mVersion->mIntroData[word_3B2CF].mText;
 		while (IntroString->mPosition) {
 
@@ -17926,7 +17925,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 	bool DoBreak = false;
 
 	g_Graphics.imageLoad( pFilename, 0x100 );
-	mImage->paletteSet( mPalette );
+	mGraphics->PaletteSet();
 
 	mImageFaded = -1;
 	while( mImageFaded == -1 || DoBreak == false  ) {
