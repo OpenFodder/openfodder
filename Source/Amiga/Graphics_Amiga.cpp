@@ -69,7 +69,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		if (mFodder->mVersion->mKey == "AFX")
 			mFodder->byte_42070 = mCursorPalette;
 		else
-			mFodder->byte_42070 = 0xF0;
+			mFodder->byte_42070 = 0xE0;
 
 		mBMHD_Current = &mBMHDPStuff;
 		return mFodder->mDataPStuff;
@@ -183,7 +183,7 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 	
 	g_Fodder.mDrawSpritePositionX = 16;
 	g_Fodder.mDrawSpritePositionY = 22;
-	g_Fodder.word_4206C = Header.mWidth;
+	g_Fodder.word_4206C = Header.mWidth >> 3;
 	g_Fodder.word_4206E = Header.mHeight;
 	g_Fodder.byte_42070 = 0;
 
@@ -257,7 +257,7 @@ void cGraphics_Amiga::PaletteSet() {
 
 	mImage->paletteLoad_Amiga( (uint8*) mPalette, 0, 0x40 );
 	//mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x80 );
-	//mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xF0 );
+	mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xE0 );
 	mImage->paletteLoad_Amiga( (uint8*)mPalleteFont, 0xF0 );
 }
 
@@ -563,7 +563,8 @@ void cGraphics_Amiga::video_Draw_Linear() {
 	di += ax;
 	mFodder->word_42066 = di;
 
-	mFodder->word_4206C >>= 3;
+	// FIXME: 
+	//mFodder->word_4206C >>= 3;
 	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - mFodder->word_4206C;
 	mFodder->word_4206C >>= 1;
 	mFodder->word_42076 = mImage->GetWidth() - (mFodder->word_4206C * 16);
@@ -736,6 +737,11 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 	d6 >>= 1;
 	d4 -= d6;
 
+	d6 = word_82720;
+	d6 >>= 1;
+	d5 -= d6;
+
+
 	int32 D1_Saved = d1;
 	d5 <<= 3;
 	d1 = d5;
@@ -743,7 +749,7 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 	d5 += d1;
 
 	d1 = D1_Saved;
-	d1 += d5;
+	a1 += d5;
 	d6 = d4;
 	d6 >>= 3;
 
@@ -770,22 +776,29 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 
 	d0 = word_8271A;
 	d1 = word_8271C;
+	int32 d0_u = (d0 % word_8271E) << 16;
 	d0 /= word_8271E;
+	d0 |= d0_u;
 
 	int32 word_8159E = d0 & 0xFFFF;
 	d0 &= 0xFFFF0000;
 	d0 /= word_8271E;
-	d0 = (d0 >> 16) | (d0 << 16);
+	d0 = (d0_u >> 16) | (d0 << 16);
 
 	d0 = (d0 & 0xFFFF0000) | word_8159E;
 	d0 = (d0 >> 16) | (d0 << 16);
 
+	int32 d1_u = (d1 % word_82720) << 16;
 	d1 /= word_82720;
+	d1 |= d1_u;
+
 	word_8159E = d1 & 0xFFFF;
 	d1 &= 0xFFFF0000;
 	d1 /= word_82720;
-	d1 = (d1 >> 16) | (d1 << 16);
+	d1 = (d1_u >> 16) | (d1 << 16);
+
 	d1 = (d1 & 0xFFFF0000) | word_8159E;
+	d1 = (d1 >> 16) | (d1 << 16);
 
 	//loc_A0850
 	do {
@@ -817,10 +830,13 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 
 			d2 += d0;
 			int32 d7 = d2;
+			d7 = (d7 >> 16) | (d7 << 16);
+
 			d4 = 7;
 			d4 -= (d7 & 0xFFFF);
-			d7 >>= 3;
-			a3 = a0 + d7;
+			d7 = d7 & 0xFFFF0000 | ((d7 & 0xFFFF) >> 3);
+			
+			a3 = a0 + (d7 & 0xffff);
 		} while (--d6 >= 0);
 
 		++a6;
@@ -831,14 +847,17 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 		
 		a1 += 0x28;
 		d3 += d1;
+		d3 = (d3 >> 16) | (d3 << 16);
+
 		D1_Saved = d1;
 
-		d3 <<= 3;
-		d1 = d3;
-		d3 <<= 2;
-		d3 += d1;
+		d3 = d3 & 0xFFFF0000 | ((d3 & 0xFFFF) << 3);
+
+		d1 = d1 & 0xFFFF0000 | (d3 & 0xFFFF);
+		d3 = d3 & 0xFFFF0000 | ((d3 & 0xFFFF) << 2);
+		d3 += (d1 & 0xFFFF);
 		d1 = D1_Saved;
-		a0 += d3;
+		a0 += (d3 & 0xFFFF);
 		d3 = d3 >> 16;
 
 	} while (--word_82720 > 0);
