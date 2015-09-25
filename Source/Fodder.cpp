@@ -3524,13 +3524,25 @@ bool cFodder::Sprite_OnScreen_Check() {
 	
 	ax = mDrawSpritePositionY + word_4206E;
 	--ax;
-	if( ax > 231 ) {
-		if( mDrawSpritePositionY > 231 )
-			return false;
-		
-		ax -= 231;
-		word_4206E -= ax;
-		
+	if (mVersion->mPlatform == ePlatform::PC) {
+		if (ax > 231) {
+			if (mDrawSpritePositionY > 231)
+				return false;
+
+			ax -= 231;
+			word_4206E -= ax;
+
+		}
+	}
+	if (mVersion->mPlatform == ePlatform::Amiga) {
+		if (ax > 256) {
+			if (mDrawSpritePositionY > 256)
+				return false;
+
+			ax -= 256;
+			word_4206E -= ax;
+
+		}
 	}
 
 	if( mDrawSpritePositionX < 0 ) {
@@ -4222,6 +4234,8 @@ void cFodder::AFX_Show() {
 	Music_Stop();
 
 	mGraphics->imageLoad( "apmenu.lbm", 32 );
+	mGraphics->PaletteSet();
+
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
 
 	mImage->Save();
@@ -4258,7 +4272,7 @@ void cFodder::AFX_Show() {
 	mImage->clearBuffer();
 	mWindow->SetScreenSize( cDimension( 320, 224 ));
 
-	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xF0 );
+	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 }
 
 void cFodder::Recruit_Show() {
@@ -17857,7 +17871,7 @@ int16 cFodder::introPlayText() {
 				DoBreak = true;
 			}
 
-			g_Window.RenderAt( mImage, cPosition() );
+			g_Window.RenderAt( mImage );
 			g_Window.FrameEnd();
 		}
 
