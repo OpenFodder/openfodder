@@ -44,8 +44,8 @@ const sStruct3_Amiga stru_A5BC0[] = {
 
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = 0;
-	mPalette = 0;
 
+	memset( &mPalette, 0, 0x40 );
 	memset( &mPaletteArmy, 0, 0x10 );
 	memset( &mPaletteCopt, 0, 0x10 );
 	memset( &mPalletePStuff, 0, 0x10 );
@@ -75,7 +75,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		return mFodder->mDataPStuff;
 
 	case 3:
-		mFodder->byte_42070 = 0xD0;
+		mFodder->byte_42070 = 0xF0;
 		mBMHD_Current = &mBMHDFont;
 		return mFodder->mDataPStuff;
 
@@ -136,7 +136,7 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 
 	uint8* Font = g_Resource.fileGet( "font.raw", Size );
 	memcpy( mFodder->mDataPStuff, Font + 0x20, Size - 0x20 );
-	memcpy( mPalleteHill, Font, 0x20 );
+	memcpy( mPalleteFont, Font, 0x20 );
 
 	mBMHDFont.mWidth = 0x140;
 	mBMHDFont.mHeight = 0x100;
@@ -153,7 +153,6 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 
 void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pColors ) {
 	sILBM_BMHD	Header;
-	uint16		Palette[0x20];
 	std::string	Filename = pFilename;
 
 	if (Filename.find('.') == std::string::npos )
@@ -161,9 +160,9 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 
 	size_t Size = 0;
 	uint8* File = g_Resource.fileGet( Filename, Size );
+	int Colors = 16;
 
-	if (DecodeIFF( File, mFodder->mDataBaseBlk, &Header, Palette ) == false) {
-		int Colors = 16;
+	if (DecodeIFF( File, mFodder->mDataBaseBlk, &Header, mPalette ) == false) {
 
 		if (Size == 51464) {
 			Header.mPlanes = 5;
@@ -173,7 +172,7 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 
 		// Not an iff, so its probably a RAW file
 		memcpy( mFodder->mDataBaseBlk, File + (Colors*2), Size - (Colors*2));
-		PaletteLoad( File, 0, Colors );
+		memcpy( mPalette, File, Colors * 2 );
 		
 		Header.mWidth = 0x140;
 		Header.mHeight = 0x101;
@@ -188,8 +187,10 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 	g_Fodder.word_4206E = Header.mHeight;
 	g_Fodder.byte_42070 = 0;
 
+	if (Header.mPlanes == 5)
+		Colors = 32;
+
 	mImage->clearBuffer();
-	mImage->paletteLoad_Amiga( (uint8*)Palette, 0, pColors );
 
  	video_Draw_Linear();
 	mBMHD_Current = 0;
@@ -244,10 +245,9 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 
 	delete mBlkData;
-	delete mPalette;
 
 	mBlkData = new uint8[mFodder->mDataBaseBlkSize + mFodder->mDataSubBlkSize];
-	mPalette = g_Resource.fileGet( mFodder->mFilenameBasePal, mPaletteSize );
+	g_Resource.fileLoadTo( mFodder->mFilenameBasePal, (uint8*) mPalette );
 
 	memcpy( mBlkData, mFodder->mDataBaseBlk, mFodder->mDataBaseBlkSize );
 	memcpy( mBlkData + mFodder->mDataBaseBlkSize, mFodder->mDataSubBlk, mFodder->mDataSubBlkSize );
@@ -255,10 +255,10 @@ void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 
 void cGraphics_Amiga::PaletteSet() {
 
-	mImage->paletteLoad_Amiga( mPalette, 0 );
+	mImage->paletteLoad_Amiga( (uint8*) mPalette, 0, 0x40 );
 	//mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x80 );
-	mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xF0 );
-	mImage->paletteLoad_Amiga( (uint8*)mPalleteHill, 0xD0 );
+	//mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xF0 );
+	mImage->paletteLoad_Amiga( (uint8*)mPalleteFont, 0xF0 );
 }
 
 
