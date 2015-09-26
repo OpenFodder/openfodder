@@ -45,7 +45,7 @@ struct sStruct3_Amiga {
 };
 
 class cGraphics_Amiga : public cGraphics {
-
+public:
 	uint8*				mBlkData;
 	uint16				mPalette[0x40];
 	uint16				mPaletteArmy[0x10];
@@ -64,9 +64,6 @@ class cGraphics_Amiga : public cGraphics {
 
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
-
-	protected:
-
 
 	public:
 						cGraphics_Amiga();
@@ -106,4 +103,5 @@ class cGraphics_Amiga : public cGraphics {
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 
 	virtual void		Recruit_Draw_Hill();
+	virtual void		Recruit_Draw_HomeAway();
 };

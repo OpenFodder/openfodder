@@ -564,6 +564,32 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 	}
 }
 
+void cGraphics_PC::Recruit_Draw_HomeAway( ) {
+	const char* strHomeAndAway = "HOME                AWAY";
+	
+	SetSpritePtr( eSPRITE_HILL );
+
+	mFodder->sub_13C1C( 0x18, 0, 0, 0 );
+	
+	int16 Data4 = mFodder->word_3E0E5[ (mFodder->mMissionNumber - 1) ];
+
+	mFodder->sub_13C1C( 0x19, 0, Data4, 0x130 );
+	
+	mFodder->String_CalculateWidth( 320, mUnkStringModifier_Recruit, strHomeAndAway );
+	mFodder->String_Print( mUnkStringModifier_Recruit, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
+	
+	mFodder->sub_13C1C( 0x0E, 0x0A, 0, 0x9B );
+	
+	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AE ));
+	mFodder->sub_16B55( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
+
+	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AC ));
+	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
+
+	SetSpritePtr( eSPRITE_HILL_UNK );
+}
+
+
 void cGraphics_PC::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
 	pData0 &= 0xFFFF;
 	pData4 &= 0xFFFF;

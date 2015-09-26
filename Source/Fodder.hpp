@@ -844,7 +844,6 @@ public:
 
 	/* Recruitment */
 	void			Recruit_Show();
-	void			Recruit_Draw_HomeAway();
 	void			sub_16B55(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			sub_16BC3();
 	void			sub_16C45( uint16** pDi, int16* pSource );

@@ -83,6 +83,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mFodder->byte_42070 = 0xD0;
 		mBMHD_Current = &mBMHDHill;
 		return mFodder->mDataBaseBlk;
+
 	default:
 		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
 		return 0;
@@ -258,6 +259,7 @@ void cGraphics_Amiga::PaletteSet() {
 	mImage->paletteLoad_Amiga( (uint8*) mPalette, 0, 0x40 );
 	//mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x80 );
 	mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xE0 );
+	mImage->paletteLoad_Amiga( (uint8*)mPalleteHill, 0xD0 );
 	mImage->paletteLoad_Amiga( (uint8*)mPalleteFont, 0xF0 );
 }
 
@@ -563,8 +565,6 @@ void cGraphics_Amiga::video_Draw_Linear() {
 	di += ax;
 	mFodder->word_42066 = di;
 
-	// FIXME: 
-	//mFodder->word_4206C >>= 3;
 	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - mFodder->word_4206C;
 	mFodder->word_4206C >>= 1;
 	mFodder->word_42076 = mImage->GetWidth() - (mFodder->word_4206C * 16);
@@ -700,15 +700,31 @@ void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 
 	mFodder->mDrawSpritePositionX = 0x40;
 	mFodder->mDrawSpritePositionY = 0x28;
-	mFodder->word_4206C = 0x110;	//W
+	mFodder->word_4206C = 0x110 >> 3;	//W
 	mFodder->word_4206E = 0xB8;		// H
 	mFodder->word_42078 = 0x140;
 	
 	video_Draw_Linear();
+}
+
+void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
+	const char* strHomeAndAway = "HOME                AWAY";
+
+	mFodder->sub_13C1C( 0x11, 0, 0, 0xfe );
+	int16 Data4 = mFodder->word_3E0E5[ (mFodder->mMissionNumber - 1) ];
+
+	mFodder->sub_13C1C( 0x16, 0, 0, 0 );
 	
-	for( uint32 x = 0; x < 0xA000; ++x) {
-		mFodder->word_3E1B7[x] = 0;
-	}
+	mFodder->sub_13C1C( 0x17, 0, Data4, 0x130 );
+
+	mFodder->String_CalculateWidth( 320, mUnkStringModifier_Recruit, strHomeAndAway );
+	mFodder->String_Print( mUnkStringModifier_Recruit, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
+	
+	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AE ));
+	mFodder->sub_16B55( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
+
+	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AC ));
+	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
 }
 
 void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* a0 ) {
