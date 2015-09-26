@@ -3274,11 +3274,12 @@ void cFodder::Prepare( ) {
 
 	tool_RandomSeed();
 
-	mDataBlkSize = 0xFD0 * 16;
+	mDataBlkSize = 0xFD00 * 16;
 
 	mDataPStuff = new uint8[0xA03 * 16];
 	mDataBaseBlk = new uint8[mDataBlkSize];
 	mDataSubBlk = new uint8[mDataBlkSize];
+
 	mMap = new uint8[0x346 * 16];
 	mDataHillBits = new uint8[0xD5A * 16];
 	mDataArmy = new uint8[0xD50 * 16];
@@ -3292,6 +3293,9 @@ void cFodder::Prepare( ) {
 	//Load_EffectDriver();
 	//Load_MusicDriver();
 	memory_XMS_Detect();
+
+	memset(mDataBaseBlk, 0, mDataBlkSize );
+	memset(mDataSubBlk, 0, mDataBlkSize );
 
 	mImage = new cSurface( 352, 300 );
 
@@ -3467,7 +3471,7 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 	word_42062 += mSpriteDataPtr[pData0][pData4].field_0;
 
 	mDrawSpritePositionX = (pPosX + 0x10);
-	mDrawSpritePositionY = pPosY + 0x10;
+	mDrawSpritePositionY = (pPosY + 0x10);
 	word_4206C = mSpriteDataPtr[pData0][pData4].mColCount;
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
 	word_42078 = 0x140;
@@ -4297,7 +4301,31 @@ void cFodder::Recruit_Show() {
 	mGraphics->Recruit_Draw_Hill();
 	
 	if (mVersion->mPlatform == ePlatform::Amiga)
-		mGraphics->Load_Hill_Data();
+		mGraphics->Recruit_Draw_HomeAway();
+
+	mImage->Save();
+
+	if (mVersion->mPlatform == ePlatform::Amiga) {
+		
+		//sub_A5A7E
+		uint8* a0 = word_3E1B7 + (29 * 40);
+
+		for (int16 d1 = 0xB7; d1 >= 0; --d1) {
+			uint8* a2 = a0 + 6;
+
+			for (int16 d0 = 0x10; d0 >= 0; --d0) {
+
+				writeBEWord( a2, 0 );
+				writeBEWord( a2 + 0x2800, 0 );
+				writeBEWord( a2 + 0x5000, 0 );
+				writeBEWord( a2 + 0x7800, 0 );
+				a2 += 2;
+			}
+
+			a0 += 0x28;
+		}
+	}
+
 	sub_17B64();
 	
 	if (mVersion->mPlatform == ePlatform::Amiga) {
@@ -4309,7 +4337,6 @@ void cFodder::Recruit_Show() {
 	
 	sub_17CD3();
 
-	mImage->Save();
 	mGraphics->PaletteSet();
 	mImage->paletteFade();
 
@@ -4355,31 +4382,6 @@ void cFodder::Recruit_Show() {
 	while( mImage->GetFaded() == false ) {
 		Recruit_Draw();
 	}
-}
-
-void cFodder::Recruit_Draw_HomeAway( ) {
-	const char* strHomeAndAway = "HOME                AWAY";
-	
-	mGraphics->SetSpritePtr( eSPRITE_HILL );
-
-	sub_13C1C( 0x18, 0, 0, 0 );
-	
-	int16 Data4 = word_3E0E5[ (mMissionNumber - 1) ];
-
-	sub_13C1C( 0x19, 0, Data4, 0x130 );
-	
-	String_CalculateWidth( 320, mUnkStringModifier_Recruit, strHomeAndAway );
-	String_Print( mUnkStringModifier_Recruit, 0x0D, word_3B301, 0x0A, strHomeAndAway );
-	
-	sub_13C1C( 0x0E, 0x0A, 0, 0x9B );
-	
-	std::string Home = tool_StripLeadingZero(tool_NumToString( word_397AE ));
-	sub_16B55( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
-
-	std::string Away = tool_StripLeadingZero(tool_NumToString( word_397AC ));
-	sub_16B55( 0x0D, 0xAA, 0x0A, Away );
-
-	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
 }
 
 void cFodder::sub_16B55(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString ) {
@@ -4846,8 +4848,14 @@ void cFodder::Recruit_Draw_Actors( ) {
 
 	word_42072 = 2;
 
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		((cGraphics_Amiga*)mGraphics)->mBMHDHill.mHeight = 0x101;
+
 	Recruit_Draw_Truck();
 	Recruit_Draw_Troops();
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		((cGraphics_Amiga*)mGraphics)->mBMHDHill.mHeight = 0x100;
 
 	bp = mouseData1;
 	bp->anonymous_0 = 0;
@@ -4985,13 +4993,19 @@ void cFodder::Recruit_Draw_Troops() {
 			Data0 = 9;
 
 		//loc_1784C
-		DataC -= 8;
-		if (Data0 != 9)
-			sub_13C1C( Data0, DataC, Data4, Data8 );
+		if (mVersion->mPlatform == ePlatform::PC) {
+			DataC -= 8;
+
+			if (Data0 != 9)
+				sub_13C1C( Data0, DataC, Data4, Data8 );
+			else {
+				++Data8;
+				--DataC;
+				sub_13C8A( Data0, Data4, Data8, DataC );
+			}
+		}
 		else {
-			++Data8;
-			--DataC;
-			sub_13C8A(  Data0, Data4, Data8, DataC );
+			sub_13C1C( Data0, DataC, Data4, Data8 );
 		}
 	}
 }
@@ -5198,10 +5212,13 @@ void cFodder::sub_17B64() {
 
 void cFodder::Recruit_Draw() {
 	Mouse_Inputs_Get();
-
+	
 	Recruit_Draw_Actors();
 	mGraphics->sub_144A2();
-	Recruit_Draw_HomeAway();
+
+	if (mVersion->mPlatform == ePlatform::PC)
+		mGraphics->Recruit_Draw_HomeAway();
+
 	Mouse_DrawCursor();
 	sub_13800();
 
