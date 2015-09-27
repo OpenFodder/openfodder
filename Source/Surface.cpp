@@ -145,7 +145,7 @@ int16 cSurface::paletteFade() {
 	int bx = 0;
 	mFaded = true;
 
-	for( int cx = 0x0; cx < 0x100; ++cx ) {
+	for( int cx = 0x0; cx < g_MaxColors; ++cx ) {
 
 		for( int i = 0; i < 3; ++i ) {
 			int8 al = mPaletteNew[cx].getPos(i);

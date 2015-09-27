@@ -41,6 +41,19 @@ const sStruct3_Amiga stru_A5BC0[] = {
 	{ -1 }
 };
 
+const sStruct0_Amiga stru_A918A[] = {
+	{ 0, 0x00, 5, 0x90 },
+	{ 0, 0x0A, 5, 0x90 },
+	{ 0, 0x14, 5, 0x90 },
+	{ 0, 0x1E, 5, 0x90 },
+	{ 0, 0x1680, 5, 0x90 },
+	{ 0, 0x168A, 5, 0x90 },
+	{ 0, 0x1694, 5, 0x90 },
+	{ 0, 0x1E, 5, 0x90 },
+	{ 1, 0x2170, 0xE, 0x1C },
+	{ 1, 0x1D10, 0xE, 0x1C },
+	{ 1, 0x2B6, 8, 0x16 },
+};
 
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = 0;
@@ -148,8 +161,18 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 	//PaletteLoad( Font, 0x0, 0x08 );
 	//delete[] Font;
 	SetSpritePtr( eSPRITE_FONT );
+}
 
-	
+void cGraphics_Amiga::Load_Service_Data() {
+	size_t Size = 0;
+	uint8* pstuff = g_Resource.fileGet( "rankfont.lbm", Size );
+
+	DecodeIFF( pstuff, mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
+	delete[] pstuff;
+
+	pstuff = g_Resource.fileGet( "morphbig.lbm", Size );
+	DecodeIFF( pstuff, mFodder->mDataBaseBlk, &mBMHDHill, mPalette );
+	delete[] pstuff;
 }
 
 void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pColors ) {
@@ -243,6 +266,10 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 
 	case eSPRITE_BRIEFING:
 		mFodder->Sprite_SetDataPtrToBase( off_A6DC8 );
+		return;
+
+	case eSPRITE_SERVICE:
+		mFodder->Sprite_SetDataPtrToBase( off_A91E2 );
 		return;
 	}
 }
@@ -427,7 +454,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
 
-			if (/*Tile > 0xE0 && Tile < 0xF0 ||*/ Tile > 0x1DF)
+			if (/*Tile > 0xE0 && Tile < 0xF0 ||*/ Tile > 0x1C0)
 				Tile = 0;
 
 			Tile <<= 7;
@@ -700,6 +727,59 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 		di += mFodder->word_42076;
 	}
 }
+
+void cGraphics_Amiga::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
+	uint8* SptPtr = (uint8*)mFodder->mMapSptPtr;
+
+	uint32* esi = (uint32*)(SptPtr + (0x30 * pData0));
+
+	if (pData8 == 0) {
+		for (int16 cx = pData4; cx > 0; --cx) {
+			*pData20++ = *(esi + 0);
+			*pData20++ = *(esi + 0x0c);
+			/**pData20++ = *(esi + 0x450);
+			*pData20++ = *(esi + 0x45C);
+			*pData20++ = *(esi + 0x468);
+			*pData20++ = *(esi + 0x474);
+			*pData20++ = *(esi + 0x480);
+			*pData20++ = *(esi + 0x48C);
+			*pData20++ = *(esi + 0x498);
+			*pData20++ = *(esi + 0x4A4);
+			*pData20++ = *(esi + 0x4B0);
+			*pData20++ = *(esi + 0x4BC);
+			*pData20++ = *(esi + 0x4C8);
+			*pData20++ = *(esi + 0x4D4);
+			*pData20++ = *(esi + 0x4E0);
+			*pData20++ = *(esi + 0x4EC);*/
+			//*pData20++ = *(esi + 0x4F8);
+			++esi;
+		}
+	}
+	else {
+		for (int16 cx = pData4; cx > 0; --cx) {
+			*(esi+0) = *pData20++;
+			*(esi+0x0c) = *pData20++;
+/*
+			*(esi+0x450) = *pData20++;
+			*(esi+0x45C) = *pData20++;
+			*(esi+0x468) = *pData20++;
+			*(esi+0x474) = *pData20++;
+			*(esi+0x480) = *pData20++;
+			*(esi+0x48C) = *pData20++;
+			*(esi+0x498) = *pData20++;
+			*(esi+0x4A4) = *pData20++;
+			*(esi+0x4B0) = *pData20++;
+			*(esi+0x4BC) = *pData20++;
+			*(esi+0x4C8) = *pData20++;
+			*(esi+0x4D4) = *pData20++;
+			*(esi+0x4E0) = *pData20++;
+			*(esi+0x4EC) = *pData20++;*/
+			//*(esi+0x4F8) = *pData20++;
+			++esi;
+		}
+	}
+}
+
 void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 	mFodder->word_42062 = mFodder->word_3E1B7 + (29 * 40) + 6;
 
@@ -735,6 +815,49 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
 
 	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AC ));
 	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
+}
+
+void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 ) {
+	
+	uint8*	di = mImage->GetSurfaceBuffer() + 16;
+
+	pD2 += 16;
+	di += mImage->GetWidth() * pD2;
+	di += pD1;
+
+	uint8* si = 0;
+	
+	if (stru_A918A[pD0].mField_0 == 0) {
+		si = mFodder->mDataBaseBlk;
+		mBMHD_Current = &mBMHDHill;
+	} 
+	else {
+		si = mFodder->mDataHillBits;
+		mBMHD_Current = &mBMHDCopt;
+	}
+
+	int16 d0 = stru_A918A[pD0].mField_4 << 1;
+	mFodder->word_42074 = 40 - d0;
+	mFodder->word_42076 = mImage->GetWidth() - (d0 * 8);
+	mFodder->byte_42070 = 0;
+
+	si += stru_A918A[pD0].mField_1;
+
+	// Height
+	for (int16 dx = stru_A918A[pD0].mField_6; dx > 0; --dx) {
+
+		// Width
+		for (int16 cx = 0; cx < stru_A918A[pD0].mField_4; ++cx) {
+
+			DrawPixels_16( si, di );
+
+			di += 16;
+			si += 2;
+		}
+
+		si += mFodder->word_42074;
+		di += mFodder->word_42076;
+	}
 }
 
 void cGraphics_Amiga::Briefing_Load_Resources() {

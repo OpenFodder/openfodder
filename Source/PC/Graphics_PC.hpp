@@ -25,6 +25,8 @@ const extern sSpriteSheet* mSpriteSheetPtr_Font_PC[];
 const extern sSpriteSheet* mHillSpriteSheetPtr_PC[];
 const extern sSpriteSheet* off_35E42[];
 const extern sSpriteSheet* off_42918[];
+const extern sSpriteSheet* off_43963[];
+
 const extern uint8 mUnkStringModifier_Recruit[];
 
 class cGraphics_PC : public cGraphics {
@@ -39,6 +41,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
+	virtual void		Load_Service_Data();
 
 	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors );
 
@@ -55,6 +58,8 @@ class cGraphics_PC : public cGraphics {
 
 	virtual void		sub_144A2( int16 pStartY );
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
+
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 	
 	virtual void		Briefing_Load_Resources();

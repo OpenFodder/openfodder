@@ -92,6 +92,10 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 		case eSPRITE_BRIEFING:
 			mFodder->Sprite_SetDataPtrToBase( off_42918 );
 			return;
+
+		case eSPRITE_SERVICE:
+			mFodder->Sprite_SetDataPtrToBase( off_43963 );
+			return;
 	}
 }
 
@@ -118,6 +122,15 @@ void cGraphics_PC::Load_Hill_Data() {
 
 	g_Resource.fileLoadTo( "hillbits.dat", mFodder->mDataHillBits );
 	PaletteLoad( mFodder->mDataHillBits + 0x6900, 0x10, 0xB0 );
+}
+
+void cGraphics_PC::Load_Service_Data() {
+	
+	g_Resource.fileLoadTo( "rankfont.dat", mFodder->mDataHillBits );
+	PaletteLoad( mFodder->mDataHillBits + 0xA000, 0x80, 0x40 );
+
+	g_Resource.fileLoadTo( "morphbig.dat", mFodder->mDataBaseBlk );
+	PaletteLoad( mFodder->mDataBaseBlk + 0xFA00, 0x40, 0x00 );
 }
 
 void cGraphics_PC::graphicsBlkPtrsPrepare() {
@@ -551,6 +564,58 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	}
 
 }
+
+void cGraphics_PC::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
+	pData0 += 0x18;
+
+	uint8* SptPtr = (uint8*)mFodder->mMapSptPtr;
+
+	if (pData8 == 0) {
+		uint32* esi = (uint32*)(SptPtr + (0x0C * pData0));
+
+		for (int16 cx = pData4; cx > 0; --cx) {
+			*pData20++ = *esi;
+			*pData20++ = *(esi + 0x258);
+			*pData20++ = *(esi + 0x4B0);
+			*pData20++ = *(esi + 0x708);
+			++esi;
+
+			*pData20++ = *esi;
+			*pData20++ = *(esi + 0x258);
+			*pData20++ = *(esi + 0x4B0);
+			*pData20++ = *(esi + 0x708);
+			++esi;
+
+			*pData20++ = *esi;
+			*pData20++ = *(esi + 0x258);
+			*pData20++ = *(esi + 0x4B0);
+			*pData20++ = *(esi + 0x708);
+			++esi;
+		}
+	}
+	else {
+		uint32* edi = (uint32*)(SptPtr + (0x0C * pData0));
+
+		for (int16 cx = pData4; cx > 0; --cx) {
+			*edi = *pData20++;
+			*(edi+0x258) = *pData20++;
+			*(edi+0x4B0) = *pData20++;
+			*(edi+0x708) = *pData20++;
+			++edi;
+			*edi = *pData20++;
+			*(edi+0x258) = *pData20++;
+			*(edi+0x4B0) = *pData20++;
+			*(edi+0x708) = *pData20++;
+			++edi;
+			*edi = *pData20++;
+			*(edi+0x258) = *pData20++;
+			*(edi+0x4B0) = *pData20++;
+			*(edi+0x708) = *pData20++;
+			++edi;
+		}
+	}
+}
+
 void cGraphics_PC::Recruit_Draw_Hill( ) {
 
 	mFodder->word_42062 = mFodder->word_3E1B7 + 0xA00;

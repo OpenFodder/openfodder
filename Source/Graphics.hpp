@@ -26,6 +26,7 @@ enum eSpriteType {
 	eSPRITE_HILL	= 2,
 	eSPRITE_HILL_UNK = 3,
 	eSPRITE_BRIEFING = 4,
+	eSPRITE_SERVICE = 5
 };
 
 class cFodder;
@@ -45,6 +46,7 @@ public:
 	virtual void		LoadpStuff() = 0;
 	virtual void		Load_Sprite_Font() = 0;
 	virtual void		Load_Hill_Data() = 0;
+	virtual void		Load_Service_Data() = 0;
 
 	virtual void		graphicsBlkPtrsPrepare() = 0;
 	
@@ -67,9 +69,11 @@ public:
 
 	virtual void		sub_144A2( int16 pStartY = 0 ) = 0;
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
+	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 ) = 0;
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) = 0;
 
 	virtual void		Briefing_Load_Resources() = 0;
+
 	virtual void		Recruit_Draw_Hill() = 0;
 	virtual void		Recruit_Draw_HomeAway() = 0;
 };
