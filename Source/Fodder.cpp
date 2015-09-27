@@ -3148,7 +3148,6 @@ void cFodder::VersionSelect() {
 	mMouseSpriteNew = 0x24;
 
 	for( ;; ) {	
-		Sprite_Handle_Turret( Sprite3 );
 		Sprite_Sort_DrawList();
 		Sprite_Draw();
 
@@ -4596,8 +4595,6 @@ void cFodder::Recruit_Show() {
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		mGraphics->Recruit_Draw_HomeAway();
 
-	mImage->Save();
-
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		
 		//sub_A5A7E
@@ -4625,11 +4622,11 @@ void cFodder::Recruit_Show() {
 		
 		((cGraphics_Amiga*)mGraphics)->sub_A5B46();
 	}
-
+	
 	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
 	
 	sub_17CD3();
-
+	mImage->Save();
 	mGraphics->PaletteSet();
 	mImage->paletteFade();
 
