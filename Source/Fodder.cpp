@@ -4591,12 +4591,10 @@ void cFodder::Recruit_Show() {
 	sub_16C6C();
 	Recruit_Render_LeftMenu();
 	mGraphics->Recruit_Draw_Hill();
-	
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		mGraphics->Recruit_Draw_HomeAway();
 
 	if (mVersion->mPlatform == ePlatform::Amiga) {
-		
+		mGraphics->Recruit_Draw_HomeAway();
+
 		//sub_A5A7E
 		uint8* a0 = word_3E1B7 + (29 * 40);
 
@@ -4626,9 +4624,10 @@ void cFodder::Recruit_Show() {
 	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
 	
 	sub_17CD3();
-	mImage->Save();
+	
 	mGraphics->PaletteSet();
 	mImage->paletteFade();
+	mImage->Save();
 
 	word_3BEC1 = 0;
 	word_3BEC3 = 0x1D;
@@ -21014,7 +21013,7 @@ void cFodder::Mission_Sidebar_Rockets_Draw( ) {
 	Data10 = 0xAF;
 	if (!word_3AC47) {
 	loc_2FB8A:;
-		Data10 = 0xB8;
+		Data10 = 0xB9;
 	}
 
 	sub_302DE( Data0, Data4, Data8, DataC, Data10 );
