@@ -26,6 +26,7 @@ struct sMissionData {
 	const uint16*	mMissionPhases;
 };
 
-extern const sMissionData mMissionData_AmigaFormat;
-extern const sMissionData mMissionData_Retail;
-extern const char*	mMissionGoals[];
+extern const sMissionData	mMissionData_AmigaFormat;
+extern const sMissionData	mMissionData_Retail;
+extern const char*			mMissionGoals[];
+extern const std::string	mMapTypes[];

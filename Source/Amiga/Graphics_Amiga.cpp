@@ -45,7 +45,7 @@ const sStruct3_Amiga stru_A5BC0[] = {
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = 0;
 
-	memset( &mPalette, 0, 0x40 );
+	memset( &mPalette, 0, 0x60 );
 	memset( &mPaletteArmy, 0, 0x10 );
 	memset( &mPaletteCopt, 0, 0x10 );
 	memset( &mPalletePStuff, 0, 0x10 );
@@ -239,6 +239,10 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 
 	case eSPRITE_HILL_UNK:
 		mFodder->Sprite_SetDataPtrToBase( off_90F10 );
+		return;
+
+	case eSPRITE_BRIEFING:
+		mFodder->Sprite_SetDataPtrToBase( off_A6DC8 );
 		return;
 	}
 }
@@ -621,7 +625,7 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	}
 }
 
-void cGraphics_Amiga::sub_144A2() {
+void cGraphics_Amiga::sub_144A2( int16 pStartY ) {
 
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*)mFodder->mMapSptPtr;
@@ -631,12 +635,16 @@ void cGraphics_Amiga::sub_144A2() {
 	mFodder->word_42066 = Buffer;
 
 	Buffer = mFodder->word_42066;
+	if (pStartY) {
+		Buffer += (mImage->GetWidth() * pStartY);
+		si += (0x30 * pStartY);
+	}
 
-	for (unsigned int Y = 0; Y < 230; ++Y) {
+	for (unsigned int Y = 0; Y < 250; ++Y) {
 
 		for (unsigned int X = 0; X < 0x30; X++) {
 
-			if (si >= ((uint8*)mFodder->mMapSptPtr) + (0x258 * 16))
+			if (si >= ((uint8*)mFodder->mMapSptPtr) + (0x300 * 16))
 				Buffer[X] = 0;
 			else
 				Buffer[X] = *si++;
@@ -713,9 +721,11 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
 	mFodder->sub_13C1C( 0x11, 0, 0, 0xfe );
 	int16 Data4 = mFodder->word_3E0E5[ (mFodder->mMissionNumber - 1) ];
 
-	mFodder->sub_13C1C( 0x16, 0, 0, 0 );
+	mFodder->sub_13C1C( 0x16, 0, 0x0, 0x0 );
 	
 	mFodder->sub_13C1C( 0x17, 0, Data4, 0x130 );
+
+	mFodder->sub_13C1C( 0xE, 0x0A, 0, 0x9B );
 
 	mFodder->String_CalculateWidth( 320, mUnkStringModifier_Recruit, strHomeAndAway );
 	mFodder->String_Print( mUnkStringModifier_Recruit, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
@@ -725,6 +735,49 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
 
 	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AC ));
 	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
+}
+
+void cGraphics_Amiga::Briefing_Load_Resources() {
+	std::string MapName = mFodder->map_Filename_MapGet();
+	std::string JunData1 = "play.lbm";
+	std::string JunData2 = "sky.pl8";
+	std::string JunData3 = "mid.pl8";
+	std::string JunData4 = "fgnd.pl8";
+	std::string JunData5 = "fgn2.pl8";
+	std::string JunData6 = "heli.pal";
+
+	g_Resource.fileLoadTo( MapName, mFodder->mMap );
+
+	mFodder->map_SetTileType();
+
+	JunData1.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData2.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData3.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData4.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData5.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData6.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+
+	size_t Size = 0;
+	uint8* Data = g_Resource.fileGet( JunData2, Size );
+	PaletteLoad( Data, 0x00, 16 );
+	delete[] Data;
+
+	Data = g_Resource.fileGet( JunData3, Size );
+	PaletteLoad( Data, 0x10, 16 );
+	delete[] Data;
+
+	Data = g_Resource.fileGet( JunData4, Size );
+	PaletteLoad( Data, 0x20, 16 );
+	delete[] Data;
+
+	Data = g_Resource.fileGet( JunData5, Size );
+	PaletteLoad( Data, 0x30, 16 );
+	delete[] Data;
+
+	Data = g_Resource.fileGet( JunData6, Size );
+	PaletteLoad( Data, 0x40, 16 );
+	delete[] Data;
+
 }
 
 void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* a0 ) {

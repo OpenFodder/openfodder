@@ -24,6 +24,7 @@ const extern sSpriteSheet* off_32C0C[];
 const extern sSpriteSheet* mSpriteSheetPtr_Font_PC[];
 const extern sSpriteSheet* mHillSpriteSheetPtr_PC[];
 const extern sSpriteSheet* off_35E42[];
+const extern sSpriteSheet* off_42918[];
 const extern uint8 mUnkStringModifier_Recruit[];
 
 class cGraphics_PC : public cGraphics {
@@ -52,10 +53,11 @@ class cGraphics_PC : public cGraphics {
 	virtual void		video_Draw_Linear();
 	virtual void		video_Draw_Sprite();
 
-	virtual void		sub_144A2();
+	virtual void		sub_144A2( int16 pStartY );
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
-
+	
+	virtual void		Briefing_Load_Resources();
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();
 };

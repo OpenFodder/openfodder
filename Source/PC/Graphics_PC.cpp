@@ -88,6 +88,10 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 		case eSPRITE_HILL_UNK:
 			mFodder->Sprite_SetDataPtrToBase( off_35E42 );
 			return;
+		
+		case eSPRITE_BRIEFING:
+			mFodder->Sprite_SetDataPtrToBase( off_42918 );
+			return;
 	}
 }
 
@@ -404,7 +408,7 @@ void cGraphics_PC::video_Draw_Sprite() {
 	}
 }
 
-void cGraphics_PC::sub_144A2( ) {
+void cGraphics_PC::sub_144A2( int16 pStartY ) {
 	
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mFodder->mMapSptPtr;
@@ -589,6 +593,49 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	SetSpritePtr( eSPRITE_HILL_UNK );
 }
 
+void cGraphics_PC::Briefing_Load_Resources() {
+	std::string MapName = mFodder->map_Filename_MapGet();
+	std::string JunData1 = "p1.dat";
+	std::string JunData2 = "p2.dat";
+	std::string JunData3 = "p3.dat";
+	std::string JunData4 = "p4.dat";
+	std::string JunData5 = "p5.dat";
+
+	g_Resource.fileLoadTo( MapName, mFodder->mMap );
+
+	mFodder->map_SetTileType();
+
+	JunData1.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData2.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData3.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData4.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData5.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+
+	mFodder->mDataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mFodder->mDataBaseBlk );
+	mFodder->word_42861 = mFodder->mDataBaseBlk;
+	mFodder->word_4286D = mFodder->mDataBaseBlkSize;
+
+	g_Resource.fileLoadTo( JunData2, mFodder->mDataSubBlk );
+	mFodder->word_42863 = mFodder->mDataSubBlk;
+	
+	g_Resource.fileLoadTo( JunData3, mFodder->mDataHillBits );
+	mFodder->word_42865 = mFodder->mDataHillBits;
+
+	g_Resource.fileLoadTo( JunData4, mFodder->mDataArmy );
+	mFodder->word_42867 = mFodder->mDataArmy;
+
+	g_Resource.fileLoadTo( JunData5, mFodder->mDataPStuff );
+	mFodder->word_42869 = mFodder->mDataPStuff;
+
+	g_Resource.fileLoadTo( "paraheli.dat", (uint8*) mFodder->mMapSptPtr );
+	mFodder->word_4286B = mFodder->mMapSptPtr;
+
+	uint8* si = ((uint8*)mFodder->mMapSptPtr) + 0xF00;
+	si += 0x30 * mFodder->mMap_TileSet;
+
+	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlkSize) - 0x60, si, 0x30 );
+	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlkSize) - 0x30, mFodder->mDataPStuff + 0xA000, 0x30 );
+}
 
 void cGraphics_PC::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
 	pData0 &= 0xFFFF;

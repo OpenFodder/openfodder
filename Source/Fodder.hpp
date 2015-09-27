@@ -839,8 +839,6 @@ public:
 
 	void			sub_15DF0( );
 	void			Briefing_Draw_MissionName( );
-	
-	void			Briefing_Load_Resources();
 
 	/* Recruitment */
 	void			Recruit_Show();

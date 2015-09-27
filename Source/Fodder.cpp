@@ -28,16 +28,6 @@
 
 #define INVALID_SPRITE_PTR (sSprite_0*) -1
 
-std::string mMapTypes[] = {
-	"jun",
-	"des",
-	"ice",
-	"mor",
-	"int",
-	"hid",
-	"afx"		// Amiga Format Christmas Special
-};
-
 const struct_6 mCoverDisk_Buttons[] = {
 	{ &cFodder::sub_2EAC2, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::sub_2EAC3 },
 	{ &cFodder::sub_2EAC2, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
@@ -3283,8 +3273,8 @@ void cFodder::Prepare( ) {
 	mMap = new uint8[0x346 * 16];
 	mDataHillBits = new uint8[0xD5A * 16];
 	mDataArmy = new uint8[0xD50 * 16];
-	word_3BDAD = (uint16*) new uint8[0x258 * 16];
-	mMapSptPtr = (uint16*) new uint8[0x258 * 16];
+	word_3BDAD = (uint16*) new uint8[0x400 * 16];
+	mMapSptPtr = (uint16*) new uint8[0x400 * 16];
 	word_3D5B7 = mMapSptPtr;
 
 	Load_File("setup.dat");
@@ -4113,7 +4103,10 @@ void cFodder::sub_15CE8(  uint8* pDs, int16 pCx ) {
 
 void cFodder::Briefing_Intro() {
 
-	Briefing_Load_Resources();
+	mGraphics->Briefing_Load_Resources();
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		return;
+
 	Sprite_SetDataPtrToBase( off_42918 );
 	Music_Play( 0x07 );
 	sub_136D0();
@@ -4123,6 +4116,7 @@ void cFodder::Briefing_Intro() {
 	mImage->clearBuffer();
 	sub_15DF0();
 
+	//TODO
 	switch (mMap_TileSet) {
 	case 0:
 		Briefing_Intro_Jungle();
@@ -4146,50 +4140,6 @@ void cFodder::Briefing_Intro() {
 	}
 
 	mGraphics->LoadpStuff();
-}
-
-void cFodder::Briefing_Load_Resources() {
-	std::string MapName = map_Filename_MapGet();
-	std::string JunData1 = "p1.dat";
-	std::string JunData2 = "p2.dat";
-	std::string JunData3 = "p3.dat";
-	std::string JunData4 = "p4.dat";
-	std::string JunData5 = "p5.dat";
-
-	g_Resource.fileLoadTo( MapName, mMap );
-
-	map_SetTileType();
-
-	JunData1.insert( 0, mMapTypes[mMap_TileSet] );
-	JunData2.insert( 0, mMapTypes[mMap_TileSet] );
-	JunData3.insert( 0, mMapTypes[mMap_TileSet] );
-	JunData4.insert( 0, mMapTypes[mMap_TileSet] );
-	JunData5.insert( 0, mMapTypes[mMap_TileSet] );
-
-	mDataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mDataBaseBlk );
-	word_42861 = mDataBaseBlk;
-	word_4286D = mDataBaseBlkSize;
-
-	g_Resource.fileLoadTo( JunData2, mDataSubBlk );
-	word_42863 = mDataSubBlk;
-	
-	g_Resource.fileLoadTo( JunData3, mDataHillBits );
-	word_42865 = mDataHillBits;
-
-	g_Resource.fileLoadTo( JunData4, mDataArmy );
-	word_42867 = mDataArmy;
-
-	g_Resource.fileLoadTo( JunData5, mDataPStuff );
-	word_42869 = mDataPStuff;
-
-	g_Resource.fileLoadTo( "paraheli.dat", (uint8*) mMapSptPtr );
-	word_4286B = mMapSptPtr;
-
-	uint8* si = ((uint8*)mMapSptPtr) + 0xF00;
-	si += 0x30 * mMap_TileSet;
-
-	memcpy( (word_42861 + mDataBaseBlkSize) - 0x60, si, 0x30 );
-	memcpy( (word_42861 + mDataBaseBlkSize) - 0x30, mDataPStuff + 0xA000, 0x30 );
 }
 
 void cFodder::sub_15DF0( ) {
@@ -4540,11 +4490,17 @@ void cFodder::Recruit_Render_LeftMenu() {
 	mGraphics->sub_145AF( Data0, Data8, DataC );
 	
 	Data14 = mMapPlayerTroopCount + mSquadMemberCount;
-	Data14 /= 0x0C;
+	Data14 *= 0x0C;
 	DataC = 0x58;
 	Data14 += DataC;
 
-	// Draw Used Slot into Temporary Area
+	int16 Final = 0;
+	if (mVersion->mPlatform == ePlatform::PC)
+		Final = 0xA0;
+	else
+		Final = 0xB8;
+
+	// Draw Used Slot
 	do {
 		Data0 = 0xA9;
 		if( DataC >= Data14 )
@@ -4554,7 +4510,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 		mGraphics->sub_145AF( Data0, Data8, DataC + 0x18 );
 		DataC += 0x0C;
 		
-	} while( DataC < 0xA0 );
+	} while( DataC < Final );
 
 	word_3BEC9 = 0xB8;
 	word_3AA55 = 0x0F;
@@ -4767,8 +4723,15 @@ void cFodder::sub_17368() {
 	//seg003:2532
 	*Data24 = -1;
 	int16 DataC = 0x58;
+	int16 Data4 = 0;
+	
+	// Empty Slots
+	if (mVersion->mPlatform == ePlatform::PC)
+		Data4 = 5;
+	else
+		Data4 = 7;
 
-	for (int16 Data4 = 5; Data4 >= 0; --Data4) {
+	for (; Data4 >= 0; --Data4) {
 		mGraphics->sub_145AF( 0xAC, 0, DataC + 0x18 );
 
 		DataC += 0x0C;
@@ -5214,7 +5177,7 @@ void cFodder::Recruit_Draw() {
 	Mouse_Inputs_Get();
 	
 	Recruit_Draw_Actors();
-	mGraphics->sub_144A2();
+	mGraphics->sub_144A2(0x18);
 
 	if (mVersion->mPlatform == ePlatform::PC)
 		mGraphics->Recruit_Draw_HomeAway();
@@ -8439,19 +8402,25 @@ int16 cFodder::tool_RandomGet() {
 }
 
 void cFodder::Mission_Sidebar_MapButton_Render() {
-	
+
 	if (word_3B4D9)
 		return;
-
-	mGraphics->sub_145AF( 0xD0, 0, 0xBD );
 
 	struct_6* Data20 = dword_3AEF3;
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;
 	Data20->field_6 = 0x2F;
-	Data20->field_8 = 0xBD;
 	Data20->field_A = 0x0B;
 	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;
+
+	if (mVersion->mPlatform == ePlatform::PC) {
+		Data20->field_8 = 0xBD;
+		mGraphics->sub_145AF( 0xD0, 0, 0xBD );
+	}
+	else {
+		Data20->field_8 = 212;
+		mGraphics->sub_145AF( 0xD0, 0, 212 );
+	}
 	++Data20;
 
 	sub_2ECC7( Data20 );
@@ -11083,7 +11052,7 @@ void cFodder::video_Draw_Unk_2( ) {
 
 void cFodder::map_ClearSpt() {
 	
-	for (uint16 cx = 0; cx < 4800; ++cx )
+	for (uint16 cx = 0; cx < 0x2000; ++cx )
 		word_3D5B7[cx] = 0;
 }
 
@@ -11131,7 +11100,7 @@ void cFodder::Briefing_Prepare() {
 	mImage->paletteSet( mPalette );
 
 	sub_136D0();
-	Sprite_SetDataPtrToBase( off_42918 );
+	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	word_3A01A = 0x2C;
 
 	Briefing_Draw_MissionName( );
@@ -11148,7 +11117,7 @@ void cFodder::Briefing_Prepare() {
 void cFodder::Briefing_Wait() {
 	mImage->paletteSet( mPalette, 0, true );
 
-	Sprite_SetDataPtrToBase( off_42918 );
+	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 
 	word_3A01A = 0x2C;
 	Briefing_Draw_MissionName( );
@@ -17823,7 +17792,7 @@ void cFodder::intro_LegionMessage() {
 		}
 
 		eventProcess();
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 	}
 }
@@ -21135,7 +21104,7 @@ loc_30409:;
 
 void cFodder::sub_30465() {
 
-	for (int16 cx = 0; cx < 0x12C0; ++cx){
+	for (int16 cx = 0; cx < 0x2000; ++cx){
 		word_3BDAD[cx] = mMapSptPtr[cx];
 	}
 
@@ -21144,7 +21113,7 @@ void cFodder::sub_30465() {
 
 void cFodder::sub_30480() {
 
-	for (int16 cx = 0; cx < 0x12C0; ++cx){
+	for (int16 cx = 0; cx < 0x2000; ++cx){
 		mMapSptPtr[cx] = word_3BDAD[cx];
 	}
 

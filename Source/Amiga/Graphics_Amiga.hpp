@@ -24,6 +24,7 @@ const extern sSpriteSheet* off_8BFB8[];
 const extern sSpriteSheet* mSpriteSheetPtr_Font_Amiga[];
 const extern sSpriteSheet* mHillSpriteSheetPtr_Amiga[];
 const extern sSpriteSheet* off_90F10[];
+const extern sSpriteSheet* off_A6DC8[];
 
 struct sILBM_BMHD {
 	uint16	mWidth, mHeight;
@@ -47,7 +48,7 @@ struct sStruct3_Amiga {
 class cGraphics_Amiga : public cGraphics {
 public:
 	uint8*				mBlkData;
-	uint16				mPalette[0x40];
+	uint16				mPalette[0x60];
 	uint16				mPaletteArmy[0x10];
 	uint16				mPaletteCopt[0x10];
 	uint16				mPalletePStuff[0x10];
@@ -98,10 +99,11 @@ public:
 
 	virtual void		SetSpritePtr( eSpriteType pSpriteType );
 
-	virtual void		sub_144A2();
+	virtual void		sub_144A2( int16 pStartY );
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 
+	virtual void		Briefing_Load_Resources();
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();
 };

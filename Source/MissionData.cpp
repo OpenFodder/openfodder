@@ -21,6 +21,16 @@
  */
 #include "stdafx.hpp"
 
+const std::string mMapTypes[] = {
+	"jun",
+	"des",
+	"ice",
+	"mor",
+	"int",
+	"hid",
+	"afx"		// Amiga Format Christmas Special
+};
+
 const uint16 mRetail_MissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
 												02, 05, 03, 06, 01, 03, 03, 02,
 												01, 05, 01, 04, 01, 04, 05, 06 };
