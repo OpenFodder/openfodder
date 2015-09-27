@@ -2862,7 +2862,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 	if (pKeyCode == SDL_SCANCODE_ESCAPE)
 		word_3A9B2 = -1;
 
-	if (pKeyCode == SDL_SCANCODE_SPACE)
+	if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
 		++word_3A9B4;
 
 	if (pKeyCode == SDL_SCANCODE_M) {
