@@ -4455,7 +4455,7 @@ void cFodder::Briefing_Intro() {
 	sub_136D0();
 
 	sub_15DF0();
-	//video_unk_0_1();
+
 	mImage->clearBuffer();
 	sub_15DF0();
 
@@ -4552,7 +4552,7 @@ void cFodder::AFX_Show() {
 		if (mImage->GetFaded() == false )
 			mImage->paletteFade();
 
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 		mImage->Restore(); 
 	}
@@ -4560,7 +4560,7 @@ void cFodder::AFX_Show() {
 	mImage->paletteFadeOut();
 	
 	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 		mImage->paletteFade();
 	}
