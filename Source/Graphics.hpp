@@ -25,7 +25,7 @@ enum eSpriteType {
 	eSPRITE_FONT	= 1,
 	eSPRITE_HILL	= 2,
 	eSPRITE_HILL_UNK = 3,
-
+	eSPRITE_BRIEFING = 4,
 };
 
 class cFodder;
@@ -65,10 +65,11 @@ public:
 	virtual void		SetImage( cSurface* pImage );
 	virtual void		SetImageOriginal();
 
-	virtual void		sub_144A2() = 0;
+	virtual void		sub_144A2( int16 pStartY = 0 ) = 0;
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) = 0;
 
+	virtual void		Briefing_Load_Resources() = 0;
 	virtual void		Recruit_Draw_Hill() = 0;
 	virtual void		Recruit_Draw_HomeAway() = 0;
 };
