@@ -826,7 +826,10 @@ public:
 	void			Briefing_Intro();
 
 	void			Briefing_Intro_Jungle();
-
+	void			sub_15397();
+	void			sub_151C6();
+	void			sub_15568();
+	void			sub_15739();
 
 	void			sub_1590B( );
 	void			sub_1594F( );
@@ -853,7 +856,6 @@ public:
 	void			Recruit_Render_HeroList();
 	void			sub_17368();
 	void			sub_17429();
-	void			sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
 	void			Recruit_Draw_Actors( );
 	void			sub_175C0();
 	void			Recruit_Draw_Troops();

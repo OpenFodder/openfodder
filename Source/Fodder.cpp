@@ -3903,6 +3903,350 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	} while (word_428D8 || mImageFaded != 0);
 }
 
+void cFodder::sub_15397() {
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	word_42062 = (uint8*) word_4286B;
+
+	byte_42070 = 0xE0;
+
+
+	sub_1590B();
+
+	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+
+	mImage->paletteSet( mPalette );
+
+	mImageFaded = -1;
+
+	do {
+		if (word_428D6 == -1)
+			sub_159A6();
+
+		if( mImageFaded == -1 )
+			mImageFaded = mImage->paletteFade();
+
+		// Clouds
+		word_42859 = 0x3A;
+		word_4285B = 0x0C64 * 4;
+		sub_15B86( word_42867, word_42875 );
+
+		word_42859 = 0x4C;
+		word_4285B = 0x139C * 4;
+		sub_15A36( word_42865, word_42873 );
+
+		word_42859 = 0x30;
+		word_4285B = 0x1CE4 * 4;
+		sub_15A36( word_42863 , word_42871 );
+
+		// Trees (Main)
+		word_42859 = 0x40;
+		word_4285B = 0x2D64 * 4;
+		sub_15B86( word_42869, word_42871 );
+
+		word_42062 = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+
+		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
+		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
+		word_4206C = 0x40;
+		word_4206E = 0x18;
+		if (Sprite_OnScreen_Check())
+			mGraphics->video_Draw_Sprite();
+
+		word_42859 = 0x30;
+		word_4285B = 0x32E4 * 4;
+		sub_15A36( word_42861, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		videoSleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mouse_GetData();
+		if (mouse_Button_Status) {
+			word_428D8 = 0;
+			mImage->paletteFadeOut();
+			mImageFaded = -1;
+		}
+	} while (word_428D8 || mImageFaded != 0);
+}
+
+void cFodder::sub_151C6() {
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	word_42062 = (uint8*) word_4286B;
+
+	byte_42070 = 0xE0;
+
+
+	sub_1590B();
+
+	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+
+	mImage->paletteSet( mPalette );
+
+	mImageFaded = -1;
+
+	do {
+		if (word_428D6 == -1)
+			sub_159A6();
+
+		if( mImageFaded == -1 )
+			mImageFaded = mImage->paletteFade();
+
+		// Clouds
+		word_42859 = 0x24;
+		word_4285B = 0x0C64 * 4;
+		sub_15B86( word_42867, word_42875 );
+
+		word_42859 = 0x42;
+		word_4285B = 0x102C * 4;
+		sub_15A36( word_42865, word_42873 );
+
+		word_42859 = 0x18;
+		word_4285B = 0x1CE4 * 4;
+		sub_15A36( word_42863 , word_42871 );
+
+		// Trees (Main)
+		word_42859 = 0x58;
+		word_4285B = 0x2524 * 4;
+		sub_15B86( word_42869, word_42871 );
+
+		word_42062 = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+
+		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
+		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
+		word_4206C = 0x40;
+		word_4206E = 0x18;
+		if (Sprite_OnScreen_Check())
+			mGraphics->video_Draw_Sprite();
+
+		word_42859 = 0x2E;
+		word_4285B = 0x3394 * 4;
+		sub_15A36( word_42861, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		videoSleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mouse_GetData();
+		if (mouse_Button_Status) {
+			word_428D8 = 0;
+			mImage->paletteFadeOut();
+			mImageFaded = -1;
+		}
+	} while (word_428D8 || mImageFaded != 0);
+}
+
+void cFodder::sub_15568() {
+		int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	word_42062 = (uint8*) word_4286B;
+
+	byte_42070 = 0xE0;
+
+
+	sub_1590B();
+
+	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+
+	mImage->paletteSet( mPalette );
+
+	mImageFaded = -1;
+
+	do {
+		if (word_428D6 == -1)
+			sub_159A6();
+
+		if( mImageFaded == -1 )
+			mImageFaded = mImage->paletteFade();
+
+		// Clouds
+		word_42859 = 0x1D;
+		word_4285B = 0x0C64 * 4;
+		sub_15B86( word_42867, word_42875 );
+
+		word_42859 = 0x40;
+		word_4285B = 0x1134 * 4;
+		sub_15A36( word_42865, word_42873 );
+
+		word_42859 = 0x6;
+		word_4285B = 0x2524 * 4;
+		sub_15A36( word_42863 , word_42871 );
+
+		// Trees (Main)
+		word_42859 = 0x52;
+		word_4285B = 0x2734 * 4;
+		sub_15B86( word_42869, word_42871 );
+
+		word_42062 = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+
+		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
+		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
+		word_4206C = 0x40;
+		word_4206E = 0x18;
+		if (Sprite_OnScreen_Check())
+			mGraphics->video_Draw_Sprite();
+
+		word_42859 = 0x30;
+		word_4285B = 0x32E4 * 4;
+		sub_15A36( word_42861, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		videoSleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mouse_GetData();
+		if (mouse_Button_Status) {
+			word_428D8 = 0;
+			mImage->paletteFadeOut();
+			mImageFaded = -1;
+		}
+	} while (word_428D8 || mImageFaded != 0);
+}
+
+void cFodder::sub_15739() {
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	word_42062 = (uint8*) word_4286B;
+
+	byte_42070 = 0xE0;
+
+
+	sub_1590B();
+
+	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+
+	mImage->paletteSet( mPalette );
+
+	mImageFaded = -1;
+
+	do {
+		if (word_428D6 == -1)
+			sub_159A6();
+
+		if( mImageFaded == -1 )
+			mImageFaded = mImage->paletteFade();
+
+		// Clouds
+		word_42859 = 0x40;
+		word_4285B = 0x0C64 * 4;
+		sub_15B86( word_42867, word_42875 );
+
+		word_42859 = 0x2F;
+		word_4285B = 0x16B4 * 4;
+		sub_15A36( word_42865, word_42873 );
+
+		word_42859 = 0x22;
+		word_4285B = 0x1B2C * 4;
+		sub_15A36( word_42863 , word_42871 );
+
+		// Trees (Main)
+		word_42859 = 0x53;
+		word_4285B = 0x26DC * 4;
+		sub_15B86( word_42869, word_42871 );
+
+		word_42062 = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+
+		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
+		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
+		word_4206C = 0x40;
+		word_4206E = 0x18;
+		if (Sprite_OnScreen_Check())
+			mGraphics->video_Draw_Sprite();
+
+		word_42859 = 0x23;
+		word_4285B = 0x375C * 4;
+		sub_15A36( word_42861, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		videoSleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mouse_GetData();
+		if (mouse_Button_Status) {
+			word_428D8 = 0;
+			mImage->paletteFadeOut();
+			mImageFaded = -1;
+		}
+	} while (word_428D8 || mImageFaded != 0);
+}
+
 void cFodder::sub_1590B( ) {
 	mHelicopterPosX = 0x01500000;
 	mHelicopterPosY = 0x00260000;
@@ -4116,26 +4460,25 @@ void cFodder::Briefing_Intro() {
 	mImage->clearBuffer();
 	sub_15DF0();
 
-	//TODO
 	switch (mMap_TileSet) {
 	case 0:
 		Briefing_Intro_Jungle();
 		break;
 
 	case 1:
-		//sub_15397();
+		sub_15397();
 		break;
 
 	case 2:
-		//sub_151C6();
+		sub_151C6();
 		break;
 
 	case 3:
-		//sub_15568();
+		sub_15568();
 		break;
 
 	case 4:
-		//sub_15739();
+		sub_15739();
 		break;
 	}
 
@@ -4712,12 +5055,18 @@ void cFodder::sub_17368() {
 	uint32* Data20 = (uint32*) mDataArmy;
 
 	uint64* Data24 = (uint64*) mDataSubBlk;
-
-	for ( int16 Data0 = 0x58; Data0 < 0xA0; Data0 += 0x0C) {
+	int16 Data0 = 0x58;
+	
+	if (mVersion->mPlatform == ePlatform::PC)
+		Data0 = 0x58;
+	else
+		Data0 = 0x44;
+		
+	for ( ; Data0 < 0xA0; Data0 += 0x0C) {
 		*Data24++ = (uint64) Data20;
 		*Data24++ = Data0;
 
-		sub_17480( Data0, 0x0C, 0, Data20 );
+		mGraphics->sub_17480( Data0, 0x0C, 0, Data20 );
 	}
 
 	//seg003:2532
@@ -4752,58 +5101,7 @@ void cFodder::sub_17429() {
 
 	dword_3AAC9 = Data24;
 	uint32* Dataa20 =  (uint32*) Data20;
-	sub_17480( Data0, 0x0C, -1, Dataa20 );
-}
-
-void cFodder::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
-	pData0 += 0x18;
-
-	uint8* SptPtr = (uint8*)mMapSptPtr;
-
-	if (pData8 == 0) {
-		uint32* esi = (uint32*)(SptPtr + (0x0C * pData0));
-
-		for (int16 cx = pData4; cx > 0; --cx) {
-			*pData20++ = *esi;
-			*pData20++ = *(esi + 0x258);
-			*pData20++ = *(esi + 0x4B0);
-			*pData20++ = *(esi + 0x708);
-			++esi;
-
-			*pData20++ = *esi;
-			*pData20++ = *(esi + 0x258);
-			*pData20++ = *(esi + 0x4B0);
-			*pData20++ = *(esi + 0x708);
-			++esi;
-
-			*pData20++ = *esi;
-			*pData20++ = *(esi + 0x258);
-			*pData20++ = *(esi + 0x4B0);
-			*pData20++ = *(esi + 0x708);
-			++esi;
-		}
-	}
-	else {
-		uint32* edi = (uint32*)(SptPtr + (0x0C * pData0));
-
-		for (int16 cx = pData4; cx > 0; --cx) {
-			*edi = *pData20++;
-			*(edi+0x258) = *pData20++;
-			*(edi+0x4B0) = *pData20++;
-			*(edi+0x708) = *pData20++;
-			++edi;
-			*edi = *pData20++;
-			*(edi+0x258) = *pData20++;
-			*(edi+0x4B0) = *pData20++;
-			*(edi+0x708) = *pData20++;
-			++edi;
-			*edi = *pData20++;
-			*(edi+0x258) = *pData20++;
-			*(edi+0x4B0) = *pData20++;
-			*(edi+0x708) = *pData20++;
-			++edi;
-		}
-	}
+	mGraphics->sub_17480( Data0, 0x0C, -1, Dataa20 );
 }
 
 void cFodder::Recruit_Draw_Actors( ) {
@@ -9014,7 +9312,7 @@ int16 cFodder::SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pDat
 		if (pData8 > Data0)
 			continue;
 
-		if (pData8 < Data2C->field_0)
+		if (pDataC < Data2C->field_0)
 			continue;
 
 		Data0 = Data2C->field_4;
@@ -10475,15 +10773,9 @@ void cFodder::sub_2EF8A() {
 void cFodder::Service_Show() {
 	WindowTitleSet( false );
 
-	g_Resource.fileLoadTo( "rankfont.dat", mDataHillBits );
-	mGraphics->PaletteLoad( mDataHillBits + 0xA000, 0x80, 0x40 );
-
-	g_Resource.fileLoadTo( "morphbig.dat", mDataBaseBlk );
-	mGraphics->PaletteLoad( mDataBaseBlk + 0xFA00, 0x40, 0x00 );
-
-	mImage->paletteSet(mPalette);
-
-	Sprite_SetDataPtrToBase( off_43963 );
+	mGraphics->Load_Service_Data();
+	mGraphics->SetSpritePtr( eSPRITE_SERVICE );
+	mGraphics->PaletteSet();
 
 	Music_Play( 0 );
 	Service_KIA_Loop();
@@ -10503,15 +10795,23 @@ void cFodder::Service_KIA_Loop() {
 
 	mImage->clearBuffer();
 
-	sub_13C1C(  5, 0, 0, 0x34 );
-	sub_13C8A(  7, 0, 0, 0x31 );
-	sub_13C8A(  7, 0, 0xF0, 0x31 );
+	if (mVersion->mPlatform == ePlatform::PC) {
+		sub_13C1C(  5, 0, 0, 0x34 );
+		sub_13C8A(  7, 0, 0, 0x31 );
+		sub_13C8A(  7, 0, 0xF0, 0x31 );
+	}
+	else {
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 8, 0x30,	0, 1 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 0, 0,		0x40, 0 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 4, 0xF0,	0x40, 0 );
+	}
 
 	video_Draw_Unk_2();
 
 	mImageFaded = -1;
 	word_39F02 = 0;
 	word_40048 = 0;
+	mGraphics->PaletteSet();
 	mImage->Save();
 
 	do {
@@ -10549,17 +10849,23 @@ void cFodder::Service_Promotion_Loop() {
 		goto loc_18001;
 
 	mImage->clearBuffer();
-
-	sub_13C1C(  6, 0, 0, 0x34 );
-	sub_13C8A(  8, 0, 0, 0x31 );
-	sub_13C8A(  8, 0, 0xF0, 0x31 );
+	if (mVersion->mPlatform == ePlatform::PC) {
+		sub_13C1C( 6, 0, 0, 0x34 );
+		sub_13C8A( 8, 0, 0, 0x31 );
+		sub_13C8A( 8, 0, 0xF0, 0x31 );
+	}
+	else {
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 9, 0x30,	0,	  1 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 3, 0,		0x40, 0 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 7, 0xF0,	0x40, 0 );
+	}
 
 	video_Draw_Unk_2();
 
 	mImageFaded = -1;
 	word_40048 = 0;
 	word_39F02 = 0;
-	mImage->paletteSet( mPalette );
+	mGraphics->PaletteSet();
 	mImage->Save();
 
 	do {
@@ -10657,14 +10963,22 @@ void cFodder::sub_18099( uint16*& pDi, int16 ax, int16 bx) {
 	word_3A014 = ax;
 	word_3A016 = bx;
 
-	*pDi++ = 9;
-	*pDi++ = 0;
+	if (mVersion->mPlatform == ePlatform::PC) {
+		*pDi++ = 9;
+		*pDi++ = 0;
+	}
+	else {
+		*pDi++ = 0;
+		*pDi++ = 1;
+	}
 	*pDi++ = 0x60;
 	*pDi++ = mDrawSpritePositionY;
+
 	*pDi++ = 2;
 	*pDi++ = word_3A016;
 	*pDi++ = 0x64;
 	*pDi++ = mDrawSpritePositionY + 4;
+
 	*pDi++ = 2;
 	*pDi++ = word_3A016;
 	*pDi++ = 0xCC;
@@ -10700,6 +11014,7 @@ void cFodder::sub_18149() {
 		int16 Data8 = *di++;
 		int16 DataC = *di++;
 
+//		sub_13C8A( Data0, Data4, Data8, DataC );
 		sub_1828A( Data0, Data4, Data8, DataC );
 		//sub_17B2A();
 	}
@@ -10786,7 +11101,10 @@ int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pD
 	word_4206E = mSpriteDataPtr[pData0][pData4].mRowCount;
 
 	if (!sub_184C7()) {
-		sub_182EA();
+		if (mVersion->mPlatform == ePlatform::Amiga)
+			mGraphics->video_Draw_Linear();
+		else
+			sub_182EA();
 		return 1;
 	}
 	return 0;
@@ -10950,7 +11268,12 @@ int16 cFodder::sub_184C7() {
 		mDrawSpritePositionY += ax;
 		word_4206E -= ax;
 
-		ax *= 0xA0;
+		if (mVersion->mPlatform == ePlatform::PC)
+			ax *= 0xA0;
+
+		if (mVersion->mPlatform == ePlatform::Amiga)
+			ax *= 40;
+
 		word_42062 += ax;
 	}
 	//loc_184FC

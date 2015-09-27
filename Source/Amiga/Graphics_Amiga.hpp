@@ -25,6 +25,7 @@ const extern sSpriteSheet* mSpriteSheetPtr_Font_Amiga[];
 const extern sSpriteSheet* mHillSpriteSheetPtr_Amiga[];
 const extern sSpriteSheet* off_90F10[];
 const extern sSpriteSheet* off_A6DC8[];
+const extern sSpriteSheet* off_A91E2[];
 
 struct sILBM_BMHD {
 	uint16	mWidth, mHeight;
@@ -43,6 +44,13 @@ struct sStruct3_Amiga {
 	int16	field_2;
 	int16	field_4;
 	int16	field_6;
+};
+
+struct sStruct0_Amiga {
+	int16 mField_0;
+	int16 mField_1;
+	int16 mField_4;
+	int16 mField_6;
 };
 
 class cGraphics_Amiga : public cGraphics {
@@ -85,7 +93,8 @@ public:
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
-	
+	virtual void		Load_Service_Data();
+
 	virtual void		map_Load_Resources();
 	virtual void		map_Tiles_Draw();
 	virtual void		sub_A5B46();
@@ -101,9 +110,12 @@ public:
 
 	virtual void		sub_144A2( int16 pStartY );
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
+
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 
 	virtual void		Briefing_Load_Resources();
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();
+	virtual void		Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 );
 };
