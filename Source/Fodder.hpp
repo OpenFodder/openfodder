@@ -186,12 +186,13 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390AE;
 	int16			word_390B0;
 	uint16			word_390B8;
+	
+	uint16			mMapNumber;
 	int16			word_390BE;
 	int16			word_390C0;
 	int16			word_390C2;
 	int16			word_390C4;
 	int16			word_390C6;
-	uint16			mMapNumber;
 	uint16			mMissionNumber = 0;
 	uint16			mMissionPhase = 0;
 	uint16			word_390CE;

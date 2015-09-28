@@ -10635,6 +10635,14 @@ void cFodder::sub_2E494() {
 	mInputString[word_3B32F + 2] = 'f';
 	mInputString[word_3B32F + 3] = 0;
 
+	std::string Filename = local_PathGenerate( mInputString, "", false );
+	
+	std::ofstream outfile (Filename,std::ofstream::binary);
+	uint8* Start = (uint8*) &mMapNumber;
+	uint8* End = (uint8*)&mButtonPressLeft;
+	
+	outfile.write ((const char*) Start, End - Start );
+	outfile.close();
 }
 
 void cFodder::sub_2E3E3( struct_6* pData20 ) {
