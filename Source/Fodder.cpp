@@ -148,6 +148,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_44A30 = 0;
 	word_44A32 = 0;
 	word_44A34 = 0;
+	byte_44AC0 = 0;
 
 	for (unsigned int x = 0; x < 30; ++x) {
 		stru_3A3FD[x].asInt = 0;
@@ -623,7 +624,7 @@ void cFodder::sub_10D61() {
 	dword_39F5A = 0;
 	word_39F5E = 0;
 	word_39F60 = 0;
-
+	word_39F66 = 0;
 	dword_39F84 = 0;
 	dword_39F88 = 0;
 	dword_39F8C = 0;
@@ -889,6 +890,7 @@ void cFodder::sub_10D61() {
 	word_3B303 = 0;
 	word_3B305 = 0;
 	word_3B307 = 0;
+	word_3B32F = 0;
 	word_3B447 = 0;
 	word_3B449 = 0;
 
@@ -2848,7 +2850,11 @@ void cFodder::eventProcess() {
 }
 
 void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
-	
+	if (pPressed)
+		mKeyCode = pKeyCode;
+	else
+		mKeyCode = 0;
+
 	if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
 		if (pPressed)
 			mKeyControlPressed = -1;
@@ -3445,7 +3451,7 @@ void cFodder::sub_13C1C( int32 pParam00, int32 pParam0C, int32 pParam04, int32 p
 	mDrawSpritePositionY = (pParam0C + 0x10);
 	word_4206C = mSpriteDataPtr[pParam00][pParam04].mColCount;
 	word_4206E = mSpriteDataPtr[pParam00][pParam04].mRowCount;
-	if (word_3B307 > pParam00) 
+	if (pParam00 > word_3B307) 
 		word_3B307 = pParam00;
 	
 	if (Sprite_OnScreen_Check() )
@@ -5508,9 +5514,10 @@ bool cFodder::sub_18C7A() {
 			return true;
 
 		if (word_3E0E5[mMissionNumber-1])
-			return true;
+			return false;
 
-		return false;
+		word_3B2FF = -1;
+		return true;
 	}
 
 	if (mMouseY < 0x1A)
@@ -10475,6 +10482,296 @@ void cFodder::sub_2E01C() {
 	dword_3B11F = Data20;
 }
 
+void cFodder::sub_2E064() {
+	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
+	mGraphics->PaletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
+	mGraphics->SetSpritePtr( eSPRITE_HILL );
+
+	sub_2E3D6();
+}
+
+void cFodder::sub_2E122() {
+	mImage->clearBuffer();
+
+	dword_3AEF3 = stru_3AC53;
+
+	stru_3AC53[0].field_0 = 0;
+}
+
+void cFodder::sub_2E172( const char* pText, int16 pDataC ) {
+	int16 Data0 = 0xBF;
+	int16 Data4 = 0xBC;
+
+	video_Print_Text( pText, pDataC );
+
+	sub_2E1B1( Data0, Data4 );
+}
+
+void cFodder::sub_2E1B1( int16 pData0, int16 pData4 ) {
+	int16 word_3B309 = pData0;
+	int16 word_3B30B = pData4;
+
+	pData0 = word_3B301;
+	pData4 = word_3B305;
+	int16 Data8 = word_3B303;
+	int16 DataC = word_3B307;
+
+	Briefing_DrawBox( pData0 - 2, pData4 - 2, Data8 + 4, DataC + 5, word_3B30B );
+	Briefing_DrawBox( pData0 - 3, pData4 - 3, Data8 + 4, DataC + 5, word_3B309 );
+}
+
+void cFodder::sub_2E302() {
+	int8 byte_44B49 = 0;
+	if (word_3B2CD != 3) {
+
+		mImage->paletteFade();
+		mouse_Setup();
+	}
+	word_3B2CD = 0;
+
+	mImageFaded = -1;
+	mGraphics->PaletteSet();
+	mImage->Save();
+	bool mShow = false;
+
+	do {
+		if (mImageFaded == -1)
+			mImageFaded = mImage->paletteFade();
+
+		++byte_44B49;
+		byte_44B49 &= 0x0F;
+		if (!byte_44B49) {
+			mShow = !mShow;
+			mMouse_Button_Left_Toggle = 0;
+		}
+
+		if (mShow)
+			sub_13C1C( 0x0E, 0x50, 0x01, (word_3B301)+ word_3B303);
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+
+		++byte_44AC0;
+		if (sub_30E0B() >= 0) {
+
+			sub_2E3E3( stru_3AC53 );
+		}
+
+		if (dword_3B30D) {
+			(this->*dword_3B30D)();
+		}
+
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+		mImage->Restore();
+
+	} while (word_3B2CD <= 0);
+
+	if (word_3B2CD == 3)
+		return;
+
+	mImage->paletteFadeOut();
+
+	do {
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+	} while (mImage->paletteFade() == -1);
+}
+
+void cFodder::sub_2E3D6() {
+
+	sub_2E494();
+}
+
+void cFodder::sub_2E244( void(cFodder::*pFunction)(void) ) {
+	struct_6* Data24 = dword_3AEF3;
+
+	Data24->field_0 = &cFodder::sub_2EAC2;
+
+	int16 Data0 = word_3B301;
+	int16 Data4 = word_3B305;
+	int16 Data8 = word_3B303;
+	int16 DataC = word_3B307;
+
+	Data0 -= 3;
+	Data8 += 4;
+	DataC += 5;
+
+	Data24->field_4 = Data0;
+	Data24->field_6 = Data8;
+	Data24->field_8 = Data4;
+	Data24->field_A = DataC;
+	Data24->mMouseInsideFuncPtr = pFunction;
+
+	++Data24;
+	Data24->field_0 = 0;
+	dword_3AEF3 = Data24;
+}
+
+void cFodder::sub_2E494() {
+	dword_3B30D = 0;
+	mInputString[0] = -1;
+
+	word_3B32F = 0;
+
+	sub_2E122();
+
+	video_Print_Text( "TYPE A FILENAME IN", 0x32 );
+
+	sub_2E172( "EXIT", 0xA0 );
+	sub_2E244( &cFodder::sub_2E5B3 );
+
+	dword_3B30D = &cFodder::sub_2E5C3;
+
+	sub_2E302();
+	dword_3B30D = 0;
+	if (word_3B2CD != 2) {
+		word_3B2CD = 1;
+		return;
+	}
+		
+	mInputString[word_3B32F + 0] = '.';
+	mInputString[word_3B32F + 1] = 'c';
+	mInputString[word_3B32F + 2] = 'f';
+	mInputString[word_3B32F + 3] = 0;
+
+}
+
+void cFodder::sub_2E3E3( struct_6* pData20 ) {
+	dword_3A02A = pData20;
+
+	for (; dword_3A02A->field_0; ++dword_3A02A) {
+
+		pData20 = dword_3A02A;
+
+		int16 Data0 = pData20->field_4;
+		int16 Data4 = mMouseX;
+		Data4 += 0x20;
+
+		if (Data0 > Data4)
+			continue;
+
+		Data0 += pData20->field_6;
+		if (Data0 < Data4)
+			continue;
+
+		Data0 = pData20->field_8;
+		if (Data0 > mMouseY)
+			continue;
+
+		Data0 += pData20->field_A;
+		if (Data0 < mMouseY)
+			continue;
+
+		(*this.*pData20->mMouseInsideFuncPtr)();
+		return;
+	}
+}
+
+void cFodder::sub_2E5B3() {
+	dword_3B30D = 0;
+	word_3B2CD = 1;
+}
+
+void cFodder::sub_2E5C3() {
+	sub_2E704();
+	int16 Data4;
+	char* Data24;
+
+	video_Print_Text( mInputString, 0x50 );
+
+	int16 Data0 = word_39F66;
+	if (Data0 == 0x0D && word_3B32F)
+		word_3B2CD = 2;
+
+	if (Data0 == 8)
+		goto loc_2E675;
+
+	if (Data0 < 0x30)
+		goto loc_2E628;
+
+	if (Data0 <= 0x39)
+		goto loc_2E636;
+
+loc_2E628:;
+	if (Data0 < 0x41 || Data0 > 0x5A)
+		goto loc_2E6A4;
+
+loc_2E636:;
+	Data4 = word_3B32F;
+	if (Data4 >= 8)
+		goto loc_2E6A4;
+
+	Data24 = mInputString;
+	Data24 += Data4;
+	*Data24 = Data0;
+
+	*(Data24 + 1) = -1;
+	++word_3B32F;
+	goto loc_2E6A4;
+
+loc_2E675:;
+	Data4 = word_3B32F;
+	if (Data4) {
+		--Data4;
+		Data24 = mInputString;
+		word_3B32F = Data4;
+		Data24 += Data4;
+		*Data24 = -1;
+	}
+
+loc_2E6A4:;
+	sub_2E6A9();
+}
+
+void cFodder::sub_2E6A9() {
+	char* Data20 = mInputString;
+
+	int16 Data0 = word_3B32F;
+	if (word_39F66 != 0x0D) {
+		byte_44AC0 &= 0x3F;
+		if (byte_44AC0 < 0x20)
+			goto loc_2E6EA;
+	}
+	Data20[Data0] = 0xFD;
+	Data20[Data0 + 1] = 0xFF;
+	return;
+
+loc_2E6EA:;
+	Data20[Data0] = 0xFE;
+	Data20[Data0 + 1] = 0xFF;
+}
+
+void cFodder::sub_2E704() {
+	//eventProcess();
+
+	if (mKeyCode != word_44B47) {
+		word_44B47 = mKeyCode;
+
+		if (!(word_44B47 & 0x80)) {
+		
+			if (mKeyCode >= SDL_SCANCODE_A && mKeyCode <= SDL_SCANCODE_Z)
+				word_39F66 = 'A' + (mKeyCode - 4);
+		
+			if (mKeyCode >= SDL_SCANCODE_1 && mKeyCode <= SDL_SCANCODE_9)
+				word_39F66 = '1' + (mKeyCode - 30);
+
+			if (mKeyCode == SDL_SCANCODE_0 )
+				word_39F66 = '0';
+
+			if (mKeyCode == SDL_SCANCODE_RETURN)
+				word_39F66 = 0x0D;
+
+			if (mKeyCode == SDL_SCANCODE_BACKSPACE)
+				word_39F66 = 8;
+
+			return;
+		}
+	}
+
+	word_39F66 = 0;
+}
+
 void cFodder::sub_2E72B() {
 	
 	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
@@ -11517,19 +11814,19 @@ void cFodder::Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 
 	Brief_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4 + pDataC, pData10 );
 
 	// Sides of box
-	Brief_Draw_Vertical_Line( pData0 * 4, pData4 + pDataC, pData4, pData10 );
+	Brief_Draw_Vertical_Line( pData0 , pData4 + pDataC, pData4, pData10 );
 	
-	Brief_Draw_Vertical_Line( (pData0 + pData8 + 2) * 4, pData4 + pDataC, pData4, pData10 );
+	Brief_Draw_Vertical_Line( pData0 + pData8, pData4 + pDataC, pData4, pData10 );
 }
 
 void cFodder::sub_18BDF( int16 pBx, int16 pCx, uint8 pSi ) {
 	uint8* di = mImage->GetSurfaceBuffer();
 
 	di += 352 * pCx;
-	di += pBx >> 2;
-	pBx &= 3;
-
 	di += pBx;
+	//pBx &= 0xF;
+
+	//di += pBx;
 	*di = pSi;
 }
 
@@ -11538,7 +11835,7 @@ void cFodder::Brief_Draw_Horizontal_Line( int16 pBx, int16 pDx, int16 pCx, uint8
 	do {
 		sub_18BDF( pBx, pCx, pSi );
 		++pBx;
-	} while ( pBx <= pDx * 4 );
+	} while ( pBx <= pDx );
 }
 
 void cFodder::sub_18C45( int32 pPosY,  const sIntroString* pString ) {
@@ -18304,6 +18601,12 @@ void cFodder::Mission_PhaseNext() {
 	dword_394A8 = dword_394A4;
 }
 
+void cFodder::video_Print_Text( const char* pText, int16 pPosY ) {
+	
+	String_CalculateWidth(320, mUnkStringModifier_Recruit, pText );
+	String_Print( mUnkStringModifier_Recruit, 0x0D, word_3B301, pPosY, pText );
+}
+
 void cFodder::videoSleep() {
 	static uint64_t delta = 2;
 
@@ -20121,10 +20424,10 @@ void cFodder::sub_2E04C() {
 		sub_2E72B();
 		return;
 	} 
-	/* TODO
+
 	if( word_3B2FF ) {
 		sub_2E064();
-	}*/
+	}
 }
 
 void cFodder::Start( int16 pStartMap ) {

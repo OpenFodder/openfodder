@@ -88,7 +88,6 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 }
 
 void cWindow::EventCheck() {
-	
 
 	SDL_Event SysEvent;
 	

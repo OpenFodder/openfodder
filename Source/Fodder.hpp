@@ -124,6 +124,8 @@ extern const struct_2 stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
 	public:
+	char					mInputString[0x14];
+
 	std::vector<const sVersion*> mVersions;
 
 	bool					mSkipIntro;
@@ -271,6 +273,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F5A;
 	int16			word_39F5E;
 	int16			word_39F60;
+	int16			word_39F66;
 	int32			dword_39F7C;
 
 	int16			word_39F94;
@@ -509,7 +512,11 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3B305;
 	int16			word_3B307;
-	
+
+	void			(cFodder::*dword_3B30D)(void);
+
+	int16			word_3B32F;
+
 	int16			mMapGoals[8];
 	int16			word_3B447;
 	int16			word_3B449;
@@ -718,6 +725,8 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_44A3A;
 	int32			dword_44A42;
 	int32			dword_44A46;
+	int16			byte_44AC0;
+	int16			word_44B47;
 
 	int16			word_82132;
 
@@ -1193,6 +1202,20 @@ public:
 	void			sub_2DD50( sSprite_0* pSprite );
 	void			sub_2DE2C( );
 	void			sub_2E01C();
+	void			sub_2E064();
+	void			sub_2E122();
+	void			sub_2E172( const char* pText, int16 pDataC );
+	void			sub_2E1B1( int16 pData0, int16 pData4 );
+	void			sub_2E302();
+	void			sub_2E3D6();
+	void			sub_2E244( void(cFodder::*pFunction )(void) ); 
+	void			sub_2E494();
+	void			sub_2E3E3( struct_6* pData20 );
+	void			sub_2E5B3();
+	void			sub_2E5C3();
+	void			sub_2E6A9();
+	void			sub_2E704();
+
 	void			sub_2E72B();
 
 	int16			sub_2EAC2();
@@ -1303,6 +1326,7 @@ public:
 	void			Load_File( const std::string& pFilename );
 	void			Load_PlayerBin();
 	
+	void			video_Print_Text( const char* pText, int16 pPosY );
 	void			videoSleep();
 
 	void			sleepLoop( int64 pMilliseconds );
