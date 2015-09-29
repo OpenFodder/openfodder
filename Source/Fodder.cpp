@@ -9228,9 +9228,9 @@ int16 cFodder::Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, 
 		int8* Data28 = (int8*) graphicsBaseBht;
 		pData14 += pData0;
 
-		int8 al = 1 << Data8;
+		uint8 al = 1 << Data8;
 		Data28 += pData14;
-		if (*((int16*)Data28) & al)
+		if ((readLEWord(Data28) & 0xFF) & al)
 			pData4 >>= 4;
 	}
 
@@ -12754,7 +12754,7 @@ loc_19414:;
 	sub_1F5CA( Sprite );
 	return;
 	
-loc_19424:;
+loc_19424:;	// Soldier Walk
 	sub_1F6F4( Sprite );
 	
 	if( Sprite->field_0 == Sprite->field_26 ) {
