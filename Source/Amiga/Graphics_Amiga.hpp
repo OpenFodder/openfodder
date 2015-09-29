@@ -93,6 +93,7 @@ public:
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
+	virtual void		Load_Hill_Bits();
 	virtual void		Load_Service_Data();
 
 	virtual void		map_Load_Resources();

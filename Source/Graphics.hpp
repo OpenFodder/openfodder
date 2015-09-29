@@ -44,8 +44,10 @@ public:
 	virtual uint8*		GetSpriteData( uint16 pSegment ) = 0;
 	virtual void		Mouse_DrawCursor() = 0;
 	virtual void		LoadpStuff() = 0;
+
 	virtual void		Load_Sprite_Font() = 0;
 	virtual void		Load_Hill_Data() = 0;
+	virtual void		Load_Hill_Bits() = 0;
 	virtual void		Load_Service_Data() = 0;
 
 	virtual void		graphicsBlkPtrsPrepare() = 0;

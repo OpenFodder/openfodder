@@ -143,6 +143,13 @@ void cGraphics_Amiga::Load_Hill_Data() {
 	DecodeIFF( pstuff, mFodder->mDataBaseBlk, &mBMHDHill, mPalleteHill );
 
 	delete[] pstuff;
+
+	Load_Hill_Bits();
+}
+
+void cGraphics_Amiga::Load_Hill_Bits() {
+
+	SetSpritePtr( eSPRITE_HILL );
 }
 
 void cGraphics_Amiga::Load_Sprite_Font() {

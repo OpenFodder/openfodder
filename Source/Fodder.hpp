@@ -138,6 +138,8 @@ class cFodder : public cSingleton < cFodder > {
 	cResources*				mResources;
 	cWindow*				mWindow;
 
+	uint8*					word_397D8;
+
 	sSprite_0				word_3B4F7;
 	sSprite_0				mSprites[45];
 
@@ -517,6 +519,9 @@ class cFodder : public cSingleton < cFodder > {
 	void			(cFodder::*dword_3B30D)(void);
 
 	int16			word_3B32F;
+	int16			word_3B335;
+	int16			word_3B33D;
+	int16			word_3B33F;
 
 	int16			mMapGoals[8];
 	int16			word_3B447;
@@ -752,6 +757,7 @@ public:
 	void			Squad_Clear();
 	void			Heroes_Clear();
 	void			sub_10CE7();
+	void			sub_10D24();
 	void			sub_10D61();
 	void			sub_10D9F();
 	void			sub_10DEC();
@@ -1205,9 +1211,9 @@ public:
 	void			sub_2E01C();
 	void			sub_2E064();
 	void			sub_2E122();
-	void			sub_2E172( const char* pText, int16 pDataC );
+	void			sub_2E172( const char* pText, int16 pDataC, int16 pData0, int16 pData4 );
 	void			sub_2E1B1( int16 pData0, int16 pData4 );
-	void			sub_2E302();
+	void			sub_2E302( bool pShowCursor );
 	void			sub_2E3D6();
 	void			sub_2E244( void(cFodder::*pFunction )(void) ); 
 	void			sub_2E494();
@@ -1216,8 +1222,10 @@ public:
 	void			sub_2E5C3();
 	void			sub_2E6A9();
 	void			sub_2E704();
-
 	void			sub_2E72B();
+	void			sub_2E953();
+	void			sub_2E967();
+	void			sub_2EA89();
 
 	int16			sub_2EAC2();
 	void			sub_2EAC3();
