@@ -823,6 +823,7 @@ public:
 	int16			sub_131DE();
 	void			sub_13255();
 	void			sub_13277( sSprite_0* pData2C );
+	void			Mission_Paused();
 	void			sub_136D0();
 	void			sub_13800();
 	void			Mouse_DrawCursor( );

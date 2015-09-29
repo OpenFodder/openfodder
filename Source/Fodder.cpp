@@ -270,14 +270,20 @@ int16 cFodder::Mission_Loop( ) {
 		Mouse_DrawCursor();
 
 		if (word_3A9D0 != 0) {
-			//Mission_Paused();
+			Mission_Paused();
 			//video_?_0();
 
 			while (word_3A9D0) {
+				g_Window.RenderAt( mImage );
+				g_Window.FrameEnd();
 				eventProcess();
+				videoSleep();
 			}
-			mPaused = -1;
 
+			mGraphics->PaletteSet();
+			mImageFaded = -1;
+			mImage->paletteFade();
+			mPaused = -1;
 		}
 		else {
 			//video_?_0
@@ -940,7 +946,7 @@ void cFodder::sub_10D61() {
 	word_3B4ED[1] = 0;
 	word_3B4F1 = 0;
 	word_3B4F3 = 0;
-
+	word_3B4F5 = 0;
 	dword_3B5F5 = 0;
 }
 
@@ -2868,42 +2874,45 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 	else
 		mKeyCode = 0;
 
-	if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
-		if (pPressed)
-			mKeyControlPressed = -1;
-		else
-			mKeyControlPressed = 0;
-	}
-	
-	if (pKeyCode == SDL_SCANCODE_P)
-		word_3A9D0 = ~word_3A9D0;
-	
-	if (pKeyCode == SDL_SCANCODE_ESCAPE)
+	if (pKeyCode == SDL_SCANCODE_ESCAPE) {
 		word_3A9B2 = -1;
-
-	if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
-		++word_3A9B4;
-
-	if (pKeyCode == SDL_SCANCODE_M) {
-		if (word_3B4F1 == 0)
-			mMission_ShowMapOverview = -1;
 	}
 
-	if (pKeyCode == SDL_SCANCODE_1)
-		mKeyNumberPressed = 2;
-	
-	if (pKeyCode == SDL_SCANCODE_2)
-		mKeyNumberPressed = 3;
+	// In Mission
+	if (word_3B20F) {
+		if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
+			if (pPressed)
+				mKeyControlPressed = -1;
+			else
+				mKeyControlPressed = 0;
+		}
 
-	if (pKeyCode == SDL_SCANCODE_3)
-		mKeyNumberPressed = 4;
+		if (pKeyCode == SDL_SCANCODE_P && pPressed)
+			word_3A9D0 = ~word_3A9D0;
 
-	// Debug: Mission Complete
-	if (pKeyCode == SDL_SCANCODE_F10) {
-		word_3FA21 = -1;
-		mKeyCode = 0x1C;
+		if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
+			++word_3A9B4;
+
+		if (pKeyCode == SDL_SCANCODE_M) {
+			if (word_3B4F1 == 0)
+				mMission_ShowMapOverview = -1;
+		}
+
+		if (pKeyCode == SDL_SCANCODE_1)
+			mKeyNumberPressed = 2;
+
+		if (pKeyCode == SDL_SCANCODE_2)
+			mKeyNumberPressed = 3;
+
+		if (pKeyCode == SDL_SCANCODE_3)
+			mKeyNumberPressed = 4;
+
+		// Debug: Mission Complete
+		if (pKeyCode == SDL_SCANCODE_F10) {
+			word_3FA21 = -1;
+			mKeyCode = 0x1C;
+		}
 	}
-
 }
 
 void cFodder::mouse_Setup() {
@@ -3411,6 +3420,25 @@ int16 cFodder::sub_131DE() {
 	return Data0;
 }
 
+void cFodder::Mission_Paused() {
+	const char *PausedStr = "GAME PAUSED";
+
+	mGraphics->PaletteSet();
+	mImage->paletteFadeOut();
+	mImage->paletteFade();
+	mImage->paletteFade();
+	mImageFaded = -1;
+
+	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+	
+	word_3AC19 = 0x25;
+	String_CalculateWidth( 0x170, byte_4382F, PausedStr );
+	String_Print( byte_4382F, 1, word_3B301, 0x54, PausedStr );
+
+	word_3AC19 = 0;
+	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+}
+
 void cFodder::sub_136D0() {
 	
 	word_40056 = 0;
@@ -3916,6 +3944,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
+		eventProcess();
 		videoSleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
@@ -11862,7 +11891,7 @@ void cFodder::Briefing_Wait() {
 	Briefing_Show( );
 	Briefing_Draw_With( );
 
-	g_Window.RenderAt( mImage, cPosition() );
+	g_Window.RenderAt( mImage );
 	g_Window.FrameEnd();
 
 	do {
@@ -11871,6 +11900,7 @@ void cFodder::Briefing_Wait() {
 
 		if (word_3A9B2 == -1) {
 			word_3B4F5 = -1;
+			mouse_Button_Status = -1;
 			break;
 		}
 
@@ -11880,7 +11910,7 @@ void cFodder::Briefing_Wait() {
 
 	mImage->paletteFadeOut();
 	do {
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 	} while (mImage->paletteFade() == -1);
 
@@ -20660,7 +20690,7 @@ loc_103BF:;
 					word_3ABE9 = 0;
 					word_3ABEB = 0;
 
-					if (mVersion->mKey != "AFX") 
+					if (mVersion->mRelease == eRelease::Retail) 
 						Briefing_Intro();
 					else {
 						mGraphics->LoadpStuff();
@@ -20685,6 +20715,7 @@ loc_103BF:;
 			sub_1142D();
 			sub_115F7();
 			g_Graphics.graphicsBlkPtrsPrepare();
+			word_3A9B2 = 0;
 
 			if (mVersion->mKey != "AFX") {
 				Map_Overview_Prepare();
