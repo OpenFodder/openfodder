@@ -197,27 +197,27 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 	memset(file, 0, wcslen(fdata.cFileName) + 1 );
 	size_t tmp = 0;
 
-	wcstombs_s( &tmp, file, wcslen(fdata.cFileName), fdata.cFileName, wcslen(fdata.cFileName) );
+	wcstombs_s( &tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName) );
     results.push_back(std::string(file));
 	delete file;
 
     while(1) {
-            if(FindNextFile(dhandle, &fdata)) {
-				char *file = new char[ wcslen(fdata.cFileName) + 1];
-				memset(file, 0, wcslen(fdata.cFileName) + 1 );
+        if(FindNextFile(dhandle, &fdata)) {
+			char *file = new char[ wcslen(fdata.cFileName) + 1];
+			memset(file, 0, wcslen(fdata.cFileName) + 1 );
 			
-				wcstombs_s( &tmp, file, wcslen(fdata.cFileName), fdata.cFileName, wcslen(fdata.cFileName) );
-				results.push_back(std::string(file));
-				delete file;
+			wcstombs_s( &tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName) );
+			results.push_back(std::string(file));
+			delete file;
 				
-            } else {
-                    if(GetLastError() == ERROR_NO_MORE_FILES) {
-                            break;
-                    } else {
-                            FindClose(dhandle);
-                            return results;
-                    }
-            }
+        } else {
+                if(GetLastError() == ERROR_NO_MORE_FILES) {
+                        break;
+                } else {
+                        FindClose(dhandle);
+                        return results;
+                }
+        }
     }
 
     FindClose(dhandle);

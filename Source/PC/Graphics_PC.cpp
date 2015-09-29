@@ -120,8 +120,14 @@ void cGraphics_PC::Load_Hill_Data() {
 	g_Resource.fileLoadTo( "hill.dat", mFodder->mDataBaseBlk );
 	PaletteLoad( mFodder->word_3E1B7 + 0xFA00, 0x50, 0x00 );
 
+	Load_Hill_Bits();
+}
+
+void cGraphics_PC::Load_Hill_Bits() {
 	g_Resource.fileLoadTo( "hillbits.dat", mFodder->mDataHillBits );
 	PaletteLoad( mFodder->mDataHillBits + 0x6900, 0x10, 0xB0 );
+	
+	SetSpritePtr( eSPRITE_HILL );
 }
 
 void cGraphics_PC::Load_Service_Data() {

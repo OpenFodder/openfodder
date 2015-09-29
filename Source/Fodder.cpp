@@ -590,7 +590,17 @@ void cFodder::Heroes_Clear() {
 }
 
 void cFodder::sub_10CE7() {
-	
+	uint8* Start = (uint8*) &mMapNumber;
+	uint8* End = (uint8*)&mButtonPressLeft;
+
+	memcpy( word_397D8, &mMapNumber, End - Start );
+}
+
+void cFodder::sub_10D24() {
+	uint8* Start = (uint8*) &mMapNumber;
+	uint8* End = (uint8*)&mButtonPressLeft;
+
+	memcpy( &mMapNumber, word_397D8, End - Start );
 }
 
 void cFodder::sub_10D61() {
@@ -891,6 +901,9 @@ void cFodder::sub_10D61() {
 	word_3B305 = 0;
 	word_3B307 = 0;
 	word_3B32F = 0;
+	word_3B335 = 0;
+	word_3B33D = 0;
+	word_3B33F = 0;
 	word_3B447 = 0;
 	word_3B449 = 0;
 
@@ -3264,6 +3277,10 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 void cFodder::Prepare( ) {
 	mVersions = FindFodderVersions();
+	if (mVersions.empty()) {
+		std::cout << "No data files found\n";
+		exit( 1 );
+	}
 
 	mWindow->InitWindow( "Open Fodder" );
 
@@ -3282,6 +3299,10 @@ void cFodder::Prepare( ) {
 	mMapSptPtr = (uint16*) new uint8[0x400 * 16];
 	word_3D5B7 = mMapSptPtr;
 
+	uint8* Start = (uint8*) &mMapNumber;
+	uint8* End = (uint8*)&mButtonPressLeft;
+
+	word_397D8 = new uint8[ End - Start ];
 	Load_File("setup.dat");
 	sub_12AB1();
 	//Resource_Data_Open();
@@ -4590,8 +4611,6 @@ void cFodder::Recruit_Show() {
 	dword_3B1FB = stru_373BA;
 	word_3AAD1 = -1;
 	word_3AB39 = -1;
-	
-	mGraphics->SetSpritePtr( eSPRITE_HILL );
 
 	sub_16BC3();
 	sub_16C6C();
@@ -10483,9 +10502,7 @@ void cFodder::sub_2E01C() {
 }
 
 void cFodder::sub_2E064() {
-	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
-	mGraphics->PaletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
-	mGraphics->SetSpritePtr( eSPRITE_HILL );
+	mGraphics->Load_Hill_Bits();
 
 	sub_2E3D6();
 }
@@ -10495,16 +10512,21 @@ void cFodder::sub_2E122() {
 
 	dword_3AEF3 = stru_3AC53;
 
-	stru_3AC53[0].field_0 = 0;
+	for (uint16 x = 0; x < 42; ++x) {
+		stru_3AC53[x].field_0 = 0;
+		stru_3AC53[x].field_4 = 0;
+		stru_3AC53[x].field_6 = 0;
+		stru_3AC53[x].field_8 = 0;
+		stru_3AC53[x].field_A = 0;
+		stru_3AC53[x].mMouseInsideFuncPtr = 0;
+	}
 }
 
-void cFodder::sub_2E172( const char* pText, int16 pDataC ) {
-	int16 Data0 = 0xBF;
-	int16 Data4 = 0xBC;
+void cFodder::sub_2E172( const char* pText, int16 pDataC, int16 pData0 = 0xBF, int16 pData4 = 0xBC ) {
 
 	video_Print_Text( pText, pDataC );
 
-	sub_2E1B1( Data0, Data4 );
+	sub_2E1B1( pData0, pData4 );
 }
 
 void cFodder::sub_2E1B1( int16 pData0, int16 pData4 ) {
@@ -10520,7 +10542,7 @@ void cFodder::sub_2E1B1( int16 pData0, int16 pData4 ) {
 	Briefing_DrawBox( pData0 - 3, pData4 - 3, Data8 + 4, DataC + 5, word_3B309 );
 }
 
-void cFodder::sub_2E302() {
+void cFodder::sub_2E302( bool pShowCursor ) {
 	int8 byte_44B49 = 0;
 	if (word_3B2CD != 3) {
 
@@ -10531,6 +10553,7 @@ void cFodder::sub_2E302() {
 
 	mImageFaded = -1;
 	mGraphics->PaletteSet();
+
 	mImage->Save();
 	bool mShow = false;
 
@@ -10541,7 +10564,8 @@ void cFodder::sub_2E302() {
 		++byte_44B49;
 		byte_44B49 &= 0x0F;
 		if (!byte_44B49) {
-			mShow = !mShow;
+			if (pShowCursor)
+				mShow = !mShow;
 			mMouse_Button_Left_Toggle = 0;
 		}
 
@@ -10609,6 +10633,7 @@ void cFodder::sub_2E244( void(cFodder::*pFunction)(void) ) {
 }
 
 void cFodder::sub_2E494() {
+	memset( mInputString, 0, 0x13 );
 	dword_3B30D = 0;
 	mInputString[0] = -1;
 
@@ -10623,7 +10648,7 @@ void cFodder::sub_2E494() {
 
 	dword_3B30D = &cFodder::sub_2E5C3;
 
-	sub_2E302();
+	sub_2E302(true);
 	dword_3B30D = 0;
 	if (word_3B2CD != 2) {
 		word_3B2CD = 1;
@@ -10643,6 +10668,8 @@ void cFodder::sub_2E494() {
 	
 	outfile.write ((const char*) Start, End - Start );
 	outfile.close();
+	word_39F02 = 0;
+
 }
 
 void cFodder::sub_2E3E3( struct_6* pData20 ) {
@@ -10782,13 +10809,100 @@ void cFodder::sub_2E704() {
 
 void cFodder::sub_2E72B() {
 	
-	g_Resource.fileLoadTo( "hillbits.dat", mDataHillBits );
-	mGraphics->PaletteLoad( mDataHillBits + 0x6900, 0x10, 0xB0 );
-	mGraphics->SetSpritePtr( eSPRITE_HILL );
+	word_3B2CD = 0;
 
-	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( g_Fodder.mVersion->mKey, "", false ), ".cf" );
+	mGraphics->Load_Hill_Bits();
 
-	//TODO
+	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate(  "", "", false  ), ".cf" );
+
+	word_3B335 = 0;
+	word_3B33D = Files.size();
+	
+	do {
+		sub_2E122();
+		video_Print_Text( "SELECT FILE", 0x0C );
+
+		sub_2E172( "UP", 0x24 );
+		sub_2E244( &cFodder::sub_2E953 );
+
+		sub_2E172( "DOWN", 0x99 );
+		sub_2E244( &cFodder::sub_2E967 );
+
+		sub_2E172( "EXIT", 0xB3 );
+		sub_2E244( &cFodder::sub_2E5B3 );
+
+		struct_6* dword_3AEF7 = dword_3AEF3;
+		mImage->Save();
+
+		int16 DataC = 0;
+		dword_3AEF3 = dword_3AEF7;
+
+		std::vector<std::string>::iterator FileIT = Files.begin() + word_3B335;
+
+		for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
+			size_t Pos = FileIT->find_first_of( "." );
+
+			memcpy( mInputString, FileIT->c_str(), Pos );
+			mInputString[Pos] = 0x00;
+
+			sub_2E172( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
+			sub_2E244( &cFodder::sub_2EA89 );
+			++FileIT;
+		}
+
+		sub_2E302(false);
+		mImage->Restore();
+
+	} while (word_3B2CD == 3);
+
+	if (word_3B2CD == 1)
+		return;
+
+	std::string Filename = local_PathGenerate( Files[word_3B335 + word_3B33F], "", false );
+	
+	std::ifstream infile (Filename,std::ofstream::binary);
+	uint8* Start = (uint8*) &mMapNumber;
+	uint8* End = (uint8*)&mButtonPressLeft;
+	
+	infile.read ((char*) Start, End - Start );
+	infile.close();
+	word_39F02 = 0;
+}
+
+void cFodder::sub_2E953() {
+	word_3B335 -= 3;
+	if (word_3B335 < 0)
+		word_3B335 = 0;
+
+	word_3B2CD = 3;
+}
+
+void cFodder::sub_2E967() {
+	word_3B335 += 3;
+
+	int16 Data0 = word_3B335;
+	Data0 += 4;
+
+	if (Data0 >= word_3B33D) {
+		Data0 = word_3B33D;
+		Data0 -= 4;
+		if (Data0 < 0)
+			Data0 = 0;
+
+		word_3B335 = Data0;
+	}
+
+	word_3B2CD = 3;
+}
+
+void cFodder::sub_2EA89() {
+	int16 Data0 = mMouseY;
+
+	Data0 -= 0x3E;
+	Data0 /= 0x15;
+
+	word_3B33F = Data0;
+	word_3B2CD = 2;
 }
 
 int16 cFodder::sub_2EAC2() {
@@ -20542,7 +20656,7 @@ loc_103BF:;
 						continue;	// goto loc_1042E;
 					}
 					word_390B8 = 0;
-					//sub_10CE7(); //TODO: This backs up a heap of mission variables
+					sub_10CE7();
 					word_3ABE9 = 0;
 					word_3ABEB = 0;
 
@@ -20578,8 +20692,7 @@ loc_103BF:;
 			}
 			if (word_3B4F5 == -1) {
 
-				//TODO
-				//sub_10D24();
+				sub_10D24();
 				
 				word_390B8 = -1;
 				word_390EA = -1;
