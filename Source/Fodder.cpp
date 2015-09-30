@@ -10897,6 +10897,10 @@ void cFodder::sub_2E72B() {
 	infile.read ((char*) Start, End - Start );
 	infile.close();
 	word_39F02 = 0;
+
+	dword_394A4 = word_391D2;
+	dword_394A8 = dword_394A4;
+	dword_3977E = word_394AC;
 }
 
 void cFodder::sub_2E953() {
