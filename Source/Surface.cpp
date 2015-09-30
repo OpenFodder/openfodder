@@ -30,8 +30,8 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mColorKey = 0xFF;
 
 	// Create the screen buffer
-	mSDLSurface = SDL_CreateRGBSurface( 0, pWidth, pHeight, 32, 0xFF, 0xFF << 8, 0xFF << 16, 0 );
-	mTexture = SDL_CreateTexture(g_Window.GetRenderer(), SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, pWidth, pHeight);
+	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF, 0xFF << 8, 0xFF << 16, 0 );
+	mTexture = SDL_CreateTexture(g_Window.GetRenderer(), SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, (int) pWidth, (int) pHeight);
 	
 	//SDL_SetColorKey(mSDLSurface, 1, 0xFFFFFFFF	);
 
@@ -59,10 +59,10 @@ void cSurface::wipe( uint32 pColor ) {
 void cSurface::wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor) {
 	SDL_Rect dest;
 
-	dest.x = pX; dest.y = pY; 
-	dest.w = pSizeX; dest.h = pSizeY;
+	dest.x = (int) pX; dest.y = (int) pY; 
+	dest.w = (int) pSizeX; dest.h = (int) pSizeY;
 
-	SDL_FillRect( mSDLSurface, &dest, pColor );
+	SDL_FillRect( mSDLSurface, &dest, (uint32) pColor );
 }
 
 void cSurface::paletteClear() {

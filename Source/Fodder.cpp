@@ -21,8 +21,6 @@
  */
 
 #include "stdafx.hpp"
-#include "PC/SpriteData_PC.hpp"
-#include "Amiga/SpriteData_Amiga.hpp"
 #include "UnknownData.hpp"
 #include "VocTable.hpp"
 
@@ -18519,7 +18517,7 @@ void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const ch
 
 	for (const char* Text = pString; *Text; ++Text) {
 
-		PositionX += pWidths[*Text];
+		PositionX += pWidths[(uint8) *Text];
 	}
 
 	pPosX -= PositionX;
