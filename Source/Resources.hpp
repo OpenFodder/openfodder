@@ -40,7 +40,7 @@ protected:
 
 public:
 	 								cResources( std::string pDataPath = "" );
-	virtual							~cResources();
+	virtual							~cResources() { };
 									 
 	virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
 	size_t							fileLoadTo( const std::string& pFilename, uint8* pTarget );
