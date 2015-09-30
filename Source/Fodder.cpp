@@ -18568,6 +18568,7 @@ void cFodder::intro_LegionMessage() {
 
 int16 cFodder::introPlayText() {
 
+	mGraphics->Load_Sprite_Font();
 	mGraphics->SetSpritePtr( eSpriteType::eSPRITE_FONT );
 
 	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF ) {
@@ -18584,7 +18585,7 @@ int16 cFodder::introPlayText() {
 			std::stringstream ImageName;
 			ImageName << mVersion->mIntroData[word_3B2CF].mImageNumber;
 
-			mGraphics->imageLoad( ImageName.str(), 0x100 );
+			mGraphics->imageLoad( ImageName.str(), 0xD0 );
 		}
 		else {
 			word_3B447 = 0xAF;
@@ -18658,7 +18659,7 @@ void cFodder::intro() {
 
 	if (ShowImage_ForDuration( "cftitle", 0x1F8 ))
 		goto introDone;
-
+	
 	if (introPlayText())
 		goto introDone;
 
