@@ -175,8 +175,8 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			mDataBlkSize;
 	uint8*			mDataBaseBlk;
 	uint8*			mDataSubBlk;
-	int32			mDataBaseBlkSize;
-	int32			mDataSubBlkSize;
+	size_t			mDataBaseBlkSize;
+	size_t			mDataSubBlkSize;
 
 	int32*			dword_37AC0;
 	uint32			dword_3901A;
@@ -694,7 +694,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_428BA;
 	uint16*			word_4286B;
 
-	uint16			word_4286D;
+	size_t			word_4286D;
 	uint32			mHelicopterPosX;
 	uint32			mHelicopterPosY;
 	int16			word_428C6;
