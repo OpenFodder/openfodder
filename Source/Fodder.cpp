@@ -3527,7 +3527,7 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 
 void cFodder::sub_13CF0( sSprite_0* pDi, int16 pData0, int16 pData4 ) {
 	
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
 	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 );
 	word_42062 += mSpriteDataPtr[pData0][pData4].field_0;
 	
@@ -3858,7 +3858,7 @@ void cFodder::Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 ) {
 	if (eax->mSize == 0)
 		return;
 
-	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, eax->mSize );
+	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, (int) eax->mSize );
 
 	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
 	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
@@ -5152,7 +5152,7 @@ void cFodder::sub_17429() {
 
 	dword_3AAC9 = Data24;
 	uint32* Dataa20 =  (uint32*) Data20;
-	mGraphics->sub_17480( Data0, 0x0C, -1, Dataa20 );
+	mGraphics->sub_17480( (uint16) Data0, 0x0C, -1, Dataa20 );
 }
 
 void cFodder::Recruit_Draw_Actors( ) {
@@ -5793,11 +5793,11 @@ loc_30CBC:;
 void cFodder::sub_22C87( sSprite_0* pSprite ) {
 	
 	int64 Data0 = (int64) pSprite->field_1A;
-	int32 tmp = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
+	int64 tmp = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	tmp += Data0;
 
-	pSprite->field_1E = tmp & 0xFFFF;
-	pSprite->field_20 = tmp >> 16;
+	pSprite->field_1E = (tmp & 0xFFFF);
+	pSprite->field_20 = (tmp >> 16);
 	if (tmp < 0) {
 		pSprite->field_1E = 0;
 		pSprite->field_20 = 0;
@@ -10769,7 +10769,7 @@ loc_2E636:;
 
 	Data24 = mInputString;
 	Data24 += Data4;
-	*Data24 = Data0;
+	*Data24 = (char)Data0;
 
 	*(Data24 + 1) = -1;
 	++word_3B32F;
@@ -10846,7 +10846,7 @@ void cFodder::sub_2E72B() {
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate(  "", "", false  ), ".cf" );
 
 	word_3B335 = 0;
-	word_3B33D = Files.size();
+	word_3B33D = (int16) Files.size();
 	
 	do {
 		sub_2E122();
@@ -11535,7 +11535,7 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28,
 }
 
 int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C;
+	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
 
 	word_42062 = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
 
@@ -20126,7 +20126,7 @@ loc_22000:;
 
 loc_22053:;		// Movement Target?
 
-	Data8 = (pSprite - mSprites);
+	Data8 = (int16) (pSprite - mSprites);
 	Data8 *= 0x76;
 	Data8 &= 0x1FE;
 
