@@ -46,6 +46,16 @@ uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
 	if (File)
 		return File;
 
+	// This is rather hacky
+	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::toupper );
+	File = local_FileRead( pFilename, "", pFileSize );
+	if (File)
+		return File;
+
+	File = local_FileRead( pFilename, mDataPath.c_str(), pFileSize );
+	if (File)
+		return File;
+
 	return 0;
 }
 

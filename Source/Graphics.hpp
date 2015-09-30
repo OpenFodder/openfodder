@@ -40,6 +40,7 @@ protected:
 
 public:
 						cGraphics();
+	virtual				~cGraphics();
 
 	virtual uint8*		GetSpriteData( uint16 pSegment ) = 0;
 	virtual void		Mouse_DrawCursor() = 0;

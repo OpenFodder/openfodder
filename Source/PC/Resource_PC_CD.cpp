@@ -122,7 +122,9 @@ uint8* cResource_PC_CD::fileGet( std::string pFilename, size_t &pFileSize ) {
 			return file_Get(&(*fileIT), pFileSize,  true );
 		}
 	}
-
+	
+	std::cout << "File " << pFilename << " Not Found!\n";
+	exit( 1 );
 	return 0;
 }
 
