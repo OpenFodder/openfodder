@@ -7,6 +7,11 @@ cGraphics::cGraphics() {
 	mImageOriginal = mImage;
 }
 
+cGraphics::~cGraphics() {
+	
+
+}
+
 void cGraphics::SetImage( cSurface* pImage ) {
 	mImage = pImage;
 }

@@ -32,7 +32,7 @@ class cResource_PC_CD : public cResources {
 	public:
 	
 									cResource_PC_CD( std::string pDataPath = "" );
-									~cResource_PC_CD();
+	virtual							~cResource_PC_CD();
 
 	virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
 
