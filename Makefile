@@ -8,12 +8,13 @@ LD = clang++ obj/*.o $(DLibs)
 
 all : fodder
 
-fodder: main
+fodder: 	main
 		mv *.o obj/
 		$(LD) -o Run/OpenFodder
 
 main:
 		$(CC) Source/*.cpp Source/PC/*.cpp Source/Amiga/*.cpp
+		mkdir -p obj
 
 clean:
 		rm obj/*.o
