@@ -10901,6 +10901,8 @@ void cFodder::sub_2E72B() {
 	dword_394A4 = word_391D2;
 	dword_394A8 = dword_394A4;
 	dword_3977E = word_394AC;
+
+	sub_10CE7();
 }
 
 void cFodder::sub_2E953() {
