@@ -3174,6 +3174,7 @@ void cFodder::VersionSelect() {
 
 	mImageFaded = -1;
 	mMouseSpriteNew = 0x24;
+	mButtonPressLeft = 0;
 
 	for( ;; ) {	
 		Sprite_Sort_DrawList();
@@ -3202,6 +3203,8 @@ void cFodder::VersionSelect() {
 		g_Window.FrameEnd();
 		mImage->paletteFade();
 	}
+
+	mButtonPressLeft = 0;
 
 	delete[] Buttons;
 }

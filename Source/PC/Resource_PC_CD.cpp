@@ -72,7 +72,8 @@ cResource_PC_CD::cResource_PC_CD( std::string pDataPath ) : cResources(pDataPath
 }
 
 cResource_PC_CD::~cResource_PC_CD() {
-	delete mData;
+
+	delete[] mData;
 }
 
 bool cResource_PC_CD::headerLoad() {
