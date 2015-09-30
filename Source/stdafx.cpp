@@ -74,7 +74,7 @@ std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) 
 		return "";
 
 	md5_starts( &ctx );
-	md5_update( &ctx, File, Size );
+	md5_update( &ctx, File, (uint32) Size );
 	md5_finish( &ctx, MD5 );
 	delete[] File;
 

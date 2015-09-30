@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "Amiga/SpriteData_Amiga.hpp"
 
 const sStruct3_Amiga stru_A5BC0[] = {
 	{ 0x12, 0, 0x90, 0xA8 },
