@@ -65,6 +65,11 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	memset( &mPalleteHill, 0, 0x20 );
 }
 
+cGraphics_Amiga::~cGraphics_Amiga() {
+	
+	delete[] mBlkData;
+}
+
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 
 	switch (pSegment) {

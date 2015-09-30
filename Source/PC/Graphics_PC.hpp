@@ -33,6 +33,7 @@ class cGraphics_PC : public cGraphics {
 	uint8*				mGraphicBlkPtrs[480];
 
 	public:
+	virtual				~cGraphics_PC();
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();

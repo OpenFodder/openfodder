@@ -10797,13 +10797,13 @@ void cFodder::sub_2E6A9() {
 		if (byte_44AC0 < 0x20)
 			goto loc_2E6EA;
 	}
-	Data20[Data0] = 0xFD;
-	Data20[Data0 + 1] = 0xFF;
+	Data20[Data0] = -3;
+	Data20[Data0 + 1] = -1;
 	return;
 
 loc_2E6EA:;
-	Data20[Data0] = 0xFE;
-	Data20[Data0 + 1] = 0xFF;
+	Data20[Data0] = -2;
+	Data20[Data0 + 1] = -1;
 }
 
 void cFodder::sub_2E704() {

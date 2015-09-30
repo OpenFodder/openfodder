@@ -76,7 +76,7 @@ public:
 
 	public:
 						cGraphics_Amiga();
-
+	virtual				~cGraphics_Amiga();
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette );
 
 	virtual void		SetCursorPalette( uint16 pIndex );

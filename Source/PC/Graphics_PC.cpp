@@ -22,6 +22,10 @@
 
 #include "stdafx.hpp"
 
+cGraphics_PC::~cGraphics_PC() {
+
+}
+
 uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 	
 	switch ( pSegment ) {
