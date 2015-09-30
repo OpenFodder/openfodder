@@ -29,10 +29,6 @@ cResources::cResources( std::string pDataPath ) {
 
 }
 
-cResources::~cResources() {
-
-}
-
 uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
