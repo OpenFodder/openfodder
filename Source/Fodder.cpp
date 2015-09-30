@@ -98,6 +98,11 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3B17F = 0;
 	word_3B189 = 0;
 	word_3B18B = 0;
+	word_3B60E = 0;
+	word_3B610 = 0;
+
+	mMapTilePtr = 0;
+
 	word_3B44F = 0;
 	word_3B4F5 = 0;
 	word_3BEC1 = 0;
@@ -1777,8 +1782,6 @@ void cFodder::map_Load_Resources() {
 	BaseSub.append( mMap + 0x10, mMap + 0x10 + 7 );
 
 	mDataBaseBlkSize = g_Resource.fileLoadTo( BaseName, mDataBaseBlk );
-	mGraphics->PaletteLoad( mDataBaseBlk + 0xFA00, 0x80, 0x00 );
-
 	mDataSubBlkSize = g_Resource.fileLoadTo( SubName, mDataSubBlk );
 
 	mMapWidth = readBEWord( &mMap[0x54] );

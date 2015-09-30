@@ -58,11 +58,11 @@ const sStruct0_Amiga stru_A918A[] = {
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = 0;
 
-	memset( &mPalette, 0, 0x60 );
-	memset( &mPaletteArmy, 0, 0x10 );
-	memset( &mPaletteCopt, 0, 0x10 );
-	memset( &mPalletePStuff, 0, 0x10 );
-	memset( &mPalleteHill, 0, 0x10 );
+	memset( &mPalette, 0, 0xC0 );
+	memset( &mPaletteArmy, 0, 0x20 );
+	memset( &mPaletteCopt, 0, 0x20 );
+	memset( &mPalletePStuff, 0, 0x20 );
+	memset( &mPalleteHill, 0, 0x20 );
 }
 
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
@@ -155,7 +155,7 @@ void cGraphics_Amiga::Load_Hill_Bits() {
 void cGraphics_Amiga::Load_Sprite_Font() {
 	size_t Size = 0;
 
-	uint8* Font = g_Resource.fileGet( "font.raw", Size );
+	uint8* Font = g_Resource.fileGet( "FONT.RAW", Size );
 	memcpy( mFodder->mDataPStuff, Font + 0x20, Size - 0x20 );
 	memcpy( mPalleteFont, Font, 0x20 );
 
@@ -237,12 +237,12 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 		
 		// Get the next color codes
 		color = readBEWord( pBuffer );
-		pBuffer+=2;
+		pBuffer += 2;
 
 		// Extract each color from the word
 		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
 
-		mFodder->mPalette[pColorID].mRed	= ((color >> 8) & 0xF) << 2;	// Why 2? no idea, but it works.. 1 is too dark, and 3 causes incorrect colours
+		mFodder->mPalette[pColorID].mRed	= ((color >> 8) & 0xF) << 2;
 		mFodder->mPalette[pColorID].mGreen	= ((color >> 4) & 0xF) << 2;
 		mFodder->mPalette[pColorID].mBlue	= ((color >> 0) & 0xF) << 2;
 	}
@@ -294,15 +294,15 @@ void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 
 void cGraphics_Amiga::PaletteSet() {
 
-	mImage->paletteLoad_Amiga( (uint8*) mPalette, 0, 0x40 );
-	//mImage->paletteLoad_Amiga( (uint8*) mPaletteArmy, 0x80 );
-	mImage->paletteLoad_Amiga( (uint8*)mPalletePStuff, 0xE0 );
-	mImage->paletteLoad_Amiga( (uint8*)mPalleteHill, 0xD0 );
-	mImage->paletteLoad_Amiga( (uint8*)mPalleteFont, 0xF0 );
+	mImage->paletteLoad_Amiga( mPalette, 0, 0x40 );
+	//mImage->paletteLoad_Amiga( mPaletteArmy, 0x80 );
+	mImage->paletteLoad_Amiga( mPalletePStuff, 0xE0 );
+	mImage->paletteLoad_Amiga( mPalleteHill, 0xD0 );
+	mImage->paletteLoad_Amiga( mPalleteFont, 0xF0 );
 }
 
 
-bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint16* pPalette ) {
+bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette ) {
 
 	if (readBEDWord( pData ) != 'FORM')
 		return false;
@@ -417,7 +417,7 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 				Final += d0;
 
 				writeBEWord( pPalette, Final );
-				pPalette++;
+				pPalette += 2;
 				FileSize -= 3;
 
 			}
@@ -455,60 +455,63 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 		else
 			StartY = 0;
 
-		// X
-		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
-			uint8* TargetTmp = TargetRow;
+		if (CurrentMapPtr >= mFodder->mMap) {
 
-			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
+			// X
+			for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+				uint8* TargetTmp = TargetRow;
 
-			if (/*Tile > 0xE0 && Tile < 0xF0 ||*/ Tile > 0x1C0)
-				Tile = 0;
+				uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
 
-			Tile <<= 7;
-			uint8* TilePtr = &mBlkData[Tile];
-			uint16 StartX = 0;
+				if (/*Tile > 0xE0 && Tile < 0xF0 ||*/ Tile > 0x1C0)
+					Tile = 0;
 
-			TilePtr += StartY * 2;
+				Tile <<= 7;
+				uint8* TilePtr = &mBlkData[Tile];
+				uint16 StartX = 0;
 
-			if (cx2 == 0)
-				StartX = mFodder->word_3B60E;
-			else
-				StartX = 0;
+				TilePtr += StartY * 2;
+
+				if (cx2 == 0)
+					StartX = mFodder->word_3B60E;
+				else
+					StartX = 0;
 
 
-			// Each bitfield
-			for (uint16 BitField = 0; BitField < 4; ++BitField) {
+				// Each bitfield
+				for (uint16 BitField = 0; BitField < 4; ++BitField) {
 
-				// Each Tile Row
-				for (uint16 i = StartY; i < 16; ++i) {
+					// Each Tile Row
+					for (uint16 i = StartY; i < 16; ++i) {
 
-					uint16 RowData = readBEWord( TilePtr );
-					TilePtr += 2;
-					RowData <<= StartX;
+						uint16 RowData = readBEWord( TilePtr );
+						TilePtr += 2;
+						RowData <<= StartX;
 
-					// Each pixel of a Tile Row
-					for (uint16 x = StartX; x < 16; ++x) {
-						uint8 Bit = (RowData & 0x8000) ? 1 : 0;
-						RowData <<= 1;
+						// Each pixel of a Tile Row
+						for (uint16 x = StartX; x < 16; ++x) {
+							uint8 Bit = (RowData & 0x8000) ? 1 : 0;
+							RowData <<= 1;
 
-						if (Bit)
-							*(TargetTmp + x) |= (Bit << BitField);
+							if (Bit)
+								*(TargetTmp + x) |= (Bit << BitField);
 
+						}
+
+						TargetTmp += mImage->GetWidth();
 					}
 
-					TargetTmp += mImage->GetWidth();
+					// Next Bitfield
+					TargetTmp = TargetRow;
 				}
 
-				// Next Bitfield
-				TargetTmp = TargetRow;
+				MapPtr += 2;
+				TargetRow += (16 - StartX);
 			}
-
-			MapPtr += 2;
-			TargetRow += (16 - StartX);
 		}
 
-		Target += mImage->GetWidth() * (16 - StartY);
-		CurrentMapPtr += mFodder->mMapWidth << 1;
+		Target += (mImage->GetWidth() * (16 - StartY));
+		CurrentMapPtr += (mFodder->mMapWidth << 1);
 	}
 
 	mImage->Save();
@@ -960,15 +963,12 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 	int32 word_82726 = d6;
 	d4 = d2;
 	d4 >>= 3;
-	int32 word_82722 = d4;
 	d0 &= 0xFFF;
 	d1 &= 0xFFF;
 
 	d0 /= d2;
 	d1 /= d3;
 
-	int32 word_8154A = d0;
-	int32 word_8154C = d1;
 	d0 = 0;
 
 	d0 = d1 = d2 = d3 = 0;
@@ -1033,7 +1033,7 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 
 			d4 = 7;
 			d4 -= (d7 & 0xFFFF);
-			d7 = d7 & 0xFFFF0000 | ((d7 & 0xFFFF) >> 3);
+			d7 = (d7 & 0xFFFF0000) | ((d7 & 0xFFFF) >> 3);
 			
 			a3 = a0 + (d7 & 0xffff);
 		} while (--d6 >= 0);
@@ -1050,10 +1050,10 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 
 		D1_Saved = d1;
 
-		d3 = d3 & 0xFFFF0000 | ((d3 & 0xFFFF) << 3);
+		d3 = (d3 & 0xFFFF0000) | ((d3 & 0xFFFF) << 3);
 
-		d1 = d1 & 0xFFFF0000 | (d3 & 0xFFFF);
-		d3 = d3 & 0xFFFF0000 | ((d3 & 0xFFFF) << 2);
+		d1 = (d1 & 0xFFFF0000) | (d3 & 0xFFFF);
+		d3 = (d3 & 0xFFFF0000) | ((d3 & 0xFFFF) << 2);
 		d3 += (d1 & 0xFFFF);
 		d1 = D1_Saved;
 		a0 += (d3 & 0xFFFF);

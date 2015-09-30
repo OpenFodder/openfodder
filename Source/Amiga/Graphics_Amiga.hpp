@@ -56,12 +56,12 @@ struct sStruct0_Amiga {
 class cGraphics_Amiga : public cGraphics {
 public:
 	uint8*				mBlkData;
-	uint16				mPalette[0x60];
-	uint16				mPaletteArmy[0x10];
-	uint16				mPaletteCopt[0x10];
-	uint16				mPalletePStuff[0x10];
-	uint16				mPalleteHill[0x10];
-	uint16				mPalleteFont[0x10];
+	uint8				mPalette[0xC0];
+	uint8				mPaletteArmy[0x20];
+	uint8				mPaletteCopt[0x20];
+	uint8				mPalletePStuff[0x20];
+	uint8				mPalleteHill[0x20];
+	uint8				mPalleteFont[0x20];
 
 	size_t				mPaletteSize;
 
@@ -77,7 +77,7 @@ public:
 	public:
 						cGraphics_Amiga();
 
-	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint16* pPalette );
+	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette );
 
 	virtual void		SetCursorPalette( uint16 pIndex );
 	

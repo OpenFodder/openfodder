@@ -250,6 +250,8 @@ void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 }
 
 void cGraphics_PC::map_Load_Resources() {
+	PaletteLoad( mFodder->mDataBaseBlk + 0xFA00, 0x80, 0x00 );
+
 	mFodder->mFilenameCopt = mFodder->sub_12AA1( mFodder->mFilenameCopt, "dat" );
 	mFodder->mFilenameArmy = mFodder->sub_12AA1( mFodder->mFilenameArmy, "dat" );
 
