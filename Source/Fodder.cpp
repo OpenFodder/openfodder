@@ -230,8 +230,6 @@ int16 cFodder::Mission_Loop( ) {
 		sub_12018();
 		Camera_Pan( );
 
-		//mImage->Save();
-
 		word_3A9FB = 0;
 		Mouse_Handle();
 		++word_390B0;
@@ -1099,14 +1097,6 @@ void cFodder::map_Load_Spt() {
 	std::string Filename_Spt = map_Filename_SptGet();
 
 	mMapSptSize = g_Resource.fileLoadTo( Filename_Spt, (uint8*) mMapSptPtr );
-	/*
-	uint8 TmpSpt[] = { 0x00,0x7C,0x00,0x00,0x00,0x8B,0x00,0xD5,0x00,0x00,
-					   0x00,0x7C,0x00,0x00,0x00,0x51,0x00,0x31,0x00,0x05 };
-	mMapSptSize = sizeof( TmpSpt );
-
-	memset( mMapSptPtr, 0, 0x258 * 16 );
-	memcpy( mMapSptPtr, TmpSpt, sizeof( TmpSpt ) );
-	*/
 	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
 
 	mTroops_Enemy_Count = 0;
