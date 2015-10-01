@@ -25,47 +25,74 @@
 #include <algorithm>
 
 const uint8 cResource_PC_CD::byte_29921[0x100] = {
-	3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,
-	4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,
-	5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,   5,
-	6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,   6,
-	7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,   7,
-	8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8
+    3,   3,   3,   3,   3,   3,   3,   3,   3,   3, 
+    3,   3,   3,   3,   3,   3,   3,   3,   3,   3, 
+    3,   3,   3,   3,   3,   3,   3,   3,   3,   3, 
+    3,   3,   4,   4,   4,   4,   4,   4,   4,   4, 
+    4,   4,   4,   4,   4,   4,   4,   4,   4,   4, 
+    4,   4,   4,   4,   4,   4,   4,   4,   4,   4, 
+    4,   4,   4,   4,   4,   4,   4,   4,   4,   4, 
+    4,   4,   4,   4,   4,   4,   4,   4,   4,   4, 
+    5,   5,   5,   5,   5,   5,   5,   5,   5,   5, 
+    5,   5,   5,   5,   5,   5,   5,   5,   5,   5, 
+    5,   5,   5,   5,   5,   5,   5,   5,   5,   5, 
+    5,   5,   5,   5,   5,   5,   5,   5,   5,   5, 
+    5,   5,   5,   5,   5,   5,   5,   5,   5,   5, 
+    5,   5,   5,   5,   5,   5,   5,   5,   5,   5, 
+    5,   5,   5,   5,   6,   6,   6,   6,   6,   6, 
+    6,   6,   6,   6,   6,   6,   6,   6,   6,   6, 
+    6,   6,   6,   6,   6,   6,   6,   6,   6,   6, 
+    6,   6,   6,   6,   6,   6,   6,   6,   6,   6, 
+    6,   6,   6,   6,   6,   6,   6,   6,   6,   6, 
+    6,   6,   7,   7,   7,   7,   7,   7,   7,   7, 
+    7,   7,   7,   7,   7,   7,   7,   7,   7,   7, 
+    7,   7,   7,   7,   7,   7,   7,   7,   7,   7, 
+    7,   7,   7,   7,   7,   7,   7,   7,   7,   7, 
+    7,   7,   7,   7,   7,   7,   7,   7,   7,   7, 
+    8,   8,   8,   8,   8,   8,   8,   8,   8,   8, 
+    8,   8,   8,   8,   8,   8
 };
 
-const uint8 cResource_PC_CD::byte_29A21[0xFF] = {
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   
-	1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   
-	2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   
-	3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   
-	4,   4,   4,   4,   4,   4,   4,   4,   5,   5,   5,   5,   5,   5,   5,   5,   
-	6,   6,   6,   6,   6,   6,   6,   6,   7,   7,   7,   7,   7,   7,   7,   7,   
-	8,   8,   8,   8,   8,   8,   8,   8,   9,   9,   9,   9,   9,   9,   9,   9, 
-	0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0B, 0x0B, 0x0B, 0x0B, 0x0B, 0x0B, 0x0B, 0x0B, 
-	0x0C, 0x0C, 0x0C, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0E, 0x0E, 0x0E, 0x0E, 0x0F, 0x0F, 0x0F, 0x0F, 0x10, 
-	0x10, 0x10, 0x10, 0x11, 0x11, 0x11, 0x11, 0x12, 0x12, 0x12, 0x12, 0x13, 0x13, 0x13, 0x13, 0x14, 0x14, 
-	0x14, 0x14, 0x15, 0x15, 0x15, 0x15, 0x16, 0x16, 0x16, 0x16, 0x17, 0x17, 0x17, 0x17, 0x18, 0x18, 0x19, 
-	0x19, 0x1A, 0x1A, 0x1B, 0x1B, 0x1C, 0x1C, 0x1D, 0x1D, 0x1E, 0x1E, 0x1F, 0x1F, 0x20, 0x20, 0x21, 0x21, 
-	0x22, 0x22, 0x23, 0x23, 0x24, 0x24, 0x25, 0x25, 0x26, 0x26, 0x27, 0x27, 0x28, 0x28, 0x29, 0x29, 0x2A, 
-	0x2A, 0x2B, 0x2B, 0x2C, 0x2C, 0x2D, 0x2D, 0x2E, 0x2E, 0x2F, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 
-	0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E
+const uint8 cResource_PC_CD::byte_29A21[0x101] = {
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
+    0,   0,   1,   1,   1,   1,   1,   1,   1,   1, 
+    1,   1,   1,   1,   1,   1,   1,   1,   2,   2, 
+    2,   2,   2,   2,   2,   2,   2,   2,   2,   2, 
+    2,   2,   2,   2,   3,   3,   3,   3,   3,   3, 
+    3,   3,   3,   3,   3,   3,   3,   3,   3,   3, 
+    4,   4,   4,   4,   4,   4,   4,   4,   5,   5, 
+    5,   5,   5,   5,   5,   5,   6,   6,   6,   6, 
+    6,   6,   6,   6,   7,   7,   7,   7,   7,   7, 
+    7,   7,   8,   8,   8,   8,   8,   8,   8,   8, 
+    9,   9,   9,   9,   9,   9,   9,   9,  10,  10, 
+   10,  10,  10,  10,  10,  10,  11,  11,  11,  11, 
+   11,  11,  11,  11,  12,  12,  12,  12,  13,  13, 
+   13,  13,  14,  14,  14,  14,  15,  15,  15,  15, 
+   16,  16,  16,  16,  17,  17,  17,  17,  18,  18, 
+   18,  18,  19,  19,  19,  19,  20,  20,  20,  20, 
+   21,  21,  21,  21,  22,  22,  22,  22,  23,  23, 
+   23,  23,  24,  24,  25,  25,  26,  26,  27,  27, 
+   28,  28,  29,  29,  30,  30,  31,  31,  32,  32, 
+   33,  33,  34,  34,  35,  35,  36,  36,  37,  37, 
+   38,  38,  39,  39,  40,  40,  41,  41,  42,  42, 
+   43,  43,  44,  44,  45,  45,  46,  46,  47,  47, 
+   48,  49,  50,  51,  52,  53,  54,  55,  56,  57, 
+   58,  59,  60,  61,  62,  63, 0
 };
 
 cResource_PC_CD::cResource_PC_CD( std::string pDataPath ) : cResources(pDataPath) {
 
-	memset( word_26DBE, 0, 0x272 * 2 );
-	word_272A2 = 0;
+	memset( word_26DBE, 0, 0x273 * 2 );
 	memset( word_272A4, 0, 0x13A * 2 );
-	memset( word_27518, 0, 0x272 * 2 );
-	word_279FC = 0;
-	memset( word_279FE, 0, 0x272 * 2 );
-	word_27EE2 = 0;
+	memset( word_27518, 0, 0x273 * 2 );
+	memset( word_279FE, 0, 0x273 * 2 );
 
 	memset( byte_27EE6, 0, 0x1A3C );
 	byte_26DB0 = 0;
 
-	mBytesRead = word_26DA8 = word_26DBA = word_26DBC = 0;
+	mBytesRead = word_26DA8 = word_26DBA = 0;
 	word_26DAA = word_26DB4 = saveSI = saveBP = 0;
 
 
@@ -99,7 +126,7 @@ bool cResource_PC_CD::headerLoad() {
 
 		cResource_File	File( filename, 0, 0 );
 
-		ptr += File.mName.size();
+		ptr += (uint16) File.mName.size();
 
 		// Start address and size
 		File.mAddressStart	= readLEDWord( &mData[ptr] );
@@ -141,7 +168,7 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 
 	std::vector<uint8>	result;
 
-	for( uint32 i = 0; i < 0x1000; ++i )
+	for( uint32 i = 0; i < 0x1A3B; ++i )
 		byte_27EE6[i] = 0x0;
 
 	if(!pDecode) {
@@ -165,7 +192,7 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 		dx = dl | (dh << 8);
 
 		word_26DAA = dx;
-		word_26DBC = dx;
+		word_26DBA = (word_26DBA & 0xFFFF) | dx << 16;
 
 		if( (word_26DA8 | dx) == 0 )
 			return 0;
@@ -181,10 +208,10 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 
 	for(;;) {
 
-		if( word_26DBC < 0 )
+		if( (word_26DBA >> 16) < 0 )
 			break;
 
-		if( !(word_26DBC | word_26DBA) )
+		if( ! word_26DBA )
 			break;
 
 		uint16 ax = sub_26C06();
@@ -200,10 +227,6 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 
 			word_26DB4 = bx;
 			--word_26DBA;
-			if( word_26DBA != 0 )
-				continue;
-
-			--word_26DBC;
 			continue;
 		}
 		
@@ -218,16 +241,13 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 		si -= ax;
 		--si;
 
-		si &= 0xFFF;
+		si &= 0x0FFF;
 		ax = saveAX;
 
 		ax += 0xFF03;
-		short int cx = ax;
+		uint16 cx = ax;
 
-		if( word_26DBA > 0 && (word_26DBA - cx) < 0 )
-			--word_26DBC;
-
-		word_26DBA -= ax;
+		word_26DBA -= cx;
 		uint16 bx = word_26DB4;
 
 		for(;cx > 0; --cx) {
@@ -307,7 +327,7 @@ uint16 cResource_PC_CD::sub_26CDF() {
 	if(cf)
 		ax |= 0x8000;
 	
-	ax = (ax & 0xFF) << 8 | (ax & 0xFF00) >> 8;
+	ax = ((ax & 0x00FF) << 8) | ((ax & 0xFF00) >> 8);
 	uint16 saveAX = ax;
 
 	// seg006:41E
@@ -355,9 +375,6 @@ uint16 cResource_PC_CD::sub_26CDF() {
 uint8 cResource_PC_CD::data_Read() {
 	if( !mBytesRead ) {
 		mCurPtr = mDataCurrent;
-		if (mCurPtr + 0xA00 > mData + mDataSize)
-			mBytesRead = (mData + mDataSize) - mCurPtr;
-
 		mDataCurrent += 0xA00;
 		mBytesRead = 0xA00;
 	}
@@ -407,15 +424,15 @@ void cResource_PC_CD::sub_26AA4() {
 	}
 	
 	word_27EE4 = -1;
-	word_272A2 = 0;
+	word_26DBE[0x272] = 0;
 }
 
 uint16 cResource_PC_CD::sub_26C06() {
 	uint8 dl = byte_26DB0;
 
-	uint16 si = word_279FC;
+	uint16 si = word_27518[0x272];
 
-	int16 bp = saveBP;
+	uint16 bp = saveBP;
 	uint16 cx = 0;
 
 	for(;;) {
@@ -453,7 +470,7 @@ uint16 cResource_PC_CD::sub_26C06() {
 			saveSI = si;
 			saveBP = bp;
 
-			if( word_27EE2 == -32768 ) 
+			if( word_279FE[0x272] == -32768 ) 
 				sub_26B11();
 
 			//si <<= 1;

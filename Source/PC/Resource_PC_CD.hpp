@@ -9,18 +9,14 @@ class cResource_PC_CD : public cResources {
 	
 	uint8*							mCurPtr;
 	
-	int16							word_26DBE[0x272];
-	int16							word_272A2;
+	int16							word_26DBE[0x273];
 	int16							word_272A4[0x13A];
-	int16							word_27518[0x272];
-	int16							word_279FC;
-	int16							word_279FE[0x272];
-	int16							word_27EE2;
+	int16							word_27518[0x273];
+	int16							word_279FE[0x273];
 	int16							word_27EE4;
-	int16							word_27EE6;
 	uint8							byte_27EE6[0x1A3B];
 	static const uint8				byte_29921[0x100];
-	static const uint8				byte_29A21[0xFF];
+	static const uint8				byte_29A21[0x101];
 	
 	uint8							data_Read();
 
@@ -31,7 +27,8 @@ class cResource_PC_CD : public cResources {
 	
 	uint8							byte_26DB0;
 
-	int16							mBytesRead, word_26DA8, word_26DBA, word_26DBC;
+	int16							mBytesRead, word_26DA8;
+	int32							 word_26DBA;
 	uint16							word_26DAA, word_26DB4, saveSI, saveBP;
 
 	bool							headerLoad();
