@@ -54,7 +54,14 @@ const uint8 cResource_PC_CD::byte_29A21[0xFF] = {
 
 cResource_PC_CD::cResource_PC_CD( std::string pDataPath ) : cResources(pDataPath) {
 
-	memset( word_26DBE, 0, 0x1000 * 2 );
+	memset( word_26DBE, 0, 0x272 * 2 );
+	word_272A2 = 0;
+	memset( word_272A4, 0, 0x13A * 2 );
+	memset( word_27518, 0, 0x272 * 2 );
+	word_279FC = 0;
+	memset( word_279FE, 0, 0x272 * 2 );
+	word_27EE2 = 0;
+
 	memset( byte_27EE6, 0, 0x1A3C );
 	byte_26DB0 = 0;
 
@@ -131,6 +138,7 @@ uint8* cResource_PC_CD::fileGet( std::string pFilename, size_t &pFileSize ) {
 
 uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode ) {
 	mDataCurrent = &mData[ pFile->mAddressStart ];
+
 	std::vector<uint8>	result;
 
 	for( uint32 i = 0; i < 0x1000; ++i )
@@ -347,6 +355,9 @@ uint16 cResource_PC_CD::sub_26CDF() {
 uint8 cResource_PC_CD::data_Read() {
 	if( !mBytesRead ) {
 		mCurPtr = mDataCurrent;
+		if (mCurPtr + 0xA00 > mData + mDataSize)
+			mBytesRead = (mData + mDataSize) - mCurPtr;
+
 		mDataCurrent += 0xA00;
 		mBytesRead = 0xA00;
 	}
@@ -364,13 +375,13 @@ void cResource_PC_CD::sub_26AA4() {
 	while( cx < 0x13A ) {
 		uint16 bx = cx;
 
-		word_26DBE[0x620 + bx] = 1;
+		word_279FE[bx] = 1;
 		
 		uint16 ax = cx;
 		ax += 0x273;
 
-		word_26DBE[0x3AD + bx] = ax;
-		word_26DBE[0x273 + bx] = cx;
+		word_27518[bx] = ax;
+		word_272A4[bx] = cx;
 		++cx;
 	}
 
@@ -384,27 +395,27 @@ void cResource_PC_CD::sub_26AA4() {
 		word_26DBE[bx + 1] = dx;
 		word_26DBE[bx] = dx;
 
-		uint16 ax = word_26DBE[0x620 + bx];
-		ax += word_26DBE[0x621 + bx];
+		uint16 ax = word_279FE[bx];
+		ax += word_279FE[bx+1];
 
 		bx = dx;
 		//bx <<= 1;
-		word_26DBE[0x620 + bx]=  ax;
-		word_26DBE[0x3AD + bx] = cx;
+		word_279FE[bx]=  ax;
+		word_27518[bx] = cx;
 		cx += 2;
 		++dx;
 	}
 	
-	word_26DBE[0x893] = 0xFFFF;
-	word_26DBE[0x272] = 0;
+	word_27EE4 = -1;
+	word_272A2 = 0;
 }
 
 uint16 cResource_PC_CD::sub_26C06() {
 	uint8 dl = byte_26DB0;
 
-	uint16 si = word_26DBE[0x61F];
+	uint16 si = word_279FC;
 
-	uint16 bp = saveBP;
+	int16 bp = saveBP;
 	uint16 cx = 0;
 
 	for(;;) {
@@ -431,7 +442,7 @@ uint16 cResource_PC_CD::sub_26C06() {
 			bp <<= 1;
 			//si <<= 1;
 
-			si = word_26DBE[0x3AD + si];
+			si = word_27518[si];
 			continue;
 
 		} else {
@@ -442,17 +453,17 @@ uint16 cResource_PC_CD::sub_26C06() {
 			saveSI = si;
 			saveBP = bp;
 
-			if( word_26DBE[ 0x892 ] == 0x8000 ) 
+			if( word_27EE2 == -32768 ) 
 				sub_26B11();
 
 			//si <<= 1;
-			si = word_26DBE[ 0x273 + si ];
+			si = word_272A4[ si ];
 			cx = si;
 
 			do {
 
-				++word_26DBE[0x620 + si];
-				bp = word_26DBE[0x620 + si];
+				++word_279FE[si];
+				bp = word_279FE[si];
 
 				uint16 di = si;
 				uint16 dx = cx;
@@ -461,22 +472,21 @@ uint16 cResource_PC_CD::sub_26C06() {
 				//++di; 
 				++dx;
 
-				if( bp > (uint16) word_26DBE[0x620 + di] ) {
+				if( bp > (uint16) word_279FE[di] ) {
 
 					do {
 						++di;
-					} while( bp > (uint16) word_26DBE[0x620 + di] );
+					} while( bp > (uint16) word_279FE[di] );
 
 					--di;
 					dx = di;
 
-					uint16 tmp = word_26DBE[0x620 + di];
-					word_26DBE[0x620 + di] = bp;
+					uint16 tmp = word_279FE[di];
+					word_279FE[di] = bp;
 					bp = tmp;
+					word_279FE[si] = bp;
 
-					word_26DBE[0x620 + si] = bp;
-
-					uint16 bx = word_26DBE[0x3AD + si];
+					uint16 bx = word_27518[si];
 					bp = bx;
 
 					word_26DBE[bx] = dx;
@@ -484,8 +494,8 @@ uint16 cResource_PC_CD::sub_26C06() {
 						word_26DBE[bx+1] = dx;
 
 					// loc_26C9C
-					tmp = word_26DBE[0x3AD + di];
-					word_26DBE[0x3AD + di] = bp;
+					tmp = word_27518[di];
+					word_27518[di] = bp;
 					bp = tmp;
 
 					bx = bp;
@@ -494,7 +504,7 @@ uint16 cResource_PC_CD::sub_26C06() {
 					if( bp < 0x273 )
 						word_26DBE[bx+1] = cx;
 
-					word_26DBE[0x3AD + si] = bp;
+					word_27518[si] = bp;
 
 					si = di;
 					cx = dx;
@@ -518,18 +528,18 @@ void cResource_PC_CD::sub_26B11() {
 	while( dx < 0x273 ) {
 		
 		uint16 bx = dx;
-		if( word_26DBE[0x3AD + bx] >= 0x273 ) {	
-			uint16 ax = word_26DBE[0x620 + bx];
+		if( word_27518[bx] >= 0x273 ) {	
+			uint16 ax = word_279FE[bx];
 			++ax;
 			ax >>= 1;
 
 			uint16 bx = cx;
-			word_26DBE[0x620 + bx] = ax;
+			word_279FE[bx] = ax;
 			bx = dx;
-			ax = word_26DBE[0x3AD + bx];
+			ax = word_27518[bx];
 			bx = cx;
 
-			word_26DBE[0x3AD + bx] = ax;
+			word_27518[bx] = ax;
 			++cx;
 		}
 		++dx;
@@ -547,19 +557,19 @@ void cResource_PC_CD::sub_26B11() {
 		++bp;
 		uint16 bx = dx;
 
-		si = word_26DBE[0x620 + bx];
-		si += word_26DBE[0x620 + bx + 1];
+		si = word_279FE[bx];
+		si += word_279FE[bx + 1];
 
 		bx = cx;
 
-		word_26DBE[0x620 + bx] = si;
+		word_279FE[bx] = si;
 		bp = cx;
 		--bp;
 
 		for(;;--bp) {
 
 			bx = bp;
-			uint16 ax = word_26DBE[0x620 + bx];
+			uint16 ax = word_279FE[bx];
 
 			if( ax <= si )
 				break;
@@ -584,10 +594,10 @@ void cResource_PC_CD::sub_26B11() {
 		cx = 0;
 
 		while( cx < di ) {
-			uint16 ax = word_26DBE[0x620 + bx];
-			word_26DBE[0x620 + si] = ax;
-			ax = word_26DBE[0x3AD + bx];
-			word_26DBE[0x3AD + si] = ax;
+			uint16 ax = word_279FE[bx];
+			word_279FE[si] = ax;
+			ax = word_27518[bx];
+			word_27518[si] = ax;
 
 			--si;
 			--bx;
@@ -598,8 +608,8 @@ void cResource_PC_CD::sub_26B11() {
 		si = savedSI;
 
 		bx = bp;
-		word_26DBE[0x620 + si] = si;
-		word_26DBE[0x3AD + bx] = dx;
+		word_279FE[si] = si;
+		word_27518[bx] = dx;
 		dx ++;
 		++cx;
 
@@ -611,7 +621,7 @@ void cResource_PC_CD::sub_26B11() {
 	while( dx < 0x273 ) {
 
 		uint16 bx = dx;
-		bp = word_26DBE[0x3AD + bx];
+		bp = word_27518[bx];
 		if( bp >= 0x273 ) {
 			bx = bp;
 			word_26DBE[bx] = dx;
