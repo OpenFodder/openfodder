@@ -189,14 +189,15 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_390B0;
 	uint16			word_390B8;
 	
+	/************** Save Game Region *********** */
 	uint16			mMapNumber;
 	int16			word_390BE;
 	int16			word_390C0;
 	int16			word_390C2;
 	int16			word_390C4;
 	int16			word_390C6;
-	uint16			mMissionNumber = 0;
-	uint16			mMissionPhase = 0;
+	uint16			mMissionNumber;
+	uint16			mMissionPhase;
 	uint16			word_390CE;
 	uint16			word_390D0;
 	uint16			word_390D2;
@@ -225,7 +226,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMapPlayerTroopCount;
 	int16			mSquadMemberCount;
 	int16			mTroopsAvailable;
-	
+
+	/************** End Save Game Region *********** */
+
 	int16			mButtonPressLeft, mButtonPressRight;
 	int16			mMouse_Button_Left_Toggle;
 	int16			word_39F00;
@@ -613,7 +616,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mCamera_Row_Previous;
 	uint16*			word_3D5B7;
 
-	uint16			byte_3DDA2[0x30];
 	struct_6		stru_3DEDC[2];
 	int16			word_3E0E5[0x18];
 

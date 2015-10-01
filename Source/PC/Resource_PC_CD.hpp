@@ -8,9 +8,17 @@ class cResource_PC_CD : public cResources {
 	std::vector< cResource_File >	mFiles;
 	
 	uint8*							mCurPtr;
-
-	uint16							word_26DBE[0x1000];
-	uint8							byte_27EE6[0x1A3C];
+	
+	int16							word_26DBE[0x272];
+	int16							word_272A2;
+	int16							word_272A4[0x13A];
+	int16							word_27518[0x272];
+	int16							word_279FC;
+	int16							word_279FE[0x272];
+	int16							word_27EE2;
+	int16							word_27EE4;
+	int16							word_27EE6;
+	uint8							byte_27EE6[0x1A3B];
 	static const uint8				byte_29921[0x100];
 	static const uint8				byte_29A21[0xFF];
 	

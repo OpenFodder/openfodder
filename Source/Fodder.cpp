@@ -3262,7 +3262,8 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			mGraphics = new cGraphics_Amiga();
 			break;
 	}
-	
+			size_t size = 0;
+	mResources->fileGet( "junarmy.dat", size );
 	mImage->clearBuffer();
 	mWindow->RenderAt( mImage );
 
@@ -3324,7 +3325,6 @@ void cFodder::Prepare( ) {
 	memset(mDataSubBlk, 0, mDataBlkSize );
 
 	mImage = new cSurface( 352, 300 );
-
 	VersionLoad( mVersions[0] );
 
 	// Show the version selection, if we have more than 1 option
@@ -20621,9 +20621,6 @@ loc_103BF:;
 		word_39096 = -1;
 
 		mGraphics->LoadpStuff();
-
-		for (unsigned int x = 0; x < 0x30; ++x)
-			byte_3DDA2[x] = mDataPStuff[0xA000 + x];
 
 		//loc_1042E:;
 		for (;;) {
