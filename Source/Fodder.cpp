@@ -2905,6 +2905,8 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 
 void cFodder::mouse_Setup() {
 	
+	mMouseButtons = 0;
+
 	mMouseX = 0x7F;
 	mMouseY = 0x67;
 	word_3BDB3 = 0;
@@ -4818,7 +4820,7 @@ void cFodder::sub_17CD3( ) {
 	int16* Data20 = word_3E1B9 + (Data0 / 2);
 
 	do {
-		Data0 = *Data24;
+		Data0 = *Data24 & 0xFF;
 		if (Data0 < 0)
 			return;
 
@@ -10589,8 +10591,9 @@ void cFodder::sub_2E302( bool pShowCursor ) {
 			mMouse_Button_Left_Toggle = 0;
 		}
 
-		if (mShow)
-			sub_13C1C( 0x0E, 0x50, 0x01, (word_3B301)+ word_3B303);
+		if (mShow) {
+			sub_13C1C( 0x0F, 0x50, 0x00, word_3B301 + word_3B303 );
+		}
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -10891,6 +10894,24 @@ void cFodder::sub_2E72B() {
 	dword_394A4 = word_391D2;
 	dword_394A8 = dword_394A4;
 	dword_3977E = word_394AC;
+
+	for (int16 x = 0; x < 361; ++x) {
+		if (*dword_394A4 == -1)
+			break;
+
+		++dword_394A4;
+		++dword_394A8;
+	}
+	
+	for (int16 x = 0; x < 361; ++x) {
+		if (*dword_3977E == -1)
+			break;
+
+		++dword_3977E;
+	}
+
+	for (int16 x = 0; x < 9; ++x)
+		mSquad[x].field_4 = INVALID_SPRITE_PTR;
 
 	sub_10CE7();
 }
@@ -11892,6 +11913,7 @@ void cFodder::Briefing_Wait() {
 	g_Window.FrameEnd();
 
 	do {
+		videoSleep();
 		eventProcess();
 		Mouse_Inputs_Get();
 
@@ -18512,8 +18534,12 @@ void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const ch
 	int32 PositionX = 0;
 
 	for (const char* Text = pString; *Text; ++Text) {
+		uint8 Char = *Text;
 
-		PositionX += pWidths[(uint8) *Text];
+		if (Char == 0xFE || Char == 0xFD || Char == 0xFF)
+			break;
+
+		PositionX += pWidths[Char];
 	}
 
 	pPosX -= PositionX;
@@ -20673,24 +20699,24 @@ loc_103BF:;
 
 				sub_2E04C();
 				
-				if (!word_3B2FD) {
-					if (word_3B2FF) {
-						word_390B8 = -1;
-						word_390EA = -1;
-						word_3A9B2 = -1;
-						continue;	// goto loc_1042E;
-					}
-					word_390B8 = 0;
-					sub_10CE7();
-					word_3ABE9 = 0;
-					word_3ABEB = 0;
-
-					if (mVersion->mRelease == eRelease::Retail) 
-						Briefing_Intro();
-					else {
-						mGraphics->LoadpStuff();
-					}
+				if (word_3B2FD || word_3B2FF) {
+					word_390B8 = -1;
+					word_390EA = -1;
+					word_3A9B2 = -1;
+					continue;	// goto loc_1042E;
 				}
+
+				word_390B8 = 0;
+				sub_10CE7();
+				word_3ABE9 = 0;
+				word_3ABEB = 0;
+
+				if (mVersion->mRelease == eRelease::Retail) 
+					Briefing_Intro();
+				else {
+					mGraphics->LoadpStuff();
+				}
+				
 			}
 
 			//loc_10513
