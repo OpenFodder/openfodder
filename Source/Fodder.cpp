@@ -272,7 +272,6 @@ int16 cFodder::Mission_Loop( ) {
 
 		if (word_3A9D0 != 0) {
 			Mission_Paused();
-			//video_?_0();
 
 			while (word_3A9D0) {
 				g_Window.RenderAt( mImage );
@@ -286,20 +285,15 @@ int16 cFodder::Mission_Loop( ) {
 			mImage->paletteFade();
 			mPaused = -1;
 		}
-		else {
-			//video_?_0
-		}
 
 		if( mImageFaded == -1 )
 			mImageFaded = mImage->paletteFade();
 
 		sub_11FCD();
 		if (mPaused == -1) {
-			//video_Palette_?_0
 			mPaused = 0;
 		}
 
-		//sub_14445();
 		if (mMission_ShowMapOverview) {
 			sub_12D00();
 			mMission_ShowMapOverview = 0;
@@ -553,15 +547,15 @@ void cFodder::sub_10BBC() {
 	}
 
 	for (unsigned int x = 0; x < 361; ++x)
-		word_391D2[x] = 0;
+		mGraveRanks[x] = 0;
 
-	dword_394A4 = 0;
-	dword_394A8 = 0;
+	mGraveRankPtr = 0;
+	mGraveRankPtr2 = 0;
 
 	for (unsigned int x = 0; x < 361; ++x)
-		word_394AC[x] = 0;
+		mGraveRecruitID[x] = 0;
 
-	dword_3977E = 0;
+	mGraveRecruitIDPtr = 0;
 
 	for (unsigned int x = 0; x < 6; ++x) {
 		mHeroes[x].mRecruitID = 0;
@@ -1249,7 +1243,6 @@ void cFodder::Squad_Member_Sort() {
 	// Sort by kills
 
 	sSquad_Member* Data20 = mSquad;
-	//seg000:1347
 	for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
 		sSquad_Member* Data24 = mSquad;
 
@@ -1289,7 +1282,6 @@ void cFodder::sub_1142D() {
 			}
 		}
 
-		//seg000:1481                loc_11481:
 		word_390D4 = -1;
 		sSquad_Member* Data20 = mSquad;
 		sSprite_0** Data24 = word_390D6;
@@ -1298,7 +1290,7 @@ void cFodder::sub_1142D() {
 		}
 
 	}
-	//seg000:14C6                loc_114C6:
+
 	int16 Data1C = mMapPlayerTroopCount - 1;
 	while (Data1C >= 0) {
 		Squad_PrepareMember();
@@ -1403,18 +1395,17 @@ void cFodder::sub_115F7() {
 
 void cFodder::Camera_Position_Update() {
 	int16 Data4 = mCamera_Position_Row;
-	Data4 -= 108; // 108;
+	Data4 -= 108;
 
 	if (Data4 < 0)
 		Data4 = 0;
 
 	int16 Data0 = mCamera_Position_Column;
-	Data0 -= 128; // 128;
+	Data0 -= 128;
 
 	if (Data0 < 0)
 		Data0 = 0;
 	
-	//loc_118B0
 	int16 Data8 = mCamera_Adjust_Col >> 16;
 	int16 DataC = mCamera_Adjust_Row >> 16;
 
@@ -1435,7 +1426,6 @@ void cFodder::Camera_Position_Update() {
 		}
 	}
 	else {
-		//loc_118FC
 		dword_39F36 = Data0 << 16;
 	}
 
@@ -1692,7 +1682,6 @@ void cFodder::sub_11CD6( ) {
 	mCamera_Position_Column = word_3A067;
 	mCamera_Position_Row = word_3A069;
 
-	//mImage->paletteFadeOut();
 	sub_11E60();
 	return;
 
@@ -1722,9 +1711,6 @@ loc_11D8A:;
 		g_Window.FrameEnd();
 
 	} while (mImageFaded == -1);
-	
-	//sub_14445();
-	//sub_14445();
 
 	if (word_3AF07)
 		sub_2DE2C();
@@ -2218,9 +2204,9 @@ void cFodder::sub_124DB() {
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
 
-	//Data0 *= 0x0A
+
 	const struct_5* Dataaa20 = &stru_3D35F[Data0];
-	//seg000:254F
+
 	stru_3ABB9 = *Dataaa20;
 }
 
@@ -2866,8 +2852,8 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 		word_3A9B2 = -1;
 	}
 
-	// In Mission
-	if (word_3B20F) {
+	// In Mission and not on map overview
+	if (word_3B20F && !mMission_ShowMapOverview) {
 		if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
 			if (pPressed)
 				mKeyControlPressed = -1;
@@ -2906,6 +2892,9 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 void cFodder::mouse_Setup() {
 	
 	mMouseButtons = 0;
+	mButtonPressLeft = 0;
+	mButtonPressRight = 0;
+	mouse_Button_Status = 0;
 
 	mMouseX = 0x7F;
 	mMouseY = 0x67;
@@ -2952,13 +2941,9 @@ void cFodder::Mouse_Inputs_Get() {
 	mouse_GetData();
 	mouse_ButtonCheck();
 
-	//g_Window.SetMousePosition( cPosition( 0xA0, 0x64 ) );
-
-	int16 Data4 = mouse_Pos_Column;// -0x70;
+	int16 Data4 = mouse_Pos_Column;
 	word_3BDB3 = Data4;
 
-	//Data4 += mMouseX;
-	
 	if( word_3A024 == 0 )
 		goto loc_13B3A;
 	
@@ -2987,9 +2972,8 @@ loc_13B58:;
 loc_13B66:;
 	mMouseX = Data4;
 	
-	int16 Data0 = mouse_Pos_Row;// - 88;
+	int16 Data0 = mouse_Pos_Row;
 	word_3BDB5 = Data0;
-	//Data0 += mMouseY;
 
 	if (Data0 < 4)
 		Data0 = 4;
@@ -3105,6 +3089,7 @@ void cFodder::VersionSelect() {
 
 	map_Load_Resources();
 	mGraphics->PaletteSet();
+	mouse_Setup();
 
 	word_3AC21 = 0;
 	Sprite_SetDataPtrToBase( off_42918 );
@@ -3164,7 +3149,6 @@ void cFodder::VersionSelect() {
 
 	mImageFaded = -1;
 	mMouseSpriteNew = 0x24;
-	mButtonPressLeft = 0;
 
 	for( ;; ) {	
 		Sprite_Sort_DrawList();
@@ -4777,7 +4761,7 @@ void cFodder::sub_16C45( uint16** pDi, int16* pSource ) {
 }
 
 void cFodder::sub_16C6C() {
-	int16 *si = word_391D2;
+	int16 *si = mGraveRanks;
 	
 	while( *si != -1 ) {
 		uint8* si1 = (uint8*) si;
@@ -4805,14 +4789,14 @@ void cFodder::sub_17C91( cSurface *mImage, int16 pData0, int16 pData8, int16 pDa
 void cFodder::sub_17CD3( ) {
 	int16 Data0 = 1440;
 	int32 Data1C = -1;
-	int16* Data24 = word_391D2;
+	int16* Data24 = mGraveRanks;
 
 	for(; *Data24 >= 0 ; ++Data24) {
 		Data0 -= 4;
 		Data1C++;
 	}
 
-	if (Data24 == word_391D2)
+	if (Data24 == mGraveRanks)
 		return;
 
 	--Data24;
@@ -4918,13 +4902,15 @@ void cFodder::Recruit_Render_Squad_Names() {
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A3BB ) {
 		sSquad_Member* Data2C = &mSquad[x];
-		
-		if( Data2C->field_4 == INVALID_SPRITE_PTR ||  Data2C->field_4 == 0 )
+		if (Data2C->mRecruitID == -1)
+			continue;
+
+		/*if( Data2C->field_4 == INVALID_SPRITE_PTR ||  Data2C->field_4 == 0 )
 			continue;
 		
 		if( mSquad_Selected != Data2C->field_4->field_32)
 			continue;
-
+			*/
 		sRecruit* Data28 = &mRecruits[Data2C->mRecruitID];
 		int16 Data14;
 
@@ -4975,7 +4961,10 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 	
 	for( uint16 x = 0; x < 8; ++x, --word_3A061 ) {
 		sSquad_Member* Data38 = &mSquad[x];
+		if (Data38->mRecruitID == -1)
+			continue;
 
+		/*
 		if( Data38->field_4 == INVALID_SPRITE_PTR || Data38->field_4 == 0 )
 			continue;
 		
@@ -4983,7 +4972,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 		sSprite_0* Data34 = Data38->field_4;
 		
 		if( Data4 != Data34->field_32  )
-			continue;
+			continue;*/
 		
 		int16 Data8 = 0;
 		int16 DataC = word_3A3BD;
@@ -5263,9 +5252,9 @@ void cFodder::Recruit_Draw_Troops() {
 			break;
 
 		int16 Data0;
-		int16 Data8 = Data20->field_0;	// d2
-		int16 DataC = Data20->field_2;	// d3 
-		int16 Data4 = Data20->field_4;	// d1
+		int16 Data8 = Data20->field_0;
+		int16 DataC = Data20->field_2;
+		int16 Data4 = Data20->field_4;
 		++Data20;
 		dword_3B1C7 = Data20;
 		if (Data4 == 0)
@@ -5347,10 +5336,10 @@ void cFodder::sub_17911() {
 	struct_4* Data24 = stru_373BA;
 	int16*    Data2C = word_3E197;
 
-	uint64 Data8 = (uint64) dword_394A4;
+	uint64 Data8 = (uint64) mGraveRankPtr;
 	int16 Data0, Data4;
 
-	Data8 -= (uint64) word_391D2;
+	Data8 -= (uint64) mGraveRanks;
 	Data8 >>= 1;
 	Data8 &= 0x1E;
 
@@ -10123,7 +10112,7 @@ void cFodder::sub_2D725() {
 			continue;
 
 		if (Data20->field_18 == 0)
-			sub_1EF47( Data20 );
+			Troop_Dies( Data20 );
 	}
 }
 
@@ -10144,7 +10133,7 @@ void cFodder::sub_2D767() {
 		if (Data20->field_38 >= 0x32)
 			continue;
 
-		sub_1EF47( Data20 );
+		Troop_Dies( Data20 );
 	}
 }
 
@@ -10800,7 +10789,6 @@ loc_2E6EA:;
 }
 
 void cFodder::sub_2E704() {
-	//eventProcess();
 
 	if (mKeyCode != word_44B47) {
 		word_44B47 = mKeyCode;
@@ -10890,24 +10878,27 @@ void cFodder::sub_2E72B() {
 	infile.close();
 	word_39F02 = 0;
 
-	dword_394A4 = word_391D2;
-	dword_394A8 = dword_394A4;
-	dword_3977E = word_394AC;
+	mGraveRankPtr = mGraveRanks;
+	mGraveRankPtr2 = mGraveRankPtr;
+	mGraveRecruitIDPtr = mGraveRecruitID;
 
 	for (int16 x = 0; x < 361; ++x) {
-		if (*dword_394A4 == -1)
+		if (*mGraveRankPtr == -1)
 			break;
 
-		++dword_394A4;
-		++dword_394A8;
+		++mGraveRankPtr;
+		++mGraveRankPtr2;
 	}
 	
 	for (int16 x = 0; x < 361; ++x) {
-		if (*dword_3977E == -1)
+		if (*mGraveRecruitIDPtr == -1)
 			break;
 
-		++dword_3977E;
+		++mGraveRecruitIDPtr;
 	}
+
+	for (int16 x = 0; x < 8; ++x)
+		word_390D6[x] = INVALID_SPRITE_PTR;
 
 	for (int16 x = 0; x < 9; ++x)
 		mSquad[x].field_4 = INVALID_SPRITE_PTR;
@@ -11366,7 +11357,7 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
 	Service_Mission_Text_Prepare( di );
 	mDrawSpritePositionY += 0x40;
 
-	int16* si = word_394AC;
+	int16* si = mGraveRecruitID;
 
 	if (*si == -1)
 		return -1;
@@ -11376,10 +11367,10 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
 		if (ax == -1 )
 			break;
 
-		int16* bp = dword_394A8;
+		int16* bp = mGraveRankPtr2;
 		int8 bl = *bp & 0xFF;
 		++bp;
-		dword_394A8 = bp;
+		mGraveRankPtr2 = bp;
 
 		sub_18099( di, ax, bl );
 		mDrawSpritePositionY += 0x40;
@@ -16888,7 +16879,7 @@ loc_1EA3F:;
 loc_1EA48:;
 	pSprite->field_12 += 1;
 	if (pSprite->field_12 >= 0x0F)
-		return sub_1EF47(pSprite);
+		return Troop_Dies(pSprite);
 
 	if (pSprite->field_12 >= 0x07 && pSprite->field_8 != 0x7C) {
 		pSprite->field_8 = 0x7C;
@@ -16931,7 +16922,7 @@ loc_1EB0E:;
 loc_1EB87:;
 	pSprite->field_12 += 1;
 	if (pSprite->field_12 >= 0x0F)
-		return sub_1EF47( pSprite );
+		return Troop_Dies( pSprite );
 
 	if (pSprite->field_12 < 0x07)
 		goto loc_1EA82;
@@ -17077,44 +17068,47 @@ loc_1EF28:;
 
 }
 
-int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
+int16 cFodder::Troop_Dies( sSprite_0* pSprite ) {
 	uint8* DataFinal = 0;
 	int16 Data0;
 	sSprite_0* eax = 0;
 	int8* Data28 = 0;
-	sSquad_Member* Data24 = 0;
+	sSquad_Member* SquadMember = 0;
 
+	// Is Player?
 	if (pSprite->field_22)
 		goto loc_1F0EA;
 
+	//Yes, is player
+
 	++word_397AC;
 
-	Data24 = (sSquad_Member*) pSprite->field_46;
+	SquadMember = (sSquad_Member*) pSprite->field_46;
 
-	Hero_Add( Data24 );
+	Hero_Add( SquadMember );
 
-	Data28 = (int8*) dword_394A4;
+	Data28 = (int8*) mGraveRankPtr;
 
-	Data28[0] = Data24->mRank;
+	Data28[0] = SquadMember->mRank;
 	++Data28;
 	Data28[0] = 0;
 	++Data28;
 	Data28[0] = -1; 
 	Data28[1] = -1;
-	dword_394A4 = (int16*) Data28;
+	mGraveRankPtr = (int16*) Data28;
 
-	Data28 = (int8*) dword_3977E;
-	writeLEWord( Data28, Data24->mRecruitID );
+	Data28 = (int8*) mGraveRecruitIDPtr;
+	writeLEWord( Data28, SquadMember->mRecruitID );
 
 	Data28 += 2;
 	//seg004:627D
 	Data28[0] = -1;
 	Data28[1] = -1;
-	dword_3977E = (int16*) Data28;
+	mGraveRecruitIDPtr = (int16*) Data28;
 
-	Data24->field_4 = INVALID_SPRITE_PTR;
-	Data24->mRecruitID = -1;
-	Data24->mRank = 0;
+	SquadMember->field_4 = INVALID_SPRITE_PTR;
+	SquadMember->mRecruitID = -1;
+	SquadMember->mRank = 0;
 	
 	if (mSquad_Selected < 0) {
 		word_3AC2B = 0;
@@ -17126,10 +17120,6 @@ int16 cFodder::sub_1EF47( sSprite_0* pSprite ) {
 
 	//loc_1F03D
 	return sub_2060F( pSprite );
-/*
-loc_1F043:;
-	return loc_1F043( pSprite );
-*/
 
 loc_1F0EA:;
 
@@ -18771,9 +18761,9 @@ void cFodder::Mission_PhaseNext() {
 	word_390EA = -1;
 	word_390D4 = 0;
 
-	dword_3977E = word_394AC;
-	word_394AC[0] = -1;
-	dword_394A8 = dword_394A4;
+	mGraveRecruitIDPtr = mGraveRecruitID;
+	mGraveRecruitID[0] = -1;
+	mGraveRankPtr2 = mGraveRankPtr;
 }
 
 void cFodder::video_Print_Text( const char* pText, int16 pPosY ) {
@@ -20624,8 +20614,8 @@ loc_103BF:;
 		Squad_Clear();
 		Heroes_Clear();
 
-		dword_394A4 = word_391D2;
-		word_391D2[0] = -1;
+		mGraveRankPtr = mGraveRanks;
+		mGraveRanks[0] = -1;
 
 		mMissionPhaseRemain = 1;
 		mMissionNumber = 0;
@@ -20702,7 +20692,7 @@ loc_103BF:;
 					word_390B8 = -1;
 					word_390EA = -1;
 					word_3A9B2 = -1;
-					continue;	// goto loc_1042E;
+					continue;
 				}
 
 				word_390B8 = 0;
@@ -21051,12 +21041,12 @@ loc_2F1BC:;
 		DataC = word_3A3BD;
 		DataC += 2;
 
-		Mission_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28 );
+		Mission_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28->mName );
 		word_3A3BD += 0x0C;
 	}
 }
 
-void cFodder::Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, sRecruit* pData28 ) {
+void cFodder::Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28 ) {
 
 	word_3AA21 =  byte_3DF02[pData0];
 
@@ -21065,11 +21055,11 @@ void cFodder::Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, i
 	for (Data14 = 0; Data14 <= word_3BDEB; ++Data14) {
 		if (word_3BDEB == 5) {
 
-			if (pData28->mName[Data14] == 0x20)
+			if (pData28[Data14] == 0x20)
 				break;
 		}
 
-		if (pData28->mName[Data14] == 0)
+		if (pData28[Data14] == 0)
 			break;
 
 	}
@@ -21083,8 +21073,8 @@ void cFodder::Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, i
 
 	for( Data14 = 0; Data14 <= word_3BDEB; ++Data14 ) {
 			
-		if( pData28->mName[Data14] != 0x20 ) {
-			pData0 = pData28->mName[Data14];
+		if( pData28[Data14] != 0x20 ) {
+			pData0 = pData28[Data14];
 			pData0 -= 0x41;
 			pData0 += word_3AA21;
 				
@@ -21158,7 +21148,7 @@ loc_2F593:;
 }
 
 void cFodder::sub_2F5ED() {
-	//map_CheckFinal();
+	Mission_IsFinalMap();
 	sub_2F757();
 	
 	int16 Data0 = 2;
@@ -21623,7 +21613,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 	word_3A8B1 = 6;
 	int16 DataC = Data8;
 
-	Mission_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28 );
+	Mission_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28->mName );
 	sub_3049B();
 	sub_3037A();
 }
@@ -21744,6 +21734,7 @@ void cFodder::Mission_Sidebar_MapButton_RenderWrapper() {
 	if (mMapNumber == 0x47)
 		return;
 
+	// No the map overview button in the AFX version
 	if (mVersion->mKey == "AFX")
 		return;
 
@@ -21927,6 +21918,40 @@ void cFodder::sub_304D0() {
 		if (mSquad_Grenades[mSquad_Selected])
 			sub_2F0D7();
 	}
+}
+
+void cFodder::Mission_IsFinalMap() {
+	if (mMapNumber != 0x47)
+		return;
+
+	++word_3B4D3;
+	if (word_3B4D3 < 0x28)
+		return;
+
+	word_3B4D3 = 0;
+
+	--word_3B4D5;
+	if (word_3B4D5 < 0)
+		word_3B4D5 = 0;
+
+	word_3BDEB = 0x0F;
+
+	Mission_Sidebar_TroopList_Name_Draw( 0, 0, 0, 0xB7, "TIME TO DIE" );
+
+	int16 di = 0x900;
+	for (int16 dx = 4; dx > 0; --dx) {
+		int16 di2 = di / 2;
+
+		for (int16 cx = 0x12; cx > 0; --cx) {
+			mMapSptPtr[di2] = 0;
+			mMapSptPtr[di2+1] = 0;
+			di2+=2;
+		}
+		di += 0x960;
+	}
+
+	sub_302DE( word_3B4D5, 0, 0x30, 0xC0, 0xAF );
+	word_3BDEB = 5;
 }
 
 int16 cFodder::sub_305D5( sSprite_0*& pData20 ) {

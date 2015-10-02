@@ -48,7 +48,6 @@ protected:
 	cPalette		mPaletteNew[ g_MaxColors ];
 
 	uint32			mPaletteSDL[ g_MaxColors ];
-	uint32			mColorKey;
 
 	uint8*			mSurfaceBuffer;								// Loaded Image (uses palette indexs)
 	uint8*			mSurfaceBufferSaved;
