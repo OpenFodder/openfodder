@@ -26,12 +26,12 @@ At present, it supports 3 versions
 #####Dos Retail CD Version
 
 Copy 'CF_ENG.DAT' from the CD to the Data/Dos_CD folder
-
+  
 #####Amiga Retail
 
 Use the WHDLoad installer on an Amiga to extract the game files, and copy all the extracted files into the Data/Amiga folder
-
+  
 #####Amiga Format Christmas Special
 
-Open Fodder comes with the special edition, as it was a free demo
+Open Fodder comes with the Amiga Format Christmas Special, as it was a free demo
 
