@@ -3254,8 +3254,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			mGraphics = new cGraphics_Amiga();
 			break;
 	}
-			size_t size = 0;
-	mResources->fileGet( "junarmy.dat", size );
+
 	mImage->clearBuffer();
 	mWindow->RenderAt( mImage );
 
