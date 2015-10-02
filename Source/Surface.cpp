@@ -27,14 +27,10 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mHeight = pHeight;
 	mFaded = false;
 
-	mColorKey = 0xFF;
-
 	// Create the screen buffer
 	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF, 0xFF << 8, 0xFF << 16, 0 );
 	mTexture = SDL_CreateTexture(g_Window.GetRenderer(), SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, (int) pWidth, (int) pHeight);
 	
-	//SDL_SetColorKey(mSDLSurface, 1, 0xFFFFFFFF	);
-
 	mSurfaceBuffer = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSaved = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSize = mWidth * mHeight;

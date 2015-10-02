@@ -213,11 +213,11 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_390F8;
 	sSquad_Member	mSquad[9];
 
-	int16			word_391D2[361];
-	int16*			dword_394A4;
-	int16*			dword_394A8;
-	int16			word_394AC[361];
-	int16*			dword_3977E;
+	int16			mGraveRanks[361];
+	int16*			mGraveRankPtr;
+	int16*			mGraveRankPtr2;
+	int16			mGraveRecruitID[361];
+	int16*			mGraveRecruitIDPtr;
 
 	sHero			mHeroes[6];
 
@@ -1044,7 +1044,7 @@ public:
 	int16			sub_1D92E( sSprite_0* pSprite );
 	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite_0* pSprite );
-	int16			sub_1EF47( sSprite_0* pSprite );
+	int16			Troop_Dies( sSprite_0* pSprite );
 	int16			loc_1F043( sSprite_0* pSprite );
 	void			loc_1F092( sSprite_0* pSprite, sSprite_0* pData24 );
 
@@ -1261,7 +1261,7 @@ public:
 	void			GUI_Handle_Button_Grenades();
 	void			sub_2F0D7();
 	void			Mission_Sidebar_TroopList_Draw();
-	void			Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, sRecruit* pData28 );
+	void			Mission_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28 );
 	void			sub_2F452();
 	void			Mission_Sidebar_SquadIcon_Draw();
 	int16			sub_2F4CB();
@@ -1305,6 +1305,7 @@ public:
 	void			sub_30465();
 	void			sub_30480();
 	void			sub_304D0();
+	void			Mission_IsFinalMap();
 	int16			sub_305D5( sSprite_0*& pData20 );
 	void			Mouse_Inputs_Check();
 	void			Squad_Member_Target_Set();
