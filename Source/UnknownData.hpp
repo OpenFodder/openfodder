@@ -1439,11 +1439,13 @@ const int16 word_3DEAA[] = {
 };
 
 const int16* off_3DE38[] = {
-	word_3DE4C,        
-	word_3DE66,
-	word_3DE76,
-	word_3DE8E,
-	word_3DEAA
+	word_3DE4C,		// JUN       
+	word_3DE66,		// DES
+	word_3DE76,		// ICE
+	word_3DE8E,		// MOR
+	word_3DEAA,		// INT
+	word_3DE4C,		// HID
+	word_3DE76		// AFX
 };
 
 const int16 word_4547E[] = {
