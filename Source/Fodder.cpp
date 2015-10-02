@@ -18787,9 +18787,9 @@ void cFodder::videoSleep() {
 
 	mTicksDiff = SDL_GetTicks() - mTicksDiff;
 
-	mTicks = mTicksDiff * 50 / 1000;
+	mTicks = mTicksDiff * 40 / 1000;
 
-	sleepLoop(delta * 1000 / 50 - mTicksDiff);
+	sleepLoop(delta * 1000 / 40 - mTicksDiff);
 
 	mTicksDiff = SDL_GetTicks();
 }
