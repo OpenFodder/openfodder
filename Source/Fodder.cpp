@@ -10072,7 +10072,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 		pData8 += 0x368;
 		pDataC += 0x468;
 
-		pData24->field_58 = 0;
+		pData24->field_59 = 0;
 		if (pData8 < Data0)
 			goto loc_2D6D2;
 
@@ -13072,7 +13072,7 @@ void cFodder::Sprite_Handle_Bullet( sSprite* pSprite ) {
 	pSprite->field_8 = 0x7F;
 	pSprite->field_A = 0;
 	
-	if(pSprite->field_22) 
+	if(pSprite->field_22)
 		pSprite->field_A = 3;
 	
 	Data0 = Data28->field_0;
