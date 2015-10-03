@@ -196,7 +196,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_82132 = 0;
 
 	for (int16 x = 0; x < 45; ++x) {
-		sub_212C4( &mSprites[x] );
+		Sprite_Clear( &mSprites[x] );
 	}
 	sub_10D61();
 }
@@ -843,7 +843,7 @@ void cFodder::sub_10D61() {
 		mGUI_Elements[x].mMouseInsideFuncPtr = 0;
 	}
 
-	dword_3AEF3 = 0;
+	mGUI_NextFreeElement = 0;
 	word_3AEFB = 0;
 
 	word_3B15D = 0;
@@ -887,7 +887,7 @@ void cFodder::sub_10D61() {
 	word_3B2E3 = 0;
 	word_3B2E5 = 0;
 	word_3B2ED = 0;
-	word_3B2EF = 0;
+	mSpawnSpriteType = 0;
 	word_3B2F1 = 0;
 	word_3B2F3 = 0;
 	word_3B2F5 = 0;
@@ -1078,7 +1078,7 @@ void cFodder::sub_10EE3() {
 	sSprite* Data = mSprites;
 	for( int16 count = 0x2C; count >= 0; --count,++Data ) {
 		
-		sub_212C4( Data );
+		Sprite_Clear( Data );
 	}
 
 	mSprites[44].field_0 = -1;
@@ -1137,7 +1137,7 @@ void cFodder::map_Load_Spt() {
 				++mTroops_Enemy_Count;
 				
 			} else {
-				if( Data24->field_18 == 5 )
+				if( Data24->field_18 == eSprite_Enemy )
 					++mTroops_Enemy_Count;
 			}
 			
@@ -3370,7 +3370,7 @@ int16 cFodder::sub_131DE() {
 	Data0 -= 0x14;
 
 	Data2C->field_4 += Data0;
-	Data2C->field_18 = 0x0C;
+	Data2C->field_18 = eSprite_Explosion;
 	return Data0;
 }
 
@@ -6093,7 +6093,7 @@ loc_232D2:;
 	return -1;
 
 loc_232DE:;
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = 0x1F56;
 	pSprite->field_28 = -9;
 	Data24 = pSprite + 1;
@@ -6639,7 +6639,7 @@ void cFodder::sub_23EFD( sSprite* pSprite ) {
 
 	if (pSprite->field_38 == 8 || pSprite->field_38 == 5) {
 
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		pSprite->field_26 = 0x1F45;
 		pSprite->field_28 = -2;
 		if (!pSprite->field_22)
@@ -8049,7 +8049,7 @@ loc_25E8F:;
 		return -1;
 	}
 
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = 0x1F45;
 	pSprite->field_28 = -3;
 	return -1;
@@ -8510,9 +8510,8 @@ int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 	if (Data0)
 		return -1;
 
-	sSprite* Data28 = pData2C;
-	sub_212C4( Data28 );
-	pData2C->field_18 = word_3B2EF;
+	Sprite_Clear( pData2C );
+	pData2C->field_18 = mSpawnSpriteType;
 	pData2C->field_0 = pSprite->field_0;
 	pData2C->field_0 -= 6;
 	pData2C->field_4 = pSprite->field_4;
@@ -8705,24 +8704,24 @@ void cFodder::Mission_Sidebar_MapButton_Render() {
 	if (word_3B4D9)
 		return;
 
-	sGUI_Element* Data20 = dword_3AEF3;
-	Data20->field_0 = &cFodder::sub_2EAC2;
-	Data20->field_4 = 0;
-	Data20->field_6 = 0x2F;
-	Data20->field_A = 0x0B;
-	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;
+	sGUI_Element* Element = mGUI_NextFreeElement;
+	Element->field_0 = &cFodder::sub_2EAC2;
+	Element->field_4 = 0;
+	Element->field_6 = 0x2F;
+	Element->field_A = 0x0B;
+	Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;
 
 	if (mVersion->mPlatform == ePlatform::PC) {
-		Data20->field_8 = 0xBD;
+		Element->field_8 = 0xBD;
 		mGraphics->sub_145AF( 0xD0, 0, 0xBD );
 	}
 	else {
-		Data20->field_8 = 212;
+		Element->field_8 = 212;
 		mGraphics->sub_145AF( 0xD0, 0, 212 );
 	}
-	++Data20;
+	++Element;
 
-	GUI_ClearElement( Data20 );
+	GUI_ClearElement( Element );
 	word_3B4D9 = -1;
 
 }
@@ -10137,7 +10136,7 @@ void cFodder::sub_2D7FF() {
 		if (Sprite->field_0 == -32768)
 			continue;
 
-		if (Sprite->field_18 == 0x24 || Sprite->field_18 == 5)
+		if (Sprite->field_18 == 0x24 || Sprite->field_18 == eSprite_Enemy)
 			sub_2D8AF( Sprite );
 	}
 }
@@ -10484,7 +10483,7 @@ void cFodder::sub_2E064() {
 void cFodder::sub_2E122() {
 	mImage->clearBuffer();
 
-	dword_3AEF3 = mGUI_Elements;
+	mGUI_NextFreeElement = mGUI_Elements;
 
 	for (uint16 x = 0; x < 42; ++x) {
 		mGUI_Elements[x].field_0 = 0;
@@ -10583,7 +10582,7 @@ void cFodder::sub_2E3D6() {
 }
 
 void cFodder::sub_2E244( void(cFodder::*pFunction)(void) ) {
-	sGUI_Element* Data24 = dword_3AEF3;
+	sGUI_Element* Data24 = mGUI_NextFreeElement;
 
 	Data24->field_0 = &cFodder::sub_2EAC2;
 
@@ -10604,7 +10603,7 @@ void cFodder::sub_2E244( void(cFodder::*pFunction)(void) ) {
 
 	++Data24;
 	Data24->field_0 = 0;
-	dword_3AEF3 = Data24;
+	mGUI_NextFreeElement = Data24;
 }
 
 void cFodder::sub_2E494() {
@@ -10805,11 +10804,11 @@ void cFodder::sub_2E72B() {
 		sub_2E172( "EXIT", 0xB3 );
 		sub_2E244( &cFodder::sub_2E5B3 );
 
-		sGUI_Element* dword_3AEF7 = dword_3AEF3;
+		sGUI_Element* dword_3AEF7 = mGUI_NextFreeElement;
 		mImage->Save();
 
 		int16 DataC = 0;
-		dword_3AEF3 = dword_3AEF7;
+		mGUI_NextFreeElement = dword_3AEF7;
 
 		std::vector<std::string>::iterator FileIT = Files.begin() + word_3B335;
 
@@ -10919,7 +10918,7 @@ void cFodder::sub_2EACA() {
 	word_3AC45 = -1;
 	sub_30465();
 
-	dword_3AEF3 = mGUI_Elements;
+	mGUI_NextFreeElement = mGUI_Elements;
 
 	map_ClearSpt();
 
@@ -11036,7 +11035,7 @@ void cFodder::Mission_Sidebar_Prepare( int16 pData0, int16 pData4 ) {
 }
 
 void cFodder::sub_2EBC4() {
-	sGUI_Element* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = mGUI_NextFreeElement;
 
 	GUI_SetElementsFrom( Data20, stru_3DEDC );
 }
@@ -11063,7 +11062,7 @@ void cFodder::GUI_SetElementsFrom( sGUI_Element* pData20, sGUI_Element* pData24 
 void cFodder::GUI_ClearElement( sGUI_Element *pData20 ) {
 
 	pData20->field_0 = 0;
-	dword_3AEF3 = pData20;
+	mGUI_NextFreeElement = pData20;
 }
 
 void cFodder::Mission_Sidebar_SplitButton_Draw() {
@@ -11076,7 +11075,7 @@ void cFodder::Mission_Sidebar_SplitButton_Draw() {
 }
 
 void cFodder::GUI_Prepare_Button_Squad() {
-	sGUI_Element* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = mGUI_NextFreeElement;
 
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;
@@ -12043,7 +12042,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 			
 		case 12:
-			sub_1A8A5( Data20 );
+			Sprite_Handle_Explosion( Data20 );
 			break;
 
 		case 13:
@@ -12123,7 +12122,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 35:
-			sub_1B8A9( Data20 );
+			Sprite_Handle_Shadow( Data20 );
 			break;
 
 		case 36:
@@ -12918,7 +12917,7 @@ loc_198D3:;
 loc_1992D:;
 
 	if (pSprite->field_52 < 8) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		sub_1998C( pSprite );
 		sub_2061C( pSprite + 1 );
 		return;
@@ -13125,12 +13124,8 @@ loc_19D24:;
 			goto loc_19DCF;
 	}
 
-	if( sub_21618( pSprite ) )
-		goto loc_19D68;
-	
-	return;
-	
-loc_19D68:;
+	if( !sub_21618( pSprite ) )
+		return;
 	
 	if(word_3AA03 == 1 )
 		goto loc_19DCF;
@@ -13273,7 +13268,7 @@ loc_19F50:;
 	pSprite->field_20 = 0;
 
 loc_19FBC:;
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = 0x1F50;
 	pSprite->field_28 = -9;
 	(pSprite+1)->field_18 = 0x35;
@@ -13544,7 +13539,7 @@ loc_1A5A7:;
 	pSprite->field_22 = 0;
 }
 
-void cFodder::sub_1A8A5( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 	if (pSprite->field_8 == 0x7C) {
 		sub_22A55( pSprite );
 		return;
@@ -14319,7 +14314,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 
 loc_1B843:;
 	// Hit Target
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 	sub_229C9( pSprite );
 	Data24 = pSprite + 1;
 
@@ -14341,10 +14336,10 @@ void cFodder::Sprite_Handle_Text_GameOver( sSprite* pSprite ) {
 	pSprite->field_4 = Data0;
 }
 
-void cFodder::sub_1B8A9( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Shadow( sSprite* pSprite ) {
 	sSprite* Data28 = (sSprite*) pSprite->field_1A;
 
-	if (Data28->field_18 == 0x0C) {
+	if (Data28->field_18 == eSprite_Explosion) {
 		sub_2060F( pSprite );
 		return;
 	}
@@ -14411,7 +14406,7 @@ void cFodder::Sprite_Handle_Enemy_Rocket( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_GrenadeBox( sSprite* pSprite ) {
 	
 	if (pSprite->field_38) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		return;
 	}
 
@@ -14429,7 +14424,7 @@ void cFodder::Sprite_Handle_GrenadeBox( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 	if (pSprite->field_38) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		return;
 	}
 
@@ -14900,7 +14895,7 @@ void cFodder::sub_1C2D2( sSprite* pSprite ) {
 	}
 
 loc_1C321:;
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 	sub_2183B( pSprite );
 }
 
@@ -14952,7 +14947,7 @@ void cFodder::sub_1C364( sSprite* pSprite ) {
 	return;
 
 loc_1C406:;
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 }
 
 void cFodder::sub_1C411( sSprite* pSprite ) {
@@ -15749,19 +15744,19 @@ void cFodder::sub_1D483( sSprite* pSprite ) {
 }
 
 void cFodder::sub_1D4AE( sSprite* pSprite ) {
-	word_3B2EF = 0x3D;
+	mSpawnSpriteType = 0x3D;
 
 	sub_264B0(pSprite);
 }
 
 void cFodder::sub_1D4BA( sSprite* pSprite ) {
-	word_3B2EF = 0x3E;
+	mSpawnSpriteType = 0x3E;
 
 	sub_264B0(pSprite);
 }
 
 void cFodder::sub_1D4C6( sSprite* pSprite ) {
-	word_3B2EF = 0x46;
+	mSpawnSpriteType = 0x46;
 
 	sub_264B0(pSprite);
 }
@@ -16021,7 +16016,7 @@ loc_1D928:;
 
 void cFodder::sub_1DA43( sSprite* pSprite ) {
 
-	sub_1A8A5( pSprite );
+	Sprite_Handle_Explosion( pSprite );
 }
 
 void cFodder::sub_1DA48( sSprite* pSprite ) {
@@ -16110,7 +16105,7 @@ void cFodder::sub_1DB58( sSprite* pSprite ) {
 		return;
 
 loc_1DC50:;
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = -32763;
 	pSprite->field_28 = -3;
 }
@@ -16120,7 +16115,7 @@ void cFodder::Sprite_Handle_RankToGeneral( sSprite* pSprite ) {
 
 	// Blow up?
 	if (pSprite->field_38) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		return;
 	}
 
@@ -16142,7 +16137,7 @@ void cFodder::Sprite_Handle_Set50Rockets( sSprite* pSprite ) {
 
 	// Blow up?
 	if (pSprite->field_38) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		return;
 	}
 
@@ -16160,7 +16155,7 @@ void cFodder::Sprite_Handle_Set50Rockets( sSprite* pSprite ) {
 
 void cFodder::sub_1DD4C( sSprite* pSprite ) {
 	if (pSprite->field_38) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		return;
 	}
 
@@ -16175,7 +16170,7 @@ void cFodder::sub_1DD4C( sSprite* pSprite ) {
 
 void cFodder::sub_1DD91( sSprite* pSprite ) {
 	if (pSprite->field_38) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		return;
 	}
 
@@ -16204,7 +16199,7 @@ void cFodder::sub_1BEF6( sSprite* pSprite ) {
 void cFodder::sub_1DE38( sSprite* pSprite ) {
 
 	if (pSprite->field_38) {
-		pSprite->field_18 = 0x0C;
+		pSprite->field_18 = eSprite_Explosion;
 		return;
 	}
 
@@ -17741,7 +17736,7 @@ void cFodder::sub_1FCF2( sSprite* pSprite ) {
 
 	pSprite->field_36 = 0x10;
 
-	if (pSprite->field_18 == 5) {
+	if (pSprite->field_18 == eSprite_Enemy) {
 		Data0 = 0x0C;
 		Data0 += pSprite->field_62;
 		if (Data0 > 0x1A)
@@ -17874,7 +17869,7 @@ void cFodder::sub_1FFC6( sSprite* pSprite, int16& pData4 ) {
 	pSprite->field_4F = 0;
 
 	if (pData4 == 0x0A) {
-		if (pSprite->field_18 == 5)
+		if (pSprite->field_18 == eSprite_Enemy)
 			goto loc_20251;
 
 		if (pSprite->field_22 == 2)
@@ -17889,7 +17884,7 @@ void cFodder::sub_1FFC6( sSprite* pSprite, int16& pData4 ) {
 	//loc_20044
 	if (pData4 == 9) {
 
-		if (pSprite->field_18 == 5)
+		if (pSprite->field_18 == eSprite_Enemy)
 			goto loc_20251;
 
 		if (pSprite->field_22 == 2)
@@ -19155,7 +19150,7 @@ loc_20B6E:;
 	Data2C->field_2C = 0;
 	Data30->field_2C = -1;
 	Data2C->field_38 = 0;
-	if (pSprite->field_18 == 5)
+	if (pSprite->field_18 == eSprite_Enemy)
 		Data2C->field_12 += 0x1C;
 	Data2C->field_56 = 4;
 	Data2C->field_46 = (int32*)pSprite;
@@ -19366,7 +19361,7 @@ int16 cFodder::sub_211BA( int16& pData0, sSprite*& pData2C, sSprite*& pData30 ) 
 
 loc_21217:;
 
-	sub_212C4( pData2C );
+	Sprite_Clear( pData2C );
 	pData0 = 0;
 	return 0;
 
@@ -19391,13 +19386,13 @@ loc_21234:;
 loc_2128F:;
 	pData30 = pData2C + 1;
 
-	sub_212C4( pData2C );
-	sub_212C4( pData30 );
+	Sprite_Clear( pData2C );
+	Sprite_Clear( pData30 );
 	pData0 = 0;
 	return 0;
 }
 
-void cFodder::sub_212C4( sSprite* pSprite ) {
+void cFodder::Sprite_Clear( sSprite* pSprite ) {
 	pSprite->field_0 = -32768;
 	pSprite->field_2 = 0;
 	pSprite->field_4 = 0;
@@ -19556,7 +19551,7 @@ loc_213F7:;
 	return;
 
 loc_21464:;
-	pSprite->field_18 = 0x0C;
+	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = 0x5F5F;
 	pSprite->field_28 = 8;
 }
@@ -19580,7 +19575,7 @@ void cFodder::sub_21483( sSprite* pSprite ) {
 	Data2C->field_4 += 0x10;
 	Data2C->field_8 = 0x8D;
 	Data2C->field_A = 0;
-	Data2C->field_18 = 0x23;
+	Data2C->field_18 = eSprite_Shadow;
 	Data2C->field_20 = 0;
 	Data2C->field_32 = -1;
 	Data2C->field_2C = -1;
@@ -19671,15 +19666,13 @@ int16 cFodder::sub_21618( sSprite* pSprite ) {
 	if (Sprite_Find_In_Region(pSprite, Data24, Data8, DataC, Data10, Data14 ) >= 0)
 		return 0;
 
-	if (Data24->field_18 == 5) {
+	if (Data24->field_18 == eSprite_Enemy) {
 
 		Data24->field_5E = pSprite->field_5E;
 		Data24->field_5D = pSprite->field_5D;
-
-		return -1;
 	}
 
-	return 0;
+	return -1;
 }
 
 void cFodder::sub_21702( sSprite* pSprite, int16 pData18 ) {
@@ -19759,7 +19752,7 @@ void cFodder::sub_218E2( sSprite* pSprite ) {
 	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
 	
-	sub_212C4( pSprite );
+	Sprite_Clear( pSprite );
 	sub_2194E( pSprite, Data8, DataC );
 }
 
@@ -19772,7 +19765,7 @@ int16 cFodder::sub_21914( int16& pData8, int16& pDataC ) {
 	if (Data0)
 		return -1;
 
-	sub_212C4(Data2C);
+	Sprite_Clear(Data2C);
 
 	pData8 &= -16;
 	pDataC &= -16;
@@ -19818,8 +19811,8 @@ int16 cFodder::Troop_Deploy( sSprite* pSprite, sSprite*& pData2C ) {
 		return -1;
 
 //loc_21A1C:;
-	sub_212C4( pData2C );
-	pData2C->field_18 = 5;
+	Sprite_Clear( pData2C );
+	pData2C->field_18 = eSprite_Enemy;
 	pData2C->field_0 = pSprite->field_0;
 	pData2C->field_0 -= 6;
 	pData2C->field_4 = pSprite->field_4;
@@ -19876,7 +19869,7 @@ loc_21B4B:;
 	return;
 
 loc_21B72:;
-	sub_212C4( pData2C );
+	Sprite_Clear( pData2C );
 	pData0 = 0;
 	return;
 
@@ -19947,7 +19940,7 @@ void cFodder::sub_21C6F( ) {
 
 	Data2C->field_8 = 0x7C;
 	Data2C->field_A = 0;
-	Data2C->field_18 = 0x15;
+	Data2C->field_18 = eSprite_Rank;
 	Data2C->field_0 = 0;
 	Data2C->field_4 = 0;
 	Data2C->field_22 = -1;
@@ -20528,7 +20521,7 @@ void cFodder::sub_22AA9( sSprite* pSprite ) {
 	pSprite->field_38 = 0;
 	
 	sSprite* Data24 = pSprite->field_6A;
-	if( Data24->field_0 == -32768 || Data24->field_18 == 0x0C ) {
+	if( Data24->field_0 == -32768 || Data24->field_18 == eSprite_Explosion ) {
 		//loc_22AEE
 		pSprite->field_6E = 0;
 		pSprite->field_66 = 0;
@@ -20879,7 +20872,7 @@ void cFodder::GUI_Prepare_Button_Grenade() {
 	if (!word_3AC47)
 		return;
 
-	sGUI_Element* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = mGUI_NextFreeElement;
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;
 	Data20->field_6 = 0x0C;
@@ -21355,7 +21348,7 @@ void cFodder::sub_2FA05() {
 
 void cFodder::Mission_Sidebar_MapButton_Prepare() {
 
-	dword_3AEF3 = mGUI_Elements;
+	mGUI_NextFreeElement = mGUI_Elements;
 
 	map_ClearSpt();
 
@@ -21447,7 +21440,7 @@ void cFodder::GUI_Prepare_Button_Rockets() {
 	if (!word_3AC47)
 		return;
 
-	sGUI_Element* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = mGUI_NextFreeElement;
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0x24;
 	Data20->field_6 = 0x0C;
@@ -21502,7 +21495,7 @@ void cFodder::GUI_Prepare_Button_TroopName() {
 
 loc_2FCF4:;
 	word_3AEFB = word_3AC1D;
-	sGUI_Element* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = mGUI_NextFreeElement;
 
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;

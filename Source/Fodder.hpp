@@ -442,7 +442,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC4F;
 	int16			word_3AC51;
 	sGUI_Element	mGUI_Elements[42];
-	sGUI_Element*	dword_3AEF3;
+	sGUI_Element*	mGUI_NextFreeElement;
 	int16			word_3AEFB;
 	int16			word_3AF01;
 	int16			word_3AF03;
@@ -492,7 +492,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2E3;
 	int16			word_3B2E5;
 	int16			word_3B2ED;
-	int16			word_3B2EF;
+	int16			mSpawnSpriteType;
 	int16			word_3B2F1;
 	int16			word_3B2F3;
 	int16			word_3B2F5;
@@ -910,14 +910,14 @@ public:
 	void			sub_18D5E();
 	void			Sprite_Handle_Loop();
 
-	void			Sprite_Handle_Player( sSprite* pSprite );					// 0
+	void			Sprite_Handle_Player( sSprite* pSprite );				// 0
 	void			Sprite_Handle_Grenade( sSprite* pSprite );				// 2
 	void			sub_1998C( sSprite* pSprite );
 	void			sub_199B2( sSprite* pSprite );							// 3
-	void			Sprite_Handle_Enemy( sSprite* pSprite );					// 5
-	void			Sprite_Handle_Bullet( sSprite* pSprite );					// 6
+	void			Sprite_Handle_Enemy( sSprite* pSprite );				// 5
+	void			Sprite_Handle_Bullet( sSprite* pSprite );				// 6
 	void			sub_19E65( sSprite* pSprite );
-	void			sub_1A8A5( sSprite* pSprite );							// 12
+	void			Sprite_Handle_Explosion( sSprite* pSprite );			// 12
 	void			sub_1ABD3( sSprite* pSprite );							// 13
 	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14
 	void			Sprite_Handle_BuildingRoof( sSprite* pSprite );			// 15
@@ -932,21 +932,21 @@ public:
 	void			sub_1B07C( sSprite* pSprite );							// 23
 	void			sub_1B0C0( sSprite* pSprite );							// 24
 	void			sub_1B1C1( sSprite* pSprite );							// 25
-	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );	// 27
-	void			Sprite_Handle_Text_Complete( sSprite* pSprite );			// 28
+	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );// 27
+	void			Sprite_Handle_Text_Complete( sSprite* pSprite );		// 28
 	void			Sprite_Handle_Text_Mission( sSprite* pSprite );			// 29
 
-	void			Sprite_Handle_Text_Phase( sSprite* pSprite );				// 30
+	void			Sprite_Handle_Text_Phase( sSprite* pSprite );			// 30
 	void			sub_1B4BB( sSprite* pSprite );
-	void			Sprite_Handle_Rocket( sSprite* pSprite );					// 33
-	void			Sprite_Handle_Text_GameOver( sSprite* pSprite );			// 34
-	void			sub_1B8A9( sSprite* pSprite );							// 35
+	void			Sprite_Handle_Rocket( sSprite* pSprite );				// 33
+	void			Sprite_Handle_Text_GameOver( sSprite* pSprite );		// 34
+	void			Sprite_Handle_Shadow( sSprite* pSprite );				// 35
 	void			Sprite_Handle_Enemy_Rocket( sSprite* pSprite );			// 36
-	void			Sprite_Handle_GrenadeBox( sSprite* pSprite );				// 37
-	void			Sprite_Handle_RocketBox( sSprite* pSprite );				// 38
+	void			Sprite_Handle_GrenadeBox( sSprite* pSprite );			// 37
+	void			Sprite_Handle_RocketBox( sSprite* pSprite );			// 38
 	void			sub_1BB11( sSprite* pSprite );							// 39
 
-	void			Sprite_Handle_Helicopter( sSprite* pSprite );				// 40
+	void			Sprite_Handle_Helicopter( sSprite* pSprite );			// 40
 	void			sub_1BD54( sSprite* pSprite );							// 41
 	void			sub_1BD27( sSprite* pSprite );							// 42
 	void			sub_1BD36( sSprite* pSprite );							// 43
@@ -966,16 +966,16 @@ public:
 	void			sub_1C411( sSprite* pSprite );							// 56
 	void			sub_1C4C2( sSprite* pSprite );							// 57
 	void			Sprite_Handle_Text_Try( sSprite* pSprite );				// 58
-	void			Sprite_Handle_Text_Again( sSprite* pSprite );				// 59
+	void			Sprite_Handle_Text_Again( sSprite* pSprite );			// 59
 
-	void			Sprite_Handle_BoilingPot( sSprite* pSprite );				// 60
-	void			Sprite_Handle_Indigenous( sSprite* pSprite );				// 61
+	void			Sprite_Handle_BoilingPot( sSprite* pSprite );			// 60
+	void			Sprite_Handle_Indigenous( sSprite* pSprite );			// 61
 	void			sub_1C62F( sSprite* pSprite );							// 62
-	void			Sprite_Handle_Skidu( sSprite* pSprite );					// 63
-	void			Sprite_Handle_Truck( sSprite* pSprite );					// 64
+	void			Sprite_Handle_Skidu( sSprite* pSprite );				// 63
+	void			Sprite_Handle_Truck( sSprite* pSprite );				// 64
 	void			Sprite_Handle_Tank( sSprite* pSprite );					// 65
-	void			Sprite_Handle_Bird_Left( sSprite* pSprite );				// 66
-	void			Sprite_Handle_Bird_Right( sSprite* pSprite );				// 67
+	void			Sprite_Handle_Bird_Left( sSprite* pSprite );			// 66
+	void			Sprite_Handle_Bird_Right( sSprite* pSprite );			// 67
 	void			Sprite_Handle_Seal( sSprite* pSprite );					// 68
 	void			sub_1CB1F( sSprite* pSprite );							// 69
 
@@ -987,7 +987,7 @@ public:
 	void			sub_1D4BA( sSprite* pSprite );							// 75
 	void			sub_1D4C6( sSprite* pSprite );							// 76
 	void			sub_1D4D2( sSprite* pSprite );							// 77
-	void			Sprite_Handle_Turret( sSprite* pSprite );					// 78
+	void			Sprite_Handle_Turret( sSprite* pSprite );				// 78
 	void			sub_1D756( sSprite* pSprite );							// 79
 
 	void			sub_1D76F( sSprite* pSprite );							// 80
@@ -1004,7 +1004,7 @@ public:
 	void			sub_1DA48( sSprite* pSprite );							// 90
 	void			sub_1DACF( sSprite* pSprite );							// 91
 	void			sub_1DB58( sSprite* pSprite );							// 92
-	void			Sprite_Handle_RankToGeneral( sSprite* pSprite );			// 93
+	void			Sprite_Handle_RankToGeneral( sSprite* pSprite );		// 93
 	void			Sprite_Handle_Set50Rockets( sSprite* pSprite );			// 94
 	void			sub_1DD4C( sSprite* pSprite );							// 95
 	void			sub_1DD91( sSprite* pSprite );							// 96
@@ -1061,7 +1061,7 @@ public:
 
 	void			sub_21041( sSprite* pSprite );
 	int16			sub_211BA( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
-	void			sub_212C4( sSprite* pSprite );
+	void			Sprite_Clear( sSprite* pSprite );
 	void			sub_212F9( sSprite* pSprite );
 	void			sub_21483( sSprite* pSprite );
 	void			sub_21525( sSprite* pSprite );

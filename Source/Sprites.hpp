@@ -25,6 +25,7 @@ enum eSprites {
 	eSprite_Grenade			= 2,
 	eSprite_Enemy			= 5,
 	eSprite_Bullet			= 6,
+	eSprite_Explosion		= 12,
 	eSprite_Tree			= 14,
 	eSprite_Roof			= 15,
 	eSprite_Door			= 20,
@@ -35,6 +36,7 @@ enum eSprites {
 	eSprite_Text_Phase		= 30,
 	eSprite_Rocket			= 33,
 	eSprite_Text_GameOver	= 34,
+	eSprite_Shadow			= 35,
 	eSprite_Enemy_Rocket	= 36,
 	eSprite_GrenadeBox		= 37,
 	eSprite_RocketBox		= 38,
@@ -60,8 +62,8 @@ struct sSprite {
 	int16 field_2;		
 	int16 field_4;		// Y
 	int16 field_6;
-	int16 field_8;		// mSpriteDataPtr[field_8][field_a]
-	int16 field_A;		// mSpriteDataPtr[field_8][field_a]
+	int16 field_8;		// Animation   mSpriteDataPtr[field_8][field_a]
+	int16 field_A;		// FrameNumber mSpriteDataPtr[field_8][field_a]
 	int16 field_C;
 	int16 field_E;
 	int16 field_10;
