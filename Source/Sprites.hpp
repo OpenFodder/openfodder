@@ -20,7 +20,7 @@
  *
  */
 
-struct sSprite_0 {
+struct sSprite {
 	int16 field_0;		// X
 	int16 field_2;		
 	int16 field_4;		// Y
@@ -82,11 +82,11 @@ struct sSprite_0 {
 	int16 field_62;
 	int8 field_64;
 	int8 field_65;
-	sSprite_0* field_66;
-	sSprite_0* field_6A;
+	sSprite* field_66;
+	sSprite* field_6A;
 	int8 field_6E;
 	int8 field_6F;
-	sSprite_0* field_70;
+	sSprite* field_70;
 	int8 field_74;
 	int8 field_75;
 };
