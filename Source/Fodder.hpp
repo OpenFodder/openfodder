@@ -23,20 +23,6 @@
 
 #include "Sprites.hpp"
 
-struct sMouseData {
-	uint16	anonymous_0;
-	uint16	anonymous_1;
-	uint16	anonymous_2;
-	uint16	mColumn;
-	uint16	mRow;
-	uint16	anonymous_5;
-	uint16	anonymous_6;
-	uint16	anonymous_7;
-	uint16	anonymous_8;
-	uint16	anonymous_9;
-	uint16	anonymous_10;
-};
-
 struct sSquad_Member {
 	int16		mRecruitID;
 	uint8		mRank;
@@ -97,7 +83,7 @@ struct struct_5 {
 
 class cFodder;
 
-struct struct_6 {
+struct sGUI_Element {
 	int16	(cFodder::*field_0)();
 	int16	field_4;
 	int16	field_6;
@@ -313,7 +299,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A016;
 	int16			word_3A01A;
 	uint16			word_3A024;
-	struct_6*		dword_3A02A;
+	sGUI_Element*		dword_3A02A;
 	int32			dword_3A030;
 	uint16			word_3A054;
 	int8			mSquads_TroopCount[4];
@@ -445,8 +431,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC21;
 	int16			word_3AC29;
 	int16			word_3AC2B;
-	int8			byte_3AC33[3];
-	int8			byte_3AC39[3];
+	int8			mGUI_RefreshSquadGrenades[3];
+	int8			mGUI_RefreshSquadRockets[3];
 	int16			word_3AC3F[3];
 	int16			word_3AC45;
 	int16			word_3AC47;
@@ -455,8 +441,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC4D;
 	int16			word_3AC4F;
 	int16			word_3AC51;
-	struct_6		stru_3AC53[42]; //Correct?
-	struct_6*		dword_3AEF3;
+	sGUI_Element	stru_3AC53[42];
+	sGUI_Element*	dword_3AEF3;
 	int16			word_3AEFB;
 	int16			word_3AF01;
 	int16			word_3AF03;
@@ -616,7 +602,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mCamera_Row_Previous;
 	uint16*			word_3D5B7;
 
-	struct_6		stru_3DEDC[2];
+	sGUI_Element		stru_3DEDC[2];
 	int16			word_3E0E5[0x18];
 
 	uint8*			word_3E1B7;
@@ -713,9 +699,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mouse_Button_Status;
 	int16			mouse_Pos_Column;
 	int16			mouse_Pos_Row;
-
-	sMouseData*		mouseData0;
-	sMouseData*		mouseData1;
 
 	int16			word_42072;
 	uint16			word_427D4;
@@ -1220,7 +1203,7 @@ public:
 	void			sub_2E3D6();
 	void			sub_2E244( void(cFodder::*pFunction )(void) ); 
 	void			sub_2E494();
-	void			sub_2E3E3( struct_6* pData20 );
+	void			sub_2E3E3( sGUI_Element* pData20 );
 	void			sub_2E5B3();
 	void			sub_2E5C3();
 	void			sub_2E6A9();
@@ -1234,15 +1217,15 @@ public:
 	void			sub_2EAC3();
 	void			sub_2EACA();
 	
-	void			sub_9B94E( const struct_6 *pA0 );
+	void			sub_9B94E( const sGUI_Element *pA0 );
 	void			sub_A03EE();
 	void			sub_A0400();
 
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
 	void			Mission_Sidebar_Prepare( int16 pData0, int16 pData4 );
 	void			sub_2EBC4();
-	void			sub_2EC0E( struct_6* pData20, struct_6* pData24 );
-	void			sub_2ECC7( struct_6 *pData20 );
+	void			GUI_SetElementsFrom( sGUI_Element* pData20, sGUI_Element* pData24 );
+	void			GUI_ClearElement( sGUI_Element *pData20 );
 	void			Mission_Sidebar_SplitButton_Draw();
 	void			GUI_Prepare_Button_Squad();
 	void			GUI_Handle_Button_SelectSquad_0();

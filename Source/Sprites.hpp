@@ -20,6 +20,41 @@
  *
  */
 
+enum eSprites {
+	eSprite_Player			= 0,
+	eSprite_Grenade			= 2,
+	eSprite_Enemy			= 5,
+	eSprite_Bullet			= 6,
+	eSprite_Tree			= 14,
+	eSprite_Roof			= 15,
+	eSprite_Door			= 20,
+	eSprite_Rank			= 21,
+	eSprite_FloatingSoldier = 27,
+	eSprite_Text_Complete	= 28,
+	eSprite_Text_Mission	= 29,
+	eSprite_Text_Phase		= 30,
+	eSprite_Rocket			= 33,
+	eSprite_Text_GameOver	= 34,
+	eSprite_Enemy_Rocket	= 36,
+	eSprite_GrenadeBox		= 37,
+	eSprite_RocketBox		= 38,
+	eSprite_Helicopter		= 40,
+	eSprite_Missile			= 45,
+	eSprite_Text_Try		= 58,
+	eSprite_Text_Again		= 59,
+	eSprite_BoilingPot		= 60,
+	eSprite_Indigenous		= 61,
+	eSprite_Skidu			= 63,
+	eSprite_Truck			= 64,
+	eSprite_Tank			= 65,
+	eSprite_Bird_Left		= 66,
+	eSprite_Bird_Right		= 67,
+	eSprite_Seal			= 68,
+	eSprite_Turret			= 78,
+	eSprite_Bonus_General	= 93,
+	eSprite_Bonus_Rockets	= 94,
+};
+
 struct sSprite {
 	int16 field_0;		// X
 	int16 field_2;		
