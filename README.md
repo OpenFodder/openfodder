@@ -34,3 +34,8 @@ Use the WHDLoad installer on an Amiga to extract the game files, and copy all th
 
 Open Fodder comes with the Amiga Format Christmas Special
 
+
+####Fixes
+These are issues in the original engine which have been fixed
+
+*Squad 2 and 3 grenade and rocket count did not refresh after use.
