@@ -41,7 +41,7 @@ struct sSquad_Member {
 	int16		mRecruitID;
 	uint8		mRank;
 	int8		field_3;
-	sSprite_0*	field_4;
+	sSprite*	field_4;
 	uint16		field_6;
 	int8		field_8;
 	int8		field_9;
@@ -140,8 +140,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint8*					word_397D8;
 
-	sSprite_0				word_3B4F7;
-	sSprite_0				mSprites[45];
+	sSprite				word_3B4F7;
+	sSprite				mSprites[45];
 
 	const sSpriteSheet**	mSpriteDataPtr;
 	
@@ -202,7 +202,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390D0;
 	uint16			word_390D2;
 	int16			word_390D4;
-	sSprite_0*		word_390D6[8];
+	sSprite*		word_390D6[8];
 	int16			word_390E6;
 	uint16			word_390E8;
 	int16			word_390EA;
@@ -291,7 +291,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FB4;
 	int16			word_39FB6;
 	int16			word_39FB8;
-	sSprite_0*		word_39FCE;
+	sSprite*		word_39FCE;
 
 	int16			mSquad_Selected;
 	int16			word_39FD2;
@@ -324,9 +324,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A067;
 	int16			word_3A069;
 	int16			word_3A06B;
-	sSprite_0*		dword_3A071[45];
-	sSprite_0*		dword_3A125[45];
-	sSprite_0*		dword_3A1D9[45];
+	sSprite*		dword_3A071[45];
+	sSprite*		dword_3A125[45];
+	sSprite*		dword_3A1D9[45];
 	int16			word_3A28D;
 
 	int16			word_3A8B1;
@@ -336,7 +336,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_3A8DB;
 	uint8			byte_3A8DE[200];
 
-	sSprite_0*		dword_3A291[64];
+	sSprite*		dword_3A291[64];
 	int32			dword_3A391;
 	uint32			dword_3A395;
 	int16			word_3A399;
@@ -375,7 +375,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9BA[3];	// values here, seem to be a byte count originally.. now its an index
 	int16			word_3A9C0[3];
 	int16			word_3A9C6;
-	sSprite_0**		dword_3A9C8;
+	sSprite**		dword_3A9C8;
 	int16			word_3A9CE;
 	int16			word_3A9D0;
 	int8			byte_3A9D2[4];
@@ -490,11 +490,11 @@ class cFodder : public cSingleton < cFodder > {
 	const struct_4*		dword_3B1FB;
 	
 	int16			mMap_TileSet;
-	sSprite_0*		dword_3B20B;
+	sSprite*		dword_3B20B;
 	int16			word_3B20F;
 	int16			word_3B211;
-	sSprite_0*		dword_3B213[15];
-	sSprite_0*		dword_3B24F[3];
+	sSprite*		dword_3B213[15];
+	sSprite*		dword_3B24F[3];
 	int16			word_3B25B;
 	int16			word_3B25D;
 	int16			word_3B2CB;
@@ -532,7 +532,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B44F;
 
 	int16			word_3B461[3];
-	sSprite_0*		dword_3B477;
+	sSprite*		dword_3B477;
 	int16			word_3B47B;
 	int16			word_3B47D;
 	int16			word_3B47F;
@@ -540,10 +540,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B483;
 	int16			word_3B487;
 	int16			word_3B489;
-	sSprite_0*		dword_3B48B[16];
+	sSprite*		dword_3B48B[16];
 	int16			word_3B4CB;
 	int16			word_3B4CD;
-	sSprite_0*		dword_3B4CF;
+	sSprite*		dword_3B4CF;
 	int16			word_3B4D3;
 	int16			word_3B4D5;
 	int16			word_3B4D7;
@@ -558,7 +558,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4F3;
 	int16			word_3B4F5;
 
-	sSprite_0*		dword_3B5F5;
+	sSprite*		dword_3B5F5;
 	int16			mMapTilePtr;
 	int16			word_3B60E;
 	int16			word_3B610;
@@ -580,13 +580,13 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BDE9;
 	uint16			word_3BDEB;
 	
-	sSprite_0*		dword_3BE03[9];
-	sSprite_0*		dword_3BE27[9];
-	sSprite_0*		dword_3BE4B[9];
-	sSprite_0*		dword_3BE6F[9];
-	sSprite_0*		dword_3BE93[9];
+	sSprite*		dword_3BE03[9];
+	sSprite*		dword_3BE27[9];
+	sSprite*		dword_3BE4B[9];
+	sSprite*		dword_3BE6F[9];
+	sSprite*		dword_3BE93[9];
 	
-	sSprite_0**		off_3BDEF[5];
+	sSprite**		off_3BDEF[5];
 	int16			word_3BEB9;
 	int16			word_3BEBB;
 	int16			word_3BEBD;
@@ -598,7 +598,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	struct_8*		off_3BEF3[10];
 	int8			byte_3BF1B[3];
-	sSprite_0*		word_3BF1E[6];
+	sSprite*		word_3BF1E[6];
 
 	uint16			mIntroDone;
 
@@ -800,13 +800,13 @@ public:
 	void			Mission_Goals_Set();
 	void			sub_12790( );
 	void			Mission_Show_Complete();
-	void			sub_12877( sSprite_0* pData2C );
-	void			sub_128A9( sSprite_0* pData2C );
-	void			sub_128DB( sSprite_0* pData2C );
-	void			sub_128F4( sSprite_0* pData2C );
+	void			sub_12877( sSprite* pData2C );
+	void			sub_128A9( sSprite* pData2C );
+	void			sub_128DB( sSprite* pData2C );
+	void			sub_128F4( sSprite* pData2C );
 	void			Mission_Show_TryAgain();
-	void			sub_1298C( sSprite_0* pData2C );
-	void			sub_129B6( sSprite_0* pData2C );
+	void			sub_1298C( sSprite* pData2C );
+	void			sub_129B6( sSprite* pData2C );
 
 	std::string		sub_12AA1( const std::string& pBase, const char* pFinish );
 	void			sub_12A5F();
@@ -824,21 +824,21 @@ public:
 	void			sub_131A2();
 	int16			sub_131DE();
 	void			sub_13255();
-	void			sub_13277( sSprite_0* pData2C );
+	void			sub_13277( sSprite* pData2C );
 	void			Mission_Paused();
 	void			sub_136D0();
 	void			sub_13800();
 	void			Mouse_DrawCursor( );
 	void			sub_13C1C(  int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A(  int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
-	void			sub_13CF0(  sSprite_0* pDi, int16 pData0, int16 pData4 );
+	void			sub_13CF0(  sSprite* pDi, int16 pData0, int16 pData4 );
 
 	bool			Sprite_OnScreen_Check();
 	void			Sprite_Draw( );
 	void			sub_14CCB( int16& pData0 );
 
 	void			Sound_Voc_Load();
-	void			Sound_Voc_Play( sSprite_0* pSprite, int16 pData4, int16 pData8 );
+	void			Sound_Voc_Play( sSprite* pSprite, int16 pData4, int16 pData8 );
 	void			Music_Play( int16 pTrack );
 
 	// 14EAC
@@ -910,7 +910,7 @@ public:
 	void			video_Draw_Unk_2( );
 	/* End Promotion / Heroes */
 
-	int16			loc_2D9D5( sSprite_0* pSprite );
+	int16			loc_2D9D5( sSprite* pSprite );
 
 	void			Briefing_Show( );
 	void			Briefing_Prepare();
@@ -927,262 +927,262 @@ public:
 	void			sub_18D5E();
 	void			Sprite_Handle_Loop();
 
-	void			Sprite_Handle_Player( sSprite_0* pSprite );					// 0
-	void			Sprite_Handle_Grenade( sSprite_0* pSprite );				// 2
-	void			sub_1998C( sSprite_0* pSprite );
-	void			sub_199B2( sSprite_0* pSprite );							// 3
-	void			Sprite_Handle_Enemy( sSprite_0* pSprite );					// 5
-	void			Sprite_Handle_Bullet( sSprite_0* pSprite );					// 6
-	void			sub_19E65( sSprite_0* pSprite );
-	void			sub_1A8A5( sSprite_0* pSprite );							// 12
-	void			sub_1ABD3( sSprite_0* pSprite );							// 13
-	void			Sprite_Handle_Tree( sSprite_0* pSprite );					// 14
-	void			Sprite_Handle_BuildingRoof( sSprite_0* pSprite );			// 15
-	void			sub_1AC03( sSprite_0* pSprite );							// 16
-	void			sub_1AC13( sSprite_0* pSprite );							// 17
-	void			sub_1AC23( sSprite_0* pSprite );							// 18
-	void			sub_1AC7C( sSprite_0* pSprite );							// 19
+	void			Sprite_Handle_Player( sSprite* pSprite );					// 0
+	void			Sprite_Handle_Grenade( sSprite* pSprite );				// 2
+	void			sub_1998C( sSprite* pSprite );
+	void			sub_199B2( sSprite* pSprite );							// 3
+	void			Sprite_Handle_Enemy( sSprite* pSprite );					// 5
+	void			Sprite_Handle_Bullet( sSprite* pSprite );					// 6
+	void			sub_19E65( sSprite* pSprite );
+	void			sub_1A8A5( sSprite* pSprite );							// 12
+	void			sub_1ABD3( sSprite* pSprite );							// 13
+	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14
+	void			Sprite_Handle_BuildingRoof( sSprite* pSprite );			// 15
+	void			sub_1AC03( sSprite* pSprite );							// 16
+	void			sub_1AC13( sSprite* pSprite );							// 17
+	void			sub_1AC23( sSprite* pSprite );							// 18
+	void			sub_1AC7C( sSprite* pSprite );							// 19
 
-	void			Sprite_Handle_BuildingDoor( sSprite_0* pSprite );			// 20
-	void			Sprite_Handle_Player_Rank( sSprite_0* pSprite );			// 21
-	void			sub_1AF78( sSprite_0* pSprite );							// 22
-	void			sub_1B07C( sSprite_0* pSprite );							// 23
-	void			sub_1B0C0( sSprite_0* pSprite );							// 24
-	void			sub_1B1C1( sSprite_0* pSprite );							// 25
-	void			Sprite_Handle_Floating_Dead_Soldier( sSprite_0* pSprite );	// 27
-	void			Sprite_Handle_Text_Complete( sSprite_0* pSprite );			// 28
-	void			Sprite_Handle_Text_Mission( sSprite_0* pSprite );			// 29
+	void			Sprite_Handle_BuildingDoor( sSprite* pSprite );			// 20
+	void			Sprite_Handle_Player_Rank( sSprite* pSprite );			// 21
+	void			sub_1AF78( sSprite* pSprite );							// 22
+	void			sub_1B07C( sSprite* pSprite );							// 23
+	void			sub_1B0C0( sSprite* pSprite );							// 24
+	void			sub_1B1C1( sSprite* pSprite );							// 25
+	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );	// 27
+	void			Sprite_Handle_Text_Complete( sSprite* pSprite );			// 28
+	void			Sprite_Handle_Text_Mission( sSprite* pSprite );			// 29
 
-	void			Sprite_Handle_Text_Phase( sSprite_0* pSprite );				// 30
-	void			sub_1B4BB( sSprite_0* pSprite );
-	void			Sprite_Handle_Rocket( sSprite_0* pSprite );					// 33
-	void			Sprite_Handle_Text_GameOver( sSprite_0* pSprite );			// 34
-	void			sub_1B8A9( sSprite_0* pSprite );							// 35
-	void			Sprite_Handle_Enemy_Rocket( sSprite_0* pSprite );			// 36
-	void			Sprite_Handle_GrenadeBox( sSprite_0* pSprite );				// 37
-	void			Sprite_Handle_RocketBox( sSprite_0* pSprite );				// 38
-	void			sub_1BB11( sSprite_0* pSprite );							// 39
+	void			Sprite_Handle_Text_Phase( sSprite* pSprite );				// 30
+	void			sub_1B4BB( sSprite* pSprite );
+	void			Sprite_Handle_Rocket( sSprite* pSprite );					// 33
+	void			Sprite_Handle_Text_GameOver( sSprite* pSprite );			// 34
+	void			sub_1B8A9( sSprite* pSprite );							// 35
+	void			Sprite_Handle_Enemy_Rocket( sSprite* pSprite );			// 36
+	void			Sprite_Handle_GrenadeBox( sSprite* pSprite );				// 37
+	void			Sprite_Handle_RocketBox( sSprite* pSprite );				// 38
+	void			sub_1BB11( sSprite* pSprite );							// 39
 
-	void			Sprite_Handle_Helicopter( sSprite_0* pSprite );				// 40
-	void			sub_1BD54( sSprite_0* pSprite );							// 41
-	void			sub_1BD27( sSprite_0* pSprite );							// 42
-	void			sub_1BD36( sSprite_0* pSprite );							// 43
-	void			sub_1BD45( sSprite_0* pSprite );							// 44
-	void			Sprite_Handle_Missile( sSprite_0* pSprite );				// 45
-	void			sub_1BEFB( sSprite_0* pSprite );							// 46
-	void			sub_1C1C0( sSprite_0* pSprite );							// 47
-	void			sub_1C268( sSprite_0* pSprite );							// 48
-	void			sub_1C2A5( sSprite_0* pSprite );							// 49
+	void			Sprite_Handle_Helicopter( sSprite* pSprite );				// 40
+	void			sub_1BD54( sSprite* pSprite );							// 41
+	void			sub_1BD27( sSprite* pSprite );							// 42
+	void			sub_1BD36( sSprite* pSprite );							// 43
+	void			sub_1BD45( sSprite* pSprite );							// 44
+	void			Sprite_Handle_Missile( sSprite* pSprite );				// 45
+	void			sub_1BEFB( sSprite* pSprite );							// 46
+	void			sub_1C1C0( sSprite* pSprite );							// 47
+	void			sub_1C268( sSprite* pSprite );							// 48
+	void			sub_1C2A5( sSprite* pSprite );							// 49
 
-	void			sub_1C296( sSprite_0* pSprite );							// 50
-	void			sub_1C2B4( sSprite_0* pSprite );							// 51
-	void			sub_1C2C3( sSprite_0* pSprite );							// 52
-	void			sub_1C2D2( sSprite_0* pSprite );							// 53
-	void			sub_1C331( sSprite_0* pSprite );							// 54
-	void			sub_1C364( sSprite_0* pSprite );							// 55
-	void			sub_1C411( sSprite_0* pSprite );							// 56
-	void			sub_1C4C2( sSprite_0* pSprite );							// 57
-	void			Sprite_Handle_Text_Try( sSprite_0* pSprite );				// 58
-	void			Sprite_Handle_Text_Again( sSprite_0* pSprite );				// 59
+	void			sub_1C296( sSprite* pSprite );							// 50
+	void			sub_1C2B4( sSprite* pSprite );							// 51
+	void			sub_1C2C3( sSprite* pSprite );							// 52
+	void			sub_1C2D2( sSprite* pSprite );							// 53
+	void			sub_1C331( sSprite* pSprite );							// 54
+	void			sub_1C364( sSprite* pSprite );							// 55
+	void			sub_1C411( sSprite* pSprite );							// 56
+	void			sub_1C4C2( sSprite* pSprite );							// 57
+	void			Sprite_Handle_Text_Try( sSprite* pSprite );				// 58
+	void			Sprite_Handle_Text_Again( sSprite* pSprite );				// 59
 
-	void			Sprite_Handle_BoilingPot( sSprite_0* pSprite );				// 60
-	void			Sprite_Handle_Indigenous( sSprite_0* pSprite );				// 61
-	void			sub_1C62F( sSprite_0* pSprite );							// 62
-	void			Sprite_Handle_Skidu( sSprite_0* pSprite );					// 63
-	void			Sprite_Handle_Truck( sSprite_0* pSprite );					// 64
-	void			Sprite_Handle_Tank( sSprite_0* pSprite );					// 65
-	void			Sprite_Handle_Bird_Left( sSprite_0* pSprite );				// 66
-	void			Sprite_Handle_Bird_Right( sSprite_0* pSprite );				// 67
-	void			Sprite_Handle_Seal( sSprite_0* pSprite );					// 68
-	void			sub_1CB1F( sSprite_0* pSprite );							// 69
+	void			Sprite_Handle_BoilingPot( sSprite* pSprite );				// 60
+	void			Sprite_Handle_Indigenous( sSprite* pSprite );				// 61
+	void			sub_1C62F( sSprite* pSprite );							// 62
+	void			Sprite_Handle_Skidu( sSprite* pSprite );					// 63
+	void			Sprite_Handle_Truck( sSprite* pSprite );					// 64
+	void			Sprite_Handle_Tank( sSprite* pSprite );					// 65
+	void			Sprite_Handle_Bird_Left( sSprite* pSprite );				// 66
+	void			Sprite_Handle_Bird_Right( sSprite* pSprite );				// 67
+	void			Sprite_Handle_Seal( sSprite* pSprite );					// 68
+	void			sub_1CB1F( sSprite* pSprite );							// 69
 
-	void			sub_1C689( sSprite_0* pSprite );							// 70
-	void			sub_1CE80( sSprite_0* pSprite );							// 71
-	void			sub_1D1A2( sSprite_0* pSprite );							// 72
-	void			sub_1D483( sSprite_0* pSprite );							// 73
-	void			sub_1D4AE( sSprite_0* pSprite );							// 74
-	void			sub_1D4BA( sSprite_0* pSprite );							// 75
-	void			sub_1D4C6( sSprite_0* pSprite );							// 76
-	void			sub_1D4D2( sSprite_0* pSprite );							// 77
-	void			Sprite_Handle_Turret( sSprite_0* pSprite );					// 78
-	void			sub_1D756( sSprite_0* pSprite );							// 79
+	void			sub_1C689( sSprite* pSprite );							// 70
+	void			sub_1CE80( sSprite* pSprite );							// 71
+	void			sub_1D1A2( sSprite* pSprite );							// 72
+	void			sub_1D483( sSprite* pSprite );							// 73
+	void			sub_1D4AE( sSprite* pSprite );							// 74
+	void			sub_1D4BA( sSprite* pSprite );							// 75
+	void			sub_1D4C6( sSprite* pSprite );							// 76
+	void			sub_1D4D2( sSprite* pSprite );							// 77
+	void			Sprite_Handle_Turret( sSprite* pSprite );					// 78
+	void			sub_1D756( sSprite* pSprite );							// 79
 
-	void			sub_1D76F( sSprite_0* pSprite );							// 80
-	void			sub_1D77E( sSprite_0* pSprite );							// 81
-	void			sub_1D78D( sSprite_0* pSprite );							// 82
-	void			sub_1D7B6( sSprite_0* pSprite );							// 83
-	void			sub_1D6F2( sSprite_0* pSprite );							// 84
-	void			sub_1D70B( sSprite_0* pSprite );							// 85
-	void			sub_1D7DD( sSprite_0* pSprite );							// 86
-	void			sub_1D802( sSprite_0* pSprite );							// 87
-	void			sub_1D81C( sSprite_0* pSprite );							// 88
-	void			sub_1DA43( sSprite_0* pSprite );							// 89
+	void			sub_1D76F( sSprite* pSprite );							// 80
+	void			sub_1D77E( sSprite* pSprite );							// 81
+	void			sub_1D78D( sSprite* pSprite );							// 82
+	void			sub_1D7B6( sSprite* pSprite );							// 83
+	void			sub_1D6F2( sSprite* pSprite );							// 84
+	void			sub_1D70B( sSprite* pSprite );							// 85
+	void			sub_1D7DD( sSprite* pSprite );							// 86
+	void			sub_1D802( sSprite* pSprite );							// 87
+	void			sub_1D81C( sSprite* pSprite );							// 88
+	void			sub_1DA43( sSprite* pSprite );							// 89
 
-	void			sub_1DA48( sSprite_0* pSprite );							// 90
-	void			sub_1DACF( sSprite_0* pSprite );							// 91
-	void			sub_1DB58( sSprite_0* pSprite );							// 92
-	void			Sprite_Handle_RankToGeneral( sSprite_0* pSprite );			// 93
-	void			Sprite_Handle_Set50Rockets( sSprite_0* pSprite );			// 94
-	void			sub_1DD4C( sSprite_0* pSprite );							// 95
-	void			sub_1DD91( sSprite_0* pSprite );							// 96
-	void			sub_1BEF6( sSprite_0* pSprite );							// 97
-	void			sub_1DE38( sSprite_0* pSprite );							// 98
-	void			sub_1DF2C( sSprite_0* pSprite );							// 99
+	void			sub_1DA48( sSprite* pSprite );							// 90
+	void			sub_1DACF( sSprite* pSprite );							// 91
+	void			sub_1DB58( sSprite* pSprite );							// 92
+	void			Sprite_Handle_RankToGeneral( sSprite* pSprite );			// 93
+	void			Sprite_Handle_Set50Rockets( sSprite* pSprite );			// 94
+	void			sub_1DD4C( sSprite* pSprite );							// 95
+	void			sub_1DD91( sSprite* pSprite );							// 96
+	void			sub_1BEF6( sSprite* pSprite );							// 97
+	void			sub_1DE38( sSprite* pSprite );							// 98
+	void			sub_1DF2C( sSprite* pSprite );							// 99
 
-	void			sub_1DFD2( sSprite_0* pSprite );							// 100
-	void			sub_1E004( sSprite_0* pSprite );							// 101
-	void			sub_1E00E( sSprite_0* pSprite );							// 102
-	void			sub_1E018( sSprite_0* pSprite );							// 103
-	void			sub_1E022( sSprite_0* pSprite );							// 104
-	void			sub_1D724( sSprite_0* pSprite );							// 105
-	void			sub_1E02C( sSprite_0* pSprite );							// 106
-	void			sub_1E031( sSprite_0* pSprite );							// 107
-	void			sub_1E036( sSprite_0* pSprite );							// 108
-	void			sub_1E042( sSprite_0* pSprite );							// 109
-	void			sub_1E04E( sSprite_0* pSprite );							// 110
+	void			sub_1DFD2( sSprite* pSprite );							// 100
+	void			sub_1E004( sSprite* pSprite );							// 101
+	void			sub_1E00E( sSprite* pSprite );							// 102
+	void			sub_1E018( sSprite* pSprite );							// 103
+	void			sub_1E022( sSprite* pSprite );							// 104
+	void			sub_1D724( sSprite* pSprite );							// 105
+	void			sub_1E02C( sSprite* pSprite );							// 106
+	void			sub_1E031( sSprite* pSprite );							// 107
+	void			sub_1E036( sSprite* pSprite );							// 108
+	void			sub_1E042( sSprite* pSprite );							// 109
+	void			sub_1E04E( sSprite* pSprite );							// 110
 
-	int16			sub_1D92E( sSprite_0* pSprite );
-	void			sub_14D6D( sSprite_0* pSprite, int16 pData4 );
-	int16			sub_1E05A( sSprite_0* pSprite );
-	int16			Troop_Dies( sSprite_0* pSprite );
-	int16			loc_1F043( sSprite_0* pSprite );
-	void			loc_1F092( sSprite_0* pSprite, sSprite_0* pData24 );
+	int16			sub_1D92E( sSprite* pSprite );
+	void			sub_14D6D( sSprite* pSprite, int16 pData4 );
+	int16			sub_1E05A( sSprite* pSprite );
+	int16			Troop_Dies( sSprite* pSprite );
+	int16			loc_1F043( sSprite* pSprite );
+	void			loc_1F092( sSprite* pSprite, sSprite* pData24 );
 
-	int16			sub_1F21E( sSprite_0* pSprite );
-	void			sub_1F429( sSprite_0* pSprite );
-	void			sub_1F5A0( sSprite_0* pSprite );
-	void			sub_1F5CA( sSprite_0* pSprite );
-	void			sub_1F623( sSprite_0* pSprite );
-	void			sub_1F649( sSprite_0* pSprite );
+	int16			sub_1F21E( sSprite* pSprite );
+	void			sub_1F429( sSprite* pSprite );
+	void			sub_1F5A0( sSprite* pSprite );
+	void			sub_1F5CA( sSprite* pSprite );
+	void			sub_1F623( sSprite* pSprite );
+	void			sub_1F649( sSprite* pSprite );
 
-	void			sub_1F66F( sSprite_0* pSprite );
-	void			sub_1F6F4( sSprite_0* pSprite );
-	void			sub_1F762( sSprite_0* pSprite );
-	void			sub_1FCF2( sSprite_0* pSprite );
-	void			sub_1FDE7( sSprite_0* pSprite );
-	void			sub_1FE35( sSprite_0* pSprite );
-	int16			sub_1FF1A( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData30 );
-	void			sub_1FFC6( sSprite_0* pSprite, int16& pData4 );
+	void			sub_1F66F( sSprite* pSprite );
+	void			sub_1F6F4( sSprite* pSprite );
+	void			sub_1F762( sSprite* pSprite );
+	void			sub_1FCF2( sSprite* pSprite );
+	void			sub_1FDE7( sSprite* pSprite );
+	void			sub_1FE35( sSprite* pSprite );
+	int16			sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
+	void			sub_1FFC6( sSprite* pSprite, int16& pData4 );
 
-	void			sub_20456( sSprite_0* pSprite, int16& pData8 );
-	void			sub_20478( sSprite_0* pSprite );
+	void			sub_20456( sSprite* pSprite, int16& pData8 );
+	void			sub_20478( sSprite* pSprite );
 	void			Hero_Add( sSquad_Member* pSquadMember );
 
-	int16			sub_2060F( sSprite_0* pSprite );
-	int16			sub_2061C( sSprite_0* pSprite );
-	int16			Troop_Fire_Bullet( sSprite_0* pSprite );
-	int16			Troop_Throw_Grenade( sSprite_0* pSprite );
-	void			sub_20E5C( sSprite_0* pSprite );
-	int16			sub_20E91( sSprite_0* pSprite );
-	void			sub_20F19( sSprite_0* pSprite );
+	int16			sub_2060F( sSprite* pSprite );
+	int16			sub_2061C( sSprite* pSprite );
+	int16			Troop_Fire_Bullet( sSprite* pSprite );
+	int16			Troop_Throw_Grenade( sSprite* pSprite );
+	void			sub_20E5C( sSprite* pSprite );
+	int16			sub_20E91( sSprite* pSprite );
+	void			sub_20F19( sSprite* pSprite );
 
-	void			sub_21041( sSprite_0* pSprite );
-	int16			sub_211BA( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
-	void			sub_212C4( sSprite_0* pSprite );
-	void			sub_212F9( sSprite_0* pSprite );
-	void			sub_21483( sSprite_0* pSprite );
-	void			sub_21525( sSprite_0* pSprite );
-	int16			sub_21618( sSprite_0* pSprite );
-	void			sub_21702( sSprite_0* pSprite, int16 pData18 );
-	void			sub_2183B( sSprite_0* pSprite );
-	void			sub_218E2( sSprite_0* pSprite );
+	void			sub_21041( sSprite* pSprite );
+	int16			sub_211BA( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
+	void			sub_212C4( sSprite* pSprite );
+	void			sub_212F9( sSprite* pSprite );
+	void			sub_21483( sSprite* pSprite );
+	void			sub_21525( sSprite* pSprite );
+	int16			sub_21618( sSprite* pSprite );
+	void			sub_21702( sSprite* pSprite, int16 pData18 );
+	void			sub_2183B( sSprite* pSprite );
+	void			sub_218E2( sSprite* pSprite );
 	int16			sub_21914( int16& pData8, int16& pDataC );
-	int16			sub_2194E( sSprite_0* pData2C, int16& pData8, int16& pDataC );
-	int16			Troop_Deploy( sSprite_0* pSprite, sSprite_0*& pData2C );
-	void			sub_21B15( int16& pData0, sSprite_0*& pData2C, sSprite_0*& pData30 );
-	void			sub_21C00( sSprite_0* pData2C );
+	int16			sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC );
+	int16			Troop_Deploy( sSprite* pSprite, sSprite*& pData2C );
+	void			sub_21B15( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
+	void			sub_21C00( sSprite* pData2C );
 	void			sub_21C6F( );
-	void			sub_21CD1( sSprite_0* pSprite );
+	void			sub_21CD1( sSprite* pSprite );
 
-	void			sub_2212A( sSprite_0* pSprite );
-	int16			sub_221A6( sSprite_0* pSprite );
-	int16			sub_222A3( sSprite_0* pSprite );
-	void			sub_223B2( sSprite_0* pSprite );
-	int16			sub_2244B( sSprite_0* pSprite, int16& pData0 );
-	int16			sub_224ED( sSprite_0* pSprite );
-	int16			sub_228B5( sSprite_0* pSprite, sSprite_0*& pData34 );
-	void			sub_229C9( sSprite_0* pSprite );
-	void			sub_22A3D( sSprite_0* pSprite );
-	int16			sub_22A55( sSprite_0* pSprite );
-	void			sub_22AA9( sSprite_0* pSprite );
-	void			sub_22B71( sSprite_0* pSprite );
-	void			sub_22C87( sSprite_0* pSprite );
-	void			sub_22CD7( sSprite_0* pSprite, int16& Data0, int16& Data4 );
-	void			sub_22DFC( sSprite_0* pSprite );
-	void			sub_2315D( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
-	int16			sub_2329D( sSprite_0* pSprite );
-	int16			sub_23367( sSprite_0* pSprite );
-	void			sub_233D4( sSprite_0* pSprite );
-	int16			sub_23444( sSprite_0* pSprite, sSprite_0*& pData2C  );
-	void			sub_23525( sSprite_0* pSprite );
-	void			sub_236F7( sSprite_0* pSprite );
-	void			sub_23879( sSprite_0* pSprite );
-	int16			sub_239C9( sSprite_0* pSprite, sSprite_0*& pData2C );
-	void			sub_23C70( sSprite_0* pData2C );
-	void			sub_23CDD( sSprite_0* pSprite );
-	int16			sub_23D57( sSprite_0* pSprite );
-	void			sub_23E01( sSprite_0* pSprite, int16& pData0, int16& pData4  );
-	void			sub_23EA6( sSprite_0* pSprite );
-	void			sub_23EFD( sSprite_0* pSprite );
-	void			sub_24173( sSprite_0* pSprite, sSprite_0* pData34 );
-	int16			sub_24285( sSprite_0* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite_0*& pData28 );
-	void			sub_243E9( sSprite_0* pSprite );
-	int16			sub_2449E( sSprite_0* pSprite );
-	void			sub_245BF( sSprite_0* pSprite );
-	int16			sub_246CC( sSprite_0* pSprite );
-	void			sub_248B7( sSprite_0* pSprite );
-	int16			sub_2494C( sSprite_0* pSprite );
-	int16			sub_24C47( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData34 );
-	int16			sub_2531F( sSprite_0* pSprite, sSprite_0*& pData30 );
-	void			sub_254F9( sSprite_0* pSprite );
-	void			sub_24ED7( sSprite_0* pSprite );
-	void			sub_25863( sSprite_0* pSprite );
-	void			sub_258C6( sSprite_0* pSprite );
-	int16			sub_25680( sSprite_0* pSprite );
-	void			sub_257D1( sSprite_0* pSprite );
-	void			sub_2593D( sSprite_0* pSprite );
-	void			sub_25A31( sSprite_0* pSprite );
-	void			sub_25A66( sSprite_0* pSprite );
-	int16			sub_25AAE( sSprite_0* pSprite );
-	int16			sub_25B6B( sSprite_0* pSprite );
-	int16			sub_25DCF( sSprite_0* pSprite );
-	void			sub_25F2B( sSprite_0* pSprite );
-	void			sub_25FDA( sSprite_0* pSprite );
-	void			sub_263F6( sSprite_0* pSprite );
-	void			sub_26450( sSprite_0* pSprite );
-	void			sub_26490( sSprite_0* pSprite );
-	void			sub_264B0( sSprite_0* pSprite );
-	int16			sub_265D6( sSprite_0* pSprite, sSprite_0*& pData2C, sSprite_0*& pData30 );
-	int16			sub_266CE( sSprite_0* pSprite, sSprite_0*& pData2C );
-	void			sub_26781( sSprite_0* pSprite );
-	void			sub_2682B( sSprite_0* pSprite, int16 pData1C );
+	void			sub_2212A( sSprite* pSprite );
+	int16			sub_221A6( sSprite* pSprite );
+	int16			sub_222A3( sSprite* pSprite );
+	void			sub_223B2( sSprite* pSprite );
+	int16			sub_2244B( sSprite* pSprite, int16& pData0 );
+	int16			sub_224ED( sSprite* pSprite );
+	int16			sub_228B5( sSprite* pSprite, sSprite*& pData34 );
+	void			sub_229C9( sSprite* pSprite );
+	void			sub_22A3D( sSprite* pSprite );
+	int16			sub_22A55( sSprite* pSprite );
+	void			sub_22AA9( sSprite* pSprite );
+	void			sub_22B71( sSprite* pSprite );
+	void			sub_22C87( sSprite* pSprite );
+	void			sub_22CD7( sSprite* pSprite, int16& Data0, int16& Data4 );
+	void			sub_22DFC( sSprite* pSprite );
+	void			sub_2315D( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
+	int16			sub_2329D( sSprite* pSprite );
+	int16			sub_23367( sSprite* pSprite );
+	void			sub_233D4( sSprite* pSprite );
+	int16			sub_23444( sSprite* pSprite, sSprite*& pData2C  );
+	void			sub_23525( sSprite* pSprite );
+	void			sub_236F7( sSprite* pSprite );
+	void			sub_23879( sSprite* pSprite );
+	int16			sub_239C9( sSprite* pSprite, sSprite*& pData2C );
+	void			sub_23C70( sSprite* pData2C );
+	void			sub_23CDD( sSprite* pSprite );
+	int16			sub_23D57( sSprite* pSprite );
+	void			sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
+	void			sub_23EA6( sSprite* pSprite );
+	void			sub_23EFD( sSprite* pSprite );
+	void			sub_24173( sSprite* pSprite, sSprite* pData34 );
+	int16			sub_24285( sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28 );
+	void			sub_243E9( sSprite* pSprite );
+	int16			sub_2449E( sSprite* pSprite );
+	void			sub_245BF( sSprite* pSprite );
+	int16			sub_246CC( sSprite* pSprite );
+	void			sub_248B7( sSprite* pSprite );
+	int16			sub_2494C( sSprite* pSprite );
+	int16			sub_24C47( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
+	int16			sub_2531F( sSprite* pSprite, sSprite*& pData30 );
+	void			sub_254F9( sSprite* pSprite );
+	void			sub_24ED7( sSprite* pSprite );
+	void			sub_25863( sSprite* pSprite );
+	void			sub_258C6( sSprite* pSprite );
+	int16			sub_25680( sSprite* pSprite );
+	void			sub_257D1( sSprite* pSprite );
+	void			sub_2593D( sSprite* pSprite );
+	void			sub_25A31( sSprite* pSprite );
+	void			sub_25A66( sSprite* pSprite );
+	int16			sub_25AAE( sSprite* pSprite );
+	int16			sub_25B6B( sSprite* pSprite );
+	int16			sub_25DCF( sSprite* pSprite );
+	void			sub_25F2B( sSprite* pSprite );
+	void			sub_25FDA( sSprite* pSprite );
+	void			sub_263F6( sSprite* pSprite );
+	void			sub_26450( sSprite* pSprite );
+	void			sub_26490( sSprite* pSprite );
+	void			sub_264B0( sSprite* pSprite );
+	int16			sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
+	int16			sub_266CE( sSprite* pSprite, sSprite*& pData2C );
+	void			sub_26781( sSprite* pSprite );
+	void			sub_2682B( sSprite* pSprite, int16 pData1C );
 
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	void			tool_RandomSeed();
 	int16			tool_RandomGet();
-	void			Sprite_Movement_Calculate( sSprite_0* pSprite );
-	int16			sub_2A1F0( sSprite_0* pSprite, int16& pData0, int16& pData4 );
-	void			sub_2A3D4( sSprite_0* pSprite );
+	void			Sprite_Movement_Calculate( sSprite* pSprite );
+	int16			sub_2A1F0( sSprite* pSprite, int16& pData0, int16& pData4 );
+	void			sub_2A3D4( sSprite* pSprite );
 	void			sub_2A470();
 	int16			sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_2A4FD( int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C );
 	int16			sub_2A622( int16& pData0 );
 	void			sub_2A74F( int16& pData0, int16& pData4, int16& pData8, int16& pData10, int16& pDataC );
 	int16			sub_2A7E2( int16& pData0, int16& pData4 );
-	int16			Map_Sprite_Check_Position( sSprite_0* pSprite, int16& pData0, int16& pData4 );
+	int16			Map_Sprite_Check_Position( sSprite* pSprite, int16& pData0, int16& pData4 );
 	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
 	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
-	int16			SquadMember_Sprite_Find_In_Region( sSprite_0* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+	int16			SquadMember_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			sub_2AE81( int16& pData0, int16& pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );
-	void			sub_2B12E( sSprite_0* pSprite );
-	void			Sprite_Skidu_Direction_Update( sSprite_0* pSprite, int16& pData1C );
+	void			sub_2B12E( sSprite* pSprite );
+	void			Sprite_Skidu_Direction_Update( sSprite* pSprite, int16& pData1C );
 	int16			sub_2B232( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 	int16			sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 
@@ -1200,16 +1200,16 @@ public:
 	void			sub_2D06C();
 	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
 	void			Squad_Member_Rotate_Can_Fire();
-	int16			Sprite_Find_In_Region( sSprite_0* pSprite, sSprite_0*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+	int16			Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			sub_2D725();
 	void			sub_2D767();
 	void			Squad_Prepare_GrenadesAndRockets();
 	void			sub_2D7FF();
-	void			sub_2D8AF( sSprite_0* pSprite );
-	int16			Sprite_Next_WalkTarget_Set( sSprite_0* pSprite );
-	int16			sub_2DBA3( sSprite_0* pSprite );
+	void			sub_2D8AF( sSprite* pSprite );
+	int16			Sprite_Next_WalkTarget_Set( sSprite* pSprite );
+	int16			sub_2DBA3( sSprite* pSprite );
 	void			sub_2DCB0( int16 pData0 );
-	void			sub_2DD50( sSprite_0* pSprite );
+	void			sub_2DD50( sSprite* pSprite );
 	void			sub_2DE2C( );
 	void			sub_2E01C();
 	void			sub_2E064();
@@ -1306,7 +1306,7 @@ public:
 	void			sub_30480();
 	void			sub_304D0();
 	void			Mission_IsFinalMap();
-	int16			sub_305D5( sSprite_0*& pData20 );
+	int16			sub_305D5( sSprite*& pData20 );
 	void			Mouse_Inputs_Check();
 	void			Squad_Member_Target_Set();
 	int16			sub_30E2A();

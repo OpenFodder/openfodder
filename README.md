@@ -17,8 +17,6 @@ control system. The player directs troops through numerous missions, battling en
 [Open Fodder 0.2 Video] (https://www.youtube.com/watch?v=MLovwBEWr6k)  
 [Open Fodder 0.1 Video] (https://www.youtube.com/watch?v=9QLg0hYsFFY)  
   
-  
-  
 ####How to play
 
 Open Fodder requires the user to own a copy of Cannon Fodder, and to copy the data files into the game data directory.
@@ -34,5 +32,5 @@ Use the WHDLoad installer on an Amiga to extract the game files, and copy all th
   
 #####Amiga Format Christmas Special
 
-Open Fodder comes with the Amiga Format Christmas Special, as it was a free demo
+Open Fodder comes with the Amiga Format Christmas Special
 
