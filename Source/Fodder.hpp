@@ -441,7 +441,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AC4D;
 	int16			word_3AC4F;
 	int16			word_3AC51;
-	sGUI_Element	stru_3AC53[42];
+	sGUI_Element	mGUI_Elements[42];
 	sGUI_Element*	dword_3AEF3;
 	int16			word_3AEFB;
 	int16			word_3AF01;
