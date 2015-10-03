@@ -26,7 +26,7 @@
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
-const struct_6 mCoverDisk_Buttons[] = {
+const sGUI_Element mCoverDisk_Buttons[] = {
 	{ &cFodder::sub_2EAC2, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::sub_2EAC3 },
 	{ &cFodder::sub_2EAC2, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
 	{ &cFodder::sub_2EAC2, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::sub_A0400 },
@@ -129,8 +129,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 	dword_39F90 = 0;
 
 	mSurfaceMapOverview = 0;
-	mouseData0 = new sMouseData();
-	mouseData1 = new sMouseData();
 
 	mMap = 0;
 
@@ -804,12 +802,12 @@ void cFodder::sub_10D61() {
 	word_3AC21 = 0;
 	word_3AC29 = 0;
 	word_3AC2B = 0;
-	byte_3AC33[0] = 0;
-	byte_3AC33[1] = 0;
-	byte_3AC33[2] = 0;
-	byte_3AC39[0] = 0;
-	byte_3AC39[1] = 0;
-	byte_3AC39[2] = 0;
+	mGUI_RefreshSquadGrenades[0] = 0;
+	mGUI_RefreshSquadGrenades[1] = 0;
+	mGUI_RefreshSquadGrenades[2] = 0;
+	mGUI_RefreshSquadRockets[0] = 0;
+	mGUI_RefreshSquadRockets[1] = 0;
+	mGUI_RefreshSquadRockets[2] = 0;
 
 	word_3AC3F[0] = 0;
 	word_3AC3F[1] = 0;
@@ -837,12 +835,12 @@ void cFodder::sub_10D61() {
 	dword_3B11F = 0;
 
 	for (uint16 x = 0; x < 42; ++x) {
-		stru_3AC53[x].field_0 = 0;
-		stru_3AC53[x].field_4 = 0;
-		stru_3AC53[x].field_6 = 0;
-		stru_3AC53[x].field_8 = 0;
-		stru_3AC53[x].field_A = 0;
-		stru_3AC53[x].mMouseInsideFuncPtr = 0;
+		mGUI_Elements[x].field_0 = 0;
+		mGUI_Elements[x].field_4 = 0;
+		mGUI_Elements[x].field_6 = 0;
+		mGUI_Elements[x].field_8 = 0;
+		mGUI_Elements[x].field_A = 0;
+		mGUI_Elements[x].mMouseInsideFuncPtr = 0;
 	}
 
 	dword_3AEF3 = 0;
@@ -1186,12 +1184,12 @@ std::string cFodder::map_Filename_SptGet() {
 
 void cFodder::Squad_Member_Count() {
 	mMapPlayerTroopCount = 0;
-	sSprite* dword_37AC0 = mSprites;
+	sSprite* Sprite = mSprites;
 	
-	for( int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount, ++dword_37AC0 ) {
-		if( dword_37AC0->field_0 != -32768 ) {
+	for( int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount, ++Sprite ) {
+		if( Sprite->field_0 != -32768 ) {
 			
-			if( dword_37AC0->field_18 == 0 )
+			if( Sprite->field_18 == eSprite_Player )
 				++mMapPlayerTroopCount;
 		}
 	}
@@ -2901,30 +2899,6 @@ void cFodder::mouse_Setup() {
 	word_3BDB3 = 0;
 	word_3BDB5 = 0;
 
-	mouseData1->anonymous_0 = 0;
-	mouseData1->anonymous_1 = 0;
-	mouseData1->anonymous_2 = 2;
-	mouseData1->mColumn = 160;
-	mouseData1->mRow = 100;
-	mouseData1->anonymous_5 = 0x10;
-	mouseData1->anonymous_6 = 0x10;
-	mouseData1->anonymous_7 = 0x10;
-	mouseData1->anonymous_8 = 0x10;
-	mouseData1->anonymous_9 = 0x30;
-	mouseData1->anonymous_10 = 0xC8;
-
-	mouseData0->anonymous_0 = 0;
-	mouseData0->anonymous_1 = 0;
-	mouseData0->anonymous_2 = 2;
-	mouseData0->mColumn = 160;
-	mouseData0->mRow = 100;
-	mouseData0->anonymous_5 = 0x10;
-	mouseData0->anonymous_6 = 0x10;
-	mouseData0->anonymous_7 = 0x10;
-	mouseData0->anonymous_8 = 0x10;
-	mouseData0->anonymous_9 = 0x30;
-	mouseData0->anonymous_10 = 0xC8;
-
 	g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, g_Window.GetWindowSize().mHeight / 2 ) );
 }
 
@@ -3056,7 +3030,7 @@ void cFodder::VersionSelect_2() {
 }
 
 void cFodder::VersionSelect() {
-	struct_6 *Buttons = new struct_6[mVersions.size() + 1];
+	sGUI_Element *Buttons = new sGUI_Element[mVersions.size() + 1];
 
 	sSprite* Sprite, *Sprite2, *Sprite3;
 
@@ -3150,6 +3124,10 @@ void cFodder::VersionSelect() {
 	mImageFaded = -1;
 	mMouseSpriteNew = 0x24;
 
+	// This is being hacked in to prevent accidently clicking a button when launching the game
+	// The 'Amiga' text just happens to be middle of the screen, where the cursor naturally was positioned
+	g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, 200 ) );
+
 	for( ;; ) {	
 		Sprite_Sort_DrawList();
 		Sprite_Draw();
@@ -3165,7 +3143,7 @@ void cFodder::VersionSelect() {
 		if (word_82132)
 			break;
 
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 		mImage->Restore();
 	}
@@ -3173,7 +3151,7 @@ void cFodder::VersionSelect() {
 	mImage->paletteFadeOut();
 	
 	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 		mImage->paletteFade();
 	}
@@ -3451,9 +3429,6 @@ void cFodder::Mouse_DrawCursor( ) {
 
 	cx += 48;
 	dx += 12;
-
-	mouseData1->mColumn = cx;
-	mouseData1->mRow = dx;
 
 	mDrawSpritePositionX = cx;
 	mDrawSpritePositionY = dx;
@@ -5136,8 +5111,6 @@ void cFodder::sub_17429() {
 }
 
 void cFodder::Recruit_Draw_Actors( ) {
-	sMouseData* bp = mouseData1 + 1;
-
 	word_42072 = 2;
 
 	if (mVersion->mPlatform == ePlatform::Amiga)
@@ -5148,10 +5121,6 @@ void cFodder::Recruit_Draw_Actors( ) {
 
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		((cGraphics_Amiga*)mGraphics)->mBMHDHill.mHeight = 0x100;
-
-	bp = mouseData1;
-	bp->anonymous_0 = 0;
-	bp->anonymous_2 = word_42072;
 }
 
 void cFodder::sub_175C0() {
@@ -7218,7 +7187,7 @@ int16 cFodder::sub_2494C( sSprite* pSprite ) {
 
 	Data2C->field_1A = (int32*) Dataa0;
 	Data2C->field_1A = 0;
-	Data2C->field_18 = 2;
+	Data2C->field_18 = eSprite_Grenade;
 	Data30->field_18 = 3;
 
 	Data2C->field_52 = 0;
@@ -8736,7 +8705,7 @@ void cFodder::Mission_Sidebar_MapButton_Render() {
 	if (word_3B4D9)
 		return;
 
-	struct_6* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = dword_3AEF3;
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;
 	Data20->field_6 = 0x2F;
@@ -8753,7 +8722,7 @@ void cFodder::Mission_Sidebar_MapButton_Render() {
 	}
 	++Data20;
 
-	sub_2ECC7( Data20 );
+	GUI_ClearElement( Data20 );
 	word_3B4D9 = -1;
 
 }
@@ -9613,9 +9582,6 @@ void cFodder::Camera_Pan() {
 
 	cx -= bx;
 
-	mouseData1->anonymous_0 -= cx;
-	mouseData0->anonymous_0 -= cx;
-
 	if (cx) {
 		if (cx < 0) {
 			mCamera_Pan_RowCount = -cx;
@@ -9631,8 +9597,6 @@ void cFodder::Camera_Pan() {
 	cx = mCamera_Row;
 	mCamera_Row_Previous = cx;
 	cx -= bx;
-	mouseData1->anonymous_1 -= cx;
-	mouseData0->anonymous_1 -= cx;
 
 	if (!cx)
 		return;
@@ -10111,7 +10075,7 @@ void cFodder::sub_2D725() {
 		if (Data20->field_0 == -32768)
 			continue;
 
-		if (Data20->field_18 == 0)
+		if (Data20->field_18 == eSprite_Player )
 			Troop_Dies( Data20 );
 	}
 }
@@ -10124,7 +10088,7 @@ void cFodder::sub_2D767() {
 		if (Data20->field_0 == -32768)
 			continue;
 
-		if (Data20->field_18 != 0)
+		if (Data20->field_18 != eSprite_Player )
 			continue;
 
 		if (!Data20->field_38)
@@ -10520,15 +10484,15 @@ void cFodder::sub_2E064() {
 void cFodder::sub_2E122() {
 	mImage->clearBuffer();
 
-	dword_3AEF3 = stru_3AC53;
+	dword_3AEF3 = mGUI_Elements;
 
 	for (uint16 x = 0; x < 42; ++x) {
-		stru_3AC53[x].field_0 = 0;
-		stru_3AC53[x].field_4 = 0;
-		stru_3AC53[x].field_6 = 0;
-		stru_3AC53[x].field_8 = 0;
-		stru_3AC53[x].field_A = 0;
-		stru_3AC53[x].mMouseInsideFuncPtr = 0;
+		mGUI_Elements[x].field_0 = 0;
+		mGUI_Elements[x].field_4 = 0;
+		mGUI_Elements[x].field_6 = 0;
+		mGUI_Elements[x].field_8 = 0;
+		mGUI_Elements[x].field_A = 0;
+		mGUI_Elements[x].mMouseInsideFuncPtr = 0;
 	}
 }
 
@@ -10589,7 +10553,7 @@ void cFodder::sub_2E302( bool pShowCursor ) {
 		++byte_44AC0;
 		if (sub_30E0B() >= 0) {
 
-			sub_2E3E3( stru_3AC53 );
+			sub_2E3E3( mGUI_Elements );
 		}
 
 		if (dword_3B30D) {
@@ -10619,7 +10583,7 @@ void cFodder::sub_2E3D6() {
 }
 
 void cFodder::sub_2E244( void(cFodder::*pFunction)(void) ) {
-	struct_6* Data24 = dword_3AEF3;
+	sGUI_Element* Data24 = dword_3AEF3;
 
 	Data24->field_0 = &cFodder::sub_2EAC2;
 
@@ -10683,7 +10647,7 @@ void cFodder::sub_2E494() {
 
 }
 
-void cFodder::sub_2E3E3( struct_6* pData20 ) {
+void cFodder::sub_2E3E3( sGUI_Element* pData20 ) {
 	dword_3A02A = pData20;
 
 	for (; dword_3A02A->field_0; ++dword_3A02A) {
@@ -10841,7 +10805,7 @@ void cFodder::sub_2E72B() {
 		sub_2E172( "EXIT", 0xB3 );
 		sub_2E244( &cFodder::sub_2E5B3 );
 
-		struct_6* dword_3AEF7 = dword_3AEF3;
+		sGUI_Element* dword_3AEF7 = dword_3AEF3;
 		mImage->Save();
 
 		int16 DataC = 0;
@@ -10955,7 +10919,7 @@ void cFodder::sub_2EACA() {
 	word_3AC45 = -1;
 	sub_30465();
 
-	dword_3AEF3 = stru_3AC53;
+	dword_3AEF3 = mGUI_Elements;
 
 	map_ClearSpt();
 
@@ -10984,9 +10948,9 @@ void cFodder::sub_2EACA() {
 	word_39EFC = 0;
 }
 
-void cFodder::sub_9B94E( const struct_6 *pA0 ) {
+void cFodder::sub_9B94E( const sGUI_Element *pA0 ) {
 	for (;; ++pA0) {
-		const struct_6* Data20 = pA0;
+		const sGUI_Element* Data20 = pA0;
 
 		if (Data20->field_0 == 0)
 			break;
@@ -11072,12 +11036,12 @@ void cFodder::Mission_Sidebar_Prepare( int16 pData0, int16 pData4 ) {
 }
 
 void cFodder::sub_2EBC4() {
-	struct_6* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = dword_3AEF3;
 
-	sub_2EC0E( Data20, stru_3DEDC );
+	GUI_SetElementsFrom( Data20, stru_3DEDC );
 }
 
-void cFodder::sub_2EC0E( struct_6* pData20, struct_6* pData24 ) {
+void cFodder::GUI_SetElementsFrom( sGUI_Element* pData20, sGUI_Element* pData24 ) {
 	
 	while (pData24->field_0 != 0) {
 
@@ -11092,11 +11056,11 @@ void cFodder::sub_2EC0E( struct_6* pData20, struct_6* pData24 ) {
 		++pData24;
 	}
 
-	sub_2ECC7( pData20 );
+	GUI_ClearElement( pData20 );
 
 }
 
-void cFodder::sub_2ECC7( struct_6 *pData20 ) {
+void cFodder::GUI_ClearElement( sGUI_Element *pData20 ) {
 
 	pData20->field_0 = 0;
 	dword_3AEF3 = pData20;
@@ -11112,7 +11076,7 @@ void cFodder::Mission_Sidebar_SplitButton_Draw() {
 }
 
 void cFodder::GUI_Prepare_Button_Squad() {
-	struct_6* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = dword_3AEF3;
 
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;
@@ -11128,7 +11092,7 @@ void cFodder::GUI_Prepare_Button_Squad() {
 	}
 
 	++Data20;
-	sub_2ECC7( Data20 );
+	GUI_ClearElement( Data20 );
 }
 
 void cFodder::GUI_Handle_Button_SelectSquad_0() {
@@ -11284,7 +11248,7 @@ void cFodder::Service_KIA_Loop() {
 		//sub_14445();
 		sub_181BD();
 
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 		mImage->Restore();
 
@@ -12515,7 +12479,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 		
 		if( Data28->field_0 != -32768 ) {
 			
-			if( Data28->field_18 == 0x05 ) {
+			if( Data28->field_18 == eSprite_Enemy ) {
 				if( Data28->field_38 == 0x00 ) {
 				
 					//seg004:021A 
@@ -14456,8 +14420,8 @@ void cFodder::Sprite_Handle_GrenadeBox( sSprite* pSprite ) {
 	if (sub_2244B( pSprite, Data0 ))
 		return;
 
-	byte_3AC33[mSquad_Selected] = -1;
-	byte_3AC39[mSquad_Selected] = -1;
+	mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
+	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 	mSquad_Grenades[mSquad_Selected] += 4;
 	
 	sub_2060F( pSprite );
@@ -14474,8 +14438,8 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 	if (sub_2244B( pSprite, Data0 ))
 		return;
 
-	byte_3AC39[mSquad_Selected] = -1;
-	byte_3AC33[mSquad_Selected] = -1;
+	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
+	mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
 	mSquad_Rockets[mSquad_Selected] += 4;
 	
 	sub_2060F( pSprite );
@@ -16188,7 +16152,7 @@ void cFodder::Sprite_Handle_Set50Rockets( sSprite* pSprite ) {
 		return;
 
 	word_39FCE->field_75 |= 1;
-	byte_3AC39[mSquad_Selected] = -1;
+	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 	mSquad_Rockets[mSquad_Selected] = 50;
 
 	sub_2060F( pSprite );
@@ -16226,7 +16190,7 @@ void cFodder::sub_1DD91( sSprite* pSprite ) {
 	Member->mRank = 0x0F;
 	word_3AC2B = 0;
 	
-	byte_3AC39[mSquad_Selected] = -1;
+	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 	mSquad_Rockets[mSquad_Selected] = 0x32;
 
 	sub_2060F( pSprite );
@@ -16264,7 +16228,7 @@ void cFodder::sub_1DE38( sSprite* pSprite ) {
 	}
 
 	word_3AC2B = 0;
-	byte_3AC39[mSquad_Selected] = -1;
+	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 	mSquad_Rockets[mSquad_Selected] = 0x32;
 
 	sub_2060F( pSprite );
@@ -18973,7 +18937,7 @@ loc_20777:;
 	Data2C->field_12 = Data0;
 
 loc_207CF:;
-	Data2C->field_18 = 6;
+	Data2C->field_18 = eSprite_Bullet;
 	Data2C->field_1E = pSprite->field_1E;
 	Data2C->field_20 = pSprite->field_20;
 	Data2C->field_20 += 6;
@@ -19115,7 +19079,7 @@ loc_20B0A:;
 		goto loc_20ADE;
 
 	--mSquad_Grenades[Data0];
-	byte_3AC33[Data4] = -1;
+	mGUI_RefreshSquadGrenades[Data4] = -1;
 
 loc_20B6E:;
 
@@ -19180,7 +19144,7 @@ loc_20B6E:;
 		Dataa0 = 0x0E0000;
 
 	Data2C->field_1A = (int32*) Dataa0;
-	Data2C->field_18 = 2;
+	Data2C->field_18 = eSprite_Grenade;
 	Data30->field_18 = 3;
 	Data2C->field_52 = 0;
 	Data30->field_52 = 0;
@@ -20409,7 +20373,7 @@ loc_225BE:;
 		goto loc_22592;
 
 	--mSquad_Rockets[Data0];
-	byte_3AC39[Data4] = -1;
+	mGUI_RefreshSquadRockets[Data4] = -1;
 loc_22622:;
 	Data0 = pSprite->field_22;
 
@@ -20776,7 +20740,7 @@ loc_103BF:;
 				if (Data0 == 0x0C)
 					word_3ABB7 = -1;
 			}
-			stru_3AC53[0].field_0 = 0;
+			mGUI_Elements[0].field_0 = 0;
 			word_390A6 = -1;
 			sub_11CAD();
 			word_3BEC1 = 0;
@@ -20915,7 +20879,7 @@ void cFodder::GUI_Prepare_Button_Grenade() {
 	if (!word_3AC47)
 		return;
 
-	struct_6* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = dword_3AEF3;
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;
 	Data20->field_6 = 0x0C;
@@ -20924,7 +20888,7 @@ void cFodder::GUI_Prepare_Button_Grenade() {
 	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Grenades;
 
 	++Data20;
-	sub_2ECC7( Data20 );
+	GUI_ClearElement( Data20 );
 }
 
 void cFodder::GUI_Handle_Button_Grenades() {
@@ -20952,8 +20916,8 @@ void cFodder::sub_2F0D7() {
 		return;
 
 	word_3AC3F[mSquad_Selected] = 1;
-	byte_3AC33[mSquad_Selected] = -1;
-	byte_3AC39[mSquad_Selected] = -1;
+	mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
+	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 }
 
 void cFodder::Mission_Sidebar_TroopList_Draw() {
@@ -21154,8 +21118,8 @@ void cFodder::sub_2F5ED() {
 	int16 Data0 = 2;
 	int16 Data4 = 2;
 	
-	int8* Data20 = &byte_3AC33[2]; //byte_3AC35; 
-	int8* Data24 = &byte_3AC39[2]; //byte_3AC3B;
+	int8* Data20 = &mGUI_RefreshSquadGrenades[2]; //byte_3AC35; 
+	int8* Data24 = &mGUI_RefreshSquadRockets[2]; //byte_3AC3B;
 	int16* Data28 = mSquad_Grenades;
 	int16* Data2C = mSquad_Rockets;
 	int16* Data30 = word_3AC3F;
@@ -21193,8 +21157,8 @@ void cFodder::sub_2F5ED() {
 		Data4--;
 	}
 
-	Data20 = &byte_3AC33[2];
-	Data24 = &byte_3AC39[2];
+	Data20 = &mGUI_RefreshSquadGrenades[2];
+	Data24 = &mGUI_RefreshSquadRockets[2];
 
 	for (int16 Data0 = 2; Data0 >= 0; --Data0, --Data20, --Data24) {
 
@@ -21391,7 +21355,7 @@ void cFodder::sub_2FA05() {
 
 void cFodder::Mission_Sidebar_MapButton_Prepare() {
 
-	dword_3AEF3 = stru_3AC53;
+	dword_3AEF3 = mGUI_Elements;
 
 	map_ClearSpt();
 
@@ -21483,7 +21447,7 @@ void cFodder::GUI_Prepare_Button_Rockets() {
 	if (!word_3AC47)
 		return;
 
-	struct_6* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = dword_3AEF3;
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0x24;
 	Data20->field_6 = 0x0C;
@@ -21492,7 +21456,7 @@ void cFodder::GUI_Prepare_Button_Rockets() {
 	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Rockets;
 	++Data20;
 
-	sub_2ECC7( Data20 );
+	GUI_ClearElement( Data20 );
 }
 
 void cFodder::GUI_Handle_Button_Rockets() {
@@ -21520,8 +21484,8 @@ void cFodder::sub_2FC4F() {
 		return;
 
 	word_3AC3F[mSquad_Selected] = 3;
-	byte_3AC39[mSquad_Selected] = -1;
-	byte_3AC33[mSquad_Selected] = -1;
+	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
+	mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
 }
 
 void cFodder::GUI_Prepare_Button_TroopName() {
@@ -21538,7 +21502,7 @@ void cFodder::GUI_Prepare_Button_TroopName() {
 
 loc_2FCF4:;
 	word_3AEFB = word_3AC1D;
-	struct_6* Data20 = dword_3AEF3;
+	sGUI_Element* Data20 = dword_3AEF3;
 
 	Data20->field_0 = &cFodder::sub_2EAC2;
 	Data20->field_4 = 0;
@@ -21549,7 +21513,7 @@ loc_2FCF4:;
 	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_TroopName;
 
 	++Data20;
-	sub_2ECC7( Data20 );
+	GUI_ClearElement( Data20 );
 }
 
 void cFodder::GUI_Handle_Button_TroopName() {
@@ -22027,10 +21991,10 @@ void cFodder::Mouse_Inputs_Check() {
 		return;
 	}
 
-	dword_3A02A = stru_3AC53;
+	dword_3A02A = mGUI_Elements;
 
 	for (;; ++dword_3A02A) {
-		struct_6* Data20 = dword_3A02A;
+		sGUI_Element* Data20 = dword_3A02A;
 
 		if (Data20->field_0 == 0)
 			break;

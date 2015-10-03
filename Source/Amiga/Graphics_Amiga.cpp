@@ -112,8 +112,6 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 
 void cGraphics_Amiga::Mouse_DrawCursor() {
 	const struct_2* di = &stru_44B50[mFodder->mMouseSpriteCurrent];
-	mFodder->mouseData1->anonymous_5 = di->field_4;
-	mFodder->mouseData1->anonymous_6 = di->field_6;
 
 	mFodder->word_4206C = di->field_4 >> 3;
 	mFodder->word_4206E = di->field_6;
