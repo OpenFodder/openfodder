@@ -16,7 +16,12 @@ control system. The player directs troops through numerous missions, battling en
 [Open Fodder 0.4 Video] (https://www.youtube.com/watch?v=xVSWP2x0JBo)  
 [Open Fodder 0.2 Video] (https://www.youtube.com/watch?v=MLovwBEWr6k)  
 [Open Fodder 0.1 Video] (https://www.youtube.com/watch?v=9QLg0hYsFFY)  
-  
+
+####Obtaining the game
+
+The version available on GOG, is the Dos Retail CD Version and is supported by Open Fodder
+[Good Old Games] (http://www.gog.com/game/cannon_fodder)
+
 ####How to play
 
 Open Fodder requires the user to own a copy of Cannon Fodder, and to copy the data files into the game data directory.
