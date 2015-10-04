@@ -348,10 +348,10 @@ std::vector<const sVersion*> FindFodderVersions() {
 	 		std::string MD5 = local_FileMD5( Versions[x].mFiles[FileNo].mName, Versions[x].mDataPath );
 
 			if (MD5 != Versions[x].mFiles[FileNo].mChecksum) {
-				std::cout << Versions[x].mName << ": ";
+				//std::cout << Versions[x].mName << ": ";
 
 				if (MD5.length() == 0) {
-					std::cout << "File not found\n";
+					//std::cout << "File not found\n";
 				} else
 					std::cout << "Unknown MD5: " << Versions[x].mFiles[FileNo].mName << ": " << MD5 << "\n";
 			} else
