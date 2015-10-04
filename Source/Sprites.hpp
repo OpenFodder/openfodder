@@ -23,6 +23,8 @@
 enum eSprites {
 	eSprite_Player			= 0,
 	eSprite_Grenade			= 2,
+	eSprite_ShadowSmall		= 3,
+	eSprite_Null			= 4,
 	eSprite_Enemy			= 5,
 	eSprite_Bullet			= 6,
 	eSprite_Explosion		= 12,

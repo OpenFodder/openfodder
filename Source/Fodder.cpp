@@ -1374,7 +1374,7 @@ void cFodder::sub_115F7() {
 		if (word_3A016 < 0) {
 			Troop->field_4 = INVALID_SPRITE_PTR;
 			Data20->field_0 = -32768;
-			Data20->field_18 = 4;
+			Data20->field_18 = eSprite_Null;
 			Data20->field_8 = 0x7C;
 			++Troop;
 		}
@@ -2354,7 +2354,7 @@ loc_1280A:;
 void cFodder::Mission_Show_Complete() {
 	sSprite* Data24 = &mSprites[40];
 
-	sub_2061C( Data24 );
+	Sprite_Destroy( Data24 );
 	sSprite* Data2C = &mSprites[41];
 
 	if (mMissionPhaseRemain == 1)
@@ -2412,7 +2412,7 @@ void cFodder::sub_128F4( sSprite* pData2C ) {
 
 void cFodder::Mission_Show_TryAgain() {
 	sSprite* Data24 = &mSprites[40];
-	sub_2061C( Data24 );
+	Sprite_Destroy( Data24 );
 
 	sSprite* Data2C = &mSprites[41];
 	sub_1298C( Data2C );
@@ -3409,7 +3409,7 @@ void cFodder::sub_13800() {
 
 void cFodder::sub_13255() {
 	sSprite* Data24 = &mSprites[40];
-	sub_2061C( Data24 );
+	Sprite_Destroy( Data24 );
 
 	sSprite* Data2C = &mSprites[41];
 	sub_13277( Data2C );
@@ -6098,12 +6098,12 @@ loc_232DE:;
 	pSprite->field_28 = -9;
 	Data24 = pSprite + 1;
 
-	sub_2061C( Data24 );
+	Sprite_Destroy( Data24 );
 	if (!pSprite->field_22)
 		goto loc_232D2;
 
 	Data24 = pSprite + 2;
-	sub_2061C( Data24 );
+	Sprite_Destroy( Data24 );
 	goto loc_232D2;
 
 loc_23328:;
@@ -6171,7 +6171,7 @@ void cFodder::sub_233D4( sSprite* pSprite ) {
 	word_3B175 = 0;
 
 	sSprite* Data24 = pSprite + 1;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 }
 
 int16 cFodder::sub_23444( sSprite* pSprite, sSprite*& pData2C ) {
@@ -6478,7 +6478,7 @@ int16 cFodder::sub_239C9( sSprite* pSprite, sSprite*& pData2C ) {
 	pData2C->field_4 += 1;
 	pData2C->field_0 += 3;
 	pData2C->field_18 = 0x2D;
-	Data30->field_18 = 3;
+	Data30->field_18 = eSprite_ShadowSmall;
 	pData2C->field_52 = 0;
 	Data30->field_52 = 0;
 	pData2C->field_22 = pSprite->field_22;
@@ -6538,9 +6538,9 @@ void cFodder::sub_23CDD( sSprite* pSprite ) {
 	word_3B175 = 0;
 
 	sSprite* Data24 = pSprite + 12;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 	Data24 = pSprite + 2;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 }
 
 int16 cFodder::sub_23D57( sSprite* pSprite ) {
@@ -6645,7 +6645,7 @@ void cFodder::sub_23EFD( sSprite* pSprite ) {
 		if (!pSprite->field_22)
 			return;
 
-		sub_2061C( pSprite + 1 );
+		Sprite_Destroy( pSprite + 1 );
 		return;
 	}
 
@@ -7188,7 +7188,7 @@ int16 cFodder::sub_2494C( sSprite* pSprite ) {
 	Data2C->field_1A = (int32*) Dataa0;
 	Data2C->field_1A = 0;
 	Data2C->field_18 = eSprite_Grenade;
-	Data30->field_18 = 3;
+	Data30->field_18 = eSprite_ShadowSmall;
 
 	Data2C->field_52 = 0;
 	Data30->field_52 = 0;
@@ -7280,7 +7280,7 @@ int16 cFodder::sub_24C47( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34
 	pData2C->field_18 = 0x61;
 	if (pSprite->field_22)
 		pData2C->field_18 = 0x2E;
-	Data30->field_18 = 3;
+	Data30->field_18 = eSprite_ShadowSmall;
 	pData2C->field_52 = 0;
 	Data30->field_52 = 0;
 	pData2C->field_22 = pSprite->field_22;
@@ -7443,7 +7443,7 @@ loc_255DA:;
 		sub_245BF( pSprite );
 
 	sSprite* Data24 = pSprite + 1;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 	Data24 = pSprite + 2;
 
 	Data24->field_18 = 0x29;
@@ -7630,9 +7630,9 @@ loc_25239:;
 	pSprite->field_22 = 1;
 	word_3B175 = 0;
 	Data24 = pSprite + 1;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 	++Data24;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 
 loc_25288:;
 
@@ -8216,7 +8216,7 @@ loc_2625B:;
 		return;
 	word_3AA19 -= 1;
 
-	sub_2061C( pSprite + 1 );
+	Sprite_Destroy( pSprite + 1 );
 	sub_2060F( pSprite );
 	return;
 
@@ -12919,7 +12919,7 @@ loc_1992D:;
 	if (pSprite->field_52 < 8) {
 		pSprite->field_18 = eSprite_Explosion;
 		sub_1998C( pSprite );
-		sub_2061C( pSprite + 1 );
+		Sprite_Destroy( pSprite + 1 );
 		return;
 	}
 	//loc_19957
@@ -12927,8 +12927,8 @@ loc_1992D:;
 	pSprite->field_0 = 0;
 	pSprite->field_4 = 0;
 
-	sub_2061C( pSprite );
-	sub_2061C( pSprite + 1 );
+	Sprite_Destroy( pSprite );
+	Sprite_Destroy( pSprite + 1 );
 }
 
 void cFodder::sub_1998C( sSprite* pSprite ) {
@@ -13183,7 +13183,7 @@ loc_19E1C:;
 loc_19E3D:;
 	
 	byte_3A9D2[2] -= 1;
-	sub_2061C( pSprite );
+	Sprite_Destroy( pSprite );
 	return;
 	
 loc_19E50:;
@@ -13278,7 +13278,7 @@ loc_19FBC:;
 	(pSprite + 1)->field_36 = 0x60;
 
 	Data24 = pSprite + 2;
-	sub_2061C( Data24 );
+	Sprite_Destroy( Data24 );
 
 	if (!pSprite->field_22)
 		sub_23EA6(pSprite);
@@ -13310,7 +13310,7 @@ loc_1A042:;
 	Data24->field_4 += 1;
 	Data24->field_20 = pSprite->field_20 + 0x0E;
 
-	if (!word_3B4ED)
+	if (!word_3B4ED[0])
 		if (!pSprite->field_1E && !pSprite->field_20)
 			return;
 	
@@ -14318,7 +14318,7 @@ loc_1B843:;
 	sub_229C9( pSprite );
 	Data24 = pSprite + 1;
 
-	sub_2061C( Data24 );
+	Sprite_Destroy( Data24 );
 }
 
 void cFodder::Sprite_Handle_Text_GameOver( sSprite* pSprite ) {
@@ -14635,7 +14635,7 @@ loc_1BECD:;
 	pSprite->field_4 -= 4;
 	sub_229C9( pSprite );
 
-	sub_2061C( pSprite + 1 );
+	Sprite_Destroy( pSprite + 1 );
 }
 
 void cFodder::sub_1BEFB( sSprite* pSprite ) {
@@ -14790,7 +14790,7 @@ loc_1C197:;
 	pSprite->field_18 = 0x59;
 	pSprite->field_4 -= 4;
 	sub_229C9( pSprite );
-	sub_2061C( pSprite + 1 );
+	Sprite_Destroy( pSprite + 1 );
 
 }
 
@@ -15124,7 +15124,7 @@ void cFodder::Sprite_Handle_Tank( sSprite* pSprite ) {
 	sub_23879( pSprite );
 
 	sSprite* Data24 = pSprite + 1;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 }
 
 void cFodder::Sprite_Handle_Bird_Left( sSprite* pSprite ) {
@@ -15328,7 +15328,7 @@ void cFodder::sub_1CB1F( sSprite* pSprite ) {
 
 		Data24 = pSprite + 2;
 		if (Data24->field_18 == 0x29)
-			sub_2061C( Data24 );
+			Sprite_Destroy( Data24 );
 
 		return;
 	}
@@ -15427,7 +15427,7 @@ loc_1CDA3:;
 	}
 
 	Data24 = pSprite + 1;
-	Data24->field_18 = 4;
+	Data24->field_18 = eSprite_Null;
 
 	Data24 = pSprite + 2;
 	Data24->field_18 = 0x29;
@@ -15603,7 +15603,7 @@ loc_1D14D:;
 
 loc_1D17A:;
 	writeLEWord( &byte_3A9D2[2], readLEWord( &byte_3A9D2[2] - 1 ));
-	sub_2061C( pSprite );
+	Sprite_Destroy( pSprite );
 	return;
 
 loc_1D18D:;
@@ -15653,7 +15653,7 @@ void cFodder::sub_1D1A2( sSprite* pSprite ) {
 
 	//seg004:4505
 	if (pSprite->field_5E) {
-		Data24->field_18 = 4;
+		Data24->field_18 = eSprite_Null;
 		Data24->field_8 = 0x7C;
 		Data24->field_A = 0;
 	}
@@ -15670,7 +15670,7 @@ void cFodder::sub_1D1A2( sSprite* pSprite ) {
 	Data24->field_20 = pSprite->field_20;
 
 	if (pSprite->field_6E) {
-		Data24->field_18 = 4;
+		Data24->field_18 = eSprite_Null;
 		Data24->field_8 = 0x7C;
 		Data24->field_A = 0;
 	}
@@ -15867,7 +15867,7 @@ loc_1D69F:;
 loc_1D6CA:;
 
 	byte_3A9D2[2] -= 1;
-	sub_2061C( pSprite );
+	Sprite_Destroy( pSprite );
 	return;
 
 loc_1D6DD:;
@@ -17198,20 +17198,17 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 	
 	if( !word_3A9B2 ) {
 		
-		tool_RandomGet();
-		Data0 &= 1;
+		Data0 = tool_RandomGet() & 1;
 		if(Data0 == 0)
 			goto loc_1F32C;
 	
 		if( !pSprite->field_52 ) {
-			tool_RandomGet();
-			Data0 &= 1;
+			Data0 = tool_RandomGet() & 1;
 			
 			if( !Data0 ) {
 				//loc_1F2F9
 				pSprite->field_8 = 0x41;
-				tool_RandomGet();
-				Data0 &= 3;
+				Data0 = tool_RandomGet() & 3;
 				pSprite->field_A = Data0;
 				pSprite->field_2A = 1;
 				sub_1FE35( pSprite );
@@ -18529,7 +18526,7 @@ void cFodder::intro_LegionMessage() {
 				DoBreak = true;
 			}
 		}
-
+	
 		eventProcess();
 		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
@@ -18858,13 +18855,13 @@ void cFodder::Hero_Add( sSquad_Member* pSquadMember ) {
 
 int16 cFodder::sub_2060F( sSprite* pSprite ) {
 
-	return sub_2061C( pSprite );
+	return Sprite_Destroy( pSprite );
 }
 
-int16 cFodder::sub_2061C( sSprite* pSprite ) {
+int16 cFodder::Sprite_Destroy( sSprite* pSprite ) {
 	pSprite->field_65 = 0;
 	pSprite->field_8 = 0x7C;
-	pSprite->field_18 = 4;
+	pSprite->field_18 = eSprite_Null;
 	pSprite->field_A = 0;
 	pSprite->field_24 = 1;
 
@@ -19140,7 +19137,7 @@ loc_20B6E:;
 
 	Data2C->field_1A = (int32*) Dataa0;
 	Data2C->field_18 = eSprite_Grenade;
-	Data30->field_18 = 3;
+	Data30->field_18 = eSprite_ShadowSmall;
 	Data2C->field_52 = 0;
 	Data30->field_52 = 0;
 	Data2C->field_50 = 0;
@@ -20435,7 +20432,7 @@ loc_22801:;
 	Data2C->field_46 = (int32*) pSprite;
 
 loc_2281B:;
-	Data30->field_18 = 3;
+	Data30->field_18 = eSprite_ShadowSmall;
 	Data2C->field_52 = 0;
 	Data30->field_32 = 0;
 	Data2C->field_22 = pSprite->field_22;

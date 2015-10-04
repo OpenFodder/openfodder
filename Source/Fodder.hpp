@@ -1052,7 +1052,7 @@ public:
 	void			Hero_Add( sSquad_Member* pSquadMember );
 
 	int16			sub_2060F( sSprite* pSprite );
-	int16			sub_2061C( sSprite* pSprite );
+	int16			Sprite_Destroy( sSprite* pSprite );
 	int16			Troop_Fire_Bullet( sSprite* pSprite );
 	int16			Troop_Throw_Grenade( sSprite* pSprite );
 	void			sub_20E5C( sSprite* pSprite );
