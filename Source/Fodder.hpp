@@ -959,7 +959,7 @@ public:
 
 	void			sub_1C296( sSprite* pSprite );							// 50
 	void			sub_1C2B4( sSprite* pSprite );							// 51
-	void			sub_1C2C3( sSprite* pSprite );							// 52
+	void			Sprite_Handle_HelicopterHuman( sSprite* pSprite );		// 52
 	void			sub_1C2D2( sSprite* pSprite );							// 53
 	void			sub_1C331( sSprite* pSprite );							// 54
 	void			sub_1C364( sSprite* pSprite );							// 55
