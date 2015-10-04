@@ -295,14 +295,15 @@ int16 cFodder::Mission_Loop( ) {
 		}
 
 		if (word_3A3B9) {
+
 			if (word_3A9B2)
 				sub_2D767(); 
+			else {
+				if (!word_3A9AA)
+					return 0;
 
-			if (!word_3A9AA)
-				return 0;
-
-			sub_2D725();
-
+				sub_2D725();
+			}
 			return -1;
 		}
 
@@ -5900,7 +5901,7 @@ loc_22F30:;
 	
 	if (pSprite->field_22) {
 		pSprite->field_26 = pSprite->field_0;
-		pSprite->field_20 = pSprite->field_4;
+		pSprite->field_28 = pSprite->field_4;
 	}
 	//loc_22F5F
 	pSprite->field_36 = -pSprite->field_36;
@@ -5976,7 +5977,7 @@ loc_23056:;
 	Data0 += 3;
 	pSprite->field_20 = Data0;
 	Data0 = -Data0;
-	pSprite->field_1A = (int32*) (((int64)pSprite->field_1A) | Data0 << 16);
+	pSprite->field_1A = (int32*) (((int64)pSprite->field_1A & 0xFFFF) | Data0 << 16);
 	return;
 
 loc_230B0:;
@@ -9992,7 +9993,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 		if (pSprite->field_18 == 0x27)
 			goto loc_2D62C;
 
-		if (pSprite->field_18 != 0x0C)
+		if (pSprite->field_18 != eSprite_Explosion)
 			goto loc_2D642;
 
 		goto loc_2D62C;
