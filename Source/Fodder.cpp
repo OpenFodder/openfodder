@@ -14747,9 +14747,9 @@ loc_1C133:;
 	return;
 
 loc_1C14A:;
-	Data0 = ((int32)pSprite->field_6A) >> 16;
+	Data0 = ((int64)pSprite->field_6A) >> 16;
 	pSprite->field_36 += Data0;
-	pSprite->field_6A = (sSprite*) ((int32)pSprite->field_6A) + 0x200;
+	pSprite->field_6A = (sSprite*) ((int64)pSprite->field_6A) + 0x200;
 	return;
 
 loc_1C170:;
