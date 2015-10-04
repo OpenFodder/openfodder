@@ -12168,7 +12168,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 52:
-			sub_1C2C3( Data20 );
+			Sprite_Handle_HelicopterHuman( Data20 );
 			break;
 
 		case 53:
@@ -14746,9 +14746,9 @@ loc_1C133:;
 	return;
 
 loc_1C14A:;
-	Data0 = pSprite->field_60;
+	Data0 = ((int32)pSprite->field_6A) >> 16;
 	pSprite->field_36 += Data0;
-	pSprite->field_6A += 0x200;
+	pSprite->field_6A = (sSprite*) ((int32)pSprite->field_6A) + 0x200;
 	return;
 
 loc_1C170:;
@@ -14844,7 +14844,7 @@ void cFodder::sub_1C2B4( sSprite* pSprite ) {
 	sub_23CDD( pSprite );
 }
 
-void cFodder::sub_1C2C3( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_HelicopterHuman( sSprite* pSprite ) {
 
 	pSprite->field_6F = 8;
 	sub_23CDD( pSprite );
@@ -16271,7 +16271,7 @@ void cFodder::sub_1E018( sSprite* pSprite ) {
 
 void cFodder::sub_1E022( sSprite* pSprite ) {
 	sub_26781( pSprite );
-	sub_1C2C3( pSprite );
+	Sprite_Handle_HelicopterHuman( pSprite );
 }
 
 void cFodder::sub_1D724( sSprite* pSprite ) {
