@@ -221,10 +221,6 @@ int16 cFodder::Mission_Loop( ) {
 	for (;;) {
 		videoSleep();
 
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->Restore();
-
 		sub_12018();
 		Camera_Pan( );
 
@@ -239,6 +235,7 @@ int16 cFodder::Mission_Loop( ) {
 			word_3AA1B = -1;
 			continue;
 		}
+
 		//loc_1074E
 		if (word_3AC2B >= 0 && !word_3A9AA)
 			sub_2F9B3();
@@ -320,6 +317,10 @@ int16 cFodder::Mission_Loop( ) {
 
 		sub_13155();
 		sub_131A2();
+
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->Restore();
 	}
 
 	return 0;
@@ -1132,7 +1133,7 @@ void cFodder::map_Load_Spt() {
 		
 		if(Data24->field_18 != 0 ) {
 			//10EE
-			if(Data24->field_18 == 0x24 ) {
+			if(Data24->field_18 == eSprite_Enemy_Rocket ) {
 				Data24->field_22 = 1;
 				++mTroops_Enemy_Count;
 				
@@ -2319,7 +2320,7 @@ void cFodder::sub_12790( ) {
 		if (word_3A9AA)
 			goto loc_127E8;
 
-		Mission_Show_Complete();
+		Mission_Text_Completed();
 		word_390F8 = -1;
 		goto loc_1280A;
 	}
@@ -2327,7 +2328,7 @@ void cFodder::sub_12790( ) {
 	if (word_390CE) {
 	loc_127E8:;
 
-		Mission_Show_TryAgain();
+		Mission_Text_TryAgain();
 		word_3D465 = 0x0F;
 		word_3D467 = 0x0A;
 		goto loc_1280A;
@@ -2351,51 +2352,47 @@ loc_1280A:;
 	word_3A3B9 = -1;
 }
 
-void cFodder::Mission_Show_Complete() {
-	sSprite* Data24 = &mSprites[40];
-
-	Sprite_Destroy( Data24 );
-	sSprite* Data2C = &mSprites[41];
+void cFodder::Mission_Text_Completed() {
+	Sprite_Destroy( &mSprites[40] );
 
 	if (mMissionPhaseRemain == 1)
-		sub_12877( Data2C );
+		Mission_Text_Sprite_Mission( &mSprites[41] );
 	else
-		sub_128A9( Data2C );
-	
-	Data2C = &mSprites[42];
-	sub_128DB( Data2C );
+		Mission_Text_Sprite_Phase( &mSprites[41] );
+
+	Mission_Text_Sprite_Complete(  &mSprites[42] );
 }
 
-void cFodder::sub_12877( sSprite* pData2C ) {
-
-	sub_128F4( pData2C );
+void cFodder::Mission_Text_Sprite_Mission( sSprite* pData2C ) {
+	Mission_Text_Prepare( pData2C );
 
 	pData2C->field_4 -= 0x14;
 	pData2C->field_0 += 0x12;
 	pData2C->field_8 = 0xA2;
-	pData2C->field_18 = 0x1D;
+	pData2C->field_18 = eSprite_Text_Mission;
 
 	Music_Play( 6 );
 }
 
-void cFodder::sub_128A9( sSprite* pData2C ) {
-	sub_128F4( pData2C );
+void cFodder::Mission_Text_Sprite_Phase( sSprite* pData2C ) {
+	Mission_Text_Prepare( pData2C );
 
 	pData2C->field_4 -= 0x14;
 	pData2C->field_0 += 0x1B;
 	pData2C->field_8 = 0xA1;
-	pData2C->field_18 = 0x1E;
+	pData2C->field_18 = eSprite_Text_Phase;
 
 	Music_Play( 0x0C );
 }
 
-void cFodder::sub_128DB( sSprite* pData2C ) {
-	sub_128F4( pData2C );
+void cFodder::Mission_Text_Sprite_Complete( sSprite* pData2C ) {
+	Mission_Text_Prepare( pData2C );
+
 	pData2C->field_8 = 0xA0;
-	pData2C->field_18 = 0x1C;
+	pData2C->field_18 = eSprite_Text_Complete;
 }
 
-void cFodder::sub_128F4( sSprite* pData2C ) {
+void cFodder::Mission_Text_Prepare( sSprite* pData2C ) {
 
 	pData2C->field_0 = dword_39F84 >> 16;
 	pData2C->field_0 += 0x54;
@@ -2410,33 +2407,29 @@ void cFodder::sub_128F4( sSprite* pData2C ) {
 	pData2C->field_2C = 1;
 }
 
-void cFodder::Mission_Show_TryAgain() {
-	sSprite* Data24 = &mSprites[40];
-	Sprite_Destroy( Data24 );
+void cFodder::Mission_Text_TryAgain() {
 
-	sSprite* Data2C = &mSprites[41];
-	sub_1298C( Data2C );
+	Sprite_Destroy( &mSprites[40] );
 
-	Data2C = &mSprites[42];
-	sub_129B6( Data2C );
+	Mission_Text_Sprite_Try(  &mSprites[41] );
+	Mission_Text_Sprite_Again(  &mSprites[42] );
 
 	Music_Play(0x0F);
 }
 
-void cFodder::sub_1298C( sSprite* pData2C ) {
-	sub_128F4( pData2C );
+void cFodder::Mission_Text_Sprite_Try( sSprite* pData2C ) {
+	Mission_Text_Prepare( pData2C );
 	pData2C->field_4 -= 0x14;
 	pData2C->field_0 += 0x12;
 	pData2C->field_8 = 0xCA;
-	pData2C->field_18 = 0x3A;
-
+	pData2C->field_18 = eSprite_Text_Try;
 }
 
-void cFodder::sub_129B6( sSprite* pData2C ) {
-	sub_128F4( pData2C );
+void cFodder::Mission_Text_Sprite_Again( sSprite* pData2C ) {
+	Mission_Text_Prepare( pData2C );
 
 	pData2C->field_8 = 0xCB;
-	pData2C->field_18 = 0x3B;
+	pData2C->field_18 = eSprite_Text_Again;
 }
 
 std::string	cFodder::sub_12AA1( const std::string& pBase, const char* pFinish ) {
@@ -3412,13 +3405,13 @@ void cFodder::sub_13255() {
 	Sprite_Destroy( Data24 );
 
 	sSprite* Data2C = &mSprites[41];
-	sub_13277( Data2C );
+	Mission_Text_GameOver( Data2C );
 }
 
-void cFodder::sub_13277( sSprite* pData2C ) {
-	sub_128F4( pData2C );
+void cFodder::Mission_Text_GameOver( sSprite* pData2C ) {
+	Mission_Text_Prepare( pData2C );
 	pData2C->field_8 = 0xC1;
-	pData2C->field_18 = 0x22;
+	pData2C->field_18 = eSprite_Text_GameOver;
 
 	Music_Play(8);
 }
@@ -6477,7 +6470,7 @@ int16 cFodder::sub_239C9( sSprite* pSprite, sSprite*& pData2C ) {
 	Data30->field_20 = 0;
 	pData2C->field_4 += 1;
 	pData2C->field_0 += 3;
-	pData2C->field_18 = 0x2D;
+	pData2C->field_18 = eSprite_Missile;
 	Data30->field_18 = eSprite_ShadowSmall;
 	pData2C->field_52 = 0;
 	Data30->field_52 = 0;
@@ -10136,7 +10129,7 @@ void cFodder::sub_2D7FF() {
 		if (Sprite->field_0 == -32768)
 			continue;
 
-		if (Sprite->field_18 == 0x24 || Sprite->field_18 == eSprite_Enemy)
+		if (Sprite->field_18 == eSprite_Enemy_Rocket || Sprite->field_18 == eSprite_Enemy)
 			sub_2D8AF( Sprite );
 	}
 }
@@ -10923,22 +10916,18 @@ void cFodder::sub_2EACA() {
 	map_ClearSpt();
 
 	word_3AC29 = 0;
-	int16 Data0 = 0;
 	int16 Data4 = 0;
-	Mission_Sidebar_Prepare(Data0, Data4);
+	Mission_Sidebar_Prepare(0, Data4);
 
-	Data0 = 1;
 	Data4 = word_3AC29;
 	if (Data4)
 		Data4 += 5;
-	Mission_Sidebar_Prepare(Data0, Data4);
+	Mission_Sidebar_Prepare(1, Data4);
 
-	Data0 = 2;
 	Data4 = word_3AC29;
 	if (Data4)
 		Data4 += 5;
-
-	Mission_Sidebar_Prepare(Data0, Data4);
+	Mission_Sidebar_Prepare(2, Data4);
 	sub_2EBC4();
 
 	word_3AC45 = 0;
@@ -10947,9 +10936,9 @@ void cFodder::sub_2EACA() {
 	word_39EFC = 0;
 }
 
-void cFodder::sub_9B94E( const sGUI_Element *pA0 ) {
-	for (;; ++pA0) {
-		const sGUI_Element* Data20 = pA0;
+void cFodder::sub_9B94E( const sGUI_Element *pElement ) {
+	for (;; ++pElement) {
+		const sGUI_Element* Data20 = pElement;
 
 		if (Data20->field_0 == 0)
 			break;
@@ -11158,31 +11147,26 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
 }
 
 void cFodder::sub_2EF8A() {
-	int16 Data0 = word_3AC1F;
 
-	int16* Data20 = word_3AC3F;
-	int16* Data24 = mSquad_Grenades;
-	int16* Data28 = mSquad_Rockets;
+	if (word_3AC3F[word_3AC1F] == 1) {
 
-	if (Data20[Data0] == 1) {
-
-		if (Data24[Data0])
+		if (mSquad_Grenades[word_3AC1F])
 			return;
-		if (!Data28[Data0])
+		if (!mSquad_Rockets[word_3AC1F])
 			return;
 
-		Data20[Data0] = 3;
+		word_3AC3F[word_3AC1F] = 3;
 		return;
 	}
 
 	//loc_2EFF1
-	if (Data28[Data0])
+	if (mSquad_Rockets[word_3AC1F])
 		return;
 
-	if (!Data24[Data0])
+	if (!mSquad_Grenades[word_3AC1F])
 		return;
 
-	Data20[Data0] = 1;
+	word_3AC3F[word_3AC1F] = 1;
 }
 
 void cFodder::Service_Show() {
@@ -11723,8 +11707,6 @@ void cFodder::Service_Promotion_Prepare() {
 	int16* Data28 = word_3ABFF;
 	dword_3AC11 = Data28;
 
-	//int16 Data8 = mMissionPhaseTable[ mMissionNumber - 1 ];
-
 	sSquad_Member* Data20 = mSquad;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
@@ -11846,7 +11828,7 @@ void cFodder::Briefing_Prepare() {
 	mImage->paletteFade();
 
 	do {
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 	} while (mImage->paletteFade() == -1);
 
@@ -11885,10 +11867,6 @@ void cFodder::Briefing_Wait() {
 		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 	} while (mImage->paletteFade() == -1);
-
-	while (!mouse_Button_Status) {
-		mouse_GetData();
-	}
 
 	mouse_Setup();
 }
@@ -12488,7 +12466,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 						int16 Data4 = Sprite->field_4;
 						
 						int16 Data8 = Data28->field_0;
-						int16 DataC = Data28->field_2;
+						int16 DataC = Data28->field_4;
 						
 						sub_29E30( Data0, Data4, Data8, DataC );
 						if (Data0 < 0xD2) {
@@ -12501,7 +12479,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 							Data0 = Sprite->field_0;
 							Data4 = Sprite->field_4;
 							Data8 = Data28->field_0;
-							DataC = Data28->field_2;
+							DataC = Data28->field_4;
 
 							if (sub_2A4A2( Data0, Data4, Data8, DataC ) == 0) {
 								Data0 = word_3AA4B;
@@ -16643,7 +16621,6 @@ loc_1E3D2:;
 	Dataa4 = Dataa0;
 	Dataa0 += ((pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16));
 
-	// Probably going to be issues here
 	pSprite->field_1E = Dataa4;
 	pSprite->field_20 = Dataa4 >> 16;
 	if (pSprite->field_1E < 0) {
@@ -17082,8 +17059,8 @@ int16 cFodder::Troop_Dies( sSprite* pSprite ) {
 
 loc_1F0EA:;
 
-	if (pSprite->field_18 != 0x24)
-		if (pSprite->field_18 != 5)
+	if (pSprite->field_18 != eSprite_Enemy_Rocket)
+		if (pSprite->field_18 != eSprite_Enemy)
 			goto loc_1F218;
 
 	++word_397AE;
@@ -17215,6 +17192,8 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 				goto loc_1F3C4;
 			}
 		}
+		else
+			goto loc_1F32C;
 	}
 	
 	//loc_1F2EC
@@ -17312,7 +17291,7 @@ loc_1F477:;
 	if (pSprite->field_4F)
 		return;
 
-	if (pSprite->field_18 == 0x24) {
+	if (pSprite->field_18 == eSprite_Enemy_Rocket) {
 		word_3A00E = -1;
 		word_3A00C = -1;
 		word_3A010 = -1;
@@ -17322,8 +17301,9 @@ loc_1F477:;
 
 	}
 	//loc_1F4B0
-	if (pSprite->field_18 != 5)
+	if (pSprite->field_18 != eSprite_Enemy)
 		goto loc_1F4DB;
+
 	if (mMapNumber <= 4)
 		goto loc_1F4DB;
 
@@ -17589,7 +17569,7 @@ loc_1F94F:;
 	if (Data0 != Dataa30->field_26)
 		goto loc_1F9C0;
 
-	Data0 = Dataa30->field_28;
+	Data0 = Dataa30->field_4;
 	if (Data0 != Dataa30->field_28)
 		goto loc_1F9C0;
 
@@ -19034,7 +19014,7 @@ int16 cFodder::Troop_Throw_Grenade( sSprite* pSprite ) {
 	if (!pSprite->field_2E)
 		goto loc_20ADE;
 
-	if (pSprite->field_18 != 5)
+	if (pSprite->field_18 != eSprite_Enemy)
 		goto loc_20AC1;
 
 	Data0 = pSprite->field_0;
@@ -19701,7 +19681,7 @@ void cFodder::sub_21702( sSprite* pSprite, int16 pData18 ) {
 	Data2C->field_36 = 0x0C;
 	Data30->field_36 = 0x0C;
 	Data2C->field_18 = 0x2F;
-	Data30->field_18 = 0x03;
+	Data30->field_18 = eSprite_ShadowSmall;
 	Data2C->field_52 = 0;
 	Data30->field_52 = 0;
 	Data2C->field_2C = 0;
@@ -20325,7 +20305,7 @@ int16 cFodder::sub_224ED( sSprite* pSprite ) {
 		goto loc_22592;
 
 	//seg005:2E39
-	if (pSprite->field_18 != 5)
+	if (pSprite->field_18 != eSprite_Enemy)
 		goto loc_22575;
 
 	Data0 = pSprite->field_0;
@@ -20424,11 +20404,11 @@ loc_22622:;
 
 loc_227EB:;
 	Data2C->field_32 = 0;
-	Data2C->field_18 = 0x2D;
+	Data2C->field_18 = eSprite_Missile;
 	goto loc_2281B;
 
 loc_22801:;
-	Data2C->field_18 = 0x21;
+	Data2C->field_18 = eSprite_Rocket;
 	Data2C->field_46 = (int32*) pSprite;
 
 loc_2281B:;
@@ -20583,8 +20563,6 @@ loc_103BF:;
 
 		//loc_1042E:;
 		for (;;) {
-			//video_?_1();
-
 			if (!word_3A9B2 && !word_3A9AA) {
 
 				if (mVersion->mKey == "AFX") {

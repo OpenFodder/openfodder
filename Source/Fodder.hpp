@@ -782,14 +782,14 @@ public:
 	void			sub_126BB();
 	void			Mission_Goals_Set();
 	void			sub_12790( );
-	void			Mission_Show_Complete();
-	void			sub_12877( sSprite* pData2C );
-	void			sub_128A9( sSprite* pData2C );
-	void			sub_128DB( sSprite* pData2C );
-	void			sub_128F4( sSprite* pData2C );
-	void			Mission_Show_TryAgain();
-	void			sub_1298C( sSprite* pData2C );
-	void			sub_129B6( sSprite* pData2C );
+	void			Mission_Text_Completed();
+	void			Mission_Text_Sprite_Mission( sSprite* pData2C );
+	void			Mission_Text_Sprite_Phase( sSprite* pData2C );
+	void			Mission_Text_Sprite_Complete( sSprite* pData2C );
+	void			Mission_Text_Prepare( sSprite* pData2C );
+	void			Mission_Text_TryAgain();
+	void			Mission_Text_Sprite_Try( sSprite* pData2C );
+	void			Mission_Text_Sprite_Again( sSprite* pData2C );
 
 	std::string		sub_12AA1( const std::string& pBase, const char* pFinish );
 	void			sub_12A5F();
@@ -807,7 +807,7 @@ public:
 	void			sub_131A2();
 	int16			sub_131DE();
 	void			sub_13255();
-	void			sub_13277( sSprite* pData2C );
+	void			Mission_Text_GameOver( sSprite* pData2C );
 	void			Mission_Paused();
 	void			sub_136D0();
 	void			sub_13800();
