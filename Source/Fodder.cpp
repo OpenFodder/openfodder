@@ -6631,7 +6631,7 @@ void cFodder::sub_23EFD( sSprite* pSprite ) {
 		if (pSprite->field_38 == 5)
 			pSprite->field_38 = 0;
 
-	if (pSprite->field_38 == 8 || pSprite->field_38 == 5) {
+	if (pSprite->field_38 == 7 || pSprite->field_38 == 5) {
 
 		pSprite->field_18 = eSprite_Explosion;
 		pSprite->field_26 = 0x1F45;
@@ -6758,7 +6758,7 @@ void cFodder::sub_24173( sSprite* pSprite, sSprite* pData34 ) {
 	word_3B189 = 0;
 	word_3B18B = 0;
 
-	if (pSprite->field_6F == 9)
+	if (pSprite->field_6F != 9)
 		goto loc_2421D;
 
 	if (!word_3B4DF)
@@ -7273,7 +7273,7 @@ int16 cFodder::sub_24C47( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34
 	pData2C->field_0 += 3;
 	pData2C->field_18 = 0x61;
 	if (pSprite->field_22)
-		pData2C->field_18 = 0x2E;
+		pData2C->field_18 = eSprite_MissileHoming;
 	Data30->field_18 = eSprite_ShadowSmall;
 	pData2C->field_52 = 0;
 	Data30->field_52 = 0;
@@ -7281,7 +7281,7 @@ int16 cFodder::sub_24C47( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34
 	Data30->field_22 = pSprite->field_22;
 	pData2C->field_2C = 0;
 	Data30->field_2C = -1;
-	pData2C->field_28 = 0;
+	pData2C->field_38 = 0;
 
 	Sound_Voc_Play( pSprite, 0x2C, 0x0F );
 	return -1;
@@ -12145,7 +12145,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 46:
-			sub_1BEFB( Data20 );
+			Sprite_Handle_MissileHoming( Data20 );
 			break;
 
 		case 47:
@@ -12285,7 +12285,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 81:
-			sub_1D77E( Data20 );
+			Sprite_Handle_Computer_Truck( Data20 );
 			break;
 
 		case 82:
@@ -12381,7 +12381,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 105:
-			sub_1D724( Data20 );
+			Sprite_Handle_Turret_HomingMissile( Data20 );
 			break;
 
 		case 106:
@@ -14617,7 +14617,7 @@ loc_1BECD:;
 	Sprite_Destroy( pSprite + 1 );
 }
 
-void cFodder::sub_1BEFB( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
 	int32 Field_1E;
 	sSprite* Data34 = 0;
@@ -14643,7 +14643,7 @@ void cFodder::sub_1BEFB( sSprite* pSprite ) {
 	Data4 >>= 4;
 	Data4 += 1;
 
-	if (Data0 <= 4)
+	if (Data0 <= Data4)
 		goto loc_1C197;
 
 	if (Data34->field_20 <= 0x10)
@@ -14684,7 +14684,7 @@ loc_1C012:;
 	Data0 = pSprite->field_0;
 	Data4 = pSprite->field_4;
 	Data8 = Data34->field_0;
-	DataC = Data34->field_C;
+	DataC = Data34->field_4;
 	Data8 += 8;
 	DataC += 8;
 
@@ -14699,6 +14699,7 @@ loc_1C012:;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
 	goto loc_1C087;
+
 loc_1C06F:;
 	if (pSprite->field_20 > 8) {
 		Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
@@ -14749,7 +14750,7 @@ loc_1C133:;
 loc_1C14A:;
 	Data0 = ((int64)pSprite->field_6A) >> 16;
 	pSprite->field_36 += Data0;
-	pSprite->field_6A = (sSprite*) ((int64)pSprite->field_6A) + 0x200;
+	pSprite->field_6A = (sSprite*) (((int64)pSprite->field_6A) + 0x200);
 	return;
 
 loc_1C170:;
@@ -15856,19 +15857,12 @@ loc_1D6DD:;
 
 }
 
-void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
-	pSprite->field_22 = 0;
-	pSprite->field_6F = 0;
-
-	sub_23EFD( pSprite );
-}
-
 void cFodder::sub_1D76F( sSprite* pSprite ) {
 	pSprite->field_6F = 2;
 	sub_254F9( pSprite );
 }
 
-void cFodder::sub_1D77E( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Computer_Truck( sSprite* pSprite ) {
 	pSprite->field_6F = 3;
 	sub_254F9( pSprite );
 }
@@ -15907,6 +15901,20 @@ void cFodder::sub_1D6F2( sSprite* pSprite ) {
 void cFodder::sub_1D70B( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
 	pSprite->field_6F = 1;
+
+	sub_23EFD( pSprite );
+}
+
+void cFodder::Sprite_Handle_Turret_HomingMissile( sSprite* pSprite ) {
+	pSprite->field_22 = 1;
+	pSprite->field_6F = 9;
+
+	sub_23EFD( pSprite );
+}
+
+void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
+	pSprite->field_22 = 0;
+	pSprite->field_6F = 0;
 
 	sub_23EFD( pSprite );
 }
@@ -16172,7 +16180,7 @@ void cFodder::sub_1DD91( sSprite* pSprite ) {
 
 void cFodder::sub_1BEF6( sSprite* pSprite ) {
 
-	sub_1BEFB( pSprite );
+	Sprite_Handle_MissileHoming( pSprite );
 }
 
 void cFodder::sub_1DE38( sSprite* pSprite ) {
@@ -16273,13 +16281,6 @@ void cFodder::sub_1E018( sSprite* pSprite ) {
 void cFodder::sub_1E022( sSprite* pSprite ) {
 	sub_26781( pSprite );
 	Sprite_Handle_HelicopterHuman( pSprite );
-}
-
-void cFodder::sub_1D724( sSprite* pSprite ) {
-	pSprite->field_22 = 1;
-	pSprite->field_6F = 9;
-
-	sub_23EFD( pSprite );
 }
 
 void cFodder::sub_1E02C( sSprite* pSprite ) {

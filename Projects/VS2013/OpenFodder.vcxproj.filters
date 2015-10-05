@@ -128,9 +128,6 @@
     <ClCompile Include="..\..\Source\Versions.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
-      <Filter>Source\PC</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Amiga\dernc.cpp">
       <Filter>Source\Amiga</Filter>
     </ClCompile>
@@ -145,6 +142,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Amiga\IntroData_Amiga.cpp">
       <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
