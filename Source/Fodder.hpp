@@ -952,7 +952,7 @@ public:
 	void			sub_1BD36( sSprite* pSprite );							// 43
 	void			sub_1BD45( sSprite* pSprite );							// 44
 	void			Sprite_Handle_Missile( sSprite* pSprite );				// 45
-	void			sub_1BEFB( sSprite* pSprite );							// 46
+	void			Sprite_Handle_MissileHoming( sSprite* pSprite );		// 46
 	void			sub_1C1C0( sSprite* pSprite );							// 47
 	void			sub_1C268( sSprite* pSprite );							// 48
 	void			sub_1C2A5( sSprite* pSprite );							// 49
@@ -991,7 +991,7 @@ public:
 	void			sub_1D756( sSprite* pSprite );							// 79
 
 	void			sub_1D76F( sSprite* pSprite );							// 80
-	void			sub_1D77E( sSprite* pSprite );							// 81
+	void			Sprite_Handle_Computer_Truck( sSprite* pSprite );		// 81
 	void			sub_1D78D( sSprite* pSprite );							// 82
 	void			sub_1D7B6( sSprite* pSprite );							// 83
 	void			sub_1D6F2( sSprite* pSprite );							// 84
@@ -1017,7 +1017,7 @@ public:
 	void			sub_1E00E( sSprite* pSprite );							// 102
 	void			sub_1E018( sSprite* pSprite );							// 103
 	void			sub_1E022( sSprite* pSprite );							// 104
-	void			sub_1D724( sSprite* pSprite );							// 105
+	void			Sprite_Handle_Turret_HomingMissile( sSprite* pSprite );	// 105
 	void			sub_1E02C( sSprite* pSprite );							// 106
 	void			sub_1E031( sSprite* pSprite );							// 107
 	void			sub_1E036( sSprite* pSprite );							// 108
