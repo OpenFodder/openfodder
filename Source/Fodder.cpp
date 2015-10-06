@@ -3667,6 +3667,9 @@ void cFodder::Sound_Voc_Load() {
 
 void cFodder::Music_PlayFile( const char* pFilename ) {
 
+	if (mWindow->GetSound() == false)
+		return;
+
 	std::string Filename = "Data/WAV/";
 	Filename.append( pFilename );
 	Filename.append( ".wav" );
@@ -3681,6 +3684,9 @@ void cFodder::Music_PlayFile( const char* pFilename ) {
 }
 
 void cFodder::Music_Stop() {
+	
+	if (mWindow->GetSound() == false)
+		return;
 
 	Mix_FadeOutMusic(500);
 }
@@ -3799,7 +3805,7 @@ void cFodder::Sound_Voc_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
 	int16 bx = mMap_TileSet;
 	
 	sVocLoaded* eax = &word_42316[bx][pData4];
-	if (eax->mSize == 0)
+	if (eax->mSize == 0 || mWindow->GetSound() == false )
 		return;
 
 	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, (int) eax->mSize );
