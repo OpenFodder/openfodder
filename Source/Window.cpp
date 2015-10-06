@@ -37,6 +37,8 @@ cWindow::cWindow() {
 
 	mScreenSize.mWidth = 320;
 	mScreenSize.mHeight = 200;
+
+	mSound = false;
 }
 
 cWindow::~cWindow() {
@@ -75,11 +77,12 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	int audio_buffers = 1024;
  
 	if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
-		//TODO:  Mix_GetError();
-		return false;
+		mSound = false;
 	}
-
-	Mix_ChannelFinished(Mixer_ChannelFinished);
+	else {
+		mSound = true;
+		Mix_ChannelFinished( Mixer_ChannelFinished );
+	}
 
 	SDL_RenderSetLogicalSize(mRenderer, 352, 216);
 
