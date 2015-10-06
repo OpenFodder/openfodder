@@ -54,6 +54,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
 		// TODO: Log error
 		//SDL_GetError();
+		std::cout << "Failed to initialise SDL\n";
 		return false;
 	}
 	
@@ -61,6 +62,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	if (!mWindow) {
 		// TODO: Log Error
 		//SDL_GetError();
+		std::cout << "Failed to create window\n";
 		return false;
 	}
 
@@ -68,6 +70,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	if (!mRenderer) {
 		// TODO: Log Error
 		//SDL_GetError()
+		std::cout << "Failed to create rendered\n";
 		return false;
 	}
 
