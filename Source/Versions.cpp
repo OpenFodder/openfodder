@@ -323,12 +323,51 @@ const sFile mAmigaFormatFiles[] = {
 	{ 0 }
 };
 
+const sFile mPlusFiles[] = {
+	{ "junbase.bht", "1D1AEA8B3B2EF9D0CD886DC7F39588D4" },
+	{ "junsub1.bht", "A7B6F71467FA2006D97DB67C43741694" },
+	{ "junbase.blk", "0D3C72390ADF47647339331A7736AC16" },
+	{ "junsub1.blk", "70E25A00B8EA9BE9E2C1748A3026AEF2" },
+	{ "junbase.hit", "9974819A29D70D7ED1B7D89665C22290" },
+	{ "junsub1.hit", "293CA1C5EB584F8D432A2BE60801D37E" },
+	{ "junbase.ins", "C7AC0BA709C8446239F95878BB4DCE65" },
+	{ "1.lbm", "913D9A8557FFF6B346CF779BBDEA1CD9" },
+	{ "2.lbm", "F846A614A3A5CCA95ED43B47AD8CFEEA" },
+	{ "3.lbm", "17D5386978C5FCBFBD05BC391F9F5A55" },
+	{ "4.lbm", "3A44F62EC8283B3E7ECEFD5BCAB7A3EB" },
+	{ "5.lbm", "459DEC92F89E3BB54AC9B54FFC43C45D" },
+	{ "6.lbm", "E985757E42925A6250F3624A3761818A" },
+	{ "7.lbm", "ACEFFCBB87A64432720CB137E9295990" },
+	{ "8.lbm", "7F017C5075505764E571474C299BE9DA" },
+	{ "9.lbm", "4289FA75B3ACFD0D248D0AC2D4C15222" },
+	{ "10.lbm", "921C5CC0FFB15F48F73E3A9737590BA7" },
+	{ "11.lbm", "059ACB5A8B3FF6B9AF9A35CE728897BE" },
+	{ "apmenu.lbm", "13C9FF4C69772353173FA4DD4FBC8C6C" },
+	{ "junarmy.lbm", "A84F78AF89C87F068541A583B7254CFC" },
+	{ "juncopt.lbm", "08DFA50E3C18E57C4A0E7F8749F36526" },
+	{ "pstuff.lbm", "DC04FD82E27E5BACD46D5AF2A617127F" },
+	{ "mapm1.map", "E4FBB58267378F7115EA5031FB619814" },
+	{ "mapm1.spt", "A4924EB5445CA87B0B9D6F0512B31B5A" },
+	{ "mapm2.map", "1B07CF4F3575C34CA73E41BDC286379A" },
+	{ "mapm2.spt", "51AAA7F17411C8479E4499BB8B3F1E07" },
+	{ "mapm3.map", "A881B3BDD3A37D594BDCD774D8C3D967" },
+	{ "mapm3.spt", "4D115E6A0EF74E9ED37AE4127825C33B" },
+	{ "mapm4.map", "A881B3BDD3A37D594BDCD774D8C3D967" },
+	{ "mapm4.spt", "B569E610AF4D404DE794F0FDB60F2962" },
+	{ "junbase.pal", "27DA36F06898A9549A1E4AF4CAC4D8B7" },
+	{ "junbase.sng", "6C2ACFA3FA1B5012DB5DD9BF17980C81" },
+	{ "junbase.swp", "768E479D6895E64E61F1502021D3E4D6" },
+	{ "junsub1.swp", "C551471A99FFF0B02FF7FE11163C63EE" },
+	{ 0 }
+};
+
 const sVersion Versions[] = {
 
 	{ "Dos",							"Dos",		ePlatform::PC,		eRelease::Retail, &mMissionData_Retail, mIntroText_PC, "Dos_CD", mDosFiles },
 	{ "Amiga",							"Amiga",	ePlatform::Amiga,	eRelease::Retail, &mMissionData_Retail, mIntroText_Amiga, "Amiga", mAmigaFiles },
 	{ "Amiga Format Christmas Special", "AFX",		ePlatform::Amiga,	eRelease::Demo, &mMissionData_AmigaFormat, mIntroText_Amiga, "AmigaFormat_XMAS", mAmigaFormatFiles },
-		{ 0 }
+	{ "Plus",							"Plus",		ePlatform::Amiga,	eRelease::Demo, &mMissionData_AmigaFormat, mIntroText_Amiga, "Plus", mPlusFiles },
+	{ 0 }
 };
 
 std::vector<const sVersion*> FindFodderVersions() {
@@ -341,19 +380,19 @@ std::vector<const sVersion*> FindFodderVersions() {
 		//Count the number of files
 		for (uint16 FileNo = 0; Versions[x].mFiles[FileNo].mName != 0; ++FileNo)
 			++FileCount;
-			
+		
 		// Loop each file in this version
 		for (uint16 FileNo = 0; Versions[x].mFiles[FileNo].mName != 0; ++FileNo) {
 				
 	 		std::string MD5 = local_FileMD5( Versions[x].mFiles[FileNo].mName, Versions[x].mDataPath );
 
 			if (MD5 != Versions[x].mFiles[FileNo].mChecksum) {
-				//std::cout << Versions[x].mName << ": ";
+				std::cout << Versions[x].mName << ": " << Versions[x].mFiles[FileNo].mName;
 
 				if (MD5.length() == 0) {
 					//std::cout << "File not found\n";
 				} else
-					std::cout << "Unknown MD5: " << Versions[x].mFiles[FileNo].mName << ": " << MD5 << "\n";
+					std::cout << "Unknown MD5: " << MD5 << "\n";
 			} else
 				++FileMatches;
 		

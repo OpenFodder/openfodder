@@ -35,6 +35,14 @@ const sGUI_Element mCoverDisk_Buttons[] = {
 	{ 0 }
 };
 
+const sGUI_Element mPlus_Buttons[] = {
+	{ &cFodder::sub_2EAC2, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::sub_A03E0 },
+	{ &cFodder::sub_2EAC2, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
+	{ &cFodder::sub_2EAC2, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::sub_A0400 },
+	{ &cFodder::sub_2EAC2, 0x02, 0x9D, 0x81, 0x63, &cFodder::sub_9BA08 },
+	{ &cFodder::sub_2EAC2, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_9BA1A },
+};
+
 cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
@@ -2442,7 +2450,7 @@ std::string	cFodder::sub_12AA1( const std::string& pBase, const char* pFinish ) 
 	return Final;
 }
 
-void cFodder::sub_12A5F() {
+void cFodder::Squad_Member_PhaseCount() {
 	sSquad_Member* Data20 = mSquad;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
@@ -3023,6 +3031,12 @@ void cFodder::VersionSelect_2() {
 	word_82132 = 1;
 }
 
+void cFodder::VersionSelect_3() {
+	
+	VersionLoad( mVersions[3] );
+	word_82132 = 1;
+}
+
 void cFodder::VersionSelect() {
 	sGUI_Element *Buttons = new sGUI_Element[mVersions.size() + 1];
 
@@ -3103,6 +3117,10 @@ void cFodder::VersionSelect() {
 
 			case 2:
 				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_2;
+				break;
+
+			case 3:
+				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_3;
 				break;
 		}
 		Pos += 30;
@@ -4550,9 +4568,14 @@ void cFodder::AFX_Show() {
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
-		if (mButtonPressLeft)
-			sub_9B94E( mCoverDisk_Buttons );
-		
+		if (mButtonPressLeft) {
+			if (mVersion->mKey == "AFX")
+				sub_9B94E( mCoverDisk_Buttons );
+
+			if (mVersion->mKey == "Plus")
+				sub_9B94E( mPlus_Buttons );
+		}
+
 		if (word_82132)
 			break;
 
@@ -10987,6 +11010,25 @@ void cFodder::sub_A03EE() {
 void cFodder::sub_A0400() {
 	mMapNumber = 1;
 	word_82132 = 1;
+}
+
+void cFodder::sub_A03E0() {
+	sub_A0436();
+	word_82132 = -1;
+}
+
+void cFodder::sub_9BA08() {
+	mMapNumber = 2;
+	word_82132 = 1;
+}
+
+void cFodder::sub_9BA1A() {
+	mMapNumber = 3;
+	word_82132 = 1;
+}
+
+void cFodder::sub_A0436() {
+	
 }
 
 void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
@@ -20573,7 +20615,7 @@ loc_103BF:;
 		for (;;) {
 			if (!word_3A9B2 && !word_3A9AA) {
 
-				if (mVersion->mKey == "AFX") {
+				if (mVersion->mRelease == eRelease::Demo) {
 					if (mMapNumber == 3) {
 						goto loc_103BF;
 					}
@@ -20595,7 +20637,7 @@ loc_103BF:;
 			//video_?_1();
 			word_390A6 = 0;
 
-			if (mVersion->mKey != "AFX") {
+			if (mVersion->mRelease != eRelease::Demo) {
 				if (!mIntroDone)
 					intro();
 			}
@@ -20620,7 +20662,7 @@ loc_103BF:;
 				word_3ABA7 = 0;
 				WindowTitleSet( false );
 
-				if (mVersion->mKey != "AFX")
+				if (mVersion->mRelease == eRelease::Retail)
 					Recruit_Show();
 				else {
 					AFX_Show();
@@ -20649,7 +20691,7 @@ loc_103BF:;
 			}
 
 			//loc_10513
-			if (mVersion->mKey != "AFX")
+			if (mVersion->mRelease == eRelease::Retail)
 				Briefing_Prepare();
 			
 			WindowTitleSet( true );
@@ -20667,10 +20709,11 @@ loc_103BF:;
 			g_Graphics.graphicsBlkPtrsPrepare();
 			word_3A9B2 = 0;
 
-			if (mVersion->mKey != "AFX") {
+			if (mVersion->mRelease == eRelease::Retail) {
 				Map_Overview_Prepare();
 				Briefing_Wait();
 			}
+
 			if (word_3B4F5 == -1) {
 
 				sub_10D24();
@@ -20725,7 +20768,6 @@ loc_103BF:;
 			Squad_Prepare_GrenadesAndRockets();
 			sub_2D7FF();
 			Mission_Goals_Set();
-//			nullsub_1();
 
 			word_3BEC9 = 0xE0;
 			g_Graphics.PaletteSet();
@@ -20747,7 +20789,7 @@ loc_103BF:;
 			
 			if (!Mission_Loop()) {
 				word_3B20F = 0;
-				sub_12A5F();
+				Squad_Member_PhaseCount();
 				word_390EC = -1;
 			}
 			else {
@@ -20758,7 +20800,7 @@ loc_103BF:;
 				}
 			}
 
-			if (mVersion->mKey == "AFX")
+			if (mVersion->mRelease == eRelease::Demo) 
 				break;
 
 			//loc_106F1
