@@ -792,7 +792,7 @@ public:
 	void			Mission_Text_Sprite_Again( sSprite* pData2C );
 
 	std::string		sub_12AA1( const std::string& pBase, const char* pFinish );
-	void			sub_12A5F();
+	void			Squad_Member_PhaseCount();
 	void			sub_12AEE();
 	void			sub_12B6E();
 	void			sub_12C69();
@@ -1217,9 +1217,13 @@ public:
 	void			sub_2EAC3();
 	void			sub_2EACA();
 	
-	void			sub_9B94E( const sGUI_Element *pA0 );
+	void			sub_A03E0();
 	void			sub_A03EE();
 	void			sub_A0400();
+	void			sub_9B94E( const sGUI_Element *pA0 );
+	void			sub_9BA08();
+	void			sub_9BA1A();
+	void			sub_A0436();
 
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
 	void			Mission_Sidebar_Prepare( int16 pData0, int16 pData4 );
@@ -1357,5 +1361,5 @@ public:
 	void			VersionSelect_0();
 	void			VersionSelect_1();
 	void			VersionSelect_2();
-
+	void			VersionSelect_3();
 };
