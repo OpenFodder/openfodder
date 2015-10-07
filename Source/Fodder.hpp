@@ -1220,7 +1220,7 @@ public:
 	void			sub_A03E0();
 	void			sub_A03EE();
 	void			sub_A0400();
-	void			sub_9B94E( const sGUI_Element *pA0 );
+	void			GUI_Element_Mouse_Over( const sGUI_Element *pA0 );
 	void			sub_9BA08();
 	void			sub_9BA1A();
 	void			sub_A0436();

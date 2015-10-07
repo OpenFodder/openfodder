@@ -3150,7 +3150,7 @@ void cFodder::VersionSelect() {
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
 		if (mButtonPressLeft)
-			sub_9B94E( Buttons );
+			GUI_Element_Mouse_Over( Buttons );
 
 		if (word_82132)
 			break;
@@ -4570,10 +4570,10 @@ void cFodder::AFX_Show() {
 		Mouse_DrawCursor();
 		if (mButtonPressLeft) {
 			if (mVersion->mKey == "AFX")
-				sub_9B94E( mCoverDisk_Buttons );
+				GUI_Element_Mouse_Over( mCoverDisk_Buttons );
 
 			if (mVersion->mKey == "Plus")
-				sub_9B94E( mPlus_Buttons );
+				GUI_Element_Mouse_Over( mPlus_Buttons );
 		}
 
 		if (word_82132)
@@ -10966,7 +10966,7 @@ void cFodder::sub_2EACA() {
 	word_39EFC = 0;
 }
 
-void cFodder::sub_9B94E( const sGUI_Element *pElement ) {
+void cFodder::GUI_Element_Mouse_Over( const sGUI_Element *pElement ) {
 	for (;; ++pElement) {
 		const sGUI_Element* Data20 = pElement;
 
