@@ -38,8 +38,11 @@ Use the WHDLoad installer on an Amiga to extract the game files, and copy all th
 #####Amiga Format Christmas Special
 
 Open Fodder comes with the Amiga Format Christmas Special
+  
+#####Cannon Fodder Plus
 
-
+Open Fodder comes with the Amiga Power Issue #31 Demo
+  
 ####Fixes
 These are issues in the original engine which have been fixed
 
