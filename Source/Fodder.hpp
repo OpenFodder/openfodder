@@ -1224,6 +1224,18 @@ public:
 	void			sub_9BA08();
 	void			sub_9BA1A();
 	void			sub_A0436();
+	void			sub_A056E();
+	void			sub_A0578();
+	void			sub_A058C();
+	void			sub_A05A0();
+	void			sub_A05B4();
+	void			sub_A05C8();
+	void			sub_A05DC();
+	void			sub_A05F0();
+	void			sub_A0604();
+	void			sub_A0618();
+	void			sub_A062C();
+	void			sub_A0640( const char* pFilename );
 
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
 	void			Mission_Sidebar_Prepare( int16 pData0, int16 pData4 );

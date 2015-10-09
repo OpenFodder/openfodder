@@ -43,6 +43,21 @@ const sGUI_Element mPlus_Buttons[] = {
 	{ &cFodder::sub_2EAC2, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_9BA1A },
 };
 
+const sGUI_Element mPlusQuiz_Buttons[] = {
+	{ &cFodder::sub_2EAC2, 0xBD, 0x19, 0x5B, 0x48,	&cFodder::sub_A056E },
+	{ &cFodder::sub_2EAC2, 0xB2, 0x1C, 0xA2, 0x33,	&cFodder::sub_A056E },
+	{ &cFodder::sub_2EAC2, 0x00, 0x31, 0x03, 0x1E,	&cFodder::sub_A0578 },
+	{ &cFodder::sub_2EAC2, 0x10C, 0x31, 0x03, 0x1E,	&cFodder::sub_A058C },
+	{ &cFodder::sub_2EAC2, 0x00, 0x31, 0xD6, 0x1E,	&cFodder::sub_A05A0 },
+	{ &cFodder::sub_2EAC2, 0x10C, 0x31, 0xD6, 0x1E, &cFodder::sub_A05B4 },
+	{ &cFodder::sub_2EAC2, 0x2A, 0x32, 0x10, 0xC9,	&cFodder::sub_A05C8 },
+	{ &cFodder::sub_2EAC2, 0x5B, 0x27, 0x1F, 0xB4,	&cFodder::sub_A05DC },
+	{ &cFodder::sub_2EAC2, 0x81, 0x1E, 0x25, 0xA7,	&cFodder::sub_A05F0 },
+	{ &cFodder::sub_2EAC2, 0x9E, 0x1F, 0x24, 0xB1,	&cFodder::sub_A0604 },
+	{ &cFodder::sub_2EAC2, 0xBC, 0x2B, 0x21, 0xAA,	&cFodder::sub_A0618 },
+	{ &cFodder::sub_2EAC2, 0xE6, 0x3B, 0x13, 0xCE,	&cFodder::sub_A062C },
+};
+
 cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
@@ -4563,6 +4578,8 @@ void cFodder::AFX_Show() {
 	mImage->paletteFade();
 	mWindow->SetScreenSize( cDimension( 320, 260 ));
 
+	word_82132 = -1;
+
 	for( ;; ) {
 		sub_13800();
 
@@ -4576,7 +4593,7 @@ void cFodder::AFX_Show() {
 				GUI_Element_Mouse_Over( mPlus_Buttons );
 		}
 
-		if (word_82132)
+		if (word_82132 > 0)
 			break;
 
 		if (mImage->GetFaded() == false )
@@ -10976,10 +10993,9 @@ void cFodder::GUI_Element_Mouse_Over( const sGUI_Element *pElement ) {
 		if ((*this.*Data20->field_0)() < 0)
 			return;
 
-		int16 Data0 = word_3BEC1 + Data20->field_4;
+		int16 Data0 = Data20->field_4;
 
-		int16 Data4 = mMouseX;
-		Data4 += 0x20;
+		int16 Data4 = mMouseX + 0x20;
 
 		if (Data0 > Data4)
 			continue;
@@ -11027,8 +11043,168 @@ void cFodder::sub_9BA1A() {
 	word_82132 = 1;
 }
 
+void cFodder::sub_A056E() {
+	word_82132 = 1;
+}
+
+void cFodder::sub_A0578() {
+
+	sub_A0640( "2.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A058C() {
+
+	sub_A0640( "3.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A05A0() {
+
+	sub_A0640( "4.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A05B4() {
+	
+	sub_A0640( "5.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A05C8() {
+	
+	sub_A0640( "6.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A05DC() {
+	
+	sub_A0640( "7.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A05F0() {
+
+	sub_A0640( "8.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A0604() {
+	sub_A0640( "9.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A0618() {
+	sub_A0640( "10.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A062C() {
+	sub_A0640( "11.lbm" );
+	word_82132 = -1;
+}
+
+void cFodder::sub_A0640( const char* pFilename ) {
+		
+	mImage->paletteFadeOut();
+	
+	while( mImage->GetFaded() == false ) {
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->paletteFade();
+	}
+
+	mGraphics->imageLoad( pFilename, 32 );
+	mGraphics->PaletteSet();
+
+	mImage->Save();
+	mImage->paletteFade();
+	
+	for( ;; ) {
+		sub_13800();
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+
+		if (mButtonPressLeft)
+			break;
+
+		if (mImage->GetFaded() == false )
+			mImage->paletteFade();
+
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->Restore(); 
+	}
+		
+	mImage->paletteFadeOut();
+	
+	while( mImage->GetFaded() == false ) {
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->paletteFade();
+	}
+
+	mGraphics->imageLoad( "1.lbm", 32 );
+	mGraphics->PaletteSet();
+
+	mImage->Save();
+	mImage->paletteFade();
+}
+
 void cFodder::sub_A0436() {
-	//TODO
+		
+	mImage->paletteFadeOut();
+	
+	while( mImage->GetFaded() == false ) {
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->paletteFade();
+	}
+
+	mGraphics->imageLoad( "1.lbm", 32 );
+	mGraphics->PaletteSet();
+
+	mImage->Save();
+	mImage->paletteFade();
+	mWindow->SetLogicalSize(cDimension( 352, 265 ) );
+	mouse_Setup();
+
+	for( ;; ) {
+		sub_13800();
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+		if (mButtonPressLeft) {
+			GUI_Element_Mouse_Over( mPlusQuiz_Buttons );
+		}
+
+		if (word_82132 >= 0)
+			break;
+
+		if (mImage->GetFaded() == false )
+			mImage->paletteFade();
+
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->Restore(); 
+	}
+		
+	mImage->paletteFadeOut();
+	
+	while( mImage->GetFaded() == false ) {
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->paletteFade();
+	}
+
+	mImage->clearBuffer();
+	mWindow->SetLogicalSize(cDimension( 352, 240 ) );
+
+	mGraphics->imageLoad( "apmenu.lbm", 32 );
+	mGraphics->PaletteSet();
+	mImage->paletteFade();
+	mImage->Save();
 }
 
 void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
