@@ -904,7 +904,7 @@ public:
 	void			sub_18BDF( int16 pBx, int16 pCx, uint8 pSi );
 	void			Brief_Draw_Horizontal_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
-	void			sub_18C45( int32 pPosX, const sIntroString* pString );
+	void			Intro_Print_String( int32 pPosX, const sIntroString* pString );
 	bool			sub_18C7A();
 	void			Brief_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 	void			sub_18D5E();
@@ -987,14 +987,14 @@ public:
 	void			sub_1D4BA( sSprite* pSprite );							// 75
 	void			sub_1D4C6( sSprite* pSprite );							// 76
 	void			sub_1D4D2( sSprite* pSprite );							// 77
-	void			Sprite_Handle_Turret( sSprite* pSprite );				// 78
+	void			Sprite_Handle_Turret_Empty_Missile( sSprite* pSprite );	// 78
 	void			sub_1D756( sSprite* pSprite );							// 79
 
 	void			sub_1D76F( sSprite* pSprite );							// 80
 	void			Sprite_Handle_Computer_Truck( sSprite* pSprite );		// 81
 	void			sub_1D78D( sSprite* pSprite );							// 82
 	void			sub_1D7B6( sSprite* pSprite );							// 83
-	void			sub_1D6F2( sSprite* pSprite );							// 84
+	void			Sprite_Handle_Turret_Missile( sSprite* pSprite );		// 84
 	void			sub_1D70B( sSprite* pSprite );							// 85
 	void			sub_1D7DD( sSprite* pSprite );							// 86
 	void			sub_1D802( sSprite* pSprite );							// 87
@@ -1060,7 +1060,7 @@ public:
 	void			sub_20F19( sSprite* pSprite );
 
 	void			sub_21041( sSprite* pSprite );
-	int16			sub_211BA( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
+	int16			Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			Sprite_Clear( sSprite* pSprite );
 	void			sub_212F9( sSprite* pSprite );
 	void			sub_21483( sSprite* pSprite );
@@ -1100,13 +1100,13 @@ public:
 	void			sub_23525( sSprite* pSprite );
 	void			sub_236F7( sSprite* pSprite );
 	void			sub_23879( sSprite* pSprite );
-	int16			sub_239C9( sSprite* pSprite, sSprite*& pData2C );
+	int16			Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C );
 	void			sub_23C70( sSprite* pData2C );
 	void			sub_23CDD( sSprite* pSprite );
 	int16			sub_23D57( sSprite* pSprite );
 	void			sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
 	void			sub_23EA6( sSprite* pSprite );
-	void			sub_23EFD( sSprite* pSprite );
+	void			Sprite_Handle_Turret( sSprite* pSprite );
 	void			sub_24173( sSprite* pSprite, sSprite* pData34 );
 	int16			sub_24285( sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28 );
 	void			sub_243E9( sSprite* pSprite );
@@ -1115,7 +1115,7 @@ public:
 	int16			sub_246CC( sSprite* pSprite );
 	void			sub_248B7( sSprite* pSprite );
 	int16			sub_2494C( sSprite* pSprite );
-	int16			sub_24C47( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
+	int16			Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
 	int16			sub_2531F( sSprite* pSprite, sSprite*& pData30 );
 	void			sub_254F9( sSprite* pSprite );
 	void			sub_24ED7( sSprite* pSprite );
