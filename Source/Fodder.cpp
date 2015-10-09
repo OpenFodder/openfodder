@@ -11028,7 +11028,7 @@ void cFodder::sub_9BA1A() {
 }
 
 void cFodder::sub_A0436() {
-	
+	//TODO
 }
 
 void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
@@ -14463,7 +14463,11 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 	mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
 	mSquad_Rockets[mSquad_Selected] += 4;
-	
+
+	// Plus uses homing missiles
+	if (mVersion->mKey == "Plus")
+		word_39FCE->field_75 |= 1;
+
 	sub_2060F( pSprite );
 }
 
@@ -20407,12 +20411,12 @@ loc_22622:;
 	//seg005:2F86 
 	Data2C->field_0 = pSprite->field_0;
 	Data2C->field_2 = pSprite->field_2;
-	Data30->field_0 = pSprite->field_30;
-	Data30->field_2 = pSprite->field_30;
+	Data30->field_0 = pSprite->field_0;
+	Data30->field_2 = pSprite->field_2;
 	Data2C->field_4 = pSprite->field_4;
 	Data2C->field_6 = pSprite->field_6;
 	Data30->field_4 = pSprite->field_4;
-	Data30->field_6 = pSprite->field_4;
+	Data30->field_6 = pSprite->field_6;
 
 	//seg005:2FD2
 	Data2C->field_26 = pSprite->field_2E;
@@ -20432,7 +20436,7 @@ loc_22622:;
 
 	Data2C->field_4++;
 	Data2C->field_0 += 3;
-	if (!pSprite->field_22)
+	if (pSprite->field_22)
 		goto loc_22801;
 
 	if (!(pSprite->field_75 & 1))
@@ -20513,7 +20517,12 @@ int16 cFodder::sub_228B5( sSprite* pSprite, sSprite*& pData34 ) {
 
 		Data4 -= pData34->field_20;
 		int16 Data10 = 0x1F;
+		int16 S_Data8 = Data8;
+		int16 S_DataC = DataC;
 		sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+
+		Data8 = S_Data8;
+		DataC = S_DataC;
 
 		if (Data0 < 0x16) {
 			Data0 = -1;
