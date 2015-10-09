@@ -6560,7 +6560,7 @@ void cFodder::sub_23CDD( sSprite* pSprite ) {
 	pSprite->field_22 = 0;
 	word_3B175 = 0;
 
-	sSprite* Data24 = pSprite + 12;
+	sSprite* Data24 = pSprite + 1;
 	Data24->field_18 = eSprite_Null;
 	Data24 = pSprite + 2;
 	Data24->field_18 = eSprite_Null;
@@ -13298,20 +13298,21 @@ loc_19FBC:;
 	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = 0x1F50;
 	pSprite->field_28 = -9;
-	(pSprite+1)->field_18 = 0x35;
+	(pSprite + 1)->field_18 = 0x35;
 
 	Data0 = tool_RandomGet() & 0x1FE;
 	(pSprite + 1)->field_10 = Data0;
 	(pSprite + 1)->field_36 = 0x60;
 
-	Data24 = pSprite + 2;
-	Sprite_Destroy( Data24 );
+	Sprite_Destroy( pSprite + 2 );
 
 	if (!pSprite->field_22)
 		sub_23EA6(pSprite);
 
-	if (!word_3B175)
-		return;
+	if (word_3B175)
+		Sprite_Destroy( pSprite + 3 );
+
+	return;
 
 loc_1A042:;
 	if (pSprite->field_75 != 0x71) {
@@ -20439,8 +20440,10 @@ loc_22622:;
 	if (pSprite->field_22)
 		goto loc_22801;
 
-	if (!(pSprite->field_75 & 1))
-		goto loc_22801;
+	if (mVersion->mKey != "Plus") {
+		if (!(pSprite->field_75 & 1))
+			goto loc_22801;
+	}
 
 	if (!sub_228B5(pSprite, Data34))
 		goto loc_227EB;
