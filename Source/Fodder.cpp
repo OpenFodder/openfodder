@@ -5634,7 +5634,7 @@ void cFodder::sub_3037A( ) {
 	word_3BDE7 = 1;
 
 	Mission_Sidebar_Grenades_Refresh_CurrentSquad();
-	Mission_Sidebar_Grenades_Refresh_CurrentSquad();
+	sub_303B7();
 }
 
 void cFodder::sub_3049B( ) {
@@ -22003,6 +22003,14 @@ void cFodder::Squad_Clear_Selected() {
 void cFodder::sub_303AE() {
 	Mission_Sidebar_Grenades_Refresh_CurrentSquad();
 	sub_303DA();
+}
+
+void cFodder::sub_303B7() {
+
+	if (mSquad_Selected < 0)
+		return;
+
+	mGraphics->sub_145AF( mSquad_Selected, 0, word_3AC1D );
 }
 
 void cFodder::sub_303DA() {

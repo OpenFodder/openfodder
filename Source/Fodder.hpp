@@ -1300,6 +1300,7 @@ public:
 	void			sub_30E49();
 	void			Squad_Clear_Selected();
 	void			sub_303AE();
+	void			sub_303B7();
 	void			sub_303DA();
 	void			sub_30465();
 	void			sub_30480();
