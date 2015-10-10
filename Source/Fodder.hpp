@@ -26,11 +26,11 @@
 struct sSquad_Member {
 	int16		mRecruitID;
 	uint8		mRank;
-	int8		field_3;
-	sSprite*	field_4;
+	int8		mPhaseCount;		// Number of phases completed this Mission
+	sSprite*	mSprite;
 	uint16		field_6;
 	int8		field_8;
-	int8		field_9;
+	int8		mSelected;
 	uint16		mNumberOfKills; 
 };
 
@@ -497,8 +497,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2F3;
 	int16			word_3B2F5;
 	int16			word_3B2F7;
-	int16			word_3B2FD;
-	int16			word_3B2FF;
+	int16			mGame_Load;
+	int16			mGame_Save;
 	int16			word_3B301;
 	int16			word_3B303;
 
@@ -566,13 +566,13 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BDE9;
 	uint16			word_3BDEB;
 	
-	sSprite*		dword_3BE03[9];
-	sSprite*		dword_3BE27[9];
-	sSprite*		dword_3BE4B[9];
-	sSprite*		dword_3BE6F[9];
-	sSprite*		dword_3BE93[9];
+	sSprite*		mSquad_0_Sprites[9];
+	sSprite*		mSquad_1_Sprites[9];
+	sSprite*		mSquad_2_Sprites[9];
+	sSprite*		mSquad_3_Sprites[9];
+	sSprite*		mSquad_4_Sprites[9];
 	
-	sSprite**		off_3BDEF[5];
+	sSprite**		mSquads[5];
 	int16			word_3BEB9;
 	int16			word_3BEBB;
 	int16			word_3BEBD;
@@ -867,8 +867,8 @@ public:
 	void			Recruit_Draw_Truck( );
 	void			sub_17B64();
 	void			Recruit_Draw();
-	void			sub_17CD3( );
-	void			sub_17C91( cSurface *pImage, int16 Data0, int16 Data8, int16 DataC );
+	void			Recruit_Draw_Graves( );
+	void			sub_17C91( int16 Data0, int16 Data8, int16 DataC );
 	void			Service_Show();
 
 	/* End Recruitment */
@@ -905,7 +905,7 @@ public:
 	void			Brief_Draw_Horizontal_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
 	void			Intro_Print_String( int32 pPosX, const sIntroString* pString );
-	bool			sub_18C7A();
+	bool			Recruit_Check_Buttons_SaveLoad();
 	void			Brief_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 	void			sub_18D5E();
 	void			Sprite_Handle_Loop();
@@ -1195,20 +1195,20 @@ public:
 	void			sub_2DD50( sSprite* pSprite );
 	void			sub_2DE2C( );
 	void			sub_2E01C();
-	void			sub_2E064();
+	void			Game_Save_Wrapper2();
 	void			sub_2E122();
 	void			sub_2E172( const char* pText, int16 pDataC, int16 pData0, int16 pData4 );
 	void			sub_2E1B1( int16 pData0, int16 pData4 );
 	void			sub_2E302( bool pShowCursor );
-	void			sub_2E3D6();
+	void			Game_Save_Wrapper();
 	void			sub_2E244( void(cFodder::*pFunction )(void) ); 
-	void			sub_2E494();
+	void			Game_Save();
 	void			sub_2E3E3( sGUI_Element* pData20 );
 	void			sub_2E5B3();
 	void			sub_2E5C3();
 	void			sub_2E6A9();
 	void			sub_2E704();
-	void			sub_2E72B();
+	void			Game_Load();
 	void			sub_2E953();
 	void			sub_2E967();
 	void			sub_2EA89();
@@ -1253,7 +1253,7 @@ public:
 
 	void			map_Tiles_Draw();
 
-	void			sub_2E04C();
+	void			Game_CheckLoadSave();
 	void			Mission_Sidebar_Grenades_Draw( );
 
 	void			GUI_Prepare_Button_Grenade();
@@ -1296,9 +1296,9 @@ public:
 	void			sub_3049B( );
 	void			sub_304CB( );
 	void			sub_30AB0();
-	int16			sub_30E0B();
+	int16			Mouse_Button_Left_Toggled();
 	void			sub_30E49();
-	void			sub_301F7();
+	void			Squad_Clear_Selected();
 	void			sub_303AE();
 	void			sub_303DA();
 	void			sub_30465();
