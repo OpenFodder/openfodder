@@ -1078,7 +1078,7 @@ public:
 	void			sub_21CD1( sSprite* pSprite );
 
 	void			sub_2212A( sSprite* pSprite );
-	int16			sub_221A6( sSprite* pSprite );
+	int16			Sprite_Handle_BuildingDoor_Explode( sSprite* pSprite );
 	int16			sub_222A3( sSprite* pSprite );
 	void			sub_223B2( sSprite* pSprite );
 	int16			sub_2244B( sSprite* pSprite, int16& pData0 );
