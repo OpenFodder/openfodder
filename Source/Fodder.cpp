@@ -4491,10 +4491,10 @@ void cFodder::Briefing_Intro() {
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		return;
 
-	Sprite_SetDataPtrToBase( off_42918 );
+	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+
 	Music_Play( 0x07 );
 	sub_136D0();
-
 	sub_15DF0();
 
 	mImage->clearBuffer();

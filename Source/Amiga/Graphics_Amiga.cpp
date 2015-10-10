@@ -884,7 +884,11 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 	JunData6.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
 
 	size_t Size = 0;
-	uint8* Data = g_Resource.fileGet( JunData2, Size );
+	uint8* Data = g_Resource.fileGet( JunData1, Size );
+	DecodeIFF( Data, mFodder->mDataPStuff, &mBMHDPlay, mPalette );
+	delete[] Data;
+
+	Data = g_Resource.fileGet( JunData2, Size );
 	PaletteLoad( Data, 0x00, 16 );
 	delete[] Data;
 
