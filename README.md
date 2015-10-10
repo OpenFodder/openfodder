@@ -27,6 +27,11 @@ The version available on GOG, is the Dos Retail CD Version and is supported by O
 Open Fodder requires the user to own a copy of Cannon Fodder, and to copy the data files into the game data directory.
 At present, it supports 3 versions
 
+#####Keys
+
+*F11: Full screen  
+
+
 #####Dos Retail CD Version
 
 Copy 'CF_ENG.DAT' from the CD to the Data/Dos_CD folder

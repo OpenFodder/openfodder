@@ -126,8 +126,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint8*					word_397D8;
 
-	sSprite				word_3B4F7;
-	sSprite				mSprites[45];
+	sSprite					word_3B4F7;
+	sSprite					mSprites[45];
 
 	const sSpriteSheet**	mSpriteDataPtr;
 	
@@ -918,7 +918,7 @@ public:
 	void			Sprite_Handle_Bullet( sSprite* pSprite );				// 6
 	void			sub_19E65( sSprite* pSprite );
 	void			Sprite_Handle_Explosion( sSprite* pSprite );			// 12
-	void			sub_1ABD3( sSprite* pSprite );							// 13
+	void			Sprite_Handle_Shrub( sSprite* pSprite );				// 13
 	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14
 	void			Sprite_Handle_BuildingRoof( sSprite* pSprite );			// 15
 	void			sub_1AC03( sSprite* pSprite );							// 16
@@ -1051,7 +1051,7 @@ public:
 	void			sub_20478( sSprite* pSprite );
 	void			Hero_Add( sSquad_Member* pSquadMember );
 
-	int16			sub_2060F( sSprite* pSprite );
+	int16			Sprite_Destroy_Wrapper( sSprite* pSprite );
 	int16			Sprite_Destroy( sSprite* pSprite );
 	int16			Troop_Fire_Bullet( sSprite* pSprite );
 	int16			Troop_Throw_Grenade( sSprite* pSprite );
@@ -1062,7 +1062,7 @@ public:
 	void			sub_21041( sSprite* pSprite );
 	int16			Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			Sprite_Clear( sSprite* pSprite );
-	void			sub_212F9( sSprite* pSprite );
+	void			Sprite_Handle_Explodable( sSprite* pSprite );
 	void			sub_21483( sSprite* pSprite );
 	void			sub_21525( sSprite* pSprite );
 	int16			sub_21618( sSprite* pSprite );
@@ -1072,7 +1072,7 @@ public:
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC );
 	int16			Troop_Deploy( sSprite* pSprite, sSprite*& pData2C );
-	void			sub_21B15( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
+	void			Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			sub_21C00( sSprite* pData2C );
 	void			sub_21C6F( );
 	void			sub_21CD1( sSprite* pSprite );

@@ -28,6 +28,7 @@ enum eSprites {
 	eSprite_Enemy			= 5,
 	eSprite_Bullet			= 6,
 	eSprite_Explosion		= 12,
+	eSprite_Shrub			= 13,
 	eSprite_Tree			= 14,
 	eSprite_Roof			= 15,
 	eSprite_Door			= 20,
@@ -57,8 +58,10 @@ enum eSprites {
 	eSprite_Bird_Right		= 67,
 	eSprite_Seal			= 68,
 	eSprite_Turret			= 78,
+	eSprite_Explosion2		= 89,
 	eSprite_Bonus_General	= 93,
 	eSprite_Bonus_Rockets	= 94,
+	eSprite_MissileHoming2  = 97,
 };
 
 struct sSprite {
