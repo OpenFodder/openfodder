@@ -3667,8 +3667,6 @@ void cFodder::Sound_Voc_Load() {
 		size_t bx = 0;
 
 		uint8* VocFile = g_Resource.fileGet( Voc->mFilename, bx );
-		//bx += 8;
-		//bx &= 0x0FFF8;
 
 		if (Voc->field_0 != 9) {
 			sVocLoaded* eax = word_42316[Voc->field_0];
@@ -4569,7 +4567,7 @@ void cFodder::AFX_Show() {
 	mGraphics->PaletteSet();
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
-
+	mWindow->SetScreenSize( cDimension( 320, 260) );
 	mImage->Save();
 	mImage->paletteFade();
 
