@@ -3092,7 +3092,8 @@ void cFodder::VersionSelect() {
 	mouse_Setup();
 
 	word_3AC21 = 0;
-	Sprite_SetDataPtrToBase( off_42918 );
+
+	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	int16 Pos = 0x1;
 	int Count = 0;
 
@@ -3245,6 +3246,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 		case ePlatform::Amiga:
 			mResources = new cResource_Amiga_File( mVersion->mDataPath );
 			mGraphics = new cGraphics_Amiga();
+			((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 			break;
 	}
 
@@ -3268,6 +3270,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	map_Load_Resources();
 	mGraphics->graphicsBlkPtrsPrepare();
 	mGraphics->PaletteSet();
+
 }
 
 void cFodder::Prepare( ) {
@@ -12047,7 +12050,7 @@ void cFodder::Briefing_Show( ) {
 
 void cFodder::Briefing_Prepare() {
 	mImage->clearBuffer();
-	mImage->paletteSet( mPalette );
+	mGraphics->PaletteSet();
 
 	sub_136D0();
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
@@ -12065,8 +12068,6 @@ void cFodder::Briefing_Prepare() {
 }
 
 void cFodder::Briefing_Wait() {
-	mImage->paletteSet( mPalette, 0, true );
-
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 
 	word_3A01A = 0x2C;

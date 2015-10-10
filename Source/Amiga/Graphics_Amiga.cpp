@@ -136,6 +136,9 @@ void cGraphics_Amiga::LoadpStuff() {
 
 	DecodeIFF( pstuff, mFodder->mDataPStuff, &mBMHDPStuff, mPalletePStuff );
 
+	mBMHDFont = mBMHDPStuff;
+	memcpy( &mPalleteFont, &mPalletePStuff, 0x20 );
+	
 	delete[] pstuff;
 }
 
