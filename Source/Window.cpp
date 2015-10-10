@@ -30,7 +30,7 @@ void Mixer_ChannelFinished(int32 pChannel) {
 cWindow::cWindow() {
 
 	mDimensionWindow.mWidth = 1280;
-	mDimensionWindow.mHeight = 800 - 16;
+	mDimensionWindow.mHeight = 800 - 76;
 
 	mDimensionPlayfield.mWidth = mDimensionWindow.mWidth;
 	mDimensionPlayfield.mHeight = mDimensionWindow.mHeight;

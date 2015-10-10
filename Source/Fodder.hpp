@@ -796,7 +796,7 @@ public:
 	void			sub_12AEE();
 	void			sub_12B6E();
 	void			sub_12C69();
-	void			sub_12D00();
+	void			Mission_Map_Overview_Show();
 
 	void			Map_Overview_Prepare();
 	void			map_SetTileType();

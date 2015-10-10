@@ -313,7 +313,7 @@ int16 cFodder::Mission_Loop( ) {
 		}
 
 		if (mMission_ShowMapOverview) {
-			sub_12D00();
+			Mission_Map_Overview_Show();
 			mMission_ShowMapOverview = 0;
 		}
 
@@ -1618,11 +1618,8 @@ void cFodder::sub_11B06() {
 	}
 	//loc_11BE8
 	Data0 = word_3AA4F;
-	if (mVersion->mPlatform == ePlatform::PC )
-		Data0 -= 200;
 
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		Data0 -= 224;
+	Data0 -= mWindow->GetScreenSize().mHeight;
 
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
@@ -2566,7 +2563,7 @@ void cFodder::sub_12C69() {
 	}
 }
 
-void cFodder::sub_12D00() {
+void cFodder::Mission_Map_Overview_Show() {
 	word_3A016 = 0;
 
 	int16 word_3F952;
@@ -2592,8 +2589,6 @@ void cFodder::sub_12D00() {
 
 	mDrawSpritePositionX =  word_39FCE->field_0 - 0x10;
 	mDrawSpritePositionY =  word_39FCE->field_4 - 0x10;
-	word_4206C = 0x10;
-	word_4206E = 0x10;
 	byte_42070 = 0xF0;
 
 	mGraphics->PaletteSetOverview();
@@ -2612,15 +2607,11 @@ void cFodder::sub_12D00() {
 					word_4206E = 0x10;
 				} 
 				else {
+					word_42062 = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
 					word_4206C = 0x2;
 					word_4206E = 0x10;
-					word_42062 = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
 				}
 
-				mDrawSpritePositionX =  word_39FCE->field_0 - 0x10;
-				mDrawSpritePositionY =  word_39FCE->field_4 - 0x10;
-				
-				byte_42070 = 0xF0;
 				mGraphics->video_Draw_Sprite();
 			} 
 			else
@@ -2748,20 +2739,14 @@ void cFodder::Map_Overview_Prepare() {
 
 void cFodder::map_SetTileType() {
 
-	char Type[3];
-
-	Type[0] = mMap[0];
-	Type[1] = mMap[1];
-	Type[2] = mMap[2];
-
 	for (unsigned int x = 0; x < 7; ++x) {
-		if (mMapTypes[x][0] != Type[0])
+		if (mMapTypes[x][0] != mMap[0])
 			continue;
 	
-		if (mMapTypes[x][1] != Type[1])
+		if (mMapTypes[x][1] != mMap[1])
 			continue;
 
-		if (mMapTypes[x][2] != Type[2])
+		if (mMapTypes[x][2] != mMap[2])
 			continue;
 
 		mMap_TileSet = x;
@@ -2979,14 +2964,9 @@ loc_13B66:;
 	if (Data0 < 4)
 		Data0 = 4;
 	else {
-		if (mVersion->mPlatform == ePlatform::Amiga) {
-			if (Data0 > 259)
-				Data0 = 259;
-		}
-		else {
-			if (Data0 > 203)
-				Data0 = 203;
-		}
+
+		if (Data0 > mWindow->GetScreenSize().mHeight + 3)
+			Data0 = mWindow->GetScreenSize().mHeight + 3;
 	}
 
 	mMouseY = Data0;
@@ -3264,14 +3244,13 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 	if (mVersion->mPlatform == ePlatform::PC) {
 		mWindow->SetScreenSize( cDimension( 320, 200 ));
-		mWindow->SetLogicalSize(cDimension( 384, 216 ) );
-		mWindow->SetWindowSize( cDimension( 1280, 800 - 80  ) );
+		mWindow->SetLogicalSize(cDimension( 384, 217 ) );
 	}
 
 	if (mVersion->mPlatform == ePlatform::Amiga) {
+
 		mWindow->SetScreenSize( cDimension( 320, 260) );
-		mWindow->SetLogicalSize(cDimension( 424, 240 ) );
-		mWindow->SetWindowSize( cDimension( 1244, 804 - 100  ) );
+		mWindow->SetLogicalSize(cDimension( 460, 260 ) );
 	}
 
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
@@ -4594,7 +4573,6 @@ void cFodder::AFX_Show() {
 
 	mImage->Save();
 	mImage->paletteFade();
-	mWindow->SetScreenSize( cDimension( 320, 260 ));
 
 	word_82132 = -1;
 
@@ -4632,7 +4610,6 @@ void cFodder::AFX_Show() {
 
 	mImage->clearBuffer();
 	mWindow->SetScreenSize( cDimension( 320, 224 ));
-
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 }
 
@@ -11183,7 +11160,6 @@ void cFodder::sub_A0436() {
 
 	mImage->Save();
 	mImage->paletteFade();
-	mWindow->SetLogicalSize(cDimension( 424, 276 ) );
 	mouse_Setup();
 
 	for( ;; ) {
@@ -11215,7 +11191,6 @@ void cFodder::sub_A0436() {
 	}
 
 	mImage->clearBuffer();
-	mWindow->SetLogicalSize(cDimension( 424, 240 ) );
 
 	mGraphics->imageLoad( "apmenu.lbm", 32 );
 	mGraphics->PaletteSet();
