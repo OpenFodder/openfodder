@@ -749,46 +749,35 @@ void cGraphics_Amiga::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint
 
 	if (pData8 == 0) {
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*pData20++ = *(esi + 0);
-			*pData20++ = *(esi + 0x0c);
-			/**pData20++ = *(esi + 0x450);
-			*pData20++ = *(esi + 0x45C);
-			*pData20++ = *(esi + 0x468);
-			*pData20++ = *(esi + 0x474);
-			*pData20++ = *(esi + 0x480);
-			*pData20++ = *(esi + 0x48C);
-			*pData20++ = *(esi + 0x498);
-			*pData20++ = *(esi + 0x4A4);
-			*pData20++ = *(esi + 0x4B0);
-			*pData20++ = *(esi + 0x4BC);
-			*pData20++ = *(esi + 0x4C8);
-			*pData20++ = *(esi + 0x4D4);
-			*pData20++ = *(esi + 0x4E0);
-			*pData20++ = *(esi + 0x4EC);*/
-			//*pData20++ = *(esi + 0x4F8);
+			*pData20++ = *(esi + 0x210);
+			*pData20++ = *(esi + 0x21C);
+			*pData20++ = *(esi + 0x228);
+			*pData20++ = *(esi + 0x234);
+			*pData20++ = *(esi + 0x240);
+			*pData20++ = *(esi + 0x24C);
+			*pData20++ = *(esi + 0x258);
+			*pData20++ = *(esi + 0x264);
+			*pData20++ = *(esi + 0x270);
+			*pData20++ = *(esi + 0x27C);
+			*pData20++ = *(esi + 0x288);
+			//*pData20++ = *(esi + 0x294);
 			++esi;
 		}
 	}
 	else {
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*(esi+0) = *pData20++;
-			*(esi+0x0c) = *pData20++;
-/*
-			*(esi+0x450) = *pData20++;
-			*(esi+0x45C) = *pData20++;
-			*(esi+0x468) = *pData20++;
-			*(esi+0x474) = *pData20++;
-			*(esi+0x480) = *pData20++;
-			*(esi+0x48C) = *pData20++;
-			*(esi+0x498) = *pData20++;
-			*(esi+0x4A4) = *pData20++;
-			*(esi+0x4B0) = *pData20++;
-			*(esi+0x4BC) = *pData20++;
-			*(esi+0x4C8) = *pData20++;
-			*(esi+0x4D4) = *pData20++;
-			*(esi+0x4E0) = *pData20++;
-			*(esi+0x4EC) = *pData20++;*/
-			//*(esi+0x4F8) = *pData20++;
+			*(esi+0x210) = *pData20++;
+			*(esi+0x21C) = *pData20++;
+			*(esi+0x228) = *pData20++;
+			*(esi+0x234) = *pData20++;
+			*(esi+0x240) = *pData20++;
+			*(esi+0x24C) = *pData20++;
+			*(esi+0x258) = *pData20++;
+			*(esi+0x264) = *pData20++;
+			*(esi+0x270) = *pData20++;
+			*(esi+0x27C) = *pData20++;
+			*(esi+0x288) = *pData20++;
+			//*(esi+0x294) = *pData20++;
 			++esi;
 		}
 	}
