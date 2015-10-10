@@ -56,4 +56,5 @@ class cWindow : public cSingleton<cWindow> {
 
 		const bool			GetSound() const { return mSound; }
 		const cDimension	GetWindowSize() const { return mDimensionWindow; }
+		const cDimension	GetScreenSize() const { return mScreenSize; }
 };
