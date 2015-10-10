@@ -3153,6 +3153,7 @@ void cFodder::VersionSelect() {
 
 	mImageFaded = -1;
 	mMouseSpriteNew = 0x24;
+	mouse_Setup();
 
 	// This is being hacked in to prevent accidently clicking a button when launching the game
 	// The 'Amiga' text just happens to be middle of the screen, where the cursor naturally was positioned
@@ -4488,38 +4489,42 @@ void cFodder::sub_15CE8(  uint8* pDs, int16 pCx ) {
 void cFodder::Briefing_Intro() {
 
 	mGraphics->Briefing_Load_Resources();
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		return;
-
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 
 	Music_Play( 0x07 );
-	sub_136D0();
-	sub_15DF0();
 
-	mImage->clearBuffer();
-	sub_15DF0();
+	if (mVersion->mPlatform == ePlatform::Amiga) {
 
-	switch (mMap_TileSet) {
-	case 0:
-		Briefing_Intro_Jungle();
-		break;
+	}
+	else {
+		
+		sub_136D0();
+		sub_15DF0();
 
-	case 1:
-		sub_15397();
-		break;
+		mImage->clearBuffer();
+		sub_15DF0();
 
-	case 2:
-		sub_151C6();
-		break;
+		switch (mMap_TileSet) {
+		case 0:
+			Briefing_Intro_Jungle();
+			break;
 
-	case 3:
-		sub_15568();
-		break;
+		case 1:
+			sub_15397();
+			break;
 
-	case 4:
-		sub_15739();
-		break;
+		case 2:
+			sub_151C6();
+			break;
+
+		case 3:
+			sub_15568();
+			break;
+
+		case 4:
+			sub_15739();
+			break;
+		}
 	}
 
 	mGraphics->LoadpStuff();
@@ -13942,7 +13947,7 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite* pSprite ) {
 	int16 Data0, Data4;
 	sSprite* Data2C = 0;
 
-	if (sub_221A6( pSprite ))
+	if (Sprite_Handle_BuildingDoor_Explode( pSprite ))
 		return;
 
 	if (mTroops_Enemy_Count >= 0x0A) {
@@ -20342,7 +20347,7 @@ void cFodder::sub_2212A( sSprite* pSprite ) {
 	pSprite->field_4A = Data0;
 }
 
-int16 cFodder::sub_221A6( sSprite* pSprite ) {
+int16 cFodder::Sprite_Handle_BuildingDoor_Explode( sSprite* pSprite ) {
 	int16 Data0, Data4;
 
 	if (pSprite->field_38 == 7 || pSprite->field_38 == 5)
