@@ -3400,7 +3400,6 @@ void cFodder::Mission_Paused() {
 	mGraphics->PaletteSet();
 	mImage->paletteFadeOut();
 	mImage->paletteFade();
-	mImage->paletteFade();
 	mImageFaded = -1;
 
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
