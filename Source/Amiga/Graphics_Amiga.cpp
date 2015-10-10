@@ -299,10 +299,19 @@ void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 	memcpy( mBlkData + mFodder->mDataBaseBlkSize, mFodder->mDataSubBlk, mFodder->mDataSubBlkSize );
 }
 
+void cGraphics_Amiga::PaletteSetOverview() {
+	
+	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalette, 0, 0x40 );
+	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalletePStuff, 0xE0 );
+	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalleteHill, 0xD0 );
+	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalleteFont, 0xF0 );
+
+	mFodder->mSurfaceMapOverview->paletteLoadNewSDL();
+}
+
 void cGraphics_Amiga::PaletteSet() {
 
 	mImage->paletteLoad_Amiga( mPalette, 0, 0x40 );
-	//mImage->paletteLoad_Amiga( mPaletteArmy, 0x80 );
 	mImage->paletteLoad_Amiga( mPalletePStuff, 0xE0 );
 	mImage->paletteLoad_Amiga( mPalleteHill, 0xD0 );
 	mImage->paletteLoad_Amiga( mPalleteFont, 0xF0 );
@@ -578,7 +587,42 @@ void cGraphics_Amiga::sub_A5B46() {
 }
 
 void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
-	//TODO
+	uint8* Target = mFodder->mSurfaceMapOverview->GetSurfaceBuffer();
+
+	pDestX *= 16;
+
+	Target += (pDestY * 16) * (mFodder->mMapWidth*16);
+	Target += pDestX;
+	
+	pTile <<= 7;
+	uint8* TilePtr = &mBlkData[pTile];
+
+	// Each bitfield
+	for (uint16 BitField = 0; BitField < 4; ++BitField) {
+		uint8* TargetTmp = Target;
+
+		// Each Tile Row
+		for (uint16 i = 0; i < 16; ++i) {
+
+			uint16 RowData = readBEWord( TilePtr );
+			TilePtr += 2;
+
+			// Each pixel of a Tile Row
+			for (uint16 x = 0; x < 16; ++x) {
+				uint8 Bit = (RowData & 0x8000) ? 1 : 0;
+				RowData <<= 1;
+
+				if (Bit)
+					*(TargetTmp + x) |= (Bit << BitField);
+
+			}
+
+			TargetTmp += mFodder->mSurfaceMapOverview->GetWidth();
+		}
+
+		// Next Bitfield
+		TargetTmp = Target;
+	}
 }
 
 void cGraphics_Amiga::map_Load_Resources() {
@@ -763,7 +807,6 @@ void cGraphics_Amiga::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint
 			*pData20++ = *(esi + 0x270);
 			*pData20++ = *(esi + 0x27C);
 			*pData20++ = *(esi + 0x288);
-			//*pData20++ = *(esi + 0x294);
 			++esi;
 		}
 	}
@@ -780,7 +823,6 @@ void cGraphics_Amiga::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint
 			*(esi+0x270) = *pData20++;
 			*(esi+0x27C) = *pData20++;
 			*(esi+0x288) = *pData20++;
-			//*(esi+0x294) = *pData20++;
 			++esi;
 		}
 	}

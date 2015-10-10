@@ -61,10 +61,10 @@ protected:
 
 	void			paletteSDLColorSet( size_t id, cPalette *pPalette  );	// Set a color in the palette
 	
+
+public:
 	void			paletteLoadSDL();
 	void			paletteLoadNewSDL();
-public:
-	
 					cSurface( size_t pWidth, size_t pHeight );
 					~cSurface();
 

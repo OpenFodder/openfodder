@@ -60,6 +60,7 @@ public:
 
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) = 0;
 
+	virtual void		PaletteSetOverview() = 0;
 	virtual void		PaletteSet() = 0;
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 ) = 0;
 

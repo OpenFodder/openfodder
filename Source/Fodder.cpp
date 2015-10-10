@@ -2569,8 +2569,6 @@ void cFodder::sub_12C69() {
 void cFodder::sub_12D00() {
 	word_3A016 = 0;
 
-	word_42062 = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
-
 	int16 word_3F952;
 	int16 word_3F954;
 	int32 eax = dword_3F946;
@@ -2598,22 +2596,30 @@ void cFodder::sub_12D00() {
 	word_4206E = 0x10;
 	byte_42070 = 0xF0;
 
-	mSurfaceMapOverview->paletteSet( mPalette, 0, true );
+	mGraphics->PaletteSetOverview();
 	mSurfaceMapOverview->Save();
 	mGraphics->SetImage( mSurfaceMapOverview );
-			
+
 	do {
 		if (word_39FCE != INVALID_SPRITE_PTR) {
 			++word_3A016;
 			word_3A016 &= 0x3F;
 
 			if (word_3A016 < 0x20) {
-				word_42062 = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
+				if (mVersion->mPlatform == ePlatform::PC) {
+					word_42062 = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
+					word_4206C = 0x10;
+					word_4206E = 0x10;
+				} 
+				else {
+					word_4206C = 0x2;
+					word_4206E = 0x10;
+					word_42062 = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
+				}
 
 				mDrawSpritePositionX =  word_39FCE->field_0 - 0x10;
 				mDrawSpritePositionY =  word_39FCE->field_4 - 0x10;
-				word_4206C = 0x10;
-				word_4206E = 0x10;
+				
 				byte_42070 = 0xF0;
 				mGraphics->video_Draw_Sprite();
 			} 
@@ -2638,6 +2644,7 @@ void cFodder::Map_Overview_Prepare() {
 
 	delete mSurfaceMapOverview;
 	mSurfaceMapOverview = new cSurface( mMapWidth * 16, mMapHeight * 16 );
+	mSurfaceMapOverview->clearBuffer();
 
 	word_3FA1F = mMapNumber;
 
@@ -3264,7 +3271,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		mWindow->SetScreenSize( cDimension( 320, 260) );
 		mWindow->SetLogicalSize(cDimension( 424, 240 ) );
-		mWindow->SetWindowSize( cDimension( 1244, 864 - 160  ) );
+		mWindow->SetWindowSize( cDimension( 1244, 804 - 100  ) );
 	}
 
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
