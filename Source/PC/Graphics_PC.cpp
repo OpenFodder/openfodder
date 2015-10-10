@@ -174,6 +174,11 @@ void cGraphics_PC::PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pC
 	}
 }
 
+void cGraphics_PC::PaletteSetOverview() {
+
+	mFodder->mSurfaceMapOverview->paletteSet( mFodder->mPalette, 0, true );
+}
+
 void cGraphics_PC::PaletteSet() {
 
 	mImage->paletteSet( mFodder->mPalette );
