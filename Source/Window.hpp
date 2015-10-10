@@ -29,6 +29,7 @@ class cWindow : public cSingleton<cWindow> {
 		cDimension			mScreenSize;
 
 		bool				mSound;
+		bool				mWindowMode;
 
 	public:
 
@@ -49,6 +50,7 @@ class cWindow : public cSingleton<cWindow> {
 		void				SetLogicalSize( const cDimension& pDimension );
 		void				SetWindowTitle( const std::string& pWindowTitle );
 		void				SetWindowSize( const cDimension& pDimension );
+		void				SetFullScreen();
 
 		SDL_Renderer*		GetRenderer() const;
 

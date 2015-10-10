@@ -26,6 +26,7 @@ struct sMissionData {
 	const uint16*	mMissionPhases;
 };
 
+extern const sMissionData	mMissionData_Plus;
 extern const sMissionData	mMissionData_AmigaFormat;
 extern const sMissionData	mMissionData_Retail;
 extern const char*			mMissionGoals[];

@@ -39,6 +39,7 @@ cWindow::cWindow() {
 	mScreenSize.mHeight = 200;
 
 	mSound = false;
+	mWindowMode = true;
 }
 
 cWindow::~cWindow() {
@@ -202,6 +203,21 @@ void cWindow::FrameEnd() {
 void cWindow::SetCursor() {
 
 	SDL_ShowCursor(0);
+
+}
+
+void cWindow::SetFullScreen() {
+
+	if (mWindowMode) {
+		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
+		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
+		mWindowMode = false;
+	}
+	else {
+		SDL_SetWindowFullscreen( mWindow, 0 );
+		mWindowMode = true;
+	}
+
 
 }
 

@@ -42,6 +42,15 @@ const char* mAmigaFormat_MissionNames[] = {
 	"IT'S SNOW TIME!"
 };
 
+const uint16 mPlus_MissionPhaseTable[] = { 01, 01, 01, 01 };
+
+const char* mPlus_MissionNames[] = {
+	"STAGE 1",
+	"STAGE 2",
+	"STAGE 3",
+	"STAGE 4"
+};
+
 const char* mRetail_MissionNames[] = {
 	"THE SENSIBLE INITIATION",
 	"ONWARD VIRGIN SOLDIERS",
@@ -153,6 +162,12 @@ const char* mMissionGoals[] = {
 	"DESTROY FACTORY",
 	"DESTROY COMPUTER",
 	"GET CIVILIAN HOME"
+};
+
+const sMissionData mMissionData_Plus = {
+	mPlus_MissionNames,
+	mPlus_MissionNames,
+	mPlus_MissionPhaseTable
 };
 
 const sMissionData mMissionData_AmigaFormat = {
