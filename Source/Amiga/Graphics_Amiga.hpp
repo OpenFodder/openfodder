@@ -70,6 +70,7 @@ public:
 	sILBM_BMHD			mBMHDPStuff;
 	sILBM_BMHD			mBMHDFont;
 	sILBM_BMHD			mBMHDHill;
+	sILBM_BMHD			mBMHDPlay;
 
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
