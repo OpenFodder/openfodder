@@ -6373,10 +6373,10 @@ void cFodder::sub_236F7( sSprite* pSprite ) {
 	if (Data0)
 		return;
 
-	Data0 = tool_RandomGet();
-	Data0 &= 1;
+	Data0 = tool_RandomGet() & 1;
 	if (!Data0)
 		Data0 -= 1;
+
 	Data24->field_A += Data0;
 	Data24->field_A &= 0x0F;
 	return;
@@ -20390,8 +20390,8 @@ loc_22235:;	// Door moving
 	return -1;
 
 loc_2227F:;	// Door Finished
-	pSprite->field_0 = 8;
-	pSprite->field_4 = 8;
+	pSprite->field_0 -= 8;
+	pSprite->field_4 -= 8;
 	
 	sub_218E2( pSprite );
 
@@ -20698,7 +20698,6 @@ int16 cFodder::sub_228B5( sSprite* pSprite, sSprite*& pData34 ) {
 void cFodder::sub_229C9( sSprite* pSprite ) {
 
 	byte_3A9D6[pSprite->field_22] -= 1;
-
 }
 
 void cFodder::sub_22A3D( sSprite* pSprite ) {
@@ -20725,9 +20724,8 @@ void cFodder::sub_22AA9( sSprite* pSprite ) {
 		pSprite->field_6A = 0;
 		pSprite->field_38 = 1;
 		pSprite->field_64 = -1;
-		
-		int16 Data0 = tool_RandomGet() & 0x1FE;
-		pSprite->field_10 = Data0;
+
+		pSprite->field_10 = tool_RandomGet() & 0x1FE;
 	}
 	
 	//loc_22B3C
@@ -22006,7 +22004,6 @@ void cFodder::sub_303AE() {
 }
 
 void cFodder::sub_303B7() {
-
 	if (mSquad_Selected < 0)
 		return;
 
@@ -22014,11 +22011,10 @@ void cFodder::sub_303B7() {
 }
 
 void cFodder::sub_303DA() {
-	int8* Data20 = mSquads_TroopCount;
 	int16 Data0;
 
 	for (Data0 = 0; Data0 < 3; ++Data0) {
-		if (!Data20[Data0])
+		if (!mSquads_TroopCount[Data0])
 			goto loc_30409;
 
 	}
