@@ -3154,7 +3154,9 @@ void cFodder::VersionSelect() {
 
 	mImageFaded = -1;
 	mMouseSpriteNew = 0x24;
+	eventProcess();
 	mouse_Setup();
+	word_82132 = 0;
 
 	// This is being hacked in to prevent accidently clicking a button when launching the game
 	// The 'Amiga' text just happens to be middle of the screen, where the cursor naturally was positioned
