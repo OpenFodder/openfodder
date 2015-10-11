@@ -6183,7 +6183,7 @@ int16 cFodder::sub_23367( sSprite* pSprite ) {
 	return 0;
 }
 
-void cFodder::sub_233D4( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Vehicle_Human( sSprite* pSprite ) {
 	if (pSprite->field_38) {
 		pSprite->field_22 = 0;
 		sub_1B4BB( pSprite );
@@ -6748,7 +6748,7 @@ loc_240C8:;
 	pSprite->field_A = Data4;
 loc_240F3:;
 
-	sub_24173( pSprite, Data34 );
+	Sprite_Handle_Turret_Fire( pSprite, Data34 );
 
 	if (!pSprite->field_22)
 		return;
@@ -6766,7 +6766,7 @@ loc_240F3:;
 	Data24->field_20 = pSprite->field_20;
 }
 
-void cFodder::sub_24173( sSprite* pSprite, sSprite* pData34 ) {
+void cFodder::Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 ) {
 	int16 ax;
 
 	sSprite* Data2C = 0;
@@ -7427,7 +7427,7 @@ loc_254E7:;
 	return -1;
 }
 
-void cFodder::sub_254F9( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Vehicle_Enemy( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data10;
 	sSprite* Data28 = 0;
 
@@ -10227,11 +10227,10 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 		return -1;
 
 	Data18 &= 0xFF;
-	int8* Data2C = mSquads_TroopCount + Data14;
 
-	if (*Data2C > 8) {
+	if (mSquads_TroopCount[Data14] > 8)
 		return -1;
-	}
+
 	sSquad_Member* Dataa24 = (sSquad_Member*) pSprite->field_46;
 	Dataa24->mSelected &= 0xFE;
 
@@ -10246,7 +10245,7 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 
 		Data0++;
 	}
-	//loc_2DA86
+
 	pSprite->field_40 = Data0;
 	pSprite->field_32 = Data18;
 	sub_2D06C();
@@ -10255,11 +10254,10 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 	mSquad_Selected = Data18;
 		
 	mSquad_Grenades[Data18] += mSquad_Grenades[Data14];
+	mSquad_Rockets[Data18] += mSquad_Rockets[Data14];
 
 	//seg010:0232
 	mSquad_Grenades[Data14] = 0;
-
-	mSquad_Rockets[Data18] += mSquad_Rockets[Data14];
 	mSquad_Rockets[Data14] = 0;
 
 	sub_305D5( pSprite );
@@ -10273,20 +10271,15 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 	int8 Data2C = byte_3BF1B[pSprite->field_32];
 	int16 Data0;
 
-	if (Data2C < 0) {
-		//goto loc_2D9B4;
-		Data0 = -1;
+	if (Data2C < 0)
 		return -1;
-	}
 
 	int16 Data8 = pSprite->field_32;
 
 	sSprite* Dataa2C = word_3BF1E[Data8];
-	if (Dataa2C->field_18 != 0) {
-		//goto loc_2D9B4;
-		Data0 = -1;
+	if (Dataa2C->field_18 != 0)
 		return -1;
-	}
+	
 	Data8 = mSquad_Selected;
 
 	sSprite** Data30 = mSquads[Data8];
@@ -10296,8 +10289,8 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 		if (*Data30 == INVALID_SPRITE_PTR)
 			break;
 
-		sSprite* eax = *Data30;
-		++Data30;
+		sSprite* eax = *Data30++;
+
 		if (pSprite == eax)
 			break;
 		Data1C += 8;
@@ -10310,8 +10303,9 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 	sub_29E30( Data0, Data4, Data8, DataC );
 	if (Data0 <= Data1C)
 		goto loc_2DCAD;
-	//goto loc_2D9AB;
+
 	return 0;
+
 loc_2DCAD:;
 	return Squad_Join(pSprite);
 }
@@ -10337,7 +10331,7 @@ void cFodder::sub_2DCB0( int16 pData0 ) {
 
 void cFodder::sub_2DD50( sSprite* pSprite ) {
 	word_3B4E9 = 0;
-	if (pSprite->field_18 == 0x59)
+	if (pSprite->field_18 == eSprite_Explosion2)
 		word_3B4E9 = -1;
 
 	struct_7* Data28 = dword_3B11B;
@@ -12379,11 +12373,11 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 55:
-			sub_1C364( Data20 );
+			Sprite_Handle_Mine2( Data20 );
 			break;
 
 		case 56:
-			sub_1C411( Data20 );
+			Sprite_Handle_Spike( Data20 );
 			break;
 
 		case 57:
@@ -12407,19 +12401,19 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 62:
-			sub_1C62F( Data20 );
+			Sprite_Handle_Indigenous2( Data20 );
 			break;
 
 		case 63:
-			Sprite_Handle_Skidu( Data20 );
+			Sprite_Handle_VehicleNoGun_Human( Data20 );
 			break;
 
 		case 64:
-			Sprite_Handle_Truck( Data20 );
+			Sprite_Handle_VehicleGun_Human( Data20 );
 			break;
 
 		case 65:
-			Sprite_Handle_Tank( Data20 );
+			Sprite_Handle_Tank_Human( Data20 );
 			break;
 
 		case 66:
@@ -12435,11 +12429,11 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 69:
-			sub_1CB1F( Data20 );
+			Sprite_Handle_Tank_Enemy( Data20 );
 			break;
 
 		case 70:
-			sub_1C689( Data20 );
+			Sprite_Handle_Indigenous_Spear( Data20 );
 			break;
 
 		case 71:
@@ -12451,19 +12445,19 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 73:
-			sub_1D483( Data20 );
+			Sprite_Handle_Hostage_Rescue_Tent( Data20 );
 			break;
 
 		case 74:
-			sub_1D4AE( Data20 );
+			Sprite_Handle_Door_Indigenous( Data20 );
 			break;
 
 		case 75:
-			sub_1D4BA( Data20 );
+			Sprite_Handle_Door2_Indigenous( Data20 );
 			break;
 
 		case 76:
-			sub_1D4C6( Data20 );
+			Sprite_Handle_Door_Indigenous_Spear( Data20 );
 			break;
 
 		case 77:
@@ -12471,35 +12465,35 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 78:
-			Sprite_Handle_Turret_Empty_Missile( Data20 );
+			Sprite_Handle_Turret_Missile_Human( Data20 );
 			break;
 
 		case 79:
-			sub_1D756( Data20 );
+			Sprite_Handle_Turret_Missile2_Human( Data20 );
 			break;
 
 		case 80:
-			sub_1D76F( Data20 );
+			Sprite_Handle_VehicleNoGun_Enemey( Data20 );
 			break;
 
 		case 81:
-			Sprite_Handle_Computer_Truck( Data20 );
+			Sprite_Handle_VehicleGun_Enemy( Data20 );
 			break;
 
 		case 82:
-			sub_1D78D( Data20 );
+			Sprite_Handle_Vehicle_Unk_Enemy( Data20 );
 			break;
 
-		case 83:
+		case 83:	// Invisible ?
 			sub_1D7B6( Data20 );
 			break;
 
 		case 84:
-			Sprite_Handle_Turret_Missile( Data20 );
+			Sprite_Handle_Turret_Missile_Enemy( Data20 );
 			break;
 
 		case 85:
-			sub_1D70B( Data20 );
+			Sprite_Handle_Turret_Missile2_Enemy( Data20 );
 			break;
 
 		case 86:
@@ -12511,11 +12505,11 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 88:
-			sub_1D81C( Data20 );
+			Sprite_Handle_Building_Door3( Data20 );
 			break;
 
 		case 89:
-			sub_1DA43( Data20 );
+			Sprite_Handle_Explosion2( Data20 );
 			break;
 
 		case 90:
@@ -12527,7 +12521,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 92:
-			sub_1DB58( Data20 );
+			Sprite_Handle_Spider_Mine( Data20 );
 			break;
 
 		case 93:
@@ -12543,15 +12537,15 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 96:
-			sub_1DD91( Data20 );
+			Sprite_Handle_Set50RocketsAndRank( Data20 );
 			break;
 
 		case 97:
-			sub_1BEF6( Data20 );
+			Sprite_Handle_MissileHoming2( Data20 );
 			break;
 
 		case 98:
-			sub_1DE38( Data20 );
+			Sprite_Handle_SquadToGeneral_Give_50HomingMissiles( Data20 );
 			break;
 
 		case 99:
@@ -15093,7 +15087,7 @@ void cFodder::Sprite_Handle_Mine( sSprite* pSprite ) {
 	}
 }
 
-void cFodder::sub_1C364( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Mine2( sSprite* pSprite ) {
 	int16 Data0;
 
 	pSprite->field_2C = -1;
@@ -15131,7 +15125,7 @@ loc_1C406:;
 	pSprite->field_18 = eSprite_Explosion;
 }
 
-void cFodder::sub_1C411( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Spike( sSprite* pSprite ) {
 	sSprite* Data28 = word_39FCE;
 	int16 Data0 = 0;
 
@@ -15249,7 +15243,7 @@ void cFodder::Sprite_Handle_Indigenous( sSprite* pSprite ) {
 	sub_25A66( pSprite );
 }
 
-void cFodder::sub_1C62F( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Indigenous2( sSprite* pSprite ) {
 	
 	if (pSprite->field_38) {
 		sub_257D1( pSprite );
@@ -15275,19 +15269,19 @@ void cFodder::sub_1C62F( sSprite* pSprite ) {
 	sub_25863( pSprite );
 }
 
-void cFodder::Sprite_Handle_Skidu( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_VehicleNoGun_Human( sSprite* pSprite ) {
 
 	pSprite->field_6F = 2;
-	sub_233D4( pSprite );
+	Sprite_Handle_Vehicle_Human( pSprite );
 }
 
-void cFodder::Sprite_Handle_Truck( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_VehicleGun_Human( sSprite* pSprite ) {
 
 	pSprite->field_6F = 3;
-	sub_233D4( pSprite );
+	Sprite_Handle_Vehicle_Human( pSprite );
 }
 
-void cFodder::Sprite_Handle_Tank( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Tank_Human( sSprite* pSprite ) {
 	
 	if (pSprite->field_38 == 5)
 		pSprite->field_38 = 0;
@@ -15495,7 +15489,7 @@ void cFodder::Sprite_Handle_Seal( sSprite* pSprite ) {
 	}
 }
 
-void cFodder::sub_1CB1F( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data10, Data14;
 	sSprite* Data24 = 0, *Data30 = 0;
 
@@ -15617,7 +15611,7 @@ loc_1CDA3:;
 	Data24->field_20 = pSprite->field_20;
 }
 
-void cFodder::sub_1C689( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Indigenous_Spear( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
 	if (pSprite->field_38) {
 		sub_257D1( pSprite );
@@ -15916,7 +15910,7 @@ loc_1D44C:;
 	pSprite->field_4 = Data28->field_4;
 }
 
-void cFodder::sub_1D483( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Hostage_Rescue_Tent( sSprite* pSprite ) {
 	pSprite->field_8 = 0xDD;
 
 	dword_3B5F5 = pSprite;
@@ -15924,19 +15918,19 @@ void cFodder::sub_1D483( sSprite* pSprite ) {
 		pSprite->field_18 = eSprite_Explosion2;
 }
 
-void cFodder::sub_1D4AE( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Door_Indigenous( sSprite* pSprite ) {
 	mSpawnSpriteType = 0x3D;
 
 	sub_264B0(pSprite);
 }
 
-void cFodder::sub_1D4BA( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Door2_Indigenous( sSprite* pSprite ) {
 	mSpawnSpriteType = 0x3E;
 
 	sub_264B0(pSprite);
 }
 
-void cFodder::sub_1D4C6( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Door_Indigenous_Spear( sSprite* pSprite ) {
 	mSpawnSpriteType = 0x46;
 
 	sub_264B0(pSprite);
@@ -16058,22 +16052,22 @@ loc_1D6DD:;
 
 }
 
-void cFodder::sub_1D76F( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_VehicleNoGun_Enemey( sSprite* pSprite ) {
 	pSprite->field_6F = 2;
-	sub_254F9( pSprite );
+	Sprite_Handle_Vehicle_Enemy( pSprite );
 }
 
-void cFodder::Sprite_Handle_Computer_Truck( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_VehicleGun_Enemy( sSprite* pSprite ) {
 	pSprite->field_6F = 3;
-	sub_254F9( pSprite );
+	Sprite_Handle_Vehicle_Enemy( pSprite );
 }
 
-void cFodder::sub_1D78D( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Vehicle_Unk_Enemy( sSprite* pSprite ) {
 	pSprite->field_6F = 0x0A;
 	pSprite->field_26 = pSprite->field_0;
 	pSprite->field_26 += 0x28;
 
-	sub_254F9( pSprite );
+	Sprite_Handle_Vehicle_Enemy( pSprite );
 }
 
 void cFodder::sub_1D7B6( sSprite* pSprite ) {
@@ -16092,14 +16086,14 @@ void cFodder::sub_1D7B6( sSprite* pSprite ) {
 	*/
 }
 
-void cFodder::Sprite_Handle_Turret_Missile( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Turret_Missile_Enemy( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
 	pSprite->field_6F = 0;
 
 	Sprite_Handle_Turret( pSprite );
 }
 
-void cFodder::sub_1D70B( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Turret_Missile2_Enemy( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
 	pSprite->field_6F = 1;
 
@@ -16113,14 +16107,14 @@ void cFodder::Sprite_Handle_Turret_HomingMissile( sSprite* pSprite ) {
 	Sprite_Handle_Turret( pSprite );
 }
 
-void cFodder::Sprite_Handle_Turret_Empty_Missile( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Turret_Missile_Human( sSprite* pSprite ) {
 	pSprite->field_22 = 0;
 	pSprite->field_6F = 0;
 
 	Sprite_Handle_Turret( pSprite );
 }
 
-void cFodder::sub_1D756( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Turret_Missile2_Human( sSprite* pSprite ) {
 	pSprite->field_22 = 0;
 	pSprite->field_6F = 1;
 
@@ -16142,7 +16136,7 @@ void cFodder::sub_1D802( sSprite* pSprite ) {
 		Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::sub_1D81C( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Building_Door3( sSprite* pSprite ) {
 	int16 Data0, Data4;
 	sSprite* Data2C = 0;
 
@@ -16202,7 +16196,7 @@ loc_1D928:;
 	Troop_Deploy( pSprite, Data2C );
 }
 
-void cFodder::sub_1DA43( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Explosion2( sSprite* pSprite ) {
 
 	Sprite_Handle_Explosion( pSprite );
 }
@@ -16256,7 +16250,7 @@ void cFodder::sub_1DACF( sSprite* pSprite ) {
 	pSprite->field_38 = 9;
 }
 
-void cFodder::sub_1DB58( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Spider_Mine( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data10;
 	sSprite* Data14 = 0;
 
@@ -16356,7 +16350,7 @@ void cFodder::sub_1DD4C( sSprite* pSprite ) {
 	word_39FCE->field_75 |= 2;
 }
 
-void cFodder::sub_1DD91( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Set50RocketsAndRank( sSprite* pSprite ) {
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
 		return;
@@ -16374,17 +16368,17 @@ void cFodder::sub_1DD91( sSprite* pSprite ) {
 	word_3AC2B = 0;
 	
 	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
-	mSquad_Rockets[mSquad_Selected] = 0x32;
+	mSquad_Rockets[mSquad_Selected] = 50;
 
 	Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::sub_1BEF6( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_MissileHoming2( sSprite* pSprite ) {
 
 	Sprite_Handle_MissileHoming( pSprite );
 }
 
-void cFodder::sub_1DE38( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_SquadToGeneral_Give_50HomingMissiles( sSprite* pSprite ) {
 
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
@@ -16449,18 +16443,18 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 
 void cFodder::sub_1DFD2( sSprite* pSprite ) {
 	if (pSprite->field_38 != 7) {
-		sub_1D81C( pSprite );
+		Sprite_Handle_Building_Door3( pSprite );
 		return;
 	}
 
 	if (pSprite->field_74 >= 0x69) {
-		sub_1D81C( pSprite );
+		Sprite_Handle_Building_Door3( pSprite );
 		return;
 	}
 
 	pSprite->field_74 += 1;
 	pSprite->field_38 = 0;
-	sub_1D81C( pSprite );
+	Sprite_Handle_Building_Door3( pSprite );
 }
 
 void cFodder::sub_1E004( sSprite* pSprite ) {
