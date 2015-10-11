@@ -919,16 +919,16 @@ public:
 	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14
 	void			Sprite_Handle_BuildingRoof( sSprite* pSprite );			// 15
 	void			sub_1AC03( sSprite* pSprite );							// 16
-	void			sub_1AC13( sSprite* pSprite );							// 17
-	void			sub_1AC23( sSprite* pSprite );							// 18
-	void			sub_1AC7C( sSprite* pSprite );							// 19
+	void			Sprite_Handle_Shrub2( sSprite* pSprite );				// 17
+	void			Sprite_Handle_Waterfall( sSprite* pSprite );			// 18
+	void			Sprite_Handle_Bird2_Left( sSprite* pSprite );			// 19
 
 	void			Sprite_Handle_BuildingDoor( sSprite* pSprite );			// 20
 	void			Sprite_Handle_Player_Rank( sSprite* pSprite );			// 21
 	void			sub_1AF78( sSprite* pSprite );							// 22
 	void			sub_1B07C( sSprite* pSprite );							// 23
 	void			sub_1B0C0( sSprite* pSprite );							// 24
-	void			sub_1B1C1( sSprite* pSprite );							// 25
+	void			Sprite_Handle_Building_Door2( sSprite* pSprite );		// 25
 	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );// 27
 	void			Sprite_Handle_Text_Complete( sSprite* pSprite );		// 28
 	void			Sprite_Handle_Text_Mission( sSprite* pSprite );			// 29

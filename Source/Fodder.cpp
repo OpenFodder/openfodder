@@ -12245,15 +12245,15 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 17:
-			sub_1AC13( Data20 );
+			Sprite_Handle_Shrub2( Data20 );
 			break;
 
 		case 18:
-			sub_1AC23( Data20 );
+			Sprite_Handle_Waterfall( Data20 );
 			break;
 
 		case 19:
-			sub_1AC7C( Data20 );
+			Sprite_Handle_Bird2_Left( Data20 );
 			break;
 
 		case 20:
@@ -12277,7 +12277,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 25:
-			sub_1B1C1( Data20 );
+			Sprite_Handle_Building_Door2( Data20 );
 			break;
 
 		case 27:
@@ -13883,12 +13883,12 @@ void cFodder::sub_1AC03( sSprite* pSprite ) {
 	Sprite_Handle_Explodable( pSprite );
 }
 
-void cFodder::sub_1AC13( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Shrub2( sSprite* pSprite ) {
 	pSprite->field_8 = 0x93;
 	Sprite_Handle_Explodable( pSprite );
 }
 
-void cFodder::sub_1AC23( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Waterfall( sSprite* pSprite ) {
 	pSprite->field_8 = 0x94;
 	pSprite->field_2C = -1;
 
@@ -13907,7 +13907,7 @@ void cFodder::sub_1AC23( sSprite* pSprite ) {
 	pSprite->field_A = 0;
 }
 
-void cFodder::sub_1AC7C( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bird2_Left( sSprite* pSprite ) {
 
 	pSprite->field_8 = 0x98;
 	pSprite->field_2C = 1;
@@ -14169,7 +14169,7 @@ void cFodder::sub_1B0C0( sSprite* pSprite ) {
 	return;
 }
 
-void cFodder::sub_1B1C1( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Building_Door2( sSprite* pSprite ) {
 	int16 Data0, Data4;
 	sSprite* Data2C = 0;
 
