@@ -521,8 +521,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B47F;
 	int16			word_3B481;
 	int16			word_3B483;
-	int16			word_3B487;
-	int16			word_3B489;
+	int16			mHelicopterCallPadCount;
+	int16			mHelicopterCallPadPressedCount;
 	sSprite*		dword_3B48B[16];
 	int16			word_3B4CB;
 	int16			word_3B4CD;
@@ -798,9 +798,9 @@ public:
 	void			Map_Overview_Prepare();
 	void			map_SetTileType();
 
-	void			sub_13102();
+	void			Sprite_Count_HelicopterCallPads();
 	void			sub_13148();
-	void			sub_13155();
+	void			Sprite_HelicopterCallPad_Check();
 	void			sub_131A2();
 	int16			sub_131DE();
 	void			sub_13255();
@@ -943,20 +943,20 @@ public:
 	void			Sprite_Handle_RocketBox( sSprite* pSprite );			// 38
 	void			sub_1BB11( sSprite* pSprite );							// 39
 
-	void			Sprite_Handle_Helicopter( sSprite* pSprite );			// 40
-	void			sub_1BD54( sSprite* pSprite );							// 41
-	void			sub_1BD27( sSprite* pSprite );							// 42
-	void			sub_1BD36( sSprite* pSprite );							// 43
-	void			sub_1BD45( sSprite* pSprite );							// 44
+	void			Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite );				// 40
+	void			sub_1BD54( sSprite* pSprite );											// 41
+	void			Sprite_Handle_Helicopter_Grenade2_Enemy( sSprite* pSprite );			// 42
+	void			Sprite_Handle_Helicopter_Missile_Enemy( sSprite* pSprite );				// 43
+	void			Sprite_Handle_Helicopter_HomingMissile_Enemy( sSprite* pSprite );		// 44
 	void			Sprite_Handle_Missile( sSprite* pSprite );				// 45
 	void			Sprite_Handle_MissileHoming( sSprite* pSprite );		// 46
 	void			sub_1C1C0( sSprite* pSprite );							// 47
 	void			sub_1C268( sSprite* pSprite );							// 48
-	void			sub_1C2A5( sSprite* pSprite );							// 49
+	void			Sprite_Handle_Helicopter_Grenade2_Human( sSprite* pSprite );			// 49
 
-	void			sub_1C296( sSprite* pSprite );							// 50
-	void			sub_1C2B4( sSprite* pSprite );							// 51
-	void			Sprite_Handle_HelicopterHuman( sSprite* pSprite );		// 52
+	void			Sprite_Handle_Helicopter_Grenade_Human( sSprite* pSprite );				// 50
+	void			Sprite_Handle_Helicopter_Missile_Human( sSprite* pSprite );				// 51
+	void			Sprite_Handle_Helicopter_HomingMissile_Human( sSprite* pSprite );		// 52
 	void			sub_1C2D2( sSprite* pSprite );							// 53
 	void			sub_1C331( sSprite* pSprite );							// 54
 	void			sub_1C364( sSprite* pSprite );							// 55
@@ -1007,7 +1007,7 @@ public:
 	void			sub_1DD91( sSprite* pSprite );							// 96
 	void			sub_1BEF6( sSprite* pSprite );							// 97
 	void			sub_1DE38( sSprite* pSprite );							// 98
-	void			sub_1DF2C( sSprite* pSprite );							// 99
+	void			Sprite_Handle_Helicopter_CallPad( sSprite* pSprite );	// 99
 
 	void			sub_1DFD2( sSprite* pSprite );							// 100
 	void			sub_1E004( sSprite* pSprite );							// 101
@@ -1099,19 +1099,19 @@ public:
 	void			sub_23879( sSprite* pSprite );
 	int16			Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C );
 	void			sub_23C70( sSprite* pData2C );
-	void			sub_23CDD( sSprite* pSprite );
+	void			Sprite_Handle_Helicopter( sSprite* pSprite );
 	int16			sub_23D57( sSprite* pSprite );
 	void			sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
 	void			sub_23EA6( sSprite* pSprite );
 	void			Sprite_Handle_Turret( sSprite* pSprite );
 	void			sub_24173( sSprite* pSprite, sSprite* pData34 );
-	int16			sub_24285( sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28 );
+	int16			Sprite_Find_By_Types( sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28 );
 	void			sub_243E9( sSprite* pSprite );
 	int16			sub_2449E( sSprite* pSprite );
 	void			sub_245BF( sSprite* pSprite );
 	int16			sub_246CC( sSprite* pSprite );
 	void			sub_248B7( sSprite* pSprite );
-	int16			sub_2494C( sSprite* pSprite );
+	int16			Sprite_Create_Grenade( sSprite* pSprite );
 	int16			Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
 	int16			sub_2531F( sSprite* pSprite, sSprite*& pData30 );
 	void			sub_254F9( sSprite* pSprite );
