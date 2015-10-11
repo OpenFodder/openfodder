@@ -10215,30 +10215,25 @@ int16 cFodder::Sprite_Next_WalkTarget_Set( sSprite* pSprite ) {
 
 	pSprite->field_42 = 0;
 
-	return loc_2D9D5( pSprite );
+	return Squad_Join( pSprite );
 }
 
-int16 cFodder::loc_2D9D5( sSprite* pSprite ) {
+int16 cFodder::Squad_Join( sSprite* pSprite ) {
 	int16 Data14 = pSprite->field_32;
 	int16 Data0;
 
 	int16 Data18 = byte_3BF1B[Data14];
-	if (Data18 < 0) {
-		//goto loc_2D9B4;
-		Data0 = -1;
+	if (Data18 < 0)
 		return -1;
-	}
 
 	Data18 &= 0xFF;
 	int8* Data2C = mSquads_TroopCount + Data14;
 
 	if (*Data2C > 8) {
-		//goto loc_2D9B4;
-		Data0 = -1;
 		return -1;
 	}
-	uint8* Dataa24 = (uint8*) pSprite->field_46;
-	*(Dataa24 + 9) &= 0xFE;
+	sSquad_Member* Dataa24 = (sSquad_Member*) pSprite->field_46;
+	Dataa24->mSelected &= 0xFE;
 
 	struct_8* Data24 = off_3BEF3[Data18];
 	Data0 = 0;
@@ -10270,8 +10265,7 @@ int16 cFodder::loc_2D9D5( sSprite* pSprite ) {
 	sub_305D5( pSprite );
 	word_3AC2B = 0;
 	word_3A8D9 = 0;
-	//goto loc_2D9B4;
-	Data0 = -1;
+
 	return -1;
 }
 
@@ -10319,7 +10313,7 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 	//goto loc_2D9AB;
 	return 0;
 loc_2DCAD:;
-	return loc_2D9D5(pSprite);
+	return Squad_Join(pSprite);
 }
 
 void cFodder::sub_2DCB0( int16 pData0 ) {
@@ -12119,14 +12113,14 @@ void cFodder::Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 
 	pData4 += 0x10;
 
 	// Top and Bottom
-	Brief_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4, pData10 );
+	Briefing_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4, pData10 );
 
-	Brief_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4 + pDataC, pData10 );
+	Briefing_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4 + pDataC, pData10 );
 
 	// Sides of box
-	Brief_Draw_Vertical_Line( pData0 , pData4 + pDataC, pData4, pData10 );
+	Briefing_Draw_Vertical_Line( pData0 , pData4 + pDataC, pData4, pData10 );
 	
-	Brief_Draw_Vertical_Line( pData0 + pData8, pData4 + pDataC, pData4, pData10 );
+	Briefing_Draw_Vertical_Line( pData0 + pData8, pData4 + pDataC, pData4, pData10 );
 }
 
 void cFodder::sub_18BDF( int16 pBx, int16 pCx, uint8 pSi ) {
@@ -12137,7 +12131,7 @@ void cFodder::sub_18BDF( int16 pBx, int16 pCx, uint8 pSi ) {
 	*di = pSi;
 }
 
-void cFodder::Brief_Draw_Horizontal_Line( int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
+void cFodder::Briefing_Draw_Horizontal_Line( int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
 	
 	do {
 		sub_18BDF( pBx, pCx, pSi );
@@ -12155,7 +12149,7 @@ void cFodder::Intro_Print_String( int32 pPosY,  const sIntroString* pString ) {
 	String_Print(  mFontWidths, 0, word_3B301, pPosY, pString->mText );
 }
 
-void cFodder::Brief_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
+void cFodder::Briefing_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
 	
 	do {
 		sub_18BDF( pBx, pCx, pSi );
@@ -12329,7 +12323,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 41:
-			sub_1BD54( Data20 );
+			Sprite_Handle_Flashing_Light( Data20 );
 			break;
 
 		case 42:
@@ -12381,7 +12375,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 54:
-			sub_1C331( Data20 );
+			Sprite_Handle_Mine( Data20 );
 			break;
 
 		case 55:
@@ -14723,7 +14717,7 @@ void cFodder::Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite ) {
 	sub_24ED7( pSprite );
 }
 
-void cFodder::sub_1BD54( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Flashing_Light( sSprite* pSprite ) {
 	
 	pSprite->field_2C = 0;
 	pSprite->field_8 = 0xC4;
@@ -15086,7 +15080,7 @@ loc_1C321:;
 	sub_2183B( pSprite );
 }
 
-void cFodder::sub_1C331( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Mine( sSprite* pSprite ) {
 	pSprite->field_2C = -1;
 
 	if (!pSprite->field_38) {
