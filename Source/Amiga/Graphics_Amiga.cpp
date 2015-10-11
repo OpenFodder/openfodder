@@ -479,7 +479,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 
 				uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
 
-				if (/*Tile > 0xE0 && Tile < 0xF0 ||*/ Tile > 0x1C0)
+				if (Tile > 0x1C0)
 					Tile = 0;
 
 				Tile <<= 7;

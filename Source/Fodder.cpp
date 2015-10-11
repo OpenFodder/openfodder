@@ -908,9 +908,9 @@ void cFodder::sub_10D61() {
 
 	word_3B2DD[0] = 0;
 	word_3B2DD[1] = 0;
-	word_3B2E1 = 0;
-	word_3B2E3 = 0;
-	word_3B2E5 = 0;
+	word_3B2DD[2] = 0;
+	word_3B2DD[3] = 0;
+	word_3B2DD[4] = 0;
 	word_3B2ED = 0;
 	mSpawnSpriteType = 0;
 	word_3B2F1 = 0;
@@ -1150,7 +1150,7 @@ void cFodder::map_Load_Spt() {
 		++dword_37AC0;
 		Data24->field_18 = ax;
 		
-		if( Data24->field_18 == 0x6A || Data24->field_18 == 0x48 ) {
+		if( Data24->field_18 == eSprite_Hostage2 || Data24->field_18 == eSprite_Hostage ) {
 				
 			++word_3AA19;
 		}
@@ -4578,6 +4578,7 @@ void cFodder::AFX_Show() {
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
+
 		if (mButtonPressLeft) {
 			if (mVersion->mKey == "AFX")
 				GUI_Element_Mouse_Over( mCoverDisk_Buttons );
@@ -6063,10 +6064,10 @@ void cFodder::sub_2315D( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pDa
 		if (Data28 == Data24->field_22)
 			continue;
 
-		if (Data24->field_18 == 0x48)
+		if (Data24->field_18 == eSprite_Hostage)
 			continue;
 
-		if (Data24->field_18 == 0x6A)
+		if (Data24->field_18 == eSprite_Hostage2)
 			continue;
 
 		if (pData8 > Data24->field_0)
@@ -6836,10 +6837,9 @@ int16 cFodder::sub_24285( sSprite* pSprite, int16& pData0, int16& pData4, int16&
 
 	word_3B2DD[0] = pData0;
 	word_3B2DD[1] = pData4;
-
-	word_3B2E1 = pData8;
-	word_3B2E3 = pDataC;
-	word_3B2E5 = pData10;
+	word_3B2DD[2] = pData8;
+	word_3B2DD[3] = pDataC;
+	word_3B2DD[4] = pData10;
 
 	int16 Data1C = pSprite->field_5E;
 
@@ -7708,7 +7708,7 @@ void cFodder::sub_258C6( sSprite* pSprite ) {
 			return;
 	}
 
-	if (pSprite->field_18 == 0x48 || pSprite->field_18 == 0x6A) {
+	if (pSprite->field_18 == eSprite_Hostage || pSprite->field_18 == eSprite_Hostage2) {
 		pSprite->field_26 = pSprite->field_0;
 		pSprite->field_28 = pSprite->field_4;
 	}
@@ -8116,7 +8116,7 @@ void cFodder::sub_25FDA( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data10;
 	sSprite* Data24 = 0, *Data28 = 0, *Data2C = 0;
 
-	if (pSprite->field_18 == 0x6A)
+	if (pSprite->field_18 == eSprite_Hostage2)
 		goto loc_2625B;
 
 	if (!dword_3B5F5)
@@ -8187,7 +8187,7 @@ loc_2614F:;
 	pSprite->field_28 = Data28->field_4;
 	pSprite->field_28 -= 6;
 
-	if (!pSprite->field_6E)
+	if (!Data28->field_6E)
 		goto loc_2620F;
 
 	Data2C = Data28->field_6A;
@@ -10303,7 +10303,7 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 	int16 Data1C = 0;
 
 	for (Data1C = 0x0C;;) {
-		if (*Data30 < 0)
+		if (*Data30 == INVALID_SPRITE_PTR)
 			break;
 
 		sSprite* eax = *Data30;
@@ -12457,7 +12457,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 72:
-			sub_1D1A2( Data20 );
+			Sprite_Handle_Hostage( Data20 );
 			break;
 
 		case 73:
@@ -12593,7 +12593,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 106:
-			sub_1E02C( Data20 );
+			Sprite_Handle_Hostage_2( Data20 );
 			break;
 
 		case 107:
@@ -15803,7 +15803,7 @@ loc_1D18D:;
 	goto loc_1D17A;
 }
 
-void cFodder::sub_1D1A2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Hostage( sSprite* pSprite ) {
 	int16 Data0, Data4;
 	int16 Sprite_Field_10;
 	sSprite* Data24 = 0;
@@ -16494,9 +16494,9 @@ void cFodder::sub_1E022( sSprite* pSprite ) {
 	Sprite_Handle_HelicopterHuman( pSprite );
 }
 
-void cFodder::sub_1E02C( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Hostage_2( sSprite* pSprite ) {
 
-	sub_1D1A2( pSprite );
+	Sprite_Handle_Hostage( pSprite );
 }
 
 void cFodder::sub_1E031( sSprite* pSprite ) {
@@ -20107,22 +20107,22 @@ loc_21C5E:;
 	word_390C4 = Data8;
 }
 
-void cFodder::sub_21C6F( ) {
-	sSprite* Data2C = 0, *Data30 = 0;
+void cFodder::Sprite_Create_Rank( ) {
+	sSprite* Sprite = 0, *Data30 = 0;
 	int16 Data0 = 1;
-	Sprite_Get_Free( Data0, Data2C, Data30 );
+	Sprite_Get_Free( Data0, Sprite, Data30 );
 
 	if (Data0)
 		return;
 
-	Data2C->field_8 = 0x7C;
-	Data2C->field_A = 0;
-	Data2C->field_18 = eSprite_Rank;
-	Data2C->field_0 = 0;
-	Data2C->field_4 = 0;
-	Data2C->field_22 = -1;
-	Data2C->field_10 = 1;
-	Data2C->field_3A = 0;
+	Sprite->field_8 = 0x7C;
+	Sprite->field_A = 0;
+	Sprite->field_18 = eSprite_Rank;
+	Sprite->field_0 = 0;
+	Sprite->field_4 = 0;
+	Sprite->field_22 = -1;
+	Sprite->field_10 = 1;
+	Sprite->field_3A = 0;
 }
 
 void cFodder::sub_21CD1( sSprite* pSprite ) {
@@ -20207,7 +20207,7 @@ loc_21E4A:;
 	if (Data24->field_0 == -32768)
 		goto loc_21E81;
 
-	if (Data24->field_18 == 0x48)
+	if (Data24->field_18 == eSprite_Hostage)
 		goto loc_21E90;
 
 loc_21E81:;
@@ -20742,7 +20742,6 @@ void cFodder::Start( int16 pStartMap ) {
 	mouse_Setup();
 	Mouse_Inputs_Get();
 
-loc_103BF:;
 	for (;;) {
 		sub_10BBC();
 
@@ -20768,11 +20767,12 @@ loc_103BF:;
 
 		//loc_1042E:;
 		for (;;) {
+
 			if (!word_3A9B2 && !word_3A9AA) {
 
 				if (mVersion->mRelease == eRelease::Demo) {
 					if (mMapNumber == 3) {
-						goto loc_103BF;
+						break;
 					}
 
 				}
@@ -20789,7 +20789,7 @@ loc_103BF:;
 			sub_10D61();
 			sub_10D9F();
 			sub_10DEC();
-			//video_?_1();
+
 			word_390A6 = 0;
 
 			if (mVersion->mRelease != eRelease::Demo) {
@@ -20819,9 +20819,8 @@ loc_103BF:;
 
 				if (mVersion->mRelease == eRelease::Retail)
 					Recruit_Show();
-				else {
+				else
 					AFX_Show();
-				}
 
 				Game_CheckLoadSave();
 				
@@ -20839,10 +20838,8 @@ loc_103BF:;
 
 				if (mVersion->mRelease == eRelease::Retail) 
 					Briefing_Intro();
-				else {
-					mGraphics->LoadpStuff();
-				}
-				
+				else
+					mGraphics->LoadpStuff();			
 			}
 
 			//loc_10513
@@ -20895,7 +20892,7 @@ loc_103BF:;
 
 			sub_124DB();
 			word_39F06 = 0;
-			sub_21C6F( );
+			Sprite_Create_Rank( );
 			word_3AA1B = 1;
 			word_3A067 = mSprites[0].field_0;
 			word_3A069 = mSprites[0].field_4;
@@ -20914,12 +20911,15 @@ loc_103BF:;
 				if (Data0 == 0x0C)
 					word_3ABB7 = -1;
 			}
+
 			mGUI_Elements[0].field_0 = 0;
 			word_390A6 = -1;
 			sub_11CAD();
+
 			word_3BEC1 = 0;
 			word_3BEC3 = 4;
 			word_3AA1B = 1;
+
 			Squad_Prepare_GrenadesAndRockets();
 			sub_2D7FF();
 			Mission_Goals_Set();
@@ -20934,6 +20934,7 @@ loc_103BF:;
 			sub_126BB();
 			sub_13102();
 			sub_13148();
+
 			word_3A9B2 = 0;
 			word_3A9D0 = 0;
 			mMouseSpriteNew = 0x23;
@@ -20950,8 +20951,9 @@ loc_103BF:;
 			else {
 				word_3B20F = 0;
 				if (!word_390CE) {
+
 					Service_Show();
-					goto loc_103BF;
+					break;
 				}
 			}
 
