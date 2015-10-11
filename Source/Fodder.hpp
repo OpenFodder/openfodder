@@ -487,10 +487,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2CD;
 	int16			word_3B2CF;
 	int16			word_3B2D1[6];
-	int16			word_3B2DD[2];
-	int16			word_3B2E1;
-	int16			word_3B2E3;
-	int16			word_3B2E5;
+	int16			word_3B2DD[5];
 	int16			word_3B2ED;
 	int16			mSpawnSpriteType;
 	int16			word_3B2F1;
@@ -981,7 +978,7 @@ public:
 
 	void			sub_1C689( sSprite* pSprite );							// 70
 	void			sub_1CE80( sSprite* pSprite );							// 71
-	void			sub_1D1A2( sSprite* pSprite );							// 72
+	void			Sprite_Handle_Hostage( sSprite* pSprite );				// 72
 	void			sub_1D483( sSprite* pSprite );							// 73
 	void			sub_1D4AE( sSprite* pSprite );							// 74
 	void			sub_1D4BA( sSprite* pSprite );							// 75
@@ -1018,7 +1015,7 @@ public:
 	void			sub_1E018( sSprite* pSprite );							// 103
 	void			sub_1E022( sSprite* pSprite );							// 104
 	void			Sprite_Handle_Turret_HomingMissile( sSprite* pSprite );	// 105
-	void			sub_1E02C( sSprite* pSprite );							// 106
+	void			Sprite_Handle_Hostage_2( sSprite* pSprite );			// 106
 	void			sub_1E031( sSprite* pSprite );							// 107
 	void			sub_1E036( sSprite* pSprite );							// 108
 	void			sub_1E042( sSprite* pSprite );							// 109
@@ -1074,7 +1071,7 @@ public:
 	int16			Troop_Deploy( sSprite* pSprite, sSprite*& pData2C );
 	void			Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			sub_21C00( sSprite* pData2C );
-	void			sub_21C6F( );
+	void			Sprite_Create_Rank( );
 	void			sub_21CD1( sSprite* pSprite );
 
 	void			sub_2212A( sSprite* pSprite );
