@@ -890,21 +890,23 @@ public:
 	void			video_Draw_Unk_2( );
 	/* End Promotion / Heroes */
 
-	int16			loc_2D9D5( sSprite* pSprite );
+	int16			Squad_Join( sSprite* pSprite );
 
 	void			Briefing_Show( );
 	void			Briefing_Prepare();
 	void			Briefing_Wait();
 	void			Briefing_Draw_With( );
 	void			Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 );
+	void			Briefing_Draw_Horizontal_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	void			Briefing_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
 	void			sub_18BDF( int16 pBx, int16 pCx, uint8 pSi );
-	void			Brief_Draw_Horizontal_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
 	void			Intro_Print_String( int32 pPosX, const sIntroString* pString );
 	bool			Recruit_Check_Buttons_SaveLoad();
-	void			Brief_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	
 	void			sub_18D5E();
+
 	void			Sprite_Handle_Loop();
 
 	void			Sprite_Handle_Player( sSprite* pSprite );				// 0
@@ -923,47 +925,47 @@ public:
 	void			Sprite_Handle_Waterfall( sSprite* pSprite );			// 18
 	void			Sprite_Handle_Bird2_Left( sSprite* pSprite );			// 19
 
-	void			Sprite_Handle_BuildingDoor( sSprite* pSprite );			// 20
-	void			Sprite_Handle_Player_Rank( sSprite* pSprite );			// 21
-	void			sub_1AF78( sSprite* pSprite );							// 22
-	void			sub_1B07C( sSprite* pSprite );							// 23
-	void			sub_1B0C0( sSprite* pSprite );							// 24
-	void			Sprite_Handle_Building_Door2( sSprite* pSprite );		// 25
-	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );// 27
-	void			Sprite_Handle_Text_Complete( sSprite* pSprite );		// 28
-	void			Sprite_Handle_Text_Mission( sSprite* pSprite );			// 29
+	void			Sprite_Handle_BuildingDoor( sSprite* pSprite );							// 20
+	void			Sprite_Handle_Player_Rank( sSprite* pSprite );							// 21
+	void			sub_1AF78( sSprite* pSprite );											// 22
+	void			sub_1B07C( sSprite* pSprite );											// 23
+	void			sub_1B0C0( sSprite* pSprite );											// 24
+	void			Sprite_Handle_Building_Door2( sSprite* pSprite );						// 25
+	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );				// 27
+	void			Sprite_Handle_Text_Complete( sSprite* pSprite );						// 28
+	void			Sprite_Handle_Text_Mission( sSprite* pSprite );							// 29
 
-	void			Sprite_Handle_Text_Phase( sSprite* pSprite );			// 30
+	void			Sprite_Handle_Text_Phase( sSprite* pSprite );							// 30
 	void			sub_1B4BB( sSprite* pSprite );
-	void			Sprite_Handle_Rocket( sSprite* pSprite );				// 33
-	void			Sprite_Handle_Text_GameOver( sSprite* pSprite );		// 34
-	void			Sprite_Handle_Shadow( sSprite* pSprite );				// 35
-	void			Sprite_Handle_Enemy_Rocket( sSprite* pSprite );			// 36
-	void			Sprite_Handle_GrenadeBox( sSprite* pSprite );			// 37
-	void			Sprite_Handle_RocketBox( sSprite* pSprite );			// 38
-	void			sub_1BB11( sSprite* pSprite );							// 39
+	void			Sprite_Handle_Rocket( sSprite* pSprite );								// 33
+	void			Sprite_Handle_Text_GameOver( sSprite* pSprite );						// 34
+	void			Sprite_Handle_Shadow( sSprite* pSprite );								// 35
+	void			Sprite_Handle_Enemy_Rocket( sSprite* pSprite );							// 36
+	void			Sprite_Handle_GrenadeBox( sSprite* pSprite );							// 37
+	void			Sprite_Handle_RocketBox( sSprite* pSprite );							// 38
+	void			sub_1BB11( sSprite* pSprite );											// 39
 
 	void			Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite );				// 40
-	void			sub_1BD54( sSprite* pSprite );											// 41
+	void			Sprite_Handle_Flashing_Light( sSprite* pSprite );						// 41
 	void			Sprite_Handle_Helicopter_Grenade2_Enemy( sSprite* pSprite );			// 42
 	void			Sprite_Handle_Helicopter_Missile_Enemy( sSprite* pSprite );				// 43
 	void			Sprite_Handle_Helicopter_HomingMissile_Enemy( sSprite* pSprite );		// 44
-	void			Sprite_Handle_Missile( sSprite* pSprite );				// 45
-	void			Sprite_Handle_MissileHoming( sSprite* pSprite );		// 46
-	void			sub_1C1C0( sSprite* pSprite );							// 47
-	void			sub_1C268( sSprite* pSprite );							// 48
+	void			Sprite_Handle_Missile( sSprite* pSprite );								// 45
+	void			Sprite_Handle_MissileHoming( sSprite* pSprite );						// 46
+	void			sub_1C1C0( sSprite* pSprite );											// 47
+	void			sub_1C268( sSprite* pSprite );											// 48
 	void			Sprite_Handle_Helicopter_Grenade2_Human( sSprite* pSprite );			// 49
 
 	void			Sprite_Handle_Helicopter_Grenade_Human( sSprite* pSprite );				// 50
 	void			Sprite_Handle_Helicopter_Missile_Human( sSprite* pSprite );				// 51
 	void			Sprite_Handle_Helicopter_HomingMissile_Human( sSprite* pSprite );		// 52
-	void			sub_1C2D2( sSprite* pSprite );							// 53
-	void			sub_1C331( sSprite* pSprite );							// 54
-	void			sub_1C364( sSprite* pSprite );							// 55
-	void			sub_1C411( sSprite* pSprite );							// 56
-	void			sub_1C4C2( sSprite* pSprite );							// 57
-	void			Sprite_Handle_Text_Try( sSprite* pSprite );				// 58
-	void			Sprite_Handle_Text_Again( sSprite* pSprite );			// 59
+	void			sub_1C2D2( sSprite* pSprite );											// 53
+	void			Sprite_Handle_Mine( sSprite* pSprite );									// 54
+	void			sub_1C364( sSprite* pSprite );											// 55
+	void			sub_1C411( sSprite* pSprite );											// 56
+	void			sub_1C4C2( sSprite* pSprite );											// 57
+	void			Sprite_Handle_Text_Try( sSprite* pSprite );								// 58
+	void			Sprite_Handle_Text_Again( sSprite* pSprite );							// 59
 
 	void			Sprite_Handle_BoilingPot( sSprite* pSprite );			// 60
 	void			Sprite_Handle_Indigenous( sSprite* pSprite );			// 61

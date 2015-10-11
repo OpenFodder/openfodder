@@ -62,6 +62,7 @@ enum eSprites {
 	eSprite_Helicopter_Missile_Human		= 51,
 	eSprite_Helicopter_HomingMissile_Human	= 52,
 
+	eSprite_Mine				= 54,
 	eSprite_Text_Try			= 58,
 	eSprite_Text_Again			= 59,
 	eSprite_BoilingPot			= 60,
