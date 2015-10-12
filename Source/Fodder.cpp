@@ -26,38 +26,6 @@
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
-const sGUI_Element mCoverDisk_Buttons[] = {
-	{ &cFodder::sub_2EAC2, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::sub_2EAC3 },
-	{ &cFodder::sub_2EAC2, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
-	{ &cFodder::sub_2EAC2, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::sub_A0400 },
-	{ &cFodder::sub_2EAC2, 0x02, 0x9D, 0x81, 0x63, &cFodder::sub_A03EE },
-	{ &cFodder::sub_2EAC2, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_A0400 },
-	{ 0 }
-};
-
-const sGUI_Element mPlus_Buttons[] = {
-	{ &cFodder::sub_2EAC2, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::sub_A03E0 },
-	{ &cFodder::sub_2EAC2, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
-	{ &cFodder::sub_2EAC2, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::sub_A0400 },
-	{ &cFodder::sub_2EAC2, 0x02, 0x9D, 0x81, 0x63, &cFodder::sub_9BA08 },
-	{ &cFodder::sub_2EAC2, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_9BA1A },
-};
-
-const sGUI_Element mPlusQuiz_Buttons[] = {
-	{ &cFodder::sub_2EAC2, 0xBD, 0x19, 0x5B, 0x48,	&cFodder::sub_A056E },
-	{ &cFodder::sub_2EAC2, 0xB2, 0x1C, 0xA2, 0x33,	&cFodder::sub_A056E },
-	{ &cFodder::sub_2EAC2, 0x00, 0x31, 0x03, 0x1E,	&cFodder::sub_A0578 },
-	{ &cFodder::sub_2EAC2, 0x10C, 0x31, 0x03, 0x1E,	&cFodder::sub_A058C },
-	{ &cFodder::sub_2EAC2, 0x00, 0x31, 0xD6, 0x1E,	&cFodder::sub_A05A0 },
-	{ &cFodder::sub_2EAC2, 0x10C, 0x31, 0xD6, 0x1E, &cFodder::sub_A05B4 },
-	{ &cFodder::sub_2EAC2, 0x2A, 0x32, 0x10, 0xC9,	&cFodder::sub_A05C8 },
-	{ &cFodder::sub_2EAC2, 0x5B, 0x27, 0x1F, 0xB4,	&cFodder::sub_A05DC },
-	{ &cFodder::sub_2EAC2, 0x81, 0x1E, 0x25, 0xA7,	&cFodder::sub_A05F0 },
-	{ &cFodder::sub_2EAC2, 0x9E, 0x1F, 0x24, 0xB1,	&cFodder::sub_A0604 },
-	{ &cFodder::sub_2EAC2, 0xBC, 0x2B, 0x21, 0xAA,	&cFodder::sub_A0618 },
-	{ &cFodder::sub_2EAC2, 0xE6, 0x3B, 0x13, 0xCE,	&cFodder::sub_A062C },
-};
-
 cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
@@ -17965,7 +17933,6 @@ void cFodder::sub_1FE35( sSprite* pSprite ) {
 
 	if (pSprite->field_5C == 0)
 		return;
-
 
 	Sprite_Get_Free( Data0, Data2C, Data30 );
 	if (Data0)
