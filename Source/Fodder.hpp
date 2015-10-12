@@ -81,17 +81,6 @@ struct struct_5 {
 	int16	field_8;
 };
 
-class cFodder;
-
-struct sGUI_Element {
-	int16	(cFodder::*field_0)();
-	int16	field_4;
-	int16	field_6;
-	int16	field_8;
-	int16	field_A;
-	void	(cFodder::*mMouseInsideFuncPtr)();	// field_c
-};
-
 struct struct_7 {
 	int16	field_0;
 	int16	field_2;

@@ -90,6 +90,9 @@
     <ClInclude Include="..\..\Source\IntroData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\GUI_Element.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -144,6 +147,9 @@
       <Filter>Source\Amiga</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GUI_Element.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
