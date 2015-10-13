@@ -93,6 +93,15 @@
     <ClInclude Include="..\..\Source\GUI_Element.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\audiostream.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\paula.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\rjp1.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -151,6 +160,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\GUI_Element.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\paula.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\rjp1.cpp">
+      <Filter>Source\Amiga</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

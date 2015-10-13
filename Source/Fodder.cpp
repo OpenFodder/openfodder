@@ -161,7 +161,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	word_44475 = 0;
 
-	stru_3DEDC[0] = { &cFodder::sub_2EAC2, 0, 47, 0, 225, &cFodder::sub_2EAC3 };
+	stru_3DEDC[0] = { &cFodder::GUI_Button_NoAction, 0, 47, 0, 225, &cFodder::GUI_Button_NoAction2 };
 	stru_3DEDC[1] = { 0, 0, 0, 0, 0, 0 };
 
 	mGUI_Handle_Button_SelectSquad_Array[0] = &cFodder::GUI_Handle_Button_SelectSquad_0;
@@ -3074,7 +3074,7 @@ void cFodder::VersionSelect() {
 		String_CalculateWidth( 320, byte_4388F, Name.c_str() );
 		String_Print( byte_4388F, 0, word_3B301, Pos , Name.c_str() );
 
-		Buttons[Count].field_0 = &cFodder::sub_2EAC2;
+		Buttons[Count].field_0 = &cFodder::GUI_Button_NoAction;
 		Buttons[Count].field_4 = word_3B301 - 6;
 		Buttons[Count].field_6 = word_3B303;
 		Buttons[Count].field_8 = Pos - 2;
@@ -5831,7 +5831,7 @@ loc_22DED:;
 	Data1C = 1;
 
 loc_22DF6:;
-	Sprite_Skidu_Direction_Update( pSprite, Data1C );
+	Sprite_Vehicle_Direction_Update( pSprite, Data1C );
 
 }
 
@@ -8700,7 +8700,7 @@ void cFodder::Mission_Sidebar_MapButton_Render() {
 		return;
 
 	sGUI_Element* Element = mGUI_NextFreeElement;
-	Element->field_0 = &cFodder::sub_2EAC2;
+	Element->field_0 = &cFodder::GUI_Button_NoAction;
 	Element->field_4 = 0;
 	Element->field_6 = 0x2F;
 	Element->field_A = 0x0B;
@@ -9454,7 +9454,7 @@ void cFodder::sub_2B12E( sSprite* pSprite ) {
 	word_3A8CF = DataC;
 }
 
-void cFodder::Sprite_Skidu_Direction_Update( sSprite* pSprite, int16& pData1C ) {
+void cFodder::Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C ) {
 	int16 Data4 = word_3B2F5;
 	Data4 >>= 5;
 	Data4 -= 1;
@@ -10566,7 +10566,7 @@ void cFodder::Game_Save_Wrapper() {
 void cFodder::sub_2E244( void(cFodder::*pFunction)(void) ) {
 	sGUI_Element* Element = mGUI_NextFreeElement;
 
-	Element->field_0 = &cFodder::sub_2EAC2;
+	Element->field_0 = &cFodder::GUI_Button_NoAction;
 
 	int16 Data0 = word_3B301;
 	int16 Data4 = word_3B305;
@@ -10887,11 +10887,11 @@ void cFodder::sub_2EA89() {
 	word_3B2CD = 2;
 }
 
-int16 cFodder::sub_2EAC2() {
+int16 cFodder::GUI_Button_NoAction() {
 	return 0;
 }
 
-void cFodder::sub_2EAC3() {
+void cFodder::GUI_Button_NoAction2() {
 	//int16 Data0 = -1;
 	return;
 }
@@ -11231,7 +11231,7 @@ void cFodder::Mission_Sidebar_SplitButton_Draw() {
 void cFodder::GUI_Prepare_Button_Squad() {
 	sGUI_Element* Data20 = mGUI_NextFreeElement;
 
-	Data20->field_0 = &cFodder::sub_2EAC2;
+	Data20->field_0 = &cFodder::GUI_Button_NoAction;
 	Data20->field_4 = 0;
 	Data20->field_6 = 0x2F;
 	Data20->field_8 = word_3AC1D;
@@ -21006,7 +21006,7 @@ void cFodder::GUI_Prepare_Button_Grenade() {
 		return;
 
 	sGUI_Element* Data20 = mGUI_NextFreeElement;
-	Data20->field_0 = &cFodder::sub_2EAC2;
+	Data20->field_0 = &cFodder::GUI_Button_NoAction;
 	Data20->field_4 = 0;
 	Data20->field_6 = 0x0C;
 	Data20->field_8 =  word_3AC1D + 0x0E;
@@ -21574,7 +21574,7 @@ void cFodder::GUI_Prepare_Button_Rockets() {
 		return;
 
 	sGUI_Element* Data20 = mGUI_NextFreeElement;
-	Data20->field_0 = &cFodder::sub_2EAC2;
+	Data20->field_0 = &cFodder::GUI_Button_NoAction;
 	Data20->field_4 = 0x24;
 	Data20->field_6 = 0x0C;
 	Data20->field_8 = word_3AC1D + 0x0E;
@@ -21630,7 +21630,7 @@ loc_2FCF4:;
 	word_3AEFB = word_3AC1D;
 	sGUI_Element* Element = mGUI_NextFreeElement;
 
-	Element->field_0 = &cFodder::sub_2EAC2;
+	Element->field_0 = &cFodder::GUI_Button_NoAction;
 	Element->field_4 = 0;
 	Element->field_6 = 0x2F;
 	Element->field_8 = word_3AC1D + 0x22;

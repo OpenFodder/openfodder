@@ -149,9 +149,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Amiga\audiostream.hpp" />
     <ClInclude Include="..\..\Source\Amiga\dernc.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp" />
+    <ClInclude Include="..\..\Source\Amiga\paula.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp" />
+    <ClInclude Include="..\..\Source\Amiga\rjp1.hpp" />
     <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp" />
     <ClInclude Include="..\..\Source\GUI_Element.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
@@ -181,7 +184,9 @@
     <ClCompile Include="..\..\Source\Amiga\dernc.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp" />
     <ClCompile Include="..\..\Source\Amiga\IntroData_Amiga.cpp" />
+    <ClCompile Include="..\..\Source\Amiga\paula.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp" />
+    <ClCompile Include="..\..\Source\Amiga\rjp1.cpp" />
     <ClCompile Include="..\..\Source\GUI_Element.cpp" />
     <ClCompile Include="..\..\Source\Event.cpp" />
     <ClCompile Include="..\..\Source\Fodder.cpp" />

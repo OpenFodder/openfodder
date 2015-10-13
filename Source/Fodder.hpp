@@ -1153,7 +1153,7 @@ public:
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B12E( sSprite* pSprite );
-	void			Sprite_Skidu_Direction_Update( sSprite* pSprite, int16& pData1C );
+	void			Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C );
 	int16			sub_2B232( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 	int16			sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 );
 
@@ -1201,8 +1201,8 @@ public:
 	void			sub_2E967();
 	void			sub_2EA89();
 
-	int16			sub_2EAC2();
-	void			sub_2EAC3();
+	int16			GUI_Button_NoAction();
+	void			GUI_Button_NoAction2();
 	void			sub_2EACA();
 	
 	void			sub_A03E0();
