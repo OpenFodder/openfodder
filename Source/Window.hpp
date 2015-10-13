@@ -28,7 +28,6 @@ class cWindow : public cSingleton<cWindow> {
 		cDimension			mDimensionWindow, mDimensionPlayfield;
 		cDimension			mScreenSize;
 
-		bool				mSound;
 		bool				mWindowMode;
 
 	public:
@@ -54,7 +53,6 @@ class cWindow : public cSingleton<cWindow> {
 
 		SDL_Renderer*		GetRenderer() const;
 
-		const bool			GetSound() const { return mSound; }
 		const cDimension	GetWindowSize() const { return mDimensionWindow; }
 		const cDimension	GetScreenSize() const { return mScreenSize; }
 };

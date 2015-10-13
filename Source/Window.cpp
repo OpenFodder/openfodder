@@ -22,11 +22,6 @@
 
 #include "stdafx.hpp"
 
-void Mixer_ChannelFinished(int32 pChannel) {
-
-	g_Fodder.MixerChannelFinished( pChannel );
-}
-
 cWindow::cWindow() {
 
 	mDimensionWindow.mWidth = 1280;
@@ -38,7 +33,6 @@ cWindow::cWindow() {
 	mScreenSize.mWidth = 320;
 	mScreenSize.mHeight = 200;
 
-	mSound = false;
 	mWindowMode = true;
 }
 
@@ -73,19 +67,6 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		//SDL_GetError()
 		std::cout << "Failed to create rendered\n";
 		return false;
-	}
-
-	int audio_rate = 22050;// 22050;
-	Uint16 audio_format = AUDIO_U8;// MIX_DEFAULT_FORMAT;
-	int audio_channels = 2;
-	int audio_buffers = 1024;
- 
-	if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
-		mSound = false;
-	}
-	else {
-		mSound = true;
-		Mix_ChannelFinished( Mixer_ChannelFinished );
 	}
 
 	SDL_RenderSetLogicalSize(mRenderer, 352, 216);

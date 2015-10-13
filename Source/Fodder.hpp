@@ -104,12 +104,12 @@ class cFodder : public cSingleton < cFodder > {
 	std::vector<const sVersion*> mVersions;
 
 	bool					mSkipIntro;
-	Mix_Music*				mMusicPlaying;
 	std::vector<cEvent>		mEvents;
 	
 	const sVersion*			mVersion;
 
 	cGraphics*				mGraphics;
+	cSound*					mSound;
 	cResources*				mResources;
 	cWindow*				mWindow;
 
@@ -635,22 +635,6 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_42076;
 	uint16			word_42078;
 
-	struct sVocLoaded {
-		uint8*		mBuffer;
-		size_t		mSize;
-	};
-	struct sVocPlaying {
-		int32		mChannel;
-		Mix_Chunk*	mCurrentChunk;
-	};
-	std::vector<sVocPlaying> mMixerChunks;
-
-	sVocLoaded*		word_42316[7];
-	sVocLoaded		dword_42320[0x3C];
-	sVocLoaded		dword_42410[0x3C];
-	sVocLoaded		dword_42500[0x3C];
-	sVocLoaded		dword_425F0[0x3C];
-	sVocLoaded		dword_426E0[0x3C];
 
 	int16			word_42851;
 	uint16			word_42859;
@@ -716,8 +700,6 @@ class cFodder : public cSingleton < cFodder > {
 
 public:
 	void			AFX_Show();
-	void			Music_PlayFile( const char* pFilename );
-	void			Music_Stop();
 
 	int16			Mission_Loop( );
 
@@ -806,9 +788,7 @@ public:
 	void			Sprite_Draw( );
 	void			sub_14CCB( int16& pData0 );
 
-	void			Sound_Voc_Load();
-	void			Sound_Voc_Play( sSprite* pSprite, int16 pData4, int16 pData8 );
-	void			Music_Play( int16 pTrack );
+	void			Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 );
 
 	// 14EAC
 	void			Briefing_Intro();

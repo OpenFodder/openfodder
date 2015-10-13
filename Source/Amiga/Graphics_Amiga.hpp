@@ -75,6 +75,8 @@ public:
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
 
+	Audio::AudioStream*	mMusic;
+
 	public:
 						cGraphics_Amiga();
 	virtual				~cGraphics_Amiga();
