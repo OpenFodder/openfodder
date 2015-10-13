@@ -111,15 +111,22 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "Window.hpp"
 #include "Graphics.hpp"
+#include "Sound.hpp"
 #include "Recruits.hpp"
 #include "GUI_Element.hpp"
 #include "Fodder.hpp"
 
 #include "PC/Graphics_PC.hpp"
+#include "PC/Sound_PC.hpp"
+
+#include "Amiga/paula.hpp"
+#include "Amiga/rjp1.hpp"
+#include "Amiga/Sound_Amiga.hpp"
 #include "Amiga/Graphics_Amiga.hpp"
 
 
-#define g_Fodder cFodder::GetSingleton()
-#define g_Window cWindow::GetSingleton()
-#define g_Resource cResources::GetSingleton()
-#define g_Graphics cGraphics::GetSingleton()
+#define g_Fodder	cFodder::GetSingleton()
+#define g_Window	cWindow::GetSingleton()
+#define g_Resource	cResources::GetSingleton()
+#define g_Graphics	cGraphics::GetSingleton()
+#define g_Sound		cSound::GetSingleton()

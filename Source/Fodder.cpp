@@ -22,16 +22,15 @@
 
 #include "stdafx.hpp"
 #include "UnknownData.hpp"
-#include "VocTable.hpp"
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
 cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
-	mMusicPlaying = 0;
 	mResources = 0;
 	mGraphics = 0;
+	mSound = 0;
 	mWindow = new cWindow();
 	mMapNumber = 0;
 
@@ -168,22 +167,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mGUI_Handle_Button_SelectSquad_Array[1] = &cFodder::GUI_Handle_Button_SelectSquad_1;
 	mGUI_Handle_Button_SelectSquad_Array[2] = &cFodder::GUI_Handle_Button_SelectSquad_2;
 
-	for (unsigned int x = 0; x < 0x3C; ++x) {
-		dword_42320[x].mBuffer = 0;
-		dword_42410[x].mBuffer = 0;
-		dword_42500[x].mBuffer = 0;
-		dword_425F0[x].mBuffer = 0;
-		dword_426E0[x].mBuffer = 0;
-	}
-
-	word_42316[0] = dword_42320;	// Jun
-	word_42316[1] = dword_42410;	// Des
-	word_42316[2] = dword_42500;	// Ice
-	word_42316[3] = dword_425F0;
-	word_42316[4] = dword_426E0;
-	word_42316[5] = 0;
-	word_42316[6] = dword_42500;	// Amiga Format Xmas
-
 	word_82132 = 0;
 
 	for (int16 x = 0; x < 45; ++x) {
@@ -196,14 +179,10 @@ cFodder::~cFodder() {
 	
 	delete mSurfaceMapOverview;
 
-	for (unsigned int x = 0; x < 0x3C; ++x) {
+	delete mResources;
+	delete mGraphics;
+	delete mSound;
 
-		delete[] dword_42320[x].mBuffer;
-		delete[] dword_42410[x].mBuffer;
-		delete[] dword_42500[x].mBuffer;
-		delete[] dword_425F0[x].mBuffer;
-		delete[] dword_426E0[x].mBuffer;
-	}
 }
 
 int16 cFodder::Mission_Loop( ) {
@@ -363,7 +342,7 @@ void cFodder::Mouse_Handle( ) {
 	if ((byte_427E6 | byte_427EE))
 		return;
 
-	Sound_Voc_Play( word_39FCE, word_3B44F, 0 );
+	Sound_Play( word_39FCE, word_3B44F, 0 );
 	word_3B44F = 0;
 }
 
@@ -1782,7 +1761,7 @@ void cFodder::map_Load_Resources() {
 
 void cFodder::sub_11E60() {
 
-	Music_Play(mMap_TileSet + 0x32);
+	mSound->Music_Play(mMap_TileSet + 0x32);
 }
 
 void cFodder::sub_11E6C( ) {
@@ -2360,7 +2339,7 @@ void cFodder::Mission_Text_Sprite_Mission( sSprite* pData2C ) {
 	pData2C->field_8 = 0xA2;
 	pData2C->field_18 = eSprite_Text_Mission;
 
-	Music_Play( 6 );
+	mSound->Music_Play( 6 );
 }
 
 void cFodder::Mission_Text_Sprite_Phase( sSprite* pData2C ) {
@@ -2371,7 +2350,7 @@ void cFodder::Mission_Text_Sprite_Phase( sSprite* pData2C ) {
 	pData2C->field_8 = 0xA1;
 	pData2C->field_18 = eSprite_Text_Phase;
 
-	Music_Play( 0x0C );
+	mSound->Music_Play( 0x0C );
 }
 
 void cFodder::Mission_Text_Sprite_Complete( sSprite* pData2C ) {
@@ -2403,7 +2382,7 @@ void cFodder::Mission_Text_TryAgain() {
 	Mission_Text_Sprite_Try(  &mSprites[41] );
 	Mission_Text_Sprite_Again(  &mSprites[42] );
 
-	Music_Play(0x0F);
+	mSound->Music_Play(0x0F);
 }
 
 void cFodder::Mission_Text_Sprite_Try( sSprite* pData2C ) {
@@ -2973,19 +2952,6 @@ void cFodder::mouse_ButtonCheck() {
 
 }
 
-void cFodder::MixerChannelFinished( int32 pChannel ) {
-
-	for (std::vector<sVocPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
-		
-		if (ChannelIT->mChannel == pChannel) {
-			Mix_FreeChunk( ChannelIT->mCurrentChunk );
-
-			mMixerChunks.erase( ChannelIT );
-			return;
-		}
-	}
-}
-
 void cFodder::VersionSelect_0() {
 	
 	VersionLoad( mVersions[0] );
@@ -3193,16 +3159,20 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 	delete mGraphics;
 	delete mResources;
+	delete mSound;
 
 	switch (mVersion->mPlatform) {
 		case ePlatform::PC:
 			mResources = new cResource_PC_CD( mVersion->mDataPath );
 			mGraphics = new cGraphics_PC();
+			mSound = new cSound_PC();
 			break;
 
 		case ePlatform::Amiga:
 			mResources = new cResource_Amiga_File( mVersion->mDataPath );
 			mGraphics = new cGraphics_Amiga();
+			mSound = new cSound_Amiga();
+
 			((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 			break;
 	}
@@ -3405,7 +3375,7 @@ void cFodder::Mission_Text_GameOver( sSprite* pData2C ) {
 	pData2C->field_8 = 0xC1;
 	pData2C->field_18 = eSprite_Text_GameOver;
 
-	Music_Play(8);
+	mSound->Music_Play(8);
 }
 
 void cFodder::Mouse_DrawCursor( ) {
@@ -3616,139 +3586,7 @@ loc_14D66:;
 	word_3B44F = word_3B449;
 }
 
-void cFodder::Sound_Voc_Load() {
-	if (mEffectDriver < 5)
-		return;
-
-	for (unsigned int x = 0; x < 0x3C; ++x) {
-		dword_42320[x].mSize = 0;
-		dword_42410[x].mSize = 0;
-		dword_42500[x].mSize = 0;
-		dword_425F0[x].mSize = 0;
-	}
-
-	struct_Voc* Voc = mVocTable;
-
-	for (; Voc->field_0 != 0xFF; ++Voc) {
-		size_t bx = 0;
-
-		uint8* VocFile = g_Resource.fileGet( Voc->mFilename, bx );
-
-		if (Voc->field_0 != 9) {
-			sVocLoaded* eax = word_42316[Voc->field_0];
-			eax[Voc->field_1].mBuffer = VocFile;
-			eax[Voc->field_1].mSize = bx;
-		} else {
-
-			dword_42320[Voc->field_1].mBuffer = VocFile;
-			dword_42320[Voc->field_1].mSize = bx;
-			dword_42410[Voc->field_1].mBuffer = VocFile;
-			dword_42410[Voc->field_1].mSize = bx;
-			dword_42500[Voc->field_1].mBuffer = VocFile;
-			dword_42500[Voc->field_1].mSize = bx;
-			dword_425F0[Voc->field_1].mBuffer = VocFile;
-			dword_425F0[Voc->field_1].mSize = bx;
-			dword_426E0[Voc->field_1].mBuffer = VocFile;
-			dword_426E0[Voc->field_1].mSize = bx;
-		}
-	}
-}
-
-void cFodder::Music_PlayFile( const char* pFilename ) {
-
-	if (mWindow->GetSound() == false)
-		return;
-
-	std::string Filename = "Data/WAV/";
-	Filename.append( pFilename );
-	Filename.append( ".wav" );
-
-	Mix_FreeMusic( mMusicPlaying );
-	SDL_Delay( 100 );
-
-	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
-
-	if (mMusicPlaying)
-		Mix_PlayMusic( mMusicPlaying, -1 );
-}
-
-void cFodder::Music_Stop() {
-	
-	if (mWindow->GetSound() == false)
-		return;
-
-	Mix_FadeOutMusic(500);
-}
-
-void cFodder::Music_Play( int16 pTrack ) {
-	
-	const char* Tracks[] = {
-		"rjp.JON(1)",
-		"rjp.JON(2)",
-		"rjp.JON(3)",
-		"rjp.JON(4)",
-		"rjp.JON(5)",
-		"rjp.JON(6)",
-		"rjp.JON(7)",
-		"rjp.JON(8)",
-		"rjp.JON(9)",
-		"rjp.JON(10)",
-		"rjp.JON(11)",
-		"rjp.JON(12)",
-		"rjp.JON(13)",
-		"rjp.JON(14)",
-		"rjp.JON(15)",
-		"rjp.JON(16)",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"rjp.JUNBASE(2)",
-		"rjp.DESBASE(2)",
-		"rjp.ICEBASE(2)",
-		"rjp.MORBASE(2)",
-		"rjp.INTBASE(2)",
-		"",
-		"",
-		"",
-	};
-
-	Music_PlayFile( Tracks[pTrack] );
-
-}
-
-void cFodder::Sound_Voc_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
-	sVocPlaying Playing;
+void cFodder::Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
 	int16 Data0 = 0;
 
 	int8 al = byte_3A9DA[0];
@@ -3793,21 +3631,8 @@ void cFodder::Sound_Voc_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
 
 	int16 bx = mMap_TileSet;
 	
-	sVocLoaded* eax = &word_42316[bx][pData4];
-	if (eax->mSize == 0 || mWindow->GetSound() == false )
-		return;
+	mSound->Sound_Play( bx, pData4 );
 
-	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, (int) eax->mSize );
-
-	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
-	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
-
-	if (Playing.mChannel == -1) {
-		Mix_FreeChunk( Playing.mCurrentChunk );
-		return;
-	}
-
-	mMixerChunks.push_back( Playing );
 }
 
 void cFodder::Briefing_Intro_Jungle( ) {
@@ -4019,11 +3844,12 @@ void cFodder::sub_151C6() {
 		word_4285B = 0x102C * 4;
 		sub_15A36( word_42865, word_42873 );
 
+		// Ice Caps
 		word_42859 = 0x18;
 		word_4285B = 0x1CE4 * 4;
 		sub_15A36( word_42863 , word_42871 );
 
-		// Trees (Main)
+		// Ice Mountains
 		word_42859 = 0x58;
 		word_4285B = 0x2524 * 4;
 		sub_15B86( word_42869, word_42871 );
@@ -4039,6 +3865,7 @@ void cFodder::sub_151C6() {
 
 		word_42859 = 0x2E;
 		word_4285B = 0x3394 * 4;
+		// Trees
 		sub_15A36( word_42861, word_4286F );
 
 		word_4286F += 8;
@@ -4329,7 +4156,7 @@ void cFodder::sub_15A36( uint8* pDs, int16 pCx ) {
 	ax -= 0x50;
 	word_4285F = -ax;
 
-	word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4) + 4;
+	word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
 	pCx &= 3;
 	int8 ah = 1;
 	ah <<= pCx;
@@ -4445,7 +4272,7 @@ void cFodder::Briefing_Intro() {
 	mGraphics->Briefing_Load_Resources();
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 
-	Music_Play( 0x07 );
+	mSound->Music_Play( 0x07 );
 
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 
@@ -4527,7 +4354,7 @@ void cFodder::Briefing_Draw_MissionName( ) {
 void cFodder::AFX_Show() {
 	word_82132 = 0;
 
-	Music_Stop();
+	mSound->Music_Stop();
 
 	mGraphics->imageLoad( "apmenu.lbm", 32 );
 	mGraphics->PaletteSet();
@@ -6397,7 +6224,7 @@ void cFodder::sub_23879( sSprite* pSprite ) {
 
 	Data2C->field_20 += 0x11;
 	Data2C->field_36 = 0x3C;
-	Sound_Voc_Play( pSprite, 5, 0x1E );
+	Sound_Play( pSprite, 5, 0x1E );
 	sub_23444( pSprite, Data2C );
 	
 	pSprite = Data20;
@@ -6485,7 +6312,7 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
 	Data30->field_2C = -1;
 	pData2C->field_38 = 0;
 
-	Sound_Voc_Play( pSprite, 0x2D, 0x0F );
+	Sound_Play( pSprite, 0x2D, 0x0F );
 	return -1;
 }
 
@@ -6785,7 +6612,7 @@ loc_24234:;
 
 	Data2C->field_20 += 0x11;
 	Data2C->field_36 = 0x3C;
-	Sound_Voc_Play( pSprite, 0x2C, 0x1E );
+	Sound_Play( pSprite, 0x2C, 0x1E );
 	sub_23444( pSprite, Data2C );
 	pSprite->field_57 = 0;
 	goto loc_24275;
@@ -6894,7 +6721,7 @@ void cFodder::sub_243E9( sSprite* pSprite ) {
 
 int16 cFodder::sub_2449E( sSprite* pSprite ) {
 	
-	Sound_Voc_Play( pSprite, 0x2B, 0x0F );
+	Sound_Play( pSprite, 0x2B, 0x0F );
 	if (!pSprite->field_5C)
 		return -1;
 
@@ -6984,7 +6811,7 @@ loc_24617:;
 
 	if (!sub_246CC( pSprite )) {
 		pSprite->field_5B = ~pSprite->field_5B;
-		Sound_Voc_Play( pSprite, 0x10, 0x1E );
+		Sound_Play( pSprite, 0x10, 0x1E );
 	}
 
 	//loc_246BC
@@ -7286,7 +7113,7 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	Data30->field_2C = -1;
 	pData2C->field_38 = 0;
 
-	Sound_Voc_Play( pSprite, 0x2C, 0x0F );
+	Sound_Play( pSprite, 0x2C, 0x0F );
 	return -1;
 }
 
@@ -7764,7 +7591,7 @@ void cFodder::sub_257D1( sSprite* pSprite ) {
 		int16 Data0 = tool_RandomGet() & 7;
 		int16 Data4 = byte_3D477[Data0];
 
-		Sound_Voc_Play( pSprite, Data4, 0x14 );
+		Sound_Play( pSprite, Data4, 0x14 );
 	}
 	else {
 		//loc_2584A
@@ -7980,7 +7807,7 @@ int16 cFodder::sub_25B6B( sSprite* pSprite ) {
 		Data4 = 0x10;
 
 	loc_25DA3:;
-		Sound_Voc_Play( pSprite, Data4, 0 );
+		Sound_Play( pSprite, Data4, 0 );
 	}
 
 	//loc_25DB1
@@ -8318,7 +8145,7 @@ loc_264CF:;
 	}
 
 	pSprite->field_8 = 0x9B;
-	Sound_Voc_Play( pSprite, 0x10, 1 );
+	Sound_Play( pSprite, 0x10, 1 );
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data4 = 0x14;
@@ -11341,7 +11168,7 @@ void cFodder::Service_Show() {
 	mGraphics->SetSpritePtr( eSPRITE_SERVICE );
 	mGraphics->PaletteSet();
 
-	Music_Play( 0 );
+	mSound->Music_Play( 0 );
 	Service_KIA_Loop();
 	Service_Promotion_Loop();
 	mouse_Setup();
@@ -12937,7 +12764,7 @@ void cFodder::Sprite_Handle_Grenade( sSprite* pSprite ) {
 
 	--pSprite->field_56;
 	if (!pSprite->field_56)
-		Sound_Voc_Play( pSprite, 0x0F, 0x0F );
+		Sound_Play( pSprite, 0x0F, 0x0F );
 	
 	Data24 = (sSprite*) pSprite->field_46;
 	pSprite->field_0 = Data24->field_0;
@@ -13809,7 +13636,7 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 	Data4 &= 3;
 	Data4 += 5;
 
-	Sound_Voc_Play( pSprite, Data4, 0x1E );
+	Sound_Play( pSprite, Data4, 0x1E );
 	pSprite->field_8 = 0x8E;
 	pSprite->field_A = 0;
 	pSprite->field_12 = 1;
@@ -13907,7 +13734,7 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite* pSprite ) {
 	}
 
 	pSprite->field_8 = 0x99;
-	Sound_Voc_Play( pSprite, 0x10, 0x01 );
+	Sound_Play( pSprite, 0x10, 0x01 );
 	Data0 = tool_RandomGet() & 0x0F;
 
 	Data4 = 0x14 - word_390C2;
@@ -14155,7 +13982,7 @@ void cFodder::Sprite_Handle_Building_Door2( sSprite* pSprite ) {
 
 	pSprite->field_8 = 0x9B;
 
-	Sound_Voc_Play( pSprite, 0x10, 1 );
+	Sound_Play( pSprite, 0x10, 1 );
 	Data0 = tool_RandomGet() & 0x0F;
 	Data4 = 0x14;
 
@@ -14407,7 +14234,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 
 		pSprite->field_56 -= 1;
 		if (!pSprite->field_56)
-			Sound_Voc_Play( pSprite, 0x2E, 0x0F );
+			Sound_Play( pSprite, 0x2E, 0x0F );
 
 		Data24 = (sSprite*)pSprite->field_46;
 		pSprite->field_0 = Data24->field_0;
@@ -15710,7 +15537,7 @@ loc_1D07B:;
 	pSprite->field_8 = 0x96;
 	pSprite->field_A = 0;
 
-	Sound_Voc_Play( pSprite, 0x2A, 0x0F );
+	Sound_Play( pSprite, 0x2A, 0x0F );
 	return;
 
 loc_1D0CB:;
@@ -15732,7 +15559,7 @@ loc_1D0F6:;
 		goto loc_1D18D;
 
 	pSprite->field_A = 3;
-	Sound_Voc_Play( pSprite, 0x2A, 0x0F );
+	Sound_Play( pSprite, 0x2A, 0x0F );
 loc_1D14D:;
 	if (pSprite->field_43 >= 0)
 		goto loc_1D0CB;
@@ -16090,7 +15917,7 @@ void cFodder::Sprite_Handle_Turret_Missile2_Human( sSprite* pSprite ) {
 }
 
 void cFodder::sub_1D7DD( sSprite* pSprite ) {
-	Sound_Voc_Play( pSprite, 0x2B, 0x0F );
+	Sound_Play( pSprite, 0x2B, 0x0F );
 	pSprite->field_A -= 1;
 
 	if (pSprite->field_A < 0)
@@ -16130,7 +15957,7 @@ void cFodder::Sprite_Handle_Building_Door3( sSprite* pSprite ) {
 	}
 
 	pSprite->field_8 = 0xE0;
-	Sound_Voc_Play( pSprite, 0x10, 1 );
+	Sound_Play( pSprite, 0x10, 1 );
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data4 = 0x14 - word_390C2;
@@ -16185,10 +16012,10 @@ void cFodder::sub_1DA48( sSprite* pSprite ) {
 
 	pSprite->field_2A -= 1;
 	if (!pSprite->field_2A) 
-		Sound_Voc_Play( pSprite, 0x29, 1 );
+		Sound_Play( pSprite, 0x29, 1 );
 	
 	if (pSprite->field_8 == 0x9B)
-		Sound_Voc_Play( pSprite, 0x29, 1 );
+		Sound_Play( pSprite, 0x29, 1 );
 
 	pSprite->field_8 = 0x7C;
 }
@@ -16550,7 +16377,7 @@ void cFodder::sub_14D6D( sSprite* pSprite, int16 pData4 ) {
 	if (mMap_TileSet == 4 || mMap_TileSet == 3)
 		Data8 = 0x7F;
 
-	Sound_Voc_Play( pSprite, pData4, Data8 );
+	Sound_Play( pSprite, pData4, Data8 );
 }
 
 int16 cFodder::sub_1E05A( sSprite* pSprite ) {
@@ -16652,7 +16479,7 @@ int16 cFodder::sub_1E05A( sSprite* pSprite ) {
 	Data4 = byte_3D477[Data0];
 	//seg004:5508
 	Data8 = 0x14;
-	Sound_Voc_Play( pSprite, Data4, Data8 );
+	Sound_Play( pSprite, Data4, Data8 );
 
 	if (pSprite->field_36 < 0x1E)
 		pSprite->field_36 += 0x0F;
@@ -16708,7 +16535,7 @@ loc_1E2F4:;
 
 	Data4 = byte_3D477[Data0];
 	Data8 = 0;
-	Sound_Voc_Play( pSprite, Data4, Data8 );
+	Sound_Play( pSprite, Data4, Data8 );
 	goto loc_1E737;
 
 loc_1E3D2:;
@@ -16723,7 +16550,7 @@ loc_1E3D2:;
 			Data0 = tool_RandomGet() & 7;
 			Data4 = byte_3D477[Data0];
 			Data8 = 0x14;
-			Sound_Voc_Play( pSprite, Data4, Data8 );
+			Sound_Play( pSprite, Data4, Data8 );
 		}
 	}
 	//loc_1E437
@@ -16869,7 +16696,7 @@ loc_1E74C:;
 		Data4 = 0x0E;
 		Data8 = 0x0A;
 
-		Sound_Voc_Play( pSprite, Data4, Data8 );
+		Sound_Play( pSprite, Data4, Data8 );
 		pSprite->field_8 = 0x38;
 		if (pSprite->field_22)
 			pSprite->field_8 = 0x7A;
@@ -16923,7 +16750,7 @@ loc_1E831:;
 		Data0 = tool_RandomGet() & 0x07;
 		Data4 = byte_3D477[Data0];
 		Data8 = 0x0A;
-		Sound_Voc_Play( pSprite, Data4, Data8 );
+		Sound_Play( pSprite, Data4, Data8 );
 		goto loc_1E9EC;
 	}
 	//loc_1E8D6
@@ -18773,12 +18600,10 @@ void cFodder::intro() {
 
 introDone:;
 	mIntroDone = -1;
-	//sub_1645F();
-	Music_Stop();
+	mSound->Music_Stop();
 
 	mGraphics->LoadpStuff();
-	//Sound_Unk();
-	Music_Play( 0 );
+	mSound->Music_Play( 0 );
 
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		mWindow->SetScreenSize( cDimension( 320, 224 ));
@@ -18786,7 +18611,7 @@ introDone:;
 
 void cFodder::intro_Music_Play() {
 
-	Music_PlayFile( "rjp.WARX4(1)" );
+	mSound->Music_Play( 16 );
 }
 
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
@@ -19145,7 +18970,7 @@ loc_209F3:;
 	else
 		Data4 = 0x10;
 
-	Sound_Voc_Play( pSprite, Data4, 0 );
+	Sound_Play( pSprite, Data4, 0 );
 	return 0;
 
 loc_20A2D:;
@@ -19914,7 +19739,7 @@ int16 cFodder::sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC ) {
 	Data4 += 5;
 
 	int16 Data8 = 0x1E;
-	Sound_Voc_Play( Data20, Data4, Data8 );
+	Sound_Play( Data20, Data4, Data8 );
 
 	pData2C->field_18 = 0x27;
 	pData2C->field_8 = 0x8E;
@@ -20826,7 +20651,7 @@ void cFodder::Start( int16 pStartMap ) {
 				word_3A9B2 = -1;
 				word_3901E = -1;
 
-				Music_Play( 0 );
+				mSound->Music_Play( 0 );
 				continue;
 			}
 

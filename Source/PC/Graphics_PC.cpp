@@ -114,8 +114,6 @@ void cGraphics_PC::Load_Sprite_Font() {
 	PaletteLoad( mFodder->mDataPStuff + 0xA000, 0x10, 0xD0 );
 
 	SetSpritePtr( eSPRITE_FONT );
-
-	mFodder->Sound_Voc_Load();
 }
 
 void cGraphics_PC::Load_Hill_Data() {
