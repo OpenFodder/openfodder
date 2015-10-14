@@ -3809,7 +3809,7 @@ void cFodder::sub_15397() {
 	} while (word_428D8 || mImageFaded != 0);
 }
 
-void cFodder::sub_151C6() {
+void cFodder::Briefing_Intro_Ice() {
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;
 	int16 word_42873 = 0;
@@ -4295,7 +4295,7 @@ void cFodder::Briefing_Intro() {
 			break;
 
 		case 2:
-			sub_151C6();
+			Briefing_Intro_Ice();
 			break;
 
 		case 3:
@@ -20663,6 +20663,10 @@ void cFodder::Start( int16 pStartMap ) {
 			map_SetTileType();
 			Mouse_Inputs_Get();
 			sub_18D5E();
+
+			mSound->Music_Stop();
+			mSound->Sound_Stop();
+
 			Sprite_Handle_Loop();
 			//seg000:05D1
 

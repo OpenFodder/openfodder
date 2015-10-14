@@ -30,6 +30,7 @@ class cSound : public cSingleton<cSound> {
 	virtual				~cSound() { };
 
 	virtual void		Sound_Play( int16 pBx, int16 pData4 ) = 0;
+	virtual void		Sound_Stop() { }
 
 	virtual void		Music_Play( int16 pTrack ) = 0;
 	virtual void		Music_Stop() = 0;

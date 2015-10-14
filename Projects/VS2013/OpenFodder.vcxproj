@@ -155,6 +155,7 @@
     <ClInclude Include="..\..\Source\Amiga\paula.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp" />
     <ClInclude Include="..\..\Source\Amiga\rjp1.hpp" />
+    <ClInclude Include="..\..\Source\Amiga\Sound_Amiga.hpp" />
     <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp" />
     <ClInclude Include="..\..\Source\GUI_Element.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
@@ -166,11 +167,13 @@
     <ClInclude Include="..\..\Source\MissionData.hpp" />
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp" />
+    <ClInclude Include="..\..\Source\PC\Sound_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp" />
     <ClInclude Include="..\..\Source\Position.hpp" />
     <ClInclude Include="..\..\Source\Recruits.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
     <ClInclude Include="..\..\Source\Singleton.hpp" />
+    <ClInclude Include="..\..\Source\Sound.hpp" />
     <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\stdafx.hpp" />
     <ClInclude Include="..\..\Source\Surface.hpp" />
@@ -187,6 +190,7 @@
     <ClCompile Include="..\..\Source\Amiga\paula.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp" />
     <ClCompile Include="..\..\Source\Amiga\rjp1.cpp" />
+    <ClCompile Include="..\..\Source\Amiga\Sound_Amiga.cpp" />
     <ClCompile Include="..\..\Source\GUI_Element.cpp" />
     <ClCompile Include="..\..\Source\Event.cpp" />
     <ClCompile Include="..\..\Source\Fodder.cpp" />
@@ -196,8 +200,10 @@
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />
+    <ClCompile Include="..\..\Source\PC\Sound_PC.cpp" />
     <ClCompile Include="..\..\Source\Recruits.cpp" />
     <ClCompile Include="..\..\Source\Resources.cpp" />
+    <ClCompile Include="..\..\Source\Sound.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />

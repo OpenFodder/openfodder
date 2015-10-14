@@ -22,6 +22,16 @@
 
 #include "stdafx.hpp"
 
+const sSoundData Tracks[] = {
+	{ "JON.SNG", "JON.INS" },
+	{ "WARX4.SNG", "WARX1.INS" },
+	{ "JUNBASE.SNG", "JUNBASE.INS" },
+	{ "DESBASE.SNG", "DESBASE.INS" },
+	{ "ICEBASE.SNG", "ICEBASE.INS" },
+	{ "MORBASE.SNG", "MORBASE.INS" },
+	{ "INTBASE.SNG", "INTBASE.INS" }
+};
+
 // Call back from Audio Device to fill audio output buffer
 void cSound_AudioCallback(void *userdata, Uint8 *stream, int len) {
 	cSound_Amiga  *sound = (cSound_Amiga*) userdata;
@@ -30,6 +40,8 @@ void cSound_AudioCallback(void *userdata, Uint8 *stream, int len) {
 }
 
 cSound_Amiga::cSound_Amiga() {
+	
+	mLock = SDL_CreateMutex();
 
 	mAudioSpec = 0;
 
@@ -38,11 +50,51 @@ cSound_Amiga::cSound_Amiga() {
 
 cSound_Amiga::~cSound_Amiga() {
 
+	Music_Stop();
+	Sound_Stop();
+
 	delete mAudioSpec;
+	delete[] mSound_Music.mCurrentMusicSongData;
+	delete[] mSound_Music.mCurrentMusicInstrumentData;
+
+	delete[] mSound_Sfx.mCurrentMusicSongData;
+	delete[] mSound_Sfx.mCurrentMusicInstrumentData;
+
+	SDL_AudioQuit();
+
+	SDL_DestroyMutex(mLock);
 }
 
 void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
+	memset(pBuffer, 0, pBufferSize);
+	
+	if (SDL_LockMutex( mLock ) == 0) {
 
+		if (mCurrentMusic && !mCurrentMusic->endOfData())
+			mCurrentMusic->readBuffer( pBuffer, pBufferSize / 2 );
+
+		if (mCurrentSfx.size()) {
+			for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end(); ++SfxIT) {
+
+				if (!(*SfxIT)->endOfData())
+					(*SfxIT)->readBuffer( pBuffer, pBufferSize / 2 );
+			}
+
+			for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end();) {
+
+				if ((*SfxIT)->endOfData()) {
+					delete (*SfxIT);
+
+					mCurrentSfx.erase( SfxIT );
+					SfxIT = mCurrentSfx.begin();
+					continue;
+				}
+
+				++SfxIT;
+			}
+		}
+		SDL_UnlockMutex( mLock );
+	}
 }
 
 // Prepare the local audio device
@@ -53,9 +105,9 @@ bool cSound_Amiga::devicePrepare() {
 	mAudioSpec = new SDL_AudioSpec();
 
 	// FM Quality, 16Bit Signed, Mono
-	desired->freq=22050;
+	desired->freq=44100;
 	desired->format=AUDIO_S16LSB;
-	desired->channels=0;
+	desired->channels=2;
 
 	// 2048 Samples, at 2 bytes per sample
 	desired->samples=0x800;
@@ -80,14 +132,83 @@ bool cSound_Amiga::devicePrepare() {
 	return true;
 }
 
+int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
+	size_t Number = 0;
+	const sSoundData *Track = 0;
+	
+	// Intro
+	if (pTrack >= 16 && pTrack <= 17) {
+		Track = &Tracks[1];
+		Number = (pTrack - 16);
+	}
+
+	// Mission
+	if (pTrack >= 0x32) {
+		Track = &Tracks[2 + (pTrack - 0x32)];
+		Number = 1;
+	}
+
+	// Jon 
+	if (pTrack < 16) {
+		Track = &Tracks[0];
+		Number = pTrack;
+	}
+
+	if (pSound->mTrack != Track) {
+		delete[] pSound->mCurrentMusicSongData;
+		delete[] pSound->mCurrentMusicInstrumentData;
+
+		pSound->mCurrentMusicSongData = g_Resource.fileGet( Track->mSongData, pSound->mCurrentSongDataSize );
+		pSound->mCurrentMusicInstrumentData = g_Resource.fileGet( Track->mInstrumentData, pSound->mCurrentInstrumentDataSize );
+		pSound->mTrack = Track;
+	}
+
+	return Number;
+}
+
 void cSound_Amiga::Sound_Play( int16 pBx, int16 pData4 ) {
 
+	Track_Load( &mSound_Sfx, pBx + 0x32 );
+
+	Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData,  mSound_Sfx.mCurrentMusicInstrumentData, mSound_Sfx.mCurrentInstrumentDataSize, -pData4 );
+	mCurrentSfx.push_back( Sfx );
+
+	SDL_PauseAudio(0);
 }
 
 void cSound_Amiga::Music_Play( int16 pTrack ) {
+	
+	int16 Number = Track_Load( &mSound_Music, pTrack );
+		
+	Music_Stop();
 
+	mCurrentMusic = Audio::makeRjp1Stream( mSound_Music.mCurrentMusicSongData, mSound_Music.mCurrentMusicInstrumentData, mSound_Music.mCurrentInstrumentDataSize, Number );
+	
+	SDL_PauseAudio(0);
 }
 
 void cSound_Amiga::Music_Stop() {
 
+	if (SDL_LockMutex( mLock ) == 0) {
+
+		delete mCurrentMusic;
+		mCurrentMusic = 0;
+
+		SDL_UnlockMutex(mLock);
+	}
+}
+
+void cSound_Amiga::Sound_Stop() {
+	
+	if (SDL_LockMutex( mLock ) == 0) {
+
+		for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end(); ++SfxIT) {
+
+			delete (*SfxIT);
+		}
+
+		mCurrentSfx.clear();
+
+		SDL_UnlockMutex(mLock);
+	}
 }

@@ -61,7 +61,7 @@ void Paula::clearVoice(uint8 voice) {
 
 int Paula::readBuffer(int16 *buffer, const int numSamples) {
 
-	memset(buffer, 0, numSamples * 2);
+	//memset(buffer, 0, numSamples * 2);
 	if (!_playing) {
 		return numSamples;
 	}

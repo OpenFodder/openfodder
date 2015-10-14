@@ -64,6 +64,7 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	memset( &mPaletteCopt, 0, 0x20 );
 	memset( &mPalletePStuff, 0, 0x20 );
 	memset( &mPalleteHill, 0, 0x20 );
+
 }
 
 cGraphics_Amiga::~cGraphics_Amiga() {

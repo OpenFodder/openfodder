@@ -77,6 +77,8 @@ cSound_PC::~cSound_PC() {
 		if (dword_426E0[x].mCleanup)
 			delete[] dword_426E0[x].mBuffer;
 	}
+
+	Mix_CloseAudio();
 }
 
 void cSound_PC::Sound_Voc_Load() {
@@ -139,7 +141,6 @@ bool cSound_PC::devicePrepare() {
 		Mix_ChannelFinished( Mixer_ChannelFinished );
 	}
 
-
 	return true;
 }
 
@@ -159,7 +160,7 @@ void cSound_PC::MixerChannelFinished( int32 pChannel ) {
 void cSound_PC::Sound_Play( int16 pBx, int16 pData4 ) {
 	sVocPlaying Playing;
 	sVocLoaded* eax = &word_42316[pBx][pData4];
-	if (eax->mSize == 0 )
+	if (eax->mSize == 0 || mSound == false )
 		return;
 
 	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, (int) eax->mSize );
