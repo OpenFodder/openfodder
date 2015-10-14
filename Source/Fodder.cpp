@@ -2534,8 +2534,8 @@ void cFodder::Mission_Map_Overview_Show() {
 	eax -= 8;
 	word_3F954 = eax & 0xFFFF;
 
-	mDrawSpritePositionX =  word_39FCE->field_0 - 0x10;
-	mDrawSpritePositionY =  word_39FCE->field_4 - 0x10;
+	mDrawSpritePositionX =  (word_39FCE->field_0 - 0x10) + mSurfaceMapLeft * 16;
+	mDrawSpritePositionY =  (word_39FCE->field_4 - 0x10) + mSurfaceMapTop * 16;
 	byte_42070 = 0xF0;
 
 	mGraphics->PaletteSetOverview();
@@ -2581,7 +2581,9 @@ void cFodder::Map_Overview_Prepare() {
 		return;
 
 	delete mSurfaceMapOverview;
-	mSurfaceMapOverview = new cSurface( mMapWidth * 16, mMapHeight * 16 );
+	size_t Size = mMapWidth < mMapHeight ? mMapHeight : mMapWidth;
+
+	mSurfaceMapOverview = new cSurface( Size * 16, Size * 16 );
 	mSurfaceMapOverview->clearBuffer();
 
 	word_3FA1F = mMapNumber;
@@ -2664,6 +2666,20 @@ void cFodder::Map_Overview_Prepare() {
 	//uint16 dx = readLEWord( &mMap[0x56] );
 	//int32 Data14 = 0;
 	//int16 Data16 = word_3F950;
+	mSurfaceMapTop = mSurfaceMapLeft = 0;
+
+	if (mMapHeight < mMapWidth) {
+		mSurfaceMapTop = (mMapWidth / 2) - (mMapHeight/2);
+		if (mSurfaceMapTop < 0)
+			mSurfaceMapTop = 0;
+
+	}
+
+	if (mMapWidth < mMapHeight) {
+		mSurfaceMapLeft = (mMapHeight / 2) - (mMapWidth/2);
+		if (mSurfaceMapLeft < 0)
+			mSurfaceMapLeft = 0;
+	}
 
 	for (uint16 dx = 0; dx < mMapHeight; ++dx) {
 		//uint16 cx = readLEWord( &mMap[0x54] );
@@ -2673,7 +2689,7 @@ void cFodder::Map_Overview_Prepare() {
 
 		for (uint16 cx = 0; cx < mMapWidth; ++cx) {
 
-			mGraphics->sub_2B04B( *Di & 0x1FF, cx, dx );
+			mGraphics->sub_2B04B( *Di & 0x1FF, cx + mSurfaceMapLeft, dx + mSurfaceMapTop );
 			
 			++Di;
 			//Data10 += dword_3F946;
