@@ -16463,10 +16463,10 @@ int16 cFodder::sub_1E05A( sSprite* pSprite ) {
 	pSprite->field_A = 0;
 	pSprite->field_2A = 0;
 
-	if (pSprite->field_1A < (int32*) 0xB0000) {
+	if (((int64)pSprite->field_1A) < 0xB0000) {
 		int32 Dataa0 = tool_RandomGet() & 0x07;
 		Dataa0 += 2;
-		Dataa0 = (Dataa0 << 16);
+		Dataa0 = (Dataa0 << 16) | (Dataa0 >> 16);
 		Dataa0 += (int64) pSprite->field_1A;
 
 		pSprite->field_1A = (int32*) Dataa0;
@@ -16613,9 +16613,9 @@ loc_1E3D2:;
 	Dataa4 = Dataa0;
 	Dataa0 += ((pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16));
 
-	pSprite->field_1E = Dataa4;
-	pSprite->field_20 = Dataa4 >> 16;
-	if (pSprite->field_1E < 0) {
+	pSprite->field_1E = Dataa0 & 0xFFFF;
+	pSprite->field_20 = Dataa0 >> 16;
+	if (Dataa0 < 0) {
 		pSprite->field_1E = 0;
 		pSprite->field_20 = 0;
 		Dataa4 = -Dataa4;
