@@ -134,6 +134,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	cSurface*		mSurfaceMapOverview;
 	cSurface*		mImage;
+	uint32			mSurfaceMapTop, mSurfaceMapLeft;
 
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
