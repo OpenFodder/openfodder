@@ -29,7 +29,9 @@ const sSoundData Tracks[] = {
 	{ "DESBASE.SNG", "DESBASE.INS" },
 	{ "ICEBASE.SNG", "ICEBASE.INS" },
 	{ "MORBASE.SNG", "MORBASE.INS" },
-	{ "INTBASE.SNG", "INTBASE.INS" }
+	{ "INTBASE.SNG", "INTBASE.INS" },
+	{ "", "" },
+	{ "AFXBASE.SNG", "AFXBASE.INS" }
 };
 
 // Call back from Audio Device to fill audio output buffer
@@ -170,8 +172,10 @@ void cSound_Amiga::Sound_Play( int16 pBx, int16 pData4 ) {
 
 	Track_Load( &mSound_Sfx, pBx + 0x32 );
 
-	Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData,  mSound_Sfx.mCurrentMusicInstrumentData, mSound_Sfx.mCurrentInstrumentDataSize, -pData4 );
-	mCurrentSfx.push_back( Sfx );
+	if (mSound_Sfx.mCurrentMusicSongData && mSound_Sfx.mCurrentMusicInstrumentData) {
+		Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, mSound_Sfx.mCurrentInstrumentDataSize, -pData4 );
+		mCurrentSfx.push_back( Sfx );
+	}
 
 	SDL_PauseAudio(0);
 }
@@ -182,7 +186,8 @@ void cSound_Amiga::Music_Play( int16 pTrack ) {
 		
 	Music_Stop();
 
-	mCurrentMusic = Audio::makeRjp1Stream( mSound_Music.mCurrentMusicSongData, mSound_Music.mCurrentMusicInstrumentData, mSound_Music.mCurrentInstrumentDataSize, Number );
+	if (mSound_Music.mCurrentMusicSongData && mSound_Music.mCurrentMusicInstrumentData)
+		mCurrentMusic = Audio::makeRjp1Stream( mSound_Music.mCurrentMusicSongData, mSound_Music.mCurrentMusicInstrumentData, mSound_Music.mCurrentInstrumentDataSize, Number );
 	
 	SDL_PauseAudio(0);
 }

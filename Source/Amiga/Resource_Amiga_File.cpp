@@ -35,8 +35,8 @@ uint8* cResource_Amiga_File::fileGet( std::string pFilename, size_t &pFileSize )
 
 	uint8* File = cResources::fileGet( pFilename, pFileSize );
 	if (!File) {
-		std::cout << "File " << pFilename << " Not Found!\n";
-		exit( 1 );
+		//std::cout << "File " << pFilename << " Not Found!\n";
+		//exit( 1 );
 		return 0;
 	}
 	uint32 Header = readBEDWord( File );
