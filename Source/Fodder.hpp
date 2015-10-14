@@ -795,7 +795,7 @@ public:
 
 	void			Briefing_Intro_Jungle();
 	void			sub_15397();
-	void			sub_151C6();
+	void			Briefing_Intro_Ice();
 	void			sub_15568();
 	void			sub_15739();
 

@@ -50,6 +50,8 @@ bool Rjp1::load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSi
 				return false;
 
 			memcpy( _vars.songData[i], songData, size );
+			songData += size;
+
 			switch (i) {
 			case 0:
 				_vars.instrumentsCount = size / 32;
@@ -80,6 +82,7 @@ bool Rjp1::load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSi
 				return false;
 
 			memcpy( _vars.instData, instrumentsData, size );
+			instrumentsData += size;
 		}
 	}
 
@@ -111,7 +114,7 @@ void Rjp1::startPattern(int ch, int pat) {
 void Rjp1::startSong(int song) {
 	if (song == 0 || song >= _vars.subsongsCount) {
 		//warning("Invalid subsong number %d, defaulting to 1", song);
-		song = 1;
+		//song = 1;
 	}
 	const uint8 *p = _vars.songData[2] + (song & 0x3F) * 4;
 	for (int i = 0; i < 4; ++i) {

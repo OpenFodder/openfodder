@@ -20,23 +20,55 @@
  *
  */
 
-class cSound_Amiga : public cSound {
+struct sSoundData {
+	const char* mSongData;
+	const char* mInstrumentData;
+};
 
-	SDL_AudioSpec*		mAudioSpec;
-	int					mVal;
+struct sSound {
+	uint8*								mCurrentMusicSongData;
+	uint8*								mCurrentMusicInstrumentData;
+	size_t								mCurrentSongDataSize;
+	size_t								mCurrentInstrumentDataSize;
+
+	const sSoundData*					mTrack;
+
+	sSound() {
+		mCurrentMusicSongData = 0;
+		mCurrentMusicInstrumentData = 0;
+		mCurrentSongDataSize = 0;
+		mCurrentInstrumentDataSize = 0;
+		mTrack = 0;
+	}
+};
+
+class cSound_Amiga : public cSound {
+	Audio::AudioStream*					mCurrentMusic;
+	sSound								mSound_Music;
+	sSound								mSound_Sfx;
+
+	SDL_AudioSpec*						mAudioSpec;
+	int									mVal;
+	SDL_mutex*							mLock;
+
+	std::vector<Audio::AudioStream*>	mCurrentSfx;
+
+
+private:
 
 	bool				devicePrepare();
 
-	public:
+public:
 
 						cSound_Amiga();
 						~cSound_Amiga();
 
 	void				audioBufferFill( short *pBuffer, int pBufferSize );
 
-
+	int16				Track_Load( sSound* pSound, int16 pTrack );
 	void				Sound_Play( int16 pBx, int16 pData4 );
 
 	void				Music_Play( int16 pTrack );
 	void				Music_Stop();
+	void				Sound_Stop();
 };

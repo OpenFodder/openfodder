@@ -102,6 +102,15 @@
     <ClInclude Include="..\..\Source\Amiga\rjp1.hpp">
       <Filter>Source\Amiga</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Sound_Amiga.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\Sound_PC.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Sound.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -155,9 +164,6 @@
     <ClCompile Include="..\..\Source\Amiga\IntroData_Amiga.cpp">
       <Filter>Source\Amiga</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\GUI_Element.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -166,6 +172,18 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Amiga\rjp1.cpp">
       <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Sound_Amiga.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Sound_PC.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Sound.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
