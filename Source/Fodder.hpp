@@ -502,7 +502,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMapGoals[8];
 	int16			word_3B447;
 	int16			word_3B449;
-	int16			word_3B44F;
+	int16			mSoundEffectToPlay;
 
 	int16			word_3B461[3];
 	sSprite*		dword_3B477;
@@ -787,7 +787,7 @@ public:
 
 	bool			Sprite_OnScreen_Check();
 	void			Sprite_Draw( );
-	void			sub_14CCB( int16& pData0 );
+	void			Sprite_Map_Sound_Play( int16& pData0 );
 
 	void			Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 );
 
@@ -885,7 +885,7 @@ public:
 	void			sub_199B2( sSprite* pSprite );							// 3
 	void			Sprite_Handle_Enemy( sSprite* pSprite );				// 5
 	void			Sprite_Handle_Bullet( sSprite* pSprite );				// 6
-	void			sub_19E65( sSprite* pSprite );
+	void			Sprite_Handle_Helicopter_Unk( sSprite* pSprite );
 	void			Sprite_Handle_Explosion( sSprite* pSprite );			// 12
 	void			Sprite_Handle_Shrub( sSprite* pSprite );				// 13
 	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14

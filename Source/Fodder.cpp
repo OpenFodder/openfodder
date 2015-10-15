@@ -91,7 +91,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	mMapTilePtr = 0;
 
-	word_3B44F = 0;
+	mSoundEffectToPlay = 0;
 	word_3B4F5 = 0;
 	word_3BEC1 = 0;
 	word_3BEC3 = 0;
@@ -338,14 +338,14 @@ void cFodder::Mouse_Handle( ) {
 		return;
 	}
 
-	if (!word_3B44F)
+	if (!mSoundEffectToPlay)
 		return;
 
 	if ((byte_427E6 | byte_427EE))
 		return;
 
-	Sound_Play( word_39FCE, word_3B44F, 0 );
-	word_3B44F = 0;
+	Sound_Play( word_39FCE, mSoundEffectToPlay, 0 );
+	mSoundEffectToPlay = 0;
 }
 
 void cFodder::sub_10937() {
@@ -3588,12 +3588,11 @@ void cFodder::Sprite_Draw( ) {
 	}
 }
 
-void cFodder::sub_14CCB( int16 &pData0 ) {
+void cFodder::Sprite_Map_Sound_Play( int16 &pData0 ) {
 
 	word_3B449 = pData0;
-	sSprite* Data28 = word_39FCE;
 
-	if (Data28 == INVALID_SPRITE_PTR )
+	if (word_39FCE == INVALID_SPRITE_PTR )
 		 return;
 
 	goto loc_14D66;
@@ -3601,7 +3600,7 @@ void cFodder::sub_14CCB( int16 &pData0 ) {
 	// UNUSED BLOLCK
 
 loc_14D66:;
-	word_3B44F = word_3B449;
+	mSoundEffectToPlay = word_3B449;
 }
 
 void cFodder::Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
@@ -6070,7 +6069,7 @@ void cFodder::sub_23525( sSprite* pSprite ) {
 	if (Data4 > 0x20)
 		Data4 = 0x20;
 
-	sub_14CCB( Data0 );
+	Sprite_Map_Sound_Play( Data0 );
 
 loc_2356B:;
 	pSprite->field_6F = 4;
@@ -6366,7 +6365,7 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
 	
 	if (pSprite->field_38) {
 		pSprite->field_22 = 0;
-		sub_19E65( pSprite );
+		Sprite_Handle_Helicopter_Unk( pSprite );
 		pSprite->field_22 = 0;
 
 		return;
@@ -6376,7 +6375,7 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
 
 	word_3B175 = 0;
 	pSprite->field_22 = 0;
-	sub_19E65( pSprite );
+	Sprite_Handle_Helicopter_Unk( pSprite );
 	pSprite->field_22 = 0;
 	word_3B175 = 0;
 
@@ -7318,7 +7317,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 		word_3B175 = -1;
 
 		pSprite->field_22 = 1;
-		sub_19E65( pSprite );
+		Sprite_Handle_Helicopter_Unk( pSprite );
 		pSprite->field_22 = 1;
 
 		word_3B175 = 0;
@@ -7467,7 +7466,7 @@ loc_251D2:;
 loc_25239:;
 	word_3B175 = -1;
 	pSprite->field_22 = 1;
-	sub_19E65(pSprite);
+	Sprite_Handle_Helicopter_Unk(pSprite);
 
 	pSprite->field_22 = 1;
 	word_3B175 = 0;
@@ -13176,7 +13175,7 @@ loc_19E50:;
 	goto loc_19E3D;
 }
 
-void cFodder::sub_19E65( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_Unk( sSprite* pSprite ) {
 	word_3B4ED[0] = 0;
 	int16 Data0 = tool_RandomGet() & 0x0E;
 	int16 Data4, Data8, DataC, Data10, Data14, Data18, Data1C;
@@ -13209,7 +13208,7 @@ loc_19EC0:;
 		Data0 = 0;//TODO: Sound Effects for Plus Chopper
 	}
 
-	sub_14CCB( Data0 );
+	Sprite_Map_Sound_Play( Data0 );
 loc_19EE5:;
 	pSprite->field_65 = -1;
 
@@ -14148,7 +14147,7 @@ void cFodder::sub_1B4BB( sSprite* pSprite ) {
 		Data0 = 3;
 	Data0 += 0x38;
 
-	sub_14CCB( Data0 );
+	Sprite_Map_Sound_Play( Data0 );
 
 loc_1B523:;
 	pSprite->field_65 = -1;
