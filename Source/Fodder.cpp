@@ -260,7 +260,9 @@ int16 cFodder::Mission_Loop( ) {
 		}
 
 		if (mMission_ShowMapOverview) {
-			Mission_Map_Overview_Show();
+			if (mVersion->mRelease == eRelease::Retail)
+				Mission_Map_Overview_Show();
+
 			mMission_ShowMapOverview = 0;
 		}
 
@@ -7299,7 +7301,7 @@ loc_255DA:;
 	Data24->field_20 = pSprite->field_20;
 }
 
-void cFodder::sub_24ED7( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 	int16 Data0;
 	int16 Data4;
 	int16 Data8;
@@ -13203,6 +13205,10 @@ loc_19EC0:;
 	if (Data4 < 0x10)
 		Data4 = 0x10;
 
+	if (mVersion->mKey == "Plus") {
+		Data0 = 0;//TODO: Sound Effects for Plus Chopper
+	}
+
 	sub_14CCB( Data0 );
 loc_19EE5:;
 	pSprite->field_65 = -1;
@@ -13239,7 +13245,7 @@ loc_19F50:;
 	if (pSprite->field_2A < 0)
 		goto loc_19FBC;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF)| pSprite->field_20 << 16;
+	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E -= 0x18000;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
@@ -13333,7 +13339,7 @@ loc_1A149:;
 	if (!pSprite->field_6E)
 		goto loc_1A316;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | pSprite->field_20 << 16;
+	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E -= 0xC000;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
@@ -13367,7 +13373,7 @@ loc_1A217:;
 	if (!pSprite->field_6E)
 		goto loc_1A316;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | pSprite->field_20 << 16;
+	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E -= 0xC000;
 	pSprite->field_1E = Field_1E & 0xFFFF;
 	pSprite->field_20 = Field_1E >> 16;
@@ -13399,7 +13405,7 @@ loc_1A287:;
 		goto loc_1A316;
 
 	if (pSprite->field_20) {
-		Field_1E = (pSprite->field_1E & 0xFFFF) | pSprite->field_20 << 16;
+		Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 		Field_1E -= 0x8000;
 		pSprite->field_1E = Field_1E & 0xFFFF;
 		pSprite->field_20 = Field_1E >> 16;
@@ -13467,7 +13473,7 @@ loc_1A404:;
 	Data24->field_20 = Data0;
 
 	if (!word_3B4ED[0])
-		if (!((pSprite->field_1E & 0xFFFF) | pSprite->field_20 << 16))
+		if (!((pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16)))
 			goto loc_1A49C;
 
 	if (pSprite->field_20 < 0x0C)
@@ -14519,7 +14525,7 @@ loc_1BD06:;
 void cFodder::Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite ) {
 
 	pSprite->field_6F = 6;
-	sub_24ED7( pSprite );
+	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_Flashing_Light( sSprite* pSprite ) {
@@ -14541,19 +14547,19 @@ void cFodder::Sprite_Handle_Flashing_Light( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_Helicopter_Grenade2_Enemy( sSprite* pSprite ) {
 
 	pSprite->field_6F = 5;
-	sub_24ED7( pSprite );
+	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_Helicopter_Missile_Enemy( sSprite* pSprite ) {
 	
 	pSprite->field_6F = 7;
-	sub_24ED7( pSprite );
+	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_Helicopter_HomingMissile_Enemy( sSprite* pSprite ) {
 	
 	pSprite->field_6F = 8;
-	sub_24ED7( pSprite );
+	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
