@@ -78,13 +78,13 @@ void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
 		if (mCurrentSfx.size()) {
 			for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end(); ++SfxIT) {
 
-				if (!(*SfxIT)->endOfData())
+				if (!(*SfxIT)->endOfStream())
 					(*SfxIT)->readBuffer( pBuffer, pBufferSize / 2 );
 			}
 
 			for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end();) {
 
-				if ((*SfxIT)->endOfData()) {
+				if ((*SfxIT)->endOfStream()) {
 					delete (*SfxIT);
 
 					mCurrentSfx.erase( SfxIT );
@@ -112,7 +112,7 @@ bool cSound_Amiga::devicePrepare() {
 	desired->channels=2;
 
 	// 2048 Samples, at 2 bytes per sample
-	desired->samples=0x800;
+	desired->samples=0x400;
 
 	// Function to call when the audio playback buffer is empty
 	desired->callback = cSound_AudioCallback;
@@ -172,9 +172,13 @@ void cSound_Amiga::Sound_Play( int16 pBx, int16 pData4 ) {
 
 	Track_Load( &mSound_Sfx, pBx + 0x32 );
 
-	if (mSound_Sfx.mCurrentMusicSongData && mSound_Sfx.mCurrentMusicInstrumentData) {
-		Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, mSound_Sfx.mCurrentInstrumentDataSize, -pData4 );
-		mCurrentSfx.push_back( Sfx );
+	if (SDL_LockMutex( mLock ) == 0) {
+		if (mSound_Sfx.mCurrentMusicSongData && mSound_Sfx.mCurrentMusicInstrumentData) {
+			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, mSound_Sfx.mCurrentInstrumentDataSize, -pData4 );
+			mCurrentSfx.push_back( Sfx );
+		}
+
+		SDL_UnlockMutex( mLock );
 	}
 
 	SDL_PauseAudio(0);

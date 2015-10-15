@@ -1087,7 +1087,7 @@ public:
 	int16			Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
 	int16			sub_2531F( sSprite* pSprite, sSprite*& pData30 );
 	void			Sprite_Handle_Vehicle_Enemy( sSprite* pSprite );
-	void			sub_24ED7( sSprite* pSprite );
+	void			Sprite_Handle_Helicopter_Enemy( sSprite* pSprite );
 	void			sub_25863( sSprite* pSprite );
 	void			sub_258C6( sSprite* pSprite );
 	int16			sub_25680( sSprite* pSprite );
