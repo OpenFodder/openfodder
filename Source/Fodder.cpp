@@ -213,7 +213,7 @@ int16 cFodder::Mission_Loop( ) {
 			Mission_Sidebar_Refresh();
 
 		//loc_10768
-		sub_12790();
+		Mission_Progress_Check();
 		mHelicopterCallPadPressedCount = 0;
 		if (word_3A9B8 >= 0)
 			--word_3A9B8;
@@ -605,8 +605,8 @@ void cFodder::Mission_Memory_Clear() {
 	word_39F54 = 0;
 	dword_39F56 = 0;
 	dword_39F5A = 0;
-	word_39F5E = 0;
-	word_39F60 = 0;
+	mCamera_Adjust_Col_High = 0;
+	mCamera_Adjust_Row_High = 0;
 	word_39F66 = 0;
 	dword_39F84 = 0;
 	dword_39F88 = 0;
@@ -885,7 +885,7 @@ void cFodder::Mission_Memory_Clear() {
 		word_3B461[x] = 0;
 
 	for (uint16 x = 0; x < 8; ++x)
-		mMapGoals[x] = 0;
+		mMap_Goals[x] = 0;
 
 	dword_3B477 = 0;
 	word_3B47B = 0;
@@ -1611,8 +1611,8 @@ void cFodder::Camera_Calculate_Scroll() {
 
 void cFodder::sub_11CAD() {
 
-	word_39F5E = mCamera_Adjust_Col >> 16;
-	word_39F60 = mCamera_Adjust_Row >> 16;
+	mCamera_Adjust_Col_High = mCamera_Adjust_Col >> 16;
+	mCamera_Adjust_Row_High = mCamera_Adjust_Row >> 16;
 	word_39F52 = 0;
 	word_39F54 = 0;
 	dword_39F4A &= 0x0000FFFF;
@@ -1856,18 +1856,18 @@ void cFodder::sub_11FCD() {
 
 		if (mMouseX > 0x0F) {
 			int16 Data0 = mCamera_Adjust_Col >> 16;
-			Data0 -= word_39F5E;
+			Data0 -= mCamera_Adjust_Col_High;
 
 			mMouseX -= Data0;
 			Data0 = mCamera_Adjust_Row >> 16;
-			Data0 -= word_39F60;
+			Data0 -= mCamera_Adjust_Row_High;
 			mMouseY -= Data0;
 
 		}
 	}
 	//loc_12007
-	word_39F5E = mCamera_Adjust_Col >> 16;
-	word_39F60 = mCamera_Adjust_Row >> 16;
+	mCamera_Adjust_Col_High = mCamera_Adjust_Col >> 16;
+	mCamera_Adjust_Row_High = mCamera_Adjust_Row >> 16;
 }
 
 void cFodder::sub_12018() {
@@ -1904,8 +1904,8 @@ void cFodder::Camera_Reset() {
 	dword_39F4E &= 0x0000FFFF;
 	word_39F52 = 0;
 	word_39F54 = 0;
-	word_39F5E = 0;
-	word_39F60 = 0;
+	mCamera_Adjust_Col_High = 0;
+	mCamera_Adjust_Row_High = 0;
 	dword_39F42 = 0;
 	dword_39F46 = 0;
 	dword_39F56 = 0;
@@ -2228,18 +2228,18 @@ void cFodder::Mission_Goals_Check() {
 	}
 	
 	word_3A9B0 = DataC;
-	if(mMapGoals[1]) {
+	if(mMap_Goals[1]) {
 		if( DataC )
 			return;
 	}
 	
-	if(mMapGoals[0]) {
+	if(mMap_Goals[0]) {
 		if(Data8)
 			return;
 	}
 	
-	if(!mMapGoals[4]) {
-		if(!mMapGoals[2])
+	if(!mMap_Goals[4]) {
+		if(!mMap_Goals[2])
 			goto loc_126A6;
 	}
 	
@@ -2247,7 +2247,7 @@ void cFodder::Mission_Goals_Check() {
 		return;
 	
 	loc_126A6:;
-	if(!mMapGoals[7] || word_3B47B ) 
+	if(!mMap_Goals[7] || word_3B47B ) 
 		 mMissionComplete = -1;
 }
 
@@ -2266,11 +2266,11 @@ void cFodder::Mission_Goals_Set() {
 
 		int8 Data0 = *Data20;
 		
-		mMapGoals[Data0-1] = -1;
+		mMap_Goals[Data0-1] = -1;
 	}
 }
 
-void cFodder::sub_12790( ) {
+void cFodder::Mission_Progress_Check( ) {
 	
 	if (mMissionComplete >= 0)
 		if (!word_3A9B2)
@@ -6508,7 +6508,7 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	DataC = -1;
 	Data10 = -1;
 
-	if (mMapGoals[7]) {
+	if (mMap_Goals[7]) {
 		Data4 = eSprite_Indigenous;
 		Data8 = 0x3E;
 		DataC = 0x46;
@@ -7603,10 +7603,10 @@ void cFodder::sub_257D1( sSprite* pSprite ) {
 	if (pSprite->field_8 != 0xD6) {
 		word_3B2D1[2] = -1;
 
-		if (mMapGoals[3])
+		if (mMap_Goals[3])
 			word_3A9B2 = -1;
 
-		if (mMapGoals[7])
+		if (mMap_Goals[7])
 			word_3A9B2 = -1;
 
 		pSprite->field_8 = 0xD6;
@@ -8142,7 +8142,7 @@ void cFodder::sub_264B0( sSprite* pSprite ) {
 	if (!sub_222A3( pSprite ))
 		goto loc_264CF;
 
-	if (!mMapGoals[3])
+	if (!mMap_Goals[3])
 		return;
 
 	word_3A9B2 = -1;
@@ -10287,13 +10287,10 @@ loc_2DFC7:;
 
 	mDrawSpritePositionY = ax;
 
-	//word_42062 = (uint8*) mGraphicBlkPtrs[word_3AF01];
 	word_4206C = 0x10;
 	word_4206E = 0x10;
 
 	g_Graphics.map_Tiles_Draw();
-
-	//sub_140F1();
 }
 
 void cFodder::sub_2E01C() {
@@ -10313,7 +10310,7 @@ void cFodder::Game_Save_Wrapper2() {
 	Game_Save_Wrapper();
 }
 
-void cFodder::sub_2E122() {
+void cFodder::GUI_Element_Reset() {
 	mImage->clearBuffer();
 
 	mGUI_NextFreeElement = mGUI_Elements;
@@ -10446,7 +10443,7 @@ void cFodder::Game_Save() {
 
 	word_3B32F = 0;
 
-	sub_2E122();
+	GUI_Element_Reset();
 
 	video_Print_Text( "TYPE A FILENAME IN", 0x32 );
 
@@ -10625,7 +10622,7 @@ void cFodder::Game_Load() {
 	word_3B33D = (int16) Files.size();
 	
 	do {
-		sub_2E122();
+		GUI_Element_Reset();
 		video_Print_Text( "SELECT FILE", 0x0C );
 
 		sub_2E172( "UP", 0x24 );
@@ -11819,7 +11816,7 @@ void cFodder::Briefing_Show( ) {
 	int16 DataC = 0x84;
 	const char* Data20 = 0;
 	const char** Data28 = mMissionGoals;
-	int16* Data24 = mMapGoals;
+	int16* Data24 = mMap_Goals;
 
 	for (int16 Data0 = 7 ;Data0>=0; ++Data28, --Data0 ) {
 		if (*Data24++) {
@@ -22095,9 +22092,7 @@ loc_30814:;
 		return;
 	}
 
-	sSprite* Dataa20 = mSquad_Leader;
-
-	if (Dataa20 == INVALID_SPRITE_PTR || Dataa20 == 0 )
+	if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
 		return;
 
 	Data0 = mMouseX;
@@ -22140,15 +22135,12 @@ loc_30814:;
 		tmp->field_6 = 0;
 	}
 
-	sSprite* Saved_Data20 = Dataa20;
-
-	int16 Data10 = Dataa20->field_0;
-	int16 DataC = Dataa20->field_32;
+	int16 Data10 = mSquad_Leader->field_0;
+	int16 DataC = mSquad_Leader->field_32;
 	int16 Data8 = Data4;
 	Data4 = Data0;
 
 	Squad_Walk_Target_Set( Data4, Data8, DataC, Data10 );
-	Dataa20 = Saved_Data20;
 
 	for (Data0 = 2; Data0 >= 0; --Data0) {
 

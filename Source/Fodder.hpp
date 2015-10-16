@@ -253,8 +253,8 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F46;
 	int32			dword_39F56;
 	int32			dword_39F5A;
-	int16			word_39F5E;
-	int16			word_39F60;
+	int16			mCamera_Adjust_Col_High;
+	int16			mCamera_Adjust_Row_High;
 	int16			word_39F66;
 	int32			dword_39F7C;
 
@@ -496,7 +496,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B33D;
 	int16			word_3B33F;
 
-	int16			mMapGoals[8];
+	int16			mMap_Goals[8];
 	int16			word_3B447;
 	int16			word_3B449;
 	int16			mSoundEffectToPlay;
@@ -747,7 +747,7 @@ public:
 	void			Mission_Goals_Check();
 	void			sub_126BB();
 	void			Mission_Goals_Set();
-	void			sub_12790( );
+	void			Mission_Progress_Check( );
 	void			Mission_Text_Completed();
 	void			Mission_Text_Sprite_Mission( sSprite* pData2C );
 	void			Mission_Text_Sprite_Phase( sSprite* pData2C );
@@ -1162,7 +1162,7 @@ public:
 	void			sub_2DE2C( );
 	void			sub_2E01C();
 	void			Game_Save_Wrapper2();
-	void			sub_2E122();
+	void			GUI_Element_Reset();
 	void			sub_2E172( const char* pText, int16 pDataC, int16 pData0, int16 pData4 );
 	void			sub_2E1B1( int16 pData0, int16 pData4 );
 	void			sub_2E302( bool pShowCursor );

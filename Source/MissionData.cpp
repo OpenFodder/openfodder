@@ -164,6 +164,154 @@ const char* mMissionGoals[] = {
 	"GET CIVILIAN HOME"
 };
 
+const int8 byte_3D711[] = {1, -1 };      
+const int8 byte_3D713[] = {1, -1 };      
+const int8 byte_3D715[] = {1, 2, -1 };   
+const int8 byte_3D718[] = {1, 2, -1 };   
+const int8 byte_3D71B[] = {2, -1 };      
+const int8 byte_3D71D[] = {1, 2, -1 };   
+const int8 byte_3D720[] = {1, 2, -1 };   
+const int8 byte_3D723[] = {1, 2, -1 };   
+const int8 byte_3D726[] = {1, 2, -1 };   
+const int8 byte_3D729[] = {1, 2, -1 };   
+const int8 byte_3D72C[] = {2, -1 };      
+const int8 byte_3D72E[] = {1, 2, -1 };   
+const int8 byte_3D731[] = {2, -1 };      
+const int8 byte_3D733[] = {1, 2, -1 };   
+const int8 byte_3D736[] = {1, 2, -1 };   
+const int8 byte_3D739[] = {2, 4, -1 };   
+const int8 byte_3D73C[] = {1, 2, -1 };   
+const int8 byte_3D73F[] = {1, 2, -1 };   
+const int8 byte_3D742[] = {1, 2, -1 };   
+const int8 byte_3D745[] = {2, -1 };      
+const int8 byte_3D747[] = {1, 2, -1 };   
+const int8 byte_3D74A[] = {1, 2, -1 };   
+const int8 byte_3D74D[] = {1, 2, -1 };   
+const int8 byte_3D750[] = {1, 2, -1 };   
+const int8 byte_3D753[] = {2, 4, -1 };   
+const int8 byte_3D756[] = {2, -1 };      
+const int8 byte_3D758[] = {2, -1 };      
+const int8 byte_3D75A[] = {2, -1 };      
+const int8 byte_3D75C[] = {8, -1 };      
+const int8 byte_3D75E[] = {1, 2, -1 };   
+const int8 byte_3D761[] = {2, -1 };      
+const int8 byte_3D763[] = {1, -1 };      
+const int8 byte_3D765[] = {1, 2, -1 };   
+const int8 byte_3D768[] = {1, 2, -1 };   
+const int8 byte_3D76B[] = {3, -1 };      
+const int8 byte_3D76D[] = {1, 2, 6, -1 };
+const int8 byte_3D771[] = {1, 2, -1 };   
+const int8 byte_3D774[] = {2, -1 };      
+const int8 byte_3D776[] = {1, 2, -1 };   
+const int8 byte_3D779[] = {3, -1 };      
+const int8 byte_3D77B[] = {1, 2, 4, -1 };
+const int8 byte_3D77F[] = {2, -1 };      
+const int8 byte_3D781[] = {4, 1, 2, -1 };
+const int8 byte_3D785[] = {1, 2, -1 };   
+const int8 byte_3D788[] = {2, -1 };      
+const int8 byte_3D78A[] = {1, 3, 2, -1 };
+const int8 byte_3D78E[] = {3, -1 };      
+const int8 byte_3D790[] = {4, 2, -1 };   
+const int8 byte_3D793[] = {3, -1 };      
+const int8 byte_3D795[] = {3, -1 };      
+const int8 byte_3D797[] = {1, 2, -1 };   
+const int8 byte_3D79A[] = {1, 2, -1 };   
+const int8 byte_3D79D[] = {2, -1 };      
+const int8 byte_3D79F[] = {2, -1 };      
+const int8 byte_3D7A1[] = {2, 8, -1 };   
+const int8 byte_3D7A4[] = {1, 2, -1 };   
+const int8 byte_3D7A7[] = {1, 2, -1 };   
+const int8 byte_3D7AA[] = {1, 3, 2, -1 };
+const int8 byte_3D7AE[] = {1, 2, -1 };   
+const int8 byte_3D7B1[] = {1, 4, -1 };   
+const int8 byte_3D7B4[] = {1, 2, -1 };   
+const int8 byte_3D7B7[] = {1, 2, -1 };   
+const int8 byte_3D7BA[] = {1, 2, -1 };   
+const int8 byte_3D7BD[] = {1, -1 };      
+const int8 byte_3D7BF[] = {2, -1 };      
+const int8 byte_3D7C1[] = {1, -1 };      
+const int8 byte_3D7C3[] = {1, -1 };      
+const int8 byte_3D7C5[] = {2, -1 };      
+const int8 byte_3D7C7[] = {1, 2, -1 };   
+const int8 byte_3D7CA[] = {1, 7, 2, -1 };
+const int8 byte_3D7CE[] = {5, -1 };      
+const int8 byte_3D7D0[] = {2, -1 };      
+
+const int8* mMission_Goals[] = {
+	byte_3D711,
+	byte_3D713,
+	byte_3D715,
+	byte_3D718,
+	byte_3D71B,
+	byte_3D71D,
+	byte_3D720,
+	byte_3D723,
+	byte_3D726,
+	byte_3D729,
+	byte_3D72C,
+	byte_3D72E,
+	byte_3D731,
+	byte_3D733,
+	byte_3D736,
+	byte_3D739,
+	byte_3D73C,
+	byte_3D73F,
+	byte_3D742,
+	byte_3D745,
+	byte_3D747,
+	byte_3D74A,
+	byte_3D74D,
+	byte_3D750,
+	byte_3D753,
+	byte_3D756,
+	byte_3D758,
+	byte_3D75A,
+	byte_3D75C,
+	byte_3D75E,
+	byte_3D761,
+	byte_3D763,
+	byte_3D765,
+	byte_3D768,
+	byte_3D76B,
+	byte_3D76D,
+	byte_3D771,
+	byte_3D774,
+	byte_3D776,
+	byte_3D779,
+	byte_3D77B,
+	byte_3D77F,
+	byte_3D781,
+	byte_3D785,
+	byte_3D788,
+	byte_3D78A,
+	byte_3D78E,
+	byte_3D790,
+	byte_3D793,
+	byte_3D795,
+	byte_3D797,
+	byte_3D79A,
+	byte_3D79D,
+	byte_3D79F,
+	byte_3D7A1,
+	byte_3D7A4,
+	byte_3D7A7,
+	byte_3D7AA,
+	byte_3D7AE,
+	byte_3D7B1,
+	byte_3D7B4,
+	byte_3D7B7,
+	byte_3D7BA,
+	byte_3D7BD,
+	byte_3D7BF,
+	byte_3D7C1,
+	byte_3D7C3,
+	byte_3D7C5,
+	byte_3D7C7,
+	byte_3D7CA,
+	byte_3D7CE,
+	byte_3D7D0
+};
+
 const sMissionData mMissionData_Plus = {
 	mPlus_MissionNames,
 	mPlus_MissionNames,
