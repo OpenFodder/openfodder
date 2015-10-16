@@ -48,9 +48,6 @@
     <ClInclude Include="..\..\Source\Sprites.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\VocTable.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Graphics.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -113,6 +110,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\FontData.hpp">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\VocTable.hpp">
+      <Filter>Source\PC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

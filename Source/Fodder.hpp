@@ -1018,8 +1018,8 @@ public:
 
 	int16			Sprite_Destroy_Wrapper( sSprite* pSprite );
 	int16			Sprite_Destroy( sSprite* pSprite );
-	int16			Troop_Fire_Bullet( sSprite* pSprite );
-	int16			Troop_Throw_Grenade( sSprite* pSprite );
+	int16			Sprite_Create_Bullet( sSprite* pSprite );
+	int16			Sprite_Create_GrenadeHuman( sSprite* pSprite );
 	void			sub_20E5C( sSprite* pSprite );
 	int16			sub_20E91( sSprite* pSprite );
 	void			sub_20F19( sSprite* pSprite );
@@ -1036,7 +1036,7 @@ public:
 	void			sub_218E2( sSprite* pSprite );
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC );
-	int16			Troop_Deploy( sSprite* pSprite, sSprite*& pData2C );
+	int16			Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C );
 	void			Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			sub_21C00( sSprite* pData2C );
 	void			Sprite_Create_Rank( );
@@ -1295,7 +1295,7 @@ public:
 	void			intro_Music_Play();
 
 	void			map_ClearSpt();
-	void			Mission_PhaseNext();
+	void			Mission_Phase_Next();
 
 	void			sub_12AB1();
 

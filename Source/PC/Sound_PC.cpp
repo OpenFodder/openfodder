@@ -105,6 +105,7 @@ void cSound_PC::Sound_Voc_Load() {
 
 			dword_42320[Voc->field_1].mBuffer = VocFile;
 			dword_42320[Voc->field_1].mSize = bx;
+			dword_42320[Voc->field_1].mCleanup = true;
 
 			dword_42410[Voc->field_1].mBuffer = VocFile;
 			dword_42410[Voc->field_1].mSize = bx;

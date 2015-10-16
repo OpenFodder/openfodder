@@ -7474,7 +7474,7 @@ loc_251D2:;
 		Data0 = tool_RandomGet() & 0x0F;
 		if (!Data0) {
 			sSprite* Data2C;
-			Troop_Deploy( pSprite, Data2C );
+			Sprite_Create_Enemy( pSprite, Data2C );
 		}
 	}
 
@@ -13745,7 +13745,7 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite* pSprite ) {
 	pSprite->field_43 -= 1;
 	if (pSprite->field_43 == 0x14 || pSprite->field_43 == 0x0A) {
 
-		Troop_Deploy(pSprite, Data2C );
+		Sprite_Create_Enemy(pSprite, Data2C );
 		return;
 	}
 
@@ -13777,7 +13777,7 @@ loc_1AD86:;
 	pSprite->field_43 = Data0;
 	pSprite->field_8 = 0x7C;
 
-	if (!Troop_Deploy(pSprite, Data2C))
+	if (!Sprite_Create_Enemy(pSprite, Data2C))
 		return;
 
 	pSprite->field_12 = -1;
@@ -13928,7 +13928,7 @@ void cFodder::sub_1B0C0( sSprite* pSprite ) {
 		//loc_1B194
 		sSprite* Data2C = 0;
 
-		if (!Troop_Deploy( pSprite, Data2C )) {
+		if (!Sprite_Create_Enemy( pSprite, Data2C )) {
 			Data2C->field_0 += 6;
 			Data2C->field_4 -= 5;
 			Data2C->field_52 = 0x0C;
@@ -14027,7 +14027,7 @@ loc_1B285:;
 
 loc_1B2B6:;
 	
-	if (!Troop_Deploy( pSprite, Data2C )) {
+	if (!Sprite_Create_Enemy( pSprite, Data2C )) {
 		Data2C->field_4 -= 4;
 		return;
 	}
@@ -16005,7 +16005,7 @@ loc_1D8DC:;
 	pSprite->field_43 = Data0;
 	pSprite->field_8 = 0x7C;
 
-	if (!Troop_Deploy( pSprite, Data2C ))
+	if (!Sprite_Create_Enemy( pSprite, Data2C ))
 		return;
 
 	pSprite->field_12 = -1;
@@ -16013,7 +16013,7 @@ loc_1D8DC:;
 	return;
 
 loc_1D928:;
-	Troop_Deploy( pSprite, Data2C );
+	Sprite_Create_Enemy( pSprite, Data2C );
 }
 
 void cFodder::Sprite_Handle_Explosion2( sSprite* pSprite ) {
@@ -17323,7 +17323,7 @@ loc_1F4DB:;
 	if (Data0)
 		goto loc_1F50F;
 
-	if (!Troop_Fire_Bullet( pSprite ))
+	if (!Sprite_Create_Bullet( pSprite ))
 		goto loc_1F4F5;
 
 	pSprite->field_4A = -1;
@@ -17341,7 +17341,7 @@ loc_1F50F:;
 	if (word_3A00C)
 		goto loc_1F549;
 
-	if (!Troop_Throw_Grenade( pSprite ))
+	if (!Sprite_Create_GrenadeHuman( pSprite ))
 		goto loc_1F52F;
 
 	pSprite->field_4A = -1;
@@ -18671,7 +18671,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 	return word_3B4F3;
 }
 
-void cFodder::Mission_PhaseNext() {
+void cFodder::Mission_Phase_Next() {
 	mMissionPhase += 1;
 	mMissionPhaseRemain -= 1;
 	if (mMissionPhaseRemain)
@@ -18737,9 +18737,9 @@ void cFodder::sleepLoop( int64 pMilliseconds ) {
 
 void cFodder::WonGame() {
 	mSound->Music_Play( 17 );
-	//seg003:3E6Dz
+
 	if (mVersion->mPlatform == ePlatform::Amiga) {
-		mGraphics->imageLoad( "won.raw", 16 );
+		mGraphics->imageLoad( "won.raw", 32 );
 	}
 	else {
 		mGraphics->imageLoad( "won.dat", 0x100 );
@@ -18754,7 +18754,8 @@ void cFodder::WonGame() {
 	}
 
 	while (1) {
-		g_Window.EventCheck();
+
+		eventProcess();
 	}
 }
 
@@ -18853,7 +18854,7 @@ int16 cFodder::Sprite_Destroy( sSprite* pSprite ) {
 	return 1;
 }
 
-int16 cFodder::Troop_Fire_Bullet( sSprite* pSprite ) {
+int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 	int16 Data0 = 1, Data8, Data4;
 	sSprite* Data2C = 0, *Data30 = 0;
 
@@ -19004,7 +19005,7 @@ loc_20A2D:;
 	return -1;
 }
 
-int16 cFodder::Troop_Throw_Grenade( sSprite* pSprite ) {
+int16 cFodder::Sprite_Create_GrenadeHuman( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
 	sSprite* Data2C = 0, *Data30 =0;
 
@@ -19774,7 +19775,7 @@ int16 cFodder::sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC ) {
 	return 0;
 }
 
-int16 cFodder::Troop_Deploy( sSprite* pSprite, sSprite*& pData2C ) {
+int16 cFodder::Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C ) {
 	
 	if (mMissionComplete || mTroops_Enemy_Count >= 0x0A)
 		return -1;
@@ -20553,7 +20554,7 @@ void cFodder::Start( int16 pStartMap ) {
 		mMissionPhaseRemain = 1;
 		mMissionNumber = 0;
 
-		Mission_PhaseNext();
+		Mission_Phase_Next();
 
 		word_3A9AA = -1;
 		word_39096 = -1;
@@ -20576,7 +20577,7 @@ void cFodder::Start( int16 pStartMap ) {
 					WonGame();
 
 				++mMapNumber;
-				Mission_PhaseNext();
+				Mission_Phase_Next();
 				word_3901E = 0x3333;
 			}
 
