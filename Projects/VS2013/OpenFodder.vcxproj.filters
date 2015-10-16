@@ -111,6 +111,9 @@
     <ClInclude Include="..\..\Source\Sound.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\FontData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -183,6 +186,9 @@
       <Filter>Source\PC</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Sound.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FontData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

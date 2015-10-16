@@ -26,6 +26,18 @@ struct sMissionData {
 	const uint16*	mMissionPhases;
 };
 
+enum eMissionGoals {
+	eGoal_Kill_All_Enemy = 1, 
+	eGoal_Destroy_Enemy_Buildings = 2,
+	eGoal_Rescue_Hostages = 3,
+	eGoal_Protect_Civilians = 4,
+	eGoal_Kidnap_Leader = 5,
+	eGoal_Destroy_Factory = 6,
+	eGoal_Destroy_Computer = 7,
+	eGoal_Get_Civilian_Home = 8,
+	eGoal_End = -1
+};
+
 extern const int8* mMap_Goals[];
 
 extern const sMissionData	mMissionData_Plus;

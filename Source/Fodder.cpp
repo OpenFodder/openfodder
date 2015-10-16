@@ -167,7 +167,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mGUI_Handle_Button_SelectSquad_Array[1] = &cFodder::GUI_Handle_Button_SelectSquad_1;
 	mGUI_Handle_Button_SelectSquad_Array[2] = &cFodder::GUI_Handle_Button_SelectSquad_2;
 
-	word_82132 = 0;
+	mDemo_ExitMenu = 0;
 
 	for (int16 x = 0; x < 45; ++x) {
 		Sprite_Clear( &mSprites[x] );
@@ -224,7 +224,7 @@ int16 cFodder::Mission_Loop( ) {
 			mMissionComplete = -1;
 			mKeyCode = 0;
 		} else
-			Mission_Goals_Check();
+			Mission_Phase_Goals_Check();
 
 		//loc_1079C
 		sub_2A470();
@@ -2182,7 +2182,7 @@ void cFodder::sub_124DB() {
 	stru_3ABB9 = *Dataaa20;
 }
 
-void cFodder::Mission_Goals_Check() {
+void cFodder::Mission_Phase_Goals_Check() {
 
 	sSprite* Data20 = mSprites;
 	int16 Data8 = 0;
@@ -2229,18 +2229,18 @@ void cFodder::Mission_Goals_Check() {
 	}
 	
 	word_3A9B0 = DataC;
-	if(mPhase_Goals[1]) {
+	if(mPhase_Goals[ eGoal_Destroy_Enemy_Buildings - 1 ]) {
 		if( DataC )
 			return;
 	}
 	
-	if(mPhase_Goals[0]) {
+	if(mPhase_Goals[ eGoal_Kill_All_Enemy - 1 ]) {
 		if(Data8)
 			return;
 	}
 	
-	if(!mPhase_Goals[4]) {
-		if(!mPhase_Goals[2])
+	if(!mPhase_Goals[ eGoal_Kidnap_Leader - 1 ]) {
+		if(!mPhase_Goals[ eGoal_Rescue_Hostages - 1 ])
 			goto loc_126A6;
 	}
 	
@@ -2248,7 +2248,7 @@ void cFodder::Mission_Goals_Check() {
 		return;
 	
 	loc_126A6:;
-	if(!mPhase_Goals[7] || word_3B47B ) 
+	if(!mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ] || word_3B47B ) 
 		 mMissionComplete = -1;
 }
 
@@ -2260,7 +2260,7 @@ void cFodder::sub_126BB() {
 	stru_3AF0B[0].field_2 = -1;
 }
 
-void cFodder::Mission_Map_Goals_Set() {
+void cFodder::Mission_Phase_Goals_Set() {
 	const int8* Data20 = mMap_Goals[mMapNumber];
 
 	for (; *Data20 != -1; ++Data20) {
@@ -2976,31 +2976,31 @@ void cFodder::mouse_ButtonCheck() {
 void cFodder::VersionSelect_0() {
 	
 	VersionLoad( mVersions[0] );
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_1() {
 
 	VersionLoad( mVersions[1] );
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_2() {
 
 	VersionLoad( mVersions[2] );
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_3() {
 	
 	VersionLoad( mVersions[3] );
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_4() {
 	
 	VersionLoad( mVersions[4] );
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect() {
@@ -3049,13 +3049,13 @@ void cFodder::VersionSelect() {
 	std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
 
 	word_3AC19 = 0x25;
-	String_CalculateWidth( 320, byte_4382F, Name.c_str() );
-	String_Print( byte_4382F, 1, word_3B301, Pos , Name.c_str() );
+	String_CalculateWidth( 320, mFont_Underlined_Width, Name.c_str() );
+	String_Print( mFont_Underlined_Width, 1, word_3B301, Pos , Name.c_str() );
 
 	Name = "SELECT A GAME";
 
-	String_CalculateWidth( 320, byte_4382F, Name.c_str() );
-	String_Print( byte_4382F, 3, word_3B301, 0x1A , Name.c_str() );
+	String_CalculateWidth( 320, mFont_Underlined_Width, Name.c_str() );
+	String_Print( mFont_Underlined_Width, 3, word_3B301, 0x1A , Name.c_str() );
 
 	word_3AC19 = 0;
 
@@ -3064,8 +3064,8 @@ void cFodder::VersionSelect() {
 		std::string Name = (*VersionIT)->mName;
 		std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
 
-		String_CalculateWidth( 320, byte_4388F, Name.c_str() );
-		String_Print( byte_4388F, 0, word_3B301, Pos , Name.c_str() );
+		String_CalculateWidth( 320, mFont_Briefing_Width, Name.c_str() );
+		String_Print( mFont_Briefing_Width, 0, word_3B301, Pos , Name.c_str() );
 
 		Buttons[Count].field_0 = &cFodder::GUI_Button_NoAction;
 		Buttons[Count].field_4 = word_3B301 - 6;
@@ -3108,7 +3108,7 @@ void cFodder::VersionSelect() {
 	mMouseSpriteNew = 0x24;
 	eventProcess();
 	mouse_Setup();
-	word_82132 = 0;
+	mDemo_ExitMenu = 0;
 
 	// This is being hacked in to prevent accidently clicking a button when launching the game
 	// The 'Amiga' text just happens to be middle of the screen, where the cursor naturally was positioned
@@ -3126,7 +3126,7 @@ void cFodder::VersionSelect() {
 		if (mButtonPressLeft)
 			GUI_Element_Mouse_Over( Buttons );
 
-		if (word_82132)
+		if (mDemo_ExitMenu)
 			break;
 
 		g_Window.RenderAt( mImage );
@@ -3371,8 +3371,8 @@ void cFodder::Mission_Paused() {
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	
 	word_3AC19 = 0x25;
-	String_CalculateWidth( 0x170, byte_4382F, PausedStr );
-	String_Print( byte_4382F, 1, word_3B301, 0x54, PausedStr );
+	String_CalculateWidth( 0x170, mFont_Underlined_Width, PausedStr );
+	String_Print( mFont_Underlined_Width, 1, word_3B301, 0x54, PausedStr );
 
 	word_3AC19 = 0;
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
@@ -3661,7 +3661,6 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
 	int16 bx = mMap_TileSet;
 	
 	mSound->Sound_Play( bx, pData4 );
-
 }
 
 void cFodder::Briefing_Intro_Jungle( ) {
@@ -4354,8 +4353,8 @@ void cFodder::Briefing_Draw_MissionName( ) {
 	word_3AC19 = 0x25;
 	Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
 
-	String_CalculateWidth( 0x140, byte_4382F, Mission.str().c_str() );
-	String_Print( byte_4382F, 1, word_3B301, 0, Mission.str().c_str() );
+	String_CalculateWidth( 0x140, mFont_Underlined_Width, Mission.str().c_str() );
+	String_Print( mFont_Underlined_Width, 1, word_3B301, 0, Mission.str().c_str() );
 	
 	int16 Data0 = mMissionNumber;
 	const char** Data20 = mVersion->mMissionData->mMissionNames;
@@ -4368,7 +4367,7 @@ void cFodder::Briefing_Draw_MissionName( ) {
 	Data0 -= 1;
 	Data20 += Data0;
 
-	String_CalculateWidth( 0x140, byte_4382F, *Data20 );
+	String_CalculateWidth( 0x140, mFont_Underlined_Width, *Data20 );
 	Data0 = mMissionNumber;
 	Data20 = mVersion->mMissionData->mMissionNames; 
 	if (word_3A01A != 0xB5) {
@@ -4377,11 +4376,10 @@ void cFodder::Briefing_Draw_MissionName( ) {
 	}
 	Data0 -= 1;
 	Data20 += Data0;
-	String_Print( byte_4382F, 1, word_3B301, word_3A01A, *Data20 );
+	String_Print( mFont_Underlined_Width, 1, word_3B301, word_3A01A, *Data20 );
 }
 
-void cFodder::AFX_Show() {
-	word_82132 = 0;
+void cFodder::Demo_ShowMenu() {
 
 	mSound->Music_Stop();
 
@@ -4393,7 +4391,7 @@ void cFodder::AFX_Show() {
 	mImage->Save();
 	mImage->paletteFade();
 
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 
 	for( ;; ) {
 		Video_Sleep_Wrapper();
@@ -4403,13 +4401,13 @@ void cFodder::AFX_Show() {
 
 		if (mButtonPressLeft) {
 			if (mVersion->mKey == "AFX")
-				GUI_Element_Mouse_Over( mCoverDisk_Buttons );
+				GUI_Element_Mouse_Over( mAfx_Buttons );
 
 			if (mVersion->mKey == "Plus")
 				GUI_Element_Mouse_Over( mPlus_Buttons );
 		}
 
-		if (word_82132 > 0)
+		if (mDemo_ExitMenu > 0)
 			break;
 
 		if (mImage->GetFaded() == false )
@@ -4443,7 +4441,7 @@ void cFodder::Recruit_Show() {
 
 	mGraphics->Load_Hill_Data();
 
-	dword_3B1FB = stru_373BA;
+	dword_3B1FB = mRecruit_Screen_Positions;
 	word_3AAD1 = -1;
 	word_3AB39 = -1;
 
@@ -4978,13 +4976,13 @@ void cFodder::Recruit_Draw_Actors( ) {
 }
 
 void cFodder::sub_175C0() {
-	struct_4* Data20 = 0;
+	sRecruit_Screen_Pos* Data20 = 0;
 
 	if (word_3B1F1 > 0) {
 
-		struct_4* Data20 = &stru_373BA[293];
+		sRecruit_Screen_Pos* Data20 = &mRecruit_Screen_Positions[293];
 		do {
-			if (Data20 == &stru_373BA[0])
+			if (Data20 == &mRecruit_Screen_Positions[0])
 				return;
 
 			--Data20;
@@ -5008,11 +5006,11 @@ void cFodder::sub_175C0() {
 
 	dword_3B1CB = (aa << 16) | (dword_3B1CB & 0xFFFF);
 
-	Data20 = &stru_373BA[293];
-	struct_4* Data28 = &stru_373BA[271];
+	Data20 = &mRecruit_Screen_Positions[293];
+	sRecruit_Screen_Pos* Data28 = &mRecruit_Screen_Positions[271];
 
 loc_17686:;
-	for (; Data20 != &stru_373BA[0];) {
+	for (; Data20 != &mRecruit_Screen_Positions[0];) {
 		--Data20;
 
 		if (Data20->field_4 == 0)
@@ -5025,7 +5023,7 @@ loc_17686:;
 			continue;
 
 		int16 Data8 = 3;
-		struct_4* Data30 = Data20;
+		sRecruit_Screen_Pos* Data30 = Data20;
 		//loc_176CE
 
 		do {
@@ -5064,8 +5062,8 @@ void cFodder::Recruit_Draw_Troops() {
 		sub_17911();
 	}
 
-	struct_4* Data20 = stru_373BA;
-	struct_4* dword_3B1C7;
+	sRecruit_Screen_Pos* Data20 = mRecruit_Screen_Positions;
+	sRecruit_Screen_Pos* dword_3B1C7;
 
 	for ( ; ;Data20 = dword_3B1C7) {
 
@@ -5097,10 +5095,10 @@ void cFodder::Recruit_Draw_Troops() {
 
 			Data4 = 0;
 
-			if (Data20 > &stru_373BA[0x46]) {
+			if (Data20 > &mRecruit_Screen_Positions[0x46]) {
 				Data4 = 1;
 
-				if (Data20 > &stru_373BA[0x7A])
+				if (Data20 > &mRecruit_Screen_Positions[0x7A])
 					Data4 = 2;
 			}
 		}
@@ -5146,7 +5144,7 @@ void cFodder::sub_1787C() {
 }
 
 void cFodder::sub_178DD() {
-	struct_4* Data20 = stru_373BA;
+	sRecruit_Screen_Pos* Data20 = mRecruit_Screen_Positions;
 
 	for (; Data20->field_0 >= 0; ++Data20) {
 		
@@ -5156,8 +5154,8 @@ void cFodder::sub_178DD() {
 }
 
 void cFodder::sub_17911() {
-	struct_4* Data24 = stru_373BA;
-	int16*    Data2C = word_3E197;
+	sRecruit_Screen_Pos* Data24 = mRecruit_Screen_Positions;
+	const int16*    Data2C = word_3E197;
 
 	uint64 Data8 = (uint64) mGraveRankPtr;
 	int16 Data0, Data4;
@@ -5378,7 +5376,7 @@ bool cFodder::Recruit_Check_Buttons_SaveLoad() {
 	return true;
 }
 
-void cFodder::sub_22B71( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Player_Unk( sSprite* pSprite ) {
 	
 	if (!pSprite->field_66)
 		return;
@@ -6518,7 +6516,7 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	DataC = -1;
 	Data10 = -1;
 
-	if (mPhase_Goals[7]) {
+	if (mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ]) {
 		Data4 = eSprite_Indigenous;
 		Data8 = 0x3E;
 		DataC = 0x46;
@@ -7613,10 +7611,10 @@ void cFodder::sub_257D1( sSprite* pSprite ) {
 	if (pSprite->field_8 != 0xD6) {
 		word_3B2D1[2] = -1;
 
-		if (mPhase_Goals[3])
+		if (mPhase_Goals[ eGoal_Protect_Civilians - 1 ])
 			word_3A9B2 = -1;
 
-		if (mPhase_Goals[7])
+		if (mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ])
 			word_3A9B2 = -1;
 
 		pSprite->field_8 = 0xD6;
@@ -8152,7 +8150,7 @@ void cFodder::sub_264B0( sSprite* pSprite ) {
 	if (!sub_222A3( pSprite ))
 		goto loc_264CF;
 
-	if (!mPhase_Goals[3])
+	if (!mPhase_Goals[ eGoal_Protect_Civilians - 1 ])
 		return;
 
 	word_3A9B2 = -1;
@@ -10103,15 +10101,11 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 	if (Data2C < 0)
 		return -1;
 
-	int16 Data8 = pSprite->field_32;
-
-	sSprite* Dataa2C = word_3BF1E[Data8];
+	sSprite* Dataa2C = word_3BF1E[pSprite->field_32];
 	if (Dataa2C->field_18 != 0)
 		return -1;
 	
-	Data8 = mSquad_Selected;
-
-	sSprite** Data30 = mSquads[Data8];
+	sSprite** Data30 = mSquads[mSquad_Selected];
 	int16 Data1C = 0;
 
 	for (Data1C = 0x0C;;) {
@@ -10127,7 +10121,7 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 
 	Data0 = Dataa2C->field_0;
 	int16 Data4 = Dataa2C->field_4;
-	Data8 = pSprite->field_0;
+	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
 	sub_29E30( Data0, Data4, Data8, DataC );
 	if (Data0 <= Data1C)
@@ -10818,90 +10812,90 @@ void cFodder::GUI_Element_Mouse_Over( const sGUI_Element *pElement ) {
 	}
 }
 
-void cFodder::sub_A03EE() {
+void cFodder::GUI_Button_SelectMap0() {
 	mMapNumber = 0;
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
-void cFodder::sub_A0400() {
+void cFodder::GUI_Button_SelectMap1() {
 	mMapNumber = 1;
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
-void cFodder::sub_A03E0() {
-	sub_A0436();
-	word_82132 = -1;
+void cFodder::GUI_Button_SelectQuiz() {
+	Demo_Quiz();
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_9BA08() {
+void cFodder::GUI_Button_SelectMap2() {
 	mMapNumber = 2;
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
-void cFodder::sub_9BA1A() {
+void cFodder::GUI_Button_SelectMap3() {
 	mMapNumber = 3;
-	word_82132 = 1;
+	mDemo_ExitMenu = 1;
 }
 
-void cFodder::sub_A056E() {
-	word_82132 = 1;
+void cFodder::GUI_Button_ExitMenu() {
+	mDemo_ExitMenu = 1;
 }
 
-void cFodder::sub_A0578() {
+void cFodder::GUI_Button_Quiz_2() {
 
 	sub_A0640( "2.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A058C() {
+void cFodder::GUI_Button_Quiz_3() {
 
 	sub_A0640( "3.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A05A0() {
+void cFodder::GUI_Button_Quiz_4() {
 
 	sub_A0640( "4.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A05B4() {
+void cFodder::GUI_Button_Quiz_5() {
 	
 	sub_A0640( "5.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A05C8() {
+void cFodder::GUI_Button_Quiz_6() {
 	
 	sub_A0640( "6.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A05DC() {
+void cFodder::GUI_Button_Quiz_7() {
 	
 	sub_A0640( "7.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A05F0() {
+void cFodder::GUI_Button_Quiz_8() {
 
 	sub_A0640( "8.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A0604() {
+void cFodder::GUI_Button_Quiz_9() {
 	sub_A0640( "9.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A0618() {
+void cFodder::GUI_Button_Quiz_10() {
 	sub_A0640( "10.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A062C() {
+void cFodder::GUI_Button_Quiz_11() {
 	sub_A0640( "11.lbm" );
-	word_82132 = -1;
+	mDemo_ExitMenu = -1;
 }
 
 void cFodder::sub_A0640( const char* pFilename ) {
@@ -10952,7 +10946,7 @@ void cFodder::sub_A0640( const char* pFilename ) {
 	mImage->paletteFade();
 }
 
-void cFodder::sub_A0436() {
+void cFodder::Demo_Quiz() {
 		
 	mImage->paletteFadeOut();
 	
@@ -10978,7 +10972,7 @@ void cFodder::sub_A0436() {
 			GUI_Element_Mouse_Over( mPlusQuiz_Buttons );
 		}
 
-		if (word_82132 >= 0)
+		if (mDemo_ExitMenu >= 0)
 			break;
 
 		if (mImage->GetFaded() == false )
@@ -11228,8 +11222,6 @@ void cFodder::Service_KIA_Loop() {
 		((cGraphics_Amiga*)mGraphics)->Service_Draw( 4, 0xF0,	0x40, 0 );
 	}
 
-	video_Draw_Unk_2();
-
 	mImageFaded = -1;
 	word_39F02 = 0;
 	word_40048 = 0;
@@ -11281,8 +11273,6 @@ void cFodder::Service_Promotion_Loop() {
 		((cGraphics_Amiga*)mGraphics)->Service_Draw( 3, 0,		0x40, 0 );
 		((cGraphics_Amiga*)mGraphics)->Service_Draw( 7, 0xF0,	0x40, 0 );
 	}
-
-	video_Draw_Unk_2();
 
 	mImageFaded = -1;
 	word_40048 = 0;
@@ -11418,8 +11408,8 @@ void cFodder::sub_18099( uint16*& pDi, int16 ax, int16 bx) {
 		tmpString << *si++;
 	}
 
-	String_CalculateWidth( 0x140, byte_4422D, tmpString.str().c_str() );
-	sub_181E6( pDi, tmpString.str().c_str(), byte_4422D, 3, word_3B301, mDrawSpritePositionY + 6 );
+	String_CalculateWidth( 0x140, mFont_ServiceName_Width, tmpString.str().c_str() );
+	sub_181E6( pDi, tmpString.str().c_str(), mFont_ServiceName_Width, 3, word_3B301, mDrawSpritePositionY + 6 );
 }
 
 void cFodder::sub_18149() {
@@ -11459,7 +11449,7 @@ void cFodder::sub_181BD() {
 	}
 }
 
-void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28, int16 pData0, int16 pData8, int16 pDataC ) {
+void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC ) {
 
 	const char* Data20 = pText.c_str();
 
@@ -11534,7 +11524,7 @@ int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pD
 }
 
 void cFodder::sub_182EA() {
-	uint8* bp = &mFontWidths[0x80];
+	const uint8* bp = &mFont_Intro_Width[0x80];
 
 	uint8* di = mImage->GetSurfaceBuffer();
 	
@@ -11722,9 +11712,9 @@ void cFodder::Service_Mission_Text_Prepare( uint16*& pTarget ) {
 
 	Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
 
-	String_CalculateWidth( 0x140, byte_4428D, Mission.str().c_str() );
+	String_CalculateWidth( 0x140, mFont_Service_Width, Mission.str().c_str() );
 
-	sub_181E6( pTarget, Mission.str(), byte_4428D, 4, word_3B301, mDrawSpritePositionY );
+	sub_181E6( pTarget, Mission.str(), mFont_Service_Width, 4, word_3B301, mDrawSpritePositionY );
 }
 
 void cFodder::Service_Promotion_Prepare() {
@@ -11790,10 +11780,6 @@ void cFodder::Service_Promotion_SetNewRanks() {
 	}
 }
 
-void cFodder::video_Draw_Unk_2( ) {
-	
-}
-
 void cFodder::map_ClearSpt() {
 	
 	for (uint16 cx = 0; cx < 0x2000; ++cx )
@@ -11801,12 +11787,14 @@ void cFodder::map_ClearSpt() {
 }
 
 void cFodder::Briefing_Show( ) {
-	const char* Brief = "BRIEFING";
+	const char* Str_Brief = "BRIEFING";
+	const char* Str_Phase = "PHASE ";
+	const char* Str_Of = " OF ";
 
 	word_3AC19 = 0x25;
 
-	String_CalculateWidth( 320, byte_4382F, Brief );
-	String_Print( byte_4382F, 0x03, word_3B301, 0x4E, Brief );
+	String_CalculateWidth( 320, mFont_Underlined_Width, Str_Brief );
+	String_Print( mFont_Underlined_Width, 0x03, word_3B301, 0x4E, Str_Brief );
 	
 	Briefing_DrawBox( 1, 0x49, 0x13E, 0x6B, 0xF3 );
 	Briefing_DrawBox( 0, 0x48, 0x13E, 0x6B, 0xF2 );
@@ -11815,25 +11803,25 @@ void cFodder::Briefing_Show( ) {
 
 	std::stringstream Phase;
 
-	Phase << "PHASE " << tool_StripLeadingZero( tool_NumToString( mMissionPhase + 1 ) );
-	Phase << " OF " << tool_StripLeadingZero( tool_NumToString( mMissionPhases ));
+	Phase << Str_Phase	<< tool_StripLeadingZero( tool_NumToString( mMissionPhase + 1 ) );
+	Phase << Str_Of		<< tool_StripLeadingZero( tool_NumToString( mMissionPhases ));
 
-	String_CalculateWidth( 320, byte_4388F, Phase.str().c_str() );
-	String_Print( byte_4388F, 0, word_3B301, 0x1D, Phase.str().c_str() );
+	String_CalculateWidth( 320, mFont_Briefing_Width, Phase.str().c_str() );
+	String_Print( mFont_Briefing_Width, 0, word_3B301, 0x1D, Phase.str().c_str() );
 	
-	Mission_Map_Goals_Set();
+	Mission_Phase_Goals_Set();
 
 	int16 DataC = 0x84;
 	const char* Data20 = 0;
 	const char** Data28 = mMissionGoals;
-	int16* Data24 = mPhase_Goals;
+	int16* Goals = mPhase_Goals;
 
 	for (int16 Data0 = 7 ;Data0>=0; ++Data28, --Data0 ) {
-		if (*Data24++) {
+		if (*Goals++) {
 
 			Data20 = *Data28;
-			String_CalculateWidth( 0x140, byte_4388F, Data20 );
-			String_Print( byte_4388F, 0, word_3B301, DataC - 0x12, Data20 );
+			String_CalculateWidth( 0x140, mFont_Briefing_Width, Data20 );
+			String_Print( mFont_Briefing_Width, 0, word_3B301, DataC - 0x12, Data20 );
 			DataC += 0x0C;
 		}
 	}
@@ -11906,8 +11894,8 @@ void cFodder::Briefing_Draw_With( ) {
 		With << " SOLDIERS YOU MUST";
 	}
 
-	String_CalculateWidth( 0x140, byte_4388F, With.str().c_str() );
-	String_Print( byte_4388F, 0, word_3B301, 0x64, With.str().c_str() );
+	String_CalculateWidth( 0x140, mFont_Briefing_Width, With.str().c_str() );
+	String_Print( mFont_Briefing_Width, 0, word_3B301, 0x64, With.str().c_str() );
 	With.str("");
 
 	if (!mSquad_AliveCount) {
@@ -11921,11 +11909,11 @@ void cFodder::Briefing_Draw_With( ) {
 			With << " RECRUITS REMAINING";
 	}
 
-	String_CalculateWidth( 0x140, byte_4388F, With.str().c_str() );
-	String_Print(  byte_4388F, 0, word_3B301, 0xA8, With.str().c_str() );
+	String_CalculateWidth( 0x140, mFont_Briefing_Width, With.str().c_str() );
+	String_Print(  mFont_Briefing_Width, 0, word_3B301, 0xA8, With.str().c_str() );
 	
-	String_CalculateWidth( 0x140, byte_4382F, "GO FOR IT" );
-	String_Print(  byte_4382F, 3, word_3B301, 0xB8, "GO FOR IT" );
+	String_CalculateWidth( 0x140, mFont_Underlined_Width, "GO FOR IT" );
+	String_Print(  mFont_Underlined_Width, 3, word_3B301, 0xB8, "GO FOR IT" );
 }
 
 void cFodder::Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 ) {
@@ -11965,8 +11953,8 @@ void cFodder::Intro_Print_String( int32 pPosY,  const sIntroString* pString ) {
 		pPosY -= 0x19;
 	else
 		pPosY += 0x9;
-	String_CalculateWidth( 320, mFontWidths, pString->mText );
-	String_Print(  mFontWidths, 0, word_3B301, pPosY, pString->mText );
+	String_CalculateWidth( 320, mFont_Intro_Width, pString->mText );
+	String_Print(  mFont_Intro_Width, 0, word_3B301, pPosY, pString->mText );
 }
 
 void cFodder::Briefing_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
@@ -12459,7 +12447,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 		return;
 
 	//loc_18E8D
-	sub_22B71( Sprite );
+	Sprite_Handle_Player_Unk( Sprite );
 	word_3AA41 = 0;
 
 	word_3AA1D = word_3BED5[Sprite->field_32];
@@ -12591,7 +12579,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 			Data0 =  ((sSquad_Member*) Sprite->field_46)->field_6;
 
 		loc_191BF:;
-			sub_1F429( Sprite );
+			Sprite_Handle_Troop( Sprite );
 		}
 	}
 	else {
@@ -12958,7 +12946,7 @@ void cFodder::Sprite_Handle_Enemy( sSprite* pSprite ) {
 	}
 	else {
 		sub_21CD1( pSprite );
-		sub_1F429( pSprite );
+		Sprite_Handle_Troop( pSprite );
 
 		word_3A399 = pSprite->field_A;
 		int16 Data0 = pSprite->field_26;
@@ -14394,7 +14382,7 @@ void cFodder::Sprite_Handle_Enemy_Rocket( sSprite* pSprite ) {
 	word_3A00C = -1;
 	word_3A010 = -1;
 
-	sub_1F429( pSprite );
+	Sprite_Handle_Troop( pSprite );
 	sub_2A3D4( pSprite );
 
 	word_3AA41 = 0;
@@ -17279,7 +17267,7 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 	return -1;
 }
 
-void cFodder::sub_1F429( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Troop( sSprite* pSprite ) {
 	int16 Data0;
 
 	if (!pSprite->field_22)
@@ -18718,8 +18706,8 @@ void cFodder::Mission_PhaseNext() {
 
 void cFodder::video_Print_Text( const char* pText, int16 pPosY ) {
 	
-	String_CalculateWidth(320, mUnkStringModifier_Recruit, pText );
-	String_Print( mUnkStringModifier_Recruit, 0x0D, word_3B301, pPosY, pText );
+	String_CalculateWidth(320, mFont_Recruit_Width, pText );
+	String_Print( mFont_Recruit_Width, 0x0D, word_3B301, pPosY, pText );
 }
 
 void cFodder::Video_Sleep() {
@@ -20628,18 +20616,22 @@ void cFodder::Start( int16 pStartMap ) {
 				word_3ABA7 = 0;
 				WindowTitleSet( false );
 
-				if (mVersion->mRelease == eRelease::Retail)
+				if (mVersion->mRelease == eRelease::Retail) {
 					Recruit_Show();
-				else
-					AFX_Show();
 
-				Game_CheckLoadSave();
-				
-				if (mGame_Load || mGame_Save) {
-					word_390B8 = -1;
-					word_390EA = -1;
-					word_3A9B2 = -1;
-					continue;
+					Game_CheckLoadSave();
+
+					if (mGame_Load || mGame_Save) {
+						word_390B8 = -1;
+						word_390EA = -1;
+						word_3A9B2 = -1;
+						continue;
+					}
+
+				}
+				else {
+
+					Demo_ShowMenu();
 				}
 
 				word_390B8 = 0;
@@ -20737,7 +20729,7 @@ void cFodder::Start( int16 pStartMap ) {
 
 			Squad_Prepare_GrenadesAndRockets();
 			sub_2D7FF();
-			Mission_Map_Goals_Set();
+			Mission_Phase_Goals_Set();
 
 			word_3BEC9 = 0xE0;
 			g_Graphics.PaletteSet();
@@ -21699,14 +21691,14 @@ void cFodder::sub_302DE( int16 pData0, int16 pData4, int16 pData8, int16 pDataC,
 	std::stringstream Tmp;
 	Tmp << tool_StripLeadingZero( tool_NumToString( pData0 ) );
 
-	String_CalculateWidth( pData8, byte_3DF85, Tmp.str().c_str() );
+	String_CalculateWidth( pData8, mFont_Sidebar_Width, Tmp.str().c_str() );
 	
 	pData8 = word_3B301 + word_3AC23;
 	int16 Data0 = Data10_Saved;
 	word_3AC21 = -1;
 	pDataC = word_3AC27;
 
-	String_Print(  byte_3DF85, Data0, pData8, pDataC, Tmp.str().c_str() );
+	String_Print(  mFont_Sidebar_Width, Data0, pData8, pDataC, Tmp.str().c_str() );
 	
 	word_3AC21 = 0;
 }

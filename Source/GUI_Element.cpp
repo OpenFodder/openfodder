@@ -23,36 +23,36 @@
 #include "stdafx.hpp"
 
 /* AFX Menu Buttons */
-const sGUI_Element mCoverDisk_Buttons[] = {
+const sGUI_Element mAfx_Buttons[] = {
 	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2 },
-	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::sub_A0400 },
-	{ &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::sub_A03EE },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_A0400 },
+	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
+	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1 },
+	{ &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap0 },
+	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap1 },
 	{ 0 }
 };
 
 /* Cannon Fodder Plus Menu Buttons */
 const sGUI_Element mPlus_Buttons[] = {
-	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::sub_A03E0 },
-	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::sub_A03EE },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::sub_A0400 },
-	{ &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::sub_9BA08 },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::sub_9BA1A },
+	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_SelectQuiz },
+	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
+	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1 },
+	{ &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap2 },
+	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3 },
 };
 
 /* Cannon Fodder Plus Quiz Buttons */
 const sGUI_Element mPlusQuiz_Buttons[] = {
-	{ &cFodder::GUI_Button_NoAction, 0x0BD, 0x19, 0x5B, 0x48,	&cFodder::sub_A056E },
-	{ &cFodder::GUI_Button_NoAction, 0x0B2, 0x1C, 0xA2, 0x33,	&cFodder::sub_A056E },
-	{ &cFodder::GUI_Button_NoAction, 0x000, 0x31, 0x03, 0x1E,	&cFodder::sub_A0578 },
-	{ &cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0x03, 0x1E,	&cFodder::sub_A058C },
-	{ &cFodder::GUI_Button_NoAction, 0x000, 0x31, 0xD6, 0x1E,	&cFodder::sub_A05A0 },
-	{ &cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0xD6, 0x1E,	&cFodder::sub_A05B4 },
-	{ &cFodder::GUI_Button_NoAction, 0x02A, 0x32, 0x10, 0xC9,	&cFodder::sub_A05C8 },
-	{ &cFodder::GUI_Button_NoAction, 0x05B, 0x27, 0x1F, 0xB4,	&cFodder::sub_A05DC },
-	{ &cFodder::GUI_Button_NoAction, 0x081, 0x1E, 0x25, 0xA7,	&cFodder::sub_A05F0 },
-	{ &cFodder::GUI_Button_NoAction, 0x09E, 0x1F, 0x24, 0xB1,	&cFodder::sub_A0604 },
-	{ &cFodder::GUI_Button_NoAction, 0x0BC, 0x2B, 0x21, 0xAA,	&cFodder::sub_A0618 },
-	{ &cFodder::GUI_Button_NoAction, 0x0E6, 0x3B, 0x13, 0xCE,	&cFodder::sub_A062C },
+	{ &cFodder::GUI_Button_NoAction, 0x0BD, 0x19, 0x5B, 0x48,	&cFodder::GUI_Button_ExitMenu },
+	{ &cFodder::GUI_Button_NoAction, 0x0B2, 0x1C, 0xA2, 0x33,	&cFodder::GUI_Button_ExitMenu },
+	{ &cFodder::GUI_Button_NoAction, 0x000, 0x31, 0x03, 0x1E,	&cFodder::GUI_Button_Quiz_2 },
+	{ &cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0x03, 0x1E,	&cFodder::GUI_Button_Quiz_3 },
+	{ &cFodder::GUI_Button_NoAction, 0x000, 0x31, 0xD6, 0x1E,	&cFodder::GUI_Button_Quiz_4 },
+	{ &cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0xD6, 0x1E,	&cFodder::GUI_Button_Quiz_5 },
+	{ &cFodder::GUI_Button_NoAction, 0x02A, 0x32, 0x10, 0xC9,	&cFodder::GUI_Button_Quiz_6 },
+	{ &cFodder::GUI_Button_NoAction, 0x05B, 0x27, 0x1F, 0xB4,	&cFodder::GUI_Button_Quiz_7 },
+	{ &cFodder::GUI_Button_NoAction, 0x081, 0x1E, 0x25, 0xA7,	&cFodder::GUI_Button_Quiz_8 },
+	{ &cFodder::GUI_Button_NoAction, 0x09E, 0x1F, 0x24, 0xB1,	&cFodder::GUI_Button_Quiz_9 },
+	{ &cFodder::GUI_Button_NoAction, 0x0BC, 0x2B, 0x21, 0xAA,	&cFodder::GUI_Button_Quiz_10 },
+	{ &cFodder::GUI_Button_NoAction, 0x0E6, 0x3B, 0x13, 0xCE,	&cFodder::GUI_Button_Quiz_11 },
 };
