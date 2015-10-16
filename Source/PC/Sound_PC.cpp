@@ -21,7 +21,7 @@
  */
 
 #include "stdafx.hpp"
-#include "VocTable.hpp"
+#include "PC/VocTable.hpp"
 
 void Mixer_ChannelFinished(int32 pChannel) {
 
