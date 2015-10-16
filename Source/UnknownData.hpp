@@ -1654,7 +1654,7 @@ const int16  word_3E8D6[] = {
 	19, -15
 };
 
-const int16 word_3E7CD[] = { 
+const int16 mSounds_Helicopter[] = { 
 	4, 51, 52, 53, 54, 4, 51, 52 
 };
 

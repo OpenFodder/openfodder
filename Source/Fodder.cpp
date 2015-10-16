@@ -6329,7 +6329,9 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
 	Data30->field_2C = -1;
 	pData2C->field_38 = 0;
 
-	Sound_Play( pSprite, 0x2D, 0x0F );
+	if (mVersion->mKey != "Plus")
+		Sound_Play( pSprite, 0x2D, 0x0F );
+
 	return -1;
 }
 
@@ -7130,7 +7132,10 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	Data30->field_2C = -1;
 	pData2C->field_38 = 0;
 
-	Sound_Play( pSprite, 0x2C, 0x0F );
+	if (mVersion->mKey == "Plus")
+		Sound_Play( pSprite, 0x10, 0x0F );
+	else
+		Sound_Play( pSprite, 0x2C, 0x0F );
 	return -1;
 }
 
@@ -13182,7 +13187,13 @@ void cFodder::Sprite_Handle_Helicopter_Unk( sSprite* pSprite ) {
 	sSprite* Data24 = 0, *Data2C = 0;
 	int32 Field_1E;
 
-	Data0 = word_3E7CD[Data0 / 2];
+	if (mVersion->mKey == "Plus") {
+		//TODO: Fix chopper
+		Data0 = 0;
+	} 
+	else
+		Data0 = mSounds_Helicopter[Data0 / 2];
+
 	if (pSprite->field_22)
 		goto loc_19EB5;
 
@@ -13203,10 +13214,6 @@ loc_19EC0:;
 	Data4 = pSprite->field_20;
 	if (Data4 < 0x10)
 		Data4 = 0x10;
-
-	if (mVersion->mKey == "Plus") {
-		Data0 = 0;//TODO: Sound Effects for Plus Chopper
-	}
 
 	Sprite_Map_Sound_Play( Data0 );
 loc_19EE5:;
@@ -14254,9 +14261,13 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 	if (pSprite->field_56) {
 
 		pSprite->field_56 -= 1;
-		if (!pSprite->field_56)
-			Sound_Play( pSprite, 0x2E, 0x0F );
+		if (!pSprite->field_56) {
+			if (mVersion->mKey == "Plus")
+				Sound_Play( pSprite, 0x10, 0x0F );
+			else
+				Sound_Play( pSprite, 0x2E, 0x0F );
 
+		}
 		Data24 = (sSprite*)pSprite->field_46;
 		pSprite->field_0 = Data24->field_0;
 		pSprite->field_2 = Data24->field_2;
