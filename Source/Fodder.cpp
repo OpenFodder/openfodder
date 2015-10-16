@@ -2997,6 +2997,12 @@ void cFodder::VersionSelect_3() {
 	word_82132 = 1;
 }
 
+void cFodder::VersionSelect_4() {
+	
+	VersionLoad( mVersions[4] );
+	word_82132 = 1;
+}
+
 void cFodder::VersionSelect() {
 	sGUI_Element *Buttons = new sGUI_Element[mVersions.size() + 1];
 
@@ -3082,6 +3088,10 @@ void cFodder::VersionSelect() {
 
 			case 3:
 				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_3;
+				break;
+
+			case 4:
+				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_4;
 				break;
 		}
 		Pos += 30;
