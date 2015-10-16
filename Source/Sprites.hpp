@@ -101,7 +101,8 @@ enum eSprites {
 	eSprite_Bonus_SquadGeneralRockets	= 98,
 	eSprite_HelicopterCallPad			= 99,
 	eSprite_Turret_HomingMissile_Enemy	= 105,
-	eSprite_Hostage2					= 106
+	eSprite_Hostage2					= 106,
+	eSprite_Helicopter_Homing_Enemy2	= 107,
 };
 
 struct sSprite {

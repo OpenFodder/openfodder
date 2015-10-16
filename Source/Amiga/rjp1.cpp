@@ -76,7 +76,7 @@ bool Rjp1::load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSi
 		if (readBEDWord(instrumentsData) == 'RJP1') {
 			instrumentsData += 4;
 
-			uint32 size = instrumentDataSize - 4;
+			size_t size = instrumentDataSize - 4;
 			_vars.instData = (int8 *)malloc(size);
 			if (!_vars.instData)
 				return false;

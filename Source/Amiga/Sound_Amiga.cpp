@@ -135,7 +135,7 @@ bool cSound_Amiga::devicePrepare() {
 }
 
 int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
-	size_t Number = 0;
+	int16 Number = 0;
 	const sSoundData *Track = 0;
 	
 	// Intro
