@@ -174,7 +174,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_390C6;
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
-	uint16			word_390CE;
+	uint16			mSquad_AliveCount;
 	uint16			word_390D0;
 	uint16			word_390D2;
 	int16			word_390D4;
@@ -185,7 +185,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_390EC;
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
-	uint16			word_390F4;
+	uint16			mRecruit_NextID;
 	int16			word_390F8;
 	sSquad_Member	mSquad[9];
 
@@ -719,8 +719,8 @@ public:
 	void			map_Load_Spt();
 	void			Squad_Member_Count();
 	void			Squad_Member_Sort();
-	void			sub_1142D();
-	void			Squad_Prepare_Member();
+	void			Squad_Prepare();
+	void			Squad_Prepare_NextRecruit();
 	void			Squad_Prepare_Sprites();
 	void			Camera_Position_Update();
 	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
@@ -771,12 +771,12 @@ public:
 	void			sub_13148();
 	void			Sprite_HelicopterCallPad_Check();
 	void			sub_131A2();
-	int16			sub_131DE();
-	void			sub_13255();
+	int16			Sprite_Create_Explosion();
+	void			Mission_GameOver();
 	void			Mission_Text_GameOver( sSprite* pData2C );
 	void			Mission_Paused();
 	void			sub_136D0();
-	void			sub_13800();
+	void			Video_Sleep_Wrapper();
 	void			Mouse_DrawCursor( );
 	void			sub_13C1C(  int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
 	void			sub_13C8A(  int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
@@ -1029,7 +1029,7 @@ public:
 	int16			Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			Sprite_Clear( sSprite* pSprite );
 	void			Sprite_Handle_Explodable( sSprite* pSprite );
-	void			sub_21483( sSprite* pSprite );
+	void			Sprite_Create_Shadow( sSprite* pSprite );
 	void			sub_21525( sSprite* pSprite );
 	int16			sub_21618( sSprite* pSprite );
 	void			sub_21702( sSprite* pSprite, int16 pData18 );
@@ -1097,8 +1097,8 @@ public:
 	int16			sub_25DCF( sSprite* pSprite );
 	void			sub_25F2B( sSprite* pSprite );
 	void			sub_25FDA( sSprite* pSprite );
-	void			sub_263F6( sSprite* pSprite );
-	void			sub_26450( sSprite* pSprite );
+	void			Sprite_Handle_Hostage_FrameUpdate2( sSprite* pSprite );
+	void			Sprite_Handle_Hostage_FrameUpdate( sSprite* pSprite );
 	void			sub_26490( sSprite* pSprite );
 	void			sub_264B0( sSprite* pSprite );
 	int16			sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
@@ -1306,7 +1306,7 @@ public:
 	void			Load_PlayerBin();
 	
 	void			video_Print_Text( const char* pText, int16 pPosY );
-	void			videoSleep();
+	void			Video_Sleep();
 
 	void			sleepLoop( int64 pMilliseconds );
 	int16			ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );

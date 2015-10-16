@@ -222,7 +222,7 @@ void cSound_PC::Music_Play( int16 pTrack ) {
 		"rjp.JON(15)",
 		"rjp.JON(16)",
 		"rjp.WARX4(1)",
-		"",
+		"rjp.WARX4(2)",
 		"",
 		"",
 		"",

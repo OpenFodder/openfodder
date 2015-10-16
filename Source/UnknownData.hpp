@@ -1515,7 +1515,7 @@ const int16 word_3E952[] = {
 	2, 2, 1, 1, 1, 1
 };
 
-const int16 word_3E94A[] = {
+const int16 mSprite_Hostage_Frames[] = {
 	0, 1, 2, 1
 };
 
