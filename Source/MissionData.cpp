@@ -164,152 +164,152 @@ const char* mMissionGoals[] = {
 	"GET CIVILIAN HOME"
 };
 
-const int8 byte_3D711[] = {1, -1 };      
-const int8 byte_3D713[] = {1, -1 };      
-const int8 byte_3D715[] = {1, 2, -1 };   
-const int8 byte_3D718[] = {1, 2, -1 };   
-const int8 byte_3D71B[] = {2, -1 };      
-const int8 byte_3D71D[] = {1, 2, -1 };   
-const int8 byte_3D720[] = {1, 2, -1 };   
-const int8 byte_3D723[] = {1, 2, -1 };   
-const int8 byte_3D726[] = {1, 2, -1 };   
-const int8 byte_3D729[] = {1, 2, -1 };   
-const int8 byte_3D72C[] = {2, -1 };      
-const int8 byte_3D72E[] = {1, 2, -1 };   
-const int8 byte_3D731[] = {2, -1 };      
-const int8 byte_3D733[] = {1, 2, -1 };   
-const int8 byte_3D736[] = {1, 2, -1 };   
-const int8 byte_3D739[] = {2, 4, -1 };   
-const int8 byte_3D73C[] = {1, 2, -1 };   
-const int8 byte_3D73F[] = {1, 2, -1 };   
-const int8 byte_3D742[] = {1, 2, -1 };   
-const int8 byte_3D745[] = {2, -1 };      
-const int8 byte_3D747[] = {1, 2, -1 };   
-const int8 byte_3D74A[] = {1, 2, -1 };   
-const int8 byte_3D74D[] = {1, 2, -1 };   
-const int8 byte_3D750[] = {1, 2, -1 };   
-const int8 byte_3D753[] = {2, 4, -1 };   
-const int8 byte_3D756[] = {2, -1 };      
-const int8 byte_3D758[] = {2, -1 };      
-const int8 byte_3D75A[] = {2, -1 };      
-const int8 byte_3D75C[] = {8, -1 };      
-const int8 byte_3D75E[] = {1, 2, -1 };   
-const int8 byte_3D761[] = {2, -1 };      
-const int8 byte_3D763[] = {1, -1 };      
-const int8 byte_3D765[] = {1, 2, -1 };   
-const int8 byte_3D768[] = {1, 2, -1 };   
-const int8 byte_3D76B[] = {3, -1 };      
-const int8 byte_3D76D[] = {1, 2, 6, -1 };
-const int8 byte_3D771[] = {1, 2, -1 };   
-const int8 byte_3D774[] = {2, -1 };      
-const int8 byte_3D776[] = {1, 2, -1 };   
-const int8 byte_3D779[] = {3, -1 };      
-const int8 byte_3D77B[] = {1, 2, 4, -1 };
-const int8 byte_3D77F[] = {2, -1 };      
-const int8 byte_3D781[] = {4, 1, 2, -1 };
-const int8 byte_3D785[] = {1, 2, -1 };   
-const int8 byte_3D788[] = {2, -1 };      
-const int8 byte_3D78A[] = {1, 3, 2, -1 };
-const int8 byte_3D78E[] = {3, -1 };      
-const int8 byte_3D790[] = {4, 2, -1 };   
-const int8 byte_3D793[] = {3, -1 };      
-const int8 byte_3D795[] = {3, -1 };      
-const int8 byte_3D797[] = {1, 2, -1 };   
-const int8 byte_3D79A[] = {1, 2, -1 };   
-const int8 byte_3D79D[] = {2, -1 };      
-const int8 byte_3D79F[] = {2, -1 };      
-const int8 byte_3D7A1[] = {2, 8, -1 };   
-const int8 byte_3D7A4[] = {1, 2, -1 };   
-const int8 byte_3D7A7[] = {1, 2, -1 };   
-const int8 byte_3D7AA[] = {1, 3, 2, -1 };
-const int8 byte_3D7AE[] = {1, 2, -1 };   
-const int8 byte_3D7B1[] = {1, 4, -1 };   
-const int8 byte_3D7B4[] = {1, 2, -1 };   
-const int8 byte_3D7B7[] = {1, 2, -1 };   
-const int8 byte_3D7BA[] = {1, 2, -1 };   
-const int8 byte_3D7BD[] = {1, -1 };      
-const int8 byte_3D7BF[] = {2, -1 };      
-const int8 byte_3D7C1[] = {1, -1 };      
-const int8 byte_3D7C3[] = {1, -1 };      
-const int8 byte_3D7C5[] = {2, -1 };      
-const int8 byte_3D7C7[] = {1, 2, -1 };   
-const int8 byte_3D7CA[] = {1, 7, 2, -1 };
-const int8 byte_3D7CE[] = {5, -1 };      
-const int8 byte_3D7D0[] = {2, -1 };      
+const int8 mMap1_Goal[] = {1, -1 };      
+const int8 mMap2_Goal[] = {1, -1 };      
+const int8 mMap3_Goal[] = {1, 2, -1 };   
+const int8 mMap4_Goal[] = {1, 2, -1 };   
+const int8 mMap5_Goal[] = {2, -1 };      
+const int8 mMap6_Goal[] = {1, 2, -1 };   
+const int8 mMap7_Goal[] = {1, 2, -1 };   
+const int8 mMap8_Goal[] = {1, 2, -1 };   
+const int8 mMap9_Goal[] = {1, 2, -1 };   
+const int8 mMap10_Goal[] = {1, 2, -1 };   
+const int8 mMap11_Goal[] = {2, -1 };      
+const int8 mMap12_Goal[] = {1, 2, -1 };   
+const int8 mMap13_Goal[] = {2, -1 };      
+const int8 mMap14_Goal[] = {1, 2, -1 };   
+const int8 mMap15_Goal[] = {1, 2, -1 };   
+const int8 mMap16_Goal[] = {2, 4, -1 };   
+const int8 mMap17_Goal[] = {1, 2, -1 };   
+const int8 mMap18_Goal[] = {1, 2, -1 };   
+const int8 mMap19_Goal[] = {1, 2, -1 };   
+const int8 mMap20_Goal[] = {2, -1 };      
+const int8 mMap21_Goal[] = {1, 2, -1 };   
+const int8 mMap22_Goal[] = {1, 2, -1 };   
+const int8 mMap23_Goal[] = {1, 2, -1 };   
+const int8 mMap24_Goal[] = {1, 2, -1 };   
+const int8 mMap25_Goal[] = {2, 4, -1 };   
+const int8 mMap26_Goal[] = {2, -1 };      
+const int8 mMap27_Goal[] = {2, -1 };      
+const int8 mMap28_Goal[] = {2, -1 };      
+const int8 mMap29_Goal[] = {8, -1 };      
+const int8 mMap30_Goal[] = {1, 2, -1 };   
+const int8 mMap31_Goal[] = {2, -1 };      
+const int8 mMap32_Goal[] = {1, -1 };      
+const int8 mMap33_Goal[] = {1, 2, -1 };   
+const int8 mMap34_Goal[] = {1, 2, -1 };   
+const int8 mMap35_Goal[] = {3, -1 };      
+const int8 mMap36_Goal[] = {1, 2, 6, -1 };
+const int8 mMap37_Goal[] = {1, 2, -1 };   
+const int8 mMap38_Goal[] = {2, -1 };      
+const int8 mMap39_Goal[] = {1, 2, -1 };   
+const int8 mMap40_Goal[] = {3, -1 };      
+const int8 mMap41_Goal[] = {1, 2, 4, -1 };
+const int8 mMap42_Goal[] = {2, -1 };      
+const int8 mMap43_Goal[] = {4, 1, 2, -1 };
+const int8 mMap44_Goal[] = {1, 2, -1 };   
+const int8 mMap45_Goal[] = {2, -1 };      
+const int8 mMap46_Goal[] = {1, 3, 2, -1 };
+const int8 mMap47_Goal[] = {3, -1 };      
+const int8 mMap48_Goal[] = {4, 2, -1 };   
+const int8 mMap49_Goal[] = {3, -1 };      
+const int8 mMap50_Goal[] = {3, -1 };      
+const int8 mMap51_Goal[] = {1, 2, -1 };   
+const int8 mMap52_Goal[] = {1, 2, -1 };   
+const int8 mMap53_Goal[] = {2, -1 };      
+const int8 mMap54_Goal[] = {2, -1 };      
+const int8 mMap55_Goal[] = {2, 8, -1 };   
+const int8 mMap56_Goal[] = {1, 2, -1 };   
+const int8 mMap57_Goal[] = {1, 2, -1 };   
+const int8 mMap58_Goal[] = {1, 3, 2, -1 };
+const int8 mMap59_Goal[] = {1, 2, -1 };   
+const int8 mMap60_Goal[] = {1, 4, -1 };   
+const int8 mMap61_Goal[] = {1, 2, -1 };   
+const int8 mMap62_Goal[] = {1, 2, -1 };   
+const int8 mMap63_Goal[] = {1, 2, -1 };   
+const int8 mMap64_Goal[] = {1, -1 };      
+const int8 mMap65_Goal[] = {2, -1 };      
+const int8 mMap66_Goal[] = {1, -1 };      
+const int8 mMap67_Goal[] = {1, -1 };      
+const int8 mMap68_Goal[] = {2, -1 };      
+const int8 mMap69_Goal[] = {1, 2, -1 };   
+const int8 mMap70_Goal[] = {1, 7, 2, -1 };
+const int8 mMap71_Goal[] = {5, -1 };      
+const int8 mMap72_Goal[] = {2, -1 };      
 
-const int8* mMission_Goals[] = {
-	byte_3D711,
-	byte_3D713,
-	byte_3D715,
-	byte_3D718,
-	byte_3D71B,
-	byte_3D71D,
-	byte_3D720,
-	byte_3D723,
-	byte_3D726,
-	byte_3D729,
-	byte_3D72C,
-	byte_3D72E,
-	byte_3D731,
-	byte_3D733,
-	byte_3D736,
-	byte_3D739,
-	byte_3D73C,
-	byte_3D73F,
-	byte_3D742,
-	byte_3D745,
-	byte_3D747,
-	byte_3D74A,
-	byte_3D74D,
-	byte_3D750,
-	byte_3D753,
-	byte_3D756,
-	byte_3D758,
-	byte_3D75A,
-	byte_3D75C,
-	byte_3D75E,
-	byte_3D761,
-	byte_3D763,
-	byte_3D765,
-	byte_3D768,
-	byte_3D76B,
-	byte_3D76D,
-	byte_3D771,
-	byte_3D774,
-	byte_3D776,
-	byte_3D779,
-	byte_3D77B,
-	byte_3D77F,
-	byte_3D781,
-	byte_3D785,
-	byte_3D788,
-	byte_3D78A,
-	byte_3D78E,
-	byte_3D790,
-	byte_3D793,
-	byte_3D795,
-	byte_3D797,
-	byte_3D79A,
-	byte_3D79D,
-	byte_3D79F,
-	byte_3D7A1,
-	byte_3D7A4,
-	byte_3D7A7,
-	byte_3D7AA,
-	byte_3D7AE,
-	byte_3D7B1,
-	byte_3D7B4,
-	byte_3D7B7,
-	byte_3D7BA,
-	byte_3D7BD,
-	byte_3D7BF,
-	byte_3D7C1,
-	byte_3D7C3,
-	byte_3D7C5,
-	byte_3D7C7,
-	byte_3D7CA,
-	byte_3D7CE,
-	byte_3D7D0
+const int8* mMap_Goals[] = {
+	mMap1_Goal,
+	mMap2_Goal,
+	mMap3_Goal,
+	mMap4_Goal,
+	mMap5_Goal,
+	mMap6_Goal,
+	mMap7_Goal,
+	mMap8_Goal,
+	mMap9_Goal,
+	mMap10_Goal,
+	mMap11_Goal,
+	mMap12_Goal,
+	mMap13_Goal,
+	mMap14_Goal,
+	mMap15_Goal,
+	mMap16_Goal,
+	mMap17_Goal,
+	mMap18_Goal,
+	mMap19_Goal,
+	mMap20_Goal,
+	mMap21_Goal,
+	mMap22_Goal,
+	mMap23_Goal,
+	mMap24_Goal,
+	mMap25_Goal,
+	mMap26_Goal,
+	mMap27_Goal,
+	mMap28_Goal,
+	mMap29_Goal,
+	mMap30_Goal,
+	mMap31_Goal,
+	mMap32_Goal,
+	mMap33_Goal,
+	mMap34_Goal,
+	mMap35_Goal,
+	mMap36_Goal,
+	mMap37_Goal,
+	mMap38_Goal,
+	mMap39_Goal,
+	mMap40_Goal,
+	mMap41_Goal,
+	mMap42_Goal,
+	mMap43_Goal,
+	mMap44_Goal,
+	mMap45_Goal,
+	mMap46_Goal,
+	mMap47_Goal,
+	mMap48_Goal,
+	mMap49_Goal,
+	mMap50_Goal,
+	mMap51_Goal,
+	mMap52_Goal,
+	mMap53_Goal,
+	mMap54_Goal,
+	mMap55_Goal,
+	mMap56_Goal,
+	mMap57_Goal,
+	mMap58_Goal,
+	mMap59_Goal,
+	mMap60_Goal,
+	mMap61_Goal,
+	mMap62_Goal,
+	mMap63_Goal,
+	mMap64_Goal,
+	mMap65_Goal,
+	mMap66_Goal,
+	mMap67_Goal,
+	mMap68_Goal,
+	mMap69_Goal,
+	mMap70_Goal,
+	mMap71_Goal,
+	mMap72_Goal
 };
 
 const sMissionData mMissionData_Plus = {

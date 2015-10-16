@@ -491,12 +491,12 @@ class cFodder : public cSingleton < cFodder > {
 
 	void			(cFodder::*dword_3B30D)(void);
 
-	int16			word_3B32F;
+	int16			mInputString_Position;
 	int16			word_3B335;
 	int16			word_3B33D;
 	int16			word_3B33F;
 
-	int16			mMap_Goals[8];
+	int16			mPhase_Goals[8];
 	int16			word_3B447;
 	int16			word_3B449;
 	int16			mSoundEffectToPlay;
@@ -746,7 +746,7 @@ public:
 	void			sub_124DB();
 	void			Mission_Goals_Check();
 	void			sub_126BB();
-	void			Mission_Goals_Set();
+	void			Mission_Map_Goals_Set();
 	void			Mission_Progress_Check( );
 	void			Mission_Text_Completed();
 	void			Mission_Text_Sprite_Mission( sSprite* pData2C );
@@ -1171,7 +1171,7 @@ public:
 	void			Game_Save();
 	void			sub_2E3E3( sGUI_Element* pData20 );
 	void			sub_2E5B3();
-	void			sub_2E5C3();
+	void			String_Print_Input();
 	void			sub_2E6A9();
 	void			sub_2E704();
 	void			Game_Load();
