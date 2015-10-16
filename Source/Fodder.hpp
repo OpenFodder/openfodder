@@ -86,7 +86,7 @@ struct struct_7 {
 	int16	field_2;
 };
 
-union struct_8 {
+union sMapTarget {
 	int32 asInt;
 
 	struct {
@@ -178,7 +178,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390D0;
 	uint16			word_390D2;
 	int16			word_390D4;
-	sSprite*		word_390D6[8];
+	sSprite*		mSquad_SpritePtrs[8];	// unused
 	int16			word_390E6;
 	uint16			word_390E8;
 	int16			word_390EA;
@@ -267,7 +267,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FB4;
 	int16			word_39FB6;
 	int16			word_39FB8;
-	sSprite*		word_39FCE;
+	sSprite*		mSquad_Leader;
 
 	int16			mSquad_Selected;
 	int16			word_39FD2;
@@ -279,9 +279,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FF8;
 	int16			word_39FFA;
 
-	int16			dword_3A000;
-	int16			dword_3A004;
-	int16			dword_3A008;
 	int16			word_3A00C;
 	int16			word_3A00E;
 	int16			word_3A010;
@@ -327,17 +324,17 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3BB;
 	int16			word_3A3BD;
 	int16			word_3A3BF;
-	struct_8*		dword_3A3F9;
-	struct_8		stru_3A3FD[30];
-	struct_8		stru_3A475[30];
-	struct_8		stru_3A4ED[30];
-	struct_8		stru_3A565[30];
-	struct_8		stru_3A5DD[30];
-	struct_8		stru_3A655[30];
-	struct_8		stru_3A6CD[30];
-	struct_8		stru_3A745[30];
-	struct_8		stru_3A7BD[30];
-	struct_8		stru_3A835[30];
+	sMapTarget*		dword_3A3F9;
+	sMapTarget		stru_3A3FD[30];
+	sMapTarget		stru_3A475[30];
+	sMapTarget		stru_3A4ED[30];
+	sMapTarget		stru_3A565[30];
+	sMapTarget		stru_3A5DD[30];
+	sMapTarget		stru_3A655[30];
+	sMapTarget		stru_3A6CD[30];
+	sMapTarget		stru_3A745[30];
+	sMapTarget		stru_3A7BD[30];
+	sMapTarget		stru_3A835[30];
 	int16			word_3A8CF;
 
 	int16			word_3A9A6[2];
@@ -569,7 +566,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BED5[5];
 	uint16			word_3BEDF[10];
 	
-	struct_8*		off_3BEF3[10];
+	sMapTarget*		mSprite_WalkTargets[10];
 	int8			byte_3BF1B[3];
 	sSprite*		word_3BF1E[6];
 
@@ -710,25 +707,25 @@ public:
 	void			sub_10BBC();
 	void			Squad_Clear();
 	void			Heroes_Clear();
-	void			sub_10CE7();
-	void			sub_10D24();
-	void			sub_10D61();
-	void			sub_10D9F();
+	void			Mission_Memory_Backup();
+	void			Mission_Memory_Restore();
+	void			Mission_Memory_Clear();
+	void			Mission_Prepare_Squads();
 	void			sub_10DEC();
-	void			sub_10EA4();
-	void			sub_10EC3();
-	void			sub_10EE3();
+	void			Squad_Set_Squad_Leader();
+	void			Sprite_Clear_All_Wrapper();
+	void			Sprite_Clear_All();
 
 	void			map_Load_Spt();
 	void			Squad_Member_Count();
 	void			Squad_Member_Sort();
 	void			sub_1142D();
-	void			Squad_PrepareMember();
-	void			sub_115F7();
+	void			Squad_Prepare_Member();
+	void			Squad_Prepare_Sprites();
 	void			Camera_Position_Update();
 	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
-	void			sub_11B06();
+	void			Camera_Calculate_Scroll();
 	void			sub_11CAD();
 	void			sub_11CD6( );
 	void			map_Load_Resources();
@@ -738,7 +735,7 @@ public:
 	void			sub_11FCD();
 
 	void			sub_12018();
-	void			sub_12083();
+	void			Camera_Reset();
 	void			sub_120F6();
 	void			Camera_Adjust_Row( int32* pData20 );
 	void			sub_12245();
@@ -885,7 +882,7 @@ public:
 	void			sub_199B2( sSprite* pSprite );							// 3
 	void			Sprite_Handle_Enemy( sSprite* pSprite );				// 5
 	void			Sprite_Handle_Bullet( sSprite* pSprite );				// 6
-	void			Sprite_Handle_Helicopter_Unk( sSprite* pSprite );
+	void			Sprite_Handle_Helicopter( sSprite* pSprite );
 	void			Sprite_Handle_Explosion( sSprite* pSprite );			// 12
 	void			Sprite_Handle_Shrub( sSprite* pSprite );				// 13
 	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14
@@ -1071,7 +1068,7 @@ public:
 	void			sub_23879( sSprite* pSprite );
 	int16			Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C );
 	void			sub_23C70( sSprite* pData2C );
-	void			Sprite_Handle_Helicopter( sSprite* pSprite );
+	void			Sprite_Handle_Helicopter_Human( sSprite* pSprite );
 	int16			sub_23D57( sSprite* pSprite );
 	void			sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
 	void			sub_23EA6( sSprite* pSprite );
@@ -1082,7 +1079,7 @@ public:
 	int16			sub_2449E( sSprite* pSprite );
 	void			sub_245BF( sSprite* pSprite );
 	int16			sub_246CC( sSprite* pSprite );
-	void			sub_248B7( sSprite* pSprite );
+	void			Sprite_Handle_Helicopter_Human_Deploy_Weapon( sSprite* pSprite );
 	int16			Sprite_Create_Grenade( sSprite* pSprite );
 	int16			Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
 	int16			sub_2531F( sSprite* pSprite, sSprite*& pData30 );
@@ -1110,7 +1107,7 @@ public:
 	void			sub_2682B( sSprite* pSprite, int16 pData1C );
 
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
-	int16			sub_29EC2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+	int16			Direction_Calculate( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	void			tool_RandomSeed();
 	int16			tool_RandomGet();
@@ -1125,7 +1122,7 @@ public:
 	int16			sub_2A7E2( int16& pData0, int16& pData4 );
 	int16			Map_Sprite_Check_Position( sSprite* pSprite, int16& pData0, int16& pData4 );
 	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
-	void			sub_2A932( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			Squad_Walk_Target_Set( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	int16			SquadMember_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			sub_2AE81( int16& pData0, int16& pData4 );
