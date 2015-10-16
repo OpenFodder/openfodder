@@ -1341,4 +1341,5 @@ public:
 	void			VersionSelect_1();
 	void			VersionSelect_2();
 	void			VersionSelect_3();
+	void			VersionSelect_4();
 };
