@@ -856,8 +856,8 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
 
 	mFodder->sub_13C1C( 0xE, 0x0A, 0, 0x9B );
 
-	mFodder->String_CalculateWidth( 320, mUnkStringModifier_Recruit, strHomeAndAway );
-	mFodder->String_Print( mUnkStringModifier_Recruit, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
+	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
+	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
 	
 	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AE ));
 	mFodder->sub_16B55( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );

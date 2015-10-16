@@ -67,7 +67,7 @@ struct sRecruitSpritePos {
 	int16*	field_8;
 };
 
-struct struct_4 {
+struct sRecruit_Screen_Pos {
 	int16	field_0;
 	int16	field_2;
 	int16	field_4;
@@ -460,7 +460,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B1EF;
 	int16			word_3B1F1;
 
-	const struct_4*		dword_3B1FB;
+	const sRecruit_Screen_Pos*		dword_3B1FB;
 	
 	int16			mMap_TileSet;
 	sSprite*		dword_3B20B;
@@ -687,7 +687,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			byte_44AC0;
 	int16			word_44B47;
 
-	int16			word_82132;
+	int16			mDemo_ExitMenu;
 
 	int64			mTicks;
 	int64			mTicksDiff;
@@ -697,7 +697,7 @@ class cFodder : public cSingleton < cFodder > {
 	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
-	void			AFX_Show();
+	void			Demo_ShowMenu();
 
 	int16			Mission_Loop( );
 
@@ -744,9 +744,9 @@ public:
 	void			Mission_Sprites_Handle( );
 	void			Sprite_Sort_DrawList();
 	void			sub_124DB();
-	void			Mission_Goals_Check();
+	void			Mission_Phase_Goals_Check();
 	void			sub_126BB();
-	void			Mission_Map_Goals_Set();
+	void			Mission_Phase_Goals_Set();
 	void			Mission_Progress_Check( );
 	void			Mission_Text_Completed();
 	void			Mission_Text_Sprite_Mission( sSprite* pData2C );
@@ -845,7 +845,7 @@ public:
 	void			sub_18099( uint16*& pDi,int16 ax, int16 bx );
 	void			sub_18149();
 	void			sub_181BD();
-	void			sub_181E6( uint16*& pDi, const std::string& pText, uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
+	void			sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
 	int16			sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_182EA();
 	int16			sub_184C7();
@@ -854,7 +854,6 @@ public:
 	void			Service_Promotion_Check();
 	void			Service_Promotion_SetNewRanks();
 
-	void			video_Draw_Unk_2( );
 	/* End Promotion / Heroes */
 
 	int16			Squad_Join( sSprite* pSprite );
@@ -998,7 +997,7 @@ public:
 	void			loc_1F092( sSprite* pSprite, sSprite* pData24 );
 
 	int16			sub_1F21E( sSprite* pSprite );
-	void			sub_1F429( sSprite* pSprite );
+	void			Sprite_Handle_Troop( sSprite* pSprite );
 	void			sub_1F5A0( sSprite* pSprite );
 	void			sub_1F5CA( sSprite* pSprite );
 	void			sub_1F623( sSprite* pSprite );
@@ -1054,7 +1053,7 @@ public:
 	void			sub_22A3D( sSprite* pSprite );
 	int16			sub_22A55( sSprite* pSprite );
 	void			sub_22AA9( sSprite* pSprite );
-	void			sub_22B71( sSprite* pSprite );
+	void			Sprite_Handle_Player_Unk( sSprite* pSprite );
 	void			sub_22C87( sSprite* pSprite );
 	void			sub_22CD7( sSprite* pSprite, int16& Data0, int16& Data4 );
 	void			sub_22DFC( sSprite* pSprite );
@@ -1183,24 +1182,24 @@ public:
 	void			GUI_Button_NoAction2();
 	void			sub_2EACA();
 	
-	void			sub_A03E0();
-	void			sub_A03EE();
-	void			sub_A0400();
+	void			GUI_Button_SelectQuiz();
+	void			GUI_Button_SelectMap0();
+	void			GUI_Button_SelectMap1();
 	void			GUI_Element_Mouse_Over( const sGUI_Element *pA0 );
-	void			sub_9BA08();
-	void			sub_9BA1A();
-	void			sub_A0436();
-	void			sub_A056E();
-	void			sub_A0578();
-	void			sub_A058C();
-	void			sub_A05A0();
-	void			sub_A05B4();
-	void			sub_A05C8();
-	void			sub_A05DC();
-	void			sub_A05F0();
-	void			sub_A0604();
-	void			sub_A0618();
-	void			sub_A062C();
+	void			GUI_Button_SelectMap2();
+	void			GUI_Button_SelectMap3();
+	void			Demo_Quiz();
+	void			GUI_Button_ExitMenu();
+	void			GUI_Button_Quiz_2();
+	void			GUI_Button_Quiz_3();
+	void			GUI_Button_Quiz_4();
+	void			GUI_Button_Quiz_5();
+	void			GUI_Button_Quiz_6();
+	void			GUI_Button_Quiz_7();
+	void			GUI_Button_Quiz_8();
+	void			GUI_Button_Quiz_9();
+	void			GUI_Button_Quiz_10();
+	void			GUI_Button_Quiz_11();
 	void			sub_A0640( const char* pFilename );
 
 	void			sub_2EBE0( int16& pData0, int16& pData4 );

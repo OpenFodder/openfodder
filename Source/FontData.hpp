@@ -2,7 +2,7 @@
  *  Cannon Fodder
  *  ------------------------
  *
- *  Copyright (C) 2008-2015 Robert Crossfield
+ *  Copyright (C) 2008-2015 Robert Crossfield <robcrossfield@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,17 +20,10 @@
  *
  */
 
-class cFodder;
-
-struct sGUI_Element {
-	int16	(cFodder::*field_0)();
-	int16	field_4;
-	int16	field_6;
-	int16	field_8;
-	int16	field_A;
-	void	(cFodder::*mMouseInsideFuncPtr)();	// field_c
-};
-
-extern const sGUI_Element mAfx_Buttons[];
-extern const sGUI_Element mPlus_Buttons[];
-extern const sGUI_Element mPlusQuiz_Buttons[];
+const extern uint8 mFont_Briefing_Width[];
+const extern uint8 mFont_Recruit_Width[];
+const extern uint8 mFont_Sidebar_Width[];
+const extern uint8 mFont_Underlined_Width[];
+const extern uint8 mFont_Service_Width[];
+const extern uint8 mFont_Intro_Width[];
+const extern uint8 mFont_ServiceName_Width[];

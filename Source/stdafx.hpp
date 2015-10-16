@@ -107,6 +107,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "IntroData.hpp"
 #include "MissionData.hpp"
+#include "FontData.hpp"
 #include "Versions.hpp"
 
 #include "Window.hpp"

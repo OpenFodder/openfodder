@@ -2,7 +2,7 @@
  *  Cannon Fodder
  *  ------------------------
  *
- *  Copyright (C) 2008-2015 Robert Crossfield
+ *  Copyright (C) 2008-2015 Robert Crossfield <robcrossfield@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
+
 #include "stdafx.hpp"
 
 const std::string mMapTypes[] = {
@@ -164,78 +165,78 @@ const char* mMissionGoals[] = {
 	"GET CIVILIAN HOME"
 };
 
-const int8 mMap1_Goal[] = {1, -1 };      
-const int8 mMap2_Goal[] = {1, -1 };      
-const int8 mMap3_Goal[] = {1, 2, -1 };   
-const int8 mMap4_Goal[] = {1, 2, -1 };   
-const int8 mMap5_Goal[] = {2, -1 };      
-const int8 mMap6_Goal[] = {1, 2, -1 };   
-const int8 mMap7_Goal[] = {1, 2, -1 };   
-const int8 mMap8_Goal[] = {1, 2, -1 };   
-const int8 mMap9_Goal[] = {1, 2, -1 };   
-const int8 mMap10_Goal[] = {1, 2, -1 };   
-const int8 mMap11_Goal[] = {2, -1 };      
-const int8 mMap12_Goal[] = {1, 2, -1 };   
-const int8 mMap13_Goal[] = {2, -1 };      
-const int8 mMap14_Goal[] = {1, 2, -1 };   
-const int8 mMap15_Goal[] = {1, 2, -1 };   
-const int8 mMap16_Goal[] = {2, 4, -1 };   
-const int8 mMap17_Goal[] = {1, 2, -1 };   
-const int8 mMap18_Goal[] = {1, 2, -1 };   
-const int8 mMap19_Goal[] = {1, 2, -1 };   
-const int8 mMap20_Goal[] = {2, -1 };      
-const int8 mMap21_Goal[] = {1, 2, -1 };   
-const int8 mMap22_Goal[] = {1, 2, -1 };   
-const int8 mMap23_Goal[] = {1, 2, -1 };   
-const int8 mMap24_Goal[] = {1, 2, -1 };   
-const int8 mMap25_Goal[] = {2, 4, -1 };   
-const int8 mMap26_Goal[] = {2, -1 };      
-const int8 mMap27_Goal[] = {2, -1 };      
-const int8 mMap28_Goal[] = {2, -1 };      
-const int8 mMap29_Goal[] = {8, -1 };      
-const int8 mMap30_Goal[] = {1, 2, -1 };   
-const int8 mMap31_Goal[] = {2, -1 };      
-const int8 mMap32_Goal[] = {1, -1 };      
-const int8 mMap33_Goal[] = {1, 2, -1 };   
-const int8 mMap34_Goal[] = {1, 2, -1 };   
-const int8 mMap35_Goal[] = {3, -1 };      
-const int8 mMap36_Goal[] = {1, 2, 6, -1 };
-const int8 mMap37_Goal[] = {1, 2, -1 };   
-const int8 mMap38_Goal[] = {2, -1 };      
-const int8 mMap39_Goal[] = {1, 2, -1 };   
-const int8 mMap40_Goal[] = {3, -1 };      
-const int8 mMap41_Goal[] = {1, 2, 4, -1 };
-const int8 mMap42_Goal[] = {2, -1 };      
-const int8 mMap43_Goal[] = {4, 1, 2, -1 };
-const int8 mMap44_Goal[] = {1, 2, -1 };   
-const int8 mMap45_Goal[] = {2, -1 };      
-const int8 mMap46_Goal[] = {1, 3, 2, -1 };
-const int8 mMap47_Goal[] = {3, -1 };      
-const int8 mMap48_Goal[] = {4, 2, -1 };   
-const int8 mMap49_Goal[] = {3, -1 };      
-const int8 mMap50_Goal[] = {3, -1 };      
-const int8 mMap51_Goal[] = {1, 2, -1 };   
-const int8 mMap52_Goal[] = {1, 2, -1 };   
-const int8 mMap53_Goal[] = {2, -1 };      
-const int8 mMap54_Goal[] = {2, -1 };      
-const int8 mMap55_Goal[] = {2, 8, -1 };   
-const int8 mMap56_Goal[] = {1, 2, -1 };   
-const int8 mMap57_Goal[] = {1, 2, -1 };   
-const int8 mMap58_Goal[] = {1, 3, 2, -1 };
-const int8 mMap59_Goal[] = {1, 2, -1 };   
-const int8 mMap60_Goal[] = {1, 4, -1 };   
-const int8 mMap61_Goal[] = {1, 2, -1 };   
-const int8 mMap62_Goal[] = {1, 2, -1 };   
-const int8 mMap63_Goal[] = {1, 2, -1 };   
-const int8 mMap64_Goal[] = {1, -1 };      
-const int8 mMap65_Goal[] = {2, -1 };      
-const int8 mMap66_Goal[] = {1, -1 };      
-const int8 mMap67_Goal[] = {1, -1 };      
-const int8 mMap68_Goal[] = {2, -1 };      
-const int8 mMap69_Goal[] = {1, 2, -1 };   
-const int8 mMap70_Goal[] = {1, 7, 2, -1 };
-const int8 mMap71_Goal[] = {5, -1 };      
-const int8 mMap72_Goal[] = {2, -1 };      
+const int8 mMap1_Goal[] = {eGoal_Kill_All_Enemy,																					eGoal_End };
+const int8 mMap2_Goal[] = {eGoal_Kill_All_Enemy,																					eGoal_End };
+const int8 mMap3_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap4_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap5_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap6_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap7_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap8_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap9_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap10_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap11_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap12_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap13_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap14_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap15_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap16_Goal[] = {eGoal_Destroy_Enemy_Buildings,		eGoal_Protect_Civilians,											eGoal_End }; 
+const int8 mMap17_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap18_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap19_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap20_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap21_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap22_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap23_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap24_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap25_Goal[] = {eGoal_Destroy_Enemy_Buildings,		eGoal_Protect_Civilians,											eGoal_End }; 
+const int8 mMap26_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap27_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap28_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap29_Goal[] = {eGoal_Get_Civilian_Home,																				eGoal_End };
+const int8 mMap30_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap31_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap32_Goal[] = {eGoal_Kill_All_Enemy,																					eGoal_End };
+const int8 mMap33_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap34_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap35_Goal[] = {eGoal_Rescue_Hostages,																					eGoal_End };
+const int8 mMap36_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,	eGoal_Destroy_Factory,				eGoal_End };
+const int8 mMap37_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap38_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap39_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap40_Goal[] = {eGoal_Rescue_Hostages,																					eGoal_End };
+const int8 mMap41_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,	eGoal_Protect_Civilians,			eGoal_End };
+const int8 mMap42_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap43_Goal[] = {eGoal_Protect_Civilians,			eGoal_Kill_All_Enemy,			eGoal_Destroy_Enemy_Buildings,		eGoal_End };
+const int8 mMap44_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap45_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap46_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Rescue_Hostages,			eGoal_Destroy_Enemy_Buildings,		eGoal_End };
+const int8 mMap47_Goal[] = {eGoal_Rescue_Hostages,																					eGoal_End };
+const int8 mMap48_Goal[] = {eGoal_Protect_Civilians,			eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap49_Goal[] = {eGoal_Rescue_Hostages,																					eGoal_End };
+const int8 mMap50_Goal[] = {eGoal_Rescue_Hostages,																					eGoal_End };
+const int8 mMap51_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap52_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap53_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap54_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap55_Goal[] = {eGoal_Destroy_Enemy_Buildings,		eGoal_Get_Civilian_Home,											eGoal_End }; 
+const int8 mMap56_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap57_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap58_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Rescue_Hostages,			eGoal_Destroy_Enemy_Buildings,		eGoal_End };
+const int8 mMap59_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap60_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Protect_Civilians,											eGoal_End }; 
+const int8 mMap61_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap62_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap63_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap64_Goal[] = {eGoal_Kill_All_Enemy,																					eGoal_End };
+const int8 mMap65_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap66_Goal[] = {eGoal_Kill_All_Enemy,																					eGoal_End };
+const int8 mMap67_Goal[] = {eGoal_Kill_All_Enemy,																					eGoal_End };
+const int8 mMap68_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
+const int8 mMap69_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Enemy_Buildings,										eGoal_End }; 
+const int8 mMap70_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Computer,			eGoal_Destroy_Enemy_Buildings,		eGoal_End };
+const int8 mMap71_Goal[] = {eGoal_Kidnap_Leader,																					eGoal_End };
+const int8 mMap72_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
 
 const int8* mMap_Goals[] = {
 	mMap1_Goal,
