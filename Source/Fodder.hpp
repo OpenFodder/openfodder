@@ -463,7 +463,7 @@ class cFodder : public cSingleton < cFodder > {
 	const sRecruit_Screen_Pos*		dword_3B1FB;
 	
 	int16			mMap_TileSet;
-	sSprite*		dword_3B20B;
+	sSprite*		mSquad_CurrentVehicle;
 	int16			word_3B20F;
 	int16			word_3B211;
 	sSprite*		dword_3B213[15];
@@ -974,7 +974,7 @@ public:
 	void			sub_1DD4C( sSprite* pSprite );							// 95
 	void			Sprite_Handle_Set50RocketsAndRank( sSprite* pSprite );	// 96
 	void			Sprite_Handle_MissileHoming2( sSprite* pSprite );		// 97
-	void			Sprite_Handle_SquadToGeneral_Give_50HomingMissiles( sSprite* pSprite );							// 98
+	void			Sprite_Handle_SquadToGeneral_Give_50HomingMissiles( sSprite* pSprite );				// 98
 	void			Sprite_Handle_Helicopter_CallPad( sSprite* pSprite );	// 99
 
 	void			sub_1DFD2( sSprite* pSprite );							// 100
@@ -984,7 +984,7 @@ public:
 	void			sub_1E022( sSprite* pSprite );							// 104
 	void			Sprite_Handle_Turret_HomingMissile( sSprite* pSprite );	// 105
 	void			Sprite_Handle_Hostage_2( sSprite* pSprite );			// 106
-	void			sub_1E031( sSprite* pSprite );							// 107
+	void			Sprite_Handle_Helicopter_HomingMissile_Enemy2( sSprite* pSprite );					// 107
 	void			sub_1E036( sSprite* pSprite );							// 108
 	void			sub_1E042( sSprite* pSprite );							// 109
 	void			sub_1E04E( sSprite* pSprite );							// 110
@@ -1200,7 +1200,7 @@ public:
 	void			GUI_Button_Quiz_9();
 	void			GUI_Button_Quiz_10();
 	void			GUI_Button_Quiz_11();
-	void			sub_A0640( const char* pFilename );
+	void			Demo_Quiz_ShowScreen( const char* pFilename );
 
 	void			sub_2EBE0( int16& pData0, int16& pData4 );
 	void			Mission_Sidebar_Prepare( int16 pData0, int16 pData4 );

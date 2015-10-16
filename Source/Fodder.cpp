@@ -429,7 +429,7 @@ Mouse_In_Playfield:;
 	
 	sub_29E30( Data0, Data4, Data8, DataC );
 	
-	if( dword_3B20B ) {
+	if( mSquad_CurrentVehicle ) {
 	
 		if( Data0 >= 0x64 )
 			Data0 = 0x64;
@@ -837,7 +837,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3B1F1 = 0;
 	dword_3B1FB = 0;
 	
-	dword_3B20B = 0;
+	mSquad_CurrentVehicle = 0;
 	word_3B20F = 0;
 	word_3B211 = 0;
 	for (uint16 x = 0; x < 15; ++x) {
@@ -2470,7 +2470,7 @@ void cFodder::sub_12B6E() {
 				if (!Data24->field_6E)
 					goto loc_12C5F;
 
-				dword_3B20B = (sSprite*) Data24->field_6A;
+				mSquad_CurrentVehicle = (sSprite*) Data24->field_6A;
 				Data0 = -1;
 				continue;
 
@@ -2480,7 +2480,7 @@ void cFodder::sub_12B6E() {
 				if (Data0 == 0)
 					goto loc_12C5F;
 
-				sSprite* Dataa0 = dword_3B20B;
+				sSprite* Dataa0 = mSquad_CurrentVehicle;
 				dword_3B24F[Data8] = Dataa0;
 				mSquad_Leader = Dataa0;
 				return;
@@ -2490,7 +2490,7 @@ void cFodder::sub_12B6E() {
 	}
 
 loc_12C5F:;
-	dword_3B20B = 0;
+	mSquad_CurrentVehicle = 0;
 }
 
 void cFodder::sub_12C69() {
@@ -5555,7 +5555,7 @@ void cFodder::sub_30AB0() {
 		if (!Data20->field_20)
 			goto loc_30C7C;
 
-		if (Data20 != dword_3B20B)
+		if (Data20 != mSquad_CurrentVehicle)
 			return;
 
 		if (Data20->field_8 == 0xA5)
@@ -5568,7 +5568,7 @@ void cFodder::sub_30AB0() {
 
 	loc_30C7C:;
 
-		if (Data20 == dword_3B20B) {
+		if (Data20 == mSquad_CurrentVehicle) {
 			mMouseSpriteNew = 0x25;
 			word_3A9F3 = 0;
 			word_3A9F5 = 0;
@@ -6070,7 +6070,7 @@ void cFodder::sub_23525( sSprite* pSprite ) {
 
 	if (!Data4) {
 		if (!pSprite->field_22) {
-			if (pSprite != dword_3B20B)
+			if (pSprite != mSquad_CurrentVehicle)
 				goto loc_2356B;
 		}
 	}
@@ -6198,7 +6198,7 @@ loc_23806:;
 	goto loc_23843;
 
 loc_23815:;
-	if (pSprite != dword_3B20B)
+	if (pSprite != mSquad_CurrentVehicle)
 		return;
 
 	Data8 = mMouseX + (mCamera_Adjust_Col >> 16);
@@ -6552,7 +6552,7 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	goto loc_240C8;
 
 loc_24075:;
-	if (pSprite != dword_3B20B)
+	if (pSprite != mSquad_CurrentVehicle)
 		return;
 
 	Data0 = pSprite->field_0 + 8;
@@ -6805,7 +6805,7 @@ void cFodder::sub_245BF( sSprite* pSprite ) {
 	return;
 
 loc_245DA:;
-	if (pSprite != dword_3B20B)
+	if (pSprite != mSquad_CurrentVehicle)
 		return;
 
 	if (!mButtonPressRight)
@@ -10843,62 +10843,62 @@ void cFodder::GUI_Button_ExitMenu() {
 
 void cFodder::GUI_Button_Quiz_2() {
 
-	sub_A0640( "2.lbm" );
+	Demo_Quiz_ShowScreen( "2.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_3() {
 
-	sub_A0640( "3.lbm" );
+	Demo_Quiz_ShowScreen( "3.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_4() {
 
-	sub_A0640( "4.lbm" );
+	Demo_Quiz_ShowScreen( "4.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_5() {
 	
-	sub_A0640( "5.lbm" );
+	Demo_Quiz_ShowScreen( "5.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_6() {
 	
-	sub_A0640( "6.lbm" );
+	Demo_Quiz_ShowScreen( "6.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_7() {
 	
-	sub_A0640( "7.lbm" );
+	Demo_Quiz_ShowScreen( "7.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_8() {
 
-	sub_A0640( "8.lbm" );
+	Demo_Quiz_ShowScreen( "8.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_9() {
-	sub_A0640( "9.lbm" );
+	Demo_Quiz_ShowScreen( "9.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_10() {
-	sub_A0640( "10.lbm" );
+	Demo_Quiz_ShowScreen( "10.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
 void cFodder::GUI_Button_Quiz_11() {
-	sub_A0640( "11.lbm" );
+	Demo_Quiz_ShowScreen( "11.lbm" );
 	mDemo_ExitMenu = -1;
 }
 
-void cFodder::sub_A0640( const char* pFilename ) {
+void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 		
 	mImage->paletteFadeOut();
 	
@@ -12395,7 +12395,7 @@ void cFodder::Sprite_Handle_Loop() {
 			break;
 
 		case 107:
-			sub_1E031( Data20 );
+			Sprite_Handle_Helicopter_HomingMissile_Enemy2( Data20 );
 			break;
 
 		case 108:
@@ -13197,7 +13197,7 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
 	if (pSprite->field_20 >= 2)
 		goto loc_19EC0;
 
-	if (pSprite != dword_3B20B)
+	if (pSprite != mSquad_CurrentVehicle)
 		goto loc_19EE5;
 
 	goto loc_19EC0;
@@ -14136,7 +14136,7 @@ void cFodder::sub_1B4BB( sSprite* pSprite ) {
 	if (!Data4) {
 		if (!pSprite->field_22) {
 
-			if (pSprite != dword_3B20B)
+			if (pSprite != mSquad_CurrentVehicle)
 				goto loc_1B523;
 		}
 	}
@@ -16307,7 +16307,7 @@ void cFodder::Sprite_Handle_Hostage_2( sSprite* pSprite ) {
 	Sprite_Handle_Hostage( pSprite );
 }
 
-void cFodder::sub_1E031( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_HomingMissile_Enemy2( sSprite* pSprite ) {
 
 	Sprite_Handle_Helicopter_HomingMissile_Enemy( pSprite );
 }
@@ -18331,10 +18331,10 @@ int16 cFodder::sub_313CD() {
 	Data0 -= 0x0F;
 	Data4 -= 3;
 
-	if (!dword_3B20B)
+	if (!mSquad_CurrentVehicle)
 		goto loc_31692;
 
-	Data20 = dword_3B20B;
+	Data20 = mSquad_CurrentVehicle;
 	if (Data20->field_0 == -32768)
 		goto loc_31689;
 
@@ -18442,7 +18442,7 @@ void cFodder::sub_3169B() {
 	if (sub_30E2A() < 0)
 		return;
 
-	sSprite* Data20 = dword_3B20B;
+	sSprite* Data20 = mSquad_CurrentVehicle;
 	Data20->field_54 = -1;
 
 	int16 Data8 = mMouseX;
@@ -20262,7 +20262,7 @@ void cFodder::sub_223B2( sSprite* pSprite ) {
 int16 cFodder::sub_2244B( sSprite* pSprite, int16& pData0 ) {
 	int16 Data4, Data8, DataC, Data10;
 
-	if (dword_3B20B)
+	if (mSquad_CurrentVehicle)
 		return 1;
 
 	if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
@@ -21952,7 +21952,7 @@ loc_306AD:;
 	mSquad_Selected = -1;
 
 loc_306BE:;
-	if (dword_3B20B)
+	if (mSquad_CurrentVehicle)
 		return 1;
 
 	mSquad_Leader = pData20;
@@ -22027,12 +22027,12 @@ void cFodder::Mouse_Inputs_Check() {
 		word_3A9F5 = -8;
 	}
 	Squad_Member_Target_Set();
-	if (!dword_3B20B)
+	if (!mSquad_CurrentVehicle)
 		return;
 
 loc_30814:;
 
-	if (dword_3B20B) {
+	if (mSquad_CurrentVehicle) {
 		Vehicle_Input_Handle();
 		return;
 	}
@@ -22151,7 +22151,7 @@ loc_30814:;
 void cFodder::Squad_Member_Target_Set() {
 	sSprite** Data20 = 0;
 
-	if (dword_3B20B) {
+	if (mSquad_CurrentVehicle) {
 		sub_3169B();
 		return;
 	}

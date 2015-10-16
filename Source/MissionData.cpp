@@ -36,14 +36,13 @@ const uint16 mRetail_MissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
 												02, 05, 03, 06, 01, 03, 03, 02,
 												01, 05, 01, 04, 01, 04, 05, 06 };
 
-const uint16 mAmigaFormat_MissionPhaseTable[] = { 01, 01 };
+const uint16 mAmigaFormat_MissionPhaseTable[]	= { 01, 01 };
+const uint16 mPlus_MissionPhaseTable[]			= { 01, 01, 01, 01 };
 
 const char* mAmigaFormat_MissionNames[] = {
 	"LAND OF HOPE AND GLORY",
 	"IT'S SNOW TIME!"
 };
-
-const uint16 mPlus_MissionPhaseTable[] = { 01, 01, 01, 01 };
 
 const char* mPlus_MissionNames[] = {
 	"STAGE 1",
