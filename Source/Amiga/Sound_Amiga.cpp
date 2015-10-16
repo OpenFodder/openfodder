@@ -112,7 +112,7 @@ bool cSound_Amiga::devicePrepare() {
 	desired->channels=2;
 
 	// 2048 Samples, at 2 bytes per sample
-	desired->samples=0x400;
+	desired->samples=0x800;
 
 	// Function to call when the audio playback buffer is empty
 	desired->callback = cSound_AudioCallback;
