@@ -40,6 +40,10 @@ Copy 'CF_ENG.DAT' from the CD to the Data/Dos_CD folder
 
 Use the WHDLoad installer on an Amiga to extract the game files, and copy all the extracted files into the Data/Amiga folder
   
+#####Amiga CD32 Retail
+
+Copy the files from the 'Fodder' folder on the CD-Rom, to the Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.flv', placed in the Amiga_CD folder.
+  
 #####Amiga Format Christmas Special
 
 Open Fodder comes with the Amiga Format Christmas Special
