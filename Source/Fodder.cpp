@@ -189,7 +189,7 @@ int16 cFodder::Mission_Loop( ) {
 	mImage->Save();
 
 	for (;;) {
-		videoSleep();
+		Video_Sleep();
 
 		sub_12018();
 		Camera_Pan( );
@@ -242,7 +242,7 @@ int16 cFodder::Mission_Loop( ) {
 				g_Window.RenderAt( mImage );
 				g_Window.FrameEnd();
 				eventProcess();
-				videoSleep();
+				Video_Sleep();
 			}
 
 			mGraphics->PaletteSet();
@@ -490,7 +490,7 @@ void cFodder::sub_10BBC() {
 	mMissionPhase = 0;
 	word_39096 = 0;
 	word_3909A = 0;
-	word_390CE = 0;
+	mSquad_AliveCount = 0;
 	word_390D0 = 0;
 	word_390D2 = 0;
 	word_390D4 = 0;
@@ -505,7 +505,7 @@ void cFodder::sub_10BBC() {
 	word_390EC = 0;
 	mMissionPhaseRemain = 0;
 	mMissionPhases = 0;
-	word_390F4 = 0;
+	mRecruit_NextID = 0;
 	word_390F8 = 0;
 
 	for (unsigned int x = 0; x < 9; ++x) {
@@ -1184,11 +1184,11 @@ void cFodder::Squad_Member_Count() {
 	
 	if( mMapPlayerTroopCount >= 0 ) {
 
-		if( ax > word_390CE )
-			ax = word_390CE;
+		if( ax > mSquad_AliveCount )
+			ax = mSquad_AliveCount;
 		
 		mMapPlayerTroopCount = ax;
-		word_390CE -= ax;
+		mSquad_AliveCount -= ax;
 	}
 	
 	ax += mSquadMemberCount;
@@ -1242,9 +1242,10 @@ void cFodder::Squad_Member_Sort() {
 	}
 }
 
-void cFodder::sub_1142D() {
+void cFodder::Squad_Prepare() {
 	Squad_Clear_Selected();
 	
+	// This next chunk appears to have no effect and could be removed
 	if (!word_3ABA7) {
 
 		if (word_390D4) {
@@ -1264,10 +1265,11 @@ void cFodder::sub_1142D() {
 		}
 
 	}
+	// End Chunk
 
 	int16 Data1C = mMapPlayerTroopCount - 1;
 	while (Data1C >= 0) {
-		Squad_Prepare_Member();
+		Squad_Prepare_NextRecruit();
 		--Data1C;
 	}
 
@@ -1289,20 +1291,19 @@ void cFodder::sub_1142D() {
 
 }
 
-void cFodder::Squad_Prepare_Member() {
+void cFodder::Squad_Prepare_NextRecruit() {
 	sSquad_Member* Data20 = mSquad;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0) {
 
 		if (Data20->mRecruitID == -1) {
 
-			if (word_390F4 >= 360)
+			if (mRecruit_NextID >= 360)
 				return;
 
-			Data20->mRecruitID = word_390F4;
+			Data20->mRecruitID = mRecruit_NextID;
 
-			sRecruit* Data24 = mRecruits;
-			Data24 += word_390F4;
+			sRecruit* Data24 = &mRecruits[mRecruit_NextID];
 
 			// Demo sets static ranks
 			if (mVersion->mRelease == eRelease::Demo) {
@@ -1323,7 +1324,7 @@ void cFodder::Squad_Prepare_Member() {
 
 			Data20->field_8 = 0;
 			Data20->field_6 = 3;
-			++word_390F4;
+			++mRecruit_NextID;
 
 			return;
 		}
@@ -2297,7 +2298,7 @@ void cFodder::Mission_Progress_Check( ) {
 		goto loc_1280A;
 	}
 	//loc_127E1
-	if (word_390CE) {
+	if (mSquad_AliveCount) {
 	loc_127E8:;
 
 		Mission_Text_TryAgain();
@@ -2306,7 +2307,7 @@ void cFodder::Mission_Progress_Check( ) {
 		goto loc_1280A;
 	}
 	//loc_127FA
-	sub_13255();
+	Mission_GameOver();
 	word_3D465 = 8;
 	word_3D467 = 0x0A;
 
@@ -3322,15 +3323,14 @@ void cFodder::sub_131A2() {
 	int16 Data0 = word_390B0;
 	Data0 &= 3;
 	if (!Data0)
-		sub_131DE();
+		Sprite_Create_Explosion();
 }
 
-int16 cFodder::sub_131DE() {
+int16 cFodder::Sprite_Create_Explosion() {
 	int16 Data0 = 1;
 	sSprite* Data2C = 0, *Data30 = 0;
 
-	Sprite_Get_Free( Data0, Data2C, Data30 );
-	if (Data0) {
+	if (Sprite_Get_Free( Data0, Data2C, Data30 )) {
 		Data0 = -1;
 		return -1;
 	}
@@ -3377,12 +3377,12 @@ void cFodder::sub_136D0() {
 	word_40054 = 0;
 }
 
-void cFodder::sub_13800() {
+void cFodder::Video_Sleep_Wrapper() {
 
-	videoSleep();
+	Video_Sleep();
 }
 
-void cFodder::sub_13255() {
+void cFodder::Mission_GameOver() {
 	sSprite* Data24 = &mSprites[40];
 	Sprite_Destroy( Data24 );
 
@@ -3729,7 +3729,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 			word_42875 = 0;
 
 		eventProcess();
-		videoSleep();
+		Video_Sleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -3815,7 +3815,7 @@ void cFodder::sub_15397() {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
-		videoSleep();
+		Video_Sleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -3903,7 +3903,7 @@ void cFodder::Briefing_Intro_Ice() {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
-		videoSleep();
+		Video_Sleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -3989,7 +3989,7 @@ void cFodder::sub_15568() {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
-		videoSleep();
+		Video_Sleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -4075,7 +4075,7 @@ void cFodder::sub_15739() {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
-		videoSleep();
+		Video_Sleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
@@ -4386,7 +4386,7 @@ void cFodder::AFX_Show() {
 	word_82132 = -1;
 
 	for( ;; ) {
-		sub_13800();
+		Video_Sleep_Wrapper();
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -5157,7 +5157,7 @@ void cFodder::sub_17911() {
 	Data8 &= 0x1E;
 
 	if (word_390B8)
-		Data0 = word_390CE;
+		Data0 = mSquad_AliveCount;
 	else {
 		Data0 = word_390E8;
 		if (!Data0)
@@ -5325,7 +5325,7 @@ void cFodder::Recruit_Draw() {
 		mGraphics->Recruit_Draw_HomeAway();
 
 	Mouse_DrawCursor();
-	sub_13800();
+	Video_Sleep_Wrapper();
 
 	if (mImage->GetFaded() == false )
 		mImage->paletteFade();
@@ -7923,7 +7923,7 @@ void cFodder::sub_25F2B( sSprite* pSprite ) {
 	int16 Data0 = word_390B0 & 0x0F;
 	if (!Data0) {
 		Data0 = tool_RandomGet() & 0x06;
-		pSprite->field_32 = word_3E94A[Data0 / 2];
+		pSprite->field_32 = mSprite_Hostage_Frames[Data0 / 2];
 	}
 
 	pSprite->field_A = pSprite->field_32;
@@ -8099,7 +8099,7 @@ loc_263E5:;
 	sub_26490( pSprite );
 }
 
-void cFodder::sub_263F6( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Hostage_FrameUpdate2( sSprite* pSprite ) {
 	int16 Data0 = pSprite->field_4A;
 
 	pSprite->field_2A += 1;
@@ -8110,11 +8110,11 @@ void cFodder::sub_263F6( sSprite* pSprite ) {
 	Data0 &= 6;
 
 	pSprite->field_4A = Data0;
-	pSprite->field_A = word_3E94A[Data0 / 2];
+	pSprite->field_A = mSprite_Hostage_Frames[Data0 / 2];
 
 }
 
-void cFodder::sub_26450( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Hostage_FrameUpdate( sSprite* pSprite ) {
 	int16 Data0 = pSprite->field_10;
 	Data0 >>= 5;
 	Data0 -= 1;
@@ -10911,7 +10911,7 @@ void cFodder::sub_A0640( const char* pFilename ) {
 	mImage->paletteFade();
 	
 	for( ;; ) {
-		sub_13800();
+		Video_Sleep_Wrapper();
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -10960,7 +10960,7 @@ void cFodder::sub_A0436() {
 	mouse_Setup();
 
 	for( ;; ) {
-		sub_13800();
+		Video_Sleep_Wrapper();
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -11240,7 +11240,7 @@ void cFodder::Service_KIA_Loop() {
 			mImageFaded = mImage->paletteFade();
 
 		sub_18149();
-		sub_13800();
+		Video_Sleep_Wrapper();
 		//sub_14445();
 		sub_181BD();
 
@@ -11295,7 +11295,7 @@ void cFodder::Service_Promotion_Loop() {
 
 		Service_Promotion_Check();
 		sub_18149();
-		sub_13800();
+		Video_Sleep_Wrapper();
 		//sub_14445();
 		sub_181BD();
 
@@ -11857,7 +11857,7 @@ void cFodder::Briefing_Wait() {
 	Briefing_Draw_With( );
 
 	do {
-		videoSleep();
+		Video_Sleep();
 		eventProcess();
 		Mouse_Inputs_Get();
 
@@ -11900,12 +11900,12 @@ void cFodder::Briefing_Draw_With( ) {
 	String_Print( byte_4388F, 0, word_3B301, 0x64, With.str().c_str() );
 	With.str("");
 
-	if (!word_390CE) {
+	if (!mSquad_AliveCount) {
 		With << "THIS IS YOUR LAST CHANCE";
 	}
 	else {
-		With << word_390CE;
-		if (word_390CE == 1)
+		With << mSquad_AliveCount;
+		if (mSquad_AliveCount == 1)
 			With << " RECRUIT REMAINING";
 		else
 			With << " RECRUITS REMAINING";
@@ -15636,14 +15636,14 @@ void cFodder::Sprite_Handle_Hostage( sSprite* pSprite ) {
 	sub_2593D( pSprite );
 	pSprite->field_38 = 0;
 
-	sub_263F6( pSprite );
+	Sprite_Handle_Hostage_FrameUpdate2( pSprite );
 	//seg004:44B6
 
 	Sprite_Field_10 = pSprite->field_10;
 	pSprite->field_10 += 0x20;
 	pSprite->field_10 &= 0x1C0;
 
-	sub_26450( pSprite );
+	Sprite_Handle_Hostage_FrameUpdate( pSprite );
 	pSprite->field_10 = Sprite_Field_10;
 	sub_25F2B( pSprite );
 
@@ -17792,8 +17792,7 @@ void cFodder::sub_1FE35( sSprite* pSprite ) {
 	if (pSprite->field_5C == 0)
 		return;
 
-	Sprite_Get_Free( Data0, Data2C, Data30 );
-	if (Data0)
+	if (Sprite_Get_Free( Data0, Data2C, Data30 ))
 		return;
 
 	Data2C->field_1A = (int32*) pSprite;
@@ -17819,9 +17818,7 @@ int16 cFodder::sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 
 	Data0 = 1;
 	
-	Sprite_Get_Free( Data0, pData2C, pData30 );
-
-	if (!Data0) {
+	if (!Sprite_Get_Free( Data0, pData2C, pData30 )) {
 		pData2C->field_0 = pSprite->field_0;
 		pData2C->field_2 = pSprite->field_2;
 		pData2C->field_4 = pSprite->field_4;
@@ -18697,9 +18694,9 @@ void cFodder::Mission_PhaseNext() {
 	mMissionPhaseRemain = mMissionPhases = mVersion->mMissionData->mMissionPhases[mMissionNumber];
 	mMissionPhase = 0;
 	++mMissionNumber;
-	word_390CE += 0x0F;
+	mSquad_AliveCount += 0x0F;
 
-	word_390E8 = word_390CE;
+	word_390E8 = mSquad_AliveCount;
 	word_390E8 -= 0x0F;
 	word_390EA = -1;
 	word_390D4 = 0;
@@ -18715,7 +18712,7 @@ void cFodder::video_Print_Text( const char* pText, int16 pPosY ) {
 	String_Print( mUnkStringModifier_Recruit, 0x0D, word_3B301, pPosY, pText );
 }
 
-void cFodder::videoSleep() {
+void cFodder::Video_Sleep() {
 	static uint64_t delta = 2;
 
 	mTicksDiff = SDL_GetTicks() - mTicksDiff;
@@ -18745,9 +18742,16 @@ void cFodder::sleepLoop( int64 pMilliseconds ) {
 }
 
 void cFodder::WonGame() {
-	//seg003:3E6D
-	mGraphics->imageLoad( "won.dat", 0x100 );
-	mImage->paletteSet( mPalette );
+	mSound->Music_Play( 17 );
+	//seg003:3E6Dz
+	if (mVersion->mPlatform == ePlatform::Amiga) {
+		mGraphics->imageLoad( "won.raw", 16 );
+	}
+	else {
+		mGraphics->imageLoad( "won.dat", 0x100 );
+	}
+
+	mGraphics->PaletteSet();
 
 	while(mImage->paletteFade()) {
 
@@ -18872,9 +18876,7 @@ int16 cFodder::Troop_Fire_Bullet( sSprite* pSprite ) {
 		if (pSprite->field_54 == 1)
 			goto loc_20A2D;
 
-	Sprite_Get_Free( Data0, Data2C, Data30 );
-
-	if (Data0)
+	if (Sprite_Get_Free( Data0, Data2C, Data30 ))
 		goto loc_20A2D;
 
 	if (byte_3A9D2[2] == 0x14)
@@ -19036,8 +19038,7 @@ loc_20AC1:;
 
 	Data0 = 2;
 
-	Sprite_Get_Free( Data0, Data2C, Data30 );
-	if (!Data0)
+	if (!Sprite_Get_Free( Data0, Data2C, Data30 ))
 		goto loc_20B0A;
 	
 	return -1;
@@ -19531,7 +19532,7 @@ loc_213F7:;
 
 	pSprite->field_36 = Data0;
 	pSprite->field_1A = (int32*) 0x1C0000;
-	sub_21483( pSprite );
+	Sprite_Create_Shadow( pSprite );
 	return;
 
 loc_21464:;
@@ -19540,12 +19541,11 @@ loc_21464:;
 	pSprite->field_28 = 8;
 }
 
-void cFodder::sub_21483( sSprite* pSprite ) {
+void cFodder::Sprite_Create_Shadow( sSprite* pSprite ) {
 	int16 Data0 = 1;
 	sSprite* Data2C = 0, *Data30 = 0;
 
-	Sprite_Get_Free( Data0, Data2C, Data30 );
-	if (Data0)
+	if (Sprite_Get_Free( Data0, Data2C, Data30 ))
 		return;
 
 	Data2C->field_1A = (int32*) pSprite;
@@ -19663,8 +19663,7 @@ void cFodder::sub_21702( sSprite* pSprite, int16 pData18 ) {
 	int16 Data0 = 2;
 	sSprite* Data2C, *Data30;
 
-	Sprite_Get_Free( Data0, Data2C, Data30 );
-	if (Data0)
+	if (Sprite_Get_Free( Data0, Data2C, Data30 ))
 		return;
 
 	Data30 = Data2C + 1;
@@ -19744,9 +19743,7 @@ int16 cFodder::sub_21914( int16& pData8, int16& pDataC ) {
 	int16 Data0 = 1;
 	sSprite* Data2C, *Data30;
 
-	Sprite_Get_Free(Data0, Data2C, Data30);
-
-	if (Data0)
+	if (Sprite_Get_Free( Data0, Data2C, Data30 ))
 		return -1;
 
 	Sprite_Clear(Data2C);
@@ -19790,8 +19787,7 @@ int16 cFodder::Troop_Deploy( sSprite* pSprite, sSprite*& pData2C ) {
 	int16 Data0 = 1;
 	sSprite* Data30 = 0;
 
-	Sprite_Get_Free2( Data0, pData2C, Data30 );
-	if (Data0)
+	if (Sprite_Get_Free( Data0, pData2C, Data30 ))
 		return -1;
 
 //loc_21A1C:;
@@ -19917,9 +19913,8 @@ loc_21C5E:;
 void cFodder::Sprite_Create_Rank( ) {
 	sSprite* Sprite = 0, *Data30 = 0;
 	int16 Data0 = 1;
-	Sprite_Get_Free( Data0, Sprite, Data30 );
 
-	if (Data0)
+	if (Sprite_Get_Free( Data0, Sprite, Data30 ))
 		return;
 
 	Sprite->field_8 = 0x7C;
@@ -20617,7 +20612,7 @@ void cFodder::Start( int16 pStartMap ) {
 
 				Squad_Member_Count();
 				Squad_Member_Sort();
-				sub_1142D();
+				Squad_Prepare();
 				Squad_Prepare_Sprites();
 
 				word_3ABA7 = 0;
@@ -20662,7 +20657,7 @@ void cFodder::Start( int16 pStartMap ) {
 
 			Squad_Member_Count();
 			Squad_Member_Sort();
-			sub_1142D();
+			Squad_Prepare();
 			Squad_Prepare_Sprites();
 			g_Graphics.graphicsBlkPtrsPrepare();
 			word_3A9B2 = 0;
@@ -20760,7 +20755,7 @@ void cFodder::Start( int16 pStartMap ) {
 			}
 			else {
 				word_3B20F = 0;
-				if (!word_390CE) {
+				if (!mSquad_AliveCount) {
 
 					Service_Show();
 					break;
