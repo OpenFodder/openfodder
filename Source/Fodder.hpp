@@ -1162,20 +1162,20 @@ public:
 	void			sub_2E01C();
 	void			Game_Save_Wrapper2();
 	void			GUI_Element_Reset();
-	void			sub_2E172( const char* pText, int16 pDataC, int16 pData0, int16 pData4 );
+	void			GUI_Button_Draw( const char* pText, int16 pDataC, int16 pData0, int16 pData4 );
 	void			sub_2E1B1( int16 pData0, int16 pData4 );
 	void			sub_2E302( bool pShowCursor );
 	void			Game_Save_Wrapper();
-	void			sub_2E244( void(cFodder::*pFunction )(void) ); 
+	void			GUI_Button_Setup( void(cFodder::*pFunction )(void) ); 
 	void			Game_Save();
 	void			sub_2E3E3( sGUI_Element* pData20 );
-	void			sub_2E5B3();
+	void			GUI_Button_Load_Exit();
 	void			String_Print_Input();
 	void			sub_2E6A9();
 	void			sub_2E704();
 	void			Game_Load();
-	void			sub_2E953();
-	void			sub_2E967();
+	void			GUI_Button_Load_Up();
+	void			GUI_Button_Load_Down();
 	void			sub_2EA89();
 
 	int16			GUI_Button_NoAction();

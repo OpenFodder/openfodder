@@ -9637,9 +9637,6 @@ void cFodder::sub_2D06C() {
 
 	int16 Data14 = 0;
 
-	int16 Data0 = -32768;
-	sSprite* Data4 = INVALID_SPRITE_PTR;
-
 	mSquad_0_Sprites[0] = INVALID_SPRITE_PTR;
 	mSquad_1_Sprites[0] = INVALID_SPRITE_PTR;
 	mSquad_2_Sprites[0] = INVALID_SPRITE_PTR;
@@ -9673,7 +9670,7 @@ void cFodder::sub_2D06C() {
 		sSprite** Data30 = mSquads[ Sprite->field_32 ];
 		//seg009:0151
 		Data30[Data10] = Sprite;
-		Data30[Data10 + 1] = Data4;
+		Data30[Data10 + 1] = INVALID_SPRITE_PTR;
 
 		*Data34 = Sprite;
 		++Data34;
@@ -9686,7 +9683,7 @@ void cFodder::sub_2D06C() {
 	dword_3A8DB = readLEDWord( &mSquads_TroopCount );
 	byte_3A8DE[1] = byte_3A05E;
 
-	for (Data0 = 2; Data0 >= 0; --Data0 ) {
+	for (int16 Data0 = 2; Data0 >= 0; --Data0 ) {
 
 		int8 al = mSquads_TroopCount[Data0];
 		if (al)
@@ -10329,7 +10326,7 @@ void cFodder::GUI_Element_Reset() {
 	}
 }
 
-void cFodder::sub_2E172( const char* pText, int16 pDataC, int16 pData0 = 0xBF, int16 pData4 = 0xBC ) {
+void cFodder::GUI_Button_Draw( const char* pText, int16 pDataC, int16 pData0 = 0xBF, int16 pData4 = 0xBC ) {
 
 	video_Print_Text( pText, pDataC );
 
@@ -10415,7 +10412,7 @@ void cFodder::Game_Save_Wrapper() {
 	Game_Save();
 }
 
-void cFodder::sub_2E244( void(cFodder::*pFunction)(void) ) {
+void cFodder::GUI_Button_Setup( void(cFodder::*pFunction)(void) ) {
 	sGUI_Element* Element = mGUI_NextFreeElement;
 
 	Element->field_0 = &cFodder::GUI_Button_NoAction;
@@ -10451,8 +10448,8 @@ void cFodder::Game_Save() {
 
 	video_Print_Text( "TYPE A FILENAME IN", 0x32 );
 
-	sub_2E172( "EXIT", 0xA0 );
-	sub_2E244( &cFodder::sub_2E5B3 );
+	GUI_Button_Draw( "EXIT", 0xA0 );
+	GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
 
 	dword_3B30D = &cFodder::String_Print_Input;
 
@@ -10477,7 +10474,6 @@ void cFodder::Game_Save() {
 	outfile.write ((const char*) Start, End - Start );
 	outfile.close();
 	word_39F02 = 0;
-
 }
 
 void cFodder::sub_2E3E3( sGUI_Element* pData20 ) {
@@ -10511,7 +10507,7 @@ void cFodder::sub_2E3E3( sGUI_Element* pData20 ) {
 	}
 }
 
-void cFodder::sub_2E5B3() {
+void cFodder::GUI_Button_Load_Exit() {
 	dword_3B30D = 0;
 	word_3B2CD = 1;
 }
@@ -10629,14 +10625,14 @@ void cFodder::Game_Load() {
 		GUI_Element_Reset();
 		video_Print_Text( "SELECT FILE", 0x0C );
 
-		sub_2E172( "UP", 0x24 );
-		sub_2E244( &cFodder::sub_2E953 );
+		GUI_Button_Draw( "UP", 0x24 );
+		GUI_Button_Setup( &cFodder::GUI_Button_Load_Up );
 
-		sub_2E172( "DOWN", 0x99 );
-		sub_2E244( &cFodder::sub_2E967 );
+		GUI_Button_Draw( "DOWN", 0x99 );
+		GUI_Button_Setup( &cFodder::GUI_Button_Load_Down );
 
-		sub_2E172( "EXIT", 0xB3 );
-		sub_2E244( &cFodder::sub_2E5B3 );
+		GUI_Button_Draw( "EXIT", 0xB3 );
+		GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
 
 		sGUI_Element* dword_3AEF7 = mGUI_NextFreeElement;
 		mImage->Save();
@@ -10652,8 +10648,8 @@ void cFodder::Game_Load() {
 			memcpy( mInputString, FileIT->c_str(), Pos );
 			mInputString[Pos] = 0x00;
 
-			sub_2E172( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
-			sub_2E244( &cFodder::sub_2EA89 );
+			GUI_Button_Draw( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
+			GUI_Button_Setup( &cFodder::sub_2EA89 );
 			++FileIT;
 		}
 
@@ -10703,7 +10699,7 @@ void cFodder::Game_Load() {
 	Mission_Memory_Backup();
 }
 
-void cFodder::sub_2E953() {
+void cFodder::GUI_Button_Load_Up() {
 	word_3B335 -= 3;
 	if (word_3B335 < 0)
 		word_3B335 = 0;
@@ -10711,7 +10707,7 @@ void cFodder::sub_2E953() {
 	word_3B2CD = 3;
 }
 
-void cFodder::sub_2E967() {
+void cFodder::GUI_Button_Load_Down() {
 	word_3B335 += 3;
 
 	int16 Data0 = word_3B335;
