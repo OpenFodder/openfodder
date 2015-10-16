@@ -874,7 +874,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3B303 = 0;
 	word_3B305 = 0;
 	word_3B307 = 0;
-	word_3B32F = 0;
+	mInputString_Position = 0;
 	word_3B335 = 0;
 	word_3B33D = 0;
 	word_3B33F = 0;
@@ -885,7 +885,7 @@ void cFodder::Mission_Memory_Clear() {
 		word_3B461[x] = 0;
 
 	for (uint16 x = 0; x < 8; ++x)
-		mMap_Goals[x] = 0;
+		mPhase_Goals[x] = 0;
 
 	dword_3B477 = 0;
 	word_3B47B = 0;
@@ -2229,18 +2229,18 @@ void cFodder::Mission_Goals_Check() {
 	}
 	
 	word_3A9B0 = DataC;
-	if(mMap_Goals[1]) {
+	if(mPhase_Goals[1]) {
 		if( DataC )
 			return;
 	}
 	
-	if(mMap_Goals[0]) {
+	if(mPhase_Goals[0]) {
 		if(Data8)
 			return;
 	}
 	
-	if(!mMap_Goals[4]) {
-		if(!mMap_Goals[2])
+	if(!mPhase_Goals[4]) {
+		if(!mPhase_Goals[2])
 			goto loc_126A6;
 	}
 	
@@ -2248,7 +2248,7 @@ void cFodder::Mission_Goals_Check() {
 		return;
 	
 	loc_126A6:;
-	if(!mMap_Goals[7] || word_3B47B ) 
+	if(!mPhase_Goals[7] || word_3B47B ) 
 		 mMissionComplete = -1;
 }
 
@@ -2260,14 +2260,14 @@ void cFodder::sub_126BB() {
 	stru_3AF0B[0].field_2 = -1;
 }
 
-void cFodder::Mission_Goals_Set() {
-	const int8* Data20 = mMission_Goals[mMapNumber];
+void cFodder::Mission_Map_Goals_Set() {
+	const int8* Data20 = mMap_Goals[mMapNumber];
 
 	for (; *Data20 != -1; ++Data20) {
 
 		int8 Data0 = *Data20;
 		
-		mMap_Goals[Data0-1] = -1;
+		mPhase_Goals[Data0-1] = -1;
 	}
 }
 
@@ -6518,7 +6518,7 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	DataC = -1;
 	Data10 = -1;
 
-	if (mMap_Goals[7]) {
+	if (mPhase_Goals[7]) {
 		Data4 = eSprite_Indigenous;
 		Data8 = 0x3E;
 		DataC = 0x46;
@@ -7613,10 +7613,10 @@ void cFodder::sub_257D1( sSprite* pSprite ) {
 	if (pSprite->field_8 != 0xD6) {
 		word_3B2D1[2] = -1;
 
-		if (mMap_Goals[3])
+		if (mPhase_Goals[3])
 			word_3A9B2 = -1;
 
-		if (mMap_Goals[7])
+		if (mPhase_Goals[7])
 			word_3A9B2 = -1;
 
 		pSprite->field_8 = 0xD6;
@@ -8152,7 +8152,7 @@ void cFodder::sub_264B0( sSprite* pSprite ) {
 	if (!sub_222A3( pSprite ))
 		goto loc_264CF;
 
-	if (!mMap_Goals[3])
+	if (!mPhase_Goals[3])
 		return;
 
 	word_3A9B2 = -1;
@@ -10451,7 +10451,7 @@ void cFodder::Game_Save() {
 	dword_3B30D = 0;
 	mInputString[0] = -1;
 
-	word_3B32F = 0;
+	mInputString_Position = 0;
 
 	GUI_Element_Reset();
 
@@ -10460,7 +10460,7 @@ void cFodder::Game_Save() {
 	sub_2E172( "EXIT", 0xA0 );
 	sub_2E244( &cFodder::sub_2E5B3 );
 
-	dword_3B30D = &cFodder::sub_2E5C3;
+	dword_3B30D = &cFodder::String_Print_Input;
 
 	sub_2E302(true);
 	dword_3B30D = 0;
@@ -10469,10 +10469,10 @@ void cFodder::Game_Save() {
 		return;
 	}
 		
-	mInputString[word_3B32F + 0] = '.';
-	mInputString[word_3B32F + 1] = 'c';
-	mInputString[word_3B32F + 2] = 'f';
-	mInputString[word_3B32F + 3] = 0;
+	mInputString[mInputString_Position + 0] = '.';
+	mInputString[mInputString_Position + 1] = 'c';
+	mInputString[mInputString_Position + 2] = 'f';
+	mInputString[mInputString_Position + 3] = 0;
 
 	std::string Filename = local_PathGenerate( mInputString, "", false );
 	
@@ -10522,7 +10522,7 @@ void cFodder::sub_2E5B3() {
 	word_3B2CD = 1;
 }
 
-void cFodder::sub_2E5C3() {
+void cFodder::String_Print_Input() {
 	sub_2E704();
 	int16 Data4;
 	char* Data24;
@@ -10530,7 +10530,7 @@ void cFodder::sub_2E5C3() {
 	video_Print_Text( mInputString, 0x50 );
 
 	int16 Data0 = word_39F66;
-	if (Data0 == 0x0D && word_3B32F)
+	if (Data0 == 0x0D && mInputString_Position)
 		word_3B2CD = 2;
 
 	if (Data0 == 8)
@@ -10547,7 +10547,7 @@ loc_2E628:;
 		goto loc_2E6A4;
 
 loc_2E636:;
-	Data4 = word_3B32F;
+	Data4 = mInputString_Position;
 	if (Data4 >= 8)
 		goto loc_2E6A4;
 
@@ -10556,15 +10556,15 @@ loc_2E636:;
 	*Data24 = (char)Data0;
 
 	*(Data24 + 1) = -1;
-	++word_3B32F;
+	++mInputString_Position;
 	goto loc_2E6A4;
 
 loc_2E675:;
-	Data4 = word_3B32F;
+	Data4 = mInputString_Position;
 	if (Data4) {
 		--Data4;
 		Data24 = mInputString;
-		word_3B32F = Data4;
+		mInputString_Position = Data4;
 		Data24 += Data4;
 		*Data24 = -1;
 	}
@@ -10576,7 +10576,7 @@ loc_2E6A4:;
 void cFodder::sub_2E6A9() {
 	char* Data20 = mInputString;
 
-	int16 Data0 = word_3B32F;
+	int16 Data0 = mInputString_Position;
 	if (word_39F66 != 0x0D) {
 		byte_44AC0 &= 0x3F;
 		if (byte_44AC0 < 0x20)
@@ -11821,12 +11821,12 @@ void cFodder::Briefing_Show( ) {
 	String_CalculateWidth( 320, byte_4388F, Phase.str().c_str() );
 	String_Print( byte_4388F, 0, word_3B301, 0x1D, Phase.str().c_str() );
 	
-	Mission_Goals_Set();
+	Mission_Map_Goals_Set();
 
 	int16 DataC = 0x84;
 	const char* Data20 = 0;
 	const char** Data28 = mMissionGoals;
-	int16* Data24 = mMap_Goals;
+	int16* Data24 = mPhase_Goals;
 
 	for (int16 Data0 = 7 ;Data0>=0; ++Data28, --Data0 ) {
 		if (*Data24++) {
@@ -20737,7 +20737,7 @@ void cFodder::Start( int16 pStartMap ) {
 
 			Squad_Prepare_GrenadesAndRockets();
 			sub_2D7FF();
-			Mission_Goals_Set();
+			Mission_Map_Goals_Set();
 
 			word_3BEC9 = 0xE0;
 			g_Graphics.PaletteSet();
