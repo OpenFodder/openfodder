@@ -31,6 +31,7 @@ void Mixer_ChannelFinished(int32 pChannel) {
 cSound_PC::cSound_PC() {
 
 	mSound = false;
+	mMusicPlaying = 0;
 
 	devicePrepare();
 

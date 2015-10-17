@@ -339,10 +339,10 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3A9A6[2];
 	int16			word_3A9AA;
-	int16			mMissionComplete;
+	int16			mMission_Complete;
 	int16			word_3A9AE;
 	int16			word_3A9B0;
-	int16			word_3A9B2;
+	int16			mMission_Aborted;
 	int16			word_3A9B4;
 	int16			word_3A9B8;
 	int16			word_3A9BA[3];	// values here, seem to be a byte count originally.. now its an index
@@ -586,7 +586,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mCamera_Row_Previous;
 	uint16*			word_3D5B7;
 
-	sGUI_Element		stru_3DEDC[2];
+	sGUI_Element	stru_3DEDC[2];
 	int16			word_3E0E5[0x18];
 
 	uint8*			word_3E1B7;
@@ -699,7 +699,7 @@ class cFodder : public cSingleton < cFodder > {
 public:
 	void			Demo_ShowMenu();
 
-	int16			Mission_Loop( );
+	virtual int16	Mission_Loop( );
 
 	void			Mouse_Handle( );
 	void			sub_10937();
@@ -1319,9 +1319,11 @@ public:
 	void			eventProcess();
 	void			keyProcess( uint8 pKeyCode, bool pPressed );
 
+	void			Game_Setup( int16 pStartMap );
+
 public:
 
-					cFodder( bool pSkipIntro );
+					cFodder( bool pSkipIntro = false );
 					~cFodder();
 
 	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
@@ -1329,7 +1331,7 @@ public:
 	bool			EventAdd( cEvent pEvent );
 	void			MixerChannelFinished( int32 pChannel );
 	void			Prepare();
-	void			Start( int16 pStartMap );
+	virtual void	Start( int16 pStartMap );
 	void			Exit( unsigned int pExitCode );
 
 	void			WindowTitleSet( bool pInMission );
@@ -1341,4 +1343,5 @@ public:
 	void			VersionSelect_2();
 	void			VersionSelect_3();
 	void			VersionSelect_4();
+
 };
