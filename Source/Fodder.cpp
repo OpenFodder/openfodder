@@ -65,7 +65,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_39FFA = 0;
 
 	word_3A9B0 = 0;
-	word_3A9B2 = 0;
+	mMission_Aborted = 0;
 	word_3AA43 = 0;
 	word_3ABA7 = 0;
 	word_3ABE7 = 0;
@@ -221,7 +221,7 @@ int16 cFodder::Mission_Loop( ) {
 		sub_12AEE();
 
 		if (word_3FA21 == -1 && mKeyCode == 0x1C) {
-			mMissionComplete = -1;
+			mMission_Complete = -1;
 			mKeyCode = 0;
 		} else
 			Mission_Phase_Goals_Check();
@@ -268,7 +268,7 @@ int16 cFodder::Mission_Loop( ) {
 
 		if (word_3A3B9) {
 
-			if (word_3A9B2)
+			if (mMission_Aborted)
 				sub_2D767(); 
 			else {
 				if (!word_3A9AA)
@@ -333,7 +333,7 @@ void cFodder::Mouse_Handle( ) {
 	if (!word_3B20F)
 		return;
 
-	if (word_3A9AE || word_3D469 || mMissionComplete || word_3A9AA || word_3A9B2) {
+	if (word_3A9AE || word_3D469 || mMission_Complete || word_3A9AA || mMission_Aborted) {
 		word_3B4F1 = -1;
 		return;
 	}
@@ -684,7 +684,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3A3BD = 0;
 	word_3A3BF = 0;
 	word_3A8CF = 0;
-	word_3A9B2 = 0;
+	mMission_Aborted = 0;
 	word_3A9B4 = 0;
 	word_3A9B8 = 0;
 	for (uint8 x = 0; x < 3; ++x) {
@@ -997,7 +997,7 @@ void cFodder::sub_10DEC() {
 	word_3A9A6[0] = 0;
 	word_3A9A6[1] = 0;
 	word_3A9AA = 0;
-	mMissionComplete = 0;
+	mMission_Complete = 0;
 	word_3A9AE = 0;
 	dword_39F7C = 0;
 	mMouseSpriteNew = 0x23;
@@ -1987,7 +1987,7 @@ void cFodder::sub_12245() {
 	
 	dword_3A9FD = 0x20000;
 
-	if (!word_3A9B2 && !word_3A9AA && !mMissionComplete)
+	if (!mMission_Aborted && !word_3A9AA && !mMission_Complete)
 		return;
 
 	int16 Data0 = 0;
@@ -2249,7 +2249,7 @@ void cFodder::Mission_Phase_Goals_Check() {
 	
 	loc_126A6:;
 	if(!mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ] || word_3B47B ) 
-		 mMissionComplete = -1;
+		 mMission_Complete = -1;
 }
 
 void cFodder::sub_126BB() {
@@ -2273,8 +2273,8 @@ void cFodder::Mission_Phase_Goals_Set() {
 
 void cFodder::Mission_Progress_Check( ) {
 	
-	if (mMissionComplete >= 0)
-		if (!word_3A9B2)
+	if (mMission_Complete >= 0)
+		if (!mMission_Aborted)
 			if (!word_3A9AA)
 				return;
 
@@ -2284,12 +2284,12 @@ void cFodder::Mission_Progress_Check( ) {
 		goto loc_1280A;
 
 	word_3A9AE = 0x64;
-	if (word_3A9B2) {
+	if (mMission_Aborted) {
 		word_3A9AE = 0x32;
 		goto loc_127E8;
 	}
 
-	if (mMissionComplete) {
+	if (mMission_Complete) {
 		if (word_3A9AA)
 			goto loc_127E8;
 
@@ -2824,7 +2824,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 		mKeyCode = 0;
 
 	if (pKeyCode == SDL_SCANCODE_ESCAPE) {
-		word_3A9B2 = -1;
+		mMission_Aborted = -1;
 	}
 
 	if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
@@ -3328,7 +3328,7 @@ void cFodder::sub_131A2() {
 
 	--word_3B4D7;
 	if (!word_3B4D7)
-		word_3A9B2 = -1;
+		mMission_Aborted = -1;
 
 	int16 Data0 = word_390B0;
 	Data0 &= 3;
@@ -7612,10 +7612,10 @@ void cFodder::sub_257D1( sSprite* pSprite ) {
 		word_3B2D1[2] = -1;
 
 		if (mPhase_Goals[ eGoal_Protect_Civilians - 1 ])
-			word_3A9B2 = -1;
+			mMission_Aborted = -1;
 
 		if (mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ])
-			word_3A9B2 = -1;
+			mMission_Aborted = -1;
 
 		pSprite->field_8 = 0xD6;
 		pSprite->field_A = 0;
@@ -8153,7 +8153,7 @@ void cFodder::sub_264B0( sSprite* pSprite ) {
 	if (!mPhase_Goals[ eGoal_Protect_Civilians - 1 ])
 		return;
 
-	word_3A9B2 = -1;
+	mMission_Aborted = -1;
 	return;
 
 loc_264CF:;
@@ -8352,7 +8352,7 @@ int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 	if (word_3B1A9 >= 0x14)
 		return -1;
 
-	if (mMissionComplete)
+	if (mMission_Complete)
 		return -1;
 
 	if (mTroops_Enemy_Count >= 0x0A)
@@ -11855,7 +11855,7 @@ void cFodder::Briefing_Wait() {
 		eventProcess();
 		Mouse_Inputs_Get();
 
-		if (word_3A9B2 == -1) {
+		if (mMission_Aborted == -1) {
 			word_3B4F5 = -1;
 			mouse_Button_Status = -1;
 			break;
@@ -16026,7 +16026,7 @@ void cFodder::sub_1DA48( sSprite* pSprite ) {
 
 	if (sub_222A3( pSprite )) {
 		dword_3B477 = 0;
-		word_3A9B2 = -1;
+		mMission_Aborted = -1;
 		return;
 	}
 	pSprite->field_2C = -1;
@@ -17140,8 +17140,8 @@ loc_1F0BE:;
 
 int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 
-	if( !word_3A9B2 )
-		if( !mMissionComplete )
+	if( !mMission_Aborted )
+		if( !mMission_Complete )
 			return 0;
 		
 	int16 Data0 = -1;
@@ -17177,7 +17177,7 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 	pSprite->field_A = 0;
 	pSprite->field_36 = 0;
 	
-	if( !word_3A9B2 ) {
+	if( !mMission_Aborted ) {
 		
 		Data0 = tool_RandomGet() & 1;
 		if(Data0 == 0)
@@ -19777,7 +19777,7 @@ int16 cFodder::sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC ) {
 
 int16 cFodder::Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C ) {
 	
-	if (mMissionComplete || mTroops_Enemy_Count >= 0x0A)
+	if (mMission_Complete || mTroops_Enemy_Count >= 0x0A)
 		return -1;
 	int16 Data0 = 1;
 	sSprite* Data30 = 0;
@@ -20530,6 +20530,30 @@ void cFodder::Game_CheckLoadSave() {
 	}
 }
 
+void cFodder::Game_Setup( int16 pStartMap ) {
+	sub_10BBC();
+
+	mMission_Complete = 0;
+	mMapNumber = pStartMap;
+	word_3901E = 0x3333;
+
+	Squad_Clear();
+	Heroes_Clear();
+
+	mGraveRankPtr = mGraveRanks;
+	mGraveRanks[0] = -1;
+
+	mMissionPhaseRemain = 1;
+	mMissionNumber = 0;
+
+	Mission_Phase_Next();
+
+	word_3A9AA = -1;
+	word_39096 = -1;
+
+	mGraphics->LoadpStuff();
+}
+
 void cFodder::Start( int16 pStartMap ) {
 
 	if (mVersion->mRelease == eRelease::Demo)
@@ -20539,32 +20563,13 @@ void cFodder::Start( int16 pStartMap ) {
 	Mouse_Inputs_Get();
 
 	for (;;) {
-		sub_10BBC();
-
-		mMissionComplete = 0;
-		mMapNumber = pStartMap;
-		word_3901E = 0x3333;
-
-		Squad_Clear();
-		Heroes_Clear();
-
-		mGraveRankPtr = mGraveRanks;
-		mGraveRanks[0] = -1;
-
-		mMissionPhaseRemain = 1;
-		mMissionNumber = 0;
-
-		Mission_Phase_Next();
-
-		word_3A9AA = -1;
-		word_39096 = -1;
-
-		mGraphics->LoadpStuff();
+		
+		Game_Setup( pStartMap );
 
 		//loc_1042E:;
 		for (;;) {
 
-			if (!word_3A9B2 && !word_3A9AA) {
+			if (!mMission_Aborted && !word_3A9AA) {
 
 				if (mVersion->mRelease == eRelease::Demo) {
 					if (mMapNumber == 3) {
@@ -20621,13 +20626,10 @@ void cFodder::Start( int16 pStartMap ) {
 					if (mGame_Load || mGame_Save) {
 						word_390B8 = -1;
 						word_390EA = -1;
-						word_3A9B2 = -1;
+						mMission_Aborted = -1;
 						continue;
 					}
-
-				}
-				else {
-
+				} else {
 					Demo_ShowMenu();
 				}
 
@@ -20659,7 +20661,7 @@ void cFodder::Start( int16 pStartMap ) {
 			Squad_Prepare();
 			Squad_Prepare_Sprites();
 			g_Graphics.graphicsBlkPtrsPrepare();
-			word_3A9B2 = 0;
+			mMission_Aborted = 0;
 
 			if (mVersion->mRelease == eRelease::Retail) {
 				Map_Overview_Prepare();
@@ -20672,7 +20674,7 @@ void cFodder::Start( int16 pStartMap ) {
 				
 				word_390B8 = -1;
 				word_390EA = -1;
-				word_3A9B2 = -1;
+				mMission_Aborted = -1;
 				word_3901E = -1;
 
 				mSound->Music_Play( 0 );
@@ -20739,7 +20741,7 @@ void cFodder::Start( int16 pStartMap ) {
 			Sprite_Count_HelicopterCallPads();
 			sub_13148();
 
-			word_3A9B2 = 0;
+			mMission_Aborted = 0;
 			word_3A9D0 = 0;
 			mMouseSpriteNew = 0x23;
 			word_3B20F = -1;
@@ -20770,7 +20772,7 @@ void cFodder::Start( int16 pStartMap ) {
 				continue;
 			}
 
-			if (word_3A9B2)
+			if (mMission_Aborted)
 				continue;
 
 			if (mMissionPhaseRemain > 1)
