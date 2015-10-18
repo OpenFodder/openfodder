@@ -28,6 +28,12 @@ enum eWeaponSelected {
 	eWeapon_Rocket = 3,
 };
 
+enum eSquad_Weapon_SplitMode {
+	eSquad_Weapon_Split_All = 0,
+	eSquad_Weapon_Split_Half = 1,
+	eSquad_Weapon_Split_None = 2
+};
+
 struct sSquad_Member {
 	int16		mRecruitID;
 	uint8		mRank;
@@ -551,8 +557,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BDB5;
 	
 
-	uint16			word_3BDE7;
-	uint16			word_3BDE9;
+	uint16			mSquad_Grenade_SplitMode;
+	uint16			mSquad_Rocket_SplitMode;
 	uint16			word_3BDEB;
 	
 	sSprite*		mSquad_0_Sprites[9];
@@ -1219,7 +1225,7 @@ public:
 	void			GUI_Handle_Button_SelectSquad_2();
 	void			Squad_Select( int16 pData4 );
 	void			GUI_Handle_Button_SplitSquad();
-	void			sub_2EF8A();
+	void			Mission_Set_Initial_Weapon();
 
 	void			map_Tiles_Draw();
 
@@ -1261,7 +1267,7 @@ public:
 
 	int16			sub_2FF41();
 
-	void			sub_30082();
+	void			Squad_Split_Assets();
 
 	void			GUI_Sidebar_MapButton_RenderWrapper();
 	void			GUI_Sidebar_Number_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );

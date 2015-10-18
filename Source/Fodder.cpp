@@ -919,8 +919,8 @@ void cFodder::Mission_Memory_Clear() {
 }
 
 void cFodder::Mission_Prepare_Squads() {
-	word_3BDE7 = 1;
-	word_3BDE9 = 1;
+	mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
+	mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
 	word_3BDEB = 5;
 	// -1
 	mSquads[0] = mSquad_0_Sprites;
@@ -5426,7 +5426,7 @@ void cFodder::sub_3037A( ) {
 		return;
 
 	word_3AC4B = 0;
-	word_3BDE7 = 1;
+	mSquad_Grenade_SplitMode = 1;
 
 	GUI_Sidebar_Grenades_Refresh_CurrentSquad();
 	sub_303B7();
@@ -5446,7 +5446,7 @@ void cFodder::sub_3049B( ) {
 
 	if (word_3AC4D) {
 		word_3AC4D = 0;
-		word_3BDE9 = 1;
+		mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
 
 		GUI_Sidebar_Rockets_Refresh_CurrentSquad();
 	}
@@ -9766,7 +9766,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 
 	if (mMission_Finished) {
 		word_3AA45 = 0;
-		return word_3AA03;
+		return 0;
 	}
 
 	word_3AA03 = 0;
@@ -10990,22 +10990,22 @@ void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
 	word_3AC1F = pData0;
 }
 
-void cFodder::GUI_Sidebar_Prepare( int16 pData0, int16 pData4 ) {
+void cFodder::GUI_Sidebar_Prepare( int16 pSquadNumber, int16 pData4 ) {
 	
-	sub_2EBE0( pData0, pData4 );
+	sub_2EBE0( pSquadNumber, pData4 );
 
-	word_3AC2D[pData0] = pData4;
+	word_3AC2D[pSquadNumber] = pData4;
 	sub_2D06C();
 	
-	pData0 = word_3AC1B;
+	pSquadNumber = word_3AC1B;
 
-	if (!mSquads_TroopCount[pData0])
+	if (!mSquads_TroopCount[pSquadNumber])
 		return;
 
 	GUI_Sidebar_SplitButton_Draw();
 	GUI_Prepare_Button_Squad();
 
-	sub_2EF8A();
+	Mission_Set_Initial_Weapon();
 
 	GUI_Sidebar_Grenades_Draw();
 	GUI_Prepare_Button_Grenade();
@@ -11111,8 +11111,8 @@ void cFodder::Squad_Select( int16 pData4 ) {
 	word_3AA1B = 1;
 	word_3AA47 = 1;
 	mGUI_Sidebar_Setup = 0;
-	word_3BDE7 = 1;
-	word_3BDE9 = 1;
+	mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
+	mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
 	word_3AC4B = 0;
 	word_3AC4D = 0;
 }
@@ -11125,10 +11125,10 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
 	if (!sub_2FF41())
 		return;
 
-	sub_30082();
+	Squad_Split_Assets();
 
-	word_3BDE7 = 1;
-	word_3BDE9 = 1;
+	mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
+	mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
 	word_3AC4B = 0;
 	word_3AC4D = 0;
 
@@ -11142,8 +11142,9 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
 	mGUI_Sidebar_Setup = 0;
 }
 
-void cFodder::sub_2EF8A() {
+void cFodder::Mission_Set_Initial_Weapon() {
 
+	// segra: I don't believe this condition can ever occur
 	if (mSquad_CurrentWeapon[word_3AC1F] == eWeapon_Grenade) {
 
 		if (mSquad_Grenades[word_3AC1F])
@@ -20862,10 +20863,10 @@ void cFodder::GUI_Handle_Button_Grenades() {
 		return;
 	}
 
-	word_3AC49 = word_3BDE7;
-	++word_3BDE7;
-	if (word_3BDE7 >= 3)
-		word_3BDE7 = 0;
+	word_3AC49 = mSquad_Grenade_SplitMode;
+	++mSquad_Grenade_SplitMode;
+	if (mSquad_Grenade_SplitMode >= (eSquad_Weapon_Split_None+1))
+		mSquad_Grenade_SplitMode = eSquad_Weapon_Split_All;
 
 	sub_303AE();
 
@@ -21183,11 +21184,12 @@ void cFodder::GUI_Sidebar_Grenades_Refresh(  int16 pData0 ) {
 	if (!GUI_Sidebar_SelectedTroops_Count())
 		return;
 
-	if (word_3BDE7 == 2)
+	// Grenades not selected
+	if (mSquad_Grenade_SplitMode == eSquad_Weapon_Split_None)
 		return;
 
 	int16 Data0 = 0xC7;
-	Data0 += word_3BDE7;
+	Data0 += mSquad_Grenade_SplitMode;
 
 	int16 Data8 = 0;
 	int16 DataC = word_3AC1D;
@@ -21216,11 +21218,11 @@ void cFodder::GUI_Sidebar_Rockets_Refresh(  int16 pData0 ) {
 	if (!GUI_Sidebar_SelectedTroops_Count())
 		return;
 
-	if (word_3BDE9 == 2)
+	if (mSquad_Rocket_SplitMode == eSquad_Weapon_Split_None)
 		return;
 
 	pData0 = 0xC7;
-	pData0 += word_3BDE9;
+	pData0 += mSquad_Rocket_SplitMode;
 
 	int16 Data8 = 0x24;
 	int16 DataC = word_3AC1D;
@@ -21426,11 +21428,11 @@ void cFodder::GUI_Handle_Button_Rockets() {
 		return;
 	}
 
-	word_3AC4F = word_3BDE9;
-	++word_3BDE9;
+	word_3AC4F = mSquad_Rocket_SplitMode;
+	++mSquad_Rocket_SplitMode;
 
-	if (word_3BDE9 >= 3)
-		word_3BDE9 = 0;
+	if (mSquad_Rocket_SplitMode >= (eSquad_Weapon_Split_None + 1))
+		mSquad_Rocket_SplitMode = eSquad_Weapon_Split_All;
 
 	GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper();
 }
@@ -21582,65 +21584,45 @@ loc_2FF79:;
 	return -1;
 }
 
-void cFodder::sub_30082() {
-	int16* Data20 = mSquad_Grenades;
-
-	int16 Data0 = word_39FD2;
-	int16 Data4 = mSquad_Selected;
+void cFodder::Squad_Split_Assets() {
 	int16 Data8, DataC;
 
-	if (!word_3BDE7)
-		goto loc_300F9;
+	if (mSquad_Grenade_SplitMode == eSquad_Weapon_Split_All) {
+		mSquad_Grenades[mSquad_Selected] = mSquad_Grenades[word_39FD2];
+		mSquad_Grenades[word_39FD2] = 0;
+	}
+	else {
 
-	if (word_3BDE7 != 1)
-		goto loc_3011E;
+		if (mSquad_Grenade_SplitMode == eSquad_Weapon_Split_Half) {
+			Data8 = mSquad_Grenades[word_39FD2];
+			DataC = Data8;
+			Data8 >>= 1;
 
-	Data8 = Data20[Data0];
-	DataC = Data8;
-	Data8 >>= 1;
+			mSquad_Grenades[word_39FD2] = Data8;
+			DataC -= Data8;
+			mSquad_Grenades[mSquad_Selected] = DataC;
+		}
+	}
 
-	Data20[Data0] = Data8;
-	DataC -= Data8;
-	Data20[Data4] = DataC;
-	goto loc_3011E;
+	if (mSquad_Rocket_SplitMode == eSquad_Weapon_Split_All) {
+		mSquad_Rockets[mSquad_Selected] = mSquad_Rockets[word_39FD2];
+		mSquad_Rockets[word_39FD2] = 0;
+	}
+	else {
 
-loc_300F9:;
+		if (mSquad_Rocket_SplitMode == eSquad_Weapon_Split_Half) {
 
-	Data20[Data4] = Data20[Data0];
-	Data20[Data0] = 0;
+			Data8 = mSquad_Rockets[word_39FD2];
+			DataC = Data8;
+			Data8 >>= 1;
 
-loc_3011E:;
+			mSquad_Rockets[word_39FD2] = Data8;
+			DataC -= Data8;
+			mSquad_Rockets[mSquad_Selected] = DataC;
+		}
+	}
 
-	Data20 = mSquad_Rockets;
-	Data0 = word_39FD2;
-	Data4 = mSquad_Selected;
-
-	if (!word_3BDE9)
-		goto loc_30195;
-
-	if (word_3BDE9 != 1)
-		goto loc_301BA;
-
-	Data8 = Data20[Data0];
-	DataC = Data8;
-	Data8 >>= 1;
-
-	Data20[Data0] = Data8;
-	DataC -= Data8;
-	Data20[Data4] = DataC;
-
-	goto loc_301BA;
-
-loc_30195:;
-	Data20[Data4] = Data20[Data0];
-	Data20[Data0] = 0;
-
-loc_301BA:;
-	Data20 = mSquad_CurrentWeapon;
-	Data0 = word_39FD2;
-	Data4 = mSquad_Selected;
-
-	Data20[Data4] = Data20[Data0];
+	mSquad_CurrentWeapon[mSquad_Selected] = mSquad_CurrentWeapon[word_39FD2];
 }
 
 void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
