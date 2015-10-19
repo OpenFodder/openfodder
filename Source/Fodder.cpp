@@ -646,8 +646,8 @@ void cFodder::Mission_Memory_Clear() {
 	dword_3A004 = 0;
 	dword_3A008 = 0;
 */
-	word_3A00C = 0;
-	word_3A00E = 0;
+	mTroop_Cannot_Throw_Grenade = 0;
+	mTroop_Cannot_Fire_Bullet = 0;
 	word_3A010 = 0;
 	word_3A014 = 0;
 	word_3A016 = 0;
@@ -6917,7 +6917,7 @@ void cFodder::Sprite_Handle_Helicopter_Human_Deploy_Weapon( sSprite* pSprite ) {
 		goto loc_24917;
 
 loc_24905:;
-	if (!Sprite_Create_Grenade( pSprite ))
+	if (!Sprite_Create_Grenade2( pSprite ))
 		goto loc_2490D;
 	goto loc_24942;
 
@@ -6949,7 +6949,7 @@ loc_24942:;
 	pSprite->field_57 = 0;
 }
 
-int16 cFodder::Sprite_Create_Grenade( sSprite* pSprite ) {
+int16 cFodder::Sprite_Create_Grenade2( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
 
 	if (word_3A9AE)
@@ -7159,7 +7159,7 @@ loc_25344:;
 	if (Data0)
 		goto loc_253D2;
 
-	Sprite_Create_Grenade(pSprite);
+	Sprite_Create_Grenade2(pSprite);
 	Data0 = tool_RandomGet() & 0x0F;
 	if (!Data0)
 		goto loc_253DE;
@@ -12493,8 +12493,8 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 			goto loc_1901C;
 
 		Sprite->field_5A = -1;
-		word_3A00C = 0;
-		word_3A00E = 0;
+		mTroop_Cannot_Throw_Grenade = 0;
+		mTroop_Cannot_Fire_Bullet = 0;
 		word_3A010 = 0;
 
 		Sprite->field_2E = Data28->field_0;
@@ -12519,14 +12519,14 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 		}
 		
 	loc_190E8:;
-		word_3A00C = 0;
-		word_3A00E = 0;
+		mTroop_Cannot_Throw_Grenade = 0;
+		mTroop_Cannot_Fire_Bullet = 0;
 		word_3A010 = 0;
 
 		if (Sprite->field_4F) {
 			word_3A010 = -1;
-			word_3A00E = -1;
-			word_3A00C = -1;
+			mTroop_Cannot_Fire_Bullet = -1;
+			mTroop_Cannot_Throw_Grenade = -1;
 		}
 		else {
 			//loc_19118
@@ -12534,12 +12534,12 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 
 				Data0 = mSquad_CurrentWeapon[ Sprite->field_32 ];
 				if (Data0 == eWeapon_Rocket) {
-					word_3A00C = -1;
-					word_3A00E = -1;
+					mTroop_Cannot_Throw_Grenade = -1;
+					mTroop_Cannot_Fire_Bullet = -1;
 				} else {
 					if (Data0 == eWeapon_Grenade) {
 						word_3A010 = -1;
-						word_3A00E = -1;
+						mTroop_Cannot_Fire_Bullet = -1;
 					}
 					else
 						goto loc_19198;
@@ -12550,7 +12550,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pData20 ) {
 			}
 
 		loc_19198:;
-			word_3A00C = -1;
+			mTroop_Cannot_Throw_Grenade = -1;
 			word_3A010 = -1;
 
 			Data0 =  ((sSquad_Member*) Sprite->field_46)->field_6;
@@ -14355,8 +14355,8 @@ void cFodder::Sprite_Handle_Enemy_Rocket( sSprite* pSprite ) {
 
 	sub_21CD1( pSprite );
 
-	word_3A00E = -1;
-	word_3A00C = -1;
+	mTroop_Cannot_Fire_Bullet = -1;
+	mTroop_Cannot_Throw_Grenade = -1;
 	word_3A010 = -1;
 
 	Sprite_Handle_Troop( pSprite );
@@ -17277,8 +17277,8 @@ loc_1F477:;
 		return;
 
 	if (pSprite->field_18 == eSprite_Enemy_Rocket) {
-		word_3A00E = -1;
-		word_3A00C = -1;
+		mTroop_Cannot_Fire_Bullet = -1;
+		mTroop_Cannot_Throw_Grenade = -1;
 		word_3A010 = -1;
 		if (word_3AA4B > 0x18)
 			word_3A010 = 0;
@@ -17286,43 +17286,32 @@ loc_1F477:;
 
 	}
 	//loc_1F4B0
-	if (pSprite->field_18 != eSprite_Enemy)
-		goto loc_1F4DB;
+	if (pSprite->field_18 == eSprite_Enemy && mMapNumber > 4) {
+		if (!(tool_RandomGet() & 0x1F)) {
 
-	if (mMapNumber <= 4)
-		goto loc_1F4DB;
+			mTroop_Cannot_Fire_Bullet = -1;
+			mTroop_Cannot_Throw_Grenade = 0;
+		}
+	}
 
-	Data0 = tool_RandomGet() & 0x1F;
-	if (Data0)
-		goto loc_1F4DB;
-
-	word_3A00E = -1;
-	word_3A00C = 0;
 loc_1F4DB:;
 
-	Data0 = word_3A00E;
-	if (Data0)
-		goto loc_1F50F;
+	if (!mTroop_Cannot_Fire_Bullet) {
 
-	if (!Sprite_Create_Bullet( pSprite ))
-		goto loc_1F4F5;
+		if (Sprite_Create_Bullet( pSprite ))
+			pSprite->field_4A = -1;
+		else
+			pSprite->field_4A = 0;
 
-	pSprite->field_4A = -1;
-	goto loc_1F4FF;
-loc_1F4F5:;
-	pSprite->field_4A = 0;
+		if (word_3AA1D != 2)
+			pSprite->field_45 = 0x0F;
+	}
 
-loc_1F4FF:;
-	if (word_3AA1D == 2)
-		goto loc_1F50F;
-	pSprite->field_45 = 0x0F;
-
-loc_1F50F:;
-	word_3A00E  = 0;
-	if (word_3A00C)
+	mTroop_Cannot_Fire_Bullet  = 0;
+	if (mTroop_Cannot_Throw_Grenade)
 		goto loc_1F549;
 
-	if (!Sprite_Create_GrenadeHuman( pSprite ))
+	if (!Sprite_Create_Grenade( pSprite ))
 		goto loc_1F52F;
 
 	pSprite->field_4A = -1;
@@ -17335,7 +17324,7 @@ loc_1F539:;
 	if (word_3AA1D != 2)
 		pSprite->field_45 = 0x0C;
 loc_1F549:;
-	word_3A00C = 0;
+	mTroop_Cannot_Throw_Grenade = 0;
 	if (word_3A010)
 		goto loc_1F599;
 
@@ -18986,7 +18975,7 @@ loc_20A2D:;
 	return -1;
 }
 
-int16 cFodder::Sprite_Create_GrenadeHuman( sSprite* pSprite ) {
+int16 cFodder::Sprite_Create_Grenade( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
 	sSprite* Data2C = 0, *Data30 =0;
 
@@ -19902,8 +19891,8 @@ void cFodder::Sprite_Create_Rank( ) {
 }
 
 void cFodder::sub_21CD1( sSprite* pSprite ) {
-	word_3A00E = 0;
-	word_3A00C = -1;
+	mTroop_Cannot_Fire_Bullet = 0;
+	mTroop_Cannot_Throw_Grenade = -1;
 	word_3A010 = -1;
 	word_3A8CF = 0;
 	word_3AA41 = -1;

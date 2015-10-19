@@ -290,8 +290,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FF8;
 	int16			word_39FFA;
 
-	int16			word_3A00C;
-	int16			word_3A00E;
+	int16			mTroop_Cannot_Throw_Grenade;
+	int16			mTroop_Cannot_Fire_Bullet;
 	int16			word_3A010;
 	int16			word_3A014;
 	int16			word_3A016;
@@ -1030,7 +1030,7 @@ public:
 	int16			Sprite_Destroy_Wrapper( sSprite* pSprite );
 	int16			Sprite_Destroy( sSprite* pSprite );
 	int16			Sprite_Create_Bullet( sSprite* pSprite );
-	int16			Sprite_Create_GrenadeHuman( sSprite* pSprite );
+	int16			Sprite_Create_Grenade( sSprite* pSprite );
 	void			sub_20E5C( sSprite* pSprite );
 	int16			sub_20E91( sSprite* pSprite );
 	void			sub_20F19( sSprite* pSprite );
@@ -1090,7 +1090,7 @@ public:
 	void			sub_245BF( sSprite* pSprite );
 	int16			sub_246CC( sSprite* pSprite );
 	void			Sprite_Handle_Helicopter_Human_Deploy_Weapon( sSprite* pSprite );
-	int16			Sprite_Create_Grenade( sSprite* pSprite );
+	int16			Sprite_Create_Grenade2( sSprite* pSprite );
 	int16			Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
 	int16			sub_2531F( sSprite* pSprite, sSprite*& pData30 );
 	void			Sprite_Handle_Vehicle_Enemy( sSprite* pSprite );
