@@ -9128,6 +9128,7 @@ int16 cFodder::SquadMember_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8
 		return word_3AA03;
 	}
 
+
 	word_3AA03 = 0;
 
 	sSquad_Member* Data28 = mSquad;
@@ -19604,9 +19605,7 @@ int16 cFodder::sub_21618( sSprite* pSprite ) {
 		Data14 -= 4;
 		word_3AA45 = 1;
 
-		SquadMember_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
-
-		return 0;
+		return SquadMember_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
 	}
 	//loc_21673
 	int16 Data8 = pSprite->field_0;
