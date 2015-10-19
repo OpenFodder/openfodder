@@ -663,10 +663,10 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	
 	mFodder->sub_13C1C( 0x0E, 0x0A, 0, 0x9B );
 	
-	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AE ));
+	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
 	mFodder->sub_16B55( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
 
-	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AC ));
+	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
 	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
 
 	SetSpritePtr( eSPRITE_HILL_UNK );

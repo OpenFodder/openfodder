@@ -208,8 +208,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	sHero			mHeroes[6];
 
-	int16			word_397AC;
-	int16			word_397AE;
+	int16			mTroops_Away;
+	int16			mTroops_Home;
 	int16			mMapPlayerTroopCount;
 	int16			mSquadMemberCount;
 	int16			mTroopsAvailable;
@@ -373,12 +373,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A9FB;
 	int32			dword_3A9FD;
 	int16			word_3AA01;
-	int16			word_3AA03;
+	int16			mSprites_Found_Count;
 	int16			mSquad_Grenades[3];
 	int16			mSquad_Rockets[3];
 	int16			word_3AA11[3];
 	int16			mTroops_Enemy_Count;
-	int16			word_3AA19;
+	int16			mHostage_Count;
 	int16			word_3AA1B;
 	int16			word_3AA1D;
 	int16			word_3AA1F;
@@ -696,7 +696,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_44A42;
 	int32			dword_44A46;
 	int16			byte_44AC0;
-	int16			word_44B47;
+	int16			mInput_LastKey;
 
 	int16			mDemo_ExitMenu;
 
@@ -727,7 +727,7 @@ public:
 	void			Sprite_Clear_All_Wrapper();
 	void			Sprite_Clear_All();
 
-	void			map_Load_Spt();
+	void			Map_Load_Sprites();
 	void			Squad_Member_Count();
 	void			Squad_Member_Sort();
 	void			Squad_Prepare();
@@ -831,7 +831,7 @@ public:
 	void			Recruit_Render_Squad_RankKills();
 	void			sub_170A4( int16 pData4, int16 pData10 );
 	void			Recruit_Render_HeroList();
-	void			sub_17368();
+	void			Recruit_Render_Names_UnusedSlots();
 	void			sub_17429();
 	void			Recruit_Draw_Actors( );
 	void			sub_175C0();
@@ -1011,8 +1011,8 @@ public:
 	void			Sprite_Handle_Troop( sSprite* pSprite );
 	void			sub_1F5A0( sSprite* pSprite );
 	void			sub_1F5CA( sSprite* pSprite );
-	void			sub_1F623( sSprite* pSprite );
-	void			sub_1F649( sSprite* pSprite );
+	void			Sprite_XY_Store( sSprite* pSprite );
+	void			Sprite_XY_Restore( sSprite* pSprite );
 
 	void			sub_1F66F( sSprite* pSprite );
 	void			sub_1F6F4( sSprite* pSprite );
@@ -1133,7 +1133,7 @@ public:
 	int16			Map_Sprite_Check_Position( sSprite* pSprite, int16& pData0, int16& pData4 );
 	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
 	void			Squad_Walk_Target_Set( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
-	int16			SquadMember_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+	int16			Squad_Member_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			sub_2AE81( int16& pData0, int16& pData4 );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
