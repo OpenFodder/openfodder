@@ -803,7 +803,7 @@ public:
 	void			Briefing_Intro();
 
 	void			Briefing_Intro_Jungle();
-	void			sub_15397();
+	void			Briefing_Intro_Desert();
 	void			Briefing_Intro_Ice();
 	void			sub_15568();
 	void			sub_15739();
@@ -817,8 +817,8 @@ public:
 
 	void			sub_15CE8(  uint8* pDs, int16 pCx );
 
-	void			sub_15DF0( );
-	void			Briefing_Draw_MissionName( );
+	void			Briefing_Draw_Mission_Name( );
+	void			Briefing_Draw_Mission_Title( );
 
 	/* Recruitment */
 	void			Recruit_Show();
@@ -877,7 +877,7 @@ public:
 	void			Briefing_Draw_Horizontal_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 	void			Briefing_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
 
-	void			sub_18BDF( int16 pBx, int16 pCx, uint8 pSi );
+	void			Briefing_Draw_Pixel( int16 pBx, int16 pCx, uint8 pSi );
 
 	void			Intro_Print_String( int32 pPosX, const sIntroString* pString );
 	bool			Recruit_Check_Buttons_SaveLoad();
