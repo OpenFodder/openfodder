@@ -859,10 +859,10 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
 	
-	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AE ));
+	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
 	mFodder->sub_16B55( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
 
-	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->word_397AC ));
+	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
 	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
 }
 
