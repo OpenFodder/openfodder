@@ -3734,7 +3734,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	} while (word_428D8 || mImageFaded != 0);
 }
 
-void cFodder::sub_15397() {
+void cFodder::Briefing_Intro_Desert() {
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;
 	int16 word_42873 = 0;
@@ -4169,8 +4169,6 @@ void cFodder::sub_15A36( uint8* pDs, int16 pCx ) {
 
 	word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
 	pCx &= 3;
-	int8 ah = 1;
-	ah <<= pCx;
 
 	++dx;
 	
@@ -4222,8 +4220,6 @@ void cFodder::sub_15B98(  uint8* pDsSi, int16 pCx ) {
 
 	word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
 	pCx &= 3;
-	int8 ah = 1;
-	ah <<= pCx;
 
 	++dx;
 	
@@ -4291,10 +4287,10 @@ void cFodder::Briefing_Intro() {
 	else {
 		
 		sub_136D0();
-		sub_15DF0();
+		Briefing_Draw_Mission_Name();
 
 		mImage->clearBuffer();
-		sub_15DF0();
+		Briefing_Draw_Mission_Name();
 
 		switch (mMap_TileSet) {
 		case 0:
@@ -4302,7 +4298,7 @@ void cFodder::Briefing_Intro() {
 			break;
 
 		case 1:
-			sub_15397();
+			Briefing_Intro_Desert();
 			break;
 
 		case 2:
@@ -4322,13 +4318,13 @@ void cFodder::Briefing_Intro() {
 	mGraphics->LoadpStuff();
 }
 
-void cFodder::sub_15DF0( ) {
+void cFodder::Briefing_Draw_Mission_Name( ) {
 
 	word_3A01A = 0xB5;
-	Briefing_Draw_MissionName();
+	Briefing_Draw_Mission_Title();
 }
 
-void cFodder::Briefing_Draw_MissionName( ) {
+void cFodder::Briefing_Draw_Mission_Title( ) {
 	
 	std::stringstream Mission;
 	Mission << "MISSION ";
@@ -11815,7 +11811,7 @@ void cFodder::Briefing_Prepare() {
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	word_3A01A = 0x2C;
 
-	Briefing_Draw_MissionName( );
+	Briefing_Draw_Mission_Title( );
 	Briefing_Show();
 	mImage->paletteFade();
 
@@ -11830,7 +11826,7 @@ void cFodder::Briefing_Wait() {
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 
 	word_3A01A = 0x2C;
-	Briefing_Draw_MissionName( );
+	Briefing_Draw_Mission_Title( );
 	Briefing_Show( );
 	Briefing_Draw_With( );
 
@@ -11911,7 +11907,7 @@ void cFodder::Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 
 	Briefing_Draw_Vertical_Line( pData0 + pData8, pData4 + pDataC, pData4, pData10 );
 }
 
-void cFodder::sub_18BDF( int16 pBx, int16 pCx, uint8 pSi ) {
+void cFodder::Briefing_Draw_Pixel( int16 pBx, int16 pCx, uint8 pSi ) {
 	uint8* di = mImage->GetSurfaceBuffer();
 
 	di += mImage->GetWidth() * pCx;
@@ -11922,7 +11918,7 @@ void cFodder::sub_18BDF( int16 pBx, int16 pCx, uint8 pSi ) {
 void cFodder::Briefing_Draw_Horizontal_Line( int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
 	
 	do {
-		sub_18BDF( pBx, pCx, pSi );
+		Briefing_Draw_Pixel( pBx, pCx, pSi );
 		++pBx;
 	} while ( pBx <= pDx );
 }
@@ -11940,7 +11936,7 @@ void cFodder::Intro_Print_String( int32 pPosY,  const sIntroString* pString ) {
 void cFodder::Briefing_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
 	
 	do {
-		sub_18BDF( pBx, pCx, pSi );
+		Briefing_Draw_Pixel( pBx, pCx, pSi );
 		++pCx;
 	} while (pCx <= pDx );
 }
