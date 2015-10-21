@@ -46,6 +46,7 @@ cSound_Amiga::cSound_Amiga() {
 	mLock = SDL_CreateMutex();
 
 	mAudioSpec = 0;
+	mCurrentMusic = 0;
 
 	devicePrepare();
 }

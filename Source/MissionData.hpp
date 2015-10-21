@@ -45,3 +45,4 @@ extern const sMissionData	mMissionData_AmigaFormat;
 extern const sMissionData	mMissionData_Retail;
 extern const char*			mMissionGoals[];
 extern const std::string	mMapTypes[];
+extern const int16			mMap_Sprite_Enemy_Aggression[];
