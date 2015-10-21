@@ -131,6 +131,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	const sSpriteSheet**	mSpriteDataPtr;
 	
+	void					(cFodder::*mSprite_Function[117])( sSprite* pSprite );
 
 	std::stringstream		mTitle;
 
@@ -882,13 +883,16 @@ public:
 	bool			Recruit_Check_Buttons_SaveLoad();
 	
 	void			sub_18D5E();
+	
+	void			Sprite_Table_Setup();
 
 	void			Sprite_Handle_Loop();
+	void			Sprite_Handle_Null( sSprite* pSprite );
 
 	void			Sprite_Handle_Player( sSprite* pSprite );				// 0
 	void			Sprite_Handle_Grenade( sSprite* pSprite );				// 2
 	void			sub_1998C( sSprite* pSprite );
-	void			sub_199B2( sSprite* pSprite );							// 3
+	void			Sprite_Handle_ShadowSmall( sSprite* pSprite );			// 3
 	void			Sprite_Handle_Enemy( sSprite* pSprite );				// 5
 	void			Sprite_Handle_Bullet( sSprite* pSprite );				// 6
 	void			Sprite_Handle_Helicopter( sSprite* pSprite );

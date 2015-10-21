@@ -27,13 +27,15 @@ enum eSprites {
 	eSprite_Null				= 4,
 	eSprite_Enemy				= 5,
 	eSprite_Bullet				= 6,
+
 	eSprite_Explosion			= 12,
 	eSprite_Shrub				= 13,
 	eSprite_Tree				= 14,
-	eSprite_Roof				= 15,
+	eSprite_BuildingRoof		= 15,
 	eSprite_Shrub2				= 17,
 	eSprite_Waterfall			= 18,
 	eSprite_Bird2_Left			= 19,
+
 	eSprite_Door				= 20,
 	eSprite_Rank				= 21,
 	eSprite_Door2				= 25,
@@ -53,21 +55,18 @@ enum eSprites {
 	eSprite_Helicopter_Grenade2_Enemy		= 42,
 	eSprite_Helicopter_Missile_Enemy		= 43,
 	eSprite_Helicopter_Homing_Enemy			= 44,
-
 	eSprite_Missile							= 45,
 	eSprite_MissileHoming					= 46,
-
 	eSprite_Helicopter_Grenade2_Human		= 49,
 	eSprite_Helicopter_Grenade_Human		= 50,
 	eSprite_Helicopter_Missile_Human		= 51,
 	eSprite_Helicopter_HomingMissile_Human	= 52,
-
 	eSprite_Mine						= 54,
 	eSprite_Mine2						= 55,
 	eSprite_Spike						= 56,
-
 	eSprite_Text_Try					= 58,
 	eSprite_Text_Again					= 59,
+
 	eSprite_BoilingPot					= 60,
 	eSprite_Indigenous					= 61,
 	eSprite_Indigenous2					= 62,
@@ -78,6 +77,7 @@ enum eSprites {
 	eSprite_Bird_Right					= 67,
 	eSprite_Seal						= 68,
 	eSprite_Tank_Enemy					= 69,
+
 	eSprite_Indigenous_Spear			= 70,
 	eSprite_Hostage						= 72,
 	eSprite_Hostage_Rescue_Tent			= 73,
@@ -86,6 +86,7 @@ enum eSprites {
 	eSprite_Door_Indigenous_Spear		= 76,
 	eSprite_Turret_Missile_Human		= 78,
 	eSprite_Turret_Missile2_Human		= 79,
+
 	eSprite_Vehicle_Enemy				= 80,
 	eSprite_VehicleGun_Enemy			= 81,
 	eSprite_Vehicle_Unk_Enemy			= 82,
