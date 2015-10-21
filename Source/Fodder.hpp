@@ -126,11 +126,12 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint8*					word_397D8;
 
-	sSprite					word_3B4F7;
+	sSprite					mSprite_Spare;
 	sSprite					mSprites[45];
 
 	const sSpriteSheet**	mSpriteDataPtr;
 	
+
 	std::stringstream		mTitle;
 
 	std::string		mFilenameCopt;
@@ -165,7 +166,6 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			mDataBaseBlkSize;
 	size_t			mDataSubBlkSize;
 
-	int32*			dword_37AC0;
 	uint32			dword_3901A;
 	uint16			word_3901E;
 	int16			word_39096;
@@ -178,7 +178,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	/************** Save Game Region *********** */
 	uint16			mMapNumber;
-	int16			word_390BE;
+	int16			mSprite_Enemy_Aggression_HalfOfMinPlusMax;
 	int16			mSprite_Enemy_AggressionMin;
 	int16			mSprite_Enemy_AggressionMax;
 	int16			mSprite_Enemy_AggressionNext;
@@ -186,10 +186,10 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
 	uint16			mSquad_AliveCount;
-	uint16			mSaved_MissionNumber;	// unused
-	uint16			mSaved_MapNumber;		// unused
+	uint16			mSaved_MissionNumber;					// unused
+	uint16			mSaved_MapNumber;						// unused
 	int16			word_390D4;
-	sSprite*		mSquad_SpritePtrs[8];	// unused
+	sSprite*		mSquad_SpritePtrs[8];					// unused
 	int16			mSprite_Enemy_AggressionCreated_Count;
 	uint16			word_390E8;
 	int16			mGame_Prepare;
@@ -296,7 +296,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A016;
 	int16			word_3A01A;
 	uint16			word_3A024;
-	sGUI_Element*		dword_3A02A;
+	sGUI_Element*	dword_3A02A;
 	int32			dword_3A030;
 	uint16			word_3A054;
 	int8			mSquads_TroopCount[4];
@@ -604,7 +604,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			word_3E75B;
 
-		/* Configuration Settings (SETUP.DAT) */
+	/* Configuration Settings (SETUP.DAT) */
 	uint16			word_3E7ED;
 	uint16			mEffectDriver;
 	uint16			mMusicDriver;
