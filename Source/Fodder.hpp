@@ -179,20 +179,20 @@ class cFodder : public cSingleton < cFodder > {
 	/************** Save Game Region *********** */
 	uint16			mMapNumber;
 	int16			word_390BE;
-	int16			word_390C0;
-	int16			word_390C2;
-	int16			word_390C4;
-	int16			word_390C6;
+	int16			mSprite_Enemy_AggressionMin;
+	int16			mSprite_Enemy_AggressionMax;
+	int16			mSprite_Enemy_AggressionNext;
+	int16			mSprite_Enemy_AggressionIncrement;
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
 	uint16			mSquad_AliveCount;
-	uint16			word_390D0;
-	uint16			word_390D2;
+	uint16			mSaved_MissionNumber;	// unused
+	uint16			mSaved_MapNumber;		// unused
 	int16			word_390D4;
 	sSprite*		mSquad_SpritePtrs[8];	// unused
-	int16			word_390E6;
+	int16			mSprite_Enemy_AggressionCreated_Count;
 	uint16			word_390E8;
-	int16			word_390EA;
+	int16			mGame_Prepare;
 	int16			word_390EC;
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
@@ -293,7 +293,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mTroop_Cannot_Throw_Grenade;
 	int16			mTroop_Cannot_Fire_Bullet;
 	int16			word_3A010;
-	int16			word_3A014;
 	int16			word_3A016;
 	int16			word_3A01A;
 	uint16			word_3A024;
@@ -305,8 +304,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3A05F;
 	int16			mCamera_Position_Column;
 	int16			mCamera_Position_Row;
-	int16			word_3A067;
-	int16			word_3A069;
+	int16			mCamera_Position_X;
+	int16			mCamera_Position_Y;
 	int16			word_3A06B;
 	sSprite*		dword_3A071[45];
 	sSprite*		dword_3A125[45];
@@ -379,13 +378,13 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA11[3];
 	int16			mTroops_Enemy_Count;
 	int16			mHostage_Count;
-	int16			word_3AA1B;
+	int16			mCamera_Start_Adjust;
 	int16			word_3AA1D;
 	int16			word_3AA1F;
 	int16			word_3AA21;
 	int16			word_3AA41;
 	int16			word_3AA45;
-	int16			word_3AA47;
+	int16			mSquad_Select_Timer;
 	int16			word_3AA4B;
 	int16			word_3AA4D;
 	int16			word_3AA4F;
@@ -715,7 +714,7 @@ public:
 	void			Mouse_Handle( );
 	void			sub_10937();
 	void			sub_1096B();
-	void			sub_10BBC();
+	void			Game_ClearVariables();
 	void			Squad_Clear();
 	void			Heroes_Clear();
 	void			Mission_Memory_Backup();
@@ -853,7 +852,7 @@ public:
 	void			Service_Promotion_Loop();
 	int16			Service_KIA_Troop_Prepare();
 	int16			sub_1804C();
-	void			sub_18099( uint16*& pDi,int16 ax, int16 bx );
+	void			sub_18099( uint16*& pDi,int16 pRecruitID, int16 pRank );
 	void			sub_18149();
 	void			sub_181BD();
 	void			sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
@@ -1163,8 +1162,8 @@ public:
 	void			sub_2D725();
 	void			sub_2D767();
 	void			Squad_Prepare_GrenadesAndRockets();
-	void			sub_2D7FF();
-	void			sub_2D8AF( sSprite* pSprite );
+	void			Sprite_Aggression_Set();
+	void			Sprite_Handle_Enemy_Aggression_Set( sSprite* pSprite );
 	int16			Sprite_Next_WalkTarget_Set( sSprite* pSprite );
 	int16			sub_2DBA3( sSprite* pSprite );
 	void			sub_2DCB0( int16 pData0 );
@@ -1183,7 +1182,7 @@ public:
 	void			GUI_Button_Load_Exit();
 	void			String_Print_Input();
 	void			sub_2E6A9();
-	void			sub_2E704();
+	void			GUI_Input_CheckKey();
 	void			Game_Load();
 	void			GUI_Button_Load_Up();
 	void			GUI_Button_Load_Down();
@@ -1191,7 +1190,7 @@ public:
 
 	int16			GUI_Button_NoAction();
 	void			GUI_Button_NoAction2();
-	void			sub_2EACA();
+	void			GUI_Sidebar_Prepare_Squads();
 	
 	void			GUI_Button_SelectQuiz();
 	void			GUI_Button_SelectMap0();
@@ -1290,13 +1289,13 @@ public:
 	int16			sub_305D5( sSprite*& pData20 );
 	void			Mouse_Inputs_Check();
 	void			Squad_Member_Target_Set();
-	int16			sub_30E2A();
-	void			sub_31033();
-	void			sub_31075( int16 pData0 );
+	int16			Mouse_Button_Right_Toggled();
+	void			Squad_Switch_Timer();
+	void			Squad_Switch_To( int16 pData0 );
 	void			Vehicle_Input_Handle();
 	void			sub_311A7();
 	int16			sub_313CD();
-	void			sub_3169B();
+	void			Vehicle_Target_Set();
 
 	void			String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString );
 	void			String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
