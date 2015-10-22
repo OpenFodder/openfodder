@@ -54,7 +54,7 @@ class cSound_PC : public cSound {
 						cSound_PC();
 						~cSound_PC();
 
-	void				Sound_Play( int16 pBx, int16 pData4 );
+	void				Sound_Play( int16 pBx, int16 pData4, int16 pData8 );
 
 	void				Music_Play( int16 pTrack );
 	void				Music_PlayFile( const char* pFilename );

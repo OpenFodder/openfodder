@@ -67,7 +67,7 @@ void cSound_PC2::MixerChannelFinished( int32 pChannel ) {
 
 }
 
-void cSound_PC2::Sound_Play( int16 pBx, int16 pData4 ) {
+void cSound_PC2::Sound_Play( int16 pBx, int16 pData4, int16 pData8 ) {
 
 }
 

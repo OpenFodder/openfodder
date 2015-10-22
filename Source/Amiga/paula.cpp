@@ -41,6 +41,8 @@ Paula::Paula(bool stereo, int rate, size_t interruptFreq) :
 	_timerBase = 1;
 	_playing = false;
 	_end = true;
+
+	mVolume = -1;
 }
 
 Paula::~Paula() {
@@ -141,7 +143,11 @@ int Paula::readBufferIntern(int16 *buffer, const int numSamples) {
 			// by the OS/2 version of Hopkins FBI.
 
 			// Mix the generated samples into the output buffer
-			neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length, ch.volume, ch.panning);
+
+			if (mVolume >= 0)
+				neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume - mVolume, ch.panning);
+			else
+				neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume, ch.panning);
 
 			// Wrap around if necessary
 			if (ch.offset.int_off >= ch.length) {
@@ -163,7 +169,10 @@ int Paula::readBufferIntern(int16 *buffer, const int numSamples) {
 				// Repeat as long as necessary.
 				while (neededSamples > 0) {
 					// Mix the generated samples into the output buffer
-					neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length, ch.volume, ch.panning);
+					if (mVolume >= 0)
+						neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume - mVolume, ch.panning);
+					else
+						neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume, ch.panning);
 
 					if (ch.offset.int_off >= ch.length) {
 						// Wrap around. See also the note above.

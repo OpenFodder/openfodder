@@ -31,6 +31,8 @@ namespace Audio {
  */
 class AudioStream {
 public:
+	int16 mVolume;
+
 	virtual ~AudioStream() {}
 
 	/**
