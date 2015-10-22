@@ -119,6 +119,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "PC/Graphics_PC.hpp"
 #include "PC/Sound_PC.hpp"
+#include "PC/Sound_PC2.hpp"
 
 #include "Amiga/paula.hpp"
 #include "Amiga/rjp1.hpp"

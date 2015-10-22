@@ -32,9 +32,14 @@ const std::string mMapTypes[] = {
 	"afx"		// Amiga Format Christmas Special
 };
 
-const uint16 mRetail_MissionPhaseTable[] = {	01, 02, 01, 04, 03, 02, 03, 04,
-												02, 05, 03, 06, 01, 03, 03, 02,
-												01, 05, 01, 04, 01, 04, 05, 06 };
+const uint16 mRetail_MissionPhaseTable[] = {	1, 2, 1, 4, 3, 2, 3, 4,
+												2, 5, 3, 6, 1, 3, 3, 2,
+												1, 5, 1, 4, 1, 4, 5, 6 };
+
+const uint16 mRetail2_MissionPhaseTable[] = {
+												1, 3, 4, 3, 2, 3, 4, 2, 
+												5, 2, 1, 6, 2, 4, 2, 3, 
+												1, 2, 4, 1, 4, 5, 2, 6 };
 
 const uint16 mAmigaFormat_MissionPhaseTable[]	= { 01, 01 };
 const uint16 mPlus_MissionPhaseTable[]			= { 01, 01, 01, 01 };
@@ -151,6 +156,107 @@ const char* mRetail_MissionPhaseNames[] = {
 	"SYSTEM OFF",
 	"STICK EM UP COD BREATH",
 	"DONKEYDEATHTASTICELASTIC"
+};
+const char* mRetail2_MissionNames[] = {
+	"THIS IS HOW IT BEGINS",
+	"MY LOVE HAS GOT A GUN",
+	"I WANT TO KILL SOMEBODY",
+	"I BELIEVE IN SPACE",
+	"LADY LOVE YOUR COUNTRY",
+	"THE SWORDS OF 1000 MEN",
+	"TICKY TICKY TIMEBOMB",
+	"1  2  X  U",
+	"ALL THIS AND MORE",
+	"OOH FAYE DUNAWAY",
+	"SMILE WITH MR UKELELE",
+	"IDONTMINDBEINGONMYOWN",
+	"NEW GUYS IN TOWN",
+	"FREAK YOU MELON FARMER",
+	"BETWEEN PLANETS",
+	"BEEN DRIVIN' FOR DAYS NOW",
+	"KASIMIR S PULASKI DAY",
+	"TRAVEL'S IN MY BLOOD",
+	"FOREST BUTCHER BOY",
+	"LOOK AT THAT UGLY MOON",
+	"SHOCKER IN GLOOMTOWN",
+	"A STAR FOR EVERYONE",
+	"EVE OF DESTRUCTION",
+	"WISH THEM ALL DEAD"
+};
+
+const char* mRetail2_MissionPhaseNames[] = {
+	"HAPPY DAYS ARE HERE AGAIN",
+	"BOOM BANG A BANG",
+	"THIS AIN'T PIZMO BEACH",
+	"TAKE ME I'M YOURS",
+	"COMPOUND FRACTURE",
+	"SAY IT WITH ROCKETS",
+	"TIPPER TOPPER",
+	"IS IT A BIRD",
+	"I'M GOING OUT OF MY WAY",
+	"HANG WITH ME JOE",
+	"UH OH WE'RE IN TROUBLE",
+	"A BIT OF BULLY",
+	"WIZARD PRANKS",
+	"AN ENGLISHMAN'S HOME",
+	"ASSAULT AND BATTERING",
+	"BACK TO THE FUTURE",
+	"FEERSUM ENDJINN",
+	"NEVER SAW IT COMING",
+	"IN THE MIDDLE WITH YOU",
+	"JUST THIS ONE TO GO",
+	"TERMINAL BEACH",
+	"DESERT EAGLES",
+	"CHOPPA STOPPA",
+	"A DIP IN THE POOL",
+	"COLLATERAL DAMAGE",
+	"YOU CAN RUN",
+	"DON'T WANNA GET STONED",
+	"WATUSI RODEO",
+	"A KNIGHT ON THE TOWN",
+	"VEGETABLE MEN",
+	"LOST IN A FOREST",
+	"SPEEDWAY STAR",
+	"IDIOT COUNTRY",
+	"WISH THE LADS WERE HERE",
+	"SOMEONE GIVE HER A GUN",
+	"ERUTUF EHT OT KCAB",
+	"MEAN STREETS",
+	"THE OLD MAIN DRAG",
+	"A RAIN'S GONNA COME",
+	"WILLIAM TELL ME",
+	"FREEWAY ENTERPRISE",
+	"AMBUSH CITY LIMITS",
+	"QUARANTINE",
+	"UNCHAINED MELODIES",
+	"GRIDLOCK",
+	"SIDEWALKING",
+	"RIGHT ACROSS THE STREET",
+	"I WISH I COULD FLY",
+	"LOVER'S LEAP",
+	"THE ROAD FROM HELL",
+	"F KLAMMER STRIKES AGAIN",
+	"ALL THE SAME TO ME",
+	"TWO'S COMPANY",
+	"CHARLIE WHISKEY",
+	"THE WEB IN FRONT",
+	"THERE'S A RIOT GOIN' ON",
+	"SHOPPER'S PARADISE",
+	"CHEDDINGTON",
+	"KISS KISS MOLLY'S LIPS",
+	"TAKE IT TO THE BRIDGE",
+	"NO QUARTERS GIVEN",
+	"FEEL THE PAIN",
+	"GARY GILMORE'S EYES",
+	"CLOSING IN ON DEATH",
+	"SIX MILLION AND FOUR",
+	"PLACES NOT TO GO TO",
+	"FARAWAY BUT TOO CLOSE",
+	"RETURN TO BLOODY DOVE",
+	"HOTDOGS WITH EVERYTHING",
+	"JESUS HAD A TWIN",
+	"A SEA WITH THREE STARS",
+	"CATCH 23"
 };
 
 const char* mMissionGoals[] = {
@@ -346,4 +452,10 @@ const sMissionData mMissionData_Retail = {
 	mRetail_MissionNames,
 	mRetail_MissionPhaseNames,
 	mRetail_MissionPhaseTable
+};
+
+const sMissionData mMissionData_Retail2 = {
+	mRetail2_MissionNames,
+	mRetail2_MissionPhaseNames,
+	mRetail2_MissionPhaseTable
 };

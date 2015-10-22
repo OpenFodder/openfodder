@@ -177,6 +177,7 @@
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp" />
     <ClInclude Include="..\..\Source\PC\Sound_PC.hpp" />
+    <ClInclude Include="..\..\Source\PC\Sound_PC2.hpp" />
     <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\VocTable.hpp" />
     <ClInclude Include="..\..\Source\Position.hpp" />
@@ -211,6 +212,7 @@
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />
     <ClCompile Include="..\..\Source\PC\Sound_PC.cpp" />
+    <ClCompile Include="..\..\Source\PC\Sound_PC2.cpp" />
     <ClCompile Include="..\..\Source\Recruits.cpp" />
     <ClCompile Include="..\..\Source\Resources.cpp" />
     <ClCompile Include="..\..\Source\Sound.cpp" />

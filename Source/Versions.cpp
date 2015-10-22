@@ -27,6 +27,33 @@ const sFile mDosFiles[] = {
 	{ 0 }
 };
 
+const sFile mDos2Files[] = {
+	{ "CF_ENG.DAT",		"8A3EB9B9F134B2997E6534D4C39B23D6" },
+	{ "BIRD.SMP",		"EFE57BF26BBA0C7AC35720EB86AE37EA" },
+	{ "CANNON2.RNC",	"34BCEDF3C51E6F9114FA5B7C712DB273" },
+	{ "DIE1.SMP",		"124EFA03F13669D59EB03F1812A71624" },
+	{ "DIE2.SMP",		"902E437B8257231D1494535170A9ED22" },
+	{ "DIE3.SMP",		"4426AE305E6908FD6A933A3522681CEC" },
+	{ "DUCK.SMP",		"331F9DA882304EC428DD84051B7EA003" },
+	{ "ENGINE.SMP",		"AB3EB80B15DF9AD87FC6AB23E5C8ADAF" },
+	{ "EXPLOSN.SMP",	"18151D71549006032F3099EC1457699C" },
+	{ "GAMEOVER.AMF",	"0AA5D2C3849D9522C54F24B4900755CA" },
+	{ "GRENADE.SMP",	"3CA15373E824CEF8622216B2B6835C26" },
+	{ "GUN.SMP",		"1312B6A5D43BF1D3137CD29D5CE5403A" },
+	{ "HELI.SMP",		"26E2FAE3C85E728EDFC94B5CF9EA98C0" },
+	{ "HELIANIM.AMF",	"C70228BF18B4789796132E2B7B5676C7" },
+	{ "LOADER.AMF",		"23BBA2B5C1863488071515ED0E7B13B1" },
+	{ "MENU.AMF",		"9C58F6A8E4C79388994C34B6155E2FBA" },
+	{ "MGUN.SMP",		"16688E86D89D80F9B5F956BE9FC63C65" },
+	{ "MISSILE.SMP",	"C7625E6E1A6FEA368A104646390AB243" },
+	{ "ROOK.SMP",		"16233C3D4D205D32720A3F65A224190F" },
+	{ "SHEEP.SMP",		"99D397E27FCACD3EF7D0ABC42233A558" },
+	{ "TITLE.AMF",		"7831A09310004BB0F2F6754BA52D0AD5" },
+	{ "WINLEVEL.AMF",	"1E61F47CE71D24828F2A1E1656786978" },
+	{ "WINZONE.AMF",	"B9333DBB4BD65AEF6E3BA801D4FDABED" },
+	{ 0 }
+};
+
 const sFile mAmigaFiles[] = {
 	{ "1.RAW", "2F00447802B86510784ECC8D1134C942" },
 	{ "2.RAW", "540BA4FAEB4F8CE75391EF4ED2CDBA6A" },
@@ -630,11 +657,12 @@ const sFile mPlusFiles[] = {
 
 const sVersion Versions[] = {
 
-	{ "Dos",							"Dos",		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail,		mIntroText_PC,		"Dos_CD",			mDosFiles },
-	{ "Amiga",							"Amiga",	ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga",			mAmigaFiles },
-	{ "Amiga CD32",						"Amiga32",	ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
-	{ "Amiga Format Christmas Special", "AFX",		ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
-	{ "Plus",							"Plus",		ePlatform::Amiga,	eRelease::Demo,		&mMissionData_Plus,			mIntroText_Amiga,	"Plus",				mPlusFiles },
+	{ "Cannon Fodder Dos",				eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail,		mIntroText_PC,		"Dos_CD",			mDosFiles },
+	{ "Cannon Fodder 2 Dos",			eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail2,		mIntroText_PC2,		"Dos2_CD",			mDos2Files },
+	{ "Amiga",							eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga",			mAmigaFiles },
+	{ "Amiga CD32",						eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
+	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
+	{ "Plus",							eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_Plus,			mIntroText_Amiga,	"Plus",				mPlusFiles },
 	{ 0 }
 };
 

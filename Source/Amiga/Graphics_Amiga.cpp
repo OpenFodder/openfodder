@@ -86,7 +86,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		return mFodder->mDataHillBits;
 
 	case 2:
-		if (mFodder->mVersion->mKey == "AFX")
+		if (mFodder->mVersion->mVersion == eVersion::AmigaPlus)
 			mFodder->byte_42070 = mCursorPalette;
 		else
 			mFodder->byte_42070 = 0xE0;
