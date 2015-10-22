@@ -26,8 +26,23 @@ enum ePlatform {
 };
 
 enum eRelease {
-	Retail = 0,
-	Demo = 1
+	Retail	= 0,
+	Retail2 = 1,
+	Demo	= 2,
+};
+
+enum eVersion {
+	Dos_CD		= 0,
+	Dos2_CD		= 1,
+	Amiga_Disk	= 2,
+	Amiga_CD	= 3,
+	AmigaFormat = 4,
+	AmigaPlus	= 5,
+};
+
+enum eGame {
+	CF1 = 0,
+	CF2 = 1
 };
 
 struct sFile {
@@ -37,7 +52,8 @@ struct sFile {
 
 struct sVersion {
 	const char*				mName;
-	std::string				mKey;
+	eGame					mGame;
+	eVersion				mVersion;
 	ePlatform				mPlatform;
 	eRelease				mRelease;
 	const sMissionData*		mMissionData;

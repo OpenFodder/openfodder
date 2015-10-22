@@ -2,7 +2,7 @@
  *  Cannon Fodder
  *  ------------------------
  *
- *  Copyright (C) 2008-2015 Robert Crossfield
+ *  Copyright (C) 2008-2015 Robert Crossfield <robcrossfield@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,31 +20,26 @@
  *
  */
 
-struct sMissionData {
-	const char**	mMissionNames;
-	const char**	mMissionPhaseNames;
-	const uint16*	mMissionPhases;
+
+class cSound_PC2 : public cSound {
+	bool					mSound;
+
+	Mix_Music*				mMusicPlaying;
+
+	private:
+	bool					devicePrepare();
+	void					Sound_Voc_Load();
+
+	public:
+
+						cSound_PC2();
+						~cSound_PC2();
+
+	void				Sound_Play( int16 pBx, int16 pData4 );
+
+	void				Music_Play( int16 pTrack );
+	void				Music_PlayFile( const char* pFilename );
+	void				Music_Stop();
+
+	void				MixerChannelFinished( int32 pChannel );
 };
-
-enum eMissionGoals {
-	eGoal_Kill_All_Enemy = 1, 
-	eGoal_Destroy_Enemy_Buildings = 2,
-	eGoal_Rescue_Hostages = 3,
-	eGoal_Protect_Civilians = 4,
-	eGoal_Kidnap_Leader = 5,
-	eGoal_Destroy_Factory = 6,
-	eGoal_Destroy_Computer = 7,
-	eGoal_Get_Civilian_Home = 8,
-	eGoal_End = -1
-};
-
-extern const int8* mMap_Goals[];
-
-extern const sMissionData	mMissionData_Plus;
-extern const sMissionData	mMissionData_AmigaFormat;
-extern const sMissionData	mMissionData_Retail;
-extern const sMissionData	mMissionData_Retail2;
-
-extern const char*			mMissionGoals[];
-extern const std::string	mMapTypes[];
-extern const int16			mMap_Sprite_Enemy_Aggression[];

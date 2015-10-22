@@ -31,4 +31,5 @@ struct sIntroText {
 };
 
 extern const sIntroText mIntroText_PC[];
+extern const sIntroText mIntroText_PC2[];
 extern const sIntroText mIntroText_Amiga[];

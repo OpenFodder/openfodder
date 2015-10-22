@@ -3180,7 +3180,13 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 		case ePlatform::PC:
 			mResources = new cResource_PC_CD( mVersion->mDataPath );
 			mGraphics = new cGraphics_PC();
-			mSound = new cSound_PC();
+
+			if (mVersion->mVersion == eVersion::Dos_CD)
+				mSound = new cSound_PC();
+			
+			if (mVersion->mVersion == eVersion::Dos2_CD)
+				mSound = new cSound_PC2();
+
 			break;
 
 		case ePlatform::Amiga:
@@ -4379,10 +4385,10 @@ void cFodder::Demo_ShowMenu() {
 		Mouse_DrawCursor();
 
 		if (mButtonPressLeft) {
-			if (mVersion->mKey == "AFX")
+			if (mVersion->mVersion == eVersion::AmigaFormat)
 				GUI_Element_Mouse_Over( mAfx_Buttons );
 
-			if (mVersion->mKey == "Plus")
+			if (mVersion->mVersion == eVersion::AmigaPlus)
 				GUI_Element_Mouse_Over( mPlus_Buttons );
 		}
 
@@ -6319,7 +6325,7 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
 	Data30->field_2C = -1;
 	pData2C->field_38 = 0;
 
-	if (mVersion->mKey != "Plus")
+	if (mVersion->mVersion != eVersion::AmigaPlus)
 		Sound_Play( pSprite, 0x2D, 0x0F );
 
 	return -1;
@@ -7122,7 +7128,7 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	Data30->field_2C = -1;
 	pData2C->field_38 = 0;
 
-	if (mVersion->mKey == "Plus")
+	if (mVersion->mVersion == eVersion::AmigaPlus)
 		Sound_Play( pSprite, 0x10, 0x0F );
 	else
 		Sound_Play( pSprite, 0x2C, 0x0F );
@@ -12750,7 +12756,7 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
 	sSprite* Data24 = 0, *Data2C = 0;
 	int32 Field_1E;
 
-	if (mVersion->mKey == "Plus") {
+	if (mVersion->mVersion == eVersion::AmigaPlus) {
 		//TODO: Fix chopper
 		Data0 = 0;
 	} 
@@ -13825,7 +13831,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 
 		pSprite->field_56 -= 1;
 		if (!pSprite->field_56) {
-			if (mVersion->mKey == "Plus")
+			if (mVersion->mVersion == eVersion::AmigaPlus)
 				Sound_Play( pSprite, 0x10, 0x0F );
 			else
 				Sound_Play( pSprite, 0x2E, 0x0F );
@@ -13998,7 +14004,7 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 	mSquad_Rockets[mSquad_Selected] += 4;
 
 	// Plus uses homing missiles
-	if (mVersion->mKey == "Plus")
+	if (mVersion->mVersion == eVersion::AmigaPlus)
 		mSquad_Leader->field_75 |= 1;
 
 	Sprite_Destroy_Wrapper( pSprite );
@@ -18081,7 +18087,7 @@ int16 cFodder::introPlayText() {
 		if (mVersion->mIntroData[word_3B2CF].mImageNumber != 0xFF) {
 
 			std::stringstream ImageName;
-			ImageName << mVersion->mIntroData[word_3B2CF].mImageNumber;
+			ImageName << (char) mVersion->mIntroData[word_3B2CF].mImageNumber;
 
 			mGraphics->imageLoad( ImageName.str(), 0xD0 );
 		}
@@ -18092,10 +18098,12 @@ int16 cFodder::introPlayText() {
 
 		mGraphics->PaletteSet();
 		const sIntroString* IntroString = mVersion->mIntroData[word_3B2CF].mText;
-		while (IntroString->mPosition) {
+		if (IntroString) {
+			while (IntroString->mPosition) {
 
-			Intro_Print_String( IntroString->mPosition, IntroString );
-			++IntroString;
+				Intro_Print_String( IntroString->mPosition, IntroString );
+				++IntroString;
+			}
 		}
 		//loc_16710
 		
@@ -18153,7 +18161,8 @@ void cFodder::intro() {
 
 	intro_Music_Play();
 
-	intro_LegionMessage();
+	if (mVersion->mGame == eGame::CF1)
+		intro_LegionMessage();
 
 	if (ShowImage_ForDuration( "cftitle", 0x1F8 ))
 		goto introDone;
@@ -18195,13 +18204,13 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 
 	mImageFaded = -1;
 	while( mImageFaded == -1 || DoBreak == false  ) {
+		mouse_GetData();
 		--pDuration;
 
 		if (pDuration) {
 			if (mImageFaded)
 				mImageFaded = mImage->paletteFade();
 
-			mouse_GetData();
 			if (mouse_Button_Status) {
 				word_3B4F3 = -1;
 				mImage->paletteFadeOut();
@@ -19931,7 +19940,7 @@ loc_22622:;
 	if (pSprite->field_22)
 		goto loc_22801;
 
-	if (mVersion->mKey != "Plus") {
+	if (mVersion->mVersion != eVersion::AmigaPlus) {
 		if (!(pSprite->field_75 & 1))
 			goto loc_22801;
 	}
