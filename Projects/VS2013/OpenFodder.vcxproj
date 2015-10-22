@@ -214,6 +214,7 @@
     <ClCompile Include="..\..\Source\Recruits.cpp" />
     <ClCompile Include="..\..\Source\Resources.cpp" />
     <ClCompile Include="..\..\Source\Sound.cpp" />
+    <ClCompile Include="..\..\Source\Sprites.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />
