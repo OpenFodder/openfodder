@@ -30,7 +30,6 @@ const sFile mDosFiles[] = {
 const sFile mDos2Files[] = {
 	{ "CF_ENG.DAT",		"8A3EB9B9F134B2997E6534D4C39B23D6" },
 	{ "BIRD.SMP",		"EFE57BF26BBA0C7AC35720EB86AE37EA" },
-	{ "CANNON2.RNC",	"34BCEDF3C51E6F9114FA5B7C712DB273" },
 	{ "DIE1.SMP",		"124EFA03F13669D59EB03F1812A71624" },
 	{ "DIE2.SMP",		"902E437B8257231D1494535170A9ED22" },
 	{ "DIE3.SMP",		"4426AE305E6908FD6A933A3522681CEC" },
@@ -657,8 +656,8 @@ const sFile mPlusFiles[] = {
 
 const sVersion Versions[] = {
 
-	{ "Cannon Fodder Dos",				eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail,		mIntroText_PC,		"Dos_CD",			mDosFiles },
-	{ "Cannon Fodder 2 Dos",			eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail2,		mIntroText_PC2,		"Dos2_CD",			mDos2Files },
+	{ "Dos",							eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail,		mIntroText_PC,		"Dos_CD",			mDosFiles },
+	{ "2 Dos",							eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail2,		mIntroText_PC2,		"Dos2_CD",			mDos2Files },
 	{ "Amiga",							eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga",			mAmigaFiles },
 	{ "Amiga CD32",						eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
 	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },

@@ -34,7 +34,8 @@ class cResource_PC_CD : public cResources {
 	bool							headerLoad();
 	uint8*							file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode );
 
-	public:
+
+public:
 	
 									cResource_PC_CD( std::string pDataPath = "" );
 	virtual							~cResource_PC_CD();

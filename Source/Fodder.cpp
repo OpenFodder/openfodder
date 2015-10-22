@@ -20112,6 +20112,22 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 	mGraphics->LoadpStuff();
 }
 
+void cFodder::ExtractData() {
+	
+	std::vector< cResource_File >* Files = ((cResource_PC_CD*)mResources)->filesGet();
+	for (std::vector< cResource_File >::iterator FileIT = Files->begin(); FileIT != Files->end(); ++FileIT) {
+		size_t size;
+
+		uint8* FileData = mResources->fileGet( FileIT->mName, size );
+		std::string Filename = local_PathGenerate( FileIT->mName, "ExtractedData", true );
+	
+		std::ofstream outfile (Filename,std::ofstream::binary);
+		outfile.write ((const char*) FileData, size );
+		outfile.close();
+	}
+
+}
+
 void cFodder::Start( int16 pStartMap ) {
 
 	if (mVersion->mRelease == eRelease::Demo)
