@@ -3642,14 +3642,15 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
 	pData8 -= Data0;
 
 	if (pData8 <= 0)
-		pData8 = 4;
+		return;
+	//	pData8 = 4;
 
 	Data0 = Saved0;
 	pData4 = Saved4;
 
 	int16 bx = mMap_TileSet;
 	
-	mSound->Sound_Play( bx, pData4 );
+	mSound->Sound_Play( bx, pData4, pData8 );
 }
 
 void cFodder::Briefing_Intro_Jungle( ) {
@@ -20146,9 +20147,7 @@ void cFodder::Start( int16 pStartMap ) {
 			if (!mMission_Aborted && !word_3A9AA) {
 
 				if (mVersion->mRelease == eRelease::Demo) {
-					if (mMapNumber == 3) {
 						break;
-					}
 
 				}
 

@@ -159,7 +159,7 @@ void cSound_PC::MixerChannelFinished( int32 pChannel ) {
 	}
 }
 
-void cSound_PC::Sound_Play( int16 pBx, int16 pData4 ) {
+void cSound_PC::Sound_Play( int16 pBx, int16 pData4, int16 pData8 ) {
 	sVocPlaying Playing;
 	sVocLoaded* eax = &word_42316[pBx][pData4];
 	if (eax->mSize == 0 || mSound == false )
@@ -169,6 +169,7 @@ void cSound_PC::Sound_Play( int16 pBx, int16 pData4 ) {
 
 	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
 	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
+	Mix_Volume(Playing.mChannel, pData8 * 2);
 
 	if (Playing.mChannel == -1) {
 		Mix_FreeChunk( Playing.mCurrentChunk );
