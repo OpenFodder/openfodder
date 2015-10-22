@@ -3624,13 +3624,13 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
 	pData8 = mCamera_Adjust_Col >> 16;
 	pData8 += 0x88;
 
-	if (mSquad_Leader != INVALID_SPRITE_PTR)
+	if (pSprite != INVALID_SPRITE_PTR)
 		pData8 -= pSprite->field_0;
 
 	int16 DataC = mCamera_Adjust_Row >> 16;
 	DataC += 0x6C;
 
-	if (mSquad_Leader != INVALID_SPRITE_PTR)
+	if (pSprite != INVALID_SPRITE_PTR)
 		DataC -= pSprite->field_4;
 	int16 Saved0 = Data0;
 	int16 Saved4 = pData4;
@@ -7635,7 +7635,7 @@ void cFodder::sub_2593D( sSprite* pSprite ) {
 			word_3ABAD = -1;
 	}
 
-	if (pSprite->field_18 != 0x44) {
+	if (pSprite->field_18 != eSprite_Seal) {
 		int16 Data0 = tool_RandomGet();
 		int16 Data4 = Data0;
 		Data0 &= 0x0E;
@@ -15218,7 +15218,7 @@ void cFodder::Sprite_Handle_Hostage( sSprite* pSprite ) {
 	pSprite->field_10 = Sprite_Field_10;
 	sub_25F2B( pSprite );
 
-	if (pSprite->field_18 != 0x6A)
+	if (pSprite->field_18 != eSprite_Hostage_2)
 		return;
 
 	Data24 = pSprite + 1;

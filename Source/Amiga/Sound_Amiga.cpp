@@ -176,7 +176,7 @@ void cSound_Amiga::Sound_Play( int16 pBx, int16 pData4, int16 pData8 ) {
 	if (SDL_LockMutex( mLock ) == 0) {
 		if (mSound_Sfx.mCurrentMusicSongData && mSound_Sfx.mCurrentMusicInstrumentData) {
 			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, mSound_Sfx.mCurrentInstrumentDataSize, -pData4 );
-			//Sfx->mVolume = pData8;
+			Sfx->mVolume = pData8;
 			mCurrentSfx.push_back( Sfx );
 		}
 

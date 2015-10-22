@@ -242,7 +242,7 @@ void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 
 	pDestX *= 16;
 
-	Target += (pDestY * 16) * (mFodder->mMapWidth*16);
+	Target += (pDestY * 16) * mFodder->mSurfaceMapOverview->GetWidth();
 	Target += pDestX;
 	
 	uint8* TilePtr = mGraphicBlkPtrs[pTile];
@@ -251,7 +251,7 @@ void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 
 		memcpy( Target, TilePtr, 16 );
 		TilePtr += 0x140;
-		Target += (mFodder->mMapWidth*16);
+		Target += mFodder->mSurfaceMapOverview->GetWidth();
 	}
 }
 

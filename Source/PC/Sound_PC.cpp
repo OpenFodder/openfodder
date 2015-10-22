@@ -169,7 +169,7 @@ void cSound_PC::Sound_Play( int16 pBx, int16 pData4, int16 pData8 ) {
 
 	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
 	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
-	Mix_Volume(Playing.mChannel, pData8 * 2);
+	Mix_Volume(Playing.mChannel, pData8 );
 
 	if (Playing.mChannel == -1) {
 		Mix_FreeChunk( Playing.mCurrentChunk );
@@ -192,6 +192,7 @@ void cSound_PC::Music_PlayFile( const char* pFilename ) {
 	SDL_Delay( 100 );
 
 	mMusicPlaying = Mix_LoadMUS( Filename.c_str() );
+	Mix_VolumeMusic( 0x70 );
 
 	if (mMusicPlaying)
 		Mix_PlayMusic( mMusicPlaying, -1 );
