@@ -901,8 +901,8 @@ void cFodder::Mission_Memory_Clear() {
 	for (uint16 x = 0; x < 16; ++x) {
 		dword_3B48B[x] = 0;
 	}
-	word_3B4CB = 0;
-	word_3B4CD = 0;
+	mHelicopterCall_X = 0;
+	mHelicopterCall_Y = 0;
 	word_3B4D3 = 0;
 	word_3B4D5 = 0;
 	word_3B4D7 = 0;
@@ -1103,7 +1103,7 @@ void cFodder::Map_Load_Sprites() {
 		++SptPtr;
 		Sprite->field_18 = ax;
 		
-		if( Sprite->field_18 == eSprite_Hostage2 || Sprite->field_18 == eSprite_Hostage ) {
+		if( Sprite->field_18 == eSprite_Hostage_2 || Sprite->field_18 == eSprite_Hostage ) {
 				
 			++mHostage_Count;
 		}
@@ -3263,14 +3263,14 @@ void cFodder::Sprite_Count_HelicopterCallPads() {
 	int16 Data0 = 0;
 	for (int16 Data4 = 0x1D; Data4 >= 0; Data4-- ) {
 
-		if (Data20->field_18 == eSprite_HelicopterCallPad)
+		if (Data20->field_18 == eSprite_Helicopter_CallPad)
 			++Data0;
 
 		++Data20;
 	}
 
 	mHelicopterCallPadCount = Data0;
-	word_3B4CB = -1;
+	mHelicopterCall_X = -1;
 }
 
 void cFodder::sub_13148() {
@@ -3285,17 +3285,17 @@ void cFodder::Sprite_HelicopterCallPad_Check() {
 	if (mHelicopterCallPadCount != mHelicopterCallPadPressedCount)
 		return;
 
-	if (word_3B4CB >= 0)
+	if (mHelicopterCall_X >= 0)
 		return;
 
 	sSprite* Data2C = dword_3B4CF;
 	if (!Data2C)
 		return;
 
-	word_3B4CB = Data2C->field_0;
-	word_3B4CD = Data2C->field_4;
+	mHelicopterCall_X = Data2C->field_0;
+	mHelicopterCall_Y = Data2C->field_4;
 
-	word_3B4CD += 0x28;
+	mHelicopterCall_Y += 0x28;
 }
 
 void cFodder::sub_131A2() {
@@ -5867,7 +5867,7 @@ void cFodder::sub_2315D( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pDa
 		if (Data24->field_18 == eSprite_Hostage)
 			continue;
 
-		if (Data24->field_18 == eSprite_Hostage2)
+		if (Data24->field_18 == eSprite_Hostage_2)
 			continue;
 
 		if (pData8 > Data24->field_0)
@@ -7342,7 +7342,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 	Data8 = pSprite->field_62;
 	if ((uint16) Data8 >= 0x1F4) {
 		if (pSprite->field_18 == 0x6B)
-			if (word_3B4CB < 0)
+			if (mHelicopterCall_X < 0)
 				goto loc_24FF1;
 
 		if (!(tool_RandomGet() & 1))
@@ -7513,7 +7513,7 @@ void cFodder::sub_258C6( sSprite* pSprite ) {
 			return;
 	}
 
-	if (pSprite->field_18 == eSprite_Hostage || pSprite->field_18 == eSprite_Hostage2) {
+	if (pSprite->field_18 == eSprite_Hostage || pSprite->field_18 == eSprite_Hostage_2) {
 		pSprite->field_26 = pSprite->field_0;
 		pSprite->field_28 = pSprite->field_4;
 	}
@@ -7586,7 +7586,7 @@ int16 cFodder::sub_25680( sSprite* pSprite ) {
 	return 0;
 }
 
-void cFodder::sub_257D1( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Indigenous_Death( sSprite* pSprite ) {
 	
 	if (pSprite->field_8 != 0xD6) {
 		word_3B2D1[2] = -1;
@@ -7921,7 +7921,7 @@ void cFodder::sub_25FDA( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data10;
 	sSprite* Data24 = 0, *Data28 = 0, *Data2C = 0;
 
-	if (pSprite->field_18 == eSprite_Hostage2)
+	if (pSprite->field_18 == eSprite_Hostage_2)
 		goto loc_2625B;
 
 	if (!dword_3B5F5)
@@ -8224,17 +8224,17 @@ int16 cFodder::sub_266CE( sSprite* pSprite, sSprite*& pData2C ) {
 	return 0;
 }
 
-void cFodder::sub_26781( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite ) {
 	if (pSprite->field_75)
 		return;
 
 	pSprite->field_26 = pSprite->field_0;
 	pSprite->field_28 = pSprite->field_4;
-	if (word_3B4CB < 0)
+	if (mHelicopterCall_X < 0)
 		return;
 
-	pSprite->field_26 = word_3B4CB;
-	pSprite->field_28 = word_3B4CD;
+	pSprite->field_26 = mHelicopterCall_X;
+	pSprite->field_28 = mHelicopterCall_Y;
 	int16 Data0 = pSprite->field_0;
 	int16 Data4 = pSprite->field_4;
 	int16 Data8 = pSprite->field_26;
@@ -12786,7 +12786,7 @@ loc_19EE5:;
 		goto loc_1A149;
 
 	if (pSprite->field_18 == 0x6B)
-		if (word_3B4CB >= 0)
+		if (mHelicopterCall_X >= 0)
 			goto loc_1A042;
 	
 	if (pSprite->field_26 == 0x7171)
@@ -13543,7 +13543,7 @@ void cFodder::sub_1B0C0( sSprite* pSprite ) {
 	return;
 }
 
-void cFodder::Sprite_Handle_Building_Door2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_BuildingDoor2( sSprite* pSprite ) {
 	int16 Data0, Data4;
 	sSprite* Data2C = 0;
 
@@ -14129,7 +14129,7 @@ void cFodder::Sprite_Handle_Helicopter_Missile_Enemy( sSprite* pSprite ) {
 	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
-void cFodder::Sprite_Handle_Helicopter_HomingMissile_Enemy( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_Homing_Enemy( sSprite* pSprite ) {
 	
 	pSprite->field_6F = 8;
 	Sprite_Handle_Helicopter_Enemy( pSprite );
@@ -14431,7 +14431,7 @@ void cFodder::Sprite_Handle_Helicopter_Missile_Human( sSprite* pSprite ) {
 	Sprite_Handle_Helicopter_Human( pSprite );
 }
 
-void cFodder::Sprite_Handle_Helicopter_HomingMissile_Human( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_Homing_Human( sSprite* pSprite ) {
 
 	pSprite->field_6F = 8;
 	Sprite_Handle_Helicopter_Human( pSprite );
@@ -14611,7 +14611,7 @@ void cFodder::Sprite_Handle_BoilingPot( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Indigenous( sSprite* pSprite ) {
 	if (pSprite->field_38) {
-		sub_257D1( pSprite );
+		Sprite_Handle_Indigenous_Death( pSprite );
 		return;
 	}
 
@@ -14636,7 +14636,7 @@ void cFodder::Sprite_Handle_Indigenous( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_Indigenous2( sSprite* pSprite ) {
 	
 	if (pSprite->field_38) {
-		sub_257D1( pSprite );
+		Sprite_Handle_Indigenous_Death( pSprite );
 		return;
 	}
 
@@ -15004,7 +15004,7 @@ loc_1CDA3:;
 void cFodder::Sprite_Handle_Indigenous_Spear( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
 	if (pSprite->field_38) {
-		sub_257D1( pSprite );
+		Sprite_Handle_Indigenous_Death( pSprite );
 		return;
 	}
 
@@ -15442,7 +15442,7 @@ loc_1D6DD:;
 
 }
 
-void cFodder::Sprite_Handle_VehicleNoGun_Enemey( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_VehicleNoGun_Enemy( sSprite* pSprite ) {
 	pSprite->field_6F = 2;
 	Sprite_Handle_Vehicle_Enemy( pSprite );
 }
@@ -15460,12 +15460,12 @@ void cFodder::Sprite_Handle_Vehicle_Unk_Enemy( sSprite* pSprite ) {
 	Sprite_Handle_Vehicle_Enemy( pSprite );
 }
 
-void cFodder::sub_1D7B6( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Indigenous_Invisible( sSprite* pSprite ) {
 
 	if (!pSprite->field_38)
 		return;
 
-	sub_257D1( pSprite );
+	Sprite_Handle_Indigenous_Death( pSprite );
 
 	/* Unused code block
 
@@ -15490,7 +15490,7 @@ void cFodder::Sprite_Handle_Turret_Missile2_Enemy( sSprite* pSprite ) {
 	Sprite_Handle_Turret( pSprite );
 }
 
-void cFodder::Sprite_Handle_Turret_HomingMissile( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Turret_HomingMissile_Enemy( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
 	pSprite->field_6F = 9;
 
@@ -15526,7 +15526,7 @@ void cFodder::sub_1D802( sSprite* pSprite ) {
 		Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::Sprite_Handle_Building_Door3( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_BuildingDoor3( sSprite* pSprite ) {
 	int16 Data0, Data4;
 	sSprite* Data2C = 0;
 
@@ -15615,7 +15615,7 @@ void cFodder::sub_1DA48( sSprite* pSprite ) {
 	pSprite->field_8 = 0x7C;
 }
 
-void cFodder::sub_1DACF( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Seal_Mine( sSprite* pSprite ) {
 	Sprite_Handle_Seal( pSprite );
 
 	if (pSprite->field_8 == 0xE1)
@@ -15682,7 +15682,7 @@ loc_1DC50:;
 	pSprite->field_28 = -3;
 }
 
-void cFodder::Sprite_Handle_RankToGeneral( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite ) {
 	int16 Data0;
 
 	// Blow up?
@@ -15704,7 +15704,7 @@ void cFodder::Sprite_Handle_RankToGeneral( sSprite* pSprite ) {
 }
 
 
-void cFodder::Sprite_Handle_Set50Rockets( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_Rockets( sSprite* pSprite ) {
 	int16 Data0;
 
 	// Blow up?
@@ -15725,7 +15725,7 @@ void cFodder::Sprite_Handle_Set50Rockets( sSprite* pSprite ) {
 	Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::sub_1DD4C( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Player_Rocket( sSprite* pSprite ) {
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
 		return;
@@ -15740,7 +15740,7 @@ void cFodder::sub_1DD4C( sSprite* pSprite ) {
 	mSquad_Leader->field_75 |= 2;
 }
 
-void cFodder::Sprite_Handle_Set50RocketsAndRank( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_RocketsAndGeneral( sSprite* pSprite ) {
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
 		return;
@@ -15768,7 +15768,7 @@ void cFodder::Sprite_Handle_MissileHoming2( sSprite* pSprite ) {
 	Sprite_Handle_MissileHoming( pSprite );
 }
 
-void cFodder::Sprite_Handle_SquadToGeneral_Give_50HomingMissiles( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_SquadGeneralRockets( sSprite* pSprite ) {
 
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
@@ -15818,7 +15818,7 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 		}
 	}
 
-	if (word_3B4CB < 0) {
+	if (mHelicopterCall_X < 0) {
 		pSprite->field_A = 0;
 		return;
 	}
@@ -15833,39 +15833,39 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 
 void cFodder::sub_1DFD2( sSprite* pSprite ) {
 	if (pSprite->field_38 != 7) {
-		Sprite_Handle_Building_Door3( pSprite );
+		Sprite_Handle_BuildingDoor3( pSprite );
 		return;
 	}
 
 	if (pSprite->field_74 >= 0x69) {
-		Sprite_Handle_Building_Door3( pSprite );
+		Sprite_Handle_BuildingDoor3( pSprite );
 		return;
 	}
 
 	pSprite->field_74 += 1;
 	pSprite->field_38 = 0;
-	Sprite_Handle_Building_Door3( pSprite );
+	Sprite_Handle_BuildingDoor3( pSprite );
 }
 
-void cFodder::sub_1E004( sSprite* pSprite ) {
-	sub_26781( pSprite );
+void cFodder::Sprite_Handle_Helicopter_Grenade2_Human_Called( sSprite* pSprite ) {
+	Sprite_Handle_Helicopter_Human_CallCheck( pSprite );
 	Sprite_Handle_Helicopter_Grenade2_Human( pSprite );
 
 }
 
-void cFodder::sub_1E00E( sSprite* pSprite ) {
-	sub_26781( pSprite );
+void cFodder::Sprite_Handle_Helicopter_Grenade_Human_Called( sSprite* pSprite ) {
+	Sprite_Handle_Helicopter_Human_CallCheck( pSprite );
 	Sprite_Handle_Helicopter_Grenade_Human( pSprite );
 }
 
-void cFodder::sub_1E018( sSprite* pSprite ) {
-	sub_26781( pSprite );
+void cFodder::Sprite_Handle_Helicopter_Missile_Human_Called( sSprite* pSprite ) {
+	Sprite_Handle_Helicopter_Human_CallCheck( pSprite );
 	Sprite_Handle_Helicopter_Missile_Human( pSprite );
 }
 
-void cFodder::sub_1E022( sSprite* pSprite ) {
-	sub_26781( pSprite );
-	Sprite_Handle_Helicopter_HomingMissile_Human( pSprite );
+void cFodder::Sprite_Handle_Helicopter_Homing_Human_Called( sSprite* pSprite ) {
+	Sprite_Handle_Helicopter_Human_CallCheck( pSprite );
+	Sprite_Handle_Helicopter_Homing_Human( pSprite );
 }
 
 void cFodder::Sprite_Handle_Hostage_2( sSprite* pSprite ) {
@@ -15873,22 +15873,22 @@ void cFodder::Sprite_Handle_Hostage_2( sSprite* pSprite ) {
 	Sprite_Handle_Hostage( pSprite );
 }
 
-void cFodder::Sprite_Handle_Helicopter_HomingMissile_Enemy2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_Homing_Enemy2( sSprite* pSprite ) {
 
-	Sprite_Handle_Helicopter_HomingMissile_Enemy( pSprite );
+	Sprite_Handle_Helicopter_Homing_Enemy( pSprite );
 }
 
-void cFodder::sub_1E036( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Flash1( sSprite* pSprite ) {
 
 	sub_2682B( pSprite, 0x46 );
 }
 
-void cFodder::sub_1E042( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Flash2( sSprite* pSprite ) {
 	
 	sub_2682B( pSprite, 0x69 );
 }
 
-void cFodder::sub_1E04E( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Flash3( sSprite* pSprite ) {
 
 	sub_2682B( pSprite, 0xAF );
 }
@@ -19463,7 +19463,7 @@ void cFodder::Sprite_Create_Rank( ) {
 
 	Sprite->field_8 = 0x7C;
 	Sprite->field_A = 0;
-	Sprite->field_18 = eSprite_Rank;
+	Sprite->field_18 = eSprite_Player_Rank;
 	Sprite->field_0 = 0;
 	Sprite->field_4 = 0;
 	Sprite->field_22 = -1;
