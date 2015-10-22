@@ -138,7 +138,7 @@ const sIntroString mIntro_14[] = {
 const sIntroString mIntro_15[] = {
 	{ 0x19, "PC Version Produced" },
 	{ 0x2D, "by" },
-	{ 0x4B, "Gavid Wade" },
+	{ 0x4B, "Gavin Wade" },
 	{ 0x5F, "and" },
 	{ 0x73, "Scott Walsh" },
 	{ 0 }
