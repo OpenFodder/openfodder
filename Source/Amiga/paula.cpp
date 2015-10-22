@@ -145,7 +145,7 @@ int Paula::readBufferIntern(int16 *buffer, const int numSamples) {
 			// Mix the generated samples into the output buffer
 
 			if (mVolume >= 0)
-				neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume - mVolume, ch.panning);
+				neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  mVolume, ch.panning);
 			else
 				neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume, ch.panning);
 
@@ -170,7 +170,7 @@ int Paula::readBufferIntern(int16 *buffer, const int numSamples) {
 				while (neededSamples > 0) {
 					// Mix the generated samples into the output buffer
 					if (mVolume >= 0)
-						neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume - mVolume, ch.panning);
+						neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,   mVolume, ch.panning);
 					else
 						neededSamples -= mixBuffer<stereo>(p, ch.data, ch.offset, rate, neededSamples, ch.length,  ch.volume, ch.panning);
 

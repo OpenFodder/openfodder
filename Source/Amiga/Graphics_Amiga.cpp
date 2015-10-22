@@ -592,7 +592,7 @@ void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 
 	pDestX *= 16;
 
-	Target += (pDestY * 16) * (mFodder->mMapWidth*16);
+	Target += (pDestY * 16) * mFodder->mSurfaceMapOverview->GetWidth();
 	Target += pDestX;
 	
 	pTile <<= 7;
