@@ -387,9 +387,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA45;
 	int16			mSquad_Select_Timer;
 	int16			word_3AA4B;
-	int16			word_3AA4D;
-	int16			word_3AA4F;
-	int16			word_3AA51;
+	int16			mMapWidth_Shifted;
+	int16			mMapHeight_Shifted;
+	int16			mMouseCursor_Enabled;
 	int16			word_3AA55;
 	int16			word_3AA67;
 	int16			word_3AA71;

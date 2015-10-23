@@ -328,7 +328,7 @@ void cFodder::Mouse_Handle( ) {
 		Squad_Switch_Weapon();
 	}
 
-	if (word_3AA51)
+	if (mMouseCursor_Enabled)
 		Mouse_DrawCursor();
 
 	if (!word_390A6)
@@ -733,9 +733,9 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AA45 = 0;
 	mSquad_Select_Timer = 0;
 	word_3AA4B = 0;
-	word_3AA4D = 0;
-	word_3AA4F = 0;
-	word_3AA51 = 0;
+	mMapWidth_Shifted = 0;
+	mMapHeight_Shifted = 0;
+	mMouseCursor_Enabled = 0;
 	word_3AA55 = 0;
 	word_3AA67 = 0;
 	word_3AA71 = 0;
@@ -1558,7 +1558,7 @@ void cFodder::Camera_Calculate_Scroll() {
 		mCamera_Speed_Y = 0;
 
 	//loc_11B9C
-	Data0 = word_3AA4D;
+	Data0 = mMapWidth_Shifted;
 	Data0 -= 0x110;
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
@@ -1570,7 +1570,7 @@ void cFodder::Camera_Calculate_Scroll() {
 		mCamera_Speed_X = Data0;
 	}
 	//loc_11BE8
-	Data0 = word_3AA4F;
+	Data0 = mMapHeight_Shifted;
 
 	Data0 -= mWindow->GetScreenSize().mHeight;
 
@@ -1630,7 +1630,7 @@ void cFodder::sub_11CD6( ) {
 	if (Data8 < 0)
 		Data8 = 0;
 
-	int16 Data10 = word_3AA4D;
+	int16 Data10 = mMapWidth_Shifted;
 	Data10 -= 0x88;
 	if (Data8 >= Data10)
 		Data8 = Data10;
@@ -1640,7 +1640,7 @@ void cFodder::sub_11CD6( ) {
 	if (DataC < 0)
 		DataC = 0;
 
-	Data10 = word_3AA4F;
+	Data10 = mMapHeight_Shifted;
 	Data10 -= 0x6C;
 	if (DataC >= Data10)
 		DataC = Data10;
@@ -2212,9 +2212,9 @@ void cFodder::Mission_Phase_Goals_Check() {
 
 		const int16* Data24 = mEnemy_Unit_Types;
 		
-		for (; Data24 >= 0; ++Data24){
+		for (; *Data24 >= 0; ++Data24){
 
-			if (Data10 != *Data24++)
+			if (Data10 != *Data24)
 				continue;
 
 			++Data8;
@@ -4478,7 +4478,7 @@ void cFodder::Recruit_Show() {
 	for (int16 ax = mSquadMemberCount - 1; ax >= 0;--ax )
 		sub_17429();
 	
-	word_3AA51 = -1;
+	mMouseCursor_Enabled = -1;
 	word_3A016 = 0;
 	word_3AA67 = 0;
 	word_3AA71 = mMapPlayerTroopCount;
@@ -4502,7 +4502,7 @@ void cFodder::Recruit_Show() {
 	}
 	
 	mMouseSpriteNew = 0x23;
-	word_3AA51 = 0;
+	mMouseCursor_Enabled = 0;
 	
 	mImage->paletteFadeOut();
 	
@@ -15283,7 +15283,7 @@ loc_1D3C6:;
 
 loc_1D411:;
 	Data4 = pSprite->field_4;
-	Data0 = word_3AA4F;
+	Data0 = mMapHeight_Shifted;
 
 	if (Data4 < Data0)
 		goto loc_1D441;
@@ -15997,8 +15997,8 @@ int16 cFodder::sub_1E05A( sSprite* pSprite ) {
 		goto loc_1EB87;
 
 	Data0 = pSprite->field_4;
-	if (Data0 >= word_3AA4F)
-		pSprite->field_4 = word_3AA4F;
+	if (Data0 >= mMapHeight_Shifted)
+		pSprite->field_4 = mMapHeight_Shifted;
 
 	//loc_1E0A4
 	if (pSprite->field_56)
@@ -16347,7 +16347,7 @@ loc_1E831:;
 	//loc_1E8D6
 	pSprite->field_4 += Data0;
 	Data0 = pSprite->field_4;
-	if (Data0 >= word_3AA4F)
+	if (Data0 >= mMapHeight_Shifted)
 		pSprite->field_38 = 2;
 
 	dword_3A395 = pSprite->field_4;
@@ -17596,7 +17596,7 @@ loc_20307:;
 loc_2035C:;
 
 	word_3A9E6 = pSprite->field_0;
-	pSprite->field_0 = dword_3A391;
+	pSprite->field_0 = dword_3A391 & 0xFFFF;
 
 	Data0 = -3;
 	pData4 = 8;
@@ -17604,7 +17604,7 @@ loc_2035C:;
 		return;
 
 	pSprite->field_0 = word_3A9E6;
-	pSprite->field_4 = dword_3A395;
+	pSprite->field_4 = dword_3A395 & 0xFFFF;
 
 	Data0 = -3;
 	pData4 = 8;
@@ -18334,7 +18334,7 @@ void cFodder::sub_20478( sSprite* pSprite ) {
 
 	Data0 = pSprite->field_4;
 
-	if (Data0 >= word_3AA4F) {
+	if (Data0 >= mMapHeight_Shifted) {
 		if (!pSprite->field_38 || pSprite->field_38 >= 0x32) {
 			pSprite->field_4 = dword_3A395;
 			word_3ABAD = -1;
@@ -18350,11 +18350,11 @@ void cFodder::sub_20478( sSprite* pSprite ) {
 	}
 
 	Data0 += 0x0C;
-	if (Data0 < word_3AA4D)
+	if (Data0 < mMapWidth_Shifted)
 		return;
 
 	Data0 = dword_3A391 + 0x10 ;
-	if (Data0 >= word_3AA4D)
+	if (Data0 >= mMapWidth_Shifted)
 		return;
 
 loc_20521:;
@@ -20216,8 +20216,8 @@ void cFodder::Start( int16 pStartMap ) {
 			map_Load_Resources();
 			Map_Load_Sprites();
 
-			word_3AA4D = readLEWord( &mMap[0x54] ) << 4;
-			word_3AA4F = readLEWord( &mMap[0x56] ) << 4;
+			mMapWidth_Shifted = readLEWord( &mMap[0x54] ) << 4;
+			mMapHeight_Shifted = readLEWord( &mMap[0x56] ) << 4;
 
 			Squad_Member_Count();
 			Squad_Member_Sort();
