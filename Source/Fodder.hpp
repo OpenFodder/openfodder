@@ -1051,7 +1051,7 @@ public:
 	int16			sub_21914( int16& pData8, int16& pDataC );
 	int16			sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC );
 	int16			Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C );
-	void			Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
+	int16			Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			sub_21C00( sSprite* pData2C );
 	void			Sprite_Create_Rank( );
 	void			sub_21CD1( sSprite* pSprite );
@@ -1071,7 +1071,7 @@ public:
 	void			sub_22C87( sSprite* pSprite );
 	void			sub_22CD7( sSprite* pSprite, int16& Data0, int16& Data4 );
 	void			sub_22DFC( sSprite* pSprite );
-	void			sub_2315D( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
+	void			Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
 	int16			sub_2329D( sSprite* pSprite );
 	int16			sub_23367( sSprite* pSprite );
 	void			Sprite_Handle_Vehicle_Human( sSprite* pSprite );
