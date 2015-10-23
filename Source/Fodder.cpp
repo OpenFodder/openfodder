@@ -1655,7 +1655,7 @@ void cFodder::sub_11CD6( ) {
 	mCamera_Position_Column = mCamera_Position_X;
 	mCamera_Position_Row = mCamera_Position_Y;
 
-	sub_11E60();
+	Music_Play_Tileset();
 	return;
 
 loc_11D8A:;
@@ -1709,7 +1709,7 @@ loc_11D8A:;
 	mImageFaded = -1;
 
 loc_11E5B:;
-	sub_11E60();
+	Music_Play_Tileset();
 }
 
 void cFodder::map_Load_Resources() {
@@ -1765,7 +1765,7 @@ void cFodder::map_Load_Resources() {
 	mGraphics->map_Load_Resources();
 }
 
-void cFodder::sub_11E60() {
+void cFodder::Music_Play_Tileset() {
 
 	mSound->Music_Play(mMap_TileSet + 0x32);
 }
@@ -1889,7 +1889,6 @@ void cFodder::sub_12018() {
 	dword_39F88 = mCamera_Adjust_Row;
 	word_39FB2 = word_39FB6;
 	word_39FB4 = word_39FB8;
-
 }
 
 void cFodder::Camera_Reset() {
@@ -10312,10 +10311,10 @@ void cFodder::GUI_Button_Draw( const char* pText, int16 pDataC, int16 pData0 = 0
 
 	video_Print_Text( pText, pDataC );
 
-	sub_2E1B1( pData0, pData4 );
+	GUI_Box_Draw( pData0, pData4 );
 }
 
-void cFodder::sub_2E1B1( int16 pData0, int16 pData4 ) {
+void cFodder::GUI_Box_Draw( int16 pData0, int16 pData4 ) {
 	int16 word_3B309 = pData0;
 	int16 word_3B30B = pData4;
 
@@ -10328,7 +10327,7 @@ void cFodder::sub_2E1B1( int16 pData0, int16 pData4 ) {
 	Briefing_DrawBox( pData0 - 3, pData4 - 3, Data8 + 4, DataC + 5, (uint8) word_3B309 );
 }
 
-void cFodder::sub_2E302( bool pShowCursor ) {
+void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 	int8 byte_44B49 = 0;
 	if (word_3B2CD != 3) {
 
@@ -10431,7 +10430,7 @@ void cFodder::Game_Save() {
 
 	dword_3B30D = &cFodder::String_Print_Input;
 
-	sub_2E302(true);
+	GUI_SaveLoad(true);
 	dword_3B30D = 0;
 	if (word_3B2CD != 2) {
 		word_3B2CD = 1;
@@ -10441,7 +10440,7 @@ void cFodder::Game_Save() {
 	mInputString[mInputString_Position + 0] = '.';
 	mInputString[mInputString_Position + 1] = 'c';
 	mInputString[mInputString_Position + 2] = 'f';
-	mInputString[mInputString_Position + 3] = mVersion->mGame == eGame::CF1 ? 0 : '2' ;
+	mInputString[mInputString_Position + 3] = (mVersion->mGame == eGame::CF1) ? 0 : '2' ;
 	mInputString[mInputString_Position + 4] = 0;
 
 	std::string Filename = local_PathGenerate( mInputString, "", false );
@@ -10632,7 +10631,7 @@ void cFodder::Game_Load() {
 			++FileIT;
 		}
 
-		sub_2E302(false);
+		GUI_SaveLoad(false);
 		mImage->Restore();
 
 	} while (word_3B2CD == 3);
