@@ -360,7 +360,7 @@ void cFodder::sub_10937() {
 		sub_120F6();
 		Camera_Position_Update();
 		sub_1096B();
-		sub_122BD();
+		Camera_Pan_Toward_SquadLeader();
 	}
 }
 
@@ -599,8 +599,8 @@ void cFodder::Mission_Memory_Clear() {
 	word_39F3E = 0;
 	word_39F40 = 0;
 
-	dword_39F42 = 0;
-	dword_39F46 = 0;
+	mCamera_Speed_X = 0;
+	mCamera_Speed_Y = 0;
 	dword_39F4A = 0;
 
 	dword_39F4E = 0;
@@ -1434,8 +1434,8 @@ void cFodder::Camera_Position_Update() {
 		Dataa8 *= Data4;
 		DataaC *= Data4;
 
-		dword_39F42 = Dataa8;
-		dword_39F46 = DataaC;
+		mCamera_Speed_X = Dataa8;
+		mCamera_Speed_Y = DataaC;
 
 	} else {
 
@@ -1529,12 +1529,12 @@ loc_11AD2:;
 
 void cFodder::Camera_Calculate_Scroll() {
 	
-	dword_39F42 += dword_39F4A;
-	dword_39F46 += dword_39F4E;
+	mCamera_Speed_X += dword_39F4A;
+	mCamera_Speed_Y += dword_39F4E;
 
 	int32 Data0 = 1;
 
-	if (dword_39F42 < 0)
+	if (mCamera_Speed_X < 0)
 		Data0 = -1;
 
 	if (Data0 != word_39FB6) {
@@ -1543,10 +1543,10 @@ void cFodder::Camera_Calculate_Scroll() {
 	}
 
 	if (word_39FBA)
-		dword_39F42 = 0;
+		mCamera_Speed_X = 0;
 
 	Data0 = 1;
-	if (dword_39F46 < 0)
+	if (mCamera_Speed_Y < 0)
 		Data0 = -1;
 
 	if (Data0 != word_39FB8) {
@@ -1555,7 +1555,7 @@ void cFodder::Camera_Calculate_Scroll() {
 	}
 
 	if (word_39FBC)
-		dword_39F46 = 0;
+		mCamera_Speed_Y = 0;
 
 	//loc_11B9C
 	Data0 = word_3AA4D;
@@ -1563,11 +1563,11 @@ void cFodder::Camera_Calculate_Scroll() {
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
 	int32 Data4 = mCamera_Adjust_Col;
-	Data4 += dword_39F42;
+	Data4 += mCamera_Speed_X;
 
 	if (Data4 > Data0) {
 		Data0 -= mCamera_Adjust_Col;
-		dword_39F42 = Data0;
+		mCamera_Speed_X = Data0;
 	}
 	//loc_11BE8
 	Data0 = word_3AA4F;
@@ -1577,27 +1577,27 @@ void cFodder::Camera_Calculate_Scroll() {
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
 	Data4 = mCamera_Adjust_Row;
-	Data4 += dword_39F46;
+	Data4 += mCamera_Speed_Y;
 
 	if (Data4 > Data0) {
 		Data0 -= mCamera_Adjust_Row;
-		dword_39F46 = Data0;
+		mCamera_Speed_Y = Data0;
 	}
 
-	Data0 = dword_39F42;
+	Data0 = mCamera_Speed_X;
 	if (Data0 < 0)
 		Data0 = -Data0;
 
 	if (Data0 > dword_3A9FD) {
 		Data0 = dword_3A9FD;
 
-		if ((dword_39F42 >> 16) < 0)
+		if ((mCamera_Speed_X >> 16) < 0)
 			Data0 = -Data0;
 
-		dword_39F42 = Data0;
+		mCamera_Speed_X = Data0;
 	}
 	//loc_11C6D
-	Data0 = dword_39F46;
+	Data0 = mCamera_Speed_Y;
 	if (Data0 < 0)
 		Data0 = -Data0;
 
@@ -1605,10 +1605,10 @@ void cFodder::Camera_Calculate_Scroll() {
 		return;
 
 	Data0 = dword_3A9FD;
-	if ((dword_39F46 >> 16) < 0)
+	if ((mCamera_Speed_Y >> 16) < 0)
 		Data0 = -Data0;
 
-	dword_39F46 = Data0;
+	mCamera_Speed_Y = Data0;
 }
 
 void cFodder::sub_11CAD() {
@@ -1797,8 +1797,8 @@ void cFodder::sub_11E6C( ) {
 
 void cFodder::sub_11EC2() {
 	word_3AA1F = 2;
-	dword_39F42 = 0;
-	dword_39F46 = 0;
+	mCamera_Speed_X = 0;
+	mCamera_Speed_Y = 0;
 
 	int16 Data0 = mCamera_Position_Column;
 	Data0 -= 0x88;
@@ -1838,18 +1838,18 @@ void cFodder::sub_11EC2() {
 		--word_3AA1F;
 	} 
 	else if (Data8 > Data0) {
-		dword_39F42 = (dword_39F42 & 0xFFFF) | -8 << 16;
+		mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | -8 << 16;
 	} else 
-		dword_39F42 = (dword_39F42 & 0xFFFF) | 8 << 16;
+		mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | 8 << 16;
 
 	//loc_11FAC
 	if (DataC == Data4) {
 		--word_3AA1F;
 	} 
 	else if (DataC > Data4) {
-		dword_39F46 = (dword_39F46 & 0xFFFF) | -8 << 16;
+		mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | -8 << 16;
 	} else 
-		dword_39F46 = (dword_39F46 & 0xFFFF) | 8 << 16;
+		mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | 8 << 16;
 }
 
 void cFodder::sub_11FCD() {
@@ -1907,8 +1907,8 @@ void cFodder::Camera_Reset() {
 	word_39F54 = 0;
 	mCamera_Adjust_Col_High = 0;
 	mCamera_Adjust_Row_High = 0;
-	dword_39F42 = 0;
-	dword_39F46 = 0;
+	mCamera_Speed_X = 0;
+	mCamera_Speed_Y = 0;
 	dword_39F56 = 0;
 }
 
@@ -1917,21 +1917,21 @@ void cFodder::sub_120F6() {
 	int32* Data20 = &dword_39F18;
 
 	dword_39F5A = mCamera_Adjust_Col;
-	int32 Data0 = dword_39F42;
+	int32 Data0 = mCamera_Speed_X;
 
 	mCamera_Adjust_Col += Data0;
 	if (mCamera_Adjust_Col < 0) {
-		dword_39F42 = dword_39F5A;
-		if (dword_39F42)
-			dword_39F42 = -dword_39F42;
+		mCamera_Speed_X = dword_39F5A;
+		if (mCamera_Speed_X)
+			mCamera_Speed_X = -mCamera_Speed_X;
 
 		mCamera_Adjust_Col = 0;
 	}
 	//loc_12147
-	Data0 = dword_39F42;
+	Data0 = mCamera_Speed_X;
 	dword_39F24 += Data0;
 
-	if ((dword_39F42 >> 16) < 0) {
+	if ((mCamera_Speed_X >> 16) < 0) {
 
 		if ((dword_39F24 >> 16) < 0) {
 
@@ -1952,27 +1952,28 @@ void cFodder::sub_120F6() {
 	}
 	//loc_1219F
 	Camera_Adjust_Row( Data20 );
-	dword_39F42 = 0;
-	dword_39F46 = 0;
+	mCamera_Speed_X = 0;
+	mCamera_Speed_Y = 0;
 }
 
 void cFodder::Camera_Adjust_Row( int32* pData20 ) {
 
 	dword_39F5A = mCamera_Adjust_Row;
 
-	int32 Data0 = dword_39F46;
+	int32 Data0 = mCamera_Speed_Y;
 	mCamera_Adjust_Row += Data0;
 
 	if (mCamera_Adjust_Row < 0) {
-		dword_39F46 = dword_39F5A;
+		mCamera_Speed_Y = dword_39F5A;
 
-		if (dword_39F46)
-			dword_39F46 = -dword_39F46;
+		if (mCamera_Speed_Y)
+			mCamera_Speed_Y = -mCamera_Speed_Y;
 
 		mCamera_Adjust_Row = 0;
 	}
+
 	//loc_121F2
-	Data0 = dword_39F46;
+	Data0 = mCamera_Speed_Y;
 	Data0 += dword_39F56;
 
 	dword_39F28 += Data0;
@@ -1994,21 +1995,21 @@ void cFodder::sub_12245() {
 
 	dword_39F4A = (dword_39F4A & 0xFFFF) + (Data0 << 16);
 	dword_39F4E = (dword_39F4E & 0xFFFF) + (Data0 << 16);
-	dword_39F42 = Data0;
-	dword_39F46 = Data0;
+	mCamera_Speed_X = Data0;
+	mCamera_Speed_Y = Data0;
 	dword_3A9FD = 0;
 }
 
 void cFodder::sub_1229C() {
 	
 	if (word_39F52)
-		dword_39F42 = 0;
+		mCamera_Speed_X = 0;
 
 	if (word_39F54)
-		dword_39F46 = 0;
+		mCamera_Speed_Y = 0;
 }
 
-void cFodder::sub_122BD() {
+void cFodder::Camera_Pan_Toward_SquadLeader() {
 
 	if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
 		return;
