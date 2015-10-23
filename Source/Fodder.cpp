@@ -2531,8 +2531,8 @@ void cFodder::Mission_Map_Overview_Show() {
 	eax -= 8;
 	word_3F954 = eax & 0xFFFF;
 
-	mDrawSpritePositionX =  (mSquad_Leader->field_0 - 0x10) + mSurfaceMapLeft * 16;
-	mDrawSpritePositionY =  (mSquad_Leader->field_4 - 0x10) + mSurfaceMapTop * 16;
+	mDrawSpritePositionX =  (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
+	mDrawSpritePositionY =  (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
 	byte_42070 = 0xF0;
 
 	mGraphics->PaletteSetOverview();
@@ -3175,10 +3175,10 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			mResources = new cResource_PC_CD( mVersion->mDataPath );
 			mGraphics = new cGraphics_PC();
 
-			if (mVersion->mVersion == eVersion::Dos_CD)
+			if (mVersion->mGame == eGame::CF1)
 				mSound = new cSound_PC();
 			
-			if (mVersion->mVersion == eVersion::Dos2_CD)
+			if (mVersion->mGame == eGame::CF2)
 				mSound = new cSound_PC2();
 
 			break;
