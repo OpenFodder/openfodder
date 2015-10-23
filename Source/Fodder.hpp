@@ -220,7 +220,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mButtonPressLeft, mButtonPressRight;
 	int16			mMouse_Button_Left_Toggle;
 	int16			word_39F00;
-	int16			word_39F02;
+	int16			mMouse_Exit_Loop;
 	int16			word_39F06;
 	int16			word_39FA0;
 	int16			word_39FA2;
@@ -235,7 +235,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_39FBC;
 	int16			mMouse_Button_Right_Toggle;
-	int16			word_39EFC;
+	int16			mMouse_Button_LeftRight_Toggle;
 	int16			word_39F04;
 	int32			dword_39F18;
 	int32			dword_39F1C;
@@ -323,7 +323,7 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite*		dword_3A291[64];
 	int32			dword_3A391;
 	uint32			dword_3A395;
-	int16			word_3A399;
+	int16			mTmp_FrameNumber;
 	uint32			dword_3A39D;
 	int16			word_3A3AB;
 	int16			word_3A3AD;
@@ -349,10 +349,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A8CF;
 
 	int16			word_3A9A6[2];
-	int16			word_3A9AA;
+	int16			mMission_TryAgain;
 	int16			mMission_Complete;
-	int16			word_3A9AE;
-	int16			word_3A9B0;
+	int16			mMission_Completed_Timer;
+	int16			mEnemy_BuildingCount;
 	int16			mMission_Aborted;
 	int16			mSquad_SwitchWeapon;
 	int16			word_3A9B8;
@@ -1006,7 +1006,7 @@ public:
 	int16			sub_1D92E( sSprite* pSprite );
 	void			sub_14D6D( sSprite* pSprite, int16 pData4 );
 	int16			sub_1E05A( sSprite* pSprite );
-	int16			Troop_Dies( sSprite* pSprite );
+	int16			Sprite_Troop_Dies( sSprite* pSprite );
 	int16			loc_1F043( sSprite* pSprite );
 	void			loc_1F092( sSprite* pSprite, sSprite* pData24 );
 
@@ -1163,8 +1163,8 @@ public:
 	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
 	void			Squad_Member_Rotate_Can_Fire();
 	int16			Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
-	void			sub_2D725();
-	void			sub_2D767();
+	void			Sprite_Handle_Player_DestroyAll();
+	void			Sprite_Handle_Player_Destroy_Unk();
 	void			Squad_Prepare_GrenadesAndRockets();
 	void			Sprite_Aggression_Set();
 	void			Sprite_Handle_Enemy_Aggression_Set( sSprite* pSprite );
