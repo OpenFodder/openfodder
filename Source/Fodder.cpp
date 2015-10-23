@@ -53,10 +53,10 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mouse_Pos_Row = 0;
 
 	mButtonPressLeft = mButtonPressRight = 0;
-	mMouse_Button_Left_Toggle = word_39F02 = 0;
+	mMouse_Button_Left_Toggle = mMouse_Exit_Loop = 0;
 	word_39F06 = 0;
 	mMouse_Button_Right_Toggle = 0;
-	word_39EFC = word_39F04 = 0;
+	mMouse_Button_LeftRight_Toggle = word_39F04 = 0;
 
 	word_39FF2 = 0;
 	word_39FF4 = 0;
@@ -64,7 +64,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_39FF8 = 0;
 	word_39FFA = 0;
 
-	word_3A9B0 = 0;
+	mEnemy_BuildingCount = 0;
 	mMission_Aborted = 0;
 	word_3AA43 = 0;
 	word_3ABA7 = 0;
@@ -210,7 +210,7 @@ int16 cFodder::Mission_Loop( ) {
 		}
 
 		//loc_1074E
-		if (mGUI_Sidebar_Setup >= 0 && !word_3A9AA)
+		if (mGUI_Sidebar_Setup >= 0 && !mMission_TryAgain)
 			GUI_Sidebar_Setup();
 		else
 			GUI_Sidebar_Refresh();
@@ -272,12 +272,12 @@ int16 cFodder::Mission_Loop( ) {
 		if (word_3A3B9) {
 
 			if (mMission_Aborted)
-				sub_2D767(); 
+				Sprite_Handle_Player_Destroy_Unk(); 
 			else {
-				if (!word_3A9AA)
+				if (!mMission_TryAgain)
 					return 0;
 
-				sub_2D725();
+				Sprite_Handle_Player_DestroyAll();
 			}
 			return -1;
 		}
@@ -336,7 +336,7 @@ void cFodder::Mouse_Handle( ) {
 	if (!word_3B20F)
 		return;
 
-	if (word_3A9AE || word_3D469 || mMission_Complete || word_3A9AA || mMission_Aborted) {
+	if (mMission_Completed_Timer || word_3D469 || mMission_Complete || mMission_TryAgain || mMission_Aborted) {
 		mMission_Finished = -1;
 		return;
 	}
@@ -585,10 +585,10 @@ void cFodder::Mission_Memory_Clear() {
 	mButtonPressRight = 0;
 	mMouse_Button_Left_Toggle = 0;
 	mMouse_Button_Right_Toggle = 0;
-	word_39EFC = 0;
+	mMouse_Button_LeftRight_Toggle = 0;
 
 	word_39F00 = 0;
-	word_39F02 = 0;
+	mMouse_Exit_Loop = 0;
 	word_39F04 = 0;
 	word_39F06 = 0;
 
@@ -674,7 +674,7 @@ void cFodder::Mission_Memory_Clear() {
 
 	dword_3A391 = 0;
 	dword_3A395 = 0;
-	word_3A399 = 0;
+	mTmp_FrameNumber = 0;
 	word_3A3AB = 0;
 	word_3A3AD = 0;
 	word_3A3AF = 0;
@@ -998,9 +998,9 @@ void cFodder::sub_10DEC() {
 	mSquad_Selected = 0;
 	word_3A9A6[0] = 0;
 	word_3A9A6[1] = 0;
-	word_3A9AA = 0;
+	mMission_TryAgain = 0;
 	mMission_Complete = 0;
-	word_3A9AE = 0;
+	mMission_Completed_Timer = 0;
 	dword_39F7C = 0;
 	mMouseSpriteNew = 0x23;
 
@@ -1660,7 +1660,7 @@ void cFodder::sub_11CD6( ) {
 
 loc_11D8A:;
 
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		goto loc_11E5B;
 
 	word_39FBA = 6;
@@ -1988,7 +1988,7 @@ void cFodder::sub_12245() {
 	
 	dword_3A9FD = 0x20000;
 
-	if (!mMission_Aborted && !word_3A9AA && !mMission_Complete)
+	if (!mMission_Aborted && !mMission_TryAgain && !mMission_Complete)
 		return;
 
 	int16 Data0 = 0;
@@ -2194,40 +2194,34 @@ void cFodder::Mission_Phase_Goals_Check() {
 			continue;
 
 		int16 Data10 = Data20->field_18;
-		if(Data10 == 0x6C || Data10 == 0x6D || Data10 == 0x6E || Data10 == 0x58 || Data10 == 0x64 )
+		if(Data10 == eSprite_Flash1 || Data10 == eSprite_Flash2 || Data10 == eSprite_Flash3 || Data10 == eSprite_BuildingDoor3 || Data10 == 0x64 )
 			goto loc_12620;
 		
-		if(Data10 == 0x19 )
-			goto loc_12615;
-		
-		if(Data10 != 0x14 )
-			goto loc_12632;
-		
-	loc_12615:;
-		if(Data20->field_38 == 5 )
+		if (Data10 == eSprite_BuildingDoor2 || Data10 == eSprite_BuildingDoor) {
+
+			if (Data20->field_38 == 5)
+				continue;
+
+		loc_12620:;
+			if (Data20->field_38 == 7)
+				continue;
+
+			++DataC;
 			continue;
+		}
+
+		const int16* Data24 = mEnemy_Unit_Types;
 		
-	loc_12620:;
-		if(Data20->field_38 == 7)
-			continue;
-		
-		++DataC;
-		continue;
-		
-		loc_12632:;
-		const int16* Data24 = word_3D593;
-		
-		loc_1263E:;
-		if(*Data24 < 0)
-			continue;
-		
-		if( Data10 != *Data24++ )
-			goto loc_1263E;
-		
-		++Data8;
+		for (; Data24 >= 0; ++Data24){
+
+			if (Data10 != *Data24++)
+				continue;
+
+			++Data8;
+		}
 	}
 	
-	word_3A9B0 = DataC;
+	mEnemy_BuildingCount = DataC;
 	if(mPhase_Goals[ eGoal_Destroy_Enemy_Buildings - 1 ]) {
 		if( DataC )
 			return;
@@ -2274,22 +2268,22 @@ void cFodder::Mission_Progress_Check( ) {
 	
 	if (mMission_Complete >= 0)
 		if (!mMission_Aborted)
-			if (!word_3A9AA)
+			if (!mMission_TryAgain)
 				return;
 
-	if (word_3A9AE < 0)
+	if (mMission_Completed_Timer < 0)
 		return;
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		goto loc_1280A;
 
-	word_3A9AE = 0x64;
+	mMission_Completed_Timer = 0x64;
 	if (mMission_Aborted) {
-		word_3A9AE = 0x32;
+		mMission_Completed_Timer = 0x32;
 		goto loc_127E8;
 	}
 
 	if (mMission_Complete) {
-		if (word_3A9AA)
+		if (mMission_TryAgain)
 			goto loc_127E8;
 
 		Mission_Text_Completed();
@@ -2312,15 +2306,15 @@ void cFodder::Mission_Progress_Check( ) {
 
 loc_1280A:;
 
-	if (word_3A9AE == 0x19) {
+	if (mMission_Completed_Timer == 0x19) {
 		mImageFaded = -1;
 		mImage->paletteFadeOut();
 	}
-	--word_3A9AE;
-	if (word_3A9AE)
+	--mMission_Completed_Timer;
+	if (mMission_Completed_Timer)
 		return;
 
-	word_3A9AE = -1;
+	mMission_Completed_Timer = -1;
 	word_3A3B9 = -1;
 }
 
@@ -2931,10 +2925,10 @@ void cFodder::mouse_ButtonCheck() {
 		mButtonPressLeft -= 1;
 		if (mMouse_Button_Left_Toggle == 0) {
 			mMouse_Button_Left_Toggle = -1;
-			word_39F02 = -1;
+			mMouse_Exit_Loop = -1;
 
 			if (mButtonPressRight) {
-				word_39EFC = -1;
+				mMouse_Button_LeftRight_Toggle = -1;
 				word_3AA43 = -1;
 			}
 		}
@@ -4494,11 +4488,11 @@ void cFodder::Recruit_Show() {
 	Recruit_Draw_Actors();
 	Recruit_Draw_Actors();
 	
-	word_39F02 = 0;
+	mMouse_Exit_Loop = 0;
 	
 	for( ;; ) {
-		if( word_39F02 ) {
-			word_39F02 = 0;
+		if( mMouse_Exit_Loop ) {
+			mMouse_Exit_Loop = 0;
 			
 			if( Recruit_Check_Buttons_SaveLoad() )
 				break;
@@ -6248,7 +6242,7 @@ void cFodder::sub_23879( sSprite* pSprite ) {
 }
 
 int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		return 0;
 
 	if (byte_3A9D6[pSprite->field_22] == 2)
@@ -6836,7 +6830,7 @@ loc_24617:;
 }
 
 int16 cFodder::sub_246CC( sSprite* pSprite ) {
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		return -1;
 
 	int16 Data0 = 1;
@@ -6960,7 +6954,7 @@ loc_24942:;
 int16 cFodder::Sprite_Create_Grenade2( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
 
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		return 0;
 
 	if (byte_3A9D2[pSprite->field_22] == 2)
@@ -7049,7 +7043,7 @@ int16 cFodder::Sprite_Create_Grenade2( sSprite* pSprite ) {
 
 int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 ) {
 	
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		return 0;
 
 	int16 Data0 = pSprite->field_22;
@@ -7740,7 +7734,7 @@ int16 cFodder::sub_25AAE( sSprite* pSprite ) {
 }
 
 int16 cFodder::sub_25B6B( sSprite* pSprite ) {
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		return -1;
 
 	if (!pSprite->field_2E)
@@ -9665,7 +9659,7 @@ void cFodder::sub_2D06C() {
 	//seg009:019E
 
 	if (!Data14)
-		word_3A9AA = -1;
+		mMission_TryAgain = -1;
 
 	dword_3A8DB = readLEDWord( &mSquads_TroopCount );
 	byte_3A8DE[1] = byte_3A05E;
@@ -9903,7 +9897,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 	return mSprites_Found_Count;
 }
 
-void cFodder::sub_2D725() {
+void cFodder::Sprite_Handle_Player_DestroyAll() {
 	sSprite* Data20 = mSprites;
 	
 	for (int16 Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20 ) {
@@ -9912,11 +9906,11 @@ void cFodder::sub_2D725() {
 			continue;
 
 		if (Data20->field_18 == eSprite_Player )
-			Troop_Dies( Data20 );
+			Sprite_Troop_Dies( Data20 );
 	}
 }
 
-void cFodder::sub_2D767() {
+void cFodder::Sprite_Handle_Player_Destroy_Unk() {
 	sSprite* Data20 = mSprites;
 
 	for (int16 Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20) {
@@ -9933,7 +9927,7 @@ void cFodder::sub_2D767() {
 		if (Data20->field_38 >= 0x32)
 			continue;
 
-		Troop_Dies( Data20 );
+		Sprite_Troop_Dies( Data20 );
 	}
 }
 
@@ -10452,7 +10446,7 @@ void cFodder::Game_Save() {
 	
 	outfile.write ((const char*) Start, End - Start );
 	outfile.close();
-	word_39F02 = 0;
+	mMouse_Exit_Loop = 0;
 }
 
 void cFodder::sub_2E3E3( sGUI_Element* pData20 ) {
@@ -10648,7 +10642,7 @@ void cFodder::Game_Load() {
 	
 	infile.read ((char*) Start, End - Start );
 	infile.close();
-	word_39F02 = 0;
+	mMouse_Exit_Loop = 0;
 
 	mGraveRankPtr = mGraveRanks;
 	mGraveRankPtr2 = mGraveRankPtr;
@@ -10748,7 +10742,7 @@ void cFodder::GUI_Sidebar_Prepare_Squads() {
 	word_3AC45 = 0;
 
 	sub_30480();
-	word_39EFC = 0;
+	mMouse_Button_LeftRight_Toggle = 0;
 }
 
 void cFodder::GUI_Element_Mouse_Over( const sGUI_Element *pElement ) {
@@ -11198,7 +11192,7 @@ void cFodder::Service_KIA_Loop() {
 	}
 
 	mImageFaded = -1;
-	word_39F02 = 0;
+	mMouse_Exit_Loop = 0;
 	word_40048 = 0;
 	mGraphics->PaletteSet();
 	mImage->Save();
@@ -11206,8 +11200,8 @@ void cFodder::Service_KIA_Loop() {
 	do {
 		Mouse_Inputs_Get();
 
-		if (word_44475 == -1 || word_39F02 ) {
-			word_39F02 = 0;
+		if (word_44475 == -1 || mMouse_Exit_Loop ) {
+			mMouse_Exit_Loop = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
 			word_40048 = 1;
@@ -11251,15 +11245,15 @@ void cFodder::Service_Promotion_Loop() {
 
 	mImageFaded = -1;
 	word_40048 = 0;
-	word_39F02 = 0;
+	mMouse_Exit_Loop = 0;
 	mGraphics->PaletteSet();
 	mImage->Save();
 
 	do {
 
 		Mouse_Inputs_Get();
-		if (word_44475 == -1 || word_39F02 ) {
-			word_39F02 = 0;
+		if (word_44475 == -1 || mMouse_Exit_Loop ) {
+			mMouse_Exit_Loop = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
 			word_40048 = 1;
@@ -11842,9 +11836,9 @@ void cFodder::Briefing_Wait() {
 		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 
-	} while (!word_39F02);
+	} while (!mMouse_Exit_Loop);
 
-	word_39F02 = 0;
+	mMouse_Exit_Loop = 0;
 
 	mImage->paletteFadeOut();
 	do {
@@ -12127,7 +12121,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 		}
 		else {
 			//loc_19118
-			if (pSprite == mSquad_Leader && word_39EFC ) {
+			if (pSprite == mSquad_Leader && mMouse_Button_LeftRight_Toggle ) {
 
 				Data0 = mSquad_CurrentWeapon[ pSprite->field_32 ];
 				if (Data0 == eWeapon_Rocket) {
@@ -12189,7 +12183,7 @@ loc_191C3:;
 	if (word_3AA1D != 2)
 		goto loc_1931E;
 
-	word_3A399 = pSprite->field_A;
+	mTmp_FrameNumber = pSprite->field_A;
 	pSprite->field_5A = 0;
 
 	if (word_3AA41)
@@ -12234,7 +12228,7 @@ loc_191C3:;
 	
 	loc_19338:;
 	pSprite->field_43 = 0;
-	word_3A399 = pSprite->field_A;
+	mTmp_FrameNumber = pSprite->field_A;
 	word_3A9C6 = 0;
 	
 	sub_1FCF2( pSprite );
@@ -12388,7 +12382,7 @@ loc_19701:;
 		pSprite->field_36 -= 1;
 		Sprite_XY_Store( pSprite );
 
-		word_3A399 = pSprite->field_A;
+		mTmp_FrameNumber = pSprite->field_A;
 		Data0 = pSprite->field_26;
 		Data4 = pSprite->field_28;
 
@@ -12522,7 +12516,7 @@ void cFodder::Sprite_Handle_Enemy( sSprite* pSprite ) {
 		sub_21CD1( pSprite );
 		Sprite_Handle_Troop( pSprite );
 
-		word_3A399 = pSprite->field_A;
+		mTmp_FrameNumber = pSprite->field_A;
 		int16 Data0 = pSprite->field_26;
 		if (Data0 < 0)
 			goto loc_19A89;
@@ -13372,7 +13366,7 @@ void cFodder::Sprite_Handle_Player_Rank( sSprite* pSprite ) {
 	if (Data24 == INVALID_SPRITE_PTR)
 		goto loc_1AF63;
 
-	if (!word_3A9AE) {
+	if (!mMission_Completed_Timer) {
 		Data4 = mSquad_Selected;
 
 		if (word_3A9C0[Data4])
@@ -13499,7 +13493,7 @@ void cFodder::sub_1B07C( sSprite* pSprite ) {
 }
 
 void cFodder::sub_1B0C0( sSprite* pSprite ) {
-	if (!word_3A9B0)
+	if (!mEnemy_BuildingCount)
 		return;
 
 	if (pSprite->field_2A) {
@@ -15967,7 +15961,7 @@ loc_1DA13:;
 void cFodder::sub_14D6D( sSprite* pSprite, int16 pData4 ) {
 	word_3B4DD = pData4;
 
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		return;
 
 	int16 Data0 = tool_RandomGet() & 0x7F;
@@ -16039,7 +16033,7 @@ int16 cFodder::sub_1E05A( sSprite* pSprite ) {
 		goto loc_1E3D2;
 
 	pSprite->field_64 = 0;
-	if (word_3A9AA)
+	if (mMission_TryAgain)
 		pSprite->field_40 = -26506;
 
 	if (!pSprite->field_58) {
@@ -16183,7 +16177,7 @@ loc_1E3D2:;
 	}
 	//loc_1E50A
 	Sprite_XY_Store( pSprite );
-	word_3A399 = pSprite->field_A;
+	mTmp_FrameNumber = pSprite->field_A;
 	Sprite_Movement_Calculate( pSprite );
 
 	if (pSprite->field_20 < 0x0C) {
@@ -16404,7 +16398,7 @@ loc_1EA3F:;
 loc_1EA48:;
 	pSprite->field_12 += 1;
 	if (pSprite->field_12 >= 0x0F)
-		return Troop_Dies(pSprite);
+		return Sprite_Troop_Dies(pSprite);
 
 	if (pSprite->field_12 >= 0x07 && pSprite->field_8 != 0x7C) {
 		pSprite->field_8 = 0x7C;
@@ -16447,7 +16441,7 @@ loc_1EB0E:;
 loc_1EB87:;
 	pSprite->field_12 += 1;
 	if (pSprite->field_12 >= 0x0F)
-		return Troop_Dies( pSprite );
+		return Sprite_Troop_Dies( pSprite );
 
 	if (pSprite->field_12 < 0x07)
 		goto loc_1EA82;
@@ -16510,7 +16504,7 @@ loc_1ECA6:;
 
 loc_1ED5B:;
 	Sprite_XY_Store( pSprite );
-	word_3A399 = pSprite->field_A;
+	mTmp_FrameNumber = pSprite->field_A;
 
 	Sprite_Movement_Calculate( pSprite );
 	sub_20478( pSprite );
@@ -16591,7 +16585,7 @@ loc_1EF28:;
 
 }
 
-int16 cFodder::Troop_Dies( sSprite* pSprite ) {
+int16 cFodder::Sprite_Troop_Dies( sSprite* pSprite ) {
 	uint8* DataFinal = 0;
 	int16 Data0;
 	sSprite* eax = 0;
@@ -17267,7 +17261,7 @@ loc_1FCD7:;
 	if (!word_3A9C6)
 		return;
 
-	pSprite->field_A = word_3A399;
+	pSprite->field_A = mTmp_FrameNumber;
 	word_3A9C6 = 0;
 }
 
@@ -17618,7 +17612,7 @@ loc_2035C:;
 		return;
 
 	//loc_203BA
-	pSprite->field_A = word_3A399;
+	pSprite->field_A = mTmp_FrameNumber;
 	Sprite_XY_Restore( pSprite );
 	pSprite->field_26 = pSprite->field_0;
 	pSprite->field_28 = pSprite->field_4;
@@ -17980,7 +17974,7 @@ loc_31514:;
 loc_31668:;
 	word_39F00 = -1;
 	Data20->field_6E = -1;
-	word_39EFC = 0;
+	mMouse_Button_LeftRight_Toggle = 0;
 loc_3167D:;
 	Data0 = -1;
 	return -1;
@@ -18423,7 +18417,7 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
   	if (word_3A9E4)
 		--word_3A9E4;
 
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		goto loc_20A2D;
 
 	if (!pSprite->field_2E)
@@ -18571,7 +18565,7 @@ int16 cFodder::Sprite_Create_Grenade( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
 	sSprite* Data2C = 0, *Data30 =0;
 
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		goto loc_20ADE;
 	
 	if (byte_3A9D2[pSprite->field_22] == 2)
@@ -18602,7 +18596,7 @@ loc_20AC1:;
 
 loc_20ADE:;
 	if (pSprite == mSquad_Leader)
-		word_39EFC = 0;
+		mMouse_Button_LeftRight_Toggle = 0;
 
 	return -1;
 
@@ -18698,7 +18692,7 @@ loc_20B6E:;
 	Data2C->field_46 = (int32*)pSprite;
 
 	if (pSprite == mSquad_Leader)
-		word_39EFC = 0;
+		mMouse_Button_LeftRight_Toggle = 0;
 
 	return 0;
 }
@@ -19073,7 +19067,7 @@ loc_2132A:;
 
 loc_213F7:;
 
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		return;
 
 	pSprite->field_38 = 6;
@@ -19847,7 +19841,7 @@ int16 cFodder::sub_224ED( sSprite* pSprite ) {
 	sSprite* Data2C = 0, *Data30 = 0, *Data34 = 0;
 	int16 Data0, Data4, Data8, DataC;
 
-	if (word_3A9AE)
+	if (mMission_Completed_Timer)
 		goto loc_22592;
 
 	if (byte_3A9D6[pSprite->field_22] == 2)
@@ -19880,7 +19874,7 @@ loc_22575:;
 loc_22592:;
 
 	if (pSprite == mSquad_Leader)
-		word_39EFC = 0;
+		mMouse_Button_LeftRight_Toggle = 0;
 	Data0 = -1;
 	return -1;
 
@@ -19977,7 +19971,7 @@ loc_2281B:;
 	Data2C->field_56 = 6;
 
 	if (pSprite == mSquad_Leader)
-		word_39EFC = 0;
+		mMouse_Button_LeftRight_Toggle = 0;
 	Data0 = 0;
 	return 0;
 }
@@ -20103,7 +20097,7 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 
 	Mission_Phase_Next();
 
-	word_3A9AA = -1;
+	mMission_TryAgain = -1;
 	word_39096 = -1;
 
 	mGraphics->LoadpStuff();
@@ -20140,7 +20134,7 @@ void cFodder::Start( int16 pStartMap ) {
 		//loc_1042E:;
 		for (;;) {
 
-			if (!mMission_Aborted && !word_3A9AA) {
+			if (!mMission_Aborted && !mMission_TryAgain) {
 
 				if (mVersion->mRelease == eRelease::Demo) {
 						break;
@@ -20336,7 +20330,7 @@ void cFodder::Start( int16 pStartMap ) {
 				break;
 
 			//loc_106F1
-			if (word_3A9AA) {
+			if (mMission_TryAgain) {
 				word_390EC = -1;
 				continue;
 			}
@@ -20937,7 +20931,7 @@ void cFodder::sub_2FA8F() {
 
 	word_3AC51 = 0;
 	word_3AC45 = 0;
-	word_39EFC = 0;
+	mMouse_Button_LeftRight_Toggle = 0;
 }
 
 void cFodder::GUI_Sidebar_Rockets_Draw( ) {

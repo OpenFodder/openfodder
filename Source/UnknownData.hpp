@@ -1157,9 +1157,14 @@ const struct_5 stru_3D35F[26] =
 
 const int16 word_3DEF0[3] = { 0, 1, 2 };
 
-const int16 word_3D593[] = {
-	5, 36, 40, 42, 43, 44, 69, 80, 81, 82,
-	84, 85, 105, 108, 109, 110, -1
+const int16 mEnemy_Unit_Types[] = {
+	eSprite_Enemy, eSprite_Enemy_Rocket,	eSprite_Helicopter_Grenade_Enemy,	eSprite_Helicopter_Grenade2_Enemy, 
+	eSprite_Helicopter_Missile_Enemy,		eSprite_Helicopter_Homing_Enemy,	eSprite_Tank_Enemy, 
+	eSprite_VehicleNoGun_Enemy,				eSprite_VehicleGun_Enemy,			eSprite_Vehicle_Unk_Enemy,
+	eSprite_Turret_Missile_Enemy,			eSprite_Turret_Missile2_Enemy,		eSprite_Turret_HomingMissile_Enemy, 
+	eSprite_Flash1,							eSprite_Flash2,						eSprite_Flash3, 
+	
+	-1
 };
 
 const int16 word_3DE4C[] = {
