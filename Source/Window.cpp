@@ -36,9 +36,6 @@ cWindow::cWindow() {
 	mDimensionWindow.mWidth = 1280;
 	mDimensionWindow.mHeight = 800 - 76;
 
-	mDimensionPlayfield.mWidth = mDimensionWindow.mWidth;
-	mDimensionPlayfield.mHeight = mDimensionWindow.mHeight;
-
 	mScreenSize.mWidth = 320;
 	mScreenSize.mHeight = 200;
 
