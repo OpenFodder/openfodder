@@ -24,6 +24,15 @@
 
 cWindow::cWindow() {
 
+	//mDimensionWindow.mWidth = 640;
+	//mDimensionWindow.mHeight = 480 - 118;
+
+	//mDimensionWindow.mWidth = 800;
+	//mDimensionWindow.mHeight = 600 - 147;
+
+	//mDimensionWindow.mWidth = 1024;
+	//mDimensionWindow.mHeight = 768 - 188;
+	
 	mDimensionWindow.mWidth = 1280;
 	mDimensionWindow.mHeight = 800 - 76;
 

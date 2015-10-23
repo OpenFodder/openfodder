@@ -110,7 +110,7 @@ extern const struct_2 stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
 	public:
-	char					mInputString[0x14];
+	char					mInputString[0x15];
 
 	std::vector<const sVersion*> mVersions;
 
@@ -740,7 +740,7 @@ public:
 	void			sub_11CAD();
 	void			sub_11CD6( );
 	void			map_Load_Resources();
-	void			sub_11E60();
+	void			Music_Play_Tileset();
 	void			sub_11E6C( );
 	void			sub_11EC2();
 	void			sub_11FCD();
@@ -1177,8 +1177,8 @@ public:
 	void			Game_Save_Wrapper2();
 	void			GUI_Element_Reset();
 	void			GUI_Button_Draw( const char* pText, int16 pDataC, int16 pData0, int16 pData4 );
-	void			sub_2E1B1( int16 pData0, int16 pData4 );
-	void			sub_2E302( bool pShowCursor );
+	void			GUI_Box_Draw( int16 pData0, int16 pData4 );
+	void			GUI_SaveLoad( bool pShowCursor );
 	void			Game_Save_Wrapper();
 	void			GUI_Button_Setup( void(cFodder::*pFunction )(void) ); 
 	void			Game_Save();
