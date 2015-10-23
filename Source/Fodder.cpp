@@ -10441,7 +10441,8 @@ void cFodder::Game_Save() {
 	mInputString[mInputString_Position + 0] = '.';
 	mInputString[mInputString_Position + 1] = 'c';
 	mInputString[mInputString_Position + 2] = 'f';
-	mInputString[mInputString_Position + 3] = 0;
+	mInputString[mInputString_Position + 3] = mVersion->mGame == eGame::CF1 ? 0 : '2' ;
+	mInputString[mInputString_Position + 4] = 0;
 
 	std::string Filename = local_PathGenerate( mInputString, "", false );
 	
@@ -10594,7 +10595,7 @@ void cFodder::Game_Load() {
 
 	mGraphics->Load_Hill_Bits();
 
-	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate(  "", "", false  ), ".cf" );
+	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate(  "", "", false  ), mVersion->mGame == eGame::CF1 ? ".cf" : ".cf2" );
 
 	word_3B335 = 0;
 	word_3B33D = (int16) Files.size();
