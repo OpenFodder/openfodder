@@ -5848,7 +5848,7 @@ loc_23100:;
 
 }
 
-void cFodder::sub_2315D( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C ) {
+void cFodder::Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C ) {
 
 	if (mMission_Finished)
 		return;
@@ -6138,7 +6138,7 @@ loc_23680:;
 	Data1C = Data18;
 	Data1C += 0x0E;
 
-	sub_2315D( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
+	Sprite_Under_Vehicle( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
 }
 
 void cFodder::sub_236F7( sSprite* pSprite ) {
@@ -13097,7 +13097,7 @@ loc_1A49C:;
 	Data1C = Data18;
 	Data1C += 0x0E;
 
-	sub_2315D( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
+	Sprite_Under_Vehicle( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
 
 loc_1A5A7:;
 
@@ -13821,7 +13821,7 @@ loc_1B6A2:;
 	int16 Data18 = pSprite->field_20;
 	int16 Data1C = Data18;
 	Data1C += 0x0E;
-	sub_2315D( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
+	Sprite_Under_Vehicle( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
 
 }
 
@@ -19341,7 +19341,7 @@ int16 cFodder::Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C ) {
 	int16 Data0 = 1;
 	sSprite* Data30 = 0;
 
-	if (Sprite_Get_Free( Data0, pData2C, Data30 ))
+	if (Sprite_Get_Free2( Data0, pData2C, Data30 ))
 		return -1;
 
 //loc_21A1C:;
@@ -19381,7 +19381,7 @@ int16 cFodder::Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C ) {
 	return 0;
 }
 
-void cFodder::Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 ) {
+int16 cFodder::Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 ) {
 	if (word_3B15F)
 		goto loc_21B4B;
 
@@ -19391,8 +19391,11 @@ void cFodder::Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pDat
 	pData2C = &mSprites[29];
 	for (int16 Data1C = 29; Data1C >= 0; --Data1C, --pData2C ) {
 
-		if (pData2C->field_0 == -32768)
-			goto loc_21B72;
+		if (pData2C->field_0 == -32768) {
+			Sprite_Clear( pData2C );
+			pData0 = 0;
+			return 0;
+		}
 	}
 
 loc_21B4B:;
@@ -19400,12 +19403,7 @@ loc_21B4B:;
 	pData30 = &mSprite_Spare;
 	pData0 = -1;
 	word_3B15F = pData0;
-	return;
-
-loc_21B72:;
-	Sprite_Clear( pData2C );
-	pData0 = 0;
-	return;
+	return -1;
 
 loc_21B91:;
 	pData2C = mSprites;
@@ -19415,20 +19413,17 @@ loc_21B91:;
 		if( pData2C->field_0 != -32768 )
 			continue;
 		
-		if( (pData2C+1)->field_0 == -32768 )
-			goto loc_21BEC;
+		if ((pData2C + 1)->field_0 == -32768) {
+			pData30 = pData2C + 1;
+			pData0 = 0;
+		}
 	}
 	
 	pData2C = &mSprite_Spare;
 	pData30 = &mSprite_Spare;
 	pData0 = -1;
 	word_3B15F = pData0;
-	return;
-
-loc_21BEC:;
-	pData30 = pData2C + 1;
-	pData0 = 0;
-	return;
+	return -1;
 }
 
 void cFodder::sub_21C00( sSprite* pData2C ) {
