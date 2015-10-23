@@ -207,8 +207,6 @@ void cWindow::SetFullScreen() {
 		SDL_SetWindowFullscreen( mWindow, 0 );
 		mWindowMode = true;
 	}
-
-
 }
 
 void cWindow::SetMousePosition( const cPosition& pPosition ) {

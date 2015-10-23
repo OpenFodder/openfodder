@@ -132,7 +132,7 @@ int Paula::readBufferIntern(int16 *buffer, const int numSamples) {
 
 			Channel &ch = _voice[voice];
 			int16 *p = buffer;
-			int neededSamples = nSamples;
+			int neededSamples = (int) nSamples;
 
 			// NOTE: A Protracker (or other module format) player might actually
 			// push the offset past the sample length in its interrupt(), in which

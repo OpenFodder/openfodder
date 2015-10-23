@@ -261,8 +261,8 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F4E;
 	int16			word_39F52;
 	int16			word_39F54;
-	int32			dword_39F42;
-	int32			dword_39F46;
+	int32			mCamera_Speed_X;
+	int32			mCamera_Speed_Y;
 	int32			dword_39F56;
 	int32			dword_39F5A;
 	int16			mCamera_Adjust_Col_High;
@@ -751,7 +751,7 @@ public:
 	void			Camera_Adjust_Row( int32* pData20 );
 	void			sub_12245();
 	void			sub_1229C();
-	void			sub_122BD();
+	void			Camera_Pan_Toward_SquadLeader();
 	void			Mission_Sprites_Handle( );
 	void			Sprite_Sort_DrawList();
 	void			sub_124DB();
