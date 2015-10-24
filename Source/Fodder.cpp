@@ -2863,7 +2863,7 @@ void cFodder::mouse_GetData() {
 	eventProcess();
 
 	mouse_Pos_Column = (int16) mMousePosition.mX - 32;
-	mouse_Pos_Row = (int16)mMousePosition.mY + 4;// -12;
+	mouse_Pos_Row = (int16)mMousePosition.mY + 4;
 	mouse_Button_Status = mMouseButtons;
 }
 
@@ -3189,8 +3189,11 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 			((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 			
-			mWindow->SetScreenSize( cDimension( 320, 216 ) );
-			mWindow->SetLogicalSize(cDimension( 320, 216 ) );
+			//cDimension amigaResize = mWindow->GetWindowSize();
+			//mWindow->SetWindowSize(cDimension(amigaResize.mWidth / 1.42, amigaResize.mHeight / 1.42));
+
+			mWindow->SetScreenSize( cDimension( 320, 260 ) );
+			mWindow->SetLogicalSize(cDimension( 320, 225 ) );
 
 			break;
 	}
@@ -4459,7 +4462,7 @@ void cFodder::Demo_ShowMenu() {
 	}
 
 	mImage->clearBuffer();
-	mWindow->SetScreenSize( cDimension( 320, 216 ));
+	mWindow->SetScreenSize( cDimension( 320, 225 ));
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 }
 
@@ -18239,6 +18242,9 @@ introDone:;
 
 	mGraphics->LoadpStuff();
 	mSound->Music_Play( 0 );
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize( cDimension( 320, 225 ));
 }
 
 void cFodder::intro_Music_Play() {
