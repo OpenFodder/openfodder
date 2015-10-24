@@ -2862,8 +2862,8 @@ void cFodder::mouse_Setup() {
 void cFodder::mouse_GetData() {
 	eventProcess();
 
-	mouse_Pos_Column = (int16) mMousePosition.mX - 48;
-	mouse_Pos_Row = (int16) mMousePosition.mY - 12;
+	mouse_Pos_Column = (int16) mMousePosition.mX - 32;
+	mouse_Pos_Row = (int16)mMousePosition.mY + 4;// -12;
 	mouse_Button_Status = mMouseButtons;
 }
 
@@ -3188,22 +3188,15 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			mSound = new cSound_Amiga();
 
 			((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
+			
+			mWindow->SetScreenSize( cDimension( 320, 216 ) );
+			mWindow->SetLogicalSize(cDimension( 320, 216 ) );
+
 			break;
 	}
 
 	mImage->clearBuffer();
 	mWindow->RenderAt( mImage );
-
-	if (mVersion->mPlatform == ePlatform::PC) {
-		mWindow->SetScreenSize( cDimension( 320, 200 ));
-		mWindow->SetLogicalSize(cDimension( 384, 217 ) );
-	}
-
-	if (mVersion->mPlatform == ePlatform::Amiga) {
-
-		mWindow->SetScreenSize( cDimension( 320, 260) );
-		mWindow->SetLogicalSize(cDimension( 460, 260 ) );
-	}
 
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	mGraphics->LoadpStuff();
@@ -4466,7 +4459,7 @@ void cFodder::Demo_ShowMenu() {
 	}
 
 	mImage->clearBuffer();
-	mWindow->SetScreenSize( cDimension( 320, 224 ));
+	mWindow->SetScreenSize( cDimension( 320, 216 ));
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 }
 
@@ -10974,7 +10967,7 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 }
 
 void cFodder::Demo_Quiz() {
-		
+	mWindow->SetLogicalSize(cDimension( 320, 260 ) );
 	mImage->paletteFadeOut();
 	
 	while( mImage->GetFaded() == false ) {
@@ -11024,6 +11017,7 @@ void cFodder::Demo_Quiz() {
 	mGraphics->PaletteSet();
 	mImage->paletteFade();
 	mImage->Save();
+	mWindow->SetLogicalSize(cDimension( 320, 216 ) );
 }
 
 void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
@@ -18245,9 +18239,6 @@ introDone:;
 
 	mGraphics->LoadpStuff();
 	mSound->Music_Play( 0 );
-
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		mWindow->SetScreenSize( cDimension( 320, 224 ));
 }
 
 void cFodder::intro_Music_Play() {
