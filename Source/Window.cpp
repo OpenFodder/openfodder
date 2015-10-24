@@ -25,16 +25,16 @@
 cWindow::cWindow() {
 
 	//mDimensionWindow.mWidth = 640;
-	//mDimensionWindow.mHeight = 480 - 118;
+	//mDimensionWindow.mHeight = 400;
 
 	//mDimensionWindow.mWidth = 800;
-	//mDimensionWindow.mHeight = 600 - 147;
+	//mDimensionWindow.mHeight = 600;
 
 	//mDimensionWindow.mWidth = 1024;
-	//mDimensionWindow.mHeight = 768 - 188;
+	//mDimensionWindow.mHeight = 768;
 	
 	mDimensionWindow.mWidth = 1280;
-	mDimensionWindow.mHeight = 800 - 76;
+	mDimensionWindow.mHeight = 800;
 
 	mScreenSize.mWidth = 320;
 	mScreenSize.mHeight = 200;
@@ -75,7 +75,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 
-	SDL_RenderSetLogicalSize(mRenderer, 352, 216);
+	SDL_RenderSetLogicalSize(mRenderer, 320, 200);
 
 	SetCursor();
 	return true;
