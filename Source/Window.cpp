@@ -22,16 +22,22 @@
 
 #include "stdafx.hpp"
 
+const cDimension WindowSizes[] = {
+	{ 640, 400 },
+	{ 960, 600 },
+	{ 1280, 800 },
+	{ 1600, 1000 },
+	{ 1920, 1200 },
+	{ 2240, 1400 }
+};
+
 cWindow::cWindow() {
 
 	//mDimensionWindow.mWidth = 640;
 	//mDimensionWindow.mHeight = 400;
 
-	//mDimensionWindow.mWidth = 800;
+	//mDimensionWindow.mWidth = 960;
 	//mDimensionWindow.mHeight = 600;
-
-	//mDimensionWindow.mWidth = 1024;
-	//mDimensionWindow.mHeight = 768;
 	
 	mDimensionWindow.mWidth = 1280;
 	mDimensionWindow.mHeight = 800;
