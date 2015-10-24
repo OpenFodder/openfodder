@@ -56,12 +56,15 @@ struct sStruct0_Amiga {
 class cGraphics_Amiga : public cGraphics {
 public:
 	uint8*				mBlkData;
-	uint8				mPalette[0xC0];
+	uint8				mPalette[0xFF];
 	uint8				mPaletteArmy[0x20];
 	uint8				mPaletteCopt[0x20];
 	uint8				mPalletePStuff[0x20];
 	uint8				mPalleteHill[0x20];
 	uint8				mPalleteFont[0x20];
+	uint8				mPaletteBrief[0x1FE];
+
+	uint8*				mPlayData;
 
 	size_t				mPaletteSize;
 
@@ -104,6 +107,8 @@ public:
 	
 	virtual void		PaletteSetOverview();
 	virtual void		PaletteSet();
+	virtual void		PaletteBriefingSet();
+
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 
 	virtual void		video_Draw_Linear();

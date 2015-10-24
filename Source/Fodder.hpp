@@ -432,7 +432,7 @@ class cFodder : public cSingleton < cFodder > {
 	int8			mGUI_RefreshSquadGrenades[3];
 	int8			mGUI_RefreshSquadRockets[3];
 	int16			mSquad_CurrentWeapon[3];
-	int16			word_3AC45;
+	int16			mMouseDisabled;
 	int16			word_3AC47;
 	int16			word_3AC49;
 	int16			word_3AC4B;
@@ -468,7 +468,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_3B1CB;
 	int16			word_3B1CF[0x0F];
 	int16			word_3B1ED;
-	int16			word_3B1EF;
+	int16			mRecruit_Reached_Truck;
 	int16			word_3B1F1;
 
 	const sRecruit_Screen_Pos*		dword_3B1FB;
@@ -805,8 +805,8 @@ public:
 	void			Briefing_Intro_Jungle();
 	void			Briefing_Intro_Desert();
 	void			Briefing_Intro_Ice();
-	void			sub_15568();
-	void			sub_15739();
+	void			Briefing_Intro_Mor();
+	void			Briefing_Intro_Int();
 
 	void			sub_1590B( );
 	void			sub_1594F( );
