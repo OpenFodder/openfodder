@@ -64,12 +64,15 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	memset( &mPaletteCopt, 0, 0x20 );
 	memset( &mPalletePStuff, 0, 0x20 );
 	memset( &mPalleteHill, 0, 0x20 );
+	memset( &mPaletteBrief, 0, 0x1FE );
 
+	mPlayData = new uint8[0xA03 * 16];
 }
 
 cGraphics_Amiga::~cGraphics_Amiga() {
 	
 	delete[] mBlkData;
+	delete[] mPlayData;
 }
 
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
@@ -103,6 +106,34 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mFodder->byte_42070 = 0xD0;
 		mBMHD_Current = &mBMHDHill;
 		return mFodder->mDataBaseBlk;
+
+	case 5:
+		mFodder->byte_42070 = 0xA0;
+		mBMHD_Current = &mBMHDPlay;
+		mFodder->word_4206C = 0x28;
+		mFodder->word_4206E = 64;
+		return mPlayData;
+
+	case 6:
+		mFodder->byte_42070 = 0xB0;
+		mBMHD_Current = &mBMHDPlay;
+		mFodder->word_4206C = 0x28;
+		mFodder->word_4206E = 74;
+		return mPlayData + (176 * 40);
+
+	case 7:
+		mFodder->byte_42070 = 0xC0;
+		mBMHD_Current = &mBMHDPlay;
+		mFodder->word_4206C = 0x28;
+		mFodder->word_4206E = 111;
+		return mPlayData + (65 * 40);
+	
+	case 8:
+		mFodder->byte_42070 = 0xD0;
+		mBMHD_Current = &mBMHDPlay;
+		mFodder->word_4206C = 0x28;
+		mFodder->word_4206E = 48;
+		return mPlayData + (252 * 40);
 
 	default:
 		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
@@ -308,6 +339,12 @@ void cGraphics_Amiga::PaletteSetOverview() {
 	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalleteFont, 0xF0 );
 
 	mFodder->mSurfaceMapOverview->paletteLoadNewSDL();
+}
+
+void cGraphics_Amiga::PaletteBriefingSet() {
+
+	mImage->paletteLoad_Amiga( mPaletteBrief, 0, 0xFF );
+	mImage->paletteLoad_Amiga( mPalleteFont, 0xF0 );
 }
 
 void cGraphics_Amiga::PaletteSet() {
@@ -931,29 +968,14 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 
 	size_t Size = 0;
 	uint8* Data = g_Resource.fileGet( JunData1, Size );
-	DecodeIFF( Data, mFodder->mDataPStuff, &mBMHDPlay, mPalette );
+	DecodeIFF( Data, mPlayData, &mBMHDPlay, mPaletteBrief );
 	delete[] Data;
 
-	Data = g_Resource.fileGet( JunData2, Size );
-	PaletteLoad( Data, 0x00, 16 );
-	delete[] Data;
-
-	Data = g_Resource.fileGet( JunData3, Size );
-	PaletteLoad( Data, 0x10, 16 );
-	delete[] Data;
-
-	Data = g_Resource.fileGet( JunData4, Size );
-	PaletteLoad( Data, 0x20, 16 );
-	delete[] Data;
-
-	Data = g_Resource.fileGet( JunData5, Size );
-	PaletteLoad( Data, 0x30, 16 );
-	delete[] Data;
-
-	Data = g_Resource.fileGet( JunData6, Size );
-	PaletteLoad( Data, 0x40, 16 );
-	delete[] Data;
-
+	g_Resource.fileLoadTo( JunData2, (uint8*) mPaletteBrief + (0xA0 * 2) );
+	g_Resource.fileLoadTo( JunData3, (uint8*) mPaletteBrief + (0xB0 * 2) );
+	g_Resource.fileLoadTo( JunData4, (uint8*) mPaletteBrief + (0xC0 * 2) );
+	g_Resource.fileLoadTo( JunData5, (uint8*) mPaletteBrief + (0xD0 * 2) );
+	g_Resource.fileLoadTo( JunData6, (uint8*) mPaletteBrief + (0xE0 * 2) );
 }
 
 void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* a0 ) {

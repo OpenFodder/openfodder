@@ -790,7 +790,7 @@ void cFodder::Mission_Memory_Clear() {
 	mSquad_CurrentWeapon[1] = eWeapon_None;
 	mSquad_CurrentWeapon[2] = eWeapon_None;
 
-	word_3AC45 = 0;
+	mMouseDisabled = 0;
 	word_3AC47 = 0;
 	word_3AC49 = 0;
 	word_3AC4B = 0;
@@ -835,7 +835,7 @@ void cFodder::Mission_Memory_Clear() {
 	for (uint16 x = 0; x < 0x0F; ++x ) 
 		word_3B1CF[x] = 0;
 
-	word_3B1EF = 0;
+	mRecruit_Reached_Truck = 0;
 	word_3B1F1 = 0;
 	dword_3B1FB = 0;
 	
@@ -2472,9 +2472,8 @@ void cFodder::sub_12B6E() {
 				if (Data0 == 0)
 					goto loc_12C5F;
 
-				sSprite* Dataa0 = mSquad_CurrentVehicle;
-				dword_3B24F[Data8] = Dataa0;
-				mSquad_Leader = Dataa0;
+				dword_3B24F[Data8] = mSquad_CurrentVehicle;
+				mSquad_Leader = mSquad_CurrentVehicle;
 				return;
 			}
 		}
@@ -3289,11 +3288,11 @@ void cFodder::Sprite_HelicopterCallPad_Check() {
 		return;
 
 	sSprite* Data2C = dword_3B4CF;
-	if (!Data2C)
+	if (!dword_3B4CF || dword_3B4CF == INVALID_SPRITE_PTR)
 		return;
 
-	mHelicopterCall_X = Data2C->field_0;
-	mHelicopterCall_Y = Data2C->field_4;
+	mHelicopterCall_X = dword_3B4CF->field_0;
+	mHelicopterCall_Y = dword_3B4CF->field_4;
 
 	mHelicopterCall_Y += 0x28;
 }
@@ -3909,8 +3908,8 @@ void cFodder::Briefing_Intro_Ice() {
 	} while (word_428D8 || mImageFaded != 0);
 }
 
-void cFodder::sub_15568() {
-		int16 word_4286F = 0;
+void cFodder::Briefing_Intro_Mor() {
+	int16 word_4286F = 0;
 	int16 word_42871 = 0;
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
@@ -3918,7 +3917,6 @@ void cFodder::sub_15568() {
 	word_42062 = (uint8*) word_4286B;
 
 	byte_42070 = 0xE0;
-
 
 	sub_1590B();
 
@@ -3995,7 +3993,7 @@ void cFodder::sub_15568() {
 	} while (word_428D8 || mImageFaded != 0);
 }
 
-void cFodder::sub_15739() {
+void cFodder::Briefing_Intro_Int() {
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;
 	int16 word_42873 = 0;
@@ -4276,6 +4274,7 @@ void cFodder::sub_15CE8(  uint8* pDs, int16 pCx ) {
 }
 
 void cFodder::Briefing_Intro() {
+	mImage->clearBuffer();
 
 	mGraphics->Briefing_Load_Resources();
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
@@ -4283,14 +4282,70 @@ void cFodder::Briefing_Intro() {
 	mSound->Music_Play( 0x07 );
 
 	if (mVersion->mPlatform == ePlatform::Amiga) {
+		//TODO
+		mDrawSpritePositionX = 16;
 
-	}
+		word_42062 = mGraphics->GetSpriteData( 5 );
+		mDrawSpritePositionY = 40;
+		mGraphics->video_Draw_Linear();
+
+		word_42062 = mGraphics->GetSpriteData( 6 );
+		mDrawSpritePositionY = 60;
+		mGraphics->video_Draw_Linear();
+
+		word_42062 = mGraphics->GetSpriteData( 7 );
+		mDrawSpritePositionY = 100;
+		mGraphics->video_Draw_Linear();
+
+		word_42062 = mGraphics->GetSpriteData( 8 );
+		mDrawSpritePositionY = 163;
+		mGraphics->video_Draw_Linear();
+
+		((cGraphics_Amiga*)mGraphics)->PaletteBriefingSet();
+		mImage->paletteFade();
+		mImageFaded = -1;
+
+		sub_136D0();
+		Briefing_Draw_Mission_Name();
+		mImage->Save();
+		sub_1590B();
+		do {
+			if (word_428D6 == -1)
+				sub_159A6();
+
+			Mouse_Inputs_Get();
+
+			/*word_42062 = 0;
+			mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
+			mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y
+			word_4206C = 0x40;
+			word_4206E = 0x18;
+			if (Sprite_OnScreen_Check())
+			mGraphics->video_Draw_Sprite();*/
+
+			if (mImageFaded)
+				mImageFaded = mImage->paletteFade();
+
+			eventProcess();
+			Video_Sleep();
+			g_Window.RenderAt( mImage, cPosition() );
+			g_Window.FrameEnd();
+
+			mouse_GetData();
+
+			if (mMouse_Exit_Loop) {
+				word_428D8 = 0;
+				mImage->paletteFadeOut();
+				mImageFaded = -1;
+				mMouse_Exit_Loop = 0;
+			}
+		} while (word_428D8 || mImageFaded != 0);
+
+		mMouse_Exit_Loop = 0;
+	} 
 	else {
 		
 		sub_136D0();
-		Briefing_Draw_Mission_Name();
-
-		mImage->clearBuffer();
 		Briefing_Draw_Mission_Name();
 
 		switch (mMap_TileSet) {
@@ -4307,11 +4362,11 @@ void cFodder::Briefing_Intro() {
 			break;
 
 		case 3:
-			sub_15568();
+			Briefing_Intro_Mor();
 			break;
 
 		case 4:
-			sub_15739();
+			Briefing_Intro_Int();
 			break;
 		}
 	}
@@ -4353,6 +4408,10 @@ void cFodder::Briefing_Draw_Mission_Title( ) {
 	if (word_3A01A != 0xB5) {
 		Data20 = mVersion->mMissionData->mMissionPhaseNames;
 		Data0 = mMapNumber + 1;
+	}
+	else {
+		if (mVersion->mPlatform == ePlatform::Amiga)
+			word_3A01A += 0x16;
 	}
 	Data0 -= 1;
 	Data20 += Data0;
@@ -5035,7 +5094,7 @@ loc_17686:;
 
 void cFodder::Recruit_Draw_Troops() {
 
-	if (word_3B1EF) {
+	if (mRecruit_Reached_Truck) {
 		sub_175C0();
 	}
 	else {
@@ -5110,7 +5169,7 @@ void cFodder::sub_1787C() {
 		return;
 	
 	word_3B1F1 = mMapPlayerTroopCount;
-	word_3B1EF = 0;
+	mRecruit_Reached_Truck = 0;
 
 	int16 Data0 = 0xB4;
 	int16* Data20 = word_3B1CF;
@@ -5237,7 +5296,7 @@ loc_179B2:;
 	}
 
 	if (word_3B1ED)
-		word_3B1EF = -1;
+		mRecruit_Reached_Truck = -1;
 }
 
 void cFodder::Recruit_Draw_Truck( ) {
@@ -5251,7 +5310,7 @@ void cFodder::Recruit_Draw_Truck( ) {
 
 	sub_13C1C(  Data0, DataC, Data4, Data8 );
 
-	if (!word_3B1EF)
+	if (!mRecruit_Reached_Truck)
 		return;
 
 	uint16* Data20 = word_3BDAD;
@@ -10717,7 +10776,7 @@ void cFodder::GUI_Button_NoAction2() {
 }
 
 void cFodder::GUI_Sidebar_Prepare_Squads() {
-	word_3AC45 = -1;
+	mMouseDisabled = -1;
 	sub_30465();
 
 	mGUI_NextFreeElement = mGUI_Elements;
@@ -10739,7 +10798,7 @@ void cFodder::GUI_Sidebar_Prepare_Squads() {
 	GUI_Sidebar_Prepare(2, Data4);
 	sub_2EBC4();
 
-	word_3AC45 = 0;
+	mMouseDisabled = 0;
 
 	sub_30480();
 	mMouse_Button_LeftRight_Toggle = 0;
@@ -11156,6 +11215,10 @@ void cFodder::Mission_Set_Initial_Weapon() {
 }
 
 void cFodder::Service_Show() {
+
+	if (mVersion->mRelease == eRelease::Demo) 
+		return;
+
 	WindowTitleSet( false );
 
 	mGraphics->Load_Service_Data();
@@ -20882,7 +20945,7 @@ void cFodder::GUI_Sidebar_Setup() {
 }
 
 void cFodder::sub_2FA05() {
-	word_3AC45 = -1;
+	mMouseDisabled = -1;
 
 	if (word_3AC51)
 		return; 
@@ -20930,7 +20993,7 @@ void cFodder::sub_2FA8F() {
 	sub_30480();
 
 	word_3AC51 = 0;
-	word_3AC45 = 0;
+	mMouseDisabled = 0;
 	mMouse_Button_LeftRight_Toggle = 0;
 }
 
@@ -21500,7 +21563,7 @@ void cFodder::Mouse_Inputs_Check() {
 	int16 Data0 = 0;
 	int16 Data4 = 0;
 
-	if (word_3AC45)
+	if (mMouseDisabled)
 		return;
 
 	if (word_3B20F)
