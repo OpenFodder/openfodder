@@ -20262,9 +20262,6 @@ Start:;
 					intro();
 			}
 			
-			if (mVersion->mPlatform == ePlatform::Amiga)
-				mWindow->SetScreenSize( cDimension( 320, 225 ));
-
 			if (dword_3901A != 0x12345678)
 				dword_3901A = 0x12345678;
 
@@ -20313,6 +20310,9 @@ Start:;
 				else
 					mGraphics->LoadpStuff();			
 			}
+			
+			if (mVersion->mPlatform == ePlatform::Amiga)
+				mWindow->SetScreenSize( cDimension( 320, 225 ));
 
 			//loc_10513
 			if (mVersion->mRelease == eRelease::Retail)
