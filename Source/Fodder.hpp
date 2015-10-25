@@ -998,9 +998,9 @@ public:
 	void			Sprite_Handle_Turret_HomingMissile_Enemy( sSprite* pSprite );		// 105
 	void			Sprite_Handle_Hostage_2( sSprite* pSprite );						// 106
 	void			Sprite_Handle_Helicopter_Homing_Enemy2( sSprite* pSprite );			// 107
-	void			Sprite_Handle_Flash1( sSprite* pSprite );							// 108
-	void			Sprite_Handle_Flash2( sSprite* pSprite );							// 109
-	void			Sprite_Handle_Flash3( sSprite* pSprite );							// 110
+	void			Sprite_Handle_Computer_1( sSprite* pSprite );						// 108
+	void			Sprite_Handle_Computer_2( sSprite* pSprite );						// 109
+	void			Sprite_Handle_Computer_3( sSprite* pSprite );						// 110
 
 	int16			sub_1D92E( sSprite* pSprite );
 	void			sub_14D6D( sSprite* pSprite, int16 pData4 );

@@ -113,9 +113,9 @@ enum eSprites {
 	eSprite_Turret_HomingMissile_Enemy			= 105,
 	eSprite_Hostage_2							= 106,
 	eSprite_Helicopter_Homing_Enemy2			= 107,
-	eSprite_Flash1								= 108,
-	eSprite_Flash2								= 109,
-	eSprite_Flash3								= 110,
+	eSprite_Computer_1							= 108,
+	eSprite_Computer_2							= 109,
+	eSprite_Computer_3							= 110,
 };
 
 struct sSprite {

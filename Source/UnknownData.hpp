@@ -1162,7 +1162,7 @@ const int16 mEnemy_Unit_Types[] = {
 	eSprite_Helicopter_Missile_Enemy,		eSprite_Helicopter_Homing_Enemy,	eSprite_Tank_Enemy, 
 	eSprite_VehicleNoGun_Enemy,				eSprite_VehicleGun_Enemy,			eSprite_Vehicle_Unk_Enemy,
 	eSprite_Turret_Missile_Enemy,			eSprite_Turret_Missile2_Enemy,		eSprite_Turret_HomingMissile_Enemy, 
-	eSprite_Flash1,							eSprite_Flash2,						eSprite_Flash3, 
+	eSprite_Computer_1,						eSprite_Computer_2,					eSprite_Computer_3, 
 	
 	-1
 };

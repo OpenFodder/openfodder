@@ -2193,7 +2193,7 @@ void cFodder::Mission_Phase_Goals_Check() {
 			continue;
 
 		int16 Data10 = Data20->field_18;
-		if(Data10 == eSprite_Flash1 || Data10 == eSprite_Flash2 || Data10 == eSprite_Flash3 || Data10 == eSprite_BuildingDoor3 || Data10 == 0x64 )
+		if(Data10 == eSprite_Computer_1 || Data10 == eSprite_Computer_2 || Data10 == eSprite_Computer_3 || Data10 == eSprite_BuildingDoor3 || Data10 == 0x64 )
 			goto loc_12620;
 		
 		if (Data10 == eSprite_BuildingDoor2 || Data10 == eSprite_BuildingDoor) {
@@ -12258,7 +12258,7 @@ loc_191C3:;
 	loc_1921E:;
 		if (word_3AA41) {
 
-			if (pSprite->field_0 == pSprite->field_26 &&
+			if ( pSprite->field_0 == pSprite->field_26 &&
 				 pSprite->field_4 == pSprite->field_28)
 				 goto loc_1931E;
 		}
@@ -15975,17 +15975,17 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Enemy2( sSprite* pSprite ) {
 	Sprite_Handle_Helicopter_Homing_Enemy( pSprite );
 }
 
-void cFodder::Sprite_Handle_Flash1( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Computer_1( sSprite* pSprite ) {
 
 	sub_2682B( pSprite, 0x46 );
 }
 
-void cFodder::Sprite_Handle_Flash2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Computer_2( sSprite* pSprite ) {
 	
 	sub_2682B( pSprite, 0x69 );
 }
 
-void cFodder::Sprite_Handle_Flash3( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Computer_3( sSprite* pSprite ) {
 
 	sub_2682B( pSprite, 0xAF );
 }
@@ -21520,7 +21520,7 @@ void cFodder::Mission_Final_TimeToDie() {
 	if (word_3B4D5 < 0)
 		word_3B4D5 = 0;
 
-	word_3BDEB = 0x0F;
+	word_3BDEB = 0x0A;
 
 	GUI_Sidebar_TroopList_Name_Draw( 0, 0, 0, 0xB7, "TIME TO DIE" );
 

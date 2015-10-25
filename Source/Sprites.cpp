@@ -196,9 +196,9 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Helicopter_Homing_Enemy2 );
 
 	/* 108 */
-	SpriteFunction( Flash1 );
-	SpriteFunction( Flash2 );
-	SpriteFunction( Flash3 );
+	SpriteFunction( Computer_1 );
+	SpriteFunction( Computer_2 );
+	SpriteFunction( Computer_3 );
 	// End of Cannon Fodder Sprites
 
 	// Cannon Foodder 2 only Sprites
