@@ -3147,7 +3147,7 @@ void cFodder::VersionSelect() {
 	if (mVersion->mPlatform == ePlatform::PC)
 		mWindow->SetScreenSize( cDimension( 320, 200 ) );
 	else
-		mWindow->SetScreenSize( cDimension( 320, 260 ) );
+		mWindow->SetScreenSize( cDimension( 320, 257 ) );
 
 	mButtonPressLeft = 0;
 
@@ -4438,7 +4438,7 @@ bool cFodder::Demo_ShowMenu() {
 	mGraphics->PaletteSet();
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
-	mWindow->SetScreenSize( cDimension( 320, 260) );
+	mWindow->SetScreenSize( cDimension( 320, 257) );
 	mImage->Save();
 	mImage->paletteFade();
 
@@ -4478,7 +4478,6 @@ bool cFodder::Demo_ShowMenu() {
 	}
 
 	mImage->clearBuffer();
-	mWindow->SetScreenSize( cDimension( 320, 225 ));
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 
 	if (mMission_Aborted)
@@ -18277,9 +18276,6 @@ introDone:;
 
 	mGraphics->LoadpStuff();
 	mSound->Music_Play( 0 );
-
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		mWindow->SetScreenSize( cDimension( 320, 225 ));
 }
 
 void cFodder::intro_Music_Play() {
@@ -18315,7 +18311,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 			DoBreak = true;
 		}
 
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
 	}
 
@@ -20264,6 +20260,9 @@ Start:;
 				if (!mIntroDone)
 					intro();
 			}
+			
+			if (mVersion->mPlatform == ePlatform::Amiga)
+				mWindow->SetScreenSize( cDimension( 320, 225 ));
 
 			if (dword_3901A != 0x12345678)
 				dword_3901A = 0x12345678;

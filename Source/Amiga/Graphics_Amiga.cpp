@@ -252,7 +252,7 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 	g_Fodder.word_42062 = g_Fodder.mDataBaseBlk;
 	
 	g_Fodder.mDrawSpritePositionX = 16;
-	g_Fodder.mDrawSpritePositionY = 22;
+	g_Fodder.mDrawSpritePositionY = 16;
 	g_Fodder.word_4206C = Header.mWidth >> 3;
 	g_Fodder.word_4206E = Header.mHeight;
 	g_Fodder.byte_42070 = 0;
