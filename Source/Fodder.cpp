@@ -4439,6 +4439,7 @@ bool cFodder::Demo_ShowMenu() {
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
 	mWindow->SetScreenSize( cDimension( 320, 257) );
+
 	mImage->Save();
 	mImage->paletteFade();
 
@@ -20236,13 +20237,13 @@ Start:;
 
 			if (!mMission_Aborted && !mMission_TryAgain) {
 
-				if (mVersion->mRelease == eRelease::Demo) {
+				if (mVersion->mRelease == eRelease::Demo)
 						break;
 
-				}
-
-				if (mMapNumber == 71)
+				if (mMapNumber == 71) {
 					WonGame();
+					return;
+				}
 
 				++mMapNumber;
 				Mission_Phase_Next();
