@@ -205,7 +205,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 			uint8* TargetTmp = TargetRow;
 
 			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
-			if (/*Tile > 0xE0 && Tile < 0xF0 ||*/ Tile > 0x1DF)
+			if (Tile > 0x1DF)
 				Tile = 0;
 
 			uint8* TilePtr = mGraphicBlkPtrs[Tile];

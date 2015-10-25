@@ -22,28 +22,16 @@
 
 #include "stdafx.hpp"
 
-const cDimension WindowSizes[] = {
-	{ 640, 400 },
-	{ 960, 600 },
-	{ 1280, 800 },
-	{ 1600, 1000 },
-	{ 1920, 1200 },
-	{ 2240, 1400 }
-};
+const size_t g_WindowWidth = 320;
+const size_t g_WindowHeight = 200;
 
 cWindow::cWindow() {
 
-	//mDimensionWindow.mWidth = 640;
-	//mDimensionWindow.mHeight = 400;
+	mDimensionWindow.mWidth = 640;
+	mDimensionWindow.mHeight = 400;
 
-	//mDimensionWindow.mWidth = 960;
-	//mDimensionWindow.mHeight = 600;
-	
-	mDimensionWindow.mWidth = 1280;
-	mDimensionWindow.mHeight = 800;
-
-	mScreenSize.mWidth = 320;
-	mScreenSize.mHeight = 200;
+	mScreenSize.mWidth = g_WindowWidth;
+	mScreenSize.mHeight = g_WindowHeight;
 
 	mWindowMode = true;
 }
@@ -56,6 +44,20 @@ cWindow::~cWindow() {
 	SDL_Quit();
 }
 
+void cWindow::CalculateWindowSize() {
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
+
+	size_t Size = current.w / 2;
+
+	while (mDimensionWindow.mWidth < Size) {
+		mDimensionWindow.mWidth += g_WindowWidth;
+		mDimensionWindow.mHeight += g_WindowHeight;
+	}
+
+	SetWindowSize( mDimensionWindow );
+}
+
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
@@ -65,6 +67,8 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 	
+	CalculateWindowSize();
+
 	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mDimensionWindow.mWidth, mDimensionWindow.mHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE );
 	if (!mWindow) {
 		// TODO: Log Error
@@ -80,8 +84,6 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		std::cout << "Failed to create rendered\n";
 		return false;
 	}
-
-	SDL_RenderSetLogicalSize(mRenderer, 320, 200);
 
 	SetCursor();
 	return true;
@@ -169,7 +171,6 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 
 	pImage->draw();
 
-	//Draw the texture
 	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
 }
 
@@ -182,27 +183,23 @@ void cWindow::RenderShrunk( cSurface* pImage ) {
 
 	pImage->draw();
 
-	//Draw the texture
 	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
 }
 
 void cWindow::FrameEnd() {
 
 	SDL_RenderPresent( mRenderer );
-
 	SDL_RenderClear( mRenderer );
 }
 
 void cWindow::SetCursor() {
 
 	SDL_ShowCursor(0);
-
 }
 
 void cWindow::SetFullScreen() {
 
 	if (mWindowMode) {
-		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
 		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
 		mWindowMode = false;
 	}
@@ -210,6 +207,51 @@ void cWindow::SetFullScreen() {
 		SDL_SetWindowFullscreen( mWindow, 0 );
 		mWindowMode = true;
 	}
+}
+
+void cWindow::PositionWindow() {
+	
+	SDL_SetWindowPosition( mWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
+}
+
+void cWindow::WindowIncrease() {
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
+
+	// Once we reach the max window size, go to full screen
+	if (mDimensionWindow.mWidth == current.w) {
+		
+		if (!mWindowMode)
+			return;
+
+		SetFullScreen();
+		return;
+	}
+
+	if (!mWindowMode)
+		return;
+
+	mDimensionWindow.mWidth += g_WindowWidth;
+	mDimensionWindow.mHeight += g_WindowHeight;
+
+	SetWindowSize( mDimensionWindow );
+	PositionWindow();
+}
+
+void cWindow::WindowDecrease() {
+
+	// If we're in full screen mode remove it
+	if (!mWindowMode)
+		SetFullScreen();
+
+	if (mDimensionWindow.mWidth == g_WindowWidth)
+		return;
+
+	mDimensionWindow.mWidth -= g_WindowWidth;
+	mDimensionWindow.mHeight -= g_WindowHeight;
+
+	SetWindowSize( mDimensionWindow );
+	PositionWindow();
 }
 
 void cWindow::SetMousePosition( const cPosition& pPosition ) {
@@ -233,6 +275,7 @@ void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
 }
 
 void cWindow::SetWindowSize( const cDimension& pDimension ) {
+	mDimensionWindow = pDimension;
 
 	SDL_SetWindowSize( mWindow, pDimension.mWidth, pDimension.mHeight );
 }

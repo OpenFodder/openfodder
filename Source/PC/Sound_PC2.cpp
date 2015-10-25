@@ -35,8 +35,6 @@ cSound_PC2::cSound_PC2() {
 
 cSound_PC2::~cSound_PC2() {
 	
-
-
 	Mix_CloseAudio();
 }
 

@@ -80,6 +80,7 @@ cSound_PC::~cSound_PC() {
 	}
 
 	Mix_CloseAudio();
+	SDL_CloseAudio();
 }
 
 void cSound_PC::Sound_Voc_Load() {

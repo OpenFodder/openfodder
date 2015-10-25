@@ -198,13 +198,13 @@ int16 cFodder::Mission_Loop( ) {
 		Camera_Pan( );
 
 		word_3A9FB = 0;
-		Mouse_Handle();
+		Game_Handle();
 		++word_390B0;
 		word_39F06 = 0;
 		word_3A9FB = -1;
 
 		if (mCamera_Start_Adjust >= 0) {
-			sub_11CD6();
+			Camera_Refresh();
 			mCamera_Start_Adjust = -1;
 			continue;
 		}
@@ -231,7 +231,7 @@ int16 cFodder::Mission_Loop( ) {
 
 		//loc_1079C
 		sub_2A470();
-		sub_2D06C();
+		Squad_Troops_Count();
 
 		Mission_Sprites_Handle();
 		Squad_Switch_Timer();
@@ -302,7 +302,7 @@ int16 cFodder::Mission_Loop( ) {
 	return 0;
 }
 
-void cFodder::Mouse_Handle( ) {
+void cFodder::Game_Handle( ) {
 
 	if (!word_390A6 || !mMission_Paused) {
 
@@ -313,9 +313,9 @@ void cFodder::Mouse_Handle( ) {
 		Mouse_Inputs_Get();
 
 		if (word_390A6) {
-			sub_10937();
-			sub_10937();
-			sub_10937();
+			Camera_Handle();
+			Camera_Handle();
+			Camera_Handle();
 
 			if (!mMission_Finished)
 				Mouse_Inputs_Check();
@@ -333,7 +333,8 @@ void cFodder::Mouse_Handle( ) {
 
 	if (!word_390A6)
 		return;
-	if (!word_3B20F)
+
+	if (!mMission_In_Progress)
 		return;
 
 	if (mMission_Completed_Timer || word_3D469 || mMission_Complete || mMission_TryAgain || mMission_Aborted) {
@@ -351,10 +352,10 @@ void cFodder::Mouse_Handle( ) {
 	mSoundEffectToPlay = 0;
 }
 
-void cFodder::sub_10937() {
+void cFodder::Camera_Handle() {
 	
-	if (word_3B20F == -1) {
-		sub_1229C();
+	if (mMission_In_Progress == -1) {
+		Camera_Speed_Reset();
 		sub_12245();
 		Camera_Calculate_Scroll();
 		sub_120F6();
@@ -727,7 +728,7 @@ void cFodder::Mission_Memory_Clear() {
 	mHostage_Count = 0;
 	mCamera_Start_Adjust = 0;
 	word_3AA1D = 0;
-	word_3AA1F = 0;
+	mCamera_Reached_Target = 0;
 	word_3AA21 = 0;
 	word_3AA41 = 0;
 	word_3AA45 = 0;
@@ -840,7 +841,7 @@ void cFodder::Mission_Memory_Clear() {
 	dword_3B1FB = 0;
 	
 	mSquad_CurrentVehicle = 0;
-	word_3B20F = 0;
+	mMission_In_Progress = 0;
 	word_3B211 = 0;
 	for (uint16 x = 0; x < 15; ++x) {
 		dword_3B213[x] = 0;
@@ -1571,13 +1572,11 @@ void cFodder::Camera_Calculate_Scroll() {
 	}
 	//loc_11BE8
 	Data0 = mMapHeight_Shifted;
-
 	Data0 -= mWindow->GetScreenSize().mHeight;
 
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
-	Data4 = mCamera_Adjust_Row;
-	Data4 += mCamera_Speed_Y;
+	Data4 = mCamera_Adjust_Row + mCamera_Speed_Y;
 
 	if (Data4 > Data0) {
 		Data0 -= mCamera_Adjust_Row;
@@ -1621,7 +1620,7 @@ void cFodder::sub_11CAD() {
 	dword_39F4E &= 0x0000FFFF;
 }
 
-void cFodder::sub_11CD6( ) {
+void cFodder::Camera_Refresh( ) {
 	int16 Data0 = mCamera_Adjust_Col >> 16;
 	int16 Data4 = mCamera_Adjust_Row >> 16;
 
@@ -1691,10 +1690,10 @@ loc_11D8A:;
 	dword_39F7C = 0;
 
 	for (;;) {
-		sub_11E6C();
-		sub_11E6C();
+		Camera_Pan_To_Target();
+		Camera_Pan_To_Target();
 
-		if (!word_3AA1F)
+		if (!mCamera_Reached_Target)
 			break;
 	}
 
@@ -1770,8 +1769,8 @@ void cFodder::Music_Play_Tileset() {
 	mSound->Music_Play(mMap_TileSet + 0x32);
 }
 
-void cFodder::sub_11E6C( ) {
-	sub_11EC2();
+void cFodder::Camera_Pan_To_Target( ) {
+	Camera_Pan_Set_Speed();
 
 	int32 Saved_dword_3A9FD = dword_3A9FD;
 	dword_3A9FD = 0x100000;
@@ -1795,8 +1794,8 @@ void cFodder::sub_11E6C( ) {
 	Camera_Pan();
 }
 
-void cFodder::sub_11EC2() {
-	word_3AA1F = 2;
+void cFodder::Camera_Pan_Set_Speed() {
+	mCamera_Reached_Target = 2;
 	mCamera_Speed_X = 0;
 	mCamera_Speed_Y = 0;
 
@@ -1835,21 +1834,21 @@ void cFodder::sub_11EC2() {
 	DataC >>= 4;
 
 	if (Data8 == Data0) {
-		--word_3AA1F;
+		--mCamera_Reached_Target;
 	} 
 	else if (Data8 > Data0) {
-		mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | -8 << 16;
+		mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | (-8 << 16);
 	} else 
-		mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | 8 << 16;
+		mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | (8 << 16);
 
 	//loc_11FAC
 	if (DataC == Data4) {
-		--word_3AA1F;
+		--mCamera_Reached_Target;
 	} 
 	else if (DataC > Data4) {
-		mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | -8 << 16;
+		mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | (-8 << 16);
 	} else 
-		mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | 8 << 16;
+		mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | (8 << 16);
 }
 
 void cFodder::sub_11FCD() {
@@ -2000,7 +1999,7 @@ void cFodder::sub_12245() {
 	dword_3A9FD = 0;
 }
 
-void cFodder::sub_1229C() {
+void cFodder::Camera_Speed_Reset() {
 	
 	if (word_39F52)
 		mCamera_Speed_X = 0;
@@ -2799,16 +2798,21 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 		mKeyCode = pKeyCode;
 	else
 		mKeyCode = 0;
-
-	if (pKeyCode == SDL_SCANCODE_ESCAPE) {
+	
+	if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
 		mMission_Aborted = -1;
-	}
+
+	if (pKeyCode == SDL_SCANCODE_EQUALS && pPressed)
+		mWindow->WindowIncrease();
+
+	if (pKeyCode == SDL_SCANCODE_MINUS && pPressed)
+		mWindow->WindowDecrease();
 
 	if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
 		mWindow->SetFullScreen();
 
 	// In Mission and not on map overview
-	if (word_3B20F && !mMission_ShowMapOverview) {
+	if (mMission_In_Progress && !mMission_ShowMapOverview) {
 		if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
 			if (pPressed)
 				mKeyControlPressed = -1;
@@ -2822,7 +2826,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 		if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
 			++mSquad_SwitchWeapon;
 
-		if (pKeyCode == SDL_SCANCODE_M) {
+		if (pKeyCode == SDL_SCANCODE_M && pPressed) {
 			if (mMission_Finished == 0)
 				mMission_ShowMapOverview = -1;
 		}
@@ -2837,7 +2841,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 			mKeyNumberPressed = 4;
 
 		// Debug: Mission Complete
-		if (pKeyCode == SDL_SCANCODE_F10) {
+		if (pKeyCode == SDL_SCANCODE_F10 && pPressed) {
 			word_3FA21 = -1;
 			mKeyCode = 0x1C;
 		}
@@ -2860,10 +2864,14 @@ void cFodder::mouse_Setup() {
 }
 
 void cFodder::mouse_GetData() {
+	float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
+	float scaleY = ((float)mWindow->GetWindowSize().mHeight  / mWindow->GetScreenSize().mHeight);
+
 	eventProcess();
 
-	mouse_Pos_Column = (int16) mMousePosition.mX - 32;
-	mouse_Pos_Row = (int16)mMousePosition.mY + 4;
+	mouse_Pos_Column = (int16) (mMousePosition.mX / scaleX) - 32;
+	mouse_Pos_Row = (int16)(mMousePosition.mY / scaleY) + 4;
+
 	mouse_Button_Status = mMouseButtons;
 }
 
@@ -2985,6 +2993,8 @@ void cFodder::VersionSelect() {
 
 	sSprite* Sprite, *Sprite2, *Sprite3;
 
+	Sprite_Clear_All();
+
 	Sprite = &mSprites[0];
 	Sprite2 = Sprite + 1;
 	Sprite3 = Sprite + 2;
@@ -2995,13 +3005,15 @@ void cFodder::VersionSelect() {
 	Sprite->field_A = 0;
 	Sprite->field_52 = 0;
 	Sprite->field_20 = 0;
-	
+	Sprite->field_18 = eSprite_Player;
+
 	Sprite2->field_0 = 0xbf;
 	Sprite2->field_4 = 0x14;
 	Sprite2->field_8 = 2;
 	Sprite2->field_A = 0;
 	Sprite2->field_52 = 0;
 	Sprite2->field_20 = 0;
+	Sprite2->field_18 = eSprite_Player;
 
 	Sprite3->field_0 = 0xf0;
 	Sprite3->field_4 = 0xce;
@@ -3009,6 +3021,7 @@ void cFodder::VersionSelect() {
 	Sprite3->field_A = 5;
 	Sprite3->field_52 = 0;
 	Sprite3->field_20 = 0;
+	Sprite3->field_18 = eSprite_Turret_Missile_Human;
 
 	mGraphics->LoadpStuff();
 
@@ -3017,6 +3030,10 @@ void cFodder::VersionSelect() {
 	mouse_Setup();
 
 	word_3AC21 = 0;
+	word_3BEC3 = 0;
+
+	mSound->Music_Stop();
+	mImage->clearBuffer();
 
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	int16 Pos = 0x1;
@@ -3091,7 +3108,15 @@ void cFodder::VersionSelect() {
 	// The 'Amiga' text just happens to be middle of the screen, where the cursor naturally was positioned
 	g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, 200 ) );
 
-	for( ;; ) {	
+	mSquad_CurrentVehicle = Sprite3;
+	//sub_126BB();
+	//Mission_Prepare_Squads();
+
+
+	for( ;; ) {
+
+		Sprite_Handle_Turret_Missile_Human(Sprite3);
+
 		Sprite_Sort_DrawList();
 		Sprite_Draw();
 
@@ -3118,6 +3143,11 @@ void cFodder::VersionSelect() {
 		g_Window.FrameEnd();
 		mImage->paletteFade();
 	}
+
+	if (mVersion->mPlatform == ePlatform::PC)
+		mWindow->SetScreenSize( cDimension( 320, 200 ) );
+	else
+		mWindow->SetScreenSize( cDimension( 320, 260 ) );
 
 	mButtonPressLeft = 0;
 
@@ -3188,18 +3218,9 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			mSound = new cSound_Amiga();
 
 			((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
-			
-			//cDimension amigaResize = mWindow->GetWindowSize();
-			//mWindow->SetWindowSize(cDimension(amigaResize.mWidth / 1.42, amigaResize.mHeight / 1.42));
-
-			mWindow->SetScreenSize( cDimension( 320, 260 ) );
-			mWindow->SetLogicalSize(cDimension( 320, 225 ) );
 
 			break;
 	}
-
-	mImage->clearBuffer();
-	mWindow->RenderAt( mImage );
 
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	mGraphics->LoadpStuff();
@@ -3245,11 +3266,6 @@ void cFodder::Prepare( ) {
 	memset(mDataSubBlk, 0, mDataBlkSize );
 
 	mImage = new cSurface( 352, 300 );
-	VersionLoad( mVersions[0] );
-
-	// Show the version selection, if we have more than 1 option
-	if (mVersions.size() > 1)
-		VersionSelect( );
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
@@ -4414,7 +4430,7 @@ void cFodder::Briefing_Draw_Mission_Title( ) {
 	String_Print( mFont_Underlined_Width, 1, word_3B301, word_3A01A, *Data20 );
 }
 
-void cFodder::Demo_ShowMenu() {
+bool cFodder::Demo_ShowMenu() {
 
 	mSound->Music_Stop();
 
@@ -4442,7 +4458,7 @@ void cFodder::Demo_ShowMenu() {
 				GUI_Element_Mouse_Over( mPlus_Buttons );
 		}
 
-		if (mDemo_ExitMenu > 0)
+		if (mDemo_ExitMenu > 0 || mMission_Aborted)
 			break;
 
 		if (mImage->GetFaded() == false )
@@ -4464,14 +4480,20 @@ void cFodder::Demo_ShowMenu() {
 	mImage->clearBuffer();
 	mWindow->SetScreenSize( cDimension( 320, 225 ));
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
+
+	if (mMission_Aborted)
+		return true;
+
+	return false;
 }
 
-void cFodder::Recruit_Show() {
+bool cFodder::Recruit_Show() {
 	mImage->clearBuffer();
 
 	mouse_Setup();
 	map_ClearSpt();
-	
+
+	mMission_Aborted = 0;
 	word_3E1B7 = mDataBaseBlk;
 
 	mGraphics->Load_Hill_Data();
@@ -4553,6 +4575,9 @@ void cFodder::Recruit_Show() {
 				break;
 		}
 
+		if (mMission_Aborted)
+			break;
+
 		Recruit_Draw();
 	}
 	
@@ -4564,6 +4589,11 @@ void cFodder::Recruit_Show() {
 	while( mImage->GetFaded() == false ) {
 		Recruit_Draw();
 	}
+
+	if (mMission_Aborted)
+		return true;
+
+	return false;
 }
 
 void cFodder::sub_16B55(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString ) {
@@ -6554,8 +6584,8 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 
 	if (mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ]) {
 		Data4 = eSprite_Indigenous;
-		Data8 = 0x3E;
-		DataC = 0x46;
+		Data8 = eSprite_Indigenous2;
+		DataC = eSprite_Indigenous_Spear;
 		Data10 = -1;
 	}
 
@@ -9193,7 +9223,7 @@ int16 cFodder::Squad_Member_Sprite_Find_In_Region( sSprite* pSprite, int16 pData
 
 		sSprite* Data2C = Data28->mSprite;
 
-		if (Data2C == INVALID_SPRITE_PTR)
+		if (Data2C == INVALID_SPRITE_PTR || Data2C == 0 )
 			continue;
 
 		int16 Data0 = Data2C->field_0;
@@ -9662,7 +9692,7 @@ loc_2D03B:;
 		goto loc_2D010;
 }
 
-void cFodder::sub_2D06C() {
+void cFodder::Squad_Troops_Count() {
 	sSprite** Data34 = dword_3B48B;
 
 	mSquads_TroopCount[0] = 0;
@@ -10108,7 +10138,7 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 
 	pSprite->field_40 = Data0;
 	pSprite->field_32 = Data18;
-	sub_2D06C();
+	Squad_Troops_Count();
 
 	word_3BEDF[Data14] = 0;
 	mSquad_Selected = Data18;
@@ -10970,7 +11000,6 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 }
 
 void cFodder::Demo_Quiz() {
-	mWindow->SetLogicalSize(cDimension( 320, 260 ) );
 	mImage->paletteFadeOut();
 	
 	while( mImage->GetFaded() == false ) {
@@ -11020,7 +11049,6 @@ void cFodder::Demo_Quiz() {
 	mGraphics->PaletteSet();
 	mImage->paletteFade();
 	mImage->Save();
-	mWindow->SetLogicalSize(cDimension( 320, 216 ) );
 }
 
 void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
@@ -11040,7 +11068,7 @@ void cFodder::GUI_Sidebar_Prepare( int16 pSquadNumber, int16 pData4 ) {
 	sub_2EBE0( pSquadNumber, pData4 );
 
 	word_3AC2D[pSquadNumber] = pData4;
-	sub_2D06C();
+	Squad_Troops_Count();
 	
 	pSquadNumber = word_3AC1B;
 
@@ -11143,7 +11171,7 @@ void cFodder::Squad_Select( int16 pData4 ) {
 
 	mSquad_Selected = pData4;
 	Squad_Clear_Selected();
-	sub_2D06C();
+	Squad_Troops_Count();
 	
 	sSprite* Data20 = 0;
 	sub_305D5( Data20 );
@@ -11178,7 +11206,7 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
 	word_3AC4D = 0;
 
 	sub_2DCB0( mSquad_Selected );
-	sub_2D06C();
+	Squad_Troops_Count();
 
 	sSprite* Data20 = 0;
 	sub_305D5( Data20 );
@@ -12813,9 +12841,16 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
 	int32 Field_1E;
 
 	if (mVersion->mVersion == eVersion::AmigaPlus) {
-		//TODO: Fix chopper
-		Data0 = 0;
-	} 
+		static int FF = 0;
+
+		if (++FF == 100) {
+			FF = 0;
+			//TODO: Fix chopper
+			Data0 = 0x01;
+		}
+		else
+			Data0 = 0;
+	}
 	else
 		Data0 = mSounds_Helicopter[Data0 / 2];
 
@@ -20142,6 +20177,7 @@ void cFodder::Game_CheckLoadSave() {
 void cFodder::Game_Setup( int16 pStartMap ) {
 	Game_ClearVariables();
 
+	mIntroDone = 0;
 	mMission_Complete = 0;
 	mMapNumber = pStartMap;
 	word_3901E = 0x3333;
@@ -20180,6 +20216,14 @@ void cFodder::ExtractData() {
 }
 
 void cFodder::Start( int16 pStartMap ) {
+
+Start:;
+	mVersion = 0;
+	VersionLoad( mVersions[0] );
+
+	// Show the version selection, if we have more than 1 option
+	if (mVersions.size() > 1)
+		VersionSelect( );
 
 	if (mVersion->mRelease == eRelease::Demo)
 		pStartMap = 0;
@@ -20242,7 +20286,9 @@ void cFodder::Start( int16 pStartMap ) {
 				WindowTitleSet( false );
 
 				if (mVersion->mRelease == eRelease::Retail) {
-					Recruit_Show();
+					if (Recruit_Show()) {
+						goto Start;
+					}
 
 					Game_CheckLoadSave();
 
@@ -20253,7 +20299,8 @@ void cFodder::Start( int16 pStartMap ) {
 						continue;
 					}
 				} else {
-					Demo_ShowMenu();
+					if (Demo_ShowMenu())
+						goto Start;
 				}
 
 				word_390B8 = 0;
@@ -20367,18 +20414,18 @@ void cFodder::Start( int16 pStartMap ) {
 			mMission_Aborted = 0;
 			mMission_Paused = 0;
 			mMouseSpriteNew = 0x23;
-			word_3B20F = -1;
+			mMission_In_Progress = -1;
 			mMission_Finished = 0;
 			mMission_ShowMapOverview = 0;
 			word_3EABD = 0x40BC;
 			
 			if (!Mission_Loop()) {
-				word_3B20F = 0;
+				mMission_In_Progress = 0;
 				Squad_Member_PhaseCount();
 				word_390EC = -1;
 			}
 			else {
-				word_3B20F = 0;
+				mMission_In_Progress = 0;
 				if (!mSquad_AliveCount) {
 
 					Service_Show();
@@ -21563,7 +21610,7 @@ void cFodder::Mouse_Inputs_Check() {
 	if (mMouseDisabled)
 		return;
 
-	if (word_3B20F)
+	if (mMission_In_Progress)
 		sub_30AB0();
 
 	if (dword_3A030) {

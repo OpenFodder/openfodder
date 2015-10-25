@@ -35,6 +35,7 @@ class cWindow : public cSingleton<cWindow> {
 							cWindow();
 							~cWindow();
 
+		void				CalculateWindowSize();
 		bool				InitWindow( const std::string& pWindowTitle );
 		void				EventCheck();
 
@@ -42,6 +43,11 @@ class cWindow : public cSingleton<cWindow> {
 
 		void				RenderAt( cSurface* pImage, cPosition pSource = cPosition(0,0) );
 		void				RenderShrunk( cSurface* pImage );
+
+		void				PositionWindow();
+
+		void				WindowIncrease();
+		void				WindowDecrease();
 
 		void				SetCursor();
 		void				SetMousePosition( const cPosition& pPosition );
@@ -55,4 +61,5 @@ class cWindow : public cSingleton<cWindow> {
 
 		const cDimension	GetWindowSize() const { return mDimensionWindow; }
 		const cDimension	GetScreenSize() const { return mScreenSize; }
+		const bool			GetWindowMode() const { return mWindowMode; }
 };
