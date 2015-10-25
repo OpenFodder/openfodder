@@ -29,8 +29,9 @@ At present, it supports 3 versions
 
 #####Keys
 
-*F11: Full screen  
-
+* +:   Increase Window Size
+* -:   Decrease Window Size 
+* F11: Full screen  
 
 #####Dos Retail CD Version
 

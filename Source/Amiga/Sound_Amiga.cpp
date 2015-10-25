@@ -63,8 +63,7 @@ cSound_Amiga::~cSound_Amiga() {
 	delete[] mSound_Sfx.mCurrentMusicSongData;
 	delete[] mSound_Sfx.mCurrentMusicInstrumentData;
 
-	SDL_AudioQuit();
-
+	SDL_CloseAudio();
 	SDL_DestroyMutex(mLock);
 }
 

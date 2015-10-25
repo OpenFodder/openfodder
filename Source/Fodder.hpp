@@ -280,7 +280,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FB6;
 	int16			word_39FB8;
 	sSprite*		mSquad_Leader;
-
 	int16			mSquad_Selected;
 	int16			word_39FD2;
 	int16			word_39FD4;
@@ -381,7 +380,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mHostage_Count;
 	int16			mCamera_Start_Adjust;
 	int16			word_3AA1D;
-	int16			word_3AA1F;
+	int16			mCamera_Reached_Target;
 	int16			word_3AA21;
 	int16			word_3AA41;
 	int16			word_3AA45;
@@ -475,7 +474,7 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			mMap_TileSet;
 	sSprite*		mSquad_CurrentVehicle;
-	int16			word_3B20F;
+	int16			mMission_In_Progress;
 	int16			word_3B211;
 	sSprite*		dword_3B213[15];
 	sSprite*		dword_3B24F[3];
@@ -708,12 +707,12 @@ class cFodder : public cSingleton < cFodder > {
 	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
-	void			Demo_ShowMenu();
+	bool			Demo_ShowMenu();
 
 	virtual int16	Mission_Loop( );
 
-	void			Mouse_Handle( );
-	void			sub_10937();
+	void			Game_Handle( );
+	void			Camera_Handle();
 	void			sub_1096B();
 	void			Game_ClearVariables();
 	void			Squad_Clear();
@@ -738,11 +737,11 @@ public:
 
 	void			Camera_Calculate_Scroll();
 	void			sub_11CAD();
-	void			sub_11CD6( );
+	void			Camera_Refresh( );
 	void			map_Load_Resources();
 	void			Music_Play_Tileset();
-	void			sub_11E6C( );
-	void			sub_11EC2();
+	void			Camera_Pan_To_Target( );
+	void			Camera_Pan_Set_Speed();
 	void			sub_11FCD();
 
 	void			sub_12018();
@@ -750,7 +749,7 @@ public:
 	void			sub_120F6();
 	void			Camera_Adjust_Row( int32* pData20 );
 	void			sub_12245();
-	void			sub_1229C();
+	void			Camera_Speed_Reset();
 	void			Camera_Pan_Toward_SquadLeader();
 	void			Mission_Sprites_Handle( );
 	void			Sprite_Sort_DrawList();
@@ -821,7 +820,7 @@ public:
 	void			Briefing_Draw_Mission_Title( );
 
 	/* Recruitment */
-	void			Recruit_Show();
+	bool			Recruit_Show();
 	void			sub_16B55(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			sub_16BC3();
 	void			sub_16C45( uint16** pDi, int16* pSource );
@@ -1159,7 +1158,7 @@ public:
 	void			Camera_Update_Row();
 	void			Camera_Update_Column();
 
-	void			sub_2D06C();
+	void			Squad_Troops_Count();
 	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
 	void			Squad_Member_Rotate_Can_Fire();
 	int16			Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
