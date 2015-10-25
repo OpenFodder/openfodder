@@ -34,6 +34,7 @@ cWindow::cWindow() {
 	mScreenSize.mHeight = g_WindowHeight;
 
 	mWindowMode = true;
+	mWindow = 0;
 }
 
 cWindow::~cWindow() {
@@ -277,7 +278,8 @@ void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
 void cWindow::SetWindowSize( const cDimension& pDimension ) {
 	mDimensionWindow = pDimension;
 
-	SDL_SetWindowSize( mWindow, pDimension.mWidth, pDimension.mHeight );
+	if (mWindow)
+		SDL_SetWindowSize( mWindow, pDimension.mWidth, pDimension.mHeight );
 }
 
 SDL_Renderer* cWindow::GetRenderer() const {
