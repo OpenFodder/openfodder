@@ -4490,6 +4490,9 @@ bool cFodder::Demo_ShowMenu() {
 bool cFodder::Recruit_Show() {
 	mImage->clearBuffer();
 
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize( cDimension( 320, 225 ));
+
 	mouse_Setup();
 	map_ClearSpt();
 
@@ -20310,9 +20313,6 @@ Start:;
 				else
 					mGraphics->LoadpStuff();			
 			}
-			
-			if (mVersion->mPlatform == ePlatform::Amiga)
-				mWindow->SetScreenSize( cDimension( 320, 225 ));
 
 			//loc_10513
 			if (mVersion->mRelease == eRelease::Retail)

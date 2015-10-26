@@ -22,16 +22,16 @@
 
 #include "stdafx.hpp"
 
-const size_t g_WindowWidth = 320;
-const size_t g_WindowHeight = 200;
-
 cWindow::cWindow() {
 
-	mDimensionWindow.mWidth = 640;
-	mDimensionWindow.mHeight = 400;
+	mWindow_OriginalRes.mWidth = 320;
+	mWindow_OriginalRes.mHeight = 200;
 
-	mScreenSize.mWidth = g_WindowWidth;
-	mScreenSize.mHeight = g_WindowHeight;
+	mDimensionWindow.mWidth = mWindow_OriginalRes.mWidth * 2;
+	mDimensionWindow.mHeight = mWindow_OriginalRes.mHeight * 2;
+
+	mScreenSize.mWidth = mWindow_OriginalRes.mWidth;
+	mScreenSize.mHeight = mWindow_OriginalRes.mHeight;
 
 	mWindowMode = true;
 	mWindow = 0;
@@ -52,8 +52,8 @@ void cWindow::CalculateWindowSize() {
 	size_t Size = current.w / 2;
 
 	while (mDimensionWindow.mWidth < Size) {
-		mDimensionWindow.mWidth += g_WindowWidth;
-		mDimensionWindow.mHeight += g_WindowHeight;
+		mDimensionWindow.mWidth += mWindow_OriginalRes.mWidth;
+		mDimensionWindow.mHeight += mWindow_OriginalRes.mHeight;
 	}
 
 	SetWindowSize( mDimensionWindow );
@@ -220,7 +220,8 @@ void cWindow::WindowIncrease() {
 	SDL_GetCurrentDisplayMode(0, &current);
 
 	// Once we reach the max window size, go to full screen
-	if (mDimensionWindow.mWidth == current.w) {
+	if ((mDimensionWindow.mWidth == current.w || mDimensionWindow.mHeight == current.h) ||
+		 (mDimensionWindow.mWidth + mWindow_OriginalRes.mWidth >= current.w || mWindow_OriginalRes.mHeight + mWindow_OriginalRes.mHeight >= current.h) ) {
 		
 		if (!mWindowMode)
 			return;
@@ -232,8 +233,8 @@ void cWindow::WindowIncrease() {
 	if (!mWindowMode)
 		return;
 
-	mDimensionWindow.mWidth += g_WindowWidth;
-	mDimensionWindow.mHeight += g_WindowHeight;
+	mDimensionWindow.mWidth += mWindow_OriginalRes.mWidth;
+	mDimensionWindow.mHeight += mWindow_OriginalRes.mHeight;
 
 	SetWindowSize( mDimensionWindow );
 	PositionWindow();
@@ -242,14 +243,16 @@ void cWindow::WindowIncrease() {
 void cWindow::WindowDecrease() {
 
 	// If we're in full screen mode remove it
-	if (!mWindowMode)
+	if (!mWindowMode) {
 		SetFullScreen();
+		return;
+	}
 
-	if (mDimensionWindow.mWidth == g_WindowWidth)
+	if (mDimensionWindow.mWidth == mWindow_OriginalRes.mWidth)
 		return;
 
-	mDimensionWindow.mWidth -= g_WindowWidth;
-	mDimensionWindow.mHeight -= g_WindowHeight;
+	mDimensionWindow.mWidth -= mWindow_OriginalRes.mWidth;
+	mDimensionWindow.mHeight -= mWindow_OriginalRes.mHeight;
 
 	SetWindowSize( mDimensionWindow );
 	PositionWindow();

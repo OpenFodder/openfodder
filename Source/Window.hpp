@@ -25,6 +25,9 @@ class cWindow : public cSingleton<cWindow> {
 	private:
 		SDL_Window*			mWindow;
 		SDL_Renderer*		mRenderer;
+
+		cDimension			mWindow_OriginalRes;
+
 		cDimension			mDimensionWindow;
 		cDimension			mScreenSize;
 
