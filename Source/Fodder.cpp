@@ -3034,6 +3034,7 @@ void cFodder::VersionSelect() {
 
 	mSound->Music_Stop();
 	mImage->clearBuffer();
+	mWindow->SetScreenSize( cDimension( 320, 200 ) );
 
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	int16 Pos = 0x1;
@@ -3112,6 +3113,7 @@ void cFodder::VersionSelect() {
 	//sub_126BB();
 	//Mission_Prepare_Squads();
 
+	Camera_Reset();
 
 	for( ;; ) {
 
@@ -3147,7 +3149,7 @@ void cFodder::VersionSelect() {
 	if (mVersion->mPlatform == ePlatform::PC)
 		mWindow->SetScreenSize( cDimension( 320, 200 ) );
 	else
-		mWindow->SetScreenSize( cDimension( 320, 257 ) );
+		mWindow->SetScreenSize( cDimension( 320, 260 ) );
 
 	mButtonPressLeft = 0;
 
@@ -4438,12 +4440,13 @@ bool cFodder::Demo_ShowMenu() {
 	mGraphics->PaletteSet();
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
-	mWindow->SetScreenSize( cDimension( 320, 257) );
+	mWindow->SetScreenSize( cDimension( 320, 260) );
 
 	mImage->Save();
 	mImage->paletteFade();
 
 	mDemo_ExitMenu = -1;
+	word_3BEC3 = 4;
 
 	for( ;; ) {
 		Video_Sleep_Wrapper();
@@ -4480,6 +4483,8 @@ bool cFodder::Demo_ShowMenu() {
 
 	mImage->clearBuffer();
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize( cDimension( 320, 225 ));
 
 	if (mMission_Aborted)
 		return true;
