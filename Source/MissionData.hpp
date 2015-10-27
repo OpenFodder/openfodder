@@ -24,6 +24,8 @@ struct sMissionData {
 	const char**	mMissionNames;
 	const char**	mMissionPhaseNames;
 	const uint16*	mMissionPhases;
+	const int8**	mMapGoals;
+	const int16*	mEnemyAggression;
 };
 
 enum eMissionGoals {
@@ -38,8 +40,6 @@ enum eMissionGoals {
 	eGoal_End = -1
 };
 
-extern const int8* mMap_Goals[];
-
 extern const sMissionData	mMissionData_Plus;
 extern const sMissionData	mMissionData_AmigaFormat;
 extern const sMissionData	mMissionData_Retail;
@@ -47,4 +47,3 @@ extern const sMissionData	mMissionData_Retail2;
 
 extern const char*			mMissionGoals[];
 extern const std::string	mMapTypes[];
-extern const int16			mMap_Sprite_Enemy_Aggression[];

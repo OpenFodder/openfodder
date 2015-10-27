@@ -2253,7 +2253,7 @@ void cFodder::sub_126BB() {
 }
 
 void cFodder::Mission_Phase_Goals_Set() {
-	const int8* Data20 = mMap_Goals[mMapNumber];
+	const int8* Data20 = mVersion->mMissionData->mMapGoals[mMapNumber];
 
 	for (; *Data20 != -1; ++Data20) {
 
@@ -10037,8 +10037,8 @@ void cFodder::Sprite_Aggression_Set() {
 	int16 Data0 = mMapNumber;
 	Data0 <<= 1;
 
-	int16 Data4 = mMap_Sprite_Enemy_Aggression[Data0];
-	int16 Data8 = mMap_Sprite_Enemy_Aggression[Data0 + 1];
+	int16 Data4 = mVersion->mMissionData->mEnemyAggression[Data0];
+	int16 Data8 = mVersion->mMissionData->mEnemyAggression[Data0 + 1];
 
 	mSprite_Enemy_AggressionMin = Data4;
 	mSprite_Enemy_AggressionMax = Data8;
