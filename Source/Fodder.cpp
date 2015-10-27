@@ -3105,10 +3105,6 @@ void cFodder::VersionSelect() {
 	mouse_Setup();
 	mDemo_ExitMenu = 0;
 
-	// This is being hacked in to prevent accidently clicking a button when launching the game
-	// The 'Amiga' text just happens to be middle of the screen, where the cursor naturally was positioned
-	g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, 200 ) );
-
 	mSquad_CurrentVehicle = Sprite3;
 	//sub_126BB();
 	//Mission_Prepare_Squads();
@@ -3153,6 +3149,7 @@ void cFodder::VersionSelect() {
 
 	mButtonPressLeft = 0;
 
+	mSquad_CurrentVehicle = 0;
 	delete[] Buttons;
 }
 
