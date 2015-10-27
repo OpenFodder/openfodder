@@ -201,12 +201,13 @@ void cWindow::SetCursor() {
 void cWindow::SetFullScreen() {
 
 	if (mWindowMode) {
-		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
-		mWindowMode = false;
+
+		while (mWindowMode)
+			WindowIncrease();
+
 	}
 	else {
-		SDL_SetWindowFullscreen( mWindow, 0 );
-		mWindowMode = true;
+		WindowDecrease();
 	}
 }
 
@@ -226,7 +227,8 @@ void cWindow::WindowIncrease() {
 		if (!mWindowMode)
 			return;
 
-		SetFullScreen();
+		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
+		mWindowMode = false;
 		return;
 	}
 
@@ -244,7 +246,8 @@ void cWindow::WindowDecrease() {
 
 	// If we're in full screen mode remove it
 	if (!mWindowMode) {
-		SetFullScreen();
+		mWindowMode = true;
+		SDL_SetWindowFullscreen( mWindow, 0 );
 		return;
 	}
 
