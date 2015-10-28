@@ -27,8 +27,7 @@ cWindow::cWindow() {
 	mWindow_OriginalRes.mWidth = 320;
 	mWindow_OriginalRes.mHeight = 200;
 
-	mDimensionWindow.mWidth = mWindow_OriginalRes.mWidth * 2;
-	mDimensionWindow.mHeight = mWindow_OriginalRes.mHeight * 2;
+	mWindow_Multiplier = mWindow_MultiplierPrevious = 2;
 
 	mScreenSize.mWidth = mWindow_OriginalRes.mWidth;
 	mScreenSize.mHeight = mWindow_OriginalRes.mHeight;
@@ -51,12 +50,11 @@ void cWindow::CalculateWindowSize() {
 
 	size_t Size = current.w / 2;
 
-	while (mDimensionWindow.mWidth < Size) {
-		mDimensionWindow.mWidth += mWindow_OriginalRes.mWidth;
-		mDimensionWindow.mHeight += mWindow_OriginalRes.mHeight;
+	while (GetWindowSize().mWidth < Size) {
+		++mWindow_Multiplier;
 	}
 
-	SetWindowSize( mDimensionWindow );
+	SetWindowSize( mWindow_Multiplier );
 }
 
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
@@ -70,7 +68,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
 	CalculateWindowSize();
 
-	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mDimensionWindow.mWidth, mDimensionWindow.mHeight, SDL_WINDOW_SHOWN  );
+	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GetWindowSize().mWidth, GetWindowSize().mHeight, SDL_WINDOW_SHOWN  );
 	if (!mWindow) {
 		// TODO: Log Error
 		//SDL_GetError();
@@ -202,12 +200,15 @@ void cWindow::SetFullScreen() {
 
 	if (mWindowMode) {
 
+		mWindow_MultiplierPrevious = mWindow_Multiplier;
+
 		while (mWindowMode)
 			WindowIncrease();
 
 	}
 	else {
-		WindowDecrease();
+		mWindowMode = true;
+		SetWindowSize( mWindow_MultiplierPrevious );
 	}
 }
 
@@ -216,16 +217,25 @@ void cWindow::PositionWindow() {
 	SDL_SetWindowPosition( mWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
 }
 
-void cWindow::WindowIncrease() {
+bool cWindow::CanChangeToMultiplier( int pNewMultiplier ) {
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 
-	// Once we reach the max window size, go to full screen
-	if ((mDimensionWindow.mWidth == current.w || mDimensionWindow.mHeight == current.h) ||
-		 (mDimensionWindow.mWidth + mWindow_OriginalRes.mWidth >= current.w || mWindow_OriginalRes.mHeight + mWindow_OriginalRes.mHeight >= current.h) ) {
-		
-		if (!mWindowMode)
+	if (	(mWindow_OriginalRes.mWidth  * pNewMultiplier >= current.w || 
+			mWindow_OriginalRes.mHeight * pNewMultiplier >= current.h) ||
+			pNewMultiplier <= 0 )
+		return false;
+
+	return true;
+}
+
+void cWindow::WindowIncrease() {
+	
+	if (!mWindowMode)
 			return;
+
+	// Once we reach the max window size, go to full screen
+	if (!CanChangeToMultiplier( mWindow_Multiplier + 1 )) {
 
 		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
 		mWindowMode = false;
@@ -235,11 +245,7 @@ void cWindow::WindowIncrease() {
 	if (!mWindowMode)
 		return;
 
-	mDimensionWindow.mWidth += mWindow_OriginalRes.mWidth;
-	mDimensionWindow.mHeight += mWindow_OriginalRes.mHeight;
-
-	SetWindowSize( mDimensionWindow );
-	PositionWindow();
+	SetWindowSize( mWindow_Multiplier + 1 );
 }
 
 void cWindow::WindowDecrease() {
@@ -247,18 +253,15 @@ void cWindow::WindowDecrease() {
 	// If we're in full screen mode remove it
 	if (!mWindowMode) {
 		mWindowMode = true;
-		SDL_SetWindowFullscreen( mWindow, 0 );
+		SetWindowSize( mWindow_Multiplier );
+
 		return;
 	}
 
-	if (mDimensionWindow.mWidth == mWindow_OriginalRes.mWidth)
+	if (!CanChangeToMultiplier(mWindow_Multiplier - 1 ))
 		return;
 
-	mDimensionWindow.mWidth -= mWindow_OriginalRes.mWidth;
-	mDimensionWindow.mHeight -= mWindow_OriginalRes.mHeight;
-
-	SetWindowSize( mDimensionWindow );
-	PositionWindow();
+	SetWindowSize( mWindow_Multiplier - 1 );
 }
 
 void cWindow::SetMousePosition( const cPosition& pPosition ) {
@@ -281,11 +284,15 @@ void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
 	SDL_SetWindowTitle( mWindow, pWindowTitle.c_str() );
 }
 
-void cWindow::SetWindowSize( const cDimension& pDimension ) {
-	mDimensionWindow = pDimension;
+void cWindow::SetWindowSize( const int pMultiplier ) {
+	mWindow_Multiplier = pMultiplier;
 
-	if (mWindow)
-		SDL_SetWindowSize( mWindow, pDimension.mWidth, pDimension.mHeight );
+	if (mWindow) {
+		SDL_SetWindowFullscreen( mWindow, 0 );
+		SDL_SetWindowSize( mWindow, GetWindowSize().mWidth, GetWindowSize().mHeight );
+
+		PositionWindow();
+	}
 }
 
 SDL_Renderer* cWindow::GetRenderer() const {

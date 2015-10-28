@@ -28,8 +28,9 @@ class cWindow : public cSingleton<cWindow> {
 
 		cDimension			mWindow_OriginalRes;
 
-		cDimension			mDimensionWindow;
 		cDimension			mScreenSize;
+
+		int					mWindow_Multiplier, mWindow_MultiplierPrevious;
 
 		bool				mWindowMode;
 
@@ -39,6 +40,8 @@ class cWindow : public cSingleton<cWindow> {
 							~cWindow();
 
 		void				CalculateWindowSize();
+		bool				CanChangeToMultiplier( int pNewMultiplier );
+
 		bool				InitWindow( const std::string& pWindowTitle );
 		void				EventCheck();
 
@@ -57,12 +60,12 @@ class cWindow : public cSingleton<cWindow> {
 		void				SetScreenSize( const cDimension& pDimension );
 		void				SetLogicalSize( const cDimension& pDimension );
 		void				SetWindowTitle( const std::string& pWindowTitle );
-		void				SetWindowSize( const cDimension& pDimension );
+		void				SetWindowSize( const int pMultiplier  );
 		void				SetFullScreen();
 
 		SDL_Renderer*		GetRenderer() const;
 
-		const cDimension	GetWindowSize() const { return mDimensionWindow; }
+		const cDimension	GetWindowSize() const { return cDimension( mWindow_OriginalRes.mWidth * mWindow_Multiplier, mWindow_OriginalRes.mHeight * mWindow_Multiplier ); }
 		const cDimension	GetScreenSize() const { return mScreenSize; }
 		const bool			GetWindowMode() const { return mWindowMode; }
 };
