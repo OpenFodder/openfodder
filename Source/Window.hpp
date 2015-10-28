@@ -26,7 +26,7 @@ class cWindow : public cSingleton<cWindow> {
 		SDL_Window*			mWindow;
 		SDL_Renderer*		mRenderer;
 
-		cDimension			mWindow_OriginalRes;
+		cDimension			mOriginalResolution;
 
 		cDimension			mScreenSize;
 
@@ -42,15 +42,15 @@ class cWindow : public cSingleton<cWindow> {
 		void				CalculateWindowSize();
 		bool				CanChangeToMultiplier( int pNewMultiplier );
 
-		bool				InitWindow( const std::string& pWindowTitle );
 		void				EventCheck();
-
 		void				FrameEnd();
+
+		bool				InitWindow( const std::string& pWindowTitle );
+			
+		void				PositionWindow();
 
 		void				RenderAt( cSurface* pImage, cPosition pSource = cPosition(0,0) );
 		void				RenderShrunk( cSurface* pImage );
-
-		void				PositionWindow();
 
 		void				WindowIncrease();
 		void				WindowDecrease();
@@ -63,9 +63,9 @@ class cWindow : public cSingleton<cWindow> {
 		void				SetWindowSize( const int pMultiplier  );
 		void				SetFullScreen();
 
-		SDL_Renderer*		GetRenderer() const;
+		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
-		const cDimension	GetWindowSize() const { return cDimension( mWindow_OriginalRes.mWidth * mWindow_Multiplier, mWindow_OriginalRes.mHeight * mWindow_Multiplier ); }
+		const cDimension	GetWindowSize() const { return cDimension( mOriginalResolution.mWidth * mWindow_Multiplier, mOriginalResolution.mHeight * mWindow_Multiplier ); }
 		const cDimension	GetScreenSize() const { return mScreenSize; }
 		const bool			GetWindowMode() const { return mWindowMode; }
 };

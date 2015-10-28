@@ -24,13 +24,13 @@
 
 cWindow::cWindow() {
 
-	mWindow_OriginalRes.mWidth = 320;
-	mWindow_OriginalRes.mHeight = 200;
+	mOriginalResolution.mWidth = 320;
+	mOriginalResolution.mHeight = 200;
 
 	mWindow_Multiplier = mWindow_MultiplierPrevious = 2;
 
-	mScreenSize.mWidth = mWindow_OriginalRes.mWidth;
-	mScreenSize.mHeight = mWindow_OriginalRes.mHeight;
+	mScreenSize.mWidth = mOriginalResolution.mWidth;
+	mScreenSize.mHeight = mOriginalResolution.mHeight;
 
 	mWindowMode = true;
 	mWindow = 0;
@@ -42,19 +42,6 @@ cWindow::~cWindow() {
 	SDL_DestroyWindow( mWindow );
 
 	SDL_Quit();
-}
-
-void cWindow::CalculateWindowSize() {
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
-
-	size_t Size = current.w / 2;
-
-	while (GetWindowSize().mWidth < Size) {
-		++mWindow_Multiplier;
-	}
-
-	SetWindowSize( mWindow_Multiplier );
 }
 
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
@@ -161,28 +148,29 @@ void cWindow::EventCheck() {
 
 }
 
-void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
-	SDL_Rect Src;
-	Src.w = mScreenSize.mWidth;
-	Src.h = mScreenSize.mHeight;
-	Src.x = pSource.mX + 16;
-	Src.y = pSource.mY + 16;
+void cWindow::CalculateWindowSize() {
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
 
-	pImage->draw();
+	size_t Size = current.w / 2;
 
-	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
+	while (GetWindowSize().mWidth < Size) {
+		++mWindow_Multiplier;
+	}
+
+	SetWindowSize( mWindow_Multiplier );
 }
 
-void cWindow::RenderShrunk( cSurface* pImage ) {
-	SDL_Rect Src;
-	Src.w = pImage->GetWidth();
-	Src.h = pImage->GetHeight();
-	Src.x = 0;
-	Src.y = 0;
+bool cWindow::CanChangeToMultiplier( int pNewMultiplier ) {
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
 
-	pImage->draw();
+	if (	(mOriginalResolution.mWidth  * pNewMultiplier >= current.w || 
+			mOriginalResolution.mHeight * pNewMultiplier >= current.h) ||
+			pNewMultiplier <= 0 )
+		return false;
 
-	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
+	return true;
 }
 
 void cWindow::FrameEnd() {
@@ -191,42 +179,9 @@ void cWindow::FrameEnd() {
 	SDL_RenderClear( mRenderer );
 }
 
-void cWindow::SetCursor() {
-
-	SDL_ShowCursor(0);
-}
-
-void cWindow::SetFullScreen() {
-
-	if (mWindowMode) {
-
-		mWindow_MultiplierPrevious = mWindow_Multiplier;
-
-		while (mWindowMode)
-			WindowIncrease();
-
-	}
-	else {
-		mWindowMode = true;
-		SetWindowSize( mWindow_MultiplierPrevious );
-	}
-}
-
 void cWindow::PositionWindow() {
 	
 	SDL_SetWindowPosition( mWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
-}
-
-bool cWindow::CanChangeToMultiplier( int pNewMultiplier ) {
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
-
-	if (	(mWindow_OriginalRes.mWidth  * pNewMultiplier >= current.w || 
-			mWindow_OriginalRes.mHeight * pNewMultiplier >= current.h) ||
-			pNewMultiplier <= 0 )
-		return false;
-
-	return true;
 }
 
 void cWindow::WindowIncrease() {
@@ -264,6 +219,51 @@ void cWindow::WindowDecrease() {
 	SetWindowSize( mWindow_Multiplier - 1 );
 }
 
+void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
+	SDL_Rect Src;
+	Src.w = mScreenSize.mWidth;
+	Src.h = mScreenSize.mHeight;
+	Src.x = pSource.mX + 16;
+	Src.y = pSource.mY + 16;
+
+	pImage->draw();
+
+	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
+}
+
+void cWindow::RenderShrunk( cSurface* pImage ) {
+	SDL_Rect Src;
+	Src.w = pImage->GetWidth();
+	Src.h = pImage->GetHeight();
+	Src.x = 0;
+	Src.y = 0;
+
+	pImage->draw();
+
+	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
+}
+
+void cWindow::SetCursor() {
+
+	SDL_ShowCursor(0);
+}
+
+void cWindow::SetFullScreen() {
+
+	if (mWindowMode) {
+
+		mWindow_MultiplierPrevious = mWindow_Multiplier;
+
+		while (mWindowMode)
+			WindowIncrease();
+
+	}
+	else {
+		mWindowMode = true;
+		SetWindowSize( mWindow_MultiplierPrevious );
+	}
+}
+
 void cWindow::SetMousePosition( const cPosition& pPosition ) {
 
 	SDL_WarpMouseInWindow( mWindow, pPosition.mX, pPosition.mY );
@@ -293,9 +293,4 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 
 		PositionWindow();
 	}
-}
-
-SDL_Renderer* cWindow::GetRenderer() const {
-
-	return mRenderer;
 }
