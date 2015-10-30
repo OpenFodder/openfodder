@@ -3133,19 +3133,6 @@ void cFodder::VersionSelect() {
 		g_Window.FrameEnd();
 		mImage->Restore();
 	}
-	
-	mImage->paletteFadeOut();
-	
-	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->paletteFade();
-	}
-
-	if (mVersion->mPlatform == ePlatform::PC)
-		mWindow->SetScreenSize( cDimension( 320, 200 ) );
-	else
-		mWindow->SetScreenSize( cDimension( 320, 260 ) );
 
 	mButtonPressLeft = 0;
 
@@ -3183,6 +3170,11 @@ void cFodder::WindowTitleSet( bool pInMission ) {
 	mWindow->SetWindowTitle( Title.str() );
 }
 
+/**
+ * This function loads a new version of the game, and is generally called on startup,
+ * or AFTER a button on the version select screen is pushed
+ *
+ */
 void cFodder::VersionLoad( const sVersion* pVersion ) {
 	mTitle.str( "" );
 	mTitle << "Open Fodder";
@@ -3198,6 +3190,14 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	delete mResources;
 	delete mSound;
 
+	mImage->paletteFadeOut();
+	
+	while( mImage->GetFaded() == false ) {
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->paletteFade();
+	}
+
 	switch (mVersion->mPlatform) {
 		case ePlatform::PC:
 			mResources = new cResource_PC_CD( mVersion->mDataPath );
@@ -3209,6 +3209,9 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			if (mVersion->mGame == eGame::CF2)
 				mSound = new cSound_PC2();
 
+			mWindow->SetScreenSize( cDimension( 320, 200 ) );
+			mWindow->SetOriginalRes( cDimension( 320, 200 ) );
+
 			break;
 
 		case ePlatform::Amiga:
@@ -3218,9 +3221,11 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 			((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 
+			mWindow->SetScreenSize( cDimension( 320, 260 ) );
+			mWindow->SetOriginalRes( cDimension( 320, 225 ) );
 			break;
 	}
-
+		
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	mGraphics->LoadpStuff();
 	map_Load_Resources();
