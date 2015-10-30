@@ -208,8 +208,15 @@ void cWindow::WindowDecrease() {
 
 	// If we're in full screen mode remove it
 	if (!mWindowMode) {
+
+		while (CanChangeToMultiplier( mWindow_MultiplierPrevious )) {
+			++mWindow_MultiplierPrevious;
+		}
+
+		--mWindow_MultiplierPrevious;
+
 		mWindowMode = true;
-		SetWindowSize( mWindow_Multiplier );
+		SetWindowSize( mWindow_MultiplierPrevious );
 
 		return;
 	}
@@ -254,11 +261,10 @@ void cWindow::SetFullScreen() {
 	if (mWindowMode) {
 
 		mWindow_MultiplierPrevious = mWindow_Multiplier;
-
-		//while (mWindowMode)
-		//	WindowIncrease();		
+	
 		SDL_DisplayMode current;
 		SDL_GetCurrentDisplayMode(0, &current);
+
 		SDL_SetWindowSize( mWindow, current.w, current.h );
 		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
 		
