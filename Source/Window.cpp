@@ -303,7 +303,9 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 	mWindow_Multiplier = pMultiplier;
 
 	if (mWindow) {
-		SDL_SetWindowFullscreen( mWindow, 0 );
+		if (mWindowMode)
+			SDL_SetWindowFullscreen( mWindow, 0 );
+
 		SDL_SetWindowSize( mWindow, GetWindowSize().mWidth, GetWindowSize().mHeight );
 
 		PositionWindow();
