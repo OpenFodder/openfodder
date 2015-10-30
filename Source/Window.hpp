@@ -65,7 +65,7 @@ class cWindow : public cSingleton<cWindow> {
 
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
-		const cDimension	GetWindowSize() const { return cDimension( mOriginalResolution.mWidth * mWindow_Multiplier, mOriginalResolution.mHeight * mWindow_Multiplier ); }
+		const cDimension	GetWindowSize() const;
 		const cDimension	GetScreenSize() const { return mScreenSize; }
 		const bool			GetWindowMode() const { return mWindowMode; }
 };
