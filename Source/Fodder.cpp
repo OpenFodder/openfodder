@@ -2864,13 +2864,13 @@ void cFodder::mouse_Setup() {
 }
 
 void cFodder::mouse_GetData() {
-	float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
-	float scaleY = ((float)mWindow->GetWindowSize().mHeight  / mWindow->GetScreenSize().mHeight);
+	//float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
+	//float scaleY = ((float)mWindow->GetWindowSize().mHeight  / mWindow->GetScreenSize().mHeight);
 
 	eventProcess();
 
-	mouse_Pos_Column = (int16) (mMousePosition.mX / scaleX) - 32;
-	mouse_Pos_Row = (int16)(mMousePosition.mY / scaleY) + 4;
+	mouse_Pos_Column = (int16) (mMousePosition.mX) - 32;
+	mouse_Pos_Row = (int16)(mMousePosition.mY ) + 4;
 
 	mouse_Button_Status = mMouseButtons;
 }
@@ -8646,8 +8646,8 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
 		mGraphics->sub_145AF( 0xD0, 0, 0xBD );
 	}
 	else {
-		Element->field_8 = 212;
-		mGraphics->sub_145AF( 0xD0, 0, 212 );
+		Element->field_8 = 214;
+		mGraphics->sub_145AF( 0xD0, 0, 214 );
 	}
 	++Element;
 
