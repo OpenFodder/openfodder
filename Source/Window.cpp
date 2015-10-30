@@ -192,7 +192,8 @@ void cWindow::WindowIncrease() {
 	// Once we reach the max window size, go to full screen
 	if (!CanChangeToMultiplier( mWindow_Multiplier + 1 )) {
 
-		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
+		SetFullScreen();
+//		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
 		mWindowMode = false;
 		return;
 	}
@@ -254,9 +255,14 @@ void cWindow::SetFullScreen() {
 
 		mWindow_MultiplierPrevious = mWindow_Multiplier;
 
-		while (mWindowMode)
-			WindowIncrease();
-
+		//while (mWindowMode)
+		//	WindowIncrease();		
+		SDL_DisplayMode current;
+		SDL_GetCurrentDisplayMode(0, &current);
+		SDL_SetWindowSize( mWindow, current.w, current.h );
+		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
+		
+		mWindowMode = false;
 	}
 	else {
 		mWindowMode = true;
@@ -293,4 +299,13 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 
 		PositionWindow();
 	}
+}
+const cDimension cWindow::GetWindowSize() const {
+	if (mWindowMode)
+		return cDimension( mOriginalResolution.mWidth * mWindow_Multiplier, mOriginalResolution.mHeight * mWindow_Multiplier ); 
+
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
+
+	return cDimension( current.w, current.h );
 }
