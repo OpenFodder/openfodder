@@ -267,7 +267,7 @@ void cWindow::SetFullScreen() {
 
 		SDL_SetWindowSize( mWindow, current.w, current.h );
 		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
-		
+
 		mWindowMode = false;
 	}
 	else {
@@ -290,6 +290,8 @@ void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 
 	mOriginalResolution = pDimension;
 	SetWindowSize( mWindow_Multiplier );
+
+	SDL_RenderSetLogicalSize( mRenderer, mOriginalResolution.mWidth, mOriginalResolution.mHeight );
 }
 
 void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
