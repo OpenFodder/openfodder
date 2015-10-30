@@ -286,9 +286,10 @@ void cWindow::SetScreenSize( const cDimension& pDimension ) {
 	mScreenSize = pDimension;
 }
 
-void cWindow::SetLogicalSize( const cDimension& pDimension ) {
-	
-	SDL_RenderSetLogicalSize(mRenderer, pDimension.mWidth, pDimension.mHeight);
+void cWindow::SetOriginalRes( const cDimension& pDimension ) {
+
+	mOriginalResolution = pDimension;
+	SetWindowSize( mWindow_Multiplier );
 }
 
 void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {

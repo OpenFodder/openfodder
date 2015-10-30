@@ -34,6 +34,10 @@ class cWindow : public cSingleton<cWindow> {
 
 		bool				mWindowMode;
 
+	protected:
+
+		void				SetWindowSize( const int pMultiplier  );
+
 	public:
 
 							cWindow();
@@ -58,9 +62,10 @@ class cWindow : public cSingleton<cWindow> {
 		void				SetCursor();
 		void				SetMousePosition( const cPosition& pPosition );
 		void				SetScreenSize( const cDimension& pDimension );
-		void				SetLogicalSize( const cDimension& pDimension );
+		void				SetOriginalRes( const cDimension& pDimension );
+
 		void				SetWindowTitle( const std::string& pWindowTitle );
-		void				SetWindowSize( const int pMultiplier  );
+
 		void				SetFullScreen();
 
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
