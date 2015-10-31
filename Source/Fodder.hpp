@@ -84,6 +84,11 @@ struct sRecruit_Screen_Pos {
 	int16	field_4;
 };
 
+struct sRecruitRendered {
+	uint32* mDataPtr;
+	int16	mPosition;
+};
+
 struct struct_5 {
 	int16	field_0;
 	int16	field_2;
@@ -166,6 +171,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			mDataSubBlk;
 	size_t			mDataBaseBlkSize;
 	size_t			mDataSubBlkSize;
+	sRecruitRendered	mRecruit_Rendered[0x0D];
 
 	uint32			dword_3901A;
 	uint16			word_3901E;
@@ -393,7 +399,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA67;
 	int16			word_3AA71;
 	int16			word_3AAC7;
-	uint8*			dword_3AAC9;
+	sRecruitRendered*			dword_3AAC9;
 	int16			word_3AACD;
 	int16			word_3AACF;
 	int16			word_3AAD1;

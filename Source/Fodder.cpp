@@ -4560,7 +4560,8 @@ bool cFodder::Recruit_Show() {
 	
 	Recruit_Render_Names_UnusedSlots();
 
-	dword_3AAC9 = mDataSubBlk;
+	dword_3AAC9 = mRecruit_Rendered;
+;
 
 	for (int16 ax = mSquadMemberCount - 1; ax >= 0;--ax )
 		sub_17429();
@@ -4987,7 +4988,7 @@ void cFodder::Recruit_Render_HeroList() {
 void cFodder::Recruit_Render_Names_UnusedSlots() {
 	uint32* Data20 = (uint32*) mDataArmy;
 
-	uint64* Data24 = (uint64*) mDataSubBlk;
+	sRecruitRendered* Data24 = mRecruit_Rendered;
 	int16 Data0 = 0x58;
 	
 	if (mVersion->mPlatform == ePlatform::PC)
@@ -4997,14 +4998,17 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
 	
 	// Squad Troop Names
 	for ( ; Data0 < 0xA0; Data0 += 0x0C) {
-		*Data24++ = (uint64) Data20;
-		*Data24++ = Data0;
+		Data24->mDataPtr = Data20;
+		Data24->mPosition = Data0;
 
 		mGraphics->sub_17480( Data0, 0x0C, 0, Data20 );
+		++Data24;
 	}
 
 	//seg003:2532
-	*Data24 = -1;
+	Data24->mDataPtr = 0;
+	Data24->mPosition = -1;
+
 	int16 DataC = 0x58;
 	int16 Data4 = 0;
 	
@@ -5022,20 +5026,13 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
 }
 
 void cFodder::sub_17429() {
-	uint8* Data24 = dword_3AAC9;
-
-	if (*((int64*)Data24) < 0)
+	//uint8* Data24 = dword_3AAC9;
+	sRecruitRendered* Data24 = dword_3AAC9 ;
+	if (Data24->mPosition < 0)
 		return;
 
-	uint64* Data20 = (uint64*) *((uint64*)Data24);
-	Data24 += 8;
-
-	uint64 Data0 = *((uint64*)Data24);
-	Data24 += 8;
-
-	dword_3AAC9 = Data24;
-	uint32* Dataa20 =  (uint32*) Data20;
-	mGraphics->sub_17480( (uint16) Data0, 0x0C, -1, Dataa20 );
+	++dword_3AAC9;
+	mGraphics->sub_17480( (uint16) Data24->mPosition, 0x0C, -1, Data24->mDataPtr );
 }
 
 void cFodder::Recruit_Draw_Actors( ) {
