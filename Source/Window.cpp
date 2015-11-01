@@ -70,7 +70,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		std::cout << "Failed to create rendered\n";
 		return false;
 	}
-
+	SDL_SetHint( "SDL_HINT_RENDER_SCALE_QUALITY", "0" );
 	SetCursor();
 	return true;
 }

@@ -44,6 +44,7 @@ class cWindow : public cSingleton<cWindow> {
 							~cWindow();
 
 		void				CalculateWindowSize();
+
 		bool				CanChangeToMultiplier( int pNewMultiplier );
 
 		void				EventCheck();
