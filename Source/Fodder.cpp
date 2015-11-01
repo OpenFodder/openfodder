@@ -3106,8 +3106,6 @@ void cFodder::VersionSelect() {
 	mDemo_ExitMenu = 0;
 
 	mSquad_CurrentVehicle = Sprite3;
-	//sub_126BB();
-	//Mission_Prepare_Squads();
 
 	Camera_Reset();
 
