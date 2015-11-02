@@ -315,8 +315,6 @@ void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 
 	mOriginalResolution = pDimension;
 	SetWindowSize( mWindow_Multiplier );
-
-	//SDL_RenderSetLogicalSize( mRenderer, mOriginalResolution.mWidth, mOriginalResolution.mHeight );
 }
 
 void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
@@ -337,13 +335,6 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 	}
 }
 const cDimension cWindow::GetWindowSize() const {
-	//if (mWindowMode)
-		return cDimension( mOriginalResolution.mWidth * mWindow_Multiplier, mOriginalResolution.mHeight * mWindow_Multiplier ); 
 
-	return cDimension( mOriginalResolution.mWidth, mOriginalResolution.mHeight ); 
-
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
-
-	return cDimension( current.w, current.h );
+	return cDimension( mOriginalResolution.mWidth * mWindow_Multiplier, mOriginalResolution.mHeight * mWindow_Multiplier ); 
 }
