@@ -55,7 +55,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
 	CalculateWindowSize();
 
-	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GetWindowSize().mWidth, GetWindowSize().mHeight, SDL_WINDOW_SHOWN  );
+	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GetWindowSize().mWidth, GetWindowSize().mHeight, SDL_WINDOW_SHOWN );
 	if (!mWindow) {
 		// TODO: Log Error
 		//SDL_GetError();
@@ -70,7 +70,8 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		std::cout << "Failed to create rendered\n";
 		return false;
 	}
-	SDL_SetHint( "SDL_HINT_RENDER_SCALE_QUALITY", "0" );
+
+	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, 0 );
 	SetCursor();
 	return true;
 }
@@ -193,7 +194,6 @@ void cWindow::WindowIncrease() {
 	if (!CanChangeToMultiplier( mWindow_Multiplier + 1 )) {
 
 		SetFullScreen();
-//		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
 		mWindowMode = false;
 		return;
 	}
@@ -236,7 +236,7 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 
 	pImage->draw();
 
-	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
+	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL );
 }
 
 void cWindow::RenderShrunk( cSurface* pImage ) {
@@ -261,11 +261,8 @@ void cWindow::SetFullScreen() {
 	if (mWindowMode) {
 
 		mWindow_MultiplierPrevious = mWindow_Multiplier;
-	
-		SDL_DisplayMode current;
-		SDL_GetCurrentDisplayMode(0, &current);
 
-		SDL_SetWindowSize( mWindow, current.w, current.h );
+		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
 		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
 
 		mWindowMode = false;
@@ -291,7 +288,7 @@ void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 	mOriginalResolution = pDimension;
 	SetWindowSize( mWindow_Multiplier );
 
-	SDL_RenderSetLogicalSize( mRenderer, mOriginalResolution.mWidth, mOriginalResolution.mHeight );
+	//SDL_RenderSetLogicalSize( mRenderer, mOriginalResolution.mWidth, mOriginalResolution.mHeight );
 }
 
 void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {

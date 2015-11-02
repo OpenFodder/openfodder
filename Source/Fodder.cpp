@@ -2864,13 +2864,13 @@ void cFodder::mouse_Setup() {
 }
 
 void cFodder::mouse_GetData() {
-	//float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
-	//float scaleY = ((float)mWindow->GetWindowSize().mHeight  / mWindow->GetScreenSize().mHeight);
+	float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
+	float scaleY = ((float)mWindow->GetWindowSize().mHeight  / mWindow->GetScreenSize().mHeight);
 
 	eventProcess();
 
-	mouse_Pos_Column = (int16) (mMousePosition.mX) - 32;
-	mouse_Pos_Row = (int16)(mMousePosition.mY ) + 4;
+	mouse_Pos_Column = (int16) (mMousePosition.mX / scaleX) - 32;
+	mouse_Pos_Row = (int16)(mMousePosition.mY / scaleY ) + 4;
 
 	mouse_Button_Status = mMouseButtons;
 }
@@ -5416,7 +5416,7 @@ void cFodder::Recruit_Draw() {
 
 	//sub_14367();
 
-	g_Window.RenderAt( mImage, cPosition() );
+	g_Window.RenderAt( mImage );
 	g_Window.FrameEnd();
 	mImage->Restore();
 }
