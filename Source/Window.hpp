@@ -44,6 +44,7 @@ class cWindow : public cSingleton<cWindow> {
 							~cWindow();
 
 		void				CalculateWindowSize();
+		int16				CalculateFullscreenSize();
 
 		bool				CanChangeToMultiplier( int pNewMultiplier );
 

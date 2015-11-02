@@ -153,13 +153,24 @@ void cWindow::CalculateWindowSize() {
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 
-	size_t Size = current.w / 2;
-
-	while (GetWindowSize().mWidth < Size) {
+	while ((mOriginalResolution.mWidth * mWindow_Multiplier) <= (current.w / 2) && 
+			(mOriginalResolution.mHeight * mWindow_Multiplier) <= (current.h / 2) ) {
 		++mWindow_Multiplier;
 	}
 
 	SetWindowSize( mWindow_Multiplier );
+}
+
+int16 cWindow::CalculateFullscreenSize() {
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
+	int16 Multiplier = 1;
+
+	while ((mOriginalResolution.mWidth * Multiplier) <= current.w && (mOriginalResolution.mHeight * Multiplier) <= current.h ) {
+		++Multiplier;
+	}
+
+	return --Multiplier;
 }
 
 bool cWindow::CanChangeToMultiplier( int pNewMultiplier ) {
@@ -228,15 +239,30 @@ void cWindow::WindowDecrease() {
 }
 
 void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
-	SDL_Rect Src;
+	SDL_Rect Src, Dest;
+
 	Src.w = mScreenSize.mWidth;
 	Src.h = mScreenSize.mHeight;
 	Src.x = pSource.mX + 16;
 	Src.y = pSource.mY + 16;
 
+	Dest.w = GetWindowSize().mWidth;
+	Dest.h = GetWindowSize().mHeight;
+
+	if (mWindowMode) {
+		Dest.x = 0;
+		Dest.y = 0;
+	}
+	else {
+		SDL_DisplayMode current;
+		SDL_GetCurrentDisplayMode(0, &current);
+
+		Dest.x = (current.w - Dest.w) / 2;
+		Dest.y = (current.h - Dest.h) / 2;
+	}
 	pImage->draw();
 
-	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL );
+	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, &Dest );
 }
 
 void cWindow::RenderShrunk( cSurface* pImage ) {
@@ -262,7 +288,9 @@ void cWindow::SetFullScreen() {
 
 		mWindow_MultiplierPrevious = mWindow_Multiplier;
 
-		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
+		SetWindowSize( CalculateFullscreenSize());
+
+		//SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
 		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
 
 		mWindowMode = false;
@@ -309,8 +337,10 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 	}
 }
 const cDimension cWindow::GetWindowSize() const {
-	if (mWindowMode)
+	//if (mWindowMode)
 		return cDimension( mOriginalResolution.mWidth * mWindow_Multiplier, mOriginalResolution.mHeight * mWindow_Multiplier ); 
+
+	return cDimension( mOriginalResolution.mWidth, mOriginalResolution.mHeight ); 
 
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
