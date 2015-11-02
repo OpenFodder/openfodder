@@ -220,14 +220,14 @@ void cWindow::WindowDecrease() {
 	// If we're in full screen mode remove it
 	if (!mWindowMode) {
 
-		while (CanChangeToMultiplier( mWindow_MultiplierPrevious )) {
-			++mWindow_MultiplierPrevious;
-		}
+		//while (CanChangeToMultiplier( mWindow_MultiplierPrevious )) {
+		//	++mWindow_MultiplierPrevious;
+		//}
 
-		--mWindow_MultiplierPrevious;
+		//--mWindow_Multiplier;
 
 		mWindowMode = true;
-		SetWindowSize( mWindow_MultiplierPrevious );
+		SetWindowSize( mWindow_Multiplier );
 
 		return;
 	}
@@ -266,15 +266,29 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 }
 
 void cWindow::RenderShrunk( cSurface* pImage ) {
-	SDL_Rect Src;
+	SDL_Rect Src, Dest;
 	Src.w = pImage->GetWidth();
 	Src.h = pImage->GetHeight();
 	Src.x = 0;
 	Src.y = 0;
 
+	Dest.w = GetWindowSize().mWidth;
+	Dest.h = GetWindowSize().mHeight;
+
+	if (mWindowMode) {
+		Dest.x = 0;
+		Dest.y = 0;
+	}
+	else {
+		SDL_DisplayMode current;
+		SDL_GetCurrentDisplayMode(0, &current);
+
+		Dest.x = (current.w - Dest.w) / 2;
+		Dest.y = (current.h - Dest.h) / 2;
+	}
 	pImage->draw();
 
-	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, NULL);
+	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, &Dest);
 }
 
 void cWindow::SetCursor() {
@@ -314,7 +328,12 @@ void cWindow::SetScreenSize( const cDimension& pDimension ) {
 void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 
 	mOriginalResolution = pDimension;
-	SetWindowSize( mWindow_Multiplier );
+	
+	if (!mWindowMode) {
+		SetFullScreen();
+		SetFullScreen();
+	} else
+		SetWindowSize( mWindow_Multiplier );
 }
 
 void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
