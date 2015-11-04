@@ -1122,7 +1122,7 @@ public:
 	int16			sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
 	int16			sub_266CE( sSprite* pSprite, sSprite*& pData2C );
 	void			Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite );
-	void			sub_2682B( sSprite* pSprite, int16 pData1C );
+	void			Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C );
 
 	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	int16			Direction_Calculate( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );

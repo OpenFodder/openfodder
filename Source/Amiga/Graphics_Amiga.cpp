@@ -170,7 +170,7 @@ void cGraphics_Amiga::LoadpStuff() {
 
 	mBMHDFont = mBMHDPStuff;
 	memcpy( &mPalleteFont, &mPalletePStuff, 0x20 );
-	
+		
 	delete[] pstuff;
 }
 
@@ -867,6 +867,8 @@ void cGraphics_Amiga::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint
 }
 
 void cGraphics_Amiga::Recruit_Draw_Hill( ) {
+	g_Resource.fileLoadTo( "grave32.pal", (uint8*) mPalletePStuff );
+
 	mFodder->word_42062 = mFodder->word_3E1B7 + (29 * 40) + 6;
 
 	mBMHD_Current = &mBMHDHill;
@@ -874,8 +876,8 @@ void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 
 	mFodder->mDrawSpritePositionX = 0x40;
 	mFodder->mDrawSpritePositionY = 0x28;
-	mFodder->word_4206C = 0x110 >> 3;	//W
-	mFodder->word_4206E = 0xB8;		// H
+	mFodder->word_4206C = 0x110 >> 3;		//W
+	mFodder->word_4206E = 0xB8;				// H
 	mFodder->word_42078 = 0x140;
 	
 	video_Draw_Linear();
