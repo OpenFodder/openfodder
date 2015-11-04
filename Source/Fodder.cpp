@@ -4520,20 +4520,29 @@ bool cFodder::Recruit_Show() {
 
 		//sub_A5A7E
 		uint8* a0 = word_3E1B7 + (29 * 40);
+		uint8* a1 = mDataBaseBlk + 0x3E8;
 
 		for (int16 d1 = 0xB7; d1 >= 0; --d1) {
 			uint8* a2 = a0 + 6;
+			uint8* a3 = a1 + 6;
 
 			for (int16 d0 = 0x10; d0 >= 0; --d0) {
+
+				/*writeBEWord( a3 , readBEWord( a2 ) );
+				writeBEWord( a3 + 0x2828, readBEWord( a2 + 0x2800 ) );
+				writeBEWord( a3 + 0x5050, readBEWord( a2 + 0x5000 ) );
+				writeBEWord( a3 + 0x7878, readBEWord( a2 + 0x7800 ) );*/
 
 				writeBEWord( a2, 0 );
 				writeBEWord( a2 + 0x2800, 0 );
 				writeBEWord( a2 + 0x5000, 0 );
 				writeBEWord( a2 + 0x7800, 0 );
 				a2 += 2;
+				a3 += 2;
 			}
 
 			a0 += 0x28;
+			a1 += 0x28;
 		}
 	}
 
@@ -8339,7 +8348,7 @@ void cFodder::Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite ) {
 	pSprite->field_6E = -1;
 }
 
-void cFodder::sub_2682B( sSprite* pSprite, int16 pData1C ) {
+void cFodder::Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C ) {
 	
 	if (pSprite->field_38 == 7) {
 		if (pSprite->field_74 >= pData1C) {
@@ -15982,17 +15991,17 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Enemy2( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Computer_1( sSprite* pSprite ) {
 
-	sub_2682B( pSprite, 0x46 );
+	Sprite_Handle_Computer( pSprite, 0x46 );
 }
 
 void cFodder::Sprite_Handle_Computer_2( sSprite* pSprite ) {
 	
-	sub_2682B( pSprite, 0x69 );
+	Sprite_Handle_Computer( pSprite, 0x69 );
 }
 
 void cFodder::Sprite_Handle_Computer_3( sSprite* pSprite ) {
 
-	sub_2682B( pSprite, 0xAF );
+	Sprite_Handle_Computer( pSprite, 0xAF );
 }
 
 int16 cFodder::sub_1D92E( sSprite* pSprite ) {
