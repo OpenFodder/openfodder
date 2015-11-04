@@ -2841,7 +2841,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 			mKeyNumberPressed = 4;
 
 		// Debug: Mission Complete
-		if (pKeyCode == SDL_SCANCODE_F10 && pPressed && _DEBUG ) {
+		if (pKeyCode == SDL_SCANCODE_F10 && pPressed ) {
 			word_3FA21 = -1;
 			mKeyCode = 0x1C;
 		}
