@@ -13210,7 +13210,7 @@ loc_1A5A7:;
 
 void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 	if (pSprite->field_8 == 0x7C) {
-		sub_22A55( pSprite );
+		Sprite_Destroy_Wrapper_2( pSprite );
 		return;
 	}
 
@@ -14121,7 +14121,7 @@ void cFodder::sub_1BB11( sSprite* pSprite ) {
 	sSprite* Data24 = 0;
 
 	if (pSprite->field_8 == 0x7C) {
-		sub_22A55( pSprite );
+		Sprite_Destroy_Wrapper_2( pSprite );
 		return;
 	}
 
@@ -20142,10 +20142,10 @@ void cFodder::sub_22A3D( sSprite* pSprite ) {
 	pSprite->field_0 = 1;
 	pSprite->field_4 = 1;
 
-	sub_22A55( pSprite );
+	Sprite_Destroy_Wrapper_2( pSprite );
 }
 
-int16 cFodder::sub_22A55( sSprite* pSprite ) {
+int16 cFodder::Sprite_Destroy_Wrapper_2( sSprite* pSprite ) {
 	return Sprite_Destroy_Wrapper( pSprite );
 }
 

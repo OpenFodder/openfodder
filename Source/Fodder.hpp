@@ -1070,7 +1070,7 @@ public:
 	int16			sub_228B5( sSprite* pSprite, sSprite*& pData34 );
 	void			sub_229C9( sSprite* pSprite );
 	void			sub_22A3D( sSprite* pSprite );
-	int16			sub_22A55( sSprite* pSprite );
+	int16			Sprite_Destroy_Wrapper_2( sSprite* pSprite );
 	void			sub_22AA9( sSprite* pSprite );
 	void			Sprite_Handle_Player_Unk( sSprite* pSprite );
 	void			sub_22C87( sSprite* pSprite );
