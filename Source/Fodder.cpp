@@ -18707,7 +18707,7 @@ loc_20ADE:;
 	return -1;
 
 loc_20B0A:;
-	if (pSprite->field_18 != 0)
+	if (pSprite->field_18 != eSprite_Player)
 		goto loc_20B6E;
 
 	Data0 = pSprite->field_32;
