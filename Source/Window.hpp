@@ -30,7 +30,7 @@ class cWindow : public cSingleton<cWindow> {
 
 		cDimension			mScreenSize;
 
-		int					mWindow_Multiplier, mWindow_MultiplierPrevious;
+		uint8				mWindow_Multiplier, mWindow_MultiplierPrevious;
 
 		bool				mWindowMode;
 
