@@ -12452,8 +12452,11 @@ void cFodder::Sprite_Handle_Grenade( sSprite* pSprite ) {
 		goto loc_19701;
 
 	--pSprite->field_56;
-	if (!pSprite->field_56)
-		Sound_Play( pSprite, 0x0F, 0x0F );
+	if (!pSprite->field_56) {
+		// HACK: Disable grenade sound for cannon plus... it seems corrupted and causes a crash
+		if(mVersion->mVersion != eVersion::AmigaPlus)
+			Sound_Play( pSprite, 0x0F, 0x0F );
+	}
 	
 	Data24 = (sSprite*) pSprite->field_46;
 	pSprite->field_0 = Data24->field_0;
