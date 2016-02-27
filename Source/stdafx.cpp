@@ -258,9 +258,6 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 	// Build the file path
 	std::stringstream finalPath;
 
-	if(pPath.size())
-		finalPath << pPath;
-
 	finalPath << pPath << "/";
 
 	findType = pExtension;
@@ -273,7 +270,16 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 
 		results.push_back( std::string( directFiles[i]->d_name ) );
 	}
-	
+
+	transform( findType.begin(), findType.end(), findType.begin(), ::tolower );
+
+	count = scandir( finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0 );
+
+	for (int i = 0; i < count; ++i) {
+
+		results.push_back( std::string( directFiles[i]->d_name ) );
+	}
+
 	return results;
 }
 
