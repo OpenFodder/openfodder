@@ -2798,9 +2798,6 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 		mKeyCode = pKeyCode;
 	else
 		mKeyCode = 0;
-	
-	if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
-		mMission_Aborted = -1;
 
 	if (pKeyCode == SDL_SCANCODE_EQUALS && pPressed)
 		mWindow->WindowIncrease();
@@ -2813,6 +2810,10 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 
 	// In Mission and not on map overview
 	if (mMission_In_Progress && !mMission_ShowMapOverview) {
+
+		if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
+			mMission_Aborted = -1;
+
 		if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
 			if (pPressed)
 				mKeyControlPressed = -1;
@@ -20434,11 +20435,13 @@ Start:;
 			word_3EABD = 0x40BC;
 			
 			if (!Mission_Loop()) {
+				mKeyCode = 0;
 				mMission_In_Progress = 0;
 				Squad_Member_PhaseCount();
 				word_390EC = -1;
 			}
 			else {
+				mKeyCode = 0;
 				mMission_In_Progress = 0;
 				if (!mSquad_AliveCount) {
 
