@@ -1,0 +1,23 @@
+
+pathInc = -I./Source/
+Libs = -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 
+DLibs = -s USE_SDL=2
+
+CC = em++ -Wall -std=c++0x -O2 -ferror-limit=100 $(pathInc) $(Libs) --preload-file Run@/ -o Run/OpenFodder.html
+
+LD = em++ obj/*.o $(DLibs) --preload-file RunE -o Run/OpenFodder.html
+
+all : fodder
+
+fodder: 	main
+		
+		$(LD) -o Run/OpenFodder.html
+
+main:
+		$(CC) Source/Event.cpp Source/Fodder.cpp Source/FontData.cpp Source/Graphics.cpp Source/GUI_Element.cpp Source/md5.cpp Source/MissionData.cpp Source/Recruits.cpp Source/Resources.cpp Source/Sound.cpp Source/Sprites.cpp Source/stdafx.cpp Source/Surface.cpp Source/Versions.cpp Source/Window.cpp Source/Amiga/dernc.cpp Source/Amiga/Graphics_Amiga.cpp Source/Amiga/IntroData_Amiga.cpp Source/Amiga/paula.cpp Source/Amiga/Resource_Amiga_File.cpp Source/Amiga/rjp1.cpp Source/Amiga/Sound_Amiga.cpp Source/PC/Graphics_PC.cpp Source/PC/IntroData_PC.cpp Source/PC/Resource_PC_CD.cpp Source/PC/Sound_PC.cpp Source/PC/Sound_PC2.cpp
+		cmd.exe /c move /Y *.o obj/
+		
+clean:
+		rm obj/*.o
+
+
