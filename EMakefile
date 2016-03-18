@@ -1,9 +1,9 @@
 
 pathInc = -I./Source/
-Libs = -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 
+Libs = -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
 DLibs = -s USE_SDL=2
 
-CC = em++ -Wall -std=c++0x -O2 -ferror-limit=100 $(pathInc) $(Libs) --preload-file Run@/ -o Run/OpenFodder.html
+CC = em++ -Wall -std=c++0x -O2 -ferror-limit=100 $(pathInc) $(Libs) --preload-file RunE@/ -o Run/OpenFodder.html
 
 LD = em++ obj/*.o $(DLibs) --preload-file RunE -o Run/OpenFodder.html
 

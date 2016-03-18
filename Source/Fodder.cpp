@@ -2565,10 +2565,15 @@ void cFodder::Mission_Map_Overview_Show() {
 		
 		Mouse_Inputs_Get();
 
+		if (mMission_Aborted == -1)
+			break;
+
 	} while (Mouse_Button_Left_Toggled() < 0);
 
 	mSurfaceMapOverview->Restore();
 	mGraphics->SetImageOriginal();
+
+	mMission_Aborted = 0;
 }
 
 void cFodder::Map_Overview_Prepare() {
@@ -2808,11 +2813,11 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 	if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
 		mWindow->SetFullScreen();
 
+	if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
+		mMission_Aborted = -1;
+
 	// In Mission and not on map overview
 	if (mMission_In_Progress && !mMission_ShowMapOverview) {
-
-		if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
-			mMission_Aborted = -1;
 
 		if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
 			if (pPressed)
