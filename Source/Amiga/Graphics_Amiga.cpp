@@ -111,29 +111,29 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	case 5:
 		mFodder->byte_42070 = 0xA0;
 		mBMHD_Current = &mBMHDPlay;
-		mFodder->word_4206C = 0x28;
-		mFodder->word_4206E = 64;
+		mFodder->mDrawSpriteColumns = 0x28;
+		mFodder->mDrawSpriteRows = 64;
 		return mPlayData;
 
 	case 6:
 		mFodder->byte_42070 = 0xB0;
 		mBMHD_Current = &mBMHDPlay;
-		mFodder->word_4206C = 0x28;
-		mFodder->word_4206E = 74;
+		mFodder->mDrawSpriteColumns = 0x28;
+		mFodder->mDrawSpriteRows = 74;
 		return mPlayData + (176 * 40);
 
 	case 7:
 		mFodder->byte_42070 = 0xC0;
 		mBMHD_Current = &mBMHDPlay;
-		mFodder->word_4206C = 0x28;
-		mFodder->word_4206E = 111;
+		mFodder->mDrawSpriteColumns = 0x28;
+		mFodder->mDrawSpriteRows = 111;
 		return mPlayData + (65 * 40);
 	
 	case 8:
 		mFodder->byte_42070 = 0xD0;
 		mBMHD_Current = &mBMHDPlay;
-		mFodder->word_4206C = 0x28;
-		mFodder->word_4206E = 48;
+		mFodder->mDrawSpriteColumns = 0x28;
+		mFodder->mDrawSpriteRows = 48;
 		return mPlayData + (252 * 40);
 
 	default:
@@ -146,8 +146,8 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 void cGraphics_Amiga::Mouse_DrawCursor() {
 	const struct_2* di = &stru_44B50[mFodder->mMouseSpriteCurrent];
 
-	mFodder->word_4206C = di->field_4 >> 3;
-	mFodder->word_4206E = di->field_6;
+	mFodder->mDrawSpriteColumns = di->field_4 >> 3;
+	mFodder->mDrawSpriteRows = di->field_6;
 
 	int16 ax = di->field_2 & 0xFF;
 	int16 bx = (di->field_0 >> 3) & -2;
@@ -158,7 +158,7 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 	ax <<= 2;
 	ax += d1;
 
-	mFodder->word_42062 = GetSpriteData( 2 ) + (ax + bx);
+	mFodder->mDrawSpriteFrameDataPtr = GetSpriteData( 2 ) + (ax + bx);
 	video_Draw_Sprite();
 }
 
@@ -250,12 +250,12 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 	}
 	
 	mBMHD_Current = &Header;
-	g_Fodder.word_42062 = g_Fodder.mDataBaseBlk;
+	g_Fodder.mDrawSpriteFrameDataPtr = g_Fodder.mDataBaseBlk;
 	
 	g_Fodder.mDrawSpritePositionX = 16;
 	g_Fodder.mDrawSpritePositionY = 16;
-	g_Fodder.word_4206C = Header.mWidth >> 3;
-	g_Fodder.word_4206E = Header.mHeight;
+	g_Fodder.mDrawSpriteColumns = Header.mWidth >> 3;
+	g_Fodder.mDrawSpriteRows = Header.mHeight;
 	g_Fodder.byte_42070 = 0;
 
 	if (Header.mPlanes == 5)
@@ -665,8 +665,8 @@ void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 }
 
 void cGraphics_Amiga::map_Load_Resources() {
-	mFodder->mFilenameCopt = mFodder->sub_12AA1( mFodder->mFilenameCopt, "lbm" );
-	mFodder->mFilenameArmy = mFodder->sub_12AA1( mFodder->mFilenameArmy, "lbm" );
+	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "lbm" );
+	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "lbm" );
 
 	size_t Size = 0;
 	uint8* Copt = g_Resource.fileGet( mFodder->mFilenameCopt, Size );
@@ -684,7 +684,7 @@ void cGraphics_Amiga::map_Load_Resources() {
 void cGraphics_Amiga::video_Draw_Linear() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = mFodder->word_42062;
+	uint8* 	si = mFodder->mDrawSpriteFrameDataPtr;
 	int16	ax, cx;
 
 	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
@@ -696,15 +696,15 @@ void cGraphics_Amiga::video_Draw_Linear() {
 	di += ax;
 	mFodder->word_42066 = di;
 
-	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - mFodder->word_4206C;
-	mFodder->word_4206C >>= 1;
-	mFodder->word_42076 = mImage->GetWidth() - (mFodder->word_4206C * 16);
+	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - mFodder->mDrawSpriteColumns;
+	mFodder->mDrawSpriteColumns >>= 1;
+	mFodder->word_42076 = mImage->GetWidth() - (mFodder->mDrawSpriteColumns * 16);
 
 	// Height
-	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
+	for (int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx) {
 
 		// Width
-		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
+		for (cx = 0; cx < mFodder->mDrawSpriteColumns; ++cx) {
 
 			DrawPixels_16( si, di );
 
@@ -720,7 +720,7 @@ void cGraphics_Amiga::video_Draw_Linear() {
 void cGraphics_Amiga::video_Draw_Sprite() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = mFodder->word_42062;
+	uint8* 	si = mFodder->mDrawSpriteFrameDataPtr;
 	int16	ax, cx;
 
 	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
@@ -729,17 +729,17 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	ax += mFodder->word_40054;
 	di += ax;
 
-	mFodder->word_4206C -= 1;
-	mFodder->word_4206C <<= 1;
+	mFodder->mDrawSpriteColumns -= 1;
+	mFodder->mDrawSpriteColumns <<= 1;
 
-	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - (mFodder->word_4206C);
-	mFodder->word_42076 = mImage->GetWidth() - (mFodder->word_4206C * 8);
+	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - (mFodder->mDrawSpriteColumns);
+	mFodder->word_42076 = mImage->GetWidth() - (mFodder->mDrawSpriteColumns * 8);
 
 	// Height
-	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
+	for (int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx) {
 
 		// Width
-		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
+		for (cx = 0; cx < mFodder->mDrawSpriteColumns; ++cx) {
 
 			DrawPixels_8( si, di );
 
@@ -788,8 +788,8 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
 	int16 cx = str2->field_4;
 	int16 dx = str2->field_6;
-	mFodder->word_4206C = cx >> 3;
-	mFodder->word_4206E = dx;
+	mFodder->mDrawSpriteColumns = cx >> 3;
+	mFodder->mDrawSpriteRows = dx;
 
 	uint16 ax = str2->field_2 & 0xFF;
 	uint16 bx = str2->field_0 >> 3 & -2;
@@ -800,22 +800,22 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	ax <<= 2;
 	ax += d1;
 
-	mFodder->word_42062 = GetSpriteData( 2 ) + (ax + bx);
+	mFodder->mDrawSpriteFrameDataPtr = GetSpriteData( 2 ) + (ax + bx);
 
-	mFodder->word_42074 = 40 - mFodder->word_4206C;
-	mFodder->word_4206C >>= 1;
-	mFodder->word_42076 = 0x30 - (mFodder->word_4206C * 16);
+	mFodder->word_42074 = 40 - mFodder->mDrawSpriteColumns;
+	mFodder->mDrawSpriteColumns >>= 1;
+	mFodder->word_42076 = 0x30 - (mFodder->mDrawSpriteColumns * 16);
 
 	uint16 w42066 = (0x30 * pDataC) + pData8;
 
 	uint8* di = ((uint8*)mFodder->word_3D5B7) + w42066;
-	uint8* si = mFodder->word_42062;
+	uint8* si = mFodder->mDrawSpriteFrameDataPtr;
 
 	// Height
-	for (int16 dx = mFodder->word_4206E; dx > 0; --dx) {
+	for (int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx) {
 
 		// Width
-		for (cx = 0; cx < mFodder->word_4206C; ++cx) {
+		for (cx = 0; cx < mFodder->mDrawSpriteColumns; ++cx) {
 
 			DrawPixels_16( si, di );
 
@@ -870,15 +870,15 @@ void cGraphics_Amiga::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint
 void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 	g_Resource.fileLoadTo( "grave32.pal", (uint8*) mPalletePStuff );
 
-	mFodder->word_42062 = mFodder->word_3E1B7 + (29 * 40) + 6;
+	mFodder->mDrawSpriteFrameDataPtr = mFodder->word_3E1B7 + (29 * 40) + 6;
 
 	mBMHD_Current = &mBMHDHill;
 	mFodder->byte_42070 = 0xD0;
 
 	mFodder->mDrawSpritePositionX = 0x40;
 	mFodder->mDrawSpritePositionY = 0x28;
-	mFodder->word_4206C = 0x110 >> 3;		//W
-	mFodder->word_4206E = 0xB8;				// H
+	mFodder->mDrawSpriteColumns = 0x110 >> 3;		//W
+	mFodder->mDrawSpriteRows = 0xB8;				// H
 	mFodder->word_42078 = 0x140;
 	
 	video_Draw_Linear();
@@ -887,23 +887,24 @@ void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
 	const char* strHomeAndAway = "HOME                AWAY";
 
-	mFodder->sub_13C1C( 0x11, 0, 0, 0xfe );
-	int16 Data4 = mFodder->word_3E0E5[ (mFodder->mMissionNumber - 1) ];
+	mFodder->Sprite_Draw_Frame( 0x11, 0, 0, 0xfe );
+	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mMissionNumber - 1) ];
 
-	mFodder->sub_13C1C( 0x16, 0, 0x0, 0x0 );
-	
-	mFodder->sub_13C1C( 0x17, 0, Data4, 0x130 );
+	// Draw Icon
+	mFodder->Sprite_Draw_Frame( 0x16, 0, 0x0, 0x0 );
+	// Save Icon
+	mFodder->Sprite_Draw_Frame( 0x17, 0, Data4, 0x130 );
 
-	mFodder->sub_13C1C( 0xE, 0x0A, 0, 0x9B );
+	mFodder->Sprite_Draw_Frame( 0xE, 0x0A, 0, 0x9B );
 
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
 	
 	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
-	mFodder->sub_16B55( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
+	mFodder->Recruit_Draw_String( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
 
 	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
-	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
+	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 }
 
 void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 ) {

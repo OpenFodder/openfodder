@@ -61,13 +61,13 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	
 	const struct_2* di = &stru_44B50[mFodder->mMouseSpriteCurrent];
 
-	mFodder->word_4206C = di->field_4;
-	mFodder->word_4206E = di->field_6;
+	mFodder->mDrawSpriteColumns = di->field_4;
+	mFodder->mDrawSpriteRows = di->field_6;
 
 	int16 ax = di->field_2 * 160;
 	int16 bx = di->field_0 >> 1;
 
-	mFodder->word_42062 = mFodder->mDataPStuff + (ax +bx);
+	mFodder->mDrawSpriteFrameDataPtr = mFodder->mDataPStuff + (ax +bx);
 	mFodder->byte_42070 = 0xF0;
 	
 	video_Draw_Sprite();
@@ -258,8 +258,8 @@ void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 void cGraphics_PC::map_Load_Resources() {
 	PaletteLoad( mFodder->mDataBaseBlk + 0xFA00, 0x80, 0x00 );
 
-	mFodder->mFilenameCopt = mFodder->sub_12AA1( mFodder->mFilenameCopt, "dat" );
-	mFodder->mFilenameArmy = mFodder->sub_12AA1( mFodder->mFilenameArmy, "dat" );
+	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "dat" );
+	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "dat" );
 
 	g_Resource.fileLoadTo( mFodder->mFilenameCopt, mFodder->mDataHillBits );
 	PaletteLoad( mFodder->mDataHillBits + 0xD2A0, 0x40, 0xB0 );
@@ -273,7 +273,7 @@ void cGraphics_PC::map_Load_Resources() {
 
 void cGraphics_PC::video_Draw_Linear( ) {
 	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = mFodder->word_42062;
+	uint8* 	si = mFodder->mDrawSpriteFrameDataPtr;
 	int16	ax, cx;
 	
 	di += 352 * mFodder->mDrawSpritePositionY;
@@ -291,15 +291,15 @@ void cGraphics_PC::video_Draw_Linear( ) {
 	uint8 Plane = 0;
 
 	mFodder->byte_42071 = 1 << cx;
-	mFodder->word_42074 = mFodder->word_42078 - mFodder->word_4206C;
+	mFodder->word_42074 = mFodder->word_42078 - mFodder->mDrawSpriteColumns;
 		                 
-	//word_4206C >>= 1;
-	mFodder->word_42076 = 352 - mFodder->word_4206C;
+	//mDrawSpriteColumns >>= 1;
+	mFodder->word_42076 = 352 - mFodder->mDrawSpriteColumns;
 
 	di += Plane;
-	for( int16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+	for( int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = mFodder->word_4206C; cx > 0; --cx ) {
+		for( cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			int8 al = *si;
 			if(al)
 				*di = al;
@@ -317,7 +317,7 @@ void cGraphics_PC::video_Draw_Sprite() {
 	cFodder* Fodder = cFodder::GetSingletonPtr();
 
 	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = Fodder->word_42062;
+	uint8* 	si = Fodder->mDrawSpriteFrameDataPtr;
 	int16	ax, cx;
 	
 	di += mImage->GetWidth() * Fodder->mDrawSpritePositionY;
@@ -337,16 +337,16 @@ void cGraphics_PC::video_Draw_Sprite() {
 	Fodder->byte_42071 = 1 << cx;
 	int8 bl = Fodder->byte_42070;
 	
-	Fodder->word_4206C >>= 1;
-	Fodder->word_42074 = 160 - Fodder->word_4206C;
-	Fodder->word_4206C >>= 1;
+	Fodder->mDrawSpriteColumns >>= 1;
+	Fodder->word_42074 = 160 - Fodder->mDrawSpriteColumns;
+	Fodder->mDrawSpriteColumns >>= 1;
 	
-	Fodder->word_42076 = (uint16) (mImage->GetWidth() - (Fodder->word_4206C*4));
+	Fodder->word_42076 = (uint16) (mImage->GetWidth() - (Fodder->mDrawSpriteColumns*4));
 
 	di += Plane;
-	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = 0; cx < Fodder->word_4206C; ++cx ) {
+		for( cx = 0; cx < Fodder->mDrawSpriteColumns; ++cx ) {
 			int8 al = (*si) >> 4;
 			if(al)
 				*di = al | bl;
@@ -365,12 +365,12 @@ void cGraphics_PC::video_Draw_Sprite() {
 		++Fodder->word_42066;
 	}
 
-	si = Fodder->word_42062;
+	si = Fodder->mDrawSpriteFrameDataPtr;
 	di = Fodder->word_42066;
 	di += Plane;
-	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = Fodder->word_4206C; cx > 0; --cx ) {
+		for( cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			int8 al = (*si) & 0x0F;
 			if( al )
 				*di = al | bl;
@@ -389,13 +389,13 @@ void cGraphics_PC::video_Draw_Sprite() {
 		++Fodder->word_42066;
 	}
 	
-	++Fodder->word_42062;
-	si = Fodder->word_42062;
+	++Fodder->mDrawSpriteFrameDataPtr;
+	si = Fodder->mDrawSpriteFrameDataPtr;
 	di = Fodder->word_42066;
 	di += Plane;
-	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = Fodder->word_4206C; cx > 0; --cx ) {
+		for( cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			
 			int8 al = (*si) >> 4;
 			if( al )
@@ -415,12 +415,12 @@ void cGraphics_PC::video_Draw_Sprite() {
 		++Fodder->word_42066;
 	}
 
-	si = Fodder->word_42062;
+	si = Fodder->mDrawSpriteFrameDataPtr;
 	di = Fodder->word_42066;
 	di += Plane;
-	for( int16 dx = Fodder->word_4206E; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = Fodder->word_4206C; cx > 0; --cx ) {
+		for( cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			
 			int8 al = (*si) & 0x0F;
 			if( al ) 
@@ -465,14 +465,14 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	
 	int16 cx = str2->field_4;
 	int16 dx = str2->field_6;
-	mFodder->word_4206C = cx;
-	mFodder->word_4206E = dx;
+	mFodder->mDrawSpriteColumns = cx;
+	mFodder->mDrawSpriteRows = dx;
 	
 	uint16 ax = 0xA0 * str2->field_2;
 	uint16 bx = str2->field_0 >> 1;
 	ax += bx;
 	
-	mFodder->word_42062 = mFodder->mDataPStuff + ax;
+	mFodder->mDrawSpriteFrameDataPtr = mFodder->mDataPStuff + ax;
 	
 	mFodder->byte_42070 = 0xF0;
 	
@@ -484,18 +484,18 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	w42066 += ax;
 	
 	uint8* di = ((uint8*)mFodder->word_3D5B7) + w42066;
-	uint8* si = mFodder->word_42062;
+	uint8* si = mFodder->mDrawSpriteFrameDataPtr;
 	
 	int8 bl = mFodder->byte_42070;
-	mFodder->word_4206C >>= 1;
+	mFodder->mDrawSpriteColumns >>= 1;
 	
-	mFodder->word_42074 = 0xA0 - mFodder->word_4206C;
-	mFodder->word_4206C >>= 1;
-	mFodder->word_42076 = 0x0C - mFodder->word_4206C;
+	mFodder->word_42074 = 0xA0 - mFodder->mDrawSpriteColumns;
+	mFodder->mDrawSpriteColumns >>= 1;
+	mFodder->word_42076 = 0x0C - mFodder->mDrawSpriteColumns;
 	
-	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			
 			uint8 al = (*si) >> 4;
 			if( al )
@@ -513,12 +513,12 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	if( w42066 >= 0x2580 )
 		w42066 -= 0x257F;
 	
-	si = mFodder->word_42062;
+	si = mFodder->mDrawSpriteFrameDataPtr;
 	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
 	
-	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			uint8 al = (*si) & 0x0F;
 			if( al )
 				*di = al | bl;
@@ -535,13 +535,13 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	if( w42066 >= 0x2580 )
 		w42066 -= 0x257F;
 	
-	++mFodder->word_42062;
-	si = mFodder->word_42062;
+	++mFodder->mDrawSpriteFrameDataPtr;
+	si = mFodder->mDrawSpriteFrameDataPtr;
 	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
 	
-	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			
 			uint8 al = (*si) >> 4;
 			if( al )
@@ -559,12 +559,12 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	if( w42066 >= 0x2580 )
 		w42066 -= 0x257F;
 
-	si = mFodder->word_42062;
+	si = mFodder->mDrawSpriteFrameDataPtr;
 	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
 	
-	for( uint16 dx = mFodder->word_4206E; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->word_4206C; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			uint8 al = (*si) & 0x0F;
 			if( al )
 				*di = al | bl;
@@ -632,12 +632,12 @@ void cGraphics_PC::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*
 
 void cGraphics_PC::Recruit_Draw_Hill( ) {
 
-	mFodder->word_42062 = mFodder->word_3E1B7 + 0xA00;
+	mFodder->mDrawSpriteFrameDataPtr = mFodder->word_3E1B7 + 0xA00;
 
 	mFodder->mDrawSpritePositionX = 0x40;
 	mFodder->mDrawSpritePositionY = 0x28;
-	mFodder->word_4206C = 0x110;
-	mFodder->word_4206E = 0xB0;
+	mFodder->mDrawSpriteColumns = 0x110;
+	mFodder->mDrawSpriteRows = 0xB0;
 	mFodder->word_42078 = 0x140;
 
 	video_Draw_Linear();
@@ -652,22 +652,24 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	
 	SetSpritePtr( eSPRITE_HILL );
 
-	mFodder->sub_13C1C( 0x18, 0, 0, 0 );
+	// Load Icon
+	mFodder->Sprite_Draw_Frame( 0x18, 0, 0, 0 );
 	
-	int16 Data4 = mFodder->word_3E0E5[ (mFodder->mMissionNumber - 1) ];
+	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mMissionNumber - 1) ];
 
-	mFodder->sub_13C1C( 0x19, 0, Data4, 0x130 );
+	// Save Icon
+	mFodder->Sprite_Draw_Frame( 0x19, 0, Data4, 0x130 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
 	
-	mFodder->sub_13C1C( 0x0E, 0x0A, 0, 0x9B );
+	mFodder->Sprite_Draw_Frame( 0x0E, 0x0A, 0, 0x9B );
 	
 	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
-	mFodder->sub_16B55( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
+	mFodder->Recruit_Draw_String( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
 
 	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
-	mFodder->sub_16B55( 0x0D, 0xAA, 0x0A, Away );
+	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
 	SetSpritePtr( eSPRITE_HILL_UNK );
 }
