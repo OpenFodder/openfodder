@@ -603,7 +603,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16*			word_3D5B7;
 
 	sGUI_Element	stru_3DEDC[2];
-	int16			word_3E0E5[0x18];
+	int16			mMission_Save_Availability[0x18];
 
 	uint8*			word_3E1B7;
 	size_t			word_3E1B7_size;
@@ -637,12 +637,12 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_40058;
 	uint16			word_4005A;
 	uint16			word_4005C;
-	uint8*			word_42062;
+	uint8*			mDrawSpriteFrameDataPtr;
 	uint8*			word_42066;
 	int16			mDrawSpritePositionX;
 	int16			mDrawSpritePositionY;
-	int16			word_4206C;
-	int16			word_4206E;
+	int16			mDrawSpriteColumns;
+	int16			mDrawSpriteRows;
 	uint8			byte_42070;
 	uint8			byte_42071;
 	uint16			word_42074;
@@ -773,7 +773,7 @@ public:
 	void			Mission_Text_Sprite_Try( sSprite* pData2C );
 	void			Mission_Text_Sprite_Again( sSprite* pData2C );
 
-	std::string		sub_12AA1( const std::string& pBase, const char* pFinish );
+	std::string		Filename_CreateFromBase( const std::string& pBase, const char* pFinish );
 	void			Squad_Member_PhaseCount();
 	void			sub_12AEE();
 	void			sub_12B6E();
@@ -786,15 +786,15 @@ public:
 	void			Sprite_Count_HelicopterCallPads();
 	void			sub_13148();
 	void			Sprite_HelicopterCallPad_Check();
-	void			sub_131A2();
-	int16			Sprite_Create_Explosion();
+	void			Mission_Final_Timer();
+	int16			Sprite_Create_RandomExplosion();
 	void			Mission_GameOver();
 	void			Mission_Text_GameOver( sSprite* pData2C );
 	void			Mission_Paused();
 	void			sub_136D0();
 	void			Video_Sleep_Wrapper();
 	void			Mouse_DrawCursor( );
-	void			sub_13C1C(  int32 pParam00, int32 pParam0C, int32 pParam04, int32 pParam08 );
+	void			Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX );
 	void			sub_13C8A(  int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
 	void			sub_13CF0(  sSprite* pDi, int16 pData0, int16 pData4 );
 
@@ -827,7 +827,7 @@ public:
 
 	/* Recruitment */
 	bool			Recruit_Show();
-	void			sub_16B55(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
+	void			Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			sub_16BC3();
 	void			sub_16C45( uint16** pDi, int16* pSource );
 	void			sub_16C6C();
@@ -857,8 +857,8 @@ public:
 	void			Service_KIA_Loop();
 	void			Service_Promotion_Loop();
 	int16			Service_KIA_Troop_Prepare();
-	int16			sub_1804C();
-	void			sub_18099( uint16*& pDi,int16 pRecruitID, int16 pRank );
+	int16			Service_Promotion_Prepare_Draw();
+	void			Service_Draw_Troop_And_Rank( uint16*& pDi,int16 pRecruitID, int16 pRank );
 	void			sub_18149();
 	void			sub_181BD();
 	void			sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
