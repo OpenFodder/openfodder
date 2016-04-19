@@ -1752,8 +1752,8 @@ void cFodder::map_Load_Resources() {
 	Size = g_Resource.fileLoadTo( mFilenameSubSwp, (uint8*) &word_3D21D[0] );
 	tool_EndianSwap( (uint8*)&word_3D21D[0], Size );
 
-	Size = g_Resource.fileLoadTo( mFilenameBaseHit, (uint8*) &word_3C09D[0] );
-	tool_EndianSwap( (uint8*)&word_3C09D[0], Size );
+	Size = g_Resource.fileLoadTo( mFilenameBaseHit, (uint8*) &graphicsBaseHit[0] );
+	tool_EndianSwap( (uint8*)&graphicsBaseHit[0], Size );
 	
 	Size = g_Resource.fileLoadTo( mFilenameSubHit, (uint8*) &graphicsSub0[0] );
 	tool_EndianSwap( (uint8*)&graphicsSub0[0], Size );
@@ -2854,7 +2854,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 	}
 }
 
-void cFodder::mouse_Setup() {
+void cFodder::Mouse_Setup() {
 	
 	mMouseButtons = 0;
 	mButtonPressLeft = 0;
@@ -2869,22 +2869,22 @@ void cFodder::mouse_Setup() {
 	g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, g_Window.GetWindowSize().mHeight / 2 ) );
 }
 
-void cFodder::mouse_GetData() {
+void cFodder::Mouse_GetData() {
 	float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
 	float scaleY = ((float)mWindow->GetWindowSize().mHeight  / mWindow->GetScreenSize().mHeight);
 
 	eventProcess();
 
 	mouse_Pos_Column = (int16) (mMousePosition.mX / scaleX) - 32;
-	mouse_Pos_Row = (int16)(mMousePosition.mY / scaleY ) + 4;
+	mouse_Pos_Row = (int16) (mMousePosition.mY / scaleY) + 4;
 
 	mouse_Button_Status = mMouseButtons;
 }
 
 void cFodder::Mouse_Inputs_Get() {
 	
-	mouse_GetData();
-	mouse_ButtonCheck();
+	Mouse_GetData();
+	Mouse_ButtonCheck();
 
 	int16 Data4 = mouse_Pos_Column;
 	word_3BDB3 = Data4;
@@ -2931,7 +2931,7 @@ loc_13B66:;
 	mMouseY = Data0;
 }
 
-void cFodder::mouse_ButtonCheck() {
+void cFodder::Mouse_ButtonCheck() {
 
 	mButtonPressLeft = 0;
 	if (mouse_Button_Status & 1) {
@@ -3033,7 +3033,7 @@ void cFodder::VersionSelect() {
 
 	map_Load_Resources();
 	mGraphics->PaletteSet();
-	mouse_Setup();
+	Mouse_Setup();
 
 	word_3AC21 = 0;
 	word_3BEC3 = 0;
@@ -3108,7 +3108,7 @@ void cFodder::VersionSelect() {
 	mImageFaded = -1;
 	mMouseSpriteNew = 0x24;
 	eventProcess();
-	mouse_Setup();
+	Mouse_Setup();
 	mDemo_ExitMenu = 0;
 
 	mSquad_CurrentVehicle = Sprite3;
@@ -3746,7 +3746,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
-		mouse_GetData();
+		Mouse_GetData();
 		if (mouse_Button_Status) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
@@ -3832,7 +3832,7 @@ void cFodder::Briefing_Intro_Desert() {
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
-		mouse_GetData();
+		Mouse_GetData();
 		if (mouse_Button_Status) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
@@ -3920,7 +3920,7 @@ void cFodder::Briefing_Intro_Ice() {
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
-		mouse_GetData();
+		Mouse_GetData();
 		if (mouse_Button_Status) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
@@ -4005,7 +4005,7 @@ void cFodder::Briefing_Intro_Mor() {
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
-		mouse_GetData();
+		Mouse_GetData();
 		if (mouse_Button_Status) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
@@ -4091,7 +4091,7 @@ void cFodder::Briefing_Intro_Int() {
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
-		mouse_GetData();
+		Mouse_GetData();
 		if (mouse_Button_Status) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
@@ -4352,7 +4352,7 @@ void cFodder::Briefing_Intro() {
 			g_Window.RenderAt( mImage, cPosition() );
 			g_Window.FrameEnd();
 
-			mouse_GetData();
+			Mouse_GetData();
 
 			if (mMouse_Exit_Loop) {
 				word_428D8 = 0;
@@ -4505,7 +4505,7 @@ bool cFodder::Recruit_Show() {
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		mWindow->SetScreenSize( cDimension( 320, 225 ));
 
-	mouse_Setup();
+	Mouse_Setup();
 	map_ClearSpt();
 
 	mMission_Aborted = 0;
@@ -5387,7 +5387,7 @@ void cFodder::sub_17B64() {
 			int16 Data8 = word_3B1A3;
 			int16 DataC = word_3B1A5;
 
-			uint8* Data20 = sub_2AE81( Data0, Data4 );
+			uint8* Data20 = Sprite_Get_Gfx_Ptr( Data0, Data4 );
 
 			Data8 = *Data34++;
 			if (Data8 < 0) {
@@ -5784,12 +5784,12 @@ void cFodder::sub_22DFC( sSprite* pSprite ) {
 	if (!pSprite->field_50)
 		pSprite->field_52 = 0;
 
-	if (sub_23367( pSprite ))
+	if (Map_Sprite_Check_Around_Position( pSprite ))
 		goto loc_22F30;
 
 	Data4 = 0x0F;
 	Data0 = -10;
-	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 
 	pSprite->field_60 = Data4;
 	if (Data4 == 1 || Data4 == 2)
@@ -5855,7 +5855,7 @@ loc_22F30:;
 
 	Data4 = 0x0F;
 	Data0 = -10;
-	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	if (Data4 == 3)
 		pSprite->field_38 = 5;
 
@@ -6063,29 +6063,29 @@ loc_2335B:;
 
 }
 
-int16 cFodder::sub_23367( sSprite* pSprite ) {
+int16 cFodder::Map_Sprite_Check_Around_Position( sSprite* pSprite ) {
 	int16 Data4 = 0x0A;
 	int16 Data0 = -13;
 
-	int16 ax = Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	int16 ax = Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	if (ax)
 		return ax;
 
 	Data4 = 0x14;
 	Data0 = -13;
-	ax = Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	ax = Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	if (ax)
 		return ax;
 
 	Data4 = 0x0A;
 	Data0 = -7;
-	ax = Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	ax = Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	if (ax)
 		return ax;
 
 	Data4 = 0x14;
 	Data0 = -7;
-	ax = Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	ax = Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	if (ax)
 		return ax;
 
@@ -6488,7 +6488,7 @@ int16 cFodder::sub_23D57( sSprite* pSprite ) {
 	int16 Data4 = 0x0F;
 	int16 Data0 = -10;
 
-	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	switch (Data4) {
 		case 1:
 		case 4:
@@ -8972,8 +8972,6 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 	//seg007:0B48
 
 	uint8* Data28 = byte_3A8DE;
-	int16 *Data2C = word_3C09D;
-	uint8* Data30 = byte_3D4A5;
 	word_3B2CB = -1;
 
 	for (;;) {
@@ -8983,11 +8981,11 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 		}
 		//loc_2A6A1
 		pData0 = readLEWord( Data20 );
-		pData0 = Data2C[pData0];
+		pData0 = graphicsBaseHit[pData0];
 		if (pData0 >= 0) {
 			pData0 &= 0x0F;
 
-			if (Data30[pData0]) {
+			if (mTerrain_Walkable[pData0]) {
 				pData0 = -1;
 				return -1;
 			}
@@ -9060,50 +9058,62 @@ loc_2A7DB:;
 	pData0 = 0x3E8;
 }
 
-int16 cFodder::sub_2A7E2( int16& pData0, int16& pData4 ) {
-	int16 Data10 = pData0;
-	int16 Data14 = pData4;
+/**
+ *
+ * @param pY
+ * @param pX		Returns Terrain Type
+ *
+ * @return True if can walk
+ */
+int16 cFodder::Map_Terrain_Get_Type_And_Walkable( int16& pY, int16& pX ) {
+	int16 Data10 = pY;
+	int16 Data14 = pX;
 
-	return Map_Terrain_Check( pData0, pData4, Data10, Data14 );
+	return Map_Terrain_Get( pY, pX, Data10, Data14 );
 }
 
-int16 cFodder::Map_Sprite_Check_Position( sSprite* pSprite, int16& pData0, int16& pData4 ) {
+/**
+ *
+ * @param pSprite
+ * @param pY		 
+ * @param pX		Returns Terrain Type
+ *
+ * @return True if can walk
+ */
+int16 cFodder::Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, int16& pX ) {
 
-	pData0 += pSprite->field_4;
-	if (pData0 >= 0) {
+	pY += pSprite->field_4;
+	if (pY >= 0) {
 		
-		int16 Data14 = pData0;
-		pData4 += pSprite->field_0;
-		if (pData4 >= 0) {
-			int16 Data10 = pData4;
+		int16 Data14 = pY;
+		pX += pSprite->field_0;
+		if (pX >= 0) {
+			int16 Data10 = pX;
 
-			return Map_Terrain_Check( pData0, pData4, Data10, Data14 );
+			return Map_Terrain_Get( pY, pX, Data10, Data14 );
 		}
 	}
 
-	pData0 = -1;
-	pData4 = 0;
+	pY = -1;
+	pX = 0;
 		
 	return 0;
 }
 
-int16 cFodder::Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 ) {
-	pData0 >>= 4;
+int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 ) {
+	int16 Data0 = (pY >> 4);
+	int16 Data4 = (pX >> 4);
 
-	uint8* es = mMap;
+	Data0 *= readLEWord( &mMap[0x54] );
 
-	pData0 *= readLEWord( &es[0x54] );
-	pData4 >>= 4;
+	Data0 += Data4;
+	Data0 <<= 1;
 
-	pData0 += pData4;
-	pData0 <<= 1;
+	Data0 = readLEWord( &mMap[0x60 + Data0]) & 0x1FF;
 
-	pData0 = readLEWord( &es[0x60 + pData0]) & 0x1FF;
-	//Data0 <<= 1;
+	Data4 = graphicsBaseHit[Data0];
 
-	pData4 = word_3C09D[pData0];
-
-	if (pData4 < 0) {
+	if (Data4 < 0) {
 		//loc_2A8D9
 		pData10 >>= 1;
 		pData10 &= 0x07;
@@ -9114,20 +9124,22 @@ int16 cFodder::Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, 
 		pData14 >>= 1;
 		pData14 &= 0x07;
 
-		pData0 <<= 3;
+		Data0 <<= 3;
 		uint8* Data28 = (uint8*) graphicsBaseBht;
-		pData14 += pData0;
+		pData14 += Data0;
 
 		uint8 al = 1 << Data8;
 		Data28 += pData14;
 		if ((*Data28 & 0xFF) & al)
-			pData4 >>= 4;
+			Data4 >>= 4;
 	}
 
-	pData4 &= 0x0F;
-	pData0 = byte_3D4A5[pData4];
+	Data4 &= 0x0F;
+	Data0 = mTerrain_Walkable[Data4];
+	pY = Data0;
+	pX = Data4;
 
-	return pData0;
+	return Data0;
 }
 
 void cFodder::Squad_Walk_Target_Set( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 ) {
@@ -9336,7 +9348,7 @@ int16 cFodder::Squad_Member_Sprite_Find_In_Region( sSprite* pSprite, int16 pData
 	return mSprites_Found_Count;
 }
 
-uint8* cFodder::sub_2AE81( int16& pData0, int16& pData4 ) {
+uint8* cFodder::Sprite_Get_Gfx_Ptr( int16& pData0, int16& pData4 ) {
 	const sSpriteSheet* Sheet = &mSpriteDataPtr[pData0][pData4];
 
 	pData0 = Sheet->mColCount;
@@ -9453,7 +9465,7 @@ int16 cFodder::sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int
 	Data0 &= 0xFF;
 	//Data0 <<= 1;
 
-	const int16* Data24 = word_3C09D;
+	const int16* Data24 = graphicsBaseHit;
 	int16 Data4 = Data24[Data0];
 
 	if (Data4 >= 0) {
@@ -9782,7 +9794,7 @@ void cFodder::Squad_Troops_Count() {
 	*Data34 = INVALID_SPRITE_PTR;
 }
 
-void cFodder::sub_2D26A( sSquad_Member* pData24, int16& pData8 ) {
+int16 cFodder::sub_2D26A( sSquad_Member* pData24 ) {
 
 	int16 Data0 = pData24->mRank;
 	Data0 += 8;
@@ -9790,10 +9802,7 @@ void cFodder::sub_2D26A( sSquad_Member* pData24, int16& pData8 ) {
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
 
-	//Data0 *= 0x0A;
-
-	pData8 = stru_3D35F[Data0].field_6;
-
+	return stru_3D35F[Data0].field_6;
 }
 
 void cFodder::Squad_Member_Rotate_Can_Fire() {
@@ -10433,7 +10442,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 	if (word_3B2CD != 3) {
 
 		mImage->paletteFade();
-		mouse_Setup();
+		Mouse_Setup();
 	}
 	word_3B2CD = 0;
 
@@ -11034,7 +11043,7 @@ void cFodder::Demo_Quiz() {
 
 	mImage->Save();
 	mImage->paletteFade();
-	mouse_Setup();
+	Mouse_Setup();
 
 	for( ;; ) {
 		Video_Sleep_Wrapper();
@@ -11274,14 +11283,14 @@ void cFodder::Service_Show() {
 	mSound->Music_Play( 0 );
 	Service_KIA_Loop();
 	Service_Promotion_Loop();
-	mouse_Setup();
+	Mouse_Setup();
 
 	mGraphics->LoadpStuff();
 }
 
 void cFodder::Service_KIA_Loop() {
 	sub_136D0();
-	mouse_Setup();
+	Mouse_Setup();
 	word_44475 = 0;
 
 	if (Service_KIA_Troop_Prepare() < 0)
@@ -11333,7 +11342,7 @@ void cFodder::Service_KIA_Loop() {
 
 void cFodder::Service_Promotion_Loop() {
 	sub_136D0();
-	mouse_Setup();
+	Mouse_Setup();
 	word_44475 = 0;
 	Service_Promotion_Prepare();
 
@@ -11954,7 +11963,7 @@ void cFodder::Briefing_Wait() {
 		g_Window.FrameEnd();
 	} while (mImage->paletteFade() == -1);
 
-	mouse_Setup();
+	Mouse_Setup();
 }
 
 void cFodder::Briefing_Draw_With( ) {
@@ -12784,7 +12793,7 @@ loc_19D24:;
 	if( pSprite->field_64 > 2 ) {
 		Data0 = -9;
 		Data4 = 0;
-		if(Map_Sprite_Check_Position(pSprite, Data0, Data4))
+		if(Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4))
 			goto loc_19DCF;
 	}
 
@@ -13754,7 +13763,7 @@ loc_1B35A:;
 	Sprite_Movement_Calculate( pSprite );
 	Data0 = -3;
 	Data4 = 8;
-	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	if (Data4 < 4 || Data4 > 6) {
 		pSprite->field_0 = dword_3A391 & 0xFFFF;
 		pSprite->field_4 = dword_3A395 & 0xFFFF;
@@ -13989,7 +13998,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 	Data0 = -9;
 	Data4 = 2;
 	
-	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (!Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		return;
 
 loc_1B843:;
@@ -14310,7 +14319,7 @@ void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 
 	Data0 = -9;
 	Data4 = 2;
-	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (!Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		return;
 
 loc_1BECD:;
@@ -15221,7 +15230,7 @@ loc_1D00F:;
 	if (pSprite->field_64 > 2) {
 		Data0 = -9;
 		Data4 = 0;
-		if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+		if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 			goto loc_1D0F6;
 	}
 
@@ -15384,7 +15393,7 @@ loc_1D349:;
 loc_1D3C6:;
 	Data0 = -3;
 	Data4 = 8;
-	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (!Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		goto loc_1D411;
 
 	pSprite->field_4 -= 1;
@@ -15496,7 +15505,7 @@ loc_1D5CB:;
 	if (pSprite->field_64 > 3) {
 		Data0 = -9;
 		Data4 = 0;
-		if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+		if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 			goto loc_1D65C;
 	}
 
@@ -16058,7 +16067,7 @@ loc_1D9C9:;
 
 	Data0 = -3;
 	Data4 = 2;
-	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		goto loc_1DA13;
 
 	if (pSprite->field_36 <= 0)
@@ -16474,7 +16483,7 @@ loc_1E831:;
 	Data4 = -3;
 	Data4 += pSprite->field_28;
 
-	sub_2A7E2( Data0, Data4 );
+	Map_Terrain_Get_Type_And_Walkable( Data0, Data4 );
 
 	if (Data4 == 9 || Data4 == 0x0A) {
 		Data0 = pSprite->field_12;
@@ -16829,7 +16838,7 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 	int16 Data0 = -1;
 	int16 Data4 = 8;
 	
-	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	
 	if( Data4 == 6 ) {
 		Data0 = pSprite->field_20;
@@ -17509,7 +17518,7 @@ void cFodder::sub_1FFC6( sSprite* pSprite, int16& pData4 ) {
 	int16 Data0 = -3;
 	pData4 = 8;
 
-	if (Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
+	if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, pData4 ))
 		goto loc_20236;
 
 	pSprite->field_60 = pData4 & 0xFF;
@@ -17667,7 +17676,7 @@ loc_20251:;
 
 	Data0 = -3;
 	pData4 = 8;
-	if (Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
+	if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, pData4 ))
 		goto loc_202E5;
 
 	if (pData4 == 9)
@@ -17718,7 +17727,7 @@ loc_2035C:;
 
 	Data0 = -3;
 	pData4 = 8;
-	if (!Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
+	if (!Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, pData4 ))
 		return;
 
 	pSprite->field_0 = word_3A9E6;
@@ -17726,7 +17735,7 @@ loc_2035C:;
 
 	Data0 = -3;
 	pData4 = 8;
-	if (!Map_Sprite_Check_Position( pSprite, Data0, pData4 ))
+	if (!Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, pData4 ))
 		return;
 
 	//loc_203BA
@@ -18042,7 +18051,7 @@ loc_31514:;
 	Data0 = -3;
 	Data4 = 8;
 
-	if (Map_Sprite_Check_Position(Data20, Data0,Data4))
+	if (Map_Terrain_Get_Type_And_Walkable(Data20, Data0,Data4))
 		goto loc_31689;
 
 	Data0 = mSquad_Selected;
@@ -18109,21 +18118,21 @@ void cFodder::Vehicle_Target_Set() {
 	if (Mouse_Button_Right_Toggled() < 0)
 		return;
 
-	sSprite* Data20 = mSquad_CurrentVehicle;
-	Data20->field_54 = -1;
+	sSprite* Vehicle = mSquad_CurrentVehicle;
+	Vehicle->field_54 = -1;
 
-	int16 Data8 = mMouseX;
-	int16 DataC = mMouseY;
-	Data8 += mCamera_Adjust_Col >> 16;
-	DataC += mCamera_Adjust_Row >> 16;
-	Data8 -= 0x10;
+	int16 PosX = mMouseX;
+	int16 PosY = mMouseY;
+	PosX += mCamera_Adjust_Col >> 16;
+	PosY += mCamera_Adjust_Row >> 16;
+	PosX -= 0x10;
 
-	if (!Data8)
-		Data8 = 1;
+	if (!PosX)
+		PosX = 1;
 
-	DataC -= 8;
-	Data20->field_2E = Data8;
-	Data20->field_30 = DataC;
+	PosY -= 8;
+	Vehicle->field_2E = PosX;
+	Vehicle->field_30 = PosY;
 }
 
 void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString ) {
@@ -18232,7 +18241,7 @@ int16 cFodder::introPlayText() {
 				if (Fade)
 					Fade = mImage->paletteFade();
 
-				mouse_GetData();
+				Mouse_GetData();
 				if (mouse_Button_Status) {
 					word_3B2CF = 16;
 					word_3B4F3 = -1;
@@ -18315,7 +18324,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 
 	mImageFaded = -1;
 	while( mImageFaded == -1 || DoBreak == false  ) {
-		mouse_GetData();
+		Mouse_GetData();
 		--pDuration;
 
 		if (pDuration) {
@@ -18642,7 +18651,7 @@ loc_208A6:;
 	if (pSprite == mSquad_Leader)
 		goto loc_209B3;
 
-	sub_2D26A( (sSquad_Member*) pSprite->field_46, Data8 );
+	Data8 = sub_2D26A( (sSquad_Member*) pSprite->field_46 );
 	goto loc_209C7;
 
 loc_209B3:;
@@ -19161,7 +19170,7 @@ loc_2132A:;
 	Data0 = -3;
 	Data4 = 0x0C;
 
-	Map_Sprite_Check_Position( pSprite, Data0, Data4 );
+	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 
 	if (pSprite->field_20)
 		return;
@@ -19236,7 +19245,7 @@ void cFodder::sub_21525( sSprite* pSprite ) {
 	int16 Data0 = -3;
 	int16 Data4 = 2;
 
-	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		goto loc_21599;
 
 	if (Data4 == 9 || Data4 == 0x0A) {
@@ -19267,7 +19276,7 @@ loc_21599:;
 	Data0 = -3;
 	Data4 = 2;
 
-	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 )) {
+	if (!Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 )) {
 		Data0 = 0x100;
 		Data0 -= pSprite->field_10;
 		Data0 &= 0x1FE;
@@ -19829,7 +19838,7 @@ loc_22235:;	// Door moving
 
 	Data0 = -3;
 	Data4 = 2;
-	if (Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		goto loc_2227F;
 
 	if (pSprite->field_36 <= 0)
@@ -19889,7 +19898,7 @@ loc_22339:;
 
 	Data0 = -3;
 	Data4 = 2;
-	if (!Map_Sprite_Check_Position( pSprite, Data0, Data4 ))
+	if (!Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		if (pSprite->field_36 > 0)
 			return -1;
 
@@ -20248,7 +20257,7 @@ Start:;
 	if (mVersion->mRelease == eRelease::Demo)
 		pStartMap = 0;
 
-	mouse_Setup();
+	Mouse_Setup();
 	Mouse_Inputs_Get();
 
 	for (;;) {

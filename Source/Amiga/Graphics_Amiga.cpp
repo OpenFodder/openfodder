@@ -580,7 +580,7 @@ void cGraphics_Amiga::sub_A5B46() {
 		int16 d0 = a3->field_0;
 		int16 d1 = a3->field_2;
 
-		uint8* a0 = mFodder->sub_2AE81( d0, d1 );
+		uint8* a0 = mFodder->Sprite_Get_Gfx_Ptr( d0, d1 );
 		
 		d1 -= 1;
 		//d0 >>= 4;

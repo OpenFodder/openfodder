@@ -588,7 +588,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint16			mIntroDone;
 
-	int16			word_3C09D[240];
+	int16			graphicsBaseHit[240];
 	int16			graphicsSub0[160];
 	int16			graphicsBaseBht[960];
 	int16			graphicsSub0Bht[640];
@@ -1078,7 +1078,7 @@ public:
 	void			sub_22DFC( sSprite* pSprite );
 	void			Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
 	int16			sub_2329D( sSprite* pSprite );
-	int16			sub_23367( sSprite* pSprite );
+	int16			Map_Sprite_Check_Around_Position( sSprite* pSprite );
 	void			Sprite_Handle_Vehicle_Human( sSprite* pSprite );
 	int16			sub_23444( sSprite* pSprite, sSprite*& pData2C  );
 	void			sub_23525( sSprite* pSprite );
@@ -1137,13 +1137,15 @@ public:
 	void			sub_2A4FD( int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C );
 	int16			sub_2A622( int16& pData0 );
 	void			sub_2A74F( int16& pData0, int16& pData4, int16& pData8, int16& pData10, int16& pDataC );
-	int16			sub_2A7E2( int16& pData0, int16& pData4 );
-	int16			Map_Sprite_Check_Position( sSprite* pSprite, int16& pData0, int16& pData4 );
-	int16			Map_Terrain_Check( int16& pData0, int16& pData4, int16& pData10, int16& pData14 );
+
+	int16			Map_Terrain_Get_Type_And_Walkable( int16& pY, int16& pX );
+	int16			Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, int16& pX );
+	int16			Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 );
+
 	void			Squad_Walk_Target_Set( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
 	int16			Squad_Member_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
-	uint8*			sub_2AE81( int16& pData0, int16& pData4 );
+	uint8*			Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 
@@ -1165,7 +1167,7 @@ public:
 	void			Camera_Update_Column();
 
 	void			Squad_Troops_Count();
-	void			sub_2D26A( sSquad_Member* pData24, int16& pData8 );
+	int16			sub_2D26A( sSquad_Member* pSquadMember );
 	void			Squad_Member_Rotate_Can_Fire();
 	int16			Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			Sprite_Handle_Player_DestroyAll();
@@ -1334,10 +1336,10 @@ public:
 	int16			ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );
 
 	void			memory_XMS_Detect();
-	void			mouse_Setup();
+	void			Mouse_Setup();
 	void			Mouse_Inputs_Get();
-	void			mouse_ButtonCheck();
-	void			mouse_GetData();
+	void			Mouse_ButtonCheck();
+	void			Mouse_GetData();
 
 	void			eventProcess();
 	void			keyProcess( uint8 pKeyCode, bool pPressed );
