@@ -7408,7 +7408,6 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 	int16 Data8;
 	int16 DataC;
 	int16 Data10, Data14, Data1C;
-	const int8* Data28 = byte_3E7DD;
 	sSprite* Data24 = 0, *Data30 = 0;
 	sSprite** Dataa30 = 0;
 
@@ -7496,7 +7495,7 @@ loc_2500F:;
 	Data0 = tool_RandomGet() & 0x0F;
 	DataC += Data0;
 
-	if (sub_2B232( Data28, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_25239;
 
 	pSprite->field_26 = Data10;
@@ -7524,7 +7523,7 @@ loc_250D2:;
 	DataC = Data30->field_4;
 	DataC += -5;
 
-	if (sub_2B232( byte_3E7BD, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
 		goto loc_251B4;
 	
 	Data0 = Data30->field_0;
@@ -7831,7 +7830,7 @@ int16 cFodder::sub_25AAE( sSprite* pSprite ) {
 
 	int16 Data10, Data14;
 
-	if (sub_2B232( byte_3E7DD, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		return -1;
 
 	pSprite->field_26 = Data10;
@@ -8985,7 +8984,7 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 		if (pData0 >= 0) {
 			pData0 &= 0x0F;
 
-			if (mTerrain_Walkable[pData0]) {
+			if (mTerrain_NotWalkable[pData0]) {
 				pData0 = -1;
 				return -1;
 			}
@@ -9063,7 +9062,7 @@ loc_2A7DB:;
  * @param pY
  * @param pX		Returns Terrain Type
  *
- * @return True if can walk
+ * @return False if can walk
  */
 int16 cFodder::Map_Terrain_Get_Type_And_Walkable( int16& pY, int16& pX ) {
 	int16 Data10 = pY;
@@ -9078,7 +9077,7 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable( int16& pY, int16& pX ) {
  * @param pY		 
  * @param pX		Returns Terrain Type
  *
- * @return True if can walk
+ * @return False if can walk
  */
 int16 cFodder::Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, int16& pX ) {
 
@@ -9135,7 +9134,7 @@ int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pDa
 	}
 
 	Data4 &= 0x0F;
-	Data0 = mTerrain_Walkable[Data4];
+	Data0 = mTerrain_NotWalkable[Data4];
 	pY = Data0;
 	pX = Data4;
 
@@ -9441,17 +9440,17 @@ loc_2B21D:;
 
 }
 
-int16 cFodder::sub_2B232( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 ) {
+int16 cFodder::Map_Terrain_Get_Type_And_Moveable_Wrapper( const int8* pData28, int16& pX, int16& pY, int16& pData10, int16& pData14 ) {
 	
-	pData10 = pData8;
-	pData14 = pDataC;
+	pData10 = pX;
+	pData14 = pY;
 
-	return sub_2B286( pData28, pData8, pDataC, pData10, pData14 );
+	return Map_Terrain_Get_Type_And_Moveable( pData28, pX, pY, pData10, pData14 );
 }
 
-int16 cFodder::sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int16& pData10, int16& pData14 ) {
-	uint16 DataC = pDataC;
-	uint16 Data8 = pData8;
+int16 cFodder::Map_Terrain_Get_Type_And_Moveable( const int8* pData28, int16& pX, int16& pY, int16& pData10, int16& pData14 ) {
+	uint16 DataC = pY;
+	uint16 Data8 = pX;
 
 	DataC >>= 4;
 
@@ -9463,10 +9462,8 @@ int16 cFodder::sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int
 
 	int16 Data0 = readLEWord( &mMap[0x60 + DataC] );
 	Data0 &= 0xFF;
-	//Data0 <<= 1;
 
-	const int16* Data24 = graphicsBaseHit;
-	int16 Data4 = Data24[Data0];
+	int16 Data4 = graphicsBaseHit[Data0];
 
 	if (Data4 >= 0) {
 		Data4 &= 0x0F;
@@ -9482,13 +9479,12 @@ int16 cFodder::sub_2B286( const int8* pData28, int16& pData8, int16& pDataC, int
 
 	Data0 |= pData28[Data8];
 	
-	pData8 = Data8;
-	pDataC = DataC;
+	pX = Data8;
+	pY = DataC;
 	return Data0;
 }
 
 void cFodder::sub_2B378( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
-	const int8* Data24 = byte_3ECC0;
 	int16 Data10 = 0;
 
 	pData8 -= pData0;
@@ -9518,7 +9514,7 @@ void cFodder::sub_2B378( int16& pData0, int16& pData4, int16& pData8, int16& pDa
 	pDataC <<= 5;
 	pDataC |= pData8;
 	pData0 = 0;
-	pData0 = Data24[pDataC];
+	pData0 = byte_3ECC0[pDataC];
 
 	pData0 <<= Data10;
 	return;
@@ -13085,21 +13081,21 @@ loc_1A287:;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
 
-	if (sub_2B232( byte_3E7DD, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 	
 	Data8 = pSprite->field_0;
 	Data8 -= 0x10;
 	DataC = pSprite->field_4;
 
-	if (sub_2B232( byte_3E7DD, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 
 	Data8 = pSprite->field_0;
 	Data8 += 0x10;
 	DataC = pSprite->field_4;
 
-	if (sub_2B232( byte_3E7DD, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 
 	if (pSprite->field_20) {
@@ -15044,7 +15040,7 @@ void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 	DataC = Data30->field_4;
 	DataC += -5;
 
-	if (sub_2B232( byte_3E7BD, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
 		goto loc_1CD7B;
 
 	Data0 = pSprite->field_0;
