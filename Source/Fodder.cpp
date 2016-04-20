@@ -20558,16 +20558,16 @@ void cFodder::GUI_Prepare_Button_Grenade() {
 	if (!word_3AC47)
 		return;
 
-	sGUI_Element* Data20 = mGUI_NextFreeElement;
-	Data20->field_0 = &cFodder::GUI_Button_NoAction;
-	Data20->field_4 = 0;
-	Data20->field_6 = 0x0C;
-	Data20->field_8 =  word_3AC1D + 0x0E;
-	Data20->field_A = 0x14;
-	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Grenades;
+	sGUI_Element* NewElement = mGUI_NextFreeElement;
+	NewElement->field_0 = &cFodder::GUI_Button_NoAction;
+	NewElement->field_4 = 0;
+	NewElement->field_6 = 0x0C;
+	NewElement->field_8 =  word_3AC1D + 0x0E;
+	NewElement->field_A = 0x14;
+	NewElement->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Grenades;
 
-	++Data20;
-	GUI_ClearElement( Data20 );
+	++NewElement;
+	GUI_ClearElement( NewElement );
 }
 
 void cFodder::GUI_Handle_Button_Grenades() {
@@ -21123,16 +21123,16 @@ void cFodder::GUI_Prepare_Button_Rockets() {
 	if (!word_3AC47)
 		return;
 
-	sGUI_Element* Data20 = mGUI_NextFreeElement;
-	Data20->field_0 = &cFodder::GUI_Button_NoAction;
-	Data20->field_4 = 0x24;
-	Data20->field_6 = 0x0C;
-	Data20->field_8 = word_3AC1D + 0x0E;
-	Data20->field_A = 0x14;
-	Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Rockets;
-	++Data20;
+	sGUI_Element* NewElement = mGUI_NextFreeElement;
+	NewElement->field_0 = &cFodder::GUI_Button_NoAction;
+	NewElement->field_4 = 0x24;
+	NewElement->field_6 = 0x0C;
+	NewElement->field_8 = word_3AC1D + 0x0E;
+	NewElement->field_A = 0x14;
+	NewElement->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Rockets;
+	++NewElement;
 
-	GUI_ClearElement( Data20 );
+	GUI_ClearElement( NewElement );
 }
 
 void cFodder::GUI_Handle_Button_Rockets() {
