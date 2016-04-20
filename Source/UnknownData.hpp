@@ -948,7 +948,7 @@ int16 word_3D487[] = {
 	0, 1, 2, 3, 2, 1, 2 
 };
 
-uint8 mTerrain_Walkable[] = { 
+uint8 mTerrain_NotWalkable[] = { 
 	0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
@@ -1351,9 +1351,8 @@ const int16 word_3DDD2[] = {
 	-32768
 };
 
-const int8 byte_3E7DD[] = {
-  0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 
-  1, 1, 1, 1, 1, 1
+const int8 mTerrain_NotFlyable[] = {
+  0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1
 };
 
 const int16 word_3E856[] = {
@@ -1385,9 +1384,8 @@ const int16 word_3E77D[] = {
 };
 
 
-const int8 byte_3E7BD[] = {   
-	0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-	0x01, 0x01, 0x00, 0x00, 0x00, 0x00 
+const int8 mTerrain_NotDriveable[] = {   
+	0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 
 };
 
 const int16  word_3E8D6[] = {
