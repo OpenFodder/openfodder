@@ -3618,7 +3618,7 @@ loc_14D66:;
 	mSoundEffectToPlay = word_3B449;
 }
 
-void cFodder::Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
+void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
 	int16 Data0 = 0;
 
 	int8 al = byte_3A9DA[0];
@@ -3647,24 +3647,21 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 ) {
 	if (pSprite != INVALID_SPRITE_PTR)
 		DataC -= pSprite->field_4;
 	int16 Saved0 = Data0;
-	int16 Saved4 = pData4;
+	int16 Saved4 = pSoundEffect;
 
-	sub_2B378( Data0, pData4, pData8, DataC );
+	sub_2B378( Data0, pSoundEffect, pData8, DataC );
 
 	Data0 /= 0x10;
-	pData8 = 0x28;
-	pData8 -= Data0;
+	int Volume = 0x28;
+	Volume -= Data0;
 
-	if (pData8 <= 0)
+	if (Volume <= 0)
 		return;
-	//	pData8 = 4;
 
 	Data0 = Saved0;
-	pData4 = Saved4;
+	pSoundEffect = Saved4;
 
-	int16 bx = mMap_TileSet;
-	
-	mSound->Sound_Play( bx, pData4, pData8 );
+	mSound->Sound_Play( mMap_TileSet, pSoundEffect, Volume );
 }
 
 void cFodder::Briefing_Intro_Jungle( ) {
@@ -9235,7 +9232,7 @@ loc_2ABF8:;
 	Data34[Data0] = 8;
 }
 
-int16 cFodder::Squad_Member_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
+int16 cFodder::Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
 	int16 Data4;
 
 	if (mMission_Finished) {
@@ -10464,7 +10461,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 
 		++byte_44AC0;
 		if (Mouse_Button_Left_Toggled() >= 0)
-			sub_2E3E3( mGUI_Elements );
+			GUI_SaveLoad_MouseHandle( mGUI_Elements );
 
 		if (dword_3B30D)
 			(this->*dword_3B30D)();
@@ -10556,7 +10553,7 @@ void cFodder::Game_Save() {
 	mMouse_Exit_Loop = 0;
 }
 
-void cFodder::sub_2E3E3( sGUI_Element* pData20 ) {
+void cFodder::GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 ) {
 	dword_3A02A = pData20;
 
 	for (; dword_3A02A->field_0; ++dword_3A02A) {
@@ -13227,45 +13224,49 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 	if (pSprite->field_8 == 0xC0 || pSprite->field_8 == 0x8E) {
 		//loc_1A8D1
 
-		int16 Data8 = pSprite->field_0;
-		Data8 += 8;
+		int16 X_Left = pSprite->field_0;
+		X_Left += 8;
 
 		if (pSprite->field_26 == 0x5F5F)
-			Data8 += pSprite->field_28;
+			X_Left += pSprite->field_28;
 
-		int16 DataC = pSprite->field_0;
-		DataC += 0x24;
-		int16 Data10 = pSprite->field_4;
-		Data10 -= 0x20;
-		int16 Data14 = pSprite->field_4;
-		Data14 -= 6;
+		int16 X_Right = pSprite->field_0;
+		X_Right += 0x24;
 
-		const int16* Data2C = word_3D5B9;
-		int16 Data0 = pSprite->field_A;
+		int16 Y_Top = pSprite->field_4;
+		Y_Top -= 0x20;
+
+		int16 Y_Bottom = pSprite->field_4;
+		Y_Bottom -= 6;
+
+		const int16* Explosion_Area_PerFrame = mSprite_Explosion_Area_PerFrame;
+		int16 Frame = pSprite->field_A;
+
 		if (pSprite->field_8 == 0xC0)
-			Data0 += 2;
-		Data0 -= 1;
-		if (Data0 >= 0) {
+			Frame += 2;
+		Frame -= 1;
+
+		if (Frame >= 0) {
 
 			do {
-				Data8 -= *Data2C;
-				DataC -= *(Data2C + 1);
-				Data10 += *Data2C;
+				X_Left -= *Explosion_Area_PerFrame;
+				X_Right -= *(Explosion_Area_PerFrame + 1);
+				Y_Top += *Explosion_Area_PerFrame;
 
-				++Data2C;
-				Data14 += *Data2C;
-				++Data2C;
+				++Explosion_Area_PerFrame;
+				Y_Bottom += *Explosion_Area_PerFrame;
+				++Explosion_Area_PerFrame;
 
-			} while (--Data0 >= 0);
+			} while (--Frame >= 0);
 		}
 		//loc_1A99D
 		sSprite* Data24 = 0;
 
 		pSprite->field_62 = ~pSprite->field_62;
 		if (pSprite->field_62 >= 0)
-			Squad_Member_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
+			Squad_Member_Sprite_Hit_In_Region( pSprite, X_Left, X_Right, Y_Top, Y_Bottom );
 		else
-			Sprite_Find_In_Region( pSprite, Data24, Data8, DataC, Data10, Data14 );
+			Sprite_Find_In_Region( pSprite, Data24, X_Left, X_Right, Y_Top, Y_Bottom );
 
 		pSprite->field_12 -= 1;
 		if (pSprite->field_12 >= 0)
@@ -13273,14 +13274,14 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 
 		pSprite->field_12 = 1;
 
-		Data2C = word_3D5B9;
+		Explosion_Area_PerFrame = mSprite_Explosion_Area_PerFrame;
 		int16 Data4 = pSprite->field_A;
 		if (pSprite->field_8 == 0xC0)
 			Data4 += 2;
 		
 		//seg004:1CC9
-		pSprite->field_0 -= Data2C[Data4];
-		pSprite->field_4 += Data2C[Data4 + 1];
+		pSprite->field_0 -= Explosion_Area_PerFrame[Data4];
+		pSprite->field_4 += Explosion_Area_PerFrame[Data4 + 1];
 		pSprite->field_A += 1;
 		if (pSprite->field_8 != 0xC0)
 			goto loc_1AA63;
@@ -14127,7 +14128,7 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 
 void cFodder::sub_1BB11( sSprite* pSprite ) {
 	int16 Data0, Data4, Data6, Data8, DataC, Data10, Data14;
-	const int16* Data2C = word_3D5B9;
+	const int16* Data2C = mSprite_Explosion_Area_PerFrame;
 	sSprite* Data24 = 0;
 
 	if (pSprite->field_8 == 0x7C) {
@@ -14166,7 +14167,7 @@ void cFodder::sub_1BB11( sSprite* pSprite ) {
 		Data14 += *Data2C++;
 	}
 
-	Squad_Member_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
+	Squad_Member_Sprite_Hit_In_Region( pSprite, Data8, DataC, Data10, Data14 );
 	goto loc_1BC48;
 
 loc_1BC07:;
@@ -14180,7 +14181,7 @@ loc_1BC07:;
 	Sprite_Find_In_Region( pSprite, Data24, Data8, DataC, Data10, Data14 );
 loc_1BC48:;
 
-	Data2C = word_3D5B9;
+	Data2C = mSprite_Explosion_Area_PerFrame;
 	Data4 = pSprite->field_A;
 	if (pSprite->field_8 == 0xC0)
 		Data4 += 2;
@@ -19296,7 +19297,7 @@ int16 cFodder::sub_21618( sSprite* pSprite ) {
 		Data14 -= 4;
 		word_3AA45 = 1;
 
-		return Squad_Member_Sprite_Find_In_Region( pSprite, Data8, DataC, Data10, Data14 );
+		return Squad_Member_Sprite_Hit_In_Region( pSprite, Data8, DataC, Data10, Data14 );
 	}
 	//loc_21673
 	int16 Data8 = pSprite->field_0;

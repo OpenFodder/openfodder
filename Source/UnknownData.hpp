@@ -1335,7 +1335,7 @@ const int16 word_453A0[] = {
 	1
 };
 
-const int16 word_3D5B9[] = {
+const int16 mSprite_Explosion_Area_PerFrame[] = {
 	5, 7, 0, 0, 1, 4, 2, 3, 1, 0,
 	1, 0, 0, -1, -2, -2, -1, -5, -2, 1,
 	1, 2, 1, 0, 1, -1, 0, -1
