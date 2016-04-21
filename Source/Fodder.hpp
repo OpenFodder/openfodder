@@ -1152,8 +1152,9 @@ public:
 	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B12E( sSprite* pSprite );
 	void			Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C );
-	int16			Map_Terrain_Get_Type_And_Moveable_Wrapper( const int8* pData28, int16& pX, int16& pY, int16& pData10, int16& pData14 );
-	int16			Map_Terrain_Get_Type_And_Moveable( const int8* pData28, int16& pX, int16& pY, int16& pData10, int16& pData14 );
+
+	int16			Map_Terrain_Get_Moveable_Wrapper( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 );
+	int16			Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 );
 
 	void			sub_2B378( int16& Data0, int16& Data4, int16& Data8, int16& DataC );
 

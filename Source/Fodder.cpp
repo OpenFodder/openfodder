@@ -6321,8 +6321,8 @@ void cFodder::sub_23879( sSprite* pSprite ) {
 
 	int16 Data0 = pSprite->field_A << 1;
 
-	pSprite->field_0 += word_3E77D[Data0];
-	pSprite->field_4 += word_3E77D[Data0 + 1];
+	pSprite->field_0 += mSprite_Turret_Positions[Data0];
+	pSprite->field_4 += mSprite_Turret_Positions[Data0 + 1];
 
 	word_3B189 = 0;
 	word_3B18B = 0;
@@ -6691,15 +6691,13 @@ void cFodder::Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 ) {
 	int16 Field_0 = pSprite->field_0;
 	int16 Field_4 = pSprite->field_4;
 
-	const int16* Data28 = word_3E77D;
-
 	int16 Data0 = pSprite->field_A;
 	Data0 <<= 1;
 
-	int16 Data4 = Data28[Data0];
+	int16 Data4 = mSprite_Turret_Positions[Data0];
 	pSprite->field_0 += Data4;
 	
-	Data4 = Data28[Data0 + 1];
+	Data4 = mSprite_Turret_Positions[Data0 + 1];
 	pSprite->field_4 += Data4;
 
 	word_3B189 = 0;
@@ -6911,7 +6909,6 @@ loc_24617:;
 	int16 Field_0 = pSprite->field_0;
 	int16 Field_4 = pSprite->field_4;
 
-	const int16* Data28 = word_3E856;
 	int16 Data0 = pSprite->field_A;
 
 	// seg005:4F58 
@@ -6920,9 +6917,9 @@ loc_24617:;
 	if (pSprite->field_5B < 0)
 		Data0 += 2;
 
-	int16 Data4 = Data28[Data0];
+	int16 Data4 = word_3E856[Data0];
 	pSprite->field_0 += Data4;
-	Data4 = Data28[Data0 + 1];
+	Data4 = word_3E856[Data0 + 1];
 	pSprite->field_4 += Data4;
 
 	if (!sub_246CC( pSprite )) {
@@ -7495,7 +7492,7 @@ loc_2500F:;
 	Data0 = tool_RandomGet() & 0x0F;
 	DataC += Data0;
 
-	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_25239;
 
 	pSprite->field_26 = Data10;
@@ -7523,7 +7520,7 @@ loc_250D2:;
 	DataC = Data30->field_4;
 	DataC += -5;
 
-	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
 		goto loc_251B4;
 	
 	Data0 = Data30->field_0;
@@ -7580,15 +7577,14 @@ loc_25288:;
 
 	Data24 = pSprite + 3;
 	Data24->field_18 = eSprite_Flashing_Light;
-	Data0 = pSprite->field_A;
+	Data0 = pSprite->field_A << 1;
 
-	Data0 <<= 1;
 	Data4 = pSprite->field_0;
-	Data4 += word_3E8D6[Data0];
+	Data4 += mSprite_Helicopter_Light_Positions[Data0];
 	Data24->field_0 = Data4;
 
 	Data4 = pSprite->field_4;
-	Data4 += word_3E8D6[Data0 + 1];
+	Data4 += mSprite_Helicopter_Light_Positions[Data0 + 1];
 	Data24->field_4 = Data4;
 
 	Data24->field_20 = pSprite->field_20;
@@ -7830,7 +7826,7 @@ int16 cFodder::sub_25AAE( sSprite* pSprite ) {
 
 	int16 Data10, Data14;
 
-	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		return -1;
 
 	pSprite->field_26 = Data10;
@@ -9440,15 +9436,15 @@ loc_2B21D:;
 
 }
 
-int16 cFodder::Map_Terrain_Get_Type_And_Moveable_Wrapper( const int8* pData28, int16& pX, int16& pY, int16& pData10, int16& pData14 ) {
+int16 cFodder::Map_Terrain_Get_Moveable_Wrapper( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 ) {
 	
 	pData10 = pX;
 	pData14 = pY;
 
-	return Map_Terrain_Get_Type_And_Moveable( pData28, pX, pY, pData10, pData14 );
+	return Map_Terrain_Get_Moveable( pMovementData, pX, pY, pData10, pData14 );
 }
 
-int16 cFodder::Map_Terrain_Get_Type_And_Moveable( const int8* pData28, int16& pX, int16& pY, int16& pData10, int16& pData14 ) {
+int16 cFodder::Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 ) {
 	uint16 DataC = pY;
 	uint16 Data8 = pX;
 
@@ -9467,17 +9463,17 @@ int16 cFodder::Map_Terrain_Get_Type_And_Moveable( const int8* pData28, int16& pX
 
 	if (Data4 >= 0) {
 		Data4 &= 0x0F;
-		return pData28[Data4];
+		return pMovementData[Data4];
 	}
 
 	Data8 = Data4;
 	Data4 &= 0x0F;
 
-	Data0 = pData28[Data4];
+	Data0 = pMovementData[Data4];
 	Data8 >>= 4;
 	Data8 &= 0x0F;
 
-	Data0 |= pData28[Data8];
+	Data0 |= pMovementData[Data8];
 	
 	pX = Data8;
 	pY = DataC;
@@ -10248,7 +10244,7 @@ void cFodder::sub_2DD50( sSprite* pSprite ) {
 	int16 Data0 = pSprite->field_0 + 4;
 	int16 Data4 = pSprite->field_4 - 8;
 
-	const int16* Data24 = word_3DDD2;
+	const int16* Data24 = mSprite_Explosion_Positions;
 
 	for (;;) {
 		if (*Data24 == -32768)
@@ -13081,21 +13077,21 @@ loc_1A287:;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
 
-	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 	
 	Data8 = pSprite->field_0;
 	Data8 -= 0x10;
 	DataC = pSprite->field_4;
 
-	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 
 	Data8 = pSprite->field_0;
 	Data8 += 0x10;
 	DataC = pSprite->field_4;
 
-	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 
 	if (pSprite->field_20) {
@@ -15040,7 +15036,7 @@ void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 	DataC = Data30->field_4;
 	DataC += -5;
 
-	if (Map_Terrain_Get_Type_And_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
 		goto loc_1CD7B;
 
 	Data0 = pSprite->field_0;
@@ -15784,7 +15780,7 @@ void cFodder::Sprite_Handle_Spider_Mine( sSprite* pSprite ) {
 	Data0 &= 0x1E;
 	pSprite->field_2A = Data0;
 
-	pSprite->field_A = word_3E952[Data0 / 2];
+	pSprite->field_A = mSprite_SpiderMine_Frames[Data0 / 2];
 	Data14 = mSquad_Leader;
 
 	if (Data14 == INVALID_SPRITE_PTR)
@@ -15952,7 +15948,7 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 	Data0 += 2;
 	Data0 &= 6;
 
-	pSprite->field_A = word_3E972[Data0 / 2];
+	pSprite->field_A = mSprite_Helicopter_CallPad_Frames[Data0 / 2];
 	pSprite->field_32 = Data0;
 }
 
