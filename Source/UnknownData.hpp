@@ -785,8 +785,7 @@ const int16 word_3E177[] = {
 };
 
 const int8 byte_3E98F[] = {
-  0, -1, -1, -1, -1, -1, -1, -1, -1, 1, 
-  1, 1, 1, 1, 1, 1
+  0, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1
 };
 
 const int16 word_3EABF[256] = {
@@ -1342,7 +1341,7 @@ const int16 word_3D5B9[] = {
 	1, 2, 1, 0, 1, -1, 0, -1
 };
 
-const int16 word_3DDD2[] = {
+const int16 mSprite_Explosion_Positions[] = {
 	0, 0, 16, 16, -16, -32, -16, 16, 32, -16,
 	-32, 32, 32, -16, -16, 16, -16, -32, 48, 48,
 	-64, -48, 48, -16, -32, 64, 48, -64, 0, 32,
@@ -1376,19 +1375,18 @@ const int16 word_3E926[] = {
 	1, 0, 1, 0, 1, 2, 3, -1 
 };
 
-const int16 word_3E77D[] = {
+const int16 mSprite_Turret_Positions[] = {
 	0, 7, -9, 6, -14, 3, -16, 0, -19, -7,
 	-19, -12, -16, -16, -10, -20, -2, -22, 6, -20,
 	12, -15, 16, -12, 18, -6, 16, 0, 12, 2,
 	6, 5
 };
 
-
 const int8 mTerrain_NotDriveable[] = {   
 	0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 
 };
 
-const int16  word_3E8D6[] = {
+const int16  mSprite_Helicopter_Light_Positions[] = {
 	14, -16, 11, -15, 10, -16, 10, -20, 10, -23,
 	10, -23, 11, -24, 13, -25, 14, -25, 16, -25,
 	18, -23, 18, -22, 19, -23, 19, -20, 19, -16,
@@ -1399,7 +1397,7 @@ const int16 mSounds_Helicopter[] = {
 	4, 51, 52, 53, 54, 4, 51, 52 
 };
 
-const int16 word_3E952[] = {
+const int16 mSprite_SpiderMine_Frames[] = {
 	0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
 	2, 2, 1, 1, 1, 1
 };
@@ -1408,7 +1406,7 @@ const int16 mSprite_Hostage_Frames[] = {
 	0, 1, 2, 1
 };
 
-const int16 word_3E972[] = {
+const int16 mSprite_Helicopter_CallPad_Frames[] = {
 	1, 2, 3, 2
 };
 
