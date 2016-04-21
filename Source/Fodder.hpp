@@ -878,11 +878,11 @@ public:
 	void			Briefing_Prepare();
 	void			Briefing_Wait();
 	void			Briefing_Draw_With( );
-	void			Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 );
-	void			Briefing_Draw_Horizontal_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
-	void			Briefing_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi );
+	void			Briefing_DrawBox( int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor );
+	void			Briefing_Draw_Horizontal_Line( int16 pX, int16 pWidth, int16 pY, uint8 pColor );
+	void			Briefing_Draw_Vertical_Line(  int16 pX, int16 pHeight, int16 pY, uint8 pColor );
 
-	void			Briefing_Draw_Pixel( int16 pBx, int16 pCx, uint8 pSi );
+	void			Briefing_Draw_Pixel( int16 pX, int16 pY, uint8 pColor );
 
 	void			Intro_Print_String( int32 pPosX, const sIntroString* pString );
 	bool			Recruit_Check_Buttons_SaveLoad();
@@ -1184,8 +1184,8 @@ public:
 	void			sub_2E01C();
 	void			Game_Save_Wrapper2();
 	void			GUI_Element_Reset();
-	void			GUI_Button_Draw( const char* pText, int16 pDataC, int16 pData0, int16 pData4 );
-	void			GUI_Box_Draw( int16 pData0, int16 pData4 );
+	void			GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow, int16 pColorPrimary );
+	void			GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
 	void			GUI_SaveLoad( bool pShowCursor );
 	void			Game_Save_Wrapper();
 	void			GUI_Button_Setup( void(cFodder::*pFunction )(void) ); 
@@ -1330,7 +1330,7 @@ public:
 
 	void			Load_SetupData( const std::string& pFilename );
 	
-	void			video_Print_Text( const char* pText, int16 pPosY );
+	void			GUI_Print_Text( const char* pText, int16 pPosY );
 	void			Video_Sleep();
 
 	void			sleepLoop( int64 pMilliseconds );

@@ -10406,24 +10406,22 @@ void cFodder::GUI_Element_Reset() {
 	}
 }
 
-void cFodder::GUI_Button_Draw( const char* pText, int16 pDataC, int16 pData0 = 0xBF, int16 pData4 = 0xBC ) {
+void cFodder::GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC ) {
 
-	video_Print_Text( pText, pDataC );
+	GUI_Print_Text( pText, pY );
 
-	GUI_Box_Draw( pData0, pData4 );
+	GUI_Box_Draw( pColorShadow, pColorPrimary );
 }
 
-void cFodder::GUI_Box_Draw( int16 pData0, int16 pData4 ) {
-	int16 word_3B309 = pData0;
-	int16 word_3B30B = pData4;
+void cFodder::GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary ) {
 
-	pData0 = word_3B301;
-	pData4 = word_3B305;
-	int16 Data8 = word_3B303;
-	int16 DataC = word_3B307;
+	int16 X = word_3B301;
+	int16 Y = word_3B305;
+	int16 Width = word_3B303;
+	int16 Height = word_3B307;
 
-	Briefing_DrawBox( pData0 - 2, pData4 - 2, Data8 + 4, DataC + 5, (uint8) word_3B30B );
-	Briefing_DrawBox( pData0 - 3, pData4 - 3, Data8 + 4, DataC + 5, (uint8) word_3B309 );
+	Briefing_DrawBox( X - 2, Y - 2, Width + 4, Height + 5, (uint8) pColorPrimary );
+	Briefing_DrawBox( X - 3, Y - 3, Width + 4, Height + 5, (uint8) pColorShadow );
 }
 
 void cFodder::GUI_SaveLoad( bool pShowCursor ) {
@@ -10522,7 +10520,7 @@ void cFodder::Game_Save() {
 
 	GUI_Element_Reset();
 
-	video_Print_Text( "TYPE A FILENAME IN", 0x32 );
+	GUI_Print_Text( "TYPE A FILENAME IN", 0x32 );
 
 	GUI_Button_Draw( "EXIT", 0xA0 );
 	GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
@@ -10594,7 +10592,7 @@ void cFodder::String_Print_Input() {
 	int16 Data4;
 	char* Data24;
 
-	video_Print_Text( mInputString, 0x50 );
+	GUI_Print_Text( mInputString, 0x50 );
 
 	int16 Data0 = word_39F66;
 	if (Data0 == 0x0D && mInputString_Position)
@@ -10700,7 +10698,7 @@ void cFodder::Game_Load() {
 	
 	do {
 		GUI_Element_Reset();
-		video_Print_Text( "SELECT FILE", 0x0C );
+		GUI_Print_Text( "SELECT FILE", 0x0C );
 
 		GUI_Button_Draw( "UP", 0x24 );
 		GUI_Button_Setup( &cFodder::GUI_Button_Load_Up );
@@ -11990,35 +11988,35 @@ void cFodder::Briefing_Draw_With( ) {
 	String_Print(  mFont_Underlined_Width, 3, word_3B301, 0xB8, "GO FOR IT" );
 }
 
-void cFodder::Briefing_DrawBox( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, uint8 pData10 ) {
-	pData0 += 0x10;
-	pData4 += 0x10;
+void cFodder::Briefing_DrawBox( int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor ) {
+	pX += 0x10;
+	pY += 0x10;
 
 	// Top and Bottom
-	Briefing_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4, pData10 );
+	Briefing_Draw_Horizontal_Line( pX, pX + pWidth, pY, pColor );
 
-	Briefing_Draw_Horizontal_Line( pData0, pData0 + pData8, pData4 + pDataC, pData10 );
+	Briefing_Draw_Horizontal_Line( pX, pX + pWidth, pY + pHeight, pColor );
 
 	// Sides of box
-	Briefing_Draw_Vertical_Line( pData0 , pData4 + pDataC, pData4, pData10 );
+	Briefing_Draw_Vertical_Line( pX, pY + pHeight, pY, pColor );
 	
-	Briefing_Draw_Vertical_Line( pData0 + pData8, pData4 + pDataC, pData4, pData10 );
+	Briefing_Draw_Vertical_Line( pX + pWidth, pY + pHeight, pY, pColor );
 }
 
-void cFodder::Briefing_Draw_Pixel( int16 pBx, int16 pCx, uint8 pSi ) {
+void cFodder::Briefing_Draw_Pixel( int16 pX, int16 pY, uint8 pColor ) {
 	uint8* di = mImage->GetSurfaceBuffer();
 
-	di += mImage->GetWidth() * pCx;
-	di += pBx;
-	*di = pSi;
+	di += mImage->GetWidth() * pY;
+	di += pX;
+	*di = pColor;
 }
 
-void cFodder::Briefing_Draw_Horizontal_Line( int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
+void cFodder::Briefing_Draw_Horizontal_Line( int16 pX, int16 pWidth, int16 pY, uint8 pColor ) {
 	
 	do {
-		Briefing_Draw_Pixel( pBx, pCx, pSi );
-		++pBx;
-	} while ( pBx <= pDx );
+		Briefing_Draw_Pixel( pX, pY, pColor );
+		++pX;
+	} while (pX <= pWidth);
 }
 
 void cFodder::Intro_Print_String( int32 pPosY,  const sIntroString* pString ) {
@@ -12031,12 +12029,12 @@ void cFodder::Intro_Print_String( int32 pPosY,  const sIntroString* pString ) {
 	String_Print(  mFont_Intro_Width, 0, word_3B301, pPosY, pString->mText );
 }
 
-void cFodder::Briefing_Draw_Vertical_Line(  int16 pBx, int16 pDx, int16 pCx, uint8 pSi ) {
+void cFodder::Briefing_Draw_Vertical_Line(  int16 pX, int16 pHeight, int16 pY, uint8 pColor ) {
 	
 	do {
-		Briefing_Draw_Pixel( pBx, pCx, pSi );
-		++pCx;
-	} while (pCx <= pDx );
+		Briefing_Draw_Pixel( pX, pY, pColor );
+		++pY;
+	} while (pY <= pHeight);
 }
 
 void cFodder::sub_18D5E() {
@@ -18373,7 +18371,7 @@ void cFodder::Mission_Phase_Next() {
 	mGraveRankPtr2 = mGraveRankPtr;
 }
 
-void cFodder::video_Print_Text( const char* pText, int16 pPosY ) {
+void cFodder::GUI_Print_Text( const char* pText, int16 pPosY ) {
 	
 	String_CalculateWidth(320, mFont_Recruit_Width, pText );
 	String_Print( mFont_Recruit_Width, 0x0D, word_3B301, pPosY, pText );
