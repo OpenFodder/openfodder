@@ -802,7 +802,7 @@ public:
 	void			Sprite_Draw( );
 	void			Sprite_Map_Sound_Play( int16& pData0 );
 
-	void			Sound_Play( sSprite* pSprite, int16 pData4, int16 pData8 );
+	void			Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 );
 
 	// 14EAC
 	void			Briefing_Intro();
@@ -1143,7 +1143,7 @@ public:
 	int16			Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 );
 
 	void			Squad_Walk_Target_Set( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
-	int16			Squad_Member_Sprite_Find_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+	int16			Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame );
 	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
@@ -1190,7 +1190,7 @@ public:
 	void			Game_Save_Wrapper();
 	void			GUI_Button_Setup( void(cFodder::*pFunction )(void) ); 
 	void			Game_Save();
-	void			sub_2E3E3( sGUI_Element* pData20 );
+	void			GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );
 	void			GUI_Button_Load_Exit();
 	void			String_Print_Input();
 	void			sub_2E6A9();
