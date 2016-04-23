@@ -5617,7 +5617,7 @@ void cFodder::sub_30AB0() {
 		if (Data0 < Data8)
 			continue;
 
-		Data8 += word_4547E[Data18];
+		Data8 += mSprite_Width[Data18];
 		if (Data0 > Data8)
 			continue;
 
@@ -5951,7 +5951,7 @@ void cFodder::Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC
 		return;
 
 	int16 Data28 = pSprite->field_22;
-	const int16* Data30 = word_453A0;
+	const int16* Data30 = mSprite_Can_Be_RunOver;
 	sSprite* Data24 = mSprites;
 
 	for (int16 Data4 = 0x1D; Data4 >= 0; --Data4, ++Data24) {
@@ -9874,8 +9874,8 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 	mSprites_Found_Count = 0;
 
 	pData24 = mSprites;
-	const int16* Data28 = word_453A0;
-	const int16* Data2C = word_4547E;
+	const int16* Data28 = mSprite_Can_Be_RunOver;
+	const int16* Data2C = mSprite_Width;
 	const int16* Data30 = word_4555C;
 	const int16* Data34 = word_4563A;
 
@@ -17911,7 +17911,7 @@ void cFodder::sub_311A7() {
 		Data28->field_66 = 0;
 	}
 
-	const int16* Data2C = word_4547E;
+	const int16* Data2C = mSprite_Width;
 	const int16* Data30 = word_4555C;
 	const int16* Data34 = word_4563A;
 
@@ -17982,7 +17982,7 @@ loc_313C6:;
 }
 
 int16 cFodder::sub_313CD() {
-	const int16* Data2C = word_4547E;
+	const int16* Data2C = mSprite_Width;
 	const int16* Data30 = word_4555C;
 
 	int16 Data0 = mMouseX;

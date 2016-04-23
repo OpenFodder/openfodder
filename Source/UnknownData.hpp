@@ -1200,7 +1200,7 @@ const int16* off_3DE38[] = {
 	word_3DE76		// AFX
 };
 
-const int16 word_4547E[] = {
+const int16 mSprite_Width[] = {
 	10, 0, 6, 0, 0, 10, 0, 24, 0, 0,
 	0, 0, 0, 20, 10, 16, 10, 20, 0, 0,
 	20, 0, 0, 0, 0, 20, 0, 10, 0, 0,
@@ -1320,7 +1320,7 @@ const int8 byte_3DF02[] = {
 	0x29, 0x4D, 0x71
 };
 
-const int16 word_453A0[] = {
+const int16 mSprite_Can_Be_RunOver[] = {
 	2, 0, 1, 0, 0, 2, 0, 1, 0, 0,
 	2, 0, 0, 1, 1, 1, 1, 1, 0, 0,
 	1, 0, 0, 0, 0, 1, 0, 2, 0, 0,
