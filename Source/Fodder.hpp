@@ -116,7 +116,7 @@ struct sCopyProtection {
 	int16		mParagraph;
 	int16		mLine;
 	int16		mWord;
-	const int8* mAnswer;
+	const uint8* mAnswer;
 };
 
 extern const struct_2 stru_44B50[209];

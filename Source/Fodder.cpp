@@ -4453,12 +4453,12 @@ void cFodder::CopyProtection() {
 		do {
 			Data0 = tool_RandomGet();
 			Data0 &= 0x0F;
-		}  while (Data0 == 0);
+		}  while (Data0 == 0x0F);
 
 		mImage->clearBuffer();
 		mGraphics->PaletteSet();
 
-		const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
+		const sCopyProtection* word_44A1C = &mCopyProtection_Values[0];
 
 		std::string Page = "PAGE ";
 		std::string Paragraph = "PARAGRAPH ";
@@ -4524,12 +4524,12 @@ void cFodder::CopyProtection() {
 
 		CopyProtection_EncodeInput();
 
-		const int8* Answer = word_44A1C->mAnswer;
+		const uint8* Answer = word_44A1C->mAnswer;
 		bool Failed = false;
 
 		for (int16 Pos = 0; mInputString[Pos] != -1; ++Pos) {
 
-			if (mInputString[Pos] != *Answer++) {
+			if ((uint8) mInputString[Pos] != *Answer++) {
 				Failed = true;
 				break;
 			}
@@ -4545,8 +4545,6 @@ void cFodder::CopyProtection() {
 void cFodder::CopyProtection_EncodeInput() {
 	int16 bx = mInputString[0] & 0xFF;
 	int16 cx = 0;
-
-	bool bx_c = false;
 
 	for (int16 Pos = 0; Pos < 21; ++Pos) {
 		cx -= bx;
@@ -18395,7 +18393,7 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 void cFodder::intro() {
 	
 	// Disabled: GOG CD Version doesn't require a manual check
-	//CopyProtection();
+	// CopyProtection();
 
 	word_42851 = 0;
 	sub_136D0();

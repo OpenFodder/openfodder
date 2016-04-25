@@ -1435,82 +1435,88 @@ const int8 byte_44AC2[] = {
 	0x00, 0x00, 0x00
 };
 
-const int8 byte_449BD[] = {
+const uint8 byte_449BD[] = {
 	0xFD, 0xBA, 0x0D, 0xFF
 };
 
-const int8 byte_449C1[] = {
+// YOUR
+const uint8 mCopyProtection_Word_Your2[] = {
 	0xFD, 0xB0, 0x1A, 0x44, 0xFF
 };
 
-const int8 byte_449C6[] = {
+const uint8 byte_449C6[] = {
 	0xFD, 0xA5, 0x21, 0x60, 0x6F, 0x39, 0xA8, 
 	0xE5, 0xF1, 0xB0, 0xFF
 };
 
 // CANNON
-const int8 mCopyProtection_Word_Cannon[] = {
+const uint8 mCopyProtection_Word_Cannon[] = {
 	0xFD, 0xBE, 0x33, 0x76, 0x77, 0x39, 0xFF
 };
 
-const int8 byte_449D8[] = {
+// SEND
+const uint8 mCopyProtection_Word_Send[] = {
 	0xFD, 0xBA, 0x13, 0x4C, 0xFF
 };
 
-const int8 byte_449DD[] = {
+const uint8 byte_449DD[] = {
 	0xFD, 0xB0, 0x1A, 0xFF
 };
 
-const int8 byte_449E1[] = {
+// YOUR
+const uint8 mCopyProtection_Word_Your[] = {
 	0xFD, 0xB0, 0x1A, 0x44, 0xFF
 };
 
-const int8 byte_449E6[] = {
+const uint8 byte_449E6[] = {
 	0xFB, 0xB2, 0x37, 0x7D, 0x60, 0x3E, 0xFF
 };
 
-const int8 byte_449ED[] = {
+const uint8 byte_449ED[] = {
 	0xF7, 0xA0, 0x07, 0x48, 0x56, 0xFF
 };
 
-const int8 byte_449F3[] = {
+const uint8 byte_449F3[] = {
 	0xF7, 0xA9, 0x16, 0x42, 0x53, 0x14, 0xE1, 0xB6, 0xFF
 };
 
-const int8 byte_449FC[] = {
+// TIMES
+const uint8 mCopyProtection_Word_Times[] = {
 	0xF7, 0xB0, 0x14, 0x48, 0x56, 0xFF
 };
 
-const int8 byte_44A02[] = {
+// YOU
+const uint8 mCopyProtection_Word_You[] = {
 	0xFD, 0xB0, 0x1A, 0xFF
 };
 
-const int8 byte_44A06[] = {
+// SAVING
+const uint8 mCopyProtection_Word_Saving[] = {
 	0xFD, 0xBE, 0x0B, 0x3F, 0x48, 0x12, 0xFF
 };
 
-const int8 byte_44A0D[] = {
+const uint8 byte_44A0D[] = {
 	0xFB, 0xB2, 0x25, 0x7E, 0x6E, 0x3B, 0xFF
 };
 
-const int8 byte_44A14[] = {
+const uint8 byte_44A14[] = {
 	0xDF, 0xA0, 0x38, 0xFF
 };
 
 const sCopyProtection mCopyProtection_Values[] = {
 	{ 4, 2, 1, 1, byte_449BD },
-	{ 4, 3, 2, 1, byte_449C1 },
+	{ 4, 3, 2, 1, mCopyProtection_Word_Your2 },
 	{ 5, 1, 2, 1, byte_449C6 },
 	{ 5, 2, 1, 2, mCopyProtection_Word_Cannon },
-	{ 5, 3, 1, 1, byte_449D8 },
+	{ 5, 3, 1, 1, mCopyProtection_Word_Send },
 	{ 6, 1, 1, 2, byte_449DD },
-	{ 6, 2, 3, 2, byte_449E1 },
+	{ 6, 2, 3, 2, mCopyProtection_Word_Your },
 	{ 6, 3, 3, 2, byte_449E6 },
 	{ 9, 1, 1, 2, byte_449ED },
 	{ 9, 1, 2, 1, byte_449F3 },
-	{ 10, 1, 1, 3, byte_449FC },
-	{ 11, 1, 1, 4, byte_44A02 },
-	{ 11, 2, 1, 1, byte_44A06 },
+	{ 10, 1, 1, 3, mCopyProtection_Word_Times },
+	{ 11, 1, 1, 4, mCopyProtection_Word_You },
+	{ 11, 2, 1, 1, mCopyProtection_Word_Saving },
 	{ 11, 4, 1, 4, byte_44A0D },
 	{ 15, 1, 1, 1, byte_44A14 }
 };
