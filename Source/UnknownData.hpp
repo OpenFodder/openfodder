@@ -1435,6 +1435,7 @@ const int8 byte_44AC2[] = {
 	0x00, 0x00, 0x00
 };
 
+// Y
 const uint8 byte_449BD[] = {
 	0xFD, 0xBA, 0x0D, 0xFF
 };
@@ -1459,7 +1460,8 @@ const uint8 mCopyProtection_Word_Send[] = {
 	0xFD, 0xBA, 0x13, 0x4C, 0xFF
 };
 
-const uint8 byte_449DD[] = {
+// YOU
+const uint8 mCopyProtection_Word_You2[] = {
 	0xFD, 0xB0, 0x1A, 0xFF
 };
 
@@ -1499,7 +1501,8 @@ const uint8 byte_44A0D[] = {
 	0xFB, 0xB2, 0x25, 0x7E, 0x6E, 0x3B, 0xFF
 };
 
-const uint8 byte_44A14[] = {
+// PAY
+const uint8 mCopyProtection_Word_Pay[] = {
 	0xDF, 0xA0, 0x38, 0xFF
 };
 
@@ -1509,7 +1512,7 @@ const sCopyProtection mCopyProtection_Values[] = {
 	{ 5, 1, 2, 1, byte_449C6 },
 	{ 5, 2, 1, 2, mCopyProtection_Word_Cannon },
 	{ 5, 3, 1, 1, mCopyProtection_Word_Send },
-	{ 6, 1, 1, 2, byte_449DD },
+	{ 6, 1, 1, 2, mCopyProtection_Word_You2 },
 	{ 6, 2, 3, 2, mCopyProtection_Word_Your },
 	{ 6, 3, 3, 2, byte_449E6 },
 	{ 9, 1, 1, 2, byte_449ED },
@@ -1518,5 +1521,5 @@ const sCopyProtection mCopyProtection_Values[] = {
 	{ 11, 1, 1, 4, mCopyProtection_Word_You },
 	{ 11, 2, 1, 1, mCopyProtection_Word_Saving },
 	{ 11, 4, 1, 4, byte_44A0D },
-	{ 15, 1, 1, 1, byte_44A14 }
+	{ 15, 1, 1, 1, mCopyProtection_Word_Pay }
 };

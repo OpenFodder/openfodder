@@ -4458,7 +4458,7 @@ void cFodder::CopyProtection() {
 		mImage->clearBuffer();
 		mGraphics->PaletteSet();
 
-		const sCopyProtection* word_44A1C = &mCopyProtection_Values[0];
+		const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
 
 		std::string Page = "PAGE ";
 		std::string Paragraph = "PARAGRAPH ";
@@ -4527,7 +4527,7 @@ void cFodder::CopyProtection() {
 		const uint8* Answer = word_44A1C->mAnswer;
 		bool Failed = false;
 
-		for (int16 Pos = 0; mInputString[Pos] != -1; ++Pos) {
+		for (int16 Pos = 0; *Answer != 0xFF; ++Pos) {
 
 			if ((uint8) mInputString[Pos] != *Answer++) {
 				Failed = true;
@@ -18393,7 +18393,7 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 void cFodder::intro() {
 	
 	// Disabled: GOG CD Version doesn't require a manual check
-	// CopyProtection();
+	// 	CopyProtection();
 
 	word_42851 = 0;
 	sub_136D0();
