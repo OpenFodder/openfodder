@@ -18393,7 +18393,10 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 }
 
 void cFodder::intro() {
-	CopyProtection();
+	
+	// Disabled: GOG CD Version doesn't require a manual check
+	//CopyProtection();
+
 	word_42851 = 0;
 	sub_136D0();
 
