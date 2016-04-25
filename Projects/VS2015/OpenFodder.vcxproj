@@ -169,6 +169,7 @@
     <ClInclude Include="..\..\Source\Amiga\rjp1.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Sound_Amiga.hpp" />
     <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp" />
+    <ClInclude Include="..\..\Source\CopyProtection.hpp" />
     <ClInclude Include="..\..\Source\FontData.hpp" />
     <ClInclude Include="..\..\Source\GUI_Element.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\stdafx.hpp" />
     <ClInclude Include="..\..\Source\Surface.hpp" />
+    <ClInclude Include="..\..\Source\Tiles.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
     <ClInclude Include="..\..\Source\UnknownData.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />
@@ -205,6 +207,7 @@
     <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp" />
     <ClCompile Include="..\..\Source\Amiga\rjp1.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Sound_Amiga.cpp" />
+    <ClCompile Include="..\..\Source\CopyProtection.cpp" />
     <ClCompile Include="..\..\Source\FontData.cpp" />
     <ClCompile Include="..\..\Source\GUI_Element.cpp" />
     <ClCompile Include="..\..\Source\Event.cpp" />
@@ -223,6 +226,7 @@
     <ClCompile Include="..\..\Source\Sprites.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
+    <ClCompile Include="..\..\Source\Tiles.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />
     <ClCompile Include="..\..\Source\Window.cpp" />
   </ItemGroup>

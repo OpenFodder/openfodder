@@ -117,6 +117,12 @@
     <ClInclude Include="..\..\Source\PC\Sound_PC2.hpp">
       <Filter>Source\PC</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Tiles.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\CopyProtection.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -199,6 +205,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\PC\Sound_PC2.cpp">
       <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Tiles.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\CopyProtection.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

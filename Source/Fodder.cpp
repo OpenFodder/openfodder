@@ -1305,7 +1305,7 @@ void cFodder::Squad_Prepare_NextRecruit() {
 
 			Data20->mRecruitID = mRecruit_NextID;
 
-			sRecruit* Data24 = &mRecruits[mRecruit_NextID];
+			const sRecruit* Data24 = &mRecruits[mRecruit_NextID];
 
 			// Demo sets static ranks
 			if (mVersion->mRelease == eRelease::Demo) {
@@ -2693,20 +2693,21 @@ void cFodder::Map_Overview_Prepare() {
 void cFodder::map_SetTileType() {
 
 	for (unsigned int x = 0; x < 7; ++x) {
-		if (mMapTypes[x][0] != mMap[0])
+		if (mTileType_Names[x][0] != mMap[0])
 			continue;
 	
-		if (mMapTypes[x][1] != mMap[1])
+		if (mTileType_Names[x][1] != mMap[1])
 			continue;
 
-		if (mMapTypes[x][2] != mMap[2])
+		if (mTileType_Names[x][2] != mMap[2])
 			continue;
 
 		mMap_TileSet = x;
 		return;
 	}
 
-	mMap_TileSet = 0;
+	// Fallback to Jungle
+	mMap_TileSet = eTileTypes_Jungle;
 }
 
 void cFodder::sub_12AB1() {
@@ -4367,23 +4368,23 @@ void cFodder::Briefing_Intro() {
 		Briefing_Draw_Mission_Name();
 
 		switch (mMap_TileSet) {
-		case 0:
+		case eTileTypes_Jungle:
 			Briefing_Intro_Jungle();
 			break;
 
-		case 1:
+		case eTileTypes_Desert:
 			Briefing_Intro_Desert();
 			break;
 
-		case 2:
+		case eTileTypes_Ice:
 			Briefing_Intro_Ice();
 			break;
 
-		case 3:
+		case eTileTypes_Moors:
 			Briefing_Intro_Mor();
 			break;
 
-		case 4:
+		case eTileTypes_Int:
 			Briefing_Intro_Int();
 			break;
 		}
@@ -4948,7 +4949,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 		if( mSquad_Selected != Member->mSprite->field_32)
 			continue;
 			
-		sRecruit* Data28 = &mRecruits[Member->mRecruitID];
+		const sRecruit* Data28 = &mRecruits[Member->mRecruitID];
 		int16 Data14;
 
 		for( Data14 = 0; Data14 <= 5; ++Data14 ) {
@@ -5083,7 +5084,7 @@ void cFodder::Recruit_Render_HeroList() {
 
 		mGraphics->sub_145AF( Hero->mRank + 9, Data8, DataC );
 
-		sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
+		const sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
 
 		int16 Position;
 		for( Position = 0; Position <= 5; ++Position ) {
@@ -5602,7 +5603,7 @@ void cFodder::Sprite_Handle_Player_Unk( sSprite* pSprite ) {
 	int16 DataC = pSprite->field_4;
 
 	int16 Data10 = 0x1F;
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	
 	if (Data0 >= 0x0D)
 		return;
@@ -6693,7 +6694,7 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	sSprite* Data34 = 0;
 	int16 Data0, Data4, Data8, DataC, Data10;
 
-	if (mMap_TileSet == 3 || mMap_TileSet == 4)
+	if (mMap_TileSet == eTileTypes_Moors || mMap_TileSet == eTileTypes_Int)
 		if (pSprite->field_38 == 5)
 			pSprite->field_38 = 0;
 
@@ -7163,7 +7164,7 @@ loc_2492E:;
 	goto loc_24942;
 
 loc_24936:;
-	if (!sub_228B5( pSprite, Data34 ))
+	if (!Sprite_Homing_LockInRange( pSprite, Data34 ))
 		goto loc_2492E;
 
 	if (!Sprite_Create_MissileHoming( pSprite, Data2C, Data34 ))
@@ -7611,7 +7612,7 @@ loc_2500F:;
 	Data0 = tool_RandomGet() & 0x0F;
 	DataC += Data0;
 
-	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_25239;
 
 	pSprite->field_26 = Data10;
@@ -7639,7 +7640,7 @@ loc_250D2:;
 	DataC = Data30->field_4;
 	DataC += -5;
 
-	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotDriveable, Data8, DataC, Data10, Data14 ))
 		goto loc_251B4;
 	
 	Data0 = Data30->field_0;
@@ -7774,7 +7775,7 @@ int16 cFodder::sub_25680( sSprite* pSprite ) {
 	word_3B483 = DataC;
 	int16 Data10 = 0x20;
 
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data0 <= 3) {
 		Sprite_Destroy_Wrapper( pSprite );
 		word_3B47B = -1;
@@ -7822,7 +7823,7 @@ void cFodder::Sprite_Handle_Indigenous_Death( sSprite* pSprite ) {
 		pSprite->field_A = 0;
 		
 		int16 Data0 = tool_RandomGet() & 7;
-		int16 Data4 = byte_3D477[Data0];
+		int16 Data4 = mSound_Indigenous_Death[Data0];
 
 		Sound_Play( pSprite, Data4, 0x14 );
 	}
@@ -7923,6 +7924,7 @@ int16 cFodder::sub_25AAE( sSprite* pSprite ) {
 	int16 Data0 = tool_RandomGet() & 0x7F;
 	Data0 += 4;
 
+	// Map Width
 	if (Data0 >= readLEWord( &mMap[0x54] ))
 		return -1;
 
@@ -7930,6 +7932,7 @@ int16 cFodder::sub_25AAE( sSprite* pSprite ) {
 	Data0 = tool_RandomGet() & 0x3F;
 	Data0 += 4;
 
+	// Map Height
 	if (Data0 >= readLEWord( &mMap[0x56] ))
 		return -1;
 
@@ -7945,7 +7948,7 @@ int16 cFodder::sub_25AAE( sSprite* pSprite ) {
 
 	int16 Data10, Data14;
 
-	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
 		return -1;
 
 	pSprite->field_26 = Data10;
@@ -8029,7 +8032,7 @@ int16 cFodder::sub_25B6B( sSprite* pSprite ) {
 
 	Data2C->field_50 = Data0;
 
-	if (mMap_TileSet == 3) {
+	if (mMap_TileSet == eTileTypes_Moors) {
 		Data0 = tool_RandomGet() & 1;
 		if (Data0)
 			goto loc_25D9D;
@@ -8165,7 +8168,7 @@ void cFodder::sub_25FDA( sSprite* pSprite ) {
 	Data4 = pSprite->field_4;
 	Data10 = 0x80;
 
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data10 < 0x7F)
 		pSprite->field_5E = (dword_3B5F5 - mSprites);
 
@@ -8191,7 +8194,7 @@ loc_2608B:;
 	Data8 = pSprite->field_26;
 	DataC = pSprite->field_28;
 	Data10 = 0x10;
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data10 >= 0x10)
 		goto loc_2620F;
 
@@ -8226,7 +8229,7 @@ loc_2614F:;
 	DataC = pSprite->field_4;
 	Data10 = 0x10;
 
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data0 > 0x0A)
 		goto loc_2620F;
 	pSprite->field_6E = -1;
@@ -8266,7 +8269,7 @@ loc_2625B:;
 	Data8 = pSprite->field_26;
 	DataC = pSprite->field_28;
 	Data10 = 0x10;
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data0 >= 3)
 		return;
 	mHostage_Count -= 1;
@@ -8294,7 +8297,7 @@ loc_2631F:;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
 	Data10 = 0x10;
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data0 <= 0x0F) {
 		pSprite->field_6E = -1;
 		return;
@@ -8427,15 +8430,13 @@ int16 cFodder::sub_266CE( sSprite* pSprite, sSprite*& pData2C ) {
 		if (pData2C->field_38)
 			continue;
 
-		Data0 = pSprite->field_0;
-		Data0 -= 2;
-		int16 Data4 = pSprite->field_4;
-		Data4 -= 8;
+		Data0 = pSprite->field_0 - 2;
+		int16 Data4 = pSprite->field_4 - 8;
 		int16 Data8 = pData2C->field_0;
 		int16 DataC = pData2C->field_4;
 		int16 Data10 = 0x20;
 
-		sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+		Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 
 		if (Data0 < 9)
 			break;
@@ -8461,7 +8462,7 @@ void cFodder::Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite ) {
 	int16 Data8 = pSprite->field_26;
 	int16 DataC = pSprite->field_28;
 	int16 Data10 = 0x3F;
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data0 >= 0x2C)
 		return;
 
@@ -9099,7 +9100,7 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 		if (pData0 >= 0) {
 			pData0 &= 0x0F;
 
-			if (mTerrain_NotWalkable[pData0]) {
+			if (mTiles_NotWalkable[pData0]) {
 				pData0 = -1;
 				return -1;
 			}
@@ -9131,45 +9132,46 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 	}
 }
 
-void cFodder::sub_2A74F( int16& pData0, int16& pData4, int16& pData8, int16& pData10, int16& pDataC ) {
+int16 cFodder::Map_Get_Distance_BetweenPoints( int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2 ) {
 	const int8* Data24 = byte_3ECC0;
 
-	pData8 -= pData0;
-	if (pData8 < 0)
-		pData8 = -pData8;
+	pPosX2 -= pPosX;
+	if (pPosX2 < 0)
+		pPosX2 = -pPosX2;
 
-	if (pData8 >= pData10)
+	if (pPosX2 >= pDistance)
 		goto loc_2A7DB;
 
-	pDataC -= pData4;
-	if (pDataC < 0)
-		pDataC = -pDataC;
+	pPosY2 -= pPosY;
+	if (pPosY2 < 0)
+		pPosY2 = -pPosY2;
 
-	if (pDataC >= pData10)
+	if (pPosY2 >= pDistance)
 		goto loc_2A7DB;
 
-	pData10 = 0;
+	pDistance = 0;
 	for (;;) {
-		if (pData8 <= 0x1F)
-			if (pDataC <= 0x1F)
+		if (pPosX2 <= 0x1F)
+			if (pPosY2 <= 0x1F)
 				break;
 
-		pData8 >>= 1;
-		pDataC >>= 1;
-		++pData10;
+		pPosX2 >>= 1;
+		pPosY2 >>= 1;
+		++pDistance;
 	}
 	//loc_2A7AD
-	pDataC <<= 5;
-	pDataC |= pData8;
-	pData0 = 0;
+	pPosY2 <<= 5;
+	pPosY2 |= pPosX2;
+	pPosX = 0;
 
-	pData0 = Data24[pDataC];
-	pData0 <<= pData10;
+	pPosX = Data24[pPosY2];
+	pPosX <<= pDistance;
 
-	return;
+	return pPosX;
 
 loc_2A7DB:;
-	pData0 = 0x3E8;
+	pPosX = 0x3E8;
+	return 0x3E8;
 }
 
 /**
@@ -9249,7 +9251,7 @@ int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pDa
 	}
 
 	Data4 &= 0x0F;
-	Data0 = mTerrain_NotWalkable[Data4];
+	Data0 = mTiles_NotWalkable[Data4];
 	pY = Data0;
 	pX = Data4;
 
@@ -10434,7 +10436,7 @@ loc_2DE3C:;
 	if (word_3B4EB)
 		goto loc_2DF7B;
 
-	IndestructibleTypes = mMap_Tiles_Indestructible[mMap_TileSet];
+	IndestructibleTypes = mTiles_Indestructible[mMap_TileSet];
 
 	int16 ax;
 	do {
@@ -11593,7 +11595,7 @@ void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16
 
 	//seg003:3237
 	int16 cx = 5;
-	char* si = mRecruits[pRecruitID].mName;
+	const char* si = mRecruits[pRecruitID].mName;
 	std::stringstream tmpString;
 
 	for (cx = 5; cx >= 0; --cx) {
@@ -12993,7 +12995,7 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
 			Data0 = 0;
 	}
 	else
-		Data0 = mSounds_Helicopter[Data0 / 2];
+		Data0 = mSprite_Helicopter_Sounds[Data0 / 2];
 
 	if (pSprite->field_22)
 		goto loc_19EB5;
@@ -13194,21 +13196,21 @@ loc_1A287:;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
 
-	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 	
 	Data8 = pSprite->field_0;
 	Data8 -= 0x10;
 	DataC = pSprite->field_4;
 
-	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 
 	Data8 = pSprite->field_0;
 	Data8 += 0x10;
 	DataC = pSprite->field_4;
 
-	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotFlyable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
 		goto loc_1A316;
 
 	if (pSprite->field_20) {
@@ -14214,7 +14216,7 @@ void cFodder::Sprite_Handle_GrenadeBox( sSprite* pSprite ) {
 
 	int16 Data0 = 0;
 	pSprite->field_8 = 0xC2;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
@@ -14232,7 +14234,7 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 
 	int16 Data0 = 0;
 	pSprite->field_8 = 0xC3;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
@@ -14389,7 +14391,7 @@ void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 	int16 DataC = pSprite->field_4;
 	int16 Data10 = 0x10;
 
-	sub_2A74F( Data0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data0 <= 7)
 		goto loc_1BECD;
 
@@ -14712,7 +14714,7 @@ void cFodder::Sprite_Handle_Mine( sSprite* pSprite ) {
 	if (!pSprite->field_38) {
 		int16 Data0;
 		pSprite->field_8 = 0xC7;
-		sub_2244B( pSprite, Data0 );
+		Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 );
 	}
 	else {
 		pSprite->field_18 = eSprite_Explosion2;
@@ -14734,7 +14736,7 @@ void cFodder::Sprite_Handle_Mine2( sSprite* pSprite ) {
 
 	Data0 = 0;
 	pSprite->field_8 = 0xC8;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	if (mSquad_Leader->field_38)
@@ -14766,7 +14768,7 @@ void cFodder::Sprite_Handle_Spike( sSprite* pSprite ) {
 	if (pSprite->field_A)
 		goto loc_1C4AD;
 
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	if (Data0 >= 6)
@@ -15009,10 +15011,10 @@ loc_1C87E:;
 
 loc_1C8C5:;
 	
-	if (mMap_TileSet == 0)
+	if (mMap_TileSet == eTileTypes_Jungle)
 		sub_14D6D(pSprite, 0x1A);
 
-	if (mMap_TileSet == 2)
+	if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX)
 		sub_14D6D(pSprite, 0x1F);
 
 }
@@ -15081,10 +15083,10 @@ void cFodder::Sprite_Handle_Bird_Right( sSprite* pSprite ) {
 	pSprite->field_4 = Data0;
 
 loc_1CA20:;
-	if (mMap_TileSet == 0)
+	if (mMap_TileSet == eTileTypes_Jungle)
 		sub_14D6D(pSprite, 0x1A);
 
-	if (mMap_TileSet == 2)
+	if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX)
 		sub_14D6D(pSprite, 0x1F);
 }
 
@@ -15108,7 +15110,7 @@ void cFodder::Sprite_Handle_Seal( sSprite* pSprite ) {
 	Data0 = byte_3E916[Data0];
 	pSprite->field_A = Data0;
 
-	if (mMap_TileSet == 3) {
+	if (mMap_TileSet == eTileTypes_Moors) {
 		Data0 = tool_RandomGet() & 3;
 		if (Data0 != 3) {
 			Data0 += 0x23;
@@ -15116,7 +15118,7 @@ void cFodder::Sprite_Handle_Seal( sSprite* pSprite ) {
 		}
 	}
 
-	if (mMap_TileSet == 2) {
+	if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX) {
 		sub_14D6D( pSprite, 0x1E );
 	}
 }
@@ -15157,7 +15159,7 @@ void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 	DataC = Data30->field_4;
 	DataC += -5;
 
-	if (Map_Terrain_Get_Moveable_Wrapper( mTerrain_NotDriveable, Data8, DataC, Data10, Data14 ))
+	if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotDriveable, Data8, DataC, Data10, Data14 ))
 		goto loc_1CD7B;
 
 	Data0 = pSprite->field_0;
@@ -15253,10 +15255,10 @@ void cFodder::Sprite_Handle_Indigenous_Spear( sSprite* pSprite ) {
 	pSprite->field_22 = 2;
 	pSprite->field_8 = 0xD0;
 
-	if (mMap_TileSet == 3)
+	if (mMap_TileSet == eTileTypes_Moors)
 		sub_14D6D( pSprite, 0x26 );
 	
-	if (mMap_TileSet == 4)
+	if (mMap_TileSet == eTileTypes_Int)
 		sub_14D6D( pSprite, 0x1F );
 
 	int16 ax = sub_25680( pSprite );
@@ -15935,7 +15937,7 @@ void cFodder::Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite ) {
 
 	pSprite->field_8 = 0x95;
 	pSprite->field_A = 0x0F;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	sSquad_Member* Data24 = (sSquad_Member*) mSquad_Leader->field_46;
@@ -15957,7 +15959,7 @@ void cFodder::Sprite_Handle_Bonus_Rockets( sSprite* pSprite ) {
 
 	pSprite->field_8 = 0xE4;
 	pSprite->field_A = 0;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	mSquad_Leader->field_75 |= 1;
@@ -15976,7 +15978,7 @@ void cFodder::Sprite_Handle_Player_Rocket( sSprite* pSprite ) {
 	pSprite->field_8 = 0x3E;
 	pSprite->field_A = 0;
 	int16 Data0;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		 return;
 	
 	mSquad_Leader->field_75 |= 2;
@@ -15991,7 +15993,7 @@ void cFodder::Sprite_Handle_Bonus_RocketsAndGeneral( sSprite* pSprite ) {
 	int16 Data0 = 0;
 	pSprite->field_8 = 0xE5;
 	pSprite->field_A = 0;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	mSquad_Leader->field_75 |= 3;
@@ -16020,7 +16022,7 @@ void cFodder::Sprite_Handle_Bonus_SquadGeneralRockets( sSprite* pSprite ) {
 	int16 Data0 = 0;
 	pSprite->field_8 = 0xE6;
 	pSprite->field_A = 0;
-	if (sub_2244B( pSprite, Data0 ))
+	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
 	if (mSquad_Selected < 0)
@@ -16211,7 +16213,7 @@ void cFodder::sub_14D6D( sSprite* pSprite, int16 pData4 ) {
 	pData4 = word_3B4DD;
 	int16 Data8 = 0;
 
-	if (mMap_TileSet == 4 || mMap_TileSet == 3)
+	if (mMap_TileSet == eTileTypes_Int || mMap_TileSet == eTileTypes_Moors)
 		Data8 = 0x7F;
 
 	Sound_Play( pSprite, pData4, Data8 );
@@ -16313,7 +16315,7 @@ int16 cFodder::sub_1E05A( sSprite* pSprite ) {
 	Data0 = tool_RandomGet();
 	Data4 = 0;
 	Data0 &= 7;
-	Data4 = byte_3D477[Data0];
+	Data4 = mSound_Indigenous_Death[Data0];
 	//seg004:5508
 	Data8 = 0x14;
 	Sound_Play( pSprite, Data4, Data8 );
@@ -16370,7 +16372,7 @@ loc_1E2F4:;
 	pSprite->field_2A = Data0;
 	Data0 = tool_RandomGet() & 7;
 
-	Data4 = byte_3D477[Data0];
+	Data4 = mSound_Indigenous_Death[Data0];
 	Data8 = 0;
 	Sound_Play( pSprite, Data4, Data8 );
 	return -1;
@@ -16385,7 +16387,7 @@ loc_1E3D2:;
 
 		if (!(pSprite->field_28 & 7)) {
 			Data0 = tool_RandomGet() & 7;
-			Data4 = byte_3D477[Data0];
+			Data4 = mSound_Indigenous_Death[Data0];
 			Data8 = 0x14;
 			Sound_Play( pSprite, Data4, Data8 );
 		}
@@ -16579,7 +16581,7 @@ loc_1E831:;
 		pSprite->field_52 = 0x0E;
 		pSprite->field_12 = 0x14;
 		Data0 = tool_RandomGet() & 0x07;
-		Data4 = byte_3D477[Data0];
+		Data4 = mSound_Indigenous_Death[Data0];
 		Data8 = 0x0A;
 		Sound_Play( pSprite, Data4, Data8 );
 		goto loc_1E9EC;
@@ -17068,7 +17070,6 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 }
 
 void cFodder::Sprite_Handle_Troop( sSprite* pSprite ) {
-	int16 Data0;
 
 	if (!pSprite->field_22)
 		goto loc_1F45B;
@@ -19986,7 +19987,7 @@ int16 cFodder::sub_222A3( sSprite* pSprite ) {
 	if (Data4 < 0)
 		Data0 = -Data0;
 
-	if (mMap_TileSet == 2)
+	if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX)
 		Data0 += 0x1C0;
 
 	pSprite->field_10 = Data0;
@@ -20038,7 +20039,15 @@ void cFodder::sub_223B2( sSprite* pSprite ) {
 	pSprite->field_A = 0;
 }
 
-int16 cFodder::sub_2244B( sSprite* pSprite, int16& pData0 ) {
+/**
+ * Check the distance between the provided sprite, and the squad leader
+ *
+ * @param pSprite
+ * @param pData0
+ *
+ * @return 0 if within range, 1 if not
+ */
+int16 cFodder::Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite, int16& pData0 ) {
 	int16 Data4, Data8, DataC, Data10;
 
 	if (mSquad_CurrentVehicle)
@@ -20062,7 +20071,7 @@ int16 cFodder::sub_2244B( sSprite* pSprite, int16& pData0 ) {
 
 	DataC += 2;
 
-	sub_2A74F( pData0, Data4, Data8, Data10, DataC );
+	Map_Get_Distance_BetweenPoints( pData0, Data4, Data8, Data10, DataC );
 	if (pData0 >= 6)
 		return 1;
 
@@ -20169,7 +20178,7 @@ loc_22622:;
 			goto loc_22801;
 	}
 
-	if (!sub_228B5(pSprite, Data34))
+	if (!Sprite_Homing_LockInRange(pSprite, Data34))
 		goto loc_227EB;
 
 	Data2C->field_1A = (int32*)Data34;
@@ -20209,47 +20218,44 @@ loc_2281B:;
 	return 0;
 }
 
-int16 cFodder::sub_228B5( sSprite* pSprite, sSprite*& pData34 ) {
-	const int16* Data30 = word_45718;
+int16 cFodder::Sprite_Homing_LockInRange( sSprite* pSprite, sSprite*& pFoundSprite ) {
 
-	int16 Data8 = mMouseX;
-	int16 DataC = mMouseY;
+	int16 MouseX = mMouseX;
+	int16 MouseY = mMouseY;
 
-	Data8 += mCamera_Adjust_Col >> 16;
-	DataC += mCamera_Adjust_Row >> 16;
+	MouseX += mCamera_Adjust_Col >> 16;
+	MouseY += mCamera_Adjust_Row >> 16;
 
-	Data8 -= 0x10;
-	if (!Data8)
-		Data8 = 1;
+	MouseX -= 0x10;
+	if (!MouseX)
+		MouseX = 1;
 
-	DataC += 0x08;
+	MouseY += 0x08;
 	
-	pData34 = mSprites;
-	for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pData34) {
+	pFoundSprite = mSprites;
+	for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pFoundSprite) {
 
-		if (pData34->field_0 == -32768)
+		if (pFoundSprite->field_0 == -32768)
 			continue;
 
-		if (!Data30[pData34->field_18])
+		if (!mSprite_Missile_CanLock[pFoundSprite->field_18])
 			continue;
 
-		if ( pData34->field_22 == pSprite->field_22)
+		if (pFoundSprite->field_22 == pSprite->field_22)
 			continue;
 
-		int16 Data0 = pData34->field_0;
-		Data0 += 5;
+		int16 Data0 = pFoundSprite->field_0 + 5;
+		int16 Data4 = pFoundSprite->field_4 - 5;
 
-		int16 Data4 = pData34->field_4;
-		Data4 -= 5;
+		Data4 -= pFoundSprite->field_20;
+		int16 Distance = 0x1F;
+		int16 S_Data8 = MouseX;
+		int16 S_DataC = MouseY;
+		
+		Map_Get_Distance_BetweenPoints( Data0, Data4, MouseX, Distance, MouseY );
 
-		Data4 -= pData34->field_20;
-		int16 Data10 = 0x1F;
-		int16 S_Data8 = Data8;
-		int16 S_DataC = DataC;
-		sub_2A74F( Data0, Data4, Data8, Data10, DataC );
-
-		Data8 = S_Data8;
-		DataC = S_DataC;
+		MouseX = S_Data8;
+		MouseY = S_DataC;
 
 		if (Data0 < 0x16) {
 			Data0 = -1;
@@ -20614,7 +20620,7 @@ void cFodder::Exit( unsigned int pExitCode ) {
 
 void cFodder::GUI_Sidebar_Grenades_Draw( ) {
 	int16 Data0 = word_3AC1F;
-	int16 Data8, DataC, Data14, Data4, Data10;
+	int16 Data8, DataC, Data4, Data10;
 
 	if (!mSquad_Grenades[word_3AC1F])
 		goto loc_2ED63;
@@ -20776,7 +20782,7 @@ loc_2F1BC:;
 		mGraphics->sub_145AF( Data0, Data8, DataC );
 		Data0 = 0;
 
-		sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
+		const sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
 		if (!word_3AC47) {
 			Data0 = 2;
 		}
@@ -21343,7 +21349,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
 	Data38->mSelected ^= 1;
 
-	sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
+	const sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
 	Data0 = Data38->mSelected & 1;
 	Data4 = 3;
 	Data8 = word_3A3BF;

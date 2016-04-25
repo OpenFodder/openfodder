@@ -111,14 +111,6 @@ union sMapTarget {
 	};
 };
 
-struct sCopyProtection {
-	int16		mPage;
-	int16		mParagraph;
-	int16		mLine;
-	int16		mWord;
-	const uint8* mAnswer;
-};
-
 extern const struct_2 stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
@@ -1076,9 +1068,9 @@ public:
 	int16			Sprite_Handle_BuildingDoor_Explode( sSprite* pSprite );
 	int16			sub_222A3( sSprite* pSprite );
 	void			sub_223B2( sSprite* pSprite );
-	int16			sub_2244B( sSprite* pSprite, int16& pData0 );
+	int16			Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite, int16& pData0 );
 	int16			sub_224ED( sSprite* pSprite );
-	int16			sub_228B5( sSprite* pSprite, sSprite*& pData34 );
+	int16			Sprite_Homing_LockInRange( sSprite* pSprite, sSprite*& pFoundSprite );
 	void			sub_229C9( sSprite* pSprite );
 	void			sub_22A3D( sSprite* pSprite );
 	int16			Sprite_Destroy_Wrapper_2( sSprite* pSprite );
@@ -1147,7 +1139,7 @@ public:
 	int16			sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_2A4FD( int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C );
 	int16			sub_2A622( int16& pData0 );
-	void			sub_2A74F( int16& pData0, int16& pData4, int16& pData8, int16& pData10, int16& pDataC );
+	int16			Map_Get_Distance_BetweenPoints( int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2 );
 
 	int16			Map_Terrain_Get_Type_And_Walkable( int16& pY, int16& pX );
 	int16			Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, int16& pX );

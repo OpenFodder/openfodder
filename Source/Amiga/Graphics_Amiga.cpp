@@ -963,12 +963,12 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 
 	mFodder->map_SetTileType();
 
-	JunData1.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData2.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData3.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData4.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData5.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData6.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData1.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData2.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData3.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData4.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData5.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData6.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
 
 	size_t Size = 0;
 	uint8* Data = g_Resource.fileGet( JunData1, Size );

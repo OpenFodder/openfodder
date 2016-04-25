@@ -28,4 +28,6 @@ struct sRecruit {
 	int8 field_8;
 };
 
-extern struct sRecruit mRecruits[360];
+extern const struct sRecruit mRecruits[360];
+extern const struct sRecruitSpritePos mRecruitSprite[34];
+extern struct sRecruit_Screen_Pos mRecruit_Screen_Positions[294];
