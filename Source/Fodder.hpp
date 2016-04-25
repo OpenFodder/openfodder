@@ -111,6 +111,14 @@ union sMapTarget {
 	};
 };
 
+struct sCopyProtection {
+	int16		mPage;
+	int16		mParagraph;
+	int16		mLine;
+	int16		mWord;
+	const int8* mAnswer;
+};
+
 extern const struct_2 stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
@@ -448,13 +456,13 @@ class cFodder : public cSingleton < cFodder > {
 	sGUI_Element*	mGUI_NextFreeElement;
 	int16			word_3AEFB;
 	int16			word_3AF01;
-	int16			word_3AF03;
-	int16			word_3AF05;
+	int16			mMap_Destroy_Tile_X;
+	int16			mMap_Destroy_Tile_Y;
 	int16			word_3AF07;
 	struct_7		stru_3AF0B[128];
 
 	struct_7*		dword_3B11B;
-	struct_7*		dword_3B11F;
+	struct_7*		mMap_Destroy_TilesPtr;
 	int16			word_3B15D;
 	int16			word_3B15F;
 	int16			word_3B161;
@@ -505,7 +513,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B305;
 	int16			word_3B307;
 
-	void			(cFodder::*dword_3B30D)(void);
+	void			(cFodder::*dword_3B30D)(int16 pPosY);
 
 	int16			mInputString_Position;
 	int16			word_3B335;
@@ -592,8 +600,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			graphicsSub0[160];
 	int16			graphicsBaseBht[960];
 	int16			graphicsSub0Bht[640];
-	int16			word_3D03D[240];
-	int16			word_3D21D[161];
+	int16			mMap_Base_Swp[240];
+	int16			mMap_Sub_Swp[161];
 
 	int16			word_3D465;
 	int16			word_3D467;
@@ -825,6 +833,9 @@ public:
 	void			Briefing_Draw_Mission_Name( );
 	void			Briefing_Draw_Mission_Title( );
 
+	void			CopyProtection();
+	void			CopyProtection_EncodeInput();
+
 	/* Recruitment */
 	bool			Recruit_Show();
 	void			Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
@@ -834,7 +845,7 @@ public:
 	void			Recruit_Render_LeftMenu();
 	void			Recruit_Render_Squad_Names();
 	void			Recruit_Render_Squad_RankKills();
-	void			sub_170A4( int16 pData4, int16 pData10 );
+	void			Recruit_Render_Number( int16 pNumber, int16 pData10 );
 	void			Recruit_Render_HeroList();
 	void			Recruit_Render_Names_UnusedSlots();
 	void			sub_17429();
@@ -848,12 +859,13 @@ public:
 	void			sub_17B64();
 	void			Recruit_Draw();
 	void			Recruit_Draw_Graves( );
-	void			sub_17C91( int16 Data0, int16 Data8, int16 DataC );
-	void			Service_Show();
-
+	void			Recruit_Draw_Grave( int16 pSpriteType, int16 pPosX, int16 pPosY );
+	bool			Recruit_Check_Buttons_SaveLoad();
+	void			Recruit_Render_Text( const char* pText, int16 pPosY );
 	/* End Recruitment */
 
 	/* Promotion / Heroes */
+	void			Service_Show();
 	void			Service_KIA_Loop();
 	void			Service_Promotion_Loop();
 	int16			Service_KIA_Troop_Prepare();
@@ -885,8 +897,7 @@ public:
 	void			Briefing_Draw_Pixel( int16 pX, int16 pY, uint8 pColor );
 
 	void			Intro_Print_String( int32 pPosX, const sIntroString* pString );
-	bool			Recruit_Check_Buttons_SaveLoad();
-	
+
 	void			sub_18D5E();
 	
 	void			Sprite_Table_Setup();
@@ -928,7 +939,7 @@ public:
 	void			Sprite_Handle_Enemy_Rocket( sSprite* pSprite );							// 36
 	void			Sprite_Handle_GrenadeBox( sSprite* pSprite );							// 37
 	void			Sprite_Handle_RocketBox( sSprite* pSprite );							// 38
-	void			sub_1BB11( sSprite* pSprite );											// 39
+	void			Sprite_Handle_Building_Explosion( sSprite* pSprite );					// 39
 
 	void			Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite );				// 40
 	void			Sprite_Handle_Flashing_Light( sSprite* pSprite );						// 41
@@ -1053,8 +1064,8 @@ public:
 	void			sub_21702( sSprite* pSprite, int16 pData18 );
 	void			sub_2183B( sSprite* pSprite );
 	void			sub_218E2( sSprite* pSprite );
-	int16			sub_21914( int16& pData8, int16& pDataC );
-	int16			sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC );
+	int16			Sprite_Create_Building_Explosion_Wrapper( int16& pX, int16& pY );
+	int16			Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, int16& pY );
 	int16			Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C );
 	int16			Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			sub_21C00( sSprite* pData2C );
@@ -1180,7 +1191,7 @@ public:
 	int16			sub_2DBA3( sSprite* pSprite );
 	void			sub_2DCB0( int16 pData0 );
 	void			sub_2DD50( sSprite* pSprite );
-	void			sub_2DE2C( );
+	void			Map_Destroy_Tiles( );
 	void			sub_2E01C();
 	void			Game_Save_Wrapper2();
 	void			GUI_Element_Reset();
@@ -1192,7 +1203,7 @@ public:
 	void			Game_Save();
 	void			GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );
 	void			GUI_Button_Load_Exit();
-	void			String_Print_Input();
+	void			String_Print_Input( int16 pPosY );
 	void			sub_2E6A9();
 	void			GUI_Input_CheckKey();
 	void			Game_Load();
@@ -1330,7 +1341,6 @@ public:
 
 	void			Load_SetupData( const std::string& pFilename );
 	
-	void			GUI_Print_Text( const char* pText, int16 pPosY );
 	void			Video_Sleep();
 
 	void			sleepLoop( int64 pMilliseconds );
