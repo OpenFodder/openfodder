@@ -188,3 +188,19 @@ struct sSprite {
 	int8 field_74;
 	int8 field_75;
 };
+
+extern const int16 mEnemy_Unit_Types[];
+
+extern const int16 mSprite_Missile_CanLock[];
+extern const int16 mSprite_Width[];
+extern const int16 mSprite_Height_Top[];
+extern const int16 mSprite_Height_Bottom[];
+extern const int16 mSprite_Can_Be_RunOver[];
+extern const int16 mSprite_Explosion_Area_PerFrame[];
+extern const int16 mSprite_Explosion_Positions[];
+extern const int16 mSprite_Turret_Positions[];
+extern const int16 mSprite_Helicopter_Light_Positions[];
+extern const int16 mSprite_Helicopter_Sounds[];
+extern const int16 mSprite_SpiderMine_Frames[];
+extern const int16 mSprite_Hostage_Frames[];
+extern const int16 mSprite_Helicopter_CallPad_Frames[];

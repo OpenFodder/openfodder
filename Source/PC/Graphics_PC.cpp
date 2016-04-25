@@ -686,11 +686,11 @@ void cGraphics_PC::Briefing_Load_Resources() {
 
 	mFodder->map_SetTileType();
 
-	JunData1.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData2.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData3.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData4.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
-	JunData5.insert( 0, mMapTypes[mFodder->mMap_TileSet] );
+	JunData1.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData2.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData3.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData4.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData5.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
 
 	mFodder->mDataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mFodder->mDataBaseBlk );
 	mFodder->word_42861 = mFodder->mDataBaseBlk;
