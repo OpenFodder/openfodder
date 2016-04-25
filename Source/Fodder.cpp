@@ -800,8 +800,8 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AC51 = 0;
 
 	word_3AF01 = 0;
-	word_3AF03 = 0;
-	word_3AF05 = 0;
+	mMap_Destroy_Tile_X = 0;
+	mMap_Destroy_Tile_Y = 0;
 
 	for (uint16 x = 0; x < 128; ++x) {
 		stru_3AF0B[x].field_0 = 0;
@@ -810,7 +810,7 @@ void cFodder::Mission_Memory_Clear() {
 
 	word_3AF07 = 0;
 	dword_3B11B = 0;
-	dword_3B11F = 0;
+	mMap_Destroy_TilesPtr = 0;
 
 	for (uint16 x = 0; x < 42; ++x) {
 		mGUI_Elements[x].field_0 = 0;
@@ -1685,7 +1685,7 @@ loc_11D8A:;
 	} while (mImageFaded == -1);
 
 	if (word_3AF07)
-		sub_2DE2C();
+		Map_Destroy_Tiles();
 
 	dword_39F7C = 0;
 
@@ -1746,11 +1746,11 @@ void cFodder::map_Load_Resources() {
 	mFilenameSubBht = Filename_CreateFromBase( BaseSub, ".bht" );
 	mFilenameBasePal  = Filename_CreateFromBase( BaseBase, ".pal" );
 
-	size_t Size = g_Resource.fileLoadTo( mFilenameBaseSwp, (uint8*) &word_3D03D[0] );
-	tool_EndianSwap( (uint8*)&word_3D03D[0], Size );
+	size_t Size = g_Resource.fileLoadTo( mFilenameBaseSwp, (uint8*) &mMap_Base_Swp[0] );
+	tool_EndianSwap( (uint8*)&mMap_Base_Swp[0], Size );
 	
-	Size = g_Resource.fileLoadTo( mFilenameSubSwp, (uint8*) &word_3D21D[0] );
-	tool_EndianSwap( (uint8*)&word_3D21D[0], Size );
+	Size = g_Resource.fileLoadTo( mFilenameSubSwp, (uint8*) &mMap_Sub_Swp[0] );
+	tool_EndianSwap( (uint8*)&mMap_Sub_Swp[0], Size );
 
 	Size = g_Resource.fileLoadTo( mFilenameBaseHit, (uint8*) &graphicsBaseHit[0] );
 	tool_EndianSwap( (uint8*)&graphicsBaseHit[0], Size );
@@ -2073,7 +2073,7 @@ void cFodder::Mission_Sprites_Handle( ) {
 	word_39FB2 = word_39FB6;
 	word_39FB4 = word_39FB8;
 
-	sub_2DE2C();
+	Map_Destroy_Tiles();
 	Sprite_Draw();
 }
 
@@ -2246,7 +2246,7 @@ void cFodder::Mission_Phase_Goals_Check() {
 
 void cFodder::sub_126BB() {
 	dword_3B11B = stru_3AF0B;
-	dword_3B11F = stru_3AF0B;
+	mMap_Destroy_TilesPtr = stru_3AF0B;
 
 	stru_3AF0B[0].field_0 = -1;
 	stru_3AF0B[0].field_2 = -1;
@@ -4436,6 +4436,137 @@ void cFodder::Briefing_Draw_Mission_Title( ) {
 	String_Print( mFont_Underlined_Width, 1, word_3B301, word_3A01A, *Data20 );
 }
 
+void cFodder::CopyProtection() {
+
+	if (mVersion->mVersion != eVersion::Dos_CD)
+		return;
+
+	g_Graphics.Load_Hill_Bits();
+	g_Graphics.SetSpritePtr( eSpriteType::eSPRITE_HILL );
+
+	int16 CopyProtectionAttempts = 0;
+
+	for (; CopyProtectionAttempts < 3; ++CopyProtectionAttempts) {
+		sub_136D0();
+
+		int16 Data0;
+		do {
+			Data0 = tool_RandomGet();
+			Data0 &= 0x0F;
+		}  while (Data0 == 0);
+
+		mImage->clearBuffer();
+		mGraphics->PaletteSet();
+
+		const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
+
+		std::string Page = "PAGE ";
+		std::string Paragraph = "PARAGRAPH ";
+		std::string Line = "LINE ";
+		std::string Word = "WORD ";
+
+		Page.append( tool_NumToString( word_44A1C->mPage ) );
+		Paragraph.append( tool_NumToString( word_44A1C->mParagraph ) );
+		Line.append( tool_NumToString( word_44A1C->mLine ) );
+		Word.append( tool_NumToString( word_44A1C->mWord ) );
+
+		Recruit_Render_Text( "ENTER WORD FROM", 0 );
+		Recruit_Render_Text( "MANUAL AT", 0x14 );
+		Recruit_Render_Text( Page.c_str(), 0x3C );
+		Recruit_Render_Text( Paragraph.c_str(), 0x50 );
+		Recruit_Render_Text( Line.c_str(), 0x64 );
+		Recruit_Render_Text( Word.c_str(), 0x78 );
+
+		mImageFaded = -1;
+		int8 byte_44B49 = 0;
+		bool mShow = false;
+
+		word_3B301 = 5;
+		word_3B303 = 10;
+		memset( mInputString, 0, sizeof( mInputString ) );
+		mInputString_Position = 0;
+
+		mImage->Save();
+		word_39F66 = 0;
+
+		while (word_39F66 != 0x0D) {
+			
+			if (mImageFaded) {
+				mImageFaded = mImage->paletteFade();
+			}
+
+			String_Print_Input( 0xA0 );
+
+			++byte_44B49;
+			byte_44B49 &= 0x0F;
+			if (!byte_44B49)
+				mShow = !mShow;
+
+			if (mShow)
+				Sprite_Draw_Frame( 0x0F, 0xA0, 0x00, word_3B301 + word_3B303 );
+
+			g_Window.RenderAt( mImage );
+			g_Window.FrameEnd();
+			eventProcess();
+
+			mImage->Restore();
+		}
+
+		mImage->paletteFadeOut();
+
+		while (mImage->GetFaded() == false) {
+			g_Window.RenderAt( mImage );
+			g_Window.FrameEnd();
+			mImage->paletteFade();
+		}
+
+		mInputString[mInputString_Position] = 0xFF;
+
+		CopyProtection_EncodeInput();
+
+		const int8* Answer = word_44A1C->mAnswer;
+		bool Failed = false;
+
+		for (int16 Pos = 0; mInputString[Pos] != -1; ++Pos) {
+
+			if (mInputString[Pos] != *Answer++) {
+				Failed = true;
+				break;
+			}
+		}
+
+		if (!Failed)
+			return;
+	}
+
+	Exit(1);
+}
+
+void cFodder::CopyProtection_EncodeInput() {
+	int16 bx = mInputString[0] & 0xFF;
+	int16 cx = 0;
+
+	bool bx_c = false;
+
+	for (int16 Pos = 0; Pos < 21; ++Pos) {
+		cx -= bx;
+
+		if (mInputString[Pos] == -1)
+			return;
+
+	rollLoop:;
+
+		bx = (bx << 8) | (bx >> 8);
+
+		mInputString[Pos] ^= (bx & 0xFF);
+		mInputString[Pos] ^= (cx & 0xFF);
+		--mInputString[Pos];
+
+		if (mInputString[Pos] == -1)
+			goto rollLoop;
+	}
+}
+
 bool cFodder::Demo_ShowMenu() {
 
 	mSound->Music_Stop();
@@ -4686,47 +4817,46 @@ void cFodder::sub_16C6C() {
 	}
 }
 
-void cFodder::sub_17C91( int16 pData0, int16 pData8, int16 pDataC ) {
-	pData0 >>= 1;
-	if (pData0 > 8)
-		pData0 = 0;
+void cFodder::Recruit_Draw_Grave( int16 pSpriteType, int16 pPosX, int16 pPosY ) {
+	pSpriteType >>= 1;
+	if (pSpriteType > 8)
+		pSpriteType = 8;
 
-	int16 Data4 = pDataC;
-	Data4 -= 0x14;
-	Data4 >>= 5;
-	if (Data4 >= 5)
-		Data4 = 4;
+	int16 Frame = pPosY;
+	Frame -= 0x14;
+	Frame >>= 5;
+	if (Frame >= 5)
+		Frame = 4;
 
-	pDataC -= 8;
-	Sprite_Draw_Frame( pData0, pDataC, Data4, pData8 );
+	pPosY -= 8;
+	Sprite_Draw_Frame( pSpriteType, pPosY, Frame, pPosX );
 }
 
 void cFodder::Recruit_Draw_Graves( ) {
-	int16 Data0 = 1440;
 	int32 Data1C = -1;
-	int16* Data24 = mGraveRanks;
+	int16* GraveRank = mGraveRanks;
+	const int16* GravePosition = &mGravePositions[720];
 
-	for(; *Data24 >= 0 ; ++Data24) {
-		Data0 -= 4;
+	for(; *GraveRank >= 0 ; ++GraveRank) {
+		GravePosition -= 2;
 		Data1C++;
 	}
 
-	if (Data24 == mGraveRanks)
+	if (GraveRank == mGraveRanks)
 		return;
 
-	--Data24;
-	const int16* Data20 = &mGravePositions[Data0 / 2];
+	--GraveRank;
 
 	do {
-		Data0 = *Data24 & 0xFF;
-		if (Data0 < 0)
+		int16 RankSprite = *GraveRank & 0xFF;
+		if (RankSprite < 0)
 			return;
 
-		--Data24;
-		int16 Data8 = *Data20++;
-		int16 DataC = *Data20++;
+		--GraveRank;
+		int16 PosX = *GravePosition++;
+		int16 PosY = *GravePosition++;
 
-		sub_17C91( Data0, Data8, DataC );
+		Recruit_Draw_Grave( RankSprite, PosX, PosY );
 
 		--Data1C;
 	} while (Data1C >= 0);
@@ -4910,7 +5040,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 			
 		} else {
 			// Draw Kills
-			sub_170A4( Member->mNumberOfKills, 0x43 );
+			Recruit_Render_Number( Member->mNumberOfKills, 0x43 );
 			
 		}
 		
@@ -4927,10 +5057,10 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 	}
 }
 
-void cFodder::sub_170A4( int16 pData4, int16 pData10 ) {
+void cFodder::Recruit_Render_Number( int16 pNumber, int16 pData10 ) {
 	
 	pData10 -= 0x30;
-	std::string Data20 = tool_StripLeadingZero(tool_NumToString( pData4 ));
+	std::string Data20 = tool_StripLeadingZero(tool_NumToString( pNumber ));
 	uint16 Data0 = (uint16) Data20.length() * 4;
 
 	int16 Data8 = 0x30 - Data0;
@@ -4991,7 +5121,7 @@ void cFodder::Recruit_Render_HeroList() {
 			mGraphics->sub_145AF( Character, Data8, DataC  + 0x19 );
 		}
 
-		sub_170A4( Hero->mKills, 0x67 );
+		Recruit_Render_Number( Hero->mKills, 0x67 );
 		word_3A3BD += 0x0C;
 	}
 }
@@ -5623,7 +5753,7 @@ void cFodder::sub_30AB0() {
 
 		Data8 = Data20->field_4;
 		Data8 -= Data20->field_20;
-		Data8 -= word_4555C[Data18];
+		Data8 -= mSprite_Height_Top[Data18];
 		Data8 -= 0x14;
 
 		if (Data4 < Data8)
@@ -9874,15 +10004,11 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 	mSprites_Found_Count = 0;
 
 	pData24 = mSprites;
-	const int16* Data28 = mSprite_Can_Be_RunOver;
-	const int16* Data2C = mSprite_Width;
-	const int16* Data30 = word_4555C;
-	const int16* Data34 = word_4563A;
 
 	for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pData24) {
 		int16 Data4 = pData24->field_18;
 
-		if (!Data28[Data4])
+		if (!mSprite_Can_Be_RunOver[Data4])
 			continue;
 
 		if (pData24->field_0 < 0)
@@ -9892,24 +10018,24 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 			continue;
 
 		int16 Data0 = pData24->field_0;
-		Data0 += Data2C[Data4];
+		Data0 += mSprite_Width[Data4];
 		if (pData8 > Data0)
 			continue;
 
 		Data0 = pData24->field_4;
-		Data0 -= Data30[Data4];
+		Data0 -= mSprite_Height_Top[Data4];
 		if (pData14 < Data0)
 			continue;
 
 		//seg009:050C
 		Data0 = pData24->field_4;
-		Data0 += Data34[Data4];
+		Data0 += mSprite_Height_Bottom[Data4];
 
 		if (pData10 > Data0)
 			continue;
 
 		int16 Data18 = pSprite->field_20;
-		Data0 = Data30[Data4];
+		Data0 = mSprite_Height_Top[Data4];
 		Data0 += 8;
 
 		Data0 += pData24->field_20;
@@ -9931,7 +10057,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 		if (pSprite->field_18 == eSprite_Explosion2)
 			goto loc_2D620;
 
-		if (pSprite->field_18 == 0x27)
+		if (pSprite->field_18 == eSprite_Building_Explosion)
 			goto loc_2D62C;
 
 		if (pSprite->field_18 != eSprite_Explosion)
@@ -9951,7 +10077,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 		goto loc_2D6ED;
 
 	loc_2D642:;
-		if (Data28[Data4] == 2)
+		if (mSprite_Can_Be_RunOver[Data4] == 2)
 			goto loc_2D659;
 
 		mSprites_Found_Count = 1;
@@ -10267,11 +10393,11 @@ void cFodder::sub_2DD50( sSprite* pSprite ) {
 	dword_3B11B = Data28;
 }
 
-void cFodder::sub_2DE2C( ) {
+void cFodder::Map_Destroy_Tiles( ) {
+	int16* Data20 = 0; 
 	uint8* Data24 = 0;
-	const int16* Data30 = off_3DE38[mMap_TileSet];
-	int16* Data20 = 0;
-	int16 Data0, Data4, Data8, Data10, DataC;
+	const int16* IndestructibleTypes = 0;
+	int16 Data0, Data4, Data10, TileType;
 
 	if (word_3AF07) {
 		--word_3AF07;
@@ -10279,7 +10405,7 @@ void cFodder::sub_2DE2C( ) {
 	}
 
 loc_2DE3C:;
-	Data20 = (int16*) dword_3B11F;
+	Data20 = (int16*) mMap_Destroy_TilesPtr;
 
 	Data0 = *Data20;
 	Data4 = *(Data20 + 1);
@@ -10287,17 +10413,17 @@ loc_2DE3C:;
 	if (Data0 < 0)
 		return;
 
-	word_3AF03 = Data0;
+	mMap_Destroy_Tile_X = Data0;
 	word_3B4EB = 0;
-	word_3AF05 = Data4;
-	if (word_3AF05 < 0) {
+	mMap_Destroy_Tile_Y = Data4;
+	if (mMap_Destroy_Tile_Y < 0) {
 		word_3B4EB = -1;
 		Data4 = -Data4;
-		word_3AF05 = Data4;
+		mMap_Destroy_Tile_Y = Data4;
 	}
 	//loc_2DE89
 	Data4 >>= 4;
-	Data4 *= readLEWord( &mMap[0x54] );
+	Data4 *= readLEWord( &mMap[0x54] );	// * Width
 
 	Data0 >>= 4;
 	Data4 += Data0;
@@ -10307,26 +10433,26 @@ loc_2DE3C:;
 
 	Data10 = readLEWord( Data24 );
 	Data10 &= 0x1FF;
-	DataC = Data10;
+	TileType = Data10;
 
-	Data4 = word_3D03D[Data10];
+	Data4 = mMap_Base_Swp[Data10];
 	if (Data4 < 0)
 		goto loc_2DF55;
 
 	if (word_3B4EB)
 		goto loc_2DF7B;
 
-	//seg010:0608 
+	IndestructibleTypes = mMap_Tiles_Indestructible[mMap_TileSet];
 
 	int16 ax;
 	do {
-		if (*Data30 < 0)
+		if (*IndestructibleTypes < 0)
 			goto loc_2DF7B;
 
-		ax = *Data30;
-		Data30++;
+		ax = *IndestructibleTypes;
+		IndestructibleTypes++;
 
-	} while (DataC != ax);
+	} while (TileType != ax);
 
 loc_2DF55:;
 	sub_2E01C();
@@ -10337,9 +10463,7 @@ loc_2DF55:;
 
 loc_2DF7B:;
 
-	Data8 = word_3AF03;
-	DataC = word_3AF05;
-	Data0 = sub_21914(Data8, DataC);
+	Data0 = Sprite_Create_Building_Explosion_Wrapper( mMap_Destroy_Tile_X, mMap_Destroy_Tile_Y );
 
 	if (Data0)
 		return;
@@ -10350,7 +10474,7 @@ loc_2DF7B:;
 	sub_2E01C();
 
 loc_2DFC7:;
-	ax = word_3AF03;
+	ax = mMap_Destroy_Tile_X;
 	ax >>= 4;
 	ax -= word_3B612;
 	ax <<= 4;
@@ -10359,7 +10483,7 @@ loc_2DFC7:;
 
 	mDrawSpritePositionX = ax;
 
-	ax = word_3AF05;
+	ax = mMap_Destroy_Tile_Y;
 	ax >>= 4;
 	ax -= word_3B614;
 	ax <<= 4;
@@ -10376,13 +10500,13 @@ loc_2DFC7:;
 
 void cFodder::sub_2E01C() {
 	
-	struct_7* Data20 = dword_3B11F;
+	struct_7* Data20 = mMap_Destroy_TilesPtr;
 	++Data20;
 	
 	if( Data20 >= &stru_3AF0B[128] ) 
 		Data20 = stru_3AF0B;
 	
-	dword_3B11F = Data20;
+	mMap_Destroy_TilesPtr = Data20;
 }
 
 void cFodder::Game_Save_Wrapper2() {
@@ -10406,9 +10530,15 @@ void cFodder::GUI_Element_Reset() {
 	}
 }
 
+void cFodder::Recruit_Render_Text( const char* pText, int16 pPosY ) {
+
+	String_CalculateWidth( 320, mFont_Recruit_Width, pText );
+	String_Print( mFont_Recruit_Width, 0x0D, word_3B301, pPosY, pText );
+}
+
 void cFodder::GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC ) {
 
-	GUI_Print_Text( pText, pY );
+	Recruit_Render_Text( pText, pY );
 
 	GUI_Box_Draw( pColorShadow, pColorPrimary );
 }
@@ -10462,7 +10592,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 			GUI_SaveLoad_MouseHandle( mGUI_Elements );
 
 		if (dword_3B30D)
-			(this->*dword_3B30D)();
+			(this->*dword_3B30D)(0x50);
 
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
@@ -10520,7 +10650,7 @@ void cFodder::Game_Save() {
 
 	GUI_Element_Reset();
 
-	GUI_Print_Text( "TYPE A FILENAME IN", 0x32 );
+	Recruit_Render_Text( "TYPE A FILENAME IN", 0x32 );
 
 	GUI_Button_Draw( "EXIT", 0xA0 );
 	GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
@@ -10587,12 +10717,12 @@ void cFodder::GUI_Button_Load_Exit() {
 	word_3B2CD = 1;
 }
 
-void cFodder::String_Print_Input() {
+void cFodder::String_Print_Input( int16 pPosY ) {
 	GUI_Input_CheckKey();
 	int16 Data4;
 	char* Data24;
 
-	GUI_Print_Text( mInputString, 0x50 );
+	Recruit_Render_Text( mInputString, pPosY );
 
 	int16 Data0 = word_39F66;
 	if (Data0 == 0x0D && mInputString_Position)
@@ -10698,7 +10828,7 @@ void cFodder::Game_Load() {
 	
 	do {
 		GUI_Element_Reset();
-		GUI_Print_Text( "SELECT FILE", 0x0C );
+		Recruit_Render_Text( "SELECT FILE", 0x0C );
 
 		GUI_Button_Draw( "UP", 0x24 );
 		GUI_Button_Setup( &cFodder::GUI_Button_Load_Up );
@@ -14124,7 +14254,7 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 	Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::sub_1BB11( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Building_Explosion( sSprite* pSprite ) {
 	int16 Data0, Data4, Data6, Data8, DataC, Data10, Data14;
 	const int16* Data2C = mSprite_Explosion_Area_PerFrame;
 	sSprite* Data24 = 0;
@@ -17912,8 +18042,8 @@ void cFodder::sub_311A7() {
 	}
 
 	const int16* Data2C = mSprite_Width;
-	const int16* Data30 = word_4555C;
-	const int16* Data34 = word_4563A;
+	const int16* Data30 = mSprite_Height_Top;
+	const int16* Data34 = mSprite_Height_Bottom;
 
 	int16 Data0 = mMouseX;
 	int16 Data4 = mMouseY;
@@ -17983,7 +18113,7 @@ loc_313C6:;
 
 int16 cFodder::sub_313CD() {
 	const int16* Data2C = mSprite_Width;
-	const int16* Data30 = word_4555C;
+	const int16* Data30 = mSprite_Height_Top;
 
 	int16 Data0 = mMouseX;
 	int16 Data4 = mMouseY;
@@ -18263,7 +18393,7 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 }
 
 void cFodder::intro() {
-	//copyprotection();
+	CopyProtection();
 	word_42851 = 0;
 	sub_136D0();
 
@@ -18369,12 +18499,6 @@ void cFodder::Mission_Phase_Next() {
 	mGraveRecruitIDPtr = mGraveRecruitID;
 	mGraveRecruitID[0] = -1;
 	mGraveRankPtr2 = mGraveRankPtr;
-}
-
-void cFodder::GUI_Print_Text( const char* pText, int16 pPosY ) {
-	
-	String_CalculateWidth(320, mFont_Recruit_Width, pText );
-	String_Print( mFont_Recruit_Width, 0x0D, word_3B301, pPosY, pText );
 }
 
 void cFodder::Video_Sleep() {
@@ -19400,10 +19524,10 @@ void cFodder::sub_218E2( sSprite* pSprite ) {
 	int16 DataC = pSprite->field_4;
 	
 	Sprite_Clear( pSprite );
-	sub_2194E( pSprite, Data8, DataC );
+	Sprite_Create_Building_Explosion( pSprite, Data8, DataC );
 }
 
-int16 cFodder::sub_21914( int16& pData8, int16& pDataC ) {
+int16 cFodder::Sprite_Create_Building_Explosion_Wrapper( int16& pX, int16& pY ) {
 	int16 Data0 = 1;
 	sSprite* Data2C, *Data30;
 
@@ -19412,16 +19536,16 @@ int16 cFodder::sub_21914( int16& pData8, int16& pDataC ) {
 
 	Sprite_Clear(Data2C);
 
-	pData8 &= -16;
-	pDataC &= -16;
+	pX &= -16;
+	pY &= -16;
 
-	return sub_2194E( Data2C, pData8, pDataC );
+	return Sprite_Create_Building_Explosion( Data2C, pX, pY );
 }
 
-int16 cFodder::sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC ) {
-	pData2C->field_0 = pData8;
-	pData2C->field_4 = pDataC;
+int16 cFodder::Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, int16& pY ) {
 
+	pData2C->field_0 = pX;
+	pData2C->field_4 = pY;
 	pData2C->field_4 += 0x10;
 
 	sSprite* Data20 = pData2C;
@@ -19430,10 +19554,9 @@ int16 cFodder::sub_2194E( sSprite* pData2C, int16& pData8, int16& pDataC ) {
 	Data4 &= 3;
 	Data4 += 5;
 
-	int16 Data8 = 0x1E;
-	Sound_Play( Data20, Data4, Data8 );
+	Sound_Play( Data20, Data4, 0x1E );
 
-	pData2C->field_18 = 0x27;
+	pData2C->field_18 = eSprite_Building_Explosion;
 	pData2C->field_8 = 0x8E;
 	pData2C->field_A = 0;
 	pData2C->field_12 = 1;
@@ -20475,8 +20598,6 @@ Start:;
 	}
 }
 
-
-
 void cFodder::map_Tiles_Draw() {
 	word_40054 = 0;
 	word_3B60E = 0;
@@ -20493,7 +20614,7 @@ void cFodder::map_Tiles_Draw() {
 
 void cFodder::Exit( unsigned int pExitCode ) {
 
-	exit( 0 );
+	exit( pExitCode );
 }
 
 void cFodder::GUI_Sidebar_Grenades_Draw( ) {

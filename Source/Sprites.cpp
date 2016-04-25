@@ -91,7 +91,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Enemy_Rocket );
 	SpriteFunction( GrenadeBox );
 	SpriteFunction( RocketBox );
-	SpriteTableFunction( 39,						sub_1BB11 );
+	SpriteFunction( Building_Explosion );
 
 	/* 40 */
 	SpriteFunction( Helicopter_Grenade_Enemy );

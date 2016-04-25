@@ -49,7 +49,7 @@ enum eSprites {
 	eSprite_Enemy_Rocket					= 36,
 	eSprite_GrenadeBox						= 37,
 	eSprite_RocketBox						= 38,
-
+	eSprite_Building_Explosion				= 39,
 	eSprite_Helicopter_Grenade_Enemy			= 40,
 	eSprite_Flashing_Light						= 41,
 	eSprite_Helicopter_Grenade2_Enemy			= 42,
