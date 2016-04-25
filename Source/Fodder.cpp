@@ -4457,7 +4457,7 @@ void cFodder::CopyProtection() {
 		mImage->clearBuffer();
 		mGraphics->PaletteSet();
 
-		const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
+		const sCopyProtection* word_44A1C = &mCopyProtection_Values[8];
 
 		std::string Page = "PAGE " + tool_NumToString( word_44A1C->mPage );
 		std::string Paragraph = "PARAGRAPH " + tool_NumToString( word_44A1C->mParagraph );
@@ -18387,7 +18387,7 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 void cFodder::intro() {
 	
 	// Disabled: GOG CD Version doesn't require a manual check
-	// CopyProtection();
+	 CopyProtection();
 
 	word_42851 = 0;
 	sub_136D0();
