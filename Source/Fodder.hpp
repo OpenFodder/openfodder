@@ -89,14 +89,6 @@ struct sRecruitRendered {
 	int16	mPosition;
 };
 
-struct struct_5 {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-	int16	field_6;
-	int16	field_8;
-};
-
 struct struct_7 {
 	int16	field_0;
 	int16	field_2;
@@ -414,8 +406,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABB3;
 	int16			word_3ABB5;
 	int16			word_3ABB7;
-	struct_5		stru_3ABB9;
-	int16			word_3ABC3;
+	sBulletData		mSprite_Bullet_Data;
+	int16			mSprite_Bullet_Distance_Modifier;
 	int16			word_3ABC5;
 	int16			word_3ABC7;
 	sSquad_Member*	dword_3ABC9;
@@ -759,7 +751,7 @@ public:
 	void			Camera_Pan_Toward_SquadLeader();
 	void			Mission_Sprites_Handle( );
 	void			Sprite_Sort_DrawList();
-	void			sub_124DB();
+	void			Sprite_Bullet_SetData();
 	void			Mission_Phase_Goals_Check();
 	void			sub_126BB();
 	void			Mission_Phase_Goals_Set();

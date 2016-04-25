@@ -189,6 +189,14 @@ struct sSprite {
 	int8 field_75;
 };
 
+struct sBulletData {
+	int16	field_0;
+	int16	field_2;
+	int16	field_4;
+	int16	field_6;
+	int16	field_8;
+};
+
 extern const int16 mEnemy_Unit_Types[];
 
 extern const int16 mSprite_Missile_CanLock[];
@@ -204,3 +212,4 @@ extern const int16 mSprite_Helicopter_Sounds[];
 extern const int16 mSprite_SpiderMine_Frames[];
 extern const int16 mSprite_Hostage_Frames[];
 extern const int16 mSprite_Helicopter_CallPad_Frames[];
+extern const sBulletData mSprite_Bullet_UnitData[];

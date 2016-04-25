@@ -283,7 +283,7 @@ int16 cFodder::Mission_Loop( ) {
 		}
 
 		//loc_10841
-		sub_124DB();
+		Sprite_Bullet_SetData();
 		sub_12C69();
 		sub_12B6E();
 
@@ -749,17 +749,17 @@ void cFodder::Mission_Memory_Clear() {
 	word_3ABB3 = 0;
 	word_3ABB5 = 0;
 	word_3ABB7 = 0;
-	stru_3ABB9.field_0 = 0;
-	stru_3ABB9.field_2 = 0;
-	stru_3ABB9.field_4 = 0;
-	stru_3ABB9.field_6 = 0;
-	stru_3ABB9.field_8 = 0;
+	mSprite_Bullet_Data.field_0 = 0;
+	mSprite_Bullet_Data.field_2 = 0;
+	mSprite_Bullet_Data.field_4 = 0;
+	mSprite_Bullet_Data.field_6 = 0;
+	mSprite_Bullet_Data.field_8 = 0;
 
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
 	word_3ABAD = 0;
 	word_3ABAF = 0;
-	word_3ABC3 = 0;
+	mSprite_Bullet_Distance_Modifier = 0;
 	word_3ABC5 = 0;
 	word_3ABC7 = 0;
 	dword_3ABC9 = 0;
@@ -2161,7 +2161,7 @@ void cFodder::Sprite_Sort_DrawList() {
 	}
 }
 
-void cFodder::sub_124DB() {
+void cFodder::Sprite_Bullet_SetData() {
 	if (dword_3B48B[0] == INVALID_SPRITE_PTR || dword_3B48B[0] == 0)
 		return;
 
@@ -2174,10 +2174,7 @@ void cFodder::sub_124DB() {
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
 
-
-	const struct_5* Dataaa20 = &stru_3D35F[Data0];
-
-	stru_3ABB9 = *Dataaa20;
+	mSprite_Bullet_Data = mSprite_Bullet_UnitData[Data0];
 }
 
 void cFodder::Mission_Phase_Goals_Check() {
@@ -9847,7 +9844,7 @@ void cFodder::Squad_Troops_Count() {
 	mSquads_TroopCount[3] = 0;
 	byte_3A05E = 0;
 
-	int16 Data14 = 0;
+	int16 TotalTroops = 0;
 
 	mSquad_0_Sprites[0] = INVALID_SPRITE_PTR;
 	mSquad_1_Sprites[0] = INVALID_SPRITE_PTR;
@@ -9855,6 +9852,7 @@ void cFodder::Squad_Troops_Count() {
 	mSquad_3_Sprites[0] = INVALID_SPRITE_PTR;
 	mSquad_4_Sprites[0] = INVALID_SPRITE_PTR;
 
+	// Loop through all squad members
 	for (int8 Data1C = 0; Data1C < 8; ++Data1C) {
 		sSquad_Member* Data2C = &mSquad[Data1C];
 
@@ -9877,7 +9875,7 @@ void cFodder::Squad_Troops_Count() {
 
 		uint8 Data10 = mSquads_TroopCount[ Sprite->field_32 ] & 0xFF;
 		mSquads_TroopCount[ Sprite->field_32 ] += 1;
-		++Data14;
+		++TotalTroops;
 
 		sSprite** Data30 = mSquads[ Sprite->field_32 ];
 		//seg009:0151
@@ -9889,7 +9887,7 @@ void cFodder::Squad_Troops_Count() {
 	}
 	//seg009:019E
 
-	if (!Data14)
+	if (!TotalTroops)
 		mMission_TryAgain = -1;
 
 	dword_3A8DB = readLEDWord( &mSquads_TroopCount );
@@ -9915,7 +9913,7 @@ int16 cFodder::sub_2D26A( sSquad_Member* pData24 ) {
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
 
-	return stru_3D35F[Data0].field_6;
+	return mSprite_Bullet_UnitData[Data0].field_6;
 }
 
 void cFodder::Squad_Member_Rotate_Can_Fire() {
@@ -9936,8 +9934,8 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 	if (Dataa20 == 0)
 		return;
 
-	word_3ABB3 = stru_3ABB9.field_4;
-	word_3ABC3 = 0;
+	word_3ABB3 = mSprite_Bullet_Data.field_4;
+	mSprite_Bullet_Distance_Modifier = 0;
 	word_3ABC5 = 0;
 
 	if (Dataa20->mRank > 0x14) {
@@ -9946,7 +9944,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 
 			if (mSquads_TroopCount[mSquad_Selected] == 1) {
 				word_3ABB3 = 1;
-				word_3ABC3 = -3;
+				mSprite_Bullet_Distance_Modifier = -3;
 				word_3ABC5 = 0x0A;
 			}
 		}
@@ -18388,7 +18386,7 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 void cFodder::intro() {
 	
 	// Disabled: GOG CD Version doesn't require a manual check
-	 CopyProtection();
+	//  CopyProtection();
 
 	word_42851 = 0;
 	sub_136D0();
@@ -18683,27 +18681,26 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 	Data0 &= 0x07;
 	Data2C->field_A = Data0;
 	Data2C->field_12 = 9;
-	if (!pSprite->field_18)
-		goto loc_20777;
 
-	Data0 = pSprite->field_62;
-	Data0 >>= 3;
-	Data0 += 8;
-	if (Data0 > 0x10)
-		Data0 = 0x10;
-	Data2C->field_12 = Data0;
-	goto loc_207CF;
+	if (pSprite->field_18 != eSprite_Player) {
 
-loc_20777:;
+		Data0 = pSprite->field_62;
+		Data0 >>= 3;
+		Data0 += 8;
+		if (Data0 > 0x10)
+			Data0 = 0x10;
+		Data2C->field_12 = Data0;
+	} else {
 
-	Data2C->field_5E = ((sSquad_Member*) pSprite->field_46) - mSquad;
-	Data2C->field_5D = -1;
+		Data2C->field_5E = ((sSquad_Member*)pSprite->field_46) - mSquad;
+		Data2C->field_5D = -1;
 
-	Data0 = stru_3ABB9.field_2;
-	Data0 += word_3ABC3;
-	Data2C->field_12 = Data0;
+		// Bullet Travel distance
+		Data0 = mSprite_Bullet_Data.field_2;
+		Data0 += mSprite_Bullet_Distance_Modifier;
+		Data2C->field_12 = Data0;
+	}
 
-loc_207CF:;
 	Data2C->field_18 = eSprite_Bullet;
 	Data2C->field_1E = pSprite->field_1E;
 	Data2C->field_20 = pSprite->field_20;
@@ -18715,7 +18712,7 @@ loc_207CF:;
 	if (pSprite->field_22)
 		goto loc_2087D;
 
-	Data0 = stru_3ABB9.field_0;
+	Data0 = mSprite_Bullet_Data.field_0;
 	Data0 += word_3ABC5;
 	Data2C->field_4A = Data0;
 
@@ -18771,7 +18768,7 @@ loc_209B3:;
 	if (!word_3B1AB)
 		goto loc_209F3;
 
-	Data8 = stru_3ABB9.field_6;
+	Data8 = mSprite_Bullet_Data.field_6;
 loc_209C7:;
 	Data0 = tool_RandomGet();
 	Data4 = Data0;
@@ -20510,7 +20507,7 @@ Start:;
 			Sprite_Handle_Loop();
 			//seg000:05D1
 
-			sub_124DB();
+			Sprite_Bullet_SetData();
 			word_39F06 = 0;
 			Sprite_Create_Rank( );
 			mCamera_Start_Adjust = 1;

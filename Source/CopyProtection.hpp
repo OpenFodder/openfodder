@@ -21,11 +21,11 @@
 */
 
 struct sCopyProtection {
-	int16		mPage;
-	int16		mParagraph;
-	int16		mLine;
-	int16		mWord;
-	const uint8* mAnswer;
+	int16			mPage;
+	int16			mParagraph;
+	int16			mLine;
+	int16			mWord;
+	const uint8*	mAnswer;
 };
 
 extern const sCopyProtection mCopyProtection_Values[];
