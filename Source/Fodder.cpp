@@ -4451,8 +4451,7 @@ void cFodder::CopyProtection() {
 
 		int16 Data0;
 		do {
-			Data0 = tool_RandomGet();
-			Data0 &= 0x0F;
+			Data0 = tool_RandomGet() & 0x0F;
 		}  while (Data0 == 0x0F);
 
 		mImage->clearBuffer();
@@ -4460,15 +4459,10 @@ void cFodder::CopyProtection() {
 
 		const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
 
-		std::string Page = "PAGE ";
-		std::string Paragraph = "PARAGRAPH ";
-		std::string Line = "LINE ";
-		std::string Word = "WORD ";
-
-		Page.append( tool_NumToString( word_44A1C->mPage ) );
-		Paragraph.append( tool_NumToString( word_44A1C->mParagraph ) );
-		Line.append( tool_NumToString( word_44A1C->mLine ) );
-		Word.append( tool_NumToString( word_44A1C->mWord ) );
+		std::string Page = "PAGE " + tool_NumToString( word_44A1C->mPage );
+		std::string Paragraph = "PARAGRAPH " + tool_NumToString( word_44A1C->mParagraph );
+		std::string Line = "LINE " + tool_NumToString( word_44A1C->mLine );
+		std::string Word = "WORD " + tool_NumToString( word_44A1C->mWord );
 
 		Recruit_Render_Text( "ENTER WORD FROM", 0 );
 		Recruit_Render_Text( "MANUAL AT", 0x14 );
@@ -18393,7 +18387,7 @@ void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
 void cFodder::intro() {
 	
 	// Disabled: GOG CD Version doesn't require a manual check
-	// 	CopyProtection();
+	// CopyProtection();
 
 	word_42851 = 0;
 	sub_136D0();
