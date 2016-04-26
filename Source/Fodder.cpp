@@ -8412,7 +8412,7 @@ loc_265B1:;
 	pSprite->field_43 = -1;
 }
 
-int16 cFodder::sub_266CE( sSprite* pSprite, sSprite*& pData2C ) {
+int16 cFodder::Sprite_Handle_Helicopter_Callpad_InRange( sSprite* pSprite, sSprite*& pData2C ) {
 	sSprite** Data28 = mSprite_TroopsAlive;
 	int16 Data0 = 0;
 
@@ -16049,7 +16049,7 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 	pSprite->field_8 = 0xE7;
 	pSprite->field_2C = -1;
 
-	if (sub_266CE( pSprite, Data2C )) {
+	if (Sprite_Handle_Helicopter_Callpad_InRange( pSprite, Data2C )) {
 		pSprite->field_75 = 0;
 	} else {
 		++mHelicopterCallPadPressedCount;
@@ -21522,8 +21522,8 @@ void cFodder::sub_30E49() {
 		if (Data10 == mSquad_Selected)
 			++word_3A3BF;
 
-		Data10 = Data20->field_0;
-		Data10 += 4;
+		Data10 = Data20->field_0 + 4;
+
 		int16 Data14 = Data20->field_4;
 		Data14 -= Data20->field_20;
 		Data14 -= 0x0D;
@@ -21555,8 +21555,7 @@ void cFodder::sub_30E49() {
 			return;
 		}
 
-		Data0 = mSquads_TroopCount[Data10];
-		Data0 += mSquads_TroopCount[Data14];
+		Data0 = mSquads_TroopCount[Data10] + mSquads_TroopCount[Data14];
 		if (Data0 > 8)
 			return;
 
