@@ -900,7 +900,7 @@ void cFodder::Mission_Memory_Clear() {
 	mHelicopterCallPadPressedCount = 0;
 
 	for (uint16 x = 0; x < 16; ++x) {
-		dword_3B48B[x] = 0;
+		mSprite_TroopsAlive[x] = 0;
 	}
 	mHelicopterCall_X = 0;
 	mHelicopterCall_Y = 0;
@@ -1346,7 +1346,7 @@ void cFodder::Squad_Prepare_Sprites() {
 		if (Data20->field_0 == -32768)
 			continue;
 
-		if (Data20->field_18)
+		if (Data20->field_18 != eSprite_Player)
 			continue;
 
 		--word_3A016;
@@ -2162,10 +2162,10 @@ void cFodder::Sprite_Sort_DrawList() {
 }
 
 void cFodder::Sprite_Bullet_SetData() {
-	if (dword_3B48B[0] == INVALID_SPRITE_PTR || dword_3B48B[0] == 0)
+	if (mSprite_TroopsAlive[0] == INVALID_SPRITE_PTR || mSprite_TroopsAlive[0] == 0)
 		return;
 
-	sSprite* Data20 = dword_3B48B[0];
+	sSprite* Data20 = mSprite_TroopsAlive[0];
 	sSquad_Member* Dataa20 = (sSquad_Member*)Data20->field_46;
 	int16 Data0 = 0;
 
@@ -8413,7 +8413,7 @@ loc_265B1:;
 }
 
 int16 cFodder::sub_266CE( sSprite* pSprite, sSprite*& pData2C ) {
-	sSprite** Data28 = dword_3B48B;
+	sSprite** Data28 = mSprite_TroopsAlive;
 	int16 Data0 = 0;
 
 	do {
@@ -9836,7 +9836,7 @@ loc_2D03B:;
 }
 
 void cFodder::Squad_Troops_Count() {
-	sSprite** Data34 = dword_3B48B;
+	sSprite** Data34 = mSprite_TroopsAlive;
 
 	mSquads_TroopCount[0] = 0;
 	mSquads_TroopCount[1] = 0;

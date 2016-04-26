@@ -518,7 +518,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B483;
 	int16			mHelicopterCallPadCount;
 	int16			mHelicopterCallPadPressedCount;
-	sSprite*		dword_3B48B[16];
+	sSprite*		mSprite_TroopsAlive[16];
 	int16			mHelicopterCall_X;
 	int16			mHelicopterCall_Y;
 	sSprite*		dword_3B4CF;
