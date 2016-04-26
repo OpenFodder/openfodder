@@ -3647,6 +3647,9 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
 	int16 Saved0 = Data0;
 	int16 Saved4 = pSoundEffect;
 
+	Data0 = 0;
+	pSoundEffect = 0;
+
 	sub_2B378( Data0, pSoundEffect, pData8, DataC );
 
 	Data0 /= 0x10;
@@ -10295,9 +10298,8 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 }
 
 int16 cFodder::Squad_Join_Check( sSprite* pSprite ) {
-	int8 Data2C = byte_3BF1B[pSprite->field_32];
 
-	if (Data2C < 0)
+	if (byte_3BF1B[pSprite->field_32] < 0)
 		return -1;
 
 	sSprite* Dataa2C = word_3BF1E[pSprite->field_32];
