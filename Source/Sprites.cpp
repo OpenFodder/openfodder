@@ -336,7 +336,7 @@ const int16 mSprite_Helicopter_Sounds[] = {
 	4, 51, 52, 53, 54, 4, 51, 52
 };
 
-const sBulletData mSprite_Bullet_UnitData[] = {
+const sWeaponData mSprite_Bullet_UnitData[] = {
 	{ 70, 8, 7, 31, 0 },
 	{ 75, 8, 7, 31, 0 },
 	{ 80, 8, 7, 31, 0 },
