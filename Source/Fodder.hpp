@@ -1119,7 +1119,7 @@ public:
 	void			Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite );
 	void			Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C );
 
-	void			sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+	void			Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 );
 	int16			Direction_Calculate( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	void			tool_RandomSeed();
@@ -1172,7 +1172,7 @@ public:
 	void			Sprite_Aggression_Set();
 	void			Sprite_Handle_Enemy_Aggression_Set( sSprite* pSprite );
 	int16			Sprite_Next_WalkTarget_Set( sSprite* pSprite );
-	int16			sub_2DBA3( sSprite* pSprite );
+	int16			Squad_Join_Check( sSprite* pSprite );
 	void			sub_2DCB0( int16 pData0 );
 	void			sub_2DD50( sSprite* pSprite );
 	void			Map_Destroy_Tiles( );

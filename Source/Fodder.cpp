@@ -431,7 +431,7 @@ Mouse_In_Playfield:;
 	int16 Data8_Saved = Data8;
 	int16 DataC_Saved = DataC;
 	
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	
 	if( mSquad_CurrentVehicle ) {
 	
@@ -1391,7 +1391,7 @@ void cFodder::Camera_Position_Update() {
 	int16 Data8_Saved = Data8;
 	int16 DataC_Saved = DataC;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 > 0x10) {
 		Data4 = word_39F3A;
 
@@ -1645,7 +1645,7 @@ void cFodder::Camera_Refresh( ) {
 		DataC = Data10;
 
 	if (!word_3ABB7) {
-		sub_29E30(Data0,Data4,Data8,DataC);
+		Map_Get_Distance_BetweenPoints_Within_320(Data0,Data4,Data8,DataC);
 
 		if (Data0 >= 0x8C)
 			goto loc_11D8A;
@@ -6305,7 +6305,7 @@ loc_2356B:;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 >= 0x1E)
 		goto loc_2361A;
 
@@ -6884,7 +6884,7 @@ int16 cFodder::Sprite_Find_By_Types( sSprite* pSprite, int16& pData0, int16& pDa
 	pData8 = pData28->field_0;
 	pDataC = pData28->field_4;
 
-	sub_29E30( pData0, pData4, pData8, pDataC );
+	Map_Get_Distance_BetweenPoints_Within_320( pData0, pData4, pData8, pDataC );
 
 	word_3AA4B = pData0;
 
@@ -7212,7 +7212,7 @@ int16 cFodder::Sprite_Create_Grenade2( sSprite* pSprite ) {
 	Data0 = pSprite->field_0;
 	Data4 = pSprite->field_4;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 < 0x28)
 		Data0 = 0x28;
 
@@ -7555,7 +7555,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 	Data8 = ((int64) pSprite->field_46) >> 16;
 	DataC = ((int64) pSprite->field_46) & 0xFFFF;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 > 0x14)
 		goto loc_250D2;
 
@@ -7644,7 +7644,7 @@ loc_250D2:;
 	Data4 = Data30->field_4;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 
 	word_3B177 = Data0;
 	if (Data0 < 0xFA)
@@ -8501,45 +8501,45 @@ void cFodder::Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C ) {
 	pSprite->field_20 = word_3E982[Data0 / 2];
 }
 
-void cFodder::sub_29E30( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
+void cFodder::Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 ) {
 	const int8* Data24 = byte_3ECC0;
 	int16 Data10 = 0;
 
-	pData8 -= pData0;
-	if (pData8 < 0)
-		pData8 = -pData8;
+	pX2 -= pX;
+	if (pX2 < 0)
+		pX2 = -pX2;
 
-	if (pData8 >= 0x140)
+	if (pX2 >= 0x140)
 		goto loc_29EBB;
 
-	pDataC -= pData4;
-	if (pDataC < 0)
-		pDataC = -pDataC;
+	pY2 -= pY;
+	if (pY2 < 0)
+		pY2 = -pY2;
 
-	if (pDataC >= 0x140)
+	if (pY2 >= 0x140)
 		goto loc_29EBB;
 
 
 	for (;;) {
-		if (pData8 <= 0x1F)
-			if (pDataC <= 0x1F)
+		if (pX2 <= 0x1F)
+			if (pY2 <= 0x1F)
 				break;
 
-		pData8 >>= 1;
-		pDataC >>= 1;
+		pX2 >>= 1;
+		pY2 >>= 1;
 		++Data10;
 	}
 	//loc_29E8C
-	pDataC <<= 5;
-	pDataC |= pData8;
-	pData0 = 0;
+	pY2 <<= 5;
+	pY2 |= pX2;
+	pX = 0;
 
-	pData0 = Data24[pDataC];
-	pData0 <<= Data10;
+	pX = Data24[pY2];
+	pX <<= Data10;
 	return;
 
 loc_29EBB:;
-	pData0 = 0x3E8;
+	pX = 0x3E8;
 }
 
 int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 ) {
@@ -10294,21 +10294,20 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 	return -1;
 }
 
-int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
+int16 cFodder::Squad_Join_Check( sSprite* pSprite ) {
 	int8 Data2C = byte_3BF1B[pSprite->field_32];
-	int16 Data0;
 
 	if (Data2C < 0)
 		return -1;
 
 	sSprite* Dataa2C = word_3BF1E[pSprite->field_32];
-	if (Dataa2C->field_18 != 0)
+	if (Dataa2C->field_18 != eSprite_Player)
 		return -1;
 	
 	sSprite** Data30 = mSquads[mSquad_Selected];
-	int16 Data1C = 0;
+	int16 MaxDistance = 0;
 
-	for (Data1C = 0x0C;;) {
+	for (MaxDistance = 0x0C;;) {
 		if (*Data30 == INVALID_SPRITE_PTR)
 			break;
 
@@ -10316,15 +10315,15 @@ int16 cFodder::sub_2DBA3( sSprite* pSprite ) {
 
 		if (pSprite == eax)
 			break;
-		Data1C += 8;
+		MaxDistance += 8;
 	}
 
-	Data0 = Dataa2C->field_0;
+	int16 Data0 = Dataa2C->field_0;
 	int16 Data4 = Dataa2C->field_4;
 	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
-	sub_29E30( Data0, Data4, Data8, DataC );
-	if (Data0 <= Data1C)
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
+	if (Data0 <= MaxDistance)
 		return Squad_Join(pSprite);
 
 	return 0;
@@ -12269,7 +12268,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 						int16 Data8 = Data28->field_0;
 						int16 DataC = Data28->field_4;
 						
-						sub_29E30( Data0, Data4, Data8, DataC );
+						Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 						if (Data0 < 0xD2) {
 
 							if (Data0 <= 0x28)
@@ -12600,7 +12599,7 @@ loc_19701:;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
 	
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 <= 1)
 		pSprite->field_36 = 0;
 
@@ -12877,7 +12876,7 @@ loc_19BA8:;
 	Data8 = pSprite->field_2E;
 	DataC = pSprite->field_30;
 	
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	
 	Data4 = pSprite->field_36;
 	Data4 >>= 3;
@@ -13128,7 +13127,7 @@ loc_1A149:;
 	Data8 = pSprite->field_26;
 	DataC = pSprite->field_28;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	dword_3B213[0x0E] = (sSprite*) Data0;
 
 	if (Data0 >= 0x60)
@@ -13981,7 +13980,7 @@ loc_1B523:;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
 	
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 >= 0x1E)
 		goto loc_1B5D2;
 
@@ -14092,7 +14091,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 <= 7)
 		goto loc_1B843;
 
@@ -14465,7 +14464,7 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
 	Data4 = Data34->field_4 + 8;
 	Data8 = pSprite->field_0;
 	DataC = pSprite->field_4;
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	Data4 = pSprite->field_36;
 	Data4 >>= 4;
 	Data4 += 1;
@@ -15170,7 +15169,7 @@ void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 	word_3B17D = Data8;
 	word_3B17F = DataC;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	word_3B17F = Data0;
 	if (Data0 >= 0xFA)
 		goto loc_1CD7B;
@@ -15322,7 +15321,7 @@ loc_1CF3E:;
 	Data8 = pSprite->field_2E;
 	DataC = pSprite->field_30;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	Data4 = pSprite->field_36;
 	Data4 >>= 3;
 	if (Data0 > Data4)
@@ -15594,7 +15593,7 @@ void cFodder::sub_1D4D2( sSprite* pSprite ) {
 	Data8 = pSprite->field_2E;
 	DataC = pSprite->field_30;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 
 	Data4 = pSprite->field_36;
 	Data4 >>= 3;
@@ -15875,7 +15874,7 @@ void cFodder::Sprite_Handle_Seal_Mine( sSprite* pSprite ) {
 	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 > 0x14)
 		return;
 
@@ -15914,7 +15913,7 @@ void cFodder::Sprite_Handle_Spider_Mine( sSprite* pSprite ) {
 	DataC = pSprite->field_4;
 	DataC -= 2;
 	Data10 = 0x20;
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 > 0x0A)
 		return;
 
@@ -17251,7 +17250,7 @@ void cFodder::sub_1F6F4( sSprite* pSprite ) {
 		Sprite_Movement_Calculate( pSprite );
 	}
 
-	sub_2DBA3( pSprite );
+	Squad_Join_Check( pSprite );
 	sub_20478( pSprite );
 
 	byte_3ABA9 = pSprite->field_60;
@@ -18815,7 +18814,7 @@ int16 cFodder::Sprite_Create_Grenade( sSprite* pSprite ) {
 	Data4 = pSprite->field_4;
 	Data8 = pSprite->field_2E;
 	DataC = pSprite->field_30;
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 >= 0x82)
 		goto loc_20ADE;
 
@@ -18883,7 +18882,7 @@ loc_20B6E:;
 	Data0 = pSprite->field_0;
 	Data4 = pSprite->field_4;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 < 0x14)
 		Data0 = 0x14;
 
@@ -18954,7 +18953,7 @@ int16 cFodder::sub_20E91( sSprite* pSprite ) {
 	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
 
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 > 2)
 		return 0;
 
@@ -19755,7 +19754,7 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
 	Data8 = Data28->field_0;
 	DataC = Data28->field_4;
 
-	sub_29E30( Dataa0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Dataa0, Data4, Data8, DataC );
 
 	word_3AA4B = Dataa0;
 	if (Dataa0 > 0xC8)
@@ -20099,7 +20098,7 @@ int16 cFodder::sub_224ED( sSprite* pSprite ) {
 	Data4 = pSprite->field_4;
 	Data8 = pSprite->field_2E;
 	DataC = pSprite->field_30;
-	sub_29E30( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 	if (Data0 >= 0x82)
 		goto loc_22592;
 
