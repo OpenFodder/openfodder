@@ -403,12 +403,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABAD;
 	int16			word_3ABAF;
 	int16			word_3ABB1;
-	int16			word_3ABB3;
+	int16			mSquad_Member_Fire_CoolDown;
 	int16			word_3ABB5;
 	int16			word_3ABB7;
-	sBulletData		mSprite_Bullet_Data;
-	int16			mSprite_Bullet_Distance_Modifier;
-	int16			word_3ABC5;
+	sWeaponData		mSprite_Weapon_Data;
+	int16			mSprite_Bullet_Time_Modifier;
+	int16			mSprite_Bullet_Fire_Speed_Modifier;
 	int16			word_3ABC7;
 	sSquad_Member*	dword_3ABC9;
 	int16			word_3ABE7;
@@ -1163,7 +1163,7 @@ public:
 	void			Camera_Update_Column();
 
 	void			Squad_Troops_Count();
-	int16			sub_2D26A( sSquad_Member* pSquadMember );
+	int16			Squad_Member_GetDeviatePotential( sSquad_Member* pSquadMember );
 	void			Squad_Member_Rotate_Can_Fire();
 	int16			Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			Sprite_Handle_Player_DestroyAll();

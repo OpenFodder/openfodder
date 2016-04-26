@@ -189,11 +189,11 @@ struct sSprite {
 	int8 field_75;
 };
 
-struct sBulletData {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-	int16	field_6;
+struct sWeaponData {
+	int16	mSpeed;
+	int16	mAliveTime;			// Time bullet will travel
+	int16	mCooldown;
+	int16	mDeviatePotential;	// Potential for a bullet to deviate
 	int16	field_8;
 };
 
@@ -212,4 +212,4 @@ extern const int16 mSprite_Helicopter_Sounds[];
 extern const int16 mSprite_SpiderMine_Frames[];
 extern const int16 mSprite_Hostage_Frames[];
 extern const int16 mSprite_Helicopter_CallPad_Frames[];
-extern const sBulletData mSprite_Bullet_UnitData[];
+extern const sWeaponData mSprite_Bullet_UnitData[];

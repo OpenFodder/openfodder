@@ -746,21 +746,21 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AACF = 0;
 	byte_3ABA9 = 0;
 	word_3ABB1 = 0;
-	word_3ABB3 = 0;
+	mSquad_Member_Fire_CoolDown = 0;
 	word_3ABB5 = 0;
 	word_3ABB7 = 0;
-	mSprite_Bullet_Data.field_0 = 0;
-	mSprite_Bullet_Data.field_2 = 0;
-	mSprite_Bullet_Data.field_4 = 0;
-	mSprite_Bullet_Data.field_6 = 0;
-	mSprite_Bullet_Data.field_8 = 0;
+	mSprite_Weapon_Data.mSpeed = 0;
+	mSprite_Weapon_Data.mAliveTime = 0;
+	mSprite_Weapon_Data.mCooldown = 0;
+	mSprite_Weapon_Data.mDeviatePotential = 0;
+	mSprite_Weapon_Data.field_8 = 0;
 
 	word_3AAD1 = 0;
 	word_3AB39 = 0;
 	word_3ABAD = 0;
 	word_3ABAF = 0;
-	mSprite_Bullet_Distance_Modifier = 0;
-	word_3ABC5 = 0;
+	mSprite_Bullet_Time_Modifier = 0;
+	mSprite_Bullet_Fire_Speed_Modifier = 0;
 	word_3ABC7 = 0;
 	dword_3ABC9 = 0;
 
@@ -2174,7 +2174,7 @@ void cFodder::Sprite_Bullet_SetData() {
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
 
-	mSprite_Bullet_Data = mSprite_Bullet_UnitData[Data0];
+	mSprite_Weapon_Data = mSprite_Bullet_UnitData[Data0];
 }
 
 void cFodder::Mission_Phase_Goals_Check() {
@@ -9905,7 +9905,7 @@ void cFodder::Squad_Troops_Count() {
 	*Data34 = INVALID_SPRITE_PTR;
 }
 
-int16 cFodder::sub_2D26A( sSquad_Member* pData24 ) {
+int16 cFodder::Squad_Member_GetDeviatePotential( sSquad_Member* pData24 ) {
 
 	int16 Data0 = pData24->mRank;
 	Data0 += 8;
@@ -9913,15 +9913,15 @@ int16 cFodder::sub_2D26A( sSquad_Member* pData24 ) {
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
 
-	return mSprite_Bullet_UnitData[Data0].field_6;
+	return mSprite_Bullet_UnitData[Data0].mDeviatePotential;
 }
 
 void cFodder::Squad_Member_Rotate_Can_Fire() {
 	if (word_39F04) 
 		word_39F04 = 0;
 	else {
-		word_3ABB3 -= 2;
-		if (word_3ABB3 >= 0)
+		mSquad_Member_Fire_CoolDown -= 2;
+		if (mSquad_Member_Fire_CoolDown >= 0)
 			return;
 	}
 
@@ -9934,18 +9934,18 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 	if (Dataa20 == 0)
 		return;
 
-	word_3ABB3 = mSprite_Bullet_Data.field_4;
-	mSprite_Bullet_Distance_Modifier = 0;
-	word_3ABC5 = 0;
+	mSquad_Member_Fire_CoolDown = mSprite_Weapon_Data.mCooldown;
+	mSprite_Bullet_Time_Modifier = 0;
+	mSprite_Bullet_Fire_Speed_Modifier = 0;
 
 	if (Dataa20->mRank > 0x14) {
 
 		if (mSquad_Selected >= 0) {
 
 			if (mSquads_TroopCount[mSquad_Selected] == 1) {
-				word_3ABB3 = 1;
-				mSprite_Bullet_Distance_Modifier = -3;
-				word_3ABC5 = 0x0A;
+				mSquad_Member_Fire_CoolDown = 1;
+				mSprite_Bullet_Time_Modifier = -3;
+				mSprite_Bullet_Fire_Speed_Modifier = 0x0A;
 			}
 		}
 	}
@@ -18695,9 +18695,9 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 		Data2C->field_5E = ((sSquad_Member*)pSprite->field_46) - mSquad;
 		Data2C->field_5D = -1;
 
-		// Bullet Travel distance
-		Data0 = mSprite_Bullet_Data.field_2;
-		Data0 += mSprite_Bullet_Distance_Modifier;
+		// Bullet Travel time
+		Data0 = mSprite_Weapon_Data.mAliveTime;
+		Data0 += mSprite_Bullet_Time_Modifier;
 		Data2C->field_12 = Data0;
 	}
 
@@ -18712,8 +18712,8 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 	if (pSprite->field_22)
 		goto loc_2087D;
 
-	Data0 = mSprite_Bullet_Data.field_0;
-	Data0 += word_3ABC5;
+	Data0 = mSprite_Weapon_Data.mSpeed;
+	Data0 += mSprite_Bullet_Fire_Speed_Modifier;
 	Data2C->field_4A = Data0;
 
 	Data0 = tool_RandomGet() & 0x0F;
@@ -18722,6 +18722,7 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 	goto loc_208A6;
 
 loc_2087D:;
+	// AI Fire Speed
 	Data0 = 0x3C;
 	Data0 += pSprite->field_62;
 	Data2C->field_4A = Data0;
@@ -18732,7 +18733,7 @@ loc_208A6:;
 	Data2C->field_44 = 0;
 	Data2C->field_2E = pSprite->field_2E;
 	Data2C->field_30 = pSprite->field_30;
-	if (pSprite->field_18)
+	if (pSprite->field_18 != eSprite_Player)
 		Data2C->field_2E += 7;
 	else
 		Data2C->field_30 += 0x0F;
@@ -18759,7 +18760,7 @@ loc_208A6:;
 	if (pSprite == mSquad_Leader)
 		goto loc_209B3;
 
-	Data8 = sub_2D26A( (sSquad_Member*) pSprite->field_46 );
+	Data8 = Squad_Member_GetDeviatePotential( (sSquad_Member*) pSprite->field_46 );
 	goto loc_209C7;
 
 loc_209B3:;
@@ -18768,7 +18769,8 @@ loc_209B3:;
 	if (!word_3B1AB)
 		goto loc_209F3;
 
-	Data8 = mSprite_Bullet_Data.field_6;
+	Data8 = mSprite_Weapon_Data.mDeviatePotential;
+
 loc_209C7:;
 	Data0 = tool_RandomGet();
 	Data4 = Data0;
