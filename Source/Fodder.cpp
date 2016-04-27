@@ -890,10 +890,10 @@ void cFodder::Mission_Memory_Clear() {
 	for (uint16 x = 0; x < 8; ++x)
 		mPhase_Goals[x] = 0;
 
-	dword_3B477 = 0;
+	mSprite_OpenCloseDoor_Ptr = 0;
 	word_3B47B = 0;
-	word_3B47D = 0;
-	word_3B47F = 0;
+	mSprite_Indigenous_Tmp_X = 0;
+	mSprite_Indigenous_Tmp_Y = 0;
 	word_3B481 = 0;
 	word_3B483 = 0;
 	mHelicopterCallPadCount = 0;
@@ -7727,8 +7727,9 @@ void cFodder::sub_25863( sSprite* pSprite ) {
 	sub_25B6B( pSprite );
 }
 
-void cFodder::sub_258C6( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Indigenous_Movement( sSprite* pSprite ) {
 	
+	// Destination change cool down
 	if (pSprite->field_4C) {
 		pSprite->field_4C -= 1;
 		if (pSprite->field_4C)
@@ -7740,18 +7741,19 @@ void cFodder::sub_258C6( sSprite* pSprite ) {
 		pSprite->field_28 = pSprite->field_4;
 	}
 	else {
-		if (sub_25AAE( pSprite ) < 0)
+		if (Sprite_Handle_Indigenous_RandomMovement( pSprite ) < 0)
 			return;
 	}
 
+	// Random time until destination change
 	int16 Data0 = tool_RandomGet() & 0x3F;
 	Data0 += 0x14;
 	pSprite->field_4C = Data0;
 }
 
-int16 cFodder::sub_25680( sSprite* pSprite ) {
+int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( sSprite* pSprite ) {
 
-	if (!dword_3B477)
+	if (!mSprite_OpenCloseDoor_Ptr)
 		return -1;
 
 	if (pSprite->field_4C) {
@@ -7759,7 +7761,7 @@ int16 cFodder::sub_25680( sSprite* pSprite ) {
 		return 0;
 	}
 
-	sSprite* Data28 = dword_3B477;
+	sSprite* Data28 = mSprite_OpenCloseDoor_Ptr;
 
 	int16 Data0 = pSprite->field_0;
 	int16 Data4 = pSprite->field_4;
@@ -7769,8 +7771,8 @@ int16 cFodder::sub_25680( sSprite* pSprite ) {
 	pSprite->field_26 = Data8;
 	pSprite->field_28 = DataC;
 
-	word_3B47D = Data0;
-	word_3B47F = Data4;
+	mSprite_Indigenous_Tmp_X = Data0;
+	mSprite_Indigenous_Tmp_Y = Data4;
 	word_3B481 = Data8;
 	word_3B483 = DataC;
 	int16 Data10 = 0x20;
@@ -7787,8 +7789,8 @@ int16 cFodder::sub_25680( sSprite* pSprite ) {
 		return 0;
 	}
 
-	Data0 = word_3B47D;
-	Data4 = word_3B47F;
+	Data0 = mSprite_Indigenous_Tmp_X;
+	Data4 = mSprite_Indigenous_Tmp_Y;
 	Data8 = word_3B481;
 	DataC = word_3B483;
 
@@ -7920,7 +7922,7 @@ void cFodder::sub_25A66( sSprite* pSprite ) {
 	pSprite->field_A = Data0;
 }
 
-int16 cFodder::sub_25AAE( sSprite* pSprite ) {
+int16 cFodder::Sprite_Handle_Indigenous_RandomMovement( sSprite* pSprite ) {
 	int16 Data0 = tool_RandomGet() & 0x7F;
 	Data0 += 4;
 
@@ -14852,13 +14854,13 @@ void cFodder::Sprite_Handle_Indigenous( sSprite* pSprite ) {
 	pSprite->field_22 = 2;
 	pSprite->field_8 = 0xD0;
 
-	int16 ax = sub_25680( pSprite );
+	int16 ax = Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( pSprite );
 
 	if (ax) {
 		if (ax >= 0)
 			return;
 
-		sub_258C6( pSprite );
+		Sprite_Handle_Indigenous_Movement( pSprite );
 	}
 
 	pSprite->field_36 = 6;
@@ -14877,11 +14879,11 @@ void cFodder::Sprite_Handle_Indigenous2( sSprite* pSprite ) {
 	pSprite->field_22 = 2;
 	pSprite->field_8 = 0xD0;
 
-	int16 ax = sub_25680( pSprite );
+	int16 ax = Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( pSprite );
 	if (ax > 0)
 		return;
 	if (ax < 0)
-		sub_258C6( pSprite );
+		Sprite_Handle_Indigenous_Movement( pSprite );
 
 	pSprite->field_36 = 0x0A;
 	sub_2593D( pSprite );
@@ -15251,11 +15253,11 @@ void cFodder::Sprite_Handle_Indigenous_Spear( sSprite* pSprite ) {
 	if (mMap_TileSet == eTileTypes_Int)
 		sub_14D6D( pSprite, 0x1F );
 
-	int16 ax = sub_25680( pSprite );
+	int16 ax = Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( pSprite );
 	if (ax > 0)
 		return;
 	if (ax)
-		sub_258C6( pSprite );
+		Sprite_Handle_Indigenous_Movement( pSprite );
 
 	pSprite->field_36 = 0x0C;
 
@@ -15428,7 +15430,7 @@ void cFodder::Sprite_Handle_Hostage( sSprite* pSprite ) {
 	word_3B2D1[5] = pSprite->field_6;
 
 	sub_25FDA( pSprite );
-	sub_258C6( pSprite );
+	Sprite_Handle_Indigenous_Movement( pSprite );
 
 	pSprite->field_36 = 0x0C;
 	sub_2593D( pSprite );
@@ -15825,11 +15827,11 @@ void cFodder::Sprite_Handle_Explosion2( sSprite* pSprite ) {
 	Sprite_Handle_Explosion( pSprite );
 }
 
-void cFodder::sub_1DA48( sSprite* pSprite ) {
-	dword_3B477 = pSprite;
+void cFodder::Sprite_Handle_OpenCloseDoor( sSprite* pSprite ) {
+	mSprite_OpenCloseDoor_Ptr = pSprite;
 
 	if (sub_222A3( pSprite )) {
-		dword_3B477 = 0;
+		mSprite_OpenCloseDoor_Ptr = 0;
 		mMission_Aborted = -1;
 		return;
 	}
