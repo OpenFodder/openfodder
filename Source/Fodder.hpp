@@ -70,28 +70,9 @@ struct struct_2 {
 	int16	field_6;
 };
 
-struct sRecruitSpritePos {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-	int16	field_6;
-	int16*	field_8;
-};
-
-struct sRecruit_Screen_Pos {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-};
-
-struct sRecruitRendered {
-	uint32* mDataPtr;
-	int16	mPosition;
-};
-
-struct struct_7 {
-	int16	field_0;
-	int16	field_2;
+struct sMapPosition {
+	int16	mX;
+	int16	mY;
 };
 
 union sMapTarget {
@@ -294,7 +275,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A016;
 	int16			word_3A01A;
 	uint16			word_3A024;
-	sGUI_Element*	dword_3A02A;
+	sGUI_Element*	mGUI_Loop_Element;
 	int32			dword_3A030;
 	uint16			word_3A054;
 	int8			mSquads_TroopCount[4];
@@ -419,12 +400,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABFF[9];
 	int16*			dword_3AC11;
 	int16			word_3AC19;
-	int16			word_3AC1B;
+	int16			mGUI_Loop_Squad_Current;
 	int16			word_3AC1D;
-	int16			word_3AC1F;
+	int16			mGUI_Squad_Current;
 	int16			word_3AC2D[3];
 	int16			word_3AC21;
-	int16			word_3AC29;
+	int16			mGUI_Squad_NextDraw_Y;
 	int16			mGUI_Sidebar_Setup;
 	int8			mGUI_RefreshSquadGrenades[3];
 	int8			mGUI_RefreshSquadRockets[3];
@@ -443,10 +424,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMap_Destroy_Tile_X;
 	int16			mMap_Destroy_Tile_Y;
 	int16			word_3AF07;
-	struct_7		stru_3AF0B[128];
+	sMapPosition		mMap_Destroy_Tiles[128];
 
-	struct_7*		dword_3B11B;
-	struct_7*		mMap_Destroy_TilesPtr;
+	sMapPosition*		mMap_Destroy_TilesPtr2;
+	sMapPosition*		mMap_Destroy_TilesPtr;
 	int16			word_3B15D;
 	int16			word_3B15F;
 	int16			word_3B161;
@@ -479,7 +460,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B25B;
 	int16			word_3B25D;
 	int16			word_3B2CB;
-	int16			word_3B2CD;
+	int16			mGUI_SaveLoadAction;
 	int16			word_3B2CF;
 	int16			word_3B2D1[6];
 	int16			word_3B2DD[5];
@@ -491,11 +472,11 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2F7;
 	int16			mGame_Load;
 	int16			mGame_Save;
-	int16			word_3B301;
-	int16			word_3B303;
+	int16			mGUI_Temp_X;
+	int16			mGUI_Temp_Width;
 
-	int16			word_3B305;
-	int16			word_3B307;
+	int16			mGUI_Temp_Y;
+	int16			mGUI_Temp_Height;
 
 	void			(cFodder::*dword_3B30D)(int16 pPosY);
 
@@ -753,7 +734,7 @@ public:
 	void			Sprite_Sort_DrawList();
 	void			Sprite_Bullet_SetData();
 	void			Mission_Phase_Goals_Check();
-	void			sub_126BB();
+	void			Mission_Clear_Destroy_Tiles();
 	void			Mission_Phase_Goals_Set();
 	void			Mission_Progress_Check( );
 	void			Mission_Text_Completed();
@@ -1151,7 +1132,7 @@ public:
 	int16			Map_Terrain_Get_Moveable_Wrapper( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 );
 	int16			Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 );
 
-	void			sub_2B378( int16& Data0, int16& Data4, int16& Data8, int16& DataC );
+	void			Map_Get_Distance_BetweenPoints_Within_640( int16& pX, int16& pY, int16& pX2, int16& pY2 );
 
 	void			Camera_Pan();
 
@@ -1174,9 +1155,9 @@ public:
 	int16			Sprite_Next_WalkTarget_Set( sSprite* pSprite );
 	int16			Squad_Join_Check( sSprite* pSprite );
 	void			sub_2DCB0( int16 pData0 );
-	void			sub_2DD50( sSprite* pSprite );
+	void			Sprite_Handle_Explosion_MapTiles( sSprite* pSprite );
 	void			Map_Destroy_Tiles( );
-	void			sub_2E01C();
+	void			Map_Destroy_Tiles_Next();
 	void			Game_Save_Wrapper2();
 	void			GUI_Element_Reset();
 	void			GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow, int16 pColorPrimary );
@@ -1193,7 +1174,7 @@ public:
 	void			Game_Load();
 	void			GUI_Button_Load_Up();
 	void			GUI_Button_Load_Down();
-	void			sub_2EA89();
+	void			GUI_Button_Filename();
 
 	int16			GUI_Button_NoAction();
 	void			GUI_Button_NoAction2();

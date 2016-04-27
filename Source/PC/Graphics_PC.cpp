@@ -661,7 +661,7 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	mFodder->Sprite_Draw_Frame( 0x19, 0, Data4, 0x130 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
-	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->word_3B301, 0x0A, strHomeAndAway );
+	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway );
 	
 	mFodder->Sprite_Draw_Frame( 0x0E, 0x0A, 0, 0x9B );
 	
