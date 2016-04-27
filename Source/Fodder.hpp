@@ -492,7 +492,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3B461[3];
 	sSprite*		mSprite_OpenCloseDoor_Ptr;
-	int16			word_3B47B;
+	int16			mSprite_Civilian_GotHome;
 	int16			mSprite_Indigenous_Tmp_X;
 	int16			mSprite_Indigenous_Tmp_Y;
 	int16			word_3B481;

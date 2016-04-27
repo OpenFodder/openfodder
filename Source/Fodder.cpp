@@ -891,7 +891,7 @@ void cFodder::Mission_Memory_Clear() {
 		mPhase_Goals[x] = 0;
 
 	mSprite_OpenCloseDoor_Ptr = 0;
-	word_3B47B = 0;
+	mSprite_Civilian_GotHome = 0;
 	mSprite_Indigenous_Tmp_X = 0;
 	mSprite_Indigenous_Tmp_Y = 0;
 	word_3B481 = 0;
@@ -2237,7 +2237,7 @@ void cFodder::Mission_Phase_Goals_Check() {
 		return;
 	
 	loc_126A6:;
-	if(!mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ] || word_3B47B ) 
+	if(!mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ] || mSprite_Civilian_GotHome ) 
 		 mMission_Complete = -1;
 }
 
@@ -7780,7 +7780,7 @@ int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( sSprite* pSp
 	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
 	if (Data0 <= 3) {
 		Sprite_Destroy_Wrapper( pSprite );
-		word_3B47B = -1;
+		mSprite_Civilian_GotHome = -1;
 		return 1;
 	}
 
