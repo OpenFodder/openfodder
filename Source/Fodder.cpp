@@ -770,15 +770,15 @@ void cFodder::Mission_Memory_Clear() {
 	dword_3AC11 = 0;
 
 	word_3AC19 = 0;
-	word_3AC1B = 0;
+	mGUI_Loop_Squad_Current = 0;
 	word_3AC1D = 0;
-	word_3AC1F = 0;
+	mGUI_Squad_Current = 0;
 	word_3AC2D[0] = 0;
 	word_3AC2D[1] = 0;
 	word_3AC2D[2] = 0;
 
 	word_3AC21 = 0;
-	word_3AC29 = 0;
+	mGUI_Squad_NextDraw_Y = 0;
 	mGUI_Sidebar_Setup = 0;
 	mGUI_RefreshSquadGrenades[0] = 0;
 	mGUI_RefreshSquadGrenades[1] = 0;
@@ -804,20 +804,20 @@ void cFodder::Mission_Memory_Clear() {
 	mMap_Destroy_Tile_Y = 0;
 
 	for (uint16 x = 0; x < 128; ++x) {
-		stru_3AF0B[x].field_0 = 0;
-		stru_3AF0B[x].field_2 = 0;
+		mMap_Destroy_Tiles[x].mX = 0;
+		mMap_Destroy_Tiles[x].mY = 0;
 	}
 
 	word_3AF07 = 0;
-	dword_3B11B = 0;
+	mMap_Destroy_TilesPtr2 = 0;
 	mMap_Destroy_TilesPtr = 0;
 
 	for (uint16 x = 0; x < 42; ++x) {
 		mGUI_Elements[x].field_0 = 0;
-		mGUI_Elements[x].field_4 = 0;
-		mGUI_Elements[x].field_6 = 0;
-		mGUI_Elements[x].field_8 = 0;
-		mGUI_Elements[x].field_A = 0;
+		mGUI_Elements[x].mX = 0;
+		mGUI_Elements[x].mWidth = 0;
+		mGUI_Elements[x].mY = 0;
+		mGUI_Elements[x].mHeight = 0;
 		mGUI_Elements[x].mMouseInsideFuncPtr = 0;
 	}
 
@@ -854,7 +854,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3B25B = 0;
 	word_3B25D = 0;
 	word_3B2CB = 0;
-	word_3B2CD = 0;
+	mGUI_SaveLoadAction = 0;
 	word_3B2CF = 0;
 	for (uint16 x = 0; x < 6; ++x)
 		word_3B2D1[x] = 0;
@@ -873,10 +873,10 @@ void cFodder::Mission_Memory_Clear() {
 	mGame_Load = 0;
 	mGame_Save = 0;
 
-	word_3B301 = 0;
-	word_3B303 = 0;
-	word_3B305 = 0;
-	word_3B307 = 0;
+	mGUI_Temp_X = 0;
+	mGUI_Temp_Width = 0;
+	mGUI_Temp_Y = 0;
+	mGUI_Temp_Height = 0;
 	mInputString_Position = 0;
 	word_3B335 = 0;
 	word_3B33D = 0;
@@ -2241,12 +2241,12 @@ void cFodder::Mission_Phase_Goals_Check() {
 		 mMission_Complete = -1;
 }
 
-void cFodder::sub_126BB() {
-	dword_3B11B = stru_3AF0B;
-	mMap_Destroy_TilesPtr = stru_3AF0B;
+void cFodder::Mission_Clear_Destroy_Tiles() {
+	mMap_Destroy_TilesPtr2 = mMap_Destroy_Tiles;
+	mMap_Destroy_TilesPtr = mMap_Destroy_Tiles;
 
-	stru_3AF0B[0].field_0 = -1;
-	stru_3AF0B[0].field_2 = -1;
+	mMap_Destroy_Tiles[0].mX = -1;
+	mMap_Destroy_Tiles[0].mY = -1;
 }
 
 void cFodder::Mission_Phase_Goals_Set() {
@@ -3049,12 +3049,12 @@ void cFodder::VersionSelect() {
 
 	word_3AC19 = 0x25;
 	String_CalculateWidth( 320, mFont_Underlined_Width, Name.c_str() );
-	String_Print( mFont_Underlined_Width, 1, word_3B301, Pos , Name.c_str() );
+	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, Pos , Name.c_str() );
 
 	Name = "SELECT A GAME";
 
 	String_CalculateWidth( 320, mFont_Underlined_Width, Name.c_str() );
-	String_Print( mFont_Underlined_Width, 3, word_3B301, 0x1A , Name.c_str() );
+	String_Print( mFont_Underlined_Width, 3, mGUI_Temp_X, 0x1A , Name.c_str() );
 
 	word_3AC19 = 0;
 
@@ -3064,13 +3064,13 @@ void cFodder::VersionSelect() {
 		std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
 
 		String_CalculateWidth( 320, mFont_Briefing_Width, Name.c_str() );
-		String_Print( mFont_Briefing_Width, 0, word_3B301, Pos , Name.c_str() );
+		String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos , Name.c_str() );
 
 		Buttons[Count].field_0 = &cFodder::GUI_Button_NoAction;
-		Buttons[Count].field_4 = word_3B301 - 6;
-		Buttons[Count].field_6 = word_3B303;
-		Buttons[Count].field_8 = Pos - 2;
-		Buttons[Count].field_A = 5;
+		Buttons[Count].mX = mGUI_Temp_X - 6;
+		Buttons[Count].mWidth = mGUI_Temp_Width;
+		Buttons[Count].mY = Pos - 2;
+		Buttons[Count].mHeight = 5;
 
 		switch (Count) {
 			case 0:
@@ -3372,7 +3372,7 @@ void cFodder::Mission_Paused() {
 	
 	word_3AC19 = 0x25;
 	String_CalculateWidth( 0x170, mFont_Underlined_Width, PausedStr );
-	String_Print( mFont_Underlined_Width, 1, word_3B301, 0x54, PausedStr );
+	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, 0x54, PausedStr );
 
 	word_3AC19 = 0;
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
@@ -3437,8 +3437,8 @@ void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFra
 	mDrawSpritePositionY = (pPositionY + 0x10);
 	mDrawSpriteColumns = SheetData->mColCount;
 	mDrawSpriteRows = SheetData->mRowCount;
-	if (pSpriteType > word_3B307)
-		word_3B307 = pSpriteType;
+	if (pSpriteType > mGUI_Temp_Height)
+		mGUI_Temp_Height = pSpriteType;
 	
 	if (Sprite_OnScreen_Check() )
 		mGraphics->video_Draw_Sprite();
@@ -3650,7 +3650,7 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
 	Data0 = 0;
 	pSoundEffect = 0;
 
-	sub_2B378( Data0, pSoundEffect, pData8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_640( Data0, pSoundEffect, pData8, DataC );
 
 	Data0 /= 0x10;
 	int Volume = 0x28;
@@ -4408,7 +4408,7 @@ void cFodder::Briefing_Draw_Mission_Title( ) {
 	Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
 
 	String_CalculateWidth( 0x140, mFont_Underlined_Width, Mission.str().c_str() );
-	String_Print( mFont_Underlined_Width, 1, word_3B301, 0, Mission.str().c_str() );
+	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, 0, Mission.str().c_str() );
 	
 	int16 Data0 = mMissionNumber;
 	const char** Data20 = mVersion->mMissionData->mMissionNames;
@@ -4434,7 +4434,7 @@ void cFodder::Briefing_Draw_Mission_Title( ) {
 	}
 	Data0 -= 1;
 	Data20 += Data0;
-	String_Print( mFont_Underlined_Width, 1, word_3B301, word_3A01A, *Data20 );
+	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, word_3A01A, *Data20 );
 }
 
 void cFodder::CopyProtection() {
@@ -4476,8 +4476,8 @@ void cFodder::CopyProtection() {
 		int8 byte_44B49 = 0;
 		bool mShow = false;
 
-		word_3B301 = 5;
-		word_3B303 = 10;
+		mGUI_Temp_X = 5;
+		mGUI_Temp_Width = 10;
 		memset( mInputString, 0, sizeof( mInputString ) );
 		mInputString_Position = 0;
 
@@ -4498,7 +4498,7 @@ void cFodder::CopyProtection() {
 				mShow = !mShow;
 
 			if (mShow)
-				Sprite_Draw_Frame( 0x0F, 0xA0, 0x00, word_3B301 + word_3B303 );
+				Sprite_Draw_Frame( 0x0F, 0xA0, 0x00, mGUI_Temp_X + mGUI_Temp_Width );
 
 			g_Window.RenderAt( mImage );
 			g_Window.FrameEnd();
@@ -8762,17 +8762,17 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
 
 	sGUI_Element* Element = mGUI_NextFreeElement;
 	Element->field_0 = &cFodder::GUI_Button_NoAction;
-	Element->field_4 = 0;
-	Element->field_6 = 0x2F;
-	Element->field_A = 0x0B;
+	Element->mX = 0;
+	Element->mWidth = 0x2F;
+	Element->mHeight = 0x0B;
 	Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;
 
 	if (mVersion->mPlatform == ePlatform::PC) {
-		Element->field_8 = 0xBD;
+		Element->mY = 0xBD;
 		mGraphics->sub_145AF( 0xD0, 0, 0xBD );
 	}
 	else {
-		Element->field_8 = 214;
+		Element->mY = 214;
 		mGraphics->sub_145AF( 0xD0, 0, 214 );
 	}
 	++Element;
@@ -9601,43 +9601,43 @@ int16 cFodder::Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, i
 	return Data0;
 }
 
-void cFodder::sub_2B378( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
+void cFodder::Map_Get_Distance_BetweenPoints_Within_640( int16& pX, int16& pY, int16& pX2, int16& pY2 ) {
 	int16 Data10 = 0;
 
-	pData8 -= pData0;
-	if (pData8 < 0)
-		pData8 = -pData8;
+	pX2 -= pX;
+	if (pX2 < 0)
+		pX2 = -pX2;
 
-	if (pData8 >= 0x280)
+	if (pX2 >= 0x280)
 		goto loc_2B403;
 
-	pDataC -= pData4;
-	if (pDataC < 0)
-		pDataC = -pDataC;
+	pY2 -= pY;
+	if (pY2 < 0)
+		pY2 = -pY2;
 
-	if (pDataC >= 0x280)
+	if (pY2 >= 0x280)
 		goto loc_2B403;
 
 	for (;;) {
-		if (pData8 <= 0x1F)
-			if (pDataC <= 0x1F)
+		if (pX2 <= 0x1F)
+			if (pY2 <= 0x1F)
 				break;
 
-		pData8 >>= 1;
-		pDataC >>= 1;
+		pX2 >>= 1;
+		pY2 >>= 1;
 		Data10 += 1;
 	}
 
-	pDataC <<= 5;
-	pDataC |= pData8;
-	pData0 = 0;
-	pData0 = byte_3ECC0[pDataC];
+	pY2 <<= 5;
+	pY2 |= pX2;
+	pX = 0;
+	pX = byte_3ECC0[pY2];
 
-	pData0 <<= Data10;
+	pX <<= Data10;
 	return;
 
 loc_2B403:;
-	pData0 = 0x280;
+	pX = 0x280;
 }
 
 void cFodder::Camera_Pan() {
@@ -10350,12 +10350,12 @@ void cFodder::sub_2DCB0( int16 pData0 ) {
 
 }
 
-void cFodder::sub_2DD50( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Explosion_MapTiles( sSprite* pSprite ) {
 	word_3B4E9 = 0;
 	if (pSprite->field_18 == eSprite_Explosion2)
 		word_3B4E9 = -1;
 
-	struct_7* Data28 = dword_3B11B;
+	sMapPosition* Data28 = mMap_Destroy_TilesPtr2;
 
 	int16 Data0 = pSprite->field_0 + 4;
 	int16 Data4 = pSprite->field_4 - 8;
@@ -10369,21 +10369,21 @@ void cFodder::sub_2DD50( sSprite* pSprite ) {
 		Data0 += *Data24++;
 		Data4 += *Data24++;
 
-		Data28->field_0 = Data0;
-		Data28->field_2 = Data4;
+		Data28->mX = Data0;
+		Data28->mY = Data4;
 		++Data28;
 
 		if (word_3B4E9)
-			(Data28 - 1)->field_2 = -Data4;
+			(Data28 - 1)->mY = -Data4;
 
-		if (Data28 >= &stru_3AF0B[128])
-			Data28 = stru_3AF0B;
+		if (Data28 >= &mMap_Destroy_Tiles[128])
+			Data28 = mMap_Destroy_Tiles;
 	}
 
-	Data28->field_0 = -1;
-	Data28->field_2 = -1;
+	Data28->mX = -1;
+	Data28->mY = -1;
 
-	dword_3B11B = Data28;
+	mMap_Destroy_TilesPtr2 = Data28;
 }
 
 void cFodder::Map_Destroy_Tiles( ) {
@@ -10448,7 +10448,7 @@ loc_2DE3C:;
 	} while (TileType != ax);
 
 loc_2DF55:;
-	sub_2E01C();
+	Map_Destroy_Tiles_Next();
 	goto loc_2DE3C;
 
 //seg010:064C
@@ -10464,7 +10464,7 @@ loc_2DF7B:;
 	word_3AF07 = 1;
 	writeLEWord( Data24, Data4 );
 	word_3AF01 = Data4;
-	sub_2E01C();
+	Map_Destroy_Tiles_Next();
 
 loc_2DFC7:;
 	ax = mMap_Destroy_Tile_X;
@@ -10491,13 +10491,13 @@ loc_2DFC7:;
 	g_Graphics.map_Tiles_Draw();
 }
 
-void cFodder::sub_2E01C() {
+void cFodder::Map_Destroy_Tiles_Next() {
 	
-	struct_7* Data20 = mMap_Destroy_TilesPtr;
+	sMapPosition* Data20 = mMap_Destroy_TilesPtr;
 	++Data20;
 	
-	if( Data20 >= &stru_3AF0B[128] ) 
-		Data20 = stru_3AF0B;
+	if( Data20 >= &mMap_Destroy_Tiles[128] ) 
+		Data20 = mMap_Destroy_Tiles;
 	
 	mMap_Destroy_TilesPtr = Data20;
 }
@@ -10515,10 +10515,10 @@ void cFodder::GUI_Element_Reset() {
 
 	for (uint16 x = 0; x < 42; ++x) {
 		mGUI_Elements[x].field_0 = 0;
-		mGUI_Elements[x].field_4 = 0;
-		mGUI_Elements[x].field_6 = 0;
-		mGUI_Elements[x].field_8 = 0;
-		mGUI_Elements[x].field_A = 0;
+		mGUI_Elements[x].mX = 0;
+		mGUI_Elements[x].mWidth = 0;
+		mGUI_Elements[x].mY = 0;
+		mGUI_Elements[x].mHeight = 0;
 		mGUI_Elements[x].mMouseInsideFuncPtr = 0;
 	}
 }
@@ -10526,7 +10526,7 @@ void cFodder::GUI_Element_Reset() {
 void cFodder::Recruit_Render_Text( const char* pText, int16 pPosY ) {
 
 	String_CalculateWidth( 320, mFont_Recruit_Width, pText );
-	String_Print( mFont_Recruit_Width, 0x0D, word_3B301, pPosY, pText );
+	String_Print( mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText );
 }
 
 void cFodder::GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC ) {
@@ -10538,10 +10538,10 @@ void cFodder::GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow =
 
 void cFodder::GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary ) {
 
-	int16 X = word_3B301;
-	int16 Y = word_3B305;
-	int16 Width = word_3B303;
-	int16 Height = word_3B307;
+	int16 X = mGUI_Temp_X;
+	int16 Y = mGUI_Temp_Y;
+	int16 Width = mGUI_Temp_Width;
+	int16 Height = mGUI_Temp_Height;
 
 	Briefing_DrawBox( X - 2, Y - 2, Width + 4, Height + 5, (uint8) pColorPrimary );
 	Briefing_DrawBox( X - 3, Y - 3, Width + 4, Height + 5, (uint8) pColorShadow );
@@ -10549,12 +10549,12 @@ void cFodder::GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary ) {
 
 void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 	int8 byte_44B49 = 0;
-	if (word_3B2CD != 3) {
+	if (mGUI_SaveLoadAction != 3) {
 
 		mImage->paletteFade();
 		Mouse_Setup();
 	}
-	word_3B2CD = 0;
+	mGUI_SaveLoadAction = 0;
 
 	mImageFaded = -1;
 	mGraphics->PaletteSet();
@@ -10575,7 +10575,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 		}
 
 		if (mShow)
-			Sprite_Draw_Frame( 0x0F, 0x50, 0x00, word_3B301 + word_3B303 );
+			Sprite_Draw_Frame( 0x0F, 0x50, 0x00, mGUI_Temp_X + mGUI_Temp_Width );
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -10591,9 +10591,9 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 		g_Window.FrameEnd();
 		mImage->Restore();
 
-	} while (word_3B2CD <= 0);
+	} while (mGUI_SaveLoadAction <= 0);
 
-	if (word_3B2CD == 3)
+	if (mGUI_SaveLoadAction == 3)
 		return;
 
 	mImage->paletteFadeOut();
@@ -10614,19 +10614,10 @@ void cFodder::GUI_Button_Setup( void(cFodder::*pFunction)(void) ) {
 
 	Element->field_0 = &cFodder::GUI_Button_NoAction;
 
-	int16 Data0 = word_3B301;
-	int16 Data4 = word_3B305;
-	int16 Data8 = word_3B303;
-	int16 DataC = word_3B307;
-
-	Data0 -= 3;
-	Data8 += 4;
-	DataC += 5;
-
-	Element->field_4 = Data0;
-	Element->field_6 = Data8;
-	Element->field_8 = Data4;
-	Element->field_A = DataC;
+	Element->mX			= mGUI_Temp_X - 3;
+	Element->mWidth		= mGUI_Temp_Width + 4;
+	Element->mY			= mGUI_Temp_Y;
+	Element->mHeight	= mGUI_Temp_Height + 5;
 	Element->mMouseInsideFuncPtr = pFunction;
 
 	++Element;
@@ -10652,8 +10643,8 @@ void cFodder::Game_Save() {
 
 	GUI_SaveLoad(true);
 	dword_3B30D = 0;
-	if (word_3B2CD != 2) {
-		word_3B2CD = 1;
+	if (mGUI_SaveLoadAction != 2) {
+		mGUI_SaveLoadAction = 1;
 		return;
 	}
 		
@@ -10675,28 +10666,28 @@ void cFodder::Game_Save() {
 }
 
 void cFodder::GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 ) {
-	dword_3A02A = pData20;
+	mGUI_Loop_Element = pData20;
 
-	for (; dword_3A02A->field_0; ++dword_3A02A) {
+	for (; mGUI_Loop_Element->field_0; ++mGUI_Loop_Element) {
 
-		pData20 = dword_3A02A;
+		pData20 = mGUI_Loop_Element;
 
-		int16 Data0 = pData20->field_4;
+		int16 Data0 = pData20->mX;
 		int16 Data4 = mMouseX;
 		Data4 += 0x20;
 
 		if (Data0 > Data4)
 			continue;
 
-		Data0 += pData20->field_6;
+		Data0 += pData20->mWidth;
 		if (Data0 < Data4)
 			continue;
 
-		Data0 = pData20->field_8;
+		Data0 = pData20->mY;
 		if (Data0 > mMouseY)
 			continue;
 
-		Data0 += pData20->field_A;
+		Data0 += pData20->mHeight;
 		if (Data0 < mMouseY)
 			continue;
 
@@ -10707,7 +10698,7 @@ void cFodder::GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 ) {
 
 void cFodder::GUI_Button_Load_Exit() {
 	dword_3B30D = 0;
-	word_3B2CD = 1;
+	mGUI_SaveLoadAction = 1;
 }
 
 void cFodder::String_Print_Input( int16 pPosY ) {
@@ -10719,7 +10710,7 @@ void cFodder::String_Print_Input( int16 pPosY ) {
 
 	int16 Data0 = word_39F66;
 	if (Data0 == 0x0D && mInputString_Position)
-		word_3B2CD = 2;
+		mGUI_SaveLoadAction = 2;
 
 	if (Data0 == 8)
 		goto loc_2E675;
@@ -10810,7 +10801,7 @@ void cFodder::GUI_Input_CheckKey() {
 
 void cFodder::Game_Load() {
 	
-	word_3B2CD = 0;
+	mGUI_SaveLoadAction = 0;
 
 	mGraphics->Load_Hill_Bits();
 
@@ -10847,16 +10838,16 @@ void cFodder::Game_Load() {
 			mInputString[Pos] = 0x00;
 
 			GUI_Button_Draw( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
-			GUI_Button_Setup( &cFodder::sub_2EA89 );
+			GUI_Button_Setup( &cFodder::GUI_Button_Filename );
 			++FileIT;
 		}
 
 		GUI_SaveLoad(false);
 		mImage->Restore();
 
-	} while (word_3B2CD == 3);
+	} while (mGUI_SaveLoadAction == 3);
 
-	if (word_3B2CD == 1)
+	if (mGUI_SaveLoadAction == 1)
 		return;
 
 	std::string Filename = local_PathGenerate( Files[word_3B335 + word_3B33F], "", false );
@@ -10902,7 +10893,7 @@ void cFodder::GUI_Button_Load_Up() {
 	if (word_3B335 < 0)
 		word_3B335 = 0;
 
-	word_3B2CD = 3;
+	mGUI_SaveLoadAction = 3;
 }
 
 void cFodder::GUI_Button_Load_Down() {
@@ -10920,17 +10911,17 @@ void cFodder::GUI_Button_Load_Down() {
 		word_3B335 = Data0;
 	}
 
-	word_3B2CD = 3;
+	mGUI_SaveLoadAction = 3;
 }
 
-void cFodder::sub_2EA89() {
+void cFodder::GUI_Button_Filename() {
 	int16 Data0 = mMouseY;
 
 	Data0 -= 0x3E;
 	Data0 /= 0x15;
 
 	word_3B33F = Data0;
-	word_3B2CD = 2;
+	mGUI_SaveLoadAction = 2;
 }
 
 int16 cFodder::GUI_Button_NoAction() {
@@ -10949,16 +10940,16 @@ void cFodder::GUI_Sidebar_Prepare_Squads() {
 
 	map_ClearSpt();
 
-	word_3AC29 = 0;
+	mGUI_Squad_NextDraw_Y = 0;
 	int16 Data4 = 0;
 	GUI_Sidebar_Prepare(0, Data4);
 
-	Data4 = word_3AC29;
+	Data4 = mGUI_Squad_NextDraw_Y;
 	if (Data4)
 		Data4 += 5;
 	GUI_Sidebar_Prepare(1, Data4);
 
-	Data4 = word_3AC29;
+	Data4 = mGUI_Squad_NextDraw_Y;
 	if (Data4)
 		Data4 += 5;
 	GUI_Sidebar_Prepare(2, Data4);
@@ -10980,23 +10971,23 @@ void cFodder::GUI_Element_Mouse_Over( const sGUI_Element *pElement ) {
 		if ((*this.*Data20->field_0)() < 0)
 			return;
 
-		int16 Data0 = Data20->field_4;
+		int16 Data0 = Data20->mX;
 
 		int16 Data4 = mMouseX + 0x20;
 
 		if (Data0 > Data4)
 			continue;
 
-		Data0 += Data20->field_6;
+		Data0 += Data20->mWidth;
 		if (Data0 < Data4)
 			continue;
 
 		Data0 = word_3BEC3;
-		Data0 += Data20->field_8;
+		Data0 += Data20->mY;
 		if (Data0 > mMouseY)
 			continue;
 
-		Data0 += Data20->field_A;
+		Data0 += Data20->mHeight;
 		if (Data0 < mMouseY)
 			continue;
 
@@ -11192,7 +11183,7 @@ void cFodder::Demo_Quiz() {
 }
 
 void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
-	word_3AC1B = pData0;
+	mGUI_Loop_Squad_Current = pData0;
 	word_3AC1D = pData4;
 	word_3AC47 = 0;
 
@@ -11200,7 +11191,7 @@ void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
 		word_3AC47 = -1;
 
 	//pData0 <<= 1;
-	word_3AC1F = pData0;
+	mGUI_Squad_Current = pData0;
 }
 
 void cFodder::GUI_Sidebar_Prepare( int16 pSquadNumber, int16 pData4 ) {
@@ -11210,7 +11201,7 @@ void cFodder::GUI_Sidebar_Prepare( int16 pSquadNumber, int16 pData4 ) {
 	word_3AC2D[pSquadNumber] = pData4;
 	Squad_Troops_Count();
 	
-	pSquadNumber = word_3AC1B;
+	pSquadNumber = mGUI_Loop_Squad_Current;
 
 	if (!mSquads_TroopCount[pSquadNumber])
 		return;
@@ -11243,10 +11234,10 @@ void cFodder::GUI_SetElementsFrom( sGUI_Element* pData20, sGUI_Element* pData24 
 	while (pData24->field_0 != 0) {
 
 		pData20->field_0 = pData24->field_0;
-		pData20->field_4 = pData24->field_4;
-		pData20->field_6 = pData24->field_6;
-		pData20->field_8 = pData24->field_8;
-		pData20->field_A = pData24->field_A;
+		pData20->mX		 = pData24->mX;
+		pData20->mWidth  = pData24->mWidth;
+		pData20->mY		 = pData24->mY;
+		pData20->mHeight = pData24->mHeight;
 		pData20->mMouseInsideFuncPtr = pData24->mMouseInsideFuncPtr;
 
 		++pData20;
@@ -11265,7 +11256,7 @@ void cFodder::GUI_ClearElement( sGUI_Element *pData20 ) {
 
 void cFodder::GUI_Sidebar_SplitButton_Draw() {
 
-	int16 Data0 = word_3DEF0[word_3AC1F];
+	int16 Data0 = word_3DEF0[mGUI_Squad_Current];
 	int16 Data8 = 0;
 	int16 DataC = word_3AC1D;
 
@@ -11273,23 +11264,23 @@ void cFodder::GUI_Sidebar_SplitButton_Draw() {
 }
 
 void cFodder::GUI_Prepare_Button_Squad() {
-	sGUI_Element* Data20 = mGUI_NextFreeElement;
+	sGUI_Element* Element = mGUI_NextFreeElement;
 
-	Data20->field_0 = &cFodder::GUI_Button_NoAction;
-	Data20->field_4 = 0;
-	Data20->field_6 = 0x2F;
-	Data20->field_8 = word_3AC1D;
-	Data20->field_A = 0x0E;
+	Element->field_0 = &cFodder::GUI_Button_NoAction;
+	Element->mX = 0;
+	Element->mWidth = 0x2F;
+	Element->mY = word_3AC1D;
+	Element->mHeight = 0x0E;
 
-	if (word_3AC1B != mSquad_Selected) {
-		Data20->mMouseInsideFuncPtr = mGUI_Handle_Button_SelectSquad_Array[word_3AC1B];
+	if (mGUI_Loop_Squad_Current != mSquad_Selected) {
+		Element->mMouseInsideFuncPtr = mGUI_Handle_Button_SelectSquad_Array[mGUI_Loop_Squad_Current];
 	}
 	else {
-		Data20->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_SplitSquad;
+		Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_SplitSquad;
 	}
 
-	++Data20;
-	GUI_ClearElement( Data20 );
+	++Element;
+	GUI_ClearElement( Element );
 }
 
 void cFodder::GUI_Handle_Button_SelectSquad_0() {
@@ -11358,25 +11349,25 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
 void cFodder::Mission_Set_Initial_Weapon() {
 
 	// segra: I don't believe this condition can ever occur
-	if (mSquad_CurrentWeapon[word_3AC1F] == eWeapon_Grenade) {
+	if (mSquad_CurrentWeapon[mGUI_Squad_Current] == eWeapon_Grenade) {
 
-		if (mSquad_Grenades[word_3AC1F])
+		if (mSquad_Grenades[mGUI_Squad_Current])
 			return;
-		if (!mSquad_Rockets[word_3AC1F])
+		if (!mSquad_Rockets[mGUI_Squad_Current])
 			return;
 
-		mSquad_CurrentWeapon[word_3AC1F] = eWeapon_Rocket;
+		mSquad_CurrentWeapon[mGUI_Squad_Current] = eWeapon_Rocket;
 		return;
 	}
 
 	//loc_2EFF1
-	if (mSquad_Rockets[word_3AC1F])
+	if (mSquad_Rockets[mGUI_Squad_Current])
 		return;
 
-	if (!mSquad_Grenades[word_3AC1F])
+	if (!mSquad_Grenades[mGUI_Squad_Current])
 		return;
 
-	mSquad_CurrentWeapon[word_3AC1F] = eWeapon_Grenade;
+	mSquad_CurrentWeapon[mGUI_Squad_Current] = eWeapon_Grenade;
 }
 
 void cFodder::Service_Show() {
@@ -11605,7 +11596,7 @@ void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16
 	}
 
 	String_CalculateWidth( 0x140, mFont_ServiceName_Width, tmpString.str().c_str() );
-	sub_181E6( pDi, tmpString.str().c_str(), mFont_ServiceName_Width, 3, word_3B301, mDrawSpritePositionY + 6 );
+	sub_181E6( pDi, tmpString.str().c_str(), mFont_ServiceName_Width, 3, mGUI_Temp_X, mDrawSpritePositionY + 6 );
 }
 
 void cFodder::sub_18149() {
@@ -11909,7 +11900,7 @@ void cFodder::Service_Mission_Text_Prepare( uint16*& pTarget ) {
 
 	String_CalculateWidth( 0x140, mFont_Service_Width, Mission.str().c_str() );
 
-	sub_181E6( pTarget, Mission.str(), mFont_Service_Width, 4, word_3B301, mDrawSpritePositionY );
+	sub_181E6( pTarget, Mission.str(), mFont_Service_Width, 4, mGUI_Temp_X, mDrawSpritePositionY );
 }
 
 void cFodder::Service_Promotion_Prepare() {
@@ -11989,7 +11980,7 @@ void cFodder::Briefing_Show( ) {
 	word_3AC19 = 0x25;
 
 	String_CalculateWidth( 320, mFont_Underlined_Width, Str_Brief );
-	String_Print( mFont_Underlined_Width, 0x03, word_3B301, 0x4E, Str_Brief );
+	String_Print( mFont_Underlined_Width, 0x03, mGUI_Temp_X, 0x4E, Str_Brief );
 	
 	Briefing_DrawBox( 1, 0x49, 0x13E, 0x6B, 0xF3 );
 	Briefing_DrawBox( 0, 0x48, 0x13E, 0x6B, 0xF2 );
@@ -12002,7 +11993,7 @@ void cFodder::Briefing_Show( ) {
 	Phase << Str_Of		<< tool_StripLeadingZero( tool_NumToString( mMissionPhases ));
 
 	String_CalculateWidth( 320, mFont_Briefing_Width, Phase.str().c_str() );
-	String_Print( mFont_Briefing_Width, 0, word_3B301, 0x1D, Phase.str().c_str() );
+	String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, 0x1D, Phase.str().c_str() );
 	
 	Mission_Phase_Goals_Set();
 
@@ -12016,7 +12007,7 @@ void cFodder::Briefing_Show( ) {
 
 			Data20 = *Data28;
 			String_CalculateWidth( 0x140, mFont_Briefing_Width, Data20 );
-			String_Print( mFont_Briefing_Width, 0, word_3B301, DataC - 0x12, Data20 );
+			String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, DataC - 0x12, Data20 );
 			DataC += 0x0C;
 		}
 	}
@@ -12090,7 +12081,7 @@ void cFodder::Briefing_Draw_With( ) {
 	}
 
 	String_CalculateWidth( 0x140, mFont_Briefing_Width, With.str().c_str() );
-	String_Print( mFont_Briefing_Width, 0, word_3B301, 0x64, With.str().c_str() );
+	String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, 0x64, With.str().c_str() );
 	With.str("");
 
 	if (!mSquad_AliveCount) {
@@ -12105,10 +12096,10 @@ void cFodder::Briefing_Draw_With( ) {
 	}
 
 	String_CalculateWidth( 0x140, mFont_Briefing_Width, With.str().c_str() );
-	String_Print(  mFont_Briefing_Width, 0, word_3B301, 0xA8, With.str().c_str() );
+	String_Print(  mFont_Briefing_Width, 0, mGUI_Temp_X, 0xA8, With.str().c_str() );
 	
 	String_CalculateWidth( 0x140, mFont_Underlined_Width, "GO FOR IT" );
-	String_Print(  mFont_Underlined_Width, 3, word_3B301, 0xB8, "GO FOR IT" );
+	String_Print(  mFont_Underlined_Width, 3, mGUI_Temp_X, 0xB8, "GO FOR IT" );
 }
 
 void cFodder::Briefing_DrawBox( int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor ) {
@@ -12149,7 +12140,7 @@ void cFodder::Intro_Print_String( int32 pPosY,  const sIntroString* pString ) {
 	else
 		pPosY += 0x9;
 	String_CalculateWidth( 320, mFont_Intro_Width, pString->mText );
-	String_Print(  mFont_Intro_Width, 0, word_3B301, pPosY, pString->mText );
+	String_Print(  mFont_Intro_Width, 0, mGUI_Temp_X, pPosY, pString->mText );
 }
 
 void cFodder::Briefing_Draw_Vertical_Line(  int16 pX, int16 pHeight, int16 pY, uint8 pColor ) {
@@ -13426,7 +13417,7 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 
 	//loc_1AA9F
 	if (pSprite->field_5C) {
-		sub_2DD50( pSprite );
+		Sprite_Handle_Explosion_MapTiles( pSprite );
 		int16 Data0 = tool_RandomGet() & 0x1FE;
 		int16 Data18 = Data0;
 		sub_21702( pSprite, Data18 );
@@ -17878,8 +17869,8 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 	uint8 al = 0;
 	int32 unk14 = 0;
 
-	word_3B305 = pParamC;
-	word_3B307 = 0;
+	mGUI_Temp_Y = pParamC;
+	mGUI_Temp_Height = 0;
 
 	for (;;) {
 	loc_29C7A:;
@@ -18267,8 +18258,8 @@ void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const ch
 	}
 
 	pPosX >>= 1;
-	word_3B301 = pPosX;
-	word_3B303 = PositionX;
+	mGUI_Temp_X = pPosX;
+	mGUI_Temp_Width = PositionX;
 }
 
 void cFodder::intro_LegionMessage() {
@@ -20551,7 +20542,7 @@ Start:;
 
 			GUI_Sidebar_Prepare_Squads();
 			Squad_Select_Grenades();
-			sub_126BB();
+			Mission_Clear_Destroy_Tiles();
 			Sprite_Count_HelicopterCallPads();
 			sub_13148();
 
@@ -20619,13 +20610,13 @@ void cFodder::Exit( unsigned int pExitCode ) {
 }
 
 void cFodder::GUI_Sidebar_Grenades_Draw( ) {
-	int16 Data0 = word_3AC1F;
+	int16 Data0 = mGUI_Squad_Current;
 	int16 Data8, DataC, Data4, Data10;
 
-	if (!mSquad_Grenades[word_3AC1F])
+	if (!mSquad_Grenades[mGUI_Squad_Current])
 		goto loc_2ED63;
 
-	if (mSquad_CurrentWeapon[word_3AC1F] != eWeapon_Grenade)
+	if (mSquad_CurrentWeapon[mGUI_Squad_Current] != eWeapon_Grenade)
 		goto loc_2ED63;
 
 	if (!word_3AC47) {
@@ -20643,7 +20634,7 @@ void cFodder::GUI_Sidebar_Grenades_Draw( ) {
 
 	mGraphics->sub_145AF( Data0, Data8, DataC );
 	
-	Data0 = mSquad_Grenades[word_3AC1F];
+	Data0 = mSquad_Grenades[mGUI_Squad_Current];
 	if (!Data0)
 		return;
 
@@ -20653,7 +20644,7 @@ void cFodder::GUI_Sidebar_Grenades_Draw( ) {
 	DataC += 0x19;
 	Data10 = 0xAF;
 
-	if (mSquad_CurrentWeapon[word_3AC1F] != eWeapon_Grenade)
+	if (mSquad_CurrentWeapon[mGUI_Squad_Current] != eWeapon_Grenade)
 		goto loc_2EDF7;
 
 	if (word_3AC47)
@@ -20673,10 +20664,10 @@ void cFodder::GUI_Prepare_Button_Grenade() {
 
 	sGUI_Element* NewElement = mGUI_NextFreeElement;
 	NewElement->field_0 = &cFodder::GUI_Button_NoAction;
-	NewElement->field_4 = 0;
-	NewElement->field_6 = 0x0C;
-	NewElement->field_8 =  word_3AC1D + 0x0E;
-	NewElement->field_A = 0x14;
+	NewElement->mX = 0;
+	NewElement->mWidth = 0x0C;
+	NewElement->mY =  word_3AC1D + 0x0E;
+	NewElement->mHeight = 0x14;
 	NewElement->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Grenades;
 
 	++NewElement;
@@ -20715,7 +20706,7 @@ void cFodder::Squad_Select_Grenades() {
 void cFodder::GUI_Sidebar_TroopList_Draw() {
 
 	int16 Data0 = 0;
-	int8 Data4 = mSquads_TroopCount[word_3AC1B];
+	int8 Data4 = mSquads_TroopCount[mGUI_Loop_Squad_Current];
 	int16 DataC = word_3AC1D;
 
 	int8 Data4_Saved = Data4;
@@ -20737,7 +20728,7 @@ void cFodder::GUI_Sidebar_TroopList_Draw() {
 	}
 loc_2F1BC:;
 
-	word_3AC29 = DataC;
+	mGUI_Squad_NextDraw_Y = DataC;
 	Data4 = Data4_Saved;
 	if (Data4 < 0)
 		return;
@@ -20755,7 +20746,7 @@ loc_2F1BC:;
 		if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
 			continue;
 
-		if (word_3AC1B != Data34->field_32)
+		if (mGUI_Loop_Squad_Current != Data34->field_32)
 			continue;
 
 		if (Data34->field_38 >= 0x32)
@@ -20851,7 +20842,7 @@ void cFodder::sub_2F452() {
 
 void cFodder::GUI_Sidebar_SquadIcon_Draw() {
 	
-	int16 Data0 = word_3AA11[word_3AC1F];
+	int16 Data0 = word_3AA11[mGUI_Squad_Current];
 
 	const int16* Data20 = word_3DF05;
 
@@ -20870,14 +20861,14 @@ int16 cFodder::sub_2F4CB() {
 	int16 Data1C = 0;
 	sSprite* Data2C = 0;
 	const int16* Dataa2C = word_3DF31;
-	int16 Data8 = mSquads_TroopCount[ word_3AC1B ];
+	int16 Data8 = mSquads_TroopCount[ mGUI_Loop_Squad_Current ];
 	if (!Data8)
 		return 0;
 
 	if (Data8 != 1)
 		Data1C = 1;
 
-	int16 DataC = word_3AC1F;
+	int16 DataC = mGUI_Squad_Current;
 
 	if (!dword_3B24F[DataC])
 		goto loc_2F593;
@@ -20896,10 +20887,10 @@ loc_2F586:;
 	Data1C = *(Dataa2C + 1);
 
 loc_2F593:;
-	if (Data1C == word_3AA11[word_3AC1F])
+	if (Data1C == word_3AA11[mGUI_Squad_Current])
 		return 0;
 
-	word_3AA11[word_3AC1F] = Data1C;
+	word_3AA11[mGUI_Squad_Current] = Data1C;
 	return -1;
 }
 
@@ -20974,19 +20965,19 @@ void cFodder::GUI_Sidebar_Refresh() {
 
 void cFodder::GUI_Sidebar_SquadIcon_Refresh() {
 	
-	word_3AC1B = 0;
-	word_3AC1F = 0;
+	mGUI_Loop_Squad_Current = 0;
+	mGUI_Squad_Current = 0;
 	
-	for (word_3AC1B = 0; word_3AC1B < 3; ++word_3AC1B, ++word_3AC1F) {
+	for (mGUI_Loop_Squad_Current = 0; mGUI_Loop_Squad_Current < 3; ++mGUI_Loop_Squad_Current, ++mGUI_Squad_Current) {
 
-		word_3AC1D = word_3AC2D[word_3AC1F];
+		word_3AC1D = word_3AC2D[mGUI_Squad_Current];
 
 		if (!mSquads_TroopCount[word_3AC1D])
 			continue;
 
 		word_3AC47 = 0;
 
-		if (word_3AC1F == mSquad_Selected)
+		if (mGUI_Squad_Current == mSquad_Selected)
 			word_3AC47 = -1;
 
 		if (sub_2F4CB())
@@ -21005,7 +20996,7 @@ void cFodder::GUI_Sidebar_Grenades_Refresh(  int16 pData0 ) {
 	sub_2EBE0(pData0, Data4);
 	GUI_Sidebar_Grenades_Draw();
 
-	if (!mSquad_Grenades[word_3AC1F])
+	if (!mSquad_Grenades[mGUI_Squad_Current])
 		return;
 
 	if (!word_3AC47)
@@ -21039,7 +21030,7 @@ void cFodder::GUI_Sidebar_Rockets_Refresh(  int16 pData0 ) {
 	sub_2EBE0( pData0, Data4 );
 	GUI_Sidebar_Rockets_Draw();
 
-	if (!mSquad_Rockets[word_3AC1F])
+	if (!mSquad_Rockets[mGUI_Squad_Current])
 		return;
 
 	if (!word_3AC47)
@@ -21064,8 +21055,6 @@ void cFodder::GUI_Sidebar_Rockets_Refresh(  int16 pData0 ) {
 int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
 	sSquad_Member* Data38 = mSquad;
 
-	int16 Data18 = mSquad_Selected;
-
 	int16 Data10 = 0;
 
 	for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38) {
@@ -21073,7 +21062,7 @@ int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
 		if (Data38->mSprite == INVALID_SPRITE_PTR || Data38->mSprite == 0 )
 			continue;
 
-		if (Data18 != Data38->mSprite->field_32)
+		if (mSquad_Selected != Data38->mSprite->field_32)
 			continue;
 
 		if (!(Data38->mSelected & 1))
@@ -21152,28 +21141,26 @@ void cFodder::GUI_Sidebar_MapButton_Prepare() {
 }
 
 void cFodder::GUI_Sidebar_Squad0_Prepare( ) {
-	word_3AC29 = 0;
+	mGUI_Squad_NextDraw_Y = 0;
 
 	GUI_Sidebar_Prepare( 0, 0 );
 }
 
 void cFodder::GUI_Sidebar_Squad1_Prepare( ) {
-	int16 Data0 = 1;
-	int16 Data4 = word_3AC29;
+	int16 Data4 = mGUI_Squad_NextDraw_Y;
 	if (Data4) 
 		Data4 += 5;
 	
-	GUI_Sidebar_Prepare( Data0, Data4 );
+	GUI_Sidebar_Prepare( 1, Data4 );
 }
 
 void cFodder::GUI_Sidebar_Squad2_Prepare( ) {
-	int16 Data0 = 2;
-	int16 Data4 = word_3AC29;
+	int16 Data4 = mGUI_Squad_NextDraw_Y;
 
 	if (Data4)
 		Data4 += 5;
 
-	GUI_Sidebar_Prepare( Data0, Data4 );
+	GUI_Sidebar_Prepare( 2, Data4 );
 }
 
 void cFodder::sub_2FA8F() {
@@ -21188,10 +21175,10 @@ void cFodder::sub_2FA8F() {
 void cFodder::GUI_Sidebar_Rockets_Draw( ) {
 	int16 Data0, Data8, DataC, Data4, Data14, Data10;
 
-	if (!mSquad_Rockets[word_3AC1F])
+	if (!mSquad_Rockets[mGUI_Squad_Current])
 		goto loc_2FAF6;
 
-	if (mSquad_CurrentWeapon[word_3AC1F] != eWeapon_Rocket)
+	if (mSquad_CurrentWeapon[mGUI_Squad_Current] != eWeapon_Rocket)
 		goto loc_2FAF6;
 
 
@@ -21209,7 +21196,7 @@ void cFodder::GUI_Sidebar_Rockets_Draw( ) {
 	DataC += 0x0E;
 	mGraphics->sub_145AF( Data0, Data8, DataC );
 
-	Data0 = mSquad_Rockets[word_3AC1F];
+	Data0 = mSquad_Rockets[mGUI_Squad_Current];
 	if (!Data0)
 		return;
 
@@ -21217,7 +21204,7 @@ void cFodder::GUI_Sidebar_Rockets_Draw( ) {
 	Data8 = 0x0D;
 	DataC = word_3AC1D;
 	DataC += 0x19;
-	Data14 = word_3AC1F;
+	Data14 = mGUI_Squad_Current;
 
 	if (mSquad_CurrentWeapon[Data14] != eWeapon_Rocket)
 		goto loc_2FB8A;
@@ -21238,10 +21225,10 @@ void cFodder::GUI_Prepare_Button_Rockets() {
 
 	sGUI_Element* NewElement = mGUI_NextFreeElement;
 	NewElement->field_0 = &cFodder::GUI_Button_NoAction;
-	NewElement->field_4 = 0x24;
-	NewElement->field_6 = 0x0C;
-	NewElement->field_8 = word_3AC1D + 0x0E;
-	NewElement->field_A = 0x14;
+	NewElement->mX = 0x24;
+	NewElement->mWidth = 0x0C;
+	NewElement->mY = word_3AC1D + 0x0E;
+	NewElement->mHeight = 0x14;
 	NewElement->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Rockets;
 	++NewElement;
 
@@ -21279,7 +21266,7 @@ void cFodder::Squad_Select_Rockets() {
 
 void cFodder::GUI_Prepare_Button_TroopName() {
 	
-	if (mSquad_Selected != word_3AC1B)
+	if (mSquad_Selected != mGUI_Loop_Squad_Current)
 		return;
 
 	for (int16 Data4 = 2; Data4 >= 0; --Data4) {
@@ -21294,11 +21281,11 @@ loc_2FCF4:;
 	sGUI_Element* Element = mGUI_NextFreeElement;
 
 	Element->field_0 = &cFodder::GUI_Button_NoAction;
-	Element->field_4 = 0;
-	Element->field_6 = 0x2F;
-	Element->field_8 = word_3AC1D + 0x22;
+	Element->mX = 0;
+	Element->mWidth = 0x2F;
+	Element->mY = word_3AC1D + 0x22;
 
-	Element->field_A = mSquads_TroopCount[mSquad_Selected] * 0x0C;
+	Element->mHeight = mSquads_TroopCount[mSquad_Selected] * 0x0C;
 	Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_TroopName;
 
 	++Element;
@@ -21480,7 +21467,7 @@ void cFodder::GUI_Sidebar_Number_Draw( int16 pData0, int16 pData4, int16 pData8,
 
 	String_CalculateWidth( pData8, mFont_Sidebar_Width, Tmp.str().c_str() );
 	
-	pData8 = word_3B301 + word_3AC23;
+	pData8 = mGUI_Temp_X + word_3AC23;
 	int16 Data0 = Data10_Saved;
 	word_3AC21 = -1;
 	pDataC = word_3AC27;
@@ -21762,10 +21749,10 @@ void cFodder::Mouse_Inputs_Check() {
 		return;
 	}
 
-	dword_3A02A = mGUI_Elements;
+	mGUI_Loop_Element = mGUI_Elements;
 
-	for (;; ++dword_3A02A) {
-		sGUI_Element* Data20 = dword_3A02A;
+	for (;; ++mGUI_Loop_Element) {
+		sGUI_Element* Data20 = mGUI_Loop_Element;
 
 		if (Data20->field_0 == 0)
 			break;
@@ -21773,25 +21760,24 @@ void cFodder::Mouse_Inputs_Check() {
 		if ((*this.*Data20->field_0)() < 0)
 			return;
 
-		Data20 = dword_3A02A;
-		Data0 = word_3BEC1 + Data20->field_4;
+		Data20 = mGUI_Loop_Element;
+		Data0 = word_3BEC1 + Data20->mX;
 
-		int16 Data4 = mMouseX;
-		Data4 += 0x20;
+		int16 Data4 = mMouseX + 0x20;
 
 		if (Data0 > Data4)
 			continue;
 
-		Data0 += Data20->field_6;
+		Data0 += Data20->mWidth;
 		if (Data0 < Data4)
 			continue;
 
 		Data0 = word_3BEC3;
-		Data0 += Data20->field_8;
+		Data0 += Data20->mY;
 		if (Data0 > mMouseY)
 			continue;
 
-		Data0 += Data20->field_A;
+		Data0 += Data20->mHeight;
 		if (Data0 < mMouseY)
 			continue;
 

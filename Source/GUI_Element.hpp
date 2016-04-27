@@ -24,10 +24,10 @@ class cFodder;
 
 struct sGUI_Element {
 	int16	(cFodder::*field_0)();
-	int16	field_4;
-	int16	field_6;
-	int16	field_8;
-	int16	field_A;
+	int16	mX;
+	int16	mWidth;
+	int16	mY;
+	int16	mHeight;
 	void	(cFodder::*mMouseInsideFuncPtr)();	// field_c
 };
 
