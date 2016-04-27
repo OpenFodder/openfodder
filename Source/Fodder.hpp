@@ -491,10 +491,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSoundEffectToPlay;
 
 	int16			word_3B461[3];
-	sSprite*		dword_3B477;
+	sSprite*		mSprite_OpenCloseDoor_Ptr;
 	int16			word_3B47B;
-	int16			word_3B47D;
-	int16			word_3B47F;
+	int16			mSprite_Indigenous_Tmp_X;
+	int16			mSprite_Indigenous_Tmp_Y;
 	int16			word_3B481;
 	int16			word_3B483;
 	int16			mHelicopterCallPadCount;
@@ -961,7 +961,7 @@ public:
 	void			Sprite_Handle_BuildingDoor3( sSprite* pSprite );		// 88
 	void			Sprite_Handle_Explosion2( sSprite* pSprite );			// 89
 
-	void			sub_1DA48( sSprite* pSprite );										// 90
+	void			Sprite_Handle_OpenCloseDoor( sSprite* pSprite );										// 90
 	void			Sprite_Handle_Seal_Mine( sSprite* pSprite );					// 91
 	void			Sprite_Handle_Spider_Mine( sSprite* pSprite );						// 92
 	void			Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite );				// 93
@@ -1080,13 +1080,13 @@ public:
 	void			Sprite_Handle_Vehicle_Enemy( sSprite* pSprite );
 	void			Sprite_Handle_Helicopter_Enemy( sSprite* pSprite );
 	void			sub_25863( sSprite* pSprite );
-	void			sub_258C6( sSprite* pSprite );
-	int16			sub_25680( sSprite* pSprite );
+	void			Sprite_Handle_Indigenous_Movement( sSprite* pSprite );
+	int16			Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( sSprite* pSprite );
 	void			Sprite_Handle_Indigenous_Death( sSprite* pSprite );
 	void			sub_2593D( sSprite* pSprite );
 	void			sub_25A31( sSprite* pSprite );
 	void			sub_25A66( sSprite* pSprite );
-	int16			sub_25AAE( sSprite* pSprite );
+	int16			Sprite_Handle_Indigenous_RandomMovement( sSprite* pSprite );
 	int16			sub_25B6B( sSprite* pSprite );
 	int16			sub_25DCF( sSprite* pSprite );
 	void			sub_25F2B( sSprite* pSprite );

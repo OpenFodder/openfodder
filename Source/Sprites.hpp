@@ -96,6 +96,7 @@ enum eSprites {
 	eSprite_BuildingDoor3						= 88,
 	eSprite_Explosion2							= 89,
 
+	eSprite_OpenCloseDoor						= 90,
 	eSprite_Seal_Mine							= 91,
 	eSprite_Spider_Mine							= 92,
 	eSprite_Bonus_RankToGeneral					= 93,
