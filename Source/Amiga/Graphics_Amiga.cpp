@@ -982,11 +982,11 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 	g_Resource.fileLoadTo( JunData6, (uint8*) mPaletteBrief + (0xE0 * 2) );
 }
 
-void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* a0 ) {
+void cGraphics_Amiga::sub_2AF19( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pGraphics ) {
 	int32 d0, d1, d2, d3, d4, d5, d6;
 
-	d0 = pD0; 
-	d1 = pD1;
+	d0 = pRows;
+	d1 = pColumns;
 	d2 = pD2; 
 	d3 = pD3;
 	d4 = pD4;
@@ -1070,7 +1070,7 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 
 	//loc_A0850
 	do {
-		uint8* a3 = a0;
+		uint8* a3 = pGraphics;
 		uint8* a6 = a1;
 
 		d2 = 0;
@@ -1104,7 +1104,7 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 			d4 -= (d7 & 0xFFFF);
 			d7 = (d7 & 0xFFFF0000) | ((d7 & 0xFFFF) >> 3);
 			
-			a3 = a0 + (d7 & 0xffff);
+			a3 = pGraphics + (d7 & 0xffff);
 		} while (--d6 >= 0);
 
 		++a6;
@@ -1125,7 +1125,7 @@ void cGraphics_Amiga::sub_2AF19( int16 pD0, int16 pD1, int16 pD2, int16 pD4, int
 		d3 = (d3 & 0xFFFF0000) | ((d3 & 0xFFFF) << 2);
 		d3 += (d1 & 0xFFFF);
 		d1 = D1_Saved;
-		a0 += (d3 & 0xFFFF);
+		pGraphics += (d3 & 0xFFFF);
 		d3 = d3 >> 16;
 
 	} while (--word_82720 > 0);

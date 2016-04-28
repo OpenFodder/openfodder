@@ -387,13 +387,11 @@ const struct sRecruit mRecruits[360] = {
 };
 
 int16 word_35DFE[] = {
-	0x21, 0x32, 0x42, 0x55,
-	0x64, -1,
+	0x21, 0x32, 0x42, 0x55, 0x64, -1,
 };
 
 int16 word_35E0A[] = {
-	0x21, 0x32, 0x42,
-	0x55, 0x64, -1
+	0x21, 0x32, 0x42, 0x55, 0x64, -1
 };
 
 int16 word_35E16[] = {
@@ -412,7 +410,7 @@ int16 word_35E3A[] = {
 	0x32, 0x52, 0x64, -1
 };
 
-const sRecruitSpritePos mRecruitSprite[34] =
+const sRecruit_Sprites mRecruitSprite[34] =
 {
 	{ 0, 0, 48, 40, word_35DFE },
 	{ 0, 1, 48, 56, word_35E0A },

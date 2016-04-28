@@ -718,11 +718,10 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlkSize) - 0x30, mFodder->mDataPStuff + 0xA000, 0x30 );
 }
 
-void cGraphics_PC::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 ) {
-	pData0 &= 0xFFFF;
-	pData4 &= 0xFFFF;
+void cGraphics_PC::sub_2AF19( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) {
+	pColumns &= 0xFFFF;
+	pRows &= 0xFFFF;
 
-	uint8 *si = pData20;
 	uint8* es = mFodder->word_3E1B7;
 
 	mFodder->dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
@@ -733,17 +732,17 @@ void cGraphics_PC::sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pD
 	if (eax <= 0)
 		return;
 
-	mFodder->dword_44A42 = eax / pData0;
+	mFodder->dword_44A42 = eax / pColumns;
 	eax = pDataC << 0x10;
 	if (eax <= 0)
 		return;
 
-	mFodder->dword_44A46 = eax / pData4;
-	for (int16 bx = 0; bx != pData4; ++bx) {
+	mFodder->dword_44A46 = eax / pRows;
+	for (int16 bx = 0; bx != pRows; ++bx) {
 		mFodder->dword_44A36 = mFodder->dword_44A3E;
 
-		for (int16 cx = 0; cx != pData0; ++cx) {
-			uint8 al = mFodder->sub_2AFF5( si, bx, cx );
+		for (int16 cx = 0; cx != pColumns; ++cx) {
+			uint8 al = mFodder->sub_2AFF5( pGraphics, bx, cx );
 			mFodder->sub_2B016( es, al );
 			mFodder->dword_44A36 += mFodder->dword_44A42;
 		}

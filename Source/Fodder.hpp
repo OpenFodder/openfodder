@@ -1005,7 +1005,7 @@ public:
 	void			sub_1FDE7( sSprite* pSprite );
 	void			sub_1FE35( sSprite* pSprite );
 	int16			sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
-	void			sub_1FFC6( sSprite* pSprite, int16& pData4 );
+	void			Sprite_Handle_Soldier_Terrain_Check( sSprite* pSprite, int16& pData4 );
 
 	void			sub_20456( sSprite* pSprite, int16& pData8 );
 	void			sub_20478( sSprite* pSprite );
@@ -1051,7 +1051,7 @@ public:
 	void			Sprite_Handle_Player_Unk( sSprite* pSprite );
 	void			sub_22C87( sSprite* pSprite );
 	void			sub_22CD7( sSprite* pSprite, int16& Data0, int16& Data4 );
-	void			sub_22DFC( sSprite* pSprite );
+	void			Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite );
 	void			Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
 	int16			sub_2329D( sSprite* pSprite );
 	int16			Map_Sprite_Check_Around_Position( sSprite* pSprite );
@@ -1122,7 +1122,7 @@ public:
 	int16			Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame );
-	void			sub_2AEB6( int16 pData0, int16 pData4, int16 *pData8, int16* pDataC );
+	void			sub_2AEB6( int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 
 	void			sub_2B016( uint8* pDi, uint8 pAl );
