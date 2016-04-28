@@ -5492,11 +5492,11 @@ void cFodder::Recruit_Draw_Truck( ) {
 
 void cFodder::sub_17B64() {
 
-	const sRecruitSpritePos* stru = mRecruitSprite;
+	const sRecruit_Sprites* stru = mRecruitSprite;
 
-	for (; stru->field_0 != -1;) {
-		int16 word_3B19F = stru->field_0;
-		int16 word_3B1A1 = stru->field_2;
+	for (; stru->mSpriteType != -1;) {
+		int16 word_3B19F = stru->mSpriteType;
+		int16 word_3B1A1 = stru->mFrame;
 		int16 word_3B1A3 = stru->field_4;
 		int16 word_3B1A5 = stru->field_6;
 		int16* Data34 = stru->field_8;
@@ -5550,8 +5550,6 @@ void cFodder::Recruit_Draw() {
 	mDrawSpriteColumns = 0x110;
 	mDrawSpriteRows = 0xB0;
 
-	//sub_14367();
-
 	g_Window.RenderAt( mImage );
 	g_Window.FrameEnd();
 	mImage->Restore();
@@ -5590,16 +5588,13 @@ void cFodder::Sprite_Handle_Player_Unk( sSprite* pSprite ) {
 
 	sSprite* Data28 = pSprite->field_66;
 	
-	int16 Data0 = Data28->field_0;
-	Data0 += 0x10;
+	int16 Data0 = Data28->field_0 + 0x10;
 
 	if (Data28->field_6F || Data28->field_6F == 1)
 		Data0 -= 0x0C;
 
-	int16 Data4 = Data28->field_4;
-	Data4 -= 9;
-	int16 Data8 = pSprite->field_0;
-	Data8 += 4;
+	int16 Data4 = Data28->field_4 - 9;
+	int16 Data8 = pSprite->field_0 + 4;
 	int16 DataC = pSprite->field_4;
 
 	int16 Data10 = 0x1F;
@@ -5896,7 +5891,7 @@ loc_22DF6:;
 
 }
 
-void cFodder::sub_22DFC( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite ) {
 	int16 Data4, Data0;
 	int32 Dataa0;
 
@@ -5912,7 +5907,7 @@ void cFodder::sub_22DFC( sSprite* pSprite ) {
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 
 	pSprite->field_60 = Data4;
-	if (Data4 == 1 || Data4 == 2)
+	if (Data4 == 1 || Data4 == eTerrainType_Rocky2)
 		goto loc_23056;
 
 	if (Data4 == 0x0E)
@@ -5921,7 +5916,7 @@ void cFodder::sub_22DFC( sSprite* pSprite ) {
 	if (Data4 == 3)
 		goto loc_22F30;
 
-	if (Data4 == 9 || Data4 == 0x0A)
+	if (Data4 == eTerrainType_Hole || Data4 == 0x0A)
 		goto loc_22F06;
 
 	if (pSprite->field_56)
@@ -6343,7 +6338,7 @@ loc_23680:;
 
 	Sprite_XY_Store( pSprite );
 	Sprite_Movement_Calculate( pSprite );
-	sub_22DFC( pSprite );
+	Sprite_Handle_Vehicle_Terrain_Check( pSprite );
 
 	pSprite->field_20 = 0;
 	sub_236F7( pSprite );
@@ -7874,7 +7869,7 @@ void cFodder::sub_2593D( sSprite* pSprite ) {
 	byte_3ABA9 = pSprite->field_60;
 
 	int16 Data4 = 0;
-	sub_1FFC6( pSprite, Data4 );
+	Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 
 	Data4 = pSprite->field_60;
 
@@ -9466,11 +9461,11 @@ int16 cFodder::Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8
 	return mSprites_Found_Count;
 }
 
-uint8* cFodder::Sprite_Get_Gfx_Ptr( int16& pData0, int16& pData4 ) {
-	const sSpriteSheet* Sheet = &mSpriteDataPtr[pData0][pData4];
+uint8* cFodder::Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame ) {
+	const sSpriteSheet* Sheet = &mSpriteDataPtr[pSpriteType][pFrame];
 
-	pData0 = Sheet->mColCount;
-	pData4 = Sheet->mRowCount;
+	pSpriteType = Sheet->mColCount;
+	pFrame = Sheet->mRowCount;
 
 	return mGraphics->GetSpriteData( Sheet->field_2 ) + Sheet->field_0;
 }
@@ -9485,13 +9480,13 @@ uint8 cFodder::sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx ) {
 	return (*pSi) >> 4;
 }
 
-void cFodder::sub_2AEB6( int16 pData0, int16 pData4, int16* pData8, int16* pDataC ) {
-	int32	Data = pData0 * *pData8;
-	pData0 = (int16) Data / 0x64;
+void cFodder::sub_2AEB6( int16 pColumns, int16 pRows, int16* pData8, int16* pDataC ) {
+	int32	Data = pColumns * *pData8;
+	pColumns = (int16) Data / 0x64;
 	
-	int16 Final8 = pData0;
+	int16 Final8 = pColumns;
 	
-	Data = pData4 * *pData8;
+	Data = pRows * *pData8;
 	*pDataC = (int16) Data / 0x64;
 
 	*pData8 = Final8;
@@ -14031,7 +14026,7 @@ loc_1B655:;
 	goto loc_1B6A2;
 
 loc_1B688:;
-	sub_22DFC( pSprite );
+	Sprite_Handle_Vehicle_Terrain_Check( pSprite );
 
 	if (pSprite->field_20 <= 4)
 		pSprite->field_20 = 0;
@@ -16417,7 +16412,7 @@ loc_1E3D2:;
 	if (pSprite->field_20 < 0x0C) {
 
 		int16 Field10 = pSprite->field_10;
-		sub_1FFC6( pSprite, Data4 );
+		Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 		pSprite->field_10 = Field10;
 	}
 	else {
@@ -16426,7 +16421,7 @@ loc_1E3D2:;
 		int16 Field4 = pSprite->field_4;
 		int16 Field10 = pSprite->field_10;
 
-		sub_1FFC6( pSprite, Data4 );
+		Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 
 		pSprite->field_10 = Field10;
 		pSprite->field_4 = Field4;
@@ -16604,7 +16599,7 @@ loc_1E831:;
 			Data30[Data0].field_2 = Data8;
 	}
 	//loc_1E9CD;
-	sub_1FFC6( pSprite, Data4 );
+	Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 	if (pSprite->field_12 > 5)
 		sub_223B2( pSprite );
 
@@ -16656,7 +16651,7 @@ loc_1EB0E:;
 	Field_52 = pSprite->field_52;
 	Field_0 = pSprite->field_0;
 	Field_4 = pSprite->field_4;
-	sub_1FFC6( pSprite, Data4 );
+	Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 	pSprite->field_4 = Field_4;
 	pSprite->field_0 = Field_0;
 	pSprite->field_52 = Field_52;
@@ -16699,7 +16694,7 @@ loc_1EB87:;
 	
 	//loc_1EC4F
 	Field_52 = pSprite->field_52;
-	sub_1FFC6( pSprite, Data4 );
+	Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 	pSprite->field_52 = Field_52;
 
 	if (pSprite->field_4F || pSprite->field_50) {
@@ -16742,7 +16737,7 @@ loc_1ED5B:;
 
 	Sprite_Movement_Calculate( pSprite );
 	sub_20478( pSprite );
-	sub_1FFC6( pSprite, Data4 );
+	Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 
 	if (pSprite->field_38 != 0x33)
 		goto loc_1EE3E;
@@ -17249,7 +17244,7 @@ void cFodder::sub_1F6F4( sSprite* pSprite ) {
 	sub_20478( pSprite );
 
 	byte_3ABA9 = pSprite->field_60;
-	sub_1FFC6( pSprite, Data4 );
+	Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 
 	int16 Data0 = byte_3ABA9;
 	Data4 = pSprite->field_60;
@@ -17620,7 +17615,7 @@ int16 cFodder::sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 	return Data0;
 }
 
-void cFodder::sub_1FFC6( sSprite* pSprite, int16& pData4 ) {
+void cFodder::Sprite_Handle_Soldier_Terrain_Check( sSprite* pSprite, int16& pData4 ) {
 	int16 Data0 = -3;
 	pData4 = 8;
 
@@ -17645,7 +17640,7 @@ void cFodder::sub_1FFC6( sSprite* pSprite, int16& pData4 ) {
 	}
 
 	//loc_20044
-	if (pData4 == 9) {
+	if (pData4 == eTerrainType_Hole) {
 
 		if (pSprite->field_18 == eSprite_Enemy)
 			goto loc_20251;
@@ -17659,13 +17654,13 @@ void cFodder::sub_1FFC6( sSprite* pSprite, int16& pData4 ) {
 
 	//loc_20072
 	pSprite->field_56 = 0;
-	if (pData4 == 8)
+	if (pData4 == eTerrainType_QuickSandEdge)
 		goto loc_201CC;
 
-	if (pData4 == 1)
+	if (pData4 == eTerrainType_Rocky)
 		goto loc_20108;
 
-	if (pData4 == 2)
+	if (pData4 == eTerrainType_Rocky2)
 		goto loc_2014D;
 
 	if (!pSprite->field_61)
@@ -17682,13 +17677,13 @@ loc_200B7:;
 	pSprite->field_61 = 0;
 
 loc_200C0:;
-	if (pData4 == 4)
+	if (pData4 == eTerrainType_QuickSand)
 		goto loc_2019E;
 
-	if (pData4 == 5)
+	if (pData4 == eTerrainType_WaterEdge)
 		goto loc_201AB;
 
-	if (pData4 != 6)
+	if (pData4 != eTerrainType_Water)
 		goto loc_201B8;
 
 	if (pSprite->field_22 == 2)
@@ -18026,10 +18021,6 @@ void cFodder::sub_311A7() {
 		Data28->field_66 = 0;
 	}
 
-	const int16* Data2C = mSprite_Width;
-	const int16* Data30 = mSprite_Height_Top;
-	const int16* Data34 = mSprite_Height_Bottom;
-
 	int16 Data0 = mMouseX;
 	int16 Data4 = mMouseY;
 
@@ -18045,6 +18036,7 @@ void cFodder::sub_311A7() {
 
 		if (Data20->field_0 == -32768)
 			continue;
+
 		if (!Data20->field_65)
 			continue;
 
@@ -18063,26 +18055,23 @@ void cFodder::sub_311A7() {
 		if (Data0 < Data8)
 			continue;
 
-		Data8 += Data2C[Data18];
+		Data8 += mSprite_Width[Data18];
 		if (Data0 > Data8)
 			continue;
 
-		Data8 = Data20->field_4;
-		Data8 -= Data30[Data18];
+		Data8 = Data20->field_4 - mSprite_Height_Top[Data18];
 		Data8 -= 0x14;
 		if (Data4 < Data8)
 			continue;
 
-		Data8 = Data20->field_4;
-		Data8 += Data34[Data18];
+		Data8 = Data20->field_4 + mSprite_Height_Bottom[Data18];
 		if (Data4 > Data8)
 			continue;
 
-		Data0 = mSquad_Selected;
-		if (Data0 < 0)
+		if (mSquad_Selected < 0)
 			break;
 
-		Data24 = mSquads[Data0];
+		Data24 = mSquads[mSquad_Selected];
 		for (;;) {
 			if (*Data24 == INVALID_SPRITE_PTR)
 				goto loc_313C6;
@@ -18093,7 +18082,6 @@ void cFodder::sub_311A7() {
 	}
 
 loc_313C6:;
-	Data0 = 0;
 }
 
 int16 cFodder::sub_313CD() {

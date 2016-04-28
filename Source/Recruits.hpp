@@ -28,9 +28,9 @@ struct sRecruit {
 	int8 field_8;
 };
 
-struct sRecruitSpritePos {
-	int16	field_0;
-	int16	field_2;
+struct sRecruit_Sprites {
+	int16	mSpriteType;
+	int16	mFrame;
 	int16	field_4;
 	int16	field_6;
 	int16*	field_8;
@@ -48,5 +48,5 @@ struct sRecruitRendered {
 };
 
 extern const struct sRecruit mRecruits[360];
-extern const struct sRecruitSpritePos mRecruitSprite[34];
+extern const struct sRecruit_Sprites mRecruitSprite[34];
 extern struct sRecruit_Screen_Pos mRecruit_Screen_Positions[294];

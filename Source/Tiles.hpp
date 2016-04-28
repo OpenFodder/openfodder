@@ -30,6 +30,17 @@ enum eTileTypes {
 	eTileTypes_AFX = 6,
 };
 
+enum eTerrainType {
+	eTerrainType_Rocky		= 1,
+	eTerrainType_Rocky2		= 2,
+	eTerrainType_QuickSand	= 4,
+	eTerrainType_WaterEdge	= 5,
+	eTerrainType_Water		= 6,
+	eTerrainType_QuickSandEdge = 8,
+
+	eTerrainType_Hole		= 9,
+};
+
 extern const int8 mTiles_NotFlyable[];
 extern const int8 mTiles_NotDriveable[];
 extern const int8 mTiles_NotWalkable[];
