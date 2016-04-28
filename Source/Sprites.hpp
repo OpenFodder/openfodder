@@ -214,3 +214,4 @@ extern const int16 mSprite_SpiderMine_Frames[];
 extern const int16 mSprite_Hostage_Frames[];
 extern const int16 mSprite_Helicopter_CallPad_Frames[];
 extern const sWeaponData mSprite_Bullet_UnitData[];
+extern const int16 mSprite_Player_MissionOver_Frames[];
