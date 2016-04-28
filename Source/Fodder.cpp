@@ -17763,7 +17763,7 @@ loc_2022C:;
 	return;
 
 loc_20236:;
-	if (pData4 == 9 || pData4 == 0x0A) {
+	if (pData4 == eTerrainType_Drop || pData4 == eTerrainType_A) {
 		pSprite->field_38 = 2;
 		return;
 	}
