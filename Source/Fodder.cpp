@@ -5907,41 +5907,42 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite ) {
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 
 	pSprite->field_60 = Data4;
-	if (Data4 == 1 || Data4 == eTerrainType_Rocky2)
+	if (Data4 == eTerrainType_Rocky || Data4 == eTerrainType_Rocky2)
 		goto loc_23056;
 
-	if (Data4 == 0x0E)
+	if (Data4 == eTerrainType_E)
 		goto loc_23100;
 
-	if (Data4 == 3)
+	if (Data4 == eTerrainType_3)
 		goto loc_22F30;
 
-	if (Data4 == eTerrainType_Hole || Data4 == 0x0A)
+	if (Data4 == eTerrainType_Drop || Data4 == 0x0A)
 		goto loc_22F06;
 
 	if (pSprite->field_56)
 		pSprite->field_38 = 5;
 
-	if (Data4 == 7)
+	if (Data4 == eTerrainType_7)
 		goto loc_22FA3;
 
 	if (!pSprite->field_22)
 		goto loc_22EC7;
 
-	if (Data4 == 4 || Data4 == 5 || Data4 == 6 || Data4 == 0x0B)
+	if (	Data4 == eTerrainType_QuickSand || Data4 == eTerrainType_WaterEdge 
+		 || Data4 == eTerrainType_Water || Data4 == eTerrainType_B)
 		goto loc_22F30;
 	
 	goto loc_22EEB;
 
 loc_22EC7:;
 
-	if (Data4 == 4)
+	if (Data4 == eTerrainType_QuickSand)
 		goto loc_22FD7;
 
-	if (Data4 == 5)
+	if (Data4 == eTerrainType_WaterEdge)
 		goto loc_22FE4;
 
-	if (Data4 == 6 || Data4 == 0x0B)
+	if (Data4 == eTerrainType_Water || Data4 == eTerrainType_B)
 		goto loc_22FF1;
 
 loc_22EEB:;
@@ -5971,7 +5972,7 @@ loc_22F30:;
 	Data4 = 0x0F;
 	Data0 = -10;
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
-	if (Data4 == 3)
+	if (Data4 == eTerrainType_3)
 		pSprite->field_38 = 5;
 
 	sub_2329D( pSprite );
@@ -6599,26 +6600,26 @@ void cFodder::Sprite_Handle_Helicopter_Human( sSprite* pSprite ) {
 	Data24->field_18 = eSprite_Null;
 }
 
-int16 cFodder::sub_23D57( sSprite* pSprite ) {
+int16 cFodder::Sprite_Handle_Helicopter_Terrain_Check( sSprite* pSprite ) {
 	int16 Data4 = 0x0F;
 	int16 Data0 = -10;
 
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	switch (Data4) {
-		case 1:
-		case 4:
-		case 5:
-		case 6:
-		case 0x0B:
+		case eTerrainType_Rocky:
+		case eTerrainType_QuickSand:
+		case eTerrainType_WaterEdge:
+		case eTerrainType_Water:
+		case eTerrainType_B:
 			Data0 = 0x0C;
 			break;
 
-		case 3:
+		case eTerrainType_3:
 			Data0 = 0x14;
 			break;
-		case 2:
-		case 9:
-		case 0x0A:
+		case eTerrainType_Rocky2:
+		case eTerrainType_Drop:
+		case eTerrainType_A:
 			Data0 = 0x0E;
 			break;
 
@@ -12226,7 +12227,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 	if (pSprite->field_38)
 		return;
 
-	if (sub_1F21E( pSprite ))
+	if (Sprite_Handle_Player_MissionOver( pSprite ))
 		return;
 
 	//loc_18E8D
@@ -12606,7 +12607,7 @@ loc_19701:;
 
 		sub_2A1F0( pSprite, Data0, Data4 );
 		Sprite_Movement_Calculate( pSprite );
-		sub_21525( pSprite );
+		Sprite_Handle_Grenade_Terrain_Check( pSprite );
 
 		(pSprite + 1)->field_10 = pSprite->field_10;
 	}
@@ -13143,7 +13144,7 @@ loc_1A149:;
 		pSprite->field_1E = 0;
 		pSprite->field_20 = 0;
 	}
-	sub_23D57( pSprite );
+	Sprite_Handle_Helicopter_Terrain_Check( pSprite );
 	goto loc_1A316;
 
 loc_1A205:;
@@ -13470,27 +13471,27 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Shrub( sSprite* pSprite ) {
 	pSprite->field_8 = 0x8F;
-	Sprite_Handle_Explodable( pSprite );
+	Sprite_Handle_Exploidable( pSprite );
 }
 
 void cFodder::Sprite_Handle_Tree( sSprite* pSprite ) {
 	pSprite->field_8 = 0x90;
-	Sprite_Handle_Explodable( pSprite );
+	Sprite_Handle_Exploidable( pSprite );
 }
 
 void cFodder::Sprite_Handle_BuildingRoof( sSprite* pSprite ) {
 	pSprite->field_8 = 0x91;
-	Sprite_Handle_Explodable( pSprite );
+	Sprite_Handle_Exploidable( pSprite );
 }
 
 void cFodder::sub_1AC03( sSprite* pSprite ) {
 	pSprite->field_8 = 0x92;
-	Sprite_Handle_Explodable( pSprite );
+	Sprite_Handle_Exploidable( pSprite );
 }
 
 void cFodder::Sprite_Handle_Shrub2( sSprite* pSprite ) {
 	pSprite->field_8 = 0x93;
-	Sprite_Handle_Explodable( pSprite );
+	Sprite_Handle_Exploidable( pSprite );
 }
 
 void cFodder::Sprite_Handle_Waterfall( sSprite* pSprite ) {
@@ -13866,7 +13867,7 @@ loc_1B35A:;
 	Data0 = -3;
 	Data4 = 8;
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
-	if (Data4 < 4 || Data4 > 6) {
+	if (Data4 < eTerrainType_QuickSand || Data4 > eTerrainType_Water) {
 		pSprite->field_0 = dword_3A391 & 0xFFFF;
 		pSprite->field_4 = dword_3A395 & 0xFFFF;
 		pSprite->field_36 = 0;
@@ -16587,7 +16588,7 @@ loc_1E831:;
 
 	Map_Terrain_Get_Type_And_Walkable( Data0, Data4 );
 
-	if (Data4 == 9 || Data4 == 0x0A) {
+	if (Data4 == eTerrainType_Drop || Data4 == eTerrainType_A) {
 		Data0 = pSprite->field_12;
 		pSprite->field_28 += Data0;
 		Data8 = pSprite->field_28;
@@ -16931,7 +16932,7 @@ loc_1F0BE:;
 	pSprite->field_4 = Data4;
 }
 
-int16 cFodder::sub_1F21E( sSprite* pSprite ) {
+int16 cFodder::Sprite_Handle_Player_MissionOver( sSprite* pSprite ) {
 
 	if( !mMission_Aborted )
 		if( !mMission_Complete )
@@ -16942,7 +16943,7 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 	
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 	
-	if( Data4 == 6 ) {
+	if( Data4 == eTerrainType_Water) {
 		Data0 = pSprite->field_20;
 		Data0 -= 8;
 		
@@ -17005,7 +17006,7 @@ int16 cFodder::sub_1F21E( sSprite* pSprite ) {
 	
 	Data0 = pSprite->field_2A;
 	
-	pSprite->field_A = word_3D487[ Data0 ];
+	pSprite->field_A = mSprite_Player_MissionOver_Frames[ Data0 ];
 	pSprite->field_36 ^= -32768;
 	if(pSprite->field_36 < 0)
 		goto loc_1F41D;
@@ -17626,7 +17627,7 @@ void cFodder::Sprite_Handle_Soldier_Terrain_Check( sSprite* pSprite, int16& pDat
 	pSprite->field_50 = 0;
 	pSprite->field_4F = 0;
 
-	if (pData4 == 0x0A) {
+	if (pData4 == eTerrainType_A) {
 		if (pSprite->field_18 == eSprite_Enemy)
 			goto loc_20251;
 
@@ -17640,7 +17641,7 @@ void cFodder::Sprite_Handle_Soldier_Terrain_Check( sSprite* pSprite, int16& pDat
 	}
 
 	//loc_20044
-	if (pData4 == eTerrainType_Hole) {
+	if (pData4 == eTerrainType_Drop) {
 
 		if (pSprite->field_18 == eSprite_Enemy)
 			goto loc_20251;
@@ -17731,7 +17732,7 @@ loc_201AB:;
 	return;
 
 loc_201B8:;
-	if (pData4 == 0x0B)
+	if (pData4 == eTerrainType_B)
 		goto loc_2022C;
 
 	pSprite->field_52 = 0;
@@ -17780,13 +17781,13 @@ loc_20251:;
 	if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, pData4 ))
 		goto loc_202E5;
 
-	if (pData4 == 9)
+	if (pData4 == eTerrainType_Drop)
 		goto loc_202E5;
 
-	if (pData4 == 0x0A)
+	if (pData4 == eTerrainType_A)
 		goto loc_202E5;
 
-	if (pSprite->field_22 == 2 && pData4 == 6)
+	if (pSprite->field_22 == 2 && pData4 == eTerrainType_Water)
 		goto loc_202E5;
 
 	Data0 = pSprite->field_10;
@@ -19213,7 +19214,7 @@ void cFodder::Sprite_Clear( sSprite* pSprite ) {
 	pSprite->field_75 = 0;
 }
 
-void cFodder::Sprite_Handle_Explodable( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Exploidable( sSprite* pSprite ) {
 	int64 Dat0;
 	int32 Dat4;
 	int16 Data0, Data4;
@@ -19267,16 +19268,16 @@ loc_2132A:;
 	if (pSprite->field_20)
 		return;
 
-	if (Data4 == 5)
+	if (Data4 == eTerrainType_WaterEdge)
 		goto loc_21464;
 
-	if (Data4 == 6)
+	if (Data4 == eTerrainType_Water)
 		goto loc_21464;
 
-	if (Data4 == 9)
+	if (Data4 == eTerrainType_Drop)
 		goto loc_21464;
 
-	if (Data4 == 0x0A)
+	if (Data4 == eTerrainType_A)
 		goto loc_21464;
 
 	return;
@@ -19333,14 +19334,14 @@ void cFodder::Sprite_Create_Shadow( sSprite* pSprite ) {
 	Data2C->field_52 = 0;
 }
 
-void cFodder::sub_21525( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Grenade_Terrain_Check( sSprite* pSprite ) {
 	int16 Data0 = -3;
 	int16 Data4 = 2;
 
 	if (Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 ))
 		goto loc_21599;
 
-	if (Data4 == 9 || Data4 == 0x0A) {
+	if (Data4 == eTerrainType_Drop || Data4 == eTerrainType_A) {
 
 		if (pSprite->field_20 <= 1) {
 			pSprite->field_12 = 1;
@@ -19348,7 +19349,8 @@ void cFodder::sub_21525( sSprite* pSprite ) {
 		}
 	}
 	//loc_21561
-	if (Data4 == 4 || Data4 == 5 || Data4 == 6) {
+	if (	Data4 == eTerrainType_QuickSand || Data4 == eTerrainType_WaterEdge 
+		 || Data4 == eTerrainType_Water) {
 
 		if (pSprite->field_20)
 			return;

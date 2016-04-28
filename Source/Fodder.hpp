@@ -991,7 +991,7 @@ public:
 	int16			loc_1F043( sSprite* pSprite );
 	void			loc_1F092( sSprite* pSprite, sSprite* pData24 );
 
-	int16			sub_1F21E( sSprite* pSprite );
+	int16			Sprite_Handle_Player_MissionOver( sSprite* pSprite );
 	void			Sprite_Handle_Troop( sSprite* pSprite );
 	void			sub_1F5A0( sSprite* pSprite );
 	void			sub_1F5CA( sSprite* pSprite );
@@ -1022,9 +1022,9 @@ public:
 	void			sub_21041( sSprite* pSprite );
 	int16			Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
 	void			Sprite_Clear( sSprite* pSprite );
-	void			Sprite_Handle_Explodable( sSprite* pSprite );
+	void			Sprite_Handle_Exploidable( sSprite* pSprite );
 	void			Sprite_Create_Shadow( sSprite* pSprite );
-	void			sub_21525( sSprite* pSprite );
+	void			Sprite_Handle_Grenade_Terrain_Check( sSprite* pSprite );
 	int16			sub_21618( sSprite* pSprite );
 	void			sub_21702( sSprite* pSprite, int16 pData18 );
 	void			sub_2183B( sSprite* pSprite );
@@ -1063,7 +1063,7 @@ public:
 	int16			Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C );
 	void			sub_23C70( sSprite* pData2C );
 	void			Sprite_Handle_Helicopter_Human( sSprite* pSprite );
-	int16			sub_23D57( sSprite* pSprite );
+	int16			Sprite_Handle_Helicopter_Terrain_Check( sSprite* pSprite );
 	void			sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
 	void			sub_23EA6( sSprite* pSprite );
 	void			Sprite_Handle_Turret( sSprite* pSprite );

@@ -364,3 +364,7 @@ const sWeaponData mSprite_Bullet_UnitData[] = {
 	{ 125, 10, 3, 1, 0 },
 	{ 130, 10, 3, 1, 0 }
 };
+
+const int16 mSprite_Player_MissionOver_Frames[] = {
+	0, 1, 2, 3, 2, 1, 2
+};
