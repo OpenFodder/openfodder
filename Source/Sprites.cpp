@@ -58,7 +58,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( BuildingRoof );
 
 	/* 16 */
-	SpriteTableFunction( 16,						sub_1AC03 );
+	SpriteFunction( Snowman );
 	SpriteFunction( Shrub2 );
 	SpriteFunction( Waterfall );
 	SpriteFunction( Bird2_Left );
@@ -184,7 +184,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Helicopter_CallPad );
 
 	/* 100 */
-	SpriteTableFunction( 100,										sub_1DFD2 );
+	SpriteFunction( BuildingDoor_Reinforced );
 	SpriteFunction( Helicopter_Grenade2_Human_Called );
 	SpriteFunction( Helicopter_Grenade_Human_Called );
 	SpriteFunction( Helicopter_Missile_Human_Called );

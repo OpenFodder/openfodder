@@ -881,7 +881,7 @@ public:
 	void			Sprite_Handle_Shrub( sSprite* pSprite );				// 13
 	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14
 	void			Sprite_Handle_BuildingRoof( sSprite* pSprite );			// 15
-	void			sub_1AC03( sSprite* pSprite );							// 16
+	void			Sprite_Handle_Snowman( sSprite* pSprite );							// 16
 	void			Sprite_Handle_Shrub2( sSprite* pSprite );				// 17
 	void			Sprite_Handle_Waterfall( sSprite* pSprite );			// 18
 	void			Sprite_Handle_Bird2_Left( sSprite* pSprite );			// 19
@@ -890,7 +890,7 @@ public:
 	void			Sprite_Handle_Player_Rank( sSprite* pSprite );							// 21
 	void			sub_1AF78( sSprite* pSprite );											// 22
 	void			sub_1B07C( sSprite* pSprite );											// 23
-	void			sub_1B0C0( sSprite* pSprite );											// 24
+	void			Sprite_Handle_GroundHole( sSprite* pSprite );											// 24
 	void			Sprite_Handle_BuildingDoor2( sSprite* pSprite );						// 25
 	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );				// 27
 	void			Sprite_Handle_Text_Complete( sSprite* pSprite );						// 28
@@ -972,7 +972,7 @@ public:
 	void			Sprite_Handle_Bonus_SquadGeneralRockets( sSprite* pSprite );		// 98
 	void			Sprite_Handle_Helicopter_CallPad( sSprite* pSprite );				// 99
 
-	void			sub_1DFD2( sSprite* pSprite );										// 100
+	void			Sprite_Handle_BuildingDoor_Reinforced( sSprite* pSprite );										// 100
 	void			Sprite_Handle_Helicopter_Grenade2_Human_Called( sSprite* pSprite );	// 101
 	void			Sprite_Handle_Helicopter_Grenade_Human_Called( sSprite* pSprite );	// 102
 	void			Sprite_Handle_Helicopter_Missile_Human_Called( sSprite* pSprite );	// 103

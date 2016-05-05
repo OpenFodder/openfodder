@@ -13484,7 +13484,7 @@ void cFodder::Sprite_Handle_BuildingRoof( sSprite* pSprite ) {
 	Sprite_Handle_Exploidable( pSprite );
 }
 
-void cFodder::sub_1AC03( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Snowman( sSprite* pSprite ) {
 	pSprite->field_8 = 0x92;
 	Sprite_Handle_Exploidable( pSprite );
 }
@@ -16063,7 +16063,7 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 	pSprite->field_32 = Data0;
 }
 
-void cFodder::sub_1DFD2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_BuildingDoor_Reinforced( sSprite* pSprite ) {
 	if (pSprite->field_38 != 7) {
 		Sprite_Handle_BuildingDoor3( pSprite );
 		return;
