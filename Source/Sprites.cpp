@@ -70,7 +70,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteTableFunction( 23,						sub_1B07C );
 
 	/* 24 */
-	SpriteTableFunction( 24,						sub_1B0C0 );
+	SpriteFunction( GroundHole );
 	SpriteFunction( BuildingDoor2 );
 	SpriteTableFunction( 26,						Sprite_Handle_Null );
 	SpriteFunction( Floating_Dead_Soldier );

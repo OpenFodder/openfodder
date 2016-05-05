@@ -13722,7 +13722,7 @@ void cFodder::sub_1B07C( sSprite* pSprite ) {
 	Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::sub_1B0C0( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_GroundHole( sSprite* pSprite ) {
 	if (!mEnemy_BuildingCount)
 		return;
 

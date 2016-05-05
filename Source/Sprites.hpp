@@ -38,6 +38,7 @@ enum eSprites {
 
 	eSprite_BuildingDoor					= 20,
 	eSprite_Player_Rank						= 21,
+	eSprite_GroundHole						= 24,
 	eSprite_BuildingDoor2					= 25,
 	eSprite_Floating_Dead_Soldier			= 27,
 	eSprite_Text_Complete					= 28,
