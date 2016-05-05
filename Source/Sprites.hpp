@@ -32,6 +32,7 @@ enum eSprites {
 	eSprite_Shrub							= 13,
 	eSprite_Tree							= 14,
 	eSprite_BuildingRoof					= 15,
+	eSprite_Snowman							= 16,
 	eSprite_Shrub2							= 17,
 	eSprite_Waterfall						= 18,
 	eSprite_Bird2_Left						= 19,
@@ -108,6 +109,7 @@ enum eSprites {
 	eSprite_Bonus_SquadGeneralRockets			= 98,
 	eSprite_Helicopter_CallPad					= 99,
 
+	eSprite_BuildingDoor_Reinforced				= 100,
 	eSprite_Helicopter_Grenade2_Human_Called	= 101,
 	eSprite_Helicopter_Grenade_Human_Called		= 102,
 	eSprite_Helicopter_Missile_Human_Called		= 103,
