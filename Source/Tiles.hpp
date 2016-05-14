@@ -37,14 +37,14 @@ enum eTerrainType {
 	eTerrainType_QuickSand		= 4,
 	eTerrainType_WaterEdge		= 5,
 	eTerrainType_Water			= 6,
-	eTerrainType_7				= 7,
+	eTerrainType_Snow			= 7,
 	eTerrainType_QuickSandEdge	= 8,
 	eTerrainType_Drop			= 9,
-	eTerrainType_A				= 0x0A,
-	eTerrainType_B				= 0x0B,
+	eTerrainType_Drop2			= 0x0A,
+	eTerrainType_Sink			= 0x0B,
 	eTerrainType_C				= 0x0C,
 	eTerrainType_D				= 0x0D,
-	eTerrainType_E				= 0x0E
+	eTerrainType_Jump			= 0x0E
 };
 
 extern const int8 mTiles_NotFlyable[];

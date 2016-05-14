@@ -216,16 +216,16 @@ void cWindow::WindowDecrease() {
 
 	// If we're in full screen mode remove it
 	if (!mWindowMode) {
+		/*
+		while (CanChangeToMultiplier( mWindow_Multiplier )) {
+			--mWindow_Multiplier;
+		}
 
-		//while (CanChangeToMultiplier( mWindow_MultiplierPrevious )) {
-		//	++mWindow_MultiplierPrevious;
-		//}
+		++mWindow_Multiplier;*/
 
-		//--mWindow_Multiplier;
-
-		mWindowMode = true;
-		SetWindowSize( mWindow_Multiplier );
-
+		//mWindowMode = true;
+		//SetWindowSize( mWindow_MultiplierPrevious );
+		SetFullScreen();
 		return;
 	}
 
@@ -301,8 +301,7 @@ void cWindow::SetFullScreen() {
 
 		SetWindowSize( CalculateFullscreenSize());
 
-		//SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
-		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN );
+		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
 
 		mWindowMode = false;
 	}
@@ -342,11 +341,10 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 	mWindow_Multiplier = pMultiplier;
 
 	if (mWindow) {
-		if (mWindowMode)
+		if (mWindowMode) {
 			SDL_SetWindowFullscreen( mWindow, 0 );
-
+		}
 		SDL_SetWindowSize( mWindow, GetWindowSize().mWidth, GetWindowSize().mHeight );
-
 		PositionWindow();
 	}
 }
