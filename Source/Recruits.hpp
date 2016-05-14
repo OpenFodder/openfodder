@@ -47,6 +47,8 @@ struct sRecruitRendered {
 	int16	mPosition;
 };
 
+extern const int16 mGravePositions[];
 extern const struct sRecruit mRecruits[360];
 extern const struct sRecruit_Sprites mRecruitSprite[34];
 extern struct sRecruit_Screen_Pos mRecruit_Screen_Positions[294];
+

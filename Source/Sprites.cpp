@@ -368,3 +368,23 @@ const sWeaponData mSprite_Bullet_UnitData[] = {
 const int16 mSprite_Player_MissionOver_Frames[] = {
 	0, 1, 2, 3, 2, 1, 2
 };
+
+const int8 mSprite_Seal_AnimFrames[] = {
+
+	0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02,
+	0x02, 0x02, 0x01, 0x01, 0x01, 0x01
+};
+
+const int16 mSprite_VehiclePosition_Mod[] = {
+	11, 5, 18, 5, 6, 5, 10, 6, 0, 7,
+	6, 9, -2, 5, -1, 9, -2, -6, -2, 2,
+	-2, -6, -2, 1, 5, -4, 8, -8, 7, -4,
+	14, -8, 10, -8, 18, -8, 16, -8, 22, -6,
+	17, -8, 22, -2, 19, -2, 25, 2, 22, -4,
+	22, 2, 22, -2, 20, 5, 24, 2, 22, 7,
+	25, 5, 20, 8
+};
+
+const int16 mSprite_ComputerAnimation[] = {
+	147, 143, 145, 143
+};

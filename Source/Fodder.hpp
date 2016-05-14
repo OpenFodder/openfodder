@@ -1101,12 +1101,12 @@ public:
 	void			Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C );
 
 	void			Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 );
-	int16			Direction_Calculate( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+	int16			Direction_Between_Points( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	void			tool_RandomSeed();
 	int16			tool_RandomGet();
 	void			Sprite_Movement_Calculate( sSprite* pSprite );
-	int16			sub_2A1F0( sSprite* pSprite, int16& pData0, int16& pData4 );
+	int16			Direction_Between_SpriteAndPoints( sSprite* pSprite, int16& pData0, int16& pData4 );
 	void			sub_2A3D4( sSprite* pSprite );
 	void			sub_2A470();
 	int16			sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
