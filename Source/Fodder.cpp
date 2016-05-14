@@ -451,7 +451,7 @@ Mouse_In_Playfield:;
 	Data0 = Data0_Saved;
 	
 
-	if(Direction_Calculate(Data0, Data4, Data8,DataC) < 0 )
+	if(Direction_Between_Points(Data0, Data4, Data8,DataC) < 0 )
 		return;
 	
 	Data8 = word_3EABF[Data4/2];
@@ -1492,7 +1492,7 @@ int16 cFodder::sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pD
 	pData4 |= pData0;
 	//pData4 <<= 1;
 
-	pData4 = word_3F0C1[pData4];
+	pData4 = mDirectionData[pData4];
 	if (pData4 < 0)
 		return -1;
 
@@ -5818,7 +5818,7 @@ void cFodder::sub_22CD7( sSprite* pSprite, int16& pData0, int16& pData4 ) {
 
 	pSprite->field_3C = pSprite->field_10;
 
-	sub_2A1F0( pSprite, pData0, pData4 );
+	Direction_Between_SpriteAndPoints( pSprite, pData0, pData4 );
 
 	word_3B2F5 = pSprite->field_10;
 	pSprite->field_3E = 0;
@@ -5913,7 +5913,7 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite ) {
 	if (Data4 == eTerrainType_Jump)
 		goto loc_23100;
 
-	if (Data4 == eTerrainType_3)
+	if (Data4 == eTerrainType_BounceOff)
 		goto loc_22F30;
 
 	if (Data4 == eTerrainType_Drop || Data4 == 0x0A)
@@ -5972,7 +5972,7 @@ loc_22F30:;
 	Data4 = 0x0F;
 	Data0 = -10;
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
-	if (Data4 == eTerrainType_3)
+	if (Data4 == eTerrainType_BounceOff)
 		pSprite->field_38 = 5;
 
 	sub_2329D( pSprite );
@@ -6409,7 +6409,7 @@ loc_23815:;
 
 	DataC = mMouseY + (mCamera_Adjust_Row >> 16);
 loc_23843:;
-	Direction_Calculate( Data0, Data4, Data8, DataC );
+	Direction_Between_Points( Data0, Data4, Data8, DataC );
 
 	Data4 -= 0x10;
 	Data4 >>= 5;
@@ -6614,7 +6614,7 @@ int16 cFodder::Sprite_Handle_Helicopter_Terrain_Check( sSprite* pSprite ) {
 			Data0 = 0x0C;
 			break;
 
-		case eTerrainType_3:
+		case eTerrainType_BounceOff:
 			Data0 = 0x14;
 			break;
 		case eTerrainType_Rocky2:
@@ -6644,7 +6644,7 @@ void cFodder::sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4 ) {
 	}
 
 	pSprite->field_3C = pSprite->field_10;
-	sub_2A1F0( pSprite, pData0, pData4 );
+	Direction_Between_SpriteAndPoints( pSprite, pData0, pData4 );
 
 loc_23E2F:;
 	sub_2B12E( pSprite );
@@ -6765,7 +6765,7 @@ loc_24075:;
 
 	DataC = mMouseY + (mCamera_Adjust_Row >> 16);
 loc_240C8:;
-	Direction_Calculate( Data0, Data4, Data8, DataC );
+	Direction_Between_Points( Data0, Data4, Data8, DataC );
 	Data4 -= 0x10;
 	Data4 >>= 5;
 	Data4 += 8;
@@ -7033,9 +7033,9 @@ loc_24617:;
 	if (pSprite->field_5B < 0)
 		Data0 += 2;
 
-	int16 Data4 = word_3E856[Data0];
+	int16 Data4 = mSprite_VehiclePosition_Mod[Data0];
 	pSprite->field_0 += Data4;
-	Data4 = word_3E856[Data0 + 1];
+	Data4 = mSprite_VehiclePosition_Mod[Data0 + 1];
 	pSprite->field_4 += Data4;
 
 	if (!sub_246CC( pSprite )) {
@@ -7844,7 +7844,7 @@ void cFodder::sub_2593D( sSprite* pSprite ) {
 		int16 Data0 = pSprite->field_26;
 		int16 Data4 = pSprite->field_28;
 
-		if (sub_2A1F0( pSprite, Data0, Data4 ) < 0)
+		if (Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) < 0)
 			word_3ABAD = -1;
 	}
 
@@ -8498,7 +8498,7 @@ void cFodder::Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C ) {
 		Data0 = 0;
 
 	pSprite->field_2A = Data0;
-	pSprite->field_8 = word_3E97A[Data0 / 2];
+	pSprite->field_8 = mSprite_ComputerAnimation[Data0 / 2];
 	pSprite->field_20 = word_3E982[Data0 / 2];
 }
 
@@ -8588,8 +8588,7 @@ int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 	return 0;
 }
 
-int16 cFodder::Direction_Calculate( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
-	const int16* Data24 = word_3F0C1;
+int16 cFodder::Direction_Between_Points( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
 	int16 Data10 = 0, Data14 = 0;
 
 	pData0 -= pData8;
@@ -8629,7 +8628,7 @@ int16 cFodder::Direction_Calculate( int16& pData0, int16& pData4, int16& pData8,
 	pData4 <<= 5;
 	pData4 |= pData0;
 	//pData4 <<= 1;
-	pData4 = Data24[pData4];
+	pData4 = mDirectionData[pData4];
 	if (pData4 < 0)
 		return pData4;
 
@@ -8831,9 +8830,7 @@ void cFodder::Sprite_Movement_Calculate( sSprite* pSprite ) {
 	}
 }
 
-int16 cFodder::sub_2A1F0( sSprite* pSprite, int16& pData0, int16& pData4 ) {
-	const int16 *Data24 = word_3F0C1;
-
+int16 cFodder::Direction_Between_SpriteAndPoints( sSprite* pSprite, int16& pData0, int16& pData4 ) {
 	pData0 -= pSprite->field_0;
 	pData4 -= pSprite->field_4;
 
@@ -8897,7 +8894,7 @@ loc_2A2F5:;
 	pData4 <<= 5;
 	pData4 |= pData0;
 	//pData4 <<= 1;
-	pData4 = Data24[pData4];
+	pData4 = mDirectionData[pData4];
 	if (pData4 < 0) {
 		word_3B25B = -1;
 		return -1;
@@ -9437,7 +9434,7 @@ int16 cFodder::Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8
 		Data4 >>= 1;
 		Data4 += pData10;
 
-		sub_2A1F0( Data2C, Data0, Data4 );
+		Direction_Between_SpriteAndPoints( Data2C, Data0, Data4 );
 		
 		Data2C->field_10 += 0x100;
 		Data2C->field_10 &= 0x1FE;
@@ -12417,7 +12414,7 @@ loc_191C3:;
 	
 	Sprite_XY_Store( pSprite );
 	
-	if( sub_2A1F0( pSprite, Data0, Data4 ) >= 0 ) {
+	if( Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) >= 0 ) {
 		sub_1F66F( pSprite );
 		sub_1F6F4( pSprite );
 	}
@@ -12462,7 +12459,7 @@ loc_191C3:;
 	} 
 	
 	//loc_19392
-	if( sub_2A1F0( pSprite, Data0, Data4 ) >= 0 )
+	if( Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) >= 0 )
 		goto loc_193D6;
 	
 
@@ -12605,7 +12602,7 @@ loc_19701:;
 		Data0 = pSprite->field_26;
 		Data4 = pSprite->field_28;
 
-		sub_2A1F0( pSprite, Data0, Data4 );
+		Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 		Sprite_Movement_Calculate( pSprite );
 		Sprite_Handle_Grenade_Terrain_Check( pSprite );
 
@@ -12744,7 +12741,7 @@ void cFodder::Sprite_Handle_Enemy( sSprite* pSprite ) {
 		if (Data4 < 0)
 			goto loc_19A89;
 
-		if (sub_2A1F0( pSprite, Data0, Data4 ) < 0)
+		if (Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) < 0)
 			goto loc_19A89;
 	}
 	//loc_19A5D
@@ -12838,7 +12835,7 @@ loc_19BA8:;
 	Data0 = pSprite->field_2E;
 	Data4 = pSprite->field_30;
 	
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	
 	Data0 = pSprite->field_50;
 	if( Data0 ) {
@@ -14088,7 +14085,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 
 	Data0 = pSprite->field_26;
 	Data4 = pSprite->field_28;
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	Sprite_Movement_Calculate( pSprite );
 
 	Data0 = pSprite->field_10;
@@ -14394,7 +14391,7 @@ void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 	Data0 = pSprite->field_26;
 	Data4 = pSprite->field_28;
 
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	Sprite_Movement_Calculate( pSprite );
 
 	if (word_3B173)
@@ -14530,7 +14527,7 @@ loc_1C087:;
 	Data0 += 8;
 	Data4 = Data34->field_4;
 	Data4 += 8;
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	Sprite_Movement_Calculate( pSprite );
 
 	Data4 = pSprite->field_A;
@@ -15095,7 +15092,7 @@ void cFodder::Sprite_Handle_Seal( sSprite* pSprite ) {
 
 	int16 Data0 = pSprite->field_54 & 0x0F;
 
-	Data0 = byte_3E916[Data0];
+	Data0 = mSprite_Seal_AnimFrames[Data0];
 	pSprite->field_A = Data0;
 
 	if (mMap_TileSet == eTileTypes_Moors) {
@@ -15286,7 +15283,7 @@ void cFodder::sub_1CE80( sSprite* pSprite ) {
 	Data0 = pSprite->field_2E;
 	Data4 = pSprite->field_30;
 
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	Data0 = pSprite->field_50;
 
 	if (Data0) {
@@ -17164,7 +17161,7 @@ void cFodder::sub_1F5A0( sSprite* pSprite ) {
 	int16 Data0 = pSprite->field_2E;
 	int16 Data4 = pSprite->field_30;
 
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	sub_20E5C( pSprite );
 	sub_1F762( pSprite );
 }
@@ -17178,7 +17175,7 @@ void cFodder::sub_1F5CA( sSprite* pSprite ) {
 	int16 Data4 = mMouseY;
 	Data4 += mCamera_Adjust_Row >> 16;
 
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	sub_20E5C( pSprite );
 
 	word_3ABAF = pSprite->field_A;
@@ -17548,7 +17545,7 @@ void cFodder::sub_1FDE7( sSprite* pSprite ) {
 	int16 Data0 = pSprite->field_2E;
 	int16 Data4 = pSprite->field_30;
 
-	sub_2A1F0( pSprite, Data0, Data4 );
+	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	sub_20E5C( pSprite );
 
 	word_3ABAF = pSprite->field_A;

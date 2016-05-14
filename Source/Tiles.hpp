@@ -21,19 +21,19 @@
 */
 
 enum eTileTypes {
-	eTileTypes_Jungle = 0,
-	eTileTypes_Desert = 1,
-	eTileTypes_Ice = 2,
-	eTileTypes_Moors = 3,
-	eTileTypes_Int = 4,
-	eTileTypes_Hid = 5,
-	eTileTypes_AFX = 6,
+	eTileTypes_Jungle	= 0,
+	eTileTypes_Desert	= 1,
+	eTileTypes_Ice		= 2,
+	eTileTypes_Moors	= 3,
+	eTileTypes_Int		= 4,
+	eTileTypes_Hid		= 5,
+	eTileTypes_AFX		= 6,
 };
 
 enum eTerrainType {
 	eTerrainType_Rocky			= 1,
 	eTerrainType_Rocky2			= 2,
-	eTerrainType_3				= 3,
+	eTerrainType_BounceOff		= 3,
 	eTerrainType_QuickSand		= 4,
 	eTerrainType_WaterEdge		= 5,
 	eTerrainType_Water			= 6,

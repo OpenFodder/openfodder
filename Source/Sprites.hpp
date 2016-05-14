@@ -218,3 +218,6 @@ extern const int16 mSprite_Hostage_Frames[];
 extern const int16 mSprite_Helicopter_CallPad_Frames[];
 extern const sWeaponData mSprite_Bullet_UnitData[];
 extern const int16 mSprite_Player_MissionOver_Frames[];
+extern const int8 mSprite_Seal_AnimFrames[];
+extern const int16 mSprite_VehiclePosition_Mod[];
+extern const int16 mSprite_ComputerAnimation[];
