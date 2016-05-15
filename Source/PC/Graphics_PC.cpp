@@ -682,7 +682,8 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	std::string JunData4 = "p4.dat";
 	std::string JunData5 = "p5.dat";
 
-	g_Resource.fileLoadTo( MapName, mFodder->mMap );
+	delete mFodder->mMap;
+	mFodder->mMap = g_Resource.fileGet( MapName, mFodder->mMapSize );
 
 	mFodder->map_SetTileType();
 
