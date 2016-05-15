@@ -1714,7 +1714,8 @@ loc_11E5B:;
 void cFodder::map_Load_Resources() {
 	std::string MapName = map_Filename_MapGet();
 
-	mMapSize = g_Resource.fileLoadTo( MapName, mMap );
+	delete mMap;
+	mMap = g_Resource.fileGet( MapName, mMapSize );
 	tool_EndianSwap( mMap + 0x60, mMapSize - 0x60 );
 
 	std::string BaseName,SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
@@ -3252,7 +3253,7 @@ void cFodder::Prepare( ) {
 	mDataBaseBlk = new uint8[mDataBlkSize];
 	mDataSubBlk = new uint8[mDataBlkSize];
 
-	mMap = new uint8[0x346 * 16];
+	mMap = 0;
 	mDataHillBits = new uint8[0xD5A * 16];
 	mDataArmy = new uint8[0xD50 * 16];
 	word_3BDAD = (uint16*) new uint8[0x400 * 16];
@@ -9212,8 +9213,8 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, i
 }
 
 int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 ) {
-	int16 Data0 = (pY >> 4);
-	int16 Data4 = (pX >> 4);
+	int32 Data0 = (pY >> 4);
+	int32 Data4 = (pX >> 4);
 
 	Data0 *= readLEWord( &mMap[0x54] );
 
@@ -9561,8 +9562,8 @@ int16 cFodder::Map_Terrain_Get_Moveable_Wrapper( const int8* pMovementData, int1
 }
 
 int16 cFodder::Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 ) {
-	uint16 DataC = pY;
-	uint16 Data8 = pX;
+	uint32 DataC = pY;
+	uint32 Data8 = pX;
 
 	DataC >>= 4;
 
@@ -10385,7 +10386,7 @@ void cFodder::Map_Destroy_Tiles( ) {
 	int16* Data20 = 0; 
 	uint8* Data24 = 0;
 	const int16* IndestructibleTypes = 0;
-	int16 Data0, Data4, Data10, TileType;
+	int32 Data0, Data4, Data10, TileType;
 
 	if (word_3AF07) {
 		--word_3AF07;
@@ -20500,7 +20501,7 @@ Start:;
 			word_3909A = -1;
 			word_3909A = 0;
 
-			int16 Data0 = 0x0D;
+			int32 Data0 = 0x0D;
 			word_3ABE9 = 0;
 			word_3ABEB = 0;
 			word_3ABE7 = 0;

@@ -365,8 +365,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA45;
 	int16			mSquad_Select_Timer;
 	int16			word_3AA4B;
-	int16			mMapWidth_Shifted;
-	int16			mMapHeight_Shifted;
+	int32			mMapWidth_Shifted;
+	int32			mMapHeight_Shifted;
 	int16			mMouseCursor_Enabled;
 	int16			word_3AA55;
 	int16			word_3AA67;
@@ -518,7 +518,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4F5;
 
 	sSprite*		dword_3B5F5;
-	int16			mMapTilePtr;
+	int32			mMapTilePtr;
 	int16			word_3B60E;
 	int16			word_3B610;
 	int16			word_3B612;
