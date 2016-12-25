@@ -19,13 +19,13 @@ control system. The player directs troops through numerous missions, battling en
 
 ####Obtaining the game
 
-The version available on GOG, is the Dos Retail CD Version and is supported by Open Fodder
-[Good Old Games] (http://www.gog.com/game/cannon_fodder)
+The version available on [Good Old Games] (http://www.gog.com/game/cannon_fodder) is the Dos Retail CD Version and is supported by Open Fodder
+
 
 ####How to play
 
 Open Fodder requires the user to own a copy of Cannon Fodder, and to copy the data files into the game data directory.
-At present, it supports 3 versions
+At present, it supports 5 versions.
 
 #####Keys
 
@@ -39,7 +39,7 @@ Copy 'CF_ENG.DAT' from the CD to the Data/Dos_CD folder
   
 #####Amiga Retail
 
-Use the WHDLoad installer on an Amiga to extract the game files, and copy all the extracted files into the Data/Amiga folder
+Use the WHDLoad installer on an Amiga (or WinUAE) to extract the game files, and copy all the extracted files into the Data/Amiga folder
   
 #####Amiga CD32 Retail
 
@@ -54,6 +54,7 @@ Open Fodder comes with the Amiga Format Christmas Special
 Open Fodder comes with the Amiga Power Issue #31 Demo
   
 ####Fixes
+
 These are issues in the original engine which have been fixed
 
 *Squad 2 and 3 grenade and rocket count did not refresh after use.
