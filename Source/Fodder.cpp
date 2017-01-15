@@ -9565,6 +9565,11 @@ int16 cFodder::Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, i
 	uint32 DataC = pY;
 	uint32 Data8 = pX;
 
+	if (pY < 0)
+		DataC = 0;
+	if (pX < 0)
+		Data8 = 0;
+
 	DataC >>= 4;
 
 	DataC *= readLEWord( &mMap[0x54] );
