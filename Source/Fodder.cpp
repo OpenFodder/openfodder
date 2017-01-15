@@ -263,8 +263,7 @@ int16 cFodder::Mission_Loop( ) {
 		}
 
 		if (mMission_ShowMapOverview) {
-			if (mVersion->mRelease == eRelease::Retail)
-				Mission_Map_Overview_Show();
+			Mission_Map_Overview_Show();
 
 			mMission_ShowMapOverview = 0;
 		}
@@ -2504,6 +2503,11 @@ void cFodder::sub_12C69() {
 }
 
 void cFodder::Mission_Map_Overview_Show() {
+
+	// Overview map is disabled for demos
+	if (mVersion->mRelease == eRelease::Demo)
+		return;
+
 	word_3A016 = 0;
 
 	int16 word_3F952;
@@ -2575,8 +2579,8 @@ void cFodder::Mission_Map_Overview_Show() {
 }
 
 void cFodder::Map_Overview_Prepare() {
-	if (mMapNumber == word_3FA1F)
-		return;
+	//if (mMapNumber == word_3FA1F)
+	//	return;
 
 	delete mSurfaceMapOverview;
 	size_t Size = mMapWidth < mMapHeight ? mMapHeight : mMapWidth;
@@ -20462,11 +20466,10 @@ Start:;
 			Squad_Prepare_Sprites();
 			g_Graphics.graphicsBlkPtrsPrepare();
 			mMission_Aborted = 0;
+			Map_Overview_Prepare();
 
-			if (mVersion->mRelease == eRelease::Retail) {
-				Map_Overview_Prepare();
+			if (mVersion->mRelease == eRelease::Retail)
 				Briefing_Wait();
-			}
 
 			if (word_3B4F5 == -1) {
 
