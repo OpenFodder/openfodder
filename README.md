@@ -8,6 +8,13 @@ Cannon Fodder is an action-strategy shoot 'em up game developed by Sensible Soft
 The game is military-themed and based on shooting action but with a strategy game-style 
 control system. The player directs troops through numerous missions, battling enemy infantry, vehicles and installations.
 
+Open Fodder is a open Source version of the Cannon Fodder engine, for modern operating systems.
+
+####Map Creator / Editor
+
+See [OpenFodder Editor] (https://github.com/segrax/OpenFodderEditor) for a map editor for Windows.
+
+
 ####Media
 [Open Fodder 0.8 Video - Amiga Format Special] (https://www.youtube.com/watch?v=7AjELdOzoaw)  
 [Open Fodder 0.7 Video] (https://www.youtube.com/watch?v=c9iu7Jwm3Ak)  
