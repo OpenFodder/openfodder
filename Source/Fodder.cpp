@@ -2508,7 +2508,7 @@ void cFodder::sub_12C69() {
 void cFodder::Mission_Map_Overview_Show() {
 
 	// Overview map is disabled for demos
-	if (mVersion->mRelease == eRelease::Demo)
+	if (mVersion->mRelease == eRelease::Demo && mVersion->mVersion != eVersion::Custom)
 		return;
 
 	word_3A016 = 0;
@@ -21528,7 +21528,7 @@ void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
 		return;
 
 	// No the map overview button in the Demo versions
-	if (mVersion->mRelease == eRelease::Demo)
+	if (mVersion->mRelease == eRelease::Demo && mVersion->mVersion != eVersion::Custom)
 		return;
 
 	word_3B4D9 = 0;

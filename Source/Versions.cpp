@@ -704,8 +704,18 @@ std::vector<const sVersion*> FindFodderVersions() {
 		
 		}
 
-		if (FileCount > 0 && (FileCount == FileMatches || FileCount == FileFound))
-			AvailableVersions.push_back( &Versions[x] );
+        // Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
+        if (FileCount > 0 && (FileCount == FileMatches || FileCount == FileFound)) {
+
+            // A very hacky method for ensuring the DOS_CD version is available, before allowing Customs
+            if (Versions[x].mVersion == eVersion::Custom) {
+
+                // This works because Dos_CD should always be first added to the list
+                if (AvailableVersions.size() && AvailableVersions[0]->mVersion != eVersion::Dos_CD)
+                    continue;
+            }
+            AvailableVersions.push_back( &Versions[x] );
+        }
 	}
 
 	return AvailableVersions;
