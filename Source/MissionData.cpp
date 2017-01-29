@@ -31,6 +31,7 @@ const uint16 mRetail2_MissionPhaseTable[] = {
 												5, 2, 1, 6, 2, 4, 2, 3, 
 												1, 2, 4, 1, 4, 5, 2, 6 };
 
+const uint16 mCustom_MissionPhaseTable[]        = { 01 };
 const uint16 mAmigaFormat_MissionPhaseTable[]	= { 01, 01 };
 const uint16 mPlus_MissionPhaseTable[]			= { 01, 01, 01, 01 };
 
@@ -44,6 +45,10 @@ const char* mPlus_MissionNames[] = {
 	"STAGE 2",
 	"STAGE 3",
 	"STAGE 4"
+};
+
+const char* mCustom_MissionNames[] = {
+    "SEGRA'S FIRST"
 };
 
 /** Dos Mission Names **/
@@ -440,6 +445,12 @@ const int8 mRetail_Map70_Goal[] = {eGoal_Kill_All_Enemy,				eGoal_Destroy_Comput
 const int8 mRetail_Map71_Goal[] = {eGoal_Kidnap_Leader,																					eGoal_End };
 const int8 mRetail_Map72_Goal[] = {eGoal_Destroy_Enemy_Buildings,																			eGoal_End };
 
+const int8 mCustom_Map1_Goal[] = { eGoal_Kill_All_Enemy,																					eGoal_End };
+
+const int8* mCustom_Map_Goals[] = {
+    mCustom_Map1_Goal
+};
+
 const int8* mRetail_Map_Goals[] = {
 	mRetail_Map1_Goal,
 	mRetail_Map2_Goal,
@@ -539,6 +550,14 @@ const sMissionData mMissionData_Plus = {
 	mPlus_MissionPhaseTable,
 	mRetail_Map_Goals,
 	mRetail_Map_Sprite_Enemy_Aggression
+};
+
+const sMissionData mMissionData_Custom = {
+    mCustom_MissionNames,
+    mCustom_MissionNames,
+    mCustom_MissionPhaseTable,
+    mCustom_Map_Goals,
+    mRetail_Map_Sprite_Enemy_Aggression,
 };
 
 const sMissionData mMissionData_AmigaFormat = {

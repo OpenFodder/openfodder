@@ -1135,6 +1135,9 @@ void cFodder::Map_Load_Sprites() {
 }
 
 std::string cFodder::map_Filename_Get() {
+    if (mVersion->mVersion == eVersion::Custom && mCustomMap.size())
+        return mCustomMap;
+
 	std::stringstream	filename;
 	
 	filename << "mapm";
@@ -3154,8 +3157,12 @@ void cFodder::WindowTitleSet( bool pInMission ) {
 	if (pInMission) {
 		if (mVersion->mRelease == eRelease::Demo) {
 
-			Title << " ( Mission:";
-			Title << " " << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
+			Title << " ( Mission: ";
+
+            if (mVersion->mVersion == eVersion::Custom && mCustomMap.size())
+                Title << mCustomMap.substr( 7 );
+            else
+    			Title << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
 
 		} else {
 			Title << " ( Mission: " << mMissionNumber;
@@ -3191,6 +3198,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	
 	mVersion = pVersion;
 
+    mCustomMap = "";
 	mWindow->SetWindowTitle( mTitle.str() );
 
 	delete mGraphics;
@@ -3207,7 +3215,12 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
 	switch (mVersion->mPlatform) {
 		case ePlatform::PC:
-			mResources = new cResource_PC_CD( mVersion->mDataPath );
+            // Custom is hardwired to Dos_CD for the moment
+            if(mVersion->mVersion == eVersion::Custom)
+                mResources = new cResource_PC_CD( "Dos_CD" );
+            else
+    			mResources = new cResource_PC_CD( mVersion->mDataPath );
+
 			mGraphics = new cGraphics_PC();
 
 			if (mVersion->mGame == eGame::CF1)
@@ -4565,7 +4578,70 @@ void cFodder::CopyProtection_EncodeInput() {
 	}
 }
 
-bool cFodder::Demo_ShowMenu() {
+bool cFodder::Custom_ShowMenu() {
+
+    mGUI_SaveLoadAction = 0;
+
+    mGraphics->Load_Hill_Bits();
+
+    std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", "Custom", true ), "*.map" );
+
+    word_3B335 = 0;
+    word_3B33D = (int16)Files.size();
+
+    do {
+        GUI_Element_Reset();
+        Recruit_Render_Text( "SELECT MAP", 0x0C );
+
+        GUI_Button_Draw( "UP", 0x24 );
+        GUI_Button_Setup( &cFodder::GUI_Button_Load_Up );
+
+        GUI_Button_Draw( "DOWN", 0x99 );
+        GUI_Button_Setup( &cFodder::GUI_Button_Load_Down );
+
+        GUI_Button_Draw( "EXIT", 0xB3 );
+        GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
+
+        sGUI_Element* dword_3AEF7 = mGUI_NextFreeElement;
+        mImage->Save();
+
+        int16 DataC = 0;
+        mGUI_NextFreeElement = dword_3AEF7;
+
+        std::vector<std::string>::iterator FileIT = Files.begin() + word_3B335;
+
+        for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
+            size_t Pos = FileIT->find_first_of( "." );
+
+            memcpy( mInputString, FileIT->c_str(), Pos );
+            mInputString[Pos] = 0x00;
+
+            char* Str = mInputString;
+            while (*Str++ = toupper( *Str ));
+
+            GUI_Button_Draw( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
+            GUI_Button_Setup( &cFodder::GUI_Button_Filename );
+            ++FileIT;
+        }
+
+        GUI_SaveLoad( false );
+        mImage->Restore();
+
+    } while (mGUI_SaveLoadAction == 3);
+
+    if (mGUI_SaveLoadAction == 1)
+        return true;
+
+    mCustomMap = "Custom/";
+    mCustomMap.append( Files[word_3B335 + word_3B33F] );
+    mCustomMap.resize( mCustomMap.size() - 4 );
+
+    mMapNumber = 0;
+	mDemo_ExitMenu = 1;
+    return false;
+}
+
+bool cFodder::Demo_Amiga_ShowMenu() {
 
 	mSound->Music_Stop();
 
@@ -10534,7 +10610,7 @@ void cFodder::Recruit_Render_Text( const char* pText, int16 pPosY ) {
 	String_Print( mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText );
 }
 
-void cFodder::GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC ) {
+void cFodder::GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow, int16 pColorPrimary ) {
 
 	Recruit_Render_Text( pText, pY );
 
@@ -20433,8 +20509,14 @@ Start:;
 						continue;
 					}
 				} else {
-					if (Demo_ShowMenu())
-						goto Start;
+                    if (mVersion->mPlatform == ePlatform::Amiga) {
+                        if (Demo_Amiga_ShowMenu())
+                            goto Start;
+                    }
+                    else {
+                        if (Custom_ShowMenu())
+                            goto Start;
+                    }
 				}
 
 				word_390B8 = 0;
