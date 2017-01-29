@@ -44,5 +44,6 @@ extern const sMissionData	mMissionData_Plus;
 extern const sMissionData	mMissionData_AmigaFormat;
 extern const sMissionData	mMissionData_Retail;
 extern const sMissionData	mMissionData_Retail2;
+extern const sMissionData   mMissionData_Custom;
 
 extern const char*			mMissionGoals[];

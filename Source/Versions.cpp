@@ -654,14 +654,20 @@ const sFile mPlusFiles[] = {
 	{ 0 }
 };
 
+const sFile mCustomFiles[] = {
+    { "Segras First.map" ,"5D2004402C69B91EE9F24DA26B469616" },
+    { "Segras First.spt", "0EC285AF23C6A8A86E19C740A6B279C2" }
+};
+
 const sVersion Versions[] = {
 
-	{ "Dos",							eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail,		mIntroText_PC,		"Dos_CD",			mDosFiles },
-	{ "2 Dos",							eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail2,		mIntroText_PC2,		"Dos2_CD",			mDos2Files },
-	{ "Amiga",							eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga",			mAmigaFiles },
-	{ "Amiga CD32",						eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
-	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
-	{ "Plus",							eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_Plus,			mIntroText_Amiga,	"Plus",				mPlusFiles },
+    { "Dos",							eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail,		mIntroText_PC,		"Dos_CD",			mDosFiles },
+    { "2 Dos",							eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail2,		mIntroText_PC2,		"Dos2_CD",			mDos2Files },
+    { "Amiga",							eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga",			mAmigaFiles },
+    { "Amiga CD32",						eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
+    { "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
+    { "Plus",							eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_Plus,			mIntroText_Amiga,	"Plus",				mPlusFiles },
+    { "Custom",                         eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,   &mMissionData_Custom,       mIntroText_PC,      "Custom",           mCustomFiles },
 	{ 0 }
 };
 

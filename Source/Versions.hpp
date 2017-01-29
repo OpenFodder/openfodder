@@ -28,7 +28,7 @@ enum ePlatform {
 enum eRelease {
 	Retail	= 0,
 	Retail2 = 1,
-	Demo	= 2,
+	Demo	= 2
 };
 
 enum eVersion {
@@ -38,6 +38,7 @@ enum eVersion {
 	Amiga_CD	= 3,
 	AmigaFormat = 4,
 	AmigaPlus	= 5,
+    Custom      = 6,
 };
 
 enum eGame {

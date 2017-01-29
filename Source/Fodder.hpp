@@ -156,6 +156,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_390B0;
 	uint16			word_390B8;
 	
+    std::string     mCustomMap;
+
 	/************** Save Game Region *********** */
 	uint16			mMapNumber;
 	int16			mSprite_Enemy_Aggression_HalfOfMinPlusMax;
@@ -686,7 +688,8 @@ class cFodder : public cSingleton < cFodder > {
 	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
-	bool			Demo_ShowMenu();
+	bool			Demo_Amiga_ShowMenu();
+    bool            Custom_ShowMenu();
 
 	virtual int16	Mission_Loop( );
 
@@ -1160,7 +1163,7 @@ public:
 	void			Map_Destroy_Tiles_Next();
 	void			Game_Save_Wrapper2();
 	void			GUI_Element_Reset();
-	void			GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow, int16 pColorPrimary );
+	void			GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC );
 	void			GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
 	void			GUI_SaveLoad( bool pShowCursor );
 	void			Game_Save_Wrapper();
