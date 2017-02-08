@@ -656,7 +656,8 @@ const sFile mPlusFiles[] = {
 
 const sFile mCustomFiles[] = {
     { "Segras First.map" ,"5D2004402C69B91EE9F24DA26B469616" },
-    { "Segras First.spt", "0EC285AF23C6A8A86E19C740A6B279C2" }
+    { "Segras First.spt", "0EC285AF23C6A8A86E19C740A6B279C2" },
+    { 0 }
 };
 
 const sVersion Versions[] = {
