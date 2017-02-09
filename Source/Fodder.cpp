@@ -3150,6 +3150,10 @@ void cFodder::VersionSelect() {
 	delete[] Buttons;
 }
 
+std::string cFodder::GetCustomMapName() {
+    return mCustomMap.substr( 7 );
+}
+
 void cFodder::WindowTitleSet( bool pInMission ) {
 	std::stringstream Title;
 	Title << mTitle.str();
@@ -3160,7 +3164,7 @@ void cFodder::WindowTitleSet( bool pInMission ) {
 			Title << " ( Mission: ";
 
             if (mVersion->mVersion == eVersion::Custom && mCustomMap.size())
-                Title << mCustomMap.substr( 7 );
+                Title << GetCustomMapName();
             else
     			Title << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
 
@@ -4429,29 +4433,33 @@ void cFodder::Briefing_Draw_Mission_Title( ) {
 	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, 0, Mission.str().c_str() );
 	
 	int16 Data0 = mMissionNumber;
-	const char** Data20 = mVersion->mMissionData->mMissionNames;
+    const char* DataMap = 0;
+    const char** Data20 = 0;
+    std::string CustomMap = GetCustomMapName();
+    std::transform( CustomMap.begin(), CustomMap.end(), CustomMap.begin(), ::toupper );
 
-	if (word_3A01A != 0xB5) {
-		Data20 = mVersion->mMissionData->mMissionPhaseNames;
-		Data0 = mMapNumber + 1;
-	}
+    Data20 = mVersion->mMissionData->mMissionNames;
+    if (mVersion->mVersion == eVersion::Custom) {
+        
+
+        DataMap = CustomMap.c_str();
+        Data20 = &DataMap;
+    } else {
+        if (word_3A01A != 0xB5) {
+            Data20 = mVersion->mMissionData->mMissionPhaseNames;
+            Data0 = mMapNumber + 1;
+        }
+    }
 
 	Data0 -= 1;
 	Data20 += Data0;
 
 	String_CalculateWidth( 0x140, mFont_Underlined_Width, *Data20 );
-	Data0 = mMissionNumber;
-	Data20 = mVersion->mMissionData->mMissionNames; 
-	if (word_3A01A != 0xB5) {
-		Data20 = mVersion->mMissionData->mMissionPhaseNames;
-		Data0 = mMapNumber + 1;
-	}
-	else {
+	if (word_3A01A == 0xB5) {
 		if (mVersion->mPlatform == ePlatform::Amiga)
 			word_3A01A += 0x16;
 	}
-	Data0 -= 1;
-	Data20 += Data0;
+
 	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, word_3A01A, *Data20 );
 }
 
@@ -4638,6 +4646,7 @@ bool cFodder::Custom_ShowMenu() {
 
     mMapNumber = 0;
 	mDemo_ExitMenu = 1;
+    mMission_Aborted = 0;
     return false;
 }
 
@@ -12120,6 +12129,8 @@ void cFodder::Briefing_Wait() {
 	Briefing_Draw_Mission_Title( );
 	Briefing_Show( );
 	Briefing_Draw_With( );
+
+    mMouse_Exit_Loop = 0;
 
 	do {
 		Video_Sleep();
@@ -20531,7 +20542,7 @@ Start:;
 			}
 
 			//loc_10513
-			if (mVersion->mRelease == eRelease::Retail)
+			if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom )
 				Briefing_Prepare();
 			
 			WindowTitleSet( true );
@@ -20550,7 +20561,7 @@ Start:;
 			mMission_Aborted = 0;
 			Map_Overview_Prepare();
 
-			if (mVersion->mRelease == eRelease::Retail)
+			if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom)
 				Briefing_Wait();
 
 			if (word_3B4F5 == -1) {

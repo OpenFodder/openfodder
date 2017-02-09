@@ -1341,6 +1341,8 @@ public:
 	void			Exit( unsigned int pExitCode );
 
 	void			WindowTitleSet( bool pInMission );
+    
+    std::string     GetCustomMapName();
 
 	void			VersionLoad( const sVersion* pVersion );
 	void			VersionSelect();
