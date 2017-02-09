@@ -3151,7 +3151,10 @@ void cFodder::VersionSelect() {
 }
 
 std::string cFodder::GetCustomMapName() {
-    return mCustomMap.substr( 7 );
+    if(mCustomMap.size() > 7)
+        return mCustomMap.substr( 7 );
+
+    return mCustomMap;
 }
 
 void cFodder::WindowTitleSet( bool pInMission ) {
@@ -4588,6 +4591,7 @@ void cFodder::CopyProtection_EncodeInput() {
 
 bool cFodder::Custom_ShowMenu() {
 
+    mMission_Aborted = 0;
     mGUI_SaveLoadAction = 0;
 
     mGraphics->Load_Hill_Bits();
@@ -4646,7 +4650,6 @@ bool cFodder::Custom_ShowMenu() {
 
     mMapNumber = 0;
 	mDemo_ExitMenu = 1;
-    mMission_Aborted = 0;
     return false;
 }
 
@@ -10670,6 +10673,9 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
 
+        if (mMission_Aborted)
+            GUI_Button_Load_Exit();
+
 		++byte_44AC0;
 		if (Mouse_Button_Left_Toggled() >= 0)
 			GUI_SaveLoad_MouseHandle( mGUI_Elements );
@@ -10682,6 +10688,8 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 		mImage->Restore();
 
 	} while (mGUI_SaveLoadAction <= 0);
+
+    mMission_Aborted = 0;
 
 	if (mGUI_SaveLoadAction == 3)
 		return;
