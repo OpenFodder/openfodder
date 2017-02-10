@@ -4649,6 +4649,8 @@ bool cFodder::Custom_ShowMenu() {
     mCustomMap.resize( mCustomMap.size() - 4 );
 
     mMapNumber = 0;
+    mMissionNumber = 1;
+    mMissionPhase = 0;
 	mDemo_ExitMenu = 1;
     return false;
 }
@@ -10514,6 +10516,10 @@ loc_2DE3C:;
 	Data0 >>= 4;
 	Data4 += Data0;
 	Data4 <<= 1;
+    
+    // In some cases, tiles outside the map can be 'destroyed'. This prevents memory corruption
+    if (0x60 + Data4 > mMapSize)
+        return;
 
 	Data24 = &mMap[0x60 + Data4];
 
@@ -19683,7 +19689,7 @@ int16 cFodder::Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C ) {
 	pData2C->field_10 = Data0;
 	Data4 &= 0x0F;
 	Data4 += 8;
-	pData2C->field_44 = Data4;
+	pData2C->field_44 = (int8) Data4;
 	sub_21C00(pData2C);
 
 	mSprite_Enemy_AggressionCreated_Count += 1;
@@ -20019,7 +20025,7 @@ loc_221D0:;	// Building Explodes
 	pSprite->field_10 = Data0;
 	Data4 &= 3;
 	Data4 += 5;
-	pSprite->field_44 = Data4;
+	pSprite->field_44 = (int8) Data4;
 	pSprite->field_36 = 0x78;
 
 loc_22235:;	// Door moving
@@ -20079,7 +20085,7 @@ int16 cFodder::sub_222A3( sSprite* pSprite ) {
 	Data4 &= 3;
 	Data4 += 5;
 
-	pSprite->field_44 = Data4;
+	pSprite->field_44 = (int8) Data4;
 	pSprite->field_36 = 0x6E;
 
 loc_22339:;
@@ -21647,7 +21653,7 @@ void cFodder::sub_30E49() {
 			return;
 
 		word_3BF1E[Data14] = Data20;
-		byte_3BF1B[Data14] = Data10;
+		byte_3BF1B[Data14] = (int8) Data10;
 		Data0 = Data10;
 
 		sub_2DCB0( Data0 );
