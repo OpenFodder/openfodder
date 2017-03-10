@@ -22,7 +22,7 @@ See [OpenFodder Editor] (https://github.com/segrax/OpenFodderEditor) for a map e
 [Open Fodder 0.7 Video] (https://www.youtube.com/watch?v=c9iu7Jwm3Ak)  
 [Open Fodder 0.6 Video] (https://youtu.be/lHSw2vQDbfI)  
 [Open Fodder 0.5 Video] (https://www.youtube.com/watch?v=qUH0BCSMDsY)  
-[Open Fodder 0.4 Video] (https://www.youtube.com/watch?v=xVSWP2x0JBo)  
+[Open Fodder 0.3 Video] (https://www.youtube.com/watch?v=xVSWP2x0JBo)  
 [Open Fodder 0.2 Video] (https://www.youtube.com/watch?v=MLovwBEWr6k)  
 [Open Fodder 0.1 Video] (https://www.youtube.com/watch?v=9QLg0hYsFFY)  
 
