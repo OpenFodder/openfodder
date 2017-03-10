@@ -668,7 +668,7 @@ const sVersion Versions[] = {
     { "Amiga CD32",						eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
     { "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
     { "Plus",							eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_Plus,			mIntroText_Amiga,	"Plus",				mPlusFiles },
-    { "Custom",                         eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,   &mMissionData_Custom,       mIntroText_PC,      "Custom",           mCustomFiles },
+    { "Custom",                         eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		&mMissionData_Custom,       mIntroText_PC,      "Custom",           mCustomFiles },
 	{ 0 }
 };
 

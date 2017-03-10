@@ -653,7 +653,6 @@ void cFodder::Mission_Memory_Clear() {
 	mTroop_Cannot_Fire_Bullet = 0;
 	word_3A010 = 0;
 	word_3A016 = 0;
-	word_3A01A = 0;
 	word_3A024 = 0;
 	dword_3A030 = 0;
 	mCamera_Position_Column = 0;
@@ -2253,13 +2252,10 @@ void cFodder::Mission_Clear_Destroy_Tiles() {
 }
 
 void cFodder::Mission_Phase_Goals_Set() {
-	const int8* Data20 = mVersion->mMissionData->mMapGoals[mMapNumber];
 
-	for (; *Data20 != -1; ++Data20) {
+	for( auto Goal : mVersion->mMissionData->getMapGoals( mMapNumber )) {
 
-		int8 Data0 = *Data20;
-		
-		mPhase_Goals[Data0-1] = -1;
+		mPhase_Goals[Goal -1] = -1;
 	}
 }
 
@@ -3053,7 +3049,6 @@ void cFodder::VersionSelect() {
 	int Count = 0;
 
 	std::string Name = "OPEN FODDER";
-	std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
 
 	word_3AC19 = 0x25;
 	String_CalculateWidth( 320, mFont_Underlined_Width, Name.c_str() );
@@ -3150,13 +3145,6 @@ void cFodder::VersionSelect() {
 	delete[] Buttons;
 }
 
-std::string cFodder::GetCustomMapName() {
-    if(mCustomMap.size() > 7)
-        return mCustomMap.substr( 7 );
-
-    return mCustomMap;
-}
-
 void cFodder::WindowTitleSet( bool pInMission ) {
 	std::stringstream Title;
 	Title << mTitle.str();
@@ -3166,23 +3154,20 @@ void cFodder::WindowTitleSet( bool pInMission ) {
 
 			Title << " ( Mission: ";
 
-            if (mVersion->mVersion == eVersion::Custom && mCustomMap.size())
-                Title << GetCustomMapName();
-            else
-    			Title << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
+    		Title << mVersion->mMissionData->getMapName(mMapNumber);
 
 		} else {
 			Title << " ( Mission: " << mMissionNumber;
-			Title << " " << mVersion->mMissionData->mMissionNames[mMissionNumber - 1];
+			Title << " " << mVersion->mMissionData->getMissionName(mMissionNumber);
 
 			Title << "  Phase: " << (mMissionPhase + 1) << " ";
 
 			if (mMissionPhases > 1) {
 				Title << "of " << mMissionPhases;
-				Title << " " << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
+				Title << " " << mVersion->mMissionData->getMapName(mMapNumber);
 			}
 			else
-				Title << mVersion->mMissionData->mMissionPhaseNames[mMapNumber];
+				Title << mVersion->mMissionData->getMapName(mMapNumber);
 		}
 
 		Title << " )";
@@ -4420,50 +4405,38 @@ void cFodder::Briefing_Intro() {
 
 void cFodder::Briefing_Draw_Mission_Name( ) {
 
-	word_3A01A = 0xB5;
-	Briefing_Draw_Mission_Title();
+	Briefing_Draw_Mission_Title( 0xB5 );
 }
 
-void cFodder::Briefing_Draw_Mission_Title( ) {
+void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 	
-	std::stringstream Mission;
-	Mission << "MISSION ";
-
-	word_3AC19 = 0x25;
-	Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
-
-	String_CalculateWidth( 0x140, mFont_Underlined_Width, Mission.str().c_str() );
-	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, 0, Mission.str().c_str() );
-	
-	int16 Data0 = mMissionNumber;
-    const char* DataMap = 0;
-    const char** Data20 = 0;
-    std::string CustomMap = GetCustomMapName();
-    std::transform( CustomMap.begin(), CustomMap.end(), CustomMap.begin(), ::toupper );
-
-    Data20 = mVersion->mMissionData->mMissionNames;
-    if (mVersion->mVersion == eVersion::Custom) {
-        
-
-        DataMap = CustomMap.c_str();
-        Data20 = &DataMap;
-    } else {
-        if (word_3A01A != 0xB5) {
-            Data20 = mVersion->mMissionData->mMissionPhaseNames;
-            Data0 = mMapNumber + 1;
-        }
-    }
-
-	Data0 -= 1;
-	Data20 += Data0;
-
-	String_CalculateWidth( 0x140, mFont_Underlined_Width, *Data20 );
-	if (word_3A01A == 0xB5) {
-		if (mVersion->mPlatform == ePlatform::Amiga)
-			word_3A01A += 0x16;
+	// Draw MISSION xx
+	{
+		std::stringstream Mission;
+		Mission << "MISSION ";
+		word_3AC19 = 0x25;
+		Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
+		String_CalculateWidth( 0x140, mFont_Underlined_Width, Mission.str().c_str() );
+		String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, 0, Mission.str().c_str() );
 	}
 
-	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, word_3A01A, *Data20 );
+	// Draw Mission Name, or Map 
+	{
+		std::string Title;
+
+		if (pDrawAtY == 0xB5) {
+			Title = mVersion->mMissionData->getMissionName( mMissionNumber );
+
+			if (mVersion->mPlatform == ePlatform::Amiga)
+				pDrawAtY += 0x16;
+
+		} else {
+			Title = mVersion->mMissionData->getMapName(mMapNumber);
+		}
+
+		String_CalculateWidth( 0x140, mFont_Underlined_Width, Title );
+		String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, pDrawAtY, Title );
+	}
 }
 
 void cFodder::CopyProtection() {
@@ -4647,6 +4620,8 @@ bool cFodder::Custom_ShowMenu() {
     mCustomMap = "Custom/";
     mCustomMap.append( Files[word_3B335 + word_3B33F] );
     mCustomMap.resize( mCustomMap.size() - 4 );
+
+	mMissionData_Custom.LoadCustomMap( mCustomMap );
 
     mMapNumber = 0;
     mMissionNumber = 1;
@@ -10267,18 +10242,12 @@ void cFodder::Sprite_Aggression_Set() {
 	int16 Data0 = mMapNumber;
 	Data0 <<= 1;
 
-	int16 Data4 = mVersion->mMissionData->mEnemyAggression[Data0];
-	int16 Data8 = mVersion->mMissionData->mEnemyAggression[Data0 + 1];
 
-	mSprite_Enemy_AggressionMin = Data4;
-	mSprite_Enemy_AggressionMax = Data8;
+	mSprite_Enemy_AggressionMin = mVersion->mMissionData->getMapAggression( mMapNumber ).mMin;
+	mSprite_Enemy_AggressionMax = mVersion->mMissionData->getMapAggression( mMapNumber ).mMax;
+	mSprite_Enemy_Aggression_HalfOfMinPlusMax = mVersion->mMissionData->getMapAggression( mMapNumber ).getAverage();
 
-	Data8 += Data4;
-
-	Data8 >>= 1;
-
-	mSprite_Enemy_Aggression_HalfOfMinPlusMax = Data8;
-	mSprite_Enemy_AggressionNext = Data8;
+	mSprite_Enemy_AggressionNext = mVersion->mMissionData->getMapAggression( mMapNumber ).getAverage();
 	mSprite_Enemy_AggressionIncrement = 1;
 
 	sSprite* Sprite = mSprites;
@@ -12102,16 +12071,13 @@ void cFodder::Briefing_Show( ) {
 	Mission_Phase_Goals_Set();
 
 	int16 DataC = 0x84;
-	const char* Data20 = 0;
-	const char** Data28 = mMissionGoals;
 	int16* Goals = mPhase_Goals;
 
-	for (int16 Data0 = 7 ;Data0>=0; ++Data28, --Data0 ) {
+	for (const auto GoalName : mMissionGoal_Titles) {
 		if (*Goals++) {
 
-			Data20 = *Data28;
-			String_CalculateWidth( 0x140, mFont_Briefing_Width, Data20 );
-			String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, DataC - 0x12, Data20 );
+			String_CalculateWidth( 0x140, mFont_Briefing_Width, GoalName );
+			String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, DataC - 0x12, GoalName );
 			DataC += 0x0C;
 		}
 	}
@@ -12123,9 +12089,8 @@ void cFodder::Briefing_Prepare() {
 
 	sub_136D0();
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
-	word_3A01A = 0x2C;
 
-	Briefing_Draw_Mission_Title( );
+	Briefing_Draw_Mission_Title( 0x2C );
 	Briefing_Show();
 	mImage->paletteFade();
 
@@ -12139,8 +12104,7 @@ void cFodder::Briefing_Prepare() {
 void cFodder::Briefing_Wait() {
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 
-	word_3A01A = 0x2C;
-	Briefing_Draw_Mission_Title( );
+	Briefing_Draw_Mission_Title( 0x2C );
 	Briefing_Show( );
 	Briefing_Draw_With( );
 
@@ -17970,6 +17934,11 @@ loc_2035C:;
 	pSprite->field_4C = -1;
 }
 
+void cFodder::String_Print( const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const std::string& pText ) {
+
+	String_Print( pWidths, pParam0, pParam08, pParamC, pText.c_str() );
+}
+
 void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
 	uint8* ptr = 0;
 	uint8 al = 0;
@@ -18338,6 +18307,11 @@ void cFodder::Vehicle_Target_Set() {
 	Vehicle->field_30 = PosY;
 }
 
+void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const std::string& pString ) {
+
+	String_CalculateWidth( pPosX, pWidths, pString.c_str() );
+}
+
 void cFodder::String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString ) {
 	int32 PositionX = 0;
 
@@ -18571,9 +18545,9 @@ void cFodder::Mission_Phase_Next() {
 	mSaved_MapNumber = mMapNumber;
 	--mSaved_MapNumber;
 
-	mMissionPhaseRemain = mMissionPhases = mVersion->mMissionData->mMissionPhases[mMissionNumber];
-	mMissionPhase = 0;
 	++mMissionNumber;
+	mMissionPhaseRemain = mMissionPhases = mVersion->mMissionData->getNumberOfPhases(mMissionNumber);
+	mMissionPhase = 0;
 	mSquad_AliveCount += 0x0F;
 
 	word_390E8 = mSquad_AliveCount;
@@ -18742,20 +18716,20 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 		--word_3A9E4;
 
 	if (mMission_Completed_Timer)
-		goto loc_20A2D;
+		return -1;
 
 	if (!pSprite->field_2E)
-		goto loc_20A2D;
+		return -1;
 
 	if (pSprite == mSquad_Leader)
 		if (pSprite->field_54 == 1)
-			goto loc_20A2D;
+			return -1;
 
 	if (Sprite_Get_Free( Data0, Data2C, Data30 ))
-		goto loc_20A2D;
+		return -1;
 
 	if (byte_3A9D2[2] == 0x14)
-		goto loc_20A2D;
+		return -1;
 
 	++byte_3A9D2[2];
 	pSprite->field_54 = 2;
@@ -18881,9 +18855,6 @@ loc_209F3:;
 
 	Sound_Play( pSprite, Data4, 0 );
 	return 0;
-
-loc_20A2D:;
-	return -1;
 }
 
 int16 cFodder::Sprite_Create_Grenade( sSprite* pSprite ) {

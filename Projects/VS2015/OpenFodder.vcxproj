@@ -151,6 +151,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\RobLaptop\Documents\Visual Studio 2015\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -215,6 +216,9 @@
     <ClCompile Include="..\..\Source\Graphics.cpp" />
     <ClCompile Include="..\..\Source\md5.cpp" />
     <ClCompile Include="..\..\Source\MissionData.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Demo.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Retail.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Retail2.cpp" />
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />

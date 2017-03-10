@@ -275,7 +275,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mTroop_Cannot_Fire_Bullet;
 	int16			word_3A010;
 	int16			word_3A016;
-	int16			word_3A01A;
 	uint16			word_3A024;
 	sGUI_Element*	mGUI_Loop_Element;
 	int32			dword_3A030;
@@ -799,7 +798,7 @@ public:
 	void			sub_15CE8(  uint8* pDs, int16 pCx );
 
 	void			Briefing_Draw_Mission_Name( );
-	void			Briefing_Draw_Mission_Title( );
+	void			Briefing_Draw_Mission_Title( int16 pDrawAtY );
 
 	void			CopyProtection();
 	void			CopyProtection_EncodeInput();
@@ -1288,8 +1287,11 @@ public:
 	int16			sub_313CD();
 	void			Vehicle_Target_Set();
 
+	void			String_CalculateWidth( int32 pPosX, const uint8* pWidths, const std::string& pString );
 	void			String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString );
+
 	void			String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
+	void			String_Print( const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const std::string& pText );
 
 	std::string		map_Filename_Get();
 	std::string		map_Filename_MapGet();
@@ -1342,8 +1344,6 @@ public:
 
 	void			WindowTitleSet( bool pInMission );
     
-    std::string     GetCustomMapName();
-
 	void			VersionLoad( const sVersion* pVersion );
 	void			VersionSelect();
 	void			VersionSelect_0();

@@ -57,7 +57,7 @@ struct sVersion {
 	eVersion				mVersion;
 	ePlatform				mPlatform;
 	eRelease				mRelease;
-	const sMissionData*		mMissionData;
+	const cMissionData*		mMissionData;
 	const sIntroText*		mIntroData;
 	const char*				mDataPath;
 	const sFile*			mFiles;
