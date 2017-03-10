@@ -20,16 +20,8 @@
  *
  */
 
-struct sMissionData {
-	const char**	mMissionNames;
-	const char**	mMissionPhaseNames;
-	const uint16*	mMissionPhases;
-	const int8**	mMapGoals;
-	const int16*	mEnemyAggression;
-};
-
 enum eMissionGoals {
-	eGoal_Kill_All_Enemy = 1, 
+	eGoal_Kill_All_Enemy = 1,
 	eGoal_Destroy_Enemy_Buildings = 2,
 	eGoal_Rescue_Hostages = 3,
 	eGoal_Protect_Civilians = 4,
@@ -37,13 +29,103 @@ enum eMissionGoals {
 	eGoal_Destroy_Factory = 6,
 	eGoal_Destroy_Computer = 7,
 	eGoal_Get_Civilian_Home = 8,
+	eGoal_Activate_All_Switches = 9,		// CF2
+	eGoal_Rescue_Hostage = 10,				// CF2: The CF2 engine has this as goal 3 instead of 10, and vica versa
+
 	eGoal_End = -1
 };
 
-extern const sMissionData	mMissionData_Plus;
-extern const sMissionData	mMissionData_AmigaFormat;
-extern const sMissionData	mMissionData_Retail;
-extern const sMissionData	mMissionData_Retail2;
-extern const sMissionData   mMissionData_Custom;
+struct sAggression {
+	int16 mMin;
+	int16 mMax;
 
-extern const char*			mMissionGoals[];
+	int16 getAverage() const {
+
+		return (mMin + mMax) / 2;
+	}
+};
+
+class cMissionData {
+	public:
+	std::vector<std::string>				mMissionNames;
+	std::vector<uint16>						mMissionPhases;
+
+	std::vector<std::string>				mMapNames;
+	std::vector<std::vector<eMissionGoals>> mMapGoals;
+	std::vector<sAggression>				mMapAggression;
+
+	std::string		mCustomMap;
+
+	cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< uint16 >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression );
+
+	bool LoadCustomMap( std::string pCustomMapName );
+	void Clear();
+
+	/**
+	 * Get the mission name
+	 */
+	std::string getMissionName( size_t pMissionNumber ) const {
+		// Mission Number is always + 1
+		pMissionNumber -= 1;
+
+		if (pMissionNumber >= mMissionNames.size() )
+			return mCustomMap;
+
+		return mMissionNames[pMissionNumber ];
+	}
+
+	/**
+	* Number of phases on this mission
+	*/
+	uint16 getNumberOfPhases( size_t pMissionNumber ) const {
+		// Mission Number is always + 1
+		pMissionNumber -= 1;
+
+		if (pMissionNumber >= mMissionPhases.size())
+			return 1;
+
+		return mMissionPhases[pMissionNumber];
+	}
+
+	/**
+	 * Get the map name
+	 */
+	std::string getMapName( const size_t& pMapNumber ) const {
+
+		if (pMapNumber >= mMapNames.size() )
+			return mCustomMap;
+
+		return mMapNames[pMapNumber];
+	}
+
+	/**
+	 * Get the goals for this map
+	 */
+	const std::vector<eMissionGoals>& getMapGoals( const uint16& pMapNumber ) const {
+
+		if (pMapNumber >= mMapGoals.size())
+			return mMapGoals[0];
+
+		return mMapGoals[ pMapNumber ];
+	}
+
+	/**
+	 * Get the enemy aggression for this map
+	 */
+	const sAggression& getMapAggression( const uint16& pMapNumber ) const {
+
+		if (pMapNumber >= mMapAggression.size())
+			return mMapAggression[0];
+
+		return mMapAggression[ pMapNumber ];
+	}
+
+};
+
+extern const cMissionData	mMissionData_Plus;
+extern const cMissionData	mMissionData_AmigaFormat;
+extern const cMissionData	mMissionData_Retail;
+extern const cMissionData	mMissionData_Retail2;
+extern		 cMissionData   mMissionData_Custom;
+
+extern const std::vector<std::string>	mMissionGoal_Titles;
