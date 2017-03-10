@@ -483,7 +483,7 @@ void cFodder::Game_ClearVariables() {
 	word_390AE = 0;
 	word_390B0 = 0;
 	word_390B8 = 0;
-	mSprite_Enemy_Aggression_HalfOfMinPlusMax = 0;
+	mSprite_Enemy_AggressionAverage = 0;
 	mSprite_Enemy_AggressionMin = 0;
 	mSprite_Enemy_AggressionMax = 0;
 	mSprite_Enemy_AggressionNext = 0;
@@ -6623,7 +6623,7 @@ void cFodder::sub_23C70( sSprite* pData2C ) {
 	int16 Data0 = tool_RandomGet();
 	int16 Data4 = Data0;
 
-	if (mSprite_Enemy_Aggression_HalfOfMinPlusMax < 5)
+	if (mSprite_Enemy_AggressionAverage < 5)
 		Data0 &= 0x3F;
 	else
 		Data0 &= 0x1F;
@@ -6636,7 +6636,7 @@ void cFodder::sub_23C70( sSprite* pData2C ) {
 	Data0 = tool_RandomGet();
 	Data4 = Data0;
 
-	if (mSprite_Enemy_Aggression_HalfOfMinPlusMax < 5)
+	if (mSprite_Enemy_AggressionAverage < 5)
 		Data0 &= 0x3F;
 	else
 		Data0 &= 0x1F;
@@ -6802,7 +6802,7 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	if (word_3AA4B >= 0x28) {
 
 		Data0 = tool_RandomGet();
-		if (mSprite_Enemy_Aggression_HalfOfMinPlusMax < 5)
+		if (mSprite_Enemy_AggressionAverage < 5)
 			Data0 &= 0x3F;
 		else
 			Data0 &= 0x1F;
@@ -7646,7 +7646,7 @@ loc_24FF1:;
 
 	} else {
 		Data8 += 1;
-		Data8 += mSprite_Enemy_Aggression_HalfOfMinPlusMax;
+		Data8 += mSprite_Enemy_AggressionAverage;
 
 		if (Data8 >= 0)
 			pSprite->field_62 = Data8;
@@ -10245,7 +10245,7 @@ void cFodder::Sprite_Aggression_Set() {
 
 	mSprite_Enemy_AggressionMin = mVersion->mMissionData->getMapAggression( mMapNumber ).mMin;
 	mSprite_Enemy_AggressionMax = mVersion->mMissionData->getMapAggression( mMapNumber ).mMax;
-	mSprite_Enemy_Aggression_HalfOfMinPlusMax = mVersion->mMissionData->getMapAggression( mMapNumber ).getAverage();
+	mSprite_Enemy_AggressionAverage = mVersion->mMissionData->getMapAggression( mMapNumber ).getAverage();
 
 	mSprite_Enemy_AggressionNext = mVersion->mMissionData->getMapAggression( mMapNumber ).getAverage();
 	mSprite_Enemy_AggressionIncrement = 1;
@@ -10261,6 +10261,12 @@ void cFodder::Sprite_Aggression_Set() {
 	}
 }
 
+/**
+ * Set the aggression of a sprite, then calculate the next aggression rate
+ *
+ * This moves by 'Increment' in an up or down 
+ * direction inside the min/max range for this map
+ */
 void cFodder::Sprite_Handle_Enemy_Aggression_Set( sSprite* pSprite ) {
 	
 	int16 Data8 = mSprite_Enemy_AggressionNext;
@@ -13839,9 +13845,9 @@ void cFodder::Sprite_Handle_GroundHole( sSprite* pSprite ) {
 
 	int16 Data0 = tool_RandomGet() & 0xFF;
 	int16 Data4 = 0x64;
-	Data4 -= mSprite_Enemy_Aggression_HalfOfMinPlusMax;
+	Data4 -= mSprite_Enemy_AggressionAverage;
 	Data0 += 0x0A;
-	Data4 += mSprite_Enemy_Aggression_HalfOfMinPlusMax;
+	Data4 += mSprite_Enemy_AggressionAverage;
 
 	pSprite->field_12 = Data0;
 	return;

@@ -160,7 +160,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	/************** Save Game Region *********** */
 	uint16			mMapNumber;
-	int16			mSprite_Enemy_Aggression_HalfOfMinPlusMax;
+	int16			mSprite_Enemy_AggressionAverage;
 	int16			mSprite_Enemy_AggressionMin;
 	int16			mSprite_Enemy_AggressionMax;
 	int16			mSprite_Enemy_AggressionNext;
