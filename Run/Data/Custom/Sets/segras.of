@@ -24,7 +24,9 @@
             8
           ],
           "Objectives": [
-            "Kill all enemy"
+            "Kill all enemy",
+            "destroy enemy buildings",
+            "destroy computer"
           ]
         }
       ]
