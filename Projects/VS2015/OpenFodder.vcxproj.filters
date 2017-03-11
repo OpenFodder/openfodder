@@ -13,6 +13,9 @@
     <Filter Include="Source\MissionData">
       <UniqueIdentifier>{f448855a-c2cb-4cc7-8251-334a7596685d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{d4573b8f-ce37-4999-9e66-f06154aad614}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -125,6 +128,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\CopyProtection.hpp">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\json.hpp">
+      <Filter>Source\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
