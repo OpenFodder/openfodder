@@ -44,6 +44,10 @@ struct sAggression {
 		return (mMin + mMax) / 2;
 	}
 };
+struct sMissionCustom {
+	std::string mName;
+	std::string mAuthor;
+};
 
 class cMissionData {
 	public:
@@ -53,13 +57,34 @@ class cMissionData {
 	std::vector<std::string>				mMapNames;
 	std::vector<std::vector<eMissionGoals>> mMapGoals;
 	std::vector<sAggression>				mMapAggression;
+	std::vector<std::string>				mMapFilenames;
 
-	std::string		mCustomMap;
+	std::string								mCustomMap;
+	sMissionCustom							mCustomMission;
 
 	cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< uint16 >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression );
 
-	bool LoadCustomMap( std::string pCustomMapName );
 	void Clear();
+
+	bool LoadCustomMap( const std::string& pMapName );
+	bool LoadCustomMissionSet( const std::string& pMissionSet );
+
+	/**
+	 * Get the filename for a map
+	 */
+	std::string getMapFilename( size_t pMapNumber ) const {
+
+		if (pMapNumber >= mMapFilenames.size()) {
+
+			std::stringstream	filename;
+
+			filename << "mapm" << (pMapNumber + 1);
+
+			return filename.str();
+		}
+
+		return mMapFilenames[pMapNumber];
+	}
 
 	/**
 	 * Get the mission name
@@ -120,6 +145,13 @@ class cMissionData {
 		return mMapAggression[ pMapNumber ];
 	}
 
+	/** 
+	 * Get the number of available maps
+	 */
+	const int16 getMapCount() const {
+
+		return mMapNames.size();
+	}
 };
 
 extern const cMissionData	mMissionData_Plus;

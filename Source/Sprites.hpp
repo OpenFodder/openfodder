@@ -190,7 +190,7 @@ struct sSprite {
 	int8 field_6F;
 	sSprite* field_70;
 	int8 field_74;
-	int8 field_75;
+	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
 };
 
 struct sWeaponData {

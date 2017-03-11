@@ -21,6 +21,9 @@
  */
 
 #include "stdafx.hpp"
+#include "Utils/json.hpp"
+
+using Json = nlohmann::json;
 
 /** Goals **/
 const std::vector<std::string> mMissionGoal_Titles = {
@@ -76,23 +79,109 @@ cMissionData::cMissionData( const std::vector<std::string>& pMissionNames, const
 /**
  *
  */
-bool cMissionData::LoadCustomMap( std::string pCustomMapName ) {
+bool cMissionData::LoadCustomMap( const std::string& pMapName ) {
 	Clear();
+	std::string CustomMapName = pMapName;
+	
+	// Remove "Custom/Maps/" and ".map"
+	CustomMapName = CustomMapName.substr( 12 );
+	CustomMapName.resize( CustomMapName.size() - 4 );
 
-	mCustomMap = pCustomMapName.substr( 7 );
+	mCustomMap = pMapName;
 
 	// Map / Phase names must be upper case
-	std::transform( mCustomMap.begin(), mCustomMap.end(), mCustomMap.begin(), ::toupper );
+	std::transform( CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper );
 
-	mMissionNames.push_back( mCustomMap );
+	mMapFilenames.push_back( pMapName.substr(0, pMapName.size() - 4) );
+	mMissionNames.push_back( CustomMapName );
 	mMissionPhases.push_back( 1 );
 
 	// TODO: Load these from file
-	mMapNames.push_back( mCustomMap );
+	mMapNames.push_back( CustomMapName );
 	mMapGoals.push_back( { eGoal_Kill_All_Enemy } );
 	mMapAggression.push_back( { 4, 8 } );
 
 	return true;
+}
+
+bool CompareCaseInsensitive( std::string pFirst, std::string pSecond ) {
+
+	transform( pFirst.begin(), pFirst.end(), pFirst.begin(), toupper );
+	transform( pSecond.begin(), pSecond.end(), pSecond.begin(), toupper );
+
+	return (pFirst == pSecond);
+}
+
+bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
+	Clear();
+
+	std::ifstream MissionSetFile( local_PathGenerate( pMissionSet, "", true ), std::ios::binary );
+	if (MissionSetFile.is_open()) {
+		Json MissionSet = Json::parse( MissionSetFile );
+
+		mCustomMission.mAuthor = MissionSet["Author"];
+		mCustomMission.mName = MissionSet["Name"];
+
+		std::string MapPath = "Custom/Sets/";
+
+		MapPath.append( mCustomMission.mName );
+		MapPath.append( "/" );
+
+		auto Missions = MissionSet["Missions"];
+
+		// Loop through the missions in this set
+		for (auto Mission : Missions) {
+			std::string Name = Mission["Name"];
+
+			transform( Name.begin(), Name.end(), Name.begin(), toupper );
+
+			mMissionNames.push_back( Name );
+			mMissionPhases.push_back( Mission["Phases"].size() );
+
+			// Each Map (Phase)
+			for (auto Phase : Mission["Phases"]) {
+				std::vector<eMissionGoals> Goals;
+				std::string MapFile = MapPath;
+				std::string MapName = Phase["MapName"];
+				Name = Phase["Name"];
+				transform( Name.begin(), Name.end(), Name.begin(), toupper );
+
+				MapFile.append( MapName );
+
+				mMapFilenames.push_back( MapFile );
+				mMapNames.push_back( Name );
+
+				// Map Aggression
+				if (Phase["Aggression"].size())
+					mMapAggression.push_back( { Phase["Aggression"][0], Phase["Aggression"][1] } );
+				else
+					mMapAggression.push_back( { 4, 8 } );
+
+				// Each map goal
+				for (std::string ObjectiveName : Phase["Objectives"]) {
+					transform( ObjectiveName.begin(), ObjectiveName.end(), ObjectiveName.begin(), toupper );
+
+					// Check each goal
+					int x = 0;
+					for (auto GoalTitle : mMissionGoal_Titles) {
+						++x;
+
+						if (GoalTitle == ObjectiveName) {
+
+							Goals.push_back( static_cast<eMissionGoals>(x) );
+							break;
+						}
+					}
+				}
+				mMapGoals.push_back( Goals );
+			}
+			
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 /**

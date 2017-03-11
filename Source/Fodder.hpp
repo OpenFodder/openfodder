@@ -156,8 +156,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_390B0;
 	uint16			word_390B8;
 	
-    std::string     mCustomMap;
-
 	/************** Save Game Region *********** */
 	uint16			mMapNumber;
 	int16			mSprite_Enemy_AggressionAverage;
@@ -678,6 +676,15 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mInput_LastKey;
 
 	int16			mDemo_ExitMenu;
+	int16			mCustom_ExitMenu;
+
+	enum eCustomMode {
+		eCustomMode_None = 0,
+		eCustomMode_Map = 1,
+		eCustomMode_Set = 2
+	};
+
+	eCustomMode		mCustom_Mode;
 
 	int64			mTicks;
 	int64			mTicksDiff;
@@ -689,6 +696,11 @@ class cFodder : public cSingleton < cFodder > {
 public:
 	bool			Demo_Amiga_ShowMenu();
     bool            Custom_ShowMenu();
+	void            Custom_ShowMapSelection();
+	void            Custom_ShowMissionSetSelection();
+	
+	void			Image_FadeIn();
+	void			Image_FadeOut();
 
 	virtual int16	Mission_Loop( );
 
@@ -1160,13 +1172,19 @@ public:
 	void			Sprite_Handle_Explosion_MapTiles( sSprite* pSprite );
 	void			Map_Destroy_Tiles( );
 	void			Map_Destroy_Tiles_Next();
+	
 	void			Game_Save_Wrapper2();
+	void			Game_Save_Wrapper();
+
 	void			GUI_Element_Reset();
+
+	void			GUI_Button_Setup( void(cFodder::*pFunction)(void) );
 	void			GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC );
+	
 	void			GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
 	void			GUI_SaveLoad( bool pShowCursor );
-	void			Game_Save_Wrapper();
-	void			GUI_Button_Setup( void(cFodder::*pFunction )(void) ); 
+	std::string		GUI_Select_File( const char* pTitle, const char* pPath, const char* pType );
+
 	void			Game_Save();
 	void			GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );
 	void			GUI_Button_Load_Exit();
@@ -1293,7 +1311,6 @@ public:
 	void			String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
 	void			String_Print( const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const std::string& pText );
 
-	std::string		map_Filename_Get();
 	std::string		map_Filename_MapGet();
 	std::string		map_Filename_SptGet();
 

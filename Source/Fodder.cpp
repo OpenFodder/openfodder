@@ -1133,20 +1133,8 @@ void cFodder::Map_Load_Sprites() {
 	}
 }
 
-std::string cFodder::map_Filename_Get() {
-    if (mVersion->mVersion == eVersion::Custom && mCustomMap.size())
-        return mCustomMap;
-
-	std::stringstream	filename;
-	
-	filename << "mapm";
-	filename << (mMapNumber + 1);
-
-	return filename.str();
-}
-
 std::string cFodder::map_Filename_MapGet() {
-	std::string	filename = map_Filename_Get();
+	std::string	filename = mVersion->mMissionData->getMapFilename(mMapNumber);
 
 	filename.append(".map");
 
@@ -1154,7 +1142,7 @@ std::string cFodder::map_Filename_MapGet() {
 }
 
 std::string cFodder::map_Filename_SptGet() {
-	std::string	filename = map_Filename_Get();
+	std::string	filename = mVersion->mMissionData->getMapFilename( mMapNumber );
 
 	filename.append(".spt");
 
@@ -1309,7 +1297,7 @@ void cFodder::Squad_Prepare_NextRecruit() {
 			const sRecruit* Data24 = &mRecruits[mRecruit_NextID];
 
 			// Demo sets static ranks
-			if (mVersion->mRelease == eRelease::Demo) {
+			if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set) {
 
 				Data20->mRank = (mMissionNumber - 1) >> 1;
 
@@ -1320,8 +1308,8 @@ void cFodder::Squad_Prepare_NextRecruit() {
 				// Jools
 				if (Data20->mRecruitID == 0)
 					Data20->mRank = 4;
-			}
-			else {
+
+			} else {
 				Data20->mRank = (mMissionNumber - 1) / 3;
 			}
 
@@ -1674,16 +1662,7 @@ loc_11D8A:;
 	word_39F54 = 0;
 	dword_39F4E &= 0x0000FFFF;
 	
-	mImage->paletteFadeOut();
-	
-	do {
-		eventProcess();
-		mImageFaded = mImage->paletteFade();
-
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-
-	} while (mImageFaded == -1);
+	Image_FadeOut();
 
 	if (word_3AF07)
 		Map_Destroy_Tiles();
@@ -2504,7 +2483,8 @@ void cFodder::sub_12C69() {
 void cFodder::Mission_Map_Overview_Show() {
 
 	// Overview map is disabled for demos
-	if (mVersion->mRelease == eRelease::Demo && mVersion->mVersion != eVersion::Custom)
+	if ( mVersion->mRelease == eRelease::Demo && 
+		 mVersion->mVersion != eVersion::Custom)
 		return;
 
 	word_3A016 = 0;
@@ -3051,13 +3031,13 @@ void cFodder::VersionSelect() {
 	std::string Name = "OPEN FODDER";
 
 	word_3AC19 = 0x25;
-	String_CalculateWidth( 320, mFont_Underlined_Width, Name.c_str() );
-	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, Pos , Name.c_str() );
+	String_CalculateWidth( 320, mFont_Underlined_Width, Name );
+	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, Pos , Name );
 
 	Name = "SELECT A GAME";
 
-	String_CalculateWidth( 320, mFont_Underlined_Width, Name.c_str() );
-	String_Print( mFont_Underlined_Width, 3, mGUI_Temp_X, 0x1A , Name.c_str() );
+	String_CalculateWidth( 320, mFont_Underlined_Width, Name );
+	String_Print( mFont_Underlined_Width, 3, mGUI_Temp_X, 0x1A , Name );
 
 	word_3AC19 = 0;
 
@@ -3066,8 +3046,8 @@ void cFodder::VersionSelect() {
 		std::string Name = (*VersionIT)->mName;
 		std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
 
-		String_CalculateWidth( 320, mFont_Briefing_Width, Name.c_str() );
-		String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos , Name.c_str() );
+		String_CalculateWidth( 320, mFont_Briefing_Width, Name );
+		String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos , Name );
 
 		Buttons[Count].field_0 = &cFodder::GUI_Button_NoAction;
 		Buttons[Count].mX = mGUI_Temp_X - 6;
@@ -3190,20 +3170,13 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	
 	mVersion = pVersion;
 
-    mCustomMap = "";
 	mWindow->SetWindowTitle( mTitle.str() );
+
+	Image_FadeOut();
 
 	delete mGraphics;
 	delete mResources;
 	delete mSound;
-
-	mImage->paletteFadeOut();
-	
-	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->paletteFade();
-	}
 
 	switch (mVersion->mPlatform) {
 		case ePlatform::PC:
@@ -3433,7 +3406,8 @@ void cFodder::Mouse_DrawCursor( ) {
 		mMouseSpriteNew = -1;
 	}
 
-	mGraphics->Mouse_DrawCursor();
+	if(mGraphics)
+		mGraphics->Mouse_DrawCursor();
 }
 
 void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX ) {
@@ -4509,13 +4483,7 @@ void cFodder::CopyProtection() {
 			mImage->Restore();
 		}
 
-		mImage->paletteFadeOut();
-
-		while (mImage->GetFaded() == false) {
-			g_Window.RenderAt( mImage );
-			g_Window.FrameEnd();
-			mImage->paletteFade();
-		}
+		Image_FadeOut();
 
 		mInputString[mInputString_Position] = 0xFF;
 
@@ -4562,72 +4530,259 @@ void cFodder::CopyProtection_EncodeInput() {
 	}
 }
 
+std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType ) {
+	mMission_Aborted = 0;
+	mGUI_SaveLoadAction = 0;
+
+	mGraphics->Load_Hill_Bits();
+
+	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, true ), pType );
+
+	word_3B335 = 0;
+	word_3B33D = (int16)Files.size();
+
+	do {
+		GUI_Element_Reset();
+		Recruit_Render_Text( pTitle, 0x0C );
+
+		GUI_Button_Draw( "UP", 0x24 );
+		GUI_Button_Setup( &cFodder::GUI_Button_Load_Up );
+
+		GUI_Button_Draw( "DOWN", 0x99 );
+		GUI_Button_Setup( &cFodder::GUI_Button_Load_Down );
+
+		GUI_Button_Draw( "EXIT", 0xB3 );
+		GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
+
+		sGUI_Element* dword_3AEF7 = mGUI_NextFreeElement;
+		mImage->Save();
+
+		int16 DataC = 0;
+		mGUI_NextFreeElement = dword_3AEF7;
+
+		std::vector<std::string>::iterator FileIT = Files.begin() + word_3B335;
+
+		for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
+			size_t Pos = FileIT->find_first_of( "." );
+
+			memcpy( mInputString, FileIT->c_str(), Pos );
+			mInputString[Pos] = 0x00;
+
+			char* Str = mInputString;
+			while (*Str++ = toupper( *Str ));
+
+			GUI_Button_Draw( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
+			GUI_Button_Setup( &cFodder::GUI_Button_Filename );
+			++FileIT;
+		}
+
+		GUI_SaveLoad( false );
+		mImage->Restore();
+
+	} while (mGUI_SaveLoadAction == 3);
+
+	if (mGUI_SaveLoadAction == 1)
+		return "";
+
+	std::string File = pPath;
+	File.append( "/" );
+	File.append( Files[word_3B335 + word_3B33F] );
+
+	return File;
+}
+
 bool cFodder::Custom_ShowMenu() {
+	sGUI_Element Buttons[3];
 
-    mMission_Aborted = 0;
-    mGUI_SaveLoadAction = 0;
+	mCustom_ExitMenu = 0;
 
-    mGraphics->Load_Hill_Bits();
+	while (!mCustom_ExitMenu) {
+		mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+		mImage->clearBuffer();
 
-    std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", "Custom", true ), "*.map" );
+		if (mCustom_Mode == 1) {
+			Custom_ShowMapSelection();
+		} else {
 
-    word_3B335 = 0;
-    word_3B33D = (int16)Files.size();
+			int16 Pos = 0x1;
 
-    do {
-        GUI_Element_Reset();
-        Recruit_Render_Text( "SELECT MAP", 0x0C );
+			std::string Name = "OPEN FODDER";
 
-        GUI_Button_Draw( "UP", 0x24 );
-        GUI_Button_Setup( &cFodder::GUI_Button_Load_Up );
+			word_3AC19 = 0x25;
+			String_CalculateWidth( 320, mFont_Underlined_Width, Name );
+			String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, Pos, Name );
 
-        GUI_Button_Draw( "DOWN", 0x99 );
-        GUI_Button_Setup( &cFodder::GUI_Button_Load_Down );
+			Name = "SELECT CUSTOM";
 
-        GUI_Button_Draw( "EXIT", 0xB3 );
-        GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
+			String_CalculateWidth( 320, mFont_Underlined_Width, Name );
+			String_Print( mFont_Underlined_Width, 3, mGUI_Temp_X, 0x1A, Name );
 
-        sGUI_Element* dword_3AEF7 = mGUI_NextFreeElement;
-        mImage->Save();
+			word_3AC19 = 0;
 
-        int16 DataC = 0;
-        mGUI_NextFreeElement = dword_3AEF7;
+			Pos += 0x50;
 
-        std::vector<std::string>::iterator FileIT = Files.begin() + word_3B335;
+			// Maps Button
+			{
+				std::string Name = "SINGLE MAP";
+				String_CalculateWidth( 320, mFont_Briefing_Width, Name );
+				String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos, Name );
 
-        for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
-            size_t Pos = FileIT->find_first_of( "." );
+				Buttons[0].field_0 = &cFodder::GUI_Button_NoAction;
+				Buttons[0].mX = mGUI_Temp_X - 6;
+				Buttons[0].mWidth = mGUI_Temp_Width;
+				Buttons[0].mY = Pos - 14;
+				Buttons[0].mHeight = 5;
+				Buttons[0].mMouseInsideFuncPtr = &cFodder::Custom_ShowMapSelection;
 
-            memcpy( mInputString, FileIT->c_str(), Pos );
-            mInputString[Pos] = 0x00;
+				Pos += 45;
+			}
 
-            char* Str = mInputString;
-            while (*Str++ = toupper( *Str ));
+			// Missions Button
+			{
+				Name = "MISSIONS";
+				String_CalculateWidth( 320, mFont_Briefing_Width, Name );
+				String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos, Name );
 
-            GUI_Button_Draw( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
-            GUI_Button_Setup( &cFodder::GUI_Button_Filename );
-            ++FileIT;
-        }
+				Buttons[1].field_0 = &cFodder::GUI_Button_NoAction;
+				Buttons[1].mX = mGUI_Temp_X - 6;
+				Buttons[1].mWidth = mGUI_Temp_Width;
+				Buttons[1].mY = Pos - 14;
+				Buttons[1].mHeight = 5;
+				Buttons[1].mMouseInsideFuncPtr = &cFodder::Custom_ShowMissionSetSelection;
+			}
 
-        GUI_SaveLoad( false );
-        mImage->Restore();
+			Buttons[2].field_0 = 0;
+			mImage->Save();
+			mGraphics->PaletteSet();
+			mImage->paletteFade();
 
-    } while (mGUI_SaveLoadAction == 3);
+			mMouseSpriteNew = 0x23;
+			eventProcess();
+			mDemo_ExitMenu = 0;
 
-    if (mGUI_SaveLoadAction == 1)
-        return true;
+			for (;;) {
+				Video_Sleep_Wrapper();
 
-    mCustomMap = "Custom/";
-    mCustomMap.append( Files[word_3B335 + word_3B33F] );
-    mCustomMap.resize( mCustomMap.size() - 4 );
+				Mouse_Inputs_Get();
+				Mouse_DrawCursor();
 
-	mMissionData_Custom.LoadCustomMap( mCustomMap );
+				if (mButtonPressLeft) {
+					GUI_Element_Mouse_Over( Buttons );
+				}
+
+				if (mDemo_ExitMenu > 0 || mMission_Aborted || mCustom_ExitMenu)
+					break;
+
+				if (mImage->GetFaded() == false)
+					mImage->paletteFade();
+
+				g_Window.RenderAt( mImage );
+				g_Window.FrameEnd();
+				mImage->Restore();
+			}
+
+			if (mMission_Aborted) {
+				mCustom_ExitMenu = 1;
+				mDemo_ExitMenu = 0;
+			}
+		}
+	}
+
+	return static_cast<bool>(!mDemo_ExitMenu);
+}
+
+void cFodder::Image_FadeIn() {
+	mImage->Save();
+	mGraphics->PaletteSet();
+
+	while (mImage->paletteFade() == -1) {
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+		mImage->Restore();
+	}
+}
+
+void cFodder::Image_FadeOut() {
+	mImage->Save();
+	mImage->paletteFadeOut();
+
+	while (mImage->GetFaded() == false) {
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+
+		mImage->paletteFade();
+
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->Restore();
+	}
+}
+
+void cFodder::Custom_ShowMissionSetSelection() {
+	Image_FadeOut();
+
+	const std::string File = GUI_Select_File( "SELECT MISSION SET", "Custom/Sets", "*.of" );
+
+	// Exit Pressed?
+	if (mGUI_SaveLoadAction == 1 || !File.size()) {
+
+		// Return to custom menu
+		mDemo_ExitMenu = 1;
+		mCustom_Mode = eCustomMode_None;
+
+		return;
+	}
+
+	if (mMissionData_Custom.LoadCustomMissionSet( File ) == true) {
+
+		mDemo_ExitMenu = 1;
+		mCustom_ExitMenu = 1;
+		mCustom_Mode = eCustomMode_Set;
+
+		mTitle.str( "" );
+		mTitle << "Open Fodder";
+		mTitle << ": Custom (" << mMissionData_Custom.mCustomMission.mName << ")";
+		WindowTitleSet( false );
+
+		return;
+	}
+
+	mDemo_ExitMenu = 1;
+	mCustom_Mode = eCustomMode_None;
+}
+
+/**
+ * Display a list of custom maps
+ */
+void cFodder::Custom_ShowMapSelection() {
+
+	Image_FadeOut();
+
+	const std::string File = GUI_Select_File( "SELECT MAP", "Custom/Maps", "*.map" );
+	
+	// Exit Pressed?
+	if (mGUI_SaveLoadAction == 1 || !File.size()) {
+
+		// Return to custom menu
+		mDemo_ExitMenu = 1;
+		mCustom_Mode = eCustomMode_None;
+
+		return;
+	}
+
+	mMissionData_Custom.LoadCustomMap( File );
 
     mMapNumber = 0;
     mMissionNumber = 1;
     mMissionPhase = 0;
 	mDemo_ExitMenu = 1;
-    return false;
+	mCustom_ExitMenu = 1;
+	mCustom_Mode = eCustomMode_Map;
 }
 
 bool cFodder::Demo_Amiga_ShowMenu() {
@@ -4671,13 +4826,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 		mImage->Restore(); 
 	}
 		
-	mImage->paletteFadeOut();
-	
-	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->paletteFade();
-	}
+	Image_FadeOut();
 
 	mImage->clearBuffer();
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
@@ -10675,12 +10824,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 	if (mGUI_SaveLoadAction == 3)
 		return;
 
-	mImage->paletteFadeOut();
-
-	do {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-	} while (mImage->paletteFade() == -1);
+	Image_FadeOut();
 }
 
 void cFodder::Game_Save_Wrapper() {
@@ -10880,56 +11024,12 @@ void cFodder::GUI_Input_CheckKey() {
 
 void cFodder::Game_Load() {
 	
-	mGUI_SaveLoadAction = 0;
+	const std::string File = GUI_Select_File( "SELECT FILE", "", mVersion->mGame == eGame::CF1 ? ".cf" : ".cf2" );
 
-	mGraphics->Load_Hill_Bits();
-
-	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate(  "", "", false  ), mVersion->mGame == eGame::CF1 ? ".cf" : ".cf2" );
-
-	word_3B335 = 0;
-	word_3B33D = (int16) Files.size();
-	
-	do {
-		GUI_Element_Reset();
-		Recruit_Render_Text( "SELECT FILE", 0x0C );
-
-		GUI_Button_Draw( "UP", 0x24 );
-		GUI_Button_Setup( &cFodder::GUI_Button_Load_Up );
-
-		GUI_Button_Draw( "DOWN", 0x99 );
-		GUI_Button_Setup( &cFodder::GUI_Button_Load_Down );
-
-		GUI_Button_Draw( "EXIT", 0xB3 );
-		GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
-
-		sGUI_Element* dword_3AEF7 = mGUI_NextFreeElement;
-		mImage->Save();
-
-		int16 DataC = 0;
-		mGUI_NextFreeElement = dword_3AEF7;
-
-		std::vector<std::string>::iterator FileIT = Files.begin() + word_3B335;
-
-		for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
-			size_t Pos = FileIT->find_first_of( "." );
-
-			memcpy( mInputString, FileIT->c_str(), Pos );
-			mInputString[Pos] = 0x00;
-
-			GUI_Button_Draw( mInputString, 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
-			GUI_Button_Setup( &cFodder::GUI_Button_Filename );
-			++FileIT;
-		}
-
-		GUI_SaveLoad(false);
-		mImage->Restore();
-
-	} while (mGUI_SaveLoadAction == 3);
-
-	if (mGUI_SaveLoadAction == 1)
+	if (!File.size())
 		return;
 
-	std::string Filename = local_PathGenerate( Files[word_3B335 + word_3B33F], "", false );
+	std::string Filename = local_PathGenerate( File, "", false );
 	
 	std::ifstream infile (Filename,std::ofstream::binary);
 	uint8* Start = (uint8*) &mMapNumber;
@@ -11163,13 +11263,7 @@ void cFodder::GUI_Button_Quiz_11() {
 
 void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 		
-	mImage->paletteFadeOut();
-	
-	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->paletteFade();
-	}
+	Image_FadeOut();
 
 	mGraphics->imageLoad( pFilename, 32 );
 	mGraphics->PaletteSet();
@@ -11194,13 +11288,7 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 		mImage->Restore(); 
 	}
 		
-	mImage->paletteFadeOut();
-	
-	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->paletteFade();
-	}
+	Image_FadeOut();
 
 	mGraphics->imageLoad( "1.lbm", 32 );
 	mGraphics->PaletteSet();
@@ -11210,13 +11298,7 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 }
 
 void cFodder::Demo_Quiz() {
-	mImage->paletteFadeOut();
-	
-	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->paletteFade();
-	}
+	Image_FadeOut();
 
 	mGraphics->imageLoad( "1.lbm", 32 );
 	mGraphics->PaletteSet();
@@ -11245,13 +11327,7 @@ void cFodder::Demo_Quiz() {
 		mImage->Restore(); 
 	}
 		
-	mImage->paletteFadeOut();
-	
-	while( mImage->GetFaded() == false ) {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->paletteFade();
-	}
+	Image_FadeOut();
 
 	mImage->clearBuffer();
 
@@ -12098,13 +12174,8 @@ void cFodder::Briefing_Prepare() {
 
 	Briefing_Draw_Mission_Title( 0x2C );
 	Briefing_Show();
-	mImage->paletteFade();
 
-	do {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-	} while (mImage->paletteFade() == -1);
-
+	Image_FadeIn();
 }
 
 void cFodder::Briefing_Wait() {
@@ -12134,12 +12205,7 @@ void cFodder::Briefing_Wait() {
 
 	mMouse_Exit_Loop = 0;
 
-	mImage->paletteFadeOut();
-	do {
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-	} while (mImage->paletteFade() == -1);
-
+	Image_FadeOut();
 	Mouse_Setup();
 }
 
@@ -16028,6 +16094,7 @@ void cFodder::Sprite_Handle_Bonus_Rockets( sSprite* pSprite ) {
 	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
+	// Has Homing missiles
 	mSquad_Leader->field_75 |= 1;
 	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 	mSquad_Rockets[mSquad_Selected] = 50;
@@ -16062,6 +16129,7 @@ void cFodder::Sprite_Handle_Bonus_RocketsAndGeneral( sSprite* pSprite ) {
 	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
+	// Invincible
 	mSquad_Leader->field_75 |= 3;
 	sSquad_Member* Member = (sSquad_Member*) mSquad_Leader->field_46;
 	Member->mRank = 0x0F;
@@ -18605,18 +18673,15 @@ void cFodder::WonGame() {
 		mGraphics->imageLoad( "won.dat", 0x100 );
 	}
 
-	mGraphics->PaletteSet();
+	Image_FadeIn();
 
-	while(mImage->paletteFade()) {
-
-		g_Window.RenderAt( mImage, cPosition() );
-		g_Window.FrameEnd();
-	}
-
-	while (1) {
+	for (int count = 20000; count >= 0; --count) {
 
 		eventProcess();
+		Video_Sleep();
 	}
+
+	Image_FadeOut();
 }
 
 void cFodder::sub_20456( sSprite* pSprite, int16& pData8 ) {
@@ -20445,6 +20510,7 @@ Start:;
 
 	for (;;) {
 		
+	CustomStart:;
 		Game_Setup( pStartMap );
 
 		//loc_1042E:;
@@ -20452,15 +20518,14 @@ Start:;
 
 			if (!mMission_Aborted && !mMission_TryAgain) {
 
-				if (mVersion->mRelease == eRelease::Demo)
+				if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set)
 						break;
 
-				if (mMapNumber == 71) {
+				if (++mMapNumber == mVersion->mMissionData->getMapCount()) {
 					WonGame();
 					return;
 				}
 
-				++mMapNumber;
 				Mission_Phase_Next();
 				word_3901E = 0x3333;
 			}
@@ -20497,7 +20562,16 @@ Start:;
 				word_3ABA7 = 0;
 				WindowTitleSet( false );
 
-				if (mVersion->mRelease == eRelease::Retail) {
+				if (mVersion->mVersion == eVersion::Custom && mCustom_Mode != eCustomMode_Set) {
+					if (Custom_ShowMenu())
+						goto Start;
+
+					// If we are now in set mode, we need to restart the engine
+					if(mCustom_Mode == eCustomMode_Set)
+						goto CustomStart;
+				}
+
+				if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
 					if (Recruit_Show()) {
 						goto Start;
 					}
@@ -20515,10 +20589,6 @@ Start:;
                         if (Demo_Amiga_ShowMenu())
                             goto Start;
                     }
-                    else {
-                        if (Custom_ShowMenu())
-                            goto Start;
-                    }
 				}
 
 				word_390B8 = 0;
@@ -20526,7 +20596,7 @@ Start:;
 				word_3ABE9 = 0;
 				word_3ABEB = 0;
 
-				if (mVersion->mRelease == eRelease::Retail) 
+				if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set)
 					Briefing_Intro();
 				else
 					mGraphics->LoadpStuff();			
@@ -20652,7 +20722,7 @@ Start:;
 				}
 			}
 
-			if (mVersion->mRelease == eRelease::Demo) 
+			if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set)
 				break;
 
 			//loc_106F1

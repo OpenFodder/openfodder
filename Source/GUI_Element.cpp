@@ -22,6 +22,13 @@
 
 #include "stdafx.hpp"
 
+/* Custom Menu Buttons */
+const sGUI_Element mCustom_Buttons[] = {
+	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::Custom_ShowMapSelection },
+	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::Custom_ShowMissionSetSelection },
+	{ 0 }
+};
+
 /* AFX Menu Buttons */
 const sGUI_Element mAfx_Buttons[] = {
 	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2 },

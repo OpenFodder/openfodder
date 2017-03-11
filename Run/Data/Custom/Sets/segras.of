@@ -1,0 +1,33 @@
+{
+  "Author": "Robert",
+  "Name": "segras",
+  "Missions": [
+    {
+      "Name": "initiation",
+      "Phases": [
+        {
+          "Name": "Segras First",
+          "MapName": "segras first",
+          "Aggression": [
+            4,
+            8
+          ],
+          "Objectives": [
+            "Kill all enemy"
+          ]
+        },
+        {
+          "Name": "alessandro",
+          "MapName": "alessandro",
+          "Aggression": [
+            4,
+            8
+          ],
+          "Objectives": [
+            "Kill all enemy"
+          ]
+        }
+      ]
+    }
+  ]
+}

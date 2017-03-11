@@ -97,7 +97,7 @@ uint8 *local_FileRead( const std::string& pFile, const std::string& pPath, size_
 	std::string finalPath = local_PathGenerate( pFile, pPath );
 
 	// Attempt to open the file
-	fileStream = new std::ifstream ( finalPath.c_str(), std::ios::binary );
+ 	fileStream = new std::ifstream ( finalPath.c_str(), std::ios::binary );
 	if (fileStream->is_open() != false) {
 
 		// Get file size
