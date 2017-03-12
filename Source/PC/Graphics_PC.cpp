@@ -786,3 +786,88 @@ void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors
 
 	delete[] fileBuffer;
 }
+
+void cGraphics_PC::Briefing_DrawHelicopter( uint16 pID ) {
+
+}
+
+
+bool cGraphics_PC::Sprite_OnScreen_Check() {
+	int16 ax;
+
+	if (g_Fodder.mDrawSpritePositionY < 0) {
+		ax = g_Fodder.mDrawSpritePositionY + g_Fodder.mDrawSpriteRows;
+		--ax;
+		if (ax < 0)
+			return false;
+
+		ax -= 0;
+		ax -= g_Fodder.mDrawSpriteRows;
+		++ax;
+		ax = -ax;
+		g_Fodder.mDrawSpritePositionY += ax;
+		g_Fodder.mDrawSpriteRows -= ax;
+
+		ax *= 0xA0;
+
+		g_Fodder.mDrawSpriteFrameDataPtr += ax;
+	}
+
+	ax = g_Fodder.mDrawSpritePositionY + g_Fodder.mDrawSpriteRows;
+	--ax;
+
+	if (ax > 231) {
+		if (g_Fodder.mDrawSpritePositionY > 231)
+			return false;
+
+		ax -= 231;
+		g_Fodder.mDrawSpriteRows -= ax;
+	}
+
+	if (g_Fodder.mDrawSpritePositionX < 0) {
+		ax = g_Fodder.mDrawSpritePositionX + g_Fodder.mDrawSpriteColumns;
+		--ax;
+		if (ax < 0)
+			return false;
+
+		ax -= 0;
+		ax -= g_Fodder.mDrawSpriteColumns;
+		++ax;
+		ax = -ax;
+		--ax;
+
+		do {
+			++ax;
+		} while (ax & 3);
+
+		g_Fodder.mDrawSpritePositionX += ax;
+		g_Fodder.mDrawSpriteColumns -= ax;
+		ax >>= 1;
+		g_Fodder.mDrawSpriteFrameDataPtr += ax;
+	}
+
+	ax = g_Fodder.mDrawSpritePositionX + g_Fodder.mDrawSpriteColumns;
+	--ax;
+
+	if (ax > 351) {
+		if (g_Fodder.mDrawSpritePositionX > 351)
+			return false;
+
+		ax -= 351;
+		--ax;
+
+		do {
+			++ax;
+		} while (ax & 3);
+
+		g_Fodder.mDrawSpriteColumns -= ax;
+	}
+
+	if (g_Fodder.mDrawSpriteColumns <= 0)
+		return false;
+
+	if (g_Fodder.mDrawSpriteRows <= 0)
+		return false;
+
+	return true;
+}

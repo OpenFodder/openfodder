@@ -44,6 +44,7 @@ struct sAggression {
 		return (mMin + mMax) / 2;
 	}
 };
+
 struct sMissionCustom {
 	std::string mName;
 	std::string mAuthor;

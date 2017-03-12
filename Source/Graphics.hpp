@@ -70,6 +70,7 @@ public:
 	virtual void		SetSpritePtr( eSpriteType pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );
 	virtual void		SetImageOriginal();
+	virtual bool		Sprite_OnScreen_Check() = 0;
 
 	virtual void		sub_144A2( int16 pStartY = 0 ) = 0;
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
@@ -77,6 +78,7 @@ public:
 	virtual void		sub_2AF19( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) = 0;
 
 	virtual void		Briefing_Load_Resources() = 0;
+	virtual void		Briefing_DrawHelicopter( uint16 pID ) = 0;
 
 	virtual void		Recruit_Draw_Hill() = 0;
 	virtual void		Recruit_Draw_HomeAway() = 0;

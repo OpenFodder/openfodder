@@ -162,6 +162,129 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 	video_Draw_Sprite();
 }
 
+bool cGraphics_Amiga::Sprite_OnScreen_Check(  ) {
+
+	return Sprite_OnScreen_Check( false );
+}
+
+bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
+	int16 ax;
+
+	if (g_Fodder.mDrawSpritePositionY < 0) {
+		ax = g_Fodder.mDrawSpritePositionY + g_Fodder.mDrawSpriteRows;
+		--ax;
+		if (ax < 0)
+			return false;
+
+		ax -= 0;
+		ax -= g_Fodder.mDrawSpriteRows;
+		++ax;
+		ax = -ax;
+		g_Fodder.mDrawSpritePositionY += ax;
+		g_Fodder.mDrawSpriteRows -= ax;
+
+		ax *= 40;
+
+		g_Fodder.mDrawSpriteFrameDataPtr += ax;
+	}
+
+	ax = g_Fodder.mDrawSpritePositionY + g_Fodder.mDrawSpriteRows;
+	--ax;
+
+	if (ax > 256) {
+		if (g_Fodder.mDrawSpritePositionY > 256)
+			return false;
+
+		ax -= 256;
+		g_Fodder.mDrawSpriteRows -= ax;
+
+	}
+
+	if (g_Fodder.mDrawSpritePositionX < 0) {
+		ax = g_Fodder.mDrawSpritePositionX + g_Fodder.mDrawSpriteColumns;
+		--ax;
+		if (ax < 0)
+			return false;
+
+
+		ax -= g_Fodder.mDrawSpriteColumns;
+		++ax;
+		ax = -ax;
+		--ax;
+
+		// TODO: This all needs work, as it expects to move in groups of 8 pixels
+		do {
+			++ax;
+		} while (ax & 8);
+
+		if (p16bit)
+			ax >>= 3;
+
+		g_Fodder.mDrawSpritePositionX += ax;
+		g_Fodder.mDrawSpriteColumns -= ax;
+
+		if (!p16bit)
+			ax >>= 1;
+		//else
+		//	ax >>= 2;
+		g_Fodder.mDrawSpriteFrameDataPtr += ax;
+	}
+
+	ax = g_Fodder.mDrawSpritePositionX + g_Fodder.mDrawSpriteColumns;
+	--ax;
+
+	if (ax > 351) {
+		if (g_Fodder.mDrawSpritePositionX > 351)
+			return false;
+
+		ax -= 351;
+		--ax;
+
+		do {
+			++ax;
+		} while (ax & 8);
+
+
+		g_Fodder.mDrawSpriteColumns -= ax;
+	}
+
+	if (g_Fodder.mDrawSpriteColumns <= 0)
+		return false;
+
+	if (g_Fodder.mDrawSpriteRows <= 0)
+		return false;
+
+	return true;
+}
+
+void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
+	const struct_2* di = &stru_44B50[pID];
+
+	mFodder->mDrawSpriteColumns = di->field_4;
+	mFodder->mDrawSpriteRows = di->field_6;
+
+	int16 ax = di->field_2 & 0xFF;
+	int16 bx = (di->field_0 >> 3) & -2;
+
+	ax <<= 3;
+	int16 d1 = ax;
+
+	ax <<= 2;
+	ax += d1;
+
+	//mFodder->mDrawSpriteColumns--;
+	mFodder->mDrawSpriteFrameDataPtr = GetSpriteData( 2 ) + (ax + bx);
+
+	if (pID >= 205 && pID <= 207) {
+		mFodder->mDrawSpriteRows++;
+	}
+
+	if (Sprite_OnScreen_Check(true)) {
+		mFodder->mDrawSpriteColumns >>= 3;
+		video_Draw_Linear();
+	}
+}
+
 void cGraphics_Amiga::LoadpStuff() {
 
 	size_t Size = 0;

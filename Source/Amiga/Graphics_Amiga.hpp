@@ -92,7 +92,6 @@ public:
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();
-
 	virtual void		graphicsBlkPtrsPrepare();
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
@@ -122,7 +121,12 @@ public:
 
 	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 
+	virtual bool		Sprite_OnScreen_Check(  );
+	virtual bool		Sprite_OnScreen_Check( bool p16bit = false );
+
 	virtual void		Briefing_Load_Resources();
+	virtual void		Briefing_DrawHelicopter( uint16 pID );
+
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();
 	virtual void		Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 );

@@ -65,7 +65,11 @@ class cGraphics_PC : public cGraphics {
 
 	virtual void		sub_2AF19( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics );
 	
+	virtual bool		Sprite_OnScreen_Check();
+
 	virtual void		Briefing_Load_Resources();
+	virtual void		Briefing_DrawHelicopter( uint16 pID );
+
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();
 };
