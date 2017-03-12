@@ -655,8 +655,9 @@ const sFile mPlusFiles[] = {
 };
 
 const sFile mCustomFiles[] = {
-    { "Maps/Segras First.map" ,"5D2004402C69B91EE9F24DA26B469616" },
-    { "Maps/Segras First.spt", "0EC285AF23C6A8A86E19C740A6B279C2" },
+    { "Maps/Segras First.map" ,	"5D2004402C69B91EE9F24DA26B469616" },
+    { "Maps/Segras First.spt",	"0EC285AF23C6A8A86E19C740A6B279C2" },
+	{ "Sets/segras.of",			"8E0676EB11752A547CE5913E063B87E9" },
     { 0 }
 };
 
@@ -669,6 +670,7 @@ const sVersion Versions[] = {
     { "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
     { "Plus",							eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_Plus,			mIntroText_Amiga,	"Plus",				mPlusFiles },
     { "Custom",                         eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		&mMissionData_Custom,       mIntroText_PC,      "Custom",           mCustomFiles },
+	{ "Custom",                         eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		&mMissionData_Custom,       mIntroText_PC,      "Custom",           mCustomFiles },
 	{ 0 }
 };
 
@@ -711,11 +713,18 @@ std::vector<const sVersion*> FindFodderVersions() {
             // A very hacky method for ensuring the DOS_CD version is available, before allowing Customs
             if (Versions[x].mVersion == eVersion::Custom) {
 
-                // This works because Dos_CD should always be first added to the list
-                if (AvailableVersions.size() && AvailableVersions[0]->mVersion != eVersion::Dos_CD)
-                    continue;
-            }
-            AvailableVersions.push_back( &Versions[x] );
+				for (const auto Version : AvailableVersions) {
+
+					// Enable custom if we have a retail version available
+					if ( Version->mRelease == eRelease::Retail && 
+						 Version->mPlatform == Versions[x].mPlatform ) {
+
+						AvailableVersions.push_back( &Versions[x] );
+						break;
+					}
+				}
+            } else
+	            AvailableVersions.push_back( &Versions[x] );
         }
 	}
 

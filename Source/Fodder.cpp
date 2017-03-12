@@ -3178,13 +3178,21 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	delete mResources;
 	delete mSound;
 
+
+	auto DataPath = mVersion->mDataPath;
+
+	if (mVersion->mVersion == eVersion::Custom) {
+		auto RetailRelease =
+			std::find_if( mVersions.begin(), mVersions.end(), []( const sVersion* a )->bool { return a->mRelease == eRelease::Retail; });
+
+
+		DataPath = (*RetailRelease)->mDataPath;
+	}
+
+
 	switch (mVersion->mPlatform) {
 		case ePlatform::PC:
-            // Custom is hardwired to Dos_CD for the moment
-            if(mVersion->mVersion == eVersion::Custom)
-                mResources = new cResource_PC_CD( "Dos_CD" );
-            else
-    			mResources = new cResource_PC_CD( mVersion->mDataPath );
+   			mResources = new cResource_PC_CD( DataPath );
 
 			mGraphics = new cGraphics_PC();
 
@@ -3200,7 +3208,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			break;
 
 		case ePlatform::Amiga:
-			mResources = new cResource_Amiga_File( mVersion->mDataPath );
+			mResources = new cResource_Amiga_File( DataPath );
 			mGraphics = new cGraphics_Amiga();
 			mSound = new cSound_Amiga();
 
@@ -4460,6 +4468,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 	mMission_Aborted = 0;
 	mGUI_SaveLoadAction = 0;
 
+	mGraphics->Load_Hill_Data();
 	mGraphics->Load_Hill_Bits();
 
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, true ), pType );
@@ -4630,6 +4639,9 @@ void cFodder::Image_FadeIn() {
 		g_Window.FrameEnd();
 		mImage->Restore();
 	}
+
+	g_Window.RenderAt( mImage, cPosition() );
+	g_Window.FrameEnd();
 }
 
 void cFodder::Image_FadeOut() {
