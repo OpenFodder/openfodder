@@ -40,13 +40,13 @@ public:
 		m_Singleton = 0;
 	}
 
-	static tBase& GetSingleton() {
+	static inline tBase& GetSingleton() {
 
 		assert( m_Singleton ); 
 		return *m_Singleton;
 	}
 
-	static tBase* GetSingletonPtr() {
+	static inline tBase* GetSingletonPtr() {
 
 		return m_Singleton;
 	}

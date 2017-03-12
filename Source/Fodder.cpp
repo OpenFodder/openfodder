@@ -3467,99 +3467,8 @@ void cFodder::sub_13CF0( sSprite* pDi, int16 pData0, int16 pData4 ) {
 }
 
 bool cFodder::Sprite_OnScreen_Check() {
-	int16 ax;
-	
-	if( mDrawSpritePositionY < 0 ) {
-		ax = mDrawSpritePositionY + mDrawSpriteRows;
-		--ax;
-		if( ax < 0 )
-			return false;
-		
-		ax -= 0;
-		ax -= mDrawSpriteRows;
-		++ax;
-		ax = -ax;
-		mDrawSpritePositionY += ax;
-		mDrawSpriteRows -= ax;
 
-		if (mVersion->mPlatform == ePlatform::PC)
-			ax *= 0xA0;
-
-		if (mVersion->mPlatform == ePlatform::Amiga)
-			ax *= 40;
-
-		mDrawSpriteFrameDataPtr += ax;
-	}
-	
-	ax = mDrawSpritePositionY + mDrawSpriteRows;
-	--ax;
-	if (mVersion->mPlatform == ePlatform::PC) {
-		if (ax > 231) {
-			if (mDrawSpritePositionY > 231)
-				return false;
-
-			ax -= 231;
-			mDrawSpriteRows -= ax;
-
-		}
-	}
-	if (mVersion->mPlatform == ePlatform::Amiga) {
-		if (ax > 256) {
-			if (mDrawSpritePositionY > 256)
-				return false;
-
-			ax -= 256;
-			mDrawSpriteRows -= ax;
-
-		}
-	}
-
-	if( mDrawSpritePositionX < 0 ) {
-		ax = mDrawSpritePositionX + mDrawSpriteColumns;
-		--ax;
-		if( ax < 0 )
-			return false;
-		
-		ax -= 0;
-		ax -= mDrawSpriteColumns;
-		++ax;
-		ax = -ax;
-		--ax;
-		
-		do {
-			++ax;
-		} while (ax & 3);
-
-		mDrawSpritePositionX += ax;
-		mDrawSpriteColumns -= ax;
-		ax >>= 1;
-		mDrawSpriteFrameDataPtr += ax;
-	}
-
-	ax = mDrawSpritePositionX + mDrawSpriteColumns;
-	--ax;
-	
-	if( ax > 351 ) {
-		if( mDrawSpritePositionX > 351 )
-			return false;
-		
-		ax -= 351;
-		--ax;
-		
-		do {
-			++ax;
-		} while (ax & 3);
-		
-		mDrawSpriteColumns -= ax;
-	}
-
-	if( mDrawSpriteColumns <= 0 )
-		return false;
-	
-	if( mDrawSpriteRows <= 0 )
-		return false;
-	
-	return true;
+	return mGraphics->Sprite_OnScreen_Check();
 }
 
 void cFodder::Sprite_Draw( ) {
@@ -4312,19 +4221,35 @@ void cFodder::Briefing_Intro() {
 		Briefing_Draw_Mission_Name();
 		mImage->Save();
 		sub_1590B();
+
+		int16 word_42875 = 0;
+
 		do {
 			if (word_428D6 == -1)
 				sub_159A6();
 
 			Mouse_Inputs_Get();
 
-			/*mDrawSpriteFrameDataPtr = 0;
-			mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
-			mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y
-			mDrawSpriteColumns = 0x40;
-			mDrawSpriteRows = 0x18;
-			if (Sprite_OnScreen_Check())
-			mGraphics->video_Draw_Sprite();*/
+			// Front
+			mDrawSpritePositionX = mHelicopterPosX >> 16;
+			mDrawSpritePositionY = mHelicopterPosY >> 16;
+			mGraphics->Briefing_DrawHelicopter( 203 );
+
+			// Tail
+			mDrawSpritePositionX = (mHelicopterPosX >> 16) + 48;
+			mDrawSpritePositionY = (mHelicopterPosY >> 16);
+			mGraphics->Briefing_DrawHelicopter( 204 );
+
+			int16 Blade = 205 + word_42875;
+
+			++word_42875;
+			if (word_42875 >= 3)
+				word_42875 = 0;
+
+			// Blade
+			mDrawSpritePositionX = (mHelicopterPosX >> 16);
+			mDrawSpritePositionY = (mHelicopterPosY >> 16);
+			mGraphics->Briefing_DrawHelicopter( Blade );
 
 			if (mImageFaded)
 				mImageFaded = mImage->paletteFade();
@@ -4342,6 +4267,7 @@ void cFodder::Briefing_Intro() {
 				mImageFaded = -1;
 				mMouse_Exit_Loop = 0;
 			}
+			mImage->Restore();
 		} while (word_428D8 || mImageFaded != 0);
 
 		mMouse_Exit_Loop = 0;
@@ -18665,7 +18591,8 @@ void cFodder::sleepLoop( int64 pMilliseconds ) {
 
 void cFodder::WonGame() {
 	mSound->Music_Play( 17 );
-
+	mMouseX = -1;
+	mMouseY = -1;
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		mGraphics->imageLoad( "won.raw", 32 );
 	}
@@ -18675,7 +18602,7 @@ void cFodder::WonGame() {
 
 	Image_FadeIn();
 
-	for (int count = 20000; count >= 0; --count) {
+	for (int count = 500; count >= 0; --count) {
 
 		eventProcess();
 		Video_Sleep();
@@ -20521,9 +20448,10 @@ Start:;
 				if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set)
 						break;
 
+				// Reached last map in this mission set?
 				if (++mMapNumber == mVersion->mMissionData->getMapCount()) {
 					WonGame();
-					return;
+					goto Start;
 				}
 
 				Mission_Phase_Next();
