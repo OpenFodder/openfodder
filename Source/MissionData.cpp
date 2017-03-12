@@ -39,7 +39,7 @@ const std::vector<std::string> mMissionGoal_Titles = {
 	"RESCUE HOSTAGE"			// CF2
 };
 
-const std::vector< uint16 > mCustom_MissionPhaseTable = { 
+const std::vector< size_t > mCustom_MissionPhaseTable = {
 	01 
 };
 
@@ -66,7 +66,7 @@ cMissionData mMissionData_Custom = {
 /** 
  *
  */
-cMissionData::cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< uint16 >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression ) {
+cMissionData::cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< size_t >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression ) {
 
 	mMissionNames = pMissionNames;
 	mMissionPhases = pMissionPhases;

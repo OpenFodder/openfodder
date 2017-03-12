@@ -53,7 +53,7 @@ struct sMissionCustom {
 class cMissionData {
 	public:
 	std::vector<std::string>				mMissionNames;
-	std::vector<uint16>						mMissionPhases;
+	std::vector<size_t>						mMissionPhases;
 
 	std::vector<std::string>				mMapNames;
 	std::vector<std::vector<eMissionGoals>> mMapGoals;
@@ -63,7 +63,7 @@ class cMissionData {
 	std::string								mCustomMap;
 	sMissionCustom							mCustomMission;
 
-	cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< uint16 >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression );
+	cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< size_t >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression );
 
 	void Clear();
 
@@ -149,7 +149,7 @@ class cMissionData {
 	/** 
 	 * Get the number of available maps
 	 */
-	const int16 getMapCount() const {
+	const size_t getMapCount() const {
 
 		return mMapNames.size();
 	}

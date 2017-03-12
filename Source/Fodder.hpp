@@ -125,7 +125,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	cSurface*		mSurfaceMapOverview;
 	cSurface*		mImage;
-	uint32			mSurfaceMapTop, mSurfaceMapLeft;
+	int32			mSurfaceMapTop, mSurfaceMapLeft;
 
 	cPosition		mMousePosition;
 	uint32			mMouseButtons;
@@ -1347,7 +1347,7 @@ public:
 public:
 
 					cFodder( bool pSkipIntro = false );
-					~cFodder();
+	virtual			~cFodder();
 
 	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
 
