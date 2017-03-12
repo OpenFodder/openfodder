@@ -23,7 +23,7 @@
 #include "stdafx.hpp"
 
 /** Retail Mission Phases **/
-const std::vector< uint16 > mRetail_MissionPhaseTable = { 
+const std::vector< size_t > mRetail_MissionPhaseTable = {
 	1, 2, 1, 4, 3, 2, 3, 4,
 	2, 5, 3, 6, 1, 3, 3, 2,
 	1, 5, 1, 4, 1, 4, 5, 6

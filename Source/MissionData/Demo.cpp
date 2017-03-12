@@ -23,13 +23,13 @@
 #include "stdafx.hpp"
 
 // Amiga Format Phases
-const std::vector< uint16 > mAmigaFormat_MissionPhaseTable = { 
+const std::vector< size_t > mAmigaFormat_MissionPhaseTable = {
 	01, 
 	01 
 };
 
 // Amiga Plus Phases
-const std::vector< uint16 > mAmigaPlus_MissionPhaseTable = { 
+const std::vector< size_t > mAmigaPlus_MissionPhaseTable = { 
 	01, 
 	01, 
 	01, 
