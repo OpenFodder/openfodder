@@ -2,7 +2,7 @@
 *  Cannon Fodder
 *  ------------------------
 *
-*  Copyright (C) 2008-2015 Robert Crossfield <robcrossfield@gmail.com>
+*  Copyright (C) 2008-2017 Robert Crossfield
 *
 *  This program is free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
