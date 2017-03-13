@@ -132,7 +132,6 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 		// Loop through the missions in this set
 		for (auto Mission : Missions) {
 			std::string Name = Mission["Name"];
-
 			transform( Name.begin(), Name.end(), Name.begin(), toupper );
 
 			mMissionNames.push_back( Name );
@@ -144,8 +143,8 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 				std::string MapFile = MapPath;
 				std::string MapName = Phase["MapName"];
 				Name = Phase["Name"];
-				transform( Name.begin(), Name.end(), Name.begin(), toupper );
 
+				transform( Name.begin(), Name.end(), Name.begin(), toupper );
 				MapFile.append( MapName );
 
 				mMapFilenames.push_back( MapFile );
