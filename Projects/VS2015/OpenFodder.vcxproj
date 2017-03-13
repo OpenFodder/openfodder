@@ -216,6 +216,7 @@
     <ClCompile Include="..\..\Source\Graphics.cpp" />
     <ClCompile Include="..\..\Source\md5.cpp" />
     <ClCompile Include="..\..\Source\MissionData.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Custom.cpp" />
     <ClCompile Include="..\..\Source\MissionData\Demo.cpp" />
     <ClCompile Include="..\..\Source\MissionData\Retail.cpp" />
     <ClCompile Include="..\..\Source\MissionData\Retail2.cpp" />

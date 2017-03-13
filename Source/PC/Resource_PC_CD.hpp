@@ -28,7 +28,7 @@ class cResource_PC_CD : public cResources {
 	uint8							byte_26DB0;
 
 	int16							mBytesRead, word_26DA8;
-	int32							 word_26DBA;
+	int32							word_26DBA;
 	uint16							word_26DAA, word_26DB4, saveSI, saveBP;
 
 	bool							headerLoad();
@@ -43,5 +43,6 @@ public:
 	virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
 
 	std::vector< cResource_File >*	filesGet( ) { return &mFiles; }
-		
+	
+	void							ExtractFiles();
 };

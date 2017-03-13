@@ -661,14 +661,22 @@ const sFile mCustomFiles[] = {
     { 0 }
 };
 
+/** 
+ * Known versions of Cannon Fodder
+ */
 const sVersion Versions[] = {
 
+	/* Retail */
     { "Dos",							eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail,		mIntroText_PC,		"Dos_CD",			mDosFiles },
     { "2 Dos",							eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	&mMissionData_Retail2,		mIntroText_PC2,		"Dos2_CD",			mDos2Files },
     { "Amiga",							eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga",			mAmigaFiles },
     { "Amiga CD32",						eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	&mMissionData_Retail,		mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
+
+	/* Demo */
     { "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_AmigaFormat,	mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
     { "Plus",							eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		&mMissionData_Plus,			mIntroText_Amiga,	"Plus",				mPlusFiles },
+
+	/* Custom must be last, as they depend on a previous retail version being detected first */
     { "Custom",                         eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		&mMissionData_Custom,       mIntroText_PC,      "Custom",           mCustomFiles },
 	{ "Custom",                         eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		&mMissionData_Custom,       mIntroText_PC,      "Custom",           mCustomFiles },
 	{ 0 }
@@ -677,11 +685,11 @@ const sVersion Versions[] = {
 std::vector<const sVersion*> FindFodderVersions() {
 	std::vector<const sVersion*> AvailableVersions;
 
-	// Loop all versions
+	// Loop all known versions
 	for (uint16 x = 0; Versions[x].mName != 0; ++x) {
 	 	int16 FileCount = 0, FileMatches = 0, FileFound = 0;
 
-		//Count the number of files
+		// Count the number of files
 		for (uint16 FileNo = 0; Versions[x].mFiles[FileNo].mName != 0; ++FileNo)
 			++FileCount;
 		
@@ -691,13 +699,11 @@ std::vector<const sVersion*> FindFodderVersions() {
 	 		std::string MD5 = local_FileMD5( Versions[x].mFiles[FileNo].mName, Versions[x].mDataPath );
 			
 			if (MD5 != Versions[x].mFiles[FileNo].mChecksum) {
-				//std::cout << Versions[x].mName << ": " << Versions[x].mFiles[FileNo].mName;
 
 				if (MD5.length() == 0) {
 					//std::cout << Versions[x].mName << ": " << Versions[x].mFiles[FileNo].mName;
 					//std::cout << " File not found\n";
-				}
-				else {
+				} else {
 					std::cout << Versions[x].mName << ": " << Versions[x].mFiles[FileNo].mName;
 					std::cout << " Unknown MD5: " << MD5 << "\n";
 					++FileMatches;

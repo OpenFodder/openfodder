@@ -39,30 +39,6 @@ const std::vector<std::string> mMissionGoal_Titles = {
 	"RESCUE HOSTAGE"			// CF2
 };
 
-const std::vector< size_t > mCustom_MissionPhaseTable = {
-	01 
-};
-
-const std::vector< std::vector<eMissionGoals> > mCustom_Map_Goals = {
-	{ eGoal_Kill_All_Enemy }
-};
-
-// Hardcode custom maps to min 4, max 8 aggression
-const std::vector<sAggression> mCustom_Map_Sprite_Enemy_Aggression = {
-	{ 4,  8 }
-};
-
-const std::vector<std::string> mCustom_MissionNames;
-
-// Custom
-cMissionData mMissionData_Custom = {
-	mCustom_MissionNames,
-	mCustom_MissionNames,
-	mCustom_MissionPhaseTable,
-	mCustom_Map_Goals,
-	mCustom_Map_Sprite_Enemy_Aggression
-};
-
 /** 
  *
  */
@@ -77,7 +53,7 @@ cMissionData::cMissionData( const std::vector<std::string>& pMissionNames, const
 }
 
 /**
- *
+ * Load a single custom map
  */
 bool cMissionData::LoadCustomMap( const std::string& pMapName ) {
 	Clear();
@@ -96,7 +72,7 @@ bool cMissionData::LoadCustomMap( const std::string& pMapName ) {
 	mMissionNames.push_back( CustomMapName );
 	mMissionPhases.push_back( 1 );
 
-	// TODO: Load these from file
+	// TODO: Try load these from file before using defaults
 	mMapNames.push_back( CustomMapName );
 	mMapGoals.push_back( { eGoal_Kill_All_Enemy } );
 	mMapAggression.push_back( { 4, 8 } );
@@ -104,14 +80,9 @@ bool cMissionData::LoadCustomMap( const std::string& pMapName ) {
 	return true;
 }
 
-bool CompareCaseInsensitive( std::string pFirst, std::string pSecond ) {
-
-	transform( pFirst.begin(), pFirst.end(), pFirst.begin(), toupper );
-	transform( pSecond.begin(), pSecond.end(), pSecond.begin(), toupper );
-
-	return (pFirst == pSecond);
-}
-
+/**
+ * Load a custom mission set
+ */
 bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 	Clear();
 
@@ -184,7 +155,7 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 }
 
 /**
- *
+ * Clear all missions/map names, goals and aggression rates
  */
 void cMissionData::Clear() {
 	mMissionNames.clear();

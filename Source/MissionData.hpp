@@ -21,6 +21,7 @@
  */
 
 enum eMissionGoals {
+	eGoal_None = 0,
 	eGoal_Kill_All_Enemy = 1,
 	eGoal_Destroy_Enemy_Buildings = 2,
 	eGoal_Rescue_Hostages = 3,
@@ -110,7 +111,7 @@ class cMissionData {
 		if (pMissionNumber >= mMissionPhases.size())
 			return 1;
 
-		return mMissionPhases[pMissionNumber];
+		return (uint16) mMissionPhases[pMissionNumber];
 	}
 
 	/**

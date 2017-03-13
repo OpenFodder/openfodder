@@ -183,9 +183,7 @@ cFodder::~cFodder() {
 	
 	delete mSurfaceMapOverview;
 
-	delete mResources;
-	delete mGraphics;
-	delete mSound;
+	VersionCleanup();
 }
 
 int16 cFodder::Mission_Loop( ) {
@@ -1345,8 +1343,7 @@ void cFodder::Squad_Prepare_Sprites() {
 			Data20->field_18 = eSprite_Null;
 			Data20->field_8 = 0x7C;
 			++Troop;
-		}
-		else {
+		} else {
 			// loc_1166B
 			Data20->field_46 = (int32*) Troop;
 
@@ -1479,7 +1476,6 @@ int16 cFodder::sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pD
 	}
 	pData4 <<= 5;
 	pData4 |= pData0;
-	//pData4 <<= 1;
 
 	pData4 = mDirectionData[pData4];
 	if (pData4 < 0)
@@ -2906,8 +2902,8 @@ loc_13B66:;
 		Data0 = 4;
 	else {
 
-		if (Data0 > mWindow->GetScreenSize().mHeight + 3)
-			Data0 = mWindow->GetScreenSize().mHeight + 3;
+		if (Data0 > (int16) mWindow->GetScreenSize().mHeight + 3)
+			Data0 = (int16) mWindow->GetScreenSize().mHeight + 3;
 	}
 
 	mMouseY = Data0;
@@ -3156,39 +3152,59 @@ void cFodder::WindowTitleSet( bool pInMission ) {
 	mWindow->SetWindowTitle( Title.str() );
 }
 
+void cFodder::VersionCleanup() {
+	delete mGraphics;
+	delete mResources;
+	delete mSound;
+
+	mGraphics = 0;
+	mResources = 0;
+	mSound = 0;
+}
+
+void cFodder::WindowTitleBaseSetup() {
+
+	mTitle.str( "" );
+	mTitle << "Open Fodder";
+
+	if (mVersion)
+		if (strlen( mVersion->mName ))
+			mTitle << ": " << mVersion->mName;
+
+	WindowTitleSet(false);
+}
+
 /**
  * This function loads a new version of the game, and is generally called on startup,
  * or AFTER a button on the version select screen is pushed
  *
  */
 void cFodder::VersionLoad( const sVersion* pVersion ) {
-	mTitle.str( "" );
-	mTitle << "Open Fodder";
-	if (mVersion || mVersions.size() == 1 )
-		if (strlen( pVersion->mName ))
-			mTitle << ": " << pVersion->mName;
-	
+
+	auto DataPath = pVersion->mDataPath;
+
+	// Custom version?
+	if (pVersion->mVersion == eVersion::Custom) {
+		auto RetailRelease =
+			std::find_if( mVersions.begin(), mVersions.end(),
+						  []( const sVersion* a )->bool { return a->mRelease == eRelease::Retail; } );
+
+		// If we a retail release is found, we use its data path
+		if (RetailRelease != mVersions.end())
+			DataPath = (*RetailRelease)->mDataPath;
+		else {
+			std::cout << "Retail release not found";
+			return;
+		}
+	}
+
 	mVersion = pVersion;
 
-	mWindow->SetWindowTitle( mTitle.str() );
+	WindowTitleBaseSetup();
 
 	Image_FadeOut();
 
-	delete mGraphics;
-	delete mResources;
-	delete mSound;
-
-
-	auto DataPath = mVersion->mDataPath;
-
-	if (mVersion->mVersion == eVersion::Custom) {
-		auto RetailRelease =
-			std::find_if( mVersions.begin(), mVersions.end(), []( const sVersion* a )->bool { return a->mRelease == eRelease::Retail; });
-
-
-		DataPath = (*RetailRelease)->mDataPath;
-	}
-
+	VersionCleanup();
 
 	switch (mVersion->mPlatform) {
 		case ePlatform::PC:
@@ -3221,6 +3237,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 		
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	mGraphics->LoadpStuff();
+
 	map_Load_Resources();
 	mGraphics->graphicsBlkPtrsPrepare();
 	mGraphics->PaletteSet();
@@ -4191,6 +4208,7 @@ void cFodder::sub_15B98(  uint8* pDsSi, int16 pCx ) {
 
 void cFodder::sub_15CE8(  uint8* pDs, int16 pCx ) {
 	//todo
+	assert( 1 == 0 );
 }
 
 void cFodder::Briefing_Intro() {
@@ -4349,15 +4367,15 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 
 void cFodder::CopyProtection() {
 
+	// Only DOS CD had copy protection
 	if (mVersion->mVersion != eVersion::Dos_CD)
 		return;
 
 	g_Graphics.Load_Hill_Bits();
 	g_Graphics.SetSpritePtr( eSpriteType::eSPRITE_HILL );
 
-	int16 CopyProtectionAttempts = 0;
-
-	for (; CopyProtectionAttempts < 3; ++CopyProtectionAttempts) {
+	// 3 Attempts
+	for (int16 Attempts = 0; Attempts < 3; ++Attempts) {
 		sub_136D0();
 
 		int16 Data0;
@@ -4368,7 +4386,7 @@ void cFodder::CopyProtection() {
 		mImage->clearBuffer();
 		mGraphics->PaletteSet();
 
-		const sCopyProtection* word_44A1C = &mCopyProtection_Values[8];
+		const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
 
 		std::string Page = "PAGE " + tool_NumToString( word_44A1C->mPage );
 		std::string Paragraph = "PARAGRAPH " + tool_NumToString( word_44A1C->mParagraph );
@@ -18699,7 +18717,7 @@ void cFodder::Hero_Add( sSquad_Member* pSquadMember ) {
 	} while (++Data4 < 4);
 
 	//seg005:0EDD
-	mHeroes[X + 1].mRecruitID = pSquadMember->mRecruitID;
+	mHeroes[X + 1].mRecruitID = (int8) pSquadMember->mRecruitID;
 	mHeroes[X + 1].mRank = pSquadMember->mRank;
 	mHeroes[X + 1].mKills = pSquadMember->mNumberOfKills;
 }
@@ -20414,22 +20432,6 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 	word_39096 = -1;
 
 	mGraphics->LoadpStuff();
-}
-
-void cFodder::ExtractData() {
-	
-	std::vector< cResource_File >* Files = ((cResource_PC_CD*)mResources)->filesGet();
-	for (std::vector< cResource_File >::iterator FileIT = Files->begin(); FileIT != Files->end(); ++FileIT) {
-		size_t size;
-
-		uint8* FileData = mResources->fileGet( FileIT->mName, size );
-		std::string Filename = local_PathGenerate( FileIT->mName, "ExtractedData", true );
-	
-		std::ofstream outfile (Filename,std::ofstream::binary);
-		outfile.write ((const char*) FileData, size );
-		outfile.close();
-	}
-
 }
 
 void cFodder::Start( int16 pStartMap ) {
