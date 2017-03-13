@@ -10,6 +10,12 @@
     <Filter Include="Source\PC">
       <UniqueIdentifier>{dacbcc4e-e2ff-4c41-a759-8e3deffe95a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{3a854324-9aaa-4704-877a-c7fc828c588e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\MissionData">
+      <UniqueIdentifier>{516109fc-c979-4fd3-b1c2-4e2499262ad1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -117,6 +123,15 @@
     <ClInclude Include="..\..\Source\PC\Sound_PC2.hpp">
       <Filter>Source\PC</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Tiles.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\CopyProtection.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\json.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -199,6 +214,24 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\PC\Sound_PC2.cpp">
       <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Tiles.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\CopyProtection.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Custom.cpp">
+      <Filter>Source\MissionData</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Demo.cpp">
+      <Filter>Source\MissionData</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Retail.cpp">
+      <Filter>Source\MissionData</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Retail2.cpp">
+      <Filter>Source\MissionData</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
