@@ -398,7 +398,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABFD;
 	int16			word_3ABFF[9];
 	int16*			dword_3AC11;
-	int16			word_3AC19;
+	int16			mString_GapCharID;		// Replace spaces in strings with this id
 	int16			mGUI_Loop_Squad_Current;
 	int16			word_3AC1D;
 	int16			mGUI_Squad_Current;
