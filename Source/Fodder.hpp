@@ -399,6 +399,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABFF[9];
 	int16*			dword_3AC11;
 	int16			mString_GapCharID;		// Replace spaces in strings with this id
+
 	int16			mGUI_Loop_Squad_Current;
 	int16			word_3AC1D;
 	int16			mGUI_Squad_Current;
@@ -423,10 +424,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMap_Destroy_Tile_X;
 	int16			mMap_Destroy_Tile_Y;
 	int16			word_3AF07;
-	sMapPosition		mMap_Destroy_Tiles[128];
+	sMapPosition	mMap_Destroy_Tiles[128];
 
-	sMapPosition*		mMap_Destroy_TilesPtr2;
-	sMapPosition*		mMap_Destroy_TilesPtr;
+	sMapPosition*	mMap_Destroy_TilesPtr2;
+	sMapPosition*	mMap_Destroy_TilesPtr;
 	int16			word_3B15D;
 	int16			word_3B15F;
 	int16			word_3B161;
