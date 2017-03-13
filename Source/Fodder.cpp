@@ -768,7 +768,7 @@ void cFodder::Mission_Memory_Clear() {
 
 	dword_3AC11 = 0;
 
-	word_3AC19 = 0;
+	mString_GapCharID = 0;
 	mGUI_Loop_Squad_Current = 0;
 	word_3AC1D = 0;
 	mGUI_Squad_Current = 0;
@@ -3027,11 +3027,11 @@ void cFodder::VersionSelect() {
 	uint16 Pos = 0x1;
 	int Count = 0;
 
-	word_3AC19 = 0x25;
+	mString_GapCharID = 0x25;
 	String_Print_Large( "OPEN FODDER", true, Pos );
 	String_Print_Large( "SELECT A GAME", false, 0x1A );
 
-	word_3AC19 = 0;
+	mString_GapCharID = 0;
 
 	Pos += 0x40;
 	for (const auto Version : mVersions) {
@@ -3357,10 +3357,10 @@ void cFodder::Mission_Paused() {
 
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	
-	word_3AC19 = 0x25;
+	mString_GapCharID = 0x25;
 	String_Print_Large( "GAME PAUSED", true, 0x54 );
 	
-	word_3AC19 = 0;
+	mString_GapCharID = 0;
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 }
 
@@ -4318,7 +4318,7 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 	{
 		std::stringstream Mission;
 		Mission << "MISSION ";
-		word_3AC19 = 0x25;
+		mString_GapCharID = 0x25;
 		Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
 
 		String_Print_Large( Mission.str(), true, 0 );
@@ -11722,12 +11722,12 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pD
 
 		int16 Data10 = Data4;
 
-		if (word_3AC19) {
+		if (mString_GapCharID) {
 
 			if (Data4 == 0x20)
 				goto loc_18229;
 
-			Data4 = word_3AC19;
+			Data4 = mString_GapCharID;
 			goto loc_18259;
 		}
 		//loc_18222
@@ -12052,14 +12052,14 @@ void cFodder::Briefing_Show( ) {
 	const char* Str_Phase = "PHASE ";
 	const char* Str_Of = " OF ";
 
-	word_3AC19 = 0x25;
+	mString_GapCharID = 0x25;
 
 	String_Print_Large( Str_Brief, true, 0x4E );
 	
 	Briefing_DrawBox( 1, 0x49, 0x13E, 0x6B, 0xF3 );
 	Briefing_DrawBox( 0, 0x48, 0x13E, 0x6B, 0xF2 );
 	
-	word_3AC19 = 0;
+	mString_GapCharID = 0;
 
 	std::stringstream Phase;
 
@@ -17970,9 +17970,9 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 			if (!(NextChar & 0x80)) {
 
 				//01AB
-				if (word_3AC19) {
+				if (mString_GapCharID) {
 					if (NextChar == 0x20) {
-						NextChar = (uint8) word_3AC19;
+						NextChar = (uint8) mString_GapCharID;
 						goto loc_29D71;
 					}
 				} else {
