@@ -4540,7 +4540,7 @@ bool cFodder::Custom_ShowMenu() {
 			String_Print_Large( "OPEN FODDER", true, 0x01 );
 			String_Print_Large( "SELECT CUSTOM", false, 0x1A );
 
-			Pos += 0x1A;
+			Pos += (0x1A * 3);
 
 			// Maps Button
 			{
@@ -21530,14 +21530,9 @@ void cFodder::GUI_Sidebar_Number_Draw( int16 pData0, int16 pData4, int16 pData8,
 	std::stringstream Tmp;
 	Tmp << tool_StripLeadingZero( tool_NumToString( pData0 ) );
 
-	String_CalculateWidth( pData8, mFont_Sidebar_Width, Tmp.str().c_str() );
-	
-	pData8 = mGUI_Temp_X + word_3AC23;
-	int16 Data0 = Data10_Saved;
+	String_CalculateWidth( pData8, mFont_Sidebar_Width, Tmp.str() );
 	word_3AC21 = -1;
-	pDataC = word_3AC27;
-
-	String_Print(  mFont_Sidebar_Width, Data0, pData8, pDataC, Tmp.str().c_str() );
+	String_Print(  mFont_Sidebar_Width, Data10_Saved, mGUI_Temp_X + word_3AC23, word_3AC27, Tmp.str() );
 	
 	word_3AC21 = 0;
 }
