@@ -76,13 +76,13 @@ void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
 			mCurrentMusic->readBuffer( pBuffer, pBufferSize / 2 );
 
 		if (mCurrentSfx.size()) {
-			for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end(); ++SfxIT) {
+			for ( auto SfxIT : mCurrentSfx) {
 
-				if (!(*SfxIT)->endOfStream())
-					(*SfxIT)->readBuffer( pBuffer, pBufferSize / 2 );
+				if (!SfxIT->endOfStream())
+					SfxIT->readBuffer( pBuffer, pBufferSize / 2 );
 			}
 
-			for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end();) {
+			for ( auto SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end();) {
 
 				if ((*SfxIT)->endOfStream()) {
 					delete (*SfxIT);
@@ -212,9 +212,9 @@ void cSound_Amiga::Sound_Stop() {
 	
 	if (SDL_LockMutex( mLock ) == 0) {
 
-		for (std::vector<Audio::AudioStream*>::iterator SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end(); ++SfxIT) {
+		for (auto SfxIT : mCurrentSfx) {
 
-			delete (*SfxIT);
+			delete SfxIT;
 		}
 
 		mCurrentSfx.clear();

@@ -1352,15 +1352,15 @@ public:
 	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
 
 	bool			EventAdd( cEvent pEvent );
-	void			MixerChannelFinished( int32 pChannel );
 	void			Prepare();
 
-	void			ExtractData();
 	virtual void	Start( int16 pStartMap );
 	void			Exit( unsigned int pExitCode );
 
 	void			WindowTitleSet( bool pInMission );
-    
+	void			WindowTitleBaseSetup();
+
+	void			VersionCleanup();
 	void			VersionLoad( const sVersion* pVersion );
 	void			VersionSelect();
 	void			VersionSelect_0();

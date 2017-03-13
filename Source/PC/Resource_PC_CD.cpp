@@ -141,6 +141,22 @@ bool cResource_PC_CD::headerLoad() {
 	return true;
 }
 
+void cResource_PC_CD::ExtractFiles() {
+
+	for (auto File : mFiles) {
+		size_t size;
+
+		uint8* FileData = fileGet( File.mName, size );
+		std::string Filename = local_PathGenerate( File.mName, "ExtractedData", true );
+
+		std::ofstream outfile( Filename, std::ofstream::binary );
+		outfile.write( (const char*)FileData, size );
+		outfile.close();
+
+		delete[] FileData;
+	}
+}
+
 uint8* cResource_PC_CD::fileGet( std::string pFilename, size_t &pFileSize ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
