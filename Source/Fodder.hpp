@@ -1351,6 +1351,9 @@ public:
 
 	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
 
+	void			String_Print_Small( std::string pText, const uint16 pY );
+	void			String_Print_Large( std::string pText, const bool pOverAndUnderLine, const uint16 pY );
+
 	bool			EventAdd( cEvent pEvent );
 	void			Prepare();
 

@@ -25,6 +25,9 @@
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
+#define ButtonToMouseVersion(x) case x: { Buttons[x].mMouseInsideFuncPtr = &cFodder::VersionSelect_##x; break; }
+
+
 cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
@@ -3021,29 +3024,20 @@ void cFodder::VersionSelect() {
 	mWindow->SetScreenSize( cDimension( 320, 200 ) );
 
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
-	int16 Pos = 0x1;
+	uint16 Pos = 0x1;
 	int Count = 0;
 
-	std::string Name = "OPEN FODDER";
-
 	word_3AC19 = 0x25;
-	String_CalculateWidth( 320, mFont_Underlined_Width, Name );
-	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, Pos , Name );
-
-	Name = "SELECT A GAME";
-
-	String_CalculateWidth( 320, mFont_Underlined_Width, Name );
-	String_Print( mFont_Underlined_Width, 3, mGUI_Temp_X, 0x1A , Name );
+	String_Print_Large( "OPEN FODDER", true, Pos );
+	String_Print_Large( "SELECT A GAME", false, 0x1A );
 
 	word_3AC19 = 0;
 
 	Pos += 0x40;
-	for (std::vector<const sVersion*>::const_iterator VersionIT = mVersions.begin(); VersionIT != mVersions.end(); ++VersionIT) {
-		std::string Name = (*VersionIT)->mName;
-		std::transform(Name.begin(), Name.end(),Name.begin(), ::toupper);
+	for (const auto Version : mVersions) {
 
-		String_CalculateWidth( 320, mFont_Briefing_Width, Name );
-		String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos , Name );
+		// Draw name
+		String_Print_Small( Version->mName, Pos );
 
 		Buttons[Count].field_0 = &cFodder::GUI_Button_NoAction;
 		Buttons[Count].mX = mGUI_Temp_X - 6;
@@ -3052,26 +3046,13 @@ void cFodder::VersionSelect() {
 		Buttons[Count].mHeight = 5;
 
 		switch (Count) {
-			case 0:
-				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_0;
-				break;
-
-			case 1:
-				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_1;
-				break;
-
-			case 2:
-				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_2;
-				break;
-
-			case 3:
-				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_3;
-				break;
-
-			case 4:
-				Buttons[Count].mMouseInsideFuncPtr = &cFodder::VersionSelect_4;
-				break;
+			ButtonToMouseVersion(0)
+			ButtonToMouseVersion(1)
+			ButtonToMouseVersion(2)
+			ButtonToMouseVersion(3)
+			ButtonToMouseVersion(4)
 		}
+
 		Pos += 30;
 		++Count;
 	}
@@ -3369,8 +3350,6 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
 }
 
 void cFodder::Mission_Paused() {
-	const char *PausedStr = "GAME PAUSED";
-
 	mGraphics->PaletteSet();
 	mImage->paletteFadeOut();
 	mImage->paletteFade();
@@ -3379,9 +3358,8 @@ void cFodder::Mission_Paused() {
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
 	
 	word_3AC19 = 0x25;
-	String_CalculateWidth( 0x170, mFont_Underlined_Width, PausedStr );
-	String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, 0x54, PausedStr );
-
+	String_Print_Large( "GAME PAUSED", true, 0x54 );
+	
 	word_3AC19 = 0;
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 }
@@ -4342,8 +4320,8 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 		Mission << "MISSION ";
 		word_3AC19 = 0x25;
 		Mission << tool_StripLeadingZero( tool_NumToString( mMissionNumber ) );
-		String_CalculateWidth( 0x140, mFont_Underlined_Width, Mission.str().c_str() );
-		String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, 0, Mission.str().c_str() );
+
+		String_Print_Large( Mission.str(), true, 0 );
 	}
 
 	// Draw Mission Name, or Map 
@@ -4360,8 +4338,7 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 			Title = mVersion->mMissionData->getMapName(mMapNumber);
 		}
 
-		String_CalculateWidth( 0x140, mFont_Underlined_Width, Title );
-		String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, pDrawAtY, Title );
+		String_Print_Large( Title, true, pDrawAtY );
 	}
 }
 
@@ -4560,26 +4537,14 @@ bool cFodder::Custom_ShowMenu() {
 
 			int16 Pos = 0x1;
 
-			std::string Name = "OPEN FODDER";
+			String_Print_Large( "OPEN FODDER", true, 0x01 );
+			String_Print_Large( "SELECT CUSTOM", false, 0x1A );
 
-			word_3AC19 = 0x25;
-			String_CalculateWidth( 320, mFont_Underlined_Width, Name );
-			String_Print( mFont_Underlined_Width, 1, mGUI_Temp_X, Pos, Name );
-
-			Name = "SELECT CUSTOM";
-
-			String_CalculateWidth( 320, mFont_Underlined_Width, Name );
-			String_Print( mFont_Underlined_Width, 3, mGUI_Temp_X, 0x1A, Name );
-
-			word_3AC19 = 0;
-
-			Pos += 0x50;
+			Pos += 0x1A;
 
 			// Maps Button
 			{
-				std::string Name = "SINGLE MAP";
-				String_CalculateWidth( 320, mFont_Briefing_Width, Name );
-				String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos, Name );
+				String_Print_Small( "SINGLE MAP", Pos );
 
 				Buttons[0].field_0 = &cFodder::GUI_Button_NoAction;
 				Buttons[0].mX = mGUI_Temp_X - 6;
@@ -4593,9 +4558,7 @@ bool cFodder::Custom_ShowMenu() {
 
 			// Missions Button
 			{
-				Name = "MISSIONS";
-				String_CalculateWidth( 320, mFont_Briefing_Width, Name );
-				String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, Pos, Name );
+				String_Print_Small( "MISSION SET", Pos );
 
 				Buttons[1].field_0 = &cFodder::GUI_Button_NoAction;
 				Buttons[1].mX = mGUI_Temp_X - 6;
@@ -12091,8 +12054,7 @@ void cFodder::Briefing_Show( ) {
 
 	word_3AC19 = 0x25;
 
-	String_CalculateWidth( 320, mFont_Underlined_Width, Str_Brief );
-	String_Print( mFont_Underlined_Width, 0x03, mGUI_Temp_X, 0x4E, Str_Brief );
+	String_Print_Large( Str_Brief, true, 0x4E );
 	
 	Briefing_DrawBox( 1, 0x49, 0x13E, 0x6B, 0xF3 );
 	Briefing_DrawBox( 0, 0x48, 0x13E, 0x6B, 0xF2 );
@@ -12104,8 +12066,7 @@ void cFodder::Briefing_Show( ) {
 	Phase << Str_Phase	<< tool_StripLeadingZero( tool_NumToString( mMissionPhase + 1 ) );
 	Phase << Str_Of		<< tool_StripLeadingZero( tool_NumToString( mMissionPhases ));
 
-	String_CalculateWidth( 320, mFont_Briefing_Width, Phase.str().c_str() );
-	String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, 0x1D, Phase.str().c_str() );
+	String_Print_Small( Phase.str(), 0x1D );
 	
 	Mission_Phase_Goals_Set();
 
@@ -12115,8 +12076,7 @@ void cFodder::Briefing_Show( ) {
 	for (const auto GoalName : mMissionGoal_Titles) {
 		if (*Goals++) {
 
-			String_CalculateWidth( 0x140, mFont_Briefing_Width, GoalName );
-			String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, DataC - 0x12, GoalName );
+			String_Print_Small( GoalName, DataC - 0x12 );
 			DataC += 0x0C;
 		}
 	}
@@ -12179,8 +12139,7 @@ void cFodder::Briefing_Draw_With( ) {
 		With << " SOLDIERS YOU MUST";
 	}
 
-	String_CalculateWidth( 0x140, mFont_Briefing_Width, With.str().c_str() );
-	String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, 0x64, With.str().c_str() );
+	String_Print_Small( With.str(), 0x64 );
 	With.str("");
 
 	if (!mSquad_AliveCount) {
@@ -12194,11 +12153,8 @@ void cFodder::Briefing_Draw_With( ) {
 			With << " RECRUITS REMAINING";
 	}
 
-	String_CalculateWidth( 0x140, mFont_Briefing_Width, With.str().c_str() );
-	String_Print(  mFont_Briefing_Width, 0, mGUI_Temp_X, 0xA8, With.str().c_str() );
-	
-	String_CalculateWidth( 0x140, mFont_Underlined_Width, "GO FOR IT" );
-	String_Print(  mFont_Underlined_Width, 3, mGUI_Temp_X, 0xB8, "GO FOR IT" );
+	String_Print_Small( With.str(), 0xA8 );
+	String_Print_Large( "GO FOR IT", false, 0xB8 );
 }
 
 void cFodder::Briefing_DrawBox( int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor ) {
@@ -17963,6 +17919,20 @@ loc_2035C:;
 
 	pSprite->field_40 = pData4;
 	pSprite->field_4C = -1;
+}
+
+void cFodder::String_Print_Small( std::string pText, const uint16 pY ) {
+	std::transform( pText.begin(), pText.end(), pText.begin(), ::toupper );
+
+	String_CalculateWidth( 320, mFont_Briefing_Width, pText );
+	String_Print( mFont_Briefing_Width, 0, mGUI_Temp_X, pY, pText );
+}
+
+void cFodder::String_Print_Large( std::string pText, const bool pOverAndUnderLine, const uint16 pY ) {
+	std::transform( pText.begin(), pText.end(), pText.begin(), ::toupper );
+
+	String_CalculateWidth( 320, mFont_Underlined_Width, pText );
+	String_Print( mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, mGUI_Temp_X, pY, pText );
 }
 
 void cFodder::String_Print( const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const std::string& pText ) {
