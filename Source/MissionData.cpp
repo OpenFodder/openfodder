@@ -42,7 +42,11 @@ const std::vector<std::string> mMissionGoal_Titles = {
 /** 
  *
  */
-cMissionData::cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< size_t >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression ) {
+cMissionData::cMissionData( const std::vector<std::string>	&pMissionNames, 
+							const std::vector<std::string>	&pMissionPhaseNames, 
+							const std::vector<size_t>		&pMissionPhases, 
+							const std::vector<std::vector<eMissionGoals> > &pMapGoals, 
+							const std::vector<sAggression> &pEnemyAggression ) {
 
 	mMissionNames = pMissionNames;
 	mMissionPhases = pMissionPhases;
