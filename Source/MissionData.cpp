@@ -93,10 +93,13 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 	std::ifstream MissionSetFile( local_PathGenerate( pMissionSet, "", true ), std::ios::binary );
 	if (MissionSetFile.is_open()) {
 		Json MissionSet = Json::parse( MissionSetFile );
-
+#if (defined(_MSC_VER) && _MSC_VER >= 1900) || !defined(_MSC_VER)
 		mCustomMission.mAuthor = MissionSet["Author"];
 		mCustomMission.mName = MissionSet["Name"];
-
+#else
+		mCustomMission.mAuthor = (std::string)MissionSet["Author"];
+		mCustomMission.mName = (std::string)MissionSet["Name"];
+#endif
 		std::string MapPath = "Custom/Sets/";
 
 		MapPath.append( mCustomMission.mName );
@@ -117,7 +120,11 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 				std::vector<eMissionGoals> Goals;
 				std::string MapFile = MapPath;
 				std::string MapName = Phase["MapName"];
+#if (defined(_MSC_VER) && _MSC_VER >= 1900) || !defined(_MSC_VER)
 				Name = Phase["Name"];
+#else
+				Name = (std::string)Phase["Name"];
+#endif
 
 				transform( Name.begin(), Name.end(), Name.begin(), toupper );
 				MapFile.append( MapName );
