@@ -104,7 +104,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mCamera_Pan_RowCount = 0;
 
 	mMouseSpriteCurrent = 0;
-	word_40048 = 0;
+	mService_ExitLoop = 0;
 	word_40054 = 0;
 	mDrawSpriteFrameDataPtr = 0;
 	word_42066 = 0;
@@ -140,10 +140,10 @@ cFodder::cFodder( bool pSkipIntro ) {
 	byte_427E6 = 0;
 	byte_427EE = 0;
 
-	word_44A2E = 0;
-	word_44A30 = 0;
-	word_44A32 = 0;
-	word_44A34 = 0;
+	mRandom_0 = 0;
+	mRandom_1 = 0;
+	mRandom_2 = 0;
+	mRandom_3 = 0;
 	byte_44AC0 = 0;
 
 	for (unsigned int x = 0; x < 30; ++x) {
@@ -906,7 +906,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3B4D3 = 0;
 	word_3B4D5 = 0;
 	word_3B4D7 = 0;
-	word_3B4D9 = 0;
+	mGUI_Sidebar_MapButton_Prepared = 0;
 	mMission_ShowMapOverview = 0;
 	word_3B4DD = 0;
 	word_3B4DF = 0;
@@ -8792,17 +8792,17 @@ void cFodder::tool_RandomSeed() {
 #ifdef _WIN32
 	delete ltm;
 #endif
-	word_44A30 = -ax;
-	word_44A2E = ax;
-	word_44A32 = 1;
-	word_44A34 = 0;
+	mRandom_1 = -ax;
+	mRandom_0 = ax;
+	mRandom_2 = 1;
+	mRandom_3 = 0;
 }
 
 int16 cFodder::tool_RandomGet() {
-	int16 Data0 = word_44A2E;
-	int16 Data2 = word_44A30;
-	int16 Data4 = word_44A32;
-	int16 Data6 = word_44A34;
+	int16 Data0 = mRandom_0;
+	int16 Data2 = mRandom_1;
+	int16 Data4 = mRandom_2;
+	int16 Data6 = mRandom_3;
 	
 	uint32 Dat4 = Data4 | (Data6 << 16);
 	//seg007:053F
@@ -8847,10 +8847,10 @@ int16 cFodder::tool_RandomGet() {
 	Data8 >>= 4;
 	Data0 ^= Data8;
 
-	word_44A2E = Data0;
-	word_44A30 = Data2;
-	word_44A32 = Data4;
-	word_44A34 = Data6;
+	mRandom_0 = Data0;
+	mRandom_1 = Data2;
+	mRandom_2 = Data4;
+	mRandom_3 = Data6;
 
 	Data2 = 0;
 	return Data0;
@@ -8858,7 +8858,7 @@ int16 cFodder::tool_RandomGet() {
 
 void cFodder::GUI_Sidebar_MapButton_Render() {
 
-	if (word_3B4D9)
+	if (mGUI_Sidebar_MapButton_Prepared)
 		return;
 
 	sGUI_Element* Element = mGUI_NextFreeElement;
@@ -8879,7 +8879,7 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
 	++Element;
 
 	GUI_ClearElement( Element );
-	word_3B4D9 = -1;
+	mGUI_Sidebar_MapButton_Prepared = -1;
 
 }
 
@@ -11452,7 +11452,7 @@ void cFodder::Service_KIA_Loop() {
 
 	mImageFaded = -1;
 	mMouse_Exit_Loop = 0;
-	word_40048 = 0;
+	mService_ExitLoop = 0;
 	mGraphics->PaletteSet();
 	mImage->Save();
 
@@ -11463,7 +11463,7 @@ void cFodder::Service_KIA_Loop() {
 			mMouse_Exit_Loop = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
-			word_40048 = 1;
+			mService_ExitLoop = 1;
 		}
 
 		if (mImageFaded == -1)
@@ -11478,7 +11478,7 @@ void cFodder::Service_KIA_Loop() {
 		g_Window.FrameEnd();
 		mImage->Restore();
 
-	} while (mImageFaded == -1 || word_40048 == 0);
+	} while (mImageFaded == -1 || mService_ExitLoop == 0);
 }
 
 void cFodder::Service_Promotion_Loop() {
@@ -11503,7 +11503,7 @@ void cFodder::Service_Promotion_Loop() {
 	}
 
 	mImageFaded = -1;
-	word_40048 = 0;
+	mService_ExitLoop = 0;
 	mMouse_Exit_Loop = 0;
 	mGraphics->PaletteSet();
 	mImage->Save();
@@ -11515,7 +11515,7 @@ void cFodder::Service_Promotion_Loop() {
 			mMouse_Exit_Loop = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
-			word_40048 = 1;
+			mService_ExitLoop = 1;
 		}
 
 		if (mImageFaded == -1)
@@ -11531,7 +11531,7 @@ void cFodder::Service_Promotion_Loop() {
 		g_Window.FrameEnd();
 		mImage->Restore();
 
-	} while (mImageFaded == -1 || word_40048 == 0);
+	} while (mImageFaded == -1 || mService_ExitLoop == 0);
 
 loc_18001:;
 	
@@ -21516,7 +21516,7 @@ void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
 	if (mVersion->mRelease == eRelease::Demo && mVersion->mVersion != eVersion::Custom)
 		return;
 
-	word_3B4D9 = 0;
+	mGUI_Sidebar_MapButton_Prepared = 0;
 	GUI_Sidebar_MapButton_Render();
 }
 

@@ -46,6 +46,12 @@ enum eGame {
 	CF2 = 1
 };
 
+enum eCustomMode {
+	eCustomMode_None = 0,
+	eCustomMode_Map = 1,
+	eCustomMode_Set = 2
+};
+
 struct sFile {
 	const char* mName;
 	const char* mChecksum;
