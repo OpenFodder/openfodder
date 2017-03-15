@@ -123,6 +123,11 @@ uint8 *local_FileRead( const std::string& pFile, const std::string& pPath, size_
 	return fileBuffer;
 }
 
+/**
+ *
+ * @param pBuffer
+ * @param pSize Number of words
+ */
 void tool_EndianSwap( uint8 *pBuffer, size_t pSize ) {
 	uint8 *pDest = pBuffer;
 	

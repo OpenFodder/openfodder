@@ -1726,20 +1726,20 @@ void cFodder::map_Load_Resources() {
 	mFilenameSubBht = Filename_CreateFromBase( BaseSub, ".bht" );
 	mFilenameBasePal  = Filename_CreateFromBase( BaseBase, ".pal" );
 
-	size_t Size = g_Resource.fileLoadTo( mFilenameBaseSwp, (uint8*) &mMap_Base_Swp[0] );
-	tool_EndianSwap( (uint8*)&mMap_Base_Swp[0], Size );
+	size_t Size = g_Resource.fileLoadTo( mFilenameBaseSwp, (uint8*) &mTile_Destroy_Swap[0] );
+	tool_EndianSwap( (uint8*)&mTile_Destroy_Swap[0], Size );
 	
-	Size = g_Resource.fileLoadTo( mFilenameSubSwp, (uint8*) &mMap_Sub_Swp[0] );
-	tool_EndianSwap( (uint8*)&mMap_Sub_Swp[0], Size );
+	Size = g_Resource.fileLoadTo( mFilenameSubSwp, (uint8*) &mTile_Destroy_Swap[240] );
+	tool_EndianSwap( (uint8*)&mTile_Destroy_Swap[240], Size );
 
-	Size = g_Resource.fileLoadTo( mFilenameBaseHit, (uint8*) &graphicsBaseHit[0] );
-	tool_EndianSwap( (uint8*)&graphicsBaseHit[0], Size );
+	Size = g_Resource.fileLoadTo( mFilenameBaseHit, (uint8*) &mTile_Hit[0] );
+	tool_EndianSwap( (uint8*)&mTile_Hit[0], Size );
 	
-	Size = g_Resource.fileLoadTo( mFilenameSubHit, (uint8*) &graphicsSub0[0] );
-	tool_EndianSwap( (uint8*)&graphicsSub0[0], Size );
+	Size = g_Resource.fileLoadTo( mFilenameSubHit, (uint8*) &mTile_Hit[240] );
+	tool_EndianSwap( (uint8*)&mTile_Hit[240], Size );
 	
-	Size = g_Resource.fileLoadTo( mFilenameBaseBht, (uint8*) &graphicsBaseBht[0] );
-	Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &graphicsSub0Bht[0] );
+	Size = g_Resource.fileLoadTo( mFilenameBaseBht, (uint8*) &mTile_BHit[0] );
+	Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &mTile_BHit[960] );
 
 	mGraphics->map_Load_Resources();
 }
@@ -4606,41 +4606,6 @@ bool cFodder::Custom_ShowMenu() {
 	}
 
 	return static_cast<bool>(!mDemo_ExitMenu);
-}
-
-void cFodder::Image_FadeIn() {
-	mImage->Save();
-	mGraphics->PaletteSet();
-
-	while (mImage->paletteFade() == -1) {
-
-		Mouse_Inputs_Get();
-		Mouse_DrawCursor();
-
-		g_Window.RenderAt( mImage, cPosition() );
-		g_Window.FrameEnd();
-		mImage->Restore();
-	}
-
-	g_Window.RenderAt( mImage, cPosition() );
-	g_Window.FrameEnd();
-}
-
-void cFodder::Image_FadeOut() {
-	mImage->Save();
-	mImage->paletteFadeOut();
-
-	while (mImage->GetFaded() == false) {
-
-		Mouse_Inputs_Get();
-		Mouse_DrawCursor();
-
-		mImage->paletteFade();
-
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->Restore();
-	}
 }
 
 void cFodder::Custom_ShowMissionSetSelection() {
@@ -9211,13 +9176,13 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 	pData0 = word_3A9A6[0];
 	int32 Data4 = word_3A9A6[1];
 
-	uint8* Data20 = &mMap[0x60];
+	uint8* MapTilePtr = &mMap[0x60];
 
 	Data4 *= readLEWord( &mMap[0x54] );
 	Data4 += pData0;
 	Data4 <<= 1;
 
-	Data20 += Data4;
+	MapTilePtr += Data4;
 	//seg007:0B48
 
 	uint8* Data28 = byte_3A8DE;
@@ -9229,8 +9194,8 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 			goto loc_2A6D7;
 		}
 		//loc_2A6A1
-		pData0 = readLEWord( Data20 );
-		pData0 = graphicsBaseHit[pData0];
+		pData0 = readLEWord( MapTilePtr );
+		pData0 = mTile_Hit[pData0];
 		if (pData0 >= 0) {
 			pData0 &= 0x0F;
 
@@ -9256,12 +9221,12 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 		if (readLEWord( Data28 ) == 0)
 			goto loc_2A728;
 
-		Data20 += pData0;
+		MapTilePtr += pData0;
 		pData0 = readLEWord( Data28 );
 		Data28 += 2;
 
 	loc_2A728:;
-		Data20 += pData0;
+		MapTilePtr += pData0;
 
 	}
 }
@@ -9361,7 +9326,7 @@ int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pDa
 
 	Data0 = readLEWord( &mMap[0x60 + Data0]) & 0x1FF;
 
-	Data4 = graphicsBaseHit[Data0];
+	Data4 = mTile_Hit[Data0];
 
 	if (Data4 < 0) {
 		//loc_2A8D9
@@ -9375,7 +9340,7 @@ int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pDa
 		pData14 &= 0x07;
 
 		Data0 <<= 3;
-		uint8* Data28 = (uint8*) graphicsBaseBht;
+		uint8* Data28 = (uint8*) mTile_BHit;
 		pData14 += Data0;
 
 		uint8 al = 1 << Data8;
@@ -9719,7 +9684,7 @@ int16 cFodder::Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, i
 	int16 Data0 = readLEWord( &mMap[0x60 + DataC] );
 	Data0 &= 0xFF;
 
-	int16 Data4 = graphicsBaseHit[Data0];
+	int16 Data4 = mTile_Hit[Data0];
 
 	if (Data4 >= 0) {
 		Data4 &= 0x0F;
@@ -10527,9 +10492,9 @@ void cFodder::Sprite_Handle_Explosion_MapTiles( sSprite* pSprite ) {
 
 void cFodder::Map_Destroy_Tiles( ) {
 	int16* Data20 = 0; 
-	uint8* Data24 = 0;
+	uint8* MapPtr = 0;
 	const int16* IndestructibleTypes = 0;
-	int32 Data0, Data4, Data10, TileType;
+	int32 Data0, Data4, MapTile, TileType;
 
 	if (word_3AF07) {
 		--word_3AF07;
@@ -10565,13 +10530,13 @@ loc_2DE3C:;
     if (0x60 + Data4 > mMapSize)
         return;
 
-	Data24 = &mMap[0x60 + Data4];
+	MapPtr = &mMap[0x60 + Data4];
 
-	Data10 = readLEWord( Data24 );
-	Data10 &= 0x1FF;
-	TileType = Data10;
+	MapTile = readLEWord( MapPtr );
+	MapTile &= 0x1FF;
+	TileType = MapTile;
 
-	Data4 = mMap_Base_Swp[Data10];
+	Data4 = mTile_Destroy_Swap[MapTile];
 	if (Data4 < 0)
 		goto loc_2DF55;
 
@@ -10605,7 +10570,7 @@ loc_2DF7B:;
 		return;
 
 	word_3AF07 = 1;
-	writeLEWord( Data24, Data4 );
+	writeLEWord( MapPtr, Data4 );
 	word_3AF01 = Data4;
 	Map_Destroy_Tiles_Next();
 
@@ -12186,16 +12151,6 @@ void cFodder::Briefing_Draw_Horizontal_Line( int16 pX, int16 pWidth, int16 pY, u
 		Briefing_Draw_Pixel( pX, pY, pColor );
 		++pX;
 	} while (pX <= pWidth);
-}
-
-void cFodder::Intro_Print_String( int32 pPosY,  const sIntroString* pString ) {
-
-	if (mVersion->mPlatform == ePlatform::PC)
-		pPosY -= 0x19;
-	else
-		pPosY += 0x9;
-	String_CalculateWidth( 320, mFont_Intro_Width, pString->mText );
-	String_Print(  mFont_Intro_Width, 0, mGUI_Temp_X, pPosY, pString->mText );
 }
 
 void cFodder::Briefing_Draw_Vertical_Line(  int16 pX, int16 pHeight, int16 pY, uint8 pColor ) {
@@ -18442,6 +18397,51 @@ int16 cFodder::introPlayText() {
 	}
 
 	return word_3B4F3;
+}
+
+void cFodder::Intro_Print_String( int32 pPosY, const sIntroString* pString ) {
+
+	if (mVersion->mPlatform == ePlatform::PC)
+		pPosY -= 0x19;
+	else
+		pPosY += 0x9;
+	String_CalculateWidth( 320, mFont_Intro_Width, pString->mText );
+	String_Print( mFont_Intro_Width, 0, mGUI_Temp_X, pPosY, pString->mText );
+}
+
+void cFodder::Image_FadeIn() {
+	mImage->Save();
+	mGraphics->PaletteSet();
+
+	while (mImage->paletteFade() == -1) {
+
+		Mouse_Inputs_Get();
+		//Mouse_DrawCursor();
+
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+		mImage->Restore();
+	}
+
+	g_Window.RenderAt( mImage, cPosition() );
+	g_Window.FrameEnd();
+}
+
+void cFodder::Image_FadeOut() {
+	mImage->Save();
+	mImage->paletteFadeOut();
+
+	while (mImage->GetFaded() == false) {
+
+		Mouse_Inputs_Get();
+		//Mouse_DrawCursor();
+
+		mImage->paletteFade();
+
+		g_Window.RenderAt( mImage );
+		g_Window.FrameEnd();
+		mImage->Restore();
+	}
 }
 
 void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {

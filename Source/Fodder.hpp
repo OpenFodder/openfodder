@@ -561,12 +561,9 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint16			mIntroDone;
 
-	int16			graphicsBaseHit[240];
-	int16			graphicsSub0[160];
-	int16			graphicsBaseBht[960];
-	int16			graphicsSub0Bht[640];
-	int16			mMap_Base_Swp[240];
-	int16			mMap_Sub_Swp[161];
+	int16			mTile_Hit[400];
+	int16			mTile_BHit[1600];
+	int16			mTile_Destroy_Swap[400];
 
 	int16			word_3D465;
 	int16			word_3D467;
