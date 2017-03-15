@@ -119,14 +119,11 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 				std::vector<eMissionGoals> Goals;
 				std::string MapFile = MapPath;
 				std::string MapName = Phase["MapName"];
-				
-				
-				Name = Phase["Name"];
-				
-				
-				transform( Name.begin(), Name.end(), Name.begin(), toupper );
-				MapFile.append( MapName );
 
+				Name = Phase["Name"];
+				transform( Name.begin(), Name.end(), Name.begin(), toupper );
+				
+				MapFile.append( MapName );
 				mMapFilenames.push_back( MapFile );
 				mMapNames.push_back( Name );
 
