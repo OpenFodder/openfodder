@@ -506,7 +506,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4D3;
 	int16			word_3B4D5;
 	int16			word_3B4D7;
-	int16			word_3B4D9;
+	int16			mGUI_Sidebar_MapButton_Prepared;
 	int16			mMission_ShowMapOverview;
 	int16			word_3B4DD;
 	int16			word_3B4DF;
@@ -601,7 +601,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			mImageFaded;
 	int16			mMouseSpriteCurrent;
-	int16			word_40048;
+	int16			mService_ExitLoop;
 	uint16			word_40054;
 	uint16			word_40056;
 	uint16			word_40058;
@@ -660,10 +660,10 @@ class cFodder : public cSingleton < cFodder > {
 	int8			byte_427EE;
 	int16			word_44475;
 	int16			word_44A20;
-	int16			word_44A2E;
-	int16			word_44A30;
-	int16			word_44A32;
-	int16			word_44A34;
+	int16			mRandom_0;
+	int16			mRandom_1;
+	int16			mRandom_2;
+	int16			mRandom_3;
 
 	int32			dword_44A36;
 	int32			dword_44A3E;
@@ -675,12 +675,6 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			mDemo_ExitMenu;
 	int16			mCustom_ExitMenu;
-
-	enum eCustomMode {
-		eCustomMode_None = 0,
-		eCustomMode_Map = 1,
-		eCustomMode_Set = 2
-	};
 
 	eCustomMode		mCustom_Mode;
 
