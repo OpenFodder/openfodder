@@ -68,23 +68,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.3\include;D:\Systems\Librarys\SDL2_image-2.0.0\include;D:\Systems\Librarys\SDL2_ttf-2.0.12\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2-2.0.3\lib\x86;D:\Systems\Librarys\SDL2_mixer-2.0.0\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\include;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\lib\x86;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.3\include;D:\Systems\Librarys\SDL2_image-2.0.0\include;D:\Systems\Librarys\SDL2_ttf-2.0.12\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2_image-2.0.0\lib\x64;D:\Systems\Librarys\SDL2-2.0.3\lib\x64;D:\Systems\Librarys\SDL2_ttf-2.0.12\lib\x64;D:\Systems\Librarys\SDL2_mixer-2.0.0\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\include;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\lib\x64;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.3\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2-2.0.3\lib\x86;D:\Systems\Librarys\SDL2_mixer-2.0.0\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\include;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\lib\x86;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.3\include;D:\Systems\Librarys\SDL2_image-2.0.0\include;D:\Systems\Librarys\SDL2_ttf-2.0.12\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2_image-2.0.0\lib\x64;D:\Systems\Librarys\SDL2-2.0.3\lib\x64;D:\Systems\Librarys\SDL2_ttf-2.0.12\lib\x64;D:\Systems\Librarys\SDL2_mixer-2.0.0\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\include;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\lib\x64;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,7 +93,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Robbie\Documents\Visual Studio 2013\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,7 +109,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <AdditionalIncludeDirectories>C:\Users\Robbie\Documents\Visual Studio 2013\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
@@ -127,7 +127,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Robbie\Documents\Visual Studio 2013\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,7 +146,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Robbie\Documents\Visual Studio 2013\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,6 +165,7 @@
     <ClInclude Include="..\..\Source\Amiga\rjp1.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Sound_Amiga.hpp" />
     <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp" />
+    <ClInclude Include="..\..\Source\CopyProtection.hpp" />
     <ClInclude Include="..\..\Source\FontData.hpp" />
     <ClInclude Include="..\..\Source\GUI_Element.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
@@ -188,8 +189,10 @@
     <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\stdafx.hpp" />
     <ClInclude Include="..\..\Source\Surface.hpp" />
+    <ClInclude Include="..\..\Source\Tiles.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
     <ClInclude Include="..\..\Source\UnknownData.hpp" />
+    <ClInclude Include="..\..\Source\Utils\json.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />
   </ItemGroup>
@@ -201,6 +204,7 @@
     <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp" />
     <ClCompile Include="..\..\Source\Amiga\rjp1.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Sound_Amiga.cpp" />
+    <ClCompile Include="..\..\Source\CopyProtection.cpp" />
     <ClCompile Include="..\..\Source\FontData.cpp" />
     <ClCompile Include="..\..\Source\GUI_Element.cpp" />
     <ClCompile Include="..\..\Source\Event.cpp" />
@@ -208,6 +212,10 @@
     <ClCompile Include="..\..\Source\Graphics.cpp" />
     <ClCompile Include="..\..\Source\md5.cpp" />
     <ClCompile Include="..\..\Source\MissionData.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Custom.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Demo.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Retail.cpp" />
+    <ClCompile Include="..\..\Source\MissionData\Retail2.cpp" />
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />
@@ -219,6 +227,7 @@
     <ClCompile Include="..\..\Source\Sprites.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
+    <ClCompile Include="..\..\Source\Tiles.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />
     <ClCompile Include="..\..\Source\Window.cpp" />
   </ItemGroup>
