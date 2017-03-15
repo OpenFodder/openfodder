@@ -21509,7 +21509,8 @@ void cFodder::Squad_Split_Assets() {
 
 void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
 
-	if (mMapNumber == 0x47)
+	// Don't display the map button on the final map
+	if (mVersion->mRelease == eRelease::Retail && mMapNumber == 0x47)
 		return;
 
 	// No the map overview button in the Demo versions
@@ -21538,10 +21539,9 @@ void cFodder::GUI_Sidebar_Number_Draw( int16 pData0, int16 pData4, int16 pData8,
 }
 
 int16 cFodder::Mouse_Button_Left_Toggled() {
-	if (mMouse_Button_Left_Toggle >= 0) {
-		//pData0 = -1;
+	if (mMouse_Button_Left_Toggle >= 0)
 		return -1; 
-	}
+	
 	mMouse_Button_Left_Toggle = 1;
 	return 1;
 }
