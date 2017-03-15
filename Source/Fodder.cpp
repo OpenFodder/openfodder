@@ -18454,7 +18454,7 @@ void cFodder::intro() {
 	// Disabled: GOG CD Version doesn't require a manual check
 	//  CopyProtection();
 
-	word_42851 = 0;
+	mIntroPlayed = 0;
 	sub_136D0();
 
 	word_3B4F3 = 0;
@@ -18480,7 +18480,7 @@ void cFodder::intro() {
 	if (ShowImage_ForDuration( "sensprod", 0x2D0 ))
 		goto introDone;
 	
-	word_42851 = -1;
+	mIntroPlayed = -1;
 	if (ShowImage_ForDuration( "cftitle", 0x318 ))
 		goto introDone;
 

@@ -620,7 +620,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_42078;
 
 
-	int16			word_42851;
+	int16			mIntroPlayed;
 	uint16			word_42859;
 	uint16			word_4285B;
 	uint8*			word_4285D;
