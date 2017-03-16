@@ -729,8 +729,9 @@ std::vector<const sVersion*> FindFodderVersions() {
 						break;
 					}
 				}
-            } else
-	            AvailableVersions.push_back( &Versions[x] );
+			} else {
+				AvailableVersions.push_back( &Versions[x] );
+			}
         }
 	}
 
