@@ -79,8 +79,8 @@ union sMapTarget {
 	int32 asInt;
 
 	struct {
-		int16	field_0;
-		int16	field_2;
+		int16	mX;
+		int16	mY;
 	};
 };
 
@@ -490,7 +490,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B449;
 	int16			mSoundEffectToPlay;
 
-	int16			word_3B461[3];
+	int16			mSquad_EnteredVehicleTimer[3];
 	sSprite*		mSprite_OpenCloseDoor_Ptr;
 	int16			mSprite_Civilian_GotHome;
 	int16			mSprite_Indigenous_Tmp_X;
@@ -756,7 +756,7 @@ public:
 	void			Squad_Member_PhaseCount();
 	void			sub_12AEE();
 	void			sub_12B6E();
-	void			sub_12C69();
+	void			Squad_EnteredVehicle_TimerTick();
 	void			Mission_Map_Overview_Show();
 
 	void			Map_Overview_Prepare();
@@ -1054,7 +1054,7 @@ public:
 	void			sub_22A3D( sSprite* pSprite );
 	int16			Sprite_Destroy_Wrapper_2( sSprite* pSprite );
 	void			sub_22AA9( sSprite* pSprite );
-	void			Sprite_Handle_Player_Unk( sSprite* pSprite );
+	void			Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite );
 	void			sub_22C87( sSprite* pSprite );
 	void			sub_22CD7( sSprite* pSprite, int16& Data0, int16& Data4 );
 	void			Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite );
@@ -1124,7 +1124,7 @@ public:
 	int16			Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, int16& pX );
 	int16			Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 );
 
-	void			Squad_Walk_Target_Set( int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10 );
 	int16			Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
 	uint8*			Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame );
@@ -1269,7 +1269,7 @@ public:
 	void			Squad_Split_Assets();
 
 	void			GUI_Sidebar_MapButton_RenderWrapper();
-	void			GUI_Sidebar_Number_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, int16 pData10 );
+	void			GUI_Sidebar_Number_Draw( int16 pNumber, int16 pX, int16 pData8, int16 pY, int16 pData10 );
 	void			GUI_Sidebar_MapButton_Render();
 	void			GUI_Handle_Button_ShowOverview();
 	void			sub_3037A( );

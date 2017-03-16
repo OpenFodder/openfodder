@@ -93,11 +93,9 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 	std::ifstream MissionSetFile( local_PathGenerate( pMissionSet, "", true ), std::ios::binary );
 	if (MissionSetFile.is_open()) {
 		Json MissionSet = Json::parse( MissionSetFile );
-		
-		
+				
 		mCustomMission.mAuthor = MissionSet["Author"];
 		mCustomMission.mName = MissionSet["Name"];
-		
 		
 		std::string MapPath = "Custom/Sets/";
 
@@ -151,7 +149,6 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 				}
 				mMapGoals.push_back( Goals );
 			}
-			
 		}
 
 		return true;

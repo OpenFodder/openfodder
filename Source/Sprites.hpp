@@ -148,7 +148,7 @@ struct sSprite {
 	int16 field_2C;
 	int16 field_2E;
 	int16 field_30;
-	int16 field_32;
+	int16 field_32;		// Player: Squad Number
 	int16 field_34;
 	int16 field_36;
 	int16 field_38;
@@ -184,13 +184,23 @@ struct sSprite {
 	int16 field_62;
 	int8 field_64;
 	int8 field_65;
-	sSprite* field_66;
-	sSprite* field_6A;
+	sSprite* field_66;		// Human-Player: Vehicle Walk Target
+	sSprite* field_6A;		// Human-Player: Current Vehicle
 	int8 field_6E;
 	int8 field_6F;
 	sSprite* field_70;
 	int8 field_74;
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
+};
+
+enum eSprite_Anim {
+
+	eSprite_Anim_Die			= 0x0A,
+	eSprite_Anim_Slide1			= 0x32,
+	eSprite_Anim_Slide2			= 0x33,
+	eSprite_Anim_Slide3			= 0x34,
+	eSprite_Anim_Vehicle_Enter	= 0x5A,
+	eSprite_Anim_Vehicle_Inside = 0x5B
 };
 
 struct sWeaponData {
