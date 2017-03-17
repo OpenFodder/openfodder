@@ -216,6 +216,16 @@ enum eSprite_Anim {
 	eSprite_Anim_Vehicle_Inside = 0x5B
 };
 
+enum ePstuff_Sprites {
+
+	eSprite_pStuff_Mouse_Cursor				= 0x23,
+	eSprite_pStuff_Mouse_Target				= 0x24,
+	eSprite_pStuff_Mouse_Arrow_DownRight	= 0x25,
+	eSprite_pStuff_Mouse_Arrow_UpLeft		= 0x26,
+	eSprite_pStuff_Mouse_Helicopter			= 0x27,
+
+};
+
 struct sWeaponData {
 	int16	mSpeed;
 	int16	mAliveTime;			// Time bullet will travel

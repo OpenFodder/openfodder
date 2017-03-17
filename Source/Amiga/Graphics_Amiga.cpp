@@ -144,7 +144,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 }
 
 void cGraphics_Amiga::Mouse_DrawCursor() {
-	const sSpriteSheet_pstuff* di = &stru_44B50[mFodder->mMouseSpriteCurrent];
+	const sSpriteSheet_pstuff* di = &mSpriteSheet_PStuff[mFodder->mMouseSpriteCurrent];
 
 	mFodder->mDrawSpriteColumns = di->mColumns >> 3;
 	mFodder->mDrawSpriteRows = di->mRows;
@@ -258,7 +258,7 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 }
 
 void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
-	const sSpriteSheet_pstuff* di = &stru_44B50[pID];
+	const sSpriteSheet_pstuff* di = &mSpriteSheet_PStuff[pID];
 
 	mFodder->mDrawSpriteColumns = di->mColumns;
 	mFodder->mDrawSpriteRows = di->mRows;
@@ -907,7 +907,7 @@ void cGraphics_Amiga::sub_144A2( int16 pStartY ) {
 
 void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 
-	const sSpriteSheet_pstuff* str2 = &stru_44B50[pData0];
+	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pData0];
 
 	mFodder->mDrawSpriteColumns = str2->mColumns >> 3;
 	mFodder->mDrawSpriteRows = str2->mRows;
