@@ -172,7 +172,7 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite*		mSquad_SpritePtrs[8];					// unused
 	int16			mSprite_Enemy_AggressionCreated_Count;
 	uint16			word_390E8;
-	int16			mGame_Prepare;
+	int16			mMission_Recruitment;
 	int16			word_390EC;
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
@@ -505,7 +505,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4ED[2];
 	int16			mMission_Finished;
 	int16			word_3B4F3;
-	int16			word_3B4F5;
+	int16			mBriefing_Aborted;
 
 	sSprite*		dword_3B5F5;
 	int32			mMapTilePtr;

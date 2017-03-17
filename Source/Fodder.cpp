@@ -96,7 +96,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mMapTilePtr = 0;
 
 	mSoundEffectToPlay = 0;
-	word_3B4F5 = 0;
+	mBriefing_Aborted = 0;
 	word_3BEC1 = 0;
 	word_3BEC3 = 0;
 	word_3E1B7 = 0;
@@ -515,7 +515,7 @@ void cFodder::Game_ClearVariables() {
 
 	mSprite_Enemy_AggressionCreated_Count = 0;
 	word_390E8 = 0;
-	mGame_Prepare = 0;
+	mMission_Recruitment = 0;
 	word_390EC = 0;
 	mMissionPhaseRemain = 0;
 	mMissionPhases = 0;
@@ -926,7 +926,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3B4ED[1] = 0;
 	mMission_Finished = 0;
 	word_3B4F3 = 0;
-	word_3B4F5 = 0;
+	mBriefing_Aborted = 0;
 	dword_3B5F5 = 0;
 }
 
@@ -11394,8 +11394,8 @@ void cFodder::Mission_Set_Initial_Weapon() {
 
 void cFodder::Service_Show() {
 
-	if (mVersion->mRelease == eRelease::Demo) 
-		return;
+	//if (mVersion->mRelease == eRelease::Demo) 
+	//	return;
 
 	WindowTitleSet( false );
 
@@ -12057,7 +12057,7 @@ void cFodder::Briefing_Wait() {
 		Mouse_Inputs_Get();
 
 		if (mMission_Aborted == -1) {
-			word_3B4F5 = -1;
+			mBriefing_Aborted = -1;
 			mouse_Button_Status = -1;
 			break;
 		}
@@ -12725,7 +12725,7 @@ void cFodder::Sprite_Handle_Enemy( sSprite* pSprite ) {
 	if (Sprite_Handle_Soldier_Animation( pSprite ))
 		return;
 
-	if (pSprite->field_38 != eSprite_Anim_None)
+	if (pSprite->field_38)
 		return;
 
 	word_3AA41 = 0;
@@ -13011,7 +13011,7 @@ loc_19EC0:;
 loc_19EE5:;
 	pSprite->field_65 = -1;
 
-	if (!pSprite->field_38)
+	if (pSprite->field_38 == eSprite_Anim_None)
 		goto loc_1A149;
 
 	if (pSprite->field_18 == 0x6B)
@@ -14169,7 +14169,7 @@ void cFodder::Sprite_Handle_Enemy_Rocket( sSprite* pSprite ) {
 	if (Sprite_Handle_Soldier_Animation( pSprite ))
 		return;
 
-	if (pSprite->field_38)
+	if (pSprite->field_38 != eSprite_Anim_None)
 		return;
 
 	word_3AA41 = 0;
@@ -18544,7 +18544,7 @@ void cFodder::Mission_Phase_Next() {
 
 	word_390E8 = mSquad_AliveCount;
 	word_390E8 -= 0x0F;
-	mGame_Prepare = -1;
+	mMission_Recruitment = -1;
 	word_390D4 = 0;
 
 	mGraveRecruitIDPtr = mGraveRecruitID;
@@ -20419,10 +20419,12 @@ Start:;
 		//loc_1042E:;
 		for (;;) {
 
+			// Mission completed?
 			if (!mMission_Aborted && !mMission_TryAgain) {
 
+				// Demo / Custom Mission restart
 				if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set)
-						break;
+					break;
 
 				// Reached last map in this mission set?
 				if (++mMapNumber == mVersion->mMissionData->getMapCount()) {
@@ -20435,12 +20437,14 @@ Start:;
 			}
 
 			// loc_1045F
+			// Prepare the next mission
 			Mission_Memory_Clear();
 			Mission_Prepare_Squads();
 			sub_10DEC();
 
 			word_390A6 = 0;
 
+			// Show the intro for retail releases
 			if (mVersion->mRelease != eRelease::Demo) {
 				if (!mIntroDone)
 					intro();
@@ -20452,8 +20456,10 @@ Start:;
 			//loc_10496
 			Squad_Set_Squad_Leader();
 			Sprite_Clear_All_Wrapper();
-			if (mGame_Prepare) {
-				mGame_Prepare = 0;
+
+			// Prepare a new game?
+			if (mMission_Recruitment) {
+				mMission_Recruitment = 0;
 
 				Map_Load_Sprites();
 				word_3ABA7 = -1;
@@ -20466,6 +20472,7 @@ Start:;
 				word_3ABA7 = 0;
 				WindowTitleSet( false );
 
+				// Custom, but not in set mode? then show the custom menu
 				if (mVersion->mVersion == eVersion::Custom && mCustom_Mode != eCustomMode_Set) {
 					if (Custom_ShowMenu())
 						goto Start;
@@ -20475,21 +20482,27 @@ Start:;
 						goto CustomStart;
 				}
 
+				// Retail / Custom set show the Recruitment Hill
 				if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+
 					if (Recruit_Show()) {
 						goto Start;
 					}
 
 					Game_CheckLoadSave();
 
+					// Did we just load/save a game?
 					if (mGame_Load || mGame_Save) {
 						word_390B8 = -1;
-						mGame_Prepare = -1;
+						mMission_Recruitment = -1;
 						mMission_Aborted = -1;
 						continue;
 					}
 				} else {
+
+					// Amiga demos have a menu
                     if (mVersion->mPlatform == ePlatform::Amiga) {
+
                         if (Demo_Amiga_ShowMenu())
                             goto Start;
                     }
@@ -20500,6 +20513,7 @@ Start:;
 				word_3ABE9 = 0;
 				word_3ABEB = 0;
 
+				// Show the intro for the briefing screen for Retail / Custom Set
 				if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set)
 					Briefing_Intro();
 				else
@@ -20507,6 +20521,7 @@ Start:;
 			}
 
 			//loc_10513
+			// Prepare the Briefing screen for Retail and Custom
 			if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom )
 				Briefing_Prepare();
 			
@@ -20518,28 +20533,32 @@ Start:;
 			mMapWidth_Shifted = readLEWord( &mMap[0x54] ) << 4;
 			mMapHeight_Shifted = readLEWord( &mMap[0x56] ) << 4;
 
+			// Prepare Squads
 			Squad_Member_Count();
 			Squad_Member_Sort();
 			Squad_Prepare();
 			Squad_Prepare_Sprites();
+
 			g_Graphics.graphicsBlkPtrsPrepare();
 			mMission_Aborted = 0;
 			Map_Overview_Prepare();
 
-			if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom)
+			// Show the Briefing screen for Retail and Custom 
+			if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom) {
 				Briefing_Wait();
 
-			if (word_3B4F5 == -1) {
+				if (mBriefing_Aborted == -1) {
 
-				Mission_Memory_Restore();
-				
-				word_390B8 = -1;
-				mGame_Prepare = -1;
-				mMission_Aborted = -1;
-				word_3901E = -1;
+					Mission_Memory_Restore();
 
-				mSound->Music_Play( 0 );
-				continue;
+					word_390B8 = -1;
+					mMission_Recruitment = -1;
+					mMission_Aborted = -1;
+					word_3901E = -1;
+
+					mSound->Music_Play( 0 );
+					continue;
+				}
 			}
 
 			Camera_Reset();
@@ -20560,6 +20579,7 @@ Start:;
 			Sprite_Bullet_SetData();
 			word_39F06 = 0;
 			Sprite_Create_Rank( );
+
 			mCamera_Start_Adjust = 1;
 			mCamera_Position_X = mSprites[0].field_0;
 			mCamera_Position_Y = mSprites[0].field_4;
@@ -20626,8 +20646,10 @@ Start:;
 				}
 			}
 
-			if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set)
+			if (mVersion->mRelease != eRelease::Demo || mCustom_Mode == eCustomMode_Set) {
+				Service_Show();
 				break;
+			}
 
 			//loc_106F1
 			if (mMission_TryAgain) {
