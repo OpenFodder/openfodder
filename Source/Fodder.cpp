@@ -5684,21 +5684,21 @@ void cFodder::Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite ) {
 
 	sSprite* Vehicle = pSprite->field_66;
 	
-	int16 Data0 = Vehicle->field_0 + 0x10;
+	int16 VehicleX = Vehicle->field_0 + 0x10;
 
 	if (Vehicle->field_6F || Vehicle->field_6F == 1)
-		Data0 -= 0x0C;
+		VehicleX -= 0x0C;
 
-	int16 Data4 = Vehicle->field_4 - 9;
-	int16 Data8 = pSprite->field_0 + 4;
-	int16 DataC = pSprite->field_4;
+	int16 VehicleY = Vehicle->field_4 - 9;
+	int16 SoldierX = pSprite->field_0 + 4;
+	int16 SoldierY = pSprite->field_4;
 
+	// Is the sprite close enough to enter the vehicle?
 	int16 Distance = 0x1F;
-	Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Distance, DataC );
-	
-	if (Data0 >= 0x0D)
+	if (Map_Get_Distance_BetweenPoints( VehicleX, VehicleY, SoldierX, Distance, SoldierY ) >= 0x0D)
 		return;
 
+	// Enter the vehicle
 	pSprite->field_6A = Vehicle;
 	pSprite->field_6E = -1;
 	sSprite* Data20 = 0;
@@ -9212,6 +9212,11 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 	}
 }
 
+/**
+ * Calculate the distance between two points on the map
+ *
+ * @return Distance between points
+ */
 int16 cFodder::Map_Get_Distance_BetweenPoints( int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2 ) {
 	const int8* Data24 = byte_3ECC0;
 
@@ -14257,18 +14262,16 @@ void cFodder::Sprite_Handle_Building_Explosion( sSprite* pSprite ) {
 	if (pSprite->field_26 == 0x5F5F)
 		Data8 += pSprite->field_28;
 	
-	DataC = pSprite->field_0;
-	DataC += 0x24;
+	DataC = pSprite->field_0 + 0x24;
 
-	Data10 = pSprite->field_4;
-	Data10 -= 0x20;
-	Data14 = pSprite->field_4;
-	Data14 -= 6;
+	Data10 = pSprite->field_4 - 0x20;
+	Data14 = pSprite->field_4 - 6;
 
 	Data0 = pSprite->field_A;
 
 	if (pSprite->field_8 == 0xC0)
 		Data0 += 2;
+
 	Data0 -= 1;
 
 	for (; Data0 >= 0; --Data0) {
@@ -14283,10 +14286,8 @@ void cFodder::Sprite_Handle_Building_Explosion( sSprite* pSprite ) {
 
 loc_1BC07:;
 	Data8 = pSprite->field_0;
-	DataC = pSprite->field_0;
-	DataC += 0x1E;
-	Data10 = pSprite->field_4;
-	Data10 += -30;
+	DataC = pSprite->field_0 + 0x1E;
+	Data10 = pSprite->field_4 - 30;
 	Data14 = pSprite->field_4;
 
 	Sprite_Find_In_Region( pSprite, Data24, Data8, DataC, Data10, Data14 );
@@ -15974,7 +15975,7 @@ void cFodder::Sprite_Handle_Player_Rocket( sSprite* pSprite ) {
 	mSquad_Leader->field_75 |= eSprite_Flag_Invincibility;
 }
 
-void cFodder::Sprite_Handle_Bonus_RankHomingInvin( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite ) {
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
 		return;
@@ -16003,7 +16004,7 @@ void cFodder::Sprite_Handle_MissileHoming2( sSprite* pSprite ) {
 	Sprite_Handle_MissileHoming( pSprite );
 }
 
-void cFodder::Sprite_Handle_Bonus_SquadGeneralRockets( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_RankHomingInvin_Squad( sSprite* pSprite ) {
 
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
@@ -16023,7 +16024,7 @@ void cFodder::Sprite_Handle_Bonus_SquadGeneralRockets( sSprite* pSprite ) {
 	for (;*Data28 != INVALID_SPRITE_PTR;) {
 		
 		sSprite* Data2C = *Data28++;
-		Data2C->field_75 |= 3;
+		Data2C->field_75 |= (eSprite_Flag_HomingMissiles | eSprite_Flag_Invincibility);
 
 		sSquad_Member* Data24 = (sSquad_Member*) Data2C->field_46;
 		Data24->mRank = 0x0F;
@@ -20817,6 +20818,7 @@ loc_2F1BC:;
 	DataC += 0x23;
 	word_3A3BD = DataC;
 
+	// Loop the squad
 	for (int16 word_3A061 = 7; word_3A061 >= 0; --word_3A061, ++Data38 ) {
 		
 		sSprite* Data34 = Data38->mSprite;
@@ -20827,13 +20829,12 @@ loc_2F1BC:;
 		if (mGUI_Loop_Squad_Current != Data34->field_32)
 			continue;
 
-		if (Data34->field_38 >= eSprite_Anim_Slide1)
+		// If sliding, or entering a vehicle, or invincible
+		if (Data34->field_38 >= eSprite_Anim_Slide1 || (Data34->field_75 & eSprite_Flag_Invincibility))
 			goto loc_2F25C;
 
-		if ((Data34->field_75 & 2))
-			goto loc_2F25C;
-
-		if (Data34->field_38)
+		// If hit/dying, no longer render the troop name
+		if (Data34->field_38 != eSprite_Anim_None)
 			continue;
 
 	loc_2F25C:;
@@ -21756,7 +21757,7 @@ int16 cFodder::sub_305D5( sSprite*& pData20 ) {
 		if (pData20->field_18 != eSprite_Player)
 			continue;
 
-		if (pData20->field_75 & 2)
+		if (pData20->field_75 & eSprite_Flag_Invincibility)
 			goto loc_3066E;
 
 		if (pData20->field_38) {

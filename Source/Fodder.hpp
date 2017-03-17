@@ -963,9 +963,9 @@ public:
 	void			Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite );				// 93
 	void			Sprite_Handle_Bonus_Rockets( sSprite* pSprite );					// 94
 	void			Sprite_Handle_Player_Rocket( sSprite* pSprite );					// 95
-	void			Sprite_Handle_Bonus_RankHomingInvin( sSprite* pSprite );			// 96
+	void			Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite );			// 96
 	void			Sprite_Handle_MissileHoming2( sSprite* pSprite );					// 97
-	void			Sprite_Handle_Bonus_SquadGeneralRockets( sSprite* pSprite );		// 98
+	void			Sprite_Handle_Bonus_RankHomingInvin_Squad( sSprite* pSprite );		// 98
 	void			Sprite_Handle_Helicopter_CallPad( sSprite* pSprite );				// 99
 
 	void			Sprite_Handle_BuildingDoor_Reinforced( sSprite* pSprite );										// 100
