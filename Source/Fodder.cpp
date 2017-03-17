@@ -5798,14 +5798,11 @@ void cFodder::sub_30AB0() {
 
 	loc_30C7C:;
 
-		if (Data20 == mSquad_CurrentVehicle) {
+		if (Data20 == mSquad_CurrentVehicle) 
 			mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_DownRight;
-			word_3A9F3 = 0;
-			word_3A9F5 = 0;
-			return;
-		}
+		else
+			mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_UpLeft;
 
-		mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_UpLeft;
 		word_3A9F3 = 0;
 		word_3A9F5 = 0;
 		return;

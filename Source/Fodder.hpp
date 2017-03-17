@@ -84,7 +84,7 @@ union sMapTarget {
 	};
 };
 
-extern const sSpriteSheet_pstuff stru_44B50[209];
+extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
 	public:
