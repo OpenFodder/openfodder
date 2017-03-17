@@ -178,7 +178,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Player_Rocket );
 
 	/* 96 */
-	SpriteFunction( Bonus_RocketsAndGeneral );
+	SpriteFunction( Bonus_RankHomingInvin );
 	SpriteFunction( MissileHoming2 );
 	SpriteFunction( Bonus_SquadGeneralRockets );
 	SpriteFunction( Helicopter_CallPad );

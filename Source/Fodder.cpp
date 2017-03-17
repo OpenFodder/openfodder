@@ -6218,7 +6218,7 @@ void cFodder::Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC
 		if (pData18 > Data0)
 			continue;
 
-		if (!Data24->field_18) {
+		if (Data24->field_18 != eSprite_Player) {
 			if (Data24->field_6E)
 				continue;
 		}
@@ -7633,6 +7633,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 	sSprite* Data24 = 0, *Data30 = 0;
 	sSprite** Dataa30 = 0;
 
+	// Bullets don't hit choppers
 	if (pSprite->field_38 == eSprite_Anim_Hit)
 		pSprite->field_38 = eSprite_Anim_None;
 
@@ -8165,7 +8166,7 @@ int16 cFodder::sub_25DCF( sSprite* pSprite ) {
 	if (!pSprite->field_38)
 		return 0;
 
-	if (pSprite->field_38 == 9)
+	if (pSprite->field_38 == eSprite_Anim_Die4)
 		goto loc_25E8F;
 
 	if (!pSprite->field_2A) {
@@ -8248,12 +8249,12 @@ void cFodder::sub_25F2B( sSprite* pSprite ) {
 	pSprite->field_A = pSprite->field_32;
 }
 
-void cFodder::sub_25FDA( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Hostage_Movement( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data10;
 	sSprite* Data24 = 0, *Data28 = 0, *Data2C = 0;
 
 	if (pSprite->field_18 == eSprite_Hostage_2)
-		goto loc_2625B;
+		goto CheckRescueTent;
 
 	if (!dword_3B5F5)
 		goto loc_2608B;
@@ -8267,10 +8268,8 @@ void cFodder::sub_25FDA( sSprite* pSprite ) {
 	pSprite->field_74 = -56;
 	Data24 = dword_3B5F5;
 
-	Data8 = Data24->field_0;
-	Data8 += 0x0A;
-	DataC = Data24->field_4;
-	DataC -= 5;
+	Data8 = Data24->field_0 + 10;
+	DataC = Data24->field_4 - 5;
 	Data0 = pSprite->field_0;
 	Data4 = pSprite->field_4;
 	Data10 = 0x80;
@@ -8291,10 +8290,9 @@ loc_2608B:;
 	if (Data4 != eSprite_Hostage_Rescue_Tent)
 		goto loc_2614F;
 
-	pSprite->field_26 = Data28->field_0;
-	pSprite->field_26 += 0x0A;
-	pSprite->field_28 = Data28->field_4;
-	pSprite->field_28 -= 5;
+	// Has sprite reached hostage tent?
+	pSprite->field_26 = Data28->field_0 + 10;
+	pSprite->field_28 = Data28->field_4 - 5;
 
 	Data0 = pSprite->field_0;
 	Data4 = pSprite->field_4;
@@ -8321,6 +8319,7 @@ loc_2614F:;
 	pSprite->field_28 = Data28->field_4;
 	pSprite->field_28 -= 6;
 
+	// Not in vehicle?
 	if (!Data28->field_6E)
 		goto loc_2620F;
 
@@ -8357,7 +8356,7 @@ loc_26221:;
 	word_3B2ED = -1;
 	return;
 
-loc_2625B:;
+CheckRescueTent:;
 	word_3B2ED = 0;
 	Data0 = eSprite_Player;
 	Data4 = eSprite_Hostage_Rescue_Tent;
@@ -9973,9 +9972,14 @@ void cFodder::Squad_Troops_Count() {
 
 		sSprite* Sprite = Data2C->mSprite;
 
-		if (!(Sprite->field_75 & 2)) {
+		// Sprite is not invincible
+		if (!(Sprite->field_75 & eSprite_Flag_Invincibility)) {
+
+			// Is dying
 			if (Sprite->field_38 < eSprite_Anim_Slide1) {
 				if (Sprite->field_38) {
+
+					// Not in vehicle
 					if (!Sprite->field_6E)
 						continue;
 
@@ -14250,7 +14254,7 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
 
 	// Plus uses homing missiles
 	if (mVersion->mVersion == eVersion::AmigaPlus)
-		mSquad_Leader->field_75 |= 1;
+		mSquad_Leader->field_75 |= eSprite_Flag_HomingMissiles;
 
 	Sprite_Destroy_Wrapper( pSprite );
 }
@@ -14788,7 +14792,7 @@ void cFodder::Sprite_Handle_Spike( sSprite* pSprite ) {
 	Data28->field_0 -= 3;
 	Data28->field_4 = pSprite->field_4;
 	Data28->field_4 += 1;
-	Data28->field_38 = 9;
+	Data28->field_38 = eSprite_Anim_Die4;
 	Data28->field_64 = -1;
 	Data28->field_20 = 7;
 
@@ -15444,7 +15448,7 @@ void cFodder::Sprite_Handle_Hostage( sSprite* pSprite ) {
 	word_3B2D1[4] = pSprite->field_4;
 	word_3B2D1[5] = pSprite->field_6;
 
-	sub_25FDA( pSprite );
+	Sprite_Handle_Hostage_Movement( pSprite );
 	Sprite_Handle_Indigenous_Movement( pSprite );
 
 	pSprite->field_36 = 0x0C;
@@ -15888,7 +15892,7 @@ void cFodder::Sprite_Handle_Seal_Mine( sSprite* pSprite ) {
 	if (Data0 > 0x14)
 		return;
 
-	pSprite->field_38 = 9;
+	pSprite->field_38 = eSprite_Anim_Die4;
 }
 
 void cFodder::Sprite_Handle_Spider_Mine( sSprite* pSprite ) {
@@ -15970,7 +15974,7 @@ void cFodder::Sprite_Handle_Bonus_Rockets( sSprite* pSprite ) {
 		return;
 
 	// Has Homing missiles
-	mSquad_Leader->field_75 |= 1;
+	mSquad_Leader->field_75 |= eSprite_Flag_HomingMissiles;
 	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
 	mSquad_Rockets[mSquad_Selected] = 50;
 
@@ -15989,10 +15993,10 @@ void cFodder::Sprite_Handle_Player_Rocket( sSprite* pSprite ) {
 	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		 return;
 	
-	mSquad_Leader->field_75 |= 2;
+	mSquad_Leader->field_75 |= eSprite_Flag_Invincibility;
 }
 
-void cFodder::Sprite_Handle_Bonus_RocketsAndGeneral( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_RankHomingInvin( sSprite* pSprite ) {
 	if (pSprite->field_38) {
 		pSprite->field_18 = eSprite_Explosion;
 		return;
@@ -16004,8 +16008,8 @@ void cFodder::Sprite_Handle_Bonus_RocketsAndGeneral( sSprite* pSprite ) {
 	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
-	// Invincible
-	mSquad_Leader->field_75 |= 3;
+	// Invincible + HomingMissiles
+	mSquad_Leader->field_75 |= (eSprite_Flag_HomingMissiles | eSprite_Flag_Invincibility);
 	sSquad_Member* Member = (sSquad_Member*) mSquad_Leader->field_46;
 	Member->mRank = 0x0F;
 	mGUI_Sidebar_Setup = 0;
@@ -16258,7 +16262,7 @@ int16 cFodder::sub_1E05A( sSprite* pSprite ) {
 	if (pSprite->field_5B == 1)
 		goto loc_1E74C;
 
-	if (pSprite->field_38 == eSprite_Anim_Die4)
+	if (pSprite->field_38 == eSprite_Anim_Die5)
 		goto loc_1E2F4;
 
 	if (pSprite->field_38 == eSprite_Anim_Slide1)
@@ -16340,11 +16344,11 @@ int16 cFodder::sub_1E05A( sSprite* pSprite ) {
 
 	sub_1FF1A(pSprite, Data2C, Data30 );
 	pSprite->field_26 = -1;
-	if (pSprite->field_38 != 9)
+	if (pSprite->field_38 != eSprite_Anim_Die4)
 		goto loc_1E3D2;
 
 	pSprite->field_36 = 0;
-	pSprite->field_38 = eSprite_Anim_Die4;
+	pSprite->field_38 = eSprite_Anim_Die5;
 loc_1E2F4:;
 	pSprite->field_3A -= 1;
 	if (pSprite->field_3A < 0) {
@@ -16518,7 +16522,7 @@ loc_1E3D2:;
 			if (!Data0) {
 
 				pSprite->field_3A = 0x1F4;
-				pSprite->field_38 = eSprite_Anim_Die4;
+				pSprite->field_38 = eSprite_Anim_Die5;
 				mGUI_Sidebar_Setup = 0;
 				return -1;
 			}
@@ -19811,7 +19815,7 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
 	if (Data28->field_18 != 0)
 		goto loc_21E4A;
 
-	if (Data28->field_38 < 0x32) {
+	if (Data28->field_38 < eSprite_Anim_Slide1) {
 		if (Data28->field_38)
 			goto loc_21E4A;
 	}
