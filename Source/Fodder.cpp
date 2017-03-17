@@ -999,7 +999,7 @@ void cFodder::sub_10DEC() {
 	mMission_Complete = 0;
 	mMission_Completed_Timer = 0;
 	dword_39F7C = 0;
-	mMouseSpriteNew = 0x23;
+	mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 
 	mSquads_TroopCount[0] = 0;
 	mSquads_TroopCount[1] = 0;
@@ -3029,7 +3029,7 @@ void cFodder::VersionSelect() {
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 
 	mImageFaded = -1;
-	mMouseSpriteNew = 0x24;
+	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
 	eventProcess();
 	Mouse_Setup();
 	mDemo_ExitMenu = 0;
@@ -4531,7 +4531,7 @@ bool cFodder::Custom_ShowMenu() {
 			}
 
 			Buttons[2].field_0 = 0;
-			mMouseSpriteNew = 0x23;
+			mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 			eventProcess();
 
 			Menu_Loop( 
@@ -4619,7 +4619,6 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 	mSound->Music_Stop();
 
 	mGraphics->imageLoad( "apmenu.lbm", 32 );
-	mGraphics->PaletteSet();
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
 	mWindow->SetScreenSize( cDimension( 320, 260) );
@@ -4637,7 +4636,6 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 			}
 	} );
 
-	mImage->clearBuffer();
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		mWindow->SetScreenSize( cDimension( 320, 225 ));
@@ -4755,7 +4753,7 @@ bool cFodder::Recruit_Show() {
 		Recruit_Draw();
 	}
 	
-	mMouseSpriteNew = 0x23;
+	mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 	mMouseCursor_Enabled = 0;
 	
 	mImage->paletteFadeOut();
@@ -5712,7 +5710,7 @@ void cFodder::sub_30AB0() {
 	sSprite** Data24 = 0;
 
 	if (mMouseX < 0x10) {
-		mMouseSpriteNew = 0x23;
+		mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 		word_3A9F3 = 0;
 		word_3A9F5 = 0;
 		return;
@@ -5793,7 +5791,7 @@ void cFodder::sub_30AB0() {
 		if (Data20->field_8 == 0xA5)
 			return;
 
-		mMouseSpriteNew = 0x27;
+		mMouseSpriteNew = eSprite_pStuff_Mouse_Helicopter;
 		word_3A9F3 = 0;
 		word_3A9F5 = 0;
 		return;
@@ -5801,13 +5799,13 @@ void cFodder::sub_30AB0() {
 	loc_30C7C:;
 
 		if (Data20 == mSquad_CurrentVehicle) {
-			mMouseSpriteNew = 0x25;
+			mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_DownRight;
 			word_3A9F3 = 0;
 			word_3A9F5 = 0;
 			return;
 		}
 
-		mMouseSpriteNew = 0x26;
+		mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_UpLeft;
 		word_3A9F3 = 0;
 		word_3A9F5 = 0;
 		return;
@@ -5817,7 +5815,7 @@ loc_30CBC:;
 
 	if (word_3AA01) {
 		word_3AA01 = 0;
-		mMouseSpriteNew = 0x23;
+		mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 		word_3A9F3 = 0;
 		word_3A9F5 = 0;
 	}
@@ -20581,9 +20579,10 @@ Start:;
 			Sprite_Count_HelicopterCallPads();
 			sub_13148();
 
+			mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
+
 			mMission_Aborted = 0;
 			mMission_Paused = 0;
-			mMouseSpriteNew = 0x23;
 			mMission_In_Progress = -1;
 			mMission_Finished = 0;
 			mMission_ShowMapOverview = 0;
@@ -21803,7 +21802,7 @@ void cFodder::Mouse_Inputs_Check() {
 		return;
 
 	if (mMouseSpriteNew < 0) {
-		mMouseSpriteNew = 0x24;
+		mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
 		word_3A9F3 = -8;
 		word_3A9F5 = -8;
 	}
@@ -21825,7 +21824,7 @@ loc_30814:;
 		return;
 
 	if (mMouseSpriteNew < 0) {
-		mMouseSpriteNew = 0x23;
+		mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 		word_3A9F3 = 0;
 		word_3A9F5 = 0;
 	}
