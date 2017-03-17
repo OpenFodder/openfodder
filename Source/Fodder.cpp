@@ -20647,7 +20647,7 @@ Start:;
 				}
 			}
 
-			if (mVersion->mRelease != eRelease::Demo || mCustom_Mode == eCustomMode_Set) {
+			if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set) {
 				Service_Show();
 				break;
 			}
@@ -20814,9 +20814,7 @@ loc_2F1BC:;
 
 	sSquad_Member* Data38 = mSquad;
 
-	DataC = word_3AC1D;
-	DataC += 0x23;
-	word_3A3BD = DataC;
+	word_3A3BD = word_3AC1D + 0x23;
 
 	// Loop the squad
 	for (int16 word_3A061 = 7; word_3A061 >= 0; --word_3A061, ++Data38 ) {
@@ -20838,36 +20836,20 @@ loc_2F1BC:;
 			continue;
 
 	loc_2F25C:;
-		Data0 = 0;
-		Data0 = Data38->mRank;
-		Data0 += 9;
-		int16 Data8 = 0;
-		int16 DataC = word_3A3BD;
 
-		mGraphics->sub_145AF( Data0, Data8, DataC );
-		Data0 = Data38->mRank + 9;
-		Data8 = 0x23;
-		DataC = word_3A3BD;
-
-		mGraphics->sub_145AF( Data0, Data8, DataC );
-		Data0 = 0;
+		mGraphics->sub_145AF( Data38->mRank + 9, 0x00, word_3A3BD );
+		mGraphics->sub_145AF( Data38->mRank + 9, 0x23, word_3A3BD );
 
 		const sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
-		if (!word_3AC47) {
+		if (!word_3AC47)
 			Data0 = 2;
-		}
-		else {
-			Data0 = 0;
-			Data0 = Data38->mSelected;
-			Data0 &= 1;
-		}
+		else
+			Data0 = Data38->mSelected & 1;
+		
 		//loc_2F318
-		Data4 = 3;
 		word_3A8B1 = 6;
-		DataC = word_3A3BD;
-		DataC += 2;
 
-		GUI_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28->mName );
+		GUI_Sidebar_TroopList_Name_Draw( Data0, 3, 0x23, word_3A3BD + 2, Data28->mName );
 		word_3A3BD += 0x0C;
 	}
 }
