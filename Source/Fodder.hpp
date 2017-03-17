@@ -973,7 +973,7 @@ public:
 	void			Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite );				// 93
 	void			Sprite_Handle_Bonus_Rockets( sSprite* pSprite );					// 94
 	void			Sprite_Handle_Player_Rocket( sSprite* pSprite );					// 95
-	void			Sprite_Handle_Bonus_RocketsAndGeneral( sSprite* pSprite );			// 96
+	void			Sprite_Handle_Bonus_RankHomingInvin( sSprite* pSprite );			// 96
 	void			Sprite_Handle_MissileHoming2( sSprite* pSprite );					// 97
 	void			Sprite_Handle_Bonus_SquadGeneralRockets( sSprite* pSprite );		// 98
 	void			Sprite_Handle_Helicopter_CallPad( sSprite* pSprite );				// 99
@@ -1096,7 +1096,7 @@ public:
 	int16			sub_25B6B( sSprite* pSprite );
 	int16			sub_25DCF( sSprite* pSprite );
 	void			sub_25F2B( sSprite* pSprite );
-	void			sub_25FDA( sSprite* pSprite );
+	void			Sprite_Handle_Hostage_Movement( sSprite* pSprite );
 	void			Sprite_Handle_Hostage_FrameUpdate2( sSprite* pSprite );
 	void			Sprite_Handle_Hostage_FrameUpdate( sSprite* pSprite );
 	void			sub_26490( sSprite* pSprite );
