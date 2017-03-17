@@ -20647,8 +20647,13 @@ Start:;
 				}
 			}
 
+			// Demo/Single mission 
 			if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set) {
-				Service_Show();
+
+				// Custom can do the service screen
+				if(mVersion->mVersion == eVersion::Custom)
+					Service_Show();
+
 				break;
 			}
 
