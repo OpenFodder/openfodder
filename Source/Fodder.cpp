@@ -46,8 +46,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3D467 = 0;
 	word_3D469 = 0;
 	mIntroDone = 0;
-	mErrorCode = 0;
-	word_427D4 = -1;
 
 	mMouseButtons = 0;
 
@@ -1377,12 +1375,10 @@ void cFodder::Camera_Position_Update() {
 
 		if (Data4 <= (dword_39F36 >> 16)) {
 			dword_39F36 = (Data4 << 16) | (dword_39F36 & 0xFFFF);
-		}
-		else {
+		} else {
 			dword_39F36 += 0x8000;
 		}
-	}
-	else {
+	} else {
 		dword_39F36 = Data0 << 16;
 	}
 
@@ -2694,28 +2690,6 @@ bool cFodder::EventAdd( cEvent pEvent ) {
 	return true;
 }
 
-void cFodder::Load_SetupData( const std::string& pFilename ) {
-	/*
-	size_t FileSize = 0;
-	uint8* Buffer = local_FileRead( pFilename, "..", FileSize );
-
-	word_3E7ED = readLEWord( Buffer );
-	mEffectDriver = readLEWord( Buffer + 2 );
-	mMusicDriver = readLEWord( Buffer + 4 );
-	delete Buffer;
-	*/
-
-	word_3E7ED = 1;
-	mEffectDriver = 6;
-	mMusicDriver = 4;
-}
-
-void cFodder::memory_XMS_Detect() {
-
-	word_427D4 = 1;
-	mErrorCode = 0;
-}
-
 void cFodder::eventProcess() {
 	g_Window.EventCheck();
 
@@ -3243,10 +3217,7 @@ void cFodder::Prepare( ) {
 	uint8* End = (uint8*)&mButtonPressLeft;
 
 	word_397D8 = new uint8[ End - Start ];
-	Load_SetupData("setup.dat");
 	sub_12AB1();
-
-	memory_XMS_Detect();
 
 	memset(mDataBaseBlk, 0, mDataBlkSize );
 	memset(mDataSubBlk, 0, mDataBlkSize );
