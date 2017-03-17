@@ -104,9 +104,9 @@ enum eSprites {
 	eSprite_Bonus_RankToGeneral					= 93,
 	eSprite_Bonus_Rockets						= 94,
 	eSprite_Player_Rocket						= 95,
-	eSprite_Bonus_RankHomingInvin				= 96,
+	eSprite_Bonus_RankHomingInvin_SquadLeader	= 96,
 	eSprite_MissileHoming2						= 97,
-	eSprite_Bonus_SquadGeneralRockets			= 98,
+	eSprite_Bonus_RankHomingInvin_Squad			= 98,
 	eSprite_Helicopter_CallPad					= 99,
 
 	eSprite_BuildingDoor_Reinforced				= 100,
@@ -187,15 +187,15 @@ struct sSprite {
 	sSprite* field_66;		// Human-Player: Vehicle Walk Target
 	sSprite* field_6A;		// Human-Player: Current Vehicle
 	int8 field_6E;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
-	int8 field_6F;			// 
+	int8 field_6F;			// Vehicle: Entrance left - 12
 	sSprite* field_70;
 	int8 field_74;
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
 };
 
 enum eSprite_Flags {
+	eSprite_Flag_HomingMissiles = 0x01,
 	eSprite_Flag_Invincibility	= 0x02,
-	eSprite_Flag_HomingMissiles = 0x01
 };
 
 enum eSprite_Anim {
