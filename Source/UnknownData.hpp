@@ -47,6 +47,16 @@ int16 word_3E15D[] = {
 	0x06, 0x05, 0x05, 0x04, 0x04, 0x03, 0x03, 0x02, 0x02, 0x01, 0x01, 0x00, -1
 };
 
+enum pstuff_Sprites {
+
+	eSprite_pStuff_Mouse_Cursor				= 0x23,
+	eSprite_pStuff_Mouse_Target				= 0x24,
+	eSprite_pStuff_Mouse_Arrow_DownRight	= 0x25,
+	eSprite_pStuff_Mouse_Arrow_UpLeft		= 0x26,
+	eSprite_pStuff_Mouse_Helicopter			= 0x27,
+
+};
+
 const sSpriteSheet_pstuff stru_44B50[209] =
 {
   { 0, 79, 48, 13 },
@@ -59,6 +69,7 @@ const sSpriteSheet_pstuff stru_44B50[209] =
   { 96, 160, 48, 13 },
   { 48, 160, 48, 13 },
   { 48, 0, 16, 11 },
+
   { 64, 0, 16, 11 },
   { 80, 0, 16, 11 },
   { 96, 0, 16, 11 },
@@ -69,6 +80,7 @@ const sSpriteSheet_pstuff stru_44B50[209] =
   { 176, 0, 16, 11 },
   { 192, 0, 16, 11 },
   { 208, 0, 16, 11 },
+
   { 224, 0, 16, 11 },
   { 240, 0, 16, 11 },
   { 256, 0, 16, 11 },
@@ -79,6 +91,7 @@ const sSpriteSheet_pstuff stru_44B50[209] =
   { 16, 12, 16, 11 },
   { 32, 12, 16, 11 },
   { 48, 12, 16, 11 },
+
   { 64, 12, 16, 11 },
   { 80, 12, 16, 11 },
   { 96, 12, 16, 11 },
