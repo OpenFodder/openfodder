@@ -569,13 +569,6 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			word_3E1B7_size;
 	
 	int16			word_3E75B;
-
-	/* Configuration Settings (SETUP.DAT) */
-	uint16			word_3E7ED;
-	uint16			mEffectDriver;
-	uint16			mMusicDriver;
-	/* End Configuration Settings */
-
 	int16			word_3EABD;
 
 	int32			dword_3F946;
@@ -637,7 +630,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_428D6;
 	int16			word_428D8;
 
-	uint8			mErrorCode;
 	int16			mKeyNumberPressed;
 
 	int16			mouse_Button_Status;
@@ -645,7 +637,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mouse_Pos_Row;
 
 	int16			word_42072;
-	uint16			word_427D4;
+
 	int8			byte_427E6;
 	int8			byte_427EE;
 	int16			word_44475;
@@ -1309,14 +1301,11 @@ public:
 
 	void			WonGame();
 
-	void			Load_SetupData( const std::string& pFilename );
-	
 	void			Video_Sleep();
 
 	void			sleepLoop( int64 pMilliseconds );
 	int16			ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );
 
-	void			memory_XMS_Detect();
 	void			Mouse_Setup();
 	void			Mouse_Inputs_Get();
 	void			Mouse_ButtonCheck();
