@@ -47,7 +47,7 @@ int16 word_3E15D[] = {
 	0x06, 0x05, 0x05, 0x04, 0x04, 0x03, 0x03, 0x02, 0x02, 0x01, 0x01, 0x00, -1
 };
 
-const struct_2 stru_44B50[209] =
+const sSpriteSheet_pstuff stru_44B50[209] =
 {
   { 0, 79, 48, 13 },
   { 48, 79, 48, 13 },

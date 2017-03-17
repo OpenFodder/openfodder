@@ -106,13 +106,13 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mMouseSpriteCurrent = 0;
 	mService_ExitLoop = 0;
 	word_40054 = 0;
-	mDrawSpriteFrameDataPtr = 0;
+	mDraw_Sprite_FrameDataPtr = 0;
 	word_42066 = 0;
 	mDrawSpritePositionX = 0;
 	mDrawSpritePositionY = 0;
 	mDrawSpriteColumns = 0;
 	mDrawSpriteRows = 0;
-	byte_42070 = 0;
+	mDraw_Sprite_PalletIndex = 0;
 	byte_42071 = 0;
 	word_42074 = 0;
 	word_42076 = 0;
@@ -2502,7 +2502,7 @@ void cFodder::Mission_Map_Overview_Show() {
 
 	mDrawSpritePositionX =  (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
 	mDrawSpritePositionY =  (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
-	byte_42070 = 0xF0;
+	mDraw_Sprite_PalletIndex = 0xF0;
 
 	mGraphics->PaletteSetOverview();
 	mSurfaceMapOverview->Save();
@@ -2515,12 +2515,12 @@ void cFodder::Mission_Map_Overview_Show() {
 
 			if (word_3A016 < 0x20) {
 				if (mVersion->mPlatform == ePlatform::PC) {
-					mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
+					mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
 					mDrawSpriteColumns = 0x10;
 					mDrawSpriteRows = 0x10;
 				} 
 				else {
-					mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
+					mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
 					mDrawSpriteColumns = 0x2;
 					mDrawSpriteRows = 0x10;
 				}
@@ -3407,9 +3407,9 @@ void cFodder::Mouse_DrawCursor( ) {
 void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX ) {
 	const sSpriteSheet* SheetData = &mSpriteDataPtr[pSpriteType][pFrame];
 
-	byte_42070 = SheetData->field_C & 0xFF;
-	mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( SheetData->field_2 );
-	mDrawSpriteFrameDataPtr += SheetData->field_0;
+	mDraw_Sprite_PalletIndex = SheetData->mPalleteIndex & 0xFF;
+	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( SheetData->mLoadSegment );
+	mDraw_Sprite_FrameDataPtr += SheetData->mLoadOffset;
 
 	mDrawSpritePositionX = (pPositionX + 0x10);
 	mDrawSpritePositionY = (pPositionY + 0x10);
@@ -3425,9 +3425,9 @@ void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFra
 
 void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) {
 
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
-	mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 );
-	mDrawSpriteFrameDataPtr += mSpriteDataPtr[pData0][pData4].field_0;
+	mDraw_Sprite_PalletIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
+	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment );
+	mDraw_Sprite_FrameDataPtr += mSpriteDataPtr[pData0][pData4].mLoadOffset;
 
 	mDrawSpritePositionX = (pPosX + 0x10);
 	mDrawSpritePositionY = (pPosY + 0x10);
@@ -3441,15 +3441,15 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 
 void cFodder::sub_13CF0( sSprite* pDi, int16 pData0, int16 pData4 ) {
 	
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
-	mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 );
-	mDrawSpriteFrameDataPtr += mSpriteDataPtr[pData0][pData4].field_0;
+	mDraw_Sprite_PalletIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
+	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment );
+	mDraw_Sprite_FrameDataPtr += mSpriteDataPtr[pData0][pData4].mLoadOffset;
 	
 	mDrawSpriteColumns = mSpriteDataPtr[pData0][pData4].mColCount;
 	mDrawSpriteRows = mSpriteDataPtr[pData0][pData4].mRowCount - pDi->field_52;
 
-	mDrawSpritePositionX = (mSpriteDataPtr[pData0][pData4].field_E + pDi->field_0) - mCamera_Column + 0x40;
-	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].field_F + pDi->field_4) - mDrawSpriteRows - pDi->field_20 - mCamera_Row;
+	mDrawSpritePositionX = (mSpriteDataPtr[pData0][pData4].mModX + pDi->field_0) - mCamera_Column + 0x40;
+	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].mModY + pDi->field_4) - mDrawSpriteRows - pDi->field_20 - mCamera_Row;
 	mDrawSpritePositionY += 0x10;
 
 	++word_42072;
@@ -3559,9 +3559,9 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDrawSpriteFrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
 
-	byte_42070 = 0xE0;
+	mDraw_Sprite_PalletIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3597,7 +3597,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		word_4285B = 0x236C * 4;
 		sub_15B86( word_42869, word_42871 );
 
-		mDrawSpriteFrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3646,9 +3646,9 @@ void cFodder::Briefing_Intro_Desert() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDrawSpriteFrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
 
-	byte_42070 = 0xE0;
+	mDraw_Sprite_PalletIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3684,7 +3684,7 @@ void cFodder::Briefing_Intro_Desert() {
 		word_4285B = 0x2D64 * 4;
 		sub_15B86( word_42869, word_42871 );
 
-		mDrawSpriteFrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3732,9 +3732,9 @@ void cFodder::Briefing_Intro_Ice() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDrawSpriteFrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
 
-	byte_42070 = 0xE0;
+	mDraw_Sprite_PalletIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3771,7 +3771,7 @@ void cFodder::Briefing_Intro_Ice() {
 		word_4285B = 0x2524 * 4;
 		sub_15B86( word_42869, word_42871 );
 
-		mDrawSpriteFrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3820,9 +3820,9 @@ void cFodder::Briefing_Intro_Mor() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDrawSpriteFrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
 
-	byte_42070 = 0xE0;
+	mDraw_Sprite_PalletIndex = 0xE0;
 
 	sub_1590B();
 
@@ -3857,7 +3857,7 @@ void cFodder::Briefing_Intro_Mor() {
 		word_4285B = 0x2734 * 4;
 		sub_15B86( word_42869, word_42871 );
 
-		mDrawSpriteFrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3905,9 +3905,9 @@ void cFodder::Briefing_Intro_Int() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDrawSpriteFrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
 
-	byte_42070 = 0xE0;
+	mDraw_Sprite_PalletIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3943,7 +3943,7 @@ void cFodder::Briefing_Intro_Int() {
 		word_4285B = 0x26DC * 4;
 		sub_15B86( word_42869, word_42871 );
 
-		mDrawSpriteFrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -4192,19 +4192,19 @@ void cFodder::Briefing_Intro() {
 		//TODO
 		mDrawSpritePositionX = 16;
 
-		mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( 5 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 5 );
 		mDrawSpritePositionY = 40;
 		mGraphics->video_Draw_Linear();
 
-		mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( 6 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 6 );
 		mDrawSpritePositionY = 60;
 		mGraphics->video_Draw_Linear();
 
-		mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( 7 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 7 );
 		mDrawSpritePositionY = 100;
 		mGraphics->video_Draw_Linear();
 
-		mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( 8 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 8 );
 		mDrawSpritePositionY = 163;
 		mGraphics->video_Draw_Linear();
 
@@ -9550,7 +9550,7 @@ uint8* cFodder::Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame ) {
 	pSpriteType = Sheet->mColCount;
 	pFrame = Sheet->mRowCount;
 
-	return mGraphics->GetSpriteData( Sheet->field_2 ) + Sheet->field_0;
+	return mGraphics->GetSpriteData( Sheet->mLoadSegment ) + Sheet->mLoadOffset;
 }
 
 uint8 cFodder::sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx ) {
@@ -11711,9 +11711,9 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pD
 }
 
 int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
-	byte_42070 = mSpriteDataPtr[pData0][pData4].field_C & 0xFF;
+	mDraw_Sprite_PalletIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
 
-	mDrawSpriteFrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].field_2 ) + mSpriteDataPtr[pData0][pData4].field_0;
+	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment ) + mSpriteDataPtr[pData0][pData4].mLoadOffset;
 
 	mDrawSpritePositionX = pData8 + 0x10;
 	mDrawSpritePositionY = pDataC + 0x10;
@@ -11742,7 +11742,7 @@ void cFodder::sub_182EA() {
 	di += (mDrawSpritePositionX + word_40054);
 	word_42066 = di;
 
-	uint8* si = mDrawSpriteFrameDataPtr;
+	uint8* si = mDraw_Sprite_FrameDataPtr;
 
 	mDrawSpriteColumns >>= 1;
 	word_42074 = 0xA0 - mDrawSpriteColumns;
@@ -11780,7 +11780,7 @@ void cFodder::sub_182EA() {
 		++word_42066;
 	}
 
-	si = mDrawSpriteFrameDataPtr;
+	si = mDraw_Sprite_FrameDataPtr;
 	di = word_42066;
 	di += Plane;
 	for (int16 dx = 0; dx < mDrawSpriteRows; ++dx ) {
@@ -11812,8 +11812,8 @@ void cFodder::sub_182EA() {
 		++word_42066;
 	}
 
-	++mDrawSpriteFrameDataPtr;
-	si = mDrawSpriteFrameDataPtr;
+	++mDraw_Sprite_FrameDataPtr;
+	si = mDraw_Sprite_FrameDataPtr;
 	di = word_42066;
 	di += Plane;
 
@@ -11846,7 +11846,7 @@ void cFodder::sub_182EA() {
 		++word_42066;
 	}
 
-	si = mDrawSpriteFrameDataPtr;
+	si = mDraw_Sprite_FrameDataPtr;
 	di = word_42066;
 	di += Plane;
 	for (int16 dx = 0; dx < mDrawSpriteRows; ++dx ) {
@@ -11895,7 +11895,7 @@ int16 cFodder::sub_184C7() {
 		else if (mVersion->mPlatform == ePlatform::Amiga)
 			ax *= 40;
 
-		mDrawSpriteFrameDataPtr += ax;
+		mDraw_Sprite_FrameDataPtr += ax;
 	}
 	//loc_184FC
 
@@ -12725,7 +12725,7 @@ void cFodder::Sprite_Handle_Enemy( sSprite* pSprite ) {
 	if (Sprite_Handle_Soldier_Animation( pSprite ))
 		return;
 
-	if (pSprite->field_38)
+	if (pSprite->field_38 != eSprite_Anim_None)
 		return;
 
 	word_3AA41 = 0;
@@ -19923,13 +19923,13 @@ loc_22053:;		// Movement Target?
 	pSprite->field_2E = Data4;
 
 	Data4 += DataC;
-	pSprite->field_26 = Data4;
+	pSprite->field_26 = Data4;		// Target X
 
 	Data4 = Data0->field_4;
 	pSprite->field_30 = Data4;
 
 	Data4 += Data10;
-	pSprite->field_28 = Data4;
+	pSprite->field_28 = Data4;		// Target Y
 
 loc_22125:;
 	sub_2212A( pSprite );
