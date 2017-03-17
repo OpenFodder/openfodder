@@ -313,16 +313,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3BD;
 	int16			word_3A3BF;
 	sMapTarget*		dword_3A3F9;
-	sMapTarget		stru_3A3FD[30];
-	sMapTarget		stru_3A475[30];
-	sMapTarget		stru_3A4ED[30];
-	sMapTarget		stru_3A565[30];
-	sMapTarget		stru_3A5DD[30];
-	sMapTarget		stru_3A655[30];
-	sMapTarget		stru_3A6CD[30];
-	sMapTarget		stru_3A745[30];
-	sMapTarget		stru_3A7BD[30];
-	sMapTarget		stru_3A835[30];
 	int16			word_3A8CF;
 
 	int16			word_3A9A6[2];
@@ -555,7 +545,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_3BED5[5];
 	uint16			word_3BEDF[10];
 	
-	sMapTarget*		mSprite_WalkTargets[10];
+	sMapTarget		mSquad_WalkTargets[10][30];
 	int8			byte_3BF1B[3];
 	sSprite*		word_3BF1E[6];
 
@@ -992,7 +982,7 @@ public:
 
 	int16			sub_1D92E( sSprite* pSprite );
 	void			sub_14D6D( sSprite* pSprite, int16 pData4 );
-	int16			sub_1E05A( sSprite* pSprite );
+	int16			Sprite_Handle_Soldier_Animation( sSprite* pSprite );
 	int16			Sprite_Troop_Dies( sSprite* pSprite );
 	int16			loc_1F043( sSprite* pSprite );
 	void			loc_1F092( sSprite* pSprite, sSprite* pData24 );
@@ -1053,13 +1043,13 @@ public:
 	void			sub_229C9( sSprite* pSprite );
 	void			sub_22A3D( sSprite* pSprite );
 	int16			Sprite_Destroy_Wrapper_2( sSprite* pSprite );
-	void			sub_22AA9( sSprite* pSprite );
+	void			Sprite_Handle_Player_InVehicle( sSprite* pSprite );
 	void			Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite );
 	void			sub_22C87( sSprite* pSprite );
 	void			sub_22CD7( sSprite* pSprite, int16& Data0, int16& Data4 );
 	void			Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite );
 	void			Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
-	int16			sub_2329D( sSprite* pSprite );
+	int16			Sprite_Animation_SlideOrDie( sSprite* pSprite );
 	int16			Map_Sprite_Check_Around_Position( sSprite* pSprite );
 	void			Sprite_Handle_Vehicle_Human( sSprite* pSprite );
 	int16			sub_23444( sSprite* pSprite, sSprite*& pData2C  );
@@ -1067,7 +1057,7 @@ public:
 	void			sub_236F7( sSprite* pSprite );
 	void			sub_23879( sSprite* pSprite );
 	int16			Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C );
-	void			sub_23C70( sSprite* pData2C );
+	void			Sprite_Enemy_Set_Target( sSprite* pData2C );
 	void			Sprite_Handle_Helicopter_Human( sSprite* pSprite );
 	int16			Sprite_Handle_Helicopter_Terrain_Check( sSprite* pSprite );
 	void			sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
@@ -1124,6 +1114,7 @@ public:
 	int16			Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, int16& pX );
 	int16			Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 );
 
+	void			Squad_Walk_Target_SetAll( int16 pValue );
 	void			Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10 );
 	int16			Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
@@ -1160,7 +1151,7 @@ public:
 	void			Sprite_Handle_Enemy_Aggression_Set( sSprite* pSprite );
 	int16			Sprite_Next_WalkTarget_Set( sSprite* pSprite );
 	int16			Squad_Join_Check( sSprite* pSprite );
-	void			sub_2DCB0( int16 pData0 );
+	void			Squad_Walk_Target_Update( int16 pData0 );
 	void			Sprite_Handle_Explosion_MapTiles( sSprite* pSprite );
 	void			Map_Destroy_Tiles( );
 	void			Map_Destroy_Tiles_Next();

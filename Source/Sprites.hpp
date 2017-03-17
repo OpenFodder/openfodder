@@ -142,8 +142,8 @@ struct sSprite {
 	int16 field_20;
 	int16 field_22;
 	int16 field_24;
-	int16 field_26;	// Target X
-	int16 field_28;	// Target Y
+	int16 field_26;		// Target X
+	int16 field_28;		// Target Y
 	int16 field_2A;
 	int16 field_2C;
 	int16 field_2E;
@@ -151,7 +151,7 @@ struct sSprite {
 	int16 field_32;		// Player: Squad Number
 	int16 field_34;
 	int16 field_36;
-	int16 field_38;
+	int16 field_38;		// eSprite_Anim
 	int16 field_3A;
 	int16 field_3C;
 	int16 field_3E;
@@ -160,7 +160,7 @@ struct sSprite {
 	int8 field_43;
 	int8 field_44;
 	int8 field_45;
-	int32* field_46;	//sSquad_Member mostly
+	int32* field_46;	// sSquad_Member mostly
 	int16 field_4A;		// Player: Fire if mouse pressed
 	int8 field_4C;
 	int8 field_4D;
