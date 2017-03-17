@@ -45,29 +45,29 @@ struct sSquad_Member {
 	uint16		mNumberOfKills; 
 };
 
+struct sHero {
+	int8	mRecruitID;
+	int16	mRank;
+	int16	mKills;
+};
+
 struct sSpriteSheet {
-	uint16 field_0;
-	uint16 field_2;
+	uint16 mLoadOffset;
+	uint16 mLoadSegment;
 	int16 field_4;
 	int16 field_6;
 	int16 mColCount;
 	int16 mRowCount;
-	int16 field_C;
-	int8 field_E;
-	int8 field_F;
+	int16 mPalleteIndex;
+	int8 mModX;
+	int8 mModY;
 };
 
-struct sHero {
-	int8	mRecruitID;
-	int16	mRank;
-	int16	mKills;	
-};
-
-struct struct_2 {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-	int16	field_6;
+struct sSpriteSheet_pstuff {
+	int16	mX;
+	int16	mY;
+	int16	mColumns;
+	int16	mRows;
 };
 
 struct sMapPosition {
@@ -84,7 +84,7 @@ union sMapTarget {
 	};
 };
 
-extern const struct_2 stru_44B50[209];
+extern const sSpriteSheet_pstuff stru_44B50[209];
 
 class cFodder : public cSingleton < cFodder > {
 	public:
@@ -597,13 +597,13 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_40058;
 	uint16			word_4005A;
 	uint16			word_4005C;
-	uint8*			mDrawSpriteFrameDataPtr;
+	uint8*			mDraw_Sprite_FrameDataPtr;
 	uint8*			word_42066;
 	int16			mDrawSpritePositionX;
 	int16			mDrawSpritePositionY;
 	int16			mDrawSpriteColumns;
 	int16			mDrawSpriteRows;
-	uint8			byte_42070;
+	uint8			mDraw_Sprite_PalletIndex;
 	uint8			byte_42071;
 	uint16			word_42074;
 	uint16			word_42076;
