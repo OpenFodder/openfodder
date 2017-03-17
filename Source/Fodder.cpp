@@ -4531,34 +4531,16 @@ bool cFodder::Custom_ShowMenu() {
 			}
 
 			Buttons[2].field_0 = 0;
-			mImage->Save();
-			mGraphics->PaletteSet();
-			mImage->paletteFade();
-
 			mMouseSpriteNew = 0x23;
 			eventProcess();
-			mDemo_ExitMenu = 0;
 
-			for (;;) {
-				Video_Sleep_Wrapper();
+			Menu_Loop( 
+				[pMenuElements = Buttons]() {
 
-				Mouse_Inputs_Get();
-				Mouse_DrawCursor();
-
-				if (mButtonPressLeft) {
-					GUI_Element_Mouse_Over( Buttons );
-				}
-
-				if (mDemo_ExitMenu > 0 || mMission_Aborted || mCustom_ExitMenu)
-					break;
-
-				if (mImage->GetFaded() == false)
-					mImage->paletteFade();
-
-				g_Window.RenderAt( mImage );
-				g_Window.FrameEnd();
-				mImage->Restore();
-			}
+					if (g_Fodder.mButtonPressLeft)
+						g_Fodder.GUI_Element_Mouse_Over( pMenuElements );
+				} 
+			);
 
 			if (mMission_Aborted) {
 				mCustom_ExitMenu = 1;
@@ -4642,38 +4624,18 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
 	mWindow->SetScreenSize( cDimension( 320, 260) );
 
-	mImage->Save();
-	mImage->paletteFade();
-
-	mDemo_ExitMenu = -1;
 	word_3BEC3 = 4;
 
-	for( ;; ) {
-		Video_Sleep_Wrapper();
+	Menu_Loop(
+		[]() {
+			if (g_Fodder.mButtonPressLeft) {
+				if (g_Fodder.mVersion->mVersion == eVersion::AmigaFormat)
+					g_Fodder.GUI_Element_Mouse_Over( mAfx_Buttons );
 
-		Mouse_Inputs_Get();
-		Mouse_DrawCursor();
-
-		if (mButtonPressLeft) {
-			if (mVersion->mVersion == eVersion::AmigaFormat)
-				GUI_Element_Mouse_Over( mAfx_Buttons );
-
-			if (mVersion->mVersion == eVersion::AmigaPlus)
-				GUI_Element_Mouse_Over( mPlus_Buttons );
-		}
-
-		if (mDemo_ExitMenu > 0 || mMission_Aborted)
-			break;
-
-		if (mImage->GetFaded() == false )
-			mImage->paletteFade();
-
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->Restore(); 
-	}
-		
-	Image_FadeOut();
+				if (g_Fodder.mVersion->mVersion == eVersion::AmigaPlus)
+					g_Fodder.GUI_Element_Mouse_Over( mPlus_Buttons );
+			}
+	} );
 
 	mImage->clearBuffer();
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
@@ -11104,6 +11066,51 @@ void cFodder::GUI_Button_Quiz_11() {
 	mDemo_ExitMenu = -1;
 }
 
+void cFodder::Menu_Loop( const std::function<void()> pButtonHandler ) {
+
+	mCustom_ExitMenu = 0;
+	mMission_Aborted = 0;
+	mDemo_ExitMenu = -1;
+
+	mImage->Save();
+	mGraphics->PaletteSet();
+	mImage->paletteFade();
+
+	for (;;) {
+
+		Video_Sleep_Wrapper();
+
+		if (Menu_Draw( pButtonHandler ))
+			break;
+	}
+
+	Image_FadeOut();
+	mImage->clearBuffer();
+}
+
+bool cFodder::Menu_Draw( const std::function<void()> pButtonHandler ) {
+
+	// Handle Mouse
+	Mouse_Inputs_Get();
+	Mouse_DrawCursor();
+
+	// Button Pressed?
+	if (mButtonPressLeft)
+		pButtonHandler();
+
+	// Exit Time?
+	if (mDemo_ExitMenu > 0 || mMission_Aborted || mCustom_ExitMenu)
+		return true;
+
+	if (mImage->GetFaded() == false)
+		mImage->paletteFade();
+
+	g_Window.RenderAt( mImage );
+	g_Window.FrameEnd();
+	mImage->Restore();
+	return false;
+}
+
 void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 		
 	Image_FadeOut();
@@ -11144,35 +11151,15 @@ void cFodder::Demo_Quiz() {
 	Image_FadeOut();
 
 	mGraphics->imageLoad( "1.lbm", 32 );
-	mGraphics->PaletteSet();
-
-	mImage->Save();
-	mImage->paletteFade();
 	Mouse_Setup();
 
-	for( ;; ) {
-		Video_Sleep_Wrapper();
-
-		Mouse_Inputs_Get();
-		Mouse_DrawCursor();
-		if (mButtonPressLeft) {
-			GUI_Element_Mouse_Over( mPlusQuiz_Buttons );
-		}
-
-		if (mDemo_ExitMenu >= 0)
-			break;
-
-		if (mImage->GetFaded() == false )
-			mImage->paletteFade();
-
-		g_Window.RenderAt( mImage );
-		g_Window.FrameEnd();
-		mImage->Restore(); 
+	Menu_Loop(
+		[]() {
+		if (g_Fodder.mButtonPressLeft)
+			g_Fodder.GUI_Element_Mouse_Over( mPlusQuiz_Buttons );
 	}
-		
-	Image_FadeOut();
+	);
 
-	mImage->clearBuffer();
 
 	mGraphics->imageLoad( "apmenu.lbm", 32 );
 	mGraphics->PaletteSet();
@@ -20618,20 +20605,20 @@ Start:;
 				}
 			}
 
-			// Demo/Single mission 
-			if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set) {
-
-				// Custom can do the service screen
-				if(mVersion->mVersion == eVersion::Custom)
-					Service_Show();
-
-				break;
-			}
-
 			//loc_106F1
 			if (mMission_TryAgain) {
 				word_390EC = -1;
 				continue;
+			}
+
+			// Demo/Single mission 
+			if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set) {
+
+				// Custom can do the service screen
+				if(!mMission_Aborted && mVersion->mVersion == eVersion::Custom)
+					Service_Show();
+
+				break;
 			}
 
 			if (mMission_Aborted)

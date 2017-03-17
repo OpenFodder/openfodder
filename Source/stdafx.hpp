@@ -27,6 +27,7 @@
 #include <sstream>
 #include <algorithm>
 #include <ctime>
+#include <functional>
 
 #include <SDL.h>
 #ifndef EMSCRIPTEN

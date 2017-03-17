@@ -1335,6 +1335,9 @@ public:
 	void			WindowTitleSet( bool pInMission );
 	void			WindowTitleBaseSetup();
 
+	void			Menu_Loop( const std::function<void( )> pButtonHandler );
+	bool			Menu_Draw( const std::function<void( )> pButtonHandler );
+
 	void			VersionCleanup();
 	void			VersionLoad( const sVersion* pVersion );
 	void			VersionSelect();
