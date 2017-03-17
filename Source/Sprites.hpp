@@ -175,7 +175,7 @@ struct sSprite {
 	int8 field_58;
 	int8 field_59;
 	int8 field_5A;
-	int8 field_5B;
+	int8 field_5B;			// Human: Is Sinking
 	int8 field_5C;
 	int8 field_5D;
 	int16 field_5E;			// Byte counter inside mSprites
@@ -193,9 +193,20 @@ struct sSprite {
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
 };
 
-enum eSprite_Anim {
+enum eSprite_Flags {
+	eSprite_Flag_Invincibility = 0x02,
+	eSprite_Flag_HomingMissiles = 0x01
+};
 
-	eSprite_Anim_Die			= 0x0A,
+enum eSprite_Anim {
+	eSprite_Anim_None			= 0x00,
+	eSprite_Anim_Hit			= 0x01,
+	eSprite_Anim_Hit2			= 0x02,
+	eSprite_Anim_Hit3			= 0x03,
+	eSprite_Anim_Die1			= 0x05,		// Cause a turret to explode, a soldier to be run over
+	eSprite_Anim_Die2			= 0x06,
+	eSprite_Anim_Die3			= 0x07,
+	eSprite_Anim_Die4			= 0x0A,
 	eSprite_Anim_Slide1			= 0x32,
 	eSprite_Anim_Slide2			= 0x33,
 	eSprite_Anim_Slide3			= 0x34,
