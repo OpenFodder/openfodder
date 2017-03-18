@@ -122,6 +122,40 @@ enum eSprites {
 	eSprite_Computer_3							= 110,
 };
 
+
+enum eSprite_Flags {
+	eSprite_Flag_HomingMissiles = 0x01,
+	eSprite_Flag_Invincibility = 0x02,
+};
+
+enum eSprite_Anim {
+	eSprite_Anim_None = 0x00,
+	eSprite_Anim_Hit = 0x01,
+	eSprite_Anim_Hit2 = 0x02,
+	eSprite_Anim_Hit3 = 0x03,
+	eSprite_Anim_Die1 = 0x05,		// Cause a turret to explode, a soldier to be run over
+	eSprite_Anim_Die2 = 0x06,
+	eSprite_Anim_Die3 = 0x07,
+	eSprite_Anim_Die4 = 0x09,
+	eSprite_Anim_Die5 = 0x0A,
+
+	eSprite_Anim_Slide1 = 0x32,
+	eSprite_Anim_Slide2 = 0x33,
+	eSprite_Anim_Slide3 = 0x34,
+	eSprite_Anim_Vehicle_Enter = 0x5A,
+	eSprite_Anim_Vehicle_Inside = 0x5B
+};
+
+enum ePstuff_Sprites {
+
+	eSprite_pStuff_Mouse_Cursor = 0x23,
+	eSprite_pStuff_Mouse_Target = 0x24,
+	eSprite_pStuff_Mouse_Arrow_DownRight = 0x25,
+	eSprite_pStuff_Mouse_Arrow_UpLeft = 0x26,
+	eSprite_pStuff_Mouse_Helicopter = 0x27,
+
+};
+
 struct sSprite {
 	int16 field_0;		// X
 	int16 field_2;		
@@ -179,7 +213,7 @@ struct sSprite {
 	int8 field_5C;
 	int8 field_5D;
 	int16 field_5E;			// Byte counter inside mSprites
-	int8 field_60;
+	int8 field_60;			// Vehicle: Current Terrain Type
 	int8 field_61;
 	int16 field_62;
 	int8 field_64;
@@ -191,39 +225,6 @@ struct sSprite {
 	sSprite* field_70;
 	int8 field_74;
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
-};
-
-enum eSprite_Flags {
-	eSprite_Flag_HomingMissiles = 0x01,
-	eSprite_Flag_Invincibility	= 0x02,
-};
-
-enum eSprite_Anim {
-	eSprite_Anim_None			= 0x00,
-	eSprite_Anim_Hit			= 0x01,
-	eSprite_Anim_Hit2			= 0x02,
-	eSprite_Anim_Hit3			= 0x03,
-	eSprite_Anim_Die1			= 0x05,		// Cause a turret to explode, a soldier to be run over
-	eSprite_Anim_Die2			= 0x06,
-	eSprite_Anim_Die3			= 0x07,
-	eSprite_Anim_Die4			= 0x09,
-	eSprite_Anim_Die5			= 0x0A,
-
-	eSprite_Anim_Slide1			= 0x32,
-	eSprite_Anim_Slide2			= 0x33,
-	eSprite_Anim_Slide3			= 0x34,
-	eSprite_Anim_Vehicle_Enter	= 0x5A,
-	eSprite_Anim_Vehicle_Inside = 0x5B
-};
-
-enum ePstuff_Sprites {
-
-	eSprite_pStuff_Mouse_Cursor				= 0x23,
-	eSprite_pStuff_Mouse_Target				= 0x24,
-	eSprite_pStuff_Mouse_Arrow_DownRight	= 0x25,
-	eSprite_pStuff_Mouse_Arrow_UpLeft		= 0x26,
-	eSprite_pStuff_Mouse_Helicopter			= 0x27,
-
 };
 
 struct sWeaponData {

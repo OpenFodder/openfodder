@@ -4376,7 +4376,7 @@ void cFodder::CopyProtection() {
 
 		Image_FadeOut();
 
-		mInputString[mInputString_Position] = 0xFF;
+		mInputString[mInputString_Position] = -1;
 
 		CopyProtection_EncodeInput();
 
@@ -5931,7 +5931,7 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite ) {
 	Data0 = -10;
 	Map_Terrain_Get_Type_And_Walkable( pSprite, Data0, Data4 );
 
-	pSprite->field_60 = Data4;
+	pSprite->field_60 = static_cast<int8>(Data4);
 	if (Data4 == eTerrainType_Rocky || Data4 == eTerrainType_Rocky2)
 		goto loc_23056;
 
@@ -7759,7 +7759,7 @@ void cFodder::Sprite_Handle_Indigenous_Movement( sSprite* pSprite ) {
 	// Random time until destination change
 	int16 Data0 = tool_RandomGet() & 0x3F;
 	Data0 += 0x14;
-	pSprite->field_4C = Data0;
+	pSprite->field_4C = static_cast<int8>(Data0);;
 }
 
 int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( sSprite* pSprite ) {
@@ -8411,7 +8411,7 @@ loc_26580:;
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data0 += 6;
-	pSprite->field_43 = Data0;
+	pSprite->field_43 = static_cast<int8>(Data0);
 	pSprite->field_8 = 0x7C;
 
 loc_265B1:;
@@ -8597,7 +8597,7 @@ int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 	pData2C->field_10 = Data0;
 	Data4 &= 0x0F;
 	Data4 += 8;
-	pData2C->field_44 = Data4;
+	pData2C->field_44 = static_cast<int8>(Data4);
 	return 0;
 }
 
@@ -13035,7 +13035,7 @@ loc_1A042:;
 	if (pSprite->field_75 != 0x71) {
 		pSprite->field_75 = 0x71;
 		Data0 = pSprite->field_A;
-		pSprite->field_74 = Data0;
+		pSprite->field_74 = static_cast<int8>(Data0);
 	}
 
 	pSprite->field_A += 1;
@@ -13535,7 +13535,7 @@ loc_1AD86:;
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data0 += 6;
-	pSprite->field_43 = Data0;
+	pSprite->field_43 = static_cast<int8>(Data0);
 	pSprite->field_8 = 0x7C;
 
 	if (!Sprite_Create_Enemy(pSprite, Data2C))
@@ -13708,7 +13708,7 @@ void cFodder::Sprite_Handle_GroundHole( sSprite* pSprite ) {
 
 		int16 Data0 = tool_RandomGet() & 0x0F;
 		Data0 += 6;
-		pSprite->field_43 = Data0;
+		pSprite->field_43 = static_cast<int8>(Data0);
 		pSprite->field_2A = 0;
 		return;
 	}
@@ -13783,7 +13783,7 @@ loc_1B285:;
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data0 += 6;
-	pSprite->field_43 = Data0;
+	pSprite->field_43 = static_cast<int8>(Data0);
 	pSprite->field_8 = 0x7C;
 
 loc_1B2B6:;
@@ -15759,7 +15759,7 @@ loc_1D8DC:;
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data0 += 6;
-	pSprite->field_43 = Data0;
+	pSprite->field_43 = static_cast<int8>(Data0);
 	pSprite->field_8 = 0x7C;
 
 	if (!Sprite_Create_Enemy( pSprite, Data2C ))
