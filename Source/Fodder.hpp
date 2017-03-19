@@ -477,8 +477,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B33F;
 
 	int16			mPhase_Goals[8];
-	int16			word_3B447;
-	int16			word_3B449;
+	int16			mIntro_PlayTextDuration;
+	int16			mSoundEffectToPlay_Set;
 	int16			mSoundEffectToPlay;
 
 	int16			mSquad_EnteredVehicleTimer[3];
@@ -505,13 +505,13 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B4EB;
 	int16			word_3B4ED[2];
 	int16			mMission_Finished;
-	int16			word_3B4F3;
+	int16			mImage_Aborted;
 	int16			mBriefing_Aborted;
 
 	sSprite*		dword_3B5F5;
 	int32			mMapTilePtr;
-	int16			word_3B60E;
-	int16			word_3B610;
+	int16			mCamera_Pan_ColumnOffset;
+	int16			mCamera_Pan_RowOffset;
 	int16			word_3B612;
 	int16			word_3B614;
 	int16			mCamera_Pan_RowCount;	// Number of rows to move the camera
@@ -522,13 +522,13 @@ class cFodder : public cSingleton < cFodder > {
 	uint16*			word_3BDAD;
 	int16			mMouseX;
 	int16			mMouseY;
-	uint16			word_3BDB3;
-	uint16			word_3BDB5;
+	uint16			mouse_Pos_Column_Unused;
+	uint16			mouse_Pos_Row_Unused;
 	
 
 	uint16			mSquad_Grenade_SplitMode;
 	uint16			mSquad_Rocket_SplitMode;
-	uint16			word_3BDEB;
+	uint16			mGUI_Sidebar_TroopList_Name_BreakOnSpace;
 	
 	sSprite*		mSquad_0_Sprites[9];
 	sSprite*		mSquad_1_Sprites[9];
