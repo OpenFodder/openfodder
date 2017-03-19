@@ -74,19 +74,19 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3ABEB = 0;
 	word_3ABFD = 0;
 	word_3ABFB = 0;
-	word_3B15D = 0;
-	word_3B15F = 0;
-	word_3B161 = 0;
-	word_3B163 = 0;
-	word_3B173 = 0;
-	word_3B175 = 0;
-	word_3B177 = 0;
-	word_3B179 = 0;
-	word_3B17B = 0;
-	word_3B17D = 0;
-	word_3B17F = 0;
-	word_3B189 = 0;
-	word_3B18B = 0;
+	mSprite_SpareUsed = 0;
+	mSprite_SpareUsed2 = 0;
+	mSquad_WalkTargetX = 0;
+	mSquad_WalkTargetY = 0;
+	mSprite_Bullet_Destroy = 0;
+	mSprite_Helicopter_DestroyLight = 0;
+	mSprite_DistanceTo_Squad0 = 0;
+	mSprite_Tank_SpriteX = 0;
+	mSprite_Tank_SpriteY = 0;
+	mSprite_Tank_Squad0_X = 0;
+	mSprite_Tank_DistanceTo_Squad0 = 0;
+	mSprite_Missile_LaunchDistance_X = 0;
+	mSprite_Missile_LaunchDistance_Y = 0;
 	word_3B60E = 0;
 	word_3B610 = 0;
 	dword_3B30D = 0;
@@ -806,7 +806,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AC4F = 0;
 	word_3AC51 = 0;
 
-	word_3AF01 = 0;
+	mMap_Destroy_Tile_LastTile = 0;
 	mMap_Destroy_Tile_X = 0;
 	mMap_Destroy_Tile_Y = 0;
 
@@ -815,7 +815,7 @@ void cFodder::Mission_Memory_Clear() {
 		mMap_Destroy_Tiles[x].mY = 0;
 	}
 
-	word_3AF07 = 0;
+	mMap_Destroy_Tiles_Countdown = 0;
 	mMap_Destroy_TilesPtr2 = 0;
 	mMap_Destroy_TilesPtr = 0;
 
@@ -831,13 +831,13 @@ void cFodder::Mission_Memory_Clear() {
 	mGUI_NextFreeElement = 0;
 	word_3AEFB = 0;
 
-	word_3B15D = 0;
-	word_3B161 = 0;
-	word_3B163 = 0;
-	word_3B173 = 0;
-	word_3B175 = 0;
+	mSprite_SpareUsed = 0;
+	mSquad_WalkTargetX = 0;
+	mSquad_WalkTargetY = 0;
+	mSprite_Bullet_Destroy = 0;
+	mSprite_Helicopter_DestroyLight = 0;
 	word_3B1A9 = 0;
-	word_3B1AB = 0;
+	mSprite_Bullet_Deviate_Counter = 0;
 	dword_3B1CB = 0;
 
 	for (uint16 x = 0; x < 0x0F; ++x ) 
@@ -1650,7 +1650,7 @@ loc_11D8A:;
 	
 	Image_FadeOut();
 
-	if (word_3AF07)
+	if (mMap_Destroy_Tiles_Countdown)
 		Map_Destroy_Tiles();
 
 	dword_39F7C = 0;
@@ -3448,8 +3448,8 @@ void cFodder::Sprite_Draw( ) {
 		if (eax->field_24) {
 			eax->field_24 = 0;
 			eax->field_0 = -32768;
-			word_3B15D = 0;
-			word_3B15F = 0;
+			mSprite_SpareUsed = 0;
+			mSprite_SpareUsed2 = 0;
 		}
 		else {
 			int16 Data0 = eax->field_8;
@@ -6094,57 +6094,54 @@ void cFodder::Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC
 	if (mMission_Finished)
 		return;
 
-	int16 Data28 = pSprite->field_22;
-	const int16* Data30 = mSprite_Can_Be_RunOver;
-	sSprite* Data24 = mSprites;
+	sSprite* Sprite = mSprites;
 
-	for (int16 Data4 = 0x1D; Data4 >= 0; --Data4, ++Data24) {
-		if (Data24->field_0 == -32768)
+	for (int16 Count = 0x1D; Count >= 0; --Count, ++Sprite) {
+		if (Sprite->field_0 == -32768)
 			continue;
 
-		if (Data24 == pSprite)
+		if (Sprite == pSprite)
 			continue;
 
-		int16 Data0 = Data24->field_18;
-		if (!Data30[Data0])
+		if (!mSprite_Can_Be_RunOver[Sprite->field_18])
 			continue;
 
-		if (Data28 == Data24->field_22)
+		if (pSprite->field_22 == Sprite->field_22)
 			continue;
 
-		if (Data24->field_18 == eSprite_Hostage)
+		if (Sprite->field_18 == eSprite_Hostage)
 			continue;
 
-		if (Data24->field_18 == eSprite_Hostage_2)
+		if (Sprite->field_18 == eSprite_Hostage_2)
 			continue;
 
-		if (pData8 > Data24->field_0)
+		if (pData8 > Sprite->field_0)
 			continue;
 
-		if (pDataC < Data24->field_0)
+		if (pDataC < Sprite->field_0)
 			continue;
 
-		if (pData10 > Data24->field_4)
+		if (pData10 > Sprite->field_4)
 			continue;
 
-		if (pData14 < Data24->field_4)
+		if (pData14 < Sprite->field_4)
 			continue;
 
-		Data0 = Data24->field_20;
+		int16 Data0 = Sprite->field_20;
 		if (pData1C < Data0)
 			continue;
 		Data0 += 0x0E;
 		if (pData18 > Data0)
 			continue;
 
-		if (Data24->field_18 != eSprite_Player) {
-			if (Data24->field_6E)
+		if (Sprite->field_18 != eSprite_Player) {
+			if (Sprite->field_6E)
 				continue;
 		}
 
 		// Run Over
-		Data24->field_38 = eSprite_Anim_Die1;
-		if (!Data24->field_65)
+		Sprite->field_38 = eSprite_Anim_Die1;
+		if (!Sprite->field_65)
 			return;
 
 		pSprite->field_38 = eSprite_Anim_Die1;
@@ -6155,6 +6152,7 @@ void cFodder::Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC
 int16 cFodder::Sprite_Animation_SlideOrDie( sSprite* pSprite ) {
 	sSprite* Data24 = 0;
 
+	// Die animation running?
 	if (pSprite->field_38 == eSprite_Anim_Die1 || pSprite->field_38 == eSprite_Anim_Die3) {
 		pSprite->field_18 = eSprite_Explosion;
 		pSprite->field_26 = 0x1F56;
@@ -6170,6 +6168,7 @@ int16 cFodder::Sprite_Animation_SlideOrDie( sSprite* pSprite ) {
 		return -1;
 	}
 
+	// Slide animation running?
 	if (pSprite->field_38 == eSprite_Anim_Slide1) {
 
 		pSprite->field_36 = -pSprite->field_36;
@@ -6234,11 +6233,11 @@ void cFodder::Sprite_Handle_Vehicle_Human( sSprite* pSprite ) {
 	if (pSprite->field_6F == 3)
 		sub_245BF( pSprite );
 
-	word_3B175 = 0;
+	mSprite_Helicopter_DestroyLight = 0;
 	pSprite->field_22 = 0;
 	sub_1B4BB( pSprite );
 	pSprite->field_22 = 0;
-	word_3B175 = 0;
+	mSprite_Helicopter_DestroyLight = 0;
 
 	sSprite* Data24 = pSprite + 1;
 	Data24->field_18 = eSprite_Null;
@@ -6450,8 +6449,8 @@ void cFodder::sub_23879( sSprite* pSprite ) {
 	pSprite->field_0 += mSprite_Turret_Positions[Data0];
 	pSprite->field_4 += mSprite_Turret_Positions[Data0 + 1];
 
-	word_3B189 = 0;
-	word_3B18B = 0;
+	mSprite_Missile_LaunchDistance_X = 0;
+	mSprite_Missile_LaunchDistance_Y = 0;
 	sSprite* Data2C = 0;
 
 	if (!Sprite_Create_Missile( pSprite, Data2C )) {
@@ -6501,13 +6500,13 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
 	Data30->field_4 = pSprite->field_4;
 	Data30->field_6 = pSprite->field_6;
 
-	pData2C->field_0 += word_3B189;
-	Data30->field_0 += word_3B189;
+	pData2C->field_0 += mSprite_Missile_LaunchDistance_X;
+	Data30->field_0 += mSprite_Missile_LaunchDistance_X;
 	if (Data30->field_0 < 0)
 		return 0;
 
-	pData2C->field_4 += word_3B18B;
-	Data30->field_4 += word_3B18B;
+	pData2C->field_4 += mSprite_Missile_LaunchDistance_Y;
+	Data30->field_4 += mSprite_Missile_LaunchDistance_Y;
 
 	if (Data30->field_4 < 0)
 		return 0;
@@ -6602,11 +6601,11 @@ void cFodder::Sprite_Handle_Helicopter_Human( sSprite* pSprite ) {
 
 	Sprite_Handle_Helicopter_Human_Deploy_Weapon( pSprite );
 
-	word_3B175 = 0;
+	mSprite_Helicopter_DestroyLight = 0;
 	pSprite->field_22 = 0;
 	Sprite_Handle_Helicopter( pSprite );
 	pSprite->field_22 = 0;
-	word_3B175 = 0;
+	mSprite_Helicopter_DestroyLight = 0;
 
 	sSprite* Data24 = pSprite + 1;
 	Data24->field_18 = eSprite_Null;
@@ -6830,8 +6829,8 @@ void cFodder::Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 ) {
 	Data4 = mSprite_Turret_Positions[Data0 + 1];
 	pSprite->field_4 += Data4;
 
-	word_3B189 = 0;
-	word_3B18B = 0;
+	mSprite_Missile_LaunchDistance_X = 0;
+	mSprite_Missile_LaunchDistance_Y = 0;
 
 	if (pSprite->field_6F != 9)
 		goto loc_2421D;
@@ -7161,8 +7160,8 @@ loc_2490D:;
 	return;
 
 loc_24917:;
-	word_3B189 = 0x0E;
-	word_3B18B = -12;
+	mSprite_Missile_LaunchDistance_X = 0x0E;
+	mSprite_Missile_LaunchDistance_Y = -12;
 
 	if (pSprite->field_6F == 8)
 		goto loc_24936;
@@ -7311,14 +7310,14 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	Data30->field_4 = pSprite->field_4;
 	Data30->field_6 = pSprite->field_6;
 
-	Data0 = word_3B189;
+	Data0 = mSprite_Missile_LaunchDistance_X;
 	pData2C->field_0 += Data0;
 	Data30->field_0 += Data0;
 	if (Data30->field_0 < 0)
 		return 0;
 
-	pData2C->field_4 += word_3B18B;
-	Data30->field_4 += word_3B18B;
+	pData2C->field_4 += mSprite_Missile_LaunchDistance_Y;
+	Data30->field_4 += mSprite_Missile_LaunchDistance_Y;
 
 	if (Data30->field_0 < 0)
 		return 0;
@@ -7411,7 +7410,7 @@ loc_253E7:;
 	pSprite->field_2E = pData30->field_0;
 	pSprite->field_30 = pData30->field_4;
 
-	Data0 = word_3B177;
+	Data0 = mSprite_DistanceTo_Squad0;
 	if (Data0 <= 0x3C)
 		goto loc_254C7;
 	if (Data0 >= 0x8C)
@@ -7425,8 +7424,8 @@ loc_253E7:;
 	if (Data0)
 		goto loc_254A4;
 
-	word_3B189 = 0x0E;
-	word_3B18B = -12;
+	mSprite_Missile_LaunchDistance_X = 0x0E;
+	mSprite_Missile_LaunchDistance_Y = -12;
 	if (pSprite->field_6F == 8)
 		goto loc_2547F;
 
@@ -7543,13 +7542,13 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 		pSprite->field_38 = eSprite_Anim_None;
 
 	if (pSprite->field_38) {
-		word_3B175 = -1;
+		mSprite_Helicopter_DestroyLight = -1;
 
 		pSprite->field_22 = 1;
 		Sprite_Handle_Helicopter( pSprite );
 		pSprite->field_22 = 1;
 
-		word_3B175 = 0;
+		mSprite_Helicopter_DestroyLight = 0;
 		goto loc_25288;
 	}
 
@@ -7660,7 +7659,7 @@ loc_250D2:;
 	DataC = pSprite->field_4;
 	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 
-	word_3B177 = Data0;
+	mSprite_DistanceTo_Squad0 = Data0;
 	if (Data0 < 0xFA)
 		if (sub_2531F( pSprite, Data30 ))
 			goto loc_251D2;
@@ -7693,12 +7692,12 @@ loc_251D2:;
 	}
 
 loc_25239:;
-	word_3B175 = -1;
+	mSprite_Helicopter_DestroyLight = -1;
 	pSprite->field_22 = 1;
 	Sprite_Handle_Helicopter(pSprite);
 
 	pSprite->field_22 = 1;
-	word_3B175 = 0;
+	mSprite_Helicopter_DestroyLight = 0;
 	Data24 = pSprite + 1;
 	Data24->field_18 = eSprite_Null;
 	++Data24;
@@ -8793,7 +8792,7 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
 }
 
 void cFodder::Sprite_Movement_Calculate( sSprite* pSprite ) {
-	word_3B173 = 0;
+	mSprite_Bullet_Destroy = 0;
 	if (!pSprite->field_36)
 		return;
 
@@ -8828,7 +8827,7 @@ void cFodder::Sprite_Movement_Calculate( sSprite* pSprite ) {
 	if (pSprite->field_0 < 0) {
 		pSprite->field_0 = 0;
 		pSprite->field_2 = 0;
-		word_3B173 = -1;
+		mSprite_Bullet_Destroy = -1;
 	}
 
 	tmp = (pSprite->field_6 & 0xFFFF) | pSprite->field_4 << 16;
@@ -8839,7 +8838,7 @@ void cFodder::Sprite_Movement_Calculate( sSprite* pSprite ) {
 	if (pSprite->field_4 < 0) {
 		pSprite->field_6 = 0;
 		pSprite->field_4 = 0;
-		word_3B173 = -1;
+		mSprite_Bullet_Destroy = -1;
 	}
 }
 
@@ -9314,17 +9313,17 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 		pData10 += 1;
 	}
 
-	if (word_3B161) {
-		Data38[pData10].mX = word_3B161;
-		Data38[pData10].mY = word_3B163;
+	if (mSquad_WalkTargetX) {
+		Data38[pData10].mX = mSquad_WalkTargetX;
+		Data38[pData10].mY = mSquad_WalkTargetY;
 		pData10 += 1;
 	}
 	//loc_2AAAE
 	Data38[pData10].mX = pTargetX;
 	Data38[pData10].mY = pTargetY;
 
-	word_3B161 = pTargetX;
-	word_3B163 = pTargetY;
+	mSquad_WalkTargetX = pTargetX;
+	mSquad_WalkTargetY = pTargetY;
 
 	Data38[pData10 + 1].asInt = -1;
 
@@ -10413,8 +10412,8 @@ void cFodder::Map_Destroy_Tiles( ) {
 	const int16* IndestructibleTypes = 0;
 	int32 Data0, Data4, MapTile, TileType;
 
-	if (word_3AF07) {
-		--word_3AF07;
+	if (mMap_Destroy_Tiles_Countdown) {
+		--mMap_Destroy_Tiles_Countdown;
 		goto loc_2DFC7;
 	}
 
@@ -10486,9 +10485,9 @@ loc_2DF7B:;
 	if (Data0)
 		return;
 
-	word_3AF07 = 1;
+	mMap_Destroy_Tiles_Countdown = 1;
 	writeLEWord( MapPtr, Data4 );
-	word_3AF01 = Data4;
+	mMap_Destroy_Tile_LastTile = Data4;
 	Map_Destroy_Tiles_Next();
 
 loc_2DFC7:;
@@ -12814,8 +12813,8 @@ loc_19BA8:;
 	loc_19C6B:;
 
 	Sprite_Movement_Calculate(pSprite);
-	if(word_3B173)
-		goto loc_19E3D;
+	if(mSprite_Bullet_Destroy)
+		goto SpriteDestroy;
 	pSprite->field_36 = pSprite->field_4A;
 	
 	if(pSprite->field_59)
@@ -12844,8 +12843,8 @@ loc_19D24:;
 	pSprite->field_2C = -1;
 	
 	Sprite_Movement_Calculate(pSprite);
-	if( word_3B173 )
-		goto loc_19E3D;
+	if( mSprite_Bullet_Destroy )
+		goto SpriteDestroy;
 	
 	loc_19D3C:;
 	if( pSprite->field_64 > 2 ) {
@@ -12879,7 +12878,7 @@ loc_19DB0:;
 	pSprite->field_12 = 0;
 	pSprite->field_A += 1;
 	if( pSprite->field_A >= 4 )
-		goto loc_19E3D;
+		goto SpriteDestroy;
 	
 	return;
 	
@@ -12911,7 +12910,7 @@ loc_19E1C:;
 	if(pSprite->field_A < 8 )
 		return;
 	
-loc_19E3D:;
+SpriteDestroy:;
 	
 	byte_3A9D2[2] -= 1;
 	Sprite_Destroy( pSprite );
@@ -12920,7 +12919,7 @@ loc_19E3D:;
 loc_19E50:;
 	pSprite->field_0 = 0;
 	pSprite->field_4 = 0x1000;
-	goto loc_19E3D;
+	goto SpriteDestroy;
 }
 
 void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
@@ -12972,7 +12971,7 @@ loc_19EE5:;
 	if (pSprite->field_38 == eSprite_Anim_None)
 		goto loc_1A149;
 
-	if (pSprite->field_18 == 0x6B)
+	if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2)
 		if (mHelicopterCall_X >= 0)
 			goto loc_1A042;
 	
@@ -12999,7 +12998,7 @@ loc_19F50:;
 	pSprite->field_A &= 0x0F;
 	pSprite->field_2A -= 1;
 	if (pSprite->field_2A < 0)
-		goto loc_19FBC;
+		goto Helicopter_Explosion;
 
 	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E -= 0x18000;
@@ -13011,7 +13010,7 @@ loc_19F50:;
 	pSprite->field_1E = 0;
 	pSprite->field_20 = 0;
 
-loc_19FBC:;
+Helicopter_Explosion:;
 	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = 0x1F50;
 	pSprite->field_28 = -9;
@@ -13026,7 +13025,7 @@ loc_19FBC:;
 	if (!pSprite->field_22)
 		sub_23EA6(pSprite);
 
-	if (word_3B175)
+	if (mSprite_Helicopter_DestroyLight)
 		Sprite_Destroy( pSprite + 3 );
 
 	return;
@@ -14352,7 +14351,7 @@ void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 	Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
 	Sprite_Movement_Calculate( pSprite );
 
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_1BECD;
 
 	Data0 = pSprite->field_10;
@@ -14630,7 +14629,7 @@ void cFodder::sub_1C2D2( sSprite* pSprite ) {
 	int32 Field_1E;
 
 	Sprite_Movement_Calculate( pSprite );
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_1C321;
 
 	pSprite->field_36 -= 1;
@@ -15110,20 +15109,20 @@ void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 	Data8 = Data30->field_0;
 	DataC = Data30->field_4;
 
-	word_3B179 = Data0;
-	word_3B17B = Data4;
-	word_3B17D = Data8;
-	word_3B17F = DataC;
+	mSprite_Tank_SpriteX = Data0;
+	mSprite_Tank_SpriteY = Data4;
+	mSprite_Tank_Squad0_X = Data8;
+	mSprite_Tank_DistanceTo_Squad0 = DataC;
 
 	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
-	word_3B17F = Data0;
-	if (Data0 >= 0xFA)
+	mSprite_DistanceTo_Squad0 = Data0;
+	if (Data0 >= 250)
 		goto loc_1CD7B;
 
-	Data0 = word_3B179;
-	Data4 = word_3B17B;
-	Data8 = word_3B17D;
-	DataC = word_3B17F;
+	Data0 = mSprite_Tank_SpriteX;
+	Data4 = mSprite_Tank_SpriteY;
+	Data8 = mSprite_Tank_Squad0_X;
+	DataC = mSprite_Tank_DistanceTo_Squad0;
 	Data8 += 0x0F;
 	DataC -= 0x0A;
 
@@ -15134,20 +15133,16 @@ void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 	pSprite->field_30 = Data30->field_4;
 	pSprite->field_4C = 0x5A;
 
-	if (pSprite->field_0 != pSprite->field_26)
-		goto loc_1CD53;
+	// If we have reached our current target
+	if (pSprite->field_0 == pSprite->field_26 && pSprite->field_4 == pSprite->field_28) {
 
-	if (pSprite->field_4 != pSprite->field_28)
-		goto loc_1CD53;
-
-	Data0 = tool_RandomGet() & 0x3F;
-	if (!Data0) {
-		pSprite->field_26 = Data30->field_0;
-		pSprite->field_28 = Data30->field_4;
+		if (!(tool_RandomGet() & 0x3F)) {
+			pSprite->field_26 = Data30->field_0;
+			pSprite->field_28 = Data30->field_4;
+		}
 	}
 
-loc_1CD53:;
-	if (word_3B177 <= 0x32)
+	if (mSprite_DistanceTo_Squad0 <= 0x32)
 		goto loc_1CDA3;
 
 	Data0 = tool_RandomGet() & 0x1F;
@@ -15166,11 +15161,11 @@ loc_1CD7B:;
 	}
 
 loc_1CDA3:;
-	word_3B175 = -1;
+	mSprite_Helicopter_DestroyLight = -1;
 	pSprite->field_22 = 1;
 	sub_23525( pSprite );
 	pSprite->field_22 = 1;
-	word_3B175 = 0;
+	mSprite_Helicopter_DestroyLight = 0;
 
 	if (word_3ABAD) {
 		pSprite->field_4C = 0;
@@ -15255,7 +15250,7 @@ void cFodder::sub_1CE80( sSprite* pSprite ) {
 
 loc_1CF3E:;
 	Sprite_Movement_Calculate( pSprite );
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_1D17A;
 
 	pSprite->field_36 = pSprite->field_4A;
@@ -15281,7 +15276,7 @@ loc_1CF3E:;
 loc_1CFF7:;
 	pSprite->field_2C = -1;
 	Sprite_Movement_Calculate( pSprite );
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_1D17A; 
 
 loc_1D00F:;
@@ -15531,7 +15526,7 @@ void cFodder::sub_1D4D2( sSprite* pSprite ) {
 
 	Sprite_Movement_Calculate( pSprite );
 
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_1D6CA;
 
 	Data0 = pSprite->field_0;
@@ -15556,7 +15551,7 @@ loc_1D5B3:;
 	pSprite->field_2C = -1;
 	Sprite_Movement_Calculate( pSprite );
 
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_1D6CA;
 
 loc_1D5CB:;
@@ -16122,7 +16117,7 @@ loc_1D9C9:;
 		goto loc_1DA13;
 
 	Sprite_Movement_Calculate( pSprite );
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_1DA13;
 
 	Data0 = -3;
@@ -18773,9 +18768,9 @@ loc_208A6:;
 	goto loc_209C7;
 
 loc_209B3:;
-	word_3B1AB += 1;
-	word_3B1AB &= 3;
-	if (!word_3B1AB)
+	mSprite_Bullet_Deviate_Counter += 1;
+	mSprite_Bullet_Deviate_Counter &= 3;
+	if (!mSprite_Bullet_Deviate_Counter)
 		goto loc_209F3;
 
 	Data8 = mSprite_Weapon_Data.mDeviatePotential;
@@ -19114,7 +19109,7 @@ void cFodder::sub_21041( sSprite* pSprite ) {
 }
 
 int16 cFodder::Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 ) {
-	if (!word_3B15D) {
+	if (!mSprite_SpareUsed) {
 
 		if (pData0 == 2)
 			goto loc_21234;
@@ -19132,7 +19127,7 @@ int16 cFodder::Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pDat
 	pData2C = &mSprite_Spare;
 	pData30 = &mSprite_Spare;
 	pData0 = -1;
-	word_3B15D = pData0;
+	mSprite_SpareUsed = pData0;
 	return -1;
 
 loc_21217:;
@@ -19156,7 +19151,7 @@ loc_21234:;
 	pData2C = &mSprite_Spare;
 	pData30 = &mSprite_Spare;
 	pData0 = -1;
-	word_3B15D = pData0;
+	mSprite_SpareUsed = pData0;
 	return -1;
 
 loc_2128F:;
@@ -19617,7 +19612,7 @@ int16 cFodder::Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C ) {
 }
 
 int16 cFodder::Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 ) {
-	if (word_3B15F)
+	if (mSprite_SpareUsed2)
 		goto loc_21B4B;
 
 	if (pData0 == 2)
@@ -19637,7 +19632,7 @@ loc_21B4B:;
 	pData2C = &mSprite_Spare;
 	pData30 = &mSprite_Spare;
 	pData0 = -1;
-	word_3B15F = pData0;
+	mSprite_SpareUsed2 = pData0;
 	return -1;
 
 loc_21B91:;
@@ -19657,7 +19652,7 @@ loc_21B91:;
 	pData2C = &mSprite_Spare;
 	pData30 = &mSprite_Spare;
 	pData0 = -1;
-	word_3B15F = pData0;
+	mSprite_SpareUsed2 = pData0;
 	return -1;
 }
 
@@ -19949,7 +19944,7 @@ loc_22235:;	// Door moving
 		goto loc_2227F;
 
 	Sprite_Movement_Calculate( pSprite );
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_2227F;
 
 	Data0 = -3;
@@ -20009,7 +20004,7 @@ loc_22339:;
 		goto loc_22383;
 
 	Sprite_Movement_Calculate( pSprite );
-	if (word_3B173)
+	if (mSprite_Bullet_Destroy)
 		goto loc_22383;
 
 	Data0 = -3;
