@@ -156,6 +156,12 @@ enum ePstuff_Sprites {
 
 };
 
+enum eSprite_DrawOrder {
+	eSprite_Draw_First	= -1,
+	eSprite_Draw_Second	= 0,
+	eSprite_Draw_Last	= 1
+};
+
 struct sSprite {
 	int16 field_0;		// X
 	int16 field_2;		
@@ -171,7 +177,6 @@ struct sSprite {
 	int16 field_16;
 	int16 field_18;		// Type
 	int32* field_1A;
-
 	int16 field_1E;
 	int16 field_20;
 	int16 field_22;
@@ -179,7 +184,7 @@ struct sSprite {
 	int16 field_26;		// Target X
 	int16 field_28;		// Target Y
 	int16 field_2A;
-	int16 field_2C;
+	int16 field_2C;		// eSprite_DrawOrder
 	int16 field_2E;
 	int16 field_30;
 	int16 field_32;		// Player: Squad Number

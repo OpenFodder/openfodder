@@ -285,9 +285,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mCamera_Position_X;
 	int16			mCamera_Position_Y;
 	int16			word_3A06B;
-	sSprite*		dword_3A071[45];
-	sSprite*		dword_3A125[45];
-	sSprite*		dword_3A1D9[45];
+	sSprite*		mSprite_DrawList_First[45];
+	sSprite*		mSprite_DrawList_Second[45];
+	sSprite*		mSprite_DrawList_Third[45];
 	int16			word_3A28D;
 
 	int16			word_3A8B1;
@@ -297,7 +297,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_3A8DB;
 	uint8			byte_3A8DE[200];
 
-	sSprite*		dword_3A291[64];
+	sSprite*		mSprite_DrawList_Final[64];
 	int32			dword_3A391;
 	uint32			dword_3A395;
 	int16			mTmp_FrameNumber;
@@ -368,7 +368,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			word_3AA43;
 	int16			word_3AB39;
-	int16			word_3ABA7;
+	int16			mSquad_Prepare_Prebriefing;
 	int8			byte_3ABA9;
 	int16			word_3ABAD;
 	int16			word_3ABAF;

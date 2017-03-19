@@ -68,7 +68,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mEnemy_BuildingCount = 0;
 	mMission_Aborted = 0;
 	word_3AA43 = 0;
-	word_3ABA7 = 0;
+	mSquad_Prepare_Prebriefing = 0;
 	word_3ABE7 = 0;
 	word_3ABE9 = 0;
 	word_3ABEB = 0;
@@ -669,15 +669,15 @@ void cFodder::Mission_Memory_Clear() {
 	mCamera_Position_X = 0;
 
 	for (int16 x = 0; x < 20; ++x)
-		dword_3A071[x] = 0;
+		mSprite_DrawList_First[x] = 0;
 
 	for (int16 x = 0; x < 45; ++x) {
-		dword_3A125[x] = 0;
-		dword_3A1D9[x] = 0;
+		mSprite_DrawList_Second[x] = 0;
+		mSprite_DrawList_Third[x] = 0;
 	}
 
 	for (int16 x = 0; x < 64; ++x) {
-		dword_3A291[x] = 0;
+		mSprite_DrawList_Final[x] = 0;
 	}
 
 	dword_3A391 = 0;
@@ -1226,8 +1226,7 @@ void cFodder::Squad_Member_Sort() {
 void cFodder::Squad_Prepare() {
 	Squad_Clear_Selected();
 	
-	// This next chunk appears to have no effect and could be removed
-	if (!word_3ABA7) {
+	if (!mSquad_Prepare_Prebriefing) {
 
 		if (word_390D4) {
 			sSquad_Member* Data20 = mSquad;
@@ -1254,7 +1253,7 @@ void cFodder::Squad_Prepare() {
 		--Data1C;
 	}
 
-	if (word_3ABA7)
+	if (mSquad_Prepare_Prebriefing)
 		return;
 
 	Data1C = mTroopsAvailable;
@@ -2046,21 +2045,21 @@ void cFodder::Mission_Sprites_Handle( ) {
 
 void cFodder::Sprite_Sort_DrawList() {
 	sSprite* si = mSprites;
-	sSprite** di = dword_3A071;
-	sSprite** bx = dword_3A125;
-	sSprite** bp = dword_3A1D9;
+	sSprite** di = mSprite_DrawList_First;
+	sSprite** bx = mSprite_DrawList_Second;
+	sSprite** bp = mSprite_DrawList_Third;
 
 	for (int16 cx = 0x2B; cx > 0; --cx, ++si) {
 
 		if (si->field_0 == -32768)
 			continue;
 
-		if (si->field_2C == -1) {
+		if (si->field_2C == eSprite_Draw_First) {
 			*di++ = si;
 			continue;
 		}
 
-		if (si->field_2C == 0) {
+		if (si->field_2C == eSprite_Draw_Second) {
 			*bx++ = si;
 			continue;
 		}
@@ -2072,7 +2071,7 @@ void cFodder::Sprite_Sort_DrawList() {
 	*bx = INVALID_SPRITE_PTR;
 	*bp = INVALID_SPRITE_PTR;
 
-	sSprite** Si = dword_3A125 - 1;
+	sSprite** Si = mSprite_DrawList_Second - 1;
 	//seg000:247C
 	for (;;) {
 		++Si;
@@ -2098,9 +2097,10 @@ void cFodder::Sprite_Sort_DrawList() {
 		*Si = eax;
 		goto loc_1248D;
 	}
+
 	//loc_124AF
-	di = dword_3A291;
-	Si = dword_3A071;
+	di = mSprite_DrawList_Final;
+	Si = mSprite_DrawList_First;
 
 	for(;;) {
 		sSprite* ax = *Si++;
@@ -2110,7 +2110,7 @@ void cFodder::Sprite_Sort_DrawList() {
 		*di++ = ax;
 	}
 
-	Si = dword_3A125;
+	Si = mSprite_DrawList_Second;
 	for(;;) {
 		sSprite* ax = *Si++;
 		if (ax == INVALID_SPRITE_PTR)
@@ -2118,7 +2118,8 @@ void cFodder::Sprite_Sort_DrawList() {
 
 		*di++ = ax;
 	}
-	Si = dword_3A1D9;
+
+	Si = mSprite_DrawList_Third;
 	for(;;) {
 		sSprite* ax = *Si++;
 		*di++ = ax;
@@ -2233,18 +2234,19 @@ void cFodder::Mission_Progress_Check( ) {
 
 	if (mMission_Completed_Timer < 0)
 		return;
+
 	if (mMission_Completed_Timer)
 		goto loc_1280A;
 
 	mMission_Completed_Timer = 0x64;
 	if (mMission_Aborted) {
 		mMission_Completed_Timer = 0x32;
-		goto loc_127E8;
+		goto MissionTryAgain;
 	}
 
 	if (mMission_Complete) {
 		if (mMission_TryAgain)
-			goto loc_127E8;
+			goto MissionTryAgain;
 
 		Mission_Text_Completed();
 		word_390F8 = -1;
@@ -2252,7 +2254,7 @@ void cFodder::Mission_Progress_Check( ) {
 	}
 	//loc_127E1
 	if (mSquad_AliveCount) {
-	loc_127E8:;
+	MissionTryAgain:;
 
 		Mission_Text_TryAgain();
 		word_3D465 = 0x0F;
@@ -2330,7 +2332,7 @@ void cFodder::Mission_Text_Prepare( sSprite* pData2C ) {
 	pData2C->field_20 = 0;
 	pData2C->field_52 = 0;
 	pData2C->field_32 = -1;
-	pData2C->field_2C = 1;
+	pData2C->field_2C = eSprite_Draw_Last;
 }
 
 void cFodder::Mission_Text_TryAgain() {
@@ -3437,7 +3439,7 @@ bool cFodder::Sprite_OnScreen_Check() {
 }
 
 void cFodder::Sprite_Draw( ) {
-	sSprite** si = dword_3A291;
+	sSprite** si = mSprite_DrawList_Final;
 	word_42072 = 2;
 
 	for (;;) {
@@ -6274,7 +6276,7 @@ loc_234D8:;
 	pData2C->field_52 = 0;
 	pData2C->field_8 = 0xCC;
 	pData2C->field_A = 4;
-	pData2C->field_2C = 1;
+	pData2C->field_2C = eSprite_Draw_Last;
 	pData2C->field_18 = 0x39;
 	return 0;
 }
@@ -6331,7 +6333,7 @@ loc_2356B:;
 loc_2361A:;
 	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
 	if (!sub_23444( pSprite, Data2C))
-		Data2C->field_2C = -1;
+		Data2C->field_2C = eSprite_Draw_First;
 
 	if (!pSprite->field_36) {
 		if (word_3A8CF) {
@@ -6547,8 +6549,8 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
 	Data30->field_52 = 0;
 	pData2C->field_22 = pSprite->field_22;
 	Data30->field_22 = pSprite->field_22;
-	pData2C->field_2C = 0;
-	Data30->field_2C = -1;
+	pData2C->field_2C = eSprite_Draw_Second;
+	Data30->field_2C = eSprite_Draw_First;
 	pData2C->field_38 = eSprite_Anim_None;
 
 	// HACK: Disable sound for Amiga Plus
@@ -6992,7 +6994,7 @@ int16 cFodder::sub_2449E( sSprite* pSprite ) {
 	//loc_24546
 	Data2C->field_20 = pSprite->field_20;
 	Data2C->field_52 = 0;
-	Data2C->field_2C = 1;
+	Data2C->field_2C = eSprite_Draw_Last;
 
 	Data0 = tool_RandomGet() & 1;
 	if (!Data0) {
@@ -7091,7 +7093,7 @@ int16 cFodder::sub_246CC( sSprite* pSprite ) {
 
 	Data2C->field_52 = pSprite->field_52;
 	Data2C->field_22 = pSprite->field_22;
-	Data2C->field_2C = 0;
+	Data2C->field_2C = eSprite_Draw_Second;
 	Data0 = 0x321;
 
 	Data0 += pSprite->field_62;
@@ -7263,8 +7265,8 @@ int16 cFodder::Sprite_Create_Grenade2( sSprite* pSprite ) {
 	Data2C->field_22 = pSprite->field_22;
 	Data30->field_22 = pSprite->field_22;
 
-	Data2C->field_2C = 0;
-	Data30->field_2C = -1;
+	Data2C->field_2C = eSprite_Draw_Second;
+	Data30->field_2C = eSprite_Draw_First;
 	Data2C->field_38 = eSprite_Anim_None;
 	
 	if (pSprite->field_22)
@@ -7351,8 +7353,8 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	Data30->field_52 = 0;
 	pData2C->field_22 = pSprite->field_22;
 	Data30->field_22 = pSprite->field_22;
-	pData2C->field_2C = 0;
-	Data30->field_2C = -1;
+	pData2C->field_2C = eSprite_Draw_Second;
+	Data30->field_2C = eSprite_Draw_First;
 	pData2C->field_38 = eSprite_Anim_None;
 
 	if (mVersion->mVersion == eVersion::AmigaPlus)
@@ -8009,7 +8011,7 @@ int16 cFodder::sub_25B6B( sSprite* pSprite ) {
 
 	Data2C->field_52 = pSprite->field_52;
 	Data2C->field_22 = pSprite->field_22;
-	Data2C->field_2C = 0;
+	Data2C->field_2C = eSprite_Draw_Second;
 	Data0 = 0x32;
 	Data0 += pSprite->field_62;
 
@@ -8377,7 +8379,7 @@ loc_264CF:;
 		return;
 	}
 
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	if (pSprite->field_43 < 0)
 		goto loc_26580;
 
@@ -12830,14 +12832,14 @@ loc_19BA8:;
 	if( Data0 > Data4 )
 		goto loc_19D3C;
 	
-	pSprite->field_2C = 0;
+	pSprite->field_2C = eSprite_Draw_Second;
 	pSprite->field_0 = pSprite->field_2E;
 	pSprite->field_4 = pSprite->field_30;
 	pSprite->field_44 = -1;
 	goto loc_19D3C;
 	
 loc_19D24:;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	
 	Sprite_Movement_Calculate(pSprite);
 	if( mSprite_Bullet_Destroy )
@@ -12858,7 +12860,7 @@ loc_19D24:;
 		goto loc_19DCF;
 	
 	pSprite->field_43 = 1;
-	pSprite->field_2C = 1;
+	pSprite->field_2C = eSprite_Draw_Last;
 	pSprite->field_0 -= 4;
 	if(pSprite->field_0 < 0 )
 		goto loc_19E50;
@@ -12886,7 +12888,7 @@ loc_19DCF:;
 	
 	sub_21618( pSprite );
 	pSprite->field_43 = -1;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	pSprite->field_0 -= 4;
 	if(pSprite->field_0 < 0 )
 		goto loc_19E50;
@@ -13245,7 +13247,7 @@ loc_1A49C:;
 		Data0 = 2;
 
 	Data24->field_A = Data0;
-	Data24->field_2C = -1;
+	Data24->field_2C = eSprite_Draw_First;
 	Data0 = pSprite->field_20;
 	Data0 >>= 1;
 	Data4 = Data0;
@@ -13421,7 +13423,7 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 	pSprite->field_52 = 0;
 	pSprite->field_22 = -1;
 	pSprite->field_32 = -1;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 }
 
 void cFodder::Sprite_Handle_Shrub( sSprite* pSprite ) {
@@ -13451,7 +13453,7 @@ void cFodder::Sprite_Handle_Shrub2( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Waterfall( sSprite* pSprite ) {
 	pSprite->field_8 = 0x94;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 
 	int16 Data0 = pSprite->field_12;
 	Data0 ^= 1;
@@ -13471,7 +13473,7 @@ void cFodder::Sprite_Handle_Waterfall( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_Bird2_Left( sSprite* pSprite ) {
 
 	pSprite->field_8 = 0x98;
-	pSprite->field_2C = 1;
+	pSprite->field_2C = eSprite_Draw_Last;
 	pSprite->field_12 += 1;
 	pSprite->field_12 &= 1;
 	if (!pSprite->field_12)
@@ -13495,7 +13497,7 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite* pSprite ) {
 	}
 
 	//loc_1ACEC
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	if (pSprite->field_43 < 0)
 		goto loc_1AD86;
 
@@ -13695,7 +13697,7 @@ void cFodder::Sprite_Handle_GroundHole( sSprite* pSprite ) {
 		return;
 	}
 
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	if (pSprite->field_43 < 0) {
 		//loc_1B161
 		pSprite->field_12 -= 1;
@@ -13742,7 +13744,7 @@ void cFodder::Sprite_Handle_BuildingDoor2( sSprite* pSprite ) {
 		return;
 	}
 
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	if (pSprite->field_43 < 0)
 		goto loc_1B285;
 
@@ -13836,7 +13838,7 @@ loc_1B35A:;
 	if (pSprite->field_36 < 4)
 		pSprite->field_36++;
 
-	pSprite->field_2C = 0;
+	pSprite->field_2C = eSprite_Draw_Second;
 }
 
 void cFodder::Sprite_Handle_Text_Complete( sSprite* pSprite ) {
@@ -13943,7 +13945,7 @@ loc_1B5D2:;
 		sSprite* Data2C = 0;
 
 		if (!sub_23444( pSprite, Data2C))
-			Data2C->field_2C = -1;
+			Data2C->field_2C = eSprite_Draw_First;
 	}
 
 	if (!pSprite->field_36) {
@@ -14286,7 +14288,7 @@ void cFodder::Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Flashing_Light( sSprite* pSprite ) {
 	
-	pSprite->field_2C = 0;
+	pSprite->field_2C = eSprite_Draw_Second;
 	pSprite->field_8 = 0xC4;
 
 	pSprite->field_43++;
@@ -14648,7 +14650,7 @@ loc_1C321:;
 }
 
 void cFodder::Sprite_Handle_Mine( sSprite* pSprite ) {
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 
 	if (!pSprite->field_38) {
 		int16 Data0;
@@ -14663,7 +14665,7 @@ void cFodder::Sprite_Handle_Mine( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_Mine2( sSprite* pSprite ) {
 	int16 Data0;
 
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	if (pSprite->field_38)
 		goto loc_1C406;
 
@@ -14878,7 +14880,7 @@ void cFodder::Sprite_Handle_Tank_Human( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_Bird_Left( sSprite* pSprite ) {
 	
 	pSprite->field_8 = 0xD3;
-	pSprite->field_2C = 1;
+	pSprite->field_2C = eSprite_Draw_Last;
 
 	if (!pSprite->field_12) {
 
@@ -14960,7 +14962,7 @@ loc_1C8C5:;
 
 void cFodder::Sprite_Handle_Bird_Right( sSprite* pSprite ) {
 	pSprite->field_8 = 0xD4;
-	pSprite->field_2C = 1;
+	pSprite->field_2C = eSprite_Draw_Last;
 
 	if (!pSprite->field_12) {
 		pSprite->field_57 = 8;
@@ -15265,13 +15267,13 @@ loc_1CF3E:;
 	if (Data0 > Data4)
 		goto loc_1D00F;
 
-	pSprite->field_2C = 0;
+	pSprite->field_2C = eSprite_Draw_Second;
 	pSprite->field_0 = pSprite->field_2E;
 	pSprite->field_4 = pSprite->field_30;
 	pSprite->field_44 = -1;
 	goto loc_1D00F;
 loc_1CFF7:;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	Sprite_Movement_Calculate( pSprite );
 	if (mSprite_Bullet_Destroy)
 		goto loc_1D17A; 
@@ -15304,7 +15306,7 @@ loc_1D07B:;
 		goto loc_1D0F6;
 
 	pSprite->field_43 = 1;
-	pSprite->field_2C = 1;
+	pSprite->field_2C = eSprite_Draw_Last;
 	pSprite->field_4 -= 5;
 	if (pSprite->field_4 < 0)
 		goto loc_1D18D;
@@ -15327,7 +15329,7 @@ loc_1D0F6:;
 		goto loc_1D14D;
 
 	pSprite->field_43 = -1;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	pSprite->field_4 -= 5;
 	if (pSprite->field_4 < 0)
 		goto loc_1D18D;
@@ -15539,13 +15541,13 @@ void cFodder::sub_1D4D2( sSprite* pSprite ) {
 	if (Data0 > Data4)
 		goto loc_1D5CB;
 
-	pSprite->field_2C = 0;
+	pSprite->field_2C = eSprite_Draw_Second;
 	pSprite->field_0 = pSprite->field_2E;
 	pSprite->field_4 = pSprite->field_30;
 	pSprite->field_44 = -1;
 	goto loc_1D5CB;
 loc_1D5B3:;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	Sprite_Movement_Calculate( pSprite );
 
 	if (mSprite_Bullet_Destroy)
@@ -15566,7 +15568,7 @@ loc_1D5CB:;
 		goto loc_1D65C;
 
 	pSprite->field_43 = 1;
-	pSprite->field_2C = 1;
+	pSprite->field_2C = eSprite_Draw_Last;
 	pSprite->field_4 -= 5;
 	if (pSprite->field_4 < 0)
 		goto loc_1D6DD;
@@ -15588,7 +15590,7 @@ loc_1D65C:;
 
 	sub_21618( pSprite );
 	pSprite->field_43 = -1;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	pSprite->field_4 -= 5;
 	if (pSprite->field_4 < 0)
 		goto loc_1D6DD;
@@ -15717,7 +15719,7 @@ void cFodder::Sprite_Handle_BuildingDoor3( sSprite* pSprite ) {
 		return;
 	}
 
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	if (pSprite->field_43 < 0)
 		goto loc_1D8DC;
 
@@ -15778,7 +15780,7 @@ void cFodder::Sprite_Handle_OpenCloseDoor( sSprite* pSprite ) {
 		mMission_Aborted = -1;
 		return;
 	}
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 	if (!pSprite->field_2A) {
 		pSprite->field_8 = 0x9B;
 		return;
@@ -15986,7 +15988,7 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 	sSprite* Data2C = 0;
 
 	pSprite->field_8 = 0xE7;
-	pSprite->field_2C = -1;
+	pSprite->field_2C = eSprite_Draw_First;
 
 	if (Sprite_Handle_Helicopter_Callpad_InRange( pSprite, Data2C )) {
 		pSprite->field_75 = 0;
@@ -17536,7 +17538,7 @@ void cFodder::sub_1FE35( sSprite* pSprite ) {
 	Data2C->field_62 = pSprite->field_18;
 	Data2C->field_20 = 0;
 	Data2C->field_32 = -1;
-	Data2C->field_2C = -1;
+	Data2C->field_2C = eSprite_Draw_First;
 	Data2C->field_52 = 0;
 }
 
@@ -17558,7 +17560,7 @@ int16 cFodder::sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 		pData2C->field_18 = 0x17;
 		pData2C->field_20 = pSprite->field_20;
 		pData2C->field_32 = -1;
-		pData2C->field_2C = 1;
+		pData2C->field_2C = eSprite_Draw_Last;
 		pData2C->field_52 = 0;
 		pData2C->field_12 = 1;
 		Data0 = 0;
@@ -18709,7 +18711,7 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 	Data2C->field_52 = pSprite->field_52;
 	Data2C->field_22 = pSprite->field_22;
 	Data2C->field_32 = pSprite->field_32;
-	Data2C->field_2C = 0;
+	Data2C->field_2C = eSprite_Draw_Second;
 	if (pSprite->field_22)
 		goto loc_2087D;
 
@@ -18915,8 +18917,8 @@ loc_20B6E:;
 	Data2C->field_22 = pSprite->field_22;
 	Data30->field_22 = pSprite->field_22;
 	Data2C->field_32 = pSprite->field_32;
-	Data2C->field_2C = 0;
-	Data30->field_2C = -1;
+	Data2C->field_2C = eSprite_Draw_Second;
+	Data30->field_2C = eSprite_Draw_First;
 	Data2C->field_38 = eSprite_Anim_None;
 	if (pSprite->field_18 == eSprite_Enemy)
 		Data2C->field_12 += 0x1C;
@@ -19182,7 +19184,7 @@ void cFodder::Sprite_Clear( sSprite* pSprite ) {
 	pSprite->field_26 = 0;
 	pSprite->field_28 = 0;
 	pSprite->field_2A = 0;
-	pSprite->field_2C = 0;
+	pSprite->field_2C = eSprite_Draw_Second;
 	pSprite->field_2E = 0;
 	pSprite->field_30 = 0;
 	pSprite->field_32 = 0;
@@ -19345,7 +19347,7 @@ void cFodder::Sprite_Create_Shadow( sSprite* pSprite ) {
 	Data2C->field_18 = eSprite_Shadow;
 	Data2C->field_20 = 0;
 	Data2C->field_32 = -1;
-	Data2C->field_2C = -1;
+	Data2C->field_2C = eSprite_Draw_First;
 	Data2C->field_52 = 0;
 }
 
@@ -19472,8 +19474,8 @@ void cFodder::sub_21702( sSprite* pSprite, int16 pData18 ) {
 	Data30->field_18 = eSprite_ShadowSmall;
 	Data2C->field_52 = 0;
 	Data30->field_52 = 0;
-	Data2C->field_2C = 0;
-	Data30->field_2C = -1;
+	Data2C->field_2C = eSprite_Draw_Second;
+	Data30->field_2C = eSprite_Draw_First;
 	Data2C->field_38 = eSprite_Anim_None;
 
 	Data2C->field_10 = pData18;
@@ -19556,7 +19558,7 @@ int16 cFodder::Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, in
 	pData2C->field_12 = 1;
 	pData2C->field_22 = -1;
 	pData2C->field_32 = -1;
-	pData2C->field_2C = 1;
+	pData2C->field_2C = eSprite_Draw_Last;
 
 	return 0;
 }
@@ -20206,8 +20208,8 @@ loc_2281B:;
 	Data2C->field_22 = pSprite->field_22;
 	Data30->field_22 = Data2C->field_22;
 	Data2C->field_32 = pSprite->field_32;
-	Data2C->field_2C = 0;
-	Data30->field_2C = -1;
+	Data2C->field_2C = eSprite_Draw_Second;
+	Data30->field_2C = eSprite_Draw_First;
 	Data2C->field_56 = 6;
 
 	if (pSprite == mSquad_Leader)
@@ -20408,14 +20410,14 @@ Start:;
 				mMission_Recruitment = 0;
 
 				Map_Load_Sprites();
-				word_3ABA7 = -1;
+				mSquad_Prepare_Prebriefing = -1;
 
 				Squad_Member_Count();
 				Squad_Member_Sort();
 				Squad_Prepare();
 				Squad_Prepare_Sprites();
 
-				word_3ABA7 = 0;
+				mSquad_Prepare_Prebriefing = 0;
 				WindowTitleSet( false );
 
 				// Custom, but not in set mode? then show the custom menu
@@ -21558,10 +21560,10 @@ void cFodder::sub_30E49() {
 }
 
 void cFodder::Squad_Clear_Selected() {
-	sSquad_Member* Data38 = mSquad;
+	sSquad_Member* SquadMember = mSquad;
 	
-	for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data38) {
-		Data38->mSelected &= 0;
+	for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++SquadMember) {
+		SquadMember->mSelected &= 0;
 	}
 }
 
