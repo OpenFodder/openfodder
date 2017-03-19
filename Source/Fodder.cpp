@@ -87,8 +87,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mSprite_Tank_DistanceTo_Squad0 = 0;
 	mSprite_Missile_LaunchDistance_X = 0;
 	mSprite_Missile_LaunchDistance_Y = 0;
-	word_3B60E = 0;
-	word_3B610 = 0;
+	mCamera_Pan_ColumnOffset = 0;
+	mCamera_Pan_RowOffset = 0;
 	dword_3B30D = 0;
 
 	mMapTilePtr = 0;
@@ -829,7 +829,7 @@ void cFodder::Mission_Memory_Clear() {
 	}
 
 	mGUI_NextFreeElement = 0;
-	word_3AEFB = 0;
+	mGUI_TroopName_DrawOffset = 0;
 
 	mSprite_SpareUsed = 0;
 	mSquad_WalkTargetX = 0;
@@ -888,8 +888,8 @@ void cFodder::Mission_Memory_Clear() {
 	word_3B335 = 0;
 	word_3B33D = 0;
 	word_3B33F = 0;
-	word_3B447 = 0;
-	word_3B449 = 0;
+	mIntro_PlayTextDuration = 0;
+	mSoundEffectToPlay_Set = 0;
 
 	for (uint16 x = 0; x < 3; ++x)
 		mSquad_EnteredVehicleTimer[x] = 0;
@@ -923,7 +923,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3B4ED[0] = 0;
 	word_3B4ED[1] = 0;
 	mMission_Finished = 0;
-	word_3B4F3 = 0;
+	mImage_Aborted = 0;
 	mBriefing_Aborted = 0;
 	dword_3B5F5 = 0;
 }
@@ -931,7 +931,7 @@ void cFodder::Mission_Memory_Clear() {
 void cFodder::Mission_Prepare_Squads() {
 	mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
 	mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
-	word_3BDEB = 5;
+	mGUI_Sidebar_TroopList_Name_BreakOnSpace = 5;
 	// -1
 	mSquads[0] = mSquad_0_Sprites;
 	mSquads[1] = mSquad_1_Sprites;
@@ -2809,8 +2809,8 @@ void cFodder::Mouse_Setup() {
 
 	mMouseX = 0x7F;
 	mMouseY = 0x67;
-	word_3BDB3 = 0;
-	word_3BDB5 = 0;
+	mouse_Pos_Column_Unused = 0;
+	mouse_Pos_Row_Unused = 0;
 
 	g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, g_Window.GetWindowSize().mHeight / 2 ) );
 }
@@ -2833,7 +2833,7 @@ void cFodder::Mouse_Inputs_Get() {
 	Mouse_ButtonCheck();
 
 	int16 Data4 = mouse_Pos_Column;
-	word_3BDB3 = Data4;
+	mouse_Pos_Column_Unused = Data4;
 
 	if( word_3A024 == 0 )
 		goto loc_13B3A;
@@ -2864,7 +2864,7 @@ loc_13B66:;
 	mMouseX = Data4;
 	
 	int16 Data0 = mouse_Pos_Row;
-	word_3BDB5 = Data0;
+	mouse_Pos_Row_Unused = Data0;
 
 	if (Data0 < 4)
 		Data0 = 4;
@@ -3461,7 +3461,7 @@ void cFodder::Sprite_Draw( ) {
 
 void cFodder::Sprite_Map_Sound_Play( int16 &pData0 ) {
 
-	word_3B449 = pData0;
+	mSoundEffectToPlay_Set = pData0;
 
 	if (mSquad_Leader == INVALID_SPRITE_PTR )
 		 return;
@@ -3471,7 +3471,7 @@ void cFodder::Sprite_Map_Sound_Play( int16 &pData0 ) {
 	// UNUSED BLOLCK
 
 loc_14D66:;
-	mSoundEffectToPlay = word_3B449;
+	mSoundEffectToPlay = mSoundEffectToPlay_Set;
 }
 
 void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
@@ -9702,9 +9702,9 @@ void cFodder::Camera_Pan_Right() {
 
 	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
-		++word_3B60E;
-		word_3B60E &= 0x0F;
-		if (!word_3B60E) {
+		++mCamera_Pan_ColumnOffset;
+		mCamera_Pan_ColumnOffset &= 0x0F;
+		if (!mCamera_Pan_ColumnOffset) {
 			mMapTilePtr += 2;
 			++word_3B612;
 		}
@@ -9726,9 +9726,9 @@ void cFodder::Camera_Pan_Left() {
 
 	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 		
-		--word_3B60E;
-		word_3B60E &= 0x0F;
-		if (word_3B60E == 0x0F) {
+		--mCamera_Pan_ColumnOffset;
+		mCamera_Pan_ColumnOffset &= 0x0F;
+		if (mCamera_Pan_ColumnOffset == 0x0F) {
 			mMapTilePtr -= 2;
 			--word_3B612;
 		}
@@ -9749,14 +9749,11 @@ void cFodder::Camera_Pan_Left() {
 
 void cFodder::Camera_Pan_Down( ) {
 
-	int16 ax = word_3B60E;
-	ax &= 3;
-
 	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
-		++word_3B610;
-		word_3B610 &= 0x0F;
-		if (!word_3B610) {
+		++mCamera_Pan_RowOffset;
+		mCamera_Pan_RowOffset &= 0x0F;
+		if (!mCamera_Pan_RowOffset) {
 			mMapTilePtr += mMapWidth << 1;
 			++word_3B614;
 		}
@@ -9774,9 +9771,9 @@ void cFodder::Camera_Pan_Up() {
 
 	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
 
-		--word_3B610;
-		word_3B610 &= 0x0F;
-		if (word_3B610 == 0x0F) {
+		--mCamera_Pan_RowOffset;
+		mCamera_Pan_RowOffset &= 0x0F;
+		if (mCamera_Pan_RowOffset == 0x0F) {
 			mMapTilePtr -= mMapWidth << 1;
 			--word_3B614;
 		}
@@ -10494,7 +10491,7 @@ loc_2DFC7:;
 	ax = mMap_Destroy_Tile_X >> 4;
 	ax -= word_3B612;
 	ax <<= 4;
-	ax -= word_3B60E;
+	ax -= mCamera_Pan_ColumnOffset;
 	ax += 0x40;
 
 	mDrawSpritePositionX = ax;
@@ -10502,7 +10499,7 @@ loc_2DFC7:;
 	ax = mMap_Destroy_Tile_Y >> 4;
 	ax -= word_3B614;
 	ax <<= 4;
-	ax -= word_3B610;
+	ax -= mCamera_Pan_RowOffset;
 	ax += 0x10;
 
 	mDrawSpritePositionY = ax;
@@ -18273,7 +18270,7 @@ int16 cFodder::introPlayText() {
 
 	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF ) {
 
-		word_3B447 = 0x288;
+		mIntro_PlayTextDuration = 0x288;
 		
 		mImage->paletteClear();
 
@@ -18288,7 +18285,7 @@ int16 cFodder::introPlayText() {
 			mGraphics->imageLoad( ImageName.str(), 0xD0 );
 		}
 		else {
-			word_3B447 = 0xAF;
+			mIntro_PlayTextDuration = 0xAF;
 			mImage->clearBuffer();
 		}
 
@@ -18303,7 +18300,7 @@ int16 cFodder::introPlayText() {
 		}
 		//loc_16710
 		
-		int16 Duration = word_3B447;
+		int16 Duration = mIntro_PlayTextDuration;
 		int16 Fade = -1;
 		bool DoBreak = false;
 
@@ -18317,7 +18314,7 @@ int16 cFodder::introPlayText() {
 				Mouse_GetData();
 				if (mouse_Button_Status) {
 					word_3B2CF = 16;
-					word_3B4F3 = -1;
+					mImage_Aborted = -1;
 					mImage->paletteFadeOut();
 					Fade = -1;
 					DoBreak = true;
@@ -18336,7 +18333,7 @@ int16 cFodder::introPlayText() {
 		
 	}
 
-	return word_3B4F3;
+	return mImage_Aborted;
 }
 
 void cFodder::Intro_Print_String( int32 pPosY, const sIntroString* pString ) {
@@ -18397,7 +18394,7 @@ void cFodder::intro() {
 	mIntroPlayed = 0;
 	sub_136D0();
 
-	word_3B4F3 = 0;
+	mImage_Aborted = 0;
 	mGraphics->Load_Sprite_Font();
 	
 	if (mSkipIntro)
@@ -18453,7 +18450,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 				mImageFaded = mImage->paletteFade();
 
 			if (mouse_Button_Status) {
-				word_3B4F3 = -1;
+				mImage_Aborted = -1;
 				mImage->paletteFadeOut();
 				mImageFaded = -1;
 				DoBreak = true;
@@ -18469,7 +18466,7 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 		g_Window.FrameEnd();
 	}
 
-	return word_3B4F3;
+	return mImage_Aborted;
 }
 
 void cFodder::Mission_Phase_Next() {
@@ -20625,8 +20622,8 @@ Start:;
 
 void cFodder::map_Tiles_Draw() {
 	word_40054 = 0;
-	word_3B60E = 0;
-	word_3B610 = 0;
+	mCamera_Pan_ColumnOffset = 0;
+	mCamera_Pan_RowOffset = 0;
 
 	mMapTilePtr = (0x60 - 8) - (readLEWord( &mMap[0x54] ) << 1);
 	word_3B612 = 0;
@@ -20814,8 +20811,9 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16
 
 	int16 Data14;
 
-	for (Data14 = 0; Data14 <= word_3BDEB; ++Data14) {
-		if (word_3BDEB == 5) {
+	for (Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14) {
+
+		if (mGUI_Sidebar_TroopList_Name_BreakOnSpace == 5) {
 
 			if (pData28[Data14] == 0x20)
 				break;
@@ -20833,7 +20831,7 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16
 	Data18 >>= 1;
 	word_3A05F = Data18;
 
-	for( Data14 = 0; Data14 <= word_3BDEB; ++Data14 ) {
+	for( Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14 ) {
 			
 		if( pData28[Data14] != 0x20 ) {
 			pData0 = pData28[Data14];
@@ -21292,7 +21290,7 @@ void cFodder::GUI_Prepare_Button_TroopName() {
 	return;
 
 loc_2FCF4:;
-	word_3AEFB = word_3AC1D;
+	mGUI_TroopName_DrawOffset = word_3AC1D;
 	sGUI_Element* Element = mGUI_NextFreeElement;
 
 	Element->field_0 = &cFodder::GUI_Button_NoAction;
@@ -21319,7 +21317,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
 	int16 Data0 = mMouseY;
 	Data0 -= word_3BEC3;
-	Data0 -= word_3AEFB;
+	Data0 -= mGUI_TroopName_DrawOffset;
 	Data0 -= 0x22;
 	Data0 /= 0x0C;
 
@@ -21357,7 +21355,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 	Data8 = word_3A3BF;
 	Data8 *= 0x0C;
 
-	Data8 += word_3AEFB;
+	Data8 += mGUI_TroopName_DrawOffset;
 	Data8 += 0x25;
 	word_3A8B1 = 6;
 	int16 DataC = Data8;
@@ -21639,6 +21637,11 @@ void cFodder::Squad_Switch_Weapon() {
 }
 
 void cFodder::Mission_Final_TimeToDie() {
+
+	// Retail CF1 only
+	if (mVersion->mRelease != eRelease::Retail || mVersion->mGame != eGame::CF1 )
+		return;
+
 	if (mMapNumber != 0x47)
 		return;
 
@@ -21652,7 +21655,7 @@ void cFodder::Mission_Final_TimeToDie() {
 	if (word_3B4D5 < 0)
 		word_3B4D5 = 0;
 
-	word_3BDEB = 0x0A;
+	mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x0A;
 
 	GUI_Sidebar_TroopList_Name_Draw( 0, 0, 0, 0xB7, "TIME TO DIE" );
 
@@ -21669,7 +21672,7 @@ void cFodder::Mission_Final_TimeToDie() {
 	}
 
 	GUI_Sidebar_Number_Draw( word_3B4D5, 0, 0x30, 0xC0, 0xAF );
-	word_3BDEB = 5;
+	mGUI_Sidebar_TroopList_Name_BreakOnSpace = 5;
 }
 
 int16 cFodder::sub_305D5( sSprite*& pData20 ) {
