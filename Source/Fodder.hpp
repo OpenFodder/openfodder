@@ -38,7 +38,13 @@ struct sSquad_Member {
 	int16		mRecruitID;
 	uint8		mRank;
 	int8		mPhaseCount;		// Number of phases completed this Mission
-	sSprite*	mSprite;
+	
+	// HACK: This forces compatibility between 32/64 bit systems
+	union {
+		sSprite*	mSprite;
+		uint64		mSpritePtr;
+	};
+
 	uint16		field_6;
 	int8		field_8;
 	int8		mSelected;
@@ -166,10 +172,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
 	uint16			mSquad_AliveCount;
-	uint16			mSaved_MissionNumber;					// unused
-	uint16			mSaved_MapNumber;						// unused
 	int16			word_390D4;
-	sSprite*		mSquad_SpritePtrs[8];					// unused
 	int16			mSprite_Enemy_AggressionCreated_Count;
 	uint16			word_390E8;
 	int16			mMission_Recruitment;
@@ -181,10 +184,7 @@ class cFodder : public cSingleton < cFodder > {
 	sSquad_Member	mSquad[9];
 
 	int16			mGraveRanks[361];
-	int16*			mGraveRankPtr;
-	int16*			mGraveRankPtr2;
 	int16			mGraveRecruitID[361];
-	int16*			mGraveRecruitIDPtr;
 
 	sHero			mHeroes[6];
 
@@ -193,9 +193,19 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMapPlayerTroopCount;
 	int16			mSquadMemberCount;
 	int16			mTroopsAvailable;
-
 	/************** End Save Game Region *********** */
 
+
+	/* These used to be in the save game region */
+	uint16			mSaved_MissionNumber;					// unused
+	uint16			mSaved_MapNumber;						// unused
+	sSprite*		mSquad_SpritePtrs[8];					// unused
+
+	int16*			mGraveRankPtr;
+	int16*			mGraveRankPtr2;
+	int16*			mGraveRecruitIDPtr;
+	/* End old save game region */
+	
 	int16			mButtonPressLeft, mButtonPressRight;
 	int16			mMouse_Button_Left_Toggle;
 	int16			word_39F00;
@@ -1159,7 +1169,7 @@ public:
 	
 	void			GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
 	void			GUI_SaveLoad( bool pShowCursor );
-	std::string		GUI_Select_File( const char* pTitle, const char* pPath, const char* pType );
+	std::string		GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, bool pData = true );
 
 	void			Game_Save();
 	void			GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );
