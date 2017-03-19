@@ -95,8 +95,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	mSoundEffectToPlay = 0;
 	mBriefing_Aborted = 0;
-	word_3BEC1 = 0;
-	word_3BEC3 = 0;
+	mGUI_Mouse_Modifier_X = 0;
+	mGUI_Mouse_Modifier_Y = 0;
 	word_3E1B7 = 0;
 	word_3E75B = 0;
 	mCamera_Pan_RowCount = 0;
@@ -957,8 +957,8 @@ void cFodder::Mission_Prepare_Squads() {
 	word_3BEB9 = 1;
 	word_3BEBB = 1;
 	word_3BEBD = 1;
-	word_3BEC1 = 0x1A;
-	word_3BEC3 = 0x12;
+	mGUI_Mouse_Modifier_X = 0x1A;
+	mGUI_Mouse_Modifier_Y = 0x12;
 	word_3BEC9 = 0xC8;
 	word_3BED5[0] = 2;
 	word_3BED5[1] = 2;
@@ -2982,7 +2982,7 @@ void cFodder::VersionSelect() {
 	Mouse_Setup();
 
 	word_3AC21 = 0;
-	word_3BEC3 = 0;
+	mGUI_Mouse_Modifier_Y = 0;
 
 	mSound->Music_Stop();
 	mImage->clearBuffer();
@@ -4623,7 +4623,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
 	mWindow->SetScreenSize( cDimension( 320, 260) );
 
-	word_3BEC3 = 4;
+	mGUI_Mouse_Modifier_Y = 4;
 
 	Menu_Loop(
 		[]() {
@@ -4715,8 +4715,8 @@ bool cFodder::Recruit_Show() {
 	mImage->paletteFade();
 	mImage->Save();
 
-	word_3BEC1 = 0;
-	word_3BEC3 = 0x1D;
+	mGUI_Mouse_Modifier_X = 0;
+	mGUI_Mouse_Modifier_Y = 0x1D;
 	//word_39020 = 0;
 	
 	Recruit_Render_Names_UnusedSlots();
@@ -10957,7 +10957,7 @@ void cFodder::GUI_Element_Mouse_Over( const sGUI_Element *pElement ) {
 		if (Data0 < Data4)
 			continue;
 
-		Data0 = word_3BEC3;
+		Data0 = mGUI_Mouse_Modifier_Y;
 		Data0 += Data20->mY;
 		if (Data0 > mMouseY)
 			continue;
@@ -20549,8 +20549,8 @@ Start:;
 			word_390A6 = -1;
 			sub_11CAD();
 
-			word_3BEC1 = 0;
-			word_3BEC3 = 4;
+			mGUI_Mouse_Modifier_X = 0;
+			mGUI_Mouse_Modifier_Y = 4;
 			mCamera_Start_Adjust = 1;
 
 			Squad_Prepare_GrenadesAndRockets();
@@ -21316,7 +21316,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 		return;
 
 	int16 Data0 = mMouseY;
-	Data0 -= word_3BEC3;
+	Data0 -= mGUI_Mouse_Modifier_Y;
 	Data0 -= mGUI_TroopName_DrawOffset;
 	Data0 -= 0x22;
 	Data0 /= 0x0C;
@@ -21766,7 +21766,7 @@ void cFodder::Mouse_Inputs_Check() {
 			return;
 
 		Data20 = mGUI_Loop_Element;
-		Data0 = word_3BEC1 + Data20->mX;
+		Data0 = mGUI_Mouse_Modifier_X + Data20->mX;
 
 		int16 Data4 = mMouseX + 0x20;
 
@@ -21777,7 +21777,7 @@ void cFodder::Mouse_Inputs_Check() {
 		if (Data0 < Data4)
 			continue;
 
-		Data0 = word_3BEC3;
+		Data0 = mGUI_Mouse_Modifier_Y;
 		Data0 += Data20->mY;
 		if (Data0 > mMouseY)
 			continue;
