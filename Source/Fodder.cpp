@@ -885,9 +885,9 @@ void cFodder::Mission_Memory_Clear() {
 	mGUI_Temp_Y = 0;
 	mGUI_Temp_Height = 0;
 	mInputString_Position = 0;
-	word_3B335 = 0;
-	word_3B33D = 0;
-	word_3B33F = 0;
+	mGUI_Select_File_CurrentIndex = 0;
+	mGUI_Select_File_Count = 0;
+	mGUI_Select_File_SelectedFileIndex = 0;
 	mIntro_PlayTextDuration = 0;
 	mSoundEffectToPlay_Set = 0;
 
@@ -4433,8 +4433,8 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
 
-	word_3B335 = 0;
-	word_3B33D = (int16)Files.size();
+	mGUI_Select_File_CurrentIndex = 0;
+	mGUI_Select_File_Count = (int16)Files.size();
 
 	do {
 		GUI_Element_Reset();
@@ -4455,7 +4455,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 		int16 DataC = 0;
 		mGUI_NextFreeElement = dword_3AEF7;
 
-		std::vector<std::string>::iterator FileIT = Files.begin() + word_3B335;
+		std::vector<std::string>::iterator FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
 
 		for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
 			size_t Pos = FileIT->find_first_of( "." );
@@ -4481,7 +4481,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
 	std::string File = pPath;
 	File.append( "/" );
-	File.append( Files[word_3B335 + word_3B33F] );
+	File.append( Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex] );
 
 	return File;
 }
@@ -10877,26 +10877,26 @@ void cFodder::Game_Load() {
 }
 
 void cFodder::GUI_Button_Load_Up() {
-	word_3B335 -= 3;
-	if (word_3B335 < 0)
-		word_3B335 = 0;
+	mGUI_Select_File_CurrentIndex -= 3;
+	if (mGUI_Select_File_CurrentIndex < 0)
+		mGUI_Select_File_CurrentIndex = 0;
 
 	mGUI_SaveLoadAction = 3;
 }
 
 void cFodder::GUI_Button_Load_Down() {
-	word_3B335 += 3;
+	mGUI_Select_File_CurrentIndex += 3;
 
-	int16 Data0 = word_3B335;
+	int16 Data0 = mGUI_Select_File_CurrentIndex;
 	Data0 += 4;
 
-	if (Data0 >= word_3B33D) {
-		Data0 = word_3B33D;
+	if (Data0 >= mGUI_Select_File_Count) {
+		Data0 = mGUI_Select_File_Count;
 		Data0 -= 4;
 		if (Data0 < 0)
 			Data0 = 0;
 
-		word_3B335 = Data0;
+		mGUI_Select_File_CurrentIndex = Data0;
 	}
 
 	mGUI_SaveLoadAction = 3;
@@ -10908,7 +10908,7 @@ void cFodder::GUI_Button_Filename() {
 	Data0 -= 0x3E;
 	Data0 /= 0x15;
 
-	word_3B33F = Data0;
+	mGUI_Select_File_SelectedFileIndex = Data0;
 	mGUI_SaveLoadAction = 2;
 }
 
