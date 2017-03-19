@@ -4423,7 +4423,7 @@ void cFodder::CopyProtection_EncodeInput() {
 	}
 }
 
-std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType ) {
+std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, bool pData ) {
 	mMission_Aborted = 0;
 	mGUI_SaveLoadAction = 0;
 
@@ -4431,7 +4431,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 		mGraphics->Load_Hill_Data();
 	mGraphics->Load_Hill_Bits();
 
-	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, true ), pType );
+	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
 
 	word_3B335 = 0;
 	word_3B33D = (int16)Files.size();
@@ -10670,9 +10670,9 @@ void cFodder::Game_Save() {
 	}
 		
 	mInputString[mInputString_Position + 0] = '.';
-	mInputString[mInputString_Position + 1] = 'c';
+	mInputString[mInputString_Position + 1] = 'o';
 	mInputString[mInputString_Position + 2] = 'f';
-	mInputString[mInputString_Position + 3] = (mVersion->mGame == eGame::CF1) ? 0 : '2' ;
+	mInputString[mInputString_Position + 3] = (mVersion->mGame == eGame::CF1) ? 0 : '2';
 	mInputString[mInputString_Position + 4] = 0;
 
 	std::string Filename = local_PathGenerate( mInputString, "", false );
@@ -10681,6 +10681,12 @@ void cFodder::Game_Save() {
 	uint8* Start = (uint8*) &mMapNumber;
 	uint8* End = (uint8*)&mButtonPressLeft;
 	
+	int16 SavegameVersion = 1;
+
+	// Hack
+	outfile << "OF";
+	outfile.write( (char*)&SavegameVersion, sizeof( int16 ) );
+
 	outfile.write ((const char*) Start, End - Start );
 	outfile.close();
 	mMouse_Exit_Loop = 0;
@@ -10819,50 +10825,55 @@ void cFodder::GUI_Input_CheckKey() {
 
 	word_39F66 = 0;
 }
-
 void cFodder::Game_Load() {
-	
-	const std::string File = GUI_Select_File( "SELECT FILE", "", mVersion->mGame == eGame::CF1 ? ".cf" : ".cf2" );
 
+	const std::string File = GUI_Select_File( "SELECT FILE", "", mVersion->mGame == eGame::CF1 ? ".of" : ".of2", false );
 	if (!File.size())
 		return;
 
 	std::string Filename = local_PathGenerate( File, "", false );
-	
-	std::ifstream infile (Filename,std::ofstream::binary);
-	uint8* Start = (uint8*) &mMapNumber;
-	uint8* End = (uint8*)&mButtonPressLeft;
-	
-	infile.read ((char*) Start, End - Start );
-	infile.close();
-	mMouse_Exit_Loop = 0;
+	std::ifstream SaveFile( Filename, std::ios::binary );
 
-	mGraveRankPtr = mGraveRanks;
-	mGraveRankPtr2 = mGraveRankPtr;
-	mGraveRecruitIDPtr = mGraveRecruitID;
+	if (SaveFile.is_open()) {
 
-	for (int16 x = 0; x < 361; ++x) {
-		if (*mGraveRankPtr == -1)
-			break;
+		std::vector<char> SaveGameContent( (std::istreambuf_iterator<char>( SaveFile )),
+			(std::istreambuf_iterator<char>()) );
 
-		++mGraveRankPtr;
-		++mGraveRankPtr2;
+		// Valid save game?
+		if (SaveGameContent[0] != 'O' || SaveGameContent[1] != 'F')
+			return;
+
+		// Skip OF, Save version
+		std::memcpy( &mMapNumber, SaveGameContent.data() + 4, SaveGameContent.size() - 4);
+		
+		mMouse_Exit_Loop = 0;
+		mGraveRankPtr = mGraveRanks;
+		mGraveRankPtr2 = mGraveRankPtr;
+		mGraveRecruitIDPtr = mGraveRecruitID;
+
+		for (int16 x = 0; x < 361; ++x) {
+			if (*mGraveRankPtr == -1)
+				break;
+
+			++mGraveRankPtr;
+			++mGraveRankPtr2;
+		}
+
+		for (int16 x = 0; x < 361; ++x) {
+			if (*mGraveRecruitIDPtr == -1)
+				break;
+
+			++mGraveRecruitIDPtr;
+		}
+
+		for (int16 x = 0; x < 8; ++x)
+			mSquad_SpritePtrs[x] = INVALID_SPRITE_PTR;
+
+		for (int16 x = 0; x < 9; ++x)
+			mSquad[x].mSprite = INVALID_SPRITE_PTR;
+
+		Mission_Memory_Backup();
 	}
-	
-	for (int16 x = 0; x < 361; ++x) {
-		if (*mGraveRecruitIDPtr == -1)
-			break;
-
-		++mGraveRecruitIDPtr;
-	}
-
-	for (int16 x = 0; x < 8; ++x)
-		mSquad_SpritePtrs[x] = INVALID_SPRITE_PTR;
-
-	for (int16 x = 0; x < 9; ++x)
-		mSquad[x].mSprite = INVALID_SPRITE_PTR;
-
-	Mission_Memory_Backup();
 }
 
 void cFodder::GUI_Button_Load_Up() {
