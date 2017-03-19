@@ -482,9 +482,9 @@ class cFodder : public cSingleton < cFodder > {
 	void			(cFodder::*dword_3B30D)(int16 pPosY);
 
 	int16			mInputString_Position;
-	int16			word_3B335;
-	int16			word_3B33D;
-	int16			word_3B33F;
+	int16			mGUI_Select_File_CurrentIndex;
+	int16			mGUI_Select_File_Count;
+	int16			mGUI_Select_File_SelectedFileIndex;
 
 	int16			mPhase_Goals[8];
 	int16			mIntro_PlayTextDuration;
