@@ -196,7 +196,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 		uint16 StartY = 0;
 
 		if (cx == 0)
-			StartY = mFodder->word_3B610;
+			StartY = mFodder->mCamera_Pan_RowOffset;
 		else
 			StartY = 0;
 
@@ -214,7 +214,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 			TilePtr += StartY * 0x140;
 			
 			if (cx2 == 0)
-				StartX = mFodder->word_3B60E;
+				StartX = mFodder->mCamera_Pan_ColumnOffset;
 			else
 				StartX = 0;
 

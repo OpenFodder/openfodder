@@ -540,8 +540,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3BEB9;
 	int16			word_3BEBB;
 	int16			word_3BEBD;
-	int16			word_3BEC1;
-	int16			word_3BEC3;
+	int16			mGUI_Mouse_Modifier_X;
+	int16			mGUI_Mouse_Modifier_Y;
 	uint16			word_3BEC9;
 	uint16			word_3BED5[5];
 	uint16			word_3BEDF[10];
