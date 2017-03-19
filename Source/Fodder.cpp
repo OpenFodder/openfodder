@@ -10832,12 +10832,14 @@ void cFodder::Game_Load() {
 		return;
 
 	std::string Filename = local_PathGenerate( File, "", false );
-	std::ifstream SaveFile( Filename, std::ios::binary );
 
+	std::ifstream SaveFile( Filename, std::ios::binary );
 	if (SaveFile.is_open()) {
 
-		std::vector<char> SaveGameContent( (std::istreambuf_iterator<char>( SaveFile )),
-			(std::istreambuf_iterator<char>()) );
+		std::vector<char> SaveGameContent( 
+			(std::istreambuf_iterator<char>( SaveFile )),
+			(std::istreambuf_iterator<char>()) 
+		);
 
 		// Valid save game?
 		if (SaveGameContent[0] != 'O' || SaveGameContent[1] != 'F')
@@ -10847,23 +10849,21 @@ void cFodder::Game_Load() {
 		std::memcpy( &mMapNumber, SaveGameContent.data() + 4, SaveGameContent.size() - 4);
 		
 		mMouse_Exit_Loop = 0;
+
+		// Reset grave pointers
 		mGraveRankPtr = mGraveRanks;
 		mGraveRankPtr2 = mGraveRankPtr;
 		mGraveRecruitIDPtr = mGraveRecruitID;
 
+		// Update grave pointers to next free
 		for (int16 x = 0; x < 361; ++x) {
-			if (*mGraveRankPtr == -1)
-				break;
-
-			++mGraveRankPtr;
-			++mGraveRankPtr2;
-		}
-
-		for (int16 x = 0; x < 361; ++x) {
-			if (*mGraveRecruitIDPtr == -1)
-				break;
-
-			++mGraveRecruitIDPtr;
+			if (*mGraveRankPtr != -1) {
+				++mGraveRankPtr;
+				++mGraveRankPtr2;
+			}
+			if (*mGraveRecruitIDPtr != -1) {
+				++mGraveRecruitIDPtr;
+			}
 		}
 
 		for (int16 x = 0; x < 8; ++x)
