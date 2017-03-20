@@ -12287,12 +12287,11 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 
 		if (pSprite->field_4A <= 0) {
 			//loc_190B9
-			Data0 = tool_RandomGet();
-			Data0 &= 0x0F;
+			Data0 = tool_RandomGet() & 0x0F;
 			++Data0;
 			pSprite->field_4A = Data0;
-			Data0 = tool_RandomGet();
-			Data0 &= 0x3F;
+
+			Data0 = tool_RandomGet() & 0x3F;
 			if (Data0 == 0x2A)
 				goto loc_1918C;
 		}
@@ -12311,16 +12310,15 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 			//loc_19118
 			if (pSprite == mSquad_Leader && mMouse_Button_LeftRight_Toggle ) {
 
-				Data0 = mSquad_CurrentWeapon[ pSprite->field_32 ];
-				if (Data0 == eWeapon_Rocket) {
+				if (mSquad_CurrentWeapon[pSprite->field_32] == eWeapon_Rocket) {
 					mTroop_Cannot_Throw_Grenade = -1;
 					mTroop_Cannot_Fire_Bullet = -1;
+
 				} else {
-					if (Data0 == eWeapon_Grenade) {
+					if (mSquad_CurrentWeapon[pSprite->field_32] == eWeapon_Grenade) {
 						word_3A010 = -1;
 						mTroop_Cannot_Fire_Bullet = -1;
-					}
-					else
+					} else
 						goto loc_19198;
 				}
 			loc_1918C:;
@@ -17105,7 +17103,7 @@ loc_1F549:;
 	if (word_3A010)
 		goto loc_1F599;
 
-	if (!sub_224ED(pSprite))
+	if (!Sprite_Handle_Troop_Fire_SecondWeapon(pSprite))
 		goto loc_1F569;
 
 	pSprite->field_4A = -1;
@@ -20090,12 +20088,19 @@ int16 cFodder::Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite
 	return 0;
 }
 
-int16 cFodder::sub_224ED( sSprite* pSprite ) {
+int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 	sSprite* Data2C = 0, *Data30 = 0, *Data34 = 0;
 	int16 Data0, Data4, Data8, DataC;
 
-	if (mMission_Completed_Timer)
-		goto loc_22592;
+	if (mMission_Completed_Timer) {
+	loc_22592:;
+
+		if (pSprite == mSquad_Leader)
+			mMouse_Button_LeftRight_Toggle = 0;
+
+		Data0 = -1;
+		return -1;
+	}
 
 	if (byte_3A9D6[pSprite->field_22] == 2)
 		goto loc_22592;
@@ -20104,18 +20109,16 @@ int16 cFodder::sub_224ED( sSprite* pSprite ) {
 		goto loc_22592;
 
 	//seg005:2E39
-	if (pSprite->field_18 != eSprite_Enemy)
-		goto loc_22575;
+	if (pSprite->field_18 == eSprite_Enemy) {
+		Data0 = pSprite->field_0;
+		Data4 = pSprite->field_4;
+		Data8 = pSprite->field_2E;
+		DataC = pSprite->field_30;
+		Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
+		if (Data0 >= 0x82)
+			goto loc_22592;
+	}
 
-	Data0 = pSprite->field_0;
-	Data4 = pSprite->field_4;
-	Data8 = pSprite->field_2E;
-	DataC = pSprite->field_30;
-	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
-	if (Data0 >= 0x82)
-		goto loc_22592;
-
-loc_22575:;
 	Data0 = 2;
 	Sprite_Get_Free(Data0,Data2C,Data30);
 	if (!Data0)
@@ -20124,26 +20127,20 @@ loc_22575:;
 	Data0 = -1;
 	return -1;
 
-loc_22592:;
 
-	if (pSprite == mSquad_Leader)
-		mMouse_Button_LeftRight_Toggle = 0;
-	Data0 = -1;
-	return -1;
 
 loc_225BE:;
-	if (pSprite->field_18 != 0)
-		goto loc_22622;
+	if (pSprite->field_18 == eSprite_Player) {
+		Data0 = pSprite->field_32;
+		Data4 = Data0;
 
-	Data0 = pSprite->field_32;
-	Data4 = Data0;
+		if (!mSquad_Rockets[Data0])
+			goto loc_22592;
 
-	if (!mSquad_Rockets[Data0])
-		goto loc_22592;
+		--mSquad_Rockets[Data0];
+		mGUI_RefreshSquadRockets[Data4] = -1;
+	}
 
-	--mSquad_Rockets[Data0];
-	mGUI_RefreshSquadRockets[Data4] = -1;
-loc_22622:;
 	Data0 = pSprite->field_22;
 
 	++byte_3A9D6[Data0];
@@ -20182,15 +20179,17 @@ loc_22622:;
 	Data2C->field_4++;
 	Data2C->field_0 += 3;
 	if (pSprite->field_22)
-		goto loc_22801;
+		goto PrepareRocket;
 
+	// Amiga Plus always has homing missiles
 	if (mVersion->mVersion != eVersion::AmigaPlus) {
-		if (!(pSprite->field_75 & 1))
-			goto loc_22801;
+
+		if (!(pSprite->field_75 & eSprite_Flag_HomingMissiles))
+			goto PrepareRocket;
 	}
 
 	if (!Sprite_Homing_LockInRange(pSprite, Data34))
-		goto loc_227EB;
+		goto PrepareMissile;
 
 	Data2C->field_1A = (int32*)Data34;
 	Data2C->field_18 = eSprite_MissileHoming2;
@@ -20201,18 +20200,18 @@ loc_22622:;
 	Data2C->field_38 = eSprite_Anim_None;
 	Data2C->field_36 = 0;
 	Data30->field_36 = 0;
-	goto loc_2281B;
+	goto PrepareShadow;
 
-loc_227EB:;
+PrepareMissile:;
 	Data2C->field_32 = 0;
 	Data2C->field_18 = eSprite_Missile;
-	goto loc_2281B;
+	goto PrepareShadow;
 
-loc_22801:;
+PrepareRocket:;
 	Data2C->field_18 = eSprite_Rocket;
 	Data2C->field_46 = (int32*) pSprite;
 
-loc_2281B:;
+PrepareShadow:;
 	Data30->field_18 = eSprite_ShadowSmall;
 	Data2C->field_52 = 0;
 	Data30->field_32 = 0;

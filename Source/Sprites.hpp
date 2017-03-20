@@ -138,12 +138,12 @@ enum eSprites {
 
 enum eSprite_Flags {
 	eSprite_Flag_HomingMissiles = 0x01,
-	eSprite_Flag_Invincibility = 0x02,
+	eSprite_Flag_Invincibility  = 0x02,
 };
 
 enum eSprite_Anim {
 	eSprite_Anim_None = 0x00,
-	eSprite_Anim_Hit = 0x01,
+	eSprite_Anim_Hit  = 0x01,
 	eSprite_Anim_Hit2 = 0x02,
 	eSprite_Anim_Hit3 = 0x03,
 	eSprite_Anim_Die1 = 0x05,		// Cause a turret to explode, a soldier to be run over
@@ -155,17 +155,17 @@ enum eSprite_Anim {
 	eSprite_Anim_Slide1 = 0x32,
 	eSprite_Anim_Slide2 = 0x33,
 	eSprite_Anim_Slide3 = 0x34,
-	eSprite_Anim_Vehicle_Enter = 0x5A,
+	eSprite_Anim_Vehicle_Enter  = 0x5A,
 	eSprite_Anim_Vehicle_Inside = 0x5B
 };
 
 enum ePstuff_Sprites {
 
-	eSprite_pStuff_Mouse_Cursor = 0x23,
-	eSprite_pStuff_Mouse_Target = 0x24,
+	eSprite_pStuff_Mouse_Cursor			 = 0x23,
+	eSprite_pStuff_Mouse_Target			 = 0x24,
 	eSprite_pStuff_Mouse_Arrow_DownRight = 0x25,
-	eSprite_pStuff_Mouse_Arrow_UpLeft = 0x26,
-	eSprite_pStuff_Mouse_Helicopter = 0x27,
+	eSprite_pStuff_Mouse_Arrow_UpLeft	 = 0x26,
+	eSprite_pStuff_Mouse_Helicopter		 = 0x27,
 
 };
 
