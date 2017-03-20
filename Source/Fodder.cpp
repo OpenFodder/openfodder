@@ -6033,7 +6033,7 @@ AnimDie3:;
 		pSprite->field_38 = eSprite_Anim_None;
 	dword_3B24B = -1;
 
-	sub_2449E( pSprite );
+	Sprite_Handle_Vehicle_Sinking( pSprite );
 	if (pSprite->field_52 < 0x50)
 		goto loc_23033;
 
@@ -6259,7 +6259,7 @@ int16 cFodder::sub_23444( sSprite* pSprite, sSprite*& pData2C ) {
 	pData2C->field_2 = pSprite->field_2;
 	pData2C->field_4 = pSprite->field_4;
 	pData2C->field_6 = pSprite->field_6;
-	if (!mSprites_HumanVehicles[0xE])
+	if (!dword_3B24B)
 		goto loc_234D8;
 
 	Data0 = tool_RandomGet() & 0x1F;
@@ -6269,7 +6269,7 @@ int16 cFodder::sub_23444( sSprite* pSprite, sSprite*& pData2C ) {
 	Data0 &= 0x0F;
 	Data0 -= 8;
 	pData2C->field_4 -= Data0;
-	mSprites_HumanVehicles[0xE] = 0;
+	dword_3B24B = 0;
 
 loc_234D8:;
 	pData2C->field_20 = pSprite->field_20;
@@ -6277,7 +6277,7 @@ loc_234D8:;
 	pData2C->field_8 = 0xCC;
 	pData2C->field_A = 4;
 	pData2C->field_2C = eSprite_Draw_Last;
-	pData2C->field_18 = 0x39;
+	pData2C->field_18 = eSprite_Smoke;
 	return 0;
 }
 
@@ -6966,7 +6966,7 @@ void cFodder::sub_243E9( sSprite* pSprite ) {
 	Data24->field_8 = 0x7C;
 }
 
-int16 cFodder::sub_2449E( sSprite* pSprite ) {
+int16 cFodder::Sprite_Handle_Vehicle_Sinking( sSprite* pSprite ) {
 	
 	Sound_Play( pSprite, 0x2B, 0x0F );
 	if (!pSprite->field_5C)
@@ -8001,7 +8001,7 @@ int16 cFodder::sub_25B6B( sSprite* pSprite ) {
 		Data0 = 0x10;
 
 	Data2C->field_12 = Data0;
-	Data2C->field_18 = 0x47;
+	Data2C->field_18 = eSprite_Indigenous_Spear2;
 	Data2C->field_1E = pSprite->field_1E;
 	Data2C->field_20 = pSprite->field_20;
 
@@ -8100,7 +8100,7 @@ int16 cFodder::sub_25DCF( sSprite* pSprite ) {
 	return -1;
 
 loc_25E54:;
-	if (sub_1FF1A( pSprite, Data2C, Data30 ))
+	if (Sprite_Create_BloodTrail( pSprite, Data2C, Data30 ))
 		return -1;
 
 	Data2C->field_4 += tool_RandomGet() & 3;
@@ -9898,6 +9898,8 @@ void cFodder::Squad_Troops_Count() {
 			}
 		}
 		//loc_2D165
+		if (Sprite->field_32 < 0)
+			continue;
 
 		uint8 Data10 = mSquads_TroopCount[ Sprite->field_32 ] & 0xFF;
 		mSquads_TroopCount[ Sprite->field_32 ] += 1;
@@ -13630,7 +13632,7 @@ loc_1AF63:;
 	pSprite->field_A = 0;
 }
 
-void cFodder::sub_1AF78( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Player_Shadow( sSprite* pSprite ) {
 	sSprite* Data28 = (sSprite*) pSprite->field_1A;
 	int16 Data0;
 
@@ -13672,7 +13674,7 @@ loc_1B06D:;
 	Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::sub_1B07C( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_BloodTrail( sSprite* pSprite ) {
 	
 	if (pSprite->field_20)
 		--pSprite->field_20;
@@ -14632,7 +14634,7 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Human( sSprite* pSprite ) {
 	Sprite_Handle_Helicopter_Human( pSprite );
 }
 
-void cFodder::sub_1C2D2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Helicopter_PropCrash( sSprite* pSprite ) {
 	pSprite->field_A += 1;
 	pSprite->field_A &= 3;
 	int32 Field_1E;
@@ -14743,7 +14745,7 @@ loc_1C4AD:;
 	pSprite->field_A += 1;
 }
 
-void cFodder::sub_1C4C2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Smoke( sSprite* pSprite ) {
 	pSprite->field_2A += 1;
 	pSprite->field_2A &= 1;
 	if (pSprite->field_2A)
@@ -15222,7 +15224,7 @@ void cFodder::Sprite_Handle_Indigenous_Spear( sSprite* pSprite ) {
 	sub_25863( pSprite );
 }
 
-void cFodder::sub_1CE80( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Indigenous_Spear2( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data1C;
 
 	++pSprite->field_64;
@@ -16229,7 +16231,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
 		pSprite->field_40 = -26506;
 
 	if (!pSprite->field_58) {
-		sub_1FE35( pSprite );
+		Sprite_Create_Player_Shadow( pSprite );
 		pSprite->field_58 = -1;
 	}
 
@@ -16279,7 +16281,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
 	if (!Data0)
 		pSprite->field_3A = pSprite->field_10;
 
-	sub_1FF1A(pSprite, Data2C, Data30 );
+	Sprite_Create_BloodTrail(pSprite, Data2C, Data30 );
 	pSprite->field_26 = -1;
 	if (pSprite->field_38 != eSprite_Anim_Die4)
 		goto loc_1E3D2;
@@ -16304,7 +16306,7 @@ loc_1E2F4:;
 	if (!Data0) {
 		sSprite* Data2C = 0, *Data30 = 0;
 
-		sub_1FF1A(pSprite, Data2C, Data30);
+		Sprite_Create_BloodTrail(pSprite, Data2C, Data30);
 
 		if (pSprite->field_A)
 			pSprite->field_A = 0;
@@ -16333,7 +16335,7 @@ loc_1E3D2:;
 		sSprite* Data2C = 0, *Data30 = 0;
 
 		pSprite->field_28 += 1;
-		sub_1FF1A(pSprite, Data2C, Data30);
+		Sprite_Create_BloodTrail(pSprite, Data2C, Data30);
 
 		if (!(pSprite->field_28 & 7)) {
 			Data0 = tool_RandomGet() & 7;
@@ -16429,7 +16431,7 @@ loc_1E3D2:;
 
 		if (!pSprite->field_20) {
 			sSprite* Data2C = 0, *Data30 = 0;
-			sub_1FF1A(pSprite, Data2C, Data30);
+			Sprite_Create_BloodTrail(pSprite, Data2C, Data30);
 			pSprite->field_26 = 0;
 		}
 	}
@@ -16949,7 +16951,7 @@ int16 cFodder::Sprite_Handle_Player_MissionOver( sSprite* pSprite ) {
 				Data0 = tool_RandomGet() & 3;
 				pSprite->field_A = Data0;
 				pSprite->field_2A = 1;
-				sub_1FE35( pSprite );
+				Sprite_Create_Player_Shadow( pSprite );
 				goto loc_1F3C4;
 			}
 		}
@@ -17523,7 +17525,7 @@ void cFodder::sub_1FDE7( sSprite* pSprite ) {
 	pSprite->field_A = word_3ABAF;
 }
 
-void cFodder::sub_1FE35( sSprite* pSprite ) {
+void cFodder::Sprite_Create_Player_Shadow( sSprite* pSprite ) {
 	int16 Data0 = 0;
 
 	sSprite* Data2C, *Data30;
@@ -17544,7 +17546,7 @@ void cFodder::sub_1FE35( sSprite* pSprite ) {
 	Data2C->field_A = 2;
 	Data2C->field_2 = pSprite->field_2;
 	Data2C->field_6 = pSprite->field_6;
-	Data2C->field_18 = 0x16;
+	Data2C->field_18 = eSprite_Player_Shadow;
 	Data2C->field_62 = pSprite->field_18;
 	Data2C->field_20 = 0;
 	Data2C->field_32 = -1;
@@ -17552,7 +17554,7 @@ void cFodder::sub_1FE35( sSprite* pSprite ) {
 	Data2C->field_52 = 0;
 }
 
-int16 cFodder::sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 ) {
+int16 cFodder::Sprite_Create_BloodTrail( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 ) {
 	int16 Data0;
 
 	Data0 = 1;
@@ -17567,7 +17569,7 @@ int16 cFodder::sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30
 		pData2C->field_4 -= 8;
 		pData2C->field_8 = 0x96;
 		pData2C->field_A = 0;
-		pData2C->field_18 = 0x17;
+		pData2C->field_18 = eSprite_BloodTrail;
 		pData2C->field_20 = pSprite->field_20;
 		pData2C->field_32 = -1;
 		pData2C->field_2C = eSprite_Draw_Last;

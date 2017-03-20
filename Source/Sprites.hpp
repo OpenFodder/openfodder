@@ -39,11 +39,14 @@ enum eSprites {
 
 	eSprite_BuildingDoor					= 20,
 	eSprite_Player_Rank						= 21,
+	eSprite_Player_Shadow					= 22,
+	eSprite_BloodTrail						= 23,
 	eSprite_GroundHole						= 24,
 	eSprite_BuildingDoor2					= 25,
 	eSprite_Floating_Dead_Soldier			= 27,
 	eSprite_Text_Complete					= 28,
 	eSprite_Text_Mission					= 29,
+
 	eSprite_Text_Phase						= 30,
 	eSprite_Rocket							= 33,
 	eSprite_Text_GameOver					= 34,
@@ -52,6 +55,7 @@ enum eSprites {
 	eSprite_GrenadeBox						= 37,
 	eSprite_RocketBox						= 38,
 	eSprite_Building_Explosion				= 39,
+
 	eSprite_Helicopter_Grenade_Enemy			= 40,
 	eSprite_Flashing_Light						= 41,
 	eSprite_Helicopter_Grenade2_Enemy			= 42,
@@ -60,12 +64,15 @@ enum eSprites {
 	eSprite_Missile								= 45,
 	eSprite_MissileHoming						= 46,
 	eSprite_Helicopter_Grenade2_Human			= 49,
+
 	eSprite_Helicopter_Grenade_Human			= 50,
 	eSprite_Helicopter_Missile_Human			= 51,
 	eSprite_Helicopter_Homing_Human				= 52,
+	eSprite_Helicopter_PropCrash				= 53,
 	eSprite_Mine								= 54,
 	eSprite_Mine2								= 55,
 	eSprite_Spike								= 56,
+	eSprite_Smoke								= 57,
 	eSprite_Text_Try							= 58,
 	eSprite_Text_Again							= 59,
 
@@ -81,6 +88,7 @@ enum eSprites {
 	eSprite_Tank_Enemy							= 69,
 
 	eSprite_Indigenous_Spear					= 70,
+	eSprite_Indigenous_Spear2					= 71,
 	eSprite_Hostage								= 72,
 	eSprite_Hostage_Rescue_Tent					= 73,
 	eSprite_Door_Indigenous						= 74,

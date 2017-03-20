@@ -35,7 +35,7 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 00 */
 	SpriteFunction( Player );
-	SpriteTableFunction( 0x01,						Sprite_Handle_Null );
+	SpriteTableFunction( 1,							Sprite_Handle_Null );
 	SpriteFunction( Grenade );
 	SpriteFunction( ShadowSmall );
 
@@ -43,11 +43,11 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Null );
 	SpriteFunction( Enemy );
 	SpriteFunction( Bullet );
-	SpriteTableFunction( 0x07,						Sprite_Handle_Null );
+	SpriteTableFunction( 7,							Sprite_Handle_Null );
 
 	/* 08 */
-	SpriteTableFunction( 0x08,						Sprite_Handle_Null );
-	SpriteTableFunction( 0x09,						Sprite_Handle_Null );
+	SpriteTableFunction( 8,							Sprite_Handle_Null );
+	SpriteTableFunction( 9,							Sprite_Handle_Null );
 	SpriteTableFunction( 10,						Sprite_Handle_Null );
 	SpriteTableFunction( 11,						Sprite_Handle_Null );
 
@@ -66,8 +66,8 @@ void cFodder::Sprite_Table_Setup() {
 	/* 20 */
 	SpriteFunction( BuildingDoor );
 	SpriteFunction( Player_Rank );
-	SpriteTableFunction( 22,						sub_1AF78 );
-	SpriteTableFunction( 23,						sub_1B07C );
+	SpriteFunction( Player_Shadow );
+	SpriteFunction( BloodTrail );
 
 	/* 24 */
 	SpriteFunction( GroundHole );
@@ -113,13 +113,13 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 52 */
 	SpriteFunction( Helicopter_Homing_Human );
-	SpriteTableFunction( 53,										sub_1C2D2 );
+	SpriteFunction( Helicopter_PropCrash );
 	SpriteFunction( Mine );
 	SpriteFunction( Mine2 );
 
 	/* 56 */
 	SpriteFunction( Spike );
-	SpriteTableFunction( 57,										sub_1C4C2 );
+	SpriteFunction( Smoke );
 	SpriteFunction( Text_Try );
 	SpriteFunction( Text_Again );
 
@@ -139,7 +139,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Seal );
 	SpriteFunction( Tank_Enemy );
 	SpriteFunction( Indigenous_Spear );
-	SpriteTableFunction( 71,										sub_1CE80 );
+	SpriteFunction( Indigenous_Spear2 );
 
 	/* 72 */
 	SpriteFunction( Hostage );
