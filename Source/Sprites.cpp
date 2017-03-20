@@ -162,8 +162,8 @@ void cFodder::Sprite_Table_Setup() {
 	/* 84 */
 	SpriteFunction( Turret_Missile_Enemy );
 	SpriteFunction( Turret_Missile2_Enemy );
-	SpriteTableFunction( 86,										sub_1D7DD );
-	SpriteTableFunction( 87,										sub_1D802 );
+	SpriteFunction( Vehicle_Sinking_1 );
+	SpriteFunction( Vehicle_Sinking_2 );
 
 	/* 88 */
 	SpriteFunction( BuildingDoor3 );
