@@ -103,10 +103,10 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Helicopter_Homing_Enemy );
 	SpriteFunction( Missile );
 	SpriteFunction( MissileHoming );
-	SpriteTableFunction( 47,										sub_1C1C0 );
+	SpriteFunction( Sparks );
 
 	/* 48 */
-	SpriteTableFunction( 48,										sub_1C268 );
+	SpriteFunction( FireTrail );
 	SpriteFunction( Helicopter_Grenade2_Human );
 	SpriteFunction( Helicopter_Grenade_Human );
 	SpriteFunction( Helicopter_Missile_Human );
@@ -149,7 +149,7 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 76 */
 	SpriteFunction( Door_Indigenous_Spear );
-	SpriteTableFunction( 77,										sub_1D4D2 );
+	SpriteFunction( Cannon );
 	SpriteFunction( Turret_Missile_Human );
 	SpriteFunction( Turret_Missile2_Human );
 

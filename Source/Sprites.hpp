@@ -63,6 +63,8 @@ enum eSprites {
 	eSprite_Helicopter_Homing_Enemy				= 44,
 	eSprite_Missile								= 45,
 	eSprite_MissileHoming						= 46,
+	eSprite_Sparks								= 47,
+	eSprite_FireTrail							= 48,
 	eSprite_Helicopter_Grenade2_Human			= 49,
 
 	eSprite_Helicopter_Grenade_Human			= 50,
@@ -94,6 +96,7 @@ enum eSprites {
 	eSprite_Door_Indigenous						= 74,
 	eSprite_Door2_Indigenous					= 75,
 	eSprite_Door_Indigenous_Spear				= 76,
+	eSprite_Cannon								= 77,
 	eSprite_Turret_Missile_Human				= 78,
 	eSprite_Turret_Missile2_Human				= 79,
 

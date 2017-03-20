@@ -7055,7 +7055,7 @@ loc_24617:;
 	Data4 = mSprite_VehiclePosition_Mod[Data0 + 1];
 	pSprite->field_4 += Data4;
 
-	if (!sub_246CC( pSprite )) {
+	if (!Sprite_Create_Cannon( pSprite )) {
 		pSprite->field_5B = ~pSprite->field_5B;
 		Sound_Play( pSprite, 0x10, 0x1E );
 	}
@@ -7065,7 +7065,7 @@ loc_24617:;
 	pSprite->field_0 = Field_0;
 }
 
-int16 cFodder::sub_246CC( sSprite* pSprite ) {
+int16 cFodder::Sprite_Create_Cannon( sSprite* pSprite ) {
 	if (mMission_Completed_Timer)
 		return -1;
 
@@ -7086,7 +7086,7 @@ int16 cFodder::sub_246CC( sSprite* pSprite ) {
 	Data2C->field_8 = 0x7F;
 	Data2C->field_A = 3;
 	Data2C->field_12 = 9;
-	Data2C->field_18 = 0x4D;
+	Data2C->field_18 = eSprite_Cannon;
 
 	int32 Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 	Field_1E += 0x60000;
@@ -13028,7 +13028,7 @@ Helicopter_Explosion:;
 	pSprite->field_18 = eSprite_Explosion;
 	pSprite->field_26 = 0x1F50;
 	pSprite->field_28 = -9;
-	(pSprite + 1)->field_18 = 0x35;
+	(pSprite + 1)->field_18 = eSprite_Helicopter_PropCrash;
 
 	Data0 = tool_RandomGet() & 0x1FE;
 	(pSprite + 1)->field_10 = Data0;
@@ -13387,10 +13387,10 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 		Sprite_Handle_Explosion_MapTiles( pSprite );
 		int16 Data0 = tool_RandomGet() & 0x1FE;
 		int16 Data18 = Data0;
-		sub_21702( pSprite, Data18 );
+		Sprite_Create_Sparks( pSprite, Data18 );
 		Data18 += 0x100;
 		Data18 &= 0x1FE;
-		sub_21702( pSprite, Data18 );
+		Sprite_Create_Sparks( pSprite, Data18 );
 
 		word_3A3AB = -1;
 		word_3A3AD = 0;
@@ -14335,7 +14335,7 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Enemy( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 	
 	dword_3B24B = -1;
-	sub_2183B( pSprite );
+	Sprite_Create_FireTrail( pSprite );
 
 	pSprite->field_8 = 0xA3;
 	int16 Data0 = pSprite->field_26;
@@ -14408,7 +14408,7 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
 		goto loc_1C197;
 
 	dword_3B24B = -1;
-	sub_2183B( pSprite );
+	Sprite_Create_FireTrail( pSprite );
 
 	pSprite->field_8 = 0xA3;
 	Data34 = (sSprite*) pSprite->field_1A;
@@ -14556,7 +14556,7 @@ loc_1C197:;
 
 }
 
-void cFodder::sub_1C1C0( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Sparks( sSprite* pSprite ) {
 	Sprite_Movement_Calculate( pSprite );
 	int64 Data0 = (int64) pSprite->field_1A;
 
@@ -14593,10 +14593,10 @@ loc_1C248:;
 	}
 
 loc_1C262:;
-	sub_2183B( pSprite );
+	Sprite_Create_FireTrail( pSprite );
 }
 
-void cFodder::sub_1C268( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_FireTrail( sSprite* pSprite ) {
 	pSprite->field_2A += 1;
 	pSprite->field_2A &= 1;
 	if (pSprite->field_2A)
@@ -14658,7 +14658,7 @@ void cFodder::Sprite_Handle_Helicopter_PropCrash( sSprite* pSprite ) {
 
 loc_1C321:;
 	pSprite->field_18 = eSprite_Explosion;
-	sub_2183B( pSprite );
+	Sprite_Create_FireTrail( pSprite );
 }
 
 void cFodder::Sprite_Handle_Mine( sSprite* pSprite ) {
@@ -15519,7 +15519,7 @@ void cFodder::Sprite_Handle_Door_Indigenous_Spear( sSprite* pSprite ) {
 	sub_264B0(pSprite);
 }
 
-void cFodder::sub_1D4D2( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Cannon( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC, Data1C;
 	++pSprite->field_64;
 
@@ -19455,7 +19455,7 @@ int16 cFodder::sub_21618( sSprite* pSprite ) {
 	return -1;
 }
 
-void cFodder::sub_21702( sSprite* pSprite, int16 pData18 ) {
+void cFodder::Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 ) {
 	int16 Data0 = 2;
 	sSprite* Data2C, *Data30;
 
@@ -19482,7 +19482,7 @@ void cFodder::sub_21702( sSprite* pSprite, int16 pData18 ) {
 	Data30->field_A = 0;
 	Data2C->field_36 = 0x0C;
 	Data30->field_36 = 0x0C;
-	Data2C->field_18 = 0x2F;
+	Data2C->field_18 = eSprite_Sparks;
 	Data30->field_18 = eSprite_ShadowSmall;
 	Data2C->field_52 = 0;
 	Data30->field_52 = 0;
@@ -19495,7 +19495,7 @@ void cFodder::sub_21702( sSprite* pSprite, int16 pData18 ) {
 
 }
 
-void cFodder::sub_2183B( sSprite* pSprite ) {
+void cFodder::Sprite_Create_FireTrail( sSprite* pSprite ) {
 
 	if (!pSprite->field_5C)
 		return;
@@ -19523,7 +19523,7 @@ void cFodder::sub_2183B( sSprite* pSprite ) {
 	Data2C->field_52 = 0;
 	Data2C->field_8 = 0xC6;
 	Data2C->field_A = 0;
-	Data2C->field_18 = 0x30;
+	Data2C->field_18 = eSprite_FireTrail;
 }
 
 void cFodder::sub_218E2( sSprite* pSprite ) {

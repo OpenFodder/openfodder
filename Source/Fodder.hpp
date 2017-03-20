@@ -913,8 +913,8 @@ public:
 	void			Sprite_Handle_Helicopter_Homing_Enemy( sSprite* pSprite );				// 44
 	void			Sprite_Handle_Missile( sSprite* pSprite );								// 45
 	void			Sprite_Handle_MissileHoming( sSprite* pSprite );						// 46
-	void			sub_1C1C0( sSprite* pSprite );											// 47
-	void			sub_1C268( sSprite* pSprite );											// 48
+	void			Sprite_Handle_Sparks( sSprite* pSprite );											// 47
+	void			Sprite_Handle_FireTrail( sSprite* pSprite );											// 48
 	void			Sprite_Handle_Helicopter_Grenade2_Human( sSprite* pSprite );			// 49
 
 	void			Sprite_Handle_Helicopter_Grenade_Human( sSprite* pSprite );				// 50
@@ -946,7 +946,7 @@ public:
 	void			Sprite_Handle_Door_Indigenous( sSprite* pSprite );		// 74
 	void			Sprite_Handle_Door2_Indigenous( sSprite* pSprite );		// 75
 	void			Sprite_Handle_Door_Indigenous_Spear( sSprite* pSprite );// 76
-	void			sub_1D4D2( sSprite* pSprite );							// 77
+	void			Sprite_Handle_Cannon( sSprite* pSprite );				// 77
 	void			Sprite_Handle_Turret_Missile_Human( sSprite* pSprite );	// 78
 	void			Sprite_Handle_Turret_Missile2_Human( sSprite* pSprite );// 79
 
@@ -1026,8 +1026,8 @@ public:
 	void			Sprite_Create_Shadow( sSprite* pSprite );
 	void			Sprite_Handle_Grenade_Terrain_Check( sSprite* pSprite );
 	int16			sub_21618( sSprite* pSprite );
-	void			sub_21702( sSprite* pSprite, int16 pData18 );
-	void			sub_2183B( sSprite* pSprite );
+	void			Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 );
+	void			Sprite_Create_FireTrail( sSprite* pSprite );
 	void			sub_218E2( sSprite* pSprite );
 	int16			Sprite_Create_Building_Explosion_Wrapper( int16& pX, int16& pY );
 	int16			Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, int16& pY );
@@ -1072,7 +1072,7 @@ public:
 	void			sub_243E9( sSprite* pSprite );
 	int16			Sprite_Handle_Vehicle_Sinking( sSprite* pSprite );
 	void			sub_245BF( sSprite* pSprite );
-	int16			sub_246CC( sSprite* pSprite );
+	int16			Sprite_Create_Cannon( sSprite* pSprite );
 	void			Sprite_Handle_Helicopter_Human_Deploy_Weapon( sSprite* pSprite );
 	int16			Sprite_Create_Grenade2( sSprite* pSprite );
 	int16			Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
