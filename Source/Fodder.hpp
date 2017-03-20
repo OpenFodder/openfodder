@@ -1042,7 +1042,7 @@ public:
 	int16			sub_222A3( sSprite* pSprite );
 	void			sub_223B2( sSprite* pSprite );
 	int16			Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite, int16& pData0 );
-	int16			sub_224ED( sSprite* pSprite );
+	int16			Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite );
 	int16			Sprite_Homing_LockInRange( sSprite* pSprite, sSprite*& pFoundSprite );
 	void			sub_229C9( sSprite* pSprite );
 	void			sub_22A3D( sSprite* pSprite );

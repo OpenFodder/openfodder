@@ -205,6 +205,7 @@ void cFodder::Sprite_Table_Setup() {
 
 }
 
+// Types of units which are hostile towards the Player
 const int16 mEnemy_Unit_Types[] = {
 	eSprite_Enemy, eSprite_Enemy_Rocket,	eSprite_Helicopter_Grenade_Enemy,	eSprite_Helicopter_Grenade2_Enemy,
 	eSprite_Helicopter_Missile_Enemy,		eSprite_Helicopter_Homing_Enemy,	eSprite_Tank_Enemy,
@@ -215,6 +216,7 @@ const int16 mEnemy_Unit_Types[] = {
 	-1
 };
 
+// Sprites which missiles can lock on to
 const int16 mSprite_Missile_CanLock[] = {
 	0, 0, 0, 0, 0, -1, 0, 0, 0, 0,
 	0, 0, 0, -1, -1, -1, -1, -1, 0, 0,
