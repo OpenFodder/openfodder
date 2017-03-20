@@ -95,6 +95,8 @@ enum eSprites {
 	eSprite_Indigenous_Invisible				= 83,
 	eSprite_Turret_Missile_Enemy				= 84,
 	eSprite_Turret_Missile2_Enemy				= 85,
+	eSprite_Vehicle_Sinking_1					= 86,
+	eSprite_Vehicle_Sinking_2					= 87,
 	eSprite_BuildingDoor3						= 88,
 	eSprite_Explosion2							= 89,
 
@@ -175,11 +177,11 @@ struct sSprite {
 	int16 field_12;
 	int16 field_14;
 	int16 field_16;
-	int16 field_18;		// Type
+	int16 field_18;		// Sprite Type
 	int32* field_1A;
 	int16 field_1E;
 	int16 field_20;
-	int16 field_22;
+	int16 field_22;		// Vehicle: 1 = Not Human
 	int16 field_24;
 	int16 field_26;		// Target X
 	int16 field_28;		// Target Y
@@ -222,13 +224,13 @@ struct sSprite {
 	int8 field_61;
 	int16 field_62;
 	int8 field_64;
-	int8 field_65;
+	int8 field_65;			// -1 = Enabled?
 	sSprite* field_66;		// Human-Player: Vehicle Walk Target
 	sSprite* field_6A;		// Human-Player: Current Vehicle
 	int8 field_6E;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
 	int8 field_6F;			// Vehicle: Entrance left - 12
 	sSprite* field_70;
-	int8 field_74;
+	int8 field_74;			// Helicopter: Restart Anim Frame Number
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
 };
 

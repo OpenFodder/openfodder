@@ -456,7 +456,8 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite*		mSquad_CurrentVehicle;
 	int16			mMission_In_Progress;
 	int16			word_3B211;
-	sSprite*		dword_3B213[15];
+	sSprite*		mSprites_HumanVehicles[15];
+	int16			dword_3B24B;
 	sSprite*		dword_3B24F[3];
 	int16			word_3B25B;
 	int16			word_3B25D;
@@ -955,8 +956,8 @@ public:
 	void			Sprite_Handle_Indigenous_Invisible( sSprite* pSprite );	// 83
 	void			Sprite_Handle_Turret_Missile_Enemy( sSprite* pSprite );	// 84
 	void			Sprite_Handle_Turret_Missile2_Enemy( sSprite* pSprite );// 85
-	void			sub_1D7DD( sSprite* pSprite );							// 86
-	void			sub_1D802( sSprite* pSprite );							// 87
+	void			Sprite_Handle_Vehicle_Sinking_1( sSprite* pSprite );	// 86
+	void			Sprite_Handle_Vehicle_Sinking_2( sSprite* pSprite );	// 87
 	void			Sprite_Handle_BuildingDoor3( sSprite* pSprite );		// 88
 	void			Sprite_Handle_Explosion2( sSprite* pSprite );			// 89
 

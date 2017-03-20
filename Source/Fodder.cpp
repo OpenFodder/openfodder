@@ -850,9 +850,10 @@ void cFodder::Mission_Memory_Clear() {
 	mSquad_CurrentVehicle = 0;
 	mMission_In_Progress = 0;
 	word_3B211 = 0;
-	for (uint16 x = 0; x < 15; ++x) {
-		dword_3B213[x] = 0;
+	for (uint16 x = 0; x < 14; ++x) {
+		mSprites_HumanVehicles[x] = 0;
 	}
+	dword_3B24B = 0;
 
 	for (uint16 x = 0; x < 3; ++x) {
 		dword_3B24F[x] = 0;
@@ -2387,7 +2388,7 @@ void cFodder::sub_12AEE() {
 	
 	word_3B211 = -1;
 	sSprite* Data20 = mSprites;
-	sSprite** Data24 = dword_3B213;
+	sSprite** Data24 = mSprites_HumanVehicles;
 
 	for( int16 Data1C = 0x1D; Data1C >= 0; --Data1C, ++Data20 ) {
 		
@@ -4724,7 +4725,6 @@ bool cFodder::Recruit_Show() {
 	Recruit_Render_Names_UnusedSlots();
 
 	dword_3AAC9 = mRecruit_Rendered;
-;
 
 	for (int16 ax = mSquadMemberCount - 1; ax >= 0;--ax )
 		sub_17429();
@@ -5730,7 +5730,7 @@ void cFodder::sub_30AB0() {
 	Data0 -= 0x0F;
 	Data4 -= 3;
 	
-	Data24 = dword_3B213;
+	Data24 = mSprites_HumanVehicles;
 
 	//loc_30B36
 	for (int16 Data1C = 4; Data1C >= 0; --Data1C) {
@@ -5927,7 +5927,7 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite ) {
 		pSprite->field_52 = 0;
 
 	if (Map_Sprite_Check_Around_Position( pSprite ))
-		goto loc_22F30;
+		goto Computer_Vehicle_SoftTerrain;
 
 	Data4 = 0x0F;
 	Data0 = -10;
@@ -5941,7 +5941,7 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite ) {
 		goto loc_23100;
 
 	if (Data4 == eTerrainType_BounceOff)
-		goto loc_22F30;
+		goto Computer_Vehicle_SoftTerrain;
 
 	if (Data4 == eTerrainType_Drop || Data4 == 0x0A)
 		goto loc_22F06;
@@ -5953,24 +5953,24 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite ) {
 		goto loc_22FA3;
 
 	if (!pSprite->field_22)
-		goto loc_22EC7;
+		goto Human_Vehicle;
 
 	if (	Data4 == eTerrainType_QuickSand || Data4 == eTerrainType_WaterEdge 
 		 || Data4 == eTerrainType_Water || Data4 == eTerrainType_Sink)
-		goto loc_22F30;
+		goto Computer_Vehicle_SoftTerrain;
 	
 	goto loc_22EEB;
 
-loc_22EC7:;
+Human_Vehicle:;
 
 	if (Data4 == eTerrainType_QuickSand)
-		goto loc_22FD7;
+		goto Human_Vehicle_Quicksand;
 
 	if (Data4 == eTerrainType_WaterEdge)
-		goto loc_22FE4;
+		goto Human_Vehicle_WaterEdge;
 
 	if (Data4 == eTerrainType_Water || Data4 == eTerrainType_Sink)
-		goto loc_22FF1;
+		goto AnimDie3;
 
 loc_22EEB:;
 	pSprite->field_52 = 0;
@@ -5985,7 +5985,7 @@ loc_22F06:;
 	pSprite->field_4 += Data0;
 	return;
 
-loc_22F30:;
+Computer_Vehicle_SoftTerrain:;
 	
 	if (pSprite->field_22) {
 		pSprite->field_26 = pSprite->field_0;
@@ -6020,18 +6020,18 @@ loc_22FA3:;
 	pSprite->field_36 -= 2;
 	return;
 
-loc_22FD7:;
+Human_Vehicle_Quicksand:;
 	pSprite->field_52 = 1;
 	return;
 
-loc_22FE4:;
+Human_Vehicle_WaterEdge:;
 	pSprite->field_52 = 3;
 	return;
 
-loc_22FF1:;
+AnimDie3:;
 	if (pSprite->field_56)
 		pSprite->field_38 = eSprite_Anim_None;
-	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+	dword_3B24B = -1;
 
 	sub_2449E( pSprite );
 	if (pSprite->field_52 < 0x50)
@@ -6259,7 +6259,7 @@ int16 cFodder::sub_23444( sSprite* pSprite, sSprite*& pData2C ) {
 	pData2C->field_2 = pSprite->field_2;
 	pData2C->field_4 = pSprite->field_4;
 	pData2C->field_6 = pSprite->field_6;
-	if (!dword_3B213[0xE])
+	if (!mSprites_HumanVehicles[0xE])
 		goto loc_234D8;
 
 	Data0 = tool_RandomGet() & 0x1F;
@@ -6269,7 +6269,7 @@ int16 cFodder::sub_23444( sSprite* pSprite, sSprite*& pData2C ) {
 	Data0 &= 0x0F;
 	Data0 -= 8;
 	pData2C->field_4 -= Data0;
-	dword_3B213[0xE] = 0;
+	mSprites_HumanVehicles[0xE] = 0;
 
 loc_234D8:;
 	pData2C->field_20 = pSprite->field_20;
@@ -6307,8 +6307,7 @@ loc_2356B:;
 		return;
 
 	pSprite->field_8 = 0xD1;
-	word_3B2F7 = pSprite->field_36;
-	word_3B2F7 += 0x20;
+	word_3B2F7 = pSprite->field_36 + 0x20;
 
 	Data0 = pSprite->field_26;
 	Data4 = pSprite->field_28;
@@ -6331,7 +6330,7 @@ loc_2356B:;
 	goto loc_23680;
 
 loc_2361A:;
-	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+	dword_3B24B = -1;
 	if (!sub_23444( pSprite, Data2C))
 		Data2C->field_2C = eSprite_Draw_First;
 
@@ -6684,7 +6683,7 @@ loc_23E2F:;
 
 void cFodder::sub_23EA6( sSprite* pSprite ) {
 	
-	for (sSprite** Data24 = dword_3B213; *Data24 != INVALID_SPRITE_PTR; ++Data24) {
+	for (sSprite** Data24 = mSprites_HumanVehicles; *Data24 != INVALID_SPRITE_PTR; ++Data24) {
 
 		if (*Data24 != pSprite)
 			continue;
@@ -6705,9 +6704,11 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	sSprite* Data34 = 0;
 	int16 Data0, Data4, Data8, DataC, Data10;
 
-	if (mMap_TileSet == eTileTypes_Moors || mMap_TileSet == eTileTypes_Int)
+	// Turrets in Moors / Interior can't be destroyed
+	if (mMap_TileSet == eTileTypes_Moors || mMap_TileSet == eTileTypes_Int) {
 		if (pSprite->field_38 == eSprite_Anim_Die1)
 			pSprite->field_38 = eSprite_Anim_None;
+	}
 
 	if (pSprite->field_38 == eSprite_Anim_Die3 || pSprite->field_38 == eSprite_Anim_Die1) {
 
@@ -6762,8 +6763,9 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	Data0 = pSprite->field_0 + 8;
 	Data4 = pSprite->field_4 - 5;
 	Data8 = Data28->field_0;
-	pSprite->field_2E = Data8;
 	DataC = Data28->field_4;
+
+	pSprite->field_2E = Data8;
 	pSprite->field_30 = DataC;
 
 	word_3B4ED[1] = Data28->field_20;
@@ -6777,8 +6779,8 @@ loc_24075:;
 	Data4 = pSprite->field_4 - 5;
 	Data8 = mMouseX + (mCamera_Adjust_Col >> 16);
 	Data8 -= 0x10;
-
 	DataC = mMouseY + (mCamera_Adjust_Row >> 16);
+
 loc_240C8:;
 	Direction_Between_Points( Data0, Data4, Data8, DataC );
 	Data4 -= 0x10;
@@ -6981,7 +6983,7 @@ int16 cFodder::sub_2449E( sSprite* pSprite ) {
 	Data2C->field_4 = pSprite->field_4;
 	Data2C->field_6 = pSprite->field_6;
 
-	if (dword_3B213[0x0E]) {
+	if (dword_3B24B) {
 		Data0 = tool_RandomGet() & 0x1F;
 		Data0 -= 5;
 		Data2C->field_0 += Data0;
@@ -6989,7 +6991,7 @@ int16 cFodder::sub_2449E( sSprite* pSprite ) {
 		Data0 &= 0x0F;
 		Data0 -= 0x0A;
 		Data2C->field_4 -= Data0;
-		dword_3B213[0x0E] = 0;
+		dword_3B24B = 0;
 	}
 	//loc_24546
 	Data2C->field_20 = pSprite->field_20;
@@ -7000,12 +7002,12 @@ int16 cFodder::sub_2449E( sSprite* pSprite ) {
 	if (!Data0) {
 		Data2C->field_8 = 0xDE;
 		Data2C->field_A = 4;
-		Data2C->field_18 = 0x56;
+		Data2C->field_18 = eSprite_Vehicle_Sinking_1;
 	}
 	else {
 		Data2C->field_8 = 0xDF;
 		Data2C->field_A = 0;
-		Data2C->field_18 = 0x57;
+		Data2C->field_18 = eSprite_Vehicle_Sinking_2;
 	}
 	return 0;
 }
@@ -10071,7 +10073,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 
 	loc_2D5FA:;
 		if (pSprite->field_18 == eSprite_Explosion2)
-			goto loc_2D620;
+			goto AnimDie3;
 
 		if (pSprite->field_18 == eSprite_Building_Explosion)
 			goto loc_2D62C;
@@ -10081,7 +10083,7 @@ int16 cFodder::Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16
 
 		goto loc_2D62C;
 
-	loc_2D620:;
+	AnimDie3:;
 		pData24->field_38 = eSprite_Anim_Die3;
 		goto loc_2D636;
 
@@ -12996,7 +12998,7 @@ loc_19EE5:;
 
 	pSprite->field_2A = Data0;
 loc_19F50:;
-	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+	dword_3B24B = -1;
 
 	Data2C = 0;
 	sub_23444( pSprite, Data2C );
@@ -13043,15 +13045,13 @@ Helicopter_Explosion:;
 loc_1A042:;
 	if (pSprite->field_75 != 0x71) {
 		pSprite->field_75 = 0x71;
-		Data0 = pSprite->field_A;
-		pSprite->field_74 = static_cast<int8>(Data0);
+		pSprite->field_74 = static_cast<int8>(pSprite->field_A);
 	}
 
 	pSprite->field_A += 1;
 	pSprite->field_A &= 0x0F;
 
-	Data0 = pSprite->field_A;
-	if (Data0 == pSprite->field_74) {
+	if (pSprite->field_A == pSprite->field_74) {
 		pSprite->field_75 = 0;
 		pSprite->field_38 = eSprite_Anim_None;
 	}
@@ -13060,8 +13060,7 @@ loc_1A042:;
 
 	Data24->field_8 = 0x8C;
 	Data24->field_0 = pSprite->field_0;
-	Data24->field_4 = pSprite->field_4;
-	Data24->field_4 += 1;
+	Data24->field_4 = pSprite->field_4 + 1;
 	Data24->field_20 = pSprite->field_20 + 0x0E;
 
 	if (!word_3B4ED[0])
@@ -13087,7 +13086,7 @@ loc_1A149:;
 	DataC = pSprite->field_28;
 
 	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
-	dword_3B213[0x0E] = (sSprite*) Data0;
+	dword_3B24B = Data0;
 
 	if (Data0 >= 0x60)
 		goto loc_1A217;
@@ -13132,7 +13131,7 @@ loc_1A217:;
 		goto loc_1A316;
 
 	pSprite->field_36 += 2;
-	if (dword_3B213[0x0E] >= (sSprite*)0x60)
+	if (dword_3B24B >= 0x60)
 		goto loc_1A316;
 
 	if (!pSprite->field_6E)
@@ -13952,7 +13951,7 @@ loc_1B523:;
 loc_1B5D2:;
 
 	if (!pSprite->field_52) {
-		dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+		dword_3B24B = -1;
 		sSprite* Data2C = 0;
 
 		if (!sub_23444( pSprite, Data2C))
@@ -14333,7 +14332,7 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Enemy( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 	
-	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+	dword_3B24B = -1;
 	sub_2183B( pSprite );
 
 	pSprite->field_8 = 0xA3;
@@ -14406,7 +14405,7 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
 	if (pSprite->field_38)
 		goto loc_1C197;
 
-	dword_3B213[0x0E] = INVALID_SPRITE_PTR;
+	dword_3B24B = -1;
 	sub_2183B( pSprite );
 
 	pSprite->field_8 = 0xA3;
@@ -15703,7 +15702,7 @@ void cFodder::Sprite_Handle_Turret_Missile2_Human( sSprite* pSprite ) {
 	Sprite_Handle_Turret( pSprite );
 }
 
-void cFodder::sub_1D7DD( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Vehicle_Sinking_1( sSprite* pSprite ) {
 	Sound_Play( pSprite, 0x2B, 0x0F );
 	pSprite->field_A -= 1;
 
@@ -15711,7 +15710,7 @@ void cFodder::sub_1D7DD( sSprite* pSprite ) {
 		Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::sub_1D802( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Vehicle_Sinking_2( sSprite* pSprite ) {
 	pSprite->field_A += 1;
 
 	if (pSprite->field_A == 6)
@@ -17643,10 +17642,10 @@ loc_200B7:;
 
 loc_200C0:;
 	if (pData4 == eTerrainType_QuickSand)
-		goto loc_2019E;
+		goto Soldier_InQuickSand;
 
 	if (pData4 == eTerrainType_WaterEdge)
-		goto loc_201AB;
+		goto Soldier_WaterEdge;
 
 	if (pData4 != eTerrainType_Water)
 		goto checkSinking;
@@ -17687,11 +17686,11 @@ loc_2014D:;
 	pSprite->field_20 = 1;
 	return;
 
-loc_2019E:;
+Soldier_InQuickSand:;
 	pSprite->field_50 = 3;
 	return;
 
-loc_201AB:;
+Soldier_WaterEdge:;
 	pSprite->field_50 = 6;
 	return;
 
@@ -19511,12 +19510,11 @@ void cFodder::sub_2183B( sSprite* pSprite ) {
 	Data2C->field_4 = pSprite->field_4;
 	Data2C->field_6 = pSprite->field_6;
 
-	if (dword_3B213[0x0E] == 0) {
+	if (dword_3B24B == 0) {
 		Data2C->field_4 -= 3;
-	}
-	else {
+	} else {
 		Data2C->field_4 += 2;
-		dword_3B213[0x0E] = 0;
+		dword_3B24B = 0;
 	}
 
 	Data2C->field_20 = pSprite->field_20;
@@ -21869,11 +21867,11 @@ loc_30814:;
 
 		//TODO 
 		// Why is this here??
-		for (Data0 = 2; Data0 >= 0; --Data0) {
+		/*for (Data0 = 2; Data0 >= 0; --Data0) {
 			al = *Data20++;
 			if (!al)
 				return;
-		}
+		}*/
 		return;
 	}
 

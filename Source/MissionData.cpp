@@ -164,6 +164,7 @@ void cMissionData::Clear() {
 	mMissionNames.clear();
 	mMissionPhases.clear();
 
+	mMapFilenames.clear();
 	mMapNames.clear();
 	mMapGoals.clear();
 	mMapAggression.clear();
