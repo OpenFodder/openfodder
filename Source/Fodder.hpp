@@ -881,16 +881,16 @@ public:
 	void			Sprite_Handle_Shrub( sSprite* pSprite );				// 13
 	void			Sprite_Handle_Tree( sSprite* pSprite );					// 14
 	void			Sprite_Handle_BuildingRoof( sSprite* pSprite );			// 15
-	void			Sprite_Handle_Snowman( sSprite* pSprite );							// 16
+	void			Sprite_Handle_Snowman( sSprite* pSprite );				// 16
 	void			Sprite_Handle_Shrub2( sSprite* pSprite );				// 17
 	void			Sprite_Handle_Waterfall( sSprite* pSprite );			// 18
 	void			Sprite_Handle_Bird2_Left( sSprite* pSprite );			// 19
 
 	void			Sprite_Handle_BuildingDoor( sSprite* pSprite );							// 20
 	void			Sprite_Handle_Player_Rank( sSprite* pSprite );							// 21
-	void			sub_1AF78( sSprite* pSprite );											// 22
-	void			sub_1B07C( sSprite* pSprite );											// 23
-	void			Sprite_Handle_GroundHole( sSprite* pSprite );											// 24
+	void			Sprite_Handle_Player_Shadow( sSprite* pSprite );						// 22
+	void			Sprite_Handle_BloodTrail( sSprite* pSprite );							// 23
+	void			Sprite_Handle_GroundHole( sSprite* pSprite );							// 24
 	void			Sprite_Handle_BuildingDoor2( sSprite* pSprite );						// 25
 	void			Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );				// 27
 	void			Sprite_Handle_Text_Complete( sSprite* pSprite );						// 28
@@ -919,12 +919,12 @@ public:
 
 	void			Sprite_Handle_Helicopter_Grenade_Human( sSprite* pSprite );				// 50
 	void			Sprite_Handle_Helicopter_Missile_Human( sSprite* pSprite );				// 51
-	void			Sprite_Handle_Helicopter_Homing_Human( sSprite* pSprite );		// 52
-	void			sub_1C2D2( sSprite* pSprite );											// 53
+	void			Sprite_Handle_Helicopter_Homing_Human( sSprite* pSprite );				// 52
+	void			Sprite_Handle_Helicopter_PropCrash( sSprite* pSprite );					// 53
 	void			Sprite_Handle_Mine( sSprite* pSprite );									// 54
 	void			Sprite_Handle_Mine2( sSprite* pSprite );								// 55
 	void			Sprite_Handle_Spike( sSprite* pSprite );								// 56
-	void			sub_1C4C2( sSprite* pSprite );											// 57
+	void			Sprite_Handle_Smoke( sSprite* pSprite );											// 57
 	void			Sprite_Handle_Text_Try( sSprite* pSprite );								// 58
 	void			Sprite_Handle_Text_Again( sSprite* pSprite );							// 59
 
@@ -940,7 +940,7 @@ public:
 	void			Sprite_Handle_Tank_Enemy( sSprite* pSprite );			// 69
 
 	void			Sprite_Handle_Indigenous_Spear( sSprite* pSprite );		// 70
-	void			sub_1CE80( sSprite* pSprite );							// 71
+	void			Sprite_Handle_Indigenous_Spear2( sSprite* pSprite );							// 71
 	void			Sprite_Handle_Hostage( sSprite* pSprite );				// 72
 	void			Sprite_Handle_Hostage_Rescue_Tent( sSprite* pSprite );	// 73
 	void			Sprite_Handle_Door_Indigenous( sSprite* pSprite );		// 74
@@ -1003,8 +1003,8 @@ public:
 	void			sub_1F762( sSprite* pSprite );
 	void			sub_1FCF2( sSprite* pSprite );
 	void			sub_1FDE7( sSprite* pSprite );
-	void			sub_1FE35( sSprite* pSprite );
-	int16			sub_1FF1A( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
+	void			Sprite_Create_Player_Shadow( sSprite* pSprite );
+	int16			Sprite_Create_BloodTrail( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
 	void			Sprite_Handle_Soldier_Terrain_Check( sSprite* pSprite, int16& pData4 );
 
 	void			sub_20456( sSprite* pSprite, int16& pData8 );
@@ -1070,7 +1070,7 @@ public:
 	void			Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 );
 	int16			Sprite_Find_By_Types( sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28 );
 	void			sub_243E9( sSprite* pSprite );
-	int16			sub_2449E( sSprite* pSprite );
+	int16			Sprite_Handle_Vehicle_Sinking( sSprite* pSprite );
 	void			sub_245BF( sSprite* pSprite );
 	int16			sub_246CC( sSprite* pSprite );
 	void			Sprite_Handle_Helicopter_Human_Deploy_Weapon( sSprite* pSprite );
