@@ -897,7 +897,7 @@ public:
 	void			Sprite_Handle_Text_Mission( sSprite* pSprite );							// 29
 
 	void			Sprite_Handle_Text_Phase( sSprite* pSprite );							// 30
-	void			sub_1B4BB( sSprite* pSprite );
+	void			Sprite_Handle_Vehicle( sSprite* pSprite );
 	void			Sprite_Handle_Rocket( sSprite* pSprite );								// 33
 	void			Sprite_Handle_Text_GameOver( sSprite* pSprite );						// 34
 	void			Sprite_Handle_Shadow( sSprite* pSprite );								// 35
@@ -985,7 +985,7 @@ public:
 	void			Sprite_Handle_Computer_3( sSprite* pSprite );						// 110
 
 	int16			sub_1D92E( sSprite* pSprite );
-	void			sub_14D6D( sSprite* pSprite, int16 pData4 );
+	void			Sprite_Native_Sound_Play( sSprite* pSprite, int16 pSoundID );
 	int16			Sprite_Handle_Soldier_Animation( sSprite* pSprite );
 	int16			Sprite_Troop_Dies( sSprite* pSprite );
 	int16			loc_1F043( sSprite* pSprite );
@@ -1044,7 +1044,7 @@ public:
 	int16			Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite, int16& pData0 );
 	int16			Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite );
 	int16			Sprite_Homing_LockInRange( sSprite* pSprite, sSprite*& pFoundSprite );
-	void			sub_229C9( sSprite* pSprite );
+	void			Sprite_Projectile_HitTarget( sSprite* pSprite );
 	void			sub_22A3D( sSprite* pSprite );
 	int16			Sprite_Destroy_Wrapper_2( sSprite* pSprite );
 	void			Sprite_Handle_Player_InVehicle( sSprite* pSprite );
@@ -1056,7 +1056,7 @@ public:
 	int16			Sprite_Animation_SlideOrDie( sSprite* pSprite );
 	int16			Map_Sprite_Check_Around_Position( sSprite* pSprite );
 	void			Sprite_Handle_Vehicle_Human( sSprite* pSprite );
-	int16			sub_23444( sSprite* pSprite, sSprite*& pData2C  );
+	int16			Sprite_Create_Smoke( sSprite* pSprite, sSprite*& pData2C  );
 	void			sub_23525( sSprite* pSprite );
 	void			sub_236F7( sSprite* pSprite );
 	void			sub_23879( sSprite* pSprite );
