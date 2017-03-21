@@ -202,7 +202,16 @@ void cFodder::Sprite_Table_Setup() {
 	// End of Cannon Fodder Sprites
 
 	// Cannon Foodder 2 only Sprites
-
+		/* TODO
+			SpriteTableFunction( 111, sub_2DB0A );
+			SpriteTableFunction( 112, sub_2CEAC );
+			SpriteTableFunction( 113, sub_2CEDA );
+			SpriteTableFunction( 114, sub_2D000 );
+			SpriteTableFunction( 115, sub_2D0C6 );
+			SpriteTableFunction( 116, sub_2D118 );
+			SpriteTableFunction( 117, sub_2D16F );
+		*/
+	// End Cannon Fodder 2 Sprites
 }
 
 // Types of units which are hostile towards the Player
