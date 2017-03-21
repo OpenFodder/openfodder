@@ -1337,7 +1337,7 @@ void cFodder::Squad_Prepare_Sprites() {
 			++Troop;
 		} else {
 			// loc_1166B
-			Data20->field_46 = (int32*) Troop;
+			Data20->field_46_squad =  Troop;
 
 			Troop->mSprite = Data20;
 			Data20->field_10 = 0x40;
@@ -2135,10 +2135,9 @@ void cFodder::Sprite_Bullet_SetData() {
 		return;
 
 	sSprite* Data20 = mSprite_TroopsAlive[0];
-	sSquad_Member* Dataa20 = (sSquad_Member*)Data20->field_46;
 	int16 Data0 = 0;
 
-	Data0 = Dataa20->mRank;
+	Data0 = Data20->field_46_squad->mRank;
 	Data0 += 8;
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
@@ -7557,7 +7556,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 	}
 
 	if (!pSprite->field_43) {
-		pSprite->field_46 = (int32*) ((pSprite->field_0 << 16) | (pSprite->field_4 & 0xFFFF));
+		pSprite->field_46 = (pSprite->field_0 << 16) | (pSprite->field_4 & 0xFFFF);
 		pSprite->field_43 = -1;
 	}
 
@@ -9958,7 +9957,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 	if (Data20 == INVALID_SPRITE_PTR || Data20 == 0 )
 		return;
 
-	sSquad_Member* Dataa20 = (sSquad_Member*) Data20->field_46;
+	sSquad_Member* Dataa20 = Data20->field_46_squad;
 	if (Dataa20 == 0)
 		return;
 
@@ -10285,7 +10284,7 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 	if (mSquads_TroopCount[Data14] > 8)
 		return -1;
 
-	sSquad_Member* Dataa24 = (sSquad_Member*) pSprite->field_46;
+	sSquad_Member* Dataa24 = pSprite->field_46_squad;
 	Dataa24->mSelected &= 0xFE;
 
 	sMapTarget* Data24 = mSquad_WalkTargets[Data18];
@@ -12330,7 +12329,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 			mTroop_Cannot_Throw_Grenade = -1;
 			word_3A010 = -1;
 
-			Data0 =  ((sSquad_Member*) pSprite->field_46)->field_6;
+			Data0 =  pSprite->field_46_squad->field_6;
 
 		loc_191BF:;
 			Sprite_Handle_Troop( pSprite );
@@ -12542,7 +12541,7 @@ void cFodder::Sprite_Handle_Grenade( sSprite* pSprite ) {
 			Sound_Play( pSprite, 0x0F, 0x0F );
 	}
 	
-	Data24 = (sSprite*) pSprite->field_46;
+	Data24 = pSprite->field_46_sprite;
 	pSprite->field_0 = Data24->field_0;
 	pSprite->field_2 = Data24->field_2;
 	pSprite->field_4 = Data24->field_4;
@@ -13600,7 +13599,7 @@ loc_1AE76:;
 
 	pSprite->field_8 = 0x95;
 
-	Data0 = ((sSquad_Member*) Data24->field_46)->mRank;
+	Data0 = Data24->field_46_squad->mRank;
 
 	pSprite->field_A = Data0;
 	Data0 = pSprite->field_3A;
@@ -14030,7 +14029,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 				Sound_Play( pSprite, 0x2E, 0x0F );
 
 		}
-		Data24 = (sSprite*)pSprite->field_46;
+		Data24 = pSprite->field_46_sprite;
 		pSprite->field_0 = Data24->field_0;
 		pSprite->field_2 = Data24->field_2;
 		pSprite->field_4 = Data24->field_4;
@@ -15887,8 +15886,7 @@ void cFodder::Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite ) {
 	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
-	sSquad_Member* Data24 = (sSquad_Member*) mSquad_Leader->field_46;
-	Data24->mRank = 0x0F;
+	mSquad_Leader->field_46_squad->mRank = 0x0F;
 	mGUI_Sidebar_Setup = 0;
 
 	Sprite_Destroy_Wrapper( pSprite );
@@ -15946,8 +15944,7 @@ void cFodder::Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite 
 
 	// Invincible + HomingMissiles
 	mSquad_Leader->field_75 |= (eSprite_Flag_HomingMissiles | eSprite_Flag_Invincibility);
-	sSquad_Member* Member = (sSquad_Member*) mSquad_Leader->field_46;
-	Member->mRank = 0x0F;
+	mSquad_Leader->field_46_squad->mRank = 0x0F;
 	mGUI_Sidebar_Setup = 0;
 	
 	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
@@ -15983,8 +15980,7 @@ void cFodder::Sprite_Handle_Bonus_RankHomingInvin_Squad( sSprite* pSprite ) {
 		sSprite* Data2C = *Data28++;
 		Data2C->field_75 |= (eSprite_Flag_HomingMissiles | eSprite_Flag_Invincibility);
 
-		sSquad_Member* Data24 = (sSquad_Member*) Data2C->field_46;
-		Data24->mRank = 0x0F;
+		Data2C->field_46_squad->mRank = 0x0F;
 	}
 
 	mGUI_Sidebar_Setup = 0;
@@ -16793,7 +16789,7 @@ int16 cFodder::Sprite_Troop_Dies( sSprite* pSprite ) {
 
 	++mTroops_Away;
 
-	SquadMember = (sSquad_Member*) pSprite->field_46;
+	SquadMember = pSprite->field_46_squad;
 
 	Hero_Add( SquadMember );
 
@@ -17431,7 +17427,7 @@ loc_1FBA4:;
 	}
 
 	//loc_1FC61
-	Data24 = (sSquad_Member*) pSprite->field_46;
+	Data24 = pSprite->field_46_squad;
 
 	if (Data24 == 0)
 		Data0 = 0x70;
@@ -18705,7 +18701,7 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 		Data2C->field_12 = Data0;
 	} else {
 
-		Data2C->field_5E = ((sSquad_Member*)pSprite->field_46) - mSquad;
+		Data2C->field_5E = pSprite->field_46_squad - mSquad;
 		Data2C->field_5D = -1;
 
 		// Bullet Travel time
@@ -18773,7 +18769,7 @@ loc_208A6:;
 	if (pSprite == mSquad_Leader)
 		goto loc_209B3;
 
-	Data8 = Squad_Member_GetDeviatePotential( (sSquad_Member*) pSprite->field_46 );
+	Data8 = Squad_Member_GetDeviatePotential( pSprite->field_46_squad );
 	goto loc_209C7;
 
 loc_209B3:;
@@ -18933,7 +18929,7 @@ loc_20B6E:;
 	if (pSprite->field_18 == eSprite_Enemy)
 		Data2C->field_12 += 0x1C;
 	Data2C->field_56 = 4;
-	Data2C->field_46 = (int32*)pSprite;
+	Data2C->field_46_sprite = pSprite;
 
 	if (pSprite == mSquad_Leader)
 		mMouse_Button_LeftRight_Toggle = 0;
@@ -19216,7 +19212,7 @@ void cFodder::Sprite_Clear( sSprite* pSprite ) {
 	pSprite->field_43 = 0;
 	pSprite->field_44 = 0;
 	pSprite->field_45 = 0;
-	pSprite->field_46 = 0;
+	pSprite->field_46_sprite = 0;
 	pSprite->field_4A = 0;
 	pSprite->field_4C = 0;
 	pSprite->field_4D = 0;
@@ -20121,6 +20117,7 @@ int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 		Data8 = pSprite->field_2E;
 		DataC = pSprite->field_30;
 
+		// Don't let the AI fire further than 129
 		Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 		if (Data0 >= 0x82)
 			goto loc_22592;
@@ -20144,9 +20141,7 @@ int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 		mGUI_RefreshSquadRockets[Data4] = -1;
 	}
 
-	Data0 = pSprite->field_22;
-
-	++byte_3A9D6[Data0];
+	++byte_3A9D6[pSprite->field_22];
 	pSprite->field_55 = 1;
 	pSprite->field_5A = -1;
 	pSprite->field_54 = 3;
@@ -20207,7 +20202,7 @@ int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 	} else {
 
 		Data2C->field_18 = eSprite_Rocket;
-		Data2C->field_46 = (int32*)pSprite;
+		Data2C->field_46_sprite = pSprite;
 	}
 
 	Data30->field_18 = eSprite_ShadowSmall;
@@ -21549,7 +21544,7 @@ void cFodder::sub_30E49() {
 		// 
 		if (mSquad_Selected == SquadMemberSprite->field_32) {
 			word_3ABC7 = -1;
-			dword_3ABC9 = (sSquad_Member*)SquadMemberSprite->field_46;
+			dword_3ABC9 = SquadMemberSprite->field_46_squad;
 			return;
 		}
 
