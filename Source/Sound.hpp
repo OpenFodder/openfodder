@@ -20,6 +20,17 @@
  *
  */
 
+enum eSound_Effect {
+	eSound_Effect_Grenade			= 0x0F,
+	eSound_Effect_BuildingDoor2		= 0x10,
+	eSound_Effect_DoorCloseDoor		= 0x29,
+	eSound_Effect_Spear				= 0x2A,
+	eSound_Effect_Vehicle_Sinking	= 0x2B,
+	eSound_Effect_Turret_Fire		= 0x2C,
+	eSound_Effect_Missile_Launch	= 0x2D,
+	eSound_Effect_Rocket			= 0x2E,
+};
+
 class cSound : public cSingleton<cSound> {
 
 	virtual bool		devicePrepare() = 0;

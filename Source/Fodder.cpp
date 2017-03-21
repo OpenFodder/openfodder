@@ -3482,8 +3482,7 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
 	int8 al = byte_3A9DA[0];
 	if (pData8 >= al) {
 		byte_3A9DA[0] = pData8 & 0xFF;
-	}
-	else {
+	} else {
 		al = byte_427E6;
 		al |= byte_427EE;
 		if (al)
@@ -6552,7 +6551,7 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
 
 	// HACK: Disable sound for Amiga Plus
 	if (mVersion->mVersion != eVersion::AmigaPlus)
-		Sound_Play( pSprite, 0x2D, 0x0F );
+		Sound_Play( pSprite, eSound_Effect_Missile_Launch, 0x0F );
 
 	return -1;
 }
@@ -6857,7 +6856,7 @@ loc_24234:;
 
 	Data2C->field_20 += 0x11;
 	Data2C->field_36 = 0x3C;
-	Sound_Play( pSprite, 0x2C, 0x1E );
+	Sound_Play( pSprite, eSound_Effect_Turret_Fire, 0x1E );
 	Sprite_Create_Smoke( pSprite, Data2C );
 	pSprite->field_57 = 0;
 	goto loc_24275;
@@ -6966,7 +6965,7 @@ void cFodder::sub_243E9( sSprite* pSprite ) {
 
 int16 cFodder::Sprite_Handle_Vehicle_Sinking( sSprite* pSprite ) {
 	
-	Sound_Play( pSprite, 0x2B, 0x0F );
+	Sound_Play( pSprite, eSound_Effect_Vehicle_Sinking, 0x0F );
 	if (!pSprite->field_5C)
 		return -1;
 
@@ -7355,7 +7354,7 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	if (mVersion->mVersion == eVersion::AmigaPlus)
 		Sound_Play( pSprite, 0x10, 0x0F );
 	else
-		Sound_Play( pSprite, 0x2C, 0x0F );
+		Sound_Play( pSprite, eSound_Effect_Turret_Fire, 0x0F );
 	return -1;
 }
 
@@ -8388,7 +8387,7 @@ loc_264CF:;
 	}
 
 	pSprite->field_8 = 0x9B;
-	Sound_Play( pSprite, 0x10, 1 );
+	Sound_Play( pSprite, eSound_Effect_BuildingDoor2, 1 );
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data4 = 0x14;
@@ -12532,7 +12531,7 @@ void cFodder::Sprite_Handle_Grenade( sSprite* pSprite ) {
 	if (!pSprite->field_56) {
 		// HACK: Disable grenade sound for cannon plus... it seems corrupted and causes a crash
 		if(mVersion->mVersion != eVersion::AmigaPlus)
-			Sound_Play( pSprite, 0x0F, 0x0F );
+			Sound_Play( pSprite, eSound_Effect_Grenade, 0x0F );
 	}
 	
 	Data24 = pSprite->field_46_sprite;
@@ -13518,7 +13517,7 @@ void cFodder::Sprite_Handle_BuildingDoor( sSprite* pSprite ) {
 	}
 
 	pSprite->field_8 = 0x99;
-	Sound_Play( pSprite, 0x10, 0x01 );
+	Sound_Play( pSprite, eSound_Effect_BuildingDoor2, 0x01 );
 	Data0 = tool_RandomGet() & 0x0F;
 
 	Data4 = 0x14 - mSprite_Enemy_AggressionMax;
@@ -13766,7 +13765,7 @@ void cFodder::Sprite_Handle_BuildingDoor2( sSprite* pSprite ) {
 
 	pSprite->field_8 = 0x9B;
 
-	Sound_Play( pSprite, 0x10, 1 );
+	Sound_Play( pSprite, eSound_Effect_BuildingDoor2, 1 );
 	Data0 = tool_RandomGet() & 0x0F;
 	Data4 = 0x14;
 
@@ -14021,7 +14020,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 			if (mVersion->mVersion == eVersion::AmigaPlus)
 				Sound_Play( pSprite, 0x10, 0x0F );
 			else
-				Sound_Play( pSprite, 0x2E, 0x0F );
+				Sound_Play( pSprite, eSound_Effect_Rocket, 0x0F );
 
 		}
 		Data24 = pSprite->field_46_sprite;
@@ -15317,7 +15316,7 @@ loc_1D07B:;
 	pSprite->field_8 = 0x96;
 	pSprite->field_A = 0;
 
-	Sound_Play( pSprite, 0x2A, 0x0F );
+	Sound_Play( pSprite, eSound_Effect_Spear, 0x0F );
 	return;
 
 loc_1D0CB:;
@@ -15339,7 +15338,7 @@ loc_1D0F6:;
 		goto loc_1D18D;
 
 	pSprite->field_A = 3;
-	Sound_Play( pSprite, 0x2A, 0x0F );
+	Sound_Play( pSprite, eSound_Effect_Spear, 0x0F );
 loc_1D14D:;
 	if (pSprite->field_43 >= 0)
 		goto loc_1D0CB;
@@ -15697,7 +15696,7 @@ void cFodder::Sprite_Handle_Turret_Missile2_Human( sSprite* pSprite ) {
 }
 
 void cFodder::Sprite_Handle_Vehicle_Sinking_1( sSprite* pSprite ) {
-	Sound_Play( pSprite, 0x2B, 0x0F );
+	Sound_Play( pSprite, eSound_Effect_Vehicle_Sinking, 0x0F );
 	pSprite->field_A -= 1;
 
 	if (pSprite->field_A < 0)
@@ -15737,7 +15736,7 @@ void cFodder::Sprite_Handle_BuildingDoor3( sSprite* pSprite ) {
 	}
 
 	pSprite->field_8 = 0xE0;
-	Sound_Play( pSprite, 0x10, 1 );
+	Sound_Play( pSprite, eSound_Effect_BuildingDoor2, 1 );
 
 	Data0 = tool_RandomGet() & 0x0F;
 	Data4 = 0x14 - mSprite_Enemy_AggressionMax;
@@ -15792,10 +15791,10 @@ void cFodder::Sprite_Handle_OpenCloseDoor( sSprite* pSprite ) {
 
 	pSprite->field_2A -= 1;
 	if (!pSprite->field_2A) 
-		Sound_Play( pSprite, 0x29, 1 );
+		Sound_Play( pSprite, eSound_Effect_DoorCloseDoor, 1 );
 	
 	if (pSprite->field_8 == 0x9B)
-		Sound_Play( pSprite, 0x29, 1 );
+		Sound_Play( pSprite, eSound_Effect_DoorCloseDoor, 1 );
 
 	pSprite->field_8 = 0x7C;
 }
@@ -16255,8 +16254,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
 	Data0 &= 7;
 	Data4 = mSound_Indigenous_Death[Data0];
 	//seg004:5508
-	Data8 = 0x14;
-	Sound_Play( pSprite, Data4, Data8 );
+	Sound_Play( pSprite, Data4, 0x14 );
 
 	if (pSprite->field_36 < 0x1E)
 		pSprite->field_36 += 0x0F;
