@@ -7577,7 +7577,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
 
 	Data8 = pSprite->field_62;
 	if ((uint16) Data8 >= 0x1F4) {
-		if (pSprite->field_18 == 0x6B)
+		if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2)
 			if (mHelicopterCall_X < 0)
 				goto loc_24FF1;
 
@@ -13966,7 +13966,7 @@ loc_1B5D2:;
 		goto loc_1B655;
 
 	pSprite->field_36 += 3;
-	if (pSprite->field_18 != 0x52)
+	if (pSprite->field_18 != eSprite_Vehicle_Unk_Enemy)
 		goto loc_1B640;
 
 	pSprite->field_36 = 0x14;
@@ -19744,14 +19744,13 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
 	if (Data28 == INVALID_SPRITE_PTR)
 		goto loc_21E4A;
 
-	Dataa0 = tool_RandomGet() & 0x3F;
-	if (Dataa0 == 0)
+	if (tool_RandomGet() & 0x3F == 0)
 		goto loc_21E4A;
 
 	if (Data28->field_0 == -32768)
 		goto loc_21E4A;
 
-	if (Data28->field_18 != 0)
+	if (Data28->field_18 != eSprite_Player)
 		goto loc_21E4A;
 
 	if (Data28->field_38 < eSprite_Anim_Slide1) {
@@ -19812,15 +19811,13 @@ loc_21E90:;
 		pSprite->field_5E = 0;
 
 	word_3AA41 = 0;
-	pSprite->field_26 = Data24->field_0;
-	pSprite->field_26 += 0x0C;
+	pSprite->field_26 = Data24->field_0 + 0x0C;
 	pSprite->field_28 = Data24->field_4;
 	return;
 
 loc_21EE1:;
 
-	Dataa0 = tool_RandomGet() & 0x0F;
-	if (!Dataa0) {
+	if (!tool_RandomGet() & 0x0F) {
 		Dataa0 = tool_RandomGet() & 0xFF;
 		Dataa0 = (int16)Dataa0;
 		pSprite->field_2E += Dataa0;
