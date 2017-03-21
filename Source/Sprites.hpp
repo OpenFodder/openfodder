@@ -175,6 +175,8 @@ enum eSprite_DrawOrder {
 	eSprite_Draw_Last	= 1
 };
 
+struct sSquad_Member;
+
 struct sSprite {
 	int16 field_0;		// X
 	int16 field_2;		
@@ -212,7 +214,14 @@ struct sSprite {
 	int8 field_43;
 	int8 field_44;
 	int8 field_45;
-	int32* field_46;	// sSquad_Member mostly
+
+	// Eventually this should be replaced
+	union {
+		int32			field_46;
+		sSquad_Member*  field_46_squad;
+		sSprite*		field_46_sprite;
+	};
+
 	int16 field_4A;		// Player: Fire if mouse pressed
 	int8 field_4C;
 	int8 field_4D;
