@@ -19118,20 +19118,50 @@ void cFodder::sub_21041( sSprite* pSprite ) {
 }
 
 int16 cFodder::Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 ) {
+
+	// 
 	if (!mSprite_SpareUsed) {
 
-		if (pData0 == 2)
-			goto loc_21234;
+		// Looking for two sprites?
+		if (pData0 == 2) {
+			pData2C = mSprites;
 
-		pData2C = &mSprites[42];
+			// Loop all sprites
+			for (int16 Data1C = 0x29; Data1C >= 0; --Data1C, ++pData2C) {
 
-		for (int16 Data1C = 0x2A; Data1C >= 0; --Data1C) {
-			if (pData2C->field_0 == -32768)
-				goto loc_21217;
+				// Sprite free?
+				if (pData2C->field_0 != -32768)
+					continue;
 
-			pData2C--;
+				// Second sprite free?
+				if ((pData2C + 1)->field_0 == -32768) {
+					pData30 = pData2C + 1;
+
+					Sprite_Clear( pData2C );
+					Sprite_Clear( pData30 );
+					pData0 = 0;
+					return 0;
+				}
+			}
+
+		} else {
+			// Only looking for 1 sprite
+			pData2C = &mSprites[42];
+
+			for (int16 Data1C = 0x2A; Data1C >= 0; --Data1C) {
+
+				// Free?
+				if (pData2C->field_0 == -32768) {
+					Sprite_Clear( pData2C );
+					pData0 = 0;
+					return 0;
+				}
+
+				--pData2C;
+			}
 		}
 	}
+
 	//loc_211F0
 	pData2C = &mSprite_Spare;
 	pData30 = &mSprite_Spare;
@@ -19139,29 +19169,6 @@ int16 cFodder::Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pDat
 	mSprite_SpareUsed = pData0;
 	return -1;
 
-loc_21217:;
-
-	Sprite_Clear( pData2C );
-	pData0 = 0;
-	return 0;
-
-loc_21234:;
-	pData2C = mSprites;
-
-	for( int16 Data1C = 0x29; Data1C >= 0; --Data1C, ++pData2C ) {
-		
-		if( pData2C->field_0 != -32768 )
-			continue;
-		
-		if( (pData2C+1)->field_0 == -32768 )
-			goto loc_2128F;
-	}
-	
-	pData2C = &mSprite_Spare;
-	pData30 = &mSprite_Spare;
-	pData0 = -1;
-	mSprite_SpareUsed = pData0;
-	return -1;
 
 loc_2128F:;
 	pData30 = pData2C + 1;
@@ -20098,7 +20105,6 @@ int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 		if (pSprite == mSquad_Leader)
 			mMouse_Button_LeftRight_Toggle = 0;
 
-		Data0 = -1;
 		return -1;
 	}
 
@@ -20114,6 +20120,7 @@ int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 		Data4 = pSprite->field_4;
 		Data8 = pSprite->field_2E;
 		DataC = pSprite->field_30;
+
 		Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
 		if (Data0 >= 0x82)
 			goto loc_22592;
@@ -20121,15 +20128,11 @@ int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 
 	Data0 = 2;
 	Sprite_Get_Free(Data0,Data2C,Data30);
-	if (!Data0)
-		goto loc_225BE;
 
-	Data0 = -1;
-	return -1;
+	// No Free sprites?
+	if (Data0)
+		return -1;
 
-
-
-loc_225BE:;
 	if (pSprite->field_18 == eSprite_Player) {
 		Data0 = pSprite->field_32;
 		Data4 = Data0;
@@ -20178,40 +20181,35 @@ loc_225BE:;
 
 	Data2C->field_4++;
 	Data2C->field_0 += 3;
-	if (pSprite->field_22)
-		goto PrepareRocket;
 
 	// Amiga Plus always has homing missiles
-	if (mVersion->mVersion != eVersion::AmigaPlus) {
+	if (!pSprite->field_22 && 
+		(mVersion->mVersion == eVersion::AmigaPlus || (pSprite->field_75 & eSprite_Flag_HomingMissiles)) ) {
 
-		if (!(pSprite->field_75 & eSprite_Flag_HomingMissiles))
-			goto PrepareRocket;
+		// Within lock on range?
+		if (Sprite_Homing_LockInRange( pSprite, Data34 )) {
+
+			Data2C->field_1A = (int32*)Data34;
+			Data2C->field_18 = eSprite_MissileHoming2;
+			Data2C->field_6A = (sSprite*)0x10000;
+			Data2C->field_26 = pSprite->field_2E;
+			Data2C->field_28 = pSprite->field_30;
+			Data2C->field_28 += 0x10;
+			Data2C->field_38 = eSprite_Anim_None;
+			Data2C->field_36 = 0;
+			Data30->field_36 = 0;
+
+		} else {
+			Data2C->field_32 = 0;
+			Data2C->field_18 = eSprite_Missile;
+		}
+
+	} else {
+
+		Data2C->field_18 = eSprite_Rocket;
+		Data2C->field_46 = (int32*)pSprite;
 	}
 
-	if (!Sprite_Homing_LockInRange(pSprite, Data34))
-		goto PrepareMissile;
-
-	Data2C->field_1A = (int32*)Data34;
-	Data2C->field_18 = eSprite_MissileHoming2;
-	Data2C->field_6A = (sSprite*) 0x10000;
-	Data2C->field_26 = pSprite->field_2E;
-	Data2C->field_28 = pSprite->field_30;
-	Data2C->field_28 += 0x10;
-	Data2C->field_38 = eSprite_Anim_None;
-	Data2C->field_36 = 0;
-	Data30->field_36 = 0;
-	goto PrepareShadow;
-
-PrepareMissile:;
-	Data2C->field_32 = 0;
-	Data2C->field_18 = eSprite_Missile;
-	goto PrepareShadow;
-
-PrepareRocket:;
-	Data2C->field_18 = eSprite_Rocket;
-	Data2C->field_46 = (int32*) pSprite;
-
-PrepareShadow:;
 	Data30->field_18 = eSprite_ShadowSmall;
 	Data2C->field_52 = 0;
 	Data30->field_32 = 0;
@@ -20224,7 +20222,7 @@ PrepareShadow:;
 
 	if (pSprite == mSquad_Leader)
 		mMouse_Button_LeftRight_Toggle = 0;
-	Data0 = 0;
+
 	return 0;
 }
 
