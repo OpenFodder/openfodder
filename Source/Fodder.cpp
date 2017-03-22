@@ -230,7 +230,7 @@ int16 cFodder::Mission_Loop( ) {
 		if (word_3A9B8 >= 0)
 			--word_3A9B8;
 
-		sub_12AEE();
+		Sprite_Find_HumanVehicles();
 
 		if (word_3FA21 == -1 && mKeyCode == 0x1C) {
 			mMission_Complete = -1;
@@ -849,14 +849,14 @@ void cFodder::Mission_Memory_Clear() {
 	
 	mSquad_CurrentVehicle = 0;
 	mMission_In_Progress = 0;
-	word_3B211 = 0;
+	mSprite_HumanVehicles_Found = 0;
 	for (uint16 x = 0; x < 14; ++x) {
 		mSprites_HumanVehicles[x] = 0;
 	}
 	dword_3B24B = 0;
 
 	for (uint16 x = 0; x < 3; ++x) {
-		dword_3B24F[x] = 0;
+		mSquad_CurrentVehicles[x] = 0;
 	}
 
 	word_3B25B = 0;
@@ -2380,12 +2380,12 @@ void cFodder::Squad_Member_PhaseCount() {
 	}
 }
 
-void cFodder::sub_12AEE() {
+void cFodder::Sprite_Find_HumanVehicles() {
 	
-	if(word_3B211)
+	if(mSprite_HumanVehicles_Found)
 		return;
 	
-	word_3B211 = -1;
+	mSprite_HumanVehicles_Found = -1;
 	sSprite* Data20 = mSprites;
 	sSprite** Data24 = mSprites_HumanVehicles;
 
@@ -2394,9 +2394,11 @@ void cFodder::sub_12AEE() {
 		if( Data20->field_0 == -32768)
 			continue;
 		
+		// Is an AI?
 		if( Data20->field_22 )
 			continue;
 		
+		// Not Enabled?
 		if( !Data20->field_65 )
 			continue;
 		
@@ -2414,27 +2416,28 @@ void cFodder::sub_12B6E() {
 	if (mSquad_Selected >= 0) {
 		sSprite** Data20 = mSquads[mSquad_Selected];
 
-		dword_3B24F[mSquad_Selected] = 0;
+		mSquad_CurrentVehicles[mSquad_Selected] = 0;
 
 		int16 Data0 = 0;
 
 		for (;;) {
 			if (*Data20 != INVALID_SPRITE_PTR && *Data20 != 0 ) {
 				sSprite* Data24 = *Data20++;
+
+				// Sprite not in vehicle?
 				if (!Data24->field_6E)
 					goto loc_12C5F;
 
-				mSquad_CurrentVehicle = (sSprite*) Data24->field_6A;
+				mSquad_CurrentVehicle = Data24->field_6A_sprite;
 				Data0 = -1;
 				continue;
 
-			}
-			else {
+			} else {
 				//loc_12C2B
 				if (Data0 == 0)
 					goto loc_12C5F;
 
-				dword_3B24F[mSquad_Selected] = mSquad_CurrentVehicle;
+				mSquad_CurrentVehicles[mSquad_Selected] = mSquad_CurrentVehicle;
 				mSquad_Leader = mSquad_CurrentVehicle;
 				return;
 			}
@@ -5630,7 +5633,7 @@ void cFodder::Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite ) {
 		return;
 
 	// Enter the vehicle
-	pSprite->field_6A = Vehicle;
+	pSprite->field_6A_sprite = Vehicle;
 	pSprite->field_6E = -1;
 	sSprite* Data20 = 0;
 
@@ -6426,7 +6429,7 @@ loc_23843:;
 	Data24->field_A = Data4;
 }
 
-void cFodder::sub_23879( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Tank_FireMissile( sSprite* pSprite ) {
 	if (!pSprite->field_57)
 		if (!pSprite->field_54)
 			return;
@@ -6439,20 +6442,16 @@ void cFodder::sub_23879( sSprite* pSprite ) {
 
 	int16 Data24_Field_0 = Data24->field_0;
 	int16 Data24_Field_4 = Data24->field_4;
-	sSprite* Data20 = pSprite;
-	pSprite = Data24;
+	int16 Data0 = Data24->field_A << 1;
 
-	int16 Data0 = pSprite->field_A << 1;
-
-	pSprite->field_0 += mSprite_Turret_Positions[Data0];
-	pSprite->field_4 += mSprite_Turret_Positions[Data0 + 1];
+	Data24->field_0 += mSprite_Turret_Positions[Data0];
+	Data24->field_4 += mSprite_Turret_Positions[Data0 + 1];
 
 	mSprite_Missile_LaunchDistance_X = 0;
 	mSprite_Missile_LaunchDistance_Y = 0;
 	sSprite* Data2C = 0;
 
-	if (!Sprite_Create_Missile( pSprite, Data2C )) {
-		pSprite = Data20;
+	if (!Sprite_Create_Missile( Data24, Data2C )) {
 		Data24->field_4 = Data24_Field_4;
 		Data24->field_0 = Data24_Field_0;
 		pSprite->field_57 = -1;
@@ -6461,10 +6460,9 @@ void cFodder::sub_23879( sSprite* pSprite ) {
 
 	Data2C->field_20 += 0x11;
 	Data2C->field_36 = 0x3C;
-	Sound_Play( pSprite, 5, 0x1E );
-	Sprite_Create_Smoke( pSprite, Data2C );
+	Sound_Play( Data24, 5, 0x1E );
+	Sprite_Create_Smoke( Data24, Data2C );
 	
-	pSprite = Data20;
 	Data24->field_4 = Data24_Field_4;
 	Data24->field_0 = Data24_Field_0;
 	pSprite->field_57 = 0;
@@ -7331,9 +7329,9 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	Data30->field_A = 1;
 	pData2C->field_36 = 0;
 	Data30->field_36 = 0;
-	pData2C->field_6A = (sSprite*) 0x10000;
+	pData2C->field_6A = 0x10000;
 	if (pSprite->field_22)
-		pData2C->field_6A = (sSprite*) 0x400;
+		pData2C->field_6A = 0x400;
 
 	Data30->field_1E = 0;
 	Data30->field_20 = 0;
@@ -7433,7 +7431,7 @@ loc_2547F:;
 	if (!Sprite_Create_MissileHoming( pSprite, Data2C, Data34 ))
 		goto loc_254A4;
 
-	Data2C->field_6A = (sSprite*) 0x2000;
+	Data2C->field_6A = 0x2000;
 	Data2C->field_36 = 0x14;
 
 loc_254A4:;
@@ -8223,7 +8221,7 @@ loc_2614F:;
 	if (!Data28->field_6E)
 		goto loc_2620F;
 
-	Data2C = Data28->field_6A;
+	Data2C = Data28->field_6A_sprite;
 	if (Data2C->field_36 > 2)
 		goto loc_2620F;
 	if (Data2C->field_20 > 3)
@@ -8292,7 +8290,7 @@ loc_2631F:;
 	if (!Data28->field_6E)
 		goto loc_263E5;
 
-	Data2C = Data28->field_6A;
+	Data2C = Data28->field_6A_sprite;
 	if (Data2C->field_36 > 2)
 		goto loc_263E5;
 	if (Data2C->field_20 > 3)
@@ -13627,7 +13625,7 @@ void cFodder::Sprite_Handle_Player_Shadow( sSprite* pSprite ) {
 	sSprite* Data28 = pSprite->field_1A_sprite;
 	int16 Data0;
 
-	if (Data28 != pSprite->field_6A)
+	if (Data28 != pSprite->field_6A_sprite)
 		goto loc_1B06D;
 
 	Data0 = pSprite->field_62;
@@ -14521,9 +14519,9 @@ loc_1C133:;
 	return;
 
 loc_1C14A:;
-	Data0 = ((int64)pSprite->field_6A) >> 16;
+	Data0 = pSprite->field_6A >> 16;
 	pSprite->field_36 += Data0;
-	pSprite->field_6A = (sSprite*) (((int64)pSprite->field_6A) + 0x200);
+	pSprite->field_6A = pSprite->field_6A + 0x200;
 	return;
 
 loc_1C170:;
@@ -14874,7 +14872,7 @@ void cFodder::Sprite_Handle_Tank_Human( sSprite* pSprite ) {
 	pSprite->field_22 = 0;
 	sub_23525( pSprite );
 	pSprite->field_22 = 0;
-	sub_23879( pSprite );
+	Sprite_Handle_Tank_FireMissile( pSprite );
 
 	sSprite* Data24 = pSprite + 1;
 	Data24->field_18 = eSprite_Null;
@@ -15152,7 +15150,7 @@ void cFodder::Sprite_Handle_Tank_Enemy( sSprite* pSprite ) {
 		goto loc_1CDA3;
 
 	pSprite->field_54 = -1;
-	sub_23879( pSprite );
+	Sprite_Handle_Tank_FireMissile( pSprite );
 	goto loc_1CDA3;
 
 loc_1CD7B:;
@@ -16135,7 +16133,7 @@ loc_1DA13:;
 		pSprite->field_0 = 0;
 
 	pSprite->field_4 -= 8;
-	sub_218E2( pSprite );
+	Sprite_Into_Building_Explosion( pSprite );
 	return -1;
 }
 
@@ -17521,7 +17519,7 @@ void cFodder::Sprite_Create_Player_Shadow( sSprite* pSprite ) {
 		return;
 
 	Data2C->field_1A_sprite = pSprite;
-	Data2C->field_6A = pSprite;
+	Data2C->field_6A_sprite = pSprite;
 
 	Data2C->field_0 = pSprite->field_0;
 	Data2C->field_4 = pSprite->field_4;
@@ -18139,8 +18137,8 @@ loc_31514:;
 		//seg011:2AE9 
 
 		Data24->field_6E = 0;
-		Dataa30 = (sSprite*) Data24->field_6A;
-		Data24->field_6A = 0;
+		Dataa30 = Data24->field_6A_sprite;
+		Data24->field_6A_sprite = 0;
 		Data24->field_66 = 0;
 
 		Data24->field_0 = Dataa30->field_0;
@@ -19217,7 +19215,7 @@ void cFodder::Sprite_Clear( sSprite* pSprite ) {
 	pSprite->field_64 = 0;
 	pSprite->field_65 = 0;
 	pSprite->field_66 = 0;
-	pSprite->field_6A = 0;
+	pSprite->field_6A_sprite = 0;
 	pSprite->field_6E = 0;
 	pSprite->field_6F = 0;
 	pSprite->field_70 = 0;
@@ -19508,7 +19506,7 @@ void cFodder::Sprite_Create_FireTrail( sSprite* pSprite ) {
 	Data2C->field_18 = eSprite_FireTrail;
 }
 
-void cFodder::sub_218E2( sSprite* pSprite ) {
+void cFodder::Sprite_Into_Building_Explosion( sSprite* pSprite ) {
 	int16 Data8 = pSprite->field_0;
 	int16 DataC = pSprite->field_4;
 	
@@ -19537,13 +19535,11 @@ int16 cFodder::Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, in
 	pData2C->field_4 = pY;
 	pData2C->field_4 += 0x10;
 
-	sSprite* Data20 = pData2C;
-
 	int16 Data4 = word_390AE;
 	Data4 &= 3;
 	Data4 += 5;
 
-	Sound_Play( Data20, Data4, 0x1E );
+	Sound_Play( pData2C, Data4, 0x1E );
 
 	pData2C->field_18 = eSprite_Building_Explosion;
 	pData2C->field_8 = 0x8E;
@@ -19950,7 +19946,7 @@ loc_2227F:;	// Door Finished
 	pSprite->field_0 -= 8;
 	pSprite->field_4 -= 8;
 	
-	sub_218E2( pSprite );
+	Sprite_Into_Building_Explosion( pSprite );
 
 	return -1;
 }
@@ -20009,7 +20005,7 @@ loc_22383:;
 		pSprite->field_0 = 0;
 
 	pSprite->field_4 -= 8;
-	sub_218E2( pSprite );
+	Sprite_Into_Building_Explosion( pSprite );
 	return -1;
 }
 
@@ -20164,7 +20160,7 @@ int16 cFodder::Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite ) {
 
 			Data2C->field_1A_sprite = Data34;
 			Data2C->field_18 = eSprite_MissileHoming2;
-			Data2C->field_6A = (sSprite*)0x10000;
+			Data2C->field_6A = 0x10000;
 			Data2C->field_26 = pSprite->field_2E;
 			Data2C->field_28 = pSprite->field_30;
 			Data2C->field_28 += 0x10;
@@ -20268,12 +20264,12 @@ void cFodder::Sprite_Handle_Player_InVehicle( sSprite* pSprite ) {
 	pSprite->field_A = 0;
 	pSprite->field_38 = eSprite_Anim_None;
 	
-	sSprite* Data24 = pSprite->field_6A;
+	sSprite* Data24 = pSprite->field_6A_sprite;
 	if( Data24->field_0 == -32768 || Data24->field_18 == eSprite_Explosion ) {
 		//loc_22AEE
 		pSprite->field_6E = 0;
 		pSprite->field_66 = 0;
-		pSprite->field_6A = 0;
+		pSprite->field_6A_sprite = 0;
 		pSprite->field_38 = eSprite_Anim_Hit;
 		pSprite->field_64 = -1;
 
@@ -20866,10 +20862,10 @@ int16 cFodder::sub_2F4CB() {
 
 	int16 DataC = mGUI_Squad_Current;
 
-	if (!dword_3B24F[DataC])
+	if (!mSquad_CurrentVehicles[DataC])
 		goto loc_2F593;
 
-	Data2C = dword_3B24F[DataC];
+	Data2C = mSquad_CurrentVehicles[DataC];
 	DataC = Data2C->field_6F;
 
 	for (;; Dataa2C += 2) {

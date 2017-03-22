@@ -575,7 +575,7 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 		}
 
 		case 'CMAP':
-			for (int16 i = 0; i < Size / 3; ++i) {
+			for (uint16 i = 0; i < Size / 3; ++i) {
 				int16 d0 = (int16)*pData++;
 				int16 Final = 0;
 

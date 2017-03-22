@@ -455,10 +455,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMap_TileSet;
 	sSprite*		mSquad_CurrentVehicle;
 	int16			mMission_In_Progress;
-	int16			word_3B211;
+	int16			mSprite_HumanVehicles_Found;
 	sSprite*		mSprites_HumanVehicles[15];
 	int16			dword_3B24B;
-	sSprite*		dword_3B24F[3];
+	sSprite*		mSquad_CurrentVehicles[3];
 	int16			word_3B25B;
 	int16			word_3B25D;
 	int16			word_3B2CB;
@@ -748,7 +748,7 @@ public:
 
 	std::string		Filename_CreateFromBase( const std::string& pBase, const char* pFinish );
 	void			Squad_Member_PhaseCount();
-	void			sub_12AEE();
+	void			Sprite_Find_HumanVehicles();
 	void			sub_12B6E();
 	void			Squad_EnteredVehicle_TimerTick();
 	void			Mission_Map_Overview_Show();
@@ -1028,7 +1028,7 @@ public:
 	int16			sub_21618( sSprite* pSprite );
 	void			Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 );
 	void			Sprite_Create_FireTrail( sSprite* pSprite );
-	void			sub_218E2( sSprite* pSprite );
+	void			Sprite_Into_Building_Explosion( sSprite* pSprite );
 	int16			Sprite_Create_Building_Explosion_Wrapper( int16& pX, int16& pY );
 	int16			Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, int16& pY );
 	int16			Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C );
@@ -1059,7 +1059,7 @@ public:
 	int16			Sprite_Create_Smoke( sSprite* pSprite, sSprite*& pData2C  );
 	void			sub_23525( sSprite* pSprite );
 	void			sub_236F7( sSprite* pSprite );
-	void			sub_23879( sSprite* pSprite );
+	void			Sprite_Handle_Tank_FireMissile( sSprite* pSprite );
 	int16			Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C );
 	void			Sprite_Enemy_Set_Target( sSprite* pData2C );
 	void			Sprite_Handle_Helicopter_Human( sSprite* pSprite );
