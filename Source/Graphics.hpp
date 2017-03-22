@@ -56,7 +56,7 @@ public:
 	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors ) = 0;
 
 	virtual void		map_Tiles_Draw() = 0;
-	virtual void		map_Load_Resources() = 0;
+	virtual void		Map_Load_Resources() = 0;
 
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) = 0;
 

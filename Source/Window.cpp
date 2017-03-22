@@ -150,8 +150,8 @@ void cWindow::CalculateWindowSize() {
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 
-	while ((mOriginalResolution.mWidth * mWindow_Multiplier) <= (current.w / 2) && 
-			(mOriginalResolution.mHeight * mWindow_Multiplier) <= (current.h / 2) ) {
+	while ((mOriginalResolution.mWidth * mWindow_Multiplier) <= (unsigned int) (current.w / 2) && 
+			(mOriginalResolution.mHeight * mWindow_Multiplier) <= (unsigned int) (current.h / 2) ) {
 		++mWindow_Multiplier;
 	}
 
@@ -163,7 +163,7 @@ int16 cWindow::CalculateFullscreenSize() {
 	SDL_GetCurrentDisplayMode(0, &current);
 	int16 Multiplier = 1;
 
-	while ((mOriginalResolution.mWidth * Multiplier) <= current.w && (mOriginalResolution.mHeight * Multiplier) <= current.h ) {
+	while ((mOriginalResolution.mWidth * Multiplier) <= (unsigned int) current.w && (mOriginalResolution.mHeight * Multiplier) <= (unsigned int) current.h ) {
 		++Multiplier;
 	}
 
@@ -240,8 +240,8 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 
 	Src.w = mScreenSize.mWidth;
 	Src.h = mScreenSize.mHeight;
-	Src.x = pSource.mX + 16;
-	Src.y = pSource.mY + 16;
+	Src.x = (int) pSource.mX + 16;
+	Src.y = (int) pSource.mY + 16;
 
 	Dest.w = GetWindowSize().mWidth;
 	Dest.h = GetWindowSize().mHeight;

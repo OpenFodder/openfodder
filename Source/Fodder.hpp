@@ -717,7 +717,7 @@ public:
 	void			Camera_Calculate_Scroll();
 	void			sub_11CAD();
 	void			Camera_Refresh( );
-	void			map_Load_Resources();
+	void			Map_Load_Resources();
 	void			Music_Play_Tileset();
 	void			Camera_Pan_To_Target( );
 	void			Camera_Pan_Set_Speed();

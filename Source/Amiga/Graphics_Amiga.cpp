@@ -787,7 +787,7 @@ void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 	}
 }
 
-void cGraphics_Amiga::map_Load_Resources() {
+void cGraphics_Amiga::Map_Load_Resources() {
 	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "lbm" );
 	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "lbm" );
 
