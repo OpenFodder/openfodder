@@ -99,7 +99,7 @@ public:
 	virtual void		Load_Hill_Bits();
 	virtual void		Load_Service_Data();
 
-	virtual void		map_Load_Resources();
+	virtual void		Map_Load_Resources();
 	virtual void		map_Tiles_Draw();
 	virtual void		sub_A5B46();
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY );

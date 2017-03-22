@@ -1053,7 +1053,8 @@ void cFodder::Sprite_Clear_All() {
 }
 
 void cFodder::Map_Load_Sprites() {
-	
+	Sprite_Clear_All();
+
 	std::string Filename_Spt = map_Filename_SptGet();
 
 	mMapSptSize = g_Resource.fileLoadTo( Filename_Spt, (uint8*) mMapSptPtr );
@@ -1677,7 +1678,7 @@ loc_11E5B:;
 	Music_Play_Tileset();
 }
 
-void cFodder::map_Load_Resources() {
+void cFodder::Map_Load_Resources() {
 	std::string MapName = map_Filename_MapGet();
 
 	delete mMap;
@@ -1698,10 +1699,7 @@ void cFodder::map_Load_Resources() {
 	mDataSubBlkSize = g_Resource.fileLoadTo( SubName, mDataSubBlk );
 
 	mMapWidth = readBEWord( &mMap[0x54] );
-	writeLEWord( &mMap[0x54], mMapWidth );
-
 	mMapHeight = readBEWord( &mMap[0x56] );
-	writeLEWord( &mMap[0x56], mMapHeight );
 
 	mFilenameCopt = Filename_CreateFromBase( BaseBaseSet, "copt." );
 	mFilenameBaseSwp = Filename_CreateFromBase( BaseBase, ".swp" );
@@ -1728,7 +1726,7 @@ void cFodder::map_Load_Resources() {
 	Size = g_Resource.fileLoadTo( mFilenameBaseBht, (uint8*) &mTile_BHit[0] );
 	Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &mTile_BHit[960] );
 
-	mGraphics->map_Load_Resources();
+	mGraphics->Map_Load_Resources();
 }
 
 void cFodder::Music_Play_Tileset() {
@@ -1779,7 +1777,7 @@ void cFodder::Camera_Pan_Set_Speed() {
 
 	Data4 >>= 4;
 
-	int16 Data8 = readLEWord( &mMap[0x54] );
+	int16 Data8 = mMapWidth;
 	Data8 -= 0x12;
 	if (Data8 < 0)
 		Data8 = 0;
@@ -1787,7 +1785,7 @@ void cFodder::Camera_Pan_Set_Speed() {
 	if (Data0 >= Data8)
 		Data0 = Data8;
 	
-	Data8 = readLEWord( &mMap[0x56] );
+	Data8 = mMapHeight;
 	Data8 -= 0x10;
 	if (Data8 < 0)
 		Data8 = 0;
@@ -2569,9 +2567,9 @@ void cFodder::Map_Overview_Prepare() {
 	int16 Data8;
 	int16 DataC;
 
-	if (readLEWord( &mMap[0x56] ) <= readLEWord( &mMap[0x54] ) ) {
+	if (mMapHeight <= mMapWidth ) {
 		int32 eax = 0x1100000;
-		int32 ebx = readLEWord( &mMap[0x54] );
+		int32 ebx = mMapWidth;
 		ebx &= 0xFFFF;
 
 		eax /= ebx;
@@ -2580,7 +2578,7 @@ void cFodder::Map_Overview_Prepare() {
 		Data8 = eax;
 
 		eax = 0x0C80000;
-		ebx = readLEWord( &mMap[0x54] );
+		ebx = mMapWidth;
 		ebx &= 0xFFFF;
 		eax /= ebx;
 		dword_3F94A = eax;
@@ -2590,7 +2588,7 @@ void cFodder::Map_Overview_Prepare() {
 	else {
 		//loc_12FDD
 		int32 eax = 0x1100000;
-		int32 ebx = readLEWord( &mMap[0x56] );
+		int32 ebx = mMapHeight;
 		ebx &= 0xFFFF;
 
 		eax /= ebx;
@@ -2599,7 +2597,7 @@ void cFodder::Map_Overview_Prepare() {
 		Data8 = eax;
 
 		eax = 0x0C80000;
-		ebx = readLEWord( &mMap[0x56] );
+		ebx = mMapHeight;
 		ebx &= 0xFFFF;
 		eax /= ebx;
 		dword_3F94A = eax;
@@ -2608,7 +2606,7 @@ void cFodder::Map_Overview_Prepare() {
 	}
 
 	int32 eax = dword_3F946;
-	int32 ebx = readLEWord( &mMap[0x54] ) & 0xFFFF;
+	int32 ebx = mMapWidth & 0xFFFF;
 	eax *= ebx;
 	eax >>= 0x11;
 	eax -= 0x88;
@@ -2616,7 +2614,7 @@ void cFodder::Map_Overview_Prepare() {
 	word_3F94E = eax;
 
 	eax = dword_3F94A;
-	ebx = readLEWord( &mMap[0x56] ) & 0xFFFF;
+	ebx = mMapHeight & 0xFFFF;
 	eax *= ebx;
 	eax >>= 0x11;
 	eax -= 0x64;
@@ -2982,7 +2980,7 @@ void cFodder::VersionSelect() {
 
 	mGraphics->LoadpStuff();
 
-	map_Load_Resources();
+	Map_Load_Resources();
 	mGraphics->PaletteSet();
 	Mouse_Setup();
 
@@ -3189,7 +3187,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	mGraphics->LoadpStuff();
 
-	map_Load_Resources();
+	Map_Load_Resources();
 	mGraphics->graphicsBlkPtrsPrepare();
 	mGraphics->PaletteSet();
 }
@@ -5824,14 +5822,11 @@ loc_30CBC:;
 void cFodder::sub_22C87( sSprite* pSprite ) {
 	
 	int64 Data0 = (int64) pSprite->field_1A;
-	int64 tmp = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	tmp += Data0;
 
-	pSprite->field_1E = (tmp & 0xFFFF);
-	pSprite->field_20 = (tmp >> 16);
-	if (tmp < 0) {
-		pSprite->field_1E = 0;
-		pSprite->field_20 = 0;
+	pSprite->field_1E_Big += Data0;
+
+	if (pSprite->field_1E_Big < 0) {
+		pSprite->field_1E_Big = 0;
 		Data0 = -Data0;
 		Data0 >>= 1;
 	}
@@ -7083,10 +7078,7 @@ int16 cFodder::Sprite_Create_Cannon( sSprite* pSprite ) {
 	Data2C->field_12 = 9;
 	Data2C->field_18 = eSprite_Cannon;
 
-	int32 Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E += 0x60000;
-	Data2C->field_1E = Field_1E & 0xFFFF;
-	Data2C->field_20 = Field_1E >> 16;
+	Data2C->field_1E_Big += 0x60000;
 
 	Data2C->field_52 = pSprite->field_52;
 	Data2C->field_22 = pSprite->field_22;
@@ -7598,14 +7590,14 @@ loc_2500F:;
 
 	Data0 = tool_RandomGet() & 0x7F;
 	Data0 += 4;
-	if (Data0 > readLEWord(&mMap[0x54]))
+	if (Data0 > mMapWidth)
 		goto loc_25239;
 
 	Data8 = Data0;
 	Data0 = tool_RandomGet() & 0x3F;
 	Data0 += 4;
 
-	if (Data0 > readLEWord(&mMap[0x56]))
+	if (Data0 > mMapHeight)
 		goto loc_25239;
 
 	DataC = Data0;
@@ -7931,7 +7923,7 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement( sSprite* pSprite ) {
 	Data0 += 4;
 
 	// Map Width
-	if (Data0 >= readLEWord( &mMap[0x54] ))
+	if (Data0 >= mMapWidth)
 		return -1;
 
 	int16 Data8 = Data0;
@@ -7939,7 +7931,7 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement( sSprite* pSprite ) {
 	Data0 += 4;
 
 	// Map Height
-	if (Data0 >= readLEWord( &mMap[0x56] ))
+	if (Data0 >= mMapHeight)
 		return -1;
 
 	int16 DataC = Data0;
@@ -7992,14 +7984,8 @@ int16 cFodder::sub_25B6B( sSprite* pSprite ) {
 
 	Data2C->field_12 = Data0;
 	Data2C->field_18 = eSprite_Indigenous_Spear2;
-	Data2C->field_1E = pSprite->field_1E;
-	Data2C->field_20 = pSprite->field_20;
-
-	int32 tmp = Data2C->field_1E | Data2C->field_20 << 16;
-	tmp += 0x60000;
-
-	Data2C->field_1E = tmp & 0xFFFF;
-	Data2C->field_20 = tmp >> 16;
+	Data2C->field_1E_Big = pSprite->field_1E_Big;
+	Data2C->field_1E_Big += 0x60000;
 
 	Data2C->field_52 = pSprite->field_52;
 	Data2C->field_22 = pSprite->field_22;
@@ -8993,7 +8979,7 @@ int16 cFodder::sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pD
 
 	int16 Data18 = 2;
 
-	int16 Data1C = readLEWord( &mMap[0x54] );
+	int16 Data1C = mMapWidth;
 	Data1C <<= 1;
 
 	word_3A9A6[0] = pData0;
@@ -9080,7 +9066,7 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 
 	uint8* MapTilePtr = &mMap[0x60];
 
-	Data4 *= readLEWord( &mMap[0x54] );
+	Data4 *= mMapWidth;
 	Data4 += pData0;
 	Data4 <<= 1;
 
@@ -9226,7 +9212,7 @@ int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pDa
 	int32 Data0 = (pY >> 4);
 	int32 Data4 = (pX >> 4);
 
-	Data0 *= readLEWord( &mMap[0x54] );
+	Data0 *= mMapWidth;
 
 	Data0 += Data4;
 	Data0 <<= 1;
@@ -9582,7 +9568,7 @@ int16 cFodder::Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, i
 
 	DataC >>= 4;
 
-	DataC *= readLEWord( &mMap[0x54] );
+	DataC *= mMapWidth;
 	Data8 >>= 4;
 
 	DataC += Data8;
@@ -10429,7 +10415,7 @@ loc_2DE3C:;
 	}
 	//loc_2DE89
 	Data4 >>= 4;
-	Data4 *= readLEWord( &mMap[0x54] );	// * Width
+	Data4 *= mMapWidth;	// * Width
 
 	Data0 >>= 4;
 	Data4 += Data0;
@@ -12614,15 +12600,10 @@ loc_19855:;
 	goto loc_198D3;
 
 loc_19877:;
-	tmp = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	tmp += Dataa4;
-
-	pSprite->field_1E = tmp & 0xFFFF;
-	pSprite->field_20 = tmp >> 16;
+	pSprite->field_1E_Big += Dataa4;
 
 	if (pSprite->field_20 < 0) {
-		pSprite->field_1E = 0;
-		pSprite->field_20 = 0;
+		pSprite->field_1E_Big = 0;
 
 		if (pSprite->field_50)
 			goto loc_19855;
@@ -12930,7 +12911,6 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
 	int16 Data0 = tool_RandomGet() & 0x0E;
 	int16 Data4, Data8, DataC, Data10, Data14, Data18, Data1C;
 	sSprite* Data24 = 0, *Data2C = 0;
-	int32 Field_1E;
 
 	if (mVersion->mVersion == eVersion::AmigaPlus) {
 		static int FF = 0;
@@ -13003,15 +12983,11 @@ loc_19F50:;
 	if (pSprite->field_2A < 0)
 		goto Helicopter_Explosion;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E -= 0x18000;
-	pSprite->field_1E = Field_1E & 0xFFFF;
-	pSprite->field_20 = Field_1E >> 16;
-	if (Field_1E >= 0)
+	pSprite->field_1E_Big -= 0x18000;
+	if (pSprite->field_1E_Big >= 0)
 		goto loc_1A404;
 
-	pSprite->field_1E = 0;
-	pSprite->field_20 = 0;
+	pSprite->field_1E_Big = 0;
 
 Helicopter_Explosion:;
 	pSprite->field_18 = eSprite_Explosion;
@@ -13094,13 +13070,10 @@ loc_1A149:;
 	if (!pSprite->field_6E)
 		goto loc_1A316;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E -= 0xC000;
-	pSprite->field_1E = Field_1E & 0xFFFF;
-	pSprite->field_20 = Field_1E >> 16;
-	if (Field_1E < 0) {
-		pSprite->field_1E = 0;
-		pSprite->field_20 = 0;
+	pSprite->field_1E_Big -= 0xC000;
+
+	if (pSprite->field_1E_Big < 0) {
+		pSprite->field_1E_Big = 0;
 	}
 	Sprite_Handle_Helicopter_Terrain_Check( pSprite );
 	goto loc_1A316;
@@ -13128,13 +13101,10 @@ loc_1A217:;
 	if (!pSprite->field_6E)
 		goto loc_1A316;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E -= 0xC000;
-	pSprite->field_1E = Field_1E & 0xFFFF;
-	pSprite->field_20 = Field_1E >> 16;
-	if (Field_1E < 0) {
-		pSprite->field_1E = 0;
-		pSprite->field_20 = 0;
+	pSprite->field_1E_Big -= 0xC000;
+
+	if (pSprite->field_1E_Big < 0) {
+		pSprite->field_1E_Big = 0;
 	}
 	goto loc_1A316;
 
@@ -13160,10 +13130,7 @@ loc_1A287:;
 		goto loc_1A316;
 
 	if (pSprite->field_20) {
-		Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-		Field_1E -= 0x8000;
-		pSprite->field_1E = Field_1E & 0xFFFF;
-		pSprite->field_20 = Field_1E >> 16;
+		pSprite->field_1E_Big -= 0x8000;
 	}
 
 loc_1A316:;
@@ -13228,7 +13195,7 @@ loc_1A404:;
 	Data24->field_20 = Data0;
 
 	if (!word_3B4ED[0])
-		if (!((pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16)))
+		if (!pSprite->field_1E_Big)
 			goto loc_1A49C;
 
 	if (pSprite->field_20 < 0x0C)
@@ -14338,11 +14305,7 @@ void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 		goto loc_1BECD;
 
 	if (pSprite->field_20 > 4) {
-		int32 tmp = (pSprite->field_1E & 0xFFFF) | pSprite->field_20 << 16;
-		tmp -= 0xA000;
-
-		pSprite->field_1E = tmp & 0xFFFF;
-		pSprite->field_20 = tmp >> 16;
+		pSprite->field_1E_Big -= 0xA000;
 	}
 
 	Data0 = pSprite->field_26;
@@ -14390,7 +14353,6 @@ loc_1BECD:;
 
 void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
 	int16 Data0, Data4, Data8, DataC;
-	int32 Field_1E;
 	sSprite* Data34 = 0;
 
 	if (pSprite->field_38)
@@ -14426,18 +14388,11 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
 	if (Data4 > Data34->field_20)
 		goto loc_1BFD0;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E += 0x8000;
-	pSprite->field_1E = Field_1E & 0xFFFF;
-	pSprite->field_20 = Field_1E >> 16;
-
+	pSprite->field_1E_Big += 0x8000;
 	goto loc_1C087;
 loc_1BFD0:;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E -= 0x8000;
-	pSprite->field_1E = Field_1E & 0xFFFF;
-	pSprite->field_20 = Field_1E >> 16;
+	pSprite->field_1E_Big -= 0x8000;
 	goto loc_1C087;
 
 loc_1BFE0:;
@@ -14465,19 +14420,14 @@ loc_1C012:;
 	if (pSprite->field_20 >= 0x18)
 		goto loc_1C087;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E += 0x28000;
-	pSprite->field_1E = Field_1E & 0xFFFF;
-	pSprite->field_20 = Field_1E >> 16;
+	pSprite->field_1E_Big += 0x28000;
+
 	goto loc_1C087;
 
 loc_1C06F:;
-	if (pSprite->field_20 > 8) {
-		Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-		Field_1E -= 0x12000;
-		pSprite->field_1E = Field_1E & 0xFFFF;
-		pSprite->field_20 = Field_1E >> 16;
-	}
+	if (pSprite->field_20 > 8)
+		pSprite->field_1E_Big -= 0x12000;
+	
 loc_1C087:;
 
 	Data0 = Data34->field_0;
@@ -14519,7 +14469,7 @@ loc_1C133:;
 	return;
 
 loc_1C14A:;
-	Data0 = pSprite->field_6A >> 16;
+	Data0 = (int16) pSprite->field_6A >> 16;
 	pSprite->field_36 += Data0;
 	pSprite->field_6A = pSprite->field_6A + 0x200;
 	return;
@@ -14551,12 +14501,10 @@ void cFodder::Sprite_Handle_Sparks( sSprite* pSprite ) {
 
 	Data0 += pSprite->field_1E;
 
-	pSprite->field_1E = Data0;
-	pSprite->field_20 = Data0 >> 16;
+	pSprite->field_1E_Big = Data0;
 
-	if (Data0 < 0) {
-		pSprite->field_1E = 0;
-		pSprite->field_20 = 0;
+	if (pSprite->field_1E_Big < 0) {
+		pSprite->field_1E_Big = 0;
 		Data0 = -Data0;
 		Data0 >>= 1;
 	}
@@ -14626,7 +14574,6 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Human( sSprite* pSprite ) {
 void cFodder::Sprite_Handle_Helicopter_PropCrash( sSprite* pSprite ) {
 	pSprite->field_A += 1;
 	pSprite->field_A &= 3;
-	int32 Field_1E;
 
 	Sprite_Movement_Calculate( pSprite );
 	if (mSprite_Bullet_Destroy)
@@ -14636,13 +14583,10 @@ void cFodder::Sprite_Handle_Helicopter_PropCrash( sSprite* pSprite ) {
 	if (pSprite->field_36 < 0)
 		pSprite->field_36 = 0;
 
-	Field_1E = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
-	Field_1E -= 0x8000;
-	pSprite->field_1E = Field_1E & 0xFFFF;
-	pSprite->field_20 = Field_1E >> 16;
-	if (Field_1E < 0) {
-		pSprite->field_1E = 0;
-		pSprite->field_20 = 0;
+	pSprite->field_1E_Big -= 0x8000;
+
+	if (pSprite->field_1E_Big < 0) {
+		pSprite->field_1E_Big = 0;
 	}
 
 loc_1C321:;
@@ -16104,7 +16048,7 @@ loc_1D95B:;
 	Data4 &= 3;
 	Data4 += 5;
 
-	pSprite->field_44 = Data4;
+	pSprite->field_44 = (int8) Data4;
 	pSprite->field_36 = 0x78;
 	pSprite->field_58 = -1;
 
@@ -16154,7 +16098,6 @@ void cFodder::Sprite_Native_Sound_Play( sSprite* pSprite, int16 pSoundID ) {
 }
 
 int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
-	int64 Dataa0;
 	int32 Dataa4;
 	int16 Data0, Data4, Data8;
 	int16* Data28;
@@ -16382,15 +16325,13 @@ loc_1E3D2:;
 		}
 	}
 	//loc_1E5A7
-	Dataa0 = (int64) pSprite->field_1A;
-	Dataa4 = Dataa0;
-	Dataa0 += ((pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16));
+	Dataa4 = (int64)pSprite->field_1A;
 
-	pSprite->field_1E = Dataa0 & 0xFFFF;
-	pSprite->field_20 = Dataa0 >> 16;
-	if (Dataa0 < 0) {
-		pSprite->field_1E = 0;
-		pSprite->field_20 = 0;
+	pSprite->field_1E_Big += pSprite->field_1A;
+
+	if (pSprite->field_1E_Big < 0) {
+		pSprite->field_1E_Big = 0;
+
 		Dataa4 = -Dataa4;
 		Dataa4 >>= 2;
 
@@ -18699,8 +18640,7 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 	}
 
 	Data2C->field_18 = eSprite_Bullet;
-	Data2C->field_1E = pSprite->field_1E;
-	Data2C->field_20 = pSprite->field_20;
+	Data2C->field_1E_Big = pSprite->field_1E_Big;
 	Data2C->field_20 += 6;
 	Data2C->field_52 = pSprite->field_52;
 	Data2C->field_22 = pSprite->field_22;
@@ -18890,7 +18830,7 @@ loc_20B6E:;
 	Data2C->field_12 = Data0;
 	Data2C->field_36 = 0x32;
 	Data30->field_36 = 0x32;
-	Data2C->field_1E = 0x0000;	// This maybe incorrect
+	Data2C->field_1E = 0x0000;
 	Data2C->field_20 = 0x7;
 	Data30->field_1E = 0;
 	Data30->field_20 = 0;
@@ -19251,8 +19191,8 @@ loc_2132A:;
 	Dat4 = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 
 	Dat0 -= 0x28000;
-
 	Dat4 += Dat0;
+
 	if (Dat4 < 0) {
 		Dat4 = 0;
 		Dat0 = -Dat0;
@@ -19260,9 +19200,7 @@ loc_2132A:;
 	}
 
 	pSprite->field_1A = Dat0;
-	pSprite->field_1E = Dat4 & 0xFFFF;
-	pSprite->field_20 = Dat4 >> 16;
-
+	pSprite->field_1E_Big = Dat4;
 
 	if (!(Dat4 >> 16)) {
 		if (!(Dat0 >> 16))
@@ -19453,8 +19391,7 @@ void cFodder::Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 ) {
 	Data30->field_0 = Data2C->field_0;
 	Data30->field_4 = Data2C->field_4;
 	
-	Data2C->field_1E = pSprite->field_1E;
-	Data2C->field_20 = pSprite->field_20;
+	Data2C->field_1E_Big = pSprite->field_1E_Big;
 	Data30->field_20 = 0;
 	Data2C->field_8 = 0xC5;
 	Data30->field_8 = 0x7E;
@@ -20452,11 +20389,11 @@ Start:;
 			
 			WindowTitleSet( true );
 
-			map_Load_Resources();
+			Map_Load_Resources();
 			Map_Load_Sprites();
 
-			mMapWidth_Shifted = readLEWord( &mMap[0x54] ) << 4;
-			mMapHeight_Shifted = readLEWord( &mMap[0x56] ) << 4;
+			mMapWidth_Shifted = mMapWidth << 4;
+			mMapHeight_Shifted = mMapHeight << 4;
 
 			// Prepare Squads
 			Squad_Member_Count();
@@ -20472,6 +20409,7 @@ Start:;
 			if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom) {
 				Briefing_Wait();
 
+				// Aborted?
 				if (mBriefing_Aborted == -1) {
 
 					Mission_Memory_Restore();
@@ -20517,9 +20455,9 @@ Start:;
 			word_3ABEB = 0;
 			word_3ABE7 = 0;
 
-			Data0 = readLEWord( &mMap[0x54] );
+			Data0 = mMapWidth;
 			if (Data0 == 0x11) {
-				Data0 = readLEWord( &mMap[0x56] );
+				Data0 = mMapHeight;
 				if (Data0 == 0x0C)
 					word_3ABB7 = -1;
 			}
@@ -20604,7 +20542,7 @@ void cFodder::map_Tiles_Draw() {
 	mCamera_Pan_ColumnOffset = 0;
 	mCamera_Pan_RowOffset = 0;
 
-	mMapTilePtr = (0x60 - 8) - (readLEWord( &mMap[0x54] ) << 1);
+	mMapTilePtr = (0x60 - 8) - (mMapWidth << 1);
 	word_3B612 = 0;
 	word_3B614 = 0;
 	mCamera_Column_Previous = 0;

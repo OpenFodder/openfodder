@@ -196,8 +196,17 @@ struct sSprite {
 		int32		field_1A;
 		sSprite*	field_1A_sprite;
 	};
-	int16 field_1E;
-	int16 field_20;
+
+	union {
+
+		struct {
+			int16 field_1E;
+			int16 field_20;
+		};
+
+		int32 field_1E_Big;
+	};
+
 	int16 field_22;		// Vehicle: 1 = Not Human
 	int16 field_24;
 	int16 field_26;		// Target X
