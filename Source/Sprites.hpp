@@ -250,7 +250,12 @@ struct sSprite {
 	int8 field_64;
 	int8 field_65;			// -1 = Enabled?
 	sSprite* field_66;		// Human-Player: Vehicle Walk Target
-	sSprite* field_6A;		// Human-Player: Current Vehicle
+
+	union {
+		int64	 field_6A;
+		sSprite* field_6A_sprite;	// Human-Player: Current Vehicle
+	};
+
 	int8 field_6E;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
 	int8 field_6F;			// Vehicle: Entrance left - 12
 	sSprite* field_70;
