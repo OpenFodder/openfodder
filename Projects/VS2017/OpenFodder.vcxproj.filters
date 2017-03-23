@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{46fbab7a-9497-411a-8042-6ccc101bfb20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Amiga">
+      <UniqueIdentifier>{2828e52a-a2fb-4a12-9740-38c46718b133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\PC">
+      <UniqueIdentifier>{dacbcc4e-e2ff-4c41-a759-8e3deffe95a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\MissionData">
+      <UniqueIdentifier>{f448855a-c2cb-4cc7-8251-334a7596685d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{d4573b8f-ce37-4999-9e66-f06154aad614}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\stdafx.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Window.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Singleton.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Fodder.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Position.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Dimension.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Event.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Resources.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Types.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Surface.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UnknownData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Sprites.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Graphics.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Versions.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Recruits.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\md5.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\dernc.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MissionData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IntroData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GUI_Element.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\audiostream.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\paula.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\rjp1.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Sound_Amiga.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\Sound_PC.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Sound.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FontData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\VocTable.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PC\Sound_PC2.hpp">
+      <Filter>Source\PC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Tiles.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\CopyProtection.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\json.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Window.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Fodder.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Event.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Resources.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Surface.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Graphics.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Recruits.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\md5.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Versions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\dernc.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\IntroData_Amiga.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GUI_Element.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\paula.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\rjp1.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Sound_Amiga.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Sound_PC.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Sound.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FontData.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Sprites.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PC\Sound_PC2.cpp">
+      <Filter>Source\PC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Tiles.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\CopyProtection.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Retail.cpp">
+      <Filter>Source\MissionData</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Retail2.cpp">
+      <Filter>Source\MissionData</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Demo.cpp">
+      <Filter>Source\MissionData</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MissionData\Custom.cpp">
+      <Filter>Source\MissionData</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
