@@ -293,7 +293,7 @@ int16 cFodder::Mission_Loop( ) {
 		//loc_10841
 		Sprite_Bullet_SetData();
 		Squad_EnteredVehicle_TimerTick();
-		sub_12B6E();
+		Squad_Set_CurrentVehicle();
 
 		// No squad is selected, so set count down timer
 		if (mSquad_Selected < 0 && !mSquad_Select_Timer)
@@ -2409,7 +2409,7 @@ void cFodder::Sprite_Find_HumanVehicles() {
 
 }
 
-void cFodder::sub_12B6E() {
+void cFodder::Squad_Set_CurrentVehicle() {
 
 	if (mSquad_Selected >= 0) {
 		sSprite** Data20 = mSquads[mSquad_Selected];
@@ -2424,7 +2424,7 @@ void cFodder::sub_12B6E() {
 
 				// Sprite not in vehicle?
 				if (!Data24->field_6E)
-					goto loc_12C5F;
+					break;
 
 				mSquad_CurrentVehicle = Data24->field_6A_sprite;
 				Data0 = -1;
@@ -2433,7 +2433,7 @@ void cFodder::sub_12B6E() {
 			} else {
 				//loc_12C2B
 				if (Data0 == 0)
-					goto loc_12C5F;
+					break;
 
 				mSquad_CurrentVehicles[mSquad_Selected] = mSquad_CurrentVehicle;
 				mSquad_Leader = mSquad_CurrentVehicle;
@@ -2443,7 +2443,6 @@ void cFodder::sub_12B6E() {
 
 	}
 
-loc_12C5F:;
 	mSquad_CurrentVehicle = 0;
 }
 
@@ -2696,40 +2695,40 @@ bool cFodder::EventAdd( cEvent pEvent ) {
 void cFodder::eventProcess() {
 	g_Window.EventCheck();
 
-	for (std::vector<cEvent>::iterator EventIT = mEvents.begin(); EventIT != mEvents.end(); ++EventIT) {
+	for (auto Event : mEvents) {
 
-		switch (EventIT->mType) {
+		switch (Event.mType) {
 			
 			case eEvent_KeyDown:
-				keyProcess( EventIT->mButton, false );
+				keyProcess( Event.mButton, false );
 				break;
 
 			case eEvent_KeyUp:
-				keyProcess( EventIT->mButton, true );
+				keyProcess( Event.mButton, true );
 				break;
 
 			case eEvent_MouseLeftDown:
-				mMousePosition = EventIT->mPosition;
+				mMousePosition = Event.mPosition;
 				mMouseButtons |= 1;
 				break;
 
 			case eEvent_MouseRightDown:
-				mMousePosition = EventIT->mPosition;
+				mMousePosition = Event.mPosition;
 				mMouseButtons |= 2;
 				break;
 
 			case eEvent_MouseLeftUp:
-				mMousePosition = EventIT->mPosition;
+				mMousePosition = Event.mPosition;
 				mMouseButtons &= ~1;
 				break;
 
 			case eEvent_MouseRightUp:
-				mMousePosition = EventIT->mPosition;
+				mMousePosition = Event.mPosition;
 				mMouseButtons &= ~2;
 				break;
 
 			case eEvent_MouseMove:
-				mMousePosition = EventIT->mPosition;
+				mMousePosition = Event.mPosition;
 				break;
 
 			case eEvent_None:
@@ -3599,13 +3598,12 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		if (word_42875 > 0x140)
 			word_42875 = 0;
 
-		eventProcess();
+		Mouse_GetData();
 		Video_Sleep();
 		g_Window.RenderAt( mImage, cPosition() );
 		g_Window.FrameEnd();
 
-		Mouse_GetData();
-		if (mouse_Button_Status) {
+		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
@@ -3691,7 +3689,7 @@ void cFodder::Briefing_Intro_Desert() {
 		g_Window.FrameEnd();
 
 		Mouse_GetData();
-		if (mouse_Button_Status) {
+		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
@@ -3779,7 +3777,7 @@ void cFodder::Briefing_Intro_Ice() {
 		g_Window.FrameEnd();
 
 		Mouse_GetData();
-		if (mouse_Button_Status) {
+		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
@@ -3864,7 +3862,7 @@ void cFodder::Briefing_Intro_Mor() {
 		g_Window.FrameEnd();
 
 		Mouse_GetData();
-		if (mouse_Button_Status) {
+		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
@@ -3950,7 +3948,7 @@ void cFodder::Briefing_Intro_Int() {
 		g_Window.FrameEnd();
 
 		Mouse_GetData();
-		if (mouse_Button_Status) {
+		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
 			mImage->paletteFadeOut();
 			mImageFaded = -1;
@@ -19348,16 +19346,11 @@ int16 cFodder::sub_21618( sSprite* pSprite ) {
 		return Squad_Member_Sprite_Hit_In_Region( pSprite, Data8, DataC, Data10, Data14 );
 	}
 	//loc_21673
-	int16 Data8 = pSprite->field_0;
-	Data8 -= 6;
+	int16 Data8 = pSprite->field_0 - 6;
+	int16 DataC = pSprite->field_0 + 0x0A;
 
-	int16 DataC = pSprite->field_0;
-	DataC += 0x0A;
-
-	int16 Data10 = pSprite->field_4;
-	Data10 -= 0x0A;
-	int16 Data14 = pSprite->field_4;
-	Data14 += 6;
+	int16 Data10 = pSprite->field_4 - 0x0A;
+	int16 Data14 = pSprite->field_4 + 6;
 
 	word_3AA45 = 1;
 	sSprite* Data24 = 0;
@@ -19381,17 +19374,16 @@ void cFodder::Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 ) {
 		return;
 
 	Data30 = Data2C + 1;
-	Data2C->field_0 = pSprite->field_0;
+	Data2C->field_0 = pSprite->field_0 + 2;
 	Data2C->field_2 = pSprite->field_2;
-	Data2C->field_0 += 2;
-	Data2C->field_4 = pSprite->field_4;
+	Data2C->field_4 = pSprite->field_4 - 4;
 	Data2C->field_6 = pSprite->field_6;
-	Data2C->field_4 -= 4;
 
 	Data30->field_0 = Data2C->field_0;
 	Data30->field_4 = Data2C->field_4;
 	
 	Data2C->field_1E_Big = pSprite->field_1E_Big;
+
 	Data30->field_20 = 0;
 	Data2C->field_8 = 0xC5;
 	Data30->field_8 = 0x7E;
@@ -19973,15 +19965,19 @@ void cFodder::sub_223B2( sSprite* pSprite ) {
 int16 cFodder::Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite, int16& pData0 ) {
 	int16 Data4, Data8, DataC, Data10;
 
+	// Current Squad in vehicle?
 	if (mSquad_CurrentVehicle)
 		return 1;
 
+	// No Squad Leader?
 	if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
 		return 1;
 
+	// Vehicle?
 	if (mSquad_Leader->field_6E)
 		return 1;
 
+	// Anim playing?
 	if (mSquad_Leader->field_38)
 		return 1;
 
