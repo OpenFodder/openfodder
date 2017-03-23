@@ -749,7 +749,7 @@ public:
 	std::string		Filename_CreateFromBase( const std::string& pBase, const char* pFinish );
 	void			Squad_Member_PhaseCount();
 	void			Sprite_Find_HumanVehicles();
-	void			sub_12B6E();
+	void			Squad_Set_CurrentVehicle();
 	void			Squad_EnteredVehicle_TimerTick();
 	void			Mission_Map_Overview_Show();
 
