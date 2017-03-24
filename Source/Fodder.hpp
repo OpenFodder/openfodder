@@ -160,7 +160,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_390A6;
 	uint16			word_390AE;
 	int16			word_390B0;
-	uint16			word_390B8;
+	uint16			mMission_Restart;
 	
 	/************** Save Game Region *********** */
 	uint16			mMapNumber;
@@ -171,12 +171,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSprite_Enemy_AggressionIncrement;
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
-	uint16			mSquad_AliveCount;
+	uint16			mRecruits_AliveCount;
 	int16			word_390D4;
 	int16			mSprite_Enemy_AggressionCreated_Count;
 	uint16			word_390E8;
 	int16			mMission_Recruitment;
-	int16			word_390EC;
+	int16			mMission_TryingAgain;
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
 	uint16			mRecruit_NextID;
@@ -318,7 +318,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3A1;
 	int16			word_3A3A7;
 	int16			word_3A3A9;
-	int16			word_3A3B9;
+	int16			mMission_IsFinished;
 	int16			word_3A3BB;
 	int16			word_3A3BD;
 	int16			word_3A3BF;
@@ -333,8 +333,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMission_Aborted;
 	int16			mSquad_SwitchWeapon;
 	int16			word_3A9B8;
-	int16			word_3A9BA[3];	// values here, seem to be a byte count originally.. now its an index
-	int16			word_3A9C0[3];
+	int16			mSquad_Walk_Target_Indexes[3];	// values here, seem to be a byte count originally.. now its an index
+	int16			mSquad_Walk_Target_Steps[3];
 	int16			word_3A9C6;
 	sSprite**		dword_3A9C8;
 	int16			word_3A9CE;
@@ -721,7 +721,7 @@ public:
 	void			Music_Play_Tileset();
 	void			Camera_Pan_To_Target( );
 	void			Camera_Pan_Set_Speed();
-	void			sub_11FCD();
+	void			Camera_Update_From_Mouse();
 
 	void			sub_12018();
 	void			Camera_Reset();
@@ -818,10 +818,10 @@ public:
 	void			sub_175C0();
 	void			Recruit_Draw_Troops();
 	void			sub_1787C();
-	void			sub_178DD();
-	void			sub_17911();
+	void			Recruit_Field4_Clear();
+	void			Recruit_Position_Troops();
 	void			Recruit_Draw_Truck( );
-	void			sub_17B64();
+	void			Recruit_Sprites_Draw();
 	void			Recruit_Draw();
 	void			Recruit_Draw_Graves( );
 	void			Recruit_Draw_Grave( int16 pSpriteType, int16 pPosX, int16 pPosY );

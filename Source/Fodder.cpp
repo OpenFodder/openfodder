@@ -125,7 +125,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	mMap = 0;
 
-	word_3A3B9 = 0;
+	mMission_IsFinished = 0;
 	word_3A3BB = 0;
 	word_3A3BD = 0;
 	word_3A3BF = 0;
@@ -266,7 +266,7 @@ int16 cFodder::Mission_Loop( ) {
 		if( mImageFaded == -1 )
 			mImageFaded = mImage->paletteFade();
 
-		sub_11FCD();
+		Camera_Update_From_Mouse();
 		if (mPaused == -1) {
 			mPaused = 0;
 		}
@@ -277,7 +277,7 @@ int16 cFodder::Mission_Loop( ) {
 			mMission_ShowMapOverview = 0;
 		}
 
-		if (word_3A3B9) {
+		if (mMission_IsFinished) {
 
 			if (mMission_Aborted)
 				Sprite_Handle_Player_Destroy_Unk(); 
@@ -491,7 +491,7 @@ void cFodder::Game_ClearVariables() {
 	word_390A6 = 0;
 	word_390AE = 0;
 	word_390B0 = 0;
-	word_390B8 = 0;
+	mMission_Restart = 0;
 	mSprite_Enemy_AggressionAverage = 0;
 	mSprite_Enemy_AggressionMin = 0;
 	mSprite_Enemy_AggressionMax = 0;
@@ -502,7 +502,7 @@ void cFodder::Game_ClearVariables() {
 	mMissionPhase = 0;
 	word_39096 = 0;
 	word_3909A = 0;
-	mSquad_AliveCount = 0;
+	mRecruits_AliveCount = 0;
 	mSaved_MissionNumber = 0;
 	mSaved_MapNumber = 0;
 	word_390D4 = 0;
@@ -514,7 +514,7 @@ void cFodder::Game_ClearVariables() {
 	mSprite_Enemy_AggressionCreated_Count = 0;
 	word_390E8 = 0;
 	mMission_Recruitment = 0;
-	word_390EC = 0;
+	mMission_TryingAgain = 0;
 	mMissionPhaseRemain = 0;
 	mMissionPhases = 0;
 	mRecruit_NextID = 0;
@@ -689,7 +689,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3A3A1 = 0;
 	word_3A3A7 = 0;
 	word_3A3A9 = 0;
-	word_3A3B9 = 0;
+	mMission_IsFinished = 0;
 	word_3A3BB = 0;
 	word_3A3BD = 0;
 	word_3A3BF = 0;
@@ -698,8 +698,8 @@ void cFodder::Mission_Memory_Clear() {
 	mSquad_SwitchWeapon = 0;
 	word_3A9B8 = 0;
 	for (uint8 x = 0; x < 3; ++x) {
-		word_3A9BA[x] = 0;
-		word_3A9C0[x] = 0;
+		mSquad_Walk_Target_Indexes[x] = 0;
+		mSquad_Walk_Target_Steps[x] = 0;
 	}
 
 	word_3A9C6 = 0;
@@ -1167,11 +1167,11 @@ void cFodder::Squad_Member_Count() {
 	
 	if( mMapPlayerTroopCount >= 0 ) {
 
-		if( ax > mSquad_AliveCount )
-			ax = mSquad_AliveCount;
+		if( ax > mRecruits_AliveCount )
+			ax = mRecruits_AliveCount;
 		
 		mMapPlayerTroopCount = ax;
-		mSquad_AliveCount -= ax;
+		mRecruits_AliveCount -= ax;
 	}
 	
 	ax += mSquadMemberCount;
@@ -1816,10 +1816,11 @@ void cFodder::Camera_Pan_Set_Speed() {
 		mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | (8 << 16);
 }
 
-void cFodder::sub_11FCD() {
+void cFodder::Camera_Update_From_Mouse() {
 	
 	if (!word_3A054) {
 
+		// Mouse in playfield?
 		if (mMouseX > 0x0F) {
 			int16 Data0 = mCamera_Adjust_Col >> 16;
 			Data0 -= mCamera_Adjust_Col_High;
@@ -1828,9 +1829,9 @@ void cFodder::sub_11FCD() {
 			Data0 = mCamera_Adjust_Row >> 16;
 			Data0 -= mCamera_Adjust_Row_High;
 			mMouseY -= Data0;
-
 		}
 	}
+
 	//loc_12007
 	mCamera_Adjust_Col_High = mCamera_Adjust_Col >> 16;
 	mCamera_Adjust_Row_High = mCamera_Adjust_Row >> 16;
@@ -2251,7 +2252,7 @@ void cFodder::Mission_Progress_Check( ) {
 		goto loc_1280A;
 	}
 	//loc_127E1
-	if (mSquad_AliveCount) {
+	if (mRecruits_AliveCount) {
 	MissionTryAgain:;
 
 		Mission_Text_TryAgain();
@@ -2275,7 +2276,7 @@ loc_1280A:;
 		return;
 
 	mMission_Completed_Timer = -1;
-	word_3A3B9 = -1;
+	mMission_IsFinished = -1;
 }
 
 void cFodder::Mission_Text_Completed() {
@@ -4700,7 +4701,7 @@ bool cFodder::Recruit_Show() {
 		}
 	}
 
-	sub_17B64();
+	Recruit_Sprites_Draw();
 	
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		
@@ -5290,8 +5291,8 @@ void cFodder::Recruit_Draw_Troops() {
 		sub_175C0();
 	}
 	else {
-		sub_178DD();
-		sub_17911();
+		Recruit_Field4_Clear();
+		Recruit_Position_Troops();
 	}
 
 	sRecruit_Screen_Pos* Data20 = mRecruit_Screen_Positions;
@@ -5357,7 +5358,7 @@ void cFodder::Recruit_Draw_Troops() {
 
 void cFodder::sub_1787C() {
 	
-	if (word_390B8)
+	if (mMission_Restart)
 		return;
 	
 	word_3B1F1 = mMapPlayerTroopCount;
@@ -5375,7 +5376,7 @@ void cFodder::sub_1787C() {
 	}
 }
 
-void cFodder::sub_178DD() {
+void cFodder::Recruit_Field4_Clear() {
 	sRecruit_Screen_Pos* Data20 = mRecruit_Screen_Positions;
 
 	for (; Data20->field_0 >= 0; ++Data20) {
@@ -5385,37 +5386,39 @@ void cFodder::sub_178DD() {
 	}
 }
 
-void cFodder::sub_17911() {
+void cFodder::Recruit_Position_Troops() {
 	sRecruit_Screen_Pos* Data24 = mRecruit_Screen_Positions;
 	const int16*    Data2C = word_3E197;
 
 	uint64 Data8 = (uint64) mGraveRankPtr;
-	int16 Data0, Data4;
+	int16 Recruits, Data4;
 
 	Data8 -= (uint64) mGraveRanks;
 	Data8 >>= 1;
 	Data8 &= 0x1E;
 
-	if (word_390B8)
-		Data0 = mSquad_AliveCount;
+	if (mMission_Restart)
+		Recruits = mRecruits_AliveCount;
 	else {
-		Data0 = word_390E8;
-		if (!Data0)
+		Recruits = word_390E8;
+		if (!Recruits)
 			goto loc_179B2;
 	}
 
 	// loc_1795E
-	--Data0;
+	--Recruits;
 	Data4 = 0x660;
 
 	//loc_17968
-	for (; Data0 >= 0; --Data0) {
+
+	// Set the recruit position frames
+	for (; Recruits >= 0; --Recruits) {
 
 		if (Data4 >= 0) {
 			if ((Data24 + (Data4/6))->field_4)
 				Data4 -= 6;
 
-			(Data24 + (Data4/6))->field_4 = *(Data2C + (Data8/2));
+			(Data24 + (Data4/6))->field_4 = word_3E197[Data8/2];
 		}
 
 		Data8 += 2;
@@ -5424,11 +5427,12 @@ void cFodder::sub_17911() {
 	}
 
 loc_179B2:;
-	if (word_390B8)
+	// If the mission is restarting, troops are already over the hill
+	if (mMission_Restart)
 		return;
 
 	word_3B1ED = 0;
-	Data0 = word_3B1CF[0];
+	int16 Data0 = word_3B1CF[0];
 	Data8 = 5;
 
 	for ( ; ; Data0+=6 ) {
@@ -5515,7 +5519,7 @@ void cFodder::Recruit_Draw_Truck( ) {
 	word_3AACD = Data0;
 }
 
-void cFodder::sub_17B64() {
+void cFodder::Recruit_Sprites_Draw() {
 
 	const sRecruit_Sprites* stru = mRecruitSprite;
 
@@ -8958,7 +8962,7 @@ void cFodder::sub_2A3D4( sSprite* pSprite ) {
 }
 
 void cFodder::sub_2A470() {
-	int16* Data34 = word_3A9C0;
+	int16* Data34 = mSquad_Walk_Target_Steps;
 
 	for (int16 Data0 = 2; Data0 >= 0; --Data0) {
 		int16 ax = *Data34++;
@@ -9257,15 +9261,13 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 
 	int16 Data0 = pSquadNumber;
 
-	pData10 = word_3A9BA[Data0];
+	pData10 = mSquad_Walk_Target_Indexes[Data0];
 
 	sMapTarget* Data38 = mSquad_WalkTargets[Data0];
 
 	sSprite** Data24 = mSquads[Data0];
-	int16* Data34 = word_3A9C0;
-	int16 Data14 = word_3A9C0[Data0];
 
-	if (Data14) {
+	if (mSquad_Walk_Target_Steps[Data0]) {
 		Data38[pData10].mX = pTargetX;
 		Data38[pData10].mY = pTargetY;
 		Data38[pData10 + 1].asInt = -1;
@@ -9273,7 +9275,7 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 		if (pData10 < 29)	// 0x74
 			pData10++;
 
-		word_3A9BA[Data0] = pData10;
+		mSquad_Walk_Target_Indexes[Data0] = pData10;
 		goto loc_2ABF8;
 	}
 
@@ -9309,8 +9311,8 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 	if (Data1C < 0)
 		return;
 
-	word_3A9BA[Data0] = pData10;
-	word_3A9BA[Data0]++;
+	mSquad_Walk_Target_Indexes[Data0] = pData10;
+	mSquad_Walk_Target_Indexes[Data0]++;
 
 	for (;;) {
 		sSprite* Data28 = *Data24++;
@@ -9343,7 +9345,7 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 	}
 
 loc_2ABF8:;
-	Data34[Data0] = 8;
+	mSquad_Walk_Target_Steps[Data0] = 8;
 }
 
 int16 cFodder::Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 ) {
@@ -12034,12 +12036,12 @@ void cFodder::Briefing_Draw_With( ) {
 	String_Print_Small( With.str(), 0x64 );
 	With.str("");
 
-	if (!mSquad_AliveCount) {
+	if (!mRecruits_AliveCount) {
 		With << "THIS IS YOUR LAST CHANCE";
 	}
 	else {
-		With << mSquad_AliveCount;
-		if (mSquad_AliveCount == 1)
+		With << mRecruits_AliveCount;
+		if (mRecruits_AliveCount == 1)
 			With << " RECRUIT REMAINING";
 		else
 			With << " RECRUITS REMAINING";
@@ -13522,7 +13524,7 @@ void cFodder::Sprite_Handle_Player_Rank( sSprite* pSprite ) {
 	if (!mMission_Completed_Timer) {
 		Data4 = mSquad_Selected;
 
-		if (word_3A9C0[Data4])
+		if (mSquad_Walk_Target_Steps[Data4])
 			goto loc_1AF63;
 	}
 	//loc_1AE1D
@@ -18421,9 +18423,9 @@ void cFodder::Mission_Phase_Next() {
 	++mMissionNumber;
 	mMissionPhaseRemain = mMissionPhases = mVersion->mMissionData->getNumberOfPhases(mMissionNumber);
 	mMissionPhase = 0;
-	mSquad_AliveCount += 0x0F;
+	mRecruits_AliveCount += 0x0F;
 
-	word_390E8 = mSquad_AliveCount;
+	word_390E8 = mRecruits_AliveCount;
 	word_390E8 -= 0x0F;
 	mMission_Recruitment = -1;
 	word_390D4 = 0;
@@ -20351,7 +20353,7 @@ Start:;
 
 					// Did we just load/save a game?
 					if (mGame_Load || mGame_Save) {
-						word_390B8 = -1;
+						mMission_Restart = -1;
 						mMission_Recruitment = -1;
 						mMission_Aborted = -1;
 						continue;
@@ -20366,7 +20368,7 @@ Start:;
                     }
 				}
 
-				word_390B8 = 0;
+				mMission_Restart = 0;
 				Mission_Memory_Backup();
 				word_3ABE9 = 0;
 				word_3ABEB = 0;
@@ -20410,7 +20412,7 @@ Start:;
 
 					Mission_Memory_Restore();
 
-					word_390B8 = -1;
+					mMission_Restart = -1;
 					mMission_Recruitment = -1;
 					mMission_Aborted = -1;
 					word_3901E = -1;
@@ -20494,12 +20496,12 @@ Start:;
 				mKeyCode = 0;
 				mMission_In_Progress = 0;
 				Squad_Member_PhaseCount();
-				word_390EC = -1;
+				mMission_TryingAgain = -1;
 			}
 			else {
 				mKeyCode = 0;
 				mMission_In_Progress = 0;
-				if (!mSquad_AliveCount) {
+				if (!mRecruits_AliveCount) {
 
 					Service_Show();
 					break;
@@ -20508,7 +20510,7 @@ Start:;
 
 			//loc_106F1
 			if (mMission_TryAgain) {
-				word_390EC = -1;
+				mMission_TryingAgain = -1;
 				continue;
 			}
 
