@@ -446,7 +446,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 
 void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 
-	delete mBlkData;
+	delete[] mBlkData;
 
 	mBlkData = new uint8[mFodder->mDataBaseBlkSize + mFodder->mDataSubBlkSize];
 	g_Resource.fileLoadTo( mFodder->mFilenameBasePal, (uint8*) mPalette );

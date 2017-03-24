@@ -24,9 +24,7 @@
 
 cResources::cResources( std::string pDataPath ) {
 
-
 	mDataPath = pDataPath;
-
 }
 
 uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
