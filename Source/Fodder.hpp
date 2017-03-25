@@ -325,7 +325,7 @@ class cFodder : public cSingleton < cFodder > {
 	sMapTarget*		dword_3A3F9;
 	int16			word_3A8CF;
 
-	int16			word_3A9A6[2];
+	sMapPosition	m2A622_Unk_MapPosition;
 	int16			mMission_TryAgain;
 	int16			mMission_Complete;
 	int16			mMission_Completed_Timer;
@@ -1108,7 +1108,7 @@ public:
 	void			Sprite_Movement_Calculate( sSprite* pSprite );
 	int16			Direction_Between_SpriteAndPoints( sSprite* pSprite, int16& pData0, int16& pData4 );
 	void			sub_2A3D4( sSprite* pSprite );
-	void			sub_2A470();
+	void			Squad_Walk_Steps_Decrease();
 	int16			sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 	void			sub_2A4FD( int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C );
 	int16			sub_2A622( int16& pData0 );
