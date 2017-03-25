@@ -239,7 +239,7 @@ int16 cFodder::Mission_Loop( ) {
 			Mission_Phase_Goals_Check();
 
 		//loc_1079C
-		sub_2A470();
+		Squad_Walk_Steps_Decrease();
 		Squad_Troops_Count();
 
 		Mission_Sprites_Handle();
@@ -994,8 +994,8 @@ void cFodder::sub_10DEC() {
 	word_3A054 = 0;
 	dword_3A39D = 0;
 	mSquad_Selected = 0;
-	word_3A9A6[0] = 0;
-	word_3A9A6[1] = 0;
+	m2A622_Unk_MapPosition.mX = 0;
+	m2A622_Unk_MapPosition.mY = 0;
 	mMission_TryAgain = 0;
 	mMission_Complete = 0;
 	mMission_Completed_Timer = 0;
@@ -4536,10 +4536,10 @@ bool cFodder::Custom_ShowMenu() {
 			eventProcess();
 
 			Menu_Loop( 
-				[pMenuElements = Buttons]() {
+				[&Buttons]() {
 
 					if (g_Fodder.mButtonPressLeft)
-						g_Fodder.GUI_Element_Mouse_Over( pMenuElements );
+						g_Fodder.GUI_Element_Mouse_Over( Buttons );
 				} 
 			);
 
@@ -8961,14 +8961,12 @@ void cFodder::sub_2A3D4( sSprite* pSprite ) {
 	word_3A8CF = DataC;
 }
 
-void cFodder::sub_2A470() {
-	int16* Data34 = mSquad_Walk_Target_Steps;
+void cFodder::Squad_Walk_Steps_Decrease() {
 
 	for (int16 Data0 = 2; Data0 >= 0; --Data0) {
-		int16 ax = *Data34++;
 
-		if (ax) 
-			*(Data34 - 1) -= 1;
+		if (mSquad_Walk_Target_Steps[Data0])
+			--mSquad_Walk_Target_Steps[Data0];
 		
 	}
 }
@@ -8984,8 +8982,8 @@ int16 cFodder::sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pD
 	int16 Data1C = mMapWidth;
 	Data1C <<= 1;
 
-	word_3A9A6[0] = pData0;
-	word_3A9A6[1] = pData4;
+	m2A622_Unk_MapPosition.mX = pData0;
+	m2A622_Unk_MapPosition.mY = pData4;
 
 	sub_2A4FD( pData0, pData4, pData8, pDataC, Data18, Data1C );
 	
@@ -9002,30 +9000,29 @@ void cFodder::sub_2A4FD( int16& pData0, int16&  pData4, int16& pData8, int16& pD
 	Data14 -= pData4;
 	
 	int16 Data28 = pData8;
-	int16 Data2C = pDataC;
 
-	int16 Data24, Data38;
+	int16 WriteFinalValue, WriteValue;
 
 	if (Data10 < 0) {
 		pData18 = -pData18;
-		Data24 = pData18;
+		WriteFinalValue = pData18;
 		Data10 = -Data10;
 		pData18 = -1;
 	}
 	else {
-		Data24 = pData18;
+		WriteFinalValue = pData18;
 		pData18 = 1;
 	}
 	//loc_2A56A
 
 	if (Data14 < 0) {
 		pData1C = -pData1C;
-		Data38 = pData1C;
+		WriteValue = pData1C;
 		Data14 = -Data14;
 		pData1C = -1;
 	}
 	else {
-		Data38 = pData1C;
+		WriteValue = pData1C;
 		pData1C = 1;
 	}
 	//loc_2A59D
@@ -9038,7 +9035,7 @@ void cFodder::sub_2A4FD( int16& pData0, int16&  pData4, int16& pData8, int16& pD
 	pData8 = -pData8;
 
 loc_2A5BA:;
-	if (Data28 == pData0 && Data2C == pData4){
+	if (Data28 == pData0 && pDataC == pData4){
 		Data20[0] = -1;
 		Data20[1] = -1;
 		Data20[2] = -1;
@@ -9049,30 +9046,28 @@ loc_2A5BA:;
 	if (pData8 >= 0) {
 		pData4 += pData1C;
 		pData8 -= Data10;
-		writeLEWord( Data20, Data38 );
+		writeLEWord( Data20, WriteValue );
 		Data20 += 2;
 		goto loc_2A5BA;
 	}
 	//loc_2A601
 	pData0 += pData18;
 	pData8 += Data14;
-	writeLEWord( Data20, Data24 );
+	writeLEWord( Data20, WriteFinalValue );
 	Data20 += 2;
 	goto loc_2A5BA;
 }
 
 int16 cFodder::sub_2A622( int16& pData0 ) {
 	
-	pData0 = word_3A9A6[0];
-	int32 Data4 = word_3A9A6[1];
+	int32 Data4 = m2A622_Unk_MapPosition.mY;
 
 	uint8* MapTilePtr = &mMap[0x60];
 
 	Data4 *= mMapWidth;
-	Data4 += pData0;
-	Data4 <<= 1;
-
-	MapTilePtr += Data4;
+	Data4 += m2A622_Unk_MapPosition.mX;
+	
+	MapTilePtr += (Data4 << 1);
 	//seg007:0B48
 
 	uint8* Data28 = byte_3A8DE;
@@ -9086,9 +9081,12 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 		//loc_2A6A1
 		pData0 = readLEWord( MapTilePtr );
 		pData0 = mTile_Hit[pData0];
+
+		// Tile has hit?
 		if (pData0 >= 0) {
 			pData0 &= 0x0F;
 
+			// Check if tile is passable
 			if (mTiles_NotWalkable[pData0]) {
 				pData0 = -1;
 				return -1;
@@ -9263,16 +9261,18 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 
 	pData10 = mSquad_Walk_Target_Indexes[Data0];
 
-	sMapTarget* Data38 = mSquad_WalkTargets[Data0];
-
 	sSprite** Data24 = mSquads[Data0];
 
+	// Currently walking to a target?
 	if (mSquad_Walk_Target_Steps[Data0]) {
-		Data38[pData10].mX = pTargetX;
-		Data38[pData10].mY = pTargetY;
-		Data38[pData10 + 1].asInt = -1;
 
-		if (pData10 < 29)	// 0x74
+		// Add this target to the queue
+		mSquad_WalkTargets[Data0][pData10].mX = pTargetX;
+		mSquad_WalkTargets[Data0][pData10].mY = pTargetY;
+
+		mSquad_WalkTargets[Data0][pData10 + 1].asInt = -1;
+
+		if (pData10 < (sizeof( mSquad_WalkTargets[Data0] ) / sizeof( mSquad_WalkTargets[Data0][0] )))	// 0x74
 			pData10++;
 
 		mSquad_Walk_Target_Indexes[Data0] = pData10;
@@ -9294,18 +9294,18 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 	}
 
 	if (mSquad_WalkTargetX) {
-		Data38[pData10].mX = mSquad_WalkTargetX;
-		Data38[pData10].mY = mSquad_WalkTargetY;
+		mSquad_WalkTargets[Data0][pData10].mX = mSquad_WalkTargetX;
+		mSquad_WalkTargets[Data0][pData10].mY = mSquad_WalkTargetY;
 		pData10 += 1;
 	}
 	//loc_2AAAE
-	Data38[pData10].mX = pTargetX;
-	Data38[pData10].mY = pTargetY;
+	mSquad_WalkTargets[Data0][pData10].mX = pTargetX;
+	mSquad_WalkTargets[Data0][pData10].mY = pTargetY;
 
 	mSquad_WalkTargetX = pTargetX;
 	mSquad_WalkTargetY = pTargetY;
 
-	Data38[pData10 + 1].asInt = -1;
+	mSquad_WalkTargets[Data0][pData10 + 1].asInt = -1;
 
 	Data24 = Saved_Data24;
 	if (Data1C < 0)
@@ -9334,8 +9334,8 @@ void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSqua
 		Data28->field_40++;
 		pData10--;
 
-		Data38[pData10].mX = Data28->field_0;
-		Data38[pData10].mY = Data28->field_4;
+		mSquad_WalkTargets[Data0][pData10].mX = Data28->field_0;
+		mSquad_WalkTargets[Data0][pData10].mY = Data28->field_4;
 
 		Data28->field_26 = pTargetX;
 		Data28->field_28 = pTargetY;
@@ -13527,8 +13527,9 @@ void cFodder::Sprite_Handle_Player_Rank( sSprite* pSprite ) {
 		if (mSquad_Walk_Target_Steps[Data4])
 			goto loc_1AF63;
 	}
-	//loc_1AE1D
-	if (Data24->field_18 || Data24->field_5B)
+
+	// No rank for non human soldiers, or if they're sinking
+	if (Data24->field_18 != eSprite_Player || Data24->field_5B)
 		goto loc_1AE64;
 
 	if (!Data24->field_38)
