@@ -143,8 +143,8 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			mDataPStuff;
 	uint8* 			mDataHillBits;
 	uint8*			mDataArmy;
-	uint8*			mMap;
-	size_t			mMapSize;
+	std::shared_ptr<std::vector<uint8>>			mMap;
+
 	size_t			mDataBlkSize;
 	uint8*			mDataBaseBlk;
 	uint8*			mDataSubBlk;

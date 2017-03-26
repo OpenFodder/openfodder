@@ -26,18 +26,13 @@ struct sSoundData {
 };
 
 struct sSound {
-	uint8*								mCurrentMusicSongData;
-	uint8*								mCurrentMusicInstrumentData;
-	size_t								mCurrentSongDataSize;
-	size_t								mCurrentInstrumentDataSize;
+	std::shared_ptr<std::vector<uint8>>		mCurrentMusicSongData;
+	std::shared_ptr<std::vector<uint8>>		mCurrentMusicInstrumentData;
 
 	const sSoundData*					mTrack;
 
 	sSound() {
-		mCurrentMusicSongData = 0;
-		mCurrentMusicInstrumentData = 0;
-		mCurrentSongDataSize = 0;
-		mCurrentInstrumentDataSize = 0;
+
 		mTrack = 0;
 	}
 };

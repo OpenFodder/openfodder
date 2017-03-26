@@ -96,7 +96,7 @@ cResource_PC_CD::cResource_PC_CD( std::string pDataPath ) : cResources(pDataPath
 	word_26DAA = word_26DB4 = saveSI = saveBP = 0;
 
 
-	mData = local_FileRead( "CF_ENG.DAT", pDataPath, mDataSize );
+	mData = local_FileRead( "CF_ENG.DAT", pDataPath );
 	if (!mData) {
 		std::cout << "CF_ENG.DAT not found\n";
 		exit( 1 );
@@ -107,19 +107,20 @@ cResource_PC_CD::cResource_PC_CD( std::string pDataPath ) : cResources(pDataPath
 
 cResource_PC_CD::~cResource_PC_CD() {
 
-	delete[] mData;
 }
 
 bool cResource_PC_CD::headerLoad() {
-	if(!mData)
+	const uint8* Data = mData->data();
+
+	if(!Data)
 		return false;
 
-	uint16 ptrEnd = readLEWord( mData );
+	uint16 ptrEnd = readLEWord( Data );
 
 	mFiles.clear();
 
 	for( uint16 ptr = 4; ptr != ptrEnd; ) {
-		std::string	filename = std::string( (char*) &mData[ptr+1], mData[ptr] );
+		std::string	filename = std::string( (char*) &Data[ptr+1], Data[ptr] );
 		++ptr;
 
 		std::transform( filename.begin(), filename.end(), filename.begin(), ::tolower );
@@ -129,9 +130,9 @@ bool cResource_PC_CD::headerLoad() {
 		ptr += (uint16) File.mName.size();
 
 		// Start address and size
-		File.mAddressStart	= readLEDWord( &mData[ptr] );
+		File.mAddressStart	= readLEDWord( &Data[ptr] );
 
-		File.mSize			= readLEDWord( &mData[ptr + 4] );
+		File.mSize			= readLEDWord( &Data[ptr + 4] );
 
 		ptr += 8;
 
@@ -144,45 +145,20 @@ bool cResource_PC_CD::headerLoad() {
 void cResource_PC_CD::ExtractFiles() {
 
 	for (auto File : mFiles) {
-		size_t size;
 
-		uint8* FileData = fileGet( File.mName, size );
+		auto FileData = fileGet( File.mName );
 		std::string Filename = local_PathGenerate( File.mName, "ExtractedData", true );
 
 		std::ofstream outfile( Filename, std::ofstream::binary );
-		outfile.write( (const char*)FileData, size );
+		outfile.write( (const char*)FileData->data(), FileData->size() );
 		outfile.close();
-
-		delete[] FileData;
 	}
 }
 
-uint8* cResource_PC_CD::fileGet( std::string pFilename, size_t &pFileSize ) {
-	std::vector< cResource_File >::iterator		fileIT;
+auto cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
+	mDataCurrent = mData->data() + pFile->mAddressStart;
 
-	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
-	
-	uint8* File = cResources::fileGet( pFilename, pFileSize );
-	if (File)
-		return File;
-
-	for( fileIT = mFiles.begin(); fileIT != mFiles.end(); ++fileIT ) {
-
-		if( fileIT->mName == pFilename ) {
-
-			return file_Get(&(*fileIT), pFileSize,  true );
-		}
-	}
-	
-	std::cout << "File " << pFilename << " Not Found!\n";
-	exit( 1 );
-	return 0;
-}
-
-uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode ) {
-	mDataCurrent = &mData[ pFile->mAddressStart ];
-
-	std::vector<uint8>	result;
+	auto result = std::make_shared<std::vector<uint8>>();
 
 	for( uint32 i = 0; i < 0x1A3B; ++i )
 		byte_27EE6[i] = 0x0;
@@ -210,8 +186,10 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 		word_26DAA = dx;
 		word_26DBA = (word_26DBA & 0xFFFF) | dx << 16;
 
-		if( (word_26DA8 | dx) == 0 )
-			return 0;
+		if ((word_26DA8 | dx) == 0) {
+			result->clear();
+			return result;
+		}
 
 		// seg006:00BA
 		sub_26AA4();
@@ -234,7 +212,7 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 
 		if( (ax & 0xFF00) == 0 ) {
 
-			result.push_back(ax & 0xFF);
+			result->push_back(ax & 0xFF);
 
 			uint16 bx = word_26DB4;
 			byte_27EE6[bx] = ax & 0xFF;
@@ -269,7 +247,7 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 		for(;cx > 0; --cx) {
 			uint8 al = byte_27EE6[si];
 
-			result.push_back( al );
+			result->push_back( al );
 			byte_27EE6[bx] = al;
 			++bx;
 
@@ -282,13 +260,29 @@ uint8* cResource_PC_CD::file_Get( cResource_File *pFile, size_t &pFileSize, bool
 
 	}
 
-	uint8 *data = new uint8[result.size()];
+	return result;
+}
 
-	for(int i = 0; i < result.size(); ++i )
-		data[i] = result[i];
+std::shared_ptr<std::vector<uint8>> cResource_PC_CD::fileGet( std::string pFilename ) {
+	std::vector< cResource_File >::iterator		fileIT;
 
-	pFileSize = result.size();
-	return data;
+	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
+
+	auto File = cResources::fileGet( pFilename );
+	if (File->size())
+		return File;
+
+	for (fileIT = mFiles.begin(); fileIT != mFiles.end(); ++fileIT) {
+
+		if (fileIT->mName == pFilename) {
+
+			return file_Get( &(*fileIT), true );
+		}
+	}
+
+	std::cout << "File " << pFilename << " Not Found!\n";
+	exit( 1 );
+	return File;
 }
 
 uint16 cResource_PC_CD::sub_26CDF() {

@@ -69,14 +69,13 @@ std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) 
 	size_t Size = 0;
 	unsigned char MD5[16];
 
-	uint8* File = local_FileRead( pFile, pPath, Size );
-	if (!File)
+	auto File = local_FileRead( pFile, pPath );
+	if (!File->size())
 		return "";
 
 	md5_starts( &ctx );
-	md5_update( &ctx, File, (uint32) Size );
+	md5_update( &ctx, File->data(), File->size() );
 	md5_finish( &ctx, MD5 );
-	delete[] File;
 
 	std::string FinalMD5;
 	FinalMD5.reserve(32);
@@ -90,9 +89,9 @@ std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) 
 }
 	
 
-uint8 *local_FileRead( const std::string& pFile, const std::string& pPath, size_t& pFileSize ) {
-	std::ifstream*		fileStream;
-	uint8*				fileBuffer = 0;
+std::shared_ptr<std::vector<uint8>> local_FileRead( const std::string& pFile, const std::string& pPath ) {
+	std::ifstream*	fileStream;
+	auto			fileBuffer = std::make_shared<std::vector<uint8_t>>();
 
 	std::string finalPath = local_PathGenerate( pFile, pPath );
 
@@ -102,17 +101,13 @@ uint8 *local_FileRead( const std::string& pFile, const std::string& pPath, size_
 
 		// Get file size
 		fileStream->seekg( 0, std::ios::end );
-		pFileSize = (size_t)fileStream->tellg();
+		fileBuffer->resize( fileStream->tellg() );
 		fileStream->seekg( std::ios::beg );
 
 		// Allocate buffer, and read the file into it
-		fileBuffer = new uint8[pFileSize];
-		fileStream->read( (char*)fileBuffer, pFileSize );
-		if (!(*fileStream)) {
-			delete fileBuffer;
-			fileBuffer = 0;
-		}
-
+		fileStream->read( (char*) fileBuffer->data(), fileBuffer->size() );
+		if (!(*fileStream))
+			fileBuffer->clear();
 	}
 
 	// Close the stream

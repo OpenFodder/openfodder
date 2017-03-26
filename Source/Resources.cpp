@@ -27,40 +27,37 @@ cResources::cResources( std::string pDataPath ) {
 	mDataPath = pDataPath;
 }
 
-uint8* cResources::fileGet( std::string pFilename, size_t &pFileSize ) {
+std::shared_ptr<std::vector<uint8>> cResources::fileGet( std::string pFilename ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
 	
-	uint8* File = local_FileRead( pFilename, "", pFileSize );
-	if (File)
+	auto File = local_FileRead( pFilename, "" );
+	if (File->size())
 		return File;
 
-	File = local_FileRead( pFilename, mDataPath.c_str(), pFileSize );
-	if (File)
+	File = local_FileRead( pFilename, mDataPath.c_str() );
+	if (File->size())
 		return File;
 
 	// This is rather hacky
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::toupper );
-	File = local_FileRead( pFilename, "", pFileSize );
-	if (File)
+	File = local_FileRead( pFilename, "" );
+	if (File->size())
 		return File;
 
-	File = local_FileRead( pFilename, mDataPath.c_str(), pFileSize );
-	if (File)
-		return File;
-
-	return 0;
+	File = local_FileRead( pFilename, mDataPath.c_str() );
+	return File;
 }
 
 size_t cResources::fileLoadTo( const std::string& pFilename, uint8* pTarget ) {
-	size_t Size = 0;
 
-	uint8* File = fileGet( pFilename, Size );
+	auto File = fileGet( pFilename );
 
-	memcpy( pTarget, File, Size );
+	if (File->size()) {
+		std::memcpy( pTarget, File->data(), File->size() );
+		return File->size();
+	}
 
-	delete[] File;
-
-	return Size;
+	return false;
 }

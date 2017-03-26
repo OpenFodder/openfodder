@@ -36,16 +36,11 @@ cSound_PC::cSound_PC() {
 	devicePrepare();
 
 	for (unsigned int x = 0; x < 0x3C; ++x) {
-		dword_42320[x].mBuffer = 0;
-		dword_42320[x].mCleanup = true;
-		dword_42410[x].mBuffer = 0;
-		dword_42410[x].mCleanup = true;
-		dword_42500[x].mBuffer = 0;
-		dword_42500[x].mCleanup = true;
-		dword_425F0[x].mBuffer = 0;
-		dword_425F0[x].mCleanup = true;
-		dword_426E0[x].mBuffer = 0;
-		dword_426E0[x].mCleanup = true;
+		dword_42320[x] = nullptr;
+		dword_42410[x] = nullptr;
+		dword_42500[x] = nullptr;
+		dword_425F0[x] = nullptr;
+		dword_426E0[x] = nullptr;
 	}
 
 	word_42316[0] = dword_42320;	// Jun
@@ -61,69 +56,27 @@ cSound_PC::cSound_PC() {
 
 cSound_PC::~cSound_PC() {
 	
-	for (unsigned int x = 0; x < 0x3C; ++x) {
-
-		if (dword_42320[x].mCleanup)
-			delete[] dword_42320[x].mBuffer;
-
-		if (dword_42410[x].mCleanup)
-			delete[] dword_42410[x].mBuffer;
-
-		if (dword_42500[x].mCleanup)
-			delete[] dword_42500[x].mBuffer;
-
-		if (dword_425F0[x].mCleanup)
-			delete[] dword_425F0[x].mBuffer;
-
-		if (dword_426E0[x].mCleanup)
-			delete[] dword_426E0[x].mBuffer;
-	}
-
 	Mix_CloseAudio();
 	SDL_CloseAudio();
 }
 
 void cSound_PC::Sound_Voc_Load() {
 
-	for (unsigned int x = 0; x < 0x3C; ++x) {
-		dword_42320[x].mSize = 0;
-		dword_42410[x].mSize = 0;
-		dword_42500[x].mSize = 0;
-		dword_425F0[x].mSize = 0;
-	}
-
 	struct_Voc* Voc = mVocTable;
 
 	for (; Voc->field_0 != 0xFF; ++Voc) {
-		size_t bx = 0;
 
-		uint8* VocFile = g_Resource.fileGet( Voc->mFilename, bx );
+		auto VocFile = g_Resource.fileGet( Voc->mFilename );
 
 		if (Voc->field_0 != 9) {
-			sVocLoaded* eax = word_42316[Voc->field_0];
-			eax[Voc->field_1].mBuffer = VocFile;
-			eax[Voc->field_1].mSize = bx;
+			word_42316[Voc->field_0][Voc->field_1] = VocFile;
 		} else {
 
-			dword_42320[Voc->field_1].mBuffer = VocFile;
-			dword_42320[Voc->field_1].mSize = bx;
-			dword_42320[Voc->field_1].mCleanup = true;
-
-			dword_42410[Voc->field_1].mBuffer = VocFile;
-			dword_42410[Voc->field_1].mSize = bx;
-			dword_42410[Voc->field_1].mCleanup = false;
-
-			dword_42500[Voc->field_1].mBuffer = VocFile;
-			dword_42500[Voc->field_1].mSize = bx;
-			dword_42500[Voc->field_1].mCleanup = false;
-
-			dword_425F0[Voc->field_1].mBuffer = VocFile;
-			dword_425F0[Voc->field_1].mSize = bx;
-			dword_425F0[Voc->field_1].mCleanup = false;
-
-			dword_426E0[Voc->field_1].mBuffer = VocFile;
-			dword_426E0[Voc->field_1].mSize = bx;
-			dword_426E0[Voc->field_1].mCleanup = false;
+			dword_42320[Voc->field_1] = VocFile;
+			dword_42410[Voc->field_1] = VocFile;
+			dword_42500[Voc->field_1] = VocFile;
+			dword_425F0[Voc->field_1] = VocFile;
+			dword_426E0[Voc->field_1] = VocFile;
 		}
 	}
 }
@@ -162,11 +115,11 @@ void cSound_PC::MixerChannelFinished( int32 pChannel ) {
 
 void cSound_PC::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume ) {
 	sVocPlaying Playing;
-	sVocLoaded* eax = &word_42316[pTileset][pSoundEffect];
-	if (eax->mSize == 0 || mSound == false )
+	auto eax = word_42316[pTileset][pSoundEffect];
+	if (!eax->size() || mSound == false )
 		return;
 
-	SDL_RWops *rw = SDL_RWFromMem( eax->mBuffer, (int) eax->mSize );
+	SDL_RWops *rw = SDL_RWFromMem( eax->data(), eax->size() );
 
 	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
 	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );

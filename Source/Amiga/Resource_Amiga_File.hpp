@@ -29,5 +29,5 @@ class cResource_Amiga_File : public cResources {
 									cResource_Amiga_File( std::string pDataPath = "" );
 	virtual							~cResource_Amiga_File();
 
-	virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
+	virtual std::shared_ptr<std::vector<uint8>>		fileGet( std::string pFilename );
 };

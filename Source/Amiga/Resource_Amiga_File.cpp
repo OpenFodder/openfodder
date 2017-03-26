@@ -31,26 +31,25 @@ cResource_Amiga_File::~cResource_Amiga_File() {
 
 }
 
-uint8* cResource_Amiga_File::fileGet( std::string pFilename, size_t &pFileSize ) {
+std::shared_ptr<std::vector<uint8>> cResource_Amiga_File::fileGet( std::string pFilename ) {
 
-	uint8* File = cResources::fileGet( pFilename, pFileSize );
-	if (!File) {
+	auto File = cResources::fileGet( pFilename );
+	if (!File->size()) {
 		//std::cout << "File " << pFilename << " Not Found!\n";
 		//exit( 1 );
-		return 0;
+		return File;
 	}
-	uint32 Header = readBEDWord( File );
+	uint32 Header = readBEDWord( File->data() );
 
 	if (Header != 'RNC\01')
 		return File;
 
-	uint32 Size = readBEDWord( File + 4 );
+	uint32 Size = readBEDWord( File->data() + 4 );
 
-	uint8* Unpacked = new uint8[Size];
+	auto Unpacked = std::make_shared<std::vector<uint8>>();
+	Unpacked->resize( Size );
 
-	pFileSize = rnc_unpack (File, Unpacked);
-
-	delete[] File;
+	rnc_unpack (File->data(), Unpacked->data());
 
 	return Unpacked;
 }
