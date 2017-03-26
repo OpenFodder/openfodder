@@ -287,25 +287,20 @@ void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
 
 void cGraphics_Amiga::LoadpStuff() {
 
-	size_t Size = 0;
-	uint8* pstuff = g_Resource.fileGet( "pstuff.lbm", Size );
+	auto pstuff = g_Resource.fileGet( "pstuff.lbm" );
 
-	DecodeIFF( pstuff, mFodder->mDataPStuff, &mBMHDPStuff, mPalletePStuff );
+	DecodeIFF( pstuff->data(), mFodder->mDataPStuff, &mBMHDPStuff, mPalletePStuff );
 
 	mBMHDFont = mBMHDPStuff;
 	memcpy( &mPalleteFont, &mPalletePStuff, 0x20 );
 		
-	delete[] pstuff;
 }
 
 void cGraphics_Amiga::Load_Hill_Data() {
 	
-	size_t Size = 0;
-	uint8* pstuff = g_Resource.fileGet( "hills.lbm", Size );
+	auto pstuff = g_Resource.fileGet( "hills.lbm" );
 
-	DecodeIFF( pstuff, mFodder->mDataBaseBlk, &mBMHDHill, mPalleteHill );
-
-	delete[] pstuff;
+	DecodeIFF( pstuff->data(), mFodder->mDataBaseBlk, &mBMHDHill, mPalleteHill );
 
 	Load_Hill_Bits();
 }
@@ -316,17 +311,15 @@ void cGraphics_Amiga::Load_Hill_Bits() {
 }
 
 void cGraphics_Amiga::Load_Sprite_Font() {
-	size_t Size = 0;
 
-	uint8* Font = g_Resource.fileGet( "FONT.RAW", Size );
-	memcpy( mFodder->mDataPStuff, Font + 0x20, Size - 0x20 );
-	memcpy( mPalleteFont, Font, 0x20 );
+	auto Font = g_Resource.fileGet( "FONT.RAW" );
+	memcpy( mFodder->mDataPStuff, Font->data() + 0x20, Font->size() - 0x20 );
+	memcpy( mPalleteFont, Font->data(), 0x20 );
 
 	mBMHDFont.mWidth = 0x140;
 	mBMHDFont.mHeight = 0x100;
 	mBMHDFont.mPlanes = 4;
 
-	delete[] Font;
 	//Font = g_Resource.fileGet( "font.pl8", Size );
 	//PaletteLoad( Font, 0x0, 0x08 );
 	//delete[] Font;
@@ -334,15 +327,13 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 }
 
 void cGraphics_Amiga::Load_Service_Data() {
-	size_t Size = 0;
-	uint8* pstuff = g_Resource.fileGet( "rankfont.lbm", Size );
+	auto pstuff = g_Resource.fileGet( "rankfont.lbm" );
 
-	DecodeIFF( pstuff, mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
-	delete[] pstuff;
+	DecodeIFF( pstuff->data(), mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
 
-	pstuff = g_Resource.fileGet( "morphbig.lbm", Size );
-	DecodeIFF( pstuff, mFodder->mDataBaseBlk, &mBMHDHill, mPalette );
-	delete[] pstuff;
+	pstuff = g_Resource.fileGet( "morphbig.lbm" );
+	DecodeIFF( pstuff->data(), mFodder->mDataBaseBlk, &mBMHDHill, mPalette );
+
 }
 
 void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pColors ) {
@@ -352,21 +343,20 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 	if (Filename.find('.') == std::string::npos )
 		Filename.append( ".raw" );
 
-	size_t Size = 0;
-	uint8* File = g_Resource.fileGet( Filename, Size );
+	auto File = g_Resource.fileGet( Filename );
 	int Colors = 16;
 
-	if (DecodeIFF( File, mFodder->mDataBaseBlk, &Header, mPalette ) == false) {
+	if (DecodeIFF( File->data(), mFodder->mDataBaseBlk, &Header, mPalette ) == false) {
 
-		if (Size == 51464) {
+		if (File->size() == 51464) {
 			Header.mPlanes = 5;
 			Colors = 32;
 		} else
 			Header.mPlanes = 4;
 
 		// Not an iff, so its probably a RAW file
-		memcpy( mFodder->mDataBaseBlk, File + (Colors*2), Size - (Colors*2));
-		memcpy( mPalette, File, Colors * 2 );
+		memcpy( mFodder->mDataBaseBlk, File->data() + (Colors*2), File->size() - (Colors*2));
+		memcpy( mPalette, File->data(), Colors * 2 );
 		
 		Header.mWidth = 0x140;
 		Header.mHeight = 0x101;
@@ -388,8 +378,6 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 
  	video_Draw_Linear();
 	mBMHD_Current = 0;
-
-	delete[] File;
 }
 
  void cGraphics_Amiga::PaletteLoad( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
@@ -618,7 +606,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 	mImage->clearBuffer();
 	uint8* Target = mImage->GetSurfaceBuffer();
 
-	uint8* CurrentMapPtr = &mFodder->mMap[mFodder->mMapTilePtr];
+	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTilePtr;
 
 	// Y
 	for (uint16 cx = 0; cx < 0x10; ++cx) {
@@ -633,7 +621,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 		else
 			StartY = 0;
 
-		if (CurrentMapPtr >= mFodder->mMap) {
+		if (CurrentMapPtr >= mFodder->mMap->data()) {
 
 			// X
 			for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
@@ -791,15 +779,11 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "lbm" );
 	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "lbm" );
 
-	size_t Size = 0;
-	uint8* Copt = g_Resource.fileGet( mFodder->mFilenameCopt, Size );
-	uint8* Army = g_Resource.fileGet( mFodder->mFilenameArmy, Size );
+	auto Copt = g_Resource.fileGet( mFodder->mFilenameCopt );
+	auto Army = g_Resource.fileGet( mFodder->mFilenameArmy );
 
-	DecodeIFF( Copt, mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
-	DecodeIFF( Army, mFodder->mDataArmy, &mBMHDArmy, mPaletteArmy );
-
-	delete[] Copt;
-	delete[] Army;
+	DecodeIFF( Copt->data(), mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
+	DecodeIFF( Army->data(), mFodder->mDataArmy, &mBMHDArmy, mPaletteArmy );
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }
@@ -1080,8 +1064,7 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 	std::string JunData5 = "fgn2.pl8";
 	std::string JunData6 = "heli.pal";
 
-	delete mFodder->mMap;
-	mFodder->mMap = g_Resource.fileGet( MapName, mFodder->mMapSize );
+	mFodder->mMap = g_Resource.fileGet( MapName );
 
 	mFodder->map_SetTileType();
 
@@ -1093,9 +1076,8 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 	JunData6.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
 
 	size_t Size = 0;
-	uint8* Data = g_Resource.fileGet( JunData1, Size );
-	DecodeIFF( Data, mPlayData, &mBMHDPlay, mPaletteBrief );
-	delete[] Data;
+	auto Data = g_Resource.fileGet( JunData1 );
+	DecodeIFF( Data->data(), mPlayData, &mBMHDPlay, mPaletteBrief );
 
 	g_Resource.fileLoadTo( JunData2, (uint8*) mPaletteBrief + (0xA0 * 2) );
 	g_Resource.fileLoadTo( JunData3, (uint8*) mPaletteBrief + (0xB0 * 2) );

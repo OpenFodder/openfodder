@@ -20,11 +20,6 @@
  *
  */
 
-struct sVocLoaded {
-	uint8*		mBuffer;
-	size_t		mSize;
-	bool		mCleanup;
-};
 struct sVocPlaying {
 	int32		mChannel;
 	Mix_Chunk*	mCurrentChunk;
@@ -38,12 +33,12 @@ class cSound_PC : public cSound {
 
 	std::vector<sVocPlaying> mMixerChunks;
 
-	sVocLoaded*				word_42316[7];
-	sVocLoaded				dword_42320[0x3C];
-	sVocLoaded				dword_42410[0x3C];
-	sVocLoaded				dword_42500[0x3C];
-	sVocLoaded				dword_425F0[0x3C];
-	sVocLoaded				dword_426E0[0x3C];
+	std::shared_ptr<std::vector<uint8>>*			word_42316[7];
+	std::shared_ptr<std::vector<uint8>>				dword_42320[0x3C];
+	std::shared_ptr<std::vector<uint8>>				dword_42410[0x3C];
+	std::shared_ptr<std::vector<uint8>>				dword_42500[0x3C];
+	std::shared_ptr<std::vector<uint8>>				dword_425F0[0x3C];
+	std::shared_ptr<std::vector<uint8>>				dword_426E0[0x3C];
 
 	private:
 	bool					devicePrepare();

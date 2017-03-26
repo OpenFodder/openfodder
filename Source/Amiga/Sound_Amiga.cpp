@@ -57,11 +57,6 @@ cSound_Amiga::~cSound_Amiga() {
 	Sound_Stop();
 
 	delete mAudioSpec;
-	delete[] mSound_Music.mCurrentMusicSongData;
-	delete[] mSound_Music.mCurrentMusicInstrumentData;
-
-	delete[] mSound_Sfx.mCurrentMusicSongData;
-	delete[] mSound_Sfx.mCurrentMusicInstrumentData;
 
 	SDL_CloseAudio();
 	SDL_DestroyMutex(mLock);
@@ -157,11 +152,9 @@ int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 	}
 
 	if (pSound->mTrack != Track) {
-		delete[] pSound->mCurrentMusicSongData;
-		delete[] pSound->mCurrentMusicInstrumentData;
 
-		pSound->mCurrentMusicSongData = g_Resource.fileGet( Track->mSongData, pSound->mCurrentSongDataSize );
-		pSound->mCurrentMusicInstrumentData = g_Resource.fileGet( Track->mInstrumentData, pSound->mCurrentInstrumentDataSize );
+		pSound->mCurrentMusicSongData = g_Resource.fileGet( Track->mSongData );
+		pSound->mCurrentMusicInstrumentData = g_Resource.fileGet( Track->mInstrumentData );
 		pSound->mTrack = Track;
 	}
 
@@ -174,7 +167,7 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
 
 	if (SDL_LockMutex( mLock ) == 0) {
 		if (mSound_Sfx.mCurrentMusicSongData && mSound_Sfx.mCurrentMusicInstrumentData) {
-			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, mSound_Sfx.mCurrentInstrumentDataSize, -pSoundEffect );
+			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData->data(), mSound_Sfx.mCurrentMusicInstrumentData->data(), mSound_Sfx.mCurrentMusicInstrumentData->size(), -pSoundEffect );
 			Sfx->mVolume = pVolume;
 			mCurrentSfx.push_back( Sfx );
 		}
@@ -191,8 +184,9 @@ void cSound_Amiga::Music_Play( int16 pTrack ) {
 		
 	Music_Stop();
 
-	if (mSound_Music.mCurrentMusicSongData && mSound_Music.mCurrentMusicInstrumentData)
-		mCurrentMusic = Audio::makeRjp1Stream( mSound_Music.mCurrentMusicSongData, mSound_Music.mCurrentMusicInstrumentData, mSound_Music.mCurrentInstrumentDataSize, Number );
+	if (mSound_Music.mCurrentMusicSongData->size() && 
+		 mSound_Music.mCurrentMusicInstrumentData->size())
+		mCurrentMusic = Audio::makeRjp1Stream( mSound_Music.mCurrentMusicSongData->data(), mSound_Music.mCurrentMusicInstrumentData->data(), mSound_Music.mCurrentMusicInstrumentData->size(), Number );
 	
 	SDL_PauseAudio(0);
 }

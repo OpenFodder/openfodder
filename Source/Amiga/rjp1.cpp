@@ -149,7 +149,7 @@ void Rjp1::turnOffChannel(Rjp1Channel *channel) {
 }
 
 void Rjp1::playChannel(Rjp1Channel *channel) {
-	if (channel->active) {
+	if (channel->active && channel->sequenceData) {
 		turnOnChannel(channel);
 		if (channel->sequenceData) {
 			playSongSequence(channel);

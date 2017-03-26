@@ -1,7 +1,8 @@
 
 class cResource_PC_CD : public cResources {
 	
-	uint8*							mData, *mDataCurrent;
+	std::shared_ptr<std::vector<uint8>>				mData;
+	uint8*							mDataCurrent;
 
 	size_t							mDataSize;
 
@@ -32,7 +33,7 @@ class cResource_PC_CD : public cResources {
 	uint16							word_26DAA, word_26DB4, saveSI, saveBP;
 
 	bool							headerLoad();
-	uint8*							file_Get( cResource_File *pFile, size_t &pFileSize, bool pDecode );
+	auto							file_Get( cResource_File *pFile, bool pDecode );
 
 
 public:
@@ -40,7 +41,7 @@ public:
 									cResource_PC_CD( std::string pDataPath = "" );
 	virtual							~cResource_PC_CD();
 
-	virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
+	virtual std::shared_ptr<std::vector<uint8>>		fileGet( std::string pFilename );
 
 	std::vector< cResource_File >*	filesGet( ) { return &mFiles; }
 	

@@ -23,9 +23,9 @@
 class cSurface;
 
 struct cResource_File {
-	std::string		 mName;
-	uint32		 mAddressStart;
-	uint32		 mSize;
+	std::string		mName;
+	uint32			mAddressStart;
+	uint32			mSize;
 
 	cResource_File( std::string pName, uint32 pStart, uint32 pEnd ) : 
 		mName( pName ), mAddressStart( pStart ), mSize( pEnd ) { }
@@ -42,6 +42,6 @@ public:
 	 								cResources( std::string pDataPath = "" );
 	virtual							~cResources() { };
 									 
-	virtual uint8*					fileGet( std::string pFilename, size_t &pFileSize );
-	size_t							fileLoadTo( const std::string& pFilename, uint8* pTarget );
+	virtual std::shared_ptr<std::vector<uint8>>	fileGet( std::string pFilename );
+	size_t										fileLoadTo( const std::string& pFilename, uint8* pTarget );
 };

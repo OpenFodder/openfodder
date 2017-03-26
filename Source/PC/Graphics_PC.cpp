@@ -186,7 +186,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 
 	uint8* Target = mImage->GetSurfaceBuffer();
 
-	uint8* CurrentMapPtr = &mFodder->mMap[mFodder->mMapTilePtr];
+	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTilePtr;
 
 	// Y
 	for (uint16 cx = 0; cx < 0x0F; ++cx) {
@@ -680,9 +680,7 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	std::string JunData4 = "p4.dat";
 	std::string JunData5 = "p5.dat";
 
-	delete mFodder->mMap;
-	mFodder->mMap = g_Resource.fileGet( MapName, mFodder->mMapSize );
-
+	mFodder->mMap = g_Resource.fileGet( MapName );
 	mFodder->map_SetTileType();
 
 	JunData1.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
@@ -695,7 +693,7 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	mFodder->word_42861 = mFodder->mDataBaseBlk;
 	mFodder->word_4286D = mFodder->mDataBaseBlkSize;
 
-	g_Resource.fileLoadTo( JunData2, mFodder->mDataSubBlk );
+	mFodder->mDataSubBlkSize = g_Resource.fileLoadTo( JunData2, mFodder->mDataSubBlk );
 	mFodder->word_42863 = mFodder->mDataSubBlk;
 	
 	g_Resource.fileLoadTo( JunData3, mFodder->mDataHillBits );
@@ -757,9 +755,8 @@ void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors
 	if (Filename.find('.') == std::string::npos )
 		Filename.append( ".dat" );
 
-	size_t fileSize = 0;
-	uint8* fileBuffer = g_Resource.fileGet(Filename, fileSize);
-	uint8* srcBuffer = fileBuffer;
+	auto fileBuffer = g_Resource.fileGet(Filename);
+	uint8* srcBuffer = fileBuffer->data();
 
 	uint8 *Buffer = 0;
 
@@ -780,9 +777,7 @@ void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors
 	}
 
 	if(pColors)
-		PaletteLoad( fileBuffer + (fileSize - (0x100 * 3)), pColors );
-
-	delete[] fileBuffer;
+		PaletteLoad( fileBuffer->data() + (fileBuffer->size() - (0x100 * 3)), pColors );
 }
 
 void cGraphics_PC::Briefing_DrawHelicopter( uint16 pID ) {

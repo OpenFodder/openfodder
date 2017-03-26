@@ -1681,25 +1681,26 @@ loc_11E5B:;
 void cFodder::Map_Load_Resources() {
 	std::string MapName = map_Filename_MapGet();
 
-	delete mMap;
-	mMap = g_Resource.fileGet( MapName, mMapSize );
-	tool_EndianSwap( mMap + 0x60, mMapSize - 0x60 );
+	mMap = g_Resource.fileGet( MapName );
+	uint8* Map = mMap->data();
+
+	tool_EndianSwap( Map + 0x60, mMap->size() - 0x60 );
 
 	std::string BaseName,SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
-	BaseName.append( mMap, mMap + 11 );
-	SubName.append( mMap + 0x10, mMap + 0x10 + 11 );
+	BaseName.append( Map, Map + 11 );
+	SubName.append( Map + 0x10, Map + 0x10 + 11 );
 
-	BaseBaseSet.append( mMap, mMap + 3 );
-	BaseSubSet.append( mMap + 0x10, mMap + 0x10 + 3 );
+	BaseBaseSet.append( Map, Map + 3 );
+	BaseSubSet.append( Map + 0x10, Map + 0x10 + 3 );
 
-	BaseBase.append( mMap, mMap + 7 );
-	BaseSub.append( mMap + 0x10, mMap + 0x10 + 7 );
+	BaseBase.append( Map, Map + 7 );
+	BaseSub.append( Map + 0x10, Map + 0x10 + 7 );
 
 	mDataBaseBlkSize = g_Resource.fileLoadTo( BaseName, mDataBaseBlk );
 	mDataSubBlkSize = g_Resource.fileLoadTo( SubName, mDataSubBlk );
 
-	mMapWidth = readBEWord( &mMap[0x54] );
-	mMapHeight = readBEWord( &mMap[0x56] );
+	mMapWidth = readBEWord( &Map[0x54] );
+	mMapHeight = readBEWord( &Map[0x56] );
 
 	mFilenameCopt = Filename_CreateFromBase( BaseBaseSet, "copt." );
 	mFilenameBaseSwp = Filename_CreateFromBase( BaseBase, ".swp" );
@@ -2562,7 +2563,7 @@ void cFodder::Map_Overview_Prepare() {
 		dword_3E9A3[cx] = 0;
 	}
 
-	int16* Di = (int16*) (mMap + 0x60);
+	int16* Di = (int16*) (mMap->data() + 0x60);
 
 	int16 Data8;
 	int16 DataC;
@@ -2663,13 +2664,13 @@ void cFodder::Map_Overview_Prepare() {
 void cFodder::map_SetTileType() {
 
 	for (unsigned int x = 0; x < 7; ++x) {
-		if (mTileType_Names[x][0] != mMap[0])
+		if (mTileType_Names[x][0] != mMap->data()[0])
 			continue;
 	
-		if (mTileType_Names[x][1] != mMap[1])
+		if (mTileType_Names[x][1] != mMap->data()[1])
 			continue;
 
-		if (mTileType_Names[x][2] != mMap[2])
+		if (mTileType_Names[x][2] != mMap->data()[2])
 			continue;
 
 		mMap_TileSet = x;
@@ -5418,7 +5419,7 @@ void cFodder::Recruit_Position_Troops() {
 			if ((Data24 + (Data4/6))->field_4)
 				Data4 -= 6;
 
-			(Data24 + (Data4/6))->field_4 = word_3E197[Data8/2];
+			(Data24 + (Data4/6))->field_4 = word_3E197[Data8 / 2];
 		}
 
 		Data8 += 2;
@@ -9062,7 +9063,7 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
 	
 	int32 Data4 = m2A622_Unk_MapPosition.mY;
 
-	uint8* MapTilePtr = &mMap[0x60];
+	uint8* MapTilePtr = mMap->data() + 0x60;
 
 	Data4 *= mMapWidth;
 	Data4 += m2A622_Unk_MapPosition.mX;
@@ -9217,7 +9218,7 @@ int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pDa
 	Data0 += Data4;
 	Data0 <<= 1;
 
-	Data0 = readLEWord( &mMap[0x60 + Data0]) & 0x1FF;
+	Data0 = readLEWord( mMap->data() + (0x60 + Data0)) & 0x1FF;
 
 	Data4 = mTile_Hit[Data0];
 
@@ -9574,7 +9575,7 @@ int16 cFodder::Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, i
 	DataC += Data8;
 	DataC <<= 1;
 
-	int16 Data0 = readLEWord( &mMap[0x60 + DataC] );
+	int16 Data0 = readLEWord( mMap->data() + 0x60 + DataC );
 	Data0 &= 0xFF;
 
 	int16 Data4 = mTile_Hit[Data0];
@@ -10422,10 +10423,10 @@ loc_2DE3C:;
 	Data4 <<= 1;
     
     // In some cases, tiles outside the map can be 'destroyed'. This prevents memory corruption
-    if (0x60 + Data4 > mMapSize)
+    if (0x60 + Data4 > mMap->size())
         goto loc_2DF55;
 
-	MapPtr = &mMap[0x60 + Data4];
+	MapPtr = mMap->data() + 0x60 + Data4;
 
 	MapTile = readLEWord( MapPtr );
 	MapTile &= 0x1FF;
