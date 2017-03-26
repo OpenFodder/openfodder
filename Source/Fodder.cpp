@@ -7713,8 +7713,7 @@ void cFodder::sub_25863( sSprite* pSprite ) {
 	if (!pSprite->field_5C)
 		return;
 
-	int16 Data0 = tool_RandomGet() & 0x3F;
-	if (Data0 != 9)
+	if ((tool_RandomGet() & 0x3F) != 9)
 		return;
 
 	if (mSquad_Leader == INVALID_SPRITE_PTR)
