@@ -155,7 +155,7 @@ void cResource_PC_CD::ExtractFiles() {
 	}
 }
 
-auto cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
+tSharedBuffer cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
 	mDataCurrent = mData->data() + pFile->mAddressStart;
 
 	auto result = std::make_shared<std::vector<uint8>>();
@@ -263,7 +263,7 @@ auto cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
 	return result;
 }
 
-std::shared_ptr<std::vector<uint8>> cResource_PC_CD::fileGet( std::string pFilename ) {
+tSharedBuffer cResource_PC_CD::fileGet( std::string pFilename ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );

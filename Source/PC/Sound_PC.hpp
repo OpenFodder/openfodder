@@ -33,12 +33,12 @@ class cSound_PC : public cSound {
 
 	std::vector<sVocPlaying> mMixerChunks;
 
-	std::shared_ptr<std::vector<uint8>>*			word_42316[7];
-	std::shared_ptr<std::vector<uint8>>				dword_42320[0x3C];
-	std::shared_ptr<std::vector<uint8>>				dword_42410[0x3C];
-	std::shared_ptr<std::vector<uint8>>				dword_42500[0x3C];
-	std::shared_ptr<std::vector<uint8>>				dword_425F0[0x3C];
-	std::shared_ptr<std::vector<uint8>>				dword_426E0[0x3C];
+	tSharedBuffer *			word_42316[7];
+	tSharedBuffer 				dword_42320[0x3C];
+	tSharedBuffer 				dword_42410[0x3C];
+	tSharedBuffer 				dword_42500[0x3C];
+	tSharedBuffer 				dword_425F0[0x3C];
+	tSharedBuffer 				dword_426E0[0x3C];
 
 	private:
 	bool					devicePrepare();

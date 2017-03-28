@@ -31,23 +31,23 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 	
 	switch ( pSegment ) {
 		case 0x3B68:
-			return mFodder->mDataBaseBlk;
+			return mFodder->mDataBaseBlk->data();
 			break;
 
 		case 0x4307:
-			return mFodder->mDataPStuff;
+			return mFodder->mDataPStuff->data();
 			break;
 
 		case 0x4309:
-			return mFodder->mDataHillBits;
+			return mFodder->mDataHillBits->data();
 			break;
 
 		case 0x430B:
-			return mFodder->mDataArmy;
+			return mFodder->mDataArmy->data();
 			break;
 
 		case 0x6717:
-			return mFodder->word_3E1B7;
+			return mFodder->mDataHillData->data();
 			break;
 
 		default:
@@ -67,7 +67,7 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	int16 ax = di->mY * 160;
 	int16 bx = di->mX >> 1;
 
-	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff + (ax +bx);
+	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff->data() + (ax +bx);
 	mFodder->mDraw_Sprite_PalletIndex = 0xF0;
 	
 	video_Draw_Sprite();
@@ -104,40 +104,40 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 
 void cGraphics_PC::LoadpStuff() {
 
-	g_Resource.fileLoadTo( "pstuff.dat", mFodder->mDataPStuff );
-	PaletteLoad( mFodder->mDataPStuff + 0xA000, 0x10, 0xF0 );
+	mFodder->mDataPStuff = g_Resource.fileGet( "pstuff.dat" );
+	PaletteLoad( mFodder->mDataPStuff->data() + 0xA000, 0x10, 0xF0 );
 }
 
 void cGraphics_PC::Load_Sprite_Font() {
 	
-	g_Resource.fileLoadTo( "font.dat", mFodder->mDataPStuff );
-	PaletteLoad( mFodder->mDataPStuff + 0xA000, 0x10, 0xD0 );
+	mFodder->mDataPStuff = g_Resource.fileGet( "font.dat" );
+	PaletteLoad( mFodder->mDataPStuff->data() + 0xA000, 0x10, 0xD0 );
 
 	SetSpritePtr( eSPRITE_FONT );
 }
 
 void cGraphics_PC::Load_Hill_Data() {
 	
-	g_Resource.fileLoadTo( "hill.dat", mFodder->mDataBaseBlk );
-	PaletteLoad( mFodder->word_3E1B7 + 0xFA00, 0x50, 0x00 );
+	mFodder->mDataHillData = g_Resource.fileGet( "hill.dat" );
+	PaletteLoad( mFodder->mDataHillData->data() + 0xFA00, 0x50, 0x00 );
 
 	Load_Hill_Bits();
 }
 
 void cGraphics_PC::Load_Hill_Bits() {
-	g_Resource.fileLoadTo( "hillbits.dat", mFodder->mDataHillBits );
-	PaletteLoad( mFodder->mDataHillBits + 0x6900, 0x10, 0xB0 );
+	mFodder->mDataHillBits = g_Resource.fileGet( "hillbits.dat" );
+	PaletteLoad( mFodder->mDataHillBits->data() + 0x6900, 0x10, 0xB0 );
 	
 	SetSpritePtr( eSPRITE_HILL );
 }
 
 void cGraphics_PC::Load_Service_Data() {
 	
-	g_Resource.fileLoadTo( "rankfont.dat", mFodder->mDataHillBits );
-	PaletteLoad( mFodder->mDataHillBits + 0xA000, 0x80, 0x40 );
+	mFodder->mDataHillBits = g_Resource.fileGet( "rankfont.dat"  );
+	PaletteLoad( mFodder->mDataHillBits->data() + 0xA000, 0x80, 0x40 );
 
-	g_Resource.fileLoadTo( "morphbig.dat", mFodder->mDataBaseBlk );
-	PaletteLoad( mFodder->mDataBaseBlk + 0xFA00, 0x40, 0x00 );
+	mFodder->mDataBaseBlk = g_Resource.fileGet( "morphbig.dat" );
+	PaletteLoad( mFodder->mDataBaseBlk->data() + 0xFA00, 0x40, 0x00 );
 }
 
 void cGraphics_PC::graphicsBlkPtrsPrepare() {
@@ -145,8 +145,8 @@ void cGraphics_PC::graphicsBlkPtrsPrepare() {
 
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		mGraphicBlkPtrs[cx + 0x00] = mFodder->mDataBaseBlk + bx;
-		mGraphicBlkPtrs[cx + 0xF0] = mFodder->mDataSubBlk + bx;
+		mGraphicBlkPtrs[cx + 0x00] = mFodder->mDataBaseBlk->data() + bx;
+		mGraphicBlkPtrs[cx + 0xF0] = mFodder->mDataSubBlk->data() + bx;
 
 		++dx;
 		bx += 0x10;
@@ -256,17 +256,17 @@ void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 }
 
 void cGraphics_PC::Map_Load_Resources() {
-	PaletteLoad( mFodder->mDataBaseBlk + 0xFA00, 0x80, 0x00 );
+	PaletteLoad( mFodder->mDataBaseBlk->data() + 0xFA00, 0x80, 0x00 );
 
 	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "dat" );
 	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "dat" );
 
-	g_Resource.fileLoadTo( mFodder->mFilenameCopt, mFodder->mDataHillBits );
-	PaletteLoad( mFodder->mDataHillBits + 0xD2A0, 0x40, 0xB0 );
-	PaletteLoad( mFodder->mDataHillBits + 0xD360, 0x10, 0x90 );
+	mFodder->mDataHillBits = g_Resource.fileGet( mFodder->mFilenameCopt );
+	PaletteLoad( mFodder->mDataHillBits->data() + 0xD2A0, 0x40, 0xB0 );
+	PaletteLoad( mFodder->mDataHillBits->data() + 0xD360, 0x10, 0x90 );
 
-	g_Resource.fileLoadTo( mFodder->mFilenameArmy, mFodder->mDataArmy );
-	PaletteLoad( mFodder->mDataArmy + 0xD200, 0x10, 0xA0 );
+	mFodder->mDataArmy = g_Resource.fileGet( mFodder->mFilenameArmy );
+	PaletteLoad( mFodder->mDataArmy->data() + 0xD200, 0x10, 0xA0 );
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }
@@ -470,7 +470,7 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	uint16 bx = str2->mX >> 1;
 	ax += bx;
 	
-	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff + ax;
+	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff->data() + ax;
 	
 	mFodder->mDraw_Sprite_PalletIndex = 0xF0;
 	
@@ -630,7 +630,7 @@ void cGraphics_PC::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*
 
 void cGraphics_PC::Recruit_Draw_Hill( ) {
 
-	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->word_3E1B7 + 0xA00;
+	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataHillData->data() + 0xA00;
 
 	mFodder->mDrawSpritePositionX = 0x40;
 	mFodder->mDrawSpritePositionY = 0x28;
@@ -641,7 +641,7 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 	video_Draw_Linear();
 	
 	for( uint32 x = 0; x < 0xA000; ++x) {
-		mFodder->word_3E1B7[x] = 0;
+		mFodder->mDataHillData->data()[x] = 0;
 	}
 }
 
@@ -689,37 +689,51 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	JunData4.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
 	JunData5.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
 
-	mFodder->mDataBaseBlkSize = g_Resource.fileLoadTo( JunData1, mFodder->mDataBaseBlk );
-	mFodder->word_42861 = mFodder->mDataBaseBlk;
-	mFodder->word_4286D = mFodder->mDataBaseBlkSize;
+	mFodder->mDataBaseBlk = g_Resource.fileGet( JunData1 );
+	mFodder->word_42861 = mFodder->mDataBaseBlk->data();
+	mFodder->word_4286D = mFodder->mDataBaseBlk->size();
 
-	mFodder->mDataSubBlkSize = g_Resource.fileLoadTo( JunData2, mFodder->mDataSubBlk );
-	mFodder->word_42863 = mFodder->mDataSubBlk;
-	
-	g_Resource.fileLoadTo( JunData3, mFodder->mDataHillBits );
-	mFodder->word_42865 = mFodder->mDataHillBits;
+	mFodder->mDataSubBlk = g_Resource.fileGet( JunData2 );
+	mFodder->word_42863 = mFodder->mDataSubBlk->data();
 
-	g_Resource.fileLoadTo( JunData4, mFodder->mDataArmy );
-	mFodder->word_42867 = mFodder->mDataArmy;
+	mFodder->mDataHillBits = g_Resource.fileGet( JunData3 );
+	mFodder->word_42865 = mFodder->mDataHillBits->data();
 
-	g_Resource.fileLoadTo( JunData5, mFodder->mDataPStuff );
-	mFodder->word_42869 = mFodder->mDataPStuff;
+	mFodder->mDataArmy = g_Resource.fileGet( JunData4 );
+	mFodder->word_42867 = mFodder->mDataArmy->data();
 
-	g_Resource.fileLoadTo( "paraheli.dat", (uint8*) mFodder->mMapSptPtr );
-	mFodder->word_4286B = mFodder->mMapSptPtr;
+	// TODO: This is nasty and needs cleaning
+	// The original game loads paraheli over pstuff.dat, however the file is small enough
+	// that the fonts in pstuff.dat are left intact, these are then used by the briefing intro screen
+	// rendering of 'MISSION xx' and the mission name.
+	{
+		auto tmp = mFodder->mDataPStuff;
 
-	uint8* si = ((uint8*)mFodder->mMapSptPtr) + 0xF00;
+		mFodder->mDataPStuff = g_Resource.fileGet( JunData5 );
+
+		size_t Size = mFodder->mDataPStuff->size();
+		mFodder->mDataPStuff->resize( tmp->size() );
+		mFodder->word_42869 = mFodder->mDataPStuff;
+
+		memcpy( mFodder->mDataPStuff->data() + Size, tmp->data() + Size, tmp->size() - Size );
+	}
+	// End nasty
+
+	mFodder->word_4286B = g_Resource.fileGet( "paraheli.dat" );
+
+	uint8* si = mFodder->word_4286B->data() + 0xF00;
 	si += 0x30 * mFodder->mMap_TileSet;
 
-	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlkSize) - 0x60, si, 0x30 );
-	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlkSize) - 0x30, mFodder->mDataPStuff + 0xA000, 0x30 );
+	// Copy the pallet in
+	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlk->size()) - 0x60, si, 0x30 );
+	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlk->size()) - 0x30, mFodder->mDataPStuff->data() + 0xA000, 0x30 );
 }
 
-void cGraphics_PC::sub_2AF19( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) {
+void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) {
 	pColumns &= 0xFFFF;
 	pRows &= 0xFFFF;
 
-	uint8* es = mFodder->word_3E1B7;
+	uint8* es = mFodder->mDataHillData->data();
 
 	mFodder->dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
 	mFodder->dword_44A3E = mFodder->dword_44A36;

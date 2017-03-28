@@ -97,7 +97,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mBriefing_Aborted = 0;
 	mGUI_Mouse_Modifier_X = 0;
 	mGUI_Mouse_Modifier_Y = 0;
-	word_3E1B7 = 0;
 	word_3E75B = 0;
 	mCamera_Pan_RowCount = 0;
 
@@ -1696,8 +1695,8 @@ void cFodder::Map_Load_Resources() {
 	BaseBase.append( Map, Map + 7 );
 	BaseSub.append( Map + 0x10, Map + 0x10 + 7 );
 
-	mDataBaseBlkSize = g_Resource.fileLoadTo( BaseName, mDataBaseBlk );
-	mDataSubBlkSize = g_Resource.fileLoadTo( SubName, mDataSubBlk );
+	mDataBaseBlk = g_Resource.fileGet( BaseName );
+	mDataSubBlk = g_Resource.fileGet( SubName );
 
 	mMapWidth = readBEWord( &Map[0x54] );
 	mMapHeight = readBEWord( &Map[0x56] );
@@ -3204,15 +3203,14 @@ void cFodder::Prepare( ) {
 
 	tool_RandomSeed();
 
-	mDataBlkSize = 0xFD00 * 16;
-
-	mDataPStuff = new uint8[0xA03 * 16];
-	mDataBaseBlk = new uint8[mDataBlkSize];
-	mDataSubBlk = new uint8[mDataBlkSize];
+	mDataPStuff = tSharedBuffer();
+	mDataBaseBlk = tSharedBuffer();
+	mDataSubBlk = tSharedBuffer();
 
 	mMap = 0;
-	mDataHillBits = new uint8[0xD5A * 16];
-	mDataArmy = new uint8[0xD50 * 16];
+	mDataHillBits = tSharedBuffer();
+	mDataArmy = tSharedBuffer();
+
 	word_3BDAD = (uint16*) new uint8[0x400 * 16];
 	mMapSptPtr = (uint16*) new uint8[0x400 * 16];
 	word_3D5B7 = mMapSptPtr;
@@ -3222,9 +3220,6 @@ void cFodder::Prepare( ) {
 
 	word_397D8 = new uint8[ End - Start ];
 	sub_12AB1();
-
-	memset(mDataBaseBlk, 0, mDataBlkSize );
-	memset(mDataSubBlk, 0, mDataBlkSize );
 
 	mImage = new cSurface( 352, 300 );
 }
@@ -3533,7 +3528,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
 	mDraw_Sprite_PalletIndex = 0xE0;
 
@@ -3569,9 +3564,9 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		// Trees (Main)
 		word_42859 = 0x5C;
 		word_4285B = 0x236C * 4;
-		sub_15B86( word_42869, word_42871 );
+		sub_15B86( word_42869->data(), word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3619,7 +3614,7 @@ void cFodder::Briefing_Intro_Desert() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
 	mDraw_Sprite_PalletIndex = 0xE0;
 
@@ -3655,9 +3650,9 @@ void cFodder::Briefing_Intro_Desert() {
 		// Trees (Main)
 		word_42859 = 0x40;
 		word_4285B = 0x2D64 * 4;
-		sub_15B86( word_42869, word_42871 );
+		sub_15B86( word_42869->data(), word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3705,7 +3700,7 @@ void cFodder::Briefing_Intro_Ice() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
 	mDraw_Sprite_PalletIndex = 0xE0;
 
@@ -3742,9 +3737,9 @@ void cFodder::Briefing_Intro_Ice() {
 		// Ice Mountains
 		word_42859 = 0x58;
 		word_4285B = 0x2524 * 4;
-		sub_15B86( word_42869, word_42871 );
+		sub_15B86( word_42869->data(), word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3793,7 +3788,7 @@ void cFodder::Briefing_Intro_Mor() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
 	mDraw_Sprite_PalletIndex = 0xE0;
 
@@ -3828,9 +3823,9 @@ void cFodder::Briefing_Intro_Mor() {
 		// Trees (Main)
 		word_42859 = 0x52;
 		word_4285B = 0x2734 * 4;
-		sub_15B86( word_42869, word_42871 );
+		sub_15B86( word_42869->data(), word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3878,7 +3873,7 @@ void cFodder::Briefing_Intro_Int() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = (uint8*) word_4286B;
+	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
 	mDraw_Sprite_PalletIndex = 0xE0;
 
@@ -3914,9 +3909,9 @@ void cFodder::Briefing_Intro_Int() {
 		// Trees (Main)
 		word_42859 = 0x53;
 		word_4285B = 0x26DC * 4;
-		sub_15B86( word_42869, word_42871 );
+		sub_15B86( word_42869->data(), word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = ((uint8*) word_4286B) + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -4658,7 +4653,6 @@ bool cFodder::Recruit_Show() {
 	map_ClearSpt();
 
 	mMission_Aborted = 0;
-	word_3E1B7 = mDataBaseBlk;
 
 	mGraphics->Load_Hill_Data();
 
@@ -4675,8 +4669,8 @@ bool cFodder::Recruit_Show() {
 		mGraphics->Recruit_Draw_HomeAway();
 
 		//sub_A5A7E
-		uint8* a0 = word_3E1B7 + (29 * 40);
-		uint8* a1 = mDataBaseBlk + 0x3E8;
+		uint8* a0 = mDataHillData->data() + (29 * 40);
+		uint8* a1 = mDataHillData->data() + 0x3E8;
 
 		for (int16 d1 = 0xB7; d1 >= 0; --d1) {
 			uint8* a2 = a0 + 6;
@@ -5147,7 +5141,7 @@ void cFodder::Recruit_Render_HeroList() {
 }
 
 void cFodder::Recruit_Render_Names_UnusedSlots() {
-	uint32* Data20 = (uint32*) mDataArmy;
+	uint32* Data20 = (uint32*) mDataArmy->data();
 
 	sRecruitRendered* Data24 = mRecruit_Rendered;
 	int16 Data0 = 0x58;
@@ -5554,7 +5548,7 @@ void cFodder::Recruit_Sprites_Draw() {
 			sub_2AEB6( Data0, Data4, &Data8, &DataC );
 			int16 Data10 = word_3B1A3 + 0x08;
 			int16 Data14 = word_3B1A5;
-			mGraphics->sub_2AF19( Data0, Data4, Data8, Data10, Data14, DataC, Data20 );
+			mGraphics->Recruit_Sprite_Draw( Data0, Data4, Data8, Data10, Data14, DataC, Data20 );
 			word_3B1A3 += 0x10;
 		}
 	}
@@ -7746,7 +7740,7 @@ void cFodder::Sprite_Handle_Indigenous_Movement( sSprite* pSprite ) {
 	// Random time until destination change
 	int16 Data0 = tool_RandomGet() & 0x3F;
 	Data0 += 0x14;
-	pSprite->field_4C = static_cast<int8>(Data0);;
+	pSprite->field_4C = static_cast<int8>(Data0);
 }
 
 int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( sSprite* pSprite ) {
@@ -11468,7 +11462,7 @@ loc_18001:;
 }
 
 int16 cFodder::Service_KIA_Troop_Prepare() {
-	uint16* di = (uint16*) mDataPStuff;
+	uint16* di = (uint16*) mDataPStuff->data();
 
 	mDrawSpritePositionY = 0xE8;
 	Service_Mission_Text_Prepare( di );
@@ -11498,7 +11492,7 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
 }
 
 int16 cFodder::Service_Promotion_Prepare_Draw() {
-	uint16* di = (uint16*) mDataPStuff;
+	uint16* di = (uint16*)mDataPStuff->data();
 
 	mDrawSpritePositionY = 0xE8;
 	Service_Mission_Text_Prepare( di );
@@ -11571,7 +11565,7 @@ void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16
 void cFodder::sub_18149() {
 
 	word_42072 = 0;
-	int16 *di = (int16*) mDataPStuff;
+	int16 *di = (int16*)mDataPStuff->data();
 
 	for (;;) {
 		if (*di < 0)
@@ -11591,7 +11585,7 @@ void cFodder::sub_18149() {
 void cFodder::sub_181BD() {
 	word_44475 = -1;
 
-	int16* es = (int16*)mDataPStuff;
+	int16* es = (int16*)mDataPStuff->data();
 
 	for (;;) {
 		if (*es == -1)
@@ -11899,7 +11893,7 @@ void cFodder::Service_Promotion_Prepare() {
 
 void cFodder::Service_Promotion_Check() {
 	int16* si = word_3ABFF;
-	int16* es = (int16*)mDataPStuff;
+	int16* es = (int16*)mDataPStuff->data();
 
 	for (;;es+=4) {
 		if (*es == -1)

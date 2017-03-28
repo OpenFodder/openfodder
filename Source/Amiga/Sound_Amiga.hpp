@@ -26,8 +26,8 @@ struct sSoundData {
 };
 
 struct sSound {
-	std::shared_ptr<std::vector<uint8>>		mCurrentMusicSongData;
-	std::shared_ptr<std::vector<uint8>>		mCurrentMusicInstrumentData;
+	tSharedBuffer 		mCurrentMusicSongData;
+	tSharedBuffer 		mCurrentMusicInstrumentData;
 
 	const sSoundData*					mTrack;
 

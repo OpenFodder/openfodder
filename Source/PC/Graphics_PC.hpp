@@ -63,7 +63,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
 
-	virtual void		sub_2AF19( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics );
+	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics );
 	
 	virtual bool		Sprite_OnScreen_Check();
 

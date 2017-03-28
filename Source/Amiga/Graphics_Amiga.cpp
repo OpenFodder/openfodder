@@ -1,31 +1,31 @@
 /*
- *  Cannon Fodder
- *  ------------------------
- *
- *  Copyright (C) 2008-2017 Robert Crossfield
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- */
+*  Cannon Fodder
+*  ------------------------
+*
+*  Copyright (C) 2008-2017 Robert Crossfield
+*
+*  This program is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License along
+*  with this program; if not, write to the Free Software Foundation, Inc.,
+*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+*/
 
 #include "stdafx.hpp"
 #include "Amiga/SpriteData_Amiga.hpp"
 
 const sStruct3_Amiga stru_A5BC0[] = {
 	{ 0x12, 0, 0x90, 0xA8 },			// Top Right
-	{ 0x12, 1, 0xA0, 0xA8 },			
+	{ 0x12, 1, 0xA0, 0xA8 },
 	{ 0x12, 2, 0xC0, 0xA8 },			// Bottom Right
 
 	{ 0x13, 0, 0x30, 0xC8 },			// Truck
@@ -58,7 +58,7 @@ const sStruct0_Amiga stru_A918A[] = {
 };
 
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
-	mBlkData = 0;
+	mBlkData = std::make_shared<std::vector<uint8>>();
 
 	memset( &mPalette, 0, 0xC0 );
 	memset( &mPaletteArmy, 0, 0x20 );
@@ -71,8 +71,7 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 }
 
 cGraphics_Amiga::~cGraphics_Amiga() {
-	
-	delete[] mBlkData;
+
 	delete[] mPlayData;
 }
 
@@ -82,31 +81,31 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	case 0:
 		mFodder->mDraw_Sprite_PalletIndex = 0;
 		mBMHD_Current = &mBMHDArmy;
-		return mFodder->mDataArmy;
+		return mFodder->mDataArmy->data();
 
 	case 1:
 		mFodder->mDraw_Sprite_PalletIndex = 0;
 		mBMHD_Current = &mBMHDCopt;
-		return mFodder->mDataHillBits;
+		return mFodder->mDataHillBits->data();
 
 	case 2:
 		if (mFodder->mVersion->mVersion == eVersion::AmigaFormat)
-			mFodder->mDraw_Sprite_PalletIndex = (uint8) mCursorPalette;
+			mFodder->mDraw_Sprite_PalletIndex = (uint8)mCursorPalette;
 		else
 			mFodder->mDraw_Sprite_PalletIndex = 0xE0;
 
 		mBMHD_Current = &mBMHDPStuff;
-		return mFodder->mDataPStuff;
+		return mFodder->mDataPStuff->data();
 
 	case 3:
 		mFodder->mDraw_Sprite_PalletIndex = 0xF0;
 		mBMHD_Current = &mBMHDFont;
-		return mFodder->mDataPStuff;
+		return mFodder->mDataPStuff->data();
 
 	case 4:
 		mFodder->mDraw_Sprite_PalletIndex = 0xD0;
 		mBMHD_Current = &mBMHDHill;
-		return mFodder->mDataBaseBlk;
+		return mFodder->mDataHillData->data();
 
 	case 5:
 		mFodder->mDraw_Sprite_PalletIndex = 0xA0;
@@ -128,7 +127,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 111;
 		return mPlayData + (65 * 40);
-	
+
 	case 8:
 		mFodder->mDraw_Sprite_PalletIndex = 0xD0;
 		mBMHD_Current = &mBMHDPlay;
@@ -162,7 +161,7 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 	video_Draw_Sprite();
 }
 
-bool cGraphics_Amiga::Sprite_OnScreen_Check(  ) {
+bool cGraphics_Amiga::Sprite_OnScreen_Check() {
 
 	return Sprite_OnScreen_Check( false );
 }
@@ -279,7 +278,7 @@ void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
 		mFodder->mDrawSpriteRows++;
 	}
 
-	if (Sprite_OnScreen_Check(true)) {
+	if (Sprite_OnScreen_Check( true )) {
 		mFodder->mDrawSpriteColumns >>= 3;
 		video_Draw_Linear();
 	}
@@ -287,20 +286,23 @@ void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
 
 void cGraphics_Amiga::LoadpStuff() {
 
-	auto pstuff = g_Resource.fileGet( "pstuff.lbm" );
+	auto pstuff = DecodeIFF( "pstuff.lbm", mPalletePStuff );
 
-	DecodeIFF( pstuff->data(), mFodder->mDataPStuff, &mBMHDPStuff, mPalletePStuff );
-
+	mBMHDPStuff = std::get<1>( pstuff );
 	mBMHDFont = mBMHDPStuff;
+
+	mFodder->mDataPStuff = std::get<0>( pstuff );
+
 	memcpy( &mPalleteFont, &mPalletePStuff, 0x20 );
-		
+
 }
 
 void cGraphics_Amiga::Load_Hill_Data() {
-	
-	auto pstuff = g_Resource.fileGet( "hills.lbm" );
 
-	DecodeIFF( pstuff->data(), mFodder->mDataBaseBlk, &mBMHDHill, mPalleteHill );
+	auto t = DecodeIFF( "hills.lbm", mPalleteHill );
+	mBMHDHill = std::get<1>( t );
+	mFodder->mDataHillData = std::get<0>( t );
+	mFodder->mDataHillData->resize( mBMHDHill.ScreenSize() * (mBMHDHill.mPlanes + 30) );
 
 	Load_Hill_Bits();
 }
@@ -313,40 +315,44 @@ void cGraphics_Amiga::Load_Hill_Bits() {
 void cGraphics_Amiga::Load_Sprite_Font() {
 
 	auto Font = g_Resource.fileGet( "FONT.RAW" );
-	memcpy( mFodder->mDataPStuff, Font->data() + 0x20, Font->size() - 0x20 );
+	memcpy( mFodder->mDataPStuff->data(), Font->data() + 0x20, Font->size() - 0x20 );
 	memcpy( mPalleteFont, Font->data(), 0x20 );
 
 	mBMHDFont.mWidth = 0x140;
 	mBMHDFont.mHeight = 0x100;
 	mBMHDFont.mPlanes = 4;
 
-	//Font = g_Resource.fileGet( "font.pl8", Size );
-	//PaletteLoad( Font, 0x0, 0x08 );
-	//delete[] Font;
 	SetSpritePtr( eSPRITE_FONT );
 }
 
 void cGraphics_Amiga::Load_Service_Data() {
-	auto pstuff = g_Resource.fileGet( "rankfont.lbm" );
 
-	DecodeIFF( pstuff->data(), mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
+	auto t = DecodeIFF( "rankfont.lbm", mPaletteCopt );
+	mFodder->mDataHillBits = std::get<0>( t );
+	mBMHDCopt = std::get<1>( t );
 
-	pstuff = g_Resource.fileGet( "morphbig.lbm" );
-	DecodeIFF( pstuff->data(), mFodder->mDataBaseBlk, &mBMHDHill, mPalette );
-
+	t = DecodeIFF( "morphbig.lbm", mPalette );
+	mFodder->mDataBaseBlk = std::get<0>( t );
+	mBMHDHill = std::get<1>( t );
 }
 
 void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pColors ) {
 	sILBM_BMHD	Header;
 	std::string	Filename = pFilename;
 
-	if (Filename.find('.') == std::string::npos )
+	if (Filename.find( '.' ) == std::string::npos)
 		Filename.append( ".raw" );
 
-	auto File = g_Resource.fileGet( Filename );
 	int Colors = 16;
+	auto File = tSharedBuffer();
+	auto Decoded = DecodeIFF( Filename, mPalette );
 
-	if (DecodeIFF( File->data(), mFodder->mDataBaseBlk, &Header, mPalette ) == false) {
+	if (std::get<0>( Decoded )->size()) {
+		Header = std::get<1>( Decoded );
+		File = std::get<0>( Decoded );
+	} else {
+
+		File = g_Resource.fileGet( Filename );
 
 		if (File->size() == 51464) {
 			Header.mPlanes = 5;
@@ -355,16 +361,18 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 			Header.mPlanes = 4;
 
 		// Not an iff, so its probably a RAW file
-		memcpy( mFodder->mDataBaseBlk, File->data() + (Colors*2), File->size() - (Colors*2));
 		memcpy( mPalette, File->data(), Colors * 2 );
 		
+		// Remove the palette
+		File->erase( File->begin(), File->begin() + (Colors * 2) );
+
 		Header.mWidth = 0x140;
 		Header.mHeight = 0x101;
 	}
-	
+
 	mBMHD_Current = &Header;
-	g_Fodder.mDraw_Sprite_FrameDataPtr = g_Fodder.mDataBaseBlk;
-	
+	g_Fodder.mDraw_Sprite_FrameDataPtr = File->data();
+
 	g_Fodder.mDrawSpritePositionX = 16;
 	g_Fodder.mDrawSpritePositionY = 16;
 	g_Fodder.mDrawSpriteColumns = Header.mWidth >> 3;
@@ -376,16 +384,16 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 
 	mImage->clearBuffer();
 
- 	video_Draw_Linear();
+	video_Draw_Linear();
 	mBMHD_Current = 0;
 }
 
- void cGraphics_Amiga::PaletteLoad( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
+void cGraphics_Amiga::PaletteLoad( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
 	int16  color;
 	int16  ColorID = pColorID;
 
-	for( ; pColorID < ColorID + pColors; pColorID++) {
-		
+	for (; pColorID < ColorID + pColors; pColorID++) {
+
 		// Get the next color codes
 		color = readBEWord( pBuffer );
 		pBuffer += 2;
@@ -393,9 +401,9 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 		// Extract each color from the word
 		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
 
-		mFodder->mPalette[pColorID].mRed	= ((color >> 8) & 0xF) << 2;
-		mFodder->mPalette[pColorID].mGreen	= ((color >> 4) & 0xF) << 2;
-		mFodder->mPalette[pColorID].mBlue	= ((color >> 0) & 0xF) << 2;
+		mFodder->mPalette[pColorID].mRed = ((color >> 8) & 0xF) << 2;
+		mFodder->mPalette[pColorID].mGreen = ((color >> 4) & 0xF) << 2;
+		mFodder->mPalette[pColorID].mBlue = ((color >> 0) & 0xF) << 2;
 	}
 }
 
@@ -413,7 +421,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 	case eSPRITE_FONT:
 		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_Amiga );
 		return;
-		
+
 	case eSPRITE_HILL:
 		mFodder->Sprite_SetDataPtrToBase( mHillSpriteSheetPtr_Amiga );
 		return;
@@ -434,17 +442,16 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 
 void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
 
-	delete[] mBlkData;
+	mBlkData->resize( mFodder->mDataBaseBlk->size() + mFodder->mDataSubBlk->size() );
 
-	mBlkData = new uint8[mFodder->mDataBaseBlkSize + mFodder->mDataSubBlkSize];
-	g_Resource.fileLoadTo( mFodder->mFilenameBasePal, (uint8*) mPalette );
+	g_Resource.fileLoadTo( mFodder->mFilenameBasePal, (uint8*)mPalette );
 
-	memcpy( mBlkData, mFodder->mDataBaseBlk, mFodder->mDataBaseBlkSize );
-	memcpy( mBlkData + mFodder->mDataBaseBlkSize, mFodder->mDataSubBlk, mFodder->mDataSubBlkSize );
+	memcpy( mBlkData->data(), mFodder->mDataBaseBlk->data(), mFodder->mDataBaseBlk->size() );
+	memcpy( mBlkData->data() + mFodder->mDataBaseBlk->size(), mFodder->mDataSubBlk->data(), mFodder->mDataSubBlk->size() );
 }
 
 void cGraphics_Amiga::PaletteSetOverview() {
-	
+
 	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalette, 0, 0x40 );
 	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalletePStuff, 0xE0 );
 	mFodder->mSurfaceMapOverview->paletteLoad_Amiga( mPalleteHill, 0xD0 );
@@ -467,6 +474,149 @@ void cGraphics_Amiga::PaletteSet() {
 	mImage->paletteLoad_Amiga( mPalleteFont, 0xF0 );
 }
 
+std::tuple<tSharedBuffer, sILBM_BMHD> cGraphics_Amiga::DecodeIFF( const std::string& pFilename, uint8* pPalette ) {
+
+	tSharedBuffer	ResultBuffer = std::make_shared<std::vector<uint8>>();
+	sILBM_BMHD		ResultHeader;
+	auto			File = g_Resource.fileGet( pFilename );
+	auto			DataPtr = File->data();
+
+	if (readBEDWord( DataPtr ) != 'FORM')
+		return std::make_tuple( ResultBuffer, ResultHeader );
+
+	DataPtr += 4;
+	size_t FileSize = readBEDWord( DataPtr );
+	DataPtr += 4;
+
+	if (readBEDWord( DataPtr ) != 'ILBM')
+		return std::make_tuple( ResultBuffer, ResultHeader );
+
+	DataPtr += 4;
+	FileSize -= 4;
+
+	uint32 Header = 0;
+	uint32 Size = 0;
+
+	while (FileSize > 8) {
+		Header = readBEDWord( DataPtr );
+		DataPtr += 4; FileSize -= 4;
+		Size = readBEDWord( DataPtr );
+		DataPtr += 4; FileSize -= 4;
+
+		switch (Header) {
+		case 'BMHD':
+			ResultHeader.mWidth = readBEWord( DataPtr ); DataPtr += 2;
+			ResultHeader.mHeight = readBEWord( DataPtr ); DataPtr += 2;
+			DataPtr += 2; DataPtr += 2;	// X, Y
+			ResultHeader.mPlanes = *DataPtr++;
+			ResultHeader.mMask = *DataPtr++;
+			ResultHeader.mCompression = *DataPtr++;
+			DataPtr += 2; ++DataPtr; ++DataPtr; ++DataPtr;
+			DataPtr += 2; DataPtr += 2;
+			FileSize -= Size;
+			break;
+
+		case 'BODY': {
+			ResultBuffer->resize( (ResultHeader.mWidth * ResultHeader.mHeight) * (ResultHeader.mPlanes + 2) );
+
+			int16 Width = ResultHeader.mWidth + 0x0F;
+			Width >>= 4;
+			Width <<= 1;
+
+			int16 Height = ResultHeader.mHeight - 1;
+
+			uint8* pDataDest = ResultBuffer->data();
+
+			for (int16 Y = Height; Y >= 0; --Y) {
+				uint8* DataDest = pDataDest;
+
+				for (int8 Plane = 0; Plane < ResultHeader.mPlanes; ++Plane) {
+
+					for (int16 X = Width; X > 0;) {
+						--FileSize;
+						int8 d0 = *DataPtr++;
+
+						if (d0 < 0) {
+							if (d0 == -128)
+								continue;
+
+							int8 d1 = -d0;
+
+							--FileSize;
+							d0 = *DataPtr++;
+
+							do {
+								*DataDest++ = d0;
+								--X;
+							} while (d1-- > 0);
+
+							continue;
+
+						}
+						else {
+
+							do {
+								*DataDest++ = *DataPtr++;
+								--X;
+								--FileSize;
+							} while (d0-- > 0);
+
+						}
+					}
+
+					// Move the destination back to start of row
+					DataDest -= Width;
+
+					// Move it to the next plane
+					DataDest += (Width * ResultHeader.mHeight);
+				}
+
+				// Next Row
+				pDataDest += Width;
+			}
+
+			break;
+		}
+
+		case 'CMAP':
+			for (uint16 i = 0; i < Size / 3; ++i) {
+				int16 d0 = (int16)*DataPtr++;
+				int16 Final = 0;
+
+				d0 >>= 4;
+				d0 <<= 8;
+				Final += d0;
+
+				d0 = *DataPtr++;
+				d0 >>= 4;
+				d0 = (int16)d0;
+				d0 <<= 4;
+				Final += d0;
+
+				d0 = *DataPtr++;
+				d0 >>= 4;
+				d0 = (int16)d0;
+				Final += d0;
+
+				writeBEWord( pPalette, Final );
+				pPalette += 2;
+				FileSize -= 3;
+
+			}
+			break;
+
+		default:
+			if (Size & 1)
+				++Size;
+
+			DataPtr += Size;
+			FileSize -= Size;
+			break;
+		}
+	}
+
+	return std::make_tuple( ResultBuffer, ResultHeader );
+}
 
 bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette ) {
 
@@ -633,7 +783,7 @@ void cGraphics_Amiga::map_Tiles_Draw() {
 					Tile = 0;
 
 				Tile <<= 7;
-				uint8* TilePtr = &mBlkData[Tile];
+				uint8* TilePtr = mBlkData->data() + Tile;
 				uint16 StartX = 0;
 
 				TilePtr += StartY * 2;
@@ -692,12 +842,12 @@ void cGraphics_Amiga::sub_A5B46() {
 		int16 d1 = a3->field_2;
 
 		uint8* a0 = mFodder->Sprite_Get_Gfx_Ptr( d0, d1 );
-		
+
 		d1 -= 1;
 		//d0 >>= 4;
 		d0 -= 1;
 
-		uint8* a1 = mFodder->mDataBaseBlk;
+		uint8* a1 = mFodder->mDataHillData->data();
 
 		int16 d2 = a3->field_4;
 		d2 >>= 3;
@@ -720,7 +870,7 @@ void cGraphics_Amiga::sub_A5B46() {
 
 			for (d2 = d1; d2 >= 0; --d2) {
 
-				writeBEWord( a5 , readBEWord( a4 ) );
+				writeBEWord( a5, readBEWord( a4 ) );
 				writeBEWord( a5 + 0x2828, readBEWord( a4 + 0x2800 ) );
 				writeBEWord( a5 + 0x5050, readBEWord( a4 + 0x5000 ) );
 				writeBEWord( a5 + 0x7878, readBEWord( a4 + 0x7800 ) );
@@ -743,9 +893,9 @@ void cGraphics_Amiga::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 
 	Target += (pDestY * 16) * mFodder->mSurfaceMapOverview->GetWidth();
 	Target += pDestX;
-	
+
 	pTile <<= 7;
-	uint8* TilePtr = &mBlkData[pTile];
+	uint8* TilePtr = mBlkData->data() + pTile;
 
 	// Each bitfield
 	for (uint16 BitField = 0; BitField < 4; ++BitField) {
@@ -779,11 +929,13 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "lbm" );
 	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "lbm" );
 
-	auto Copt = g_Resource.fileGet( mFodder->mFilenameCopt );
-	auto Army = g_Resource.fileGet( mFodder->mFilenameArmy );
+	auto Copt = DecodeIFF( mFodder->mFilenameCopt, mPaletteCopt );
+	mFodder->mDataHillBits = std::get<0>( Copt );
+	mBMHDCopt = std::get<1>( Copt );
 
-	DecodeIFF( Copt->data(), mFodder->mDataHillBits, &mBMHDCopt, mPaletteCopt );
-	DecodeIFF( Army->data(), mFodder->mDataArmy, &mBMHDArmy, mPaletteArmy );
+	auto Army = DecodeIFF( mFodder->mFilenameArmy, mPaletteArmy );
+	mFodder->mDataArmy = std::get<0>( Army );
+	mBMHDArmy = std::get<1>( Army );
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }
@@ -956,26 +1108,26 @@ void cGraphics_Amiga::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint
 	}
 	else {
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*(esi+0x210) = *pData20++;
-			*(esi+0x21C) = *pData20++;
-			*(esi+0x228) = *pData20++;
-			*(esi+0x234) = *pData20++;
-			*(esi+0x240) = *pData20++;
-			*(esi+0x24C) = *pData20++;
-			*(esi+0x258) = *pData20++;
-			*(esi+0x264) = *pData20++;
-			*(esi+0x270) = *pData20++;
-			*(esi+0x27C) = *pData20++;
-			*(esi+0x288) = *pData20++;
+			*(esi + 0x210) = *pData20++;
+			*(esi + 0x21C) = *pData20++;
+			*(esi + 0x228) = *pData20++;
+			*(esi + 0x234) = *pData20++;
+			*(esi + 0x240) = *pData20++;
+			*(esi + 0x24C) = *pData20++;
+			*(esi + 0x258) = *pData20++;
+			*(esi + 0x264) = *pData20++;
+			*(esi + 0x270) = *pData20++;
+			*(esi + 0x27C) = *pData20++;
+			*(esi + 0x288) = *pData20++;
 			++esi;
 		}
 	}
 }
 
-void cGraphics_Amiga::Recruit_Draw_Hill( ) {
-	g_Resource.fileLoadTo( "grave32.pal", (uint8*) mPalletePStuff );
+void cGraphics_Amiga::Recruit_Draw_Hill() {
+	g_Resource.fileLoadTo( "grave32.pal", (uint8*)mPalletePStuff );
 
-	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->word_3E1B7 + (29 * 40) + 6;
+	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataHillData->data() + (29 * 40) + 6;
 
 	mBMHD_Current = &mBMHDHill;
 	mFodder->mDraw_Sprite_PalletIndex = 0xD0;
@@ -985,15 +1137,15 @@ void cGraphics_Amiga::Recruit_Draw_Hill( ) {
 	mFodder->mDrawSpriteColumns = 0x110 >> 3;		//W
 	mFodder->mDrawSpriteRows = 0xB8;				// H
 	mFodder->word_42078 = 0x140;
-	
+
 	video_Draw_Linear();
 }
 
-void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
+void cGraphics_Amiga::Recruit_Draw_HomeAway() {
 	const char* strHomeAndAway = "HOME                AWAY";
 
 	mFodder->Sprite_Draw_Frame( 0x11, 0, 0, 0xfe );
-	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mMissionNumber - 1) ];
+	int16 Data4 = mFodder->mMission_Save_Availability[(mFodder->mMissionNumber - 1)];
 
 	// Draw Icon
 	mFodder->Sprite_Draw_Frame( 0x16, 0, 0x0, 0x0 );
@@ -1004,16 +1156,16 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway( ) {
 
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway );
-	
-	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
+
+	std::string Home = tool_StripLeadingZero( tool_NumToString( mFodder->mTroops_Home ) );
 	mFodder->Recruit_Draw_String( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
 
-	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
+	std::string Away = tool_StripLeadingZero( tool_NumToString( mFodder->mTroops_Away ) );
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 }
 
 void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 ) {
-	
+
 	uint8*	di = mImage->GetSurfaceBuffer() + 16;
 
 	pD2 += 16;
@@ -1021,13 +1173,13 @@ void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 )
 	di += pD1;
 
 	uint8* si = 0;
-	
+
 	if (stru_A918A[pD0].mField_0 == 0) {
-		si = mFodder->mDataBaseBlk;
+		si = mFodder->mDataBaseBlk->data();
 		mBMHD_Current = &mBMHDHill;
-	} 
+	}
 	else {
-		si = mFodder->mDataHillBits;
+		si = mFodder->mDataHillBits->data();
 		mBMHD_Current = &mBMHDCopt;
 	}
 
@@ -1079,24 +1231,24 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 	auto Data = g_Resource.fileGet( JunData1 );
 	DecodeIFF( Data->data(), mPlayData, &mBMHDPlay, mPaletteBrief );
 
-	g_Resource.fileLoadTo( JunData2, (uint8*) mPaletteBrief + (0xA0 * 2) );
-	g_Resource.fileLoadTo( JunData3, (uint8*) mPaletteBrief + (0xB0 * 2) );
-	g_Resource.fileLoadTo( JunData4, (uint8*) mPaletteBrief + (0xC0 * 2) );
-	g_Resource.fileLoadTo( JunData5, (uint8*) mPaletteBrief + (0xD0 * 2) );
-	g_Resource.fileLoadTo( JunData6, (uint8*) mPaletteBrief + (0xE0 * 2) );
+	g_Resource.fileLoadTo( JunData2, (uint8*)mPaletteBrief + (0xA0 * 2) );
+	g_Resource.fileLoadTo( JunData3, (uint8*)mPaletteBrief + (0xB0 * 2) );
+	g_Resource.fileLoadTo( JunData4, (uint8*)mPaletteBrief + (0xC0 * 2) );
+	g_Resource.fileLoadTo( JunData5, (uint8*)mPaletteBrief + (0xD0 * 2) );
+	g_Resource.fileLoadTo( JunData6, (uint8*)mPaletteBrief + (0xE0 * 2) );
 }
 
-void cGraphics_Amiga::sub_2AF19( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pGraphics ) {
+void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pGraphics ) {
 	int32 d0, d1, d2, d3, d4, d5, d6;
 
 	d0 = pRows;
 	d1 = pColumns;
-	d2 = pD2; 
+	d2 = pD2;
 	d3 = pD3;
 	d4 = pD4;
 	d5 = pD5;
-	
-	uint8* a1 = mFodder->word_3E1B7;
+
+	uint8* a1 = mFodder->mDataHillData->data();
 
 	int32 word_8271A = d0;
 	int32 word_8271C = d1;
@@ -1207,7 +1359,7 @@ void cGraphics_Amiga::sub_2AF19( int16 pRows, int16 pColumns, int16 pD2, int16 p
 			d4 = 7;
 			d4 -= (d7 & 0xFFFF);
 			d7 = (d7 & 0xFFFF0000) | ((d7 & 0xFFFF) >> 3);
-			
+
 			a3 = pGraphics + (d7 & 0xffff);
 		} while (--d6 >= 0);
 
@@ -1216,7 +1368,7 @@ void cGraphics_Amiga::sub_2AF19( int16 pRows, int16 pColumns, int16 pD2, int16 p
 		goto loc_A0864;
 
 	loc_A08A8:;
-		
+
 		a1 += 0x28;
 		d3 += d1;
 		d3 = (d3 >> 16) | (d3 << 16);
@@ -1242,7 +1394,7 @@ void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 
 	// Load bits for all planes
 	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
-		Planes[Plane] = *(pSource + ((mBMHD_Current->mHeight * 40) * Plane) );
+		Planes[Plane] = *(pSource + ((mBMHD_Current->mHeight * 40) * Plane));
 
 	// Loop each pixel 
 	for (uint8 X = 0; X < 8; ++X) {
