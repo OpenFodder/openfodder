@@ -31,7 +31,7 @@ cResource_Amiga_File::~cResource_Amiga_File() {
 
 }
 
-std::shared_ptr<std::vector<uint8>> cResource_Amiga_File::fileGet( std::string pFilename ) {
+tSharedBuffer cResource_Amiga_File::fileGet( std::string pFilename ) {
 
 	auto File = cResources::fileGet( pFilename );
 	if (!File->size()) {

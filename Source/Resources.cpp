@@ -27,7 +27,7 @@ cResources::cResources( std::string pDataPath ) {
 	mDataPath = pDataPath;
 }
 
-std::shared_ptr<std::vector<uint8>> cResources::fileGet( std::string pFilename ) {
+tSharedBuffer cResources::fileGet( std::string pFilename ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );

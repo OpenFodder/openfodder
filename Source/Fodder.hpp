@@ -140,16 +140,15 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMapHeight;
 	uint8			mKeyCode;
 
-	uint8*			mDataPStuff;
-	uint8* 			mDataHillBits;
-	uint8*			mDataArmy;
-	std::shared_ptr<std::vector<uint8>>			mMap;
+	tSharedBuffer	mDataPStuff;
+	tSharedBuffer 	mDataHillData;
+	tSharedBuffer 	mDataHillBits;
+	tSharedBuffer	mDataArmy;
+	tSharedBuffer 	mMap;
 
-	size_t			mDataBlkSize;
-	uint8*			mDataBaseBlk;
-	uint8*			mDataSubBlk;
-	size_t			mDataBaseBlkSize;
-	size_t			mDataSubBlkSize;
+	tSharedBuffer 	mDataBaseBlk;
+	tSharedBuffer 	mDataSubBlk;
+
 	sRecruitRendered	mRecruit_Rendered[0x0D];
 
 	uint32			dword_3901A;
@@ -577,7 +576,6 @@ class cFodder : public cSingleton < cFodder > {
 	sGUI_Element	stru_3DEDC[2];
 	int16			mMission_Save_Availability[0x18];
 
-	uint8*			word_3E1B7;
 	size_t			word_3E1B7_size;
 	
 	int16			word_3E75B;
@@ -627,10 +625,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_428B6;
 	uint8*			word_42867;
 	int16			word_428B8;
-	uint8*			word_42869;
+	tSharedBuffer	word_42869;
 	uint16			word_428BA;
-	uint16*			word_4286B;
-
+	tSharedBuffer	word_4286B;
 	size_t			word_4286D;
 	uint32			mHelicopterPosX;
 	uint32			mHelicopterPosY;

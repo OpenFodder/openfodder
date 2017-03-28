@@ -89,7 +89,7 @@ std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) 
 }
 	
 
-std::shared_ptr<std::vector<uint8>> local_FileRead( const std::string& pFile, const std::string& pPath ) {
+tSharedBuffer local_FileRead( const std::string& pFile, const std::string& pPath ) {
 	std::ifstream*	fileStream;
 	auto			fileBuffer = std::make_shared<std::vector<uint8_t>>();
 

@@ -37,6 +37,10 @@ struct sILBM_BMHD {
 	uint8	mTransparentColor;
 	uint8	mAspectX, mAspectY;
 	uint16	mPageWidth, mPageHeight;
+
+	uint16 ScreenSize() const {
+		return (mWidth * mHeight);
+	}
 };
 
 struct sStruct3_Amiga {
@@ -55,7 +59,7 @@ struct sStruct0_Amiga {
 
 class cGraphics_Amiga : public cGraphics {
 public:
-	uint8*				mBlkData;
+	tSharedBuffer 				mBlkData;
 	uint8				mPalette[0xFF];
 	uint8				mPaletteArmy[0x20];
 	uint8				mPaletteCopt[0x20];
@@ -82,6 +86,7 @@ public:
 						cGraphics_Amiga();
 	virtual				~cGraphics_Amiga();
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette );
+	virtual std::tuple<tSharedBuffer, sILBM_BMHD>		DecodeIFF( const std::string& pFilename, uint8* pPalette );
 
 	virtual void		SetCursorPalette( uint16 pIndex );
 	
@@ -119,7 +124,7 @@ public:
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
 	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
 
-	virtual void		sub_2AF19( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
+	virtual void		Recruit_Sprite_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 
 	virtual bool		Sprite_OnScreen_Check(  );
 	virtual bool		Sprite_OnScreen_Check( bool p16bit = false );

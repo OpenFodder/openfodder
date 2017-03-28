@@ -75,7 +75,7 @@ public:
 	virtual void		sub_144A2( int16 pStartY = 0 ) = 0;
 	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) = 0;
 	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 ) = 0;
-	virtual void		sub_2AF19( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) = 0;
+	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) = 0;
 
 	virtual void		Briefing_Load_Resources() = 0;
 	virtual void		Briefing_DrawHelicopter( uint16 pID ) = 0;

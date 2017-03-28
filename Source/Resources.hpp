@@ -42,6 +42,6 @@ public:
 	 								cResources( std::string pDataPath = "" );
 	virtual							~cResources() { };
 									 
-	virtual std::shared_ptr<std::vector<uint8>>	fileGet( std::string pFilename );
+	virtual tSharedBuffer 			fileGet( std::string pFilename );
 	size_t										fileLoadTo( const std::string& pFilename, uint8* pTarget );
 };
