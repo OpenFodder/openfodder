@@ -1,5 +1,5 @@
 # Open Fodder
-[![Build Status](https://travis-ci.org/segrax/openfodder.svg?branch=master)](https://travis-ci.org/segrax/openfodder)
+[![Build Status](https://api.travis-ci.org/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.org/segrax/openfodder)
 
 #### About
 
@@ -12,7 +12,7 @@ Open Fodder is a open Source version of the Cannon Fodder engine, for modern ope
 
 #### Map Creator / Editor
 
-See [OpenFodder Editor](https://github.com/segrax/OpenFodderEditor) for a map editor for Windows.
+See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor for Windows.
 
 
 #### Media
