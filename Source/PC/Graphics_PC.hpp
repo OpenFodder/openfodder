@@ -60,7 +60,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		video_Draw_Sprite();
 
 	virtual void		sub_144A2( int16 pStartY );
-	virtual void		sub_145AF( int16 pData0, int16 pData8, int16 pDataC );
+	virtual void		sub_145AF( int16 pSpriteType, int16 pX, int16 pY );
 	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
 
 	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics );
