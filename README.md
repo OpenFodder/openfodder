@@ -1,5 +1,5 @@
 # Open Fodder
-[![Build Status](https://api.travis-ci.org/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.org/segrax/openfodder)
+[![Build Status](https://api.travis-ci.org/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.org/OpenFodder/openfodder)
 
 #### About
 
