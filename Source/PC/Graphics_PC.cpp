@@ -460,8 +460,8 @@ void cGraphics_PC::sub_144A2( int16 pStartY ) {
 	}
 }
 
-void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
-	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pData0];
+void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
+	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 	
 	mFodder->mDrawSpriteColumns = str2->mColumns;
 	mFodder->mDrawSpriteRows = str2->mRows;
@@ -474,10 +474,10 @@ void cGraphics_PC::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	
 	mFodder->mDraw_Sprite_PalletIndex = 0xF0;
 	
-	uint16 w42066 = 0x0C * pDataC;
-	w42066 += pData8 >> 2;
+	uint16 w42066 = 0x0C * pY;
+	w42066 += pX >> 2;
 	
-	ax = pData8 & 3;
+	ax = pX & 3;
 	ax *= 0x960;
 	w42066 += ax;
 	

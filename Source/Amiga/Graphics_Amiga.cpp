@@ -1041,9 +1041,9 @@ void cGraphics_Amiga::sub_144A2( int16 pStartY ) {
 
 }
 
-void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
+void cGraphics_Amiga::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 
-	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pData0];
+	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 
 	mFodder->mDrawSpriteColumns = str2->mColumns >> 3;
 	mFodder->mDrawSpriteRows = str2->mRows;
@@ -1063,7 +1063,7 @@ void cGraphics_Amiga::sub_145AF( int16 pData0, int16 pData8, int16 pDataC ) {
 	mFodder->mDrawSpriteColumns >>= 1;
 	mFodder->word_42076 = 0x30 - (mFodder->mDrawSpriteColumns * 16);
 
-	uint16 w42066 = (0x30 * pDataC) + pData8;
+	uint16 w42066 = (0x30 * pY) + pX;
 
 	uint8* di = ((uint8*)mFodder->word_3D5B7) + w42066;
 	uint8* si = mFodder->mDraw_Sprite_FrameDataPtr;
