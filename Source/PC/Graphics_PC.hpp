@@ -30,7 +30,7 @@ const extern sSpriteSheet* off_43963[];
 const extern uint8 mUnkStringModifier_Recruit[];
 
 class cGraphics_PC : public cGraphics {
-	uint8*				mGraphicBlkPtrs[480];
+	uint8*				mTile_Gfx_Ptrs[480];
 
 	public:
 	virtual				~cGraphics_PC();
@@ -38,7 +38,7 @@ class cGraphics_PC : public cGraphics {
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();
 
-	virtual void		graphicsBlkPtrsPrepare();
+	virtual void		Tile_Prepare_Gfx();
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
@@ -48,7 +48,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors );
 
 	virtual void		Map_Load_Resources();
-	virtual void		map_Tiles_Draw();
+	virtual void		Map_Tiles_Draw();
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	
 	virtual void		PaletteSetOverview();

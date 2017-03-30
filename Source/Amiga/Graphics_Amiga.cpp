@@ -81,12 +81,13 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	case 0:
 		mFodder->mDraw_Sprite_PalletIndex = 0;
 		mBMHD_Current = &mBMHDArmy;
-		return mFodder->mDataArmy->data();
+		// We should be returning the sImage, then mBMHD can go
+		return mSpriteSheet_InGame1.mData->data();
 
 	case 1:
 		mFodder->mDraw_Sprite_PalletIndex = 0;
 		mBMHD_Current = &mBMHDCopt;
-		return mFodder->mDataHillBits->data();
+		return mSpriteSheet_InGame2.mData->data();
 
 	case 2:
 		if (mFodder->mVersion->mVersion == eVersion::AmigaFormat)
@@ -440,7 +441,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 	}
 }
 
-void cGraphics_Amiga::graphicsBlkPtrsPrepare() {
+void cGraphics_Amiga::Tile_Prepare_Gfx() {
 
 	mBlkData->resize( mFodder->mDataBaseBlk->size() + mFodder->mDataSubBlk->size() );
 
@@ -472,6 +473,149 @@ void cGraphics_Amiga::PaletteSet() {
 	mImage->paletteLoad_Amiga( mPalletePStuff, 0xE0 );
 	mImage->paletteLoad_Amiga( mPalleteHill, 0xD0 );
 	mImage->paletteLoad_Amiga( mPalleteFont, 0xF0 );
+}
+
+sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
+	sImage			Result;
+
+	auto			File = g_Resource.fileGet( pFilename );
+	auto			DataPtr = File->data();
+
+	if (readBEDWord( DataPtr ) != 'FORM')
+		return Result;
+
+	DataPtr += 4;
+	size_t FileSize = readBEDWord( DataPtr );
+	DataPtr += 4;
+
+	if (readBEDWord( DataPtr ) != 'ILBM')
+		return Result;
+
+	DataPtr += 4;
+	FileSize -= 4;
+
+	uint32 Header = 0;
+	uint32 Size = 0;
+
+	while (FileSize > 8) {
+		Header = readBEDWord( DataPtr );
+		DataPtr += 4; FileSize -= 4;
+		Size = readBEDWord( DataPtr );
+		DataPtr += 4; FileSize -= 4;
+
+		switch (Header) {
+		case 'BMHD':
+			Result.mDimension.mWidth = readBEWord( DataPtr ); DataPtr += 2;
+			Result.mDimension.mHeight = readBEWord( DataPtr ); DataPtr += 2;
+			DataPtr += 2; DataPtr += 2;	// X, Y
+			Result.mPlanes = *DataPtr++;
+			DataPtr++;	// Mask
+			DataPtr++;	// Compression
+			DataPtr += 2; ++DataPtr; ++DataPtr; ++DataPtr;
+			DataPtr += 2; DataPtr += 2;
+			FileSize -= Size;
+			break;
+
+		case 'BODY': {
+			// + 2 is because the amiga does writing after the end of the image
+			Result.mData->resize( Result.mDimension.WidthByHeight() * (Result.mPlanes + 2) );
+
+			int16 Width = Result.mDimension.mWidth + 0x0F;
+			Width >>= 4;
+			Width <<= 1;
+
+			int16 Height = Result.mDimension.mHeight - 1;
+
+			uint8* pDataDest = Result.mData->data();
+
+			for (int16 Y = Height; Y >= 0; --Y) {
+				uint8* DataDest = pDataDest;
+
+				for (int8 Plane = 0; Plane < Result.mPlanes; ++Plane) {
+
+					for (int16 X = Width; X > 0;) {
+						--FileSize;
+						int8 d0 = *DataPtr++;
+
+						if (d0 < 0) {
+							if (d0 == -128)
+								continue;
+
+							int8 d1 = -d0;
+
+							--FileSize;
+							d0 = *DataPtr++;
+
+							do {
+								*DataDest++ = d0;
+								--X;
+							} while (d1-- > 0);
+
+							continue;
+
+						}
+						else {
+
+							do {
+								*DataDest++ = *DataPtr++;
+								--X;
+								--FileSize;
+							} while (d0-- > 0);
+
+						}
+					}
+
+					// Move the destination back to start of row
+					DataDest -= Width;
+
+					// Move it to the next plane
+					DataDest += (Width * Result.mDimension.mHeight);
+				}
+
+				// Next Row
+				pDataDest += Width;
+			}
+
+			break;
+		}
+
+		case 'CMAP':
+			for (uint16 i = 0; i < Size / 3; ++i) {
+				int16 d0 = (int16)*DataPtr++;
+				int16 Final = 0;
+
+				d0 >>= 4;
+				d0 <<= 8;
+				Final += d0;
+
+				d0 = *DataPtr++;
+				d0 >>= 4;
+				d0 = (int16)d0;
+				d0 <<= 4;
+				Final += d0;
+
+				d0 = *DataPtr++;
+				d0 >>= 4;
+				d0 = (int16)d0;
+				Final += d0;
+
+				Result.mPallete[i] = Final;
+				FileSize -= 3;
+
+			}
+			break;
+
+		default:
+			if (Size & 1)
+				++Size;
+
+			DataPtr += Size;
+			FileSize -= Size;
+			break;
+		}
+	}
+
+	return Result;
 }
 
 std::tuple<tSharedBuffer, sILBM_BMHD> cGraphics_Amiga::DecodeIFF( const std::string& pFilename, uint8* pPalette ) {
@@ -752,7 +896,7 @@ bool cGraphics_Amiga::DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBM
 	return true;
 }
 
-void cGraphics_Amiga::map_Tiles_Draw() {
+void cGraphics_Amiga::Map_Tiles_Draw() {
 	mImage->clearBuffer();
 	uint8* Target = mImage->GetSurfaceBuffer();
 
@@ -929,13 +1073,21 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "lbm" );
 	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "lbm" );
 
-	auto Copt = DecodeIFF( mFodder->mFilenameCopt, mPaletteCopt );
-	mFodder->mDataHillBits = std::get<0>( Copt );
-	mBMHDCopt = std::get<1>( Copt );
+	// This is all temporary until the engine is cleaned up
+	{
+		mSpriteSheet_InGame2 = DecodeIFF( mFodder->mFilenameCopt );
 
-	auto Army = DecodeIFF( mFodder->mFilenameArmy, mPaletteArmy );
-	mFodder->mDataArmy = std::get<0>( Army );
-	mBMHDArmy = std::get<1>( Army );
+		memcpy( mPaletteCopt, mSpriteSheet_InGame2.mPallete.data(), sizeof( mPaletteCopt ) );
+		mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
+		mBMHDCopt = mSpriteSheet_InGame2.GetHeader();
+	}
+	{
+		mSpriteSheet_InGame1 = DecodeIFF( mFodder->mFilenameArmy );
+
+		memcpy( mPaletteArmy, mSpriteSheet_InGame1.mPallete.data(), sizeof( mPaletteArmy ) );
+		mFodder->mDataArmy = mSpriteSheet_InGame1.mData;
+		mBMHDArmy = mSpriteSheet_InGame1.GetHeader();
+	}
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }

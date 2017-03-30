@@ -140,13 +140,13 @@ void cGraphics_PC::Load_Service_Data() {
 	PaletteLoad( mFodder->mDataBaseBlk->data() + 0xFA00, 0x40, 0x00 );
 }
 
-void cGraphics_PC::graphicsBlkPtrsPrepare() {
+void cGraphics_PC::Tile_Prepare_Gfx() {
 	uint16 bx = 0, dx = 0;
 
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		mGraphicBlkPtrs[cx + 0x00] = mFodder->mDataBaseBlk->data() + bx;
-		mGraphicBlkPtrs[cx + 0xF0] = mFodder->mDataSubBlk->data() + bx;
+		mTile_Gfx_Ptrs[cx + 0x00] = mFodder->mDataBaseBlk->data() + bx;
+		mTile_Gfx_Ptrs[cx + 0xF0] = mFodder->mDataSubBlk->data() + bx;
 
 		++dx;
 		bx += 0x10;
@@ -182,7 +182,7 @@ void cGraphics_PC::PaletteSet() {
 	mImage->paletteSet( mFodder->mPalette );
 }
 
-void cGraphics_PC::map_Tiles_Draw() {
+void cGraphics_PC::Map_Tiles_Draw() {
 
 	uint8* Target = mImage->GetSurfaceBuffer();
 
@@ -208,7 +208,7 @@ void cGraphics_PC::map_Tiles_Draw() {
 			if (Tile > 0x1DF)
 				Tile = 0;
 
-			uint8* TilePtr = mGraphicBlkPtrs[Tile];
+			uint8* TilePtr = mTile_Gfx_Ptrs[Tile];
 			uint16 StartX = 0;
 
 			TilePtr += StartY * 0x140;
@@ -245,7 +245,7 @@ void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 	Target += (pDestY * 16) * mFodder->mSurfaceMapOverview->GetWidth();
 	Target += pDestX;
 	
-	uint8* TilePtr = mGraphicBlkPtrs[pTile];
+	uint8* TilePtr = mTile_Gfx_Ptrs[pTile];
 
 	for (uint16 i = 0; i < 16; ++i) {
 
@@ -653,9 +653,8 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	// Load Icon
 	mFodder->Sprite_Draw_Frame( 0x18, 0, 0, 0 );
 	
+	// Save Icon (Coloured or Gray)
 	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mMissionNumber - 1) ];
-
-	// Save Icon
 	mFodder->Sprite_Draw_Frame( 0x19, 0, Data4, 0x130 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
@@ -663,10 +662,10 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	
 	mFodder->Sprite_Draw_Frame( 0x0E, 0x0A, 0, 0x9B );
 	
-	std::string Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
+	auto Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
 	mFodder->Recruit_Draw_String( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
 
-	std::string Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
+	auto Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
 	SetSpritePtr( eSPRITE_HILL_UNK );

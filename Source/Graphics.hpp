@@ -21,15 +21,54 @@
  */
 
 enum eSpriteType {
-	eSPRITE_IN_GAME = 0,
-	eSPRITE_FONT	= 1,
-	eSPRITE_HILL	= 2,
-	eSPRITE_HILL_UNK = 3,
-	eSPRITE_BRIEFING = 4,
-	eSPRITE_SERVICE = 5
+	eSPRITE_IN_GAME		= 0,
+	eSPRITE_FONT		= 1,
+	eSPRITE_HILL		= 2,
+	eSPRITE_HILL_UNK	= 3,
+	eSPRITE_BRIEFING	= 4,
+	eSPRITE_SERVICE		= 5
 };
 
 class cFodder;
+
+struct sILBM_BMHD {
+	uint16	mWidth, mHeight;
+	uint16	mX, mY;
+	uint8	mPlanes;
+	uint8	mMask;
+	uint8	mCompression;
+	uint8	mReserved;
+	uint8	mTransparentColor;
+	uint8	mAspectX, mAspectY;
+	uint16	mPageWidth, mPageHeight;
+
+	uint16 ScreenSize() const {
+		return (mWidth * mHeight);
+	}
+};
+
+struct sImage {
+	tSharedBuffer		mData;
+	cDimension			mDimension;
+	std::vector<int16>	mPallete;
+	uint8				mPlanes;
+
+	sImage() {
+		mData = std::make_shared<std::vector<uint8>>();
+		mDimension = { 0,0 };
+		mPallete.resize( 512 );
+		mPlanes = 0;
+	}
+
+	sILBM_BMHD GetHeader() {
+		sILBM_BMHD Result;
+
+		Result.mWidth = mDimension.mWidth;
+		Result.mHeight = mDimension.mHeight;
+		Result.mPlanes = mPlanes;
+		return Result;
+	}
+};
 
 class cGraphics : public cSingleton<cGraphics> {
 	
@@ -37,6 +76,8 @@ protected:
 	cSurface*			mImage;
 	cSurface*			mImageOriginal;
 	cFodder*			mFodder;
+	sImage				mSpriteSheet_InGame1;
+	sImage				mSpriteSheet_InGame2;
 
 public:
 						cGraphics();
@@ -51,11 +92,11 @@ public:
 	virtual void		Load_Hill_Bits() = 0;
 	virtual void		Load_Service_Data() = 0;
 
-	virtual void		graphicsBlkPtrsPrepare() = 0;
+	virtual void		Tile_Prepare_Gfx() = 0;
 	
 	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors ) = 0;
 
-	virtual void		map_Tiles_Draw() = 0;
+	virtual void		Map_Tiles_Draw() = 0;
 	virtual void		Map_Load_Resources() = 0;
 
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) = 0;

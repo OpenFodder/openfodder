@@ -27,21 +27,7 @@ const extern sSpriteSheet* off_90F10[];
 const extern sSpriteSheet* off_A6DC8[];
 const extern sSpriteSheet* off_A91E2[];
 
-struct sILBM_BMHD {
-	uint16	mWidth, mHeight;
-	uint16	mX, mY;
-	uint8	mPlanes;
-	uint8	mMask;
-	uint8	mCompression;
-	uint8	mReserved;
-	uint8	mTransparentColor;
-	uint8	mAspectX, mAspectY;
-	uint16	mPageWidth, mPageHeight;
 
-	uint16 ScreenSize() const {
-		return (mWidth * mHeight);
-	}
-};
 
 struct sStruct3_Amiga {
 	int16	field_0;
@@ -59,7 +45,7 @@ struct sStruct0_Amiga {
 
 class cGraphics_Amiga : public cGraphics {
 public:
-	tSharedBuffer 				mBlkData;
+	tSharedBuffer 		mBlkData;
 	uint8				mPalette[0xFF];
 	uint8				mPaletteArmy[0x20];
 	uint8				mPaletteCopt[0x20];
@@ -73,20 +59,20 @@ public:
 	size_t				mPaletteSize;
 
 	sILBM_BMHD			mBMHDArmy;
-	sILBM_BMHD			mBMHDCopt;
 	sILBM_BMHD			mBMHDPStuff;
 	sILBM_BMHD			mBMHDFont;
 	sILBM_BMHD			mBMHDHill;
 	sILBM_BMHD			mBMHDPlay;
-
+	sILBM_BMHD			mBMHDCopt;
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
 
 	public:
 						cGraphics_Amiga();
 	virtual				~cGraphics_Amiga();
+	std::tuple<tSharedBuffer, sILBM_BMHD> cGraphics_Amiga::DecodeIFF( const std::string& pFilename, uint8* pPalette );
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette );
-	virtual std::tuple<tSharedBuffer, sILBM_BMHD>		DecodeIFF( const std::string& pFilename, uint8* pPalette );
+	virtual sImage		DecodeIFF( const std::string& pFilename );
 
 	virtual void		SetCursorPalette( uint16 pIndex );
 	
@@ -97,7 +83,7 @@ public:
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();
-	virtual void		graphicsBlkPtrsPrepare();
+	virtual void		Tile_Prepare_Gfx();
 	virtual void		LoadpStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
@@ -105,7 +91,7 @@ public:
 	virtual void		Load_Service_Data();
 
 	virtual void		Map_Load_Resources();
-	virtual void		map_Tiles_Draw();
+	virtual void		Map_Tiles_Draw();
 	virtual void		sub_A5B46();
 	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	

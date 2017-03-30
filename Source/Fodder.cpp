@@ -3188,7 +3188,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	mGraphics->LoadpStuff();
 
 	Map_Load_Resources();
-	mGraphics->graphicsBlkPtrsPrepare();
+	mGraphics->Tile_Prepare_Gfx();
 	mGraphics->PaletteSet();
 }
 
@@ -9693,7 +9693,7 @@ void cFodder::Camera_Pan_Right() {
 		}
 	}
 
-	g_Graphics.map_Tiles_Draw();
+	g_Graphics.Map_Tiles_Draw();
 }
 
 void cFodder::Camera_Pan_Left() {
@@ -9718,7 +9718,7 @@ void cFodder::Camera_Pan_Left() {
 
 	}
 
-	g_Graphics.map_Tiles_Draw();
+	g_Graphics.Map_Tiles_Draw();
 }
 
 void cFodder::Camera_Pan_Down( ) {
@@ -9738,7 +9738,7 @@ void cFodder::Camera_Pan_Down( ) {
 		word_4005C += 0x58;
 	}
 	
-	g_Graphics.map_Tiles_Draw();
+	g_Graphics.Map_Tiles_Draw();
 }
 
 void cFodder::Camera_Pan_Up() {
@@ -9760,7 +9760,7 @@ void cFodder::Camera_Pan_Up() {
 
 	}
 
-	g_Graphics.map_Tiles_Draw();
+	g_Graphics.Map_Tiles_Draw();
 }
 
 void cFodder::Camera_Update_Row() {
@@ -10483,7 +10483,7 @@ loc_2DFC7:;
 	mDrawSpriteColumns = 0x10;
 	mDrawSpriteRows = 0x10;
 
-	g_Graphics.map_Tiles_Draw();
+	g_Graphics.Map_Tiles_Draw();
 }
 
 void cFodder::Map_Destroy_Tiles_Next() {
@@ -20394,7 +20394,7 @@ Start:;
 			Squad_Prepare();
 			Squad_Prepare_Sprites();
 
-			g_Graphics.graphicsBlkPtrsPrepare();
+			g_Graphics.Tile_Prepare_Gfx();
 			mMission_Aborted = 0;
 			Map_Overview_Prepare();
 
@@ -20420,7 +20420,7 @@ Start:;
 			Camera_Reset();
 			mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
 	
-			map_Tiles_Draw();
+			Map_Tiles_Draw();
 			Camera_Reset();
 			map_SetTileType();
 			Mouse_Inputs_Get();
@@ -20530,7 +20530,7 @@ Start:;
 	}
 }
 
-void cFodder::map_Tiles_Draw() {
+void cFodder::Map_Tiles_Draw() {
 	word_40054 = 0;
 	mCamera_Pan_ColumnOffset = 0;
 	mCamera_Pan_RowOffset = 0;
@@ -20541,7 +20541,7 @@ void cFodder::map_Tiles_Draw() {
 	mCamera_Column_Previous = 0;
 	mCamera_Row_Previous = 0;
 
-	g_Graphics.map_Tiles_Draw();
+	g_Graphics.Map_Tiles_Draw();
 }
 
 void cFodder::Exit( unsigned int pExitCode ) {

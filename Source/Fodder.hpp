@@ -142,7 +142,7 @@ class cFodder : public cSingleton < cFodder > {
 
 	tSharedBuffer	mDataPStuff;
 	tSharedBuffer 	mDataHillData;
-	tSharedBuffer 	mDataHillBits;
+	tSharedBuffer 			mDataHillBits;
 	tSharedBuffer	mDataArmy;
 	tSharedBuffer 	mMap;
 
@@ -1218,7 +1218,7 @@ public:
 	void			GUI_Handle_Button_SplitSquad();
 	void			Mission_Set_Initial_Weapon();
 
-	void			map_Tiles_Draw();
+	void			Map_Tiles_Draw();
 
 	void			Game_CheckLoadSave();
 	void			GUI_Sidebar_Grenades_Draw( );
