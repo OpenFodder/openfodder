@@ -64,6 +64,11 @@ Open Fodder comes with the Amiga Format Christmas Special
 
 Open Fodder comes with the Amiga Power Issue #31 Demo
   
+##### Cannon Fodder 2
+
+not yet fully supported.
+  
+  
 #### Fixes
 
 These are issues in the original engine which have been fixed

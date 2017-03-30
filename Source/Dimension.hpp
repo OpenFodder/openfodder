@@ -30,4 +30,5 @@ class cDimension {
 
 		void Set( unsigned int pWidth, unsigned int pHeight ) { mWidth = pWidth; mHeight = pHeight; }
 
+		unsigned int WidthByHeight() { return mWidth * mHeight; }
 };
