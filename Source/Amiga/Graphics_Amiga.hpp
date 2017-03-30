@@ -70,7 +70,7 @@ public:
 	public:
 						cGraphics_Amiga();
 	virtual				~cGraphics_Amiga();
-	std::tuple<tSharedBuffer, sILBM_BMHD> cGraphics_Amiga::DecodeIFF( const std::string& pFilename, uint8* pPalette );
+	std::tuple<tSharedBuffer, sILBM_BMHD> DecodeIFF( const std::string& pFilename, uint8* pPalette );
 	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette );
 	virtual sImage		DecodeIFF( const std::string& pFilename );
 
