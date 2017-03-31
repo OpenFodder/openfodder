@@ -43,7 +43,7 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			break;
 
 		case 0x430B:
-			return mFodder->mDataArmy->data();
+			return mSpriteSheet_InGame1.mData->data();
 			break;
 
 		case 0x6717:
@@ -261,12 +261,24 @@ void cGraphics_PC::Map_Load_Resources() {
 	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "dat" );
 	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "dat" );
 
-	mFodder->mDataHillBits = g_Resource.fileGet( mFodder->mFilenameCopt );
-	PaletteLoad( mFodder->mDataHillBits->data() + 0xD2A0, 0x40, 0xB0 );
-	PaletteLoad( mFodder->mDataHillBits->data() + 0xD360, 0x10, 0x90 );
+	//
+	{
+		mSpriteSheet_InGame2.mData = g_Resource.fileGet( mFodder->mFilenameCopt );
+		mSpriteSheet_InGame2.LoadPalette( 0xD2A0, 0xB0, 0x40 );
+		mSpriteSheet_InGame2.LoadPalette( 0xD360, 0x90, 0x10 );
+	}
 
-	mFodder->mDataArmy = g_Resource.fileGet( mFodder->mFilenameArmy );
-	PaletteLoad( mFodder->mDataArmy->data() + 0xD200, 0x10, 0xA0 );
+	mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
+	PaletteLoad( mSpriteSheet_InGame2.mData->data() + 0xD2A0, 0x40, 0xB0 );
+	PaletteLoad( mSpriteSheet_InGame2.mData->data() + 0xD360, 0x10, 0x90 );
+
+	// 
+	{
+		mSpriteSheet_InGame1.mData = g_Resource.fileGet( mFodder->mFilenameArmy );
+		mSpriteSheet_InGame1.LoadPalette( 0xD200, 0xA0, 0x10 );
+	}
+
+	PaletteLoad( mSpriteSheet_InGame1.mData->data() + 0xD200, 0x10, 0xA0 );
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }
@@ -698,8 +710,7 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	mFodder->mDataHillBits = g_Resource.fileGet( JunData3 );
 	mFodder->word_42865 = mFodder->mDataHillBits->data();
 
-	mFodder->mDataArmy = g_Resource.fileGet( JunData4 );
-	mFodder->word_42867 = mFodder->mDataArmy->data();
+	mFodder->word_42867 = g_Resource.fileGet( JunData4 );
 
 	// TODO: This is nasty and needs cleaning
 	// The original game loads paraheli over pstuff.dat, however the file is small enough

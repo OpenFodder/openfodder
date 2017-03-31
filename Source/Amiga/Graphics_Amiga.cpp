@@ -1078,14 +1078,14 @@ void cGraphics_Amiga::Map_Load_Resources() {
 		mSpriteSheet_InGame2 = DecodeIFF( mFodder->mFilenameCopt );
 
 		memcpy( mPaletteCopt, mSpriteSheet_InGame2.mPallete.data(), sizeof( mPaletteCopt ) );
-		mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
+		//mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
 		mBMHDCopt = mSpriteSheet_InGame2.GetHeader();
 	}
 	{
 		mSpriteSheet_InGame1 = DecodeIFF( mFodder->mFilenameArmy );
 
 		memcpy( mPaletteArmy, mSpriteSheet_InGame1.mPallete.data(), sizeof( mPaletteArmy ) );
-		mFodder->mDataArmy = mSpriteSheet_InGame1.mData;
+		//mFodder->mDataArmy = mSpriteSheet_InGame1.mData;
 		mBMHDArmy = mSpriteSheet_InGame1.GetHeader();
 	}
 

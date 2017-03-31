@@ -50,14 +50,14 @@ struct sILBM_BMHD {
 struct sImage {
 	tSharedBuffer		mData;
 	cDimension			mDimension;
-	std::vector<int16>	mPallete;
+	std::vector<int32>	mPallete;
 	uint8				mPlanes;
 
 	sImage() {
 		mData = std::make_shared<std::vector<uint8>>();
 		mDimension = { 0,0 };
-		mPallete.resize( 512 );
 		mPlanes = 0;
+		mPallete.resize( 512 );
 	}
 
 	sILBM_BMHD GetHeader() {
@@ -68,16 +68,27 @@ struct sImage {
 		Result.mPlanes = mPlanes;
 		return Result;
 	}
+
+	/**
+	 * Copy a palette in
+	 */
+	void LoadPalette( const size_t pFrom, const size_t pPaletteIndex, const size_t pCount ) {
+
+		memcpy( &mPallete[pPaletteIndex], mData->data() + pFrom, pCount );
+		
+	}
 };
 
 class cGraphics : public cSingleton<cGraphics> {
-	
+	public:
+	sImage				mSpriteSheet_InGame1;	// Army
+	sImage				mSpriteSheet_InGame2;	// Copt
+
 protected:
 	cSurface*			mImage;
 	cSurface*			mImageOriginal;
 	cFodder*			mFodder;
-	sImage				mSpriteSheet_InGame1;
-	sImage				mSpriteSheet_InGame2;
+
 
 public:
 						cGraphics();
