@@ -3209,7 +3209,6 @@ void cFodder::Prepare( ) {
 
 	mMap = 0;
 	mDataHillBits = tSharedBuffer();
-	mDataArmy = tSharedBuffer();
 
 	word_3BDAD = (uint16*) new uint8[0x400 * 16];
 	mMapSptPtr = (uint16*) new uint8[0x400 * 16];
@@ -3551,7 +3550,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		// Clouds
 		word_42859 = 0x30;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867, word_42875 );
+		sub_15B86( word_42867->data(), word_42875 );
 
 		word_42859 = 0x38;
 		word_4285B = 0x102C * 4;
@@ -3637,7 +3636,7 @@ void cFodder::Briefing_Intro_Desert() {
 		// Clouds
 		word_42859 = 0x3A;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867, word_42875 );
+		sub_15B86( word_42867->data(), word_42875 );
 
 		word_42859 = 0x4C;
 		word_4285B = 0x139C * 4;
@@ -3723,7 +3722,7 @@ void cFodder::Briefing_Intro_Ice() {
 		// Clouds
 		word_42859 = 0x24;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867, word_42875 );
+		sub_15B86( word_42867->data(), word_42875 );
 
 		word_42859 = 0x42;
 		word_4285B = 0x102C * 4;
@@ -3810,7 +3809,7 @@ void cFodder::Briefing_Intro_Mor() {
 		// Clouds
 		word_42859 = 0x1D;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867, word_42875 );
+		sub_15B86( word_42867->data(), word_42875 );
 
 		word_42859 = 0x40;
 		word_4285B = 0x1134 * 4;
@@ -3896,7 +3895,7 @@ void cFodder::Briefing_Intro_Int() {
 		// Clouds
 		word_42859 = 0x40;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867, word_42875 );
+		sub_15B86( word_42867->data(), word_42875 );
 
 		word_42859 = 0x2F;
 		word_4285B = 0x16B4 * 4;
@@ -5141,7 +5140,7 @@ void cFodder::Recruit_Render_HeroList() {
 }
 
 void cFodder::Recruit_Render_Names_UnusedSlots() {
-	uint32* Data20 = (uint32*) mDataArmy->data();
+	uint32* Data20 = (uint32*) mGraphics->mSpriteSheet_InGame1.mData->data();
 
 	sRecruitRendered* Data24 = mRecruit_Rendered;
 	int16 Data0 = 0x58;
