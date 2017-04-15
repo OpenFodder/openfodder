@@ -10,7 +10,7 @@ control system. The player directs troops through numerous missions, battling en
 
 Open Fodder is a open Source version of the Cannon Fodder engine, for modern operating systems.
 
-#### Map Creator / Editor
+#### Map Editor
 
 See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor for Windows.
 
