@@ -373,16 +373,15 @@ void cFodder::Camera_Handle() {
 }
 
 void cFodder::sub_1096B() {
-	sSprite* Data14 = mSquad_Leader;
-	if(Data14 == INVALID_SPRITE_PTR || Data14 == 0 )
+	if(mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
 		return;
 	
-	int16 Data8 = Data14->field_0;
-	Data8 += 0x18;
+	int16 SquadLeaderX = mSquad_Leader->field_0;
+	SquadLeaderX += 0x18;
 	
-	int16 DataC = Data14->field_4;
-	int16 Data18 = Data8;
-	int16 Data1C = DataC;
+	int16 SquadLeaderY = mSquad_Leader->field_4;
+	int16 Data18 = SquadLeaderX;
+	int16 Data1C = SquadLeaderY;
 	
 	word_39F3A = 0x14;
 	if(word_3ABFB) {
@@ -397,16 +396,16 @@ void cFodder::sub_1096B() {
 	int16 Data4;
 
 	if( word_39F40 ) {
-		Data0 = Data8;
+		Data0 = SquadLeaderX;
 		Data0 -= word_39F3C;
 		mCamera_Position_Column += Data0;
 
-		Data4 = DataC;
+		Data4 = SquadLeaderY;
 		Data4 -= word_39F3E;
 		
 		mCamera_Position_Row += Data4;
-		word_39F3C = Data8;
-		word_39F3E = DataC;
+		word_39F3C = SquadLeaderX;
+		word_39F3E = SquadLeaderY;
 		
 	} else {
 		//loc_10A11
@@ -426,8 +425,8 @@ void cFodder::sub_1096B() {
 	
 Mouse_In_Playfield:;
 	word_39F40 = 0;
-	word_39F3C = Data8;
-	word_39F3E = DataC;
+	word_39F3C = SquadLeaderX;
+	word_39F3E = SquadLeaderY;
 	Data0 = mMouseX;
 	Data0 += mCamera_Adjust_Col >> 16;
 	Data4 = mMouseY;
@@ -435,10 +434,10 @@ Mouse_In_Playfield:;
 
 	int16 Data0_Saved = Data0;
 	int16 Data4_Saved = Data4;
-	int16 Data8_Saved = Data8;
-	int16 DataC_Saved = DataC;
+	int16 Data8_Saved = SquadLeaderX;
+	int16 DataC_Saved = SquadLeaderY;
 	
-	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
+	Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, SquadLeaderX, SquadLeaderY );
 	
 	if( mSquad_CurrentVehicle ) {
 	
@@ -451,30 +450,30 @@ Mouse_In_Playfield:;
 	}
 	//loc_10AAA
 	word_3ABFD = Data0;
-	
-	DataC = DataC_Saved;
-	Data8 = Data8_Saved;
+
+	SquadLeaderX = Data8_Saved;
+	SquadLeaderY = DataC_Saved;
 	Data4 = Data4_Saved;
 	Data0 = Data0_Saved;
 	
 
-	if(Direction_Between_Points(Data0, Data4, Data8,DataC) < 0 )
+	if(Direction_Between_Points(Data0, Data4, SquadLeaderX, SquadLeaderY ) < 0 )
 		return;
 	
-	Data8 = word_3EABF[Data4/2];
+	SquadLeaderX = mDirection_Movement[Data4/2];
 	Data4 += 0x80;
 	Data4 &= 0X1FE;
 
-	DataC = word_3EABF[Data4/2];
+	SquadLeaderY = mDirection_Movement[Data4/2];
 	
-	int32 Dataa8 = Data8 * word_3ABFD;
-	int32 DataaC = DataC * word_3ABFD;
+	int32 Dataa8 = SquadLeaderX * word_3ABFD;
+	int32 DataaC = SquadLeaderY * word_3ABFD;
 	
-	Data8 = Dataa8 >> 16;
-	DataC = DataaC >> 16;
+	SquadLeaderX = Dataa8 >> 16;
+	SquadLeaderY = DataaC >> 16;
 	
-	Data18 += Data8;
-	Data1C += DataC;
+	Data18 += SquadLeaderX;
+	Data1C += SquadLeaderY;
 	Data18 -= 0x18;
 	
 	if(Data18 < 0 )
@@ -1395,11 +1394,11 @@ void cFodder::Camera_Position_Update() {
 			return;
 		Data4 = word_39F34;
 
-		Data8 = word_3EABF[Data4/2];
+		Data8 = mDirection_Movement[Data4/2];
 		Data4 += 0x80;
 		Data4 &= 0x1FE;
 
-		DataC = word_3EABF[Data4/2];
+		DataC = mDirection_Movement[Data4/2];
 		Data8 >>= 2;
 		DataC >>= 2;
 
@@ -3550,7 +3549,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		// Clouds
 		word_42859 = 0x30;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
 
 		word_42859 = 0x38;
 		word_4285B = 0x102C * 4;
@@ -3636,7 +3635,7 @@ void cFodder::Briefing_Intro_Desert() {
 		// Clouds
 		word_42859 = 0x3A;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
 
 		word_42859 = 0x4C;
 		word_4285B = 0x139C * 4;
@@ -3722,7 +3721,7 @@ void cFodder::Briefing_Intro_Ice() {
 		// Clouds
 		word_42859 = 0x24;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
 
 		word_42859 = 0x42;
 		word_4285B = 0x102C * 4;
@@ -3809,7 +3808,7 @@ void cFodder::Briefing_Intro_Mor() {
 		// Clouds
 		word_42859 = 0x1D;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
 
 		word_42859 = 0x40;
 		word_4285B = 0x1134 * 4;
@@ -3895,7 +3894,7 @@ void cFodder::Briefing_Intro_Int() {
 		// Clouds
 		word_42859 = 0x40;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( word_42867->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
 
 		word_42859 = 0x2F;
 		word_4285B = 0x16B4 * 4;
@@ -3971,7 +3970,7 @@ void cFodder::sub_159A6( ) {
 	word_428B6 &= 0x1FE;
 	uint16 bx = word_428B6;
 
-	int32 ax = word_3EABF[ (bx / 2) & 0xFF ];
+	int32 ax = mDirection_Movement[ (bx / 2) & 0xFF ];
 
 	ax >>= 2;
 
@@ -3980,7 +3979,7 @@ void cFodder::sub_159A6( ) {
 	bx += 0x80;
 	bx &= 0x1FE;
 
-	ax = word_3EABF[ (bx / 2) & 0xFF];
+	ax = mDirection_Movement[ (bx / 2) & 0xFF];
 	ax >>= 2;
 	mHelicopterPosY += ax * word_428B8;
 
@@ -8490,7 +8489,7 @@ void cFodder::Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C ) {
 }
 
 void cFodder::Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 ) {
-	const int8* Data24 = byte_3ECC0;
+	const int8* Data24 = mMap_Distance_Calculations;
 	int16 Data10 = 0;
 
 	pX2 -= pX;
@@ -8772,15 +8771,14 @@ void cFodder::Sprite_Movement_Calculate( sSprite* pSprite ) {
 		return;
 
 	//loc_2A10D
-	const int16* Data24 = word_3EABF;
 	pSprite->field_10 &= 0x1FE;
 	int16 Data4 = pSprite->field_10;
 
-	int16 Data8 = *(Data24 + (Data4/2));
+	int16 Data8 = mDirection_Movement[Data4/2];
 
 	Data4 += 0x80;
 	Data4 &= 0x1FE;
-	int16 DataC = *(Data24 + (Data4/2));
+	int16 DataC = mDirection_Movement[Data4/2];
 	Data8 >>= 2;
 	DataC >>= 2;
 	//seg007:064F
@@ -9118,7 +9116,7 @@ int16 cFodder::sub_2A622( int16& pData0 ) {
  * @return Distance between points
  */
 int16 cFodder::Map_Get_Distance_BetweenPoints( int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2 ) {
-	const int8* Data24 = byte_3ECC0;
+	const int8* Data24 = mMap_Distance_Calculations;
 
 	pPosX2 -= pPosX;
 	if (pPosX2 < 0)
@@ -9621,7 +9619,7 @@ void cFodder::Map_Get_Distance_BetweenPoints_Within_640( int16& pX, int16& pY, i
 	pY2 <<= 5;
 	pY2 |= pX2;
 	pX = 0;
-	pX = byte_3ECC0[pY2];
+	pX = mMap_Distance_Calculations[pY2];
 
 	pX <<= Data10;
 	return;
@@ -19767,10 +19765,10 @@ loc_22053:;		// Movement Target?
 	Data8 *= 0x76;
 	Data8 &= 0x1FE;
 
-	DataC = word_3EABF[Data8 / 2];
+	DataC = mDirection_Movement[Data8 / 2];
 	Data8 += 0x80;
 	Data8 &= 0x1FE;
-	Data10 = word_3EABF[Data8 / 2];
+	Data10 = mDirection_Movement[Data8 / 2];
 
 	//seg005:29B2
 	DataC >>= 8;
