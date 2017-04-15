@@ -41,7 +41,7 @@ Open Fodder includes two demos from the Amiga platform, and supports 3 retail re
 
 ##### Purchasing the retail release
 
-Cannon Fodder can be purchased today from [Good Old Games](http://www.gog.com/game/cannon_fodder) and is supported.
+Cannon Fodder can currently be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder)
   
   
 #### Supported Versions
