@@ -62,13 +62,13 @@ Copy the files from the 'Fodder' folder on the CD-Rom, to the Data/Amiga_CD fold
   
 ##### Demos
 
-###### Amiga Format Christmas Special
+###### Amiga Format Issue #53: Christmas Special
 
-Open Fodder comes with the Amiga Format Christmas Special
+Included
   
-###### Amiga Power Cannon Fodder Plus
+###### Amiga Power Issue #31: Cannon Fodder Plus
 
-Open Fodder comes with the Amiga Power Issue #31 Demo
+Included
 
 ##### Other
   
