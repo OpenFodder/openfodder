@@ -622,7 +622,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint8*			word_42863;
 	uint8*			word_42865;
 	int16			word_428B6;
-	tSharedBuffer	word_42867;
+	tSharedBuffer	mBriefing_Intro_Gfx_Clouds;
 	int16			word_428B8;
 	tSharedBuffer	word_42869;
 	uint16			word_428BA;

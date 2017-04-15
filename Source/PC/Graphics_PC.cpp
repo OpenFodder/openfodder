@@ -710,7 +710,7 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	mFodder->mDataHillBits = g_Resource.fileGet( JunData3 );
 	mFodder->word_42865 = mFodder->mDataHillBits->data();
 
-	mFodder->word_42867 = g_Resource.fileGet( JunData4 );
+	mFodder->mBriefing_Intro_Gfx_Clouds = g_Resource.fileGet( JunData4 );
 
 	// TODO: This is nasty and needs cleaning
 	// The original game loads paraheli over pstuff.dat, however the file is small enough

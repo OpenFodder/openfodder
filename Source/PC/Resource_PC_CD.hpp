@@ -1,7 +1,7 @@
 
 class cResource_PC_CD : public cResources {
 	
-	tSharedBuffer 				mData;
+	tSharedBuffer 					mData;
 	uint8*							mDataCurrent;
 
 	size_t							mDataSize;
@@ -41,7 +41,7 @@ public:
 									cResource_PC_CD( std::string pDataPath = "" );
 	virtual							~cResource_PC_CD();
 
-	virtual tSharedBuffer 		fileGet( std::string pFilename );
+	virtual tSharedBuffer 			fileGet( std::string pFilename );
 
 	std::vector< cResource_File >*	filesGet( ) { return &mFiles; }
 	
