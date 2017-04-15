@@ -44,7 +44,7 @@ At present, it supports 5 versions.
 
 The version available on [Good Old Games](http://www.gog.com/game/cannon_fodder) is the Dos Retail CD Version and is supported by Open Fodder
 
-#### Supported Cannon Fodder Versions
+#### Supported Versions
 
 ##### Retail
 
