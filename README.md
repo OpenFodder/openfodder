@@ -62,7 +62,7 @@ Copy the files from the 'Fodder' folder on the CD-Rom, to the Data/Amiga_CD fold
   
 ##### Demos
 
-###### Amiga Format Issue #53: Christmas Special
+###### Amiga Format Issue #53: Christmas Special (Cannon Soccer)
 
 Included
   
