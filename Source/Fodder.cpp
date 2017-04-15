@@ -460,11 +460,11 @@ Mouse_In_Playfield:;
 	if(Direction_Between_Points(Data0, Data4, SquadLeaderX, SquadLeaderY ) < 0 )
 		return;
 	
-	SquadLeaderX = mDirection_Movement[Data4/2];
+	SquadLeaderX = mMap_Direction_Calculations[Data4/2];
 	Data4 += 0x80;
 	Data4 &= 0X1FE;
 
-	SquadLeaderY = mDirection_Movement[Data4/2];
+	SquadLeaderY = mMap_Direction_Calculations[Data4/2];
 	
 	int32 Dataa8 = SquadLeaderX * word_3ABFD;
 	int32 DataaC = SquadLeaderY * word_3ABFD;
@@ -1394,11 +1394,11 @@ void cFodder::Camera_Position_Update() {
 			return;
 		Data4 = word_39F34;
 
-		Data8 = mDirection_Movement[Data4/2];
+		Data8 = mMap_Direction_Calculations[Data4/2];
 		Data4 += 0x80;
 		Data4 &= 0x1FE;
 
-		DataC = mDirection_Movement[Data4/2];
+		DataC = mMap_Direction_Calculations[Data4/2];
 		Data8 >>= 2;
 		DataC >>= 2;
 
@@ -3970,7 +3970,7 @@ void cFodder::sub_159A6( ) {
 	word_428B6 &= 0x1FE;
 	uint16 bx = word_428B6;
 
-	int32 ax = mDirection_Movement[ (bx / 2) & 0xFF ];
+	int32 ax = mMap_Direction_Calculations[ (bx / 2) & 0xFF ];
 
 	ax >>= 2;
 
@@ -3979,7 +3979,7 @@ void cFodder::sub_159A6( ) {
 	bx += 0x80;
 	bx &= 0x1FE;
 
-	ax = mDirection_Movement[ (bx / 2) & 0xFF];
+	ax = mMap_Direction_Calculations[ (bx / 2) & 0xFF];
 	ax >>= 2;
 	mHelicopterPosY += ax * word_428B8;
 
@@ -8774,11 +8774,11 @@ void cFodder::Sprite_Movement_Calculate( sSprite* pSprite ) {
 	pSprite->field_10 &= 0x1FE;
 	int16 Data4 = pSprite->field_10;
 
-	int16 Data8 = mDirection_Movement[Data4/2];
+	int16 Data8 = mMap_Direction_Calculations[Data4/2];
 
 	Data4 += 0x80;
 	Data4 &= 0x1FE;
-	int16 DataC = mDirection_Movement[Data4/2];
+	int16 DataC = mMap_Direction_Calculations[Data4/2];
 	Data8 >>= 2;
 	DataC >>= 2;
 	//seg007:064F
@@ -19765,10 +19765,10 @@ loc_22053:;		// Movement Target?
 	Data8 *= 0x76;
 	Data8 &= 0x1FE;
 
-	DataC = mDirection_Movement[Data8 / 2];
+	DataC = mMap_Direction_Calculations[Data8 / 2];
 	Data8 += 0x80;
 	Data8 &= 0x1FE;
-	Data10 = mDirection_Movement[Data8 / 2];
+	Data10 = mMap_Direction_Calculations[Data8 / 2];
 
 	//seg005:29B2
 	DataC >>= 8;
