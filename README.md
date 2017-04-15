@@ -30,9 +30,8 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 
 #### How to play
 
-Open Fodder requires the user to own a copy of Cannon Fodder, and to copy the data files into the game data directory.
-At present, it supports 5 versions.
-
+Open Fodder includes two demos from the Amiga platform, and supports 3 retail releases (See below for supported versions)
+  
 ##### Keys
 
 * +:   Increase Window Size
@@ -40,10 +39,11 @@ At present, it supports 5 versions.
 * F11: Full screen  
   
 
-#### Obtaining the game
+##### Purchasing the retail release
 
-The version available on [Good Old Games](http://www.gog.com/game/cannon_fodder) is the Dos Retail CD Version and is supported by Open Fodder
-
+Cannon Fodder can be purchased today from [Good Old Games](http://www.gog.com/game/cannon_fodder) and is supported.
+  
+  
 #### Supported Versions
 
 ##### Retail
