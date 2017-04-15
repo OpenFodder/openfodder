@@ -38,33 +38,41 @@ At present, it supports 5 versions.
 * +:   Increase Window Size
 * -:   Decrease Window Size 
 * F11: Full screen  
+  
 
 #### Obtaining the game
 
 The version available on [Good Old Games](http://www.gog.com/game/cannon_fodder) is the Dos Retail CD Version and is supported by Open Fodder
 
+#### Supported Cannon Fodder Versions
 
-##### Dos Retail CD Version
+##### Retail
+
+###### Dos CD Version
 
 Copy 'CF_ENG.DAT' from the CD to the Data/Dos_CD folder
   
-##### Amiga Retail
+###### Amiga
 
 Use the WHDLoad installer on an Amiga (or WinUAE) to extract the game files, and copy all the extracted files into the Data/Amiga folder
   
-##### Amiga CD32 Retail
+###### Amiga CD32
 
 Copy the files from the 'Fodder' folder on the CD-Rom, to the Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.flv', placed in the Amiga_CD folder.
   
-##### Amiga Format Christmas Special
+##### Demos
+
+###### Amiga Format Christmas Special
 
 Open Fodder comes with the Amiga Format Christmas Special
   
-##### Cannon Fodder Plus
+###### Amiga Power Cannon Fodder Plus
 
 Open Fodder comes with the Amiga Power Issue #31 Demo
+
+##### Other
   
-##### Cannon Fodder 2
+###### Cannon Fodder 2
 
 not yet fully supported.
   
