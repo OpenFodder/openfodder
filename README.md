@@ -54,7 +54,7 @@ Copy 'CF_ENG.DAT' from the CD to the Data/Dos_CD folder
   
 ###### Amiga
 
-Use the WHDLoad installer on an Amiga (or WinUAE) to extract the game files, and copy all the extracted files into the Data/Amiga folder
+Use the [WHDLoad installer](http://www.whdload.de/games/CannonFodder.html) on an Amiga or an emulator (WinUAE/UAE) to extract the game files from the original floppy disks, then copy the contents of 'cf_data'  into the Data/Amiga directory.
   
 ###### Amiga CD32
 
