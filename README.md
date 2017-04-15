@@ -69,7 +69,7 @@ Open Fodder comes with the Amiga Power Issue #31 Demo
 not yet fully supported.
   
   
-#### Fixes
+#### Original Engine Bugs
 
 These are issues in the original engine which have been fixed
 
