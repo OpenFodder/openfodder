@@ -11,4 +11,4 @@ The game is military-themed and based on shooting action but with a strategy gam
 @drnovice
 
 ### Support or Contact
-Having trouble ? Check out our [documentation](https://github.com/segrax/openfodder/wiki)
+Having trouble ? Check out our [documentation](https://github.com/OpenFodder/openfodder/wiki)
