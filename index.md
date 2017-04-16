@@ -10,7 +10,7 @@ Latest Windows release is available [here](https://github.com/OpenFodder/openfod
 
 #### Windows Map Editor
 The latest release of OFED is available [here](https://github.com/OpenFodder/editor/releases)
-
+  
 ### Media
 [Open Fodder 1.3 Video - Custom: Segra's First](https://www.youtube.com/watch?v=D0Ap38IYVUU)  
 [Open Fodder 1.3 Video - Amiga Format Special](https://www.youtube.com/watch?v=aSGOTSw-LlI)  
