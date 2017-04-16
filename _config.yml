@@ -1,12 +1,7 @@
 title: Open Fodder
 description: An open source port of Cannon Fodder
 google_analytics: 
-show_downloads: true
 theme: jekyll-theme-midnight
-
-download:
-  source:         https://github.com/OpenFodder/openfodder/archive/1.3.1.tar.gz
-  dist:           https://github.com/OpenFodder/openfodder/releases/download/1.3.1/OpenFodder64_1.3.1.zip
 
 gems:
   - jekyll-mentions
