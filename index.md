@@ -6,10 +6,10 @@ The game is military-themed and based on shooting action but with a strategy gam
 ### Downloads
 
 #### Windows
-Latest Windows release is available [here](https://github.com/OpenFodder/openfodder/releases)
+The latest release of Open Fodder is available [here](https://github.com/OpenFodder/openfodder/releases)
 
 #### Windows Map Editor
-The latest release of OFED is available [here](https://github.com/OpenFodder/editor/releases)
+The latest release of the Map Editor is available [here](https://github.com/OpenFodder/editor/releases)
   
 ### Media
 [Open Fodder 1.3 Video - Custom: Segra's First](https://www.youtube.com/watch?v=D0Ap38IYVUU)  
