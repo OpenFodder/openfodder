@@ -2,8 +2,8 @@ title: Open Fodder
 description: An open source port of Cannon Fodder
 google_analytics: 
 show_downloads: true
-zip_url: "https://github.com/OpenFodder/openfodder/releases/download/1.3.1/OpenFodder64_1.3.1.zip",
-tar_url: "https://github.com/OpenFodder/openfodder/archive/1.3.1.tar.gz",
+site.github.zip_url: "https://github.com/OpenFodder/openfodder/releases/download/1.3.1/OpenFodder64_1.3.1.zip"
+site.github.tar_url: "https://github.com/OpenFodder/openfodder/archive/1.3.1.tar.gz"
 theme: jekyll-theme-midnight
 
 gems:
