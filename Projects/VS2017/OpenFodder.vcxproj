@@ -74,8 +74,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\include;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\lib\x64;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Systems\Libraries\SDL2-2.0.5\include;D:\Systems\Libraries\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Systems\Libraries\SDL2-2.0.5\lib\x64;D:\Systems\Libraries\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -84,8 +84,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\include;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2-2.0.4\lib\x64;C:\_MyDesktop\_Ale\_MyProjects\_libs\SDL\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Systems\Libraries\SDL2-2.0.5\include;D:\Systems\Libraries\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Systems\Libraries\SDL2-2.0.5\lib\x64;D:\Systems\Libraries\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
     <IntDir>$(Platform)\$(Configuration)</IntDir>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\..\..\Run</OutDir>
   </PropertyGroup>
