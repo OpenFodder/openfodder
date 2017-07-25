@@ -32,7 +32,7 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 
 Open Fodder includes two demos from the Amiga platform, and supports 3 retail releases (See below for supported versions)
   
-##### Keys
+##### Hot Keys
 
 * +:   Increase Window Size
 * -:   Decrease Window Size 
@@ -50,7 +50,7 @@ Cannon Fodder can currently be purchased from [Good Old Games](http://www.gog.co
 
 ###### Dos CD Version
 
-Copy 'CF_ENG.DAT' from the CD to the Data/Dos_CD folder
+Copy 'CF_ENG.DAT' from the CD (or the GOG install destination) to the Data/Dos_CD folder
   
 ###### Amiga
 
