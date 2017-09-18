@@ -58,8 +58,10 @@ Use the [WHDLoad installer](http://www.whdload.de/games/CannonFodder.html) on an
   
 ###### Amiga CD32
 
-Copy the files from the 'Fodder' folder on the CD-Rom, to the Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.flv', placed in the Amiga_CD folder.
+Copy the files from the 'Fodder' folder on the CD-Rom, to the Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.mpg', placed in the Amiga_CD folder.
   
+*Please note: The video playback is not yet supported
+
 ##### Demos
 
 ###### Amiga Format Issue #53: Christmas Special (Cannon Soccer)
@@ -79,7 +81,7 @@ not yet fully supported.
   
 #### Original Engine Bugs
 
-These are issues in the original engine which have been fixed
+Issues in the original engine which have been fixed
 
 *Squad 2 and 3 grenade and rocket count did not refresh after use.
 
