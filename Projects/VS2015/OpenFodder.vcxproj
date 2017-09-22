@@ -69,25 +69,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.3\include;D:\Systems\Librarys\SDL2_image-2.0.0\include;D:\Systems\Librarys\SDL2_ttf-2.0.12\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2-2.0.3\lib\x86;D:\Systems\Librarys\SDL2_mixer-2.0.0\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <LibraryPath>{SDL2 location}\lib\x86;{SDL2_mixer location}\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.4\include;D:\Systems\Librarys\SDL2_mixer-2.0.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2-2.0.4\lib\x64;D:\Systems\Librarys\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <LibraryPath>{SDL2 location}\lib\x64;{SDL2_mixer location}\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.4\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2-2.0.4\lib\x86;D:\Systems\Librarys\SDL2_mixer-2.0.0\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <LibraryPath>{SDL2 location}\lib\x86;{SDL2_mixer location}\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Systems\Librarys\SDL2-2.0.4\include;D:\Systems\Librarys\SDL2_image-2.0.0\include;D:\Systems\Librarys\SDL2_ttf-2.0.12\include;D:\Systems\Librarys\SDL2_mixer-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Librarys\SDL2-2.0.4\lib\x64;D:\Systems\Librarys\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
-    <IntDir>$(Platform)\$(Configuration)</IntDir>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\..\..\Run</OutDir>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <LibraryPath>{SDL2 location}\lib\x64;{SDL2_mixer location}\lib\x64;$(LibraryPath)</LibraryPath>
+    <!--IntDir>$(Platform)\$(Configuration)</IntDir-->
+    <!--OutDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\..\..\Run</OutDir-->
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,7 +96,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Robbie\Documents\Visual Studio 2013\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,7 +112,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalIncludeDirectories>C:\Users\RobLaptop\Documents\Visual Studio 2015\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -131,7 +131,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\RobLaptop\Documents\Visual Studio 2015\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,7 +150,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\RobLaptop\Documents\Visual Studio 2015\Projects\openfodder\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
