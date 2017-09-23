@@ -21,9 +21,16 @@
  */
 
 #include "stdafx.hpp"
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+
+using namespace rapidjson;
+#else
 #include "Utils/json.hpp"
 
 using Json = nlohmann::json;
+#endif
 
 /** Goals **/
 const std::vector<std::string> mMissionGoal_Titles = {
@@ -92,6 +99,66 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 
 	std::ifstream MissionSetFile( local_PathGenerate( pMissionSet, "", true ), std::ios::binary );
 	if (MissionSetFile.is_open()) {
+#if defined(_MSC_VER) && _MSC_VER <= 1800
+		IStreamWrapper isw( MissionSetFile );
+		Document MissionSet;
+		MissionSet.ParseStream( isw );
+				
+		mCustomMission.mAuthor = MissionSet["Author"].GetString();
+		mCustomMission.mName = MissionSet["Name"].GetString();
+		
+		std::string MapPath = "Custom/Sets/";
+
+		MapPath.append( mCustomMission.mName );
+		MapPath.append( "/" );
+
+		const Value& Missions = MissionSet["Missions"];
+
+		// Loop through the missions in this set
+		for (auto& Mission : Missions.GetArray()) {
+			std::string Name = Mission["Name"].GetString();
+			transform( Name.begin(), Name.end(), Name.begin(), toupper );
+
+			mMissionNames.push_back( Name );
+			mMissionPhases.push_back( Mission["Phases"].GetArray().Size() );
+
+			// Each Map (Phase)
+			for (auto& Phase : Mission["Phases"].GetArray()) {
+				std::vector<eMissionGoals> Goals;
+				std::string MapFile = MapPath;
+				std::string MapName = Phase["MapName"].GetString();
+
+				Name = Phase["Name"].GetString();
+				transform( Name.begin(), Name.end(), Name.begin(), toupper );
+				
+				MapFile.append( MapName );
+				mMapFilenames.push_back( MapFile );
+				mMapNames.push_back( Name );
+
+				// Map Aggression
+				if (Phase["Aggression"].GetArray().Size())
+					mMapAggression.push_back( { Phase["Aggression"][0].GetInt(), Phase["Aggression"][1].GetInt() } );
+				else
+					mMapAggression.push_back( { 4, 8 } );
+
+				// Each map goal
+				for (auto& ObjectiveName : Phase["Objectives"].GetArray()) {
+					std::string ObjectiveNameStr = ObjectiveName.GetString();
+					transform( ObjectiveNameStr.begin(), ObjectiveNameStr.end(), ObjectiveNameStr.begin(), toupper );
+
+					// Check each goal
+					int x = 0;
+					for (std::string GoalTitle : mMissionGoal_Titles) {
+						++x;
+
+						if (GoalTitle == ObjectiveNameStr) {
+
+							Goals.push_back( static_cast<eMissionGoals>(x) );
+							break;
+						}
+					}
+				}
+#else
 		Json MissionSet = Json::parse( MissionSetFile );
 				
 		mCustomMission.mAuthor = MissionSet["Author"];
@@ -147,6 +214,7 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 						}
 					}
 				}
+#endif
 				mMapGoals.push_back( Goals );
 			}
 		}
