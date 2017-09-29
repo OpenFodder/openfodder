@@ -207,7 +207,7 @@ int16 cFodder::Mission_Loop( ) {
 
 		word_3A9FB = 0;
 		Game_Handle();
-		++word_390B0;
+		++mMission_EngineTicks;
 		word_39F06 = 0;
 		word_3A9FB = -1;
 
@@ -488,7 +488,7 @@ void cFodder::Game_ClearVariables() {
 	word_390A4 = 0;
 	word_390A6 = 0;
 	word_390AE = 0;
-	word_390B0 = 0;
+	mMission_EngineTicks = 0;
 	mMission_Restart = 0;
 	mSprite_Enemy_AggressionAverage = 0;
 	mSprite_Enemy_AggressionMin = 0;
@@ -3278,7 +3278,7 @@ void cFodder::Mission_Final_Timer() {
 	if (!word_3B4D7)
 		mMission_Aborted = -1;
 
-	int16 Data0 = word_390B0;
+	int16 Data0 = mMission_EngineTicks;
 	Data0 &= 3;
 	if (!Data0)
 		Sprite_Create_RandomExplosion();
@@ -5879,7 +5879,7 @@ void cFodder::sub_22CD7( sSprite* pSprite, int16& pData0, int16& pData4 ) {
 	if (pSprite->field_36 <= 6)
 		return;
 
-	if (!word_390B0 & 1)
+	if (!mMission_EngineTicks & 1)
 		return;
 
 loc_22DC4:;
@@ -6384,7 +6384,7 @@ void cFodder::sub_236F7( sSprite* pSprite ) {
 	if (Data8 >= 0)
 		goto loc_23806;
 
-	Data0 = word_390B0 & 0x0F;
+	Data0 = mMission_EngineTicks & 0x0F;
 	if (Data0)
 		return;
 
@@ -7369,7 +7369,7 @@ loc_25344:;
 	if (pSprite->field_20 <= 0x1F)
 		goto loc_253D2;
 
-	Data0 = word_390B0;
+	Data0 = mMission_EngineTicks;
 	Data0 &= 0x0F;
 	if (Data0)
 		goto loc_253D2;
@@ -7400,7 +7400,7 @@ loc_253E7:;
 	if (pSprite->field_20 < 0x19)
 		goto loc_254A4;
 
-	Data0 = word_390B0;
+	Data0 = mMission_EngineTicks;
 	Data0 &= 0x0F;
 	if (Data0)
 		goto loc_254A4;
@@ -8118,7 +8118,7 @@ void cFodder::sub_25F2B( sSprite* pSprite ) {
 
 	pSprite->field_8 = 0xDA;
 
-	int16 Data0 = word_390B0 & 0x0F;
+	int16 Data0 = mMission_EngineTicks & 0x0F;
 	if (!Data0) {
 		Data0 = tool_RandomGet() & 0x06;
 		pSprite->field_32 = mSprite_Hostage_Frames[Data0 / 2];
@@ -13026,7 +13026,7 @@ loc_1A042:;
 			return;
 	
 	if (pSprite->field_20 < 0x0C)
-		if (word_390B0 & 1)
+		if (mMission_EngineTicks & 1)
 			return;
 
 	Data24->field_A += 1;
@@ -13190,7 +13190,7 @@ loc_1A404:;
 			goto loc_1A49C;
 
 	if (pSprite->field_20 < 0x0C)
-		if (word_390B0 & 1)
+		if (mMission_EngineTicks & 1)
 			goto loc_1A49C;
 
 	Data24->field_A += 1;
@@ -14320,7 +14320,7 @@ void cFodder::Sprite_Handle_Missile( sSprite* pSprite ) {
 	if (pSprite->field_36 < 0x60)
 		pSprite->field_36 += pSprite->field_3A;
 
-	Data0 = word_390B0;
+	Data0 = mMission_EngineTicks;
 	Data0 &= 3;
 
 	if (!Data0)
@@ -14980,7 +14980,7 @@ void cFodder::Sprite_Handle_Seal( sSprite* pSprite ) {
 		pSprite->field_54 = tool_RandomGet() & 0x0F;
 	}
 
-	if (word_390B0 & 1)
+	if (mMission_EngineTicks & 1)
 		++pSprite->field_54;
 
 	int16 Data0 = pSprite->field_54 & 0x0F;
