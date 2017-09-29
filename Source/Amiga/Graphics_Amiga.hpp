@@ -25,7 +25,7 @@ const extern sSpriteSheet* mSpriteSheetPtr_Font_Amiga[];
 const extern sSpriteSheet* mHillSpriteSheetPtr_Amiga[];
 const extern sSpriteSheet* off_90F10[];
 const extern sSpriteSheet* off_A6DC8[];
-const extern sSpriteSheet* off_A91E2[];
+const extern sSpriteSheet* mSpriteSheetPtr_Font_Rank_Amiga[];
 
 
 
@@ -58,12 +58,11 @@ public:
 
 	size_t				mPaletteSize;
 
-	sILBM_BMHD			mBMHDArmy;
 	sILBM_BMHD			mBMHDPStuff;
 	sILBM_BMHD			mBMHDFont;
 	sILBM_BMHD			mBMHDHill;
 	sILBM_BMHD			mBMHDPlay;
-	sILBM_BMHD			mBMHDCopt;
+
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
 

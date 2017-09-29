@@ -80,13 +80,13 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	switch (pSegment) {
 	case 0:
 		mFodder->mDraw_Sprite_PalletIndex = 0;
-		mBMHD_Current = &mBMHDArmy;
+		mBMHD_Current = mSpriteSheet_InGame1.GetHeader();
 		// We should be returning the sImage, then mBMHD can go
 		return mSpriteSheet_InGame1.mData->data();
 
 	case 1:
 		mFodder->mDraw_Sprite_PalletIndex = 0;
-		mBMHD_Current = &mBMHDCopt;
+		mBMHD_Current = mSpriteSheet_InGame2.GetHeader();
 		return mSpriteSheet_InGame2.mData->data();
 
 	case 2:
@@ -135,6 +135,12 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 48;
 		return mPlayData + (252 * 40);
+
+	case 9:
+		mFodder->mDraw_Sprite_PalletIndex = 0;
+		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
+
+		return mSpriteSheet_RankFont.mData->data();
 
 	default:
 		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
@@ -333,11 +339,9 @@ void cGraphics_Amiga::Load_Service_Data() {
 	mBMHDHill = std::get<1>( t );
 
 	{
-		mSpriteSheet_InGame2 = DecodeIFF("rankfont.lbm");
+		mSpriteSheet_RankFont = DecodeIFF("rankfont.lbm");
 
-		memcpy(mPaletteCopt, mSpriteSheet_InGame2.mPallete.data(), sizeof(mPaletteCopt));
-		mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
-		mBMHDCopt = mSpriteSheet_InGame2.GetHeader();
+		memcpy(mPaletteCopt, mSpriteSheet_RankFont.mPallete.data(), sizeof(mPaletteCopt));
 	}
 }
 
@@ -440,7 +444,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 		return;
 
 	case eSPRITE_SERVICE:
-		mFodder->Sprite_SetDataPtrToBase( off_A91E2 );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_Rank_Amiga );
 		return;
 	}
 }
@@ -1082,15 +1086,11 @@ void cGraphics_Amiga::Map_Load_Resources() {
 		mSpriteSheet_InGame2 = DecodeIFF( mFodder->mFilenameCopt );
 
 		memcpy( mPaletteCopt, mSpriteSheet_InGame2.mPallete.data(), sizeof( mPaletteCopt ) );
-		//mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
-		mBMHDCopt = mSpriteSheet_InGame2.GetHeader();
 	}
 	{
 		mSpriteSheet_InGame1 = DecodeIFF( mFodder->mFilenameArmy );
 
 		memcpy( mPaletteArmy, mSpriteSheet_InGame1.mPallete.data(), sizeof( mPaletteArmy ) );
-		//mFodder->mDataArmy = mSpriteSheet_InGame1.mData;
-		mBMHDArmy = mSpriteSheet_InGame1.GetHeader();
 	}
 
 	SetSpritePtr( eSPRITE_IN_GAME );
@@ -1335,8 +1335,8 @@ void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 )
 		mBMHD_Current = &mBMHDHill;
 	}
 	else {
-		si = mFodder->mDataHillBits->data();
-		mBMHD_Current = &mBMHDCopt;
+		si = mSpriteSheet_RankFont.mData->data();
+		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
 	}
 
 	int16 d0 = stru_A918A[pD0].mField_4 << 1;

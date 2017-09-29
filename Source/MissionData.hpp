@@ -74,7 +74,7 @@ class cMissionData {
 	/**
 	 * Get the filename for a map
 	 */
-	std::string getMapFilename( size_t pMapNumber ) const {
+	std::string getMapFilename( const size_t pMapNumber ) const {
 
 		if (pMapNumber >= mMapFilenames.size()) {
 
