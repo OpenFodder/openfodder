@@ -109,10 +109,10 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mDrawSpritePositionY = 0;
 	mDrawSpriteColumns = 0;
 	mDrawSpriteRows = 0;
-	mDraw_Sprite_PalletIndex = 0;
+	mDraw_Sprite_PaletteIndex = 0;
 	byte_42071 = 0;
-	word_42074 = 0;
-	word_42076 = 0;
+	mDraw_Source_SkipPixelsPerRow = 0;
+	mDraw_Dest_SkipPixelsPerRow = 0;
 	mKeyCode = 0;
 
 	dword_39F84 = 0;
@@ -2500,7 +2500,7 @@ void cFodder::Mission_Map_Overview_Show() {
 
 	mDrawSpritePositionX =  (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
 	mDrawSpritePositionY =  (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
-	mDraw_Sprite_PalletIndex = 0xF0;
+	mDraw_Sprite_PaletteIndex = 0xF0;
 
 	mGraphics->PaletteSetOverview();
 	mSurfaceMapOverview->Save();
@@ -3375,7 +3375,7 @@ void cFodder::Mouse_DrawCursor( ) {
 void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX ) {
 	const sSpriteSheet* SheetData = &mSpriteDataPtr[pSpriteType][pFrame];
 
-	mDraw_Sprite_PalletIndex = SheetData->mPalleteIndex & 0xFF;
+	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
 	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( SheetData->mLoadSegment );
 	mDraw_Sprite_FrameDataPtr += SheetData->mLoadOffset;
 
@@ -3393,7 +3393,7 @@ void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFra
 
 void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) {
 
-	mDraw_Sprite_PalletIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
+	mDraw_Sprite_PaletteIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
 	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment );
 	mDraw_Sprite_FrameDataPtr += mSpriteDataPtr[pData0][pData4].mLoadOffset;
 
@@ -3409,7 +3409,7 @@ void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) 
 
 void cFodder::sub_13CF0( sSprite* pDi, int16 pData0, int16 pData4 ) {
 	
-	mDraw_Sprite_PalletIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
+	mDraw_Sprite_PaletteIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
 	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment );
 	mDraw_Sprite_FrameDataPtr += mSpriteDataPtr[pData0][pData4].mLoadOffset;
 	
@@ -3528,7 +3528,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 
 	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
-	mDraw_Sprite_PalletIndex = 0xE0;
+	mDraw_Sprite_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3614,7 +3614,7 @@ void cFodder::Briefing_Intro_Desert() {
 
 	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
-	mDraw_Sprite_PalletIndex = 0xE0;
+	mDraw_Sprite_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3700,7 +3700,7 @@ void cFodder::Briefing_Intro_Ice() {
 
 	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
-	mDraw_Sprite_PalletIndex = 0xE0;
+	mDraw_Sprite_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3788,7 +3788,7 @@ void cFodder::Briefing_Intro_Mor() {
 
 	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
-	mDraw_Sprite_PalletIndex = 0xE0;
+	mDraw_Sprite_PaletteIndex = 0xE0;
 
 	sub_1590B();
 
@@ -3873,7 +3873,7 @@ void cFodder::Briefing_Intro_Int() {
 
 	mDraw_Sprite_FrameDataPtr = word_4286B->data();
 
-	mDraw_Sprite_PalletIndex = 0xE0;
+	mDraw_Sprite_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -11365,9 +11365,9 @@ void cFodder::Service_KIA_Loop() {
 		sub_13C8A(  7, 0, 0xF0, 0x31 );
 	}
 	else {
-		((cGraphics_Amiga*)mGraphics)->Service_Draw( 8, 0x30,	0, 1 );
-		((cGraphics_Amiga*)mGraphics)->Service_Draw( 0, 0,		0x40, 0 );
-		((cGraphics_Amiga*)mGraphics)->Service_Draw( 4, 0xF0,	0x40, 0 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 8, 0x30,	0 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 0, 0,		0x40 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 4, 0xF0,	0x40 );
 	}
 
 	mImageFaded = -1;
@@ -11417,9 +11417,9 @@ void cFodder::Service_Promotion_Loop() {
 		sub_13C8A( 8, 0, 0xF0, 0x31 );
 	}
 	else {
-		((cGraphics_Amiga*)mGraphics)->Service_Draw( 9, 0x30,	0,	  1 );
-		((cGraphics_Amiga*)mGraphics)->Service_Draw( 3, 0,		0x40, 0 );
-		((cGraphics_Amiga*)mGraphics)->Service_Draw( 7, 0xF0,	0x40, 0 );
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 9, 0x30,	0 );		// Heroes in Victory
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 3, 0,		0x40 );		//  Left Symbol
+		((cGraphics_Amiga*)mGraphics)->Service_Draw( 7, 0xF0,	0x40 );		//  Right Symbol
 	}
 
 	mImageFaded = -1;
@@ -11649,7 +11649,7 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pD
 }
 
 int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
-	mDraw_Sprite_PalletIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
+	mDraw_Sprite_PaletteIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
 
 	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment ) + mSpriteDataPtr[pData0][pData4].mLoadOffset;
 
@@ -11683,10 +11683,10 @@ void cFodder::sub_182EA() {
 	uint8* si = mDraw_Sprite_FrameDataPtr;
 
 	mDrawSpriteColumns >>= 1;
-	word_42074 = 0xA0 - mDrawSpriteColumns;
+	mDraw_Source_SkipPixelsPerRow = 0xA0 - mDrawSpriteColumns;
 	mDrawSpriteColumns >>= 1;
 
-	word_42076 = mImage->GetWidth() - (mDrawSpriteColumns*4);
+	mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (mDrawSpriteColumns*4);
 	uint8 Plane = 0;
 
 	for (int16 dx = 0; dx < mDrawSpriteRows; ++dx ) {
@@ -11708,8 +11708,8 @@ void cFodder::sub_182EA() {
 			si += 2;
 		}
 
-		si += word_42074;
-		di += word_42076;
+		si += mDraw_Source_SkipPixelsPerRow;
+		di += mDraw_Dest_SkipPixelsPerRow;
 	}
 
 	++Plane;
@@ -11740,8 +11740,8 @@ void cFodder::sub_182EA() {
 			si += 2;
 		}
 
-		si += word_42074;
-		di += word_42076;
+		si += mDraw_Source_SkipPixelsPerRow;
+		di += mDraw_Dest_SkipPixelsPerRow;
 	}
 
 	++Plane;
@@ -11774,8 +11774,8 @@ void cFodder::sub_182EA() {
 			si += 2;
 		}
 
-		si += word_42074;
-		di += word_42076;
+		si += mDraw_Source_SkipPixelsPerRow;
+		di += mDraw_Dest_SkipPixelsPerRow;
 	}
 	
 	++Plane;
@@ -11806,8 +11806,8 @@ void cFodder::sub_182EA() {
 			si += 2;
 		}
 
-		si += word_42074;
-		di += word_42076;
+		si += mDraw_Source_SkipPixelsPerRow;
+		di += mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 

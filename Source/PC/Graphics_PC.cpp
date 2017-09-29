@@ -68,7 +68,7 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	int16 bx = di->mX >> 1;
 
 	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff->data() + (ax +bx);
-	mFodder->mDraw_Sprite_PalletIndex = 0xF0;
+	mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
 	
 	video_Draw_Sprite();
 }
@@ -303,10 +303,10 @@ void cGraphics_PC::video_Draw_Linear( ) {
 	uint8 Plane = 0;
 
 	mFodder->byte_42071 = 1 << cx;
-	mFodder->word_42074 = mFodder->word_42078 - mFodder->mDrawSpriteColumns;
+	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->word_42078 - mFodder->mDrawSpriteColumns;
 		                 
 	//mDrawSpriteColumns >>= 1;
-	mFodder->word_42076 = 352 - mFodder->mDrawSpriteColumns;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = 352 - mFodder->mDrawSpriteColumns;
 
 	di += Plane;
 	for( int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
@@ -320,8 +320,8 @@ void cGraphics_PC::video_Draw_Linear( ) {
 			di ++;
 		}
 
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 
@@ -347,13 +347,13 @@ void cGraphics_PC::video_Draw_Sprite() {
 	uint8 Plane = 0;
 
 	Fodder->byte_42071 = 1 << cx;
-	int8 bl = Fodder->mDraw_Sprite_PalletIndex;
+	int8 bl = Fodder->mDraw_Sprite_PaletteIndex;
 	
 	Fodder->mDrawSpriteColumns >>= 1;
-	Fodder->word_42074 = 160 - Fodder->mDrawSpriteColumns;
+	Fodder->mDraw_Source_SkipPixelsPerRow = 160 - Fodder->mDrawSpriteColumns;
 	Fodder->mDrawSpriteColumns >>= 1;
 	
-	Fodder->word_42076 = (uint16) (mImage->GetWidth() - (Fodder->mDrawSpriteColumns*4));
+	Fodder->mDraw_Dest_SkipPixelsPerRow = (uint16) (mImage->GetWidth() - (Fodder->mDrawSpriteColumns*4));
 
 	di += Plane;
 	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
@@ -367,8 +367,8 @@ void cGraphics_PC::video_Draw_Sprite() {
 			di+=4;
 		}
 		
-		si += Fodder->word_42074;
-		di += Fodder->word_42076;
+		si += Fodder->mDraw_Source_SkipPixelsPerRow;
+		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 
 	++Plane;
@@ -391,8 +391,8 @@ void cGraphics_PC::video_Draw_Sprite() {
 			di+=4;
 		}
 		
-		si += Fodder->word_42074;
-		di += Fodder->word_42076;
+		si += Fodder->mDraw_Source_SkipPixelsPerRow;
+		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 
 	++Plane;
@@ -417,8 +417,8 @@ void cGraphics_PC::video_Draw_Sprite() {
 			di+=4;
 			
 		}
-		si += Fodder->word_42074;
-		di += Fodder->word_42076;
+		si += Fodder->mDraw_Source_SkipPixelsPerRow;
+		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 
 	++Plane;
@@ -442,8 +442,8 @@ void cGraphics_PC::video_Draw_Sprite() {
 			di+=4;
 		}
 		
-		si += Fodder->word_42074;
-		di += Fodder->word_42076;
+		si += Fodder->mDraw_Source_SkipPixelsPerRow;
+		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 
@@ -484,7 +484,7 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 	
 	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff->data() + ax;
 	
-	mFodder->mDraw_Sprite_PalletIndex = 0xF0;
+	mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
 	
 	uint16 w42066 = 0x0C * pY;
 	w42066 += pX >> 2;
@@ -496,12 +496,12 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 	uint8* di = ((uint8*)mFodder->word_3D5B7) + w42066;
 	uint8* si = mFodder->mDraw_Sprite_FrameDataPtr;
 	
-	int8 bl = mFodder->mDraw_Sprite_PalletIndex;
+	int8 bl = mFodder->mDraw_Sprite_PaletteIndex;
 	mFodder->mDrawSpriteColumns >>= 1;
 	
-	mFodder->word_42074 = 0xA0 - mFodder->mDrawSpriteColumns;
+	mFodder->mDraw_Source_SkipPixelsPerRow = 0xA0 - mFodder->mDrawSpriteColumns;
 	mFodder->mDrawSpriteColumns >>= 1;
-	mFodder->word_42076 = 0x0C - mFodder->mDrawSpriteColumns;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x0C - mFodder->mDrawSpriteColumns;
 	
 	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
@@ -515,8 +515,8 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 			++di;
 		}
 			
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 
 	w42066 += 0x960;
@@ -537,8 +537,8 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 			++di;
 		}
 		
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 		
 	w42066 += 0x960;
@@ -561,8 +561,8 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 			++di;
 		}
 			
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 
 	w42066 += 0x960;
@@ -583,8 +583,8 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 			++di;
 		}
 		
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 
 }

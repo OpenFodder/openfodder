@@ -24,7 +24,7 @@ const extern sSpriteSheet* off_8BFB8[];
 const extern sSpriteSheet* mSpriteSheetPtr_Font_Amiga[];
 const extern sSpriteSheet* mHillSpriteSheetPtr_Amiga[];
 const extern sSpriteSheet* off_90F10[];
-const extern sSpriteSheet* off_A6DC8[];
+const extern sSpriteSheet* mSpriteSheetPtr_Briefing_Amiga[];
 const extern sSpriteSheet* mSpriteSheetPtr_Font_Rank_Amiga[];
 
 
@@ -37,10 +37,10 @@ struct sStruct3_Amiga {
 };
 
 struct sStruct0_Amiga {
-	int16 mField_0;
-	int16 mField_1;
-	int16 mField_4;
-	int16 mField_6;
+	int16 mSpriteSheet;	// 0 = mDataHillData  : 1 = mSpriteSheet_RankFont
+	int16 mOffset;
+	int16 mWidth;
+	int16 mHeight;
 };
 
 class cGraphics_Amiga : public cGraphics {
@@ -119,5 +119,5 @@ public:
 
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();
-	virtual void		Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 );
+	virtual void		Service_Draw( int16 pSpriteID, int16 pX, int16 pY);
 };
