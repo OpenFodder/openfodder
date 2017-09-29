@@ -605,10 +605,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mDrawSpritePositionY;
 	int16			mDrawSpriteColumns;
 	int16			mDrawSpriteRows;
-	uint8			mDraw_Sprite_PalletIndex;
+	uint8			mDraw_Sprite_PaletteIndex;
 	uint8			byte_42071;
-	uint16			word_42074;
-	uint16			word_42076;
+	uint16			mDraw_Source_SkipPixelsPerRow;
+	uint16			mDraw_Dest_SkipPixelsPerRow;
 	uint16			word_42078;
 
 

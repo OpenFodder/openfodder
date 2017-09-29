@@ -2044,7 +2044,7 @@ const sSpriteSheet stru_A7288[] = {
   { 8892, 3, 0, 0, 2, 0x10, 0x2800, 0x0, 0x0 },
 };
 
- const sSpriteSheet* off_A6DC8[] = {
+ const sSpriteSheet* mSpriteSheetPtr_Briefing_Amiga[] = {
 	stru_A6DD8,
 	stru_A7028,
 	stru_A7288,

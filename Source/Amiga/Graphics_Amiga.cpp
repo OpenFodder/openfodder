@@ -79,65 +79,65 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 
 	switch (pSegment) {
 	case 0:
-		mFodder->mDraw_Sprite_PalletIndex = 0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_InGame1.GetHeader();
 		// We should be returning the sImage, then mBMHD can go
 		return mSpriteSheet_InGame1.mData->data();
 
 	case 1:
-		mFodder->mDraw_Sprite_PalletIndex = 0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_InGame2.GetHeader();
 		return mSpriteSheet_InGame2.mData->data();
 
 	case 2:
 		if (mFodder->mVersion->mVersion == eVersion::AmigaFormat)
-			mFodder->mDraw_Sprite_PalletIndex = (uint8)mCursorPalette;
+			mFodder->mDraw_Sprite_PaletteIndex = (uint8)mCursorPalette;
 		else
-			mFodder->mDraw_Sprite_PalletIndex = 0xE0;
+			mFodder->mDraw_Sprite_PaletteIndex = 0xE0;
 
 		mBMHD_Current = &mBMHDPStuff;
 		return mFodder->mDataPStuff->data();
 
 	case 3:
-		mFodder->mDraw_Sprite_PalletIndex = 0xF0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
 		mBMHD_Current = &mBMHDFont;
 		return mFodder->mDataPStuff->data();
 
 	case 4:
-		mFodder->mDraw_Sprite_PalletIndex = 0xD0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 		mBMHD_Current = &mBMHDHill;
 		return mFodder->mDataHillData->data();
 
 	case 5:
-		mFodder->mDraw_Sprite_PalletIndex = 0xA0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0xA0;
 		mBMHD_Current = &mBMHDPlay;
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 64;
 		return mPlayData;
 
 	case 6:
-		mFodder->mDraw_Sprite_PalletIndex = 0xB0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0xB0;
 		mBMHD_Current = &mBMHDPlay;
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 74;
 		return mPlayData + (176 * 40);
 
 	case 7:
-		mFodder->mDraw_Sprite_PalletIndex = 0xC0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0xC0;
 		mBMHD_Current = &mBMHDPlay;
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 111;
 		return mPlayData + (65 * 40);
 
 	case 8:
-		mFodder->mDraw_Sprite_PalletIndex = 0xD0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 		mBMHD_Current = &mBMHDPlay;
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 48;
 		return mPlayData + (252 * 40);
 
 	case 9:
-		mFodder->mDraw_Sprite_PalletIndex = 0;
+		mFodder->mDraw_Sprite_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
 
 		return mSpriteSheet_RankFont.mData->data();
@@ -386,7 +386,7 @@ void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pCol
 	g_Fodder.mDrawSpritePositionY = 16;
 	g_Fodder.mDrawSpriteColumns = Header.mWidth >> 3;
 	g_Fodder.mDrawSpriteRows = Header.mHeight;
-	g_Fodder.mDraw_Sprite_PalletIndex = 0;
+	g_Fodder.mDraw_Sprite_PaletteIndex = 0;
 
 	if (Header.mPlanes == 5)
 		Colors = 32;
@@ -440,7 +440,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 		return;
 
 	case eSPRITE_BRIEFING:
-		mFodder->Sprite_SetDataPtrToBase( off_A6DC8 );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Briefing_Amiga );
 		return;
 
 	case eSPRITE_SERVICE:
@@ -1111,9 +1111,9 @@ void cGraphics_Amiga::video_Draw_Linear() {
 	di += ax;
 	mFodder->word_42066 = di;
 
-	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - mFodder->mDrawSpriteColumns;
+	mFodder->mDraw_Source_SkipPixelsPerRow = (mBMHD_Current->mWidth >> 3) - mFodder->mDrawSpriteColumns;
 	mFodder->mDrawSpriteColumns >>= 1;
-	mFodder->word_42076 = mImage->GetWidth() - (mFodder->mDrawSpriteColumns * 16);
+	mFodder->mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (mFodder->mDrawSpriteColumns * 16);
 
 	// Height
 	for (int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx) {
@@ -1127,8 +1127,8 @@ void cGraphics_Amiga::video_Draw_Linear() {
 			si += 2;
 		}
 
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 
@@ -1147,8 +1147,8 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	mFodder->mDrawSpriteColumns -= 1;
 	mFodder->mDrawSpriteColumns <<= 1;
 
-	mFodder->word_42074 = (mBMHD_Current->mWidth >> 3) - (mFodder->mDrawSpriteColumns);
-	mFodder->word_42076 = mImage->GetWidth() - (mFodder->mDrawSpriteColumns * 8);
+	mFodder->mDraw_Source_SkipPixelsPerRow = (mBMHD_Current->mWidth >> 3) - (mFodder->mDrawSpriteColumns);
+	mFodder->mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (mFodder->mDrawSpriteColumns * 8);
 
 	// Height
 	for (int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx) {
@@ -1162,8 +1162,8 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 			si += 1;
 		}
 
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 
@@ -1215,9 +1215,9 @@ void cGraphics_Amiga::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 
 	mFodder->mDraw_Sprite_FrameDataPtr = GetSpriteData( 2 ) + (ax + bx);
 
-	mFodder->word_42074 = 40 - mFodder->mDrawSpriteColumns;
+	mFodder->mDraw_Source_SkipPixelsPerRow = 40 - mFodder->mDrawSpriteColumns;
 	mFodder->mDrawSpriteColumns >>= 1;
-	mFodder->word_42076 = 0x30 - (mFodder->mDrawSpriteColumns * 16);
+	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x30 - (mFodder->mDrawSpriteColumns * 16);
 
 	uint16 w42066 = (0x30 * pY) + pX;
 
@@ -1236,8 +1236,8 @@ void cGraphics_Amiga::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 			si += 2;
 		}
 
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 
@@ -1286,7 +1286,7 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataHillData->data() + (29 * 40) + 6;
 
 	mBMHD_Current = &mBMHDHill;
-	mFodder->mDraw_Sprite_PalletIndex = 0xD0;
+	mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 
 	mFodder->mDrawSpritePositionX = 0x40;
 	mFodder->mDrawSpritePositionY = 0x28;
@@ -1320,17 +1320,17 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway() {
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 }
 
-void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 ) {
+void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 
 	uint8*	di = mImage->GetSurfaceBuffer() + 16;
 
-	pD2 += 16;
-	di += mImage->GetWidth() * pD2;
-	di += pD1;
+	pY += 16;
+	di += mImage->GetWidth() * pY;
+	di += pX;
 
 	uint8* si = 0;
 
-	if (stru_A918A[pD0].mField_0 == 0) {
+	if (stru_A918A[pSpriteID].mSpriteSheet == 0) {
 		si = mFodder->mDataHillData->data();
 		mBMHD_Current = &mBMHDHill;
 	}
@@ -1339,18 +1339,18 @@ void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 )
 		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
 	}
 
-	int16 d0 = stru_A918A[pD0].mField_4 << 1;
-	mFodder->word_42074 = 40 - d0;
-	mFodder->word_42076 = mImage->GetWidth() - (d0 * 8);
-	mFodder->mDraw_Sprite_PalletIndex = 0;
+	int16 d0 = stru_A918A[pSpriteID].mWidth << 1;
+	mFodder->mDraw_Source_SkipPixelsPerRow = 40 - d0;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (d0 * 8);
+	mFodder->mDraw_Sprite_PaletteIndex = 0;
 
-	si += stru_A918A[pD0].mField_1;
+	si += stru_A918A[pSpriteID].mOffset;
 
 	// Height
-	for (int16 dx = stru_A918A[pD0].mField_6; dx > 0; --dx) {
+	for (int16 dx = stru_A918A[pSpriteID].mHeight; dx > 0; --dx) {
 
 		// Width
-		for (int16 cx = 0; cx < stru_A918A[pD0].mField_4; ++cx) {
+		for (int16 cx = 0; cx < stru_A918A[pSpriteID].mWidth; ++cx) {
 
 			DrawPixels_16( si, di );
 
@@ -1358,8 +1358,8 @@ void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 )
 			si += 2;
 		}
 
-		si += mFodder->word_42074;
-		di += mFodder->word_42076;
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 
@@ -1546,7 +1546,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 
 void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 	uint8	Planes[5];
-	uint8	bl = mFodder->mDraw_Sprite_PalletIndex;
+	uint8	bl = mFodder->mDraw_Sprite_PaletteIndex;
 
 	// Load bits for all planes
 	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
@@ -1569,7 +1569,7 @@ void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 
 void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
 	uint16	Planes[5];
-	uint8	bl = mFodder->mDraw_Sprite_PalletIndex;
+	uint8	bl = mFodder->mDraw_Sprite_PaletteIndex;
 
 	// Load bits for all planes
 	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
