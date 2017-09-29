@@ -52,6 +52,7 @@ struct sImage {
 	cDimension			mDimension;
 	std::vector<int32>	mPallete;
 	uint8				mPlanes;
+	sILBM_BMHD			mBMHD;
 
 	sImage() {
 		mData = std::make_shared<std::vector<uint8>>();
@@ -60,13 +61,12 @@ struct sImage {
 		mPallete.resize( 512 );
 	}
 
-	sILBM_BMHD GetHeader() {
-		sILBM_BMHD Result;
+	sILBM_BMHD* GetHeader() {
 
-		Result.mWidth = mDimension.mWidth;
-		Result.mHeight = mDimension.mHeight;
-		Result.mPlanes = mPlanes;
-		return Result;
+		mBMHD.mWidth = mDimension.mWidth;
+		mBMHD.mHeight = mDimension.mHeight;
+		mBMHD.mPlanes = mPlanes;
+		return &mBMHD;
 	}
 
 	/**
@@ -83,6 +83,7 @@ class cGraphics : public cSingleton<cGraphics> {
 	public:
 	sImage				mSpriteSheet_InGame1;	// Army
 	sImage				mSpriteSheet_InGame2;	// Copt
+	sImage				mSpriteSheet_RankFont;
 
 protected:
 	cSurface*			mImage;
