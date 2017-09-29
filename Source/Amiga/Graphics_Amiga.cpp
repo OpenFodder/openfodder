@@ -328,13 +328,17 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 
 void cGraphics_Amiga::Load_Service_Data() {
 
-	auto t = DecodeIFF( "rankfont.lbm", mPaletteCopt );
-	mFodder->mDataHillBits = std::get<0>( t );
-	mBMHDCopt = std::get<1>( t );
-
-	t = DecodeIFF( "morphbig.lbm", mPalette );
-	mFodder->mDataBaseBlk = std::get<0>( t );
+	auto t = DecodeIFF( "morphbig.lbm", mPalette );
+	mFodder->mDataHillData = std::get<0>( t );
 	mBMHDHill = std::get<1>( t );
+
+	{
+		mSpriteSheet_InGame2 = DecodeIFF("rankfont.lbm");
+
+		memcpy(mPaletteCopt, mSpriteSheet_InGame2.mPallete.data(), sizeof(mPaletteCopt));
+		mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
+		mBMHDCopt = mSpriteSheet_InGame2.GetHeader();
+	}
 }
 
 void cGraphics_Amiga::imageLoad( const std::string &pFilename, unsigned int pColors ) {
@@ -1327,7 +1331,7 @@ void cGraphics_Amiga::Service_Draw( int16 pD0, int16 pD1, int16 pD2, int16 pD3 )
 	uint8* si = 0;
 
 	if (stru_A918A[pD0].mField_0 == 0) {
-		si = mFodder->mDataBaseBlk->data();
+		si = mFodder->mDataHillData->data();
 		mBMHD_Current = &mBMHDHill;
 	}
 	else {

@@ -157,7 +157,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			word_390A4;
 	int16			word_390A6;
 	uint16			word_390AE;
-	int16			word_390B0;
+	int16			mMission_EngineTicks;
 	uint16			mMission_Restart;
 	
 	/************** Save Game Region *********** */
