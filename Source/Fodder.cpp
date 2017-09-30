@@ -911,8 +911,8 @@ void cFodder::Mission_Memory_Clear() {
 	mHelicopterCall_X = 0;
 	mHelicopterCall_Y = 0;
 	word_3B4D3 = 0;
-	word_3B4D5 = 0;
-	word_3B4D7 = 0;
+	mMission_Final_TimeRemain = 0;
+	mMission_Final_TimeToAbort = 0;
 	mGUI_Sidebar_MapButton_Prepared = 0;
 	mMission_ShowMapOverview = 0;
 	word_3B4DD = 0;
@@ -3239,7 +3239,7 @@ void cFodder::Sprite_Count_HelicopterCallPads() {
 }
 
 void cFodder::sub_13148() {
-	word_3B4D5 = 0x64;
+	mMission_Final_TimeRemain = 0x64;
 	word_3B4D3 = 0x28;
 }
 
@@ -3267,20 +3267,17 @@ void cFodder::Mission_Final_Timer() {
 	if (mMapNumber != 0x47)
 		return;
 
-	if (word_3B4D5)
+	if (mMission_Final_TimeRemain)
 		return;
 
+	if (!mMission_Final_TimeToAbort)
+		mMission_Final_TimeToAbort = 0x28;
 
-	if (!word_3B4D7)
-		word_3B4D7 = 0x28;
-
-	--word_3B4D7;
-	if (!word_3B4D7)
+	--mMission_Final_TimeToAbort;
+	if (!mMission_Final_TimeToAbort)
 		mMission_Aborted = -1;
 
-	int16 Data0 = mMission_EngineTicks;
-	Data0 &= 3;
-	if (!Data0)
+	if (!(mMission_EngineTicks & 3))
 		Sprite_Create_RandomExplosion();
 }
 
@@ -21558,9 +21555,9 @@ void cFodder::Mission_Final_TimeToDie() {
 
 	word_3B4D3 = 0;
 
-	--word_3B4D5;
-	if (word_3B4D5 < 0)
-		word_3B4D5 = 0;
+	--mMission_Final_TimeRemain;
+	if (mMission_Final_TimeRemain < 0)
+		mMission_Final_TimeRemain = 0;
 
 	mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x0A;
 
@@ -21578,7 +21575,7 @@ void cFodder::Mission_Final_TimeToDie() {
 		di += 0x960;
 	}
 
-	GUI_Sidebar_Number_Draw( word_3B4D5, 0, 0x30, 0xC0, 0xAF );
+	GUI_Sidebar_Number_Draw( mMission_Final_TimeRemain, 0, 0x30, 0xC0, 0xAF );
 	mGUI_Sidebar_TroopList_Name_BreakOnSpace = 5;
 }
 
