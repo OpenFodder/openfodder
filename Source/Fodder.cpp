@@ -7289,9 +7289,8 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
 	Data30->field_4 = pSprite->field_4;
 	Data30->field_6 = pSprite->field_6;
 
-	Data0 = mSprite_Missile_LaunchDistance_X;
-	pData2C->field_0 += Data0;
-	Data30->field_0 += Data0;
+	pData2C->field_0 += mSprite_Missile_LaunchDistance_X;
+	Data30->field_0 += mSprite_Missile_LaunchDistance_X;
 	if (Data30->field_0 < 0)
 		return 0;
 
@@ -7395,31 +7394,24 @@ loc_253E7:;
 	if (Data0 >= 0x8C)
 		goto loc_254E7;
 
-	if (pSprite->field_20 < 0x19)
-		goto loc_254A4;
+	if (pSprite->field_20 >= 0x19) {
+		if (!(mMission_EngineTicks & 0x0F)) {
+			mSprite_Missile_LaunchDistance_X = 0x0E;
+			mSprite_Missile_LaunchDistance_Y = -12;
+			if (pSprite->field_6F == 8) {
 
-	Data0 = mMission_EngineTicks;
-	Data0 &= 0x0F;
-	if (Data0)
-		goto loc_254A4;
+				Data34 = pData30;
+				if (Sprite_Create_MissileHoming(pSprite, Data2C, Data34)) {
+					Data2C->field_6A = 0x2000;
+					Data2C->field_36 = 0x14;
+				}
+			}
+			else {
+				Sprite_Create_Missile(pSprite, Data2C);
+			}
+		}
+	}
 
-	mSprite_Missile_LaunchDistance_X = 0x0E;
-	mSprite_Missile_LaunchDistance_Y = -12;
-	if (pSprite->field_6F == 8)
-		goto loc_2547F;
-
-	Sprite_Create_Missile( pSprite, Data2C );
-	goto loc_254A4;
-
-loc_2547F:;
-	Data34 = pData30;
-	if (!Sprite_Create_MissileHoming( pSprite, Data2C, Data34 ))
-		goto loc_254A4;
-
-	Data2C->field_6A = 0x2000;
-	Data2C->field_36 = 0x14;
-
-loc_254A4:;
 	if (pSprite->field_36 < 0)
 		goto loc_254E7;
 
