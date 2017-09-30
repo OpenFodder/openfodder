@@ -916,7 +916,7 @@ void cFodder::Mission_Memory_Clear() {
 	mGUI_Sidebar_MapButton_Prepared = 0;
 	mMission_ShowMapOverview = 0;
 	word_3B4DD = 0;
-	word_3B4DF = 0;
+	mTurretFires_HomingMissile = 0;
 	word_3B4E9 = 0;
 	word_3B4EB = 0;
 	word_3B4ED[0] = 0;
@@ -3253,12 +3253,12 @@ void cFodder::Sprite_HelicopterCallPad_Check() {
 	if (mHelicopterCall_X >= 0)
 		return;
 
-	sSprite* Data2C = dword_3B4CF;
-	if (!dword_3B4CF || dword_3B4CF == INVALID_SPRITE_PTR)
+	sSprite* Data2C = mTroop_InRange_Callpad;
+	if (!mTroop_InRange_Callpad || mTroop_InRange_Callpad == INVALID_SPRITE_PTR)
 		return;
 
-	mHelicopterCall_X = dword_3B4CF->field_0;
-	mHelicopterCall_Y = dword_3B4CF->field_4;
+	mHelicopterCall_X = mTroop_InRange_Callpad->field_0;
+	mHelicopterCall_Y = mTroop_InRange_Callpad->field_4;
 
 	mHelicopterCall_Y += 0x28;
 }
@@ -6710,7 +6710,7 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 	if (!pSprite->field_22)
 		goto loc_24075;
 
-	word_3B4DF = 0;
+	mTurretFires_HomingMissile = 0;
 	Data0 = eSprite_Player;
 	Data4 = -1;
 	Data8 = -1;
@@ -6739,7 +6739,8 @@ void cFodder::Sprite_Handle_Turret( sSprite* pSprite ) {
 			pSprite->field_54 = -1;
 	}
 
-	word_3B4DF = -1;
+	// Fire a homing missile
+	mTurretFires_HomingMissile = -1;
 	Data34 = Data28;
 
 	Data0 = pSprite->field_0 + 8;
@@ -6821,7 +6822,7 @@ void cFodder::Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 ) {
 	if (pSprite->field_6F != 9)
 		goto loc_2421D;
 
-	if (!word_3B4DF)
+	if (!mTurretFires_HomingMissile)
 		goto loc_2421D;
 
 	ax = Sprite_Create_MissileHoming( pSprite, Data2C, pData34 );
@@ -15921,13 +15922,14 @@ void cFodder::Sprite_Handle_Helicopter_CallPad( sSprite* pSprite ) {
 	pSprite->field_8 = 0xE7;
 	pSprite->field_2C = eSprite_Draw_First;
 
+	// Find a troop inrange 
 	if (Sprite_Handle_Helicopter_Callpad_InRange( pSprite, Data2C )) {
 		pSprite->field_75 = 0;
 	} else {
 		++mHelicopterCallPadPressedCount;
 
 		if (!pSprite->field_75) {
-			dword_3B4CF = Data2C;
+			mTroop_InRange_Callpad = Data2C;
 			pSprite->field_75 = -1;
 		}
 	}

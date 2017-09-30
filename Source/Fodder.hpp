@@ -502,14 +502,14 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite*		mSprite_TroopsAlive[16];
 	int16			mHelicopterCall_X;
 	int16			mHelicopterCall_Y;
-	sSprite*		dword_3B4CF;
+	sSprite*		mTroop_InRange_Callpad;
 	int16			word_3B4D3;
 	int16			mMission_Final_TimeRemain;
 	int16			mMission_Final_TimeToAbort;
 	int16			mGUI_Sidebar_MapButton_Prepared;
 	int16			mMission_ShowMapOverview;
 	int16			word_3B4DD;
-	int16			word_3B4DF;
+	int16			mTurretFires_HomingMissile;
 	int16			word_3B4E9;
 	int16			word_3B4EB;
 	int16			word_3B4ED[2];
