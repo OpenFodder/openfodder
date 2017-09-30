@@ -504,8 +504,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mHelicopterCall_Y;
 	sSprite*		dword_3B4CF;
 	int16			word_3B4D3;
-	int16			word_3B4D5;
-	int16			word_3B4D7;
+	int16			mMission_Final_TimeRemain;
+	int16			mMission_Final_TimeToAbort;
 	int16			mGUI_Sidebar_MapButton_Prepared;
 	int16			mMission_ShowMapOverview;
 	int16			word_3B4DD;
