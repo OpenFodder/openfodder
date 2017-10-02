@@ -68,22 +68,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;{rapidjson location}\include;$(IncludePath)</IncludePath>
     <LibraryPath>{SDL2 location}\lib\x86;{SDL2_mixer location}\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;{rapidjson location}\include;$(IncludePath)</IncludePath>
     <LibraryPath>{SDL2 location}\lib\x64;{SDL2_mixer location}\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;{rapidjson location}\include;$(IncludePath)</IncludePath>
     <LibraryPath>{SDL2 location}\lib\x86;{SDL2_mixer location}\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;{rapidjson location}\include;$(IncludePath)</IncludePath>
     <LibraryPath>{SDL2 location}\lib\x64;{SDL2_mixer location}\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
