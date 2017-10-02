@@ -25,9 +25,21 @@
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 
+#define TypeFunction(x) x&
+#define GetArrayFunction(x) x.GetArray()
+#define GetIntFunction(x) x.GetInt()
+#define GetStringFunction(x) x.GetString()
+#define SizeFunction(x) x.Size()
+
 using namespace rapidjson;
 #else
 #include "Utils/json.hpp"
+
+#define TypeFunction(x) x
+#define GetArrayFunction(x) x
+#define GetIntFunction(x) x
+#define GetStringFunction(x) x
+#define SizeFunction(x) x.size()
 
 using Json = nlohmann::json;
 #endif
@@ -103,32 +115,32 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 		IStreamWrapper isw( MissionSetFile );
 		Document MissionSet;
 		MissionSet.ParseStream( isw );
-				
-		mCustomMission.mAuthor = MissionSet["Author"].GetString();
-		mCustomMission.mName = MissionSet["Name"].GetString();
+#else
+		Json MissionSet = Json::parse( MissionSetFile );
+#endif
+		mCustomMission.mAuthor = GetStringFunction(MissionSet["Author"]);
+		mCustomMission.mName = GetStringFunction(MissionSet["Name"]);
 		
 		std::string MapPath = "Custom/Sets/";
 
 		MapPath.append( mCustomMission.mName );
 		MapPath.append( "/" );
 
-		const Value& Missions = MissionSet["Missions"];
-
 		// Loop through the missions in this set
-		for (auto& Mission : Missions.GetArray()) {
-			std::string Name = Mission["Name"].GetString();
+		for (TypeFunction(auto) Mission : GetArrayFunction(MissionSet["Missions"])) {
+			std::string Name = GetStringFunction(Mission["Name"]);
 			transform( Name.begin(), Name.end(), Name.begin(), toupper );
 
 			mMissionNames.push_back( Name );
-			mMissionPhases.push_back( Mission["Phases"].GetArray().Size() );
+			mMissionPhases.push_back( SizeFunction(GetArrayFunction(Mission["Phases"])) );
 
 			// Each Map (Phase)
-			for (auto& Phase : Mission["Phases"].GetArray()) {
+			for (TypeFunction(auto) Phase : GetArrayFunction(Mission["Phases"])) {
 				std::vector<eMissionGoals> Goals;
 				std::string MapFile = MapPath;
-				std::string MapName = Phase["MapName"].GetString();
+				std::string MapName = GetStringFunction(Phase["MapName"]);
 
-				Name = Phase["Name"].GetString();
+				Name = GetStringFunction(Phase["Name"]);
 				transform( Name.begin(), Name.end(), Name.begin(), toupper );
 				
 				MapFile.append( MapName );
@@ -136,14 +148,14 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 				mMapNames.push_back( Name );
 
 				// Map Aggression
-				if (Phase["Aggression"].GetArray().Size())
-					mMapAggression.push_back( { Phase["Aggression"][0].GetInt(), Phase["Aggression"][1].GetInt() } );
+				if (SizeFunction(GetArrayFunction(Phase["Aggression"])))
+					mMapAggression.push_back( { GetIntFunction(Phase["Aggression"][0]), GetIntFunction(Phase["Aggression"][1]) } );
 				else
 					mMapAggression.push_back( { 4, 8 } );
 
 				// Each map goal
-				for (auto& ObjectiveName : Phase["Objectives"].GetArray()) {
-					std::string ObjectiveNameStr = ObjectiveName.GetString();
+				for (TypeFunction(auto) ObjectiveName : GetArrayFunction(Phase["Objectives"])) {
+					std::string ObjectiveNameStr = GetStringFunction(ObjectiveName);
 					transform( ObjectiveNameStr.begin(), ObjectiveNameStr.end(), ObjectiveNameStr.begin(), toupper );
 
 					// Check each goal
@@ -158,63 +170,6 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 						}
 					}
 				}
-#else
-		Json MissionSet = Json::parse( MissionSetFile );
-				
-		mCustomMission.mAuthor = MissionSet["Author"];
-		mCustomMission.mName = MissionSet["Name"];
-		
-		std::string MapPath = "Custom/Sets/";
-
-		MapPath.append( mCustomMission.mName );
-		MapPath.append( "/" );
-
-		auto Missions = MissionSet["Missions"];
-
-		// Loop through the missions in this set
-		for (auto Mission : Missions) {
-			std::string Name = Mission["Name"];
-			transform( Name.begin(), Name.end(), Name.begin(), toupper );
-
-			mMissionNames.push_back( Name );
-			mMissionPhases.push_back( Mission["Phases"].size() );
-
-			// Each Map (Phase)
-			for (auto Phase : Mission["Phases"]) {
-				std::vector<eMissionGoals> Goals;
-				std::string MapFile = MapPath;
-				std::string MapName = Phase["MapName"];
-
-				Name = Phase["Name"];
-				transform( Name.begin(), Name.end(), Name.begin(), toupper );
-				
-				MapFile.append( MapName );
-				mMapFilenames.push_back( MapFile );
-				mMapNames.push_back( Name );
-
-				// Map Aggression
-				if (Phase["Aggression"].size())
-					mMapAggression.push_back( { Phase["Aggression"][0], Phase["Aggression"][1] } );
-				else
-					mMapAggression.push_back( { 4, 8 } );
-
-				// Each map goal
-				for (std::string ObjectiveName : Phase["Objectives"]) {
-					transform( ObjectiveName.begin(), ObjectiveName.end(), ObjectiveName.begin(), toupper );
-
-					// Check each goal
-					int x = 0;
-					for (auto GoalTitle : mMissionGoal_Titles) {
-						++x;
-
-						if (GoalTitle == ObjectiveName) {
-
-							Goals.push_back( static_cast<eMissionGoals>(x) );
-							break;
-						}
-					}
-				}
-#endif
 				mMapGoals.push_back( Goals );
 			}
 		}
