@@ -243,7 +243,7 @@ int16 cFodder::Mission_Loop( ) {
 
 		Mission_Sprites_Handle();
 		Squad_Switch_Timer();
-		mGraphics->sub_144A2();
+		mGraphics->Sidebar_Copy_To_Surface();
 		Mouse_DrawCursor();
 
 		if (mMission_Paused != 0) {
@@ -258,12 +258,12 @@ int16 cFodder::Mission_Loop( ) {
 
 			mGraphics->PaletteSet();
 			mImageFaded = -1;
-			mImage->paletteFade();
+			mImage->palette_FadeTowardNew();
 			mPaused = -1;
 		}
 
 		if( mImageFaded == -1 )
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		Camera_Update_From_Mouse();
 		if (mPaused == -1) {
@@ -746,7 +746,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AA67 = 0;
 	word_3AA71 = 0;
 	word_3AAC7 = 0;
-	dword_3AAC9 = 0;
+	mRecruit_RenderedPtr = 0;
 	word_3AACD = 0;
 	word_3AACF = 0;
 	byte_3ABA9 = 0;
@@ -842,7 +842,7 @@ void cFodder::Mission_Memory_Clear() {
 		word_3B1CF[x] = 0;
 
 	mRecruit_Reached_Truck = 0;
-	word_3B1F1 = 0;
+	mRecruit_ToEnterTruck = 0;
 	dword_3B1FB = 0;
 	
 	mSquad_CurrentVehicle = 0;
@@ -1663,7 +1663,7 @@ loc_11D8A:;
 	}
 
 	Mission_Sprites_Handle();
-	mGraphics->sub_144A2();
+	mGraphics->Sidebar_Copy_To_Surface();
 	Mouse_DrawCursor();
 	sub_11CAD();
 
@@ -2268,7 +2268,7 @@ loc_1280A:;
 
 	if (mMission_Completed_Timer == 0x19) {
 		mImageFaded = -1;
-		mImage->paletteFadeOut();
+		mImage->paletteNew_SetToBlack();
 	}
 	--mMission_Completed_Timer;
 	if (mMission_Completed_Timer)
@@ -2651,7 +2651,7 @@ void cFodder::Map_Overview_Prepare() {
 
 		for (uint16 cx = 0; cx < mMapWidth; ++cx) {
 
-			mGraphics->sub_2B04B( *Di & 0x1FF, cx + mSurfaceMapLeft, dx + mSurfaceMapTop );
+			mGraphics->MapOverview_Render_Tiles( *Di & 0x1FF, cx + mSurfaceMapLeft, dx + mSurfaceMapTop );
 			
 			++Di;
 		}
@@ -2977,7 +2977,7 @@ void cFodder::VersionSelect() {
 	Sprite3->field_20 = 0;
 	Sprite3->field_18 = eSprite_Turret_Missile_Human;
 
-	mGraphics->LoadpStuff();
+	mGraphics->Load_pStuff();
 
 	Map_Load_Resources();
 	mGraphics->PaletteSet();
@@ -3048,7 +3048,7 @@ void cFodder::VersionSelect() {
 		Sprite_Draw();
 
 		if (mImageFaded)
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -3184,7 +3184,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	}
 		
 	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
-	mGraphics->LoadpStuff();
+	mGraphics->Load_pStuff();
 
 	Map_Load_Resources();
 	mGraphics->Tile_Prepare_Gfx();
@@ -3209,9 +3209,9 @@ void cFodder::Prepare( ) {
 	mMap = 0;
 	mDataHillBits = tSharedBuffer();
 
-	word_3BDAD = (uint16*) new uint8[0x400 * 16];
+	mRecruit_Truck_AnimBuffer = (uint16*) new uint8[0x400 * 16];
 	mMapSptPtr = (uint16*) new uint8[0x400 * 16];
-	word_3D5B7 = mMapSptPtr;
+	mSidebar_Screen_Buffer = mMapSptPtr;
 
 	uint8* Start = (uint8*) &mMapNumber;
 	uint8* End = (uint8*)&mButtonPressLeft;
@@ -3307,8 +3307,8 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
 
 void cFodder::Mission_Paused() {
 	mGraphics->PaletteSet();
-	mImage->paletteFadeOut();
-	mImage->paletteFade();
+	mImage->paletteNew_SetToBlack();
+	mImage->palette_FadeTowardNew();
 	mImageFaded = -1;
 
 	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
@@ -3370,11 +3370,10 @@ void cFodder::Mouse_DrawCursor( ) {
 }
 
 void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX ) {
-	const sSpriteSheet* SheetData = &mSpriteDataPtr[pSpriteType][pFrame];
+	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
 	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
-	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( SheetData->mLoadSegment );
-	mDraw_Sprite_FrameDataPtr += SheetData->mLoadOffset;
+	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
 
 	mDrawSpritePositionX = (pPositionX + 0x10);
 	mDrawSpritePositionY = (pPositionY + 0x10);
@@ -3388,33 +3387,33 @@ void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFra
 
 }
 
-void cFodder::sub_13C8A( int16 pData0, int16 pData4, int16 pPosX, int16 pPosY ) {
+void cFodder::sub_13C8A( int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY ) {
+	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
-	mDraw_Sprite_PaletteIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
-	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment );
-	mDraw_Sprite_FrameDataPtr += mSpriteDataPtr[pData0][pData4].mLoadOffset;
+	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
+	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
 
 	mDrawSpritePositionX = (pPosX + 0x10);
 	mDrawSpritePositionY = (pPosY + 0x10);
-	mDrawSpriteColumns = mSpriteDataPtr[pData0][pData4].mColCount;
-	mDrawSpriteRows = mSpriteDataPtr[pData0][pData4].mRowCount;
+	mDrawSpriteColumns = SheetData->mColCount;
+	mDrawSpriteRows = SheetData->mRowCount;
 	word_42078 = 0x140;
 
 	if (Sprite_OnScreen_Check())
 		mGraphics->video_Draw_Linear();
 }
 
-void cFodder::sub_13CF0( sSprite* pDi, int16 pData0, int16 pData4 ) {
-	
-	mDraw_Sprite_PaletteIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
-	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment );
-	mDraw_Sprite_FrameDataPtr += mSpriteDataPtr[pData0][pData4].mLoadOffset;
-	
-	mDrawSpriteColumns = mSpriteDataPtr[pData0][pData4].mColCount;
-	mDrawSpriteRows = mSpriteDataPtr[pData0][pData4].mRowCount - pDi->field_52;
+void cFodder::sub_13CF0( sSprite* pDi, int16 pSpriteType, int16 pFrame) {
+	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
-	mDrawSpritePositionX = (mSpriteDataPtr[pData0][pData4].mModX + pDi->field_0) - mCamera_Column + 0x40;
-	mDrawSpritePositionY = (mSpriteDataPtr[pData0][pData4].mModY + pDi->field_4) - mDrawSpriteRows - pDi->field_20 - mCamera_Row;
+	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
+	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
+	
+	mDrawSpriteColumns = SheetData->mColCount;
+	mDrawSpriteRows = SheetData->mRowCount - pDi->field_52;
+
+	mDrawSpritePositionX = (SheetData->mModX + pDi->field_0) - mCamera_Column + 0x40;
+	mDrawSpritePositionY = (SheetData->mModY + pDi->field_4) - mDrawSpriteRows - pDi->field_20 - mCamera_Row;
 	mDrawSpritePositionY += 0x10;
 
 	++word_42072;
@@ -3541,7 +3540,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 			sub_159A6();
 
 		if( mImageFaded == -1 )
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x30;
@@ -3597,7 +3596,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 
 		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 		}
 	} while (word_428D8 || mImageFaded != 0);
@@ -3627,7 +3626,7 @@ void cFodder::Briefing_Intro_Desert() {
 			sub_159A6();
 
 		if( mImageFaded == -1 )
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x3A;
@@ -3683,7 +3682,7 @@ void cFodder::Briefing_Intro_Desert() {
 		Mouse_GetData();
 		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 		}
 	} while (word_428D8 || mImageFaded != 0);
@@ -3713,7 +3712,7 @@ void cFodder::Briefing_Intro_Ice() {
 			sub_159A6();
 
 		if( mImageFaded == -1 )
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x24;
@@ -3771,7 +3770,7 @@ void cFodder::Briefing_Intro_Ice() {
 		Mouse_GetData();
 		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 		}
 	} while (word_428D8 || mImageFaded != 0);
@@ -3800,7 +3799,7 @@ void cFodder::Briefing_Intro_Mor() {
 			sub_159A6();
 
 		if( mImageFaded == -1 )
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x1D;
@@ -3856,7 +3855,7 @@ void cFodder::Briefing_Intro_Mor() {
 		Mouse_GetData();
 		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 		}
 	} while (word_428D8 || mImageFaded != 0);
@@ -3886,7 +3885,7 @@ void cFodder::Briefing_Intro_Int() {
 			sub_159A6();
 
 		if( mImageFaded == -1 )
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x40;
@@ -3942,7 +3941,7 @@ void cFodder::Briefing_Intro_Int() {
 		Mouse_GetData();
 		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
 			word_428D8 = 0;
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 		}
 	} while (word_428D8 || mImageFaded != 0);
@@ -4022,7 +4021,7 @@ void cFodder::sub_1594F( ) {
 		word_428D8 = 0;
 
 		mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
-		mImage->paletteFadeOut();
+		mImage->paletteNew_SetToBlack();
 		mImageFaded = -1;
 	}
 
@@ -4172,7 +4171,7 @@ void cFodder::Briefing_Intro() {
 		mGraphics->video_Draw_Linear();
 
 		((cGraphics_Amiga*)mGraphics)->PaletteBriefingSet();
-		mImage->paletteFade();
+		mImage->palette_FadeTowardNew();
 		mImageFaded = -1;
 
 		sub_136D0();
@@ -4210,7 +4209,7 @@ void cFodder::Briefing_Intro() {
 			mGraphics->Briefing_DrawHelicopter( Blade );
 
 			if (mImageFaded)
-				mImageFaded = mImage->paletteFade();
+				mImageFaded = mImage->palette_FadeTowardNew();
 
 			eventProcess();
 			Video_Sleep();
@@ -4221,7 +4220,7 @@ void cFodder::Briefing_Intro() {
 
 			if (mMouse_Exit_Loop) {
 				word_428D8 = 0;
-				mImage->paletteFadeOut();
+				mImage->paletteNew_SetToBlack();
 				mImageFaded = -1;
 				mMouse_Exit_Loop = 0;
 			}
@@ -4258,7 +4257,7 @@ void cFodder::Briefing_Intro() {
 		}
 	}
 
-	mGraphics->LoadpStuff();
+	mGraphics->Load_pStuff();
 }
 
 void cFodder::Briefing_Draw_Mission_Name( ) {
@@ -4346,7 +4345,7 @@ void cFodder::CopyProtection() {
 		while (word_39F66 != 0x0D) {
 			
 			if (mImageFaded) {
-				mImageFaded = mImage->paletteFade();
+				mImageFaded = mImage->palette_FadeTowardNew();
 			}
 
 			String_Print_Input( 0xA0 );
@@ -4610,7 +4609,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
 	mSound->Music_Stop();
 
-	mGraphics->imageLoad( "apmenu.lbm", 32 );
+	mGraphics->Load_And_Draw_Image( "apmenu.lbm", 32 );
 
 	((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
 	mWindow->SetScreenSize( cDimension( 320, 260) );
@@ -4655,47 +4654,16 @@ bool cFodder::Recruit_Show() {
 	word_3AAD1 = -1;
 	word_3AB39 = -1;
 
-	sub_16BC3();
+	Recruit_Truck_Anim_Prepare();
 	sub_16C6C();
 	Recruit_Render_LeftMenu();
 	mGraphics->Recruit_Draw_Hill();
-
-	if (mVersion->mPlatform == ePlatform::Amiga) {
-		mGraphics->Recruit_Draw_HomeAway();
-
-		//sub_A5A7E
-		uint8* a0 = mDataHillData->data() + (29 * 40);
-		uint8* a1 = mDataHillData->data() + 0x3E8;
-
-		for (int16 d1 = 0xB7; d1 >= 0; --d1) {
-			uint8* a2 = a0 + 6;
-			uint8* a3 = a1 + 6;
-
-			for (int16 d0 = 0x10; d0 >= 0; --d0) {
-
-				/*writeBEWord( a3 , readBEWord( a2 ) );
-				writeBEWord( a3 + 0x2828, readBEWord( a2 + 0x2800 ) );
-				writeBEWord( a3 + 0x5050, readBEWord( a2 + 0x5000 ) );
-				writeBEWord( a3 + 0x7878, readBEWord( a2 + 0x7800 ) );*/
-
-				writeBEWord( a2, 0 );
-				writeBEWord( a2 + 0x2800, 0 );
-				writeBEWord( a2 + 0x5000, 0 );
-				writeBEWord( a2 + 0x7800, 0 );
-				a2 += 2;
-				a3 += 2;
-			}
-
-			a0 += 0x28;
-			a1 += 0x28;
-		}
-	}
 
 	Recruit_Sprites_Draw();
 	
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		
-		((cGraphics_Amiga*)mGraphics)->sub_A5B46();
+		((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
 	}
 	
 	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
@@ -4703,7 +4671,7 @@ bool cFodder::Recruit_Show() {
 	Recruit_Draw_Graves();
 	
 	mGraphics->PaletteSet();
-	mImage->paletteFade();
+	mImage->palette_FadeTowardNew();
 	mImage->Save();
 
 	mGUI_Mouse_Modifier_X = 0;
@@ -4712,10 +4680,10 @@ bool cFodder::Recruit_Show() {
 	
 	Recruit_Render_Names_UnusedSlots();
 
-	dword_3AAC9 = mRecruit_Rendered;
+	mRecruit_RenderedPtr = mRecruit_Rendered;
 
 	for (int16 ax = mSquadMemberCount - 1; ax >= 0;--ax )
-		sub_17429();
+		Recruit_Sidebar_Render_SquadName();
 	
 	mMouseCursor_Enabled = -1;
 	word_3A016 = 0;
@@ -4746,7 +4714,7 @@ bool cFodder::Recruit_Show() {
 	mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 	mMouseCursor_Enabled = 0;
 	
-	mImage->paletteFadeOut();
+	mImage->paletteNew_SetToBlack();
 	
 	while( mImage->GetFaded() == false ) {
 		Recruit_Draw();
@@ -4777,31 +4745,37 @@ void cFodder::Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC,
 	}
 }
 
-void cFodder::sub_16BC3() {
-	uint16* di = word_3BDAD;	// 20h
-	int16  ax = mMapPlayerTroopCount;
+void cFodder::Recruit_Truck_Anim_Prepare() {
+	uint16* di = mRecruit_Truck_AnimBuffer;
 	int16  count;
 	
-	if( ax > 0 ) {
+	if(mMapPlayerTroopCount > 0 ) {
 		
-		sub_16C45( &di, word_3E115 );
+		// Welcome Troops
+		Recruit_Truck_Anim_CopyFrames( &di, mRecruit_Truck_Anim_Welcome );
+		
 		count = mMapPlayerTroopCount;
 		count -= 2;
 
+		// Wave Troop Past
 		while( count >= 0 ) {
-			sub_16C45( &di, word_3E135 );
+			Recruit_Truck_Anim_CopyFrames( &di, mRecruit_Truck_Anim_PassTroop );
 			--count;
 		}
 		
-		sub_16C45( &di, word_3E12B );
-		sub_16C45( &di, word_3E15D );
+		// Swing Arm to stop Troops
+		Recruit_Truck_Anim_CopyFrames( &di, mRecruit_Truck_Anim_SwingArm );
+
+		// Close the truck door
+		Recruit_Truck_Anim_CopyFrames( &di, mRecruit_Truck_Anim_CloseDoor );
 	}
 
+	// Set end markers
 	*di++ = 0;
 	*di = -1;
 }
 
-void cFodder::sub_16C45( uint16** pDi, int16* pSource ) {
+void cFodder::Recruit_Truck_Anim_CopyFrames( uint16** pDi, int16* pSource ) {
 	int16 ax;
 	
 	for(;;) {
@@ -4878,7 +4852,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 	int16 DataC	= 0x18;
 	
 	// Draw Heroes Heading
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 	
 	int16 Data14 = 0x0E;
 	Data0 = 4;
@@ -4899,7 +4873,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 			Data0 = 0xAB;
 		
 		Data8 = 0;
-		mGraphics->sub_145AF( Data0, Data8, DataC + 0x18 );
+		mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x18 );
 		DataC += 0x0C;
 		
 	} while( DataC < 0x4A );
@@ -4910,7 +4884,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 	Data0 = 0xAE;
 	Data8 = 0;
 	DataC = 0x4A + 0x18;
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 	
 	Data14 = mMapPlayerTroopCount + mSquadMemberCount;
 	Data14 *= 0x0C;
@@ -4930,7 +4904,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 			Data0 = 0xAB;
 
 		Data8 = 0;
-		mGraphics->sub_145AF( Data0, Data8, DataC + 0x18 );
+		mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x18 );
 		DataC += 0x0C;
 		
 	} while( DataC < Final );
@@ -4995,7 +4969,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 				DataC += word_3A3BD;
 				DataC += word_3AA55;
 
-				mGraphics->sub_145AF( Data0, Data8, DataC + 0x19 );
+				mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x19 );
 			}
 		}
 
@@ -5043,7 +5017,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 			DataC += word_3AA55;
 			DataC += 0x19;
 			
-			mGraphics->sub_145AF( Data0, Data8, DataC );
+			mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 			
 			DataC -= 0x19;
 			
@@ -5060,7 +5034,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 		DataC += 0x4A;
 		DataC += word_3AA55;
 		DataC += 0x19;
-		mGraphics->sub_145AF( Data0, 0, DataC );
+		mGraphics->Sidebar_Render_Sprite( Data0, 0, DataC );
 		DataC -= 0x19;
 		word_3A3BD += 0x0C;
 	}
@@ -5078,7 +5052,7 @@ void cFodder::Recruit_Render_Number( int16 pNumber, int16 pData10 ) {
 	for (std::string::iterator CharIT = Data20.begin(); CharIT != Data20.end(); ++CharIT) {
 
 		Data0 = (*CharIT & 0xFF) + pData10;
-		mGraphics->sub_145AF( Data0, Data8, DataC + 0x19 );
+		mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x19 );
 		Data8 += 4;
 	}
 }
@@ -5098,7 +5072,7 @@ void cFodder::Recruit_Render_HeroList() {
 		int16 DataC = word_3A3BD - 1;
 		DataC += 0x4A + word_3AA55+ 0x19;
 
-		mGraphics->sub_145AF( Hero->mRank + 9, Data8, DataC );
+		mGraphics->Sidebar_Render_Sprite( Hero->mRank + 9, Data8, DataC );
 
 		const sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
 
@@ -5127,7 +5101,7 @@ void cFodder::Recruit_Render_HeroList() {
 			DataC = 0x4B;
 			DataC += word_3A3BD + word_3AA55;
 
-			mGraphics->sub_145AF( Character, Data8, DataC  + 0x19 );
+			mGraphics->Sidebar_Render_Sprite( Character, Data8, DataC  + 0x19 );
 		}
 
 		Recruit_Render_Number( Hero->mKills, 0x67 );
@@ -5151,7 +5125,7 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
 		Data24->mDataPtr = Data20;
 		Data24->mPosition = Data0;
 
-		mGraphics->sub_17480( Data0, 0x0C, 0, Data20 );
+		mGraphics->Sidebar_Render_SquadNames( Data0, 0x0C, 0, Data20 );
 		++Data24;
 	}
 
@@ -5169,39 +5143,38 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
 		Data4 = 7;
 
 	for (; Data4 >= 0; --Data4) {
-		mGraphics->sub_145AF( 0xAC, 0, DataC + 0x18 );
+		mGraphics->Sidebar_Render_Sprite( 0xAC, 0, DataC + 0x18 );
 
 		DataC += 0x0C;
 	}
 }
 
-void cFodder::sub_17429() {
-	//uint8* Data24 = dword_3AAC9;
-	sRecruitRendered* Data24 = dword_3AAC9 ;
+void cFodder::Recruit_Sidebar_Render_SquadName() {
+	sRecruitRendered* Data24 = mRecruit_RenderedPtr ;
 	if (Data24->mPosition < 0)
 		return;
 
-	++dword_3AAC9;
-	mGraphics->sub_17480( (uint16) Data24->mPosition, 0x0C, -1, Data24->mDataPtr );
+	++mRecruit_RenderedPtr;
+	mGraphics->Sidebar_Render_SquadNames( (uint16) Data24->mPosition, 0x0C, -1, Data24->mDataPtr );
 }
 
 void cFodder::Recruit_Draw_Actors( ) {
 	word_42072 = 2;
 
 	if (mVersion->mPlatform == ePlatform::Amiga)
-		((cGraphics_Amiga*)mGraphics)->mBMHDHill.mHeight = 0x101;
+		((cGraphics_Amiga*)mGraphics)->mImageHill.GetHeader()->mHeight = 0x101;
 
 	Recruit_Draw_Truck();
 	Recruit_Draw_Troops();
 
 	if (mVersion->mPlatform == ePlatform::Amiga)
-		((cGraphics_Amiga*)mGraphics)->mBMHDHill.mHeight = 0x100;
+		((cGraphics_Amiga*)mGraphics)->mImageHill.GetHeader()->mHeight = 0x100;
 }
 
 void cFodder::sub_175C0() {
 	sRecruit_Screen_Pos* Data20 = 0;
 
-	if (word_3B1F1 > 0) {
+	if (mRecruit_ToEnterTruck > 0) {
 
 		sRecruit_Screen_Pos* Data20 = &mRecruit_Screen_Positions[293];
 		do {
@@ -5216,11 +5189,12 @@ void cFodder::sub_175C0() {
 		Data20->field_4 = 0;
 		Data0 ^= 1;
 
+
 		if ((Data20 + 1)->field_0 >= 0) {
 			(Data20 + 1)->field_4 = Data0;
 		} else {
-			--word_3B1F1;
-			sub_17429();
+			--mRecruit_ToEnterTruck;
+			Recruit_Sidebar_Render_SquadName();
 		}
 	}
 	//loc_17652
@@ -5351,7 +5325,7 @@ void cFodder::sub_1787C() {
 	if (mMission_Restart)
 		return;
 	
-	word_3B1F1 = mMapPlayerTroopCount;
+	mRecruit_ToEnterTruck = mMapPlayerTroopCount;
 	mRecruit_Reached_Truck = 0;
 
 	int16 Data0 = 0xB4;
@@ -5499,7 +5473,7 @@ void cFodder::Recruit_Draw_Truck( ) {
 	if (!mRecruit_Reached_Truck)
 		return;
 
-	uint16* Data20 = word_3BDAD;
+	uint16* Data20 = mRecruit_Truck_AnimBuffer;
 
 	Data0 = *(Data20 + word_3AACF);
 	if (Data0 < 0)
@@ -5521,12 +5495,12 @@ void cFodder::Recruit_Sprites_Draw() {
 		int16* Data34 = stru->field_8;
 
 		for (;;) {
-			int16 Data0 = word_3B19F;
-			int16 Data4 = word_3B1A1;
+			auto SpriteSheet = Sprite_Get_Sheet(stru->mSpriteType,stru->mFrame);
+
+			int16 Data0 = SpriteSheet->mColCount;
+			int16 Data4 = SpriteSheet->mRowCount;
 			int16 Data8 = word_3B1A3;
 			int16 DataC = word_3B1A5;
-
-			uint8* Data20 = Sprite_Get_Gfx_Ptr( Data0, Data4 );
 
 			Data8 = *Data34++;
 			if (Data8 < 0) {
@@ -5543,7 +5517,7 @@ void cFodder::Recruit_Sprites_Draw() {
 			sub_2AEB6( Data0, Data4, &Data8, &DataC );
 			int16 Data10 = word_3B1A3 + 0x08;
 			int16 Data14 = word_3B1A5;
-			mGraphics->Recruit_Sprite_Draw( Data0, Data4, Data8, Data10, Data14, DataC, Data20 );
+			mGraphics->Recruit_Sprite_Draw( Data0, Data4, Data8, Data10, Data14, DataC, SpriteSheet->GetGraphicsPtr() );
 			word_3B1A3 += 0x10;
 		}
 	}
@@ -5553,7 +5527,7 @@ void cFodder::Recruit_Draw() {
 	Mouse_Inputs_Get();
 	
 	Recruit_Draw_Actors();
-	mGraphics->sub_144A2(0x18);
+	mGraphics->Sidebar_Copy_To_Surface(0x18);
 
 	if (mVersion->mPlatform == ePlatform::PC)
 		mGraphics->Recruit_Draw_HomeAway();
@@ -5562,7 +5536,7 @@ void cFodder::Recruit_Draw() {
 	Video_Sleep_Wrapper();
 
 	if (mImage->GetFaded() == false )
-		mImage->paletteFade();
+		mImage->palette_FadeTowardNew();
 
 	mDrawSpritePositionX = 0x40;
 	mDrawSpritePositionY = 0x28;
@@ -7366,9 +7340,7 @@ loc_25344:;
 	if (pSprite->field_20 <= 0x1F)
 		goto loc_253D2;
 
-	Data0 = mMission_EngineTicks;
-	Data0 &= 0x0F;
-	if (Data0)
+	if (mMission_EngineTicks & 0x0F)
 		goto loc_253D2;
 
 	Sprite_Create_Grenade2(pSprite);
@@ -7671,6 +7643,7 @@ loc_25239:;
 	mSprite_Helicopter_DestroyLight = 0;
 	Data24 = pSprite + 1;
 	Data24->field_18 = eSprite_Null;
+
 	++Data24;
 	Data24->field_18 = eSprite_Null;
 
@@ -8742,11 +8715,11 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
 
 	if (mVersion->mPlatform == ePlatform::PC) {
 		Element->mY = 0xBD;
-		mGraphics->sub_145AF( 0xD0, 0, 0xBD );
+		mGraphics->Sidebar_Render_Sprite( 0xD0, 0, 0xBD );
 	}
 	else {
 		Element->mY = 214;
-		mGraphics->sub_145AF( 0xD0, 0, 214 );
+		mGraphics->Sidebar_Render_Sprite( 0xD0, 0, 214 );
 	}
 	++Element;
 
@@ -9437,13 +9410,13 @@ int16 cFodder::Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8
 	return mSprites_Found_Count;
 }
 
-uint8* cFodder::Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame ) {
+const sSpriteSheet* cFodder::Sprite_Get_Sheet(int16 pSpriteType, int16 pFrame) {
 	const sSpriteSheet* Sheet = &mSpriteDataPtr[pSpriteType][pFrame];
 
 	pSpriteType = Sheet->mColCount;
 	pFrame = Sheet->mRowCount;
 
-	return mGraphics->GetSpriteData( Sheet->mLoadSegment ) + Sheet->mLoadOffset;
+	return Sheet;
 }
 
 uint8 cFodder::sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx ) {
@@ -10533,7 +10506,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 	int8 byte_44B49 = 0;
 	if (mGUI_SaveLoadAction != 3) {
 
-		mImage->paletteFade();
+		mImage->palette_FadeTowardNew();
 		Mouse_Setup();
 	}
 	mGUI_SaveLoadAction = 0;
@@ -10546,7 +10519,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 
 	do {
 		if (mImageFaded == -1)
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		++byte_44B49;
 		byte_44B49 &= 0x0F;
@@ -11039,7 +11012,7 @@ void cFodder::Menu_Loop( const std::function<void()> pButtonHandler ) {
 
 	mImage->Save();
 	mGraphics->PaletteSet();
-	mImage->paletteFade();
+	mImage->palette_FadeTowardNew();
 
 	for (;;) {
 
@@ -11068,7 +11041,7 @@ bool cFodder::Menu_Draw( const std::function<void()> pButtonHandler ) {
 		return true;
 
 	if (mImage->GetFaded() == false)
-		mImage->paletteFade();
+		mImage->palette_FadeTowardNew();
 
 	g_Window.RenderAt( mImage );
 	g_Window.FrameEnd();
@@ -11080,11 +11053,11 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 		
 	Image_FadeOut();
 
-	mGraphics->imageLoad( pFilename, 32 );
+	mGraphics->Load_And_Draw_Image( pFilename, 32 );
 	mGraphics->PaletteSet();
 
 	mImage->Save();
-	mImage->paletteFade();
+	mImage->palette_FadeTowardNew();
 	
 	for( ;; ) {
 		Video_Sleep_Wrapper();
@@ -11096,7 +11069,7 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 			break;
 
 		if (mImage->GetFaded() == false )
-			mImage->paletteFade();
+			mImage->palette_FadeTowardNew();
 
 		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
@@ -11105,17 +11078,17 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 		
 	Image_FadeOut();
 
-	mGraphics->imageLoad( "1.lbm", 32 );
+	mGraphics->Load_And_Draw_Image( "1.lbm", 32 );
 	mGraphics->PaletteSet();
 
 	mImage->Save();
-	mImage->paletteFade();
+	mImage->palette_FadeTowardNew();
 }
 
 void cFodder::Demo_Quiz() {
 	Image_FadeOut();
 
-	mGraphics->imageLoad( "1.lbm", 32 );
+	mGraphics->Load_And_Draw_Image( "1.lbm", 32 );
 	Mouse_Setup();
 
 	Menu_Loop(
@@ -11126,9 +11099,9 @@ void cFodder::Demo_Quiz() {
 	);
 
 
-	mGraphics->imageLoad( "apmenu.lbm", 32 );
+	mGraphics->Load_And_Draw_Image( "apmenu.lbm", 32 );
 	mGraphics->PaletteSet();
-	mImage->paletteFade();
+	mImage->palette_FadeTowardNew();
 	mImage->Save();
 }
 
@@ -11210,7 +11183,7 @@ void cFodder::GUI_Sidebar_SplitButton_Draw() {
 	int16 Data8 = 0;
 	int16 DataC = word_3AC1D;
 
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 }
 
 void cFodder::GUI_Prepare_Button_Squad() {
@@ -11336,7 +11309,7 @@ void cFodder::Service_Show() {
 	Service_Promotion_Loop();
 	Mouse_Setup();
 
-	mGraphics->LoadpStuff();
+	mGraphics->Load_pStuff();
 }
 
 void cFodder::Service_KIA_Loop() {
@@ -11371,13 +11344,13 @@ void cFodder::Service_KIA_Loop() {
 
 		if (word_44475 == -1 || mMouse_Exit_Loop ) {
 			mMouse_Exit_Loop = 0;
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 			mService_ExitLoop = 1;
 		}
 
 		if (mImageFaded == -1)
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		sub_18149();
 		Video_Sleep_Wrapper();
@@ -11423,13 +11396,13 @@ void cFodder::Service_Promotion_Loop() {
 		Mouse_Inputs_Get();
 		if (word_44475 == -1 || mMouse_Exit_Loop ) {
 			mMouse_Exit_Loop = 0;
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 			mService_ExitLoop = 1;
 		}
 
 		if (mImageFaded == -1)
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		Service_Promotion_Check();
 		sub_18149();
@@ -11638,16 +11611,17 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pD
 	}
 }
 
-int16 cFodder::sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC ) {
-	mDraw_Sprite_PaletteIndex = mSpriteDataPtr[pData0][pData4].mPalleteIndex & 0xFF;
+int16 cFodder::sub_1828A( int16& pSpriteType, int16& pFrame, int16& pData8, int16& pDataC ) {
+	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
-	mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( mSpriteDataPtr[pData0][pData4].mLoadSegment ) + mSpriteDataPtr[pData0][pData4].mLoadOffset;
+	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
+	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
 
 	mDrawSpritePositionX = pData8 + 0x10;
 	mDrawSpritePositionY = pDataC + 0x10;
 
-	mDrawSpriteColumns = mSpriteDataPtr[pData0][pData4].mColCount;
-	mDrawSpriteRows = mSpriteDataPtr[pData0][pData4].mRowCount;
+	mDrawSpriteColumns = SheetData->mColCount;
+	mDrawSpriteRows = SheetData->mRowCount;
 
 	if (!sub_184C7()) {
 		if (mVersion->mPlatform == ePlatform::Amiga)
@@ -11919,7 +11893,7 @@ void cFodder::Service_Promotion_SetNewRanks() {
 void cFodder::map_ClearSpt() {
 	
 	for (uint16 cx = 0; cx < 0x2000; ++cx )
-		word_3D5B7[cx] = 0;
+		mSidebar_Screen_Buffer[cx] = 0;
 }
 
 void cFodder::Briefing_Show( ) {
@@ -17838,7 +17812,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 			loc_29D71:;
 
 			if (word_3AC21) {
-				mGraphics->sub_145AF( pParam0 + NextChar, pParam08, pParamC );
+				mGraphics->Sidebar_Render_Sprite( pParam0 + NextChar, pParam08, pParamC );
 			}
 			else			         //0	// C     // 4	   // 8
 				Sprite_Draw_Frame(  pParam0, pParamC, NextChar, pParam08 );
@@ -18164,13 +18138,13 @@ void cFodder::intro_LegionMessage() {
 	while( mImageFaded == -1 || DoBreak == false  ) {
 		
 		if (mImageFaded)
-			mImageFaded = mImage->paletteFade();
+			mImageFaded = mImage->palette_FadeTowardNew();
 
 		if (Duration > 1)
 			--Duration;
 		else {
 			if (DoBreak == false) {
-				mImage->paletteFadeOut();
+				mImage->paletteNew_SetToBlack();
 				mImageFaded = -1;
 				Duration = 0;
 				DoBreak = true;
@@ -18192,7 +18166,7 @@ int16 cFodder::introPlayText() {
 
 		mIntro_PlayTextDuration = 0x288;
 		
-		mImage->paletteClear();
+		mImage->palette_SetToBlack();
 
 		if (mVersion->mIntroData[word_3B2CF].mImageNumber == 0 && mVersion->mIntroData[word_3B2CF].mText == 0 )
 			break;
@@ -18202,7 +18176,7 @@ int16 cFodder::introPlayText() {
 			std::stringstream ImageName;
 			ImageName << (char) mVersion->mIntroData[word_3B2CF].mImageNumber;
 
-			mGraphics->imageLoad( ImageName.str(), 0xD0 );
+			mGraphics->Load_And_Draw_Image( ImageName.str(), 0xD0 );
 		}
 		else {
 			mIntro_PlayTextDuration = 0xAF;
@@ -18229,19 +18203,19 @@ int16 cFodder::introPlayText() {
 
 			if (Duration) {
 				if (Fade)
-					Fade = mImage->paletteFade();
+					Fade = mImage->palette_FadeTowardNew();
 
 				Mouse_GetData();
 				if (mouse_Button_Status) {
 					word_3B2CF = 16;
 					mImage_Aborted = -1;
-					mImage->paletteFadeOut();
+					mImage->paletteNew_SetToBlack();
 					Fade = -1;
 					DoBreak = true;
 				}
 			}
 			else {
-				mImage->paletteFadeOut();
+				mImage->paletteNew_SetToBlack();
 				Fade = -1;
 				DoBreak = true;
 			}
@@ -18270,7 +18244,7 @@ void cFodder::Image_FadeIn() {
 	mImage->Save();
 	mGraphics->PaletteSet();
 
-	while (mImage->paletteFade() == -1) {
+	while (mImage->palette_FadeTowardNew() == -1) {
 
 		Mouse_Inputs_Get();
 		//Mouse_DrawCursor();
@@ -18286,14 +18260,14 @@ void cFodder::Image_FadeIn() {
 
 void cFodder::Image_FadeOut() {
 	mImage->Save();
-	mImage->paletteFadeOut();
+	mImage->paletteNew_SetToBlack();
 
 	while (mImage->GetFaded() == false) {
 
 		Mouse_Inputs_Get();
 		//Mouse_DrawCursor();
 
-		mImage->paletteFade();
+		mImage->palette_FadeTowardNew();
 
 		g_Window.RenderAt( mImage );
 		g_Window.FrameEnd();
@@ -18345,7 +18319,7 @@ introDone:;
 	mIntroDone = -1;
 	mSound->Music_Stop();
 
-	mGraphics->LoadpStuff();
+	mGraphics->Load_pStuff();
 	mSound->Music_Play( 0 );
 }
 
@@ -18357,7 +18331,7 @@ void cFodder::intro_Music_Play() {
 int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration ) {
 	bool DoBreak = false;
 
-	g_Graphics.imageLoad( pFilename, 0x100 );
+	g_Graphics.Load_And_Draw_Image( pFilename, 0x100 );
 	mGraphics->PaletteSet();
 
 	mImageFaded = -1;
@@ -18367,17 +18341,17 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 
 		if (pDuration) {
 			if (mImageFaded)
-				mImageFaded = mImage->paletteFade();
+				mImageFaded = mImage->palette_FadeTowardNew();
 
 			if (mouse_Button_Status) {
 				mImage_Aborted = -1;
-				mImage->paletteFadeOut();
+				mImage->paletteNew_SetToBlack();
 				mImageFaded = -1;
 				DoBreak = true;
 			}
 		}
 		else {
-			mImage->paletteFadeOut();
+			mImage->paletteNew_SetToBlack();
 			mImageFaded = -1;
 			DoBreak = true;
 		}
@@ -18452,10 +18426,10 @@ void cFodder::WonGame() {
 	mMouseX = -1;
 	mMouseY = -1;
 	if (mVersion->mPlatform == ePlatform::Amiga) {
-		mGraphics->imageLoad( "won.raw", 32 );
+		mGraphics->Load_And_Draw_Image( "won.raw", 32 );
 	}
 	else {
-		mGraphics->imageLoad( "won.dat", 0x100 );
+		mGraphics->Load_And_Draw_Image( "won.dat", 0x100 );
 	}
 
 	Image_FadeIn();
@@ -20235,7 +20209,7 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 	mMission_TryAgain = -1;
 	word_39096 = -1;
 
-	mGraphics->LoadpStuff();
+	mGraphics->Load_pStuff();
 }
 
 void cFodder::Start( int16 pStartMap ) {
@@ -20360,7 +20334,7 @@ Start:;
 				if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set)
 					Briefing_Intro();
 				else
-					mGraphics->LoadpStuff();			
+					mGraphics->Load_pStuff();			
 			}
 
 			//loc_10513
@@ -20560,7 +20534,7 @@ void cFodder::GUI_Sidebar_Grenades_Draw( ) {
 	DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 	
 	Data0 = mSquad_Grenades[mGUI_Squad_Current];
 	if (!Data0)
@@ -20651,7 +20625,7 @@ void cFodder::GUI_Sidebar_TroopList_Draw() {
 		else
 			Data0 = 0xA9;
 
-		mGraphics->sub_145AF( Data0, 0, DataC );
+		mGraphics->Sidebar_Render_Sprite( Data0, 0, DataC );
 		DataC += 0x0C;
 	}
 loc_2F1BC:;
@@ -20686,8 +20660,8 @@ loc_2F1BC:;
 
 	loc_2F25C:;
 
-		mGraphics->sub_145AF( Data38->mRank + 9, 0x00, word_3A3BD );
-		mGraphics->sub_145AF( Data38->mRank + 9, 0x23, word_3A3BD );
+		mGraphics->Sidebar_Render_Sprite( Data38->mRank + 9, 0x00, word_3A3BD );
+		mGraphics->Sidebar_Render_Sprite( Data38->mRank + 9, 0x23, word_3A3BD );
 
 		const sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
 		if (!word_3AC47)
@@ -20740,7 +20714,7 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16
 			pData8 <<= 2;
 			pData8 += word_3A05F;
 
-			mGraphics->sub_145AF( pData0, pData8, pDataC );
+			mGraphics->Sidebar_Render_Sprite( pData0, pData8, pDataC );
 		}
 	}
 }
@@ -20765,7 +20739,7 @@ void cFodder::GUI_Sidebar_SquadIcon_Draw() {
 	int16 DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 }
 
 int16 cFodder::sub_2F4CB() {
@@ -20927,7 +20901,7 @@ void cFodder::GUI_Sidebar_Grenades_Refresh(  int16 pData0 ) {
 	int16 DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 }
 
 void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad( ) {
@@ -20960,7 +20934,7 @@ void cFodder::GUI_Sidebar_Rockets_Refresh(  int16 pData0 ) {
 	int16 DataC = word_3AC1D;
 	DataC += 0x0E;
 
-	mGraphics->sub_145AF( pData0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( pData0, Data8, DataC );
 }
 
 int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
@@ -21105,7 +21079,7 @@ void cFodder::GUI_Sidebar_Rockets_Draw( ) {
 	Data8 = 0x20;
 	DataC = word_3AC1D;
 	DataC += 0x0E;
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 
 	Data0 = mSquad_Rockets[mGUI_Squad_Current];
 	if (!Data0)
@@ -21472,7 +21446,7 @@ void cFodder::sub_303B7() {
 	if (mSquad_Selected < 0)
 		return;
 
-	mGraphics->sub_145AF( mSquad_Selected, 0, word_3AC1D );
+	mGraphics->Sidebar_Render_Sprite( mSquad_Selected, 0, word_3AC1D );
 }
 
 void cFodder::sub_303DA() {
@@ -21498,25 +21472,25 @@ loc_30409:;
 	Data0 = word_3DF73[Data4];
 	int16 DataC = word_3AC1D;
 
-	mGraphics->sub_145AF( Data0, Data8, DataC );
+	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 }
 
 void cFodder::sub_30465() {
 
 	for (int16 cx = 0; cx < 0x2000; ++cx){
-		word_3BDAD[cx] = mMapSptPtr[cx];
+		mRecruit_Truck_AnimBuffer[cx] = mMapSptPtr[cx];
 	}
 
-	word_3D5B7 = word_3BDAD;
+	mSidebar_Screen_Buffer = mRecruit_Truck_AnimBuffer;
 }
 
 void cFodder::sub_30480() {
 
 	for (int16 cx = 0; cx < 0x2000; ++cx){
-		mMapSptPtr[cx] = word_3BDAD[cx];
+		mMapSptPtr[cx] = mRecruit_Truck_AnimBuffer[cx];
 	}
 
-	word_3D5B7 = mMapSptPtr;
+	mSidebar_Screen_Buffer = mMapSptPtr;
 }
 
 void cFodder::Squad_Switch_Weapon() {

@@ -36,7 +36,7 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mSurfaceBufferSize = mWidth * mHeight;
 	
 	clearBuffer();
-	wipe();
+	clearSDLSurface();
 }
 
 cSurface::~cSurface() {
@@ -47,21 +47,13 @@ cSurface::~cSurface() {
 	SDL_DestroyTexture( mTexture );
 }
 
-void cSurface::wipe( uint32 pColor ) {
+void cSurface::clearSDLSurface( uint32 pColor ) {
 
 	SDL_FillRect( mSDLSurface, 0, pColor );
 }
 
-void cSurface::wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor) {
-	SDL_Rect dest;
+void cSurface::palette_SetToBlack() {
 
-	dest.x = (int) pX; dest.y = (int) pY; 
-	dest.w = (int) pSizeX; dest.h = (int) pSizeY;
-
-	SDL_FillRect( mSDLSurface, &dest, (uint32) pColor );
-}
-
-void cSurface::paletteClear() {
 	for(int16 ColorID = 0; ColorID < g_MaxColors; ColorID++) {
 		
 		// Get the next color values
@@ -69,65 +61,11 @@ void cSurface::paletteClear() {
 		mPalette[ColorID].mGreen = 0;
 		mPalette[ColorID].mBlue = 0;
 	}
-	paletteLoadSDL();
+
+	surfaceSetToPalette();
 }
 
-void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, bool pUseNow ) {
-
-	if (pUseNow) {
-		for (uint32 ColorID = pColorID; ColorID < g_MaxColors; ++ColorID) {
-			mPalette[ColorID] = pPalette[ColorID];
-		}
-	}
-	else {
-		for (uint32 ColorID = pColorID; ColorID < g_MaxColors; ++ColorID) {
-			mPaletteNew[ColorID] = pPalette[ColorID];
-		}
-	}
-	paletteLoadSDL();
-	if (!pUseNow)
-		mFaded = false;
-}
-
-void cSurface::paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID ) {
-	size_t colorStartID = pColorID;
-
-	if( pColors >= g_MaxColors )
-		pColors = g_MaxColors-1;
-
-	for(; pColorID < pColors + colorStartID; pColorID++) {
-		
-		// Get the next color values
-		mPaletteNew[ pColorID ].mRed =		*pBuffer++;
-		mPaletteNew[ pColorID ].mGreen =	*pBuffer++;
-		mPaletteNew[ pColorID ].mBlue =		*pBuffer++;
-	}
-
-	paletteLoadNewSDL();
-}
-
-void cSurface::paletteLoad_Amiga( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
-	int16  color;
-	int16  ColorID = pColorID;
-
-	for( ; pColorID < ColorID + pColors; pColorID++) {
-		
-		// Get the next color codes
-		color = readBEWord( pBuffer );
-		pBuffer+=2;
-
-		// Extract each color from the word
-		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
-
-		mPaletteNew[pColorID].mRed		= ((color >> 8) & 0xF) << 2;
-		mPaletteNew[pColorID].mGreen	= ((color >> 4) & 0xF) << 2;
-		mPaletteNew[pColorID].mBlue		= ((color >> 0) & 0xF) << 2;
-	}
-
-	//paletteLoadNewSDL();
-}
-
-void cSurface::paletteFadeOut() {
+void cSurface::paletteNew_SetToBlack() {
 	mFaded = false;
 
 	for (int cx = 0; cx < g_MaxColors; ++cx) {
@@ -137,103 +75,147 @@ void cSurface::paletteFadeOut() {
 	}
 }
 
-int16 cSurface::paletteFade() {
+void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, uint32 pColors, bool pUseNow ) {
+
+	// immediately switch to this new palette?
+	if (pUseNow) {
+		for (uint32 ColorID = pColorID; ColorID < pColorID + pColors; ++ColorID) {
+			mPalette[ColorID] = pPalette[ColorID - pColorID];
+		}
+
+	} else {
+		// No, we fade to it later
+		for (uint32 ColorID = pColorID; ColorID < pColorID + pColors; ++ColorID) {
+			mPaletteNew[ColorID] = pPalette[ColorID - pColorID];
+		}
+	}
+
+	// Set the actual surface palette to mPalette
+	surfaceSetToPalette();
+
+	if (!pUseNow)
+		mFaded = false;
+}
+
+int16 cSurface::palette_FadeTowardNew() {
 	int bx = 0;
 	mFaded = true;
 
+	// Loop each color 
 	for( int cx = 0x0; cx < g_MaxColors; ++cx ) {
 
+		// Each component of the current color
 		for( int i = 0; i < 3; ++i ) {
+
 			int8 al = mPaletteNew[cx].getPos(i);
 			int8 bl = mPalette[cx].getPos(i);
+			
+			// Difference between current and target
 			al -= bl;
+
+			// No Difference?
 			if(!al)
 				continue;
 
+			// We divide by two, 3 times, unless we reach 1 (the last possible enabled bit)
 			if( al != 1 ) {
 				al >>= 1;
+
 				if( al != 1 ) {
 					al >>= 1;
+
 					if( al != 1 )
 						al >>= 1;
 				}
 			}
 
 			// loc_13918
+			// Set the new color
 			mPalette[cx].setPos(i, bl + al );
+
+			// Still fading
 			bx = -1;
 			mFaded = false;
 		}
 	}
 
-	paletteLoadSDL();
+	surfaceSetToPalette();
 	return bx;
 }
 
-void cSurface::paletteLoadSDL() {
+/**
+ * Immediately apply mPalette to the surface palette
+ */
+void cSurface::surfaceSetToPalette() {
 
 	for( int cx = 0; cx < g_MaxColors; ++cx )
 		paletteSDLColorSet( cx, &mPalette[cx] );
 }
 
-void cSurface::paletteLoadNewSDL() {
+/**
+ * Immediately apply mPaletteNew to the surface palette
+ */
+void cSurface::surfaceSetToPaletteNew() {
 
 	for( int cx = 0; cx < g_MaxColors; ++cx )
 		paletteSDLColorSet( cx, &mPaletteNew[cx] );
 }
 
+/**
+ * Calculate the surface palette color from the provided palette entry
+ */
 inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
-	if(id >= g_MaxColors)
-		return;
 
 	// Get the palette color for the provided RGB values
 	mPaletteSDL[id] = SDL_MapRGB (	mSDLSurface->format , pPalette->mRed << 2, pPalette->mGreen << 2, pPalette->mBlue << 2) ;
 }
 
-void cSurface::draw( size_t pX, size_t pY ) {
+/**
+ * Draw the Surface Buffer to SDLSurface, using the surface palette
+ */
+void cSurface::draw() {
 
-	wipe();
-
-	uint8 *bufferCurrent = mSurfaceBuffer;
-	uint8 *bufferCurrentMax = (mSurfaceBuffer + mSurfaceBufferSize);
+	const uint8 *bufferCurrent = mSurfaceBuffer;
+	const uint8 *bufferCurrentMax = (mSurfaceBuffer + mSurfaceBufferSize);
 
 	uint32 *bufferTarget = (uint32*)mSDLSurface->pixels;
 	uint32 *bufferTargetMax = (uint32*) (((uint8*) mSDLSurface->pixels) + (mSDLSurface->h * mSDLSurface->pitch));
+	
+	clearSDLSurface();
 
+	// Loop until we reach the destination end
 	while( bufferTarget < bufferTargetMax ) {
 			
+		// Break out if we pass the source end
 		if( bufferCurrent >= bufferCurrentMax )
 			break;
 
+		// Non zero value to draw
 		if (*bufferCurrent) {
+
+			// Value in palette range?
 			if (*bufferCurrent < g_MaxColors)
 				*bufferTarget = mPaletteSDL[*bufferCurrent];
 			else
 				*bufferTarget = 0;
 		}
 
-		++bufferTarget; 
+		// Next Source/Destination
 		++bufferCurrent;
+		++bufferTarget;
 	}
 
 	SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 }
 
 void cSurface::clearBuffer() {
+
 	for (int i = 0; i < mSurfaceBufferSize; ++i) {
 		mSurfaceBuffer[i] = 0;
 		mSurfaceBufferSaved[i] = 0;
 	}
 
-	wipe();
-}
-
-void cSurface::load( cSurface* pImage ) {
-	size_t size = pImage->GetSurfaceBufferSize();
-	if (size > mSurfaceBufferSize)
-		size = mSurfaceBufferSize;
-
-	memcpy( mSurfaceBuffer, pImage->GetSurfaceBuffer(), size );
+	clearSDLSurface();
 }
 
 void cSurface::Save() {
@@ -244,37 +226,4 @@ void cSurface::Save() {
 void cSurface::Restore() {
 	
 	memcpy( mSurfaceBuffer, mSurfaceBufferSaved, mSurfaceBufferSize );
-}
-
-void cSurface::decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColors ) {
-	size_t colorSize = (pColors * 3);
-	size_t dataSize = pSize - colorSize;
-
-	memcpy( mSurfaceBuffer + pStart, pBuffer, dataSize);
-	
-	if(pColors) {
-		paletteLoad( pBuffer + dataSize, pColors );
-	}
-}
-
-void cSurface::loadBuffer( uint8 *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY ) {
-	uint8	*destPtr = mSurfaceBuffer;
-	uint8	*destPtrRow = 0;
-
-	if(!pBuffer)
-		return;
-
-	destPtr += (mWidth * pDestY) + 16;
-	
-	for( int y = 0; y < pMaxY; ++y ) {
-		destPtrRow = destPtr;
-		
-		destPtr += pDestX;
-
-		for( int x = 0; x < pMaxX; ++x ) {
-			*destPtr++ = *pBuffer++;
-		}
-
-		destPtr = destPtrRow + mWidth;
-	}
 }

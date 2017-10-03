@@ -57,25 +57,6 @@ struct sHero {
 	int16	mKills;
 };
 
-struct sSpriteSheet {
-	uint16 mLoadOffset;
-	uint16 mLoadSegment;
-	int16 field_4;
-	int16 field_6;
-	int16 mColCount;
-	int16 mRowCount;
-	int16 mPalleteIndex;
-	int8 mModX;
-	int8 mModY;
-};
-
-struct sSpriteSheet_pstuff {
-	int16	mX;
-	int16	mY;
-	int16	mColumns;
-	int16	mRows;
-};
-
 struct sMapPosition {
 	int16	mX;
 	int16	mY;
@@ -141,7 +122,6 @@ class cFodder : public cSingleton < cFodder > {
 	uint8			mKeyCode;
 
 	tSharedBuffer	mDataPStuff;
-	tSharedBuffer 	mDataHillData;
 	tSharedBuffer 	mDataHillBits;
 	tSharedBuffer 	mMap;
 
@@ -369,7 +349,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA67;
 	int16			word_3AA71;
 	int16			word_3AAC7;
-	sRecruitRendered*			dword_3AAC9;
+	sRecruitRendered*			mRecruit_RenderedPtr;
 	int16			word_3AACD;
 	int16			word_3AACF;
 	int16			word_3AAD1;
@@ -446,7 +426,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B1CF[0x0F];
 	int16			word_3B1ED;
 	int16			mRecruit_Reached_Truck;
-	int16			word_3B1F1;
+	int16			mRecruit_ToEnterTruck;
 
 	const sRecruit_Screen_Pos*		dword_3B1FB;
 	
@@ -528,7 +508,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16*			mMapSptPtr;
 	size_t			mMapSptSize;
 
-	uint16*			word_3BDAD;
+	uint16*			mRecruit_Truck_AnimBuffer;
 	int16			mMouseX;
 	int16			mMouseY;
 	uint16			mouse_Pos_Column_Unused;
@@ -570,7 +550,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D469;
 	int16			mCamera_Column_Previous;
 	int16			mCamera_Row_Previous;
-	uint16*			word_3D5B7;
+	uint16*			mSidebar_Screen_Buffer;
 
 	sGUI_Element	stru_3DEDC[2];
 	int16			mMission_Save_Availability[0x18];
@@ -764,8 +744,8 @@ public:
 	void			Video_Sleep_Wrapper();
 	void			Mouse_DrawCursor( );
 	void			Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX );
-	void			sub_13C8A(  int16 pData0, int16 pData4, int16 pPosX, int16 pPosY );
-	void			sub_13CF0(  sSprite* pDi, int16 pData0, int16 pData4 );
+	void			sub_13C8A(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
+	void			sub_13CF0(  sSprite* pDi, int16 pSpriteType, int16 pFrame);
 
 	bool			Sprite_OnScreen_Check();
 	void			Sprite_Draw( );
@@ -800,8 +780,8 @@ public:
 	/* Recruitment */
 	bool			Recruit_Show();
 	void			Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
-	void			sub_16BC3();
-	void			sub_16C45( uint16** pDi, int16* pSource );
+	void			Recruit_Truck_Anim_Prepare();
+	void			Recruit_Truck_Anim_CopyFrames( uint16** pDi, int16* pSource );
 	void			sub_16C6C();
 	void			Recruit_Render_LeftMenu();
 	void			Recruit_Render_Squad_Names();
@@ -809,7 +789,7 @@ public:
 	void			Recruit_Render_Number( int16 pNumber, int16 pData10 );
 	void			Recruit_Render_HeroList();
 	void			Recruit_Render_Names_UnusedSlots();
-	void			sub_17429();
+	void			Recruit_Sidebar_Render_SquadName();
 	void			Recruit_Draw_Actors( );
 	void			sub_175C0();
 	void			Recruit_Draw_Troops();
@@ -835,7 +815,7 @@ public:
 	void			sub_18149();
 	void			sub_181BD();
 	void			sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
-	int16			sub_1828A( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+	int16			sub_1828A( int16& pSpriteType, int16& pFrame, int16& pData8, int16& pDataC );
 	void			sub_182EA();
 	int16			sub_184C7();
 	void			Service_Mission_Text_Prepare( uint16*& pTarget );
@@ -1118,7 +1098,8 @@ public:
 	void			Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10 );
 	int16			Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 
-	uint8*			Sprite_Get_Gfx_Ptr( int16& pSpriteType, int16& pFrame );
+	const sSpriteSheet*	Sprite_Get_Sheet( int16 pSpriteType, int16 pFrame );
+
 	void			sub_2AEB6( int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC );
 	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 
