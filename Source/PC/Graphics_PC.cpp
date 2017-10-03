@@ -47,7 +47,7 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			break;
 
 		case 0x6717:
-			return mFodder->mDataHillData->data();
+			return mImageHill.mData->data();
 			break;
 
 		default:
@@ -67,7 +67,7 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	int16 ax = di->mY * 160;
 	int16 bx = di->mX >> 1;
 
-	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff->data() + (ax +bx);
+	mFodder->mDraw_Sprite_FrameDataPtr = di->GetGraphicsPtr(ax +bx);
 	mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
 	
 	video_Draw_Sprite();
@@ -102,7 +102,7 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 	}
 }
 
-void cGraphics_PC::LoadpStuff() {
+void cGraphics_PC::Load_pStuff() {
 
 	mFodder->mDataPStuff = g_Resource.fileGet( "pstuff.dat" );
 	PaletteLoad( mFodder->mDataPStuff->data() + 0xA000, 0x10, 0xF0 );
@@ -116,10 +116,21 @@ void cGraphics_PC::Load_Sprite_Font() {
 	SetSpritePtr( eSPRITE_FONT );
 }
 
-void cGraphics_PC::Load_Hill_Data() {
+
+sImage cGraphics_PC::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
+
+	sImage Hill;
 	
-	mFodder->mDataHillData = g_Resource.fileGet( "hill.dat" );
-	PaletteLoad( mFodder->mDataHillData->data() + 0xFA00, 0x50, 0x00 );
+	Hill.mData = g_Resource.fileGet(pFilename);
+	Hill.LoadPalette(pPaletteOffset, pCount, pStartIndex);
+	Hill.CopyPalette(&mFodder->mPalette[pStartIndex], pCount, pStartIndex);
+
+	return Hill;
+}
+
+void cGraphics_PC::Load_Hill_Data() {
+
+	mImageHill = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
 
 	Load_Hill_Bits();
 }
@@ -237,7 +248,7 @@ void cGraphics_PC::Map_Tiles_Draw() {
 	mImage->Save();
 }
 
-void cGraphics_PC::sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
+void cGraphics_PC::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
 	uint8* Target = mFodder->mSurfaceMapOverview->GetSurfaceBuffer();
 
 	pDestX *= 16;
@@ -264,21 +275,25 @@ void cGraphics_PC::Map_Load_Resources() {
 	//
 	{
 		mSpriteSheet_InGame2.mData = g_Resource.fileGet( mFodder->mFilenameCopt );
-		mSpriteSheet_InGame2.LoadPalette( 0xD2A0, 0xB0, 0x40 );
-		mSpriteSheet_InGame2.LoadPalette( 0xD360, 0x90, 0x10 );
+		mSpriteSheet_InGame2.LoadPalette( 0xD360, 0x10, 0x90 );
+		mSpriteSheet_InGame2.LoadPalette( 0xD2A0, 0x40, 0xB0 );
+		
 	}
 
 	mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
-	PaletteLoad( mSpriteSheet_InGame2.mData->data() + 0xD2A0, 0x40, 0xB0 );
-	PaletteLoad( mSpriteSheet_InGame2.mData->data() + 0xD360, 0x10, 0x90 );
 
 	// 
 	{
 		mSpriteSheet_InGame1.mData = g_Resource.fileGet( mFodder->mFilenameArmy );
-		mSpriteSheet_InGame1.LoadPalette( 0xD200, 0xA0, 0x10 );
+		mSpriteSheet_InGame1.LoadPalette( 0xD200, 0x10, 0xA0 );
 	}
 
-	PaletteLoad( mSpriteSheet_InGame1.mData->data() + 0xD200, 0x10, 0xA0 );
+	// Sprites on Sheet2 occupy palette range from 0x90-0x9F and 0xB0-0xCF
+	mSpriteSheet_InGame2.CopyPalette(&mFodder->mPalette[0x90], 0x10, 0x90);
+	mSpriteSheet_InGame2.CopyPalette(&mFodder->mPalette[0xB0], 0x40, 0xB0);
+
+	// Sprites on Sheet1 occupy palette range from 0xA0-0xAF
+	mSpriteSheet_InGame1.CopyPalette(&mFodder->mPalette[0xA0], 0x10, 0xA0);
 
 	SetSpritePtr( eSPRITE_IN_GAME );
 }
@@ -447,7 +462,7 @@ void cGraphics_PC::video_Draw_Sprite() {
 	}
 }
 
-void cGraphics_PC::sub_144A2( int16 pStartY ) {
+void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mFodder->mMapSptPtr;
@@ -472,7 +487,7 @@ void cGraphics_PC::sub_144A2( int16 pStartY ) {
 	}
 }
 
-void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
+void cGraphics_PC::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY ) {
 	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 	
 	mFodder->mDrawSpriteColumns = str2->mColumns;
@@ -482,7 +497,7 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 	uint16 bx = str2->mX >> 1;
 	ax += bx;
 	
-	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataPStuff->data() + ax;
+	mFodder->mDraw_Sprite_FrameDataPtr = str2->GetGraphicsPtr( ax );
 	
 	mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
 	
@@ -493,7 +508,7 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 	ax *= 0x960;
 	w42066 += ax;
 	
-	uint8* di = ((uint8*)mFodder->word_3D5B7) + w42066;
+	uint8* di = ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
 	uint8* si = mFodder->mDraw_Sprite_FrameDataPtr;
 	
 	int8 bl = mFodder->mDraw_Sprite_PaletteIndex;
@@ -524,7 +539,7 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 		w42066 -= 0x257F;
 	
 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
+	di =  ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
 	
 	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
@@ -547,7 +562,7 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 	
 	++mFodder->mDraw_Sprite_FrameDataPtr;
 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
+	di =  ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
 	
 	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
@@ -570,7 +585,7 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 		w42066 -= 0x257F;
 
 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	di =  ((uint8*)mFodder->word_3D5B7) + w42066;
+	di =  ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
 	
 	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
@@ -589,7 +604,7 @@ void cGraphics_PC::sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) {
 
 }
 
-void cGraphics_PC::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
+void cGraphics_PC::Sidebar_Render_SquadNames( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
 	pData0 += 0x18;
 
 	uint8* SptPtr = (uint8*)mFodder->mMapSptPtr;
@@ -642,7 +657,7 @@ void cGraphics_PC::sub_17480( uint16 pData0, int16 pData4, int16 pData8, uint32*
 
 void cGraphics_PC::Recruit_Draw_Hill( ) {
 
-	mFodder->mDraw_Sprite_FrameDataPtr = mFodder->mDataHillData->data() + 0xA00;
+	mFodder->mDraw_Sprite_FrameDataPtr = mImageHill.mData->data() + 0xA00;
 
 	mFodder->mDrawSpritePositionX = 0x40;
 	mFodder->mDrawSpritePositionY = 0x28;
@@ -653,7 +668,7 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 	video_Draw_Linear();
 	
 	for( uint32 x = 0; x < 0xA000; ++x) {
-		mFodder->mDataHillData->data()[x] = 0;
+		mImageHill.mData->data()[x] = 0;
 	}
 }
 
@@ -743,7 +758,7 @@ void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData
 	pColumns &= 0xFFFF;
 	pRows &= 0xFFFF;
 
-	uint8* es = mFodder->mDataHillData->data();
+	uint8* es = mImageHill.mData->data();
 
 	mFodder->dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
 	mFodder->dword_44A3E = mFodder->dword_44A36;
@@ -773,7 +788,7 @@ void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData
 
 }
 
-void cGraphics_PC::imageLoad( const std::string &pFilename, unsigned int pColors ) {
+void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors ) {
 	std::string Filename = pFilename;
 
 	if (Filename.find('.') == std::string::npos )

@@ -24,32 +24,29 @@
 
 template <typename tBase> class cSingleton {
 
-	static tBase* m_Singleton;
+	static tBase* mSingleton;
 
 public:
 
 	cSingleton() {
 
-		assert( !m_Singleton );
-
-		m_Singleton = static_cast<tBase*> (this);
+		assert( !mSingleton );
+		mSingleton = static_cast<tBase*> (this);
 	}
 
 	~cSingleton() {
-		assert( m_Singleton ); 
-		m_Singleton = 0;
+		assert( mSingleton ); 
+		mSingleton = 0;
 	}
 
 	static inline tBase& GetSingleton() {
-
-		assert( m_Singleton ); 
-		return *m_Singleton;
+		assert( mSingleton ); 
+		return *mSingleton;
 	}
 
 	static inline tBase* GetSingletonPtr() {
-
-		return m_Singleton;
+		return mSingleton;
 	}
 };
 
-template <typename tBase> tBase* cSingleton<tBase>::m_Singleton = 0;
+template <typename tBase> tBase* cSingleton<tBase>::mSingleton = 0;

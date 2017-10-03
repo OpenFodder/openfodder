@@ -59,38 +59,31 @@ protected:
 	size_t			mWidth, mHeight;
 	bool			mFaded;
 
+
+	void			clearSDLSurface(uint32 pColor = 0);						// Clear the surface
+
 	void			paletteSDLColorSet( size_t id, cPalette *pPalette  );	// Set a color in the palette
 	
 
 public:
-	void			paletteLoadSDL();
-	void			paletteLoadNewSDL();
+	void			surfaceSetToPalette();
+	void			surfaceSetToPaletteNew();
 					cSurface( size_t pWidth, size_t pHeight );
 					~cSurface();
 
 	void			clearBuffer();
 
-	void			load( cSurface* pImage );
-	void			loadBuffer( uint8 *pBuffer, size_t pDestX, size_t pDestY, size_t pMaxX, size_t pMaxY );
-
-
-	void			decode( uint8 *pBuffer, size_t pSize, size_t pStart, size_t pColors );
-
-	void			draw( size_t pX = 0 , size_t pY = 0);					// Draw image to SDL Surface
+	void			draw();						// Draw image to SDL Surface
 
 	void			Save();
 	void			Restore();
 
-	void			paletteClear();
-	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, bool pUseNow = false );
-	void			paletteLoad( const uint8  *pBuffer, size_t pColors, size_t pColorID = 0 );			// Load a palette	void			paletteLoad_Amiga(  const uint8  *pBuffer );
-	void			paletteLoad_Amiga(  const uint8  *pBuffer, uint32 pColorID = 0, uint32 pColors = 16 );
+	void			palette_SetToBlack();
+	int16			palette_FadeTowardNew();
 
-	int16			paletteFade();
-	void			paletteFadeOut();
+	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, uint32 pColors = g_MaxColors, bool pUseNow = false );
 
-	void			wipe( uint32 pColor = 0 );						// Clear the surface
-	void			wipe( size_t pX, size_t pY, size_t pSizeX, size_t pSizeY, size_t pColor = 0);
+	void			paletteNew_SetToBlack();
 
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }

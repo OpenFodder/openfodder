@@ -29,11 +29,11 @@ const extern sSpriteSheet* mSpriteSheetPtr_Font_Rank_Amiga[];
 
 
 
-struct sStruct3_Amiga {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
-	int16	field_6;
+struct sHillOverlay_Amiga {
+	int16	mSpriteType;
+	int16	mFrame;
+	int16	mX;
+	int16	mY;
 };
 
 struct sStruct0_Amiga {
@@ -46,44 +46,39 @@ struct sStruct0_Amiga {
 class cGraphics_Amiga : public cGraphics {
 public:
 	tSharedBuffer 		mBlkData;
-	uint8				mPalette[0xFF];
-	uint8				mPaletteArmy[0x20];
-	uint8				mPaletteCopt[0x20];
-	uint8				mPalletePStuff[0x20];
-	uint8				mPalleteHill[0x20];
-	uint8				mPalleteFont[0x20];
-	uint8				mPaletteBrief[0x1FE];
 
-	uint8*				mPlayData;
+	sImage				mImageService;
+	sImage				mImagePStuff;
+	sImage				mImageFonts;
 
-	size_t				mPaletteSize;
+	sImage				mImageBriefingIntro;
 
-	sILBM_BMHD			mBMHDPStuff;
-	sILBM_BMHD			mBMHDFont;
-	sILBM_BMHD			mBMHDHill;
-	sILBM_BMHD			mBMHDPlay;
+	cPalette			mPalette[255];
 
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
 
+protected:
+	virtual void		DecodePalette(const uint8* pData, size_t pColorID, const size_t pColors);
+	virtual sImage		DecodeIFF(const std::string& pFilename);
+
 	public:
 						cGraphics_Amiga();
 	virtual				~cGraphics_Amiga();
-	std::tuple<tSharedBuffer, sILBM_BMHD> DecodeIFF( const std::string& pFilename, uint8* pPalette );
-	virtual bool		DecodeIFF( uint8* pData, uint8* pDataDest, sILBM_BMHD* pBMHD, uint8* pPalette );
-	virtual sImage		DecodeIFF( const std::string& pFilename );
+
+	virtual sImage		Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset = 0, const size_t pStartIndex = 0);
 
 	virtual void		SetCursorPalette( uint16 pIndex );
 	
 	virtual void		DrawPixels_8( uint8* pSource, uint8* pDestination );
 	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination );
 
-	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors = 0 );
+	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors = 0 );
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();
 	virtual void		Tile_Prepare_Gfx();
-	virtual void		LoadpStuff();
+	virtual void		Load_pStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
 	virtual void		Load_Hill_Bits();
@@ -91,8 +86,8 @@ public:
 
 	virtual void		Map_Load_Resources();
 	virtual void		Map_Tiles_Draw();
-	virtual void		sub_A5B46();
-	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY );
+	virtual void		Hill_Prepare_Overlays();
+	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	
 	virtual void		PaletteSetOverview();
 	virtual void		PaletteSet();
@@ -105,9 +100,9 @@ public:
 
 	virtual void		SetSpritePtr( eSpriteType pSpriteType );
 
-	virtual void		sub_144A2( int16 pStartY );
-	virtual void		sub_145AF( int16 pSpriteType, int16 pX, int16 pY );
-	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
+	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
+	virtual void		Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY );
+	virtual void		Sidebar_Render_SquadNames( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
 
 	virtual void		Recruit_Sprite_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 

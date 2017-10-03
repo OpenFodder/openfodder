@@ -39,17 +39,18 @@ class cGraphics_PC : public cGraphics {
 	virtual void		Mouse_DrawCursor();
 
 	virtual void		Tile_Prepare_Gfx();
-	virtual void		LoadpStuff();
+	virtual void		Load_pStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
 	virtual void		Load_Hill_Bits();
 	virtual void		Load_Service_Data();
 
-	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors );
+	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors );
+	virtual sImage		Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex);
 
 	virtual void		Map_Load_Resources();
 	virtual void		Map_Tiles_Draw();
-	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY );
+	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	
 	virtual void		PaletteSetOverview();
 	virtual void		PaletteSet();
@@ -59,9 +60,9 @@ class cGraphics_PC : public cGraphics {
 	virtual void		video_Draw_Linear();
 	virtual void		video_Draw_Sprite();
 
-	virtual void		sub_144A2( int16 pStartY );
-	virtual void		sub_145AF( int16 pSpriteType, int16 pX, int16 pY );
-	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
+	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
+	virtual void		Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY );
+	virtual void		Sidebar_Render_SquadNames( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 );
 
 	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics );
 	

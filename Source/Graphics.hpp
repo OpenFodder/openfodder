@@ -42,6 +42,12 @@ struct sILBM_BMHD {
 	uint8	mAspectX, mAspectY;
 	uint16	mPageWidth, mPageHeight;
 
+	sILBM_BMHD() {
+		mWidth = 0;
+		mHeight = 0;
+		mPlanes = 0;
+	}
+
 	uint16 ScreenSize() const {
 		return (mWidth * mHeight);
 	}
@@ -50,32 +56,71 @@ struct sILBM_BMHD {
 struct sImage {
 	tSharedBuffer		mData;
 	cDimension			mDimension;
-	std::vector<int32>	mPallete;
+	cPalette			mPalette[256];
 	uint8				mPlanes;
+
+protected:
 	sILBM_BMHD			mBMHD;
+
+public:
 
 	sImage() {
 		mData = std::make_shared<std::vector<uint8>>();
 		mDimension = { 0,0 };
 		mPlanes = 0;
-		mPallete.resize( 512 );
 	}
 
 	sILBM_BMHD* GetHeader() {
 
-		mBMHD.mWidth = mDimension.mWidth;
-		mBMHD.mHeight = mDimension.mHeight;
-		mBMHD.mPlanes = mPlanes;
+		if (!mBMHD.mWidth || !mBMHD.mHeight) {
+			mBMHD.mWidth = mDimension.mWidth;
+			mBMHD.mHeight = mDimension.mHeight;
+			mBMHD.mPlanes = mPlanes;
+		}
 		return &mBMHD;
 	}
 
-	/**
-	 * Copy a palette in
+	/*
+	 * Load a Palette from a location in the loaded data
 	 */
-	void LoadPalette( const size_t pFrom, const size_t pPaletteIndex, const size_t pCount ) {
+	void LoadPalette(size_t pFrom, const size_t pCount, const size_t pStartColorID = 0) {
 
-		memcpy( &mPallete[pPaletteIndex], mData->data() + pFrom, pCount );
-		
+		auto Buffer = mData->data();
+
+		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + pCount; ColorID++) {
+
+			// Get the next color values
+			mPalette[ColorID].mRed = *(Buffer + pFrom++);
+			mPalette[ColorID].mGreen = *(Buffer + pFrom++);
+			mPalette[ColorID].mBlue = *(Buffer + pFrom++);
+		}
+	}
+
+	/**
+	 * Load a Palette from a buffer (BIG ENDIAN)
+	 */
+	void LoadPalette_Amiga( const uint8 *pFrom, const size_t pCount, const size_t pStartColorID = 0 ) {
+
+		uint16 color;
+
+		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + pCount; ColorID++) {
+
+			// Get the next color codes
+			color = readBEWord(pFrom);
+			pFrom += 2;
+
+			// Extract each color from the word
+			//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
+
+			mPalette[ColorID].mRed = ((color >> 8) & 0xF) << 2;
+			mPalette[ColorID].mGreen = ((color >> 4) & 0xF) << 2;
+			mPalette[ColorID].mBlue = ((color >> 0) & 0xF) << 2;
+		}		
+	}
+
+	void CopyPalette( cPalette* pDestination, const size_t pCount, const size_t pStartColorID = 0) {
+
+		memcpy(pDestination, &mPalette[pStartColorID], sizeof(cPalette) * pCount);
 	}
 };
 
@@ -83,7 +128,10 @@ class cGraphics : public cSingleton<cGraphics> {
 	public:
 	sImage				mSpriteSheet_InGame1;	// Army
 	sImage				mSpriteSheet_InGame2;	// Copt
+
 	sImage				mSpriteSheet_RankFont;
+
+	sImage				mImageHill;
 
 protected:
 	cSurface*			mImage;
@@ -97,7 +145,7 @@ public:
 
 	virtual uint8*		GetSpriteData( uint16 pSegment ) = 0;
 	virtual void		Mouse_DrawCursor() = 0;
-	virtual void		LoadpStuff() = 0;
+	virtual void		Load_pStuff() = 0;
 
 	virtual void		Load_Sprite_Font() = 0;
 	virtual void		Load_Hill_Data() = 0;
@@ -105,13 +153,15 @@ public:
 	virtual void		Load_Service_Data() = 0;
 
 	virtual void		Tile_Prepare_Gfx() = 0;
-	
-	virtual void		imageLoad( const std::string &pFilename, unsigned int pColors ) = 0;
+
+	virtual sImage		Decode_Image(const std::string& pFilename, const size_t pCount = 0, const size_t pPaletteOffset = 0, const size_t pStartIndex = 0) = 0;
+
+	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors ) = 0;
 
 	virtual void		Map_Tiles_Draw() = 0;
 	virtual void		Map_Load_Resources() = 0;
 
-	virtual void		sub_2B04B( uint16 pTile, uint16 pDestX, uint16 pDestY ) = 0;
+	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY ) = 0;
 
 	virtual void		PaletteSetOverview() = 0;
 	virtual void		PaletteSet() = 0;
@@ -125,9 +175,9 @@ public:
 	virtual void		SetImageOriginal();
 	virtual bool		Sprite_OnScreen_Check() = 0;
 
-	virtual void		sub_144A2( int16 pStartY = 0 ) = 0;
-	virtual void		sub_145AF( int16 pSpriteType, int16 pX, int16 pY ) = 0;
-	virtual void		sub_17480( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 ) = 0;
+	virtual void		Sidebar_Copy_To_Surface( int16 pStartY = 0 ) = 0;
+	virtual void		Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY ) = 0;
+	virtual void		Sidebar_Render_SquadNames( uint16 Data0, int16 Data4, int16 Data8, uint32*& Data20 ) = 0;
 	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) = 0;
 
 	virtual void		Briefing_Load_Resources() = 0;
