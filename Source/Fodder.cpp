@@ -3523,7 +3523,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = word_4286B->data();
+	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
 
 	mDraw_Sprite_PaletteIndex = 0xE0;
 
@@ -3546,22 +3546,22 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		// Clouds
 		word_42859 = 0x30;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x38;
 		word_4285B = 0x102C * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873);
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873);
 
 		word_42859 = 0x12;
 		word_4285B = 0x1D3C * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871);
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871);
 
 		// Trees (Main)
 		word_42859 = 0x5C;
 		word_4285B = 0x236C * 4;
-		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3572,7 +3572,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 
 		word_42859 = 0x2D;
 		word_4285B = 0x33EC * 4;
-		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
+		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3609,7 +3609,7 @@ void cFodder::Briefing_Intro_Desert() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = word_4286B->data();
+	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
 
 	mDraw_Sprite_PaletteIndex = 0xE0;
 
@@ -3632,22 +3632,22 @@ void cFodder::Briefing_Intro_Desert() {
 		// Clouds
 		word_42859 = 0x3A;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x4C;
 		word_4285B = 0x139C * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
 
 		word_42859 = 0x30;
 		word_4285B = 0x1CE4 * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
 		word_42859 = 0x40;
 		word_4285B = 0x2D64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3658,7 +3658,7 @@ void cFodder::Briefing_Intro_Desert() {
 
 		word_42859 = 0x30;
 		word_4285B = 0x32E4 * 4;
-		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
+		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3695,7 +3695,7 @@ void cFodder::Briefing_Intro_Ice() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = word_4286B->data();
+	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
 
 	mDraw_Sprite_PaletteIndex = 0xE0;
 
@@ -3718,23 +3718,23 @@ void cFodder::Briefing_Intro_Ice() {
 		// Clouds
 		word_42859 = 0x24;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x42;
 		word_4285B = 0x102C * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
 
 		// Ice Caps
 		word_42859 = 0x18;
 		word_4285B = 0x1CE4 * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
 
 		// Ice Mountains
 		word_42859 = 0x58;
 		word_4285B = 0x2524 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3746,7 +3746,7 @@ void cFodder::Briefing_Intro_Ice() {
 		word_42859 = 0x2E;
 		word_4285B = 0x3394 * 4;
 		// Trees
-		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
+		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3783,7 +3783,7 @@ void cFodder::Briefing_Intro_Mor() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = word_4286B->data();
+	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
 
 	mDraw_Sprite_PaletteIndex = 0xE0;
 
@@ -3805,22 +3805,22 @@ void cFodder::Briefing_Intro_Mor() {
 		// Clouds
 		word_42859 = 0x1D;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x40;
 		word_4285B = 0x1134 * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
 
 		word_42859 = 0x6;
 		word_4285B = 0x2524 * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
 		word_42859 = 0x52;
 		word_4285B = 0x2734 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3831,7 +3831,7 @@ void cFodder::Briefing_Intro_Mor() {
 
 		word_42859 = 0x30;
 		word_4285B = 0x32E4 * 4;
-		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
+		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3863,12 +3863,12 @@ void cFodder::Briefing_Intro_Mor() {
 }
 
 void cFodder::Briefing_Intro_Int() {
-	int16 word_4286F = 0;
-	int16 word_42871 = 0;
-	int16 word_42873 = 0;
-	int16 word_42875 = 0;
+	int16 mBriefing_Intro_X = 0;
+	int16 mBriefing_Intro_Clouds1_X = 0;
+	int16 mBriefing_Intro_Clouds2_X = 0;
+	int16 mBriefing_Intro_Clouds3_X = 0;
 
-	mDraw_Sprite_FrameDataPtr = word_4286B->data();
+	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
 
 	mDraw_Sprite_PaletteIndex = 0xE0;
 
@@ -3891,22 +3891,22 @@ void cFodder::Briefing_Intro_Int() {
 		// Clouds
 		word_42859 = 0x40;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, mBriefing_Intro_Clouds3_X );
 
 		word_42859 = 0x2F;
 		word_4285B = 0x16B4 * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, mBriefing_Intro_Clouds2_X );
 
 		word_42859 = 0x22;
 		word_4285B = 0x1B2C * 4;
-		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, mBriefing_Intro_Clouds1_X );
 
 		// Trees (Main)
 		word_42859 = 0x53;
 		word_4285B = 0x26DC * 4;
-		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, mBriefing_Intro_Clouds1_X );
 
-		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
+		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
 		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
 		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
@@ -3917,23 +3917,23 @@ void cFodder::Briefing_Intro_Int() {
 
 		word_42859 = 0x23;
 		word_4285B = 0x375C * 4;
-		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
+		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, mBriefing_Intro_X );
 
-		word_4286F += 8;
-		if (word_4286F > 0x140)
-			word_4286F = 0;
+		mBriefing_Intro_X += 8;
+		if (mBriefing_Intro_X > 0x140)
+			mBriefing_Intro_X = 0;
 
-		word_42871 += 4;
-		if (word_42871 > 0x140)
-			word_42871 = 0;
+		mBriefing_Intro_Clouds1_X += 4;
+		if (mBriefing_Intro_Clouds1_X > 0x140)
+			mBriefing_Intro_Clouds1_X = 0;
 
-		word_42873 += 2;
-		if (word_42873 > 0x140)
-			word_42873 = 0;
+		mBriefing_Intro_Clouds2_X += 2;
+		if (mBriefing_Intro_Clouds2_X > 0x140)
+			mBriefing_Intro_Clouds2_X = 0;
 
-		++word_42875;
-		if (word_42875 > 0x140)
-			word_42875 = 0;
+		++mBriefing_Intro_Clouds3_X;
+		if (mBriefing_Intro_Clouds3_X > 0x140)
+			mBriefing_Intro_Clouds3_X = 0;
 
 		Video_Sleep();
 		g_Window.RenderAt( mImage, cPosition() );
@@ -4028,7 +4028,7 @@ void cFodder::sub_1594F( ) {
 
 }
 
-void cFodder::sub_15A36(tSharedBuffer pSource, int16 pCx ) {
+void cFodder::Briefing_Render_2(tSharedBuffer pSource, int16 pCx ) {
 	uint8* pDs = pSource->data();
 
 	int16 ax = pCx >> 2;
@@ -4073,7 +4073,7 @@ void cFodder::sub_15A36(tSharedBuffer pSource, int16 pCx ) {
 	}
 }
 
-void cFodder::sub_15B86( tSharedBuffer pDs, int16 pCx ) {
+void cFodder::Briefing_Render_1( tSharedBuffer pDs, int16 pCx ) {
 
 	if (word_3E75B != 0)
 		sub_15B98( pDs->data(), pCx );

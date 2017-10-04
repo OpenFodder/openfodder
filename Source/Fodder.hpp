@@ -603,7 +603,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_428B8;
 	tSharedBuffer	mBriefing_Intro_Gfx_TreesMain;
 	uint16			word_428BA;
-	tSharedBuffer	word_4286B;
+	tSharedBuffer	mBriefing_ParaHeli;
 
 	uint32			mHelicopterPosX;
 	uint32			mHelicopterPosY;
@@ -762,8 +762,8 @@ public:
 	void			sub_1590B( );
 	void			sub_1594F( );
 	void			sub_159A6( );
-	void			sub_15A36(tSharedBuffer pDs, int16 pCx );
-	void			sub_15B86( tSharedBuffer pDs, int16 pCx );
+	void			Briefing_Render_2(tSharedBuffer pDs, int16 pCx );
+	void			Briefing_Render_1( tSharedBuffer pDs, int16 pCx );
 	void			sub_15B98( uint8* pDs, int16 pCx );
 
 	void			sub_15CE8( uint8* pDs, int16 pCx );
