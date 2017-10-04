@@ -34,6 +34,10 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			return mFodder->mDataBaseBlk->data();
 			break;
 
+		case 0x7000:
+			return mImageService.mData->data();
+			break;
+
 		case 0x4307:
 			return mFodder->mDataPStuff->data();
 			break;
@@ -77,27 +81,27 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 	
 	switch (pSpriteType) {
 		case eSPRITE_IN_GAME:
-			mFodder->Sprite_SetDataPtrToBase( off_32C0C );
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_InGame_PC );
 			return;
 
 		case eSPRITE_FONT:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_PC );
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Font_PC );
 			return;
 
 		case eSPRITE_HILL:
-			mFodder->Sprite_SetDataPtrToBase( mHillSpriteSheetPtr_PC );
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_PC );
 			return;
 
 		case eSPRITE_HILL_UNK:
-			mFodder->Sprite_SetDataPtrToBase( off_35E42 );
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_HillUnk_PC );
 			return;
 		
 		case eSPRITE_BRIEFING:
-			mFodder->Sprite_SetDataPtrToBase( off_42918 );
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Briefing_PC );
 			return;
 
 		case eSPRITE_SERVICE:
-			mFodder->Sprite_SetDataPtrToBase( off_43963 );
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Service_PC );
 			return;
 	}
 }
@@ -136,6 +140,7 @@ void cGraphics_PC::Load_Hill_Data() {
 }
 
 void cGraphics_PC::Load_Hill_Bits() {
+
 	mFodder->mDataHillBits = g_Resource.fileGet( "hillbits.dat" );
 	PaletteLoad( mFodder->mDataHillBits->data() + 0x6900, 0x10, 0xB0 );
 	
@@ -147,8 +152,7 @@ void cGraphics_PC::Load_Service_Data() {
 	mFodder->mDataHillBits = g_Resource.fileGet( "rankfont.dat"  );
 	PaletteLoad( mFodder->mDataHillBits->data() + 0xA000, 0x80, 0x40 );
 
-	mFodder->mDataBaseBlk = g_Resource.fileGet( "morphbig.dat" );
-	PaletteLoad( mFodder->mDataBaseBlk->data() + 0xFA00, 0x40, 0x00 );
+	mImageService = Decode_Image("morphbig.dat", 0x40, 0xFA00, 0x00);
 }
 
 void cGraphics_PC::Tile_Prepare_Gfx() {

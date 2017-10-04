@@ -346,45 +346,43 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 	if (Filename.find( '.' ) == std::string::npos)
 		Filename.append( ".raw" );
 
-	int Colors = 16;
+	// Try it as an IFF
 	auto Decoded = DecodeIFF( Filename );
 
 	// Did we decode an IFF?
-	if (Decoded.mData->size()) {
+	if (!Decoded.mData->size()) {
 
-		Decoded.CopyPalette(mPalette, 64);
-	} else {
-		// No, its probably a raw file
+		// No, treat as a raw file
 		Decoded.mData = g_Resource.fileGet( Filename );
 
 		// Calculate planes based on file size
-		if (Decoded.mData->size() == 51464) {
+		if (Decoded.mData->size() == 51464)
 			Decoded.mPlanes = 5;
-			Colors = 32;
-		} else
+		else
 			Decoded.mPlanes = 4;
 
 		// Not an iff, probably RAW which has the palette at the start
-		memcpy( mPalette, Decoded.mData->data(), Colors * 2 );
-		
-		// Remove the palette
-		Decoded.mData->erase(Decoded.mData->begin(), Decoded.mData->begin() + (Colors * 2) );
+		Decoded.LoadPalette_Amiga(Decoded.mData->data(), (1 << Decoded.mPlanes));
 
+		// Remove the palette
+		Decoded.mData->erase(Decoded.mData->begin(), Decoded.mData->begin() + (2 << Decoded.mPlanes));
+
+		// All raws are 320x257
 		Decoded.mDimension.mWidth = 0x140;
 		Decoded.mDimension.mHeight = 0x101;
 	}
 
-	mBMHD_Current = Decoded.GetHeader();
-	g_Fodder.mDraw_Sprite_FrameDataPtr = Decoded.mData->data();
+	// Load the palette
+	Decoded.CopyPalette(mPalette, (1 << Decoded.mPlanes));
 
+	mBMHD_Current = Decoded.GetHeader();
+
+	g_Fodder.mDraw_Sprite_FrameDataPtr = Decoded.mData->data();
 	g_Fodder.mDrawSpritePositionX = 16;
 	g_Fodder.mDrawSpritePositionY = 16;
 	g_Fodder.mDrawSpriteColumns = Decoded.mDimension.mWidth >> 3;
 	g_Fodder.mDrawSpriteRows = Decoded.mDimension.mHeight;
 	g_Fodder.mDraw_Sprite_PaletteIndex = 0;
-
-	if (Decoded.mPlanes == 5)
-		Colors = 32;
 
 	mImage->clearBuffer();
 
@@ -404,27 +402,27 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 
 	switch (pSpriteType) {
 	case eSPRITE_IN_GAME:
-		mFodder->Sprite_SetDataPtrToBase( off_8BFB8 );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_InGame_Amiga );
 		return;
 
 	case eSPRITE_FONT:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_Amiga );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Font_Amiga );
 		return;
 
 	case eSPRITE_HILL:
-		mFodder->Sprite_SetDataPtrToBase( mHillSpriteSheetPtr_Amiga );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_Amiga );
 		return;
 
 	case eSPRITE_HILL_UNK:
-		mFodder->Sprite_SetDataPtrToBase( off_90F10 );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_HillUnk_Amiga );
 		return;
 
 	case eSPRITE_BRIEFING:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Briefing_Amiga );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Briefing_Amiga );
 		return;
 
 	case eSPRITE_SERVICE:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetPtr_Font_Rank_Amiga );
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Service_Amiga );
 		return;
 	}
 }

@@ -191,6 +191,7 @@
     <ClInclude Include="..\..\Source\Singleton.hpp" />
     <ClInclude Include="..\..\Source\Sound.hpp" />
     <ClInclude Include="..\..\Source\Sprites.hpp" />
+	<ClInclude Include="..\..\Source\SpriteSheet.hpp" />
     <ClInclude Include="..\..\Source\stdafx.hpp" />
     <ClInclude Include="..\..\Source\Surface.hpp" />
     <ClInclude Include="..\..\Source\Tiles.hpp" />
@@ -229,6 +230,7 @@
     <ClCompile Include="..\..\Source\Resources.cpp" />
     <ClCompile Include="..\..\Source\Sound.cpp" />
     <ClCompile Include="..\..\Source\Sprites.cpp" />
+	<ClCompile Include="..\..\Source\SpriteSheet.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Tiles.cpp" />

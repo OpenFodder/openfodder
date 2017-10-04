@@ -132,6 +132,7 @@ class cGraphics : public cSingleton<cGraphics> {
 	sImage				mSpriteSheet_RankFont;
 
 	sImage				mImageHill;
+	sImage				mImageService;
 
 protected:
 	cSurface*			mImage;

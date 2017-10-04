@@ -590,11 +590,11 @@ sSpriteSheet stru_3664E[12] =
 	{ 9736, 17161, 0, 0, 16, 18, 176, 0, 0 }
 };
 
-const sSpriteSheet* mSpriteSheetPtr_Font_PC[] = {
+const sSpriteSheet* mSpriteSheetTypes_Font_PC[] = {
 	mSpriteSheet_Font_PC
 };
 
-const sSpriteSheet* mHillSpriteSheetPtr_PC[] = {
+const sSpriteSheet* mSpriteSheetTypes_Hill_PC[] = {
 	stru_32390,
 	stru_32420,
 	stru_32440,
@@ -623,7 +623,7 @@ const sSpriteSheet* mHillSpriteSheetPtr_PC[] = {
 	stru_32AC0
 };
 
-const sSpriteSheet* off_35E42[] = {
+const sSpriteSheet* mSpriteSheetTypes_HillUnk_PC[] = {
 	stru_35ECE,
 	stru_35F1E,
 	stru_35F6E,
@@ -790,7 +790,7 @@ sSpriteSheet stru_42DE8[38] =
 	{ 35568, 17159, 0, 0, 16, 16, 240, 0, 0 }
 };
 
-const sSpriteSheet* off_42918[] = {
+const sSpriteSheet* mSpriteSheetTypes_Briefing_PC[] = {
 	stru_42928,
 	stru_42B78,
 	stru_42DD8,
@@ -2313,7 +2313,7 @@ sSpriteSheet stru_35C2C[4] =
 	{ 44824, 17163, 0, 0, 16, 14, 160, 0, 0 }
 };
 
-const sSpriteSheet* off_32C0C[] = {
+const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	stru_32FAC,
 	stru_32FDC,
 	stru_3300C,
@@ -2705,18 +2705,18 @@ sSpriteSheet stru_441BB[] = {
 };
 
 sSpriteSheet stru_441CB[] = {
-	{ 0, 15208, 0, 0, 80, 142, 0, 0, 0 }
+	{ 0, 28672, 0, 0, 80, 142, 0, 0, 0 }
 };
 
 sSpriteSheet stru_441DB[] = {
-	{ 80, 15208, 0, 0, 80, 142, 0, 0, 0 }
+	{ 80, 28672, 0, 0, 80, 142, 0, 0, 0 }
 };
 
 sSpriteSheet stru_441EB[] = {
 	{ 2936, 17161, 0, 0, 128, 22, 64, 0, 0 }
 };
 
-const sSpriteSheet* off_43963[] = {
+const sSpriteSheet* mSpriteSheetTypes_Service_PC[] = {
 	stru_4398B,
 	stru_4399B,
 	stru_439AB,
@@ -2724,7 +2724,7 @@ const sSpriteSheet* off_43963[] = {
 	stru_43CEB,
 	stru_441AB,
 	stru_441BB,
-	stru_441CB,
-	stru_441DB,
+	stru_441CB,	// service
+	stru_441DB,	// service
 	stru_441EB
 };

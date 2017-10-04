@@ -20,12 +20,12 @@
  *
  */
 
-const extern sSpriteSheet* off_32C0C[];
-const extern sSpriteSheet* mSpriteSheetPtr_Font_PC[];
-const extern sSpriteSheet* mHillSpriteSheetPtr_PC[];
-const extern sSpriteSheet* off_35E42[];
-const extern sSpriteSheet* off_42918[];
-const extern sSpriteSheet* off_43963[];
+const extern sSpriteSheet* mSpriteSheetTypes_InGame_PC[];
+const extern sSpriteSheet* mSpriteSheetTypes_Font_PC[];
+const extern sSpriteSheet* mSpriteSheetTypes_Hill_PC[];
+const extern sSpriteSheet* mSpriteSheetTypes_HillUnk_PC[];
+const extern sSpriteSheet* mSpriteSheetTypes_Briefing_PC[];
+const extern sSpriteSheet* mSpriteSheetTypes_Service_PC[];
 
 const extern uint8 mUnkStringModifier_Recruit[];
 
