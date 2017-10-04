@@ -94,6 +94,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mBMHD_Current = mImagePStuff.GetHeader();
 		return mImagePStuff.mData->data();
 	
+	case eSPRITE_RECRUIT:
 	case eSPRITE_HILL:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageHill.GetHeader();
@@ -300,7 +301,7 @@ void cGraphics_Amiga::Load_Hill_Data() {
 
 void cGraphics_Amiga::Load_Hill_Bits() {
 
-	SetSpritePtr( eSPRITE_HILL );
+	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 }
 
 void cGraphics_Amiga::Load_Sprite_Font() {
@@ -319,7 +320,7 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 	mImageFonts.mDimension.mHeight = 0x100;
 	mImageFonts.mPlanes = 4;
 
-	SetSpritePtr( eSPRITE_FONT );
+	SetActiveSpriteSheet( eSPRITE_FONT );
 }
 
 sImage cGraphics_Amiga::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
@@ -396,7 +397,7 @@ void cGraphics_Amiga::SetCursorPalette( uint16 pIndex ) {
 	mCursorPalette = pIndex;
 }
 
-void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
+void cGraphics_Amiga::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
 
 	switch (pSpriteType) {
 	case eSPRITE_IN_GAME:
@@ -407,12 +408,12 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Font_Amiga );
 		return;
 
-	case eSPRITE_HILL:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_Amiga );
+	case eSPRITE_RECRUIT:
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Recruit_Amiga );
 		return;
 
-	case eSPRITE_HILL_RECRUITS:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_HillUnk_Amiga );
+	case eSPRITE_HILL:
+		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_Amiga );
 		return;
 
 	case eSPRITE_BRIEFING:
@@ -803,7 +804,7 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	mSpriteSheet_InGame2 = DecodeIFF( mFodder->mFilenameCopt );
 	mSpriteSheet_InGame1 = DecodeIFF( mFodder->mFilenameArmy );
 
-	SetSpritePtr( eSPRITE_IN_GAME );
+	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
 
 void cGraphics_Amiga::video_Draw_Linear() {

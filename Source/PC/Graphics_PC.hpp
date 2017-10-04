@@ -22,8 +22,8 @@
 
 const extern sSpriteSheet* mSpriteSheetTypes_InGame_PC[];
 const extern sSpriteSheet* mSpriteSheetTypes_Font_PC[];
+const extern sSpriteSheet* mSpriteSheetTypes_Recruit_PC[];
 const extern sSpriteSheet* mSpriteSheetTypes_Hill_PC[];
-const extern sSpriteSheet* mSpriteSheetTypes_HillUnk_PC[];
 const extern sSpriteSheet* mSpriteSheetTypes_Briefing_PC[];
 const extern sSpriteSheet* mSpriteSheetTypes_Service_PC[];
 
@@ -56,7 +56,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		PaletteSetOverview();
 	virtual void		PaletteSet();
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
-	virtual void		SetSpritePtr( eSpriteType pSpriteType );
+	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
 
 	virtual void		video_Draw_Linear();
 	virtual void		video_Draw_Sprite();
