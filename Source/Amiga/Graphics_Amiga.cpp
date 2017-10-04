@@ -68,18 +68,24 @@ cGraphics_Amiga::~cGraphics_Amiga() {
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 
 	switch (pSegment) {
-	case 0:
+	case eSPRITE_IN_GAME:
 		mFodder->mDraw_Sprite_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_InGame1.GetHeader();
 		// We should be returning the sImage, then mBMHD can go
 		return mSpriteSheet_InGame1.mData->data();
 
-	case 1:
+	case eSPRITE_IN_GAME2:
 		mFodder->mDraw_Sprite_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_InGame2.GetHeader();
 		return mSpriteSheet_InGame2.mData->data();
+	
+	case eSPRITE_RANKFONT:
+		mFodder->mDraw_Sprite_PaletteIndex = 0;
+		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
 
-	case 2:
+		return mSpriteSheet_RankFont.mData->data();
+
+	case eSPRITE_PSTUFF:
 		if (mFodder->mVersion->mVersion == eVersion::AmigaFormat)
 			mFodder->mDraw_Sprite_PaletteIndex = (uint8)mCursorPalette;
 		else
@@ -87,50 +93,44 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 
 		mBMHD_Current = mImagePStuff.GetHeader();
 		return mImagePStuff.mData->data();
-
-	case 3:
-		mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
-		mBMHD_Current = mImageFonts.GetHeader();
-		return mImageFonts.mData->data();
-
-	case 4:
+	
+	case eSPRITE_HILL:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageHill.GetHeader();
 		return mImageHill.mData->data();
 
-	case 5:
+	case eSPRITE_FONT:
+		mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
+		mBMHD_Current = mImageFonts.GetHeader();
+		return mImageFonts.mData->data();
+
+	case eSPRITE_BRIEFING:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xA0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 64;
 		return mImageBriefingIntro.mData->data();
 
-	case 6:
+	case eSPRITE_BRIEFING_AMIGA_1:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xB0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 74;
 		return mImageBriefingIntro.mData->data() + (176 * 40);
 
-	case 7:
+	case eSPRITE_BRIEFING_AMIGA_2:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xC0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 111;
 		return mImageBriefingIntro.mData->data() + (65 * 40);
 
-	case 8:
+	case eSPRITE_BRIEFING_AMIGA_3:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mDrawSpriteColumns = 0x28;
 		mFodder->mDrawSpriteRows = 48;
 		return mImageBriefingIntro.mData->data() + (252 * 40);
-
-	case 9:
-		mFodder->mDraw_Sprite_PaletteIndex = 0;
-		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
-
-		return mSpriteSheet_RankFont.mData->data();
 
 	default:
 		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
