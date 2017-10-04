@@ -46,16 +46,16 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			return mImagePStuff.mData->data();
 			break;
 		
+		case eSPRITE_RECRUIT:
+			return mImageHillBits.mData->data();
+			break;
+
 		case eSPRITE_HILL:
 			return mImageHill.mData->data();
 			break;
 
 		case eSPRITE_SERVICE:
 			return mImageService.mData->data();
-			break;
-
-		case eSPRITE_HILL_RECRUITS:
-			return mImageHillBits.mData->data();
 			break;
 
 		default:
@@ -81,7 +81,7 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	video_Draw_Sprite();
 }
 
-void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
+void cGraphics_PC::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
 	
 	switch (pSpriteType) {
 		case eSPRITE_IN_GAME:
@@ -92,12 +92,12 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Font_PC );
 			return;
 
-		case eSPRITE_HILL:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_PC );
+		case eSPRITE_RECRUIT:
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Recruit_PC );
 			return;
 
-		case eSPRITE_HILL_RECRUITS:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_HillUnk_PC );
+		case eSPRITE_HILL:
+			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_PC );
 			return;
 		
 		case eSPRITE_BRIEFING:
@@ -132,7 +132,7 @@ void cGraphics_PC::Load_Sprite_Font() {
 	mImagePStuff = Decode_Image("font.dat", 0x10, 0xA000, 0xD0);
 
 
-	SetSpritePtr( eSPRITE_FONT );
+	SetActiveSpriteSheet( eSPRITE_FONT );
 }
 
 void cGraphics_PC::Load_Hill_Data() {
@@ -146,7 +146,7 @@ void cGraphics_PC::Load_Hill_Bits() {
 
 	mImageHillBits = Decode_Image("hillbits.dat", 0x10, 0x6900, 0xB0);
 	
-	SetSpritePtr( eSPRITE_HILL );
+	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 }
 
 void cGraphics_PC::Load_Service_Data() {
@@ -297,7 +297,7 @@ void cGraphics_PC::Map_Load_Resources() {
 	// Sprites on Sheet1 occupy palette range from 0xA0-0xAF
 	mSpriteSheet_InGame1.CopyPalette(&mFodder->mPalette[0xA0], 0x10, 0xA0);
 
-	SetSpritePtr( eSPRITE_IN_GAME );
+	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
 
 void cGraphics_PC::video_Draw_Linear( ) {
@@ -677,7 +677,7 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	const char* strHomeAndAway = "HOME                AWAY";
 	
-	SetSpritePtr( eSPRITE_HILL );
+	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 
 	// Load Icon
 	mFodder->Sprite_Draw_Frame( 0x18, 0, 0, 0 );
@@ -697,7 +697,7 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	auto Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
-	SetSpritePtr( eSPRITE_HILL_RECRUITS );
+	SetActiveSpriteSheet(eSPRITE_HILL);
 }
 
 void cGraphics_PC::Briefing_Load_Resources() {

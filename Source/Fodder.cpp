@@ -2999,7 +2999,7 @@ void cFodder::VersionSelect() {
 	mImage->clearBuffer();
 	mWindow->SetScreenSize( cDimension( 320, 200 ) );
 
-	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
 	uint16 Pos = 0x1;
 	int Count = 0;
 
@@ -3037,7 +3037,7 @@ void cFodder::VersionSelect() {
 
 	mImage->Save();
 
-	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
 
 	mImageFaded = -1;
 	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
@@ -3192,7 +3192,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 			break;
 	}
 		
-	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
 	mGraphics->Load_pStuff();
 
 	Map_Load_Resources();
@@ -3321,13 +3321,13 @@ void cFodder::Mission_Paused() {
 	mImage->palette_FadeTowardNew();
 	mImageFaded = -1;
 
-	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
 	
 	mString_GapCharID = 0x25;
 	String_Print_Large( "GAME PAUSED", true, 0x54 );
 	
 	mString_GapCharID = 0;
-	mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
 
 void cFodder::sub_136D0() {
@@ -4158,7 +4158,7 @@ void cFodder::Briefing_Intro() {
 	mImage->clearBuffer();
 
 	mGraphics->Briefing_Load_Resources();
-	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
 
 	mSound->Music_Play( 0x07 );
 
@@ -4314,7 +4314,7 @@ void cFodder::CopyProtection() {
 		return;
 
 	g_Graphics.Load_Hill_Bits();
-	g_Graphics.SetSpritePtr( eSpriteType::eSPRITE_HILL );
+	g_Graphics.SetActiveSpriteSheet( eSpriteType::eSPRITE_RECRUIT);
 
 	// 3 Attempts
 	for (int16 Attempts = 0; Attempts < 3; ++Attempts) {
@@ -4493,7 +4493,7 @@ bool cFodder::Custom_ShowMenu() {
 	mCustom_ExitMenu = 0;
 
 	while (!mCustom_ExitMenu) {
-		mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+		mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
 		mImage->clearBuffer();
 
 		if (mCustom_Mode == 1) {
@@ -4678,7 +4678,7 @@ bool cFodder::Recruit_Show() {
 		((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
 	}
 	
-	mGraphics->SetSpritePtr( eSPRITE_HILL_RECRUITS );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_HILL );
 	
 	Recruit_Draw_Graves();
 	
@@ -11313,7 +11313,7 @@ void cFodder::Service_Show() {
 	WindowTitleSet( false );
 
 	mGraphics->Load_Service_Data();
-	mGraphics->SetSpritePtr( eSPRITE_SERVICE );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_SERVICE );
 	mGraphics->PaletteSet();
 
 	mSound->Music_Play( 0 );
@@ -11948,7 +11948,7 @@ void cFodder::Briefing_Prepare() {
 	mGraphics->PaletteSet();
 
 	sub_136D0();
-	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
 
 	Briefing_Draw_Mission_Title( 0x2C );
 	Briefing_Show();
@@ -11957,7 +11957,7 @@ void cFodder::Briefing_Prepare() {
 }
 
 void cFodder::Briefing_Wait() {
-	mGraphics->SetSpritePtr( eSPRITE_BRIEFING );
+	mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
 
 	Briefing_Draw_Mission_Title( 0x2C );
 	Briefing_Show( );
@@ -18172,7 +18172,7 @@ void cFodder::intro_LegionMessage() {
 int16 cFodder::introPlayText() {
 
 	mGraphics->Load_Sprite_Font();
-	mGraphics->SetSpritePtr( eSpriteType::eSPRITE_FONT );
+	mGraphics->SetActiveSpriteSheet( eSpriteType::eSPRITE_FONT );
 
 	for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF ) {
 
@@ -20392,7 +20392,7 @@ Start:;
 			}
 
 			Camera_Reset();
-			mGraphics->SetSpritePtr( eSPRITE_IN_GAME );
+			mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
 	
 			Map_Tiles_Draw();
 			Camera_Reset();

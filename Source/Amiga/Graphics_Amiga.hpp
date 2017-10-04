@@ -22,8 +22,8 @@
 
 const extern sSpriteSheet* mSpriteSheetTypes_InGame_Amiga[];
 const extern sSpriteSheet* mSpriteSheetTypes_Font_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_Recruit_Amiga[];
 const extern sSpriteSheet* mSpriteSheetTypes_Hill_Amiga[];
-const extern sSpriteSheet* mSpriteSheetTypes_HillUnk_Amiga[];
 const extern sSpriteSheet* mSpriteSheetTypes_Briefing_Amiga[];
 const extern sSpriteSheet* mSpriteSheetTypes_Service_Amiga[];
 
@@ -92,7 +92,7 @@ protected:
 	virtual void		video_Draw_Linear();
 	virtual void		video_Draw_Sprite();
 
-	virtual void		SetSpritePtr( eSpriteType pSpriteType );
+	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
 
 	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
 	virtual void		Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY );

@@ -21,16 +21,16 @@
  */
 
 enum eSpriteType {
-	eSPRITE_IN_GAME		= 0,
-	eSPRITE_FONT		= 1,
-	eSPRITE_HILL		= 2,
-	eSPRITE_HILL_RECRUITS	= 3,
-	eSPRITE_BRIEFING	= 4,
-	eSPRITE_SERVICE		= 5,
+	eSPRITE_IN_GAME			= 0,
+	eSPRITE_IN_GAME2		= 1,
+	eSPRITE_FONT			= 2,
+	eSPRITE_HILL			= 3,
+	eSPRITE_RECRUIT	= 4,
+	eSPRITE_BRIEFING		= 5,
+	eSPRITE_SERVICE			= 6,
 
-	eSPRITE_RANKFONT	= 6,
-	eSPRITE_IN_GAME2	= 7,
-	eSPRITE_PSTUFF		= 8,
+	eSPRITE_RANKFONT		= 7,
+	eSPRITE_PSTUFF			= 8,
 
 	eSPRITE_BRIEFING_AMIGA_1 = 9,
 	eSPRITE_BRIEFING_AMIGA_2 = 10,
@@ -182,7 +182,7 @@ public:
 	virtual void		video_Draw_Linear() = 0;
 	virtual void		video_Draw_Sprite() = 0;
 
-	virtual void		SetSpritePtr( eSpriteType pSpriteType ) = 0;
+	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );
 	virtual void		SetImageOriginal();
 	virtual bool		Sprite_OnScreen_Check() = 0;
