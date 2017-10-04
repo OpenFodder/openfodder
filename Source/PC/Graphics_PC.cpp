@@ -726,33 +726,19 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	mFodder->mBriefing_Intro_Gfx_Clouds1 = g_Resource.fileGet(JunData2);
 	mFodder->mBriefing_Intro_Gfx_Clouds2 = g_Resource.fileGet(JunData3);
 	mFodder->mBriefing_Intro_Gfx_Clouds3 = g_Resource.fileGet(JunData4);
+	mFodder->mBriefing_Intro_Gfx_TreesMain = g_Resource.fileGet(JunData5);
 
-	// TODO: This is nasty and needs cleaning
-	// The original game loads paraheli over pstuff.dat, however the file is small enough
-	// that the fonts in pstuff.dat are left intact, these are then used by the briefing intro screen
-	// rendering of 'MISSION xx' and the mission name.
-	{
-		auto tmp = mImagePStuff.mData;
+	mFodder->mBriefing_ParaHeli = g_Resource.fileGet( "paraheli.dat" );
 
-		auto data = g_Resource.fileGet( JunData5 );
-
-		size_t Size = data->size();
-		data->resize( tmp->size() );
-		mFodder->mBriefing_Intro_Gfx_TreesMain = data;
-
-		memcpy(data->data() + Size, tmp->data() + Size, tmp->size() - Size );
-	}
-	// End nasty
-
-	mFodder->word_4286B = g_Resource.fileGet( "paraheli.dat" );
-
-	uint8* si = mFodder->word_4286B->data() + 0xF00;
+	// Copy the palette for the current map tileset, in from paraheli to the briefing intro images
+	uint8* si = mFodder->mBriefing_ParaHeli->data() + 0xF00;
 	si += 0x30 * mFodder->mMap_TileSet;
+	std::memcpy( (mImageBriefingIntro.mData->data() + mImageBriefingIntro.mData->size()) - 0x60, si, 0x30 );
 
-	// Copy the pallet in
-	memcpy( (mImageBriefingIntro.mData->data() + mImageBriefingIntro.mData->size()) - 0x60, si, 0x30 );
-	memcpy( (mImageBriefingIntro.mData->data() + mImageBriefingIntro.mData->size()) - 0x30, mFodder->mBriefing_Intro_Gfx_TreesMain->data() + 0xA000, 0x30 );
+	// Copy the palette from mImagePStuff 
+	std::memcpy( (mImageBriefingIntro.mData->data() + mImageBriefingIntro.mData->size()) - 0x30, mImagePStuff.mData->data() + 0xA000, 0x30 );
 
+	// Load the palette
 	mImageBriefingIntro.LoadPalette(mImageBriefingIntro.mData->size() - 0x300, 0x100, 0);
 }
 
