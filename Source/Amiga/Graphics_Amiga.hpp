@@ -47,11 +47,6 @@ class cGraphics_Amiga : public cGraphics {
 public:
 	tSharedBuffer 		mBlkData;
 
-	sImage				mImagePStuff;
-	sImage				mImageFonts;
-
-	sImage				mImageBriefingIntro;
-
 	cPalette			mPalette[255];
 
 	sILBM_BMHD*			mBMHD_Current;

@@ -133,6 +133,9 @@ class cGraphics : public cSingleton<cGraphics> {
 
 	sImage				mImageHill;
 	sImage				mImageService;
+	sImage				mImagePStuff;
+	sImage				mImageFonts;
+	sImage				mImageBriefingIntro;
 
 protected:
 	cSurface*			mImage;

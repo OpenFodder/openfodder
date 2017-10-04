@@ -39,11 +39,19 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			break;
 
 		case 0x4307:
-			return mFodder->mDataPStuff->data();
+			return mImagePStuff.mData->data();
 			break;
 
 		case 0x4309:
-			return mFodder->mDataHillBits->data();
+			return mSpriteSheet_InGame2.mData->data();
+			break;
+
+		case 0x9000:
+			return mImageHillBits.mData->data();
+			break;
+
+		case 0x8000:
+			return mSpriteSheet_RankFont.mData->data();
 			break;
 
 		case 0x430B:
@@ -106,30 +114,29 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 	}
 }
 
-void cGraphics_PC::Load_pStuff() {
-
-	mFodder->mDataPStuff = g_Resource.fileGet( "pstuff.dat" );
-	PaletteLoad( mFodder->mDataPStuff->data() + 0xA000, 0x10, 0xF0 );
-}
-
-void cGraphics_PC::Load_Sprite_Font() {
-	
-	mFodder->mDataPStuff = g_Resource.fileGet( "font.dat" );
-	PaletteLoad( mFodder->mDataPStuff->data() + 0xA000, 0x10, 0xD0 );
-
-	SetSpritePtr( eSPRITE_FONT );
-}
-
-
 sImage cGraphics_PC::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
 
 	sImage Hill;
-	
+
 	Hill.mData = g_Resource.fileGet(pFilename);
 	Hill.LoadPalette(pPaletteOffset, pCount, pStartIndex);
 	Hill.CopyPalette(&mFodder->mPalette[pStartIndex], pCount, pStartIndex);
 
 	return Hill;
+}
+
+void cGraphics_PC::Load_pStuff() {
+
+	mImagePStuff = Decode_Image("pstuff.dat", 0x10, 0xA000, 0xF0);
+
+}
+
+void cGraphics_PC::Load_Sprite_Font() {
+	
+	mImagePStuff = Decode_Image("font.dat", 0x10, 0xA000, 0xD0);
+
+
+	SetSpritePtr( eSPRITE_FONT );
 }
 
 void cGraphics_PC::Load_Hill_Data() {
@@ -141,17 +148,14 @@ void cGraphics_PC::Load_Hill_Data() {
 
 void cGraphics_PC::Load_Hill_Bits() {
 
-	mFodder->mDataHillBits = g_Resource.fileGet( "hillbits.dat" );
-	PaletteLoad( mFodder->mDataHillBits->data() + 0x6900, 0x10, 0xB0 );
+	mImageHillBits = Decode_Image("hillbits.dat", 0x10, 0x6900, 0xB0);
 	
 	SetSpritePtr( eSPRITE_HILL );
 }
 
 void cGraphics_PC::Load_Service_Data() {
 	
-	mFodder->mDataHillBits = g_Resource.fileGet( "rankfont.dat"  );
-	PaletteLoad( mFodder->mDataHillBits->data() + 0xA000, 0x80, 0x40 );
-
+	mSpriteSheet_RankFont = Decode_Image("rankfont.dat", 0x80, 0xA000, 0x40);
 	mImageService = Decode_Image("morphbig.dat", 0x40, 0xFA00, 0x00);
 }
 
@@ -283,8 +287,6 @@ void cGraphics_PC::Map_Load_Resources() {
 		mSpriteSheet_InGame2.LoadPalette( 0xD2A0, 0x40, 0xB0 );
 		
 	}
-
-	mFodder->mDataHillBits = mSpriteSheet_InGame2.mData;
 
 	// 
 	{
@@ -719,32 +721,26 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	JunData4.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
 	JunData5.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
 
-	mFodder->mDataBaseBlk = g_Resource.fileGet( JunData1 );
-	mFodder->word_42861 = mFodder->mDataBaseBlk->data();
-	mFodder->word_4286D = mFodder->mDataBaseBlk->size();
+	mImageBriefingIntro.mData = g_Resource.fileGet(JunData1);
 
-	mFodder->mDataSubBlk = g_Resource.fileGet( JunData2 );
-	mFodder->word_42863 = mFodder->mDataSubBlk->data();
-
-	mFodder->mDataHillBits = g_Resource.fileGet( JunData3 );
-	mFodder->word_42865 = mFodder->mDataHillBits->data();
-
-	mFodder->mBriefing_Intro_Gfx_Clouds = g_Resource.fileGet( JunData4 );
+	mFodder->mBriefing_Intro_Gfx_Clouds1 = g_Resource.fileGet(JunData2);
+	mFodder->mBriefing_Intro_Gfx_Clouds2 = g_Resource.fileGet(JunData3);
+	mFodder->mBriefing_Intro_Gfx_Clouds3 = g_Resource.fileGet(JunData4);
 
 	// TODO: This is nasty and needs cleaning
 	// The original game loads paraheli over pstuff.dat, however the file is small enough
 	// that the fonts in pstuff.dat are left intact, these are then used by the briefing intro screen
 	// rendering of 'MISSION xx' and the mission name.
 	{
-		auto tmp = mFodder->mDataPStuff;
+		auto tmp = mImagePStuff.mData;
 
-		mFodder->mDataPStuff = g_Resource.fileGet( JunData5 );
+		auto data = g_Resource.fileGet( JunData5 );
 
-		size_t Size = mFodder->mDataPStuff->size();
-		mFodder->mDataPStuff->resize( tmp->size() );
-		mFodder->word_42869 = mFodder->mDataPStuff;
+		size_t Size = data->size();
+		data->resize( tmp->size() );
+		mFodder->mBriefing_Intro_Gfx_TreesMain = data;
 
-		memcpy( mFodder->mDataPStuff->data() + Size, tmp->data() + Size, tmp->size() - Size );
+		memcpy(data->data() + Size, tmp->data() + Size, tmp->size() - Size );
 	}
 	// End nasty
 
@@ -754,8 +750,10 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	si += 0x30 * mFodder->mMap_TileSet;
 
 	// Copy the pallet in
-	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlk->size()) - 0x60, si, 0x30 );
-	memcpy( (mFodder->word_42861 + mFodder->mDataBaseBlk->size()) - 0x30, mFodder->mDataPStuff->data() + 0xA000, 0x30 );
+	memcpy( (mImageBriefingIntro.mData->data() + mImageBriefingIntro.mData->size()) - 0x60, si, 0x30 );
+	memcpy( (mImageBriefingIntro.mData->data() + mImageBriefingIntro.mData->size()) - 0x30, mFodder->mBriefing_Intro_Gfx_TreesMain->data() + 0xA000, 0x30 );
+
+	mImageBriefingIntro.LoadPalette(mImageBriefingIntro.mData->size() - 0x300, 0x100, 0);
 }
 
 void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) {

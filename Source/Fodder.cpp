@@ -3202,12 +3202,13 @@ void cFodder::Prepare( ) {
 
 	tool_RandomSeed();
 
-	mDataPStuff = tSharedBuffer();
 	mDataBaseBlk = tSharedBuffer();
 	mDataSubBlk = tSharedBuffer();
 
 	mMap = 0;
-	mDataHillBits = tSharedBuffer();
+
+	mBriefing_Intro_Gfx_Clouds1 = tSharedBuffer();
+	mBriefing_Intro_Gfx_Clouds2 = tSharedBuffer();
 
 	mRecruit_Truck_AnimBuffer = (uint16*) new uint8[0x400 * 16];
 	mMapSptPtr = (uint16*) new uint8[0x400 * 16];
@@ -3529,7 +3530,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 
 	sub_1590B();
 
-	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
 
@@ -3545,20 +3546,20 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		// Clouds
 		word_42859 = 0x30;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x38;
 		word_4285B = 0x102C * 4;
-		sub_15A36( word_42865, word_42873 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873);
 
 		word_42859 = 0x12;
 		word_4285B = 0x1D3C * 4;
-		sub_15A36( word_42863 , word_42871 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871);
 
 		// Trees (Main)
 		word_42859 = 0x5C;
 		word_4285B = 0x236C * 4;
-		sub_15B86( word_42869->data(), word_42871 );
+		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
 		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
@@ -3571,7 +3572,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 
 		word_42859 = 0x2D;
 		word_4285B = 0x33EC * 4;
-		sub_15A36( word_42861, word_4286F );
+		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3615,7 +3616,7 @@ void cFodder::Briefing_Intro_Desert() {
 
 	sub_1590B();
 
-	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
 
@@ -3631,20 +3632,20 @@ void cFodder::Briefing_Intro_Desert() {
 		// Clouds
 		word_42859 = 0x3A;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x4C;
 		word_4285B = 0x139C * 4;
-		sub_15A36( word_42865, word_42873 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
 
 		word_42859 = 0x30;
 		word_4285B = 0x1CE4 * 4;
-		sub_15A36( word_42863 , word_42871 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
 		word_42859 = 0x40;
 		word_4285B = 0x2D64 * 4;
-		sub_15B86( word_42869->data(), word_42871 );
+		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
 		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
@@ -3657,7 +3658,7 @@ void cFodder::Briefing_Intro_Desert() {
 
 		word_42859 = 0x30;
 		word_4285B = 0x32E4 * 4;
-		sub_15A36( word_42861, word_4286F );
+		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3701,7 +3702,7 @@ void cFodder::Briefing_Intro_Ice() {
 
 	sub_1590B();
 
-	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
 
@@ -3717,21 +3718,21 @@ void cFodder::Briefing_Intro_Ice() {
 		// Clouds
 		word_42859 = 0x24;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x42;
 		word_4285B = 0x102C * 4;
-		sub_15A36( word_42865, word_42873 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
 
 		// Ice Caps
 		word_42859 = 0x18;
 		word_4285B = 0x1CE4 * 4;
-		sub_15A36( word_42863 , word_42871 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
 
 		// Ice Mountains
 		word_42859 = 0x58;
 		word_4285B = 0x2524 * 4;
-		sub_15B86( word_42869->data(), word_42871 );
+		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
 		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
@@ -3745,7 +3746,7 @@ void cFodder::Briefing_Intro_Ice() {
 		word_42859 = 0x2E;
 		word_4285B = 0x3394 * 4;
 		// Trees
-		sub_15A36( word_42861, word_4286F );
+		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3788,7 +3789,7 @@ void cFodder::Briefing_Intro_Mor() {
 
 	sub_1590B();
 
-	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
 
@@ -3804,20 +3805,20 @@ void cFodder::Briefing_Intro_Mor() {
 		// Clouds
 		word_42859 = 0x1D;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x40;
 		word_4285B = 0x1134 * 4;
-		sub_15A36( word_42865, word_42873 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
 
 		word_42859 = 0x6;
 		word_4285B = 0x2524 * 4;
-		sub_15A36( word_42863 , word_42871 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
 		word_42859 = 0x52;
 		word_4285B = 0x2734 * 4;
-		sub_15B86( word_42869->data(), word_42871 );
+		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
 		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
@@ -3830,7 +3831,7 @@ void cFodder::Briefing_Intro_Mor() {
 
 		word_42859 = 0x30;
 		word_4285B = 0x32E4 * 4;
-		sub_15A36( word_42861, word_4286F );
+		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -3874,7 +3875,7 @@ void cFodder::Briefing_Intro_Int() {
 
 	sub_1590B();
 
-	mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
 
@@ -3890,20 +3891,20 @@ void cFodder::Briefing_Intro_Int() {
 		// Clouds
 		word_42859 = 0x40;
 		word_4285B = 0x0C64 * 4;
-		sub_15B86( mBriefing_Intro_Gfx_Clouds->data(), word_42875 );
+		sub_15B86( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
 		word_42859 = 0x2F;
 		word_4285B = 0x16B4 * 4;
-		sub_15A36( word_42865, word_42873 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds2, word_42873 );
 
 		word_42859 = 0x22;
 		word_4285B = 0x1B2C * 4;
-		sub_15A36( word_42863 , word_42871 );
+		sub_15A36( mBriefing_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
 		word_42859 = 0x53;
 		word_4285B = 0x26DC * 4;
-		sub_15B86( word_42869->data(), word_42871 );
+		sub_15B86( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
 		mDraw_Sprite_FrameDataPtr = word_4286B->data() + word_428CE[word_428CC / 2];
 
@@ -3916,7 +3917,7 @@ void cFodder::Briefing_Intro_Int() {
 
 		word_42859 = 0x23;
 		word_4285B = 0x375C * 4;
-		sub_15A36( word_42861, word_4286F );
+		sub_15A36( mGraphics->mImageBriefingIntro.mData, word_4286F );
 
 		word_4286F += 8;
 		if (word_4286F > 0x140)
@@ -4020,28 +4021,30 @@ void cFodder::sub_1594F( ) {
 		word_428D6 = 0;
 		word_428D8 = 0;
 
-		mGraphics->PaletteLoad( (word_42861 + word_4286D) - 0x300, 0x100, 0 );
+		mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 		mImage->paletteNew_SetToBlack();
 		mImageFaded = -1;
 	}
 
 }
 
-void cFodder::sub_15A36( uint8* pDs, int16 pCx ) {
+void cFodder::sub_15A36(tSharedBuffer pSource, int16 pCx ) {
+	uint8* pDs = pSource->data();
+
 	int16 ax = pCx >> 2;
 	int16 dx = ax;
 
 	ax -= 0x50;
 	word_4285F = -ax;
 
-	word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
+	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
 	pCx &= 3;
 
 	++dx;
 	
 	uint8* di = word_4285D;
 
-	
+	// Loop the 4 planes
 	for (uint8 Plane = 0; Plane < 4; ++Plane) {
 		di = word_4285D + Plane;
 
@@ -4070,12 +4073,12 @@ void cFodder::sub_15A36( uint8* pDs, int16 pCx ) {
 	}
 }
 
-void cFodder::sub_15B86(  uint8* pDs, int16 pCx ) {
+void cFodder::sub_15B86( tSharedBuffer pDs, int16 pCx ) {
 
 	if (word_3E75B != 0)
-		sub_15B98( pDs, pCx );
+		sub_15B98( pDs->data(), pCx );
 	else
-		sub_15CE8( pDs, pCx );
+		sub_15CE8( pDs->data(), pCx );
 }
 
 void cFodder::sub_15B98(  uint8* pDsSi, int16 pCx ) {
@@ -4085,7 +4088,7 @@ void cFodder::sub_15B98(  uint8* pDsSi, int16 pCx ) {
 	ax -= 0x50;
 	word_4285F = -ax;
 
-	word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
+	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
 	pCx &= 3;
 
 	++dx;
@@ -11422,7 +11425,7 @@ loc_18001:;
 }
 
 int16 cFodder::Service_KIA_Troop_Prepare() {
-	uint16* di = (uint16*) mDataPStuff->data();
+	uint16* di = (uint16*) mGraphics->mImagePStuff.mData->data();
 
 	mDrawSpritePositionY = 0xE8;
 	Service_Mission_Text_Prepare( di );
@@ -11452,7 +11455,7 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
 }
 
 int16 cFodder::Service_Promotion_Prepare_Draw() {
-	uint16* di = (uint16*)mDataPStuff->data();
+	uint16* di = (uint16*)mGraphics->mImagePStuff.mData->data();
 
 	mDrawSpritePositionY = 0xE8;
 	Service_Mission_Text_Prepare( di );
@@ -11525,7 +11528,7 @@ void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16
 void cFodder::sub_18149() {
 
 	word_42072 = 0;
-	int16 *di = (int16*)mDataPStuff->data();
+	int16 *di = (int16*)mGraphics->mImagePStuff.mData->data();
 
 	for (;;) {
 		if (*di < 0)
@@ -11545,7 +11548,7 @@ void cFodder::sub_18149() {
 void cFodder::sub_181BD() {
 	word_44475 = -1;
 
-	int16* es = (int16*)mDataPStuff->data();
+	int16* es = (int16*)mGraphics->mImagePStuff.mData->data();
 
 	for (;;) {
 		if (*es == -1)
@@ -11854,7 +11857,7 @@ void cFodder::Service_Promotion_Prepare() {
 
 void cFodder::Service_Promotion_Check() {
 	int16* si = word_3ABFF;
-	int16* es = (int16*)mDataPStuff->data();
+	int16* es = (int16*)mGraphics->mImagePStuff.mData->data();
 
 	for (;;es+=4) {
 		if (*es == -1)

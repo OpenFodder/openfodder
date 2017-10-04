@@ -31,6 +31,7 @@ const extern uint8 mUnkStringModifier_Recruit[];
 
 class cGraphics_PC : public cGraphics {
 	uint8*				mTile_Gfx_Ptrs[480];
+	sImage				mImageHillBits;
 
 	public:
 	virtual				~cGraphics_PC();
