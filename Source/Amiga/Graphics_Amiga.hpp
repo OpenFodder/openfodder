@@ -20,12 +20,12 @@
  *
  */
 
-const extern sSpriteSheet* off_8BFB8[];
-const extern sSpriteSheet* mSpriteSheetPtr_Font_Amiga[];
-const extern sSpriteSheet* mHillSpriteSheetPtr_Amiga[];
-const extern sSpriteSheet* off_90F10[];
-const extern sSpriteSheet* mSpriteSheetPtr_Briefing_Amiga[];
-const extern sSpriteSheet* mSpriteSheetPtr_Font_Rank_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_InGame_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_Font_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_Hill_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_HillUnk_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_Briefing_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_Service_Amiga[];
 
 
 
@@ -47,7 +47,6 @@ class cGraphics_Amiga : public cGraphics {
 public:
 	tSharedBuffer 		mBlkData;
 
-	sImage				mImageService;
 	sImage				mImagePStuff;
 	sImage				mImageFonts;
 

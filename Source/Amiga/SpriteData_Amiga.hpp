@@ -89,7 +89,7 @@ const sSpriteSheet mSpriteSheet_Font_Amiga[] = {
   { 1382, 3, 0, 0, 2, 17, 10240, 0x0, 0x0 },
 };
 
-const sSpriteSheet* mSpriteSheetPtr_Font_Amiga[] = {
+const sSpriteSheet* mSpriteSheetTypes_Font_Amiga[] = {
 	mSpriteSheet_Font_Amiga
 };
 
@@ -1246,7 +1246,7 @@ const sSpriteSheet stru_8EFD8[] = {
   { 11206, 0, 0, 0, 2, 14, 13440, 0x0, 0 },
 };
 
-const sSpriteSheet* off_8BFB8[] = {
+const sSpriteSheet* mSpriteSheetTypes_InGame_Amiga[] = {
 	stru_8C358,
 	stru_8C388,
 	stru_8C3B8,
@@ -1651,7 +1651,7 @@ const sSpriteSheet stru_8DB9E[] ={
   { 9594, 4, 0, 0, 2, 0x1, 0x2800, 0x0, 0x0 },
 };         
 
-const sSpriteSheet* mHillSpriteSheetPtr_Amiga[] = {
+const sSpriteSheet* mSpriteSheetTypes_Hill_Amiga[] = {
 	stru_8D45E,
 	stru_8D4EE,
 	stru_8D50E,
@@ -1883,7 +1883,7 @@ const sSpriteSheet stru_9171C[] = {
   { 8028, 4, 0, 0, 2, 0x12, 0x34A8, 0x0, 0x0 },
 };
 
-const sSpriteSheet* off_90F10[] = {
+const sSpriteSheet* mSpriteSheetTypes_HillUnk_Amiga[] = {
 	stru_90F9C,
 	stru_90FEC,
 	stru_9103C,
@@ -2044,7 +2044,7 @@ const sSpriteSheet stru_A7288[] = {
   { 8892, 3, 0, 0, 2, 0x10, 0x2800, 0x0, 0x0 },
 };
 
- const sSpriteSheet* mSpriteSheetPtr_Briefing_Amiga[] = {
+ const sSpriteSheet* mSpriteSheetTypes_Briefing_Amiga[] = {
 	stru_A6DD8,
 	stru_A7028,
 	stru_A7288,
@@ -2183,7 +2183,7 @@ const sSpriteSheet stru_A7288[] = {
 	 { 3702, 9, 0, 0, 2, 0xF, 0x2800, 0x0, 0x0 },
  };
 
-const sSpriteSheet* mSpriteSheetPtr_Font_Rank_Amiga[] = {
+const sSpriteSheet* mSpriteSheetTypes_Service_Amiga[] = {
 	stru_A91F6,
 	stru_A9206,
 	stru_A9216,
