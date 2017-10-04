@@ -29,5 +29,5 @@ uint8* sSpriteSheet::GetGraphicsPtr() const {
 
 uint8* sSpriteSheet_pstuff::GetGraphicsPtr(uint16 pOffset) const {
 
-	return g_Fodder.mGraphics->GetSpriteData( g_Fodder.mVersion->mPlatform == ePlatform::PC ? 0x4307 : 2 ) + pOffset;
+	return g_Fodder.mGraphics->GetSpriteData( eSPRITE_PSTUFF ) + pOffset;
 }

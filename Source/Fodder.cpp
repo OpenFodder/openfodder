@@ -1677,28 +1677,37 @@ loc_11E5B:;
 }
 
 void cFodder::Map_Load_Resources() {
+	std::string BaseName, SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
 	std::string MapName = map_Filename_MapGet();
 
 	mMap = g_Resource.fileGet( MapName );
 	uint8* Map = mMap->data();
 
+	mMapWidth = readBEWord(&Map[0x54]);
+	mMapHeight = readBEWord(&Map[0x56]);
+
 	tool_EndianSwap( Map + 0x60, mMap->size() - 0x60 );
 
-	std::string BaseName,SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
+	// junbase.blk
 	BaseName.append( Map, Map + 11 );
+
+	// junsub0.blk
 	SubName.append( Map + 0x10, Map + 0x10 + 11 );
 
+	// jun
 	BaseBaseSet.append( Map, Map + 3 );
+
+	// jun
 	BaseSubSet.append( Map + 0x10, Map + 0x10 + 3 );
 
+	// junbase
 	BaseBase.append( Map, Map + 7 );
+
+	// junsub0
 	BaseSub.append( Map + 0x10, Map + 0x10 + 7 );
 
 	mDataBaseBlk = g_Resource.fileGet( BaseName );
 	mDataSubBlk = g_Resource.fileGet( SubName );
-
-	mMapWidth = readBEWord( &Map[0x54] );
-	mMapHeight = readBEWord( &Map[0x56] );
 
 	mFilenameCopt = Filename_CreateFromBase( BaseBaseSet, "copt." );
 	mFilenameBaseSwp = Filename_CreateFromBase( BaseBase, ".swp" );
@@ -4157,19 +4166,19 @@ void cFodder::Briefing_Intro() {
 		//TODO
 		mDrawSpritePositionX = 16;
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 5 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( eSPRITE_BRIEFING );
 		mDrawSpritePositionY = 40;
 		mGraphics->video_Draw_Linear();
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 6 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_1);
 		mDrawSpritePositionY = 60;
 		mGraphics->video_Draw_Linear();
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 7 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_2);
 		mDrawSpritePositionY = 100;
 		mGraphics->video_Draw_Linear();
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 8 );
+		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_3);
 		mDrawSpritePositionY = 163;
 		mGraphics->video_Draw_Linear();
 

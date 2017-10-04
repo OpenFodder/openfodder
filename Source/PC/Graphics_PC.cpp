@@ -30,40 +30,36 @@ cGraphics_PC::~cGraphics_PC() {
 uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 	
 	switch ( pSegment ) {
-		case 0x3B68:
-			return mFodder->mDataBaseBlk->data();
-			break;
-
-		case 0x7000:
-			return mImageService.mData->data();
-			break;
-
-		case 0x4307:
-			return mImagePStuff.mData->data();
-			break;
-
-		case 0x4309:
-			return mSpriteSheet_InGame2.mData->data();
-			break;
-
-		case 0x9000:
-			return mImageHillBits.mData->data();
-			break;
-
-		case 0x8000:
-			return mSpriteSheet_RankFont.mData->data();
-			break;
-
-		case 0x430B:
+		case eSPRITE_IN_GAME:
 			return mSpriteSheet_InGame1.mData->data();
 			break;
 
-		case 0x6717:
+		case eSPRITE_IN_GAME2:
+			return mSpriteSheet_InGame2.mData->data();
+			break;
+		
+		case eSPRITE_RANKFONT:
+			return mSpriteSheet_RankFont.mData->data();
+			break;
+		
+		case eSPRITE_PSTUFF:
+			return mImagePStuff.mData->data();
+			break;
+		
+		case eSPRITE_HILL:
 			return mImageHill.mData->data();
 			break;
 
+		case eSPRITE_SERVICE:
+			return mImageService.mData->data();
+			break;
+
+		case eSPRITE_HILL_UNK:
+			return mImageHillBits.mData->data();
+			break;
+
 		default:
-			std::cout << "Invalid Sprite\n";
+			std::cout << "cGraphics_PC::GetSpriteData: Invalid ID\n";
 			break;
 	}
 	return 0;
