@@ -121,8 +121,6 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMapHeight;
 	uint8			mKeyCode;
 
-	tSharedBuffer	mDataPStuff;
-	tSharedBuffer 	mDataHillBits;
 	tSharedBuffer 	mMap;
 
 	tSharedBuffer 	mDataBaseBlk;
@@ -595,19 +593,18 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mIntroPlayed;
 	uint16			word_42859;
 	uint16			word_4285B;
-	uint8*			word_4285D;
 	int16			word_4285F;
 
-	uint8*			word_42861;
-	uint8*			word_42863;
-	uint8*			word_42865;
+
+	tSharedBuffer	mBriefing_Intro_Gfx_Clouds1;
+	tSharedBuffer	mBriefing_Intro_Gfx_Clouds2;
 	int16			word_428B6;
-	tSharedBuffer	mBriefing_Intro_Gfx_Clouds;
+	tSharedBuffer	mBriefing_Intro_Gfx_Clouds3;
 	int16			word_428B8;
-	tSharedBuffer	word_42869;
+	tSharedBuffer	mBriefing_Intro_Gfx_TreesMain;
 	uint16			word_428BA;
 	tSharedBuffer	word_4286B;
-	size_t			word_4286D;
+
 	uint32			mHelicopterPosX;
 	uint32			mHelicopterPosY;
 	int16			word_428C6;
@@ -765,11 +762,11 @@ public:
 	void			sub_1590B( );
 	void			sub_1594F( );
 	void			sub_159A6( );
-	void			sub_15A36(  uint8* pDs, int16 pCx );
-	void			sub_15B86(  uint8* pDs, int16 pCx );
-	void			sub_15B98(  uint8* pDs, int16 pCx );
+	void			sub_15A36(tSharedBuffer pDs, int16 pCx );
+	void			sub_15B86( tSharedBuffer pDs, int16 pCx );
+	void			sub_15B98( uint8* pDs, int16 pCx );
 
-	void			sub_15CE8(  uint8* pDs, int16 pCx );
+	void			sub_15CE8( uint8* pDs, int16 pCx );
 
 	void			Briefing_Draw_Mission_Name( );
 	void			Briefing_Draw_Mission_Title( int16 pDrawAtY );

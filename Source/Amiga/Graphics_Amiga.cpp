@@ -86,7 +86,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 			mFodder->mDraw_Sprite_PaletteIndex = 0xE0;
 
 		mBMHD_Current = mImagePStuff.GetHeader();
-		return mFodder->mDataPStuff->data();
+		return mImagePStuff.mData->data();
 
 	case 3:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
@@ -286,8 +286,6 @@ void cGraphics_Amiga::Load_pStuff() {
 	mImagePStuff = DecodeIFF("pstuff.lbm");
 	mImagePStuff.CopyPalette(mImageFonts.mPalette, 16);
 	mImageFonts = mImagePStuff;
-
-	mFodder->mDataPStuff = mImagePStuff.mData;
 }
 
 void cGraphics_Amiga::Load_Hill_Data() {
