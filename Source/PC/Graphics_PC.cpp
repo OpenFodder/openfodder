@@ -54,7 +54,7 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			return mImageService.mData->data();
 			break;
 
-		case eSPRITE_HILL_UNK:
+		case eSPRITE_HILL_RECRUITS:
 			return mImageHillBits.mData->data();
 			break;
 
@@ -96,7 +96,7 @@ void cGraphics_PC::SetSpritePtr( eSpriteType pSpriteType ) {
 			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_PC );
 			return;
 
-		case eSPRITE_HILL_UNK:
+		case eSPRITE_HILL_RECRUITS:
 			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_HillUnk_PC );
 			return;
 		
@@ -697,7 +697,7 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	auto Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
-	SetSpritePtr( eSPRITE_HILL_UNK );
+	SetSpritePtr( eSPRITE_HILL_RECRUITS );
 }
 
 void cGraphics_PC::Briefing_Load_Resources() {

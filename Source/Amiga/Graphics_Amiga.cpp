@@ -411,7 +411,7 @@ void cGraphics_Amiga::SetSpritePtr( eSpriteType pSpriteType ) {
 		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_Amiga );
 		return;
 
-	case eSPRITE_HILL_UNK:
+	case eSPRITE_HILL_RECRUITS:
 		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_HillUnk_Amiga );
 		return;
 

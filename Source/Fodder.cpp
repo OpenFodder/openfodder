@@ -4678,7 +4678,7 @@ bool cFodder::Recruit_Show() {
 		((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
 	}
 	
-	mGraphics->SetSpritePtr( eSPRITE_HILL_UNK );
+	mGraphics->SetSpritePtr( eSPRITE_HILL_RECRUITS );
 	
 	Recruit_Draw_Graves();
 	
