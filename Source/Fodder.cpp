@@ -727,7 +727,7 @@ void cFodder::Mission_Memory_Clear() {
 	for (uint16 x = 0; x < 3; ++x) {
 		mSquad_Grenades[x] = 0;
 		mSquad_Rockets[x] = 0;
-		word_3AA11[x] = 0;
+		mGUI_Squad_Icon[x] = 0;
 	}
 
 	mTroops_Enemy_Count = 0;
@@ -771,7 +771,7 @@ void cFodder::Mission_Memory_Clear() {
 	dword_3ABC9 = 0;
 
 	for (uint16 x = 0; x < 9; ++x )
-		word_3ABFF[x] = 0;
+		mService_Troop_Promotions[x] = 0;
 
 	dword_3AC11 = 0;
 
@@ -5593,7 +5593,7 @@ void cFodder::Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite ) {
 	
 	int16 VehicleX = Vehicle->field_0 + 0x10;
 
-	if (Vehicle->field_6F || Vehicle->field_6F == 1)
+	if (Vehicle->field_6F || Vehicle->field_6F == eSprite_Vehicle_Missile_Launcher)
 		VehicleX -= 0x0C;
 
 	int16 VehicleY = Vehicle->field_4 - 9;
@@ -9905,17 +9905,21 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 	mSprite_Bullet_Time_Modifier = 0;
 	mSprite_Bullet_Fire_Speed_Modifier = 0;
 
-	if (Dataa20->mRank > 0x14) {
+	// TODO: 0x0F is the max rank, so what was this code was?
+	{
+		if (Dataa20->mRank > 0x14) {
 
-		if (mSquad_Selected >= 0) {
+			if (mSquad_Selected >= 0) {
 
-			if (mSquads_TroopCount[mSquad_Selected] == 1) {
-				mSquad_Member_Fire_CoolDown = 1;
-				mSprite_Bullet_Time_Modifier = -3;
-				mSprite_Bullet_Fire_Speed_Modifier = 0x0A;
+				if (mSquads_TroopCount[mSquad_Selected] == 1) {
+					mSquad_Member_Fire_CoolDown = 1;
+					mSprite_Bullet_Time_Modifier = -3;
+					mSprite_Bullet_Fire_Speed_Modifier = 0x0A;
+				}
 			}
 		}
 	}
+
 	//loc_2D381
 	if (mSquad_Selected < 0)
 		return;
@@ -11840,7 +11844,7 @@ void cFodder::Service_Mission_Text_Prepare( uint16*& pTarget ) {
 }
 
 void cFodder::Service_Promotion_Prepare() {
-	int16* Data28 = word_3ABFF;
+	int16* Data28 = mService_Troop_Promotions;
 	dword_3AC11 = Data28;
 
 	sSquad_Member* Data20 = mSquad;
@@ -11865,7 +11869,7 @@ void cFodder::Service_Promotion_Prepare() {
 }
 
 void cFodder::Service_Promotion_Check() {
-	int16* si = word_3ABFF;
+	int16* si = mService_Troop_Promotions;
 	int16* es = (int16*)mGraphics->mImagePStuff.mData->data();
 
 	for (;;es+=4) {
@@ -11886,7 +11890,7 @@ void cFodder::Service_Promotion_Check() {
 }
 
 void cFodder::Service_Promotion_SetNewRanks() {
-	int16* Data28 = word_3ABFF;
+	int16* Data28 = mService_Troop_Promotions;
 	sSquad_Member* Data20 = mSquad;
 
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
@@ -20813,18 +20817,18 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16
 
 void cFodder::sub_2F452() {
 
-	sub_2F4CB();
+	GUI_Troops_In_VehicleChanged();
 	GUI_Sidebar_SquadIcon_Draw();
 }
 
 void cFodder::GUI_Sidebar_SquadIcon_Draw() {
 	
-	int16 Data0 = word_3AA11[mGUI_Squad_Current];
+	int16 Data0 = mGUI_Squad_Icon[mGUI_Squad_Current];
 
-	const int16* Data20 = word_3DF05;
+	const int16* Data20 = mGUI_Squad_Active_Icons;
 
 	if (!word_3AC47) 
-		Data20 = word_3DF1B;
+		Data20 = mGUI_Squad_Inactive_Icons;
 
 	Data0 = Data20[Data0];
 	int16 Data8 = 0x0C;
@@ -20834,40 +20838,43 @@ void cFodder::GUI_Sidebar_SquadIcon_Draw() {
 	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 }
 
-int16 cFodder::sub_2F4CB() {
+int16 cFodder::GUI_Troops_In_VehicleChanged() {
 	int16 Data1C = 0;
-	sSprite* Data2C = 0;
-	const int16* Dataa2C = word_3DF31;
-	int16 Data8 = mSquads_TroopCount[ mGUI_Loop_Squad_Current ];
-	if (!Data8)
+	sSprite* Vehicle = 0;
+	const int16* Dataa2C = mGUI_Squad_Vehicle_Icons;
+
+	// No Troops in Squad?
+	if (!mSquads_TroopCount[mGUI_Loop_Squad_Current])
 		return 0;
 
-	if (Data8 != 1)
+	// More than 1 troop in squad?
+	if (mSquads_TroopCount[mGUI_Loop_Squad_Current] != 1)
 		Data1C = 1;
 
-	int16 DataC = mGUI_Squad_Current;
-
-	if (!mSquad_CurrentVehicles[DataC])
+	// Squad not in vehicle?
+	if (!mSquad_CurrentVehicles[mGUI_Squad_Current])
 		goto loc_2F593;
 
-	Data2C = mSquad_CurrentVehicles[DataC];
-	DataC = Data2C->field_6F;
+
+	Vehicle = mSquad_CurrentVehicles[mGUI_Squad_Current];
 
 	for (;; Dataa2C += 2) {
 		if (*Dataa2C < 0)
 			goto loc_2F593;
 
-		if (DataC == *Dataa2C)
+		if (Vehicle->field_6F == *Dataa2C)
 			goto loc_2F586;
 	}
 loc_2F586:;
 	Data1C = *(Dataa2C + 1);
 
 loc_2F593:;
-	if (Data1C == word_3AA11[mGUI_Squad_Current])
+
+	// has status changed?
+	if (Data1C == mGUI_Squad_Icon[mGUI_Squad_Current])
 		return 0;
 
-	word_3AA11[mGUI_Squad_Current] = Data1C;
+	mGUI_Squad_Icon[mGUI_Squad_Current] = Data1C;
 	return -1;
 }
 
@@ -20957,7 +20964,7 @@ void cFodder::GUI_Sidebar_SquadIcon_Refresh() {
 		if (mGUI_Squad_Current == mSquad_Selected)
 			word_3AC47 = -1;
 
-		if (sub_2F4CB())
+		if (GUI_Troops_In_VehicleChanged())
 			GUI_Sidebar_SquadIcon_Draw();
 	}
 }

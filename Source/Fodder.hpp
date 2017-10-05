@@ -329,7 +329,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSprites_Found_Count;
 	int16			mSquad_Grenades[3];
 	int16			mSquad_Rockets[3];
-	int16			word_3AA11[3];
+	int16			mGUI_Squad_Icon[3];
 	int16			mTroops_Enemy_Count;
 	int16			mHostage_Count;
 	int16			mCamera_Start_Adjust;
@@ -372,7 +372,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABEB;
 	int16			word_3ABFB;
 	int16			word_3ABFD;
-	int16			word_3ABFF[9];
+	int16			mService_Troop_Promotions[9];
 	int16*			dword_3AC11;
 	int16			mString_GapCharID;		// Replace spaces in strings with this id
 
@@ -1206,7 +1206,7 @@ public:
 	void			GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28 );
 	void			sub_2F452();
 	void			GUI_Sidebar_SquadIcon_Draw();
-	int16			sub_2F4CB();
+	int16			GUI_Troops_In_VehicleChanged();
 	void			GUI_Sidebar_Refresh();
 	void			GUI_Sidebar_SquadIcon_Refresh();
 	void			GUI_Sidebar_Grenades_Refresh_CurrentSquad( );

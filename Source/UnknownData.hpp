@@ -362,69 +362,82 @@ const int16 mDirectionData[] = {
 
 const int16 word_3DEF0[3] = { 0, 1, 2 };
 
-const int16 word_3DF31[] = {
-	0, 2, 1, 3, 2, 4, 3, 5, 4, 6,
-	5, 7, 6, 8, 7, 9, 8, 10, -1
+// Left value is vehicle ID type
+const int16 mGUI_Squad_Vehicle_Icons[] = {
+	eSprite_Vehicle_Cannon,					 2,
+	eSprite_Vehicle_Missile_Launcher,		 3,	
+	eSprite_Vehicle_Jeep,					 4,
+	eSprite_Vehicle_JeepRocket,				 5,	
+	eSprite_Vehicle_Tank,					 6,	
+	eSprite_Vehicle_Helicopter,				 7,
+	eSprite_Vehicle_Helicopter_Missile,		 8,
+	eSprite_Vehicle_Helicopter_MissileHome1, 9,	
+	eSprite_Vehicle_Helicopter_MissileHome2, 10,
+	-1
 };
 
-const int16 word_3D4D5[] = {
-	0, -1
+const int16 mTroop_Rotate_Fire_SquadOf1[] = {
+	0, 
+	-1
 };
 
-const int16 word_3D4D9[] = {
-	0, 1, -1
+const int16 mTroop_Rotate_Fire_SquadOf2[] = {
+	0, 1, 
+	-1
 };
 
-const int16 word_3D4DF[] = {
-	0, 1, 0, 2, -1
+const int16 mTroop_Rotate_Fire_SquadOf3[] = {
+	0, 1, 0, 2, 
+	-1
 };
 
-const int16 word_3D4E9[] = {
-	0, 1, 0, 2, 0, 3, 0, 2, -1
+const int16 mTroop_Rotate_Fire_SquadOf4[] = {
+	0, 1, 0, 2, 0, 3, 0, 2, 
+	-1
 };
 
-const int16 word_3D4FB[] = {
+const int16 mTroop_Rotate_Fire_SquadOf5[] = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 3,
-	0, 2, -1,
+	0, 2, 
+	-1,
 };
 
 
-const int16 word_3D515[] = {
+const int16 mTroop_Rotate_Fire_SquadOf6[] = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
-	0, 4, 0, 3, 0, 2, -1
+	0, 4, 0, 3, 0, 2, 
+	-1
 };
 
-const int16 word_3D537[] = {
+const int16 mTroop_Rotate_Fire_SquadOf7[] = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
 	0, 6, 0, 5, 0, 4, 0, 3, 0, 2,
 	-1, 
 };
 
-const int16 word_3D561[] = {
+const int16 mTroop_Rotate_Fire_SquadOf8[] = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
 	0, 6, 0, 5, 0, 4, 0, 3, 0, 2,
-	-1, 0, 1, 0, 2, 0, 3, 0, 4, 0,
-	5, 0, 6, 0, 7, 0, 6, 0, 5, 0,
-	4, 0, 3, 0, 2, -1
+	-1
 };
 
 const int16* mTroop_Rotate_Fire_Order[] = {
-	word_3D4D5,
-	word_3D4D9,
-	word_3D4DF,
-	word_3D4E9,
-	word_3D4FB,
-	word_3D515,
-	word_3D537,
-	word_3D561
+	mTroop_Rotate_Fire_SquadOf1,
+	mTroop_Rotate_Fire_SquadOf2,
+	mTroop_Rotate_Fire_SquadOf3,
+	mTroop_Rotate_Fire_SquadOf4,
+	mTroop_Rotate_Fire_SquadOf5,
+	mTroop_Rotate_Fire_SquadOf6,
+	mTroop_Rotate_Fire_SquadOf7,
+	mTroop_Rotate_Fire_SquadOf8
 };
 
-const int16 word_3DF05[] = {
+const int16 mGUI_Squad_Active_Icons[] = {
 	149, 150, 151, 152, 153, 154, 155, 156, 157, 158,
 	158
 };
 
-const int16 word_3DF1B[] = {
+const int16 mGUI_Squad_Inactive_Icons[] = {
 	159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
 	168
 };
