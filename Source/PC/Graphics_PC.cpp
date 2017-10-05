@@ -47,7 +47,7 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			break;
 		
 		case eSPRITE_RECRUIT:
-			return mImageHillBits.mData->data();
+			return mImageRecruit.mData->data();
 			break;
 
 		case eSPRITE_HILL:
@@ -85,27 +85,27 @@ void cGraphics_PC::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
 	
 	switch (pSpriteType) {
 		case eSPRITE_IN_GAME:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_InGame_PC );
+			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_PC );
 			return;
 
 		case eSPRITE_FONT:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Font_PC );
+			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Font_PC );
 			return;
 
 		case eSPRITE_RECRUIT:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Recruit_PC );
+			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Recruit_PC );
 			return;
 
 		case eSPRITE_HILL:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_PC );
+			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Hill_PC );
 			return;
 		
 		case eSPRITE_BRIEFING:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Briefing_PC );
+			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Briefing_PC );
 			return;
 
 		case eSPRITE_SERVICE:
-			mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Service_PC );
+			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Service_PC );
 			return;
 	}
 }
@@ -139,12 +139,12 @@ void cGraphics_PC::Load_Hill_Data() {
 
 	mImageHill = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
 
-	Load_Hill_Bits();
+	Load_Hill_Recruits();
 }
 
-void cGraphics_PC::Load_Hill_Bits() {
+void cGraphics_PC::Load_Hill_Recruits() {
 
-	mImageHillBits = Decode_Image("hillbits.dat", 0x10, 0x6900, 0xB0);
+	mImageRecruit = Decode_Image("hillbits.dat", 0x10, 0x6900, 0xB0);
 	
 	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 }

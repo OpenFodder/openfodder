@@ -75,7 +75,7 @@ protected:
 	virtual void		Load_pStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
-	virtual void		Load_Hill_Bits();
+	virtual void		Load_Hill_Recruits();
 	virtual void		Load_Service_Data();
 
 	virtual void		Map_Load_Resources();

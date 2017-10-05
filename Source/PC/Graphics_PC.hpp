@@ -31,7 +31,7 @@ const extern uint8 mUnkStringModifier_Recruit[];
 
 class cGraphics_PC : public cGraphics {
 	uint8*				mTile_Gfx_Ptrs[480];
-	sImage				mImageHillBits;
+	sImage				mImageRecruit;
 
 	public:
 	virtual				~cGraphics_PC();
@@ -43,7 +43,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		Load_pStuff();
 	virtual void		Load_Sprite_Font();
 	virtual void		Load_Hill_Data();
-	virtual void		Load_Hill_Bits();
+	virtual void		Load_Hill_Recruits();
 	virtual void		Load_Service_Data();
 
 	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors );

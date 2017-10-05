@@ -95,9 +95,15 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		return mImagePStuff.mData->data();
 	
 	case eSPRITE_RECRUIT:
+		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
+		mBMHD_Current = mImageHill.GetHeader();
+		mBMHD_Current->mHeight = 0x100;
+		return mImageHill.mData->data();
+
 	case eSPRITE_HILL:
 		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageHill.GetHeader();
+		mBMHD_Current->mHeight = 0x101;
 		return mImageHill.mData->data();
 
 	case eSPRITE_FONT:
@@ -296,10 +302,10 @@ void cGraphics_Amiga::Load_Hill_Data() {
 	// We increase this buffer because the engine still writes to it
 	mImageHill.mData->resize(mImageHill.GetHeader()->ScreenSize() * (mImageHill.GetHeader()->mPlanes + 30));
 	
-	Load_Hill_Bits();
+	Load_Hill_Recruits();
 }
 
-void cGraphics_Amiga::Load_Hill_Bits() {
+void cGraphics_Amiga::Load_Hill_Recruits() {
 
 	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 }
@@ -401,27 +407,27 @@ void cGraphics_Amiga::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
 
 	switch (pSpriteType) {
 	case eSPRITE_IN_GAME:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_InGame_Amiga );
+		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_Amiga );
 		return;
 
 	case eSPRITE_FONT:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Font_Amiga );
+		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Font_Amiga );
 		return;
 
 	case eSPRITE_RECRUIT:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Recruit_Amiga );
+		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Recruit_Amiga );
 		return;
 
 	case eSPRITE_HILL:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Hill_Amiga );
+		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Hill_Amiga );
 		return;
 
 	case eSPRITE_BRIEFING:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Briefing_Amiga );
+		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Briefing_Amiga );
 		return;
 
 	case eSPRITE_SERVICE:
-		mFodder->Sprite_SetDataPtrToBase( mSpriteSheetTypes_Service_Amiga );
+		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Service_Amiga );
 		return;
 	}
 }

@@ -231,6 +231,7 @@ int16 cFodder::Mission_Loop( ) {
 
 		Sprite_Find_HumanVehicles();
 
+		// Cheat
 		if (word_3FA21 == -1 && mKeyCode == 0x1C) {
 			mMission_Complete = -1;
 			mKeyCode = 0;
@@ -4313,7 +4314,7 @@ void cFodder::CopyProtection() {
 	if (mVersion->mVersion != eVersion::Dos_CD)
 		return;
 
-	g_Graphics.Load_Hill_Bits();
+	g_Graphics.Load_Hill_Recruits();
 	g_Graphics.SetActiveSpriteSheet( eSpriteType::eSPRITE_RECRUIT);
 
 	// 3 Attempts
@@ -4430,7 +4431,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
 	if(mVersion->mPlatform == ePlatform::Amiga)
 		mGraphics->Load_Hill_Data();
-	mGraphics->Load_Hill_Bits();
+	mGraphics->Load_Hill_Recruits();
 
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
 
@@ -5173,14 +5174,8 @@ void cFodder::Recruit_Sidebar_Render_SquadName() {
 void cFodder::Recruit_Draw_Actors( ) {
 	word_42072 = 2;
 
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		((cGraphics_Amiga*)mGraphics)->mImageHill.GetHeader()->mHeight = 0x101;
-
 	Recruit_Draw_Truck();
 	Recruit_Draw_Troops();
-
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		((cGraphics_Amiga*)mGraphics)->mImageHill.GetHeader()->mHeight = 0x100;
 }
 
 void cFodder::sub_175C0() {
@@ -9423,7 +9418,7 @@ int16 cFodder::Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8
 }
 
 const sSpriteSheet* cFodder::Sprite_Get_Sheet(int16 pSpriteType, int16 pFrame) {
-	const sSpriteSheet* Sheet = &mSpriteDataPtr[pSpriteType][pFrame];
+	const sSpriteSheet* Sheet = &mSpriteSheetPtr[pSpriteType][pFrame];
 
 	pSpriteType = Sheet->mColCount;
 	pFrame = Sheet->mRowCount;
@@ -10470,7 +10465,7 @@ void cFodder::Map_Destroy_Tiles_Next() {
 }
 
 void cFodder::Game_Save_Wrapper2() {
-	mGraphics->Load_Hill_Bits();
+	mGraphics->Load_Hill_Recruits();
 
 	Game_Save_Wrapper();
 }
@@ -18287,9 +18282,9 @@ void cFodder::Image_FadeOut() {
 	}
 }
 
-void cFodder::Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet ) {
+void cFodder::SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet ) {
 
-	mSpriteDataPtr = pSpriteSheet;
+	mSpriteSheetPtr = pSpriteSheet;
 }
 
 void cFodder::intro() {
@@ -20224,11 +20219,91 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 	mGraphics->Load_pStuff();
 }
 
+void cFodder::Playground() {
+
+	mImageFaded = -1;
+	Map_Load_Resources();
+
+	
+	mGraphics->PaletteSet();
+
+	//mGraphics->Recruit_Draw_Hill();
+
+	// Load Icon
+
+	mImage->palette_FadeTowardNew();
+	mImage->Save();
+	mString_GapCharID = 0x25;
+
+	size_t SpriteID = 0x30;
+	size_t Frame = 0;
+
+	
+	for (;; ) {
+		mKeyCode = 0;
+		{
+			mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
+			std::stringstream SPRITE_STRING;
+			SPRITE_STRING << "SPRITE: 0x" << std::hex << SpriteID;
+			SPRITE_STRING << " FRAME: 0x" << std::hex << Frame;
+
+			String_Print_Large(SPRITE_STRING.str(), false, 0);
+
+		}
+
+		{
+			mGraphics->SetActiveSpriteSheet(eSPRITE_IN_GAME);
+			Sprite_Draw_Frame(SpriteID, 65, Frame, 65);
+		}
+
+		if (mImageFaded)
+			mImageFaded = mImage->palette_FadeTowardNew();
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+
+		// Q
+		if (mKeyCode == 0x14) {
+			--SpriteID;
+		}
+		// W
+		if (mKeyCode == 0x1A) {
+			++SpriteID;
+		}
+
+		// A
+		if (mKeyCode == 0x04 ) {
+			--Frame;
+		}
+
+		// S
+		if (mKeyCode == 0x16) {
+			++Frame;
+		}
+
+		// Safety
+		if (SpriteID >= 232)
+			SpriteID = 0;
+
+		if (Frame >= 20)
+			Frame = 0;
+
+		if (mDemo_ExitMenu)
+			break;
+
+		g_Window.RenderAt(mImage);
+		g_Window.FrameEnd();
+		mImage->Restore();
+	}
+}
+
 void cFodder::Start( int16 pStartMap ) {
 
 Start:;
 	mVersion = 0;
 	VersionLoad( mVersions[0] );
+
+	//Playground();
 
 	// Show the version selection, if we have more than 1 option
 	if (mVersions.size() > 1)

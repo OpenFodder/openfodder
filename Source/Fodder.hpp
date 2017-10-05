@@ -94,7 +94,7 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite					mSprite_Spare;
 	sSprite					mSprites[45];
 
-	const sSpriteSheet**	mSpriteDataPtr;
+	const sSpriteSheet**	mSpriteSheetPtr;
 	
 	void					(cFodder::*mSprite_Function[117])( sSprite* pSprite );
 
@@ -585,8 +585,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mDrawSpriteRows;
 	uint8			mDraw_Sprite_PaletteIndex;
 	uint8			byte_42071;
-	uint16			mDraw_Source_SkipPixelsPerRow;
-	uint16			mDraw_Dest_SkipPixelsPerRow;
+	size_t			mDraw_Source_SkipPixelsPerRow;
+	size_t			mDraw_Dest_SkipPixelsPerRow;
 	uint16			word_42078;
 
 
@@ -1307,7 +1307,7 @@ public:
 					cFodder( bool pSkipIntro = false );
 	virtual			~cFodder();
 
-	void			Sprite_SetDataPtrToBase( const sSpriteSheet** pSpriteSheet );
+	void			SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet );
 
 	void			String_Print_Small( std::string pText, const uint16 pY );
 	void			String_Print_Large( std::string pText, const bool pOverAndUnderLine, const uint16 pY );
@@ -1315,6 +1315,7 @@ public:
 	bool			EventAdd( cEvent pEvent );
 	void			Prepare();
 
+	void			Playground();
 	virtual void	Start( int16 pStartMap );
 	void			Exit( unsigned int pExitCode );
 
