@@ -753,7 +753,7 @@ void cFodder::Mission_Memory_Clear() {
 	byte_3ABA9 = 0;
 	word_3ABB1 = 0;
 	mSquad_Member_Fire_CoolDown = 0;
-	word_3ABB5 = 0;
+	mTroop_Rotate_Next = 0;
 	word_3ABB7 = 0;
 	mSprite_Weapon_Data.mSpeed = 0;
 	mSprite_Weapon_Data.mAliveTime = 0;
@@ -3390,8 +3390,9 @@ void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFra
 	mDrawSpritePositionY = (pPositionY + 0x10);
 	mDrawSpriteColumns = SheetData->mColCount;
 	mDrawSpriteRows = SheetData->mRowCount;
-	if (pSpriteType > mGUI_Temp_Height)
-		mGUI_Temp_Height = pSpriteType;
+
+	if (SheetData->mColCount > mGUI_Temp_Height)
+		mGUI_Temp_Height = SheetData->mColCount;
 	
 	if (Sprite_OnScreen_Check() )
 		mGraphics->video_Draw_Sprite();
@@ -4314,7 +4315,7 @@ void cFodder::CopyProtection() {
 	if (mVersion->mVersion != eVersion::Dos_CD)
 		return;
 
-	g_Graphics.Load_Hill_Recruits();
+	g_Graphics.Load_Hill_Data();
 	g_Graphics.SetActiveSpriteSheet( eSpriteType::eSPRITE_RECRUIT);
 
 	// 3 Attempts
@@ -4431,7 +4432,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
 	if(mVersion->mPlatform == ePlatform::Amiga)
 		mGraphics->Load_Hill_Data();
-	mGraphics->Load_Hill_Recruits();
+	mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
 
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
 
@@ -4670,6 +4671,7 @@ bool cFodder::Recruit_Show() {
 	Recruit_Truck_Anim_Prepare();
 	sub_16C6C();
 	Recruit_Render_LeftMenu();
+	mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
 	mGraphics->Recruit_Draw_Hill();
 
 	Recruit_Sprites_Draw();
@@ -4788,7 +4790,7 @@ void cFodder::Recruit_Truck_Anim_Prepare() {
 	*di = -1;
 }
 
-void cFodder::Recruit_Truck_Anim_CopyFrames( uint16** pDi, int16* pSource ) {
+void cFodder::Recruit_Truck_Anim_CopyFrames( uint16** pDi, const int16* pSource ) {
 	int16 ax;
 	
 	for(;;) {
@@ -9915,39 +9917,42 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 		}
 	}
 	//loc_2D381
-	int16 Data0 = mSquad_Selected;
-	if (Data0 < 0)
+	if (mSquad_Selected < 0)
 		return;
 
-	int16 Data8 = Data0;
-	Data0 = mSquads_TroopCount[Data0];
-	Data0 &= 0xFF;
-	--Data0;
-	int16 DataC = Data0;
+	int16 TroopsInSquad = (mSquads_TroopCount[mSquad_Selected] & 0xFF) - 1;
+	int16 LastTroopNumber = TroopsInSquad;
 
-	if (DataC < 0)
+	if (LastTroopNumber < 0)
 		return;
 
-	const int16* Dataaa20 = off_3D4B5[Data0];
-	Data0 = word_3ABB5;
+	// Order based on number of troops in squad
+	const int16* Rotate_Fire_Order = mTroop_Rotate_Fire_Order[TroopsInSquad];
 
-	int16 Data4 = Dataaa20[Data0];
-	if (Data4 < 0 || Data4 > DataC) {
+	int16 Data0 = mTroop_Rotate_Next;
+
+	// Squad Member Number
+	int16 Data4 = Rotate_Fire_Order[Data0];
+
+	// Past the last troop in squad?
+	if (Data4 < 0 || Data4 > LastTroopNumber) {
 		Data4 = 0;
 		Data0 = 0;
 	}
 
+	// Next Troop in Squad
 	Data0++;
-	if (Dataaa20[Data0] < 0)
+	if (Rotate_Fire_Order[Data0] < 0)
 		Data0 = 0;
 
-	word_3ABB5 = Data0;
-	sSprite** Dat20 = mSquads[Data8];
-	Data20 = Dat20[Data4];
+	mTroop_Rotate_Next = Data0;
 
+	// Can the squad member use their weapon
+	Data20 = mSquads[mSquad_Selected][Data4];
 	if (Data20->field_45)
 		return;
 
+	// Soldier fires weapon
 	Data20->field_4A = -1;
 }
 
@@ -10465,7 +10470,7 @@ void cFodder::Map_Destroy_Tiles_Next() {
 }
 
 void cFodder::Game_Save_Wrapper2() {
-	mGraphics->Load_Hill_Recruits();
+	mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
 
 	Game_Save_Wrapper();
 }
@@ -20224,7 +20229,7 @@ void cFodder::Playground() {
 	mImageFaded = -1;
 	Map_Load_Resources();
 
-	
+	mGraphics->Load_Hill_Data();
 	mGraphics->PaletteSet();
 
 	//mGraphics->Recruit_Draw_Hill();
@@ -20235,7 +20240,7 @@ void cFodder::Playground() {
 	mImage->Save();
 	mString_GapCharID = 0x25;
 
-	size_t SpriteID = 0x30;
+	size_t SpriteID = 0;
 	size_t Frame = 0;
 
 	
@@ -20252,7 +20257,7 @@ void cFodder::Playground() {
 		}
 
 		{
-			mGraphics->SetActiveSpriteSheet(eSPRITE_IN_GAME);
+			mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
 			Sprite_Draw_Frame(SpriteID, 65, Frame, 65);
 		}
 

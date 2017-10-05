@@ -360,7 +360,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3ABAF;
 	int16			word_3ABB1;
 	int16			mSquad_Member_Fire_CoolDown;
-	int16			word_3ABB5;
+	int16			mTroop_Rotate_Next;
 	int16			word_3ABB7;
 	sWeaponData		mSprite_Weapon_Data;
 	int16			mSprite_Bullet_Time_Modifier;
@@ -778,7 +778,7 @@ public:
 	bool			Recruit_Show();
 	void			Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			Recruit_Truck_Anim_Prepare();
-	void			Recruit_Truck_Anim_CopyFrames( uint16** pDi, int16* pSource );
+	void			Recruit_Truck_Anim_CopyFrames( uint16** pDi, const int16* pSource );
 	void			sub_16C6C();
 	void			Recruit_Render_LeftMenu();
 	void			Recruit_Render_Squad_Names();

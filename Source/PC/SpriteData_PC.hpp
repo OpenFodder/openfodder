@@ -21,90 +21,90 @@
  */
 
 const sSpriteSheet mSpriteSheet_Font_PC[83] = {
-	{ 0, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 8, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 16, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 24, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 32, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 40, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 48, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 56, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 64, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 72, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 80, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 88, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 96, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 104, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 112, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 120, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 128, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 136, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 144, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 152, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2720, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2728, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2736, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2744, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2752, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2760, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5536, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5544, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5552, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5560, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5568, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5576, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5584, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5592, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 8160, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 8168, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 10896, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 8192, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 8200, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 8208, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
+	{ 0, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 8, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 16, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 24, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 32, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 40, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 48, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 56, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 64, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 72, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 80, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 88, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 96, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 104, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 112, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 120, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 128, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 136, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 144, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 152, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2720, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2728, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2736, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2744, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2752, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2760, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5536, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5544, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5552, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5560, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5568, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5576, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5584, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5592, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 8160, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 8168, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 10896, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 8192, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 8200, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 8208, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
 
-	{ 0, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 8, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 16, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 24, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 32, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 40, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 48, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 56, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 64, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 72, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 80, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 88, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 96, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 104, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 112, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 120, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 128, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2768, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2776, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2784, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2792, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2800, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2808, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2816, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2824, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2832, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2840, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2848, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2856, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2864, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 2872, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5440, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5448, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5456, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5464, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5472, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5480, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5488, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5496, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5504, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5512, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5520, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 },
-	{ 5528, eSPRITE_PSTUFF, 0, 0, 16, 17, 208, 0, 0 }
+	{ 0, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 8, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 16, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 24, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 32, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 40, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 48, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 56, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 64, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 72, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 80, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 88, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 96, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 104, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 112, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 120, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 128, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2768, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2776, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2784, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2792, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2800, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2808, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2816, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2824, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2832, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2840, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2848, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2856, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2864, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 2872, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5440, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5448, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5456, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5464, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5472, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5480, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5488, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5496, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5504, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5512, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5520, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
+	{ 5528, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 }
 };
 
 const sSpriteSheet* mSpriteSheetTypes_Font_PC[] = {
@@ -196,45 +196,44 @@ const sSpriteSheet stru_32580[2] =
 	{ 8248, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 }
 };
 
-const sSpriteSheet stru_325A0[36] =
+const sSpriteSheet mRecruitSpriteFrames_AlphaNum_PC[36] =
 {
-	{ 0, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 8, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 16, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 24, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 32, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 40, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 48, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 56, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 64, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 72, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 80, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 88, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 96, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 104, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 112, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 120, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 128, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 136, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 144, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 152, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2560, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2568, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2576, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2584, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2592, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2600, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	/* 26: 0 to 9*/
-	{ 2608, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2616, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2624, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2632, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2640, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2648, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2656, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2664, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2672, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
-	{ 2680, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 }
+/* 0x00 */	{ 0, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x01 */	{ 8, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x02 */	{ 16, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x03 */	{ 24, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x04 */	{ 32, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x05 */	{ 40, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x06 */	{ 48, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x07 */	{ 56, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x08 */	{ 64, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x09 */	{ 72, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x0A */	{ 80, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x0B */	{ 88, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x0C */	{ 96, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x0D */	{ 104, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x0E */	{ 112, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x0F */	{ 120, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x10 */	{ 128, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x11 */	{ 136, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x12 */	{ 144, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x13 */	{ 152, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x14 */	{ 2560, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x15 */	{ 2568, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x16 */	{ 2576, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x17 */	{ 2584, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x18 */	{ 2592, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x19 */	{ 2600, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x1A */	{ 2608, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x1B */	{ 2616, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x1C */	{ 2624, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x1D */	{ 2632, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x1E */	{ 2640, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x1F */	{ 2648, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x20 */	{ 2656, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x21 */	{ 2664, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x22 */	{ 2672, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 },
+/* 0x23 */	{ 2680, eSPRITE_RECRUIT, 0, 0, 16, 13, 176, 0, 0 }
 };
 
 const sSpriteSheet stru_327E0[1] = {
@@ -597,32 +596,32 @@ sSpriteSheet stru_3664E[12] =
 };
 
 const sSpriteSheet* mSpriteSheetTypes_Recruit_PC[] = {
-	mRecruitSpriteFrames_Graves_PC,
-	stru_32420,	// Recruit Face Camera
-	stru_32440,	// Recruit Face Camera / Left
-	stru_32460,	// Recruit Face Left
-	stru_32480,	// Recruit Face Camera        (Color2)
-	stru_324A0,	// Recruit Face Camera / Left (Color2)
-	stru_324C0, // Recruit Face Left          (Color2)
-	stru_324E0,	// Recruit Face Camera        (Color3)
-	stru_32500,	// Recruit Face Camera / Left (Color3)
-	stru_32520, // Recruit Face Left          (Color3)
-	stru_32540, // Recruit Face Camera        (Color4)
-	stru_32560,	// Recruit Face Camera / Left (Color4)
-	stru_32580, // Recruit Face Left          (Color4)
-	stru_325A0, // Letters/Numbers
-	stru_327E0, // Colon (:)
-	stru_327F0, // Cursor
-	stru_32800, // 16: Unknown - Blank?
-	stru_32810, // 
-	stru_32980, // Symbol ^
-	stru_32990, // Unknown ___
-	stru_329A0, // 20: Hill Overlays
-	mRecruitSpriteFrames_Truck_PC, // Truck
-	mRecruitSpriteFrames_Disk_PC,
-	mRecruitSpriteFrames_Disk_Part_PC,
-	mRecruitSpriteFrames_Disk_Load_PC,	// 
-	mRecruitSpriteFrames_Disk_Save_PC
+/* 0x00 */	mRecruitSpriteFrames_Graves_PC,
+/* 0x01 */	stru_32420,							// Recruit Face Camera
+/* 0x02 */	stru_32440,							// Recruit Face Camera / Left
+/* 0x03 */	stru_32460,							// Recruit Face Left
+/* 0x04 */	stru_32480,							// Recruit Face Camera        (Color2)
+/* 0x05 */	stru_324A0,							// Recruit Face Camera / Left (Color2)
+/* 0x06 */	stru_324C0,							// Recruit Face Left          (Color2)
+/* 0x07 */	stru_324E0,							// Recruit Face Camera        (Color3)
+/* 0x08 */	stru_32500,							// Recruit Face Camera / Left (Color3)
+/* 0x09 */	stru_32520,							// Recruit Face Left          (Color3)
+/* 0x0A */	stru_32540,							// Recruit Face Camera        (Color4)
+/* 0x0B */	stru_32560,							// Recruit Face Camera / Left (Color4)
+/* 0x0C */	stru_32580,							// Recruit Face Left          (Color4)
+/* 0x0D */	mRecruitSpriteFrames_AlphaNum_PC,	// Letters/Numbers
+/* 0x0E */	stru_327E0,							// Colon (:)
+/* 0x0F */	stru_327F0,							// Cursor
+/* 0x10 */	stru_32800,							// 16: Unknown - Blank?
+/* 0x11 */	stru_32810,							// 
+/* 0x12 */	stru_32980,							// Symbol ^
+/* 0x13 */	stru_32990,							// Unknown ___
+/* 0x14 */	stru_329A0,							// 20: Hill Overlays
+/* 0x15 */	mRecruitSpriteFrames_Truck_PC,
+/* 0x16 */	mRecruitSpriteFrames_Disk_PC,
+/* 0x17 */	mRecruitSpriteFrames_Disk_Part_PC,
+/* 0x18 */	mRecruitSpriteFrames_Disk_Load_PC,
+/* 0x19 */	mRecruitSpriteFrames_Disk_Save_PC
 };
 
 const sSpriteSheet* mSpriteSheetTypes_Hill_PC[] = {

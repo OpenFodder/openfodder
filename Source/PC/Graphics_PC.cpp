@@ -42,6 +42,10 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			return mSpriteSheet_RankFont.mData->data();
 			break;
 		
+		case eSPRITE_FONT:
+			return mImageFonts.mData->data();
+			break;
+
 		case eSPRITE_PSTUFF:
 			return mImagePStuff.mData->data();
 			break;
@@ -124,13 +128,11 @@ sImage cGraphics_PC::Decode_Image(const std::string& pFilename, const size_t pCo
 void cGraphics_PC::Load_pStuff() {
 
 	mImagePStuff = Decode_Image("pstuff.dat", 0x10, 0xA000, 0xF0);
-
 }
 
 void cGraphics_PC::Load_Sprite_Font() {
 	
-	mImagePStuff = Decode_Image("font.dat", 0x10, 0xA000, 0xD0);
-
+	mImageFonts = Decode_Image("font.dat", 0x10, 0xA000, 0xD0);
 
 	SetActiveSpriteSheet( eSPRITE_FONT );
 }
@@ -138,15 +140,7 @@ void cGraphics_PC::Load_Sprite_Font() {
 void cGraphics_PC::Load_Hill_Data() {
 
 	mImageHill = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
-
-	Load_Hill_Recruits();
-}
-
-void cGraphics_PC::Load_Hill_Recruits() {
-
 	mImageRecruit = Decode_Image("hillbits.dat", 0x10, 0x6900, 0xB0);
-	
-	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 }
 
 void cGraphics_PC::Load_Service_Data() {
