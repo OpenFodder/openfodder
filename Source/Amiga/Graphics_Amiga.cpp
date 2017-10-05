@@ -301,14 +301,8 @@ void cGraphics_Amiga::Load_Hill_Data() {
 
 	// We increase this buffer because the engine still writes to it
 	mImageHill.mData->resize(mImageHill.GetHeader()->ScreenSize() * (mImageHill.GetHeader()->mPlanes + 30));
-	
-	Load_Hill_Recruits();
 }
 
-void cGraphics_Amiga::Load_Hill_Recruits() {
-
-	SetActiveSpriteSheet(eSPRITE_RECRUIT);
-}
 
 void cGraphics_Amiga::Load_Sprite_Font() {
 
@@ -1001,18 +995,20 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 
 	mImagePStuff.LoadPalette_Amiga(Grave->data(), Grave->size() / 2);
 	
-	mFodder->mDraw_Sprite_FrameDataPtr = mImageHill.mData->data() + (29 * 40) + 6;
+	{
+		mFodder->mDraw_Sprite_FrameDataPtr = mImageHill.mData->data() + (29 * 40) + 6;
 
-	mBMHD_Current = mImageHill.GetHeader();
-	mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
+		mBMHD_Current = mImageHill.GetHeader();
+		mFodder->mDraw_Sprite_PaletteIndex = 0xD0;
 
-	mFodder->mDrawSpritePositionX = 0x40;
-	mFodder->mDrawSpritePositionY = 0x28;
-	mFodder->mDrawSpriteColumns = 0x110 >> 3;		//W
-	mFodder->mDrawSpriteRows = 0xB8;				// H
-	mFodder->word_42078 = 0x140;
+		mFodder->mDrawSpritePositionX = 0x40;
+		mFodder->mDrawSpritePositionY = 0x28;
+		mFodder->mDrawSpriteColumns = 0x110 >> 3;		//W
+		mFodder->mDrawSpriteRows = 0xB8;				// H
+		mFodder->word_42078 = 0x140;
 
-	video_Draw_Linear();
+		video_Draw_Linear();
+	}
 
 	Recruit_Draw_HomeAway();
 

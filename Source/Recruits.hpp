@@ -52,3 +52,7 @@ extern const struct sRecruit mRecruits[360];
 extern const struct sRecruit_Sprites mRecruitSprite[34];
 extern struct sRecruit_Screen_Pos mRecruit_Screen_Positions[294];
 
+extern const int16 mRecruit_Truck_Anim_Welcome[];
+extern const int16 mRecruit_Truck_Anim_SwingArm[];
+extern const int16 mRecruit_Truck_Anim_PassTroop[];
+extern const int16 mRecruit_Truck_Anim_CloseDoor[];

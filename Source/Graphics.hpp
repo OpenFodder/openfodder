@@ -161,7 +161,6 @@ public:
 
 	virtual void		Load_Sprite_Font() = 0;
 	virtual void		Load_Hill_Data() = 0;
-	virtual void		Load_Hill_Recruits() = 0;
 	virtual void		Load_Service_Data() = 0;
 
 	virtual void		Tile_Prepare_Gfx() = 0;
