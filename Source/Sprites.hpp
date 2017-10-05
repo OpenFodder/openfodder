@@ -135,7 +135,6 @@ enum eSprites {
 	eSprite_Computer_3							= 110,
 };
 
-
 enum eSprite_Flags {
 	eSprite_Flag_HomingMissiles = 0x01,
 	eSprite_Flag_Invincibility  = 0x02,
@@ -157,6 +156,18 @@ enum eSprite_Anim {
 	eSprite_Anim_Slide3 = 0x34,
 	eSprite_Anim_Vehicle_Enter  = 0x5A,
 	eSprite_Anim_Vehicle_Inside = 0x5B
+};
+
+enum eSprite_Vehicles {
+	eSprite_Vehicle_Cannon					= 0,
+	eSprite_Vehicle_Missile_Launcher		= 1,
+	eSprite_Vehicle_Jeep					= 2,
+	eSprite_Vehicle_JeepRocket				= 3,
+	eSprite_Vehicle_Tank					= 4,
+	eSprite_Vehicle_Helicopter				= 5,
+	eSprite_Vehicle_Helicopter_Missile		= 6,
+	eSprite_Vehicle_Helicopter_MissileHome1 = 7,
+	eSprite_Vehicle_Helicopter_MissileHome2 = 8,
 };
 
 enum ePstuff_Sprites {
@@ -266,7 +277,7 @@ struct sSprite {
 	};
 
 	int8 field_6E;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
-	int8 field_6F;			// Vehicle: Entrance left - 12
+	int8 field_6F;			// Vehicle: Type?
 	sSprite* field_70;
 	int8 field_74;			// Helicopter: Restart Anim Frame Number
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
