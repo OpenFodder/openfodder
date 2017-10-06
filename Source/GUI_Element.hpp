@@ -31,6 +31,22 @@ struct sGUI_Element {
 	void	(cFodder::*mMouseInsideFuncPtr)();	// field_c
 };
 
+struct sGUI_SquadVehicleIcon {
+	int16 mVehicleType;
+	int16 mIconID;
+};
+
+// Menu Buttons
 extern const sGUI_Element mAfx_Buttons[];
 extern const sGUI_Element mPlus_Buttons[];
 extern const sGUI_Element mPlusQuiz_Buttons[];
+
+// Sidebar Squad Icons
+extern const int16 mGUI_Squad_Icons[];
+extern const int16 mGUI_Squad_Active_Icons[];
+extern const int16 mGUI_Squad_Inactive_Icons[];
+extern const int16 mGUI_Squad_Split_Icons[];
+extern const sGUI_SquadVehicleIcon mGUI_Squad_Vehicle_Icons[];
+
+extern const int8 mGUI_Sidebar_TroopList_Sprite_Modifier[];
+

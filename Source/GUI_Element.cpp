@@ -56,3 +56,45 @@ const sGUI_Element mPlusQuiz_Buttons[] = {
 	{ &cFodder::GUI_Button_NoAction, 0x0BC, 0x2B, 0x21, 0xAA,	&cFodder::GUI_Button_Quiz_10 },
 	{ &cFodder::GUI_Button_NoAction, 0x0E6, 0x3B, 0x13, 0xCE,	&cFodder::GUI_Button_Quiz_11 },
 };
+
+const int8 mGUI_Sidebar_TroopList_Sprite_Modifier[] = {
+	0x29,	// Squad Selected (Normal)
+	0x4D,	// Selected		  (Gold/Yellow)
+	0x71	// Squad Not Selected (Grayed Out)
+};
+
+const int16 mGUI_Squad_Icons[3] = { 
+	0, 
+	1, 
+	2
+};
+
+const int16 mGUI_Squad_Split_Icons[] = {
+	0, 3, 4, // Squad 0
+	6, 1, 5, // Squad 1
+	8, 7, 2  // Squad 2
+};
+
+const int16 mGUI_Squad_Active_Icons[] = {
+	149, 150, 151, 152, 153, 154, 155, 156, 157, 158,
+	158
+};
+
+const int16 mGUI_Squad_Inactive_Icons[] = {
+	159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
+	168
+};
+
+// Left value is vehicle ID type
+const sGUI_SquadVehicleIcon mGUI_Squad_Vehicle_Icons[] = {
+	{ eVehicle_Turret_Cannon,		 2 },
+	{ eVehicle_Turret_Missile,		 3 },
+	{ eVehicle_Jeep,				 4 },
+	{ eVehicle_JeepRocket,			 5 },
+	{ eVehicle_Tank,				 6 },
+	{ eVehicle_Helicopter,			 7 },
+	{ eVehicle_Helicopter_Grenade,	 8 },
+	{ eVehicle_Helicopter_Missile,	 9 },
+	{ eVehicle_Helicopter_Homing,	10 },
+	-1
+};

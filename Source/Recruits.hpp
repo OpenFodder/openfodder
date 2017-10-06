@@ -56,3 +56,5 @@ extern const int16 mRecruit_Truck_Anim_Welcome[];
 extern const int16 mRecruit_Truck_Anim_SwingArm[];
 extern const int16 mRecruit_Truck_Anim_PassTroop[];
 extern const int16 mRecruit_Truck_Anim_CloseDoor[];
+
+extern const int16 mRecruit_Shirt_Colors[];

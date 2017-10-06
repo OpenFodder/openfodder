@@ -151,8 +151,16 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	word_44475 = 0;
 
-	stru_3DEDC[0] = { &cFodder::GUI_Button_NoAction, 0, 47, 0, 225, &cFodder::GUI_Button_NoAction2 };
-	stru_3DEDC[1] = { 0, 0, 0, 0, 0, 0 };
+	//		Field_0,				 X, Width, Y, Height, mMouseInsideFuncPtr
+	mSidebar_OverlayButtons[0] = { 
+		&cFodder::GUI_Button_NoAction, 
+		0,		// X
+		47,		// Width
+		0,		// Y
+		225,	// Height
+		&cFodder::GUI_Button_NoAction2 };
+
+	mSidebar_OverlayButtons[1] = { 0, 0, 0, 0, 0, 0 };
 
 	mGUI_Handle_Button_SelectSquad_Array[0] = &cFodder::GUI_Handle_Button_SelectSquad_0;
 	mGUI_Handle_Button_SelectSquad_Array[1] = &cFodder::GUI_Handle_Button_SelectSquad_1;
@@ -221,7 +229,7 @@ int16 cFodder::Mission_Loop( ) {
 		if (mGUI_Sidebar_Setup >= 0 && !mMission_TryAgain)
 			GUI_Sidebar_Setup();
 		else
-			GUI_Sidebar_Refresh();
+			GUI_Sidebar_Draw();
 
 		//loc_10768
 		Mission_Progress_Check();
@@ -748,8 +756,8 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AA71 = 0;
 	word_3AAC7 = 0;
 	mRecruit_RenderedPtr = 0;
-	word_3AACD = 0;
-	word_3AACF = 0;
+	mRecruit_Truck_Frame = 0;
+	mRecruit_Truck_FrameAnimBufferPtr = 0;
 	byte_3ABA9 = 0;
 	word_3ABB1 = 0;
 	mSquad_Member_Fire_CoolDown = 0;
@@ -777,8 +785,7 @@ void cFodder::Mission_Memory_Clear() {
 
 	mString_GapCharID = 0;
 	mGUI_Loop_Squad_Current = 0;
-	word_3AC1D = 0;
-	mGUI_Squad_Current = 0;
+	mGUI_Loop_Draw_Y = 0;
 	word_3AC2D[0] = 0;
 	word_3AC2D[1] = 0;
 	word_3AC2D[2] = 0;
@@ -798,7 +805,7 @@ void cFodder::Mission_Memory_Clear() {
 	mSquad_CurrentWeapon[2] = eWeapon_None;
 
 	mMouseDisabled = 0;
-	word_3AC47 = 0;
+	mGUI_Loop_Is_CurrentSquad = 0;
 	word_3AC49 = 0;
 	word_3AC4B = 0;
 	word_3AC4D = 0;
@@ -842,7 +849,7 @@ void cFodder::Mission_Memory_Clear() {
 	for (uint16 x = 0; x < 0x0F; ++x ) 
 		word_3B1CF[x] = 0;
 
-	mRecruit_Reached_Truck = 0;
+	mRecruit_Truck_Animation_Play = 0;
 	mRecruit_ToEnterTruck = 0;
 	dword_3B1FB = 0;
 	
@@ -1056,16 +1063,16 @@ void cFodder::Map_Load_Sprites() {
 
 	std::string Filename_Spt = map_Filename_SptGet();
 
-	mMapSptSize = g_Resource.fileLoadTo( Filename_Spt, (uint8*) mMapSptPtr );
-	tool_EndianSwap( (uint8*) mMapSptPtr, mMapSptSize );
+	auto MapSprites = g_Resource.fileGet( Filename_Spt );
+	tool_EndianSwap( (uint8*)MapSprites->data(), MapSprites->size());
 
 	mTroops_Enemy_Count = 0;
 	mHostage_Count = 0;
 	
-	uint16* SptPtr = mMapSptPtr;
+	uint16* SptPtr = (uint16*) MapSprites->data();
 	sSprite* Sprite = mSprites;
 	
-	uint16* SptFileEnd = SptPtr + (mMapSptSize / 2);
+	uint16* SptFileEnd = SptPtr + (MapSprites->size() / 2);
 	int16 dword_37ABC = 0x0A;
 
 	for(uint16 HumanCount = 0; SptPtr != SptFileEnd; ++Sprite ) {
@@ -3220,9 +3227,9 @@ void cFodder::Prepare( ) {
 	mBriefing_Intro_Gfx_Clouds1 = tSharedBuffer();
 	mBriefing_Intro_Gfx_Clouds2 = tSharedBuffer();
 
-	mRecruit_Truck_AnimBuffer = (uint16*) new uint8[0x400 * 16];
-	mMapSptPtr = (uint16*) new uint8[0x400 * 16];
-	mSidebar_Screen_Buffer = mMapSptPtr;
+	mSidebar_Back_Buffer = (uint16*) new uint8[0x400 * 16];
+	mSidebar_Screen_Buffer = (uint16*) new uint8[0x400 * 16];
+	mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 
 	uint8* Start = (uint8*) &mMapNumber;
 	uint8* End = (uint8*)&mButtonPressLeft;
@@ -4658,7 +4665,7 @@ bool cFodder::Recruit_Show() {
 		mWindow->SetScreenSize( cDimension( 320, 225 ));
 
 	Mouse_Setup();
-	map_ClearSpt();
+	Sidebar_Clear_ScreenBufferPtr();
 
 	mMission_Aborted = 0;
 
@@ -4761,7 +4768,7 @@ void cFodder::Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC,
 }
 
 void cFodder::Recruit_Truck_Anim_Prepare() {
-	uint16* di = mRecruit_Truck_AnimBuffer;
+	uint16* di = mRecruit_Truck_FramesPlay;
 	int16  count;
 	
 	if(mMapPlayerTroopCount > 0 ) {
@@ -4867,7 +4874,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 	int16 DataC	= 0x18;
 	
 	// Draw Heroes Heading
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 	
 	int16 Data14 = 0x0E;
 	Data0 = 4;
@@ -4888,7 +4895,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 			Data0 = 0xAB;
 		
 		Data8 = 0;
-		mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x18 );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC + 0x18 );
 		DataC += 0x0C;
 		
 	} while( DataC < 0x4A );
@@ -4899,7 +4906,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 	Data0 = 0xAE;
 	Data8 = 0;
 	DataC = 0x4A + 0x18;
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 	
 	Data14 = mMapPlayerTroopCount + mSquadMemberCount;
 	Data14 *= 0x0C;
@@ -4919,7 +4926,7 @@ void cFodder::Recruit_Render_LeftMenu() {
 			Data0 = 0xAB;
 
 		Data8 = 0;
-		mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x18 );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC + 0x18 );
 		DataC += 0x0C;
 		
 	} while( DataC < Final );
@@ -4984,7 +4991,7 @@ void cFodder::Recruit_Render_Squad_Names() {
 				DataC += word_3A3BD;
 				DataC += word_3AA55;
 
-				mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x19 );
+				mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC + 0x19 );
 			}
 		}
 
@@ -5032,7 +5039,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 			DataC += word_3AA55;
 			DataC += 0x19;
 			
-			mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+			mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 			
 			DataC -= 0x19;
 			
@@ -5049,7 +5056,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 		DataC += 0x4A;
 		DataC += word_3AA55;
 		DataC += 0x19;
-		mGraphics->Sidebar_Render_Sprite( Data0, 0, DataC );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, 0, DataC );
 		DataC -= 0x19;
 		word_3A3BD += 0x0C;
 	}
@@ -5067,7 +5074,7 @@ void cFodder::Recruit_Render_Number( int16 pNumber, int16 pData10 ) {
 	for (std::string::iterator CharIT = Data20.begin(); CharIT != Data20.end(); ++CharIT) {
 
 		Data0 = (*CharIT & 0xFF) + pData10;
-		mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC + 0x19 );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC + 0x19 );
 		Data8 += 4;
 	}
 }
@@ -5087,7 +5094,7 @@ void cFodder::Recruit_Render_HeroList() {
 		int16 DataC = word_3A3BD - 1;
 		DataC += 0x4A + word_3AA55+ 0x19;
 
-		mGraphics->Sidebar_Render_Sprite( Hero->mRank + 9, Data8, DataC );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Hero->mRank + 9, Data8, DataC );
 
 		const sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
 
@@ -5116,7 +5123,7 @@ void cFodder::Recruit_Render_HeroList() {
 			DataC = 0x4B;
 			DataC += word_3A3BD + word_3AA55;
 
-			mGraphics->Sidebar_Render_Sprite( Character, Data8, DataC  + 0x19 );
+			mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Character, Data8, DataC  + 0x19 );
 		}
 
 		Recruit_Render_Number( Hero->mKills, 0x67 );
@@ -5140,7 +5147,7 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
 		Data24->mDataPtr = Data20;
 		Data24->mPosition = Data0;
 
-		mGraphics->Sidebar_Render_SquadNames( Data0, 0x0C, 0, Data20 );
+		mGraphics->Sidebar_Copy_ScreenBuffer( Data0, 0x0C, 0, Data20 );
 		++Data24;
 	}
 
@@ -5158,7 +5165,7 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
 		Data4 = 7;
 
 	for (; Data4 >= 0; --Data4) {
-		mGraphics->Sidebar_Render_Sprite( 0xAC, 0, DataC + 0x18 );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( 0xAC, 0, DataC + 0x18 );
 
 		DataC += 0x0C;
 	}
@@ -5170,7 +5177,7 @@ void cFodder::Recruit_Sidebar_Render_SquadName() {
 		return;
 
 	++mRecruit_RenderedPtr;
-	mGraphics->Sidebar_Render_SquadNames( (uint16) Data24->mPosition, 0x0C, -1, Data24->mDataPtr );
+	mGraphics->Sidebar_Copy_ScreenBuffer( (uint16) Data24->mPosition, 0x0C, -1, Data24->mDataPtr );
 }
 
 void cFodder::Recruit_Draw_Actors( ) {
@@ -5260,7 +5267,7 @@ loc_17686:;
 
 void cFodder::Recruit_Draw_Troops() {
 
-	if (mRecruit_Reached_Truck) {
+	if (mRecruit_Truck_Animation_Play) {
 		sub_175C0();
 	}
 	else {
@@ -5335,7 +5342,7 @@ void cFodder::sub_1787C() {
 		return;
 	
 	mRecruit_ToEnterTruck = mMapPlayerTroopCount;
-	mRecruit_Reached_Truck = 0;
+	mRecruit_Truck_Animation_Play = 0;
 
 	int16 Data0 = 0xB4;
 	int16* Data20 = word_3B1CF;
@@ -5361,7 +5368,7 @@ void cFodder::Recruit_Field4_Clear() {
 
 void cFodder::Recruit_Position_Troops() {
 	sRecruit_Screen_Pos* Data24 = mRecruit_Screen_Positions;
-	const int16*    Data2C = word_3E197;
+	const int16*    Data2C = mRecruit_Shirt_Colors;
 
 	uint64 Data8 = (uint64) mGraveRankPtr;
 	int16 Recruits, Data4;
@@ -5391,7 +5398,7 @@ void cFodder::Recruit_Position_Troops() {
 			if ((Data24 + (Data4/6))->field_4)
 				Data4 -= 6;
 
-			(Data24 + (Data4/6))->field_4 = word_3E197[Data8 / 2];
+			(Data24 + (Data4/6))->field_4 = mRecruit_Shirt_Colors[Data8 / 2];
 		}
 
 		Data8 += 2;
@@ -5404,7 +5411,7 @@ loc_179B2:;
 	if (mMission_Restart)
 		return;
 
-	word_3B1ED = 0;
+	mRecruit_Truck_Reached = 0;
 	int16 Data0 = word_3B1CF[0];
 	Data8 = 5;
 
@@ -5413,7 +5420,7 @@ loc_179B2:;
 		Data4 = (Data24 + (Data0/6))->field_4;
 		if (Data4) {
 			if (Data4 > 3) {
-				word_3B1ED = -1;
+				mRecruit_Truck_Reached = -1;
 				break;
 			}
 			else
@@ -5421,7 +5428,7 @@ loc_179B2:;
 		}
 		else {
 			if (Data0 == 0x660) {
-				word_3B1ED = -1;
+				mRecruit_Truck_Reached = -1;
 				break;
 			}
 			--Data8;
@@ -5430,7 +5437,7 @@ loc_179B2:;
 		}
 	}
 	//seg003:2B6D
-	if (!word_3B1ED) {
+	if (!mRecruit_Truck_Reached) {
 		dword_3B1CB += 0x8000;
 		dword_3B1CB &= 0x1FFFF;
 	}
@@ -5456,7 +5463,7 @@ loc_179B2:;
 		}
 		// 17A9D
 
-		if (!word_3B1ED)
+		if (!mRecruit_Truck_Reached)
 			Data0 += 6;
 
 		//loc_17AA9
@@ -5464,32 +5471,28 @@ loc_179B2:;
 		++Data20;
 	}
 
-	if (word_3B1ED)
-		mRecruit_Reached_Truck = -1;
+	if (mRecruit_Truck_Reached)
+		mRecruit_Truck_Animation_Play = -1;
 }
 
 void cFodder::Recruit_Draw_Truck( ) {
-	int16 Data0 = 0x22;
-	int16 Data4 = word_3AACD;
-	int16 Data8 = 0x31;
 	int16 DataC = 0xB6;
 
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		DataC = 0xBE;
 
-	Sprite_Draw_Frame(  Data0, DataC, Data4, Data8 );
+	Sprite_Draw_Frame( 0x22, DataC, mRecruit_Truck_Frame, 0x31 );
 
-	if (!mRecruit_Reached_Truck)
+	// If no troop has reached the truck, don't do animation
+	if (!mRecruit_Truck_Animation_Play)
 		return;
 
-	uint16* Data20 = mRecruit_Truck_AnimBuffer;
-
-	Data0 = *(Data20 + word_3AACF);
+	int16 Data0 = *(mRecruit_Truck_FramesPlay + mRecruit_Truck_FrameAnimBufferPtr);
 	if (Data0 < 0)
 		return;
 
-	++word_3AACF;
-	word_3AACD = Data0;
+	++mRecruit_Truck_FrameAnimBufferPtr;
+	mRecruit_Truck_Frame = Data0;
 }
 
 void cFodder::Recruit_Sprites_Draw() {
@@ -5593,7 +5596,7 @@ void cFodder::Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite ) {
 	
 	int16 VehicleX = Vehicle->field_0 + 0x10;
 
-	if (Vehicle->field_6F || Vehicle->field_6F == eSprite_Vehicle_Missile_Launcher)
+	if (Vehicle->field_6F == eVehicle_Turret_Cannon || Vehicle->field_6F == eVehicle_Turret_Missile)
 		VehicleX -= 0x0C;
 
 	int16 VehicleY = Vehicle->field_4 - 9;
@@ -5651,7 +5654,7 @@ void cFodder::sub_3037A( ) {
 	word_3AC4B = 0;
 	mSquad_Grenade_SplitMode = 1;
 
-	GUI_Sidebar_Grenades_Refresh_CurrentSquad();
+	GUI_Sidebar_Grenades_CurrentSquad_Draw();
 	sub_303B7();
 }
 
@@ -5671,13 +5674,13 @@ void cFodder::sub_3049B( ) {
 		word_3AC4D = 0;
 		mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
 
-		GUI_Sidebar_Rockets_Refresh_CurrentSquad();
+		GUI_Sidebar_Rockets_CurrentSquad_Draw();
 	}
 }
 
 
 void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper( ) {
-	GUI_Sidebar_Rockets_Refresh_CurrentSquad();
+	GUI_Sidebar_Rockets_CurrentSquad_Draw();
 }
 
 void cFodder::sub_30AB0() {
@@ -5727,9 +5730,9 @@ void cFodder::sub_30AB0() {
 
 		Data18 = Data20->field_18;
 		Data8 = Data20->field_0;
-		if (Data20->field_6F == 0)
+		if (Data20->field_6F == eVehicle_Turret_Cannon)
 			goto loc_30BB9;
-		if (Data20->field_6F == 1)
+		if (Data20->field_6F == eVehicle_Turret_Missile)
 			goto loc_30BBE;
 
 	loc_30BB9:;
@@ -5847,13 +5850,13 @@ void cFodder::sub_22CD7( sSprite* pSprite, int16& pData0, int16& pData4 ) {
 	pSprite->field_10 += pData0;
 	pSprite->field_10 &= 0x1FE;
 
-	if (pSprite->field_6F == 2)
+	if (pSprite->field_6F == eVehicle_Jeep)
 		goto loc_22DC4;
 
-	if (pSprite->field_6F == 3)
+	if (pSprite->field_6F == eVehicle_JeepRocket)
 		goto loc_22DC4;
 
-	if (pSprite->field_6F == 4)
+	if (pSprite->field_6F == eVehicle_Tank)
 		goto loc_22DCF;
 
 	if (pSprite->field_36 <= 6)
@@ -6203,7 +6206,7 @@ void cFodder::Sprite_Handle_Vehicle_Human( sSprite* pSprite ) {
 		return;
 	}
 
-	if (pSprite->field_6F == 3)
+	if (pSprite->field_6F == eVehicle_JeepRocket)
 		sub_245BF( pSprite );
 
 	mSprite_Helicopter_DestroyLight = 0;
@@ -6271,7 +6274,7 @@ void cFodder::sub_23525( sSprite* pSprite ) {
 	Sprite_Map_Sound_Play( Data0 );
 
 loc_2356B:;
-	pSprite->field_6F = 4;
+	pSprite->field_6F = eVehicle_Tank;
 	pSprite->field_65 = -1;
 	if (Sprite_Animation_SlideOrDie( pSprite ))
 		return;
@@ -6478,7 +6481,7 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
 		return 0;
 
 	pData2C->field_32 = 0;
-	if (!pSprite->field_6F)
+	if (pSprite->field_6F == eVehicle_Turret_Cannon)
 		pData2C->field_32 = -1;
 
 	pData2C->field_1E = pSprite->field_1E;
@@ -6802,7 +6805,7 @@ void cFodder::Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 ) {
 	mSprite_Missile_LaunchDistance_X = 0;
 	mSprite_Missile_LaunchDistance_Y = 0;
 
-	if (pSprite->field_6F != 9)
+	if (pSprite->field_6F != eVehicle_Turret_Homing)
 		goto loc_2421D;
 
 	if (!mTurretFires_HomingMissile)
@@ -7108,13 +7111,13 @@ void cFodder::Sprite_Handle_Helicopter_Human_Deploy_Weapon( sSprite* pSprite ) {
 	if (pSprite->field_20 <= 0x1F)
 		return;
 
-	if (pSprite->field_6F == 6)
+	if (pSprite->field_6F == eVehicle_Helicopter_Grenade)
 		goto loc_24905;
 
-	if (pSprite->field_6F == 7)
+	if (pSprite->field_6F == eVehicle_Helicopter_Missile)
 		goto loc_24917;
 
-	if (pSprite->field_6F == 8)
+	if (pSprite->field_6F == eVehicle_Helicopter_Homing)
 		goto loc_24917;
 
 loc_24905:;
@@ -7130,21 +7133,19 @@ loc_24917:;
 	mSprite_Missile_LaunchDistance_X = 0x0E;
 	mSprite_Missile_LaunchDistance_Y = -12;
 
-	if (pSprite->field_6F == 8)
-		goto loc_24936;
+	// Homing Missle and can get lock on a target?
+	if (pSprite->field_6F == eVehicle_Helicopter_Homing && 
+		Sprite_Homing_LockInRange(pSprite, Data34)) {
 
-loc_2492E:;
-	if (!Sprite_Create_Missile( pSprite, Data2C ))
-		goto loc_2490D;
+		// Launch a homing missile
+		if (!Sprite_Create_MissileHoming(pSprite, Data2C, Data34))
+			goto loc_2490D;
 
-	goto loc_24942;
-
-loc_24936:;
-	if (!Sprite_Homing_LockInRange( pSprite, Data34 ))
-		goto loc_2492E;
-
-	if (!Sprite_Create_MissileHoming( pSprite, Data2C, Data34 ))
-		goto loc_2490D;
+	} else {
+		// Launch a missile
+		if (!Sprite_Create_Missile(pSprite, Data2C))
+			goto loc_2490D;
+	}
 
 loc_24942:;
 	pSprite->field_57 = 0;
@@ -7327,13 +7328,13 @@ int16 cFodder::sub_2531F( sSprite* pSprite, sSprite*& pData30 ) {
 	int16 Data0;
 	sSprite* Data2C = 0, *Data34 = 0;
 
-	if (pSprite->field_6F == 6)
+	if (pSprite->field_6F == eVehicle_Helicopter_Grenade)
 		goto loc_25344;
 
-	if (pSprite->field_6F == 7)
+	if (pSprite->field_6F == eVehicle_Helicopter_Missile)
 		goto loc_253E7;
 
-	if (pSprite->field_6F == 8)
+	if (pSprite->field_6F == eVehicle_Helicopter_Homing)
 		goto loc_253E7;
 
 loc_25344:;
@@ -7379,7 +7380,7 @@ loc_253E7:;
 		if (!(mMission_EngineTicks & 0x0F)) {
 			mSprite_Missile_LaunchDistance_X = 0x0E;
 			mSprite_Missile_LaunchDistance_Y = -12;
-			if (pSprite->field_6F == 8) {
+			if (pSprite->field_6F == eVehicle_Helicopter_Homing) {
 
 				Data34 = pData30;
 				if (Sprite_Create_MissileHoming(pSprite, Data2C, Data34)) {
@@ -7430,7 +7431,7 @@ void cFodder::Sprite_Handle_Vehicle_Enemy( sSprite* pSprite ) {
 		return;
 	}
 
-	if (pSprite->field_6F == 0x0A)
+	if (pSprite->field_6F == eVehicle_Unknown)
 		goto loc_255DA;
 
 	Data0 = eSprite_Player;
@@ -7460,7 +7461,7 @@ loc_255DA:;
 	pSprite->field_22 = 1;
 	Sprite_Handle_Vehicle( pSprite );
 
-	if (pSprite->field_6F == 3)
+	if (pSprite->field_6F == eVehicle_JeepRocket)
 		sub_245BF( pSprite );
 
 	sSprite* Data24 = pSprite + 1;
@@ -7584,7 +7585,7 @@ loc_2500F:;
 
 loc_250D2:;
 
-	if (pSprite->field_6F == 5)
+	if (pSprite->field_6F == eVehicle_Helicopter)
 		goto loc_251D2;
 
 	Data1C = pSprite->field_5E;
@@ -7787,7 +7788,7 @@ void cFodder::Sprite_Handle_Indigenous_Death( sSprite* pSprite ) {
 		pSprite->field_A = 0;
 		
 		int16 Data0 = tool_RandomGet() & 7;
-		int16 Data4 = mSound_Indigenous_Death[Data0];
+		int16 Data4 = mSprite_Indigenous_Sound_Death[Data0];
 
 		Sound_Play( pSprite, Data4, 0x14 );
 	}
@@ -8059,7 +8060,7 @@ loc_25E8F:;
 	}
 
 	pSprite->field_2A += 2;
-	Data0 = word_3E926[pSprite->field_2A / 2];
+	Data0 = mSprite_Seal_Frames[pSprite->field_2A / 2];
 
 	if (Data0 >= 0) {
 
@@ -8457,7 +8458,7 @@ void cFodder::Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C ) {
 
 	pSprite->field_2A = Data0;
 	pSprite->field_8 = mSprite_ComputerAnimation[Data0 / 2];
-	pSprite->field_20 = word_3E982[Data0 / 2];
+	pSprite->field_20 = mSprite_Computer_Unk[Data0 / 2];
 }
 
 void cFodder::Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 ) {
@@ -8724,11 +8725,11 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
 
 	if (mVersion->mPlatform == ePlatform::PC) {
 		Element->mY = 0xBD;
-		mGraphics->Sidebar_Render_Sprite( 0xD0, 0, 0xBD );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( 0xD0, 0, 0xBD );
 	}
 	else {
 		Element->mY = 214;
-		mGraphics->Sidebar_Render_Sprite( 0xD0, 0, 214 );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( 0xD0, 0, 214 );
 	}
 	++Element;
 
@@ -10871,31 +10872,41 @@ void cFodder::GUI_Button_NoAction2() {
 }
 
 void cFodder::GUI_Sidebar_Prepare_Squads() {
+
 	mMouseDisabled = -1;
-	sub_30465();
+	Sidebar_Render_To_BackBuffer();
 
 	mGUI_NextFreeElement = mGUI_Elements;
 
-	map_ClearSpt();
-
-	mGUI_Squad_NextDraw_Y = 0;
+	Sidebar_Clear_ScreenBufferPtr();
 	int16 Data4 = 0;
-	GUI_Sidebar_Prepare(0, Data4);
+	{
+		// Squad 1
+		mGUI_Squad_NextDraw_Y = 0;
+		GUI_Sidebar_Prepare(0, Data4);
+	}
 
-	Data4 = mGUI_Squad_NextDraw_Y;
-	if (Data4)
-		Data4 += 5;
-	GUI_Sidebar_Prepare(1, Data4);
+	{
+		// Squad 2
+		Data4 = mGUI_Squad_NextDraw_Y;
+		if (Data4)
+			Data4 += 5;
+		GUI_Sidebar_Prepare(1, Data4);
+	}
 
-	Data4 = mGUI_Squad_NextDraw_Y;
-	if (Data4)
-		Data4 += 5;
-	GUI_Sidebar_Prepare(2, Data4);
-	sub_2EBC4();
+	{
+		// Squad 3
+		Data4 = mGUI_Squad_NextDraw_Y;
+		if (Data4)
+			Data4 += 5;
+		GUI_Sidebar_Prepare(2, Data4);
+	}
+
+	GUI_Sidebar_Add_Sidebar_Overlay();
 
 	mMouseDisabled = 0;
 
-	sub_30480();
+	Sidebar_Render_To_ScreenBuffer();
 	mMouse_Button_LeftRight_Toggle = 0;
 }
 
@@ -11121,28 +11132,23 @@ void cFodder::Demo_Quiz() {
 	mImage->Save();
 }
 
-void cFodder::sub_2EBE0( int16& pData0, int16& pData4 ) {
+void cFodder::GUI_Loop_Draw_Prepare( int16& pData0, int16& pData4 ) {
 	mGUI_Loop_Squad_Current = pData0;
-	word_3AC1D = pData4;
-	word_3AC47 = 0;
+	mGUI_Loop_Draw_Y = pData4;
+	mGUI_Loop_Is_CurrentSquad = 0;
 
 	if (pData0 == mSquad_Selected)
-		word_3AC47 = -1;
-
-	//pData0 <<= 1;
-	mGUI_Squad_Current = pData0;
+		mGUI_Loop_Is_CurrentSquad = -1;
 }
 
 void cFodder::GUI_Sidebar_Prepare( int16 pSquadNumber, int16 pData4 ) {
 	
-	sub_2EBE0( pSquadNumber, pData4 );
+	GUI_Loop_Draw_Prepare( pSquadNumber, pData4 );
 
 	word_3AC2D[pSquadNumber] = pData4;
 	Squad_Troops_Count();
 	
-	pSquadNumber = mGUI_Loop_Squad_Current;
-
-	if (!mSquads_TroopCount[pSquadNumber])
+	if (!mSquads_TroopCount[mGUI_Loop_Squad_Current])
 		return;
 
 	GUI_Sidebar_SplitButton_Draw();
@@ -11156,34 +11162,27 @@ void cFodder::GUI_Sidebar_Prepare( int16 pSquadNumber, int16 pData4 ) {
 	GUI_Sidebar_Rockets_Draw();
 	GUI_Prepare_Button_Rockets();
 
-	sub_2F452();
+	GUI_Sidebar_SquadIcon_Update();
 
 	GUI_Sidebar_TroopList_Draw();
 	GUI_Prepare_Button_TroopName();
 }
 
-void cFodder::sub_2EBC4() {
-	sGUI_Element* Data20 = mGUI_NextFreeElement;
+void cFodder::GUI_Sidebar_Add_Sidebar_Overlay() {
 
-	GUI_SetElementsFrom( Data20, stru_3DEDC );
+	GUI_SetElementsFrom(mGUI_NextFreeElement, mSidebar_OverlayButtons );
 }
 
-void cFodder::GUI_SetElementsFrom( sGUI_Element* pData20, sGUI_Element* pData24 ) {
+void cFodder::GUI_SetElementsFrom( sGUI_Element* pTo, sGUI_Element* pFrom ) {
 	
-	while (pData24->field_0 != 0) {
+	while (pFrom->field_0 != 0) {
+		*pTo = *pFrom;
 
-		pData20->field_0 = pData24->field_0;
-		pData20->mX		 = pData24->mX;
-		pData20->mWidth  = pData24->mWidth;
-		pData20->mY		 = pData24->mY;
-		pData20->mHeight = pData24->mHeight;
-		pData20->mMouseInsideFuncPtr = pData24->mMouseInsideFuncPtr;
-
-		++pData20;
-		++pData24;
+		++pTo;
+		++pFrom;
 	}
 
-	GUI_ClearElement( pData20 );
+	GUI_ClearElement(pTo);
 
 }
 
@@ -11195,11 +11194,11 @@ void cFodder::GUI_ClearElement( sGUI_Element *pData20 ) {
 
 void cFodder::GUI_Sidebar_SplitButton_Draw() {
 
-	int16 Data0 = word_3DEF0[mGUI_Squad_Current];
+	int16 Data0 = mGUI_Squad_Icons[mGUI_Loop_Squad_Current];
 	int16 Data8 = 0;
-	int16 DataC = word_3AC1D;
+	int16 DataC = mGUI_Loop_Draw_Y;
 
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 }
 
 void cFodder::GUI_Prepare_Button_Squad() {
@@ -11207,8 +11206,9 @@ void cFodder::GUI_Prepare_Button_Squad() {
 
 	Element->field_0 = &cFodder::GUI_Button_NoAction;
 	Element->mX = 0;
+	Element->mY = mGUI_Loop_Draw_Y;
+
 	Element->mWidth = 0x2F;
-	Element->mY = word_3AC1D;
 	Element->mHeight = 0x0E;
 
 	if (mGUI_Loop_Squad_Current != mSquad_Selected) {
@@ -11288,25 +11288,25 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
 void cFodder::Mission_Set_Initial_Weapon() {
 
 	// segra: I don't believe this condition can ever occur
-	if (mSquad_CurrentWeapon[mGUI_Squad_Current] == eWeapon_Grenade) {
+	if (mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] == eWeapon_Grenade) {
 
-		if (mSquad_Grenades[mGUI_Squad_Current])
+		if (mSquad_Grenades[mGUI_Loop_Squad_Current])
 			return;
-		if (!mSquad_Rockets[mGUI_Squad_Current])
+		if (!mSquad_Rockets[mGUI_Loop_Squad_Current])
 			return;
 
-		mSquad_CurrentWeapon[mGUI_Squad_Current] = eWeapon_Rocket;
+		mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] = eWeapon_Rocket;
 		return;
 	}
 
 	//loc_2EFF1
-	if (mSquad_Rockets[mGUI_Squad_Current])
+	if (mSquad_Rockets[mGUI_Loop_Squad_Current])
 		return;
 
-	if (!mSquad_Grenades[mGUI_Squad_Current])
+	if (!mSquad_Grenades[mGUI_Loop_Squad_Current])
 		return;
 
-	mSquad_CurrentWeapon[mGUI_Squad_Current] = eWeapon_Grenade;
+	mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] = eWeapon_Grenade;
 }
 
 void cFodder::Service_Show() {
@@ -11906,10 +11906,10 @@ void cFodder::Service_Promotion_SetNewRanks() {
 	}
 }
 
-void cFodder::map_ClearSpt() {
+void cFodder::Sidebar_Clear_ScreenBufferPtr() {
 	
 	for (uint16 cx = 0; cx < 0x2000; ++cx )
-		mSidebar_Screen_Buffer[cx] = 0;
+		mSidebar_Screen_BufferPtr[cx] = 0;
 }
 
 void cFodder::Briefing_Show( ) {
@@ -14222,7 +14222,7 @@ loc_1BD06:;
 
 void cFodder::Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite ) {
 
-	pSprite->field_6F = 6;
+	pSprite->field_6F = eVehicle_Helicopter_Grenade;
 	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
@@ -14244,19 +14244,19 @@ void cFodder::Sprite_Handle_Flashing_Light( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Helicopter_Grenade2_Enemy( sSprite* pSprite ) {
 
-	pSprite->field_6F = 5;
+	pSprite->field_6F = eVehicle_Helicopter;
 	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_Helicopter_Missile_Enemy( sSprite* pSprite ) {
 	
-	pSprite->field_6F = 7;
+	pSprite->field_6F = eVehicle_Helicopter_Missile;
 	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_Helicopter_Homing_Enemy( sSprite* pSprite ) {
 	
-	pSprite->field_6F = 8;
+	pSprite->field_6F = eVehicle_Helicopter_Homing;
 	Sprite_Handle_Helicopter_Enemy( pSprite );
 }
 
@@ -14520,26 +14520,26 @@ void cFodder::Sprite_Handle_FireTrail( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Helicopter_Grenade_Human( sSprite* pSprite ) {
 
-	pSprite->field_6F = 5;
+	pSprite->field_6F = eVehicle_Helicopter;
 	Sprite_Handle_Helicopter_Human( pSprite );
 }
 
 void cFodder::Sprite_Handle_Helicopter_Grenade2_Human( sSprite* pSprite ) {
 
-	pSprite->field_6F = 6;
+	pSprite->field_6F = eVehicle_Helicopter_Grenade;
 	Sprite_Handle_Helicopter_Human( pSprite );
 }
 
 
 void cFodder::Sprite_Handle_Helicopter_Missile_Human( sSprite* pSprite ) {
 
-	pSprite->field_6F = 7;
+	pSprite->field_6F = eVehicle_Helicopter_Missile;
 	Sprite_Handle_Helicopter_Human( pSprite );
 }
 
 void cFodder::Sprite_Handle_Helicopter_Homing_Human( sSprite* pSprite ) {
 
-	pSprite->field_6F = 8;
+	pSprite->field_6F = eVehicle_Helicopter_Homing;
 	Sprite_Handle_Helicopter_Human( pSprite );
 }
 
@@ -14763,13 +14763,13 @@ void cFodder::Sprite_Handle_Indigenous2( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_VehicleNoGun_Human( sSprite* pSprite ) {
 
-	pSprite->field_6F = 2;
+	pSprite->field_6F = eVehicle_Jeep;
 	Sprite_Handle_Vehicle_Human( pSprite );
 }
 
 void cFodder::Sprite_Handle_VehicleGun_Human( sSprite* pSprite ) {
 
-	pSprite->field_6F = 3;
+	pSprite->field_6F = eVehicle_JeepRocket;
 	Sprite_Handle_Vehicle_Human( pSprite );
 }
 
@@ -15541,17 +15541,17 @@ loc_1D6DD:;
 }
 
 void cFodder::Sprite_Handle_VehicleNoGun_Enemy( sSprite* pSprite ) {
-	pSprite->field_6F = 2;
+	pSprite->field_6F = eVehicle_Jeep;
 	Sprite_Handle_Vehicle_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_VehicleGun_Enemy( sSprite* pSprite ) {
-	pSprite->field_6F = 3;
+	pSprite->field_6F = eVehicle_JeepRocket;
 	Sprite_Handle_Vehicle_Enemy( pSprite );
 }
 
 void cFodder::Sprite_Handle_Vehicle_Unk_Enemy( sSprite* pSprite ) {
-	pSprite->field_6F = 0x0A;
+	pSprite->field_6F = eVehicle_Unknown;
 	pSprite->field_26 = pSprite->field_0;
 	pSprite->field_26 += 0x28;
 
@@ -15576,35 +15576,35 @@ void cFodder::Sprite_Handle_Indigenous_Invisible( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Turret_Missile_Enemy( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
-	pSprite->field_6F = 0;
+	pSprite->field_6F = eVehicle_Turret_Cannon;
 
 	Sprite_Handle_Turret( pSprite );
 }
 
 void cFodder::Sprite_Handle_Turret_Missile2_Enemy( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
-	pSprite->field_6F = 1;
+	pSprite->field_6F = eVehicle_Turret_Missile;
 
 	Sprite_Handle_Turret( pSprite );
 }
 
 void cFodder::Sprite_Handle_Turret_HomingMissile_Enemy( sSprite* pSprite ) {
 	pSprite->field_22 = 1;
-	pSprite->field_6F = 9;
+	pSprite->field_6F = eVehicle_Turret_Homing;
 
 	Sprite_Handle_Turret( pSprite );
 }
 
 void cFodder::Sprite_Handle_Turret_Missile_Human( sSprite* pSprite ) {
 	pSprite->field_22 = 0;
-	pSprite->field_6F = 0;
+	pSprite->field_6F = eVehicle_Turret_Cannon;
 
 	Sprite_Handle_Turret( pSprite );
 }
 
 void cFodder::Sprite_Handle_Turret_Missile2_Human( sSprite* pSprite ) {
 	pSprite->field_22 = 0;
-	pSprite->field_6F = 1;
+	pSprite->field_6F = eVehicle_Turret_Missile;
 
 	Sprite_Handle_Turret( pSprite );
 }
@@ -16143,7 +16143,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
 	Data0 = pSprite->field_22;
 
 	//Data0 <<= 2;
-	Data28 = off_32AE4[Data0];
+	Data28 = mSprite_AnimationPtrs[Data0];
 	pSprite->field_8 = Data28[(Data8 + 0x20) / 2];
 
 	if (pSprite->field_59)
@@ -16166,7 +16166,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
 	Data0 = tool_RandomGet();
 	Data4 = 0;
 	Data0 &= 7;
-	Data4 = mSound_Indigenous_Death[Data0];
+	Data4 = mSprite_Indigenous_Sound_Death[Data0];
 	//seg004:5508
 	Sound_Play( pSprite, Data4, 0x14 );
 
@@ -16222,7 +16222,7 @@ loc_1E2F4:;
 	pSprite->field_2A = Data0;
 	Data0 = tool_RandomGet() & 7;
 
-	Data4 = mSound_Indigenous_Death[Data0];
+	Data4 = mSprite_Indigenous_Sound_Death[Data0];
 	Data8 = 0;
 	Sound_Play( pSprite, Data4, Data8 );
 	return -1;
@@ -16237,7 +16237,7 @@ loc_1E3D2:;
 
 		if (!(pSprite->field_28 & 7)) {
 			Data0 = tool_RandomGet() & 7;
-			Data4 = mSound_Indigenous_Death[Data0];
+			Data4 = mSprite_Indigenous_Sound_Death[Data0];
 			Data8 = 0x14;
 			Sound_Play( pSprite, Data4, Data8 );
 		}
@@ -16258,7 +16258,7 @@ loc_1E3D2:;
 		Data8 ^= 0x0F;
 		Data8 &= 0x0E;
 
-		Data28 = off_32AE4[pSprite->field_22];
+		Data28 = mSprite_AnimationPtrs[pSprite->field_22];
 		pSprite->field_8 = Data28[ (Data8 + 0x20) / 2 ];
 
 		if (pSprite->field_59) {
@@ -16429,7 +16429,7 @@ loc_1E831:;
 		pSprite->field_52 = 0x0E;
 		pSprite->field_12 = 0x14;
 		Data0 = tool_RandomGet() & 0x07;
-		Data4 = mSound_Indigenous_Death[Data0];
+		Data4 = mSprite_Indigenous_Sound_Death[Data0];
 		Data8 = 0x0A;
 		Sound_Play( pSprite, Data4, Data8 );
 		goto loc_1E9EC;
@@ -16502,7 +16502,7 @@ loc_1EA82:;
 	Data8 ^= 0x0F;
 	Data8 &= 0x0E;
 
-	Data28 = off_32AE4[pSprite->field_22];
+	Data28 = mSprite_AnimationPtrs[pSprite->field_22];
 	pSprite->field_8 = Data28[ (Data8 + 0x20) / 2 ];
 
 	if (pSprite->field_59)
@@ -16547,7 +16547,7 @@ loc_1EB87:;
 	Data8 ^= 0x0F;
 	Data8 &= 0x0E;
 
-	Data28 = off_32AE4[pSprite->field_22];
+	Data28 = mSprite_AnimationPtrs[pSprite->field_22];
 	pSprite->field_8 = Data28[ (Data8 + 0x20) / 2 ];
 
 	if (pSprite->field_59)
@@ -16577,7 +16577,7 @@ loc_1ECA6:;
 	pSprite->field_36 = 0x24;
 
 	Data0 = tool_RandomGet() & 6;
-	Data0 = byte_3D47F[Data0];
+	Data0 = mSprite_Soldier_Unk[Data0];
 
 	Data0 += pSprite->field_10;
 	Data0 &= 0x1FE;
@@ -16615,7 +16615,7 @@ loc_1ED5B:;
 	sub_20456( pSprite, Data8 );
 
 	//seg004:606C
-	Data28 = off_32AE4[pSprite->field_22];
+	Data28 = mSprite_AnimationPtrs[pSprite->field_22];
 	Data0 = Data28[ (0x60 + Data8) / 2 ];
 
 	if (Data0 != pSprite->field_8) {
@@ -16776,10 +16776,10 @@ int16 cFodder::loc_1F043( sSprite* pSprite ) {
 void cFodder::loc_1F092( sSprite* pSprite, sSprite* pData24 ) {
 	int16 Data0 = pData24->field_0;
 	Data0 += 0x10;
-	if (pData24->field_6F == 0)
+	if (pData24->field_6F == eVehicle_Turret_Cannon)
 		goto loc_1F0B9;
 
-	if (pData24->field_6F == 1)
+	if (pData24->field_6F == eVehicle_Turret_Missile)
 		goto loc_1F0BE;
 loc_1F0B9:;
 	Data0 -= 0x0C;
@@ -17178,7 +17178,7 @@ loc_1F7FF:;
 	Data8 /= 2;
 	Data0 = pSprite->field_22;
 
-	Data28 = off_32AE4[pSprite->field_22];
+	Data28 = mSprite_AnimationPtrs[pSprite->field_22];
 	if (!word_3AA41)
 		goto loc_1F9C0;
 
@@ -17828,7 +17828,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 			loc_29D71:;
 
 			if (word_3AC21) {
-				mGraphics->Sidebar_Render_Sprite( pParam0 + NextChar, pParam08, pParamC );
+				mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( pParam0 + NextChar, pParam08, pParamC );
 			}
 			else			         //0	// C     // 4	   // 8
 				Sprite_Draw_Frame(  pParam0, pParamC, NextChar, pParam08 );
@@ -17874,7 +17874,7 @@ void cFodder::Vehicle_Input_Handle() {
 	if (Data4 < 0x14)
 		Data4 = 0x14;
 
-	if (Data20->field_6F >= 5) {
+	if (Data20->field_6F >= eVehicle_Helicopter) {
 		if (Data20->field_50 <= 8)
 			Data4 += 0x20;
 	}
@@ -17930,7 +17930,8 @@ void cFodder::sub_311A7() {
 		int16 Data18 = Data20->field_18;
 		int16 Data8 = Data20->field_0;
 
-		if (!Data20->field_6F || Data20->field_6F == 1)
+		if (Data20->field_6F == eVehicle_Turret_Cannon || 
+			Data20->field_6F == eVehicle_Turret_Missile)
 			Data8 -= 8;
 
 		if (Data0 < Data8)
@@ -18057,10 +18058,11 @@ loc_31514:;
 
 		Data24->field_0 = Dataa30->field_0;
 		Data24->field_4 = Dataa30->field_4;
-		if (!Data24->field_6F)
+
+		if (Data24->field_6F == eVehicle_Turret_Cannon)
 			goto loc_3162B;
 
-		if (Data24->field_6F == 1)
+		if (Data24->field_6F == eVehicle_Turret_Missile)
 			goto loc_3162B;
 
 		Data24->field_0 += 0x0F;
@@ -19921,7 +19923,7 @@ void cFodder::sub_223B2( sSprite* pSprite ) {
 
 	pSprite->field_3C = Data8;
 
-	int16* Data28 = off_32AE4[ pSprite->field_22 ];
+	int16* Data28 = mSprite_AnimationPtrs[ pSprite->field_22 ];
 	Data28 += ((0x80 + Data8) / 2);
 
 	pSprite->field_8 = *Data28;
@@ -20608,16 +20610,16 @@ void cFodder::Exit( unsigned int pExitCode ) {
 }
 
 void cFodder::GUI_Sidebar_Grenades_Draw( ) {
-	int16 Data0 = mGUI_Squad_Current;
+	int16 Data0 = mGUI_Loop_Squad_Current;
 	int16 Data8, DataC, Data4, Data10;
 
-	if (!mSquad_Grenades[mGUI_Squad_Current])
+	if (!mSquad_Grenades[mGUI_Loop_Squad_Current])
 		goto loc_2ED63;
 
-	if (mSquad_CurrentWeapon[mGUI_Squad_Current] != eWeapon_Grenade)
+	if (mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] != eWeapon_Grenade)
 		goto loc_2ED63;
 
-	if (!word_3AC47) {
+	if (!mGUI_Loop_Is_CurrentSquad) {
 	loc_2ED63:;
 		Data0 = 0xC4;
 	}
@@ -20627,25 +20629,25 @@ void cFodder::GUI_Sidebar_Grenades_Draw( ) {
 
 	// Draw Grenade Icon
 	Data8 = 0;
-	DataC = word_3AC1D;
+	DataC = mGUI_Loop_Draw_Y;
 	DataC += 0x0E;
 
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 	
-	Data0 = mSquad_Grenades[mGUI_Squad_Current];
+	Data0 = mSquad_Grenades[mGUI_Loop_Squad_Current];
 	if (!Data0)
 		return;
 
 	Data4 = 0;
 	Data8 = 0x0D;
-	DataC = word_3AC1D;
+	DataC = mGUI_Loop_Draw_Y;
 	DataC += 0x19;
 	Data10 = 0xAF;
 
-	if (mSquad_CurrentWeapon[mGUI_Squad_Current] != eWeapon_Grenade)
+	if (mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] != eWeapon_Grenade)
 		goto loc_2EDF7;
 
-	if (word_3AC47)
+	if (mGUI_Loop_Is_CurrentSquad)
 		goto loc_2EDFD;
 
 loc_2EDF7:;
@@ -20657,14 +20659,14 @@ loc_2EDFD:;
 }
 
 void cFodder::GUI_Prepare_Button_Grenade() {
-	if (!word_3AC47)
+	if (!mGUI_Loop_Is_CurrentSquad)
 		return;
 
 	sGUI_Element* NewElement = mGUI_NextFreeElement;
 	NewElement->field_0 = &cFodder::GUI_Button_NoAction;
 	NewElement->mX = 0;
 	NewElement->mWidth = 0x0C;
-	NewElement->mY =  word_3AC1D + 0x0E;
+	NewElement->mY =  mGUI_Loop_Draw_Y + 0x0E;
 	NewElement->mHeight = 0x14;
 	NewElement->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Grenades;
 
@@ -20705,7 +20707,7 @@ void cFodder::GUI_Sidebar_TroopList_Draw() {
 
 	int16 Data0 = 0;
 	int8 Data4 = mSquads_TroopCount[mGUI_Loop_Squad_Current];
-	int16 DataC = word_3AC1D;
+	int16 DataC = mGUI_Loop_Draw_Y;
 
 	int8 Data4_Saved = Data4;
 
@@ -20716,12 +20718,12 @@ void cFodder::GUI_Sidebar_TroopList_Draw() {
 
 	for (;Data4 >= 0;--Data4) {
 
-		if (!word_3AC47)
+		if (!mGUI_Loop_Is_CurrentSquad)
 			Data0 = 0xAB;
 		else
 			Data0 = 0xA9;
 
-		mGraphics->Sidebar_Render_Sprite( Data0, 0, DataC );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, 0, DataC );
 		DataC += 0x0C;
 	}
 loc_2F1BC:;
@@ -20733,7 +20735,7 @@ loc_2F1BC:;
 
 	sSquad_Member* Data38 = mSquad;
 
-	word_3A3BD = word_3AC1D + 0x23;
+	word_3A3BD = mGUI_Loop_Draw_Y + 0x23;
 
 	// Loop the squad
 	for (int16 word_3A061 = 7; word_3A061 >= 0; --word_3A061, ++Data38 ) {
@@ -20756,11 +20758,11 @@ loc_2F1BC:;
 
 	loc_2F25C:;
 
-		mGraphics->Sidebar_Render_Sprite( Data38->mRank + 9, 0x00, word_3A3BD );
-		mGraphics->Sidebar_Render_Sprite( Data38->mRank + 9, 0x23, word_3A3BD );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data38->mRank + 9, 0x00, word_3A3BD );
+		mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data38->mRank + 9, 0x23, word_3A3BD );
 
 		const sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
-		if (!word_3AC47)
+		if (!mGUI_Loop_Is_CurrentSquad)
 			Data0 = 2;
 		else
 			Data0 = Data38->mSelected & 1;
@@ -20775,7 +20777,7 @@ loc_2F1BC:;
 
 void cFodder::GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28 ) {
 
-	word_3AA21 =  byte_3DF02[pData0];
+	word_3AA21 =  mGUI_Sidebar_TroopList_Sprite_Modifier[pData0];
 
 	int16 Data14;
 
@@ -20810,38 +20812,38 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16
 			pData8 <<= 2;
 			pData8 += word_3A05F;
 
-			mGraphics->Sidebar_Render_Sprite( pData0, pData8, pDataC );
+			mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( pData0, pData8, pDataC );
 		}
 	}
 }
 
-void cFodder::sub_2F452() {
+void cFodder::GUI_Sidebar_SquadIcon_Update() {
 
-	GUI_Troops_In_VehicleChanged();
-	GUI_Sidebar_SquadIcon_Draw();
+	GUI_Sidebar_SquadIcon_Set();
+	GUI_Sidebar_SquadIcon_Current_Draw();
 }
 
-void cFodder::GUI_Sidebar_SquadIcon_Draw() {
+void cFodder::GUI_Sidebar_SquadIcon_Current_Draw() {
 	
-	int16 Data0 = mGUI_Squad_Icon[mGUI_Squad_Current];
+	int16 Data0 = mGUI_Squad_Icon[mGUI_Loop_Squad_Current];
 
 	const int16* Data20 = mGUI_Squad_Active_Icons;
 
-	if (!word_3AC47) 
+	if (!mGUI_Loop_Is_CurrentSquad) 
 		Data20 = mGUI_Squad_Inactive_Icons;
 
 	Data0 = Data20[Data0];
 	int16 Data8 = 0x0C;
-	int16 DataC = word_3AC1D;
+	int16 DataC = mGUI_Loop_Draw_Y;
 	DataC += 0x0E;
 
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 }
 
-int16 cFodder::GUI_Troops_In_VehicleChanged() {
+int16 cFodder::GUI_Sidebar_SquadIcon_Set() {
 	int16 Data1C = 0;
 	sSprite* Vehicle = 0;
-	const int16* Dataa2C = mGUI_Squad_Vehicle_Icons;
+	const sGUI_SquadVehicleIcon* SquadIcon = mGUI_Squad_Vehicle_Icons;
 
 	// No Troops in Squad?
 	if (!mSquads_TroopCount[mGUI_Loop_Squad_Current])
@@ -20852,35 +20854,35 @@ int16 cFodder::GUI_Troops_In_VehicleChanged() {
 		Data1C = 1;
 
 	// Squad not in vehicle?
-	if (!mSquad_CurrentVehicles[mGUI_Squad_Current])
+	if (!mSquad_CurrentVehicles[mGUI_Loop_Squad_Current])
 		goto loc_2F593;
 
 
-	Vehicle = mSquad_CurrentVehicles[mGUI_Squad_Current];
+	Vehicle = mSquad_CurrentVehicles[mGUI_Loop_Squad_Current];
 
-	for (;; Dataa2C += 2) {
-		if (*Dataa2C < 0)
+	for (;; ++SquadIcon) {
+		if (SquadIcon->mVehicleType < 0)
 			goto loc_2F593;
 
-		if (Vehicle->field_6F == *Dataa2C)
+		if (Vehicle->field_6F == SquadIcon->mVehicleType)
 			goto loc_2F586;
 	}
 loc_2F586:;
-	Data1C = *(Dataa2C + 1);
+	Data1C = SquadIcon->mIconID;
 
 loc_2F593:;
 
 	// has status changed?
-	if (Data1C == mGUI_Squad_Icon[mGUI_Squad_Current])
+	if (Data1C == mGUI_Squad_Icon[mGUI_Loop_Squad_Current])
 		return 0;
 
-	mGUI_Squad_Icon[mGUI_Squad_Current] = Data1C;
+	mGUI_Squad_Icon[mGUI_Loop_Squad_Current] = Data1C;
 	return -1;
 }
 
-void cFodder::GUI_Sidebar_Refresh() {
+void cFodder::GUI_Sidebar_Draw() {
 	Mission_Final_TimeToDie();
-	GUI_Sidebar_SquadIcon_Refresh();
+	GUI_Sidebar_SquadIcons_Draw();
 	
 	int16 Data0 = 2;
 	int16 Data4 = 2;
@@ -20934,7 +20936,7 @@ void cFodder::GUI_Sidebar_Refresh() {
 
 		*Data20 = 0;
 
-		GUI_Sidebar_Grenades_Refresh( Data0 );
+		GUI_Sidebar_Grenades_Draw( Data0 );
 
 	loc_2F707:;
 
@@ -20943,47 +20945,46 @@ void cFodder::GUI_Sidebar_Refresh() {
 
 		*Data24 = 0;
 
-		GUI_Sidebar_Rockets_Refresh( Data0 );
+		GUI_Sidebar_Rockets_Draw( Data0 );
 	}
 }
 
-void cFodder::GUI_Sidebar_SquadIcon_Refresh() {
+void cFodder::GUI_Sidebar_SquadIcons_Draw() {
 	
 	mGUI_Loop_Squad_Current = 0;
-	mGUI_Squad_Current = 0;
-	
-	for (mGUI_Loop_Squad_Current = 0; mGUI_Loop_Squad_Current < 3; ++mGUI_Loop_Squad_Current, ++mGUI_Squad_Current) {
 
-		word_3AC1D = word_3AC2D[mGUI_Squad_Current];
+	for (mGUI_Loop_Squad_Current = 0; mGUI_Loop_Squad_Current < 3; ++mGUI_Loop_Squad_Current) {
 
-		if (!mSquads_TroopCount[word_3AC1D])
+		mGUI_Loop_Draw_Y = word_3AC2D[mGUI_Loop_Squad_Current];
+
+		if (!mSquads_TroopCount[mGUI_Loop_Draw_Y])
 			continue;
 
-		word_3AC47 = 0;
+		mGUI_Loop_Is_CurrentSquad = 0;
 
-		if (mGUI_Squad_Current == mSquad_Selected)
-			word_3AC47 = -1;
+		if (mGUI_Loop_Squad_Current == mSquad_Selected)
+			mGUI_Loop_Is_CurrentSquad = -1;
 
-		if (GUI_Troops_In_VehicleChanged())
-			GUI_Sidebar_SquadIcon_Draw();
+		if (GUI_Sidebar_SquadIcon_Set())
+			GUI_Sidebar_SquadIcon_Current_Draw();
 	}
 }
 
-void cFodder::GUI_Sidebar_Grenades_Refresh_CurrentSquad( ) {
-	GUI_Sidebar_Grenades_Refresh( mSquad_Selected );
+void cFodder::GUI_Sidebar_Grenades_CurrentSquad_Draw( ) {
+	GUI_Sidebar_Grenades_Draw( mSquad_Selected );
 }
 
-void cFodder::GUI_Sidebar_Grenades_Refresh(  int16 pData0 ) {
+void cFodder::GUI_Sidebar_Grenades_Draw(  int16 pData0 ) {
 
 	int16 Data4 = word_3AC2D[pData0];
 
-	sub_2EBE0(pData0, Data4);
+	GUI_Loop_Draw_Prepare(pData0, Data4);
 	GUI_Sidebar_Grenades_Draw();
 
-	if (!mSquad_Grenades[mGUI_Squad_Current])
+	if (!mSquad_Grenades[mGUI_Loop_Squad_Current])
 		return;
 
-	if (!word_3AC47)
+	if (!mGUI_Loop_Is_CurrentSquad)
 		return;
 
 	if (!GUI_Sidebar_SelectedTroops_Count())
@@ -20997,27 +20998,27 @@ void cFodder::GUI_Sidebar_Grenades_Refresh(  int16 pData0 ) {
 	Data0 += mSquad_Grenade_SplitMode;
 
 	int16 Data8 = 0;
-	int16 DataC = word_3AC1D;
+	int16 DataC = mGUI_Loop_Draw_Y;
 	DataC += 0x0E;
 
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 }
 
-void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad( ) {
+void cFodder::GUI_Sidebar_Rockets_CurrentSquad_Draw( ) {
 
-	GUI_Sidebar_Rockets_Refresh( mSquad_Selected );
+	GUI_Sidebar_Rockets_Draw( mSquad_Selected );
 }
 
-void cFodder::GUI_Sidebar_Rockets_Refresh(  int16 pData0 ) {
+void cFodder::GUI_Sidebar_Rockets_Draw(  int16 pData0 ) {
 
 	int16 Data4 = word_3AC2D[pData0];
-	sub_2EBE0( pData0, Data4 );
+	GUI_Loop_Draw_Prepare( pData0, Data4 );
 	GUI_Sidebar_Rockets_Draw();
 
-	if (!mSquad_Rockets[mGUI_Squad_Current])
+	if (!mSquad_Rockets[mGUI_Loop_Squad_Current])
 		return;
 
-	if (!word_3AC47)
+	if (!mGUI_Loop_Is_CurrentSquad)
 		return;
 
 	if (!GUI_Sidebar_SelectedTroops_Count())
@@ -21030,10 +21031,10 @@ void cFodder::GUI_Sidebar_Rockets_Refresh(  int16 pData0 ) {
 	pData0 += mSquad_Rocket_SplitMode;
 
 	int16 Data8 = 0x24;
-	int16 DataC = word_3AC1D;
+	int16 DataC = mGUI_Loop_Draw_Y;
 	DataC += 0x0E;
 
-	mGraphics->Sidebar_Render_Sprite( pData0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( pData0, Data8, DataC );
 }
 
 int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
@@ -21092,7 +21093,7 @@ void cFodder::GUI_Sidebar_Setup() {
 			break;
 
 		case 5: //loc_2FA8F
-			sub_2FA8F();
+			GUI_Sidebar_Ready();
 			break;
 
 		case 6:
@@ -21111,7 +21112,7 @@ void cFodder::sub_2FA05() {
 	if (word_3AC51)
 		return; 
 
-	sub_30465();
+	Sidebar_Render_To_BackBuffer();
 	word_3AC51 = -1;
 }
 
@@ -21119,7 +21120,7 @@ void cFodder::GUI_Sidebar_MapButton_Prepare() {
 
 	mGUI_NextFreeElement = mGUI_Elements;
 
-	map_ClearSpt();
+	Sidebar_Clear_ScreenBufferPtr();
 
 	GUI_Sidebar_MapButton_RenderWrapper();
 }
@@ -21147,9 +21148,9 @@ void cFodder::GUI_Sidebar_Squad2_Prepare( ) {
 	GUI_Sidebar_Prepare( 2, Data4 );
 }
 
-void cFodder::sub_2FA8F() {
-	sub_2EBC4();
-	sub_30480();
+void cFodder::GUI_Sidebar_Ready() {
+	GUI_Sidebar_Add_Sidebar_Overlay();
+	Sidebar_Render_To_ScreenBuffer();
 
 	word_3AC51 = 0;
 	mMouseDisabled = 0;
@@ -21159,14 +21160,14 @@ void cFodder::sub_2FA8F() {
 void cFodder::GUI_Sidebar_Rockets_Draw( ) {
 	int16 Data0, Data8, DataC, Data4, Data14, Data10;
 
-	if (!mSquad_Rockets[mGUI_Squad_Current])
+	if (!mSquad_Rockets[mGUI_Loop_Squad_Current])
 		goto loc_2FAF6;
 
-	if (mSquad_CurrentWeapon[mGUI_Squad_Current] != eWeapon_Rocket)
+	if (mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] != eWeapon_Rocket)
 		goto loc_2FAF6;
 
 
-	if (!word_3AC47) {
+	if (!mGUI_Loop_Is_CurrentSquad) {
 		loc_2FAF6:;
 		Data0 = 0xC6;
 	}
@@ -21176,25 +21177,25 @@ void cFodder::GUI_Sidebar_Rockets_Draw( ) {
 
 	//loc_2FB04
 	Data8 = 0x20;
-	DataC = word_3AC1D;
+	DataC = mGUI_Loop_Draw_Y;
 	DataC += 0x0E;
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
 
-	Data0 = mSquad_Rockets[mGUI_Squad_Current];
+	Data0 = mSquad_Rockets[mGUI_Loop_Squad_Current];
 	if (!Data0)
 		return;
 
 	Data4 = 0x24;
 	Data8 = 0x0D;
-	DataC = word_3AC1D;
+	DataC = mGUI_Loop_Draw_Y;
 	DataC += 0x19;
-	Data14 = mGUI_Squad_Current;
+	Data14 = mGUI_Loop_Squad_Current;
 
 	if (mSquad_CurrentWeapon[Data14] != eWeapon_Rocket)
 		goto loc_2FB8A;
 
 	Data10 = 0xAF;
-	if (!word_3AC47) {
+	if (!mGUI_Loop_Is_CurrentSquad) {
 	loc_2FB8A:;
 		Data10 = 0xB9;
 	}
@@ -21204,14 +21205,14 @@ void cFodder::GUI_Sidebar_Rockets_Draw( ) {
 
 void cFodder::GUI_Prepare_Button_Rockets() {
 
-	if (!word_3AC47)
+	if (!mGUI_Loop_Is_CurrentSquad)
 		return;
 
 	sGUI_Element* NewElement = mGUI_NextFreeElement;
 	NewElement->field_0 = &cFodder::GUI_Button_NoAction;
 	NewElement->mX = 0x24;
 	NewElement->mWidth = 0x0C;
-	NewElement->mY = word_3AC1D + 0x0E;
+	NewElement->mY = mGUI_Loop_Draw_Y + 0x0E;
 	NewElement->mHeight = 0x14;
 	NewElement->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_Rockets;
 	++NewElement;
@@ -21261,13 +21262,13 @@ void cFodder::GUI_Prepare_Button_TroopName() {
 	return;
 
 loc_2FCF4:;
-	mGUI_TroopName_DrawOffset = word_3AC1D;
+	mGUI_TroopName_DrawOffset = mGUI_Loop_Draw_Y;
 	sGUI_Element* Element = mGUI_NextFreeElement;
 
 	Element->field_0 = &cFodder::GUI_Button_NoAction;
 	Element->mX = 0;
 	Element->mWidth = 0x2F;
-	Element->mY = word_3AC1D + 0x22;
+	Element->mY = mGUI_Loop_Draw_Y + 0x22;
 
 	Element->mHeight = mSquads_TroopCount[mSquad_Selected] * 0x0C;
 	Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_TroopName;
@@ -21537,59 +21538,62 @@ void cFodder::Squad_Clear_Selected() {
 }
 
 void cFodder::sub_303AE() {
-	GUI_Sidebar_Grenades_Refresh_CurrentSquad();
-	sub_303DA();
+	GUI_Sidebar_Grenades_CurrentSquad_Draw();
+	GUI_Sidebar_Squad_Split_Icon_Draw();
 }
 
 void cFodder::sub_303B7() {
 	if (mSquad_Selected < 0)
 		return;
 
-	mGraphics->Sidebar_Render_Sprite( mSquad_Selected, 0, word_3AC1D );
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( mSquad_Selected, 0, mGUI_Loop_Draw_Y );
 }
 
-void cFodder::sub_303DA() {
-	int16 Data0;
+void cFodder::GUI_Sidebar_Squad_Split_Icon_Draw() {
+	int16 EmptySquadID;
 
-	for (Data0 = 0; Data0 < 3; ++Data0) {
-		if (!mSquads_TroopCount[Data0])
-			goto loc_30409;
+	// Loop each squad
+	for (EmptySquadID = 0; EmptySquadID < 3; ++EmptySquadID) {
 
+		// Find an empty squad
+		if (!mSquads_TroopCount[EmptySquadID]) {
+
+			if (mSquad_Selected < 0)
+				return;
+
+			// 3 Icons per Squad Slot
+			int16 SquadIcon = (mSquad_Selected * 3);
+
+			// Splt into squad
+			SquadIcon += EmptySquadID;
+
+			int16 SplitIconID = mGUI_Squad_Split_Icons[SquadIcon];
+
+			mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(SplitIconID, 0, mGUI_Loop_Draw_Y);
+			return;
+		}
 	}
-	return;
-
-loc_30409:;
-
-	int16 Data4 = mSquad_Selected;
-	if (Data4 < 0)
-		return;
-
-	int16 Data8 = Data4;
-	Data4 += Data8;
-	Data4 += Data0;
-
-	Data0 = word_3DF73[Data4];
-	int16 DataC = word_3AC1D;
-
-	mGraphics->Sidebar_Render_Sprite( Data0, Data8, DataC );
 }
 
-void cFodder::sub_30465() {
+void cFodder::Sidebar_Render_To_BackBuffer() {
 
 	for (int16 cx = 0; cx < 0x2000; ++cx){
-		mRecruit_Truck_AnimBuffer[cx] = mMapSptPtr[cx];
+		mSidebar_Back_Buffer[cx] = mSidebar_Screen_Buffer[cx];
 	}
 
-	mSidebar_Screen_Buffer = mRecruit_Truck_AnimBuffer;
+	mSidebar_Screen_BufferPtr = mSidebar_Back_Buffer;
 }
 
-void cFodder::sub_30480() {
+/**
+ * Copy 'mSidebar_Back_Buffer' to the Screen Buffer, and set the Ptr to the Screen Buffer
+ */
+void cFodder::Sidebar_Render_To_ScreenBuffer() {
 
 	for (int16 cx = 0; cx < 0x2000; ++cx){
-		mMapSptPtr[cx] = mRecruit_Truck_AnimBuffer[cx];
+		mSidebar_Screen_Buffer[cx] = mSidebar_Back_Buffer[cx];
 	}
 
-	mSidebar_Screen_Buffer = mMapSptPtr;
+	mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 }
 
 void cFodder::Squad_Switch_Weapon() {
@@ -21634,9 +21638,10 @@ void cFodder::Mission_Final_TimeToDie() {
 	for (int16 dx = 4; dx > 0; --dx) {
 		int16 di2 = di / 2;
 
+		// Clear the sidebar buffer
 		for (int16 cx = 0x12; cx > 0; --cx) {
-			mMapSptPtr[di2] = 0;
-			mMapSptPtr[di2+1] = 0;
+			mSidebar_Screen_Buffer[di2] = 0;
+			mSidebar_Screen_Buffer[di2+1] = 0;
 			di2+=2;
 		}
 		di += 0x960;

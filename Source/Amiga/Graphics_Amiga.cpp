@@ -880,7 +880,7 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
-	uint8* 	si = (uint8*)mFodder->mMapSptPtr;
+	uint8* 	si = (uint8*)mFodder->mSidebar_Screen_Buffer;
 
 	// Start 16 rows down
 	Buffer += (16 * mImage->GetWidth()) + 16;
@@ -898,7 +898,7 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 		for (unsigned int X = 0; X < 0x30; X++) {
 
 			// Clear at bottom
-			if (si >= ((uint8*)mFodder->mMapSptPtr) + (0x300 * 16))
+			if (si >= ((uint8*)mFodder->mSidebar_Screen_Buffer) + (0x300 * 16))
 				Buffer[X] = 0;
 			else
 				Buffer[X] = *si++;
@@ -910,7 +910,7 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 }
 
-void cGraphics_Amiga::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY ) {
+void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY ) {
 
 	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 
@@ -932,7 +932,7 @@ void cGraphics_Amiga::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 
 	mFodder->mDrawSpriteColumns >>= 1;
 	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x30 - (mFodder->mDrawSpriteColumns * 16);
 
-	uint8* di = ((uint8*)mFodder->mSidebar_Screen_Buffer) + (0x30 * pY) + pX;
+	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + (0x30 * pY) + pX;
 	uint8* si = mFodder->mDraw_Sprite_FrameDataPtr;
 
 	// Height
@@ -952,39 +952,39 @@ void cGraphics_Amiga::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 
 	}
 }
 
-void cGraphics_Amiga::Sidebar_Render_SquadNames( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
-	uint8* SptPtr = (uint8*)mFodder->mMapSptPtr;
+void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16 pCopyToScreen, uint32*& pBuffer) {
+	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
 	uint32* esi = (uint32*)(SptPtr + (0x30 * pData0));
 
-	if (pData8 == 0) {
+	if (pCopyToScreen == 0) {
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*pData20++ = *(esi + 0x210);
-			*pData20++ = *(esi + 0x21C);
-			*pData20++ = *(esi + 0x228);
-			*pData20++ = *(esi + 0x234);
-			*pData20++ = *(esi + 0x240);
-			*pData20++ = *(esi + 0x24C);
-			*pData20++ = *(esi + 0x258);
-			*pData20++ = *(esi + 0x264);
-			*pData20++ = *(esi + 0x270);
-			*pData20++ = *(esi + 0x27C);
-			*pData20++ = *(esi + 0x288);
+			*pBuffer++ = *(esi + 0x210);
+			*pBuffer++ = *(esi + 0x21C);
+			*pBuffer++ = *(esi + 0x228);
+			*pBuffer++ = *(esi + 0x234);
+			*pBuffer++ = *(esi + 0x240);
+			*pBuffer++ = *(esi + 0x24C);
+			*pBuffer++ = *(esi + 0x258);
+			*pBuffer++ = *(esi + 0x264);
+			*pBuffer++ = *(esi + 0x270);
+			*pBuffer++ = *(esi + 0x27C);
+			*pBuffer++ = *(esi + 0x288);
 			++esi;
 		}
 	}
 	else {
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*(esi + 0x210) = *pData20++;
-			*(esi + 0x21C) = *pData20++;
-			*(esi + 0x228) = *pData20++;
-			*(esi + 0x234) = *pData20++;
-			*(esi + 0x240) = *pData20++;
-			*(esi + 0x24C) = *pData20++;
-			*(esi + 0x258) = *pData20++;
-			*(esi + 0x264) = *pData20++;
-			*(esi + 0x270) = *pData20++;
-			*(esi + 0x27C) = *pData20++;
-			*(esi + 0x288) = *pData20++;
+			*(esi + 0x210) = *pBuffer++;
+			*(esi + 0x21C) = *pBuffer++;
+			*(esi + 0x228) = *pBuffer++;
+			*(esi + 0x234) = *pBuffer++;
+			*(esi + 0x240) = *pBuffer++;
+			*(esi + 0x24C) = *pBuffer++;
+			*(esi + 0x258) = *pBuffer++;
+			*(esi + 0x264) = *pBuffer++;
+			*(esi + 0x270) = *pBuffer++;
+			*(esi + 0x27C) = *pBuffer++;
+			*(esi + 0x288) = *pBuffer++;
 			++esi;
 		}
 	}
@@ -1003,7 +1003,7 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 
 		mFodder->mDrawSpritePositionX = 0x40;
 		mFodder->mDrawSpritePositionY = 0x28;
-		mFodder->mDrawSpriteColumns = 0x110 >> 3;		//W
+		mFodder->mDrawSpriteColumns = 0x110 >> 3;		// W
 		mFodder->mDrawSpriteRows = 0xB8;				// H
 		mFodder->word_42078 = 0x140;
 

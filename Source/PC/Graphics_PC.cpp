@@ -461,7 +461,7 @@ void cGraphics_PC::video_Draw_Sprite() {
 void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
-	uint8* 	si = (uint8*) mFodder->mMapSptPtr;
+	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
 
 	Buffer += (16 * 352) + 16;
 	mFodder->byte_42071 = 1 << mFodder->word_40054;
@@ -483,7 +483,7 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	}
 }
 
-void cGraphics_PC::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY ) {
+void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY ) {
 	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 	
 	mFodder->mDrawSpriteColumns = str2->mColumns;
@@ -504,7 +504,7 @@ void cGraphics_PC::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY 
 	ax *= 0x960;
 	w42066 += ax;
 	
-	uint8* di = ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
+	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	uint8* si = mFodder->mDraw_Sprite_FrameDataPtr;
 	
 	int8 bl = mFodder->mDraw_Sprite_PaletteIndex;
@@ -535,7 +535,7 @@ void cGraphics_PC::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY 
 		w42066 -= 0x257F;
 	
 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	di =  ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
+	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	
 	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
@@ -558,7 +558,7 @@ void cGraphics_PC::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY 
 	
 	++mFodder->mDraw_Sprite_FrameDataPtr;
 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	di =  ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
+	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	
 	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
@@ -581,7 +581,7 @@ void cGraphics_PC::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY 
 		w42066 -= 0x257F;
 
 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	di =  ((uint8*)mFodder->mSidebar_Screen_Buffer) + w42066;
+	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	
 	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
@@ -600,53 +600,54 @@ void cGraphics_PC::Sidebar_Render_Sprite( int16 pSpriteType, int16 pX, int16 pY 
 
 }
 
-void cGraphics_PC::Sidebar_Render_SquadNames( uint16 pData0, int16 pData4, int16 pData8, uint32*& pData20 ) {
+void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16 pCopyToScreen, uint32*& pBuffer) {
 	pData0 += 0x18;
 
-	uint8* SptPtr = (uint8*)mFodder->mMapSptPtr;
+	uint32* BuffPtr = (uint32*)(mFodder->mSidebar_Screen_Buffer + (0x0C * pData0));
 
-	if (pData8 == 0) {
-		uint32* esi = (uint32*)(SptPtr + (0x0C * pData0));
+	// Copying to pData20? or from it?
+	if (pCopyToScreen == 0) {
 
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*pData20++ = *esi;
-			*pData20++ = *(esi + 0x258);
-			*pData20++ = *(esi + 0x4B0);
-			*pData20++ = *(esi + 0x708);
-			++esi;
+			*pBuffer++ = *BuffPtr;
+			*pBuffer++ = *(BuffPtr + 0x258);
+			*pBuffer++ = *(BuffPtr + 0x4B0);
+			*pBuffer++ = *(BuffPtr + 0x708);
+			++BuffPtr;
 
-			*pData20++ = *esi;
-			*pData20++ = *(esi + 0x258);
-			*pData20++ = *(esi + 0x4B0);
-			*pData20++ = *(esi + 0x708);
-			++esi;
+			*pBuffer++ = *BuffPtr;
+			*pBuffer++ = *(BuffPtr + 0x258);
+			*pBuffer++ = *(BuffPtr + 0x4B0);
+			*pBuffer++ = *(BuffPtr + 0x708);
+			++BuffPtr;
 
-			*pData20++ = *esi;
-			*pData20++ = *(esi + 0x258);
-			*pData20++ = *(esi + 0x4B0);
-			*pData20++ = *(esi + 0x708);
-			++esi;
+			*pBuffer++ = *BuffPtr;
+			*pBuffer++ = *(BuffPtr + 0x258);
+			*pBuffer++ = *(BuffPtr + 0x4B0);
+			*pBuffer++ = *(BuffPtr + 0x708);
+			++BuffPtr;
 		}
 	}
 	else {
-		uint32* edi = (uint32*)(SptPtr + (0x0C * pData0));
 
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*edi = *pData20++;
-			*(edi+0x258) = *pData20++;
-			*(edi+0x4B0) = *pData20++;
-			*(edi+0x708) = *pData20++;
-			++edi;
-			*edi = *pData20++;
-			*(edi+0x258) = *pData20++;
-			*(edi+0x4B0) = *pData20++;
-			*(edi+0x708) = *pData20++;
-			++edi;
-			*edi = *pData20++;
-			*(edi+0x258) = *pData20++;
-			*(edi+0x4B0) = *pData20++;
-			*(edi+0x708) = *pData20++;
-			++edi;
+			*BuffPtr = *pBuffer++;
+			*(BuffPtr+0x258) = *pBuffer++;
+			*(BuffPtr+0x4B0) = *pBuffer++;
+			*(BuffPtr+0x708) = *pBuffer++;
+			++BuffPtr;
+
+			*BuffPtr = *pBuffer++;
+			*(BuffPtr+0x258) = *pBuffer++;
+			*(BuffPtr+0x4B0) = *pBuffer++;
+			*(BuffPtr+0x708) = *pBuffer++;
+			++BuffPtr;
+
+			*BuffPtr = *pBuffer++;
+			*(BuffPtr+0x258) = *pBuffer++;
+			*(BuffPtr+0x4B0) = *pBuffer++;
+			*(BuffPtr+0x708) = *pBuffer++;
+			++BuffPtr;
 		}
 	}
 }
