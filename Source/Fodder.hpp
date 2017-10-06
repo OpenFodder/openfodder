@@ -555,7 +555,6 @@ class cFodder : public cSingleton < cFodder > {
 	size_t			word_3E1B7_size;
 	
 	int16			word_3E75B;
-	int16			word_3EABD;
 
 	int32			dword_3F946;
 	int32			dword_3F94A;
@@ -571,7 +570,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mImageFaded;
 	int16			mMouseSpriteCurrent;
 	int16			mService_ExitLoop;
-	uint16			word_40054;
 	uint16			word_40056;
 	uint16			word_40058;
 	uint16			word_4005A;
@@ -583,10 +581,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mDrawSpriteColumns;
 	int16			mDrawSpriteRows;
 	uint8			mDraw_Sprite_PaletteIndex;
-	uint8			byte_42071;
 	size_t			mDraw_Source_SkipPixelsPerRow;
 	size_t			mDraw_Dest_SkipPixelsPerRow;
-	uint16			word_42078;
+	uint16			mDrawSprite_ColumnsMax;
 
 
 	int16			mIntroPlayed;
@@ -726,7 +723,7 @@ public:
 	void			Mission_Map_Overview_Show();
 
 	void			Map_Overview_Prepare();
-	void			map_SetTileType();
+	void			Map_SetTileType();
 
 	void			Sprite_Count_HelicopterCallPads();
 	void			sub_13148();

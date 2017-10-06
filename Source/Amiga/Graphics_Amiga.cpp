@@ -458,6 +458,7 @@ void cGraphics_Amiga::PaletteSet() {
 
 	mImage->paletteSet(mPalette, 0, 64);
 	mImage->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
+	mImage->paletteSet(mImageHill.mPalette, 0xB0, 16);
 	mImage->paletteSet(mImageHill.mPalette, 0xD0, 16);
 	mImage->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
@@ -811,14 +812,11 @@ void cGraphics_Amiga::video_Draw_Linear() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	int16	ax, cx;
+	int16	ax;
 
 	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
+	di += mFodder->mDrawSpritePositionX;
 
-	ax = mFodder->mDrawSpritePositionX;
-	ax += mFodder->word_40054;
-
-	di += ax;
 	mFodder->word_42066 = di;
 
 	mFodder->mDraw_Source_SkipPixelsPerRow = (mBMHD_Current->mWidth >> 3) - mFodder->mDrawSpriteColumns;
@@ -829,7 +827,7 @@ void cGraphics_Amiga::video_Draw_Linear() {
 	for (int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx) {
 
 		// Width
-		for (cx = 0; cx < mFodder->mDrawSpriteColumns; ++cx) {
+		for (int16 cx = 0; cx < mFodder->mDrawSpriteColumns; ++cx) {
 
 			DrawPixels_16( si, di );
 
@@ -846,13 +844,9 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	int16	ax, cx;
 
 	di += mImage->GetWidth() * mFodder->mDrawSpritePositionY;
-
-	ax = mFodder->mDrawSpritePositionX;
-	ax += mFodder->word_40054;
-	di += ax;
+	di += mFodder->mDrawSpritePositionX;
 
 	mFodder->mDrawSpriteColumns -= 1;
 	mFodder->mDrawSpriteColumns <<= 1;
@@ -864,7 +858,7 @@ void cGraphics_Amiga::video_Draw_Sprite() {
 	for (int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx) {
 
 		// Width
-		for (cx = 0; cx < mFodder->mDrawSpriteColumns; ++cx) {
+		for (int16 cx = 0; cx < mFodder->mDrawSpriteColumns; ++cx) {
 
 			DrawPixels_8( si, di );
 
@@ -1005,7 +999,7 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 		mFodder->mDrawSpritePositionY = 0x28;
 		mFodder->mDrawSpriteColumns = 0x110 >> 3;		// W
 		mFodder->mDrawSpriteRows = 0xB8;				// H
-		mFodder->word_42078 = 0x140;
+		mFodder->mDrawSprite_ColumnsMax = 0x140;
 
 		video_Draw_Linear();
 	}
@@ -1115,15 +1109,15 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 	mFodder->mMap = g_Resource.fileGet(mFodder->map_Filename_MapGet());
 
 	// Set the terrain type
-	mFodder->map_SetTileType();
+	mFodder->Map_SetTileType();
 
 	// Set the filenames for the map tile type
-	JunData1.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData2.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData3.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData4.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData5.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData6.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData1.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData2.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData3.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData4.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData5.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData6.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
 
 	// Load the intro images
 	mImageBriefingIntro = DecodeIFF(JunData1);

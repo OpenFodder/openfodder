@@ -102,7 +102,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	mMouseSpriteCurrent = 0;
 	mService_ExitLoop = 0;
-	word_40054 = 0;
 	mDraw_Sprite_FrameDataPtr = 0;
 	word_42066 = 0;
 	mDrawSpritePositionX = 0;
@@ -110,7 +109,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mDrawSpriteColumns = 0;
 	mDrawSpriteRows = 0;
 	mDraw_Sprite_PaletteIndex = 0;
-	byte_42071 = 0;
 	mDraw_Source_SkipPixelsPerRow = 0;
 	mDraw_Dest_SkipPixelsPerRow = 0;
 	mKeyCode = 0;
@@ -2676,19 +2674,20 @@ void cFodder::Map_Overview_Prepare() {
 
 }
 
-void cFodder::map_SetTileType() {
+void cFodder::Map_SetTileType() {
 
-	for (unsigned int x = 0; x < 7; ++x) {
-		if (mTileType_Names[x][0] != mMap->data()[0])
+	for(auto& TileType : mTileTypes) {
+
+		if (TileType.mName[0] != mMap->data()[0])
 			continue;
 	
-		if (mTileType_Names[x][1] != mMap->data()[1])
+		if (TileType.mName[1] != mMap->data()[1])
 			continue;
 
-		if (mTileType_Names[x][2] != mMap->data()[2])
+		if (TileType.mName[2] != mMap->data()[2])
 			continue;
 
-		mMap_TileSet = x;
+		mMap_TileSet = TileType.mType;
 		return;
 	}
 
@@ -2699,7 +2698,6 @@ void cFodder::map_SetTileType() {
 void cFodder::sub_12AB1() {
 
 	word_3E75B = -1;
-	word_3EABD = 0;
 }
 
 bool cFodder::EventAdd( cEvent pEvent ) {
@@ -3344,7 +3342,6 @@ void cFodder::sub_136D0() {
 	word_40058 = 0;
 	word_4005A = 0x5280;
 	word_4005C = 0xA500;
-	word_40054 = 0;
 }
 
 void cFodder::Video_Sleep_Wrapper() {
@@ -3398,8 +3395,8 @@ void cFodder::Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFra
 	mDrawSpriteColumns = SheetData->mColCount;
 	mDrawSpriteRows = SheetData->mRowCount;
 
-	if (SheetData->mColCount > mGUI_Temp_Height)
-		mGUI_Temp_Height = SheetData->mColCount;
+	if (SheetData->mRowCount > mGUI_Temp_Height)
+		mGUI_Temp_Height = SheetData->mRowCount;
 	
 	if (Sprite_OnScreen_Check() )
 		mGraphics->video_Draw_Sprite();
@@ -3416,7 +3413,7 @@ void cFodder::sub_13C8A( int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPo
 	mDrawSpritePositionY = (pPosY + 0x10);
 	mDrawSpriteColumns = SheetData->mColCount;
 	mDrawSpriteRows = SheetData->mRowCount;
-	word_42078 = 0x140;
+	mDrawSprite_ColumnsMax = 0x140;
 
 	if (Sprite_OnScreen_Check())
 		mGraphics->video_Draw_Linear();
@@ -5446,6 +5443,7 @@ loc_179B2:;
 
 	int16* Data20 = word_3B1CF;
 
+	// 14 moving recruits
 	for (int16 DData8 = 0x0E; DData8 >= 0; --DData8) {
 
 		Data0 = *Data20;
@@ -9652,15 +9650,6 @@ void cFodder::Camera_Pan_Right() {
 			mMapTilePtr += 2;
 			++word_3B612;
 		}
-
-		//++word_40054;
-		word_40054 &= 3;
-		if (!word_40054) {
-			++word_40056;
-			++word_40058;
-			++word_4005A;
-			++word_4005C;
-		}
 	}
 
 	g_Graphics.Map_Tiles_Draw();
@@ -9676,16 +9665,6 @@ void cFodder::Camera_Pan_Left() {
 			mMapTilePtr -= 2;
 			--word_3B612;
 		}
-		
-		//--word_40054;
-		word_40054 &= 3;
-		if (word_40054 == 3) {
-			--word_40056;
-			--word_40058;
-			--word_4005A;
-			--word_4005C;
-		}
-
 	}
 
 	g_Graphics.Map_Tiles_Draw();
@@ -11656,8 +11635,8 @@ void cFodder::sub_182EA() {
 	uint8* di = mImage->GetSurfaceBuffer();
 	
 	di += (mImage->GetWidth() * mDrawSpritePositionY);
+	di += mDrawSpritePositionX;
 
-	di += (mDrawSpritePositionX + word_40054);
 	word_42066 = di;
 
 	uint8* si = mDraw_Sprite_FrameDataPtr;
@@ -20482,7 +20461,7 @@ Start:;
 	
 			Map_Tiles_Draw();
 			Camera_Reset();
-			map_SetTileType();
+			Map_SetTileType();
 			Mouse_Inputs_Get();
 			sub_18D5E();
 
@@ -20545,8 +20524,7 @@ Start:;
 			mMission_In_Progress = -1;
 			mMission_Finished = 0;
 			mMission_ShowMapOverview = 0;
-			word_3EABD = 0x40BC;
-			
+
 			if (!Mission_Loop()) {
 				mKeyCode = 0;
 				mMission_In_Progress = 0;
@@ -20591,7 +20569,7 @@ Start:;
 }
 
 void cFodder::Map_Tiles_Draw() {
-	word_40054 = 0;
+
 	mCamera_Pan_ColumnOffset = 0;
 	mCamera_Pan_RowOffset = 0;
 

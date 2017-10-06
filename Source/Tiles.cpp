@@ -22,14 +22,14 @@
 
 #include "stdafx.hpp"
 
-const std::string mTileType_Names[] = {
-	"jun",
-	"des",
-	"ice",
-	"mor",
-	"int",
-	"hid",
-	"afx"		// Amiga Format Christmas Special
+const std::vector<sTileType> mTileTypes = {
+	{ eTileTypes_Jungle, "jun" },
+	{ eTileTypes_Desert, "des" },
+	{ eTileTypes_Ice,	 "ice" },
+	{ eTileTypes_Moors,  "mor" },
+	{ eTileTypes_Int,	 "int" },
+	{ eTileTypes_Hid,	 "hid" },
+	{ eTileTypes_AFX,	 "afx" }		// Amiga Format Christmas Special
 };
 
 const int16* mTiles_Indestructible[] = {
