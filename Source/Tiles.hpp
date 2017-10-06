@@ -27,7 +27,7 @@ enum eTileTypes {
 	eTileTypes_Moors	= 3,
 	eTileTypes_Int		= 4,
 	eTileTypes_Hid		= 5,
-	eTileTypes_AFX		= 6,
+	eTileTypes_AFX		= 6,	// Amiga Format Christmas Special
 };
 
 enum eTerrainType {
@@ -47,6 +47,11 @@ enum eTerrainType {
 	eTerrainType_Jump			= 0x0E
 };
 
+struct sTileType {
+	const eTileTypes  mType;
+	const std::string mName;
+};
+
 extern const int8 mTiles_NotFlyable[];
 extern const int8 mTiles_NotDriveable[];
 extern const int8 mTiles_NotWalkable[];
@@ -59,4 +64,4 @@ extern const int16 mTiles_Indestructible_Internal[];
 
 extern const int16* mTiles_Indestructible[];
 
-extern const std::string mTileType_Names[];
+extern const std::vector<sTileType> mTileTypes;

@@ -275,7 +275,6 @@ void cGraphics_PC::Map_Load_Resources() {
 		mSpriteSheet_InGame2.mData = g_Resource.fileGet( mFodder->mFilenameCopt );
 		mSpriteSheet_InGame2.LoadPalette( 0xD360, 0x10, 0x90 );
 		mSpriteSheet_InGame2.LoadPalette( 0xD2A0, 0x40, 0xB0 );
-		
 	}
 
 	// 
@@ -297,32 +296,21 @@ void cGraphics_PC::Map_Load_Resources() {
 void cGraphics_PC::video_Draw_Linear( ) {
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mDraw_Sprite_FrameDataPtr;
-	int16	ax, cx;
-	
-	di += 352 * mFodder->mDrawSpritePositionY;
 
-	ax = mFodder->mDrawSpritePositionX;
-	ax += mFodder->word_40054;
-	//ax >>= 2;
-	
-	di += ax;
+	di += 352 * mFodder->mDrawSpritePositionY;
+	di += mFodder->mDrawSpritePositionX;
+
 	mFodder->word_42066 = di;
-	cx = mFodder->mDrawSpritePositionX;
-	cx += mFodder->word_40054;
-	cx &= 3;
 
 	uint8 Plane = 0;
 
-	mFodder->byte_42071 = 1 << cx;
-	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->word_42078 - mFodder->mDrawSpriteColumns;
-		                 
-	//mDrawSpriteColumns >>= 1;
+	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->mDrawSprite_ColumnsMax - mFodder->mDrawSpriteColumns;
 	mFodder->mDraw_Dest_SkipPixelsPerRow = 352 - mFodder->mDrawSpriteColumns;
 
 	di += Plane;
 	for( int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for( int16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			int8 al = *si;
 			if(al)
 				*di = al;
@@ -341,25 +329,14 @@ void cGraphics_PC::video_Draw_Sprite() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = Fodder->mDraw_Sprite_FrameDataPtr;
-	int16	ax, cx;
 	
 	di += mImage->GetWidth() * Fodder->mDrawSpritePositionY;
+	di += Fodder->mDrawSpritePositionX;
 
-	ax = Fodder->mDrawSpritePositionX;
-	ax += Fodder->word_40054;
-	//ax >>= 2;
-	
-	di += ax;
 	Fodder->word_42066 = di;
-	cx = Fodder->mDrawSpritePositionX;
-	cx += Fodder->word_40054;
-	cx &= 3;
 
 	uint8 Plane = 0;
 
-	Fodder->byte_42071 = 1 << cx;
-	int8 bl = Fodder->mDraw_Sprite_PaletteIndex;
-	
 	Fodder->mDrawSpriteColumns >>= 1;
 	Fodder->mDraw_Source_SkipPixelsPerRow = 160 - Fodder->mDrawSpriteColumns;
 	Fodder->mDrawSpriteColumns >>= 1;
@@ -369,10 +346,10 @@ void cGraphics_PC::video_Draw_Sprite() {
 	di += Plane;
 	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = 0; cx < Fodder->mDrawSpriteColumns; ++cx ) {
+		for( int16 cx = 0; cx < Fodder->mDrawSpriteColumns; ++cx ) {
 			int8 al = (*si) >> 4;
 			if(al)
-				*di = al | bl;
+				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -393,10 +370,10 @@ void cGraphics_PC::video_Draw_Sprite() {
 	di += Plane;
 	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for(int16 cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			int8 al = (*si) & 0x0F;
 			if( al )
-				*di = al | bl;
+				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -418,11 +395,11 @@ void cGraphics_PC::video_Draw_Sprite() {
 	di += Plane;
 	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for(int16 cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			
 			int8 al = (*si) >> 4;
 			if( al )
-				*di = al | bl;
+				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -443,11 +420,11 @@ void cGraphics_PC::video_Draw_Sprite() {
 	di += Plane;
 	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
-		for( cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for(int16 cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			
 			int8 al = (*si) & 0x0F;
 			if( al ) 
-				*di = al | bl;
+				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -464,7 +441,6 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
 
 	Buffer += (16 * 352) + 16;
-	mFodder->byte_42071 = 1 << mFodder->word_40054;
 
 	mFodder->word_42066 = Buffer;
 	for (unsigned int Plane = 0; Plane < 4; Plane++) {
@@ -504,13 +480,12 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 	ax *= 0x960;
 	w42066 += ax;
 	
-	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	uint8* si = mFodder->mDraw_Sprite_FrameDataPtr;
-	
-	int8 bl = mFodder->mDraw_Sprite_PaletteIndex;
+	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
+
 	mFodder->mDrawSpriteColumns >>= 1;
-	
 	mFodder->mDraw_Source_SkipPixelsPerRow = 0xA0 - mFodder->mDrawSpriteColumns;
+
 	mFodder->mDrawSpriteColumns >>= 1;
 	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x0C - mFodder->mDrawSpriteColumns;
 	
@@ -520,7 +495,7 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 			
 			uint8 al = (*si) >> 4;
 			if( al )
-				*di = al | bl;
+				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -542,7 +517,7 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			uint8 al = (*si) & 0x0F;
 			if( al )
-				*di = al | bl;
+				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -566,7 +541,7 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 			
 			uint8 al = (*si) >> 4;
 			if( al )
-				*di = al | bl;
+				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -588,7 +563,7 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
 			uint8 al = (*si) & 0x0F;
 			if( al )
-				*di = al | bl;
+				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -660,7 +635,7 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 	mFodder->mDrawSpritePositionY = 0x28;
 	mFodder->mDrawSpriteColumns = 0x110;
 	mFodder->mDrawSpriteRows = 0xB0;
-	mFodder->word_42078 = 0x140;
+	mFodder->mDrawSprite_ColumnsMax = 0x140;
 
 	video_Draw_Linear();
 	
@@ -704,13 +679,13 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	std::string JunData5 = "p5.dat";
 
 	mFodder->mMap = g_Resource.fileGet( MapName );
-	mFodder->map_SetTileType();
+	mFodder->Map_SetTileType();
 
-	JunData1.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData2.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData3.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData4.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
-	JunData5.insert( 0, mTileType_Names[mFodder->mMap_TileSet] );
+	JunData1.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName );
+	JunData2.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData3.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData4.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
+	JunData5.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
 
 	mImageBriefingIntro.mData = g_Resource.fileGet(JunData1);
 
