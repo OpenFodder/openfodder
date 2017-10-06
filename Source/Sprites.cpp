@@ -400,6 +400,23 @@ const int16 mSprite_ComputerAnimation[] = {
 	147, 143, 145, 143
 };
 
+const int16 mSprite_Seal_Frames[] = {
+	1, 1, 1, 0, 0, 0, 1, 1, 0, 0,
+	1, 0, 1, 0, 1, 2, 3, -1
+};
+
+const int16 mSprite_Computer_Unk[] = {
+	1, 0, 4, 0
+};
+
+const int8 mSprite_Indigenous_Sound_Death[] = {
+	0x0B, 0x0C, 0x0D, 0x14, 0x15, 0x16, 0x0D, 0x14
+};
+
+const int8 mSprite_Soldier_Unk[] = {
+	-34, -1, -56, -1, 0x38, 0x00, 0x22, 0x00
+};
+
 const sSpriteSheet_pstuff mSpriteSheet_PStuff[209] = {
 	{ 0, 79, 48, 13 },
 	{ 48, 79, 48, 13 },
@@ -610,8 +627,8 @@ const sSpriteSheet_pstuff mSpriteSheet_PStuff[209] = {
 	{ 160, 93, 32, 19 },
 	{ 0, 175, 48, 23 },				// Briefing Helicopter: Front
 	{ 48, 175, 16, 15 },			// Briefing Helicopter: Tail
-	/* 205 */{ 64, 175, 48, 2 },				// Briefing Helicopter: Blade-1
-	/* 206 */{ 64, 178, 48, 2 },				// Briefing Helicopter: Blade-2
-	/* 207 */{ 64, 181, 48, 2 },				// Briefing Helicopter: Blade-3
-	{ 192, 113, 48, 10 }				// World Map Icon
+	/* 205 */{ 64, 175, 48, 2 },	// Briefing Helicopter: Blade-1
+	/* 206 */{ 64, 178, 48, 2 },	// Briefing Helicopter: Blade-2
+	/* 207 */{ 64, 181, 48, 2 },	// Briefing Helicopter: Blade-3
+	{ 192, 113, 48, 10 }			// World Map Icon
 };

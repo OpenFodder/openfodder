@@ -158,16 +158,18 @@ enum eSprite_Anim {
 	eSprite_Anim_Vehicle_Inside = 0x5B
 };
 
-enum eSprite_Vehicles {
-	eSprite_Vehicle_Cannon					= 0,
-	eSprite_Vehicle_Missile_Launcher		= 1,
-	eSprite_Vehicle_Jeep					= 2,
-	eSprite_Vehicle_JeepRocket				= 3,
-	eSprite_Vehicle_Tank					= 4,
-	eSprite_Vehicle_Helicopter				= 5,
-	eSprite_Vehicle_Helicopter_Missile		= 6,
-	eSprite_Vehicle_Helicopter_MissileHome1 = 7,
-	eSprite_Vehicle_Helicopter_MissileHome2 = 8,
+enum eVehicles {
+	eVehicle_Turret_Cannon			= 0,
+	eVehicle_Turret_Missile			= 1,
+	eVehicle_Jeep					= 2,
+	eVehicle_JeepRocket				= 3,
+	eVehicle_Tank					= 4,
+	eVehicle_Helicopter				= 5,
+	eVehicle_Helicopter_Grenade		= 6,
+	eVehicle_Helicopter_Missile		= 7,
+	eVehicle_Helicopter_Homing		= 8,
+	eVehicle_Turret_Homing			= 9,
+	eVehicle_Unknown				= 10,
 };
 
 enum ePstuff_Sprites {
@@ -177,7 +179,6 @@ enum ePstuff_Sprites {
 	eSprite_pStuff_Mouse_Arrow_DownRight = 0x25,
 	eSprite_pStuff_Mouse_Arrow_UpLeft	 = 0x26,
 	eSprite_pStuff_Mouse_Helicopter		 = 0x27,
-
 };
 
 enum eSprite_DrawOrder {
@@ -277,7 +278,7 @@ struct sSprite {
 	};
 
 	int8 field_6E;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
-	int8 field_6F;			// Vehicle: Type?
+	int8 field_6F;			// Vehicle Type
 	sSprite* field_70;
 	int8 field_74;			// Helicopter: Restart Anim Frame Number
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
@@ -311,3 +312,7 @@ extern const int16 mSprite_Player_MissionOver_Frames[];
 extern const int8 mSprite_Seal_AnimFrames[];
 extern const int16 mSprite_VehiclePosition_Mod[];
 extern const int16 mSprite_ComputerAnimation[];
+extern const int16 mSprite_Seal_Frames[];
+extern const int16 mSprite_Computer_Unk[];
+extern const int8 mSprite_Indigenous_Sound_Death[];
+extern const int8 mSprite_Soldier_Unk[];

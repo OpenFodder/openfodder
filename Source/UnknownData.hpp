@@ -26,14 +26,6 @@ unsigned char mUnkStringModifier[] = {
   0xA5, 0xFF
 };
 
-const int16 word_3E197[] =
-{
-    4, 10, 4,  16,  22,
-   10,  4, 22, 16,  10,
-   22,  4, 16, 10,  22,
-   10
-};
-
 const int16 word_3E177[] = {
   0x18, 0x24, 0x18, 0x1E, 0x18, 
   0x2A, 0x18, 0x1E, 0x18, 0x18, 
@@ -240,18 +232,9 @@ int16 word_32B7C[] = {
   0xBE, 0xBF, 
 };
 
-int16* off_32AE4[] = {
+int16* mSprite_AnimationPtrs[] = {
 	word_32AEC,
 	word_32B7C
-};
-
-int8 mSound_Indigenous_Death[] = {
-  0x0B, 0x0C, 0x0D, 0x14, 0x15, 0x16, 0x0D, 0x14
-};
-
-int8 byte_3D47F[] =
-{
-  -34, -1, -56, -1, 0x38, 0x00, 0x22, 0x00
 };
 
 const int16 mDirectionData[] = {
@@ -360,22 +343,6 @@ const int16 mDirectionData[] = {
 	35, 34, 33, 32, 
 };
 
-const int16 word_3DEF0[3] = { 0, 1, 2 };
-
-// Left value is vehicle ID type
-const int16 mGUI_Squad_Vehicle_Icons[] = {
-	eSprite_Vehicle_Cannon,					 2,
-	eSprite_Vehicle_Missile_Launcher,		 3,	
-	eSprite_Vehicle_Jeep,					 4,
-	eSprite_Vehicle_JeepRocket,				 5,	
-	eSprite_Vehicle_Tank,					 6,	
-	eSprite_Vehicle_Helicopter,				 7,
-	eSprite_Vehicle_Helicopter_Missile,		 8,
-	eSprite_Vehicle_Helicopter_MissileHome1, 9,	
-	eSprite_Vehicle_Helicopter_MissileHome2, 10,
-	-1
-};
-
 const int16 mTroop_Rotate_Fire_SquadOf1[] = {
 	0, 
 	-1
@@ -430,31 +397,4 @@ const int16* mTroop_Rotate_Fire_Order[] = {
 	mTroop_Rotate_Fire_SquadOf6,
 	mTroop_Rotate_Fire_SquadOf7,
 	mTroop_Rotate_Fire_SquadOf8
-};
-
-const int16 mGUI_Squad_Active_Icons[] = {
-	149, 150, 151, 152, 153, 154, 155, 156, 157, 158,
-	158
-};
-
-const int16 mGUI_Squad_Inactive_Icons[] = {
-	159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
-	168
-};
-
-const int16 word_3DF73[] = {
-	0, 3, 4, 6, 1, 5, 8, 7, 2
-};
-
-const int8 byte_3DF02[] = {
-	0x29, 0x4D, 0x71
-};
-
-const int16 word_3E926[] = { 
-	1, 1, 1, 0, 0, 0, 1, 1, 0, 0,
-	1, 0, 1, 0, 1, 2, 3, -1 
-};
-
-const int16 word_3E982[] = { 
-	1, 0, 4, 0 
 };

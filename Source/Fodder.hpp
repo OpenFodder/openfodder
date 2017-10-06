@@ -348,8 +348,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA71;
 	int16			word_3AAC7;
 	sRecruitRendered*			mRecruit_RenderedPtr;
-	int16			word_3AACD;
-	int16			word_3AACF;
+	int16			mRecruit_Truck_Frame;
+	int16			mRecruit_Truck_FrameAnimBufferPtr;
 	int16			word_3AAD1;
 
 	int16			word_3AA43;
@@ -377,8 +377,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mString_GapCharID;		// Replace spaces in strings with this id
 
 	int16			mGUI_Loop_Squad_Current;
-	int16			word_3AC1D;
-	int16			mGUI_Squad_Current;
+	int16			mGUI_Loop_Draw_Y;
 	int16			word_3AC2D[3];
 	int16			word_3AC21;
 	int16			mGUI_Squad_NextDraw_Y;
@@ -387,7 +386,7 @@ class cFodder : public cSingleton < cFodder > {
 	int8			mGUI_RefreshSquadRockets[3];
 	int16			mSquad_CurrentWeapon[3];
 	int16			mMouseDisabled;
-	int16			word_3AC47;
+	int16			mGUI_Loop_Is_CurrentSquad;
 	int16			word_3AC49;
 	int16			word_3AC4B;
 	int16			word_3AC4D;
@@ -422,8 +421,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSprite_Bullet_Deviate_Counter;
 	int32			dword_3B1CB;
 	int16			word_3B1CF[0x0F];
-	int16			word_3B1ED;
-	int16			mRecruit_Reached_Truck;
+	int16			mRecruit_Truck_Reached;
+	int16			mRecruit_Truck_Animation_Play;
 	int16			mRecruit_ToEnterTruck;
 
 	const sRecruit_Screen_Pos*		dword_3B1FB;
@@ -503,10 +502,10 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B614;
 	int16			mCamera_Pan_RowCount;	// Number of rows to move the camera
 
-	uint16*			mMapSptPtr;
-	size_t			mMapSptSize;
+	uint16*			mSidebar_Screen_Buffer;
 
-	uint16*			mRecruit_Truck_AnimBuffer;
+	uint16			mRecruit_Truck_FramesPlay[100];
+	uint16*			mSidebar_Back_Buffer;
 	int16			mMouseX;
 	int16			mMouseY;
 	uint16			mouse_Pos_Column_Unused;
@@ -548,9 +547,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D469;
 	int16			mCamera_Column_Previous;
 	int16			mCamera_Row_Previous;
-	uint16*			mSidebar_Screen_Buffer;
+	uint16*			mSidebar_Screen_BufferPtr;
 
-	sGUI_Element	stru_3DEDC[2];
+	sGUI_Element	mSidebar_OverlayButtons[2];
 	int16			mMission_Save_Availability[0x18];
 
 	size_t			word_3E1B7_size;
@@ -1181,10 +1180,10 @@ public:
 	void			GUI_Button_Quiz_11();
 	void			Demo_Quiz_ShowScreen( const char* pFilename );
 
-	void			sub_2EBE0( int16& pData0, int16& pData4 );
+	void			GUI_Loop_Draw_Prepare( int16& pData0, int16& pData4 );
 	void			GUI_Sidebar_Prepare( int16 pData0, int16 pData4 );
-	void			sub_2EBC4();
-	void			GUI_SetElementsFrom( sGUI_Element* pData20, sGUI_Element* pData24 );
+	void			GUI_Sidebar_Add_Sidebar_Overlay();
+	void			GUI_SetElementsFrom( sGUI_Element* pTo, sGUI_Element* pFrom );
 	void			GUI_ClearElement( sGUI_Element *pData20 );
 	void			GUI_Sidebar_SplitButton_Draw();
 	void			GUI_Prepare_Button_Squad();
@@ -1204,15 +1203,15 @@ public:
 	void			GUI_Handle_Button_Grenades();
 	void			GUI_Sidebar_TroopList_Draw();
 	void			GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28 );
-	void			sub_2F452();
-	void			GUI_Sidebar_SquadIcon_Draw();
-	int16			GUI_Troops_In_VehicleChanged();
-	void			GUI_Sidebar_Refresh();
-	void			GUI_Sidebar_SquadIcon_Refresh();
-	void			GUI_Sidebar_Grenades_Refresh_CurrentSquad( );
-	void			GUI_Sidebar_Grenades_Refresh( int16 pData0 );
-	void			GUI_Sidebar_Rockets_Refresh_CurrentSquad( );
-	void			GUI_Sidebar_Rockets_Refresh( int16 pData0 );
+	void			GUI_Sidebar_SquadIcon_Update();
+	void			GUI_Sidebar_SquadIcon_Current_Draw();
+	int16			GUI_Sidebar_SquadIcon_Set();
+	void			GUI_Sidebar_Draw();
+	void			GUI_Sidebar_SquadIcons_Draw();
+	void			GUI_Sidebar_Grenades_CurrentSquad_Draw( );
+	void			GUI_Sidebar_Grenades_Draw( int16 pData0 );
+	void			GUI_Sidebar_Rockets_CurrentSquad_Draw( );
+	void			GUI_Sidebar_Rockets_Draw( int16 pData0 );
 	int16			GUI_Sidebar_SelectedTroops_Count();
 	void			GUI_Sidebar_Setup( );
 	void			sub_2FA05();
@@ -1221,7 +1220,7 @@ public:
 	void			GUI_Sidebar_Squad1_Prepare( );
 	void			GUI_Sidebar_Squad2_Prepare( );
 
-	void			sub_2FA8F();
+	void			GUI_Sidebar_Ready();
 	void			GUI_Sidebar_Rockets_Draw( );
 
 	void			GUI_Prepare_Button_Rockets();
@@ -1250,9 +1249,9 @@ public:
 	void			Squad_Clear_Selected();
 	void			sub_303AE();
 	void			sub_303B7();
-	void			sub_303DA();
-	void			sub_30465();
-	void			sub_30480();
+	void			GUI_Sidebar_Squad_Split_Icon_Draw();
+	void			Sidebar_Render_To_BackBuffer();
+	void			Sidebar_Render_To_ScreenBuffer();
 	void			Squad_Switch_Weapon();
 	void			Mission_Final_TimeToDie();
 	int16			sub_305D5( sSprite*& pData20 );
@@ -1280,7 +1279,7 @@ public:
 	void			intro();
 	void			intro_Music_Play();
 
-	void			map_ClearSpt();
+	void			Sidebar_Clear_ScreenBufferPtr();
 	void			Mission_Phase_Next();
 
 	void			sub_12AB1();
