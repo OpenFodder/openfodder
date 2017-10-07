@@ -142,7 +142,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3A3BF = 0;
 	dword_3A3F9 = 0;
 	mMap_Overview_MapNumberRendered = -1;
-	word_3FA21 = 0;
+	mDebug_MissionSkip = 0;
 	mPaused = 0;
 
 	word_42072 = 0;
@@ -251,7 +251,7 @@ int16 cFodder::Mission_Loop( ) {
 		Sprite_Find_HumanVehicles();
 
 		// Cheat
-		if (word_3FA21 == -1 && mKeyCode == 0x1C) {
+		if (mDebug_MissionSkip == -1 && mKeyCode == 0x1C) {
 			mMission_Complete = -1;
 			mKeyCode = 0;
 		} else
@@ -2496,26 +2496,6 @@ void cFodder::Mission_Map_Overview_Show() {
 
 	word_3A016 = 0;
 
-	int16 word_3F952;
-	int16 word_3F954;
-	int32 eax = dword_3F946;
-
-	eax *= mSquad_Leader->field_0 & 0xFFFF;
-	eax >>= 14;
-	eax += 0x40;
-	eax += word_3F94E;
-	eax -= 8;
-	word_3F952 = eax & 0xFFFF;
-	if (word_3F952 < 0x40)
-		word_3F952 = 0x40;
-
-	eax = dword_3F94A;
-	eax *= mSquad_Leader->field_4 & 0xFFFF;
-	eax >>= 14;
-	eax += 0x10;
-	eax += word_3F950;
-	eax -= 8;
-	word_3F954 = eax & 0xFFFF;
 
 	mVideo_Draw_PosX =  (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
 	mVideo_Draw_PosY =  (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
@@ -2531,13 +2511,15 @@ void cFodder::Mission_Map_Overview_Show() {
 			word_3A016 &= 0x3F;
 
 			if (word_3A016 < 0x20) {
+				mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_PSTUFF);
+
 				if (mVersion->mPlatform == ePlatform::PC) {
-					mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
+					mVideo_Draw_FrameDataPtr += 0x46B8;
 					mVideo_Draw_Columns = 0x10;
 					mVideo_Draw_Rows = 0x10;
 				} 
 				else {
-					mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
+					mVideo_Draw_FrameDataPtr += (113 * 40) + 6;
 					mVideo_Draw_Columns = 0x2;
 					mVideo_Draw_Rows = 0x10;
 				}
@@ -2746,7 +2728,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 
 		// Debug: Mission Complete
 		if (pKeyCode == SDL_SCANCODE_F10 && pPressed ) {
-			word_3FA21 = -1;
+			mDebug_MissionSkip = -1;
 			mKeyCode = 0x1C;
 		}
 	}

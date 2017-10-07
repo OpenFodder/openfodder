@@ -548,14 +548,12 @@ class cFodder : public cSingleton < cFodder > {
 	
 	int16			word_3E75B;
 
-	int32			dword_3F946;
-	int32			dword_3F94A;
 	int16			word_3F94E;
 	int16			word_3F950;
 
 	int32			dword_3E9A3[70];
 	int16			mMap_Overview_MapNumberRendered;
-	int16			word_3FA21;
+	int16			mDebug_MissionSkip;
 	int16			mPaused;
 	int16			mKeyControlPressed;
 
