@@ -624,7 +624,7 @@ void cFodder::Mission_Memory_Clear() {
 	dword_39F5A = 0;
 	mCamera_Adjust_Col_High = 0;
 	mCamera_Adjust_Row_High = 0;
-	word_39F66 = 0;
+	mKeyCodeAscii = 0;
 	dword_39F84 = 0;
 	dword_39F88 = 0;
 	dword_39F8C = 0;
@@ -784,7 +784,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AC2D[1] = 0;
 	word_3AC2D[2] = 0;
 
-	word_3AC21 = 0;
+	mGUI_Print_String_To_Sidebar = 0;
 	mGUI_Squad_NextDraw_Y = 0;
 	mGUI_Sidebar_Setup = 0;
 	mGUI_RefreshSquadGrenades[0] = 0;
@@ -2753,8 +2753,6 @@ void cFodder::Mouse_Setup() {
 
 	mMouseX = 0x7F;
 	mMouseY = 0x67;
-	mouse_Pos_Column_Unused = 0;
-	mouse_Pos_Row_Unused = 0;
 
 	g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, g_Window.GetWindowSize().mHeight / 2 ) );
 }
@@ -2777,7 +2775,6 @@ void cFodder::Mouse_Inputs_Get() {
 	Mouse_ButtonCheck();
 
 	int16 Data4 = mouse_Pos_Column;
-	mouse_Pos_Column_Unused = Data4;
 
 	if( word_3A024 == 0 )
 		goto loc_13B3A;
@@ -2808,7 +2805,6 @@ loc_13B66:;
 	mMouseX = Data4;
 	
 	int16 Data0 = mouse_Pos_Row;
-	mouse_Pos_Row_Unused = Data0;
 
 	if (Data0 < 4)
 		Data0 = 4;
@@ -2925,7 +2921,7 @@ void cFodder::VersionSelect() {
 	mGraphics->PaletteSet();
 	Mouse_Setup();
 
-	word_3AC21 = 0;
+	mGUI_Print_String_To_Sidebar = 0;
 	mGUI_Mouse_Modifier_Y = 0;
 
 	mSound->Music_Stop();
@@ -4269,9 +4265,9 @@ void cFodder::CopyProtection() {
 		mInputString_Position = 0;
 
 		mImage->Save();
-		word_39F66 = 0;
+		mKeyCodeAscii = 0;
 
-		while (word_39F66 != 0x0D) {
+		while (mKeyCodeAscii != 0x0D) {
 			
 			if (mImageFaded) {
 				mImageFaded = mImage->palette_FadeTowardNew();
@@ -10546,7 +10542,7 @@ void cFodder::String_Print_Input( int16 pPosY ) {
 
 	Recruit_Render_Text( mInputString, pPosY );
 
-	int16 Data0 = word_39F66;
+	int16 Data0 = mKeyCodeAscii;
 	if (Data0 == 0x0D && mInputString_Position)
 		mGUI_SaveLoadAction = 2;
 
@@ -10594,7 +10590,7 @@ void cFodder::sub_2E6A9() {
 	char* Data20 = mInputString;
 
 	int16 Data0 = mInputString_Position;
-	if (word_39F66 != 0x0D) {
+	if (mKeyCodeAscii != 0x0D) {
 		byte_44AC0 &= 0x3F;
 		if (byte_44AC0 < 0x20)
 			goto loc_2E6EA;
@@ -10616,25 +10612,25 @@ void cFodder::GUI_Input_CheckKey() {
 		if (!(mInput_LastKey & 0x80)) {
 		
 			if (mKeyCode >= SDL_SCANCODE_A && mKeyCode <= SDL_SCANCODE_Z)
-				word_39F66 = 'A' + (mKeyCode - 4);
+				mKeyCodeAscii = 'A' + (mKeyCode - 4);
 		
 			if (mKeyCode >= SDL_SCANCODE_1 && mKeyCode <= SDL_SCANCODE_9)
-				word_39F66 = '1' + (mKeyCode - 30);
+				mKeyCodeAscii = '1' + (mKeyCode - 30);
 
 			if (mKeyCode == SDL_SCANCODE_0 )
-				word_39F66 = '0';
+				mKeyCodeAscii = '0';
 
 			if (mKeyCode == SDL_SCANCODE_RETURN)
-				word_39F66 = 0x0D;
+				mKeyCodeAscii = 0x0D;
 
 			if (mKeyCode == SDL_SCANCODE_BACKSPACE)
-				word_39F66 = 8;
+				mKeyCodeAscii = 8;
 
 			return;
 		}
 	}
 
-	word_39F66 = 0;
+	mKeyCodeAscii = 0;
 }
 void cFodder::Game_Load() {
 
@@ -17594,13 +17590,13 @@ void cFodder::String_Print_Large( std::string pText, const bool pOverAndUnderLin
 	String_Print( mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, mGUI_Temp_X, pY, pText );
 }
 
-void cFodder::String_Print( const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const std::string& pText ) {
+void cFodder::String_Print( const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const std::string& pText ) {
 
-	String_Print( pWidths, pParam0, pParam08, pParamC, pText.c_str() );
+	String_Print( pWidths, pFontSpriteID, pParam08, pParamC, pText.c_str() );
 }
 
-void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText ) {
-	uint8* ptr = 0;
+void cFodder::String_Print(  const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const char* pText ) {
+	const uint8* ptr = 0;
 	uint8 al = 0;
 	int32 unk14 = 0;
 
@@ -17608,7 +17604,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 	mGUI_Draw_LastHeight = 0;
 
 	for (;;) {
-	loc_29C7A:;
+	String_Print_Next:;
 		uint8 NextChar = *pText++;
 		uint8 NextChar10 = 0;
 
@@ -17666,29 +17662,32 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 				}
 			}
 
+			// Must be a special character
 			// 20D
 			//loc_29D2D
 			unk14 = -1;
-			ptr = mUnkStringModifier;
+			ptr = mGUI_Font_SpecialCharacters;
 			do {
-				if (*ptr == 0xFF)
-					goto loc_29C7A;
-				++unk14;
 
+				// Reached end of table? then skip this character
+				if (*ptr == 0xFF)
+					goto String_Print_Next;
+
+				++unk14;
 				al = *ptr++;
 
+				// Loop until we find this character in the table
 			} while(al != NextChar);
-
-			NextChar = unk14;
-			NextChar += 0x24;
+			
+			// Found the special character, lets use its index
+			NextChar = 0x24 + unk14;
 
 			loc_29D71:;
 
-			if (word_3AC21) {
-				mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( pParam0 + NextChar, pParam08, pParamC );
-			}
+			if (mGUI_Print_String_To_Sidebar)
+				mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(pFontSpriteID + NextChar, pParam08, pParamC );
 			else
-				GUI_Draw_Frame_8(  pParam0, NextChar, pParam08, pParamC);
+				GUI_Draw_Frame_8( pFontSpriteID, NextChar, pParam08, pParamC);
 
 		}
 		loc_29DC7:;
@@ -21308,10 +21307,10 @@ void cFodder::GUI_Sidebar_Number_Draw( int16 pNumber, int16 pX, int16 pData8, in
 	Tmp << tool_StripLeadingZero( tool_NumToString( pNumber ) );
 
 	String_CalculateWidth( pData8, mFont_Sidebar_Width, Tmp.str() );
-	word_3AC21 = -1;
+	mGUI_Print_String_To_Sidebar = -1;
 	String_Print(  mFont_Sidebar_Width, pData10, mGUI_Temp_X + pX, pY, Tmp.str() );
 	
-	word_3AC21 = 0;
+	mGUI_Print_String_To_Sidebar = 0;
 }
 
 int16 cFodder::Mouse_Button_Left_Toggled() {

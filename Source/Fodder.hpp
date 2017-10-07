@@ -232,7 +232,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			dword_39F5A;
 	int16			mCamera_Adjust_Col_High;
 	int16			mCamera_Adjust_Row_High;
-	int16			word_39F66;
+	int16			mKeyCodeAscii;
 	int32			dword_39F7C;
 
 	int16			word_39F94;
@@ -379,7 +379,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mGUI_Loop_Squad_Current;
 	int16			mGUI_Loop_Draw_Y;
 	int16			word_3AC2D[3];
-	int16			word_3AC21;
+	int16			mGUI_Print_String_To_Sidebar;
 	int16			mGUI_Squad_NextDraw_Y;
 	int16			mGUI_Sidebar_Setup;
 	int8			mGUI_RefreshSquadGrenades[3];
@@ -420,7 +420,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B1A9;
 	int16			mSprite_Bullet_Deviate_Counter;
 	int32			dword_3B1CB;
-	int16			mRecruit_Hill_Positions[0x0F];
+	int16			mRecruit_Hill_Positions_Use[0x0F];
 	int16			mRecruit_Truck_Reached;
 	int16			mRecruit_Truck_Animation_Play;
 	int16			mRecruit_ToEnterTruck;
@@ -503,14 +503,12 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mCamera_Pan_RowCount;	// Number of rows to move the camera
 
 	uint16*			mSidebar_Screen_Buffer;
-
-	uint16			mRecruit_Truck_FramesPlay[100];
 	uint16*			mSidebar_Back_Buffer;
+
+	uint16			mRecruit_Truck_FramesPlay[100];	// This probably doesn't need to be this big
+
 	int16			mMouseX;
 	int16			mMouseY;
-	uint16			mouse_Pos_Column_Unused;
-	uint16			mouse_Pos_Row_Unused;
-	
 
 	uint16			mSquad_Grenade_SplitMode;
 	uint16			mSquad_Rocket_SplitMode;
@@ -1255,8 +1253,8 @@ public:
 	void			String_CalculateWidth( int32 pPosX, const uint8* pWidths, const std::string& pString );
 	void			String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString );
 
-	void			String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const char* pText );
-	void			String_Print( const uint8* pWidths, int32 pParam0, int32 pParam08, int32 pParamC, const std::string& pText );
+	void			String_Print(  const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const char* pText );
+	void			String_Print( const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const std::string& pText );
 
 	std::string		map_Filename_MapGet();
 	std::string		map_Filename_SptGet();
