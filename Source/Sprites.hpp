@@ -219,7 +219,7 @@ struct sSprite {
 		int32 field_1E_Big;
 	};
 
-	int16 field_22;		// Vehicle: 1 = Not Human
+	int16 field_22;		// 0 = Human 1 = Not Human
 	int16 field_24;
 	int16 field_26;		// Target X
 	int16 field_28;		// Target Y

@@ -321,7 +321,6 @@ void cFodder::Game_Handle( ) {
 	if (!word_390A6 || !mMission_Paused) {
 
 		++word_39F06;
-		word_390A4 = -1;
 		++word_390AE;
 
 		Mouse_Inputs_Get();
@@ -492,7 +491,6 @@ Mouse_In_Playfield:;
 }
 
 void cFodder::Game_ClearVariables() {
-	word_390A4 = 0;
 	word_390A6 = 0;
 	word_390AE = 0;
 	mMission_EngineTicks = 0;
@@ -505,8 +503,6 @@ void cFodder::Game_ClearVariables() {
 	mMapNumber = 0;
 	mMissionNumber = 0;
 	mMissionPhase = 0;
-	word_39096 = 0;
-	word_3909A = 0;
 	mRecruits_AliveCount = 0;
 	mSaved_MissionNumber = 0;
 	mSaved_MapNumber = 0;
@@ -3453,7 +3449,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	mVideo_Draw_PaletteIndex = 0xE0;
 
 
-	sub_1590B();
+	Briefing_Helicopter_Start();
 
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
@@ -3462,8 +3458,8 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	mImageFaded = -1;
 
 	do {
-		if (word_428D6 == -1)
-			sub_159A6();
+		if (mBriefing_Helicopter_Moving == -1)
+			Briefing_Update_Helicopter();
 
 		if( mImageFaded == -1 )
 			mImageFaded = mImage->palette_FadeTowardNew();
@@ -3539,7 +3535,7 @@ void cFodder::Briefing_Intro_Desert() {
 	mVideo_Draw_PaletteIndex = 0xE0;
 
 
-	sub_1590B();
+	Briefing_Helicopter_Start();
 
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
@@ -3548,8 +3544,8 @@ void cFodder::Briefing_Intro_Desert() {
 	mImageFaded = -1;
 
 	do {
-		if (word_428D6 == -1)
-			sub_159A6();
+		if (mBriefing_Helicopter_Moving == -1)
+			Briefing_Update_Helicopter();
 
 		if( mImageFaded == -1 )
 			mImageFaded = mImage->palette_FadeTowardNew();
@@ -3625,7 +3621,7 @@ void cFodder::Briefing_Intro_Ice() {
 	mVideo_Draw_PaletteIndex = 0xE0;
 
 
-	sub_1590B();
+	Briefing_Helicopter_Start();
 
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
@@ -3634,8 +3630,8 @@ void cFodder::Briefing_Intro_Ice() {
 	mImageFaded = -1;
 
 	do {
-		if (word_428D6 == -1)
-			sub_159A6();
+		if (mBriefing_Helicopter_Moving == -1)
+			Briefing_Update_Helicopter();
 
 		if( mImageFaded == -1 )
 			mImageFaded = mImage->palette_FadeTowardNew();
@@ -3712,7 +3708,7 @@ void cFodder::Briefing_Intro_Mor() {
 
 	mVideo_Draw_PaletteIndex = 0xE0;
 
-	sub_1590B();
+	Briefing_Helicopter_Start();
 
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
@@ -3721,8 +3717,8 @@ void cFodder::Briefing_Intro_Mor() {
 	mImageFaded = -1;
 
 	do {
-		if (word_428D6 == -1)
-			sub_159A6();
+		if (mBriefing_Helicopter_Moving == -1)
+			Briefing_Update_Helicopter();
 
 		if( mImageFaded == -1 )
 			mImageFaded = mImage->palette_FadeTowardNew();
@@ -3798,7 +3794,7 @@ void cFodder::Briefing_Intro_Int() {
 	mVideo_Draw_PaletteIndex = 0xE0;
 
 
-	sub_1590B();
+	Briefing_Helicopter_Start();
 
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
@@ -3807,8 +3803,8 @@ void cFodder::Briefing_Intro_Int() {
 	mImageFaded = -1;
 
 	do {
-		if (word_428D6 == -1)
-			sub_159A6();
+		if (mBriefing_Helicopter_Moving == -1)
+			Briefing_Update_Helicopter();
 
 		if( mImageFaded == -1 )
 			mImageFaded = mImage->palette_FadeTowardNew();
@@ -3873,7 +3869,7 @@ void cFodder::Briefing_Intro_Int() {
 	} while (word_428D8 || mImageFaded != 0);
 }
 
-void cFodder::sub_1590B( ) {
+void cFodder::Briefing_Helicopter_Start( ) {
 	mHelicopterPosX = 0x01500000;
 	mHelicopterPosY = 0x00260000;
 
@@ -3882,13 +3878,13 @@ void cFodder::sub_1590B( ) {
 	word_428C8 = word_428DC[2];
 	word_428CA = &word_428DC[3];
 	word_428CC = 0;
-	word_428D6 = -1;
+	mBriefing_Helicopter_Moving = -1;
 	word_428D8 = -1;
 
 	sub_1594F();
 }
 
-void cFodder::sub_159A6( ) {
+void cFodder::Briefing_Update_Helicopter( ) {
 	word_428B6 &= 0x1FE;
 	uint16 bx = word_428B6;
 
@@ -3943,7 +3939,7 @@ void cFodder::sub_1594F( ) {
 	word_428C8 = *word_428CA++;
 
 	if (word_428B6 == -1) {
-		word_428D6 = 0;
+		mBriefing_Helicopter_Moving = 0;
 		word_428D8 = 0;
 
 		mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
@@ -4104,13 +4100,13 @@ void cFodder::Briefing_Intro() {
 
 		Briefing_Draw_Mission_Name();
 		mImage->Save();
-		sub_1590B();
+		Briefing_Helicopter_Start();
 
 		int16 word_42875 = 0;
 
 		do {
-			if (word_428D6 == -1)
-				sub_159A6();
+			if (mBriefing_Helicopter_Moving == -1)
+				Briefing_Update_Helicopter();
 
 			Mouse_Inputs_Get();
 
@@ -20071,7 +20067,6 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 	mIntroDone = 0;
 	mMission_Complete = 0;
 	mMapNumber = pStartMap;
-	word_3901E = 0x3333;
 
 	Squad_Clear();
 	Heroes_Clear();
@@ -20085,7 +20080,6 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 	Mission_Phase_Next();
 
 	mMission_TryAgain = -1;
-	word_39096 = -1;
 
 	mGraphics->Load_pStuff();
 }
@@ -20208,7 +20202,6 @@ Start:;
 				}
 
 				Mission_Phase_Next();
-				word_3901E = 0x3333;
 			}
 
 			// loc_1045F
@@ -20224,9 +20217,6 @@ Start:;
 				if (!mIntroDone)
 					intro();
 			}
-			
-			if (dword_3901A != 0x12345678)
-				dword_3901A = 0x12345678;
 
 			//loc_10496
 			Squad_Set_Squad_Leader();
@@ -20330,7 +20320,6 @@ Start:;
 					mMission_Restart = -1;
 					mMission_Recruitment = -1;
 					mMission_Aborted = -1;
-					word_3901E = -1;
 
 					mSound->Music_Play( 0 );
 					continue;
@@ -20359,9 +20348,6 @@ Start:;
 			mCamera_Start_Adjust = 1;
 			mCamera_Position_X = mSprites[0].field_0;
 			mCamera_Position_Y = mSprites[0].field_4;
-
-			word_3909A = -1;
-			word_3909A = 0;
 
 			int32 Data0 = 0x0D;
 			word_3ABE9 = 0;
