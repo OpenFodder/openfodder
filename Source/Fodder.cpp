@@ -55,7 +55,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	mButtonPressLeft = mButtonPressRight = 0;
 	mMouse_Button_Left_Toggle = mMouse_Exit_Loop = 0;
-	word_39F06 = 0;
 	mMouse_Button_Right_Toggle = 0;
 	mMouse_Button_LeftRight_Toggle = word_39F04 = 0;
 
@@ -214,7 +213,6 @@ int16 cFodder::Mission_Loop( ) {
 		word_3A9FB = 0;
 		Game_Handle();
 		++mMission_EngineTicks;
-		word_39F06 = 0;
 		word_3A9FB = -1;
 
 		if (mCamera_Start_Adjust >= 0) {
@@ -318,14 +316,14 @@ int16 cFodder::Mission_Loop( ) {
 
 void cFodder::Game_Handle( ) {
 
-	if (!word_390A6 || !mMission_Paused) {
+	// Input disabled or Mission not paused?
+	if (!mInput_Enabled || !mMission_Paused) {
 
-		++word_39F06;
-		++word_390AE;
+		++mGame_InputTicks;
 
 		Mouse_Inputs_Get();
 
-		if (word_390A6) {
+		if (mInput_Enabled) {
 			Camera_Handle();
 			Camera_Handle();
 			Camera_Handle();
@@ -344,7 +342,7 @@ void cFodder::Game_Handle( ) {
 	if (mMouseCursor_Enabled)
 		Mouse_DrawCursor();
 
-	if (!word_390A6)
+	if (!mInput_Enabled)
 		return;
 
 	if (!mMission_In_Progress)
@@ -491,8 +489,8 @@ Mouse_In_Playfield:;
 }
 
 void cFodder::Game_ClearVariables() {
-	word_390A6 = 0;
-	word_390AE = 0;
+	mInput_Enabled = 0;
+	mGame_InputTicks = 0;
 	mMission_EngineTicks = 0;
 	mMission_Restart = 0;
 	mSprite_Enemy_AggressionAverage = 0;
@@ -600,7 +598,6 @@ void cFodder::Mission_Memory_Clear() {
 	word_39F00 = 0;
 	mMouse_Exit_Loop = 0;
 	word_39F04 = 0;
-	word_39F06 = 0;
 
 	mCamera_Adjust_Row = 0;
 	dword_39F36 = 0;
@@ -1636,7 +1633,7 @@ loc_11D8A:;
 
 	word_39FBA = 6;
 	word_39FBC = 6;
-	word_390A6 = 0;
+	mInput_Enabled = 0;
 
 	mCamera_Position_Column = mCamera_Position_X;
 	mCamera_Position_Row = mCamera_Position_Y;
@@ -1665,7 +1662,7 @@ loc_11D8A:;
 	Mouse_DrawCursor();
 	sub_11CAD();
 
-	word_390A6 = -1;
+	mInput_Enabled = -1;
 
 	mGraphics->PaletteSet();
 	mImageFaded = -1;
@@ -3448,9 +3445,6 @@ void cFodder::Briefing_Intro_Jungle( ) {
 
 	mVideo_Draw_PaletteIndex = 0xE0;
 
-
-	Briefing_Helicopter_Start();
-
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
@@ -3482,7 +3476,7 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		word_4285B = 0x236C * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
 
 		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
 		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
@@ -3534,9 +3528,6 @@ void cFodder::Briefing_Intro_Desert() {
 
 	mVideo_Draw_PaletteIndex = 0xE0;
 
-
-	Briefing_Helicopter_Start();
-
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
@@ -3568,7 +3559,7 @@ void cFodder::Briefing_Intro_Desert() {
 		word_4285B = 0x2D64 * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
 
 		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
 		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
@@ -3620,9 +3611,6 @@ void cFodder::Briefing_Intro_Ice() {
 
 	mVideo_Draw_PaletteIndex = 0xE0;
 
-
-	Briefing_Helicopter_Start();
-
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
@@ -3655,7 +3643,7 @@ void cFodder::Briefing_Intro_Ice() {
 		word_4285B = 0x2524 * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
 
 		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
 		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
@@ -3707,9 +3695,6 @@ void cFodder::Briefing_Intro_Mor() {
 	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
 	mVideo_Draw_PaletteIndex = 0xE0;
-
-	Briefing_Helicopter_Start();
-
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
@@ -3741,7 +3726,7 @@ void cFodder::Briefing_Intro_Mor() {
 		word_4285B = 0x2734 * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
 
 		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
 		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
@@ -3793,9 +3778,6 @@ void cFodder::Briefing_Intro_Int() {
 
 	mVideo_Draw_PaletteIndex = 0xE0;
 
-
-	Briefing_Helicopter_Start();
-
 	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
 	mImage->paletteSet( mPalette );
@@ -3827,7 +3809,7 @@ void cFodder::Briefing_Intro_Int() {
 		word_4285B = 0x26DC * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, mBriefing_Intro_Clouds1_X );
 
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
 
 		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
 		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
@@ -3873,11 +3855,11 @@ void cFodder::Briefing_Helicopter_Start( ) {
 	mHelicopterPosX = 0x01500000;
 	mHelicopterPosY = 0x00260000;
 
-	word_428C6 = word_428DC[0];
-	word_428C4 = word_428DC[1];
-	word_428C8 = word_428DC[2];
-	word_428CA = &word_428DC[3];
-	word_428CC = 0;
+	mBriefing_Helicopter_Off1 = mBriefing_Helicopter_Offsets[0];
+	mBriefing_Helicopter_Off2 = mBriefing_Helicopter_Offsets[1];
+	mBriefing_Helicopter_Off3 = mBriefing_Helicopter_Offsets[2];
+	mBriefing_Helicopter_Off4 = &mBriefing_Helicopter_Offsets[3];
+	mBriefing_ParaHeli_Frame = 0;
 	mBriefing_Helicopter_Moving = -1;
 	word_428D8 = -1;
 
@@ -3901,27 +3883,27 @@ void cFodder::Briefing_Update_Helicopter( ) {
 	ax >>= 2;
 	mHelicopterPosY += ax * word_428B8;
 
-	bx = word_428C6 - word_428B6;
+	bx = mBriefing_Helicopter_Off1 - word_428B6;
 	bx >>= 5;
 	--bx;
 	bx ^= 0x0F;
 	bx &= 0x0F;
 
-	int16 al = byte_3E98F[bx];
+	int16 al = mSprite_Direction_Frame_Unk[bx];
 	al <<= 2;
 	word_428B6 += al;
 	word_428B6 &= 0x1FE;
 
-	if (word_428C4 != word_428B8) {
-		if (word_428B8 >= word_428C4)
+	if (mBriefing_Helicopter_Off2 != word_428B8) {
+		if (word_428B8 >= mBriefing_Helicopter_Off2)
 			word_428B8 -= 4;
 		else
 			word_428B8 += 4;
 	}
 
-	word_428CC += 2;
-	if (word_428CC == 8)
-		word_428CC = 0;
+	mBriefing_ParaHeli_Frame += 1;
+	if (mBriefing_ParaHeli_Frame == 4)
+		mBriefing_ParaHeli_Frame = 0;
 
 	--word_428BA;
 	if (word_428BA <= 0)
@@ -3931,12 +3913,12 @@ void cFodder::Briefing_Update_Helicopter( ) {
 
 void cFodder::sub_1594F( ) {
 
-	word_428B6 = word_428C6;
-	word_428B8 = word_428C4;
-	word_428BA = word_428C8;
-	word_428C6 = *word_428CA++;
-	word_428C4 = *word_428CA++;
-	word_428C8 = *word_428CA++;
+	word_428B6 = mBriefing_Helicopter_Off1;
+	word_428B8 = mBriefing_Helicopter_Off2;
+	word_428BA = mBriefing_Helicopter_Off3;
+	mBriefing_Helicopter_Off1 = *mBriefing_Helicopter_Off4++;
+	mBriefing_Helicopter_Off2 = *mBriefing_Helicopter_Off4++;
+	mBriefing_Helicopter_Off3 = *mBriefing_Helicopter_Off4++;
 
 	if (word_428B6 == -1) {
 		mBriefing_Helicopter_Moving = 0;
@@ -4073,6 +4055,7 @@ void cFodder::Briefing_Intro() {
 	mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
 
 	mSound->Music_Play( 0x07 );
+	Briefing_Helicopter_Start();
 
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		//TODO
@@ -4100,7 +4083,6 @@ void cFodder::Briefing_Intro() {
 
 		Briefing_Draw_Mission_Name();
 		mImage->Save();
-		Briefing_Helicopter_Start();
 
 		int16 word_42875 = 0;
 
@@ -5944,7 +5926,7 @@ loc_23056:;
 	if (!pSprite->field_36)
 		return;
 
-	Data0 = word_390AE;
+	Data0 = mGame_InputTicks;
 	Data0 &= 1;
 	Data0 += 3;
 	pSprite->field_20 = Data0;
@@ -8829,7 +8811,7 @@ void cFodder::sub_2A3D4( sSprite* pSprite ) {
 	DataC -= Data4;
 	DataC &= 0x0F;
 	//seg007:0920
-	DataC = (int16) byte_3E98F[DataC];
+	DataC = (int16) mSprite_Direction_Frame_Unk[DataC];
 	DataC <<= 1;
 
 	word_3A8CF = DataC;
@@ -9363,7 +9345,7 @@ void cFodder::sub_2B12E( sSprite* pSprite ) {
 	Data0 ^= 0x0F;
 	int16 Data4 = Data0;
 	Data4 &= 0x0F;
-	int16 DataC = (int16) byte_3E98F[Data4];
+	int16 DataC = (int16) mSprite_Direction_Frame_Unk[Data4];
 	word_3A8CF = DataC;
 }
 
@@ -9378,7 +9360,7 @@ void cFodder::Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C 
 	Data0 -= Data4;
 	Data4 = Data0;
 	Data4 &= 0x0F;
-	int16 DataC = (int16) byte_3E98F[Data4];
+	int16 DataC = (int16) mSprite_Direction_Frame_Unk[Data4];
 	if (!DataC)
 		return;
 
@@ -13200,7 +13182,7 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
 		pSprite->field_26 = 0;
 	}
 	//loc_1AB6F
-	int16 Data4 = word_390AE;
+	int16 Data4 = mGame_InputTicks;
 	Data4 &= 3;
 	Data4 += 5;
 
@@ -15922,7 +15904,7 @@ void cFodder::Sprite_Native_Sound_Play( sSprite* pSprite, int16 pSoundID ) {
 int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
 	int32 Dataa4;
 	int16 Data0, Data4, Data8;
-	int16* Data28;
+	const int16* Data28;
 	sSprite* Data20 =0, *Data2C = 0, *Data30 = 0;
 	int16 Field_52;
 	int16 Field_0;
@@ -16982,7 +16964,7 @@ void cFodder::sub_1F762( sSprite* pSprite ) {
 	int16 Data0, Data8;
 	sSprite* Dataa30 = 0;
 	sMapTarget* Data30 = 0;
-	int16* Data28 = 0;
+	const int16* Data28 = 0;
 	sSquad_Member* Data24 = 0;
 
 	if (!pSprite->field_22)
@@ -17518,7 +17500,7 @@ loc_202E5:;
 	pSprite->field_10 = 0x80;
 loc_20307:;
 
-	Data0 = word_390AE;
+	Data0 = mGame_InputTicks;
 	Data0 >>= 2;
 	Data0 &= 0x3F;
 	Data0 -= 0x20;
@@ -17526,7 +17508,7 @@ loc_20307:;
 	pSprite->field_10 += Data0;
 	pSprite->field_4 = dword_3A395;
 
-	Data0 = word_390AE;
+	Data0 = mGame_InputTicks;
 	Data0 &= 0x1F;
 	Data0 += 0x0C;
 	pSprite->field_44 = (int8) Data0;
@@ -19297,7 +19279,7 @@ int16 cFodder::Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, in
 	pData2C->field_4 = pY;
 	pData2C->field_4 += 0x10;
 
-	int16 Data4 = word_390AE;
+	int16 Data4 = mGame_InputTicks;
 	Data4 &= 3;
 	Data4 += 5;
 
@@ -19779,7 +19761,7 @@ void cFodder::sub_223B2( sSprite* pSprite ) {
 
 	pSprite->field_3C = Data8;
 
-	int16* Data28 = mSprite_AnimationPtrs[ pSprite->field_22 ];
+	const int16* Data28 = mSprite_AnimationPtrs[ pSprite->field_22 ];
 	Data28 += ((0x80 + Data8) / 2);
 
 	pSprite->field_8 = *Data28;
@@ -20210,7 +20192,7 @@ Start:;
 			Mission_Prepare_Squads();
 			sub_10DEC();
 
-			word_390A6 = 0;
+			mInput_Enabled = 0;
 
 			// Show the intro for retail releases
 			if (mVersion->mRelease != eRelease::Demo) {
@@ -20342,7 +20324,6 @@ Start:;
 			//seg000:05D1
 
 			Sprite_Bullet_SetData();
-			word_39F06 = 0;
 			Sprite_Create_Rank( );
 
 			mCamera_Start_Adjust = 1;
@@ -20362,7 +20343,7 @@ Start:;
 			}
 
 			mGUI_Elements[0].field_0 = 0;
-			word_390A6 = -1;
+			mInput_Enabled = -1;
 			sub_11CAD();
 
 			mGUI_Mouse_Modifier_X = 0;
@@ -21443,7 +21424,7 @@ void cFodder::Sidebar_Render_To_ScreenBuffer() {
 
 void cFodder::Squad_Switch_Weapon() {
 	
-	if (!word_390A6 || mMission_Finished)
+	if (!mInput_Enabled || mMission_Finished)
 		return;
 
 	if (mSquad_CurrentWeapon[mSquad_Selected] != eWeapon_Rocket) {

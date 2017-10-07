@@ -128,8 +128,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	sRecruitRendered	mRecruit_Rendered[0x0D];
 
-	int16			word_390A6;
-	uint16			word_390AE;
+	int16			mInput_Enabled;
+	uint16			mGame_InputTicks;
 	int16			mMission_EngineTicks;
 	uint16			mMission_Restart;
 	
@@ -181,7 +181,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMouse_Button_Left_Toggle;
 	int16			word_39F00;
 	int16			mMouse_Exit_Loop;
-	int16			word_39F06;
 	int16			word_39FA0;
 	int16			word_39FA2;
 	int16			word_39FA4;
@@ -593,11 +592,11 @@ class cFodder : public cSingleton < cFodder > {
 
 	uint32			mHelicopterPosX;
 	uint32			mHelicopterPosY;
-	int16			word_428C6;
-	int16			word_428C4;
-	int16			word_428C8;
-	const int16*	word_428CA;
-	uint16			word_428CC;
+	int16			mBriefing_Helicopter_Off1;
+	int16			mBriefing_Helicopter_Off2;
+	int16			mBriefing_Helicopter_Off3;
+	const int16*	mBriefing_Helicopter_Off4;
+	uint16			mBriefing_ParaHeli_Frame;
 	int16			mBriefing_Helicopter_Moving;
 	int16			word_428D8;
 
