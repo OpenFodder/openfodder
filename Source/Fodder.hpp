@@ -439,7 +439,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSpawnSpriteType;
 	int16			word_3B2F1;
 	int16			word_3B2F3;
-	int16			word_3B2F5;
+	int16			mSprite_Field10_Saved;
 	int16			word_3B2F7;
 	int16			mGame_Load;
 	int16			mGame_Save;
@@ -1032,7 +1032,7 @@ public:
 	int16			sub_2531F( sSprite* pSprite, sSprite*& pData30 );
 	void			Sprite_Handle_Vehicle_Enemy( sSprite* pSprite );
 	void			Sprite_Handle_Helicopter_Enemy( sSprite* pSprite );
-	void			sub_25863( sSprite* pSprite );
+	void			Sprite_Handle_Indigenous_Unk( sSprite* pSprite );
 	void			Sprite_Handle_Indigenous_Movement( sSprite* pSprite );
 	int16			Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( sSprite* pSprite );
 	void			Sprite_Handle_Indigenous_Death( sSprite* pSprite );
@@ -1040,7 +1040,7 @@ public:
 	void			sub_25A31( sSprite* pSprite );
 	void			sub_25A66( sSprite* pSprite );
 	int16			Sprite_Handle_Indigenous_RandomMovement( sSprite* pSprite );
-	int16			sub_25B6B( sSprite* pSprite );
+	int16			Sprite_Create_Indigenous_Spear2( sSprite* pSprite );
 	int16			sub_25DCF( sSprite* pSprite );
 	void			sub_25F2B( sSprite* pSprite );
 	void			Sprite_Handle_Hostage_Movement( sSprite* pSprite );

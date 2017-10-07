@@ -19,10 +19,6 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-const int16 word_3D495[] = {
-	0x18, 0x14, 0x0E, 0x0A, 0x08,
-	0x0A, 0x0E, 0x14
-};
 
 const int16 mBriefing_Helicopter_Offsets[] =
 {
