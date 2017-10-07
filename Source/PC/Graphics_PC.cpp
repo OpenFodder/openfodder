@@ -73,14 +73,14 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	
 	const sSpriteSheet_pstuff* di = &mSpriteSheet_PStuff[mFodder->mMouseSpriteCurrent];
 
-	mFodder->mDrawSpriteColumns = di->mColumns;
-	mFodder->mDrawSpriteRows = di->mRows;
+	mFodder->mVideo_Draw_Columns = di->mColumns;
+	mFodder->mVideo_Draw_Rows = di->mRows;
 
 	int16 ax = di->mY * 160;
 	int16 bx = di->mX >> 1;
 
-	mFodder->mDraw_Sprite_FrameDataPtr = di->GetGraphicsPtr(ax +bx);
-	mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
+	mFodder->mVideo_Draw_FrameDataPtr = di->GetGraphicsPtr(ax +bx);
+	mFodder->mVideo_Draw_PaletteIndex = 0xF0;
 	
 	Video_Draw_8();
 }
@@ -295,19 +295,19 @@ void cGraphics_PC::Map_Load_Resources() {
 
 void cGraphics_PC::Video_Draw_16( ) {
 	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = mFodder->mDraw_Sprite_FrameDataPtr;
+	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
 
-	di += 352 * mFodder->mDrawSpritePositionY;
-	di += mFodder->mDrawSpritePositionX;
+	di += 352 * mFodder->mVideo_Draw_PosY;
+	di += mFodder->mVideo_Draw_PosX;
 
 	mFodder->word_42066 = di;
 
-	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->mDrawSprite_ColumnsMax - mFodder->mDrawSpriteColumns;
-	mFodder->mDraw_Dest_SkipPixelsPerRow = 352 - mFodder->mDrawSpriteColumns;
+	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->mVideo_Draw_ColumnsMax - mFodder->mVideo_Draw_Columns;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = 352 - mFodder->mVideo_Draw_Columns;
 
-	for( int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for( int16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for( int16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			int8 al = *si;
 			if(al)
 				*di = al;
@@ -325,28 +325,28 @@ void cGraphics_PC::Video_Draw_8() {
 	cFodder* Fodder = cFodder::GetSingletonPtr();
 
 	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = Fodder->mDraw_Sprite_FrameDataPtr;
+	uint8* 	si = Fodder->mVideo_Draw_FrameDataPtr;
 	
-	di += mImage->GetWidth() * Fodder->mDrawSpritePositionY;
-	di += Fodder->mDrawSpritePositionX;
+	di += mImage->GetWidth() * Fodder->mVideo_Draw_PosY;
+	di += Fodder->mVideo_Draw_PosX;
 
 	Fodder->word_42066 = di;
 
 	uint8 Plane = 0;
 
-	Fodder->mDrawSpriteColumns >>= 1;
-	Fodder->mDraw_Source_SkipPixelsPerRow = 160 - Fodder->mDrawSpriteColumns;
-	Fodder->mDrawSpriteColumns >>= 1;
+	Fodder->mVideo_Draw_Columns >>= 1;
+	Fodder->mDraw_Source_SkipPixelsPerRow = 160 - Fodder->mVideo_Draw_Columns;
+	Fodder->mVideo_Draw_Columns >>= 1;
 	
-	Fodder->mDraw_Dest_SkipPixelsPerRow = (uint16) (mImage->GetWidth() - (Fodder->mDrawSpriteColumns*4));
+	Fodder->mDraw_Dest_SkipPixelsPerRow = (uint16) (mImage->GetWidth() - (Fodder->mVideo_Draw_Columns*4));
 
 	di += Plane;
-	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for( int16 cx = 0; cx < Fodder->mDrawSpriteColumns; ++cx ) {
+		for( int16 cx = 0; cx < Fodder->mVideo_Draw_Columns; ++cx ) {
 			int8 al = (*si) >> 4;
 			if(al)
-				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
+				*di = al | Fodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -362,15 +362,15 @@ void cGraphics_PC::Video_Draw_8() {
 		++Fodder->word_42066;
 	}
 
-	si = Fodder->mDraw_Sprite_FrameDataPtr;
+	si = Fodder->mVideo_Draw_FrameDataPtr;
 	di = Fodder->word_42066;
 	di += Plane;
-	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for(int16 cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for(int16 cx = Fodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			int8 al = (*si) & 0x0F;
 			if( al )
-				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
+				*di = al | Fodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -386,17 +386,17 @@ void cGraphics_PC::Video_Draw_8() {
 		++Fodder->word_42066;
 	}
 	
-	++Fodder->mDraw_Sprite_FrameDataPtr;
-	si = Fodder->mDraw_Sprite_FrameDataPtr;
+	++Fodder->mVideo_Draw_FrameDataPtr;
+	si = Fodder->mVideo_Draw_FrameDataPtr;
 	di = Fodder->word_42066;
 	di += Plane;
-	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for(int16 cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for(int16 cx = Fodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			
 			int8 al = (*si) >> 4;
 			if( al )
-				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
+				*di = al | Fodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -412,16 +412,16 @@ void cGraphics_PC::Video_Draw_8() {
 		++Fodder->word_42066;
 	}
 
-	si = Fodder->mDraw_Sprite_FrameDataPtr;
+	si = Fodder->mVideo_Draw_FrameDataPtr;
 	di = Fodder->word_42066;
 	di += Plane;
-	for( int16 dx = Fodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for(int16 cx = Fodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for(int16 cx = Fodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			
 			int8 al = (*si) & 0x0F;
 			if( al ) 
-				*di = al | Fodder->mDraw_Sprite_PaletteIndex;
+				*di = al | Fodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			di+=4;
@@ -459,16 +459,16 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY ) {
 	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 	
-	mFodder->mDrawSpriteColumns = str2->mColumns;
-	mFodder->mDrawSpriteRows = str2->mRows;
+	mFodder->mVideo_Draw_Columns = str2->mColumns;
+	mFodder->mVideo_Draw_Rows = str2->mRows;
 	
 	uint16 ax = 0xA0 * str2->mY;
 	uint16 bx = str2->mX >> 1;
 	ax += bx;
 	
-	mFodder->mDraw_Sprite_FrameDataPtr = str2->GetGraphicsPtr( ax );
+	mFodder->mVideo_Draw_FrameDataPtr = str2->GetGraphicsPtr( ax );
 	
-	mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
+	mFodder->mVideo_Draw_PaletteIndex = 0xF0;
 	
 	uint16 w42066 = 0x0C * pY;
 	w42066 += pX >> 2;
@@ -477,22 +477,22 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 	ax *= 0x960;
 	w42066 += ax;
 	
-	uint8* si = mFodder->mDraw_Sprite_FrameDataPtr;
+	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
 	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 
-	mFodder->mDrawSpriteColumns >>= 1;
-	mFodder->mDraw_Source_SkipPixelsPerRow = 0xA0 - mFodder->mDrawSpriteColumns;
+	mFodder->mVideo_Draw_Columns >>= 1;
+	mFodder->mDraw_Source_SkipPixelsPerRow = 0xA0 - mFodder->mVideo_Draw_Columns;
 
-	mFodder->mDrawSpriteColumns >>= 1;
-	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x0C - mFodder->mDrawSpriteColumns;
+	mFodder->mVideo_Draw_Columns >>= 1;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x0C - mFodder->mVideo_Draw_Columns;
 	
-	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			
 			uint8 al = (*si) >> 4;
 			if( al )
-				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
+				*di = al | mFodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -506,15 +506,15 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 	if( w42066 >= 0x2580 )
 		w42066 -= 0x257F;
 	
-	si = mFodder->mDraw_Sprite_FrameDataPtr;
+	si = mFodder->mVideo_Draw_FrameDataPtr;
 	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	
-	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			uint8 al = (*si) & 0x0F;
 			if( al )
-				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
+				*di = al | mFodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -528,17 +528,17 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 	if( w42066 >= 0x2580 )
 		w42066 -= 0x257F;
 	
-	++mFodder->mDraw_Sprite_FrameDataPtr;
-	si = mFodder->mDraw_Sprite_FrameDataPtr;
+	++mFodder->mVideo_Draw_FrameDataPtr;
+	si = mFodder->mVideo_Draw_FrameDataPtr;
 	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	
-	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			
 			uint8 al = (*si) >> 4;
 			if( al )
-				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
+				*di = al | mFodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -552,15 +552,15 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16
 	if( w42066 >= 0x2580 )
 		w42066 -= 0x257F;
 
-	si = mFodder->mDraw_Sprite_FrameDataPtr;
+	si = mFodder->mVideo_Draw_FrameDataPtr;
 	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
 	
-	for( uint16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
+	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
 		
-		for( uint16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
+		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
 			uint8 al = (*si) & 0x0F;
 			if( al )
-				*di = al | mFodder->mDraw_Sprite_PaletteIndex;
+				*di = al | mFodder->mVideo_Draw_PaletteIndex;
 			
 			si += 2;
 			++di;
@@ -626,13 +626,13 @@ void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16
 
 void cGraphics_PC::Recruit_Draw_Hill( ) {
 
-	mFodder->mDraw_Sprite_FrameDataPtr = mImageHill.mData->data() + 0xA00;
+	mFodder->mVideo_Draw_FrameDataPtr = mImageHill.mData->data() + 0xA00;
 
-	mFodder->mDrawSpritePositionX = 0x40;
-	mFodder->mDrawSpritePositionY = 0x28;
-	mFodder->mDrawSpriteColumns = 0x110;
-	mFodder->mDrawSpriteRows = 0xB0;
-	mFodder->mDrawSprite_ColumnsMax = 0x140;
+	mFodder->mVideo_Draw_PosX = 0x40;
+	mFodder->mVideo_Draw_PosY = 0x28;
+	mFodder->mVideo_Draw_Columns = 0x110;
+	mFodder->mVideo_Draw_Rows = 0xB0;
+	mFodder->mVideo_Draw_ColumnsMax = 0x140;
 
 	Video_Draw_16();
 	
@@ -647,16 +647,16 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 
 	// Load Icon
-	mFodder->GUI_Sprite_Draw_Frame_At( 0x18, 0, 0, 0 );
+	mFodder->GUI_Draw_Frame_8( 0x18, 0, 0, 0 );
 	
 	// Save Icon (Coloured or Gray)
 	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mMissionNumber - 1) ];
-	mFodder->GUI_Sprite_Draw_Frame_At( 0x19, 0, Data4, 0x130 );
+	mFodder->GUI_Draw_Frame_8( 0x19, Data4, 0x130, 0 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway );
 	
-	mFodder->GUI_Sprite_Draw_Frame_At( 0x0E, 0x0A, 0, 0x9B );
+	mFodder->GUI_Draw_Frame_8( 0x0E, 0, 0x9B, 0x0A );
 	
 	auto Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
 	mFodder->Recruit_Draw_String( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
@@ -778,43 +778,43 @@ void cGraphics_PC::Briefing_DrawHelicopter( uint16 pID ) {
 bool cGraphics_PC::Sprite_OnScreen_Check() {
 	int16 ax;
 
-	if (g_Fodder.mDrawSpritePositionY < 0) {
-		ax = g_Fodder.mDrawSpritePositionY + g_Fodder.mDrawSpriteRows;
+	if (g_Fodder.mVideo_Draw_PosY < 0) {
+		ax = g_Fodder.mVideo_Draw_PosY + g_Fodder.mVideo_Draw_Rows;
 		--ax;
 		if (ax < 0)
 			return false;
 
 		ax -= 0;
-		ax -= g_Fodder.mDrawSpriteRows;
+		ax -= g_Fodder.mVideo_Draw_Rows;
 		++ax;
 		ax = -ax;
-		g_Fodder.mDrawSpritePositionY += ax;
-		g_Fodder.mDrawSpriteRows -= ax;
+		g_Fodder.mVideo_Draw_PosY += ax;
+		g_Fodder.mVideo_Draw_Rows -= ax;
 
 		ax *= 0xA0;
 
-		g_Fodder.mDraw_Sprite_FrameDataPtr += ax;
+		g_Fodder.mVideo_Draw_FrameDataPtr += ax;
 	}
 
-	ax = g_Fodder.mDrawSpritePositionY + g_Fodder.mDrawSpriteRows;
+	ax = g_Fodder.mVideo_Draw_PosY + g_Fodder.mVideo_Draw_Rows;
 	--ax;
 
 	if (ax > 231) {
-		if (g_Fodder.mDrawSpritePositionY > 231)
+		if (g_Fodder.mVideo_Draw_PosY > 231)
 			return false;
 
 		ax -= 231;
-		g_Fodder.mDrawSpriteRows -= ax;
+		g_Fodder.mVideo_Draw_Rows -= ax;
 	}
 
-	if (g_Fodder.mDrawSpritePositionX < 0) {
-		ax = g_Fodder.mDrawSpritePositionX + g_Fodder.mDrawSpriteColumns;
+	if (g_Fodder.mVideo_Draw_PosX < 0) {
+		ax = g_Fodder.mVideo_Draw_PosX + g_Fodder.mVideo_Draw_Columns;
 		--ax;
 		if (ax < 0)
 			return false;
 
 		ax -= 0;
-		ax -= g_Fodder.mDrawSpriteColumns;
+		ax -= g_Fodder.mVideo_Draw_Columns;
 		++ax;
 		ax = -ax;
 		--ax;
@@ -823,17 +823,17 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 			++ax;
 		} while (ax & 3);
 
-		g_Fodder.mDrawSpritePositionX += ax;
-		g_Fodder.mDrawSpriteColumns -= ax;
+		g_Fodder.mVideo_Draw_PosX += ax;
+		g_Fodder.mVideo_Draw_Columns -= ax;
 		ax >>= 1;
-		g_Fodder.mDraw_Sprite_FrameDataPtr += ax;
+		g_Fodder.mVideo_Draw_FrameDataPtr += ax;
 	}
 
-	ax = g_Fodder.mDrawSpritePositionX + g_Fodder.mDrawSpriteColumns;
+	ax = g_Fodder.mVideo_Draw_PosX + g_Fodder.mVideo_Draw_Columns;
 	--ax;
 
 	if (ax > 351) {
-		if (g_Fodder.mDrawSpritePositionX > 351)
+		if (g_Fodder.mVideo_Draw_PosX > 351)
 			return false;
 
 		ax -= 351;
@@ -843,13 +843,13 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 			++ax;
 		} while (ax & 3);
 
-		g_Fodder.mDrawSpriteColumns -= ax;
+		g_Fodder.mVideo_Draw_Columns -= ax;
 	}
 
-	if (g_Fodder.mDrawSpriteColumns <= 0)
+	if (g_Fodder.mVideo_Draw_Columns <= 0)
 		return false;
 
-	if (g_Fodder.mDrawSpriteRows <= 0)
+	if (g_Fodder.mVideo_Draw_Rows <= 0)
 		return false;
 
 	return true;

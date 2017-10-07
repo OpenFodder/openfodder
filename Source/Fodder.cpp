@@ -102,13 +102,13 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	mMouseSpriteCurrent = 0;
 	mService_ExitLoop = 0;
-	mDraw_Sprite_FrameDataPtr = 0;
+	mVideo_Draw_FrameDataPtr = 0;
 	word_42066 = 0;
-	mDrawSpritePositionX = 0;
-	mDrawSpritePositionY = 0;
-	mDrawSpriteColumns = 0;
-	mDrawSpriteRows = 0;
-	mDraw_Sprite_PaletteIndex = 0;
+	mVideo_Draw_PosX = 0;
+	mVideo_Draw_PosY = 0;
+	mVideo_Draw_Columns = 0;
+	mVideo_Draw_Rows = 0;
+	mVideo_Draw_PaletteIndex = 0;
 	mDraw_Source_SkipPixelsPerRow = 0;
 	mDraw_Dest_SkipPixelsPerRow = 0;
 	mKeyCode = 0;
@@ -888,7 +888,7 @@ void cFodder::Mission_Memory_Clear() {
 	mGUI_Temp_X = 0;
 	mGUI_Temp_Width = 0;
 	mGUI_Temp_Y = 0;
-	mGUI_Temp_Height = 0;
+	mGUI_Draw_LastHeight = 0;
 	mInputString_Position = 0;
 	mGUI_Select_File_CurrentIndex = 0;
 	mGUI_Select_File_Count = 0;
@@ -2513,9 +2513,9 @@ void cFodder::Mission_Map_Overview_Show() {
 	eax -= 8;
 	word_3F954 = eax & 0xFFFF;
 
-	mDrawSpritePositionX =  (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
-	mDrawSpritePositionY =  (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
-	mDraw_Sprite_PaletteIndex = 0xF0;
+	mVideo_Draw_PosX =  (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
+	mVideo_Draw_PosY =  (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
+	mVideo_Draw_PaletteIndex = 0xF0;
 
 	mGraphics->PaletteSetOverview();
 	mSurfaceMapOverview->Save();
@@ -2528,14 +2528,14 @@ void cFodder::Mission_Map_Overview_Show() {
 
 			if (word_3A016 < 0x20) {
 				if (mVersion->mPlatform == ePlatform::PC) {
-					mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
-					mDrawSpriteColumns = 0x10;
-					mDrawSpriteRows = 0x10;
+					mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData( 0x4307 ) + 0x46B8;
+					mVideo_Draw_Columns = 0x10;
+					mVideo_Draw_Rows = 0x10;
 				} 
 				else {
-					mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
-					mDrawSpriteColumns = 0x2;
-					mDrawSpriteRows = 0x10;
+					mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData( 2 ) + (113 * 40) + 6;
+					mVideo_Draw_Columns = 0x2;
+					mVideo_Draw_Rows = 0x10;
 				}
 
 				mGraphics->Video_Draw_8();
@@ -3359,8 +3359,8 @@ void cFodder::Mouse_DrawCursor( ) {
 	cx += 48;
 	dx += 12;
 
-	mDrawSpritePositionX = cx;
-	mDrawSpritePositionY = dx;
+	mVideo_Draw_PosX = cx;
+	mVideo_Draw_PosY = dx;
 
 	if (mMouseSpriteNew >= 0) {
 		mMouseSpriteCurrent = mMouseSpriteNew;
@@ -3371,36 +3371,36 @@ void cFodder::Mouse_DrawCursor( ) {
 		mGraphics->Mouse_DrawCursor();
 }
 
-void cFodder::GUI_Sprite_Draw_Frame_At( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX ) {
+void cFodder::GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, int32 pPositionX, int32 pPositionY ) {
 	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
-	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
-	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
+	mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
+	mVideo_Draw_FrameDataPtr = SheetData->GetGraphicsPtr();
 
-	mDrawSpritePositionX = (pPositionX + 0x10);
-	mDrawSpritePositionY = (pPositionY + 0x10);
-	mDrawSpriteColumns = SheetData->mColCount;
-	mDrawSpriteRows = SheetData->mRowCount;
+	mVideo_Draw_PosX = (pPositionX + 0x10);
+	mVideo_Draw_PosY = (pPositionY + 0x10);
+	mVideo_Draw_Columns = SheetData->mColCount;
+	mVideo_Draw_Rows = SheetData->mRowCount;
 
-	if (SheetData->mRowCount > mGUI_Temp_Height)
-		mGUI_Temp_Height = SheetData->mRowCount;
+	if (SheetData->mRowCount > mGUI_Draw_LastHeight)
+		mGUI_Draw_LastHeight = SheetData->mRowCount;
 	
 	if (Sprite_OnScreen_Check() )
 		mGraphics->Video_Draw_8();
 
 }
 
-void cFodder::Service_Sprite_Draw_Frame_At( int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY ) {
+void cFodder::GUI_Draw_Frame_16( int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY ) {
 	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
-	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
-	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
+	mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
+	mVideo_Draw_FrameDataPtr = SheetData->GetGraphicsPtr();
 
-	mDrawSpritePositionX = (pPosX + 0x10);
-	mDrawSpritePositionY = (pPosY + 0x10);
-	mDrawSpriteColumns = SheetData->mColCount;
-	mDrawSpriteRows = SheetData->mRowCount;
-	mDrawSprite_ColumnsMax = 0x140;
+	mVideo_Draw_PosX = (pPosX + 0x10);
+	mVideo_Draw_PosY = (pPosY + 0x10);
+	mVideo_Draw_Columns = SheetData->mColCount;
+	mVideo_Draw_Rows = SheetData->mRowCount;
+	mVideo_Draw_ColumnsMax = 0x140;
 
 	if (Sprite_OnScreen_Check())
 		mGraphics->Video_Draw_16();
@@ -3409,15 +3409,15 @@ void cFodder::Service_Sprite_Draw_Frame_At( int16 pSpriteType, int16 pFrame, int
 void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame) {
 	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
-	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
-	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
+	mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
+	mVideo_Draw_FrameDataPtr = SheetData->GetGraphicsPtr();
 	
-	mDrawSpriteColumns = SheetData->mColCount;
-	mDrawSpriteRows = SheetData->mRowCount - pDi->field_52;
+	mVideo_Draw_Columns = SheetData->mColCount;
+	mVideo_Draw_Rows = SheetData->mRowCount - pDi->field_52;
 
-	mDrawSpritePositionX = (SheetData->mModX + pDi->field_0) - mCamera_Column + 0x40;
-	mDrawSpritePositionY = (SheetData->mModY + pDi->field_4) - mDrawSpriteRows - pDi->field_20 - mCamera_Row;
-	mDrawSpritePositionY += 0x10;
+	mVideo_Draw_PosX = (SheetData->mModX + pDi->field_0) - mCamera_Column + 0x40;
+	mVideo_Draw_PosY = (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mCamera_Row;
+	mVideo_Draw_PosY += 0x10;
 
 	++word_42072;
 	if (Sprite_OnScreen_Check()) {
@@ -3525,9 +3525,9 @@ void cFodder::Briefing_Intro_Jungle( ) {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
+	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
-	mDraw_Sprite_PaletteIndex = 0xE0;
+	mVideo_Draw_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3563,12 +3563,12 @@ void cFodder::Briefing_Intro_Jungle( ) {
 		word_4285B = 0x236C * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
-		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
-		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
-		mDrawSpriteColumns = 0x40;
-		mDrawSpriteRows = 0x18;
+		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
+		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
+		mVideo_Draw_Columns = 0x40;
+		mVideo_Draw_Rows = 0x18;
 		if (Sprite_OnScreen_Check())
 			mGraphics->Video_Draw_8();
 
@@ -3611,9 +3611,9 @@ void cFodder::Briefing_Intro_Desert() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
+	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
-	mDraw_Sprite_PaletteIndex = 0xE0;
+	mVideo_Draw_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3649,12 +3649,12 @@ void cFodder::Briefing_Intro_Desert() {
 		word_4285B = 0x2D64 * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
-		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
-		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
-		mDrawSpriteColumns = 0x40;
-		mDrawSpriteRows = 0x18;
+		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
+		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
+		mVideo_Draw_Columns = 0x40;
+		mVideo_Draw_Rows = 0x18;
 		if (Sprite_OnScreen_Check())
 			mGraphics->Video_Draw_8();
 
@@ -3697,9 +3697,9 @@ void cFodder::Briefing_Intro_Ice() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
+	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
-	mDraw_Sprite_PaletteIndex = 0xE0;
+	mVideo_Draw_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3736,12 +3736,12 @@ void cFodder::Briefing_Intro_Ice() {
 		word_4285B = 0x2524 * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
-		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
-		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
-		mDrawSpriteColumns = 0x40;
-		mDrawSpriteRows = 0x18;
+		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
+		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
+		mVideo_Draw_Columns = 0x40;
+		mVideo_Draw_Rows = 0x18;
 		if (Sprite_OnScreen_Check())
 			mGraphics->Video_Draw_8();
 
@@ -3785,9 +3785,9 @@ void cFodder::Briefing_Intro_Mor() {
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
 
-	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
+	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
-	mDraw_Sprite_PaletteIndex = 0xE0;
+	mVideo_Draw_PaletteIndex = 0xE0;
 
 	sub_1590B();
 
@@ -3822,12 +3822,12 @@ void cFodder::Briefing_Intro_Mor() {
 		word_4285B = 0x2734 * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
 
-		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
-		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
-		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
-		mDrawSpriteColumns = 0x40;
-		mDrawSpriteRows = 0x18;
+		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
+		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
+		mVideo_Draw_Columns = 0x40;
+		mVideo_Draw_Rows = 0x18;
 		if (Sprite_OnScreen_Check())
 			mGraphics->Video_Draw_8();
 
@@ -3870,9 +3870,9 @@ void cFodder::Briefing_Intro_Int() {
 	int16 mBriefing_Intro_Clouds2_X = 0;
 	int16 mBriefing_Intro_Clouds3_X = 0;
 
-	mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data();
+	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
-	mDraw_Sprite_PaletteIndex = 0xE0;
+	mVideo_Draw_PaletteIndex = 0xE0;
 
 
 	sub_1590B();
@@ -3908,12 +3908,12 @@ void cFodder::Briefing_Intro_Int() {
 		word_4285B = 0x26DC * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, mBriefing_Intro_Clouds1_X );
 
-		mDraw_Sprite_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
+		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + word_428CE[word_428CC / 2];
 
-		mDrawSpritePositionX = mHelicopterPosX >> 16;		// X
-		mDrawSpritePositionY = mHelicopterPosY >> 16;		// Y 
-		mDrawSpriteColumns = 0x40;
-		mDrawSpriteRows = 0x18;
+		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
+		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
+		mVideo_Draw_Columns = 0x40;
+		mVideo_Draw_Rows = 0x18;
 		if (Sprite_OnScreen_Check())
 			mGraphics->Video_Draw_8();
 
@@ -4157,22 +4157,22 @@ void cFodder::Briefing_Intro() {
 
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		//TODO
-		mDrawSpritePositionX = 16;
+		mVideo_Draw_PosX = 16;
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData( eSPRITE_BRIEFING );
-		mDrawSpritePositionY = 40;
+		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData( eSPRITE_BRIEFING );
+		mVideo_Draw_PosY = 40;
 		mGraphics->Video_Draw_16();
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_1);
-		mDrawSpritePositionY = 60;
+		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_1);
+		mVideo_Draw_PosY = 60;
 		mGraphics->Video_Draw_16();
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_2);
-		mDrawSpritePositionY = 100;
+		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_2);
+		mVideo_Draw_PosY = 100;
 		mGraphics->Video_Draw_16();
 
-		mDraw_Sprite_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_3);
-		mDrawSpritePositionY = 163;
+		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_3);
+		mVideo_Draw_PosY = 163;
 		mGraphics->Video_Draw_16();
 
 		((cGraphics_Amiga*)mGraphics)->PaletteBriefingSet();
@@ -4192,13 +4192,13 @@ void cFodder::Briefing_Intro() {
 			Mouse_Inputs_Get();
 
 			// Front
-			mDrawSpritePositionX = mHelicopterPosX >> 16;
-			mDrawSpritePositionY = mHelicopterPosY >> 16;
+			mVideo_Draw_PosX = mHelicopterPosX >> 16;
+			mVideo_Draw_PosY = mHelicopterPosY >> 16;
 			mGraphics->Briefing_DrawHelicopter( 203 );
 
 			// Tail
-			mDrawSpritePositionX = (mHelicopterPosX >> 16) + 48;
-			mDrawSpritePositionY = (mHelicopterPosY >> 16);
+			mVideo_Draw_PosX = (mHelicopterPosX >> 16) + 48;
+			mVideo_Draw_PosY = (mHelicopterPosY >> 16);
 			mGraphics->Briefing_DrawHelicopter( 204 );
 
 			int16 Blade = 205 + word_42875;
@@ -4208,8 +4208,8 @@ void cFodder::Briefing_Intro() {
 				word_42875 = 0;
 
 			// Blade
-			mDrawSpritePositionX = (mHelicopterPosX >> 16);
-			mDrawSpritePositionY = (mHelicopterPosY >> 16);
+			mVideo_Draw_PosX = (mHelicopterPosX >> 16);
+			mVideo_Draw_PosY = (mHelicopterPosY >> 16);
 			mGraphics->Briefing_DrawHelicopter( Blade );
 
 			if (mImageFaded)
@@ -4358,7 +4358,7 @@ void cFodder::CopyProtection() {
 				mShow = !mShow;
 
 			if (mShow)
-				GUI_Sprite_Draw_Frame_At( 0x0F, 0xA0, 0x00, mGUI_Temp_X + mGUI_Temp_Width );
+				GUI_Draw_Frame_8( 0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0xA0);
 
 			g_Window.RenderAt( mImage );
 			g_Window.FrameEnd();
@@ -4744,7 +4744,7 @@ void cFodder::Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC,
 		else
 			NextChar -= 0x41;
 
-		GUI_Sprite_Draw_Frame_At( pParam0, pParamC, NextChar, pParam8 );
+		GUI_Draw_Frame_8( pParam0, NextChar, pParam8, pParamC);
 	}
 }
 
@@ -4815,7 +4815,7 @@ void cFodder::Recruit_Draw_Grave( int16 pSpriteType, int16 pPosX, int16 pPosY ) 
 		Frame = 4;
 
 	pPosY -= 8;
-	GUI_Sprite_Draw_Frame_At( pSpriteType, pPosY, Frame, pPosX );
+	GUI_Draw_Frame_8( pSpriteType, Frame, pPosX, pPosY);
 }
 
 void cFodder::Recruit_Draw_Graves( ) {
@@ -5304,15 +5304,15 @@ void cFodder::Recruit_Draw_Troops() {
 			DataC -= 8;
 
 			if (Data0 != 9)
-				GUI_Sprite_Draw_Frame_At( Data0, DataC, Data4, Data8 );
+				GUI_Draw_Frame_8( Data0, Data4, Data8, DataC);
 			else {
 				++Data8;
 				--DataC;
-				Service_Sprite_Draw_Frame_At( Data0, Data4, Data8, DataC );
+				GUI_Draw_Frame_16( Data0, Data4, Data8, DataC );
 			}
 		}
 		else {
-			GUI_Sprite_Draw_Frame_At( Data0, DataC, Data4, Data8 );
+			GUI_Draw_Frame_8( Data0, Data4, Data8, DataC);
 		}
 	}
 }
@@ -5463,7 +5463,7 @@ void cFodder::Recruit_Draw_Truck( ) {
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		DataC = 0xBE;
 
-	GUI_Sprite_Draw_Frame_At( 0x22, DataC, mRecruit_Truck_Frame, 0x31 );
+	GUI_Draw_Frame_8( 0x22, mRecruit_Truck_Frame, 0x31, DataC);
 
 	// If no troop has reached the truck, don't do animation
 	if (!mRecruit_Truck_Animation_Play)
@@ -5532,10 +5532,10 @@ void cFodder::Recruit_Draw() {
 	if (mImage->GetFaded() == false )
 		mImage->palette_FadeTowardNew();
 
-	mDrawSpritePositionX = 0x40;
-	mDrawSpritePositionY = 0x28;
-	mDrawSpriteColumns = 0x110;
-	mDrawSpriteRows = 0xB0;
+	mVideo_Draw_PosX = 0x40;
+	mVideo_Draw_PosY = 0x28;
+	mVideo_Draw_Columns = 0x110;
+	mVideo_Draw_Rows = 0xB0;
 
 	g_Window.RenderAt( mImage );
 	g_Window.FrameEnd();
@@ -10395,7 +10395,7 @@ loc_2DFC7:;
 	ax -= mCamera_Pan_ColumnOffset;
 	ax += 0x40;
 
-	mDrawSpritePositionX = ax;
+	mVideo_Draw_PosX = ax;
 
 	ax = mMap_Destroy_Tile_Y >> 4;
 	ax -= word_3B614;
@@ -10403,10 +10403,10 @@ loc_2DFC7:;
 	ax -= mCamera_Pan_RowOffset;
 	ax += 0x10;
 
-	mDrawSpritePositionY = ax;
+	mVideo_Draw_PosY = ax;
 
-	mDrawSpriteColumns = 0x10;
-	mDrawSpriteRows = 0x10;
+	mVideo_Draw_Columns = 0x10;
+	mVideo_Draw_Rows = 0x10;
 
 	g_Graphics.Map_Tiles_Draw();
 }
@@ -10461,7 +10461,7 @@ void cFodder::GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary ) {
 	int16 X = mGUI_Temp_X;
 	int16 Y = mGUI_Temp_Y;
 	int16 Width = mGUI_Temp_Width;
-	int16 Height = mGUI_Temp_Height;
+	int16 Height = mGUI_Draw_LastHeight;
 
 	Briefing_DrawBox( X - 2, Y - 2, Width + 4, Height + 5, (uint8) pColorPrimary );
 	Briefing_DrawBox( X - 3, Y - 3, Width + 4, Height + 5, (uint8) pColorShadow );
@@ -10495,7 +10495,7 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 		}
 
 		if (mShow)
-			GUI_Sprite_Draw_Frame_At( 0x0F, 0x50, 0x00, mGUI_Temp_X + mGUI_Temp_Width );
+			GUI_Draw_Frame_8( 0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50);
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -10537,7 +10537,7 @@ void cFodder::GUI_Button_Setup( void(cFodder::*pFunction)(void) ) {
 	Element->mX			= mGUI_Temp_X - 3;
 	Element->mWidth		= mGUI_Temp_Width + 4;
 	Element->mY			= mGUI_Temp_Y;
-	Element->mHeight	= mGUI_Temp_Height + 5;
+	Element->mHeight	= mGUI_Draw_LastHeight + 5;
 	Element->mMouseInsideFuncPtr = pFunction;
 
 	++Element;
@@ -11286,9 +11286,9 @@ void cFodder::Service_KIA_Loop() {
 	mImage->clearBuffer();
 
 	if (mVersion->mPlatform == ePlatform::PC) {
-		GUI_Sprite_Draw_Frame_At(  5, 0, 0, 0x34 );
-		Service_Sprite_Draw_Frame_At(  7, 0, 0, 0x31 );
-		Service_Sprite_Draw_Frame_At(  7, 0, 0xF0, 0x31 );
+		GUI_Draw_Frame_8 (  5, 0, 0x34, 0 );
+		GUI_Draw_Frame_16(  7, 0, 0,	0x31 );
+		GUI_Draw_Frame_16(  7, 0, 0xF0, 0x31 );
 	}
 	else {
 		((cGraphics_Amiga*)mGraphics)->Service_Draw( 8, 0x30,	0 );
@@ -11337,9 +11337,9 @@ void cFodder::Service_Promotion_Loop() {
 
 	mImage->clearBuffer();
 	if (mVersion->mPlatform == ePlatform::PC) {
-		GUI_Sprite_Draw_Frame_At( 6, 0, 0, 0x34 );
-		Service_Sprite_Draw_Frame_At( 8, 0, 0, 0x31 );
-		Service_Sprite_Draw_Frame_At( 8, 0, 0xF0, 0x31 );
+		GUI_Draw_Frame_8( 6, 0, 0x34, 0 );
+		GUI_Draw_Frame_16( 8, 0, 0, 0x31 );
+		GUI_Draw_Frame_16( 8, 0, 0xF0, 0x31 );
 	}
 	else {
 		((cGraphics_Amiga*)mGraphics)->Service_Draw( 9, 0x30,	0 );		// Heroes in Victory
@@ -11386,9 +11386,9 @@ loc_18001:;
 int16 cFodder::Service_KIA_Troop_Prepare() {
 	uint16* di = (uint16*) mGraphics->mImagePStuff.mData->data();
 
-	mDrawSpritePositionY = 0xE8;
+	mVideo_Draw_PosY = 0xE8;
 	Service_Mission_Text_Prepare( di );
-	mDrawSpritePositionY += 0x40;
+	mVideo_Draw_PosY += 0x40;
 
 	int16* si = mGraveRecruitID;
 
@@ -11406,7 +11406,7 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
 		mGraveRankPtr2 = bp;
 
 		Service_Draw_Troop_And_Rank( di, ax, bl );
-		mDrawSpritePositionY += 0x40;
+		mVideo_Draw_PosY += 0x40;
 	}
 
 	*di++ = -1;
@@ -11416,9 +11416,9 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
 int16 cFodder::Service_Promotion_Prepare_Draw() {
 	uint16* di = (uint16*)mGraphics->mImagePStuff.mData->data();
 
-	mDrawSpritePositionY = 0xE8;
+	mVideo_Draw_PosY = 0xE8;
 	Service_Mission_Text_Prepare( di );
-	mDrawSpritePositionY += 0x40;
+	mVideo_Draw_PosY += 0x40;
 
 	uint16* di2 = di;
 	sSquad_Member* si = mSquad;
@@ -11433,7 +11433,7 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
 
 			Service_Draw_Troop_And_Rank( di, ax, bl );
 
-			mDrawSpritePositionY += 0x40;
+			mVideo_Draw_PosY += 0x40;
 		}
 	}
 	if (di == di2)
@@ -11456,17 +11456,17 @@ void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16
 		*pDi++ = 1;
 	}
 	*pDi++ = 0x60;
-	*pDi++ = mDrawSpritePositionY;
+	*pDi++ = mVideo_Draw_PosY;
 
 	*pDi++ = 2;
 	*pDi++ = pRank;
 	*pDi++ = 0x64;
-	*pDi++ = mDrawSpritePositionY + 4;
+	*pDi++ = mVideo_Draw_PosY + 4;
 
 	*pDi++ = 2;
 	*pDi++ = pRank;
 	*pDi++ = 0xCC;
-	*pDi++ = mDrawSpritePositionY + 4;
+	*pDi++ = mVideo_Draw_PosY + 4;
 
 	//seg003:3237
 	int16 cx = 5;
@@ -11481,7 +11481,7 @@ void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16
 	}
 
 	String_CalculateWidth( 0x140, mFont_ServiceName_Width, tmpString.str().c_str() );
-	sub_181E6( pDi, tmpString.str().c_str(), mFont_ServiceName_Width, 3, mGUI_Temp_X, mDrawSpritePositionY + 6 );
+	sub_181E6( pDi, tmpString.str().c_str(), mFont_ServiceName_Width, 3, mGUI_Temp_X, mVideo_Draw_PosY + 6 );
 }
 
 void cFodder::sub_18149() {
@@ -11498,7 +11498,7 @@ void cFodder::sub_18149() {
 		int16 Data8 = *di++;
 		int16 DataC = *di++;
 
-//		Service_Sprite_Draw_Frame_At( Data0, Data4, Data8, DataC );
+//		GUI_Draw_Frame_16( Data0, Data4, Data8, DataC );
 		sub_1828A( Data0, Data4, Data8, DataC );
 		//sub_17B2A();
 	}
@@ -11576,14 +11576,14 @@ void cFodder::sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pD
 int16 cFodder::sub_1828A( int16& pSpriteType, int16& pFrame, int16& pData8, int16& pDataC ) {
 	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
-	mDraw_Sprite_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
-	mDraw_Sprite_FrameDataPtr = SheetData->GetGraphicsPtr();
+	mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
+	mVideo_Draw_FrameDataPtr = SheetData->GetGraphicsPtr();
 
-	mDrawSpritePositionX = pData8 + 0x10;
-	mDrawSpritePositionY = pDataC + 0x10;
+	mVideo_Draw_PosX = pData8 + 0x10;
+	mVideo_Draw_PosY = pDataC + 0x10;
 
-	mDrawSpriteColumns = SheetData->mColCount;
-	mDrawSpriteRows = SheetData->mRowCount;
+	mVideo_Draw_Columns = SheetData->mColCount;
+	mVideo_Draw_Rows = SheetData->mRowCount;
 
 	if (!sub_184C7()) {
 		if (mVersion->mPlatform == ePlatform::Amiga)
@@ -11601,28 +11601,28 @@ void cFodder::sub_182EA() {
 
 	uint8* di = mImage->GetSurfaceBuffer();
 	
-	di += (mImage->GetWidth() * mDrawSpritePositionY);
-	di += mDrawSpritePositionX;
+	di += (mImage->GetWidth() * mVideo_Draw_PosY);
+	di += mVideo_Draw_PosX;
 
 	word_42066 = di;
 
-	uint8* si = mDraw_Sprite_FrameDataPtr;
+	uint8* si = mVideo_Draw_FrameDataPtr;
 
-	mDrawSpriteColumns >>= 1;
-	mDraw_Source_SkipPixelsPerRow = 0xA0 - mDrawSpriteColumns;
-	mDrawSpriteColumns >>= 1;
+	mVideo_Draw_Columns >>= 1;
+	mDraw_Source_SkipPixelsPerRow = 0xA0 - mVideo_Draw_Columns;
+	mVideo_Draw_Columns >>= 1;
 
-	mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (mDrawSpriteColumns*4);
+	mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (mVideo_Draw_Columns*4);
 	uint8 Plane = 0;
 
-	for (int16 dx = 0; dx < mDrawSpriteRows; ++dx ) {
+	for (int16 dx = 0; dx < mVideo_Draw_Rows; ++dx ) {
 
-		int16 bx = mDrawSpritePositionY;
+		int16 bx = mVideo_Draw_PosY;
 		bx += dx;
 
 		uint8 bl = *(bp + bx);
 
-		for (int16 cx = mDrawSpriteColumns; cx > 0; --cx) {
+		for (int16 cx = mVideo_Draw_Columns; cx > 0; --cx) {
 			uint8 al = *si;
 			al >>= 4;
 			if (al) {
@@ -11644,17 +11644,17 @@ void cFodder::sub_182EA() {
 		++word_42066;
 	}
 
-	si = mDraw_Sprite_FrameDataPtr;
+	si = mVideo_Draw_FrameDataPtr;
 	di = word_42066;
 	di += Plane;
-	for (int16 dx = 0; dx < mDrawSpriteRows; ++dx ) {
+	for (int16 dx = 0; dx < mVideo_Draw_Rows; ++dx ) {
 
-		int16 bx = mDrawSpritePositionY;
+		int16 bx = mVideo_Draw_PosY;
 		bx += dx;
 
 		uint8 bl = *(bp + bx);
 
-		for (int16 cx = mDrawSpriteColumns; cx > 0; --cx) {
+		for (int16 cx = mVideo_Draw_Columns; cx > 0; --cx) {
 			uint8 al = *si;
 			al &= 0x0F;
 			if (al) {
@@ -11676,19 +11676,19 @@ void cFodder::sub_182EA() {
 		++word_42066;
 	}
 
-	++mDraw_Sprite_FrameDataPtr;
-	si = mDraw_Sprite_FrameDataPtr;
+	++mVideo_Draw_FrameDataPtr;
+	si = mVideo_Draw_FrameDataPtr;
 	di = word_42066;
 	di += Plane;
 
-	for (int16 dx = 0; dx < mDrawSpriteRows; ++dx ) {
+	for (int16 dx = 0; dx < mVideo_Draw_Rows; ++dx ) {
 
-		int16 bx = mDrawSpritePositionY;
+		int16 bx = mVideo_Draw_PosY;
 		bx += dx;
 
 		uint8 bl = *(bp + bx);
 
-		for (int16 cx = mDrawSpriteColumns; cx > 0; --cx) {
+		for (int16 cx = mVideo_Draw_Columns; cx > 0; --cx) {
 			uint8 al = *si;
 			al >>= 4;
 			if (al) {
@@ -11710,17 +11710,17 @@ void cFodder::sub_182EA() {
 		++word_42066;
 	}
 
-	si = mDraw_Sprite_FrameDataPtr;
+	si = mVideo_Draw_FrameDataPtr;
 	di = word_42066;
 	di += Plane;
-	for (int16 dx = 0; dx < mDrawSpriteRows; ++dx ) {
+	for (int16 dx = 0; dx < mVideo_Draw_Rows; ++dx ) {
 
-		int16 bx = mDrawSpritePositionY;
+		int16 bx = mVideo_Draw_PosY;
 		bx += dx;
 
 		uint8 bl = *(bp + bx);
 
-		for (int16 cx = mDrawSpriteColumns; cx > 0; --cx) {
+		for (int16 cx = mVideo_Draw_Columns; cx > 0; --cx) {
 			uint8 al = *si;
 			al &= 0x0F;
 			if (al) {
@@ -11740,41 +11740,41 @@ void cFodder::sub_182EA() {
 int16 cFodder::sub_184C7() {
 	int16 ax;
 
-	if (mDrawSpritePositionY < 0x2C) {
-		ax = mDrawSpritePositionY;
-		ax += mDrawSpriteRows;
+	if (mVideo_Draw_PosY < 0x2C) {
+		ax = mVideo_Draw_PosY;
+		ax += mVideo_Draw_Rows;
 		--ax;
 		if (ax < 0x2C)
 			return -1;
 
 		ax -= 0x2C;
-		ax -= mDrawSpriteRows;
+		ax -= mVideo_Draw_Rows;
 		++ax;
 		ax = -ax;
-		mDrawSpritePositionY += ax;
-		mDrawSpriteRows -= ax;
+		mVideo_Draw_PosY += ax;
+		mVideo_Draw_Rows -= ax;
 
 		if (mVersion->mPlatform == ePlatform::PC)
 			ax *= 160;
 		else if (mVersion->mPlatform == ePlatform::Amiga)
 			ax *= 40;
 
-		mDraw_Sprite_FrameDataPtr += ax;
+		mVideo_Draw_FrameDataPtr += ax;
 	}
 	//loc_184FC
 
-	ax = mDrawSpritePositionY;
-	ax += mDrawSpriteRows;
+	ax = mVideo_Draw_PosY;
+	ax += mVideo_Draw_Rows;
 	--ax;
 
 	if (ax <= 0xE7)
 		return 0;
 
-	if (mDrawSpritePositionY > 0xE7)
+	if (mVideo_Draw_PosY > 0xE7)
 		return -1;
 
 	ax -= 0xE7;
-	mDrawSpriteRows -= ax;
+	mVideo_Draw_Rows -= ax;
 	return 0;
 }
 
@@ -11786,7 +11786,7 @@ void cFodder::Service_Mission_Text_Prepare( uint16*& pTarget ) {
 
 	String_CalculateWidth( 0x140, mFont_Service_Width, Mission.str().c_str() );
 
-	sub_181E6( pTarget, Mission.str(), mFont_Service_Width, 4, mGUI_Temp_X, mDrawSpritePositionY );
+	sub_181E6( pTarget, Mission.str(), mFont_Service_Width, 4, mGUI_Temp_X, mVideo_Draw_PosY );
 }
 
 void cFodder::Service_Promotion_Prepare() {
@@ -17693,7 +17693,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 	int32 unk14 = 0;
 
 	mGUI_Temp_Y = pParamC;
-	mGUI_Temp_Height = 0;
+	mGUI_Draw_LastHeight = 0;
 
 	for (;;) {
 	loc_29C7A:;
@@ -17775,8 +17775,8 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pParam0, int32 pParam08
 			if (word_3AC21) {
 				mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( pParam0 + NextChar, pParam08, pParamC );
 			}
-			else			         //0	// C     // 4	   // 8
-				GUI_Sprite_Draw_Frame_At(  pParam0, pParamC, NextChar, pParam08 );
+			else
+				GUI_Draw_Frame_8(  pParam0, NextChar, pParam08, pParamC);
 
 		}
 		loc_29DC7:;
@@ -20213,7 +20213,7 @@ void cFodder::Playground() {
 
 		{
 			mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
-			GUI_Sprite_Draw_Frame_At(SpriteID, 65, Frame, 65);
+			GUI_Draw_Frame_8(SpriteID, Frame, 65, 65);
 		}
 
 		if (mImageFaded)
