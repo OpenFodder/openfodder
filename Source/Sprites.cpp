@@ -301,7 +301,7 @@ const int16 mSprite_Can_Be_RunOver[] = {
 	1
 };
 
-const int8 mSprite_Direction_Frame_Unk[] = {
+const int16 mSprite_Direction_Frame_Unk[] = {
 	0, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1
 };
 
@@ -676,4 +676,9 @@ int16 word_32B7C[] = {
 const int16* mSprite_AnimationPtrs[] = {
 	word_32AEC,	// Human
 	word_32B7C	// Computer
+};
+
+const int16 mSprite_Speed_Mod_Unk[] = {
+	0x18, 0x14, 0x0E, 0x0A, 0x08,
+	0x0A, 0x0E, 0x14
 };

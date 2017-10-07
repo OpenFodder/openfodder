@@ -869,7 +869,7 @@ void cFodder::Mission_Memory_Clear() {
 	mSpawnSpriteType = 0;
 	word_3B2F1 = 0;
 	word_3B2F3 = 0;
-	word_3B2F5 = 0;
+	mSprite_Field10_Saved = 0;
 	word_3B2F7 = 0;
 	mGame_Load = 0;
 	mGame_Save = 0;
@@ -5713,7 +5713,7 @@ void cFodder::sub_22CD7( sSprite* pSprite, int16& pData0, int16& pData4 ) {
 
 	Direction_Between_SpriteAndPoints( pSprite, pData0, pData4 );
 
-	word_3B2F5 = pSprite->field_10;
+	mSprite_Field10_Saved = pSprite->field_10;
 	pSprite->field_3E = 0;
 
 	sub_2B12E( pSprite );
@@ -7566,7 +7566,7 @@ loc_25288:;
 	Data24->field_20 = pSprite->field_20;
 }
 
-void cFodder::sub_25863( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Indigenous_Unk( sSprite* pSprite ) {
 	if (!pSprite->field_5C)
 		return;
 
@@ -7579,7 +7579,7 @@ void cFodder::sub_25863( sSprite* pSprite ) {
 	pSprite->field_2E = mSquad_Leader->field_0;
 	pSprite->field_30 = mSquad_Leader->field_4;
 
-	sub_25B6B( pSprite );
+	Sprite_Create_Indigenous_Spear2( pSprite );
 }
 
 void cFodder::Sprite_Handle_Indigenous_Movement( sSprite* pSprite ) {
@@ -7813,7 +7813,7 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement( sSprite* pSprite ) {
 	return 0;
 }
 
-int16 cFodder::sub_25B6B( sSprite* pSprite ) {
+int16 cFodder::Sprite_Create_Indigenous_Spear2( sSprite* pSprite ) {
 	if (mMission_Completed_Timer)
 		return -1;
 
@@ -9345,12 +9345,12 @@ void cFodder::sub_2B12E( sSprite* pSprite ) {
 	Data0 ^= 0x0F;
 	int16 Data4 = Data0;
 	Data4 &= 0x0F;
-	int16 DataC = (int16) mSprite_Direction_Frame_Unk[Data4];
-	word_3A8CF = DataC;
+
+	word_3A8CF = (int16) mSprite_Direction_Frame_Unk[Data4];
 }
 
 void cFodder::Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C ) {
-	int16 Data4 = word_3B2F5;
+	int16 Data4 = mSprite_Field10_Saved;
 	Data4 >>= 5;
 	Data4 -= 1;
 	Data4 ^= 0x0F;
@@ -9360,7 +9360,7 @@ void cFodder::Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C 
 	Data0 -= Data4;
 	Data4 = Data0;
 	Data4 &= 0x0F;
-	int16 DataC = (int16) mSprite_Direction_Frame_Unk[Data4];
+	int16 DataC = mSprite_Direction_Frame_Unk[Data4];
 	if (!DataC)
 		return;
 
@@ -11963,7 +11963,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 		if (pSprite->field_38 <= eSprite_Anim_Slide1)
 			pSprite->field_38 = eSprite_Anim_None;
 
-		// No Sinking
+		// No longer Sinking
 		pSprite->field_5B = 0;
 
 		// Unknown
@@ -11989,9 +11989,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 
 	if (byte_3BF1B[pSprite->field_32] < 0 && pSprite->field_32 != mSquad_Selected ) {
 		//loc_18F12
-		//seg004:01C2
 		word_3AA41 = -1;
-		//Data0 <<= 1;   UNUSED?
 
 		Data28 = &mSprites[pSprite->field_5E];
 		
@@ -12140,6 +12138,7 @@ loc_191C3:;
 		}
 	}
 	//loc_1925C
+	// Just Fired a bullet or grenade?
 	if (pSprite->field_54 != 2 && pSprite->field_54 != 1)
 		goto loc_19338;
 
@@ -12169,12 +12168,10 @@ loc_191C3:;
 		sub_1F66F( pSprite );
 		sub_1F6F4( pSprite );
 	}
+
+	if(pSprite->field_0 == pSprite->field_26 ) {
 		
-	Data0 = pSprite->field_0;
-	if( Data0 == pSprite->field_26 ) {
-		Data0 = pSprite->field_4;
-		
-		if( Data0 == pSprite->field_28 )
+		if(pSprite->field_4 == pSprite->field_28 )
 			Sprite_Next_WalkTarget_Set( pSprite );
 	}
 	//loc_19314
@@ -14589,7 +14586,7 @@ void cFodder::Sprite_Handle_Indigenous2( sSprite* pSprite ) {
 	if (!word_3B2D1[1])
 		return;
 
-	sub_25863( pSprite );
+	Sprite_Handle_Indigenous_Unk( pSprite );
 }
 
 void cFodder::Sprite_Handle_VehicleNoGun_Human( sSprite* pSprite ) {
@@ -14957,7 +14954,7 @@ void cFodder::Sprite_Handle_Indigenous_Spear( sSprite* pSprite ) {
 	sub_2593D( pSprite );
 	sub_25A31( pSprite );
 	sub_25A66( pSprite );
-	sub_25863( pSprite );
+	Sprite_Handle_Indigenous_Unk( pSprite );
 }
 
 void cFodder::Sprite_Handle_Indigenous_Spear2( sSprite* pSprite ) {
@@ -16922,7 +16919,7 @@ void cFodder::sub_1F66F( sSprite* pSprite ) {
 		Data0 &= 0x0E;
 	}
 
-	pSprite->field_36 = word_3D495[Data4 / 2];
+	pSprite->field_36 = mSprite_Speed_Mod_Unk[Data4 / 2];
 }
 
 void cFodder::sub_1F6F4( sSprite* pSprite ) {

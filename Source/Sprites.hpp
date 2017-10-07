@@ -229,7 +229,7 @@ struct sSprite {
 	int16 field_30;
 	int16 field_32;		// Player: Squad Number
 	int16 field_34;
-	int16 field_36;
+	int16 field_36;		// Speed ?
 	int16 field_38;		// eSprite_Anim
 	int16 field_3A;
 	int16 field_3C;
@@ -254,7 +254,7 @@ struct sSprite {
 	int8 field_4F;
 	int16 field_50;
 	int16 field_52;
-	int8 field_54;
+	int8 field_54;			// Human: Fired Weapon
 	int8 field_55;
 	int8 field_56;
 	int8 field_57;
@@ -264,7 +264,7 @@ struct sSprite {
 	int8 field_5B;			// Human: Is Sinking
 	int8 field_5C;			// 1 = Was Drawn
 	int8 field_5D;
-	int16 field_5E;			// Byte counter inside mSprites
+	int16 field_5E;			// Index inside mSprites
 	int8 field_60;			// Vehicle: Current Terrain Type
 	int8 field_61;
 	int16 field_62;
@@ -316,5 +316,6 @@ extern const int16 mSprite_Seal_Frames[];
 extern const int16 mSprite_Computer_Unk[];
 extern const int8 mSprite_Indigenous_Sound_Death[];
 extern const int8 mSprite_Soldier_Unk[];
-extern const int8 mSprite_Direction_Frame_Unk[];
+extern const int16 mSprite_Direction_Frame_Unk[];
 extern const int16* mSprite_AnimationPtrs[];
+extern const int16 mSprite_Speed_Mod_Unk[];
