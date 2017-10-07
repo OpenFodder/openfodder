@@ -275,7 +275,6 @@ void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
 	ax <<= 2;
 	ax += d1;
 
-	//mFodder->mVideo_Draw_Columns--;
 	mFodder->mVideo_Draw_FrameDataPtr = di->GetGraphicsPtr(ax + bx);
 
 	if (pID >= 205 && pID <= 207) {
