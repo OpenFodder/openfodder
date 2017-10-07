@@ -5209,22 +5209,28 @@ void cFodder::Recruit_Draw_Troops() {
 			Data0 = 0x0A;
 			Data0 += Data4;
 
+			// Sprite reached end of last curve
 			if (DataC >= 0xB7)
 				Data0 += 4;
+
+			// Sprite on last curve
 			else if (DataC > 0x7C )
 				Data0 += 2;
 
+			// First dip of mountain is frame 0
 			Data4 = 0;
 
+			// Second Dip is frame 1
 			if (Data20 > &mRecruit_Screen_Positions[0x46]) {
 				Data4 = 1;
 
+				// Last leg of mountain
 				if (Data20 > &mRecruit_Screen_Positions[0x7A])
 					Data4 = 2;
 			}
 		}
 		else
-			Data0 = 9;
+			Data0 = 9;	// Hill Piece
 
 		//loc_1784C
 		if (mVersion->mPlatform == ePlatform::PC) {
