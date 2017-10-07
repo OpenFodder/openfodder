@@ -37,9 +37,9 @@ struct sRecruit_Sprites {
 };
 
 struct sRecruit_Screen_Pos {
-	int16	field_0;
-	int16	field_2;
-	int16	field_4;
+	int16	mX;
+	int16	mY;
+	int16	mFrame;
 };
 
 struct sRecruitRendered {
@@ -58,3 +58,4 @@ extern const int16 mRecruit_Truck_Anim_PassTroop[];
 extern const int16 mRecruit_Truck_Anim_CloseDoor[];
 
 extern const int16 mRecruit_Shirt_Colors[];
+extern const int16 mRecruit_Hill_Position_Gaps[];

@@ -634,7 +634,7 @@ const sSpriteSheet* mSpriteSheetTypes_Hill_PC[] = {
 	stru_360AE,
 	stru_360FE,
 	stru_3614E,
-	stru_3619E,
+	stru_3619E,	// Hill Pieces
 	stru_361CE,
 	stru_361FE,
 	stru_3622E,
