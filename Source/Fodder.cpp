@@ -127,7 +127,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 	word_3A3BD = 0;
 	word_3A3BF = 0;
 	dword_3A3F9 = 0;
-	word_3FA1F = -1;
+	mMap_Overview_MapNumberRendered = -1;
 	word_3FA21 = 0;
 	mPaused = 0;
 
@@ -658,11 +658,7 @@ void cFodder::Mission_Memory_Clear() {
 	word_39FF6 = 0;
 	word_39FF8 = 0;
 	word_39FFA = 0;
-/*
-	dword_3A000 = 0;
-	dword_3A004 = 0;
-	dword_3A008 = 0;
-*/
+
 	mTroop_Cannot_Throw_Grenade = 0;
 	mTroop_Cannot_Fire_Bullet = 0;
 	word_3A010 = 0;
@@ -845,7 +841,7 @@ void cFodder::Mission_Memory_Clear() {
 	dword_3B1CB = 0;
 
 	for (uint16 x = 0; x < 0x0F; ++x ) 
-		word_3B1CF[x] = 0;
+		mRecruit_Hill_Delay[x] = 0;
 
 	mRecruit_Truck_Animation_Play = 0;
 	mRecruit_ToEnterTruck = 0;
@@ -2561,7 +2557,8 @@ void cFodder::Mission_Map_Overview_Show() {
 }
 
 void cFodder::Map_Overview_Prepare() {
-	//if (mMapNumber == word_3FA1F)
+	// Overview already rendered?
+	//if (mMapNumber == mMap_Overview_MapNumberRendered)
 	//	return;
 
 	delete mSurfaceMapOverview;
@@ -2570,7 +2567,7 @@ void cFodder::Map_Overview_Prepare() {
 	mSurfaceMapOverview = new cSurface( Size * 16, Size * 16 );
 	mSurfaceMapOverview->clearBuffer();
 
-	word_3FA1F = mMapNumber;
+	mMap_Overview_MapNumberRendered = mMapNumber;
 
 	for (int16 cx = 0x45; cx >= 0; --cx) {
 		dword_3E9A3[cx] = 0;
@@ -2578,16 +2575,12 @@ void cFodder::Map_Overview_Prepare() {
 
 	int16* MapPtr = (int16*) (mMap->data() + 0x60);
 
-	int16 Data0 = 0x10;
-	int16 Data4 = 0x10;
-
 	mSurfaceMapTop = mSurfaceMapLeft = 0;
 
 	if (mMapHeight < mMapWidth) {
 		mSurfaceMapTop = (mMapWidth / 2) - (mMapHeight/2);
 		if (mSurfaceMapTop < 0)
 			mSurfaceMapTop = 0;
-
 	}
 
 	if (mMapWidth < mMapHeight) {
@@ -5165,6 +5158,7 @@ loc_17686:;
 			--Data8;
 		} while (Data8 >= 0);
 
+		// Animate the frame
 		int16 Data0 = Data20->field_4;
 		Data20->field_4 = 0;
 		if ((dword_3B1CB >> 16) < 0)
@@ -5184,8 +5178,7 @@ void cFodder::Recruit_Draw_Troops() {
 
 	if (mRecruit_Truck_Animation_Play) {
 		sub_175C0();
-	}
-	else {
+	} else {
 		Recruit_Field4_Clear();
 		Recruit_Position_Troops();
 	}
@@ -5259,8 +5252,8 @@ void cFodder::sub_1787C() {
 	mRecruit_ToEnterTruck = mMapPlayerTroopCount;
 	mRecruit_Truck_Animation_Play = 0;
 
-	int16 Data0 = 0xB4;
-	int16* Data20 = word_3B1CF;
+	int16 Data0 = 0x1E; // 0xB4;
+	int16* Data20 = mRecruit_Hill_Delay;
 	const int16* Data24 = word_3E177;
 
 	for ( int16 Data4 = 0x0E; Data4 >= 0; --Data4 ) {
@@ -5282,15 +5275,14 @@ void cFodder::Recruit_Field4_Clear() {
 }
 
 void cFodder::Recruit_Position_Troops() {
-	sRecruit_Screen_Pos* Data24 = mRecruit_Screen_Positions;
-	const int16*    Data2C = mRecruit_Shirt_Colors;
+	const int16*    Recruit_Next_Shirt = mRecruit_Shirt_Colors;
 
 	uint64 Data8 = (uint64) mGraveRankPtr;
 	int16 Recruits, Data4;
 
 	Data8 -= (uint64) mGraveRanks;
-	Data8 >>= 1;
-	Data8 &= 0x1E;
+	Data8 >>= 2;
+	Data8 &= 0xF;
 
 	if (mMission_Restart)
 		Recruits = mRecruits_AliveCount;
@@ -5302,23 +5294,21 @@ void cFodder::Recruit_Position_Troops() {
 
 	// loc_1795E
 	--Recruits;
-	Data4 = 0x660;
-
-	//loc_17968
+	Data4 = 0x110;
 
 	// Set the recruit position frames
 	for (; Recruits >= 0; --Recruits) {
 
 		if (Data4 >= 0) {
-			if ((Data24 + (Data4/6))->field_4)
-				Data4 -= 6;
+			if (mRecruit_Screen_Positions[Data4].field_4)
+				--Data4;
 
-			(Data24 + (Data4/6))->field_4 = mRecruit_Shirt_Colors[Data8 / 2];
+			mRecruit_Screen_Positions[Data4].field_4 = mRecruit_Shirt_Colors[Data8];
 		}
 
-		Data8 += 2;
-		Data8 &= 0x1F;
-		Data4 -= 0x18;
+		Data8 += 1;
+		Data8 &= 0xF;
+		Data4 -= 4;
 	}
 
 loc_179B2:;
@@ -5327,12 +5317,12 @@ loc_179B2:;
 		return;
 
 	mRecruit_Truck_Reached = 0;
-	int16 Data0 = word_3B1CF[0];
+	int16 Data0 = mRecruit_Hill_Delay[0];
 	Data8 = 5;
 
-	for ( ; ; Data0+=6 ) {
+	for ( ; ; Data0++ ) {
 
-		Data4 = (Data24 + (Data0/6))->field_4;
+		Data4 = mRecruit_Screen_Positions[Data0].field_4;
 		if (Data4) {
 			if (Data4 > 3) {
 				mRecruit_Truck_Reached = -1;
@@ -5340,9 +5330,9 @@ loc_179B2:;
 			}
 			else
 				continue;
-		}
-		else {
-			if (Data0 == 0x660) {
+
+		} else {
+			if (Data0 == 0x110) {
 				mRecruit_Truck_Reached = -1;
 				break;
 			}
@@ -5359,28 +5349,32 @@ loc_179B2:;
 	else
 		dword_3B1CB = 0x10000;
 
-	int16* Data20 = word_3B1CF;
+	int16* Data20 = mRecruit_Hill_Delay;
 
 	// 14 moving recruits
 	for (int16 DData8 = 0x0E; DData8 >= 0; --DData8) {
 
+		// Get the delay
 		Data0 = *Data20;
-		if (Data0 >= 0) {
-			Data4 = (dword_3B1CB >> 16);
 
-			Data4 += *Data2C++;
-			if ((Data24 + (Data0/6))->field_0 < 0)
+		if (Data0 >= 0) {
+
+			// Frame
+			Data4 = (dword_3B1CB >> 16);
+			Data4 += *Recruit_Next_Shirt++;
+
+			if (mRecruit_Screen_Positions[Data0].field_0 < 0)
 				Data0 = 0;
 
-			if ((Data24 + (Data0/6))->field_4)
-				Data0 += 6;
+			if (mRecruit_Screen_Positions[Data0].field_4)
+				++Data0;
 
-			(Data24 + (Data0/6))->field_4 = Data4;
+			mRecruit_Screen_Positions[Data0].field_4 = Data4;
 		}
 		// 17A9D
 
 		if (!mRecruit_Truck_Reached)
-			Data0 += 6;
+			Data0 ++;
 
 		//loc_17AA9
 		*Data20 = Data0;
@@ -21422,7 +21416,7 @@ void cFodder::GUI_Sidebar_Squad_Split_Icon_Draw() {
 			// 3 Icons per Squad Slot
 			int16 SquadIcon = (mSquad_Selected * 3);
 
-			// Splt into squad
+			// Split into squad
 			SquadIcon += EmptySquadID;
 
 			int16 SplitIconID = mGUI_Squad_Split_Icons[SquadIcon];

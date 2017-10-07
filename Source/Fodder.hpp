@@ -420,7 +420,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B1A9;
 	int16			mSprite_Bullet_Deviate_Counter;
 	int32			dword_3B1CB;
-	int16			word_3B1CF[0x0F];
+	int16			mRecruit_Hill_Delay[0x0F];
 	int16			mRecruit_Truck_Reached;
 	int16			mRecruit_Truck_Animation_Play;
 	int16			mRecruit_ToEnterTruck;
@@ -562,7 +562,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3F950;
 
 	int32			dword_3E9A3[70];
-	int16			word_3FA1F;
+	int16			mMap_Overview_MapNumberRendered;
 	int16			word_3FA21;
 	int16			mPaused;
 	int16			mKeyControlPressed;
