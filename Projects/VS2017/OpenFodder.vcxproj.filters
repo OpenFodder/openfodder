@@ -48,9 +48,6 @@
     <ClInclude Include="..\..\Source\Surface.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\UnknownData.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Sprites.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -133,6 +130,9 @@
       <Filter>Source\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SpriteSheet.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Map.hpp">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

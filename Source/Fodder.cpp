@@ -21,12 +21,27 @@
  */
 
 #include "stdafx.hpp"
-#include "UnknownData.hpp"
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
 #define ButtonToMouseVersion(x) case x: { Buttons[x].mMouseInsideFuncPtr = &cFodder::VersionSelect_##x; break; }
 
+
+const int16 mBriefing_Helicopter_Offsets[] =
+{
+	0x0180, 0x0040, 0x0004, 0x01A0,
+	0x0040, 0x000F, 0x01C0, 0x0040,
+	0x0007, 0x01E0, 0x0020, 0x0007,
+	0x0000, 0x0010, 0x000A, 0x0080,
+	0x0010, 0x001E, 0x0100, 0x0010,
+	0x000A, 0x01A0, 0x0008, 0x0019,
+	0x0170, 0x0064, 0x000A, -1,
+	-1, -1
+};
+
+const int16 mBriefing_ParaHeli_Frames[] = {
+	0x00, 0x20, 0x40, 0x60
+};
 
 cFodder::cFodder( bool pSkipIntro ) {
 	
@@ -1461,7 +1476,7 @@ int16 cFodder::sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pD
 	pData4 <<= 5;
 	pData4 |= pData0;
 
-	pData4 = mDirectionData[pData4];
+	pData4 = mMap_DirectionsBetweenPoints[pData4];
 	if (pData4 < 0)
 		return -1;
 
@@ -8479,7 +8494,7 @@ int16 cFodder::Direction_Between_Points( int16& pData0, int16& pData4, int16& pD
 	pData4 <<= 5;
 	pData4 |= pData0;
 	//pData4 <<= 1;
-	pData4 = mDirectionData[pData4];
+	pData4 = mMap_DirectionsBetweenPoints[pData4];
 	if (pData4 < 0)
 		return pData4;
 
@@ -8744,7 +8759,7 @@ loc_2A2F5:;
 	pData4 <<= 5;
 	pData4 |= pData0;
 	//pData4 <<= 1;
-	pData4 = mDirectionData[pData4];
+	pData4 = mMap_DirectionsBetweenPoints[pData4];
 	if (pData4 < 0) {
 		word_3B25B = -1;
 		return -1;
@@ -9766,7 +9781,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 		return;
 
 	// Order based on number of troops in squad
-	const int16* Rotate_Fire_Order = mTroop_Rotate_Fire_Order[TroopsInSquad];
+	const int16* Rotate_Fire_Order = mSoldier_Squad_Fire_RotationOrder[TroopsInSquad];
 
 	int16 Data0 = mTroop_Rotate_Next;
 

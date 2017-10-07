@@ -20,23 +20,6 @@
  *
  */
 
-const int16 mBriefing_Helicopter_Offsets[] =
-{
-	0x0180, 0x0040, 0x0004, 0x01A0, 
-	0x0040, 0x000F, 0x01C0, 0x0040, 
-	0x0007, 0x01E0, 0x0020, 0x0007, 
-	0x0000, 0x0010, 0x000A, 0x0080, 
-	0x0010, 0x001E, 0x0100, 0x0010,
-	0x000A, 0x01A0, 0x0008, 0x0019, 
-	0x0170, 0x0064, 0x000A, -1, 
-	-1, -1
-};
-
-const int16 mBriefing_ParaHeli_Frames[] = {
-	0x00, 0x20, 0x40, 0x60
-};
-
-
 const int16 mMap_Direction_Calculations[256] = {
 	0, 804, 1608, 2410, 3212, 4011, 4808, 5602, 6393, 7179,
 	7962, 8739, 9512, 10278, 11039, 11793, 12539, 13279, 14010, 14732,
@@ -177,7 +160,7 @@ const int8 mMap_Distance_Calculations[] = {
 	42, 42, 43, 44, 26
 };
 
-const int16 mDirectionData[] = {
+const int16 mMap_DirectionsBetweenPoints[] = {
 	-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -281,60 +264,4 @@ const int16 mDirectionData[] = {
 	56, 55, 54, 53, 52, 51, 50, 49, 47, 46, 
 	45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 
 	35, 34, 33, 32, 
-};
-
-const int16 mTroop_Rotate_Fire_SquadOf1[] = {
-	0, 
-	-1
-};
-
-const int16 mTroop_Rotate_Fire_SquadOf2[] = {
-	0, 1, 
-	-1
-};
-
-const int16 mTroop_Rotate_Fire_SquadOf3[] = {
-	0, 1, 0, 2, 
-	-1
-};
-
-const int16 mTroop_Rotate_Fire_SquadOf4[] = {
-	0, 1, 0, 2, 0, 3, 0, 2, 
-	-1
-};
-
-const int16 mTroop_Rotate_Fire_SquadOf5[] = {
-	0, 1, 0, 2, 0, 3, 0, 4, 0, 3,
-	0, 2, 
-	-1,
-};
-
-
-const int16 mTroop_Rotate_Fire_SquadOf6[] = {
-	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
-	0, 4, 0, 3, 0, 2, 
-	-1
-};
-
-const int16 mTroop_Rotate_Fire_SquadOf7[] = {
-	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
-	0, 6, 0, 5, 0, 4, 0, 3, 0, 2,
-	-1, 
-};
-
-const int16 mTroop_Rotate_Fire_SquadOf8[] = {
-	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
-	0, 6, 0, 5, 0, 4, 0, 3, 0, 2,
-	-1
-};
-
-const int16* mTroop_Rotate_Fire_Order[] = {
-	mTroop_Rotate_Fire_SquadOf1,
-	mTroop_Rotate_Fire_SquadOf2,
-	mTroop_Rotate_Fire_SquadOf3,
-	mTroop_Rotate_Fire_SquadOf4,
-	mTroop_Rotate_Fire_SquadOf5,
-	mTroop_Rotate_Fire_SquadOf6,
-	mTroop_Rotate_Fire_SquadOf7,
-	mTroop_Rotate_Fire_SquadOf8
 };
