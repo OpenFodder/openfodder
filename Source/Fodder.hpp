@@ -453,7 +453,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mGUI_Temp_Width;
 
 	int16			mGUI_Temp_Y;
-	int16			mGUI_Temp_Height;
+	int16			mGUI_Draw_LastHeight;
 
 	void			(cFodder::*dword_3B30D)(int16 pPosY);
 
@@ -571,16 +571,16 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMouseSpriteCurrent;
 	int16			mService_ExitLoop;
 
-	uint8*			mDraw_Sprite_FrameDataPtr;
+	uint8*			mVideo_Draw_FrameDataPtr;
 	uint8*			word_42066;
-	int16			mDrawSpritePositionX;
-	int16			mDrawSpritePositionY;
-	int16			mDrawSpriteColumns;
-	int16			mDrawSpriteRows;
-	uint8			mDraw_Sprite_PaletteIndex;
+	int16			mVideo_Draw_PosX;
+	int16			mVideo_Draw_PosY;
+	int16			mVideo_Draw_Columns;
+	int16			mVideo_Draw_Rows;
+	uint8			mVideo_Draw_PaletteIndex;
 	size_t			mDraw_Source_SkipPixelsPerRow;
 	size_t			mDraw_Dest_SkipPixelsPerRow;
-	uint16			mDrawSprite_ColumnsMax;
+	uint16			mVideo_Draw_ColumnsMax;
 
 
 	int16			mIntroPlayed;
@@ -733,8 +733,8 @@ public:
 
 	void			Video_Sleep_Wrapper();
 	void			Mouse_DrawCursor( );
-	void			GUI_Sprite_Draw_Frame_At( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX );
-	void			Service_Sprite_Draw_Frame_At(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
+	void			GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, int32 pPositionX, int32 pPositionY );
+	void			GUI_Draw_Frame_16(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
 	void			Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame);
 
 	bool			Sprite_OnScreen_Check();
