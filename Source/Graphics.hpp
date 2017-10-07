@@ -178,8 +178,8 @@ public:
 	virtual void		PaletteSet() = 0;
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 ) = 0;
 
-	virtual void		video_Draw_Linear() = 0;
-	virtual void		video_Draw_Sprite() = 0;
+	virtual void		Video_Draw_16() = 0;
+	virtual void		Video_Draw_8() = 0;
 
 	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );

@@ -57,8 +57,8 @@ class cGraphics_PC : public cGraphics {
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
 
-	virtual void		video_Draw_Linear();
-	virtual void		video_Draw_Sprite();
+	virtual void		Video_Draw_16();
+	virtual void		Video_Draw_8();
 
 	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
 	virtual void		Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY );

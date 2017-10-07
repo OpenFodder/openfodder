@@ -262,7 +262,7 @@ struct sSprite {
 	int8 field_59;
 	int8 field_5A;
 	int8 field_5B;			// Human: Is Sinking
-	int8 field_5C;
+	int8 field_5C;			// 1 = Was Drawn
 	int8 field_5D;
 	int16 field_5E;			// Byte counter inside mSprites
 	int8 field_60;			// Vehicle: Current Terrain Type

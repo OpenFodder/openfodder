@@ -82,7 +82,7 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	mFodder->mDraw_Sprite_FrameDataPtr = di->GetGraphicsPtr(ax +bx);
 	mFodder->mDraw_Sprite_PaletteIndex = 0xF0;
 	
-	video_Draw_Sprite();
+	Video_Draw_8();
 }
 
 void cGraphics_PC::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
@@ -293,7 +293,7 @@ void cGraphics_PC::Map_Load_Resources() {
 	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
 
-void cGraphics_PC::video_Draw_Linear( ) {
+void cGraphics_PC::Video_Draw_16( ) {
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mDraw_Sprite_FrameDataPtr;
 
@@ -302,12 +302,9 @@ void cGraphics_PC::video_Draw_Linear( ) {
 
 	mFodder->word_42066 = di;
 
-	uint8 Plane = 0;
-
 	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->mDrawSprite_ColumnsMax - mFodder->mDrawSpriteColumns;
 	mFodder->mDraw_Dest_SkipPixelsPerRow = 352 - mFodder->mDrawSpriteColumns;
 
-	di += Plane;
 	for( int16 dx = mFodder->mDrawSpriteRows; dx > 0; --dx ) {
 		
 		for( int16 cx = mFodder->mDrawSpriteColumns; cx > 0; --cx ) {
@@ -324,7 +321,7 @@ void cGraphics_PC::video_Draw_Linear( ) {
 	}
 }
 
-void cGraphics_PC::video_Draw_Sprite() {
+void cGraphics_PC::Video_Draw_8() {
 	cFodder* Fodder = cFodder::GetSingletonPtr();
 
 	uint8*	di = mImage->GetSurfaceBuffer();
@@ -637,7 +634,7 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 	mFodder->mDrawSpriteRows = 0xB0;
 	mFodder->mDrawSprite_ColumnsMax = 0x140;
 
-	video_Draw_Linear();
+	Video_Draw_16();
 	
 	for( uint32 x = 0; x < 0xA000; ++x) {
 		mImageHill.mData->data()[x] = 0;
@@ -650,16 +647,16 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	SetActiveSpriteSheet(eSPRITE_RECRUIT);
 
 	// Load Icon
-	mFodder->Sprite_Draw_Frame( 0x18, 0, 0, 0 );
+	mFodder->GUI_Sprite_Draw_Frame_At( 0x18, 0, 0, 0 );
 	
 	// Save Icon (Coloured or Gray)
 	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mMissionNumber - 1) ];
-	mFodder->Sprite_Draw_Frame( 0x19, 0, Data4, 0x130 );
+	mFodder->GUI_Sprite_Draw_Frame_At( 0x19, 0, Data4, 0x130 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway );
 	
-	mFodder->Sprite_Draw_Frame( 0x0E, 0x0A, 0, 0x9B );
+	mFodder->GUI_Sprite_Draw_Frame_At( 0x0E, 0x0A, 0, 0x9B );
 	
 	auto Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
 	mFodder->Recruit_Draw_String( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );

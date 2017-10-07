@@ -88,8 +88,8 @@ protected:
 
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 
-	virtual void		video_Draw_Linear();
-	virtual void		video_Draw_Sprite();
+	virtual void		Video_Draw_16();
+	virtual void		Video_Draw_8();
 
 	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
 

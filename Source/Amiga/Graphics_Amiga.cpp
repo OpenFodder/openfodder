@@ -162,7 +162,7 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 	ax += d1;
 
 	mFodder->mDraw_Sprite_FrameDataPtr = di->GetGraphicsPtr(ax + bx);
-	video_Draw_Sprite();
+	Video_Draw_8();
 }
 
 bool cGraphics_Amiga::Sprite_OnScreen_Check() {
@@ -284,7 +284,7 @@ void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
 
 	if (Sprite_OnScreen_Check( true )) {
 		mFodder->mDrawSpriteColumns >>= 3;
-		video_Draw_Linear();
+		Video_Draw_16();
 	}
 }
 
@@ -385,7 +385,7 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 
 	mImage->clearBuffer();
 
-	video_Draw_Linear();
+	Video_Draw_16();
 	mBMHD_Current = 0;
 }
 
@@ -458,7 +458,7 @@ void cGraphics_Amiga::PaletteSet() {
 
 	mImage->paletteSet(mPalette, 0, 64);
 	mImage->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
-	mImage->paletteSet(mImageHill.mPalette, 0xB0, 16);
+	mImage->paletteSet(mImageHill.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
 	mImage->paletteSet(mImageHill.mPalette, 0xD0, 16);
 	mImage->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
@@ -808,7 +808,7 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
 
-void cGraphics_Amiga::video_Draw_Linear() {
+void cGraphics_Amiga::Video_Draw_16() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mDraw_Sprite_FrameDataPtr;
@@ -840,7 +840,7 @@ void cGraphics_Amiga::video_Draw_Linear() {
 	}
 }
 
-void cGraphics_Amiga::video_Draw_Sprite() {
+void cGraphics_Amiga::Video_Draw_8() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mDraw_Sprite_FrameDataPtr;
@@ -1001,7 +1001,7 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 		mFodder->mDrawSpriteRows = 0xB8;				// H
 		mFodder->mDrawSprite_ColumnsMax = 0x140;
 
-		video_Draw_Linear();
+		Video_Draw_16();
 	}
 
 	Recruit_Draw_HomeAway();
@@ -1034,15 +1034,15 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 void cGraphics_Amiga::Recruit_Draw_HomeAway() {
 	const char* strHomeAndAway = "HOME                AWAY";
 
-	mFodder->Sprite_Draw_Frame( 0x11, 0, 0, 0xfe );
+	mFodder->GUI_Sprite_Draw_Frame_At( 0x11, 0, 0, 0xfe );
 	int16 Data4 = mFodder->mMission_Save_Availability[(mFodder->mMissionNumber - 1)];
 
 	// Draw Icon
-	mFodder->Sprite_Draw_Frame( 0x16, 0, 0x0, 0x0 );
+	mFodder->GUI_Sprite_Draw_Frame_At( 0x16, 0, 0x0, 0x0 );
 	// Save Icon
-	mFodder->Sprite_Draw_Frame( 0x17, 0, Data4, 0x130 );
+	mFodder->GUI_Sprite_Draw_Frame_At( 0x17, 0, Data4, 0x130 );
 
-	mFodder->Sprite_Draw_Frame( 0xE, 0x0A, 0, 0x9B );
+	mFodder->GUI_Sprite_Draw_Frame_At( 0xE, 0x0A, 0, 0x9B );
 
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway );
