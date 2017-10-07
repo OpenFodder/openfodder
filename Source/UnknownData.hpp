@@ -220,8 +220,8 @@ int16 word_32B7C[] = {
 };
 
 int16* mSprite_AnimationPtrs[] = {
-	word_32AEC,
-	word_32B7C
+	word_32AEC,	// Human
+	word_32B7C	// Computer
 };
 
 const int16 mDirectionData[] = {

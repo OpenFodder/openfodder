@@ -128,11 +128,6 @@ class cFodder : public cSingleton < cFodder > {
 
 	sRecruitRendered	mRecruit_Rendered[0x0D];
 
-	uint32			dword_3901A;
-	uint16			word_3901E;
-	int16			word_39096;
-	int16			word_3909A;
-	uint16			word_390A4;
 	int16			word_390A6;
 	uint16			word_390AE;
 	int16			mMission_EngineTicks;
@@ -603,7 +598,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_428C8;
 	const int16*	word_428CA;
 	uint16			word_428CC;
-	int16			word_428D6;
+	int16			mBriefing_Helicopter_Moving;
 	int16			word_428D8;
 
 	int16			mKeyNumberPressed;
@@ -745,9 +740,9 @@ public:
 	void			Briefing_Intro_Mor();
 	void			Briefing_Intro_Int();
 
-	void			sub_1590B( );
+	void			Briefing_Helicopter_Start( );
 	void			sub_1594F( );
-	void			sub_159A6( );
+	void			Briefing_Update_Helicopter( );
 	void			Briefing_Render_2(tSharedBuffer pDs, int16 pCx );
 	void			Briefing_Render_1( tSharedBuffer pDs, int16 pCx );
 	void			sub_15B98( uint8* pDs, int16 pCx );
