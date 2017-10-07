@@ -89,7 +89,7 @@ class cFodder : public cSingleton < cFodder > {
 	cResources*				mResources;
 	cWindow*				mWindow;
 
-	uint8*					word_397D8;
+	uint8*					mMission_Memory_Backup;
 
 	sSprite					mSprite_Spare;
 	sSprite					mSprites[45];
@@ -143,15 +143,15 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
 	uint16			mRecruits_AliveCount;
-	int16			word_390D4;
+	int16			mSquad_Prepare_SetFromSpritePtrs;
 	int16			mSprite_Enemy_AggressionCreated_Count;
-	uint16			word_390E8;
+	uint16			mMission_Recruits_AliveCount;
 	int16			mMission_Recruitment;
 	int16			mMission_TryingAgain;
 	uint16			mMissionPhaseRemain;
 	uint16			mMissionPhases;
 	uint16			mRecruit_NextID;
-	int16			word_390F8;
+	int16			word_390F8;					// Unused. Set to -1 on mission complete
 	sSquad_Member	mSquad[9];
 
 	int16			mGraveRanks[361];
@@ -227,11 +227,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mCamera_Adjust_Col_High;
 	int16			mCamera_Adjust_Row_High;
 	int16			mKeyCodeAscii;
-	int32			dword_39F7C;
 
-	int16			word_39F94;
-	int16			word_39F96;
-	int16			dword_39F98;
 	int16			word_39F9C;
 	int16			word_39F9E;
 	int16			word_39FB2;
@@ -344,10 +340,8 @@ class cFodder : public cSingleton < cFodder > {
 	sRecruitRendered*			mRecruit_RenderedPtr;
 	int16			mRecruit_Truck_Frame;
 	int16			mRecruit_Truck_FrameAnimBufferPtr;
-	int16			word_3AAD1;
 
-	int16			word_3AA43;
-	int16			word_3AB39;
+	int16			mMouse_Button_LeftRight_Toggle2;
 	int16			mSquad_Prepare_Prebriefing;
 	int8			byte_3ABA9;
 	int16			word_3ABAD;
@@ -419,8 +413,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mRecruit_Truck_Animation_Play;
 	int16			mRecruit_ToEnterTruck;
 
-	const sRecruit_Screen_Pos*		dword_3B1FB;
-	
 	int16			mMap_TileSet;
 	sSprite*		mSquad_CurrentVehicle;
 	int16			mMission_In_Progress;

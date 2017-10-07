@@ -81,7 +81,7 @@ cFodder::cFodder( bool pSkipIntro ) {
 
 	mEnemy_BuildingCount = 0;
 	mMission_Aborted = 0;
-	word_3AA43 = 0;
+	mMouse_Button_LeftRight_Toggle2 = 0;
 	mSquad_Prepare_Prebriefing = 0;
 	word_3ABE7 = 0;
 	word_3ABE9 = 0;
@@ -519,14 +519,14 @@ void cFodder::Game_ClearVariables() {
 	mRecruits_AliveCount = 0;
 	mSaved_MissionNumber = 0;
 	mSaved_MapNumber = 0;
-	word_390D4 = 0;
+	mSquad_Prepare_SetFromSpritePtrs = 0;
 
 	for (unsigned int x = 0; x < 8; ++x) {
 		mSquad_SpritePtrs[x] = 0;
 	}
 
 	mSprite_Enemy_AggressionCreated_Count = 0;
-	word_390E8 = 0;
+	mMission_Recruits_AliveCount = 0;
 	mMission_Recruitment = 0;
 	mMission_TryingAgain = 0;
 	mMissionPhaseRemain = 0;
@@ -592,14 +592,14 @@ void cFodder::Mission_Memory_Backup() {
 	uint8* Start = (uint8*) &mMapNumber;
 	uint8* End = (uint8*)&mButtonPressLeft;
 
-	memcpy( word_397D8, &mMapNumber, End - Start );
+	memcpy( mMission_Memory_Backup, &mMapNumber, End - Start );
 }
 
 void cFodder::Mission_Memory_Restore() {
 	uint8* Start = (uint8*) &mMapNumber;
 	uint8* End = (uint8*)&mButtonPressLeft;
 
-	memcpy( &mMapNumber, word_397D8, End - Start );
+	memcpy( &mMapNumber, mMission_Memory_Backup, End - Start );
 }
 
 void cFodder::Mission_Memory_Clear() {
@@ -638,9 +638,6 @@ void cFodder::Mission_Memory_Clear() {
 	dword_39F8C = 0;
 	dword_39F90 = 0;
 
-	word_39F94 = 0;
-	word_39F96 = 0;
-	dword_39F98 = 0;
 	word_39F9C = 0;
 	word_39F9E = 0;
 	word_39FA0 = 0;
@@ -771,8 +768,6 @@ void cFodder::Mission_Memory_Clear() {
 	mSprite_Weapon_Data.mDeviatePotential = 0;
 	mSprite_Weapon_Data.field_8 = 0;
 
-	word_3AAD1 = 0;
-	word_3AB39 = 0;
 	word_3ABAD = 0;
 	word_3ABAF = 0;
 	mSprite_Bullet_Time_Modifier = 0;
@@ -853,8 +848,7 @@ void cFodder::Mission_Memory_Clear() {
 
 	mRecruit_Truck_Animation_Play = 0;
 	mRecruit_ToEnterTruck = 0;
-	dword_3B1FB = 0;
-	
+
 	mSquad_CurrentVehicle = 0;
 	mMission_In_Progress = 0;
 	mSprite_HumanVehicles_Found = 0;
@@ -1007,7 +1001,7 @@ void cFodder::sub_10DEC() {
 	mMission_TryAgain = 0;
 	mMission_Complete = 0;
 	mMission_Completed_Timer = 0;
-	dword_39F7C = 0;
+
 	mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 
 	mSquads_TroopCount[0] = 0;
@@ -1033,7 +1027,7 @@ void cFodder::sub_10DEC() {
 }
 
 void cFodder::Squad_Set_Squad_Leader() {
-	dword_39F98 = 0;
+
 	word_39F9C = 0;
 	word_39F9E = 0;
 	mSprites[0].field_0 = -32768;
@@ -1238,7 +1232,8 @@ void cFodder::Squad_Prepare() {
 	
 	if (!mSquad_Prepare_Prebriefing) {
 
-		if (word_390D4) {
+		// Set the sSquad_Member Sprites from mSquad_SpritePtrs
+		if (mSquad_Prepare_SetFromSpritePtrs) {
 			sSquad_Member* Data20 = mSquad;
 			sSprite** Data24 = mSquad_SpritePtrs;
 
@@ -1247,16 +1242,18 @@ void cFodder::Squad_Prepare() {
 			}
 		}
 
-		word_390D4 = -1;
+		mSquad_Prepare_SetFromSpritePtrs = -1;
+
 		sSquad_Member* Data20 = mSquad;
 		sSprite** Data24 = mSquad_SpritePtrs;
+
 		for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 			*Data24++ = Data20->mSprite;
 		}
 
 	}
-	// End Chunk
 
+	// Join recruits into the squad
 	int16 Data1C = mMapPlayerTroopCount - 1;
 	while (Data1C >= 0) {
 		Squad_Prepare_NextRecruit();
@@ -1266,6 +1263,7 @@ void cFodder::Squad_Prepare() {
 	if (mSquad_Prepare_Prebriefing)
 		return;
 
+	// Remove recruits which arn't needed for the map
 	Data1C = mTroopsAvailable;
 	sSquad_Member* Data20 = mSquad;
 	for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
@@ -1284,8 +1282,10 @@ void cFodder::Squad_Prepare() {
 void cFodder::Squad_Prepare_NextRecruit() {
 	sSquad_Member* Data20 = mSquad;
 
+	// Loop each squad member
 	for (int16 Data0 = 7; Data0 >= 0; --Data0) {
 
+		// Does squad member have a recruit id?
 		if (Data20->mRecruitID == -1) {
 
 			if (mRecruit_NextID >= 360)
@@ -1662,8 +1662,6 @@ loc_11D8A:;
 	if (mMap_Destroy_Tiles_Countdown)
 		Map_Destroy_Tiles();
 
-	dword_39F7C = 0;
-
 	for (;;) {
 		Camera_Pan_To_Target();
 		Camera_Pan_To_Target();
@@ -1920,8 +1918,6 @@ void cFodder::sub_120F6() {
 
 			dword_39F24 += (0x140 << 16);
 			dword_39F56 = (0xFFFF << 16) | (dword_39F56 & 0xFFFF);
-			word_39F94 -= 0x28;
-			word_39F96 -= 1;
 		}
 	}
 	else {
@@ -1929,8 +1925,6 @@ void cFodder::sub_120F6() {
 		if ((dword_39F24 >> 16) >= 0x140) {
 			dword_39F24 -= (0x140 << 16);
 			dword_39F56 = (1 << 16) | (dword_39F56 & 0xFFFF);
-			word_39F94 += 0x28;
-			++word_39F96;
 		}
 	}
 	//loc_1219F
@@ -2818,12 +2812,12 @@ void cFodder::Mouse_ButtonCheck() {
 
 			if (mButtonPressRight) {
 				mMouse_Button_LeftRight_Toggle = -1;
-				word_3AA43 = -1;
+				mMouse_Button_LeftRight_Toggle2 = -1;
 			}
 		}
 
 	} else {
-		word_3AA43 = 0;
+		mMouse_Button_LeftRight_Toggle2 = 0;
 		mMouse_Button_Left_Toggle = 0;
 	}
 
@@ -3145,7 +3139,7 @@ void cFodder::Prepare( ) {
 	uint8* Start = (uint8*) &mMapNumber;
 	uint8* End = (uint8*)&mButtonPressLeft;
 
-	word_397D8 = new uint8[ End - Start ];
+	mMission_Memory_Backup = new uint8[ End - Start ];
 	sub_12AB1();
 
 	mImage = new cSurface( 352, 300 );
@@ -4550,10 +4544,6 @@ bool cFodder::Recruit_Show() {
 
 	mGraphics->Load_Hill_Data();
 
-	dword_3B1FB = mRecruit_Screen_Positions;
-	word_3AAD1 = -1;
-	word_3AB39 = -1;
-
 	Recruit_Truck_Anim_Prepare();
 	sub_16C6C();
 	Recruit_Render_LeftMenu();
@@ -5266,7 +5256,7 @@ void cFodder::Recruit_Position_Troops() {
 	if (mMission_Restart)
 		Recruits = mRecruits_AliveCount;
 	else {
-		Recruits = word_390E8;
+		Recruits = mMission_Recruits_AliveCount;
 		if (!Recruits)
 			goto loc_179B2;
 	}
@@ -18227,10 +18217,10 @@ void cFodder::Mission_Phase_Next() {
 	mMissionPhase = 0;
 	mRecruits_AliveCount += 0x0F;
 
-	word_390E8 = mRecruits_AliveCount;
-	word_390E8 -= 0x0F;
+	mMission_Recruits_AliveCount = mRecruits_AliveCount;
+	mMission_Recruits_AliveCount -= 0x0F;
 	mMission_Recruitment = -1;
-	word_390D4 = 0;
+	mSquad_Prepare_SetFromSpritePtrs = 0;
 
 	mGraveRecruitIDPtr = mGraveRecruitID;
 	mGraveRecruitID[0] = -1;
@@ -21611,7 +21601,7 @@ loc_30814:;
 	if (Mouse_Button_Left_Toggled() < 0)
 		return;
 
-	if (word_3AA43)
+	if (mMouse_Button_LeftRight_Toggle2)
 		return;
 
 	if (mMouseSpriteNew < 0) {
