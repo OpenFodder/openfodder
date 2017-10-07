@@ -1096,26 +1096,18 @@ void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 }
 
 void cGraphics_Amiga::Briefing_Load_Resources() {
-	std::string JunData1 = "play.lbm";
-	std::string JunData2 = "sky.pl8";
-	std::string JunData3 = "mid.pl8";
-	std::string JunData4 = "fgnd.pl8";
-	std::string JunData5 = "fgn2.pl8";
-	std::string JunData6 = "heli.pal";
 
-	// Load the current map
+	// Load the current map & Set TileType
 	mFodder->mMap = g_Resource.fileGet(mFodder->map_Filename_MapGet());
-
-	// Set the terrain type
 	mFodder->Map_SetTileType();
 
-	// Set the filenames for the map tile type
-	JunData1.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData2.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData3.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData4.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData5.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData6.insert(0, mTileTypes[mFodder->mMap_TileSet].mName);
+	// Briefing images
+	std::string JunData1 = mTileTypes[mFodder->mMap_TileSet].mName + "play.lbm";
+	std::string JunData2 = mTileTypes[mFodder->mMap_TileSet].mName + "sky.pl8";
+	std::string JunData3 = mTileTypes[mFodder->mMap_TileSet].mName + "mid.pl8";
+	std::string JunData4 = mTileTypes[mFodder->mMap_TileSet].mName + "fgnd.pl8";
+	std::string JunData5 = mTileTypes[mFodder->mMap_TileSet].mName + "fgn2.pl8";
+	std::string JunData6 = mTileTypes[mFodder->mMap_TileSet].mName + "heli.pal";
 
 	// Load the intro images
 	mImageBriefingIntro = DecodeIFF(JunData1);

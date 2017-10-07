@@ -625,11 +625,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mRandom_2;
 	int16			mRandom_3;
 
-	int32			dword_44A36;
-	int32			dword_44A3E;
-	int32			dword_44A3A;
-	int32			dword_44A42;
-	int32			dword_44A46;
 	int16			byte_44AC0;
 	int16			mInput_LastKey;
 
@@ -1091,9 +1086,7 @@ public:
 	const sSpriteSheet*	Sprite_Get_Sheet( int16 pSpriteType, int16 pFrame );
 
 	void			sub_2AEB6( int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC );
-	uint8			sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx );
 
-	void			sub_2B016( uint8* pDi, uint8 pAl );
 	void			sub_2B12E( sSprite* pSprite );
 	void			Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C );
 
