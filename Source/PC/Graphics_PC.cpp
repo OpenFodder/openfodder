@@ -668,24 +668,19 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 }
 
 void cGraphics_PC::Briefing_Load_Resources() {
-	std::string MapName = mFodder->map_Filename_MapGet();
-	std::string JunData1 = "p1.dat";
-	std::string JunData2 = "p2.dat";
-	std::string JunData3 = "p3.dat";
-	std::string JunData4 = "p4.dat";
-	std::string JunData5 = "p5.dat";
 
-	mFodder->mMap = g_Resource.fileGet( MapName );
+	// Load the current map & Set TileType
+	mFodder->mMap = g_Resource.fileGet(mFodder->map_Filename_MapGet());
 	mFodder->Map_SetTileType();
 
-	JunData1.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName );
-	JunData2.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData3.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData4.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
-	JunData5.insert( 0, mTileTypes[mFodder->mMap_TileSet].mName);
+	// Briefing images
+	std::string JunData1 = mTileTypes[mFodder->mMap_TileSet].mName + "p1.dat";
+	std::string JunData2 = mTileTypes[mFodder->mMap_TileSet].mName + "p2.dat";
+	std::string JunData3 = mTileTypes[mFodder->mMap_TileSet].mName + "p3.dat";
+	std::string JunData4 = mTileTypes[mFodder->mMap_TileSet].mName + "p4.dat";
+	std::string JunData5 = mTileTypes[mFodder->mMap_TileSet].mName + "p5.dat";
 
 	mImageBriefingIntro.mData = g_Resource.fileGet(JunData1);
-
 	mFodder->mBriefing_Intro_Gfx_Clouds1 = g_Resource.fileGet(JunData2);
 	mFodder->mBriefing_Intro_Gfx_Clouds2 = g_Resource.fileGet(JunData3);
 	mFodder->mBriefing_Intro_Gfx_Clouds3 = g_Resource.fileGet(JunData4);
@@ -705,36 +700,61 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	mImageBriefingIntro.LoadPalette(mImageBriefingIntro.mData->size() - 0x300, 0x100, 0);
 }
 
+uint8 cGraphics_PC::Video_Get_Pixel(uint8* pSi, int16 pBx, int16 pCx) {
+
+	pSi += 0xA0 * pBx;
+	pSi += (pCx >> 1);
+	if (pCx & 1)
+		return (*pSi) & 0x0F;
+
+	return (*pSi) >> 4;
+}
+
+void cGraphics_PC::Video_Put_Pixel(uint8* pDi, uint8 pAl) {
+
+	pDi += 0xA0 * (dword_44A3A >> 16);
+	pDi += (dword_44A36 >> 16) >> 1;
+
+	if ((dword_44A36 >> 16) & 1) {
+		*pDi &= 0xF0;
+		*pDi |= pAl & 0x0F;
+		return;
+	}
+
+	*pDi &= 0x0F;
+	*pDi |= pAl << 4;
+}
+
 void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) {
 	pColumns &= 0xFFFF;
 	pRows &= 0xFFFF;
 
 	uint8* es = mImageHill.mData->data();
 
-	mFodder->dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
-	mFodder->dword_44A3E = mFodder->dword_44A36;
+	dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
+	dword_44A3E = dword_44A36;
 
-	mFodder->dword_44A3A = (pData14 - (pDataC >> 1)) << 16;
+	dword_44A3A = (pData14 - (pDataC >> 1)) << 16;
 	int32 eax = (pData8 << 0x10);
 	if (eax <= 0)
 		return;
 
-	mFodder->dword_44A42 = eax / pColumns;
+	int32 dword_44A42 = eax / pColumns;
 	eax = pDataC << 0x10;
 	if (eax <= 0)
 		return;
 
-	mFodder->dword_44A46 = eax / pRows;
+	int32 dword_44A46 = eax / pRows;
 	for (int16 bx = 0; bx != pRows; ++bx) {
-		mFodder->dword_44A36 = mFodder->dword_44A3E;
+		dword_44A36 = dword_44A3E;
 
 		for (int16 cx = 0; cx != pColumns; ++cx) {
-			uint8 al = mFodder->sub_2AFF5( pGraphics, bx, cx );
-			mFodder->sub_2B016( es, al );
-			mFodder->dword_44A36 += mFodder->dword_44A42;
+			uint8 al = Video_Get_Pixel( pGraphics, bx, cx );
+			Video_Put_Pixel( es, al );
+			dword_44A36 += dword_44A42;
 		}
 
-		mFodder->dword_44A3A += mFodder->dword_44A46;
+		dword_44A3A += dword_44A46;
    	}
 
 }

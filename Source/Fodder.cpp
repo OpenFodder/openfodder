@@ -2576,76 +2576,10 @@ void cFodder::Map_Overview_Prepare() {
 		dword_3E9A3[cx] = 0;
 	}
 
-	int16* Di = (int16*) (mMap->data() + 0x60);
+	int16* MapPtr = (int16*) (mMap->data() + 0x60);
 
-	int16 Data8;
-	int16 DataC;
-
-	if (mMapHeight <= mMapWidth ) {
-		int32 eax = 0x1100000;
-		int32 ebx = mMapWidth;
-		ebx &= 0xFFFF;
-
-		eax /= ebx;
-		dword_3F946 = eax;
-		eax >>= 0x10;
-		Data8 = eax;
-
-		eax = 0x0C80000;
-		ebx = mMapWidth;
-		ebx &= 0xFFFF;
-		eax /= ebx;
-		dword_3F94A = eax;
-		eax >>= 0x10;
-		DataC = eax;
-	}
-	else {
-		//loc_12FDD
-		int32 eax = 0x1100000;
-		int32 ebx = mMapHeight;
-		ebx &= 0xFFFF;
-
-		eax /= ebx;
-		dword_3F946 = eax;
-		eax >>= 0x10;
-		Data8 = eax;
-
-		eax = 0x0C80000;
-		ebx = mMapHeight;
-		ebx &= 0xFFFF;
-		eax /= ebx;
-		dword_3F94A = eax;
-		eax >>= 0x10;
-		DataC = eax;
-	}
-
-	int32 eax = dword_3F946;
-	int32 ebx = mMapWidth & 0xFFFF;
-	eax *= ebx;
-	eax >>= 0x11;
-	eax -= 0x88;
-	eax = -eax;
-	word_3F94E = eax;
-
-	eax = dword_3F94A;
-	ebx = mMapHeight & 0xFFFF;
-	eax *= ebx;
-	eax >>= 0x11;
-	eax -= 0x64;
-	eax = -eax;
-	word_3F950 = eax;
 	int16 Data0 = 0x10;
 	int16 Data4 = 0x10;
-
-	eax = Data8 + 1;
-	eax <<= 0x10;
-	eax /= Data0;
-	dword_44A42 = eax;
-
-	eax = DataC + 1;
-	eax >>= 0x10;
-	eax /= Data4;
-	dword_44A46 = eax;
 
 	mSurfaceMapTop = mSurfaceMapLeft = 0;
 
@@ -2666,9 +2600,9 @@ void cFodder::Map_Overview_Prepare() {
 
 		for (uint16 cx = 0; cx < mMapWidth; ++cx) {
 
-			mGraphics->MapOverview_Render_Tiles( *Di & 0x1FF, cx + mSurfaceMapLeft, dx + mSurfaceMapTop );
+			mGraphics->MapOverview_Render_Tiles( *MapPtr & 0x1FF, cx + mSurfaceMapLeft, dx + mSurfaceMapTop );
 			
-			++Di;
+			++MapPtr;
 		}
 	}
 
@@ -9408,16 +9342,6 @@ const sSpriteSheet* cFodder::Sprite_Get_Sheet(int16 pSpriteType, int16 pFrame) {
 	return Sheet;
 }
 
-uint8 cFodder::sub_2AFF5( uint8* pSi, int16 pBx, int16 pCx ) {
-
-	pSi += 0xA0 * pBx;
-	pSi += (pCx >> 1);
-	if (pCx & 1)
-		return (*pSi) & 0x0F;
-
-	return (*pSi) >> 4;
-}
-
 void cFodder::sub_2AEB6( int16 pColumns, int16 pRows, int16* pData8, int16* pDataC ) {
 	int32	Data = pColumns * *pData8;
 	pColumns = (int16) Data / 0x64;
@@ -9430,20 +9354,6 @@ void cFodder::sub_2AEB6( int16 pColumns, int16 pRows, int16* pData8, int16* pDat
 	*pData8 = Final8;
 }
 
-void cFodder::sub_2B016( uint8* pDi, uint8 pAl ) {
-	
-	pDi += 0xA0 * (dword_44A3A >> 16); 
-	pDi += (dword_44A36 >> 16) >> 1;
-
-	if ((dword_44A36 >> 16) & 1) {
-		*pDi &= 0xF0;
-		*pDi |= pAl & 0x0F;
-		return;
-	}
-
-	*pDi &= 0x0F;
-	*pDi |= pAl << 4;
-}
 
 void cFodder::sub_2B12E( sSprite* pSprite ) {
 	word_3A8CF = 0;

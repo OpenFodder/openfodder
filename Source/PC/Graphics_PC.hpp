@@ -30,6 +30,10 @@ const extern sSpriteSheet* mSpriteSheetTypes_Service_PC[];
 const extern uint8 mUnkStringModifier_Recruit[];
 
 class cGraphics_PC : public cGraphics {
+	int32			dword_44A36;
+	int32			dword_44A3E;
+	int32			dword_44A3A;
+
 	uint8*				mTile_Gfx_Ptrs[480];
 	sImage				mImageRecruit;
 
@@ -56,6 +60,9 @@ class cGraphics_PC : public cGraphics {
 	virtual void		PaletteSet();
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
+
+	uint8				Video_Get_Pixel(uint8* pSi, int16 pBx, int16 pCx);
+	void				Video_Put_Pixel(uint8* pDi, uint8 pAl);
 
 	virtual void		Video_Draw_16();
 	virtual void		Video_Draw_8();
