@@ -570,10 +570,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mImageFaded;
 	int16			mMouseSpriteCurrent;
 	int16			mService_ExitLoop;
-	uint16			word_40056;
-	uint16			word_40058;
-	uint16			word_4005A;
-	uint16			word_4005C;
+
 	uint8*			mDraw_Sprite_FrameDataPtr;
 	uint8*			word_42066;
 	int16			mDrawSpritePositionX;
@@ -733,15 +730,15 @@ public:
 	void			Mission_GameOver();
 	void			Mission_Text_GameOver( sSprite* pData2C );
 	void			Mission_Paused();
-	void			sub_136D0();
+
 	void			Video_Sleep_Wrapper();
 	void			Mouse_DrawCursor( );
-	void			Sprite_Draw_Frame( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX );
-	void			sub_13C8A(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
-	void			sub_13CF0(  sSprite* pDi, int16 pSpriteType, int16 pFrame);
+	void			GUI_Sprite_Draw_Frame_At( int32 pSpriteType, int32 pPositionY, int32 pFrame, int32 pPositionX );
+	void			Service_Sprite_Draw_Frame_At(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
+	void			Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame);
 
 	bool			Sprite_OnScreen_Check();
-	void			Sprite_Draw( );
+	void			Sprites_Draw( );
 	void			Sprite_Map_Sound_Play( int16& pData0 );
 
 	void			Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 );
