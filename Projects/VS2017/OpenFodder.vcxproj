@@ -74,8 +74,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;$(IncludePath)</IncludePath>
-    <LibraryPath>{SDL2 location}\lib\x64;{SDL2_mixer location}\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Systems\Libraries\SDL2-2.0.5\include;D:\Systems\Libraries\SDL2_mixer-2.0.1\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Systems\Libraries\SDL2-2.0.5\lib\x64;D:\Systems\Libraries\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -84,8 +84,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;$(IncludePath)</IncludePath>
-    <LibraryPath>{SDL2 location}\lib\x64;{SDL2_mixer location}\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Systems\Libraries\SDL2-2.0.5\include;D:\Systems\Libraries\SDL2_mixer-2.0.1\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Systems\Libraries\SDL2-2.0.5\lib\x64;D:\Systems\Libraries\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
     <!--IntDir>$(Platform)\$(Configuration)</IntDir-->
     <!--OutDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\..\..\Run</OutDir-->
   </PropertyGroup>
@@ -115,6 +115,7 @@
       <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -191,12 +192,12 @@
     <ClInclude Include="..\..\Source\Singleton.hpp" />
     <ClInclude Include="..\..\Source\Sound.hpp" />
     <ClInclude Include="..\..\Source\Sprites.hpp" />
-	<ClInclude Include="..\..\Source\SpriteSheet.hpp" />
+    <ClInclude Include="..\..\Source\SpriteSheet.hpp" />
     <ClInclude Include="..\..\Source\stdafx.hpp" />
     <ClInclude Include="..\..\Source\Surface.hpp" />
     <ClInclude Include="..\..\Source\Tiles.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
-    <ClInclude Include="..\..\Source\UnknownData.hpp" />
+    <ClInclude Include="..\..\Source\Map.hpp" />
     <ClInclude Include="..\..\Source\Utils\json.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />
@@ -230,7 +231,7 @@
     <ClCompile Include="..\..\Source\Resources.cpp" />
     <ClCompile Include="..\..\Source\Sound.cpp" />
     <ClCompile Include="..\..\Source\Sprites.cpp" />
-	<ClCompile Include="..\..\Source\SpriteSheet.cpp" />
+    <ClCompile Include="..\..\Source\SpriteSheet.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Tiles.cpp" />
