@@ -766,7 +766,7 @@ const int16 mRecruit_Truck_Anim_CloseDoor[] = {
 	0x06, 0x05, 0x05, 0x04, 0x04, 0x03, 0x03, 0x02, 0x02, 0x01, 0x01, 0x00, -1
 };
 
-const int16 mRecruit_Shirt_Colors[] =
+const int16 mRecruit_Shirt_Colors[16] =
 {
 	4,  10, 4,  16,  22,
 	10,  4, 22, 16,  10,
