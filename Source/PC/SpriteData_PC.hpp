@@ -20,6 +20,10 @@
  *
  */
 
+const int16 mBriefing_ParaHeli_Frames[] = {
+	0x00, 0x20, 0x40, 0x60
+};
+
 const sSpriteSheet mSpriteSheet_Font_PC[83] = {
 	{ 0, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },
 	{ 8, eSPRITE_FONT, 0, 0, 16, 17, 208, 0, 0 },

@@ -39,10 +39,6 @@ const int16 mBriefing_Helicopter_Offsets[] =
 	-1, -1
 };
 
-const int16 mBriefing_ParaHeli_Frames[] = {
-	0x00, 0x20, 0x40, 0x60
-};
-
 cFodder::cFodder( bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
@@ -1344,7 +1340,7 @@ void cFodder::Mission_Troops_Prepare_Sprites() {
 			++Troop;
 		} else {
 			// loc_1166B
-			Data20->field_46_squad =  Troop;
+			Data20->field_46_mission_troop =  Troop;
 
 			Troop->mSprite = Data20;
 			Data20->field_10 = 0x40;
@@ -2137,7 +2133,7 @@ void cFodder::Sprite_Bullet_SetData() {
 	sSprite* Data20 = mSprite_TroopsAlive[0];
 	int16 Data0 = 0;
 
-	Data0 = Data20->field_46_squad->mRank;
+	Data0 = Data20->field_46_mission_troop->mRank;
 	Data0 += 8;
 	if (Data0 > 0x0F)
 		Data0 = 0x0F;
@@ -3116,9 +3112,6 @@ void cFodder::Prepare( ) {
 
 	mMap = 0;
 
-	mBriefing_Intro_Gfx_Clouds1 = tSharedBuffer();
-	mBriefing_Intro_Gfx_Clouds2 = tSharedBuffer();
-
 	mSidebar_Back_Buffer = (uint16*) new uint8[0x400 * 16];
 	mSidebar_Screen_Buffer = (uint16*) new uint8[0x400 * 16];
 	mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
@@ -3412,423 +3405,6 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
 	mSound->Sound_Play( mMap_TileSet, pSoundEffect, Volume );
 }
 
-void cFodder::Briefing_Intro_Jungle( ) {
-	
-	int16 word_4286F = 0;
-	int16 word_42871 = 0;
-	int16 word_42873 = 0;
-	int16 word_42875 = 0;
-
-	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
-
-	mVideo_Draw_PaletteIndex = 0xE0;
-
-	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
-
-	mImage->paletteSet( mPalette );
-
-	mImageFaded = -1;
-
-	do {
-		if (mBriefing_Helicopter_Moving == -1)
-			Briefing_Update_Helicopter();
-
-		if( mImageFaded == -1 )
-			mImageFaded = mImage->palette_FadeTowardNew();
-
-		// Clouds
-		word_42859 = 0x30;
-		word_4285B = 0x0C64 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
-
-		word_42859 = 0x38;
-		word_4285B = 0x102C * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873);
-
-		word_42859 = 0x12;
-		word_4285B = 0x1D3C * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871);
-
-		// Trees (Main)
-		word_42859 = 0x5C;
-		word_4285B = 0x236C * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
-
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
-
-		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
-		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
-		mVideo_Draw_Columns = 0x40;
-		mVideo_Draw_Rows = 0x18;
-		if (Sprite_OnScreen_Check())
-			mGraphics->Video_Draw_8();
-
-		word_42859 = 0x2D;
-		word_4285B = 0x33EC * 4;
-		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
-
-		word_4286F += 8;
-		if (word_4286F > 0x140)
-			word_4286F = 0;
-
-		word_42871 += 4;
-		if (word_42871 > 0x140)
-			word_42871 = 0;
-
-		word_42873 += 2;
-		if (word_42873 > 0x140)
-			word_42873 = 0;
-
-		++word_42875;
-		if (word_42875 > 0x140)
-			word_42875 = 0;
-
-		Mouse_GetData();
-		Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
-		g_Window.FrameEnd();
-
-		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
-			word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
-			mImageFaded = -1;
-		}
-	} while (word_428D8 || mImageFaded != 0);
-}
-
-void cFodder::Briefing_Intro_Desert() {
-	int16 word_4286F = 0;
-	int16 word_42871 = 0;
-	int16 word_42873 = 0;
-	int16 word_42875 = 0;
-
-	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
-
-	mVideo_Draw_PaletteIndex = 0xE0;
-
-	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
-
-	mImage->paletteSet( mPalette );
-
-	mImageFaded = -1;
-
-	do {
-		if (mBriefing_Helicopter_Moving == -1)
-			Briefing_Update_Helicopter();
-
-		if( mImageFaded == -1 )
-			mImageFaded = mImage->palette_FadeTowardNew();
-
-		// Clouds
-		word_42859 = 0x3A;
-		word_4285B = 0x0C64 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
-
-		word_42859 = 0x4C;
-		word_4285B = 0x139C * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
-
-		word_42859 = 0x30;
-		word_4285B = 0x1CE4 * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
-
-		// Trees (Main)
-		word_42859 = 0x40;
-		word_4285B = 0x2D64 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
-
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
-
-		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
-		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
-		mVideo_Draw_Columns = 0x40;
-		mVideo_Draw_Rows = 0x18;
-		if (Sprite_OnScreen_Check())
-			mGraphics->Video_Draw_8();
-
-		word_42859 = 0x30;
-		word_4285B = 0x32E4 * 4;
-		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
-
-		word_4286F += 8;
-		if (word_4286F > 0x140)
-			word_4286F = 0;
-
-		word_42871 += 4;
-		if (word_42871 > 0x140)
-			word_42871 = 0;
-
-		word_42873 += 2;
-		if (word_42873 > 0x140)
-			word_42873 = 0;
-
-		++word_42875;
-		if (word_42875 > 0x140)
-			word_42875 = 0;
-
-		Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
-		g_Window.FrameEnd();
-
-		Mouse_GetData();
-		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
-			word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
-			mImageFaded = -1;
-		}
-	} while (word_428D8 || mImageFaded != 0);
-}
-
-void cFodder::Briefing_Intro_Ice() {
-	int16 word_4286F = 0;
-	int16 word_42871 = 0;
-	int16 word_42873 = 0;
-	int16 word_42875 = 0;
-
-	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
-
-	mVideo_Draw_PaletteIndex = 0xE0;
-
-	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
-
-	mImage->paletteSet( mPalette );
-
-	mImageFaded = -1;
-
-	do {
-		if (mBriefing_Helicopter_Moving == -1)
-			Briefing_Update_Helicopter();
-
-		if( mImageFaded == -1 )
-			mImageFaded = mImage->palette_FadeTowardNew();
-
-		// Clouds
-		word_42859 = 0x24;
-		word_4285B = 0x0C64 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
-
-		word_42859 = 0x42;
-		word_4285B = 0x102C * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
-
-		// Ice Caps
-		word_42859 = 0x18;
-		word_4285B = 0x1CE4 * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
-
-		// Ice Mountains
-		word_42859 = 0x58;
-		word_4285B = 0x2524 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
-
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
-
-		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
-		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
-		mVideo_Draw_Columns = 0x40;
-		mVideo_Draw_Rows = 0x18;
-		if (Sprite_OnScreen_Check())
-			mGraphics->Video_Draw_8();
-
-		word_42859 = 0x2E;
-		word_4285B = 0x3394 * 4;
-		// Trees
-		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
-
-		word_4286F += 8;
-		if (word_4286F > 0x140)
-			word_4286F = 0;
-
-		word_42871 += 4;
-		if (word_42871 > 0x140)
-			word_42871 = 0;
-
-		word_42873 += 2;
-		if (word_42873 > 0x140)
-			word_42873 = 0;
-
-		++word_42875;
-		if (word_42875 > 0x140)
-			word_42875 = 0;
-
-		Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
-		g_Window.FrameEnd();
-
-		Mouse_GetData();
-		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
-			word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
-			mImageFaded = -1;
-		}
-	} while (word_428D8 || mImageFaded != 0);
-}
-
-void cFodder::Briefing_Intro_Mor() {
-	int16 word_4286F = 0;
-	int16 word_42871 = 0;
-	int16 word_42873 = 0;
-	int16 word_42875 = 0;
-
-	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
-
-	mVideo_Draw_PaletteIndex = 0xE0;
-	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
-
-	mImage->paletteSet( mPalette );
-
-	mImageFaded = -1;
-
-	do {
-		if (mBriefing_Helicopter_Moving == -1)
-			Briefing_Update_Helicopter();
-
-		if( mImageFaded == -1 )
-			mImageFaded = mImage->palette_FadeTowardNew();
-
-		// Clouds
-		word_42859 = 0x1D;
-		word_4285B = 0x0C64 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
-
-		word_42859 = 0x40;
-		word_4285B = 0x1134 * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
-
-		word_42859 = 0x6;
-		word_4285B = 0x2524 * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
-
-		// Trees (Main)
-		word_42859 = 0x52;
-		word_4285B = 0x2734 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
-
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
-
-		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
-		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
-		mVideo_Draw_Columns = 0x40;
-		mVideo_Draw_Rows = 0x18;
-		if (Sprite_OnScreen_Check())
-			mGraphics->Video_Draw_8();
-
-		word_42859 = 0x30;
-		word_4285B = 0x32E4 * 4;
-		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, word_4286F );
-
-		word_4286F += 8;
-		if (word_4286F > 0x140)
-			word_4286F = 0;
-
-		word_42871 += 4;
-		if (word_42871 > 0x140)
-			word_42871 = 0;
-
-		word_42873 += 2;
-		if (word_42873 > 0x140)
-			word_42873 = 0;
-
-		++word_42875;
-		if (word_42875 > 0x140)
-			word_42875 = 0;
-
-		Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
-		g_Window.FrameEnd();
-
-		Mouse_GetData();
-		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
-			word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
-			mImageFaded = -1;
-		}
-	} while (word_428D8 || mImageFaded != 0);
-}
-
-void cFodder::Briefing_Intro_Int() {
-	int16 mBriefing_Intro_X = 0;
-	int16 mBriefing_Intro_Clouds1_X = 0;
-	int16 mBriefing_Intro_Clouds2_X = 0;
-	int16 mBriefing_Intro_Clouds3_X = 0;
-
-	mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
-
-	mVideo_Draw_PaletteIndex = 0xE0;
-
-	mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
-
-	mImage->paletteSet( mPalette );
-
-	mImageFaded = -1;
-
-	do {
-		if (mBriefing_Helicopter_Moving == -1)
-			Briefing_Update_Helicopter();
-
-		if( mImageFaded == -1 )
-			mImageFaded = mImage->palette_FadeTowardNew();
-
-		// Clouds
-		word_42859 = 0x40;
-		word_4285B = 0x0C64 * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, mBriefing_Intro_Clouds3_X );
-
-		word_42859 = 0x2F;
-		word_4285B = 0x16B4 * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, mBriefing_Intro_Clouds2_X );
-
-		word_42859 = 0x22;
-		word_4285B = 0x1B2C * 4;
-		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, mBriefing_Intro_Clouds1_X );
-
-		// Trees (Main)
-		word_42859 = 0x53;
-		word_4285B = 0x26DC * 4;
-		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, mBriefing_Intro_Clouds1_X );
-
-		mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mBriefing_ParaHeli_Frame];
-
-		mVideo_Draw_PosX = mHelicopterPosX >> 16;		// X
-		mVideo_Draw_PosY = mHelicopterPosY >> 16;		// Y 
-		mVideo_Draw_Columns = 0x40;
-		mVideo_Draw_Rows = 0x18;
-		if (Sprite_OnScreen_Check())
-			mGraphics->Video_Draw_8();
-
-		word_42859 = 0x23;
-		word_4285B = 0x375C * 4;
-		Briefing_Render_2( mGraphics->mImageBriefingIntro.mData, mBriefing_Intro_X );
-
-		mBriefing_Intro_X += 8;
-		if (mBriefing_Intro_X > 0x140)
-			mBriefing_Intro_X = 0;
-
-		mBriefing_Intro_Clouds1_X += 4;
-		if (mBriefing_Intro_Clouds1_X > 0x140)
-			mBriefing_Intro_Clouds1_X = 0;
-
-		mBriefing_Intro_Clouds2_X += 2;
-		if (mBriefing_Intro_Clouds2_X > 0x140)
-			mBriefing_Intro_Clouds2_X = 0;
-
-		++mBriefing_Intro_Clouds3_X;
-		if (mBriefing_Intro_Clouds3_X > 0x140)
-			mBriefing_Intro_Clouds3_X = 0;
-
-		Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
-		g_Window.FrameEnd();
-
-		Mouse_GetData();
-		if (mouse_Button_Status || (mMission_Aborted && word_428D8)) {
-			word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
-			mImageFaded = -1;
-		}
-	} while (word_428D8 || mImageFaded != 0);
-}
-
 void cFodder::Briefing_Helicopter_Start( ) {
 	mHelicopterPosX = 0x01500000;
 	mHelicopterPosY = 0x00260000;
@@ -3907,239 +3483,6 @@ void cFodder::sub_1594F( ) {
 		mImageFaded = -1;
 	}
 
-}
-
-void cFodder::Briefing_Render_2(tSharedBuffer pSource, int16 pCx ) {
-	uint8* pDs = pSource->data();
-
-	int16 ax = pCx >> 2;
-	int16 dx = ax;
-
-	ax -= 0x50;
-	word_4285F = -ax;
-
-	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
-	pCx &= 3;
-
-	++dx;
-	
-	uint8* di = word_4285D;
-
-	// Loop the 4 planes
-	for (uint8 Plane = 0; Plane < 4; ++Plane) {
-		di = word_4285D + Plane;
-
-		for (int16 bx = word_42859; bx > 0; --bx) {
-			int16 cx;
-			for (cx = word_4285F; cx > 0; --cx) {
-				uint8 al = *pDs++;
-				if (al)
-					*di = al;
-
-				di += 4;
-			}
-
-			di -= 0x51 * 4;
-			--pDs;
-			for (cx = dx; cx > 0; --cx) {
-				uint8 al = *pDs++;
-				if (al)
-					*di = al;
-
-				di += 4;
-			}
-
-			di += 0x58 * 4;
-		}
-	}
-}
-
-void cFodder::Briefing_Render_1( tSharedBuffer pDs, int16 pCx ) {
-
-	if (word_3E75B != 0)
-		sub_15B98( pDs->data(), pCx );
-	else
-		sub_15CE8( pDs->data(), pCx );
-}
-
-void cFodder::sub_15B98(  uint8* pDsSi, int16 pCx ) {
-	int16 ax = pCx >> 2;
-	int16 dx = ax;
-
-	ax -= 0x50;
-	word_4285F = -ax;
-
-	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx*4);
-	pCx &= 3;
-
-	++dx;
-	
-	uint8* di = word_4285D;
-
-	for (uint8 Plane = 0; Plane < 4; ++Plane) {
-		di = word_4285D + Plane;
-
-		for (int16 bx = word_42859; bx > 0; --bx) {
-			int16 cx = word_4285F;
-
-			if (cx & 1) {
-				*di = *pDsSi++;
-				di += 4;
-			}
-
-			cx >>= 1;
-			while (cx > 0) {
-				*di = *pDsSi++;
-				di += 4;
-
-				*di = *pDsSi++;
-				di += 4;
-
-				--cx;
-			}
-
-			cx = dx;
-			di -= 0x51 * 4;
-			--pDsSi;
-			if (cx & 1) {
-				*di = *pDsSi++;
-				di += 4;
-			}
-
-			cx >>= 1;
-			while (cx > 0) {
-				*di = *pDsSi++;
-				di += 4;
-
-				*di = *pDsSi++;
-				di += 4;
-
-				--cx;
-			}
-			di += 0x58 * 4;
-		}
-	}
-}
-
-void cFodder::sub_15CE8(  uint8* pDs, int16 pCx ) {
-	//todo
-	assert( 1 == 0 );
-}
-
-void cFodder::Briefing_Intro() {
-	mImage->clearBuffer();
-
-	mGraphics->Briefing_Load_Resources();
-	mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
-
-	mSound->Music_Play( 0x07 );
-	Briefing_Helicopter_Start();
-
-	if (mVersion->mPlatform == ePlatform::Amiga) {
-		//TODO
-		mVideo_Draw_PosX = 16;
-
-		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData( eSPRITE_BRIEFING );
-		mVideo_Draw_PosY = 40;
-		mGraphics->Video_Draw_16();
-
-		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_1);
-		mVideo_Draw_PosY = 60;
-		mGraphics->Video_Draw_16();
-
-		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_2);
-		mVideo_Draw_PosY = 100;
-		mGraphics->Video_Draw_16();
-
-		mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_BRIEFING_AMIGA_3);
-		mVideo_Draw_PosY = 163;
-		mGraphics->Video_Draw_16();
-
-		((cGraphics_Amiga*)mGraphics)->PaletteBriefingSet();
-		mImage->palette_FadeTowardNew();
-		mImageFaded = -1;
-
-		Briefing_Draw_Mission_Name();
-		mImage->Save();
-
-		int16 word_42875 = 0;
-
-		do {
-			if (mBriefing_Helicopter_Moving == -1)
-				Briefing_Update_Helicopter();
-
-			Mouse_Inputs_Get();
-
-			// Front
-			mVideo_Draw_PosX = mHelicopterPosX >> 16;
-			mVideo_Draw_PosY = mHelicopterPosY >> 16;
-			mGraphics->Briefing_DrawHelicopter( 203 );
-
-			// Tail
-			mVideo_Draw_PosX = (mHelicopterPosX >> 16) + 48;
-			mVideo_Draw_PosY = (mHelicopterPosY >> 16);
-			mGraphics->Briefing_DrawHelicopter( 204 );
-
-			int16 Blade = 205 + word_42875;
-
-			++word_42875;
-			if (word_42875 >= 3)
-				word_42875 = 0;
-
-			// Blade
-			mVideo_Draw_PosX = (mHelicopterPosX >> 16);
-			mVideo_Draw_PosY = (mHelicopterPosY >> 16);
-			mGraphics->Briefing_DrawHelicopter( Blade );
-
-			if (mImageFaded)
-				mImageFaded = mImage->palette_FadeTowardNew();
-
-			eventProcess();
-			Video_Sleep();
-			g_Window.RenderAt( mImage, cPosition() );
-			g_Window.FrameEnd();
-
-			Mouse_GetData();
-
-			if (mMouse_Exit_Loop) {
-				word_428D8 = 0;
-				mImage->paletteNew_SetToBlack();
-				mImageFaded = -1;
-				mMouse_Exit_Loop = 0;
-			}
-			mImage->Restore();
-		} while (word_428D8 || mImageFaded != 0);
-
-		mMouse_Exit_Loop = 0;
-	} 
-	else {
-
-		Briefing_Draw_Mission_Name();
-
-		switch (mMap_TileSet) {
-		case eTileTypes_Jungle:
-			Briefing_Intro_Jungle();
-			break;
-
-		case eTileTypes_Desert:
-			Briefing_Intro_Desert();
-			break;
-
-		case eTileTypes_Ice:
-			Briefing_Intro_Ice();
-			break;
-
-		case eTileTypes_Moors:
-			Briefing_Intro_Mor();
-			break;
-
-		case eTileTypes_Int:
-			Briefing_Intro_Int();
-			break;
-		}
-	}
-
-	mGraphics->Load_pStuff();
 }
 
 void cFodder::Briefing_Draw_Mission_Name( ) {
@@ -9673,7 +9016,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 	if (Data20 == INVALID_SPRITE_PTR || Data20 == 0 )
 		return;
 
-	sMission_Troop* Dataa20 = Data20->field_46_squad;
+	sMission_Troop* Dataa20 = Data20->field_46_mission_troop;
 	if (Dataa20 == 0)
 		return;
 
@@ -10007,7 +9350,7 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 	if (mSquads_TroopCount[Data14] > 8)
 		return -1;
 
-	sMission_Troop* Dataa24 = pSprite->field_46_squad;
+	sMission_Troop* Dataa24 = pSprite->field_46_mission_troop;
 	Dataa24->mSelected &= 0xFE;
 
 	sMapTarget* Data24 = mSquad_WalkTargets[Data18];
@@ -12047,7 +11390,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
 			mTroop_Cannot_Throw_Grenade = -1;
 			word_3A010 = -1;
 
-			Data0 =  pSprite->field_46_squad->field_6;
+			Data0 =  pSprite->field_46_mission_troop->field_6;
 
 		loc_191BF:;
 			Sprite_Handle_Troop( pSprite );
@@ -13299,7 +12642,7 @@ loc_1AE76:;
 
 	pSprite->field_8 = 0x95;
 
-	Data0 = Data24->field_46_squad->mRank;
+	Data0 = Data24->field_46_mission_troop->mRank;
 
 	pSprite->field_A = Data0;
 	Data0 = pSprite->field_3A;
@@ -15563,7 +14906,7 @@ void cFodder::Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite ) {
 	if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
 		return;
 
-	mSquad_Leader->field_46_squad->mRank = 0x0F;
+	mSquad_Leader->field_46_mission_troop->mRank = 0x0F;
 	mGUI_Sidebar_Setup = 0;
 
 	Sprite_Destroy_Wrapper( pSprite );
@@ -15621,7 +14964,7 @@ void cFodder::Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite 
 
 	// Invincible + HomingMissiles
 	mSquad_Leader->field_75 |= (eSprite_Flag_HomingMissiles | eSprite_Flag_Invincibility);
-	mSquad_Leader->field_46_squad->mRank = 0x0F;
+	mSquad_Leader->field_46_mission_troop->mRank = 0x0F;
 	mGUI_Sidebar_Setup = 0;
 	
 	mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
@@ -15657,7 +15000,7 @@ void cFodder::Sprite_Handle_Bonus_RankHomingInvin_Squad( sSprite* pSprite ) {
 		sSprite* Data2C = *Data28++;
 		Data2C->field_75 |= (eSprite_Flag_HomingMissiles | eSprite_Flag_Invincibility);
 
-		Data2C->field_46_squad->mRank = 0x0F;
+		Data2C->field_46_mission_troop->mRank = 0x0F;
 	}
 
 	mGUI_Sidebar_Setup = 0;
@@ -16460,7 +15803,7 @@ int16 cFodder::Sprite_Troop_Dies( sSprite* pSprite ) {
 
 	++mTroops_Away;
 
-	SquadMember = pSprite->field_46_squad;
+	SquadMember = pSprite->field_46_mission_troop;
 
 	Hero_Add( SquadMember );
 
@@ -16509,7 +15852,7 @@ loc_1F0EA:;
 	if (eax == INVALID_SPRITE_PTR || eax == 0 )
 		goto loc_1F218;
 
-	DataFinal = (uint8*)eax->field_46_squad;
+	DataFinal = (uint8*)eax->field_46_mission_troop;
 	goto loc_1F1E9;
 
 loc_1F19A:;
@@ -17098,7 +16441,7 @@ loc_1FBA4:;
 	}
 
 	//loc_1FC61
-	Data24 = pSprite->field_46_squad;
+	Data24 = pSprite->field_46_mission_troop;
 
 	if (Data24 == 0)
 		Data0 = 0x70;
@@ -18219,12 +17562,8 @@ void cFodder::WonGame() {
 	mSound->Music_Play( 17 );
 	mMouseX = -1;
 	mMouseY = -1;
-	if (mVersion->mPlatform == ePlatform::Amiga) {
-		mGraphics->Load_And_Draw_Image( "won.raw", 32 );
-	}
-	else {
-		mGraphics->Load_And_Draw_Image( "won.dat", 0x100 );
-	}
+
+	mGraphics->Load_And_Draw_Image( "won", 0x100 );
 
 	Image_FadeIn();
 
@@ -18284,37 +17623,37 @@ loc_20521:;
 	word_3ABAD = -1;
 }
 
-void cFodder::Hero_Add( sMission_Troop* pSquadMember ) {
+void cFodder::Hero_Add( sMission_Troop* pTroop ) {
 	sHero* Hero = &mHeroes[4];
 	int16 Data4;
 
 	for (Data4 = 4; Data4 >= 0; --Data4, --Hero ) {
-		if (!pSquadMember->mNumberOfKills)
+		if (!pTroop->mNumberOfKills)
 			break;
 
-		if (pSquadMember->mNumberOfKills < Hero->mKills)
+		if (pTroop->mNumberOfKills < Hero->mKills)
 			break;
 
-		if (pSquadMember->mNumberOfKills > Hero->mKills)
+		if (pTroop->mNumberOfKills > Hero->mKills)
 			continue;
 
-		if (pSquadMember->mRank <= Hero->mRank)
+		if (pTroop->mRank <= Hero->mRank)
 			break;
 	}
 	if (Data4 == 4)
 		return;
 
+	// Move the heros down the list one, until we reach the slot
 	int16 X = 4;
-
 	do {
 		mHeroes[X + 1] = mHeroes[X];
 		--X;
 	} while (++Data4 < 4);
 
-	//seg005:0EDD
-	mHeroes[X + 1].mRecruitID = (int8) pSquadMember->mRecruitID;
-	mHeroes[X + 1].mRank = pSquadMember->mRank;
-	mHeroes[X + 1].mKills = pSquadMember->mNumberOfKills;
+	// 
+	mHeroes[X + 1].mRecruitID = (int8)pTroop->mRecruitID;
+	mHeroes[X + 1].mRank = pTroop->mRank;
+	mHeroes[X + 1].mKills = pTroop->mNumberOfKills;
 }
 
 int16 cFodder::Sprite_Destroy_Wrapper( sSprite* pSprite ) {
@@ -18381,7 +17720,7 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
 		Data2C->field_12 = Data0;
 	} else {
 
-		Data2C->field_5E = pSprite->field_46_squad - mMission_Troops;
+		Data2C->field_5E = pSprite->field_46_mission_troop - mMission_Troops;
 		Data2C->field_5D = -1;
 
 		// Bullet Travel time
@@ -18442,24 +17781,25 @@ loc_208A6:;
 	Data2C->field_59 = 0;
 	Data8 = 7;
 
-	if (pSprite->field_22)
-		goto loc_209C7;
+	// Is Human?
+	if (!pSprite->field_22) {
 
-	if (pSprite == mSquad_Leader)
-		goto loc_209B3;
+		if (pSprite == mSquad_Leader) {
 
-	Data8 = Mission_Troop_GetDeviatePotential( pSprite->field_46_squad );
-	goto loc_209C7;
+			mSprite_Bullet_Deviate_Counter += 1;
+			mSprite_Bullet_Deviate_Counter &= 3;
 
-loc_209B3:;
-	mSprite_Bullet_Deviate_Counter += 1;
-	mSprite_Bullet_Deviate_Counter &= 3;
-	if (!mSprite_Bullet_Deviate_Counter)
-		goto loc_209F3;
+			if (!mSprite_Bullet_Deviate_Counter)
+				goto loc_209F3;
 
-	Data8 = mSprite_Weapon_Data.mDeviatePotential;
+			Data8 = mSprite_Weapon_Data.mDeviatePotential;
+		}
+		else {
 
-loc_209C7:;
+			Data8 = Mission_Troop_GetDeviatePotential(pSprite->field_46_mission_troop);
+		}
+	}
+
 	Data0 = tool_RandomGet();
 	Data4 = Data0;
 
@@ -18468,6 +17808,7 @@ loc_209C7:;
 		Data0 = -Data0;
 
 	Data2C->field_50 = Data0;
+
 loc_209F3:;
 	Data2C->field_64 = 0;
 	Data0 = tool_RandomGet() & 1;
@@ -20200,7 +19541,7 @@ Start:;
 
 				// Show the intro for the briefing screen for Retail / Custom Set
 				if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set)
-					Briefing_Intro();
+					mGraphics->Briefing_Intro();
 				else
 					mGraphics->Load_pStuff();			
 			}
@@ -21274,7 +20615,7 @@ void cFodder::sub_30E49() {
 		// 
 		if (mSquad_Selected == SquadMemberSprite->field_32) {
 			word_3ABC7 = -1;
-			dword_3ABC9 = SquadMemberSprite->field_46_squad;
+			dword_3ABC9 = SquadMemberSprite->field_46_mission_troop;
 			return;
 		}
 
