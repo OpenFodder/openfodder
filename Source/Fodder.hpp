@@ -34,7 +34,7 @@ enum eSquad_Weapon_SplitMode {
 	eSquad_Weapon_Split_None = 2
 };
 
-struct sSquad_Member {
+struct sMission_Troop {
 	int16		mRecruitID;
 	uint8		mRank;
 	int8		mPhaseCount;		// Number of phases completed this Mission
@@ -133,7 +133,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMission_EngineTicks;
 	uint16			mMission_Restart;
 	
-	/************** Save Game Region *********** */
+	/************** Save Game Region ************/
+	/* Altering the ordering, or types of anything 
+		  in this region will break save games */
 	uint16			mMapNumber;
 	int16			mSprite_Enemy_AggressionAverage;
 	int16			mSprite_Enemy_AggressionMin;
@@ -142,17 +144,16 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSprite_Enemy_AggressionIncrement;
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
-	uint16			mRecruits_AliveCount;
+	uint16			mRecruits_Available_Count;
 	int16			mSquad_Prepare_SetFromSpritePtrs;
 	int16			mSprite_Enemy_AggressionCreated_Count;
 	uint16			mMission_Recruits_AliveCount;
 	int16			mMission_Recruitment;
 	int16			mMission_TryingAgain;
-	uint16			mMissionPhaseRemain;
-	uint16			mMissionPhases;
+	uint16			mMission_Phases_Remaining;
+	uint16			mMission_Phases_Total;
 	uint16			mRecruit_NextID;
-	int16			word_390F8;					// Unused. Set to -1 on mission complete
-	sSquad_Member	mSquad[9];
+	sMission_Troop	mMission_Troops[9];
 
 	int16			mGraveRanks[361];
 	int16			mGraveRecruitID[361];
@@ -161,16 +162,16 @@ class cFodder : public cSingleton < cFodder > {
 
 	int16			mTroops_Away;
 	int16			mTroops_Home;
-	int16			mMapPlayerTroopCount;
-	int16			mSquadMemberCount;
-	int16			mTroopsAvailable;
+	int16			mMission_Troops_Required;
+	int16			mMission_Troop_Count;
+	int16			mMission_Troops_Available;
 	/************** End Save Game Region *********** */
 
 
 	/* These used to be in the save game region */
 	uint16			mSaved_MissionNumber;					// unused
 	uint16			mSaved_MapNumber;						// unused
-	sSprite*		mSquad_SpritePtrs[8];					// unused
+	sSprite*		mSquad_SpritePtrs[8];
 
 	int16*			mGraveRankPtr;
 	int16*			mGraveRankPtr2;
@@ -200,7 +201,7 @@ class cFodder : public cSingleton < cFodder > {
 	int32			mCamera_Adjust_Col;
 	int32			mCamera_Adjust_Row;
 	int32			dword_39F36;
-	int16			word_39F3A;
+	int16			mCamera_Scroll_Speed;
 	int16			word_39F3C;
 	int16			word_39F3E;
 
@@ -350,7 +351,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSprite_Bullet_Time_Modifier;
 	int16			mSprite_Bullet_Fire_Speed_Modifier;
 	int16			word_3ABC7;
-	sSquad_Member*	dword_3ABC9;
+	sMission_Troop*	dword_3ABC9;
 	int16			word_3ABE7;
 	int16			word_3ABE9;
 	int16			word_3ABEB;
@@ -407,7 +408,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mRecruit_Hill_Positions_Use[0x0F];
 	int16			mRecruit_Truck_Reached;
 	int16			mRecruit_Truck_Animation_Play;
-	int16			mRecruit_ToEnterTruck;
+	int16			mRecruit_Truck_Enter_Count;
 
 	int16			mMap_TileSet;
 	sSprite*		mSquad_CurrentVehicle;
@@ -645,10 +646,10 @@ public:
 	void			Sprite_Clear_All();
 
 	void			Map_Load_Sprites();
-	void			Squad_Member_Count();
-	void			Squad_Member_Sort();
-	void			Squad_Prepare();
-	void			Squad_Prepare_NextRecruit();
+	void			Mission_Troop_Count();
+	void			Mission_Troop_Sort();
+	void			Mission_Troop_Prepare();
+	void			Mission_Troop_Prepare_Next_Recruits();
 	void			Squad_Prepare_Sprites();
 	void			Camera_Position_Update();
 	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
@@ -948,7 +949,7 @@ public:
 
 	void			sub_20456( sSprite* pSprite, int16& pData8 );
 	void			sub_20478( sSprite* pSprite );
-	void			Hero_Add( sSquad_Member* pSquadMember );
+	void			Hero_Add( sMission_Troop* pSquadMember );
 
 	int16			Sprite_Destroy_Wrapper( sSprite* pSprite );
 	int16			Sprite_Destroy( sSprite* pSprite );
@@ -1083,7 +1084,7 @@ public:
 	void			Camera_Update_Column();
 
 	void			Squad_Troops_Count();
-	int16			Squad_Member_GetDeviatePotential( sSquad_Member* pSquadMember );
+	int16			Mission_Troop_GetDeviatePotential( sMission_Troop* pSquadMember );
 	void			Squad_Member_Rotate_Can_Fire();
 	int16			Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
 	void			Sprite_Handle_Player_DestroyAll();

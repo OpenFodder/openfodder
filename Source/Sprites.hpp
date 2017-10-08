@@ -187,7 +187,7 @@ enum eSprite_DrawOrder {
 	eSprite_Draw_Last	= 1
 };
 
-struct sSquad_Member;
+struct sMission_Troop;
 
 struct sSprite {
 	int16 field_0;		// X
@@ -243,7 +243,7 @@ struct sSprite {
 	// Eventually this should be replaced
 	union {
 		int32			field_46;
-		sSquad_Member*  field_46_squad;
+		sMission_Troop*  field_46_squad;
 		sSprite*		field_46_sprite;
 	};
 
