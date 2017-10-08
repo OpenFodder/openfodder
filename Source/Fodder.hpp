@@ -183,8 +183,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMouse_Exit_Loop;
 	int16			word_39FA0;
 	int16			word_39FA2;
-	int16			word_39FA4;
-	int16			word_39FA6;
 	int16			mCamera_Column;
 	int16			mCamera_Row;
 	int16			word_39FAC;
@@ -196,9 +194,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMouse_Button_Right_Toggle;
 	int16			mMouse_Button_LeftRight_Toggle;
 	int16			word_39F04;
-	int32			dword_39F18;
-	int32			dword_39F1C;
-	int32			dword_39F20;
+
 	int32			dword_39F24;
 	int32			dword_39F28;
 	int32			mCamera_Adjust_Col;
@@ -669,7 +665,7 @@ public:
 	void			sub_12018();
 	void			Camera_Reset();
 	void			sub_120F6();
-	void			Camera_Adjust_Row( int32* pData20 );
+	void			Camera_Adjust_Row();
 	void			sub_12245();
 	void			Camera_Speed_Reset();
 	void			Camera_Pan_Toward_SquadLeader();

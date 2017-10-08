@@ -642,8 +642,6 @@ void cFodder::Mission_Memory_Clear() {
 	word_39F9E = 0;
 	word_39FA0 = 0;
 	word_39FA2 = 0;
-	word_39FA4 = 0;
-	word_39FA6 = 0;
 	mCamera_Column = 0;
 	mCamera_Row = 0;
 	word_39FAC = 0;
@@ -1769,8 +1767,6 @@ void cFodder::Camera_Pan_To_Target( ) {
 
 	Data0 &= 0x0FFFE;
 
-	dword_39F20 = Data0;
-
 	sub_12018();
 	Camera_Pan();
 }
@@ -1873,9 +1869,7 @@ void cFodder::sub_12018() {
 }
 
 void cFodder::Camera_Reset() {
-	dword_39F18 = 0;
-	dword_39F1C = 0;
-	dword_39F20 = 0;
+
 	dword_39F24 = 0;
 	dword_39F28 = 0;
 	mCamera_Adjust_Col = 0;
@@ -1895,7 +1889,6 @@ void cFodder::Camera_Reset() {
 
 void cFodder::sub_120F6() {
 	dword_39F56 = 0;
-	int32* Data20 = &dword_39F18;
 
 	dword_39F5A = mCamera_Adjust_Col;
 	int32 Data0 = mCamera_Speed_X;
@@ -1928,12 +1921,12 @@ void cFodder::sub_120F6() {
 		}
 	}
 	//loc_1219F
-	Camera_Adjust_Row( Data20 );
+	Camera_Adjust_Row( );
 	mCamera_Speed_X = 0;
 	mCamera_Speed_Y = 0;
 }
 
-void cFodder::Camera_Adjust_Row( int32* pData20 ) {
+void cFodder::Camera_Adjust_Row( ) {
 
 	dword_39F5A = mCamera_Adjust_Row;
 
@@ -1955,10 +1948,6 @@ void cFodder::Camera_Adjust_Row( int32* pData20 ) {
 
 	dword_39F28 += Data0;
 	dword_39F28 &= (0x00FF << 16) | 0xFFFF;
-
-	Data0 = dword_39F28 >> 16;
-	Data0 *= 0x28;
-	*pData20 = Data0;
 }
 
 void cFodder::sub_12245() {
@@ -9562,28 +9551,20 @@ void cFodder::Camera_Update_Row() {
 	else
 		Data0 = 1;
 
-	if (Data0 != word_39FA2)
-		goto loc_2CFBE;
+	if (Data0 != word_39FA2) {
+		word_39FA2 = Data0;
+		Data0 = dword_39F90 >> 16;
+		int16 Data4 = word_39FAE;
 
-loc_2CF93:;
+		Data0 >>= 4;
+		Data4 >>= 4;
+		if (Data4 != Data0)
+			return;
+	}
+
 	word_39FBC = 0;
 	mCamera_Row = dword_39F88 >> 16;
 	word_39FAE = dword_39F90 >> 16;
-	word_39FA6 = 0xF0;
-
-	if (word_39FB4 < 0)
-		word_39FA6 = -16;
-	return;
-
-loc_2CFBE:;
-	word_39FA2 = Data0;
-	Data0 = dword_39F90 >> 16;
-	int16 Data4 = word_39FAE;
-
-	Data0 >>= 4;
-	Data4 >>= 4;
-	if (Data4 == Data0)
-		goto loc_2CF93;
 }
 
 void cFodder::Camera_Update_Column() {
@@ -9594,27 +9575,19 @@ void cFodder::Camera_Update_Column() {
 	else
 		Data0 = 1;
 
-	if (Data0 != word_39FA0)
-		goto loc_2D03B;
+	if (Data0 != word_39FA0) {
+		word_39FA0 = Data0;
+		Data0 = dword_39F8C >> 16;
+		int16 Data4 = word_39FAC;
+		Data0 >>= 4;
+		Data4 >>= 4;
+		if (Data0 != Data4)
+			return;
+	}
 
-loc_2D010:;
 	word_39FBA = 0;
 	mCamera_Column = dword_39F84 >> 16;
 	word_39FAC = dword_39F8C >> 16;
-	word_39FA4 = 0x130;
-
-	if (word_39FB2 < 0)
-		word_39FA4 = -1;
-	return;
-
-loc_2D03B:;
-	word_39FA0 = Data0;
-	Data0 = dword_39F8C >> 16;
-	int16 Data4 = word_39FAC;
-	Data0 >>= 4;
-	Data4 >>= 4;
-	if (Data0 == Data4)
-		goto loc_2D010;
 }
 
 void cFodder::Squad_Troops_Count() {
@@ -9727,7 +9700,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 	mSprite_Bullet_Time_Modifier = 0;
 	mSprite_Bullet_Fire_Speed_Modifier = 0;
 
-	// TODO: 0x0F is the max rank, so what was this code was?
+	// TODO: 0x0F is the max rank, so what was this code for?
 	{
 		if (Dataa20->mRank > 0x14) {
 
