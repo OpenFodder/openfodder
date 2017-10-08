@@ -102,6 +102,7 @@ protected:
 	virtual bool		Sprite_OnScreen_Check(  );
 	virtual bool		Sprite_OnScreen_Check( bool p16bit = false );
 
+	virtual void		Briefing_Intro();
 	virtual void		Briefing_Load_Resources();
 	virtual void		Briefing_DrawHelicopter( uint16 pID );
 

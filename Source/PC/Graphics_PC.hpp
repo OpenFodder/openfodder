@@ -36,6 +36,11 @@ class cGraphics_PC : public cGraphics {
 
 	uint8*				mTile_Gfx_Ptrs[480];
 	sImage				mImageRecruit;
+	tSharedBuffer		mBriefing_ParaHeli;
+	tSharedBuffer		mBriefing_Intro_Gfx_Clouds1;
+	tSharedBuffer		mBriefing_Intro_Gfx_Clouds2;
+	tSharedBuffer		mBriefing_Intro_Gfx_Clouds3;
+	tSharedBuffer		mBriefing_Intro_Gfx_TreesMain;
 
 	public:
 	virtual				~cGraphics_PC();
@@ -77,6 +82,19 @@ class cGraphics_PC : public cGraphics {
 
 	virtual void		Briefing_Load_Resources();
 	virtual void		Briefing_DrawHelicopter( uint16 pID );
+
+	virtual void		Briefing_Intro();
+	void				Briefing_Intro_Jungle();
+	void				Briefing_Intro_Desert();
+	void				Briefing_Intro_Ice();
+	void				Briefing_Intro_Mor();
+	void				Briefing_Intro_Int();
+
+	void				Briefing_Render_2(tSharedBuffer pDs, int16 pCx);
+	void				Briefing_Render_1(tSharedBuffer pDs, int16 pCx);
+
+	void				sub_15B98(uint8* pDs, int16 pCx);
+	void				sub_15CE8(uint8* pDs, int16 pCx);
 
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();

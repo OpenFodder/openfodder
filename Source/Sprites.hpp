@@ -243,7 +243,7 @@ struct sSprite {
 	// Eventually this should be replaced
 	union {
 		int32			field_46;
-		sMission_Troop*  field_46_squad;
+		sMission_Troop*  field_46_mission_troop;
 		sSprite*		field_46_sprite;
 	};
 

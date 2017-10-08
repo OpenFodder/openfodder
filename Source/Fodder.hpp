@@ -567,14 +567,9 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_4285F;
 
 
-	tSharedBuffer	mBriefing_Intro_Gfx_Clouds1;
-	tSharedBuffer	mBriefing_Intro_Gfx_Clouds2;
 	int16			word_428B6;
-	tSharedBuffer	mBriefing_Intro_Gfx_Clouds3;
 	int16			word_428B8;
-	tSharedBuffer	mBriefing_Intro_Gfx_TreesMain;
 	uint16			word_428BA;
-	tSharedBuffer	mBriefing_ParaHeli;
 
 	uint32			mHelicopterPosX;
 	uint32			mHelicopterPosY;
@@ -717,22 +712,9 @@ public:
 	void			Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 );
 
 	// 14EAC
-	void			Briefing_Intro();
-
-	void			Briefing_Intro_Jungle();
-	void			Briefing_Intro_Desert();
-	void			Briefing_Intro_Ice();
-	void			Briefing_Intro_Mor();
-	void			Briefing_Intro_Int();
-
 	void			Briefing_Helicopter_Start( );
 	void			sub_1594F( );
 	void			Briefing_Update_Helicopter( );
-	void			Briefing_Render_2(tSharedBuffer pDs, int16 pCx );
-	void			Briefing_Render_1( tSharedBuffer pDs, int16 pCx );
-	void			sub_15B98( uint8* pDs, int16 pCx );
-
-	void			sub_15CE8( uint8* pDs, int16 pCx );
 
 	void			Briefing_Draw_Mission_Name( );
 	void			Briefing_Draw_Mission_Title( int16 pDrawAtY );

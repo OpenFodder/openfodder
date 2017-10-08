@@ -1321,3 +1321,94 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
 			pDestination[X] = mFodder->mVideo_Draw_PaletteIndex | Result;
 	}
 }
+
+void cGraphics_Amiga::Briefing_Intro() {
+
+		mImage->clearBuffer();
+
+		Briefing_Load_Resources();
+		SetActiveSpriteSheet(eSPRITE_BRIEFING);
+
+		g_Fodder.mSound->Music_Play(0x07);
+		g_Fodder.Briefing_Helicopter_Start();
+
+		if (g_Fodder.mVersion->mPlatform == ePlatform::Amiga) {
+			//TODO
+			g_Fodder.mVideo_Draw_PosX = 16;
+
+			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING);
+			g_Fodder.mVideo_Draw_PosY = 40;
+			Video_Draw_16();
+
+			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING_AMIGA_1);
+			g_Fodder.mVideo_Draw_PosY = 60;
+			Video_Draw_16();
+
+			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING_AMIGA_2);
+			g_Fodder.mVideo_Draw_PosY = 100;
+			Video_Draw_16();
+
+			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING_AMIGA_3);
+			g_Fodder.mVideo_Draw_PosY = 163;
+			Video_Draw_16();
+
+			PaletteBriefingSet();
+			g_Fodder.mImage->palette_FadeTowardNew();
+			g_Fodder.mImageFaded = -1;
+
+			g_Fodder.Briefing_Draw_Mission_Name();
+			mImage->Save();
+
+			int16 word_42875 = 0;
+
+			do {
+				if (g_Fodder.mBriefing_Helicopter_Moving == -1)
+					g_Fodder.Briefing_Update_Helicopter();
+
+				g_Fodder.Mouse_Inputs_Get();
+
+				// Front
+				g_Fodder.mVideo_Draw_PosX = g_Fodder.mHelicopterPosX >> 16;
+				g_Fodder.mVideo_Draw_PosY = g_Fodder.mHelicopterPosY >> 16;
+				Briefing_DrawHelicopter(203);
+
+				// Tail
+				g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16) + 48;
+				g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
+				Briefing_DrawHelicopter(204);
+
+				int16 Blade = 205 + word_42875;
+
+				++word_42875;
+				if (word_42875 >= 3)
+					word_42875 = 0;
+
+				// Blade
+				g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16);
+				g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
+				Briefing_DrawHelicopter(Blade);
+
+				if (g_Fodder.mImageFaded)
+					g_Fodder.mImageFaded = mImage->palette_FadeTowardNew();
+
+				g_Fodder.eventProcess();
+				g_Fodder.Video_Sleep();
+				g_Window.RenderAt(mImage, cPosition());
+				g_Window.FrameEnd();
+
+				g_Fodder.Mouse_GetData();
+
+				if (g_Fodder.mMouse_Exit_Loop) {
+					g_Fodder.word_428D8 = 0;
+					mImage->paletteNew_SetToBlack();
+					g_Fodder.mImageFaded = -1;
+					g_Fodder.mMouse_Exit_Loop = 0;
+				}
+				mImage->Restore();
+			} while (g_Fodder.word_428D8 || g_Fodder.mImageFaded != 0);
+
+			g_Fodder.mMouse_Exit_Loop = 0;
+		}
+
+		Load_pStuff();
+}

@@ -293,7 +293,42 @@ void cGraphics_PC::Map_Load_Resources() {
 	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
 
-void cGraphics_PC::Video_Draw_16( ) {
+void cGraphics_PC::Video_Draw_8() {
+	uint8*	di = mImage->GetSurfaceBuffer();
+	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
+
+	di += mImage->GetWidth() * mFodder->mVideo_Draw_PosY;
+	di += mFodder->mVideo_Draw_PosX;
+
+	mFodder->word_42066 = di;
+
+	mFodder->mVideo_Draw_Columns >>= 1;
+	mFodder->mDraw_Source_SkipPixelsPerRow = 160 - mFodder->mVideo_Draw_Columns;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = (uint16)(mImage->GetWidth() - (mFodder->mVideo_Draw_Columns * 2));
+
+	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+
+		for (int16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx) {
+			uint8 ah = *si;
+
+			uint8 al = ah >> 4;
+			if (al)
+				*di = al | mFodder->mVideo_Draw_PaletteIndex;
+
+			al = ah & 0x0F;
+			if (al)
+				*(di + 1) = al | mFodder->mVideo_Draw_PaletteIndex;
+
+			si++;
+			di+=2;
+		}
+
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
+	}
+}
+
+void cGraphics_PC::Video_Draw_16() {
 	uint8*	di = mImage->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
 
@@ -305,130 +340,19 @@ void cGraphics_PC::Video_Draw_16( ) {
 	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->mVideo_Draw_ColumnsMax - mFodder->mVideo_Draw_Columns;
 	mFodder->mDraw_Dest_SkipPixelsPerRow = 352 - mFodder->mVideo_Draw_Columns;
 
-	for( int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for( int16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
+	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+
+		for (int16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx) {
 			int8 al = *si;
-			if(al)
+			if (al)
 				*di = al;
-			
-			si ++;
-			di ++;
+
+			si++;
+			di++;
 		}
 
 		si += mFodder->mDraw_Source_SkipPixelsPerRow;
 		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
-	}
-}
-
-void cGraphics_PC::Video_Draw_8() {
-	cFodder* Fodder = cFodder::GetSingletonPtr();
-
-	uint8*	di = mImage->GetSurfaceBuffer();
-	uint8* 	si = Fodder->mVideo_Draw_FrameDataPtr;
-	
-	di += mImage->GetWidth() * Fodder->mVideo_Draw_PosY;
-	di += Fodder->mVideo_Draw_PosX;
-
-	Fodder->word_42066 = di;
-
-	uint8 Plane = 0;
-
-	Fodder->mVideo_Draw_Columns >>= 1;
-	Fodder->mDraw_Source_SkipPixelsPerRow = 160 - Fodder->mVideo_Draw_Columns;
-	Fodder->mVideo_Draw_Columns >>= 1;
-	
-	Fodder->mDraw_Dest_SkipPixelsPerRow = (uint16) (mImage->GetWidth() - (Fodder->mVideo_Draw_Columns*4));
-
-	di += Plane;
-	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for( int16 cx = 0; cx < Fodder->mVideo_Draw_Columns; ++cx ) {
-			int8 al = (*si) >> 4;
-			if(al)
-				*di = al | Fodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			di+=4;
-		}
-		
-		si += Fodder->mDraw_Source_SkipPixelsPerRow;
-		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++Fodder->word_42066;
-	}
-
-	si = Fodder->mVideo_Draw_FrameDataPtr;
-	di = Fodder->word_42066;
-	di += Plane;
-	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for(int16 cx = Fodder->mVideo_Draw_Columns; cx > 0; --cx ) {
-			int8 al = (*si) & 0x0F;
-			if( al )
-				*di = al | Fodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			di+=4;
-		}
-		
-		si += Fodder->mDraw_Source_SkipPixelsPerRow;
-		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++Fodder->word_42066;
-	}
-	
-	++Fodder->mVideo_Draw_FrameDataPtr;
-	si = Fodder->mVideo_Draw_FrameDataPtr;
-	di = Fodder->word_42066;
-	di += Plane;
-	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for(int16 cx = Fodder->mVideo_Draw_Columns; cx > 0; --cx ) {
-			
-			int8 al = (*si) >> 4;
-			if( al )
-				*di = al | Fodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			di+=4;
-			
-		}
-		si += Fodder->mDraw_Source_SkipPixelsPerRow;
-		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
-	}
-
-	++Plane;
-	if (Plane == 4) {
-		Plane = 0;
-		++Fodder->word_42066;
-	}
-
-	si = Fodder->mVideo_Draw_FrameDataPtr;
-	di = Fodder->word_42066;
-	di += Plane;
-	for( int16 dx = Fodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for(int16 cx = Fodder->mVideo_Draw_Columns; cx > 0; --cx ) {
-			
-			int8 al = (*si) & 0x0F;
-			if( al ) 
-				*di = al | Fodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			di+=4;
-		}
-		
-		si += Fodder->mDraw_Source_SkipPixelsPerRow;
-		di += Fodder->mDraw_Dest_SkipPixelsPerRow;
 	}
 }
 
@@ -437,7 +361,7 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	uint8*	Buffer = mImage->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
 
-	Buffer += (16 * 352) + 16;
+	Buffer += (16 * mImage->GetWidth()) + 16;
 
 	mFodder->word_42066 = Buffer;
 	for (unsigned int Plane = 0; Plane < 4; Plane++) {
@@ -681,15 +605,15 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	std::string JunData5 = mTileTypes[mFodder->mMap_TileSet].mName + "p5.dat";
 
 	mImageBriefingIntro.mData = g_Resource.fileGet(JunData1);
-	mFodder->mBriefing_Intro_Gfx_Clouds1 = g_Resource.fileGet(JunData2);
-	mFodder->mBriefing_Intro_Gfx_Clouds2 = g_Resource.fileGet(JunData3);
-	mFodder->mBriefing_Intro_Gfx_Clouds3 = g_Resource.fileGet(JunData4);
-	mFodder->mBriefing_Intro_Gfx_TreesMain = g_Resource.fileGet(JunData5);
+	mBriefing_Intro_Gfx_Clouds1 = g_Resource.fileGet(JunData2);
+	mBriefing_Intro_Gfx_Clouds2 = g_Resource.fileGet(JunData3);
+	mBriefing_Intro_Gfx_Clouds3 = g_Resource.fileGet(JunData4);
+	mBriefing_Intro_Gfx_TreesMain = g_Resource.fileGet(JunData5);
 
-	mFodder->mBriefing_ParaHeli = g_Resource.fileGet( "paraheli.dat" );
+	mBriefing_ParaHeli = g_Resource.fileGet( "paraheli.dat" );
 
 	// Copy the palette for the current map tileset, in from paraheli to the briefing intro images
-	uint8* si = mFodder->mBriefing_ParaHeli->data() + 0xF00;
+	uint8* si = mBriefing_ParaHeli->data() + 0xF00;
 	si += 0x30 * mFodder->mMap_TileSet;
 	std::memcpy( (mImageBriefingIntro.mData->data() + mImageBriefingIntro.mData->size()) - 0x60, si, 0x30 );
 
@@ -798,43 +722,43 @@ void cGraphics_PC::Briefing_DrawHelicopter( uint16 pID ) {
 bool cGraphics_PC::Sprite_OnScreen_Check() {
 	int16 ax;
 
-	if (g_Fodder.mVideo_Draw_PosY < 0) {
-		ax = g_Fodder.mVideo_Draw_PosY + g_Fodder.mVideo_Draw_Rows;
+	if (mFodder->mVideo_Draw_PosY < 0) {
+		ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
 		--ax;
 		if (ax < 0)
 			return false;
 
 		ax -= 0;
-		ax -= g_Fodder.mVideo_Draw_Rows;
+		ax -= mFodder->mVideo_Draw_Rows;
 		++ax;
 		ax = -ax;
-		g_Fodder.mVideo_Draw_PosY += ax;
-		g_Fodder.mVideo_Draw_Rows -= ax;
+		mFodder->mVideo_Draw_PosY += ax;
+		mFodder->mVideo_Draw_Rows -= ax;
 
 		ax *= 0xA0;
 
-		g_Fodder.mVideo_Draw_FrameDataPtr += ax;
+		mFodder->mVideo_Draw_FrameDataPtr += ax;
 	}
 
-	ax = g_Fodder.mVideo_Draw_PosY + g_Fodder.mVideo_Draw_Rows;
+	ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
 	--ax;
 
 	if (ax > 231) {
-		if (g_Fodder.mVideo_Draw_PosY > 231)
+		if (mFodder->mVideo_Draw_PosY > 231)
 			return false;
 
 		ax -= 231;
-		g_Fodder.mVideo_Draw_Rows -= ax;
+		mFodder->mVideo_Draw_Rows -= ax;
 	}
 
-	if (g_Fodder.mVideo_Draw_PosX < 0) {
-		ax = g_Fodder.mVideo_Draw_PosX + g_Fodder.mVideo_Draw_Columns;
+	if (mFodder->mVideo_Draw_PosX < 0) {
+		ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
 		--ax;
 		if (ax < 0)
 			return false;
 
 		ax -= 0;
-		ax -= g_Fodder.mVideo_Draw_Columns;
+		ax -= mFodder->mVideo_Draw_Columns;
 		++ax;
 		ax = -ax;
 		--ax;
@@ -843,17 +767,17 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 			++ax;
 		} while (ax & 3);
 
-		g_Fodder.mVideo_Draw_PosX += ax;
-		g_Fodder.mVideo_Draw_Columns -= ax;
+		mFodder->mVideo_Draw_PosX += ax;
+		mFodder->mVideo_Draw_Columns -= ax;
 		ax >>= 1;
-		g_Fodder.mVideo_Draw_FrameDataPtr += ax;
+		mFodder->mVideo_Draw_FrameDataPtr += ax;
 	}
 
-	ax = g_Fodder.mVideo_Draw_PosX + g_Fodder.mVideo_Draw_Columns;
+	ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
 	--ax;
 
 	if (ax > 351) {
-		if (g_Fodder.mVideo_Draw_PosX > 351)
+		if (mFodder->mVideo_Draw_PosX > 351)
 			return false;
 
 		ax -= 351;
@@ -863,14 +787,587 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 			++ax;
 		} while (ax & 3);
 
-		g_Fodder.mVideo_Draw_Columns -= ax;
+		mFodder->mVideo_Draw_Columns -= ax;
 	}
 
-	if (g_Fodder.mVideo_Draw_Columns <= 0)
+	if (mFodder->mVideo_Draw_Columns <= 0)
 		return false;
 
-	if (g_Fodder.mVideo_Draw_Rows <= 0)
+	if (mFodder->mVideo_Draw_Rows <= 0)
 		return false;
 
 	return true;
+}
+
+void cGraphics_PC::Briefing_Intro() {
+	mImage->clearBuffer();
+
+	Briefing_Load_Resources();
+	SetActiveSpriteSheet(eSPRITE_BRIEFING);
+
+	mFodder->mSound->Music_Play(0x07);
+	mFodder->Briefing_Helicopter_Start();
+
+
+	mFodder->Briefing_Draw_Mission_Name();
+
+	switch (mFodder->mMap_TileSet) {
+	case eTileTypes_Jungle:
+		Briefing_Intro_Jungle();
+		break;
+
+	case eTileTypes_Desert:
+		Briefing_Intro_Desert();
+		break;
+
+	case eTileTypes_Ice:
+		Briefing_Intro_Ice();
+		break;
+
+	case eTileTypes_Moors:
+		Briefing_Intro_Mor();
+		break;
+
+	case eTileTypes_Int:
+		Briefing_Intro_Int();
+		break;
+	}
+
+	Load_pStuff();
+}
+
+
+void cGraphics_PC::Briefing_Render_1(tSharedBuffer pDs, int16 pCx) {
+
+	if (mFodder->word_3E75B != 0)
+		sub_15B98(pDs->data(), pCx);
+	else
+		sub_15CE8(pDs->data(), pCx);
+}
+
+
+void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
+	uint8* pDs = pSource->data();
+
+	int16 ax = pCx >> 2;
+	int16 dx = ax;
+
+	ax -= 0x50;
+	mFodder->word_4285F = -ax;
+
+	uint8* word_4285D = mImage->GetSurfaceBuffer() + mFodder->word_4285B + (dx * 4);
+	pCx &= 3;
+
+	++dx;
+
+	uint8* di = word_4285D;
+
+	// Loop the 4 planes
+	for (uint8 Plane = 0; Plane < 4; ++Plane) {
+		di = word_4285D + Plane;
+
+		for (int16 bx = mFodder->word_42859; bx > 0; --bx) {
+			int16 cx;
+			for (cx = mFodder->word_4285F; cx > 0; --cx) {
+				uint8 al = *pDs++;
+				if (al)
+					*di = al;
+
+				di += 4;
+			}
+
+			di -= 0x51 * 4;
+			--pDs;
+			for (cx = dx; cx > 0; --cx) {
+				uint8 al = *pDs++;
+				if (al)
+					*di = al;
+
+				di += 4;
+			}
+
+			di += 0x58 * 4;
+		}
+	}
+}
+
+void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
+	int16 ax = pCx >> 2;
+	int16 dx = ax;
+
+	ax -= 0x50;
+	mFodder->word_4285F = -ax;
+
+	uint8* word_4285D = mImage->GetSurfaceBuffer() + mFodder->word_4285B + (dx * 4);
+	pCx &= 3;
+
+	++dx;
+
+	uint8* di = word_4285D;
+
+	for (uint8 Plane = 0; Plane < 4; ++Plane) {
+		di = word_4285D + Plane;
+
+		for (int16 bx = mFodder->word_42859; bx > 0; --bx) {
+			int16 cx = mFodder->word_4285F;
+
+			if (cx & 1) {
+				*di = *pDsSi++;
+				di += 4;
+			}
+
+			cx >>= 1;
+			while (cx > 0) {
+				*di = *pDsSi++;
+				di += 4;
+
+				*di = *pDsSi++;
+				di += 4;
+
+				--cx;
+			}
+
+			cx = dx;
+			di -= 0x51 * 4;
+			--pDsSi;
+			if (cx & 1) {
+				*di = *pDsSi++;
+				di += 4;
+			}
+
+			cx >>= 1;
+			while (cx > 0) {
+				*di = *pDsSi++;
+				di += 4;
+
+				*di = *pDsSi++;
+				di += 4;
+
+				--cx;
+			}
+			di += 0x58 * 4;
+		}
+	}
+}
+
+void cGraphics_PC::sub_15CE8(uint8* pDs, int16 pCx) {
+	//todo
+	assert(1 == 0);
+}
+
+void cGraphics_PC::Briefing_Intro_Jungle( ) {
+	
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
+
+	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
+
+	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+
+	mImage->paletteSet(mFodder->mPalette );
+
+	mFodder->mImageFaded = -1;
+
+	do {
+		if (mFodder->mBriefing_Helicopter_Moving == -1)
+			mFodder->Briefing_Update_Helicopter();
+
+		if( mFodder->mImageFaded == -1 )
+			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+
+		// Clouds
+		mFodder->word_42859 = 0x30;
+		mFodder->word_4285B = 0x0C64 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+
+		mFodder->word_42859 = 0x38;
+		mFodder->word_4285B = 0x102C * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873);
+
+		mFodder->word_42859 = 0x12;
+		mFodder->word_4285B = 0x1D3C * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871);
+
+		// Trees (Main)
+		mFodder->word_42859 = 0x5C;
+		mFodder->word_4285B = 0x236C * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+
+		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
+
+		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;		// X
+		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;		// Y 
+		mFodder->mVideo_Draw_Columns = 0x40;
+		mFodder->mVideo_Draw_Rows = 0x18;
+		if (Sprite_OnScreen_Check())
+			Video_Draw_8();
+
+		mFodder->word_42859 = 0x2D;
+		mFodder->word_4285B = 0x33EC * 4;
+		Briefing_Render_2( mImageBriefingIntro.mData, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		mFodder->Mouse_GetData();
+		mFodder->Video_Sleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+			mFodder->word_428D8 = 0;
+			mImage->paletteNew_SetToBlack();
+			mFodder->mImageFaded = -1;
+		}
+	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
+}
+
+void cGraphics_PC::Briefing_Intro_Desert() {
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
+
+	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
+
+	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+
+	mImage->paletteSet(mFodder->mPalette );
+
+	mFodder->mImageFaded = -1;
+
+	do {
+		if (mFodder->mBriefing_Helicopter_Moving == -1)
+			mFodder->Briefing_Update_Helicopter();
+
+		if(mFodder->mImageFaded == -1 )
+			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+
+		// Clouds
+		mFodder->word_42859 = 0x3A;
+		mFodder->word_4285B = 0x0C64 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+
+		mFodder->word_42859 = 0x4C;
+		mFodder->word_4285B = 0x139C * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
+
+		mFodder->word_42859 = 0x30;
+		mFodder->word_4285B = 0x1CE4 * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
+
+		// Trees (Main)
+		mFodder->word_42859 = 0x40;
+		mFodder->word_4285B = 0x2D64 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+
+		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
+
+		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;		// X
+		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;		// Y 
+		mFodder->mVideo_Draw_Columns = 0x40;
+		mFodder->mVideo_Draw_Rows = 0x18;
+		if (Sprite_OnScreen_Check())
+			Video_Draw_8();
+
+		mFodder->word_42859 = 0x30;
+		mFodder->word_4285B = 0x32E4 * 4;
+		Briefing_Render_2( mImageBriefingIntro.mData, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		mFodder->Video_Sleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mFodder->Mouse_GetData();
+		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+			mFodder->word_428D8 = 0;
+			mImage->paletteNew_SetToBlack();
+			mFodder->mImageFaded = -1;
+		}
+	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
+}
+
+void cGraphics_PC::Briefing_Intro_Ice() {
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
+
+	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
+
+	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+
+	mImage->paletteSet(mFodder->mPalette );
+
+	mFodder->mImageFaded = -1;
+
+	do {
+		if (mFodder->mBriefing_Helicopter_Moving == -1)
+			mFodder->Briefing_Update_Helicopter();
+
+		if(mFodder->mImageFaded == -1 )
+			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+
+		// Clouds
+		mFodder->word_42859 = 0x24;
+		mFodder->word_4285B = 0x0C64 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+
+		mFodder->word_42859 = 0x42;
+		mFodder->word_4285B = 0x102C * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
+
+		// Ice Caps
+		mFodder->word_42859 = 0x18;
+		mFodder->word_4285B = 0x1CE4 * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
+
+		// Ice Mountains
+		mFodder->word_42859 = 0x58;
+		mFodder->word_4285B = 0x2524 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+
+		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
+
+		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;		// X
+		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;		// Y 
+		mFodder->mVideo_Draw_Columns = 0x40;
+		mFodder->mVideo_Draw_Rows = 0x18;
+		if (Sprite_OnScreen_Check())
+			Video_Draw_8();
+
+		mFodder->word_42859 = 0x2E;
+		mFodder->word_4285B = 0x3394 * 4;
+		// Trees
+		Briefing_Render_2( mImageBriefingIntro.mData, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		mFodder->Video_Sleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mFodder->Mouse_GetData();
+		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+			mFodder->word_428D8 = 0;
+			mFodder->mImage->paletteNew_SetToBlack();
+			mFodder->mImageFaded = -1;
+		}
+	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
+}
+
+void cGraphics_PC::Briefing_Intro_Mor() {
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+
+	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
+
+	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
+	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+
+	mImage->paletteSet(mFodder->mPalette );
+
+	mFodder->mImageFaded = -1;
+
+	do {
+		if (mFodder->mBriefing_Helicopter_Moving == -1)
+			mFodder->Briefing_Update_Helicopter();
+
+		if(mFodder->mImageFaded == -1 )
+			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+
+		// Clouds
+		mFodder->word_42859 = 0x1D;
+		mFodder->word_4285B = 0x0C64 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
+
+		mFodder->word_42859 = 0x40;
+		mFodder->word_4285B = 0x1134 * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873 );
+
+		mFodder->word_42859 = 0x6;
+		mFodder->word_4285B = 0x2524 * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871 );
+
+		// Trees (Main)
+		mFodder->word_42859 = 0x52;
+		mFodder->word_4285B = 0x2734 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, word_42871 );
+
+		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
+
+		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;		// X
+		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;		// Y 
+		mFodder->mVideo_Draw_Columns = 0x40;
+		mFodder->mVideo_Draw_Rows = 0x18;
+		if (Sprite_OnScreen_Check())
+			Video_Draw_8();
+
+		mFodder->word_42859 = 0x30;
+		mFodder->word_4285B = 0x32E4 * 4;
+		Briefing_Render_2( mImageBriefingIntro.mData, word_4286F );
+
+		word_4286F += 8;
+		if (word_4286F > 0x140)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 > 0x140)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 > 0x140)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 > 0x140)
+			word_42875 = 0;
+
+		mFodder->Video_Sleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mFodder->Mouse_GetData();
+		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+			mFodder->word_428D8 = 0;
+			mImage->paletteNew_SetToBlack();
+			mFodder->mImageFaded = -1;
+		}
+	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
+}
+
+void cGraphics_PC::Briefing_Intro_Int() {
+	int16 mBriefing_Intro_X = 0;
+	int16 mBriefing_Intro_Clouds1_X = 0;
+	int16 mBriefing_Intro_Clouds2_X = 0;
+	int16 mBriefing_Intro_Clouds3_X = 0;
+
+	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
+
+	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
+
+	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+
+	mImage->paletteSet(mFodder->mPalette );
+
+	mFodder->mImageFaded = -1;
+
+	do {
+		if (mFodder->mBriefing_Helicopter_Moving == -1)
+			mFodder->Briefing_Update_Helicopter();
+
+		if(mFodder->mImageFaded == -1 )
+			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+
+		// Clouds
+		mFodder->word_42859 = 0x40;
+		mFodder->word_4285B = 0x0C64 * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, mBriefing_Intro_Clouds3_X );
+
+		mFodder->word_42859 = 0x2F;
+		mFodder->word_4285B = 0x16B4 * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, mBriefing_Intro_Clouds2_X );
+
+		mFodder->word_42859 = 0x22;
+		mFodder->word_4285B = 0x1B2C * 4;
+		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, mBriefing_Intro_Clouds1_X );
+
+		// Trees (Main)
+		mFodder->word_42859 = 0x53;
+		mFodder->word_4285B = 0x26DC * 4;
+		Briefing_Render_1( mBriefing_Intro_Gfx_TreesMain, mBriefing_Intro_Clouds1_X );
+
+		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
+
+		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;		// X
+		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;		// Y 
+		mFodder->mVideo_Draw_Columns = 0x40;
+		mFodder->mVideo_Draw_Rows = 0x18;
+		if (Sprite_OnScreen_Check())
+			Video_Draw_8();
+
+		mFodder->word_42859 = 0x23;
+		mFodder->word_4285B = 0x375C * 4;
+		Briefing_Render_2( mImageBriefingIntro.mData, mBriefing_Intro_X );
+
+		mBriefing_Intro_X += 8;
+		if (mBriefing_Intro_X > 0x140)
+			mBriefing_Intro_X = 0;
+
+		mBriefing_Intro_Clouds1_X += 4;
+		if (mBriefing_Intro_Clouds1_X > 0x140)
+			mBriefing_Intro_Clouds1_X = 0;
+
+		mBriefing_Intro_Clouds2_X += 2;
+		if (mBriefing_Intro_Clouds2_X > 0x140)
+			mBriefing_Intro_Clouds2_X = 0;
+
+		++mBriefing_Intro_Clouds3_X;
+		if (mBriefing_Intro_Clouds3_X > 0x140)
+			mBriefing_Intro_Clouds3_X = 0;
+
+		mFodder->Video_Sleep();
+		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.FrameEnd();
+
+		mFodder->Mouse_GetData();
+		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+			mFodder->word_428D8 = 0;
+			mFodder->mImage->paletteNew_SetToBlack();
+			mFodder->mImageFaded = -1;
+		}
+	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
 }
