@@ -145,7 +145,7 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mMissionNumber;
 	uint16			mMissionPhase;
 	uint16			mRecruits_Available_Count;
-	int16			mSquad_Prepare_SetFromSpritePtrs;
+	int16			Mission_Troop_Prepare_SetFromSpritePtrs;
 	int16			mSprite_Enemy_AggressionCreated_Count;
 	uint16			mMission_Recruits_AliveCount;
 	int16			mMission_Recruitment;
@@ -171,7 +171,7 @@ class cFodder : public cSingleton < cFodder > {
 	/* These used to be in the save game region */
 	uint16			mSaved_MissionNumber;					// unused
 	uint16			mSaved_MapNumber;						// unused
-	sSprite*		mSquad_SpritePtrs[8];
+	sSprite*		mMission_Troops_SpritePtrs[8];
 
 	int16*			mGraveRankPtr;
 	int16*			mGraveRankPtr2;
@@ -233,8 +233,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_39FB8;
 	sSprite*		mSquad_Leader;
 	int16			mSquad_Selected;
-	int16			word_39FD2;
-	int16			word_39FD4;
+	int16			mSquad_JoiningTo;
 
 	int16			word_39FF2;
 	int16			word_39FF4;
@@ -245,7 +244,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mTroop_Cannot_Throw_Grenade;
 	int16			mTroop_Cannot_Fire_Bullet;
 	int16			word_3A010;
-	int16			word_3A016;
+
 	uint16			word_3A024;
 	sGUI_Element*	mGUI_Loop_Element;
 	int32			dword_3A030;
@@ -283,7 +282,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3A3A9;
 	int16			mMission_IsFinished;
 	int16			word_3A3BB;
-	int16			word_3A3BD;
+	int16			mSidebar_Draw_Y;
 	int16			word_3A3BF;
 	sMapTarget*		dword_3A3F9;
 	int16			word_3A8CF;
@@ -326,7 +325,7 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3AA41;
 	int16			word_3AA45;
 	int16			mSquad_Select_Timer;
-	int16			word_3AA4B;
+	int16			mSprite_Find_Distance;
 	int32			mMapWidth_Shifted;
 	int32			mMapHeight_Shifted;
 	int16			mMouseCursor_Enabled;
@@ -650,7 +649,7 @@ public:
 	void			Mission_Troop_Sort();
 	void			Mission_Troop_Prepare();
 	void			Mission_Troop_Prepare_Next_Recruits();
-	void			Squad_Prepare_Sprites();
+	void			Mission_Troops_Prepare_Sprites();
 	void			Camera_Position_Update();
 	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
@@ -758,7 +757,7 @@ public:
 	void			sub_175C0();
 	void			Recruit_Draw_Troops();
 	void			sub_1787C();
-	void			Recruit_Field4_Clear();
+	void			Recruit_Frame_Check();
 	void			Recruit_Position_Troops();
 	void			Recruit_Draw_Truck( );
 	void			Recruit_Sprites_Draw();
@@ -1212,7 +1211,7 @@ public:
 	void			sub_30AB0();
 	int16			Mouse_Button_Left_Toggled();
 	void			sub_30E49();
-	void			Squad_Clear_Selected();
+	void			Mission_Troops_Clear_Selected();
 	void			sub_303AE();
 	void			sub_303B7();
 	void			GUI_Sidebar_Squad_Split_Icon_Draw();
