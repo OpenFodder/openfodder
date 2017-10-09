@@ -116,7 +116,7 @@ void cSound_PC::MixerChannelFinished( int32 pChannel ) {
 void cSound_PC::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume ) {
 	sVocPlaying Playing;
 	auto eax = word_42316[pTileset][pSoundEffect];
-	if (!eax->size() || mSound == false )
+	if (!eax || !eax->size() || mSound == false )
 		return;
 
 	SDL_RWops *rw = SDL_RWFromMem( eax->data(), eax->size() );
