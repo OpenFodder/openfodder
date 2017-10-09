@@ -902,7 +902,6 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 }
 
 void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY ) {
-
 	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 
 	mFodder->mVideo_Draw_Columns = str2->mColumns >> 3;
@@ -920,8 +919,7 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, in
 	mFodder->mVideo_Draw_FrameDataPtr = str2->GetGraphicsPtr(ax + bx);
 
 	mFodder->mDraw_Source_SkipPixelsPerRow = 40 - mFodder->mVideo_Draw_Columns;
-	mFodder->mVideo_Draw_Columns >>= 1;
-	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x30 - (mFodder->mVideo_Draw_Columns * 16);
+	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x30 - (mFodder->mVideo_Draw_Columns * 8);
 
 	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + (0x30 * pY) + pX;
 	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
@@ -930,7 +928,7 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, in
 	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
 
 		// Width
-		for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns; ++cx) {
+		for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns / 2; ++cx) {
 
 			DrawPixels_16( si, di );
 
@@ -944,39 +942,45 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, in
 }
 
 void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16 pCopyToScreen, uint32*& pBuffer) {
+	pData0 += 8;
+	pData4 *= 4;
 	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
-	uint32* esi = (uint32*)(SptPtr + (0x30 * pData0));
+	uint32* BuffPtr = (uint32*)(SptPtr + (0x30 * pData0));
 
 	if (pCopyToScreen == 0) {
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*pBuffer++ = *(esi + 0x210);
-			*pBuffer++ = *(esi + 0x21C);
-			*pBuffer++ = *(esi + 0x228);
-			*pBuffer++ = *(esi + 0x234);
-			*pBuffer++ = *(esi + 0x240);
-			*pBuffer++ = *(esi + 0x24C);
-			*pBuffer++ = *(esi + 0x258);
-			*pBuffer++ = *(esi + 0x264);
-			*pBuffer++ = *(esi + 0x270);
-			*pBuffer++ = *(esi + 0x27C);
-			*pBuffer++ = *(esi + 0x288);
-			++esi;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
 		}
 	}
 	else {
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*(esi + 0x210) = *pBuffer++;
-			*(esi + 0x21C) = *pBuffer++;
-			*(esi + 0x228) = *pBuffer++;
-			*(esi + 0x234) = *pBuffer++;
-			*(esi + 0x240) = *pBuffer++;
-			*(esi + 0x24C) = *pBuffer++;
-			*(esi + 0x258) = *pBuffer++;
-			*(esi + 0x264) = *pBuffer++;
-			*(esi + 0x270) = *pBuffer++;
-			*(esi + 0x27C) = *pBuffer++;
-			*(esi + 0x288) = *pBuffer++;
-			++esi;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
 		}
 	}
 }

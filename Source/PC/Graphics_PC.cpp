@@ -363,187 +363,99 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 	Buffer += (16 * mImage->GetWidth()) + 16;
 
-	mFodder->word_42066 = Buffer;
-	for (unsigned int Plane = 0; Plane < 4; Plane++) {
+	for (unsigned int Y = 0; Y < 200; ++Y) {
 
-		Buffer = mFodder->word_42066;
+		for (unsigned int X = 0; X < 0x30; ++X) {
 
-		for (unsigned int Y = 0; Y < 200; ++Y) {
-
-			for (unsigned int X = Plane; X < 0x30; X += 4) {
-
-				Buffer[X] = *si++;
-			}
-			
-			Buffer += 352;
+			Buffer[X] = *si++;
 		}
+			
+		Buffer += 352;
 	}
 }
 
-void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY ) {
-	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
-	
-	mFodder->mVideo_Draw_Columns = str2->mColumns;
-	mFodder->mVideo_Draw_Rows = str2->mRows;
-	
-	uint16 ax = 0xA0 * str2->mY;
-	uint16 bx = str2->mX >> 1;
-	ax += bx;
-	
-	mFodder->mVideo_Draw_FrameDataPtr = str2->GetGraphicsPtr( ax );
-	
+void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, int16 pX, int16 pY) {
+	const sSpriteSheet_pstuff* SpriteSheet = &mSpriteSheet_PStuff[pSpriteType];
+
+	mFodder->mVideo_Draw_Columns = SpriteSheet->mColumns;
+	mFodder->mVideo_Draw_Rows = SpriteSheet->mRows;
+
+	uint16 Offset = (0xA0 * SpriteSheet->mY) + (SpriteSheet->mX >> 1);
+
+	mFodder->mVideo_Draw_FrameDataPtr = SpriteSheet->GetGraphicsPtr(Offset);
 	mFodder->mVideo_Draw_PaletteIndex = 0xF0;
-	
-	uint16 w42066 = 0x0C * pY;
-	w42066 += pX >> 2;
-	
-	ax = pX & 3;
-	ax *= 0x960;
-	w42066 += ax;
-	
+
 	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
-	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
+	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + (48 * pY) + pX;
 
-	mFodder->mVideo_Draw_Columns >>= 1;
-	mFodder->mDraw_Source_SkipPixelsPerRow = 0xA0 - mFodder->mVideo_Draw_Columns;
+	mFodder->mDraw_Source_SkipPixelsPerRow = 0xA0 - (mFodder->mVideo_Draw_Columns >> 1);
+	mFodder->mDraw_Dest_SkipPixelsPerRow = 48 - mFodder->mVideo_Draw_Columns;
 
-	mFodder->mVideo_Draw_Columns >>= 1;
-	mFodder->mDraw_Dest_SkipPixelsPerRow = 0x0C - mFodder->mVideo_Draw_Columns;
-	
-	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
+	for (uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+
+		for (uint16 cx = (mFodder->mVideo_Draw_Columns / 2); cx > 0; --cx) {
 			
-			uint8 al = (*si) >> 4;
-			if( al )
+			uint8 ah = *si;
+
+			uint8 al = ah >> 4;
+			if (al)
 				*di = al | mFodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			++di;
+
+			al = ah & 0x0F;
+			if (al)
+				*(di + 1) = al | mFodder->mVideo_Draw_PaletteIndex;
+
+			si++;
+			di += 2;
 		}
-			
+
 		si += mFodder->mDraw_Source_SkipPixelsPerRow;
 		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
 	}
-
-	w42066 += 0x960;
-	if( w42066 >= 0x2580 )
-		w42066 -= 0x257F;
-	
-	si = mFodder->mVideo_Draw_FrameDataPtr;
-	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
-	
-	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
-			uint8 al = (*si) & 0x0F;
-			if( al )
-				*di = al | mFodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			++di;
-		}
-		
-		si += mFodder->mDraw_Source_SkipPixelsPerRow;
-		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
-	}
-		
-	w42066 += 0x960;
-	if( w42066 >= 0x2580 )
-		w42066 -= 0x257F;
-	
-	++mFodder->mVideo_Draw_FrameDataPtr;
-	si = mFodder->mVideo_Draw_FrameDataPtr;
-	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
-	
-	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
-			
-			uint8 al = (*si) >> 4;
-			if( al )
-				*di = al | mFodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			++di;
-		}
-			
-		si += mFodder->mDraw_Source_SkipPixelsPerRow;
-		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
-	}
-
-	w42066 += 0x960;
-	if( w42066 >= 0x2580 )
-		w42066 -= 0x257F;
-
-	si = mFodder->mVideo_Draw_FrameDataPtr;
-	di =  ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + w42066;
-	
-	for( uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx ) {
-		
-		for( uint16 cx = mFodder->mVideo_Draw_Columns; cx > 0; --cx ) {
-			uint8 al = (*si) & 0x0F;
-			if( al )
-				*di = al | mFodder->mVideo_Draw_PaletteIndex;
-			
-			si += 2;
-			++di;
-		}
-		
-		si += mFodder->mDraw_Source_SkipPixelsPerRow;
-		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
-	}
-
 }
 
 void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16 pCopyToScreen, uint32*& pBuffer) {
 	pData0 += 0x18;
 	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
-	uint32* BuffPtr = (uint32*)(SptPtr + (0x0C * pData0));
+	uint32* BuffPtr = (uint32*)(SptPtr + (48 * pData0));
 
 	// Copying to pData20? or from it?
 	if (pCopyToScreen == 0) {
 
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*pBuffer++ = *BuffPtr;
-			*pBuffer++ = *(BuffPtr + 0x258);
-			*pBuffer++ = *(BuffPtr + 0x4B0);
-			*pBuffer++ = *(BuffPtr + 0x708);
-			++BuffPtr;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
 
-			*pBuffer++ = *BuffPtr;
-			*pBuffer++ = *(BuffPtr + 0x258);
-			*pBuffer++ = *(BuffPtr + 0x4B0);
-			*pBuffer++ = *(BuffPtr + 0x708);
-			++BuffPtr;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
 
-			*pBuffer++ = *BuffPtr;
-			*pBuffer++ = *(BuffPtr + 0x258);
-			*pBuffer++ = *(BuffPtr + 0x4B0);
-			*pBuffer++ = *(BuffPtr + 0x708);
-			++BuffPtr;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
+			*pBuffer++ = *BuffPtr++;
 		}
 	}
 	else {
 
 		for (int16 cx = pData4; cx > 0; --cx) {
-			*BuffPtr = *pBuffer++;
-			*(BuffPtr+0x258) = *pBuffer++;
-			*(BuffPtr+0x4B0) = *pBuffer++;
-			*(BuffPtr+0x708) = *pBuffer++;
-			++BuffPtr;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
 
-			*BuffPtr = *pBuffer++;
-			*(BuffPtr+0x258) = *pBuffer++;
-			*(BuffPtr+0x4B0) = *pBuffer++;
-			*(BuffPtr+0x708) = *pBuffer++;
-			++BuffPtr;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
 
-			*BuffPtr = *pBuffer++;
-			*(BuffPtr+0x258) = *pBuffer++;
-			*(BuffPtr+0x4B0) = *pBuffer++;
-			*(BuffPtr+0x708) = *pBuffer++;
-			++BuffPtr;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
+			*BuffPtr++ = *pBuffer++;
 		}
 	}
 }

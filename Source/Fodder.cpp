@@ -3090,6 +3090,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 		
 	mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
 	mGraphics->Load_pStuff();
+	mGraphics->Load_Hill_Data();
 
 	Map_Load_Resources();
 	mGraphics->Tile_Prepare_Gfx();
@@ -3112,8 +3113,8 @@ void cFodder::Prepare( ) {
 
 	mMap = 0;
 
-	mSidebar_Back_Buffer = (uint16*) new uint8[0x400 * 16];
-	mSidebar_Screen_Buffer = (uint16*) new uint8[0x400 * 16];
+	mSidebar_Back_Buffer = (uint16*) new uint8[0x4000];
+	mSidebar_Screen_Buffer = (uint16*) new uint8[0x4000];
 	mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 
 	uint8* Start = (uint8*) &mMapNumber;
@@ -3401,7 +3402,6 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
 
 	Data0 = Saved0;
 	pSoundEffect = Saved4;
-
 	mSound->Sound_Play( mMap_TileSet, pSoundEffect, Volume );
 }
 
@@ -3640,7 +3640,6 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 	mMission_Aborted = 0;
 	mGUI_SaveLoadAction = 0;
 
-	mGraphics->Load_Hill_Data();
 	mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
 
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
