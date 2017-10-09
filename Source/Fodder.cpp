@@ -3640,8 +3640,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 	mMission_Aborted = 0;
 	mGUI_SaveLoadAction = 0;
 
-	if(mVersion->mPlatform == ePlatform::Amiga)
-		mGraphics->Load_Hill_Data();
+	mGraphics->Load_Hill_Data();
 	mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
 
 	std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
