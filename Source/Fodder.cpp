@@ -9664,9 +9664,9 @@ void cFodder::GUI_SaveLoad( bool pShowCursor ) {
 
 		if (mShow) {
 			if (mVersion->mPlatform == ePlatform::Amiga)
-				GUI_Draw_Frame_8(0x18, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50);
+				GUI_Draw_Frame_8( 0x18, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50 );
 			else
-				GUI_Draw_Frame_8(0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50);
+				GUI_Draw_Frame_8( 0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50 );
 		}
 
 		Mouse_Inputs_Get();
