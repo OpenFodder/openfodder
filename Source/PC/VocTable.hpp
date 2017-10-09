@@ -4,7 +4,7 @@ struct struct_Voc {
 	const char mFilename[10];
 };
 
-struct_Voc mVocTable[39] = {
+const struct_Voc mVocTable[] = {
   { 0x09, 0x02, "ALL02.VOC" },
   { 0x09, 0x03, "ALL03.VOC" },
   { 0x09, 0x04, "ALL04.VOC" },
@@ -24,6 +24,7 @@ struct_Voc mVocTable[39] = {
   { 0x09, 0x14, "ALL20.VOC" },
   { 0x09, 0x15, "ALL21.VOC" },
   { 0x09, 0x16, "ALL22.VOC" },
+  { 0x09, 0x2D, "ALL46.VOC" },	// This sound is missing in the original DOS version
   { 0x09, 0x2E, "ALL46.VOC" },
   { 0x09, 0x33, "ALL51.VOC" },
   { 0x09, 0x34, "ALL52.VOC" },
@@ -33,15 +34,20 @@ struct_Voc mVocTable[39] = {
   { 0x09, 0x39, "ALL57.VOC" },
   { 0x09, 0x3A, "ALL58.VOC" },
   { 0x09, 0x3B, "ALL59.VOC" },
+
   { 0x00, 0x1A, "JUN26.VOC" },
   { 0x00, 0x1B, "JUN27.VOC" },
   { 0x00, 0x1C, "JUN28.VOC" },
+
   { 0x01, 0x1A, "DES26.VOC" },
   { 0x02, 0x1A, "ICE26.VOC" },
+
   { 0x02, 0x1E, "ICE30.VOC" },
   { 0x02, 0x1F, "ICE31.VOC" },
+
   { 0x03, 0x1A, "MOR26.VOC" },
   { 0x03, 0x1C, "MOR28.VOC" },
+
   { 0x04, 0x1A, "INT26.VOC" },
   { 0xFF, 0xFF, "" }
 };

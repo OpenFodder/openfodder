@@ -62,7 +62,7 @@ cSound_PC::~cSound_PC() {
 
 void cSound_PC::Sound_Voc_Load() {
 
-	struct_Voc* Voc = mVocTable;
+	const struct_Voc* Voc = mVocTable;
 
 	for (; Voc->field_0 != 0xFF; ++Voc) {
 
