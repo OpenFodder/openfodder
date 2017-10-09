@@ -132,6 +132,9 @@
     <ClInclude Include="..\..\Source\Utils\json.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SpriteSheet.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -233,5 +236,11 @@
     <ClCompile Include="..\..\Source\MissionData\Custom.cpp">
       <Filter>Source\MissionData</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\SpriteSheet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
