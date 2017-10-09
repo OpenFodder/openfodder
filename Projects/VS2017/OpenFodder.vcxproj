@@ -69,23 +69,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;$(IncludePath)</IncludePath>
-    <LibraryPath>{SDL2 location}\lib\x86;{SDL2_mixer location}\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>packages\sdl2.2.0.5\build\native\lib\Win32\dynamic;packages\sdl2_mixer.vc.2.0.1.1\build\native\lib\Win32\dynamic;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Systems\Libraries\SDL2-2.0.5\include;D:\Systems\Libraries\SDL2_mixer-2.0.1\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Libraries\SDL2-2.0.5\lib\x64;D:\Systems\Libraries\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>packages\sdl2.2.0.5\build\native\lib\x64\dynamic;packages\sdl2_mixer.vc.2.0.1.1\build\native\lib\x64\dynamic;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>{SDL2 location}\include;{SDL2_mixer location}\include;$(IncludePath)</IncludePath>
-    <LibraryPath>{SDL2 location}\lib\x86;{SDL2_mixer location}\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>packages\sdl2.2.0.5\build\native\lib\Win32\dynamic;packages\sdl2_mixer.vc.2.0.1.1\build\native\lib\Win32\dynamic;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\Systems\Libraries\SDL2-2.0.5\include;D:\Systems\Libraries\SDL2_mixer-2.0.1\include;..\..\Source\Utils;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Systems\Libraries\SDL2-2.0.5\lib\x64;D:\Systems\Libraries\SDL2_mixer-2.0.1\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>packages\sdl2.2.0.5\build\native\lib\x64\dynamic;packages\sdl2_mixer.vc.2.0.1.1\build\native\lib\x64\dynamic;$(LibraryPath)</LibraryPath>
     <!--IntDir>$(Platform)\$(Configuration)</IntDir-->
     <!--OutDir>$(SolutionDir)$(Platform)\$(Configuration)\..\..\..\..\Run</OutDir-->
   </PropertyGroup>
@@ -238,7 +238,23 @@
     <ClCompile Include="..\..\Source\Versions.cpp" />
     <ClCompile Include="..\..\Source\Window.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets" Condition="Exists('packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets')" />
+    <Import Project="packages\sdl2.2.0.5\build\native\sdl2.targets" Condition="Exists('packages\sdl2.2.0.5\build\native\sdl2.targets')" />
+    <Import Project="packages\sdl2_mixer.vc.redist.2.0.1.1\build\native\sdl2_mixer.vc.redist.targets" Condition="Exists('packages\sdl2_mixer.vc.redist.2.0.1.1\build\native\sdl2_mixer.vc.redist.targets')" />
+    <Import Project="packages\sdl2_mixer.vc.2.0.1.1\build\native\sdl2_mixer.vc.targets" Condition="Exists('packages\sdl2_mixer.vc.2.0.1.1\build\native\sdl2_mixer.vc.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets'))" />
+    <Error Condition="!Exists('packages\sdl2.2.0.5\build\native\sdl2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.2.0.5\build\native\sdl2.targets'))" />
+    <Error Condition="!Exists('packages\sdl2_mixer.vc.redist.2.0.1.1\build\native\sdl2_mixer.vc.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2_mixer.vc.redist.2.0.1.1\build\native\sdl2_mixer.vc.redist.targets'))" />
+    <Error Condition="!Exists('packages\sdl2_mixer.vc.2.0.1.1\build\native\sdl2_mixer.vc.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2_mixer.vc.2.0.1.1\build\native\sdl2_mixer.vc.targets'))" />
+  </Target>
 </Project>
