@@ -3878,7 +3878,7 @@ bool cFodder::Recruit_Show() {
 	mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
 	mGraphics->Recruit_Draw_Hill();
 
-	Recruit_Sprites_Draw();
+	Recruit_Copy_Sprites();
 	
 	if (mVersion->mPlatform == ePlatform::Amiga) {
 		
@@ -4695,7 +4695,7 @@ void cFodder::Recruit_Draw_Truck( ) {
 	mRecruit_Truck_Frame = Data0;
 }
 
-void cFodder::Recruit_Sprites_Draw() {
+void cFodder::Recruit_Copy_Sprites() {
 
 	const sRecruit_Sprites* stru = mRecruitSprite;
 
@@ -4725,7 +4725,6 @@ void cFodder::Recruit_Sprites_Draw() {
 				Data0 -= 1;
 				Data0 <<= 4;
 			}
-
 			sub_2AEB6( Data0, Data4, &Data8, &DataC );
 			int16 Data10 = word_3B1A3 + 0x08;
 			int16 Data14 = word_3B1A5;
@@ -19363,8 +19362,8 @@ void cFodder::Playground() {
 	mImage->Save();
 	mString_GapCharID = 0x25;
 
-	size_t SpriteID = 0;
-	size_t Frame = 0;
+	size_t SpriteID = 29;
+	size_t Frame = 1;
 
 	
 	for (;; ) {
@@ -19380,7 +19379,7 @@ void cFodder::Playground() {
 		}
 
 		{
-			mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
+			mGraphics->SetActiveSpriteSheet(eSPRITE_HILL);
 			GUI_Draw_Frame_8(SpriteID, Frame, 65, 65);
 		}
 
