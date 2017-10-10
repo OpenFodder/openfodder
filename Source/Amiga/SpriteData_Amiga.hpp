@@ -1677,11 +1677,11 @@ const sSpriteSheet* mSpriteSheetTypes_Recruit_Amiga[] = {
 	stru_8D66E,	 // Letters/Numbers
 	stru_8D8AE,	 // Colon (:)
 	stru_8D8BE,	 // Cursor
-	stru_8DA2E,	 // 16: Unknown - Blank?
+	stru_8DA2E,	 // 
 	stru_8DA3E,	 // 
-	stru_8DA4E,	 // Symbol ^
-	stru_8DA7E,	 // Unknown ___
-	stru_8DB3E,	 // 20: Hill Overlays
+	stru_8DA4E,	 // 
+	stru_8DA7E,	 // 
+	stru_8DB3E,	 // 
 	mRecruitSpriteFrames_Truck_Amiga,
 	mRecruitSpriteFrames_Disk_Amiga,
 	mRecruitSpriteFrames_Disk_Part_Amiga,
@@ -1892,7 +1892,11 @@ const sSpriteSheet stru_9171C[] = {
 	{ 8028, eSPRITE_HILL, 0, 0, 2, 0x12, 0x34A8, 0x0, 0x0 },
 };
 
+// These are different pieces of the Hill
 const sSpriteSheet* mSpriteSheetTypes_Hill_Amiga[] = {
+
+
+
 	stru_90F9C,
 	stru_90FEC,
 	stru_9103C,

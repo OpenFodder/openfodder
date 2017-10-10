@@ -742,7 +742,7 @@ public:
 	void			Recruit_Frame_Check();
 	void			Recruit_Position_Troops();
 	void			Recruit_Draw_Truck( );
-	void			Recruit_Sprites_Draw();
+	void			Recruit_Copy_Sprites();
 	void			Recruit_Draw();
 	void			Recruit_Draw_Graves( );
 	void			Recruit_Draw_Grave( int16 pSpriteType, int16 pPosX, int16 pPosY );

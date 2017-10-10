@@ -1132,7 +1132,7 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 	mImageBriefingIntro.LoadPalette_Amiga(Data->data(), 16, 0xE0);
 }
 
-void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pGraphics ) {
+void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pSource ) {
 	int32 d0, d1, d2, d3, d4, d5, d6;
 
 	d0 = pRows;
@@ -1142,7 +1142,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 	d4 = pD4;
 	d5 = pD5;
 
-	uint8* a1 = mImageHill.mData->data();
+	uint8* Dest = mImageHill.mData->data();
 
 	int32 word_8271A = d0;
 	int32 word_8271C = d1;
@@ -1170,11 +1170,11 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 	d5 += d1;
 
 	d1 = D1_Saved;
-	a1 += d5;
+	Dest += d5;
 	d6 = d4;
 	d6 >>= 3;
 
-	a1 += d6;
+	Dest += d6;
 	d4 &= 7;
 	d6 = 7;
 	d6 -= d4;
@@ -1220,8 +1220,8 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 
 	//loc_A0850
 	do {
-		uint8* a3 = pGraphics;
-		uint8* a6 = a1;
+		uint8* a3 = pSource;
+		uint8* a6 = Dest;
 
 		d2 = 0;
 		d4 = 7;
@@ -1254,7 +1254,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 			d4 -= (d7 & 0xFFFF);
 			d7 = (d7 & 0xFFFF0000) | ((d7 & 0xFFFF) >> 3);
 
-			a3 = pGraphics + (d7 & 0xffff);
+			a3 = pSource + (d7 & 0xffff);
 		} while (--d6 >= 0);
 
 		++a6;
@@ -1263,7 +1263,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 
 	loc_A08A8:;
 
-		a1 += 0x28;
+		Dest += 0x28;
 		d3 += d1;
 		d3 = (d3 >> 16) | (d3 << 16);
 
@@ -1275,7 +1275,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 		d3 = (d3 & 0xFFFF0000) | ((d3 & 0xFFFF) << 2);
 		d3 += (d1 & 0xFFFF);
 		d1 = D1_Saved;
-		pGraphics += (d3 & 0xFFFF);
+		pSource += (d3 & 0xFFFF);
 		d3 = d3 >> 16;
 
 	} while (--word_82720 > 0);
