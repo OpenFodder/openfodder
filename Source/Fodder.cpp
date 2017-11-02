@@ -214,7 +214,7 @@ void cFodder::Squad_Walk_Target_SetAll( int16 pValue ) {
 int16 cFodder::Mission_Loop( ) {
 	mImage->Save();
 
-	for (int x = 0; x < 2; ++x) {
+	for (;;) {
 		Video_Sleep();
 
 		sub_12018();
@@ -1744,6 +1744,7 @@ void cFodder::Map_Load_Resources() {
 	Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &mTile_BHit[960] );
 
 	mGraphics->Map_Load_Resources();
+	mGraphics->PaletteSet();
 }
 
 void cFodder::Music_Play_Tileset() {
@@ -3098,9 +3099,6 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
 	mGraphics->Load_pStuff();
 	mGraphics->Load_Hill_Data();
-
-	Map_Load_Resources();
-	mGraphics->PaletteSet();
 }
 
 void cFodder::Prepare( ) {
@@ -19328,6 +19326,7 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 
 	mMission_TryAgain = -1;
 
+	Map_Load_Resources();
 	mGraphics->Load_pStuff();
 }
 

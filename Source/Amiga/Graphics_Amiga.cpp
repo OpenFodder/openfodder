@@ -468,7 +468,7 @@ sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
 	auto			File = g_Resource.fileGet( pFilename );
 	auto			DataPtr = File->data();
 
-	if (readBEDWord( DataPtr ) != 'FORM')
+	if (!DataPtr || readBEDWord( DataPtr ) != 'FORM')
 		return Result;
 
 	DataPtr += 4;
