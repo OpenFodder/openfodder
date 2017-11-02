@@ -34,6 +34,8 @@ cWindow::cWindow() {
 
 	mWindowMode = true;
 	mWindow = 0;
+
+	mRenderer = 0;
 }
 
 cWindow::~cWindow() {

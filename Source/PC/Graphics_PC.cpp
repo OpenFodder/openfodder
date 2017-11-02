@@ -154,8 +154,8 @@ void cGraphics_PC::Tile_Prepare_Gfx() {
 
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		mTile_Gfx_Ptrs[cx + 0x00] = mFodder->mDataBaseBlk->data() + bx;
-		mTile_Gfx_Ptrs[cx + 0xF0] = mFodder->mDataSubBlk->data() + bx;
+		mTile_Gfx_Ptrs[cx + 0x00] = mFodder->mTile_BaseBlk->data() + bx;
+		mTile_Gfx_Ptrs[cx + 0xF0] = mFodder->mTile_SubBlk->data() + bx;
 
 		++dx;
 		bx += 0x10;
@@ -205,7 +205,7 @@ void cGraphics_PC::Map_Tiles_Draw() {
 		uint16 StartY = 0;
 
 		if (cx == 0)
-			StartY = mFodder->mCamera_Pan_RowOffset;
+			StartY = mFodder->mMapTile_RowOffset;
 		else
 			StartY = 0;
 
@@ -223,7 +223,7 @@ void cGraphics_PC::Map_Tiles_Draw() {
 			TilePtr += StartY * 0x140;
 			
 			if (cx2 == 0)
-				StartX = mFodder->mCamera_Pan_ColumnOffset;
+				StartX = mFodder->mMapTile_ColumnOffset;
 			else
 				StartX = 0;
 
@@ -265,7 +265,7 @@ void cGraphics_PC::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16
 }
 
 void cGraphics_PC::Map_Load_Resources() {
-	PaletteLoad( mFodder->mDataBaseBlk->data() + 0xFA00, 0x80, 0x00 );
+	PaletteLoad( mFodder->mTile_BaseBlk->data() + 0xFA00, 0x80, 0x00 );
 
 	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "dat" );
 	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "dat" );

@@ -427,14 +427,14 @@ void cGraphics_Amiga::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
 
 void cGraphics_Amiga::Tile_Prepare_Gfx() {
 
-	mBlkData->resize( mFodder->mDataBaseBlk->size() + mFodder->mDataSubBlk->size() );
+	mBlkData->resize( mFodder->mTile_BaseBlk->size() + mFodder->mTile_SubBlk->size() );
 
 	// Load the palette for the graphic tile set
 	auto Palette = g_Resource.fileGet( mFodder->mFilenameBasePal );
 	DecodePalette(Palette->data(), 0, Palette->size() / 2);
 
-	memcpy( mBlkData->data(), mFodder->mDataBaseBlk->data(), mFodder->mDataBaseBlk->size() );
-	memcpy( mBlkData->data() + mFodder->mDataBaseBlk->size(), mFodder->mDataSubBlk->data(), mFodder->mDataSubBlk->size() );
+	memcpy( mBlkData->data(), mFodder->mTile_BaseBlk->data(), mFodder->mTile_BaseBlk->size() );
+	memcpy( mBlkData->data() + mFodder->mTile_BaseBlk->size(), mFodder->mTile_SubBlk->data(), mFodder->mTile_SubBlk->size() );
 }
 
 void cGraphics_Amiga::PaletteSetOverview() {
@@ -641,7 +641,7 @@ void cGraphics_Amiga::Map_Tiles_Draw() {
 		uint16 StartY = 0;
 
 		if (cx == 0)
-			StartY = mFodder->mCamera_Pan_RowOffset;
+			StartY = mFodder->mMapTile_RowOffset;
 		else
 			StartY = 0;
 
@@ -663,7 +663,7 @@ void cGraphics_Amiga::Map_Tiles_Draw() {
 				TilePtr += StartY * 2;
 
 				if (cx2 == 0)
-					StartX = mFodder->mCamera_Pan_ColumnOffset;
+					StartX = mFodder->mMapTile_ColumnOffset;
 				else
 					StartX = 0;
 

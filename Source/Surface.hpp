@@ -85,6 +85,7 @@ public:
 
 	void			paletteNew_SetToBlack();
 
+	inline SDL_Surface* GetSurface() { return mSDLSurface; }
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }
 	inline size_t		GetSurfaceBufferSize() const { return mSurfaceBufferSize; }
