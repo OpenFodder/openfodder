@@ -39,13 +39,13 @@ const int16 mBriefing_Helicopter_Offsets[] =
 	-1, -1
 };
 
-cFodder::cFodder( bool pSkipIntro ) {
+cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
 	
 	mSkipIntro = pSkipIntro;
 	mResources = 0;
 	mGraphics = 0;
 	mSound = 0;
-	mWindow = new cWindow();
+	mWindow = pWindow;
 	mMapNumber = 0;
 
 	mTicksDiff = 0;
@@ -97,8 +97,8 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mSprite_Tank_DistanceTo_Squad0 = 0;
 	mSprite_Missile_LaunchDistance_X = 0;
 	mSprite_Missile_LaunchDistance_Y = 0;
-	mCamera_Pan_ColumnOffset = 0;
-	mCamera_Pan_RowOffset = 0;
+	mMapTile_ColumnOffset = 0;
+	mMapTile_RowOffset = 0;
 	dword_3B30D = 0;
 
 	mMapTilePtr = 0;
@@ -108,7 +108,6 @@ cFodder::cFodder( bool pSkipIntro ) {
 	mGUI_Mouse_Modifier_X = 0;
 	mGUI_Mouse_Modifier_Y = 0;
 	word_3E75B = 0;
-	mCamera_Pan_RowCount = 0;
 
 	mMouseSpriteCurrent = 0;
 	mService_ExitLoop = 0;
@@ -215,11 +214,11 @@ void cFodder::Squad_Walk_Target_SetAll( int16 pValue ) {
 int16 cFodder::Mission_Loop( ) {
 	mImage->Save();
 
-	for (;;) {
+	for (int x = 0; x < 2; ++x) {
 		Video_Sleep();
 
 		sub_12018();
-		Camera_Pan( );
+		MapTile_Update_Position( );
 
 		word_3A9FB = 0;
 		Game_Handle();
@@ -262,6 +261,7 @@ int16 cFodder::Mission_Loop( ) {
 		mGraphics->Sidebar_Copy_To_Surface();
 		Mouse_DrawCursor();
 
+		// Game Paused
 		if (mMission_Paused != 0) {
 			Mission_Paused();
 
@@ -637,8 +637,8 @@ void cFodder::Mission_Memory_Clear() {
 	word_39F9E = 0;
 	word_39FA0 = 0;
 	word_39FA2 = 0;
-	mCamera_Column = 0;
-	mCamera_Row = 0;
+	mMapTile_Column = 0;
+	mMapTile_Row = 0;
 	word_39FAC = 0;
 
 	mSquad_Leader = 0;
@@ -738,8 +738,8 @@ void cFodder::Mission_Memory_Clear() {
 	word_3AA45 = 0;
 	mSquad_Select_Timer = 0;
 	mSprite_Find_Distance = 0;
-	mMapWidth_Shifted = 0;
-	mMapHeight_Shifted = 0;
+	mMapWidth_Pixels = 0;
+	mMapHeight_Pixels = 0;
 	mMouseCursor_Enabled = 0;
 	word_3AA55 = 0;
 	word_3AA67 = 0;
@@ -953,7 +953,7 @@ void cFodder::Mission_Prepare_Squads() {
 	word_3BEBD = 1;
 	mGUI_Mouse_Modifier_X = 0x1A;
 	mGUI_Mouse_Modifier_Y = 0x12;
-	word_3BEC9 = 0xC8;
+
 	word_3BED5[0] = 2;
 	word_3BED5[1] = 2;
 	word_3BED5[2] = 2;
@@ -1537,7 +1537,7 @@ void cFodder::Camera_Calculate_Scroll() {
 		mCamera_Speed_Y = 0;
 
 	//loc_11B9C
-	Data0 = mMapWidth_Shifted;
+	Data0 = mMapWidth_Pixels;
 	Data0 -= 0x110;
 	Data0 = (Data0 << 16) | (Data0 >> 16);
 
@@ -1549,7 +1549,7 @@ void cFodder::Camera_Calculate_Scroll() {
 		mCamera_Speed_X = Data0;
 	}
 	//loc_11BE8
-	Data0 = mMapHeight_Shifted;
+	Data0 = mMapHeight_Pixels;
 	Data0 -= mWindow->GetScreenSize().mHeight;
 
 	Data0 = (Data0 << 16) | (Data0 >> 16);
@@ -1607,7 +1607,7 @@ void cFodder::Camera_Refresh( ) {
 	if (Data8 < 0)
 		Data8 = 0;
 
-	int16 Data10 = mMapWidth_Shifted;
+	int16 Data10 = mMapWidth_Pixels;
 	Data10 -= 0x88;
 	if (Data8 >= Data10)
 		Data8 = Data10;
@@ -1617,7 +1617,7 @@ void cFodder::Camera_Refresh( ) {
 	if (DataC < 0)
 		DataC = 0;
 
-	Data10 = mMapHeight_Shifted;
+	Data10 = mMapHeight_Pixels;
 	Data10 -= 0x6C;
 	if (DataC >= Data10)
 		DataC = Data10;
@@ -1688,6 +1688,9 @@ void cFodder::Map_Load_Resources() {
 	mMapWidth = readBEWord(&Map[0x54]);
 	mMapHeight = readBEWord(&Map[0x56]);
 
+	mMapWidth_Pixels = mMapWidth << 4;
+	mMapHeight_Pixels = mMapHeight << 4;
+
 	tool_EndianSwap( Map + 0x60, mMap->size() - 0x60 );
 
 	// junbase.blk
@@ -1695,6 +1698,7 @@ void cFodder::Map_Load_Resources() {
 
 	// junsub0.blk
 	SubName.append( Map + 0x10, Map + 0x10 + 11 );
+
 
 	// jun
 	BaseBaseSet.append( Map, Map + 3 );
@@ -1708,8 +1712,11 @@ void cFodder::Map_Load_Resources() {
 	// junsub0
 	BaseSub.append( Map + 0x10, Map + 0x10 + 7 );
 
-	mDataBaseBlk = g_Resource.fileGet( BaseName );
-	mDataSubBlk = g_Resource.fileGet( SubName );
+	// Map Tileset
+	Map_SetTileType();
+	mTile_BaseBlk = g_Resource.fileGet( BaseName );
+	mTile_SubBlk = g_Resource.fileGet( SubName );
+	mGraphics->Tile_Prepare_Gfx();
 
 	mFilenameCopt = Filename_CreateFromBase( BaseBaseSet, "copt." );
 	mFilenameBaseSwp = Filename_CreateFromBase( BaseBase, ".swp" );
@@ -1764,7 +1771,7 @@ void cFodder::Camera_Pan_To_Target( ) {
 	Data0 &= 0x0FFFE;
 
 	sub_12018();
-	Camera_Pan();
+	MapTile_Update_Position();
 }
 
 void cFodder::Camera_Pan_Set_Speed() {
@@ -2205,7 +2212,7 @@ void cFodder::Mission_Phase_Goals_Check() {
 		 mMission_Complete = -1;
 }
 
-void cFodder::Mission_Clear_Destroy_Tiles() {
+void cFodder::Map_Clear_Destroy_Tiles() {
 	mMap_Destroy_TilesPtr2 = mMap_Destroy_Tiles;
 	mMap_Destroy_TilesPtr = mMap_Destroy_Tiles;
 
@@ -3093,7 +3100,6 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	mGraphics->Load_Hill_Data();
 
 	Map_Load_Resources();
-	mGraphics->Tile_Prepare_Gfx();
 	mGraphics->PaletteSet();
 }
 
@@ -3108,8 +3114,8 @@ void cFodder::Prepare( ) {
 
 	tool_RandomSeed();
 
-	mDataBaseBlk = tSharedBuffer();
-	mDataSubBlk = tSharedBuffer();
+	mTile_BaseBlk = tSharedBuffer();
+	mTile_SubBlk = tSharedBuffer();
 
 	mMap = 0;
 
@@ -3303,8 +3309,8 @@ void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame) 
 	mVideo_Draw_Columns = SheetData->mColCount;
 	mVideo_Draw_Rows = SheetData->mRowCount - pDi->field_52;
 
-	mVideo_Draw_PosX = (SheetData->mModX + pDi->field_0) - mCamera_Column + 0x40;
-	mVideo_Draw_PosY = (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mCamera_Row;
+	mVideo_Draw_PosX = (SheetData->mModX + pDi->field_0) - mMapTile_Column + 0x40;
+	mVideo_Draw_PosY = (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_Row;
 	mVideo_Draw_PosY += 0x10;
 
 	++word_42072;
@@ -4129,7 +4135,6 @@ void cFodder::Recruit_Render_LeftMenu() {
 		
 	} while( DataC < Final );
 
-	word_3BEC9 = 0xB8;
 	word_3AA55 = 0x0F;
 	word_3AAC7 = -1;
 
@@ -8763,108 +8768,88 @@ loc_2B403:;
 	pX = 0x280;
 }
 
-void cFodder::Camera_Pan() {
+void cFodder::MapTile_Update_Position() {
 	
-	Camera_Update_Row();
-	Camera_Update_Column();
+	MapTile_Update_Row();
+	MapTile_Update_Column();
 
-	int16 bx = mCamera_Column_Previous;
-	int16 cx = mCamera_Column;
-	mCamera_Column_Previous = cx;
+	int16 TileColumns = mMapTile_Column - mMapTile_Column_CurrentScreen;
+	int16 TileRows = mMapTile_Row - mMapTile_Row_CurrentScreen;
+	
+	mMapTile_Column_CurrentScreen = mMapTile_Column;
+	mMapTile_Row_CurrentScreen = mMapTile_Row;
 
-	cx -= bx;
-
-	if (cx) {
-		if (cx < 0) {
-			mCamera_Pan_RowCount = -cx;
-			Camera_Pan_Left( );
-		}
-		else {
-			mCamera_Pan_RowCount = cx;
-			Camera_Pan_Right( );
-		}
+	if (TileColumns) {
+		if (TileColumns < 0)
+			MapTile_Move_Left(-TileColumns);
+		else
+			MapTile_Move_Right(TileColumns);
 	}
 
-	bx = mCamera_Row_Previous;
-	cx = mCamera_Row;
-	mCamera_Row_Previous = cx;
-	cx -= bx;
-
-	if (!cx)
-		return;
-
-	if (cx < 0) {
-		mCamera_Pan_RowCount = -cx;
-		Camera_Pan_Up( );
-	}
-	else {
-		mCamera_Pan_RowCount = cx;
-		Camera_Pan_Down( );
+	if (TileRows) {
+		if (TileRows < 0)
+			MapTile_Move_Up(-TileRows);
+		else
+			MapTile_Move_Down(TileRows);
 	}
 
+	if(TileColumns || TileRows)
+		g_Graphics.Map_Tiles_Draw();
 }
 
-void cFodder::Camera_Pan_Right() {
+void cFodder::MapTile_Move_Right( int16 pPanTiles ) {
 
-	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
+	for (; pPanTiles > 0; --pPanTiles) {
 
-		++mCamera_Pan_ColumnOffset;
-		mCamera_Pan_ColumnOffset &= 0x0F;
-		if (!mCamera_Pan_ColumnOffset) {
+		++mMapTile_ColumnOffset;
+		mMapTile_ColumnOffset &= 0x0F;
+		if (!mMapTile_ColumnOffset) {
 			mMapTilePtr += 2;
-			++word_3B612;
+			++mMapTile_MovedHorizontal;
 		}
 	}
-
-	g_Graphics.Map_Tiles_Draw();
 }
 
-void cFodder::Camera_Pan_Left() {
+void cFodder::MapTile_Move_Left(int16 pPanTiles) {
 
-	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
+	for (; pPanTiles > 0; --pPanTiles) {
 		
-		--mCamera_Pan_ColumnOffset;
-		mCamera_Pan_ColumnOffset &= 0x0F;
-		if (mCamera_Pan_ColumnOffset == 0x0F) {
+		--mMapTile_ColumnOffset;
+		mMapTile_ColumnOffset &= 0x0F;
+		if (mMapTile_ColumnOffset == 0x0F) {
 			mMapTilePtr -= 2;
-			--word_3B612;
+			--mMapTile_MovedHorizontal;
 		}
 	}
-
-	g_Graphics.Map_Tiles_Draw();
 }
 
-void cFodder::Camera_Pan_Down( ) {
+void cFodder::MapTile_Move_Down( int16 pPanTiles) {
 
-	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
+	for (; pPanTiles > 0; --pPanTiles) {
 
-		++mCamera_Pan_RowOffset;
-		mCamera_Pan_RowOffset &= 0x0F;
-		if (!mCamera_Pan_RowOffset) {
-			mMapTilePtr += mMapWidth << 1;
-			++word_3B614;
+		++mMapTile_RowOffset;
+		mMapTile_RowOffset &= 0x0F;
+		if (!mMapTile_RowOffset) {
+			mMapTilePtr += (mMapWidth << 1);
+			++mMapTile_MovedVertical;
 		}
 	}
-	
-	g_Graphics.Map_Tiles_Draw();
 }
 
-void cFodder::Camera_Pan_Up() {
+void cFodder::MapTile_Move_Up(int16 pPanTiles) {
 
-	for (int16 cx = mCamera_Pan_RowCount; cx > 0; --cx) {
+	for (; pPanTiles > 0; --pPanTiles) {
 
-		--mCamera_Pan_RowOffset;
-		mCamera_Pan_RowOffset &= 0x0F;
-		if (mCamera_Pan_RowOffset == 0x0F) {
-			mMapTilePtr -= mMapWidth << 1;
-			--word_3B614;
+		--mMapTile_RowOffset;
+		mMapTile_RowOffset &= 0x0F;
+		if (mMapTile_RowOffset == 0x0F) {
+			mMapTilePtr -= (mMapWidth << 1);
+			--mMapTile_MovedVertical;
 		}
 	}
-
-	g_Graphics.Map_Tiles_Draw();
 }
 
-void cFodder::Camera_Update_Row() {
+void cFodder::MapTile_Update_Row() {
 	int16 Data0 = word_39FB4;
 
 	if (Data0 < 0)
@@ -8884,11 +8869,11 @@ void cFodder::Camera_Update_Row() {
 	}
 
 	word_39FBC = 0;
-	mCamera_Row = dword_39F88 >> 16;
+	mMapTile_Row = dword_39F88 >> 16;
 	word_39FAE = dword_39F90 >> 16;
 }
 
-void cFodder::Camera_Update_Column() {
+void cFodder::MapTile_Update_Column() {
 	int16 Data0 = word_39FB2;
 
 	if (Data0 < 0)
@@ -8907,7 +8892,7 @@ void cFodder::Camera_Update_Column() {
 	}
 
 	word_39FBA = 0;
-	mCamera_Column = dword_39F84 >> 16;
+	mMapTile_Column = dword_39F84 >> 16;
 	word_39FAC = dword_39F8C >> 16;
 }
 
@@ -9557,17 +9542,17 @@ loc_2DF7B:;
 
 loc_2DFC7:;
 	ax = mMap_Destroy_Tile_X >> 4;
-	ax -= word_3B612;
+	ax -= mMapTile_MovedHorizontal;
 	ax <<= 4;
-	ax -= mCamera_Pan_ColumnOffset;
+	ax -= mMapTile_ColumnOffset;
 	ax += 0x40;
 
 	mVideo_Draw_PosX = ax;
 
 	ax = mMap_Destroy_Tile_Y >> 4;
-	ax -= word_3B614;
+	ax -= mMapTile_MovedVertical;
 	ax <<= 4;
-	ax -= mCamera_Pan_RowOffset;
+	ax -= mMapTile_RowOffset;
 	ax += 0x10;
 
 	mVideo_Draw_PosY = ax;
@@ -14492,7 +14477,7 @@ loc_1D3C6:;
 
 loc_1D411:;
 	Data4 = pSprite->field_4;
-	Data0 = mMapHeight_Shifted;
+	Data0 = mMapHeight_Pixels;
 
 	if (Data4 < Data0)
 		goto loc_1D441;
@@ -15202,8 +15187,8 @@ int16 cFodder::Sprite_Handle_Soldier_Animation( sSprite* pSprite ) {
 		goto loc_1EB87;
 
 	Data0 = pSprite->field_4;
-	if (Data0 >= mMapHeight_Shifted)
-		pSprite->field_4 = mMapHeight_Shifted;
+	if (Data0 >= mMapHeight_Pixels)
+		pSprite->field_4 = mMapHeight_Pixels;
 
 	//loc_1E0A4
 	if (pSprite->field_56)
@@ -15550,7 +15535,7 @@ loc_1E831:;
 	//loc_1E8D6
 	pSprite->field_4 += Data0;
 	Data0 = pSprite->field_4;
-	if (Data0 >= mMapHeight_Shifted)
+	if (Data0 >= mMapHeight_Pixels)
 		pSprite->field_38 = eSprite_Anim_Hit2;
 
 	dword_3A395 = pSprite->field_4;
@@ -17596,7 +17581,7 @@ void cFodder::sub_20478( sSprite* pSprite ) {
 
 	Data0 = pSprite->field_4;
 
-	if (Data0 >= mMapHeight_Shifted) {
+	if (Data0 >= mMapHeight_Pixels) {
 		if (!pSprite->field_38 || pSprite->field_38 >= 0x32) {
 			pSprite->field_4 = dword_3A395;
 			word_3ABAD = -1;
@@ -17612,11 +17597,11 @@ void cFodder::sub_20478( sSprite* pSprite ) {
 	}
 
 	Data0 += 0x0C;
-	if (Data0 < mMapWidth_Shifted)
+	if (Data0 < mMapWidth_Pixels)
 		return;
 
 	Data0 = dword_3A391 + 0x10 ;
-	if (Data0 >= mMapWidth_Shifted)
+	if (Data0 >= mMapWidth_Pixels)
 		return;
 
 loc_20521:;
@@ -19557,16 +19542,12 @@ Start:;
 			Map_Load_Resources();
 			Map_Load_Sprites();
 
-			mMapWidth_Shifted = mMapWidth << 4;
-			mMapHeight_Shifted = mMapHeight << 4;
-
 			// Prepare Squads
 			Mission_Troop_Count();
 			Mission_Troop_Sort();
 			Mission_Troop_Prepare();
 			Mission_Troops_Prepare_Sprites();
 
-			g_Graphics.Tile_Prepare_Gfx();
 			mMission_Aborted = 0;
 			Map_Overview_Prepare();
 
@@ -19593,7 +19574,7 @@ Start:;
 	
 			Map_Tiles_Draw();
 			Camera_Reset();
-			Map_SetTileType();
+			
 			Mouse_Inputs_Get();
 			sub_18D5E();
 
@@ -19610,16 +19591,16 @@ Start:;
 			mCamera_Position_X = mSprites[0].field_0;
 			mCamera_Position_Y = mSprites[0].field_4;
 
-			int32 Data0 = 0x0D;
 			word_3ABE9 = 0;
 			word_3ABEB = 0;
 			word_3ABE7 = 0;
 
-			Data0 = mMapWidth;
-			if (Data0 == 0x11) {
-				Data0 = mMapHeight;
-				if (Data0 == 0x0C)
-					word_3ABB7 = -1;
+			// Is map 17 x 12
+			{
+				if (mMapWidth == 17) {
+					if (mMapHeight == 12)
+						word_3ABB7 = -1;
+				}
 			}
 
 			mGUI_Elements[0].field_0 = 0;
@@ -19634,14 +19615,13 @@ Start:;
 			Sprite_Aggression_Set();
 			Mission_Phase_Goals_Set();
 
-			word_3BEC9 = 0xE0;
 			g_Graphics.PaletteSet();
 
 			mImageFaded = -1;
 
 			GUI_Sidebar_Prepare_Squads();
 			Squad_Select_Grenades();
-			Mission_Clear_Destroy_Tiles();
+			Map_Clear_Destroy_Tiles();
 			Sprite_Count_HelicopterCallPads();
 			sub_13148();
 
@@ -19698,14 +19678,14 @@ Start:;
 
 void cFodder::Map_Tiles_Draw() {
 
-	mCamera_Pan_ColumnOffset = 0;
-	mCamera_Pan_RowOffset = 0;
+	mMapTile_ColumnOffset = 0;
+	mMapTile_RowOffset = 0;
 
 	mMapTilePtr = (0x60 - 8) - (mMapWidth << 1);
-	word_3B612 = 0;
-	word_3B614 = 0;
-	mCamera_Column_Previous = 0;
-	mCamera_Row_Previous = 0;
+	mMapTile_MovedHorizontal = 0;
+	mMapTile_MovedVertical = 0;
+	mMapTile_Column_CurrentScreen = 0;
+	mMapTile_Row_CurrentScreen = 0;
 
 	g_Graphics.Map_Tiles_Draw();
 }

@@ -22,7 +22,7 @@
 
 class cWindow : public cSingleton<cWindow> {
 	
-	private:
+	protected:
 		SDL_Window*			mWindow;
 		SDL_Renderer*		mRenderer;
 
@@ -48,15 +48,15 @@ class cWindow : public cSingleton<cWindow> {
 
 		bool				CanChangeToMultiplier( int pNewMultiplier );
 
-		void				EventCheck();
-		void				FrameEnd();
+		virtual void		EventCheck();
+		virtual void		FrameEnd();
 
-		bool				InitWindow( const std::string& pWindowTitle );
+		virtual bool		InitWindow( const std::string& pWindowTitle );
 			
-		void				PositionWindow();
+		virtual void		PositionWindow();
 
-		void				RenderAt( cSurface* pImage, cPosition pSource = cPosition(0,0) );
-		void				RenderShrunk( cSurface* pImage );
+		virtual void		RenderAt( cSurface* pImage, cPosition pSource = cPosition(0,0) );
+		virtual void		RenderShrunk( cSurface* pImage );
 
 		void				WindowIncrease();
 		void				WindowDecrease();
