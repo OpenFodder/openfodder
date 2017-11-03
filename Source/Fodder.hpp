@@ -636,8 +636,12 @@ public:
 	void			Squad_Set_Squad_Leader();
 
 	void			Sprite_Clear_All();
-
+	
+	void			Map_Create(const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight);
+	void			Map_Load();
 	void			Map_Load_Sprites();
+	void			Map_Load_Resources();
+
 	void			Mission_Troop_Count();
 	void			Mission_Troop_Sort();
 	void			Mission_Troop_Prepare( const bool pPrebriefing );
@@ -649,7 +653,6 @@ public:
 	void			Camera_Calculate_Scroll();
 	void			sub_11CAD();
 	void			Camera_Refresh( );
-	void			Map_Load_Resources();
 	void			Music_Play_Tileset();
 	void			Camera_Pan_To_Target( );
 	void			Camera_Pan_Set_Speed();
