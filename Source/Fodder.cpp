@@ -1680,22 +1680,20 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 
 	// Header
 	{
-		// Map Marker
-		Map[0x28] = 'FO'; Map[0x29] = 'DE';
+		// Map Marker ('ofed')
+		Map[0x28] = 'fo'; Map[0x29] = 'de';
 
 		// Put the map size
 		writeBEWord(&Map[0x2A], pWidth);
 		writeBEWord(&Map[0x2B], pHeight);
 	}
 
-	// Tileset filename
+	// Tileset filenames
 	{
-		std::string mBaseName = pTileType.mName;
+		std::string mBaseName = pTileType.mName + "base.blk";
 		std::string mSubName = pTileType.mName;
 
-		mBaseName.append("base.blk");
-
-		// Only Jungle has a  Sub1
+		// Only Jungle has a sub1
 		if (pTileSub == 0 || pTileType.mType != eTileTypes_Jungle)
 			mSubName.append("sub0.blk");
 		else
@@ -1706,7 +1704,7 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 		mSubName.copy((char*)Map + 16, 16 + 11);
 	}
 
-	//
+	// 
 	//
 	Sprite_Clear_All();
 	Map_Load_Resources();
