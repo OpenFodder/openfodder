@@ -53,8 +53,7 @@ cSound_Amiga::cSound_Amiga() {
 
 cSound_Amiga::~cSound_Amiga() {
 
-	Music_Stop();
-	Sound_Stop();
+	Stop();
 
 	delete mAudioSpec;
 

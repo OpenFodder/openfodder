@@ -1413,6 +1413,4 @@ void cGraphics_Amiga::Briefing_Intro() {
 
 			g_Fodder.mMouse_Exit_Loop = 0;
 		}
-
-		Load_pStuff();
 }
