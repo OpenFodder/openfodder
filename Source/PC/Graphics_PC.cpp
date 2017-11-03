@@ -744,8 +744,6 @@ void cGraphics_PC::Briefing_Intro() {
 		Briefing_Intro_Int();
 		break;
 	}
-
-	Load_pStuff();
 }
 
 

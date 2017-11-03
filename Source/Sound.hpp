@@ -45,4 +45,9 @@ class cSound : public cSingleton<cSound> {
 
 	virtual void		Music_Play( int16 pTrack ) = 0;
 	virtual void		Music_Stop() = 0;
+
+	virtual void		Stop() {
+		Music_Stop();
+		Sound_Stop();
+	}
 };

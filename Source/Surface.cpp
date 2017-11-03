@@ -70,6 +70,12 @@ void cSurface::palette_SetToBlack() {
 	surfaceSetToPalette();
 }
 
+void cSurface::palette_SetFromNew() {
+
+	for (int cx = 0x0; cx < g_MaxColors; ++cx)
+		mPalette[cx] = mPaletteNew[cx];
+}
+
 void cSurface::paletteNew_SetToBlack() {
 	mFaded = false;
 

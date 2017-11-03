@@ -23,13 +23,13 @@
 #include "stdafx.hpp"
 
 const std::vector<sTileType> mTileTypes = {
-	{ eTileTypes_Jungle, "jun" },
-	{ eTileTypes_Desert, "des" },
-	{ eTileTypes_Ice,	 "ice" },
-	{ eTileTypes_Moors,  "mor" },
-	{ eTileTypes_Int,	 "int" },
-	{ eTileTypes_Hid,	 "hid" },
-	{ eTileTypes_AFX,	 "afx" }		// Amiga Format Christmas Special
+	{ eTileTypes_Jungle, "jun", "Jungle"		},
+	{ eTileTypes_Desert, "des", "Desert"		},
+	{ eTileTypes_Ice,	 "ice", "Ice"			},
+	{ eTileTypes_Moors,  "mor", "Moors"			},
+	{ eTileTypes_Int,	 "int", "Interior"		},
+	{ eTileTypes_Hid,	 "hid", "Hid"			},
+	{ eTileTypes_AFX,	 "afx", "Amiga Format"	}		// Amiga Format Christmas Special
 };
 
 const int16* mTiles_Indestructible[] = {

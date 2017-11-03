@@ -50,6 +50,7 @@ enum eTerrainType {
 struct sTileType {
 	eTileTypes  mType;
 	std::string mName;
+	std::string mFullName;
 };
 
 extern const int8 mTiles_NotFlyable[];
