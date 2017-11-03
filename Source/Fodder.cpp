@@ -1670,11 +1670,61 @@ loc_11E5B:;
 	Music_Play_Tileset();
 }
 
-void cFodder::Map_Load_Resources() {
-	std::string BaseName, SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
+void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight ) {
+	size_t TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
+
+	mMap->clear();
+	mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
+
+	uint16* Map = (uint16*) mMap->data();
+
+	// Header
+	{
+		// Map Marker
+		Map[0x28] = 'FO'; Map[0x29] = 'DE';
+
+		// Put the map size
+		writeBEWord(&Map[0x2A], pWidth);
+		writeBEWord(&Map[0x2B], pHeight);
+	}
+
+	// Tileset filename
+	{
+		std::string mBaseName = pTileType.mName;
+		std::string mSubName = pTileType.mName;
+
+		mBaseName.append("base.blk");
+
+		// Only Jungle has a  Sub1
+		if (pTileSub == 0 || pTileType.mType != eTileTypes_Jungle)
+			mSubName.append("sub0.blk");
+		else
+			mSubName.append("sub1.blk");
+
+		// Write the base/sub filenames
+		mBaseName.copy((char*)Map, 11);
+		mSubName.copy((char*)Map + 16, 16 + 11);
+	}
+
+	//
+	//
+	Sprite_Clear_All();
+	Map_Load_Resources();
+	Map_Tiles_Draw();
+}
+
+void cFodder::Map_Load( ) {
+
 	std::string MapName = map_Filename_MapGet();
 
-	mMap = g_Resource.fileGet( MapName );
+	mMap = g_Resource.fileGet(MapName);
+
+	Map_Load_Resources();
+}
+
+void cFodder::Map_Load_Resources() {
+	std::string BaseName, SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
+
 	uint8* Map = mMap->data();
 
 	mMapWidth = readBEWord(&Map[0x54]);
@@ -2884,7 +2934,7 @@ void cFodder::VersionSelect() {
 
 	mGraphics->Load_pStuff();
 
-	Map_Load_Resources();
+	Map_Load();
 
 	Mouse_Setup();
 
@@ -19312,14 +19362,14 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 
 	mMission_TryAgain = -1;
 
-	Map_Load_Resources();
+	//Map_Load();
 	mGraphics->Load_pStuff();
 }
 
 void cFodder::Playground() {
 
 	mImageFaded = -1;
-	Map_Load_Resources();
+	Map_Load();
 
 	mGraphics->Load_Hill_Data();
 	mGraphics->PaletteSet();
@@ -19548,7 +19598,7 @@ int16 cFodder::Mission_Loop() {
 			
 		WindowTitleSet( true );
 
-		Map_Load_Resources();
+		Map_Load();
 		Map_Load_Sprites();
 
 		// Prepare Squads
