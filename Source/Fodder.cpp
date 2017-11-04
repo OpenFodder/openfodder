@@ -107,7 +107,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
 	mBriefing_Aborted = 0;
 	mGUI_Mouse_Modifier_X = 0;
 	mGUI_Mouse_Modifier_Y = 0;
-	word_3E75B = 0;
+	mBriefing_Render_1_Mode = 0;
 
 	mMouseSpriteCurrent = 0;
 	mService_ExitLoop = 0;
@@ -1034,6 +1034,44 @@ void cFodder::Sprite_Clear_All() {
 	}
 
 	mSprites[44].field_0 = -1;
+}
+
+void cFodder::Map_Save(const std::string pFilename) {
+
+	Map_Save_Sprites(pFilename);
+}
+
+void cFodder::Map_Save_Sprites( const std::string pFilename ) {
+	std::string SptFilename = pFilename;
+
+	// Replace .map with .spt
+	SptFilename.replace(pFilename.length() - 3, pFilename.length(), "spt");
+
+	std::ofstream outfile(SptFilename, std::ofstream::binary);
+
+	// Ensure humans are first
+	std::sort(std::begin(mSprites), std::end(mSprites), [](auto && l, auto && r) { return l.field_18 == eSprite_Player && l.field_0 != -32768; });
+
+	// Number of sprites in use
+	int SpriteCount = std::count_if(std::begin(mSprites), 
+		std::end(mSprites), [](auto&& l) {return l.field_0 != -32768 && l.field_0 != -1; });
+
+	auto MapSpt = tSharedBuffer();
+	MapSpt->resize(SpriteCount * 0x0A);
+
+	uint8* SptPtr = MapSpt->data();
+
+	for (const auto SpriteIT : mSprites) {
+
+		writeBEWord(SptPtr, 0x7C);	SptPtr += 2;				// Direction
+		writeBEWord(SptPtr, 0x00);	SptPtr += 2;				// Ignored
+		writeBEWord(SptPtr, SpriteIT.field_0);	SptPtr += 2;	// X	
+		writeBEWord(SptPtr, SpriteIT.field_4);	SptPtr += 2;	// Y	
+		writeBEWord(SptPtr, SpriteIT.field_18);	SptPtr += 2;	// Type 
+	}
+
+	outfile.write((const char*)MapSpt->data(), MapSpt->size());
+	outfile.close();
 }
 
 void cFodder::Map_Load_Sprites() {
@@ -2584,10 +2622,6 @@ void cFodder::Map_Overview_Prepare() {
 
 	mMap_Overview_MapNumberRendered = mMapNumber;
 
-	for (int16 cx = 0x45; cx >= 0; --cx) {
-		dword_3E9A3[cx] = 0;
-	}
-
 	int16* MapPtr = (int16*) (mMap->data() + 0x60);
 
 	mSurfaceMapTop = mSurfaceMapLeft = 0;
@@ -2637,9 +2671,9 @@ void cFodder::Map_SetTileType() {
 	mMap_TileSet = eTileTypes_Jungle;
 }
 
-void cFodder::sub_12AB1() {
+void cFodder::Briefing_Set_Render_1_Mode_On() {
 
-	word_3E75B = -1;
+	mBriefing_Render_1_Mode = -1;
 }
 
 bool cFodder::EventAdd( cEvent pEvent ) {
@@ -3155,7 +3189,7 @@ void cFodder::Prepare( ) {
 	mTile_BaseBlk = tSharedBuffer();
 	mTile_SubBlk = tSharedBuffer();
 
-	mMap = 0;
+	mMap = tSharedBuffer();
 
 	mSidebar_Back_Buffer = (uint16*) new uint8[0x4000];
 	mSidebar_Screen_Buffer = (uint16*) new uint8[0x4000];
@@ -3165,7 +3199,7 @@ void cFodder::Prepare( ) {
 	uint8* End = (uint8*)&mButtonPressLeft;
 
 	mMission_Memory_Backup = new uint8[ End - Start ];
-	sub_12AB1();
+	Briefing_Set_Render_1_Mode_On();
 
 	mImage = new cSurface( 352, 300 );
 }
@@ -3522,7 +3556,7 @@ void cFodder::sub_1594F( ) {
 		mBriefing_Helicopter_Moving = 0;
 		word_428D8 = 0;
 
-		mGraphics->mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
+		mGraphics->mImageBriefingIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
 		mImage->paletteNew_SetToBlack();
 		mImageFaded = -1;
 	}

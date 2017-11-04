@@ -58,11 +58,12 @@ class cGraphics_PC : public cGraphics {
 	virtual sImage		Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex);
 
 	virtual void		Map_Load_Resources();
+	virtual void		Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset);
 	virtual void		Map_Tiles_Draw();
 	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	
 	virtual void		PaletteSetOverview();
-	virtual void		PaletteSet();
+	virtual void		PaletteSet(cSurface *pTarget);
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
 

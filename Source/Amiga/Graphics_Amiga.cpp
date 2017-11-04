@@ -453,13 +453,15 @@ void cGraphics_Amiga::PaletteBriefingSet() {
 	mImage->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
 
-void cGraphics_Amiga::PaletteSet() {
+void cGraphics_Amiga::PaletteSet(cSurface *pTarget) {
+	if (!pTarget)
+		pTarget = mImage;
 
-	mImage->paletteSet(mPalette, 0, 64);
-	mImage->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
-	mImage->paletteSet(mImageHill.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
-	mImage->paletteSet(mImageHill.mPalette, 0xD0, 16);
-	mImage->paletteSet(mImageFonts.mPalette, 0xF0, 16);
+	pTarget->paletteSet(mPalette, 0, 64);
+	pTarget->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
+	pTarget->paletteSet(mImageHill.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
+	pTarget->paletteSet(mImageHill.mPalette, 0xD0, 16);
+	pTarget->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
 
 sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
@@ -623,6 +625,45 @@ void cGraphics_Amiga::DecodePalette(const uint8* pBuffer, size_t pColorID, const
 		mPalette[pColorID].mRed = ((color >> 8) & 0xF) << 2;
 		mPalette[pColorID].mGreen = ((color >> 4) & 0xF) << 2;
 		mPalette[pColorID].mBlue = ((color >> 0) & 0xF) << 2;
+	}
+}
+
+void cGraphics_Amiga::Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset) {
+	uint8* Target = pTarget->GetSurfaceBuffer();
+
+	pX *= (16 + pOffset);
+
+	Target += (pY * (16 + pOffset)) * pTarget->GetWidth();
+	Target += pX;
+
+	uint8* TilePtr = mBlkData->data() + (pTile << 7);
+
+	uint8* TargetRow = Target;
+
+	// Each bitfield
+	for (uint16 BitField = 0; BitField < 4; ++BitField) {
+
+		// Each Tile Row
+		for (uint16 i = 0; i < 16; ++i) {
+
+			uint16 RowData = readBEWord(TilePtr);
+			TilePtr += 2;
+
+			// Each pixel of a Tile Row
+			for (uint16 x = 0; x < 16; ++x) {
+				uint8 Bit = (RowData & 0x8000) ? 1 : 0;
+				RowData <<= 1;
+
+				if (Bit)
+					*(Target + x) |= (Bit << BitField);
+
+			}
+
+			Target += pTarget->GetWidth();
+		}
+
+		// Next Bitfield
+		Target = TargetRow;
 	}
 }
 
