@@ -532,12 +532,11 @@ class cFodder : public cSingleton < cFodder > {
 
 	size_t			word_3E1B7_size;
 	
-	int16			word_3E75B;
+	int16			mBriefing_Render_1_Mode;
 
 	int16			word_3F94E;
 	int16			word_3F950;
 
-	int32			dword_3E9A3[70];
 	int16			mMap_Overview_MapNumberRendered;
 	int16			mDebug_MissionSkip;
 	int16			mPaused;
@@ -606,8 +605,6 @@ class cFodder : public cSingleton < cFodder > {
 	int64			mTicks;
 	int64			mTicksDiff;
 
-	cPalette		mPalette[ g_MaxColors ];
-
 	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
@@ -637,11 +634,16 @@ public:
 
 	void			Sprite_Clear_All();
 	
+	// Map Functions
 	void			Map_Create(const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight);
 	void			Map_Load();
 	void			Map_Load_Sprites();
 	void			Map_Load_Resources();
+	
+	void			Map_Save(const std::string pFilename);
+	void			Map_Save_Sprites( const std::string pFilename );
 
+	// Mission Functions
 	void			Mission_Troop_Count();
 	void			Mission_Troop_Sort();
 	void			Mission_Troop_Prepare( const bool pPrebriefing );
@@ -1232,7 +1234,7 @@ public:
 	void			Sidebar_Clear_ScreenBufferPtr();
 	void			Mission_Phase_Next();
 
-	void			sub_12AB1();
+	void			Briefing_Set_Render_1_Mode_On();
 
 	void			WonGame();
 

@@ -120,7 +120,7 @@ sImage cGraphics_PC::Decode_Image(const std::string& pFilename, const size_t pCo
 
 	Hill.mData = g_Resource.fileGet(pFilename);
 	Hill.LoadPalette(pPaletteOffset, pCount, pStartIndex);
-	Hill.CopyPalette(&mFodder->mPalette[pStartIndex], pCount, pStartIndex);
+	Hill.CopyPalette(&mPalette[pStartIndex], pCount, pStartIndex);
 
 	return Hill;
 }
@@ -175,20 +175,40 @@ void cGraphics_PC::PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pC
 	for (; pColorID < pColors + colorStartID; pColorID++) {
 
 		// Get the next color values
-		mFodder->mPalette[pColorID].mRed = *pBuffer++;
-		mFodder->mPalette[pColorID].mGreen = *pBuffer++;
-		mFodder->mPalette[pColorID].mBlue = *pBuffer++;
+		mPalette[pColorID].mRed = *pBuffer++;
+		mPalette[pColorID].mGreen = *pBuffer++;
+		mPalette[pColorID].mBlue = *pBuffer++;
 	}
 }
 
 void cGraphics_PC::PaletteSetOverview() {
 
-	mFodder->mSurfaceMapOverview->paletteSet( mFodder->mPalette, 0, g_MaxColors, true );
+	mFodder->mSurfaceMapOverview->paletteSet( mPalette, 0, g_MaxColors, true );
 }
 
-void cGraphics_PC::PaletteSet() {
+void cGraphics_PC::PaletteSet(cSurface *pTarget) {
+	if (!pTarget)
+		pTarget = mImage;
 
-	mImage->paletteSet( mFodder->mPalette );
+	pTarget->paletteSet( mPalette );
+}
+
+void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset) {
+	uint8* Target = pTarget->GetSurfaceBuffer();
+	
+	pX *= (16 + pOffset);
+
+	Target += (pY * (16 + pOffset)) * pTarget->GetWidth();
+	Target += pX;
+
+	uint8* TilePtr = mTile_Gfx_Ptrs[pTile];
+
+	for (uint16 i = 0; i < 16; ++i) {
+
+		memcpy(Target, TilePtr, 16);
+		TilePtr += 0x140;
+		Target += pTarget->GetWidth();
+	}
 }
 
 void cGraphics_PC::Map_Tiles_Draw() {
@@ -284,11 +304,11 @@ void cGraphics_PC::Map_Load_Resources() {
 	}
 
 	// Sprites on Sheet2 occupy palette range from 0x90-0x9F and 0xB0-0xCF
-	mSpriteSheet_InGame2.CopyPalette(&mFodder->mPalette[0x90], 0x10, 0x90);
-	mSpriteSheet_InGame2.CopyPalette(&mFodder->mPalette[0xB0], 0x40, 0xB0);
+	mSpriteSheet_InGame2.CopyPalette(&mPalette[0x90], 0x10, 0x90);
+	mSpriteSheet_InGame2.CopyPalette(&mPalette[0xB0], 0x40, 0xB0);
 
 	// Sprites on Sheet1 occupy palette range from 0xA0-0xAF
-	mSpriteSheet_InGame1.CopyPalette(&mFodder->mPalette[0xA0], 0x10, 0xA0);
+	mSpriteSheet_InGame1.CopyPalette(&mPalette[0xA0], 0x10, 0xA0);
 
 	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
@@ -749,7 +769,7 @@ void cGraphics_PC::Briefing_Intro() {
 
 void cGraphics_PC::Briefing_Render_1(tSharedBuffer pDs, int16 pCx) {
 
-	if (mFodder->word_3E75B != 0)
+	if (mFodder->mBriefing_Render_1_Mode != 0)
 		sub_15B98(pDs->data(), pCx);
 	else
 		sub_15CE8(pDs->data(), pCx);
@@ -876,9 +896,9 @@ void cGraphics_PC::Briefing_Intro_Jungle( ) {
 
 	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
 
-	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+	mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mFodder->mPalette );
+	mImage->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -959,9 +979,9 @@ void cGraphics_PC::Briefing_Intro_Desert() {
 
 	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
 
-	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+	mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mFodder->mPalette );
+	mImage->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -1042,9 +1062,9 @@ void cGraphics_PC::Briefing_Intro_Ice() {
 
 	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
 
-	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+	mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mFodder->mPalette );
+	mImage->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -1126,9 +1146,9 @@ void cGraphics_PC::Briefing_Intro_Mor() {
 	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
 	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
-	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+	mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mFodder->mPalette );
+	mImage->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -1209,9 +1229,9 @@ void cGraphics_PC::Briefing_Intro_Int() {
 
 	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
 
-	mImageBriefingIntro.CopyPalette(mFodder->mPalette, 0x100, 0);
+	mImageBriefingIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mFodder->mPalette );
+	mImage->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 

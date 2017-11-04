@@ -47,8 +47,6 @@ class cGraphics_Amiga : public cGraphics {
 public:
 	tSharedBuffer 		mBlkData;
 
-	cPalette			mPalette[255];
-
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
 
@@ -78,12 +76,13 @@ protected:
 	virtual void		Load_Service_Data();
 
 	virtual void		Map_Load_Resources();
+	virtual void		Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset);
 	virtual void		Map_Tiles_Draw();
 	virtual void		Hill_Prepare_Overlays();
 	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	
 	virtual void		PaletteSetOverview();
-	virtual void		PaletteSet();
+	virtual void		PaletteSet(cSurface *pTarget);
 	virtual void		PaletteBriefingSet();
 
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
