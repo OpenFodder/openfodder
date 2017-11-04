@@ -77,7 +77,7 @@ protected:
 
 	virtual void		Map_Load_Resources();
 	virtual void		Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset);
-	virtual void		Map_Tiles_Draw();
+	virtual void		MapTiles_Draw();
 	virtual void		Hill_Prepare_Overlays();
 	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	
@@ -88,7 +88,7 @@ protected:
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 
 	virtual void		Video_Draw_16();
-	virtual void		Video_Draw_8();
+	virtual void		Video_Draw_8(cSurface *pTarget = 0);
 
 	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
 

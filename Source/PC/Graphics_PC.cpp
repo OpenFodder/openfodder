@@ -211,7 +211,7 @@ void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, ui
 	}
 }
 
-void cGraphics_PC::Map_Tiles_Draw() {
+void cGraphics_PC::MapTiles_Draw() {
 
 	uint8* Target = mImage->GetSurfaceBuffer();
 
@@ -313,18 +313,21 @@ void cGraphics_PC::Map_Load_Resources() {
 	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
 
-void cGraphics_PC::Video_Draw_8() {
-	uint8*	di = mImage->GetSurfaceBuffer();
+void cGraphics_PC::Video_Draw_8(cSurface *pTarget) {
+	if (!pTarget)
+		pTarget = mImage;
+
+	uint8*	di = pTarget->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
 
-	di += mImage->GetWidth() * mFodder->mVideo_Draw_PosY;
+	di += pTarget->GetWidth() * mFodder->mVideo_Draw_PosY;
 	di += mFodder->mVideo_Draw_PosX;
 
 	mFodder->word_42066 = di;
 
 	mFodder->mVideo_Draw_Columns >>= 1;
 	mFodder->mDraw_Source_SkipPixelsPerRow = 160 - mFodder->mVideo_Draw_Columns;
-	mFodder->mDraw_Dest_SkipPixelsPerRow = (uint16)(mImage->GetWidth() - (mFodder->mVideo_Draw_Columns * 2));
+	mFodder->mDraw_Dest_SkipPixelsPerRow = (uint16)(pTarget->GetWidth() - (mFodder->mVideo_Draw_Columns * 2));
 
 	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
 

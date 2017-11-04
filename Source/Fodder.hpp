@@ -706,7 +706,7 @@ public:
 	void			Mouse_DrawCursor( );
 	void			GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, int32 pPositionX, int32 pPositionY );
 	void			GUI_Draw_Frame_16(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
-	void			Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame);
+	void			Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0 );
 
 	bool			Sprite_OnScreen_Check();
 	void			Sprites_Draw( );
@@ -1148,7 +1148,7 @@ public:
 	void			GUI_Handle_Button_SplitSquad();
 	void			Mission_Set_Initial_Weapon();
 
-	void			Map_Tiles_Draw();
+	void			MapTiles_Draw();
 
 	void			Recruit_CheckLoadSaveButtons();
 	void			GUI_Sidebar_Grenades_Draw( );
