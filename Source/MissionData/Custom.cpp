@@ -33,5 +33,6 @@ cMissionData mMissionData_Custom = {
 	mCustom_MissionNames,
 	mCustom_MissionPhaseTable,
 	mCustom_Map_Goals,
-	mCustom_Map_Sprite_Enemy_Aggression
+	mCustom_Map_Sprite_Enemy_Aggression,
+	""
 };
