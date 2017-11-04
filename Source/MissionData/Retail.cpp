@@ -396,5 +396,6 @@ const cMissionData mMissionData_Retail = {
 	mRetail_MissionPhaseNames,
 	mRetail_MissionPhaseTable,
 	mRetail_Map_Goals,
-	mRetail_Map_Sprite_Enemy_Aggression
+	mRetail_Map_Sprite_Enemy_Aggression,
+	"Cannon Fodder"
 };
