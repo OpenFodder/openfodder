@@ -8968,6 +8968,16 @@ void cFodder::MapTile_Update_Column() {
 	word_39FAC = dword_39F8C >> 16;
 }
 
+void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
+	
+
+	uint32 Tile = (((pTileY * mMapWidth) + pTileX));
+
+	uint8* CurrentMapPtr = mMap->data() + mMapTilePtr + (Tile * 2);
+
+	writeLEWord(CurrentMapPtr, pTileID);
+}
+
 void cFodder::Squad_Troops_Count() {
 	sSprite** Data34 = mSprite_TroopsAlive;
 
