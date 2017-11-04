@@ -1069,6 +1069,8 @@ public:
 	void			MapTile_Update_Row();
 	void			MapTile_Update_Column();
 
+	void			MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
+
 	void			Squad_Troops_Count();
 	int16			Mission_Troop_GetDeviatePotential( sMission_Troop* pSquadMember );
 	void			Squad_Member_Rotate_Can_Fire();
