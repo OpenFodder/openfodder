@@ -1742,11 +1742,16 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 		mSubName.copy((char*)Map + 16, 16 + 11);
 	}
 
-	// 
-	//
+	// Clear current sprites
 	Sprite_Clear_All();
+
+	// Load the map specific resources and draw
 	Map_Load_Resources();
-	Map_Tiles_Draw();
+	MapTiles_Draw();
+
+	// Refresh the palette
+	g_Graphics.PaletteSet(mImage);
+	mImage->surfaceSetToPaletteNew();
 }
 
 void cFodder::Map_Load( ) {
@@ -3372,7 +3377,7 @@ void cFodder::GUI_Draw_Frame_16( int16 pSpriteType, int16 pFrame, int16 pPosX, i
 		mGraphics->Video_Draw_16();
 }
 
-void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame) {
+void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination) {
 	auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
 	mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
@@ -3388,7 +3393,7 @@ void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame) 
 	++word_42072;
 	if (Sprite_OnScreen_Check()) {
 		pDi->field_5C = 1;
-		mGraphics->Video_Draw_8();
+		mGraphics->Video_Draw_8(pDestination);
 	} else 
 		pDi->field_5C = 0;
 }
@@ -8866,7 +8871,7 @@ void cFodder::MapTile_Update_Position() {
 	}
 
 	if(TileColumns || TileRows)
-		g_Graphics.Map_Tiles_Draw();
+		g_Graphics.MapTiles_Draw();
 }
 
 void cFodder::MapTile_Move_Right( int16 pPanTiles ) {
@@ -8970,7 +8975,6 @@ void cFodder::MapTile_Update_Column() {
 
 void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
 	
-
 	uint32 Tile = (((pTileY * mMapWidth) + pTileX));
 
 	uint8* CurrentMapPtr = mMap->data() + mMapTilePtr + (Tile * 2);
@@ -9642,7 +9646,7 @@ loc_2DFC7:;
 	mVideo_Draw_Columns = 0x10;
 	mVideo_Draw_Rows = 0x10;
 
-	g_Graphics.Map_Tiles_Draw();
+	g_Graphics.MapTiles_Draw();
 }
 
 void cFodder::Map_Destroy_Tiles_Next() {
@@ -19672,7 +19676,7 @@ int16 cFodder::Mission_Loop() {
 
 		mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
 	
-		Map_Tiles_Draw();
+		MapTiles_Draw();
 		Camera_Reset();
 			
 		Mouse_Inputs_Get();
@@ -19776,7 +19780,7 @@ int16 cFodder::Mission_Loop() {
 	return 0;
 }
 
-void cFodder::Map_Tiles_Draw() {
+void cFodder::MapTiles_Draw() {
 
 	mMapTile_ColumnOffset = 0;
 	mMapTile_RowOffset = 0;
@@ -19787,7 +19791,7 @@ void cFodder::Map_Tiles_Draw() {
 	mMapTile_Column_CurrentScreen = 0;
 	mMapTile_Row_CurrentScreen = 0;
 
-	g_Graphics.Map_Tiles_Draw();
+	g_Graphics.MapTiles_Draw();
 }
 
 void cFodder::Exit( unsigned int pExitCode ) {

@@ -667,7 +667,7 @@ void cGraphics_Amiga::Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, 
 	}
 }
 
-void cGraphics_Amiga::Map_Tiles_Draw() {
+void cGraphics_Amiga::MapTiles_Draw() {
 	mImage->clearBuffer();
 	uint8* Target = mImage->GetSurfaceBuffer();
 
@@ -847,19 +847,22 @@ void cGraphics_Amiga::Map_Load_Resources() {
 
 	SetActiveSpriteSheet( eSPRITE_IN_GAME );
 }
-void cGraphics_Amiga::Video_Draw_8() {
 
-	uint8*	di = mImage->GetSurfaceBuffer();
+void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget) {
+	if (!pTarget)
+		pTarget = mImage;
+
+	uint8*	di = pTarget->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
 
-	di += mImage->GetWidth() * mFodder->mVideo_Draw_PosY;
+	di += pTarget->GetWidth() * mFodder->mVideo_Draw_PosY;
 	di += mFodder->mVideo_Draw_PosX;
 
 	mFodder->mVideo_Draw_Columns -= 1;
 	mFodder->mVideo_Draw_Columns <<= 1;
 
 	mFodder->mDraw_Source_SkipPixelsPerRow = (mBMHD_Current->mWidth >> 3) - (mFodder->mVideo_Draw_Columns);
-	mFodder->mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (mFodder->mVideo_Draw_Columns * 8);
+	mFodder->mDraw_Dest_SkipPixelsPerRow = pTarget->GetWidth() - (mFodder->mVideo_Draw_Columns * 8);
 
 	// Height
 	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {

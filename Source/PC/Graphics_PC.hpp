@@ -59,7 +59,7 @@ class cGraphics_PC : public cGraphics {
 
 	virtual void		Map_Load_Resources();
 	virtual void		Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset);
-	virtual void		Map_Tiles_Draw();
+	virtual void		MapTiles_Draw();
 	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY );
 	
 	virtual void		PaletteSetOverview();
@@ -71,7 +71,7 @@ class cGraphics_PC : public cGraphics {
 	void				Video_Put_Pixel(uint8* pDi, uint8 pAl);
 
 	virtual void		Video_Draw_16();
-	virtual void		Video_Draw_8();
+	virtual void		Video_Draw_8(cSurface *pTarget = 0);
 
 	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
 	virtual void		Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY );
