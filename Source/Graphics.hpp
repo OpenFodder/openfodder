@@ -147,6 +147,8 @@ class cGraphics : public cSingleton<cGraphics> {
 	sImage				mImageFonts;
 	sImage				mImageBriefingIntro;
 
+	cPalette			mPalette[255];
+
 protected:
 	cSurface*			mImage;
 	cSurface*			mImageOriginal;
@@ -171,17 +173,18 @@ public:
 
 	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors ) = 0;
 
-	virtual void		Map_Tiles_Draw() = 0;
+	virtual void		Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset) = 0;
+	virtual void		MapTiles_Draw() = 0;
 	virtual void		Map_Load_Resources() = 0;
 
 	virtual void		MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY ) = 0;
 
 	virtual void		PaletteSetOverview() = 0;
-	virtual void		PaletteSet() = 0;
+	virtual void		PaletteSet(cSurface *pTarget = 0) = 0;
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 ) = 0;
 
 	virtual void		Video_Draw_16() = 0;
-	virtual void		Video_Draw_8() = 0;
+	virtual void		Video_Draw_8(cSurface *pTarget = 0) = 0;
 
 	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );

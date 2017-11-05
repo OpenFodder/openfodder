@@ -123,8 +123,8 @@ class cFodder : public cSingleton < cFodder > {
 
 	tSharedBuffer 	mMap;
 
-	tSharedBuffer 	mDataBaseBlk;
-	tSharedBuffer 	mDataSubBlk;
+	tSharedBuffer 	mTile_BaseBlk;
+	tSharedBuffer 	mTile_SubBlk;
 
 	sRecruitRendered	mRecruit_Rendered[0x0D];
 
@@ -184,8 +184,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mMouse_Exit_Loop;
 	int16			word_39FA0;
 	int16			word_39FA2;
-	int16			mCamera_Column;
-	int16			mCamera_Row;
+	int16			mMapTile_Column;
+	int16			mMapTile_Row;
 	int16			word_39FAC;
 
 	int16			word_39FAE;
@@ -235,11 +235,11 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mSquad_Selected;
 	int16			mSquad_JoiningTo;
 
-	int16			word_39FF2;
+	int16			mSprite_Frame_1;
 	int16			word_39FF4;
-	int16			word_39FF6;
-	int16			word_39FF8;
-	int16			word_39FFA;
+	int16			mSprite_Frame_2;
+	int16			mSprite_Frame3_ChangeCount;
+	int16			mSprite_Frame_3;
 
 	int16			mTroop_Cannot_Throw_Grenade;
 	int16			mTroop_Cannot_Fire_Bullet;
@@ -319,15 +319,15 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mTroops_Enemy_Count;
 	int16			mHostage_Count;
 	int16			mCamera_Start_Adjust;
-	int16			word_3AA1D;
+	int16			word_3AA1D;				// 2 = Use mSprite_Frame_3
 	int16			mCamera_Reached_Target;
 	int16			word_3AA21;
 	int16			word_3AA41;
 	int16			word_3AA45;
 	int16			mSquad_Select_Timer;
 	int16			mSprite_Find_Distance;
-	int32			mMapWidth_Shifted;
-	int32			mMapHeight_Shifted;
+	int32			mMapWidth_Pixels;
+	int32			mMapHeight_Pixels;
 	int16			mMouseCursor_Enabled;
 	int16			word_3AA55;
 	int16			word_3AA67;
@@ -338,7 +338,6 @@ class cFodder : public cSingleton < cFodder > {
 	int16			mRecruit_Truck_FrameAnimBufferPtr;
 
 	int16			mMouse_Button_LeftRight_Toggle2;
-	int16			mSquad_Prepare_Prebriefing;
 	int8			byte_3ABA9;
 	int16			word_3ABAD;
 	int16			word_3ABAF;
@@ -429,8 +428,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3B2F3;
 	int16			mSprite_Field10_Saved;
 	int16			word_3B2F7;
-	int16			mGame_Load;
-	int16			mGame_Save;
+	int16			mRecruit_Button_Load_Pressed;
+	int16			mRecruit_Button_Save_Pressed;
 	int16			mGUI_Temp_X;
 	int16			mGUI_Temp_Width;
 
@@ -478,11 +477,10 @@ class cFodder : public cSingleton < cFodder > {
 
 	sSprite*		dword_3B5F5;
 	int32			mMapTilePtr;
-	int16			mCamera_Pan_ColumnOffset;
-	int16			mCamera_Pan_RowOffset;
-	int16			word_3B612;
-	int16			word_3B614;
-	int16			mCamera_Pan_RowCount;	// Number of rows to move the camera
+	int16			mMapTile_ColumnOffset;
+	int16			mMapTile_RowOffset;
+	int16			mMapTile_MovedHorizontal;
+	int16			mMapTile_MovedVertical;
 
 	uint16*			mSidebar_Screen_Buffer;
 	uint16*			mSidebar_Back_Buffer;
@@ -503,12 +501,12 @@ class cFodder : public cSingleton < cFodder > {
 	sSprite*		mSquad_4_Sprites[9];
 	
 	sSprite**		mSquads[5];
-	int16			word_3BEB9;
-	int16			word_3BEBB;
-	int16			word_3BEBD;
+	int16			mSprite_Frame1_Modifier;
+	int16			mSprite_Frame2_Modifier;
+	int16			mSprite_Frame_3_Modifier;
 	int16			mGUI_Mouse_Modifier_X;
 	int16			mGUI_Mouse_Modifier_Y;
-	uint16			word_3BEC9;
+
 	uint16			word_3BED5[5];
 	uint16			word_3BEDF[10];
 	
@@ -516,7 +514,7 @@ class cFodder : public cSingleton < cFodder > {
 	int8			byte_3BF1B[3];
 	sSprite*		word_3BF1E[6];
 
-	uint16			mIntroDone;
+	bool			mIntroDone;
 
 	int16			mTile_Hit[400];
 	int16			mTile_BHit[1600];
@@ -525,8 +523,8 @@ class cFodder : public cSingleton < cFodder > {
 	int16			word_3D465;
 	int16			word_3D467;
 	int16			word_3D469;
-	int16			mCamera_Column_Previous;
-	int16			mCamera_Row_Previous;
+	int16			mMapTile_Column_CurrentScreen;
+	int16			mMapTile_Row_CurrentScreen;
 	uint16*			mSidebar_Screen_BufferPtr;
 
 	sGUI_Element	mSidebar_OverlayButtons[2];
@@ -534,12 +532,11 @@ class cFodder : public cSingleton < cFodder > {
 
 	size_t			word_3E1B7_size;
 	
-	int16			word_3E75B;
+	int16			mBriefing_Render_1_Mode;
 
 	int16			word_3F94E;
 	int16			word_3F950;
 
-	int32			dword_3E9A3[70];
 	int16			mMap_Overview_MapNumberRendered;
 	int16			mDebug_MissionSkip;
 	int16			mPaused;
@@ -561,7 +558,6 @@ class cFodder : public cSingleton < cFodder > {
 	uint16			mVideo_Draw_ColumnsMax;
 
 
-	int16			mIntroPlayed;
 	uint16			word_42859;
 	uint16			word_4285B;
 	int16			word_4285F;
@@ -609,8 +605,6 @@ class cFodder : public cSingleton < cFodder > {
 	int64			mTicks;
 	int64			mTicksDiff;
 
-	cPalette		mPalette[ g_MaxColors ];
-
 	void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
@@ -622,7 +616,8 @@ public:
 	void			Image_FadeIn();
 	void			Image_FadeOut();
 
-	virtual int16	Mission_Loop( );
+	virtual int16	Mission_Loop();
+	virtual int16	Map_Loop( );
 
 	void			Game_Handle( );
 	void			Camera_Handle();
@@ -636,22 +631,30 @@ public:
 	void			Mission_Prepare_Squads();
 	void			sub_10DEC();
 	void			Squad_Set_Squad_Leader();
-	void			Sprite_Clear_All_Wrapper();
-	void			Sprite_Clear_All();
 
+	void			Sprite_Clear_All();
+	
+	// Map Functions
+	void			Map_Create(const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight);
+	void			Map_Load();
 	void			Map_Load_Sprites();
+	void			Map_Load_Resources();
+	
+	void			Map_Save(const std::string pFilename);
+	void			Map_Save_Sprites( const std::string pFilename );
+
+	// Mission Functions
 	void			Mission_Troop_Count();
 	void			Mission_Troop_Sort();
-	void			Mission_Troop_Prepare();
+	void			Mission_Troop_Prepare( const bool pPrebriefing );
 	void			Mission_Troop_Prepare_Next_Recruits();
-	void			Mission_Troops_Prepare_Sprites();
+	void			Mission_Troop_Attach_Sprites();
 	void			Camera_Position_Update();
 	int16			sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
 	void			Camera_Calculate_Scroll();
 	void			sub_11CAD();
 	void			Camera_Refresh( );
-	void			Map_Load_Resources();
 	void			Music_Play_Tileset();
 	void			Camera_Pan_To_Target( );
 	void			Camera_Pan_Set_Speed();
@@ -668,7 +671,7 @@ public:
 	void			Sprite_Sort_DrawList();
 	void			Sprite_Bullet_SetData();
 	void			Mission_Phase_Goals_Check();
-	void			Mission_Clear_Destroy_Tiles();
+	void			Map_Clear_Destroy_Tiles();
 	void			Mission_Phase_Goals_Set();
 	void			Mission_Progress_Check( );
 	void			Mission_Text_Completed();
@@ -703,7 +706,7 @@ public:
 	void			Mouse_DrawCursor( );
 	void			GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, int32 pPositionX, int32 pPositionY );
 	void			GUI_Draw_Frame_16(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
-	void			Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame);
+	void			Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0 );
 
 	bool			Sprite_OnScreen_Check();
 	void			Sprites_Draw( );
@@ -723,7 +726,8 @@ public:
 	void			CopyProtection_EncodeInput();
 
 	/* Recruitment */
-	bool			Recruit_Show();
+	int16			Recruit_Show();
+	bool			Recruit_Loop();
 	void			Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
 	void			Recruit_Truck_Anim_Prepare();
 	void			Recruit_Truck_Anim_CopyFrames( uint16** pDi, const int16* pSource );
@@ -921,7 +925,7 @@ public:
 
 	void			sub_1F66F( sSprite* pSprite );
 	void			sub_1F6F4( sSprite* pSprite );
-	void			sub_1F762( sSprite* pSprite );
+	void			Sprite_Handle_Troop_FrameUnk( sSprite* pSprite );
 	void			sub_1FCF2( sSprite* pSprite );
 	void			sub_1FDE7( sSprite* pSprite );
 	void			Sprite_Create_Player_Shadow( sSprite* pSprite );
@@ -1055,14 +1059,17 @@ public:
 
 	void			Map_Get_Distance_BetweenPoints_Within_640( int16& pX, int16& pY, int16& pX2, int16& pY2 );
 
-	void			Camera_Pan();
+	void			MapTile_Update_Position();
 
-	void			Camera_Pan_Right();
-	void			Camera_Pan_Left();
-	void			Camera_Pan_Down();
-	void			Camera_Pan_Up();
-	void			Camera_Update_Row();
-	void			Camera_Update_Column();
+	void			MapTile_Move_Right( int16 pPanTiles );
+	void			MapTile_Move_Left( int16 pPanTiles );
+	void			MapTile_Move_Down( int16 pPanTiles );
+	void			MapTile_Move_Up( int16 pPanTiles );
+
+	void			MapTile_Update_Row();
+	void			MapTile_Update_Column();
+
+	void			MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
 
 	void			Squad_Troops_Count();
 	int16			Mission_Troop_GetDeviatePotential( sMission_Troop* pSquadMember );
@@ -1141,9 +1148,9 @@ public:
 	void			GUI_Handle_Button_SplitSquad();
 	void			Mission_Set_Initial_Weapon();
 
-	void			Map_Tiles_Draw();
+	void			MapTiles_Draw();
 
-	void			Game_CheckLoadSave();
+	void			Recruit_CheckLoadSaveButtons();
 	void			GUI_Sidebar_Grenades_Draw( );
 
 	void			GUI_Prepare_Button_Grenade();
@@ -1229,7 +1236,7 @@ public:
 	void			Sidebar_Clear_ScreenBufferPtr();
 	void			Mission_Phase_Next();
 
-	void			sub_12AB1();
+	void			Briefing_Set_Render_1_Mode_On();
 
 	void			WonGame();
 
@@ -1250,7 +1257,7 @@ public:
 
 public:
 
-					cFodder( bool pSkipIntro = false );
+					cFodder( cWindow* pWindow, bool pSkipIntro = false );
 	virtual			~cFodder();
 
 	void			SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet );
@@ -1262,7 +1269,7 @@ public:
 	void			Prepare();
 
 	void			Playground();
-	virtual void	Start( int16 pStartMap );
+	virtual void	Start( int16 pStartMap = 0 );
 	void			Exit( unsigned int pExitCode );
 
 	void			WindowTitleSet( bool pInMission );

@@ -29,7 +29,10 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 
 	// Create the screen buffer
 	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF << 16, 0xFF << 8, 0xFF, 0 );
-	mTexture = SDL_CreateTexture(g_Window.GetRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, (int) pWidth, (int) pHeight);
+	mTexture = 0;
+
+	if(g_Window.GetRenderer())
+		mTexture = SDL_CreateTexture(g_Window.GetRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, (int) pWidth, (int) pHeight);
 	
 	mSurfaceBuffer = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSaved = new uint8[ mWidth * mHeight ];
@@ -44,7 +47,9 @@ cSurface::~cSurface() {
 	delete[] mSurfaceBufferSaved;
 
 	SDL_FreeSurface( mSDLSurface );
-	SDL_DestroyTexture( mTexture );
+
+	if(mTexture)
+		SDL_DestroyTexture( mTexture );
 }
 
 void cSurface::clearSDLSurface( uint32 pColor ) {
@@ -63,6 +68,12 @@ void cSurface::palette_SetToBlack() {
 	}
 
 	surfaceSetToPalette();
+}
+
+void cSurface::palette_SetFromNew() {
+
+	for (int cx = 0x0; cx < g_MaxColors; ++cx)
+		mPalette[cx] = mPaletteNew[cx];
 }
 
 void cSurface::paletteNew_SetToBlack() {
@@ -205,7 +216,8 @@ void cSurface::draw() {
 		++bufferTarget;
 	}
 
-	SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
+	if(mTexture)
+		SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 }
 
 void cSurface::clearBuffer() {

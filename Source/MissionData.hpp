@@ -64,12 +64,14 @@ class cMissionData {
 	std::string								mCustomMap;
 	sMissionCustom							mCustomMission;
 
-	cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< size_t >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression );
+	cMissionData( const std::vector<std::string>& pMissionNames, const std::vector<std::string>& pMissionPhaseNames, const std::vector< size_t >& pMissionPhases, const std::vector< std::vector<eMissionGoals> >& pMapGoals, const std::vector<sAggression>& pEnemyAggression, const std::string& pCampaign );
 
 	void Clear();
 
 	bool LoadCustomMap( const std::string& pMapName );
 	bool LoadCustomMissionSet( const std::string& pMissionSet );
+
+	void DumpCampaign();
 
 	/**
 	 * Get the filename for a map
