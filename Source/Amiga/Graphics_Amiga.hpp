@@ -97,7 +97,7 @@ protected:
 	virtual void		Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY );
 	virtual void		Sidebar_Copy_ScreenBuffer( uint16 Data0, int16 Data4, int16 pCopyToScreen, uint32*& pBuffer);
 
-	virtual void		Recruit_Sprite_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
+	virtual void		Recruit_Sprite_Draw(int16 pRows, int16 pColumns, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 
 	virtual bool		Sprite_OnScreen_Check(  );
 	virtual bool		Sprite_OnScreen_Check( bool p16bit = false );

@@ -4709,12 +4709,11 @@ void cFodder::Recruit_Copy_Sprites() {
 		for (;;) {
 			auto SpriteSheet = Sprite_Get_Sheet(stru->mSpriteType,stru->mFrame);
 
-			int16 Data0 = SpriteSheet->mColCount;
-			int16 Data4 = SpriteSheet->mRowCount;
-			int16 Data8 = word_3B1A3;
-			int16 DataC = word_3B1A5;
+			int16 Columns = SpriteSheet->mColCount;
+			int16 Rows = SpriteSheet->mRowCount;
+			int16 Data8 = *Data34++;
+			int16 DataC = 0;
 
-			Data8 = *Data34++;
 			if (Data8 < 0) {
 				++stru;
 				break;
@@ -4722,13 +4721,18 @@ void cFodder::Recruit_Copy_Sprites() {
 
 			// Originally Inside sub_A094C
 			if (mVersion->mPlatform == ePlatform::Amiga) {
-				Data0 -= 1;
-				Data0 <<= 4;
+				Columns -= 1;
+				Columns <<= 4;
 			}
-			sub_2AEB6( Data0, Data4, &Data8, &DataC );
+
+			// Calculate draw destinations
+			sub_2AEB6( Columns, Rows, &Data8, &DataC );
+
 			int16 Data10 = word_3B1A3 + 0x08;
 			int16 Data14 = word_3B1A5;
-			mGraphics->Recruit_Sprite_Draw( Data0, Data4, Data8, Data10, Data14, DataC, SpriteSheet->GetGraphicsPtr() );
+			mGraphics->Recruit_Sprite_Draw( Columns, Rows,
+											Data8, Data10, 
+											Data14, DataC, SpriteSheet->GetGraphicsPtr() );
 			word_3B1A3 += 0x10;
 		}
 	}
@@ -8616,15 +8620,12 @@ const sSpriteSheet* cFodder::Sprite_Get_Sheet(int16 pSpriteType, int16 pFrame) {
 }
 
 void cFodder::sub_2AEB6( int16 pColumns, int16 pRows, int16* pData8, int16* pDataC ) {
-	int32	Data = pColumns * *pData8;
-	pColumns = (int16) Data / 0x64;
-	
-	int16 Final8 = pColumns;
-	
-	Data = pRows * *pData8;
-	*pDataC = (int16) Data / 0x64;
+	int32 Columns	= pColumns  * *pData8;
+	int32 Rows		= pRows		* *pData8;
 
-	*pData8 = Final8;
+	// Return
+	*pDataC = (int16) Rows / 0x64;
+	*pData8 = (int16) Columns / 0x64;
 }
 
 

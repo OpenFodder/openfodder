@@ -96,15 +96,15 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 	
 	case eSPRITE_RECRUIT:
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
-		mBMHD_Current = mImageHill.GetHeader();
+		mBMHD_Current = mImageHillBackground.GetHeader();
 		mBMHD_Current->mHeight = 0x100;
-		return mImageHill.mData->data();
+		return mImageHillBackground.mData->data();
 
 	case eSPRITE_HILL:
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
-		mBMHD_Current = mImageHill.GetHeader();
+		mBMHD_Current = mImageHillSprites.GetHeader();
 		mBMHD_Current->mHeight = 0x101;
-		return mImageHill.mData->data();
+		return mImageHillSprites.mData->data();
 
 	case eSPRITE_FONT:
 		mFodder->mVideo_Draw_PaletteIndex = 0xF0;
@@ -296,10 +296,40 @@ void cGraphics_Amiga::Load_pStuff() {
 
 void cGraphics_Amiga::Load_Hill_Data() {
 
-	mImageHill = Decode_Image("hills.lbm", 64);
+	mImageHillBackground = Decode_Image("hills.lbm", 64);
+	mImageHillBackground.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() *(mImageHillBackground.GetHeader()->mPlanes + 30));
 
-	// We increase this buffer because the engine still writes to it
-	mImageHill.mData->resize(mImageHill.GetHeader()->ScreenSize() * (mImageHill.GetHeader()->mPlanes + 30));
+	// We increase these buffers because the engine still writes to it
+	mImageHillSprites = Decode_Image("hills.lbm", 64);
+	mImageHillSprites.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() * (mImageHillBackground.GetHeader()->mPlanes + 30));
+
+	// A5A7E
+	uint8* a0 = mImageHillSprites.mData->data() + (29 * 40);
+	uint8* a1 = mImageHillSprites.mData->data() + 0x390EE + 0x3E8;
+
+	for (int16 d1 = 0xB7; d1 >= 0; --d1) {
+		uint8* a2 = a0 + 6;
+		uint8* a3 = a1 + 6;
+
+		for (int16 d0 = 0x10; d0 >= 0; --d0) {
+			writeBEWord(a3, readBEWord(a2));
+			writeBEWord(a3 + 0x2828, readBEWord(a2 + 0x2800));
+			writeBEWord(a3 + 0x5050, readBEWord(a2 + 0x5000));
+			writeBEWord(a3 + 0x7878, readBEWord(a2 + 0x7800));
+
+			// Clear memory which has hill sprites drawn into it
+			writeBEWord(a2, 0);
+			writeBEWord(a2 + 0x2800, 0);
+			writeBEWord(a2 + 0x5000, 0);
+			writeBEWord(a2 + 0x7800, 0);
+
+			a2 += 2;
+			a3 += 2;
+		}
+
+		a0 += 0x28;
+		a1 += 0x28;
+	}
 }
 
 
@@ -441,7 +471,7 @@ void cGraphics_Amiga::PaletteSetOverview() {
 
 	mFodder->mSurfaceMapOverview->paletteSet(mPalette, 0, 64);
 	mFodder->mSurfaceMapOverview->paletteSet(mImagePStuff.mPalette, 0xE0, 16 );
-	mFodder->mSurfaceMapOverview->paletteSet(mImageHill.mPalette, 0xD0, 16);
+	mFodder->mSurfaceMapOverview->paletteSet(mImageHillBackground.mPalette, 0xD0, 16);
 	mFodder->mSurfaceMapOverview->paletteSet(mImageFonts.mPalette, 0xF0, 16 );
 
 	mFodder->mSurfaceMapOverview->surfaceSetToPaletteNew();
@@ -457,8 +487,8 @@ void cGraphics_Amiga::PaletteSet() {
 
 	mImage->paletteSet(mPalette, 0, 64);
 	mImage->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
-	mImage->paletteSet(mImageHill.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
-	mImage->paletteSet(mImageHill.mPalette, 0xD0, 16);
+	mImage->paletteSet(mImageHillBackground.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
+	mImage->paletteSet(mImageHillBackground.mPalette, 0xD0, 16);
 	mImage->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
 
@@ -717,7 +747,7 @@ void cGraphics_Amiga::Hill_Prepare_Overlays() {
 		int d0 = SpriteSheet->mColCount - 1;
 		int d1 = SpriteSheet->mRowCount - 1;
 
-		uint8* DestBase = mImageHill.mData->data();
+		uint8* DestBase = mImageHillSprites.mData->data();
 
 		int16 d2 = a3->mX;
 		d2 >>= 3;
@@ -991,9 +1021,9 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 	mImagePStuff.LoadPalette_Amiga(Grave->data(), Grave->size() / 2);
 	
 	{
-		mFodder->mVideo_Draw_FrameDataPtr = mImageHill.mData->data() + (29 * 40) + 6;
+		mFodder->mVideo_Draw_FrameDataPtr = mImageHillBackground.mData->data() + (29 * 40) + 6;
 
-		mBMHD_Current = mImageHill.GetHeader();
+		mBMHD_Current = mImageHillBackground.GetHeader();
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
 
 		mFodder->mVideo_Draw_PosX = 0x40;
@@ -1006,30 +1036,6 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 	}
 
 	Recruit_Draw_HomeAway();
-
-	// A5A7E
-	uint8* a0 = mImageHill.mData->data() + (29 * 40);
-	uint8* a1 = mImageHill.mData->data() + 0x3E8;
-
-	for (int16 d1 = 0xB7; d1 >= 0; --d1) {
-		uint8* a2 = a0 + 6;
-		uint8* a3 = a1 + 6;
-
-		for (int16 d0 = 0x10; d0 >= 0; --d0) {
-
-			// Clear memory which has hill sprites drawn into it
-			writeBEWord(a2, 0);
-			writeBEWord(a2 + 0x2800, 0);
-			writeBEWord(a2 + 0x5000, 0);
-			writeBEWord(a2 + 0x7800, 0);
-
-			a2 += 2;
-			a3 += 2;
-		}
-
-		a0 += 0x28;
-		a1 += 0x28;
-	}
 }
 
 void cGraphics_Amiga::Recruit_Draw_HomeAway() {
@@ -1142,7 +1148,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 	d4 = pD4;
 	d5 = pD5;
 
-	uint8* Dest = mImageHill.mData->data();
+	uint8* Dest = mImageHillSprites.mData->data();
 
 	int32 word_8271A = d0;
 	int32 word_8271C = d1;
