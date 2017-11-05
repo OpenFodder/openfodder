@@ -55,7 +55,7 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 			break;
 
 		case eSPRITE_HILL:
-			return mImageHill.mData->data();
+			return mImageHillSprites.mData->data();
 			break;
 
 		case eSPRITE_SERVICE:
@@ -139,8 +139,14 @@ void cGraphics_PC::Load_Sprite_Font() {
 
 void cGraphics_PC::Load_Hill_Data() {
 
-	mImageHill = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
+	mImageHillBackground = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
 	mImageRecruit = Decode_Image("hillbits.dat", 0x10, 0x6900, 0xB0);
+
+	// Parts of this surface have the recruits from mImageRecruit copied onto it
+	mImageHillSprites = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
+	for (uint32 x = 0; x < 0xA000; ++x) {
+		mImageHillSprites.mData->data()[x] = 0;
+	}
 }
 
 void cGraphics_PC::Load_Service_Data() {
@@ -462,7 +468,7 @@ void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16
 
 void cGraphics_PC::Recruit_Draw_Hill( ) {
 
-	mFodder->mVideo_Draw_FrameDataPtr = mImageHill.mData->data() + 0xA00;
+	mFodder->mVideo_Draw_FrameDataPtr = mImageHillBackground.mData->data() + 0xA00;
 
 	mFodder->mVideo_Draw_PosX = 0x40;
 	mFodder->mVideo_Draw_PosY = 0x28;
@@ -471,10 +477,6 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 	mFodder->mVideo_Draw_ColumnsMax = 0x140;
 
 	Video_Draw_16();
-	
-	for( uint32 x = 0; x < 0xA000; ++x) {
-		mImageHill.mData->data()[x] = 0;
-	}
 }
 
 void cGraphics_PC::Recruit_Draw_HomeAway( ) {
@@ -536,11 +538,14 @@ void cGraphics_PC::Briefing_Load_Resources() {
 	mImageBriefingIntro.LoadPalette(mImageBriefingIntro.mData->size() - 0x300, 0x100, 0);
 }
 
-uint8 cGraphics_PC::Video_Get_Pixel(uint8* pSi, int16 pBx, int16 pCx) {
+uint8 cGraphics_PC::Video_Get_Pixel(uint8* pSi, int16 pX, int16 pY) {
 
-	pSi += 0xA0 * pBx;
-	pSi += (pCx >> 1);
-	if (pCx & 1)
+	// 0xA0 Bytes per row
+	pSi += 0xA0 * pY;
+
+	pSi += (pX >> 1);
+
+	if (pX & 1)
 		return (*pSi) & 0x0F;
 
 	return (*pSi) >> 4;
@@ -548,10 +553,10 @@ uint8 cGraphics_PC::Video_Get_Pixel(uint8* pSi, int16 pBx, int16 pCx) {
 
 void cGraphics_PC::Video_Put_Pixel(uint8* pDi, uint8 pAl) {
 
-	pDi += 0xA0 * (dword_44A3A >> 16);
-	pDi += (dword_44A36 >> 16) >> 1;
+	pDi += 0xA0 * (mRecruitDestY >> 16);
+	pDi += (mRecruitDestX >> 16) >> 1;
 
-	if ((dword_44A36 >> 16) & 1) {
+	if ((mRecruitDestX >> 16) & 1) {
 		*pDi &= 0xF0;
 		*pDi |= pAl & 0x0F;
 		return;
@@ -561,16 +566,18 @@ void cGraphics_PC::Video_Put_Pixel(uint8* pDi, uint8 pAl) {
 	*pDi |= pAl << 4;
 }
 
-void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) {
+void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, 
+										int16 pData8, int16 pData10, 
+										int16 pData14, int16 pDataC, uint8* pGraphics ) {
 	pColumns &= 0xFFFF;
 	pRows &= 0xFFFF;
 
-	uint8* es = mImageHill.mData->data();
+	uint8* es = mImageHillSprites.mData->data();
 
-	dword_44A36 = (pData10 - (pData8 >> 1)) << 16;
-	dword_44A3E = dword_44A36;
+	mRecruitDestX = (pData10 - (pData8 >> 1)) << 16;
+	dword_44A3E = mRecruitDestX;
 
-	dword_44A3A = (pData14 - (pDataC >> 1)) << 16;
+	mRecruitDestY = (pData14 - (pDataC >> 1)) << 16;
 	int32 eax = (pData8 << 0x10);
 	if (eax <= 0)
 		return;
@@ -581,16 +588,17 @@ void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData
 		return;
 
 	int32 dword_44A46 = eax / pRows;
-	for (int16 bx = 0; bx != pRows; ++bx) {
-		dword_44A36 = dword_44A3E;
+	for (int16 PosY = 0; PosY != pRows; ++PosY) {
+		mRecruitDestX = dword_44A3E;
 
-		for (int16 cx = 0; cx != pColumns; ++cx) {
-			uint8 al = Video_Get_Pixel( pGraphics, bx, cx );
+		for (int16 PosX = 0; PosX != pColumns; ++PosX) {
+			uint8 al = Video_Get_Pixel( pGraphics, PosX, PosY);
 			Video_Put_Pixel( es, al );
-			dword_44A36 += dword_44A42;
+
+			mRecruitDestX += dword_44A42;
 		}
 
-		dword_44A3A += dword_44A46;
+		mRecruitDestY += dword_44A46;
    	}
 
 }
