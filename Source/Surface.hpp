@@ -80,11 +80,13 @@ public:
 
 	void			palette_SetToBlack();
 	int16			palette_FadeTowardNew();
+	void			palette_SetFromNew();
 
 	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, uint32 pColors = g_MaxColors, bool pUseNow = false );
 
 	void			paletteNew_SetToBlack();
 
+	inline SDL_Surface* GetSurface() { return mSDLSurface; }
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }
 	inline size_t		GetSurfaceBufferSize() const { return mSurfaceBufferSize; }

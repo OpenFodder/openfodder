@@ -23,6 +23,7 @@
 #include "stdafx.hpp"
 #include "md5.hpp"
 
+#ifndef _OFED
 int main(int argc, char *args[]) {
 	bool SkipIntro = false;
 	int16 MapNumber = 0;
@@ -37,7 +38,7 @@ int main(int argc, char *args[]) {
 		}
 	}
 
-	cFodder* Fodder = new cFodder(SkipIntro);
+	cFodder* Fodder = new cFodder(new cWindow(), SkipIntro);
 
 	Fodder->Prepare();
 	Fodder->Start( MapNumber );
@@ -47,6 +48,7 @@ int main(int argc, char *args[]) {
     return 0;
 
 }
+#endif
 
 std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, bool pData = true ) {
 	std::stringstream	 filePathFinal;

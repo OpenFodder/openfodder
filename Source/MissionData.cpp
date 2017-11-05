@@ -65,7 +65,8 @@ cMissionData::cMissionData( const std::vector<std::string>	&pMissionNames,
 							const std::vector<std::string>	&pMissionPhaseNames, 
 							const std::vector<size_t>		&pMissionPhases, 
 							const std::vector<std::vector<eMissionGoals> > &pMapGoals, 
-							const std::vector<sAggression> &pEnemyAggression ) {
+							const std::vector<sAggression> &pEnemyAggression,
+							const std::string& pCampaign) {
 
 	mMissionNames = pMissionNames;
 	mMissionPhases = pMissionPhases;
@@ -73,7 +74,13 @@ cMissionData::cMissionData( const std::vector<std::string>	&pMissionNames,
 	mMapNames = pMissionPhaseNames;
 	mMapGoals = pMapGoals;
 	mMapAggression = pEnemyAggression;
+
+	mCustomMission.mAuthor = "Sensible Software";
+	mCustomMission.mName = pCampaign;
+
+	//DumpCampaign();
 }
+
 
 /**
  * Load a single custom map
@@ -102,6 +109,60 @@ bool cMissionData::LoadCustomMap( const std::string& pMapName ) {
 
 	return true;
 }
+
+void cMissionData::DumpCampaign() {
+	auto MissionData = this;
+
+	Json Campaign;
+	Campaign["Author"] = "Sensible Software";
+	Campaign["Name"] = mCustomMission.mName;
+
+	size_t MissionNumber = 1;
+	size_t MapNumber = 0;
+
+	// Each Mission
+	for (auto MissionName : MissionData->mMissionNames) {
+		
+		Json Mission;
+		Mission["Name"] = MissionName;
+
+		size_t MissionPhases = MissionData->getNumberOfPhases(MissionNumber);
+
+		// Each Phase of a mission
+		for (size_t PhaseCount = 0; PhaseCount < MissionPhases; ++PhaseCount) {
+			Json Phase;
+
+			Phase["MapName"] = MissionData->getMapFilename(MapNumber);
+			Phase["Name"] = MissionData->getMapName(MapNumber);
+			auto Agg = MissionData->getMapAggression(MapNumber);
+			
+			Phase["Aggression"][0] = Agg.mMin;
+			Phase["Aggression"][1] = Agg.mMax;
+
+			for (auto Goal : MissionData->getMapGoals(MapNumber)) {
+
+				Phase["Objectives"].push_back(mMissionGoal_Titles[Goal - 1]);
+			}
+
+			++MapNumber;
+
+			Mission["Phases"].push_back(Phase);
+		}
+
+		Campaign["Missions"].push_back(Mission);
+		++MissionNumber;
+	}
+
+	std::string file = "D:\\" + mCustomMission.mName + ".of";
+	std::ofstream MissionFile(file);
+	if (MissionFile.is_open()) {
+		auto ss = Campaign.dump(1);
+
+		MissionFile.write(ss.c_str(), ss.size());
+		MissionFile.close();
+	}
+}
+
 
 /**
  * Load a custom mission set

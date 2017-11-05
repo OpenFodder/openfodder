@@ -72,7 +72,8 @@ const cMissionData mMissionData_Plus = {
 	mAmigaPlus_MapNames,
 	mAmigaPlus_MissionPhaseTable,
 	mAmigaDemo_Map_Goals,
-	mAmigaDemo_Map_Sprite_Enemy_Aggression
+	mAmigaDemo_Map_Sprite_Enemy_Aggression,
+	"Cannon Fodder Plus"
 };
 
 // Amiga Format Christmas Special
@@ -81,5 +82,6 @@ const cMissionData mMissionData_AmigaFormat = {
 	mAmigaFormat_MapNames,
 	mAmigaFormat_MissionPhaseTable,
 	mAmigaDemo_Map_Goals,
-	mAmigaDemo_Map_Sprite_Enemy_Aggression
+	mAmigaDemo_Map_Sprite_Enemy_Aggression,
+	"Amiga Format Christmas Special"
 };
