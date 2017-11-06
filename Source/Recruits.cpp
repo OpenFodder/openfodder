@@ -408,7 +408,6 @@ int16 word_35E2E[] = {
 
 // Hill Recruit Dest: Part 1 / 2 / 3
 int16 word_35E3A[] = {
-	//0x52, 0x52, 0x52, -1
 	0x32, 0x52, 0x64, -1
 };
 
