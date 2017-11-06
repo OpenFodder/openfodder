@@ -1769,7 +1769,7 @@ void cFodder::Map_Load_Resources() {
 
 	// Check Editor used
 	switch (readBEDWord(mMap->data() + 0x50)) {
-	case 'cdef':	// Original Engine Map
+	case 'cfed':	// Original Engine Map
 		break;
 
 	case 'ofed':	// Open Fodder Map
