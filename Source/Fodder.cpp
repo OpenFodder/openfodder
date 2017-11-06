@@ -1755,10 +1755,11 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 }
 
 void cFodder::Map_Load( ) {
-
 	std::string MapName = map_Filename_MapGet();
 
 	mMap = g_Resource.fileGet(MapName);
+
+	tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
 
 	Map_Load_Resources();
 }
@@ -1766,22 +1767,33 @@ void cFodder::Map_Load( ) {
 void cFodder::Map_Load_Resources() {
 	std::string BaseName, SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
 
+	// Check Editor used
+	switch (readBEDWord(mMap->data() + 0x50)) {
+	case 'cdef':	// Original Engine Map
+		break;
+
+	case 'ofed':	// Open Fodder Map
+		break;
+
+	default:		// Unknown Editor
+		break;
+	}
+
+	// Set the width/height in tiles
+	mMapWidth = readBEWord(mMap->data() + 0x54);
+	mMapHeight = readBEWord(mMap->data() + 0x56);
+
+	// Calculate width/height in pixels
+	mMapWidth_Pixels = (mMapWidth << 4);
+	mMapHeight_Pixels = (mMapHeight << 4);
+
 	uint8* Map = mMap->data();
-
-	mMapWidth = readBEWord(&Map[0x54]);
-	mMapHeight = readBEWord(&Map[0x56]);
-
-	mMapWidth_Pixels = mMapWidth << 4;
-	mMapHeight_Pixels = mMapHeight << 4;
-
-	tool_EndianSwap( Map + 0x60, mMap->size() - 0x60 );
 
 	// junbase.blk
 	BaseName.append( Map, Map + 11 );
 
 	// junsub0.blk
 	SubName.append( Map + 0x10, Map + 0x10 + 11 );
-
 
 	// jun
 	BaseBaseSet.append( Map, Map + 3 );
