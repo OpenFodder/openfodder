@@ -16446,6 +16446,9 @@ loc_1F9C0:;
 	}
 	//loc_1FA20
 	--pSprite->field_57;
+	if (pSprite->field_57)
+		return;
+
 	pSprite->field_54 = 0;
 	goto loc_1FB00;
 
