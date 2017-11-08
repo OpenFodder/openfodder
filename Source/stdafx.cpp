@@ -50,14 +50,21 @@ int main(int argc, char *args[]) {
 }
 #endif
 
-std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, bool pData = true ) {
+std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
 	std::stringstream	 filePathFinal;
 
-	if (pData)
+	switch (pDataType) {
+	case eData:
 		filePathFinal << "Data/";
-	else
-		filePathFinal << "Saves/";
+		break;
 
+	case eSave:
+		filePathFinal << "Saves/";
+		break;
+
+	case eCampaign:
+		filePathFinal << "Campaigns/";
+	}
 	if( pPath.size() )
 		filePathFinal << pPath << "/";
 

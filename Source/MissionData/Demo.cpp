@@ -67,7 +67,7 @@ const std::vector<sAggression> mAmigaDemo_Map_Sprite_Enemy_Aggression = {
 };
 
 // Amiga Plus
-const cMissionData mMissionData_Plus = {
+const cCampaign mMissionData_Plus = {
 	mAmigaPlus_MapNames,
 	mAmigaPlus_MapNames,
 	mAmigaPlus_MissionPhaseTable,
@@ -77,7 +77,7 @@ const cMissionData mMissionData_Plus = {
 };
 
 // Amiga Format Christmas Special
-const cMissionData mMissionData_AmigaFormat = {
+const cCampaign mMissionData_AmigaFormat = {
 	mAmigaFormat_MapNames,
 	mAmigaFormat_MapNames,
 	mAmigaFormat_MissionPhaseTable,

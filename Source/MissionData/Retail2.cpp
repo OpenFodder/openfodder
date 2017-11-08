@@ -284,7 +284,7 @@ const std::vector<sAggression> mRetail2_Map_Sprite_Enemy_Aggression = {
 };
 
 // Cannon Fodder 2 Retail
-const cMissionData mMissionData_Retail2 = {
+const cCampaign mMissionData_Retail2 = {
 	mRetail2_MissionNames,
 	mRetail2_MissionPhaseNames,
 	mRetail2_MissionPhaseTable,

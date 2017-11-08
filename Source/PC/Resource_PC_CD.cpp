@@ -147,7 +147,7 @@ void cResource_PC_CD::ExtractFiles() {
 	for (auto File : mFiles) {
 
 		auto FileData = fileGet( File.mName );
-		std::string Filename = local_PathGenerate( File.mName, "ExtractedData", true );
+		std::string Filename = local_PathGenerate( File.mName, "ExtractedData", eDataType::eData);
 
 		std::ofstream outfile( Filename, std::ofstream::binary );
 		outfile.write( (const char*)FileData->data(), FileData->size() );

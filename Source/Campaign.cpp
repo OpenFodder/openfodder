@@ -21,6 +21,8 @@
  */
 
 #include "stdafx.hpp"
+#include <filesystem>
+
 #if defined(_MSC_VER) && _MSC_VER <= 1800
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -58,34 +60,16 @@ const std::vector<std::string> mMissionGoal_Titles = {
 	"RESCUE HOSTAGE"			// CF2
 };
 
-/** 
- *
- */
-cMissionData::cMissionData( const std::vector<std::string>	&pMissionNames, 
-							const std::vector<std::string>	&pMissionPhaseNames, 
-							const std::vector<size_t>		&pMissionPhases, 
-							const std::vector<std::vector<eMissionGoals> > &pMapGoals, 
-							const std::vector<sAggression> &pEnemyAggression,
-							const std::string& pCampaign) {
+cCampaign::cCampaign() {
 
-	mMissionNames = pMissionNames;
-	mMissionPhases = pMissionPhases;
+	mHasMaps = false;
 
-	mMapNames = pMissionPhaseNames;
-	mMapGoals = pMapGoals;
-	mMapAggression = pEnemyAggression;
-
-	mCustomMission.mAuthor = "Sensible Software";
-	mCustomMission.mName = pCampaign;
-
-	//DumpCampaign();
 }
-
 
 /**
  * Load a single custom map
  */
-bool cMissionData::LoadCustomMap( const std::string& pMapName ) {
+bool cCampaign::LoadCustomMap( const std::string& pMapName ) {
 	Clear();
 	std::string CustomMapName = pMapName;
 	
@@ -109,13 +93,13 @@ bool cMissionData::LoadCustomMap( const std::string& pMapName ) {
 
 	return true;
 }
-
-void cMissionData::DumpCampaign() {
+/*
+void cCampaign::DumpCampaign() {
 	auto MissionData = this;
 
 	Json Campaign;
 	Campaign["Author"] = "Sensible Software";
-	Campaign["Name"] = mCustomMission.mName;
+	Campaign["Name"] = mName;
 
 	size_t MissionNumber = 1;
 	size_t MapNumber = 0;
@@ -153,7 +137,7 @@ void cMissionData::DumpCampaign() {
 		++MissionNumber;
 	}
 
-	std::string file = "D:\\" + mCustomMission.mName + ".of";
+	std::string file = "D:\\" + mName + ".of";
 	std::ofstream MissionFile(file);
 	if (MissionFile.is_open()) {
 		auto ss = Campaign.dump(1);
@@ -162,15 +146,18 @@ void cMissionData::DumpCampaign() {
 		MissionFile.close();
 	}
 }
-
+*/
 
 /**
- * Load a custom mission set
+ * Load a campaign
  */
-bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
+bool cCampaign::LoadCampaign( const std::string& pName) {
 	Clear();
 
-	std::ifstream MissionSetFile( local_PathGenerate( pMissionSet, "", true ), std::ios::binary );
+	if (!pName.size())
+		return false;
+
+	std::ifstream MissionSetFile(local_PathGenerate(pName + ".ofc", "", eDataType::eCampaign));
 	if (MissionSetFile.is_open()) {
 #if defined(_MSC_VER) && _MSC_VER <= 1800
 		IStreamWrapper isw( MissionSetFile );
@@ -179,14 +166,9 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 #else
 		Json MissionSet = Json::parse( MissionSetFile );
 #endif
-		mCustomMission.mAuthor = GetStringFunction(MissionSet["Author"]);
-		mCustomMission.mName = GetStringFunction(MissionSet["Name"]);
+		mAuthor = GetStringFunction(MissionSet["Author"]);
+		mName = GetStringFunction(MissionSet["Name"]);
 		
-		std::string MapPath = "Custom/Sets/";
-
-		MapPath.append( mCustomMission.mName );
-		MapPath.append( "/" );
-
 		// Loop through the missions in this set
 		for (TypeFunction(auto) Mission : GetArrayFunction(MissionSet["Missions"])) {
 			std::string Name = GetStringFunction(Mission["Name"]);
@@ -198,14 +180,13 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 			// Each Map (Phase)
 			for (TypeFunction(auto) Phase : GetArrayFunction(Mission["Phases"])) {
 				std::vector<eMissionGoals> Goals;
-				std::string MapFile = MapPath;
+
 				std::string MapName = GetStringFunction(Phase["MapName"]);
 
 				Name = GetStringFunction(Phase["Name"]);
 				transform( Name.begin(), Name.end(), Name.begin(), toupper );
 				
-				MapFile.append( MapName );
-				mMapFilenames.push_back( MapFile );
+				mMapFilenames.push_back(MapName);
 				mMapNames.push_back( Name );
 
 				// Map Aggression
@@ -244,7 +225,8 @@ bool cMissionData::LoadCustomMissionSet( const std::string& pMissionSet ) {
 /**
  * Clear all missions/map names, goals and aggression rates
  */
-void cMissionData::Clear() {
+void cCampaign::Clear() {
+	mHasMaps = false;
 	mMissionNames.clear();
 	mMissionPhases.clear();
 
@@ -252,4 +234,102 @@ void cMissionData::Clear() {
 	mMapNames.clear();
 	mMapGoals.clear();
 	mMapAggression.clear();
+}
+
+/**
+ * Get the filename for a map
+ */
+std::string cCampaign::getMapFilename(const size_t pMapNumber) const {
+
+	std::string Filename;
+
+	if (pMapNumber >= mMapFilenames.size()) {
+
+		std::stringstream	filename;
+
+		filename << "mapm" << (pMapNumber + 1);
+
+		return filename.str();
+	} else {
+
+		Filename = local_PathGenerate(mName, "", eDataType::eCampaign);
+	}
+
+	// If a campaign folder exists, return a path inside it
+	if (!std::experimental::filesystem::exists(Filename))
+		Filename = "";
+
+	// Otherwise fallback to loading the map from the currently loaded
+	return Filename + mMapFilenames[pMapNumber];
+}
+
+/**
+* Get the mission name
+*/
+std::string cCampaign::getMissionName(size_t pMissionNumber) const {
+	// Mission Number is always + 1
+	pMissionNumber -= 1;
+
+	if (pMissionNumber >= mMissionNames.size())
+		return mCustomMap;
+
+	return mMissionNames[pMissionNumber];
+}
+
+/**
+* Number of phases on this mission
+*/
+uint16 cCampaign::getNumberOfPhases(size_t pMissionNumber) const {
+	// Mission Number is always + 1
+	pMissionNumber -= 1;
+
+	if (pMissionNumber >= mMissionPhases.size())
+		return 1;
+
+	return (uint16)mMissionPhases[pMissionNumber];
+}
+
+/**
+* Get the map name
+*/
+std::string cCampaign::getMapName(const size_t& pMapNumber) const {
+
+	if (pMapNumber >= mMapNames.size())
+		return mCustomMap;
+
+	return mMapNames[pMapNumber];
+}
+
+/**
+* Get the goals for this map
+*/
+const std::vector<eMissionGoals>& cCampaign::getMapGoals(const uint16& pMapNumber) const {
+
+	if (pMapNumber >= mMapGoals.size())
+		return mMapGoals[0];
+
+	return mMapGoals[pMapNumber];
+}
+
+/**
+* Get the enemy aggression for this map
+*/
+const sAggression& cCampaign::getMapAggression(const uint16& pMapNumber) const {
+
+	if (pMapNumber >= mMapAggression.size())
+		return mMapAggression[0];
+
+	return mMapAggression[pMapNumber];
+}
+
+/**
+* Get the number of available maps
+*/
+const size_t cCampaign::getMapCount() const {
+
+	return mMapNames.size();
+}
+
+const std::string cCampaign::getName() const {
+	return mName;
 }

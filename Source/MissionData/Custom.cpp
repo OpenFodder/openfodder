@@ -28,7 +28,7 @@ const std::vector<std::vector<eMissionGoals>> mCustom_Map_Goals;
 const std::vector<sAggression> mCustom_Map_Sprite_Enemy_Aggression;
 
 // Custom
-cMissionData mMissionData_Custom = {
+cCampaign mMissionData_Custom = {
 	mCustom_MissionNames,
 	mCustom_MissionNames,
 	mCustom_MissionPhaseTable,
