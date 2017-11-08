@@ -13,7 +13,7 @@ fodder: 	main
 		$(LD) -o Run/OpenFodder
 
 main:
-		$(CC) Source/*.cpp Source/PC/*.cpp Source/Amiga/*.cpp Source/MissionData/*.cpp
+		$(CC) Source/*.cpp Source/PC/*.cpp Source/Amiga/*.cpp
 		mkdir -p obj
 
 clean:

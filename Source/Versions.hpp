@@ -59,11 +59,12 @@ struct sFile {
 
 struct sVersion {
 	const char*				mName;
+	std::string				mCampaignDefault;
 	eGame					mGame;
 	eVersion				mVersion;
 	ePlatform				mPlatform;
 	eRelease				mRelease;
-	const cMissionData*		mMissionData;
+
 	const sIntroText*		mIntroData;
 	const char*				mDataPath;
 	const sFile*			mFiles;

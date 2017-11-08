@@ -297,6 +297,9 @@ void cGraphics_Amiga::Load_pStuff() {
 void cGraphics_Amiga::Load_Hill_Data() {
 
 	mImageHillBackground = Decode_Image("hills.lbm", 64);
+	if (!mImageHillBackground.mData->size())
+		return;
+
 	mImageHillBackground.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() *(mImageHillBackground.GetHeader()->mPlanes + 30));
 
 	// We increase these buffers because the engine still writes to it

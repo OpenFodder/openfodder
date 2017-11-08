@@ -1038,6 +1038,16 @@ void cFodder::Sprite_Clear_All() {
 
 void cFodder::Map_Save(const std::string pFilename) {
 
+	std::ofstream outfile(pFilename, std::ofstream::binary);
+
+	// The original game stores the maps in big endian
+	tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
+	outfile.write((const char*)mMap->data(), mMap->size());
+	outfile.close();
+
+	// Now we can swap it back to little endian
+	tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
+
 	Map_Save_Sprites(pFilename);
 }
 
@@ -1148,7 +1158,7 @@ void cFodder::Map_Load_Sprites() {
 }
 
 std::string cFodder::map_Filename_MapGet() {
-	std::string	filename = mVersion->mMissionData->getMapFilename(mMapNumber);
+	std::string	filename = mCampaign.getMapFilename(mMapNumber);
 
 	filename.append(".map");
 
@@ -1156,7 +1166,7 @@ std::string cFodder::map_Filename_MapGet() {
 }
 
 std::string cFodder::map_Filename_SptGet() {
-	std::string	filename = mVersion->mMissionData->getMapFilename( mMapNumber );
+	std::string	filename = mCampaign.getMapFilename( mMapNumber );
 
 	filename.append(".spt");
 
@@ -1708,6 +1718,26 @@ loc_11E5B:;
 	Music_Play_Tileset();
 }
 
+bool cFodder::Campaign_Load( std::string pName ) {
+	
+	// Default campaign
+	if (!pName.size()) {
+
+		if (mVersion->mVersion != eVersion::Custom) {
+			pName = mVersion->mCampaignDefault;
+		}
+	}
+
+
+	if (!mCampaign.LoadCampaign(pName)) {
+		// TODO
+
+		return false;
+	}
+
+	return true;
+}
+
 void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight ) {
 	size_t TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
 
@@ -1769,13 +1799,11 @@ void cFodder::Map_Load_Resources() {
 
 	// Check Editor used
 	switch (readBEDWord(mMap->data() + 0x50)) {
+	default:		// Unknown Editor
 	case 'cfed':	// Original Engine Map
 		break;
 
 	case 'ofed':	// Open Fodder Map
-		break;
-
-	default:		// Unknown Editor
 		break;
 	}
 
@@ -2318,7 +2346,7 @@ void cFodder::Map_Clear_Destroy_Tiles() {
 
 void cFodder::Mission_Phase_Goals_Set() {
 
-	for( auto Goal : mVersion->mMissionData->getMapGoals( mMapNumber )) {
+	for( auto Goal : mCampaign.getMapGoals( mMapNumber )) {
 
 		mPhase_Goals[Goal -1] = -1;
 	}
@@ -3082,20 +3110,20 @@ void cFodder::WindowTitleSet( bool pInMission ) {
 
 			Title << " ( Mission: ";
 
-    		Title << mVersion->mMissionData->getMapName(mMapNumber);
+    		Title << mCampaign.getMapName(mMapNumber);
 
 		} else {
 			Title << " ( Mission: " << mMissionNumber;
-			Title << " " << mVersion->mMissionData->getMissionName(mMissionNumber);
+			Title << " " << mCampaign.getMissionName(mMissionNumber);
 
 			Title << "  Phase: " << (mMissionPhase + 1) << " ";
 
 			if (mMission_Phases_Total > 1) {
 				Title << "of " << mMission_Phases_Total;
-				Title << " " << mVersion->mMissionData->getMapName(mMapNumber);
+				Title << " " << mCampaign.getMapName(mMapNumber);
 			}
 			else
-				Title << mVersion->mMissionData->getMapName(mMapNumber);
+				Title << mCampaign.getMapName(mMapNumber);
 		}
 
 		Title << " )";
@@ -3151,6 +3179,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	}
 
 	mVersion = pVersion;
+	Campaign_Load(mVersion->mCampaignDefault);
 
 	WindowTitleBaseSetup();
 
@@ -3188,7 +3217,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 	}
 		
 	mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
-	mGraphics->Load_pStuff();
+	mGraphics->Load_pStuff(); 
 	mGraphics->Load_Hill_Data();
 }
 
@@ -3602,13 +3631,13 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 		std::string Title;
 
 		if (pDrawAtY == 0xB5) {
-			Title = mVersion->mMissionData->getMissionName( mMissionNumber );
+			Title = mCampaign.getMissionName( mMissionNumber );
 
 			if (mVersion->mPlatform == ePlatform::Amiga)
 				pDrawAtY += 0x16;
 
 		} else {
-			Title = mVersion->mMissionData->getMapName(mMapNumber);
+			Title = mCampaign.getMapName(mMapNumber);
 		}
 
 		String_Print_Large( Title, true, pDrawAtY );
@@ -3731,7 +3760,7 @@ void cFodder::CopyProtection_EncodeInput() {
 	}
 }
 
-std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, bool pData ) {
+std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData ) {
 	mMission_Aborted = 0;
 	mGUI_SaveLoadAction = 0;
 
@@ -3755,11 +3784,9 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 		GUI_Button_Draw( "EXIT", 0xB3 );
 		GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
 
-		sGUI_Element* dword_3AEF7 = mGUI_NextFreeElement;
 		mImage->Save();
 
 		int16 DataC = 0;
-		mGUI_NextFreeElement = dword_3AEF7;
 
 		std::vector<std::string>::iterator FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
 
@@ -3786,7 +3813,9 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 		return "";
 
 	std::string File = pPath;
-	File.append( "/" );
+	if(File.size())
+		File.append( "/" );
+
 	File.append( Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex] );
 
 	return File;
@@ -3828,7 +3857,7 @@ bool cFodder::Custom_ShowMenu() {
 
 			// Missions Button
 			{
-				String_Print_Small( "MISSION SET", Pos );
+				String_Print_Small( "CAMPAIGN", Pos );
 
 				Buttons[1].field_0 = &cFodder::GUI_Button_NoAction;
 				Buttons[1].mX = mGUI_Temp_X - 6;
@@ -3863,7 +3892,10 @@ bool cFodder::Custom_ShowMenu() {
 void cFodder::Custom_ShowMissionSetSelection() {
 	Image_FadeOut();
 
-	const std::string File = GUI_Select_File( "SELECT MISSION SET", "Custom/Sets", "*.of" );
+	std::string File = GUI_Select_File( "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
+
+	// Remove the extension
+	File = File.substr(0, File.size() - 4);
 
 	// Exit Pressed?
 	if (mGUI_SaveLoadAction == 1 || !File.size()) {
@@ -3875,7 +3907,7 @@ void cFodder::Custom_ShowMissionSetSelection() {
 		return;
 	}
 
-	if (mMissionData_Custom.LoadCustomMissionSet( File ) == true) {
+	if (Campaign_Load( File ) == true) {
 
 		mDemo_ExitMenu = 1;
 		mCustom_ExitMenu = 1;
@@ -3883,7 +3915,7 @@ void cFodder::Custom_ShowMissionSetSelection() {
 
 		mTitle.str( "" );
 		mTitle << "Open Fodder";
-		mTitle << ": Custom (" << mMissionData_Custom.mCustomMission.mName << ")";
+		mTitle << ": Custom (" << mCampaign.getName() << ")";
 		WindowTitleSet( false );
 
 		return;
@@ -3912,7 +3944,7 @@ void cFodder::Custom_ShowMapSelection() {
 		return;
 	}
 
-	mMissionData_Custom.LoadCustomMap( File );
+	mCampaign.LoadCustomMap( File );
 
     mMapNumber = 0;
     mMissionNumber = 1;
@@ -9344,11 +9376,11 @@ void cFodder::Sprite_Aggression_Set() {
 	Data0 <<= 1;
 
 
-	mSprite_Enemy_AggressionMin = mVersion->mMissionData->getMapAggression( mMapNumber ).mMin;
-	mSprite_Enemy_AggressionMax = mVersion->mMissionData->getMapAggression( mMapNumber ).mMax;
-	mSprite_Enemy_AggressionAverage = mVersion->mMissionData->getMapAggression( mMapNumber ).getAverage();
+	mSprite_Enemy_AggressionMin = mCampaign.getMapAggression( mMapNumber ).mMin;
+	mSprite_Enemy_AggressionMax = mCampaign.getMapAggression( mMapNumber ).mMax;
+	mSprite_Enemy_AggressionAverage = mCampaign.getMapAggression( mMapNumber ).getAverage();
 
-	mSprite_Enemy_AggressionNext = mVersion->mMissionData->getMapAggression( mMapNumber ).getAverage();
+	mSprite_Enemy_AggressionNext = mCampaign.getMapAggression( mMapNumber ).getAverage();
 	mSprite_Enemy_AggressionIncrement = 1;
 
 	sSprite* Sprite = mSprites;
@@ -9829,7 +9861,7 @@ void cFodder::Game_Save() {
 	mInputString[mInputString_Position + 3] = (mVersion->mGame == eGame::CF1) ? 0 : '2';
 	mInputString[mInputString_Position + 4] = 0;
 
-	std::string Filename = local_PathGenerate( mInputString, "", false );
+	std::string Filename = local_PathGenerate( mInputString, "", eDataType::eSave );
 	
 	std::ofstream outfile (Filename,std::ofstream::binary);
 
@@ -9983,11 +10015,11 @@ void cFodder::GUI_Input_CheckKey() {
 }
 void cFodder::Game_Load() {
 
-	const std::string File = GUI_Select_File( "SELECT FILE", "", mVersion->mGame == eGame::CF1 ? ".of" : ".of2", false );
+	const std::string File = GUI_Select_File( "SELECT FILE", "", mVersion->mGame == eGame::CF1 ? ".of" : ".of2", eDataType::eSave);
 	if (!File.size())
 		return;
 
-	std::string Filename = local_PathGenerate( File, "", false );
+	std::string Filename = local_PathGenerate( File, "", eDataType::eSave);
 
 	std::ifstream SaveFile( Filename, std::ios::binary );
 	if (SaveFile.is_open()) {
@@ -17578,11 +17610,16 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 }
 
 void cFodder::Mission_Phase_Next() {
-	mMissionPhase += 1;
-	mMission_Phases_Remaining -= 1;
+
+	// Next Phase
+	++mMissionPhase;
+	--mMission_Phases_Remaining;
+
+	// Still got phases to complete?
 	if (mMission_Phases_Remaining)
 		return;
 
+	// Mission Complete
 	for (unsigned int x = 0; x < 8; ++x) {
 		mMission_Troops[x].mPhaseCount = 0;
 	}
@@ -17592,7 +17629,7 @@ void cFodder::Mission_Phase_Next() {
 	--mSaved_MapNumber;
 
 	++mMissionNumber;
-	mMission_Phases_Remaining = mMission_Phases_Total = mVersion->mMissionData->getNumberOfPhases(mMissionNumber);
+	mMission_Phases_Remaining = mMission_Phases_Total = mCampaign.getNumberOfPhases(mMissionNumber);
 	mMissionPhase = 0;
 	mRecruits_Available_Count += 0x0F;
 
@@ -19608,7 +19645,7 @@ int16 cFodder::Mission_Loop() {
 				break;
 
 			// Reached last map in this mission set?
-			if (++mMapNumber == mVersion->mMissionData->getMapCount()) {
+			if (++mMapNumber == mCampaign.getMapCount()) {
 				WonGame();
 				return -1;
 			}

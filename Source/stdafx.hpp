@@ -41,11 +41,17 @@
 
 typedef std::shared_ptr<std::vector<uint8>> tSharedBuffer;
 
+enum eDataType {
+	eData		= 0,
+	eSave		= 1,
+	eCampaign	= 2
+};
+
 std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension );
 
 std::string			local_FileMD5( const std::string& pFile, const std::string& pPath );
 tSharedBuffer 		local_FileRead( const std::string& pFile, const std::string& pPath );
-std::string			local_PathGenerate(  const std::string& pFile, const std::string& pPath, bool pData );
+std::string			local_PathGenerate(  const std::string& pFile, const std::string& pPath, eDataType pDataType );
 
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
 std::string	tool_NumToString( uint32 pValue );
@@ -111,7 +117,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "CopyProtection.hpp"
 #include "IntroData.hpp"
-#include "MissionData.hpp"
+#include "Campaign.hpp"
 #include "Map.hpp"
 #include "Tiles.hpp"
 #include "FontData.hpp"

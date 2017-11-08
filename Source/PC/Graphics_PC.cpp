@@ -140,6 +140,9 @@ void cGraphics_PC::Load_Sprite_Font() {
 void cGraphics_PC::Load_Hill_Data() {
 
 	mImageHillBackground = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
+	if (!mImageHillBackground.mData->size())
+		return;
+
 	mImageRecruit = Decode_Image("hillbits.dat", 0x10, 0x6900, 0xB0);
 
 	// Parts of this surface have the recruits from mImageRecruit copied onto it

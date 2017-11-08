@@ -83,6 +83,7 @@ class cFodder : public cSingleton < cFodder > {
 	std::vector<cEvent>		mEvents;
 	
 	const sVersion*			mVersion;
+	cCampaign				mCampaign;
 
 	cGraphics*				mGraphics;
 	cSound*					mSound;
@@ -634,6 +635,9 @@ public:
 
 	void			Sprite_Clear_All();
 	
+	// Campaign
+	bool			Campaign_Load( std::string pName );
+
 	// Map Functions
 	void			Map_Create(const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight);
 	void			Map_Load();
@@ -1097,7 +1101,7 @@ public:
 	
 	void			GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
 	void			GUI_SaveLoad( bool pShowCursor );
-	std::string		GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, bool pData = true );
+	std::string		GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData );
 
 	void			Game_Save();
 	void			GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );

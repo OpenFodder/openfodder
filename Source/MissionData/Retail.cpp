@@ -391,7 +391,7 @@ const std::vector<sAggression> mRetail_Map_Sprite_Enemy_Aggression = {
 };
 
 // Retail
-const cMissionData mMissionData_Retail = {
+const cCampaign mMissionData_Retail = {
 	mRetail_MissionNames,
 	mRetail_MissionPhaseNames,
 	mRetail_MissionPhaseTable,
