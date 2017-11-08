@@ -954,7 +954,7 @@ void cFodder::Mission_Prepare_Squads() {
 	mGUI_Mouse_Modifier_X = 0x1A;
 	mGUI_Mouse_Modifier_Y = 0x12;
 
-	word_3BED5[0] = 4;
+	word_3BED5[0] = 2;
 	word_3BED5[1] = 2;
 	word_3BED5[2] = 2;
 	word_3BED5[3] = 2;
