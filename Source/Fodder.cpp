@@ -2722,7 +2722,7 @@ void cFodder::Briefing_Set_Render_1_Mode_On() {
 }
 
 bool cFodder::EventAdd( cEvent pEvent ) {
-    
+
     mEvents.push_back( pEvent );
 
     return true;
@@ -5959,7 +5959,7 @@ loc_23E2F:;
     pSprite->field_10 = pData0;
     pSprite->field_10 &= 0x1FE;
 
-    sub_20E5C( pSprite );
+    Sprite_Set_Direction_Toward_Cursor( pSprite );
 
     int16 Data8 = pSprite->field_3C;
     if (!pSprite->field_36)
@@ -11543,6 +11543,9 @@ loc_191C3:;
     if (pSprite->field_54 != 2 && pSprite->field_54 != 1)
         goto loc_19338;
 
+
+	// Fired bullet or grenade
+
     //loc_19274
     if (word_3AA1D != 2)
         goto loc_1931E;
@@ -11607,11 +11610,13 @@ loc_191C3:;
         
     } 
     
+	// Reached near target?
     //loc_19392
     if( Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) >= 0 )
         goto loc_193D6;
     
-
+	// Exactly on target?
+	//  Then move toward the next target
     if( pSprite->field_0 == pSprite->field_26 ) {
         if( pSprite->field_4 == pSprite->field_28 )
             Sprite_Next_WalkTarget_Set( pSprite );
@@ -11678,11 +11683,10 @@ loc_194A0:;
         word_3A8CF = 0;
         Sprite_Handle_Troop_FrameUnk( pSprite );
         pSprite->field_A = 0;
-        return;
-        
+        return; 
     }
+
     //loc_194CB
-    
     if( mSquad_Selected == pSprite->field_32 )
         goto loc_19490;
     
@@ -16255,7 +16259,7 @@ void cFodder::sub_1F5A0( sSprite* pSprite ) {
     int16 Data4 = pSprite->field_30;
 
     Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
-    sub_20E5C( pSprite );
+    Sprite_Set_Direction_Toward_Cursor( pSprite );
     Sprite_Handle_Troop_FrameUnk( pSprite );
 }
 
@@ -16269,7 +16273,7 @@ void cFodder::sub_1F5CA( sSprite* pSprite ) {
     Data4 += mCamera_Adjust_Row >> 16;
 
     Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
-    sub_20E5C( pSprite );
+    Sprite_Set_Direction_Toward_Cursor( pSprite );
 
     word_3ABAF = pSprite->field_A;
     Sprite_Handle_Troop_FrameUnk( pSprite );
@@ -16312,7 +16316,7 @@ void cFodder::sub_1F66F( sSprite* pSprite ) {
     Data0 ^= 0x0F;
 
     int16 Data4 = 0;
-    for (Data4 = 0; Data4 < 0x0E; Data4++) {
+    for (Data4 = 0; Data4 < 0x0E; Data4+=2) {
         if (Data0 == pSprite->field_3C)
             break;
 
@@ -16365,24 +16369,29 @@ void cFodder::Sprite_Handle_Troop_FrameUnk( sSprite* pSprite ) {
     const int16* Data28 = 0;
     sMission_Troop* Data24 = 0;
 
+	// Is Human
     if (!pSprite->field_22)
-        goto loc_1F7CE;
+        goto AlterAnimation;
 
+	// Hostage Following Sprite?
     if (!pSprite->field_70)
-        goto loc_1F7CE;
+        goto AlterAnimation;
 
+	// Hasnt Reached X Target
     if (pSprite->field_0 != pSprite->field_26)
-        goto loc_1F7CE;
+        goto AlterAnimation;
 
+	// Hasnt Reached Y Target
     if (pSprite->field_4 != pSprite->field_28)
-        goto loc_1F7CE;
+        goto AlterAnimation;
 
+	// Idle
     pSprite->field_8 = 0xDC;
     pSprite->field_A = 0;
     word_3ABB1 = -1;
     return;
 
-loc_1F7CE:;
+AlterAnimation:;
     if (word_3AA1D == 2)
         goto loc_1F7FF;
 
@@ -16639,7 +16648,7 @@ void cFodder::sub_1FDE7( sSprite* pSprite ) {
     int16 Data4 = pSprite->field_30;
 
     Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 );
-    sub_20E5C( pSprite );
+    Sprite_Set_Direction_Toward_Cursor( pSprite );
 
     word_3ABAF = pSprite->field_A;
 
@@ -18076,7 +18085,7 @@ loc_20B6E:;
     return 0;
 }
 
-void cFodder::sub_20E5C( sSprite* pSprite ) {
+void cFodder::Sprite_Set_Direction_Toward_Cursor( sSprite* pSprite ) {
     int16 Data0 = pSprite->field_10;
 
     Data0 >>= 5;
@@ -18114,7 +18123,7 @@ int16 cFodder::sub_20E91( sSprite* pSprite ) {
 void cFodder::sub_20F19( sSprite* pSprite ) {
     int16 Data0 = pSprite->field_10;
 
-    if (pSprite->field_60 != 0x0D)
+    if (pSprite->field_60 != eTerrainType_D)
         goto loc_20FBB;
 
     //seg005:1843
@@ -18159,10 +18168,10 @@ loc_20F9B:;
     return;
 
 loc_20FBB:;
-    if (pSprite->field_60 == 1)
+    if (pSprite->field_60 == eTerrainType_Rocky)
         goto loc_20FD1;
 
-    if (pSprite->field_60 != 2)
+    if (pSprite->field_60 != eTerrainType_Rocky2)
         goto loc_20FE3;
 
 loc_20FD1:;
@@ -18172,7 +18181,7 @@ loc_20FD9:;
     pSprite->field_36 >>= 1;
     return;
 loc_20FE3:;
-    if (pSprite->field_60 != 7)
+    if (pSprite->field_60 != eTerrainType_Snow)
         return;
 
     Data0 = pSprite->field_0;
