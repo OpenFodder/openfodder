@@ -944,7 +944,7 @@ public:
     int16           Sprite_Destroy( sSprite* pSprite );
     int16           Sprite_Create_Bullet( sSprite* pSprite );
     int16           Sprite_Create_Grenade( sSprite* pSprite );
-    void            sub_20E5C( sSprite* pSprite );
+    void            Sprite_Set_Direction_Toward_Cursor( sSprite* pSprite );
     int16           sub_20E91( sSprite* pSprite );
     void            sub_20F19( sSprite* pSprite );
 
