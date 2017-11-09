@@ -11569,7 +11569,7 @@ loc_191C3:;
     Sprite_XY_Store( pSprite );
     
     if( Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) >= 0 ) {
-        sub_1F66F( pSprite );
+        Sprite_Handle_Player_Adjust_Movement_Speed( pSprite );
         sub_1F6F4( pSprite );
     }
 
@@ -16301,7 +16301,7 @@ void cFodder::Sprite_XY_Restore( sSprite* pSprite ) {
     pSprite->field_6 = dword_3A395 >> 16;
 }
 
-void cFodder::sub_1F66F( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Player_Adjust_Movement_Speed( sSprite* pSprite ) {
     sub_1FCF2( pSprite );
 
     if (pSprite->field_4F)

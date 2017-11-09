@@ -927,7 +927,7 @@ public:
     void            Sprite_XY_Store( sSprite* pSprite );
     void            Sprite_XY_Restore( sSprite* pSprite );
 
-    void            sub_1F66F( sSprite* pSprite );
+    void            Sprite_Handle_Player_Adjust_Movement_Speed( sSprite* pSprite );
     void            sub_1F6F4( sSprite* pSprite );
     void            Sprite_Handle_Troop_FrameUnk( sSprite* pSprite );
     void            sub_1FCF2( sSprite* pSprite );
