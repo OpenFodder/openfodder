@@ -350,8 +350,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           word_3ABC7;
     sMission_Troop* dword_3ABC9;
     int16           word_3ABE7;
-    int16           word_3ABE9;
-    int16           word_3ABEB;
+
     int16           word_3ABFB;
     int16           word_3ABFD;
     int16           mService_Troop_Promotions[9];
@@ -1104,7 +1103,7 @@ public:
     void            GUI_SaveLoad( bool pShowCursor );
     std::string     GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData );
 
-	std::string 	GUI_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
+	std::string 	Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
 	
 	void            Game_Save();
     void            GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );

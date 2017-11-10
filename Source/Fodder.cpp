@@ -80,8 +80,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     mMouse_Button_LeftRight_Toggle2 = 0;
 
     word_3ABE7 = 0;
-    word_3ABE9 = 0;
-    word_3ABEB = 0;
+
     word_3ABFD = 0;
     word_3ABFB = 0;
     mSprite_SpareUsed = 0;
@@ -391,8 +390,7 @@ void cFodder::sub_1096B() {
     if(mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
         return;
     
-    int16 SquadLeaderX = mSquad_Leader->field_0;
-    SquadLeaderX += 0x18;
+    int16 SquadLeaderX = mSquad_Leader->field_0 + 0x18;
     
     int16 SquadLeaderY = mSquad_Leader->field_4;
     int16 Data18 = SquadLeaderX;
@@ -3748,7 +3746,7 @@ void cFodder::CopyProtection_EncodeInput() {
     }
 }
 
-std::string cFodder::GUI_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
+std::string cFodder::Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
 	std::vector<std::string> CampaignList = GetAvailableVersions(); 
 	
 	mMission_Aborted = 0;
@@ -3760,9 +3758,10 @@ std::string cFodder::GUI_Select_File_Small(const char* pTitle, const char* pSubT
 		std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
 
 		// Sort alphabetical
-		std::sort(Files.begin(), Files.end(), [](const auto& lhs, const auto& rhs) {
-			return lhs < rhs;
-		});
+		std::sort(Files.begin(), Files.end(), 
+			[](const auto& pLeft, const auto& pRight) {
+				return pLeft < pRight;
+			});
 
 		for (auto& File : Files) {
 			size_t Pos = File.find_first_of(".");
@@ -3889,7 +3888,7 @@ void cFodder::Campaign_Selection() {
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
 
 
-    std::string CampaignFile = GUI_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
+    std::string CampaignFile = Campaign_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
 
     // Exit Pressed?
     if (mGUI_SaveLoadAction == 1 || !CampaignFile.size()) {
@@ -19637,7 +19636,9 @@ int16 cFodder::Recruit_Show() {
         // Amiga demos have a menu
         if (mVersion->mPlatform == ePlatform::Amiga) {
 
+			// But not custom games
 			if (!mVersion->isCustom()) {
+
 				if (Demo_Amiga_ShowMenu())
 					return -1;
 			}
@@ -19646,8 +19647,6 @@ int16 cFodder::Recruit_Show() {
 
     mMission_Restart = 0;
     Mission_Memory_Backup();
-    word_3ABE9 = 0;
-    word_3ABEB = 0;
 
     // Show the intro for the briefing screen for Retail / Custom Set
 	if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
@@ -19809,8 +19808,6 @@ int16 cFodder::Mission_Loop() {
         mCamera_Position_X = mSprites[0].field_0;
         mCamera_Position_Y = mSprites[0].field_4;
 
-        word_3ABE9 = 0;
-        word_3ABEB = 0;
         word_3ABE7 = 0;
 
         // Is map 17 x 12
