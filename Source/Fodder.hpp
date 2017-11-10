@@ -608,7 +608,7 @@ class cFodder : public cSingleton < cFodder > {
 
 public:
     bool            Demo_Amiga_ShowMenu();
-    bool            Custom_ShowMenu();
+
     void            Custom_ShowMapSelection();
     void            Campaign_Selection();
     

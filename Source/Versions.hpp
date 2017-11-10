@@ -68,6 +68,12 @@ struct sVersion {
 	const sIntroText*		mIntroData;
 	const char*				mDataPath;
 	const sFile*			mFiles;
+
+
+	bool isCustom() const {
+
+		return mVersion == eVersion::Custom;
+	}
 };
 
 extern std::vector<sVersion> Versions;
