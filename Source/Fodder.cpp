@@ -3748,15 +3748,35 @@ void cFodder::CopyProtection_EncodeInput() {
 }
 
 std::string cFodder::GUI_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
+	std::vector<std::string> CampaignList = GetAvailableVersions(); 
+	
 	mMission_Aborted = 0;
 	mGUI_SaveLoadAction = 0;
 
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
 
-	std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
+	{
+		std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
+
+		// Sort alphabetical
+		std::sort(Files.begin(), Files.end(), [](const auto& lhs, const auto& rhs) {
+			return lhs < rhs;
+		});
+
+		for (auto& File : Files) {
+			size_t Pos = File.find_first_of(".");
+			std::string FileName = File.substr(0, Pos);
+
+			// Don't add known campaigns
+			if (isCampaignKnown(FileName))
+				continue;
+
+			CampaignList.push_back(FileName);
+		}
+	}
 
 	mGUI_Select_File_CurrentIndex = 0;
-	mGUI_Select_File_Count = (int16)Files.size();
+	mGUI_Select_File_Count = (int16)CampaignList.size();
 
 	do {
 		GUI_Element_Reset();
@@ -3780,18 +3800,12 @@ std::string cFodder::GUI_Select_File_Small(const char* pTitle, const char* pSubT
 
 		int16 DataC = 0;
 
-		std::vector<std::string>::iterator FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
+		auto FileIT = CampaignList.begin() + mGUI_Select_File_CurrentIndex;
 
-		for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
+		for (; DataC < 4 && FileIT != CampaignList.end(); ++DataC) {
 			size_t Pos = FileIT->find_first_of(".");
 
-			memcpy(mInputString, FileIT->c_str(), Pos);
-			mInputString[Pos] = 0x00;
-
-			char* Str = mInputString;
-			while (*Str++ = toupper(*Str));
-
-			GUI_Button_Draw_Small(mInputString, 0x44 + (DataC * 0x15), 0xB2, 0xB3);
+			GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (DataC * 0x15), 0xB2, 0xB3);
 			GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
 			++FileIT;
 		}
@@ -3804,7 +3818,7 @@ std::string cFodder::GUI_Select_File_Small(const char* pTitle, const char* pSubT
 	if (mGUI_SaveLoadAction == 1)
 		return "";
 
-	return Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+	return CampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
 std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData ) {
@@ -3940,9 +3954,6 @@ void cFodder::Campaign_Selection() {
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
 
     std::string File = GUI_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
-
-    // Remove the extension
-    File = File.substr(0, File.size() - 4);
 
     // Exit Pressed?
     if (mGUI_SaveLoadAction == 1 || !File.size()) {
@@ -9789,7 +9800,7 @@ void cFodder::Recruit_Render_Text( const char* pText, int16 pPosY ) {
     String_Print( mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText );
 }
 
-void cFodder::GUI_Button_Draw_Small(const char* pText, int16 pY, int16 pColorShadow, int16 pColorPrimary) {
+void cFodder::GUI_Button_Draw_Small(const std::string pText, int16 pY, int16 pColorShadow, int16 pColorPrimary) {
 	String_Print_Small(pText, pY);
 
 	GUI_Box_Draw(pColorShadow, pColorPrimary);

@@ -677,8 +677,8 @@ std::vector<sVersion> Versions = {
 	{ "Plus",							"Cannon Fodder Plus",			  eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles },
 
 	/* Custom must be last, as they depend on a previous retail version being detected first */
-	{ "Custom",                         "", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
-	{ "Custom",                         "", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
+	{ "Custom",                         "Custom", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
+	{ "Custom",                         "Custom", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
 };
 
 std::vector<const sVersion*> g_AvailableDataVersions;
@@ -694,6 +694,57 @@ const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
 	}
 
 	return 0;
+}
+
+bool isCampaignKnown(const std::string& pName) {
+
+	for (auto&& KnownVersion : Versions) {
+
+		// Is this campaign known?
+		if (KnownVersion.mCampaignDefault == pName) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool IsCampaignDataAvailable(const std::string& pName) {
+
+	if (!isCampaignKnown(pName))
+		return false;
+
+	// Loop each available version
+	for (auto& Version : g_AvailableDataVersions) {
+
+		// Is the data available for it?
+		if (Version->mCampaignDefault == pName)
+			return true;
+	}
+
+	return false;
+}
+
+std::vector<std::string> GetAvailableVersions() {
+	std::vector<std::string> SortedList;
+
+	for (auto&& KnownVersion : Versions) {
+
+		for (auto& Version : g_AvailableDataVersions) {
+
+			if (Version->mCampaignDefault == KnownVersion.mCampaignDefault) {
+
+				// Already have this campaign?
+				if (std::find(SortedList.begin(), SortedList.end(), Version->mCampaignDefault) != SortedList.end())
+					break;
+
+				SortedList.push_back(KnownVersion.mCampaignDefault);
+				break;
+			}
+		}
+	}
+
+	return SortedList;
 }
 
 void FindFodderVersions() {
