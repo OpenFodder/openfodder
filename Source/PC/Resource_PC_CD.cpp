@@ -266,11 +266,11 @@ tSharedBuffer cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
 tSharedBuffer cResource_PC_CD::fileGet( std::string pFilename ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
-	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
-
 	auto File = cResources::fileGet( pFilename );
 	if (File->size())
 		return File;
+
+	std::transform(pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower);
 
 	for (fileIT = mFiles.begin(); fileIT != mFiles.end(); ++fileIT) {
 

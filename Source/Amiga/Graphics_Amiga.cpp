@@ -1153,10 +1153,6 @@ void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 
 void cGraphics_Amiga::Briefing_Load_Resources() {
 
-	// Load the current map & Set TileType
-	mFodder->mMap = g_Resource.fileGet(mFodder->map_Filename_MapGet());
-	mFodder->Map_SetTileType();
-
 	// Briefing images
 	std::string JunData1 = mTileTypes[mFodder->mMap_TileSet].mName + "play.lbm";
 	std::string JunData2 = mTileTypes[mFodder->mMap_TileSet].mName + "sky.pl8";

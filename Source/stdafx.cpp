@@ -23,6 +23,10 @@
 #include "stdafx.hpp"
 #include "md5.hpp"
 
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #ifndef _OFED
 int main(int argc, char *args[]) {
 	bool SkipIntro = false;
@@ -64,6 +68,11 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 
 	case eCampaign:
 		filePathFinal << "Campaigns/";
+		break;
+
+	case eNone:
+	default:
+		break;
 	}
 	if( pPath.size() )
 		filePathFinal << pPath << "/";
@@ -83,7 +92,7 @@ std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) 
 		return "";
 
 	md5_starts( &ctx );
-	md5_update( &ctx, File->data(), File->size() );
+	md5_update( &ctx, File->data(), (uint32) File->size() );
 	md5_finish( &ctx, MD5 );
 
 	std::string FinalMD5;
@@ -98,11 +107,26 @@ std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) 
 }
 	
 
-tSharedBuffer local_FileRead( const std::string& pFile, const std::string& pPath ) {
+bool local_FileExists(const std::string& pPath) {
+	struct stat info;
+
+	if (stat(pPath.c_str(), &info) != 0)
+		return false;
+	else if (info.st_mode & S_IFDIR)
+		return true;
+	else if (info.st_mode & _S_IFMT)
+		return true;
+
+	return false;
+}
+
+tSharedBuffer local_FileRead( const std::string& pFile, const std::string& pPath, eDataType pDataType ) {
 	std::ifstream*	fileStream;
 	auto			fileBuffer = std::make_shared<std::vector<uint8_t>>();
 
-	std::string finalPath = local_PathGenerate( pFile, pPath );
+	std::string finalPath;
+	
+	finalPath = local_PathGenerate(pFile, pPath, pDataType );
 
 	// Attempt to open the file
  	fileStream = new std::ifstream ( finalPath.c_str(), std::ios::binary );
