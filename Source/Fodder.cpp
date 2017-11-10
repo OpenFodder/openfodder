@@ -82,7 +82,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     word_3ABE7 = 0;
 
     word_3ABFD = 0;
-    word_3ABFB = 0;
+
     mSprite_SpareUsed = 0;
     mSprite_SpareUsed2 = 0;
     mSquad_WalkTargetX = 0;
@@ -397,10 +397,6 @@ void cFodder::sub_1096B() {
     int16 Data1C = SquadLeaderY;
     
     mCamera_Scroll_Speed = 0x14;
-    if(word_3ABFB) {
-        word_3ABFB = 0;
-        dword_39F36 = 0;
-    }
 
     if( mMouseX > 0x0F )
         goto Mouse_In_Playfield;
@@ -3198,8 +3194,10 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
             break;
     }
         
+#ifndef _OFED
 	if(mVersion->mVersion != eVersion::Custom)
 		Map_Load();
+#endif
 
     mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
     mGraphics->Load_pStuff(); 
