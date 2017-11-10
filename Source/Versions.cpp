@@ -667,18 +667,18 @@ const sFile mCustomFiles[] = {
 std::vector<sVersion> Versions = {
 
 	/* Retail */
-	{ "Dos",							"Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles },
-	{ "2 Dos",							"Cannon Fodder 2",	eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files },
-	{ "Amiga",							"Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles },
-	{ "Amiga CD32",						"Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles },
+	{ "Cannon Fodder 2",eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
 
 	/* Demo */
-	{ "Amiga Format Christmas Special", "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
-	{ "Plus",							"Cannon Fodder Plus",			  eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles },
+	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
+	{ "Cannon Fodder Plus",				eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles },
 
 	/* Custom must be last, as they depend on a previous retail version being detected first */
-	{ "Custom",                         "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
-	{ "Custom",                         "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
+	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
+	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
 };
 
 std::vector<const sVersion*> g_AvailableDataVersions;
@@ -689,7 +689,7 @@ const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
 	// Look through all available versions for a campaign name match
 	for (auto& Version : g_AvailableDataVersions) {
 
-		if (Version->mCampaignDefault == pCampaign)
+		if (Version->mName == pCampaign)
 			return Version;
 	}
 
@@ -701,7 +701,7 @@ bool isCampaignKnown(const std::string& pName) {
 	for (auto&& KnownVersion : Versions) {
 
 		// Is this campaign known?
-		if (KnownVersion.mCampaignDefault == pName) {
+		if (KnownVersion.mName == pName) {
 			return true;
 		}
 	}
@@ -718,7 +718,7 @@ bool IsCampaignDataAvailable(const std::string& pName) {
 	for (auto& Version : g_AvailableDataVersions) {
 
 		// Is the data available for it?
-		if (Version->mCampaignDefault == pName)
+		if (Version->mName == pName)
 			return true;
 	}
 
@@ -732,13 +732,13 @@ std::vector<std::string> GetAvailableVersions() {
 
 		for (auto& Version : g_AvailableDataVersions) {
 
-			if (Version->mCampaignDefault == KnownVersion.mCampaignDefault) {
+			if (Version->mName == KnownVersion.mName) {
 
 				// Already have this campaign?
-				if (std::find(SortedList.begin(), SortedList.end(), Version->mCampaignDefault) != SortedList.end())
+				if (std::find(SortedList.begin(), SortedList.end(), Version->mName) != SortedList.end())
 					break;
 
-				SortedList.push_back(KnownVersion.mCampaignDefault);
+				SortedList.push_back(KnownVersion.mName);
 				break;
 			}
 		}

@@ -59,7 +59,7 @@ struct sFile {
 
 struct sVersion {
 	const std::string		mName;
-	const std::string		mCampaignDefault;
+
 	eGame					mGame;
 	eVersion				mVersion;
 	ePlatform				mPlatform;

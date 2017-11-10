@@ -1706,11 +1706,11 @@ bool cFodder::Campaign_Load( std::string pName ) {
 	if (!pName.size()) {
 
 		if (mVersion->mVersion != eVersion::Custom) {
-			pName = mVersion->mCampaignDefault;
+			pName = mVersion->mName;
 		}
 	}
 	
-    if (!mCampaign.LoadCampaign(pName, pName != mVersion->mCampaignDefault)) {
+    if (!mCampaign.LoadCampaign(pName, pName != mVersion->mName)) {
         // TODO
 
         return false;
@@ -3164,7 +3164,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
     }
 
     mVersion = pVersion;
-    Campaign_Load(mVersion->mCampaignDefault);
+    Campaign_Load(mVersion->mName);
 
     WindowTitleBaseSetup();
 
@@ -3881,10 +3881,13 @@ void cFodder::Campaign_Selection() {
     Image_FadeOut();
 
 	mGraphics->Load_pStuff();
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize(cDimension(320, 225));
 
 	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
 
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
+
 
     std::string CampaignFile = GUI_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
 
@@ -3942,6 +3945,9 @@ void cFodder::Custom_ShowMapSelection() {
 
     Image_FadeOut();
 	mGraphics->PaletteSet();
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize(cDimension(320, 225));
 
     const std::string File = GUI_Select_File( "SELECT MAP", "Custom/Maps", "*.map" );
     
@@ -19631,8 +19637,10 @@ int16 cFodder::Recruit_Show() {
         // Amiga demos have a menu
         if (mVersion->mPlatform == ePlatform::Amiga) {
 
-            if (Demo_Amiga_ShowMenu())
-                return -1;
+			if (!mVersion->isCustom()) {
+				if (Demo_Amiga_ShowMenu())
+					return -1;
+			}
         }
     }
 
