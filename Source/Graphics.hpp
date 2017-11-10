@@ -123,7 +123,7 @@ public:
 			mPalette[ColorID].mRed = ((color >> 8) & 0xF) << 2;
 			mPalette[ColorID].mGreen = ((color >> 4) & 0xF) << 2;
 			mPalette[ColorID].mBlue = ((color >> 0) & 0xF) << 2;
-		}		
+		}
 	}
 
 	void CopyPalette( cPalette* pDestination, const size_t pCount, const size_t pStartColorID = 0) {
