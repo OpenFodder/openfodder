@@ -351,7 +351,6 @@ class cFodder : public cSingleton < cFodder > {
     sMission_Troop* dword_3ABC9;
     int16           word_3ABE7;
 
-    int16           word_3ABFB;
     int16           word_3ABFD;
     int16           mService_Troop_Promotions[9];
     int16*          dword_3AC11;

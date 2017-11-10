@@ -490,11 +490,11 @@ void cGraphics_Amiga::PaletteSet(cSurface *pTarget) {
 	if (!pTarget)
 		pTarget = mImage;
 
-	mImage->paletteSet(mPalette, 0, 64);
-	mImage->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
-	mImage->paletteSet(mImageHillBackground.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
-	mImage->paletteSet(mImageHillBackground.mPalette, 0xD0, 16);
-	mImage->paletteSet(mImageFonts.mPalette, 0xF0, 16);
+	pTarget->paletteSet(mPalette, 0, 64);
+	pTarget->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
+	pTarget->paletteSet(mImageHillBackground.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
+	pTarget->paletteSet(mImageHillBackground.mPalette, 0xD0, 16);
+	pTarget->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
 
 sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
