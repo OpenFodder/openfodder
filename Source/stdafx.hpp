@@ -44,13 +44,15 @@ typedef std::shared_ptr<std::vector<uint8>> tSharedBuffer;
 enum eDataType {
 	eData		= 0,
 	eSave		= 1,
-	eCampaign	= 2
+	eCampaign	= 2,
+	eNone		= 3,
 };
 
 std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension );
 
+bool				local_FileExists(const std::string& pPath);
 std::string			local_FileMD5( const std::string& pFile, const std::string& pPath );
-tSharedBuffer 		local_FileRead( const std::string& pFile, const std::string& pPath );
+tSharedBuffer 		local_FileRead( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData);
 std::string			local_PathGenerate(  const std::string& pFile, const std::string& pPath, eDataType pDataType );
 
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );

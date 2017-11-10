@@ -533,10 +533,6 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 
 void cGraphics_PC::Briefing_Load_Resources() {
 
-	// Load the current map & Set TileType
-	mFodder->mMap = g_Resource.fileGet(mFodder->map_Filename_MapGet());
-	mFodder->Map_SetTileType();
-
 	// Briefing images
 	std::string JunData1 = mTileTypes[mFodder->mMap_TileSet].mName + "p1.dat";
 	std::string JunData2 = mTileTypes[mFodder->mMap_TileSet].mName + "p2.dat";

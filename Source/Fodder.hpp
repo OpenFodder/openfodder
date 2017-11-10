@@ -1229,9 +1229,6 @@ public:
     void            String_Print(  const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const char* pText );
     void            String_Print( const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const std::string& pText );
 
-    std::string     map_Filename_MapGet();
-    std::string     map_Filename_SptGet();
-
     void            intro_LegionMessage();
     int16           introPlayText();
     void            intro();

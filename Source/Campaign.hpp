@@ -60,7 +60,6 @@ private:
     std::vector<std::string>                mMapFilenames;
 
     std::string                             mCustomMap;
-    bool                                    mHasMaps;
 
 public:
 
@@ -74,7 +73,10 @@ public:
 
     const std::string getName() const;
 
-    std::string getMapFilename(const size_t pMapNumber) const;
+	std::string getMapFileName(size_t pMapNumber) const;
+	tSharedBuffer getMap(const size_t pMapNumber) const;
+	tSharedBuffer getSprites(const size_t pMapNumber) const;
+
     std::string getMissionName(size_t pMissionNumber) const;
     uint16 getNumberOfPhases(size_t pMissionNumber) const;
     std::string getMapName(const size_t& pMapNumber) const;

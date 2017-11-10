@@ -1087,9 +1087,7 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 void cFodder::Map_Load_Sprites() {
     Sprite_Clear_All();
 
-    std::string Filename_Spt = map_Filename_SptGet();
-
-    auto MapSprites = g_Resource.fileGet( Filename_Spt );
+	auto MapSprites = mCampaign.getSprites(mMapNumber);
     tool_EndianSwap( (uint8*)MapSprites->data(), MapSprites->size());
 
     mTroops_Enemy_Count = 0;
@@ -1155,22 +1153,6 @@ void cFodder::Map_Load_Sprites() {
         }
         // 114B
     }
-}
-
-std::string cFodder::map_Filename_MapGet() {
-    std::string filename = mCampaign.getMapFilename(mMapNumber);
-
-    filename.append(".map");
-
-    return filename;
-}
-
-std::string cFodder::map_Filename_SptGet() {
-    std::string filename = mCampaign.getMapFilename( mMapNumber );
-
-    filename.append(".spt");
-
-    return filename;
 }
 
 void cFodder::Mission_Troop_Count() {
@@ -1785,9 +1767,7 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 }
 
 void cFodder::Map_Load( ) {
-    std::string MapName = map_Filename_MapGet();
-
-    mMap = g_Resource.fileGet(MapName);
+    mMap = mCampaign.getMap(mMapNumber);
 
     tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
 
@@ -3812,13 +3792,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
     if (mGUI_SaveLoadAction == 1)
         return "";
 
-    std::string File = pPath;
-    if(File.size())
-        File.append( "/" );
-
-    File.append( Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex] );
-
-    return File;
+    return Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
 bool cFodder::Custom_ShowMenu() {
@@ -19605,8 +19579,10 @@ int16 cFodder::Recruit_Show() {
     word_3ABEB = 0;
 
     // Show the intro for the briefing screen for Retail / Custom Set
-    if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set)
-        mGraphics->Briefing_Intro();
+	if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+		Map_Load();
+		mGraphics->Briefing_Intro();
+	}
     
     mGraphics->Load_pStuff();
 

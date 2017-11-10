@@ -22,10 +22,6 @@
 
 #include "stdafx.hpp"
 
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
 #if defined(_MSC_VER) && _MSC_VER <= 1800
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -65,8 +61,6 @@ const std::vector<std::string> mMissionGoal_Titles = {
 
 cCampaign::cCampaign() {
 
-    mHasMaps = false;
-
 }
 
 /**
@@ -77,10 +71,10 @@ bool cCampaign::LoadCustomMap( const std::string& pMapName ) {
     std::string CustomMapName = pMapName;
     
     // Remove "Custom/Maps/" and ".map"
-    CustomMapName = CustomMapName.substr( 12 );
     CustomMapName.resize( CustomMapName.size() - 4 );
 
     mCustomMap = pMapName;
+	mCustomMap.resize(mCustomMap.size() - 4);
 
     // Map / Phase names must be upper case
     std::transform( CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper );
@@ -155,10 +149,11 @@ void cCampaign::DumpCampaign() {
  * Load a campaign
  */
 bool cCampaign::LoadCampaign( const std::string& pName) {
-    Clear();
 
     if (!pName.size())
         return false;
+
+	Clear();
 
     std::ifstream MissionSetFile(local_PathGenerate(pName + ".ofc", "", eDataType::eCampaign));
     if (MissionSetFile.is_open()) {
@@ -229,7 +224,6 @@ bool cCampaign::LoadCampaign( const std::string& pName) {
  * Clear all missions/map names, goals and aggression rates
  */
 void cCampaign::Clear() {
-    mHasMaps = false;
     mMissionNames.clear();
     mMissionPhases.clear();
 
@@ -239,43 +233,42 @@ void cCampaign::Clear() {
     mMapAggression.clear();
 }
 
-bool dirExists(const std::string& pPath)
-{
-	struct stat info;
+std::string cCampaign::getMapFileName(const size_t pMapNumber) const {
+	if(mCustomMap.size())
+		return mCustomMap;
 
-	if (stat(pPath.c_str(), &info) != 0)
-		return false;
-	else if (info.st_mode & S_IFDIR)
-		return true;
-	
-	return false;
+	return mMapFilenames[pMapNumber];
 }
 
-/**
- * Get the filename for a map
- */
-std::string cCampaign::getMapFilename(const size_t pMapNumber) const {
+tSharedBuffer cCampaign::getMap(const size_t pMapNumber) const {
+	std::string FinalName = getMapFileName(pMapNumber) + ".map";
+	std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
 
-    std::string Filename;
+	if (mCustomMap.size()) {
+		return local_FileRead(FinalName, "Custom/Maps/", eData);
+	}
+	// If a campaign folder exists, return a path inside it
+	if (!local_FileExists(FinalPath))
+		return g_Resource.fileGet(FinalName);
 
-    if (pMapNumber >= mMapFilenames.size()) {
+	// Otherwise fallback to loading the map from the currently loaded
+	return local_FileRead(FinalPath, "", eNone );
+}
 
-        std::stringstream   filename;
+tSharedBuffer cCampaign::getSprites(const size_t pMapNumber) const {
+	std::string FinalName = getMapFileName(pMapNumber) + ".spt";
+	std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
 
-        filename << "mapm" << (pMapNumber + 1);
+	if (mCustomMap.size()) {
+		return local_FileRead(FinalName, "Custom/Maps/", eData);
+	}
 
-        return filename.str();
-    }
+	// If a campaign folder exists, return a path inside it
+	if (!local_FileExists(FinalPath))
+		return g_Resource.fileGet(FinalName);
 
-    Filename = local_PathGenerate(mName, "", eDataType::eCampaign);
-    
-
-    // If a campaign folder exists, return a path inside it
-    if (!dirExists(Filename))
-        Filename = "";
-
-    // Otherwise fallback to loading the map from the currently loaded
-    return Filename + mMapFilenames[pMapNumber];
+	// Otherwise fallback to loading the map from the currently loaded
+	return local_FileRead(FinalPath, "", eNone);
 }
 
 /**
