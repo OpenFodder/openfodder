@@ -58,8 +58,8 @@ struct sFile {
 };
 
 struct sVersion {
-	const char*				mName;
-	std::string				mCampaignDefault;
+	const std::string		mName;
+	const std::string		mCampaignDefault;
 	eGame					mGame;
 	eVersion				mVersion;
 	ePlatform				mPlatform;
@@ -70,5 +70,8 @@ struct sVersion {
 	const sFile*			mFiles;
 };
 
-extern const sVersion Versions[];
-std::vector<const sVersion*> FindFodderVersions();
+extern std::vector<sVersion> Versions;
+extern std::vector<const sVersion*> g_AvailableDataVersions;
+
+void FindFodderVersions();
+const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign);

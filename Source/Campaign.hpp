@@ -60,6 +60,7 @@ private:
     std::vector<std::string>                mMapFilenames;
 
     std::string                             mCustomMap;
+	bool									mIsCustom;
 
 public:
 
@@ -69,7 +70,7 @@ public:
 
     bool LoadCustomMap(const std::string& pMapName);
 
-    bool LoadCampaign(const std::string& pName);
+    bool LoadCampaign(const std::string& pName, bool pCustom);
 
     const std::string getName() const;
 
@@ -84,6 +85,7 @@ public:
     const std::vector<eMissionGoals>& getMapGoals(const uint16& pMapNumber) const;
     const sAggression& getMapAggression(const uint16& pMapNumber) const;
     const size_t getMapCount() const;
+	bool isCustom() const;
 };
 
 extern const std::vector<std::string>   mMissionGoal_Titles;

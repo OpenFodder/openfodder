@@ -1702,16 +1702,15 @@ loc_11E5B:;
 
 bool cFodder::Campaign_Load( std::string pName ) {
     
-    // Default campaign
-    if (!pName.size()) {
+	// If no campaign name was provided, use the default for the current version
+	if (!pName.size()) {
 
-        if (mVersion->mVersion != eVersion::Custom) {
-            pName = mVersion->mCampaignDefault;
-        }
-    }
-
-
-    if (!mCampaign.LoadCampaign(pName)) {
+		if (mVersion->mVersion != eVersion::Custom) {
+			pName = mVersion->mCampaignDefault;
+		}
+	}
+	
+    if (!mCampaign.LoadCampaign(pName, pName != mVersion->mCampaignDefault)) {
         // TODO
 
         return false;
@@ -2926,36 +2925,36 @@ void cFodder::Mouse_ButtonCheck() {
 
 void cFodder::VersionSelect_0() {
     
-    VersionLoad( mVersions[0] );
+    VersionLoad( g_AvailableDataVersions[0] );
     mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_1() {
 
-    VersionLoad( mVersions[1] );
+    VersionLoad( g_AvailableDataVersions[1] );
     mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_2() {
 
-    VersionLoad( mVersions[2] );
+    VersionLoad( g_AvailableDataVersions[2] );
     mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_3() {
     
-    VersionLoad( mVersions[3] );
+    VersionLoad( g_AvailableDataVersions[3] );
     mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect_4() {
     
-    VersionLoad( mVersions[4] );
+    VersionLoad( g_AvailableDataVersions[4] );
     mDemo_ExitMenu = 1;
 }
 
 void cFodder::VersionSelect() {
-    sGUI_Element *Buttons = new sGUI_Element[mVersions.size() + 1];
+    sGUI_Element *Buttons = new sGUI_Element[g_AvailableDataVersions.size() + 1];
 
     sSprite* Sprite, *Sprite2, *Sprite3;
 
@@ -3013,7 +3012,7 @@ void cFodder::VersionSelect() {
     mString_GapCharID = 0;
 
     Pos += 0x40;
-    for (const auto Version : mVersions) {
+    for (const auto Version : g_AvailableDataVersions) {
 
         // Draw name
         String_Print_Small( Version->mName, Pos );
@@ -3127,9 +3126,15 @@ void cFodder::WindowTitleBaseSetup() {
     mTitle.str( "" );
     mTitle << "Open Fodder";
 
-    if (mVersion)
-        if (strlen( mVersion->mName ))
-            mTitle << ": " << mVersion->mName;
+	if (mVersion) {
+
+		if (mCampaign.isCustom()) {
+			mTitle << ": Custom (" << mCampaign.getName() << ")";
+		} else {
+
+			mTitle << ": " << mCampaign.getName();
+		}
+	}
 
     WindowTitleSet(false);
 }
@@ -3146,11 +3151,11 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
     // Custom version?
     if (pVersion->mVersion == eVersion::Custom) {
         auto RetailRelease =
-            std::find_if( mVersions.begin(), mVersions.end(),
+            std::find_if( g_AvailableDataVersions.begin(), g_AvailableDataVersions.end(),
                           []( const sVersion* a )->bool { return a->mRelease == eRelease::Retail; } );
 
         // If we a retail release is found, we use its data path
-        if (RetailRelease != mVersions.end())
+        if (RetailRelease != g_AvailableDataVersions.end())
             DataPath = (*RetailRelease)->mDataPath;
         else {
             std::cout << "Retail release not found";
@@ -3170,7 +3175,6 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
     switch (mVersion->mPlatform) {
         case ePlatform::PC:
             mResources = new cResource_PC_CD( DataPath );
-
             mGraphics = new cGraphics_PC();
 
             if (mVersion->mGame == eGame::CF1)
@@ -3196,14 +3200,17 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
             break;
     }
         
+	Map_Load();
+
     mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
     mGraphics->Load_pStuff(); 
     mGraphics->Load_Hill_Data();
 }
 
 void cFodder::Prepare( ) {
-    mVersions = FindFodderVersions();
-    if (mVersions.empty()) {
+    FindFodderVersions();
+
+    if (g_AvailableDataVersions.empty()) {
         std::cout << "No data files found\n";
         exit( 1 );
     }
@@ -3740,6 +3747,66 @@ void cFodder::CopyProtection_EncodeInput() {
     }
 }
 
+std::string cFodder::GUI_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
+	mMission_Aborted = 0;
+	mGUI_SaveLoadAction = 0;
+
+	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
+
+	std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
+
+	mGUI_Select_File_CurrentIndex = 0;
+	mGUI_Select_File_Count = (int16)Files.size();
+
+	do {
+		GUI_Element_Reset();
+		
+		mString_GapCharID = 0x25;
+		String_Print_Large(pTitle, true, 0x01);
+		mString_GapCharID = 0x00;
+
+		String_Print_Small(pSubTitle, 0x18);
+
+		GUI_Button_Draw_Small("UP", 0x30);
+		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
+
+		GUI_Button_Draw_Small("DOWN", 0x99);
+		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
+
+		GUI_Button_Draw_Small("EXIT", 0xB3);
+		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
+
+		mImage->Save();
+
+		int16 DataC = 0;
+
+		std::vector<std::string>::iterator FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
+
+		for (; DataC < 4 && FileIT != Files.end(); ++DataC) {
+			size_t Pos = FileIT->find_first_of(".");
+
+			memcpy(mInputString, FileIT->c_str(), Pos);
+			mInputString[Pos] = 0x00;
+
+			char* Str = mInputString;
+			while (*Str++ = toupper(*Str));
+
+			GUI_Button_Draw_Small(mInputString, 0x44 + (DataC * 0x15), 0xB2, 0xB3);
+			GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
+			++FileIT;
+		}
+
+		GUI_SaveLoad(false);
+		mImage->Restore();
+
+	} while (mGUI_SaveLoadAction == 3);
+
+	if (mGUI_SaveLoadAction == 1)
+		return "";
+
+	return Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+}
+
 std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData ) {
     mMission_Aborted = 0;
     mGUI_SaveLoadAction = 0;
@@ -3838,7 +3905,7 @@ bool cFodder::Custom_ShowMenu() {
                 Buttons[1].mWidth = mGUI_Temp_Width;
                 Buttons[1].mY = Pos - 14;
                 Buttons[1].mHeight = 5;
-                Buttons[1].mMouseInsideFuncPtr = &cFodder::Custom_ShowMissionSetSelection;
+                Buttons[1].mMouseInsideFuncPtr = &cFodder::Campaign_Selection;
             }
 
             Buttons[2].field_0 = 0;
@@ -3863,10 +3930,16 @@ bool cFodder::Custom_ShowMenu() {
     return static_cast<bool>(!mDemo_ExitMenu);
 }
 
-void cFodder::Custom_ShowMissionSetSelection() {
+void cFodder::Campaign_Selection() {
     Image_FadeOut();
 
-    std::string File = GUI_Select_File( "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
+	mGraphics->Load_pStuff();
+
+	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
+
+	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
+
+    std::string File = GUI_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
 
     // Remove the extension
     File = File.substr(0, File.size() - 4);
@@ -3881,17 +3954,27 @@ void cFodder::Custom_ShowMissionSetSelection() {
         return;
     }
 
+	// Find a data set to use with this version
+	const sVersion* Version = FindAvailableVersionForCampaign(File);
+
+	// Load a new version?
+	if (Version && Version != mVersion) {
+		VersionLoad(Version);
+	}
+
     if (Campaign_Load( File ) == true) {
 
-        mDemo_ExitMenu = 1;
-        mCustom_ExitMenu = 1;
-        mCustom_Mode = eCustomMode_Set;
+		// 
+		if (mVersion->mVersion == eVersion::Custom) {
+			mDemo_ExitMenu = 1;
+			mCustom_ExitMenu = 1;
+			mCustom_Mode = eCustomMode_Set;
+		}
+		else {
+			mCustom_Mode = eCustomMode_None;
+		}
 
-        mTitle.str( "" );
-        mTitle << "Open Fodder";
-        mTitle << ": Custom (" << mCampaign.getName() << ")";
-        WindowTitleSet( false );
-
+		WindowTitleBaseSetup();
         return;
     }
 
@@ -9706,6 +9789,12 @@ void cFodder::Recruit_Render_Text( const char* pText, int16 pPosY ) {
     String_Print( mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText );
 }
 
+void cFodder::GUI_Button_Draw_Small(const char* pText, int16 pY, int16 pColorShadow, int16 pColorPrimary) {
+	String_Print_Small(pText, pY);
+
+	GUI_Box_Draw(pColorShadow, pColorPrimary);
+}
+
 void cFodder::GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow, int16 pColorPrimary ) {
 
     Recruit_Render_Text( pText, pY );
@@ -9804,6 +9893,22 @@ void cFodder::GUI_Button_Setup( void(cFodder::*pFunction)(void) ) {
     ++Element;
     Element->field_0 = 0;
     mGUI_NextFreeElement = Element;
+}
+
+void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
+	sGUI_Element* Element = mGUI_NextFreeElement;
+
+	Element->field_0 = &cFodder::GUI_Button_NoAction;
+
+	Element->mX = mGUI_Temp_X - 3;
+	Element->mWidth = mGUI_Temp_Width + 4;
+	Element->mY = mGUI_Temp_Y - 5;
+	Element->mHeight = mGUI_Draw_LastHeight + 5;
+	Element->mMouseInsideFuncPtr = pFunction;
+
+	++Element;
+	Element->field_0 = 0;
+	mGUI_NextFreeElement = Element;
 }
 
 void cFodder::Game_Save() {
@@ -19444,7 +19549,6 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 
     mMission_TryAgain = -1;
 
-    //Map_Load();
     mGraphics->Load_pStuff();
 }
 
@@ -19593,13 +19697,19 @@ void cFodder::Start(int16 pStartMap) {
 
 Start:;
     mVersion = 0;
-    VersionLoad(mVersions[0]);
+    VersionLoad(g_AvailableDataVersions[0]);
 
     //Playground();
 
+	Campaign_Selection();
+
+	// Exit pushed?
+	if (mGUI_SaveLoadAction == 1)
+		return;
+
     // Show the version selection, if we have more than 1 option
-    if (mVersions.size() > 1)
-        VersionSelect();
+    //if (g_AvailableDataVersions.size() > 1)
+    //    VersionSelect();
 
     if (mVersion->mRelease == eRelease::Demo)
         pStartMap = 0;
