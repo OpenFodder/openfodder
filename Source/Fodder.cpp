@@ -3200,7 +3200,8 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
             break;
     }
         
-	Map_Load();
+	if(mVersion->mVersion != eVersion::Custom)
+		Map_Load();
 
     mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
     mGraphics->Load_pStuff(); 
@@ -3876,74 +3877,6 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
     return Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
-bool cFodder::Custom_ShowMenu() {
-    sGUI_Element Buttons[3];
-
-    mCustom_ExitMenu = 0;
-
-    while (!mCustom_ExitMenu) {
-        mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
-        mImage->clearBuffer();
-
-        if (mCustom_Mode == 1) {
-            Custom_ShowMapSelection();
-        } else {
-
-            int16 Pos = 0x1;
-
-            String_Print_Large( "OPEN FODDER", true, 0x01 );
-            String_Print_Large( "SELECT CUSTOM", false, 0x1A );
-
-            Pos += (0x1A * 3);
-
-            // Maps Button
-            {
-                String_Print_Small( "SINGLE MAP", Pos );
-
-                Buttons[0].field_0 = &cFodder::GUI_Button_NoAction;
-                Buttons[0].mX = mGUI_Temp_X - 6;
-                Buttons[0].mWidth = mGUI_Temp_Width;
-                Buttons[0].mY = Pos - 14;
-                Buttons[0].mHeight = 5;
-                Buttons[0].mMouseInsideFuncPtr = &cFodder::Custom_ShowMapSelection;
-
-                Pos += 45;
-            }
-
-            // Missions Button
-            {
-                String_Print_Small( "CAMPAIGN", Pos );
-
-                Buttons[1].field_0 = &cFodder::GUI_Button_NoAction;
-                Buttons[1].mX = mGUI_Temp_X - 6;
-                Buttons[1].mWidth = mGUI_Temp_Width;
-                Buttons[1].mY = Pos - 14;
-                Buttons[1].mHeight = 5;
-                Buttons[1].mMouseInsideFuncPtr = &cFodder::Campaign_Selection;
-            }
-
-            Buttons[2].field_0 = 0;
-            mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
-            eventProcess();
-
-            Menu_Loop( 
-                [&Buttons]() {
-
-                    if (g_Fodder.mButtonPressLeft)
-                        g_Fodder.GUI_Element_Mouse_Over( Buttons );
-                } 
-            );
-
-            if (mMission_Aborted) {
-                mCustom_ExitMenu = 1;
-                mDemo_ExitMenu = 0;
-            }
-        }
-    }
-
-    return static_cast<bool>(!mDemo_ExitMenu);
-}
-
 void cFodder::Campaign_Selection() {
     Image_FadeOut();
 
@@ -3953,10 +3886,10 @@ void cFodder::Campaign_Selection() {
 
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
 
-    std::string File = GUI_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
+    std::string CampaignFile = GUI_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
 
     // Exit Pressed?
-    if (mGUI_SaveLoadAction == 1 || !File.size()) {
+    if (mGUI_SaveLoadAction == 1 || !CampaignFile.size()) {
 
         // Return to custom menu
         mDemo_ExitMenu = 1;
@@ -3965,23 +3898,32 @@ void cFodder::Campaign_Selection() {
         return;
     }
 
-	// Find a data set to use with this version
-	const sVersion* Version = FindAvailableVersionForCampaign(File);
+	// Find a data version to use with this campaign
+	// If no version is found, we use the currently loaded one
+	{
+		const sVersion* Version = FindAvailableVersionForCampaign(CampaignFile);
 
-	// Load a new version?
-	if (Version && Version != mVersion) {
-		VersionLoad(Version);
+		// Load a new version?
+		if (Version && Version != mVersion) {
+			VersionLoad(Version);
+		}
+	}
+	
+	// Custom map?
+	if (mVersion->isCustom()) {
+		mCustom_Mode = eCustomMode_Map;
+		return;
 	}
 
-    if (Campaign_Load( File ) == true) {
+	// Load the campaign
+    if (Campaign_Load(CampaignFile) == true) {
 
 		// 
 		if (mVersion->mVersion == eVersion::Custom) {
 			mDemo_ExitMenu = 1;
 			mCustom_ExitMenu = 1;
 			mCustom_Mode = eCustomMode_Set;
-		}
-		else {
+		} else {
 			mCustom_Mode = eCustomMode_None;
 		}
 
@@ -3999,6 +3941,7 @@ void cFodder::Campaign_Selection() {
 void cFodder::Custom_ShowMapSelection() {
 
     Image_FadeOut();
+	mGraphics->PaletteSet();
 
     const std::string File = GUI_Select_File( "SELECT MAP", "Custom/Maps", "*.map" );
     
@@ -19642,8 +19585,11 @@ void cFodder::Playground() {
 }
 
 int16 cFodder::Recruit_Show() {
-    Map_Load_Resources();
-    Map_Load_Sprites();
+
+	if (mCustom_Mode != eCustomMode_Map) {
+		Map_Load_Resources();
+		Map_Load_Sprites();
+	}
 
     Mission_Troop_Count();
     Mission_Troop_Sort();
@@ -19654,8 +19600,10 @@ int16 cFodder::Recruit_Show() {
 
     // Custom, but not in set mode? then show the custom single map menu
     if (mVersion->mVersion == eVersion::Custom && mCustom_Mode != eCustomMode_Set) {
-        if (Custom_ShowMenu())
-            return -1;
+		Custom_ShowMapSelection();
+
+		if (mCustom_Mode == eCustomMode_None)
+			return -1;
 
         // If we are now in set mode, we need to restart the engine
         if (mCustom_Mode == eCustomMode_Set)
