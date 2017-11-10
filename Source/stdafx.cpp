@@ -114,7 +114,7 @@ bool local_FileExists(const std::string& pPath) {
 		return false;
 	else if (info.st_mode & S_IFDIR)
 		return true;
-	else if (info.st_mode & _S_IFMT)
+	else if (info.st_mode & S_IFMT)
 		return true;
 
 	return false;
