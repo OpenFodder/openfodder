@@ -21,7 +21,6 @@
  */
 
 #include "stdafx.hpp"
-#include <experimental/filesystem>
 
 #if defined(_MSC_VER) && _MSC_VER <= 1800
 #include <rapidjson/document.h>
@@ -236,6 +235,18 @@ void cCampaign::Clear() {
     mMapAggression.clear();
 }
 
+bool dirExists(const std::string& pPath)
+{
+	struct stat info;
+
+	if (stat(pPath.c_str(), &info) != 0)
+		return false;
+	else if (info.st_mode & S_IFDIR)
+		return true;
+	else
+		return false;
+}
+
 /**
  * Get the filename for a map
  */
@@ -256,7 +267,7 @@ std::string cCampaign::getMapFilename(const size_t pMapNumber) const {
     }
 
     // If a campaign folder exists, return a path inside it
-    if (!std::experimental::filesystem::exists(Filename))
+    if (!dirExists(Filename))
         Filename = "";
 
     // Otherwise fallback to loading the map from the currently loaded

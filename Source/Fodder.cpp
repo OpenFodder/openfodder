@@ -16324,7 +16324,7 @@ void cFodder::Sprite_Handle_Player_Adjust_Movement_Speed( sSprite* pSprite ) {
         Data0 &= 0x0E;
     }
 
-    pSprite->field_36 = mSprite_Speed_Mod_Unk[Data4 / 2];
+    pSprite->field_36 = mSprite_Speed_Direction_Modifier[Data4 / 2];
 }
 
 void cFodder::sub_1F6F4( sSprite* pSprite ) {

@@ -678,7 +678,7 @@ const int16* mSprite_AnimationPtrs[] = {
 	word_32B7C	// Computer
 };
 
-const int16 mSprite_Speed_Mod_Unk[] = {
+const int16 mSprite_Speed_Direction_Modifier[] = {
 	0x18, 0x14, 0x0E, 0x0A, 0x08,
 	0x0A, 0x0E, 0x14
 };
