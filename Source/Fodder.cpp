@@ -763,8 +763,6 @@ void cFodder::Mission_Memory_Clear() {
     for (uint16 x = 0; x < 9; ++x )
         mService_Troop_Promotions[x] = 0;
 
-    dword_3AC11 = 0;
-
     mString_GapCharID = 0;
     mGUI_Loop_Squad_Current = 0;
     mGUI_Loop_Draw_Y = 0;
@@ -11114,7 +11112,6 @@ void cFodder::Service_Mission_Text_Prepare( uint16*& pTarget ) {
 
 void cFodder::Service_Promotion_Prepare() {
     int16* Data28 = mService_Troop_Promotions;
-    dword_3AC11 = Data28;
 
     sMission_Troop* Data20 = mMission_Troops;
 
