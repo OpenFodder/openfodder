@@ -22,6 +22,10 @@
 
 #include "stdafx.hpp"
 
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #if defined(_MSC_VER) && _MSC_VER <= 1800
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -243,8 +247,8 @@ bool dirExists(const std::string& pPath)
 		return false;
 	else if (info.st_mode & S_IFDIR)
 		return true;
-	else
-		return false;
+	
+	return false;
 }
 
 /**
@@ -261,10 +265,10 @@ std::string cCampaign::getMapFilename(const size_t pMapNumber) const {
         filename << "mapm" << (pMapNumber + 1);
 
         return filename.str();
-    } else {
-
-        Filename = local_PathGenerate(mName, "", eDataType::eCampaign);
     }
+
+    Filename = local_PathGenerate(mName, "", eDataType::eCampaign);
+    
 
     // If a campaign folder exists, return a path inside it
     if (!dirExists(Filename))
