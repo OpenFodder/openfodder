@@ -79,8 +79,6 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     mMission_Aborted = 0;
     mMouse_Button_LeftRight_Toggle2 = 0;
 
-    word_3ABE7 = 0;
-
     word_3ABFD = 0;
 
     mSprite_SpareUsed = 0;
@@ -19802,8 +19800,6 @@ int16 cFodder::Mission_Loop() {
         mCamera_Start_Adjust = 1;
         mCamera_Position_X = mSprites[0].field_0;
         mCamera_Position_Y = mSprites[0].field_4;
-
-        word_3ABE7 = 0;
 
         // Is map 17 x 12
         {
