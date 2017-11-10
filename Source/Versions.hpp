@@ -73,5 +73,9 @@ struct sVersion {
 extern std::vector<sVersion> Versions;
 extern std::vector<const sVersion*> g_AvailableDataVersions;
 
+bool isCampaignKnown(const std::string& pName);
+bool IsCampaignDataAvailable(const std::string& pName);
+
+std::vector<std::string> GetAvailableVersions();
 void FindFodderVersions();
 const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign);
