@@ -253,7 +253,7 @@ struct sSprite {
 	int8 field_4E;
 	int8 field_4F;
 	int16 field_50;
-	int16 field_52;
+	int16 field_52;			// Video: Number of rows not to draw
 	int8 field_54;			// Human: Fired Weapon
 	int8 field_55;
 	int8 field_56;

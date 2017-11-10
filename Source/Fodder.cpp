@@ -740,7 +740,7 @@ void cFodder::Mission_Memory_Clear() {
     mRecruit_RenderedPtr = 0;
     mRecruit_Truck_Frame = 0;
     mRecruit_Truck_FrameAnimBufferPtr = 0;
-    byte_3ABA9 = 0;
+
     word_3ABB1 = 0;
     mSquad_Member_Fire_CoolDown = 0;
     mTroop_Rotate_Next = 0;
@@ -751,12 +751,12 @@ void cFodder::Mission_Memory_Clear() {
     mSprite_Weapon_Data.mDeviatePotential = 0;
     mSprite_Weapon_Data.field_8 = 0;
 
-    word_3ABAD = 0;
+    mSprite_Reached_Target = 0;
     word_3ABAF = 0;
     mSprite_Bullet_Time_Modifier = 0;
     mSprite_Bullet_Fire_Speed_Modifier = 0;
-    word_3ABC7 = 0;
-    dword_3ABC9 = 0;
+    mSquad_Member_Clicked_TroopInSameSquad = 0;
+    mSquad_Member_Clicked_TroopPtr = 0;
 
     for (uint16 x = 0; x < 9; ++x )
         mService_Troop_Promotions[x] = 0;
@@ -961,16 +961,16 @@ void cFodder::Mission_Prepare_Squads() {
     word_3BEDF[8] = 0;
     word_3BEDF[9] = 0;
 
-    byte_3BF1B[0] = -1;
-    byte_3BF1B[1] = -1;
-    byte_3BF1B[2] = -1;
+    mSquad_Join_TargetSquad[0] = -1;
+    mSquad_Join_TargetSquad[1] = -1;
+    mSquad_Join_TargetSquad[2] = -1;
 
-    word_3BF1E[0] = 0;
-    word_3BF1E[1] = 0;
-    word_3BF1E[2] = 0;
-    word_3BF1E[3] = 0;
-    word_3BF1E[4] = 0;
-    word_3BF1E[5] = 0;
+    mSquad_Join_TargetSprite[0] = 0;
+    mSquad_Join_TargetSprite[1] = 0;
+    mSquad_Join_TargetSprite[2] = 0;
+    mSquad_Join_TargetSprite[3] = 0;
+    mSquad_Join_TargetSprite[4] = 0;
+    mSquad_Join_TargetSprite[5] = 0;
 }
 
 void cFodder::sub_10DEC() {
@@ -7141,7 +7141,7 @@ void cFodder::sub_2593D( sSprite* pSprite ) {
         int16 Data4 = pSprite->field_28;
 
         if (Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) < 0)
-            word_3ABAD = -1;
+            mSprite_Reached_Target = -1;
     }
 
     if (pSprite->field_18 != eSprite_Seal) {
@@ -7155,15 +7155,14 @@ void cFodder::sub_2593D( sSprite* pSprite ) {
         pSprite->field_10 &= 0x1FE;
     }
     //loc_259BE
-    if (!sub_20E91( pSprite )) {
-        sub_20F19( pSprite );
+    if (!Sprite_Reached_Target( pSprite )) {
+        Sprite_Movement_Speed_Update( pSprite );
 
         if (!word_3B25B)
             Sprite_Movement_Calculate( pSprite );
     }
     //loc_259D4
     sub_20478( pSprite );
-    byte_3ABA9 = pSprite->field_60;
 
     int16 Data4 = 0;
     Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
@@ -7188,7 +7187,7 @@ void cFodder::sub_2593D( sSprite* pSprite ) {
 
 void cFodder::sub_25A31( sSprite* pSprite ) {
     
-    if (word_3ABAD || word_3B25B)
+    if (mSprite_Reached_Target || word_3B25B)
         return;
 
     pSprite->field_2A += 1;
@@ -7790,7 +7789,7 @@ void cFodder::Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C ) {
     pSprite->field_20 = mSprite_Computer_Unk[Data0 / 2];
 }
 
-void cFodder::Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 ) {
+int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 ) {
     const int8* Data24 = mMap_Distance_Calculations;
     int16 Data10 = 0;
 
@@ -7825,10 +7824,12 @@ void cFodder::Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, i
 
     pX = Data24[pY2];
     pX <<= Data10;
-    return;
+    return pX;
 
 loc_29EBB:;
     pX = 0x3E8;
+
+	return 0x3E8;
 }
 
 int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 ) {
@@ -9108,7 +9109,7 @@ void cFodder::Squad_Troops_Count() {
         if (al)
             continue;
 
-        byte_3BF1B[Data0] = -1;
+        mSquad_Join_TargetSquad[Data0] = -1;
     }
 
     *Data34 = INVALID_SPRITE_PTR;
@@ -9464,7 +9465,7 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
     int16 Data14 = pSprite->field_32;
     int16 Data0;
 
-    int16 Data18 = byte_3BF1B[Data14];
+    int16 Data18 = mSquad_Join_TargetSquad[Data14];
     if (Data18 < 0)
         return -1;
 
@@ -9511,10 +9512,10 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 
 int16 cFodder::Squad_Join_Check( sSprite* pSprite ) {
 
-    if (byte_3BF1B[pSprite->field_32] < 0)
+    if (mSquad_Join_TargetSquad[pSprite->field_32] < 0)
         return -1;
 
-    sSprite* Dataa2C = word_3BF1E[pSprite->field_32];
+    sSprite* Dataa2C = mSquad_Join_TargetSprite[pSprite->field_32];
     if (Dataa2C->field_18 != eSprite_Player)
         return -1;
     
@@ -11419,7 +11420,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
     word_3AA1D = word_3BED5[pSprite->field_32];
     //seg004:0183
 
-    if (byte_3BF1B[pSprite->field_32] < 0 && pSprite->field_32 != mSquad_Selected ) {
+    if (mSquad_Join_TargetSquad[pSprite->field_32] < 0 && pSprite->field_32 != mSquad_Selected ) {
         //loc_18F12
         word_3AA41 = -1;
 
@@ -11601,7 +11602,7 @@ loc_191C3:;
     
     if( Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) >= 0 ) {
         Sprite_Handle_Player_Adjust_Movement_Speed( pSprite );
-        sub_1F6F4( pSprite );
+        Sprite_Draw_Row_Update( pSprite );
     }
 
     if(pSprite->field_0 == pSprite->field_26 ) {
@@ -11610,7 +11611,7 @@ loc_191C3:;
             Sprite_Next_WalkTarget_Set( pSprite );
     }
     //loc_19314
-    if( word_3ABAD == 0 )
+    if( mSprite_Reached_Target == 0 )
         return;
     
     loc_1931E:;
@@ -11678,7 +11679,7 @@ loc_19414:;
     return;
     
 loc_19424:; // Soldier Walking
-    sub_1F6F4( pSprite );
+    Sprite_Draw_Row_Update( pSprite );
     
     if( pSprite->field_0 == pSprite->field_26 ) {
         
@@ -11687,7 +11688,7 @@ loc_19424:; // Soldier Walking
         
     }
     //loc_19463
-    if( word_3ABAD )
+    if( mSprite_Reached_Target )
         goto loc_19414;
     
     goto loc_1957A;
@@ -11934,7 +11935,7 @@ void cFodder::Sprite_Handle_Enemy( sSprite* pSprite ) {
         if (pSprite->field_45)
             return;
     }
-    sub_1F6F4( pSprite );
+    Sprite_Draw_Row_Update( pSprite );
     goto loc_19A96;
 
 loc_19A89:;
@@ -14347,7 +14348,7 @@ loc_1CDA3:;
     pSprite->field_22 = 1;
     mSprite_Helicopter_DestroyLight = 0;
 
-    if (word_3ABAD) {
+    if (mSprite_Reached_Target) {
         pSprite->field_4C = 0;
         pSprite->field_26 = pSprite->field_0;
         pSprite->field_28 = pSprite->field_4;
@@ -15935,7 +15936,7 @@ Sprite_EnteredVehicle:;
         return loc_1F043(pSprite);
 
     pSprite->field_36 = 0x30;
-    sub_1F6F4( pSprite );
+    Sprite_Draw_Row_Update( pSprite );
     return - 1;
 
 }
@@ -16316,14 +16317,14 @@ void cFodder::sub_1F5CA( sSprite* pSprite ) {
 }
 
 void cFodder::Sprite_XY_Store( sSprite* pSprite ) {
-    word_3ABAD = 0;
+    mSprite_Reached_Target = 0;
     
     dword_3A391 = (pSprite->field_0 & 0xFFFF) | (pSprite->field_2 << 16);
     dword_3A395 = (pSprite->field_4 & 0xFFFF) | (pSprite->field_6 << 16);
 }
 
 void cFodder::Sprite_XY_Restore( sSprite* pSprite ) {
-    word_3ABAD = -1;
+    mSprite_Reached_Target = -1;
 
     pSprite->field_0 = dword_3A391 & 0xFFFF;
     pSprite->field_2 = dword_3A391 >> 16;
@@ -16358,29 +16359,32 @@ void cFodder::Sprite_Handle_Player_Adjust_Movement_Speed( sSprite* pSprite ) {
     pSprite->field_36 = mSprite_Speed_Direction_Modifier[Data4 / 2];
 }
 
-void cFodder::sub_1F6F4( sSprite* pSprite ) {
+void cFodder::Sprite_Draw_Row_Update( sSprite* pSprite ) {
     int16 Data4 = 0;
 
-    if (!sub_20E91( pSprite )) {
-        sub_20F19( pSprite );
+	// Sprite still moving?
+    if (!Sprite_Reached_Target( pSprite )) {
+        Sprite_Movement_Speed_Update( pSprite );
         Sprite_Movement_Calculate( pSprite );
     }
 
     Squad_Join_Check( pSprite );
     sub_20478( pSprite );
 
-    byte_3ABA9 = pSprite->field_60;
+	// Check the terrain
+    int8 PreviousTileType = pSprite->field_60;
     Sprite_Handle_Soldier_Terrain_Check( pSprite, Data4 );
 
-    int16 Data0 = byte_3ABA9;
-    Data4 = pSprite->field_60;
-    if (Data0 != 6)
+	// Not leaving water?
+    if (PreviousTileType != eTerrainType_Water)
         goto loc_1F75D;
 
-    if (Data4 == 4)
+	// Leaving water and into Quick sand?
+    if (pSprite->field_60 == eTerrainType_QuickSand)
         goto loc_1F753;
 
-    if (Data4 == 5)
+	// Leaving water for the edge/bank
+    if (pSprite->field_60 == eTerrainType_WaterEdge)
         goto loc_1F75D;
 
     pSprite->field_52 = 5;
@@ -16900,7 +16904,7 @@ CheckFalling:;
 
 loc_20251:;
     pSprite->field_43 = 1;
-    word_3ABAD = -1;
+    mSprite_Reached_Target = -1;
     if (!pSprite->field_22)
         goto loc_2035C;
 
@@ -17745,41 +17749,35 @@ void cFodder::sub_20456( sSprite* pSprite, int16& pData8 ) {
 }
 
 void cFodder::sub_20478( sSprite* pSprite ) {
-    int16 Data0 = pSprite->field_4;
 
-    if (Data0 < 0 || Data0 <= 0x0D) {
+    if (pSprite->field_4 < 0 || pSprite->field_4 <= 13) {
         pSprite->field_4 = dword_3A395;
-        word_3ABAD = -1;
+        mSprite_Reached_Target = -1;
     }
 
-    Data0 = pSprite->field_4;
-
-    if (Data0 >= mMapHeight_Pixels) {
-        if (!pSprite->field_38 || pSprite->field_38 >= 0x32) {
+    if (pSprite->field_4 >= mMapHeight_Pixels) {
+        if (pSprite->field_38 == eSprite_Anim_None || pSprite->field_38 >= eSprite_Anim_Slide1) {
             pSprite->field_4 = dword_3A395;
-            word_3ABAD = -1;
+            mSprite_Reached_Target = -1;
         }
     }
     //loc_204E1
-    Data0 = pSprite->field_0;
-    if (Data0 <= 0) {
+    if (pSprite->field_0 <= 0) {
         if (dword_3A391 <= 0)
             return;
 
         goto loc_20521;
     }
 
-    Data0 += 0x0C;
-    if (Data0 < mMapWidth_Pixels)
+    if (pSprite->field_0 + 12 < mMapWidth_Pixels)
         return;
 
-    Data0 = dword_3A391 + 0x10 ;
-    if (Data0 >= mMapWidth_Pixels)
+    if (dword_3A391 + 16 >= mMapWidth_Pixels)
         return;
 
 loc_20521:;
     pSprite->field_0 = dword_3A391;
-    word_3ABAD = -1;
+    mSprite_Reached_Target = -1;
 }
 
 void cFodder::Hero_Add( sMission_Troop* pTroop ) {
@@ -18128,8 +18126,9 @@ void cFodder::Sprite_Set_Direction_Toward_Cursor( sSprite* pSprite ) {
     word_3A8CF = 0;
 }
 
-int16 cFodder::sub_20E91( sSprite* pSprite ) {
+int16 cFodder::Sprite_Reached_Target( sSprite* pSprite ) {
 
+	// Sprite is moving?
     if (pSprite->field_36 <= 8)
         return 0;
 
@@ -18146,12 +18145,11 @@ int16 cFodder::sub_20E91( sSprite* pSprite ) {
     pSprite->field_0 = pSprite->field_26;
     pSprite->field_4 = pSprite->field_28;
 
-    word_3ABAD = -1;
-    Data0 = -1;
+    mSprite_Reached_Target = -1;
     return -1;
 }
 
-void cFodder::sub_20F19( sSprite* pSprite ) {
+void cFodder::Sprite_Movement_Speed_Update( sSprite* pSprite ) {
     int16 Data0 = pSprite->field_10;
 
     if (pSprite->field_60 != eTerrainType_D)
@@ -20754,66 +20752,60 @@ int16 cFodder::Mouse_Button_Left_Toggled() {
     return 1;
 }
 
-void cFodder::sub_30E49() {
+void cFodder::Squad_Member_Click_Check() {
     word_3A3BF = -1;
     int16 Data1C = 0x07;
     sMission_Troop* SquadMember = mMission_Troops;
 
-    int16 Data0 = mMouseX;
-    int16 Data4 = mMouseY;
+	if (mSquad_Selected < 0)
+		return;
 
-    Data0 += mCamera_Adjust_Col >> 16;
-    Data4 += mCamera_Adjust_Row >> 16;
-    Data0 -= 0x0F;
-    Data4 -= 3;
+    int16 ClickedX = mMouseX;
+    int16 ClickedY = mMouseY;
 
-    for (; Data1C >= 0; --Data1C, ++SquadMember) {
+	ClickedX += mCamera_Adjust_Col >> 16;
+	ClickedY += mCamera_Adjust_Row >> 16;
+	ClickedX -= 0x0F;
+	ClickedY -= 3;
 
-        if (SquadMember->mSprite == INVALID_SPRITE_PTR || SquadMember->mSprite == 0 )
+	for (auto& SquadMember : mMission_Troops) {
+
+        if (SquadMember.mSprite == INVALID_SPRITE_PTR || SquadMember.mSprite == 0 )
             continue;
 
-        sSprite* SquadMemberSprite = SquadMember->mSprite;
-        int16 Data10 = 0;
+        sSprite* SquadMemberSprite = SquadMember.mSprite;
 
         if (SquadMemberSprite->field_32 == mSquad_Selected)
             ++word_3A3BF;
 
-        Data10 = SquadMemberSprite->field_0 + 4;
+        int16 SquadMemberX = SquadMemberSprite->field_0 + 4;
+        int16 SquadMemberY = SquadMemberSprite->field_4 - SquadMemberSprite->field_20;
 
-        int16 Data14 = SquadMemberSprite->field_4;
-        Data14 -= SquadMemberSprite->field_20;
-        Data14 -= 0x0D;
-        if (Data0 < Data10)
+		// Clicked before/after troop?
+        if (ClickedX < SquadMemberX)
+            continue;
+        if (ClickedX > SquadMemberX + 6)
             continue;
 
-        Data10 += 6;
-        if (Data0 > Data10)
+		// Clicked above/below troop?
+        if (ClickedY < SquadMemberY - 13)
             continue;
-
-        if (Data4 < Data14)
+        if (ClickedY > SquadMemberY)
             continue;
-
-        Data14 += 0x0D;
-        if (Data4 > Data14)
-            continue;
-
-        if (mSquad_Selected < 0)
-            return;
 
         // 
         if (mSquad_Selected == SquadMemberSprite->field_32) {
-            word_3ABC7 = -1;
-            dword_3ABC9 = SquadMemberSprite->field_46_mission_troop;
+            mSquad_Member_Clicked_TroopInSameSquad = -1;
+            mSquad_Member_Clicked_TroopPtr = SquadMemberSprite->field_46_mission_troop;
             return;
         }
 
         // Two squads joined will have more than 8 members?
-        Data0 = mSquads_TroopCount[SquadMemberSprite->field_32] + mSquads_TroopCount[mSquad_Selected];
-        if (Data0 > 8)
+        if (mSquads_TroopCount[SquadMemberSprite->field_32] + mSquads_TroopCount[mSquad_Selected] > 8)
             return;
 
-        word_3BF1E[mSquad_Selected] = SquadMemberSprite;
-        byte_3BF1B[mSquad_Selected] = (int8)SquadMemberSprite->field_32;
+        mSquad_Join_TargetSprite[mSquad_Selected] = SquadMemberSprite;
+        mSquad_Join_TargetSquad[mSquad_Selected] = (int8)SquadMemberSprite->field_32;
 
         Squad_Walk_Target_Update( SquadMemberSprite->field_32 );
 
@@ -21094,7 +21086,7 @@ loc_30814:;
 
     if (mSquad_Selected < 0) {
 
-        sub_30E49();
+        Squad_Member_Click_Check();
         return;
     }
 
@@ -21102,7 +21094,7 @@ loc_30814:;
     sSprite* Dataa24 = *Data24;
 
     if (Dataa24 == INVALID_SPRITE_PTR) {
-        sub_30E49();
+        Squad_Member_Click_Check();
         return;
     }
 
@@ -21114,10 +21106,10 @@ loc_30814:;
     else
         sub_311A7();
 
-    word_3ABC7 = 0;
-    sub_30E49();
+    mSquad_Member_Clicked_TroopInSameSquad = 0;
+    Squad_Member_Click_Check();
 
-    if (word_3ABC7) {
+    if (mSquad_Member_Clicked_TroopInSameSquad) {
 
         //int8* Data20 = mSquads_TroopCount;
         //TODO 
@@ -21182,10 +21174,10 @@ loc_30814:;
 
     for (Data0 = 2; Data0 >= 0; --Data0) {
 
-        if (mSquad_Selected != byte_3BF1B[Data0])
+        if (mSquad_Selected != mSquad_Join_TargetSquad[Data0])
             continue;
 
-        byte_3BF1B[Data0] = -1;
+        mSquad_Join_TargetSquad[Data0] = -1;
     }
 }
 

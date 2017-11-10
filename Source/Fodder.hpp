@@ -337,8 +337,8 @@ class cFodder : public cSingleton < cFodder > {
     int16           mRecruit_Truck_FrameAnimBufferPtr;
 
     int16           mMouse_Button_LeftRight_Toggle2;
-    int8            byte_3ABA9;
-    int16           word_3ABAD;
+
+    int16           mSprite_Reached_Target;
     int16           word_3ABAF;
     int16           word_3ABB1;
     int16           mSquad_Member_Fire_CoolDown;
@@ -347,8 +347,8 @@ class cFodder : public cSingleton < cFodder > {
     sWeaponData     mSprite_Weapon_Data;
     int16           mSprite_Bullet_Time_Modifier;
     int16           mSprite_Bullet_Fire_Speed_Modifier;
-    int16           word_3ABC7;
-    sMission_Troop* dword_3ABC9;
+    int16           mSquad_Member_Clicked_TroopInSameSquad;
+    sMission_Troop* mSquad_Member_Clicked_TroopPtr;
 
     int16           word_3ABFD;
     int16           mService_Troop_Promotions[9];
@@ -507,8 +507,8 @@ class cFodder : public cSingleton < cFodder > {
     uint16          word_3BEDF[10];
     
     sMapTarget      mSquad_WalkTargets[10][30];
-    int8            byte_3BF1B[3];
-    sSprite*        word_3BF1E[6];
+    int8            mSquad_Join_TargetSquad[3];
+    sSprite*        mSquad_Join_TargetSprite[6];
 
     bool            mIntroDone;
 
@@ -923,7 +923,7 @@ public:
     void            Sprite_XY_Restore( sSprite* pSprite );
 
     void            Sprite_Handle_Player_Adjust_Movement_Speed( sSprite* pSprite );
-    void            sub_1F6F4( sSprite* pSprite );
+    void            Sprite_Draw_Row_Update( sSprite* pSprite );
     void            Sprite_Handle_Troop_FrameUnk( sSprite* pSprite );
     void            sub_1FCF2( sSprite* pSprite );
     void            sub_1FDE7( sSprite* pSprite );
@@ -940,8 +940,8 @@ public:
     int16           Sprite_Create_Bullet( sSprite* pSprite );
     int16           Sprite_Create_Grenade( sSprite* pSprite );
     void            Sprite_Set_Direction_Toward_Cursor( sSprite* pSprite );
-    int16           sub_20E91( sSprite* pSprite );
-    void            sub_20F19( sSprite* pSprite );
+    int16           Sprite_Reached_Target( sSprite* pSprite );
+    void            Sprite_Movement_Speed_Update( sSprite* pSprite );
 
     void            sub_21041( sSprite* pSprite );
     int16           Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
@@ -1024,7 +1024,7 @@ public:
     void            Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite );
     void            Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C );
 
-    void            Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 );
+    int16           Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 );
     int16           Direction_Between_Points( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
 
     void            tool_RandomSeed();
@@ -1203,7 +1203,7 @@ public:
     void            GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper( );
     void            sub_30AB0();
     int16           Mouse_Button_Left_Toggled();
-    void            sub_30E49();
+    void            Squad_Member_Click_Check();
     void            Mission_Troops_Clear_Selected();
     void            sub_303AE();
     void            sub_303B7();
