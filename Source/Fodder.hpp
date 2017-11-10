@@ -349,7 +349,6 @@ class cFodder : public cSingleton < cFodder > {
     int16           mSprite_Bullet_Fire_Speed_Modifier;
     int16           word_3ABC7;
     sMission_Troop* dword_3ABC9;
-    int16           word_3ABE7;
 
     int16           word_3ABFD;
     int16           mService_Troop_Promotions[9];
