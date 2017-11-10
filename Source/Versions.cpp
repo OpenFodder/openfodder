@@ -664,47 +664,62 @@ const sFile mCustomFiles[] = {
 /** 
  * Known versions of Cannon Fodder
  */
-const sVersion Versions[] = {
+std::vector<sVersion> Versions = {
 
 	/* Retail */
-    { "Dos",							"Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles },
-    { "2 Dos",							"Cannon Fodder 2",	eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files },
-    { "Amiga",							"Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles },
-    { "Amiga CD32",						"Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
+	{ "Dos",							"Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles },
+	{ "2 Dos",							"Cannon Fodder 2",	eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files },
+	{ "Amiga",							"Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles },
+	{ "Amiga CD32",						"Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
 
 	/* Demo */
-    { "Amiga Format Christmas Special", "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
-    { "Plus",							"Cannon Fodder Plus",			  eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles },
+	{ "Amiga Format Christmas Special", "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
+	{ "Plus",							"Cannon Fodder Plus",			  eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles },
 
 	/* Custom must be last, as they depend on a previous retail version being detected first */
-    { "Custom",                         "", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
+	{ "Custom",                         "", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
 	{ "Custom",                         "", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
-	{ 0 }
 };
 
-std::vector<const sVersion*> FindFodderVersions() {
-	std::vector<const sVersion*> AvailableVersions;
+std::vector<const sVersion*> g_AvailableDataVersions;
+
+
+const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
+
+	// Look through all available versions for a campaign name match
+	for (auto& Version : g_AvailableDataVersions) {
+
+		if (Version->mCampaignDefault == pCampaign)
+			return Version;
+	}
+
+	return 0;
+}
+
+void FindFodderVersions() {
+
+	g_AvailableDataVersions.clear();
 
 	// Loop all known versions
-	for (uint16 x = 0; Versions[x].mName != 0; ++x) {
+	for (auto&& KnownVersion : Versions) {
 	 	int16 FileCount = 0, FileMatches = 0, FileFound = 0;
 
 		// Count the number of files
-		for (uint16 FileNo = 0; Versions[x].mFiles[FileNo].mName != 0; ++FileNo)
+		for (uint16 FileNo = 0; KnownVersion.mFiles[FileNo].mName != 0; ++FileNo)
 			++FileCount;
 		
 		// Loop each file in this version
-		for (uint16 FileNo = 0; Versions[x].mFiles[FileNo].mName != 0; ++FileNo) {
+		for (uint16 FileNo = 0; KnownVersion.mFiles[FileNo].mName != 0; ++FileNo) {
 				
-	 		std::string MD5 = local_FileMD5( Versions[x].mFiles[FileNo].mName, Versions[x].mDataPath );
+	 		std::string MD5 = local_FileMD5( KnownVersion.mFiles[FileNo].mName, KnownVersion.mDataPath );
 			
-			if (MD5 != Versions[x].mFiles[FileNo].mChecksum) {
+			if (MD5 != KnownVersion.mFiles[FileNo].mChecksum) {
 
 				if (MD5.length() == 0) {
-					//std::cout << Versions[x].mName << ": " << Versions[x].mFiles[FileNo].mName;
+					//std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
 					//std::cout << " File not found\n";
 				} else {
-					std::cout << Versions[x].mName << ": " << Versions[x].mFiles[FileNo].mName;
+					std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
 					std::cout << " Unknown MD5: " << MD5 << "\n";
 					++FileMatches;
 				}
@@ -717,23 +732,21 @@ std::vector<const sVersion*> FindFodderVersions() {
         if (FileCount > 0 && (FileCount == FileMatches || FileCount == FileFound)) {
 
             // A very hacky method for ensuring the DOS_CD version is available, before allowing Customs
-            if (Versions[x].mVersion == eVersion::Custom) {
+            if (KnownVersion.mVersion == eVersion::Custom) {
 
-				for (const auto Version : AvailableVersions) {
+				for (const auto Version : g_AvailableDataVersions) {
 
 					// Enable custom if we have a retail version available
 					if ( Version->mRelease == eRelease::Retail && 
-						 Version->mPlatform == Versions[x].mPlatform ) {
+						 Version->mPlatform == KnownVersion.mPlatform ) {
 
-						AvailableVersions.push_back( &Versions[x] );
+						g_AvailableDataVersions.push_back( &KnownVersion );
 						break;
 					}
 				}
 			} else {
-				AvailableVersions.push_back( &Versions[x] );
+				g_AvailableDataVersions.push_back( &KnownVersion );
 			}
         }
 	}
-
-	return AvailableVersions;
 }

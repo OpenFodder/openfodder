@@ -148,7 +148,7 @@ void cCampaign::DumpCampaign() {
 /**
  * Load a campaign
  */
-bool cCampaign::LoadCampaign( const std::string& pName) {
+bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
 
     if (!pName.size())
         return false;
@@ -214,6 +214,7 @@ bool cCampaign::LoadCampaign( const std::string& pName) {
             }
         }
 
+		mIsCustom = pCustom;
         return true;
     }
 
@@ -224,6 +225,7 @@ bool cCampaign::LoadCampaign( const std::string& pName) {
  * Clear all missions/map names, goals and aggression rates
  */
 void cCampaign::Clear() {
+	mIsCustom = false;
     mMissionNames.clear();
     mMissionPhases.clear();
 
@@ -340,4 +342,9 @@ const size_t cCampaign::getMapCount() const {
 
 const std::string cCampaign::getName() const {
     return mName;
+}
+
+bool cCampaign::isCustom() const {
+
+	return mIsCustom;
 }

@@ -75,9 +75,7 @@ extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
     public:
-    char                    mInputString[0x15];
-
-    std::vector<const sVersion*> mVersions;
+    char                    mInputString[0x300];
 
     bool                    mSkipIntro;
     std::vector<cEvent>     mEvents;
@@ -612,7 +610,7 @@ public:
     bool            Demo_Amiga_ShowMenu();
     bool            Custom_ShowMenu();
     void            Custom_ShowMapSelection();
-    void            Custom_ShowMissionSetSelection();
+    void            Campaign_Selection();
     
     void            Image_FadeIn();
     void            Image_FadeOut();
@@ -1097,13 +1095,18 @@ public:
     void            GUI_Element_Reset();
 
     void            GUI_Button_Setup( void(cFodder::*pFunction)(void) );
+	void            GUI_Button_Setup_Small(void(cFodder::*pFunction)(void));
+
     void            GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC );
-    
+	void            GUI_Button_Draw_Small(const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC);
+
     void            GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
     void            GUI_SaveLoad( bool pShowCursor );
     std::string     GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData );
 
-    void            Game_Save();
+	std::string 	GUI_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
+	
+	void            Game_Save();
     void            GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );
     void            GUI_Button_Load_Exit();
     void            String_Print_Input( int16 pPosY );
