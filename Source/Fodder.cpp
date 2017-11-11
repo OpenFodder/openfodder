@@ -3771,8 +3771,10 @@ std::string cFodder::Campaign_Select_File_Small(const char* pTitle, const char* 
 
 	mGUI_Select_File_CurrentIndex = 0;
 	mGUI_Select_File_Count = (int16)CampaignList.size();
+	mGUI_Select_File_ShownItems = 5;
 
 	do {
+		size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
 		GUI_Element_Reset();
 		
 		mString_GapCharID = 0x25;
@@ -3784,10 +3786,10 @@ std::string cFodder::Campaign_Select_File_Small(const char* pTitle, const char* 
 		GUI_Button_Draw_Small("UP", 0x30);
 		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
 
-		GUI_Button_Draw_Small("DOWN", 0x99);
+		GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
 		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
 
-		GUI_Button_Draw_Small("EXIT", 0xB3);
+		GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
 		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
 
 		mImage->Save();
@@ -3796,7 +3798,7 @@ std::string cFodder::Campaign_Select_File_Small(const char* pTitle, const char* 
 
 		auto FileIT = CampaignList.begin() + mGUI_Select_File_CurrentIndex;
 
-		for (; DataC < 4 && FileIT != CampaignList.end(); ++DataC) {
+		for (; DataC < (mVersion->mPlatform == ePlatform::PC ? 4 : 5) && FileIT != CampaignList.end(); ++DataC) {
 			size_t Pos = FileIT->find_first_of(".");
 
 			GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (DataC * 0x15), 0xB2, 0xB3);
@@ -3825,6 +3827,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (int16)Files.size();
+	mGUI_Select_File_ShownItems = 4;
 
     do {
         GUI_Element_Reset();
@@ -10106,14 +10109,14 @@ void cFodder::GUI_Button_Load_Up() {
 }
 
 void cFodder::GUI_Button_Load_Down() {
-    mGUI_Select_File_CurrentIndex += 3;
+    mGUI_Select_File_CurrentIndex += (mGUI_Select_File_ShownItems-1);
 
     int16 Data0 = mGUI_Select_File_CurrentIndex;
-    Data0 += 4;
+    Data0 += mGUI_Select_File_ShownItems;
 
     if (Data0 >= mGUI_Select_File_Count) {
         Data0 = mGUI_Select_File_Count;
-        Data0 -= 4;
+        Data0 -= mGUI_Select_File_ShownItems;
         if (Data0 < 0)
             Data0 = 0;
 
