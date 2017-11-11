@@ -269,8 +269,8 @@ class cFodder : public cSingleton < cFodder > {
     uint8           byte_3A8DE[200];
 
     sSprite*        mSprite_DrawList_Final[64];
-    int32           dword_3A391;
-    uint32          dword_3A395;
+    int32           mStoredSpriteX;
+    uint32          mStoredSpriteY;
     int16           mTmp_FrameNumber;
     uint32          dword_3A39D;
     int16           word_3A3AB;
@@ -296,8 +296,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           word_3A9B8;
     int16           mSquad_Walk_Target_Indexes[3];  // values here, seem to be a byte count originally.. now its an index
     int16           mSquad_Walk_Target_Steps[3];
-    int16           word_3A9C6;
-    sSprite**       dword_3A9C8;
+    int16           mSprite_Bumped_Into_SquadMember;
     int16           word_3A9CE;
     int16           mMission_Paused;
     int8            byte_3A9D2[4];
@@ -305,8 +304,8 @@ class cFodder : public cSingleton < cFodder > {
     int8            byte_3A9DA[10];
     int16           word_3A9E4;
     int16           word_3A9E6;
-    int16           word_3A9F3;
-    int16           word_3A9F5;
+    int16           mMouseX_Offset;
+    int16           mMouseY_Offset;
     int16           mMouseSpriteNew;
     int16           word_3A9FB;
     int32           dword_3A9FD;
@@ -339,7 +338,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           mMouse_Button_LeftRight_Toggle2;
 
     int16           mSprite_Reached_Target;
-    int16           word_3ABAF;
+    int16           mStoredSpriteFrame;
     int16           word_3ABB1;
     int16           mSquad_Member_Fire_CoolDown;
     int16           mTroop_Rotate_Next;
@@ -404,7 +403,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           mRecruit_Truck_Animation_Play;
     int16           mRecruit_Truck_Enter_Count;
 
-    int16           mMap_TileSet;
+    eTileTypes      mMap_TileSet;
     sSprite*        mSquad_CurrentVehicle;
     int16           mMission_In_Progress;
     int16           mSprite_HumanVehicles_Found;
@@ -667,13 +666,21 @@ public:
     void            sub_12245();
     void            Camera_Speed_Reset();
     void            Camera_Pan_Toward_SquadLeader();
-    void            Mission_Sprites_Handle( );
+
     void            Sprite_Sort_DrawList();
     void            Sprite_Bullet_SetData();
+
+	void            Mission_Final_Timer();
+
     void            Mission_Phase_Goals_Check();
-    void            Map_Clear_Destroy_Tiles();
     void            Mission_Phase_Goals_Set();
-    void            Mission_Progress_Check( );
+    void            Mission_Progress_Check();
+
+	void            Mission_Map_Overview_Show();
+
+	void            Mission_Set_Final_TimeRemaining();
+	void            Mission_Sprites_Handle();
+
     void            Mission_Text_Completed();
     void            Mission_Text_Sprite_Mission( sSprite* pData2C );
     void            Mission_Text_Sprite_Phase( sSprite* pData2C );
@@ -685,18 +692,18 @@ public:
 
     std::string     Filename_CreateFromBase( const std::string& pBase, const char* pFinish );
     void            Squad_Member_PhaseCount();
-    void            Sprite_Find_HumanVehicles();
     void            Squad_Set_CurrentVehicle();
     void            Squad_EnteredVehicle_TimerTick();
-    void            Mission_Map_Overview_Show();
 
+	void            Map_Clear_Destroy_Tiles();
     void            Map_Overview_Prepare();
     void            Map_SetTileType();
 
+	void            Sprite_Find_HumanVehicles();
     void            Sprite_Count_HelicopterCallPads();
-    void            sub_13148();
+
     void            Sprite_HelicopterCallPad_Check();
-    void            Mission_Final_Timer();
+
     int16           Sprite_Create_RandomExplosion();
     void            Mission_GameOver();
     void            Mission_Text_GameOver( sSprite* pData2C );
@@ -788,7 +795,7 @@ public:
 
     void            Intro_Print_String( int32 pPosX, const sIntroString* pString );
 
-    void            sub_18D5E();
+    void            Sprite_Frame_Modifier_Update();
     
     void            Sprite_Table_Setup();
 
@@ -930,7 +937,7 @@ public:
     void            sub_1FDE7( sSprite* pSprite );
     void            Sprite_Create_Player_Shadow( sSprite* pSprite );
     int16           Sprite_Create_BloodTrail( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
-    void            Sprite_Handle_Soldier_Terrain_Check( sSprite* pSprite, int16& pData4 );
+    void            Sprite_Terrain_Check( sSprite* pSprite, int16& pData4 );
 
     void            sub_20456( sSprite* pSprite, int16& pData8 );
     void            sub_20478( sSprite* pSprite );
@@ -944,7 +951,7 @@ public:
     int16           Sprite_Reached_Target( sSprite* pSprite );
     void            Sprite_Movement_Speed_Update( sSprite* pSprite );
 
-    void            sub_21041( sSprite* pSprite );
+    void            Sprite_Handle_Player_Close_To_SquadMember( sSprite* pSprite );
     int16           Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
     void            Sprite_Clear( sSprite* pSprite );
     void            Sprite_Handle_Exploidable( sSprite* pSprite );
@@ -1087,6 +1094,13 @@ public:
     void            Map_Destroy_Tiles( );
     void            Map_Destroy_Tiles_Next();
     
+	std::string 	Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
+
+	void            Game_Load();
+	void            Game_Save();
+
+	void            GUI_SaveLoad_MouseHandle(sGUI_Element* pData20);
+
     void            Game_Save_Wrapper2();
     void            Game_Save_Wrapper();
 
@@ -1102,17 +1116,11 @@ public:
     void            GUI_Select_File_Loop( bool pShowCursor );
     std::string     GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData );
 
-	std::string 	Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
-	
-	void            Game_Save();
-    void            GUI_SaveLoad_MouseHandle( sGUI_Element* pData20 );
-    void            GUI_Button_Load_Exit();
-    void            String_Print_Input( int16 pPosY );
-    void            sub_2E6A9();
+
     void            GUI_Input_CheckKey();
-    void            Game_Load();
     void            GUI_Button_Load_Up();
     void            GUI_Button_Load_Down();
+	void            GUI_Button_Load_Exit();
     void            GUI_Button_Filename();
 
     int16           GUI_Button_NoAction();
@@ -1122,10 +1130,10 @@ public:
     void            GUI_Button_SelectQuiz();
     void            GUI_Button_SelectMap0();
     void            GUI_Button_SelectMap1();
-    void            GUI_Element_Mouse_Over( const sGUI_Element *pA0 );
     void            GUI_Button_SelectMap2();
     void            GUI_Button_SelectMap3();
-    void            Demo_Quiz();
+	void            GUI_Element_Mouse_Over(const sGUI_Element *pA0);
+	void            Demo_Quiz();
     void            GUI_Button_ExitMenu();
     void            GUI_Button_Quiz_2();
     void            GUI_Button_Quiz_3();
@@ -1202,7 +1210,7 @@ public:
     void            sub_3037A( );
     void            sub_3049B( );
     void            GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper( );
-    void            sub_30AB0();
+    void            Mouse_Cursor_Update();
     int16           Mouse_Button_Left_Toggled();
     void            Squad_Member_Click_Check();
     void            Mission_Troops_Clear_Selected();
@@ -1263,6 +1271,9 @@ public:
     virtual         ~cFodder();
 
     void            SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet );
+
+	void            String_Input_Print(int16 pPosY);
+	void            String_Input_Check();
 
     void            String_Print_Small( std::string pText, const uint16 pY );
     void            String_Print_Large( std::string pText, const bool pOverAndUnderLine, const uint16 pY );

@@ -661,28 +661,58 @@ const sFile mCustomFiles[] = {
     { 0 }
 };
 
+const std::vector<eTileTypes> mKnownRetailTypes = {
+	eTileTypes_Jungle,
+	eTileTypes_Desert,
+	eTileTypes_Ice,
+	eTileTypes_Moors,
+	eTileTypes_Int
+};
+
+const std::vector<eTileTypes> mKnownAFXTypes = {
+	eTileTypes_AFX
+};
+
+const std::vector<eTileTypes> mKnownPlusTypes = {
+	eTileTypes_Jungle
+};
+
+const std::vector<eTileTypes> mKnownCustomTypes = {
+
+};
+
 /** 
  * Known versions of Cannon Fodder
  */
 std::vector<sVersion> Versions = {
 
 	/* Retail */
-	{ "Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles },
-	{ "Cannon Fodder 2",eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files },
-	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles },
-	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles, mKnownRetailTypes },
+	{ "Cannon Fodder 2",eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files, mKnownRetailTypes },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles, mKnownRetailTypes },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files, mKnownRetailTypes },
 
 	/* Demo */
-	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles },
-	{ "Cannon Fodder Plus",				eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles },
+	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles, mKnownAFXTypes },
+	{ "Cannon Fodder Plus",				eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles, mKnownPlusTypes },
 
 	/* Custom must be last, as they depend on a previous retail version being detected first */
-	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
-	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles },
+	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
+	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
 };
 
 std::vector<const sVersion*> g_AvailableDataVersions;
 
+const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType) {
+	// Look through all available versions for a campaign name match
+	for (auto& Version : g_AvailableDataVersions) {
+		
+		if (Version->hasTileset(pTileType))
+			return Version;
+	}
+
+	return 0;
+}
 
 const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
 

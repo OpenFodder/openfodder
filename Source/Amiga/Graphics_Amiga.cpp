@@ -1163,6 +1163,8 @@ void cGraphics_Amiga::Briefing_Load_Resources() {
 
 	// Load the intro images
 	mImageBriefingIntro = DecodeIFF(JunData1);
+	if (!mImageBriefingIntro.mData->size())
+		return;
 
 	// Load the palettes
 	auto Data = g_Resource.fileGet(JunData2);
