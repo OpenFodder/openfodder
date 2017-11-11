@@ -1095,11 +1095,11 @@ public:
     void            GUI_Button_Setup( void(cFodder::*pFunction)(void) );
 	void            GUI_Button_Setup_Small(void(cFodder::*pFunction)(void));
 
-    void            GUI_Button_Draw( const char* pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC );
+    void            GUI_Button_Draw( std::string pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC );
 	void            GUI_Button_Draw_Small(const std::string pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC);
 
     void            GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
-    void            GUI_SaveLoad( bool pShowCursor );
+    void            GUI_Select_File_Loop( bool pShowCursor );
     std::string     GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData );
 
 	std::string 	Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
