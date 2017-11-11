@@ -435,6 +435,7 @@ class cFodder : public cSingleton < cFodder > {
     void            (cFodder::*dword_3B30D)(int16 pPosY);
 
     int16           mInputString_Position;
+	int16			mGUI_Select_File_ShownItems;
     int16           mGUI_Select_File_CurrentIndex;
     int16           mGUI_Select_File_Count;
     int16           mGUI_Select_File_SelectedFileIndex;
