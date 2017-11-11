@@ -158,6 +158,13 @@ enum eSprite_Anim {
 	eSprite_Anim_Vehicle_Inside = 0x5B
 };
 
+enum eSprite_PersonType {
+	eSprite_PersonType_None = -1,
+	eSprite_PersonType_Human = 0,
+	eSprite_PersonType_AI = 1,
+	eSprite_PersonType_Native = 2
+};
+
 enum eVehicles {
 	eVehicle_Turret_Cannon			= 0,
 	eVehicle_Turret_Missile			= 1,
@@ -219,7 +226,7 @@ struct sSprite {
 		int32 field_1E_Big;
 	};
 
-	int16 field_22;		// 0 = Human 1 = Not Human
+	int16 field_22;		// 0 = Human 1 = Not Human 2 = Native
 	int16 field_24;
 	int16 field_26;		// Target X
 	int16 field_28;		// Target Y
@@ -236,7 +243,7 @@ struct sSprite {
 	int16 field_3E;
 	int16 field_40;
 	int8 field_42;
-	int8 field_43;
+	int8 field_43;	// Player: Reached other Troop
 	int8 field_44;
 	int8 field_45;
 
@@ -251,7 +258,7 @@ struct sSprite {
 	int8 field_4C;
 	int8 field_4D;
 	int8 field_4E;
-	int8 field_4F;
+	int8 field_4F;			// Player: -1 = In water
 	int16 field_50;
 	int16 field_52;			// Video: Number of rows not to draw
 	int8 field_54;			// Human: Fired Weapon

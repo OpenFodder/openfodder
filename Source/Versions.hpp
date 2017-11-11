@@ -58,17 +58,23 @@ struct sFile {
 };
 
 struct sVersion {
-	const std::string		mName;
+	const std::string	mName;
 
-	eGame					mGame;
-	eVersion				mVersion;
-	ePlatform				mPlatform;
-	eRelease				mRelease;
+	eGame				mGame;
+	eVersion			mVersion;
+	ePlatform			mPlatform;
+	eRelease			mRelease;
 
-	const sIntroText*		mIntroData;
-	const char*				mDataPath;
-	const sFile*			mFiles;
+	const sIntroText*	mIntroData;
+	const char*			mDataPath;
+	const sFile*		mFiles;
 
+	const std::vector<eTileTypes>	mTileTypes;
+
+	bool hasTileset(eTileTypes pTileType) const {
+
+		return std::find(mTileTypes.begin(), mTileTypes.end(), pTileType) != mTileTypes.end();
+	}
 
 	bool isCustom() const {
 
@@ -84,4 +90,6 @@ bool IsCampaignDataAvailable(const std::string& pName);
 
 std::vector<std::string> GetAvailableVersions();
 void FindFodderVersions();
+
 const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign);
+const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType);
