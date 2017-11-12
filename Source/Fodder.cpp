@@ -217,10 +217,8 @@ int16 cFodder::Map_Loop( ) {
         sub_12018();
         MapTile_Update_Position( );
 
-        word_3A9FB = 0;
         Game_Handle();
         ++mMission_EngineTicks;
-        word_3A9FB = -1;
 
         if (mCamera_Start_Adjust >= 0) {
             Camera_Refresh();
@@ -702,15 +700,13 @@ void cFodder::Mission_Memory_Clear() {
         byte_3A9DA[x] = 0;
     }
 
-    word_3A9E4 = 0;
-    word_3A9E6 = 0;
     mMouseX_Offset = 0;
     mMouseY_Offset = 0;
     mMouseSpriteNew = 0;
-    word_3A9FB = 0;
+
     dword_3A9FD = 0;
 
-    word_3AA01 = 0;
+    mMouseSetToCursor = 0;
     mSprites_Found_Count = 0;
 
     for (uint16 x = 0; x < 3; ++x) {
@@ -5029,7 +5025,7 @@ void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper( ) {
 }
 
 void cFodder::Mouse_Cursor_Update() {
-    int16 Data0, Data4, Data8, Data18;
+    int16 Data0, Data4, Data8;
     sSprite* Data20 = 0;
     sSprite** Data24 = 0;
 
@@ -5043,11 +5039,8 @@ void cFodder::Mouse_Cursor_Update() {
     if (mButtonPressRight)
         goto loc_30CBC;
 
-    Data0 = mMouseX;
-    Data4 = mMouseY;
-
-    Data0 += mCamera_Adjust_Col >> 16;
-    Data4 += mCamera_Adjust_Row >> 16;
+    Data0 = mMouseX + (mCamera_Adjust_Col >> 16);
+	Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
 
     Data0 -= 0x0F;
     Data4 -= 3;
@@ -5074,7 +5067,6 @@ void cFodder::Mouse_Cursor_Update() {
         if (Data20->field_22 != eSprite_PersonType_Human)
             continue;
 
-        Data18 = Data20->field_18;
         Data8 = Data20->field_0;
         if (Data20->field_6F == eVehicle_Turret_Cannon)
             goto loc_30BB9;
@@ -5088,13 +5080,13 @@ void cFodder::Mouse_Cursor_Update() {
         if (Data0 < Data8)
             continue;
 
-        Data8 += mSprite_Width[Data18];
+        Data8 += mSprite_Width[Data20->field_18];
         if (Data0 > Data8)
             continue;
 
         Data8 = Data20->field_4;
         Data8 -= Data20->field_20;
-        Data8 -= mSprite_Height_Top[Data18];
+        Data8 -= mSprite_Height_Top[Data20->field_18];
         Data8 -= 0x14;
 
         if (Data4 < Data8)
@@ -5105,7 +5097,7 @@ void cFodder::Mouse_Cursor_Update() {
         if (Data4 > Data8)
             continue;
 
-        word_3AA01 = -1;
+        mMouseSetToCursor = -1;
 
         if (!Data20->field_20)
             goto loc_30C7C;
@@ -5135,8 +5127,8 @@ void cFodder::Mouse_Cursor_Update() {
 
 loc_30CBC:;
 
-    if (word_3AA01) {
-        word_3AA01 = 0;
+    if (mMouseSetToCursor) {
+        mMouseSetToCursor = 0;
         mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
         mMouseX_Offset = 0;
         mMouseY_Offset = 0;
@@ -5379,6 +5371,7 @@ loc_23056:;
     return;
 
 loc_230B0:;
+	// Not Moving?
     if (!pSprite->field_36)
         return;
 
@@ -16970,7 +16963,7 @@ loc_20307:;
 
 loc_2035C:;
 
-    word_3A9E6 = pSprite->field_0;
+    int16 word_3A9E6 = pSprite->field_0;
     pSprite->field_0 = mStoredSpriteX & 0xFFFF;
 
     Data0 = -3;
@@ -17843,9 +17836,6 @@ int16 cFodder::Sprite_Destroy( sSprite* pSprite ) {
 int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
     int16 Data0 = 1, Data8, Data4;
     sSprite* Data2C = 0, *Data30 = 0;
-
-    if (word_3A9E4)
-        --word_3A9E4;
 
     if (mMission_Completed_Timer)
         return -1;
