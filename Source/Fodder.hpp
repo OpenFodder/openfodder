@@ -302,14 +302,12 @@ class cFodder : public cSingleton < cFodder > {
     int8            byte_3A9D2[4];
     int8            byte_3A9D6[4];
     int8            byte_3A9DA[10];
-    int16           word_3A9E4;
-    int16           word_3A9E6;
+
     int16           mMouseX_Offset;
     int16           mMouseY_Offset;
     int16           mMouseSpriteNew;
-    int16           word_3A9FB;
     int32           dword_3A9FD;
-    int16           word_3AA01;
+    int16           mMouseSetToCursor;
     int16           mSprites_Found_Count;
     int16           mSquad_Grenades[3];
     int16           mSquad_Rockets[3];
