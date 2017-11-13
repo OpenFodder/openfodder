@@ -703,6 +703,18 @@ std::vector<sVersion> Versions = {
 
 std::vector<const sVersion*> g_AvailableDataVersions;
 
+const sVersion* FindAvailableRetail() {
+
+	auto RetailRelease =
+		std::find_if(g_AvailableDataVersions.begin(), g_AvailableDataVersions.end(),
+			[](const sVersion* a)->bool { return a->mRelease == eRelease::Retail; });
+
+	if (RetailRelease == g_AvailableDataVersions.end())
+		return 0;
+
+	return *RetailRelease;
+}
+
 const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType) {
 	// Look through all available versions for a campaign name match
 	for (auto& Version : g_AvailableDataVersions) {
