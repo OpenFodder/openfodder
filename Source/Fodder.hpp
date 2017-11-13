@@ -292,7 +292,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           mMission_Complete;
     int16           mMission_Completed_Timer;
     int16           mEnemy_BuildingCount;
-    int16           mMission_Aborted;
+    bool            mMission_Aborted;
     int16           mSquad_SwitchWeapon;
     int16           word_3A9B8;
     int16           mSquad_Walk_Target_Indexes[3];  // values here, seem to be a byte count originally.. now its an index

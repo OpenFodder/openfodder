@@ -76,7 +76,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     mSprite_Frame_3 = 0;
 
     mEnemy_BuildingCount = 0;
-    mMission_Aborted = 0;
+    mMission_Aborted = false;
     mMouse_Button_LeftRight_Toggle2 = 0;
 
     word_3ABFD = 0;
@@ -685,7 +685,7 @@ void cFodder::Mission_Memory_Clear() {
     mSidebar_Draw_Y = 0;
     word_3A3BF = 0;
     mDirectionMod = 0;
-    mMission_Aborted = 0;
+    mMission_Aborted = false;
     mSquad_SwitchWeapon = 0;
     word_3A9B8 = 0;
     for (uint8 x = 0; x < 3; ++x) {
@@ -2631,7 +2631,7 @@ void cFodder::Mission_Map_Overview_Show() {
         
         Mouse_Inputs_Get();
 
-        if (mMission_Aborted == -1)
+        if (mMission_Aborted)
             break;
 
     } while (Mouse_Button_Left_Toggled() < 0);
@@ -2639,7 +2639,7 @@ void cFodder::Mission_Map_Overview_Show() {
     mSurfaceMapOverview->Restore();
     mGraphics->SetImageOriginal();
 
-    mMission_Aborted = 0;
+    mMission_Aborted = false;
 }
 
 void cFodder::Map_Overview_Prepare() {
@@ -2786,7 +2786,7 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
         mWindow->SetFullScreen();
 
     if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
-        mMission_Aborted = -1;
+        mMission_Aborted = true;
 
     // In Mission and not on map overview
     if (mMission_In_Progress && !mMission_ShowMapOverview) {
@@ -3302,7 +3302,7 @@ void cFodder::Mission_Final_Timer() {
 
     --mMission_Final_TimeToAbort;
     if (!mMission_Final_TimeToAbort)
-        mMission_Aborted = -1;
+        mMission_Aborted = true;
 
     if (!(mMission_EngineTicks & 3))
         Sprite_Create_RandomExplosion();
@@ -3757,7 +3757,7 @@ void cFodder::CopyProtection_EncodeInput() {
 std::string cFodder::Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
 	std::vector<std::string> CampaignList = GetAvailableVersions(); 
 	
-	mMission_Aborted = 0;
+	mMission_Aborted = false;
 	mGUI_SaveLoadAction = 0;
 
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
@@ -3833,7 +3833,7 @@ std::string cFodder::Campaign_Select_File_Small(const char* pTitle, const char* 
 }
 
 std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData ) {
-    mMission_Aborted = 0;
+    mMission_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
     mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
@@ -4017,7 +4017,7 @@ bool cFodder::Recruit_Loop() {
     Mouse_Setup();
     Sidebar_Clear_ScreenBufferPtr();
 
-    mMission_Aborted = 0;
+    mMission_Aborted = false;
 
     mGraphics->Load_Hill_Data();
 
@@ -7118,10 +7118,10 @@ void cFodder::Sprite_Handle_Indigenous_Death( sSprite* pSprite ) {
         word_3B2D1[2] = -1;
 
         if (mPhase_Goals[ eGoal_Protect_Civilians - 1 ])
-            mMission_Aborted = -1;
+            mMission_Aborted = true;
 
         if (mPhase_Goals[ eGoal_Get_Civilian_Home - 1 ])
-            mMission_Aborted = -1;
+            mMission_Aborted = true;
 
         pSprite->field_8 = 0xD6;
         pSprite->field_A = 0;
@@ -7652,7 +7652,7 @@ void cFodder::sub_264B0( sSprite* pSprite ) {
     if (!mPhase_Goals[ eGoal_Protect_Civilians - 1 ])
         return;
 
-    mMission_Aborted = -1;
+    mMission_Aborted = true;
     return;
 
 loc_264CF:;
@@ -9834,7 +9834,7 @@ void cFodder::GUI_Select_File_Loop( bool pShowCursor ) {
 
     } while (mGUI_SaveLoadAction <= 0);
 
-    mMission_Aborted = 0;
+    mMission_Aborted = false;
 
     if (mGUI_SaveLoadAction == 3)
         return;
@@ -10318,7 +10318,7 @@ void cFodder::GUI_Button_Quiz_11() {
 void cFodder::Menu_Loop( const std::function<void()> pButtonHandler ) {
 
     mCustom_ExitMenu = 0;
-    mMission_Aborted = 0;
+    mMission_Aborted = false;
     mDemo_ExitMenu = -1;
 
     mImage->Save();
@@ -11252,7 +11252,7 @@ void cFodder::Briefing_Wait() {
         eventProcess();
         Mouse_Inputs_Get();
 
-        if (mMission_Aborted == -1) {
+        if (mMission_Aborted) {
             mBriefing_Aborted = -1;
             mouse_Button_Status = -1;
             break;
@@ -14933,7 +14933,7 @@ void cFodder::Sprite_Handle_OpenCloseDoor( sSprite* pSprite ) {
 
     if (sub_222A3( pSprite )) {
         mSprite_OpenCloseDoor_Ptr = 0;
-        mMission_Aborted = -1;
+        mMission_Aborted = true;
         return;
     }
     pSprite->field_2C = eSprite_Draw_First;
@@ -19598,7 +19598,7 @@ int16 cFodder::Recruit_Show() {
         if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
             mMission_Restart = -1;
             mMission_Recruitment = -1;
-            mMission_Aborted = -1;
+            mMission_Aborted = true;
             return -3;
         }
     } else {
@@ -19738,7 +19738,7 @@ int16 cFodder::Mission_Loop() {
         Mission_Troop_Prepare(false);
         Mission_Troop_Attach_Sprites();
 
-        mMission_Aborted = 0;
+        mMission_Aborted = false;
         Map_Overview_Prepare();
 
         // Show the Briefing screen for Retail and Custom 
@@ -19752,7 +19752,7 @@ int16 cFodder::Mission_Loop() {
 
                 mMission_Restart = -1;
                 mMission_Recruitment = -1;
-                mMission_Aborted = -1;
+                mMission_Aborted = true;
 
                 mSound->Music_Play( 0 );
                 continue;
@@ -19811,7 +19811,7 @@ int16 cFodder::Mission_Loop() {
 
         mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 
-        mMission_Aborted = 0;
+        mMission_Aborted = false;
         mMission_Paused = 0;
         mMission_In_Progress = -1;
         mMission_Finished = 0;
