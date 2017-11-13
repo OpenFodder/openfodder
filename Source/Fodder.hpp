@@ -637,9 +637,12 @@ public:
     void            Map_Load();
     void            Map_Load_Sprites();
     void            Map_Load_Resources();
-    
+
     void            Map_Save(const std::string pFilename);
     void            Map_Save_Sprites( const std::string pFilename );
+
+
+	bool			Tiles_Load_Data();
 
     // Mission Functions
     void            Mission_Troop_Count();

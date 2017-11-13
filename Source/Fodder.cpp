@@ -1763,8 +1763,26 @@ void cFodder::Map_Load( ) {
     Map_Load_Resources();
 }
 
+bool cFodder::Tiles_Load_Data() {
+	std::string BaseName, SubName;
+
+	// junbase.blk
+	BaseName.append(mMap->data(), mMap->data() + 11);
+
+	// junsub0.blk
+	SubName.append(mMap->data() + 0x10, mMap->data() + 0x10 + 11);
+
+	mTile_BaseBlk = g_Resource.fileGet(BaseName);
+	mTile_SubBlk = g_Resource.fileGet(SubName);
+
+	if (!mTile_BaseBlk->size() || !mTile_SubBlk->size())
+		return false;
+
+	return true;
+}
+
 void cFodder::Map_Load_Resources() {
-    std::string BaseName, SubName, BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
+    std::string BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
 
     // Check Editor used
     switch (readBEDWord(mMap->data() + 0x50)) {
@@ -1786,12 +1804,6 @@ void cFodder::Map_Load_Resources() {
 
     uint8* Map = mMap->data();
 
-    // junbase.blk
-    BaseName.append( Map, Map + 11 );
-
-    // junsub0.blk
-    SubName.append( Map + 0x10, Map + 0x10 + 11 );
-
     // jun
     BaseBaseSet.append( Map, Map + 3 );
 
@@ -1807,13 +1819,21 @@ void cFodder::Map_Load_Resources() {
     // Map Tileset
     Map_SetTileType();
 
-	// Does the current loaded data have the required tileset?
-	if (!mVersion->hasTileset(mMap_TileSet)) {
+	// Was the tileset available?
+	if (!Tiles_Load_Data()) {
+
+		// Is the current version meant to have the required tileset?
+		if (mVersion->hasTileset(mMap_TileSet)) {
+
+			// TODO: Warn user about missing data?
+		}
+		
+		// Load the default version
+		VersionLoad(mVersionDefault);
 
 		// Check the default version for the tileset
-		if (mVersionDefault->hasTileset(mMap_TileSet)) {
-			VersionLoad(mVersionDefault);
-		} else {
+		if (!Tiles_Load_Data()) {
+
 			// Not found, so lets go find it
 			auto Version = FindAvailableVersionForTileset(mMap_TileSet);
 
@@ -1822,12 +1842,11 @@ void cFodder::Map_Load_Resources() {
 				VersionLoad(Version);
 			else {
 				// TODO: Quit?
+				std::cout << "Data not found\n";
 			}
 		}
+		
 	}
-
-    mTile_BaseBlk = g_Resource.fileGet( BaseName );
-    mTile_SubBlk = g_Resource.fileGet( SubName );
 
     mFilenameCopt = Filename_CreateFromBase( BaseBaseSet, "copt." );
     mFilenameBaseSwp = Filename_CreateFromBase( BaseBase, ".swp" );
@@ -1838,6 +1857,7 @@ void cFodder::Map_Load_Resources() {
     mFilenameSubHit = Filename_CreateFromBase( BaseSub, ".hit" );
     mFilenameSubBht = Filename_CreateFromBase( BaseSub, ".bht" );
     mFilenameBasePal  = Filename_CreateFromBase( BaseBase, ".pal" );
+
 
     size_t Size = g_Resource.fileLoadTo( mFilenameBaseSwp, (uint8*) &mTile_Destroy_Swap[0] );
     tool_EndianSwap( (uint8*)&mTile_Destroy_Swap[0], Size );
@@ -3891,6 +3911,7 @@ void cFodder::Campaign_Selection() {
 
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
 
+	mCustom_Mode = eCustomMode_None;
 
     std::string CampaignFile = Campaign_Select_File( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
 
@@ -3935,8 +3956,6 @@ void cFodder::Campaign_Selection() {
 		if (mVersion->mVersion == eVersion::Custom) {
 			mDemo_ExitMenu = 1;
 			mCustom_ExitMenu = 1;
-		} else {
-			mCustom_Mode = eCustomMode_None;
 		}
 
 		WindowTitleBaseSetup();
@@ -4012,6 +4031,9 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
 bool cFodder::Recruit_Loop() {
     mImage->clearBuffer();
+
+	if (mVersion->mRelease == eRelease::Demo)
+		return 0;
 
     if (mVersion->mPlatform == ePlatform::Amiga)
         mWindow->SetScreenSize( cDimension( 320, 225 ));
@@ -19582,10 +19604,6 @@ int16 cFodder::Recruit_Show() {
 
 		if (mCustom_Mode == eCustomMode_None)
 			return -1;
-
-		// If we are now in set mode, we need to restart the engine
-		if (mCustom_Mode == eCustomMode_Set)
-			return -2;
 	}
 
     WindowTitleSet(false);
