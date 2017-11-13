@@ -209,6 +209,10 @@ void cFodder::Squad_Walk_Target_SetAll( int16 pValue ) {
 }
 
 int16 cFodder::Map_Loop( ) {
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize(cDimension(320, 225));
+
     mImage->Save();
 
     for (;;) {
@@ -3997,8 +4001,6 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     } );
 
     ((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
-    if (mVersion->mPlatform == ePlatform::Amiga)
-        mWindow->SetScreenSize( cDimension( 320, 225 ));
 
     if (mMission_Aborted)
         return true;
@@ -12169,28 +12171,25 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
     else
         Data0 = mSprite_Helicopter_Sounds[Data0 / 2];
 
-    if (pSprite->field_22 != eSprite_PersonType_Human)
-        goto loc_19EB5;
+	if (pSprite->field_22 != eSprite_PersonType_Human) {
+		if (pSprite->field_20 <= 1)
+			goto loc_19EE5;
+	} else {
 
-    if (pSprite->field_20 >= 2)
-        goto loc_19EC0;
+		// Just off the ground?
+		if (pSprite->field_20 < 2) {
+			if (pSprite != mSquad_CurrentVehicle)
+				goto loc_19EE5;
+		}
+	}
 
-    if (pSprite != mSquad_CurrentVehicle)
-        goto loc_19EE5;
-
-    goto loc_19EC0;
-
-loc_19EB5:;
-    if (pSprite->field_20 <= 1)
-        goto loc_19EE5;
-
-loc_19EC0:;
     word_3B4ED[0] = -1;
     Data4 = pSprite->field_20;
     if (Data4 < 0x10)
         Data4 = 0x10;
 
     Sprite_Map_Sound_Play( Data0 );
+
 loc_19EE5:;
     pSprite->field_65 = -1;
 
@@ -12201,17 +12200,17 @@ loc_19EE5:;
         if (mHelicopterCall_X >= 0)
             goto loc_1A042;
     
-    if (pSprite->field_26 == 0x7171)
-        goto loc_19F50;
+	if (pSprite->field_26 != 0x7171) {
 
-    pSprite->field_26 = 0x7171;
-    pSprite->field_1A = 0x10000;
+		pSprite->field_26 = 0x7171;
+		pSprite->field_1A = 0x10000;
 
-    Data0 = tool_RandomGet() & 0x0F;
-    Data0 += 0x13;
+		Data0 = tool_RandomGet() & 0x0F;
+		Data0 += 0x13;
 
-    pSprite->field_2A = Data0;
-loc_19F50:;
+		pSprite->field_2A = Data0;
+	}
+
     dword_3B24B = -1;
 
     Data2C = 0;

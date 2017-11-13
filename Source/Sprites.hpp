@@ -220,7 +220,7 @@ struct sSprite {
 
 		struct {
 			int16 field_1E;
-			int16 field_20;
+			int16 field_20;	// Vehicle Height
 		};
 
 		int32 field_1E_Big;
