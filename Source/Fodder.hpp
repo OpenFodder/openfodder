@@ -80,6 +80,7 @@ class cFodder : public cSingleton < cFodder > {
     bool                    mSkipIntro;
     std::vector<cEvent>     mEvents;
     
+	const sVersion*			mVersionDefault;
     const sVersion*         mVersion;
     cCampaign               mCampaign;
 

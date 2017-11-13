@@ -93,3 +93,4 @@ void FindFodderVersions();
 
 const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign);
 const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType);
+const sVersion* FindAvailableRetail();

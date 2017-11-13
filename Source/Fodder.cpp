@@ -1805,12 +1805,20 @@ void cFodder::Map_Load_Resources() {
 	// Does the current loaded data have the required tileset?
 	if (!mVersion->hasTileset(mMap_TileSet)) {
 
-		// No, lets find one which does
-		auto Version = FindAvailableVersionForTileset(mMap_TileSet);
-		
-		// Load it
-		if(Version)
-			VersionLoad(Version);
+		// Check the default version for the tileset
+		if (mVersionDefault->hasTileset(mMap_TileSet)) {
+			VersionLoad(mVersionDefault);
+		} else {
+			// Not found, so lets go find it
+			auto Version = FindAvailableVersionForTileset(mMap_TileSet);
+
+			// Load it
+			if (Version)
+				VersionLoad(Version);
+			else {
+				// TODO: Quit?
+			}
+		}
 	}
 
     mTile_BaseBlk = g_Resource.fileGet( BaseName );
@@ -3147,21 +3155,21 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
     // Custom version?
     if (pVersion->mVersion == eVersion::Custom) {
-        auto RetailRelease =
-            std::find_if( g_AvailableDataVersions.begin(), g_AvailableDataVersions.end(),
-                          []( const sVersion* a )->bool { return a->mRelease == eRelease::Retail; } );
+		auto RetailRelease = FindAvailableRetail();
 
-        // If we a retail release is found, we use its data path
-        if (RetailRelease != g_AvailableDataVersions.end())
-            DataPath = (*RetailRelease)->mDataPath;
+        // If a retail release is found, we use its data path
+        if (RetailRelease != 0)
+            DataPath = RetailRelease->mDataPath;
         else {
             std::cout << "Retail release not found";
             return;
         }
     }
 
+	if (mVersion == pVersion)
+		return;
+
     mVersion = pVersion;
-    Campaign_Load(mVersion->mName);
 
     WindowTitleBaseSetup();
 
@@ -3198,7 +3206,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
     }
         
 #ifndef _OFED
-	if(mVersion->mVersion != eVersion::Custom)
+	if(mCustom_Mode == eCustomMode_None)
 		Map_Load();
 #endif
 
@@ -3908,7 +3916,7 @@ void cFodder::Campaign_Selection() {
 	}
 	
 	// Custom map?
-	if (mVersion->isCustom()) {
+	if (CampaignFile == "Single Map" ) {
 		mCustom_Mode = eCustomMode_Map;
 		return;
 	}
@@ -13157,8 +13165,9 @@ loc_1B5D2:;
             goto loc_1B655;
     }
 
-	// Not drawing 4 or more rows?
+	// Not drawing 3 or less rows?
 	if (pSprite->field_52 < 4) {
+
 		pSprite->field_36 += 3;
 		if (pSprite->field_18 == eSprite_Vehicle_Unk_Enemy) {
 
@@ -13175,18 +13184,14 @@ loc_1B655:;
     Sprite_XY_Store( pSprite );
     Sprite_Movement_Calculate( pSprite );
 
-    if (pSprite->field_20 < 9)
-        goto loc_1B688;
-    pSprite->field_36 += 0x40;
-    goto loc_1B6A2;
+	if (pSprite->field_20 < 9) {
+		Sprite_Handle_Vehicle_Terrain_Check(pSprite);
 
-loc_1B688:;
-    Sprite_Handle_Vehicle_Terrain_Check( pSprite );
-
-    if (pSprite->field_20 <= 4)
-        pSprite->field_20 = 0;
-
-loc_1B6A2:;
+		if (pSprite->field_20 <= 4)
+			pSprite->field_20 = 0;
+	} else {
+		pSprite->field_36 += 0x40;
+	}
 
     sub_243E9( pSprite );
 
@@ -19637,7 +19642,7 @@ int16 cFodder::Recruit_Show() {
     Mission_Memory_Backup();
 
     // Show the intro for the briefing screen for Retail / Custom Set
-	if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+	if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom) {
 		Map_Load();
 		mGraphics->Briefing_Intro();
 	}
@@ -19650,6 +19655,7 @@ int16 cFodder::Recruit_Show() {
 void cFodder::Start(int16 pStartMap) {
 
 Start:;
+	mVersionDefault = g_AvailableDataVersions[0];
     mVersion = 0;
     VersionLoad(g_AvailableDataVersions[0]);
 
