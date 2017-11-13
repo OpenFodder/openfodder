@@ -241,6 +241,13 @@ std::string cCampaign::getMapFileName(const size_t pMapNumber) const {
 	if(mCustomMap.size())
 		return mCustomMap;
 
+	// Fallback to original behaviour if we don't have a name
+	if (pMapNumber >= mMapFilenames.size()) {
+		std::stringstream MapName;
+		MapName << "mapm" << (pMapNumber + 1);
+		return MapName.str();
+	}
+
 	return mMapFilenames[pMapNumber];
 }
 

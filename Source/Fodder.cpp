@@ -41,6 +41,7 @@ const int16 mBriefing_Helicopter_Offsets[] =
 
 cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     
+	mCustom_Mode = eCustomMode_None;
     mSkipIntro = pSkipIntro;
     mResources = 0;
     mGraphics = 0;
@@ -3208,11 +3209,6 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
             mWindow->SetOriginalRes( cDimension( 320, 225 ) );
             break;
     }
-        
-#ifndef _OFED
-	if(mCustom_Mode == eCustomMode_None)
-		Map_Load();
-#endif
 
     mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
     mGraphics->Load_pStuff(); 
@@ -3754,7 +3750,7 @@ void cFodder::CopyProtection_EncodeInput() {
     }
 }
 
-std::string cFodder::Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
+std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
 	std::vector<std::string> CampaignList = GetAvailableVersions(); 
 	
 	mMission_Aborted = false;
@@ -3896,7 +3892,7 @@ void cFodder::Campaign_Selection() {
 	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
 
 
-    std::string CampaignFile = Campaign_Select_File_Small( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
+    std::string CampaignFile = Campaign_Select_File( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
 
     // Exit Pressed?
     if (mGUI_SaveLoadAction == 1 || !CampaignFile.size()) {
@@ -3917,12 +3913,19 @@ void cFodder::Campaign_Selection() {
 		if (Version && Version != mVersion) {
 			VersionLoad(Version);
 		}
-	}
-	
-	// Custom map?
-	if (CampaignFile == "Single Map" ) {
-		mCustom_Mode = eCustomMode_Map;
-		return;
+
+		// Set the default/starting version
+		mVersionDefault = mVersion;
+
+		// Single Map Mode?
+		if (CampaignFile == "Single Map") {
+			mCustom_Mode = eCustomMode_Map;
+			return;
+		
+		// If no version, it must be a custom campaign
+		} else if (!Version) {
+			mCustom_Mode = eCustomMode_Set;
+		}
 	}
 
 	// Load the campaign
@@ -3932,7 +3935,6 @@ void cFodder::Campaign_Selection() {
 		if (mVersion->mVersion == eVersion::Custom) {
 			mDemo_ExitMenu = 1;
 			mCustom_ExitMenu = 1;
-			mCustom_Mode = eCustomMode_Set;
 		} else {
 			mCustom_Mode = eCustomMode_None;
 		}
@@ -13142,19 +13144,24 @@ loc_1B5D2:;
             goto loc_1B655;
     }
 
-	// Not drawing 3 or less rows?
+	// Sinking? No, Then we can speed up
 	if (pSprite->field_52 < 4) {
 
 		pSprite->field_36 += 3;
+
+		// This vehicle only moves at a single speed
 		if (pSprite->field_18 == eSprite_Vehicle_Unk_Enemy) {
 
+			pSprite->field_36 = 0x14;
+
+		} else {
 			if (pSprite->field_36 >= 0x32)
 				pSprite->field_36 = 0x32;
 		}
-		else
-			pSprite->field_36 = 0x14;
+			
 	}
 loc_1B655:;
+	// VEhicle in the air, increase speed
     if (pSprite->field_20 > 4)
         pSprite->field_36 += 0x1C;
 
@@ -19564,56 +19571,57 @@ int16 cFodder::Recruit_Show() {
 	if (mCustom_Mode != eCustomMode_Map) {
 		Map_Load();
 		Map_Load_Sprites();
-	}
 
-    Mission_Troop_Count();
-    Mission_Troop_Sort();
-    Mission_Troop_Prepare(true);
-    Mission_Troop_Attach_Sprites();
+		Mission_Troop_Count();
+		Mission_Troop_Sort();
+		Mission_Troop_Prepare(true);
+		Mission_Troop_Attach_Sprites();
 
-    WindowTitleSet(false);
-
-    // Custom, but not in set mode? then show the custom single map menu
-    if (mVersion->mVersion == eVersion::Custom && mCustom_Mode != eCustomMode_Set) {
+	} else {
 		Custom_ShowMapSelection();
 
 		if (mCustom_Mode == eCustomMode_None)
 			return -1;
 
-        // If we are now in set mode, we need to restart the engine
-        if (mCustom_Mode == eCustomMode_Set)
-            return -2;
-    }
+		// If we are now in set mode, we need to restart the engine
+		if (mCustom_Mode == eCustomMode_Set)
+			return -2;
+	}
+
+    WindowTitleSet(false);
 
     // Retail / Custom set show the Recruitment Hill
-    if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+	if (mCustom_Mode != eCustomMode_Map) {
+		if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
 
-        // Recruit Screen
-        if (Recruit_Loop())
-            return -1;
+			// Recruit Screen
+			if (Recruit_Loop())
+				return -1;
 
-        Recruit_CheckLoadSaveButtons();
+			Recruit_CheckLoadSaveButtons();
 
-        // Did we just load/save a game?
-        if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
-            mMission_Restart = -1;
-            mMission_Recruitment = -1;
-            mMission_Aborted = true;
-            return -3;
-        }
-    } else {
-
-        // Amiga demos have a menu
-        if (mVersion->mPlatform == ePlatform::Amiga) {
-
-			// But not custom games
-			if (!mVersion->isCustom()) {
-
-				if (Demo_Amiga_ShowMenu())
-					return -1;
+			// Did we just load/save a game?
+			if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
+				mMission_Restart = -1;
+				mMission_Recruitment = -1;
+				mMission_Aborted = true;
+				return -3;
 			}
-        }
-    }
+		}
+		else {
+
+			// Amiga demos have a menu
+			if (mVersion->mPlatform == ePlatform::Amiga) {
+
+				// But not custom games
+				if (!mVersion->isCustom()) {
+
+					if (Demo_Amiga_ShowMenu())
+						return -1;
+				}
+			}
+		}
+	}
 
     mMission_Restart = 0;
     Mission_Memory_Backup();
@@ -19621,7 +19629,9 @@ int16 cFodder::Recruit_Show() {
     // Show the intro for the briefing screen for Retail / Custom Set
 	if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom) {
 		Map_Load();
-		mGraphics->Briefing_Intro();
+
+		if(mCustom_Mode != eCustomMode_Map)
+			mGraphics->Briefing_Intro();
 	}
     
     mGraphics->Load_pStuff();
@@ -19632,7 +19642,7 @@ int16 cFodder::Recruit_Show() {
 void cFodder::Start(int16 pStartMap) {
 
 Start:;
-	mVersionDefault = g_AvailableDataVersions[0];
+	mVersionDefault = 0;
     mVersion = 0;
     VersionLoad(g_AvailableDataVersions[0]);
 
