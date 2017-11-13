@@ -1093,7 +1093,7 @@ public:
     void            Map_Destroy_Tiles( );
     void            Map_Destroy_Tiles_Next();
     
-	std::string 	Campaign_Select_File_Small(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
+	std::string 	Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
 
 	void            Game_Load();
 	void            Game_Save();
