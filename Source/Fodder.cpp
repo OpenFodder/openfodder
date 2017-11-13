@@ -12196,10 +12196,44 @@ loc_19EE5:;
     if (pSprite->field_38 == eSprite_Anim_None)
         goto loc_1A149;
 
-    if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2)
-        if (mHelicopterCall_X >= 0)
-            goto loc_1A042;
-    
+	if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2) {
+
+		if (mHelicopterCall_X >= 0) {
+
+			if (pSprite->field_75 != 0x71) {
+				pSprite->field_75 = 0x71;
+				pSprite->field_74 = static_cast<int8>(pSprite->field_A);
+			}
+
+			pSprite->field_A += 1;
+			pSprite->field_A &= 0x0F;
+
+			if (pSprite->field_A == pSprite->field_74) {
+				pSprite->field_75 = 0;
+				pSprite->field_38 = eSprite_Anim_None;
+			}
+
+			Data24 = pSprite + 1;
+
+			Data24->field_8 = 0x8C;
+			Data24->field_0 = pSprite->field_0;
+			Data24->field_4 = pSprite->field_4 + 1;
+			Data24->field_20 = pSprite->field_20 + 0x0E;
+
+			if (!word_3B4ED[0])
+				if (!pSprite->field_1E && !pSprite->field_20)
+					return;
+
+			if (pSprite->field_20 < 0x0C)
+				if (mMission_EngineTicks & 1)
+					return;
+
+			Data24->field_A += 1;
+			Data24->field_A &= 3;
+			return;
+		}
+	}
+
 	if (pSprite->field_26 != 0x7171) {
 
 		pSprite->field_26 = 0x7171;
@@ -12222,16 +12256,15 @@ loc_19EE5:;
     pSprite->field_A += Data0;
     pSprite->field_A &= 0x0F;
     pSprite->field_2A -= 1;
-    if (pSprite->field_2A < 0)
-        goto Helicopter_Explosion;
+	if (pSprite->field_2A >= 0) {
 
-    pSprite->field_1E_Big -= 0x18000;
-    if (pSprite->field_1E_Big >= 0)
-        goto loc_1A404;
+		pSprite->field_1E_Big -= 0x18000;
+		if (pSprite->field_1E_Big >= 0)
+			goto loc_1A404;
 
-    pSprite->field_1E_Big = 0;
+		pSprite->field_1E_Big = 0;
+	}
 
-Helicopter_Explosion:;
     pSprite->field_18 = eSprite_Explosion;
     pSprite->field_26 = 0x1F50;
     pSprite->field_28 = -9;
@@ -12249,39 +12282,6 @@ Helicopter_Explosion:;
     if (mSprite_Helicopter_DestroyLight)
         Sprite_Destroy( pSprite + 3 );
 
-    return;
-
-loc_1A042:;
-    if (pSprite->field_75 != 0x71) {
-        pSprite->field_75 = 0x71;
-        pSprite->field_74 = static_cast<int8>(pSprite->field_A);
-    }
-
-    pSprite->field_A += 1;
-    pSprite->field_A &= 0x0F;
-
-    if (pSprite->field_A == pSprite->field_74) {
-        pSprite->field_75 = 0;
-        pSprite->field_38 = eSprite_Anim_None;
-    }
-
-    Data24 = pSprite + 1;
-
-    Data24->field_8 = 0x8C;
-    Data24->field_0 = pSprite->field_0;
-    Data24->field_4 = pSprite->field_4 + 1;
-    Data24->field_20 = pSprite->field_20 + 0x0E;
-
-    if (!word_3B4ED[0])
-        if (!pSprite->field_1E && !pSprite->field_20)
-            return;
-    
-    if (pSprite->field_20 < 0x0C)
-        if (mMission_EngineTicks & 1)
-            return;
-
-    Data24->field_A += 1;
-    Data24->field_A &= 3;
     return;
 
 loc_1A149:;
@@ -12305,8 +12305,37 @@ loc_1A149:;
     if (Data0 > pSprite->field_36)
         goto loc_1A217;
 
-    if (pSprite->field_22 != eSprite_PersonType_Human)
-        goto loc_1A205;
+	if (pSprite->field_22 != eSprite_PersonType_Human) {
+		pSprite->field_36 = Data0;
+		if (!Data0) {
+			Data8 = pSprite->field_0;
+			DataC = pSprite->field_4;
+
+			if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
+				goto loc_1A316;
+
+			Data8 = pSprite->field_0;
+			Data8 -= 0x10;
+			DataC = pSprite->field_4;
+
+			if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
+				goto loc_1A316;
+
+			Data8 = pSprite->field_0;
+			Data8 += 0x10;
+			DataC = pSprite->field_4;
+
+			if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
+				goto loc_1A316;
+
+			if (pSprite->field_20) {
+				pSprite->field_1E_Big -= 0x8000;
+			}
+			goto loc_1A316;
+		}
+
+		goto loc_1A316;
+	}
 
     pSprite->field_36 = Data0;
     if (!pSprite->field_6E)
@@ -12318,12 +12347,6 @@ loc_1A149:;
         pSprite->field_1E_Big = 0;
     }
     Sprite_Handle_Helicopter_Terrain_Check( pSprite );
-    goto loc_1A316;
-
-loc_1A205:;
-    pSprite->field_36 = Data0;
-    if (!Data0)
-        goto loc_1A287;
     goto loc_1A316;
 
 loc_1A217:;
@@ -12350,81 +12373,38 @@ loc_1A217:;
     }
     goto loc_1A316;
 
-loc_1A287:;
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_4;
-
-    if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
-        goto loc_1A316;
-    
-    Data8 = pSprite->field_0;
-    Data8 -= 0x10;
-    DataC = pSprite->field_4;
-
-    if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
-        goto loc_1A316;
-
-    Data8 = pSprite->field_0;
-    Data8 += 0x10;
-    DataC = pSprite->field_4;
-
-    if (Map_Terrain_Get_Moveable_Wrapper( mTiles_NotFlyable, Data8, DataC, Data10, Data14 ))
-        goto loc_1A316;
-
-    if (pSprite->field_20) {
-        pSprite->field_1E_Big -= 0x8000;
-    }
-
 loc_1A316:;
-    Data0 = pSprite->field_26;
-    if (Data0 < 0)
-        goto loc_1A345;
+	if (pSprite->field_26 >= 0 && pSprite->field_28 >= 0) {
 
-    Data4 = pSprite->field_28;
-    if (Data4 < 0)
-        goto loc_1A345;
+		if (pSprite->field_20)
+			Sprite_Movement_Calculate(pSprite);
+	}
 
-    if (!pSprite->field_20)
-        goto loc_1A345;
+	if (pSprite->field_22 == eSprite_PersonType_Human && !pSprite->field_36 && 
+		pSprite->field_20 >= 0x20) {
+		Data0 = mMouseX + (mCamera_Adjust_Col >> 16);
+		Data0 -= 0x10;
 
-    Sprite_Movement_Calculate( pSprite );
+		Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
+		Data4 += 0x20;
+		pSprite->field_36 = 0x1E;
+		sub_23E01(pSprite, Data0, Data4);
+		pSprite->field_36 = 0;
 
-loc_1A345:;
+		Data8 = pSprite->field_3C;
+		if (pSprite->field_22 != eSprite_PersonType_Human) {
+			if (!pSprite->field_36)
+				goto loc_1A404;
+		}
+		pSprite->field_A = Data8;
+	}
+	else {
 
-    if (pSprite->field_22 != eSprite_PersonType_Human)
-        goto loc_1A3AB;
-
-    if (pSprite->field_36)
-        goto loc_1A3AB;
-
-    if (pSprite->field_20 < 0x20)
-        goto loc_1A3AB;
-
-    Data0 = mMouseX + (mCamera_Adjust_Col >> 16);
-    Data0 -= 0x10;
-
-    Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
-    Data4 += 0x20;
-    pSprite->field_36 = 0x1E;
-    sub_23E01( pSprite, Data0, Data4 );
-    pSprite->field_36 = 0;
-    goto loc_1A3D2;
-
-loc_1A3AB:;
-    word_3B2F7 = 0x3A;
-    Data0 = pSprite->field_26;
-    Data4 = pSprite->field_28;
-    sub_22CD7( pSprite, Data0, Data4 );
-    goto loc_1A404;
-
-loc_1A3D2:;
-
-    Data8 = pSprite->field_3C;
-    if (pSprite->field_22 != eSprite_PersonType_Human) {
-        if (!pSprite->field_36)
-            goto loc_1A404;
-    }
-    pSprite->field_A = Data8;
+		word_3B2F7 = 0x3A;
+		Data0 = pSprite->field_26;
+		Data4 = pSprite->field_28;
+		sub_22CD7(pSprite, Data0, Data4);
+	}
 
 loc_1A404:;
     Data24 = pSprite + 1;
@@ -12450,14 +12430,15 @@ loc_1A404:;
 loc_1A49C:;
     Data24++;
     Data24->field_8 = 0x8D;
-    Data0 = pSprite->field_20;
 
+    Data0 = pSprite->field_20;
     Data0 >>= 4;
     if (Data0 > 2)
         Data0 = 2;
 
     Data24->field_A = Data0;
     Data24->field_2C = eSprite_Draw_First;
+
     Data0 = pSprite->field_20;
     Data0 >>= 1;
     Data4 = Data0;
@@ -12469,25 +12450,22 @@ loc_1A49C:;
     Data4 += pSprite->field_4;
     Data24->field_4 = Data4;
 
-    if (pSprite->field_22 != eSprite_PersonType_Human)
-        goto loc_1A5A7;
+	if (pSprite->field_22 == eSprite_PersonType_Human) {
+		if (pSprite->field_20) {
 
-    if (!pSprite->field_20)
-        goto loc_1A5A7;
+			Data8 = pSprite->field_0;
+			DataC = pSprite->field_0;
+			DataC += 0x1E;
+			Data10 = pSprite->field_4;
+			Data10 -= 0x14;
+			Data14 = pSprite->field_4;
+			Data18 = pSprite->field_20;
+			Data1C = Data18;
+			Data1C += 0x0E;
 
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_0;
-    DataC += 0x1E;
-    Data10 = pSprite->field_4;
-    Data10 -= 0x14;
-    Data14 = pSprite->field_4;
-    Data18 = pSprite->field_20;
-    Data1C = Data18;
-    Data1C += 0x0E;
-
-    Sprite_Under_Vehicle( pSprite, Data8, DataC, Data10, Data14, Data18, Data1C );
-
-loc_1A5A7:;
+			Sprite_Under_Vehicle(pSprite, Data8, DataC, Data10, Data14, Data18, Data1C);
+		}
+	}
 
     pSprite->field_22 = eSprite_PersonType_Human;
 }
@@ -19584,7 +19562,7 @@ void cFodder::Playground() {
 int16 cFodder::Recruit_Show() {
 
 	if (mCustom_Mode != eCustomMode_Map) {
-		Map_Load_Resources();
+		Map_Load();
 		Map_Load_Sprites();
 	}
 
