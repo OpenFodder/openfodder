@@ -1384,6 +1384,7 @@ void cGraphics_Amiga::Briefing_Intro() {
 		Briefing_Load_Resources();
 		SetActiveSpriteSheet(eSPRITE_BRIEFING);
 
+		g_Fodder.mMouse_Exit_Loop = 0;
 		g_Fodder.mSound->Music_Play(0x07);
 		g_Fodder.Briefing_Helicopter_Start();
 
