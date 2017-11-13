@@ -284,7 +284,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           mSidebar_Draw_Y;
     int16           word_3A3BF;
     sMapTarget*     dword_3A3F9;
-    int16           word_3A8CF;
+    int16           mDirectionMod;
 
     sMapPosition    m2A622_Unk_MapPosition;
     int16           mMission_TryAgain;

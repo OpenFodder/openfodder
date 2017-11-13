@@ -680,7 +680,7 @@ void cFodder::Mission_Memory_Clear() {
     word_3A3BB = 0;
     mSidebar_Draw_Y = 0;
     word_3A3BF = 0;
-    word_3A8CF = 0;
+    mDirectionMod = 0;
     mMission_Aborted = 0;
     mSquad_SwitchWeapon = 0;
     word_3A9B8 = 0;
@@ -5169,7 +5169,7 @@ void cFodder::sub_22CD7( sSprite* pSprite, int16& pData0, int16& pData4 ) {
     pData0 = word_3B2F7;
     pData0 -= pSprite->field_36;
 
-    pData0 *= word_3A8CF;
+    pData0 *= mDirectionMod;
     int16 Data8 = 0;
 
     pData4 = pData0;
@@ -5637,7 +5637,7 @@ loc_2361A:;
         Data2C->field_2C = eSprite_Draw_First;
 
     if (!pSprite->field_36) {
-        if (word_3A8CF) {
+        if (mDirectionMod) {
             pSprite->field_36 -= 4;
             goto loc_23680;
         }
@@ -5961,7 +5961,7 @@ loc_23E2F:;
     sub_2B12E( pSprite );
 
     pSprite->field_10 = pSprite->field_3C;
-    pData0 = word_3A8CF;
+    pData0 = mDirectionMod;
     pData0 <<= 3;
 
     if (pSprite->field_36 > 0x18)
@@ -8229,7 +8229,7 @@ loc_2A2F5:;
 
 void cFodder::sub_2A3D4( sSprite* pSprite ) {
     
-    word_3A8CF = 0;
+    mDirectionMod = 0;
     pSprite->field_3E -= 1;
     if (pSprite->field_3E >= 0)
         return;
@@ -8252,7 +8252,7 @@ void cFodder::sub_2A3D4( sSprite* pSprite ) {
     DataC = (int16) mSprite_Direction_Frame_Unk[DataC];
     DataC <<= 1;
 
-    word_3A8CF = DataC;
+    mDirectionMod = DataC;
 }
 
 void cFodder::Squad_Walk_Steps_Decrease() {
@@ -8767,7 +8767,7 @@ void cFodder::sub_2AEB6( int16 pColumns, int16 pRows, int16* pData8, int16* pDat
 
 
 void cFodder::sub_2B12E( sSprite* pSprite ) {
-    word_3A8CF = 0;
+    mDirectionMod = 0;
     int16 Data0 = pSprite->field_10;
 
     Data0 -= pSprite->field_3C;
@@ -8781,7 +8781,7 @@ void cFodder::sub_2B12E( sSprite* pSprite ) {
     int16 Data4 = Data0;
     Data4 &= 0x0F;
 
-    word_3A8CF = (int16) mSprite_Direction_Frame_Unk[Data4];
+    mDirectionMod = (int16) mSprite_Direction_Frame_Unk[Data4];
 }
 
 void cFodder::Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C ) {
@@ -11711,7 +11711,7 @@ loc_194A0:;
     pSprite->field_43 = -1;
     
     if( !word_3AA1D ) {
-        word_3A8CF = 0;
+        mDirectionMod = 0;
         Sprite_Handle_Troop_FrameUnk( pSprite );
         pSprite->field_A = 0;
         return; 
@@ -13153,28 +13153,21 @@ loc_1B5D2:;
     }
 
     if (!pSprite->field_36) {
-        if (word_3A8CF)
+        if (mDirectionMod)
             goto loc_1B655;
     }
 
-    if (pSprite->field_52 >= 4)
-        goto loc_1B655;
+	// Not drawing 4 or more rows?
+	if (pSprite->field_52 < 4) {
+		pSprite->field_36 += 3;
+		if (pSprite->field_18 == eSprite_Vehicle_Unk_Enemy) {
 
-    pSprite->field_36 += 3;
-    if (pSprite->field_18 != eSprite_Vehicle_Unk_Enemy)
-        goto loc_1B640;
-
-    pSprite->field_36 = 0x14;
-    /*
-    seg004:28E2 7C 21                          jl      short loc_1B655
-    seg004:28E4 C4 36 20 00                    les     si, ds:20h
-    seg004:28E8 26 C7 44 36 14+                mov     word ptr es:[si+36h], 14h
-    */
-    goto loc_1B655;
-loc_1B640:;
-    if (pSprite->field_36 >= 0x32)
-        pSprite->field_36 = 0x32;
-
+			if (pSprite->field_36 >= 0x32)
+				pSprite->field_36 = 0x32;
+		}
+		else
+			pSprite->field_36 = 0x14;
+	}
 loc_1B655:;
     if (pSprite->field_20 > 4)
         pSprite->field_36 += 0x1C;
@@ -16443,7 +16436,7 @@ loc_1F7F9:;
 
 loc_1F7FF:;
     Data8 = pSprite->field_3C;
-    Data8 += word_3A8CF;
+    Data8 += mDirectionMod;
     Data8 &= 0x0E;
 
     pSprite->field_3C = Data8;
@@ -18125,7 +18118,7 @@ void cFodder::Sprite_Set_Direction_Toward_Cursor( sSprite* pSprite ) {
     Data0 &= 0x0F;
     pSprite->field_3C = Data0;
 
-    word_3A8CF = 0;
+    mDirectionMod = 0;
 }
 
 int16 cFodder::Sprite_Reached_Target( sSprite* pSprite ) {
@@ -18882,7 +18875,7 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
     mTroop_Cannot_Fire_Bullet = 0;
     mTroop_Cannot_Throw_Grenade = -1;
     word_3A010 = -1;
-    word_3A8CF = 0;
+    mDirectionMod = 0;
     word_3AA41 = -1;
 
     int16 Dataa0, Data4, Data8, DataC, Data10;
@@ -19196,7 +19189,7 @@ loc_22383:;
 void cFodder::sub_223B2( sSprite* pSprite ) {
     int16 Data8 = pSprite->field_3C;
     
-    Data8 += word_3A8CF;
+    Data8 += mDirectionMod;
     Data8 &= 0x0E;
 
     pSprite->field_3C = Data8;
