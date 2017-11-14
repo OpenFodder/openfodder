@@ -70,6 +70,13 @@ struct sVersion {
 	const sFile*		mFiles;
 
 	const std::vector<eTileTypes>	mTileTypes;
+	const std::vector<eGFX_Types>   mGfxTypes;
+
+
+	bool hasGfx(eGFX_Types pGfxType) const {
+
+		return std::find(mGfxTypes.begin(), mGfxTypes.end(), pGfxType) != mGfxTypes.end();
+	}
 
 	bool hasTileset(eTileTypes pTileType) const {
 
@@ -80,6 +87,15 @@ struct sVersion {
 
 		return mVersion == eVersion::Custom;
 	}
+
+	bool isDemo() const {
+		return mRelease == eRelease::Demo;
+	}
+
+	bool isRetail() const {
+		return mRelease == eRelease::Retail;
+	}
+
 };
 
 extern std::vector<sVersion> Versions;

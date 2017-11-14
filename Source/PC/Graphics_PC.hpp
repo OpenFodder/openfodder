@@ -65,7 +65,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		PaletteSetOverview();
 	virtual void		PaletteSet(cSurface *pTarget);
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
-	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
+	virtual void		SetActiveSpriteSheet(eGFX_Types pSpriteType );
 
 	uint8				Video_Get_Pixel(uint8* pSi, int16 pX, int16 pY);
 	void				Video_Put_Pixel(uint8* pDi, uint8 pAl);
@@ -81,10 +81,10 @@ class cGraphics_PC : public cGraphics {
 	
 	virtual bool		Sprite_OnScreen_Check();
 
-	virtual void		Briefing_Load_Resources();
-	virtual void		Briefing_DrawHelicopter( uint16 pID );
+	virtual void		Mission_Intro_Load_Resources();
+	virtual void		Mission_Intro_DrawHelicopter( uint16 pID );
 
-	virtual void		Briefing_Intro();
+	virtual void		Mission_Intro_Play();
 	void				Briefing_Intro_Jungle();
 	void				Briefing_Intro_Desert();
 	void				Briefing_Intro_Ice();

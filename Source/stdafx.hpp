@@ -123,10 +123,10 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Map.hpp"
 #include "Tiles.hpp"
 #include "FontData.hpp"
+#include "Graphics.hpp"
 #include "Versions.hpp"
 
 #include "Window.hpp"
-#include "Graphics.hpp"
 #include "Sound.hpp"
 #include "Recruits.hpp"
 #include "GUI_Element.hpp"

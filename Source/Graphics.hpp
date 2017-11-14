@@ -20,24 +20,24 @@
  *
  */
 
-enum eSpriteType {
-	eSPRITE_IN_GAME			= 0,
-	eSPRITE_IN_GAME2		= 1,
-	eSPRITE_FONT			= 2,
-	eSPRITE_HILL			= 3,
-	eSPRITE_RECRUIT	= 4,
-	eSPRITE_BRIEFING		= 5,
-	eSPRITE_SERVICE			= 6,
-
-	eSPRITE_RANKFONT		= 7,
-	eSPRITE_PSTUFF			= 8,
-
-	eSPRITE_BRIEFING_AMIGA_1 = 9,
-	eSPRITE_BRIEFING_AMIGA_2 = 10,
-	eSPRITE_BRIEFING_AMIGA_3 = 11
-};
-
 class cFodder;
+
+enum eGFX_Types {
+	eGFX_IN_GAME = 0,
+	eGFX_IN_GAME2 = 1,
+	eGFX_FONT = 2,
+	eGFX_HILL = 3,
+	eGFX_RECRUIT = 4,
+	eGFX_BRIEFING = 5,
+	eGFX_SERVICE = 6,
+
+	eGFX_RANKFONT = 7,
+	eGFX_PSTUFF = 8,
+
+	eGFX_BRIEFING_AMIGA_1 = 9,
+	eGFX_BRIEFING_AMIGA_2 = 10,
+	eGFX_BRIEFING_AMIGA_3 = 11
+};
 
 struct sILBM_BMHD {
 	uint16	mWidth, mHeight;
@@ -134,6 +134,7 @@ public:
 
 class cGraphics : public cSingleton<cGraphics> {
 	public:
+	sImage				mImageTemporary;
 	sImage				mSpriteSheet_InGame1;	// Army
 	sImage				mSpriteSheet_InGame2;	// Copt
 
@@ -186,7 +187,7 @@ public:
 	virtual void		Video_Draw_16() = 0;
 	virtual void		Video_Draw_8(cSurface *pTarget = 0) = 0;
 
-	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType ) = 0;
+	virtual void		SetActiveSpriteSheet( eGFX_Types pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );
 	virtual void		SetImageOriginal();
 	virtual bool		Sprite_OnScreen_Check() = 0;
@@ -196,9 +197,9 @@ public:
 	virtual void		Sidebar_Copy_ScreenBuffer( uint16 Data0, int16 Data4, int16 pCopyToScreen, uint32*& pBuffer) = 0;
 	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) = 0;
 
-	virtual void		Briefing_Intro() = 0;
-	virtual void		Briefing_Load_Resources() = 0;
-	virtual void		Briefing_DrawHelicopter( uint16 pID ) = 0;
+	virtual void		Mission_Intro_Play() = 0;
+	virtual void		Mission_Intro_Load_Resources() = 0;
+	virtual void		Mission_Intro_DrawHelicopter( uint16 pID ) = 0;
 
 	virtual void		Recruit_Draw_Hill() = 0;
 	virtual void		Recruit_Draw_HomeAway() = 0;

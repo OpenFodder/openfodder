@@ -60,7 +60,7 @@ private:
     std::vector<std::string>                mMapFilenames;
 
     std::string                             mCustomMap;
-	bool									mIsCustom;
+	bool									mIsCustomCampaign;
 
 public:
 

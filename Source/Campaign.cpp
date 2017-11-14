@@ -214,7 +214,7 @@ bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
             }
         }
 
-		mIsCustom = pCustom;
+		mIsCustomCampaign = pCustom;
         return true;
     }
 
@@ -225,7 +225,7 @@ bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
  * Clear all missions/map names, goals and aggression rates
  */
 void cCampaign::Clear() {
-	mIsCustom = false;
+	mIsCustomCampaign = false;
 	mCustomMap = "";
 
     mMissionNames.clear();
@@ -355,5 +355,5 @@ const std::string cCampaign::getName() const {
 
 bool cCampaign::isCustom() const {
 
-	return mIsCustom;
+	return mIsCustomCampaign;
 }
