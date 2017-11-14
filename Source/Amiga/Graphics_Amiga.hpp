@@ -90,7 +90,7 @@ protected:
 	virtual void		Video_Draw_16();
 	virtual void		Video_Draw_8(cSurface *pTarget = 0);
 
-	virtual void		SetActiveSpriteSheet( eSpriteType pSpriteType );
+	virtual void		SetActiveSpriteSheet(eGFX_Types pSpriteType );
 
 	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
 	virtual void		Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY );
@@ -101,9 +101,9 @@ protected:
 	virtual bool		Sprite_OnScreen_Check(  );
 	virtual bool		Sprite_OnScreen_Check( bool p16bit = false );
 
-	virtual void		Briefing_Intro();
-	virtual void		Briefing_Load_Resources();
-	virtual void		Briefing_DrawHelicopter( uint16 pID );
+	virtual void		Mission_Intro_Play();
+	virtual void		Mission_Intro_Load_Resources();
+	virtual void		Mission_Intro_DrawHelicopter( uint16 pID );
 
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();

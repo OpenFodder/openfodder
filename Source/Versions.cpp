@@ -681,20 +681,33 @@ const std::vector<eTileTypes> mKnownCustomTypes = {
 
 };
 
+const std::vector<eGFX_Types> mKnownRetailData = {
+	eGFX_IN_GAME,	eGFX_IN_GAME2,
+	eGFX_FONT,		eGFX_HILL,
+	eGFX_RECRUIT,   eGFX_BRIEFING,
+	eGFX_SERVICE,   eGFX_RANKFONT,
+	eGFX_PSTUFF
+};
+
+const std::vector<eGFX_Types> mKnownAmigaDemoData = {
+	eGFX_IN_GAME,	eGFX_IN_GAME2,
+	eGFX_PSTUFF
+};
+
 /** 
  * Known versions of Cannon Fodder
  */
 std::vector<sVersion> Versions = {
 
 	/* Retail */
-	{ "Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles, mKnownRetailTypes },
-	{ "Cannon Fodder 2",eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files, mKnownRetailTypes },
-	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles, mKnownRetailTypes },
-	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files, mKnownRetailTypes },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles, mKnownRetailTypes, mKnownRetailData },
+	{ "Cannon Fodder 2",eGame::CF2, eVersion::Dos2_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files, mKnownRetailTypes, mKnownRetailData },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_Disk,	ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles, mKnownRetailTypes, mKnownRetailData },
+	{ "Cannon Fodder",	eGame::CF1, eVersion::Amiga_CD,		ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files, mKnownRetailTypes, mKnownRetailData },
 
 	/* Demo */
-	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles, mKnownAFXTypes },
-	{ "Cannon Fodder Plus",				eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles, mKnownPlusTypes },
+	{ "Amiga Format Christmas Special", eGame::CF1, eVersion::AmigaFormat,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles, mKnownAFXTypes, mKnownAmigaDemoData },
+	{ "Cannon Fodder Plus",				eGame::CF1, eVersion::AmigaPlus,	ePlatform::Amiga,	eRelease::Demo,		mIntroText_Amiga,	"Plus",				mPlusFiles, mKnownPlusTypes, mKnownAmigaDemoData },
 
 	/* Custom must be last, as they depend on a previous retail version being detected first */
 	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },

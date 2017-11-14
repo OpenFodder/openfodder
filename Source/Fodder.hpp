@@ -785,9 +785,9 @@ public:
 
     int16           Squad_Join( sSprite* pSprite );
 
-    void            Briefing_Show( );
-    void            Briefing_Prepare();
-    void            Briefing_Wait();
+    void            Briefing_Draw_Phase( );
+    void            Briefing_Show_PreReady();
+    void            Briefing_Show_Ready();
     void            Briefing_Draw_With( );
     void            Briefing_DrawBox( int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor );
     void            Briefing_Draw_Horizontal_Line( int16 pX, int16 pWidth, int16 pY, uint8 pColor );

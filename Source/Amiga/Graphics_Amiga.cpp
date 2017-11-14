@@ -68,24 +68,24 @@ cGraphics_Amiga::~cGraphics_Amiga() {
 uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 
 	switch (pSegment) {
-	case eSPRITE_IN_GAME:
+	case eGFX_IN_GAME:
 		mFodder->mVideo_Draw_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_InGame1.GetHeader();
 		// We should be returning the sImage, then mBMHD can go
 		return mSpriteSheet_InGame1.mData->data();
 
-	case eSPRITE_IN_GAME2:
+	case eGFX_IN_GAME2:
 		mFodder->mVideo_Draw_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_InGame2.GetHeader();
 		return mSpriteSheet_InGame2.mData->data();
 	
-	case eSPRITE_RANKFONT:
+	case eGFX_RANKFONT:
 		mFodder->mVideo_Draw_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
 
 		return mSpriteSheet_RankFont.mData->data();
 
-	case eSPRITE_PSTUFF:
+	case eGFX_PSTUFF:
 		if (mFodder->mVersion->mVersion == eVersion::AmigaFormat)
 			mFodder->mVideo_Draw_PaletteIndex = (uint8)mCursorPalette;
 		else
@@ -94,45 +94,45 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mBMHD_Current = mImagePStuff.GetHeader();
 		return mImagePStuff.mData->data();
 	
-	case eSPRITE_RECRUIT:
+	case eGFX_RECRUIT:
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageHillBackground.GetHeader();
 		mBMHD_Current->mHeight = 0x100;
 		return mImageHillBackground.mData->data();
 
-	case eSPRITE_HILL:
+	case eGFX_HILL:
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageHillSprites.GetHeader();
 		mBMHD_Current->mHeight = 0x101;
 		return mImageHillSprites.mData->data();
 
-	case eSPRITE_FONT:
+	case eGFX_FONT:
 		mFodder->mVideo_Draw_PaletteIndex = 0xF0;
 		mBMHD_Current = mImageFonts.GetHeader();
 		return mImageFonts.mData->data();
 
-	case eSPRITE_BRIEFING:
+	case eGFX_BRIEFING:
 		mFodder->mVideo_Draw_PaletteIndex = 0xA0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
 		mFodder->mVideo_Draw_Rows = 64;
 		return mImageBriefingIntro.mData->data();
 
-	case eSPRITE_BRIEFING_AMIGA_1:
+	case eGFX_BRIEFING_AMIGA_1:
 		mFodder->mVideo_Draw_PaletteIndex = 0xB0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
 		mFodder->mVideo_Draw_Rows = 74;
 		return mImageBriefingIntro.mData->data() + (176 * 40);
 
-	case eSPRITE_BRIEFING_AMIGA_2:
+	case eGFX_BRIEFING_AMIGA_2:
 		mFodder->mVideo_Draw_PaletteIndex = 0xC0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
 		mFodder->mVideo_Draw_Rows = 111;
 		return mImageBriefingIntro.mData->data() + (65 * 40);
 
-	case eSPRITE_BRIEFING_AMIGA_3:
+	case eGFX_BRIEFING_AMIGA_3:
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageBriefingIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
@@ -260,7 +260,7 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 	return true;
 }
 
-void cGraphics_Amiga::Briefing_DrawHelicopter( uint16 pID ) {
+void cGraphics_Amiga::Mission_Intro_DrawHelicopter( uint16 pID ) {
 	const sSpriteSheet_pstuff* di = &mSpriteSheet_PStuff[pID];
 
 	mFodder->mVideo_Draw_Columns = di->mColumns;
@@ -352,7 +352,7 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 	mImageFonts.mDimension.mHeight = 0x100;
 	mImageFonts.mPlanes = 4;
 
-	SetActiveSpriteSheet( eSPRITE_FONT );
+	SetActiveSpriteSheet( eGFX_FONT );
 }
 
 sImage cGraphics_Amiga::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
@@ -429,30 +429,30 @@ void cGraphics_Amiga::SetCursorPalette( uint16 pIndex ) {
 	mCursorPalette = pIndex;
 }
 
-void cGraphics_Amiga::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
+void cGraphics_Amiga::SetActiveSpriteSheet(eGFX_Types pSpriteType ) {
 
 	switch (pSpriteType) {
-	case eSPRITE_IN_GAME:
+	case eGFX_IN_GAME:
 		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_Amiga );
 		return;
 
-	case eSPRITE_FONT:
+	case eGFX_FONT:
 		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Font_Amiga );
 		return;
 
-	case eSPRITE_RECRUIT:
+	case eGFX_RECRUIT:
 		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Recruit_Amiga );
 		return;
 
-	case eSPRITE_HILL:
+	case eGFX_HILL:
 		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Hill_Amiga );
 		return;
 
-	case eSPRITE_BRIEFING:
+	case eGFX_BRIEFING:
 		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Briefing_Amiga );
 		return;
 
-	case eSPRITE_SERVICE:
+	case eGFX_SERVICE:
 		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Service_Amiga );
 		return;
 	}
@@ -878,7 +878,7 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	mSpriteSheet_InGame2 = DecodeIFF( mFodder->mFilenameCopt );
 	mSpriteSheet_InGame1 = DecodeIFF( mFodder->mFilenameArmy );
 
-	SetActiveSpriteSheet( eSPRITE_IN_GAME );
+	SetActiveSpriteSheet( eGFX_IN_GAME );
 }
 
 void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget) {
@@ -1151,7 +1151,7 @@ void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 	}
 }
 
-void cGraphics_Amiga::Briefing_Load_Resources() {
+void cGraphics_Amiga::Mission_Intro_Load_Resources() {
 
 	// Briefing images
 	std::string JunData1 = mTileTypes[mFodder->mMap_TileSet].mName + "play.lbm";
@@ -1377,92 +1377,95 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
 	}
 }
 
-void cGraphics_Amiga::Briefing_Intro() {
+void cGraphics_Amiga::Mission_Intro_Play() {
 
-		mImage->clearBuffer();
+	if (!mFodder->mVersion->hasGfx(eGFX_BRIEFING))
+		return;
 
-		Briefing_Load_Resources();
-		SetActiveSpriteSheet(eSPRITE_BRIEFING);
+	mImage->clearBuffer();
+
+	Mission_Intro_Load_Resources();
+	SetActiveSpriteSheet(eGFX_BRIEFING);
+
+	g_Fodder.mMouse_Exit_Loop = 0;
+	g_Fodder.mSound->Music_Play(0x07);
+	g_Fodder.Briefing_Helicopter_Start();
+
+	if (g_Fodder.mVersion->mPlatform == ePlatform::Amiga) {
+		//TODO
+		g_Fodder.mVideo_Draw_PosX = 16;
+
+		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING);
+		g_Fodder.mVideo_Draw_PosY = 40;
+		Video_Draw_16();
+
+		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_1);
+		g_Fodder.mVideo_Draw_PosY = 60;
+		Video_Draw_16();
+
+		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_2);
+		g_Fodder.mVideo_Draw_PosY = 100;
+		Video_Draw_16();
+
+		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);
+		g_Fodder.mVideo_Draw_PosY = 163;
+		Video_Draw_16();
+
+		PaletteBriefingSet();
+		g_Fodder.mImage->palette_FadeTowardNew();
+		g_Fodder.mImageFaded = -1;
+
+		g_Fodder.Briefing_Draw_Mission_Name();
+		mImage->Save();
+
+		int16 word_42875 = 0;
+
+		do {
+			if (g_Fodder.mBriefing_Helicopter_Moving == -1)
+				g_Fodder.Briefing_Update_Helicopter();
+
+			g_Fodder.Mouse_Inputs_Get();
+
+			// Front
+			g_Fodder.mVideo_Draw_PosX = g_Fodder.mHelicopterPosX >> 16;
+			g_Fodder.mVideo_Draw_PosY = g_Fodder.mHelicopterPosY >> 16;
+			Mission_Intro_DrawHelicopter(203);
+
+			// Tail
+			g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16) + 48;
+			g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
+			Mission_Intro_DrawHelicopter(204);
+
+			int16 Blade = 205 + word_42875;
+
+			++word_42875;
+			if (word_42875 >= 3)
+				word_42875 = 0;
+
+			// Blade
+			g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16);
+			g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
+			Mission_Intro_DrawHelicopter(Blade);
+
+			if (g_Fodder.mImageFaded)
+				g_Fodder.mImageFaded = mImage->palette_FadeTowardNew();
+
+			g_Fodder.eventProcess();
+			g_Fodder.Video_Sleep();
+			g_Window.RenderAt(mImage, cPosition());
+			g_Window.FrameEnd();
+
+			g_Fodder.Mouse_GetData();
+
+			if (g_Fodder.mMouse_Exit_Loop) {
+				g_Fodder.word_428D8 = 0;
+				mImage->paletteNew_SetToBlack();
+				g_Fodder.mImageFaded = -1;
+				g_Fodder.mMouse_Exit_Loop = 0;
+			}
+			mImage->Restore();
+		} while (g_Fodder.word_428D8 || g_Fodder.mImageFaded != 0);
 
 		g_Fodder.mMouse_Exit_Loop = 0;
-		g_Fodder.mSound->Music_Play(0x07);
-		g_Fodder.Briefing_Helicopter_Start();
-
-		if (g_Fodder.mVersion->mPlatform == ePlatform::Amiga) {
-			//TODO
-			g_Fodder.mVideo_Draw_PosX = 16;
-
-			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING);
-			g_Fodder.mVideo_Draw_PosY = 40;
-			Video_Draw_16();
-
-			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING_AMIGA_1);
-			g_Fodder.mVideo_Draw_PosY = 60;
-			Video_Draw_16();
-
-			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING_AMIGA_2);
-			g_Fodder.mVideo_Draw_PosY = 100;
-			Video_Draw_16();
-
-			g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eSPRITE_BRIEFING_AMIGA_3);
-			g_Fodder.mVideo_Draw_PosY = 163;
-			Video_Draw_16();
-
-			PaletteBriefingSet();
-			g_Fodder.mImage->palette_FadeTowardNew();
-			g_Fodder.mImageFaded = -1;
-
-			g_Fodder.Briefing_Draw_Mission_Name();
-			mImage->Save();
-
-			int16 word_42875 = 0;
-
-			do {
-				if (g_Fodder.mBriefing_Helicopter_Moving == -1)
-					g_Fodder.Briefing_Update_Helicopter();
-
-				g_Fodder.Mouse_Inputs_Get();
-
-				// Front
-				g_Fodder.mVideo_Draw_PosX = g_Fodder.mHelicopterPosX >> 16;
-				g_Fodder.mVideo_Draw_PosY = g_Fodder.mHelicopterPosY >> 16;
-				Briefing_DrawHelicopter(203);
-
-				// Tail
-				g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16) + 48;
-				g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
-				Briefing_DrawHelicopter(204);
-
-				int16 Blade = 205 + word_42875;
-
-				++word_42875;
-				if (word_42875 >= 3)
-					word_42875 = 0;
-
-				// Blade
-				g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16);
-				g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
-				Briefing_DrawHelicopter(Blade);
-
-				if (g_Fodder.mImageFaded)
-					g_Fodder.mImageFaded = mImage->palette_FadeTowardNew();
-
-				g_Fodder.eventProcess();
-				g_Fodder.Video_Sleep();
-				g_Window.RenderAt(mImage, cPosition());
-				g_Window.FrameEnd();
-
-				g_Fodder.Mouse_GetData();
-
-				if (g_Fodder.mMouse_Exit_Loop) {
-					g_Fodder.word_428D8 = 0;
-					mImage->paletteNew_SetToBlack();
-					g_Fodder.mImageFaded = -1;
-					g_Fodder.mMouse_Exit_Loop = 0;
-				}
-				mImage->Restore();
-			} while (g_Fodder.word_428D8 || g_Fodder.mImageFaded != 0);
-
-			g_Fodder.mMouse_Exit_Loop = 0;
-		}
+	}
 }

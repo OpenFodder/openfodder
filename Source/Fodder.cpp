@@ -1824,9 +1824,10 @@ void cFodder::Map_Load_Resources() {
 			auto Version = FindAvailableVersionForTileset(mMap_TileSet);
 
 			// Load it
-			if (Version)
+			if (Version) {
 				VersionLoad(Version);
-			else {
+				Tiles_Load_Data();
+			} else {
 				// TODO: Quit?
 				std::cout << "Data not found\n";
 			}
@@ -2628,7 +2629,7 @@ void cFodder::Mission_Map_Overview_Show() {
             word_3A016 &= 0x3F;
 
             if (word_3A016 < 0x20) {
-                mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eSPRITE_PSTUFF);
+                mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eGFX_PSTUFF);
                 mVideo_Draw_Rows = 0x10;
 
                 if (mVersion->mPlatform == ePlatform::PC) {
@@ -3030,7 +3031,7 @@ void cFodder::VersionSelect() {
     mImage->clearBuffer();
     mWindow->SetScreenSize( cDimension( 320, 200 ) );
 
-    mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
+    mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
     uint16 Pos = 0x1;
     int Count = 0;
 
@@ -3068,7 +3069,7 @@ void cFodder::VersionSelect() {
 
     mImage->Save();
 
-    mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
+    mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
 
     mImageFaded = -1;
     mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
@@ -3229,7 +3230,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
             break;
     }
 
-    mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
+    mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
     mGraphics->Load_pStuff(); 
     mGraphics->Load_Hill_Data();
 }
@@ -3353,13 +3354,13 @@ void cFodder::Mission_Paused() {
     mImage->palette_FadeTowardNew();
     mImageFaded = -1;
 
-    mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
+    mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
     
     mString_GapCharID = 0x25;
     String_Print_Large( "GAME PAUSED", true, 0x54 );
     
     mString_GapCharID = 0;
-    mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
+    mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
 }
 
 void cFodder::Mission_GameOver() {
@@ -3660,7 +3661,7 @@ void cFodder::CopyProtection() {
         return;
 
     g_Graphics.Load_Hill_Data();
-    g_Graphics.SetActiveSpriteSheet( eSpriteType::eSPRITE_RECRUIT);
+    g_Graphics.SetActiveSpriteSheet( eGFX_Types::eGFX_RECRUIT);
 
     // 3 Attempts
     for (int16 Attempts = 0; Attempts < 3; ++Attempts) {
@@ -3775,7 +3776,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 	mMission_Aborted = false;
 	mGUI_SaveLoadAction = 0;
 
-	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
+	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
 	{
 		std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
@@ -3851,7 +3852,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
     mMission_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
-    mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
+    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
 
     std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
 
@@ -3908,7 +3909,7 @@ void cFodder::Campaign_Selection() {
 
 	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
 
-	mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
+	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
 	mCustom_Mode = eCustomMode_None;
 
@@ -4031,6 +4032,14 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 bool cFodder::Recruit_Loop() {
     mImage->clearBuffer();
 
+	// If demo data is loaded, we need to load
+	if (mVersion->mRelease == eRelease::Demo) {
+
+		if (mCustom_Mode == eCustomMode_Set) {
+			VersionLoad(mVersionDefault);
+		}
+	}
+
 	if (mVersion->mRelease == eRelease::Demo)
 		return 0;
 
@@ -4047,7 +4056,7 @@ bool cFodder::Recruit_Loop() {
     Recruit_Truck_Anim_Prepare();
     sub_16C6C();
     Recruit_Render_LeftMenu();
-    mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
+    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
     mGraphics->Recruit_Draw_Hill();
 
     Recruit_Copy_Sprites();
@@ -4057,7 +4066,7 @@ bool cFodder::Recruit_Loop() {
         ((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
     }
     
-    mGraphics->SetActiveSpriteSheet( eSPRITE_HILL );
+    mGraphics->SetActiveSpriteSheet( eGFX_HILL );
     
     Recruit_Draw_Graves();
     
@@ -4490,7 +4499,7 @@ void cFodder::Recruit_Render_HeroList() {
 }
 
 void cFodder::Recruit_Render_Names_UnusedSlots() {
-    uint32* Data20 = (uint32*) mGraphics->mSpriteSheet_InGame1.mData->data();
+    uint32* Data20 = (uint32*) mGraphics->mImageTemporary.mData->data();
 
     sRecruitRendered* Data24 = mRecruit_Rendered;
     int16 Data0 = 0x58;
@@ -9753,7 +9762,7 @@ void cFodder::Map_Destroy_Tiles_Next() {
 }
 
 void cFodder::Game_Save_Wrapper2() {
-    mGraphics->SetActiveSpriteSheet(eSPRITE_RECRUIT);
+    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
 
     Game_Save_Wrapper();
 }
@@ -10624,7 +10633,7 @@ void cFodder::Service_Show() {
     WindowTitleSet( false );
 
     mGraphics->Load_Service_Data();
-    mGraphics->SetActiveSpriteSheet( eSPRITE_SERVICE );
+    mGraphics->SetActiveSpriteSheet( eGFX_SERVICE );
     mGraphics->PaletteSet();
 
     mSound->Music_Play( 0 );
@@ -11214,7 +11223,7 @@ void cFodder::Sidebar_Clear_ScreenBufferPtr() {
         mSidebar_Screen_BufferPtr[cx] = 0;
 }
 
-void cFodder::Briefing_Show( ) {
+void cFodder::Briefing_Draw_Phase( ) {
     const char* Str_Brief = "BRIEFING";
     const char* Str_Phase = "PHASE ";
     const char* Str_Of = " OF ";
@@ -11249,23 +11258,34 @@ void cFodder::Briefing_Show( ) {
     }
 }
 
-void cFodder::Briefing_Prepare() {
+void cFodder::Briefing_Show_PreReady() {
+
+	if (mVersion->isDemo() && !mCampaign.isCustom())
+		return;
+
+	if (!mVersion->hasGfx(eGFX_BRIEFING))
+		VersionLoad(mVersionDefault);
+
     mImage->clearBuffer();
     mGraphics->PaletteSet();
 
-    mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
+    mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
 
     Briefing_Draw_Mission_Title( 0x2C );
-    Briefing_Show();
+    Briefing_Draw_Phase();
 
     Image_FadeIn();
 }
 
-void cFodder::Briefing_Wait() {
-    mGraphics->SetActiveSpriteSheet( eSPRITE_BRIEFING );
+void cFodder::Briefing_Show_Ready() {
+
+	if (mVersion->isDemo() && !mCampaign.isCustom())
+		return;
+
+    mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
 
     Briefing_Draw_Mission_Title( 0x2C );
-    Briefing_Show( );
+    Briefing_Draw_Phase( );
     Briefing_Draw_With( );
 
     mMouse_Exit_Loop = 0;
@@ -17462,7 +17482,7 @@ void cFodder::intro_LegionMessage() {
 int16 cFodder::introPlayText() {
 
     mGraphics->Load_Sprite_Font();
-    mGraphics->SetActiveSpriteSheet( eSpriteType::eSPRITE_FONT );
+    mGraphics->SetActiveSpriteSheet( eGFX_Types::eGFX_FONT );
 
     for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF ) {
 
@@ -19532,7 +19552,7 @@ void cFodder::Playground() {
     for (;; ) {
         mKeyCode = 0;
         {
-            mGraphics->SetActiveSpriteSheet(eSPRITE_BRIEFING);
+            mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
             std::stringstream SPRITE_STRING;
             SPRITE_STRING << "SPRITE: 0x" << std::hex << SpriteID;
             SPRITE_STRING << " FRAME: 0x" << std::hex << Frame;
@@ -19542,7 +19562,7 @@ void cFodder::Playground() {
         }
 
         {
-            mGraphics->SetActiveSpriteSheet(eSPRITE_HILL);
+            mGraphics->SetActiveSpriteSheet(eGFX_HILL);
             GUI_Draw_Frame_8(SpriteID, Frame, 65, 65);
         }
 
@@ -19607,8 +19627,10 @@ int16 cFodder::Recruit_Show() {
 
     WindowTitleSet(false);
 
-    // Retail / Custom set show the Recruitment Hill
+	// Single Map does not have a recruit screen
 	if (mCustom_Mode != eCustomMode_Map) {
+
+		// Retail / Custom set show the Recruitment Hill
 		if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
 
 			// Recruit Screen
@@ -19624,14 +19646,13 @@ int16 cFodder::Recruit_Show() {
 				mMission_Aborted = true;
 				return -3;
 			}
-		}
-		else {
+		} else {
 
 			// Amiga demos have a menu
 			if (mVersion->mPlatform == ePlatform::Amiga) {
 
 				// But not custom games
-				if (!mVersion->isCustom()) {
+				if (mCustom_Mode == eCustomMode_None) {
 
 					if (Demo_Amiga_ShowMenu())
 						return -1;
@@ -19643,12 +19664,14 @@ int16 cFodder::Recruit_Show() {
     mMission_Restart = 0;
     Mission_Memory_Backup();
 
-    // Show the intro for the briefing screen for Retail / Custom Set
-	if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom) {
+	// Retail or Custom Mode
+	if (mVersion->mRelease == eRelease::Retail || 
+		mCustom_Mode != eCustomMode_None) {
 		Map_Load();
 
+		// Show the intro for the briefing screen for Retail / Custom Set
 		if(mCustom_Mode != eCustomMode_Map)
-			mGraphics->Briefing_Intro();
+			mGraphics->Mission_Intro_Play();
 	}
     
     mGraphics->Load_pStuff();
@@ -19753,12 +19776,11 @@ int16 cFodder::Mission_Loop() {
 
         Map_Load();
         Map_Load_Sprites();
+		Map_Overview_Prepare();
 
 		//loc_10513
-		// Prepare the Briefing screen for Retail and Custom
-		if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom)
-			Briefing_Prepare();
-
+		// Show the pre ready Briefing Screen
+		Briefing_Show_PreReady();
 
         // Prepare Squads
         Mission_Troop_Count();
@@ -19767,11 +19789,11 @@ int16 cFodder::Mission_Loop() {
         Mission_Troop_Attach_Sprites();
 
         mMission_Aborted = false;
-        Map_Overview_Prepare();
+
 
         // Show the Briefing screen for Retail and Custom 
-        if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom) {
-            Briefing_Wait();
+        if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+            Briefing_Show_Ready();
 
             // Aborted?
             if (mBriefing_Aborted == -1) {
@@ -19787,7 +19809,8 @@ int16 cFodder::Mission_Loop() {
             }
         }
 
-        mGraphics->SetActiveSpriteSheet( eSPRITE_IN_GAME );
+		Map_Load();
+        mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
     
         MapTiles_Draw();
         Camera_Reset();

@@ -30,35 +30,35 @@ cGraphics_PC::~cGraphics_PC() {
 uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 	
 	switch ( pSegment ) {
-		case eSPRITE_IN_GAME:
+		case eGFX_IN_GAME:
 			return mSpriteSheet_InGame1.mData->data();
 			break;
 
-		case eSPRITE_IN_GAME2:
+		case eGFX_IN_GAME2:
 			return mSpriteSheet_InGame2.mData->data();
 			break;
 		
-		case eSPRITE_RANKFONT:
+		case eGFX_RANKFONT:
 			return mSpriteSheet_RankFont.mData->data();
 			break;
 		
-		case eSPRITE_FONT:
+		case eGFX_FONT:
 			return mImageFonts.mData->data();
 			break;
 
-		case eSPRITE_PSTUFF:
+		case eGFX_PSTUFF:
 			return mImagePStuff.mData->data();
 			break;
 		
-		case eSPRITE_RECRUIT:
+		case eGFX_RECRUIT:
 			return mImageRecruit.mData->data();
 			break;
 
-		case eSPRITE_HILL:
+		case eGFX_HILL:
 			return mImageHillSprites.mData->data();
 			break;
 
-		case eSPRITE_SERVICE:
+		case eGFX_SERVICE:
 			return mImageService.mData->data();
 			break;
 
@@ -85,30 +85,30 @@ void cGraphics_PC::Mouse_DrawCursor() {
 	Video_Draw_8();
 }
 
-void cGraphics_PC::SetActiveSpriteSheet( eSpriteType pSpriteType ) {
+void cGraphics_PC::SetActiveSpriteSheet( eGFX_Types pSpriteType ) {
 	
 	switch (pSpriteType) {
-		case eSPRITE_IN_GAME:
+		case eGFX_IN_GAME:
 			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_PC );
 			return;
 
-		case eSPRITE_FONT:
+		case eGFX_FONT:
 			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Font_PC );
 			return;
 
-		case eSPRITE_RECRUIT:
+		case eGFX_RECRUIT:
 			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Recruit_PC );
 			return;
 
-		case eSPRITE_HILL:
+		case eGFX_HILL:
 			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Hill_PC );
 			return;
 		
-		case eSPRITE_BRIEFING:
+		case eGFX_BRIEFING:
 			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Briefing_PC );
 			return;
 
-		case eSPRITE_SERVICE:
+		case eGFX_SERVICE:
 			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Service_PC );
 			return;
 	}
@@ -134,7 +134,7 @@ void cGraphics_PC::Load_Sprite_Font() {
 	
 	mImageFonts = Decode_Image("font.dat", 0x10, 0xA000, 0xD0);
 
-	SetActiveSpriteSheet( eSPRITE_FONT );
+	SetActiveSpriteSheet( eGFX_FONT );
 }
 
 void cGraphics_PC::Load_Hill_Data() {
@@ -319,7 +319,7 @@ void cGraphics_PC::Map_Load_Resources() {
 	// Sprites on Sheet1 occupy palette range from 0xA0-0xAF
 	mSpriteSheet_InGame1.CopyPalette(&mPalette[0xA0], 0x10, 0xA0);
 
-	SetActiveSpriteSheet( eSPRITE_IN_GAME );
+	SetActiveSpriteSheet( eGFX_IN_GAME );
 }
 
 void cGraphics_PC::Video_Draw_8(cSurface *pTarget) {
@@ -508,7 +508,7 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	const char* strHomeAndAway = "HOME                AWAY";
 	
-	SetActiveSpriteSheet(eSPRITE_RECRUIT);
+	SetActiveSpriteSheet(eGFX_RECRUIT);
 
 	// Load Icon
 	mFodder->GUI_Draw_Frame_8( 0x18, 0, 0, 0 );
@@ -528,10 +528,10 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	auto Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
-	SetActiveSpriteSheet(eSPRITE_HILL);
+	SetActiveSpriteSheet(eGFX_HILL);
 }
 
-void cGraphics_PC::Briefing_Load_Resources() {
+void cGraphics_PC::Mission_Intro_Load_Resources() {
 
 	// Briefing images
 	std::string JunData1 = mTileTypes[mFodder->mMap_TileSet].mName + "p1.dat";
@@ -656,7 +656,7 @@ void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned i
 		PaletteLoad( fileBuffer->data() + (fileBuffer->size() - (0x100 * 3)), pColors );
 }
 
-void cGraphics_PC::Briefing_DrawHelicopter( uint16 pID ) {
+void cGraphics_PC::Mission_Intro_DrawHelicopter( uint16 pID ) {
 
 }
 
@@ -741,11 +741,15 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 	return true;
 }
 
-void cGraphics_PC::Briefing_Intro() {
+void cGraphics_PC::Mission_Intro_Play() {
+
+	if (!mFodder->mVersion->hasGfx(eGFX_BRIEFING))
+		return;
+
 	mImage->clearBuffer();
 
-	Briefing_Load_Resources();
-	SetActiveSpriteSheet(eSPRITE_BRIEFING);
+	Mission_Intro_Load_Resources();
+	SetActiveSpriteSheet(eGFX_BRIEFING);
 
 	mFodder->mSound->Music_Play(0x07);
 	mFodder->Briefing_Helicopter_Start();
