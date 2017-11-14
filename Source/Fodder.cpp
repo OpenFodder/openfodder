@@ -17554,14 +17554,14 @@ int16 cFodder::introPlayText() {
 
 void cFodder::Mission_Intro_Play() {
 
+	// Single maps
 	if (mCustom_Mode == eCustomMode_Map)
 		return;
 
-	if (mVersion->isDemo() && !mCampaign.isCustom())
-		return;
-
+	// If we don't have the briefing graphics, there is no point in switching here,
+	//  As the correct background for the map intro won't exist
 	if (!mVersion->hasGfx(eGFX_BRIEFING))
-		VersionLoad(mVersionDefault);
+		return;
 
 	mImage->clearBuffer();
 
