@@ -743,18 +743,6 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 
 void cGraphics_PC::Mission_Intro_Play() {
 
-	if (!mFodder->mVersion->hasGfx(eGFX_BRIEFING))
-		return;
-
-	mImage->clearBuffer();
-
-	Mission_Intro_Load_Resources();
-	SetActiveSpriteSheet(eGFX_BRIEFING);
-
-	mFodder->mSound->Music_Play(0x07);
-	mFodder->Briefing_Helicopter_Start();
-
-
 	mFodder->Briefing_Draw_Mission_Name();
 
 	switch (mFodder->mMap_TileSet) {

@@ -3539,7 +3539,7 @@ void cFodder::Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 ) {
     mSound->Sound_Play( mMap_TileSet, pSoundEffect, Volume );
 }
 
-void cFodder::Briefing_Helicopter_Start( ) {
+void cFodder::Mission_Intro_Helicopter_Start( ) {
     mHelicopterPosX = 0x01500000;
     mHelicopterPosY = 0x00260000;
 
@@ -17552,6 +17552,29 @@ int16 cFodder::introPlayText() {
     return mImage_Aborted;
 }
 
+void cFodder::Mission_Intro_Play() {
+
+	if (mCustom_Mode == eCustomMode_Map)
+		return;
+
+	if (mVersion->isDemo() && !mCampaign.isCustom())
+		return;
+
+	if (!mVersion->hasGfx(eGFX_BRIEFING))
+		VersionLoad(mVersionDefault);
+
+	mImage->clearBuffer();
+
+	mGraphics->Mission_Intro_Load_Resources();
+	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+	
+	mMouse_Exit_Loop = 0;
+	mSound->Music_Play(0x07);
+	Mission_Intro_Helicopter_Start();
+
+	mGraphics->Mission_Intro_Play();
+}
+
 void cFodder::Intro_Print_String( int32 pPosY, const sIntroString* pString ) {
 
     if (mVersion->mPlatform == ePlatform::PC)
@@ -19669,9 +19692,8 @@ int16 cFodder::Recruit_Show() {
 		mCustom_Mode != eCustomMode_None) {
 		Map_Load();
 
-		// Show the intro for the briefing screen for Retail / Custom Set
-		if(mCustom_Mode != eCustomMode_Map)
-			mGraphics->Mission_Intro_Play();
+		// Show the intro for the briefing screen
+		Mission_Intro_Play();
 	}
     
     mGraphics->Load_pStuff();
@@ -19809,7 +19831,7 @@ int16 cFodder::Mission_Loop() {
             }
         }
 
-		Map_Load();
+		//Map_Load();
         mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
     
         MapTiles_Draw();
