@@ -1802,20 +1802,6 @@ void cFodder::Map_Load_Resources() {
     mMapWidth_Pixels = (mMapWidth << 4);
     mMapHeight_Pixels = (mMapHeight << 4);
 
-    uint8* Map = mMap->data();
-
-    // jun
-    BaseBaseSet.append( Map, Map + 3 );
-
-    // jun
-    BaseSubSet.append( Map + 0x10, Map + 0x10 + 3 );
-
-    // junbase
-    BaseBase.append( Map, Map + 7 );
-
-    // junsub0
-    BaseSub.append( Map + 0x10, Map + 0x10 + 7 );
-	
     // Map Tileset
     Map_SetTileType();
 
@@ -1847,6 +1833,19 @@ void cFodder::Map_Load_Resources() {
 		}
 		
 	}
+
+	// jun
+	BaseBaseSet.append(mMap->data(), mMap->data() + 3);
+
+	// jun
+	BaseSubSet.append(mMap->data() + 0x10, mMap->data() + 0x10 + 3);
+
+	// junbase
+	BaseBase.append(mMap->data(), mMap->data() + 7);
+
+	// junsub0
+	BaseSub.append(mMap->data() + 0x10, mMap->data() + 0x10 + 7);
+
 
     mFilenameCopt = Filename_CreateFromBase( BaseBaseSet, "copt." );
     mFilenameBaseSwp = Filename_CreateFromBase( BaseBase, ".swp" );
@@ -19750,15 +19749,16 @@ int16 cFodder::Mission_Loop() {
             }
         }
 
-        //loc_10513
-        // Prepare the Briefing screen for Retail and Custom
-        if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom )
-            Briefing_Prepare();
-            
         WindowTitleSet( true );
 
         Map_Load();
         Map_Load_Sprites();
+
+		//loc_10513
+		// Prepare the Briefing screen for Retail and Custom
+		if (mVersion->mRelease == eRelease::Retail || mVersion->mVersion == eVersion::Custom)
+			Briefing_Prepare();
+
 
         // Prepare Squads
         Mission_Troop_Count();
