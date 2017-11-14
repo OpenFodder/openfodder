@@ -1379,18 +1379,6 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
 
 void cGraphics_Amiga::Mission_Intro_Play() {
 
-	if (!mFodder->mVersion->hasGfx(eGFX_BRIEFING))
-		return;
-
-	mImage->clearBuffer();
-
-	Mission_Intro_Load_Resources();
-	SetActiveSpriteSheet(eGFX_BRIEFING);
-
-	g_Fodder.mMouse_Exit_Loop = 0;
-	g_Fodder.mSound->Music_Play(0x07);
-	g_Fodder.Briefing_Helicopter_Start();
-
 	if (g_Fodder.mVersion->mPlatform == ePlatform::Amiga) {
 		//TODO
 		g_Fodder.mVideo_Draw_PosX = 16;

@@ -724,7 +724,7 @@ public:
     void            Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 );
 
     // 14EAC
-    void            Briefing_Helicopter_Start( );
+    void            Mission_Intro_Helicopter_Start( );
     void            sub_1594F( );
     void            Briefing_Update_Helicopter( );
 
@@ -785,6 +785,7 @@ public:
 
     int16           Squad_Join( sSprite* pSprite );
 
+	
     void            Briefing_Draw_Phase( );
     void            Briefing_Show_PreReady();
     void            Briefing_Show_Ready();
@@ -795,6 +796,7 @@ public:
 
     void            Briefing_Draw_Pixel( int16 pX, int16 pY, uint8 pColor );
 
+	void			Mission_Intro_Play();
     void            Intro_Print_String( int32 pPosX, const sIntroString* pString );
 
     void            Sprite_Frame_Modifier_Update();
