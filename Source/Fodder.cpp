@@ -3785,8 +3785,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 		std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
 
 		// Sort files alphabetical
-		std::sort(Files.begin(), Files.end(),[](std::basic_string<char, std::char_traits<char>, std::allocator<char>>& pLeft,
-				std::basic_string<char, std::char_traits<char>, std::allocator<char>>& pRight) {
+		std::sort(Files.begin(), Files.end(),[](std::string& pLeft, std::string& pRight) {
 			return pLeft < pRight;
 		});
 
