@@ -13638,56 +13638,41 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
     if (Data0 <= Data4)
         goto loc_1C197;
 
-    if (Data34->field_20 <= 0x10)
-        goto loc_1BFE0;
+	if (Data34->field_20 <= 0x10) {
+		if (Data0 > 0x30) {
+			Data0 = pSprite->field_0;
+			Data4 = pSprite->field_4;
+			Data8 = Data34->field_0;
+			DataC = Data34->field_4;
+			Data8 += 8;
+			DataC += 8;
 
-    Data4 = pSprite->field_20;
-    if (Data4 == Data34->field_20)
-        goto loc_1C087;
-    if (Data4 > Data34->field_20)
-        goto loc_1BFD0;
+			if (!sub_2A4A2(Data0, Data4, Data8, DataC)) {
+				if (pSprite->field_20 > 8)
+					pSprite->field_1E_Big -= 0x12000;
+			} else {
 
-    pSprite->field_1E_Big += 0x8000;
-    goto loc_1C087;
-loc_1BFD0:;
+				if (pSprite->field_20 < 0x18)
+					pSprite->field_1E_Big += 0x28000;
+			}
+		} else {
 
-    pSprite->field_1E_Big -= 0x8000;
-    goto loc_1C087;
+			Data4 = Data34->field_20;
+			Data4 -= pSprite->field_20;
+			Data4 >>= 3;
+			pSprite->field_20 += Data4;
+		}
+	} else {
 
-loc_1BFE0:;
-    if (Data0 > 0x30)
-        goto loc_1C012;
+		Data4 = pSprite->field_20;
+		if (Data4 != Data34->field_20) {
 
-    Data4 = Data34->field_20;
-    Data4 -= pSprite->field_20;
-    Data4 >>= 3;
-    pSprite->field_20 += Data4;
-    goto loc_1C087;
-
-loc_1C012:;
-
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = Data34->field_0;
-    DataC = Data34->field_4;
-    Data8 += 8;
-    DataC += 8;
-
-    if (!sub_2A4A2( Data0, Data4, Data8, DataC ))
-        goto loc_1C06F;
-
-    if (pSprite->field_20 >= 0x18)
-        goto loc_1C087;
-
-    pSprite->field_1E_Big += 0x28000;
-
-    goto loc_1C087;
-
-loc_1C06F:;
-    if (pSprite->field_20 > 8)
-        pSprite->field_1E_Big -= 0x12000;
-    
-loc_1C087:;
+			if (Data4 > Data34->field_20)
+				pSprite->field_1E_Big -= 0x8000;
+			else
+				pSprite->field_1E_Big += 0x8000;
+		}
+	}
 
     Data0 = Data34->field_0;
     Data0 += 8;
