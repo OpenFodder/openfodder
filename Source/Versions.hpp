@@ -98,7 +98,7 @@ struct sVersion {
 
 };
 
-extern std::vector<sVersion> Versions;
+extern const sVersion Versions[];
 extern std::vector<const sVersion*> g_AvailableDataVersions;
 
 bool isCampaignKnown(const std::string& pName);
