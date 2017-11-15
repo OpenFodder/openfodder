@@ -175,7 +175,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Spider_Mine );
 	SpriteFunction( Bonus_RankToGeneral );
 	SpriteFunction( Bonus_Rockets );
-	SpriteFunction( Player_Rocket );
+	SpriteFunction( Bonus_Armour );
 
 	/* 96 */
 	SpriteFunction( Bonus_RankHomingInvin_SquadLeader );

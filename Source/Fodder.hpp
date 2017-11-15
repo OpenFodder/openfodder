@@ -902,7 +902,7 @@ public:
     void            Sprite_Handle_Spider_Mine( sSprite* pSprite );                      // 92
     void            Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite );              // 93
     void            Sprite_Handle_Bonus_Rockets( sSprite* pSprite );                    // 94
-    void            Sprite_Handle_Player_Rocket( sSprite* pSprite );                    // 95
+    void            Sprite_Handle_Bonus_Armour( sSprite* pSprite );                    // 95
     void            Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite );            // 96
     void            Sprite_Handle_MissileHoming2( sSprite* pSprite );                   // 97
     void            Sprite_Handle_Bonus_RankHomingInvin_Squad( sSprite* pSprite );      // 98
