@@ -116,7 +116,7 @@ enum eSprites {
 	eSprite_Spider_Mine							= 92,
 	eSprite_Bonus_RankToGeneral					= 93,
 	eSprite_Bonus_Rockets						= 94,
-	eSprite_Player_Rocket						= 95,
+	eSprite_Bonus_Armour						= 95,
 	eSprite_Bonus_RankHomingInvin_SquadLeader	= 96,
 	eSprite_MissileHoming2						= 97,
 	eSprite_Bonus_RankHomingInvin_Squad			= 98,

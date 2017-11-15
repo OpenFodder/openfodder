@@ -13728,7 +13728,7 @@ loc_1C133:;
     return;
 
 loc_1C14A:;
-    Data0 = (int16) pSprite->field_6A >> 16;
+    Data0 = (int16) (pSprite->field_6A >> 16);
     pSprite->field_36 += Data0;
     pSprite->field_6A = pSprite->field_6A + 0x200;
     return;
@@ -15110,19 +15110,21 @@ void cFodder::Sprite_Handle_Bonus_Rockets( sSprite* pSprite ) {
     Sprite_Destroy_Wrapper( pSprite );
 }
 
-void cFodder::Sprite_Handle_Player_Rocket( sSprite* pSprite ) {
+void cFodder::Sprite_Handle_Bonus_Armour( sSprite* pSprite ) {
     if (pSprite->field_38) {
         pSprite->field_18 = eSprite_Explosion;
         return;
     }
 
-    pSprite->field_8 = 0x3E;
+    pSprite->field_8 = 0xE3;
     pSprite->field_A = 0;
     int16 Data0;
     if (Map_Get_Distance_Between_Sprite_And_Squadleader( pSprite, Data0 ))
          return;
     
     mSquad_Leader->field_75 |= eSprite_Flag_Invincibility;
+
+	Sprite_Destroy_Wrapper(pSprite);
 }
 
 void cFodder::Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite ) {
@@ -17581,6 +17583,7 @@ void cFodder::Intro_Print_String( int32 pPosY, const sIntroString* pString ) {
         pPosY -= 0x19;
     else
         pPosY += 0x9;
+
     String_CalculateWidth( 320, mFont_Intro_Width, pString->mText );
     String_Print( mFont_Intro_Width, 0, mGUI_Temp_X, pPosY, pString->mText );
 }
@@ -19831,7 +19834,7 @@ int16 cFodder::Mission_Loop() {
             }
         }
 
-		//Map_Load();
+		Map_Load();
         mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
     
         MapTiles_Draw();
