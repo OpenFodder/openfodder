@@ -697,7 +697,7 @@ const std::vector<eGFX_Types> mKnownAmigaDemoData = {
 /** 
  * Known versions of Cannon Fodder
  */
-std::vector<sVersion> Versions = {
+const sVersion Versions[] = {
 
 	/* Retail */
 	{ "Cannon Fodder",	eGame::CF1, eVersion::Dos_CD,		ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles, mKnownRetailTypes, mKnownRetailData },
