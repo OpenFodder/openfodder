@@ -13615,30 +13615,41 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
     sSprite* Data34 = 0;
 
     if (pSprite->field_38)
-        goto loc_1C197;
+        goto MissileExplode;
 
     dword_3B24B = -1;
     Sprite_Create_FireTrail( pSprite );
 
     pSprite->field_8 = 0xA3;
     Data34 = pSprite->field_1A_sprite;
-    Data0 = Data34->field_0;
-    if (Data0 == -32768)
-        goto loc_1C170;
 
-    Data0 += 8;
+	if (!Data34 || Data34->field_0 == -32768) {
+		pSprite->field_36 += 2;
+		pSprite->field_20 -= 2;
+		if (pSprite->field_20 >= 0) {
+			Sprite_Movement_Calculate(pSprite);
+			return;
+		}
+
+		pSprite->field_20 = 0;
+		goto MissileExplode;
+	}
+
+    Data0 = Data34->field_0 + 8;
     Data4 = Data34->field_4 + 8;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
     Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
-    Data4 = pSprite->field_36;
-    Data4 >>= 4;
+    
+	Data4 = pSprite->field_36 >> 4;
     Data4 += 1;
 
     if (Data0 <= Data4)
-        goto loc_1C197;
+        goto MissileExplode;
 
 	if (Data34->field_20 <= 0x10) {
+
+		// Distance to target > 0x30?
 		if (Data0 > 0x30) {
 			Data0 = pSprite->field_0;
 			Data4 = pSprite->field_4;
@@ -13655,8 +13666,9 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
 				if (pSprite->field_20 < 0x18)
 					pSprite->field_1E_Big += 0x28000;
 			}
-		} else {
 
+		} else {
+			// Near Target
 			Data4 = Data34->field_20;
 			Data4 -= pSprite->field_20;
 			Data4 >>= 3;
@@ -13689,49 +13701,30 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
     Data0 &= 0x0F;
     pSprite->field_A = Data0;
 
-    if (pSprite->field_22 == eSprite_PersonType_Human)
-        goto loc_1C133;
+	if (pSprite->field_22 == eSprite_PersonType_Human || Data4 == Data0) {
+		if (pSprite->field_36 <= 0x3C) {
 
-    if (Data4 == Data0)
-        goto loc_1C133;
+			Data0 = (int16)(pSprite->field_6A >> 16);
+			pSprite->field_36 += Data0;
+			pSprite->field_6A = pSprite->field_6A + 0x200;
+		} else {
+			pSprite->field_36 = 0x3C;
+		}
 
-    if (pSprite->field_36 <= 0x1E)
-        goto loc_1C131;
+		return;
+	}
 
-    pSprite->field_6A = 0;
-    pSprite->field_36 -= 2;
-    if (pSprite->field_36 < 0)
-        pSprite->field_36 = 0;
-loc_1C131:;
+	if (pSprite->field_36 > 0x1E) {
+
+		pSprite->field_6A = 0;
+		pSprite->field_36 -= 2;
+		if (pSprite->field_36 < 0)
+			pSprite->field_36 = 0;
+	}
+
     return;
 
-loc_1C133:;
-    if (pSprite->field_36 <= 0x3C)
-        goto loc_1C14A;
-
-    pSprite->field_36 = 0x3C;
-    return;
-
-loc_1C14A:;
-    Data0 = (int16) (pSprite->field_6A >> 16);
-    pSprite->field_36 += Data0;
-    pSprite->field_6A = pSprite->field_6A + 0x200;
-    return;
-
-loc_1C170:;
-    pSprite->field_36 += 2;
-    pSprite->field_20 -= 2;
-    if (pSprite->field_20 >= 0)
-        goto loc_1C190;
-
-    pSprite->field_20 = 0;
-    goto loc_1C197;
-
-loc_1C190:;
-    Sprite_Movement_Calculate( pSprite );
-    return;
-
-loc_1C197:;
+MissileExplode:;
     pSprite->field_18 = eSprite_Explosion2;
     pSprite->field_4 -= 4;
     Sprite_Projectile_HitTarget( pSprite );
