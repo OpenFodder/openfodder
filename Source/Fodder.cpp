@@ -9680,7 +9680,7 @@ loc_2DE3C:;
     Data4 <<= 1;
     
     // In some cases, tiles outside the map can be 'destroyed'. This prevents memory corruption
-    if (0x60 + Data4 > mMap->size())
+    if (0x60 + Data4 >= mMap->size())
         goto loc_2DF55;
 
     MapPtr = mMap->data() + 0x60 + Data4;
