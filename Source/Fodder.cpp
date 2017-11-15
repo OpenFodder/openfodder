@@ -1050,11 +1050,14 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
     std::ofstream outfile(SptFilename, std::ofstream::binary);
 
     // Ensure humans are first
-    std::sort(std::begin(mSprites), std::end(mSprites), [](auto && l, auto && r) { return l.field_18 == eSprite_Player && l.field_0 != -32768; });
+	std::sort(std::begin(mSprites), std::end(mSprites), [](sSprite& l, sSprite& r) {
+		return l.field_18 == eSprite_Player && l.field_0 != -32768;
+	});
 
     // Number of sprites in use
-    int SpriteCount = std::count_if(std::begin(mSprites), 
-        std::end(mSprites), [](auto&& l) {return l.field_0 != -32768 && l.field_0 != -1; });
+    int SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](sSprite& l) {
+		return l.field_0 != -32768 && l.field_0 != -1;
+	});
 
     auto MapSpt = tSharedBuffer();
     MapSpt->resize(SpriteCount * 0x0A);
@@ -3782,10 +3785,10 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 		std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
 
 		// Sort files alphabetical
-		std::sort(Files.begin(), Files.end(), 
-			[](const auto& pLeft, const auto& pRight) {
-				return pLeft < pRight;
-			});
+		std::sort(Files.begin(), Files.end(),[](std::basic_string<char, std::char_traits<char>, std::allocator<char>>& pLeft,
+				std::basic_string<char, std::char_traits<char>, std::allocator<char>>& pRight) {
+			return pLeft < pRight;
+		});
 
 		// Append all custom campaigns to the list
 		for (auto& File : Files) {
