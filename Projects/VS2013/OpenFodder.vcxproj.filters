@@ -13,9 +13,6 @@
     <Filter Include="Source\Utils">
       <UniqueIdentifier>{3a854324-9aaa-4704-877a-c7fc828c588e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\MissionData">
-      <UniqueIdentifier>{516109fc-c979-4fd3-b1c2-4e2499262ad1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -81,9 +78,6 @@
     <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp">
       <Filter>Source\Amiga</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MissionData.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\PC\SpriteData_PC.hpp">
       <Filter>Source\PC</Filter>
     </ClInclude>
@@ -135,6 +129,9 @@
     <ClInclude Include="..\..\Source\SpriteSheet.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Campaign.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -179,9 +176,6 @@
     <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp">
       <Filter>Source\Amiga</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MissionData.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp">
       <Filter>Source\PC</Filter>
     </ClCompile>
@@ -224,19 +218,10 @@
     <ClCompile Include="..\..\Source\CopyProtection.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MissionData\Custom.cpp">
-      <Filter>Source\MissionData</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\MissionData\Demo.cpp">
-      <Filter>Source\MissionData</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\MissionData\Retail.cpp">
-      <Filter>Source\MissionData</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\MissionData\Retail2.cpp">
-      <Filter>Source\MissionData</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\SpriteSheet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Campaign.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
