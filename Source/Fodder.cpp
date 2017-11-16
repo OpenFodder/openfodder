@@ -20385,7 +20385,7 @@ int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
 
     int16 Data0 = mSquads_TroopCount[mSquad_Selected];
     if (Data10 == Data0)
-        return Data0;
+	        return 0;
 
     if (Data10)
         return Data10;
