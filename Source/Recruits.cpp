@@ -418,10 +418,12 @@ const sRecruit_Sprites mRecruitSprite[34] =
 	{ 0, 2, 48, 72, word_35E16 },
 	{ 0, 3, 48, 88, word_35E22 },
 	{ 0, 4, 48, 104, word_35E2E },
+
 	{ 0, 5, 48, 120, word_35E0A },
 	{ 0, 6, 48, 136, word_35E0A },
 	{ 0, 7, 48, 152, word_35E0A },
 	{ 0, 8, 48, 168, word_35E0A },
+
 	{ 1, 0, 144, 40, word_35E3A },
 	{ 1, 1, 192, 40, word_35E3A },
 	{ 2, 0, 240, 40, word_35E3A },
