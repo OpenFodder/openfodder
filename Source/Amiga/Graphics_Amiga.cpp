@@ -1184,7 +1184,8 @@ void cGraphics_Amiga::Mission_Intro_Load_Resources() {
 }
 
 void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pSource ) {
-	int32 d0, d1, d2, d3, d4, d5, d6;
+	uint32 d0, d1, d2, d3, d4;
+	int32 d5, d6;
 
 	d0 = pRows;
 	d1 = pColumns;
@@ -1195,13 +1196,13 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 
 	uint8* Dest = mImageHillSprites.mData->data();
 
-	int32 word_8271A = d0;
-	int32 word_8271C = d1;
-	int32 word_8271E = d2;
+	uint32 word_8271A = d0;
+	uint32 word_8271C = d1;
+	uint32 word_8271E = d2;
 	if (d2 <= 0)
 		return;
 
-	int32 word_82720 = d3;
+	uint32 word_82720 = d3;
 	if (d3 <= 0)
 		return;
 
@@ -1209,12 +1210,13 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 	d6 >>= 1;
 	d4 -= d6;
 
+
 	d6 = word_82720;
 	d6 >>= 1;
 	d5 -= d6;
 
 
-	int32 D1_Saved = d1;
+	uint32 D1_Saved = d1;
 	d5 <<= 3;
 	d1 = d5;
 	d5 <<= 2;
@@ -1222,47 +1224,42 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 
 	d1 = D1_Saved;
 	Dest += d5;
+
 	d6 = d4;
 	d6 >>= 3;
-
 	Dest += d6;
+
 	d4 &= 7;
 	d6 = 7;
 	d6 -= d4;
 
-	int32 word_82726 = d6;
-	d4 = d2;
-	d4 >>= 3;
-	d0 &= 0xFFF;
-	d1 &= 0xFFF;
-
-	d0 /= d2;
-	d1 /= d3;
-
-	d0 = 0;
+	uint32 word_82726 = d6;
 
 	d0 = d1 = d2 = d3 = 0;
 
 	d0 = word_8271A;
 	d1 = word_8271C;
-	int32 d0_u = (d0 % word_8271E) << 16;
+	uint32 d0_u = (d0 % word_8271E) << 16;
 	d0 /= word_8271E;
 	d0 |= d0_u;
 
-	int32 word_8159E = d0 & 0xFFFF;
+	uint32 word_8159E = d0 & 0xFFFF;
 	d0 &= 0xFFFF0000;
+	d0_u = (d0 % word_8271E) << 16;
 	d0 /= word_8271E;
 	d0 = (d0_u >> 16) | (d0 << 16);
 
 	d0 = (d0 & 0xFFFF0000) | word_8159E;
 	d0 = (d0 >> 16) | (d0 << 16);
 
-	int32 d1_u = (d1 % word_82720) << 16;
+	uint32 d1_u = (d1 % word_82720) << 16;
 	d1 /= word_82720;
 	d1 |= d1_u;
 
 	word_8159E = d1 & 0xFFFF;
 	d1 &= 0xFFFF0000;
+
+	d1_u = (d1 % word_82720) << 16;
 	d1 /= word_82720;
 	d1 = (d1_u >> 16) | (d1 << 16);
 
@@ -1298,7 +1295,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 				*(a6 + 0x7878) |= (1 << d6);
 
 			d2 += d0;
-			int32 d7 = d2;
+			uint32 d7 = d2;
 			d7 = (d7 >> 16) | (d7 << 16);
 
 			d4 = 7;

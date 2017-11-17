@@ -4907,10 +4907,10 @@ void cFodder::Recruit_Copy_Sprites() {
                 Columns <<= 4;
             }
 
-            // Calculate draw destinations
+            // Multiply 
             sub_2AEB6( Columns, Rows, &Data8, &DataC );
 
-            int16 Data10 = word_3B1A3 + 0x08;
+			int16 Data10 = word_3B1A3 + 0x08;
             int16 Data14 = word_3B1A5;
             mGraphics->Recruit_Sprite_Draw( Columns, Rows,
                                             Data8, Data10, 
@@ -8805,8 +8805,8 @@ void cFodder::sub_2AEB6( int16 pColumns, int16 pRows, int16* pData8, int16* pDat
     int32 Rows      = pRows     * *pData8;
 
     // Return
-    *pDataC = (int16) Rows / 0x64;
-    *pData8 = (int16) Columns / 0x64;
+    *pDataC = (int16) (Rows / 0x64);
+    *pData8 = (int16) (Columns / 0x64);
 }
 
 
@@ -19536,23 +19536,35 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 }
 
 void cFodder::Playground() {
-
+	//return;
     mImageFaded = -1;
     Map_Load();
 
     mGraphics->Load_Hill_Data();
     mGraphics->PaletteSet();
 
-    //mGraphics->Recruit_Draw_Hill();
+	Recruit_Truck_Anim_Prepare();
+	sub_16C6C();
+
+	mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+	//mGraphics->Recruit_Draw_Hill();
+
+	Recruit_Copy_Sprites();
+
+	if (mVersion->mPlatform == ePlatform::Amiga) {
+
+		((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
+	}
 
     // Load Icon
 
     mImage->palette_FadeTowardNew();
     mImage->Save();
     mString_GapCharID = 0x25;
+	mGUI_Print_String_To_Sidebar = false;
 
-    size_t SpriteID = 29;
-    size_t Frame = 1;
+    size_t SpriteID = 0xB;
+    size_t Frame = 0;
 
     
     for (;; ) {
