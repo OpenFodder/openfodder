@@ -914,6 +914,49 @@ void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget) {
 	}
 }
 
+void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
+	uint8* pDs = mFodder->mVideo_Draw_FrameDataPtr;
+
+	int16 ax = pCx;
+	int16 dx = ax;
+
+	ax -= 320;
+	mFodder->word_4285F = -ax;
+
+	uint8* word_4285D = mImage->GetSurfaceBuffer() + 16;
+	
+	word_4285D += (mFodder->mVideo_Draw_PosY * mImage->GetWidth());
+
+	uint8* di = word_4285D;
+
+	int16 SourceX = 0, SourceY = 0;
+
+	for (int16 bx = 0; bx < mFodder->mVideo_Draw_Rows; ++bx) {
+		int16 cx;
+		SourceX = 0;
+
+		for (cx = dx; cx <  mImage->GetWidth() -32; cx++) {
+
+			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
+
+
+			SourceX++;
+		}
+
+
+		//SourceX --;
+		for (cx = 0; cx < dx; cx ++) {
+
+			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
+
+			SourceX++;
+		}
+
+		++SourceY;
+	}
+
+}
+
 void cGraphics_Amiga::Video_Draw_16() {
 
 	uint8*	di = mImage->GetSurfaceBuffer();
@@ -1330,6 +1373,35 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 
 }
 
+void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSourceX, uint16 pSourceY, uint16 pX, uint16 pY) {
+	uint8	Planes[5];
+
+	pSource += (pSourceX / 8);
+	pSource += (pSourceY * 40);
+	
+	pDestination += pX;
+	pDestination += pY * mImage->GetWidth();
+
+
+	// Load bits for all planes
+	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
+		Planes[Plane] = *(pSource + ((mBMHD_Current->mHeight * 40) * Plane));
+
+	// Loop each pixel 
+
+	uint8 Bit = (0x80 >> (pSourceX %8));
+	uint8 Result = 0;
+
+	// Value for each plane
+	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane) {
+		Result |= Planes[Plane] & Bit ? (1 << Plane) : 0;
+	}
+
+	if (Result)
+		*pDestination = mFodder->mVideo_Draw_PaletteIndex | Result;
+	
+}
+
 void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 	uint8	Planes[5];
 
@@ -1376,81 +1448,99 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
 
 void cGraphics_Amiga::Mission_Intro_Play() {
 
-	if (g_Fodder.mVersion->mPlatform == ePlatform::Amiga) {
-		//TODO
-		g_Fodder.mVideo_Draw_PosX = 16;
+	int16 word_4286F = 0;
+	int16 word_42871 = 0;
+	int16 word_42873 = 0;
+	int16 word_42875 = 0;
+	int16 BladeFrame = 0;
+
+	PaletteBriefingSet();
+	g_Fodder.mImage->palette_FadeTowardNew();
+	g_Fodder.mImageFaded = -1;
+
+	g_Fodder.mVideo_Draw_PosX = 16;
+
+	do {
+		mImage->clearBuffer();
 
 		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING);
 		g_Fodder.mVideo_Draw_PosY = 40;
-		Video_Draw_16();
+		Video_Draw_16_Offset(word_42875);
 
 		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_1);
 		g_Fodder.mVideo_Draw_PosY = 60;
-		Video_Draw_16();
+		Video_Draw_16_Offset(word_42873);
 
 		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_2);
 		g_Fodder.mVideo_Draw_PosY = 100;
-		Video_Draw_16();
-
+		Video_Draw_16_Offset(word_42871);
+		
 		g_Fodder.mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);
 		g_Fodder.mVideo_Draw_PosY = 163;
-		Video_Draw_16();
+		Video_Draw_16_Offset(word_4286F);
 
-		PaletteBriefingSet();
-		g_Fodder.mImage->palette_FadeTowardNew();
-		g_Fodder.mImageFaded = -1;
+		word_4286F += 8;
+		if (word_4286F > 320)
+			word_4286F = 0;
 
-		g_Fodder.Briefing_Draw_Mission_Name();
-		mImage->Save();
+		word_42871 += 4;
+		if (word_42871 > 320)
+			word_42871 = 0;
 
-		int16 word_42875 = 0;
+		word_42873 += 2;
+		if (word_42873 > 320)
+			word_42873 = 0;
 
-		do {
-			if (g_Fodder.mBriefing_Helicopter_Moving == -1)
-				g_Fodder.Briefing_Update_Helicopter();
+		++word_42875;
+		if (word_42875 > 320)
+			word_42875 = 0;
 
-			g_Fodder.Mouse_Inputs_Get();
+		g_Fodder.Mission_Intro_Draw_Mission_Name();
 
-			// Front
-			g_Fodder.mVideo_Draw_PosX = g_Fodder.mHelicopterPosX >> 16;
-			g_Fodder.mVideo_Draw_PosY = g_Fodder.mHelicopterPosY >> 16;
-			Mission_Intro_DrawHelicopter(203);
+		if (g_Fodder.mBriefing_Helicopter_Moving == -1)
+			g_Fodder.Briefing_Update_Helicopter();
 
-			// Tail
-			g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16) + 48;
-			g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
-			Mission_Intro_DrawHelicopter(204);
+		g_Fodder.Mouse_Inputs_Get();
 
-			int16 Blade = 205 + word_42875;
+		// Front
+		g_Fodder.mVideo_Draw_PosX = g_Fodder.mHelicopterPosX >> 16;
+		g_Fodder.mVideo_Draw_PosY = g_Fodder.mHelicopterPosY >> 16;
+		Mission_Intro_DrawHelicopter(203);
 
-			++word_42875;
-			if (word_42875 >= 3)
-				word_42875 = 0;
+		// Tail
+		g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16) + 48;
+		g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
+		Mission_Intro_DrawHelicopter(204);
 
-			// Blade
-			g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16);
-			g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
-			Mission_Intro_DrawHelicopter(Blade);
+		int16 Blade = 205 + BladeFrame;
 
-			if (g_Fodder.mImageFaded)
-				g_Fodder.mImageFaded = mImage->palette_FadeTowardNew();
+		++BladeFrame;
+		if (BladeFrame >= 3)
+			BladeFrame = 0;
 
-			g_Fodder.eventProcess();
-			g_Fodder.Video_Sleep();
-			g_Window.RenderAt(mImage, cPosition());
-			g_Window.FrameEnd();
+		// Blade
+		g_Fodder.mVideo_Draw_PosX = (g_Fodder.mHelicopterPosX >> 16);
+		g_Fodder.mVideo_Draw_PosY = (g_Fodder.mHelicopterPosY >> 16);
+		Mission_Intro_DrawHelicopter(Blade);
 
-			g_Fodder.Mouse_GetData();
+		if (g_Fodder.mImageFaded)
+			g_Fodder.mImageFaded = mImage->palette_FadeTowardNew();
 
-			if (g_Fodder.mMouse_Exit_Loop) {
-				g_Fodder.word_428D8 = 0;
-				mImage->paletteNew_SetToBlack();
-				g_Fodder.mImageFaded = -1;
-				g_Fodder.mMouse_Exit_Loop = 0;
-			}
-			mImage->Restore();
-		} while (g_Fodder.word_428D8 || g_Fodder.mImageFaded != 0);
+		g_Fodder.eventProcess();
+		g_Fodder.Video_Sleep();
+		g_Window.RenderAt(mImage, cPosition());
+		g_Window.FrameEnd();
 
-		g_Fodder.mMouse_Exit_Loop = 0;
-	}
+		g_Fodder.Mouse_GetData();
+
+		if (g_Fodder.mMouse_Exit_Loop) {
+			g_Fodder.word_428D8 = 0;
+			mImage->paletteNew_SetToBlack();
+			g_Fodder.mImageFaded = -1;
+			g_Fodder.mMouse_Exit_Loop = 0;
+		}
+
+	} while (g_Fodder.word_428D8 || g_Fodder.mImageFaded != 0);
+
+	g_Fodder.mMouse_Exit_Loop = 0;
 }

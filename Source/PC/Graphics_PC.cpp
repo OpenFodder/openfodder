@@ -743,7 +743,7 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 
 void cGraphics_PC::Mission_Intro_Play() {
 
-	mFodder->Briefing_Draw_Mission_Name();
+	mFodder->Mission_Intro_Draw_Mission_Name();
 
 	switch (mFodder->mMap_TileSet) {
 	case eTileTypes_Jungle:
@@ -784,7 +784,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 	int16 ax = pCx >> 2;
 	int16 dx = ax;
 
-	ax -= 0x50;
+	ax -= 0x50;	// 80
 	mFodder->word_4285F = -ax;
 
 	uint8* word_4285D = mImage->GetSurfaceBuffer() + mFodder->word_4285B + (dx * 4);
@@ -808,7 +808,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di -= 0x51 * 4;
+			di -= 0x51 * 4;	// 324
 			--pDs;
 			for (cx = dx; cx > 0; --cx) {
 				uint8 al = *pDs++;
@@ -818,7 +818,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di += 0x58 * 4;
+			di += 0x58 * 4;	// 352
 		}
 	}
 }
@@ -916,10 +916,12 @@ void cGraphics_PC::Briefing_Intro_Jungle( ) {
 		mFodder->word_4285B = 0x0C64 * 4;
 		Briefing_Render_1( mBriefing_Intro_Gfx_Clouds3, word_42875 );
 
+		// Mountain
 		mFodder->word_42859 = 0x38;
 		mFodder->word_4285B = 0x102C * 4;
 		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds2, word_42873);
 
+		// Top of trees
 		mFodder->word_42859 = 0x12;
 		mFodder->word_4285B = 0x1D3C * 4;
 		Briefing_Render_2( mBriefing_Intro_Gfx_Clouds1, word_42871);

@@ -79,7 +79,8 @@ class cFodder : public cSingleton < cFodder > {
 
     bool                    mSkipIntro;
     std::vector<cEvent>     mEvents;
-    
+	bool					mOpenFodder_Intro_Done;
+
 	const sVersion*			mVersionDefault;
     const sVersion*         mVersion;
     cCampaign               mCampaign;
@@ -132,7 +133,7 @@ class cFodder : public cSingleton < cFodder > {
     uint16          mGame_InputTicks;
     int16           mMission_EngineTicks;
     uint16          mMission_Restart;
-    
+
     /************** Save Game Region ************/
     /* Altering the ordering, or types of anything 
           in this region will break save games */
@@ -724,11 +725,12 @@ public:
     void            Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 );
 
     // 14EAC
+	void			Mission_Intro_Draw_OpenFodder();
     void            Mission_Intro_Helicopter_Start( );
     void            sub_1594F( );
     void            Briefing_Update_Helicopter( );
 
-    void            Briefing_Draw_Mission_Name( );
+    void            Mission_Intro_Draw_Mission_Name( );
     void            Briefing_Draw_Mission_Title( int16 pDrawAtY );
 
     void            CopyProtection();
