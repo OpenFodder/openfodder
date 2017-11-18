@@ -234,7 +234,7 @@ int16 cFodder::Map_Loop( ) {
         }
 
         //loc_1074E
-        if (mGUI_Sidebar_Setup >= 0 && mMission_TryAgain)
+        if (mGUI_Sidebar_Setup >= 0 && !mMission_TryAgain)
             GUI_Sidebar_Setup();
         else
             GUI_Sidebar_Draw();
@@ -3935,9 +3935,11 @@ void cFodder::Campaign_Selection() {
 
     Image_FadeOut();
 
-	mGraphics->Load_pStuff();
 	if (mVersion->mPlatform == ePlatform::Amiga)
 		mWindow->SetScreenSize(cDimension(320, 225));
+
+	mGraphics->Load_Hill_Data();
+	mGraphics->PaletteSet();
 
 	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
 

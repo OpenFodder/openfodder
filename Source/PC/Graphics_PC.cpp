@@ -116,13 +116,13 @@ void cGraphics_PC::SetActiveSpriteSheet( eGFX_Types pSpriteType ) {
 
 sImage cGraphics_PC::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
 
-	sImage Hill;
+	sImage TmpImage;
 
-	Hill.mData = g_Resource.fileGet(pFilename);
-	Hill.LoadPalette(pPaletteOffset, pCount, pStartIndex);
-	Hill.CopyPalette(&mPalette[pStartIndex], pCount, pStartIndex);
+	TmpImage.mData = g_Resource.fileGet(pFilename);
+	TmpImage.LoadPalette(pPaletteOffset, pCount, pStartIndex);
+	TmpImage.CopyPalette(&mPalette[pStartIndex], pCount, pStartIndex);
 
-	return Hill;
+	return TmpImage;
 }
 
 void cGraphics_PC::Load_pStuff() {
