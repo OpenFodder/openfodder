@@ -40,7 +40,8 @@ const int16 mBriefing_Helicopter_Offsets[] =
 };
 
 cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
-    
+	
+	mOpenFodder_Intro_Done = false;
 	mCustom_Mode = eCustomMode_None;
     mSkipIntro = pSkipIntro;
     mResources = 0;
@@ -48,6 +49,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     mSound = 0;
     mWindow = pWindow;
     mMapNumber = 0;
+	mMissionNumber = 0;
 
     mTicksDiff = 0;
     mTicks = 0;
@@ -232,7 +234,7 @@ int16 cFodder::Map_Loop( ) {
         }
 
         //loc_1074E
-        if (mGUI_Sidebar_Setup >= 0 && !mMission_TryAgain)
+        if (mGUI_Sidebar_Setup >= 0 && mMission_TryAgain)
             GUI_Sidebar_Setup();
         else
             GUI_Sidebar_Draw();
@@ -3622,9 +3624,30 @@ void cFodder::sub_1594F( ) {
 
 }
 
-void cFodder::Briefing_Draw_Mission_Name( ) {
+void cFodder::Mission_Intro_Draw_OpenFodder() {
+	// Draw OPEN FODDER
+	{
+		mString_GapCharID = 0x25;
+		String_Print_Large("OPEN FODDER", true, 0);
+	}
 
-    Briefing_Draw_Mission_Title( 0xB5 );
+	// Draw Mission Name, or Map 
+	{
+		int16 DrawY = 0xB5;
+
+		if (mVersion->mPlatform == ePlatform::Amiga)
+			DrawY += 0x16;
+
+		//String_Print_Large("SELECT CAMPAIGN", true, DrawY);
+	}
+}
+
+void cFodder::Mission_Intro_Draw_Mission_Name( ) {
+
+	if (mMissionNumber == 0)
+		Mission_Intro_Draw_OpenFodder();
+	else
+	    Briefing_Draw_Mission_Title( 0xB5 );
 }
 
 void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
@@ -3816,11 +3839,13 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 
 		String_Print_Large(pSubTitle, false, 0x18);
 
-		GUI_Button_Draw_Small("UP", 0x30);
-		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
+		if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
+			GUI_Button_Draw_Small("UP", 0x30);
+			GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
 
-		GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
-		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
+			GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
+			GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
+		}
 
 		GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
 		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
@@ -3874,7 +3899,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
         GUI_Button_Draw( "DOWN", 0x99 + YOffset);
         GUI_Button_Setup( &cFodder::GUI_Button_Load_Down );
 
-        GUI_Button_Draw( "EXIT", 0xB3 + YOffset);
+        GUI_Button_Draw( "CONTINUE GAME", 0xB3 + YOffset);
         GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
 
         mImage->Save();
@@ -3903,6 +3928,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 }
 
 void cFodder::Campaign_Selection() {
+
     Image_FadeOut();
 
 	mGraphics->Load_pStuff();
@@ -19703,8 +19729,19 @@ Start:;
     mVersion = 0;
     VersionLoad(g_AvailableDataVersions[0]);
 
+
     //Playground();
 
+	// Play the intro
+	if (!mOpenFodder_Intro_Done) {
+		mMissionNumber = 0;
+		Map_Load();
+
+		Mission_Intro_Play();
+		mOpenFodder_Intro_Done = true;
+	}
+
+	// Select campaign menu
 	Campaign_Selection();
 
 	// Exit pushed?
