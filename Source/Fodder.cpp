@@ -3163,11 +3163,15 @@ void cFodder::WindowTitleBaseSetup() {
 
 	if (mVersion) {
 
-		if (mCampaign.isCustom()) {
-			mTitle << ": Custom (" << mCampaign.getName() << ")";
-		} else {
+		// Ensure we have a campaign
+		if (mCampaign.getName().size()) {
+			if (mCampaign.isCustom()) {
+				mTitle << ": Custom (" << mCampaign.getName() << ")";
+			}
+			else {
 
-			mTitle << ": " << mCampaign.getName();
+				mTitle << ": " << mCampaign.getName();
+			}
 		}
 	}
 
