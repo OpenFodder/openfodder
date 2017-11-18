@@ -2862,7 +2862,7 @@ void cFodder::Mouse_Setup() {
     mMouseX = 0x7F;
     mMouseY = 0x67;
 
-    g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, g_Window.GetWindowSize().mHeight / 2 ) );
+    //g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, g_Window.GetWindowSize().mHeight / 2 ) );
 }
 
 void cFodder::Mouse_GetData() {
@@ -17636,6 +17636,9 @@ void cFodder::SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet ) {
 
 void cFodder::intro() {
     
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize(cDimension(320, 260));
+
     // Disabled: GOG CD Version doesn't require a manual check
     //  CopyProtection();
 
