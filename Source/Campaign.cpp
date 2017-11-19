@@ -63,6 +63,35 @@ cCampaign::cCampaign() {
 
 }
 
+bool cCampaign::LoadCustomFromPath(const std::string& pPath) {
+	Clear();
+	std::string CustomMapName = pPath;
+
+	auto a = CustomMapName.find_last_of("/") + 1;
+	
+	CustomMapName.erase(CustomMapName.begin(), CustomMapName.begin() + a);
+
+	// ".map"
+	CustomMapName.resize(CustomMapName.size() - 4);
+
+	mCustomMap = pPath;
+	mCustomMap.resize(mCustomMap.size() - 4);
+
+	// Map / Phase names must be upper case
+	std::transform(CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper);
+
+	mMapFilenames.push_back(pPath.substr(0, pPath.size() - 4));
+	mMissionNames.push_back(CustomMapName);
+	mMissionPhases.push_back(1);
+
+	// TODO: Try load these from file before using defaults
+	mMapNames.push_back(CustomMapName);
+	mMapGoals.push_back({ eGoal_Kill_All_Enemy });
+	mMapAggression.push_back({ 4, 8 });
+
+	return true;
+}
+
 /**
  * Load a single custom map
  */
@@ -70,7 +99,7 @@ bool cCampaign::LoadCustomMap( const std::string& pMapName ) {
     Clear();
     std::string CustomMapName = pMapName;
     
-    // Remove "Custom/Maps/" and ".map"
+    // ".map"
     CustomMapName.resize( CustomMapName.size() - 4 );
 
     mCustomMap = pMapName;
@@ -255,9 +284,17 @@ tSharedBuffer cCampaign::getMap(const size_t pMapNumber) const {
 	std::string FinalName = getMapFileName(pMapNumber) + ".map";
 	std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
 
+	// Custom map in use?
 	if (mCustomMap.size()) {
+
+		// Generated path doesnt exist, try load the absolute path
+		if (!local_FileExists(FinalPath))
+			return local_FileRead(mCustomMap + ".map", "", eNone);
+
+		// Otherwise use the custom map folder
 		return local_FileRead(FinalName, "Custom/Maps/", eData);
 	}
+
 	// If a campaign folder exists, return a path inside it
 	if (!local_FileExists(FinalPath))
 		return g_Resource.fileGet(FinalName);
@@ -270,9 +307,17 @@ tSharedBuffer cCampaign::getSprites(const size_t pMapNumber) const {
 	std::string FinalName = getMapFileName(pMapNumber) + ".spt";
 	std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
 
+	// Custom map in use?
 	if (mCustomMap.size()) {
+
+		// Generated path doesnt exist, try load the absolute path
+		if (!local_FileExists(FinalPath))
+			return local_FileRead(mCustomMap + ".spt", "", eNone);
+
+		// Otherwise use the custom map folder
 		return local_FileRead(FinalName, "Custom/Maps/", eData);
 	}
+
 
 	// If a campaign folder exists, return a path inside it
 	if (!local_FileExists(FinalPath))

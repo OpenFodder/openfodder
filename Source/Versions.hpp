@@ -96,6 +96,9 @@ struct sVersion {
 		return mRelease == eRelease::Retail;
 	}
 
+	bool isAmiga() const {
+		return mPlatform == ePlatform::Amiga;
+	}
 };
 
 extern const sVersion Versions[];
