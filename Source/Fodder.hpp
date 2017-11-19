@@ -1083,6 +1083,7 @@ public:
     void            MapTile_Update_Column();
 
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
+	void			Sprite_Add(const size_t pSpriteID, const size_t pTileX, const size_t pTileY);
 
     void            Squad_Troops_Count();
     int16           Mission_Troop_GetDeviatePotential( sMission_Troop* pSquadMember );
