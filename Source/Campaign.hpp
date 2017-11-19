@@ -68,6 +68,7 @@ public:
 
     void Clear();
 
+	bool LoadCustomFromPath(const std::string& pMapName);
     bool LoadCustomMap(const std::string& pMapName);
 
     bool LoadCampaign(const std::string& pName, bool pCustom);

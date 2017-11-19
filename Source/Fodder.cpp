@@ -1766,6 +1766,10 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 void cFodder::Map_Load( ) {
     mMap = mCampaign.getMap(mMapNumber);
 
+	if (!mMap->size()) {
+		return;
+	}
+
     tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
 
     Map_Load_Resources();
