@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -48,7 +48,7 @@ struct sRecruitRendered {
 };
 
 extern const int16 mGravePositions[];
-extern const struct sRecruit mRecruits[360];
+extern const struct sRecruit mRecruits[];
 extern const struct sRecruit_Sprites mRecruitSprite[34];
 extern struct sRecruit_Screen_Pos mRecruit_Screen_Positions[294];
 

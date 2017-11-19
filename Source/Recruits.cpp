@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -22,8 +22,8 @@
 
 #include "stdafx.hpp"
 
-const struct sRecruit mRecruits[360] = {
-
+const struct sRecruit mRecruits[] = {
+  //{ "SEGRA ", 2, -1, 4 },
   { "JOOLS ", 2, -1, 4 },
   { "JOPS  ", 2, -1, 6 },
   { "STOO  ", 2, -1, 0 },

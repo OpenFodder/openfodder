@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -41,6 +41,9 @@ const int16 mBriefing_Helicopter_Offsets[] =
 
 cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
 	
+	mVersion = 0;
+	mVersionDefault = 0;
+
 	mOpenFodder_Intro_Done = false;
 	mCustom_Mode = eCustomMode_None;
     mSkipIntro = pSkipIntro;
@@ -1057,7 +1060,7 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 	});
 
     // Number of sprites in use
-    int SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](sSprite& l) {
+    size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](sSprite& l) {
 		return l.field_0 != -32768 && l.field_0 != -1;
 	});
 
@@ -1715,7 +1718,7 @@ bool cFodder::Campaign_Load( std::string pName ) {
 }
 
 void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight ) {
-    size_t TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
+    uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
 
     mMap->clear();
     mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
@@ -1728,8 +1731,8 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
         Map[0x28] = 'fo'; Map[0x29] = 'de';
 
         // Put the map size
-        writeBEWord(&Map[0x2A], pWidth);
-        writeBEWord(&Map[0x2B], pHeight);
+        writeBEWord(&Map[0x2A], (uint16) pWidth);
+        writeBEWord(&Map[0x2B], (uint16) pHeight);
     }
 
     // Tileset filenames
@@ -1744,8 +1747,8 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
             mSubName.append("sub1.blk");
 
         // Write the base/sub filenames
-        mBaseName.copy((char*)Map, 11);
-        mSubName.copy((char*)Map + 16, 16 + 11);
+		std::memcpy(mMap->data(), mBaseName.c_str(), 11  );
+		std::memcpy(mMap->data() + 16, mSubName.c_str(), 11);
     }
 
     // Clear current sprites
@@ -3185,6 +3188,9 @@ void cFodder::WindowTitleBaseSetup() {
  */
 void cFodder::VersionLoad( const sVersion* pVersion ) {
 
+	if (!pVersion)
+		return;
+
     auto DataPath = pVersion->mDataPath;
 
     // Custom version?
@@ -3402,14 +3408,14 @@ void cFodder::Mouse_DrawCursor( ) {
         mGraphics->Mouse_DrawCursor();
 }
 
-void cFodder::GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, int32 pPositionX, int32 pPositionY ) {
+void cFodder::GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY ) {
     auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
     mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
     mVideo_Draw_FrameDataPtr = SheetData->GetGraphicsPtr();
 
-    mVideo_Draw_PosX = (pPositionX + 0x10);
-    mVideo_Draw_PosY = (pPositionY + 0x10);
+    mVideo_Draw_PosX = (int16) (pPositionX + 0x10);
+    mVideo_Draw_PosY = (int16) (pPositionY + 0x10);
     mVideo_Draw_Columns = SheetData->mColCount;
     mVideo_Draw_Rows = SheetData->mRowCount;
 
@@ -3421,14 +3427,14 @@ void cFodder::GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, int32 pPosition
 
 }
 
-void cFodder::GUI_Draw_Frame_16( int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY ) {
+void cFodder::GUI_Draw_Frame_16( int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY ) {
     auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
     mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
     mVideo_Draw_FrameDataPtr = SheetData->GetGraphicsPtr();
 
-    mVideo_Draw_PosX = (pPosX + 0x10);
-    mVideo_Draw_PosY = (pPosY + 0x10);
+    mVideo_Draw_PosX = (int16) (pPosX + 0x10);
+    mVideo_Draw_PosY = (int16) (pPosY + 0x10);
     mVideo_Draw_Columns = SheetData->mColCount;
     mVideo_Draw_Rows = SheetData->mRowCount;
     mVideo_Draw_ColumnsMax = 0x140;
@@ -3446,8 +3452,8 @@ void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame, 
     mVideo_Draw_Columns = SheetData->mColCount;
     mVideo_Draw_Rows = SheetData->mRowCount - pDi->field_52;
 
-    mVideo_Draw_PosX = (SheetData->mModX + pDi->field_0) - mMapTile_Column + 0x40;
-    mVideo_Draw_PosY = (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_Row;
+    mVideo_Draw_PosX = (int16) (SheetData->mModX + pDi->field_0) - mMapTile_Column + 0x40;
+    mVideo_Draw_PosY = (int16) (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_Row;
     mVideo_Draw_PosY += 0x10;
 
     ++word_42072;
@@ -4160,7 +4166,7 @@ bool cFodder::Recruit_Loop() {
     return false;
 }
 
-void cFodder::Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString ) {
+void cFodder::Recruit_Draw_String(  int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString ) {
 
     for ( std::string::const_iterator Text = pString.begin(); Text != pString.end(); ++Text, pParam8 += 0x0C) {
         char NextChar = *Text;
@@ -4235,19 +4241,18 @@ void cFodder::sub_16C6C() {
     }
 }
 
-void cFodder::Recruit_Draw_Grave( int16 pSpriteType, int16 pPosX, int16 pPosY ) {
+void cFodder::Recruit_Draw_Grave( int16 pSpriteType, const size_t pPosX, const size_t pPosY ) {
     pSpriteType >>= 1;
     if (pSpriteType > 8)
         pSpriteType = 8;
 
-    int16 Frame = pPosY;
+    int32 Frame = (int32) pPosY;
     Frame -= 0x14;
     Frame >>= 5;
     if (Frame >= 5)
         Frame = 4;
 
-    pPosY -= 8;
-    GUI_Draw_Frame_8( pSpriteType, Frame, pPosX, pPosY);
+    GUI_Draw_Frame_8( pSpriteType, Frame, pPosX, pPosY - 8);
 }
 
 void cFodder::Recruit_Draw_Graves( ) {
@@ -4396,14 +4401,15 @@ void cFodder::Recruit_Render_Squad_Names() {
                 Data0 -= 0x41;
                 Data0 += 0x29;
                 
-                int16 Data8 = Data14;
-                Data8 <<= 2;
-                Data8 += word_3A05F;
-                int16 DataC = 0x4B;
-                DataC += mSidebar_Draw_Y;
-                DataC += word_3AA55;
+                int16 X = Data14;
+                X <<= 2;
+                X += word_3A05F;
 
-                mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC + 0x19 );
+                int16 Y = 0x4B;
+                Y += mSidebar_Draw_Y;
+                Y += word_3AA55;
+
+                mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, X, Y + 0x19 );
             }
         }
 
@@ -5213,7 +5219,7 @@ loc_30CBC:;
 
 void cFodder::sub_22C87( sSprite* pSprite ) {
     
-    int64 Data0 = (int64) pSprite->field_1A;
+    int32 Data0 = pSprite->field_1A;
 
     pSprite->field_1E_Big += Data0;
 
@@ -7531,7 +7537,7 @@ void cFodder::Sprite_Handle_Hostage_Movement( sSprite* pSprite ) {
 
     Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
     if (Data10 < 0x7F)
-        pSprite->field_5E = (dword_3B5F5 - mSprites);
+        pSprite->field_5E = (int16) (dword_3B5F5 - mSprites);
 
 loc_2608B:;
     word_3B2ED = 0;
@@ -9110,11 +9116,11 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
 	if (pTileX > mMapWidth || pTileY > mMapHeight)
 		return;
 
-    uint32 Tile = (((pTileY * mMapWidth) + pTileX));
+    size_t Tile = (((pTileY * mMapWidth) + pTileX));
 
     uint8* CurrentMapPtr = mMap->data() + mMapTilePtr + (Tile * 2);
 
-    writeLEWord(CurrentMapPtr, pTileID);
+    writeLEWord(CurrentMapPtr, (uint16) pTileID);
 }
 
 void cFodder::Squad_Troops_Count() {
@@ -9816,19 +9822,19 @@ void cFodder::GUI_Element_Reset() {
     }
 }
 
-void cFodder::Recruit_Render_Text( const char* pText, int16 pPosY ) {
+void cFodder::Recruit_Render_Text( const char* pText, const size_t pPosY ) {
 
     String_CalculateWidth( 320, mFont_Recruit_Width, pText );
     String_Print( mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText );
 }
 
-void cFodder::GUI_Button_Draw_Small(const std::string pText, int16 pY, int16 pColorShadow, int16 pColorPrimary) {
+void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
 	String_Print_Small(pText, pY);
 
 	GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
 
-void cFodder::GUI_Button_Draw( std::string pText, int16 pY, int16 pColorShadow, int16 pColorPrimary ) {
+void cFodder::GUI_Button_Draw( std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary ) {
 	std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
     Recruit_Render_Text( pText.c_str(), pY );
@@ -9836,7 +9842,7 @@ void cFodder::GUI_Button_Draw( std::string pText, int16 pY, int16 pColorShadow, 
     GUI_Box_Draw( pColorShadow, pColorPrimary );
 }
 
-void cFodder::GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary ) {
+void cFodder::GUI_Box_Draw( const size_t pColorShadow, const size_t pColorPrimary ) {
 
     int16 X = mGUI_Temp_X;
     int16 Y = mGUI_Temp_Y;
@@ -13768,7 +13774,7 @@ MissileExplode:;
 
 void cFodder::Sprite_Handle_Sparks( sSprite* pSprite ) {
     Sprite_Movement_Calculate( pSprite );
-    int64 Data0 = (int64) pSprite->field_1A;
+	int32 Data0 = (int32) pSprite->field_1A;
 
     Data0 += pSprite->field_1E;
 
@@ -17038,7 +17044,7 @@ loc_2035C:;
     pSprite->field_4C = -1;
 }
 
-void cFodder::String_Print_Small( std::string pText, const uint16 pY ) {
+void cFodder::String_Print_Small( std::string pText, const size_t pY ) {
     std::transform( pText.begin(), pText.end(), pText.begin(), ::toupper );
 
     String_CalculateWidth( 320, mFont_Briefing_Width, pText );
@@ -17052,17 +17058,17 @@ void cFodder::String_Print_Large( std::string pText, const bool pOverAndUnderLin
     String_Print( mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, mGUI_Temp_X, pY, pText );
 }
 
-void cFodder::String_Print( const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const std::string& pText ) {
+void cFodder::String_Print( const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText ) {
 
     String_Print( pWidths, pFontSpriteID, pParam08, pParamC, pText.c_str() );
 }
 
-void cFodder::String_Print(  const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const char* pText ) {
+void cFodder::String_Print(  const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText ) {
     const uint8* ptr = 0;
     uint8 al = 0;
     int32 unk14 = 0;
 
-    mGUI_Temp_Y = pParamC;
+    mGUI_Temp_Y = (int16) pParamC;
     mGUI_Draw_LastHeight = 0;
 
     for (;;) {
@@ -17943,7 +17949,7 @@ int16 cFodder::Sprite_Create_Bullet( sSprite* pSprite ) {
         Data2C->field_12 = Data0;
     } else {
 
-        Data2C->field_5E = pSprite->field_46_mission_troop - mMission_Troops;
+        Data2C->field_5E = (int16) (pSprite->field_46_mission_troop - mMission_Troops);
         Data2C->field_5D = -1;
 
         // Bullet Travel time
@@ -18508,7 +18514,7 @@ loc_2132A:;
     Dat4 = (pSprite->field_1E & 0xFFFF) | (pSprite->field_20 << 16);
 
     Dat0 -= 0x28000;
-    Dat4 += Dat0;
+    Dat4 += (int32) Dat0;
 
     if (Dat4 < 0) {
         Dat4 = 0;
@@ -18516,7 +18522,7 @@ loc_2132A:;
         Dat0 >>= 2;
     }
 
-    pSprite->field_1A = Dat0;
+    pSprite->field_1A = (int32) Dat0;
     pSprite->field_1E_Big = Dat4;
 
     if (!(Dat4 >> 16)) {
@@ -19598,8 +19604,8 @@ void cFodder::Playground() {
     mString_GapCharID = 0x25;
 	mGUI_Print_String_To_Sidebar = false;
 
-    size_t SpriteID = 0xB;
-    size_t Frame = 0;
+    int32 SpriteID = 0xB;
+    int32 Frame = 0;
 
     
     for (;; ) {
