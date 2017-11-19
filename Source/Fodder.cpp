@@ -2167,8 +2167,11 @@ void cFodder::Camera_Pan_Toward_SquadLeader() {
 
 void cFodder::Mission_Sprites_Handle( ) {
 
-    Sprite_Frame_Modifier_Update();
+	
+#ifndef _OFED
+	Sprite_Frame_Modifier_Update();
     Sprite_Handle_Loop();
+#endif
 
     Sprite_Sort_DrawList();
 
@@ -3456,9 +3459,19 @@ void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame, 
     mVideo_Draw_Columns = SheetData->mColCount;
     mVideo_Draw_Rows = SheetData->mRowCount - pDi->field_52;
 
+#ifdef _OFED
+
+	mMapTile_Row = (mMapTile_MovedVertical * 16) + mMapTile_RowOffset;
+	mMapTile_Column = (mMapTile_MovedHorizontal * 16) + mMapTile_ColumnOffset;
+#endif
+
     mVideo_Draw_PosX = (int16) (SheetData->mModX + pDi->field_0) - mMapTile_Column + 0x40;
     mVideo_Draw_PosY = (int16) (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_Row;
     mVideo_Draw_PosY += 0x10;
+
+#ifdef _OFED
+
+#endif
 
     ++word_42072;
     if (Sprite_OnScreen_Check()) {
@@ -9127,6 +9140,96 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
     writeLEWord(CurrentMapPtr, (uint16) pTileID);
 }
 
+void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
+
+	int16 Data0 = 0;
+
+	sSprite* Data2C, *Data30;
+
+	if (Sprite_Get_Free(Data0, Data2C, Data30))
+		return;
+
+	Data2C->field_18 = pSpriteID;
+	Data2C->field_0 = pTileX;
+	Data2C->field_4 = pTileY;
+
+	switch (pSpriteID) {
+		case eSprite_BoilingPot:						// 1 Null
+			if (Sprite_Get_Free(Data0, Data2C, Data30))
+				return;
+
+			Data2C->field_18 = eSprite_Null;
+			Data2C->field_0 = pTileX;
+			Data2C->field_4 = pTileY;
+			break;
+
+		case eSprite_Helicopter_Grenade_Enemy:			// 3 Nulls
+		case eSprite_Helicopter_Grenade2_Enemy:
+		case eSprite_Helicopter_Missile_Enemy:
+		case eSprite_Helicopter_Homing_Enemy:
+		case eSprite_Helicopter_Homing_Enemy2:
+			if (Sprite_Get_Free(Data0, Data2C, Data30))
+				return;
+
+			Data2C->field_18 = eSprite_Null;
+			Data2C->field_0 = pTileX;
+			Data2C->field_4 = pTileY;
+
+			// Fall Through
+		case eSprite_Helicopter_Grenade2_Human:			// 2 Nulls
+		case eSprite_Helicopter_Grenade_Human:
+		case eSprite_Helicopter_Missile_Human:
+		case eSprite_Helicopter_Homing_Human:
+		case eSprite_Helicopter_Grenade2_Human_Called:
+		case eSprite_Helicopter_Grenade_Human_Called:
+		case eSprite_Helicopter_Missile_Human_Called:
+		case eSprite_Helicopter_Homing_Human_Called:
+			Data0 = 2;
+			if (Sprite_Get_Free(Data0, Data2C, Data30))
+				return;
+
+			Data2C->field_18 = eSprite_Null;
+			Data2C->field_0 = pTileX;
+			Data2C->field_4 = pTileY;
+			Data30->field_18 = eSprite_Null;
+			Data30->field_0 = pTileX;
+			Data30->field_4 = pTileY;
+			break;
+
+		case eSprite_Tank_Enemy:						// 2 Nulls
+			if (Sprite_Get_Free(Data0, Data2C, Data30))
+				return;
+
+			Data2C->field_18 = eSprite_Null;
+			Data2C->field_0 = pTileX;
+			Data2C->field_4 = pTileY;
+
+		case eSprite_Tank_Human:
+			if (Sprite_Get_Free(Data0, Data2C, Data30))
+				return;
+
+			Data2C->field_18 = eSprite_Null;
+			Data2C->field_0 = pTileX;
+			Data2C->field_4 = pTileY;
+			break;
+
+		case eSprite_VehicleNoGun_Human:
+		case eSprite_VehicleGun_Human:
+		case eSprite_VehicleNoGun_Enemy:
+		case eSprite_VehicleGun_Enemy:
+		case eSprite_Vehicle_Unk_Enemy:
+			if (Sprite_Get_Free(Data0, Data2C, Data30))
+				return;
+
+			Data2C->field_18 = eSprite_Null;
+			Data2C->field_0 = pTileX;
+			Data2C->field_4 = pTileY;
+			break;
+		}
+
+	Sprite_Handle_Loop();
+}
+
 void cFodder::Squad_Troops_Count() {
     sSprite** Data34 = mSprite_TroopsAlive;
 
@@ -9699,6 +9802,9 @@ void cFodder::Map_Destroy_Tiles( ) {
     }
 
 loc_2DE3C:;
+	if (!mMap_Destroy_TilesPtr)
+		return;
+
     Data20 = (int16*) mMap_Destroy_TilesPtr;
 
     Data0 = *Data20;
