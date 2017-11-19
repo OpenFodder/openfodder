@@ -114,8 +114,8 @@ protected:
 	void modulateVolumeWaveform(Rjp1Channel *channel);
 	void setVolume(Rjp1Channel *channel);
 
-	void stopPaulaChannel(uint8 channel);
-	void setupPaulaChannel(uint8 channel, const int8 *waveData, uint16 offset, uint16 len, uint16 repeatPos, uint16 repeatLen);
+	void stopPaulaChannel(size_t channel);
+	void setupPaulaChannel(size_t channel, const int8 *waveData, uint16 offset, uint16 len, uint16 repeatPos, uint16 repeatLen);
 
 	virtual void interrupt();
 

@@ -444,14 +444,14 @@ void Rjp1::modulateVolumeWaveform(Rjp1Channel *channel) {
 void Rjp1::setVolume(Rjp1Channel *channel) {
 	channel->volume = (channel->volume * channel->volumeScale) / 64;
 	//channel->volume = CLIP<int16>(channel->volume, 0, 64);
-	setChannelVolume(channel - _channelsTable, channel->volume);
+	setChannelVolume(channel - _channelsTable, (uint8) channel->volume);
 }
 
-void Rjp1::stopPaulaChannel(uint8 channel) {
-	clearVoice(channel);
+void Rjp1::stopPaulaChannel(size_t channel) {
+	clearVoice((uint8) channel);
 }
 
-void Rjp1::setupPaulaChannel(uint8 channel, const int8 *waveData, uint16 offset, uint16 len, uint16 repeatPos, uint16 repeatLen) {
+void Rjp1::setupPaulaChannel(size_t channel, const int8 *waveData, uint16 offset, uint16 len, uint16 repeatPos, uint16 repeatLen) {
 	if (waveData) {
 		setChannelData(channel, waveData, waveData + repeatPos * 2, len * 2, repeatLen * 2, offset * 2);
 	}

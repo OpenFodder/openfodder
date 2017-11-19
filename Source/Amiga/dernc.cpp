@@ -110,7 +110,7 @@ long rnc_unpack (void *packed, void *unpacked) {
      * Check the packed-data CRC. Also save the unpacked-data CRC
      * for later.
      */
-    if (rnc_crc(input, inputend-input) != bword(input-4))
+    if (rnc_crc(input, (long) (inputend-input)) != bword(input-4))
 	return RNC_PACKED_CRC_ERROR;
     out_crc = bword(input-6);
 

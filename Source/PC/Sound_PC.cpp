@@ -119,7 +119,7 @@ void cSound_PC::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume ) 
 	if (!eax || !eax->size() || mSound == false )
 		return;
 
-	SDL_RWops *rw = SDL_RWFromMem( eax->data(), eax->size() );
+	SDL_RWops *rw = SDL_RWFromMem( eax->data(), (int) eax->size() );
 
 	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
 	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
