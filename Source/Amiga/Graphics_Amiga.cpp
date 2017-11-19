@@ -113,31 +113,31 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 
 	case eGFX_BRIEFING:
 		mFodder->mVideo_Draw_PaletteIndex = 0xA0;
-		mBMHD_Current = mImageBriefingIntro.GetHeader();
+		mBMHD_Current = mImageMissionIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
 		mFodder->mVideo_Draw_Rows = 64;
-		return mImageBriefingIntro.mData->data();
+		return mImageMissionIntro.mData->data();
 
 	case eGFX_BRIEFING_AMIGA_1:
 		mFodder->mVideo_Draw_PaletteIndex = 0xB0;
-		mBMHD_Current = mImageBriefingIntro.GetHeader();
+		mBMHD_Current = mImageMissionIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
 		mFodder->mVideo_Draw_Rows = 74;
-		return mImageBriefingIntro.mData->data() + (176 * 40);
+		return mImageMissionIntro.mData->data() + (176 * 40);
 
 	case eGFX_BRIEFING_AMIGA_2:
 		mFodder->mVideo_Draw_PaletteIndex = 0xC0;
-		mBMHD_Current = mImageBriefingIntro.GetHeader();
+		mBMHD_Current = mImageMissionIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
 		mFodder->mVideo_Draw_Rows = 111;
-		return mImageBriefingIntro.mData->data() + (65 * 40);
+		return mImageMissionIntro.mData->data() + (65 * 40);
 
 	case eGFX_BRIEFING_AMIGA_3:
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
-		mBMHD_Current = mImageBriefingIntro.GetHeader();
+		mBMHD_Current = mImageMissionIntro.GetHeader();
 		mFodder->mVideo_Draw_Columns = 0x28;
 		mFodder->mVideo_Draw_Rows = 48;
-		return mImageBriefingIntro.mData->data() + (252 * 40);
+		return mImageMissionIntro.mData->data() + (252 * 40);
 
 	default:
 		std::cout << "cGraphics_Amiga::GetSpriteData: Invalid ID " << pSegment << "\n";
@@ -482,7 +482,7 @@ void cGraphics_Amiga::PaletteSetOverview() {
 
 void cGraphics_Amiga::PaletteBriefingSet() {
 
-	mImage->paletteSet(mImageBriefingIntro.mPalette, 0, 0xFF );
+	mImage->paletteSet(mImageMissionIntro.mPalette, 0, 0xFF );
 	mImage->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
 
@@ -1205,25 +1205,25 @@ void cGraphics_Amiga::Mission_Intro_Load_Resources() {
 	std::string JunData6 = mTileTypes[mFodder->mMap_TileSet].mName + "heli.pal";
 
 	// Load the intro images
-	mImageBriefingIntro = DecodeIFF(JunData1);
-	if (!mImageBriefingIntro.mData->size())
+	mImageMissionIntro = DecodeIFF(JunData1);
+	if (!mImageMissionIntro.mData->size())
 		return;
 
 	// Load the palettes
 	auto Data = g_Resource.fileGet(JunData2);
-	mImageBriefingIntro.LoadPalette_Amiga(Data->data(), 16, 0xA0);
+	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xA0);
 
 	Data = g_Resource.fileGet(JunData3);
-	mImageBriefingIntro.LoadPalette_Amiga(Data->data(), 16, 0xB0);
+	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xB0);
 
 	Data = g_Resource.fileGet(JunData4);
-	mImageBriefingIntro.LoadPalette_Amiga(Data->data(), 16, 0xC0);
+	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xC0);
 
 	Data = g_Resource.fileGet(JunData5);
-	mImageBriefingIntro.LoadPalette_Amiga(Data->data(), 16, 0xD0);
+	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xD0);
 
 	Data = g_Resource.fileGet(JunData6);
-	mImageBriefingIntro.LoadPalette_Amiga(Data->data(), 16, 0xE0);
+	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xE0);
 }
 
 void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pSource ) {

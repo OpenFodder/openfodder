@@ -3627,7 +3627,7 @@ void cFodder::sub_1594F( ) {
         mBriefing_Helicopter_Moving = 0;
         word_428D8 = 0;
 
-        mGraphics->mImageBriefingIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
+        mGraphics->mImageMissionIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
         mImage->paletteNew_SetToBlack();
         mImageFaded = -1;
     }
@@ -3638,7 +3638,7 @@ void cFodder::Mission_Intro_Draw_OpenFodder() {
 	// Draw OPEN FODDER
 	{
 		mString_GapCharID = 0x25;
-		String_Print_Large("OPEN FODDER", true, 0);
+		String_Print_Large("OPEN FODDER", true, 0x01);
 	}
 
 	// Draw Mission Name, or Map 
@@ -17159,7 +17159,7 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pFontSpriteID, size_t p
 
         }
         loc_29DC7:;
-        //seg007:02A7
+
         NextChar10 = pWidths[NextChar10];
 
         pParam08 += NextChar10;
@@ -19744,13 +19744,15 @@ Start:;
     mVersion = 0;
     VersionLoad(g_AvailableDataVersions[0]);
 
-
     //Playground();
 
 	// Play the intro
 	if (!mOpenFodder_Intro_Done) {
+
 		mMissionNumber = 0;
-		Map_Load();
+
+		// Random intro
+		mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 
 		Mission_Intro_Play();
 		mOpenFodder_Intro_Done = true;

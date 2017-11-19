@@ -146,7 +146,7 @@ class cGraphics : public cSingleton<cGraphics> {
 	sImage				mImageService;
 	sImage				mImagePStuff;
 	sImage				mImageFonts;
-	sImage				mImageBriefingIntro;
+	sImage				mImageMissionIntro;
 
 	cPalette			mPalette[255];
 
