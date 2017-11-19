@@ -3469,10 +3469,6 @@ void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame, 
     mVideo_Draw_PosY = (int16) (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_Row;
     mVideo_Draw_PosY += 0x10;
 
-#ifdef _OFED
-
-#endif
-
     ++word_42072;
     if (Sprite_OnScreen_Check()) {
         pDi->field_5C = 1;
