@@ -134,17 +134,17 @@ protected:
 		_end = true;
 	}
 
-	void setChannelPanning(uint8 channel, uint8 panning) {
+	void setChannelPanning(size_t channel, uint8 panning) {
 		assert(channel < NUM_VOICES);
 		_voice[channel].panning = panning;
 	}
 
-	void disableChannel(uint8 channel) {
+	void disableChannel(size_t channel) {
 		assert(channel < NUM_VOICES);
 		_voice[channel].data = 0;
 	}
 
-	void enableChannel(uint8 channel) {
+	void enableChannel(size_t channel) {
 		assert(channel < NUM_VOICES);
 		Channel &ch = _voice[channel];
 		ch.data = ch.dataRepeat;
@@ -154,28 +154,28 @@ protected:
 		// ch.period = ch.periodRepeat;
 	}
 
-	void setChannelPeriod(uint8 channel, int16 period) {
+	void setChannelPeriod(size_t channel, int16 period) {
 		assert(channel < NUM_VOICES);
 		_voice[channel].period = period;
 	}
 
-	void setChannelVolume(uint8 channel, uint8 volume) {
+	void setChannelVolume(size_t channel, uint8 volume) {
 		assert(channel < NUM_VOICES);
 		_voice[channel].volume = volume;
 	}
 
-	void setChannelSampleStart(uint8 channel, const int8 *data) {
+	void setChannelSampleStart(size_t channel, const int8 *data) {
 		assert(channel < NUM_VOICES);
 		_voice[channel].dataRepeat = data;
 	}
 
-	void setChannelSampleLen(uint8 channel, uint32 length) {
+	void setChannelSampleLen(size_t channel, uint32 length) {
 		assert(channel < NUM_VOICES);
 		assert(length < 32768/2);
 		_voice[channel].lengthRepeat = 2 * length;
 	}
 
-	void setChannelData(uint8 channel, const int8 *data, const int8 *dataRepeat, uint32 length, uint32 lengthRepeat, int32 offset = 0) {
+	void setChannelData(size_t channel, const int8 *data, const int8 *dataRepeat, uint32 length, uint32 lengthRepeat, int32 offset = 0) {
 		assert(channel < NUM_VOICES);
 
 		Channel &ch = _voice[channel];
@@ -189,22 +189,22 @@ protected:
 		ch.lengthRepeat = lengthRepeat;
 	}
 
-	void setChannelOffset(uint8 channel, Offset offset) {
+	void setChannelOffset(size_t channel, Offset offset) {
 		assert(channel < NUM_VOICES);
 		_voice[channel].offset = offset;
 	}
 
-	Offset getChannelOffset(uint8 channel) {
+	Offset getChannelOffset(size_t channel) {
 		assert(channel < NUM_VOICES);
 		return _voice[channel].offset;
 	}
 
-	int getChannelDmaCount(uint8 channel) {
+	int getChannelDmaCount(size_t channel) {
 		assert(channel < NUM_VOICES);
 		return _voice[channel].dmaCount;
 	}
 
-	void setChannelDmaCount(uint8 channel, int dmaVal = 0) {
+	void setChannelDmaCount(size_t channel, int dmaVal = 0) {
 		assert(channel < NUM_VOICES);
 		_voice[channel].dmaCount = dmaVal;
 	}

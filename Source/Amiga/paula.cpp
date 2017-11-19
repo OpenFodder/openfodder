@@ -76,10 +76,10 @@ int Paula::readBuffer(int16 *buffer, const int numSamples) {
 
 
 template<bool stereo>
-inline int mixBuffer(int16 *&buf, const int8 *data, Paula::Offset &offset, frac_t rate, int neededSamples, size_t bufSize, uint8 volume, uint8 panning) {
+inline int mixBuffer(int16 *&buf, const int8 *data, Paula::Offset &offset, frac_t rate, int neededSamples, size_t bufSize, size_t volume, uint8 panning) {
 	int samples;
 	for (samples = 0; samples < neededSamples && offset.int_off < bufSize; ++samples) {
-		const int32 tmp = ((int32) data[offset.int_off]) * volume;
+		const int32 tmp = (int32) (((int32) data[offset.int_off]) * volume);
 		if (stereo) {
 			*buf++ += (tmp * (255 - panning)) >> 7;
 			*buf++ += (tmp * (panning)) >> 7;
@@ -185,7 +185,7 @@ int Paula::readBufferIntern(int16 *buffer, const int numSamples) {
 		}
 		buffer += _stereo ? nSamples * 2 : nSamples;
 		_curInt -= nSamples;
-		samples -= nSamples;
+		samples -= (int) nSamples;
 	}
 	return numSamples;
 }
