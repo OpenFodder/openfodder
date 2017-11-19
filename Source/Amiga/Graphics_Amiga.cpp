@@ -1,6 +1,6 @@
 /*
-*  Cannon Fodder
-*  ------------------------
+*  Open Fodder
+*  ---------------
 *
 *  Copyright (C) 2008-2017 Robert Crossfield
 *
@@ -393,10 +393,10 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 			Decoded.mPlanes = 4;
 
 		// Not an iff, probably RAW which has the palette at the start
-		Decoded.LoadPalette_Amiga(Decoded.mData->data(), (1 << Decoded.mPlanes));
+		Decoded.LoadPalette_Amiga(Decoded.mData->data(), (1LL << Decoded.mPlanes));
 
 		// Remove the palette
-		Decoded.mData->erase(Decoded.mData->begin(), Decoded.mData->begin() + (2 << Decoded.mPlanes));
+		Decoded.mData->erase(Decoded.mData->begin(), Decoded.mData->begin() + ((2LL << Decoded.mPlanes)));
 
 		// All raws are 320x257
 		Decoded.mDimension.mWidth = 0x140;
@@ -404,7 +404,7 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 	}
 
 	// Load the palette
-	Decoded.CopyPalette(mPalette, (1 << Decoded.mPlanes));
+	Decoded.CopyPalette(mPalette, (1LL << Decoded.mPlanes));
 
 	mBMHD_Current = Decoded.GetHeader();
 
@@ -1021,7 +1021,7 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 }
 
-void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, int16 pX, int16 pY ) {
+void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, size_t pX, size_t pY ) {
 	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 
 	mFodder->mVideo_Draw_Columns = str2->mColumns >> 3;

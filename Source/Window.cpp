@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -176,8 +176,8 @@ bool cWindow::CanChangeToMultiplier( int pNewMultiplier ) {
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 
-	if (	(mOriginalResolution.mWidth  * pNewMultiplier >= current.w || 
-			mOriginalResolution.mHeight * pNewMultiplier >= current.h) ||
+	if (	(mOriginalResolution.getWidth()  * pNewMultiplier >= current.w ||
+			mOriginalResolution.getHeight() * pNewMultiplier >= current.h) ||
 			pNewMultiplier <= 0 )
 		return false;
 
@@ -266,8 +266,8 @@ void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
 
 void cWindow::RenderShrunk( cSurface* pImage ) {
 	SDL_Rect Src, Dest;
-	Src.w = pImage->GetWidth();
-	Src.h = pImage->GetHeight();
+	Src.w = (int) pImage->GetWidth();
+	Src.h = (int) pImage->GetHeight();
 	Src.x = 0;
 	Src.y = 0;
 
@@ -315,7 +315,7 @@ void cWindow::SetFullScreen() {
 
 void cWindow::SetMousePosition( const cPosition& pPosition ) {
 
-	SDL_WarpMouseInWindow( mWindow, pPosition.mX, pPosition.mY );
+	SDL_WarpMouseInWindow( mWindow, pPosition.getX(), pPosition.getY() );
 }
 
 void cWindow::SetScreenSize( const cDimension& pDimension ) {

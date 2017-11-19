@@ -1648,7 +1648,7 @@ class basic_json
     defined in @ref value_t.
 
     JSON type | value_t type    | used type
-    --------- | --------------- | ------------------------
+    --------- | --------------- | ---------------
     object    | object          | pointer to @ref object_t
     array     | array           | pointer to @ref array_t
     string    | string          | pointer to @ref string_t

@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -714,8 +714,8 @@ public:
 
     void            Video_Sleep_Wrapper();
     void            Mouse_DrawCursor( );
-    void            GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, int32 pPositionX, int32 pPositionY );
-    void            GUI_Draw_Frame_16(  int16 pSpriteType, int16 pFrame, int16 pPosX, int16 pPosY );
+    void            GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY );
+    void            GUI_Draw_Frame_16(  int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY );
     void            Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0 );
 
     bool            Sprite_OnScreen_Check();
@@ -739,7 +739,7 @@ public:
     /* Recruitment */
     int16           Recruit_Show();
     bool            Recruit_Loop();
-    void            Recruit_Draw_String(  int16 pParam0, int16 pParam8, int16 pParamC, const std::string& pString );
+    void            Recruit_Draw_String(  int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString );
     void            Recruit_Truck_Anim_Prepare();
     void            Recruit_Truck_Anim_CopyFrames( uint16** pDi, const int16* pSource );
     void            sub_16C6C();
@@ -760,9 +760,9 @@ public:
     void            Recruit_Copy_Sprites();
     void            Recruit_Draw();
     void            Recruit_Draw_Graves( );
-    void            Recruit_Draw_Grave( int16 pSpriteType, int16 pPosX, int16 pPosY );
+    void            Recruit_Draw_Grave( int16 pSpriteType, const size_t pPosX, const size_t pPosY );
     bool            Recruit_Check_Buttons_SaveLoad();
-    void            Recruit_Render_Text( const char* pText, int16 pPosY );
+    void            Recruit_Render_Text( const char* pText, const size_t pPosY );
     /* End Recruitment */
 
     /* Promotion / Heroes */
@@ -1115,10 +1115,10 @@ public:
     void            GUI_Button_Setup( void(cFodder::*pFunction)(void) );
 	void            GUI_Button_Setup_Small(void(cFodder::*pFunction)(void));
 
-    void            GUI_Button_Draw( std::string pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC );
-	void            GUI_Button_Draw_Small(const std::string pText, int16 pY, int16 pColorShadow = 0xBF, int16 pColorPrimary = 0xBC);
+    void            GUI_Button_Draw( std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC );
+	void            GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
 
-    void            GUI_Box_Draw( int16 pColorShadow, int16 pColorPrimary );
+    void            GUI_Box_Draw( const size_t pColorShadow, const size_t pColorPrimary );
     void            GUI_Select_File_Loop( bool pShowCursor );
     std::string     GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData );
 
@@ -1241,8 +1241,8 @@ public:
     void            String_CalculateWidth( int32 pPosX, const uint8* pWidths, const std::string& pString );
     void            String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString );
 
-    void            String_Print(  const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const char* pText );
-    void            String_Print( const uint8* pWidths, int32 pFontSpriteID, int32 pParam08, int32 pParamC, const std::string& pText );
+    void            String_Print(  const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText );
+    void            String_Print( const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText );
 
     void            intro_LegionMessage();
     int16           introPlayText();
@@ -1281,7 +1281,7 @@ public:
 	void            String_Input_Print(int16 pPosY);
 	void            String_Input_Check();
 
-    void            String_Print_Small( std::string pText, const uint16 pY );
+    void            String_Print_Small( std::string pText, const size_t pY );
     void            String_Print_Large( std::string pText, const bool pOverAndUnderLine, const uint16 pY );
 
     bool            EventAdd( cEvent pEvent );

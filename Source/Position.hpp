@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -52,4 +52,7 @@ class cPosition {
 
 			return *this;
 		}
+
+		int getY() const { return (int) mY; }
+		int getX() const { return (int) mX; }
 };

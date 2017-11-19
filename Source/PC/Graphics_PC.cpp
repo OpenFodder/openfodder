@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -406,7 +406,7 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	}
 }
 
-void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, int16 pX, int16 pY) {
+void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, size_t pX, size_t pY) {
 	const sSpriteSheet_pstuff* SpriteSheet = &mSpriteSheet_PStuff[pSpriteType];
 
 	mFodder->mVideo_Draw_Columns = SpriteSheet->mColumns;

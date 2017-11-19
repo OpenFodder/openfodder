@@ -1,6 +1,6 @@
 /*
- *  Cannon Fodder
- *  ------------------------
+ *  Open Fodder
+ *  ---------------
  *
  *  Copyright (C) 2008-2017 Robert Crossfield
  *
@@ -31,4 +31,7 @@ class cDimension {
 		void Set( unsigned int pWidth, unsigned int pHeight ) { mWidth = pWidth; mHeight = pHeight; }
 
 		unsigned int WidthByHeight() { return mWidth * mHeight; }
+		int getWidth() const { return mWidth; }
+		int getHeight() const { return mHeight; }
+
 };
