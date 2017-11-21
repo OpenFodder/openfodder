@@ -1082,12 +1082,12 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
     outfile.close();
 }
 
-#include "Utils//diamond.hpp"
+//#include "Utils//diamond.hpp"
 
 void cFodder::Map_Randomise() {
 
-    cDiamondSquare DS(4, 1);
-    auto Map = DS.generate();
+    //cDiamondSquare DS(4, 1);
+    //auto Map = DS.generate();
 
 }
 
