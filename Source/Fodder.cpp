@@ -1086,8 +1086,8 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 
 void cFodder::Map_Randomise() {
 
-    //cDiamondSquare DS(4, 1);
-    //auto Map = DS.generate();
+    //cDiamondSquare DS(mMapWidth / mMapHeight, 1);
+   // auto Map = DS.generate();
 
 }
 
@@ -1897,7 +1897,7 @@ void cFodder::Map_Load_Resources() {
     tool_EndianSwap( (uint8*)&mTile_Hit[240], Size );
     
     Size = g_Resource.fileLoadTo( mFilenameBaseBht, (uint8*) &mTile_BHit[0][0] );
-    Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &mTile_BHit[100][0] );
+    Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &mTile_BHit[240][0] );
 
     mGraphics->Tile_Prepare_Gfx();
     mGraphics->Map_Load_Resources();
