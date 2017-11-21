@@ -40,19 +40,19 @@ const int16 mBriefing_Helicopter_Offsets[] =
 };
 
 cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
-	
-	mVersion = 0;
-	mVersionDefault = 0;
+    
+    mVersion = 0;
+    mVersionDefault = 0;
 
-	mOpenFodder_Intro_Done = false;
-	mCustom_Mode = eCustomMode_None;
+    mOpenFodder_Intro_Done = false;
+    mCustom_Mode = eCustomMode_None;
     mSkipIntro = pSkipIntro;
     mResources = 0;
     mGraphics = 0;
     mSound = 0;
     mWindow = pWindow;
     mMapNumber = 0;
-	mMissionNumber = 0;
+    mMissionNumber = 0;
 
     mTicksDiff = 0;
     mTicks = 0;
@@ -216,8 +216,8 @@ void cFodder::Squad_Walk_Target_SetAll( int16 pValue ) {
 
 int16 cFodder::Map_Loop( ) {
 
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		mWindow->SetScreenSize(cDimension(320, 225));
+    if (mVersion->mPlatform == ePlatform::Amiga)
+        mWindow->SetScreenSize(cDimension(320, 225));
 
     mImage->Save();
 
@@ -1055,14 +1055,14 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
     std::ofstream outfile(SptFilename, std::ofstream::binary);
 
     // Ensure humans are first
-	std::sort(std::begin(mSprites), std::end(mSprites), [](sSprite& l, sSprite& r) {
-		return l.field_18 == eSprite_Player && l.field_0 != -32768;
-	});
+    std::sort(std::begin(mSprites), std::end(mSprites), [](sSprite& l, sSprite& r) {
+        return l.field_18 == eSprite_Player && l.field_0 != -32768;
+    });
 
     // Number of sprites in use
     size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](sSprite& l) {
-		return l.field_0 != -32768 && l.field_0 != -1;
-	});
+        return l.field_0 != -32768 && l.field_0 != -1;
+    });
 
     auto MapSpt = tSharedBuffer( new std::vector<uint8>() );
     MapSpt->resize(SpriteCount * 0x0A);
@@ -1082,19 +1082,19 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
     outfile.close();
 }
 
-//#include "Utils//diamond.hpp"
+#include "Utils//diamond.hpp"
 
 void cFodder::Map_Randomise() {
-	/*
-	cDiamondSquare DS(4, 1);
-	auto Map = DS.generate();
-	*/
+
+    cDiamondSquare DS(4, 1);
+    auto Map = DS.generate();
+
 }
 
 void cFodder::Map_Load_Sprites() {
     Sprite_Clear_All();
 
-	auto MapSprites = mCampaign.getSprites(mMapNumber);
+    auto MapSprites = mCampaign.getSprites(mMapNumber);
     tool_EndianSwap( (uint8*)MapSprites->data(), MapSprites->size());
 
     mTroops_Enemy_Count = 0;
@@ -1709,14 +1709,14 @@ loc_11E5B:;
 
 bool cFodder::Campaign_Load( std::string pName ) {
     
-	// If no campaign name was provided, use the default for the current version
-	if (!pName.size()) {
+    // If no campaign name was provided, use the default for the current version
+    if (!pName.size()) {
 
-		if (mVersion->mVersion != eVersion::Custom) {
-			pName = mVersion->mName;
-		}
-	}
-	
+        if (mVersion->mVersion != eVersion::Custom) {
+            pName = mVersion->mName;
+        }
+    }
+    
     if (!mCampaign.LoadCampaign(pName, pName != mVersion->mName)) {
         // TODO
 
@@ -1756,8 +1756,8 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
             mSubName.append("sub1.blk");
 
         // Write the base/sub filenames
-		std::memcpy(mMap->data(), mBaseName.c_str(), 11  );
-		std::memcpy(mMap->data() + 16, mSubName.c_str(), 11);
+        std::memcpy(mMap->data(), mBaseName.c_str(), 11  );
+        std::memcpy(mMap->data() + 16, mSubName.c_str(), 11);
     }
 
     // Clear current sprites
@@ -1766,9 +1766,9 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
     // Load the map specific resources
     Map_Load_Resources();
 
-	Map_Randomise();
+    Map_Randomise();
 
-	// Draw the tiles
+    // Draw the tiles
     MapTiles_Draw();
 
     // Refresh the palette
@@ -1779,9 +1779,9 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 void cFodder::Map_Load( ) {
     mMap = mCampaign.getMap(mMapNumber);
 
-	if (!mMap->size()) {
-		return;
-	}
+    if (!mMap->size()) {
+        return;
+    }
 
     tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
 
@@ -1789,21 +1789,21 @@ void cFodder::Map_Load( ) {
 }
 
 bool cFodder::Tiles_Load_Data() {
-	std::string BaseName, SubName;
+    std::string BaseName, SubName;
 
-	// junbase.blk
-	BaseName.append(mMap->data(), mMap->data() + 11);
+    // junbase.blk
+    BaseName.append(mMap->data(), mMap->data() + 11);
 
-	// junsub0.blk
-	SubName.append(mMap->data() + 0x10, mMap->data() + 0x10 + 11);
+    // junsub0.blk
+    SubName.append(mMap->data() + 0x10, mMap->data() + 0x10 + 11);
 
-	mTile_BaseBlk = g_Resource.fileGet(BaseName);
-	mTile_SubBlk = g_Resource.fileGet(SubName);
+    mTile_BaseBlk = g_Resource.fileGet(BaseName);
+    mTile_SubBlk = g_Resource.fileGet(SubName);
 
-	if (!mTile_BaseBlk->size() || !mTile_SubBlk->size())
-		return false;
+    if (!mTile_BaseBlk->size() || !mTile_SubBlk->size())
+        return false;
 
-	return true;
+    return true;
 }
 
 void cFodder::Map_Load_Resources() {
@@ -1830,47 +1830,47 @@ void cFodder::Map_Load_Resources() {
     // Map Tileset
     Map_SetTileType();
 
-	// Was the tileset available?
-	if (!Tiles_Load_Data()) {
+    // Was the tileset available?
+    if (!Tiles_Load_Data()) {
 
-		// Is the current version meant to have the required tileset?
-		if (mVersion->hasTileset(mMap_TileSet)) {
+        // Is the current version meant to have the required tileset?
+        if (mVersion->hasTileset(mMap_TileSet)) {
 
-			// TODO: Warn user about missing data?
-		}
-		
-		// Load the default version
-		VersionLoad(mVersionDefault);
+            // TODO: Warn user about missing data?
+        }
+        
+        // Load the default version
+        VersionLoad(mVersionDefault);
 
-		// Check the default version for the tileset
-		if (!Tiles_Load_Data()) {
+        // Check the default version for the tileset
+        if (!Tiles_Load_Data()) {
 
-			// Not found, so lets go find it
-			auto Version = FindAvailableVersionForTileset(mMap_TileSet);
+            // Not found, so lets go find it
+            auto Version = FindAvailableVersionForTileset(mMap_TileSet);
 
-			// Load it
-			if (Version) {
-				VersionLoad(Version);
-				Tiles_Load_Data();
-			} else {
-				// TODO: Quit?
-				std::cout << "Data not found\n";
-			}
-		}
-		
-	}
+            // Load it
+            if (Version) {
+                VersionLoad(Version);
+                Tiles_Load_Data();
+            } else {
+                // TODO: Quit?
+                std::cout << "Data not found\n";
+            }
+        }
+        
+    }
 
-	// jun
-	BaseBaseSet.append(mMap->data(), mMap->data() + 3);
+    // jun
+    BaseBaseSet.append(mMap->data(), mMap->data() + 3);
 
-	// jun
-	BaseSubSet.append(mMap->data() + 0x10, mMap->data() + 0x10 + 3);
+    // jun
+    BaseSubSet.append(mMap->data() + 0x10, mMap->data() + 0x10 + 3);
 
-	// junbase
-	BaseBase.append(mMap->data(), mMap->data() + 7);
+    // junbase
+    BaseBase.append(mMap->data(), mMap->data() + 7);
 
-	// junsub0
-	BaseSub.append(mMap->data() + 0x10, mMap->data() + 0x10 + 7);
+    // junsub0
+    BaseSub.append(mMap->data() + 0x10, mMap->data() + 0x10 + 7);
 
 
     mFilenameCopt = Filename_CreateFromBase( BaseBaseSet, "copt." );
@@ -2180,9 +2180,9 @@ void cFodder::Camera_Pan_Toward_SquadLeader() {
 
 void cFodder::Mission_Sprites_Handle( ) {
 
-	
+    
 #ifndef _OFED
-	Sprite_Frame_Modifier_Update();
+    Sprite_Frame_Modifier_Update();
     Sprite_Handle_Loop();
 #endif
 
@@ -3184,19 +3184,19 @@ void cFodder::WindowTitleBaseSetup() {
     mTitle.str( "" );
     mTitle << "Open Fodder";
 
-	if (mVersion) {
+    if (mVersion) {
 
-		// Ensure we have a campaign
-		if (mCampaign.getName().size()) {
-			if (mCampaign.isCustom()) {
-				mTitle << ": Custom (" << mCampaign.getName() << ")";
-			}
-			else {
+        // Ensure we have a campaign
+        if (mCampaign.getName().size()) {
+            if (mCampaign.isCustom()) {
+                mTitle << ": Custom (" << mCampaign.getName() << ")";
+            }
+            else {
 
-				mTitle << ": " << mCampaign.getName();
-			}
-		}
-	}
+                mTitle << ": " << mCampaign.getName();
+            }
+        }
+    }
 
     WindowTitleSet(false);
 }
@@ -3208,14 +3208,14 @@ void cFodder::WindowTitleBaseSetup() {
  */
 void cFodder::VersionLoad( const sVersion* pVersion ) {
 
-	if (!pVersion)
-		return;
+    if (!pVersion)
+        return;
 
     auto DataPath = pVersion->mDataPath;
 
     // Custom version?
     if (pVersion->mVersion == eVersion::Custom) {
-		auto RetailRelease = FindAvailableRetail();
+        auto RetailRelease = FindAvailableRetail();
 
         // If a retail release is found, we use its data path
         if (RetailRelease != 0)
@@ -3226,8 +3226,8 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
         }
     }
 
-	if (mVersion == pVersion)
-		return;
+    if (mVersion == pVersion)
+        return;
 
     mVersion = pVersion;
 
@@ -3474,8 +3474,8 @@ void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame, 
 
 #ifdef _OFED
 
-	mMapTile_Row = (mMapTile_MovedVertical * 16) + mMapTile_RowOffset;
-	mMapTile_Column = (mMapTile_MovedHorizontal * 16) + mMapTile_ColumnOffset;
+    mMapTile_Row = (mMapTile_MovedVertical * 16) + mMapTile_RowOffset;
+    mMapTile_Column = (mMapTile_MovedHorizontal * 16) + mMapTile_ColumnOffset;
 #endif
 
     mVideo_Draw_PosX = (int16) (SheetData->mModX + pDi->field_0) - mMapTile_Column + 0x40;
@@ -3661,29 +3661,29 @@ void cFodder::sub_1594F( ) {
 }
 
 void cFodder::Mission_Intro_Draw_OpenFodder() {
-	// Draw OPEN FODDER
-	{
-		mString_GapCharID = 0x25;
-		String_Print_Large("OPEN FODDER", true, 0x01);
-	}
+    // Draw OPEN FODDER
+    {
+        mString_GapCharID = 0x25;
+        String_Print_Large("OPEN FODDER", true, 0x01);
+    }
 
-	// Draw Mission Name, or Map 
-	{
-		int16 DrawY = 0xB5;
+    // Draw Mission Name, or Map 
+    {
+        int16 DrawY = 0xB5;
 
-		if (mVersion->mPlatform == ePlatform::Amiga)
-			DrawY += 0x16;
+        if (mVersion->mPlatform == ePlatform::Amiga)
+            DrawY += 0x16;
 
-		//String_Print_Large("SELECT CAMPAIGN", true, DrawY);
-	}
+        //String_Print_Large("SELECT CAMPAIGN", true, DrawY);
+    }
 }
 
 void cFodder::Mission_Intro_Draw_Mission_Name( ) {
 
-	if (mMissionNumber == 0)
-		Mission_Intro_Draw_OpenFodder();
-	else
-	    Briefing_Draw_Mission_Title( 0xB5 );
+    if (mMissionNumber == 0)
+        Mission_Intro_Draw_OpenFodder();
+    else
+        Briefing_Draw_Mission_Title( 0xB5 );
 }
 
 void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
@@ -3833,82 +3833,82 @@ void cFodder::CopyProtection_EncodeInput() {
 }
 
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
-	std::vector<std::string> CampaignList = GetAvailableVersions(); 
-	
-	mMission_Aborted = false;
-	mGUI_SaveLoadAction = 0;
+    std::vector<std::string> CampaignList = GetAvailableVersions(); 
+    
+    mMission_Aborted = false;
+    mGUI_SaveLoadAction = 0;
 
-	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
-	{
-		std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
+    {
+        std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
 
-		// Sort files alphabetical
-		std::sort(Files.begin(), Files.end(),[](std::string& pLeft, std::string& pRight) {
-			return pLeft < pRight;
-		});
+        // Sort files alphabetical
+        std::sort(Files.begin(), Files.end(),[](std::string& pLeft, std::string& pRight) {
+            return pLeft < pRight;
+        });
 
-		// Append all custom campaigns to the list
-		for (auto& File : Files) {
-			size_t Pos = File.find_first_of(".");
-			std::string FileName = File.substr(0, Pos);
+        // Append all custom campaigns to the list
+        for (auto& File : Files) {
+            size_t Pos = File.find_first_of(".");
+            std::string FileName = File.substr(0, Pos);
 
-			// Don't add known campaigns
-			if (isCampaignKnown(FileName))
-				continue;
+            // Don't add known campaigns
+            if (isCampaignKnown(FileName))
+                continue;
 
-			CampaignList.push_back(FileName);
-		}
-	}
+            CampaignList.push_back(FileName);
+        }
+    }
 
-	mGUI_Select_File_CurrentIndex = 0;
-	mGUI_Select_File_Count = (int16)CampaignList.size();
-	mGUI_Select_File_ShownItems = (mVersion->mPlatform == ePlatform::PC ? 4 : 5);
+    mGUI_Select_File_CurrentIndex = 0;
+    mGUI_Select_File_Count = (int16)CampaignList.size();
+    mGUI_Select_File_ShownItems = (mVersion->mPlatform == ePlatform::PC ? 4 : 5);
 
-	do {
-		size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
-		GUI_Element_Reset();
-		
-		mString_GapCharID = 0x25;
-		String_Print_Large(pTitle, true, 0x01);
-		mString_GapCharID = 0x00;
+    do {
+        size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
+        GUI_Element_Reset();
+        
+        mString_GapCharID = 0x25;
+        String_Print_Large(pTitle, true, 0x01);
+        mString_GapCharID = 0x00;
 
-		String_Print_Large(pSubTitle, false, 0x18);
+        String_Print_Large(pSubTitle, false, 0x18);
 
-		if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
-			GUI_Button_Draw_Small("UP", 0x30);
-			GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
+        if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
+            GUI_Button_Draw_Small("UP", 0x30);
+            GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
 
-			GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
-			GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
-		}
+            GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
+            GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
+        }
 
-		GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
-		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
+        GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
+        GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
 
-		mImage->Save();
+        mImage->Save();
 
-		int16 ItemCount = 0;
+        int16 ItemCount = 0;
 
-		auto FileIT = CampaignList.begin() + mGUI_Select_File_CurrentIndex;
+        auto FileIT = CampaignList.begin() + mGUI_Select_File_CurrentIndex;
 
-		for (; ItemCount < mGUI_Select_File_ShownItems && FileIT != CampaignList.end(); ++ItemCount) {
-			size_t Pos = FileIT->find_first_of(".");
+        for (; ItemCount < mGUI_Select_File_ShownItems && FileIT != CampaignList.end(); ++ItemCount) {
+            size_t Pos = FileIT->find_first_of(".");
 
-			GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (ItemCount * 0x15), 0xB2, 0xB3);
-			GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
-			++FileIT;
-		}
+            GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (ItemCount * 0x15), 0xB2, 0xB3);
+            GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
+            ++FileIT;
+        }
 
-		GUI_Select_File_Loop(false);
-		mImage->Restore();
+        GUI_Select_File_Loop(false);
+        mImage->Restore();
 
-	} while (mGUI_SaveLoadAction == 3);
+    } while (mGUI_SaveLoadAction == 3);
 
-	if (mGUI_SaveLoadAction == 1)
-		return "";
+    if (mGUI_SaveLoadAction == 1)
+        return "";
 
-	return CampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+    return CampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
 std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData ) {
@@ -3921,10 +3921,10 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (int16)Files.size();
-	mGUI_Select_File_ShownItems = (mVersion->mPlatform == ePlatform::PC ? 4 : 5);
+    mGUI_Select_File_ShownItems = (mVersion->mPlatform == ePlatform::PC ? 4 : 5);
 
     do {
-		size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
+        size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
 
         GUI_Element_Reset();
         Recruit_Render_Text( pTitle, 0x0C );
@@ -3967,17 +3967,17 @@ void cFodder::Campaign_Selection() {
 
     Image_FadeOut();
 
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		mWindow->SetScreenSize(cDimension(320, 225));
+    if (mVersion->mPlatform == ePlatform::Amiga)
+        mWindow->SetScreenSize(cDimension(320, 225));
 
-	mGraphics->Load_Hill_Data();
-	mGraphics->PaletteSet();
+    mGraphics->Load_Hill_Data();
+    mGraphics->PaletteSet();
 
-	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
+    mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
 
-	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
-	mCustom_Mode = eCustomMode_None;
+    mCustom_Mode = eCustomMode_None;
 
     std::string CampaignFile = Campaign_Select_File( "OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign );
 
@@ -3991,40 +3991,40 @@ void cFodder::Campaign_Selection() {
         return;
     }
 
-	// Find a data version to use with this campaign
-	// If no version is found, we use the currently loaded one
-	{
-		const sVersion* Version = FindAvailableVersionForCampaign(CampaignFile);
+    // Find a data version to use with this campaign
+    // If no version is found, we use the currently loaded one
+    {
+        const sVersion* Version = FindAvailableVersionForCampaign(CampaignFile);
 
-		// Load a new version?
-		if (Version && Version != mVersion) {
-			VersionLoad(Version);
-		}
+        // Load a new version?
+        if (Version && Version != mVersion) {
+            VersionLoad(Version);
+        }
 
-		// Set the default/starting version
-		mVersionDefault = mVersion;
+        // Set the default/starting version
+        mVersionDefault = mVersion;
 
-		// Single Map Mode?
-		if (CampaignFile == "Single Map") {
-			mCustom_Mode = eCustomMode_Map;
-			return;
-		
-		// If no version, it must be a custom campaign
-		} else if (!Version) {
-			mCustom_Mode = eCustomMode_Set;
-		}
-	}
+        // Single Map Mode?
+        if (CampaignFile == "Single Map") {
+            mCustom_Mode = eCustomMode_Map;
+            return;
+        
+        // If no version, it must be a custom campaign
+        } else if (!Version) {
+            mCustom_Mode = eCustomMode_Set;
+        }
+    }
 
-	// Load the campaign
+    // Load the campaign
     if (Campaign_Load(CampaignFile) == true) {
 
-		// 
-		if (mVersion->mVersion == eVersion::Custom) {
-			mDemo_ExitMenu = 1;
-			mCustom_ExitMenu = 1;
-		}
+        // 
+        if (mVersion->mVersion == eVersion::Custom) {
+            mDemo_ExitMenu = 1;
+            mCustom_ExitMenu = 1;
+        }
 
-		WindowTitleBaseSetup();
+        WindowTitleBaseSetup();
         return;
     }
 
@@ -4038,10 +4038,10 @@ void cFodder::Campaign_Selection() {
 void cFodder::Custom_ShowMapSelection() {
 
     Image_FadeOut();
-	mGraphics->PaletteSet();
+    mGraphics->PaletteSet();
 
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		mWindow->SetScreenSize(cDimension(320, 225));
+    if (mVersion->mPlatform == ePlatform::Amiga)
+        mWindow->SetScreenSize(cDimension(320, 225));
 
     const std::string File = GUI_Select_File( "SELECT MAP", "Custom/Maps", "*.map" );
     
@@ -4098,16 +4098,16 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 bool cFodder::Recruit_Loop() {
     mImage->clearBuffer();
 
-	// If demo data is loaded, we need to load
-	if (mVersion->mRelease == eRelease::Demo) {
+    // If demo data is loaded, we need to load
+    if (mVersion->mRelease == eRelease::Demo) {
 
-		if (mCustom_Mode == eCustomMode_Set) {
-			VersionLoad(mVersionDefault);
-		}
-	}
+        if (mCustom_Mode == eCustomMode_Set) {
+            VersionLoad(mVersionDefault);
+        }
+    }
 
-	if (mVersion->mRelease == eRelease::Demo)
-		return 0;
+    if (mVersion->mRelease == eRelease::Demo)
+        return 0;
 
     if (mVersion->mPlatform == ePlatform::Amiga)
         mWindow->SetScreenSize( cDimension( 320, 225 ));
@@ -4974,7 +4974,7 @@ void cFodder::Recruit_Copy_Sprites() {
             // Multiply 
             sub_2AEB6( Columns, Rows, &Data8, &DataC );
 
-			int16 Data10 = word_3B1A3 + 0x08;
+            int16 Data10 = word_3B1A3 + 0x08;
             int16 Data14 = word_3B1A5;
             mGraphics->Recruit_Sprite_Draw( Columns, Rows,
                                             Data8, Data10, 
@@ -5148,7 +5148,7 @@ void cFodder::Mouse_Cursor_Update() {
         goto loc_30CBC;
 
     Data0 = mMouseX + (mCamera_Adjust_Col >> 16);
-	Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
+    Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
 
     Data0 -= 0x0F;
     Data4 -= 3;
@@ -5171,7 +5171,7 @@ void cFodder::Mouse_Cursor_Update() {
         if (!Data20->field_65)
             continue;
 
-		// If not human
+        // If not human
         if (Data20->field_22 != eSprite_PersonType_Human)
             continue;
 
@@ -5479,7 +5479,7 @@ loc_23056:;
     return;
 
 loc_230B0:;
-	// Not Moving?
+    // Not Moving?
     if (!pSprite->field_36)
         return;
 
@@ -7937,7 +7937,7 @@ int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, 
 loc_29EBB:;
     pX = 0x3E8;
 
-	return 0x3E8;
+    return 0x3E8;
 }
 
 int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 ) {
@@ -8612,44 +8612,44 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, i
 
 int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 ) {
     int32 MapPtr = (pY >> 4) * mMapWidth;
-	MapPtr += (pX >> 4);
-	MapPtr <<= 1;
+    MapPtr += (pX >> 4);
+    MapPtr <<= 1;
 
     uint16 TileID = readLEWord( mMap->data() + (0x60 + MapPtr)) & 0x1FF;
 
-	// There is two tables, the HIT and the BHIT
-	// HIT contains the type of terrain used by a tile, a value < 0 indicates
-	// the tile contains two terrain types.
-	// This is deterrmined by looking up the terrain type and row
-	//  then checking if a bit is set for the column. 
-	//  The bit being set, means we use the upper 4 bits as the terrain type
-	//	Not being set, means we use the lower 4 bits
+    // There is two tables, the HIT and the BHIT
+    // HIT contains the type of terrain used by a tile, a value < 0 indicates
+    // the tile contains two terrain types.
+    // This is deterrmined by looking up the terrain type and row
+    //  then checking if a bit is set for the column. 
+    //  The bit being set, means we use the upper 4 bits as the terrain type
+    //  Not being set, means we use the lower 4 bits
 
-	// eTerrainType
+    // eTerrainType
     int16 TerrainType = mTile_Hit[TileID];
 
-	// Tile contains two Terrain Types?
+    // Tile contains two Terrain Types?
     if (TerrainType < 0) {
         //loc_2A8D9
-		// X
+        // X
         pData10 >>= 1;
         pData10 &= 0x07;
 
         int16 TilePixel = 7;
-		TilePixel -= pData10;
+        TilePixel -= pData10;
 
-		// Y
+        // Y
         pData14 >>= 1;
         pData14 &= 0x07;
 
-		int8 RowTerrainType = mTile_BHit[TileID][pData14];
+        int8 RowTerrainType = mTile_BHit[TileID][pData14];
 
-		// If the bit for this X position is set, we use the UpperBits for the terrain type
-		if (RowTerrainType & (1 << TilePixel))
-			TerrainType >>= 4;
+        // If the bit for this X position is set, we use the UpperBits for the terrain type
+        if (RowTerrainType & (1 << TilePixel))
+            TerrainType >>= 4;
     }
 
-	TerrainType &= 0x0F;
+    TerrainType &= 0x0F;
     pY = mTiles_NotWalkable[TerrainType];
     pX = TerrainType;
 
@@ -9143,8 +9143,8 @@ void cFodder::MapTile_Update_Column() {
 
 void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
     
-	if (pTileX > mMapWidth || pTileY > mMapHeight)
-		return;
+    if (pTileX > mMapWidth || pTileY > mMapHeight)
+        return;
 
     size_t Tile = (((pTileY * mMapWidth) + pTileX));
 
@@ -9155,92 +9155,92 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
 
 void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
 
-	int16 Data0 = 0;
+    int16 Data0 = 0;
 
-	sSprite* Data2C, *Data30;
+    sSprite* Data2C, *Data30;
 
-	if (Sprite_Get_Free(Data0, Data2C, Data30))
-		return;
+    if (Sprite_Get_Free(Data0, Data2C, Data30))
+        return;
 
-	Data2C->field_18 = (int16) pSpriteID;
-	Data2C->field_0 = (int16) pTileX;
-	Data2C->field_4 = (int16) pTileY;
+    Data2C->field_18 = (int16) pSpriteID;
+    Data2C->field_0 = (int16) pTileX;
+    Data2C->field_4 = (int16) pTileY;
 
-	switch (pSpriteID) {
-		case eSprite_BoilingPot:						// 1 Null
-			if (Sprite_Get_Free(Data0, Data2C, Data30))
-				return;
+    switch (pSpriteID) {
+        case eSprite_BoilingPot:                        // 1 Null
+            if (Sprite_Get_Free(Data0, Data2C, Data30))
+                return;
 
-			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = (int16) pTileX;
-			Data2C->field_4 = (int16) pTileY;
-			break;
+            Data2C->field_18 = eSprite_Null;
+            Data2C->field_0 = (int16) pTileX;
+            Data2C->field_4 = (int16) pTileY;
+            break;
 
-		case eSprite_Helicopter_Grenade_Enemy:			// 3 Nulls
-		case eSprite_Helicopter_Grenade2_Enemy:
-		case eSprite_Helicopter_Missile_Enemy:
-		case eSprite_Helicopter_Homing_Enemy:
-		case eSprite_Helicopter_Homing_Enemy2:
-			if (Sprite_Get_Free(Data0, Data2C, Data30))
-				return;
+        case eSprite_Helicopter_Grenade_Enemy:          // 3 Nulls
+        case eSprite_Helicopter_Grenade2_Enemy:
+        case eSprite_Helicopter_Missile_Enemy:
+        case eSprite_Helicopter_Homing_Enemy:
+        case eSprite_Helicopter_Homing_Enemy2:
+            if (Sprite_Get_Free(Data0, Data2C, Data30))
+                return;
 
-			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = (int16) pTileX;
-			Data2C->field_4 = (int16) pTileY;
+            Data2C->field_18 = eSprite_Null;
+            Data2C->field_0 = (int16) pTileX;
+            Data2C->field_4 = (int16) pTileY;
 
-			// Fall Through
-		case eSprite_Helicopter_Grenade2_Human:			// 2 Nulls
-		case eSprite_Helicopter_Grenade_Human:
-		case eSprite_Helicopter_Missile_Human:
-		case eSprite_Helicopter_Homing_Human:
-		case eSprite_Helicopter_Grenade2_Human_Called:
-		case eSprite_Helicopter_Grenade_Human_Called:
-		case eSprite_Helicopter_Missile_Human_Called:
-		case eSprite_Helicopter_Homing_Human_Called:
-			Data0 = 2;
-			if (Sprite_Get_Free(Data0, Data2C, Data30))
-				return;
+            // Fall Through
+        case eSprite_Helicopter_Grenade2_Human:         // 2 Nulls
+        case eSprite_Helicopter_Grenade_Human:
+        case eSprite_Helicopter_Missile_Human:
+        case eSprite_Helicopter_Homing_Human:
+        case eSprite_Helicopter_Grenade2_Human_Called:
+        case eSprite_Helicopter_Grenade_Human_Called:
+        case eSprite_Helicopter_Missile_Human_Called:
+        case eSprite_Helicopter_Homing_Human_Called:
+            Data0 = 2;
+            if (Sprite_Get_Free(Data0, Data2C, Data30))
+                return;
 
-			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = (int16) pTileX;
-			Data2C->field_4 = (int16) pTileY;
-			Data30->field_18 = eSprite_Null;
-			Data30->field_0 = (int16) pTileX;
-			Data30->field_4 = (int16) pTileY;
-			break;
+            Data2C->field_18 = eSprite_Null;
+            Data2C->field_0 = (int16) pTileX;
+            Data2C->field_4 = (int16) pTileY;
+            Data30->field_18 = eSprite_Null;
+            Data30->field_0 = (int16) pTileX;
+            Data30->field_4 = (int16) pTileY;
+            break;
 
-		case eSprite_Tank_Enemy:						// 2 Nulls
-			if (Sprite_Get_Free(Data0, Data2C, Data30))
-				return;
+        case eSprite_Tank_Enemy:                        // 2 Nulls
+            if (Sprite_Get_Free(Data0, Data2C, Data30))
+                return;
 
-			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = (int16) pTileX;
-			Data2C->field_4 = (int16) pTileY;
+            Data2C->field_18 = eSprite_Null;
+            Data2C->field_0 = (int16) pTileX;
+            Data2C->field_4 = (int16) pTileY;
 
-		case eSprite_Tank_Human:
-			if (Sprite_Get_Free(Data0, Data2C, Data30))
-				return;
+        case eSprite_Tank_Human:
+            if (Sprite_Get_Free(Data0, Data2C, Data30))
+                return;
 
-			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = (int16) pTileX;
-			Data2C->field_4 = (int16) pTileY;
-			break;
+            Data2C->field_18 = eSprite_Null;
+            Data2C->field_0 = (int16) pTileX;
+            Data2C->field_4 = (int16) pTileY;
+            break;
 
-		case eSprite_VehicleNoGun_Human:
-		case eSprite_VehicleGun_Human:
-		case eSprite_VehicleNoGun_Enemy:
-		case eSprite_VehicleGun_Enemy:
-		case eSprite_Vehicle_Unk_Enemy:
-			if (Sprite_Get_Free(Data0, Data2C, Data30))
-				return;
+        case eSprite_VehicleNoGun_Human:
+        case eSprite_VehicleGun_Human:
+        case eSprite_VehicleNoGun_Enemy:
+        case eSprite_VehicleGun_Enemy:
+        case eSprite_Vehicle_Unk_Enemy:
+            if (Sprite_Get_Free(Data0, Data2C, Data30))
+                return;
 
-			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = (int16) pTileX;
-			Data2C->field_4 = (int16) pTileY;
-			break;
-		}
+            Data2C->field_18 = eSprite_Null;
+            Data2C->field_0 = (int16) pTileX;
+            Data2C->field_4 = (int16) pTileY;
+            break;
+        }
 
-	Sprite_Handle_Loop();
+    Sprite_Handle_Loop();
 }
 
 void cFodder::Squad_Troops_Count() {
@@ -9815,8 +9815,8 @@ void cFodder::Map_Destroy_Tiles( ) {
     }
 
 loc_2DE3C:;
-	if (!mMap_Destroy_TilesPtr)
-		return;
+    if (!mMap_Destroy_TilesPtr)
+        return;
 
     Data20 = (int16*) mMap_Destroy_TilesPtr;
 
@@ -9952,13 +9952,13 @@ void cFodder::Recruit_Render_Text( const char* pText, const size_t pPosY ) {
 }
 
 void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
-	String_Print_Small(pText, pY);
+    String_Print_Small(pText, pY);
 
-	GUI_Box_Draw(pColorShadow, pColorPrimary);
+    GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
 
 void cFodder::GUI_Button_Draw( std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary ) {
-	std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
     Recruit_Render_Text( pText.c_str(), pY );
 
@@ -10059,19 +10059,19 @@ void cFodder::GUI_Button_Setup( void(cFodder::*pFunction)(void) ) {
 }
 
 void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
-	sGUI_Element* Element = mGUI_NextFreeElement;
+    sGUI_Element* Element = mGUI_NextFreeElement;
 
-	Element->field_0 = &cFodder::GUI_Button_NoAction;
+    Element->field_0 = &cFodder::GUI_Button_NoAction;
 
-	Element->mX = mGUI_Temp_X - 3;
-	Element->mWidth = mGUI_Temp_Width + 4;
-	Element->mY = mGUI_Temp_Y - 5;
-	Element->mHeight = mGUI_Draw_LastHeight + 5;
-	Element->mMouseInsideFuncPtr = pFunction;
+    Element->mX = mGUI_Temp_X - 3;
+    Element->mWidth = mGUI_Temp_Width + 4;
+    Element->mY = mGUI_Temp_Y - 5;
+    Element->mHeight = mGUI_Draw_LastHeight + 5;
+    Element->mMouseInsideFuncPtr = pFunction;
 
-	++Element;
-	Element->field_0 = 0;
-	mGUI_NextFreeElement = Element;
+    ++Element;
+    Element->field_0 = 0;
+    mGUI_NextFreeElement = Element;
 }
 
 void cFodder::Game_Save() {
@@ -11423,11 +11423,11 @@ void cFodder::Briefing_Draw_Phase( ) {
 
 void cFodder::Briefing_Show_PreReady() {
 
-	if (mVersion->isDemo() && !mCampaign.isCustom())
-		return;
+    if (mVersion->isDemo() && !mCampaign.isCustom())
+        return;
 
-	if (!mVersion->hasGfx(eGFX_BRIEFING))
-		VersionLoad(mVersionDefault);
+    if (!mVersion->hasGfx(eGFX_BRIEFING))
+        VersionLoad(mVersionDefault);
 
     mImage->clearBuffer();
     mGraphics->PaletteSet();
@@ -11442,8 +11442,8 @@ void cFodder::Briefing_Show_PreReady() {
 
 void cFodder::Briefing_Show_Ready() {
 
-	if (mVersion->isDemo() && !mCampaign.isCustom())
-		return;
+    if (mVersion->isDemo() && !mCampaign.isCustom())
+        return;
 
     mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
 
@@ -11708,7 +11708,7 @@ void cFodder::Sprite_Handle_Player( sSprite *pSprite ) {
         pSprite->field_2E = Data28->field_0;
         pSprite->field_30 = Data28->field_4 - 0x0E;
 
-		// Fired Weapon?
+        // Fired Weapon?
         if (pSprite->field_4A <= 0) {
             //loc_190B9
             Data0 = tool_RandomGet() & 0x0F;
@@ -11791,7 +11791,7 @@ loc_191C3:;
         goto loc_19338;
 
 
-	// Just Fired bullet or grenade
+    // Just Fired bullet or grenade
     //loc_19274
     if (word_3AA1D != 2)
         goto loc_1931E;
@@ -11857,13 +11857,13 @@ loc_191C3:;
         
     } 
     
-	// Reached near target?
+    // Reached near target?
     //loc_19392
     if( Direction_Between_SpriteAndPoints( pSprite, Data0, Data4 ) >= 0 )
         goto loc_193D6;
     
-	// Exactly on target?
-	//  Then move toward the next target
+    // Exactly on target?
+    //  Then move toward the next target
     if( pSprite->field_0 == pSprite->field_26 ) {
         if( pSprite->field_4 == pSprite->field_28 )
             Sprite_Next_WalkTarget_Set( pSprite );
@@ -12377,17 +12377,17 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
     else
         Data0 = mSprite_Helicopter_Sounds[Data0 / 2];
 
-	if (pSprite->field_22 != eSprite_PersonType_Human) {
-		if (pSprite->field_20 <= 1)
-			goto loc_19EE5;
-	} else {
+    if (pSprite->field_22 != eSprite_PersonType_Human) {
+        if (pSprite->field_20 <= 1)
+            goto loc_19EE5;
+    } else {
 
-		// Just off the ground?
-		if (pSprite->field_20 < 2) {
-			if (pSprite != mSquad_CurrentVehicle)
-				goto loc_19EE5;
-		}
-	}
+        // Just off the ground?
+        if (pSprite->field_20 < 2) {
+            if (pSprite != mSquad_CurrentVehicle)
+                goto loc_19EE5;
+        }
+    }
 
     word_3B4ED[0] = -1;
     Data4 = pSprite->field_20;
@@ -12402,54 +12402,54 @@ loc_19EE5:;
     if (pSprite->field_38 == eSprite_Anim_None)
         goto loc_1A149;
 
-	if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2) {
+    if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2) {
 
-		if (mHelicopterCall_X >= 0) {
+        if (mHelicopterCall_X >= 0) {
 
-			if (pSprite->field_75 != 0x71) {
-				pSprite->field_75 = 0x71;
-				pSprite->field_74 = static_cast<int8>(pSprite->field_A);
-			}
+            if (pSprite->field_75 != 0x71) {
+                pSprite->field_75 = 0x71;
+                pSprite->field_74 = static_cast<int8>(pSprite->field_A);
+            }
 
-			pSprite->field_A += 1;
-			pSprite->field_A &= 0x0F;
+            pSprite->field_A += 1;
+            pSprite->field_A &= 0x0F;
 
-			if (pSprite->field_A == pSprite->field_74) {
-				pSprite->field_75 = 0;
-				pSprite->field_38 = eSprite_Anim_None;
-			}
+            if (pSprite->field_A == pSprite->field_74) {
+                pSprite->field_75 = 0;
+                pSprite->field_38 = eSprite_Anim_None;
+            }
 
-			Data24 = pSprite + 1;
+            Data24 = pSprite + 1;
 
-			Data24->field_8 = 0x8C;
-			Data24->field_0 = pSprite->field_0;
-			Data24->field_4 = pSprite->field_4 + 1;
-			Data24->field_20 = pSprite->field_20 + 0x0E;
+            Data24->field_8 = 0x8C;
+            Data24->field_0 = pSprite->field_0;
+            Data24->field_4 = pSprite->field_4 + 1;
+            Data24->field_20 = pSprite->field_20 + 0x0E;
 
-			if (!word_3B4ED[0])
-				if (!pSprite->field_1E && !pSprite->field_20)
-					return;
+            if (!word_3B4ED[0])
+                if (!pSprite->field_1E && !pSprite->field_20)
+                    return;
 
-			if (pSprite->field_20 < 0x0C)
-				if (mMission_EngineTicks & 1)
-					return;
+            if (pSprite->field_20 < 0x0C)
+                if (mMission_EngineTicks & 1)
+                    return;
 
-			Data24->field_A += 1;
-			Data24->field_A &= 3;
-			return;
-		}
-	}
+            Data24->field_A += 1;
+            Data24->field_A &= 3;
+            return;
+        }
+    }
 
-	if (pSprite->field_26 != 0x7171) {
+    if (pSprite->field_26 != 0x7171) {
 
-		pSprite->field_26 = 0x7171;
-		pSprite->field_1A = 0x10000;
+        pSprite->field_26 = 0x7171;
+        pSprite->field_1A = 0x10000;
 
-		Data0 = tool_RandomGet() & 0x0F;
-		Data0 += 0x13;
+        Data0 = tool_RandomGet() & 0x0F;
+        Data0 += 0x13;
 
-		pSprite->field_2A = Data0;
-	}
+        pSprite->field_2A = Data0;
+    }
 
     dword_3B24B = -1;
 
@@ -12462,14 +12462,14 @@ loc_19EE5:;
     pSprite->field_A += Data0;
     pSprite->field_A &= 0x0F;
     pSprite->field_2A -= 1;
-	if (pSprite->field_2A >= 0) {
+    if (pSprite->field_2A >= 0) {
 
-		pSprite->field_1E_Big -= 0x18000;
-		if (pSprite->field_1E_Big >= 0)
-			goto loc_1A404;
+        pSprite->field_1E_Big -= 0x18000;
+        if (pSprite->field_1E_Big >= 0)
+            goto loc_1A404;
 
-		pSprite->field_1E_Big = 0;
-	}
+        pSprite->field_1E_Big = 0;
+    }
 
     pSprite->field_18 = eSprite_Explosion;
     pSprite->field_26 = 0x1F50;
@@ -12511,37 +12511,37 @@ loc_1A149:;
     if (Data0 > pSprite->field_36)
         goto loc_1A217;
 
-	if (pSprite->field_22 != eSprite_PersonType_Human) {
-		pSprite->field_36 = Data0;
-		if (!Data0) {
-			Data8 = pSprite->field_0;
-			DataC = pSprite->field_4;
+    if (pSprite->field_22 != eSprite_PersonType_Human) {
+        pSprite->field_36 = Data0;
+        if (!Data0) {
+            Data8 = pSprite->field_0;
+            DataC = pSprite->field_4;
 
-			if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
-				goto loc_1A316;
+            if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
+                goto loc_1A316;
 
-			Data8 = pSprite->field_0;
-			Data8 -= 0x10;
-			DataC = pSprite->field_4;
+            Data8 = pSprite->field_0;
+            Data8 -= 0x10;
+            DataC = pSprite->field_4;
 
-			if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
-				goto loc_1A316;
+            if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
+                goto loc_1A316;
 
-			Data8 = pSprite->field_0;
-			Data8 += 0x10;
-			DataC = pSprite->field_4;
+            Data8 = pSprite->field_0;
+            Data8 += 0x10;
+            DataC = pSprite->field_4;
 
-			if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
-				goto loc_1A316;
+            if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
+                goto loc_1A316;
 
-			if (pSprite->field_20) {
-				pSprite->field_1E_Big -= 0x8000;
-			}
-			goto loc_1A316;
-		}
+            if (pSprite->field_20) {
+                pSprite->field_1E_Big -= 0x8000;
+            }
+            goto loc_1A316;
+        }
 
-		goto loc_1A316;
-	}
+        goto loc_1A316;
+    }
 
     pSprite->field_36 = Data0;
     if (!pSprite->field_6E)
@@ -12580,37 +12580,37 @@ loc_1A217:;
     goto loc_1A316;
 
 loc_1A316:;
-	if (pSprite->field_26 >= 0 && pSprite->field_28 >= 0) {
+    if (pSprite->field_26 >= 0 && pSprite->field_28 >= 0) {
 
-		if (pSprite->field_20)
-			Sprite_Movement_Calculate(pSprite);
-	}
+        if (pSprite->field_20)
+            Sprite_Movement_Calculate(pSprite);
+    }
 
-	if (pSprite->field_22 == eSprite_PersonType_Human && !pSprite->field_36 && 
-		pSprite->field_20 >= 0x20) {
-		Data0 = mMouseX + (mCamera_Adjust_Col >> 16);
-		Data0 -= 0x10;
+    if (pSprite->field_22 == eSprite_PersonType_Human && !pSprite->field_36 && 
+        pSprite->field_20 >= 0x20) {
+        Data0 = mMouseX + (mCamera_Adjust_Col >> 16);
+        Data0 -= 0x10;
 
-		Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
-		Data4 += 0x20;
-		pSprite->field_36 = 0x1E;
-		sub_23E01(pSprite, Data0, Data4);
-		pSprite->field_36 = 0;
+        Data4 = mMouseY + (mCamera_Adjust_Row >> 16);
+        Data4 += 0x20;
+        pSprite->field_36 = 0x1E;
+        sub_23E01(pSprite, Data0, Data4);
+        pSprite->field_36 = 0;
 
-		Data8 = pSprite->field_3C;
-		if (pSprite->field_22 != eSprite_PersonType_Human) {
-			if (!pSprite->field_36)
-				goto loc_1A404;
-		}
-		pSprite->field_A = Data8;
-	}
-	else {
+        Data8 = pSprite->field_3C;
+        if (pSprite->field_22 != eSprite_PersonType_Human) {
+            if (!pSprite->field_36)
+                goto loc_1A404;
+        }
+        pSprite->field_A = Data8;
+    }
+    else {
 
-		word_3B2F7 = 0x3A;
-		Data0 = pSprite->field_26;
-		Data4 = pSprite->field_28;
-		sub_22CD7(pSprite, Data0, Data4);
-	}
+        word_3B2F7 = 0x3A;
+        Data0 = pSprite->field_26;
+        Data4 = pSprite->field_28;
+        sub_22CD7(pSprite, Data0, Data4);
+    }
 
 loc_1A404:;
     Data24 = pSprite + 1;
@@ -12656,22 +12656,22 @@ loc_1A49C:;
     Data4 += pSprite->field_4;
     Data24->field_4 = Data4;
 
-	if (pSprite->field_22 == eSprite_PersonType_Human) {
-		if (pSprite->field_20) {
+    if (pSprite->field_22 == eSprite_PersonType_Human) {
+        if (pSprite->field_20) {
 
-			Data8 = pSprite->field_0;
-			DataC = pSprite->field_0;
-			DataC += 0x1E;
-			Data10 = pSprite->field_4;
-			Data10 -= 0x14;
-			Data14 = pSprite->field_4;
-			Data18 = pSprite->field_20;
-			Data1C = Data18;
-			Data1C += 0x0E;
+            Data8 = pSprite->field_0;
+            DataC = pSprite->field_0;
+            DataC += 0x1E;
+            Data10 = pSprite->field_4;
+            Data10 -= 0x14;
+            Data14 = pSprite->field_4;
+            Data18 = pSprite->field_20;
+            Data1C = Data18;
+            Data1C += 0x0E;
 
-			Sprite_Under_Vehicle(pSprite, Data8, DataC, Data10, Data14, Data18, Data1C);
-		}
-	}
+            Sprite_Under_Vehicle(pSprite, Data8, DataC, Data10, Data14, Data18, Data1C);
+        }
+    }
 
     pSprite->field_22 = eSprite_PersonType_Human;
 }
@@ -13348,38 +13348,38 @@ loc_1B5D2:;
             goto loc_1B655;
     }
 
-	// Sinking? No, Then we can speed up
-	if (pSprite->field_52 < 4) {
+    // Sinking? No, Then we can speed up
+    if (pSprite->field_52 < 4) {
 
-		pSprite->field_36 += 3;
+        pSprite->field_36 += 3;
 
-		// This vehicle only moves at a single speed
-		if (pSprite->field_18 == eSprite_Vehicle_Unk_Enemy) {
+        // This vehicle only moves at a single speed
+        if (pSprite->field_18 == eSprite_Vehicle_Unk_Enemy) {
 
-			pSprite->field_36 = 0x14;
+            pSprite->field_36 = 0x14;
 
-		} else {
-			if (pSprite->field_36 >= 0x32)
-				pSprite->field_36 = 0x32;
-		}
-			
-	}
+        } else {
+            if (pSprite->field_36 >= 0x32)
+                pSprite->field_36 = 0x32;
+        }
+            
+    }
 loc_1B655:;
-	// VEhicle in the air, increase speed
+    // VEhicle in the air, increase speed
     if (pSprite->field_20 > 4)
         pSprite->field_36 += 0x1C;
 
     Sprite_XY_Store( pSprite );
     Sprite_Movement_Calculate( pSprite );
 
-	if (pSprite->field_20 < 9) {
-		Sprite_Handle_Vehicle_Terrain_Check(pSprite);
+    if (pSprite->field_20 < 9) {
+        Sprite_Handle_Vehicle_Terrain_Check(pSprite);
 
-		if (pSprite->field_20 <= 4)
-			pSprite->field_20 = 0;
-	} else {
-		pSprite->field_36 += 0x40;
-	}
+        if (pSprite->field_20 <= 4)
+            pSprite->field_20 = 0;
+    } else {
+        pSprite->field_36 += 0x40;
+    }
 
     sub_243E9( pSprite );
 
@@ -13786,17 +13786,17 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
     pSprite->field_8 = 0xA3;
     Data34 = pSprite->field_1A_sprite;
 
-	if (!Data34 || Data34->field_0 == -32768) {
-		pSprite->field_36 += 2;
-		pSprite->field_20 -= 2;
-		if (pSprite->field_20 >= 0) {
-			Sprite_Movement_Calculate(pSprite);
-			return;
-		}
+    if (!Data34 || Data34->field_0 == -32768) {
+        pSprite->field_36 += 2;
+        pSprite->field_20 -= 2;
+        if (pSprite->field_20 >= 0) {
+            Sprite_Movement_Calculate(pSprite);
+            return;
+        }
 
-		pSprite->field_20 = 0;
-		goto MissileExplode;
-	}
+        pSprite->field_20 = 0;
+        goto MissileExplode;
+    }
 
     Data0 = Data34->field_0 + 8;
     Data4 = Data34->field_4 + 8;
@@ -13804,50 +13804,50 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
     DataC = pSprite->field_4;
     Map_Get_Distance_BetweenPoints_Within_320( Data0, Data4, Data8, DataC );
     
-	Data4 = pSprite->field_36 >> 4;
+    Data4 = pSprite->field_36 >> 4;
     Data4 += 1;
 
     if (Data0 <= Data4)
         goto MissileExplode;
 
-	if (Data34->field_20 <= 0x10) {
+    if (Data34->field_20 <= 0x10) {
 
-		// Distance to target > 0x30?
-		if (Data0 > 0x30) {
-			Data0 = pSprite->field_0;
-			Data4 = pSprite->field_4;
-			Data8 = Data34->field_0;
-			DataC = Data34->field_4;
-			Data8 += 8;
-			DataC += 8;
+        // Distance to target > 0x30?
+        if (Data0 > 0x30) {
+            Data0 = pSprite->field_0;
+            Data4 = pSprite->field_4;
+            Data8 = Data34->field_0;
+            DataC = Data34->field_4;
+            Data8 += 8;
+            DataC += 8;
 
-			if (!sub_2A4A2(Data0, Data4, Data8, DataC)) {
-				if (pSprite->field_20 > 8)
-					pSprite->field_1E_Big -= 0x12000;
-			} else {
+            if (!sub_2A4A2(Data0, Data4, Data8, DataC)) {
+                if (pSprite->field_20 > 8)
+                    pSprite->field_1E_Big -= 0x12000;
+            } else {
 
-				if (pSprite->field_20 < 0x18)
-					pSprite->field_1E_Big += 0x28000;
-			}
+                if (pSprite->field_20 < 0x18)
+                    pSprite->field_1E_Big += 0x28000;
+            }
 
-		} else {
-			// Near Target
-			Data4 = Data34->field_20;
-			Data4 -= pSprite->field_20;
-			Data4 >>= 3;
-			pSprite->field_20 += Data4;
-		}
-	} else {
+        } else {
+            // Near Target
+            Data4 = Data34->field_20;
+            Data4 -= pSprite->field_20;
+            Data4 >>= 3;
+            pSprite->field_20 += Data4;
+        }
+    } else {
 
-		Data4 = pSprite->field_20;
-		if (Data4 != Data34->field_20) {
+        Data4 = pSprite->field_20;
+        if (Data4 != Data34->field_20) {
 
-			if (Data4 > Data34->field_20)
-				pSprite->field_1E_Big -= 0x8000;
-			else
-				pSprite->field_1E_Big += 0x8000;
-		}
-	}
+            if (Data4 > Data34->field_20)
+                pSprite->field_1E_Big -= 0x8000;
+            else
+                pSprite->field_1E_Big += 0x8000;
+        }
+    }
 
     Data0 = Data34->field_0;
     Data0 += 8;
@@ -13864,26 +13864,26 @@ void cFodder::Sprite_Handle_MissileHoming( sSprite* pSprite ) {
     Data0 &= 0x0F;
     pSprite->field_A = Data0;
 
-	if (pSprite->field_22 == eSprite_PersonType_Human || Data4 == Data0) {
-		if (pSprite->field_36 <= 0x3C) {
+    if (pSprite->field_22 == eSprite_PersonType_Human || Data4 == Data0) {
+        if (pSprite->field_36 <= 0x3C) {
 
-			Data0 = (int16)(pSprite->field_6A >> 16);
-			pSprite->field_36 += Data0;
-			pSprite->field_6A = pSprite->field_6A + 0x200;
-		} else {
-			pSprite->field_36 = 0x3C;
-		}
+            Data0 = (int16)(pSprite->field_6A >> 16);
+            pSprite->field_36 += Data0;
+            pSprite->field_6A = pSprite->field_6A + 0x200;
+        } else {
+            pSprite->field_36 = 0x3C;
+        }
 
-		return;
-	}
+        return;
+    }
 
-	if (pSprite->field_36 > 0x1E) {
+    if (pSprite->field_36 > 0x1E) {
 
-		pSprite->field_6A = 0;
-		pSprite->field_36 -= 2;
-		if (pSprite->field_36 < 0)
-			pSprite->field_36 = 0;
-	}
+        pSprite->field_6A = 0;
+        pSprite->field_36 -= 2;
+        if (pSprite->field_36 < 0)
+            pSprite->field_36 = 0;
+    }
 
     return;
 
@@ -13897,7 +13897,7 @@ MissileExplode:;
 
 void cFodder::Sprite_Handle_Sparks( sSprite* pSprite ) {
     Sprite_Movement_Calculate( pSprite );
-	int32 Data0 = (int32) pSprite->field_1A;
+    int32 Data0 = (int32) pSprite->field_1A;
 
     Data0 += pSprite->field_1E;
 
@@ -15265,7 +15265,7 @@ void cFodder::Sprite_Handle_Bonus_Armour( sSprite* pSprite ) {
     
     mSquad_Leader->field_75 |= eSprite_Flag_Invincibility;
 
-	Sprite_Destroy_Wrapper(pSprite);
+    Sprite_Destroy_Wrapper(pSprite);
 }
 
 void cFodder::Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite ) {
@@ -16527,7 +16527,7 @@ void cFodder::Sprite_Handle_Player_Adjust_Movement_Speed( sSprite* pSprite ) {
 void cFodder::Sprite_Draw_Row_Update( sSprite* pSprite ) {
     int16 Data4 = 0;
 
-	// Sprite still moving?
+    // Sprite still moving?
     if (!Sprite_Reached_Target( pSprite )) {
         Sprite_Movement_Speed_Update( pSprite );
         Sprite_Movement_Calculate( pSprite );
@@ -16536,19 +16536,19 @@ void cFodder::Sprite_Draw_Row_Update( sSprite* pSprite ) {
     Squad_Join_Check( pSprite );
     sub_20478( pSprite );
 
-	// Check the terrain
+    // Check the terrain
     int8 PreviousTileType = pSprite->field_60;
     Sprite_Terrain_Check( pSprite, Data4 );
 
-	// Not leaving water?
+    // Not leaving water?
     if (PreviousTileType != eTerrainType_Water)
         goto loc_1F75D;
 
-	// Leaving water and into Quick sand?
+    // Leaving water and into Quick sand?
     if (pSprite->field_60 == eTerrainType_QuickSand)
         goto loc_1F753;
 
-	// Leaving water for the edge/bank
+    // Leaving water for the edge/bank
     if (pSprite->field_60 == eTerrainType_WaterEdge)
         goto loc_1F75D;
 
@@ -16569,23 +16569,23 @@ void cFodder::Sprite_Handle_Troop_FrameUnk( sSprite* pSprite ) {
     const int16* Data28 = 0;
     sMission_Troop* Data24 = 0;
 
-	// Is Human
+    // Is Human
     if (pSprite->field_22 == eSprite_PersonType_Human)
         goto AlterAnimation;
 
-	// Hostage Following Sprite?
+    // Hostage Following Sprite?
     if (!pSprite->field_70)
         goto AlterAnimation;
 
-	// Hasnt Reached X Target
+    // Hasnt Reached X Target
     if (pSprite->field_0 != pSprite->field_26)
         goto AlterAnimation;
 
-	// Hasnt Reached Y Target
+    // Hasnt Reached Y Target
     if (pSprite->field_4 != pSprite->field_28)
         goto AlterAnimation;
 
-	// Idle
+    // Idle
     pSprite->field_8 = 0xDC;
     pSprite->field_A = 0;
     word_3ABB1 = -1;
@@ -16743,13 +16743,13 @@ loc_1FB00:;
     pSprite->field_55 = 0;
 
 loc_1FBA4:;
-	// If in water
+    // If in water
     if (pSprite->field_4F) {
     
         pSprite->field_8 = *(Data28 + Data8 + 0x20);
         Data0 = mSprite_Frame_1;
 
-		// Reached another troop?
+        // Reached another troop?
         if (pSprite->field_43)
             Data0 = mSprite_Frame_2;
         
@@ -16789,7 +16789,7 @@ loc_1FBA4:;
         pSprite->field_A = mSprite_Frame_3;
 
 loc_1FCD7:;
-	// Bumped into other troop
+    // Bumped into other troop
     if (!mSprite_Bumped_Into_SquadMember)
         return;
 
@@ -16990,11 +16990,11 @@ loc_200C0:;
     if (pData4 != eTerrainType_Water)
         goto checkSinking;
 
-	// Is a Native?
+    // Is a Native?
     if (pSprite->field_22 == eSprite_PersonType_Native)
         goto loc_20251;
     
-	// In Water
+    // In Water
     pSprite->field_4F = -1;
     pSprite->field_50 = 0;
     pSprite->field_52 = 0;
@@ -17697,25 +17697,25 @@ int16 cFodder::introPlayText() {
 
 void cFodder::Mission_Intro_Play() {
 
-	// Single maps
-	if (mCustom_Mode == eCustomMode_Map)
-		return;
+    // Single maps
+    if (mCustom_Mode == eCustomMode_Map)
+        return;
 
-	// If we don't have the briefing graphics, there is no point in switching here,
-	//  As the correct background for the map intro won't exist
-	if (!mVersion->hasGfx(eGFX_BRIEFING))
-		return;
+    // If we don't have the briefing graphics, there is no point in switching here,
+    //  As the correct background for the map intro won't exist
+    if (!mVersion->hasGfx(eGFX_BRIEFING))
+        return;
 
-	mImage->clearBuffer();
+    mImage->clearBuffer();
 
-	mGraphics->Mission_Intro_Load_Resources();
-	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
-	
-	mMouse_Exit_Loop = 0;
-	mSound->Music_Play(0x07);
-	Mission_Intro_Helicopter_Start();
+    mGraphics->Mission_Intro_Load_Resources();
+    mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    
+    mMouse_Exit_Loop = 0;
+    mSound->Music_Play(0x07);
+    Mission_Intro_Helicopter_Start();
 
-	mGraphics->Mission_Intro_Play();
+    mGraphics->Mission_Intro_Play();
 }
 
 void cFodder::Intro_Print_String( int32 pPosY, const sIntroString* pString ) {
@@ -17771,8 +17771,8 @@ void cFodder::SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet ) {
 
 void cFodder::intro() {
     
-	if (mVersion->mPlatform == ePlatform::Amiga)
-		mWindow->SetScreenSize(cDimension(320, 260));
+    if (mVersion->mPlatform == ePlatform::Amiga)
+        mWindow->SetScreenSize(cDimension(320, 260));
 
     // Disabled: GOG CD Version doesn't require a manual check
     //  CopyProtection();
@@ -18323,7 +18323,7 @@ void cFodder::Sprite_Set_Direction_Toward_Cursor( sSprite* pSprite ) {
 
 int16 cFodder::Sprite_Reached_Target( sSprite* pSprite ) {
 
-	// Sprite is moving?
+    // Sprite is moving?
     if (pSprite->field_36 <= 8)
         return 0;
 
@@ -18420,7 +18420,7 @@ loc_20FE3:;
 
 void cFodder::Sprite_Handle_Player_Close_To_SquadMember( sSprite* pSprite ) {
     
-	// Not Human?
+    // Not Human?
     if (pSprite->field_22 != eSprite_PersonType_Human) {
         pSprite->field_4D = 0;
         return;
@@ -18428,10 +18428,10 @@ void cFodder::Sprite_Handle_Player_Close_To_SquadMember( sSprite* pSprite ) {
 
     word_3B2F3 = 0;
 
-	// Find this sprite in the squad
+    // Find this sprite in the squad
     sSprite** PreviousMember = mSquads[pSprite->field_32];
 
-	// Loop until we find this squad member
+    // Loop until we find this squad member
     for (;;) {
         if (*PreviousMember == INVALID_SPRITE_PTR )
             return;
@@ -18439,25 +18439,25 @@ void cFodder::Sprite_Handle_Player_Close_To_SquadMember( sSprite* pSprite ) {
         sSprite* eax = *PreviousMember;
         ++PreviousMember;
 
-		// Found this troop?
+        // Found this troop?
         if (pSprite == eax)
             break;
     }
 
-	// Get the previous squad member
+    // Get the previous squad member
     --PreviousMember;
 
-	// If PreviousMember is Squad Leader, return
+    // If PreviousMember is Squad Leader, return
     if (mSquads[pSprite->field_32] == PreviousMember)
         return;
 
-	// Get the previous members, previous member
-	PreviousMember--;
+    // Get the previous members, previous member
+    PreviousMember--;
 
     //seg005:1A13
     sSprite* Data24 = *PreviousMember;
 
-	// Near the other member?
+    // Near the other member?
     if (pSprite->field_0 + 8 < Data24->field_0)
         return;
 
@@ -18470,16 +18470,16 @@ void cFodder::Sprite_Handle_Player_Close_To_SquadMember( sSprite* pSprite ) {
     if (pSprite->field_4 + 2 < Data24->field_4 + 2)
         return;
 
-	// In Vehicle?
+    // In Vehicle?
     if (Data24->field_6E)
         return;
 
-	// Different Walk Target?
+    // Different Walk Target?
     int16 Data1C = pSprite->field_40;
     if (Data1C != Data24->field_40)
         return;
 
-	// Restore the previous XY
+    // Restore the previous XY
     Sprite_XY_Restore( pSprite );
     mSprite_Bumped_Into_SquadMember = -1;
 
@@ -19700,32 +19700,32 @@ void cFodder::Game_Setup( int16 pStartMap ) {
 }
 
 void cFodder::Playground() {
-	//return;
+    //return;
     mImageFaded = -1;
     Map_Load();
 
     mGraphics->Load_Hill_Data();
     mGraphics->PaletteSet();
 
-	Recruit_Truck_Anim_Prepare();
-	sub_16C6C();
+    Recruit_Truck_Anim_Prepare();
+    sub_16C6C();
 
-	mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
-	//mGraphics->Recruit_Draw_Hill();
+    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+    //mGraphics->Recruit_Draw_Hill();
 
-	Recruit_Copy_Sprites();
+    Recruit_Copy_Sprites();
 
-	if (mVersion->mPlatform == ePlatform::Amiga) {
+    if (mVersion->mPlatform == ePlatform::Amiga) {
 
-		((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
-	}
+        ((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
+    }
 
     // Load Icon
 
     mImage->palette_FadeTowardNew();
     mImage->Save();
     mString_GapCharID = 0x25;
-	mGUI_Print_String_To_Sidebar = false;
+    mGUI_Print_String_To_Sidebar = false;
 
     int32 SpriteID = 0xB;
     int32 Frame = 0;
@@ -19791,69 +19791,69 @@ void cFodder::Playground() {
 
 int16 cFodder::Recruit_Show() {
 
-	if (mCustom_Mode != eCustomMode_Map) {
-		Map_Load();
-		Map_Load_Sprites();
+    if (mCustom_Mode != eCustomMode_Map) {
+        Map_Load();
+        Map_Load_Sprites();
 
-		Mission_Troop_Count();
-		Mission_Troop_Sort();
-		Mission_Troop_Prepare(true);
-		Mission_Troop_Attach_Sprites();
+        Mission_Troop_Count();
+        Mission_Troop_Sort();
+        Mission_Troop_Prepare(true);
+        Mission_Troop_Attach_Sprites();
 
-	} else {
-		Custom_ShowMapSelection();
+    } else {
+        Custom_ShowMapSelection();
 
-		if (mCustom_Mode == eCustomMode_None)
-			return -1;
-	}
+        if (mCustom_Mode == eCustomMode_None)
+            return -1;
+    }
 
     WindowTitleSet(false);
 
-	// Single Map does not have a recruit screen
-	if (mCustom_Mode != eCustomMode_Map) {
+    // Single Map does not have a recruit screen
+    if (mCustom_Mode != eCustomMode_Map) {
 
-		// Retail / Custom set show the Recruitment Hill
-		if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+        // Retail / Custom set show the Recruitment Hill
+        if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
 
-			// Recruit Screen
-			if (Recruit_Loop())
-				return -1;
+            // Recruit Screen
+            if (Recruit_Loop())
+                return -1;
 
-			Recruit_CheckLoadSaveButtons();
+            Recruit_CheckLoadSaveButtons();
 
-			// Did we just load/save a game?
-			if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
-				mMission_Restart = -1;
-				mMission_Recruitment = -1;
-				mMission_Aborted = true;
-				return -3;
-			}
-		} else {
+            // Did we just load/save a game?
+            if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
+                mMission_Restart = -1;
+                mMission_Recruitment = -1;
+                mMission_Aborted = true;
+                return -3;
+            }
+        } else {
 
-			// Amiga demos have a menu
-			if (mVersion->mPlatform == ePlatform::Amiga) {
+            // Amiga demos have a menu
+            if (mVersion->mPlatform == ePlatform::Amiga) {
 
-				// But not custom games
-				if (mCustom_Mode == eCustomMode_None) {
+                // But not custom games
+                if (mCustom_Mode == eCustomMode_None) {
 
-					if (Demo_Amiga_ShowMenu())
-						return -1;
-				}
-			}
-		}
-	}
+                    if (Demo_Amiga_ShowMenu())
+                        return -1;
+                }
+            }
+        }
+    }
 
     mMission_Restart = 0;
     Mission_Memory_Backup();
 
-	// Retail or Custom Mode
-	if (mVersion->mRelease == eRelease::Retail || 
-		mCustom_Mode != eCustomMode_None) {
-		Map_Load();
+    // Retail or Custom Mode
+    if (mVersion->mRelease == eRelease::Retail || 
+        mCustom_Mode != eCustomMode_None) {
+        Map_Load();
 
-		// Show the intro for the briefing screen
-		Mission_Intro_Play();
-	}
+        // Show the intro for the briefing screen
+        Mission_Intro_Play();
+    }
     
     mGraphics->Load_pStuff();
 
@@ -19863,30 +19863,30 @@ int16 cFodder::Recruit_Show() {
 void cFodder::Start(int16 pStartMap) {
 
 Start:;
-	mVersionDefault = 0;
+    mVersionDefault = 0;
     mVersion = 0;
     VersionLoad(g_AvailableDataVersions[0]);
 
     //Playground();
 
-	// Play the intro
-	if (!mOpenFodder_Intro_Done) {
+    // Play the intro
+    if (!mOpenFodder_Intro_Done) {
 
-		mMissionNumber = 0;
+        mMissionNumber = 0;
 
-		// Random intro
-		mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
+        // Random intro
+        mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 
-		Mission_Intro_Play();
-		mOpenFodder_Intro_Done = true;
-	}
+        Mission_Intro_Play();
+        mOpenFodder_Intro_Done = true;
+    }
 
-	// Select campaign menu
-	Campaign_Selection();
+    // Select campaign menu
+    Campaign_Selection();
 
-	// Exit pushed?
-	if (mGUI_SaveLoadAction == 1)
-		return;
+    // Exit pushed?
+    if (mGUI_SaveLoadAction == 1)
+        return;
 
     // Show the version selection, if we have more than 1 option
     //if (g_AvailableDataVersions.size() > 1)
@@ -19970,11 +19970,11 @@ int16 cFodder::Mission_Loop() {
 
         Map_Load();
         Map_Load_Sprites();
-		Map_Overview_Prepare();
+        Map_Overview_Prepare();
 
-		//loc_10513
-		// Show the pre ready Briefing Screen
-		Briefing_Show_PreReady();
+        //loc_10513
+        // Show the pre ready Briefing Screen
+        Briefing_Show_PreReady();
 
         // Prepare Squads
         Mission_Troop_Count();
@@ -20003,7 +20003,7 @@ int16 cFodder::Mission_Loop() {
             }
         }
 
-		Map_Load();
+        Map_Load();
         mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
     
         MapTiles_Draw();
@@ -20574,7 +20574,7 @@ int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
 
     int16 Data0 = mSquads_TroopCount[mSquad_Selected];
     if (Data10 == Data0)
-	        return 0;
+            return 0;
 
     if (Data10)
         return Data10;
@@ -20982,18 +20982,18 @@ void cFodder::Squad_Member_Click_Check() {
     int16 Data1C = 0x07;
     sMission_Troop* SquadMember = mMission_Troops;
 
-	if (mSquad_Selected < 0)
-		return;
+    if (mSquad_Selected < 0)
+        return;
 
     int16 ClickedX = mMouseX;
     int16 ClickedY = mMouseY;
 
-	ClickedX += mCamera_Adjust_Col >> 16;
-	ClickedY += mCamera_Adjust_Row >> 16;
-	ClickedX -= 0x0F;
-	ClickedY -= 3;
+    ClickedX += mCamera_Adjust_Col >> 16;
+    ClickedY += mCamera_Adjust_Row >> 16;
+    ClickedX -= 0x0F;
+    ClickedY -= 3;
 
-	for (auto& SquadMember : mMission_Troops) {
+    for (auto& SquadMember : mMission_Troops) {
 
         if (SquadMember.mSprite == INVALID_SPRITE_PTR || SquadMember.mSprite == 0 )
             continue;
@@ -21006,13 +21006,13 @@ void cFodder::Squad_Member_Click_Check() {
         int16 SquadMemberX = SquadMemberSprite->field_0 + 4;
         int16 SquadMemberY = SquadMemberSprite->field_4 - SquadMemberSprite->field_20;
 
-		// Clicked before/after troop?
+        // Clicked before/after troop?
         if (ClickedX < SquadMemberX)
             continue;
         if (ClickedX > SquadMemberX + 6)
             continue;
 
-		// Clicked above/below troop?
+        // Clicked above/below troop?
         if (ClickedY < SquadMemberY - 13)
             continue;
         if (ClickedY > SquadMemberY)
@@ -21334,7 +21334,7 @@ loc_30814:;
     mSquad_Member_Clicked_TroopInSameSquad = 0;
     Squad_Member_Click_Check();
 
-	// If we clicked on a member of the current squad, nothing to do
+    // If we clicked on a member of the current squad, nothing to do
     if (mSquad_Member_Clicked_TroopInSameSquad)
         return;
 
@@ -21367,18 +21367,18 @@ loc_30814:;
 
     int8 Data14 = 0;
 
-	for( auto& SquadMember : mMission_Troops) {
+    for( auto& SquadMember : mMission_Troops) {
 
         if (SquadMember.mSprite == INVALID_SPRITE_PTR || SquadMember.mSprite == 0 )
             continue;
         
-		// Not in the squad?
+        // Not in the squad?
         if (mSquad_Selected != SquadMember.mSprite->field_32)
             continue;
 
-		SquadMember.mSprite->field_44 = Data14;
-		SquadMember.mSprite->field_2 = 0;
-		SquadMember.mSprite->field_6 = 0;
+        SquadMember.mSprite->field_44 = Data14;
+        SquadMember.mSprite->field_2 = 0;
+        SquadMember.mSprite->field_6 = 0;
     }
 
     int16 Data10 = mSquad_Leader->field_0;
@@ -21388,13 +21388,13 @@ loc_30814:;
 
     Squad_Walk_Target_Set( Data4, Data8, mSquad_Leader->field_32, Data10 );
 
-	// Reset the join target
-	for( auto& JoinTargetSquad : mSquad_Join_TargetSquad) {
+    // Reset the join target
+    for( auto& JoinTargetSquad : mSquad_Join_TargetSquad) {
 
         if (mSquad_Selected != JoinTargetSquad)
             continue;
 
-		JoinTargetSquad = -1;
+        JoinTargetSquad = -1;
     }
 }
 
