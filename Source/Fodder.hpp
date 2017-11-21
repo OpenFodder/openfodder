@@ -512,8 +512,8 @@ class cFodder : public cSingleton < cFodder > {
 
     bool            mIntroDone;
 
-    int16           mTile_Hit[400];
-    int16           mTile_BHit[1600];
+    int16           mTile_Hit[512];
+    int8	        mTile_BHit[512][8];
     int16           mTile_Destroy_Swap[400];
 
     int16           word_3D465;
@@ -642,6 +642,7 @@ public:
     void            Map_Save(const std::string pFilename);
     void            Map_Save_Sprites( const std::string pFilename );
 
+	void			Map_Randomise();
 
 	bool			Tiles_Load_Data();
 

@@ -288,7 +288,7 @@ tSharedBuffer cCampaign::getMap(const size_t pMapNumber) const {
 	if (mCustomMap.size()) {
 
 		// Generated path doesnt exist, try load the absolute path
-		if (!local_FileExists(FinalPath))
+		if (local_FileExists(mCustomMap + ".map"))
 			return local_FileRead(mCustomMap + ".map", "", eNone);
 
 		// Otherwise use the custom map folder
@@ -311,7 +311,7 @@ tSharedBuffer cCampaign::getSprites(const size_t pMapNumber) const {
 	if (mCustomMap.size()) {
 
 		// Generated path doesnt exist, try load the absolute path
-		if (!local_FileExists(FinalPath))
+		if (local_FileExists(mCustomMap + ".spt"))
 			return local_FileRead(mCustomMap + ".spt", "", eNone);
 
 		// Otherwise use the custom map folder
