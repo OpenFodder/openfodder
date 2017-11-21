@@ -1064,7 +1064,7 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 		return l.field_0 != -32768 && l.field_0 != -1;
 	});
 
-    auto MapSpt = tSharedBuffer();
+    auto MapSpt = tSharedBuffer( new std::vector<uint8>() );
     MapSpt->resize(SpriteCount * 0x0A);
 
     uint8* SptPtr = MapSpt->data();
@@ -1080,6 +1080,15 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 
     outfile.write((const char*)MapSpt->data(), MapSpt->size());
     outfile.close();
+}
+
+//#include "Utils//diamond.hpp"
+
+void cFodder::Map_Randomise() {
+	/*
+	cDiamondSquare DS(4, 1);
+	auto Map = DS.generate();
+	*/
 }
 
 void cFodder::Map_Load_Sprites() {
@@ -1754,8 +1763,12 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
     // Clear current sprites
     Sprite_Clear_All();
 
-    // Load the map specific resources and draw
+    // Load the map specific resources
     Map_Load_Resources();
+
+	Map_Randomise();
+
+	// Draw the tiles
     MapTiles_Draw();
 
     // Refresh the palette
@@ -1883,8 +1896,8 @@ void cFodder::Map_Load_Resources() {
     Size = g_Resource.fileLoadTo( mFilenameSubHit, (uint8*) &mTile_Hit[240] );
     tool_EndianSwap( (uint8*)&mTile_Hit[240], Size );
     
-    Size = g_Resource.fileLoadTo( mFilenameBaseBht, (uint8*) &mTile_BHit[0] );
-    Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &mTile_BHit[960] );
+    Size = g_Resource.fileLoadTo( mFilenameBaseBht, (uint8*) &mTile_BHit[0][0] );
+    Size = g_Resource.fileLoadTo( mFilenameSubBht, (uint8*) &mTile_BHit[100][0] );
 
     mGraphics->Tile_Prepare_Gfx();
     mGraphics->Map_Load_Resources();
@@ -8598,45 +8611,49 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, i
 }
 
 int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 ) {
-    int32 Data0 = (pY >> 4);
-    int32 Data4 = (pX >> 4);
+    int32 MapPtr = (pY >> 4) * mMapWidth;
+	MapPtr += (pX >> 4);
+	MapPtr <<= 1;
 
-    Data0 *= mMapWidth;
+    uint16 TileID = readLEWord( mMap->data() + (0x60 + MapPtr)) & 0x1FF;
 
-    Data0 += Data4;
-    Data0 <<= 1;
+	// There is two tables, the HIT and the BHIT
+	// HIT contains the type of terrain used by a tile, a value < 0 indicates
+	// the tile contains two terrain types.
+	// This is deterrmined by looking up the terrain type and row
+	//  then checking if a bit is set for the column. 
+	//  The bit being set, means we use the upper 4 bits as the terrain type
+	//	Not being set, means we use the lower 4 bits
 
-    Data0 = readLEWord( mMap->data() + (0x60 + Data0)) & 0x1FF;
+	// eTerrainType
+    int16 TerrainType = mTile_Hit[TileID];
 
-    Data4 = mTile_Hit[Data0];
-
-    if (Data4 < 0) {
+	// Tile contains two Terrain Types?
+    if (TerrainType < 0) {
         //loc_2A8D9
+		// X
         pData10 >>= 1;
         pData10 &= 0x07;
 
-        int16 Data8 = 7;
-        Data8 -= pData10;
+        int16 TilePixel = 7;
+		TilePixel -= pData10;
 
+		// Y
         pData14 >>= 1;
         pData14 &= 0x07;
 
-        Data0 <<= 3;
-        uint8* Data28 = (uint8*) mTile_BHit;
-        pData14 += Data0;
+		int8 RowTerrainType = mTile_BHit[TileID][pData14];
 
-        uint8 al = 1 << Data8;
-        Data28 += pData14;
-        if ((*Data28 & 0xFF) & al)
-            Data4 >>= 4;
+		// If the bit for this X position is set, we use the UpperBits for the terrain type
+		if (RowTerrainType & (1 << TilePixel))
+			TerrainType >>= 4;
     }
 
-    Data4 &= 0x0F;
-    Data0 = mTiles_NotWalkable[Data4];
-    pY = Data0;
-    pX = Data4;
+	TerrainType &= 0x0F;
+    pY = mTiles_NotWalkable[TerrainType];
+    pX = TerrainType;
 
-    return Data0;
+    return mTiles_NotWalkable[TerrainType];
 }
 
 void cFodder::Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10 ) {
@@ -9145,9 +9162,9 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
 	if (Sprite_Get_Free(Data0, Data2C, Data30))
 		return;
 
-	Data2C->field_18 = pSpriteID;
-	Data2C->field_0 = pTileX;
-	Data2C->field_4 = pTileY;
+	Data2C->field_18 = (int16) pSpriteID;
+	Data2C->field_0 = (int16) pTileX;
+	Data2C->field_4 = (int16) pTileY;
 
 	switch (pSpriteID) {
 		case eSprite_BoilingPot:						// 1 Null
@@ -9155,8 +9172,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
 				return;
 
 			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = pTileX;
-			Data2C->field_4 = pTileY;
+			Data2C->field_0 = (int16) pTileX;
+			Data2C->field_4 = (int16) pTileY;
 			break;
 
 		case eSprite_Helicopter_Grenade_Enemy:			// 3 Nulls
@@ -9168,8 +9185,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
 				return;
 
 			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = pTileX;
-			Data2C->field_4 = pTileY;
+			Data2C->field_0 = (int16) pTileX;
+			Data2C->field_4 = (int16) pTileY;
 
 			// Fall Through
 		case eSprite_Helicopter_Grenade2_Human:			// 2 Nulls
@@ -9185,11 +9202,11 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
 				return;
 
 			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = pTileX;
-			Data2C->field_4 = pTileY;
+			Data2C->field_0 = (int16) pTileX;
+			Data2C->field_4 = (int16) pTileY;
 			Data30->field_18 = eSprite_Null;
-			Data30->field_0 = pTileX;
-			Data30->field_4 = pTileY;
+			Data30->field_0 = (int16) pTileX;
+			Data30->field_4 = (int16) pTileY;
 			break;
 
 		case eSprite_Tank_Enemy:						// 2 Nulls
@@ -9197,16 +9214,16 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
 				return;
 
 			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = pTileX;
-			Data2C->field_4 = pTileY;
+			Data2C->field_0 = (int16) pTileX;
+			Data2C->field_4 = (int16) pTileY;
 
 		case eSprite_Tank_Human:
 			if (Sprite_Get_Free(Data0, Data2C, Data30))
 				return;
 
 			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = pTileX;
-			Data2C->field_4 = pTileY;
+			Data2C->field_0 = (int16) pTileX;
+			Data2C->field_4 = (int16) pTileY;
 			break;
 
 		case eSprite_VehicleNoGun_Human:
@@ -9218,8 +9235,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
 				return;
 
 			Data2C->field_18 = eSprite_Null;
-			Data2C->field_0 = pTileX;
-			Data2C->field_4 = pTileY;
+			Data2C->field_0 = (int16) pTileX;
+			Data2C->field_4 = (int16) pTileY;
 			break;
 		}
 
