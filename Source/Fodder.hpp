@@ -643,8 +643,11 @@ public:
     void            Map_Save_Sprites( const std::string pFilename );
 
 	void			Map_Randomise();
+	void			Map_Randomise_Structures();
+	void			Map_Randomise_Sprites();
 
 	bool			Tiles_Load_Data();
+	int16			Tile_FindType(eTerrainType pType);
 
     // Mission Functions
     void            Mission_Troop_Count();
@@ -1084,7 +1087,7 @@ public:
     void            MapTile_Update_Column();
 
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
-	void			Sprite_Add(const size_t pSpriteID, const size_t pTileX, const size_t pTileY);
+	void			Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
 
     void            Squad_Troops_Count();
     int16           Mission_Troop_GetDeviatePotential( sMission_Troop* pSquadMember );

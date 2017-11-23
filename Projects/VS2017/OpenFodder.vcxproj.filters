@@ -13,6 +13,9 @@
     <Filter Include="Source\Utils">
       <UniqueIdentifier>{d4573b8f-ce37-4999-9e66-f06154aad614}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Structures">
+      <UniqueIdentifier>{5c64d2e5-eaa0-44f1-ad36-b2c67625baf6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -132,6 +135,12 @@
     <ClInclude Include="..\..\Source\Campaign.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\diamond.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Structures\Barracks.hpp">
+      <Filter>Source\Structures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -223,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Campaign.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Structures\Barracks.cpp">
+      <Filter>Source\Structures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
