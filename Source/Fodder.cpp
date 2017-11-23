@@ -1099,7 +1099,7 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
     outfile.close();
 }
 
-#include "Utils//diamond.hpp"
+#include "Utils//diamondsquare.hpp"
 
 int16 cFodder::Tile_FindType(eTerrainType pType) {
 
@@ -1120,7 +1120,7 @@ int16 cFodder::Tile_FindType(eTerrainType pType) {
 }
 
 void cFodder::Map_Randomise() {
-	int32 pos = 0;
+	int32 PowerOf = 0;
 	int32 Size;
 
 	if (mMapWidth < mMapHeight)
@@ -1129,11 +1129,11 @@ void cFodder::Map_Randomise() {
 		Size = mMapWidth;
 
 	while (Size > 0) {
-		pos++;
+		PowerOf++;
 		Size = Size >> 1;
 	}
 
-   cDiamondSquare DS(pos, 1);
+   cDiamondSquare DS(PowerOf, 1);
    auto HeightMap = DS.generate();
 
    int16* MapPtr = (int16*)(mMap->data() + 0x60);
@@ -1163,9 +1163,6 @@ void cFodder::Map_Randomise() {
 
    int16 X = 0;
    int16 Y = 0;
-
-   mMapTile_MovedVertical = mMapTile_RowOffset = 0;
-   mMapTile_MovedHorizontal = mMapTile_ColumnOffset = 0;
 
    // Loop each tile row
    for (auto Row : HeightMap) {
