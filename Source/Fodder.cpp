@@ -1893,7 +1893,7 @@ bool cFodder::Campaign_Load( std::string pName ) {
     return true;
 }
 
-void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight ) {
+void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
     uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
 
     mMap->clear();
@@ -1937,9 +1937,11 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
     // Load the map specific resources
     Map_Load_Resources();
 
-    Map_Randomise();
-	Map_Randomise_Structures();
-	Map_Randomise_Sprites();
+	if (pRandomise) {
+		Map_Randomise();
+		Map_Randomise_Structures();
+		Map_Randomise_Sprites();
+	}
 
     // Draw the tiles
     MapTiles_Draw();

@@ -634,7 +634,7 @@ public:
     bool            Campaign_Load( std::string pName );
 
     // Map Functions
-    void            Map_Create(const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight);
+    void            Map_Create(const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise = false);
     void            Map_Load();
     void            Map_Load_Sprites();
     void            Map_Load_Resources();
