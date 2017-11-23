@@ -54,6 +54,57 @@ struct sTileType {
 	std::string mFullName;
 };
 
+
+struct sStructureTile {
+	int16 mX;
+	int16 mY;
+	uint16 mTileID;
+
+	sStructureTile(int16 pMapX, int16 pMapY, uint16 pID) {
+		mX = pMapX;
+		mY = pMapY;
+		mTileID = pID;
+	}
+
+};
+
+struct sStructureSprite {
+	int16 mX;
+	int16 mY;
+	uint16 mSpriteID;
+
+	sStructureSprite(int16 pTileX, int16 pTileY, uint16 pSpriteID) {
+		mX = pTileX;
+		mY = pTileY;
+		mSpriteID = pSpriteID;
+	}
+};
+
+struct sStructure {
+	std::vector<sStructureTile> mTiles;
+	std::vector<sStructureSprite> mSprites;
+
+	int16 MaxWidth() const {
+		int16 Width = 0;
+
+		for (auto Tile : mTiles) {
+			if (Width < Tile.mX)
+				Width = Tile.mX;
+		}
+		return Width;
+	}
+
+	int16 MaxHeight() const {
+		int16 Height = 0;
+
+		for (auto Tile : mTiles) {
+			if (Height < Tile.mY)
+				Height = Tile.mY;
+		}
+		return Height;
+	}
+};
+
 extern const int8 mTiles_NotFlyable[];
 extern const int8 mTiles_NotDriveable[];
 extern const int8 mTiles_NotWalkable[];

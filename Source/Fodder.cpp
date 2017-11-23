@@ -1054,13 +1054,8 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 
     std::ofstream outfile(SptFilename, std::ofstream::binary);
 
-    // Ensure humans are first
-    std::sort(std::begin(mSprites), std::end(mSprites), [](sSprite& l, sSprite& r) {
-        return l.field_18 == eSprite_Player && l.field_0 != -32768;
-    });
-
     // Number of sprites in use
-    size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](sSprite& l) {
+    size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](auto& l) {
         return l.field_0 != -32768 && l.field_0 != -1;
     });
 
@@ -1069,25 +1064,197 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 
     uint8* SptPtr = MapSpt->data();
 
+	// Cheap way of writing human playerse first
     for (const auto SpriteIT : mSprites) {
 
-        writeBEWord(SptPtr, 0x7C);  SptPtr += 2;                // Direction
-        writeBEWord(SptPtr, 0x00);  SptPtr += 2;                // Ignored
-        writeBEWord(SptPtr, SpriteIT.field_0);  SptPtr += 2;    // X    
-        writeBEWord(SptPtr, SpriteIT.field_4);  SptPtr += 2;    // Y    
-        writeBEWord(SptPtr, SpriteIT.field_18); SptPtr += 2;    // Type 
+		if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
+			continue;
+
+		if (SpriteIT.field_18 != eSprite_Player)
+			continue;
+
+        writeBEWord(SptPtr, 0x7C);  SptPtr += 2;						// Direction
+        writeBEWord(SptPtr, 0x00);  SptPtr += 2;						// Ignored
+        writeBEWord(SptPtr, SpriteIT.field_0 - 0x10);  SptPtr += 2;    // X    
+        writeBEWord(SptPtr, SpriteIT.field_4);  SptPtr += 2;			// Y    
+        writeBEWord(SptPtr, SpriteIT.field_18); SptPtr += 2;			// Type 
     }
 
+
+	for (const auto SpriteIT : mSprites) {
+
+		if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
+			continue;
+
+		if (SpriteIT.field_18 == eSprite_Player)
+			continue;
+
+		writeBEWord(SptPtr, 0x7C);  SptPtr += 2;                // Direction
+		writeBEWord(SptPtr, 0x00);  SptPtr += 2;                // Ignored
+		writeBEWord(SptPtr, SpriteIT.field_0 - 0x10);  SptPtr += 2;    // X    
+		writeBEWord(SptPtr, SpriteIT.field_4);  SptPtr += 2;    // Y    
+		writeBEWord(SptPtr, SpriteIT.field_18); SptPtr += 2;    // Type 
+	}
     outfile.write((const char*)MapSpt->data(), MapSpt->size());
     outfile.close();
 }
 
-//#include "Utils//diamond.hpp"
+#include "Utils//diamond.hpp"
+
+int16 cFodder::Tile_FindType(eTerrainType pType) {
+
+	for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / 2; ++TileID) {
+		
+		// Single Type Tile
+		if (mTile_Hit[TileID] >= 0) {
+
+			// Match?
+			if ((mTile_Hit[TileID] & 0x0F) == pType) {
+
+				return TileID;
+			}
+		}
+	}
+
+	return -1;
+}
 
 void cFodder::Map_Randomise() {
+	int32 pos = 0;
+	int32 Size;
 
-    //cDiamondSquare DS(mMapWidth / mMapHeight, 1);
-   // auto Map = DS.generate();
+	if (mMapWidth < mMapHeight)
+		Size = mMapHeight;
+	else
+		Size = mMapWidth;
+
+	while (Size > 0) {
+		pos++;
+		Size = Size >> 1;
+	}
+
+   cDiamondSquare DS(pos, 1);
+   auto HeightMap = DS.generate();
+
+   int16* MapPtr = (int16*)(mMap->data() + 0x60);
+
+   double HeightMin = 0;
+   double HeightMax = 0;
+
+   for (auto Row : HeightMap) {
+	   for (auto Column : Row) {
+
+		   if (Column > HeightMax) HeightMax = Column;
+		   if (Column < HeightMin) HeightMin = Column;
+	   }
+   }
+
+   double diff = HeightMax - HeightMin;
+   double
+	   flood = 0.5,		// flood level
+	   mount = 0.85;	// mountain level
+
+   flood *= diff;
+   mount *= diff;
+
+   int16 TileWater = Tile_FindType(eTerrainType_Water);
+   int16 TileLand = Tile_FindType(eTerrainType_Land);
+   int16 TileBounce = Tile_FindType(eTerrainType_BounceOff);
+
+   int16 X = 0;
+   int16 Y = 0;
+
+   mMapTile_MovedVertical = mMapTile_RowOffset = 0;
+   mMapTile_MovedHorizontal = mMapTile_ColumnOffset = 0;
+
+   // Loop each tile row
+   for (auto Row : HeightMap) {
+
+	   X = 0;
+
+	   // Loop each tile column
+	   for (auto Column : Row) {
+
+		   Column -= HeightMin;
+
+		   // Dont set tile if its already set
+		   if (*MapPtr == 0) {
+
+			   if (Column < flood) {
+				   *MapPtr = TileWater;
+			   }
+			   else if (Column > mount) {
+				   *MapPtr = TileBounce;
+			   }
+			   else {
+				   *MapPtr = TileLand;
+			   }
+		   }
+
+		   ++MapPtr;
+
+		   if(++X >= mMapWidth)
+			   break;
+	   }
+
+	   if (++Y >= mMapHeight)
+		   break;
+   }
+
+
+}
+
+void cFodder::Map_Randomise_Structures() {
+
+	mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+
+	int16 StructsCount = 0;
+
+	while (StructsCount++ < 2) {
+		auto Struct = mStructuresBarracksWithSoldier[mMap_TileSet];
+
+		int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 2;
+		int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - Struct.MaxHeight() - 2)) + 2;
+
+		for (const auto& Piece : Struct.mTiles) {
+
+			MapTile_Set(StartTileX + Piece.mX, StartTileY + Piece.mY, Piece.mTileID);
+		}
+
+		for (const auto& Sprite : Struct.mSprites) {
+
+			auto Sheet = Sprite_Get_Sheet(Sprite.mSpriteID, 0);
+
+			// - 0x40 because no sidebar
+			Sprite_Add(Sprite.mSpriteID, ((StartTileX) * 16) + (Sprite.mX - Sheet->mModX) - 0x40,
+										 ((StartTileY) * 16) + (Sprite.mY - Sheet->mModY));
+		}
+
+		Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
+	}
+}
+
+void cFodder::Map_Randomise_Sprites() {
+	int16 Distance = 8;
+
+	int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - 2))  + 2;
+	int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - 2)) + 2;
+
+	int16 MiddleX = StartTileX * 16;
+	int16 MiddleY = StartTileY * 16;
+
+	// Add atleast two sprites
+	Sprite_Add(eSprite_Player, MiddleX - Distance, MiddleY );
+	Sprite_Add(eSprite_Player, MiddleX + Distance, MiddleY );
+
+	if( tool_RandomGet() % 1 )
+		Sprite_Add(eSprite_Player, MiddleX, MiddleY + Distance);
+
+
+	// Add some weapons
+	Sprite_Add(eSprite_RocketBox, MiddleX, MiddleY + Distance);
+	Sprite_Add(eSprite_GrenadeBox, MiddleX + Distance, MiddleY + Distance);
+
 
 }
 
@@ -1731,6 +1898,10 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 
     mMap->clear();
     mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
+	
+	mMapTilePtr = (0x60 - 8) - (pWidth * 2);
+	mMapTile_Column = 0;
+	mMapTile_Row = 0;
 
     uint16* Map = (uint16*) mMap->data();
 
@@ -1767,9 +1938,13 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
     Map_Load_Resources();
 
     Map_Randomise();
+	Map_Randomise_Structures();
+	Map_Randomise_Sprites();
 
     // Draw the tiles
     MapTiles_Draw();
+
+	Mission_Sprites_Handle();
 
     // Refresh the palette
     g_Graphics.PaletteSet(mImage);
@@ -3297,7 +3472,7 @@ void cFodder::Prepare( ) {
     mMission_Memory_Backup = new uint8[ End - Start ];
     Briefing_Set_Render_1_Mode_On();
 
-    mImage = new cSurface( 352, 300 );
+    mImage = new cSurface( 352, 310 );
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
@@ -8620,7 +8795,7 @@ int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pDa
     // There is two tables, the HIT and the BHIT
     // HIT contains the type of terrain used by a tile, a value < 0 indicates
     // the tile contains two terrain types.
-    // This is deterrmined by looking up the terrain type and row
+    // This is determined by looking up the terrain type and row
     //  then checking if a bit is set for the column. 
     //  The bit being set, means we use the upper 4 bits as the terrain type
     //  Not being set, means we use the lower 4 bits
@@ -9153,7 +9328,7 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
     writeLEWord(CurrentMapPtr, (uint16) pTileID);
 }
 
-void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
+void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
 
     int16 Data0 = 0;
 
@@ -9162,9 +9337,10 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
     if (Sprite_Get_Free(Data0, Data2C, Data30))
         return;
 
+	Data0 = 0;
     Data2C->field_18 = (int16) pSpriteID;
-    Data2C->field_0 = (int16) pTileX;
-    Data2C->field_4 = (int16) pTileY;
+    Data2C->field_0 = pTileX;
+    Data2C->field_4 = pTileY;
 
     switch (pSpriteID) {
         case eSprite_BoilingPot:                        // 1 Null
@@ -9172,8 +9348,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
                 return;
 
             Data2C->field_18 = eSprite_Null;
-            Data2C->field_0 = (int16) pTileX;
-            Data2C->field_4 = (int16) pTileY;
+            Data2C->field_0 = pTileX;
+            Data2C->field_4 = pTileY;
             break;
 
         case eSprite_Helicopter_Grenade_Enemy:          // 3 Nulls
@@ -9185,8 +9361,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
                 return;
 
             Data2C->field_18 = eSprite_Null;
-            Data2C->field_0 = (int16) pTileX;
-            Data2C->field_4 = (int16) pTileY;
+            Data2C->field_0 = pTileX;
+            Data2C->field_4 = pTileY;
 
             // Fall Through
         case eSprite_Helicopter_Grenade2_Human:         // 2 Nulls
@@ -9202,11 +9378,11 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
                 return;
 
             Data2C->field_18 = eSprite_Null;
-            Data2C->field_0 = (int16) pTileX;
-            Data2C->field_4 = (int16) pTileY;
+            Data2C->field_0 = pTileX;
+            Data2C->field_4 = pTileY;
             Data30->field_18 = eSprite_Null;
-            Data30->field_0 = (int16) pTileX;
-            Data30->field_4 = (int16) pTileY;
+            Data30->field_0 = pTileX;
+            Data30->field_4 = pTileY;
             break;
 
         case eSprite_Tank_Enemy:                        // 2 Nulls
@@ -9214,16 +9390,17 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
                 return;
 
             Data2C->field_18 = eSprite_Null;
-            Data2C->field_0 = (int16) pTileX;
-            Data2C->field_4 = (int16) pTileY;
+            Data2C->field_0 = pTileX;
+            Data2C->field_4 = pTileY;
 
         case eSprite_Tank_Human:
+			Data0 = 0;
             if (Sprite_Get_Free(Data0, Data2C, Data30))
                 return;
 
             Data2C->field_18 = eSprite_Null;
-            Data2C->field_0 = (int16) pTileX;
-            Data2C->field_4 = (int16) pTileY;
+            Data2C->field_0 = pTileX;
+            Data2C->field_4 = pTileY;
             break;
 
         case eSprite_VehicleNoGun_Human:
@@ -9235,8 +9412,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, size_t pTileX, size_t pTileY) {
                 return;
 
             Data2C->field_18 = eSprite_Null;
-            Data2C->field_0 = (int16) pTileX;
-            Data2C->field_4 = (int16) pTileY;
+            Data2C->field_0 = pTileX;
+            Data2C->field_4 = pTileY;
             break;
         }
 
