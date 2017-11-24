@@ -1119,7 +1119,7 @@ int16 cFodder::Tile_FindType(eTerrainType pType) {
 	return -1;
 }
 
-void cFodder::Map_Randomise() {
+void cFodder::Map_Randomise(const long pSeed) {
 	int32 PowerOf = 0;
 	int32 Size;
 
@@ -1133,7 +1133,7 @@ void cFodder::Map_Randomise() {
 		Size = Size >> 1;
 	}
 
-   cDiamondSquare DS(PowerOf, tool_RandomGet());
+   cDiamondSquare DS(PowerOf, pSeed);
    auto HeightMap = DS.generate();
 
    int16* MapPtr = (int16*)(mMap->data() + 0x60);
@@ -1213,8 +1213,8 @@ void cFodder::Map_Randomise_Structures() {
 	while (StructsCount++ < 2) {
 		auto Struct = mStructuresBarracksWithSoldier[mMap_TileSet];
 
-		int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 1;
-		int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - Struct.MaxHeight() - 2)) + 1;
+		int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 2;
+		int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - Struct.MaxHeight() - 2)) + 2;
 
 		for (const auto& Piece : Struct.mTiles) {
 
@@ -1960,7 +1960,12 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
     Map_Load_Resources();
 
 	if (pRandomise) {
-		Map_Randomise();
+		uint16 Seed = tool_RandomGet();
+
+		// Lets store the seed for later
+		Map[0x27] = Seed;
+
+		Map_Randomise( Seed );
 		Map_Randomise_Structures();
 		Map_Randomise_Sprites();
 
