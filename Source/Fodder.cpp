@@ -20030,15 +20030,14 @@ int16 cFodder::Recruit_Show() {
     } else {
 		if (mVersion->mName == "Random Map") {
 
-			mCampaign.setRandom();
-
-			mCampaign.setAggression();
-			mCampaign.setGoals({ eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings });
-
 			Map_Create(mTileTypes[0], 0, 28, 22, true);
 			Map_Save("Data/Custom/Maps/random.map");
 
 			mCampaign.LoadCustomMap("random.map");
+
+			mCampaign.setRandom();
+			mCampaign.setAggression();
+			mCampaign.setGoals({ eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings });
 		} 
 		else {
 			Custom_ShowMapSelection();
