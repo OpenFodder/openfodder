@@ -784,7 +784,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 	int16 ax = pCx >> 2;
 	int16 dx = ax;
 
-	ax -= 0x50;	// 80
+	ax -= 0x50;
 	mFodder->word_4285F = -ax;
 
 	uint8* word_4285D = mImage->GetSurfaceBuffer() + mFodder->word_4285B + (dx * 4);
@@ -808,7 +808,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di -= 0x51 * 4;	// 324
+			di -= 0x51 * 4;
 			--pDs;
 			for (cx = dx; cx > 0; --cx) {
 				uint8 al = *pDs++;
@@ -818,7 +818,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di += 0x58 * 4;	// 352
+			di += 0x58 * 4;
 		}
 	}
 }
