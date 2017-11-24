@@ -1133,7 +1133,7 @@ void cFodder::Map_Randomise() {
 		Size = Size >> 1;
 	}
 
-   cDiamondSquare DS(PowerOf, 1);
+   cDiamondSquare DS(PowerOf, tool_RandomGet());
    auto HeightMap = DS.generate();
 
    int16* MapPtr = (int16*)(mMap->data() + 0x60);
