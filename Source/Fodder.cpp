@@ -1103,7 +1103,7 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 
 int16 cFodder::Tile_FindType(eTerrainType pType) {
 
-	for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / 2; ++TileID) {
+	for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
 		
 		// Single Type Tile
 		if (mTile_Hit[TileID] >= 0) {
