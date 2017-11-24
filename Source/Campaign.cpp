@@ -60,7 +60,7 @@ const std::vector<std::string> mMissionGoal_Titles = {
 };
 
 cCampaign::cCampaign() {
-
+	Clear();
 }
 
 bool cCampaign::LoadCustomFromPath(const std::string& pPath) {
@@ -254,6 +254,7 @@ bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
  * Clear all missions/map names, goals and aggression rates
  */
 void cCampaign::Clear() {
+	mIsRandom = false;
 	mIsCustomCampaign = false;
 	mCustomMap = "";
 
@@ -364,6 +365,22 @@ std::string cCampaign::getMapName(const size_t& pMapNumber) const {
     return mMapNames[pMapNumber];
 }
 
+void cCampaign::setGoals(const std::vector<eMissionGoals>& pGoals) {
+	mMapGoals.clear();
+	mMapGoals.push_back(pGoals);
+}
+
+void cCampaign::setAggression(int16 pMin, int16 pMax) {
+
+	if (pMin == 0 || pMax == 0) {
+		pMin = (rand() % 5);
+		pMax = pMin + (rand() % 5);
+	}
+
+	mMapAggression.clear();
+	mMapAggression.push_back(sAggression(pMin, pMax));
+}
+
 /**
 * Get the goals for this map
 */
@@ -401,4 +418,9 @@ const std::string cCampaign::getName() const {
 bool cCampaign::isCustom() const {
 
 	return mIsCustomCampaign;
+}
+
+bool cCampaign::isRandom() const {
+
+	return mIsRandom;
 }

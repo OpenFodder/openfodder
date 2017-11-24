@@ -299,6 +299,7 @@ struct sWeaponData {
 	int16	field_8;
 };
 
+
 extern const int16 mEnemy_Unit_Types[];
 
 extern const int16 mSprite_Missile_CanLock[];

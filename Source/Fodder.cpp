@@ -1064,7 +1064,7 @@ void cFodder::Map_Save_Sprites( const std::string pFilename ) {
 
     uint8* SptPtr = MapSpt->data();
 
-	// Cheap way of writing human playerse first
+	// Cheap way of writing human players first
     for (const auto SpriteIT : mSprites) {
 
 		if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
@@ -1138,9 +1138,9 @@ void cFodder::Map_Randomise() {
 
    int16* MapPtr = (int16*)(mMap->data() + 0x60);
 
+   // Find the highest and lowest points in the height map
    double HeightMin = 0;
    double HeightMax = 0;
-
    for (auto Row : HeightMap) {
 	   for (auto Column : Row) {
 
@@ -1149,11 +1149,12 @@ void cFodder::Map_Randomise() {
 	   }
    }
 
+   // Calcukate the difference between top/bottom
    double diff = HeightMax - HeightMin;
-   double
-	   flood = 0.5,		// flood level
-	   mount = 0.85;	// mountain level
+   double flood = 0.5;
+   double mount = 0.85;
 
+   // Calculate the flood/moutain levels
    flood *= diff;
    mount *= diff;
 
@@ -1207,11 +1208,13 @@ void cFodder::Map_Randomise_Structures() {
 
 	int16 StructsCount = 0;
 
+	Sprite_Clear_All();
+
 	while (StructsCount++ < 2) {
 		auto Struct = mStructuresBarracksWithSoldier[mMap_TileSet];
 
-		int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 2;
-		int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - Struct.MaxHeight() - 2)) + 2;
+		int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 1;
+		int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - Struct.MaxHeight() - 2)) + 1;
 
 		for (const auto& Piece : Struct.mTiles) {
 
@@ -1256,19 +1259,16 @@ void cFodder::Map_Randomise_Sprites() {
 }
 
 void cFodder::Map_Load_Sprites() {
+
     Sprite_Clear_All();
 
     auto MapSprites = mCampaign.getSprites(mMapNumber);
     tool_EndianSwap( (uint8*)MapSprites->data(), MapSprites->size());
-
-    mTroops_Enemy_Count = 0;
-    mHostage_Count = 0;
     
     uint16* SptPtr = (uint16*) MapSprites->data();
     sSprite* Sprite = mSprites;
     
     uint16* SptFileEnd = SptPtr + (MapSprites->size() / 2);
-    int16 dword_37ABC = 0x0A;
 
     for(uint16 HumanCount = 0; SptPtr != SptFileEnd; ++Sprite ) {
         ++SptPtr;
@@ -1295,35 +1295,59 @@ void cFodder::Map_Load_Sprites() {
         ++SptPtr;
         Sprite->field_18 = ax;
         
-        if( Sprite->field_18 == eSprite_Hostage_2 || Sprite->field_18 == eSprite_Hostage ) {
-                
-            ++mHostage_Count;
-        }
-        
-        if (Sprite->field_18 == eSprite_Player) {
-
-            ++HumanCount;
-            Sprite->field_4A = 0;
-        } else {
-
-            if (Sprite->field_18 == eSprite_Enemy_Rocket) {
-                Sprite->field_22 = eSprite_PersonType_AI;
-                ++mTroops_Enemy_Count;
-                
-            } else {
-                if (Sprite->field_18 == eSprite_Enemy)
-                    ++mTroops_Enemy_Count;
-            }
-            
-            dword_37ABC += 0x0A;
-            if( Sprite->field_62 > 4 )
-                dword_37ABC = 0;
-            
-            Sprite->field_4A = dword_37ABC;
-            
-        }
         // 114B
+		
     }
+
+	Map_Load_Sprites_Count();
+}
+
+void cFodder::Map_Load_Sprites_Count() {
+	uint16 HumanCount = 0;
+	int16 dword_37ABC = 0x0A;
+
+	mTroops_Enemy_Count = 0;
+	mHostage_Count = 0;
+
+	for (auto& Sprite : mSprites) {
+
+		if (Sprite.field_0 == -1 || Sprite.field_0 == -32768)
+			continue;
+
+		Sprite.field_8 = 0x7C;
+		Sprite.field_32 = (HumanCount / 8);
+
+		if (Sprite.field_18 == eSprite_Hostage_2 || Sprite.field_18 == eSprite_Hostage) {
+
+			++mHostage_Count;
+		}
+
+		if (Sprite.field_18 == eSprite_Player) {
+
+			++HumanCount;
+			Sprite.field_4A = 0;
+		}
+		else {
+
+			if (Sprite.field_18 == eSprite_Enemy_Rocket) {
+				Sprite.field_22 = eSprite_PersonType_AI;
+				++mTroops_Enemy_Count;
+
+			}
+			else {
+				if (Sprite.field_18 == eSprite_Enemy)
+					++mTroops_Enemy_Count;
+			}
+
+			dword_37ABC += 0x0A;
+			if (Sprite.field_62 > 4)
+				dword_37ABC = 0;
+
+			Sprite.field_4A = dword_37ABC;
+
+		}
+
+	}
 }
 
 void cFodder::Mission_Troop_Count() {
@@ -1893,6 +1917,7 @@ bool cFodder::Campaign_Load( std::string pName ) {
 void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
     uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
 
+	mMap = std::make_shared<std::vector<uint8_t>>();
     mMap->clear();
     mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
 	
@@ -1938,6 +1963,10 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 		Map_Randomise();
 		Map_Randomise_Structures();
 		Map_Randomise_Sprites();
+
+#ifndef _OFED
+		Map_Load_Sprites_Count();
+#endif
 	}
 
     // Draw the tiles
@@ -1951,13 +1980,13 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 }
 
 void cFodder::Map_Load( ) {
-    mMap = mCampaign.getMap(mMapNumber);
 
-    if (!mMap->size()) {
-        return;
-    }
+	mMap = mCampaign.getMap(mMapNumber);
 
-    tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
+	if (!mMap->size())
+		return;
+
+	tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
 
     Map_Load_Resources();
 }
@@ -3471,7 +3500,7 @@ void cFodder::Prepare( ) {
     mMission_Memory_Backup = new uint8[ End - Start ];
     Briefing_Set_Render_1_Mode_On();
 
-    mImage = new cSurface( 352, 310 );
+    mImage = new cSurface( 352, 364 );
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
@@ -4179,7 +4208,7 @@ void cFodder::Campaign_Selection() {
         mVersionDefault = mVersion;
 
         // Single Map Mode?
-        if (CampaignFile == "Single Map") {
+        if (CampaignFile == "Single Map" || CampaignFile == "Random Map") {
             mCustom_Mode = eCustomMode_Map;
             return;
         
@@ -8785,6 +8814,10 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, i
 }
 
 int16 cFodder::Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 ) {
+
+	if ((pY >>4) > mMapHeight || (pX >> 4) > mMapWidth)
+		return 0;
+
     int32 MapPtr = (pY >> 4) * mMapWidth;
     MapPtr += (pX >> 4);
     MapPtr <<= 1;
@@ -9340,6 +9373,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
     Data2C->field_18 = (int16) pSpriteID;
     Data2C->field_0 = pTileX;
     Data2C->field_4 = pTileY;
+	Data2C->field_26 = pTileX;
+	Data2C->field_28 = pTileY;
 
     switch (pSpriteID) {
         case eSprite_BoilingPot:                        // 1 Null
@@ -9349,6 +9384,9 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             Data2C->field_18 = eSprite_Null;
             Data2C->field_0 = pTileX;
             Data2C->field_4 = pTileY;
+			Data2C->field_26 = pTileX;
+			Data2C->field_28 = pTileY;
+
             break;
 
         case eSprite_Helicopter_Grenade_Enemy:          // 3 Nulls
@@ -9362,6 +9400,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             Data2C->field_18 = eSprite_Null;
             Data2C->field_0 = pTileX;
             Data2C->field_4 = pTileY;
+			Data2C->field_26 = pTileX;
+			Data2C->field_28 = pTileY;
 
             // Fall Through
         case eSprite_Helicopter_Grenade2_Human:         // 2 Nulls
@@ -9379,9 +9419,15 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             Data2C->field_18 = eSprite_Null;
             Data2C->field_0 = pTileX;
             Data2C->field_4 = pTileY;
+			Data2C->field_26 = pTileX;
+			Data2C->field_28 = pTileY;
+
             Data30->field_18 = eSprite_Null;
             Data30->field_0 = pTileX;
             Data30->field_4 = pTileY;
+			Data30->field_26 = pTileX;
+			Data30->field_28 = pTileY;
+
             break;
 
         case eSprite_Tank_Enemy:                        // 2 Nulls
@@ -9391,7 +9437,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             Data2C->field_18 = eSprite_Null;
             Data2C->field_0 = pTileX;
             Data2C->field_4 = pTileY;
-
+			Data2C->field_26 = pTileX;
+			Data2C->field_28 = pTileY;
         case eSprite_Tank_Human:
 			Data0 = 0;
             if (Sprite_Get_Free(Data0, Data2C, Data30))
@@ -9400,6 +9447,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             Data2C->field_18 = eSprite_Null;
             Data2C->field_0 = pTileX;
             Data2C->field_4 = pTileY;
+			Data2C->field_26 = pTileX;
+			Data2C->field_28 = pTileY;
             break;
 
         case eSprite_VehicleNoGun_Human:
@@ -9413,6 +9462,8 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             Data2C->field_18 = eSprite_Null;
             Data2C->field_0 = pTileX;
             Data2C->field_4 = pTileY;
+			Data2C->field_26 = pTileX;
+			Data2C->field_28 = pTileY;
             break;
         }
 
@@ -11599,10 +11650,10 @@ void cFodder::Briefing_Draw_Phase( ) {
 
 void cFodder::Briefing_Show_PreReady() {
 
-    if (mVersion->isDemo() && !mCampaign.isCustom())
+    if (mVersion->isDemo() && !mCampaign.isCustom() && !mCampaign.isRandom())
         return;
 
-    if (!mVersion->hasGfx(eGFX_BRIEFING))
+    if (!mVersion->hasGfx(eGFX_BRIEFING) && !mCampaign.isRandom())
         VersionLoad(mVersionDefault);
 
     mImage->clearBuffer();
@@ -11618,7 +11669,7 @@ void cFodder::Briefing_Show_PreReady() {
 
 void cFodder::Briefing_Show_Ready() {
 
-    if (mVersion->isDemo() && !mCampaign.isCustom())
+    if (mVersion->isDemo() && !mCampaign.isCustom() && !mCampaign.isRandom())
         return;
 
     mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
@@ -19977,7 +20028,21 @@ int16 cFodder::Recruit_Show() {
         Mission_Troop_Attach_Sprites();
 
     } else {
-        Custom_ShowMapSelection();
+		if (mVersion->mName == "Random Map") {
+
+			mCampaign.setRandom();
+
+			mCampaign.setAggression();
+			mCampaign.setGoals({ eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings });
+
+			Map_Create(mTileTypes[0], 0, 28, 22, true);
+			Map_Save("Data/Custom/Maps/random.map");
+
+			mCampaign.LoadCustomMap("random.map");
+		} 
+		else {
+			Custom_ShowMapSelection();
+		}
 
         if (mCustom_Mode == eCustomMode_None)
             return -1;
@@ -20162,7 +20227,7 @@ int16 cFodder::Mission_Loop() {
 
 
         // Show the Briefing screen for Retail and Custom 
-        if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+        if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set || mCampaign.isRandom()) {
             Briefing_Show_Ready();
 
             // Aborted?
