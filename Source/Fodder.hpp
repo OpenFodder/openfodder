@@ -643,7 +643,7 @@ public:
     void            Map_Save(const std::string pFilename);
     void            Map_Save_Sprites( const std::string pFilename );
 
-	void			Map_Randomise();
+	void			Map_Randomise(const long pSeed);
 	void			Map_Randomise_Structures();
 	void			Map_Randomise_Sprites();
 
