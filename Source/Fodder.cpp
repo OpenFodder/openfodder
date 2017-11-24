@@ -1210,17 +1210,23 @@ void cFodder::Map_Randomise_Structures() {
 
 	Sprite_Clear_All();
 
+	// This is very lame :)
 	while (StructsCount++ < 2) {
 		auto Struct = mStructuresBarracksWithSoldier[mMap_TileSet];
 
 		int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 2;
 		int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - Struct.MaxHeight() - 2)) + 2;
 
+		// TODO: Check if we will overlap an existing structure,
+		//		 or place on water
+
+		// Set the map tiles
 		for (const auto& Piece : Struct.mTiles) {
 
 			MapTile_Set(StartTileX + Piece.mX, StartTileY + Piece.mY, Piece.mTileID);
 		}
 
+		// Add the sprites
 		for (const auto& Sprite : Struct.mSprites) {
 
 			auto Sheet = Sprite_Get_Sheet(Sprite.mSpriteID, 0);
@@ -1230,6 +1236,7 @@ void cFodder::Map_Randomise_Structures() {
 										 ((StartTileY) * 16) + (Sprite.mY - Sheet->mModY));
 		}
 
+		// Add an enemy below each building
 		Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
 	}
 }
