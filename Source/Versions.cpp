@@ -712,6 +712,10 @@ const sVersion Versions[] = {
 	/* Custom must be last, as they depend on a previous retail version being detected first */
 	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
 	{ "Single Map", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
+
+	{ "Random Map", eGame::CF1, eVersion::Custom,       ePlatform::PC,      eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
+	{ "Random Map", eGame::CF1, eVersion::Custom,       ePlatform::Amiga,   eRelease::Demo,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
+
 };
 
 std::vector<const sVersion*> g_AvailableDataVersions;

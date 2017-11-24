@@ -748,6 +748,9 @@ void cGraphics_Amiga::MapTiles_Draw() {
 					// Each Tile Row
 					for (uint16 i = StartY; i < 16; ++i) {
 
+						if (TilePtr > mBlkData->data() + mBlkData->size())
+							continue;
+
 						uint16 RowData = readBEWord( TilePtr );
 						TilePtr += 2;
 						RowData <<= StartX;

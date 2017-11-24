@@ -7,6 +7,7 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 		{
 			{ 1, 0, 333 },
 			{ 2, 0, 334 },
+
 			{ 0, 1, 352 },
 			{ 1, 1, 353 },
 			{ 2, 1, 354 },

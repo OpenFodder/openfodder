@@ -44,6 +44,8 @@ struct sAggression {
 
         return (mMin + mMax) / 2;
     }
+
+	sAggression(int16 pMin, int16 pMax) { mMin = pMin; mMax = pMax; }
 };
 
 class cCampaign {
@@ -61,6 +63,7 @@ private:
 
     std::string                             mCustomMap;
 	bool									mIsCustomCampaign;
+	bool									mIsRandom;
 
 public:
 
@@ -86,7 +89,13 @@ public:
     const std::vector<eMissionGoals>& getMapGoals(const uint16& pMapNumber) const;
     const sAggression& getMapAggression(const uint16& pMapNumber) const;
     const size_t getMapCount() const;
+
+	void setAggression(int16 pMin = 0, int16 pMax = 0);
+	void setGoals(const std::vector<eMissionGoals>& pGoals);
+
+	void setRandom() { mIsRandom = true;  }
 	bool isCustom() const;
+	bool isRandom() const;
 };
 
 extern const std::vector<std::string>   mMissionGoal_Titles;
