@@ -20232,6 +20232,9 @@ int16 cFodder::Mission_Loop() {
             // Aborted?
             if (mBriefing_Aborted == -1) {
 
+				if (mCampaign.isRandom())
+					return -1;
+
                 Mission_Memory_Restore();
 
                 mMission_Restart = -1;
