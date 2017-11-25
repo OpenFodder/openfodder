@@ -271,6 +271,7 @@ int16 cFodder::Map_Loop( ) {
             Mission_Paused();
 
             while (mMission_Paused) {
+
                 g_Window.RenderAt( mImage );
                 g_Window.FrameEnd();
                 eventProcess();
@@ -3087,6 +3088,15 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
             mDebug_MissionSkip = -1;
             mKeyCode = 0x1C;
         }
+
+		if (pKeyCode == SDL_SCANCODE_F9 && pPressed) {
+			sSprite** Data28 = mSquads[mSquad_Selected];
+			for (; *Data28 != INVALID_SPRITE_PTR;) {
+
+				sSprite* Data2C = *Data28++;
+				Data2C->field_75 |= eSprite_Flag_Invincibility;
+			}
+		}
     }
 }
 
@@ -20047,7 +20057,7 @@ int16 cFodder::Recruit_Show() {
 
 			mCampaign.LoadCustomMap("random.map");
 
-			mCampaign.setRandom();
+			mCampaign.setRandom(true);
 			mCampaign.setAggression();
 			mCampaign.setGoals({ eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings });
 		} 
