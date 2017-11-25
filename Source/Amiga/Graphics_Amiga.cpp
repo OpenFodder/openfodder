@@ -725,6 +725,10 @@ void cGraphics_Amiga::MapTiles_Draw() {
 			for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
 				uint8* TargetTmp = TargetRow;
 
+
+				if (MapPtr > mFodder->mMap->data() + mFodder->mMap->size())
+					continue;
+
 				uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
 
 				if (Tile > 0x1C0)

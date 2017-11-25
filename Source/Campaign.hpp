@@ -93,7 +93,7 @@ public:
 	void setAggression(int16 pMin = 0, int16 pMax = 0);
 	void setGoals(const std::vector<eMissionGoals>& pGoals);
 
-	void setRandom() { mIsRandom = true;  }
+	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;
 	bool isRandom() const;
 };
