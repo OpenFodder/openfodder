@@ -154,6 +154,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     byte_44AC0 = 0;
 
     Squad_Walk_Target_SetAll(0);
+	mMission_Completed_Timer = 0;
 
     for (unsigned int x = 0; x < 0x18; ++x) {
         mMission_Save_Availability[x] = 0;
@@ -251,10 +252,9 @@ int16 cFodder::Map_Loop( ) {
         Sprite_Find_HumanVehicles();
 
         // Cheat
-        if (mDebug_MissionSkip == -1 && mKeyCode == 0x1C) {
+        if (mDebug_MissionSkip == -1)
             mMission_Complete = -1;
-            mKeyCode = 0;
-        } else
+        else
             Mission_Phase_Goals_Check();
 
         //loc_1079C
@@ -1203,16 +1203,32 @@ void cFodder::Map_Randomise(const long pSeed) {
 
 }
 
-void cFodder::Map_Randomise_Structures() {
+void cFodder::Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY ) {
+
+	for (const auto& Piece : pStructure.mTiles) {
+
+		MapTile_Set(pTileX + Piece.mX, pTileY + Piece.mY, Piece.mTileID);
+	}
+
+	// Add the sprites
+	for (const auto& Sprite : pStructure.mSprites) {
+
+		auto Sheet = Sprite_Get_Sheet(Sprite.mSpriteID, 0);
+
+		// - 0x40 because no sidebar
+		Sprite_Add(Sprite.mSpriteID, ((pTileX) * 16) + (Sprite.mX - Sheet->mModX) - 0x40,
+			((pTileY) * 16) + (Sprite.mY - Sheet->mModY));
+	}
+}
+
+void cFodder::Map_Randomise_Structures( const size_t pCount ) {
 
 	mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 
 	int16 StructsCount = 0;
 
-	Sprite_Clear_All();
-
 	// This is very lame :)
-	while (StructsCount++ < 2) {
+	while (StructsCount++ < pCount) {
 		auto Struct = mStructuresBarracksWithSoldier[mMap_TileSet];
 
 		int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 2;
@@ -1221,21 +1237,7 @@ void cFodder::Map_Randomise_Structures() {
 		// TODO: Check if we will overlap an existing structure,
 		//		 or place on water
 
-		// Set the map tiles
-		for (const auto& Piece : Struct.mTiles) {
-
-			MapTile_Set(StartTileX + Piece.mX, StartTileY + Piece.mY, Piece.mTileID);
-		}
-
-		// Add the sprites
-		for (const auto& Sprite : Struct.mSprites) {
-
-			auto Sheet = Sprite_Get_Sheet(Sprite.mSpriteID, 0);
-
-			// - 0x40 because no sidebar
-			Sprite_Add(Sprite.mSpriteID, ((StartTileX) * 16) + (Sprite.mX - Sheet->mModX) - 0x40,
-										 ((StartTileY) * 16) + (Sprite.mY - Sheet->mModY));
-		}
+		Map_Add_Structure(Struct, StartTileX, StartTileY);
 
 		// Add an enemy below each building
 		Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
@@ -1922,8 +1924,11 @@ bool cFodder::Campaign_Load( std::string pName ) {
     return true;
 }
 
-void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
+void cFodder::Map_Create( const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
     uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
+
+	if (mVersion->mVersion == AmigaPlus)
+		pTileSub = 1;
 
 	mMap = std::make_shared<std::vector<uint8_t>>();
     mMap->clear();
@@ -1974,14 +1979,14 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
 		Map[0x27] = Seed;
 
 		Map_Randomise( Seed );
-		Map_Randomise_Structures();
+		Map_Randomise_Structures( 2 );
 		Map_Randomise_Sprites();
 
 #ifndef _OFED
 		Map_Load_Sprites_Count();
 #endif
 	}
-
+#ifdef _OFED
     // Draw the tiles
     MapTiles_Draw();
 
@@ -1990,6 +1995,7 @@ void cFodder::Map_Create( const sTileType& pTileType, const size_t pTileSub, con
     // Refresh the palette
     g_Graphics.PaletteSet(mImage);
     mImage->surfaceSetToPaletteNew();
+#endif
 }
 
 void cFodder::Map_Load( ) {
@@ -3086,15 +3092,17 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
         // Debug: Mission Complete
         if (pKeyCode == SDL_SCANCODE_F10 && pPressed ) {
             mDebug_MissionSkip = -1;
-            mKeyCode = 0x1C;
         }
 
+		// Debug: Make current squad invincible
 		if (pKeyCode == SDL_SCANCODE_F9 && pPressed) {
-			sSprite** Data28 = mSquads[mSquad_Selected];
-			for (; *Data28 != INVALID_SPRITE_PTR;) {
+			if (mSquad_Selected >= 0) {
+				sSprite** Data28 = mSquads[mSquad_Selected];
+				for (; *Data28 != INVALID_SPRITE_PTR;) {
 
-				sSprite* Data2C = *Data28++;
-				Data2C->field_75 |= eSprite_Flag_Invincibility;
+					sSprite* Data2C = *Data28++;
+					Data2C->field_75 |= eSprite_Flag_Invincibility;
+				}
 			}
 		}
     }
@@ -4057,13 +4065,49 @@ void cFodder::CopyProtection_EncodeInput() {
     }
 }
 
+void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle) {
+	size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
+
+	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+
+	GUI_Element_Reset();
+	MapTiles_Draw();
+
+	mString_GapCharID = 0x25;
+	String_Print_Large(pTitle, true, 0x01);
+	mString_GapCharID = 0x00;
+
+	String_Print_Large(pSubTitle, false, 0x18);
+
+	if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
+		GUI_Button_Draw_Small("UP", 0x30);
+		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
+
+		GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
+		GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
+	}
+
+	GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
+	GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
+
+	int16 ItemCount = 0;
+
+	auto FileIT = mCampaignList.begin() + mGUI_Select_File_CurrentIndex;
+
+	for (; ItemCount < mGUI_Select_File_ShownItems && FileIT != mCampaignList.end(); ++ItemCount) {
+		size_t Pos = FileIT->find_first_of(".");
+
+		GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (ItemCount * 0x15), 0xB2, 0xB3);
+		GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
+		++FileIT;
+	}
+}
+
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData ) {
-    std::vector<std::string> CampaignList = GetAvailableVersions(); 
+    mCampaignList = GetAvailableVersions(); 
     
     mMission_Aborted = false;
     mGUI_SaveLoadAction = 0;
-
-    mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
     {
         std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
@@ -4082,58 +4126,31 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
             if (isCampaignKnown(FileName))
                 continue;
 
-            CampaignList.push_back(FileName);
+			mCampaignList.push_back(FileName);
         }
     }
 
     mGUI_Select_File_CurrentIndex = 0;
-    mGUI_Select_File_Count = (int16)CampaignList.size();
+    mGUI_Select_File_Count = (int16)mCampaignList.size();
     mGUI_Select_File_ShownItems = (mVersion->mPlatform == ePlatform::PC ? 4 : 5);
 
+	if(mVersion->isRetail())
+		Map_Create(mTileTypes[eTileTypes_Jungle], 0, 0x15, 0x0F, false);
+	else
+		Map_Create(mTileTypes[eTileTypes_AFX], 0, 0x15, 0x0F, false);
+
+	Campaign_Select_Sprite_Prepare();
+
     do {
-        size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
-        GUI_Element_Reset();
-        
-        mString_GapCharID = 0x25;
-        String_Print_Large(pTitle, true, 0x01);
-        mString_GapCharID = 0x00;
 
-        String_Print_Large(pSubTitle, false, 0x18);
-
-        if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
-            GUI_Button_Draw_Small("UP", 0x30);
-            GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
-
-            GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
-            GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
-        }
-
-        GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
-        GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
-
-        mImage->Save();
-
-        int16 ItemCount = 0;
-
-        auto FileIT = CampaignList.begin() + mGUI_Select_File_CurrentIndex;
-
-        for (; ItemCount < mGUI_Select_File_ShownItems && FileIT != CampaignList.end(); ++ItemCount) {
-            size_t Pos = FileIT->find_first_of(".");
-
-            GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (ItemCount * 0x15), 0xB2, 0xB3);
-            GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
-            ++FileIT;
-        }
-
-        GUI_Select_File_Loop(false);
-        mImage->Restore();
+		Campaign_Select_File_Loop(pTitle, pSubTitle);
 
     } while (mGUI_SaveLoadAction == 3);
 
     if (mGUI_SaveLoadAction == 1)
         return "";
 
-    return CampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+    return mCampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
 std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData ) {
@@ -4189,12 +4206,18 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 }
 
 void cFodder::Campaign_Selection() {
+	mMission_Complete = 0;
+
+	Mission_Memory_Clear();
+	Game_ClearVariables();
+	Map_Clear_Destroy_Tiles();
 
     Image_FadeOut();
 
     if (mVersion->mPlatform == ePlatform::Amiga)
         mWindow->SetScreenSize(cDimension(320, 225));
 
+	mGraphics->Load_pStuff();
     mGraphics->Load_Hill_Data();
     mGraphics->PaletteSet();
 
@@ -4255,6 +4278,145 @@ void cFodder::Campaign_Selection() {
 
     mDemo_ExitMenu = 1;
     mCustom_Mode = eCustomMode_None;
+}
+
+void cFodder::Campaign_Select_Sprite_Prepare() {
+
+	int16 x = 0;
+
+	Sprite_Clear_All();
+
+	Mission_Prepare_Squads();
+
+	mSquad_CurrentVehicle = &mSprites[x];
+	mSprites[x].field_0 = 0xf0;
+	mSprites[x].field_4 = 0xce;
+	mSprites[x].field_8 = 0xD2;
+	mSprites[x].field_A = 5;
+	mSprites[x].field_52 = 0;
+	mSprites[x].field_20 = 0;
+	mSprites[x].field_18 = eSprite_Turret_Missile_Human;
+	mSprites[x++].field_6F = eVehicle_Turret_Missile;
+
+	mSprites[x].field_0 = rand() & 0xFF;
+	mSprites[x].field_4 = tool_RandomGet() & 0xff;
+	mSprites[x].field_8 = 6;
+	mSprites[x].field_A = 0;
+	mSprites[x].field_52 = 0;
+	mSprites[x].field_20 = 0;
+	mSprites[x++].field_18 = eSprite_Indigenous_Spear;
+
+	mSprites[x].field_0 = 0xff;
+	mSprites[x].field_4 = 16 + (rand() % 0x60);
+	mSprites[x].field_8 = 2;
+	mSprites[x].field_A = 0;
+	mSprites[x].field_52 = 0;
+	mSprites[x].field_20 = 0;
+	mSprites[x++].field_18 = eSprite_Bird_Left;
+
+	mSprites[x].field_0 = 0;
+	mSprites[x].field_4 = 16  + (rand() % 0xc0);
+	mSprites[x].field_8 = 2;
+	mSprites[x].field_A = 0;
+	mSprites[x].field_52 = 0;
+	mSprites[x].field_20 = 0;
+	mSprites[x++].field_18 = eSprite_Bird_Left;
+
+	mSprites[x].field_0 = 185;
+	mSprites[x].field_4 = 19;
+	mSprites[x].field_8 = 2;
+	mSprites[x].field_A = 0;
+	mSprites[x].field_52 = 0;
+	mSprites[x].field_20 = 0;
+	mSprites[x++].field_18 = eSprite_Hostage;
+
+	mSprites[x].field_0 = 220;
+	mSprites[x].field_4 = 60;
+	mSprites[x].field_8 = 2;
+	mSprites[x].field_A = 0;
+	mSprites[x].field_52 = 0;
+	mSprites[x].field_20 = 0;
+	mSprites[x++].field_18 = eSprite_BoilingPot;
+
+	mSquad_Leader = mSquad_CurrentVehicle;
+
+	word_3AA1D = word_3BED5[0];
+
+	Map_Add_Structure(mStructuresBarracksWithSoldier[mMap_TileSet], 4, 3);
+}
+
+void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTitle) {
+
+	if (mGUI_SaveLoadAction != 3) {
+
+		mImage->palette_FadeTowardNew();
+		Mouse_Setup();
+	}
+	mGUI_SaveLoadAction = 0;
+
+	mImageFaded = -1;
+	mGraphics->PaletteSet();
+
+	mImage->Save();
+
+	mImageFaded = -1;
+	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
+	mDemo_ExitMenu = 0;
+
+	Camera_Reset();
+
+	int16 Timedown = 0;
+	do {
+		Sprite_Frame_Modifier_Update();
+		Mission_Sprites_Handle();
+
+		Campaign_Select_DrawMenu(pTitle, pSubTitle);
+		mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+		Sprites_Draw();
+
+		if (mImageFaded == -1)
+			mImageFaded = mImage->palette_FadeTowardNew();
+
+		Mouse_Inputs_Get();
+		Mouse_DrawCursor();
+
+		if (Timedown)
+			--Timedown;
+
+		if (mMouse_Button_Left_Toggle && !Timedown) {
+			Vehicle_Input_Handle();
+
+			mMouse_Button_Left_Toggle = 0;
+			mSprites[0].field_57 = -1;
+			mSprites[0].field_2E = mSquad_Leader->field_26;
+			mSprites[0].field_30 = mSquad_Leader->field_28;
+
+			Timedown = 20;
+		}
+
+		if (mMission_Aborted)
+			GUI_Button_Load_Exit();
+
+		if (mMouse_Button_Left_Toggle)
+			GUI_SaveLoad_MouseHandle(mGUI_Elements);
+
+		if (dword_3B30D)
+			(this->*dword_3B30D)(0x50);
+
+		g_Window.RenderAt(mImage, cPosition());
+		g_Window.FrameEnd();
+
+		Video_Sleep();
+		mImage->Restore();
+
+	} while (mGUI_SaveLoadAction <= 0);
+
+	mMission_Aborted = false;
+
+	if (mGUI_SaveLoadAction == 3)
+		return;
+
+	Image_FadeOut();
 }
 
 /**
@@ -20125,6 +20287,7 @@ int16 cFodder::Recruit_Show() {
 void cFodder::Start(int16 pStartMap) {
 
 Start:;
+	mCampaign.Clear();
     mVersionDefault = 0;
     mVersion = 0;
     VersionLoad(g_AvailableDataVersions[0]);
@@ -20149,10 +20312,6 @@ Start:;
     // Exit pushed?
     if (mGUI_SaveLoadAction == 1)
         return;
-
-    // Show the version selection, if we have more than 1 option
-    //if (g_AvailableDataVersions.size() > 1)
-    //    VersionSelect();
 
     if (mVersion->mRelease == eRelease::Demo)
         pStartMap = 0;

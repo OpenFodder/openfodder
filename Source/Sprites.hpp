@@ -196,6 +196,10 @@ enum eSprite_DrawOrder {
 
 struct sMission_Troop;
 
+
+// The reason none of the fields are labelled, is to simplify adding the remaining CF2 sprites.
+// Once this is done, we can name all the fields
+
 struct sSprite {
 	int16 field_0;		// X
 	int16 field_2;		

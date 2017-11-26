@@ -256,6 +256,7 @@ bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
 void cCampaign::Clear() {
 	mIsRandom = false;
 	mIsCustomCampaign = false;
+	mName = "";
 	mCustomMap = "";
 
     mMissionNames.clear();

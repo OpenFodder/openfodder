@@ -600,6 +600,7 @@ class cFodder : public cSingleton < cFodder > {
 
     int64           mTicks;
     int64           mTicksDiff;
+	std::vector<std::string>	mCampaignList;
 
     void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
@@ -608,7 +609,11 @@ public:
 
     void            Custom_ShowMapSelection();
     void            Campaign_Selection();
-    
+
+	void			Campaign_Select_Sprite_Prepare();
+	void            Campaign_Select_File_Loop( const char* pTitle, const char* pSubTitle );
+	void			Campaign_Select_DrawMenu( const char* pTitle, const char* pSubTitle );
+
     void            Image_FadeIn();
     void            Image_FadeOut();
 
@@ -634,7 +639,7 @@ public:
     bool            Campaign_Load( std::string pName );
 
     // Map Functions
-    void            Map_Create(const sTileType& pTileType, const size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise = false);
+    void            Map_Create(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise = false);
     void            Map_Load();
     void            Map_Load_Sprites();
 	void			Map_Load_Sprites_Count();
@@ -643,8 +648,9 @@ public:
     void            Map_Save(const std::string pFilename);
     void            Map_Save_Sprites( const std::string pFilename );
 
+	void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
 	void			Map_Randomise(const long pSeed);
-	void			Map_Randomise_Structures();
+	void			Map_Randomise_Structures( const size_t pCount );
 	void			Map_Randomise_Sprites();
 
 	bool			Tiles_Load_Data();
