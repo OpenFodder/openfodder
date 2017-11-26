@@ -216,9 +216,9 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 		--ax;
 
 		// TODO: This all needs work, as it expects to move in groups of 8 pixels
-		do {
-			++ax;
-		} while (ax & 8);
+		//do {
+		//	++ax;
+		//} while (ax & 1);
 
 		if (p16bit)
 			ax >>= 3;
@@ -923,18 +923,14 @@ void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget) {
 
 void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 	uint8* pDs = mFodder->mVideo_Draw_FrameDataPtr;
+	uint8* di = mImage->GetSurfaceBuffer() + 16;
 
 	int16 ax = pCx;
 	int16 dx = ax;
 
 	ax -= 320;
-	mFodder->word_4285F = -ax;
 
-	uint8* word_4285D = mImage->GetSurfaceBuffer() + 16;
-	
-	word_4285D += (mFodder->mVideo_Draw_PosY * mImage->GetWidth());
-
-	uint8* di = word_4285D;
+	di += (mFodder->mVideo_Draw_PosY * mImage->GetWidth());
 
 	int16 SourceX = 0, SourceY = 0;
 
@@ -942,16 +938,13 @@ void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 		int16 cx;
 		SourceX = 0;
 
-		for (cx = dx; cx <  mImage->GetWidth() -32; cx++) {
+		for (cx = dx; cx < ( mImage->GetWidth() - 32 ); cx++) {
 
 			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
-
 
 			SourceX++;
 		}
 
-
-		//SourceX --;
 		for (cx = 0; cx < dx; cx ++) {
 
 			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
@@ -1462,7 +1455,7 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 	int16 BladeFrame = 0;
 
 	PaletteBriefingSet();
-	g_Fodder.mImage->palette_FadeTowardNew();
+	mImage->palette_FadeTowardNew();
 	g_Fodder.mImageFaded = -1;
 
 	g_Fodder.mVideo_Draw_PosX = 16;

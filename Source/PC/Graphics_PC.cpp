@@ -785,9 +785,9 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 	int16 dx = ax;
 
 	ax -= 0x50;
-	mFodder->word_4285F = -ax;
+	word_4285F = -ax;
 
-	uint8* word_4285D = mImage->GetSurfaceBuffer() + mFodder->word_4285B + (dx * 4);
+	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx * 4);
 	pCx &= 3;
 
 	++dx;
@@ -798,9 +798,9 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 	for (uint8 Plane = 0; Plane < 4; ++Plane) {
 		di = word_4285D + Plane;
 
-		for (int16 bx = mFodder->word_42859; bx > 0; --bx) {
+		for (int16 bx = word_42859; bx > 0; --bx) {
 			int16 cx;
-			for (cx = mFodder->word_4285F; cx > 0; --cx) {
+			for (cx = word_4285F; cx > 0; --cx) {
 				uint8 al = *pDs++;
 				if (al)
 					*di = al;
@@ -828,9 +828,9 @@ void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
 	int16 dx = ax;
 
 	ax -= 0x50;
-	mFodder->word_4285F = -ax;
+	word_4285F = -ax;
 
-	uint8* word_4285D = mImage->GetSurfaceBuffer() + mFodder->word_4285B + (dx * 4);
+	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx * 4);
 	pCx &= 3;
 
 	++dx;
@@ -840,8 +840,8 @@ void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
 	for (uint8 Plane = 0; Plane < 4; ++Plane) {
 		di = word_4285D + Plane;
 
-		for (int16 bx = mFodder->word_42859; bx > 0; --bx) {
-			int16 cx = mFodder->word_4285F;
+		for (int16 bx = word_42859; bx > 0; --bx) {
+			int16 cx = word_4285F;
 
 			if (cx & 1) {
 				*di = *pDsSi++;
@@ -912,23 +912,23 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
-		mFodder->word_42859 = 0x30;
-		mFodder->word_4285B = 0x0C64 * 4;
+		word_42859 = 0x30;
+		word_4285B = 0x0C64 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_Clouds3, word_42875 );
 
 		// Mountain
-		mFodder->word_42859 = 0x38;
-		mFodder->word_4285B = 0x102C * 4;
+		word_42859 = 0x38;
+		word_4285B = 0x102C * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds2, word_42873);
 
 		// Top of trees
-		mFodder->word_42859 = 0x12;
-		mFodder->word_4285B = 0x1D3C * 4;
+		word_42859 = 0x12;
+		word_4285B = 0x1D3C * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds1, word_42871);
 
 		// Trees (Main)
-		mFodder->word_42859 = 0x5C;
-		mFodder->word_4285B = 0x236C * 4;
+		word_42859 = 0x5C;
+		word_4285B = 0x236C * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_TreesMain, word_42871 );
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
@@ -940,8 +940,8 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 		if (Sprite_OnScreen_Check())
 			Video_Draw_8();
 
-		mFodder->word_42859 = 0x2D;
-		mFodder->word_4285B = 0x33EC * 4;
+		word_42859 = 0x2D;
+		word_4285B = 0x33EC * 4;
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
@@ -997,21 +997,21 @@ void cGraphics_PC::Mission_Intro_Desert() {
 			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
-		mFodder->word_42859 = 0x3A;
-		mFodder->word_4285B = 0x0C64 * 4;
+		word_42859 = 0x3A;
+		word_4285B = 0x0C64 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_Clouds3, word_42875 );
 
-		mFodder->word_42859 = 0x4C;
-		mFodder->word_4285B = 0x139C * 4;
+		word_42859 = 0x4C;
+		word_4285B = 0x139C * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds2, word_42873 );
 
-		mFodder->word_42859 = 0x30;
-		mFodder->word_4285B = 0x1CE4 * 4;
+		word_42859 = 0x30;
+		word_4285B = 0x1CE4 * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
-		mFodder->word_42859 = 0x40;
-		mFodder->word_4285B = 0x2D64 * 4;
+		word_42859 = 0x40;
+		word_4285B = 0x2D64 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_TreesMain, word_42871 );
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
@@ -1023,8 +1023,8 @@ void cGraphics_PC::Mission_Intro_Desert() {
 		if (Sprite_OnScreen_Check())
 			Video_Draw_8();
 
-		mFodder->word_42859 = 0x30;
-		mFodder->word_4285B = 0x32E4 * 4;
+		word_42859 = 0x30;
+		word_4285B = 0x32E4 * 4;
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
@@ -1080,22 +1080,22 @@ void cGraphics_PC::Mission_Intro_Ice() {
 			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
-		mFodder->word_42859 = 0x24;
-		mFodder->word_4285B = 0x0C64 * 4;
+		word_42859 = 0x24;
+		word_4285B = 0x0C64 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_Clouds3, word_42875 );
 
-		mFodder->word_42859 = 0x42;
-		mFodder->word_4285B = 0x102C * 4;
+		word_42859 = 0x42;
+		word_4285B = 0x102C * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds2, word_42873 );
 
 		// Ice Caps
-		mFodder->word_42859 = 0x18;
-		mFodder->word_4285B = 0x1CE4 * 4;
+		word_42859 = 0x18;
+		word_4285B = 0x1CE4 * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds1, word_42871 );
 
 		// Ice Mountains
-		mFodder->word_42859 = 0x58;
-		mFodder->word_4285B = 0x2524 * 4;
+		word_42859 = 0x58;
+		word_4285B = 0x2524 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_TreesMain, word_42871 );
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
@@ -1107,8 +1107,8 @@ void cGraphics_PC::Mission_Intro_Ice() {
 		if (Sprite_OnScreen_Check())
 			Video_Draw_8();
 
-		mFodder->word_42859 = 0x2E;
-		mFodder->word_4285B = 0x3394 * 4;
+		word_42859 = 0x2E;
+		word_4285B = 0x3394 * 4;
 		// Trees
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
@@ -1164,21 +1164,21 @@ void cGraphics_PC::Mission_Intro_Mor() {
 			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
-		mFodder->word_42859 = 0x1D;
-		mFodder->word_4285B = 0x0C64 * 4;
+		word_42859 = 0x1D;
+		word_4285B = 0x0C64 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_Clouds3, word_42875 );
 
-		mFodder->word_42859 = 0x40;
-		mFodder->word_4285B = 0x1134 * 4;
+		word_42859 = 0x40;
+		word_4285B = 0x1134 * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds2, word_42873 );
 
-		mFodder->word_42859 = 0x6;
-		mFodder->word_4285B = 0x2524 * 4;
+		word_42859 = 0x6;
+		word_4285B = 0x2524 * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
-		mFodder->word_42859 = 0x52;
-		mFodder->word_4285B = 0x2734 * 4;
+		word_42859 = 0x52;
+		word_4285B = 0x2734 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_TreesMain, word_42871 );
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
@@ -1190,8 +1190,8 @@ void cGraphics_PC::Mission_Intro_Mor() {
 		if (Sprite_OnScreen_Check())
 			Video_Draw_8();
 
-		mFodder->word_42859 = 0x30;
-		mFodder->word_4285B = 0x32E4 * 4;
+		word_42859 = 0x30;
+		word_4285B = 0x32E4 * 4;
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
@@ -1247,21 +1247,21 @@ void cGraphics_PC::Mission_Intro_Int() {
 			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
 
 		// Clouds
-		mFodder->word_42859 = 0x40;
-		mFodder->word_4285B = 0x0C64 * 4;
+		word_42859 = 0x40;
+		word_4285B = 0x0C64 * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_Clouds3, mMission_Intro_Clouds3_X );
 
-		mFodder->word_42859 = 0x2F;
-		mFodder->word_4285B = 0x16B4 * 4;
+		word_42859 = 0x2F;
+		word_4285B = 0x16B4 * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds2, mMission_Intro_Clouds2_X );
 
-		mFodder->word_42859 = 0x22;
-		mFodder->word_4285B = 0x1B2C * 4;
+		word_42859 = 0x22;
+		word_4285B = 0x1B2C * 4;
 		Briefing_Render_2( mMission_Intro_Gfx_Clouds1, mMission_Intro_Clouds1_X );
 
 		// Trees (Main)
-		mFodder->word_42859 = 0x53;
-		mFodder->word_4285B = 0x26DC * 4;
+		word_42859 = 0x53;
+		word_4285B = 0x26DC * 4;
 		Briefing_Render_1( mMission_Intro_Gfx_TreesMain, mMission_Intro_Clouds1_X );
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
@@ -1273,8 +1273,8 @@ void cGraphics_PC::Mission_Intro_Int() {
 		if (Sprite_OnScreen_Check())
 			Video_Draw_8();
 
-		mFodder->word_42859 = 0x23;
-		mFodder->word_4285B = 0x375C * 4;
+		word_42859 = 0x23;
+		word_4285B = 0x375C * 4;
 		Briefing_Render_2( mImageMissionIntro.mData, mMission_Intro_X );
 
 		mMission_Intro_X += 8;

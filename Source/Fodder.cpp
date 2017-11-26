@@ -740,8 +740,6 @@ void cFodder::Mission_Memory_Clear() {
     mMapHeight_Pixels = 0;
     mMouseCursor_Enabled = 0;
     word_3AA55 = 0;
-    word_3AA67 = 0;
-    word_3AA71 = 0;
     word_3AAC7 = 0;
     mRecruit_RenderedPtr = 0;
     mRecruit_Truck_Frame = 0;
@@ -790,10 +788,9 @@ void cFodder::Mission_Memory_Clear() {
 
     mMouseDisabled = 0;
     mGUI_Loop_Is_CurrentSquad = 0;
-    word_3AC49 = 0;
+
     word_3AC4B = 0;
     word_3AC4D = 0;
-    word_3AC4F = 0;
     word_3AC51 = 0;
 
     mMap_Destroy_Tile_LastTile = 0;
@@ -3907,7 +3904,7 @@ void cFodder::Mission_Intro_Draw_OpenFodder() {
         if (mVersion->mPlatform == ePlatform::Amiga)
             DrawY += 0x16;
 
-        //String_Print_Large("SELECT CAMPAIGN", true, DrawY);
+        //String_Print_Large("CAMPAIGNS", false, DrawY);
     }
 }
 
@@ -4391,7 +4388,7 @@ void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTit
 			mSprites[0].field_2E = mSquad_Leader->field_26;
 			mSprites[0].field_30 = mSquad_Leader->field_28;
 
-			Timedown = 20;
+			Timedown = 10;
 		}
 
 		if (mMission_Aborted)
@@ -4464,13 +4461,13 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     mGUI_Mouse_Modifier_Y = 4;
 
     Menu_Loop(
-        []() {
-            if (g_Fodder.mButtonPressLeft) {
-                if (g_Fodder.mVersion->mVersion == eVersion::AmigaFormat)
-                    g_Fodder.GUI_Element_Mouse_Over( mAfx_Buttons );
+        [this]() {
+            if (mButtonPressLeft) {
+                if (mVersion->mVersion == eVersion::AmigaFormat)
+                    GUI_Element_Mouse_Over( mAfx_Buttons );
 
-                if (g_Fodder.mVersion->mVersion == eVersion::AmigaPlus)
-                    g_Fodder.GUI_Element_Mouse_Over( mPlus_Buttons );
+                if (mVersion->mVersion == eVersion::AmigaPlus)
+                    GUI_Element_Mouse_Over( mPlus_Buttons );
             }
     } );
 
@@ -4529,8 +4526,7 @@ bool cFodder::Recruit_Loop() {
 
     mGUI_Mouse_Modifier_X = 0;
     mGUI_Mouse_Modifier_Y = 0x1D;
-    //word_39020 = 0;
-    
+
     Recruit_Render_Names_UnusedSlots();
 
     mRecruit_RenderedPtr = mRecruit_Rendered;
@@ -4540,9 +4536,6 @@ bool cFodder::Recruit_Loop() {
     
     mMouseCursor_Enabled = -1;
 
-    word_3AA67 = 0;
-    word_3AA71 = mMission_Troops_Required;
-    
     sub_1787C();
 
     Recruit_Draw_Actors();
@@ -11990,7 +11983,6 @@ void cFodder::Sprite_Handle_Loop() {
         if (Data20->field_0 == -32768)
             continue;
 
-        word_44A20 = Data20->field_18;
         int16 Data4 = Data20->field_18;
 
         (*this.*mSprite_Function[Data4])( Data20 );
@@ -20624,7 +20616,6 @@ void cFodder::GUI_Handle_Button_Grenades() {
         return;
     }
 
-    word_3AC49 = mSquad_Grenade_SplitMode;
     ++mSquad_Grenade_SplitMode;
     if (mSquad_Grenade_SplitMode >= (eSquad_Weapon_Split_None+1))
         mSquad_Grenade_SplitMode = eSquad_Weapon_Split_All;
@@ -21170,7 +21161,6 @@ void cFodder::GUI_Handle_Button_Rockets() {
         return;
     }
 
-    word_3AC4F = mSquad_Rocket_SplitMode;
     ++mSquad_Rocket_SplitMode;
 
     if (mSquad_Rocket_SplitMode >= (eSquad_Weapon_Split_None + 1))
