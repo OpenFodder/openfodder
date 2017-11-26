@@ -109,4 +109,39 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 			{ 3, 5, eSprite_BuildingDoor }
 		},
 	},
+
+	// HID
+	{
+		{
+			{ 0, 0, 246 },
+			{ 0, 1, 266 }
+		},
+		{
+			{ 3, 5, eSprite_BuildingDoor }
+		},
+	},
+
+	// AFX
+	{
+		{
+			{ 0, 0, 371 },
+			{ 1, 0, 372 },
+			{ 2, 0, 373 },
+
+			{ 0, 1, 391 },
+			{ 1, 1, 392 },
+			{ 2, 1, 393 },
+
+			{ 0, 2, 375 },
+			{ 1, 2, 376 },
+			{ 2, 2, 377 },
+
+			{ 0, 3, 395 },
+			{ 1, 3, 396 },
+			{ 2, 3, 397 },
+		},
+		{
+			{ 21, 40, eSprite_BuildingDoor }
+		},
+	},
 };

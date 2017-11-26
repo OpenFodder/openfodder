@@ -460,7 +460,8 @@ void Rjp1::setupPaulaChannel(size_t channel, const int8 *waveData, uint16 offset
 void Rjp1::interrupt() {
 	for (int i = 0; i < 4; ++i) {
 		_vars.currentChannel = i;
-		playChannel(&_channelsTable[i]);
+		if(_channelsTable[i].data)
+			playChannel(&_channelsTable[i]);
 	}
 }
 
