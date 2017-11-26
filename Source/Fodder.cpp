@@ -3981,7 +3981,7 @@ void cFodder::CopyProtection() {
         Recruit_Render_Text( Word.c_str(), 0x78 );
 
         mImageFaded = -1;
-        int8 byte_44B49 = 0;
+        int8 mCursorBlinkTimer = 0;
         bool mShow = false;
 
         mGUI_Temp_X = 5;
@@ -4000,9 +4000,9 @@ void cFodder::CopyProtection() {
 
             String_Input_Print( 0xA0 );
 
-            ++byte_44B49;
-            byte_44B49 &= 0x0F;
-            if (!byte_44B49)
+            ++mCursorBlinkTimer;
+            mCursorBlinkTimer &= 0x0F;
+            if (!mCursorBlinkTimer)
                 mShow = !mShow;
 
             if (mShow)

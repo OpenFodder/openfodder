@@ -220,16 +220,16 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 		//	++ax;
 		//} while (ax & 1);
 
-		if (p16bit)
-			ax >>= 3;
+//		if (p16bit)
+		//	ax >>= 2;
 
 		g_Fodder.mVideo_Draw_PosX += ax;
 		g_Fodder.mVideo_Draw_Columns -= ax;
 
 		if (!p16bit)
 			ax >>= 1;
-		//else
-		//	ax >>= 2;
+		else
+			ax >>= 2;
 		g_Fodder.mVideo_Draw_FrameDataPtr += ax;
 	}
 
