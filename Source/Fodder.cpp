@@ -217,9 +217,6 @@ void cFodder::Squad_Walk_Target_SetAll( int16 pValue ) {
 
 int16 cFodder::Map_Loop( ) {
 
-    if (mVersion->mPlatform == ePlatform::Amiga)
-        mWindow->SetScreenSize(cDimension(320, 225));
-
     mImage->Save();
 
     for (;;) {
@@ -3211,163 +3208,6 @@ void cFodder::Mouse_ButtonCheck() {
 
 }
 
-void cFodder::VersionSelect_0() {
-    
-    VersionLoad( g_AvailableDataVersions[0] );
-    mDemo_ExitMenu = 1;
-}
-
-void cFodder::VersionSelect_1() {
-
-    VersionLoad( g_AvailableDataVersions[1] );
-    mDemo_ExitMenu = 1;
-}
-
-void cFodder::VersionSelect_2() {
-
-    VersionLoad( g_AvailableDataVersions[2] );
-    mDemo_ExitMenu = 1;
-}
-
-void cFodder::VersionSelect_3() {
-    
-    VersionLoad( g_AvailableDataVersions[3] );
-    mDemo_ExitMenu = 1;
-}
-
-void cFodder::VersionSelect_4() {
-    
-    VersionLoad( g_AvailableDataVersions[4] );
-    mDemo_ExitMenu = 1;
-}
-
-void cFodder::VersionSelect() {
-    sGUI_Element *Buttons = new sGUI_Element[g_AvailableDataVersions.size() + 1];
-
-    sSprite* Sprite, *Sprite2, *Sprite3;
-
-    Sprite_Clear_All();
-
-    Sprite = &mSprites[0];
-    Sprite2 = Sprite + 1;
-    Sprite3 = Sprite + 2;
-
-    Sprite->field_0 = 0x10;
-    Sprite->field_4 = 0x14;
-    Sprite->field_8 = 6;
-    Sprite->field_A = 0;
-    Sprite->field_52 = 0;
-    Sprite->field_20 = 0;
-    Sprite->field_18 = eSprite_Player;
-
-    Sprite2->field_0 = 0xbf;
-    Sprite2->field_4 = 0x14;
-    Sprite2->field_8 = 2;
-    Sprite2->field_A = 0;
-    Sprite2->field_52 = 0;
-    Sprite2->field_20 = 0;
-    Sprite2->field_18 = eSprite_Player;
-
-    Sprite3->field_0 = 0xf0;
-    Sprite3->field_4 = 0xce;
-    Sprite3->field_8 = 0xD2;
-    Sprite3->field_A = 5;
-    Sprite3->field_52 = 0;
-    Sprite3->field_20 = 0;
-    Sprite3->field_18 = eSprite_Turret_Missile_Human;
-
-    mGraphics->Load_pStuff();
-
-    Map_Load();
-
-    Mouse_Setup();
-
-    mGUI_Print_String_To_Sidebar = 0;
-    mGUI_Mouse_Modifier_Y = 0;
-
-    mSound->Music_Stop();
-    mImage->clearBuffer();
-    mWindow->SetScreenSize( cDimension( 320, 200 ) );
-
-    mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
-    uint16 Pos = 0x1;
-    int Count = 0;
-
-    mString_GapCharID = 0x25;
-    String_Print_Large( "OPEN FODDER", true, Pos );
-    String_Print_Large( "SELECT A GAME", false, 0x1A );
-
-    mString_GapCharID = 0;
-
-    Pos += 0x40;
-    for (const auto Version : g_AvailableDataVersions) {
-
-        // Draw name
-        String_Print_Small( Version->mName, Pos );
-
-        Buttons[Count].field_0 = &cFodder::GUI_Button_NoAction;
-        Buttons[Count].mX = mGUI_Temp_X - 6;
-        Buttons[Count].mWidth = mGUI_Temp_Width;
-        Buttons[Count].mY = Pos - 2;
-        Buttons[Count].mHeight = 5;
-
-        switch (Count) {
-            ButtonToMouseVersion(0)
-            ButtonToMouseVersion(1)
-            ButtonToMouseVersion(2)
-            ButtonToMouseVersion(3)
-            ButtonToMouseVersion(4)
-        }
-
-        Pos += 30;
-        ++Count;
-    }
-
-    Buttons[Count].field_0 = 0;
-
-    mImage->Save();
-
-    mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
-
-    mImageFaded = -1;
-    mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
-    eventProcess();
-    Mouse_Setup();
-    mDemo_ExitMenu = 0;
-
-    mSquad_CurrentVehicle = Sprite3;
-
-    Camera_Reset();
-
-    for( ;; ) {
-
-        Sprite_Handle_Turret_Missile_Human(Sprite3);
-
-        Sprite_Sort_DrawList();
-        Sprites_Draw();
-
-        if (mImageFaded)
-            mImageFaded = mImage->palette_FadeTowardNew();
-
-        Mouse_Inputs_Get();
-        Mouse_DrawCursor();
-        if (mButtonPressLeft)
-            GUI_Element_Mouse_Over( Buttons );
-
-        if (mDemo_ExitMenu)
-            break;
-
-        g_Window.RenderAt( mImage );
-        g_Window.FrameEnd();
-        mImage->Restore();
-    }
-
-    mButtonPressLeft = 0;
-
-    mSquad_CurrentVehicle = 0;
-    delete[] Buttons;
-}
-
 void cFodder::WindowTitleSet( bool pInMission ) {
     std::stringstream Title;
     Title << mTitle.str();
@@ -3490,7 +3330,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
             ((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 
-            mWindow->SetScreenSize( cDimension( 320, 260 ) );
+            mWindow->SetScreenSize( cDimension( 320, 225 ) );
             mWindow->SetOriginalRes( cDimension( 320, 225 ) );
             break;
     }
@@ -3952,7 +3792,6 @@ void cFodder::CopyProtection() {
     if (mVersion->mVersion != eVersion::Dos_CD)
         return;
 
-    g_Graphics.Load_Hill_Data();
     g_Graphics.SetActiveSpriteSheet( eGFX_Types::eGFX_RECRUIT);
 
     // 3 Attempts
@@ -4211,11 +4050,6 @@ void cFodder::Campaign_Selection() {
 
     Image_FadeOut();
 
-    if (mVersion->mPlatform == ePlatform::Amiga)
-        mWindow->SetScreenSize(cDimension(320, 225));
-
-	mGraphics->Load_pStuff();
-    mGraphics->Load_Hill_Data();
     mGraphics->PaletteSet();
 
     mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
@@ -4424,9 +4258,6 @@ void cFodder::Custom_ShowMapSelection() {
     Image_FadeOut();
     mGraphics->PaletteSet();
 
-    if (mVersion->mPlatform == ePlatform::Amiga)
-        mWindow->SetScreenSize(cDimension(320, 225));
-
     const std::string File = GUI_Select_File( "SELECT MAP", "Custom/Maps", "*.map" );
     
     // Exit Pressed?
@@ -4455,6 +4286,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
     mGraphics->Load_And_Draw_Image( "apmenu.lbm", 32 );
 
+	// Amiga Demos have a different cursor palette
     ((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0x10 );
     mWindow->SetScreenSize( cDimension( 320, 260) );
 
@@ -4473,10 +4305,9 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
     ((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
 
-    if (mMission_Aborted)
-        return true;
+	mWindow->SetScreenSize(cDimension(320, 225));
 
-    return false;
+    return mMission_Aborted;
 }
 
 bool cFodder::Recruit_Loop() {
@@ -4488,20 +4319,15 @@ bool cFodder::Recruit_Loop() {
         if (mCustom_Mode == eCustomMode_Set) {
             VersionLoad(mVersionDefault);
         }
+
+		if (mVersion->mRelease == eRelease::Demo)
+			return 0;
     }
-
-    if (mVersion->mRelease == eRelease::Demo)
-        return 0;
-
-    if (mVersion->mPlatform == ePlatform::Amiga)
-        mWindow->SetScreenSize( cDimension( 320, 225 ));
 
     Mouse_Setup();
     Sidebar_Clear_ScreenBufferPtr();
 
     mMission_Aborted = false;
-
-    mGraphics->Load_Hill_Data();
 
     Recruit_Truck_Anim_Prepare();
     sub_16C6C();
@@ -4566,10 +4392,7 @@ bool cFodder::Recruit_Loop() {
         Recruit_Draw();
     }
 
-    if (mMission_Aborted)
-        return true;
-
-    return false;
+    return mMission_Aborted;
 }
 
 void cFodder::Recruit_Draw_String(  int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString ) {
@@ -11252,7 +11075,6 @@ void cFodder::Service_KIA_Loop() {
 
         sub_18149();
         Video_Sleep_Wrapper();
-        //sub_14445();
         sub_181BD();
 
         g_Window.RenderAt( mImage );
@@ -11431,9 +11253,7 @@ void cFodder::sub_18149() {
         int16 Data8 = *di++;
         int16 DataC = *di++;
 
-//      GUI_Draw_Frame_16( Data0, Data4, Data8, DataC );
         sub_1828A( Data0, Data4, Data8, DataC );
-        //sub_17B2A();
     }
 }
 
@@ -18212,6 +18032,9 @@ introDone:;
 
     mGraphics->Load_pStuff();
     mSound->Music_Play( 0 );
+
+	if (mVersion->mPlatform == ePlatform::Amiga)
+		mWindow->SetScreenSize(cDimension(320, 225));
 }
 
 void cFodder::intro_Music_Play() {
@@ -20107,7 +19930,6 @@ void cFodder::Playground() {
     mImageFaded = -1;
     Map_Load();
 
-    mGraphics->Load_Hill_Data();
     mGraphics->PaletteSet();
 
     Recruit_Truck_Anim_Prepare();
