@@ -6289,7 +6289,7 @@ loc_23E2F:;
     pSprite->field_A = Data8 >> 1;
 }
 
-void cFodder::sub_23EA6( sSprite* pSprite ) {
+void cFodder::Sprites_HumanVehicles_Remove( sSprite* pSprite ) {
     
     for (sSprite** Data24 = mSprites_HumanVehicles; *Data24 != INVALID_SPRITE_PTR; ++Data24) {
 
@@ -8002,7 +8002,7 @@ loc_26580:;
 loc_265B1:;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (!sub_265D6( pSprite, Data2C, Data30 )) {
+    if (!Sprite_Create_Native( pSprite, Data2C, Data30 )) {
         Data2C->field_4 -= 4;
         return;
     }
@@ -8143,7 +8143,7 @@ loc_29EBB:;
     return 0x3E8;
 }
 
-int16 cFodder::sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 ) {
+int16 cFodder::Sprite_Create_Native( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 ) {
     int16 Data4;
 
     if (!pSprite->field_5C)
@@ -12706,7 +12706,7 @@ loc_19EE5:;
     Sprite_Destroy( pSprite + 2 );
 
     if (pSprite->field_22 == eSprite_PersonType_Human)
-        sub_23EA6(pSprite);
+        Sprites_HumanVehicles_Remove(pSprite);
 
     if (mSprite_Helicopter_DestroyLight)
         Sprite_Destroy( pSprite + 3 );
@@ -17714,35 +17714,35 @@ loc_31514:;
         if (*Dataa2C == INVALID_SPRITE_PTR)
             goto loc_31668;
 
-        sSprite* Data24 = *Dataa2C++;
+        sSprite* Sprite = *Dataa2C++;
 
-        if (!Data24->field_6E)
+        if (!Sprite->field_6E)
             continue;
 
         //seg011:2AE9 
 
-        Data24->field_6E = 0;
-        Dataa30 = Data24->field_6A_sprite;
-        Data24->field_6A_sprite = 0;
-        Data24->field_66 = 0;
+        Sprite->field_6E = 0;
+        Dataa30 = Sprite->field_6A_sprite;
+        Sprite->field_6A_sprite = 0;
+        Sprite->field_66 = 0;
 
-        Data24->field_0 = Dataa30->field_0;
-        Data24->field_4 = Dataa30->field_4;
+        Sprite->field_0 = Dataa30->field_0;
+        Sprite->field_4 = Dataa30->field_4;
 
-        if (Data24->field_6F == eVehicle_Turret_Cannon)
+        if (Sprite->field_6F == eVehicle_Turret_Cannon)
             goto loc_3162B;
 
-        if (Data24->field_6F == eVehicle_Turret_Missile)
+        if (Sprite->field_6F == eVehicle_Turret_Missile)
             goto loc_3162B;
 
-        Data24->field_0 += 0x0F;
-        Data24->field_4 += -10;
+        Sprite->field_0 += 0x0F;
+        Sprite->field_4 += -10;
 
     loc_3162B:;
-        Data24->field_26 = Data24->field_0;
-        Data24->field_28 = Data24->field_4;
-        Data24->field_26 -= 6;
-        Data24->field_28 += 0x10;
+        Sprite->field_26 = Sprite->field_0;
+        Sprite->field_28 = Sprite->field_4;
+        Sprite->field_26 -= 6;
+        Sprite->field_28 += 0x10;
     }
 
 loc_31668:;
@@ -17845,7 +17845,7 @@ void cFodder::intro_LegionMessage() {
     }
 }
 
-int16 cFodder::introPlayText() {
+int16 cFodder::intro_Play() {
 
     mGraphics->Load_Sprite_Font();
     mGraphics->SetActiveSpriteSheet( eGFX_Types::eGFX_FONT );
@@ -18014,7 +18014,7 @@ void cFodder::intro() {
     if (ShowImage_ForDuration( "cftitle", 0x1F8 ))
         goto introDone;
     
-    if (introPlayText())
+    if (intro_Play())
         goto introDone;
 
     if (ShowImage_ForDuration( "virgpres", 0x2D0 ))

@@ -1005,7 +1005,7 @@ public:
     void            Sprite_Handle_Helicopter_Human( sSprite* pSprite );
     int16           Sprite_Handle_Helicopter_Terrain_Check( sSprite* pSprite );
     void            sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
-    void            sub_23EA6( sSprite* pSprite );
+    void            Sprites_HumanVehicles_Remove( sSprite* pSprite );
     void            Sprite_Handle_Turret( sSprite* pSprite );
     void            Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 );
     int16           Sprite_Find_By_Types( sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28 );
@@ -1035,7 +1035,7 @@ public:
     void            Sprite_Handle_Hostage_FrameUpdate( sSprite* pSprite );
     void            sub_26490( sSprite* pSprite );
     void            sub_264B0( sSprite* pSprite );
-    int16           sub_265D6( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
+    int16           Sprite_Create_Native( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
     int16           Sprite_Handle_Helicopter_Callpad_InRange( sSprite* pSprite, sSprite*& pData2C );
     void            Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite );
     void            Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C );
@@ -1248,7 +1248,7 @@ public:
     void            String_Print( const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText );
 
     void            intro_LegionMessage();
-    int16           introPlayText();
+    int16           intro_Play();
     void            intro();
     void            intro_Music_Play();
 
