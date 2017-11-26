@@ -1302,11 +1302,4 @@ public:
 
     void            VersionCleanup();
     void            VersionLoad( const sVersion* pVersion );
-    void            VersionSelect();
-    void            VersionSelect_0();
-    void            VersionSelect_1();
-    void            VersionSelect_2();
-    void            VersionSelect_3();
-    void            VersionSelect_4();
-
 };
