@@ -985,7 +985,7 @@ public:
     int16           Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite );
     int16           Sprite_Homing_LockInRange( sSprite* pSprite, sSprite*& pFoundSprite );
     void            Sprite_Projectile_HitTarget( sSprite* pSprite );
-    void            sub_22A3D( sSprite* pSprite );
+    void            Sprite_Destroy_Wrapper_At_TopLeft( sSprite* pSprite );
     int16           Sprite_Destroy_Wrapper_2( sSprite* pSprite );
     void            Sprite_Handle_Player_InVehicle( sSprite* pSprite );
     void            Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite );

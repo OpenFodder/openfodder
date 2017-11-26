@@ -13007,14 +13007,14 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
     //loc_1AAFD
     pSprite->field_0 -= 6;
     if (pSprite->field_0 < 0) {
-        sub_22A3D( pSprite );
+        Sprite_Destroy_Wrapper_At_TopLeft( pSprite );
         return;
     }
 
     //loc_1AB0D
     pSprite->field_4 += 4;
     if (pSprite->field_4 < 0) {
-        sub_22A3D( pSprite );
+        Sprite_Destroy_Wrapper_At_TopLeft( pSprite );
         return;
     }
 
@@ -13023,7 +13023,7 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
         Data0 &= 0x7FFF;
         pSprite->field_0 += Data0;
         if (pSprite->field_0 < 0) {
-            sub_22A3D( pSprite );
+            Sprite_Destroy_Wrapper_At_TopLeft( pSprite );
             return;
         }
         pSprite->field_26 = 0;
@@ -19855,7 +19855,7 @@ void cFodder::Sprite_Projectile_HitTarget( sSprite* pSprite ) {
     byte_3A9D6[pSprite->field_22] -= 1;
 }
 
-void cFodder::sub_22A3D( sSprite* pSprite ) {
+void cFodder::Sprite_Destroy_Wrapper_At_TopLeft( sSprite* pSprite ) {
     pSprite->field_0 = 1;
     pSprite->field_4 = 1;
 
