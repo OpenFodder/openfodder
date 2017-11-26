@@ -328,8 +328,6 @@ class cFodder : public cSingleton < cFodder > {
     int32           mMapHeight_Pixels;
     int16           mMouseCursor_Enabled;
     int16           word_3AA55;
-    int16           word_3AA67;
-    int16           word_3AA71;
     int16           word_3AAC7;
     sRecruitRendered*           mRecruit_RenderedPtr;
     int16           mRecruit_Truck_Frame;
@@ -365,10 +363,8 @@ class cFodder : public cSingleton < cFodder > {
     int16           mSquad_CurrentWeapon[3];
     int16           mMouseDisabled;
     int16           mGUI_Loop_Is_CurrentSquad;
-    int16           word_3AC49;
     int16           word_3AC4B;
     int16           word_3AC4D;
-    int16           word_3AC4F;
     int16           word_3AC51;
     sGUI_Element    mGUI_Elements[42];
     sGUI_Element*   mGUI_NextFreeElement;
@@ -554,11 +550,6 @@ class cFodder : public cSingleton < cFodder > {
     uint16          mVideo_Draw_ColumnsMax;
 
 
-    uint16          word_42859;
-    uint16          word_4285B;
-    int16           word_4285F;
-
-
     int16           word_428B6;
     int16           word_428B8;
     uint16          word_428BA;
@@ -584,7 +575,7 @@ class cFodder : public cSingleton < cFodder > {
     int8            byte_427E6;
     int8            byte_427EE;
     int16           word_44475;
-    int16           word_44A20;
+
     int16           mRandom_0;
     int16           mRandom_1;
     int16           mRandom_2;
