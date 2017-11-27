@@ -257,35 +257,23 @@ class cFodder : public cSingleton < cFodder > {
     int16           mCamera_Position_Row;
     int16           mCamera_Position_X;
     int16           mCamera_Position_Y;
-    int16           word_3A06B;
+
     sSprite*        mSprite_DrawList_First[45];
     sSprite*        mSprite_DrawList_Second[45];
     sSprite*        mSprite_DrawList_Third[45];
-    int16           word_3A28D;
 
-    int16           word_3A8B1;
-    int16           word_3A8D5;
-    int16           word_3A8D7;
-    int16           word_3A8D9;
-    int32           dword_3A8DB;
     uint8           byte_3A8DE[200];
 
     sSprite*        mSprite_DrawList_Final[64];
     int32           mStoredSpriteX;
     uint32          mStoredSpriteY;
     int16           mTmp_FrameNumber;
-    uint32          dword_3A39D;
-    int16           word_3A3AB;
-    int16           word_3A3AD;
-    int16           word_3A3AF;
-    int16           word_3A3A1;
-    int16           word_3A3A7;
-    int16           word_3A3A9;
+
     int16           mMission_IsFinished;
     int16           word_3A3BB;
     int16           mSidebar_Draw_Y;
     int16           word_3A3BF;
-    sMapTarget*     dword_3A3F9;
+
     int16           mDirectionMod;
 
     sMapPosition    m2A622_Unk_MapPosition;
