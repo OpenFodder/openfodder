@@ -59,9 +59,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
 
     mMouseX_Offset = 0;
     mMouseY_Offset = 0;
-    word_3D465 = 0;
-    word_3D467 = 0;
-    word_3D469 = 0;
+
     mIntroDone = false;
 
     mMouseButtons = 0;
@@ -143,7 +141,6 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     mDebug_MissionSkip = 0;
     mPaused = 0;
 
-    word_42072 = 0;
     byte_427E6 = 0;
     byte_427EE = 0;
 
@@ -362,7 +359,7 @@ void cFodder::Game_Handle( ) {
     if (!mMission_In_Progress)
         return;
 
-    if (mMission_Completed_Timer || word_3D469 || mMission_Complete || mMission_TryAgain || mMission_Aborted) {
+    if (mMission_Completed_Timer || mMission_Complete || mMission_TryAgain || mMission_Aborted) {
         mMission_Finished = -1;
         return;
     }
@@ -890,12 +887,12 @@ void cFodder::Mission_Memory_Clear() {
     }
     mHelicopterCall_X = 0;
     mHelicopterCall_Y = 0;
-    word_3B4D3 = 0;
+    mMission_Final_TimeToDie_Ticker = 0;
     mMission_Final_TimeRemain = 0;
     mMission_Final_TimeToAbort = 0;
     mGUI_Sidebar_MapButton_Prepared = 0;
     mMission_ShowMapOverview = 0;
-    word_3B4DD = 0;
+
     mTurretFires_HomingMissile = 0;
     word_3B4E9 = 0;
     word_3B4EB = 0;
@@ -944,17 +941,6 @@ void cFodder::Mission_Prepare_Squads() {
     word_3BED5[2] = 2;
     word_3BED5[3] = 2;
     word_3BED5[4] = 2;
-
-    word_3BEDF[0] = 1;
-    word_3BEDF[1] = 1;
-    word_3BEDF[2] = 1;
-    word_3BEDF[3] = 1;
-    word_3BEDF[4] = 1;
-    word_3BEDF[5] = 0;
-    word_3BEDF[6] = 0;
-    word_3BEDF[7] = 0;
-    word_3BEDF[8] = 0;
-    word_3BEDF[9] = 0;
 
     mSquad_Join_TargetSquad[0] = -1;
     mSquad_Join_TargetSquad[1] = -1;
@@ -2625,15 +2611,11 @@ void cFodder::Mission_Progress_Check( ) {
     MissionTryAgain:;
 
         Mission_Text_TryAgain();
-        word_3D465 = 0x0F;
-        word_3D467 = 0x0A;
-        goto loc_1280A;
-    }
-    //loc_127FA
-    Mission_GameOver();
-    word_3D465 = 8;
-    word_3D467 = 0x0A;
 
+	} else {
+		//loc_127FA
+		Mission_GameOver();
+	}
 loc_1280A:;
 
     if (mMission_Completed_Timer == 0x19) {
@@ -3377,7 +3359,7 @@ void cFodder::Sprite_Count_HelicopterCallPads() {
 
 void cFodder::Mission_Set_Final_TimeRemaining() {
     mMission_Final_TimeRemain = 0x64;
-    word_3B4D3 = 0x28;
+    mMission_Final_TimeToDie_Ticker = 0x28;
 }
 
 void cFodder::Sprite_HelicopterCallPad_Check() {
@@ -3541,7 +3523,6 @@ void cFodder::Sprite_Draw_Frame( sSprite* pDi, int16 pSpriteType, int16 pFrame, 
     mVideo_Draw_PosY = (int16) (SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_Row;
     mVideo_Draw_PosY += 0x10;
 
-    ++word_42072;
     if (Sprite_OnScreen_Check()) {
         pDi->field_5C = 1;
         mGraphics->Video_Draw_8(pDestination);
@@ -3556,7 +3537,6 @@ bool cFodder::Sprite_OnScreen_Check() {
 
 void cFodder::Sprites_Draw( ) {
     sSprite** si = mSprite_DrawList_Final;
-    word_42072 = 2;
 
     for (;;) {
         sSprite* eax = *si++;
@@ -4806,7 +4786,6 @@ void cFodder::Recruit_Sidebar_Render_SquadName() {
 }
 
 void cFodder::Recruit_Draw_Actors( ) {
-    word_42072 = 2;
 
     Recruit_Draw_Truck();
     Recruit_Draw_Troops();
@@ -7790,13 +7769,11 @@ loc_2608B:;
     return;
 
 loc_2614F:;
-    if (Data4 == 5)
+    if (Data4 == eSprite_Enemy)
         goto loc_26221;
 
-    pSprite->field_26 = Data28->field_0;
-    pSprite->field_26 += 4;
-    pSprite->field_28 = Data28->field_4;
-    pSprite->field_28 -= 6;
+    pSprite->field_26 = Data28->field_0 + 4;
+    pSprite->field_28 = Data28->field_4 - 6;
 
     // Not in vehicle?
     if (!Data28->field_6E)
@@ -9911,7 +9888,6 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
     pSprite->field_32 = Data18;
     Squad_Troops_Count();
 
-    word_3BEDF[Data14] = 0;
     mSquad_Selected = Data18;
         
     mSquad_Grenades[Data18] += mSquad_Grenades[Data14];
@@ -11226,7 +11202,6 @@ void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16
 
 void cFodder::sub_18149() {
 
-    word_42072 = 0;
     int16 *di = (int16*)mGraphics->mImagePStuff.mData->data();
 
     for (;;) {
@@ -21341,11 +21316,11 @@ void cFodder::Mission_Final_TimeToDie() {
     if (mMapNumber != 0x47)
         return;
 
-    ++word_3B4D3;
-    if (word_3B4D3 < 0x28)
+    ++mMission_Final_TimeToDie_Ticker;
+    if (mMission_Final_TimeToDie_Ticker < 40)
         return;
 
-    word_3B4D3 = 0;
+    mMission_Final_TimeToDie_Ticker = 0;
 
     --mMission_Final_TimeRemain;
     if (mMission_Final_TimeRemain < 0)
