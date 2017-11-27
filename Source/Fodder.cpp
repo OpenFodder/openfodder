@@ -600,7 +600,7 @@ void cFodder::Mission_Memory_Clear() {
     mMouse_Button_Right_Toggle = 0;
     mMouse_Button_LeftRight_Toggle = 0;
 
-    word_39F00 = 0;
+    mVehicle_Input_Disabled = false;
     mMouse_Exit_Loop = 0;
     word_39F04 = 0;
 
@@ -628,7 +628,6 @@ void cFodder::Mission_Memory_Clear() {
     dword_39F8C = 0;
     dword_39F90 = 0;
 
-    word_39F9C = 0;
     word_39F9E = 0;
     word_39FA0 = 0;
     word_39FA2 = 0;
@@ -984,7 +983,6 @@ void cFodder::sub_10DEC() {
 
 void cFodder::Squad_Set_Squad_Leader() {
 
-    word_39F9C = 0;
     word_39F9E = 0;
     mSprites[0].field_0 = -32768;
     mSquad_Leader = &mSprites[0];
@@ -2205,8 +2203,6 @@ void cFodder::sub_12018() {
     int16 Data0 = mCamera_Adjust_Col >> 16;
     Data0 -= dword_39F84 >> 16;
 
-    word_39F9C = Data0;
-
     Data0 = mCamera_Adjust_Row >> 16;
     Data0 -= dword_39F88 >> 16;
 
@@ -2382,7 +2378,6 @@ void cFodder::Mission_Sprites_Handle( ) {
     int16 Data0 = mCamera_Adjust_Col >> 16;
     Data0 -= dword_39F84 >> 16;
 
-    word_39F9C = Data0;
 
     Data0 = mCamera_Adjust_Row >> 16;
     Data0 -= dword_39F88 >> 16;
@@ -17468,11 +17463,11 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pFontSpriteID, size_t p
 void cFodder::Vehicle_Input_Handle() {
     
     if (!mButtonPressLeft) {
-        word_39F00 = 0;
+        mVehicle_Input_Disabled = false;
         return;
     }
 
-    if (word_39F00)
+    if (mVehicle_Input_Disabled)
         return;
 
     if (Mouse_Button_Left_Toggled() >= 0)
@@ -17643,7 +17638,7 @@ int16 cFodder::sub_313CD() {
         goto loc_31514;
 
     Data20->field_6E = -1;
-    word_39F00 = -1;
+    mVehicle_Input_Disabled = true;
     goto loc_3167D;
 
 loc_31514:;
@@ -17699,7 +17694,7 @@ loc_31514:;
     }
 
 loc_31668:;
-    word_39F00 = -1;
+    mVehicle_Input_Disabled = true;
     Data20->field_6E = -1;
     mMouse_Button_LeftRight_Toggle = 0;
 loc_3167D:;

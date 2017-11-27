@@ -181,7 +181,7 @@ class cFodder : public cSingleton < cFodder > {
     
     int16           mButtonPressLeft, mButtonPressRight;
     int16           mMouse_Button_Left_Toggle;
-    int16           word_39F00;
+    bool            mVehicle_Input_Disabled;
     int16           mMouse_Exit_Loop;
     int16           word_39FA0;
     int16           word_39FA2;
@@ -212,7 +212,6 @@ class cFodder : public cSingleton < cFodder > {
     int32           dword_39F90;
 
     int16           word_39F34;
-    int16           word_39F38;
     int16           word_39F40;
     int32           dword_39F4A;
     int32           dword_39F4E;
@@ -226,7 +225,6 @@ class cFodder : public cSingleton < cFodder > {
     int16           mCamera_Adjust_Row_High;
     int16           mKeyCodeAscii;
 
-    int16           word_39F9C;
     int16           word_39F9E;
     int16           word_39FB2;
     int16           word_39FB4;
