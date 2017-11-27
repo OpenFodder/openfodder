@@ -138,7 +138,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     word_3A3BB = 0;
     mSidebar_Draw_Y = 0;
     word_3A3BF = 0;
-    dword_3A3F9 = 0;
+
     mMap_Overview_MapNumberRendered = -1;
     mDebug_MissionSkip = 0;
     mPaused = 0;
@@ -678,12 +678,7 @@ void cFodder::Mission_Memory_Clear() {
     mStoredSpriteX = 0;
     mStoredSpriteY = 0;
     mTmp_FrameNumber = 0;
-    word_3A3AB = 0;
-    word_3A3AD = 0;
-    word_3A3AF = 0;
-    word_3A3A1 = 0;
-    word_3A3A7 = 0;
-    word_3A3A9 = 0;
+
     mMission_IsFinished = 0;
     word_3A3BB = 0;
     mSidebar_Draw_Y = 0;
@@ -975,7 +970,7 @@ void cFodder::Mission_Prepare_Squads() {
 
 void cFodder::sub_10DEC() {
     word_3A054 = 0;
-    dword_3A39D = 0;
+
     mSquad_Selected = 0;
     m2A622_Unk_MapPosition.mX = 0;
     m2A622_Unk_MapPosition.mY = 0;
@@ -991,18 +986,12 @@ void cFodder::sub_10DEC() {
     mSquads_TroopCount[3] = 0;
 
     byte_3A05E = 0;
-    word_3A8D5 = 0;
-    word_3A8D7 = 0;
-    word_3A8D9 = 0;
-    dword_3A8DB = 0;
-    
+
     for (uint16 x = 0; x < 200; ++x )
         byte_3A8DE[x] = 0;
 
     mCamera_Position_X = 0;
     mCamera_Position_Y = 0;
-    word_3A06B = -1;
-    word_3A28D = 0x0C;
 
     Squad_Walk_Target_SetAll( -1 );
 }
@@ -8449,8 +8438,6 @@ int16 cFodder::Direction_Between_SpriteAndPoints( sSprite* pSprite, int16& pData
     if (pData4 < 0)
         pData4 = -pData4;
 
-    word_3A8D5 = pData0;
-    word_3A8D7 = pData4;
     int16 Data8 = 0x1F;
     int16 DataC = 0;
     if (pData0 <= Data8)
@@ -9532,7 +9519,6 @@ void cFodder::Squad_Troops_Count() {
     if (!TotalTroops)
         mMission_TryAgain = -1;
 
-    dword_3A8DB = readLEDWord( &mSquads_TroopCount );
     byte_3A8DE[1] = byte_3A05E;
 
     for (int16 Data0 = 2; Data0 >= 0; --Data0 ) {
@@ -9937,7 +9923,6 @@ int16 cFodder::Squad_Join( sSprite* pSprite ) {
 
     sub_305D5( pSprite );
     mGUI_Sidebar_Setup = 0;
-    word_3A8D9 = 0;
 
     return -1;
 }
@@ -12996,13 +12981,6 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
         Data18 += 0x100;
         Data18 &= 0x1FE;
         Sprite_Create_Sparks( pSprite, Data18 );
-
-        word_3A3AB = -1;
-        word_3A3AD = 0;
-        word_3A3AF = 0;
-        word_3A3A1 = 9;
-        word_3A3A7 = -1;
-        word_3A3A9 = -1;
     }
     //loc_1AAFD
     pSprite->field_0 -= 6;
@@ -20521,8 +20499,6 @@ loc_2F1BC:;
             Data0 = Data38->mSelected & 1;
         
         //loc_2F318
-        word_3A8B1 = 6;
-
         GUI_Sidebar_TroopList_Name_Draw( Data0, 3, 0x23, mSidebar_Draw_Y + 2, Data28->mName );
         mSidebar_Draw_Y += 0x0C;
     }
@@ -21081,7 +21057,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
     Data8 += mGUI_TroopName_DrawOffset;
     Data8 += 0x25;
-    word_3A8B1 = 6;
+
     int16 DataC = Data8;
 
     GUI_Sidebar_TroopList_Name_Draw( Data0, Data4, Data8, DataC, Data28->mName );
@@ -21596,8 +21572,6 @@ loc_30814:;
     mCamera_Position_Column = Data0;
     mCamera_Position_Row = Data4;
     word_3A054 = 0;
-
-    dword_3A3F9 = mSquad_WalkTargets[mSquad_Selected];
 
     sMission_Troop* SquadMember = mMission_Troops;
 
