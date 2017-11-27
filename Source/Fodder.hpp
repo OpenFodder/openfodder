@@ -277,18 +277,21 @@ class cFodder : public cSingleton < cFodder > {
     int16           mDirectionMod;
 
     sMapPosition    m2A622_Unk_MapPosition;
+
+	bool            mMission_Aborted;
     int16           mMission_TryAgain;
     int16           mMission_Complete;
     int16           mMission_Completed_Timer;
+	int16           mMission_Paused;
+
     int16           mEnemy_BuildingCount;
-    bool            mMission_Aborted;
     int16           mSquad_SwitchWeapon;
     int16           word_3A9B8;
     int16           mSquad_Walk_Target_Indexes[3];  // values here, seem to be a byte count originally.. now its an index
     int16           mSquad_Walk_Target_Steps[3];
     int16           mSprite_Bumped_Into_SquadMember;
     int16           word_3A9CE;
-    int16           mMission_Paused;
+
     int8            byte_3A9D2[4];
     int8            byte_3A9D6[4];
     int8            byte_3A9DA[10];
@@ -379,7 +382,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           mSprite_Tank_DistanceTo_Squad0;
     int16           mSprite_Missile_LaunchDistance_X;
     int16           mSprite_Missile_LaunchDistance_Y;
-    int16           word_3B1A9;
+    int16           word_3B1A9;								// Never written to
     int16           mSprite_Bullet_Deviate_Counter;
     int32           dword_3B1CB;
     int16           mRecruit_Hill_Positions_Use[0x0F];
@@ -441,12 +444,11 @@ class cFodder : public cSingleton < cFodder > {
     int16           mHelicopterCall_X;
     int16           mHelicopterCall_Y;
     sSprite*        mTroop_InRange_Callpad;
-    int16           word_3B4D3;
+    int16           mMission_Final_TimeToDie_Ticker;
     int16           mMission_Final_TimeRemain;
     int16           mMission_Final_TimeToAbort;
     int16           mGUI_Sidebar_MapButton_Prepared;
     int16           mMission_ShowMapOverview;
-    int16           word_3B4DD;
     int16           mTurretFires_HomingMissile;
     int16           word_3B4E9;
     int16           word_3B4EB;
@@ -488,7 +490,6 @@ class cFodder : public cSingleton < cFodder > {
     int16           mGUI_Mouse_Modifier_Y;
 
     uint16          word_3BED5[5];
-    uint16          word_3BEDF[10];
     
     sMapTarget      mSquad_WalkTargets[10][30];
     int8            mSquad_Join_TargetSquad[3];
@@ -500,9 +501,6 @@ class cFodder : public cSingleton < cFodder > {
     int8	        mTile_BHit[512][8];
     int16           mTile_Destroy_Swap[400];
 
-    int16           word_3D465;
-    int16           word_3D467;
-    int16           word_3D469;
     int16           mMapTile_Column_CurrentScreen;
     int16           mMapTile_Row_CurrentScreen;
     uint16*         mSidebar_Screen_BufferPtr;
@@ -510,12 +508,7 @@ class cFodder : public cSingleton < cFodder > {
     sGUI_Element    mSidebar_OverlayButtons[2];
     int16           mMission_Save_Availability[0x18];
 
-    size_t          word_3E1B7_size;
-    
     int16           mBriefing_Render_1_Mode;
-
-    int16           word_3F94E;
-    int16           word_3F950;
 
     int16           mMap_Overview_MapNumberRendered;
     int16           mDebug_MissionSkip;
@@ -557,8 +550,6 @@ class cFodder : public cSingleton < cFodder > {
     int16           mouse_Button_Status;
     int16           mouse_Pos_Column;
     int16           mouse_Pos_Row;
-
-    int16           word_42072;
 
     int8            byte_427E6;
     int8            byte_427EE;
