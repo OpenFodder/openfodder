@@ -704,7 +704,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 	mImage->clearBuffer();
 	uint8* Target = mImage->GetSurfaceBuffer();
 
-	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTilePtr;
+	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
 	// Y
 	for (uint16 cx = 0; cx < 0x11; ++cx) {

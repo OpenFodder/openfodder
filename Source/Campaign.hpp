@@ -45,7 +45,10 @@ struct sAggression {
         return (mMin + mMax) / 2;
     }
 
-	sAggression(int16 pMin, int16 pMax) { mMin = pMin; mMax = pMax; }
+	sAggression(int16 pMin, int16 pMax) { 
+		mMin = pMin; 
+		mMax = pMax; 
+	}
 };
 
 class cCampaign {

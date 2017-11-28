@@ -225,7 +225,6 @@ class cFodder : public cSingleton < cFodder > {
     int16           mCamera_Adjust_Row_High;
     int16           mKeyCodeAscii;
 
-    int16           word_39F9E;
     int16           word_39FB2;
     int16           word_39FB4;
     int16           word_39FB6;
@@ -297,14 +296,20 @@ class cFodder : public cSingleton < cFodder > {
     int16           mMouseX_Offset;
     int16           mMouseY_Offset;
     int16           mMouseSpriteNew;
+
     int32           dword_3A9FD;
     int16           mMouseSetToCursor;
     int16           mSprites_Found_Count;
+
     int16           mSquad_Grenades[3];
     int16           mSquad_Rockets[3];
+
     int16           mGUI_Squad_Icon[3];
+
     int16           mTroops_Enemy_Count;
     int16           mHostage_Count;
+	sSprite*        mHostage_Rescue_Tent;
+
     int16           mCamera_Start_Adjust;
     int16           word_3AA1D;             // 2 = Use mSprite_Frame_3
     int16           mCamera_Reached_Target;
@@ -390,7 +395,7 @@ class cFodder : public cSingleton < cFodder > {
 
     eTileTypes      mMap_TileSet;
     sSprite*        mSquad_CurrentVehicle;
-    int16           mMission_In_Progress;
+    bool            mMission_In_Progress;
     int16           mSprite_HumanVehicles_Found;
     sSprite*        mSprites_HumanVehicles[15];
     int16           dword_3B24B;
@@ -455,8 +460,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           mImage_Aborted;
     int16           mBriefing_Aborted;
 
-    sSprite*        dword_3B5F5;
-    int32           mMapTilePtr;
+    int32           mMapTile_Ptr;				// Tile in the top left corner of the screen (under the sidebar)
     int16           mMapTile_ColumnOffset;
     int16           mMapTile_RowOffset;
     int16           mMapTile_MovedHorizontal;
@@ -590,7 +594,7 @@ public:
 
     void            Game_Handle( );
     void            Camera_Handle();
-    void            sub_1096B();
+    void            Camera_Position_Toward_SquadLeader();
     void            Game_ClearVariables();
     void            Squad_Clear();
     void            Heroes_Clear();
@@ -645,9 +649,9 @@ public:
     void            Camera_Reset();
     void            sub_120F6();
     void            Camera_Adjust_Row();
-    void            sub_12245();
+    void            Camera_Mission_Over_Check();
     void            Camera_Speed_Reset();
-    void            Camera_Pan_Toward_SquadLeader();
+    void            Camera_Pan_SetSpeed();
 
     void            Sprite_Sort_DrawList();
     void            Sprite_Bullet_SetData();

@@ -102,7 +102,7 @@ cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     mMapTile_RowOffset = 0;
     dword_3B30D = 0;
 
-    mMapTilePtr = 0;
+    mMapTile_Ptr = 0;
 
     mSoundEffectToPlay = 0;
     mBriefing_Aborted = 0;
@@ -376,18 +376,18 @@ void cFodder::Game_Handle( ) {
 
 void cFodder::Camera_Handle() {
     
-    if (mMission_In_Progress == -1) {
+    if (mMission_In_Progress) {
         Camera_Speed_Reset();
-        sub_12245();
+        Camera_Mission_Over_Check();
         Camera_Calculate_Scroll();
         sub_120F6();
         Camera_Position_Update();
-        sub_1096B();
-        Camera_Pan_Toward_SquadLeader();
+        Camera_Position_Toward_SquadLeader();
+        Camera_Pan_SetSpeed();
     }
 }
 
-void cFodder::sub_1096B() {
+void cFodder::Camera_Position_Toward_SquadLeader() {
     if(mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
         return;
     
@@ -628,7 +628,6 @@ void cFodder::Mission_Memory_Clear() {
     dword_39F8C = 0;
     dword_39F90 = 0;
 
-    word_39F9E = 0;
     word_39FA0 = 0;
     word_39FA2 = 0;
     mMapTile_Column = 0;
@@ -822,7 +821,7 @@ void cFodder::Mission_Memory_Clear() {
     mRecruit_Truck_Enter_Count = 0;
 
     mSquad_CurrentVehicle = 0;
-    mMission_In_Progress = 0;
+    mMission_In_Progress = false;
     mSprite_HumanVehicles_Found = 0;
     for (uint16 x = 0; x < 14; ++x) {
         mSprites_HumanVehicles[x] = 0;
@@ -900,7 +899,7 @@ void cFodder::Mission_Memory_Clear() {
     mMission_Finished = 0;
     mImage_Aborted = 0;
     mBriefing_Aborted = 0;
-    dword_3B5F5 = 0;
+    mHostage_Rescue_Tent = 0;
 }
 
 void cFodder::Mission_Prepare_Squads() {
@@ -983,7 +982,6 @@ void cFodder::sub_10DEC() {
 
 void cFodder::Squad_Set_Squad_Leader() {
 
-    word_39F9E = 0;
     mSprites[0].field_0 = -32768;
     mSquad_Leader = &mSprites[0];
 }
@@ -1648,11 +1646,11 @@ int16 cFodder::sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pD
     pData8 = 0x0E;
 
     for (pData8 = 0x0E; pData8 >= 0; --pData8 ) {
-        int32 eax = 1 << pData8;
-        if (pData0 & eax)
+
+        if (pData0 & (1 << pData8))
             break;
 
-        if (pData4 & eax)
+        if (pData4 & (1 << pData8))
             break;
     }
 
@@ -1901,7 +1899,7 @@ void cFodder::Map_Create( const sTileType& pTileType, size_t pTileSub, const siz
     mMap->clear();
     mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
 	
-	mMapTilePtr = (0x60 - 8) - (pWidth * 2);
+	mMapTile_Ptr = (0x60 - 8) - (pWidth * 2);
 	mMapTile_Column = 0;
 	mMapTile_Row = 0;
 
@@ -1977,6 +1975,11 @@ void cFodder::Map_Load( ) {
     Map_Load_Resources();
 }
 
+/**
+ * Load the Base and Sub Tile BLK Files
+ *
+ * @return true if both files are loaded
+ */
 bool cFodder::Tiles_Load_Data() {
     std::string BaseName, SubName;
 
@@ -2206,8 +2209,6 @@ void cFodder::sub_12018() {
     Data0 = mCamera_Adjust_Row >> 16;
     Data0 -= dword_39F88 >> 16;
 
-    word_39F9E = Data0;
-
     dword_39F8C = dword_39F24;
     dword_39F90 = dword_39F28;
     dword_39F84 = mCamera_Adjust_Col;
@@ -2250,8 +2251,7 @@ void cFodder::sub_120F6() {
         mCamera_Adjust_Col = 0;
     }
     //loc_12147
-    Data0 = mCamera_Speed_X;
-    dword_39F24 += Data0;
+    dword_39F24 += mCamera_Speed_X;
 
     if ((mCamera_Speed_X >> 16) < 0) {
 
@@ -2298,7 +2298,7 @@ void cFodder::Camera_Adjust_Row( ) {
     dword_39F28 &= (0x00FF << 16) | 0xFFFF;
 }
 
-void cFodder::sub_12245() {
+void cFodder::Camera_Mission_Over_Check() {
     
     dword_3A9FD = 0x20000;
 
@@ -2323,7 +2323,7 @@ void cFodder::Camera_Speed_Reset() {
         mCamera_Speed_Y = 0;
 }
 
-void cFodder::Camera_Pan_Toward_SquadLeader() {
+void cFodder::Camera_Pan_SetSpeed() {
 
     if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0 )
         return;
@@ -2382,7 +2382,6 @@ void cFodder::Mission_Sprites_Handle( ) {
     Data0 = mCamera_Adjust_Row >> 16;
     Data0 -= dword_39F88 >> 16;
 
-    word_39F9E = Data0;
     dword_39F84 = mCamera_Adjust_Col;
     dword_39F88 = mCamera_Adjust_Row;
     dword_39F8C = dword_39F24;
@@ -3910,7 +3909,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     mGUI_SaveLoadAction = 0;
 
     {
-        std::vector<std::string> Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
+        auto Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
 
         // Sort files alphabetical
         std::sort(Files.begin(), Files.end(),[](std::string& pLeft, std::string& pRight) {
@@ -3959,7 +3958,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
 
-    std::vector<std::string> Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
+    auto Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
 
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (int16)Files.size();
@@ -5300,9 +5299,10 @@ void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper( ) {
 
 void cFodder::Mouse_Cursor_Update() {
     int16 Data0, Data4, Data8;
-    sSprite* Data20 = 0;
-    sSprite** Data24 = 0;
+    sSprite* Vehicle = 0;
+    sSprite** HumanVehicles = 0;
 
+	// Sidebar
     if (mMouseX < 0x10) {
         mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
         mMouseX_Offset = 0;
@@ -5319,32 +5319,32 @@ void cFodder::Mouse_Cursor_Update() {
     Data0 -= 0x0F;
     Data4 -= 3;
     
-    Data24 = mSprites_HumanVehicles;
+    HumanVehicles = mSprites_HumanVehicles;
 
     //loc_30B36
     for (int16 Data1C = 4; Data1C >= 0; --Data1C) {
 
-        if (*Data24 == INVALID_SPRITE_PTR )
+        if (*HumanVehicles == INVALID_SPRITE_PTR )
             goto loc_30CBC;
 
-        if (*Data24 == 0)
+        if (*HumanVehicles == 0)
             continue;
 
-        Data20 = *Data24++;
-        if (Data20->field_0 < 0)
+        Vehicle = *HumanVehicles++;
+        if (Vehicle->field_0 < 0)
             continue;
 
-        if (!Data20->field_65)
+        if (!Vehicle->field_65)
             continue;
 
         // If not human
-        if (Data20->field_22 != eSprite_PersonType_Human)
+        if (Vehicle->field_22 != eSprite_PersonType_Human)
             continue;
 
-        Data8 = Data20->field_0;
-        if (Data20->field_6F == eVehicle_Turret_Cannon)
+        Data8 = Vehicle->field_0;
+        if (Vehicle->field_6F == eVehicle_Turret_Cannon)
             goto loc_30BB9;
-        if (Data20->field_6F == eVehicle_Turret_Missile)
+        if (Vehicle->field_6F == eVehicle_Turret_Missile)
             goto loc_30BBE;
 
     loc_30BB9:;
@@ -5354,32 +5354,32 @@ void cFodder::Mouse_Cursor_Update() {
         if (Data0 < Data8)
             continue;
 
-        Data8 += mSprite_Width[Data20->field_18];
+        Data8 += mSprite_Width[Vehicle->field_18];
         if (Data0 > Data8)
             continue;
 
-        Data8 = Data20->field_4;
-        Data8 -= Data20->field_20;
-        Data8 -= mSprite_Height_Top[Data20->field_18];
+        Data8 = Vehicle->field_4;
+        Data8 -= Vehicle->field_20;
+        Data8 -= mSprite_Height_Top[Vehicle->field_18];
         Data8 -= 0x14;
 
         if (Data4 < Data8)
             continue;
 
-        Data8 = Data20->field_4;
-        Data8 -= Data20->field_20;
+        Data8 = Vehicle->field_4;
+        Data8 -= Vehicle->field_20;
         if (Data4 > Data8)
             continue;
 
         mMouseSetToCursor = -1;
 
-        if (!Data20->field_20)
+        if (!Vehicle->field_20)
             goto loc_30C7C;
 
-        if (Data20 != mSquad_CurrentVehicle)
+        if (Vehicle != mSquad_CurrentVehicle)
             return;
 
-        if (Data20->field_8 == 0xA5)
+        if (Vehicle->field_8 == 0xA5)
             return;
 
         mMouseSpriteNew = eSprite_pStuff_Mouse_Helicopter;
@@ -5389,7 +5389,7 @@ void cFodder::Mouse_Cursor_Update() {
 
     loc_30C7C:;
 
-        if (Data20 == mSquad_CurrentVehicle) 
+        if (Vehicle == mSquad_CurrentVehicle) 
             mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_DownRight;
         else
             mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_UpLeft;
@@ -7704,12 +7704,13 @@ void cFodder::sub_25F2B( sSprite* pSprite ) {
 
 void cFodder::Sprite_Handle_Hostage_Movement( sSprite* pSprite ) {
     int16 Data0, Data4, Data8, DataC, Data10;
-    sSprite* Data24 = 0, *Data28 = 0, *Data2C = 0;
+    sSprite* Data28 = 0;
 
     if (pSprite->field_18 == eSprite_Hostage_2)
         goto CheckRescueTent;
 
-    if (!dword_3B5F5)
+	// No known rescue tent?
+    if (!mHostage_Rescue_Tent)
         goto loc_2608B;
 
     if (pSprite->field_74) {
@@ -7719,17 +7720,17 @@ void cFodder::Sprite_Handle_Hostage_Movement( sSprite* pSprite ) {
     //loc_2600B
 
     pSprite->field_74 = -56;
-    Data24 = dword_3B5F5;
 
-    Data8 = Data24->field_0 + 10;
-    DataC = Data24->field_4 - 5;
+    Data8 = mHostage_Rescue_Tent->field_0 + 10;
+    DataC = mHostage_Rescue_Tent->field_4 - 5;
     Data0 = pSprite->field_0;
     Data4 = pSprite->field_4;
     Data10 = 0x80;
 
+	// Distance to rescue tent < 127?
     Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
     if (Data10 < 0x7F)
-        pSprite->field_5E = (int16) (dword_3B5F5 - mSprites);
+        pSprite->field_5E = (int16) (mHostage_Rescue_Tent - mSprites);
 
 loc_2608B:;
     word_3B2ED = 0;
@@ -7740,32 +7741,36 @@ loc_2608B:;
     if (Sprite_Find_By_Types( pSprite, Data0, Data4, Data8, DataC, Data10, Data28 ))
         return; 
 
-    if (Data4 != eSprite_Hostage_Rescue_Tent)
-        goto loc_2614F;
+	// Found Tent Nearby
+	if (Data4 == eSprite_Hostage_Rescue_Tent) {
 
-    // Has sprite reached hostage tent?
-    pSprite->field_26 = Data28->field_0 + 10;
-    pSprite->field_28 = Data28->field_4 - 5;
+		pSprite->field_26 = Data28->field_0 + 10;
+		pSprite->field_28 = Data28->field_4 - 5;
 
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = pSprite->field_26;
-    DataC = pSprite->field_28;
-    Data10 = 0x10;
-    Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
-    if (Data10 >= 0x10)
-        goto loc_2620F;
+		Data0 = pSprite->field_0;
+		Data4 = pSprite->field_4;
+		Data8 = pSprite->field_26;
+		DataC = pSprite->field_28;
+		Data10 = 0x10;
+		Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
+		if (Data10 >= 0x10)
+			goto loc_2620F;
 
-    if (Data0 >= 3)
-        return;
+		if (Data0 >= 3)
+			return;
 
-    mHostage_Count -= 1;
-    Sprite_Destroy_Wrapper( pSprite );
-    return;
+		mHostage_Count -= 1;
+		Sprite_Destroy_Wrapper(pSprite);
+		return;
 
-loc_2614F:;
-    if (Data4 == eSprite_Enemy)
-        goto loc_26221;
+	// Found Enemy near by
+	} else if (Data4 == eSprite_Enemy) {
+		Data28->field_70 = pSprite;
+		pSprite->field_26 = pSprite->field_0;
+		pSprite->field_28 = pSprite->field_4;
+		word_3B2ED = -1;
+		return;
+	}
 
     pSprite->field_26 = Data28->field_0 + 4;
     pSprite->field_28 = Data28->field_4 - 6;
@@ -7774,37 +7779,32 @@ loc_2614F:;
     if (!Data28->field_6E)
         goto loc_2620F;
 
-    Data2C = Data28->field_6A_sprite;
-    if (Data2C->field_36 > 2)
-        goto loc_2620F;
-    if (Data2C->field_20 > 3)
+	// Vehicle Has Speed?
+    if (Data28->field_6A_sprite->field_36 > 2)
         goto loc_2620F;
 
-    Data0 = Data2C->field_0;
-    Data4 = Data2C->field_4;
+	// Vehicle has height?
+    if (Data28->field_6A_sprite->field_20 > 3)
+        goto loc_2620F;
+
+    Data0 = Data28->field_6A_sprite->field_0;
+    Data4 = Data28->field_6A_sprite->field_4;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
     Data10 = 0x10;
 
     Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
-    if (Data0 > 0x0A)
-        goto loc_2620F;
+	if (Data0 > 0x0A) {
+	loc_2620F:;
+		Data0 = tool_RandomGet() & 0x3F;
+		if (Data0)
+			return;
+
+		sub_26490(pSprite);
+		return;
+	}
+
     pSprite->field_6E = -1;
-    return;
-
-loc_2620F:;
-    Data0 = tool_RandomGet() & 0x3F;
-    if (Data0)
-        return;
-
-    sub_26490(pSprite);
-    return;
-
-loc_26221:;
-    Data28->field_70 = pSprite;
-    pSprite->field_26 = pSprite->field_0;
-    pSprite->field_28 = pSprite->field_4;
-    word_3B2ED = -1;
     return;
 
 CheckRescueTent:;
@@ -7815,45 +7815,50 @@ CheckRescueTent:;
     if (Sprite_Find_By_Types( pSprite, Data0, Data4, Data8, DataC, Data10, Data28 ))
         return;
 
-    if (Data4 != eSprite_Hostage_Rescue_Tent)
-        goto loc_2631F;
+	if (Data4 == eSprite_Hostage_Rescue_Tent) {
 
-    pSprite->field_26 = Data28->field_0 + 0x0A;
-    pSprite->field_28 = Data28->field_4 - 0x05;
+		pSprite->field_26 = Data28->field_0 + 0x0A;
+		pSprite->field_28 = Data28->field_4 - 0x05;
 
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = pSprite->field_26;
-    DataC = pSprite->field_28;
-    Data10 = 0x10;
-    Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
-    if (Data0 >= 3)
-        return;
-    mHostage_Count -= 1;
+		Data0 = pSprite->field_0;
+		Data4 = pSprite->field_4;
+		Data8 = pSprite->field_26;
+		DataC = pSprite->field_28;
+		Data10 = 0x10;
+		Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
+		if (Data0 >= 3)
+			return;
+		mHostage_Count -= 1;
 
-    Sprite_Destroy( pSprite + 1 );
-    Sprite_Destroy_Wrapper( pSprite );
-    return;
+		Sprite_Destroy(pSprite + 1);
+		Sprite_Destroy_Wrapper(pSprite);
+		return;
+	}
 
-loc_2631F:;
+	// Another Player
     word_3B2ED = -1;
     pSprite->field_8 = 0xD8;
     pSprite->field_26 = Data28->field_0 + 4;
     pSprite->field_28 = Data28->field_4 - 6;
+
+	// Not in vehicle?
     if (!Data28->field_6E)
         goto loc_263E5;
 
-    Data2C = Data28->field_6A_sprite;
-    if (Data2C->field_36 > 2)
-        goto loc_263E5;
-    if (Data2C->field_20 > 3)
+	// Vehicle has speed?
+    if (Data28->field_6A_sprite->field_36 > 2)
         goto loc_263E5;
 
-    Data0 = Data2C->field_0;
-    Data4 = Data2C->field_4;
+	// Vehicle has height
+    if (Data28->field_6A_sprite->field_20 > 3)
+        goto loc_263E5;
+
+    Data0 = Data28->field_6A_sprite->field_0;
+    Data4 = Data28->field_6A_sprite->field_4;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
     Data10 = 0x10;
+
     Map_Get_Distance_BetweenPoints( Data0, Data4, Data8, Data10, DataC );
     if (Data0 <= 0x0F) {
         pSprite->field_6E = -1;
@@ -9215,7 +9220,7 @@ void cFodder::MapTile_Move_Right( int16 pPanTiles ) {
         ++mMapTile_ColumnOffset;
         mMapTile_ColumnOffset &= 0x0F;
         if (!mMapTile_ColumnOffset) {
-            mMapTilePtr += 2;
+            mMapTile_Ptr += 2;
             ++mMapTile_MovedHorizontal;
         }
     }
@@ -9228,7 +9233,7 @@ void cFodder::MapTile_Move_Left(int16 pPanTiles) {
         --mMapTile_ColumnOffset;
         mMapTile_ColumnOffset &= 0x0F;
         if (mMapTile_ColumnOffset == 0x0F) {
-            mMapTilePtr -= 2;
+            mMapTile_Ptr -= 2;
             --mMapTile_MovedHorizontal;
         }
     }
@@ -9241,7 +9246,7 @@ void cFodder::MapTile_Move_Down( int16 pPanTiles) {
         ++mMapTile_RowOffset;
         mMapTile_RowOffset &= 0x0F;
         if (!mMapTile_RowOffset) {
-            mMapTilePtr += (mMapWidth << 1);
+            mMapTile_Ptr += (mMapWidth << 1);
             ++mMapTile_MovedVertical;
         }
     }
@@ -9254,7 +9259,7 @@ void cFodder::MapTile_Move_Up(int16 pPanTiles) {
         --mMapTile_RowOffset;
         mMapTile_RowOffset &= 0x0F;
         if (mMapTile_RowOffset == 0x0F) {
-            mMapTilePtr -= (mMapWidth << 1);
+            mMapTile_Ptr -= (mMapWidth << 1);
             --mMapTile_MovedVertical;
         }
     }
@@ -9314,7 +9319,7 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
 
     size_t Tile = (((pTileY * mMapWidth) + pTileX));
 
-    uint8* CurrentMapPtr = mMap->data() + mMapTilePtr + (Tile * 2);
+    uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
 
     writeLEWord(CurrentMapPtr, (uint16) pTileID);
 }
@@ -15000,7 +15005,7 @@ loc_1D44C:;
 void cFodder::Sprite_Handle_Hostage_Rescue_Tent( sSprite* pSprite ) {
     pSprite->field_8 = 0xDD;
 
-    dword_3B5F5 = pSprite;
+    mHostage_Rescue_Tent = pSprite;
     if (pSprite->field_38 == eSprite_Anim_Die3)
         pSprite->field_18 = eSprite_Explosion2;
 }
@@ -16979,18 +16984,18 @@ void cFodder::sub_1FCF2( sSprite* pSprite ) {
         if (Data0 > 0x1A)
             Data0 = 0x1A;
         pSprite->field_36 = Data0;
-        goto loc_1FD80;
-    }
+	} else {
 
-    //loc_1FD36
-    Data0 =  word_3BED5[pSprite->field_32];
-    if (!Data0)
-        pSprite->field_36 >>= 1;
-    else {
-        if (Data0 != 1)
-            pSprite->field_36 = 0x18;
-    }
-loc_1FD80:;
+		//loc_1FD36
+		Data0 = word_3BED5[pSprite->field_32];
+		if (!Data0)
+			pSprite->field_36 >>= 1;
+		else {
+			if (Data0 != 1)
+				pSprite->field_36 = 0x18;
+		}
+	}
+
     if (pSprite->field_4F)
         goto loc_1FDDC;
 
@@ -20244,19 +20249,18 @@ int16 cFodder::Mission_Loop() {
 
         mMission_Aborted = false;
         mMission_Paused = 0;
-        mMission_In_Progress = -1;
+        mMission_In_Progress = true;
         mMission_Finished = 0;
         mMission_ShowMapOverview = 0;
 
         if (!Map_Loop()) {
             mKeyCode = 0;
-            mMission_In_Progress = 0;
+            mMission_In_Progress = false;
             Squad_Member_PhaseCount();
             mMission_TryingAgain = -1;
-        }
-        else {
+        } else {
             mKeyCode = 0;
-            mMission_In_Progress = 0;
+            mMission_In_Progress = false;
             if (!mRecruits_Available_Count) {
 
                 Service_Show();
@@ -20297,7 +20301,7 @@ void cFodder::MapTiles_Draw() {
     mMapTile_ColumnOffset = 0;
     mMapTile_RowOffset = 0;
 
-    mMapTilePtr = (0x60 - 8) - (mMapWidth << 1);
+    mMapTile_Ptr = (0x60 - 8) - (mMapWidth << 1);
     mMapTile_MovedHorizontal = 0;
     mMapTile_MovedVertical = 0;
     mMapTile_Column_CurrentScreen = 0;
