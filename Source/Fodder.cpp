@@ -12472,7 +12472,7 @@ loc_19D24:;
             goto loc_19DCF;
     }
 
-    if( !sub_21618( pSprite ) )
+    if( !Sprite_Projectile_Collision_Check( pSprite ) )
         return;
     
     if(mSprites_Found_Count == 1 )
@@ -12505,7 +12505,7 @@ loc_19DCF:;
     if(al)
         goto loc_19E1C;
     
-    sub_21618( pSprite );
+    Sprite_Projectile_Collision_Check( pSprite );
     pSprite->field_43 = -1;
     pSprite->field_2C = eSprite_Draw_First;
     pSprite->field_0 -= 4;
@@ -14807,7 +14807,7 @@ loc_1D00F:;
             goto loc_1D0F6;
     }
 
-    if (sub_21618( pSprite ))
+    if (Sprite_Projectile_Collision_Check( pSprite ))
         goto loc_1D07B;
 
     if (pSprite->field_8 != 0xD7)
@@ -15082,7 +15082,7 @@ loc_1D5CB:;
             goto loc_1D65C;
     }
 
-    if (!sub_21618( pSprite ))
+    if (!Sprite_Projectile_Collision_Check( pSprite ))
         return;
 
     if (mSprites_Found_Count == 1)
@@ -15109,7 +15109,7 @@ loc_1D65C:;
     if (pSprite->field_43)
         goto loc_1D69F;
 
-    sub_21618( pSprite );
+    Sprite_Projectile_Collision_Check( pSprite );
     pSprite->field_43 = -1;
     pSprite->field_2C = eSprite_Draw_First;
     pSprite->field_4 -= 5;
@@ -18957,26 +18957,24 @@ loc_21599:;
     Sprite_XY_Restore( pSprite );
 }
 
-int16 cFodder::sub_21618( sSprite* pSprite ) {
+int16 cFodder::Sprite_Projectile_Collision_Check( sSprite* pSprite ) {
 
+	// If the projectile doesn't belong to a human, check if it hit a squad member
     if (pSprite->field_22 != eSprite_PersonType_Human) {
 
         int16 Data8 = pSprite->field_0;
-        int16 DataC = pSprite->field_0;
-        DataC += 6;
-        int16 Data10 = pSprite->field_4;
-        Data10 -= 9;
-        int16 Data14 = pSprite->field_4;
-        Data14 -= 4;
+        int16 DataC = pSprite->field_0 + 6;
+        int16 Data10 = pSprite->field_4 - 9;
+        int16 Data14 = pSprite->field_4 - 4;
         word_3AA45 = 1;
 
         return Squad_Member_Sprite_Hit_In_Region( pSprite, Data8, DataC, Data10, Data14 );
     }
+
     //loc_21673
     int16 Data8 = pSprite->field_0 - 6;
-    int16 DataC = pSprite->field_0 + 0x0A;
-
-    int16 Data10 = pSprite->field_4 - 0x0A;
+    int16 DataC = pSprite->field_0 + 10;
+    int16 Data10 = pSprite->field_4 - 10;
     int16 Data14 = pSprite->field_4 + 6;
 
     word_3AA45 = 1;
@@ -19144,7 +19142,7 @@ int16 cFodder::Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C ) {
     Data4 &= 0x0F;
     Data4 += 8;
     pData2C->field_44 = (int8) Data4;
-    sub_21C00(pData2C);
+    Sprite_Enemy_Aggression_Update(pData2C);
 
     mSprite_Enemy_AggressionCreated_Count += 1;
     mSprite_Enemy_AggressionCreated_Count &= 0x0F;
@@ -19200,7 +19198,7 @@ loc_21B91:;
     return -1;
 }
 
-void cFodder::sub_21C00( sSprite* pData2C ) {
+void cFodder::Sprite_Enemy_Aggression_Update( sSprite* pData2C ) {
     int16 Data8 = mSprite_Enemy_AggressionNext;
     pData2C->field_62 = Data8;
 

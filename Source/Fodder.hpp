@@ -946,7 +946,7 @@ public:
     void            Sprite_Handle_Exploidable( sSprite* pSprite );
     void            Sprite_Create_Shadow( sSprite* pSprite );
     void            Sprite_Handle_Grenade_Terrain_Check( sSprite* pSprite );
-    int16           sub_21618( sSprite* pSprite );
+    int16           Sprite_Collision_Check( sSprite* pSprite );
     void            Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 );
     void            Sprite_Create_FireTrail( sSprite* pSprite );
     void            Sprite_Into_Building_Explosion( sSprite* pSprite );
@@ -954,7 +954,7 @@ public:
     int16           Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, int16& pY );
     int16           Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C );
     int16           Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
-    void            sub_21C00( sSprite* pData2C );
+    void            Sprite_Enemy_Aggression_Update( sSprite* pData2C );
     void            Sprite_Create_Rank( );
     void            sub_21CD1( sSprite* pSprite );
 
