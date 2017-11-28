@@ -946,7 +946,7 @@ public:
     void            Sprite_Handle_Exploidable( sSprite* pSprite );
     void            Sprite_Create_Shadow( sSprite* pSprite );
     void            Sprite_Handle_Grenade_Terrain_Check( sSprite* pSprite );
-    int16           Sprite_Collision_Check( sSprite* pSprite );
+    int16           Sprite_Projectile_Collision_Check( sSprite* pSprite );
     void            Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 );
     void            Sprite_Create_FireTrail( sSprite* pSprite );
     void            Sprite_Into_Building_Explosion( sSprite* pSprite );
