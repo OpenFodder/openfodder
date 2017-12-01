@@ -209,7 +209,7 @@ struct sSprite {
 	int16 field_A;		// FrameNumber mSpriteSheetPtr[field_8][field_a]
 	int16 field_C;
 	int16 field_E;
-	int16 field_10;		// ? Direction toward cursor??
+	int16 field_10;		// Next Direction
 	int16 field_12;
 	int16 field_14;
 	int16 field_16;
@@ -236,8 +236,8 @@ struct sSprite {
 	int16 field_28;		// Target Y
 	int16 field_2A;
 	int16 field_2C;		// eSprite_DrawOrder
-	int16 field_2E;
-	int16 field_30;
+	int16 field_2E;		// Weapon Target X
+	int16 field_30;		// Weapon Target Y
 	int16 field_32;		// Player: Squad Number
 	int16 field_34;
 	int16 field_36;		// Speed ?
@@ -290,7 +290,7 @@ struct sSprite {
 
 	int8 field_6E;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
 	int8 field_6F;			// Vehicle Type
-	sSprite* field_70;		// Hostage Following Sprite
+	sSprite* field_70;		// Hostage: Following Sprite
 	int8 field_74;			// Helicopter: Restart Anim Frame Number
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
 };
