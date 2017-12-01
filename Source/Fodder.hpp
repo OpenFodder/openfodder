@@ -929,8 +929,8 @@ public:
     int16           Sprite_Create_BloodTrail( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
     void            Sprite_Terrain_Check( sSprite* pSprite, int16& pData4 );
 
-    void            sub_20456( sSprite* pSprite, int16& pData8 );
-    void            sub_20478( sSprite* pSprite );
+    int16           Sprite_Handle_Troop_Get_Frame_For_Direction( sSprite* pSprite );
+    void            Sprite_Reached_MapEdge( sSprite* pSprite );
     void            Hero_Add( sMission_Troop* pSquadMember );
 
     int16           Sprite_Destroy_Wrapper( sSprite* pSprite );

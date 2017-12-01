@@ -7436,7 +7436,7 @@ void cFodder::sub_2593D( sSprite* pSprite ) {
             Sprite_Movement_Calculate( pSprite );
     }
     //loc_259D4
-    sub_20478( pSprite );
+    Sprite_Reached_MapEdge( pSprite );
 
     int16 Data4 = 0;
     Sprite_Terrain_Check( pSprite, Data4 );
@@ -16193,7 +16193,7 @@ loc_1ECA6:;
     if (pSprite->field_22 != eSprite_PersonType_Human)
         pSprite->field_8 = 0xA7;
 
-    sub_20456( pSprite, Data8 );
+	Data8 = Sprite_Handle_Troop_Get_Frame_For_Direction( pSprite );
     Data8 >>= 1;
     pSprite->field_A = Data8;
     return -1;
@@ -16203,7 +16203,7 @@ loc_1ED5B:;
     mTmp_FrameNumber = pSprite->field_A;
 
     Sprite_Movement_Calculate( pSprite );
-    sub_20478( pSprite );
+    Sprite_Reached_MapEdge( pSprite );
     Sprite_Terrain_Check( pSprite, Data4 );
 
     if (pSprite->field_38 != eSprite_Anim_Slide2)
@@ -16218,7 +16218,7 @@ loc_1ED5B:;
             pSprite->field_36 = 0;
         }
     }
-    sub_20456( pSprite, Data8 );
+	Data8 = Sprite_Handle_Troop_Get_Frame_For_Direction( pSprite );
 
     //seg004:606C
     Data28 = mSprite_AnimationPtrs[pSprite->field_22];
@@ -16253,7 +16253,7 @@ loc_1EE59:;
     if (pSprite->field_22 != eSprite_PersonType_Human)
         pSprite->field_8 = 0xA7;
 
-    sub_20456( pSprite, Data8 );
+	Data8 = Sprite_Handle_Troop_Get_Frame_For_Direction( pSprite );
     Data8 >>= 1;
     pSprite->field_A = Data8;
     return -1;
@@ -16713,7 +16713,7 @@ void cFodder::Sprite_Draw_Row_Update( sSprite* pSprite ) {
     }
 
     Squad_Join_Check( pSprite );
-    sub_20478( pSprite );
+    Sprite_Reached_MapEdge( pSprite );
 
     // Check the terrain
     int8 PreviousTileType = pSprite->field_60;
@@ -18116,16 +18116,18 @@ void cFodder::WonGame() {
     Image_FadeOut();
 }
 
-void cFodder::sub_20456( sSprite* pSprite, int16& pData8 ) {
-    pData8 = pSprite->field_10;
+int16 cFodder::Sprite_Handle_Troop_Get_Frame_For_Direction( sSprite* pSprite ) {
+    int16 FrameNumber = pSprite->field_10;
 
-    pData8 >>= 5;
-    pData8 -= 1;
-    pData8 ^= 0x0F;
-    pData8 &= 0x0E;
+	FrameNumber >>= 5;
+	FrameNumber -= 1;
+	FrameNumber ^= 0x0F;
+	FrameNumber &= 0x0E;
+
+	return FrameNumber;
 }
 
-void cFodder::sub_20478( sSprite* pSprite ) {
+void cFodder::Sprite_Reached_MapEdge( sSprite* pSprite ) {
 
     if (pSprite->field_4 < 0 || pSprite->field_4 <= 13) {
         pSprite->field_4 = mStoredSpriteY;
