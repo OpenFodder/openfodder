@@ -239,9 +239,9 @@ class cFodder : public cSingleton < cFodder > {
     int16           mSprite_Frame3_ChangeCount;
     int16           mSprite_Frame_3;
 
-    int16           mTroop_Cannot_Throw_Grenade;
-    int16           mTroop_Cannot_Fire_Bullet;
-    int16           word_3A010;
+    bool            mTroop_Weapon_Grenade_Disabled;
+    bool            mTroop_Weapon_Bullet_Disabled;
+    bool            mTroop_Weapon_Rocket_Disabled;
 
     uint16          word_3A024;
     sGUI_Element*   mGUI_Loop_Element;
@@ -314,7 +314,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           word_3AA1D;             // 2 = Use mSprite_Frame_3
     int16           mCamera_Reached_Target;
     int16           word_3AA21;
-    int16           word_3AA41;
+    int16           mSprite_FaceWeaponTarget;
     int16           word_3AA45;
     int16           mSquad_Select_Timer;
     int16           mSprite_Find_Distance;
@@ -913,9 +913,10 @@ public:
     void            loc_1F092( sSprite* pSprite, sSprite* pData24 );
 
     int16           Sprite_Handle_Player_MissionOver( sSprite* pSprite );
-    void            Sprite_Handle_Troop( sSprite* pSprite );
-    void            sub_1F5A0( sSprite* pSprite );
-    void            sub_1F5CA( sSprite* pSprite );
+    void            Sprite_Handle_Troop_Weapon( sSprite* pSprite );
+    void            Sprite_Handle_Troop_Direct_TowardWeaponTarget( sSprite* pSprite );
+    void            Sprite_Handle_Troop_Direct_TowardMouse( sSprite* pSprite );
+
     void            Sprite_XY_Store( sSprite* pSprite );
     void            Sprite_XY_Restore( sSprite* pSprite );
 
@@ -936,7 +937,7 @@ public:
     int16           Sprite_Destroy( sSprite* pSprite );
     int16           Sprite_Create_Bullet( sSprite* pSprite );
     int16           Sprite_Create_Grenade( sSprite* pSprite );
-    void            Sprite_Set_Direction_Toward_Cursor( sSprite* pSprite );
+    void            Sprite_Set_Direction_To_Next( sSprite* pSprite );
     int16           Sprite_Reached_Target( sSprite* pSprite );
     void            Sprite_Movement_Speed_Update( sSprite* pSprite );
 
@@ -949,7 +950,7 @@ public:
     int16           Sprite_Projectile_Collision_Check( sSprite* pSprite );
     void            Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 );
     void            Sprite_Create_FireTrail( sSprite* pSprite );
-    void            Sprite_Into_Building_Explosion( sSprite* pSprite );
+    void            Sprite_Turn_Into_Building_Explosion( sSprite* pSprite );
     int16           Sprite_Create_Building_Explosion_Wrapper( int16& pX, int16& pY );
     int16           Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, int16& pY );
     int16           Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C );
@@ -963,7 +964,7 @@ public:
     int16           sub_222A3( sSprite* pSprite );
     void            sub_223B2( sSprite* pSprite );
     int16           Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite, int16& pData0 );
-    int16           Sprite_Handle_Troop_Fire_SecondWeapon( sSprite* pSprite );
+    int16           Sprite_Create_Rocket( sSprite* pSprite );
     int16           Sprite_Homing_LockInRange( sSprite* pSprite, sSprite*& pFoundSprite );
     void            Sprite_Projectile_HitTarget( sSprite* pSprite );
     void            Sprite_Destroy_Wrapper_At_TopLeft( sSprite* pSprite );
@@ -1027,7 +1028,7 @@ public:
     void            tool_RandomSeed();
     int16           tool_RandomGet();
     void            Sprite_Movement_Calculate( sSprite* pSprite );
-    int16           Direction_Between_SpriteAndPoints( sSprite* pSprite, int16& pData0, int16& pData4 );
+    int16           Sprite_Direction_Between_Points( sSprite* pSprite, int16& pData0, int16& pData4 );
     void            sub_2A3D4( sSprite* pSprite );
     void            Squad_Walk_Steps_Decrease();
     int16           sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
