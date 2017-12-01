@@ -19251,6 +19251,8 @@ void cFodder::Sprite_Create_Rank( ) {
 }
 
 void cFodder::sub_21CD1( sSprite* pSprite ) {
+	sSprite* Data30 = 0;
+
     mTroop_Weapon_Bullet_Disabled = false;
     mTroop_Weapon_Grenade_Disabled = true;
     mTroop_Weapon_Rocket_Disabled = true;
@@ -19375,11 +19377,12 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
 			goto loc_22000;
 
 		//seg005:28A2
-		// This is a strange segment, I can't reliably tell where data30 is supposed to come from,
-		// in atleast one situation, its possible its not even pointing at a sSprite structure
-		// or even pointing towards a completely irrelevant sprite from a previous use case.
-
-		sSprite* Data30 = &mSprite_Spare;
+		// This is a strange segment, I can't reliably tell where data30 comes from,
+		// in atleast one situation, its possible its not even pointing at an sSprite structure
+		// or other times it might be pointing towards a completely irrelevant sprite from a previous use case.
+		// i set it to spare, because that *could* happen if we are out of sprites, and a previous sprite create
+		// failed... 
+		Data30 = &mSprite_Spare;
 
 		if (Data30->field_0 != Data30->field_26)
 			goto loc_22000;
