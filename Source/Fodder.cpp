@@ -19270,143 +19270,143 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
         if (mSquad_Leader == INVALID_SPRITE_PTR)
             goto loc_22125;
 
-        goto loc_22053;
-    }
+	} else {
 
-    Squad0_Member = mSquad_0_Sprites[pSprite->field_5E];
-    if (Squad0_Member == INVALID_SPRITE_PTR)
-        goto loc_21E4A;
+		Squad0_Member = mSquad_0_Sprites[pSprite->field_5E];
+		if (Squad0_Member == INVALID_SPRITE_PTR)
+			goto loc_21E4A;
 
-    if ((tool_RandomGet() & 0x3F) == 0)
-        goto loc_21E4A;
+		if ((tool_RandomGet() & 0x3F) == 0)
+			goto loc_21E4A;
 
-    if (Squad0_Member->field_0 == -32768)
-        goto loc_21E4A;
+		if (Squad0_Member->field_0 == -32768)
+			goto loc_21E4A;
 
-    if (Squad0_Member->field_18 != eSprite_Player)
-        goto loc_21E4A;
+		if (Squad0_Member->field_18 != eSprite_Player)
+			goto loc_21E4A;
 
-    if (Squad0_Member->field_38 < eSprite_Anim_Slide1) {
-        if (Squad0_Member->field_38)
-            goto loc_21E4A;
-    }
-
-    if (Squad0_Member->field_20 >= 0x0D)
-        goto loc_21E4A;
-
-    Dataa0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-
-    Data8 = Squad0_Member->field_0;
-    DataC = Squad0_Member->field_4;
-
-    Map_Get_Distance_BetweenPoints_Within_320( Dataa0, Data4, Data8, DataC );
-
-    mSprite_Find_Distance = Dataa0;
-    if (Dataa0 > 0xC8)
-        goto loc_21E4A;
-
-    if (Dataa0 <= 0x28)
-        goto loc_21F77;
-
-    Dataa0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = Squad0_Member->field_0;
-    DataC = Squad0_Member->field_4;
-
-    if (!sub_2A4A2( Dataa0, Data4, Data8, DataC )) {
-        Dataa0 = mSprite_Find_Distance;
-        goto loc_21F77;
-    }
-
-    if (mSprite_Find_Distance < 0x40)
-        goto loc_21F8A;
-
-loc_21E4A:;
-
-	// Not Following a Sprite?
-	if (pSprite->field_70) {
-
-		Following = pSprite->field_70;
-
-		if (Following->field_0 != -32768) {
-
-			// Following a hostage?
-			if (Following->field_18 == eSprite_Hostage) {
-
-				pSprite->field_5E += 1;
-				if (pSprite->field_5E >= 0x1E)
-					pSprite->field_5E = 0;
-
-				mSprite_FaceWeaponTarget = 0;
-				pSprite->field_26 = Following->field_0 + 0x0C;
-				pSprite->field_28 = Following->field_4;
-				return;
-			}
+		if (Squad0_Member->field_38 < eSprite_Anim_Slide1) {
+			if (Squad0_Member->field_38)
+				goto loc_21E4A;
 		}
 
+		if (Squad0_Member->field_20 >= 0x0D)
+			goto loc_21E4A;
+
+		Dataa0 = pSprite->field_0;
+		Data4 = pSprite->field_4;
+
+		Data8 = Squad0_Member->field_0;
+		DataC = Squad0_Member->field_4;
+
+		Map_Get_Distance_BetweenPoints_Within_320(Dataa0, Data4, Data8, DataC);
+
+		mSprite_Find_Distance = Dataa0;
+		if (Dataa0 > 0xC8)
+			goto loc_21E4A;
+
+		if (Dataa0 <= 0x28)
+			goto loc_21F77;
+
+		Dataa0 = pSprite->field_0;
+		Data4 = pSprite->field_4;
+		Data8 = Squad0_Member->field_0;
+		DataC = Squad0_Member->field_4;
+
+		if (!sub_2A4A2(Dataa0, Data4, Data8, DataC)) {
+			Dataa0 = mSprite_Find_Distance;
+			goto loc_21F77;
+		}
+
+		if (mSprite_Find_Distance < 0x40)
+			goto loc_21F8A;
+
+	loc_21E4A:;
+
+		// Not Following a Sprite?
+		if (pSprite->field_70) {
+
+			Following = pSprite->field_70;
+
+			if (Following->field_0 != -32768) {
+
+				// Following a hostage?
+				if (Following->field_18 == eSprite_Hostage) {
+
+					pSprite->field_5E += 1;
+					if (pSprite->field_5E >= 0x1E)
+						pSprite->field_5E = 0;
+
+					mSprite_FaceWeaponTarget = 0;
+					pSprite->field_26 = Following->field_0 + 0x0C;
+					pSprite->field_28 = Following->field_4;
+					return;
+				}
+			}
+
+			pSprite->field_70 = 0;
+		}
+
+		if (!(tool_RandomGet() & 0x0F)) {
+			Dataa0 = tool_RandomGet() & 0xFF;
+			Dataa0 = (int16)Dataa0;
+			pSprite->field_2E += Dataa0;
+
+			Dataa0 = tool_RandomGet() & 0xFF;
+			pSprite->field_30 += Dataa0;
+		}
+
+		pSprite->field_26 = pSprite->field_0;
+		pSprite->field_28 = pSprite->field_4;
+		pSprite->field_4A = 0;
+
+		pSprite->field_5E += 1;
+		if (pSprite->field_5E > 0x1E)
+			pSprite->field_5E = 0;
+
+		goto loc_22000;
+
+	loc_21F77:;
 		pSprite->field_70 = 0;
+		mSprite_FaceWeaponTarget = 0;
+
+	loc_21F8A:;
+		if (Dataa0 > 0x87)
+			goto loc_22000;
+
+		//seg005:28A2
+		// This is a strange segment, I can't reliably tell where data30 is supposed to come from,
+		// in atleast one situation, its possible its not even pointing at a sSprite structure
+		// or even pointing towards a completely irrelevant sprite from a previous use case.
+
+		sSprite* Data30 = &mSprite_Spare;
+
+		if (Data30->field_0 != Data30->field_26)
+			goto loc_22000;
+
+		if (Data30->field_4 != Data30->field_28)
+			goto loc_22000;
+
+		pSprite->field_2E = Squad0_Member->field_0;
+		pSprite->field_30 += 7;							// Should be 2E?
+
+		pSprite->field_30 = Squad0_Member->field_4;
+		pSprite->field_30 -= 0x0E;
+		sub_2212A(pSprite);
+
+
+	loc_22000:;
+		if (mSprite_FaceWeaponTarget)
+			goto loc_22125;
+
+		if (mSquad_0_Sprites[pSprite->field_5E] == INVALID_SPRITE_PTR)
+			goto loc_22125;
+
+		Data0 = mSquad_0_Sprites[pSprite->field_5E];
 	}
 
-    if (!(tool_RandomGet() & 0x0F)) {
-        Dataa0 = tool_RandomGet() & 0xFF;
-        Dataa0 = (int16)Dataa0;
-        pSprite->field_2E += Dataa0;
-
-        Dataa0 = tool_RandomGet() & 0xFF;
-        pSprite->field_30 += Dataa0;
-    }
-
-    pSprite->field_26 = pSprite->field_0;
-    pSprite->field_28 = pSprite->field_4;
-    pSprite->field_4A = 0;
-
-    pSprite->field_5E += 1;
-    if (pSprite->field_5E > 0x1E)
-		pSprite->field_5E = 0;
-
-    goto loc_22000;
-
-loc_21F77:;
-    pSprite->field_70 = 0;
-    mSprite_FaceWeaponTarget = 0;
-
-loc_21F8A:;
-    if (Dataa0 > 0x87)
-        goto loc_22000;
-
-    //seg005:28A2
-	// This is a strange segment, I can't reliably tell where data30 is supposed to come from,
-	// in atleast one situation, its possible its not even pointing at a sSprite structure
-	// or even pointing towards a completely irrelevant sprite from a previous use case.
-
-	sSprite* Data30 = &mSprite_Spare;
-
-	if(Data30->field_0 != Data30->field_26 )
-		goto loc_22000;
-
-	if(Data30->field_4 != Data30->field_28 )
-		goto loc_22000;
-
-	pSprite->field_2E = Squad0_Member->field_0;
-	pSprite->field_30 += 7;							// Should be 2E?
-
-	pSprite->field_30 = Squad0_Member->field_4;
-	pSprite->field_30 -= 0x0E;
-	sub_2212A( pSprite );
-
-
-loc_22000:;
-    if (mSprite_FaceWeaponTarget)
-        goto loc_22125;
-
-    if (mSquad_0_Sprites[pSprite->field_5E] == INVALID_SPRITE_PTR)
-        goto loc_22125;
-
-    Data0 = mSquad_0_Sprites[pSprite->field_5E];
-
-loc_22053:;     // Movement Target?
-
+	// "Sort of" Random Movement Target
+	// Depending on the sprite index, we add a factor to the X/Y target of a movement
     Data8 = (int16) (pSprite - mSprites);
     Data8 *= 0x76;
     Data8 &= 0x1FE;
