@@ -19240,13 +19240,13 @@ void cFodder::Sprite_Create_Rank( ) {
     if (Sprite_Get_Free( Data0, Sprite, Data30 ))
         return;
 
+	Sprite->field_0 = 0;
+	Sprite->field_4 = 0;
     Sprite->field_8 = 0x7C;
     Sprite->field_A = 0;
-    Sprite->field_18 = eSprite_Player_Rank;
-    Sprite->field_0 = 0;
-    Sprite->field_4 = 0;
+	Sprite->field_10 = 1;
+	Sprite->field_18 = eSprite_Player_Rank;
     Sprite->field_22 = eSprite_PersonType_None;
-    Sprite->field_10 = 1;
     Sprite->field_3A = 0;
 }
 
@@ -19325,7 +19325,7 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
 
 	loc_21E4A:;
 
-		// Not Following a Sprite?
+		// Following a Sprite?
 		if (pSprite->field_70) {
 
 			Following = pSprite->field_70;
@@ -19380,9 +19380,12 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
 		// This is a strange segment, I can't reliably tell where data30 comes from,
 		// in atleast one situation, its possible its not even pointing at an sSprite structure
 		// or other times it might be pointing towards a completely irrelevant sprite from a previous use case.
-		// i set it to spare, because that *could* happen if we are out of sprites, and a previous sprite create
+		// i set it to spare, because that *could* happen if we are out of sprites and a previous sprite create had
 		// failed... 
 		Data30 = &mSprite_Spare;
+
+		// Logic wise, it doesnt really make sense either... which makes me think perhaps Data30 should be Squad0_Member
+
 
 		if (Data30->field_0 != Data30->field_26)
 			goto loc_22000;
@@ -19391,7 +19394,7 @@ void cFodder::sub_21CD1( sSprite* pSprite ) {
 			goto loc_22000;
 
 		pSprite->field_2E = Squad0_Member->field_0;
-		pSprite->field_30 += 7;							// Should be 2E?
+		pSprite->field_30 += 7;							// TODO: Is this an original bug and we should be adding to field_2E, code/logic wise it makes sense if it is
 
 		pSprite->field_30 = Squad0_Member->field_4;
 		pSprite->field_30 -= 0x0E;
