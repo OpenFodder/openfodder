@@ -22,13 +22,12 @@
 
 #include "stdafx.hpp"
 
-const sFile mDosFiles[] = {
-	{ "CF_ENG.DAT", "EEB82D5A6B14E7E59C8F7B5169BFCD55" },
-	{ 0 }
+const std::vector<sFile> mDosFiles[] = {
+	{{ "CF_ENG.DAT", "EEB82D5A6B14E7E59C8F7B5169BFCD55" }}
 };
 
-const sFile mDos2Files[] = {
-	{ "CF_ENG.DAT",		"8A3EB9B9F134B2997E6534D4C39B23D6" },
+const std::vector<sFile> mDos2Files[] = {
+	{{ "CF_ENG.DAT",		"8A3EB9B9F134B2997E6534D4C39B23D6" },
 	{ "BIRD.SMP",		"EFE57BF26BBA0C7AC35720EB86AE37EA" },
 	{ "DIE1.SMP",		"124EFA03F13669D59EB03F1812A71624" },
 	{ "DIE2.SMP",		"902E437B8257231D1494535170A9ED22" },
@@ -49,12 +48,11 @@ const sFile mDos2Files[] = {
 	{ "SHEEP.SMP",		"99D397E27FCACD3EF7D0ABC42233A558" },
 	{ "TITLE.AMF",		"7831A09310004BB0F2F6754BA52D0AD5" },
 	{ "WINLEVEL.AMF",	"1E61F47CE71D24828F2A1E1656786978" },
-	{ "WINZONE.AMF",	"B9333DBB4BD65AEF6E3BA801D4FDABED" },
-	{ 0 }
+	{ "WINZONE.AMF",	"B9333DBB4BD65AEF6E3BA801D4FDABED" }}
 };
 
-const sFile mAmigaFiles[] = {
-	{ "1.RAW", "2F00447802B86510784ECC8D1134C942" },
+const std::vector<sFile> mAmigaFiles[] = {
+	{{ "1.RAW", "2F00447802B86510784ECC8D1134C942" },
 	{ "2.RAW", "540BA4FAEB4F8CE75391EF4ED2CDBA6A" },
 	{ "3.RAW", "4533919895685A4AE9D0A6D6E0DEE2DF" },
 	{ "4.RAW", "4345942CFF1477A075024F1E39C4DE9D" },
@@ -319,12 +317,11 @@ const sFile mAmigaFiles[] = {
 	{ "VIRGPRES.RAW", "BA0A0431E88574BD4D726A52EB2991DA" },
 	{ "WARX1.INS", "CCE4AB1491AFC0A69BDF4D1451270C86" },
 	{ "WARX4.SNG", "189EB4A63C441A024173F24F089420E4" },
-	{ "WON.RAW", "2A8D87B71856865220376E38287AF2F9" },
-	{ 0 }
+	{ "WON.RAW", "2A8D87B71856865220376E38287AF2F9" }}
 };
 
-const sFile mAmigaCD32Files[] = {
-	{ "1.RAW",	"2F00447802B86510784ECC8D1134C942" },
+const std::vector<sFile> mAmigaCD32Files[] = {
+	{{ "1.RAW",	"2F00447802B86510784ECC8D1134C942" },
 	{ "2.RAW",	"540BA4FAEB4F8CE75391EF4ED2CDBA6A" },
 	{ "3.RAW",	"4533919895685A4AE9D0A6D6E0DEE2DF" },
 	{ "4.RAW",	"4345942CFF1477A075024F1E39C4DE9D" },
@@ -589,17 +586,16 @@ const sFile mAmigaCD32Files[] = {
 	{ "VIRGPRES.RAW", 	"BA0A0431E88574BD4D726A52EB2991DA" },
 	{ "WARX1.INS",		"CCE4AB1491AFC0A69BDF4D1451270C86" },
 	{ "WARX4.SNG",		"189EB4A63C441A024173F24F089420E4" },
-	{ "WON.RAW",		"E9ABF124FB366BF45E77A04CEC40532F" },
-	{ 0 }
+	{ "WON.RAW",		"E9ABF124FB366BF45E77A04CEC40532F" }}
 };
 
-const sFile mAmigaFormatFiles[] = {
-	{ "afxarmy.lbm", "0B5D60F527DB05B2444681522AC41FA3" },
+const std::vector<sFile> mAmigaFormatFiles[] = {
+	{{ "afxarmy.lbm", "0B5D60F527DB05B2444681522AC41FA3" },
 	{ "afxbase.bht", "4035396EB20D9576AA3F3A4F31C874F9" },
 	{ "AFXBASE.BLK", "69D55DB3B2EDE64FB936808488D0B960" },
 	{ "afxbase.hit", "A8C9E63D92E18DFA0BAD6FA7D5F8FA3A" },
 	{ "AFXBASE.INS", "A98080C06B186461FAEED944E540CEFE" },
-	{ "afxbase.pal", "1B668D3C7167EE1DA6A39A77E488A200" },	
+	{ "afxbase.pal", "1B668D3C7167EE1DA6A39A77E488A200" },
 	{ "AFXBASE.SNG", "BC82E70E22DE7A66448AA5CA852A31D5" },
 	{ "afxbase.swp", "6FC0E6A0D87C495CD7DB9E9EDA7AD1FC" },
 	{ "afxcopt.lbm", "CCA8D9286932ACCC81C57FACF35F1AA2" },
@@ -612,12 +608,11 @@ const sFile mAmigaFormatFiles[] = {
 	{ "mapm1.spt", "8955555248BAB5EFBED5E561BB02FA22" },
 	{ "mapm2.map", "E1EB8D9F2E3F868633CC66AF8B9F0BFB" },
 	{ "mapm2.spt", "4E2DA0890E5E3C3A7AC34039B654ECA6" },
-	{ "pstuff.lbm", "631BA67C90A5502391226A30A3849DC5" },
-	{ 0 }
+	{ "pstuff.lbm", "631BA67C90A5502391226A30A3849DC5" }}
 };
 
-const sFile mPlusFiles[] = {
-	{ "junbase.bht", "1D1AEA8B3B2EF9D0CD886DC7F39588D4" },
+const std::vector<sFile> mPlusFiles[] = {
+	{{ "junbase.bht", "1D1AEA8B3B2EF9D0CD886DC7F39588D4" },
 	{ "junsub1.bht", "A7B6F71467FA2006D97DB67C43741694" },
 	{ "junbase.blk", "0D3C72390ADF47647339331A7736AC16" },
 	{ "junsub1.blk", "70E25A00B8EA9BE9E2C1748A3026AEF2" },
@@ -650,15 +645,12 @@ const sFile mPlusFiles[] = {
 	{ "junbase.pal", "27DA36F06898A9549A1E4AF4CAC4D8B7" },
 	{ "junbase.sng", "6C2ACFA3FA1B5012DB5DD9BF17980C81" },
 	{ "junbase.swp", "768E479D6895E64E61F1502021D3E4D6" },
-	{ "junsub1.swp", "C551471A99FFF0B02FF7FE11163C63EE" },
-	{ 0 }
+	{ "junsub1.swp", "C551471A99FFF0B02FF7FE11163C63EE" }}
 };
 
-const sFile mCustomFiles[] = {
-    { "Maps/Segras First.map" ,	"5D2004402C69B91EE9F24DA26B469616" },
-    { "Maps/Segras First.spt",	"0EC285AF23C6A8A86E19C740A6B279C2" },
-
-    { 0 }
+const std::vector<sFile> mCustomFiles[] = {
+	{{ "Maps/Segras First.map" ,	"5D2004402C69B91EE9F24DA26B469616" },
+	{ "Maps/Segras First.spt",	"0EC285AF23C6A8A86E19C740A6B279C2" }}
 };
 
 const std::vector<eTileTypes> mKnownRetailTypes = {
@@ -709,7 +701,7 @@ const sVersion Versions[] = {
 	{ "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	mKnownAFXTypes,  mKnownAmigaDemoData },
 	{ "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		mIntroText_Amiga,	"Plus",				mPlusFiles,			mKnownPlusTypes, mKnownAmigaDemoData },
 
-	/* Custom must be last, as they depend on a previous retail version being detected first */
+	/* Custom & Random must be last, as they depend on a previous retail version being detected first */
 	{ "Single Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
 	{ "Single Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,		mIntroText_PC,      "Custom",           mCustomFiles,  mKnownCustomTypes },
 							    
@@ -823,24 +815,19 @@ void FindFodderVersions() {
 
 	// Loop all known versions
 	for (auto&& KnownVersion : Versions) {
-	 	int16 FileCount = 0, FileMatches = 0, FileFound = 0;
+	 	int16 FileMatches = 0;
 
-		// Count the number of files
-		for (uint16 FileNo = 0; KnownVersion.mFiles[FileNo].mName != 0; ++FileNo)
-			++FileCount;
-		
 		// Loop each file in this version
-		for (uint16 FileNo = 0; KnownVersion.mFiles[FileNo].mName != 0; ++FileNo) {
-				
-	 		std::string MD5 = local_FileMD5( KnownVersion.mFiles[FileNo].mName, KnownVersion.mDataPath );
+		for( auto& File : *KnownVersion.mFiles) {
+	 		std::string MD5 = local_FileMD5(File.mName, KnownVersion.mDataPath );
 			
-			if (MD5 != KnownVersion.mFiles[FileNo].mChecksum) {
+			if (MD5 != File.mChecksum) {
 
 				if (MD5.length() == 0) {
 					//std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
 					//std::cout << " File not found\n";
 				} else {
-					std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
+					std::cout << KnownVersion.mName << ": " << File.mName;
 					std::cout << " Unknown MD5: " << MD5 << "\n";
 					++FileMatches;
 				}
@@ -850,7 +837,7 @@ void FindFodderVersions() {
 		}
 
         // Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
-        if (FileCount > 0 && (FileCount == FileMatches || FileCount == FileFound)) {
+        if (KnownVersion.mFiles->size() > 0 && KnownVersion.mFiles->size() == FileMatches) {
 
             // A very hacky method for ensuring the DOS_CD version is available, before allowing Customs
             if (KnownVersion.isCustom()) {
