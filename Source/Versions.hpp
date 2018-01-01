@@ -26,19 +26,11 @@ enum ePlatform {
 };
 
 enum eRelease {
-	Retail	= 0,
-	Retail2 = 1,
-	Demo	= 2
-};
-
-enum eVersion {
-	Dos_CD		= 0,
-	Dos2_CD		= 1,
-	Amiga_Disk	= 2,
-	Amiga_CD	= 3,
-	AmigaFormat = 4,
-	AmigaPlus	= 5,
-    Custom      = 6,
+	Retail		= 0,
+	Demo		= 1,
+	AmigaFormat = 2,
+	AmigaPower  = 3,
+	Custom		= 4
 };
 
 enum eGame {
@@ -61,7 +53,6 @@ struct sVersion {
 	const std::string	mName;
 
 	eGame				mGame;
-	eVersion			mVersion;
 	ePlatform			mPlatform;
 	eRelease			mRelease;
 
@@ -85,20 +76,36 @@ struct sVersion {
 
 	bool isCustom() const {
 
-		return mVersion == eVersion::Custom;
+		return mRelease == eRelease::Custom;
 	}
 
 	bool isDemo() const {
-		return mRelease == eRelease::Demo;
+		return  mRelease == eRelease::Demo || 
+				mRelease == eRelease::AmigaFormat || 
+				mRelease == eRelease::AmigaPower ||
+				mRelease == eRelease::Custom;
 	}
 
 	bool isRetail() const {
 		return mRelease == eRelease::Retail;
 	}
 
+	bool isAmigaFormat() const {
+		return mRelease == eRelease::AmigaFormat;
+	}
+
+	bool isAmigaPower() const {
+		return mRelease == eRelease::AmigaPower;
+	}
+
 	bool isAmiga() const {
 		return mPlatform == ePlatform::Amiga;
 	}
+
+	bool isPC() const {
+		return mPlatform == ePlatform::PC;
+	}
+
 };
 
 extern const sVersion Versions[];
@@ -111,5 +118,6 @@ std::vector<std::string> GetAvailableVersions();
 void FindFodderVersions();
 
 const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign);
+const sVersion* FindAvailableVersionForCampaignPlatform(const std::string& pCampaign, const ePlatform pPlatform);
 const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType);
 const sVersion* FindAvailableRetail();

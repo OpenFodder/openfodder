@@ -26,6 +26,8 @@
 
 #define ButtonToMouseVersion(x) case x: { Buttons[x].mMouseInsideFuncPtr = &cFodder::VersionSelect_##x; break; }
 
+#define VERSION_BASED( pPC, pAmiga ) (mVersion->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
+
 
 const int16 mBriefing_Helicopter_Offsets[] =
 {
@@ -246,9 +248,10 @@ int16 cFodder::Map_Loop( ) {
         Sprite_Find_HumanVehicles();
 
         // Cheat
-        if (mDebug_MissionSkip == -1)
-            mMission_Complete = -1;
-        else
+		if (mDebug_MissionSkip == -1) {
+			mDebug_MissionSkip = 0;
+			mMission_Complete = -1;
+		} else
             Mission_Phase_Goals_Check();
 
         //loc_1079C
@@ -495,6 +498,7 @@ Mouse_In_Playfield:;
 }
 
 void cFodder::Game_ClearVariables() {
+	mDebug_MissionSkip = 0;
     mInput_Enabled = 0;
     mGame_InputTicks = 0;
     mMission_EngineTicks = 0;
@@ -1482,7 +1486,7 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
             const sRecruit* Data24 = &mRecruits[mRecruit_NextID];
 
             // Demo sets static ranks
-            if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set) {
+            if (mVersion->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
                 Data20->mRank = (mMissionNumber - 1) >> 1;
 
@@ -1875,7 +1879,7 @@ bool cFodder::Campaign_Load( std::string pName ) {
     // If no campaign name was provided, use the default for the current version
     if (!pName.size()) {
 
-        if (mVersion->mVersion != eVersion::Custom) {
+        if (!mVersion->isCustom()) {
             pName = mVersion->mName;
         }
     }
@@ -1892,7 +1896,7 @@ bool cFodder::Campaign_Load( std::string pName ) {
 void cFodder::Map_Create( const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
     uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
 
-	if (mVersion->mVersion == AmigaPlus)
+	if (mVersion->isAmigaPower())
 		pTileSub = 1;
 
 	mMap = std::make_shared<std::vector<uint8_t>>();
@@ -2022,7 +2026,7 @@ void cFodder::Map_Load_Resources() {
     // Map Tileset
     Map_SetTileType();
 
-    // Was the tileset available?
+    // Is the tileset available?
     if (!Tiles_Load_Data()) {
 
         // Is the current version meant to have the required tileset?
@@ -2045,8 +2049,8 @@ void cFodder::Map_Load_Resources() {
                 VersionLoad(Version);
                 Tiles_Load_Data();
             } else {
-                // TODO: Quit?
                 std::cout << "Data not found\n";
+				exit(1);
             }
         }
         
@@ -2817,8 +2821,8 @@ void cFodder::Squad_EnteredVehicle_TimerTick() {
 void cFodder::Mission_Map_Overview_Show() {
 
     // Overview map is disabled for demos
-    if ( mVersion->mRelease == eRelease::Demo && 
-         mVersion->mVersion != eVersion::Custom)
+    if ( mVersion->isDemo() && 
+         !mVersion->isCustom())
         return;
 
     int16 word_3A016 = 0;
@@ -2841,14 +2845,8 @@ void cFodder::Mission_Map_Overview_Show() {
                 mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eGFX_PSTUFF);
                 mVideo_Draw_Rows = 0x10;
 
-                if (mVersion->mPlatform == ePlatform::PC) {
-                    mVideo_Draw_FrameDataPtr += 0x46B8;
-                    mVideo_Draw_Columns = 0x10;
-                } 
-                else {
-                    mVideo_Draw_FrameDataPtr += (113 * 40) + 6;
-                    mVideo_Draw_Columns = 0x2;
-                }
+				mVideo_Draw_FrameDataPtr += VERSION_BASED(0x46B8, ((113 * 40) + 6));
+				mVideo_Draw_Columns = VERSION_BASED(0x10, 0x02);
 
                 mGraphics->Video_Draw_8();
             } 
@@ -3005,6 +3003,16 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
         mKeyCode = pKeyCode;
     else
         mKeyCode = 0;
+
+	// TODO: Switch version on Key press
+	if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
+		
+		//VersionLoad(FindAvailableVersionForCampaignPlatform(mVersion->mName, ePlatform::Amiga));
+	}
+
+	if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
+		//VersionLoad(FindAvailableVersionForCampaignPlatform(mVersion->mName, ePlatform::PC));
+	}
 
     if (pKeyCode == SDL_SCANCODE_EQUALS && pPressed)
         mWindow->WindowIncrease();
@@ -3178,7 +3186,7 @@ void cFodder::WindowTitleSet( bool pInMission ) {
     Title << mTitle.str();
 
     if (pInMission) {
-        if (mVersion->mRelease == eRelease::Demo) {
+        if (mVersion->isDemo()) {
 
             Title << " ( Mission: ";
 
@@ -3249,7 +3257,7 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
     auto DataPath = pVersion->mDataPath;
 
     // Custom version?
-    if (pVersion->mVersion == eVersion::Custom) {
+    if (pVersion->isCustom()) {
         auto RetailRelease = FindAvailableRetail();
 
         // If a retail release is found, we use its data path
@@ -3272,33 +3280,35 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
     VersionCleanup();
 
-    switch (mVersion->mPlatform) {
-        case ePlatform::PC:
-            mResources = new cResource_PC_CD( DataPath );
-            mGraphics = new cGraphics_PC();
+	if (mVersion->isPC()) {
 
-            if (mVersion->mGame == eGame::CF1)
-                mSound = new cSound_PC();
-            
-            if (mVersion->mGame == eGame::CF2)
-                mSound = new cSound_PC2();
+		mResources = new cResource_PC_CD(DataPath);
+		mGraphics = new cGraphics_PC();
 
-            mWindow->SetScreenSize( cDimension( 320, 200 ) );
-            mWindow->SetOriginalRes( cDimension( 320, 200 ) );
+		if (mVersion->mGame == eGame::CF1)
+			mSound = new cSound_PC();
 
-            break;
+		if (mVersion->mGame == eGame::CF2)
+			mSound = new cSound_PC2();
 
-        case ePlatform::Amiga:
-            mResources = new cResource_Amiga_File( DataPath );
-            mGraphics = new cGraphics_Amiga();
-            mSound = new cSound_Amiga();
+		mWindow->SetScreenSize(cDimension(320, 200));
+		mWindow->SetOriginalRes(cDimension(320, 200));
 
-            ((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
+	} else if(mVersion->isAmiga()) {
 
-            mWindow->SetScreenSize( cDimension( 320, 225 ) );
-            mWindow->SetOriginalRes( cDimension( 320, 225 ) );
-            break;
-    }
+        mResources = new cResource_Amiga_File( DataPath );
+        mGraphics = new cGraphics_Amiga();
+        mSound = new cSound_Amiga();
+
+        ((cGraphics_Amiga*)mGraphics)->SetCursorPalette( 0xE0 );
+
+        mWindow->SetScreenSize( cDimension( 320, 225 ) );
+        mWindow->SetOriginalRes( cDimension( 320, 225 ) );
+	}
+	else {
+		std::cout << "Unknown Platform";
+		exit(1);
+	}
 
     mGraphics->SetActiveSpriteSheet( eGFX_IN_GAME );
     mGraphics->Load_pStuff(); 
@@ -3704,9 +3714,7 @@ void cFodder::Mission_Intro_Draw_OpenFodder() {
     {
         int16 DrawY = 0xB5;
 
-        if (mVersion->mPlatform == ePlatform::Amiga)
-            DrawY += 0x16;
-
+		DrawY += VERSION_BASED(0, 0x16);
         //String_Print_Large("CAMPAIGNS", false, DrawY);
     }
 }
@@ -3719,6 +3727,12 @@ void cFodder::Mission_Intro_Draw_Mission_Name( ) {
         Briefing_Draw_Mission_Title( 0xB5 );
 }
 
+/**
+ * Draw the Mission Name or the Map Name
+ *  Drawing at 0xB5 will cause the Mission Name to be drawn.
+ *
+ * @param pDrawAtY
+ */
 void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
     
     // Draw MISSION xx
@@ -3738,8 +3752,7 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
         if (pDrawAtY == 0xB5) {
             Title = mCampaign.getMissionName( mMissionNumber );
 
-            if (mVersion->mPlatform == ePlatform::Amiga)
-                pDrawAtY += 0x16;
+			pDrawAtY += VERSION_BASED(0, 0x16);
 
         } else {
             Title = mCampaign.getMapName(mMapNumber);
@@ -3752,7 +3765,7 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 void cFodder::CopyProtection() {
 
     // Only DOS CD had copy protection
-    if (mVersion->mVersion != eVersion::Dos_CD)
+    if (!mVersion->isPC())
         return;
 
     g_Graphics.SetActiveSpriteSheet( eGFX_Types::eGFX_RECRUIT);
@@ -3865,7 +3878,7 @@ void cFodder::CopyProtection_EncodeInput() {
 }
 
 void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle) {
-	size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
+	size_t YOffset = VERSION_BASED(0, 25);
 
 	mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
@@ -3931,7 +3944,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (int16)mCampaignList.size();
-    mGUI_Select_File_ShownItems = (mVersion->mPlatform == ePlatform::PC ? 4 : 5);
+	mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
 
 	if(mVersion->isRetail())
 		Map_Create(mTileTypes[eTileTypes_Jungle], 0, 0x15, 0x0F, false);
@@ -3962,10 +3975,10 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (int16)Files.size();
-    mGUI_Select_File_ShownItems = (mVersion->mPlatform == ePlatform::PC ? 4 : 5);
+	mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
 
     do {
-        size_t YOffset = (mVersion->mPlatform == ePlatform::PC ? 0 : 25);
+        size_t YOffset = VERSION_BASED(0, 25);
 
         GUI_Element_Reset();
         Recruit_Render_Text( pTitle, 0x0C );
@@ -4061,7 +4074,7 @@ void cFodder::Campaign_Selection() {
     if (Campaign_Load(CampaignFile) == true) {
 
         // 
-        if (mVersion->mVersion == eVersion::Custom) {
+        if (mVersion->isCustom()) {
             mDemo_ExitMenu = 1;
             mCustom_ExitMenu = 1;
         }
@@ -4258,10 +4271,10 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     Menu_Loop(
         [this]() {
             if (mButtonPressLeft) {
-                if (mVersion->mVersion == eVersion::AmigaFormat)
+                if (mVersion->mRelease == eRelease::AmigaFormat)
                     GUI_Element_Mouse_Over( mAfx_Buttons );
 
-                if (mVersion->mVersion == eVersion::AmigaPlus)
+                if (mVersion->mRelease == eRelease::AmigaPower)
                     GUI_Element_Mouse_Over( mPlus_Buttons );
             }
     } );
@@ -4278,13 +4291,13 @@ bool cFodder::Recruit_Loop() {
     mImage->clearBuffer();
 
     // If demo data is loaded, we need to load
-    if (mVersion->mRelease == eRelease::Demo) {
+    if (mVersion->isDemo()) {
 
         if (mCustom_Mode == eCustomMode_Set) {
             VersionLoad(mVersionDefault);
         }
 
-		if (mVersion->mRelease == eRelease::Demo)
+		if (mVersion->isDemo())
 			return 0;
     }
 
@@ -4482,17 +4495,17 @@ void cFodder::Recruit_Draw_Graves( ) {
 }
 
 void cFodder::Recruit_Render_LeftMenu() {
-    int16 Data0 = 0xAD;
-    int16 Data8 = 0;
-    int16 DataC = 0x18;
+    int16 SpriteType = 0xAD;
+    int16 PosX = 0;
+    int16 PosY = 0x18;
     
     // Draw Heroes Heading
-    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
+    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( SpriteType, PosX, PosY );
     
     int16 Data14 = 0x0E;
-    Data0 = 4;
+    SpriteType = 4;
     
-    for( sHero* Data20 = mHeroes; Data0 >= 0; --Data0, ++Data20  ) {
+    for( sHero* Data20 = mHeroes; SpriteType >= 0; --SpriteType, ++Data20  ) {
         if( Data20->mRecruitID == -1 )
             break;
         
@@ -4500,49 +4513,45 @@ void cFodder::Recruit_Render_LeftMenu() {
     }
 
     // Draw Empty Hero Slots
-    DataC = 0x0E;
+    PosY = 0x0E;
     do {
         
-        Data0 = 0xA9;
-        if( DataC >= Data14 )
-            Data0 = 0xAB;
+        SpriteType = 0xA9;
+        if( PosY >= Data14 )
+            SpriteType = 0xAB;
         
-        Data8 = 0;
-        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC + 0x18 );
-        DataC += 0x0C;
+        PosX = 0;
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( SpriteType, PosX, PosY + 0x18 );
+        PosY += 0x0C;
         
-    } while( DataC < 0x4A );
+    } while( PosY < 0x4A );
 
     //seg003:1E89
 
     // Draw Squad Heading
-    Data0 = 0xAE;
-    Data8 = 0;
-    DataC = 0x4A + 0x18;
-    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC );
+    SpriteType = 0xAE;
+    PosX = 0;
+    PosY = 0x4A + 0x18;
+    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( SpriteType, PosX, PosY );
     
+	PosY = 0x58;
     Data14 = mMission_Troops_Required + mMission_Troop_Count;
     Data14 *= 0x0C;
-    DataC = 0x58;
-    Data14 += DataC;
+    Data14 += PosY;
 
-    int16 Final = 0;
-    if (mVersion->mPlatform == ePlatform::PC)
-        Final = 0xA0;
-    else
-        Final = 0xB8;
+    int16 Final = VERSION_BASED(0xA0, 0xB8);
 
     // Draw Used Slot
     do {
-        Data0 = 0xA9;
-        if( DataC >= Data14 )
-            Data0 = 0xAB;
+        SpriteType = 0xA9;
+        if( PosY >= Data14 )
+            SpriteType = 0xAB;
 
-        Data8 = 0;
-        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Data0, Data8, DataC + 0x18 );
-        DataC += 0x0C;
+        PosX = 0;
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( SpriteType, PosX, PosY + 0x18 );
+        PosY += 0x0C;
         
-    } while( DataC < Final );
+    } while( PosY < Final );
 
     word_3AA55 = 0x0F;
     word_3AAC7 = -1;
@@ -4737,12 +4746,7 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
     uint32* Data20 = (uint32*) mGraphics->mImageTemporary.mData->data();
 
     sRecruitRendered* Data24 = mRecruit_Rendered;
-    int16 Data0 = 0x58;
-    
-    if (mVersion->mPlatform == ePlatform::PC)
-        Data0 = 0x58;
-    else
-        Data0 = 0x44;
+    int16 Data0 = VERSION_BASED(0x58, 0x44);
     
     // Squad Troop Names
     for ( ; Data0 < 0xA0; Data0 += 0x0C) {
@@ -4758,15 +4762,9 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
     Data24->mPosition = -1;
 
     int16 DataC = 0x58;
-    int16 Data4 = 0;
-    
-    // Empty Slots
-    if (mVersion->mPlatform == ePlatform::PC)
-        Data4 = 5;
-    else
-        Data4 = 7;
+    int16 Slots = VERSION_BASED(5, 7);    // Empty Slots
 
-    for (; Data4 >= 0; --Data4) {
+    for (; Slots >= 0; --Slots) {
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( 0xAC, 0, DataC + 0x18 );
 
         DataC += 0x0C;
@@ -4928,7 +4926,7 @@ void cFodder::Recruit_Draw_Troops() {
             Data0 = 9;  // Hill Piece
 
         //loc_1784C
-        if (mVersion->mPlatform == ePlatform::PC) {
+        if (mVersion->isPC()) {
             DataC -= 8;
 
             // Hill pieces are 16bit graphics
@@ -5090,10 +5088,7 @@ loc_179B2:;
 }
 
 void cFodder::Recruit_Draw_Truck( ) {
-    int16 DataC = 0xB6;
-
-    if (mVersion->mPlatform == ePlatform::Amiga)
-        DataC = 0xBE;
+    int16 DataC = VERSION_BASED(0xB6, 0xBE);
 
     GUI_Draw_Frame_8( 0x22, mRecruit_Truck_Frame, 0x31, DataC);
 
@@ -5134,7 +5129,7 @@ void cFodder::Recruit_Copy_Sprites() {
             }
 
             // Originally Inside sub_A094C
-            if (mVersion->mPlatform == ePlatform::Amiga) {
+            if (mVersion->isAmiga()) {
                 Columns -= 1;
                 Columns <<= 4;
             }
@@ -5158,7 +5153,7 @@ void cFodder::Recruit_Draw() {
     Recruit_Draw_Actors();
     mGraphics->Sidebar_Copy_To_Surface(0x18);
 
-    if (mVersion->mPlatform == ePlatform::PC)
+    if (mVersion->isPC())
         mGraphics->Recruit_Draw_HomeAway();
 
     Mouse_DrawCursor();
@@ -6127,7 +6122,7 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
     pData2C->field_38 = eSprite_Anim_None;
 
     // HACK: Disable sound for Amiga Plus
-    if (mVersion->mVersion != eVersion::AmigaPlus)
+    if (!mVersion->isAmigaPower())
         Sound_Play( pSprite, eSound_Effect_Missile_Launch, 0x0F );
 
     return -1;
@@ -6923,7 +6918,7 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
     Data30->field_2C = eSprite_Draw_First;
     pData2C->field_38 = eSprite_Anim_None;
 
-    if (mVersion->mVersion == eVersion::AmigaPlus)
+    if (mVersion->isAmigaPower())
         Sound_Play( pSprite, 0x10, 0x0F );
     else
         Sound_Play( pSprite, eSound_Effect_Turret_Fire, 0x0F );
@@ -7142,7 +7137,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
     }
 
 loc_24FF1:;
-    if (mVersion->mRelease == eRelease::Demo) {
+    if (mVersion->isDemo()) {
         Data8 += 0x20;
         if (Data8)
             pSprite->field_62 = Data8;
@@ -8329,18 +8324,13 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
     sGUI_Element* Element = mGUI_NextFreeElement;
     Element->field_0 = &cFodder::GUI_Button_NoAction;
     Element->mX = 0;
+	Element->mY = VERSION_BASED(0xBD, 214);
     Element->mWidth = 0x2F;
     Element->mHeight = 0x0B;
     Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;
+   
+	mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(0xD0, Element->mX, Element->mY);
 
-    if (mVersion->mPlatform == ePlatform::PC) {
-        Element->mY = 0xBD;
-        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( 0xD0, 0, 0xBD );
-    }
-    else {
-        Element->mY = 214;
-        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( 0xD0, 0, 214 );
-    }
     ++Element;
 
     GUI_ClearElement( Element );
@@ -10194,12 +10184,9 @@ void cFodder::GUI_Select_File_Loop( bool pShowCursor ) {
             mMouse_Button_Left_Toggle = 0;
         }
 
-        if (mShow) {
-            if (mVersion->mPlatform == ePlatform::Amiga)
-                GUI_Draw_Frame_8( 0x18, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50 );
-            else
-                GUI_Draw_Frame_8( 0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50 );
-        }
+		// Show the cursor?
+        if (mShow)
+			GUI_Draw_Frame_8( VERSION_BASED(0x0F, 0x18), 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50 );
 
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
@@ -10701,11 +10688,18 @@ void cFodder::GUI_Button_Quiz_11() {
     mDemo_ExitMenu = -1;
 }
 
+void cFodder::Menu_Button_Reset() {
+	mCustom_ExitMenu = 0;
+	mMission_Aborted = false;
+	mDemo_ExitMenu = -1;
+}
+
+/**
+ * Caller of Menu_Loop is responsible for cleaning up button states
+ */
 void cFodder::Menu_Loop( const std::function<void()> pButtonHandler ) {
 
-    mCustom_ExitMenu = 0;
-    mMission_Aborted = false;
-    mDemo_ExitMenu = -1;
+	Menu_Button_Reset();
 
     mImage->Save();
     mGraphics->PaletteSet();
@@ -10762,7 +10756,7 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
 
-        if (mButtonPressLeft)
+        if (mButtonPressLeft || mMission_Aborted)
             break;
 
         if (mImage->GetFaded() == false )
@@ -10780,6 +10774,8 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
 
     mImage->Save();
     mImage->palette_FadeTowardNew();
+
+	Menu_Button_Reset();
 }
 
 void cFodder::Demo_Quiz() {
@@ -10795,11 +10791,12 @@ void cFodder::Demo_Quiz() {
     }
     );
 
-
     mGraphics->Load_And_Draw_Image( "apmenu.lbm", 32 );
     mGraphics->PaletteSet();
     mImage->palette_FadeTowardNew();
     mImage->Save();
+
+	Menu_Button_Reset();
 }
 
 void cFodder::GUI_Loop_Draw_Prepare( int16& pData0, int16& pData4 ) {
@@ -10981,7 +10978,7 @@ void cFodder::Mission_Set_Initial_Weapon() {
 
 void cFodder::Service_Show() {
 
-    //if (mVersion->mRelease == eRelease::Demo) 
+    //if (mVersion->isDemo()) 
     //  return;
 
     WindowTitleSet( false );
@@ -11007,7 +11004,7 @@ void cFodder::Service_KIA_Loop() {
 
     mImage->clearBuffer();
 
-    if (mVersion->mPlatform == ePlatform::PC) {
+    if (mVersion->isPC()) {
         GUI_Draw_Frame_8 (  5, 0, 0x34, 0 );
         GUI_Draw_Frame_16(  7, 0, 0,    0x31 );
         GUI_Draw_Frame_16(  7, 0, 0xF0, 0x31 );
@@ -11057,7 +11054,7 @@ void cFodder::Service_Promotion_Loop() {
         goto loc_18001;
 
     mImage->clearBuffer();
-    if (mVersion->mPlatform == ePlatform::PC) {
+    if (mVersion->isPC()) {
         GUI_Draw_Frame_8( 6, 0, 0x34, 0 );
         GUI_Draw_Frame_16( 8, 0, 0, 0x31 );
         GUI_Draw_Frame_16( 8, 0, 0xF0, 0x31 );
@@ -11167,13 +11164,9 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
 
 void cFodder::Service_Draw_Troop_And_Rank( uint16*& pDi, int16 pRecruitID, int16 pRank ) {
 
-    if (mVersion->mPlatform == ePlatform::PC) {
-        *pDi++ = 9;
-        *pDi++ = 0;
-    } else {
-        *pDi++ = 0;
-        *pDi++ = 1;
-    }
+	*pDi++ = VERSION_BASED(9, 0);
+	*pDi++ = VERSION_BASED(0, 1);
+
     *pDi++ = 0x60;
     *pDi++ = mVideo_Draw_PosY;
 
@@ -11470,10 +11463,7 @@ int16 cFodder::sub_184C7() {
         mVideo_Draw_PosY += ax;
         mVideo_Draw_Rows -= ax;
 
-        if (mVersion->mPlatform == ePlatform::PC)
-            ax *= 160;
-        else if (mVersion->mPlatform == ePlatform::Amiga)
-            ax *= 40;
+		ax *= VERSION_BASED(160, 40);
 
         mVideo_Draw_FrameDataPtr += ax;
     }
@@ -12151,7 +12141,7 @@ void cFodder::Sprite_Handle_Grenade( sSprite* pSprite ) {
     --pSprite->field_56;
     if (!pSprite->field_56) {
         // HACK: Disable grenade sound for cannon plus... it seems corrupted and causes a crash
-        if(mVersion->mVersion != eVersion::AmigaPlus)
+        if(!mVersion->isAmigaPower())
             Sound_Play( pSprite, eSound_Effect_Grenade, 0x0F );
     }
     
@@ -12549,7 +12539,7 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
     int16 Data4, Data8, DataC, Data10, Data14, Data18, Data1C;
     sSprite* Data24 = 0, *Data2C = 0;
 
-    if (mVersion->mVersion == eVersion::AmigaPlus) {
+    if (mVersion->isAmigaPower()) {
         static int FF = 0;
 
         if (++FF == 100) {
@@ -13583,7 +13573,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 
         pSprite->field_56 -= 1;
         if (!pSprite->field_56) {
-            if (mVersion->mVersion == eVersion::AmigaPlus)
+            if (mVersion->isAmigaPower())
                 Sound_Play( pSprite, 0x10, 0x0F );
             else
                 Sound_Play( pSprite, eSound_Effect_Rocket, 0x0F );
@@ -13756,7 +13746,7 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
     mSquad_Rockets[mSquad_Selected] += 4;
 
     // Plus uses homing missiles
-    if (mVersion->mVersion == eVersion::AmigaPlus)
+    if (mVersion->isAmigaPower())
         mSquad_Leader->field_75 |= eSprite_Flag_HomingMissiles;
 
     Sprite_Destroy_Wrapper( pSprite );
@@ -17417,10 +17407,8 @@ void cFodder::String_Print(  const uint8* pWidths, int32 pFontSpriteID, size_t p
                     //loc_29D07
                     if (NextChar > 0x5A) {
                         NextChar -= 0x61;
-                        if (mVersion->mPlatform == ePlatform::Amiga)
-                            NextChar += 0x28;
-                        else
-                            NextChar += 0x39;
+						NextChar += VERSION_BASED(0x39, 0x28);
+   
                         goto loc_29D71;
                     }
                     else {
@@ -17899,10 +17887,7 @@ void cFodder::Mission_Intro_Play() {
 
 void cFodder::Intro_Print_String( int32 pPosY, const sIntroString* pString ) {
 
-    if (mVersion->mPlatform == ePlatform::PC)
-        pPosY -= 0x19;
-    else
-        pPosY += 0x9;
+	pPosY += VERSION_BASED(-0x19, 9);
 
     String_CalculateWidth( 320, mFont_Intro_Width, pString->mText );
     String_Print( mFont_Intro_Width, 0, mGUI_Temp_X, pPosY, pString->mText );
@@ -17915,7 +17900,6 @@ void cFodder::Image_FadeIn() {
     while (mImage->palette_FadeTowardNew() == -1) {
 
         Mouse_Inputs_Get();
-        //Mouse_DrawCursor();
 
         g_Window.RenderAt( mImage, cPosition() );
         g_Window.FrameEnd();
@@ -19727,9 +19711,9 @@ int16 cFodder::Sprite_Create_Rocket( sSprite* pSprite ) {
     Data2C->field_4++;
     Data2C->field_0 += 3;
 
-    // Amiga Plus always has homing missiles
+    // Amiga Power always has homing missiles
     if (pSprite->field_22 == eSprite_PersonType_Human &&
-        (mVersion->mVersion == eVersion::AmigaPlus || (pSprite->field_75 & eSprite_Flag_HomingMissiles)) ) {
+        (mVersion->isAmigaPower() || (pSprite->field_75 & eSprite_Flag_HomingMissiles)) ) {
 
         // Within lock on range?
         if (Sprite_Homing_LockInRange( pSprite, Data34 )) {
@@ -20020,7 +20004,7 @@ int16 cFodder::Recruit_Show() {
     if (mCustom_Mode != eCustomMode_Map) {
 
         // Retail / Custom set show the Recruitment Hill
-        if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set) {
+        if (mVersion->isRetail() || mCustom_Mode == eCustomMode_Set) {
 
             // Recruit Screen
             if (Recruit_Loop())
@@ -20096,7 +20080,7 @@ Start:;
     if (mGUI_SaveLoadAction == 1)
         return;
 
-    if (mVersion->mRelease == eRelease::Demo)
+    if (mVersion->isDemo())
         pStartMap = 0;
 
     Mouse_Setup();
@@ -20121,7 +20105,7 @@ int16 cFodder::Mission_Loop() {
         if (!mMission_Aborted && !mMission_TryAgain) {
 
             // Demo / Custom Mission restart
-            if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set)
+            if (mVersion->isDemo() && mCustom_Mode != eCustomMode_Set)
                 break;
 
             // Reached last map in this mission set?
@@ -20142,7 +20126,7 @@ int16 cFodder::Mission_Loop() {
         mInput_Enabled = 0;
 
         // Show the intro for retail releases
-        if (mVersion->mRelease != eRelease::Demo) {
+        if (!mVersion->isDemo()) {
             if (!mIntroDone)
                 intro();
         }
@@ -20291,10 +20275,10 @@ int16 cFodder::Mission_Loop() {
         }
 
         // Demo/Single mission 
-        if (mVersion->mRelease == eRelease::Demo && mCustom_Mode != eCustomMode_Set) {
+        if (mVersion->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
             // Custom can do the service screen
-            if(!mMission_Aborted && mVersion->mVersion == eVersion::Custom)
+            if(!mMission_Aborted && mVersion->isCustom())
                 Service_Show();
 
             break;
@@ -21151,7 +21135,7 @@ void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
         return;
 
     // No the map overview button in the Demo versions
-    if (mVersion->mRelease == eRelease::Demo && mVersion->mVersion != eVersion::Custom)
+    if (mVersion->isDemo() && !mVersion->isCustom())
         return;
 
     mGUI_Sidebar_MapButton_Prepared = 0;
