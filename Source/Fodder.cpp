@@ -20440,7 +20440,7 @@ loc_2F1BC:;
 
     sMission_Troop* Data38 = mMission_Troops;
 
-    mSidebar_Draw_Y = mGUI_Loop_Draw_Y + 0x23;
+    mSidebar_Draw_Y = mGUI_Loop_Draw_Y + 0x22;
 
     // Loop the squad
     for (int16 word_3A061 = 7; word_3A061 >= 0; --word_3A061, ++Data38 ) {
