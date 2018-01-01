@@ -159,18 +159,22 @@ void cGraphics_PC::Load_Service_Data() {
 }
 
 void cGraphics_PC::Tile_Prepare_Gfx() {
-	uint16 bx = 0, dx = 0;
+	uint16 TileOffset = 0, Tile = 0;
 
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
-		mTile_Gfx_Ptrs[cx + 0x00] = mFodder->mTile_BaseBlk->data() + bx;
-		mTile_Gfx_Ptrs[cx + 0xF0] = mFodder->mTile_SubBlk->data() + bx;
+		mTile_Gfx_Ptrs[cx + 0x00] = mFodder->mTile_BaseBlk->data() + TileOffset;
+		mTile_Gfx_Ptrs[cx + 0xF0] = mFodder->mTile_SubBlk->data() + TileOffset;
 
-		++dx;
-		bx += 0x10;
-		if (dx % 0x14 == 0) {
-			dx = 0;
-			bx += 0x12C0;
+		++Tile;
+		TileOffset += 0x10;
+
+		// 20 Tiles per row, have we reached end of row?
+		if (Tile % 20 == 0) {
+			Tile = 0;
+
+			// Skip the rest of the rows for the current tile (240 * 20)
+			TileOffset += 0x12C0;
 		}
 	}			
 }

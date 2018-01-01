@@ -86,7 +86,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		return mSpriteSheet_RankFont.mData->data();
 
 	case eGFX_PSTUFF:
-		if (mFodder->mVersion->mVersion == eVersion::AmigaFormat)
+		if (mFodder->mVersion->isAmigaFormat())
 			mFodder->mVideo_Draw_PaletteIndex = (uint8)mCursorPalette;
 		else
 			mFodder->mVideo_Draw_PaletteIndex = 0xE0;

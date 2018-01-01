@@ -1279,6 +1279,7 @@ public:
     void            WindowTitleSet( bool pInMission );
     void            WindowTitleBaseSetup();
 
+	void			Menu_Button_Reset();
     void            Menu_Loop( const std::function<void( )> pButtonHandler );
     bool            Menu_Draw( const std::function<void( )> pButtonHandler );
 
