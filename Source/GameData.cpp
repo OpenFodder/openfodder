@@ -39,7 +39,7 @@ sGameData::sGameData(const std::string& pFromJson) {
 	sGameData();
 
 	if (!FromJson(pFromJson))
-		throw new std::exception("Invalid Savegame");
+		throw std::runtime_error("Invalid Savegame");
 }
 
 void sGameData::Clear() {
