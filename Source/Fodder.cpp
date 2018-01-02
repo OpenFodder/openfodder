@@ -18090,6 +18090,9 @@ void cFodder::WonGame() {
     mMouseX = -1;
     mMouseY = -1;
 
+	if(mVersion->isAmiga())
+		mWindow->SetScreenSize(cDimension(320, 260));
+
     mGraphics->Load_And_Draw_Image( "won", 0x100 );
 
     Image_FadeIn();
@@ -18101,6 +18104,9 @@ void cFodder::WonGame() {
     }
 
     Image_FadeOut();
+
+	if (mVersion->isAmiga())
+		mWindow->SetScreenSize(cDimension(320, 225));
 }
 
 int16 cFodder::Sprite_Handle_Troop_Get_Frame_For_Direction( sSprite* pSprite ) {

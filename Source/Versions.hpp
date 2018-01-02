@@ -58,7 +58,7 @@ struct sVersion {
 
 	const sIntroText*	mIntroData;
 	const std::string	mDataPath;
-	const std::vector<sFile>*		mFiles;
+	const std::vector<sFile>		mFiles;
 
 	const std::vector<eTileTypes>	mTileTypes;
 	const std::vector<eGFX_Types>   mGfxTypes;
