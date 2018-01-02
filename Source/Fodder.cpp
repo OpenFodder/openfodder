@@ -3929,7 +3929,6 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 			auto FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
 
 			for (; DataC < mGUI_Select_File_ShownItems && FileIT != Files.end(); ++DataC) {
-
 				size_t Pos = FileIT->find_first_of(".");
 
 				GUI_Button_Draw(FileIT->substr(0, Pos), 0x3E + (DataC * 0x15), 0xB2, 0xB3);
@@ -3941,6 +3940,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 			auto FileIT = SaveFiles.begin() + mGUI_Select_File_CurrentIndex;
 
 			for (; DataC < mGUI_Select_File_ShownItems && FileIT != SaveFiles.end(); ++DataC) {
+
 				GUI_Button_Draw(FileIT->mName, 0x3E + (DataC * 0x15), 0xB2, 0xB3);
 				GUI_Button_Setup(&cFodder::GUI_Button_Filename);
 				++FileIT;
