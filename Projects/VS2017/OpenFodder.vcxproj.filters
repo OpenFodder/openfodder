@@ -135,11 +135,11 @@
     <ClInclude Include="..\..\Source\Campaign.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Utils\diamond.hpp">
-      <Filter>Source\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Structures\Barracks.hpp">
       <Filter>Source\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp">
+      <Filter>Source\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

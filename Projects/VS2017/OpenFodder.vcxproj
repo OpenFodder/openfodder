@@ -198,7 +198,7 @@
     <ClInclude Include="..\..\Source\Tiles.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
     <ClInclude Include="..\..\Source\Map.hpp" />
-    <ClInclude Include="..\..\Source\Utils\diamond.hpp" />
+    <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp" />
     <ClInclude Include="..\..\Source\Utils\json.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />

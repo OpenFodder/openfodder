@@ -25,17 +25,17 @@
 cGraphics::cGraphics() {
 
 	mFodder = g_Fodder.GetSingletonPtr();
-	mImage = g_Fodder.mImage;
-	mImageOriginal = mImage;
+	mSurface = g_Fodder.mSurface;
+	mImageOriginal = mSurface;
 
 	mImageTemporary.mData->resize(100000);
 }
 
 void cGraphics::SetImage( cSurface* pImage ) {
-	mImage = pImage;
+	mSurface = pImage;
 }
 
 void cGraphics::SetImageOriginal() {
 
-	mImage = mImageOriginal;
+	mSurface = mImageOriginal;
 }

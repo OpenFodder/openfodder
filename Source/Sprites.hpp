@@ -205,8 +205,8 @@ struct sSprite {
 	int16 field_2;		
 	int16 field_4;		// Y
 	int16 field_6;
-	int16 field_8;		// Animation   mSpriteSheetPtr[field_8][field_a]
-	int16 field_A;		// FrameNumber mSpriteSheetPtr[field_8][field_a]
+	int16 field_8;		// Animation   mSprite_SheetPtr[field_8][field_a]
+	int16 field_A;		// FrameNumber mSprite_SheetPtr[field_8][field_a]
 	int16 field_C;
 	int16 field_E;
 	int16 field_10;		// Next Direction
