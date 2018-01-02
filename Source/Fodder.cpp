@@ -10366,12 +10366,13 @@ void cFodder::Game_Load() {
     std::ifstream SaveFile( Filename, std::ios::binary );
     if (SaveFile.is_open()) {
 
-        std::vector<char> SaveGameContent( 
+        std::string SaveGameContent( 
             (std::istreambuf_iterator<char>( SaveFile )),
             (std::istreambuf_iterator<char>()) 
         );
 
-		if (!mGame_Data.FromJson(std::string(SaveGameContent.data(), SaveGameContent.size()))) {
+		// Load the game data from the JSON
+		if (!mGame_Data.FromJson(SaveGameContent)) {
 			return;
 		}
 
