@@ -81,9 +81,9 @@ class cFodder : public cSingleton < cFodder > {
     std::vector<cEvent>     mEvents;
 	bool					mOpenFodder_Intro_Done;
 
-	const sVersion*			mVersionDefault;
-    const sVersion*         mVersion;
-    cCampaign               mCampaign;
+	const sVersion*			mVersionDefault;		// Version to switch back to when looking for data
+    const sVersion*         mVersionCurrent;		// Version currently being used
+    cCampaign               mCampaign;				// Campaign currently being played
 
     cGraphics*              mGraphics;
     cSound*                 mSound;
@@ -95,11 +95,11 @@ class cFodder : public cSingleton < cFodder > {
     sSprite                 mSprite_Spare;
     sSprite                 mSprites[45];
 
-    const sSpriteSheet**    mSpriteSheetPtr;
+    const sSpriteSheet**    mSprite_SheetPtr;
     
     void                    (cFodder::*mSprite_Function[117])( sSprite* pSprite );
 
-    std::stringstream       mTitle;
+    std::stringstream       mWindowTitle;
 
     std::string     mFilenameCopt;
     std::string     mFilenameBaseSwp;
@@ -112,7 +112,7 @@ class cFodder : public cSingleton < cFodder > {
     std::string     mFilenameBasePal;
 
     cSurface*       mSurfaceMapOverview;
-    cSurface*       mImage;
+    cSurface*       mSurface;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
     cPosition       mMousePosition;
@@ -170,8 +170,6 @@ class cFodder : public cSingleton < cFodder > {
 
 
     /* These used to be in the save game region */
-    uint16          mSaved_MissionNumber;                   // unused
-    uint16          mSaved_MapNumber;                       // unused
     sSprite*        mMission_Troops_SpritePtrs[8];
 
     int16*          mGraveRankPtr;

@@ -26,7 +26,7 @@
 
 #define ButtonToMouseVersion(x) case x: { Buttons[x].mMouseInsideFuncPtr = &cFodder::VersionSelect_##x; break; }
 
-#define VERSION_BASED( pPC, pAmiga ) (mVersion->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
+#define VERSION_BASED( pPC, pAmiga ) (mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
 
 
 const int16 mBriefing_Helicopter_Offsets[] =
@@ -43,7 +43,7 @@ const int16 mBriefing_Helicopter_Offsets[] =
 
 cFodder::cFodder( cWindow* pWindow, bool pSkipIntro ) {
     
-    mVersion = 0;
+    mVersionCurrent = 0;
     mVersionDefault = 0;
 
     mOpenFodder_Intro_Done = false;
@@ -216,7 +216,7 @@ void cFodder::Squad_Walk_Target_SetAll( int16 pValue ) {
 
 int16 cFodder::Map_Loop( ) {
 
-    mImage->Save();
+    mSurface->Save();
 
     for (;;) {
         Video_Sleep();
@@ -269,7 +269,7 @@ int16 cFodder::Map_Loop( ) {
 
             while (mMission_Paused) {
 
-                g_Window.RenderAt( mImage );
+                g_Window.RenderAt( mSurface );
                 g_Window.FrameEnd();
                 eventProcess();
                 Video_Sleep();
@@ -277,12 +277,12 @@ int16 cFodder::Map_Loop( ) {
 
             mGraphics->PaletteSet();
             mImageFaded = -1;
-            mImage->palette_FadeTowardNew();
+            mSurface->palette_FadeTowardNew();
             mPaused = -1;
         }
 
         if( mImageFaded == -1 )
-            mImageFaded = mImage->palette_FadeTowardNew();
+            mImageFaded = mSurface->palette_FadeTowardNew();
 
         Camera_Update_From_Mouse();
         if (mPaused == -1) {
@@ -320,9 +320,9 @@ int16 cFodder::Map_Loop( ) {
         Sprite_HelicopterCallPad_Check();
         Mission_Final_Timer();
 
-        g_Window.RenderAt( mImage );
+        g_Window.RenderAt( mSurface );
         g_Window.FrameEnd();
-        mImage->Restore();
+        mSurface->Restore();
     }
 
     return 0;
@@ -512,8 +512,6 @@ void cFodder::Game_ClearVariables() {
     mMissionNumber = 0;
     mMissionPhase = 0;
     mRecruits_Available_Count = 0;
-    mSaved_MissionNumber = 0;
-    mSaved_MapNumber = 0;
     Mission_Troop_Prepare_SetFromSpritePtrs = 0;
 
     for (unsigned int x = 0; x < 8; ++x) {
@@ -1486,7 +1484,7 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
             const sRecruit* Data24 = &mRecruits[mRecruit_NextID];
 
             // Demo sets static ranks
-            if (mVersion->isDemo() && mCustom_Mode != eCustomMode_Set) {
+            if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
                 Data20->mRank = (mMissionNumber - 1) >> 1;
 
@@ -1879,12 +1877,12 @@ bool cFodder::Campaign_Load( std::string pName ) {
     // If no campaign name was provided, use the default for the current version
     if (!pName.size()) {
 
-        if (!mVersion->isCustom()) {
-            pName = mVersion->mName;
+        if (!mVersionCurrent->isCustom()) {
+            pName = mVersionCurrent->mName;
         }
     }
     
-    if (!mCampaign.LoadCampaign(pName, pName != mVersion->mName)) {
+    if (!mCampaign.LoadCampaign(pName, pName != mVersionCurrent->mName)) {
         // TODO
 
         return false;
@@ -1896,14 +1894,14 @@ bool cFodder::Campaign_Load( std::string pName ) {
 void cFodder::Map_Create( const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
     uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
 
-	if (mVersion->isAmigaPower())
+	if (mVersionCurrent->isAmigaPower())
 		pTileSub = 1;
 
 	mMap = std::make_shared<std::vector<uint8_t>>();
     mMap->clear();
     mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
 	
-	mMapTile_Ptr = (0x60 - 8) - (pWidth * 2);
+	mMapTile_Ptr = (int32) ((0x60 - 8) - (pWidth * 2));
 	mMapTile_Column = 0;
 	mMapTile_Row = 0;
 
@@ -1962,8 +1960,8 @@ void cFodder::Map_Create( const sTileType& pTileType, size_t pTileSub, const siz
 	Mission_Sprites_Handle();
 
     // Refresh the palette
-    g_Graphics.PaletteSet(mImage);
-    mImage->surfaceSetToPaletteNew();
+    g_Graphics.PaletteSet(mSurface);
+    mSurface->surfaceSetToPaletteNew();
 #endif
 }
 
@@ -2030,7 +2028,7 @@ void cFodder::Map_Load_Resources() {
     if (!Tiles_Load_Data()) {
 
         // Is the current version meant to have the required tileset?
-        if (mVersion->hasTileset(mMap_TileSet)) {
+        if (mVersionCurrent->hasTileset(mMap_TileSet)) {
 
             // TODO: Warn user about missing data?
         }
@@ -2618,7 +2616,7 @@ loc_1280A:;
 
     if (mMission_Completed_Timer == 0x19) {
         mImageFaded = -1;
-        mImage->paletteNew_SetToBlack();
+        mSurface->paletteNew_SetToBlack();
     }
     --mMission_Completed_Timer;
     if (mMission_Completed_Timer)
@@ -2821,8 +2819,8 @@ void cFodder::Squad_EnteredVehicle_TimerTick() {
 void cFodder::Mission_Map_Overview_Show() {
 
     // Overview map is disabled for demos
-    if ( mVersion->isDemo() && 
-         !mVersion->isCustom())
+    if ( mVersionCurrent->isDemo() && 
+         !mVersionCurrent->isCustom())
         return;
 
     int16 word_3A016 = 0;
@@ -3007,11 +3005,11 @@ void cFodder::keyProcess( uint8 pKeyCode, bool pPressed ) {
 	// TODO: Switch version on Key press
 	if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
 		
-		//VersionLoad(FindAvailableVersionForCampaignPlatform(mVersion->mName, ePlatform::Amiga));
+		//VersionLoad(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::Amiga));
 	}
 
 	if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
-		//VersionLoad(FindAvailableVersionForCampaignPlatform(mVersion->mName, ePlatform::PC));
+		//VersionLoad(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::PC));
 	}
 
     if (pKeyCode == SDL_SCANCODE_EQUALS && pPressed)
@@ -3183,10 +3181,10 @@ void cFodder::Mouse_ButtonCheck() {
 
 void cFodder::WindowTitleSet( bool pInMission ) {
     std::stringstream Title;
-    Title << mTitle.str();
+    Title << mWindowTitle.str();
 
     if (pInMission) {
-        if (mVersion->isDemo()) {
+        if (mVersionCurrent->isDemo()) {
 
             Title << " ( Mission: ";
 
@@ -3224,19 +3222,19 @@ void cFodder::VersionCleanup() {
 
 void cFodder::WindowTitleBaseSetup() {
 
-    mTitle.str( "" );
-    mTitle << "Open Fodder";
+    mWindowTitle.str( "" );
+    mWindowTitle << "Open Fodder";
 
-    if (mVersion) {
+    if (mVersionCurrent) {
 
         // Ensure we have a campaign
         if (mCampaign.getName().size()) {
             if (mCampaign.isCustom()) {
-                mTitle << ": Custom (" << mCampaign.getName() << ")";
+                mWindowTitle << ": Custom (" << mCampaign.getName() << ")";
             }
             else {
 
-                mTitle << ": " << mCampaign.getName();
+                mWindowTitle << ": " << mCampaign.getName();
             }
         }
     }
@@ -3269,10 +3267,10 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
         }
     }
 
-    if (mVersion == pVersion)
+    if (mVersionCurrent == pVersion)
         return;
 
-    mVersion = pVersion;
+    mVersionCurrent = pVersion;
 
     WindowTitleBaseSetup();
 
@@ -3280,21 +3278,21 @@ void cFodder::VersionLoad( const sVersion* pVersion ) {
 
     VersionCleanup();
 
-	if (mVersion->isPC()) {
+	if (mVersionCurrent->isPC()) {
 
 		mResources = new cResource_PC_CD(DataPath);
 		mGraphics = new cGraphics_PC();
 
-		if (mVersion->mGame == eGame::CF1)
+		if (mVersionCurrent->mGame == eGame::CF1)
 			mSound = new cSound_PC();
 
-		if (mVersion->mGame == eGame::CF2)
+		if (mVersionCurrent->mGame == eGame::CF2)
 			mSound = new cSound_PC2();
 
 		mWindow->SetScreenSize(cDimension(320, 200));
 		mWindow->SetOriginalRes(cDimension(320, 200));
 
-	} else if(mVersion->isAmiga()) {
+	} else if(mVersionCurrent->isAmiga()) {
 
         mResources = new cResource_Amiga_File( DataPath );
         mGraphics = new cGraphics_Amiga();
@@ -3342,7 +3340,7 @@ void cFodder::Prepare( ) {
     mMission_Memory_Backup = new uint8[ End - Start ];
     Briefing_Set_Render_1_Mode_On();
 
-    mImage = new cSurface( 352, 364 );
+    mSurface = new cSurface( 352, 364 );
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
@@ -3430,8 +3428,8 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
 
 void cFodder::Mission_Paused() {
 
-    mImage->paletteNew_SetToBlack();
-    mImage->palette_FadeTowardNew();
+    mSurface->paletteNew_SetToBlack();
+    mSurface->palette_FadeTowardNew();
     mImageFaded = -1;
 
     mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
@@ -3697,7 +3695,7 @@ void cFodder::sub_1594F( ) {
         word_428D8 = 0;
 
         mGraphics->mImageMissionIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
-        mImage->paletteNew_SetToBlack();
+        mSurface->paletteNew_SetToBlack();
         mImageFaded = -1;
     }
 
@@ -3765,7 +3763,7 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
 void cFodder::CopyProtection() {
 
     // Only DOS CD had copy protection
-    if (!mVersion->isPC())
+    if (!mVersionCurrent->isPC())
         return;
 
     g_Graphics.SetActiveSpriteSheet( eGFX_Types::eGFX_RECRUIT);
@@ -3778,7 +3776,7 @@ void cFodder::CopyProtection() {
             Data0 = tool_RandomGet() & 0x0F;
         }  while (Data0 == 0x0F);
 
-        mImage->clearBuffer();
+        mSurface->clearBuffer();
         mGraphics->PaletteSet();
 
         const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
@@ -3804,13 +3802,13 @@ void cFodder::CopyProtection() {
         memset( mInputString, 0, sizeof( mInputString ) );
         mInputString_Position = 0;
 
-        mImage->Save();
+        mSurface->Save();
         mKeyCodeAscii = 0;
 
         while (mKeyCodeAscii != 0x0D) {
             
             if (mImageFaded) {
-                mImageFaded = mImage->palette_FadeTowardNew();
+                mImageFaded = mSurface->palette_FadeTowardNew();
             }
 
             String_Input_Print( 0xA0 );
@@ -3823,11 +3821,11 @@ void cFodder::CopyProtection() {
             if (mShow)
                 GUI_Draw_Frame_8( 0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0xA0);
 
-            g_Window.RenderAt( mImage );
+            g_Window.RenderAt( mSurface );
             g_Window.FrameEnd();
             eventProcess();
 
-            mImage->Restore();
+            mSurface->Restore();
         }
 
         Image_FadeOut();
@@ -3946,7 +3944,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     mGUI_Select_File_Count = (int16)mCampaignList.size();
 	mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
 
-	if(mVersion->isRetail())
+	if(mVersionCurrent->isRetail())
 		Map_Create(mTileTypes[eTileTypes_Jungle], 0, 0x15, 0x0F, false);
 	else
 		Map_Create(mTileTypes[eTileTypes_AFX], 0, 0x15, 0x0F, false);
@@ -3992,7 +3990,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
         GUI_Button_Draw( "CONTINUE GAME", 0xB3 + YOffset);
         GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
 
-        mImage->Save();
+        mSurface->Save();
 
         int16 DataC = 0;
 
@@ -4007,7 +4005,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
         }
 
         GUI_Select_File_Loop( false );
-        mImage->Restore();
+        mSurface->Restore();
 
     } while (mGUI_SaveLoadAction == 3);
 
@@ -4052,12 +4050,12 @@ void cFodder::Campaign_Selection() {
         const sVersion* Version = FindAvailableVersionForCampaign(CampaignFile);
 
         // Load a new version?
-        if (Version && Version != mVersion) {
+        if (Version && Version != mVersionCurrent) {
             VersionLoad(Version);
         }
 
         // Set the default/starting version
-        mVersionDefault = mVersion;
+        mVersionDefault = mVersionCurrent;
 
         // Single Map Mode?
         if (CampaignFile == "Single Map" || CampaignFile == "Random Map") {
@@ -4074,7 +4072,7 @@ void cFodder::Campaign_Selection() {
     if (Campaign_Load(CampaignFile) == true) {
 
         // 
-        if (mVersion->isCustom()) {
+        if (mVersionCurrent->isCustom()) {
             mDemo_ExitMenu = 1;
             mCustom_ExitMenu = 1;
         }
@@ -4156,7 +4154,7 @@ void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTit
 
 	if (mGUI_SaveLoadAction != 3) {
 
-		mImage->palette_FadeTowardNew();
+		mSurface->palette_FadeTowardNew();
 		Mouse_Setup();
 	}
 	mGUI_SaveLoadAction = 0;
@@ -4164,7 +4162,7 @@ void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTit
 	mImageFaded = -1;
 	mGraphics->PaletteSet();
 
-	mImage->Save();
+	mSurface->Save();
 
 	mImageFaded = -1;
 	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
@@ -4182,7 +4180,7 @@ void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTit
 		Sprites_Draw();
 
 		if (mImageFaded == -1)
-			mImageFaded = mImage->palette_FadeTowardNew();
+			mImageFaded = mSurface->palette_FadeTowardNew();
 
 		Mouse_Inputs_Get();
 		Mouse_DrawCursor();
@@ -4210,11 +4208,11 @@ void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTit
 		if (dword_3B30D)
 			(this->*dword_3B30D)(0x50);
 
-		g_Window.RenderAt(mImage, cPosition());
+		g_Window.RenderAt(mSurface, cPosition());
 		g_Window.FrameEnd();
 
 		Video_Sleep();
-		mImage->Restore();
+		mSurface->Restore();
 
 	} while (mGUI_SaveLoadAction <= 0);
 
@@ -4232,7 +4230,7 @@ void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTit
 void cFodder::Custom_ShowMapSelection() {
 
 	// If demo data is loaded, we need to enture a retail release is loaded for the menu draw data
-	if (mVersion->isDemo()) {
+	if (mVersionCurrent->isDemo()) {
 
 		VersionLoad(mVersionDefault);
 	}
@@ -4277,10 +4275,10 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     Menu_Loop(
         [this]() {
             if (mButtonPressLeft) {
-                if (mVersion->mRelease == eRelease::AmigaFormat)
+                if (mVersionCurrent->mRelease == eRelease::AmigaFormat)
                     GUI_Element_Mouse_Over( mAfx_Buttons );
 
-                if (mVersion->mRelease == eRelease::AmigaPower)
+                if (mVersionCurrent->mRelease == eRelease::AmigaPower)
                     GUI_Element_Mouse_Over( mPlus_Buttons );
             }
     } );
@@ -4294,16 +4292,16 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
 bool cFodder::Recruit_Loop() {
 
-    mImage->clearBuffer();
+    mSurface->clearBuffer();
 
     // If demo data is loaded, we need to load
-    if (mVersion->isDemo()) {
+    if (mVersionCurrent->isDemo()) {
 
         if (mCustom_Mode == eCustomMode_Set) {
             VersionLoad(mVersionDefault);
         }
 
-		if (mVersion->isDemo())
+		if (mVersionCurrent->isDemo())
 			return 0;
     }
 
@@ -4322,7 +4320,7 @@ bool cFodder::Recruit_Loop() {
 
     Recruit_Copy_Sprites();
     
-    if (mVersion->mPlatform == ePlatform::Amiga) {
+    if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
         
         ((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
     }
@@ -4332,8 +4330,8 @@ bool cFodder::Recruit_Loop() {
     Recruit_Draw_Graves();
     
     mGraphics->PaletteSet();
-    mImage->palette_FadeTowardNew();
-    mImage->Save();
+    mSurface->palette_FadeTowardNew();
+    mSurface->Save();
 
     mGUI_Mouse_Modifier_X = 0;
     mGUI_Mouse_Modifier_Y = 0x1D;
@@ -4371,9 +4369,9 @@ bool cFodder::Recruit_Loop() {
     mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
     mMouseCursor_Enabled = 0;
     
-    mImage->paletteNew_SetToBlack();
+    mSurface->paletteNew_SetToBlack();
     
-    while( mImage->GetFaded() == false ) {
+    while( mSurface->GetFaded() == false ) {
         Recruit_Draw();
     }
 
@@ -4932,7 +4930,7 @@ void cFodder::Recruit_Draw_Troops() {
             Data0 = 9;  // Hill Piece
 
         //loc_1784C
-        if (mVersion->isPC()) {
+        if (mVersionCurrent->isPC()) {
             DataC -= 8;
 
             // Hill pieces are 16bit graphics
@@ -5135,7 +5133,7 @@ void cFodder::Recruit_Copy_Sprites() {
             }
 
             // Originally Inside sub_A094C
-            if (mVersion->isAmiga()) {
+            if (mVersionCurrent->isAmiga()) {
                 Columns -= 1;
                 Columns <<= 4;
             }
@@ -5159,23 +5157,23 @@ void cFodder::Recruit_Draw() {
     Recruit_Draw_Actors();
     mGraphics->Sidebar_Copy_To_Surface(0x18);
 
-    if (mVersion->isPC())
+    if (mVersionCurrent->isPC())
         mGraphics->Recruit_Draw_HomeAway();
 
     Mouse_DrawCursor();
     Video_Sleep_Wrapper();
 
-    if (mImage->GetFaded() == false )
-        mImage->palette_FadeTowardNew();
+    if (mSurface->GetFaded() == false )
+        mSurface->palette_FadeTowardNew();
 
     mVideo_Draw_PosX = 0x40;
     mVideo_Draw_PosY = 0x28;
     mVideo_Draw_Columns = 0x110;
     mVideo_Draw_Rows = 0xB0;
 
-    g_Window.RenderAt( mImage );
+    g_Window.RenderAt( mSurface );
     g_Window.FrameEnd();
-    mImage->Restore();
+    mSurface->Restore();
 }
 
 bool cFodder::Recruit_Check_Buttons_SaveLoad() {
@@ -6128,7 +6126,7 @@ int16 cFodder::Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C ) {
     pData2C->field_38 = eSprite_Anim_None;
 
     // HACK: Disable sound for Amiga Plus
-    if (!mVersion->isAmigaPower())
+    if (!mVersionCurrent->isAmigaPower())
         Sound_Play( pSprite, eSound_Effect_Missile_Launch, 0x0F );
 
     return -1;
@@ -6924,7 +6922,7 @@ int16 cFodder::Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C,
     Data30->field_2C = eSprite_Draw_First;
     pData2C->field_38 = eSprite_Anim_None;
 
-    if (mVersion->isAmigaPower())
+    if (mVersionCurrent->isAmigaPower())
         Sound_Play( pSprite, 0x10, 0x0F );
     else
         Sound_Play( pSprite, eSound_Effect_Turret_Fire, 0x0F );
@@ -7143,7 +7141,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy( sSprite* pSprite ) {
     }
 
 loc_24FF1:;
-    if (mVersion->isDemo()) {
+    if (mVersionCurrent->isDemo()) {
         Data8 += 0x20;
         if (Data8)
             pSprite->field_62 = Data8;
@@ -9033,7 +9031,7 @@ int16 cFodder::Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8
 }
 
 const sSpriteSheet* cFodder::Sprite_Get_Sheet(int16 pSpriteType, int16 pFrame) {
-    const sSpriteSheet* Sheet = &mSpriteSheetPtr[pSpriteType][pFrame];
+    const sSpriteSheet* Sheet = &mSprite_SheetPtr[pSpriteType][pFrame];
 
     return Sheet;
 }
@@ -10118,7 +10116,7 @@ void cFodder::Game_Save_Wrapper2() {
 }
 
 void cFodder::GUI_Element_Reset() {
-    mImage->clearBuffer();
+    mSurface->clearBuffer();
 
     mGUI_NextFreeElement = mGUI_Elements;
 
@@ -10167,7 +10165,7 @@ void cFodder::GUI_Select_File_Loop( bool pShowCursor ) {
     int8 byte_44B49 = 0;
     if (mGUI_SaveLoadAction != 3) {
 
-        mImage->palette_FadeTowardNew();
+        mSurface->palette_FadeTowardNew();
         Mouse_Setup();
     }
     mGUI_SaveLoadAction = 0;
@@ -10175,12 +10173,12 @@ void cFodder::GUI_Select_File_Loop( bool pShowCursor ) {
     mImageFaded = -1;
     mGraphics->PaletteSet();
 
-    mImage->Save();
+    mSurface->Save();
     bool mShow = false;
 
     do {
         if (mImageFaded == -1)
-            mImageFaded = mImage->palette_FadeTowardNew();
+            mImageFaded = mSurface->palette_FadeTowardNew();
 
         ++byte_44B49;
         byte_44B49 &= 0x0F;
@@ -10207,9 +10205,9 @@ void cFodder::GUI_Select_File_Loop( bool pShowCursor ) {
         if (dword_3B30D)
             (this->*dword_3B30D)(0x50);
 
-        g_Window.RenderAt( mImage, cPosition() );
+        g_Window.RenderAt( mSurface, cPosition() );
         g_Window.FrameEnd();
-        mImage->Restore();
+        mSurface->Restore();
 
     } while (mGUI_SaveLoadAction <= 0);
 
@@ -10284,7 +10282,7 @@ void cFodder::Game_Save() {
     mInputString[mInputString_Position + 0] = '.';
     mInputString[mInputString_Position + 1] = 'o';
     mInputString[mInputString_Position + 2] = 'f';
-    mInputString[mInputString_Position + 3] = (mVersion->mGame == eGame::CF1) ? 0 : '2';
+    mInputString[mInputString_Position + 3] = (mVersionCurrent->mGame == eGame::CF1) ? 0 : '2';
     mInputString[mInputString_Position + 4] = 0;
 
     std::string Filename = local_PathGenerate( mInputString, "", eDataType::eSave );
@@ -10293,7 +10291,7 @@ void cFodder::Game_Save() {
 
     // Copy from mMapNumber to mSaved_MissionNumber
     uint8* Start = (uint8*) &mMapNumber;
-    uint8* End = (uint8*)&mSaved_MissionNumber;
+    uint8* End = (uint8*)&mMission_Troops_SpritePtrs;
     
     int16 SavegameVersion = 1;
 
@@ -10441,7 +10439,7 @@ void cFodder::GUI_Input_CheckKey() {
 }
 void cFodder::Game_Load() {
 
-    const std::string File = GUI_Select_File( "SELECT FILE", "", mVersion->mGame == eGame::CF1 ? ".of" : ".of2", eDataType::eSave);
+    const std::string File = GUI_Select_File( "SELECT FILE", "", mVersionCurrent->mGame == eGame::CF1 ? ".of" : ".of2", eDataType::eSave);
     if (!File.size())
         return;
 
@@ -10707,9 +10705,9 @@ void cFodder::Menu_Loop( const std::function<void()> pButtonHandler ) {
 
 	Menu_Button_Reset();
 
-    mImage->Save();
+    mSurface->Save();
     mGraphics->PaletteSet();
-    mImage->palette_FadeTowardNew();
+    mSurface->palette_FadeTowardNew();
 
     for (;;) {
 
@@ -10720,7 +10718,7 @@ void cFodder::Menu_Loop( const std::function<void()> pButtonHandler ) {
     }
 
     Image_FadeOut();
-    mImage->clearBuffer();
+    mSurface->clearBuffer();
 }
 
 bool cFodder::Menu_Draw( const std::function<void()> pButtonHandler ) {
@@ -10737,12 +10735,12 @@ bool cFodder::Menu_Draw( const std::function<void()> pButtonHandler ) {
     if (mDemo_ExitMenu > 0 || mMission_Aborted || mCustom_ExitMenu)
         return true;
 
-    if (mImage->GetFaded() == false)
-        mImage->palette_FadeTowardNew();
+    if (mSurface->GetFaded() == false)
+        mSurface->palette_FadeTowardNew();
 
-    g_Window.RenderAt( mImage );
+    g_Window.RenderAt( mSurface );
     g_Window.FrameEnd();
-    mImage->Restore();
+    mSurface->Restore();
     return false;
 }
 
@@ -10753,8 +10751,8 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
     mGraphics->Load_And_Draw_Image( pFilename, 32 );
     mGraphics->PaletteSet();
 
-    mImage->Save();
-    mImage->palette_FadeTowardNew();
+    mSurface->Save();
+    mSurface->palette_FadeTowardNew();
     
     for( ;; ) {
         Video_Sleep_Wrapper();
@@ -10765,12 +10763,12 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
         if (mButtonPressLeft || mMission_Aborted)
             break;
 
-        if (mImage->GetFaded() == false )
-            mImage->palette_FadeTowardNew();
+        if (mSurface->GetFaded() == false )
+            mSurface->palette_FadeTowardNew();
 
-        g_Window.RenderAt( mImage );
+        g_Window.RenderAt( mSurface );
         g_Window.FrameEnd();
-        mImage->Restore(); 
+        mSurface->Restore(); 
     }
         
     Image_FadeOut();
@@ -10778,8 +10776,8 @@ void cFodder::Demo_Quiz_ShowScreen( const char* pFilename ) {
     mGraphics->Load_And_Draw_Image( "1.lbm", 32 );
     mGraphics->PaletteSet();
 
-    mImage->Save();
-    mImage->palette_FadeTowardNew();
+    mSurface->Save();
+    mSurface->palette_FadeTowardNew();
 
 	Menu_Button_Reset();
 }
@@ -10799,8 +10797,8 @@ void cFodder::Demo_Quiz() {
 
     mGraphics->Load_And_Draw_Image( "apmenu.lbm", 32 );
     mGraphics->PaletteSet();
-    mImage->palette_FadeTowardNew();
-    mImage->Save();
+    mSurface->palette_FadeTowardNew();
+    mSurface->Save();
 
 	Menu_Button_Reset();
 }
@@ -10984,7 +10982,7 @@ void cFodder::Mission_Set_Initial_Weapon() {
 
 void cFodder::Service_Show() {
 
-    //if (mVersion->isDemo()) 
+    //if (mVersionCurrent->isDemo()) 
     //  return;
 
     WindowTitleSet( false );
@@ -11008,9 +11006,9 @@ void cFodder::Service_KIA_Loop() {
     if (Service_KIA_Troop_Prepare() < 0)
         return;
 
-    mImage->clearBuffer();
+    mSurface->clearBuffer();
 
-    if (mVersion->isPC()) {
+    if (mVersionCurrent->isPC()) {
         GUI_Draw_Frame_8 (  5, 0, 0x34, 0 );
         GUI_Draw_Frame_16(  7, 0, 0,    0x31 );
         GUI_Draw_Frame_16(  7, 0, 0xF0, 0x31 );
@@ -11025,28 +11023,28 @@ void cFodder::Service_KIA_Loop() {
     mMouse_Exit_Loop = 0;
     mService_ExitLoop = 0;
     mGraphics->PaletteSet();
-    mImage->Save();
+    mSurface->Save();
 
     do {
         Mouse_Inputs_Get();
 
         if (word_44475 == -1 || mMouse_Exit_Loop ) {
             mMouse_Exit_Loop = 0;
-            mImage->paletteNew_SetToBlack();
+            mSurface->paletteNew_SetToBlack();
             mImageFaded = -1;
             mService_ExitLoop = 1;
         }
 
         if (mImageFaded == -1)
-            mImageFaded = mImage->palette_FadeTowardNew();
+            mImageFaded = mSurface->palette_FadeTowardNew();
 
         sub_18149();
         Video_Sleep_Wrapper();
         sub_181BD();
 
-        g_Window.RenderAt( mImage );
+        g_Window.RenderAt( mSurface );
         g_Window.FrameEnd();
-        mImage->Restore();
+        mSurface->Restore();
 
     } while (mImageFaded == -1 || mService_ExitLoop == 0);
 }
@@ -11059,8 +11057,8 @@ void cFodder::Service_Promotion_Loop() {
     if (Service_Promotion_Prepare_Draw() < 0)
         goto loc_18001;
 
-    mImage->clearBuffer();
-    if (mVersion->isPC()) {
+    mSurface->clearBuffer();
+    if (mVersionCurrent->isPC()) {
         GUI_Draw_Frame_8( 6, 0, 0x34, 0 );
         GUI_Draw_Frame_16( 8, 0, 0, 0x31 );
         GUI_Draw_Frame_16( 8, 0, 0xF0, 0x31 );
@@ -11075,20 +11073,20 @@ void cFodder::Service_Promotion_Loop() {
     mService_ExitLoop = 0;
     mMouse_Exit_Loop = 0;
     mGraphics->PaletteSet();
-    mImage->Save();
+    mSurface->Save();
 
     do {
 
         Mouse_Inputs_Get();
         if (word_44475 == -1 || mMouse_Exit_Loop ) {
             mMouse_Exit_Loop = 0;
-            mImage->paletteNew_SetToBlack();
+            mSurface->paletteNew_SetToBlack();
             mImageFaded = -1;
             mService_ExitLoop = 1;
         }
 
         if (mImageFaded == -1)
-            mImageFaded = mImage->palette_FadeTowardNew();
+            mImageFaded = mSurface->palette_FadeTowardNew();
 
         Service_Promotion_Check();
         sub_18149();
@@ -11096,9 +11094,9 @@ void cFodder::Service_Promotion_Loop() {
         //sub_14445();
         sub_181BD();
 
-        g_Window.RenderAt( mImage, cPosition() );
+        g_Window.RenderAt( mSurface, cPosition() );
         g_Window.FrameEnd();
-        mImage->Restore();
+        mSurface->Restore();
 
     } while (mImageFaded == -1 || mService_ExitLoop == 0);
 
@@ -11301,7 +11299,7 @@ int16 cFodder::sub_1828A( int16& pSpriteType, int16& pFrame, int16& pData8, int1
     mVideo_Draw_Rows = SheetData->mRowCount;
 
     if (!sub_184C7()) {
-        if (mVersion->mPlatform == ePlatform::Amiga)
+        if (mVersionCurrent->mPlatform == ePlatform::Amiga)
             mGraphics->Video_Draw_16();
         else
             sub_182EA();
@@ -11314,9 +11312,9 @@ int16 cFodder::sub_1828A( int16& pSpriteType, int16& pFrame, int16& pData8, int1
 void cFodder::sub_182EA() {
     const uint8* bp = &mFont_Intro_Width[0x80];
 
-    uint8* di = mImage->GetSurfaceBuffer();
+    uint8* di = mSurface->GetSurfaceBuffer();
     
-    di += (mImage->GetWidth() * mVideo_Draw_PosY);
+    di += (mSurface->GetWidth() * mVideo_Draw_PosY);
     di += mVideo_Draw_PosX;
 
     word_42066 = di;
@@ -11327,7 +11325,7 @@ void cFodder::sub_182EA() {
     mDraw_Source_SkipPixelsPerRow = 0xA0 - mVideo_Draw_Columns;
     mVideo_Draw_Columns >>= 1;
 
-    mDraw_Dest_SkipPixelsPerRow = mImage->GetWidth() - (mVideo_Draw_Columns*4);
+    mDraw_Dest_SkipPixelsPerRow = mSurface->GetWidth() - (mVideo_Draw_Columns*4);
     uint8 Plane = 0;
 
     for (int16 dx = 0; dx < mVideo_Draw_Rows; ++dx ) {
@@ -11606,13 +11604,13 @@ void cFodder::Briefing_Draw_Phase( ) {
 
 void cFodder::Briefing_Show_PreReady() {
 
-    if (mVersion->isDemo() && !mCampaign.isCustom() && !mCampaign.isRandom())
+    if (mVersionCurrent->isDemo() && !mCampaign.isCustom() && !mCampaign.isRandom())
         return;
 
-    if (!mVersion->hasGfx(eGFX_BRIEFING) && !mCampaign.isRandom())
+    if (!mVersionCurrent->hasGfx(eGFX_BRIEFING) && !mCampaign.isRandom())
         VersionLoad(mVersionDefault);
 
-    mImage->clearBuffer();
+    mSurface->clearBuffer();
     mGraphics->PaletteSet();
 
     mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
@@ -11625,7 +11623,7 @@ void cFodder::Briefing_Show_PreReady() {
 
 void cFodder::Briefing_Show_Ready() {
 
-    if (mVersion->isDemo() && !mCampaign.isCustom() && !mCampaign.isRandom())
+    if (mVersionCurrent->isDemo() && !mCampaign.isCustom() && !mCampaign.isRandom())
         return;
 
     mGraphics->SetActiveSpriteSheet( eGFX_BRIEFING );
@@ -11647,7 +11645,7 @@ void cFodder::Briefing_Show_Ready() {
             break;
         }
 
-        g_Window.RenderAt( mImage );
+        g_Window.RenderAt( mSurface );
         g_Window.FrameEnd();
 
     } while (!mMouse_Exit_Loop);
@@ -11705,9 +11703,9 @@ void cFodder::Briefing_DrawBox( int16 pX, int16 pY, int16 pWidth, int16 pHeight,
 }
 
 void cFodder::Briefing_Draw_Pixel( int16 pX, int16 pY, uint8 pColor ) {
-    uint8* di = mImage->GetSurfaceBuffer();
+    uint8* di = mSurface->GetSurfaceBuffer();
 
-    di += mImage->GetWidth() * pY;
+    di += mSurface->GetWidth() * pY;
     di += pX;
     *di = pColor;
 }
@@ -12147,7 +12145,7 @@ void cFodder::Sprite_Handle_Grenade( sSprite* pSprite ) {
     --pSprite->field_56;
     if (!pSprite->field_56) {
         // HACK: Disable grenade sound for cannon plus... it seems corrupted and causes a crash
-        if(!mVersion->isAmigaPower())
+        if(!mVersionCurrent->isAmigaPower())
             Sound_Play( pSprite, eSound_Effect_Grenade, 0x0F );
     }
     
@@ -12545,7 +12543,7 @@ void cFodder::Sprite_Handle_Helicopter( sSprite* pSprite ) {
     int16 Data4, Data8, DataC, Data10, Data14, Data18, Data1C;
     sSprite* Data24 = 0, *Data2C = 0;
 
-    if (mVersion->isAmigaPower()) {
+    if (mVersionCurrent->isAmigaPower()) {
         static int FF = 0;
 
         if (++FF == 100) {
@@ -12981,9 +12979,7 @@ void cFodder::Sprite_Handle_Explosion( sSprite* pSprite ) {
         pSprite->field_26 = 0;
     }
     //loc_1AB6F
-    int16 Data4 = mGame_InputTicks;
-    Data4 &= 3;
-    Data4 += 5;
+    int16 Data4 = 5 + (mGame_InputTicks & 3);
 
     Sound_Play( pSprite, Data4, 0x1E );
     pSprite->field_8 = 0x8E;
@@ -13579,7 +13575,7 @@ void cFodder::Sprite_Handle_Rocket( sSprite* pSprite ) {
 
         pSprite->field_56 -= 1;
         if (!pSprite->field_56) {
-            if (mVersion->isAmigaPower())
+            if (mVersionCurrent->isAmigaPower())
                 Sound_Play( pSprite, 0x10, 0x0F );
             else
                 Sound_Play( pSprite, eSound_Effect_Rocket, 0x0F );
@@ -13752,7 +13748,7 @@ void cFodder::Sprite_Handle_RocketBox( sSprite* pSprite ) {
     mSquad_Rockets[mSquad_Selected] += 4;
 
     // Plus uses homing missiles
-    if (mVersion->isAmigaPower())
+    if (mVersionCurrent->isAmigaPower())
         mSquad_Leader->field_75 |= eSprite_Flag_HomingMissiles;
 
     Sprite_Destroy_Wrapper( pSprite );
@@ -17764,25 +17760,25 @@ void cFodder::intro_LegionMessage() {
     int16 Duration = 300;
     bool DoBreak = false;
 
-    mImage->clearBuffer();
+    mSurface->clearBuffer();
     mGraphics->PaletteSet();
 
     mImageFaded = -1;
 
-    Intro_Print_String( mVersion->mIntroData[0].mText[0].mPosition, &mVersion->mIntroData[0].mText[0] );
-    Intro_Print_String( mVersion->mIntroData[0].mText[1].mPosition, &mVersion->mIntroData[0].mText[1] );
-    Intro_Print_String( mVersion->mIntroData[0].mText[2].mPosition, &mVersion->mIntroData[0].mText[2] );
+    Intro_Print_String( mVersionCurrent->mIntroData[0].mText[0].mPosition, &mVersionCurrent->mIntroData[0].mText[0] );
+    Intro_Print_String( mVersionCurrent->mIntroData[0].mText[1].mPosition, &mVersionCurrent->mIntroData[0].mText[1] );
+    Intro_Print_String( mVersionCurrent->mIntroData[0].mText[2].mPosition, &mVersionCurrent->mIntroData[0].mText[2] );
 
     while( mImageFaded == -1 || DoBreak == false  ) {
         
         if (mImageFaded)
-            mImageFaded = mImage->palette_FadeTowardNew();
+            mImageFaded = mSurface->palette_FadeTowardNew();
 
         if (Duration > 1)
             --Duration;
         else {
             if (DoBreak == false) {
-                mImage->paletteNew_SetToBlack();
+                mSurface->paletteNew_SetToBlack();
                 mImageFaded = -1;
                 Duration = 0;
                 DoBreak = true;
@@ -17790,7 +17786,7 @@ void cFodder::intro_LegionMessage() {
         }
     
         eventProcess();
-        g_Window.RenderAt( mImage );
+        g_Window.RenderAt( mSurface );
         g_Window.FrameEnd();
     }
 }
@@ -17800,29 +17796,29 @@ int16 cFodder::intro_Play() {
     mGraphics->Load_Sprite_Font();
     mGraphics->SetActiveSpriteSheet( eGFX_Types::eGFX_FONT );
 
-    for ( word_3B2CF = 1; mVersion->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF ) {
+    for ( word_3B2CF = 1; mVersionCurrent->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF ) {
 
         mIntro_PlayTextDuration = 0x288;
         
-        mImage->palette_SetToBlack();
+        mSurface->palette_SetToBlack();
 
-        if (mVersion->mIntroData[word_3B2CF].mImageNumber == 0 && mVersion->mIntroData[word_3B2CF].mText == 0 )
+        if (mVersionCurrent->mIntroData[word_3B2CF].mImageNumber == 0 && mVersionCurrent->mIntroData[word_3B2CF].mText == 0 )
             break;
 
-        if (mVersion->mIntroData[word_3B2CF].mImageNumber != 0xFF) {
+        if (mVersionCurrent->mIntroData[word_3B2CF].mImageNumber != 0xFF) {
 
             std::stringstream ImageName;
-            ImageName << (char) mVersion->mIntroData[word_3B2CF].mImageNumber;
+            ImageName << (char) mVersionCurrent->mIntroData[word_3B2CF].mImageNumber;
 
             mGraphics->Load_And_Draw_Image( ImageName.str(), 0xD0 );
         }
         else {
             mIntro_PlayTextDuration = 0xAF;
-            mImage->clearBuffer();
+            mSurface->clearBuffer();
         }
 
         mGraphics->PaletteSet();
-        const sIntroString* IntroString = mVersion->mIntroData[word_3B2CF].mText;
+        const sIntroString* IntroString = mVersionCurrent->mIntroData[word_3B2CF].mText;
         if (IntroString) {
             while (IntroString->mPosition) {
 
@@ -17841,24 +17837,24 @@ int16 cFodder::intro_Play() {
 
             if (Duration) {
                 if (Fade)
-                    Fade = mImage->palette_FadeTowardNew();
+                    Fade = mSurface->palette_FadeTowardNew();
 
                 Mouse_GetData();
                 if (mouse_Button_Status) {
                     word_3B2CF = 16;
                     mImage_Aborted = -1;
-                    mImage->paletteNew_SetToBlack();
+                    mSurface->paletteNew_SetToBlack();
                     Fade = -1;
                     DoBreak = true;
                 }
             }
             else {
-                mImage->paletteNew_SetToBlack();
+                mSurface->paletteNew_SetToBlack();
                 Fade = -1;
                 DoBreak = true;
             }
 
-            g_Window.RenderAt( mImage );
+            g_Window.RenderAt( mSurface );
             g_Window.FrameEnd();
         }
 
@@ -17876,10 +17872,10 @@ void cFodder::Mission_Intro_Play() {
 
     // If we don't have the briefing graphics, there is no point in switching here,
     //  As the correct background for the map intro won't exist
-    if (!mVersion->hasGfx(eGFX_BRIEFING))
+    if (!mVersionCurrent->hasGfx(eGFX_BRIEFING))
         return;
 
-    mImage->clearBuffer();
+    mSurface->clearBuffer();
 
     mGraphics->Mission_Intro_Load_Resources();
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
@@ -17900,47 +17896,47 @@ void cFodder::Intro_Print_String( int32 pPosY, const sIntroString* pString ) {
 }
 
 void cFodder::Image_FadeIn() {
-    mImage->Save();
+    mSurface->Save();
     mGraphics->PaletteSet();
 
-    while (mImage->palette_FadeTowardNew() == -1) {
+    while (mSurface->palette_FadeTowardNew() == -1) {
 
         Mouse_Inputs_Get();
 
-        g_Window.RenderAt( mImage, cPosition() );
+        g_Window.RenderAt( mSurface, cPosition() );
         g_Window.FrameEnd();
-        mImage->Restore();
+        mSurface->Restore();
     }
 
-    g_Window.RenderAt( mImage, cPosition() );
+    g_Window.RenderAt( mSurface, cPosition() );
     g_Window.FrameEnd();
 }
 
 void cFodder::Image_FadeOut() {
-    mImage->Save();
-    mImage->paletteNew_SetToBlack();
+    mSurface->Save();
+    mSurface->paletteNew_SetToBlack();
 
-    while (mImage->GetFaded() == false) {
+    while (mSurface->GetFaded() == false) {
 
         Mouse_Inputs_Get();
         //Mouse_DrawCursor();
 
-        mImage->palette_FadeTowardNew();
+        mSurface->palette_FadeTowardNew();
 
-        g_Window.RenderAt( mImage );
+        g_Window.RenderAt( mSurface );
         g_Window.FrameEnd();
-        mImage->Restore();
+        mSurface->Restore();
     }
 }
 
 void cFodder::SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet ) {
 
-    mSpriteSheetPtr = pSpriteSheet;
+    mSprite_SheetPtr = pSpriteSheet;
 }
 
 void cFodder::intro() {
     
-    if (mVersion->mPlatform == ePlatform::Amiga)
+    if (mVersionCurrent->mPlatform == ePlatform::Amiga)
         mWindow->SetScreenSize(cDimension(320, 260));
 
     // Disabled: GOG CD Version doesn't require a manual check
@@ -17954,7 +17950,7 @@ void cFodder::intro() {
 
     intro_Music_Play();
 
-    if (mVersion->mGame == eGame::CF1)
+    if (mVersionCurrent->mGame == eGame::CF1)
         intro_LegionMessage();
 
     if (ShowImage_ForDuration( "cftitle", 0x1F8 ))
@@ -17979,7 +17975,7 @@ introDone:;
     mGraphics->Load_pStuff();
     mSound->Music_Play( 0 );
 
-	if (mVersion->mPlatform == ePlatform::Amiga)
+	if (mVersionCurrent->mPlatform == ePlatform::Amiga)
 		mWindow->SetScreenSize(cDimension(320, 225));
 }
 
@@ -18001,22 +17997,22 @@ int16 cFodder::ShowImage_ForDuration( const std::string& pFilename, uint16 pDura
 
         if (pDuration) {
             if (mImageFaded)
-                mImageFaded = mImage->palette_FadeTowardNew();
+                mImageFaded = mSurface->palette_FadeTowardNew();
 
             if (mouse_Button_Status) {
                 mImage_Aborted = -1;
-                mImage->paletteNew_SetToBlack();
+                mSurface->paletteNew_SetToBlack();
                 mImageFaded = -1;
                 DoBreak = true;
             }
         }
         else {
-            mImage->paletteNew_SetToBlack();
+            mSurface->paletteNew_SetToBlack();
             mImageFaded = -1;
             DoBreak = true;
         }
 
-        g_Window.RenderAt( mImage );
+        g_Window.RenderAt( mSurface );
         g_Window.FrameEnd();
     }
 
@@ -18037,10 +18033,6 @@ void cFodder::Mission_Phase_Next() {
     for (unsigned int x = 0; x < 8; ++x) {
         mMission_Troops[x].mPhaseCount = 0;
     }
-
-    mSaved_MissionNumber = mMissionNumber;
-    mSaved_MapNumber = mMapNumber;
-    --mSaved_MapNumber;
 
     ++mMissionNumber;
     mMission_Phases_Remaining = mMission_Phases_Total = mCampaign.getNumberOfPhases(mMissionNumber);
@@ -18096,7 +18088,7 @@ void cFodder::WonGame() {
     mMouseX = -1;
     mMouseY = -1;
 
-	if(mVersion->isAmiga())
+	if(mVersionCurrent->isAmiga())
 		mWindow->SetScreenSize(cDimension(320, 260));
 
     mGraphics->Load_And_Draw_Image( "won", 0x100 );
@@ -18111,7 +18103,7 @@ void cFodder::WonGame() {
 
     Image_FadeOut();
 
-	if (mVersion->isAmiga())
+	if (mVersionCurrent->isAmiga())
 		mWindow->SetScreenSize(cDimension(320, 225));
 }
 
@@ -19725,7 +19717,7 @@ int16 cFodder::Sprite_Create_Rocket( sSprite* pSprite ) {
 
     // Amiga Power always has homing missiles
     if (pSprite->field_22 == eSprite_PersonType_Human &&
-        (mVersion->isAmigaPower() || (pSprite->field_75 & eSprite_Flag_HomingMissiles)) ) {
+        (mVersionCurrent->isAmigaPower() || (pSprite->field_75 & eSprite_Flag_HomingMissiles)) ) {
 
         // Within lock on range?
         if (Sprite_Homing_LockInRange( pSprite, Data34 )) {
@@ -19905,15 +19897,15 @@ void cFodder::Playground() {
 
     Recruit_Copy_Sprites();
 
-    if (mVersion->mPlatform == ePlatform::Amiga) {
+    if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
 
         ((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
     }
 
     // Load Icon
 
-    mImage->palette_FadeTowardNew();
-    mImage->Save();
+    mSurface->palette_FadeTowardNew();
+    mSurface->Save();
     mString_GapCharID = 0x25;
     mGUI_Print_String_To_Sidebar = false;
 
@@ -19939,7 +19931,7 @@ void cFodder::Playground() {
         }
 
         if (mImageFaded)
-            mImageFaded = mImage->palette_FadeTowardNew();
+            mImageFaded = mSurface->palette_FadeTowardNew();
 
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
@@ -19973,9 +19965,9 @@ void cFodder::Playground() {
         if (mDemo_ExitMenu)
             break;
 
-        g_Window.RenderAt(mImage);
+        g_Window.RenderAt(mSurface);
         g_Window.FrameEnd();
-        mImage->Restore();
+        mSurface->Restore();
     }
 }
 
@@ -19991,7 +19983,7 @@ int16 cFodder::Recruit_Show() {
         Mission_Troop_Attach_Sprites();
 
     } else {
-		if (mVersion->mName == "Random Map") {
+		if (mVersionCurrent->mName == "Random Map") {
 
 			Map_Create(mTileTypes[0], 0, 28, 22, true);
 			Map_Save("Data/Custom/Maps/random.map");
@@ -20016,7 +20008,7 @@ int16 cFodder::Recruit_Show() {
     if (mCustom_Mode != eCustomMode_Map) {
 
         // Retail / Custom set show the Recruitment Hill
-        if (mVersion->isRetail() || mCustom_Mode == eCustomMode_Set) {
+        if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set) {
 
             // Recruit Screen
             if (Recruit_Loop())
@@ -20034,7 +20026,7 @@ int16 cFodder::Recruit_Show() {
         } else {
 
             // Amiga demos have a menu
-            if (mVersion->mPlatform == ePlatform::Amiga) {
+            if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
 
                 // But not custom games
                 if (mCustom_Mode == eCustomMode_None) {
@@ -20050,7 +20042,7 @@ int16 cFodder::Recruit_Show() {
     Mission_Memory_Backup();
 
     // Retail or Custom Mode
-    if (mVersion->mRelease == eRelease::Retail || 
+    if (mVersionCurrent->mRelease == eRelease::Retail || 
         mCustom_Mode != eCustomMode_None) {
         Map_Load();
 
@@ -20068,7 +20060,7 @@ void cFodder::Start(int16 pStartMap) {
 Start:;
 	mCampaign.Clear();
     mVersionDefault = 0;
-    mVersion = 0;
+    mVersionCurrent = 0;
     VersionLoad(g_AvailableDataVersions[0]);
 
     //Playground();
@@ -20092,7 +20084,7 @@ Start:;
     if (mGUI_SaveLoadAction == 1)
         return;
 
-    if (mVersion->isDemo())
+    if (mVersionCurrent->isDemo())
         pStartMap = 0;
 
     Mouse_Setup();
@@ -20117,7 +20109,7 @@ int16 cFodder::Mission_Loop() {
         if (!mMission_Aborted && !mMission_TryAgain) {
 
             // Demo / Custom Mission restart
-            if (mVersion->isDemo() && mCustom_Mode != eCustomMode_Set)
+            if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set)
                 break;
 
             // Reached last map in this mission set?
@@ -20138,7 +20130,7 @@ int16 cFodder::Mission_Loop() {
         mInput_Enabled = 0;
 
         // Show the intro for retail releases
-        if (!mVersion->isDemo()) {
+        if (!mVersionCurrent->isDemo()) {
             if (!mIntroDone)
                 intro();
         }
@@ -20186,7 +20178,7 @@ int16 cFodder::Mission_Loop() {
 
 
         // Show the Briefing screen for Retail and Custom 
-        if (mVersion->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set || mCampaign.isRandom()) {
+        if (mVersionCurrent->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set || mCampaign.isRandom()) {
             Briefing_Show_Ready();
 
             // Aborted?
@@ -20287,10 +20279,10 @@ int16 cFodder::Mission_Loop() {
         }
 
         // Demo/Single mission 
-        if (mVersion->isDemo() && mCustom_Mode != eCustomMode_Set) {
+        if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
             // Custom can do the service screen
-            if(!mMission_Aborted && mVersion->isCustom())
+            if(!mMission_Aborted && mVersionCurrent->isCustom())
                 Service_Show();
 
             break;
@@ -21143,11 +21135,11 @@ void cFodder::Squad_Split_Assets() {
 void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
 
     // Don't display the map button on the final map
-    if (mVersion->mRelease == eRelease::Retail && mMapNumber == 0x47)
+    if (mVersionCurrent->mRelease == eRelease::Retail && mMapNumber == 0x47)
         return;
 
     // No the map overview button in the Demo versions
-    if (mVersion->isDemo() && !mVersion->isCustom())
+    if (mVersionCurrent->isDemo() && !mVersionCurrent->isCustom())
         return;
 
     mGUI_Sidebar_MapButton_Prepared = 0;
@@ -21321,7 +21313,7 @@ void cFodder::Squad_Switch_Weapon() {
 void cFodder::Mission_Final_TimeToDie() {
 
     // Retail CF1 only
-    if (mVersion->mRelease != eRelease::Retail || mVersion->mGame != eGame::CF1 )
+    if (mVersionCurrent->mRelease != eRelease::Retail || mVersionCurrent->mGame != eGame::CF1 )
         return;
 
     if (mMapNumber != 0x47)

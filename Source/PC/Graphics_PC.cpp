@@ -201,7 +201,7 @@ void cGraphics_PC::PaletteSetOverview() {
 
 void cGraphics_PC::PaletteSet(cSurface *pTarget) {
 	if (!pTarget)
-		pTarget = mImage;
+		pTarget = mSurface;
 
 	pTarget->paletteSet( mPalette );
 }
@@ -226,7 +226,7 @@ void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, ui
 
 void cGraphics_PC::MapTiles_Draw() {
 
-	uint8* Target = mImage->GetSurfaceBuffer();
+	uint8* Target = mSurface->GetSurfaceBuffer();
 
 	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
@@ -265,18 +265,18 @@ void cGraphics_PC::MapTiles_Draw() {
 
 				memcpy( TargetTmp, TilePtr + StartX, 16 - StartX );
 				TilePtr += 0x140;
-				TargetTmp += mImage->GetWidth();
+				TargetTmp += mSurface->GetWidth();
 			}
 
 			MapPtr += 2;
 			TargetRow += (16-StartX);
 		}
 
-		Target += mImage->GetWidth() * (16-StartY);
+		Target += mSurface->GetWidth() * (16-StartY);
 		CurrentMapPtr += mFodder->mMapWidth << 1;
 	}
 
-	mImage->Save();
+	mSurface->Save();
 }
 
 void cGraphics_PC::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
@@ -328,7 +328,7 @@ void cGraphics_PC::Map_Load_Resources() {
 
 void cGraphics_PC::Video_Draw_8(cSurface *pTarget) {
 	if (!pTarget)
-		pTarget = mImage;
+		pTarget = mSurface;
 
 	uint8*	di = pTarget->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
@@ -365,7 +365,7 @@ void cGraphics_PC::Video_Draw_8(cSurface *pTarget) {
 }
 
 void cGraphics_PC::Video_Draw_16() {
-	uint8*	di = mImage->GetSurfaceBuffer();
+	uint8*	di = mSurface->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
 
 	di += 352 * mFodder->mVideo_Draw_PosY;
@@ -394,10 +394,10 @@ void cGraphics_PC::Video_Draw_16() {
 
 void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	
-	uint8*	Buffer = mImage->GetSurfaceBuffer();
+	uint8*	Buffer = mSurface->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
 
-	Buffer += (16 * mImage->GetWidth()) + 16;
+	Buffer += (16 * mSurface->GetWidth()) + 16;
 
 	for (unsigned int Y = 0; Y < 200; ++Y) {
 
@@ -640,10 +640,10 @@ void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned i
 
 	uint8 *Buffer = 0;
 
-	mImage->clearBuffer();
+	mSurface->clearBuffer();
 
 	for (unsigned int Plane = 0; Plane < 4; Plane++) {
-		Buffer = mImage->GetSurfaceBuffer() + (16 * mImage->GetWidth()) + 16;
+		Buffer = mSurface->GetSurfaceBuffer() + (16 * mSurface->GetWidth()) + 16;
 		
 		for (unsigned int Y = 0; Y < 200; ++Y) {
 
@@ -652,7 +652,7 @@ void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned i
 				Buffer[X] = *srcBuffer++;
 			}
 
-			Buffer += mImage->GetWidth();
+			Buffer += mSurface->GetWidth();
 		}
 	}
 
@@ -791,7 +791,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 	ax -= 0x50;
 	word_4285F = -ax;
 
-	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx * 4);
+	uint8* word_4285D = mSurface->GetSurfaceBuffer() + word_4285B + (dx * 4);
 	pCx &= 3;
 
 	++dx;
@@ -834,7 +834,7 @@ void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
 	ax -= 0x50;
 	word_4285F = -ax;
 
-	uint8* word_4285D = mImage->GetSurfaceBuffer() + word_4285B + (dx * 4);
+	uint8* word_4285D = mSurface->GetSurfaceBuffer() + word_4285B + (dx * 4);
 	pCx &= 3;
 
 	++dx;
@@ -904,7 +904,7 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 
 	mImageMissionIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mPalette );
+	mSurface->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -913,7 +913,7 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 			mFodder->Briefing_Update_Helicopter();
 
 		if( mFodder->mImageFaded == -1 )
-			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x30;
@@ -966,12 +966,12 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 
 		mFodder->Mouse_GetData();
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mSurface, cPosition() );
 		g_Window.FrameEnd();
 
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
+			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
 		}
 	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
@@ -989,7 +989,7 @@ void cGraphics_PC::Mission_Intro_Desert() {
 
 	mImageMissionIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mPalette );
+	mSurface->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -998,7 +998,7 @@ void cGraphics_PC::Mission_Intro_Desert() {
 			mFodder->Briefing_Update_Helicopter();
 
 		if(mFodder->mImageFaded == -1 )
-			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x3A;
@@ -1048,13 +1048,13 @@ void cGraphics_PC::Mission_Intro_Desert() {
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mSurface, cPosition() );
 		g_Window.FrameEnd();
 
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
+			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
 		}
 	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
@@ -1072,7 +1072,7 @@ void cGraphics_PC::Mission_Intro_Ice() {
 
 	mImageMissionIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mPalette );
+	mSurface->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -1081,7 +1081,7 @@ void cGraphics_PC::Mission_Intro_Ice() {
 			mFodder->Briefing_Update_Helicopter();
 
 		if(mFodder->mImageFaded == -1 )
-			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x24;
@@ -1133,13 +1133,13 @@ void cGraphics_PC::Mission_Intro_Ice() {
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mSurface, cPosition() );
 		g_Window.FrameEnd();
 
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
-			mFodder->mImage->paletteNew_SetToBlack();
+			mFodder->mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
 		}
 	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
@@ -1156,7 +1156,7 @@ void cGraphics_PC::Mission_Intro_Mor() {
 	mFodder->mVideo_Draw_PaletteIndex = 0xE0;
 	mImageMissionIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mPalette );
+	mSurface->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -1165,7 +1165,7 @@ void cGraphics_PC::Mission_Intro_Mor() {
 			mFodder->Briefing_Update_Helicopter();
 
 		if(mFodder->mImageFaded == -1 )
-			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x1D;
@@ -1215,13 +1215,13 @@ void cGraphics_PC::Mission_Intro_Mor() {
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mSurface, cPosition() );
 		g_Window.FrameEnd();
 
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
-			mImage->paletteNew_SetToBlack();
+			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
 		}
 	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
@@ -1239,7 +1239,7 @@ void cGraphics_PC::Mission_Intro_Int() {
 
 	mImageMissionIntro.CopyPalette(mPalette, 0x100, 0);
 
-	mImage->paletteSet(mPalette );
+	mSurface->paletteSet(mPalette );
 
 	mFodder->mImageFaded = -1;
 
@@ -1248,7 +1248,7 @@ void cGraphics_PC::Mission_Intro_Int() {
 			mFodder->Briefing_Update_Helicopter();
 
 		if(mFodder->mImageFaded == -1 )
-			mFodder->mImageFaded = mImage->palette_FadeTowardNew();
+			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = 0x40;
@@ -1298,13 +1298,13 @@ void cGraphics_PC::Mission_Intro_Int() {
 			mMission_Intro_Clouds3_X = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mImage, cPosition() );
+		g_Window.RenderAt( mSurface, cPosition() );
 		g_Window.FrameEnd();
 
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
-			mFodder->mImage->paletteNew_SetToBlack();
+			mFodder->mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
 		}
 	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);

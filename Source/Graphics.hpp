@@ -151,7 +151,7 @@ class cGraphics : public cSingleton<cGraphics> {
 	cPalette			mPalette[255];
 
 protected:
-	cSurface*			mImage;
+	cSurface*			mSurface;
 	cSurface*			mImageOriginal;
 	cFodder*			mFodder;
 

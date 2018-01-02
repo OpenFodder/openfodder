@@ -119,7 +119,7 @@ public:
 
 	cDiamondSquare(const uint power2, const long seed) :
 		power2(power2),
-		systemSize(pow(2.0, power2) + 1),
+		systemSize((uint) pow(2.0, power2) + 1),
 		R(std::vector<std::vector<double> >(systemSize, std::vector<double>(systemSize))),
 		rnd(new Random(-std::abs(seed)))
 		{	}
