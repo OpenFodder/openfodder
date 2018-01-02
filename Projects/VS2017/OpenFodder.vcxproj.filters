@@ -141,6 +141,9 @@
     <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\GameData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -235,6 +238,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Structures\Barracks.cpp">
       <Filter>Source\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GameData.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
