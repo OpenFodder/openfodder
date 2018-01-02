@@ -182,13 +182,13 @@ std::string sGameData::ToJson(const std::string& pName) {
 	}
 
 	for (auto& Hero : mHeroes) {
-		Json JsonHeroe;
+		Json JsonHero;
 
-		JsonHeroe["mRecruitID"] = Hero.mRecruitID;
-		JsonHeroe["mRank"] = Hero.mRank;
-		JsonHeroe["mKills"] = Hero.mKills;
+		JsonHero["mRecruitID"] = Hero.mRecruitID;
+		JsonHero["mRank"] = Hero.mRank;
+		JsonHero["mKills"] = Hero.mKills;
 
-		Save["mHeroes"].push_back(JsonHeroe);
+		Save["mHeroes"].push_back(JsonHero);
 	}
 
 	Save["mTroops_Away"] = mTroops_Away;
