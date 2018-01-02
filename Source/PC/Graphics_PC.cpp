@@ -518,7 +518,7 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	mFodder->GUI_Draw_Frame_8( 0x18, 0, 0, 0 );
 	
 	// Save Icon (Coloured or Gray)
-	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mMissionNumber - 1) ];
+	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mGame_Data.mMissionNumber - 1) ];
 	mFodder->GUI_Draw_Frame_8( 0x19, Data4, 0x130, 0 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
@@ -526,10 +526,10 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	
 	mFodder->GUI_Draw_Frame_8( 0x0E, 0, 0x9B, 0x0A );
 	
-	auto Home = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Home ));
+	auto Home = tool_StripLeadingZero(tool_NumToString( mFodder->mGame_Data.mTroops_Home ));
 	mFodder->Recruit_Draw_String( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
 
-	auto Away = tool_StripLeadingZero(tool_NumToString( mFodder->mTroops_Away ));
+	auto Away = tool_StripLeadingZero(tool_NumToString( mFodder->mGame_Data.mTroops_Away ));
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
 	SetActiveSpriteSheet(eGFX_HILL);

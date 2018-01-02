@@ -21,6 +21,7 @@
  */
 
 #include "Sprites.hpp"
+#include "GameData.hpp"
 
 enum eWeaponSelected {
     eWeapon_None = 0,
@@ -32,29 +33,6 @@ enum eSquad_Weapon_SplitMode {
     eSquad_Weapon_Split_All = 0,
     eSquad_Weapon_Split_Half = 1,
     eSquad_Weapon_Split_None = 2
-};
-
-struct sMission_Troop {
-    int16       mRecruitID;
-    uint8       mRank;
-    int8        mPhaseCount;        // Number of phases completed this Mission
-    
-    // HACK: This forces compatibility between 32/64 bit systems
-    union {
-        sSprite*    mSprite;
-        uint64      mSpritePtr;
-    };
-
-    uint16      field_6;
-    int8        field_8;
-    int8        mSelected;
-    uint16      mNumberOfKills; 
-};
-
-struct sHero {
-    int8    mRecruitID;
-    int16   mRank;
-    int16   mKills;
 };
 
 struct sMapPosition {
@@ -90,7 +68,8 @@ class cFodder : public cSingleton < cFodder > {
     cResources*             mResources;
     cWindow*                mWindow;
 
-    uint8*                  mMission_Memory_Backup;
+	sGameData				mGame_Data;
+    sGameData               mGame_Data_Backup;
 
     sSprite                 mSprite_Spare;
     sSprite                 mSprites[45];
@@ -133,41 +112,6 @@ class cFodder : public cSingleton < cFodder > {
     uint16          mGame_InputTicks;
     int16           mMission_EngineTicks;
     uint16          mMission_Restart;
-
-    /************** Save Game Region ************/
-    /* Altering the ordering, or types of anything 
-          in this region will break save games */
-    uint16          mMapNumber;
-    int16           mSprite_Enemy_AggressionAverage;
-    int16           mSprite_Enemy_AggressionMin;
-    int16           mSprite_Enemy_AggressionMax;
-    int16           mSprite_Enemy_AggressionNext;
-    int16           mSprite_Enemy_AggressionIncrement;
-    uint16          mMissionNumber;
-    uint16          mMissionPhase;
-    uint16          mRecruits_Available_Count;
-    int16           Mission_Troop_Prepare_SetFromSpritePtrs;
-    int16           mSprite_Enemy_AggressionCreated_Count;
-    uint16          mMission_Recruits_AliveCount;
-    int16           mMission_Recruitment;
-    int16           mMission_TryingAgain;
-    uint16          mMission_Phases_Remaining;
-    uint16          mMission_Phases_Total;
-    uint16          mRecruit_NextID;
-    sMission_Troop  mMission_Troops[9];
-
-    int16           mGraveRanks[361];
-    int16           mGraveRecruitID[361];
-
-    sHero           mHeroes[6];
-
-    int16           mTroops_Away;
-    int16           mTroops_Home;
-    int16           mMission_Troops_Required;
-    int16           mMission_Troop_Count;
-    int16           mMission_Troops_Available;
-    /************** End Save Game Region *********** */
-
 
     /* These used to be in the save game region */
     sSprite*        mMission_Troops_SpritePtrs[8];
@@ -594,8 +538,7 @@ public:
     void            Camera_Handle();
     void            Camera_Position_Toward_SquadLeader();
     void            Game_ClearVariables();
-    void            Squad_Clear();
-    void            Heroes_Clear();
+
     void            Mission_Memory_Backup();
     void            Mission_Memory_Restore();
     void            Mission_Memory_Clear();

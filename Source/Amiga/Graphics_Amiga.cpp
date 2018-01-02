@@ -1132,7 +1132,7 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway() {
 	const char* strHomeAndAway = "HOME                AWAY";
 
 	mFodder->GUI_Draw_Frame_8( 0x11, 0, 0xfe, 0 );
-	int16 Data4 = mFodder->mMission_Save_Availability[(mFodder->mMissionNumber - 1)];
+	int16 Data4 = mFodder->mMission_Save_Availability[(mFodder->mGame_Data.mMissionNumber - 1)];
 
 	// Draw Icon
 	mFodder->GUI_Draw_Frame_8( 0x16, 0x0, 0x0, 0 );
@@ -1144,10 +1144,10 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway() {
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
 	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway );
 
-	std::string Home = tool_StripLeadingZero( tool_NumToString( mFodder->mTroops_Home ) );
+	std::string Home = tool_StripLeadingZero( tool_NumToString( mFodder->mGame_Data.mTroops_Home ) );
 	mFodder->Recruit_Draw_String( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
 
-	std::string Away = tool_StripLeadingZero( tool_NumToString( mFodder->mTroops_Away ) );
+	std::string Away = tool_StripLeadingZero( tool_NumToString( mFodder->mGame_Data.mTroops_Away ) );
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 }
 
