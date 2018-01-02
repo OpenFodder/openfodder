@@ -4231,6 +4231,12 @@ void cFodder::Campaign_Select_File_Loop( const char* pTitle, const char* pSubTit
  */
 void cFodder::Custom_ShowMapSelection() {
 
+	// If demo data is loaded, we need to enture a retail release is loaded for the menu draw data
+	if (mVersion->isDemo()) {
+
+		VersionLoad(mVersionDefault);
+	}
+
     Image_FadeOut();
     mGraphics->PaletteSet();
 
