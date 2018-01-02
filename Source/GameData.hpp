@@ -80,6 +80,7 @@ struct sGameData {
 	void Clear();
 	void Troops_Clear();
 	void Heroes_Clear();
+	void Hero_Add(const sMission_Troop* pTroop);
 
 	std::string ToJson(const std::string& pName);
 	bool		FromJson(const std::string& pJson);

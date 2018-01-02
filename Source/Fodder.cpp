@@ -3898,6 +3898,7 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 	// Filter out save games to match the current data set
 	if (pData == eDataType::eSave) {
 		SaveFiles = Game_Load_Filter(Files);
+		Files.clear();
 	}
 
     mGUI_Select_File_CurrentIndex = 0;
@@ -3954,7 +3955,10 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
     if (mGUI_SaveLoadAction == 1)
         return "";
 
-    return Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+	if (SaveFiles.size())
+		return SaveFiles[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex].mFileName;
+	
+	return Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
 void cFodder::Campaign_Selection() {
@@ -16277,7 +16281,7 @@ int16 cFodder::Sprite_Troop_Dies( sSprite* pSprite ) {
 
     SquadMember = pSprite->field_46_mission_troop;
 
-    Hero_Add( SquadMember );
+    mGame_Data.Hero_Add( SquadMember );
 
     *mGraveRankPtr++ = SquadMember->mRank;
     *mGraveRankPtr = -1;
@@ -18131,39 +18135,6 @@ void cFodder::Sprite_Reached_MapEdge( sSprite* pSprite ) {
 loc_20521:;
     pSprite->field_0 = mStoredSpriteX;
     mSprite_Reached_Target = -1;
-}
-
-void cFodder::Hero_Add( sMission_Troop* pTroop ) {
-    sHero* Hero = &mGame_Data.mHeroes[4];
-    int16 Data4;
-
-    for (Data4 = 4; Data4 >= 0; --Data4, --Hero ) {
-        if (!pTroop->mNumberOfKills)
-            break;
-
-        if (pTroop->mNumberOfKills < Hero->mKills)
-            break;
-
-        if (pTroop->mNumberOfKills > Hero->mKills)
-            continue;
-
-        if (pTroop->mRank <= Hero->mRank)
-            break;
-    }
-    if (Data4 == 4)
-        return;
-
-    // Move the heros down the list one, until we reach the slot
-    int16 X = 4;
-    do {
-		mGame_Data.mHeroes[X + 1] = mGame_Data.mHeroes[X];
-        --X;
-    } while (++Data4 < 4);
-
-    // 
-	mGame_Data.mHeroes[X + 1].mRecruitID = (int8)pTroop->mRecruitID;
-	mGame_Data.mHeroes[X + 1].mRank = pTroop->mRank;
-	mGame_Data.mHeroes[X + 1].mKills = pTroop->mNumberOfKills;
 }
 
 int16 cFodder::Sprite_Destroy_Wrapper( sSprite* pSprite ) {

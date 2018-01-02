@@ -115,7 +115,40 @@ void sGameData::Heroes_Clear() {
 	}
 }
 
-std::string sGameData::ToJson(const std::string& pName) {
+void sGameData::Hero_Add(const sMission_Troop*  pTroop) {
+	sHero* Hero = &mHeroes[4];
+	int16 Data4;
+
+	for (Data4 = 4; Data4 >= 0; --Data4, --Hero) {
+		if (!pTroop->mNumberOfKills)
+			break;
+
+		if (pTroop->mNumberOfKills < Hero->mKills)
+			break;
+
+		if (pTroop->mNumberOfKills > Hero->mKills)
+			continue;
+
+		if (pTroop->mRank <= Hero->mRank)
+			break;
+	}
+	if (Data4 == 4)
+		return;
+
+	// Move the heros down the list one, until we reach the slot
+	int16 X = 4;
+	do {
+		mHeroes[X + 1] = mHeroes[X];
+		--X;
+	} while (++Data4 < 4);
+
+	// 
+	mHeroes[X + 1].mRecruitID = (int8)pTroop->mRecruitID;
+	mHeroes[X + 1].mRank = pTroop->mRank;
+	mHeroes[X + 1].mKills = pTroop->mNumberOfKills;
+}
+
+std::string sGameData::ToJson(const std::string& pSaveName) {
 
 	Json Save;
 
@@ -135,7 +168,7 @@ std::string sGameData::ToJson(const std::string& pName) {
 	
 	// Keep the campaign
 	Save["Campaign"] = g_Fodder.mCampaign.getName();
-	Save["Name"] = pName;
+	Save["SaveName"] = pSaveName;
 
 	// Actual game states
 	Save["mMapNumber"] = mMapNumber;
@@ -205,7 +238,7 @@ bool sGameData::FromJson(const std::string& pJson) {
 	 try {
 		Json LoadedData = Json::parse(pJson);
 
-		mSavedName = LoadedData["Name"];
+		mSavedName = LoadedData["SaveName"];
 		mCampaignName = LoadedData["Campaign"];
 
 		mSavedVersion.mName = LoadedData["DataVersion"]["mName"];
@@ -232,7 +265,6 @@ bool sGameData::FromJson(const std::string& pJson) {
 		mRecruit_NextID = LoadedData["mRecruit_NextID"];
 
 		int x = 0;
-
 		for (auto& MissionTroop : LoadedData["mMission_Troops"]) {
 			mMission_Troops[x].mRecruitID = MissionTroop["mRecruitID"];
 			mMission_Troops[x].mRank = MissionTroop["mRank"];
