@@ -34,18 +34,28 @@ sGameData::sGameData() {
 	Clear();
 }
 
+sGameData::sGameData(const std::string& pFromJson) {
+
+	sGameData();
+
+	if (!FromJson(pFromJson))
+		throw new std::exception("Invalid Savegame");
+}
+
 void sGameData::Clear() {
+
+	mMapNumber = 0;
+	mMissionNumber = 0;
+	mMissionPhase = 0;
 
 	mSprite_Enemy_AggressionAverage = 0;
 	mSprite_Enemy_AggressionMin = 0;
 	mSprite_Enemy_AggressionMax = 0;
 	mSprite_Enemy_AggressionNext = 0;
 	mSprite_Enemy_AggressionIncrement = 0;
-	mMapNumber = 0;
-	mMissionNumber = 0;
-	mMissionPhase = 0;
+
 	mRecruits_Available_Count = 0;
-	Mission_Troop_Prepare_SetFromSpritePtrs = 0;
+	mMission_Troop_Prepare_SetFromSpritePtrs = 0;
 
 	mSprite_Enemy_AggressionCreated_Count = 0;
 	mMission_Recruits_AliveCount = 0;
@@ -105,13 +115,14 @@ void sGameData::Heroes_Clear() {
 	}
 }
 
-std::string sGameData::ToJson() {
+std::string sGameData::ToJson(const std::string& pName) {
 
 	Json Save;
 
+	// Not used yet
 	Save["SaveVersion"] = 1;
 
-	// Save the current game version
+	// Save the current game data version
 	{
 		Json Version;
 		Version["mName"] = g_Fodder.mVersionCurrent->mName;
@@ -121,9 +132,12 @@ std::string sGameData::ToJson() {
 
 		Save["DataVersion"] = Version;
 	}
-
+	
+	// Keep the campaign
 	Save["Campaign"] = g_Fodder.mCampaign.getName();
+	Save["Name"] = pName;
 
+	// Actual game states
 	Save["mMapNumber"] = mMapNumber;
 	Save["mSprite_Enemy_AggressionAverage"] = mSprite_Enemy_AggressionAverage;
 	Save["mSprite_Enemy_AggressionMin"] = mSprite_Enemy_AggressionMin;
@@ -133,7 +147,7 @@ std::string sGameData::ToJson() {
 	Save["mMissionNumber"] = mMissionNumber;
 	Save["mMissionPhase"] = mMissionPhase;
 	Save["mRecruits_Available_Count"] = mRecruits_Available_Count;
-	Save["Mission_Troop_Prepare_SetFromSpritePtrs"] = Mission_Troop_Prepare_SetFromSpritePtrs;
+	Save["Mission_Troop_Prepare_SetFromSpritePtrs"] = mMission_Troop_Prepare_SetFromSpritePtrs;
 	Save["mSprite_Enemy_AggressionCreated_Count"] = mSprite_Enemy_AggressionCreated_Count;
 	Save["mMission_Recruits_AliveCount"] = mMission_Recruits_AliveCount;
 	Save["mMission_Recruitment"] = mMission_Recruitment;
@@ -186,10 +200,18 @@ std::string sGameData::ToJson() {
 	return Save.dump(1);
 }
 
-bool sGameData::FromJson(const std::string pJson) {
+bool sGameData::FromJson(const std::string& pJson) {
 
 	 try {
 		Json LoadedData = Json::parse(pJson);
+
+		mSavedName = LoadedData["Name"];
+		mCampaignName = LoadedData["Campaign"];
+
+		mSavedVersion.mName = LoadedData["DataVersion"]["mName"];
+		mSavedVersion.mGame = LoadedData["DataVersion"]["mGame"];
+		mSavedVersion.mPlatform = LoadedData["DataVersion"]["mPlatform"];
+		mSavedVersion.mRelease = LoadedData["DataVersion"]["mRelease"];
 
 		mMapNumber = LoadedData["mMapNumber"];
 		mSprite_Enemy_AggressionAverage = LoadedData["mSprite_Enemy_AggressionAverage"];
@@ -200,7 +222,7 @@ bool sGameData::FromJson(const std::string pJson) {
 		mMissionNumber = LoadedData["mMissionNumber"];
 		mMissionPhase = LoadedData["mMissionPhase"];
 		mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
-		Mission_Troop_Prepare_SetFromSpritePtrs = LoadedData["Mission_Troop_Prepare_SetFromSpritePtrs"];
+		mMission_Troop_Prepare_SetFromSpritePtrs = LoadedData["Mission_Troop_Prepare_SetFromSpritePtrs"];
 		mSprite_Enemy_AggressionCreated_Count = LoadedData["mSprite_Enemy_AggressionCreated_Count"];
 		mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
 		mMission_Recruitment = LoadedData["mMission_Recruitment"];

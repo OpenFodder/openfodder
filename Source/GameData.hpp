@@ -49,7 +49,7 @@ struct sGameData {
 	uint16          mMissionNumber;
 	uint16          mMissionPhase;
 	uint16          mRecruits_Available_Count;
-	int16           Mission_Troop_Prepare_SetFromSpritePtrs;
+	int16           mMission_Troop_Prepare_SetFromSpritePtrs;
 	int16           mSprite_Enemy_AggressionCreated_Count;
 	uint16          mMission_Recruits_AliveCount;
 	int16           mMission_Recruitment;
@@ -70,12 +70,17 @@ struct sGameData {
 	int16           mMission_Troop_Count;
 	int16           mMission_Troops_Available;
 
+	std::string		mCampaignName;
+	std::string		mSavedName;
+	sRelease		mSavedVersion;
+
 	sGameData();
+	sGameData(const std::string& pFromJson);
 
 	void Clear();
 	void Troops_Clear();
 	void Heroes_Clear();
 
-	std::string ToJson();
-	bool		FromJson(const std::string pJson);
+	std::string ToJson(const std::string& pName);
+	bool		FromJson(const std::string& pJson);
 };

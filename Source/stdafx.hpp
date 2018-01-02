@@ -56,7 +56,6 @@ tSharedBuffer 		local_FileRead( const std::string& pFile, const std::string& pPa
 std::string			local_PathGenerate(  const std::string& pFile, const std::string& pPath, eDataType pDataType );
 
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
-std::string	tool_NumToString( uint32 pValue );
 std::string tool_StripLeadingZero( const std::string& pValue );
 uint16		tool_DecimalToBinaryCodedDecimal( uint16 pDecimal );
 

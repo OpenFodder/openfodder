@@ -526,10 +526,10 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	
 	mFodder->GUI_Draw_Frame_8( 0x0E, 0, 0x9B, 0x0A );
 	
-	auto Home = tool_StripLeadingZero(tool_NumToString( mFodder->mGame_Data.mTroops_Home ));
+	auto Home = tool_StripLeadingZero(std::to_string( mFodder->mGame_Data.mTroops_Home ));
 	mFodder->Recruit_Draw_String( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
 
-	auto Away = tool_StripLeadingZero(tool_NumToString( mFodder->mGame_Data.mTroops_Away ));
+	auto Away = tool_StripLeadingZero(std::to_string( mFodder->mGame_Data.mTroops_Away ));
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
 	SetActiveSpriteSheet(eGFX_HILL);

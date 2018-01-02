@@ -170,13 +170,6 @@ void tool_EndianSwap( uint8 *pBuffer, size_t pSize ) {
 	}
 }
 
-std::string	tool_NumToString( uint32 pValue ) {
-   std::stringstream Result;
-
-   Result << pValue;
-   return Result.str();
-}
-
 std::string tool_StripLeadingZero( const std::string& pValue ) {
 	std::string Final = pValue;
 
