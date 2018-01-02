@@ -49,12 +49,20 @@ struct sFile {
 	const char* mChecksum;
 };
 
-struct sVersion {
-	const std::string	mName;
+struct sRelease {
+	std::string			mName;
 
 	eGame				mGame;
 	ePlatform			mPlatform;
 	eRelease			mRelease;
+};
+
+struct sVersion {
+	const std::string	mName;
+
+	const eGame				mGame;
+	const ePlatform			mPlatform;
+	const eRelease			mRelease;
 
 	const sIntroText*	mIntroData;
 	const std::string	mDataPath;

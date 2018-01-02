@@ -49,6 +49,11 @@ union sMapTarget {
     };
 };
 
+struct sSavedGame {
+	std::string mFileName;
+	std::string	mName;
+};
+
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
@@ -114,7 +119,7 @@ class cFodder : public cSingleton < cFodder > {
     uint16          mMission_Restart;
 
     /* These used to be in the save game region */
-    sSprite*        mMission_Troops_SpritePtrs[8];
+    sSprite*        mMission_Troops_SpritePtrs[9];
 
     int16*          mGraveRankPtr;
     int16*          mGraveRankPtr2;
@@ -1028,8 +1033,10 @@ public:
     
 	std::string 	Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
 
-	void            Game_Load();
-	void            Game_Save();
+	void					Game_Load();
+	std::vector<sSavedGame>	Game_Load_Filter( const std::vector<std::string>& pFiles);
+
+	void					Game_Save();
 
 	void            GUI_SaveLoad_MouseHandle(sGUI_Element* pData20);
 

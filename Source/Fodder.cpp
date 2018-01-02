@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include <chrono>
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
@@ -505,7 +506,7 @@ void cFodder::Game_ClearVariables() {
 	mGraveRankPtr2 = 0;
 	mGraveRecruitIDPtr = 0;
 
-	for (unsigned int x = 0; x < 8; ++x) {
+	for (unsigned int x = 0; x < 9; ++x) {
 		mMission_Troops_SpritePtrs[x] = 0;
 	}
 
@@ -1347,22 +1348,19 @@ void cFodder::Mission_Troop_Prepare(const bool pPrebriefing) {
     if (!pPrebriefing) {
 
         // Set the sMission_Troop Sprites from mMission_Troops_SpritePtrs
-        if (mGame_Data.Mission_Troop_Prepare_SetFromSpritePtrs) {
-            sMission_Troop* MissionTroop = mGame_Data.mMission_Troops;
+        if (mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs) {
             sSprite** Data24 = mMission_Troops_SpritePtrs;
 
-            for (int16 Data0 = 7; Data0 >= 0; --Data0, ++MissionTroop) {
-                MissionTroop->mSprite = *Data24++;
+			for (auto& Troop : mGame_Data.mMission_Troops) {
+				Troop.mSprite = *Data24++;
             }
         }
 
-        mGame_Data.Mission_Troop_Prepare_SetFromSpritePtrs = -1;
+        mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs = -1;
 
-        sMission_Troop* MissionTroop = mGame_Data.mMission_Troops;
         sSprite** Data24 = mMission_Troops_SpritePtrs;
-
-        for (int16 Data0 = 7; Data0 >= 0; --Data0, ++MissionTroop) {
-            *Data24++ = MissionTroop->mSprite;
+		for( auto& Troop : mGame_Data.mMission_Troops) {
+            *Data24++ = Troop.mSprite;
         }
 
     }
@@ -1379,92 +1377,91 @@ void cFodder::Mission_Troop_Prepare(const bool pPrebriefing) {
 
     // Remove recruits which arn't needed for the map
     Data1C = mGame_Data.mMission_Troops_Available;
-    sMission_Troop* Data20 = mGame_Data.mMission_Troops;
-    for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
+	for( auto& Troop : mGame_Data.mMission_Troops) {
 
-        if (Data20->mSprite == INVALID_SPRITE_PTR)
+        if (Troop.mSprite == INVALID_SPRITE_PTR)
             continue;
 
         if (Data1C)
             --Data1C;
         else
-            Data20->mSprite = INVALID_SPRITE_PTR;
+			Troop.mSprite = INVALID_SPRITE_PTR;
     }
 
 }
 
 void cFodder::Mission_Troop_Prepare_Next_Recruits() {
-    sMission_Troop* Data20 = mGame_Data.mMission_Troops;
 
-    // Loop each troop member
-    for (int16 Data0 = 7; Data0 >= 0; --Data0) {
+    // Loop each troop
+	for( auto& Troop : mGame_Data.mMission_Troops) {
 
         // Does troop member have a recruit id?
-        if (Data20->mRecruitID == -1) {
+        if (Troop.mRecruitID == -1) {
 
             if (mGame_Data.mRecruit_NextID >= 360)
                 return;
 
-            Data20->mRecruitID = mGame_Data.mRecruit_NextID;
+			Troop.mRecruitID = mGame_Data.mRecruit_NextID;
 
             const sRecruit* Data24 = &mRecruits[mGame_Data.mRecruit_NextID];
 
             // Demo sets static ranks
             if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
-                Data20->mRank = (mGame_Data.mMissionNumber - 1) >> 1;
+                Troop.mRank = (mGame_Data.mMissionNumber - 1) >> 1;
 
                 // Jops
-                if (Data20->mRecruitID == 1)
-                    Data20->mRank = 2;
+                if (Troop.mRecruitID == 1)
+                    Troop.mRank = 2;
 
                 // Jools
-                if (Data20->mRecruitID == 0)
-                    Data20->mRank = 4;
+                if (Troop.mRecruitID == 0)
+                    Troop.mRank = 4;
 
             } else {
-                Data20->mRank = (mGame_Data.mMissionNumber - 1) / 3;
+                Troop.mRank = (mGame_Data.mMissionNumber - 1) / 3;
             }
 
-            Data20->field_8 = 0;
-            Data20->field_6 = 3;
+            Troop.field_8 = 0;
+            Troop.field_6 = 3;
             ++mGame_Data.mRecruit_NextID;
 
             return;
         }
-
-        ++Data20;
     }
 }
 
 void cFodder::Mission_Troop_Attach_Sprites() {
 
     int16 TroopsRemaining = mGame_Data.mMission_Troops_Available;
-    sSprite* Data20 = mSprites;
+    sSprite* Sprite = mSprites;
     sMission_Troop* Troop = mGame_Data.mMission_Troops;
 
-    for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, ++Data20 ) {
+	// Loop the game sprites looking for 'player' sprite
+    for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, ++Sprite ) {
 
-        if (Data20->field_0 == -32768)
+        if (Sprite->field_0 == -32768)
             continue;
 
-        if (Data20->field_18 != eSprite_Player)
+        if (Sprite->field_18 != eSprite_Player)
             continue;
 
-        --TroopsRemaining;
-        if (TroopsRemaining < 0) {
+        // 
+        if (--TroopsRemaining < 0) {
             Troop->mSprite = INVALID_SPRITE_PTR;
-            Data20->field_0 = -32768;
-            Data20->field_18 = eSprite_Null;
-            Data20->field_8 = 0x7C;
+            Sprite->field_0 = -32768;
+            Sprite->field_18 = eSprite_Null;
+            Sprite->field_8 = 0x7C;
             ++Troop;
         } else {
             // loc_1166B
-            Data20->field_46_mission_troop =  Troop;
 
-            Troop->mSprite = Data20;
-            Data20->field_10 = 0x40;
-            Data20->field_22 = eSprite_PersonType_Human;
+			// Attach a Mission Troop to the sprite
+            Sprite->field_46_mission_troop =  Troop;
+
+            Troop->mSprite = Sprite;
+            Sprite->field_10 = 0x40;
+            Sprite->field_22 = eSprite_PersonType_Human;
 
             ++Troop;
         }
@@ -3663,7 +3660,7 @@ void cFodder::Briefing_Draw_Mission_Title( int16 pDrawAtY ) {
         std::stringstream Mission;
         Mission << "MISSION ";
         mString_GapCharID = 0x25;
-        Mission << tool_StripLeadingZero( tool_NumToString( mGame_Data.mMissionNumber ) );
+        Mission << tool_StripLeadingZero( std::to_string( mGame_Data.mMissionNumber ) );
 
         String_Print_Large( Mission.str(), true, 0 );
     }
@@ -3706,10 +3703,10 @@ void cFodder::CopyProtection() {
 
         const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
 
-        std::string Page = "PAGE " + tool_NumToString( word_44A1C->mPage );
-        std::string Paragraph = "PARAGRAPH " + tool_NumToString( word_44A1C->mParagraph );
-        std::string Line = "LINE " + tool_NumToString( word_44A1C->mLine );
-        std::string Word = "WORD " + tool_NumToString( word_44A1C->mWord );
+        std::string Page = "PAGE " + std::to_string( word_44A1C->mPage );
+        std::string Paragraph = "PARAGRAPH " + std::to_string( word_44A1C->mParagraph );
+        std::string Line = "LINE " + std::to_string( word_44A1C->mLine );
+        std::string Word = "WORD " + std::to_string( word_44A1C->mWord );
 
         Recruit_Render_Text( "ENTER WORD FROM", 0 );
         Recruit_Render_Text( "MANUAL AT", 0x14 );
@@ -3888,6 +3885,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     return mCampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
+
 std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData ) {
     mMission_Aborted = false;
     mGUI_SaveLoadAction = 0;
@@ -3895,9 +3893,15 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
 
     auto Files = local_DirectoryList( local_PathGenerate( "", pPath, pData ), pType );
+	std::vector<sSavedGame> SaveFiles;
+
+	// Filter out save games to match the current data set
+	if (pData == eDataType::eSave) {
+		SaveFiles = Game_Load_Filter(Files);
+	}
 
     mGUI_Select_File_CurrentIndex = 0;
-    mGUI_Select_File_Count = (int16)Files.size();
+	mGUI_Select_File_Count = (SaveFiles.size() == 0 ? (int16)Files.size() : (int16) SaveFiles.size());
 	mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
 
     do {
@@ -3919,15 +3923,28 @@ std::string cFodder::GUI_Select_File( const char* pTitle, const char* pPath, con
 
         int16 DataC = 0;
 
-        auto FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
+		// Draw the raw files list?
+		if (!SaveFiles.size()) {
+			auto FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
 
-        for (; DataC < mGUI_Select_File_ShownItems && FileIT != Files.end(); ++DataC) {
-            size_t Pos = FileIT->find_first_of( "." );
+			for (; DataC < mGUI_Select_File_ShownItems && FileIT != Files.end(); ++DataC) {
 
-            GUI_Button_Draw(FileIT->substr(0, Pos), 0x3E + (DataC * 0x15), 0xB2, 0xB3 );
-            GUI_Button_Setup( &cFodder::GUI_Button_Filename );
-            ++FileIT;
-        }
+				size_t Pos = FileIT->find_first_of(".");
+
+				GUI_Button_Draw(FileIT->substr(0, Pos), 0x3E + (DataC * 0x15), 0xB2, 0xB3);
+				GUI_Button_Setup(&cFodder::GUI_Button_Filename);
+				++FileIT;
+			}
+		} else {
+			// Or the save game list
+			auto FileIT = SaveFiles.begin() + mGUI_Select_File_CurrentIndex;
+
+			for (; DataC < mGUI_Select_File_ShownItems && FileIT != SaveFiles.end(); ++DataC) {
+				GUI_Button_Draw(FileIT->mName, 0x3E + (DataC * 0x15), 0xB2, 0xB3);
+				GUI_Button_Setup(&cFodder::GUI_Button_Filename);
+				++FileIT;
+			}
+		}
 
         GUI_Select_File_Loop( false );
         mSurface->Restore();
@@ -4605,7 +4622,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 void cFodder::Recruit_Render_Number( int16 pNumber, int16 pData10 ) {
     
     pData10 -= 0x30;
-    std::string Data20 = tool_StripLeadingZero(tool_NumToString( pNumber ));
+    std::string Data20 = tool_StripLeadingZero(std::to_string( pNumber ));
     uint16 Data0 = (uint16) Data20.length() * 4;
 
     int16 Data8 = 0x30 - Data0;
@@ -10190,7 +10207,7 @@ void cFodder::Game_Save() {
 
     GUI_Element_Reset();
 
-    Recruit_Render_Text( "TYPE A FILENAME IN", 0x32 );
+    Recruit_Render_Text( "TYPE A SAVE NAME IN", 0x32 );
 
     GUI_Button_Draw( "EXIT", 0xA0 );
     GUI_Button_Setup( &cFodder::GUI_Button_Load_Exit );
@@ -10204,19 +10221,21 @@ void cFodder::Game_Save() {
         return;
     }
         
-    mInputString[mInputString_Position + 0] = '.';
-    mInputString[mInputString_Position + 1] = 'o';
-    mInputString[mInputString_Position + 2] = 'f';
-	mInputString[mInputString_Position + 3] = 'g';
-    mInputString[mInputString_Position + 4] = (mVersionCurrent->mGame == eGame::CF1) ? 0 : '2';
-    mInputString[mInputString_Position + 5] = 0;
+	mInputString[mInputString_Position + 0] = 0;
+	std::string SaveGameName = mInputString;
 
-    std::string Filename = local_PathGenerate( mInputString, "", eDataType::eSave );
+	auto now = std::chrono::system_clock::now();
+	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+	
+	std::string SaveFilename = std::to_string(in_time_t);
+	SaveFilename += ".ofg";
+
+    std::string Filename = local_PathGenerate(SaveFilename, "", eDataType::eSave );
     
     std::ofstream outfile (Filename,std::ofstream::binary);
 
     // Copy from mGame_Data.mMapNumber to mMission_Troops_SpritePtrs
-	outfile << mGame_Data.ToJson();
+	outfile << mGame_Data.ToJson(SaveGameName);
 	outfile.close();
 
     mMouse_Exit_Loop = 0;
@@ -10355,9 +10374,10 @@ void cFodder::GUI_Input_CheckKey() {
 
     mKeyCodeAscii = 0;
 }
+
 void cFodder::Game_Load() {
 
-    const std::string File = GUI_Select_File( "SELECT FILE", "", mVersionCurrent->mGame == eGame::CF1 ? ".ofg" : ".ofg2", eDataType::eSave);
+    const std::string File = GUI_Select_File( "SELECT SAVED GAME", "", ".ofg", eDataType::eSave);
     if (!File.size())
         return;
 
@@ -10374,6 +10394,14 @@ void cFodder::Game_Load() {
 		// Load the game data from the JSON
 		if (!mGame_Data.FromJson(SaveGameContent)) {
 			return;
+		}
+
+		// If the game was saved on a different platform, lets look for it and attempt to switch
+		if (mGame_Data.mSavedVersion.mPlatform != mVersionCurrent->mPlatform) {
+
+			auto Version = FindAvailableVersionForCampaignPlatform(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform);
+
+			VersionLoad(Version);
 		}
 
         mMouse_Exit_Loop = 0;
@@ -10402,6 +10430,45 @@ void cFodder::Game_Load() {
 
         Mission_Memory_Backup();
     }
+}
+
+std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>& pFiles) {
+	std::vector<sSavedGame> Results;
+
+	for (auto& CurrentFile : pFiles) {
+
+		std::string Filename = local_PathGenerate(CurrentFile, "", eDataType::eSave);
+
+		// Load the save game
+		std::ifstream SaveFile(Filename, std::ios::binary);
+		if (SaveFile.is_open()) {
+
+			std::string SaveGameContent(
+				(std::istreambuf_iterator<char>(SaveFile)),
+				(std::istreambuf_iterator<char>())
+			);
+			
+			// Verify the savegame is for the current campaign
+			try {
+				sGameData NewData(SaveGameContent);
+
+				// Ensure for this campaign
+				if (NewData.mCampaignName != mCampaign.getName())
+					continue;
+
+				// Ensure the game is the same
+				if (NewData.mSavedVersion.mGame != mVersionCurrent->mGame)
+					continue;
+
+				Results.push_back({ CurrentFile, NewData.mSavedName });
+			}
+			catch (...) {
+				continue;
+			}
+		}
+	}
+
+	return Results;
 }
 
 void cFodder::GUI_Button_Load_Up() {
@@ -11408,7 +11475,7 @@ void cFodder::Service_Mission_Text_Prepare( uint16*& pTarget ) {
     std::stringstream Mission;
     Mission << "MISSION ";
 
-    Mission << tool_StripLeadingZero( tool_NumToString( mGame_Data.mMissionNumber ) );
+    Mission << tool_StripLeadingZero( std::to_string( mGame_Data.mMissionNumber ) );
 
     String_CalculateWidth( 0x140, mFont_Service_Width, Mission.str().c_str() );
 
@@ -11499,8 +11566,8 @@ void cFodder::Briefing_Draw_Phase( ) {
 
     std::stringstream Phase;
 
-    Phase << Str_Phase  << tool_StripLeadingZero( tool_NumToString( mGame_Data.mMissionPhase + 1 ) );
-    Phase << Str_Of     << tool_StripLeadingZero( tool_NumToString( mGame_Data.mMission_Phases_Total ));
+    Phase << Str_Phase  << tool_StripLeadingZero( std::to_string( mGame_Data.mMissionPhase + 1 ) );
+    Phase << Str_Of     << tool_StripLeadingZero( std::to_string( mGame_Data.mMission_Phases_Total ));
 
     String_Print_Small( Phase.str(), 0x1D );
     
@@ -11576,7 +11643,7 @@ void cFodder::Briefing_Draw_With( ) {
     std::stringstream With;
     
     With << "WITH ";
-    With << tool_StripLeadingZero( tool_NumToString( mGame_Data.mMission_Troops_Available ) );
+    With << tool_StripLeadingZero( std::to_string( mGame_Data.mMission_Troops_Available ) );
 
     if (mGame_Data.mMission_Troops_Available == 1) {
         With << " SOLDIER YOU MUST";
@@ -17958,7 +18025,7 @@ void cFodder::Mission_Phase_Next() {
     mGame_Data.mMission_Recruits_AliveCount = mGame_Data.mRecruits_Available_Count;
     mGame_Data.mMission_Recruits_AliveCount -= 0x0F;
     mGame_Data.mMission_Recruitment = -1;
-    mGame_Data.Mission_Troop_Prepare_SetFromSpritePtrs = 0;
+    mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs = 0;
 
     mGraveRecruitIDPtr = mGame_Data.mGraveRecruitID;
     mGame_Data.mGraveRecruitID[0] = -1;
@@ -21066,7 +21133,7 @@ void cFodder::GUI_Sidebar_Number_Draw( int16 pNumber, int16 pX, int16 pData8, in
     pData10 -= 0x1A;
 
     std::stringstream Tmp;
-    Tmp << tool_StripLeadingZero( tool_NumToString( pNumber ) );
+    Tmp << tool_StripLeadingZero( std::to_string( pNumber ) );
 
     String_CalculateWidth( pData8, mFont_Sidebar_Width, Tmp.str() );
     mGUI_Print_String_To_Sidebar = -1;
