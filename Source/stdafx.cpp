@@ -58,6 +58,16 @@ int main(int argc, char *args[]) {
 std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
 	std::stringstream	 filePathFinal;
 
+#ifdef WIN32
+	char *user = getenv("USERPROFILE");
+	filePathFinal << user << "\\Documents\\OpenFodder\\";
+
+	if (!local_FileExists(filePathFinal.str())) {
+		filePathFinal.str("");
+	}
+	
+#endif
+
 	switch (pDataType) {
 	case eData:
 		filePathFinal << "Data/";

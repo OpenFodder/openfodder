@@ -3868,8 +3868,9 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 
 	if(mVersionCurrent->isRetail())
 		Map_Create(mTileTypes[eTileTypes_Jungle], 0, 0x15, 0x0F, false);
-	else
+	else {
 		Map_Create(mTileTypes[eTileTypes_AFX], 0, 0x15, 0x0F, false);
+	}
 
 	Campaign_Select_Sprite_Prepare();
 
