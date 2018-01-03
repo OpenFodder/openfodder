@@ -62,6 +62,7 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 	char *user = getenv("USERPROFILE");
 	filePathFinal << user << "\\Documents\\OpenFodder\\";
 
+	// If the user profile path doesnt exist, reset to default (current directory)
 	if (!local_FileExists(filePathFinal.str())) {
 		filePathFinal.str("");
 	}
