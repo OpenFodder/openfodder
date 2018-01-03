@@ -34,7 +34,7 @@ struct sMission_Troop {
 };
 
 struct sHero {
-	int8    mRecruitID;
+	int16    mRecruitID;
 	int16   mRank;
 	int16   mKills;
 
@@ -53,22 +53,27 @@ struct sHero {
 
 struct sGameData {
 	uint16          mMapNumber;
-	int16           mSprite_Enemy_AggressionAverage;
-	int16           mSprite_Enemy_AggressionMin;
-	int16           mSprite_Enemy_AggressionMax;
-	int16           mSprite_Enemy_AggressionNext;
-	int16           mSprite_Enemy_AggressionIncrement;
+
+
 	uint16          mMissionNumber;
 	uint16          mMissionPhase;
 	uint16          mRecruits_Available_Count;
 	int16           mMission_Troop_Prepare_SetFromSpritePtrs;
-	int16           mSprite_Enemy_AggressionCreated_Count;
+
 	uint16          mMission_Recruits_AliveCount;
 	int16           mMission_Recruitment;
 	int16           mMission_TryingAgain;
 	uint16          mMission_Phases_Remaining;
 	uint16          mMission_Phases_Total;
 	uint16          mRecruit_NextID;
+
+	int16           mSprite_Enemy_AggressionAverage;
+	int16           mSprite_Enemy_AggressionMin;
+	int16           mSprite_Enemy_AggressionMax;
+	int16           mSprite_Enemy_AggressionNext;
+	int16           mSprite_Enemy_AggressionIncrement;
+	int16           mSprite_Enemy_AggressionCreated_Count;
+
 	sMission_Troop  mMission_Troops[9];
 
 	int16           mGraveRanks[361];
@@ -91,7 +96,7 @@ struct sGameData {
 
 	void Clear();
 	void Troops_Clear();
-	void Heroes_Clear();
+
 	void Hero_Add(const sMission_Troop* pTroop);
 
 	std::string ToJson(const std::string& pName);
