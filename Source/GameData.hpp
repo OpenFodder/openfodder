@@ -37,6 +37,18 @@ struct sHero {
 	int8    mRecruitID;
 	int16   mRank;
 	int16   mKills;
+
+	sHero() {
+		mRecruitID = -1;
+		mRank = 0;
+		mKills = 0;
+	}
+
+	sHero( const sMission_Troop* pTroop) {
+		mRecruitID = pTroop->mRecruitID;
+		mRank = pTroop->mRank;
+		mKills = pTroop->mNumberOfKills;
+	}
 };
 
 struct sGameData {
@@ -62,7 +74,7 @@ struct sGameData {
 	int16           mGraveRanks[361];
 	int16           mGraveRecruitID[361];
 
-	sHero           mHeroes[6];
+	std::vector<sHero> mHeroes;
 
 	int16           mTroops_Away;
 	int16           mTroops_Home;

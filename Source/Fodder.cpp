@@ -4455,8 +4455,11 @@ void cFodder::Recruit_Render_LeftMenu() {
     int16 Data14 = 0x0E;
     SpriteType = 4;
     
-    for( sHero* Data20 = mGame_Data.mHeroes; SpriteType >= 0; --SpriteType, ++Data20  ) {
-        if( Data20->mRecruitID == -1 )
+	for( auto&& Hero : mGame_Data.mHeroes) {
+		if (SpriteType < 0)
+			break;
+
+        if(Hero.mRecruitID == -1 )
             break;
         
         Data14 += 0x0C;
@@ -4641,23 +4644,22 @@ void cFodder::Recruit_Render_Number( int16 pNumber, int16 pData10 ) {
 }
 
 void cFodder::Recruit_Render_HeroList() {
-    const sHero* Hero = mGame_Data.mHeroes;
 
     word_3A3BB = 4;
     mSidebar_Draw_Y = 0;
 
-    for (word_3A3BB = 4; word_3A3BB >= 0; --word_3A3BB, ++Hero) {
+	for( auto& Hero : mGame_Data.mHeroes) {
 
-        if (Hero->mRecruitID < 0)
+        if (Hero.mRecruitID < 0)
             continue;
 
         int16 Data8 = 0;
         int16 DataC = mSidebar_Draw_Y - 1;
         DataC += 0x4A + word_3AA55 + 0x18;
 
-        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Hero->mRank + 9, Data8, DataC );
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Hero.mRank + 9, Data8, DataC );
 
-        const sRecruit* Troop = &mRecruits[ Hero->mRecruitID ];
+        const sRecruit* Troop = &mRecruits[ Hero.mRecruitID ];
 
         int16 Position;
         for( Position = 0; Position <= 5; ++Position ) {
@@ -4687,8 +4689,11 @@ void cFodder::Recruit_Render_HeroList() {
             mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr( Character, Data8, DataC  + 0x18);
         }
 
-        Recruit_Render_Number( Hero->mKills, 0x67 );
+        Recruit_Render_Number( Hero.mKills, 0x67 );
         mSidebar_Draw_Y += 0x0C;
+
+		if (--word_3A3BB < 0)
+			break;
     }
 }
 
