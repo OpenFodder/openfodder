@@ -9,6 +9,7 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>#skipintro map 0</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommand>$(OutDir)..\..\..\..\Run\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run_x86</LocalDebuggerWorkingDirectory>

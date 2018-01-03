@@ -1820,6 +1820,9 @@ void cFodder::Map_Create( const sTileType& pTileType, size_t pTileSub, const siz
 	if (mVersionCurrent->isAmigaPower())
 		pTileSub = 1;
 
+	if (mVersionCurrent->isAmigaFormat())
+		TileID = 100;
+
 	mMap = std::make_shared<std::vector<uint8_t>>();
     mMap->clear();
     mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
@@ -3866,6 +3869,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     mGUI_Select_File_Count = (int16)mCampaignList.size();
 	mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
 
+	// TODO: Someday we could design a decent looking map screen here
 	if(mVersionCurrent->isRetail())
 		Map_Create(mTileTypes[eTileTypes_Jungle], 0, 0x15, 0x0F, false);
 	else {

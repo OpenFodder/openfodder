@@ -144,6 +144,7 @@
     <ClInclude Include="..\..\Source\GameData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -245,5 +246,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\openfodder.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OpenFodder.rc" />
   </ItemGroup>
 </Project>
