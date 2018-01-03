@@ -19825,12 +19825,9 @@ void cFodder::Game_Setup( int16 pStartMap ) {
     mMission_Complete = 0;
     mGame_Data.mMapNumber = pStartMap;
 
-    mGame_Data.Troops_Clear();
-    mGame_Data.Heroes_Clear();
-
     mGraveRankPtr = mGame_Data.mGraveRanks;
-    mGame_Data.mGraveRanks[0] = -1;
 
+    mGame_Data.mGraveRanks[0] = -1;
     mGame_Data.mMission_Phases_Remaining = 1;
     mGame_Data.mMissionNumber = 0;
 
@@ -19841,6 +19838,7 @@ void cFodder::Game_Setup( int16 pStartMap ) {
     mGraphics->Load_pStuff();
 }
 
+// This function is for viewing/iterating sprites
 void cFodder::Playground() {
     //return;
     mImageFaded = -1;
