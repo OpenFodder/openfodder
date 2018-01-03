@@ -27,8 +27,6 @@
 
 #define ButtonToMouseVersion(x) case x: { Buttons[x].mMouseInsideFuncPtr = &cFodder::VersionSelect_##x; break; }
 
-#define VERSION_BASED( pPC, pAmiga ) (mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
-
 
 const int16 mBriefing_Helicopter_Offsets[] =
 {
@@ -1820,8 +1818,11 @@ void cFodder::Map_Create( const sTileType& pTileType, size_t pTileSub, const siz
 	if (mVersionCurrent->isAmigaPower())
 		pTileSub = 1;
 
+	// In OF, this will only ever get called from the campaign selection screen, so use an easy to read background
+#ifndef OFED
 	if (mVersionCurrent->isAmigaFormat())
 		TileID = 100;
+#endif
 
 	mMap = std::make_shared<std::vector<uint8_t>>();
     mMap->clear();
