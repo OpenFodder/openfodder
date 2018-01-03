@@ -34,7 +34,7 @@ Open Fodder includes two demos from the Amiga platform, and supports 3 retail re
   
 ##### Windows Installer
 
-The Windows version of Open Fodder defaults to using and installing to the '%USERPROFILE%/Documents/OpenFodder' location.  
+The Windows version of Open Fodder defaults to using and installing to the location '%USERPROFILE%/Documents/OpenFodder'.  
 While the demos will be installed as part of the package, you will be required to copy a full retail release into this folder (following the instructions below)
   
   
