@@ -149,3 +149,5 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #define g_Resource	cResources::GetSingleton()
 #define g_Graphics	cGraphics::GetSingleton()
 #define g_Sound		cSound::GetSingleton()
+
+#define VERSION_BASED( pPC, pAmiga ) (g_Fodder.mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
