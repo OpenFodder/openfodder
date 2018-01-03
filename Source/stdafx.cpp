@@ -32,6 +32,7 @@ int main(int argc, char *args[]) {
 	bool SkipIntro = false;
 	int16 MapNumber = 0;
 
+
 	if (argc > 1) {
 
 		if (strcmp( args[1], "skipintro" ) == 0)
