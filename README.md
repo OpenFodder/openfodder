@@ -32,6 +32,12 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 
 Open Fodder includes two demos from the Amiga platform, and supports 3 retail releases (See below for supported versions)
   
+##### Windows Installer
+
+The Windows version of Open Fodder defaults to using and installing to the '%USERPROFILE%/Documents/OpenFodder' location.  
+While the demos will be installed as part of the package, you will be required to copy a full retail release into this folder (following the instructions below)
+  
+  
 ##### Hot Keys
 
 * +:   Increase Window Size
