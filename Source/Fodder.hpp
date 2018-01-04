@@ -214,7 +214,6 @@ public:
     int16           mTmp_FrameNumber;
 
     int16           mMission_IsFinished;
-    int16           word_3A3BB;
     int16           mSidebar_Draw_Y;
     int16           word_3A3BF;
 

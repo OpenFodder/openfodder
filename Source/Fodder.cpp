@@ -9439,13 +9439,12 @@ void cFodder::Squad_Troops_Count() {
     mSquad_4_Sprites[0] = INVALID_SPRITE_PTR;
 
     // Loop through all mission troops
-    for (int8 Data1C = 0; Data1C < 8; ++Data1C) {
-        sMission_Troop* Data2C = &mGame_Data.mMission_Troops[Data1C];
+    for( auto& Troop : mGame_Data.mMission_Troops ) {
 
-        if (Data2C->mSprite == INVALID_SPRITE_PTR || Data2C->mSprite == 0)
+        if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
 
-        sSprite* Sprite = Data2C->mSprite;
+        sSprite* Sprite = Troop.mSprite;
 
         // Sprite is not invincible
         if (!(Sprite->field_75 & eSprite_Flag_Invincibility)) {
@@ -10473,8 +10472,8 @@ void cFodder::Game_Load() {
         for (int16 x = 0; x < 8; ++x)
             mMission_Troops_SpritePtrs[x] = INVALID_SPRITE_PTR;
 
-        for (int16 x = 0; x < 9; ++x)
-            mGame_Data.mMission_Troops[x].mSprite = INVALID_SPRITE_PTR;
+        for (auto& Troop : mGame_Data.mMission_Troops)
+            Troop.mSprite = INVALID_SPRITE_PTR;
 
         Mission_Memory_Backup();
     }
@@ -11174,13 +11173,12 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
     mVideo_Draw_PosY += 0x40;
 
     uint16* di2 = di;
-    sMission_Troop* si = mGame_Data.mMission_Troops;
+ 
+    for (auto& Troop : mGame_Data.mMission_Troops) {
 
-    for (int16 word_3ABE1 = 7; word_3ABE1 >= 0; --word_3ABE1, ++si) {
-
-        if (si->mSprite != INVALID_SPRITE_PTR) {
-            int16 ax = si->mRecruitID;
-            int8 bl = si->mRank;
+        if (Troop.mSprite != INVALID_SPRITE_PTR) {
+            int16 ax = Troop.mRecruitID;
+            int8 bl = Troop.mRank;
 
             bl &= 0xFF;
 
@@ -11189,11 +11187,12 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
             mVideo_Draw_PosY += 0x40;
         }
     }
+
+    // No names drawn?
     if (di == di2)
         return -1;
 
     *di++ = -1;
-
     return 0;
 }
 
@@ -11533,17 +11532,16 @@ void cFodder::Service_Mission_Text_Prepare(uint16*& pTarget) {
 void cFodder::Service_Promotion_Prepare() {
     int16* Data28 = mService_Troop_Promotions;
 
-    sMission_Troop* Data20 = mGame_Data.mMission_Troops;
+    for (auto& Troop : mGame_Data.mMission_Troops) {
 
-    for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
-        if (Data20->mRecruitID == -1)
+        if (Troop.mRecruitID == -1)
             continue;
 
-        if (Data20->mSprite == INVALID_SPRITE_PTR)
+        if (Troop.mSprite == INVALID_SPRITE_PTR)
             continue;
 
-        int16 Data4 = Data20->mPhaseCount;
-        Data4 += Data20->mRank;
+        int16 Data4 = Troop.mPhaseCount;
+        Data4 += Troop.mRank;
 
         if (Data4 > 0x0F)
             Data4 = 0x0F;
@@ -11577,18 +11575,17 @@ void cFodder::Service_Promotion_Check() {
 
 void cFodder::Service_Promotion_SetNewRanks() {
     int16* Data28 = mService_Troop_Promotions;
-    sMission_Troop* Data20 = mGame_Data.mMission_Troops;
 
-    for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
+    for (auto& Troop : mGame_Data.mMission_Troops) {
 
-        if (Data20->mRecruitID == -1)
+        if (Troop.mRecruitID == -1)
             continue;
 
         int16 ax = *Data28++;
         if (ax < 0)
             return;
 
-        Data20->mRank = (int8)ax;
+        Troop.mRank = (int8)ax;
     }
 }
 
@@ -18079,8 +18076,8 @@ void cFodder::Mission_Phase_Next() {
         return;
 
     // Mission Complete
-    for (unsigned int x = 0; x < 8; ++x) {
-        mGame_Data.mMission_Troops[x].mPhaseCount = 0;
+    for (auto& Troop : mGame_Data.mMission_Troops) {
+        Troop.mPhaseCount = 0;
     }
 
     ++mGame_Data.mMissionNumber;
@@ -20465,14 +20462,12 @@ loc_2F1BC:;
     if (Data4 < 0)
         return;
 
-    sMission_Troop* Data38 = mGame_Data.mMission_Troops;
-
     mSidebar_Draw_Y = mGUI_Loop_Draw_Y + 0x22;
 
     // Loop the squad
-    for (int16 word_3A061 = 7; word_3A061 >= 0; --word_3A061, ++Data38) {
+    for (auto& Troop : mGame_Data.mMission_Troops) {
 
-        sSprite* Data34 = Data38->mSprite;
+        sSprite* Data34 = Troop.mSprite;
 
         if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
             continue;
@@ -20490,14 +20485,14 @@ loc_2F1BC:;
 
     loc_2F25C:;
 
-        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data38->mRank + 9, 0x00, mSidebar_Draw_Y);
-        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data38->mRank + 9, 0x23, mSidebar_Draw_Y);
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Troop.mRank + 9, 0x00, mSidebar_Draw_Y);
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Troop.mRank + 9, 0x23, mSidebar_Draw_Y);
 
-        const sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
+        const sRecruit* Data28 = &mRecruits[Troop.mRecruitID];
         if (!mGUI_Loop_Is_CurrentSquad)
             Data0 = 2;
         else
-            Data0 = Data38->mSelected & 1;
+            Data0 = Troop.mSelected & 1;
 
         //loc_2F318
         GUI_Sidebar_TroopList_Name_Draw(Data0, 3, 0x23, mSidebar_Draw_Y + 2, Data28->mName);
@@ -20771,16 +20766,15 @@ int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
     sMission_Troop* Data38 = mGame_Data.mMission_Troops;
 
     int16 Data10 = 0;
+    for (auto& Troop : mGame_Data.mMission_Troops) {
 
-    for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38) {
-
-        if (Data38->mSprite == INVALID_SPRITE_PTR || Data38->mSprite == 0)
+        if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
 
-        if (mSquad_Selected != Data38->mSprite->field_32)
+        if (mSquad_Selected != Troop.mSprite->field_32)
             continue;
 
-        if (!(Data38->mSelected & 1))
+        if (!(Troop.mSelected & 1))
             continue;
 
         Data10++;

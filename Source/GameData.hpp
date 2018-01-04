@@ -31,6 +31,18 @@ struct sMission_Troop {
     int8        field_8;
     int8        mSelected;
     uint16      mNumberOfKills;
+
+    sMission_Troop() {
+        mRecruitID = -1;
+        mRank = 0;
+        mNumberOfKills = 0;
+
+        mSprite = (sSprite*)-1;
+
+        field_6 = 0;
+        field_8 = 0;
+        mSelected = 0;
+    }
 };
 
 struct sHero {
