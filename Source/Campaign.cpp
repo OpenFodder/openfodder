@@ -60,62 +60,62 @@ const std::vector<std::string> mMissionGoal_Titles = {
 };
 
 cCampaign::cCampaign() {
-	Clear();
+    Clear();
 }
 
 bool cCampaign::LoadCustomFromPath(const std::string& pPath) {
-	Clear();
-	std::string CustomMapName = pPath;
+    Clear();
+    std::string CustomMapName = pPath;
 
-	auto a = CustomMapName.find_last_of("/") + 1;
-	
-	CustomMapName.erase(CustomMapName.begin(), CustomMapName.begin() + a);
+    auto a = CustomMapName.find_last_of("/") + 1;
 
-	// ".map"
-	CustomMapName.resize(CustomMapName.size() - 4);
+    CustomMapName.erase(CustomMapName.begin(), CustomMapName.begin() + a);
 
-	mCustomMap = pPath;
-	mCustomMap.resize(mCustomMap.size() - 4);
+    // ".map"
+    CustomMapName.resize(CustomMapName.size() - 4);
 
-	// Map / Phase names must be upper case
-	std::transform(CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper);
+    mCustomMap = pPath;
+    mCustomMap.resize(mCustomMap.size() - 4);
 
-	mMapFilenames.push_back(pPath.substr(0, pPath.size() - 4));
-	mMissionNames.push_back(CustomMapName);
-	mMissionPhases.push_back(1);
+    // Map / Phase names must be upper case
+    std::transform(CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper);
 
-	// TODO: Try load these from file before using defaults
-	mMapNames.push_back(CustomMapName);
-	mMapGoals.push_back({ eGoal_Kill_All_Enemy });
-	mMapAggression.push_back({ 4, 8 });
+    mMapFilenames.push_back(pPath.substr(0, pPath.size() - 4));
+    mMissionNames.push_back(CustomMapName);
+    mMissionPhases.push_back(1);
 
-	return true;
+    // TODO: Try load these from file before using defaults
+    mMapNames.push_back(CustomMapName);
+    mMapGoals.push_back({ eGoal_Kill_All_Enemy });
+    mMapAggression.push_back({ 4, 8 });
+
+    return true;
 }
 
 /**
  * Load a single custom map
  */
-bool cCampaign::LoadCustomMap( const std::string& pMapName ) {
+bool cCampaign::LoadCustomMap(const std::string& pMapName) {
     Clear();
     std::string CustomMapName = pMapName;
-    
+
     // ".map"
-    CustomMapName.resize( CustomMapName.size() - 4 );
+    CustomMapName.resize(CustomMapName.size() - 4);
 
     mCustomMap = pMapName;
-	mCustomMap.resize(mCustomMap.size() - 4);
+    mCustomMap.resize(mCustomMap.size() - 4);
 
     // Map / Phase names must be upper case
-    std::transform( CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper );
+    std::transform(CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper);
 
-    mMapFilenames.push_back( pMapName.substr(0, pMapName.size() - 4) );
-    mMissionNames.push_back( CustomMapName );
-    mMissionPhases.push_back( 1 );
+    mMapFilenames.push_back(pMapName.substr(0, pMapName.size() - 4));
+    mMissionNames.push_back(CustomMapName);
+    mMissionPhases.push_back(1);
 
     // TODO: Try load these from file before using defaults
-    mMapNames.push_back( CustomMapName );
-    mMapGoals.push_back( { eGoal_Kill_All_Enemy } );
-    mMapAggression.push_back( { 4, 8 } );
+    mMapNames.push_back(CustomMapName);
+    mMapGoals.push_back({ eGoal_Kill_All_Enemy });
+    mMapAggression.push_back({ 4, 8 });
 
     return true;
 }
@@ -132,7 +132,7 @@ void cCampaign::DumpCampaign() {
 
     // Each Mission
     for (auto MissionName : MissionData->mMissionNames) {
-        
+
         Json Mission;
         Mission["Name"] = MissionName;
 
@@ -145,7 +145,7 @@ void cCampaign::DumpCampaign() {
             Phase["MapName"] = MissionData->getMapFilename(MapNumber);
             Phase["Name"] = MissionData->getMapName(MapNumber);
             auto Agg = MissionData->getMapAggression(MapNumber);
-            
+
             Phase["Aggression"][0] = Agg.mMin;
             Phase["Aggression"][1] = Agg.mMax;
 
@@ -177,32 +177,32 @@ void cCampaign::DumpCampaign() {
 /**
  * Load a campaign
  */
-bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
+bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom) {
 
     if (!pName.size())
         return false;
 
-	Clear();
+    Clear();
 
     std::ifstream MissionSetFile(local_PathGenerate(pName + ".ofc", "", eDataType::eCampaign));
     if (MissionSetFile.is_open()) {
 #if defined(_MSC_VER) && _MSC_VER <= 1800
-        IStreamWrapper isw( MissionSetFile );
+        IStreamWrapper isw(MissionSetFile);
         Document MissionSet;
-        MissionSet.ParseStream( isw );
+        MissionSet.ParseStream(isw);
 #else
-        Json MissionSet = Json::parse( MissionSetFile );
+        Json MissionSet = Json::parse(MissionSetFile);
 #endif
         mAuthor = GetStringFunction(MissionSet["Author"]);
         mName = GetStringFunction(MissionSet["Name"]);
-        
+
         // Loop through the missions in this set
         for (TypeFunction(auto) Mission : GetArrayFunction(MissionSet["Missions"])) {
             std::string Name = GetStringFunction(Mission["Name"]);
-            transform( Name.begin(), Name.end(), Name.begin(), toupper );
+            transform(Name.begin(), Name.end(), Name.begin(), toupper);
 
-            mMissionNames.push_back( Name );
-            mMissionPhases.push_back( SizeFunction(GetArrayFunction(Mission["Phases"])) );
+            mMissionNames.push_back(Name);
+            mMissionPhases.push_back(SizeFunction(GetArrayFunction(Mission["Phases"])));
 
             // Each Map (Phase)
             for (TypeFunction(auto) Phase : GetArrayFunction(Mission["Phases"])) {
@@ -211,21 +211,21 @@ bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
                 std::string MapName = GetStringFunction(Phase["MapName"]);
 
                 Name = GetStringFunction(Phase["Name"]);
-                transform( Name.begin(), Name.end(), Name.begin(), toupper );
-                
+                transform(Name.begin(), Name.end(), Name.begin(), toupper);
+
                 mMapFilenames.push_back(MapName);
-                mMapNames.push_back( Name );
+                mMapNames.push_back(Name);
 
                 // Map Aggression
                 if (SizeFunction(GetArrayFunction(Phase["Aggression"])))
-                    mMapAggression.push_back( { GetIntFunction(Phase["Aggression"][0]), GetIntFunction(Phase["Aggression"][1]) } );
+                    mMapAggression.push_back({ GetIntFunction(Phase["Aggression"][0]), GetIntFunction(Phase["Aggression"][1]) });
                 else
-                    mMapAggression.push_back( { 4, 8 } );
+                    mMapAggression.push_back({ 4, 8 });
 
                 // Each map goal
                 for (TypeFunction(auto) ObjectiveName : GetArrayFunction(Phase["Objectives"])) {
                     std::string ObjectiveNameStr = GetStringFunction(ObjectiveName);
-                    transform( ObjectiveNameStr.begin(), ObjectiveNameStr.end(), ObjectiveNameStr.begin(), toupper );
+                    transform(ObjectiveNameStr.begin(), ObjectiveNameStr.end(), ObjectiveNameStr.begin(), toupper);
 
                     // Check each goal
                     int x = 0;
@@ -234,16 +234,16 @@ bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
 
                         if (GoalTitle == ObjectiveNameStr) {
 
-                            Goals.push_back( static_cast<eMissionGoals>(x) );
+                            Goals.push_back(static_cast<eMissionGoals>(x));
                             break;
                         }
                     }
                 }
-                mMapGoals.push_back( Goals );
+                mMapGoals.push_back(Goals);
             }
         }
 
-		mIsCustomCampaign = pCustom;
+        mIsCustomCampaign = pCustom;
         return true;
     }
 
@@ -254,10 +254,10 @@ bool cCampaign::LoadCampaign( const std::string& pName, bool pCustom) {
  * Clear all missions/map names, goals and aggression rates
  */
 void cCampaign::Clear() {
-	mIsRandom = false;
-	mIsCustomCampaign = false;
-	mName = "";
-	mCustomMap = "";
+    mIsRandom = false;
+    mIsCustomCampaign = false;
+    mName = "";
+    mCustomMap = "";
 
     mMissionNames.clear();
     mMissionPhases.clear();
@@ -269,64 +269,64 @@ void cCampaign::Clear() {
 }
 
 std::string cCampaign::getMapFileName(const size_t pMapNumber) const {
-	if(mCustomMap.size())
-		return mCustomMap;
+    if (mCustomMap.size())
+        return mCustomMap;
 
-	// Fallback to original behaviour if we don't have a name
-	if (pMapNumber >= mMapFilenames.size()) {
-		std::stringstream MapName;
-		MapName << "mapm" << (pMapNumber + 1);
-		return MapName.str();
-	}
+    // Fallback to original behaviour if we don't have a name
+    if (pMapNumber >= mMapFilenames.size()) {
+        std::stringstream MapName;
+        MapName << "mapm" << (pMapNumber + 1);
+        return MapName.str();
+    }
 
-	return mMapFilenames[pMapNumber];
+    return mMapFilenames[pMapNumber];
 }
 
 tSharedBuffer cCampaign::getMap(const size_t pMapNumber) const {
-	std::string FinalName = getMapFileName(pMapNumber) + ".map";
-	std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
+    std::string FinalName = getMapFileName(pMapNumber) + ".map";
+    std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
 
-	// Custom map in use?
-	if (mCustomMap.size()) {
+    // Custom map in use?
+    if (mCustomMap.size()) {
 
-		// Generated path doesnt exist, try load the absolute path
-		if (local_FileExists(mCustomMap + ".map"))
-			return local_FileRead(mCustomMap + ".map", "", eNone);
+        // Generated path doesnt exist, try load the absolute path
+        if (local_FileExists(mCustomMap + ".map"))
+            return local_FileRead(mCustomMap + ".map", "", eNone);
 
-		// Otherwise use the custom map folder
-		return local_FileRead(FinalName, "Custom/Maps/", eData);
-	}
+        // Otherwise use the custom map folder
+        return local_FileRead(FinalName, "Custom/Maps/", eData);
+    }
 
-	// If a campaign folder exists, return a path inside it
-	if (!local_FileExists(FinalPath))
-		return g_Resource.fileGet(FinalName);
+    // If a campaign folder exists, return a path inside it
+    if (!local_FileExists(FinalPath))
+        return g_Resource.fileGet(FinalName);
 
-	// Otherwise fallback to loading the map from the currently loaded
-	return local_FileRead(FinalPath, "", eNone );
+    // Otherwise fallback to loading the map from the currently loaded
+    return local_FileRead(FinalPath, "", eNone);
 }
 
 tSharedBuffer cCampaign::getSprites(const size_t pMapNumber) const {
-	std::string FinalName = getMapFileName(pMapNumber) + ".spt";
-	std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
+    std::string FinalName = getMapFileName(pMapNumber) + ".spt";
+    std::string FinalPath = local_PathGenerate(FinalName, mName, eDataType::eCampaign);
 
-	// Custom map in use?
-	if (mCustomMap.size()) {
+    // Custom map in use?
+    if (mCustomMap.size()) {
 
-		// Generated path doesnt exist, try load the absolute path
-		if (local_FileExists(mCustomMap + ".spt"))
-			return local_FileRead(mCustomMap + ".spt", "", eNone);
+        // Generated path doesnt exist, try load the absolute path
+        if (local_FileExists(mCustomMap + ".spt"))
+            return local_FileRead(mCustomMap + ".spt", "", eNone);
 
-		// Otherwise use the custom map folder
-		return local_FileRead(FinalName, "Custom/Maps/", eData);
-	}
+        // Otherwise use the custom map folder
+        return local_FileRead(FinalName, "Custom/Maps/", eData);
+    }
 
 
-	// If a campaign folder exists, return a path inside it
-	if (!local_FileExists(FinalPath))
-		return g_Resource.fileGet(FinalName);
+    // If a campaign folder exists, return a path inside it
+    if (!local_FileExists(FinalPath))
+        return g_Resource.fileGet(FinalName);
 
-	// Otherwise fallback to loading the map from the currently loaded
-	return local_FileRead(FinalPath, "", eNone);
+    // Otherwise fallback to loading the map from the currently loaded
+    return local_FileRead(FinalPath, "", eNone);
 }
 
 /**
@@ -367,19 +367,19 @@ std::string cCampaign::getMapName(const size_t& pMapNumber) const {
 }
 
 void cCampaign::setGoals(const std::vector<eMissionGoals>& pGoals) {
-	mMapGoals.clear();
-	mMapGoals.push_back(pGoals);
+    mMapGoals.clear();
+    mMapGoals.push_back(pGoals);
 }
 
 void cCampaign::setAggression(int16 pMin, int16 pMax) {
 
-	if (pMin == 0 || pMax == 0) {
-		pMin = (rand() % 5);
-		pMax = pMin + (rand() % 5);
-	}
+    if (pMin == 0 || pMax == 0) {
+        pMin = (rand() % 5);
+        pMax = pMin + (rand() % 5);
+    }
 
-	mMapAggression.clear();
-	mMapAggression.push_back(sAggression(pMin, pMax));
+    mMapAggression.clear();
+    mMapAggression.push_back(sAggression(pMin, pMax));
 }
 
 /**
@@ -418,10 +418,10 @@ const std::string cCampaign::getName() const {
 
 bool cCampaign::isCustom() const {
 
-	return mIsCustomCampaign;
+    return mIsCustomCampaign;
 }
 
 bool cCampaign::isRandom() const {
 
-	return mIsRandom;
+    return mIsRandom;
 }

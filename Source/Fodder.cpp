@@ -4120,6 +4120,14 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
     mSprites[x].field_20 = 0;
     mSprites[x++].field_18 = eSprite_BoilingPot;
 
+    mSprites[x].field_0 = 220;
+    mSprites[x].field_4 = 60;
+    mSprites[x].field_8 = 2;
+    mSprites[x].field_A = 0;
+    mSprites[x].field_52 = 0;
+    mSprites[x].field_20 = 0;
+    mSprites[x++].field_18 = eSprite_Null;
+
     mSquad_Leader = mSquad_CurrentVehicle;
 
     word_3AA1D = word_3BED5[0];
