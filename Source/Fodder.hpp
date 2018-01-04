@@ -50,21 +50,21 @@ union sMapTarget {
 };
 
 struct sSavedGame {
-	std::string mFileName;
-	std::string	mName;
+    std::string mFileName;
+    std::string	mName;
 };
 
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
-    public:
+public:
     char                    mInputString[0x300];
 
     bool                    mSkipIntro;
     std::vector<cEvent>     mEvents;
-	bool					mOpenFodder_Intro_Done;
+    bool					mOpenFodder_Intro_Done;
 
-	const sVersion*			mVersionDefault;		// Version to switch back to when looking for data
+    const sVersion*			mVersionDefault;		// Version to switch back to when looking for data
     const sVersion*         mVersionCurrent;		// Version currently being used
     cCampaign               mCampaign;				// Campaign currently being played
 
@@ -73,15 +73,15 @@ class cFodder : public cSingleton < cFodder > {
     cResources*             mResources;
     cWindow*                mWindow;
 
-	sGameData				mGame_Data;
+    sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
 
     sSprite                 mSprite_Spare;
     sSprite                 mSprites[45];
 
     const sSpriteSheet**    mSprite_SheetPtr;
-    
-    void                    (cFodder::*mSprite_Function[117])( sSprite* pSprite );
+
+    void                    (cFodder::*mSprite_Function[117])(sSprite* pSprite);
 
     std::stringstream       mWindowTitle;
 
@@ -125,7 +125,7 @@ class cFodder : public cSingleton < cFodder > {
     int16*          mGraveRankPtr2;
     int16*          mGraveRecruitIDPtr;
     /* End old save game region */
-    
+
     int16           mButtonPressLeft, mButtonPressRight;
     int16           mMouse_Button_Left_Toggle;
     bool            mVehicle_Input_Disabled;
@@ -222,11 +222,11 @@ class cFodder : public cSingleton < cFodder > {
 
     sMapPosition    m2A622_Unk_MapPosition;
 
-	bool            mMission_Aborted;
+    bool            mMission_Aborted;
     int16           mMission_TryAgain;
     int16           mMission_Complete;
     int16           mMission_Completed_Timer;
-	int16           mMission_Paused;
+    int16           mMission_Paused;
 
     int16           mEnemy_BuildingCount;
     int16           mSquad_SwitchWeapon;
@@ -255,7 +255,7 @@ class cFodder : public cSingleton < cFodder > {
 
     int16           mTroops_Enemy_Count;
     int16           mHostage_Count;
-	sSprite*        mHostage_Rescue_Tent;
+    sSprite*        mHostage_Rescue_Tent;
 
     int16           mCamera_Start_Adjust;
     int16           word_3AA1D;             // 2 = Use mSprite_Frame_3
@@ -371,7 +371,7 @@ class cFodder : public cSingleton < cFodder > {
     void            (cFodder::*dword_3B30D)(int16 pPosY);
 
     int16           mInputString_Position;
-	int16			mGUI_Select_File_ShownItems;
+    int16			mGUI_Select_File_ShownItems;
     int16           mGUI_Select_File_CurrentIndex;
     int16           mGUI_Select_File_Count;
     int16           mGUI_Select_File_SelectedFileIndex;
@@ -424,13 +424,13 @@ class cFodder : public cSingleton < cFodder > {
     uint16          mSquad_Grenade_SplitMode;
     uint16          mSquad_Rocket_SplitMode;
     uint16          mGUI_Sidebar_TroopList_Name_BreakOnSpace;
-    
+
     sSprite*        mSquad_0_Sprites[9];
     sSprite*        mSquad_1_Sprites[9];
     sSprite*        mSquad_2_Sprites[9];
     sSprite*        mSquad_3_Sprites[9];
     sSprite*        mSquad_4_Sprites[9];
-    
+
     sSprite**       mSquads[5];
     int16           mSprite_Frame1_Modifier;
     int16           mSprite_Frame2_Modifier;
@@ -439,7 +439,7 @@ class cFodder : public cSingleton < cFodder > {
     int16           mGUI_Mouse_Modifier_Y;
 
     uint16          word_3BED5[5];
-    
+
     sMapTarget      mSquad_WalkTargets[10][30];
     int8            mSquad_Join_TargetSquad[3];
     sSprite*        mSquad_Join_TargetSprite[6];
@@ -519,7 +519,7 @@ class cFodder : public cSingleton < cFodder > {
 
     int64           mTicks;
     int64           mTicksDiff;
-	std::vector<std::string>	mCampaignList;
+    std::vector<std::string>	mCampaignList;
 
     void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
@@ -529,17 +529,17 @@ public:
     void            Custom_ShowMapSelection();
     void            Campaign_Selection();
 
-	void			Campaign_Select_Sprite_Prepare();
-	void            Campaign_Select_File_Loop( const char* pTitle, const char* pSubTitle );
-	void			Campaign_Select_DrawMenu( const char* pTitle, const char* pSubTitle );
+    void			Campaign_Select_Sprite_Prepare();
+    void            Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle);
+    void			Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle);
 
     void            Image_FadeIn();
     void            Image_FadeOut();
 
     virtual int16   Mission_Loop();
-    virtual int16   Map_Loop( );
+    virtual int16   Map_Loop();
 
-    void            Game_Handle( );
+    void            Game_Handle();
     void            Camera_Handle();
     void            Camera_Position_Toward_SquadLeader();
     void            Game_ClearVariables();
@@ -552,42 +552,42 @@ public:
     void            Squad_Set_Squad_Leader();
 
     void            Sprite_Clear_All();
-    
+
     // Campaign
-    bool            Campaign_Load( std::string pName );
+    bool            Campaign_Load(std::string pName);
 
     // Map Functions
     void            Map_Create(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise = false);
     void            Map_Load();
     void            Map_Load_Sprites();
-	void			Map_Load_Sprites_Count();
+    void			Map_Load_Sprites_Count();
     void            Map_Load_Resources();
 
     void            Map_Save(const std::string pFilename);
-    void            Map_Save_Sprites( const std::string pFilename );
+    void            Map_Save_Sprites(const std::string pFilename);
 
-	void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
-	void			Map_Randomise(const long pSeed);
-	void			Map_Randomise_Structures( const size_t pCount );
-	void			Map_Randomise_Sprites();
+    void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
+    void			Map_Randomise_Tiles(const long pSeed);
+    void			Map_Randomise_Structures(const size_t pCount);
+    void			Map_Randomise_Sprites();
 
-	bool			Tiles_Load_Data();
-	int16			Tile_FindType(eTerrainType pType);
+    bool			Tiles_Load_Data();
+    int16			Tile_FindType(eTerrainType pType);
 
     // Mission Functions
     void            Mission_Troop_Count();
     void            Mission_Troop_Sort();
-    void            Mission_Troop_Prepare( const bool pPrebriefing );
+    void            Mission_Troop_Prepare(const bool pPrebriefing);
     void            Mission_Troop_Prepare_Next_Recruits();
     void            Mission_Troop_Attach_Sprites();
     void            Camera_Position_Update();
-    int16           sub_119E1( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+    int16           sub_119E1(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
     void            Camera_Calculate_Scroll();
     void            sub_11CAD();
-    void            Camera_Refresh( );
+    void            Camera_Refresh();
     void            Music_Play_Tileset();
-    void            Camera_Pan_To_Target( );
+    void            Camera_Pan_To_Target();
     void            Camera_Pan_Set_Speed();
     void            Camera_Update_From_Mouse();
 
@@ -602,65 +602,65 @@ public:
     void            Sprite_Sort_DrawList();
     void            Sprite_Bullet_SetData();
 
-	void            Mission_Final_Timer();
+    void            Mission_Final_Timer();
 
     void            Mission_Phase_Goals_Check();
     void            Mission_Phase_Goals_Set();
     void            Mission_Progress_Check();
 
-	void            Mission_Map_Overview_Show();
+    void            Mission_Map_Overview_Show();
 
-	void            Mission_Set_Final_TimeRemaining();
-	void            Mission_Sprites_Handle();
+    void            Mission_Set_Final_TimeRemaining();
+    void            Mission_Sprites_Handle();
 
     void            Mission_Text_Completed();
-    void            Mission_Text_Sprite_Mission( sSprite* pData2C );
-    void            Mission_Text_Sprite_Phase( sSprite* pData2C );
-    void            Mission_Text_Sprite_Complete( sSprite* pData2C );
-    void            Mission_Text_Prepare( sSprite* pData2C );
+    void            Mission_Text_Sprite_Mission(sSprite* pData2C);
+    void            Mission_Text_Sprite_Phase(sSprite* pData2C);
+    void            Mission_Text_Sprite_Complete(sSprite* pData2C);
+    void            Mission_Text_Prepare(sSprite* pData2C);
     void            Mission_Text_TryAgain();
-    void            Mission_Text_Sprite_Try( sSprite* pData2C );
-    void            Mission_Text_Sprite_Again( sSprite* pData2C );
+    void            Mission_Text_Sprite_Try(sSprite* pData2C);
+    void            Mission_Text_Sprite_Again(sSprite* pData2C);
 
-    std::string     Filename_CreateFromBase( const std::string& pBase, const char* pFinish );
+    std::string     Filename_CreateFromBase(const std::string& pBase, const char* pFinish);
     void            Squad_Member_PhaseCount();
     void            Squad_Set_CurrentVehicle();
     void            Squad_EnteredVehicle_TimerTick();
 
-	void            Map_Clear_Destroy_Tiles();
+    void            Map_Clear_Destroy_Tiles();
     void            Map_Overview_Prepare();
     void            Map_SetTileType();
 
-	void            Sprite_Find_HumanVehicles();
+    void            Sprite_Find_HumanVehicles();
     void            Sprite_Count_HelicopterCallPads();
 
     void            Sprite_HelicopterCallPad_Check();
 
     int16           Sprite_Create_RandomExplosion();
     void            Mission_GameOver();
-    void            Mission_Text_GameOver( sSprite* pData2C );
+    void            Mission_Text_GameOver(sSprite* pData2C);
     void            Mission_Paused();
 
     void            Video_Sleep_Wrapper();
-    void            Mouse_DrawCursor( );
-    void            GUI_Draw_Frame_8( int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY );
-    void            GUI_Draw_Frame_16(  int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY );
-    void            Sprite_Draw_Frame(  sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0 );
+    void            Mouse_DrawCursor();
+    void            GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY);
+    void            GUI_Draw_Frame_16(int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY);
+    void            Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0);
 
     bool            Sprite_OnScreen_Check();
-    void            Sprites_Draw( );
-    void            Sprite_Map_Sound_Play( int16& pData0 );
+    void            Sprites_Draw();
+    void            Sprite_Map_Sound_Play(int16& pData0);
 
-    void            Sound_Play( sSprite* pSprite, int16 pSoundEffect, int16 pData8 );
+    void            Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8);
 
     // 14EAC
-	void			Mission_Intro_Draw_OpenFodder();
-    void            Mission_Intro_Helicopter_Start( );
-    void            sub_1594F( );
-    void            Briefing_Update_Helicopter( );
+    void			Mission_Intro_Draw_OpenFodder();
+    void            Mission_Intro_Helicopter_Start();
+    void            sub_1594F();
+    void            Briefing_Update_Helicopter();
 
-    void            Mission_Intro_Draw_Mission_Name( );
-    void            Briefing_Draw_Mission_Title( int16 pDrawAtY );
+    void            Mission_Intro_Draw_Mission_Name();
+    void            Briefing_Draw_Mission_Title(int16 pDrawAtY);
 
     void            CopyProtection();
     void            CopyProtection_EncodeInput();
@@ -668,30 +668,30 @@ public:
     /* Recruitment */
     int16           Recruit_Show();
     bool            Recruit_Loop();
-    void            Recruit_Draw_String(  int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString );
+    void            Recruit_Draw_String(int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString);
     void            Recruit_Truck_Anim_Prepare();
-    void            Recruit_Truck_Anim_CopyFrames( uint16** pDi, const int16* pSource );
+    void            Recruit_Truck_Anim_CopyFrames(uint16** pDi, const int16* pSource);
     void            sub_16C6C();
     void            Recruit_Render_LeftMenu();
     void            Recruit_Render_Squad_Names();
     void            Recruit_Render_Squad_RankKills();
-    void            Recruit_Render_Number( int16 pNumber, int16 pData10 );
+    void            Recruit_Render_Number(int16 pNumber, int16 pData10);
     void            Recruit_Render_HeroList();
     void            Recruit_Render_Names_UnusedSlots();
     void            Recruit_Sidebar_Render_SquadName();
-    void            Recruit_Draw_Actors( );
+    void            Recruit_Draw_Actors();
     void            sub_175C0();
     void            Recruit_Draw_Troops();
     void            sub_1787C();
     void            Recruit_Frame_Check();
     void            Recruit_Position_Troops();
-    void            Recruit_Draw_Truck( );
+    void            Recruit_Draw_Truck();
     void            Recruit_Copy_Sprites();
     void            Recruit_Draw();
-    void            Recruit_Draw_Graves( );
-    void            Recruit_Draw_Grave( int16 pSpriteType, const size_t pPosX, const size_t pPosY );
+    void            Recruit_Draw_Graves();
+    void            Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const size_t pPosY);
     bool            Recruit_Check_Buttons_SaveLoad();
-    void            Recruit_Render_Text( const char* pText, const size_t pPosY );
+    void            Recruit_Render_Text(const char* pText, const size_t pPosY);
     /* End Recruitment */
 
     /* Promotion / Heroes */
@@ -700,378 +700,378 @@ public:
     void            Service_Promotion_Loop();
     int16           Service_KIA_Troop_Prepare();
     int16           Service_Promotion_Prepare_Draw();
-    void            Service_Draw_Troop_And_Rank( uint16*& pDi,int16 pRecruitID, int16 pRank );
+    void            Service_Draw_Troop_And_Rank(uint16*& pDi, int16 pRecruitID, int16 pRank);
     void            sub_18149();
     void            sub_181BD();
-    void            sub_181E6( uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC );
-    int16           sub_1828A( int16& pSpriteType, int16& pFrame, int16& pData8, int16& pDataC );
+    void            sub_181E6(uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC);
+    int16           sub_1828A(int16& pSpriteType, int16& pFrame, int16& pData8, int16& pDataC);
     void            sub_182EA();
     int16           sub_184C7();
-    void            Service_Mission_Text_Prepare( uint16*& pTarget );
+    void            Service_Mission_Text_Prepare(uint16*& pTarget);
     void            Service_Promotion_Prepare();
     void            Service_Promotion_Check();
     void            Service_Promotion_SetNewRanks();
 
     /* End Promotion / Heroes */
 
-    int16           Squad_Join( sSprite* pSprite );
+    int16           Squad_Join(sSprite* pSprite);
 
-	
-    void            Briefing_Draw_Phase( );
+
+    void            Briefing_Draw_Phase();
     void            Briefing_Show_PreReady();
     void            Briefing_Show_Ready();
-    void            Briefing_Draw_With( );
-    void            Briefing_DrawBox( int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor );
-    void            Briefing_Draw_Horizontal_Line( int16 pX, int16 pWidth, int16 pY, uint8 pColor );
-    void            Briefing_Draw_Vertical_Line(  int16 pX, int16 pHeight, int16 pY, uint8 pColor );
+    void            Briefing_Draw_With();
+    void            Briefing_DrawBox(int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor);
+    void            Briefing_Draw_Horizontal_Line(int16 pX, int16 pWidth, int16 pY, uint8 pColor);
+    void            Briefing_Draw_Vertical_Line(int16 pX, int16 pHeight, int16 pY, uint8 pColor);
 
-    void            Briefing_Draw_Pixel( int16 pX, int16 pY, uint8 pColor );
+    void            Briefing_Draw_Pixel(int16 pX, int16 pY, uint8 pColor);
 
-	void			Mission_Intro_Play();
-    void            Intro_Print_String( int32 pPosX, const sIntroString* pString );
+    void			Mission_Intro_Play();
+    void            Intro_Print_String(int32 pPosX, const sIntroString* pString);
 
     void            Sprite_Frame_Modifier_Update();
-    
+
     void            Sprite_Table_Setup();
 
     void            Sprite_Handle_Loop();
-    void            Sprite_Handle_Null( sSprite* pSprite );
+    void            Sprite_Handle_Null(sSprite* pSprite);
 
-    void            Sprite_Handle_Player( sSprite* pSprite );               // 0
-    void            Sprite_Handle_Grenade( sSprite* pSprite );              // 2
-    void            sub_1998C( sSprite* pSprite );
-    void            Sprite_Handle_ShadowSmall( sSprite* pSprite );          // 3
-    void            Sprite_Handle_Enemy( sSprite* pSprite );                // 5
-    void            Sprite_Handle_Bullet( sSprite* pSprite );               // 6
-    void            Sprite_Handle_Helicopter( sSprite* pSprite );
-    void            Sprite_Handle_Explosion( sSprite* pSprite );            // 12
-    void            Sprite_Handle_Shrub( sSprite* pSprite );                // 13
-    void            Sprite_Handle_Tree( sSprite* pSprite );                 // 14
-    void            Sprite_Handle_BuildingRoof( sSprite* pSprite );         // 15
-    void            Sprite_Handle_Snowman( sSprite* pSprite );              // 16
-    void            Sprite_Handle_Shrub2( sSprite* pSprite );               // 17
-    void            Sprite_Handle_Waterfall( sSprite* pSprite );            // 18
-    void            Sprite_Handle_Bird2_Left( sSprite* pSprite );           // 19
+    void            Sprite_Handle_Player(sSprite* pSprite);               // 0
+    void            Sprite_Handle_Grenade(sSprite* pSprite);              // 2
+    void            sub_1998C(sSprite* pSprite);
+    void            Sprite_Handle_ShadowSmall(sSprite* pSprite);          // 3
+    void            Sprite_Handle_Enemy(sSprite* pSprite);                // 5
+    void            Sprite_Handle_Bullet(sSprite* pSprite);               // 6
+    void            Sprite_Handle_Helicopter(sSprite* pSprite);
+    void            Sprite_Handle_Explosion(sSprite* pSprite);            // 12
+    void            Sprite_Handle_Shrub(sSprite* pSprite);                // 13
+    void            Sprite_Handle_Tree(sSprite* pSprite);                 // 14
+    void            Sprite_Handle_BuildingRoof(sSprite* pSprite);         // 15
+    void            Sprite_Handle_Snowman(sSprite* pSprite);              // 16
+    void            Sprite_Handle_Shrub2(sSprite* pSprite);               // 17
+    void            Sprite_Handle_Waterfall(sSprite* pSprite);            // 18
+    void            Sprite_Handle_Bird2_Left(sSprite* pSprite);           // 19
 
-    void            Sprite_Handle_BuildingDoor( sSprite* pSprite );                         // 20
-    void            Sprite_Handle_Player_Rank( sSprite* pSprite );                          // 21
-    void            Sprite_Handle_Player_Shadow( sSprite* pSprite );                        // 22
-    void            Sprite_Handle_BloodTrail( sSprite* pSprite );                           // 23
-    void            Sprite_Handle_GroundHole( sSprite* pSprite );                           // 24
-    void            Sprite_Handle_BuildingDoor2( sSprite* pSprite );                        // 25
-    void            Sprite_Handle_Floating_Dead_Soldier( sSprite* pSprite );                // 27
-    void            Sprite_Handle_Text_Complete( sSprite* pSprite );                        // 28
-    void            Sprite_Handle_Text_Mission( sSprite* pSprite );                         // 29
+    void            Sprite_Handle_BuildingDoor(sSprite* pSprite);                         // 20
+    void            Sprite_Handle_Player_Rank(sSprite* pSprite);                          // 21
+    void            Sprite_Handle_Player_Shadow(sSprite* pSprite);                        // 22
+    void            Sprite_Handle_BloodTrail(sSprite* pSprite);                           // 23
+    void            Sprite_Handle_GroundHole(sSprite* pSprite);                           // 24
+    void            Sprite_Handle_BuildingDoor2(sSprite* pSprite);                        // 25
+    void            Sprite_Handle_Floating_Dead_Soldier(sSprite* pSprite);                // 27
+    void            Sprite_Handle_Text_Complete(sSprite* pSprite);                        // 28
+    void            Sprite_Handle_Text_Mission(sSprite* pSprite);                         // 29
 
-    void            Sprite_Handle_Text_Phase( sSprite* pSprite );                           // 30
-    void            Sprite_Handle_Vehicle( sSprite* pSprite );
-    void            Sprite_Handle_Rocket( sSprite* pSprite );                               // 33
-    void            Sprite_Handle_Text_GameOver( sSprite* pSprite );                        // 34
-    void            Sprite_Handle_Shadow( sSprite* pSprite );                               // 35
-    void            Sprite_Handle_Enemy_Rocket( sSprite* pSprite );                         // 36
-    void            Sprite_Handle_GrenadeBox( sSprite* pSprite );                           // 37
-    void            Sprite_Handle_RocketBox( sSprite* pSprite );                            // 38
-    void            Sprite_Handle_Building_Explosion( sSprite* pSprite );                   // 39
+    void            Sprite_Handle_Text_Phase(sSprite* pSprite);                           // 30
+    void            Sprite_Handle_Vehicle(sSprite* pSprite);
+    void            Sprite_Handle_Rocket(sSprite* pSprite);                               // 33
+    void            Sprite_Handle_Text_GameOver(sSprite* pSprite);                        // 34
+    void            Sprite_Handle_Shadow(sSprite* pSprite);                               // 35
+    void            Sprite_Handle_Enemy_Rocket(sSprite* pSprite);                         // 36
+    void            Sprite_Handle_GrenadeBox(sSprite* pSprite);                           // 37
+    void            Sprite_Handle_RocketBox(sSprite* pSprite);                            // 38
+    void            Sprite_Handle_Building_Explosion(sSprite* pSprite);                   // 39
 
-    void            Sprite_Handle_Helicopter_Grenade_Enemy( sSprite* pSprite );             // 40
-    void            Sprite_Handle_Flashing_Light( sSprite* pSprite );                       // 41
-    void            Sprite_Handle_Helicopter_Grenade2_Enemy( sSprite* pSprite );            // 42
-    void            Sprite_Handle_Helicopter_Missile_Enemy( sSprite* pSprite );             // 43
-    void            Sprite_Handle_Helicopter_Homing_Enemy( sSprite* pSprite );              // 44
-    void            Sprite_Handle_Missile( sSprite* pSprite );                              // 45
-    void            Sprite_Handle_MissileHoming( sSprite* pSprite );                        // 46
-    void            Sprite_Handle_Sparks( sSprite* pSprite );                                           // 47
-    void            Sprite_Handle_FireTrail( sSprite* pSprite );                                            // 48
-    void            Sprite_Handle_Helicopter_Grenade2_Human( sSprite* pSprite );            // 49
+    void            Sprite_Handle_Helicopter_Grenade_Enemy(sSprite* pSprite);             // 40
+    void            Sprite_Handle_Flashing_Light(sSprite* pSprite);                       // 41
+    void            Sprite_Handle_Helicopter_Grenade2_Enemy(sSprite* pSprite);            // 42
+    void            Sprite_Handle_Helicopter_Missile_Enemy(sSprite* pSprite);             // 43
+    void            Sprite_Handle_Helicopter_Homing_Enemy(sSprite* pSprite);              // 44
+    void            Sprite_Handle_Missile(sSprite* pSprite);                              // 45
+    void            Sprite_Handle_MissileHoming(sSprite* pSprite);                        // 46
+    void            Sprite_Handle_Sparks(sSprite* pSprite);                                           // 47
+    void            Sprite_Handle_FireTrail(sSprite* pSprite);                                            // 48
+    void            Sprite_Handle_Helicopter_Grenade2_Human(sSprite* pSprite);            // 49
 
-    void            Sprite_Handle_Helicopter_Grenade_Human( sSprite* pSprite );             // 50
-    void            Sprite_Handle_Helicopter_Missile_Human( sSprite* pSprite );             // 51
-    void            Sprite_Handle_Helicopter_Homing_Human( sSprite* pSprite );              // 52
-    void            Sprite_Handle_Helicopter_PropCrash( sSprite* pSprite );                 // 53
-    void            Sprite_Handle_Mine( sSprite* pSprite );                                 // 54
-    void            Sprite_Handle_Mine2( sSprite* pSprite );                                // 55
-    void            Sprite_Handle_Spike( sSprite* pSprite );                                // 56
-    void            Sprite_Handle_Smoke( sSprite* pSprite );                                            // 57
-    void            Sprite_Handle_Text_Try( sSprite* pSprite );                             // 58
-    void            Sprite_Handle_Text_Again( sSprite* pSprite );                           // 59
+    void            Sprite_Handle_Helicopter_Grenade_Human(sSprite* pSprite);             // 50
+    void            Sprite_Handle_Helicopter_Missile_Human(sSprite* pSprite);             // 51
+    void            Sprite_Handle_Helicopter_Homing_Human(sSprite* pSprite);              // 52
+    void            Sprite_Handle_Helicopter_PropCrash(sSprite* pSprite);                 // 53
+    void            Sprite_Handle_Mine(sSprite* pSprite);                                 // 54
+    void            Sprite_Handle_Mine2(sSprite* pSprite);                                // 55
+    void            Sprite_Handle_Spike(sSprite* pSprite);                                // 56
+    void            Sprite_Handle_Smoke(sSprite* pSprite);                                            // 57
+    void            Sprite_Handle_Text_Try(sSprite* pSprite);                             // 58
+    void            Sprite_Handle_Text_Again(sSprite* pSprite);                           // 59
 
-    void            Sprite_Handle_BoilingPot( sSprite* pSprite );           // 60
-    void            Sprite_Handle_Indigenous( sSprite* pSprite );           // 61
-    void            Sprite_Handle_Indigenous2( sSprite* pSprite );          // 62
-    void            Sprite_Handle_VehicleNoGun_Human( sSprite* pSprite );   // 63
-    void            Sprite_Handle_VehicleGun_Human( sSprite* pSprite );     // 64
-    void            Sprite_Handle_Tank_Human( sSprite* pSprite );           // 65
-    void            Sprite_Handle_Bird_Left( sSprite* pSprite );            // 66
-    void            Sprite_Handle_Bird_Right( sSprite* pSprite );           // 67
-    void            Sprite_Handle_Seal( sSprite* pSprite );                 // 68
-    void            Sprite_Handle_Tank_Enemy( sSprite* pSprite );           // 69
+    void            Sprite_Handle_BoilingPot(sSprite* pSprite);           // 60
+    void            Sprite_Handle_Indigenous(sSprite* pSprite);           // 61
+    void            Sprite_Handle_Indigenous2(sSprite* pSprite);          // 62
+    void            Sprite_Handle_VehicleNoGun_Human(sSprite* pSprite);   // 63
+    void            Sprite_Handle_VehicleGun_Human(sSprite* pSprite);     // 64
+    void            Sprite_Handle_Tank_Human(sSprite* pSprite);           // 65
+    void            Sprite_Handle_Bird_Left(sSprite* pSprite);            // 66
+    void            Sprite_Handle_Bird_Right(sSprite* pSprite);           // 67
+    void            Sprite_Handle_Seal(sSprite* pSprite);                 // 68
+    void            Sprite_Handle_Tank_Enemy(sSprite* pSprite);           // 69
 
-    void            Sprite_Handle_Indigenous_Spear( sSprite* pSprite );     // 70
-    void            Sprite_Handle_Indigenous_Spear2( sSprite* pSprite );                            // 71
-    void            Sprite_Handle_Hostage( sSprite* pSprite );              // 72
-    void            Sprite_Handle_Hostage_Rescue_Tent( sSprite* pSprite );  // 73
-    void            Sprite_Handle_Door_Indigenous( sSprite* pSprite );      // 74
-    void            Sprite_Handle_Door2_Indigenous( sSprite* pSprite );     // 75
-    void            Sprite_Handle_Door_Indigenous_Spear( sSprite* pSprite );// 76
-    void            Sprite_Handle_Cannon( sSprite* pSprite );               // 77
-    void            Sprite_Handle_Turret_Missile_Human( sSprite* pSprite ); // 78
-    void            Sprite_Handle_Turret_Missile2_Human( sSprite* pSprite );// 79
+    void            Sprite_Handle_Indigenous_Spear(sSprite* pSprite);     // 70
+    void            Sprite_Handle_Indigenous_Spear2(sSprite* pSprite);                            // 71
+    void            Sprite_Handle_Hostage(sSprite* pSprite);              // 72
+    void            Sprite_Handle_Hostage_Rescue_Tent(sSprite* pSprite);  // 73
+    void            Sprite_Handle_Door_Indigenous(sSprite* pSprite);      // 74
+    void            Sprite_Handle_Door2_Indigenous(sSprite* pSprite);     // 75
+    void            Sprite_Handle_Door_Indigenous_Spear(sSprite* pSprite);// 76
+    void            Sprite_Handle_Cannon(sSprite* pSprite);               // 77
+    void            Sprite_Handle_Turret_Missile_Human(sSprite* pSprite); // 78
+    void            Sprite_Handle_Turret_Missile2_Human(sSprite* pSprite);// 79
 
-    void            Sprite_Handle_VehicleNoGun_Enemy( sSprite* pSprite );   // 80
-    void            Sprite_Handle_VehicleGun_Enemy( sSprite* pSprite );     // 81
-    void            Sprite_Handle_Vehicle_Unk_Enemy( sSprite* pSprite );    // 82
-    void            Sprite_Handle_Indigenous_Invisible( sSprite* pSprite ); // 83
-    void            Sprite_Handle_Turret_Missile_Enemy( sSprite* pSprite ); // 84
-    void            Sprite_Handle_Turret_Missile2_Enemy( sSprite* pSprite );// 85
-    void            Sprite_Handle_Vehicle_Sinking_1( sSprite* pSprite );    // 86
-    void            Sprite_Handle_Vehicle_Sinking_2( sSprite* pSprite );    // 87
-    void            Sprite_Handle_BuildingDoor3( sSprite* pSprite );        // 88
-    void            Sprite_Handle_Explosion2( sSprite* pSprite );           // 89
+    void            Sprite_Handle_VehicleNoGun_Enemy(sSprite* pSprite);   // 80
+    void            Sprite_Handle_VehicleGun_Enemy(sSprite* pSprite);     // 81
+    void            Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite);    // 82
+    void            Sprite_Handle_Indigenous_Invisible(sSprite* pSprite); // 83
+    void            Sprite_Handle_Turret_Missile_Enemy(sSprite* pSprite); // 84
+    void            Sprite_Handle_Turret_Missile2_Enemy(sSprite* pSprite);// 85
+    void            Sprite_Handle_Vehicle_Sinking_1(sSprite* pSprite);    // 86
+    void            Sprite_Handle_Vehicle_Sinking_2(sSprite* pSprite);    // 87
+    void            Sprite_Handle_BuildingDoor3(sSprite* pSprite);        // 88
+    void            Sprite_Handle_Explosion2(sSprite* pSprite);           // 89
 
-    void            Sprite_Handle_OpenCloseDoor( sSprite* pSprite );                                        // 90
-    void            Sprite_Handle_Seal_Mine( sSprite* pSprite );                    // 91
-    void            Sprite_Handle_Spider_Mine( sSprite* pSprite );                      // 92
-    void            Sprite_Handle_Bonus_RankToGeneral( sSprite* pSprite );              // 93
-    void            Sprite_Handle_Bonus_Rockets( sSprite* pSprite );                    // 94
-    void            Sprite_Handle_Bonus_Armour( sSprite* pSprite );                    // 95
-    void            Sprite_Handle_Bonus_RankHomingInvin_SquadLeader( sSprite* pSprite );            // 96
-    void            Sprite_Handle_MissileHoming2( sSprite* pSprite );                   // 97
-    void            Sprite_Handle_Bonus_RankHomingInvin_Squad( sSprite* pSprite );      // 98
-    void            Sprite_Handle_Helicopter_CallPad( sSprite* pSprite );               // 99
+    void            Sprite_Handle_OpenCloseDoor(sSprite* pSprite);                                        // 90
+    void            Sprite_Handle_Seal_Mine(sSprite* pSprite);                    // 91
+    void            Sprite_Handle_Spider_Mine(sSprite* pSprite);                      // 92
+    void            Sprite_Handle_Bonus_RankToGeneral(sSprite* pSprite);              // 93
+    void            Sprite_Handle_Bonus_Rockets(sSprite* pSprite);                    // 94
+    void            Sprite_Handle_Bonus_Armour(sSprite* pSprite);                    // 95
+    void            Sprite_Handle_Bonus_RankHomingInvin_SquadLeader(sSprite* pSprite);            // 96
+    void            Sprite_Handle_MissileHoming2(sSprite* pSprite);                   // 97
+    void            Sprite_Handle_Bonus_RankHomingInvin_Squad(sSprite* pSprite);      // 98
+    void            Sprite_Handle_Helicopter_CallPad(sSprite* pSprite);               // 99
 
-    void            Sprite_Handle_BuildingDoor_Reinforced( sSprite* pSprite );                                      // 100
-    void            Sprite_Handle_Helicopter_Grenade2_Human_Called( sSprite* pSprite ); // 101
-    void            Sprite_Handle_Helicopter_Grenade_Human_Called( sSprite* pSprite );  // 102
-    void            Sprite_Handle_Helicopter_Missile_Human_Called( sSprite* pSprite );  // 103
-    void            Sprite_Handle_Helicopter_Homing_Human_Called( sSprite* pSprite );   // 104
-    void            Sprite_Handle_Turret_HomingMissile_Enemy( sSprite* pSprite );       // 105
-    void            Sprite_Handle_Hostage_2( sSprite* pSprite );                        // 106
-    void            Sprite_Handle_Helicopter_Homing_Enemy2( sSprite* pSprite );         // 107
-    void            Sprite_Handle_Computer_1( sSprite* pSprite );                       // 108
-    void            Sprite_Handle_Computer_2( sSprite* pSprite );                       // 109
-    void            Sprite_Handle_Computer_3( sSprite* pSprite );                       // 110
+    void            Sprite_Handle_BuildingDoor_Reinforced(sSprite* pSprite);                                      // 100
+    void            Sprite_Handle_Helicopter_Grenade2_Human_Called(sSprite* pSprite); // 101
+    void            Sprite_Handle_Helicopter_Grenade_Human_Called(sSprite* pSprite);  // 102
+    void            Sprite_Handle_Helicopter_Missile_Human_Called(sSprite* pSprite);  // 103
+    void            Sprite_Handle_Helicopter_Homing_Human_Called(sSprite* pSprite);   // 104
+    void            Sprite_Handle_Turret_HomingMissile_Enemy(sSprite* pSprite);       // 105
+    void            Sprite_Handle_Hostage_2(sSprite* pSprite);                        // 106
+    void            Sprite_Handle_Helicopter_Homing_Enemy2(sSprite* pSprite);         // 107
+    void            Sprite_Handle_Computer_1(sSprite* pSprite);                       // 108
+    void            Sprite_Handle_Computer_2(sSprite* pSprite);                       // 109
+    void            Sprite_Handle_Computer_3(sSprite* pSprite);                       // 110
 
-    int16           sub_1D92E( sSprite* pSprite );
-    void            Sprite_Native_Sound_Play( sSprite* pSprite, int16 pSoundID );
-    int16           Sprite_Handle_Soldier_Animation( sSprite* pSprite );
-    int16           Sprite_Troop_Dies( sSprite* pSprite );
-    int16           loc_1F043( sSprite* pSprite );
-    void            loc_1F092( sSprite* pSprite, sSprite* pData24 );
+    int16           sub_1D92E(sSprite* pSprite);
+    void            Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID);
+    int16           Sprite_Handle_Soldier_Animation(sSprite* pSprite);
+    int16           Sprite_Troop_Dies(sSprite* pSprite);
+    int16           loc_1F043(sSprite* pSprite);
+    void            loc_1F092(sSprite* pSprite, sSprite* pData24);
 
-    int16           Sprite_Handle_Player_MissionOver( sSprite* pSprite );
-    void            Sprite_Handle_Troop_Weapon( sSprite* pSprite );
-    void            Sprite_Handle_Troop_Direct_TowardWeaponTarget( sSprite* pSprite );
-    void            Sprite_Handle_Troop_Direct_TowardMouse( sSprite* pSprite );
+    int16           Sprite_Handle_Player_MissionOver(sSprite* pSprite);
+    void            Sprite_Handle_Troop_Weapon(sSprite* pSprite);
+    void            Sprite_Handle_Troop_Direct_TowardWeaponTarget(sSprite* pSprite);
+    void            Sprite_Handle_Troop_Direct_TowardMouse(sSprite* pSprite);
 
-    void            Sprite_XY_Store( sSprite* pSprite );
-    void            Sprite_XY_Restore( sSprite* pSprite );
+    void            Sprite_XY_Store(sSprite* pSprite);
+    void            Sprite_XY_Restore(sSprite* pSprite);
 
-    void            Sprite_Handle_Player_Adjust_Movement_Speed( sSprite* pSprite );
-    void            Sprite_Draw_Row_Update( sSprite* pSprite );
-    void            Sprite_Handle_Troop_FrameUnk( sSprite* pSprite );
-    void            sub_1FCF2( sSprite* pSprite );
-    void            sub_1FDE7( sSprite* pSprite );
-    void            Sprite_Create_Player_Shadow( sSprite* pSprite );
-    int16           Sprite_Create_BloodTrail( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
-    void            Sprite_Terrain_Check( sSprite* pSprite, int16& pData4 );
+    void            Sprite_Handle_Player_Adjust_Movement_Speed(sSprite* pSprite);
+    void            Sprite_Draw_Row_Update(sSprite* pSprite);
+    void            Sprite_Handle_Troop_FrameUnk(sSprite* pSprite);
+    void            sub_1FCF2(sSprite* pSprite);
+    void            sub_1FDE7(sSprite* pSprite);
+    void            Sprite_Create_Player_Shadow(sSprite* pSprite);
+    int16           Sprite_Create_BloodTrail(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30);
+    void            Sprite_Terrain_Check(sSprite* pSprite, int16& pData4);
 
-    int16           Sprite_Handle_Troop_Get_Frame_For_Direction( sSprite* pSprite );
-    void            Sprite_Reached_MapEdge( sSprite* pSprite );
+    int16           Sprite_Handle_Troop_Get_Frame_For_Direction(sSprite* pSprite);
+    void            Sprite_Reached_MapEdge(sSprite* pSprite);
 
-    int16           Sprite_Destroy_Wrapper( sSprite* pSprite );
-    int16           Sprite_Destroy( sSprite* pSprite );
-    int16           Sprite_Create_Bullet( sSprite* pSprite );
-    int16           Sprite_Create_Grenade( sSprite* pSprite );
-    void            Sprite_Set_Direction_To_Next( sSprite* pSprite );
-    int16           Sprite_Reached_Target( sSprite* pSprite );
-    void            Sprite_Movement_Speed_Update( sSprite* pSprite );
+    int16           Sprite_Destroy_Wrapper(sSprite* pSprite);
+    int16           Sprite_Destroy(sSprite* pSprite);
+    int16           Sprite_Create_Bullet(sSprite* pSprite);
+    int16           Sprite_Create_Grenade(sSprite* pSprite);
+    void            Sprite_Set_Direction_To_Next(sSprite* pSprite);
+    int16           Sprite_Reached_Target(sSprite* pSprite);
+    void            Sprite_Movement_Speed_Update(sSprite* pSprite);
 
-    void            Sprite_Handle_Player_Close_To_SquadMember( sSprite* pSprite );
-    int16           Sprite_Get_Free( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
-    void            Sprite_Clear( sSprite* pSprite );
-    void            Sprite_Handle_Exploidable( sSprite* pSprite );
-    void            Sprite_Create_Shadow( sSprite* pSprite );
-    void            Sprite_Handle_Grenade_Terrain_Check( sSprite* pSprite );
-    int16           Sprite_Projectile_Collision_Check( sSprite* pSprite );
-    void            Sprite_Create_Sparks( sSprite* pSprite, int16 pData18 );
-    void            Sprite_Create_FireTrail( sSprite* pSprite );
-    void            Sprite_Turn_Into_Building_Explosion( sSprite* pSprite );
-    int16           Sprite_Create_Building_Explosion_Wrapper( int16& pX, int16& pY );
-    int16           Sprite_Create_Building_Explosion( sSprite* pData2C, int16& pX, int16& pY );
-    int16           Sprite_Create_Enemy( sSprite* pSprite, sSprite*& pData2C );
-    int16           Sprite_Get_Free2( int16& pData0, sSprite*& pData2C, sSprite*& pData30 );
-    void            Sprite_Enemy_Aggression_Update( sSprite* pData2C );
-    void            Sprite_Create_Rank( );
-    void            sub_21CD1( sSprite* pSprite );
+    void            Sprite_Handle_Player_Close_To_SquadMember(sSprite* pSprite);
+    int16           Sprite_Get_Free(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
+    void            Sprite_Clear(sSprite* pSprite);
+    void            Sprite_Handle_Exploidable(sSprite* pSprite);
+    void            Sprite_Create_Shadow(sSprite* pSprite);
+    void            Sprite_Handle_Grenade_Terrain_Check(sSprite* pSprite);
+    int16           Sprite_Projectile_Collision_Check(sSprite* pSprite);
+    void            Sprite_Create_Sparks(sSprite* pSprite, int16 pData18);
+    void            Sprite_Create_FireTrail(sSprite* pSprite);
+    void            Sprite_Turn_Into_Building_Explosion(sSprite* pSprite);
+    int16           Sprite_Create_Building_Explosion_Wrapper(int16& pX, int16& pY);
+    int16           Sprite_Create_Building_Explosion(sSprite* pData2C, int16& pX, int16& pY);
+    int16           Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C);
+    int16           Sprite_Get_Free2(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
+    void            Sprite_Enemy_Aggression_Update(sSprite* pData2C);
+    void            Sprite_Create_Rank();
+    void            sub_21CD1(sSprite* pSprite);
 
-    void            sub_2212A( sSprite* pSprite );
-    int16           Sprite_Handle_BuildingDoor_Explode( sSprite* pSprite );
-    int16           sub_222A3( sSprite* pSprite );
-    void            sub_223B2( sSprite* pSprite );
-    int16           Map_Get_Distance_Between_Sprite_And_Squadleader( sSprite* pSprite, int16& pData0 );
-    int16           Sprite_Create_Rocket( sSprite* pSprite );
-    int16           Sprite_Homing_LockInRange( sSprite* pSprite, sSprite*& pFoundSprite );
-    void            Sprite_Projectile_HitTarget( sSprite* pSprite );
-    void            Sprite_Destroy_Wrapper_At_TopLeft( sSprite* pSprite );
-    int16           Sprite_Destroy_Wrapper_2( sSprite* pSprite );
-    void            Sprite_Handle_Player_InVehicle( sSprite* pSprite );
-    void            Sprite_Handle_Player_Enter_Vehicle( sSprite* pSprite );
-    void            sub_22C87( sSprite* pSprite );
-    void            sub_22CD7( sSprite* pSprite, int16& Data0, int16& Data4 );
-    void            Sprite_Handle_Vehicle_Terrain_Check( sSprite* pSprite );
-    void            Sprite_Under_Vehicle( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C );
-    int16           Sprite_Animation_SlideOrDie( sSprite* pSprite );
-    int16           Map_Sprite_Check_Around_Position( sSprite* pSprite );
-    void            Sprite_Handle_Vehicle_Human( sSprite* pSprite );
-    int16           Sprite_Create_Smoke( sSprite* pSprite, sSprite*& pData2C  );
-    void            sub_23525( sSprite* pSprite );
-    void            sub_236F7( sSprite* pSprite );
-    void            Sprite_Handle_Tank_FireMissile( sSprite* pSprite );
-    int16           Sprite_Create_Missile( sSprite* pSprite, sSprite*& pData2C );
-    void            Sprite_Enemy_Set_Target( sSprite* pData2C );
-    void            Sprite_Handle_Helicopter_Human( sSprite* pSprite );
-    int16           Sprite_Handle_Helicopter_Terrain_Check( sSprite* pSprite );
-    void            sub_23E01( sSprite* pSprite, int16& pData0, int16& pData4  );
-    void            Sprites_HumanVehicles_Remove( sSprite* pSprite );
-    void            Sprite_Handle_Turret( sSprite* pSprite );
-    void            Sprite_Handle_Turret_Fire( sSprite* pSprite, sSprite* pData34 );
-    int16           Sprite_Find_By_Types( sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28 );
-    void            sub_243E9( sSprite* pSprite );
-    int16           Sprite_Handle_Vehicle_Sinking( sSprite* pSprite );
-    void            sub_245BF( sSprite* pSprite );
-    int16           Sprite_Create_Cannon( sSprite* pSprite );
-    void            Sprite_Handle_Helicopter_Human_Deploy_Weapon( sSprite* pSprite );
-    int16           Sprite_Create_Grenade2( sSprite* pSprite );
-    int16           Sprite_Create_MissileHoming( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34 );
-    int16           sub_2531F( sSprite* pSprite, sSprite*& pData30 );
-    void            Sprite_Handle_Vehicle_Enemy( sSprite* pSprite );
-    void            Sprite_Handle_Helicopter_Enemy( sSprite* pSprite );
-    void            Sprite_Handle_Indigenous_Unk( sSprite* pSprite );
-    void            Sprite_Handle_Indigenous_Movement( sSprite* pSprite );
-    int16           Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor( sSprite* pSprite );
-    void            Sprite_Handle_Indigenous_Death( sSprite* pSprite );
-    void            sub_2593D( sSprite* pSprite );
-    void            sub_25A31( sSprite* pSprite );
-    void            sub_25A66( sSprite* pSprite );
-    int16           Sprite_Handle_Indigenous_RandomMovement( sSprite* pSprite );
-    int16           Sprite_Create_Indigenous_Spear2( sSprite* pSprite );
-    int16           sub_25DCF( sSprite* pSprite );
-    void            sub_25F2B( sSprite* pSprite );
-    void            Sprite_Handle_Hostage_Movement( sSprite* pSprite );
-    void            Sprite_Handle_Hostage_FrameUpdate2( sSprite* pSprite );
-    void            Sprite_Handle_Hostage_FrameUpdate( sSprite* pSprite );
-    void            sub_26490( sSprite* pSprite );
-    void            sub_264B0( sSprite* pSprite );
-    int16           Sprite_Create_Native( sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30 );
-    int16           Sprite_Handle_Helicopter_Callpad_InRange( sSprite* pSprite, sSprite*& pData2C );
-    void            Sprite_Handle_Helicopter_Human_CallCheck( sSprite* pSprite );
-    void            Sprite_Handle_Computer( sSprite* pSprite, int16 pData1C );
+    void            sub_2212A(sSprite* pSprite);
+    int16           Sprite_Handle_BuildingDoor_Explode(sSprite* pSprite);
+    int16           sub_222A3(sSprite* pSprite);
+    void            sub_223B2(sSprite* pSprite);
+    int16           Map_Get_Distance_Between_Sprite_And_Squadleader(sSprite* pSprite, int16& pData0);
+    int16           Sprite_Create_Rocket(sSprite* pSprite);
+    int16           Sprite_Homing_LockInRange(sSprite* pSprite, sSprite*& pFoundSprite);
+    void            Sprite_Projectile_HitTarget(sSprite* pSprite);
+    void            Sprite_Destroy_Wrapper_At_TopLeft(sSprite* pSprite);
+    int16           Sprite_Destroy_Wrapper_2(sSprite* pSprite);
+    void            Sprite_Handle_Player_InVehicle(sSprite* pSprite);
+    void            Sprite_Handle_Player_Enter_Vehicle(sSprite* pSprite);
+    void            sub_22C87(sSprite* pSprite);
+    void            sub_22CD7(sSprite* pSprite, int16& Data0, int16& Data4);
+    void            Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite);
+    void            Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C);
+    int16           Sprite_Animation_SlideOrDie(sSprite* pSprite);
+    int16           Map_Sprite_Check_Around_Position(sSprite* pSprite);
+    void            Sprite_Handle_Vehicle_Human(sSprite* pSprite);
+    int16           Sprite_Create_Smoke(sSprite* pSprite, sSprite*& pData2C);
+    void            sub_23525(sSprite* pSprite);
+    void            sub_236F7(sSprite* pSprite);
+    void            Sprite_Handle_Tank_FireMissile(sSprite* pSprite);
+    int16           Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C);
+    void            Sprite_Enemy_Set_Target(sSprite* pData2C);
+    void            Sprite_Handle_Helicopter_Human(sSprite* pSprite);
+    int16           Sprite_Handle_Helicopter_Terrain_Check(sSprite* pSprite);
+    void            sub_23E01(sSprite* pSprite, int16& pData0, int16& pData4);
+    void            Sprites_HumanVehicles_Remove(sSprite* pSprite);
+    void            Sprite_Handle_Turret(sSprite* pSprite);
+    void            Sprite_Handle_Turret_Fire(sSprite* pSprite, sSprite* pData34);
+    int16           Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28);
+    void            sub_243E9(sSprite* pSprite);
+    int16           Sprite_Handle_Vehicle_Sinking(sSprite* pSprite);
+    void            sub_245BF(sSprite* pSprite);
+    int16           Sprite_Create_Cannon(sSprite* pSprite);
+    void            Sprite_Handle_Helicopter_Human_Deploy_Weapon(sSprite* pSprite);
+    int16           Sprite_Create_Grenade2(sSprite* pSprite);
+    int16           Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34);
+    int16           sub_2531F(sSprite* pSprite, sSprite*& pData30);
+    void            Sprite_Handle_Vehicle_Enemy(sSprite* pSprite);
+    void            Sprite_Handle_Helicopter_Enemy(sSprite* pSprite);
+    void            Sprite_Handle_Indigenous_Unk(sSprite* pSprite);
+    void            Sprite_Handle_Indigenous_Movement(sSprite* pSprite);
+    int16           Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(sSprite* pSprite);
+    void            Sprite_Handle_Indigenous_Death(sSprite* pSprite);
+    void            sub_2593D(sSprite* pSprite);
+    void            sub_25A31(sSprite* pSprite);
+    void            sub_25A66(sSprite* pSprite);
+    int16           Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite);
+    int16           Sprite_Create_Indigenous_Spear2(sSprite* pSprite);
+    int16           sub_25DCF(sSprite* pSprite);
+    void            sub_25F2B(sSprite* pSprite);
+    void            Sprite_Handle_Hostage_Movement(sSprite* pSprite);
+    void            Sprite_Handle_Hostage_FrameUpdate2(sSprite* pSprite);
+    void            Sprite_Handle_Hostage_FrameUpdate(sSprite* pSprite);
+    void            sub_26490(sSprite* pSprite);
+    void            sub_264B0(sSprite* pSprite);
+    int16           Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30);
+    int16           Sprite_Handle_Helicopter_Callpad_InRange(sSprite* pSprite, sSprite*& pData2C);
+    void            Sprite_Handle_Helicopter_Human_CallCheck(sSprite* pSprite);
+    void            Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C);
 
-    int16           Map_Get_Distance_BetweenPoints_Within_320( int16& pX, int16& pY, int16& pX2, int16& pY2 );
-    int16           Direction_Between_Points( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
+    int16           Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16& pY, int16& pX2, int16& pY2);
+    int16           Direction_Between_Points(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
     void            tool_RandomSeed();
     int16           tool_RandomGet();
-    void            Sprite_Movement_Calculate( sSprite* pSprite );
-    int16           Sprite_Direction_Between_Points( sSprite* pSprite, int16& pData0, int16& pData4 );
-    void            sub_2A3D4( sSprite* pSprite );
+    void            Sprite_Movement_Calculate(sSprite* pSprite);
+    int16           Sprite_Direction_Between_Points(sSprite* pSprite, int16& pData0, int16& pData4);
+    void            sub_2A3D4(sSprite* pSprite);
     void            Squad_Walk_Steps_Decrease();
-    int16           sub_2A4A2( int16& pData0, int16& pData4, int16& pData8, int16& pDataC );
-    void            sub_2A4FD( int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C );
-    int16           sub_2A622( int16& pData0 );
-    int16           Map_Get_Distance_BetweenPoints( int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2 );
+    int16           sub_2A4A2(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
+    void            sub_2A4FD(int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C);
+    int16           sub_2A622(int16& pData0);
+    int16           Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2);
 
-    int16           Map_Terrain_Get_Type_And_Walkable( int16& pY, int16& pX );
-    int16           Map_Terrain_Get_Type_And_Walkable( sSprite* pSprite, int16& pY, int16& pX );
-    int16           Map_Terrain_Get( int16& pY, int16& pX, int16& pData10, int16& pData14 );
+    int16           Map_Terrain_Get_Type_And_Walkable(int16& pY, int16& pX);
+    int16           Map_Terrain_Get_Type_And_Walkable(sSprite* pSprite, int16& pY, int16& pX);
+    int16           Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pData14);
 
-    void            Squad_Walk_Target_SetAll( int16 pValue );
-    void            Squad_Walk_Target_Set( int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10 );
-    int16           Squad_Member_Sprite_Hit_In_Region( sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+    void            Squad_Walk_Target_SetAll(int16 pValue);
+    void            Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10);
+    int16           Squad_Member_Sprite_Hit_In_Region(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14);
 
-    const sSpriteSheet* Sprite_Get_Sheet( int16 pSpriteType, int16 pFrame );
+    const sSpriteSheet* Sprite_Get_Sheet(int16 pSpriteType, int16 pFrame);
 
-    void            sub_2AEB6( int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC );
+    void            sub_2AEB6(int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC);
 
-    void            sub_2B12E( sSprite* pSprite );
-    void            Sprite_Vehicle_Direction_Update( sSprite* pSprite, int16& pData1C );
+    void            sub_2B12E(sSprite* pSprite);
+    void            Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C);
 
-    int16           Map_Terrain_Get_Moveable_Wrapper( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 );
-    int16           Map_Terrain_Get_Moveable( const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14 );
+    int16           Map_Terrain_Get_Moveable_Wrapper(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14);
+    int16           Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14);
 
-    void            Map_Get_Distance_BetweenPoints_Within_640( int16& pX, int16& pY, int16& pX2, int16& pY2 );
+    void            Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, int16& pX2, int16& pY2);
 
     void            MapTile_Update_Position();
 
-    void            MapTile_Move_Right( int16 pPanTiles );
-    void            MapTile_Move_Left( int16 pPanTiles );
-    void            MapTile_Move_Down( int16 pPanTiles );
-    void            MapTile_Move_Up( int16 pPanTiles );
+    void            MapTile_Move_Right(int16 pPanTiles);
+    void            MapTile_Move_Left(int16 pPanTiles);
+    void            MapTile_Move_Down(int16 pPanTiles);
+    void            MapTile_Move_Up(int16 pPanTiles);
 
     void            MapTile_Update_Row();
     void            MapTile_Update_Column();
 
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
-	void			Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
+    void			Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
 
     void            Squad_Troops_Count();
-    int16           Mission_Troop_GetDeviatePotential( sMission_Troop* pSquadMember );
+    int16           Mission_Troop_GetDeviatePotential(sMission_Troop* pSquadMember);
     void            Squad_Member_Rotate_Can_Fire();
-    int16           Sprite_Find_In_Region( sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14 );
+    int16           Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14);
     void            Sprite_Handle_Player_DestroyAll();
     void            Sprite_Handle_Player_Destroy_Unk();
     void            Squad_Prepare_GrenadesAndRockets();
     void            Sprite_Aggression_Set();
-    void            Sprite_Handle_Enemy_Aggression_Set( sSprite* pSprite );
-    int16           Sprite_Next_WalkTarget_Set( sSprite* pSprite );
-    int16           Squad_Join_Check( sSprite* pSprite );
-    void            Squad_Walk_Target_Update( int16 pData0 );
-    void            Sprite_Handle_Explosion_MapTiles( sSprite* pSprite );
-    void            Map_Destroy_Tiles( );
+    void            Sprite_Handle_Enemy_Aggression_Set(sSprite* pSprite);
+    int16           Sprite_Next_WalkTarget_Set(sSprite* pSprite);
+    int16           Squad_Join_Check(sSprite* pSprite);
+    void            Squad_Walk_Target_Update(int16 pData0);
+    void            Sprite_Handle_Explosion_MapTiles(sSprite* pSprite);
+    void            Map_Destroy_Tiles();
     void            Map_Destroy_Tiles_Next();
-    
-	std::string 	Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
 
-	void					Game_Load();
-	std::vector<sSavedGame>	Game_Load_Filter( const std::vector<std::string>& pFiles);
+    std::string 	Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
 
-	void					Game_Save();
+    void					Game_Load();
+    std::vector<sSavedGame>	Game_Load_Filter(const std::vector<std::string>& pFiles);
 
-	void            GUI_SaveLoad_MouseHandle(sGUI_Element* pData20);
+    void					Game_Save();
+
+    void            GUI_SaveLoad_MouseHandle(sGUI_Element* pData20);
 
     void            Game_Save_Wrapper2();
     void            Game_Save_Wrapper();
 
     void            GUI_Element_Reset();
 
-    void            GUI_Button_Setup( void(cFodder::*pFunction)(void) );
-	void            GUI_Button_Setup_Small(void(cFodder::*pFunction)(void));
+    void            GUI_Button_Setup(void(cFodder::*pFunction)(void));
+    void            GUI_Button_Setup_Small(void(cFodder::*pFunction)(void));
 
-    void            GUI_Button_Draw( std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC );
-	void            GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
+    void            GUI_Button_Draw(std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
+    void            GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
 
-    void            GUI_Box_Draw( const size_t pColorShadow, const size_t pColorPrimary );
-    void            GUI_Select_File_Loop( bool pShowCursor );
-    std::string     GUI_Select_File( const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData );
+    void            GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary);
+    void            GUI_Select_File_Loop(bool pShowCursor);
+    std::string     GUI_Select_File(const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData);
 
 
     void            GUI_Input_CheckKey();
     void            GUI_Button_Load_Up();
     void            GUI_Button_Load_Down();
-	void            GUI_Button_Load_Exit();
+    void            GUI_Button_Load_Exit();
     void            GUI_Button_Filename();
 
     int16           GUI_Button_NoAction();
     void            GUI_Button_NoAction2();
     void            GUI_Sidebar_Prepare_Squads();
-    
+
     void            GUI_Button_SelectQuiz();
     void            GUI_Button_SelectMap0();
     void            GUI_Button_SelectMap1();
     void            GUI_Button_SelectMap2();
     void            GUI_Button_SelectMap3();
-	void            GUI_Element_Mouse_Over(const sGUI_Element *pA0);
-	void            Demo_Quiz();
+    void            GUI_Element_Mouse_Over(const sGUI_Element *pA0);
+    void            Demo_Quiz();
     void            GUI_Button_ExitMenu();
     void            GUI_Button_Quiz_2();
     void            GUI_Button_Quiz_3();
@@ -1083,57 +1083,57 @@ public:
     void            GUI_Button_Quiz_9();
     void            GUI_Button_Quiz_10();
     void            GUI_Button_Quiz_11();
-    void            Demo_Quiz_ShowScreen( const char* pFilename );
+    void            Demo_Quiz_ShowScreen(const char* pFilename);
 
-    void            GUI_Loop_Draw_Prepare( int16& pData0, int16& pData4 );
-    void            GUI_Sidebar_Prepare( int16 pData0, int16 pData4 );
+    void            GUI_Loop_Draw_Prepare(int16& pData0, int16& pData4);
+    void            GUI_Sidebar_Prepare(int16 pData0, int16 pData4);
     void            GUI_Sidebar_Add_Sidebar_Overlay();
-    void            GUI_SetElementsFrom( sGUI_Element* pTo, sGUI_Element* pFrom );
-    void            GUI_ClearElement( sGUI_Element *pData20 );
+    void            GUI_SetElementsFrom(sGUI_Element* pTo, sGUI_Element* pFrom);
+    void            GUI_ClearElement(sGUI_Element *pData20);
     void            GUI_Sidebar_SplitButton_Draw();
     void            GUI_Prepare_Button_Squad();
     void            GUI_Handle_Button_SelectSquad_0();
     void            GUI_Handle_Button_SelectSquad_1();
     void            GUI_Handle_Button_SelectSquad_2();
-    void            Squad_Select( int16 pData4 );
+    void            Squad_Select(int16 pData4);
     void            GUI_Handle_Button_SplitSquad();
     void            Mission_Set_Initial_Weapon();
 
     void            MapTiles_Draw();
 
     void            Recruit_CheckLoadSaveButtons();
-    void            GUI_Sidebar_Grenades_Draw( );
+    void            GUI_Sidebar_Grenades_Draw();
 
     void            GUI_Prepare_Button_Grenade();
     void            GUI_Handle_Button_Grenades();
     void            GUI_Sidebar_TroopList_Draw();
-    void            GUI_Sidebar_TroopList_Name_Draw( int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28 );
+    void            GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28);
     void            GUI_Sidebar_SquadIcon_Update();
     void            GUI_Sidebar_SquadIcon_Current_Draw();
     int16           GUI_Sidebar_SquadIcon_Set();
     void            GUI_Sidebar_Draw();
     void            GUI_Sidebar_SquadIcons_Draw();
-    void            GUI_Sidebar_Grenades_CurrentSquad_Draw( );
-    void            GUI_Sidebar_Grenades_Draw( int16 pData0 );
-    void            GUI_Sidebar_Rockets_CurrentSquad_Draw( );
-    void            GUI_Sidebar_Rockets_Draw( int16 pData0 );
+    void            GUI_Sidebar_Grenades_CurrentSquad_Draw();
+    void            GUI_Sidebar_Grenades_Draw(int16 pData0);
+    void            GUI_Sidebar_Rockets_CurrentSquad_Draw();
+    void            GUI_Sidebar_Rockets_Draw(int16 pData0);
     int16           GUI_Sidebar_SelectedTroops_Count();
-    void            GUI_Sidebar_Setup( );
+    void            GUI_Sidebar_Setup();
     void            sub_2FA05();
     void            GUI_Sidebar_MapButton_Prepare();
-    void            GUI_Sidebar_Squad0_Prepare( );
-    void            GUI_Sidebar_Squad1_Prepare( );
-    void            GUI_Sidebar_Squad2_Prepare( );
+    void            GUI_Sidebar_Squad0_Prepare();
+    void            GUI_Sidebar_Squad1_Prepare();
+    void            GUI_Sidebar_Squad2_Prepare();
 
     void            GUI_Sidebar_Ready();
-    void            GUI_Sidebar_Rockets_Draw( );
+    void            GUI_Sidebar_Rockets_Draw();
 
     void            GUI_Prepare_Button_Rockets();
     void            GUI_Handle_Button_Rockets();
 
     void            GUI_Prepare_Button_TroopName();
     void            GUI_Handle_Button_TroopName();
-    
+
     void            Squad_Select_Grenades();
     void            Squad_Select_Rockets();
 
@@ -1142,12 +1142,12 @@ public:
     void            Squad_Split_Assets();
 
     void            GUI_Sidebar_MapButton_RenderWrapper();
-    void            GUI_Sidebar_Number_Draw( int16 pNumber, int16 pX, int16 pData8, int16 pY, int16 pData10 );
+    void            GUI_Sidebar_Number_Draw(int16 pNumber, int16 pX, int16 pData8, int16 pY, int16 pData10);
     void            GUI_Sidebar_MapButton_Render();
     void            GUI_Handle_Button_ShowOverview();
-    void            sub_3037A( );
-    void            sub_3049B( );
-    void            GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper( );
+    void            sub_3037A();
+    void            sub_3049B();
+    void            GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper();
     void            Mouse_Cursor_Update();
     int16           Mouse_Button_Left_Toggled();
     void            Squad_Member_Click_Check();
@@ -1159,22 +1159,22 @@ public:
     void            Sidebar_Render_To_ScreenBuffer();
     void            Squad_Switch_Weapon();
     void            Mission_Final_TimeToDie();
-    int16           sub_305D5( sSprite*& pData20 );
+    int16           sub_305D5(sSprite*& pData20);
     void            Mouse_Inputs_Check();
     void            Squad_Member_Target_Set();
     int16           Mouse_Button_Right_Toggled();
     void            Squad_Switch_Timer();
-    void            Squad_Switch_To( int16 pData0 );
+    void            Squad_Switch_To(int16 pData0);
     void            Vehicle_Input_Handle();
     void            sub_311A7();
     int16           sub_313CD();
     void            Vehicle_Target_Set();
 
-    void            String_CalculateWidth( int32 pPosX, const uint8* pWidths, const std::string& pString );
-    void            String_CalculateWidth( int32 pPosX, const uint8* pWidths, const char* pString );
+    void            String_CalculateWidth(int32 pPosX, const uint8* pWidths, const std::string& pString);
+    void            String_CalculateWidth(int32 pPosX, const uint8* pWidths, const char* pString);
 
-    void            String_Print(  const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText );
-    void            String_Print( const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText );
+    void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText);
+    void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText);
 
     void            intro_LegionMessage();
     int16           intro_Play();
@@ -1190,8 +1190,8 @@ public:
 
     void            Video_Sleep();
 
-    void            sleepLoop( int64 pMilliseconds );
-    int16           ShowImage_ForDuration( const std::string& pFilename, uint16 pDuration );
+    void            sleepLoop(int64 pMilliseconds);
+    int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration);
 
     void            Mouse_Setup();
     void            Mouse_Inputs_Get();
@@ -1199,37 +1199,37 @@ public:
     void            Mouse_GetData();
 
     void            eventProcess();
-    void            keyProcess( uint8 pKeyCode, bool pPressed );
+    void            keyProcess(uint8 pKeyCode, bool pPressed);
 
-    void            Game_Setup( int16 pStartMap );
+    void            Game_Setup(int16 pStartMap);
 
 public:
 
-                    cFodder( cWindow* pWindow, bool pSkipIntro = false );
+    cFodder(cWindow* pWindow, bool pSkipIntro = false);
     virtual         ~cFodder();
 
-    void            SetActiveSpriteSheetPtr( const sSpriteSheet** pSpriteSheet );
+    void            SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet);
 
-	void            String_Input_Print(int16 pPosY);
-	void            String_Input_Check();
+    void            String_Input_Print(int16 pPosY);
+    void            String_Input_Check();
 
-    void            String_Print_Small( std::string pText, const size_t pY );
-    void            String_Print_Large( std::string pText, const bool pOverAndUnderLine, const uint16 pY );
+    void            String_Print_Small(std::string pText, const size_t pY);
+    void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
-    bool            EventAdd( cEvent pEvent );
+    bool            EventAdd(cEvent pEvent);
     void            Prepare();
 
     void            Playground();
-    virtual void    Start( int16 pStartMap = 0 );
-    void            Exit( unsigned int pExitCode );
+    virtual void    Start(int16 pStartMap = 0);
+    void            Exit(unsigned int pExitCode);
 
-    void            WindowTitleSet( bool pInMission );
+    void            WindowTitleSet(bool pInMission);
     void            WindowTitleBaseSetup();
 
-	void			Menu_Button_Reset();
-    void            Menu_Loop( const std::function<void( )> pButtonHandler );
-    bool            Menu_Draw( const std::function<void( )> pButtonHandler );
+    void			Menu_Button_Reset();
+    void            Menu_Loop(const std::function<void()> pButtonHandler);
+    bool            Menu_Draw(const std::function<void()> pButtonHandler);
 
     void            VersionCleanup();
-    void            VersionLoad( const sVersion* pVersion );
+    void            VersionLoad(const sVersion* pVersion);
 };

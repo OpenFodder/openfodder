@@ -103,17 +103,28 @@ Section "Copy Files" drcreepInst
      CreateShortCut "$SMPROGRAMS\$StartMenuFolder\OpenFodder.lnk" "$INSTDIR\OpenFodder.exe"
      CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
 
-    	!insertmacro MUI_STARTMENU_WRITE_END
+    !insertmacro MUI_STARTMENU_WRITE_END
 
 	CreateShortCut "$DESKTOP\OpenFodder.lnk" "$INSTDIR\OpenFodder.exe"
 
-	MessageBox MB_YESNO|MB_ICONQUESTION "Install Microsoft Visual C++ 2017 64bit Redistributable Package?" IDNO NoRunVC
+	;MessageBox MB_YESNO|MB_ICONQUESTION "Install Microsoft Visual C++ 2017 64bit Redistributable Package?" IDNO NoRunVC
     Exec "$INSTDIR\VC_redist.x64.exe"
 	
-	
   NoRunVC:
-	MessageBox MB_YESNO|MB_ICONQUESTION "Open the OpenFodder Data Folder" IDNO NoOpenData
-	ExecShell "open" "$PROFILE\Documents\OpenFodder"
+    nsDialogs::SelectFolderDialog "Please locate your GOG or DOS CD-Rom release of Cannon Fodder" "C:\"
+	Pop $0
+	${If} $0 != "error"
+		IfFileExists $0\CF_ENG.DAT 0 +2
+			CopyFiles "$0\CF_ENG.DAT" "$PROFILE\Documents\OpenFodder\Data\Dos_CD"
+			
+	${EndIf}
+	
+	nsDialogs::SelectFolderDialog "Please locate your Amiga WHDLoad release of Cannon Fodder" "C:\"
+	Pop $0
+	${If} $0 != "error"
+		IfFileExists $0\CFTITLE.RAW 0 +2
+			CopyFiles "$0\*.*" "$PROFILE\Documents\OpenFodder\Data\Amiga"
+	${EndIf}
 	
   NoOpenData:
 SectionEnd 
