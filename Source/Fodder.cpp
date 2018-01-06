@@ -22,7 +22,6 @@
 
 #include "stdafx.hpp"
 #include <chrono>
-#include <cstring>
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 

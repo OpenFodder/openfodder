@@ -21,7 +21,6 @@
  */
 
 #include "stdafx.hpp"
-#include <cstring>
 
 cResources::cResources( std::string pDataPath ) {
 
