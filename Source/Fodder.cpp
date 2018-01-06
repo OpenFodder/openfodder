@@ -3314,7 +3314,6 @@ void cFodder::Sprite_HelicopterCallPad_Check() {
     if (mHelicopterCall_X >= 0)
         return;
 
-    sSprite* Data2C = mTroop_InRange_Callpad;
     if (!mTroop_InRange_Callpad || mTroop_InRange_Callpad == INVALID_SPRITE_PTR)
         return;
 

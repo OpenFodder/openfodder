@@ -111,6 +111,10 @@ void cGraphics_PC::SetActiveSpriteSheet( eGFX_Types pSpriteType ) {
 		case eGFX_SERVICE:
 			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Service_PC );
 			return;
+
+        default:
+            std::cout << "Unknown sprite sheet\n";
+            exit(1);
 	}
 }
 
@@ -769,6 +773,9 @@ void cGraphics_PC::Mission_Intro_Play() {
 	case eTileTypes_Int:
 		Mission_Intro_Int();
 		break;
+
+    default:
+        return;
 	}
 }
 

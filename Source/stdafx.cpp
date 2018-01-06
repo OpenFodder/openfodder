@@ -114,7 +114,6 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 
 std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) {
 	md5_context ctx;
-	size_t Size = 0;
 	unsigned char MD5[16];
 
 	auto File = local_FileRead( pFile, pPath );
@@ -128,7 +127,7 @@ std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) 
 	std::string FinalMD5;
 	FinalMD5.reserve(32);
 
-	for (std::size_t i = 0; i != 16; ++i) {
+	for (size_t i = 0; i != 16; ++i) {
 	  FinalMD5 += "0123456789ABCDEF"[MD5[i] / 16];
 	  FinalMD5 += "0123456789ABCDEF"[MD5[i] % 16];
 	}

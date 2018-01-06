@@ -4,8 +4,6 @@ class cResource_PC_CD : public cResources {
 	tSharedBuffer 					mData;
 	uint8*							mDataCurrent;
 
-	size_t							mDataSize;
-
 	std::vector< cResource_File >	mFiles;
 	
 	uint8*							mCurPtr;
