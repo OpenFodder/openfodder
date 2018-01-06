@@ -58,25 +58,32 @@ int main(int argc, char *args[]) {
 std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
 	std::stringstream	 filePathFinal;
 
+    // TODO: This needs improvements for LINUX/UNIX
     if (pDataType != eNone) {
-    #ifdef WIN32
-        char *user = getenv("USERPROFILE");
-        filePathFinal << user << "\\Documents\\OpenFodder\\";
+#ifdef WIN32
+        filePathFinal << getenv("USERPROFILE") << "\\Documents\\OpenFodder\\";
 
-        // If the user profile path doesnt exist, reset to default (current directory)
-        if (!local_FileExists(filePathFinal.str())) {
-            filePathFinal.str("");
+#else
+
+        // Lets find a base data folder
+        std::string path = std::getenv("XDG_DATA_HOME");
+        if (path == "") {
+            path = std::getenv("HOME");
+
+            if (path.size()))
+                path.append("/.local/share/");
         }
 
-    #elif linux
-        
-        filePathFinal << "/var/games/openfodder/";
-        
-        if (!local_FileExists(filePathFinal.str())) {
-            filePathFinal.str("");
-        }
+        if(path == "")
+            path = "/usr/local/share/";
+
+        filePathFinal << path << "OpenFodder/";
 
     #endif
+
+        // If this base path doesnt exist, then clear it and fall back to the exe working path
+        if (!local_FileExists(filePathFinal.str()))
+            filePathFinal.str("");
     }
 
 	switch (pDataType) {
