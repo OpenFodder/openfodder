@@ -2106,20 +2106,20 @@ void cFodder::Camera_Pan_Set_Speed() {
         --mCamera_Reached_Target;
     }
     else if (Data8 > Data0) {
-        mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | (-8 << 16);
+        mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | -0x80000; // (-8 << 16);
     }
     else
-        mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | (8 << 16);
+        mCamera_Speed_X = (mCamera_Speed_X & 0xFFFF) | 0x80000;    // (8 << 16);
 
     //loc_11FAC
     if (DataC == Data4) {
         --mCamera_Reached_Target;
     }
     else if (DataC > Data4) {
-        mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | (-8 << 16);
+        mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | -0x80000; // (-8 << 16);
     }
     else
-        mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | (8 << 16);
+        mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | 0x80000;    // (8 << 16);
 }
 
 void cFodder::Camera_Update_From_Mouse() {
@@ -2286,22 +2286,22 @@ void cFodder::Camera_Pan_SetSpeed() {
     }
     //loc_1234F
     if (Data4 <= 0x40) {
-        dword_39F4A = (dword_39F4A & 0xFFFF) | (-2 << 16);
+        dword_39F4A = (dword_39F4A & 0xFFFF) | -0x20000; // (-2 << 16);
         word_39F52 = -1;
     }
     //loc_12362
     if (Data4 >= 0x150) {
-        dword_39F4A = (dword_39F4A & 0xFFFF) | (2 << 16);
+        dword_39F4A = (dword_39F4A & 0xFFFF) | 0x20000;  // (2 << 16);
         word_39F52 = -1;
     }
 
     if (Data8 <= 0x10) {
-        dword_39F4E = (dword_39F4E & 0xFFFF) | (-2 << 16);
+        dword_39F4E = (dword_39F4E & 0xFFFF) | -0x20000; // (-2 << 16);
         word_39F54 = -1;
     }
 
     if (Data8 >= 0xD8) {
-        dword_39F4E = (dword_39F4E & 0xFFFF) | (2 << 16);
+        dword_39F4E = (dword_39F4E & 0xFFFF) | 0x20000;  // (2 << 16);
         word_39F54 = -1;
     }
 }
@@ -12221,7 +12221,7 @@ loc_19701:;
 
     if (a1 < 0)
         if (a1 < -8)
-            pSprite->field_1A = (((int32)pSprite->field_1A & 0xFFFF) | (-8 << 16));
+            pSprite->field_1A = (((int32)pSprite->field_1A & 0xFFFF) | -0x80000);
 
     Dataa4 = pSprite->field_1A;
     Dataa4 -= 0x18000;
