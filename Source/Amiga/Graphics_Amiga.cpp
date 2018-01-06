@@ -455,6 +455,10 @@ void cGraphics_Amiga::SetActiveSpriteSheet(eGFX_Types pSpriteType ) {
 	case eGFX_SERVICE:
 		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Service_Amiga );
 		return;
+
+    default:
+        std::cout << "Unknown sprite sheet\n";
+        exit(1);
 	}
 }
 
