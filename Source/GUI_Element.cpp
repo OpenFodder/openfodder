@@ -96,5 +96,5 @@ const sGUI_SquadVehicleIcon mGUI_Squad_Vehicle_Icons[] = {
 	{ eVehicle_Helicopter_Grenade,	 8 },
 	{ eVehicle_Helicopter_Missile,	 9 },
 	{ eVehicle_Helicopter_Homing,	10 },
-	-1
+    { -1 }
 };

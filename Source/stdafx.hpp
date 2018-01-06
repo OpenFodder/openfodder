@@ -29,6 +29,7 @@
 #include <ctime>
 #include <functional>
 #include <memory>
+#include <cstring>
 
 #include <SDL.h>
 #ifndef EMSCRIPTEN
