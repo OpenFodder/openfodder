@@ -74,6 +74,7 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
                 path.append("/.local/share/");
         }
 
+        // Fall back just incase
         if(!path.size())
             path = "/usr/local/share/";
 
