@@ -1266,10 +1266,11 @@ void cFodder::Mission_Troop_Count() {
         }
     }
 
-    // How many troops have already been allocated to the mission
+    // How many recruits have already been allocated to the mission
     mGame_Data.mMission_Troop_Count = 0;
 
     for( auto& Troop : mGame_Data.mMission_Troops) {
+
         if (Troop.mRecruitID != -1) {
             --mGame_Data.mMission_Troops_Required;
             ++mGame_Data.mMission_Troop_Count;
@@ -1299,7 +1300,6 @@ void cFodder::Mission_Troop_Sort() {
     // Remove any 'dead' troops
     for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
 
-        // TODO: Clean this up
         sMission_Troop* Data20 = mGame_Data.mMission_Troops;
 
         for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
@@ -20763,7 +20763,6 @@ void cFodder::GUI_Sidebar_Rockets_Draw(int16 pData0) {
 }
 
 int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
-    sMission_Troop* Data38 = mGame_Data.mMission_Troops;
 
     int16 Data10 = 0;
     for (auto& Troop : mGame_Data.mMission_Troops) {
@@ -21023,13 +21022,13 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
     word_3A3BF = Data0;
 
-    sMission_Troop* Data38 = mGame_Data.mMission_Troops;
+    sMission_Troop* Troop = mGame_Data.mMission_Troops;
     Data4 = mSquad_Selected;
     int16 Data8 = word_3A3BF;
 
-    for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Data38) {
+    for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Troop) {
 
-        sSprite* Data34 = Data38->mSprite;
+        sSprite* Data34 = Troop->mSprite;
 
         if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
             continue;
@@ -21042,10 +21041,10 @@ void cFodder::GUI_Handle_Button_TroopName() {
             break;
     }
 
-    Data38->mSelected ^= 1;
+    Troop->mSelected ^= 1;
 
-    const sRecruit* Data28 = &mRecruits[Data38->mRecruitID];
-    Data0 = Data38->mSelected & 1;
+    const sRecruit* Data28 = &mRecruits[Troop->mRecruitID];
+    Data0 = Troop->mSelected & 1;
     Data4 = 3;
     Data8 = word_3A3BF;
     Data8 *= 0x0C;
@@ -21081,25 +21080,22 @@ loc_2FF79:;
     sMapTarget* Dataa34 = mSquad_WalkTargets[Data10];
     Dataa34->asInt = -1;
 
-    sMission_Troop* Member = mGame_Data.mMission_Troops;
+    for (auto& Troop : mGame_Data.mMission_Troops) {
 
-    for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Member) {
-        sSprite* Data34 = Member->mSprite;
-
-        if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
+        if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
 
-        if (mSquad_Selected != Data34->field_32)
+        if (mSquad_Selected != Troop.mSprite->field_32)
             continue;
 
-        if (!(Member->mSelected & 1))
+        if (!(Troop.mSelected & 1))
             continue;
 
-        Data34->field_32 = Data14;
-        Data34->field_40 = 0;
-        Data34->field_42 = 0;
-        Data34->field_44 = 0;
-        Data34->field_28 += 4;
+        Troop.mSprite->field_32 = Data14;
+        Troop.mSprite->field_40 = 0;
+        Troop.mSprite->field_42 = 0;
+        Troop.mSprite->field_44 = 0;
+        Troop.mSprite->field_28 += 4;
     }
 
     mSquad_Selected = Data14;
@@ -21187,7 +21183,6 @@ int16 cFodder::Mouse_Button_Left_Toggled() {
 void cFodder::Squad_Member_Click_Check() {
     word_3A3BF = -1;
     int16 Data1C = 0x07;
-    sMission_Troop* SquadMember = mGame_Data.mMission_Troops;
 
     if (mSquad_Selected < 0)
         return;
@@ -21566,22 +21561,18 @@ loc_30814:;
     mCamera_Position_Row = Data4;
     word_3A054 = 0;
 
-    sMission_Troop* SquadMember = mGame_Data.mMission_Troops;
+    for (auto& Troop : mGame_Data.mMission_Troops) {
 
-    int8 Data14 = 0;
-
-    for (auto& SquadMember : mGame_Data.mMission_Troops) {
-
-        if (SquadMember.mSprite == INVALID_SPRITE_PTR || SquadMember.mSprite == 0)
+        if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
 
         // Not in the squad?
-        if (mSquad_Selected != SquadMember.mSprite->field_32)
+        if (mSquad_Selected != Troop.mSprite->field_32)
             continue;
 
-        SquadMember.mSprite->field_44 = Data14;
-        SquadMember.mSprite->field_2 = 0;
-        SquadMember.mSprite->field_6 = 0;
+        Troop.mSprite->field_44 = 0;
+        Troop.mSprite->field_2 = 0;
+        Troop.mSprite->field_6 = 0;
     }
 
     int16 Data10 = mSquad_Leader->field_0;

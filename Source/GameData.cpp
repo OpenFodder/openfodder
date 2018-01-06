@@ -65,15 +65,8 @@ void sGameData::Clear() {
 	mMission_Phases_Total = 0;
 	mRecruit_NextID = 0;
 
-	for (unsigned int x = 0; x < 9; ++x) {
-		mMission_Troops[x].mRecruitID = 0;
-		mMission_Troops[x].mRank = 0;
-		mMission_Troops[x].mPhaseCount = 0;
-		mMission_Troops[x].mSprite = 0;
-		mMission_Troops[x].field_6 = 0;
-		mMission_Troops[x].field_8 = 0;
-		mMission_Troops[x].mNumberOfKills = 0;
-	}
+    for (auto& Troop : mMission_Troops)
+        Troop.Clear();
 
 	for (unsigned int x = 0; x < 361; ++x)
 		mGraveRanks[x] = 0;

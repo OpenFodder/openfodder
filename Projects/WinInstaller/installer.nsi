@@ -3,11 +3,7 @@
 ; 
 ;	Copyright (C) 2008-2018 Open Fodder
 ;  
-;	
-;
-; $Id$
-; 
-;
+;  
 ; NSIS Installer script
 
 SetCompressor lzma
