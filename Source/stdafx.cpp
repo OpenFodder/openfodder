@@ -60,25 +60,30 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 
     // TODO: This needs improvements for LINUX/UNIX
     if (pDataType != eNone) {
-#ifdef WIN32
-        filePathFinal << getenv("USERPROFILE") << "\\Documents\\OpenFodder\\";
+#ifdef WIN32g
+        filePathFinal << std::getenv("USERPROFILE") << "\\Documents\\OpenFodder\\";
 
 #else
+        std::string FinalPath;
 
         // Lets find a base data folder
-        std::string path = std::getenv("XDG_DATA_HOME");
-        if (!path.size()) {
+        const char* path = std::getenv("XDG_DATA_HOME");
+        if (path) {
+            FinalPath.append(path);
+        }else {
             path = std::getenv("HOME");
 
-            if (path.size())
-                path.append("/.local/share/");
+            if (path) {
+                FinalPath.append(path);
+                FinalPath.append("/.local/share/");
+            }
         }
 
         // Fall back just incase
-        if(!path.size())
-            path = "/usr/local/share/";
+        if(!FinalPath.size())
+            FinalPath = "/usr/local/share/";
 
-        filePathFinal << path << "OpenFodder/";
+        filePathFinal << FinalPath << "OpenFodder/";
 
     #endif
 
