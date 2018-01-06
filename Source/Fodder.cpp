@@ -22,6 +22,7 @@
 
 #include "stdafx.hpp"
 #include <chrono>
+#include <cstring>
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
@@ -1403,8 +1404,6 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
                 return;
 
             Troop.mRecruitID = mGame_Data.mRecruit_NextID;
-
-            const sRecruit* Data24 = &mRecruits[mGame_Data.mRecruit_NextID];
 
             // Demo sets static ranks
             if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
@@ -3280,9 +3279,6 @@ void cFodder::Prepare() {
     mSidebar_Screen_Buffer = (uint16*) new uint8[0x4000];
     mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 
-    uint8* Start = (uint8*)&mGame_Data.mMapNumber;
-    uint8* End = (uint8*)&mButtonPressLeft;
-
     Briefing_Set_Render_1_Mode_On();
 
     mSurface = new cSurface(352, 364);
@@ -3853,7 +3849,6 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     auto FileIT = mCampaignList.begin() + mGUI_Select_File_CurrentIndex;
 
     for (; ItemCount < mGUI_Select_File_ShownItems && FileIT != mCampaignList.end(); ++ItemCount) {
-        size_t Pos = FileIT->find_first_of(".");
 
         GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (ItemCount * 0x15), 0xB2, 0xB3);
         GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
@@ -5105,8 +5100,6 @@ void cFodder::Recruit_Copy_Sprites() {
     const sRecruit_Sprites* stru = mRecruitSprite;
 
     for (; stru->mSpriteType != -1;) {
-        int16 word_3B19F = stru->mSpriteType;
-        int16 word_3B1A1 = stru->mFrame;
         int16 word_3B1A3 = stru->field_4;
         int16 word_3B1A5 = stru->field_6;
         int16* Data34 = stru->field_8;
@@ -5468,7 +5461,7 @@ void cFodder::sub_22CD7(sSprite* pSprite, int16& pData0, int16& pData4) {
     if (pSprite->field_36 <= 6)
         return;
 
-    if (!mMission_EngineTicks & 1)
+    if (!(mMission_EngineTicks & 1))
         return;
 
 loc_22DC4:;
@@ -12159,7 +12152,6 @@ loc_1957A:;
 void cFodder::Sprite_Handle_Grenade(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC;
     sSprite* Data24;
-    int32 tmp = 0;
     int16 a1;
     int32 Dataa4;
 
@@ -16319,7 +16311,6 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
     uint8* DataFinal = 0;
     int16 Data0;
     sSprite* eax = 0;
-    int8* Data28 = 0;
     sMission_Troop* SquadMember = 0;
 
     // Is Player?
@@ -21182,7 +21173,6 @@ int16 cFodder::Mouse_Button_Left_Toggled() {
 
 void cFodder::Squad_Member_Click_Check() {
     word_3A3BF = -1;
-    int16 Data1C = 0x07;
 
     if (mSquad_Selected < 0)
         return;
@@ -21576,7 +21566,6 @@ loc_30814:;
     }
 
     int16 Data10 = mSquad_Leader->field_0;
-    int16 DataC = mSquad_Leader->field_32;
     int16 Data8 = Data4;
     Data4 = Data0;
 
