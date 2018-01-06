@@ -67,14 +67,14 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 
         // Lets find a base data folder
         std::string path = std::getenv("XDG_DATA_HOME");
-        if (path == "") {
+        if (!path.size()) {
             path = std::getenv("HOME");
 
-            if (path.size()))
+            if (path.size())
                 path.append("/.local/share/");
         }
 
-        if(path == "")
+        if(!path.size())
             path = "/usr/local/share/";
 
         filePathFinal << path << "OpenFodder/";
