@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include <cstring>
 
 cResources::cResources( std::string pDataPath ) {
 
@@ -30,22 +31,26 @@ cResources::cResources( std::string pDataPath ) {
 tSharedBuffer cResources::fileGet( std::string pFilename ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
+    // This is really hacky
+
+    // First look for lower case, without a path
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower );
-	
 	auto File = local_FileRead( pFilename, "" );
 	if (File->size())
 		return File;
 
+    // Then check in the data path
 	File = local_FileRead( pFilename, mDataPath.c_str() );
 	if (File->size())
 		return File;
 
-	// This is rather hacky
+	// Then check for upper case
 	std::transform( pFilename.begin(), pFilename.end(), pFilename.begin(), ::toupper );
 	File = local_FileRead( pFilename, "" );
 	if (File->size())
 		return File;
 
+    // Then check for upper case in the data path
 	File = local_FileRead( pFilename, mDataPath.c_str() );
 	return File;
 }
