@@ -235,8 +235,8 @@ public:
     int16           mSprite_Bumped_Into_SquadMember;
     int16           word_3A9CE;
 
-    int8            byte_3A9D2[4];
-    int8            byte_3A9D6[4];
+    int8            mSprite_Projectile_Counters[4];
+    int8            mSprite_Missile_Projectile_Counters[4];
     int8            byte_3A9DA[10];
 
     int16           mMouseX_Offset;
@@ -268,7 +268,7 @@ public:
     int32           mMapHeight_Pixels;
     int16           mMouseCursor_Enabled;
     int16           word_3AA55;
-    int16           word_3AAC7;
+    int16           mRecruit_Render_Name_SmallGap;
     sRecruitRendered*           mRecruit_RenderedPtr;
     int16           mRecruit_Truck_Frame;
     int16           mRecruit_Truck_FrameAnimBufferPtr;
