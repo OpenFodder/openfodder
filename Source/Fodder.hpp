@@ -237,7 +237,6 @@ public:
 
     int8            mSprite_Projectile_Counters[4];
     int8            mSprite_Missile_Projectile_Counters[4];
-    int8            byte_3A9DA[10];
 
     int16           mMouseX_Offset;
     int16           mMouseY_Offset;
