@@ -55,22 +55,51 @@ int main(int argc, char *args[]) {
 }
 #endif
 
+#include <istream>
+
 std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
 	std::stringstream	 filePathFinal;
 
     // TODO: This needs improvements for LINUX/UNIX
     if (pDataType != eNone) {
-#ifdef WIN32g
-        filePathFinal << std::getenv("USERPROFILE") << "\\Documents\\OpenFodder\\";
-
+#ifdef WIN32
+        const char* path = std::getenv("USERPROFILE");
+        if (path)
+            filePathFinal << path;
+        
+        filePathFinal << "\\Documents\\OpenFodder\\";
 #else
         std::string FinalPath;
 
         // Lets find a base data folder
-        const char* path = std::getenv("XDG_DATA_HOME");
+        const char* path = std::getenv("XDG_DATA_DIRS");
         if (path) {
-            FinalPath.append(path);
+            std::vector<std::string> Paths;
+
+            std::stringstream ss;
+            ss << path;
+            while (ss.good()) {
+                std::string substr;
+                std::getline(ss, substr, ':');
+                Paths.push_back(substr);
+            }
+
+            // Dodgy loop and test all paths
+            for (auto& CheckPath : Paths) {
+                FinalPath = CheckPath;
+
+                filePathFinal.str("");
+                filePathFinal << FinalPath << "OpenFodder/";
+
+                // If the path exists, abort the search
+                if (local_FileExists(filePathFinal.str()))
+                    break;
+                else
+                    FinalPath = "";
+            }
+
         }else {
+            // Test the home directory
             path = std::getenv("HOME");
 
             if (path) {
