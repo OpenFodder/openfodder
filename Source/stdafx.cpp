@@ -88,7 +88,7 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
             for (auto& CheckPath : Paths) {
                 FinalPath = CheckPath;
 
-                filePathFinal << FinalPath << "OpenFodder/";
+                filePathFinal << FinalPath << "/OpenFodder/";
 
                 // If the path exists, abort the search
                 if (local_FileExists(filePathFinal.str()))
