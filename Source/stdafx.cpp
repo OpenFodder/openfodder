@@ -88,14 +88,14 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
             for (auto& CheckPath : Paths) {
                 FinalPath = CheckPath;
 
-                filePathFinal.str("");
                 filePathFinal << FinalPath << "OpenFodder/";
 
                 // If the path exists, abort the search
                 if (local_FileExists(filePathFinal.str()))
                     break;
-                else
-                    FinalPath = "";
+                
+                FinalPath = "";
+                filePathFinal.str("");
             }
 
         }
@@ -106,7 +106,7 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
             path = std::getenv("HOME");
 
             if (path) {
-                FinalPath.append(path);
+                FinalPath = path;
                 FinalPath.append("/.local/share/");
             }
         }
