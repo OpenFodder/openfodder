@@ -21025,7 +21025,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
     Data8 *= 0x0C;
 
     Data8 += mGUI_TroopName_DrawOffset;
-    Data8 += 0x25;
+    Data8 += 0x24;
 
     int16 DataC = Data8;
 
