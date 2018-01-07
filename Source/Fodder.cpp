@@ -19962,8 +19962,9 @@ int16 cFodder::Recruit_Show() {
     else {
         if (mVersionCurrent->mName == "Random Map") {
 
+            std::string RandomMapFile = local_PathGenerate("random.map", "Custom/Maps", eData);
             Map_Create(mTileTypes[0], 0, 28, 22, true);
-            Map_Save("Data/Custom/Maps/random.map");
+            Map_Save(RandomMapFile);
 
             mCampaign.LoadCustomMap("random.map");
 
