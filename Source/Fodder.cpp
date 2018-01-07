@@ -616,9 +616,6 @@ void cFodder::Mission_Memory_Clear() {
         mSprite_Projectile_Counters[x] = 0;
         mSprite_Missile_Projectile_Counters[x] = 0;
     }
-    for (uint8 x = 0; x < 10; ++x) {
-        byte_3A9DA[x] = 0;
-    }
 
     mMouseX_Offset = 0;
     mMouseY_Offset = 0;
@@ -3509,12 +3506,6 @@ loc_14D66:;
 }
 
 void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
-
-    if (pData8 < byte_3A9DA[0]) {
-
-    }
-
-    byte_3A9DA[0] = pData8 & 0xFF;
 
     //loc_14BD4
     pData8 = mCamera_Adjust_Col >> 16;
