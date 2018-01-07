@@ -610,7 +610,7 @@ void cFodder::Mission_Memory_Clear() {
     }
 
     mSprite_Bumped_Into_SquadMember = 0;
-    word_3A9CE = 0;
+    mSprite_Player_CheckWeapon = 0;
     mMission_Paused = 0;
     for (uint8 x = 0; x < 4; ++x) {
         mSprite_Projectile_Counters[x] = 0;
@@ -6412,9 +6412,7 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
     word_3B2DD[3] = pDataC;
     word_3B2DD[4] = pData10;
 
-    int16 Data1C = pSprite->field_5E;
-
-    pData28 = &mSprites[Data1C];
+    pData28 = &mSprites[pSprite->field_5E];
 
     if (pData28->field_0 == -32768)
         goto loc_243A6;
@@ -11889,7 +11887,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
                 goto loc_1918C;
         }
 
-    loc_190E8:;
+    HandleWeapon:;
         mTroop_Weapon_Grenade_Disabled = false;
         mTroop_Weapon_Bullet_Disabled = false;
         mTroop_Weapon_Rocket_Disabled = false;
@@ -11933,8 +11931,8 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
     }
     else {
 
-        if (word_3A9CE) {
-            goto loc_190E8;
+        if (mSprite_Player_CheckWeapon) {
+            goto HandleWeapon;
 
         }
     }
@@ -21558,7 +21556,7 @@ void cFodder::Squad_Member_Target_Set() {
         return;
     }
 
-    word_3A9CE = -1;
+    mSprite_Player_CheckWeapon = -1;
     if (word_3A9B8 < 0) {
         word_3A9B8 = 0x30;
 
