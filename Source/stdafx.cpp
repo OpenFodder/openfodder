@@ -336,17 +336,6 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 	struct dirent		**directFiles;
 	std::vector<std::string>		  results;
 
-	char path[2000];
-	#ifndef FREEBSD
-        #ifdef _MACOSX
-            strcpy(&path[0],"/Applications/OpenFodder");
-        #else
-            getcwd(path, 2000);
-        #endif
-    #else
-	strcpy(&path[0],"/usr/local/share/openfodder");
-	#endif
-
 	// Build the file path
 	std::stringstream finalPath;
 
