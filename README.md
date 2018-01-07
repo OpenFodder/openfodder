@@ -46,9 +46,9 @@ Failure on this path, will fall back to the current working directory.
   
 ##### Data
 
-Campaign and Demo data is available from (https://github.com/OpenFodder/data/releases/download/1.3/data.zip).
-Campaign data is required, if you have the retail release in the correct data location.
-  
+Campaign and Demo data is available from (https://github.com/OpenFodder/data/releases/download/1.4/OpenFodder.zip).
+This Data is packed with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.
+
   
 ##### Hot Keys
 
