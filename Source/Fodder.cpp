@@ -619,8 +619,8 @@ void cFodder::Mission_Memory_Clear() {
     word_3A9CE = 0;
     mMission_Paused = 0;
     for (uint8 x = 0; x < 4; ++x) {
-        byte_3A9D2[x] = 0;
-        byte_3A9D6[x] = 0;
+        mSprite_Projectile_Counters[x] = 0;
+        mSprite_Missile_Projectile_Counters[x] = 0;
     }
     for (uint8 x = 0; x < 10; ++x) {
         byte_3A9DA[x] = 0;
@@ -655,7 +655,7 @@ void cFodder::Mission_Memory_Clear() {
     mMapHeight_Pixels = 0;
     mMouseCursor_Enabled = 0;
     word_3AA55 = 0;
-    word_3AAC7 = 0;
+    mRecruit_Render_Name_SmallGap = 0;
     mRecruit_RenderedPtr = 0;
     mRecruit_Truck_Frame = 0;
     mRecruit_Truck_FrameAnimBufferPtr = 0;
@@ -3515,21 +3515,14 @@ loc_14D66:;
 }
 
 void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
-    int16 Data0 = 0;
 
-    int8 al = byte_3A9DA[0];
-    if (pData8 >= al) {
-        byte_3A9DA[0] = pData8 & 0xFF;
-    }
-    else {
-        al = byte_427E6;
-        al |= byte_427EE;
-        if (al)
+    if (pData8 < byte_3A9DA[0]) {
+        if (byte_427E6 | byte_427EE)
             return;
-
-        al = pData8 & 0xFF;
-        byte_3A9DA[0] = al;
     }
+
+    byte_3A9DA[0] = pData8 & 0xFF;
+
     //loc_14BD4
     pData8 = mCamera_Adjust_Col >> 16;
     pData8 += 0x88;
@@ -3542,23 +3535,18 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
 
     if (pSprite != INVALID_SPRITE_PTR)
         DataC -= pSprite->field_4;
-    int16 Saved0 = Data0;
-    int16 Saved4 = pSoundEffect;
+    
+    int16 X = 0;
+    int16 Y = 0;
 
-    Data0 = 0;
-    pSoundEffect = 0;
+    Map_Get_Distance_BetweenPoints_Within_640(X, Y, pData8, DataC);
 
-    Map_Get_Distance_BetweenPoints_Within_640(Data0, pSoundEffect, pData8, DataC);
-
-    Data0 /= 0x10;
-    int Volume = 0x28;
-    Volume -= Data0;
+    int Volume = 40;
+    Volume -= (X / 16);
 
     if (Volume <= 0)
         return;
 
-    Data0 = Saved0;
-    pSoundEffect = Saved4;
     mSound->Sound_Play(mMap_TileSet, pSoundEffect, Volume);
 }
 
@@ -4538,12 +4526,12 @@ void cFodder::Recruit_Render_LeftMenu() {
     } while (PosY < Final);
 
     word_3AA55 = 0x0F;
-    word_3AAC7 = -1;
+    mRecruit_Render_Name_SmallGap = -1;
 
     Recruit_Render_Squad_RankKills();
     Recruit_Render_Squad_Names();
 
-    word_3AAC7 = 0;
+    mRecruit_Render_Name_SmallGap = 0;
     word_3AA55 = -59;
 
     Recruit_Render_HeroList();
@@ -4578,7 +4566,7 @@ void cFodder::Recruit_Render_Squad_Names() {
         Data14 <<= 2;
         int16 word_3A05F = (0x30 - Data14) >> 1;
 
-        if (word_3AAC7)
+        if (mRecruit_Render_Name_SmallGap)
             word_3A05F -= 1;
 
         // Draw Troop name to list
@@ -4622,15 +4610,13 @@ void cFodder::Recruit_Render_Squad_RankKills() {
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
 
-        sSprite* Data34 = Troop.mSprite;
-
-        if (mSquad_Selected != Data34->field_32)
+        if (mSquad_Selected != Troop.mSprite->field_32)
             continue;
 
         int16 Data8 = 0;
         int16 DataC = mSidebar_Draw_Y - 1;
 
-        if (!word_3AAC7) {
+        if (!mRecruit_Render_Name_SmallGap) {
             Data0 = Troop.mRank + 9;
             Data8 = 0x23;
 
@@ -6037,7 +6023,7 @@ int16 cFodder::Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C) {
     if (mMission_Completed_Timer)
         return 0;
 
-    if (byte_3A9D6[pSprite->field_22] == 2)
+    if (mSprite_Missile_Projectile_Counters[pSprite->field_22] == 2)
         return 0;
 
     if (!pSprite->field_2E)
@@ -6048,7 +6034,7 @@ int16 cFodder::Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C) {
     if (Sprite_Get_Free(Data0, pData2C, Data30))
         return 0;
 
-    ++byte_3A9D6[pSprite->field_22];
+    ++mSprite_Missile_Projectile_Counters[pSprite->field_22];
     Data30 = pData2C + 1;
 
     pData2C->field_0 = pSprite->field_0;
@@ -6636,10 +6622,10 @@ int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
     if (Sprite_Get_Free(Data0, Data2C, Data30))
         return -1;
 
-    if (byte_3A9D2[2] == 0x14)
+    if (mSprite_Projectile_Counters[2] == 0x14)
         return -1;
 
-    ++byte_3A9D2[2];
+    ++mSprite_Projectile_Counters[2];
     Data2C->field_0 = pSprite->field_0;
     Data2C->field_2 = pSprite->field_2;
     Data2C->field_4 = pSprite->field_4;
@@ -6750,7 +6736,7 @@ int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
     if (mMission_Completed_Timer)
         return 0;
 
-    if (byte_3A9D2[pSprite->field_22] == 2)
+    if (mSprite_Projectile_Counters[pSprite->field_22] == 2)
         return 0;
 
     if (!pSprite->field_2E)
@@ -6761,7 +6747,7 @@ int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
     if (Sprite_Get_Free(Data0, Data2C, Data30))
         return 0;
 
-    ++byte_3A9D2[pSprite->field_22];
+    ++mSprite_Projectile_Counters[pSprite->field_22];
     Data30 = Data2C + 1;
     Data2C->field_0 = pSprite->field_0;
     Data30->field_0 = pSprite->field_0;
@@ -6839,7 +6825,7 @@ int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, 
     if (mMission_Completed_Timer)
         return 0;
 
-    if (byte_3A9D6[pSprite->field_22] == 2)
+    if (mSprite_Missile_Projectile_Counters[pSprite->field_22] == 2)
         return 0;
 
     if (!pSprite->field_2E)
@@ -6850,7 +6836,7 @@ int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, 
     if (Sprite_Get_Free(Data0, pData2C, Data30))
         return 0;
 
-    ++byte_3A9D6[pSprite->field_22];
+    ++mSprite_Missile_Projectile_Counters[pSprite->field_22];
 
     Data30 = pData2C;
     ++Data30;
@@ -7526,10 +7512,10 @@ int16 cFodder::Sprite_Create_Indigenous_Spear2(sSprite* pSprite) {
     if (Sprite_Get_Free(Data0, Data2C, Data30))
         return -1;
 
-    if (byte_3A9D2[2] == 0x14)
+    if (mSprite_Projectile_Counters[2] == 0x14)
         return -1;
 
-    ++byte_3A9D2[2];
+    ++mSprite_Projectile_Counters[2];
     Data2C->field_0 = pSprite->field_0;
     Data2C->field_4 = pSprite->field_4;
     Data2C->field_8 = 0xD7;
@@ -9130,19 +9116,19 @@ void cFodder::Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, in
     if (pX2 < 0)
         pX2 = -pX2;
 
-    if (pX2 >= 0x280)
+    if (pX2 >= 640)
         goto loc_2B403;
 
     pY2 -= pY;
     if (pY2 < 0)
         pY2 = -pY2;
 
-    if (pY2 >= 0x280)
+    if (pY2 >= 640)
         goto loc_2B403;
 
     for (;;) {
-        if (pX2 <= 0x1F)
-            if (pY2 <= 0x1F)
+        if (pX2 <= 31)
+            if (pY2 <= 31)
                 break;
 
         pX2 >>= 1;
@@ -9159,7 +9145,7 @@ void cFodder::Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, in
     return;
 
 loc_2B403:;
-    pX = 0x280;
+    pX = 640;
 }
 
 void cFodder::MapTile_Update_Position() {
@@ -12299,7 +12285,7 @@ loc_1992D:;
 void cFodder::sub_1998C(sSprite* pSprite) {
     int16 Data0 = pSprite->field_22;
 
-    int8* Data24 = byte_3A9D2;
+    int8* Data24 = mSprite_Projectile_Counters;
     --Data24[Data0];
 }
 
@@ -12547,7 +12533,7 @@ loc_19E1C:;
 
 SpriteDestroy:;
 
-    byte_3A9D2[2] -= 1;
+    mSprite_Projectile_Counters[2] -= 1;
     Sprite_Destroy(pSprite);
     return;
 
@@ -14891,7 +14877,7 @@ loc_1D14D:;
     return;
 
 loc_1D17A:;
-    writeLEWord(&byte_3A9D2[2], readLEWord(&byte_3A9D2[2] - 1));
+    writeLEWord(&mSprite_Projectile_Counters[2], readLEWord(&mSprite_Projectile_Counters[2] - 1));
     Sprite_Destroy(pSprite);
     return;
 
@@ -15155,7 +15141,7 @@ loc_1D69F:;
 
 loc_1D6CA:;
 
-    byte_3A9D2[2] -= 1;
+    mSprite_Projectile_Counters[2] -= 1;
     Sprite_Destroy(pSprite);
     return;
 
@@ -18217,10 +18203,10 @@ int16 cFodder::Sprite_Create_Bullet(sSprite* pSprite) {
     if (Sprite_Get_Free(Data0, Data2C, Data30))
         return -1;
 
-    if (byte_3A9D2[2] == 0x14)
+    if (mSprite_Projectile_Counters[2] == 0x14)
         return -1;
 
-    ++byte_3A9D2[2];
+    ++mSprite_Projectile_Counters[2];
     pSprite->field_54 = 2;
     pSprite->field_5A = -1;
     pSprite->field_57 = 8;
@@ -18355,7 +18341,7 @@ int16 cFodder::Sprite_Create_Grenade(sSprite* pSprite) {
     if (mMission_Completed_Timer)
         goto loc_20ADE;
 
-    if (byte_3A9D2[pSprite->field_22] == 2)
+    if (mSprite_Projectile_Counters[pSprite->field_22] == 2)
         goto loc_20ADE;
 
     if (!pSprite->field_2E)
@@ -18401,7 +18387,7 @@ loc_20B0A:;
 
 loc_20B6E:;
 
-    ++byte_3A9D2[pSprite->field_22];
+    ++mSprite_Projectile_Counters[pSprite->field_22];
     pSprite->field_55 = 1;
     pSprite->field_5A = -1;
     pSprite->field_54 = 1;
@@ -19648,7 +19634,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
         return -1;
     }
 
-    if (byte_3A9D6[pSprite->field_22] == 2)
+    if (mSprite_Missile_Projectile_Counters[pSprite->field_22] == 2)
         goto loc_22592;
 
     if (!pSprite->field_2E)
@@ -19685,7 +19671,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
         mGUI_RefreshSquadRockets[Data4] = -1;
     }
 
-    ++byte_3A9D6[pSprite->field_22];
+    ++mSprite_Missile_Projectile_Counters[pSprite->field_22];
     pSprite->field_55 = 1;
     pSprite->field_5A = -1;
     pSprite->field_54 = 3;
@@ -19817,7 +19803,7 @@ int16 cFodder::Sprite_Homing_LockInRange(sSprite* pSprite, sSprite*& pFoundSprit
 
 void cFodder::Sprite_Projectile_HitTarget(sSprite* pSprite) {
 
-    byte_3A9D6[pSprite->field_22] -= 1;
+    mSprite_Missile_Projectile_Counters[pSprite->field_22] -= 1;
 }
 
 void cFodder::Sprite_Destroy_Wrapper_At_TopLeft(sSprite* pSprite) {
