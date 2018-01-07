@@ -233,7 +233,7 @@ public:
     int16           mSquad_Walk_Target_Indexes[3];  // values here, seem to be a byte count originally.. now its an index
     int16           mSquad_Walk_Target_Steps[3];
     int16           mSprite_Bumped_Into_SquadMember;
-    int16           word_3A9CE;
+    int16           mSprite_Player_CheckWeapon;
 
     int8            mSprite_Projectile_Counters[4];
     int8            mSprite_Missile_Projectile_Counters[4];
