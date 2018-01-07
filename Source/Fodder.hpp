@@ -499,9 +499,7 @@ public:
     int16           mouse_Pos_Column;
     int16           mouse_Pos_Row;
 
-    int8            byte_427E6;
-    int8            byte_427EE;
-    int16           word_44475;
+    int16           mService_Promotion_Exit_Loop;
 
     int16           mRandom_0;
     int16           mRandom_1;

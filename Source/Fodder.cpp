@@ -139,9 +139,6 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
     mDebug_MissionSkip = 0;
     mPaused = 0;
 
-    byte_427E6 = 0;
-    byte_427EE = 0;
-
     mRandom_0 = 0;
     mRandom_1 = 0;
     mRandom_2 = 0;
@@ -155,7 +152,7 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
         mMission_Save_Availability[x] = 0;
     }
 
-    word_44475 = 0;
+    mService_Promotion_Exit_Loop = 0;
 
     //      Field_0,                 X, Width, Y, Height, mMouseInsideFuncPtr
     mSidebar_OverlayButtons[0] = {
@@ -365,9 +362,6 @@ void cFodder::Game_Handle() {
     }
 
     if (!mSoundEffectToPlay)
-        return;
-
-    if ((byte_427E6 | byte_427EE))
         return;
 
     Sound_Play(mSquad_Leader, mSoundEffectToPlay, 0);
@@ -3517,8 +3511,7 @@ loc_14D66:;
 void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
 
     if (pData8 < byte_3A9DA[0]) {
-        if (byte_427E6 | byte_427EE)
-            return;
+
     }
 
     byte_3A9DA[0] = pData8 & 0xFF;
@@ -11008,7 +11001,7 @@ void cFodder::Service_Show() {
 
 void cFodder::Service_KIA_Loop() {
     Mouse_Setup();
-    word_44475 = 0;
+    mService_Promotion_Exit_Loop = 0;
 
     if (Service_KIA_Troop_Prepare() < 0)
         return;
@@ -11035,7 +11028,7 @@ void cFodder::Service_KIA_Loop() {
     do {
         Mouse_Inputs_Get();
 
-        if (word_44475 == -1 || mMouse_Exit_Loop) {
+        if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = 0;
             mSurface->paletteNew_SetToBlack();
             mImageFaded = -1;
@@ -11058,7 +11051,7 @@ void cFodder::Service_KIA_Loop() {
 
 void cFodder::Service_Promotion_Loop() {
     Mouse_Setup();
-    word_44475 = 0;
+    mService_Promotion_Exit_Loop = 0;
     Service_Promotion_Prepare();
 
     if (Service_Promotion_Prepare_Draw() < 0)
@@ -11085,7 +11078,7 @@ void cFodder::Service_Promotion_Loop() {
     do {
 
         Mouse_Inputs_Get();
-        if (word_44475 == -1 || mMouse_Exit_Loop) {
+        if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = 0;
             mSurface->paletteNew_SetToBlack();
             mImageFaded = -1;
@@ -11225,7 +11218,7 @@ void cFodder::sub_18149() {
 }
 
 void cFodder::sub_181BD() {
-    word_44475 = -1;
+    mService_Promotion_Exit_Loop = -1;
 
     int16* es = (int16*)mGraphics->mImagePStuff.mData->data();
 
@@ -11235,7 +11228,7 @@ void cFodder::sub_181BD() {
 
         *(es + 3) -= 1;
         if (*(es + 3) >= -48)
-            word_44475 = 0;
+            mService_Promotion_Exit_Loop = 0;
 
         es += 4;
     }
