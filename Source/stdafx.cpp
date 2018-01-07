@@ -98,7 +98,10 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
                     FinalPath = "";
             }
 
-        }else {
+        }
+        
+        // No path found? check the home directory
+        if(!FinalPath.size()) {
             // Test the home directory
             path = std::getenv("HOME");
 
