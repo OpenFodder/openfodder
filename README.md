@@ -32,10 +32,22 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 
 Open Fodder includes two demos from the Amiga platform, and supports 3 retail releases (See below for supported versions)
   
-##### Windows Installer
+##### Windows
 
 The Windows version of Open Fodder defaults to using and installing to the location '%USERPROFILE%/Documents/OpenFodder'.  
 While the demos will be installed as part of the package, you will be required to copy a full retail release into this folder (following the instructions below)
+  
+##### Linux / Unix
+
+Open Fodder will check the environment variable $XDG_DATA_DIRS and iterate each path checking for the Data Folder "/OpenFodder/".  
+Failure to locate the folder in these paths, will result in a check of $HOME/.local/share/OpenFodder.
+Failure on this path, will fall back to the current working directory.
+
+  
+##### Data
+
+Campaign and Demo data is available from (https://github.com/OpenFodder/data/releases/download/1.3/data.zip).
+Campaign data is required, if you have the retail release in the correct data location.
   
   
 ##### Hot Keys
@@ -44,7 +56,7 @@ While the demos will be installed as part of the package, you will be required t
 * -:   Decrease Window Size 
 * F11: Full screen  
   
-
+  
 ##### Purchasing the retail release
 
 Cannon Fodder can currently be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder)
