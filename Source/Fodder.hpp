@@ -374,7 +374,7 @@ public:
     int16           mGUI_Select_File_Count;
     int16           mGUI_Select_File_SelectedFileIndex;
 
-    int16           mPhase_Goals[8];
+    int16           mPhase_Goals[10];
     int16           mIntro_PlayTextDuration;
     int16           mSoundEffectToPlay_Set;
     int16           mSoundEffectToPlay;
@@ -565,7 +565,7 @@ public:
     void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
     void			Map_Randomise_Tiles(const long pSeed);
     void			Map_Randomise_Structures(const size_t pCount);
-    void			Map_Randomise_Sprites();
+    void			Map_Randomise_Sprites(const size_t pHumanCount = 2);
 
     bool			Tiles_Load_Data();
     int16			Tile_FindType(eTerrainType pType);
@@ -1008,7 +1008,7 @@ public:
     void            MapTile_Update_Column();
 
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
-    void			Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
+    sSprite*		Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
 
     void            Squad_Troops_Count();
     int16           Mission_Troop_GetDeviatePotential(sMission_Troop* pSquadMember);
@@ -1184,6 +1184,7 @@ public:
 
     void            WonGame();
 
+    void            Video_SurfaceRender( const bool pRestoreSurface = true );
     void            Video_Sleep();
 
     void            sleepLoop(int64 pMilliseconds);

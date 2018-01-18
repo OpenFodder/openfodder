@@ -263,8 +263,7 @@ int16 cFodder::Map_Loop() {
 
             while (mMission_Paused) {
 
-                g_Window.RenderAt(mSurface);
-                g_Window.FrameEnd();
+                Video_SurfaceRender(false);
                 eventProcess();
                 Video_Sleep();
             }
@@ -314,9 +313,7 @@ int16 cFodder::Map_Loop() {
         Sprite_HelicopterCallPad_Check();
         Mission_Final_Timer();
 
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
     }
 
     return 0;
@@ -787,7 +784,7 @@ void cFodder::Mission_Memory_Clear() {
     for (uint16 x = 0; x < 3; ++x)
         mSquad_EnteredVehicleTimer[x] = 0;
 
-    for (uint16 x = 0; x < 8; ++x)
+    for (uint16 x = 0; x < sizeof(mPhase_Goals) / sizeof(mPhase_Goals[0]); ++x)
         mPhase_Goals[x] = 0;
 
     mSprite_OpenCloseDoor_Ptr = 0;
@@ -1128,8 +1125,9 @@ void cFodder::Map_Randomise_Structures(const size_t pCount) {
     }
 }
 
-void cFodder::Map_Randomise_Sprites() {
-    int16 Distance = 8;
+void cFodder::Map_Randomise_Sprites(const size_t pHumanCount) {
+    int16 DistanceY = 8;
+    int16 DistanceX = 8;
 
     int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - 2)) + 2;
     int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - 2)) + 2;
@@ -1138,17 +1136,20 @@ void cFodder::Map_Randomise_Sprites() {
     int16 MiddleY = StartTileY * 16;
 
     // Add atleast two sprites
-    Sprite_Add(eSprite_Player, MiddleX - Distance, MiddleY);
-    Sprite_Add(eSprite_Player, MiddleX + Distance, MiddleY);
+    for (size_t x = 0; x < pHumanCount; ++x) {
+        if (tool_RandomGet() % 2)
+            Sprite_Add(eSprite_Player, MiddleX - DistanceX, MiddleY + DistanceY);
+        else
+            Sprite_Add(eSprite_Player, MiddleX + DistanceX, MiddleY - DistanceY);
 
-    if (tool_RandomGet() % 1)
-        Sprite_Add(eSprite_Player, MiddleX, MiddleY + Distance);
+        DistanceX += 6;
+        DistanceY += 6;
+    }
 
 
     // Add some weapons
-    Sprite_Add(eSprite_RocketBox, MiddleX, MiddleY + Distance);
-    Sprite_Add(eSprite_GrenadeBox, MiddleX + Distance, MiddleY + Distance);
-
+    Sprite_Add(eSprite_RocketBox, MiddleX, MiddleY + DistanceY);
+    Sprite_Add(eSprite_GrenadeBox, MiddleX + DistanceX, MiddleY + DistanceY);
 
 }
 
@@ -1810,7 +1811,7 @@ bool cFodder::Campaign_Load(std::string pName) {
 }
 
 void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
-    uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 0;
+    uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 : 16;
 
     if (mVersionCurrent->isAmigaPower())
         pTileSub = 1;
@@ -1890,6 +1891,7 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
     g_Graphics.PaletteSet(mSurface);
     mSurface->surfaceSetToPaletteNew();
 #endif
+
 }
 
 void cFodder::Map_Load() {
@@ -2418,10 +2420,12 @@ void cFodder::Sprite_Bullet_SetData() {
     sSprite* Data20 = mSprite_TroopsAlive[0];
     int16 Data0 = 0;
 
-    Data0 = Data20->field_46_mission_troop->mRank;
-    Data0 += 8;
-    if (Data0 > 0x0F)
-        Data0 = 0x0F;
+    if (Data20->field_46_mission_troop) {
+        Data0 = Data20->field_46_mission_troop->mRank;
+        Data0 += 8;
+        if (Data0 > 0x0F)
+            Data0 = 0x0F;
+    }
 
     mSprite_Weapon_Data = mSprite_Bullet_UnitData[Data0];
 }
@@ -3445,7 +3449,7 @@ void cFodder::Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, c
     mVideo_Draw_Columns = SheetData->mColCount;
     mVideo_Draw_Rows = SheetData->mRowCount - pDi->field_52;
 
-#ifdef _OFED
+#if defined(_OFED) || defined(_OFBOT)
 
     mMapTile_Row = (mMapTile_MovedVertical * 16) + mMapTile_RowOffset;
     mMapTile_Column = (mMapTile_MovedHorizontal * 16) + mMapTile_ColumnOffset;
@@ -3735,11 +3739,8 @@ void cFodder::CopyProtection() {
             if (mShow)
                 GUI_Draw_Frame_8(0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0xA0);
 
-            g_Window.RenderAt(mSurface);
-            g_Window.FrameEnd();
+            Video_SurfaceRender();
             eventProcess();
-
-            mSurface->Restore();
         }
 
         Image_FadeOut();
@@ -4157,11 +4158,8 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
         if (dword_3B30D)
             (this->*dword_3B30D)(0x50);
 
-        g_Window.RenderAt(mSurface, cPosition());
-        g_Window.FrameEnd();
-
+        Video_SurfaceRender();
         Video_Sleep();
-        mSurface->Restore();
 
     } while (mGUI_SaveLoadAction <= 0);
 
@@ -5124,9 +5122,7 @@ void cFodder::Recruit_Draw() {
     mVideo_Draw_Columns = 0x110;
     mVideo_Draw_Rows = 0xB0;
 
-    g_Window.RenderAt(mSurface);
-    g_Window.FrameEnd();
-    mSurface->Restore();
+    Video_SurfaceRender();
 }
 
 bool cFodder::Recruit_Check_Buttons_SaveLoad() {
@@ -9270,14 +9266,14 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
     writeLEWord(CurrentMapPtr, (uint16)pTileID);
 }
 
-void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
+sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
 
     int16 Data0 = 0;
 
     sSprite* Data2C, *Data30;
 
     if (Sprite_Get_Free(Data0, Data2C, Data30))
-        return;
+        return Data2C;
 
     Data0 = 0;
     Data2C->field_18 = (int16)pSpriteID;
@@ -9289,7 +9285,7 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
     switch (pSpriteID) {
     case eSprite_BoilingPot:                        // 1 Null
         if (Sprite_Get_Free(Data0, Data2C, Data30))
-            return;
+            return Data2C;
 
         Data2C->field_18 = eSprite_Null;
         Data2C->field_0 = pTileX;
@@ -9305,7 +9301,7 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
     case eSprite_Helicopter_Homing_Enemy:
     case eSprite_Helicopter_Homing_Enemy2:
         if (Sprite_Get_Free(Data0, Data2C, Data30))
-            return;
+            return Data2C;
 
         Data2C->field_18 = eSprite_Null;
         Data2C->field_0 = pTileX;
@@ -9324,7 +9320,7 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
     case eSprite_Helicopter_Homing_Human_Called:
         Data0 = 2;
         if (Sprite_Get_Free(Data0, Data2C, Data30))
-            return;
+            return Data2C;
 
         Data2C->field_18 = eSprite_Null;
         Data2C->field_0 = pTileX;
@@ -9342,7 +9338,7 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
 
     case eSprite_Tank_Enemy:                        // 2 Nulls
         if (Sprite_Get_Free(Data0, Data2C, Data30))
-            return;
+            return Data2C;
 
         Data2C->field_18 = eSprite_Null;
         Data2C->field_0 = pTileX;
@@ -9352,7 +9348,7 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
     case eSprite_Tank_Human:
         Data0 = 0;
         if (Sprite_Get_Free(Data0, Data2C, Data30))
-            return;
+            return Data2C;
 
         Data2C->field_18 = eSprite_Null;
         Data2C->field_0 = pTileX;
@@ -9367,7 +9363,7 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
     case eSprite_VehicleGun_Enemy:
     case eSprite_Vehicle_Unk_Enemy:
         if (Sprite_Get_Free(Data0, Data2C, Data30))
-            return;
+            return Data2C;
 
         Data2C->field_18 = eSprite_Null;
         Data2C->field_0 = pTileX;
@@ -9378,6 +9374,7 @@ void cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
     }
 
     Sprite_Handle_Loop();
+    return Data2C;
 }
 
 void cFodder::Squad_Troops_Count() {
@@ -10153,9 +10150,7 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
         if (dword_3B30D)
             (this->*dword_3B30D)(0x50);
 
-        g_Window.RenderAt(mSurface, cPosition());
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
 
     } while (mGUI_SaveLoadAction <= 0);
 
@@ -10727,9 +10722,7 @@ bool cFodder::Menu_Draw(const std::function<void()> pButtonHandler) {
     if (mSurface->GetFaded() == false)
         mSurface->palette_FadeTowardNew();
 
-    g_Window.RenderAt(mSurface);
-    g_Window.FrameEnd();
-    mSurface->Restore();
+    Video_SurfaceRender();
     return false;
 }
 
@@ -10755,9 +10748,7 @@ void cFodder::Demo_Quiz_ShowScreen(const char* pFilename) {
         if (mSurface->GetFaded() == false)
             mSurface->palette_FadeTowardNew();
 
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
     }
 
     Image_FadeOut();
@@ -11031,9 +11022,7 @@ void cFodder::Service_KIA_Loop() {
         Video_Sleep_Wrapper();
         sub_181BD();
 
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
 
     } while (mImageFaded == -1 || mService_ExitLoop == 0);
 }
@@ -11083,9 +11072,7 @@ void cFodder::Service_Promotion_Loop() {
         //sub_14445();
         sub_181BD();
 
-        g_Window.RenderAt(mSurface, cPosition());
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
 
     } while (mImageFaded == -1 || mService_ExitLoop == 0);
 
@@ -11632,8 +11619,7 @@ void cFodder::Briefing_Show_Ready() {
             break;
         }
 
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
+        Video_SurfaceRender(false);
 
     } while (!mMouse_Exit_Loop);
 
@@ -17789,8 +17775,7 @@ void cFodder::intro_LegionMessage() {
         }
 
         eventProcess();
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
+        Video_SurfaceRender(false);
     }
 }
 
@@ -17857,8 +17842,7 @@ int16 cFodder::intro_Play() {
                 DoBreak = true;
             }
 
-            g_Window.RenderAt(mSurface);
-            g_Window.FrameEnd();
+            Video_SurfaceRender(false);
         }
 
 
@@ -17906,13 +17890,10 @@ void cFodder::Image_FadeIn() {
 
         Mouse_Inputs_Get();
 
-        g_Window.RenderAt(mSurface, cPosition());
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
     }
 
-    g_Window.RenderAt(mSurface, cPosition());
-    g_Window.FrameEnd();
+    Video_SurfaceRender();
 }
 
 void cFodder::Image_FadeOut() {
@@ -17926,9 +17907,7 @@ void cFodder::Image_FadeOut() {
 
         mSurface->palette_FadeTowardNew();
 
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
     }
 }
 
@@ -18015,8 +17994,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
             DoBreak = true;
         }
 
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
+        Video_SurfaceRender(false);
     }
 
     return mImage_Aborted;
@@ -18055,6 +18033,15 @@ void cFodder::Mission_Phase_Next() {
 void cFodder::Video_Sleep_Wrapper() {
 
     Video_Sleep();
+}
+
+void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
+
+    mWindow->RenderAt(mSurface);
+    mWindow->FrameEnd();
+
+    if(pRestoreSurface)
+        mSurface->Restore();
 }
 
 void cFodder::Video_Sleep() {
@@ -19939,9 +19926,7 @@ void cFodder::Playground() {
         if (mDemo_ExitMenu)
             break;
 
-        g_Window.RenderAt(mSurface);
-        g_Window.FrameEnd();
-        mSurface->Restore();
+        Video_SurfaceRender();
     }
 }
 
