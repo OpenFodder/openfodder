@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 
 #ifndef _OFED
+#ifndef _OFBOT
 int main(int argc, char *args[]) {
 	bool SkipIntro = false;
 	int16 MapNumber = 0;
@@ -53,6 +54,7 @@ int main(int argc, char *args[]) {
     return 0;
 
 }
+#endif
 #endif
 
 #include <istream>
