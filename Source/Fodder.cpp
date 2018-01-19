@@ -8022,7 +8022,7 @@ void cFodder::Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C) {
     pSprite->field_20 = mSprite_Computer_Unk[Data0 / 2];
 }
 
-int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16& pY, int16& pX2, int16& pY2) {
+int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2) {
     const int8* Data24 = mMap_Distance_Calculations;
     int16 Data10 = 0;
 
@@ -9453,8 +9453,11 @@ void cFodder::Squad_Troops_Count() {
 }
 
 int16 cFodder::Mission_Troop_GetDeviatePotential(sMission_Troop* pData24) {
+    int16 Data0 = 0;
+    
+    if (pData24)
+        Data0 = pData24->mRank;
 
-    int16 Data0 = pData24->mRank;
     Data0 += 8;
 
     if (Data0 > 0x0F)
@@ -11909,7 +11912,8 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
             mTroop_Weapon_Grenade_Disabled = true;
             mTroop_Weapon_Rocket_Disabled = true;
 
-            Data0 = pSprite->field_46_mission_troop->field_6;
+            if(pSprite->field_46_mission_troop)
+                Data0 = pSprite->field_46_mission_troop->field_6;
 
         loc_191BF:;
             Sprite_Handle_Troop_Weapon(pSprite);

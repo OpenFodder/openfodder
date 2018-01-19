@@ -850,7 +850,7 @@ public:
     int16           sub_1D92E(sSprite* pSprite);
     void            Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID);
     int16           Sprite_Handle_Soldier_Animation(sSprite* pSprite);
-    int16           Sprite_Troop_Dies(sSprite* pSprite);
+    virtual int16   Sprite_Troop_Dies(sSprite* pSprite);
     int16           loc_1F043(sSprite* pSprite);
     void            loc_1F092(sSprite* pSprite, sSprite* pData24);
 
@@ -963,7 +963,7 @@ public:
     void            Sprite_Handle_Helicopter_Human_CallCheck(sSprite* pSprite);
     void            Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C);
 
-    int16           Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16& pY, int16& pX2, int16& pY2);
+    int16           Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2);
     int16           Direction_Between_Points(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
     void            tool_RandomSeed();
