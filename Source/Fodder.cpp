@@ -144,7 +144,7 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
     mRandom_2 = 0;
     mRandom_3 = 0;
     byte_44AC0 = 0;
-
+    mSoundDisabled = false;
     Squad_Walk_Target_SetAll(0);
     mMission_Completed_Timer = 0;
 
@@ -911,6 +911,8 @@ void cFodder::Sprite_Clear_All() {
     }
 
     mSprites[44].field_0 = -1;
+
+    mSprite_SpareUsed = 0;
 }
 
 void cFodder::Map_Save(const std::string pFilename) {
@@ -1301,6 +1303,7 @@ void cFodder::Mission_Troop_Sort() {
                 sMission_Troop* Data24 = Data20 + 1;
 
                 *Data20 = *Data24;
+                Data24->Clear();
                 Data24->mRecruitID = -1;
                 Data24->mRank = 0;
             }
@@ -3510,6 +3513,9 @@ loc_14D66:;
 }
 
 void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
+
+    if (mSoundDisabled)
+        return;
 
     //loc_14BD4
     pData8 = mCamera_Adjust_Col >> 16;
@@ -8022,6 +8028,17 @@ void cFodder::Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C) {
     pSprite->field_20 = mSprite_Computer_Unk[Data0 / 2];
 }
 
+int16 cFodder::Map_Get_Distance_BetweenSprites_Within_320( const sSprite *pSprite, const sSprite *pSprite2 ) {
+
+    auto X1 = pSprite->field_0;
+    auto Y1 = pSprite->field_4;
+
+    auto X2 = pSprite2->field_0;
+    auto Y2 = pSprite2->field_4;
+
+    return g_Fodder.Map_Get_Distance_BetweenPoints_Within_320(X1, Y1, X2, Y2);
+}
+
 int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2) {
     const int8* Data24 = mMap_Distance_Calculations;
     int16 Data10 = 0;
@@ -9734,14 +9751,13 @@ void cFodder::Sprite_Aggression_Set() {
     mGame_Data.mSprite_Enemy_AggressionNext = mCampaign.getMapAggression(mGame_Data.mMapNumber).getAverage();
     mGame_Data.mSprite_Enemy_AggressionIncrement = 1;
 
-    sSprite* Sprite = mSprites;
-    for (int16 Data1C = 29; Data1C >= 0; --Data1C, ++Sprite) {
+    for(auto& Sprite : mSprites ) {
 
-        if (Sprite->field_0 == -32768)
+        if (Sprite.field_0 == -32768)
             continue;
 
-        if (Sprite->field_18 == eSprite_Enemy_Rocket || Sprite->field_18 == eSprite_Enemy)
-            Sprite_Handle_Enemy_Aggression_Set(Sprite);
+        if (Sprite.field_18 == eSprite_Enemy_Rocket || Sprite.field_18 == eSprite_Enemy)
+            Sprite_Handle_Enemy_Aggression_Set(&Sprite);
     }
 }
 
@@ -14849,7 +14865,7 @@ loc_1D14D:;
     return;
 
 loc_1D17A:;
-    writeLEWord(&mSprite_Projectile_Counters[2], readLEWord(&mSprite_Projectile_Counters[2] - 1));
+    --mSprite_Projectile_Counters[2];
     Sprite_Destroy(pSprite);
     return;
 
@@ -16267,7 +16283,7 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
     uint8* DataFinal = 0;
     int16 Data0;
     sSprite* eax = 0;
-    sMission_Troop* SquadMember = 0;
+    sMission_Troop* Troop = 0;
 
     // Is Player?
     if (pSprite->field_22 != eSprite_PersonType_Human)
@@ -16277,19 +16293,23 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
 
     ++mGame_Data.mTroops_Away;
 
-    SquadMember = pSprite->field_46_mission_troop;
+    if (pSprite->field_46_mission_troop) {
+        Troop = pSprite->field_46_mission_troop;
 
-    mGame_Data.Hero_Add(SquadMember);
+        mGame_Data.Hero_Add(Troop);
 
-    *mGraveRankPtr++ = SquadMember->mRank;
-    *mGraveRankPtr = -1;
+        if (mGraveRankPtr <= &mGame_Data.mGraveRanks[360]) {
+            *mGraveRankPtr++ = Troop->mRank;
+            *mGraveRankPtr = -1;
 
-    *mGraveRecruitIDPtr++ = SquadMember->mRecruitID;
-    *mGraveRecruitIDPtr = -1;
+            *mGraveRecruitIDPtr++ = Troop->mRecruitID;
+            *mGraveRecruitIDPtr = -1;
+        }
 
-    SquadMember->mSprite = INVALID_SPRITE_PTR;
-    SquadMember->mRecruitID = -1;
-    SquadMember->mRank = 0;
+        Troop->mSprite = INVALID_SPRITE_PTR;
+        Troop->mRecruitID = -1;
+        Troop->mRank = 0;
+    }
 
     if (mSquad_Selected < 0) {
         mGUI_Sidebar_Setup = 0;
@@ -18150,6 +18170,7 @@ int16 cFodder::Sprite_Destroy_Wrapper(sSprite* pSprite) {
 }
 
 int16 cFodder::Sprite_Destroy(sSprite* pSprite) {
+
     pSprite->field_65 = 0;
     pSprite->field_8 = 0x7C;
     pSprite->field_18 = eSprite_Null;
@@ -21285,9 +21306,9 @@ void cFodder::Mission_Final_TimeToDie() {
     if (mMission_Final_TimeRemain < 0)
         mMission_Final_TimeRemain = 0;
 
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x0A;
+    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x05;
 
-    GUI_Sidebar_TroopList_Name_Draw(0, 0, 0, 0xB7, "TIME TO DIE");
+    GUI_Sidebar_TroopList_Name_Draw(0, 0, 0, 0xB7, "TIME TO DIE ");
 
     int16 di = 0x900;
     for (int16 dx = 4; dx > 0; --dx) {
@@ -21303,7 +21324,6 @@ void cFodder::Mission_Final_TimeToDie() {
     }
 
     GUI_Sidebar_Number_Draw(mMission_Final_TimeRemain, 0, 0x30, 0xC0, 0xAF);
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 5;
 }
 
 int16 cFodder::sub_305D5(sSprite*& pData20) {

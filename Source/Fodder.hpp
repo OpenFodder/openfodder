@@ -63,6 +63,7 @@ public:
     bool                    mSkipIntro;
     std::vector<cEvent>     mEvents;
     bool					mOpenFodder_Intro_Done;
+    bool                    mSoundDisabled;
 
     const sVersion*			mVersionDefault;		// Version to switch back to when looking for data
     const sVersion*         mVersionCurrent;		// Version currently being used
@@ -963,6 +964,7 @@ public:
     void            Sprite_Handle_Helicopter_Human_CallCheck(sSprite* pSprite);
     void            Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C);
 
+    int16           Map_Get_Distance_BetweenSprites_Within_320(const sSprite* pSprite, const sSprite* pSprite2);
     int16           Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2);
     int16           Direction_Between_Points(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
@@ -1102,7 +1104,7 @@ public:
 
     void            GUI_Prepare_Button_Grenade();
     void            GUI_Handle_Button_Grenades();
-    void            GUI_Sidebar_TroopList_Draw();
+    virtual void    GUI_Sidebar_TroopList_Draw();
     void            GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28);
     void            GUI_Sidebar_SquadIcon_Update();
     void            GUI_Sidebar_SquadIcon_Current_Draw();

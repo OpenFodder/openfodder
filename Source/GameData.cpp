@@ -98,6 +98,9 @@ void sGameData::Troops_Clear() {
 
 void sGameData::Hero_Add(const sMission_Troop*  pTroop) {
 
+    if (!pTroop)
+        return;
+
 	mHeroes.push_back(sHero(pTroop));
 
 	sort(mHeroes.begin(), mHeroes.end(),
