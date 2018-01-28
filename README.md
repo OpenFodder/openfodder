@@ -32,7 +32,8 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 
 #### How to play
 
-Open Fodder includes two demos from the Amiga platform, and supports 3 retail releases (See below for supported versions)
+Open Fodder supports two demos from the Amiga platform, and 3 retail releases (See below for supported versions).
+  
   
 ##### Windows
 
@@ -46,11 +47,13 @@ Failure to locate the folder in these paths, will result in a check of $HOME/.lo
 Failure on this path, will fall back to the current working directory.
 
   
-##### Data
+##### Mission Campaign Data
 
-Campaign and Demo data is available from (https://github.com/OpenFodder/data/releases/download/1.4/OpenFodder.zip).
-This Data is packed with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.
-
+Campaign and Demos are available from (https://github.com/OpenFodder/data/releases/download/1.4/OpenFodder.zip).  
+The campaign data contains the mission and map names, as well as the mission phase layouts.  
+  
+This Data is packed with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.  
+  
   
 ##### Hot Keys
 
@@ -59,44 +62,43 @@ This Data is packed with the Windows Installer, but will be a required download 
 * F11: Full screen  
   
   
-##### Purchasing the retail release
+#### Purchasing the retail release
 
-Cannon Fodder can currently be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder)
+Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder), this version is fully supported.
   
   
 #### Supported Versions
-
+  
 ##### Retail
-
+  
 ###### Dos CD Version
-
-Copy 'CF_ENG.DAT' from the CD (or the GOG install destination) to the Data/Dos_CD folder
+  
+Copy 'CF_ENG.DAT' from the CD (or the GOG install destination) to the OpenFodder/Data/Dos_CD folder
   
 ###### Amiga
-
-Use the [WHDLoad installer](http://www.whdload.de/games/CannonFodder.html) on an Amiga or an emulator (WinUAE/UAE) to extract the game files from the original floppy disks, then copy the contents of 'cf_data'  into the Data/Amiga directory.
+  
+Use the [WHDLoad installer](http://www.whdload.de/games/CannonFodder.html) on an Amiga or an emulator (WinUAE/UAE) to extract the game files from the original floppy disks, then copy the contents of 'cf_data'  into the OpenFodder/Data/Amiga directory.
   
 ###### Amiga CD32
-
-Copy the files from the 'Fodder' folder on the CD-Rom, to the Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.mpg', placed in the Amiga_CD folder.
+  
+Copy the files from the 'Fodder' folder on the CD-Rom, to the OpenFodder/Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.mpg', placed in the Amiga_CD folder.
   
 *Please note: The video playback is not yet supported
-
-##### Demos
-
-###### Amiga Format Issue #53: Christmas Special (Cannon Soccer)
-
-Included
   
-###### Amiga Power Issue #31: Cannon Fodder Plus
-
-Included
-
-##### Other
+##### Demos
+  
+Two demos are included in the data pack.  
+  
+*Amiga Format Issue #53: Christmas Special (Cannon Soccer)
+*Amiga Power Issue #31: Cannon Fodder Plus
+  
+  
+##### Unsupported Versions
   
 ###### Cannon Fodder 2
-
-not yet fully supported.
+  
+Not officially supported, and is not currently on the roadmap.
+It has no music or sound support, and a number of sprites are not implemented.
   
   
 #### Original Engine Bugs
