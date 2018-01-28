@@ -35,17 +35,25 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 Open Fodder supports two demos from the Amiga platform, and 3 retail releases (See below for supported versions).
   
   
+##### Hot Keys
+
+* +:   Increase Window Size
+* -:   Decrease Window Size 
+* F11: Full screen  
+* ESC: Back Menu/Abort Phase
+  
+  
 ##### Windows
 
 The Windows version of Open Fodder defaults to using and installing to the location '%USERPROFILE%/Documents/OpenFodder'.  
 While the demos will be installed as part of the package, you will be required to copy a full retail release into this folder (following the instructions below)
   
+  
 ##### Linux / Unix
 
 Open Fodder will check the environment variable $XDG_DATA_DIRS and iterate each path checking for the Data Folder "/OpenFodder/".  
-Failure to locate the folder in these paths, will result in a check of $HOME/.local/share/OpenFodder.
-Failure on this path, will fall back to the current working directory.
-
+Failure to locate the folder in these paths, will result in a check of $HOME/.local/share/OpenFodder.  
+Failure on this path, will fall back to the current working directory.  
   
 ##### Mission Campaign Data
 
@@ -55,16 +63,9 @@ The campaign data contains the mission and map names, as well as the mission pha
 This Data is packed with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.  
   
   
-##### Hot Keys
-
-* +:   Increase Window Size
-* -:   Decrease Window Size 
-* F11: Full screen  
-  
-  
 #### Purchasing the retail release
 
-Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder), this version is fully supported.
+Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder), this version is fully supported.  
   
   
 #### Supported Versions
@@ -97,16 +98,16 @@ Two demos are included in the data pack.
   
 ###### Cannon Fodder 2
   
-Not officially supported, and is not currently on the roadmap.
-It has no music or sound support, and a number of sprites are not implemented.
+Not officially supported and is not currently on the road map.
+While the game can start it has no music or sound support, and a number of sprites are not implemented.
   
   
 #### Original Engine Bugs
 
-Issues in the original engine which have been fixed
-
+Issues in the original engine which have been fixed  
+  
 *Squad 2 and 3 grenade and rocket count did not refresh after use.
-
+  
 #### Thanks To
 
 Sensible Software, for the original game  
