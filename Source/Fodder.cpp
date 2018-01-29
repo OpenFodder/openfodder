@@ -8645,8 +8645,12 @@ int16 cFodder::sub_2A622(int16& pData0) {
             goto loc_2A6D7;
         }
         //loc_2A6A1
-        pData0 = readLEWord(MapTilePtr);
-        pData0 = mTile_Hit[pData0];
+        if (MapTilePtr > mMap->data() && MapTilePtr < mMap->data() + mMap->size()) {
+            pData0 = readLEWord(MapTilePtr);
+        } else
+            pData0 = 0;
+
+        pData0 = mTile_Hit[pData0 & 0x1FF];
 
         // Tile has hit?
         if (pData0 >= 0) {
@@ -8782,6 +8786,9 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
     int32 MapPtr = (pY >> 4) * mMapWidth;
     MapPtr += (pX >> 4);
     MapPtr <<= 1;
+
+    if (mMap->data() + (0x60 + MapPtr) >= mMap->data() + mMap->size())
+        return 0;
 
     uint16 TileID = readLEWord(mMap->data() + (0x60 + MapPtr)) & 0x1FF;
 
@@ -9108,6 +9115,9 @@ int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, in
 
     DataC += Data8;
     DataC <<= 1;
+
+    if (mMap->data() + 0x60 + DataC >= mMap->data() + mMap->size())
+        return pMovementData[0];
 
     int16 Data0 = readLEWord(mMap->data() + 0x60 + DataC);
     Data0 &= 0xFF;
