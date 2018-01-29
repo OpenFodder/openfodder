@@ -713,41 +713,35 @@ void cGraphics_Amiga::MapTiles_Draw() {
 	// Y
 	for (uint16 cx = 0; cx < 0x10; ++cx) {
 
-		uint8* MapPtr = CurrentMapPtr;
 		uint8* TargetRow = Target;
 
 		uint16 StartY = 0;
 
 		if (cx == 0)
 			StartY = mFodder->mMapTile_RowOffset;
-		else
-			StartY = 0;
 
 		if (CurrentMapPtr >= mFodder->mMap->data()) {
+
+            uint8* MapRowPtr = CurrentMapPtr;
 
 			// X
 			for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
 				uint8* TargetTmp = TargetRow;
 
-				if (MapPtr >= mFodder->mMap->data() + mFodder->mMap->size())
-					continue;
+                if (MapRowPtr >= mFodder->mMap->data() + mFodder->mMap->size())
+                    break;
 
-				uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
-
+				uint16 Tile = readLEWord( MapRowPtr ) & 0x1FF;
 				if (Tile > 0x1C0)
 					Tile = 0;
 
-				Tile <<= 7;
-				uint8* TilePtr = mBlkData->data() + Tile;
+				uint8* TilePtr = mBlkData->data() + (Tile << 7);
 				uint16 StartX = 0;
 
 				TilePtr += StartY * 2;
 
 				if (cx2 == 0)
 					StartX = mFodder->mMapTile_ColumnOffset;
-				else
-					StartX = 0;
-
 
 				// Each bitfield
 				for (uint16 BitField = 0; BitField < 4; ++BitField) {
@@ -779,7 +773,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 					TargetTmp = TargetRow;
 				}
 
-				MapPtr += 2;
+				MapRowPtr += 2;
 				TargetRow += (16 - StartX);
 			}
 		}

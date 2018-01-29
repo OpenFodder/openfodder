@@ -240,55 +240,54 @@ void cGraphics_PC::MapTiles_Draw() {
 	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
 	// Y
-	for (uint16 cx = 0; cx < 0x0F; ++cx) {
-		uint8* MapPtr = CurrentMapPtr;
-		uint8* TargetRow = Target;
+    for (uint16 cx = 0; cx < 0x0F; ++cx) {
+        uint8* TargetRow = Target;
 
-		uint16 StartY = 0;
+        uint16 StartY = 0;
 
-		if (cx == 0)
-			StartY = mFodder->mMapTile_RowOffset;
-		else
-			StartY = 0;
+        if (cx == 0)
+            StartY = mFodder->mMapTile_RowOffset;
 
-		// X
-		for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
-			uint8* TargetTmp = TargetRow;
+        if (CurrentMapPtr >= mFodder->mMap->data()) {
 
-            if (MapPtr >= mFodder->mMap->data() + mFodder->mMap->size())
-                continue;
+            uint8* MapRowPtr = CurrentMapPtr;
 
-			uint16 Tile = readLEWord( MapPtr ) & 0x1FF;
-			if (Tile > 0x1DF)
-				Tile = 0;
+            // X
+            for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+                uint8* TargetTmp = TargetRow;
 
-			uint8* TilePtr = mTile_Gfx_Ptrs[Tile];
-			uint16 StartX = 0;
+                if (MapRowPtr >= mFodder->mMap->data() + mFodder->mMap->size())
+                    break;
 
-			TilePtr += StartY * 0x140;
-			
-			if (cx2 == 0)
-				StartX = mFodder->mMapTile_ColumnOffset;
-			else
-				StartX = 0;
+                uint16 Tile = readLEWord(MapRowPtr) & 0x1FF;
+                if (Tile > 0x1DF)
+                    Tile = 0;
 
-			// Each Tile Row
-			for (uint16 i = StartY; i < 16; ++i) {
+                uint8* TilePtr = mTile_Gfx_Ptrs[Tile];
+                uint16 StartX = 0;
 
-                memcpy(TargetTmp, TilePtr + StartX, 16 - StartX);
+                TilePtr += StartY * 0x140;
 
-				TilePtr += 0x140;
-				TargetTmp += mSurface->GetWidth();
-			}
+                if (cx2 == 0)
+                    StartX = mFodder->mMapTile_ColumnOffset;
 
-			MapPtr += 2;
-			TargetRow += (16-StartX);
-		}
+                // Each Tile Row
+                for (uint16 i = StartY; i < 16; ++i) {
 
-		Target += mSurface->GetWidth() * (16-StartY);
-		CurrentMapPtr += mFodder->mMapWidth << 1;
-	}
+                    memcpy(TargetTmp, TilePtr + StartX, 16 - StartX);
 
+                    TilePtr += 0x140;
+                    TargetTmp += mSurface->GetWidth();
+                }
+
+                MapRowPtr += 2;
+                TargetRow += (16 - StartX);
+            }
+
+            Target += mSurface->GetWidth() * (16 - StartY);
+            CurrentMapPtr += mFodder->mMapWidth << 1;
+        }
+    }
 	mSurface->Save();
 }
 
@@ -824,10 +823,11 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
                 if (pDs >= pSource->data() + pSource->size())
                     return;
 
-				uint8 al = *pDs++;
+				uint8 al = *pDs;
 				if (al)
 					*di = al;
 
+                ++pDs;
 				di += 4;
 			}
 
@@ -837,10 +837,11 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
                 if (pDs >= pSource->data() + pSource->size())
                     return;
 
-				uint8 al = *pDs++;
+				uint8 al = *pDs;
 				if (al)
 					*di = al;
 
+                ++pDs;
 				di += 4;
 			}
 
@@ -973,19 +974,19 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F > 0x140)
+		if (word_4286F >= 0x140)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 > 0x140)
+		if (word_42871 >= 0x140)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 > 0x140)
+		if (word_42873 >= 0x140)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 > 0x140)
+		if (word_42875 >= 0x140)
 			word_42875 = 0;
 
 		mFodder->Mouse_GetData();
@@ -1056,19 +1057,19 @@ void cGraphics_PC::Mission_Intro_Desert() {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F > 0x140)
+		if (word_4286F >= 0x140)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 > 0x140)
+		if (word_42871 >= 0x140)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 > 0x140)
+		if (word_42873 >= 0x140)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 > 0x140)
+		if (word_42875 >= 0x140)
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
@@ -1141,19 +1142,19 @@ void cGraphics_PC::Mission_Intro_Ice() {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F > 0x140)
+		if (word_4286F >= 0x140)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 > 0x140)
+		if (word_42871 >= 0x140)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 > 0x140)
+		if (word_42873 >= 0x140)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 > 0x140)
+		if (word_42875 >= 0x140)
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
@@ -1223,19 +1224,19 @@ void cGraphics_PC::Mission_Intro_Mor() {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F > 0x140)
+		if (word_4286F >= 0x140)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 > 0x140)
+		if (word_42871 >= 0x140)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 > 0x140)
+		if (word_42873 >= 0x140)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 > 0x140)
+		if (word_42875 >= 0x140)
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
