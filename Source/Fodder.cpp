@@ -2837,11 +2837,12 @@ void cFodder::Map_Overview_Prepare() {
 
     for (uint16 dx = 0; dx < mMapHeight; ++dx) {
 
-        for (uint16 cx = 0; cx < mMapWidth; ++cx) {
+        for (uint16 cx = 0; cx < mMapWidth; ++cx, ++MapPtr) {
+            
+            if (MapPtr < (int16*) mMap->data() || MapPtr >= (int16*) (mMap->data() + mMap->size()))
+                continue;
 
             mGraphics->MapOverview_Render_Tiles(*MapPtr & 0x1FF, cx + mSurfaceMapLeft, dx + mSurfaceMapTop);
-
-            ++MapPtr;
         }
     }
 

@@ -222,7 +222,7 @@ void cSurface::draw() {
 
 void cSurface::clearBuffer() {
 
-	for (int i = 0; i < mSurfaceBufferSize; ++i) {
+	for (size_t i = 0; i < mSurfaceBufferSize; ++i) {
 		mSurfaceBuffer[i] = 0;
 		mSurfaceBufferSaved[i] = 0;
 	}
