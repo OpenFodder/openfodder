@@ -711,7 +711,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
 	// Y
-	for (uint16 cx = 0; cx < 0x11; ++cx) {
+	for (uint16 cx = 0; cx < 0x10; ++cx) {
 
 		uint8* MapPtr = CurrentMapPtr;
 		uint8* TargetRow = Target;
@@ -728,7 +728,6 @@ void cGraphics_Amiga::MapTiles_Draw() {
 			// X
 			for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
 				uint8* TargetTmp = TargetRow;
-
 
 				if (MapPtr > mFodder->mMap->data() + mFodder->mMap->size())
 					continue;

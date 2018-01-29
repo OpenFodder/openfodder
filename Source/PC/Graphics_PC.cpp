@@ -165,6 +165,10 @@ void cGraphics_PC::Load_Service_Data() {
 void cGraphics_PC::Tile_Prepare_Gfx() {
 	uint16 TileOffset = 0, Tile = 0;
 
+    for (auto& TilePtr : mTile_Gfx_Ptrs) {
+        TilePtr = 0;
+    }
+
 	for (uint16 cx = 0; cx < 240; ++cx) {
 
 		mTile_Gfx_Ptrs[cx + 0x00] = mFodder->mTile_BaseBlk->data() + TileOffset;
@@ -222,7 +226,8 @@ void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, ui
 
 	for (uint16 i = 0; i < 16; ++i) {
 
-		memcpy(Target, TilePtr, 16);
+        memcpy(Target, TilePtr, 16);
+
 		TilePtr += 0x140;
 		Target += pTarget->GetWidth();
 	}
@@ -265,9 +270,10 @@ void cGraphics_PC::MapTiles_Draw() {
 				StartX = 0;
 
 			// Each Tile Row
-			for (uint16 i = StartX; i < 16; ++i) {
+			for (uint16 i = StartY; i < 16; ++i) {
 
-				memcpy( TargetTmp, TilePtr + StartX, 16 - StartX );
+                memcpy(TargetTmp, TilePtr + StartX, 16 - StartX);
+
 				TilePtr += 0x140;
 				TargetTmp += mSurface->GetWidth();
 			}
@@ -295,7 +301,8 @@ void cGraphics_PC::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16
 
 	for (uint16 i = 0; i < 16; ++i) {
 
-		memcpy( Target, TilePtr, 16 );
+        memcpy(Target, TilePtr, 16);
+
 		TilePtr += 0x140;
 		Target += mFodder->mSurfaceMapOverview->GetWidth();
 	}
@@ -750,7 +757,7 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 }
 
 void cGraphics_PC::Mission_Intro_Play() {
-
+   
 	mFodder->Mission_Intro_Draw_Mission_Name();
 
 	switch (mFodder->mMap_TileSet) {
@@ -783,9 +790,9 @@ void cGraphics_PC::Mission_Intro_Play() {
 void cGraphics_PC::Briefing_Render_1(tSharedBuffer pDs, int16 pCx) {
 
 	if (mFodder->mBriefing_Render_1_Mode != 0)
-		sub_15B98(pDs->data(), pCx);
+		sub_15B98(pDs, pCx);
 	else
-		sub_15CE8(pDs->data(), pCx);
+		sub_15CE8(pDs, pCx);
 }
 
 
@@ -799,7 +806,6 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 	word_4285F = -ax;
 
 	uint8* word_4285D = mSurface->GetSurfaceBuffer() + word_4285B + (dx * 4);
-	pCx &= 3;
 
 	++dx;
 
@@ -812,6 +818,9 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 		for (int16 bx = word_42859; bx > 0; --bx) {
 			int16 cx;
 			for (cx = word_4285F; cx > 0; --cx) {
+                if (pDs >= pSource->data() + pSource->size())
+                    continue;
+
 				uint8 al = *pDs++;
 				if (al)
 					*di = al;
@@ -819,9 +828,12 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di -= 0x51 * 4;
+			di -= (0x51 * 4);
 			--pDs;
 			for (cx = dx; cx > 0; --cx) {
+                if (pDs >= pSource->data() + pSource->size())
+                    continue;
+
 				uint8 al = *pDs++;
 				if (al)
 					*di = al;
@@ -829,12 +841,14 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di += 0x58 * 4;
+			di += (0x58 * 4);
 		}
 	}
 }
 
-void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
+void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
+    uint8* Ds = pDsSi->data();
+
 	int16 ax = pCx >> 2;
 	int16 dx = ax;
 
@@ -842,7 +856,6 @@ void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
 	word_4285F = -ax;
 
 	uint8* word_4285D = mSurface->GetSurfaceBuffer() + word_4285B + (dx * 4);
-	pCx &= 3;
 
 	++dx;
 
@@ -855,16 +868,16 @@ void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
 			int16 cx = word_4285F;
 
 			if (cx & 1) {
-				*di = *pDsSi++;
+				*di = *Ds++;
 				di += 4;
 			}
 
 			cx >>= 1;
 			while (cx > 0) {
-				*di = *pDsSi++;
+				*di = *Ds++;
 				di += 4;
 
-				*di = *pDsSi++;
+				*di = *Ds++;
 				di += 4;
 
 				--cx;
@@ -872,18 +885,18 @@ void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
 
 			cx = dx;
 			di -= 0x51 * 4;
-			--pDsSi;
+			--Ds;
 			if (cx & 1) {
-				*di = *pDsSi++;
+				*di = *Ds++;
 				di += 4;
 			}
 
 			cx >>= 1;
 			while (cx > 0) {
-				*di = *pDsSi++;
+				*di = *Ds++;
 				di += 4;
 
-				*di = *pDsSi++;
+				*di = *Ds++;
 				di += 4;
 
 				--cx;
@@ -893,8 +906,9 @@ void cGraphics_PC::sub_15B98(uint8* pDsSi, int16 pCx) {
 	}
 }
 
-void cGraphics_PC::sub_15CE8(uint8* pDs, int16 pCx) {
-	//todo
+void cGraphics_PC::sub_15CE8(tSharedBuffer pDs, int16 pCx) {
+	//todo:
+    // This is never used
 	assert(1 == 0);
 }
 
@@ -1289,19 +1303,19 @@ void cGraphics_PC::Mission_Intro_Int() {
 		Briefing_Render_2( mImageMissionIntro.mData, mMission_Intro_X );
 
 		mMission_Intro_X += 8;
-		if (mMission_Intro_X > 0x140)
+		if (mMission_Intro_X >= 0x140)
 			mMission_Intro_X = 0;
 
 		mMission_Intro_Clouds1_X += 4;
-		if (mMission_Intro_Clouds1_X > 0x140)
+		if (mMission_Intro_Clouds1_X >= 0x140)
 			mMission_Intro_Clouds1_X = 0;
 
 		mMission_Intro_Clouds2_X += 2;
-		if (mMission_Intro_Clouds2_X > 0x140)
+		if (mMission_Intro_Clouds2_X >= 0x140)
 			mMission_Intro_Clouds2_X = 0;
 
 		++mMission_Intro_Clouds3_X;
-		if (mMission_Intro_Clouds3_X > 0x140)
+		if (mMission_Intro_Clouds3_X >= 0x140)
 			mMission_Intro_Clouds3_X = 0;
 
 		mFodder->Video_Sleep();
