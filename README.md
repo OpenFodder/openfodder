@@ -1,7 +1,7 @@
 # Open Fodder
 [![Build Status](https://api.travis-ci.org/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.org/OpenFodder/openfodder)
 
-![image](https://user-images.githubusercontent.com/1327406/34556060-fa123e6a-f188-11e7-9650-89fa43d0510e.png)
+![image](https://user-images.githubusercontent.com/1327406/35489590-9f823528-04ec-11e8-9f03-6d18b8d9b581.png)
 
 #### About
 
