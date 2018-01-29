@@ -1458,7 +1458,6 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 	mFodder->mVideo_Draw_PosX = 16;
 
 	do {
-		mSurface->clearBuffer();
 
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING);
 		mFodder->mVideo_Draw_PosY = 40;
@@ -1491,8 +1490,6 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 		++word_42875;
 		if (word_42875 >= 320)
 			word_42875 = 0;
-
-		mFodder->Mission_Intro_Draw_Mission_Name();
 
 		if (mFodder->mBriefing_Helicopter_Moving == -1)
 			mFodder->Briefing_Update_Helicopter();
