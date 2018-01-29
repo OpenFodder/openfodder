@@ -1525,16 +1525,16 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 
 		g_Fodder.eventProcess();
 		g_Fodder.Video_Sleep();
-		g_Window.RenderAt(mSurface, cPosition());
-		g_Window.FrameEnd();
+        mFodder->Video_SurfaceRender();
 
 		g_Fodder.Mouse_GetData();
 
-		if (g_Fodder.mMouse_Exit_Loop) {
+		if (g_Fodder.mMouse_Exit_Loop || mFodder->mMission_Aborted) {
 			g_Fodder.word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			g_Fodder.mImageFaded = -1;
 			g_Fodder.mMouse_Exit_Loop = 0;
+            mFodder->mMission_Aborted = 0;
 		}
 
 	} while (g_Fodder.word_428D8 || g_Fodder.mImageFaded != 0);
