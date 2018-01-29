@@ -35,6 +35,7 @@ class cGraphics_PC : public cGraphics {
 	int32			mRecruitDestY;
 
 	uint8*				mTile_Gfx_Ptrs[480];
+
 	sImage				mImageRecruit;
 	tSharedBuffer		mBriefing_ParaHeli;
 	tSharedBuffer		mMission_Intro_Gfx_Clouds1;
@@ -98,8 +99,8 @@ class cGraphics_PC : public cGraphics {
 	void				Briefing_Render_2(tSharedBuffer pDs, int16 pCx);
 	void				Briefing_Render_1(tSharedBuffer pDs, int16 pCx);
 
-	void				sub_15B98(uint8* pDs, int16 pCx);
-	void				sub_15CE8(uint8* pDs, int16 pCx);
+	void				sub_15B98(tSharedBuffer pDs, int16 pCx);
+	void				sub_15CE8(tSharedBuffer pDs, int16 pCx);
 
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();
