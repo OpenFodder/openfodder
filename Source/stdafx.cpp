@@ -287,13 +287,16 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 	}
 	
 	delete pathFin;
-	char *file = new char[ wcslen(fdata.cFileName) + 1];
-	memset(file, 0, wcslen(fdata.cFileName) + 1 );
-	size_t tmp = 0;
+    size_t tmp = 0;
 
-	wcstombs_s( &tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName) );
-    results.push_back(std::string(file));
-	delete file;
+    {
+        char *file = new char[wcslen(fdata.cFileName) + 1];
+        memset(file, 0, wcslen(fdata.cFileName) + 1);
+       
+        wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
+        results.push_back(std::string(file));
+        delete file;
+    }
 
     while(1) {
         if(FindNextFile(dhandle, &fdata)) {
