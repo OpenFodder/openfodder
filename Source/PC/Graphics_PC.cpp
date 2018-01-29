@@ -228,7 +228,7 @@ void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, ui
 
         memcpy(Target, TilePtr, 16);
 
-		TilePtr += 0x140;
+		TilePtr += 320;
 		Target += pTarget->GetWidth();
 	}
 }
@@ -266,7 +266,7 @@ void cGraphics_PC::MapTiles_Draw() {
                 uint8* TilePtr = mTile_Gfx_Ptrs[Tile];
                 uint16 StartX = 0;
 
-                TilePtr += StartY * 0x140;
+                TilePtr += StartY * 320;
 
                 if (cx2 == 0)
                     StartX = mFodder->mMapTile_ColumnOffset;
@@ -276,7 +276,7 @@ void cGraphics_PC::MapTiles_Draw() {
 
                     memcpy(TargetTmp, TilePtr + StartX, 16 - StartX);
 
-                    TilePtr += 0x140;
+                    TilePtr += 320;
                     TargetTmp += mSurface->GetWidth();
                 }
 
@@ -305,7 +305,7 @@ void cGraphics_PC::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16
 
         memcpy(Target, TilePtr, 16);
 
-		TilePtr += 0x140;
+		TilePtr += 320;
 		Target += mFodder->mSurfaceMapOverview->GetWidth();
 	}
 }
@@ -517,7 +517,7 @@ void cGraphics_PC::Recruit_Draw_Hill( ) {
 	mFodder->mVideo_Draw_PosY = 0x28;
 	mFodder->mVideo_Draw_Columns = 0x110;
 	mFodder->mVideo_Draw_Rows = 0xB0;
-	mFodder->mVideo_Draw_ColumnsMax = 0x140;
+	mFodder->mVideo_Draw_ColumnsMax = 320;
 
 	Video_Draw_16();
 }
@@ -972,19 +972,19 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F >= 0x140)
+		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 >= 0x140)
+		if (word_42871 >= 320)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 >= 0x140)
+		if (word_42873 >= 320)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 >= 0x140)
+		if (word_42875 >= 320)
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
@@ -1053,19 +1053,19 @@ void cGraphics_PC::Mission_Intro_Desert() {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F >= 0x140)
+		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 >= 0x140)
+		if (word_42871 >= 320)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 >= 0x140)
+		if (word_42873 >= 320)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 >= 0x140)
+		if (word_42875 >= 320)
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
@@ -1137,19 +1137,19 @@ void cGraphics_PC::Mission_Intro_Ice() {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F >= 0x140)
+		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 >= 0x140)
+		if (word_42871 >= 320)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 >= 0x140)
+		if (word_42873 >= 320)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 >= 0x140)
+		if (word_42875 >= 320)
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
@@ -1218,19 +1218,19 @@ void cGraphics_PC::Mission_Intro_Mor() {
 		Briefing_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;
-		if (word_4286F >= 0x140)
+		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		word_42871 += 4;
-		if (word_42871 >= 0x140)
+		if (word_42871 >= 320)
 			word_42871 = 0;
 
 		word_42873 += 2;
-		if (word_42873 >= 0x140)
+		if (word_42873 >= 320)
 			word_42873 = 0;
 
 		++word_42875;
-		if (word_42875 >= 0x140)
+		if (word_42875 >= 320)
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
@@ -1300,19 +1300,19 @@ void cGraphics_PC::Mission_Intro_Int() {
 		Briefing_Render_2( mImageMissionIntro.mData, mMission_Intro_X );
 
 		mMission_Intro_X += 8;
-		if (mMission_Intro_X >= 0x140)
+		if (mMission_Intro_X >= 320)
 			mMission_Intro_X = 0;
 
 		mMission_Intro_Clouds1_X += 4;
-		if (mMission_Intro_Clouds1_X >= 0x140)
+		if (mMission_Intro_Clouds1_X >= 320)
 			mMission_Intro_Clouds1_X = 0;
 
 		mMission_Intro_Clouds2_X += 2;
-		if (mMission_Intro_Clouds2_X >= 0x140)
+		if (mMission_Intro_Clouds2_X >= 320)
 			mMission_Intro_Clouds2_X = 0;
 
 		++mMission_Intro_Clouds3_X;
-		if (mMission_Intro_Clouds3_X >= 0x140)
+		if (mMission_Intro_Clouds3_X >= 320)
 			mMission_Intro_Clouds3_X = 0;
 
 		mFodder->Video_Sleep();
