@@ -819,7 +819,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 			int16 cx;
 			for (cx = word_4285F; cx > 0; --cx) {
                 if (pDs >= pSource->data() + pSource->size())
-                    continue;
+                    return;
 
 				uint8 al = *pDs++;
 				if (al)
@@ -832,7 +832,7 @@ void cGraphics_PC::Briefing_Render_2(tSharedBuffer pSource, int16 pCx) {
 			--pDs;
 			for (cx = dx; cx > 0; --cx) {
                 if (pDs >= pSource->data() + pSource->size())
-                    continue;
+                    return;
 
 				uint8 al = *pDs++;
 				if (al)
