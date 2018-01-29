@@ -23,7 +23,7 @@ SetCompressor lzma
 	OutFile  .\packages\OpenFodder-Installer.exe
 
 	;Default installation folder
-	InstallDir "$PROGRAMFILES64\OpenFodder"
+	InstallDir "$PROGRAMFILES\OpenFodder"
   
 	;Get installation folder from registry if available
 	InstallDirRegKey HKLM "Software\OpenFodder" "Install_Dir"
@@ -73,7 +73,7 @@ Section "Copy Files" drcreepInst
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   
-  File ".\packages\VC_redist.x64.exe"
+  File ".\packages\VC_redist.x86.exe"
   File "..\..\gpl-3.0.txt"
   File "..\..\Readme.md"
   File "..\..\Run\OpenFodder.exe"
@@ -104,7 +104,7 @@ Section "Copy Files" drcreepInst
 	CreateShortCut "$DESKTOP\OpenFodder.lnk" "$INSTDIR\OpenFodder.exe"
 
 	;MessageBox MB_YESNO|MB_ICONQUESTION "Install Microsoft Visual C++ 2017 64bit Redistributable Package?" IDNO NoRunVC
-    Exec "$INSTDIR\VC_redist.x64.exe"
+    Exec "$INSTDIR\VC_redist.x86.exe"
 	
   NoRunVC:
     nsDialogs::SelectFolderDialog "Please locate your GOG or DOS CD-Rom release of Cannon Fodder" "C:\"
@@ -166,7 +166,7 @@ FunctionEnd
 Section "Uninstall"
 !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 
-    Delete "$INSTDIR\VC_redist.x64.exe"
+    Delete "$INSTDIR\VC_redist.x86.exe"
     Delete "$INSTDIR\gpl-3.0.txt"
     Delete "$INSTDIR\OpenFodder.exe"
     Delete "$INSTDIR\Uninstall.exe"
