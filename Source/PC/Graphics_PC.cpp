@@ -989,11 +989,9 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 		if (word_42875 >= 0x140)
 			word_42875 = 0;
 
-		mFodder->Mouse_GetData();
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mSurface, cPosition() );
-		g_Window.FrameEnd();
-
+        mFodder->Video_SurfaceRender();
+        mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
@@ -1073,8 +1071,7 @@ void cGraphics_PC::Mission_Intro_Desert() {
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mSurface, cPosition() );
-		g_Window.FrameEnd();
+        mFodder->Video_SurfaceRender();
 
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
@@ -1158,8 +1155,7 @@ void cGraphics_PC::Mission_Intro_Ice() {
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mSurface, cPosition() );
-		g_Window.FrameEnd();
+        mFodder->Video_SurfaceRender();
 
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
@@ -1240,8 +1236,7 @@ void cGraphics_PC::Mission_Intro_Mor() {
 			word_42875 = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mSurface, cPosition() );
-		g_Window.FrameEnd();
+        mFodder->Video_SurfaceRender();
 
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
@@ -1323,9 +1318,7 @@ void cGraphics_PC::Mission_Intro_Int() {
 			mMission_Intro_Clouds3_X = 0;
 
 		mFodder->Video_Sleep();
-		g_Window.RenderAt( mSurface, cPosition() );
-		g_Window.FrameEnd();
-
+		mFodder->Video_SurfaceRender();
 		mFodder->Mouse_GetData();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
