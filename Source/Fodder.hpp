@@ -367,7 +367,7 @@ public:
     int16           mGUI_Temp_Y;
     int16           mGUI_Draw_LastHeight;
 
-    void            (cFodder::*dword_3B30D)(int16 pPosY);
+    void            (cFodder::*mGUI_Select_File_String_Input_Callback)(int16 pPosY);
 
     int16           mInputString_Position;
     int16			mGUI_Select_File_ShownItems;
@@ -1035,7 +1035,7 @@ public:
 
     void					Game_Save();
 
-    void            GUI_SaveLoad_MouseHandle(sGUI_Element* pData20);
+    void            GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20);
 
     void            Game_Save_Wrapper2();
     void            Game_Save_Wrapper();

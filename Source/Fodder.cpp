@@ -99,7 +99,7 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
     mSprite_Missile_LaunchDistance_Y = 0;
     mMapTile_ColumnOffset = 0;
     mMapTile_RowOffset = 0;
-    dword_3B30D = 0;
+    mGUI_Select_File_String_Input_Callback = 0;
 
     mMapTile_Ptr = 0;
 
@@ -4161,6 +4161,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
         Mission_Sprites_Handle();
 
         Campaign_Select_DrawMenu(pTitle, pSubTitle);
+
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Sprites_Draw();
 
@@ -4188,10 +4189,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
             GUI_Button_Load_Exit();
 
         if (mMouse_Button_Left_Toggle)
-            GUI_SaveLoad_MouseHandle(mGUI_Elements);
-
-        if (dword_3B30D)
-            (this->*dword_3B30D)(0x50);
+            GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
         Video_SurfaceRender();
         Video_Sleep();
@@ -10203,10 +10201,10 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
 
         ++byte_44AC0;
         if (Mouse_Button_Left_Toggled() >= 0)
-            GUI_SaveLoad_MouseHandle(mGUI_Elements);
+            GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
-        if (dword_3B30D)
-            (this->*dword_3B30D)(0x50);
+        if (mGUI_Select_File_String_Input_Callback)
+            (this->*mGUI_Select_File_String_Input_Callback)(0x50);
 
         Video_SurfaceRender();
 
@@ -10259,7 +10257,7 @@ void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
 
 void cFodder::Game_Save() {
     memset(mInputString, 0, 0x13);
-    dword_3B30D = 0;
+    mGUI_Select_File_String_Input_Callback = 0;
     mInputString[0] = -1;
 
     mInputString_Position = 0;
@@ -10271,10 +10269,10 @@ void cFodder::Game_Save() {
     GUI_Button_Draw("EXIT", 0xA0);
     GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
 
-    dword_3B30D = &cFodder::String_Input_Print;
-
+    mGUI_Select_File_String_Input_Callback = &cFodder::String_Input_Print;
     GUI_Select_File_Loop(true);
-    dword_3B30D = 0;
+    mGUI_Select_File_String_Input_Callback = 0;
+
     if (mGUI_SaveLoadAction != 2) {
         mGUI_SaveLoadAction = 1;
         return;
@@ -10300,7 +10298,7 @@ void cFodder::Game_Save() {
     mMouse_Exit_Loop = 0;
 }
 
-void cFodder::GUI_SaveLoad_MouseHandle(sGUI_Element* pData20) {
+void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20) {
     mGUI_Loop_Element = pData20;
 
     for (; mGUI_Loop_Element->field_0; ++mGUI_Loop_Element) {
@@ -10332,7 +10330,7 @@ void cFodder::GUI_SaveLoad_MouseHandle(sGUI_Element* pData20) {
 }
 
 void cFodder::GUI_Button_Load_Exit() {
-    dword_3B30D = 0;
+    mGUI_Select_File_String_Input_Callback = 0;
     mGUI_SaveLoadAction = 1;
 }
 
