@@ -854,6 +854,9 @@ void cGraphics_Amiga::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uin
 		// Each Tile Row
 		for (uint16 i = 0; i < 16; ++i) {
 
+            if (TilePtr >= mBlkData->data() + mBlkData->size())
+                continue;
+
 			uint16 RowData = readBEWord( TilePtr );
 			TilePtr += 2;
 
@@ -923,26 +926,23 @@ void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 	uint8* di = mSurface->GetSurfaceBuffer() + 16;
 
 	int16 ax = pCx;
-	int16 dx = ax;
-
-	ax -= 320;
 
 	di += (mFodder->mVideo_Draw_PosY * mSurface->GetWidth());
 
 	int16 SourceX = 0, SourceY = 0;
 
 	for (int16 bx = 0; bx < mFodder->mVideo_Draw_Rows; ++bx) {
-		int16 cx;
+		uint16 cx;
 		SourceX = 0;
 
-		for (cx = dx; cx < ( mSurface->GetWidth() - 32 ); cx++) {
+		for (cx = ax; cx < ( mSurface->GetWidth() - 32 ); cx++) {
 
 			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
 
 			SourceX++;
 		}
 
-		for (cx = 0; cx < dx; cx ++) {
+		for (cx = 0; cx < ax; cx ++) {
 
 			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
 
