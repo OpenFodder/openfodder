@@ -93,8 +93,8 @@ public:
     const sAggression& getMapAggression(const uint16& pMapNumber) const;
     const size_t getMapCount() const;
 
-	void setAggression(int16 pMin = 0, int16 pMax = 0);
-	void setGoals(const std::vector<eMissionGoals>& pGoals);
+	void setMapAggression(int16 pMin = 0, int16 pMax = 0);
+	void setMapGoals(const std::vector<eMissionGoals>& pGoals);
 
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;

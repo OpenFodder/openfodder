@@ -119,7 +119,7 @@ bool cCampaign::LoadCustomMap(const std::string& pMapName) {
 
     return true;
 }
-/*
+/* This code was used to dump the original campaigns to JSON
 void cCampaign::DumpCampaign() {
     auto MissionData = this;
 
@@ -366,25 +366,9 @@ std::string cCampaign::getMapName(const size_t& pMapNumber) const {
     return mMapNames[pMapNumber];
 }
 
-void cCampaign::setGoals(const std::vector<eMissionGoals>& pGoals) {
-    mMapGoals.clear();
-    mMapGoals.push_back(pGoals);
-}
-
-void cCampaign::setAggression(int16 pMin, int16 pMax) {
-
-    if (pMin == 0 || pMax == 0) {
-        pMin = (rand() % 5);
-        pMax = pMin + (rand() % 5);
-    }
-
-    mMapAggression.clear();
-    mMapAggression.push_back(sAggression(pMin, pMax));
-}
-
 /**
-* Get the goals for this map
-*/
+ * Get the goals for this map
+ */
 const std::vector<eMissionGoals>& cCampaign::getMapGoals(const uint16& pMapNumber) const {
 
     if (pMapNumber >= mMapGoals.size())
@@ -393,15 +377,34 @@ const std::vector<eMissionGoals>& cCampaign::getMapGoals(const uint16& pMapNumbe
     return mMapGoals[pMapNumber];
 }
 
+void cCampaign::setMapGoals(const std::vector<eMissionGoals>& pGoals) {
+    mMapGoals.clear();
+    mMapGoals.push_back(pGoals);
+}
+
 /**
-* Get the enemy aggression for this map
-*/
+ * Get the enemy aggression for this map
+ */
 const sAggression& cCampaign::getMapAggression(const uint16& pMapNumber) const {
 
     if (pMapNumber >= mMapAggression.size())
         return mMapAggression[0];
 
     return mMapAggression[pMapNumber];
+}
+
+/**
+ * Add a minimum and maximum aggression
+ */
+void cCampaign::setMapAggression(int16 pMin, int16 pMax) {
+
+    if (pMin == 0 || pMax == 0) {
+        pMin = (rand() % 5);
+        pMax = pMin + (rand() % 5);
+    }
+
+    mMapAggression.clear();
+    mMapAggression.push_back(sAggression(pMin, pMax));
 }
 
 /**
