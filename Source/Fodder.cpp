@@ -4144,7 +4144,6 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
     }
     mGUI_SaveLoadAction = 0;
 
-    mImageFaded = -1;
     mGraphics->PaletteSet();
 
     mSurface->Save();
@@ -17934,6 +17933,9 @@ void cFodder::Mission_Intro_Play() {
     mMouse_Exit_Loop = 0;
     mSound->Music_Play(0x07);
     Mission_Intro_Helicopter_Start();
+
+    Mission_Intro_Draw_Mission_Name();
+    mSurface->Save();
 
     mGraphics->Mission_Intro_Play();
 }

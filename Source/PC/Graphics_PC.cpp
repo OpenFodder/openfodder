@@ -759,8 +759,6 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 }
 
 void cGraphics_PC::Mission_Intro_Play() {
-   
-	mFodder->Mission_Intro_Draw_Mission_Name();
 
 	switch (mFodder->mMap_TileSet) {
 	case eTileTypes_Jungle:
