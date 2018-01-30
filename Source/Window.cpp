@@ -32,7 +32,8 @@ cWindow::cWindow() {
 	mScreenSize.mWidth = mOriginalResolution.mWidth;
 	mScreenSize.mHeight = mOriginalResolution.mHeight;
 
-	mWindowMode = true;
+	mWindowMode = false;
+
 	mWindow = 0;
 
 	mRenderer = 0;
@@ -72,6 +73,11 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, 0 );
 	SetCursor();
+
+#ifdef _DEBUG
+    SetFullScreen();
+#endif
+
 	return true;
 }
 
