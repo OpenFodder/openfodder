@@ -84,14 +84,14 @@ Use the [WHDLoad installer](http://www.whdload.de/games/CannonFodder.html) on an
   
 Copy the files from the 'Fodder' folder on the CD-Rom, to the OpenFodder/Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.mpg', placed in the Amiga_CD folder.
   
-*Please note: The video playback is not yet supported
+* Please note: The video playback is not yet supported
   
 ##### Demos
   
 Two demos are included in the data pack.  
   
-*Amiga Format Issue #53: Christmas Special (Cannon Soccer)
-*Amiga Power Issue #31: Cannon Fodder Plus
+* Amiga Format Issue #53: Christmas Special (Cannon Soccer)
+* Amiga Power Issue #31: Cannon Fodder Plus
   
   
 ##### Unsupported Versions
@@ -106,7 +106,7 @@ While the game can start it has no music or sound support, and a number of sprit
 
 Issues in the original engine which have been fixed  
   
-*Squad 2 and 3 grenade and rocket count did not refresh after use.
+* Squad 2 and 3 grenade and rocket count did not refresh after use.
   
 #### Thanks To
 

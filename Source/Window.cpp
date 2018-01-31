@@ -32,7 +32,7 @@ cWindow::cWindow() {
 	mScreenSize.mWidth = mOriginalResolution.mWidth;
 	mScreenSize.mHeight = mOriginalResolution.mHeight;
 
-	mWindowMode = false;
+	mWindowMode = true;
 
 	mWindow = 0;
 
@@ -55,7 +55,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 	
-	CalculateWindowSize();
+    SetFullScreen();
 
 	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GetWindowSize().mWidth, GetWindowSize().mHeight, SDL_WINDOW_SHOWN );
 	if (!mWindow) {
@@ -76,6 +76,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 
 #ifdef _DEBUG
     SetFullScreen();
+    CalculateWindowSize();
 #endif
 
 	return true;
