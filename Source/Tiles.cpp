@@ -28,7 +28,7 @@ const std::vector<sTileType> mTileTypes = {
 	{ eTileTypes_Ice,	 "ice", "Ice"			},
 	{ eTileTypes_Moors,  "mor", "Moors"			},
 	{ eTileTypes_Int,	 "int", "Interior"		},
-	{ eTileTypes_Hid,	 "hid", "Hid"			},
+	{ eTileTypes_Hid,	 "hid", "Hid"			},      // Unknown
 	{ eTileTypes_AFX,	 "afx", "Amiga Format"	}		// Amiga Format Christmas Special
 };
 
