@@ -19,6 +19,7 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 
 #### Media
 
+[Open Fodder 1.4 Video](https://youtu.be/jb4TmM9zcr4)  
 [Open Fodder 1.3 Video - Custom: Segra's First](https://www.youtube.com/watch?v=D0Ap38IYVUU)  
 [Open Fodder 1.3 Video - Amiga Format Special](https://www.youtube.com/watch?v=aSGOTSw-LlI)  
 [Open Fodder 0.8 Video](https://www.youtube.com/watch?v=7AjELdOzoaw)  
