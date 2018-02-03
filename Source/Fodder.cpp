@@ -229,8 +229,10 @@ int16 cFodder::Map_Loop() {
         //loc_1074E
         if (mGUI_Sidebar_Setup >= 0 && !mMission_TryAgain)
             GUI_Sidebar_Setup();
-        else
+        else {
+
             GUI_Sidebar_Draw();
+        }
 
         //loc_10768
         Mission_Progress_Check();
@@ -789,6 +791,7 @@ void cFodder::Mission_Memory_Clear() {
 
     mSprite_OpenCloseDoor_Ptr = 0;
     mSprite_Civilian_GotHome = 0;
+    mSwitchesActivated = false;
     mSprite_Indigenous_Tmp_X = 0;
     mSprite_Indigenous_Tmp_Y = 0;
     word_3B481 = 0;
@@ -1108,7 +1111,7 @@ void cFodder::Map_Randomise_Structures(const size_t pCount) {
 
     mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 
-    int16 StructsCount = 0;
+    size_t StructsCount = 0;
 
     // This is very lame :)
     while (StructsCount++ < pCount) {
@@ -2487,16 +2490,32 @@ void cFodder::Mission_Phase_Goals_Check() {
     }
 
     if (!mPhase_Goals[eGoal_Kidnap_Leader - 1]) {
-        if (!mPhase_Goals[eGoal_Rescue_Hostages - 1])
-            goto loc_126A6;
+
+        if (!mPhase_Goals[eGoal_Rescue_Hostages - 1]) {
+
+            if (!mPhase_Goals[eGoal_Rescue_Hostage - 1])
+                goto loc_126A6;
+        }
     }
 
     if (mHostage_Count)
         return;
 
 loc_126A6:;
-    if (!mPhase_Goals[eGoal_Get_Civilian_Home - 1] || mSprite_Civilian_GotHome)
-        mMission_Complete = -1;
+
+    if (mPhase_Goals[eGoal_Get_Civilian_Home - 1]) {
+
+        if (!mSprite_Civilian_GotHome)
+            return;
+    }
+
+    if (mPhase_Goals[eGoal_Activate_All_Switches - 1]) {
+
+        if (!mSwitchesActivated)
+            return;
+    }
+
+    mMission_Complete = -1;
 }
 
 void cFodder::Map_Clear_Destroy_Tiles() {
@@ -10049,7 +10068,7 @@ loc_2DE3C:;
     Data4 <<= 1;
 
     // In some cases, tiles outside the map can be 'destroyed'. This prevents memory corruption
-    if (0x60 + Data4 >= mMap->size())
+    if ((size_t) (0x60 + Data4) >= mMap->size())
         goto loc_2DF55;
 
     MapPtr = mMap->data() + 0x60 + Data4;
@@ -15649,6 +15668,165 @@ void cFodder::Sprite_Handle_Computer_2(sSprite* pSprite) {
 void cFodder::Sprite_Handle_Computer_3(sSprite* pSprite) {
 
     Sprite_Handle_Computer(pSprite, 0xAF);
+}
+
+void cFodder::sub_2DB0A(sSprite* pSprite) {
+    
+    if (mHelicopterCall_X > 0) {
+
+        mSwitchesActivated = true;
+        pSprite->field_8 = 0xE8;
+        pSprite->field_A = 0;
+
+        sSprite* Data24 = pSprite + 1;
+        Data24->field_8 = 0x8D;
+        Data24->field_A = 0x01;
+        if (pSprite->field_20 >= 0x14)
+            pSprite->field_1E_Big -= 0xC000;
+        
+        int16 Data0 = mHelicopterCall_X;
+        int16 Data4 = mHelicopterCall_Y - 0x28;
+
+        Sprite_Direction_Between_Points(pSprite, Data0, Data4);
+
+        Data0 = mHelicopterCall_X;
+        Data4 = mHelicopterCall_Y - 0x28;
+        int16 Data8 = pSprite->field_0;
+        int16 DataC = pSprite->field_4;
+        int16 Data10 = 0x60;
+
+        Data0 = Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
+        Data0 >>= 3;
+        Data0 += 1;
+        if (Data0 < 8)
+            Data0 = 8;
+
+        pSprite->field_36 = Data0;
+        Sprite_Movement_Calculate(pSprite);
+        sub_2DC72(pSprite);
+    } else {
+        // loc_2DBE8
+        pSprite->field_8 = 0x7C;
+        pSprite->field_A = 0;
+
+        sSprite* Data24 = pSprite + 1;
+        Data24->field_8 = 0x7C;
+        Data24->field_A = 0;
+
+        if (mSquad_Leader && mSquad_Leader != INVALID_SPRITE_PTR) {
+ 
+            pSprite->field_0 = mSquad_Leader->field_0 + 0x190;
+            pSprite->field_4 = mSquad_Leader->field_4;
+        }
+
+        pSprite->field_20 = 0x64;
+        sub_2DC72(pSprite);
+    }
+}
+
+void cFodder::sub_2CEAC(sSprite* pSprite) {
+    
+    if (pSprite->field_38 == eSprite_Anim_Die1)
+        pSprite->field_38 = eSprite_Anim_None;
+
+    pSprite->field_22 = eSprite_PersonType_AI;
+    pSprite->field_6F = eVehicle_Turret_Cannon;
+
+    Sprite_Handle_Turret(pSprite);
+}
+
+void cFodder::sub_2CEDA(sSprite* pSprite) {
+    
+    if (pSprite->field_38 == eSprite_Anim_Die1)
+        pSprite->field_38 = eSprite_Anim_None;
+
+    pSprite->field_22 = eSprite_PersonType_AI;
+    pSprite->field_6F = eVehicle_Turret_Missile;
+
+    Sprite_Handle_Turret(pSprite);
+}
+
+void cFodder::sub_2D000(sSprite* pSprite) {
+    
+    pSprite->field_6F = eVehicle_Unknown_CF2;
+
+    if (pSprite->field_0 <= 6) {
+
+        pSprite->field_0 = mMapWidth_Pixels - 4;
+        pSprite->field_75 = 0;
+    }
+
+    pSprite->field_26 = pSprite->field_0 - 0x28;
+    Sprite_Handle_Vehicle_Enemy(pSprite);
+
+    if (tool_RandomGet() & 0x0F)
+        return;
+
+    int16 Saved_F0 = pSprite->field_0;
+    int16 Saved_F4 = pSprite->field_4;
+
+    int16 Data0 = (tool_RandomGet() & 0x07) + 0x0A;
+    pSprite->field_0 += Data0;
+    pSprite->field_4 += -8;
+    if (pSprite->field_4 < 0)
+        pSprite->field_4 = 0;
+
+    if (!Sprite_Create_Cannon(pSprite)) {
+        Sound_Play(pSprite, 0x10, 0x1E);
+    }
+
+    pSprite->field_0 = Saved_F0;
+    pSprite->field_4 = Saved_F4;
+}
+
+void cFodder::sub_2D0C6(sSprite* pSprite) {
+
+    pSprite->field_6F = eVehicle_Unknown_CF2;
+
+    if (pSprite->field_0 >= mMapWidth_Pixels) {
+        pSprite->field_0 = 0;
+        pSprite->field_75 = 0;
+    }
+
+    pSprite->field_26 = pSprite->field_0 + 0x28;
+    Sprite_Handle_Vehicle_Enemy(pSprite);
+}
+
+void cFodder::sub_2D118(sSprite* pSprite) {
+    
+    pSprite->field_6F = eVehicle_Unknown_CF2;
+
+    if (pSprite->field_4 <= 6) {
+        pSprite->field_4 = mMapHeight_Pixels - 4;
+        pSprite->field_75 = 0;
+    }
+
+    pSprite->field_28 = pSprite->field_4 - 0x28;
+    Sprite_Handle_Vehicle_Enemy(pSprite);
+}
+
+void cFodder::sub_2D16F(sSprite* pSprite) {
+
+    pSprite->field_6F = eVehicle_Unknown_CF2;
+
+    if (pSprite->field_4 >= mMapHeight_Pixels) {
+        pSprite->field_4 = 0;
+        pSprite->field_75 = 0;
+    }
+
+    pSprite->field_28 = pSprite->field_4 + 0x28;
+    Sprite_Handle_Vehicle_Enemy(pSprite);
+}
+
+void cFodder::sub_2DC72(sSprite* pSprite) {
+    sSprite* Data24 = pSprite + 1;
+
+    Data24->field_0 = pSprite->field_0 + 8;
+    Data24->field_4 = pSprite->field_4;
+
+    Data24->field_0 += (pSprite->field_20 >> 2);
+    Data24->field_4 += (pSprite->field_20 >> 2);
+    Data24->field_2C = -1;
 }
 
 int16 cFodder::sub_1D92E(sSprite* pSprite) {
