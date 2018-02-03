@@ -383,6 +383,7 @@ public:
     int16           mSquad_EnteredVehicleTimer[3];
     sSprite*        mSprite_OpenCloseDoor_Ptr;
     int16           mSprite_Civilian_GotHome;
+    bool            mSwitchesActivated;
     int16           mSprite_Indigenous_Tmp_X;
     int16           mSprite_Indigenous_Tmp_Y;
     int16           word_3B481;
@@ -848,7 +849,18 @@ public:
     void            Sprite_Handle_Computer_2(sSprite* pSprite);                       // 109
     void            Sprite_Handle_Computer_3(sSprite* pSprite);                       // 110
 
+    // Cannon Fodder 2 Sprites
+    void            sub_2DB0A(sSprite* pSprite);                                      // 111
+    void            sub_2CEAC(sSprite* pSprite);                                      // 112
+    void            sub_2CEDA(sSprite* pSprite);                                      // 113
+    void            sub_2D000(sSprite* pSprite);                                      // 114
+    void            sub_2D0C6(sSprite* pSprite);                                      // 115
+    void            sub_2D118(sSprite* pSprite);                                      // 116
+    void            sub_2D16F(sSprite* pSprite);                                      // 117
+
+    void            sub_2DC72(sSprite* pSprite);
     int16           sub_1D92E(sSprite* pSprite);
+
     void            Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID);
     int16           Sprite_Handle_Soldier_Animation(sSprite* pSprite);
     virtual int16   Sprite_Troop_Dies(sSprite* pSprite);

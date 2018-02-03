@@ -166,17 +166,18 @@ enum eSprite_PersonType {
 };
 
 enum eVehicles {
-	eVehicle_Turret_Cannon			= 0,
-	eVehicle_Turret_Missile			= 1,
-	eVehicle_Jeep					= 2,
-	eVehicle_JeepRocket				= 3,
-	eVehicle_Tank					= 4,
-	eVehicle_Helicopter				= 5,
-	eVehicle_Helicopter_Grenade		= 6,
-	eVehicle_Helicopter_Missile		= 7,
-	eVehicle_Helicopter_Homing		= 8,
-	eVehicle_Turret_Homing			= 9,
-	eVehicle_Unknown				= 10,
+    eVehicle_Turret_Cannon = 0,
+    eVehicle_Turret_Missile = 1,
+    eVehicle_Jeep = 2,
+    eVehicle_JeepRocket = 3,
+    eVehicle_Tank = 4,
+    eVehicle_Helicopter = 5,
+    eVehicle_Helicopter_Grenade = 6,
+    eVehicle_Helicopter_Missile = 7,
+    eVehicle_Helicopter_Homing = 8,
+    eVehicle_Turret_Homing = 9,
+    eVehicle_Unknown = 10,
+    eVehicle_Unknown_CF2 = 13
 };
 
 enum ePstuff_Sprites {
