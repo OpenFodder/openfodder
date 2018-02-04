@@ -82,7 +82,7 @@ public:
 
     const sSpriteSheet**    mSprite_SheetPtr;
 
-    void                    (cFodder::*mSprite_Function[117])(sSprite* pSprite);
+    void                    (cFodder::*mSprite_Function[118])(sSprite* pSprite);
 
     std::stringstream       mWindowTitle;
 

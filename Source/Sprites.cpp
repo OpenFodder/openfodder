@@ -29,7 +29,7 @@
 
 void cFodder::Sprite_Table_Setup() {
 
-	for (int16 x = 0; x < 117; ++x) {
+	for (int16 x = 0; x < 118; ++x) {
 		mSprite_Function[x] = &cFodder::Sprite_Handle_Null;
 	}
 
@@ -201,20 +201,20 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Computer_3 );
 	// End of Cannon Fodder Sprites
 
-	// Cannon Foodder 2 only Sprites
+	//  Cannon Foodder 2 only Sprites
 	SpriteTableFunction( 111, sub_2DB0A );
 
-    /* 112 */
-    SpriteTableFunction( 112, sub_2CEAC );
-    SpriteTableFunction( 113, sub_2CEDA );
-    SpriteTableFunction( 114, sub_2D000 );
-    SpriteTableFunction( 115, sub_2D0C6 );
+        /* 112 */
+        SpriteTableFunction( 112, sub_2CEAC );
+        SpriteTableFunction( 113, sub_2CEDA );
+        SpriteTableFunction( 114, sub_2D000 );
+        SpriteTableFunction( 115, sub_2D0C6 );
+    
+        /* 116 */
+        SpriteTableFunction( 116, sub_2D118 );
+        SpriteTableFunction( 117, sub_2D16F );
 
-    /* 116 */
-    SpriteTableFunction( 116, sub_2D118 );
-    SpriteTableFunction( 117, sub_2D16F );
-
-	// End Cannon Fodder 2 Sprites
+	//  End Cannon Fodder 2 Sprites
 }
 
 // Types of units which are hostile towards the Player
