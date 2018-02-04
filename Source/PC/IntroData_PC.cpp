@@ -21,7 +21,9 @@
  */
 
 #include "Types.hpp"
+#include <vector>
 #include "IntroData.hpp"
+
 
 // Intro_0 has had +0x19 added to each string
 const sIntroString mIntro_0[] = {
@@ -150,7 +152,7 @@ const sIntroString mIntro_16[] = {
 	{ 0 }
 };
 
-const sIntroText mIntroText_PC[] = {
+std::vector< sIntroText > mIntroText_PC = {
 	{ 0xFF, mIntro_0 },
 	{ 0x31, mIntro_1 },
 	{ 0xFF, mIntro_2 },
@@ -171,7 +173,7 @@ const sIntroText mIntroText_PC[] = {
 	{ 0, 0 }
 };
 
-const sIntroText mIntroText_PC2[] = {
+std::vector< sIntroText > mIntroText_PC2 = {
 	{ 0, 0 },
 	{ 0x31, 0 },
 	{ 0x32, 0 },

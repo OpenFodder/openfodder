@@ -535,7 +535,7 @@ public:
     void            Image_FadeOut();
 
     virtual int16   Mission_Loop();
-    virtual int16   Map_Loop();
+    virtual int16   Mission_Phase_Loop();
 
     void            Game_Handle();
     void            Camera_Handle();

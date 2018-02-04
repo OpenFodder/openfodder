@@ -64,8 +64,8 @@ struct sVersion {
 	const ePlatform			mPlatform;
 	const eRelease			mRelease;
 
-	const sIntroText*	mIntroData;
-	const std::string	mDataPath;
+	const std::vector<sIntroText>	mIntroData;
+	const std::string	            mDataPath;
 	const std::vector<sFile>		mFiles;
 
 	const std::vector<eTileTypes>	mTileTypes;

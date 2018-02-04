@@ -21,7 +21,9 @@
  */
 
 #include "Types.hpp"
+#include <vector>
 #include "IntroData.hpp"
+
 
 const sIntroString mIntro_0[] = {
 	{ 0x50, "This game is not in any way" },
@@ -128,7 +130,7 @@ const sIntroString mIntro_14[] = {
 	{ 0 }
 };
 
-const sIntroText mIntroText_Amiga[] = {
+std::vector< sIntroText > mIntroText_Amiga = {
 	{ 0xFF, mIntro_0 },
 	{ 0x31, mIntro_1 },
 	{ 0xFF, mIntro_2 },

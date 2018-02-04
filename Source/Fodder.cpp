@@ -207,7 +207,7 @@ void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
 
 }
 
-int16 cFodder::Map_Loop() {
+int16 cFodder::Mission_Phase_Loop() {
 
     mSurface->Save();
 
@@ -18088,7 +18088,9 @@ int16 cFodder::intro_Play() {
 
                 Mouse_GetData();
                 if (mouse_Button_Status) {
-                    word_3B2CF = 16;
+
+                    word_3B2CF = mVersionCurrent->mIntroData.size()-2;
+
                     mImage_Aborted = -1;
                     mSurface->paletteNew_SetToBlack();
                     Fade = -1;
@@ -20485,7 +20487,7 @@ int16 cFodder::Mission_Loop() {
         mMission_Finished = 0;
         mMission_ShowMapOverview = 0;
 
-        if (!Map_Loop()) {
+        if (!Mission_Phase_Loop()) {
             mKeyCode = 0;
             mMission_In_Progress = false;
             Squad_Member_PhaseCount();
