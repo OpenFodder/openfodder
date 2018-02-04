@@ -18089,7 +18089,8 @@ int16 cFodder::intro_Play() {
                 Mouse_GetData();
                 if (mouse_Button_Status) {
 
-                    word_3B2CF = mVersionCurrent->mIntroData.size()-2;
+                    if (mVersionCurrent->mIntroData.size() >= 2)
+                        word_3B2CF = ((int16)mVersionCurrent->mIntroData.size()) - 2;
 
                     mImage_Aborted = -1;
                     mSurface->paletteNew_SetToBlack();
@@ -18312,7 +18313,7 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 }
 
 void cFodder::Video_Sleep() {
-    static uint64_t delta = 2;
+    static int64 delta = 2;
 
     mTicksDiff = SDL_GetTicks() - mTicksDiff;
 
