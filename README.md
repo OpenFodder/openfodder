@@ -99,8 +99,8 @@ Two demos are included in the data pack.
   
 ###### Cannon Fodder 2
   
-Not officially supported and is not currently on the road map.
-While the game can start it has no music or sound support, and a number of sprites are not implemented.
+Not officially supported.
+While the game can start and is playable, it has no music or sound support and some graphics will be missing and/or wrong.
   
   
 #### Original Engine Bugs
