@@ -7,7 +7,7 @@ Cannon Fodder is an action-strategy shoot 'em up game developed by Sensible Soft
 The game is military-themed and based on shooting action but with a strategy game-style control system. The player directs troops through numerous missions, battling enemy infantry, vehicles and installations.
 
 ### Requirements
-While Open Fodder is packaged with two demos
+While Open Fodder is packaged with two demos, the full game requires the retail release available from [GOG](https://www.gog.com/game/cannon_fodder), or the data from the Amiga [WHDLoad](http://www.whdload.de/games/CannonFodder.html) version.
 
 ### Downloads
 
