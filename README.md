@@ -56,12 +56,11 @@ Open Fodder will check the environment variable $XDG_DATA_DIRS and iterate each 
 Failure to locate the folder in these paths, will result in a check of $HOME/.local/share/OpenFodder.  
 Failure on this path, will fall back to the current working directory.  
   
-##### Mission Campaign Data
+##### Campaign Data
 
-Campaign and Demos are available from (https://github.com/OpenFodder/data/releases/download/1.4/OpenFodder.zip).  
-The campaign data contains the mission and map names, as well as the mission phase layouts.  
-  
-This Data is packed with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.  
+The campaign information was originally hardcoded in the executable, this is required to play and is downloadable alonside two demos from (https://github.com/OpenFodder/data/releases/download/1.4/OpenFodder.zip).  
+
+This data is packaged with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.  
   
   
 #### Purchasing the retail release
