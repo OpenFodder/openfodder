@@ -10011,6 +10011,10 @@ void cFodder::Sprite_Handle_Explosion_MapTiles(sSprite* pSprite) {
         Data0 += *Data24++;
         Data4 += *Data24++;
 
+        // Dont use negative map x/y coorindates
+        if (Data0 < 0 || Data4 < 0) {
+            continue;
+        }
         Data28->mX = Data0;
         Data28->mY = Data4;
         ++Data28;
@@ -10061,7 +10065,7 @@ loc_2DE3C:;
     }
     //loc_2DE89
     Data4 >>= 4;
-    Data4 *= mMapWidth; // * Width
+    Data4 *= mMapWidth;
 
     Data0 >>= 4;
     Data4 += Data0;
