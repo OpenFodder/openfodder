@@ -131,52 +131,50 @@ public:
     int16           mMouse_Button_Left_Toggle;
     bool            mVehicle_Input_Disabled;
     int16           mMouse_Exit_Loop;
-    int16           word_39FA0;
+    int16           mMapTile_PreviousMoveDirectionX;
     int16           word_39FA2;
     int16           mMapTile_Column;
     int16           mMapTile_Row;
     int16           word_39FAC;
 
     int16           word_39FAE;
-    int16           word_39FBA;
+    int16           mCamera_MovePauseX;
 
-    int16           word_39FBC;
+    int16           mCamera_MovePauseY;
     int16           mMouse_Button_Right_Toggle;
     int16           mMouse_Button_LeftRight_Toggle;
     int16           word_39F04;
 
-    int32           dword_39F24;
-    int32           dword_39F28;
-    int32           mCamera_Adjust_Col;
-    int32           mCamera_Adjust_Row;
+    int32           mCamera_TileSpeedX;
+    int32           mCamera_TileSpeedY;
     int32           dword_39F36;
     int16           mCamera_Scroll_Speed;
     int16           word_39F3C;
     int16           word_39F3E;
 
-    int32           dword_39F84;        // X : Unknown
-    int32           dword_39F88;        // Y 
-    int32           dword_39F8C;
-    int32           dword_39F90;
+    int32           mMapTile_Column_New;        // X : Unknown
+    int32           mMapTile_Row_New;        // Y 
+    int32           mMapTile_SpeedX;
+    int32           mMapTile_SpeedY;
 
     int16           word_39F34;
     int16           word_39F40;
-    int32           dword_39F4A;
-    int32           dword_39F4E;
-    int16           word_39F52;
-    int16           word_39F54;
+    int32           mCamera_AccelerationX;
+    int32           mCamera_AccelerationY;
+    bool            mCamera_Speed_Reset_X;
+    bool            mCamera_Speed_Reset_Y;
     int32           mCamera_Speed_X;
     int32           mCamera_Speed_Y;
-    int32           dword_39F56;
+    int32           mCamera_TileSpeed_Overflow;
     int32           dword_39F5A;
-    int16           mCamera_Adjust_Col_High;
-    int16           mCamera_Adjust_Row_High;
+    int16           mCamera_TileX;
+    int16           mCamera_TileY;
     int16           mKeyCodeAscii;
 
-    int16           word_39FB2;
-    int16           word_39FB4;
-    int16           word_39FB6;
-    int16           word_39FB8;
+    int16           mMapTile_MoveDirectionX;
+    int16           mMapTile_MoveDirectionY;
+    int16           mCamera_MoveDirectionX;
+    int16           mCamera_MoveDirectionY;
     sSprite*        mSquad_Leader;
     int16           mSquad_Selected;
     int16           mSquad_JoiningTo;
@@ -198,10 +196,10 @@ public:
     int8            mSquads_TroopCount[4];
     uint8           byte_3A05E;
     uint16          word_3A05F;
-    int16           mCamera_Position_Column;
-    int16           mCamera_Position_Row;
-    int16           mCamera_Position_X;
-    int16           mCamera_Position_Y;
+    int16           mCamera_PanTargetX;
+    int16           mCamera_PanTargetY;
+    int16           mCamera_StartPosition_X;
+    int16           mCamera_StartPosition_Y;
 
     sSprite*        mSprite_DrawList_First[45];
     sSprite*        mSprite_DrawList_Second[45];
@@ -239,7 +237,7 @@ public:
     int8            mSprite_Projectile_Counters[4];
     int8            mSprite_Missile_Projectile_Counters[4];
 
-    int32           dword_3A9FD;
+    int32           mCamera_Speed_Max;
 
     int16           mSprites_Found_Count;
 
@@ -252,7 +250,7 @@ public:
     int16           mHostage_Count;
     sSprite*        mHostage_Rescue_Tent;
 
-    int16           mCamera_Start_Adjust;
+    bool            mCamera_Start_Adjust;
     int16           word_3AA1D;             // 2 = Use mSprite_Frame_3
     int16           mCamera_Reached_Target;
     int16           word_3AA21;
@@ -419,6 +417,9 @@ public:
     int16           mMouseX_Offset;
     int16           mMouseY_Offset;
 
+    int32           mCameraX;
+    int32           mCameraY;
+
     int16           mMouseCursor_Enabled;
     int16           mMouse_Button_LeftRight_Toggle2;
 
@@ -544,7 +545,7 @@ public:
 
     void            Game_Handle();
     void            Camera_Handle();
-    void            Camera_Position_Toward_SquadLeader();
+    void            Camera_PanTarget_AdjustToward_SquadLeader();
     void            Game_ClearVariables();
 
     void            Mission_Memory_Backup();
@@ -577,30 +578,32 @@ public:
     bool			Tiles_Load_Data();
     int16			Tile_FindType(eTerrainType pType);
 
+    void            Music_Play_Tileset();
+
     // Mission Functions
     void            Mission_Troop_Count();
     void            Mission_Troop_Sort();
     void            Mission_Troop_Prepare(const bool pPrebriefing);
     void            Mission_Troop_Prepare_Next_Recruits();
     void            Mission_Troop_Attach_Sprites();
-    void            Camera_Position_Update();
+
+    void            Camera_PanTarget_Update();
     int16           sub_119E1(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
-    void            Camera_Calculate_Scroll();
+    void            Camera_Speed_Calculate();
     void            sub_11CAD();
-    void            Camera_Refresh();
-    void            Music_Play_Tileset();
+    void            Camera_SetTargetToStartPosition();
     void            Camera_Pan_To_Target();
     void            Camera_Pan_Set_Speed();
     void            Camera_Update_From_Mouse();
 
     void            sub_12018();
     void            Camera_Reset();
-    void            sub_120F6();
-    void            Camera_Adjust_Row();
-    void            Camera_Mission_Over_Check();
+    void            Camera_TileSpeedX_Set();
+    void            Camera_TileSpeedY_Set();
+    void            Camera_Speed_MaxSet();
     void            Camera_Speed_Reset();
-    void            Camera_Pan_SetSpeed();
+    void            Camera_Acceleration_Set();
 
     void            Sprite_Sort_DrawList();
     void            Sprite_Bullet_SetData();
