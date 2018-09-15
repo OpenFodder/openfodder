@@ -27,6 +27,8 @@
 
 #define ButtonToMouseVersion(x) case x: { Buttons[x].mMouseInsideFuncPtr = &cFodder::VersionSelect_##x; break; }
 
+const int32 CAMERA_ACCELERATION = 0x20000;     // Dos: Original 0x20000
+const int32 CAMERA_TOWARD_SQUAD_SPEED = 0x14;  // Dos: Original 0x14
 
 const int16 mBriefing_Helicopter_Offsets[] =
 {
@@ -390,7 +392,7 @@ void cFodder::Camera_Position_Toward_SquadLeader() {
     int16 Data18 = SquadLeaderX;
     int16 Data1C = SquadLeaderY;
 
-    mCamera_Scroll_Speed = 0x14;
+    mCamera_Scroll_Speed = CAMERA_TOWARD_SQUAD_SPEED;
 
     if (mMouseX > 0x0F)
         goto Mouse_In_Playfield;
@@ -2136,6 +2138,8 @@ void cFodder::Camera_Update_From_Mouse() {
             Data0 = mCamera_Adjust_Row >> 16;
             Data0 -= mCamera_Adjust_Row_High;
             mMouseY -= Data0;
+
+
         }
     }
 
@@ -2287,22 +2291,22 @@ void cFodder::Camera_Pan_SetSpeed() {
     }
     //loc_1234F
     if (Data4 <= 0x40) {
-        dword_39F4A = (dword_39F4A & 0xFFFF) | -0x20000; // (-2 << 16);
+        dword_39F4A = (dword_39F4A & 0xFFFF) | -CAMERA_ACCELERATION; // (-2 << 16);
         word_39F52 = -1;
     }
     //loc_12362
     if (Data4 >= 0x150) {
-        dword_39F4A = (dword_39F4A & 0xFFFF) | 0x20000;  // (2 << 16);
+        dword_39F4A = (dword_39F4A & 0xFFFF) | CAMERA_ACCELERATION;  // (2 << 16);
         word_39F52 = -1;
     }
 
     if (Data8 <= 0x10) {
-        dword_39F4E = (dword_39F4E & 0xFFFF) | -0x20000; // (-2 << 16);
+        dword_39F4E = (dword_39F4E & 0xFFFF) | -CAMERA_ACCELERATION; // (-2 << 16);
         word_39F54 = -1;
     }
 
     if (Data8 >= 0xD8) {
-        dword_39F4E = (dword_39F4E & 0xFFFF) | 0x20000;  // (2 << 16);
+        dword_39F4E = (dword_39F4E & 0xFFFF) | CAMERA_ACCELERATION;  // (2 << 16);
         word_39F54 = -1;
     }
 }
@@ -3090,7 +3094,7 @@ loc_13B58:;
         Data4 = 287;
 
 loc_13B66:;
-    mMouseX = Data4;
+    mMouseX = Data4;// -(mCamera_Adjust_Col >> 16);
 
     int16 Data0 = mouse_Pos_Row;
 
@@ -3102,7 +3106,7 @@ loc_13B66:;
             Data0 = (int16)mWindow->GetScreenSize().mHeight + 3;
     }
 
-    mMouseY = Data0;
+    mMouseY = Data0;// -(mCamera_Adjust_Row >> 16);
 }
 
 void cFodder::Mouse_ButtonCheck() {
@@ -3416,6 +3420,8 @@ void cFodder::Mission_Text_GameOver(sSprite* pData2C) {
 }
 
 void cFodder::Mouse_DrawCursor() {
+    
+    //g_Window.SetMousePosition( cPosition(mMouseX + mCamera_Adjust_Col, mMouseY + mCamera_Adjust_Row ) );
 
     mVideo_Draw_PosX = (mMouseX + mMouseX_Offset) + 48;
     mVideo_Draw_PosY = (mMouseY + mMouseY_Offset) + 12;
