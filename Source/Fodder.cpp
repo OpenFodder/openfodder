@@ -9692,7 +9692,7 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
         if (pData24->field_18 != eSprite_Player)
             goto loc_2D5FA;
 
-        if (pData24->field_38 != 0x0A)
+        if (pData24->field_38 != eSprite_Anim_Die5)
             continue;
 
     loc_2D5FA:;
@@ -15995,11 +15995,11 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
     pSprite->field_A = 0;
     pSprite->field_2A = 0;
 
-    if (((int64)pSprite->field_1A) < 0xB0000) {
+    if (pSprite->field_1A < 0xB0000) {
         int32 Dataa0 = tool_RandomGet() & 0x07;
         Dataa0 += 2;
         Dataa0 = (Dataa0 << 16) | (Dataa0 >> 16);
-        Dataa0 += (int64)pSprite->field_1A;
+        Dataa0 += pSprite->field_1A;
 
         pSprite->field_1A = Dataa0;
     }
@@ -16185,11 +16185,11 @@ loc_1E3D2:;
     if (pSprite->field_2A <= 0x14) {
 
         pSprite->field_2A++;
-        goto loc_1EB5D;
+        return -1;      // DOS version jumped to loc_1EB5D; here, which was a mistake
     }
     //loc_1E6BA
     if (pSprite->field_20)
-        goto loc_1EB5D;
+        return - 1;     // DOS version jumped to loc_1EB5D; here, which was a mistake
 
     //seg004:5978
     if (!pSprite->field_52) {
@@ -16410,7 +16410,7 @@ loc_1EB87:;
     return -1;
 
 loc_1ECA6:;
-    if (pSprite->field_60 <= 0x06 && pSprite->field_60 >= 0x04) {
+    if (pSprite->field_60 <= eTerrainType_Water && pSprite->field_60 >= eTerrainType_QuickSand) {
         pSprite->field_38 = eSprite_Anim_None;
         return 0;
     }
@@ -16445,7 +16445,7 @@ loc_1ED5B:;
     if (pSprite->field_38 != eSprite_Anim_Slide2)
         goto loc_1EE3E;
 
-    if (pSprite->field_60 > 6 || pSprite->field_60 < 4) {
+    if (pSprite->field_60 > eTerrainType_Water || pSprite->field_60 < eTerrainType_QuickSand) {
         pSprite->field_36 -= 5;
         if (pSprite->field_36) {
             if (pSprite->field_36 >= 0)
@@ -16474,7 +16474,7 @@ loc_1EE3E:;
     return -1;
 
 loc_1EE59:;
-    if (pSprite->field_60 <= 6 && pSprite->field_60 >= 4) {
+    if (pSprite->field_60 <= eTerrainType_Water && pSprite->field_60 >= eTerrainType_QuickSand) {
         pSprite->field_38 = eSprite_Anim_None;
         return 0;
     }
@@ -17079,7 +17079,7 @@ loc_1F7FF:;
         }
     }
 
-    if (pSprite->field_60 == 6)
+    if (pSprite->field_60 == eTerrainType_Water)
         goto loc_1F9C0;
 
     //seg005:02A6
@@ -17340,9 +17340,10 @@ int16 cFodder::Sprite_Create_BloodTrail(sSprite* pSprite, sSprite*& pData2C, sSp
 }
 
 void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
-    int16 Data0 = -3;
-    pData4 = 8;
+    int16 Data0 = -3;   // Y
+    pData4 = 8; // X
 
+    // pData4 becomes terrain type
     if (Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, pData4))
         goto CheckFalling;
 
