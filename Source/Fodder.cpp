@@ -16185,11 +16185,11 @@ loc_1E3D2:;
     if (pSprite->field_2A <= 0x14) {
 
         pSprite->field_2A++;
-        return -1;      // DOS version jumped to loc_1EB5D; here, which was a mistake
+        return -1;      // DOS version jumped to loc_1EB5D; here, which was different from Amiga and caused a bug
     }
     //loc_1E6BA
     if (pSprite->field_20)
-        return - 1;     // DOS version jumped to loc_1EB5D; here, which was a mistake
+        return -1;     // DOS version jumped to loc_1EB5D; here, which was different from Amiga and caused a bug
 
     //seg004:5978
     if (!pSprite->field_52) {
@@ -16361,7 +16361,6 @@ loc_1EB0E:;
 
     if (pSprite->field_4F || pSprite->field_50) {
 
-    loc_1EB5D:;
         if (pSprite->field_52 >= 0x0D)
             pSprite->field_52 = 0x0B;
 
