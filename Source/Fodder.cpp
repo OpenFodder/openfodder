@@ -1971,7 +1971,7 @@ void cFodder::Map_Load_Resources() {
         }
 
         // Load the default version
-        VersionLoad(mVersionDefault);
+        VersionSwitch(mVersionDefault);
 
         // Check the default version for the tileset
         if (!Tiles_Load_Data()) {
@@ -1981,7 +1981,7 @@ void cFodder::Map_Load_Resources() {
 
             // Load it
             if (Version) {
-                VersionLoad(Version);
+                VersionSwitch(Version);
                 Tiles_Load_Data();
             }
             else {
@@ -2778,8 +2778,7 @@ void cFodder::Squad_EnteredVehicle_TimerTick() {
 void cFodder::Mission_Map_Overview_Show() {
 
     // Overview map is disabled for demos
-    if (mVersionCurrent->isDemo() &&
-        !mVersionCurrent->isCustom())
+    if (mVersionCurrent->isDemo() && !mVersionCurrent->isCustom())
         return;
 
     int16 word_3A016 = 0;
@@ -2965,11 +2964,11 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     // TODO: Switch version on Key press
     if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
 
-        //VersionLoad(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::Amiga));
+        //VersionSwitch(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::Amiga));
     }
 
     if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
-        //VersionLoad(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::PC));
+        //VersionSwitch(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::PC));
     }
 
     if (pKeyCode == SDL_SCANCODE_EQUALS && pPressed)
@@ -3146,7 +3145,7 @@ void cFodder::WindowTitleSet(bool pInMission) {
     Title << mWindowTitle.str();
 
     if (pInMission) {
-        if (mVersionCurrent->isDemo()) {
+        if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set ) {
 
             Title << " ( Mission: ";
 
@@ -3210,7 +3209,7 @@ void cFodder::WindowTitleBaseSetup() {
  * or AFTER a button on the version select screen is pushed
  *
  */
-void cFodder::VersionLoad(const sVersion* pVersion) {
+void cFodder::VersionSwitch(const sVersion* pVersion) {
 
     if (!pVersion)
         return;
@@ -4055,7 +4054,7 @@ void cFodder::Campaign_Selection() {
 
         // Load a new version?
         if (Version && Version != mVersionCurrent) {
-            VersionLoad(Version);
+            VersionSwitch(Version);
         }
 
         // Set the default/starting version
@@ -4251,7 +4250,7 @@ void cFodder::Custom_ShowMapSelection() {
     // If demo data is loaded, we need to enture a retail release is loaded for the menu draw data
     if (mVersionCurrent->isDemo()) {
 
-        VersionLoad(mVersionDefault);
+        VersionSwitch(mVersionDefault);
     }
 
     Image_FadeOut();
@@ -4317,9 +4316,9 @@ bool cFodder::Recruit_Loop() {
     if (mVersionCurrent->isDemo()) {
 
         if (mCustom_Mode == eCustomMode_Set) {
-            VersionLoad(mVersionDefault);
+            VersionSwitch(mVersionDefault);
         }
-
+        // Failed to switch mode?
         if (mVersionCurrent->isDemo())
             return 0;
     }
@@ -4331,7 +4330,7 @@ bool cFodder::Recruit_Loop() {
 
     Recruit_Truck_Anim_Prepare();
     sub_16C6C();
-    Recruit_Render_LeftMenu();
+    Recruit_Render_Sidebar();
 
     mGraphics->Load_Hill_Data();
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
@@ -4517,7 +4516,7 @@ void cFodder::Recruit_Draw_Graves() {
 
 }
 
-void cFodder::Recruit_Render_LeftMenu() {
+void cFodder::Recruit_Render_Sidebar() {
     int16 SpriteType = 0xAD;
     int16 PosX = 0;
     int16 PosY = 0x18;
@@ -10501,7 +10500,7 @@ void cFodder::Game_Load() {
 
             auto Version = FindAvailableVersionForCampaignPlatform(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform);
 
-            VersionLoad(Version);
+            VersionSwitch(Version);
         }
 
         mMouse_Exit_Loop = 0;
@@ -11060,9 +11059,6 @@ void cFodder::Mission_Set_Initial_Weapon() {
 }
 
 void cFodder::Service_Show() {
-
-    //if (mVersionCurrent->isDemo()) 
-    //  return;
 
     WindowTitleSet(false);
 
@@ -11681,7 +11677,7 @@ void cFodder::Briefing_Show_PreReady() {
         return;
 
     if (!mVersionCurrent->hasGfx(eGFX_BRIEFING) && !mCampaign.isRandom())
-        VersionLoad(mVersionDefault);
+        VersionSwitch(mVersionDefault);
 
     mSurface->clearBuffer();
     mGraphics->PaletteSet();
@@ -20296,7 +20292,7 @@ Start:;
     mCampaign.Clear();
     mVersionDefault = 0;
     mVersionCurrent = 0;
-    VersionLoad(g_AvailableDataVersions[0]);
+    VersionSwitch(g_AvailableDataVersions[0]);
 
     //Playground();
 
@@ -20504,10 +20500,10 @@ int16 cFodder::Mission_Loop() {
             // Game over?
             if (!mGame_Data.mRecruits_Available_Count) {
 
-                if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
+                // Retail/Custom Set can do the service screen
+                if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set) {
 
-                    // Custom can do the service screen
-                    if (!mMission_Aborted && mVersionCurrent->isCustom())
+                    if (!mMission_Aborted)
                         Service_Show();
                 }
                 break;
@@ -20520,10 +20516,10 @@ int16 cFodder::Mission_Loop() {
             continue;
         }
 
-        // Demo/Single mission 
+        // Demo/Single mission, but not set mode (its handled at the end of the loop)
         if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
-            // Custom can do the service screen
+            // Custom can do the service screen, as it requires the 
             if (!mMission_Aborted && mVersionCurrent->isCustom())
                 Service_Show();
 

@@ -670,7 +670,7 @@ public:
     void            Recruit_Truck_Anim_Prepare();
     void            Recruit_Truck_Anim_CopyFrames(uint16** pDi, const int16* pSource);
     void            sub_16C6C();
-    void            Recruit_Render_LeftMenu();
+    void            Recruit_Render_Sidebar();
     void            Recruit_Render_Squad_Names();
     void            Recruit_Render_Squad_RankKills();
     void            Recruit_Render_Number(int16 pNumber, int16 pData10);
@@ -1242,5 +1242,5 @@ public:
     bool            Menu_Draw(const std::function<void()> pButtonHandler);
 
     void            VersionCleanup();
-    void            VersionLoad(const sVersion* pVersion);
+    void            VersionSwitch(const sVersion* pVersion);
 };
