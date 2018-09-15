@@ -270,7 +270,7 @@ struct sSprite {
 	int8 field_55;
 	int8 field_56;
 	int8 field_57;			// Human: Weapon Fired Cooldown
-	int8 field_58;
+	int8 field_58;          // Has Shadow
 	int8 field_59;
 	int8 field_5A;
 	int8 field_5B;			// Human: Is Sinking
