@@ -72,6 +72,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	}
 
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, 0 );
+
 	SetCursor();
 
 #ifdef _DEBUG

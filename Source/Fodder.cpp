@@ -20501,9 +20501,15 @@ int16 cFodder::Mission_Loop() {
         else {
             mKeyCode = 0;
             mMission_In_Progress = false;
+            // Game over?
             if (!mGame_Data.mRecruits_Available_Count) {
 
-                Service_Show();
+                if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
+
+                    // Custom can do the service screen
+                    if (!mMission_Aborted && mVersionCurrent->isCustom())
+                        Service_Show();
+                }
                 break;
             }
         }
