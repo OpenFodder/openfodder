@@ -2921,27 +2921,27 @@ void cFodder::eventProcess() {
             break;
 
         case eEvent_MouseLeftDown:
-            mMousePosition = Event.mPosition;
+            mMouse_LastEventPosition = Event.mPosition;
             mMouseButtons |= 1;
             break;
 
         case eEvent_MouseRightDown:
-            mMousePosition = Event.mPosition;
+            mMouse_LastEventPosition = Event.mPosition;
             mMouseButtons |= 2;
             break;
 
         case eEvent_MouseLeftUp:
-            mMousePosition = Event.mPosition;
+            mMouse_LastEventPosition = Event.mPosition;
             mMouseButtons &= ~1;
             break;
 
         case eEvent_MouseRightUp:
-            mMousePosition = Event.mPosition;
+            mMouse_LastEventPosition = Event.mPosition;
             mMouseButtons &= ~2;
             break;
 
         case eEvent_MouseMove:
-            mMousePosition = Event.mPosition;
+            mMouse_LastEventPosition = Event.mPosition;
             break;
 
         case eEvent_None:
@@ -3055,8 +3055,8 @@ void cFodder::Mouse_GetData() {
 
     eventProcess();
 
-    mouse_Pos_Column = (int16)(mMousePosition.mX / scaleX) - 32;
-    mouse_Pos_Row = (int16)(mMousePosition.mY / scaleY) + 4;
+    mouse_Pos_Column = (int16)(mMouse_LastEventPosition.mX / scaleX) - 32;
+    mouse_Pos_Row = (int16)(mMouse_LastEventPosition.mY / scaleY) + 4;
 
     mouse_Button_Status = mMouseButtons;
 }
