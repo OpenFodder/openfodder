@@ -100,7 +100,7 @@ public:
     cSurface*       mSurface;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
-    cPosition       mMousePosition;
+    cPosition       mMouse_LastEventPosition;
     uint32          mMouseButtons;
 
     uint16          mMapWidth;
@@ -239,12 +239,8 @@ public:
     int8            mSprite_Projectile_Counters[4];
     int8            mSprite_Missile_Projectile_Counters[4];
 
-    int16           mMouseX_Offset;
-    int16           mMouseY_Offset;
-    int16           mMouseSpriteNew;
-
     int32           dword_3A9FD;
-    int16           mMouseSetToCursor;
+
     int16           mSprites_Found_Count;
 
     int16           mSquad_Grenades[3];
@@ -266,14 +262,12 @@ public:
     int16           mSprite_Find_Distance;
     int32           mMapWidth_Pixels;
     int32           mMapHeight_Pixels;
-    int16           mMouseCursor_Enabled;
+
     int16           word_3AA55;
     int16           mRecruit_Render_Name_SmallGap;
     sRecruitRendered*           mRecruit_RenderedPtr;
     int16           mRecruit_Truck_Frame;
     int16           mRecruit_Truck_FrameAnimBufferPtr;
-
-    int16           mMouse_Button_LeftRight_Toggle2;
 
     int16           mSprite_Reached_Target;
     int16           mStoredSpriteFrame;
@@ -301,7 +295,7 @@ public:
     int8            mGUI_RefreshSquadGrenades[3];
     int8            mGUI_RefreshSquadRockets[3];
     int16           mSquad_CurrentWeapon[3];
-    int16           mMouseDisabled;
+
     int16           mGUI_Loop_Is_CurrentSquad;
     int16           word_3AC4B;
     int16           word_3AC4D;
@@ -418,8 +412,19 @@ public:
 
     uint16          mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
 
+    //cPosition       mMousePosition;
+    //cPosition       mMousePosition_Offset;
     int16           mMouseX;
     int16           mMouseY;
+    int16           mMouseX_Offset;
+    int16           mMouseY_Offset;
+
+    int16           mMouseCursor_Enabled;
+    int16           mMouse_Button_LeftRight_Toggle2;
+
+    int16           mMouseSpriteNew;
+    int16           mMouseSetToCursor;
+    int16           mMouseDisabled;
 
     uint16          mSquad_Grenade_SplitMode;
     uint16          mSquad_Rocket_SplitMode;
