@@ -3074,7 +3074,11 @@ void cFodder::Mouse_CursorHandle() {
 
                     // set game cursor x/y to border near system cursor
                     mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset);
-                    mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 4;
+
+                    if ((MouseGlobalPos.mY >= WindowPos.mY) && (MouseGlobalPos.mY <= (WindowPos.mY + 4)))
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 5;
+                    else
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 1;
                     return;
                 }
                 // Shouldnt reach here...
@@ -3097,8 +3101,8 @@ void cFodder::Mouse_CursorHandle() {
         mouse_Button_Status = mMouseButtons;
         
         // Need to check if the game cursor x is near a border
-        if (mMouseX <= -31 || mMouseX >= ((int)ScreenSize.mWidth) - 33) {
-            BorderMouse.mX = (mMouseX <= -31) ? WindowPos.mX : (WindowPos.mX + WindowSize.mWidth);
+        if (mMouseX <= -32 || mMouseX >= ((int)ScreenSize.mWidth) - 33) {
+            BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 2 : (WindowPos.mX + WindowSize.mWidth);
             BorderMouse.mY = WindowPos.mY + (mMouseY + mMouseY_Offset) * scaleY;
 
         // Need to check if the game cursor y is near a border
