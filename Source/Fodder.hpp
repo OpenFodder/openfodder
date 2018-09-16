@@ -411,8 +411,6 @@ public:
 
     uint16          mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
 
-    //cPosition       mMousePosition;
-    //cPosition       mMousePosition_Offset;
     int16           mMouseX;
     int16           mMouseY;
     int16           mMouseX_Offset;
@@ -1216,7 +1214,7 @@ public:
     void            Mouse_Setup();
     void            Mouse_Inputs_Get();
     void            Mouse_ButtonCheck();
-    void            Mouse_GetData();
+    void            Mouse_CursorHandle();
 
     void            eventProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
