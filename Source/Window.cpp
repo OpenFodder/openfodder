@@ -38,7 +38,6 @@ cWindow::cWindow() {
 
 	mRenderer = 0;
 
-    mHasMouse = false;
     mHasFocus = false;
 
 }
@@ -105,14 +104,6 @@ void cWindow::EventCheck() {
 
                     case SDL_WINDOWEVENT_FOCUS_GAINED:
                         mHasFocus = true;
-                        break;
-
-                    case SDL_WINDOWEVENT_ENTER:
-                        mHasMouse = true;
-                        break;
-
-                    case SDL_WINDOWEVENT_LEAVE:
-                        mHasMouse = false;
                         break;
                 }
             break;

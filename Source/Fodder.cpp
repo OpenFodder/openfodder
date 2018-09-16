@@ -3039,27 +3039,19 @@ void cFodder::Mouse_Setup() {
 
     mMouseX = 0x7F;
     mMouseY = 0x67;
-
-    //g_Window.SetMousePosition( cPosition(g_Window.GetWindowSize().mWidth / 2, g_Window.GetWindowSize().mHeight / 2 ) );
 }
 
-void cFodder::Mouse_GetData() {
+void cFodder::Mouse_CursorHandle() {
     static bool CursorGrabbed = false;
-
-    float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
-    float scaleY = ((float)mWindow->GetWindowSize().mHeight / mWindow->GetScreenSize().mHeight);
-
-    eventProcess();
-
-    // Calc the distance from the cursor to the centre of the window
-    int XDiff = (mMouse_CurrentEventPosition.mX - (g_Window.GetWindowSize().mWidth / 2));
-    int YDiff = (mMouse_CurrentEventPosition.mY - (g_Window.GetWindowSize().mHeight / 2));
+    int16 scaleX = (mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
+    int16 scaleY = (mWindow->GetWindowSize().mHeight / mWindow->GetScreenSize().mHeight);
 
     auto MouseGlobalPos = g_Window.GetMousePosition();
     auto ScreenSize = g_Window.GetScreenSize();
     auto WindowPos = g_Window.GetWindowPosition();
     auto WindowSize = g_Window.GetWindowSize();
-    int BorderExitWidth = 0;
+
+    eventProcess();
 
     if (!g_Window.hasFocusEvent() && CursorGrabbed)
         CursorGrabbed = false;
@@ -3070,8 +3062,8 @@ void cFodder::Mouse_GetData() {
         if (g_Window.hasFocusEvent()) {
 
             // If not, check if the system cursor x/y is inside our window
-            if (MouseGlobalPos.mX >= (WindowPos.mX) && MouseGlobalPos.mX <= (WindowPos.mX + WindowSize.mWidth) &&
-                (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.mHeight ))) {
+            if (MouseGlobalPos.mX >= (WindowPos.mX) && MouseGlobalPos.mX <= (WindowPos.mX + WindowSize.getWidth()) &&
+                (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.getHeight() ))) {
 
                 //   if yes; grab the window
                 if (!g_Window.isGrabbed()) {
@@ -3083,7 +3075,6 @@ void cFodder::Mouse_GetData() {
                     // set game cursor x/y to border near system cursor
                     mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset);
                     mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 4;
-
                     return;
                 }
                 // Shouldnt reach here...
@@ -3095,50 +3086,43 @@ void cFodder::Mouse_GetData() {
                 mInputMouseY = mInputMouseY;
                 return;
             }
-
         } else {
             // ; set system cursor outside the border
             g_Window.ReleaseMouse();
             CursorGrabbed = false;
         }
-
     } else {
+        cPosition BorderMouse;
 
         mouse_Button_Status = mMouseButtons;
-
+        
         // Need to check if the game cursor x is near a border
         if (mMouseX <= -31 || mMouseX >= ((int)ScreenSize.mWidth) - 33) {
-
-            //    if yes; release the window.
-            //          ; set system cursor outside the border
-            g_Window.ReleaseMouse();
-            CursorGrabbed = false;
-            
-            if(mMouseX <= 0)
-                g_Window.SetMousePosition(cPosition(WindowPos.mX - BorderExitWidth, WindowPos.mY + (mMouseY + mMouseY_Offset) * scaleY));
-            else
-                g_Window.SetMousePosition(cPosition(WindowPos.mX + WindowSize.mWidth + BorderExitWidth, WindowPos.mY + (mMouseY + mMouseY_Offset) * scaleY));
-
-            return;
-        }
+            BorderMouse.mX = (mMouseX <= -31) ? WindowPos.mX : (WindowPos.mX + WindowSize.mWidth);
+            BorderMouse.mY = WindowPos.mY + (mMouseY + mMouseY_Offset) * scaleY;
 
         // Need to check if the game cursor y is near a border
-        if (mMouseY <= 4 || mMouseY >= ((int)ScreenSize.mHeight) - (0 + BorderExitWidth)) {
-            //    if yes; release the window.
-            //          ; set system cursor outside the border
+        } else if (mMouseY <= 4 || mMouseY >= ((int)ScreenSize.mHeight)) {
+            BorderMouse.mX = WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX;
+            BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight);
+        }
+
+        //  if yes; set system cursor outside the border
+        if (BorderMouse.mX || BorderMouse.mY) {
             g_Window.ReleaseMouse();
             CursorGrabbed = false;
-
-            if (mMouseY <= 4)
-                g_Window.SetMousePosition(cPosition(WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX, WindowPos.mY - (BorderExitWidth + 4) ));
-            else
-                g_Window.SetMousePosition(cPosition(WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX, WindowPos.mY + WindowSize.mHeight + BorderExitWidth));
-
+            g_Window.SetMousePosition(BorderMouse);
             return;
         }
+
+        // Calc the distance from the cursor to the centre of the window
+        int XDiff = (mMouse_CurrentEventPosition.mX - (g_Window.GetWindowSize().getWidth() / 2));
+        int YDiff = (mMouse_CurrentEventPosition.mY - (g_Window.GetWindowSize().mHeight / 2));
+
         mInputMouseX = mMouseX + (XDiff / scaleX);
         mInputMouseY = mMouseY + (YDiff / scaleY);
 
+        // Set system cursor back to centre of window
         g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
     }
 
@@ -3146,7 +3130,7 @@ void cFodder::Mouse_GetData() {
 
 void cFodder::Mouse_Inputs_Get() {
 
-    Mouse_GetData();
+    Mouse_CursorHandle();
     Mouse_ButtonCheck();
 
     int16 Data4 = mInputMouseX;
@@ -3185,7 +3169,7 @@ loc_13B66:;
         Data0 = 4;
     else {
 
-        if (Data0 > (int16) mWindow->GetScreenSize().mHeight + 3)
+        if (Data0 > (int16)mWindow->GetScreenSize().mHeight + 3)
             Data0 = (int16)mWindow->GetScreenSize().mHeight + 3;
     }
 

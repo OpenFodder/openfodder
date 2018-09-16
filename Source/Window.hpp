@@ -34,7 +34,6 @@ class cWindow : public cSingleton<cWindow> {
 
 		bool				mWindowMode;
         bool                mHasFocus;
-        bool                mHasMouse;
 
 	protected:
 
@@ -88,5 +87,4 @@ class cWindow : public cSingleton<cWindow> {
 		const bool			GetWindowMode() const { return mWindowMode; }
         const bool          HasFocus();
         const bool          hasFocusEvent() const { return mHasFocus; }
-        const bool          HasMouse() const { return mHasMouse; }
 };
