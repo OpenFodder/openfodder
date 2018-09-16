@@ -10,7 +10,6 @@ env:
   - LLVM_VERSION=3.8.1
      
 before_install: 
-  - echo "yes" | sudo apt-add-repository ppa:zoogie/sdl2-snapshots 
   - sudo apt-get update
 
 cache:
@@ -20,7 +19,7 @@ cache:
 install: 
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir -p ${DEPS_DIR}
-  - sudo apt-get install libsdl2-dev libsdl2-mixer-dev
+  - sudo apt-get install -qq libsdl2-dev libsdl2-mixer-dev 
   - |
      if [[ "${LLVM_VERSION}" != "" ]]; then
        LLVM_DIR=${DEPS_DIR}/llvm-${LLVM_VERSION}
