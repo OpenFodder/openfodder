@@ -3068,6 +3068,8 @@ void cFodder::Mouse_Cursor_Handle() {
                     // If X > (WindowRightSide - 10)
                     if (MouseGlobalPos.mX >= (WindowPos.mX + WindowSize.mWidth) - 10)
                         mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset) - 5;
+                    else if (MouseGlobalPos.mX >= WindowPos.mX && MouseGlobalPos.mX <= (WindowPos.mX + 10))
+                        mInputMouseX = ((mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset)) + 5;
                     else
                         mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset) ;
 
@@ -3077,7 +3079,7 @@ void cFodder::Mouse_Cursor_Handle() {
                     else if (MouseGlobalPos.mY >= WindowPos.mY && MouseGlobalPos.mY <= (WindowPos.mY + 5))
                         mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 5;
                     else
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4;
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4 - (mMouseX_Offset/2);
                     return;
                 }
 
