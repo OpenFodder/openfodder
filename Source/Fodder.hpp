@@ -594,7 +594,7 @@ public:
     void            Camera_SetTargetToStartPosition();
     void            Camera_Pan_To_Target();
     void            Camera_Pan_Set_Speed();
-    void            Camera_Update_From_Mouse();
+    void            Camera_Update_Mouse_Position_For_Pan();
 
     void            sub_12018();
     void            Camera_Reset();
@@ -1214,7 +1214,7 @@ public:
     void            Mouse_Setup();
     void            Mouse_Inputs_Get();
     void            Mouse_ButtonCheck();
-    void            Mouse_CursorHandle();
+    void            Mouse_Cursor_Handle();
 
     void            eventProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
