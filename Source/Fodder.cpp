@@ -3073,12 +3073,15 @@ void cFodder::Mouse_CursorHandle() {
                     g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
 
                     // set game cursor x/y to border near system cursor
-                    mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset);
+                    if (MouseGlobalPos.mX >= (WindowPos.mX + WindowSize.mWidth))
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) + 5;
+                    else
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset);
 
                     if ((MouseGlobalPos.mY >= WindowPos.mY) && (MouseGlobalPos.mY <= (WindowPos.mY + 4)))
                         mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 5;
                     else
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 1;
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (4 + mMouseY_Offset);
                     return;
                 }
                 // Shouldnt reach here...
@@ -3102,8 +3105,8 @@ void cFodder::Mouse_CursorHandle() {
         
         // Need to check if the game cursor x is near a border
         if (mMouseX <= -32 || mMouseX >= ((int)ScreenSize.mWidth) - 33) {
-            BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 2 : (WindowPos.mX + WindowSize.mWidth);
-            BorderMouse.mY = WindowPos.mY + (mMouseY + mMouseY_Offset) * scaleY;
+            BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 2 : (WindowPos.mX + WindowSize.mWidth) + 3;
+            BorderMouse.mY = WindowPos.mY + (mMouseY + 4 + mMouseY_Offset) * scaleY;
 
         // Need to check if the game cursor y is near a border
         } else if (mMouseY <= 4 || mMouseY >= ((int)ScreenSize.mHeight)) {
@@ -10365,7 +10368,7 @@ void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
 
     Element->mX = mGUI_Temp_X - 3;
     Element->mWidth = mGUI_Temp_Width + 4;
-    Element->mY = mGUI_Temp_Y - 5;
+    Element->mY = mGUI_Temp_Y;
     Element->mHeight = mGUI_Draw_LastHeight + 5;
     Element->mMouseInsideFuncPtr = pFunction;
 
