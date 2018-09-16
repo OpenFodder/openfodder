@@ -24,9 +24,7 @@
 #include <chrono>
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
-
-#define ButtonToMouseVersion(x) case x: { Buttons[x].mMouseInsideFuncPtr = &cFodder::VersionSelect_##x; break; }
-            
+         
 const int32 CAMERA_PAN_SQUAD_ACCELARATION = 0x80000;        // Dos: Original 0x80000
 const int32 CAMERA_PAN_TO_SQUAD_ACCELERATION = 0x20000;     // Dos: Original 0x20000
 const int32 CAMERA_TOWARD_SQUAD_SPEED = 0x14;               // Dos: Original 0x14
@@ -285,7 +283,7 @@ int16 cFodder::Mission_Phase_Loop() {
         if (mImageFaded == -1)
             mImageFaded = mSurface->palette_FadeTowardNew();
 
-        Camera_Update_From_Mouse();
+        Camera_Update_Mouse_Position_For_Pan();
         if (mPaused == -1) {
             mPaused = 0;
         }
@@ -2119,27 +2117,20 @@ void cFodder::Camera_Pan_Set_Speed() {
         mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | CAMERA_PAN_SQUAD_ACCELARATION;    // (8 << 16);
 }
 
-void cFodder::Camera_Update_From_Mouse() {
+void cFodder::Camera_Update_Mouse_Position_For_Pan() {
 
     if (!word_3A054) {
 
         // Mouse in playfield?
         if (mMouseX > 0x0F) {
-            int16 Data0 = mCameraX >> 16;
-            Data0 -= mCamera_TileX;
-
-            mMouseX -= Data0;
-            Data0 = mCameraY >> 16;
-            Data0 -= mCamera_TileY;
-            mMouseY -= Data0;
-
-
+            mMouseX -= (mCameraX >> 16) - mCamera_TileX;
+            mMouseY -= (mCameraY >> 16) - mCamera_TileY;
         }
     }
 
     //loc_12007
-    mCamera_TileX = mCameraX >> 16;
-    mCamera_TileY = mCameraY >> 16;
+    mCamera_TileX = (mCameraX >> 16);
+    mCamera_TileY = (mCameraY >> 16);
 }
 
 void cFodder::sub_12018() {
@@ -3041,7 +3032,7 @@ void cFodder::Mouse_Setup() {
     mMouseY = 0x67;
 }
 
-void cFodder::Mouse_CursorHandle() {
+void cFodder::Mouse_Cursor_Handle() {
     static bool CursorGrabbed = false;
     int16 scaleX = (mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
     int16 scaleY = (mWindow->GetWindowSize().mHeight / mWindow->GetScreenSize().mHeight);
@@ -3073,24 +3064,28 @@ void cFodder::Mouse_CursorHandle() {
                     g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
 
                     // set game cursor x/y to border near system cursor
-                    if (MouseGlobalPos.mX >= (WindowPos.mX + WindowSize.mWidth))
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) + 5;
-                    else
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset);
 
-                    if ((MouseGlobalPos.mY >= WindowPos.mY) && (MouseGlobalPos.mY <= (WindowPos.mY + 4)))
+                    // If X > (WindowRightSide - 10)
+                    if (MouseGlobalPos.mX >= (WindowPos.mX + WindowSize.mWidth) - 10)
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset) - 5;
+                    else
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset) ;
+
+                    // If Y >= (WindowBottom - 5)
+                    if(MouseGlobalPos.mY >= (WindowPos.mY + WindowSize.mHeight) - 5)
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 3;
+                    else if (MouseGlobalPos.mY >= WindowPos.mY && MouseGlobalPos.mY <= (WindowPos.mY + 5))
                         mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 5;
                     else
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (4 + mMouseY_Offset);
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4;
                     return;
                 }
+
                 // Shouldnt reach here...
                 return;
 
             } else {
-                //   if no ; set previous position; return
-                mInputMouseX = mInputMouseX;
-                mInputMouseY = mInputMouseY;
+                //   if no ; return
                 return;
             }
         } else {
@@ -3105,7 +3100,7 @@ void cFodder::Mouse_CursorHandle() {
         
         // Need to check if the game cursor x is near a border
         if (mMouseX <= -32 || mMouseX >= ((int)ScreenSize.mWidth) - 33) {
-            BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 2 : (WindowPos.mX + WindowSize.mWidth) + 3;
+            BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.mWidth) + 3;
             BorderMouse.mY = WindowPos.mY + (mMouseY + 4 + mMouseY_Offset) * scaleY;
 
         // Need to check if the game cursor y is near a border
@@ -3137,7 +3132,7 @@ void cFodder::Mouse_CursorHandle() {
 
 void cFodder::Mouse_Inputs_Get() {
 
-    Mouse_CursorHandle();
+    Mouse_Cursor_Handle();
     Mouse_ButtonCheck();
 
     int16 Data4 = mInputMouseX;
