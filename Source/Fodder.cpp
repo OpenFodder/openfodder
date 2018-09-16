@@ -4294,8 +4294,8 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
 
             mMouse_Button_Left_Toggle = 0;
             mSprites[0].field_57 = -1;
-            mSprites[0].field_2E = mSquad_Leader->field_26;
-            mSprites[0].field_30 = mSquad_Leader->field_28;
+            mSprites[0].field_2E = mSquad_Leader->field_26 + 18;
+            mSprites[0].field_30 = mSquad_Leader->field_28 - 10;
 
             Timedown = 10;
         }
