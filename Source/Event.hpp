@@ -31,7 +31,9 @@ enum eEventType {
 	eEvent_MouseRightUp		= 7,
 	eEvent_MouseWheelUp		= 8,
 	eEvent_MouseWheelDown	= 9,
-	eEvent_Quit				= 10
+	eEvent_Quit				= 10,
+    eEvent_WindowMouseIn,
+    eEvent_WindowMouseOut
 };
 
 class cEvent {

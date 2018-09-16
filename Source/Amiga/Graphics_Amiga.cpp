@@ -1524,7 +1524,7 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 		mFodder->Video_Sleep();
         mFodder->Video_SurfaceRender();
 
-		mFodder->Mouse_GetData();
+		mFodder->Mouse_Inputs_Get();
 
 		if (mFodder->mMouse_Exit_Loop || mFodder->mMission_Aborted) {
 			mFodder->word_428D8 = 0;

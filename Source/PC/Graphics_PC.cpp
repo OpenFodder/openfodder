@@ -410,7 +410,7 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	uint8*	Buffer = mSurface->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
 
-	Buffer += (16 * mSurface->GetWidth()) + 16;
+	Buffer += (16 * mSurface->GetWidth()) +     16;
 
 	for (unsigned int Y = 0; Y < 200; ++Y) {
 
@@ -989,7 +989,7 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 
 		mFodder->Video_Sleep();
         mFodder->Video_SurfaceRender();
-        mFodder->Mouse_GetData();
+        mFodder->Mouse_Inputs_Get();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
@@ -1071,7 +1071,7 @@ void cGraphics_PC::Mission_Intro_Desert() {
 		mFodder->Video_Sleep();
         mFodder->Video_SurfaceRender();
 
-		mFodder->Mouse_GetData();
+		mFodder->Mouse_Inputs_Get();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
@@ -1155,7 +1155,7 @@ void cGraphics_PC::Mission_Intro_Ice() {
 		mFodder->Video_Sleep();
         mFodder->Video_SurfaceRender();
 
-		mFodder->Mouse_GetData();
+		mFodder->Mouse_Inputs_Get();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
@@ -1236,7 +1236,7 @@ void cGraphics_PC::Mission_Intro_Mor() {
 		mFodder->Video_Sleep();
         mFodder->Video_SurfaceRender();
 
-		mFodder->Mouse_GetData();
+		mFodder->Mouse_Inputs_Get();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
@@ -1317,7 +1317,7 @@ void cGraphics_PC::Mission_Intro_Int() {
 
 		mFodder->Video_Sleep();
 		mFodder->Video_SurfaceRender();
-		mFodder->Mouse_GetData();
+		mFodder->Mouse_Inputs_Get();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
