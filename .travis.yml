@@ -11,7 +11,7 @@ env:
      
 before_install: 
   - sudo apt-get update
-
+  - sudo apt-get install libsdl2-dev libsdl2-mixer-dev 
 cache:
   directories:
     - ${TRAVIS_BUILD_DIR}/deps/llvm-3.8.1
@@ -19,7 +19,6 @@ cache:
 install: 
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir -p ${DEPS_DIR}
-  - sudo apt-get install -qq libsdl2-dev libsdl2-mixer-dev 
   - |
      if [[ "${LLVM_VERSION}" != "" ]]; then
        LLVM_DIR=${DEPS_DIR}/llvm-${LLVM_VERSION}
