@@ -100,7 +100,8 @@ public:
     cSurface*       mSurface;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
-    cPosition       mMouse_LastEventPosition;
+    cPosition       mMouse_CurrentEventPosition;
+
     uint32          mMouseButtons;
 
     uint16          mMapWidth;
@@ -503,8 +504,8 @@ public:
     int16           mKeyNumberPressed;
 
     int16           mouse_Button_Status;
-    int16           mouse_Pos_Column;
-    int16           mouse_Pos_Row;
+    int16           mInputMouseX;
+    int16           mInputMouseY;
 
     int16           mService_Promotion_Exit_Loop;
 
@@ -587,7 +588,7 @@ public:
     void            Mission_Troop_Prepare_Next_Recruits();
     void            Mission_Troop_Attach_Sprites();
 
-    void            Camera_PanTarget_Update();
+    void            Camera_Speed_Update_From_PanTarget();
     int16           sub_119E1(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
     void            Camera_Speed_Calculate();

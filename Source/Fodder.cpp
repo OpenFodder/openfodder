@@ -67,8 +67,8 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
     mMouseButtons = 0;
 
     mouse_Button_Status = 0;
-    mouse_Pos_Column = 0;
-    mouse_Pos_Row = 0;
+    mInputMouseX = 0;
+    mInputMouseY = 0;
 
     mButtonPressLeft = mButtonPressRight = 0;
     mMouse_Button_Left_Toggle = mMouse_Exit_Loop = 0;
@@ -124,6 +124,9 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
     mDraw_Source_SkipPixelsPerRow = 0;
     mDraw_Dest_SkipPixelsPerRow = 0;
     mKeyCode = 0;
+
+    mCameraX = 0;
+    mCameraY = 0;
 
     mMapTile_Column_New = 0;
     mMapTile_Row_New = 0;
@@ -377,7 +380,7 @@ void cFodder::Camera_Handle() {
         Camera_Speed_MaxSet();
         Camera_Speed_Calculate();
         Camera_TileSpeedX_Set();
-        Camera_PanTarget_Update();
+        Camera_Speed_Update_From_PanTarget();
         Camera_PanTarget_AdjustToward_SquadLeader();
         Camera_Acceleration_Set();
     }
@@ -388,7 +391,6 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
         return;
 
     int16 SquadLeaderX = mSquad_Leader->field_0 + 0x18;
-
     int16 SquadLeaderY = mSquad_Leader->field_4;
     int16 Data18 = SquadLeaderX;
     int16 Data1C = SquadLeaderY;
@@ -434,10 +436,8 @@ Mouse_In_Playfield:;
     word_39F40 = 0;
     word_39F3C = SquadLeaderX;
     word_39F3E = SquadLeaderY;
-    Data0 = mMouseX;
-    Data0 += mCameraX >> 16;
-    Data4 = mMouseY;
-    Data4 += mCameraY >> 16;
+    Data0 = mMouseX + (mCameraX >> 16);
+    Data4 = mMouseY + (mCameraY >> 16);
 
     int16 Data0_Saved = Data0;
     int16 Data4_Saved = Data4;
@@ -447,12 +447,9 @@ Mouse_In_Playfield:;
     Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, SquadLeaderX, SquadLeaderY);
 
     if (mSquad_CurrentVehicle) {
-
         if (Data0 >= 0x64)
             Data0 = 0x64;
-    }
-    else {
-
+    } else {
         if (Data0 >= 0x8C)
             Data0 = 0x8C;
     }
@@ -461,27 +458,24 @@ Mouse_In_Playfield:;
 
     SquadLeaderX = Data8_Saved;
     SquadLeaderY = DataC_Saved;
-    Data4 = Data4_Saved;
-    Data0 = Data0_Saved;
+    Data4 = Data4_Saved;    // MouseY
+    Data0 = Data0_Saved;    // MouseX
 
 
     if (Direction_Between_Points(Data0, Data4, SquadLeaderX, SquadLeaderY) < 0)
         return;
 
-    SquadLeaderX = mMap_Direction_Calculations[Data4 / 2];
+    int32 DirectionX = mMap_Direction_Calculations[Data4 / 2];
     Data4 += 0x80;
     Data4 &= 0X1FE;
 
-    SquadLeaderY = mMap_Direction_Calculations[Data4 / 2];
+    int32 DirectionY = mMap_Direction_Calculations[Data4 / 2];
 
-    int32 Dataa8 = SquadLeaderX * word_3ABFD;
-    int32 DataaC = SquadLeaderY * word_3ABFD;
+    DirectionX = (DirectionX * word_3ABFD) >> 16;
+    DirectionY = (DirectionY * word_3ABFD) >> 16;
 
-    SquadLeaderX = Dataa8 >> 16;
-    SquadLeaderY = DataaC >> 16;
-
-    Data18 += SquadLeaderX;
-    Data1C += SquadLeaderY;
+    Data18 += DirectionX;
+    Data1C += DirectionY;
     Data18 -= 0x18;
 
     if (Data18 < 0)
@@ -1470,7 +1464,7 @@ void cFodder::Mission_Troop_Attach_Sprites() {
     }
 }
 
-void cFodder::Camera_PanTarget_Update() {
+void cFodder::Camera_Speed_Update_From_PanTarget() {
     int16 Data4 = mCamera_PanTargetY;
     Data4 -= 108;
 
@@ -2921,27 +2915,27 @@ void cFodder::eventProcess() {
             break;
 
         case eEvent_MouseLeftDown:
-            mMouse_LastEventPosition = Event.mPosition;
+            mMouse_CurrentEventPosition = Event.mPosition;
             mMouseButtons |= 1;
             break;
 
         case eEvent_MouseRightDown:
-            mMouse_LastEventPosition = Event.mPosition;
+            mMouse_CurrentEventPosition = Event.mPosition;
             mMouseButtons |= 2;
             break;
 
         case eEvent_MouseLeftUp:
-            mMouse_LastEventPosition = Event.mPosition;
+            mMouse_CurrentEventPosition = Event.mPosition;
             mMouseButtons &= ~1;
             break;
 
         case eEvent_MouseRightUp:
-            mMouse_LastEventPosition = Event.mPosition;
+            mMouse_CurrentEventPosition = Event.mPosition;
             mMouseButtons &= ~2;
             break;
 
         case eEvent_MouseMove:
-            mMouse_LastEventPosition = Event.mPosition;
+            mMouse_CurrentEventPosition = Event.mPosition;
             break;
 
         case eEvent_None:
@@ -3050,31 +3044,104 @@ void cFodder::Mouse_Setup() {
 }
 
 void cFodder::Mouse_GetData() {
+    static bool CursorGrabbed = false;
+
     float scaleX = ((float)mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
     float scaleY = ((float)mWindow->GetWindowSize().mHeight / mWindow->GetScreenSize().mHeight);
 
     eventProcess();
 
-    auto newPosX = (int16)(mMouse_LastEventPosition.mX / scaleX) - 32;
-    auto newPosY = (int16)(mMouse_LastEventPosition.mY / scaleY) + 4;
+    // Calc the distance from the cursor to the centre of the window
+    int XDiff = (mMouse_CurrentEventPosition.mX - (g_Window.GetWindowSize().mWidth / 2));
+    int YDiff = (mMouse_CurrentEventPosition.mY - (g_Window.GetWindowSize().mHeight / 2));
 
-    // Has the system cursor moved since last cycle?
-    if (newPosX != mouse_Pos_Column || newPosY != mouse_Pos_Row) {
+    auto MouseGlobalPos = g_Window.GetMousePosition();
+    auto ScreenSize = g_Window.GetScreenSize();
+    auto WindowPos = g_Window.GetWindowPosition();
+    auto WindowSize = g_Window.GetWindowSize();
+    int BorderExitWidth = 0;
 
-        //mCameraX = 0;
-        //mCameraY = 0;
+    if (!g_Window.hasFocusEvent() && CursorGrabbed)
+        CursorGrabbed = false;
+
+    // Check if the system mouse is grabbed
+    if (!CursorGrabbed) {
+
+        if (g_Window.hasFocusEvent()) {
+
+            // If not, check if the system cursor x/y is inside our window
+            if (MouseGlobalPos.mX >= (WindowPos.mX) && MouseGlobalPos.mX <= (WindowPos.mX + WindowSize.mWidth) &&
+                (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.mHeight ))) {
+
+                //   if yes; grab the window
+                if (!g_Window.isGrabbed()) {
+                    CursorGrabbed = true;
+
+                    g_Window.GrabMouse();
+                    g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
+
+                    // set game cursor x/y to border near system cursor
+                    mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset);
+                    mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 4;
+
+                    return;
+                }
+                // Shouldnt reach here...
+                return;
+
+            } else {
+                //   if no ; set previous position; return
+                mInputMouseX = mInputMouseX;
+                mInputMouseY = mInputMouseY;
+                return;
+            }
+
+        } else {
+            // ; set system cursor outside the border
+            g_Window.ReleaseMouse();
+            CursorGrabbed = false;
+        }
+
+    } else {
+
+        mouse_Button_Status = mMouseButtons;
+
+        // Need to check if the game cursor x is near a border
+        if (mMouseX <= -31 || mMouseX >= ((int)ScreenSize.mWidth) - 33) {
+
+            //    if yes; release the window.
+            //          ; set system cursor outside the border
+            g_Window.ReleaseMouse();
+            CursorGrabbed = false;
+            
+            if(mMouseX <= 0)
+                g_Window.SetMousePosition(cPosition(WindowPos.mX - BorderExitWidth, WindowPos.mY + (mMouseY + mMouseY_Offset) * scaleY));
+            else
+                g_Window.SetMousePosition(cPosition(WindowPos.mX + WindowSize.mWidth + BorderExitWidth, WindowPos.mY + (mMouseY + mMouseY_Offset) * scaleY));
+
+            return;
+        }
+
+        // Need to check if the game cursor y is near a border
+        if (mMouseY <= 4 || mMouseY >= ((int)ScreenSize.mHeight) - (0 + BorderExitWidth)) {
+            //    if yes; release the window.
+            //          ; set system cursor outside the border
+            g_Window.ReleaseMouse();
+            CursorGrabbed = false;
+
+            if (mMouseY <= 4)
+                g_Window.SetMousePosition(cPosition(WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX, WindowPos.mY - (BorderExitWidth + 4) ));
+            else
+                g_Window.SetMousePosition(cPosition(WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX, WindowPos.mY + WindowSize.mHeight + BorderExitWidth));
+
+            return;
+        }
+        mInputMouseX = mMouseX + (XDiff / scaleX);
+        mInputMouseY = mMouseY + (YDiff / scaleY);
+
+        g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
     }
-    else {
-        //newPosX -= (mCameraX >> 16);
-        //newPosY -= (mCameraY >> 16);
 
-        //g_Window.SetMousePosition(cPosition(newPosX * scaleX + 32, newPosY * scaleY - 4));
-    }
-
-    mouse_Pos_Column = newPosX;
-    mouse_Pos_Row = newPosY;
-
-    mouse_Button_Status = mMouseButtons;
 }
 
 void cFodder::Mouse_Inputs_Get() {
@@ -3082,7 +3149,7 @@ void cFodder::Mouse_Inputs_Get() {
     Mouse_GetData();
     Mouse_ButtonCheck();
 
-    int16 Data4 = mouse_Pos_Column;
+    int16 Data4 = mInputMouseX;
 
     if (word_3A024 == 0)
         goto loc_13B3A;
@@ -3112,7 +3179,7 @@ loc_13B58:;
 loc_13B66:;
     mMouseX = Data4;
 
-    int16 Data0 = mouse_Pos_Row;
+    int16 Data0 = mInputMouseY;
 
     if (Data0 < 4)
         Data0 = 4;
@@ -4050,6 +4117,8 @@ void cFodder::Campaign_Selection() {
     mGraphics->PaletteSet();
 
     mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
+    mMouseX_Offset = -8;
+    mMouseY_Offset = -8;
 
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
@@ -17744,11 +17813,11 @@ void cFodder::Vehicle_Input_Handle() {
 
     if (Data20 == INVALID_SPRITE_PTR)
         return;
-    int16 Data0 = mMouseX;
-    int16 Data4 = mMouseY;
-    Data0 += mCameraX >> 16;
-    Data4 += mCameraY >> 16;
+    int16 Data0 = mMouseX + (mCameraX >> 16);
+    int16 Data4 = mMouseY + (mCameraY >> 16);
+
     Data0 -= 0x1C;
+
     if (Data0 < 0)
         Data0 = 0;
     Data4 += 6;
@@ -17765,6 +17834,7 @@ void cFodder::Vehicle_Input_Handle() {
 
     mCamera_PanTargetX = Data0;
     mCamera_PanTargetY = Data4;
+
     word_3A054 = 0;
 
     Data20->field_26 = Data0;
@@ -18039,6 +18109,8 @@ void cFodder::intro_LegionMessage() {
 
     while (mImageFaded == -1 || DoBreak == false) {
 
+        Mouse_Inputs_Get();
+
         if (mImageFaded)
             mImageFaded = mSurface->palette_FadeTowardNew();
 
@@ -18106,7 +18178,7 @@ int16 cFodder::intro_Play() {
                 if (Fade)
                     Fade = mSurface->palette_FadeTowardNew();
 
-                Mouse_GetData();
+                Mouse_Inputs_Get();
                 if (mouse_Button_Status) {
 
                     if (mVersionCurrent->mIntroData.size() >= 2)
@@ -18262,7 +18334,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
 
     mImageFaded = -1;
     while (mImageFaded == -1 || DoBreak == false) {
-        Mouse_GetData();
+        Mouse_Inputs_Get();
         --pDuration;
 
         if (pDuration) {
@@ -21777,10 +21849,8 @@ loc_30814:;
     if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0)
         return;
 
-    Data0 = mMouseX;
-    Data4 = mMouseY;
-    Data0 += mCameraX >> 16;
-    Data4 += mCameraY >> 16;
+    Data0 = mMouseX + (mCameraX >> 16);
+    Data4 = mMouseY + (mCameraY >> 16);
 
     Data0 += -22;
     if (Data0 < 0)
@@ -21795,6 +21865,7 @@ loc_30814:;
 
     mCamera_PanTargetX = Data0;
     mCamera_PanTargetY = Data4;
+
     word_3A054 = 0;
 
     for (auto& Troop : mGame_Data.mMission_Troops) {

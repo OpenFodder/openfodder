@@ -37,6 +37,10 @@ cWindow::cWindow() {
 	mWindow = 0;
 
 	mRenderer = 0;
+
+    mHasMouse = false;
+    mHasFocus = false;
+
 }
 
 cWindow::~cWindow() {
@@ -92,6 +96,27 @@ void cWindow::EventCheck() {
 		cEvent Event;
 
 		switch (SysEvent.type) {
+            case SDL_WINDOWEVENT:
+
+                switch (SysEvent.window.event ) {
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                        mHasFocus = false;
+                        break;
+
+                    case SDL_WINDOWEVENT_FOCUS_GAINED:
+                        mHasFocus = true;
+                        break;
+
+                    case SDL_WINDOWEVENT_ENTER:
+                        mHasMouse = true;
+                        break;
+
+                    case SDL_WINDOWEVENT_LEAVE:
+                        mHasMouse = false;
+                        break;
+                }
+            break;
+
 			case SDL_KEYDOWN:
 				Event.mType = eEvent_KeyDown;
 				Event.mButton = SysEvent.key.keysym.scancode;
@@ -303,6 +328,20 @@ void cWindow::SetCursor() {
 	SDL_ShowCursor(0);
 }
 
+bool cWindow::isGrabbed() {
+    if (SDL_GetWindowGrab(mWindow) == SDL_TRUE)
+        return true;
+
+    return false;
+}
+void cWindow::GrabMouse() {
+    SDL_SetWindowGrab(mWindow, SDL_TRUE);
+}
+
+void cWindow::ReleaseMouse() {
+    SDL_SetWindowGrab(mWindow, SDL_FALSE);
+}
+
 void cWindow::SetFullScreen() {
 
 	if (mWindowMode) {
@@ -321,9 +360,22 @@ void cWindow::SetFullScreen() {
 	}
 }
 
-void cWindow::SetMousePosition( const cPosition& pPosition ) {
+void cWindow::SetMouseWindowPosition( const cPosition& pPosition ) {
 
 	SDL_WarpMouseInWindow( mWindow, pPosition.getX(), pPosition.getY() );
+}
+
+const cPosition cWindow::GetMousePosition() {
+    cPosition Position;
+
+    SDL_GetGlobalMouseState(&Position.mX, &Position.mY);
+
+    return Position;
+}
+
+void cWindow::SetMousePosition(const cPosition& pPosition) {
+
+    SDL_WarpMouseGlobal(pPosition.getX(), pPosition.getY());
 }
 
 void cWindow::SetScreenSize( const cDimension& pDimension ) {
@@ -358,7 +410,24 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 		PositionWindow();
 	}
 }
+
+const cPosition cWindow::GetWindowPosition() const {
+    cPosition Pos;
+
+    SDL_GetWindowPosition(mWindow, &Pos.mX, &Pos.mY);
+
+    return Pos;
+}
+
 const cDimension cWindow::GetWindowSize() const {
 
 	return cDimension( mOriginalResolution.mWidth * mWindow_Multiplier, mOriginalResolution.mHeight * mWindow_Multiplier ); 
+}
+
+const bool cWindow::HasFocus() {
+
+    if (SDL_GetWindowFlags(mWindow) & SDL_WINDOW_MOUSE_FOCUS)
+        return true;
+
+    return false;
 }

@@ -33,6 +33,8 @@ class cWindow : public cSingleton<cWindow> {
 		uint8				mWindow_Multiplier, mWindow_MultiplierPrevious;
 
 		bool				mWindowMode;
+        bool                mHasFocus;
+        bool                mHasMouse;
 
 	protected:
 
@@ -61,8 +63,16 @@ class cWindow : public cSingleton<cWindow> {
 		void				WindowIncrease();
 		void				WindowDecrease();
 
+        bool                isGrabbed();
+        void                GrabMouse();
+        void                ReleaseMouse();
+
 		void				SetCursor();
-		void				SetMousePosition( const cPosition& pPosition );
+
+        const cPosition     GetMousePosition();
+        void				SetMousePosition(const cPosition& pPosition);
+		void				SetMouseWindowPosition( const cPosition& pPosition );
+
 		void				SetScreenSize( const cDimension& pDimension );
 		void				SetOriginalRes( const cDimension& pDimension );
 
@@ -72,7 +82,11 @@ class cWindow : public cSingleton<cWindow> {
 
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
+        const cPosition     GetWindowPosition() const;
 		const cDimension	GetWindowSize() const;
 		const cDimension	GetScreenSize() const { return mScreenSize; }
 		const bool			GetWindowMode() const { return mWindowMode; }
+        const bool          HasFocus();
+        const bool          hasFocusEvent() const { return mHasFocus; }
+        const bool          HasMouse() const { return mHasMouse; }
 };

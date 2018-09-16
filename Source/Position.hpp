@@ -22,7 +22,7 @@
 
 class cPosition {
 	public:
-		int64 mX, mY;
+		int32 mX, mY;
 
 	public:
 				cPosition() : mX( 0 ), mY( 0 ) {}
@@ -55,4 +55,12 @@ class cPosition {
 
 		int getY() const { return (int) mY; }
 		int getX() const { return (int) mX; }
+
+        inline int16 x(const cPosition& pPosition) const {
+            return (int16)mX;
+        }
+
+        inline int16 y(const cPosition& pPosition) const {
+            return (int16)mX;
+        }
 };
