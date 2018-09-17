@@ -3042,6 +3042,9 @@ void cFodder::Mouse_Cursor_Handle() {
     int16 scaleX = (WindowSize.mWidth / ScreenSize.mWidth);
     int16 scaleY = (WindowSize.mHeight / ScreenSize.mHeight);
 
+    if (scaleY == 0)
+        scaleY = 1;
+
     eventProcess();
 
     if (!g_Window.hasFocusEvent() && CursorGrabbed)
@@ -3088,7 +3091,7 @@ void cFodder::Mouse_Cursor_Handle() {
                     // Check Top
                     if (MouseGlobalPos.mY <= (TopBorder + 10 * scaleY)) {
                         mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset + 5);
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset + 3);
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset) + 3;
                     }
                     // Check Bottom
                     if (MouseGlobalPos.mY >= (BottomBorder - 10 * scaleY)) {
