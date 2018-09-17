@@ -3082,7 +3082,7 @@ void cFodder::Mouse_Cursor_Handle() {
                     }
                     // Check Right, because the mouse can leap into the window, we accept half way onwards
                     if (MouseGlobalPos.mX >= (RightBorder - (WindowSize.getWidth() / 2))) {
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset);
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset) - 4;
                         mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset);
                     }
                     // Check Top
