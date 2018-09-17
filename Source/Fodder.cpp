@@ -12240,10 +12240,8 @@ loc_19424:; // Soldier Walking
     Sprite_Draw_Row_Update(pSprite);
 
     if (pSprite->field_0 == pSprite->field_26) {
-
         if (pSprite->field_4 == pSprite->field_28)
             Sprite_Next_WalkTarget_Set(pSprite);
-
     }
     //loc_19463
     if (mSprite_Reached_Target)
@@ -18961,7 +18959,7 @@ void cFodder::Sprite_Handle_Player_Close_To_SquadMember(sSprite* pSprite) {
     if (Data24->field_4 + 2 < pSprite->field_4 - 2)
         return;
 
-    if (pSprite->field_4 + 2 < Data24->field_4 + 2)
+    if (pSprite->field_4 + 2 < Data24->field_4 - 2)
         return;
 
     // In Vehicle?
