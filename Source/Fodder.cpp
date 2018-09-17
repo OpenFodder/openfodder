@@ -3085,7 +3085,7 @@ void cFodder::Mouse_Cursor_Handle() {
                     }
                     // Check Right, because the mouse can leap into the window, we accept half way onwards
                     if (MouseGlobalPos.mX >= (RightBorder - (WindowSize.getWidth() / 2))) {
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset) - 4;
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset) - 8;
                         mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset);
                     }
                     // Check Top
@@ -3122,7 +3122,7 @@ void cFodder::Mouse_Cursor_Handle() {
         
         // Need to check if the game cursor x is near a border
         if (mMouseX <= -32 || mMouseX >= ScreenSize.getWidth() - 33) {
-            BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.mWidth) + 3;
+            BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
             BorderMouse.mY = WindowPos.mY + (mMouseY + 4 + mMouseY_Offset) * scaleY;
 
         // Need to check if the game cursor y is near a border
@@ -3132,13 +3132,13 @@ void cFodder::Mouse_Cursor_Handle() {
         }
 
         // Top Left / Top Right Corner
-        if (mMouseX <= -16 && mMouseY <= 8 || mMouseX >= (ScreenSize.mWidth - 33) && mMouseY <= 8) {
+        if (mMouseX <= -24 && mMouseY <= 8 || mMouseX >= (ScreenSize.getWidth() - 36) && mMouseY <= 8) {
             BorderMouse.mX = 0;
             BorderMouse.mY = 0;
         }
 
         // Bottom Left / Bottom Right
-        if ((mMouseX <= -16 && mMouseY >= ScreenSize.getHeight() - 4) || (mMouseX >= (ScreenSize.mWidth - 33) && mMouseY >= ScreenSize.getHeight() - 4)) {
+        if ((mMouseX <= -24 && mMouseY >= ScreenSize.getHeight() - 4) || (mMouseX >= (ScreenSize.getWidth() - 36) && mMouseY >= ScreenSize.getHeight() - 4)) {
             BorderMouse.mX = 0;
             BorderMouse.mY = 0;
         }
