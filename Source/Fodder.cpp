@@ -3056,30 +3056,47 @@ void cFodder::Mouse_Cursor_Handle() {
             if (MouseGlobalPos.mX >= (WindowPos.mX) && MouseGlobalPos.mX <= (WindowPos.mX + WindowSize.getWidth()) &&
                 (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.getHeight() ))) {
 
-                //   if yes; grab the window
+                //   if yes; grab the mouse
                 if (!g_Window.isGrabbed()) {
+                    auto LeftBorder = WindowPos.mX;
+                    auto RightBorder = WindowPos.mX + WindowSize.getWidth();
+                    auto TopBorder = WindowPos.mY;
+                    auto BottomBorder = WindowPos.mY + WindowSize.getHeight();
+
                     CursorGrabbed = true;
 
                     g_Window.GrabMouse();
                     g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
 
+                    int16 XOffset = 32;// -(mMouseX_Offset / 2);
+                    int16 YOffset = 4;// -mMouseY_Offset / 2;
+                    if (mMouseX_Offset || mMouseY_Offset) {
+                        XOffset = 25;
+                        YOffset = -4;
+                    }
                     // set game cursor x/y to border near system cursor
-
-                    // If X > (WindowRightSide - 10)
-                    if (MouseGlobalPos.mX >= (WindowPos.mX + WindowSize.mWidth) - 10)
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset) - 5;
-                    else if (MouseGlobalPos.mX >= WindowPos.mX && MouseGlobalPos.mX <= (WindowPos.mX + 10))
-                        mInputMouseX = ((mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset)) + 5;
-                    else
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (38 + mMouseX_Offset) ;
-
-                    // If Y >= (WindowBottom - 5)
-                    if(MouseGlobalPos.mY >= (WindowPos.mY + WindowSize.mHeight) - 5)
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 3;
-                    else if (MouseGlobalPos.mY >= WindowPos.mY && MouseGlobalPos.mY <= (WindowPos.mY + 5))
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 5;
-                    else
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4 - (mMouseX_Offset/2);
+                    // Check Left
+                    if (MouseGlobalPos.mX <= (LeftBorder + (WindowSize.getWidth() / 2))) {
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset) + 4;
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset);
+                    }
+                    // Check Right, because the mouse can leap into the window, we accept half way onwards
+                    if (MouseGlobalPos.mX >= (RightBorder - (WindowSize.getWidth() / 2))) {
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset);
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset);
+                    }
+                    // Check Top
+                    if (MouseGlobalPos.mY <= (TopBorder + 10 * scaleY)) {
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset + 5);
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset) + 3;
+                    }
+                    // Check Bottom
+                    if (MouseGlobalPos.mY >= (BottomBorder - 10 * scaleY)) {
+                        if (YOffset < 0)
+                            YOffset = -YOffset;
+                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset + 5);
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset - 2);
+                    }
                     return;
                 }
 
@@ -3112,7 +3129,7 @@ void cFodder::Mouse_Cursor_Handle() {
         }
 
         //  if yes; set system cursor outside the border
-        if (BorderMouse.mX || BorderMouse.mY) {
+        if (CursorGrabbed && (BorderMouse.mX || BorderMouse.mY)) {
             g_Window.ReleaseMouse();
             CursorGrabbed = false;
             g_Window.SetMousePosition(BorderMouse);
@@ -8951,25 +8968,23 @@ void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquad
     if (pSquadNumber < 0 || pSquadNumber >= 3)
         return;
 
-    int16 Data0 = pSquadNumber;
+    pData10 = mSquad_Walk_Target_Indexes[pSquadNumber];
 
-    pData10 = mSquad_Walk_Target_Indexes[Data0];
-
-    sSprite** Data24 = mSquads[Data0];
+    sSprite** Data24 = mSquads[pSquadNumber];
 
     // Currently walking to a target?
-    if (mSquad_Walk_Target_Steps[Data0]) {
+    if (mSquad_Walk_Target_Steps[pSquadNumber]) {
 
         // Add this target to the queue
-        mSquad_WalkTargets[Data0][pData10].mX = pTargetX;
-        mSquad_WalkTargets[Data0][pData10].mY = pTargetY;
+        mSquad_WalkTargets[pSquadNumber][pData10].mX = pTargetX;
+        mSquad_WalkTargets[pSquadNumber][pData10].mY = pTargetY;
 
-        mSquad_WalkTargets[Data0][pData10 + 1].asInt = -1;
+        mSquad_WalkTargets[pSquadNumber][pData10 + 1].asInt = -1;
 
-        if (pData10 < (sizeof(mSquad_WalkTargets[Data0]) / sizeof(mSquad_WalkTargets[Data0][0])))   // 0x74
+        if (pData10 < (sizeof(mSquad_WalkTargets[pSquadNumber]) / sizeof(mSquad_WalkTargets[pSquadNumber][0])))   // 0x74
             pData10++;
 
-        mSquad_Walk_Target_Indexes[Data0] = pData10;
+        mSquad_Walk_Target_Indexes[pSquadNumber] = pData10;
         goto loc_2ABF8;
     }
 
@@ -8988,25 +9003,25 @@ void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquad
     }
 
     if (mSquad_WalkTargetX) {
-        mSquad_WalkTargets[Data0][pData10].mX = mSquad_WalkTargetX;
-        mSquad_WalkTargets[Data0][pData10].mY = mSquad_WalkTargetY;
+        mSquad_WalkTargets[pSquadNumber][pData10].mX = mSquad_WalkTargetX;
+        mSquad_WalkTargets[pSquadNumber][pData10].mY = mSquad_WalkTargetY;
         pData10 += 1;
     }
     //loc_2AAAE
-    mSquad_WalkTargets[Data0][pData10].mX = pTargetX;
-    mSquad_WalkTargets[Data0][pData10].mY = pTargetY;
+    mSquad_WalkTargets[pSquadNumber][pData10].mX = pTargetX;
+    mSquad_WalkTargets[pSquadNumber][pData10].mY = pTargetY;
 
     mSquad_WalkTargetX = pTargetX;
     mSquad_WalkTargetY = pTargetY;
 
-    mSquad_WalkTargets[Data0][pData10 + 1].asInt = -1;
+    mSquad_WalkTargets[pSquadNumber][pData10 + 1].asInt = -1;
 
     Data24 = Saved_Data24;
     if (Data1C < 0)
         return;
 
-    mSquad_Walk_Target_Indexes[Data0] = pData10;
-    mSquad_Walk_Target_Indexes[Data0]++;
+    mSquad_Walk_Target_Indexes[pSquadNumber] = pData10;
+    mSquad_Walk_Target_Indexes[pSquadNumber]++;
 
     for (;;) {
         sSprite* Data28 = *Data24++;
@@ -9028,8 +9043,8 @@ void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquad
         Data28->field_40++;
         pData10--;
 
-        mSquad_WalkTargets[Data0][pData10].mX = Data28->field_0;
-        mSquad_WalkTargets[Data0][pData10].mY = Data28->field_4;
+        mSquad_WalkTargets[pSquadNumber][pData10].mX = Data28->field_0;
+        mSquad_WalkTargets[pSquadNumber][pData10].mY = Data28->field_4;
 
         Data28->field_26 = pTargetX;
         Data28->field_28 = pTargetY;
@@ -9039,7 +9054,7 @@ void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquad
     }
 
 loc_2ABF8:;
-    mSquad_Walk_Target_Steps[Data0] = 8;
+    mSquad_Walk_Target_Steps[pSquadNumber] = 8;
 }
 
 int16 cFodder::Squad_Member_Sprite_Hit_In_Region(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14) {
@@ -20377,7 +20392,7 @@ Start:;
     //Playground();
 
     // Play the intro
-    if (!mOpenFodder_Intro_Done) {
+    if (!mOpenFodder_Intro_Done && !mSkipIntro) {
 
         mGame_Data.mMissionNumber = 0;
 
@@ -20389,7 +20404,11 @@ Start:;
     }
 
     // Select campaign menu
-    Campaign_Selection();
+    if (!pStartMap)
+        Campaign_Selection();
+    else {
+        Campaign_Load("CANNON FODDER");
+    }
 
     // Exit pushed?
     if (mGUI_SaveLoadAction == 1)
