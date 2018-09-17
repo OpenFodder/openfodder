@@ -3034,13 +3034,13 @@ void cFodder::Mouse_Setup() {
 
 void cFodder::Mouse_Cursor_Handle() {
     static bool CursorGrabbed = false;
-    int16 scaleX = (mWindow->GetWindowSize().mWidth / mWindow->GetScreenSize().mWidth);
-    int16 scaleY = (mWindow->GetWindowSize().mHeight / mWindow->GetScreenSize().mHeight);
-
     auto MouseGlobalPos = g_Window.GetMousePosition();
     auto ScreenSize = g_Window.GetScreenSize();
     auto WindowPos = g_Window.GetWindowPosition();
     auto WindowSize = g_Window.GetWindowSize();
+
+    int16 scaleX = (WindowSize.mWidth / ScreenSize.mWidth);
+    int16 scaleY = (WindowSize.mHeight / ScreenSize.mHeight);
 
     eventProcess();
 
@@ -3068,8 +3068,8 @@ void cFodder::Mouse_Cursor_Handle() {
                     g_Window.GrabMouse();
                     g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
 
-                    int16 XOffset = 32;// -(mMouseX_Offset / 2);
-                    int16 YOffset = 4;// -mMouseY_Offset / 2;
+                    int16 XOffset = 32;
+                    int16 YOffset = 4;
                     if (mMouseX_Offset || mMouseY_Offset) {
                         XOffset = 25;
                         YOffset = -4;
@@ -3088,14 +3088,14 @@ void cFodder::Mouse_Cursor_Handle() {
                     // Check Top
                     if (MouseGlobalPos.mY <= (TopBorder + 10 * scaleY)) {
                         mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset + 5);
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset) + 3;
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset + 3);
                     }
                     // Check Bottom
                     if (MouseGlobalPos.mY >= (BottomBorder - 10 * scaleY)) {
                         if (YOffset < 0)
                             YOffset = -YOffset;
                         mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset + 5);
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset - 2);
+                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset - 4);
                     }
                     return;
                 }
@@ -3118,16 +3118,27 @@ void cFodder::Mouse_Cursor_Handle() {
         mouse_Button_Status = mMouseButtons;
         
         // Need to check if the game cursor x is near a border
-        if (mMouseX <= -32 || mMouseX >= ((int)ScreenSize.mWidth) - 33) {
+        if (mMouseX <= -32 || mMouseX >= ScreenSize.getWidth() - 33) {
             BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.mWidth) + 3;
             BorderMouse.mY = WindowPos.mY + (mMouseY + 4 + mMouseY_Offset) * scaleY;
 
         // Need to check if the game cursor y is near a border
-        } else if (mMouseY <= 4 || mMouseY >= ((int)ScreenSize.mHeight)) {
+        } else if (mMouseY <= 4 || mMouseY >= ScreenSize.getHeight()) {
             BorderMouse.mX = WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX;
             BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight);
         }
 
+        // Top Left / Top Right Corner
+        if (mMouseX <= -16 && mMouseY <= 8 || mMouseX >= (ScreenSize.mWidth - 33) && mMouseY <= 8) {
+            BorderMouse.mX = 0;
+            BorderMouse.mY = 0;
+        }
+
+        // Bottom Left / Bottom Right
+        if ((mMouseX <= -16 && mMouseY >= ScreenSize.getHeight() - 4) || (mMouseX >= (ScreenSize.mWidth - 33) && mMouseY >= ScreenSize.getHeight() - 4)) {
+            BorderMouse.mX = 0;
+            BorderMouse.mY = 0;
+        }
         //  if yes; set system cursor outside the border
         if (CursorGrabbed && (BorderMouse.mX || BorderMouse.mY)) {
             g_Window.ReleaseMouse();
@@ -3137,8 +3148,8 @@ void cFodder::Mouse_Cursor_Handle() {
         }
 
         // Calc the distance from the cursor to the centre of the window
-        int XDiff = (mMouse_CurrentEventPosition.mX - (g_Window.GetWindowSize().getWidth() / 2));
-        int YDiff = (mMouse_CurrentEventPosition.mY - (g_Window.GetWindowSize().mHeight / 2));
+        int XDiff = (mMouse_CurrentEventPosition.mX - (WindowSize.getWidth() / 2));
+        int YDiff = (mMouse_CurrentEventPosition.mY - (WindowSize.getHeight() / 2));
 
         mInputMouseX = mMouseX + (XDiff / scaleX);
         mInputMouseY = mMouseY + (YDiff / scaleY);
