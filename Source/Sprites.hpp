@@ -247,7 +247,7 @@ struct sSprite {
 	int16 field_3C;		// Player: Face Direction
 	int16 field_3E;
 	int16 field_40;
-	int8 field_42;
+	int8 field_42;  // Player: Finished Walking
 	int8 field_43;	// Player: Reached other Troop
 	int8 field_44;
 	int8 field_45;
