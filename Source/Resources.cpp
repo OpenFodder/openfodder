@@ -28,8 +28,6 @@ cResources::cResources( std::string pDataPath ) {
 }
 
 tSharedBuffer cResources::fileGet( std::string pFilename ) {
-	std::vector< cResource_File >::iterator		fileIT;
-
     // This is really hacky
 
     // First look for lower case, without a path
