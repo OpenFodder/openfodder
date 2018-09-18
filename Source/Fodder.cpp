@@ -3029,13 +3029,6 @@ void cFodder::Mouse_Cursor_Handle() {
 
     eventProcess();
 
-    if (g_Window.isFullscreen()) {
-        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - 32;
-        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) + 4;
-        mouse_Button_Status = mMouseButtons;
-        return;
-    }
-
     if (!g_Window.hasFocusEvent() && CursorGrabbed)
         CursorGrabbed = false;
 
@@ -3052,22 +3045,24 @@ void cFodder::Mouse_Cursor_Handle() {
                 mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - 40;
                 mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4;
 
-                if (mMouseX_Offset || mMouseY_Offset) {
-                    mInputMouseX -= mMouseX_Offset;
-                    mInputMouseY -= mMouseY_Offset;
+                    if (mMouseX_Offset || mMouseY_Offset) {
+                        mInputMouseX -= mMouseX_Offset;
+                        mInputMouseY -= mMouseY_Offset;
+                    }
+
+                if (!g_Window.isFullscreen()) {
+                    // Ensure X not too close to a border
+                    if (mInputMouseX <= -32)
+                        mInputMouseX = -31;
+                    if (mInputMouseX >= (ScreenSize.getWidth() - 38))
+                        mInputMouseX = ScreenSize.getWidth() - 39;
+
+                    // Ensure Y not too close to a border
+                    if (mInputMouseY <= 4)
+                        mInputMouseY = 5;
+                    if (mInputMouseY >= ScreenSize.getHeight())
+                        mInputMouseY = ScreenSize.getHeight() - 1;
                 }
-
-                // Ensure X not too close to a border
-                if (mInputMouseX <= -32)
-                    mInputMouseX = -31;
-                if (mInputMouseX >= (ScreenSize.getWidth() - 38))
-                    mInputMouseX = ScreenSize.getWidth() - 39;
-
-                // Ensure Y not too close to a border
-                if (mInputMouseY <= 4)
-                    mInputMouseY = 5;
-                if (mInputMouseY >= ScreenSize.getHeight())
-                    mInputMouseY = ScreenSize.getHeight() - 1;
 
                 g_Window.SetMouseWindowPosition(WindowSize.getCentre());
             }
