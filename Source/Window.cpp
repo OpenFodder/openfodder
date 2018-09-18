@@ -319,7 +319,11 @@ void cWindow::SetCursor() {
 	SDL_ShowCursor(0);
 }
 
-bool cWindow::isGrabbed() {
+bool cWindow::isFullscreen() const {
+    return !mWindowMode;
+}
+
+bool cWindow::isGrabbed() const {
     if (SDL_GetWindowGrab(mWindow) == SDL_TRUE)
         return true;
 
