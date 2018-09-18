@@ -108,8 +108,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "Singleton.hpp"
 
-#include "Dimension.hpp"
 #include "Position.hpp"
+#include "Dimension.hpp"
 #include "Event.hpp"
 
 #include "Surface.hpp"
