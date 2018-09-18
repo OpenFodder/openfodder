@@ -3094,8 +3094,8 @@ void cFodder::Mouse_Cursor_Handle() {
         }
 
         // Calc the distance from the cursor to the centre of the window
-        int XDiff = (mMouse_CurrentEventPosition.mX - WindowSize.getCentre().x());
-        int YDiff = (mMouse_CurrentEventPosition.mY - WindowSize.getCentre().y());
+        int XDiff = (mMouse_CurrentEventPosition.mX - WindowSize.getCentre().x()) * 1.5;
+        int YDiff = (mMouse_CurrentEventPosition.mY - WindowSize.getCentre().y()) * 1.5;
 
         mInputMouseX = mMouseX + (XDiff / scaleX);
         mInputMouseY = mMouseY + (YDiff / scaleY);
