@@ -27,7 +27,6 @@ class cPosition {
 	public:
 				cPosition() : mX( 0 ), mY( 0 ) {}
 				cPosition( unsigned int pX, unsigned int pY ) : mX( pX ), mY( pY ) {}
-				cPosition( const cDimension pDimension ) { mX = pDimension.mWidth; mY = pDimension.mHeight; }
 
 		void	Set( unsigned int pX, unsigned int pY ) { mX = pX; mY = pY; }
 
@@ -56,11 +55,11 @@ class cPosition {
 		int getY() const { return (int) mY; }
 		int getX() const { return (int) mX; }
 
-        inline int16 x(const cPosition& pPosition) const {
+        inline int16 x() const {
             return (int16)mX;
         }
 
-        inline int16 y(const cPosition& pPosition) const {
-            return (int16)mX;
+        inline int16 y() const {
+            return (int16)mY;
         }
 };

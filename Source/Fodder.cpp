@@ -3041,7 +3041,6 @@ void cFodder::Mouse_Cursor_Handle() {
 
     int16 scaleX = (WindowSize.mWidth / ScreenSize.mWidth);
     int16 scaleY = (WindowSize.mHeight / ScreenSize.mHeight);
-
     if (scaleY == 0)
         scaleY = 1;
 
@@ -3052,67 +3051,35 @@ void cFodder::Mouse_Cursor_Handle() {
 
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
-
         if (g_Window.hasFocusEvent()) {
 
-            // If not, check if the system cursor x/y is inside our window
+            // check if the system cursor x/y is inside our window
             if (MouseGlobalPos.mX >= (WindowPos.mX) && MouseGlobalPos.mX <= (WindowPos.mX + WindowSize.getWidth()) &&
-                (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.getHeight() ))) {
+               (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.getHeight()) )) {
 
-                //   if yes; grab the mouse
-                if (!g_Window.isGrabbed()) {
-                    auto LeftBorder = WindowPos.mX;
-                    auto RightBorder = WindowPos.mX + WindowSize.getWidth();
-                    auto TopBorder = WindowPos.mY;
-                    auto BottomBorder = WindowPos.mY + WindowSize.getHeight();
+                CursorGrabbed = true;
 
-                    CursorGrabbed = true;
-
-                    g_Window.GrabMouse();
-                    g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
-
-                    int16 XOffset = 32;
-                    int16 YOffset = 4;
-                    if (mMouseX_Offset || mMouseY_Offset) {
-                        XOffset = 25;
-                        YOffset = -4;
-                    }
-                    // set game cursor x/y to border near system cursor
-                    // Check Left
-                    if (MouseGlobalPos.mX <= (LeftBorder + (WindowSize.getWidth() / 2))) {
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset) + 4;
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset);
-                    }
-                    // Check Right, because the mouse can leap into the window, we accept half way onwards
-                    if (MouseGlobalPos.mX >= (RightBorder - (WindowSize.getWidth() / 2))) {
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset) - 8;
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset);
-                    }
-                    // Check Top
-                    if (MouseGlobalPos.mY <= (TopBorder + 10 * scaleY)) {
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset + 5);
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset) + 3;
-                    }
-                    // Check Bottom
-                    if (MouseGlobalPos.mY >= (BottomBorder - 10 * scaleY)) {
-                        if (YOffset < 0)
-                            YOffset = -YOffset;
-                        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - (XOffset + 5);
-                        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - (YOffset - 4);
-                    }
-                    return;
+                mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - 38;
+                mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4;
+                if (mMouseX_Offset || mMouseY_Offset) {
+                    mInputMouseX -= mMouseX_Offset;
+                    mInputMouseY -= mMouseY_Offset;
                 }
+                // Ensure X not too close to a border
+                if (mInputMouseX <= -32)
+                    mInputMouseX = -31;
+                if (mInputMouseX >= (ScreenSize.getWidth() - 38))
+                    mInputMouseX = ScreenSize.getWidth() - 39;
+                // Ensure Y not too close to a border
+                if (mInputMouseY <= 4)
+                    mInputMouseY = 5;
+                if (mInputMouseY >= ScreenSize.getHeight())
+                    mInputMouseY = ScreenSize.getHeight() - 1;
 
-                // Shouldnt reach here...
-                return;
-
-            } else {
-                //   if no ; return
-                return;
+                g_Window.SetMouseWindowPosition(WindowSize.getCentre());
             }
+            return;
         } else {
-            // ; set system cursor outside the border
-            g_Window.ReleaseMouse();
             CursorGrabbed = false;
         }
     } else {
@@ -3121,44 +3088,32 @@ void cFodder::Mouse_Cursor_Handle() {
         mouse_Button_Status = mMouseButtons;
         
         // Need to check if the game cursor x is near a border
-        if (mMouseX <= -32 || mMouseX >= ScreenSize.getWidth() - 33) {
+        if (mMouseX <= -32 || mMouseX >= (ScreenSize.getWidth() - 38)) {
             BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
             BorderMouse.mY = WindowPos.mY + (mMouseY + 4 + mMouseY_Offset) * scaleY;
-
-        // Need to check if the game cursor y is near a border
-        } else if (mMouseY <= 4 || mMouseY >= ScreenSize.getHeight()) {
+        } // Need to check if the game cursor y is near a border
+        else if (mMouseY <= 4 || mMouseY >= ScreenSize.getHeight()) {
             BorderMouse.mX = WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX;
             BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight);
         }
 
-        // Top Left / Top Right Corner
-        if (mMouseX <= -24 && mMouseY <= 8 || mMouseX >= (ScreenSize.getWidth() - 36) && mMouseY <= 8) {
-            BorderMouse.mX = 0;
-            BorderMouse.mY = 0;
-        }
-
-        // Bottom Left / Bottom Right
-        if ((mMouseX <= -24 && mMouseY >= ScreenSize.getHeight() - 4) || (mMouseX >= (ScreenSize.getWidth() - 36) && mMouseY >= ScreenSize.getHeight() - 4)) {
-            BorderMouse.mX = 0;
-            BorderMouse.mY = 0;
-        }
         //  if yes; set system cursor outside the border
         if (CursorGrabbed && (BorderMouse.mX || BorderMouse.mY)) {
-            g_Window.ReleaseMouse();
+           // g_Window.ReleaseMouse();
             CursorGrabbed = false;
             g_Window.SetMousePosition(BorderMouse);
             return;
         }
 
         // Calc the distance from the cursor to the centre of the window
-        int XDiff = (mMouse_CurrentEventPosition.mX - (WindowSize.getWidth() / 2));
-        int YDiff = (mMouse_CurrentEventPosition.mY - (WindowSize.getHeight() / 2));
+        int XDiff = (mMouse_CurrentEventPosition.mX - WindowSize.getCentre().x());
+        int YDiff = (mMouse_CurrentEventPosition.mY - WindowSize.getCentre().y());
 
         mInputMouseX = mMouseX + (XDiff / scaleX);
         mInputMouseY = mMouseY + (YDiff / scaleY);
 
         // Set system cursor back to centre of window
-        g_Window.SetMouseWindowPosition(cPosition((WindowSize.mWidth / 2), (WindowSize.mHeight / 2)));
+        g_Window.SetMouseWindowPosition(WindowSize.getCentre());
     }
 
 }
