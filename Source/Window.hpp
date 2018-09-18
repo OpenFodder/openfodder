@@ -62,7 +62,8 @@ class cWindow : public cSingleton<cWindow> {
 		void				WindowIncrease();
 		void				WindowDecrease();
 
-        bool                isGrabbed();
+        bool                isFullscreen() const;
+        bool                isGrabbed() const;
         void                GrabMouse();
         void                ReleaseMouse();
 
