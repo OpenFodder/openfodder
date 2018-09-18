@@ -27,7 +27,7 @@
          
 const int32 CAMERA_PAN_TO_START_ACCELARATION = 0x80000;     // Dos: Original 0x80000
 const int32 CAMERA_PAN_TO_SQUAD_ACCELERATION = 0x20000;     // Dos: Original 0x20000
-const int32 CAMERA_TOWARD_SQUAD_SPEED = 0xff;               // Dos: Original 0x14
+const int32 CAMERA_TOWARD_SQUAD_SPEED = 0x14;               // Dos: Original 0x14
 
 const int16 mBriefing_Helicopter_Offsets[] =
 {
@@ -74,7 +74,7 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
     mMouse_Button_LeftRight_Toggle = word_39F04 = 0;
 
     mSprite_Frame_1 = 0;
-    word_39FF4 = 0;
+    mSprite_Frame_Modifier_Update_Countdown = 0;
     mSprite_Frame_2 = 0;
     mSprite_Frame3_ChangeCount = 0;
     mSprite_Frame_3 = 0;
@@ -411,7 +411,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
             mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
         }
         //loc_10A3A
-        word_3A054 = 0;
+        mMouse_Locked = false;
         return;
     }
 
@@ -465,7 +465,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
 
     mCamera_PanTargetX = Data18;
     mCamera_PanTargetY = Data1C;
-    word_3A054 = 0;
+    mMouse_Locked = false;
 }
 
 void cFodder::Game_ClearVariables() {
@@ -545,7 +545,7 @@ void cFodder::Mission_Memory_Clear() {
     mSquad_JoiningTo = 0;
 
     mSprite_Frame_1 = 0;
-    word_39FF4 = 0;
+    mSprite_Frame_Modifier_Update_Countdown = 0;
     mSprite_Frame_2 = 0;
     mSprite_Frame3_ChangeCount = 0;
     mSprite_Frame_3 = 0;
@@ -553,7 +553,7 @@ void cFodder::Mission_Memory_Clear() {
     mTroop_Weapon_Grenade_Disabled = false;
     mTroop_Weapon_Bullet_Disabled = false;
     mTroop_Weapon_Rocket_Disabled = false;
-    word_3A024 = 0;
+    mSidebar_SmallMode = 0;
     dword_3A030 = 0;
     mCamera_PanTargetX = 0;
     mCamera_PanTargetY = 0;
@@ -737,11 +737,11 @@ void cFodder::Mission_Memory_Clear() {
     for (uint16 x = 0; x < 6; ++x)
         word_3B2D1[x] = 0;
 
-    word_3B2DD[0] = 0;
-    word_3B2DD[1] = 0;
-    word_3B2DD[2] = 0;
-    word_3B2DD[3] = 0;
-    word_3B2DD[4] = 0;
+    mSprite_Find_Types[0] = 0;
+    mSprite_Find_Types[1] = 0;
+    mSprite_Find_Types[2] = 0;
+    mSprite_Find_Types[3] = 0;
+    mSprite_Find_Types[4] = 0;
     word_3B2ED = 0;
     mSpawnSpriteType = 0;
     word_3B2F1 = 0;
@@ -851,7 +851,7 @@ void cFodder::Mission_Prepare_Squads() {
 }
 
 void cFodder::sub_10DEC() {
-    word_3A054 = 0;
+    mMouse_Locked = false;
 
     mSquad_Selected = 0;
     m2A622_Unk_MapPosition.mX = 0;
@@ -1521,7 +1521,7 @@ void cFodder::Camera_Speed_Update_From_PanTarget() {
         dword_39F36 -= 0x8000;
         if (dword_39F36 < 0) {
             dword_39F36 = 0;
-            word_3A054 = 1;
+            mMouse_Locked = true;
         }
     }
 
@@ -2103,7 +2103,7 @@ void cFodder::Camera_Pan_Set_Speed() {
 
 void cFodder::Camera_Update_Mouse_Position_For_Pan() {
 
-    if (!word_3A054) {
+    if (!mMouse_Locked) {
 
         // Mouse in playfield?
         if (mMouseX > 0x0F) {
@@ -3106,7 +3106,7 @@ void cFodder::Mouse_Inputs_Get() {
 
     int16 Data4 = mInputMouseX;
 
-    if (word_3A024 == 0)
+    if (mSidebar_SmallMode == 0)
         goto loc_13B3A;
 
     if (Data4 >= -16)
@@ -3119,7 +3119,7 @@ loc_13B3A:;
         goto loc_13B58;
 
 loc_13B41:;
-    if (word_3A024)
+    if (mSidebar_SmallMode)
         Data4 = -16;
     else
         Data4 = -32;
@@ -6515,40 +6515,39 @@ loc_24275:;
 }
 
 int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28) {
-    int16* Data2C = word_3B2DD;
+    int16* Data2C = mSprite_Find_Types;
 
-    word_3B2DD[0] = pData0;
-    word_3B2DD[1] = pData4;
-    word_3B2DD[2] = pData8;
-    word_3B2DD[3] = pDataC;
-    word_3B2DD[4] = pData10;
+    mSprite_Find_Types[0] = pData0;
+    mSprite_Find_Types[1] = pData4;
+    mSprite_Find_Types[2] = pData8;
+    mSprite_Find_Types[3] = pDataC;
+    mSprite_Find_Types[4] = pData10;
 
+    // Check if Sprite @ field_5E sprite is one of the types
     pData28 = &mSprites[pSprite->field_5E];
-
     if (pData28->field_0 == -32768)
-        goto loc_243A6;
+        goto NextSprite;
 
     do {
         pData0 = *Data2C++;
         if (pData0 < 0)
-            goto loc_243A6;
-
+            goto NextSprite;
     } while (pData0 != pData28->field_18);
 
+    // Found a type match
     pData0 = pSprite->field_0;
     pData4 = pSprite->field_4;
     pData8 = pData28->field_0;
     pDataC = pData28->field_4;
 
     Map_Get_Distance_BetweenPoints_Within_320(pData0, pData4, pData8, pDataC);
-
     mSprite_Find_Distance = pData0;
 
     if (pData0 >= 0xD2)
-        goto loc_243A6;
+        goto NextSprite;
 
     if (pData0 <= 0x28)
-        goto loc_243C7;
+        goto FoundSprite;
 
     pData0 = pSprite->field_0;
     pData4 = pSprite->field_4;
@@ -6559,19 +6558,19 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
         goto loc_2439F;
 
     pData0 = mSprite_Find_Distance;
-    goto loc_243C7;
+    goto FoundSprite;
 
 loc_2439F:;
     if (mSprite_Find_Distance < 0x40)
-        goto loc_243C7;
+        goto FoundSprite;
 
-loc_243A6:;
+NextSprite:;
     pSprite->field_5E++; //+= 0x76; This should be a sprite counter
     if (pSprite->field_5E >= 43)
         pSprite->field_5E = 0;
 
     goto loc_243DD;
-loc_243C7:;
+FoundSprite:;
     pData4 = pData28->field_18;
     return 0;
 
@@ -11838,9 +11837,9 @@ void cFodder::Briefing_Draw_Vertical_Line(int16 pX, int16 pHeight, int16 pY, uin
 
 void cFodder::Sprite_Frame_Modifier_Update() {
 
-    word_39FF4 -= 1;
-    if (word_39FF4 < 0) {
-        word_39FF4 = 3;
+    mSprite_Frame_Modifier_Update_Countdown -= 1;
+    if (mSprite_Frame_Modifier_Update_Countdown < 0) {
+        mSprite_Frame_Modifier_Update_Countdown = 3;
 
         mSprite_Frame_1 += mSprite_Frame1_Modifier;
         if (mSprite_Frame_1 == 0 || mSprite_Frame_1 == 2)
@@ -17786,7 +17785,7 @@ void cFodder::Vehicle_Input_Handle() {
     mCamera_PanTargetX = Data0;
     mCamera_PanTargetY = Data4;
 
-    word_3A054 = 0;
+    mMouse_Locked = false;
 
     Data20->field_26 = Data0;
     Data20->field_28 = Data4;
@@ -21821,7 +21820,7 @@ loc_30814:;
     mCamera_PanTargetX = Data0;
     mCamera_PanTargetY = Data4;
 
-    word_3A054 = 0;
+    mMouse_Locked = false;
 
     for (auto& Troop : mGame_Data.mMission_Troops) {
 
@@ -21943,7 +21942,7 @@ void cFodder::Squad_Switch_To(int16 pData0) {
         mCamera_StartPosition_X = Data20->field_0;
         mCamera_StartPosition_Y = Data20->field_4;
         mCamera_Start_Adjust = true;
-        word_3A054 = 0;
+        mMouse_Locked = false;
     }
 
     mGUI_Sidebar_Setup = 0;

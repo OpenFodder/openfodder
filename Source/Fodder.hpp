@@ -181,7 +181,7 @@ public:
     int16           mSquad_JoiningTo;
 
     int16           mSprite_Frame_1;
-    int16           word_39FF4;
+    int16           mSprite_Frame_Modifier_Update_Countdown;
     int16           mSprite_Frame_2;
     int16           mSprite_Frame3_ChangeCount;
     int16           mSprite_Frame_3;
@@ -190,10 +190,10 @@ public:
     bool            mTroop_Weapon_Bullet_Disabled;
     bool            mTroop_Weapon_Rocket_Disabled;
 
-    uint16          word_3A024;
+    uint16          mSidebar_SmallMode;
     sGUI_Element*   mGUI_Loop_Element;
     int32           dword_3A030;
-    uint16          word_3A054;
+    bool            mMouse_Locked;
     int8            mSquads_TroopCount[4];
     uint8           byte_3A05E;
     uint16          word_3A05F;
@@ -345,7 +345,7 @@ public:
     int16           mGUI_SaveLoadAction;
     int16           word_3B2CF;
     int16           word_3B2D1[6];
-    int16           word_3B2DD[5];
+    int16           mSprite_Find_Types[5];
     int16           word_3B2ED;
     int16           mSpawnSpriteType;
     int16           word_3B2F1;
