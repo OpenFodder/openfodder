@@ -3035,7 +3035,6 @@ void cFodder::Mouse_Cursor_Handle() {
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
         if (g_Window.hasFocusEvent()) {
-
             // check if the system cursor x/y is inside our window
             if (MouseGlobalPos.mX >= (WindowPos.mX) && MouseGlobalPos.mX <= (WindowPos.mX + WindowSize.getWidth()) &&
                 (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.getHeight()))) {
@@ -3066,9 +3065,6 @@ void cFodder::Mouse_Cursor_Handle() {
 
                 g_Window.SetMouseWindowPosition(WindowSize.getCentre());
             }
-            return;
-        } else {
-            CursorGrabbed = false;
         }
     } else {
         cPosition BorderMouse;
@@ -3082,7 +3078,7 @@ void cFodder::Mouse_Cursor_Handle() {
         } // Need to check if the game cursor y is near a border
         else if (mMouseY <= 4 || mMouseY >= ScreenSize.getHeight()) {
             BorderMouse.mX = WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX;
-            BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight);
+            BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight) + 1;
         }
 
         //  if yes; set system cursor outside the border
