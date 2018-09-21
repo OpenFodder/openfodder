@@ -338,7 +338,7 @@ void cGraphics_Amiga::Load_Hill_Data() {
 
 void cGraphics_Amiga::Load_Sprite_Font() {
 
-	mImageFonts.mData = g_Resource.fileGet( "FONT.RAW" );
+	mImageFonts.mData = g_Resource->fileGet( "FONT.RAW" );
 	
 	// Load the palette
 	mImageFonts.LoadPalette_Amiga(mImageFonts.mData->data(), 16);
@@ -384,7 +384,7 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 	if (!Decoded.mData->size()) {
 
 		// No, treat as a raw file
-		Decoded.mData = g_Resource.fileGet( Filename );
+		Decoded.mData = g_Resource->fileGet( Filename );
 
 		// Calculate planes based on file size
 		if (Decoded.mData->size() == 51464)
@@ -467,7 +467,7 @@ void cGraphics_Amiga::Tile_Prepare_Gfx() {
 	mBlkData->resize( mFodder->mTile_BaseBlk->size() + mFodder->mTile_SubBlk->size() );
 
 	// Load the palette for the graphic tile set
-	auto Palette = g_Resource.fileGet( mFodder->mFilenameBasePal );
+	auto Palette = g_Resource->fileGet( mFodder->mFilenameBasePal );
 	DecodePalette(Palette->data(), 0, Palette->size() / 2);
 
 	memcpy( mBlkData->data(), mFodder->mTile_BaseBlk->data(), mFodder->mTile_BaseBlk->size() );
@@ -504,7 +504,7 @@ void cGraphics_Amiga::PaletteSet(cSurface *pTarget) {
 sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
 	sImage			Result;
 
-	auto			File = g_Resource.fileGet( pFilename );
+	auto			File = g_Resource->fileGet( pFilename );
 	auto			DataPtr = File->data();
 
 	if (!DataPtr || readBEDWord( DataPtr ) != 'FORM')
@@ -1103,7 +1103,7 @@ void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, in
 }
 
 void cGraphics_Amiga::Recruit_Draw_Hill() {
-	auto Grave = g_Resource.fileGet( "grave32.pal");
+	auto Grave = g_Resource->fileGet( "grave32.pal");
 
 	mImagePStuff.LoadPalette_Amiga(Grave->data(), Grave->size() / 2);
 	
@@ -1207,19 +1207,19 @@ void cGraphics_Amiga::Mission_Intro_Load_Resources() {
 		return;
 
 	// Load the palettes
-	auto Data = g_Resource.fileGet(JunData2);
+	auto Data = g_Resource->fileGet(JunData2);
 	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xA0);
 
-	Data = g_Resource.fileGet(JunData3);
+	Data = g_Resource->fileGet(JunData3);
 	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xB0);
 
-	Data = g_Resource.fileGet(JunData4);
+	Data = g_Resource->fileGet(JunData4);
 	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xC0);
 
-	Data = g_Resource.fileGet(JunData5);
+	Data = g_Resource->fileGet(JunData5);
 	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xD0);
 
-	Data = g_Resource.fileGet(JunData6);
+	Data = g_Resource->fileGet(JunData6);
 	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xE0);
 }
 

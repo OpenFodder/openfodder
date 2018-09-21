@@ -122,7 +122,7 @@ sImage cGraphics_PC::Decode_Image(const std::string& pFilename, const size_t pCo
 
 	sImage TmpImage;
 
-	TmpImage.mData = g_Resource.fileGet(pFilename);
+	TmpImage.mData = g_Resource->fileGet(pFilename);
 	TmpImage.LoadPalette(pPaletteOffset, pCount, pStartIndex);
 	TmpImage.CopyPalette(&mPalette[pStartIndex], pCount, pStartIndex);
 
@@ -318,14 +318,14 @@ void cGraphics_PC::Map_Load_Resources() {
 
 	//
 	{
-		mSpriteSheet_InGame2.mData = g_Resource.fileGet( mFodder->mFilenameCopt );
+		mSpriteSheet_InGame2.mData = g_Resource->fileGet( mFodder->mFilenameCopt );
 		mSpriteSheet_InGame2.LoadPalette( 0xD360, 0x10, 0x90 );
 		mSpriteSheet_InGame2.LoadPalette( 0xD2A0, 0x40, 0xB0 );
 	}
 
 	// 
 	{
-		mSpriteSheet_InGame1.mData = g_Resource.fileGet( mFodder->mFilenameArmy );
+		mSpriteSheet_InGame1.mData = g_Resource->fileGet( mFodder->mFilenameArmy );
 		mSpriteSheet_InGame1.LoadPalette( 0xD200, 0x10, 0xA0 );
 	}
 
@@ -557,13 +557,13 @@ void cGraphics_PC::Mission_Intro_Load_Resources() {
 	std::string JunData4 = mTileTypes[mFodder->mMap_TileSet].mName + "p4.dat";
 	std::string JunData5 = mTileTypes[mFodder->mMap_TileSet].mName + "p5.dat";
 
-	mImageMissionIntro.mData = g_Resource.fileGet(JunData1);
-	mMission_Intro_Gfx_Clouds1 = g_Resource.fileGet(JunData2);
-	mMission_Intro_Gfx_Clouds2 = g_Resource.fileGet(JunData3);
-	mMission_Intro_Gfx_Clouds3 = g_Resource.fileGet(JunData4);
-	mMission_Intro_Gfx_TreesMain = g_Resource.fileGet(JunData5);
+	mImageMissionIntro.mData = g_Resource->fileGet(JunData1);
+	mMission_Intro_Gfx_Clouds1 = g_Resource->fileGet(JunData2);
+	mMission_Intro_Gfx_Clouds2 = g_Resource->fileGet(JunData3);
+	mMission_Intro_Gfx_Clouds3 = g_Resource->fileGet(JunData4);
+	mMission_Intro_Gfx_TreesMain = g_Resource->fileGet(JunData5);
 
-	mBriefing_ParaHeli = g_Resource.fileGet( "paraheli.dat" );
+	mBriefing_ParaHeli = g_Resource->fileGet( "paraheli.dat" );
 
 	// Copy the palette for the current map tileset, in from paraheli to the briefing intro images
 	uint8* si = mBriefing_ParaHeli->data() + 0xF00;
@@ -648,7 +648,7 @@ void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned i
 	if (Filename.find('.') == std::string::npos )
 		Filename.append( ".dat" );
 
-	auto fileBuffer = g_Resource.fileGet(Filename);
+	auto fileBuffer = g_Resource->fileGet(Filename);
 	uint8* srcBuffer = fileBuffer->data();
 
 	uint8 *Buffer = 0;

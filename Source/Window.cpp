@@ -119,7 +119,7 @@ void cWindow::EventCheck() {
 				break;
 
 			case SDL_MOUSEMOTION:
-				Event.mType =eEvent_MouseMove;
+				Event.mType = eEvent_MouseMove;
 				Event.mPosition = cPosition( SysEvent.motion.x, SysEvent.motion.y );
 				break;
 

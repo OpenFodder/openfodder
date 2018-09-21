@@ -152,8 +152,8 @@ int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 
 	if (pSound->mTrack != Track) {
 
-		pSound->mCurrentMusicSongData = g_Resource.fileGet( Track->mSongData );
-		pSound->mCurrentMusicInstrumentData = g_Resource.fileGet( Track->mInstrumentData );
+		pSound->mCurrentMusicSongData = g_Resource->fileGet( Track->mSongData );
+		pSound->mCurrentMusicInstrumentData = g_Resource->fileGet( Track->mInstrumentData );
 		pSound->mTrack = Track;
 	}
 

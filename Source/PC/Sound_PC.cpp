@@ -66,7 +66,7 @@ void cSound_PC::Sound_Voc_Load() {
 
 	for (; Voc->field_0 != 0xFF; ++Voc) {
 
-		auto VocFile = g_Resource.fileGet( Voc->mFilename );
+		auto VocFile = g_Resource->fileGet( Voc->mFilename );
 
 		if (Voc->field_0 != 9) {
 			word_42316[Voc->field_0][Voc->field_1] = VocFile;

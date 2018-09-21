@@ -686,7 +686,7 @@ const std::vector<eGFX_Types> mKnownAmigaDemoData = {
 /**
  * Known versions of Cannon Fodder
  */
-const sVersion Versions[] = {
+const sGameVersion mKnownGameVersions[] = {
 
     /* Retail */
     { "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles,	 mKnownRetailTypes, mKnownRetailData },
@@ -707,23 +707,26 @@ const sVersion Versions[] = {
 
 };
 
-std::vector<const sVersion*> g_AvailableDataVersions;
+cVersions::cVersions() {
 
-const sVersion* FindAvailableRetail() {
+    FindKnownVersions();
+}
+
+const sGameVersion* cVersions::GetRetail() const {
 
     auto RetailRelease =
-        std::find_if(g_AvailableDataVersions.begin(), g_AvailableDataVersions.end(),
-            [](const sVersion* a)->bool { return a->mRelease == eRelease::Retail; });
+        std::find_if(mAvailable.begin(), mAvailable.end(),
+            [](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail; });
 
-    if (RetailRelease == g_AvailableDataVersions.end())
+    if (RetailRelease == mAvailable.end())
         return 0;
 
     return *RetailRelease;
 }
 
-const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType) {
+const sGameVersion* cVersions::GetForTileset(eTileTypes pTileType) const {
     // Look through all available versions for a campaign name match
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         if (Version->hasTileset(pTileType))
             return Version;
@@ -732,10 +735,10 @@ const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType) {
     return 0;
 }
 
-const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
+const sGameVersion* cVersions::GetForCampaign(const std::string& pCampaign) const {
 
     // Look through all available versions for a campaign name match
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         if (Version->mName == pCampaign)
             return Version;
@@ -744,10 +747,10 @@ const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
     return 0;
 }
 
-const sVersion* FindAvailableVersionForCampaignPlatform(const std::string& pCampaign, const ePlatform pPlatform) {
+const sGameVersion* cVersions::GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const {
 
     // Look through all available versions for a campaign name match
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         if (Version->mName == pCampaign && Version->mPlatform == pPlatform)
             return Version;
@@ -759,9 +762,9 @@ const sVersion* FindAvailableVersionForCampaignPlatform(const std::string& pCamp
 /**
  * Is the campaign name associated with a data version
  */
-bool isCampaignKnown(const std::string& pName) {
+bool cVersions::isCampaignKnown(const std::string& pName) const {
 
-    for (auto& KnownVersion : Versions) {
+    for (auto& KnownVersion : mKnownGameVersions) {
 
         // Is this campaign known?
         if (KnownVersion.mName == pName) {
@@ -772,13 +775,13 @@ bool isCampaignKnown(const std::string& pName) {
     return false;
 }
 
-bool IsCampaignDataAvailable(const std::string& pName) {
+bool cVersions::isCampaignDataAvailable(const std::string& pName) const {
 
     if (!isCampaignKnown(pName))
         return false;
 
     // Loop each available version
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         // Is the data available for it?
         if (Version->mName == pName)
@@ -788,12 +791,16 @@ bool IsCampaignDataAvailable(const std::string& pName) {
     return false;
 }
 
-std::vector<std::string> GetAvailableVersions() {
+bool cVersions::isDataAvailable() const {
+    return mAvailable.size() != 0; 
+}
+
+std::vector<std::string> cVersions::GetAvailableNames() const {
     std::vector<std::string> SortedList;
 
-    for (auto& KnownVersion : Versions) {
+    for (auto& KnownVersion : mKnownGameVersions) {
 
-        for (auto& Version : g_AvailableDataVersions) {
+        for (auto& Version : mAvailable) {
 
             if (Version->mName == KnownVersion.mName) {
 
@@ -810,12 +817,12 @@ std::vector<std::string> GetAvailableVersions() {
     return SortedList;
 }
 
-void FindFodderVersions() {
+void cVersions::FindKnownVersions() {
 
-    g_AvailableDataVersions.clear();
+    mAvailable.clear();
 
     // Loop all known versions
-    for (auto& KnownVersion : Versions) {
+    for (auto& KnownVersion : mKnownGameVersions) {
         int16 FileMatches = 0;
 
         // Loop each file in this version
@@ -843,12 +850,12 @@ void FindFodderVersions() {
         if (KnownVersion.isCustom()) {
 
             // Loop all current found versions 
-            for (const auto Version : g_AvailableDataVersions) {
+            for (const auto Version : mAvailable) {
 
                 // Enable custom if we have a retail version available
                 if (Version->isRetail() && Version->mPlatform == KnownVersion.mPlatform) {
 
-                    g_AvailableDataVersions.push_back(&KnownVersion);
+                    mAvailable.push_back(&KnownVersion);
                     break;
                 }
             }
@@ -856,7 +863,7 @@ void FindFodderVersions() {
         else {
             // Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
             if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == FileMatches)
-                g_AvailableDataVersions.push_back(&KnownVersion);
+                mAvailable.push_back(&KnownVersion);
         }
 
     }

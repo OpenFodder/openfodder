@@ -299,7 +299,7 @@ tSharedBuffer cCampaign::getMap(const size_t pMapNumber) const {
 
     // If a campaign folder exists, return a path inside it
     if (!local_FileExists(FinalPath))
-        return g_Resource.fileGet(FinalName);
+        return g_Resource->fileGet(FinalName);
 
     // Otherwise fallback to loading the map from the currently loaded
     return local_FileRead(FinalPath, "", eNone);
@@ -323,7 +323,7 @@ tSharedBuffer cCampaign::getSprites(const size_t pMapNumber) const {
 
     // If a campaign folder exists, return a path inside it
     if (!local_FileExists(FinalPath))
-        return g_Resource.fileGet(FinalName);
+        return g_Resource->fileGet(FinalName);
 
     // Otherwise fallback to loading the map from the currently loaded
     return local_FileRead(FinalPath, "", eNone);
