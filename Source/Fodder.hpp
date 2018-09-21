@@ -65,14 +65,15 @@ public:
     bool					mOpenFodder_Intro_Done;
     bool                    mSoundDisabled;
 
-    const sVersion*			mVersionDefault;		// Version to switch back to when looking for data
-    const sVersion*         mVersionCurrent;		// Version currently being used
+    const sGameVersion* mVersionDefault;		// Version to switch back to when looking for data
+    const sGameVersion* mVersionCurrent;		// Version currently being used
     cCampaign               mCampaign;				// Campaign currently being played
 
-    cGraphics*              mGraphics;
-    cSound*                 mSound;
-    cResources*             mResources;
-    cWindow*                mWindow;
+    cGraphics*                  mGraphics;
+    cSound*                     mSound;
+    std::shared_ptr<cResources> mResources;
+    cWindow*                    mWindow;
+    std::shared_ptr<cVersions>  mVersions;
 
     sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
@@ -1249,5 +1250,5 @@ public:
     bool            Menu_Draw(const std::function<void()> pButtonHandler);
 
     void            VersionCleanup();
-    void            VersionSwitch(const sVersion* pVersion);
+    void            VersionSwitch(const sGameVersion* pVersion);
 };

@@ -27,6 +27,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+std::shared_ptr<cResources> g_Resource;
+
 #ifndef _OFED
 #ifndef _OFBOT
 int main(int argc, char *args[]) {

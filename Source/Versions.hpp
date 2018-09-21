@@ -57,7 +57,7 @@ struct sRelease {
 	eRelease			mRelease;
 };
 
-struct sVersion {
+struct sGameVersion {
 	const std::string	mName;
 
 	const eGame				mGame;
@@ -116,16 +116,24 @@ struct sVersion {
 
 };
 
-extern const sVersion Versions[];
-extern std::vector<const sVersion*> g_AvailableDataVersions;
+class cVersions {
 
-bool isCampaignKnown(const std::string& pName);
-bool IsCampaignDataAvailable(const std::string& pName);
+    std::vector<const sGameVersion*> mAvailable;
 
-std::vector<std::string> GetAvailableVersions();
-void FindFodderVersions();
+protected:
+    void FindKnownVersions();
 
-const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign);
-const sVersion* FindAvailableVersionForCampaignPlatform(const std::string& pCampaign, const ePlatform pPlatform);
-const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType);
-const sVersion* FindAvailableRetail();
+public:
+    cVersions();
+
+    bool isCampaignKnown(const std::string& pName) const;
+    bool isCampaignDataAvailable(const std::string& pName) const;
+    bool isDataAvailable() const;
+
+    std::vector<std::string> GetAvailableNames() const;
+
+    const sGameVersion* GetForCampaign(const std::string& pCampaign) const;
+    const sGameVersion* GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const;
+    const sGameVersion* GetForTileset(eTileTypes pTileType) const;
+    const sGameVersion* GetRetail() const;
+};

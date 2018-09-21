@@ -43,13 +43,13 @@ const int16 mBriefing_Helicopter_Offsets[] =
 
 cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
 
+    mVersions = std::make_shared<cVersions>();
     mVersionCurrent = 0;
     mVersionDefault = 0;
 
     mOpenFodder_Intro_Done = false;
     mCustom_Mode = eCustomMode_None;
     mSkipIntro = pSkipIntro;
-    mResources = 0;
     mGraphics = 0;
     mSound = 0;
     mWindow = pWindow;
@@ -1908,8 +1908,8 @@ bool cFodder::Tiles_Load_Data() {
     // junsub0.blk
     SubName.append(mMap->data() + 0x10, mMap->data() + 0x10 + 11);
 
-    mTile_BaseBlk = g_Resource.fileGet(BaseName);
-    mTile_SubBlk = g_Resource.fileGet(SubName);
+    mTile_BaseBlk = g_Resource->fileGet(BaseName);
+    mTile_SubBlk = g_Resource->fileGet(SubName);
 
     if (!mTile_BaseBlk->size() || !mTile_SubBlk->size())
         return false;
@@ -1957,7 +1957,7 @@ void cFodder::Map_Load_Resources() {
         if (!Tiles_Load_Data()) {
 
             // Not found, so lets go find it
-            auto Version = FindAvailableVersionForTileset(mMap_TileSet);
+            auto Version = mVersions->GetForTileset(mMap_TileSet);
 
             // Load it
             if (Version) {
@@ -1996,20 +1996,20 @@ void cFodder::Map_Load_Resources() {
     mFilenameBasePal = Filename_CreateFromBase(BaseBase, ".pal");
 
 
-    size_t Size = g_Resource.fileLoadTo(mFilenameBaseSwp, (uint8*)&mTile_Destroy_Swap[0]);
+    size_t Size = g_Resource->fileLoadTo(mFilenameBaseSwp, (uint8*)&mTile_Destroy_Swap[0]);
     tool_EndianSwap((uint8*)&mTile_Destroy_Swap[0], Size);
 
-    Size = g_Resource.fileLoadTo(mFilenameSubSwp, (uint8*)&mTile_Destroy_Swap[240]);
+    Size = g_Resource->fileLoadTo(mFilenameSubSwp, (uint8*)&mTile_Destroy_Swap[240]);
     tool_EndianSwap((uint8*)&mTile_Destroy_Swap[240], Size);
 
-    Size = g_Resource.fileLoadTo(mFilenameBaseHit, (uint8*)&mTile_Hit[0]);
+    Size = g_Resource->fileLoadTo(mFilenameBaseHit, (uint8*)&mTile_Hit[0]);
     tool_EndianSwap((uint8*)&mTile_Hit[0], Size);
 
-    Size = g_Resource.fileLoadTo(mFilenameSubHit, (uint8*)&mTile_Hit[240]);
+    Size = g_Resource->fileLoadTo(mFilenameSubHit, (uint8*)&mTile_Hit[240]);
     tool_EndianSwap((uint8*)&mTile_Hit[240], Size);
 
-    Size = g_Resource.fileLoadTo(mFilenameBaseBht, (uint8*)&mTile_BHit[0][0]);
-    Size = g_Resource.fileLoadTo(mFilenameSubBht, (uint8*)&mTile_BHit[240][0]);
+    Size = g_Resource->fileLoadTo(mFilenameBaseBht, (uint8*)&mTile_BHit[0][0]);
+    Size = g_Resource->fileLoadTo(mFilenameSubBht, (uint8*)&mTile_BHit[240][0]);
 
     mGraphics->Tile_Prepare_Gfx();
     mGraphics->Map_Load_Resources();
@@ -2936,11 +2936,11 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     // TODO: Switch version on Key press
     if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
 
-        //VersionSwitch(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::Amiga));
+        //VersionSwitch(GetForCampaign(mVersionCurrent->mName, ePlatform::Amiga));
     }
 
     if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
-        //VersionSwitch(FindAvailableVersionForCampaignPlatform(mVersionCurrent->mName, ePlatform::PC));
+        //VersionSwitch(GetForCampaign(mVersionCurrent->mName, ePlatform::PC));
     }
 
     if (pKeyCode == SDL_SCANCODE_EQUALS && pPressed)
@@ -3219,11 +3219,9 @@ void cFodder::WindowTitleSet(bool pInMission) {
 
 void cFodder::VersionCleanup() {
     delete mGraphics;
-    delete mResources;
     delete mSound;
 
     mGraphics = 0;
-    mResources = 0;
     mSound = 0;
 }
 
@@ -3254,7 +3252,7 @@ void cFodder::WindowTitleBaseSetup() {
  * or AFTER a button on the version select screen is pushed
  *
  */
-void cFodder::VersionSwitch(const sVersion* pVersion) {
+void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     if (!pVersion)
         return;
@@ -3263,7 +3261,7 @@ void cFodder::VersionSwitch(const sVersion* pVersion) {
 
     // Custom version?
     if (pVersion->isCustom()) {
-        auto RetailRelease = FindAvailableRetail();
+        auto RetailRelease = mVersions->GetRetail();
 
         // If a retail release is found, we use its data path
         if (RetailRelease != 0)
@@ -3287,7 +3285,7 @@ void cFodder::VersionSwitch(const sVersion* pVersion) {
 
     if (mVersionCurrent->isPC()) {
 
-        mResources = new cResource_PC_CD(DataPath);
+        mResources = std::make_shared<cResource_PC_CD>(DataPath);
         mGraphics = new cGraphics_PC();
 
         if (mVersionCurrent->mGame == eGame::CF1)
@@ -3302,7 +3300,7 @@ void cFodder::VersionSwitch(const sVersion* pVersion) {
     }
     else if (mVersionCurrent->isAmiga()) {
 
-        mResources = new cResource_Amiga_File(DataPath);
+        mResources = std::make_shared<cResource_Amiga_File>(DataPath);
         mGraphics = new cGraphics_Amiga();
         mSound = new cSound_Amiga();
 
@@ -3316,15 +3314,16 @@ void cFodder::VersionSwitch(const sVersion* pVersion) {
         exit(1);
     }
 
+    g_Resource = mResources;
+
     mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
     mGraphics->Load_pStuff();
     mGraphics->Load_Hill_Data();
 }
 
 void cFodder::Prepare() {
-    FindFodderVersions();
 
-    if (g_AvailableDataVersions.empty()) {
+    if (!mVersions->isDataAvailable()) {
         std::cout << "No data files found\n";
         exit(1);
     }
@@ -3933,7 +3932,7 @@ static std::vector<unsigned char> mCampaignSelectMap_AF = {
 };
 
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
-    mCampaignList = GetAvailableVersions();
+    mCampaignList = mVersions->GetAvailableNames();
 
     mMission_Aborted = false;
     mGUI_SaveLoadAction = 0;
@@ -3952,7 +3951,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
             std::string FileName = File.substr(0, Pos);
 
             // Don't add known campaigns
-            if (isCampaignKnown(FileName))
+            if (mVersions->isCampaignKnown(FileName))
                 continue;
 
             mCampaignList.push_back(FileName);
@@ -4097,7 +4096,7 @@ void cFodder::Campaign_Selection() {
     // Find a data version to use with this campaign
     // If no version is found, we use the currently loaded one
     {
-        const sVersion* Version = FindAvailableVersionForCampaign(CampaignFile);
+        const sGameVersion* Version = mVersions->GetForCampaign(CampaignFile);
 
         // Load a new version?
         if (Version && Version != mVersionCurrent) {
@@ -4340,10 +4339,10 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     Menu_Loop(
         [this]() {
         if (mButtonPressLeft) {
-            if (mVersionCurrent->mRelease == eRelease::AmigaFormat)
+            if (mVersionCurrent->isAmigaFormat())
                 GUI_Element_Mouse_Over(mAfx_Buttons);
 
-            if (mVersionCurrent->mRelease == eRelease::AmigaPower)
+            if (mVersionCurrent->isAmigaPower())
                 GUI_Element_Mouse_Over(mPlus_Buttons);
         }
     });
@@ -10542,7 +10541,7 @@ void cFodder::Game_Load() {
         // If the game was saved on a different platform, lets look for it and attempt to switch
         if (mGame_Data.mSavedVersion.mPlatform != mVersionCurrent->mPlatform) {
 
-            auto Version = FindAvailableVersionForCampaignPlatform(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform);
+            auto Version = mVersions->GetForCampaign(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform);
 
             VersionSwitch(Version);
         }
@@ -20318,7 +20317,7 @@ int16 cFodder::Recruit_Show() {
     Mission_Memory_Backup();
 
     // Retail or Custom Mode
-    if (mVersionCurrent->mRelease == eRelease::Retail ||
+    if (mVersionCurrent->isRetail() ||
         mCustom_Mode != eCustomMode_None) {
         Map_Load();
 
@@ -20337,7 +20336,7 @@ Start:;
     mCampaign.Clear();
     mVersionDefault = 0;
     mVersionCurrent = 0;
-    VersionSwitch(g_AvailableDataVersions[0]);
+    VersionSwitch(mVersions->GetRetail());
 
     //Playground();
 
@@ -20458,7 +20457,7 @@ int16 cFodder::Mission_Loop() {
 
 
         // Show the Briefing screen for Retail and Custom 
-        if (mVersionCurrent->mRelease == eRelease::Retail || mCustom_Mode == eCustomMode_Set || mCampaign.isRandom()) {
+        if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set || mCampaign.isRandom()) {
             Briefing_Show_Ready();
 
             // Aborted?
@@ -21415,7 +21414,7 @@ void cFodder::Squad_Split_Assets() {
 void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
 
     // Don't display the map button on the final map
-    if (mVersionCurrent->mRelease == eRelease::Retail && mGame_Data.mMapNumber == 0x47)
+    if (mVersionCurrent->isRetail() && mGame_Data.mMapNumber == 0x47)
         return;
 
     // No the map overview button in the Demo versions
@@ -21589,7 +21588,7 @@ void cFodder::Squad_Switch_Weapon() {
 void cFodder::Mission_Final_TimeToDie() {
 
     // Retail CF1 only
-    if (mVersionCurrent->mRelease != eRelease::Retail || mVersionCurrent->mGame != eGame::CF1)
+    if (!mVersionCurrent->isRetail() || mVersionCurrent->mGame != eGame::CF1)
         return;
 
     if (mGame_Data.mMapNumber != 0x47)
