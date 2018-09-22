@@ -57,6 +57,17 @@ struct sRelease {
 	eRelease			mRelease;
 };
 
+class cResources;
+class cResource_PC_CD;
+class cResource_Amiga_File;
+class cGraphics;
+class cGraphics_PC;
+class cGraphics_Amiga;
+class cSound;
+class cSound_PC;
+class cSound_PC2;
+class cSound_Amiga;
+
 struct sGameVersion {
 	const std::string	mName;
 
@@ -73,17 +84,14 @@ struct sGameVersion {
 
 
 	bool hasGfx(eGFX_Types pGfxType) const {
-
 		return std::find(mGfxTypes.begin(), mGfxTypes.end(), pGfxType) != mGfxTypes.end();
 	}
 
 	bool hasTileset(eTileTypes pTileType) const {
-
 		return std::find(mTileTypes.begin(), mTileTypes.end(), pTileType) != mTileTypes.end();
 	}
 
 	bool isCustom() const {
-
 		return mRelease == eRelease::Custom;
 	}
 
@@ -114,6 +122,30 @@ struct sGameVersion {
 		return mPlatform == ePlatform::PC;
 	}
 
+    cDimension GetScreenSize() const {
+        if (isAmiga())
+            return { 320,225 };
+
+        return { 320,200 };
+    }
+
+    cDimension GetOriginalRes() const {
+        if (isAmiga())
+            return { 320,225 };
+
+        return { 320,200 };
+    }
+
+    cDimension GetSecondScreenSize() const {
+        if (isAmiga())
+            return { 320,260 };
+
+        return { 320,200 };
+    }
+
+    std::shared_ptr<cResources> GetResources(const std::string& pDataPathOverride) const;
+    std::shared_ptr<cGraphics> GetGraphics() const;
+    std::shared_ptr<cSound> GetSound() const;
 };
 
 class cVersions {
@@ -127,10 +159,10 @@ public:
     cVersions();
 
     bool isCampaignKnown(const std::string& pName) const;
-    bool isCampaignDataAvailable(const std::string& pName) const;
+    bool isCampaignAvailable(const std::string& pName) const;
     bool isDataAvailable() const;
 
-    std::vector<std::string> GetAvailableNames() const;
+    std::vector<std::string> GetCampaignNames() const;
 
     const sGameVersion* GetForCampaign(const std::string& pCampaign) const;
     const sGameVersion* GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const;

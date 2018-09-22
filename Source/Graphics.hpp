@@ -132,7 +132,7 @@ public:
 	}
 };
 
-class cGraphics : public cSingleton<cGraphics> {
+class cGraphics {
 	public:
 	sImage				mImageTemporary;
 	sImage				mSpriteSheet_InGame1;	// Army

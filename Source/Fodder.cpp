@@ -220,7 +220,7 @@ int16 cFodder::Mission_Phase_Loop() {
     for (;;) {
         Video_Sleep();
 
-        sub_12018();
+        MapTile_UpdateFromCamera();
         MapTile_Update_Position();
 
         Game_Handle();
@@ -1876,7 +1876,7 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
     Mission_Sprites_Handle();
 
     // Refresh the palette
-    g_Graphics.PaletteSet(mSurface);
+    mGraphics->PaletteSet(mSurface);
     mSurface->surfaceSetToPaletteNew();
 #endif
 
@@ -1908,8 +1908,8 @@ bool cFodder::Tiles_Load_Data() {
     // junsub0.blk
     SubName.append(mMap->data() + 0x10, mMap->data() + 0x10 + 11);
 
-    mTile_BaseBlk = g_Resource->fileGet(BaseName);
-    mTile_SubBlk = g_Resource->fileGet(SubName);
+    mTile_BaseBlk = mResources->fileGet(BaseName);
+    mTile_SubBlk = mResources->fileGet(SubName);
 
     if (!mTile_BaseBlk->size() || !mTile_SubBlk->size())
         return false;
@@ -1996,20 +1996,20 @@ void cFodder::Map_Load_Resources() {
     mFilenameBasePal = Filename_CreateFromBase(BaseBase, ".pal");
 
 
-    size_t Size = g_Resource->fileLoadTo(mFilenameBaseSwp, (uint8*)&mTile_Destroy_Swap[0]);
+    size_t Size = mResources->fileLoadTo(mFilenameBaseSwp, (uint8*)&mTile_Destroy_Swap[0]);
     tool_EndianSwap((uint8*)&mTile_Destroy_Swap[0], Size);
 
-    Size = g_Resource->fileLoadTo(mFilenameSubSwp, (uint8*)&mTile_Destroy_Swap[240]);
+    Size = mResources->fileLoadTo(mFilenameSubSwp, (uint8*)&mTile_Destroy_Swap[240]);
     tool_EndianSwap((uint8*)&mTile_Destroy_Swap[240], Size);
 
-    Size = g_Resource->fileLoadTo(mFilenameBaseHit, (uint8*)&mTile_Hit[0]);
+    Size = mResources->fileLoadTo(mFilenameBaseHit, (uint8*)&mTile_Hit[0]);
     tool_EndianSwap((uint8*)&mTile_Hit[0], Size);
 
-    Size = g_Resource->fileLoadTo(mFilenameSubHit, (uint8*)&mTile_Hit[240]);
+    Size = mResources->fileLoadTo(mFilenameSubHit, (uint8*)&mTile_Hit[240]);
     tool_EndianSwap((uint8*)&mTile_Hit[240], Size);
 
-    Size = g_Resource->fileLoadTo(mFilenameBaseBht, (uint8*)&mTile_BHit[0][0]);
-    Size = g_Resource->fileLoadTo(mFilenameSubBht, (uint8*)&mTile_BHit[240][0]);
+    Size = mResources->fileLoadTo(mFilenameBaseBht, (uint8*)&mTile_BHit[0][0]);
+    Size = mResources->fileLoadTo(mFilenameSubBht, (uint8*)&mTile_BHit[240][0]);
 
     mGraphics->Tile_Prepare_Gfx();
     mGraphics->Map_Load_Resources();
@@ -2040,7 +2040,7 @@ void cFodder::Camera_Pan_To_Target() {
 
     Data0 &= 0x0FFFE;
 
-    sub_12018();
+    MapTile_UpdateFromCamera();
     MapTile_Update_Position();
 }
 
@@ -2119,13 +2119,7 @@ void cFodder::Camera_Update_Mouse_Position_For_Pan() {
     mCamera_TileY = (mCameraY >> 16);
 }
 
-void cFodder::sub_12018() {
-    int16 Data0 = mCameraX >> 16;
-    Data0 -= mMapTile_Column_New >> 16;
-
-    Data0 = mCameraY >> 16;
-    Data0 -= mMapTile_Row_New >> 16;
-
+void cFodder::MapTile_UpdateFromCamera() {
     mMapTile_SpeedX = mCamera_TileSpeedX;
     mMapTile_SpeedY = mCamera_TileSpeedY;
     mMapTile_Column_New = mCameraX;
@@ -2418,7 +2412,6 @@ void cFodder::Mission_Phase_Goals_Check() {
     int16 Data0 = 0x2B;
 
     for (Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20) {
-
         if (Data20->field_0 == -32768)
             continue;
 
@@ -2427,7 +2420,6 @@ void cFodder::Mission_Phase_Goals_Check() {
             goto loc_12620;
 
         if (Data10 == eSprite_BuildingDoor2 || Data10 == eSprite_BuildingDoor) {
-
             if (Data20->field_38 == eSprite_Anim_Die1)
                 continue;
 
@@ -2440,9 +2432,7 @@ void cFodder::Mission_Phase_Goals_Check() {
         }
 
         const int16* Data24 = mEnemy_Unit_Types;
-
         for (; *Data24 >= 0; ++Data24) {
-
             if (Data10 != *Data24)
                 continue;
 
@@ -2462,9 +2452,7 @@ void cFodder::Mission_Phase_Goals_Check() {
     }
 
     if (!mPhase_Goals[eGoal_Kidnap_Leader - 1]) {
-
         if (!mPhase_Goals[eGoal_Rescue_Hostages - 1]) {
-
             if (!mPhase_Goals[eGoal_Rescue_Hostage - 1])
                 goto loc_126A6;
         }
@@ -2476,13 +2464,11 @@ void cFodder::Mission_Phase_Goals_Check() {
 loc_126A6:;
 
     if (mPhase_Goals[eGoal_Get_Civilian_Home - 1]) {
-
         if (!mSprite_Civilian_GotHome)
             return;
     }
 
     if (mPhase_Goals[eGoal_Activate_All_Switches - 1]) {
-
         if (!mSwitchesActivated)
             return;
     }
@@ -2782,8 +2768,8 @@ void cFodder::Mission_Map_Overview_Show() {
                 mSurfaceMapOverview->Restore();
         }
 
-        g_Window.RenderShrunk(mSurfaceMapOverview);
-        g_Window.FrameEnd();
+        mWindow->RenderShrunk(mSurfaceMapOverview);
+        mWindow->FrameEnd();
 
         Mouse_Inputs_Get();
 
@@ -2874,7 +2860,7 @@ bool cFodder::EventAdd(cEvent pEvent) {
 }
 
 void cFodder::eventProcess() {
-    g_Window.EventCheck();
+    mWindow->EventCheck();
 
     for (auto Event : mEvents) {
 
@@ -3017,10 +3003,10 @@ void cFodder::Mouse_Setup() {
 
 void cFodder::Mouse_Cursor_Handle() {
     static bool CursorGrabbed = false;
-    auto MouseGlobalPos = g_Window.GetMousePosition();
-    auto ScreenSize = g_Window.GetScreenSize();
-    auto WindowPos = g_Window.GetWindowPosition();
-    auto WindowSize = g_Window.GetWindowSize();
+    auto MouseGlobalPos = mWindow->GetMousePosition();
+    auto ScreenSize = mWindow->GetScreenSize();
+    auto WindowPos = mWindow->GetWindowPosition();
+    auto WindowSize = mWindow->GetWindowSize();
 
     int16 scaleX = (WindowSize.mWidth / ScreenSize.mWidth);
     int16 scaleY = (WindowSize.mHeight / ScreenSize.mHeight);
@@ -3029,12 +3015,12 @@ void cFodder::Mouse_Cursor_Handle() {
 
     eventProcess();
 
-    if (!g_Window.hasFocusEvent() && CursorGrabbed)
+    if (!mWindow->hasFocusEvent() && CursorGrabbed)
         CursorGrabbed = false;
 
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
-        if (g_Window.hasFocusEvent()) {
+        if (mWindow->hasFocusEvent()) {
             // check if the system cursor x/y is inside our window
             if (MouseGlobalPos.mX >= (WindowPos.mX) && MouseGlobalPos.mX <= (WindowPos.mX + WindowSize.getWidth()) &&
                 (MouseGlobalPos.mY >= (WindowPos.mY) && MouseGlobalPos.mY <= (WindowPos.mY + WindowSize.getHeight()))) {
@@ -3049,7 +3035,7 @@ void cFodder::Mouse_Cursor_Handle() {
                         mInputMouseY -= mMouseY_Offset;
                     }
 
-                if (!g_Window.isFullscreen()) {
+                if (!mWindow->isFullscreen()) {
                     // Ensure X not too close to a border
                     if (mInputMouseX <= -32)
                         mInputMouseX = -31;
@@ -3063,7 +3049,7 @@ void cFodder::Mouse_Cursor_Handle() {
                         mInputMouseY = ScreenSize.getHeight() - 1;
                 }
 
-                g_Window.SetMouseWindowPosition(WindowSize.getCentre());
+                mWindow->SetMouseWindowPosition(WindowSize.getCentre());
             }
         }
     } else {
@@ -3083,9 +3069,9 @@ void cFodder::Mouse_Cursor_Handle() {
 
         //  if yes; set system cursor outside the border
         if (CursorGrabbed && (BorderMouse.mX || BorderMouse.mY)) {
-           // g_Window.ReleaseMouse();
+           // mWindow->ReleaseMouse();
             CursorGrabbed = false;
-            g_Window.SetMousePosition(BorderMouse);
+            mWindow->SetMousePosition(BorderMouse);
             return;
         }
 
@@ -3097,7 +3083,7 @@ void cFodder::Mouse_Cursor_Handle() {
         mInputMouseY = mMouseY + (YDiff / scaleY);
 
         // Set system cursor back to centre of window
-        g_Window.SetMouseWindowPosition(WindowSize.getCentre());
+        mWindow->SetMouseWindowPosition(WindowSize.getCentre());
     }
 
 }
@@ -3218,11 +3204,7 @@ void cFodder::WindowTitleSet(bool pInMission) {
 }
 
 void cFodder::VersionCleanup() {
-    delete mGraphics;
-    delete mSound;
 
-    mGraphics = 0;
-    mSound = 0;
 }
 
 void cFodder::WindowTitleBaseSetup() {
@@ -3283,36 +3265,21 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     VersionCleanup();
 
-    if (mVersionCurrent->isPC()) {
+    mResources = mVersionCurrent->GetResources(DataPath);
+    mGraphics = mVersionCurrent->GetGraphics();
+    mSound = mVersionCurrent->GetSound();
 
-        mResources = std::make_shared<cResource_PC_CD>(DataPath);
-        mGraphics = new cGraphics_PC();
-
-        if (mVersionCurrent->mGame == eGame::CF1)
-            mSound = new cSound_PC();
-
-        if (mVersionCurrent->mGame == eGame::CF2)
-            mSound = new cSound_PC2();
-
-        mWindow->SetScreenSize(cDimension(320, 200));
-        mWindow->SetOriginalRes(cDimension(320, 200));
-
+    if (mVersionCurrent->isAmiga()) {
+        GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0xE0);
     }
-    else if (mVersionCurrent->isAmiga()) {
 
-        mResources = std::make_shared<cResource_Amiga_File>(DataPath);
-        mGraphics = new cGraphics_Amiga();
-        mSound = new cSound_Amiga();
-
-        ((cGraphics_Amiga*)mGraphics)->SetCursorPalette(0xE0);
-
-        mWindow->SetScreenSize(cDimension(320, 225));
-        mWindow->SetOriginalRes(cDimension(320, 225));
-    }
-    else {
+    if(!mResources) {
         std::cout << "Unknown Platform";
         exit(1);
     }
+
+    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+    mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
 
     g_Resource = mResources;
 
@@ -3755,7 +3722,7 @@ void cFodder::CopyProtection() {
     if (!mVersionCurrent->isPC())
         return;
 
-    g_Graphics.SetActiveSpriteSheet(eGFX_Types::eGFX_RECRUIT);
+    mGraphics->SetActiveSpriteSheet(eGFX_Types::eGFX_RECRUIT);
 
     // 3 Attempts
     for (int16 Attempts = 0; Attempts < 3; ++Attempts) {
@@ -3932,7 +3899,7 @@ static std::vector<unsigned char> mCampaignSelectMap_AF = {
 };
 
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
-    mCampaignList = mVersions->GetAvailableNames();
+    mCampaignList = mVersions->GetCampaignNames();
 
     mMission_Aborted = false;
     mGUI_SaveLoadAction = 0;
@@ -4331,8 +4298,8 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     mGraphics->Load_And_Draw_Image("apmenu.lbm", 32);
 
     // Amiga Demos have a different cursor palette
-    ((cGraphics_Amiga*)mGraphics)->SetCursorPalette(0x10);
-    mWindow->SetScreenSize(cDimension(320, 260));
+    GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0x10);
+    mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
 
     mGUI_Mouse_Modifier_Y = 4;
 
@@ -4347,9 +4314,9 @@ bool cFodder::Demo_Amiga_ShowMenu() {
         }
     });
 
-    ((cGraphics_Amiga*)mGraphics)->SetCursorPalette(0xE0);
+    GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0xE0);
 
-    mWindow->SetScreenSize(cDimension(320, 225));
+    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 
     return mMission_Aborted;
 }
@@ -4384,10 +4351,8 @@ bool cFodder::Recruit_Loop() {
 
     Recruit_Copy_Sprites();
 
-    if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
-
-        ((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
-    }
+    if (mVersionCurrent->mPlatform == ePlatform::Amiga)
+        GetGraphics<cGraphics_Amiga>()->Hill_Prepare_Overlays();
 
     mGraphics->SetActiveSpriteSheet(eGFX_HILL);
 
@@ -9287,7 +9252,7 @@ void cFodder::MapTile_Update_Position() {
     }
 
     if (TileColumns || TileRows)
-        g_Graphics.MapTiles_Draw();
+        mGraphics->MapTiles_Draw();
 }
 
 void cFodder::MapTile_Move_Right(int16 pPanTiles) {
@@ -10181,7 +10146,7 @@ loc_2DFC7:;
     mVideo_Draw_Columns = 0x10;
     mVideo_Draw_Rows = 0x10;
 
-    g_Graphics.MapTiles_Draw();
+    mGraphics->MapTiles_Draw();
 }
 
 void cFodder::Map_Destroy_Tiles_Next() {
@@ -10541,9 +10506,7 @@ void cFodder::Game_Load() {
         // If the game was saved on a different platform, lets look for it and attempt to switch
         if (mGame_Data.mSavedVersion.mPlatform != mVersionCurrent->mPlatform) {
 
-            auto Version = mVersions->GetForCampaign(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform);
-
-            VersionSwitch(Version);
+            VersionSwitch( mVersions->GetForCampaign(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform) );
         }
 
         mMouse_Exit_Loop = 0;
@@ -11132,9 +11095,9 @@ void cFodder::Service_KIA_Loop() {
         GUI_Draw_Frame_16(7, 0, 0xF0, 0x31);
     }
     else {
-        ((cGraphics_Amiga*)mGraphics)->Service_Draw(8, 0x30, 0);
-        ((cGraphics_Amiga*)mGraphics)->Service_Draw(0, 0, 0x40);
-        ((cGraphics_Amiga*)mGraphics)->Service_Draw(4, 0xF0, 0x40);
+        GetGraphics<cGraphics_Amiga>()->Service_Draw(8, 0x30, 0);
+        GetGraphics<cGraphics_Amiga>()->Service_Draw(0, 0, 0x40);
+        GetGraphics<cGraphics_Amiga>()->Service_Draw(4, 0xF0, 0x40);
     }
 
     mImageFaded = -1;
@@ -11180,9 +11143,9 @@ void cFodder::Service_Promotion_Loop() {
         GUI_Draw_Frame_16(8, 0, 0xF0, 0x31);
     }
     else {
-        ((cGraphics_Amiga*)mGraphics)->Service_Draw(9, 0x30, 0);        // Heroes in Victory
-        ((cGraphics_Amiga*)mGraphics)->Service_Draw(3, 0, 0x40);     //  Left Symbol
-        ((cGraphics_Amiga*)mGraphics)->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
+        ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(9, 0x30, 0);        // Heroes in Victory
+        ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(3, 0, 0x40);     //  Left Symbol
+        ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
     }
 
     mImageFaded = -1;
@@ -18230,8 +18193,7 @@ void cFodder::SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet) {
 
 void cFodder::intro() {
 
-    if (mVersionCurrent->mPlatform == ePlatform::Amiga)
-        mWindow->SetScreenSize(cDimension(320, 260));
+    mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
 
     // Disabled: GOG CD Version doesn't require a manual check
     //  CopyProtection();
@@ -18269,8 +18231,7 @@ introDone:;
     mGraphics->Load_pStuff();
     mSound->Music_Play(0);
 
-    if (mVersionCurrent->mPlatform == ePlatform::Amiga)
-        mWindow->SetScreenSize(cDimension(320, 225));
+    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 }
 
 void cFodder::intro_Music_Play() {
@@ -18281,7 +18242,7 @@ void cFodder::intro_Music_Play() {
 int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration) {
     bool DoBreak = false;
 
-    g_Graphics.Load_And_Draw_Image(pFilename, 0x100);
+    mGraphics->Load_And_Draw_Image(pFilename, 0x100);
     mGraphics->PaletteSet();
 
     mImageFaded = -1;
@@ -18390,8 +18351,7 @@ void cFodder::WonGame() {
     mMouseX = -1;
     mMouseY = -1;
 
-    if (mVersionCurrent->isAmiga())
-        mWindow->SetScreenSize(cDimension(320, 260));
+    mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
 
     mGraphics->Load_And_Draw_Image("won", 0x100);
 
@@ -18405,8 +18365,7 @@ void cFodder::WonGame() {
 
     Image_FadeOut();
 
-    if (mVersionCurrent->isAmiga())
-        mWindow->SetScreenSize(cDimension(320, 225));
+    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 }
 
 int16 cFodder::Sprite_Handle_Troop_Get_Frame_For_Direction(sSprite* pSprite) {
@@ -20173,7 +20132,7 @@ void cFodder::Playground() {
 
     if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
 
-        ((cGraphics_Amiga*)mGraphics)->Hill_Prepare_Overlays();
+        GetGraphics<cGraphics_Amiga>()->Hill_Prepare_Overlays();
     }
 
     // Load Icon
@@ -20518,7 +20477,7 @@ int16 cFodder::Mission_Loop() {
         Sprite_Aggression_Set();
         Mission_Phase_Goals_Set();
 
-        g_Graphics.PaletteSet();
+        mGraphics->PaletteSet();
 
         mImageFaded = -1;
 
@@ -20597,7 +20556,7 @@ void cFodder::MapTiles_Draw() {
     mMapTile_Column_CurrentScreen = 0;
     mMapTile_Row_CurrentScreen = 0;
 
-    g_Graphics.MapTiles_Draw();
+    mGraphics->MapTiles_Draw();
 }
 
 void cFodder::Exit(unsigned int pExitCode) {
