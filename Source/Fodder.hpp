@@ -732,7 +732,7 @@ public:
     void            Briefing_Draw_Pixel(int16 pX, int16 pY, uint8 pColor);
 
     void			Mission_Intro_Play();
-    void            Intro_Print_String(int32 pPosX, const sIntroString* pString);
+    void            Intro_Print_String(const sIntroString* pString);
 
     void            Sprite_Frame_Modifier_Update();
 

@@ -18006,9 +18006,9 @@ void cFodder::intro_LegionMessage() {
 
     mImageFaded = -1;
 
-    Intro_Print_String(mVersionCurrent->mIntroData[0].mText[0].mPosition, &mVersionCurrent->mIntroData[0].mText[0]);
-    Intro_Print_String(mVersionCurrent->mIntroData[0].mText[1].mPosition, &mVersionCurrent->mIntroData[0].mText[1]);
-    Intro_Print_String(mVersionCurrent->mIntroData[0].mText[2].mPosition, &mVersionCurrent->mIntroData[0].mText[2]);
+    Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[0]);
+    Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[1]);
+    Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[2]);
 
     while (mImageFaded == -1 || DoBreak == false) {
 
@@ -18064,7 +18064,7 @@ int16 cFodder::intro_Play() {
         if (IntroString) {
             while (IntroString->mPosition) {
 
-                Intro_Print_String(IntroString->mPosition, IntroString);
+                Intro_Print_String(IntroString);
                 ++IntroString;
             }
         }
@@ -18137,12 +18137,12 @@ void cFodder::Mission_Intro_Play() {
     mGraphics->Mission_Intro_Play();
 }
 
-void cFodder::Intro_Print_String(int32 pPosY, const sIntroString* pString) {
+void cFodder::Intro_Print_String(const sIntroString* pString) {
 
-    pPosY += VERSION_BASED(-0x19, 9);
+    int PosY = pString->mPosition + VERSION_BASED(-0x19, 9);
 
     String_CalculateWidth(320, mFont_Intro_Width, pString->mText);
-    String_Print(mFont_Intro_Width, 0, mGUI_Temp_X, pPosY, pString->mText);
+    String_Print(mFont_Intro_Width, 0, mGUI_Temp_X, PosY, pString->mText);
 }
 
 void cFodder::Image_FadeIn() {
