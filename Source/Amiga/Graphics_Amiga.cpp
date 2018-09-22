@@ -217,14 +217,6 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 		ax = -ax;
 		--ax;
 
-		// TODO: This all needs work, as it expects to move in groups of 8 pixels
-		//do {
-		//	++ax;
-		//} while (ax & 1);
-
-//		if (p16bit)
-		//	ax >>= 2;
-
 		mFodder->mVideo_Draw_PosX += ax;
 		mFodder->mVideo_Draw_Columns -= ax;
 
@@ -1460,7 +1452,6 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 	mFodder->mVideo_Draw_PosX = 16;
 
 	do {
-
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING);
 		mFodder->mVideo_Draw_PosY = 40;
 		Video_Draw_16_Offset(word_42875);

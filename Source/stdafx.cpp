@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 
 std::shared_ptr<cResources> g_Resource;
+std::shared_ptr<cWindow>    g_Window;
 
 #ifndef _OFED
 #ifndef _OFBOT
@@ -43,7 +44,9 @@ int main(int argc, char *args[]) {
 		}
 	}
 
-	cFodder* Fodder = new cFodder(new cWindow(), SkipIntro);
+    g_Window = std::make_shared<cWindow>();
+
+	cFodder* Fodder = new cFodder(g_Window, SkipIntro);
 	Fodder->Prepare();
 	Fodder->Start( MapNumber );
 

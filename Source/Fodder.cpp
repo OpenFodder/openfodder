@@ -41,7 +41,7 @@ const int16 mBriefing_Helicopter_Offsets[] =
     -1, -1
 };
 
-cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
+cFodder::cFodder(std::shared_ptr<cWindow>& pWindow, bool pSkipIntro) {
 
     mVersions = std::make_shared<cVersions>();
     mVersionCurrent = 0;
