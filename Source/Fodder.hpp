@@ -65,14 +65,14 @@ public:
     bool					mOpenFodder_Intro_Done;
     bool                    mSoundDisabled;
 
-    const sGameVersion* mVersionDefault;		// Version to switch back to when looking for data
-    const sGameVersion* mVersionCurrent;		// Version currently being used
+    const sGameVersion*     mVersionDefault;		// Version to switch back to when looking for data
+    const sGameVersion*     mVersionCurrent;		// Version currently being used
     cCampaign               mCampaign;				// Campaign currently being played
 
     std::shared_ptr<cGraphics>  mGraphics;
     std::shared_ptr<cSound>     mSound;
     std::shared_ptr<cResources> mResources;
-    cWindow*                    mWindow;
+    std::shared_ptr<cWindow>    mWindow;
     std::shared_ptr<cVersions>  mVersions;
 
     sGameData				mGame_Data;
@@ -1232,7 +1232,7 @@ public:
 
 public:
 
-    cFodder(cWindow* pWindow, bool pSkipIntro = false);
+    cFodder(std::shared_ptr<cWindow>& pWindow, bool pSkipIntro = false);
     virtual         ~cFodder();
 
     void            SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet);

@@ -31,8 +31,8 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF << 16, 0xFF << 8, 0xFF, 0 );
 	mTexture = 0;
 
-	if(g_Window.GetRenderer())
-		mTexture = SDL_CreateTexture(g_Window.GetRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, (int) pWidth, (int) pHeight);
+	if(g_Window->GetRenderer())
+		mTexture = SDL_CreateTexture(g_Window->GetRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, (int) pWidth, (int) pHeight);
 	
 	mSurfaceBuffer = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSaved = new uint8[ mWidth * mHeight ];

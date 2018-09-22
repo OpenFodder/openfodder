@@ -20,7 +20,7 @@
  *
  */
 
-class cWindow : public cSingleton<cWindow> {
+class cWindow {
 	
 	protected:
 		SDL_Window*			mWindow;

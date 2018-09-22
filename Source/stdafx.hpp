@@ -146,9 +146,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 
 #define g_Fodder	cFodder::GetSingleton()
-#define g_Window	cWindow::GetSingleton()
 
 #define VERSION_BASED( pPC, pAmiga ) (g_Fodder.mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
 
 extern std::shared_ptr<cResources> g_Resource;
-
+extern std::shared_ptr<cWindow>    g_Window;
