@@ -29,6 +29,7 @@
 
 std::shared_ptr<cResources> g_Resource;
 std::shared_ptr<cWindow>    g_Window;
+std::shared_ptr<cFodder>    g_Fodder;
 
 #ifndef _OFED
 #ifndef _OFBOT
@@ -46,11 +47,9 @@ int main(int argc, char *args[]) {
 
     g_Window = std::make_shared<cWindow>();
 
-	cFodder* Fodder = new cFodder(g_Window, SkipIntro);
-	Fodder->Prepare();
-	Fodder->Start( MapNumber );
-
-	delete Fodder;
+    g_Fodder = std::make_shared<cFodder>( g_Window, SkipIntro );
+    g_Fodder->Prepare();
+    g_Fodder->Start( MapNumber );
 
     return 0;
 }

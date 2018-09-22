@@ -167,7 +167,7 @@ void cWindow::EventCheck() {
 		}
 
 		if ( Event.mType != eEvent_None )
-			g_Fodder.EventAdd( Event );
+			g_Fodder->EventAdd( Event );
 	}
 
 }

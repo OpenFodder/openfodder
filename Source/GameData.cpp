@@ -135,16 +135,16 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	// Save the current game data version
 	{
 		Json Version;
-		Version["mName"] = g_Fodder.mVersionCurrent->mName;
-		Version["mGame"] = g_Fodder.mVersionCurrent->mGame;
-		Version["mPlatform"] = g_Fodder.mVersionCurrent->mPlatform;
-		Version["mRelease"] = g_Fodder.mVersionCurrent->mRelease;
+		Version["mName"] = g_Fodder->mVersionCurrent->mName;
+		Version["mGame"] = g_Fodder->mVersionCurrent->mGame;
+		Version["mPlatform"] = g_Fodder->mVersionCurrent->mPlatform;
+		Version["mRelease"] = g_Fodder->mVersionCurrent->mRelease;
 
 		Save["DataVersion"] = Version;
 	}
 	
 	// Keep the campaign
-	Save["Campaign"] = g_Fodder.mCampaign.getName();
+	Save["Campaign"] = g_Fodder->mCampaign.getName();
 	Save["SaveName"] = pSaveName;
 
 	// Actual game states
