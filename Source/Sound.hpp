@@ -31,7 +31,7 @@ enum eSound_Effect {
 	eSound_Effect_Rocket			= 0x2E,
 };
 
-class cSound : public cSingleton<cSound> {
+class cSound {
 
 	virtual bool		devicePrepare() = 0;
 

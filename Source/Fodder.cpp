@@ -188,8 +188,6 @@ cFodder::cFodder(cWindow* pWindow, bool pSkipIntro) {
 cFodder::~cFodder() {
 
     delete mSurfaceMapOverview;
-
-    VersionCleanup();
 }
 
 void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
@@ -3203,10 +3201,6 @@ void cFodder::WindowTitleSet(bool pInMission) {
     mWindow->SetWindowTitle(Title.str());
 }
 
-void cFodder::VersionCleanup() {
-
-}
-
 void cFodder::WindowTitleBaseSetup() {
 
     mWindowTitle.str("");
@@ -3263,15 +3257,11 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     Image_FadeOut();
 
-    VersionCleanup();
-
-    mResources = mVersionCurrent->GetResources(DataPath);
+    // Sound must be released first, to unlock the audio device
+    mSound = 0;
+    mResources = g_Resource = mVersionCurrent->GetResources(DataPath);
     mGraphics = mVersionCurrent->GetGraphics();
     mSound = mVersionCurrent->GetSound();
-
-    if (mVersionCurrent->isAmiga()) {
-        GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0xE0);
-    }
 
     if(!mResources) {
         std::cout << "Unknown Platform";
@@ -3280,8 +3270,6 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
     mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
-
-    g_Resource = mResources;
 
     mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
     mGraphics->Load_pStuff();

@@ -1257,6 +1257,5 @@ public:
     void            Menu_Loop(const std::function<void()> pButtonHandler);
     bool            Menu_Draw(const std::function<void()> pButtonHandler);
 
-    void            VersionCleanup();
     void            VersionSwitch(const sGameVersion* pVersion);
 };
