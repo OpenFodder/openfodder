@@ -69,8 +69,8 @@ public:
     const sGameVersion* mVersionCurrent;		// Version currently being used
     cCampaign               mCampaign;				// Campaign currently being played
 
-    cGraphics*                  mGraphics;
-    cSound*                     mSound;
+    std::shared_ptr<cGraphics>  mGraphics;
+    std::shared_ptr<cSound>     mSound;
     std::shared_ptr<cResources> mResources;
     cWindow*                    mWindow;
     std::shared_ptr<cVersions>  mVersions;
@@ -597,7 +597,7 @@ public:
     void            Camera_Pan_Set_Speed();
     void            Camera_Update_Mouse_Position_For_Pan();
 
-    void            sub_12018();
+    void            MapTile_UpdateFromCamera();
     void            Camera_Reset();
     void            Camera_TileSpeedX_Set();
     void            Camera_TileSpeedY_Set();
@@ -1221,6 +1221,14 @@ public:
     void            keyProcess(uint8 pKeyCode, bool pPressed);
 
     void            Game_Setup(int16 pStartMap);
+
+    template <typename tType> std::shared_ptr<tType> GetGraphics() {
+        return std::dynamic_pointer_cast<tType>(mGraphics);
+    }
+
+    template <typename tType> std::shared_ptr<tType> GetSound() {
+        return std::dynamic_pointer_cast<tType>(mSound);
+    }
 
 public:
 

@@ -52,7 +52,7 @@ struct sMission_Troop {
 };
 
 struct sHero {
-    int16    mRecruitID;
+    int16   mRecruitID;
     int16   mRank;
     int16   mKills;
 
@@ -71,7 +71,6 @@ struct sHero {
 
 struct sGameData {
     uint16          mMapNumber;
-
 
     uint16          mMissionNumber;
     uint16          mMissionPhase;
