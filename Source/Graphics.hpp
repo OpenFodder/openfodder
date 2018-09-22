@@ -153,7 +153,7 @@ class cGraphics {
 protected:
 	cSurface*			mSurface;
 	cSurface*			mImageOriginal;
-	cFodder*			mFodder;
+	std::shared_ptr<cFodder> mFodder;
 
 
 public:

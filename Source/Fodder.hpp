@@ -121,13 +121,11 @@ public:
     int16           mMission_EngineTicks;
     uint16          mMission_Restart;
 
-    /* These used to be in the save game region */
     sSprite*        mMission_Troops_SpritePtrs[9];
 
     int16*          mGraveRankPtr;
     int16*          mGraveRankPtr2;
     int16*          mGraveRecruitIDPtr;
-    /* End old save game region */
 
     int16           mButtonPressLeft, mButtonPressRight;
     int16           mMouse_Button_Left_Toggle;
@@ -154,8 +152,8 @@ public:
     int16           word_39F3C;
     int16           word_39F3E;
 
-    int32           mMapTile_Column_New;        // X : Unknown
-    int32           mMapTile_Row_New;        // Y 
+    int32           mMapTile_X;
+    int32           mMapTile_Y;
     int32           mMapTile_SpeedX;
     int32           mMapTile_SpeedY;
 

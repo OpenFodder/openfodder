@@ -24,7 +24,7 @@
 
 void Mixer_ChannelFinished2(int32 pChannel) {
 
-    g_Fodder.GetSound<cSound_PC2>()->MixerChannelFinished( pChannel );
+    g_Fodder->GetSound<cSound_PC2>()->MixerChannelFinished( pChannel );
 }
 
 cSound_PC2::cSound_PC2() {

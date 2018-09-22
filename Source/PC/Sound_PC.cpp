@@ -24,7 +24,7 @@
 #include "PC/VocTable.hpp"
 
 void Mixer_ChannelFinished(int32 pChannel) {
-    g_Fodder.GetSound<cSound_PC>()->MixerChannelFinished( pChannel );
+    g_Fodder->GetSound<cSound_PC>()->MixerChannelFinished( pChannel );
 }
 
 cSound_PC::cSound_PC() {

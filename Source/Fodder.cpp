@@ -128,8 +128,8 @@ cFodder::cFodder(std::shared_ptr<cWindow>& pWindow, bool pSkipIntro) {
     mCameraX = 0;
     mCameraY = 0;
 
-    mMapTile_Column_New = 0;
-    mMapTile_Row_New = 0;
+    mMapTile_X = 0;
+    mMapTile_Y = 0;
     mMapTile_SpeedX = 0;
     mMapTile_SpeedY = 0;
 
@@ -524,8 +524,8 @@ void cFodder::Mission_Memory_Clear() {
     mCamera_TileX = 0;
     mCamera_TileY = 0;
     mKeyCodeAscii = 0;
-    mMapTile_Column_New = 0;
-    mMapTile_Row_New = 0;
+    mMapTile_X = 0;
+    mMapTile_Y = 0;
     mMapTile_SpeedX = 0;
     mMapTile_SpeedY = 0;
 
@@ -2120,8 +2120,8 @@ void cFodder::Camera_Update_Mouse_Position_For_Pan() {
 void cFodder::MapTile_UpdateFromCamera() {
     mMapTile_SpeedX = mCamera_TileSpeedX;
     mMapTile_SpeedY = mCamera_TileSpeedY;
-    mMapTile_Column_New = mCameraX;
-    mMapTile_Row_New = mCameraY;
+    mMapTile_X = mCameraX;
+    mMapTile_Y = mCameraY;
     mMapTile_MoveDirectionX = mCamera_MoveDirectionX;
     mMapTile_MoveDirectionY = mCamera_MoveDirectionY;
 }
@@ -2283,13 +2283,13 @@ void cFodder::Mission_Sprites_Handle() {
 
     Sprite_Sort_DrawList();
 
-    int16 Data0 = (mCameraX >> 16) - (mMapTile_Column_New >> 16);
+    int16 Data0 = (mCameraX >> 16) - (mMapTile_X >> 16);
 
     Data0 = (mCameraY >> 16);
-    Data0 -= (mMapTile_Row_New >> 16);
+    Data0 -= (mMapTile_Y >> 16);
 
-    mMapTile_Column_New = mCameraX;
-    mMapTile_Row_New = mCameraY;
+    mMapTile_X = mCameraX;
+    mMapTile_Y = mCameraY;
     mMapTile_SpeedX = mCamera_TileSpeedX;
     mMapTile_SpeedY = mCamera_TileSpeedY;
     mMapTile_MoveDirectionX = mCamera_MoveDirectionX;
@@ -2583,10 +2583,10 @@ void cFodder::Mission_Text_Sprite_Complete(sSprite* pData2C) {
 
 void cFodder::Mission_Text_Prepare(sSprite* pData2C) {
 
-    pData2C->field_0 = mMapTile_Column_New >> 16;
+    pData2C->field_0 = mMapTile_X >> 16;
     pData2C->field_0 += 0x54;
 
-    pData2C->field_4 = mMapTile_Row_New >> 16;
+    pData2C->field_4 = mMapTile_Y >> 16;
     pData2C->field_4 += 0xEB;
 
     pData2C->field_A = 0;
@@ -3368,12 +3368,12 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
         return -1;
     }
 
-    Data2C->field_0 = mMapTile_Column_New >> 16;
+    Data2C->field_0 = mMapTile_X >> 16;
     Data0 = tool_RandomGet() & 0xFF;
     Data0 += 0x0A;
 
     Data2C->field_0 += Data0;
-    Data2C->field_4 = mMapTile_Row_New >> 16;
+    Data2C->field_4 = mMapTile_Y >> 16;
 
     Data0 = tool_RandomGet() & 0xFF;
     Data0 -= 0x14;
@@ -8099,7 +8099,7 @@ int16 cFodder::Map_Get_Distance_BetweenSprites_Within_320( const sSprite *pSprit
     auto X2 = pSprite2->field_0;
     auto Y2 = pSprite2->field_4;
 
-    return g_Fodder.Map_Get_Distance_BetweenPoints_Within_320(X1, Y1, X2, Y2);
+    return Map_Get_Distance_BetweenPoints_Within_320(X1, Y1, X2, Y2);
 }
 
 int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2) {
@@ -9315,7 +9315,7 @@ void cFodder::MapTile_Update_Row() {
     }
 
     mCamera_MovePauseY = 0;
-    mMapTile_Row = mMapTile_Row_New >> 16;
+    mMapTile_Row = mMapTile_Y >> 16;
     word_39FAE = mMapTile_SpeedY >> 16;
 }
 
@@ -9338,7 +9338,7 @@ void cFodder::MapTile_Update_Column() {
     }
 
     mCamera_MovePauseX = 0;
-    mMapTile_Column = mMapTile_Column_New >> 16;
+    mMapTile_Column = mMapTile_X >> 16;
     word_39FAC = mMapTile_SpeedX >> 16;
 }
 
@@ -10861,9 +10861,9 @@ void cFodder::Demo_Quiz() {
     Mouse_Setup();
 
     Menu_Loop(
-        []() {
-        if (g_Fodder.mButtonPressLeft)
-            g_Fodder.GUI_Element_Mouse_Over(mPlusQuiz_Buttons);
+        [this]() {
+        if (mButtonPressLeft)
+            GUI_Element_Mouse_Over(mPlusQuiz_Buttons);
     }
     );
 
@@ -13471,11 +13471,11 @@ loc_1B35A:;
 }
 
 void cFodder::Sprite_Handle_Text_Complete(sSprite* pSprite) {
-    pSprite->field_0 = mMapTile_Column_New >> 16;
+    pSprite->field_0 = mMapTile_X >> 16;
     pSprite->field_0 += 0x47;
     pSprite->field_4 -= 0x20;
 
-    int16 Data0 = mMapTile_Row_New >> 16;
+    int16 Data0 = mMapTile_Y >> 16;
     Data0 += 0x77;
 
     if (Data0 < pSprite->field_4)
@@ -13485,11 +13485,11 @@ void cFodder::Sprite_Handle_Text_Complete(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Text_Mission(sSprite* pSprite) {
-    pSprite->field_0 = mMapTile_Column_New >> 16;
+    pSprite->field_0 = mMapTile_X >> 16;
     pSprite->field_0 += 0x56;
     pSprite->field_4 -= 0x20;
 
-    int16 Data0 = mMapTile_Row_New >> 16;
+    int16 Data0 = mMapTile_Y >> 16;
     Data0 += 0x63;
 
     if (Data0 < pSprite->field_4)
@@ -13499,11 +13499,11 @@ void cFodder::Sprite_Handle_Text_Mission(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Text_Phase(sSprite* pSprite) {
-    pSprite->field_0 = mMapTile_Column_New >> 16;
+    pSprite->field_0 = mMapTile_X >> 16;
     pSprite->field_0 += 0x5F;
     pSprite->field_4 -= 0x20;
 
-    int16 Data0 = mMapTile_Row_New >> 16;
+    int16 Data0 = mMapTile_Y >> 16;
     Data0 += 0x63;
 
     if (Data0 < pSprite->field_4)
@@ -13698,11 +13698,11 @@ loc_1B843:;
 
 void cFodder::Sprite_Handle_Text_GameOver(sSprite* pSprite) {
 
-    pSprite->field_0 = mMapTile_Column_New >> 16;
+    pSprite->field_0 = mMapTile_X >> 16;
     pSprite->field_0 += 0x5B;
     pSprite->field_4 -= 0x20;
 
-    int16 Data0 = mMapTile_Row_New >> 16;
+    int16 Data0 = mMapTile_Y >> 16;
     Data0 += 0x77;
 
     if (Data0 < pSprite->field_4)
@@ -14332,11 +14332,11 @@ void cFodder::Sprite_Handle_Smoke(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Text_Try(sSprite* pSprite) {
-    pSprite->field_0 = mMapTile_Column_New >> 16;
+    pSprite->field_0 = mMapTile_X >> 16;
     pSprite->field_0 += 0x71;
     pSprite->field_4 -= 0x20;
 
-    int16 Data0 = mMapTile_Row_New >> 16;
+    int16 Data0 = mMapTile_Y >> 16;
     Data0 += 0x63;
 
     if (Data0 < pSprite->field_4)
@@ -14346,11 +14346,11 @@ void cFodder::Sprite_Handle_Text_Try(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Text_Again(sSprite* pSprite) {
-    pSprite->field_0 = mMapTile_Column_New >> 16;
+    pSprite->field_0 = mMapTile_X >> 16;
     pSprite->field_0 += 0x57;
     pSprite->field_4 -= 0x20;
 
-    int16 Data0 = mMapTile_Row_New >> 16;
+    int16 Data0 = mMapTile_Y >> 16;
     Data0 += 0x75;
 
     if (Data0 < pSprite->field_4)
@@ -14527,12 +14527,12 @@ loc_1C87E:;
     pSprite->field_57 = 0x3F;
     Data0 = tool_RandomGet() & 0x3F;
 
-    Data0 += mMapTile_Column_New >> 16;
+    Data0 += mMapTile_X >> 16;
     Data0 += 0x140;
     pSprite->field_0 = Data0;
 
     Data0 = tool_RandomGet() & 0xFF;
-    Data0 += mMapTile_Row_New >> 16;
+    Data0 += mMapTile_Y >> 16;
     pSprite->field_4 = Data0;
 
 loc_1C8C5:;
@@ -14601,11 +14601,11 @@ void cFodder::Sprite_Handle_Bird_Right(sSprite* pSprite) {
     pSprite->field_57 = 0x3F;
     Data0 = tool_RandomGet() & 0x3F;
     Data0 = -Data0;
-    Data0 += mMapTile_Column_New >> 16;
+    Data0 += mMapTile_X >> 16;
 
     pSprite->field_0 = Data0;
     Data0 = tool_RandomGet() & 0xFF;
-    Data0 += mMapTile_Row_New >> 16;
+    Data0 += mMapTile_Y >> 16;
     pSprite->field_4 = Data0;
 
 loc_1CA20:;
