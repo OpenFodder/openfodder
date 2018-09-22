@@ -59,6 +59,8 @@ const sStruct0_Amiga stru_A918A[] = {
 
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = std::make_shared<std::vector<uint8>>();
+
+    SetCursorPalette(0xE0);
 }
 
 cGraphics_Amiga::~cGraphics_Amiga() {
