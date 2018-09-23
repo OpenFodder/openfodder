@@ -1513,8 +1513,7 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 		if (mFodder->mImageFaded)
 			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
 
-		mFodder->eventProcess();
-		mFodder->Video_Sleep();
+		mFodder->Cycle_End();
         mFodder->Video_SurfaceRender();
 
 		mFodder->Mouse_Inputs_Get();

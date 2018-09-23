@@ -61,7 +61,6 @@ public:
     char                    mInputString[0x300];
 
     bool                    mSkipIntro;
-    std::vector<cEvent>     mEvents;
     bool					mOpenFodder_Intro_Done;
     bool                    mSoundDisabled;
 
@@ -645,7 +644,6 @@ public:
     void            Mission_Text_GameOver(sSprite* pData2C);
     void            Mission_Paused();
 
-    void            Video_Sleep_Wrapper();
     void            Mouse_DrawCursor();
     void            GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY);
     void            GUI_Draw_Frame_16(int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY);
@@ -1205,7 +1203,7 @@ public:
     void            WonGame();
 
     void            Video_SurfaceRender( const bool pRestoreSurface = true );
-    void            Video_Sleep();
+    void            Cycle_End();
 
     void            sleepLoop(int64 pMilliseconds);
     int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration);
@@ -1241,7 +1239,6 @@ public:
     void            String_Print_Small(std::string pText, const size_t pY);
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
-    bool            EventAdd(cEvent pEvent);
     void            Prepare();
 
     void            Playground();

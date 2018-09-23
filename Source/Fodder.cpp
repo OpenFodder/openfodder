@@ -216,7 +216,7 @@ int16 cFodder::Mission_Phase_Loop() {
     mSurface->Save();
 
     for (;;) {
-        Video_Sleep();
+        Cycle_End();
 
         MapTile_UpdateFromCamera();
         MapTile_Update_Position();
@@ -270,8 +270,7 @@ int16 cFodder::Mission_Phase_Loop() {
             while (mMission_Paused) {
 
                 Video_SurfaceRender(false);
-                eventProcess();
-                Video_Sleep();
+                Cycle_End();
             }
 
             mGraphics->PaletteSet();
@@ -2850,17 +2849,9 @@ void cFodder::Briefing_Set_Render_1_Mode_On() {
     mBriefing_Render_1_Mode = -1;
 }
 
-bool cFodder::EventAdd(cEvent pEvent) {
-
-    mEvents.push_back(pEvent);
-
-    return true;
-}
-
 void cFodder::eventProcess() {
-    mWindow->EventCheck();
 
-    for (auto Event : mEvents) {
+    for (auto Event : *mWindow->EventGet()) {
 
         switch (Event.mType) {
 
@@ -2908,7 +2899,7 @@ void cFodder::eventProcess() {
 
     }
 
-    mEvents.clear();
+    mWindow->EventGet()->clear();
 }
 
 void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
@@ -3028,10 +3019,10 @@ void cFodder::Mouse_Cursor_Handle() {
                 mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - 40;
                 mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4;
 
-                    if (mMouseX_Offset || mMouseY_Offset) {
-                        mInputMouseX -= mMouseX_Offset;
-                        mInputMouseY -= mMouseY_Offset;
-                    }
+                if (mMouseX_Offset || mMouseY_Offset) {
+                    mInputMouseX -= mMouseX_Offset;
+                    mInputMouseY -= mMouseY_Offset;
+                }
 
                 if (!mWindow->isFullscreen()) {
                     // Ensure X not too close to a border
@@ -3050,11 +3041,12 @@ void cFodder::Mouse_Cursor_Handle() {
                 mWindow->SetMouseWindowPosition(WindowSize.getCentre());
             }
         }
-    } else {
+    }
+    else {
         cPosition BorderMouse;
 
         mouse_Button_Status = mMouseButtons;
-        
+
         // Need to check if the game cursor x is near a border
         if (mMouseX <= -32 || mMouseX >= (ScreenSize.getWidth() - 38)) {
             BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
@@ -3067,7 +3059,7 @@ void cFodder::Mouse_Cursor_Handle() {
 
         //  if yes; set system cursor outside the border
         if (CursorGrabbed && (BorderMouse.mX || BorderMouse.mY)) {
-           // mWindow->ReleaseMouse();
+            // mWindow->ReleaseMouse();
             CursorGrabbed = false;
             mWindow->SetMousePosition(BorderMouse);
             return;
@@ -3083,7 +3075,6 @@ void cFodder::Mouse_Cursor_Handle() {
         // Set system cursor back to centre of window
         mWindow->SetMouseWindowPosition(WindowSize.getCentre());
     }
-
 }
 
 void cFodder::Mouse_Inputs_Get() {
@@ -3766,7 +3757,7 @@ void cFodder::CopyProtection() {
                 GUI_Draw_Frame_8(0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0xA0);
 
             Video_SurfaceRender();
-            eventProcess();
+            Cycle_End();
         }
 
         Image_FadeOut();
@@ -4231,7 +4222,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
             GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
         Video_SurfaceRender();
-        Video_Sleep();
+        Cycle_End();
 
     } while (mGUI_SaveLoadAction <= 0);
 
@@ -5182,7 +5173,7 @@ void cFodder::Recruit_Draw() {
         mGraphics->Recruit_Draw_HomeAway();
 
     Mouse_DrawCursor();
-    Video_Sleep_Wrapper();
+    Cycle_End();
 
     if (mSurface->GetFaded() == false)
         mSurface->palette_FadeTowardNew();
@@ -10787,7 +10778,7 @@ void cFodder::Menu_Loop(const std::function<void()> pButtonHandler) {
 
     for (;;) {
 
-        Video_Sleep_Wrapper();
+        Cycle_End();
 
         if (Menu_Draw(pButtonHandler))
             break;
@@ -10829,7 +10820,7 @@ void cFodder::Demo_Quiz_ShowScreen(const char* pFilename) {
     mSurface->palette_FadeTowardNew();
 
     for (;; ) {
-        Video_Sleep_Wrapper();
+        Cycle_End();
 
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
@@ -11108,7 +11099,7 @@ void cFodder::Service_KIA_Loop() {
             mImageFaded = mSurface->palette_FadeTowardNew();
 
         sub_18149();
-        Video_Sleep_Wrapper();
+        Cycle_End();
         sub_181BD();
 
         Video_SurfaceRender();
@@ -11157,7 +11148,7 @@ void cFodder::Service_Promotion_Loop() {
 
         Service_Promotion_Check();
         sub_18149();
-        Video_Sleep_Wrapper();
+        Cycle_End();
         //sub_14445();
         sub_181BD();
 
@@ -11698,8 +11689,6 @@ void cFodder::Briefing_Show_Ready() {
     mMouse_Exit_Loop = 0;
 
     do {
-        Video_Sleep();
-        eventProcess();
         Mouse_Inputs_Get();
 
         if (mMission_Aborted) {
@@ -11709,6 +11698,7 @@ void cFodder::Briefing_Show_Ready() {
         }
 
         Video_SurfaceRender(false);
+        Cycle_End();
 
     } while (!mMouse_Exit_Loop);
 
@@ -18028,8 +18018,8 @@ void cFodder::intro_LegionMessage() {
             }
         }
 
-        eventProcess();
         Video_SurfaceRender(false);
+        Cycle_End();
     }
 }
 
@@ -18291,11 +18281,6 @@ void cFodder::Mission_Phase_Next() {
     mGraveRankPtr2 = mGraveRankPtr;
 }
 
-void cFodder::Video_Sleep_Wrapper() {
-
-    Video_Sleep();
-}
-
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 
     mWindow->RenderAt(mSurface);
@@ -18305,15 +18290,15 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
         mSurface->Restore();
 }
 
-void cFodder::Video_Sleep() {
+void cFodder::Cycle_End() {
     static int64 delta = 2;
 
+    mWindow->Cycle();
+    eventProcess();
+
     mTicksDiff = SDL_GetTicks() - mTicksDiff;
-
     mTicks = mTicksDiff * 40 / 1000;
-
     sleepLoop(delta * 1000 / 40 - mTicksDiff);
-
     mTicksDiff = SDL_GetTicks();
 }
 
@@ -18328,7 +18313,7 @@ void cFodder::sleepLoop(int64 pMilliseconds) {
         if (SDL_GetTicks() >= TimeFinish)
             break;
 
-        SDL_Delay(10);
+        SDL_Delay(1);
 
     } while (1);
 
@@ -18347,8 +18332,7 @@ void cFodder::WonGame() {
 
     for (int count = 500; count >= 0; --count) {
 
-        eventProcess();
-        Video_Sleep();
+        Cycle_End();
     }
 
     Image_FadeOut();
