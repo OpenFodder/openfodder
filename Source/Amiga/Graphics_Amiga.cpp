@@ -1522,11 +1522,11 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
-			mFodder->mMouse_Exit_Loop = 0;
+			mFodder->mMouse_Exit_Loop = false;
             mFodder->mMission_Aborted = 0;
 		}
 
 	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
 
-	mFodder->mMouse_Exit_Loop = 0;
+	mFodder->mMouse_Exit_Loop = false;
 }
