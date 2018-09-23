@@ -71,9 +71,10 @@ cFodder::cFodder(std::shared_ptr<cWindow>& pWindow, bool pSkipIntro) {
     mInputMouseY = 0;
 
     mButtonPressLeft = mButtonPressRight = 0;
-    mMouse_Button_Left_Toggle = mMouse_Exit_Loop = 0;
+    mMouse_Button_Left_Toggle = 0;
     mMouse_Button_Right_Toggle = 0;
-    mMouse_Button_LeftRight_Toggle = word_39F04 = 0;
+    mMouse_Button_LeftRight_Toggle = mSquad_Member_Fire_CoolDown_Override = false;
+    mMouse_Exit_Loop = false;
 
     mSprite_Frame_1 = 0;
     mSprite_Frame_Modifier_Update_Countdown = 0;
@@ -83,7 +84,7 @@ cFodder::cFodder(std::shared_ptr<cWindow>& pWindow, bool pSkipIntro) {
 
     mEnemy_BuildingCount = 0;
     mMission_Aborted = false;
-    mMouse_Button_LeftRight_Toggle2 = 0;
+    mMouse_Button_LeftRight_Toggle2 = false;
 
     word_3ABFD = 0;
 
@@ -397,15 +398,15 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     // Mouse near sidebar?
     if (mMouseX <= 0x0F) {
 
-        if (word_39F40) {
-            mCamera_PanTargetX += (SquadLeaderX - word_39F3C);
-            mCamera_PanTargetY += (SquadLeaderY - word_39F3E);
+        if (mCamera_Panning_ToTarget) {
+            mCamera_PanTargetX += (SquadLeaderX - mCamera_SquadLeaderX);
+            mCamera_PanTargetY += (SquadLeaderY - mCamera_SquadLeaderY);
 
-            word_39F3C = SquadLeaderX;
-            word_39F3E = SquadLeaderY;
+            mCamera_SquadLeaderX = SquadLeaderX;
+            mCamera_SquadLeaderY = SquadLeaderY;
         } else {
             //loc_10A11
-            word_39F40 = -1;
+            mCamera_Panning_ToTarget = true;
             mCamera_PanTargetX = (mCameraX >> 16) + 0x80;
             mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
         }
@@ -414,9 +415,9 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
         return;
     }
 
-    word_39F40 = 0;
-    word_39F3C = SquadLeaderX;
-    word_39F3E = SquadLeaderY;
+    mCamera_Panning_ToTarget = false;
+    mCamera_SquadLeaderX = SquadLeaderX;
+    mCamera_SquadLeaderY = SquadLeaderY;
     int16 Data0 = mMouseX + (mCameraX >> 16);
     int16 Data4 = mMouseY + (mCameraY >> 16);
 
@@ -498,18 +499,18 @@ void cFodder::Mission_Memory_Clear() {
     mButtonPressRight = 0;
     mMouse_Button_Left_Toggle = 0;
     mMouse_Button_Right_Toggle = 0;
-    mMouse_Button_LeftRight_Toggle = 0;
+    mMouse_Button_LeftRight_Toggle = false;
 
     mVehicle_Input_Disabled = false;
-    mMouse_Exit_Loop = 0;
-    word_39F04 = 0;
+    mMouse_Exit_Loop = false;
+    mSquad_Member_Fire_CoolDown_Override = false;
 
     mCameraY = 0;
     dword_39F36 = 0;
     mCamera_Scroll_Speed = 0;
-    word_39F3C = 0;
-    word_39F3E = 0;
-    word_39F40 = 0;
+    mCamera_SquadLeaderX = 0;
+    mCamera_SquadLeaderY = 0;
+    mCamera_Panning_ToTarget = false;
 
     mCamera_Speed_X = 0;
     mCamera_Speed_Y = 0;
@@ -519,7 +520,6 @@ void cFodder::Mission_Memory_Clear() {
     mCamera_Speed_Reset_X = 0;
     mCamera_Speed_Reset_Y = 0;
     mCamera_TileSpeed_Overflow = 0;
-    dword_39F5A = 0;
     mCamera_TileX = 0;
     mCamera_TileY = 0;
     mKeyCodeAscii = 0;
@@ -1489,10 +1489,9 @@ void cFodder::Camera_Speed_Update_From_PanTarget() {
     if (sub_119E1(Data0, Data4, Data8, DataC) >= 0) {
 
         Data0 &= 0x1FE;
-        word_39F34 = Data0;
         if (!dword_39F36)
             return;
-        Data4 = word_39F34;
+        Data4 = Data0;
 
         Data8 = mMap_Direction_Calculations[Data4 / 2];
         Data4 += 0x80;
@@ -2131,7 +2130,6 @@ void cFodder::Camera_Reset() {
     mCamera_TileSpeedY = 0;
     mCameraX = 0;
     mCameraY = 0;
-    word_39F34 = 0;
     dword_39F36 &= 0x0000FFFF;
     mCamera_AccelerationX &= 0x0000FFFF;
     mCamera_AccelerationY &= 0x0000FFFF;
@@ -2147,7 +2145,7 @@ void cFodder::Camera_Reset() {
 void cFodder::Camera_TileSpeedX_Set() {
     mCamera_TileSpeed_Overflow = 0;
 
-    dword_39F5A = mCameraX;
+    int32 dword_39F5A = mCameraX;
     int32 Data0 = mCamera_Speed_X;
 
     mCameraX += Data0;
@@ -2184,7 +2182,7 @@ void cFodder::Camera_TileSpeedX_Set() {
 
 void cFodder::Camera_TileSpeedY_Set() {
 
-    dword_39F5A = mCameraY;
+    int32 dword_39F5A = mCameraY;
 
     int32 Data0 = mCamera_Speed_Y;
     mCameraY += Data0;
@@ -3132,17 +3130,17 @@ void cFodder::Mouse_ButtonCheck() {
         mButtonPressLeft -= 1;
         if (mMouse_Button_Left_Toggle == 0) {
             mMouse_Button_Left_Toggle = -1;
-            mMouse_Exit_Loop = -1;
+            mMouse_Exit_Loop = true;
 
             if (mButtonPressRight) {
-                mMouse_Button_LeftRight_Toggle = -1;
-                mMouse_Button_LeftRight_Toggle2 = -1;
+                mMouse_Button_LeftRight_Toggle = true;
+                mMouse_Button_LeftRight_Toggle2 = true;
             }
         }
 
     }
     else {
-        mMouse_Button_LeftRight_Toggle2 = 0;
+        mMouse_Button_LeftRight_Toggle2 = false;
         mMouse_Button_Left_Toggle = 0;
     }
 
@@ -3150,7 +3148,7 @@ void cFodder::Mouse_ButtonCheck() {
     if (mouse_Button_Status & 2) {
         mButtonPressRight -= 1;
         if (mMouse_Button_Right_Toggle == 0) {
-            word_39F04 = -1;
+            mSquad_Member_Fire_CoolDown_Override = true;
             mMouse_Button_Right_Toggle = -1;
         }
     }
@@ -4358,11 +4356,11 @@ bool cFodder::Recruit_Loop() {
     Recruit_Draw_Actors();
     Recruit_Draw_Actors();
 
-    mMouse_Exit_Loop = 0;
+    mMouse_Exit_Loop = false;
 
     for (;; ) {
         if (mMouse_Exit_Loop) {
-            mMouse_Exit_Loop = 0;
+            mMouse_Exit_Loop = false;
 
             if (Recruit_Check_Buttons_SaveLoad())
                 break;
@@ -9546,8 +9544,8 @@ int16 cFodder::Mission_Troop_GetDeviatePotential(sMission_Troop* pData24) {
 }
 
 void cFodder::Squad_Member_Rotate_Can_Fire() {
-    if (word_39F04)
-        word_39F04 = 0;
+    if (mSquad_Member_Fire_CoolDown_Override)
+        mSquad_Member_Fire_CoolDown_Override = false;
     else {
         mSquad_Member_Fire_CoolDown -= 2;
         if (mSquad_Member_Fire_CoolDown >= 0)
@@ -10324,7 +10322,7 @@ void cFodder::Game_Save() {
     outfile << mGame_Data.ToJson(SaveGameName);
     outfile.close();
 
-    mMouse_Exit_Loop = 0;
+    mMouse_Exit_Loop = false;
 }
 
 void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20) {
@@ -10488,7 +10486,7 @@ void cFodder::Game_Load() {
             VersionSwitch( mVersions->GetForCampaign(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform) );
         }
 
-        mMouse_Exit_Loop = 0;
+        mMouse_Exit_Loop = false;
 
         // Reset grave pointers
         mGraveRankPtr = mGame_Data.mGraveRanks;
@@ -10635,7 +10633,7 @@ void cFodder::GUI_Sidebar_Prepare_Squads() {
     mMouseDisabled = 0;
 
     Sidebar_Render_To_ScreenBuffer();
-    mMouse_Button_LeftRight_Toggle = 0;
+    mMouse_Button_LeftRight_Toggle = false;
 }
 
 void cFodder::GUI_Element_Mouse_Over(const sGUI_Element *pElement) {
@@ -11080,7 +11078,7 @@ void cFodder::Service_KIA_Loop() {
     }
 
     mImageFaded = -1;
-    mMouse_Exit_Loop = 0;
+    mMouse_Exit_Loop = false;
     mService_ExitLoop = 0;
     mGraphics->PaletteSet();
     mSurface->Save();
@@ -11089,7 +11087,7 @@ void cFodder::Service_KIA_Loop() {
         Mouse_Inputs_Get();
 
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
-            mMouse_Exit_Loop = 0;
+            mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
             mImageFaded = -1;
             mService_ExitLoop = 1;
@@ -11129,7 +11127,7 @@ void cFodder::Service_Promotion_Loop() {
 
     mImageFaded = -1;
     mService_ExitLoop = 0;
-    mMouse_Exit_Loop = 0;
+    mMouse_Exit_Loop = false;
     mGraphics->PaletteSet();
     mSurface->Save();
 
@@ -11137,7 +11135,7 @@ void cFodder::Service_Promotion_Loop() {
 
         Mouse_Inputs_Get();
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
-            mMouse_Exit_Loop = 0;
+            mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
             mImageFaded = -1;
             mService_ExitLoop = 1;
@@ -11686,7 +11684,7 @@ void cFodder::Briefing_Show_Ready() {
     Briefing_Draw_Phase();
     Briefing_Draw_With();
 
-    mMouse_Exit_Loop = 0;
+    mMouse_Exit_Loop = false;
 
     do {
         Mouse_Inputs_Get();
@@ -11702,7 +11700,7 @@ void cFodder::Briefing_Show_Ready() {
 
     } while (!mMouse_Exit_Loop);
 
-    mMouse_Exit_Loop = 0;
+    mMouse_Exit_Loop = false;
 
     Image_FadeOut();
     Mouse_Setup();
@@ -17925,7 +17923,7 @@ loc_31514:;
 loc_31668:;
     mVehicle_Input_Disabled = true;
     Data20->field_6E = -1;
-    mMouse_Button_LeftRight_Toggle = 0;
+    mMouse_Button_LeftRight_Toggle = false;
 loc_3167D:;
     Data0 = -1;
     return -1;
@@ -18117,7 +18115,7 @@ void cFodder::Mission_Intro_Play() {
     mGraphics->Mission_Intro_Load_Resources();
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
-    mMouse_Exit_Loop = 0;
+    mMouse_Exit_Loop = false;
     mSound->Music_Play(0x07);
     Mission_Intro_Helicopter_Start();
 
@@ -18582,7 +18580,7 @@ loc_20AC1:;
 
 loc_20ADE:;
     if (pSprite == mSquad_Leader)
-        mMouse_Button_LeftRight_Toggle = 0;
+        mMouse_Button_LeftRight_Toggle = false;
 
     return -1;
 
@@ -18678,7 +18676,7 @@ loc_20B6E:;
     Data2C->field_46_sprite = pSprite;
 
     if (pSprite == mSquad_Leader)
-        mMouse_Button_LeftRight_Toggle = 0;
+        mMouse_Button_LeftRight_Toggle = false;
 
     return 0;
 }
@@ -19842,7 +19840,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     loc_22592:;
 
         if (pSprite == mSquad_Leader)
-            mMouse_Button_LeftRight_Toggle = 0;
+            mMouse_Button_LeftRight_Toggle = false;
 
         return -1;
     }
@@ -19961,7 +19959,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     Data2C->field_56 = 6;
 
     if (pSprite == mSquad_Leader)
-        mMouse_Button_LeftRight_Toggle = 0;
+        mMouse_Button_LeftRight_Toggle = false;
 
     return 0;
 }
@@ -21074,7 +21072,7 @@ void cFodder::GUI_Sidebar_Ready() {
 
     word_3AC51 = 0;
     mMouseDisabled = 0;
-    mMouse_Button_LeftRight_Toggle = 0;
+    mMouse_Button_LeftRight_Toggle = false;
 }
 
 void cFodder::GUI_Sidebar_Rockets_Draw() {

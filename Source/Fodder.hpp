@@ -127,7 +127,7 @@ public:
     int16*          mGraveRecruitIDPtr;
 
     int16           mButtonPressLeft, mButtonPressRight;
-    int16           mMouse_Button_Left_Toggle;
+
     bool            mVehicle_Input_Disabled;
     int16           mMouse_Exit_Loop;
     int16           mMapTile_PreviousMoveDirectionX;
@@ -138,26 +138,28 @@ public:
 
     int16           word_39FAE;
     int16           mCamera_MovePauseX;
-
     int16           mCamera_MovePauseY;
+
+    int16           mMouse_Button_Left_Toggle;
     int16           mMouse_Button_Right_Toggle;
-    int16           mMouse_Button_LeftRight_Toggle;
-    int16           word_39F04;
+    bool            mMouse_Button_LeftRight_Toggle;
+    bool            mMouse_Button_LeftRight_Toggle2;
+
+    bool            mSquad_Member_Fire_CoolDown_Override;
 
     int32           mCamera_TileSpeedX;
     int32           mCamera_TileSpeedY;
     int32           dword_39F36;
     int16           mCamera_Scroll_Speed;
-    int16           word_39F3C;
-    int16           word_39F3E;
+    int16           mCamera_SquadLeaderX;
+    int16           mCamera_SquadLeaderY;
 
     int32           mMapTile_X;
     int32           mMapTile_Y;
     int32           mMapTile_SpeedX;
     int32           mMapTile_SpeedY;
 
-    int16           word_39F34;
-    int16           word_39F40;
+    int16           mCamera_Panning_ToTarget;
     int32           mCamera_AccelerationX;
     int32           mCamera_AccelerationY;
     bool            mCamera_Speed_Reset_X;
@@ -165,7 +167,6 @@ public:
     int32           mCamera_Speed_X;
     int32           mCamera_Speed_Y;
     int32           mCamera_TileSpeed_Overflow;
-    int32           dword_39F5A;
     int16           mCamera_TileX;
     int16           mCamera_TileY;
     int16           mKeyCodeAscii;
@@ -418,7 +419,6 @@ public:
     int32           mCameraY;
 
     int16           mMouseCursor_Enabled;
-    int16           mMouse_Button_LeftRight_Toggle2;
 
     int16           mMouseSpriteNew;
     int16           mMouseSetToCursor;
