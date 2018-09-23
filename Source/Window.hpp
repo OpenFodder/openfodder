@@ -26,14 +26,18 @@ class cWindow {
 		SDL_Window*			mWindow;
 		SDL_Renderer*		mRenderer;
 
+        std::vector<cEvent> mEvents;
+
 		cDimension			mOriginalResolution;
 
 		cDimension			mScreenSize;
+        cPosition           mMouse;
 
 		uint8				mWindow_Multiplier, mWindow_MultiplierPrevious;
 
 		bool				mWindowMode;
         bool                mHasFocus;
+        bool                mCursorGrabbed;
 
 	protected:
 
@@ -49,6 +53,9 @@ class cWindow {
 
 		bool				CanChangeToMultiplier( int pNewMultiplier );
 
+        bool                Cycle();
+
+        std::vector<cEvent>* EventGet();
 		virtual void		EventCheck();
 		virtual void		FrameEnd();
 
@@ -65,7 +72,7 @@ class cWindow {
         bool                isFullscreen() const;
         bool                isGrabbed() const;
         void                GrabMouse();
-        void                ReleaseMouse();
+        void                ReleaseMouse( const cPosition& pToPosition );
 
 		void				SetCursor();
 
@@ -88,4 +95,6 @@ class cWindow {
 		const bool			GetWindowMode() const { return mWindowMode; }
         const bool          HasFocus();
         const bool          hasFocusEvent() const { return mHasFocus; }
+        const cPosition     GetMousePosition() const { return mMouse; }
+        const bool          GetMouseGrabbed() const { return mCursorGrabbed; }
 };

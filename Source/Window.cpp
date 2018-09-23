@@ -39,6 +39,7 @@ cWindow::cWindow() {
 	mRenderer = 0;
 
     mHasFocus = false;
+    mCursorGrabbed = false;
 
 }
 
@@ -84,6 +85,35 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 #endif
 
 	return true;
+}
+
+std::vector<cEvent>* cWindow::EventGet() {
+    return &mEvents;
+}
+
+bool cWindow::Cycle() {
+    cPosition Mouse;
+
+    EventCheck();
+
+    // Update the mouse position over the window
+    for (auto& Event : mEvents) {
+        switch (Event.mType) {
+        default:
+            break;
+        case eEvent_MouseLeftDown:
+        case eEvent_MouseRightDown:
+        case eEvent_MouseLeftUp:
+        case eEvent_MouseRightUp:
+        case eEvent_MouseMove:
+            Mouse = Event.mPosition;
+            break;
+        }
+    }
+
+    // TODO: Move Cursor logic here
+
+    return true;
 }
 
 void cWindow::EventCheck() {
@@ -167,7 +197,7 @@ void cWindow::EventCheck() {
 		}
 
 		if ( Event.mType != eEvent_None )
-			g_Fodder->EventAdd( Event );
+			mEvents.push_back( Event );
 	}
 
 }
@@ -329,12 +359,12 @@ bool cWindow::isGrabbed() const {
 
     return false;
 }
-void cWindow::GrabMouse() {
-    SDL_SetWindowGrab(mWindow, SDL_TRUE);
-}
 
-void cWindow::ReleaseMouse() {
+void cWindow::ReleaseMouse(const cPosition& pToPosition) {
+
     SDL_SetWindowGrab(mWindow, SDL_FALSE);
+    mCursorGrabbed = false;
+    SetMousePosition(pToPosition);
 }
 
 void cWindow::SetFullScreen() {
