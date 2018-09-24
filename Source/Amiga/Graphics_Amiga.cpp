@@ -1513,10 +1513,8 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 		if (mFodder->mImageFaded)
 			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
 
-		mFodder->Cycle_End();
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-
-		mFodder->Mouse_Inputs_Get();
 
 		if (mFodder->mMouse_Exit_Loop || mFodder->mMission_Aborted) {
 			mFodder->word_428D8 = 0;
@@ -1526,6 +1524,7 @@ void cGraphics_Amiga::Mission_Intro_Play() {
             mFodder->mMission_Aborted = 0;
 		}
 
+        mFodder->Cycle_End();
 	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
 
 	mFodder->mMouse_Exit_Loop = false;

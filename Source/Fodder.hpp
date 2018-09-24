@@ -1193,7 +1193,6 @@ public:
     void            intro_LegionMessage();
     int16           intro_Play();
     void            intro();
-    void            intro_Music_Play();
 
     void            Sidebar_Clear_ScreenBufferPtr();
     void            Mission_Phase_Next();
@@ -1228,7 +1227,7 @@ public:
 
 public:
 
-    cFodder(std::shared_ptr<cWindow>& pWindow, bool pSkipIntro = false);
+    cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro = false);
     virtual         ~cFodder();
 
     void            SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet);

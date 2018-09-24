@@ -41,7 +41,7 @@ const int16 mBriefing_Helicopter_Offsets[] =
     -1, -1
 };
 
-cFodder::cFodder(std::shared_ptr<cWindow>& pWindow, bool pSkipIntro) {
+cFodder::cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro) {
 
     mVersions = std::make_shared<cVersions>();
     mVersionCurrent = 0;
@@ -2999,8 +2999,6 @@ void cFodder::Mouse_Cursor_Handle() {
     int16 scaleY = (WindowSize.mHeight / ScreenSize.mHeight);
     if (scaleY == 0)
         scaleY = 1;
-
-    eventProcess();
 
     if (!mWindow->hasFocusEvent() && CursorGrabbed)
         CursorGrabbed = false;
@@ -9568,9 +9566,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
     // TODO: 0x0F is the max rank, so what was this code for?
     {
         if (Dataa20->mRank > 0x14) {
-
             if (mSquad_Selected >= 0) {
-
                 if (mSquads_TroopCount[mSquad_Selected] == 1) {
                     mSquad_Member_Fire_CoolDown = 1;
                     mSprite_Bullet_Time_Modifier = -3;
@@ -17986,7 +17982,7 @@ void cFodder::String_CalculateWidth(int32 pPosX, const uint8* pWidths, const cha
 }
 
 void cFodder::intro_LegionMessage() {
-    int16 Duration = 300;
+    int16 Duration = 350 / 4;
     bool DoBreak = false;
 
     mSurface->clearBuffer();
@@ -18028,7 +18024,7 @@ int16 cFodder::intro_Play() {
 
     for (word_3B2CF = 1; mVersionCurrent->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
 
-        mIntro_PlayTextDuration = 0x288;
+        mIntro_PlayTextDuration = 0x288 / 4;
 
         mSurface->palette_SetToBlack();
 
@@ -18043,7 +18039,7 @@ int16 cFodder::intro_Play() {
             mGraphics->Load_And_Draw_Image(ImageName.str(), 0xD0);
         }
         else {
-            mIntro_PlayTextDuration = 0xAF;
+            mIntro_PlayTextDuration = 0xAF / 4;
             mSurface->clearBuffer();
         }
 
@@ -18088,6 +18084,7 @@ int16 cFodder::intro_Play() {
             }
 
             Video_SurfaceRender(false);
+            Cycle_End();
         }
 
 
@@ -18180,24 +18177,24 @@ void cFodder::intro() {
     if (mSkipIntro)
         goto introDone;
 
-    intro_Music_Play();
+    mSound->Music_Play(16);
 
     if (mVersionCurrent->mGame == eGame::CF1)
         intro_LegionMessage();
 
-    if (ShowImage_ForDuration("cftitle", 0x1F8))
+    if (ShowImage_ForDuration("cftitle", 0x1F8 / 4))
         goto introDone;
 
     if (intro_Play())
         goto introDone;
 
-    if (ShowImage_ForDuration("virgpres", 0x2D0))
+    if (ShowImage_ForDuration("virgpres", 0x2D0 / 4))
         goto introDone;
 
-    if (ShowImage_ForDuration("sensprod", 0x2D0))
+    if (ShowImage_ForDuration("sensprod", 0x2D0 / 4))
         goto introDone;
 
-    if (ShowImage_ForDuration("cftitle", 0x318))
+    if (ShowImage_ForDuration("cftitle", 0x318 / 4))
         goto introDone;
 
 introDone:;
@@ -18208,11 +18205,6 @@ introDone:;
     mSound->Music_Play(0);
 
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
-}
-
-void cFodder::intro_Music_Play() {
-
-    mSound->Music_Play(16);
 }
 
 int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration) {
@@ -18244,6 +18236,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
         }
 
         Video_SurfaceRender(false);
+        Cycle_End();
     }
 
     return mImage_Aborted;
@@ -18291,13 +18284,14 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 void cFodder::Cycle_End() {
     static int64 delta = 2;
 
-    mWindow->Cycle();
-    eventProcess();
-
     mTicksDiff = SDL_GetTicks() - mTicksDiff;
     mTicks = mTicksDiff * 40 / 1000;
     sleepLoop(delta * 1000 / 40 - mTicksDiff);
-    mTicksDiff = SDL_GetTicks();
+
+    // New Cycle begins
+    mTicksDiff = SDL_GetTicks();    
+    mWindow->Cycle();
+    eventProcess();
 }
 
 void cFodder::sleepLoop(int64 pMilliseconds) {
