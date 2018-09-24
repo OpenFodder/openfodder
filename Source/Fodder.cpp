@@ -2763,13 +2763,13 @@ void cFodder::Mission_Map_Overview_Show() {
                 mSurfaceMapOverview->Restore();
         }
 
+        Mouse_Inputs_Get();
         mWindow->RenderShrunk(mSurfaceMapOverview);
         mWindow->FrameEnd();
 
-        Mouse_Inputs_Get();
-
         if (mMission_Aborted)
             break;
+        Cycle_End();
 
     } while (Mouse_Button_Left_Toggled() < 0);
 
@@ -10230,6 +10230,7 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
             (this->*mGUI_Select_File_String_Input_Callback)(0x50);
 
         Video_SurfaceRender();
+        Cycle_End();
 
     } while (mGUI_SaveLoadAction <= 0);
 
