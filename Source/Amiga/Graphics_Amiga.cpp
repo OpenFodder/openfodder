@@ -1487,8 +1487,6 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 		if (mFodder->mBriefing_Helicopter_Moving == -1)
 			mFodder->Briefing_Update_Helicopter();
 
-		mFodder->Mouse_Inputs_Get();
-
 		// Front
 		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;
 		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;
