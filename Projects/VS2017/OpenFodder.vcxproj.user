@@ -19,6 +19,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run_x86</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>#skipintro #map 3</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>#skipintro map 3</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

@@ -987,9 +987,11 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Cycle_End();
-        mFodder->Video_SurfaceRender();
+		
         mFodder->Mouse_Inputs_Get();
+        mFodder->Video_SurfaceRender();
+        mFodder->Cycle_End();
+
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
@@ -1068,10 +1070,10 @@ void cGraphics_PC::Mission_Intro_Desert() {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Cycle_End();
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
+        mFodder->Cycle_End();
 
-		mFodder->Mouse_Inputs_Get();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
@@ -1152,10 +1154,9 @@ void cGraphics_PC::Mission_Intro_Ice() {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Cycle_End();
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-
-		mFodder->Mouse_Inputs_Get();
+        mFodder->Cycle_End();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
@@ -1233,10 +1234,9 @@ void cGraphics_PC::Mission_Intro_Mor() {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Cycle_End();
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-
-		mFodder->Mouse_Inputs_Get();
+        mFodder->Cycle_End();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
@@ -1315,9 +1315,9 @@ void cGraphics_PC::Mission_Intro_Int() {
 		if (mMission_Intro_Clouds3_X >= 320)
 			mMission_Intro_Clouds3_X = 0;
 
-		mFodder->Cycle_End();
-		mFodder->Video_SurfaceRender();
-		mFodder->Mouse_Inputs_Get();
+        mFodder->Mouse_Inputs_Get();
+        mFodder->Video_SurfaceRender();
+        mFodder->Cycle_End();
 		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
