@@ -4351,8 +4351,8 @@ bool cFodder::Recruit_Loop() {
 
     sub_1787C();
 
-    Recruit_Draw_Actors();
-    Recruit_Draw_Actors();
+    Recruit_Update_Actors();
+    Recruit_Update_Actors();
 
     mMouse_Exit_Loop = false;
 
@@ -4367,7 +4367,7 @@ bool cFodder::Recruit_Loop() {
         if (mMission_Aborted)
             break;
 
-        Recruit_Draw();
+        Recruit_Cycle();
     }
 
     mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
@@ -4376,7 +4376,7 @@ bool cFodder::Recruit_Loop() {
     mSurface->paletteNew_SetToBlack();
 
     while (mSurface->GetFaded() == false) {
-        Recruit_Draw();
+        Recruit_Cycle();
     }
 
     return mMission_Aborted;
@@ -4790,10 +4790,10 @@ void cFodder::Recruit_Sidebar_Render_SquadName() {
     mGraphics->Sidebar_Copy_ScreenBuffer((uint16)Data24->mPosition, 0x0C, -1, Data24->mDataPtr);
 }
 
-void cFodder::Recruit_Draw_Actors() {
+void cFodder::Recruit_Update_Actors() {
 
-    Recruit_Draw_Truck();
-    Recruit_Draw_Troops();
+    Recruit_Update_Truck();
+    Recruit_Update_Soldiers();
 }
 
 void cFodder::sub_175C0() {
@@ -4877,7 +4877,7 @@ loc_17686:;
 
 }
 
-void cFodder::Recruit_Draw_Troops() {
+void cFodder::Recruit_Update_Soldiers() {
 
     if (mRecruit_Truck_Animation_Play) {
         sub_175C0();
@@ -5101,7 +5101,7 @@ loc_179B2:;
         mRecruit_Truck_Animation_Play = -1;
 }
 
-void cFodder::Recruit_Draw_Truck() {
+void cFodder::Recruit_Update_Truck() {
     int16 DataC = VERSION_BASED(0xB6, 0xBE);
 
     GUI_Draw_Frame_8(0x22, mRecruit_Truck_Frame, 0x31, DataC);
@@ -5159,27 +5159,22 @@ void cFodder::Recruit_Copy_Sprites() {
     }
 }
 
-void cFodder::Recruit_Draw() {
+void cFodder::Recruit_Cycle() {
     Mouse_Inputs_Get();
 
-    Recruit_Draw_Actors();
+    Recruit_Update_Actors();
     mGraphics->Sidebar_Copy_To_Surface(0x18);
 
     if (mVersionCurrent->isPC())
         mGraphics->Recruit_Draw_HomeAway();
 
     Mouse_DrawCursor();
-    Cycle_End();
 
     if (mSurface->GetFaded() == false)
         mSurface->palette_FadeTowardNew();
 
-    mVideo_Draw_PosX = 0x40;
-    mVideo_Draw_PosY = 0x28;
-    mVideo_Draw_Columns = 0x110;
-    mVideo_Draw_Rows = 0xB0;
-
     Video_SurfaceRender();
+    Cycle_End();
 }
 
 bool cFodder::Recruit_Check_Buttons_SaveLoad() {
