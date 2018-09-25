@@ -31,13 +31,14 @@ class cWindow {
 		cDimension			mOriginalResolution;
 
 		cDimension			mScreenSize;
-        cPosition           mMouse;
+        //cPosition           mMouse;
 
-		uint8				mWindow_Multiplier, mWindow_MultiplierPrevious;
+		uint8				mScaler, mScalerPrevious;
 
 		bool				mWindowMode;
         bool                mHasFocus;
         bool                mCursorGrabbed;
+		bool				mResized;
 
 	protected:
 
@@ -71,12 +72,12 @@ class cWindow {
 
         bool                isFullscreen() const;
         bool                isGrabbed() const;
-        void                GrabMouse();
-        void                ReleaseMouse( const cPosition& pToPosition );
+		bool				isMouseInside() const;
+		bool				isResized() const;
 
 		void				SetCursor();
 
-        const cPosition     GetMousePosition();
+        const cPosition     GetMousePosition() const;
         void				SetMousePosition(const cPosition& pPosition);
 		void				SetMouseWindowPosition( const cPosition& pPosition );
 
@@ -85,7 +86,8 @@ class cWindow {
 
 		void				SetWindowTitle( const std::string& pWindowTitle );
 
-		void				SetFullScreen();
+		void				ToggleFullscreen();
+		void				ClearResized();
 
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
@@ -95,6 +97,5 @@ class cWindow {
 		const bool			GetWindowMode() const { return mWindowMode; }
         const bool          HasFocus();
         const bool          hasFocusEvent() const { return mHasFocus; }
-        const cPosition     GetMousePosition() const { return mMouse; }
         const bool          GetMouseGrabbed() const { return mCursorGrabbed; }
 };
