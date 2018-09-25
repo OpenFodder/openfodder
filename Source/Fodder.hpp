@@ -113,8 +113,6 @@ public:
     tSharedBuffer   mTile_BaseBlk;
     tSharedBuffer   mTile_SubBlk;
 
-    sRecruitRendered    mRecruit_Rendered[0x0D];
-
     int16           mInput_Enabled;
     uint16          mGame_InputTicks;
     int16           mMission_EngineTicks;
@@ -261,11 +259,6 @@ public:
     int32           mMapWidth_Pixels;
     int32           mMapHeight_Pixels;
 
-    int16           word_3AA55;
-    int16           mRecruit_Render_Name_SmallGap;
-    sRecruitRendered*           mRecruit_RenderedPtr;
-    int16           mRecruit_Truck_Frame;
-    int16           mRecruit_Truck_FrameAnimBufferPtr;
 
     int16           mSprite_Reached_Target;
     int16           mStoredSpriteFrame;
@@ -326,10 +319,6 @@ public:
     int16           word_3B1A9;								// Never written to
     int16           mSprite_Bullet_Deviate_Counter;
     int32           dword_3B1CB;
-    int16           mRecruit_Hill_Positions_Use[0x0F];
-    int16           mRecruit_Truck_Reached;
-    int16           mRecruit_Truck_Animation_Play;
-    int16           mRecruit_Truck_Enter_Count;
 
     eTileTypes      mMap_TileSet;
     sSprite*        mSquad_CurrentVehicle;
@@ -351,8 +340,7 @@ public:
     int16           word_3B2F3;
     int16           mSprite_Field10_Saved;
     int16           word_3B2F7;
-    int16           mRecruit_Button_Load_Pressed;
-    int16           mRecruit_Button_Save_Pressed;
+
     int16           mGUI_Temp_X;
     int16           mGUI_Temp_Width;
 
@@ -408,7 +396,20 @@ public:
     uint16*         mSidebar_Screen_Buffer;
     uint16*         mSidebar_Back_Buffer;
 
-    uint16          mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
+    sRecruitRendered    mRecruit_Rendered[0x0D];
+    uint16              mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
+    int16               mRecruit_Sidebar_Draw_Y_Start;
+    int16               mRecruit_Render_Name_SmallGap;
+    sRecruitRendered*   mRecruit_RenderedPtr;
+    int16               mRecruit_Truck_Frame;
+    int16               mRecruit_Truck_FrameAnimBufferPtr;
+
+    int16               mRecruit_Hill_Positions_Use[0x0F];
+    int16               mRecruit_Truck_Reached;
+    int16               mRecruit_Truck_Animation_Play;
+    int16               mRecruit_Truck_Enter_Count;
+    int16               mRecruit_Button_Load_Pressed;
+    int16               mRecruit_Button_Save_Pressed;
 
     int16           mMouseX;
     int16           mMouseY;
