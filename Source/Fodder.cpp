@@ -3022,14 +3022,14 @@ void cFodder::Mouse_Cursor_Handle() {
 				// Ensure X not too close to a border
 				if (mInputMouseX <= -32)
 					mInputMouseX = -31;
-				if (mInputMouseX >= (ScreenSize.getWidth() - 38))
-					mInputMouseX = ScreenSize.getWidth() - 39;
+				if (mInputMouseX >= (ScreenSize.getWidth() - 33))
+					mInputMouseX = ScreenSize.getWidth() - 34;
 
 				// Ensure Y not too close to a border
 				if (mInputMouseY <= 4)
 					mInputMouseY = 5;
-				if (mInputMouseY >= ScreenSize.getHeight())
-					mInputMouseY = ScreenSize.getHeight() - 1;
+				if (mInputMouseY >= ScreenSize.getHeight() + 3)
+					mInputMouseY = ScreenSize.getHeight() + 2;
 			}
 
 			mWindow->SetMouseWindowPosition(WindowSize.getCentre());
@@ -3039,22 +3039,22 @@ void cFodder::Mouse_Cursor_Handle() {
 
 		if (!mWindow->isFullscreen()) {
 			// Need to check if the game cursor x is near a border
-			if (mMouseX <= -32 || mMouseX >= (ScreenSize.getWidth() - 38)) {
+			if (mMouseX <= -32 || mMouseX >= (ScreenSize.getWidth() - 33)) {
 				BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
 				BorderMouse.mY = WindowPos.mY + (mMouseY + 4 + mMouseY_Offset) * scaleY;
 			} // Need to check if the game cursor y is near a border
-			else if (mMouseY <= 4 || mMouseY >= ScreenSize.getHeight()) {
+			else if (mMouseY <= 4 || mMouseY >= ScreenSize.getHeight() + 3) {
 				BorderMouse.mX = WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX;
 				BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight) + 1;
 			}
 
 			// Top Left / Top Right Corner
-			if (mMouseX <= -32 && mMouseY <= 4 || mMouseX >= (ScreenSize.getWidth() - 38) && mMouseY <= 4) {
+			if (mMouseX <= -32 && mMouseY <= 4 || mMouseX >= (ScreenSize.getWidth() - 33) && mMouseY <= 4) {
 				BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
 				BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight) + 1;
 			} // Bottom Left / Bottom Right
-			else if ((mMouseX <= -32 && mMouseY >= ScreenSize.getHeight() - 4) ||
-				(mMouseX >= (ScreenSize.getWidth() - 38) && mMouseY >= ScreenSize.getHeight() - 4)) {
+			else if ((mMouseX <= -32 && mMouseY >= ScreenSize.getHeight() + 3) ||
+				(mMouseX >= (ScreenSize.getWidth() - 38) && mMouseY >= ScreenSize.getHeight() + 3)) {
 				BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
 				BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight) + 1;
 			}
@@ -4307,6 +4307,93 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     return mMission_Aborted;
 }
 
+int16 cFodder::Recruit_Show() {
+
+    if (mCustom_Mode != eCustomMode_Map) {
+        Map_Load();
+        Map_Load_Sprites();
+
+        Mission_Troop_Count();
+        Mission_Troop_Sort();
+        Mission_Troop_Prepare(true);
+        Mission_Troop_Attach_Sprites();
+
+    }
+    else {
+        if (mVersionCurrent->mName == "Random Map") {
+
+            std::string RandomMapFile = local_PathGenerate("random.map", "Custom/Maps", eData);
+            Map_Create(mTileTypes[0], 0, 28, 22, true);
+            Map_Save(RandomMapFile);
+
+            mCampaign.LoadCustomMap("random.map");
+
+            mCampaign.setRandom(true);
+            mCampaign.setMapAggression();
+            mCampaign.setMapGoals({ eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings });
+        }
+        else {
+            Custom_ShowMapSelection();
+        }
+
+        if (mCustom_Mode == eCustomMode_None)
+            return -1;
+    }
+
+    WindowTitleSet(false);
+
+    // Single Map does not have a recruit screen
+    if (mCustom_Mode != eCustomMode_Map) {
+
+        // Retail / Custom set show the Recruitment Hill
+        if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set) {
+
+            // Recruit Screen
+            if (Recruit_Loop())
+                return -1;
+
+            Recruit_CheckLoadSaveButtons();
+
+            // Did we just load/save a game?
+            if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
+                mMission_Restart = -1;
+                mGame_Data.mMission_Recruitment = -1;
+                mMission_Aborted = true;
+                return -3;
+            }
+        }
+        else {
+
+            // Amiga demos have a menu
+            if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
+
+                // But not custom games
+                if (mCustom_Mode == eCustomMode_None) {
+
+                    if (Demo_Amiga_ShowMenu())
+                        return -1;
+                }
+            }
+        }
+    }
+
+    mMission_Restart = 0;
+    Mission_Memory_Backup();
+
+    // Retail or Custom Mode
+    if (mVersionCurrent->isRetail() ||
+        mCustom_Mode != eCustomMode_None) {
+        Map_Load();
+
+        // Show the intro for the briefing screen
+        Mission_Intro_Play();
+    }
+
+    mGraphics->Load_pStuff();
+
+    return 0;
+}
+
 bool cFodder::Recruit_Loop() {
 
     mSurface->clearBuffer();
@@ -5212,6 +5299,12 @@ bool cFodder::Recruit_Check_Buttons_SaveLoad() {
         return false;
 
     return true;
+}
+
+void cFodder::Recruit_Render_Text(const char* pText, const size_t pPosY) {
+
+    String_CalculateWidth(320, mFont_Recruit_Width, pText);
+    String_Print(mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText);
 }
 
 void cFodder::Sprite_Handle_Player_Enter_Vehicle(sSprite* pSprite) {
@@ -10158,12 +10251,6 @@ void cFodder::GUI_Element_Reset() {
         mGUI_Elements[x].mHeight = 0;
         mGUI_Elements[x].mMouseInsideFuncPtr = 0;
     }
-}
-
-void cFodder::Recruit_Render_Text(const char* pText, const size_t pPosY) {
-
-    String_CalculateWidth(320, mFont_Recruit_Width, pText);
-    String_Print(mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText);
 }
 
 void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
@@ -17989,7 +18076,7 @@ void cFodder::String_CalculateWidth(int32 pPosX, const uint8* pWidths, const cha
 }
 
 void cFodder::intro_LegionMessage() {
-    int16 Duration = 350 / 4;
+    int16 Duration = 325 / 4;
     bool DoBreak = false;
 
     mSurface->clearBuffer();
@@ -18031,7 +18118,7 @@ int16 cFodder::intro_Play() {
 
     for (word_3B2CF = 1; mVersionCurrent->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
 
-        mIntro_PlayTextDuration = 0x288 / 4;
+        mIntro_PlayTextDuration = 0x288 / 5;
 
         mSurface->palette_SetToBlack();
 
@@ -18046,7 +18133,7 @@ int16 cFodder::intro_Play() {
             mGraphics->Load_And_Draw_Image(ImageName.str(), 0xD0);
         }
         else {
-            mIntro_PlayTextDuration = 0xAF / 4;
+            mIntro_PlayTextDuration = 0xAF / 5;
             mSurface->clearBuffer();
         }
 
@@ -18189,19 +18276,19 @@ void cFodder::intro() {
     if (mVersionCurrent->mGame == eGame::CF1)
         intro_LegionMessage();
 
-    if (ShowImage_ForDuration("cftitle", 0x1F8 / 4))
+    if (ShowImage_ForDuration("cftitle", 0x1F8 / 3))
         goto introDone;
 
     if (intro_Play())
         goto introDone;
 
-    if (ShowImage_ForDuration("virgpres", 0x2D0 / 4))
+    if (ShowImage_ForDuration("virgpres", 0x2D0 / 3))
         goto introDone;
 
-    if (ShowImage_ForDuration("sensprod", 0x2D0 / 4))
+    if (ShowImage_ForDuration("sensprod", 0x2D0 / 3))
         goto introDone;
 
-    if (ShowImage_ForDuration("cftitle", 0x318 / 4))
+    if (ShowImage_ForDuration("cftitle", 0x318 / 3))
         goto introDone;
 
 introDone:;
@@ -20171,93 +20258,6 @@ void cFodder::Playground() {
 
         Video_SurfaceRender();
     }
-}
-
-int16 cFodder::Recruit_Show() {
-
-    if (mCustom_Mode != eCustomMode_Map) {
-        Map_Load();
-        Map_Load_Sprites();
-
-        Mission_Troop_Count();
-        Mission_Troop_Sort();
-        Mission_Troop_Prepare(true);
-        Mission_Troop_Attach_Sprites();
-
-    }
-    else {
-        if (mVersionCurrent->mName == "Random Map") {
-
-            std::string RandomMapFile = local_PathGenerate("random.map", "Custom/Maps", eData);
-            Map_Create(mTileTypes[0], 0, 28, 22, true);
-            Map_Save(RandomMapFile);
-
-            mCampaign.LoadCustomMap("random.map");
-
-            mCampaign.setRandom(true);
-            mCampaign.setMapAggression();
-            mCampaign.setMapGoals({ eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings });
-        }
-        else {
-            Custom_ShowMapSelection();
-        }
-
-        if (mCustom_Mode == eCustomMode_None)
-            return -1;
-    }
-
-    WindowTitleSet(false);
-
-    // Single Map does not have a recruit screen
-    if (mCustom_Mode != eCustomMode_Map) {
-
-        // Retail / Custom set show the Recruitment Hill
-        if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set) {
-
-            // Recruit Screen
-            if (Recruit_Loop())
-                return -1;
-
-            Recruit_CheckLoadSaveButtons();
-
-            // Did we just load/save a game?
-            if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
-                mMission_Restart = -1;
-                mGame_Data.mMission_Recruitment = -1;
-                mMission_Aborted = true;
-                return -3;
-            }
-        }
-        else {
-
-            // Amiga demos have a menu
-            if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
-
-                // But not custom games
-                if (mCustom_Mode == eCustomMode_None) {
-
-                    if (Demo_Amiga_ShowMenu())
-                        return -1;
-                }
-            }
-        }
-    }
-
-    mMission_Restart = 0;
-    Mission_Memory_Backup();
-
-    // Retail or Custom Mode
-    if (mVersionCurrent->isRetail() ||
-        mCustom_Mode != eCustomMode_None) {
-        Map_Load();
-
-        // Show the intro for the briefing screen
-        Mission_Intro_Play();
-    }
-
-    mGraphics->Load_pStuff();
-
-    return 0;
 }
 
 void cFodder::Start(int16 pStartMap) {

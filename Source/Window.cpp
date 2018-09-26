@@ -354,12 +354,12 @@ bool cWindow::isFullscreen() const {
 }
 
 bool cWindow::isMouseInside() const {
-	const cPosition MouseGlobalPos = GetMousePosition();
-	const cPosition WindowPos = GetWindowPosition();
-	const cDimension WindowSize = GetWindowSize();
+    const cPosition MouseGlobalPos = GetMousePosition();
+    const cPosition WindowPos = GetWindowPosition();
+    const cDimension WindowSize = GetWindowSize();
 
-	return (MouseGlobalPos.mX >= WindowPos.mX && MouseGlobalPos.mX <= WindowPos.mX + WindowSize.getWidth() &&
-			MouseGlobalPos.mY >= WindowPos.mY && MouseGlobalPos.mY <= WindowPos.mY + WindowSize.getHeight());
+    return (MouseGlobalPos.mX >= WindowPos.mX && MouseGlobalPos.mX < WindowPos.mX + WindowSize.getWidth() &&
+            MouseGlobalPos.mY >= WindowPos.mY && MouseGlobalPos.mY < WindowPos.mY + WindowSize.getHeight());
 }
 
 bool cWindow::isResized() const {
