@@ -31,7 +31,7 @@ class cWindow {
 		cDimension			mOriginalResolution;
 
 		cDimension			mScreenSize;
-        //cPosition           mMouse;
+        cPosition           mMouseGlobal;
 
 		uint8				mScaler, mScalerPrevious;
 
@@ -77,7 +77,7 @@ class cWindow {
 
 		void				SetCursor();
 
-        const cPosition     GetMousePosition() const;
+        cPosition           GetMousePosition() const;
         void				SetMousePosition(const cPosition& pPosition);
 		void				SetMouseWindowPosition( const cPosition& pPosition );
 
@@ -91,11 +91,11 @@ class cWindow {
 
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
-        const cPosition     GetWindowPosition() const;
-		const cDimension	GetWindowSize() const;
-		const cDimension	GetScreenSize() const { return mScreenSize; }
-		const bool			GetWindowMode() const { return mWindowMode; }
-        const bool          HasFocus();
-        const bool          hasFocusEvent() const { return mHasFocus; }
-        const bool          GetMouseGrabbed() const { return mCursorGrabbed; }
+        cPosition           GetWindowPosition() const;
+		cDimension	        GetWindowSize() const;
+		cDimension	        GetScreenSize() const { return mScreenSize; }
+		bool			    GetWindowMode() const { return mWindowMode; }
+        bool                HasFocus();
+        bool                hasFocusEvent() const { return mHasFocus; }
+        bool                GetMouseGrabbed() const { return mCursorGrabbed; }
 };

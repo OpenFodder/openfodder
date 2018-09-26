@@ -200,6 +200,7 @@ void cWindow::EventCheck() {
 			mEvents.push_back( Event );
 	}
 
+    SDL_GetGlobalMouseState(&mMouseGlobal.mX, &mMouseGlobal.mY);
 }
 
 void cWindow::CalculateWindowSize() {
@@ -397,12 +398,8 @@ void cWindow::SetMouseWindowPosition( const cPosition& pPosition ) {
 	SDL_WarpMouseInWindow( mWindow, pPosition.getX(), pPosition.getY() );
 }
 
-const cPosition cWindow::GetMousePosition() const {
-    cPosition Position;
-
-    SDL_GetGlobalMouseState(&Position.mX, &Position.mY);
-
-    return Position;
+cPosition cWindow::GetMousePosition() const {
+    return mMouseGlobal;
 }
 
 void cWindow::SetMousePosition(const cPosition& pPosition) {
@@ -445,7 +442,7 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 	}
 }
 
-const cPosition cWindow::GetWindowPosition() const {
+cPosition cWindow::GetWindowPosition() const {
     cPosition Pos;
 
     SDL_GetWindowPosition(mWindow, &Pos.mX, &Pos.mY);
@@ -453,12 +450,12 @@ const cPosition cWindow::GetWindowPosition() const {
     return Pos;
 }
 
-const cDimension cWindow::GetWindowSize() const {
+cDimension cWindow::GetWindowSize() const {
 
 	return cDimension( mOriginalResolution.mWidth * mScaler, mOriginalResolution.mHeight * mScaler ); 
 }
 
-const bool cWindow::HasFocus() {
+bool cWindow::HasFocus() {
 
     if (SDL_GetWindowFlags(mWindow) & SDL_WINDOW_MOUSE_FOCUS)
         return true;
