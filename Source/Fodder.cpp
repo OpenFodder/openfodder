@@ -29,6 +29,9 @@ const int32 CAMERA_PAN_TO_START_ACCELARATION = 0x80000;     // Dos: Original 0x8
 const int32 CAMERA_PAN_TO_SQUAD_ACCELERATION = 0x20000;     // Dos: Original 0x20000
 const int32 CAMERA_TOWARD_SQUAD_SPEED = 0x14;               // Dos: Original 0x14
 
+const int16 MOUSE_POSITION_X_ADJUST = -32;
+const int16 MOUSE_POSITION_Y_ADJUST = 4;
+
 const int16 mBriefing_Helicopter_Offsets[] =
 {
     0x0180, 0x0040, 0x0004, 0x01A0,
@@ -2989,47 +2992,41 @@ void cFodder::Mouse_Setup() {
 }
 
 void cFodder::Mouse_Cursor_Handle() {
-    static bool CursorGrabbed = false;
+	static bool CursorGrabbed = false;
 	const cPosition WindowPos = mWindow->GetWindowPosition();
 	const cDimension ScreenSize = mWindow->GetScreenSize();
 	const cDimension WindowSize = mWindow->GetWindowSize();
 
-    int16 scaleX = (WindowSize.mWidth / ScreenSize.mWidth);
-    int16 scaleY = (WindowSize.mHeight / ScreenSize.mHeight);
-    if (scaleY == 0)
-        scaleY = 1;
+	int16 scaler = mWindow->GetScaler();
 
 	mouse_Button_Status = mMouseButtons;
 
-    if (!mWindow->hasFocusEvent() && CursorGrabbed)
-        CursorGrabbed = false;
+	if (!mWindow->hasFocusEvent() && CursorGrabbed)
+		CursorGrabbed = false;
 
-    // Check if the system mouse is grabbed
-    if (!CursorGrabbed) {
+	// Check if the system mouse is grabbed
+	if (!CursorGrabbed) {
+
+		// register mouse position even when not focused
+		mInputMouseX = (mMouse_CurrentEventPosition.mX / scaler) + MOUSE_POSITION_X_ADJUST;
+		mInputMouseY = (mMouse_CurrentEventPosition.mY / scaler) + MOUSE_POSITION_Y_ADJUST;
+
 		// check if the system cursor x/y is inside our window
 		if (mWindow->hasFocusEvent() && mWindow->isMouseInside()) {
 			CursorGrabbed = true;
 
-			mInputMouseX = (mMouse_CurrentEventPosition.mX / scaleX) - 38;
-			mInputMouseY = (mMouse_CurrentEventPosition.mY / scaleY) - 4;
-
-			if (mMouseX_Offset || mMouseY_Offset) {
-				mInputMouseX -= mMouseX_Offset;
-				mInputMouseY -= mMouseY_Offset;
-			}
-
 			if (!mWindow->isFullscreen()) {
 				// Ensure X not too close to a border
-				if (mInputMouseX <= -32)
-					mInputMouseX = -31;
-				if (mInputMouseX >= (ScreenSize.getWidth() - 33))
-					mInputMouseX = ScreenSize.getWidth() - 34;
+				if (mInputMouseX <= MOUSE_POSITION_X_ADJUST)
+					mInputMouseX = MOUSE_POSITION_X_ADJUST + 1;
+				if (mInputMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1)
+					mInputMouseX = ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 2;
 
 				// Ensure Y not too close to a border
-				if (mInputMouseY <= 4)
-					mInputMouseY = 5;
-				if (mInputMouseY >= ScreenSize.getHeight() + 3)
-					mInputMouseY = ScreenSize.getHeight() + 2;
+				if (mInputMouseY <= MOUSE_POSITION_Y_ADJUST)
+					mInputMouseY = MOUSE_POSITION_Y_ADJUST + 1;
+				if (mInputMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
+					mInputMouseY = ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 2;
 			}
 
 			mWindow->SetMouseWindowPosition(WindowSize.getCentre());
@@ -3039,24 +3036,25 @@ void cFodder::Mouse_Cursor_Handle() {
 
 		if (!mWindow->isFullscreen()) {
 			// Need to check if the game cursor x is near a border
-			if (mMouseX <= -32 || mMouseX >= (ScreenSize.getWidth() - 33)) {
-				BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
-				BorderMouse.mY = WindowPos.mY + (mMouseY + 4 + mMouseY_Offset) * scaleY;
+			if (mMouseX <= MOUSE_POSITION_X_ADJUST || mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1) {
+				BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
+				BorderMouse.mY = WindowPos.mY + (mMouseY - MOUSE_POSITION_Y_ADJUST) * scaler;
 			} // Need to check if the game cursor y is near a border
-			else if (mMouseY <= 4 || mMouseY >= ScreenSize.getHeight() + 3) {
-				BorderMouse.mX = WindowPos.mX + (mMouseX + mMouseX_Offset + 38) * scaleX;
-				BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight) + 1;
+			else if (mMouseY <= MOUSE_POSITION_Y_ADJUST || mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) {
+				BorderMouse.mX = WindowPos.mX + (mMouseX - MOUSE_POSITION_X_ADJUST) * scaler;
+				BorderMouse.mY = mMouseY <= 4 ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
 			}
 
 			// Top Left / Top Right Corner
-			if (mMouseX <= -32 && mMouseY <= 4 || mMouseX >= (ScreenSize.getWidth() - 33) && mMouseY <= 4) {
-				BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
-				BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight) + 1;
+			if ((mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY <= MOUSE_POSITION_Y_ADJUST) ||
+				(mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY <= MOUSE_POSITION_Y_ADJUST)) {
+				BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
+				BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
 			} // Bottom Left / Bottom Right
-			else if ((mMouseX <= -32 && mMouseY >= ScreenSize.getHeight() + 3) ||
-				(mMouseX >= (ScreenSize.getWidth() - 38) && mMouseY >= ScreenSize.getHeight() + 3)) {
-				BorderMouse.mX = (mMouseX <= -32) ? WindowPos.mX - 4 : (WindowPos.mX + WindowSize.getWidth()) + 3;
-				BorderMouse.mY = (mMouseY <= 4) ? (WindowPos.mY - 4) : (WindowPos.mY + WindowSize.mHeight) + 1;
+			else if ((mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) ||
+				(mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)) {
+				BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
+				BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
 			}
 
 			//  if yes; set system cursor outside the border
@@ -3072,64 +3070,64 @@ void cFodder::Mouse_Cursor_Handle() {
 			mWindow->ClearResized();
 		} else {
 			// Calc the distance from the cursor to the centre of the window
-			int XDiff = (mMouse_CurrentEventPosition.mX - WindowSize.getCentre().x()) * 1.5;
-			int YDiff = (mMouse_CurrentEventPosition.mY - WindowSize.getCentre().y()) * 1.5;
+			int XDiff = (mMouse_CurrentEventPosition.mX - WindowSize.getCentre().x());
+			int YDiff = (mMouse_CurrentEventPosition.mY - WindowSize.getCentre().y());
 
-			mInputMouseX = mMouseX + (XDiff / scaleX);
-			mInputMouseY = mMouseY + (YDiff / scaleY);
+			mInputMouseX = mMouseX + (XDiff / scaler) * 1.5;
+			mInputMouseY = mMouseY + (YDiff / scaler) * 1.5;
 		}
 
-        // Set system cursor back to centre of window
-        mWindow->SetMouseWindowPosition(WindowSize.getCentre());
-    }
+		// Set system cursor back to centre of window
+		mWindow->SetMouseWindowPosition(WindowSize.getCentre());
+	}
 }
 
 void cFodder::Mouse_Inputs_Get() {
 
-    Mouse_Cursor_Handle();
-    Mouse_ButtonCheck();
+	Mouse_Cursor_Handle();
+	Mouse_ButtonCheck();
 
-    int16 Data4 = mInputMouseX;
+	int16 Data4 = mInputMouseX;
 
-    if (mSidebar_SmallMode == 0)
-        goto loc_13B3A;
+	if (mSidebar_SmallMode == 0)
+		goto loc_13B3A;
 
-    if (Data4 >= -16)
-        goto loc_13B58;
+	if (Data4 >= MOUSE_POSITION_X_ADJUST + 16)
+		goto loc_13B58;
 
-    goto loc_13B41;
+	goto loc_13B41;
 
 loc_13B3A:;
-    if (Data4 >= -32)
-        goto loc_13B58;
+	if (Data4 >= MOUSE_POSITION_X_ADJUST)
+		goto loc_13B58;
 
 loc_13B41:;
-    if (mSidebar_SmallMode)
-        Data4 = -16;
-    else
-        Data4 = -32;
+	if (mSidebar_SmallMode)
+		Data4 = MOUSE_POSITION_X_ADJUST + 16;
+	else
+		Data4 = MOUSE_POSITION_X_ADJUST;
 
-    goto loc_13B66;
+	goto loc_13B66;
 
 loc_13B58:;
 
-    if (Data4 > 287)
-        Data4 = 287;
+	if (Data4 > (int16)mWindow->GetScreenSize().getWidth() + MOUSE_POSITION_X_ADJUST - 1)
+		Data4 = (int16)mWindow->GetScreenSize().getWidth() + MOUSE_POSITION_X_ADJUST - 1;
 
 loc_13B66:;
-    mMouseX = Data4;
+	mMouseX = Data4;
 
-    int16 Data0 = mInputMouseY;
+	int16 Data0 = mInputMouseY;
 
-    if (Data0 < 4)
-        Data0 = 4;
-    else {
+	if (Data0 < MOUSE_POSITION_Y_ADJUST)
+		Data0 = MOUSE_POSITION_Y_ADJUST;
+	else {
 
-        if (Data0 > (int16)mWindow->GetScreenSize().mHeight + 3)
-            Data0 = (int16)mWindow->GetScreenSize().mHeight + 3;
-    }
+		if (Data0 > (int16)mWindow->GetScreenSize().getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
+			Data0 = (int16)mWindow->GetScreenSize().getHeight() + MOUSE_POSITION_Y_ADJUST - 1;
+	}
 
-    mMouseY = Data0;
+	mMouseY = Data0;
 }
 
 void cFodder::Mouse_ButtonCheck() {
