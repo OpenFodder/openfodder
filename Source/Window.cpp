@@ -367,6 +367,17 @@ bool cWindow::isResized() const {
 	return mResized;
 }
 
+/**
+ * Is either mouse button currently pressed
+ */
+bool cWindow::isMouseButtonPressed_Global() const {
+    return  (SDL_GetGlobalMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) ||
+            (SDL_GetGlobalMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT));
+}
+
+/**
+ * Is the window currently grabbed
+ */
 bool cWindow::isGrabbed() const {
     if (SDL_GetWindowGrab(mWindow) == SDL_TRUE)
         return true;
@@ -398,8 +409,11 @@ void cWindow::SetMouseWindowPosition( const cPosition& pPosition ) {
 	SDL_WarpMouseInWindow( mWindow, pPosition.getX(), pPosition.getY() );
 }
 
-cPosition cWindow::GetMousePosition() const {
-    return mMouseGlobal;
+cPosition cWindow::GetMousePosition( const bool pRelative ) const {
+    if(!pRelative)
+        return mMouseGlobal;
+
+    return (mMouseGlobal - GetWindowPosition());
 }
 
 void cWindow::SetMousePosition(const cPosition& pPosition) {
