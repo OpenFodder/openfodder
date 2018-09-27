@@ -2751,9 +2751,9 @@ void cFodder::Mission_Map_Overview_Show() {
     do {
         if (mSquad_Leader != INVALID_SPRITE_PTR) {
             ++word_3A016;
-            word_3A016 &= 0x3F;
+            word_3A016 &= 0x1F; // Original Value: 0x3F;
 
-            if (word_3A016 < 0x20) {
+            if (word_3A016 < 0x10) {
                 mVideo_Draw_FrameDataPtr = mGraphics->GetSpriteData(eGFX_PSTUFF);
                 mVideo_Draw_Rows = 0x10;
 
@@ -3030,6 +3030,7 @@ void cFodder::Mouse_Cursor_Handle() {
 			}
 
 			mWindow->SetMouseWindowPosition(WindowSize.getCentre());
+            mMouse_CurrentEventPosition = WindowSize.getCentre();
 		}
 	} else {
 		cPosition BorderMouse;
@@ -3070,15 +3071,15 @@ void cFodder::Mouse_Cursor_Handle() {
 			mWindow->ClearResized();
 		} else {
 			// Calc the distance from the cursor to the centre of the window
-			int XDiff = (mMouse_CurrentEventPosition.mX - WindowSize.getCentre().x());
-			int YDiff = (mMouse_CurrentEventPosition.mY - WindowSize.getCentre().y());
+			auto Diff = (mMouse_CurrentEventPosition - WindowSize.getCentre());
 
-			mInputMouseX = mMouseX + (XDiff / scaler) * 1.5;
-			mInputMouseY = mMouseY + (YDiff / scaler) * 1.5;
+			mInputMouseX = mMouseX + (Diff.mX / scaler) * 1.5;
+			mInputMouseY = mMouseY + (Diff.mY / scaler) * 1.5;
+
+            // Set system cursor back to centre of window
+            mWindow->SetMouseWindowPosition(mWindow->GetWindowSize().getCentre());
+            mMouse_CurrentEventPosition = mWindow->GetWindowSize().getCentre();
 		}
-
-		// Set system cursor back to centre of window
-		mWindow->SetMouseWindowPosition(WindowSize.getCentre());
 	}
 }
 
