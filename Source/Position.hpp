@@ -51,6 +51,11 @@ class cPosition {
 
 			return *this;
 		}
+        
+        cPosition operator-(const cPosition& pPosition) const {
+            
+            return cPosition( mX - pPosition.mX, mY - pPosition.mY );
+        }
 
 		int getY() const { return (int) mY; }
 		int getX() const { return (int) mX; }
