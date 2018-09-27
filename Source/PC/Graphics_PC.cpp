@@ -992,7 +992,7 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
         mFodder->Video_SurfaceRender();
         mFodder->Cycle_End();
 
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+		if (mFodder->mMouseButtonStatus || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1074,7 +1074,7 @@ void cGraphics_PC::Mission_Intro_Desert() {
         mFodder->Video_SurfaceRender();
         mFodder->Cycle_End();
 
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+		if (mFodder->mMouseButtonStatus || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1157,7 +1157,7 @@ void cGraphics_PC::Mission_Intro_Ice() {
         mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
         mFodder->Cycle_End();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+		if (mFodder->mMouseButtonStatus || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1237,7 +1237,7 @@ void cGraphics_PC::Mission_Intro_Mor() {
         mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
         mFodder->Cycle_End();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+		if (mFodder->mMouseButtonStatus || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1318,7 +1318,7 @@ void cGraphics_PC::Mission_Intro_Int() {
         mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
         mFodder->Cycle_End();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+		if (mFodder->mMouseButtonStatus || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
