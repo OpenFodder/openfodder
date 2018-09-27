@@ -52,7 +52,7 @@ class cWindow {
 		void				CalculateWindowSize();
 		int16				CalculateFullscreenSize();
 
-		bool				CanChangeToMultiplier( int pNewMultiplier );
+		bool				CanChangeToMultiplier( const int pNewMultiplier );
 
         bool                Cycle();
 
@@ -64,7 +64,7 @@ class cWindow {
 			
 		virtual void		PositionWindow();
 
-		virtual void		RenderAt( cSurface* pImage, cPosition pSource = cPosition(0,0) );
+		virtual void		RenderAt( cSurface* pImage, const cPosition pSource = cPosition(0,0) );
 		virtual void		RenderShrunk( cSurface* pImage );
 
 		void				WindowIncrease();
