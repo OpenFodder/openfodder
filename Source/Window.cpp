@@ -227,7 +227,7 @@ int16 cWindow::CalculateFullscreenSize() {
 	return --Multiplier;
 }
 
-bool cWindow::CanChangeToMultiplier( int pNewMultiplier ) {
+bool cWindow::CanChangeToMultiplier( const int pNewMultiplier ) {
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 
@@ -292,7 +292,7 @@ void cWindow::WindowDecrease() {
 	SetWindowSize( mScaler - 1 );
 }
 
-void cWindow::RenderAt( cSurface* pImage, cPosition pSource ) {
+void cWindow::RenderAt( cSurface* pImage, const cPosition pSource ) {
 	SDL_Rect Src, Dest;
 
 	Src.w = mScreenSize.mWidth;

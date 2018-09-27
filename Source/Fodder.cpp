@@ -3080,10 +3080,10 @@ void cFodder::Mouse_Cursor_Handle() {
                 WasClicked = false;
             } else {
                 // Calc the distance from the cursor to the centre of the window
-                auto Diff = (MousePos - WindowSize.getCentre());
+                const cPosition Diff = (MousePos - WindowSize.getCentre());
 
-                mInputMouseX = mMouseX + (Diff.mX / scaler) * 1.5;
-                mInputMouseY = mMouseY + (Diff.mY / scaler) * 1.5;
+                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scaler) * 1.5);
+                mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scaler) * 1.5);
             }
         }
     }
