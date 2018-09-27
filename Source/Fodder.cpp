@@ -3013,24 +3013,26 @@ void cFodder::Mouse_Cursor_Handle() {
 
 		// check if the system cursor x/y is inside our window
 		if (mWindow->hasFocusEvent() && mWindow->isMouseInside()) {
-			CursorGrabbed = true;
+            // Ensure the mouse button has been released before we focus
+            if (!SDL_GetGlobalMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+                CursorGrabbed = true;
+                if (!mWindow->isFullscreen()) {
+                    // Ensure X not too close to a border
+                    if (mInputMouseX <= MOUSE_POSITION_X_ADJUST)
+                        mInputMouseX = MOUSE_POSITION_X_ADJUST + 1;
+                    if (mInputMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1)
+                        mInputMouseX = ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 2;
 
-			if (!mWindow->isFullscreen()) {
-				// Ensure X not too close to a border
-				if (mInputMouseX <= MOUSE_POSITION_X_ADJUST)
-					mInputMouseX = MOUSE_POSITION_X_ADJUST + 1;
-				if (mInputMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1)
-					mInputMouseX = ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 2;
+                    // Ensure Y not too close to a border
+                    if (mInputMouseY <= MOUSE_POSITION_Y_ADJUST)
+                        mInputMouseY = MOUSE_POSITION_Y_ADJUST + 1;
+                    if (mInputMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
+                        mInputMouseY = ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 2;
+                }
 
-				// Ensure Y not too close to a border
-				if (mInputMouseY <= MOUSE_POSITION_Y_ADJUST)
-					mInputMouseY = MOUSE_POSITION_Y_ADJUST + 1;
-				if (mInputMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
-					mInputMouseY = ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 2;
-			}
-
-			mWindow->SetMouseWindowPosition(WindowSize.getCentre());
-            mMouse_CurrentEventPosition = WindowSize.getCentre();
+                mWindow->SetMouseWindowPosition(WindowSize.getCentre());
+                mMouse_CurrentEventPosition = WindowSize.getCentre();
+            }
 		}
 	} else {
 		cPosition BorderMouse;
@@ -3073,8 +3075,8 @@ void cFodder::Mouse_Cursor_Handle() {
 			// Calc the distance from the cursor to the centre of the window
 			auto Diff = (mMouse_CurrentEventPosition - WindowSize.getCentre());
 
-			mInputMouseX = mMouseX + (Diff.mX / scaler) * 1.5;
-			mInputMouseY = mMouseY + (Diff.mY / scaler) * 1.5;
+            mInputMouseX = mMouseX + (Diff.mX / scaler) * 1.5;
+            mInputMouseY = mMouseY + (Diff.mY / scaler) * 1.5;
 
             // Set system cursor back to centre of window
             mWindow->SetMouseWindowPosition(mWindow->GetWindowSize().getCentre());
