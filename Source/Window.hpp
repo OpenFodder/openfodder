@@ -74,10 +74,11 @@ class cWindow {
         bool                isGrabbed() const;
 		bool				isMouseInside() const;
 		bool				isResized() const;
+        bool                isMouseButtonPressed_Global() const;
 
 		void				SetCursor();
 
-        cPosition           GetMousePosition() const;
+        cPosition           GetMousePosition(const bool pRelative = false) const;
         void				SetMousePosition(const cPosition& pPosition);
 		void				SetMouseWindowPosition( const cPosition& pPosition );
 

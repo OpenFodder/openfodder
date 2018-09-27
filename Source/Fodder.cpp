@@ -67,9 +67,9 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro) {
 
     mIntroDone = false;
 
-    mMouseButtons = 0;
+    mMouseButtonsPressed = 0;
 
-    mouse_Button_Status = 0;
+    mMouseButtonStatus = 0;
     mInputMouseX = 0;
     mInputMouseY = 0;
 
@@ -2865,27 +2865,27 @@ void cFodder::eventProcess() {
             break;
 
         case eEvent_MouseLeftDown:
-            mMouse_CurrentEventPosition = Event.mPosition;
-            mMouseButtons |= 1;
+           // mMouse_CurrentEventPosition = Event.mPosition;
+            mMouseButtonsPressed |= 1;
             break;
 
         case eEvent_MouseRightDown:
-            mMouse_CurrentEventPosition = Event.mPosition;
-            mMouseButtons |= 2;
+            //mMouse_CurrentEventPosition = Event.mPosition;
+            mMouseButtonsPressed |= 2;
             break;
 
         case eEvent_MouseLeftUp:
-            mMouse_CurrentEventPosition = Event.mPosition;
-            mMouseButtons &= ~1;
+            //mMouse_CurrentEventPosition = Event.mPosition;
+            mMouseButtonsPressed &= ~1;
             break;
 
         case eEvent_MouseRightUp:
-            mMouse_CurrentEventPosition = Event.mPosition;
-            mMouseButtons &= ~2;
+            //mMouse_CurrentEventPosition = Event.mPosition;
+            mMouseButtonsPressed &= ~2;
             break;
 
         case eEvent_MouseMove:
-            mMouse_CurrentEventPosition = Event.mPosition;
+            //mMouse_CurrentEventPosition = Event.mPosition;
             break;
 
         case eEvent_None:
@@ -2982,24 +2982,26 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
 void cFodder::Mouse_Setup() {
 
-    mMouseButtons = 0;
+    mMouseButtonsPressed = 0;
     mButtonPressLeft = 0;
     mButtonPressRight = 0;
-    mouse_Button_Status = 0;
+    mMouseButtonStatus = 0;
 
     mMouseX = 0x7F;
     mMouseY = 0x67;
 }
 
 void cFodder::Mouse_Cursor_Handle() {
+    static bool WasClicked = false;
     static bool CursorGrabbed = false;
     const cPosition WindowPos = mWindow->GetWindowPosition();
     const cDimension ScreenSize = mWindow->GetScreenSize();
     const cDimension WindowSize = mWindow->GetWindowSize();
+    const cPosition MousePos = mWindow->GetMousePosition(true);
 
     int16 scaler = mWindow->GetScaler();
 
-    mouse_Button_Status = mMouseButtons;
+    mMouseButtonStatus = mMouseButtonsPressed;
 
     if (!mWindow->hasFocusEvent() && CursorGrabbed)
         CursorGrabbed = false;
@@ -3008,14 +3010,16 @@ void cFodder::Mouse_Cursor_Handle() {
     if (!CursorGrabbed) {
 
         // register mouse position even when not focused
-        mInputMouseX = (mMouse_CurrentEventPosition.mX / scaler) + MOUSE_POSITION_X_ADJUST;
-        mInputMouseY = (mMouse_CurrentEventPosition.mY / scaler) + MOUSE_POSITION_Y_ADJUST;
+        mInputMouseX = (MousePos.mX / scaler) + MOUSE_POSITION_X_ADJUST;
+        mInputMouseY = (MousePos.mY / scaler) + MOUSE_POSITION_Y_ADJUST;
 
         // check if the system cursor x/y is inside our window
         if (mWindow->hasFocusEvent() && mWindow->isMouseInside()) {
-            // Ensure the mouse button has been released before we focus
-            if (!SDL_GetGlobalMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+            // Ensure the mouse button has been released before  we focus
+            if (!mWindow->isMouseButtonPressed_Global()) {
+                WasClicked = true;
                 CursorGrabbed = true;
+
                 if (!mWindow->isFullscreen()) {
                     // Ensure X not too close to a border
                     if (mInputMouseX <= MOUSE_POSITION_X_ADJUST)
@@ -3029,10 +3033,9 @@ void cFodder::Mouse_Cursor_Handle() {
                     if (mInputMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
                         mInputMouseY = ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 2;
                 }
-
-                mWindow->SetMouseWindowPosition(WindowSize.getCentre());
-                mMouse_CurrentEventPosition = WindowSize.getCentre();
             }
+        } else {
+            return;
         }
     } else {
         cPosition BorderMouse;
@@ -3072,17 +3075,21 @@ void cFodder::Mouse_Cursor_Handle() {
         if (mWindow->isResized()) {
             mWindow->ClearResized();
         } else {
-            // Calc the distance from the cursor to the centre of the window
-            auto Diff = (mMouse_CurrentEventPosition - WindowSize.getCentre());
 
-            mInputMouseX = mMouseX + (Diff.mX / scaler) * 1.5;
-            mInputMouseY = mMouseY + (Diff.mY / scaler) * 1.5;
+            if (WasClicked) {
+                WasClicked = false;
+            } else {
+                // Calc the distance from the cursor to the centre of the window
+                auto Diff = (MousePos - WindowSize.getCentre());
 
-            // Set system cursor back to centre of window
-            mWindow->SetMouseWindowPosition(mWindow->GetWindowSize().getCentre());
-            mMouse_CurrentEventPosition = mWindow->GetWindowSize().getCentre();
+                mInputMouseX = mMouseX + (Diff.mX / scaler) * 1.5;
+                mInputMouseY = mMouseY + (Diff.mY / scaler) * 1.5;
+            }
         }
     }
+
+    // Set system cursor back to centre of window
+    mWindow->SetMouseWindowPosition(WindowSize.getCentre());
 }
 
 void cFodder::Mouse_Inputs_Get() {
@@ -3136,7 +3143,7 @@ loc_13B66:;
 void cFodder::Mouse_ButtonCheck() {
 
     mButtonPressLeft = 0;
-    if (mouse_Button_Status & 1) {
+    if (mMouseButtonStatus & 1) {
         mButtonPressLeft -= 1;
         if (mMouse_Button_Left_Toggle == 0) {
             mMouse_Button_Left_Toggle = -1;
@@ -3155,7 +3162,7 @@ void cFodder::Mouse_ButtonCheck() {
     }
 
     mButtonPressRight = 0;
-    if (mouse_Button_Status & 2) {
+    if (mMouseButtonStatus & 2) {
         mButtonPressRight -= 1;
         if (mMouse_Button_Right_Toggle == 0) {
             mSquad_Member_Fire_CoolDown_Override = true;
@@ -11782,7 +11789,7 @@ void cFodder::Briefing_Show_Ready() {
 
         if (mMission_Aborted) {
             mBriefing_Aborted = -1;
-            mouse_Button_Status = -1;
+            mMouseButtonStatus = -1;
             break;
         }
 
@@ -18161,7 +18168,7 @@ int16 cFodder::intro_Play() {
                     Fade = mSurface->palette_FadeTowardNew();
 
                 Mouse_Inputs_Get();
-                if (mouse_Button_Status) {
+                if (mMouseButtonStatus) {
 
                     if (mVersionCurrent->mIntroData.size() >= 2)
                         word_3B2CF = ((int16)mVersionCurrent->mIntroData.size()) - 2;
@@ -18317,7 +18324,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
             if (mImageFaded)
                 mImageFaded = mSurface->palette_FadeTowardNew();
 
-            if (mouse_Button_Status) {
+            if (mMouseButtonStatus) {
                 mImage_Aborted = -1;
                 mSurface->paletteNew_SetToBlack();
                 mImageFaded = -1;
