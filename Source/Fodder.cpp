@@ -3181,11 +3181,8 @@ void cFodder::WindowTitleSet(bool pInMission) {
 
     if (pInMission) {
         if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set ) {
-
             Title << " ( Mission: ";
-
             Title << mCampaign.getMapName(mGame_Data.mMapNumber);
-
         }
         else {
             Title << " ( Mission: " << mGame_Data.mMissionNumber;
@@ -3218,9 +3215,7 @@ void cFodder::WindowTitleBaseSetup() {
         if (mCampaign.getName().size()) {
             if (mCampaign.isCustom()) {
                 mWindowTitle << ": Custom (" << mCampaign.getName() << ")";
-            }
-            else {
-
+            } else {
                 mWindowTitle << ": " << mCampaign.getName();
             }
         }
@@ -3231,7 +3226,7 @@ void cFodder::WindowTitleBaseSetup() {
 
 /**
  * This function loads a new version of the game, and is generally called on startup,
- * or AFTER a button on the version select screen is pushed
+ * or AFTER a button on the campaign select screen is pushed
  *
  */
 void cFodder::VersionSwitch(const sGameVersion* pVersion) {
