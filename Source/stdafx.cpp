@@ -201,7 +201,7 @@ tSharedBuffer local_FileRead( const std::string& pFile, const std::string& pPath
 
 		// Get file size
 		fileStream->seekg( 0, std::ios::end );
-		fileBuffer->resize( fileStream->tellg() );
+		fileBuffer->resize( static_cast<const unsigned int>(fileStream->tellg()) );
 		fileStream->seekg( std::ios::beg );
 
 		// Allocate buffer, and read the file into it
