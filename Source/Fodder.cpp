@@ -2997,7 +2997,6 @@ void cFodder::Mouse_Cursor_Handle() {
     const cPosition WindowPos = mWindow->GetWindowPosition();
     const cDimension ScreenSize = mWindow->GetScreenSize();
     const cDimension WindowSize = mWindow->GetWindowSize();
-    //const cPosition MousePos = mWindow->GetMousePosition(true);
     const cDimension scale = mWindow->GetScale();
 
     mMouseButtonStatus = mMouseButtonsPressed;
@@ -3012,7 +3011,7 @@ void cFodder::Mouse_Cursor_Handle() {
             mInputMouseX = (mMouse_CurrentEventPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
             mInputMouseY = (mMouse_CurrentEventPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
         }
-
+        
         // Check if the system cursor x/y is inside our window
         // and ensure the mouse button has been released before we focus
         if (mWindow->hasFocusEvent() && mWindow->isMouseInside() && !mWindow->isMouseButtonPressed_Global()) {
@@ -3056,7 +3055,7 @@ void cFodder::Mouse_Cursor_Handle() {
             }
 
             //  if yes set system cursor outside the border
-            if (CursorGrabbed && (BorderMouse.mX || BorderMouse.mY)) {
+            if (BorderMouse.mX || BorderMouse.mY) {
                 CursorGrabbed = false;
                 mWindow->SetMousePosition(BorderMouse);
                 return;
@@ -3074,12 +3073,13 @@ void cFodder::Mouse_Cursor_Handle() {
                 // Calc the distance from the cursor to the centre of the window
                 const cPosition Diff = (mMouse_CurrentEventPosition - WindowSize.getCentre());
 
-                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth()) * 1.5);
+                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth() ) * 1.5);
                 mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
             }
         }
+
         // Set system cursor back to centre of window
-        mWindow->SetMouseWindowPosition(WindowSize.getCentre());
+        mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
     }
 }
 
