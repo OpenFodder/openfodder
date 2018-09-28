@@ -3000,7 +3000,6 @@ void cFodder::Mouse_Cursor_Handle() {
     const cPosition MousePos = mWindow->GetMousePosition(true);
     const cDimension scale = mWindow->GetScale();
 
-
     mMouseButtonStatus = mMouseButtonsPressed;
 
     if (!mWindow->hasFocusEvent() && CursorGrabbed)
@@ -3075,7 +3074,6 @@ void cFodder::Mouse_Cursor_Handle() {
         if (mWindow->isResized()) {
             mWindow->ClearResized();
         } else {
-
             if (WasClicked) {
                 if(!mWindow->isMouseButtonPressed_Global())
                     WasClicked = false;
@@ -3087,10 +3085,10 @@ void cFodder::Mouse_Cursor_Handle() {
                 mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
             }
         }
-    }
 
-    // Set system cursor back to centre of window
-    mWindow->SetMouseWindowPosition(WindowSize.getCentre());
+        // Set system cursor back to centre of window
+        mWindow->SetMouseWindowPosition(WindowSize.getCentre());
+    }
 }
 
 void cFodder::Mouse_Inputs_Get() {
@@ -18268,7 +18266,6 @@ void cFodder::intro() {
 
     // Disabled: GOG CD Version doesn't require a manual check
     //  CopyProtection();
-
     mImage_Aborted = 0;
     mGraphics->Load_Sprite_Font();
 
@@ -18279,6 +18276,8 @@ void cFodder::intro() {
 
     if (mVersionCurrent->mGame == eGame::CF1)
         intro_LegionMessage();
+
+    mMission_Aborted = false;
 
     if (ShowImage_ForDuration("cftitle", 0x1F8 / 3))
         goto introDone;
@@ -18296,6 +18295,7 @@ void cFodder::intro() {
         goto introDone;
 
 introDone:;
+
     mIntroDone = true;
     mSound->Music_Stop();
 
@@ -18312,6 +18312,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
     mGraphics->PaletteSet();
 
     mImageFaded = -1;
+
     while (mImageFaded == -1 || DoBreak == false) {
         Mouse_Inputs_Get();
         --pDuration;
@@ -18321,7 +18322,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
                 mImageFaded = mSurface->palette_FadeTowardNew();
 
             if (mMouseButtonStatus || mMission_Aborted) {
-                mMission_Aborted = 0;
+                mMission_Aborted = false;
                 mImage_Aborted = -1;
                 mSurface->paletteNew_SetToBlack();
                 mImageFaded = -1;
