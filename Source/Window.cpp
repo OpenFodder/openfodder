@@ -124,10 +124,10 @@ void cWindow::EventCheck() {
 
 		cEvent Event;
 
-		switch (SysEvent.type) {
+		switch ( SysEvent.type ) {
             case SDL_WINDOWEVENT:
 
-                switch (SysEvent.window.event ) {
+                switch ( SysEvent.window.event ) {
                     case SDL_WINDOWEVENT_FOCUS_LOST:
                         mHasFocus = false;
                         break;
@@ -155,7 +155,7 @@ void cWindow::EventCheck() {
 
 			case SDL_MOUSEBUTTONDOWN:
 
-				switch (SysEvent.button.button) {
+				switch ( SysEvent.button.button ) {
 
 					case 1:
 						Event.mType = eEvent_MouseLeftDown;
@@ -174,7 +174,7 @@ void cWindow::EventCheck() {
 
 			case SDL_MOUSEBUTTONUP:
 
-				switch (SysEvent.button.button) {
+				switch ( SysEvent.button.button ) {
 
 					case 1:
 						Event.mType = eEvent_MouseLeftUp;

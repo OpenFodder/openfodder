@@ -100,6 +100,7 @@ public:
     cSurface*       mSurface;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
+    cPosition       mMouse_CurrentEventPosition;
     uint32          mMouseButtonsPressed;
 
     uint16          mMapWidth;
