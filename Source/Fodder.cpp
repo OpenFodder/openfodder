@@ -3077,7 +3077,8 @@ void cFodder::Mouse_Cursor_Handle() {
         } else {
 
             if (WasClicked) {
-                WasClicked = false;
+                if(!mWindow->isMouseButtonPressed_Global())
+                    WasClicked = false;
             } else {
                 // Calc the distance from the cursor to the centre of the window
                 const cPosition Diff = (MousePos - WindowSize.getCentre());
@@ -18319,7 +18320,8 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
             if (mImageFaded)
                 mImageFaded = mSurface->palette_FadeTowardNew();
 
-            if (mMouseButtonStatus) {
+            if (mMouseButtonStatus || mMission_Aborted) {
+                mMission_Aborted = 0;
                 mImage_Aborted = -1;
                 mSurface->paletteNew_SetToBlack();
                 mImageFaded = -1;
