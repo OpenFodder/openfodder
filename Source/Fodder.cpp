@@ -2998,8 +2998,8 @@ void cFodder::Mouse_Cursor_Handle() {
     const cDimension ScreenSize = mWindow->GetScreenSize();
     const cDimension WindowSize = mWindow->GetWindowSize();
     const cPosition MousePos = mWindow->GetMousePosition(true);
+    const cDimension scale = mWindow->GetScale();
 
-    int16 scaler = mWindow->GetScaler();
 
     mMouseButtonStatus = mMouseButtonsPressed;
 
@@ -3010,8 +3010,8 @@ void cFodder::Mouse_Cursor_Handle() {
     if (!CursorGrabbed) {
 
         // register mouse position even when not focused
-        mInputMouseX = (MousePos.mX / scaler) + MOUSE_POSITION_X_ADJUST;
-        mInputMouseY = (MousePos.mY / scaler) + MOUSE_POSITION_Y_ADJUST;
+        mInputMouseX = (MousePos.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
+        mInputMouseY = (MousePos.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
 
         // check if the system cursor x/y is inside our window
         if (mWindow->hasFocusEvent() && mWindow->isMouseInside()) {
@@ -3044,10 +3044,10 @@ void cFodder::Mouse_Cursor_Handle() {
             // Need to check if the game cursor x is near a border
             if (mMouseX <= MOUSE_POSITION_X_ADJUST || mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1) {
                 BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
-                BorderMouse.mY = WindowPos.mY + (mMouseY - MOUSE_POSITION_Y_ADJUST) * scaler;
+                BorderMouse.mY = WindowPos.mY + (mMouseY - MOUSE_POSITION_Y_ADJUST) * scale.getHeight();
             } // Need to check if the game cursor y is near a border
             else if (mMouseY <= MOUSE_POSITION_Y_ADJUST || mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) {
-                BorderMouse.mX = WindowPos.mX + (mMouseX - MOUSE_POSITION_X_ADJUST) * scaler;
+                BorderMouse.mX = WindowPos.mX + (mMouseX - MOUSE_POSITION_X_ADJUST) * scale.getWidth();
                 BorderMouse.mY = mMouseY <= 4 ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
             }
 
@@ -3082,8 +3082,8 @@ void cFodder::Mouse_Cursor_Handle() {
                 // Calc the distance from the cursor to the centre of the window
                 const cPosition Diff = (MousePos - WindowSize.getCentre());
 
-                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scaler) * 1.5);
-                mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scaler) * 1.5);
+                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth()) * 1.5);
+                mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
             }
         }
     }

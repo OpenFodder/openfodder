@@ -99,5 +99,5 @@ class cWindow {
         bool                HasFocus();
         bool                hasFocusEvent() const { return mHasFocus; }
         bool                GetMouseGrabbed() const { return mCursorGrabbed; }
-		uint8               GetScaler() const { return mScaler; }
+        cDimension          GetScale() const;
 };
