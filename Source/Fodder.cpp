@@ -18136,7 +18136,7 @@ int16 cFodder::intro_Play() {
             mGraphics->Load_And_Draw_Image(ImageName.str(), 0xD0);
         }
         else {
-            mIntro_PlayTextDuration = 0xAF / 5;
+            mIntro_PlayTextDuration = 0xAF / 2;
             mSurface->clearBuffer();
         }
 
