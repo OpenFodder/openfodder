@@ -465,14 +465,21 @@ cPosition cWindow::GetWindowPosition() const {
 }
 
 cDimension cWindow::GetWindowSize() const {
-
 	return cDimension( mOriginalResolution.mWidth * mScaler, mOriginalResolution.mHeight * mScaler ); 
 }
 
 bool cWindow::HasFocus() {
-
     if (SDL_GetWindowFlags(mWindow) & SDL_WINDOW_MOUSE_FOCUS)
         return true;
 
     return false;
+}
+
+cDimension cWindow::GetScale() const {
+    cDimension Result = GetWindowSize() / GetScreenSize();
+    if (Result.mHeight == 0)
+        Result.mHeight = 1;
+    if (Result.mWidth == 0)
+        Result.mWidth = 1;
+    return Result;
 }
