@@ -618,6 +618,7 @@ void cFodder::Mission_Memory_Clear() {
     mRecruit_RenderedPtr = 0;
     mRecruit_Truck_Frame = 0;
     mRecruit_Truck_FrameAnimBufferPtr = 0;
+    mRecruit_Screen_Active = false;
 
     word_3ABB1 = 0;
     mSquad_Member_Fire_CoolDown = 0;
@@ -2853,14 +2854,19 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     else
         mKeyCode = 0;
 
-    // TODO: Switch version on Key press
-    if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
+    // Switch between platforms
+    if (!mVersionPlatformSwitchDisabled) {
+        if ((mVersionDefault && mVersionDefault->isRetail()) || mVersionCurrent->isRetail()) {
 
-        //VersionSwitch(GetForCampaign(mVersionCurrent->mName, ePlatform::Amiga));
-    }
+            if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
+                mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::Amiga);
+            }
+            if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
+                mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::PC); 
+            }
 
-    if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
-        //VersionSwitch(mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::PC));
+            VersionSwitch(mVersionDefault);
+        }
     }
 
     if ((pKeyCode == SDL_SCANCODE_EQUALS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_PLUS && pPressed))
@@ -2910,6 +2916,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
                 Squad_Select(2, false);
         }
 
+#ifdef _DEBUG
         // Debug: Mission Complete
         if (pKeyCode == SDL_SCANCODE_F10 && pPressed) {
             mDebug_MissionSkip = -1;
@@ -2926,6 +2933,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
                 }
             }
         }
+#endif
     }
 }
 
@@ -3212,9 +3220,33 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
     mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
 
-    mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
-    mGraphics->Load_pStuff();
+    mGraphics->Load_Sprite_Font();
     mGraphics->Load_Hill_Data();
+    mGraphics->Load_pStuff();
+
+    if (mMission_In_Progress) {
+        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+        Map_Load_Resources();
+        Map_Overview_Prepare();
+        mGraphics->MapTiles_Draw();
+
+        mGUI_Sidebar_Setup = 0;
+        GUI_Sidebar_Prepare_Squads();
+        while(mGUI_Sidebar_Setup>=0)
+            GUI_Sidebar_Setup();
+
+        mGraphics->PaletteSet();
+        mSurface->palette_FadeTowardNew();
+        mImageFaded = -1;
+    }
+    
+    if(mRecruit_Screen_Active) {
+        mGraphics->SetActiveSpriteSheet(eGFX_HILL);
+        Recruit_Prepare();
+    }
+
+
+
 }
 
 void cFodder::Prepare() {
@@ -3826,6 +3858,7 @@ static std::vector<unsigned char> mCampaignSelectMap_AF = {
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
     mCampaignList = mVersions->GetCampaignNames();
 
+    mMission_In_Progress = true;
     mMission_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
@@ -3870,6 +3903,8 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
         Campaign_Select_File_Loop(pTitle, pSubTitle);
 
     } while (mGUI_SaveLoadAction == 3);
+
+    mMission_In_Progress = false;
 
     if (mGUI_SaveLoadAction == 1)
         return "";
@@ -3988,7 +4023,7 @@ void cFodder::Campaign_Selection() {
     // Find a data version to use with this campaign
     // If no version is found, we use the currently loaded one
     {
-        const sGameVersion* Version = mVersions->GetForCampaign(CampaignFile);
+        const sGameVersion* Version = mVersions->GetForCampaign(CampaignFile, mVersionCurrent->mPlatform);
 
         // Load a new version?
         if (Version && Version != mVersionCurrent) {
@@ -4334,22 +4369,7 @@ int16 cFodder::Recruit_Show() {
     return 0;
 }
 
-bool cFodder::Recruit_Loop() {
-
-    mSurface->clearBuffer();
-
-    // If demo data is loaded, we need to load
-    if (mVersionCurrent->isDemo()) {
-
-        if (mCustom_Mode == eCustomMode_Set) {
-            VersionSwitch(mVersionDefault);
-        }
-        // Failed to switch mode?
-        if (mVersionCurrent->isDemo())
-            return 0;
-    }
-
-    Mouse_Setup();
+void cFodder::Recruit_Prepare() {
     Sidebar_Clear_ScreenBufferPtr();
 
     mMission_Aborted = false;
@@ -4374,15 +4394,35 @@ bool cFodder::Recruit_Loop() {
     mSurface->palette_FadeTowardNew();
     mSurface->Save();
 
-    mGUI_Mouse_Modifier_X = 0;
-    mGUI_Mouse_Modifier_Y = 0x1D;
-
     Recruit_Render_Names_UnusedSlots();
 
     mRecruit_RenderedPtr = mRecruit_Rendered;
-
     for (int16 ax = mGame_Data.mMission_Troop_Count - 1; ax >= 0; --ax)
         Recruit_Sidebar_Render_SquadName();
+}
+
+bool cFodder::Recruit_Loop() {
+
+    mRecruit_Screen_Active = true;
+    mSurface->clearBuffer();
+
+    // If demo data is loaded, we need to load
+    if (mVersionCurrent->isDemo()) {
+
+        if (mCustom_Mode == eCustomMode_Set) {
+            VersionSwitch(mVersionDefault);
+        }
+        // Failed to switch mode?
+        if (mVersionCurrent->isDemo())
+            return 0;
+    }
+
+    Mouse_Setup();
+
+    Recruit_Prepare();
+
+    mGUI_Mouse_Modifier_X = 0;
+    mGUI_Mouse_Modifier_Y = 0x1D;
 
     mMouseCursor_Enabled = -1;
 
@@ -4406,6 +4446,8 @@ bool cFodder::Recruit_Loop() {
 
         Recruit_Cycle();
     }
+
+    mRecruit_Screen_Active = false;
 
     mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
     mMouseCursor_Enabled = 0;
@@ -18105,7 +18147,9 @@ void cFodder::Mission_Intro_Play() {
     Mission_Intro_Draw_Mission_Name();
     mSurface->Save();
 
+    mVersionPlatformSwitchDisabled = true;
     mGraphics->Mission_Intro_Play();
+    mVersionPlatformSwitchDisabled = false;
 }
 
 void cFodder::Intro_Print_String(const sIntroString* pString) {
@@ -18156,6 +18200,7 @@ void cFodder::intro() {
 
     // Disabled: GOG CD Version doesn't require a manual check
     //  CopyProtection();
+    mVersionPlatformSwitchDisabled = true;
     mImage_Aborted = 0;
     mGraphics->Load_Sprite_Font();
 
@@ -18185,7 +18230,7 @@ void cFodder::intro() {
         goto introDone;
 
 introDone:;
-
+    mVersionPlatformSwitchDisabled = false;
     mIntroDone = true;
     mSound->Music_Stop();
 

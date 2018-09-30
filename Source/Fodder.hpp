@@ -64,6 +64,7 @@ public:
     bool					mOpenFodder_Intro_Done;
     bool                    mSoundDisabled;
 
+    bool                    mVersionPlatformSwitchDisabled;
     const sGameVersion*     mVersionDefault;		// Version to switch back to when looking for data
     const sGameVersion*     mVersionCurrent;		// Version currently being used
     cCampaign               mCampaign;				// Campaign currently being played
@@ -407,6 +408,7 @@ public:
     int16               mRecruit_Truck_Enter_Count;
     int16               mRecruit_Button_Load_Pressed;
     int16               mRecruit_Button_Save_Pressed;
+    bool                mRecruit_Screen_Active;
 
     int16           mMouseX;
     int16           mMouseY;
@@ -666,6 +668,7 @@ public:
 
     /* Recruitment */
     int16           Recruit_Show();
+    void            Recruit_Prepare();
     bool            Recruit_Loop();
     void            Recruit_Draw_String(int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString);
     void            Recruit_Truck_Anim_Prepare();
