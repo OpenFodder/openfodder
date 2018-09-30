@@ -2856,6 +2856,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
     // Switch between platforms
     if (!mVersionPlatformSwitchDisabled) {
+        mVersionPlatformSwitchDisabled = true;
         if ((mVersionDefault && mVersionDefault->isRetail()) || mVersionCurrent->isRetail()) {
 
             if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
@@ -2867,6 +2868,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
             VersionSwitch(mVersionDefault);
         }
+        mVersionPlatformSwitchDisabled = false;
     }
 
     if ((pKeyCode == SDL_SCANCODE_EQUALS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_PLUS && pPressed))
@@ -3200,11 +3202,12 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
     if (mVersionCurrent == pVersion)
         return;
 
+    Image_FadeOut();
+
     mVersionCurrent = pVersion;
 
     WindowTitleBaseSetup();
 
-    Image_FadeOut();
 
     // Sound must be released first, to unlock the audio device
     mSound = 0;
@@ -3226,23 +3229,26 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     if (mMission_In_Progress) {
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+
+        // Reload Map Data
         Map_Load_Resources();
         Map_Overview_Prepare();
         mGraphics->MapTiles_Draw();
 
+        // Redraw sidebar
         mGUI_Sidebar_Setup = 0;
-        GUI_Sidebar_Prepare_Squads();
         while(mGUI_Sidebar_Setup>=0)
             GUI_Sidebar_Setup();
 
-        mGraphics->PaletteSet();
-        mSurface->palette_FadeTowardNew();
-        mImageFaded = -1;
+        mImageFaded = mSurface->palette_FadeTowardNew();
     }
     
     if(mRecruit_Screen_Active) {
-        mGraphics->SetActiveSpriteSheet(eGFX_HILL);
         Recruit_Prepare();
+
+        for (int i = 0; i < mGame_Data.mMission_Troops_Required - mRecruit_Truck_Enter_Count; ++i) {
+            Recruit_Sidebar_Render_SquadName();
+        }
     }
 
 }
@@ -4370,7 +4376,6 @@ int16 cFodder::Recruit_Show() {
 }
 
 void cFodder::Recruit_Prepare() {
-    Sidebar_Clear_ScreenBufferPtr();
 
     mMission_Aborted = false;
 
@@ -4419,6 +4424,7 @@ bool cFodder::Recruit_Loop() {
 
     Mouse_Setup();
 
+    Sidebar_Clear_ScreenBufferPtr();
     Recruit_Prepare();
 
     mGUI_Mouse_Modifier_X = 0;
@@ -4445,6 +4451,9 @@ bool cFodder::Recruit_Loop() {
             break;
 
         Recruit_Cycle();
+
+        Video_SurfaceRender();
+        Cycle_End();
     }
 
     mRecruit_Screen_Active = false;
@@ -5227,9 +5236,6 @@ void cFodder::Recruit_Cycle() {
 
     if (mSurface->GetFaded() == false)
         mSurface->palette_FadeTowardNew();
-
-    Video_SurfaceRender();
-    Cycle_End();
 }
 
 bool cFodder::Recruit_Check_Buttons_SaveLoad() {
@@ -18178,9 +18184,14 @@ void cFodder::Image_FadeOut() {
         Mouse_Inputs_Get();
         //Mouse_DrawCursor();
 
-        mSurface->palette_FadeTowardNew();
+        // BUGFIX: Prevent a pallete bug when version switching
+        if (mRecruit_Screen_Active) {
+            Recruit_Cycle();
+        } else 
+            mSurface->palette_FadeTowardNew();
 
         Video_SurfaceRender();
+        Cycle_End();
     }
 }
 
