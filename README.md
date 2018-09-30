@@ -39,7 +39,9 @@ Open Fodder supports two demos from the Amiga platform, and 3 retail releases (S
 ##### Hot Keys
 
 * +:   Increase Window Size
-* -:   Decrease Window Size 
+* -:   Decrease Window Size
+* F1:  Switch to Amiga graphics (if available)
+* F2:  Switch to PC graphics (if available)
 * F11: Full screen  
 * ESC: Back Menu/Abort Phase
   

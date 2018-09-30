@@ -1052,7 +1052,6 @@ public:
 
     void            GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20);
 
-    void            Game_Save_Wrapper2();
     void            Game_Save_Wrapper();
 
     void            GUI_Element_Reset();

@@ -3245,8 +3245,6 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
         Recruit_Prepare();
     }
 
-
-
 }
 
 void cFodder::Prepare() {
@@ -4168,6 +4166,8 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
 
     int16 Timedown = 0;
     do {
+        mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
+
         Sprite_Frame_Modifier_Update();
         Mission_Sprites_Handle();
 
@@ -10185,10 +10185,10 @@ void cFodder::Map_Destroy_Tiles_Next() {
     mMap_Destroy_TilesPtr = Data20;
 }
 
-void cFodder::Game_Save_Wrapper2() {
-    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+void cFodder::Game_Save_Wrapper() {
 
-    Game_Save_Wrapper();
+    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+    Game_Save();
 }
 
 void cFodder::GUI_Element_Reset() {
@@ -10288,11 +10288,6 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
         return;
 
     Image_FadeOut();
-}
-
-void cFodder::Game_Save_Wrapper() {
-
-    Game_Save();
 }
 
 void cFodder::GUI_Button_Setup(void(cFodder::*pFunction)(void)) {
@@ -20081,14 +20076,14 @@ void cFodder::Sprite_Handle_Player_InVehicle(sSprite* pSprite) {
 
 void cFodder::Recruit_CheckLoadSaveButtons() {
 
+    mVersionPlatformSwitchDisabled = true;
     if (mRecruit_Button_Load_Pressed) {
         Game_Load();
-        return;
-    }
 
-    if (mRecruit_Button_Save_Pressed) {
-        Game_Save_Wrapper2();
+    } else if (mRecruit_Button_Save_Pressed) {
+        Game_Save_Wrapper();
     }
+    mVersionPlatformSwitchDisabled = false;
 }
 
 void cFodder::Game_Setup(int16 pStartMap) {
