@@ -4465,6 +4465,9 @@ bool cFodder::Recruit_Loop() {
 
     while (mSurface->GetFaded() == false) {
         Recruit_Cycle();
+
+        Video_SurfaceRender();
+        Cycle_End();
     }
 
     return mMission_Aborted;

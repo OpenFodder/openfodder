@@ -1445,6 +1445,7 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 	int16 word_42875 = 0;
 	int16 BladeFrame = 0;
 
+    PaletteSet(mSurface);
 	PaletteBriefingSet();
 	mSurface->palette_FadeTowardNew();
 	mFodder->mImageFaded = -1;
