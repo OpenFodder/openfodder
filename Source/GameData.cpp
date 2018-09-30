@@ -68,42 +68,39 @@ void sGameData::Clear() {
     for (auto& Troop : mMission_Troops)
         Troop.Clear();
 
-	for (unsigned int x = 0; x < 361; ++x)
-		mRecruitDied_Ranks[x] = -1;
-
-	for (unsigned int x = 0; x < 361; ++x)
-		mRecruitDied_IDs[x] = -1;
-
 	mTroops_Away = 0;
 	mTroops_Home = 0;
 	mMission_Troops_Required = 0;
 	mMission_Troop_Count = 0;
 	mMission_Troops_Available = 0;
 	
+   
 	Troops_Clear();
-	mHeroes.clear();
+	mTroops_Died.clear();
+    mTroops_DiedCount = 0;
 }
 
 void sGameData::Troops_Clear() {
-	mMission_Troops[8].mRecruitID = -1;
-	mMission_Troops[8].mSprite = INVALID_SPRITE_PTR;
 
-	for (unsigned int x = 0; x < 8; ++x) {
-		mMission_Troops[x].mSprite = INVALID_SPRITE_PTR;
-		mMission_Troops[x].mRecruitID = -1;
-		mMission_Troops[x].mRank = 0;
-		mMission_Troops[x].mPhaseCount = 0;
+	for( auto& Troop : mMission_Troops) {
+        Troop.mSprite = INVALID_SPRITE_PTR;
+		Troop.mRecruitID = -1;
+		Troop.mRank = 0;
+		Troop.mPhaseCount = 0;
 	}
 }
 
-void sGameData::Hero_Add(const sMission_Troop*  pTroop) {
-
+void sGameData::Troop_Died(const sMission_Troop* pTroop) {
     if (!pTroop)
         return;
 
-	mHeroes.push_back(sHero(pTroop));
+    mTroops_Died.push_back(sHero(pTroop));
+}
 
-	sort(mHeroes.begin(), mHeroes.end(),
+std::vector<sHero> sGameData::Heroes_Get() const {
+    std::vector<sHero> Final = mTroops_Died;
+
+	sort(Final.begin(), Final.end(),
 		[](const sHero & a, const sHero & b) -> bool
 	{
 		if (!a.mKills)
@@ -123,6 +120,9 @@ void sGameData::Hero_Add(const sMission_Troop*  pTroop) {
 
 		return true;
 	});
+
+    Final.resize(5);
+    return Final;
 }
 
 std::string sGameData::ToJson(const std::string& pSaveName) {
@@ -175,11 +175,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Save["mMission_Troops"].push_back(Troop);
 	}
 
-	for (auto& GraveRank : mRecruitDied_Ranks) {
-		Save["mGraveRanks"].push_back(GraveRank);
-	}
-
-	for (auto& Hero : mHeroes) {
+	for (auto& Hero : mTroops_Died) {
 		Json JsonHero;
 
 		JsonHero["mRecruitID"] = Hero.mRecruitID;
@@ -241,11 +237,6 @@ bool sGameData::FromJson(const std::string& pJson) {
 				break;
 		}
 
-		x = 0;
-		for (auto& GraveRank : LoadedData["mGraveRanks"]) {
-			mRecruitDied_Ranks[x++] = GraveRank & 0xFF;
-		}
-
 		for (auto& Hero : LoadedData["mHeroes"]) {
 			sHero Heroes;
 
@@ -253,7 +244,7 @@ bool sGameData::FromJson(const std::string& pJson) {
 			Heroes.mRank = Hero["mRank"];
 			Heroes.mKills = Hero["mKills"];
 
-			mHeroes.push_back(Heroes);
+			mTroops_Died.push_back(Heroes);
 		}
 
 		mTroops_Away = LoadedData["mTroops_Away"];

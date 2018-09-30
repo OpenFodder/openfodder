@@ -94,10 +94,9 @@ struct sGameData {
 
     sMission_Troop  mMission_Troops[9];
 
-    int8            mRecruitDied_Ranks[361];
-    int16           mRecruitDied_IDs[361];      // Used by the service kia screen
+    size_t          mTroops_DiedCount;  // Count of number of heroes who had died before mission started
 
-    std::vector<sHero> mHeroes;
+    std::vector<sHero> mTroops_Died;
 
     int16           mTroops_Away;
     int16           mTroops_Home;
@@ -115,7 +114,9 @@ struct sGameData {
     void Clear();
     void Troops_Clear();
 
+    void Troop_Died(const sMission_Troop* pTroop);
     void Hero_Add(const sMission_Troop* pTroop);
+    std::vector<sHero> Heroes_Get() const;
 
     std::string ToJson(const std::string& pName);
     bool		FromJson(const std::string& pJson);

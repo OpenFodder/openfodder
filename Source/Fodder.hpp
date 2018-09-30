@@ -119,10 +119,6 @@ public:
 
     sSprite*        mMission_Troops_SpritePtrs[9];
 
-    int8*          mRecruitDiedRankPtr;
-    int8*          mService_RecruitDiedRankPtr;
-    int16*          mRecruitDiedIDPtr;
-
     int16           mButtonPressLeft, mButtonPressRight;
 
     bool            mVehicle_Input_Disabled;

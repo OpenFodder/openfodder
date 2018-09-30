@@ -477,9 +477,6 @@ void cFodder::Game_ClearVariables() {
     mGame_InputTicks = 0;
     mMission_EngineTicks = 0;
     mMission_Restart = 0;
-    mRecruitDiedRankPtr = 0;
-    mService_RecruitDiedRankPtr = 0;
-    mRecruitDiedIDPtr = 0;
 
     for (unsigned int x = 0; x < 9; ++x) {
         mMission_Troops_SpritePtrs[x] = 0;
@@ -496,20 +493,7 @@ void cFodder::Mission_Memory_Restore() {
     mGame_Data = mGame_Data_Backup;
 
     // Reset grave pointers
-    mRecruitDiedRankPtr = mGame_Data.mRecruitDied_Ranks;
-    mService_RecruitDiedRankPtr = mRecruitDiedRankPtr;
-    mRecruitDiedIDPtr = mGame_Data.mRecruitDied_IDs;
-
-    // Update grave pointers to next free
-    for (int16 x = 0; x < 361; ++x) {
-        if (*mRecruitDiedRankPtr != -1) {
-            ++mRecruitDiedRankPtr;
-            ++mService_RecruitDiedRankPtr;
-        }
-        if (*mRecruitDiedIDPtr != -1) {
-            ++mRecruitDiedIDPtr;
-        }
-    }
+    mGame_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
 }
 
 void cFodder::Mission_Memory_Clear() {
@@ -4568,33 +4552,22 @@ void cFodder::Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const si
 }
 
 void cFodder::Recruit_Draw_Graves() {
-    int32 Data1C = -1;
-    int8* GraveRank = mGame_Data.mRecruitDied_Ranks;
     const int16* GravePosition = &mGravePositions[720];
 
-    for (; *GraveRank >= 0; ++GraveRank) {
+    for (size_t i = mGame_Data.mTroops_Died.size(); i > 0; --i) {
         GravePosition -= 2;
-        Data1C++;
     }
 
-    if (GraveRank == mGame_Data.mRecruitDied_Ranks)
+    if (mGame_Data.mTroops_Died.empty())
         return;
 
-    --GraveRank;
+   for(auto& Hero : mGame_Data.mTroops_Died) {
 
-    do {
-        int16 RankSprite = *GraveRank;
-        if (RankSprite < 0)
-            return;
-
-        --GraveRank;
         int16 PosX = *GravePosition++;
         int16 PosY = *GravePosition++;
 
-        Recruit_Draw_Grave(RankSprite, PosX, PosY);
-
-        --Data1C;
-    } while (Data1C >= 0);
+        Recruit_Draw_Grave(Hero.mRank, PosX, PosY);
+    };
 
 }
 
@@ -4609,7 +4582,7 @@ void cFodder::Recruit_Render_Sidebar() {
     int16 Data14 = 0x0E;
     SpriteType = 4;
 
-    for (auto&& Hero : mGame_Data.mHeroes) {
+    for (auto&& Hero : mGame_Data.Heroes_Get()) {
         if (SpriteType < 0)
             break;
 
@@ -4799,7 +4772,7 @@ void cFodder::Recruit_Render_HeroList() {
     int16 word_3A3BB = 4;
     mSidebar_Draw_Y = 0;
 
-    for (auto& Hero : mGame_Data.mHeroes) {
+    for (auto& Hero : mGame_Data.Heroes_Get()) {
 
         if (Hero.mRecruitID < 0)
             continue;
@@ -5087,12 +5060,10 @@ void cFodder::Recruit_Frame_Check() {
 void cFodder::Recruit_Position_Troops() {
     const int16*    Recruit_Next_Shirt = mRecruit_Shirt_Colors;
 
-    uint64 Data8 = (uint64)mRecruitDiedRankPtr;
+    uint64 Data8 = mGame_Data.mTroops_Died.size();
     int16 Recruits, Data4;
 
     // Calculate number of dead troops
-    Data8 -= (uint64)mGame_Data.mRecruitDied_Ranks;
-    Data8 >>= 1;
     Data8 &= 0xF;
 
     if (mMission_Restart)
@@ -11235,20 +11206,14 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
     Service_Mission_Text_Prepare(di);
     mVideo_Draw_PosY += 0x40;
 
-    int16* si = mGame_Data.mRecruitDied_IDs;
-
-    if (*si == -1)
+    if (mGame_Data.mTroops_Died.empty() || mGame_Data.mTroops_DiedCount == mGame_Data.mTroops_Died.size())
         return -1;
 
-    for (;;) {
-        int16 recruitID = *si++;
-        if (recruitID == -1)
-            break;
+    for (size_t i = mGame_Data.mTroops_DiedCount; i < mGame_Data.mTroops_Died.size(); ++i) {
 
-        int8 rank = (*mService_RecruitDiedRankPtr);
-        ++mService_RecruitDiedRankPtr;
+        auto& Hero = mGame_Data.mTroops_Died[i];
 
-        Service_Draw_Troop_And_Rank(di, recruitID, rank);
+        Service_Draw_Troop_And_Rank(di, Hero.mRecruitID, Hero.mRank);
         mVideo_Draw_PosY += 0x40;
     }
 
@@ -16578,15 +16543,7 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
     if (pSprite->field_46_mission_troop) {
         Troop = pSprite->field_46_mission_troop;
 
-        mGame_Data.Hero_Add(Troop);
-
-        if (mRecruitDiedRankPtr <= &mGame_Data.mRecruitDied_Ranks[360]) {
-            *mRecruitDiedRankPtr++ = Troop->mRank;
-            *mRecruitDiedRankPtr = -1;
-
-            *mRecruitDiedIDPtr++ = Troop->mRecruitID;
-            *mRecruitDiedIDPtr = -1;
-        }
+        mGame_Data.Troop_Died(Troop);
 
         Troop->mSprite = INVALID_SPRITE_PTR;
         Troop->mRecruitID = -1;
@@ -18343,9 +18300,7 @@ void cFodder::Mission_Phase_Next() {
     mGame_Data.mMission_Recruitment = -1;
     mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs = 0;
 
-    mRecruitDiedIDPtr = mGame_Data.mRecruitDied_IDs;
-    mGame_Data.mRecruitDied_IDs[0] = -1;
-    mService_RecruitDiedRankPtr = mRecruitDiedRankPtr;
+    mGame_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
 }
 
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
@@ -20141,9 +20096,6 @@ void cFodder::Game_Setup(int16 pStartMap) {
     mMission_Complete = 0;
     mGame_Data.mMapNumber = pStartMap;
 
-    mRecruitDiedRankPtr = mGame_Data.mRecruitDied_Ranks;
-
-    mGame_Data.mRecruitDied_Ranks[0] = -1;
     mGame_Data.mMission_Phases_Remaining = 1;
     mGame_Data.mMissionNumber = 0;
 
