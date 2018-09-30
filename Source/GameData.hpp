@@ -28,7 +28,6 @@ struct sMission_Troop {
     sSprite*    mSprite;
 
     uint16      field_6;            // Unknown: This value is referenced, but it has no effect
-    int8        field_8;            // Unknown: Unused
     int8        mSelected;
     uint16      mNumberOfKills;
 
@@ -46,7 +45,6 @@ struct sMission_Troop {
         mSprite = (sSprite*)-1;
 
         field_6 = 0;
-        field_8 = 0;
         mSelected = 0;
     }
 };

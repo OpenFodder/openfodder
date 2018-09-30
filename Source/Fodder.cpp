@@ -1401,7 +1401,6 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
                 Troop.mRank = (mGame_Data.mMissionNumber - 1) / 3;
             }
 
-            Troop.field_8 = 0;
             Troop.field_6 = 3;
             ++mGame_Data.mRecruit_NextID;
 

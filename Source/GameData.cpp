@@ -130,7 +130,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	Json Save;
 
 	// Not used yet
-	Save["SaveVersion"] = 1;
+	Save["SaveVersion"] = 2;
 
 	// Save the current game data version
 	{
@@ -168,7 +168,6 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Troop["mRank"] = MissionTroop.mRank;
 		Troop["mPhaseCount"] = MissionTroop.mPhaseCount;
 		Troop["field_6"] = MissionTroop.field_6;
-		Troop["field_8"] = MissionTroop.field_8;
 		Troop["mSelected"] = MissionTroop.mSelected;
 		Troop["mNumberOfKills"] = MissionTroop.mNumberOfKills;
 
@@ -229,17 +228,14 @@ bool sGameData::FromJson(const std::string& pJson) {
 			mMission_Troops[x].mRank = MissionTroop["mRank"];
 			mMission_Troops[x].mPhaseCount = MissionTroop["mPhaseCount"];
 			mMission_Troops[x].field_6 = MissionTroop["field_6"];
-			mMission_Troops[x].field_8 = MissionTroop["field_8"];
 			mMission_Troops[x].mSelected = MissionTroop["mSelected"];
 			mMission_Troops[x].mNumberOfKills = MissionTroop["mNumberOfKills"];
-
 			if (++x == 9)
 				break;
 		}
 
 		for (auto& Hero : LoadedData["mHeroes"]) {
 			sHero Heroes;
-
 			Heroes.mRecruitID = Hero["mRecruitID"];
 			Heroes.mRank = Hero["mRank"];
 			Heroes.mKills = Hero["mKills"];
