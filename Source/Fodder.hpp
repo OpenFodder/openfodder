@@ -194,13 +194,14 @@ public:
     int16           mCamera_StartPosition_X;
     int16           mCamera_StartPosition_Y;
 
-    sSprite*        mSprite_DrawList_First[45];
-    sSprite*        mSprite_DrawList_Second[45];
-    sSprite*        mSprite_DrawList_Third[45];
+    std::vector<sSprite*> mSprite_DrawList_First;
+    std::vector<sSprite*> mSprite_DrawList_Second;
+    std::vector<sSprite*> mSprite_DrawList_Third;
+    std::vector<sSprite*> mSprite_DrawList_Final;
 
     uint8           byte_3A8DE[200];
 
-    sSprite*        mSprite_DrawList_Final[64];
+   
     int32           mStoredSpriteX;
     uint32          mStoredSpriteY;
     int16           mTmp_FrameNumber;

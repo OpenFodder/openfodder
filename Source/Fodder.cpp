@@ -561,18 +561,6 @@ void cFodder::Mission_Memory_Clear() {
     mCamera_PanTargetY = 0;
     mCamera_StartPosition_X = 0;
 
-    for (int16 x = 0; x < 20; ++x)
-        mSprite_DrawList_First[x] = 0;
-
-    for (int16 x = 0; x < 45; ++x) {
-        mSprite_DrawList_Second[x] = 0;
-        mSprite_DrawList_Third[x] = 0;
-    }
-
-    for (int16 x = 0; x < 64; ++x) {
-        mSprite_DrawList_Final[x] = 0;
-    }
-
     mStoredSpriteX = 0;
     mStoredSpriteY = 0;
     mTmp_FrameNumber = 0;
@@ -2299,88 +2287,42 @@ void cFodder::Mission_Sprites_Handle() {
 }
 
 void cFodder::Sprite_Sort_DrawList() {
-    sSprite* si = mSprites;
-    sSprite** di = mSprite_DrawList_First;
-    sSprite** bx = mSprite_DrawList_Second;
-    sSprite** bp = mSprite_DrawList_Third;
 
-    for (int16 cx = 0x2B; cx > 0; --cx, ++si) {
+    mSprite_DrawList_First.clear();
+    mSprite_DrawList_Second.clear();
+    mSprite_DrawList_Third.clear();
+    for(sSprite& sprite : mSprites) {
 
-        if (si->field_0 == -32768)
+        if (sprite.field_0 == -32768)
             continue;
 
-        if (si->field_2C == eSprite_Draw_First) {
-            *di++ = si;
-            continue;
-        }
-
-        if (si->field_2C == eSprite_Draw_Second) {
-            *bx++ = si;
+        if (sprite.field_2C == eSprite_Draw_First) {
+            mSprite_DrawList_First.push_back(&sprite);
             continue;
         }
 
-        *bp++ = si;
-    }
-
-    *di = INVALID_SPRITE_PTR;
-    *bx = INVALID_SPRITE_PTR;
-    *bp = INVALID_SPRITE_PTR;
-
-    sSprite** Si = mSprite_DrawList_Second - 1;
-    //seg000:247C
-    for (;;) {
-        ++Si;
-        if (*Si == INVALID_SPRITE_PTR)
-            break;
-
-        di = Si;
-        --di;
-
-    loc_1248D:;
-        ++di;
-        if (*di == INVALID_SPRITE_PTR)
+        if (sprite.field_2C == eSprite_Draw_Second) {
+            mSprite_DrawList_Second.push_back(&sprite);
             continue;
+        }
 
-        int16 cx = (*di)->field_4;
-        int16 dx = (*Si)->field_4;
-
-        if (cx > dx)
-            goto loc_1248D;
-
-        sSprite* eax = *di;
-        *di = *Si;
-        *Si = eax;
-        goto loc_1248D;
+        mSprite_DrawList_Third.push_back(&sprite);
     }
+
+    std::sort(mSprite_DrawList_Second.begin(), mSprite_DrawList_Second.end(), [](sSprite*& pLeft, sSprite*& pRight) {
+        return pLeft->field_4 < pRight->field_4;
+    });
 
     //loc_124AF
-    di = mSprite_DrawList_Final;
-    Si = mSprite_DrawList_First;
-
-    for (;;) {
-        sSprite* ax = *Si++;
-        if (ax == INVALID_SPRITE_PTR)
-            break;
-
-        *di++ = ax;
+    mSprite_DrawList_Final.clear();
+    for (auto spriteptr : mSprite_DrawList_First) {
+        mSprite_DrawList_Final.push_back(spriteptr);
     }
-
-    Si = mSprite_DrawList_Second;
-    for (;;) {
-        sSprite* ax = *Si++;
-        if (ax == INVALID_SPRITE_PTR)
-            break;
-
-        *di++ = ax;
+    for (auto spriteptr : mSprite_DrawList_Second) {
+        mSprite_DrawList_Final.push_back(spriteptr);
     }
-
-    Si = mSprite_DrawList_Third;
-    for (;;) {
-        sSprite* ax = *Si++;
-        *di++ = ax;
-
-        if (ax == INVALID_SPRITE_PTR)
-            break;
+    for (auto spriteptr : mSprite_DrawList_Third) {
+        mSprite_DrawList_Final.push_back(spriteptr);
     }
 }
 
@@ -3487,23 +3429,19 @@ bool cFodder::Sprite_OnScreen_Check() {
 }
 
 void cFodder::Sprites_Draw() {
-    sSprite** si = mSprite_DrawList_Final;
 
-    for (;;) {
-        sSprite* eax = *si++;
-        if (eax == INVALID_SPRITE_PTR || eax == 0)
-            break;
+    for( auto& spriteptr : mSprite_DrawList_Final) {
 
-        if (eax->field_24) {
-            eax->field_24 = 0;
-            eax->field_0 = -32768;
+        if (spriteptr->field_24) {
+            spriteptr->field_24 = 0;
+            spriteptr->field_0 = -32768;
             mSprite_SpareUsed = 0;
             mSprite_SpareUsed2 = 0;
         }
         else {
-            int16 Data0 = eax->field_8;
-            int16 Data4 = eax->field_A;
-            Sprite_Draw_Frame(eax, Data0, Data4);
+            int16 Data0 = spriteptr->field_8;
+            int16 Data4 = spriteptr->field_A;
+            Sprite_Draw_Frame(spriteptr, Data0, Data4);
         }
     }
 }
