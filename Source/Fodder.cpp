@@ -2792,6 +2792,7 @@ void cFodder::Briefing_Set_Render_1_Mode_On() {
 }
 
 void cFodder::eventProcess() {
+    mMouseWheel.Clear();
 
     for (auto Event : *mWindow->EventGet()) {
 
@@ -2829,9 +2830,11 @@ void cFodder::eventProcess() {
             mMouse_CurrentEventPosition = Event.mPosition;
             break;
 
+        case eEvent_MouseWheel:
+            mMouseWheel = Event.mPosition;
+            break;
+
         case eEvent_None:
-        case eEvent_MouseWheelUp:
-        case eEvent_MouseWheelDown:
             break;
 
         case eEvent_Quit:
@@ -2857,7 +2860,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     }
 
     if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
-        //VersionSwitch(GetForCampaign(mVersionCurrent->mName, ePlatform::PC));
+        //VersionSwitch(mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::PC));
     }
 
     if ((pKeyCode == SDL_SCANCODE_EQUALS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_PLUS && pPressed))
@@ -2893,14 +2896,19 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
                 mMission_ShowMapOverview = -1;
         }
 
-        if (pKeyCode == SDL_SCANCODE_1)
-            mKeyNumberPressed = 2;
+        if (pKeyCode == SDL_SCANCODE_1 && pPressed) {
+            if(mSquads_TroopCount[0])
+                Squad_Select(0, false);
+        }
 
-        if (pKeyCode == SDL_SCANCODE_2)
-            mKeyNumberPressed = 3;
-
-        if (pKeyCode == SDL_SCANCODE_3)
-            mKeyNumberPressed = 4;
+        if (pKeyCode == SDL_SCANCODE_2 && pPressed) {
+            if(mSquads_TroopCount[1])
+                Squad_Select(1, false);
+        }
+        if (pKeyCode == SDL_SCANCODE_3 && pPressed) {
+            if(mSquads_TroopCount[2])
+                Squad_Select(2, false);
+        }
 
         // Debug: Mission Complete
         if (pKeyCode == SDL_SCANCODE_F10 && pPressed) {
@@ -4159,6 +4167,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
         if (mMouse_Button_Left_Toggle)
             GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
+        GUI_Button_MouseWheel();
         Video_SurfaceRender();
         Cycle_End();
 
@@ -10221,6 +10230,8 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
         if (Mouse_Button_Left_Toggled() >= 0)
             GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
+        GUI_Button_MouseWheel();
+
         if (mGUI_Select_File_String_Input_Callback)
             (this->*mGUI_Select_File_String_Input_Callback)(0x50);
 
@@ -10528,6 +10539,15 @@ std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>
     }
 
     return Results;
+}
+
+void cFodder::GUI_Button_MouseWheel() {
+    if (mMouseWheel.mY > 0) {
+        GUI_Button_Load_Up();
+    }
+    else if (mMouseWheel.mY < 0) {
+        GUI_Button_Load_Down();
+    }
 }
 
 void cFodder::GUI_Button_Load_Up() {
@@ -10943,9 +10963,9 @@ void cFodder::GUI_Handle_Button_SelectSquad_2() {
     Squad_Select(2);
 }
 
-void cFodder::Squad_Select(int16 pData4) {
+void cFodder::Squad_Select(int16 pData4, bool pCheckMouse) {
 
-    if (Mouse_Button_Left_Toggled() < 0)
+    if (pCheckMouse && Mouse_Button_Left_Toggled() < 0)
         return;
 
     mSquad_Selected = pData4;

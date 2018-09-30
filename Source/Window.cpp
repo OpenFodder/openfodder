@@ -92,12 +92,12 @@ std::vector<cEvent>* cWindow::EventGet() {
 }
 
 bool cWindow::Cycle() {
-    cPosition Mouse;
+    //cPosition Mouse;
 
     EventCheck();
 
     // Update the mouse position over the window
-    for (auto& Event : mEvents) {
+    /*for (auto& Event : mEvents) {
         switch (Event.mType) {
         default:
             break;
@@ -109,7 +109,7 @@ bool cWindow::Cycle() {
             Mouse = Event.mPosition;
             break;
         }
-    }
+    }*/
 
     // TODO: Move Cursor logic here
 
@@ -152,6 +152,12 @@ void cWindow::EventCheck() {
 				Event.mType = eEvent_MouseMove;
 				Event.mPosition = cPosition( SysEvent.motion.x, SysEvent.motion.y );
 				break;
+
+            case SDL_MOUSEWHEEL:
+                Event.mType = Event.mType = eEvent_MouseWheel;
+                Event.mPosition = cPosition(SysEvent.wheel.x, SysEvent.wheel.y);
+                
+                break;
 
 			case SDL_MOUSEBUTTONDOWN:
 

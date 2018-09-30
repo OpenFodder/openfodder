@@ -29,8 +29,7 @@ enum eEventType {
 	eEvent_MouseLeftUp		= 5,
 	eEvent_MouseRightDown	= 6,
 	eEvent_MouseRightUp		= 7,
-	eEvent_MouseWheelUp		= 8,
-	eEvent_MouseWheelDown	= 9,
+	eEvent_MouseWheel		= 8,
 	eEvent_Quit				= 10,
 };
 

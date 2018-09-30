@@ -102,6 +102,7 @@ public:
 
     cPosition       mMouse_CurrentEventPosition;
     uint32          mMouseButtonsPressed;
+    cPosition       mMouseWheel;
 
     uint16          mMapWidth;
     uint16          mMapHeight;
@@ -183,7 +184,6 @@ public:
     bool            mTroop_Weapon_Rocket_Disabled;
 
     uint16          mSidebar_SmallMode;
-    sGUI_Element*   mGUI_Loop_Element;
     int32           dword_3A030;
     bool            mMouse_Locked;
     int8            mSquads_TroopCount[4];
@@ -287,6 +287,7 @@ public:
     int16           word_3AC4B;
     int16           word_3AC4D;
     int16           word_3AC51;
+    sGUI_Element*   mGUI_Loop_Element;
     sGUI_Element    mGUI_Elements[42];
     sGUI_Element*   mGUI_NextFreeElement;
     int16           mGUI_TroopName_DrawOffset;
@@ -493,8 +494,6 @@ public:
     uint16          mBriefing_ParaHeli_Frame;
     int16           mBriefing_Helicopter_Moving;
     int16           word_428D8;
-
-    int16           mKeyNumberPressed;
 
     int16           mMouseButtonStatus;
     int16           mInputMouseX;
@@ -1067,6 +1066,7 @@ public:
 
 
     void            GUI_Input_CheckKey();
+    void            GUI_Button_MouseWheel();
     void            GUI_Button_Load_Up();
     void            GUI_Button_Load_Down();
     void            GUI_Button_Load_Exit();
@@ -1106,7 +1106,7 @@ public:
     void            GUI_Handle_Button_SelectSquad_0();
     void            GUI_Handle_Button_SelectSquad_1();
     void            GUI_Handle_Button_SelectSquad_2();
-    void            Squad_Select(int16 pData4);
+    void            Squad_Select(int16 pData4, bool pCheckMouse = true);
     void            GUI_Handle_Button_SplitSquad();
     void            Mission_Set_Initial_Weapon();
 

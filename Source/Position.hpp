@@ -29,7 +29,7 @@ class cPosition {
 				cPosition( unsigned int pX, unsigned int pY ) : mX( pX ), mY( pY ) {}
 
 		void	Set( unsigned int pX, unsigned int pY ) { mX = pX; mY = pY; }
-
+        void Clear() { mX = 0; mY = 0; }
 		bool operator== (const cPosition& pPosition) const {
 
 			return pPosition.mX == mX && pPosition.mY == mY;
