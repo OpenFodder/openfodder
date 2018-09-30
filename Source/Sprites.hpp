@@ -225,7 +225,7 @@ struct sSprite {
 
 		struct {
 			int16 field_1E;
-			int16 field_20;	// Vehicle Height
+			int16 field_20;	// Height
 		};
 
 		int32 field_1E_Big;
@@ -279,7 +279,7 @@ struct sSprite {
 	int16 field_5E;			// Index inside mSprites
 	int8 field_60;			// Current Terrain Type
 	int8 field_61;
-	int16 field_62;
+	int16 field_62;         // AI: Aggression
 	int8 field_64;
 	int8 field_65;			// -1 = Enabled?
 	sSprite* field_66;		// Human-Player: Vehicle Walk Target

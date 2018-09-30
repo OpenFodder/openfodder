@@ -69,10 +69,10 @@ void sGameData::Clear() {
         Troop.Clear();
 
 	for (unsigned int x = 0; x < 361; ++x)
-		mGraveRanks[x] = 0;
+		mRecruitDied_Ranks[x] = -1;
 
 	for (unsigned int x = 0; x < 361; ++x)
-		mGraveRecruitID[x] = 0;
+		mRecruitDied_IDs[x] = -1;
 
 	mTroops_Away = 0;
 	mTroops_Home = 0;
@@ -162,17 +162,8 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	Save["mMission_Phases_Total"] = mMission_Phases_Total;
 	Save["mRecruit_NextID"] = mRecruit_NextID;
 
-	Save["mSprite_Enemy_AggressionAverage"] = mSprite_Enemy_AggressionAverage;
-	Save["mSprite_Enemy_AggressionMin"] = mSprite_Enemy_AggressionMin;
-	Save["mSprite_Enemy_AggressionMax"] = mSprite_Enemy_AggressionMax;
-	Save["mSprite_Enemy_AggressionNext"] = mSprite_Enemy_AggressionNext;
-	Save["mSprite_Enemy_AggressionIncrement"] = mSprite_Enemy_AggressionIncrement;
-	Save["mSprite_Enemy_AggressionCreated_Count"] = mSprite_Enemy_AggressionCreated_Count;
-
-
 	for (auto& MissionTroop : mMission_Troops) {
 		Json Troop;
-
 		Troop["mRecruitID"] = MissionTroop.mRecruitID;
 		Troop["mRank"] = MissionTroop.mRank;
 		Troop["mPhaseCount"] = MissionTroop.mPhaseCount;
@@ -184,15 +175,8 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Save["mMission_Troops"].push_back(Troop);
 	}
 
-	for (auto& GraveRank : mGraveRanks) {
-
+	for (auto& GraveRank : mRecruitDied_Ranks) {
 		Save["mGraveRanks"].push_back(GraveRank);
-
-	}
-
-	for (auto& GraveRank : mGraveRecruitID) {
-
-		Save["mGraveRecruitID"].push_back(GraveRank);
 	}
 
 	for (auto& Hero : mHeroes) {
@@ -243,13 +227,6 @@ bool sGameData::FromJson(const std::string& pJson) {
 		mMission_Phases_Total = LoadedData["mMission_Phases_Total"];
 		mRecruit_NextID = LoadedData["mRecruit_NextID"];
 
-		mSprite_Enemy_AggressionAverage = LoadedData["mSprite_Enemy_AggressionAverage"];
-		mSprite_Enemy_AggressionMin = LoadedData["mSprite_Enemy_AggressionMin"];
-		mSprite_Enemy_AggressionMax = LoadedData["mSprite_Enemy_AggressionMax"];
-		mSprite_Enemy_AggressionNext = LoadedData["mSprite_Enemy_AggressionNext"];
-		mSprite_Enemy_AggressionIncrement = LoadedData["mSprite_Enemy_AggressionIncrement"];
-		mSprite_Enemy_AggressionCreated_Count = LoadedData["mSprite_Enemy_AggressionCreated_Count"];
-
 		int x = 0;
 		for (auto& MissionTroop : LoadedData["mMission_Troops"]) {
 			mMission_Troops[x].mRecruitID = MissionTroop["mRecruitID"];
@@ -266,12 +243,7 @@ bool sGameData::FromJson(const std::string& pJson) {
 
 		x = 0;
 		for (auto& GraveRank : LoadedData["mGraveRanks"]) {
-			mGraveRanks[x++] = GraveRank;
-		}
-
-		x = 0;
-		for (auto& GraveRank : LoadedData["mGraveRecruitID"]) {
-			mGraveRecruitID[x++] = GraveRank;
+			mRecruitDied_Ranks[x++] = GraveRank & 0xFF;
 		}
 
 		for (auto& Hero : LoadedData["mHeroes"]) {

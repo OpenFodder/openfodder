@@ -119,9 +119,9 @@ public:
 
     sSprite*        mMission_Troops_SpritePtrs[9];
 
-    int16*          mGraveRankPtr;
-    int16*          mGraveRankPtr2;
-    int16*          mGraveRecruitIDPtr;
+    int8*          mRecruitDiedRankPtr;
+    int8*          mService_RecruitDiedRankPtr;
+    int16*          mRecruitDiedIDPtr;
 
     int16           mButtonPressLeft, mButtonPressRight;
 
@@ -583,6 +583,7 @@ public:
     void            Mission_Troop_Prepare(const bool pPrebriefing);
     void            Mission_Troop_Prepare_Next_Recruits();
     void            Mission_Troop_Attach_Sprites();
+    void            Mission_Troops_Clear_Selected();
 
     void            Camera_Speed_Update_From_PanTarget();
     int16           sub_119E1(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
@@ -673,7 +674,6 @@ public:
     void            Recruit_Draw_String(int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString);
     void            Recruit_Truck_Anim_Prepare();
     void            Recruit_Truck_Anim_CopyFrames(uint16** pDi, const int16* pSource);
-    void            sub_16C6C();
     void            Recruit_Render_Sidebar();
     void            Recruit_Render_Squad_Names();
     void            Recruit_Render_Squad_RankKills();
@@ -1165,7 +1165,7 @@ public:
     void            Mouse_Cursor_Update();
     int16           Mouse_Button_Left_Toggled();
     void            Squad_Member_Click_Check();
-    void            Mission_Troops_Clear_Selected();
+
     void            sub_303AE();
     void            sub_303B7();
     void            GUI_Sidebar_Squad_Split_Icon_Draw();

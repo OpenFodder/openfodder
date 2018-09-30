@@ -84,6 +84,7 @@ struct sGameData {
     uint16          mMission_Phases_Total;
     uint16          mRecruit_NextID;
 
+    // Aggression is set prior to entering a map
     int16           mSprite_Enemy_AggressionAverage;
     int16           mSprite_Enemy_AggressionMin;
     int16           mSprite_Enemy_AggressionMax;
@@ -93,8 +94,8 @@ struct sGameData {
 
     sMission_Troop  mMission_Troops[9];
 
-    int16           mGraveRanks[361];
-    int16           mGraveRecruitID[361];
+    int8            mRecruitDied_Ranks[361];
+    int16           mRecruitDied_IDs[361];      // Used by the service kia screen
 
     std::vector<sHero> mHeroes;
 
