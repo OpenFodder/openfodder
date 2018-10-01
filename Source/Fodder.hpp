@@ -58,7 +58,7 @@ extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
 public:
-    char                    mInputString[0x300];
+    std::string             mInput;
 
     bool                    mSkipIntro;
     bool					mOpenFodder_Intro_Done;
@@ -350,7 +350,6 @@ public:
 
     void            (cFodder::*mGUI_Select_File_String_Input_Callback)(int16 pPosY);
 
-    int16           mInputString_Position;
     int16			mGUI_Select_File_ShownItems;
     int16           mGUI_Select_File_CurrentIndex;
     int16           mGUI_Select_File_Count;

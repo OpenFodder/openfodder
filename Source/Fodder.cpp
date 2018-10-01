@@ -32,6 +32,8 @@ const int32 CAMERA_TOWARD_SQUAD_SPEED = 0x14;               // Dos: Original 0x1
 const int16 MOUSE_POSITION_X_ADJUST = -32;
 const int16 MOUSE_POSITION_Y_ADJUST = 4;
 
+const char* SAVEGAME_EXTENSION = ".ofg";
+
 const int16 mBriefing_Helicopter_Offsets[] =
 {
     0x0180, 0x0040, 0x0004, 0x01A0,
@@ -748,7 +750,7 @@ void cFodder::Mission_Memory_Clear() {
     mGUI_Temp_Width = 0;
     mGUI_Temp_Y = 0;
     mGUI_Draw_LastHeight = 0;
-    mInputString_Position = 0;
+    mInput.clear();
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = 0;
     mGUI_Select_File_SelectedFileIndex = 0;
@@ -3717,8 +3719,7 @@ void cFodder::CopyProtection() {
 
         mGUI_Temp_X = 5;
         mGUI_Temp_Width = 10;
-        memset(mInputString, 0, sizeof(mInputString));
-        mInputString_Position = 0;
+        mInput.clear();
 
         mSurface->Save();
         mKeyCodeAscii = 0;
@@ -3745,47 +3746,46 @@ void cFodder::CopyProtection() {
 
         Image_FadeOut();
 
-        mInputString[mInputString_Position] = -1;
-
         CopyProtection_EncodeInput();
 
         const uint8* Answer = word_44A1C->mAnswer;
         bool Failed = false;
 
-        for (int16 Pos = 0; *Answer != 0xFF; ++Pos) {
+        for (int16 Pos = 0; Pos < mInput.size() && *Answer != 0xFF; ++Pos) {
 
-            if ((uint8)mInputString[Pos] != *Answer++) {
+            if ((uint8)mInput[Pos] != *Answer++) {
                 Failed = true;
                 break;
             }
         }
 
-        if (!Failed)
+        if (!Failed && (*Answer == 0xFF))
             return;
     }
 
+    std::cout << "Copy protection failed.\n";
     Exit(1);
 }
 
 void cFodder::CopyProtection_EncodeInput() {
-    int16 bx = mInputString[0] & 0xFF;
+    int16 bx = mInput[0] & 0xFF;
     int16 cx = 0;
 
-    for (int16 Pos = 0; Pos < 21; ++Pos) {
+    for( auto& Character : mInput) {
         cx -= bx;
 
-        if (mInputString[Pos] == -1)
+        if (Character == -1)
             return;
 
     rollLoop:;
 
         bx = (bx << 8) | (bx >> 8);
 
-        mInputString[Pos] ^= (bx & 0xFF);
-        mInputString[Pos] ^= (cx & 0xFF);
-        --mInputString[Pos];
+        Character ^= (bx & 0xFF);
+        Character ^= (cx & 0xFF);
+        --Character;
 
-        if (mInputString[Pos] == -1)
+        if (Character == -1)
             goto rollLoop;
     }
 }
@@ -9890,29 +9890,28 @@ void cFodder::Sprite_Aggression_Set() {
  */
 void cFodder::Sprite_Handle_Enemy_Aggression_Set(sSprite* pSprite) {
 
-    int16 Data8 = mGamePhase_Data.mSprite_Enemy_AggressionNext;
-    pSprite->field_62 = Data8;
+    int16 Next = mGamePhase_Data.mSprite_Enemy_AggressionNext;
+    pSprite->field_62 = Next;
 
-    int16 Data4 = mGamePhase_Data.mSprite_Enemy_AggressionIncrement;
-    Data8 += Data4;
+    int16 Increment = mGamePhase_Data.mSprite_Enemy_AggressionIncrement;
+    Next += Increment;
 
-    if (Data4 >= 0) {
+    if (Increment >= 0) {
 
-        if (Data8 >= mGamePhase_Data.mSprite_Enemy_AggressionMax) {
-            Data8 = mGamePhase_Data.mSprite_Enemy_AggressionMax;
-            Data4 = -Data4;
+        if (Next >= mGamePhase_Data.mSprite_Enemy_AggressionMax) {
+            Next = mGamePhase_Data.mSprite_Enemy_AggressionMax;
+            Increment = -Increment;
         }
     }
     else {
-        if (Data8 < 0 || Data8 <= mGamePhase_Data.mSprite_Enemy_AggressionMin) {
-            Data8 = mGamePhase_Data.mSprite_Enemy_AggressionMin;
-            Data4 = -Data4;
+        if (Next < 0 || Next <= mGamePhase_Data.mSprite_Enemy_AggressionMin) {
+            Next = mGamePhase_Data.mSprite_Enemy_AggressionMin;
+            Increment = -Increment;
         }
-
     }
     //loc_2D90D
-    mGamePhase_Data.mSprite_Enemy_AggressionIncrement = Data4;
-    mGamePhase_Data.mSprite_Enemy_AggressionNext = Data8;
+    mGamePhase_Data.mSprite_Enemy_AggressionIncrement = Increment;
+    mGamePhase_Data.mSprite_Enemy_AggressionNext = Next;
 }
 
 int16 cFodder::Sprite_Next_WalkTarget_Set(sSprite* pSprite) {
@@ -10338,11 +10337,8 @@ void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
 }
 
 void cFodder::Game_Save() {
-    memset(mInputString, 0, 0x13);
+    mInput.clear();
     mGUI_Select_File_String_Input_Callback = 0;
-    mInputString[0] = -1;
-
-    mInputString_Position = 0;
 
     GUI_Element_Reset();
 
@@ -10360,22 +10356,17 @@ void cFodder::Game_Save() {
         return;
     }
 
-    mInputString[mInputString_Position + 0] = 0;
-    std::string SaveGameName = mInputString;
+    {
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+        std::string SaveFilename = std::to_string(in_time_t) + SAVEGAME_EXTENSION;
+        std::string Filename = local_PathGenerate(SaveFilename, "", eDataType::eSave);
 
-    std::string SaveFilename = std::to_string(in_time_t);
-    SaveFilename += ".ofg";
-
-    std::string Filename = local_PathGenerate(SaveFilename, "", eDataType::eSave);
-
-    std::ofstream outfile(Filename, std::ofstream::binary);
-
-    // Copy from mGame_Data.mMapNumber to mMission_Troops_SpritePtrs
-    outfile << mGame_Data.ToJson(SaveGameName);
-    outfile.close();
+        std::ofstream outfile(Filename, std::ofstream::binary);
+        outfile << mGame_Data.ToJson(mInput);
+        outfile.close();
+    }
 
     mMouse_Exit_Loop = false;
 }
@@ -10418,13 +10409,11 @@ void cFodder::GUI_Button_Load_Exit() {
 
 void cFodder::String_Input_Print(int16 pPosY) {
     GUI_Input_CheckKey();
-    int16 Data4;
-    char* Data24;
 
-    Recruit_Render_Text(mInputString, pPosY);
+    Recruit_Render_Text(mInput.c_str(), pPosY);
 
     int16 Data0 = mKeyCodeAscii;
-    if (Data0 == 0x0D && mInputString_Position)
+    if (Data0 == 0x0D && mInput.size())
         mGUI_SaveLoadAction = 2;
 
     if (Data0 == 8)
@@ -10441,26 +10430,17 @@ loc_2E628:;
         goto loc_2E6A4;
 
 loc_2E636:;
-    Data4 = mInputString_Position;
-    if (Data4 >= 8)
+    if (mInput.size() >= 8)
         goto loc_2E6A4;
 
-    Data24 = mInputString;
-    Data24 += Data4;
-    *Data24 = (char)Data0;
+    mInput.push_back((char)Data0);
 
-    *(Data24 + 1) = -1;
-    ++mInputString_Position;
     goto loc_2E6A4;
 
 loc_2E675:;
-    Data4 = mInputString_Position;
-    if (Data4) {
-        --Data4;
-        Data24 = mInputString;
-        mInputString_Position = Data4;
-        Data24 += Data4;
-        *Data24 = -1;
+
+    if (mInput.size()) {
+        mInput.pop_back();
     }
 
 loc_2E6A4:;
@@ -10468,21 +10448,15 @@ loc_2E6A4:;
 }
 
 void cFodder::String_Input_Check() {
-    char* Data20 = mInputString;
 
-    int16 Data0 = mInputString_Position;
     if (mKeyCodeAscii != 0x0D) {
         byte_44AC0 &= 0x3F;
         if (byte_44AC0 < 0x20)
             goto loc_2E6EA;
     }
-    Data20[Data0] = -3;
-    Data20[Data0 + 1] = -1;
     return;
 
 loc_2E6EA:;
-    Data20[Data0] = -2;
-    Data20[Data0 + 1] = -1;
 }
 
 void cFodder::GUI_Input_CheckKey() {
@@ -10516,7 +10490,7 @@ void cFodder::GUI_Input_CheckKey() {
 
 void cFodder::Game_Load() {
 
-    const std::string File = GUI_Select_File("SELECT SAVED GAME", "", ".ofg", eDataType::eSave);
+    const std::string File = GUI_Select_File("SELECT SAVED GAME", "", SAVEGAME_EXTENSION, eDataType::eSave);
     if (!File.size())
         return;
 
@@ -16536,80 +16510,64 @@ Sprite_EnteredVehicle:;
 }
 
 int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
-    uint8* DataFinal = 0;
-    int16 Data0;
-    sSprite* eax = 0;
     sMission_Troop* Troop = 0;
 
     // Is Player?
-    if (pSprite->field_22 != eSprite_PersonType_Human)
-        goto loc_1F0EA;
+    if (pSprite->field_22 == eSprite_PersonType_Human) {
+        //Yes, is player
 
-    //Yes, is player
+        ++mGame_Data.mTroops_Away;
 
-    ++mGame_Data.mTroops_Away;
+        if (pSprite->field_46_mission_troop) {
 
-    if (pSprite->field_46_mission_troop) {
-        Troop = pSprite->field_46_mission_troop;
+            mGame_Data.Troop_Died(pSprite->field_46_mission_troop);
 
-        mGame_Data.Troop_Died(Troop);
+            pSprite->field_46_mission_troop->mSprite = INVALID_SPRITE_PTR;
+            pSprite->field_46_mission_troop->mRecruitID = -1;
+            pSprite->field_46_mission_troop->mRank = 0;
+        }
 
-        Troop->mSprite = INVALID_SPRITE_PTR;
-        Troop->mRecruitID = -1;
-        Troop->mRank = 0;
+        if (mSquad_Selected < 0) {
+            mGUI_Sidebar_Setup = 0;
+            mSquad_Select_Timer = 0;
+        }
+        else {
+            mGUI_Sidebar_Setup = 0;
+        }
+
+        //loc_1F03D
+        return Sprite_Destroy_Wrapper(pSprite);
     }
 
-    if (mSquad_Selected < 0) {
-        mGUI_Sidebar_Setup = 0;
-        mSquad_Select_Timer = 0;
+    if (pSprite->field_18 == eSprite_Enemy_Rocket || pSprite->field_18 == eSprite_Enemy) {
+
+        ++mGame_Data.mTroops_Home;
+        --mTroops_Enemy_Count;
+        if (pSprite->field_5D) {
+            pSprite->field_5D = 0;
+            Troop = mGame_Data.mMission_Troops;
+
+            if (pSprite->field_5E >= 0) {
+                Troop = &mGame_Data.mMission_Troops[pSprite->field_5E];
+                goto loc_1F1E9;
+            }
+        }
+
+        if (mSquad_Selected != -1) {
+            //loc_1F13E
+            if (mSquads[mSquad_Selected][0] != INVALID_SPRITE_PTR && mSquads[mSquad_Selected][0] != 0)
+                Troop = mSquads[mSquad_Selected][0]->field_46_mission_troop;
+        }
+        loc_1F1E9:;
+
+        if (Troop >= mGame_Data.mMission_Troops && Troop <= &mGame_Data.mMission_Troops[8]) {
+
+            if (Troop->mNumberOfKills >= 999)
+                Troop->mNumberOfKills = 998;
+
+            ++Troop->mNumberOfKills;
+        }
     }
-    else {
-        mGUI_Sidebar_Setup = 0;
-    }
-
-    //loc_1F03D
-    return Sprite_Destroy_Wrapper(pSprite);
-
-loc_1F0EA:;
-
-    if (pSprite->field_18 != eSprite_Enemy_Rocket)
-        if (pSprite->field_18 != eSprite_Enemy)
-            goto loc_1F218;
-
-    ++mGame_Data.mTroops_Home;
-    --mTroops_Enemy_Count;
-    if (pSprite->field_5D) {
-        pSprite->field_5D = 0;
-        DataFinal = (uint8*)mGame_Data.mMission_Troops;
-        Data0 = pSprite->field_5E;
-
-        if (pSprite->field_5E >= 0)
-            goto loc_1F19A;
-    }
-    if (mSquad_Selected == -1)
-        goto loc_1F218;
-
-    //loc_1F13E
-    eax = mSquads[mSquad_Selected][0];
-    if (eax == INVALID_SPRITE_PTR || eax == 0)
-        goto loc_1F218;
-
-    DataFinal = (uint8*)eax->field_46_mission_troop;
-    goto loc_1F1E9;
-
-loc_1F19A:;
-    DataFinal = (uint8*)&mGame_Data.mMission_Troops[Data0];
-
-loc_1F1E9:;
-
-    if (DataFinal >= (uint8*)mGame_Data.mMission_Troops && DataFinal <= (uint8*)&mGame_Data.mMission_Troops[8]) {
-        sMission_Troop* Member = (sMission_Troop*)DataFinal;
-        if (Member->mNumberOfKills >= 999)
-            Member->mNumberOfKills = 998;
-
-        ++Member->mNumberOfKills;
-    }
-loc_1F218:;
 
     return Sprite_Destroy_Wrapper(pSprite);
 }
