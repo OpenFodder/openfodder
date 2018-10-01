@@ -3241,6 +3241,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
             GUI_Sidebar_Setup();
 
         mImageFaded = mSurface->palette_FadeTowardNew();
+        Music_Play_Tileset();
     }
     
     if(mRecruit_Screen_Active) {
@@ -3249,6 +3250,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
         for (int i = 0; i < mGame_Data.mMission_Troops_Required - mRecruit_Truck_Enter_Count; ++i) {
             Recruit_Sidebar_Render_SquadName();
         }
+        mSound->Music_Play(0);
     }
 
 }
@@ -4376,7 +4378,7 @@ int16 cFodder::Recruit_Show() {
 }
 
 void cFodder::Recruit_Prepare() {
-
+    
     mMission_Aborted = false;
 
     Recruit_Truck_Anim_Prepare();
