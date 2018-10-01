@@ -394,21 +394,22 @@ public:
     uint16*         mSidebar_Screen_Buffer;
     uint16*         mSidebar_Back_Buffer;
 
-    sRecruitRendered    mRecruit_Rendered[0x0D];
-    uint16              mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
-    int16               mRecruit_Sidebar_Draw_Y_Start;
-    int16               mRecruit_Render_Name_SmallGap;
-    sRecruitRendered*   mRecruit_RenderedPtr;
-    int16               mRecruit_Truck_Frame;
-    int16               mRecruit_Truck_FrameAnimBufferPtr;
-
-    int16               mRecruit_Hill_Positions_Use[0x0F];
-    int16               mRecruit_Truck_Reached;
-    int16               mRecruit_Truck_Animation_Play;
-    int16               mRecruit_Truck_Enter_Count;
     int16               mRecruit_Button_Load_Pressed;
     int16               mRecruit_Button_Save_Pressed;
+    int16               mRecruit_Hill_Positions_Use[0x0F];
+
+    sRecruitRendered    mRecruit_Rendered[0x0D];
+    sRecruitRendered*   mRecruit_RenderedPtr;
+
     bool                mRecruit_Screen_Active;
+    int16               mRecruit_Sidebar_Draw_Y_Start;
+    int16               mRecruit_Truck_Animation_Play;
+    int16               mRecruit_Truck_Enter_Count;
+    int16               mRecruit_Truck_Frame;
+    int16               mRecruit_Truck_FrameAnimBufferPtr;
+    uint16              mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
+    int16               mRecruit_Truck_Reached;
+    int16               mRecruit_Render_Name_SmallGap;
 
     int16           mMouseX;
     int16           mMouseY;
