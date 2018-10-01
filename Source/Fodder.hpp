@@ -77,6 +77,8 @@ public:
 
     sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
+    
+    sGamePhaseData          mGamePhase_Data;
 
     sSprite                 mSprite_Spare;
     sSprite                 mSprites[45];
@@ -215,11 +217,11 @@ public:
 
     sMapPosition    m2A622_Unk_MapPosition;
 
-    bool            mMission_Aborted;
-    int16           mMission_TryAgain;
-    int16           mMission_Complete;
-    int16           mMission_Completed_Timer;
-    int16           mMission_Paused;
+    bool            mPhase_Aborted;
+    int16           mPhase_TryAgain;
+    int16           mPhase_Complete;
+    int16           mPhase_Completed_Timer;
+    int16           mPhase_Paused;
 
     int16           mEnemy_BuildingCount;
     int16           mSquad_SwitchWeapon;
@@ -353,7 +355,6 @@ public:
     int16           mGUI_Select_File_Count;
     int16           mGUI_Select_File_SelectedFileIndex;
 
-    int16           mPhase_Goals[10];
     int16           mIntro_PlayTextDuration;
     int16           mSoundEffectToPlay_Set;
     int16           mSoundEffectToPlay;
@@ -464,7 +465,7 @@ public:
     int16           mBriefing_Render_1_Mode;
 
     int16           mMap_Overview_MapNumberRendered;
-    int16           mDebug_MissionSkip;
+    int16           mDebug_PhaseSkip;
     int16           mPaused;
     int16           mKeyControlPressed;
 
@@ -537,7 +538,7 @@ public:
     void            Image_FadeOut();
 
     virtual int16   Mission_Loop();
-    virtual int16   Mission_Phase_Loop();
+    virtual int16   Phase_Loop();
 
     void            Game_Handle();
     void            Camera_Handle();
@@ -642,7 +643,7 @@ public:
     int16           Sprite_Create_RandomExplosion();
     void            Mission_GameOver();
     void            Mission_Text_GameOver(sSprite* pData2C);
-    void            Mission_Paused();
+    void            Phase_Paused();
 
     void            Mouse_DrawCursor();
     void            GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY);

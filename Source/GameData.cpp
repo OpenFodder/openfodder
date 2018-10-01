@@ -27,6 +27,23 @@ using Json = nlohmann::json;
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
+sGamePhaseData::sGamePhaseData() {
+    Clear();
+}
+
+void sGamePhaseData::Clear() {
+    mSprite_Enemy_AggressionAverage = 0;
+    mSprite_Enemy_AggressionMin = 0;
+    mSprite_Enemy_AggressionMax = 0;
+    mSprite_Enemy_AggressionNext = 0;
+    mSprite_Enemy_AggressionIncrement = 0;
+    mSprite_Enemy_AggressionCreated_Count = 0;
+    mTroops_DiedCount = 0;
+
+    for(auto& Goal : mGoals_Remaining)
+        Goal = false;
+}
+
 sGameData::sGameData() {
 	mMapNumber = 0;
 	mMissionNumber = 0;
@@ -46,14 +63,7 @@ void sGameData::Clear() {
 
 	mMapNumber = 0;
 	mMissionNumber = 0;
-	mMissionPhase = 0;
-
-	mSprite_Enemy_AggressionAverage = 0;
-	mSprite_Enemy_AggressionMin = 0;
-	mSprite_Enemy_AggressionMax = 0;
-	mSprite_Enemy_AggressionNext = 0;
-	mSprite_Enemy_AggressionIncrement = 0;
-	mSprite_Enemy_AggressionCreated_Count = 0;
+	mMission_Phase = 0;
 
 	mRecruits_Available_Count = 0;
 	mMission_Troop_Prepare_SetFromSpritePtrs = 0;
@@ -77,7 +87,6 @@ void sGameData::Clear() {
    
 	Troops_Clear();
 	mTroops_Died.clear();
-    mTroops_DiedCount = 0;
 }
 
 void sGameData::Troops_Clear() {
@@ -151,7 +160,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	Save["mMapNumber"] = mMapNumber;
 
 	Save["mMissionNumber"] = mMissionNumber;
-	Save["mMissionPhase"] = mMissionPhase;
+	Save["mMissionPhase"] = mMission_Phase;
 	Save["mRecruits_Available_Count"] = mRecruits_Available_Count;
 	Save["Mission_Troop_Prepare_SetFromSpritePtrs"] = mMission_Troop_Prepare_SetFromSpritePtrs;
 
@@ -211,7 +220,7 @@ bool sGameData::FromJson(const std::string& pJson) {
 		mMapNumber = LoadedData["mMapNumber"];
 
 		mMissionNumber = LoadedData["mMissionNumber"];
-		mMissionPhase = LoadedData["mMissionPhase"];
+		mMission_Phase = LoadedData["mMissionPhase"];
 		mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
 		mMission_Troop_Prepare_SetFromSpritePtrs = LoadedData["Mission_Troop_Prepare_SetFromSpritePtrs"];
 		

@@ -333,7 +333,9 @@ void cGraphics_Amiga::Load_Hill_Data() {
 void cGraphics_Amiga::Load_Sprite_Font() {
 
 	mImageFonts.mData = g_Resource->fileGet( "FONT.RAW" );
-	
+    if (!mImageFonts.mData->size())
+        return;
+
 	// Load the palette
 	mImageFonts.LoadPalette_Amiga(mImageFonts.mData->data(), 16);
 
@@ -1515,12 +1517,12 @@ void cGraphics_Amiga::Mission_Intro_Play() {
         mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
 
-		if (mFodder->mMouse_Exit_Loop || mFodder->mMission_Aborted) {
+		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
 			mFodder->mMouse_Exit_Loop = false;
-            mFodder->mMission_Aborted = 0;
+            mFodder->mPhase_Aborted = 0;
 		}
 
         mFodder->Cycle_End();

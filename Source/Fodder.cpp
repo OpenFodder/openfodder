@@ -86,7 +86,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro) {
     mSprite_Frame_3 = 0;
 
     mEnemy_BuildingCount = 0;
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
     mMouse_Button_LeftRight_Toggle2 = false;
 
     word_3ABFD = 0;
@@ -146,7 +146,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro) {
     word_3A3BF = 0;
 
     mMap_Overview_MapNumberRendered = -1;
-    mDebug_MissionSkip = 0;
+    mDebug_PhaseSkip = 0;
     mPaused = 0;
 
     mRandom_0 = 0;
@@ -156,7 +156,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro) {
     byte_44AC0 = 0;
     mSoundDisabled = false;
     Squad_Walk_Target_SetAll(0);
-    mMission_Completed_Timer = 0;
+    mPhase_Completed_Timer = 0;
 
     for (unsigned int x = 0; x < 0x18; ++x) {
         mMission_Save_Availability[x] = 0;
@@ -215,7 +215,7 @@ void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
 
 }
 
-int16 cFodder::Mission_Phase_Loop() {
+int16 cFodder::Phase_Loop() {
 
     mSurface->Save();
 
@@ -235,7 +235,7 @@ int16 cFodder::Mission_Phase_Loop() {
         }
 
         //loc_1074E
-        if (mGUI_Sidebar_Setup >= 0 && !mMission_TryAgain)
+        if (mGUI_Sidebar_Setup >= 0 && !mPhase_TryAgain)
             GUI_Sidebar_Setup();
         else {
 
@@ -251,9 +251,9 @@ int16 cFodder::Mission_Phase_Loop() {
         Sprite_Find_HumanVehicles();
 
         // Cheat
-        if (mDebug_MissionSkip == -1) {
-            mDebug_MissionSkip = 0;
-            mMission_Complete = -1;
+        if (mDebug_PhaseSkip == -1) {
+            mDebug_PhaseSkip = 0;
+            mPhase_Complete = -1;
         }
         else
             Mission_Phase_Goals_Check();
@@ -268,10 +268,10 @@ int16 cFodder::Mission_Phase_Loop() {
         Mouse_DrawCursor();
 
         // Game Paused
-        if (mMission_Paused != 0) {
-            Mission_Paused();
+        if (mPhase_Paused != 0) {
+            Phase_Paused();
 
-            while (mMission_Paused) {
+            while (mPhase_Paused) {
 
                 Video_SurfaceRender(false);
                 Cycle_End();
@@ -299,10 +299,10 @@ int16 cFodder::Mission_Phase_Loop() {
 
         if (mMission_IsFinished) {
 
-            if (mMission_Aborted)
+            if (mPhase_Aborted)
                 Sprite_Handle_Player_Destroy_Unk();
             else {
-                if (!mMission_TryAgain)
+                if (!mPhase_TryAgain)
                     return 0;
 
                 Sprite_Handle_Player_DestroyAll();
@@ -331,7 +331,7 @@ int16 cFodder::Mission_Phase_Loop() {
 void cFodder::Game_Handle() {
 
     // Input disabled or Mission not paused?
-    if (!mInput_Enabled || !mMission_Paused) {
+    if (!mInput_Enabled || !mPhase_Paused) {
 
         ++mGame_InputTicks;
 
@@ -362,7 +362,7 @@ void cFodder::Game_Handle() {
     if (!mMission_In_Progress)
         return;
 
-    if (mMission_Completed_Timer || mMission_Complete || mMission_TryAgain || mMission_Aborted) {
+    if (mPhase_Completed_Timer || mPhase_Complete || mPhase_TryAgain || mPhase_Aborted) {
         mMission_Finished = -1;
         return;
     }
@@ -472,7 +472,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
 }
 
 void cFodder::Game_ClearVariables() {
-    mDebug_MissionSkip = 0;
+    mDebug_PhaseSkip = 0;
     mInput_Enabled = 0;
     mGame_InputTicks = 0;
     mMission_EngineTicks = 0;
@@ -483,6 +483,7 @@ void cFodder::Game_ClearVariables() {
     }
 
     mGame_Data.Clear();
+    mGamePhase_Data.Clear();
 }
 
 void cFodder::Mission_Memory_Backup() {
@@ -493,7 +494,7 @@ void cFodder::Mission_Memory_Restore() {
     mGame_Data = mGame_Data_Backup;
 
     // Reset grave pointers
-    mGame_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
+    mGamePhase_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
 }
 
 void cFodder::Mission_Memory_Clear() {
@@ -569,7 +570,7 @@ void cFodder::Mission_Memory_Clear() {
     mSidebar_Draw_Y = 0;
     word_3A3BF = 0;
     mDirectionMod = 0;
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
     mSquad_SwitchWeapon = 0;
     word_3A9B8 = 0;
     for (uint8 x = 0; x < 3; ++x) {
@@ -579,7 +580,7 @@ void cFodder::Mission_Memory_Clear() {
 
     mSprite_Bumped_Into_SquadMember = 0;
     mSprite_Player_CheckWeapon = 0;
-    mMission_Paused = 0;
+    mPhase_Paused = 0;
     for (uint8 x = 0; x < 4; ++x) {
         mSprite_Projectile_Counters[x] = 0;
         mSprite_Missile_Projectile_Counters[x] = 0;
@@ -756,9 +757,6 @@ void cFodder::Mission_Memory_Clear() {
     for (uint16 x = 0; x < 3; ++x)
         mSquad_EnteredVehicleTimer[x] = 0;
 
-    for (uint16 x = 0; x < sizeof(mPhase_Goals) / sizeof(mPhase_Goals[0]); ++x)
-        mPhase_Goals[x] = 0;
-
     mSprite_OpenCloseDoor_Ptr = 0;
     mSprite_Civilian_GotHome = 0;
     mSwitchesActivated = false;
@@ -847,9 +845,9 @@ void cFodder::sub_10DEC() {
     mSquad_Selected = 0;
     m2A622_Unk_MapPosition.mX = 0;
     m2A622_Unk_MapPosition.mY = 0;
-    mMission_TryAgain = 0;
-    mMission_Complete = 0;
-    mMission_Completed_Timer = 0;
+    mPhase_TryAgain = 0;
+    mPhase_Complete = 0;
+    mPhase_Completed_Timer = 0;
 
     mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 
@@ -1723,7 +1721,7 @@ void cFodder::Camera_SetTargetToStartPosition() {
 
 loc_11D8A:;
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         goto loc_11E5B;
 
     mCamera_MovePauseX = 6;
@@ -2199,7 +2197,7 @@ void cFodder::Camera_Speed_MaxSet() {
 
     mCamera_Speed_Max = 0x20000;
 
-    if (!mMission_Aborted && !mMission_TryAgain && !mMission_Complete)
+    if (!mPhase_Aborted && !mPhase_TryAgain && !mPhase_Complete)
         return;
 
     int16 Data0 = 0;
@@ -2381,19 +2379,19 @@ void cFodder::Mission_Phase_Goals_Check() {
     }
 
     mEnemy_BuildingCount = DataC;
-    if (mPhase_Goals[eGoal_Destroy_Enemy_Buildings - 1]) {
+    if (mGamePhase_Data.mGoals_Remaining[eGoal_Destroy_Enemy_Buildings - 1]) {
         if (DataC)
             return;
     }
 
-    if (mPhase_Goals[eGoal_Kill_All_Enemy - 1]) {
+    if (mGamePhase_Data.mGoals_Remaining[eGoal_Kill_All_Enemy - 1]) {
         if (Data8)
             return;
     }
 
-    if (!mPhase_Goals[eGoal_Kidnap_Leader - 1]) {
-        if (!mPhase_Goals[eGoal_Rescue_Hostages - 1]) {
-            if (!mPhase_Goals[eGoal_Rescue_Hostage - 1])
+    if (!mGamePhase_Data.mGoals_Remaining[eGoal_Kidnap_Leader - 1]) {
+        if (!mGamePhase_Data.mGoals_Remaining[eGoal_Rescue_Hostages - 1]) {
+            if (!mGamePhase_Data.mGoals_Remaining[eGoal_Rescue_Hostage - 1])
                 goto loc_126A6;
         }
     }
@@ -2403,17 +2401,17 @@ void cFodder::Mission_Phase_Goals_Check() {
 
 loc_126A6:;
 
-    if (mPhase_Goals[eGoal_Get_Civilian_Home - 1]) {
+    if (mGamePhase_Data.mGoals_Remaining[eGoal_Get_Civilian_Home - 1]) {
         if (!mSprite_Civilian_GotHome)
             return;
     }
 
-    if (mPhase_Goals[eGoal_Activate_All_Switches - 1]) {
+    if (mGamePhase_Data.mGoals_Remaining[eGoal_Activate_All_Switches - 1]) {
         if (!mSwitchesActivated)
             return;
     }
 
-    mMission_Complete = -1;
+    mPhase_Complete = -1;
 }
 
 void cFodder::Map_Clear_Destroy_Tiles() {
@@ -2428,31 +2426,31 @@ void cFodder::Mission_Phase_Goals_Set() {
 
     for (auto Goal : mCampaign.getMapGoals(mGame_Data.mMapNumber)) {
 
-        mPhase_Goals[Goal - 1] = -1;
+        mGamePhase_Data.mGoals_Remaining[Goal - 1] = true;
     }
 }
 
 void cFodder::Mission_Progress_Check() {
 
-    if (mMission_Complete >= 0)
-        if (!mMission_Aborted)
-            if (!mMission_TryAgain)
+    if (mPhase_Complete >= 0)
+        if (!mPhase_Aborted)
+            if (!mPhase_TryAgain)
                 return;
 
-    if (mMission_Completed_Timer < 0)
+    if (mPhase_Completed_Timer < 0)
         return;
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         goto loc_1280A;
 
-    mMission_Completed_Timer = 0x64;
-    if (mMission_Aborted) {
-        mMission_Completed_Timer = 0x32;
+    mPhase_Completed_Timer = 0x64;
+    if (mPhase_Aborted) {
+        mPhase_Completed_Timer = 0x32;
         goto MissionTryAgain;
     }
 
-    if (mMission_Complete) {
-        if (mMission_TryAgain)
+    if (mPhase_Complete) {
+        if (mPhase_TryAgain)
             goto MissionTryAgain;
 
         Mission_Text_Completed();
@@ -2471,15 +2469,15 @@ void cFodder::Mission_Progress_Check() {
     }
 loc_1280A:;
 
-    if (mMission_Completed_Timer == 0x19) {
+    if (mPhase_Completed_Timer == 0x19) {
         mImageFaded = -1;
         mSurface->paletteNew_SetToBlack();
     }
-    --mMission_Completed_Timer;
-    if (mMission_Completed_Timer)
+    --mPhase_Completed_Timer;
+    if (mPhase_Completed_Timer)
         return;
 
-    mMission_Completed_Timer = -1;
+    mPhase_Completed_Timer = -1;
     mMission_IsFinished = -1;
 }
 
@@ -2712,7 +2710,7 @@ void cFodder::Mission_Map_Overview_Show() {
         mWindow->RenderShrunk(mSurfaceMapOverview);
         mWindow->FrameEnd();
 
-        if (mMission_Aborted)
+        if (mPhase_Aborted)
             break;
         Cycle_End();
 
@@ -2721,7 +2719,7 @@ void cFodder::Mission_Map_Overview_Show() {
     mSurfaceMapOverview->Restore();
     mGraphics->SetImageOriginal();
 
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
 }
 
 void cFodder::Map_Overview_Prepare() {
@@ -2881,7 +2879,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
         mWindow->ToggleFullscreen();
 
     if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
-        mMission_Aborted = true;
+        mPhase_Aborted = true;
 
     // In Mission and not on map overview
     if (mMission_In_Progress && !mMission_ShowMapOverview) {
@@ -2894,7 +2892,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
         }
 
         if (pKeyCode == SDL_SCANCODE_P && pPressed)
-            mMission_Paused = ~mMission_Paused;
+            mPhase_Paused = ~mPhase_Paused;
 
         if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
             ++mSquad_SwitchWeapon;
@@ -2921,7 +2919,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 #ifdef _DEBUG
         // Debug: Mission Complete
         if (pKeyCode == SDL_SCANCODE_F10 && pPressed) {
-            mDebug_MissionSkip = -1;
+            mDebug_PhaseSkip = -1;
         }
 
         // Debug: Make current squad invincible
@@ -3138,7 +3136,7 @@ void cFodder::WindowTitleSet(bool pInMission) {
             Title << " ( Mission: " << mGame_Data.mMissionNumber;
             Title << " " << mCampaign.getMissionName(mGame_Data.mMissionNumber);
 
-            Title << "  Phase: " << (mGame_Data.mMissionPhase + 1) << " ";
+            Title << "  Phase: " << (mGame_Data.mMission_Phase + 1) << " ";
 
             if (mGame_Data.mMission_Phases_Total > 1) {
                 Title << "of " << mGame_Data.mMission_Phases_Total;
@@ -3332,7 +3330,7 @@ void cFodder::Mission_Final_Timer() {
 
     --mMission_Final_TimeToAbort;
     if (!mMission_Final_TimeToAbort)
-        mMission_Aborted = true;
+        mPhase_Aborted = true;
 
     if (!(mMission_EngineTicks & 3))
         Sprite_Create_RandomExplosion();
@@ -3362,7 +3360,7 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
     return Data0;
 }
 
-void cFodder::Mission_Paused() {
+void cFodder::Phase_Paused() {
 
     mSurface->paletteNew_SetToBlack();
     mSurface->palette_FadeTowardNew();
@@ -3865,7 +3863,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     mCampaignList = mVersions->GetCampaignNames();
 
     mMission_In_Progress = true;
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
     {
@@ -3920,7 +3918,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 
 
 std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, const char* pType, eDataType pData) {
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
@@ -3936,7 +3934,6 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
 
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (SaveFiles.size() == 0 ? (int16)Files.size() : (int16)SaveFiles.size());
-    mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
 
     do {
         size_t YOffset = VERSION_BASED(0, 25);
@@ -3996,7 +3993,7 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
 }
 
 void cFodder::Campaign_Selection() {
-    mMission_Complete = 0;
+    mPhase_Complete = 0;
 
     Mission_Memory_Clear();
     Game_ClearVariables();
@@ -4030,6 +4027,10 @@ void cFodder::Campaign_Selection() {
     // If no version is found, we use the currently loaded one
     {
         const sGameVersion* Version = mVersions->GetForCampaign(CampaignFile, mVersionCurrent->mPlatform);
+
+        if (!Version) {
+            Version = mVersions->GetForCampaign(CampaignFile);
+        }
 
         // Load a new version?
         if (Version && Version != mVersionCurrent) {
@@ -4204,7 +4205,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
             Timedown = 10;
         }
 
-        if (mMission_Aborted)
+        if (mPhase_Aborted)
             GUI_Button_Load_Exit();
 
         if (mMouse_Button_Left_Toggle)
@@ -4216,7 +4217,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
 
     } while (mGUI_SaveLoadAction <= 0);
 
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
 
     if (mGUI_SaveLoadAction == 3)
         return;
@@ -4254,7 +4255,7 @@ void cFodder::Custom_ShowMapSelection() {
 
     mGame_Data.mMapNumber = 0;
     mGame_Data.mMissionNumber = 1;
-    mGame_Data.mMissionPhase = 0;
+    mGame_Data.mMission_Phase = 0;
     mDemo_ExitMenu = 1;
     mCustom_ExitMenu = 1;
     mCustom_Mode = eCustomMode_Map;
@@ -4287,7 +4288,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 
-    return mMission_Aborted;
+    return mPhase_Aborted;
 }
 
 int16 cFodder::Recruit_Show() {
@@ -4341,7 +4342,7 @@ int16 cFodder::Recruit_Show() {
             if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
                 mMission_Restart = -1;
                 mGame_Data.mMission_Recruitment = -1;
-                mMission_Aborted = true;
+                mPhase_Aborted = true;
                 return -3;
             }
         }
@@ -4379,7 +4380,7 @@ int16 cFodder::Recruit_Show() {
 
 void cFodder::Recruit_Prepare() {
     
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
 
     Recruit_Truck_Anim_Prepare();
     Recruit_Render_Sidebar();
@@ -4449,7 +4450,7 @@ bool cFodder::Recruit_Loop() {
                 break;
         }
 
-        if (mMission_Aborted)
+        if (mPhase_Aborted)
             break;
 
         Recruit_Cycle();
@@ -4472,7 +4473,7 @@ bool cFodder::Recruit_Loop() {
         Cycle_End();
     }
 
-    return mMission_Aborted;
+    return mPhase_Aborted;
 }
 
 void cFodder::Recruit_Draw_String(int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString) {
@@ -6124,7 +6125,7 @@ void cFodder::Sprite_Handle_Tank_FireMissile(sSprite* pSprite) {
 }
 
 int16 cFodder::Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C) {
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return 0;
 
     if (mSprite_Missile_Projectile_Counters[pSprite->field_22] == 2)
@@ -6215,7 +6216,7 @@ void cFodder::Sprite_Enemy_Set_Target(sSprite* pData2C) {
     int16 Data4 = Data0;
 
     // Bigger X movement range for low aggression
-    if (mGame_Data.mSprite_Enemy_AggressionAverage < 5)
+    if (mGamePhase_Data.mSprite_Enemy_AggressionAverage < 5)
         Data0 &= 0x3F;
     else
         Data0 &= 0x1F;
@@ -6229,7 +6230,7 @@ void cFodder::Sprite_Enemy_Set_Target(sSprite* pData2C) {
     Data4 = Data0;
 
     // Bigger Y movement range for low aggression
-    if (mGame_Data.mSprite_Enemy_AggressionAverage < 5)
+    if (mGamePhase_Data.mSprite_Enemy_AggressionAverage < 5)
         Data0 &= 0x3F;
     else
         Data0 &= 0x1F;
@@ -6385,7 +6386,7 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     DataC = -1;
     Data10 = -1;
 
-    if (mPhase_Goals[eGoal_Get_Civilian_Home - 1]) {
+    if (mGamePhase_Data.mGoals_Remaining[eGoal_Get_Civilian_Home - 1]) {
         Data4 = eSprite_Indigenous;
         Data8 = eSprite_Indigenous2;
         DataC = eSprite_Indigenous_Spear;
@@ -6398,7 +6399,7 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     if (mSprite_Find_Distance >= 0x28) {
 
         Data0 = tool_RandomGet();
-        if (mGame_Data.mSprite_Enemy_AggressionAverage < 5)
+        if (mGamePhase_Data.mSprite_Enemy_AggressionAverage < 5)
             Data0 &= 0x3F;
         else
             Data0 &= 0x1F;
@@ -6714,7 +6715,7 @@ loc_24617:;
 }
 
 int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return -1;
 
     int16 Data0 = 1;
@@ -6834,7 +6835,7 @@ loc_24942:;
 int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC;
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return 0;
 
     if (mSprite_Projectile_Counters[pSprite->field_22] == 2)
@@ -6923,7 +6924,7 @@ int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
 
 int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34) {
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return 0;
 
     if (mSprite_Missile_Projectile_Counters[pSprite->field_22] == 2)
@@ -7224,7 +7225,7 @@ loc_24FF1:;
     }
     else {
         Data8 += 1;
-        Data8 += mGame_Data.mSprite_Enemy_AggressionAverage;
+        Data8 += mGamePhase_Data.mSprite_Enemy_AggressionAverage;
 
         if (Data8 >= 0)
             pSprite->field_62 = Data8;
@@ -7459,11 +7460,11 @@ void cFodder::Sprite_Handle_Indigenous_Death(sSprite* pSprite) {
     if (pSprite->field_8 != 0xD6) {
         word_3B2D1[2] = -1;
 
-        if (mPhase_Goals[eGoal_Protect_Civilians - 1])
-            mMission_Aborted = true;
+        if (mGamePhase_Data.mGoals_Remaining[eGoal_Protect_Civilians - 1])
+            mPhase_Aborted = true;
 
-        if (mPhase_Goals[eGoal_Get_Civilian_Home - 1])
-            mMission_Aborted = true;
+        if (mGamePhase_Data.mGoals_Remaining[eGoal_Get_Civilian_Home - 1])
+            mPhase_Aborted = true;
 
         pSprite->field_8 = 0xD6;
         pSprite->field_A = 0;
@@ -7602,7 +7603,7 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite) {
 }
 
 int16 cFodder::Sprite_Create_Indigenous_Spear2(sSprite* pSprite) {
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return -1;
 
     if (!pSprite->field_2E)
@@ -7995,10 +7996,10 @@ void cFodder::sub_264B0(sSprite* pSprite) {
     if (!sub_222A3(pSprite))
         goto loc_264CF;
 
-    if (!mPhase_Goals[eGoal_Protect_Civilians - 1])
+    if (!mGamePhase_Data.mGoals_Remaining[eGoal_Protect_Civilians - 1])
         return;
 
-    mMission_Aborted = true;
+    mPhase_Aborted = true;
     return;
 
 loc_264CF:;
@@ -8026,7 +8027,7 @@ loc_264CF:;
 
     Data0 = tool_RandomGet() & 0x0F;
     Data4 = 0x14;
-    Data4 -= mGame_Data.mSprite_Enemy_AggressionMax;
+    Data4 -= mGamePhase_Data.mSprite_Enemy_AggressionMax;
     if (Data4 < 0)
         Data0 = 0;
 
@@ -8208,7 +8209,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
     if (word_3B1A9 >= 0x14)
         return -1;
 
-    if (mMission_Complete)
+    if (mPhase_Complete)
         return -1;
 
     if (mTroops_Enemy_Count >= 0x0A)
@@ -9578,7 +9579,7 @@ void cFodder::Squad_Troops_Count() {
     //seg009:019E
 
     if (!TotalTroops)
-        mMission_TryAgain = -1;
+        mPhase_TryAgain = -1;
 
     byte_3A8DE[1] = byte_3A05E;
 
@@ -9863,12 +9864,12 @@ void cFodder::Squad_Prepare_GrenadesAndRockets() {
 }
 
 void cFodder::Sprite_Aggression_Set() {
-    mGame_Data.mSprite_Enemy_AggressionMin = mCampaign.getMapAggression(mGame_Data.mMapNumber).mMin;
-    mGame_Data.mSprite_Enemy_AggressionMax = mCampaign.getMapAggression(mGame_Data.mMapNumber).mMax;
-    mGame_Data.mSprite_Enemy_AggressionAverage = mCampaign.getMapAggression(mGame_Data.mMapNumber).getAverage();
+    mGamePhase_Data.mSprite_Enemy_AggressionMin = mCampaign.getMapAggression(mGame_Data.mMapNumber).mMin;
+    mGamePhase_Data.mSprite_Enemy_AggressionMax = mCampaign.getMapAggression(mGame_Data.mMapNumber).mMax;
+    mGamePhase_Data.mSprite_Enemy_AggressionAverage = mCampaign.getMapAggression(mGame_Data.mMapNumber).getAverage();
 
-    mGame_Data.mSprite_Enemy_AggressionNext = mCampaign.getMapAggression(mGame_Data.mMapNumber).getAverage();
-    mGame_Data.mSprite_Enemy_AggressionIncrement = 1;
+    mGamePhase_Data.mSprite_Enemy_AggressionNext = mCampaign.getMapAggression(mGame_Data.mMapNumber).getAverage();
+    mGamePhase_Data.mSprite_Enemy_AggressionIncrement = 1;
 
     for(auto& Sprite : mSprites ) {
 
@@ -9888,29 +9889,29 @@ void cFodder::Sprite_Aggression_Set() {
  */
 void cFodder::Sprite_Handle_Enemy_Aggression_Set(sSprite* pSprite) {
 
-    int16 Data8 = mGame_Data.mSprite_Enemy_AggressionNext;
+    int16 Data8 = mGamePhase_Data.mSprite_Enemy_AggressionNext;
     pSprite->field_62 = Data8;
 
-    int16 Data4 = mGame_Data.mSprite_Enemy_AggressionIncrement;
+    int16 Data4 = mGamePhase_Data.mSprite_Enemy_AggressionIncrement;
     Data8 += Data4;
 
     if (Data4 >= 0) {
 
-        if (Data8 >= mGame_Data.mSprite_Enemy_AggressionMax) {
-            Data8 = mGame_Data.mSprite_Enemy_AggressionMax;
+        if (Data8 >= mGamePhase_Data.mSprite_Enemy_AggressionMax) {
+            Data8 = mGamePhase_Data.mSprite_Enemy_AggressionMax;
             Data4 = -Data4;
         }
     }
     else {
-        if (Data8 < 0 || Data8 <= mGame_Data.mSprite_Enemy_AggressionMin) {
-            Data8 = mGame_Data.mSprite_Enemy_AggressionMin;
+        if (Data8 < 0 || Data8 <= mGamePhase_Data.mSprite_Enemy_AggressionMin) {
+            Data8 = mGamePhase_Data.mSprite_Enemy_AggressionMin;
             Data4 = -Data4;
         }
 
     }
     //loc_2D90D
-    mGame_Data.mSprite_Enemy_AggressionIncrement = Data4;
-    mGame_Data.mSprite_Enemy_AggressionNext = Data8;
+    mGamePhase_Data.mSprite_Enemy_AggressionIncrement = Data4;
+    mGamePhase_Data.mSprite_Enemy_AggressionNext = Data8;
 }
 
 int16 cFodder::Sprite_Next_WalkTarget_Set(sSprite* pSprite) {
@@ -10258,6 +10259,8 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
     bool mShow = false;
 
     do {
+        mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
+
         if (mImageFaded == -1)
             mImageFaded = mSurface->palette_FadeTowardNew();
 
@@ -10276,7 +10279,7 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
 
-        if (mMission_Aborted)
+        if (mPhase_Aborted)
             GUI_Button_Load_Exit();
 
         ++byte_44AC0;
@@ -10293,7 +10296,7 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
 
     } while (mGUI_SaveLoadAction <= 0);
 
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
 
     if (mGUI_SaveLoadAction == 3)
         return;
@@ -10804,7 +10807,7 @@ void cFodder::GUI_Button_Quiz_11() {
 
 void cFodder::Menu_Button_Reset() {
     mCustom_ExitMenu = 0;
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
     mDemo_ExitMenu = -1;
 }
 
@@ -10842,7 +10845,7 @@ bool cFodder::Menu_Draw(const std::function<void()> pButtonHandler) {
         pButtonHandler();
 
     // Exit Time?
-    if (mDemo_ExitMenu > 0 || mMission_Aborted || mCustom_ExitMenu)
+    if (mDemo_ExitMenu > 0 || mPhase_Aborted || mCustom_ExitMenu)
         return true;
 
     if (mSurface->GetFaded() == false)
@@ -10868,7 +10871,7 @@ void cFodder::Demo_Quiz_ShowScreen(const char* pFilename) {
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
 
-        if (mButtonPressLeft || mMission_Aborted)
+        if (mButtonPressLeft || mPhase_Aborted)
             break;
 
         if (mSurface->GetFaded() == false)
@@ -11211,10 +11214,10 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
     Service_Mission_Text_Prepare(di);
     mVideo_Draw_PosY += 0x40;
 
-    if (mGame_Data.mTroops_Died.empty() || mGame_Data.mTroops_DiedCount == mGame_Data.mTroops_Died.size())
+    if (mGame_Data.mTroops_Died.empty() || mGamePhase_Data.mTroops_DiedCount == mGame_Data.mTroops_Died.size())
         return -1;
 
-    for (size_t i = mGame_Data.mTroops_DiedCount; i < mGame_Data.mTroops_Died.size(); ++i) {
+    for (size_t i = mGamePhase_Data.mTroops_DiedCount; i < mGame_Data.mTroops_Died.size(); ++i) {
 
         auto& Hero = mGame_Data.mTroops_Died[i];
 
@@ -11672,7 +11675,7 @@ void cFodder::Briefing_Draw_Phase() {
 
     std::stringstream Phase;
 
-    Phase << Str_Phase << tool_StripLeadingZero(std::to_string(mGame_Data.mMissionPhase + 1));
+    Phase << Str_Phase << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Phase + 1));
     Phase << Str_Of << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Phases_Total));
 
     String_Print_Small(Phase.str(), 0x1D);
@@ -11680,7 +11683,7 @@ void cFodder::Briefing_Draw_Phase() {
     Mission_Phase_Goals_Set();
 
     int16 DataC = 0x84;
-    int16* Goals = mPhase_Goals;
+    bool* Goals = mGamePhase_Data.mGoals_Remaining;
 
     for (const auto GoalName : mMissionGoal_Titles) {
         if (*Goals++) {
@@ -11726,7 +11729,7 @@ void cFodder::Briefing_Show_Ready() {
     do {
         Mouse_Inputs_Get();
 
-        if (mMission_Aborted) {
+        if (mPhase_Aborted) {
             mBriefing_Aborted = -1;
             mMouseButtonStatus = -1;
             break;
@@ -13170,7 +13173,7 @@ void cFodder::Sprite_Handle_BuildingDoor(sSprite* pSprite) {
     Sound_Play(pSprite, eSound_Effect_BuildingDoor2, 0x01);
     Data0 = tool_RandomGet() & 0x0F;
 
-    Data4 = 0x14 - mGame_Data.mSprite_Enemy_AggressionMax;
+    Data4 = 0x14 - mGamePhase_Data.mSprite_Enemy_AggressionMax;
     if (Data4 < 0)
         Data4 = 0;
 
@@ -13206,7 +13209,7 @@ void cFodder::Sprite_Handle_Player_Rank(sSprite* pSprite) {
     if (Data24 == INVALID_SPRITE_PTR)
         goto loc_1AF63;
 
-    if (!mMission_Completed_Timer) {
+    if (!mPhase_Completed_Timer) {
         Data4 = mSquad_Selected;
 
         if (mSquad_Walk_Target_Steps[Data4])
@@ -13378,9 +13381,9 @@ void cFodder::Sprite_Handle_GroundHole(sSprite* pSprite) {
 
     int16 Data0 = tool_RandomGet() & 0xFF;
     int16 Data4 = 0x64;
-    Data4 -= mGame_Data.mSprite_Enemy_AggressionAverage;
+    Data4 -= mGamePhase_Data.mSprite_Enemy_AggressionAverage;
     Data0 += 0x0A;
-    Data4 += mGame_Data.mSprite_Enemy_AggressionAverage;
+    Data4 += mGamePhase_Data.mSprite_Enemy_AggressionAverage;
 
     pSprite->field_12 = Data0;
     return;
@@ -13420,7 +13423,7 @@ void cFodder::Sprite_Handle_BuildingDoor2(sSprite* pSprite) {
     Data0 = tool_RandomGet() & 0x0F;
     Data4 = 0x14;
 
-    Data4 -= mGame_Data.mSprite_Enemy_AggressionMax;
+    Data4 -= mGamePhase_Data.mSprite_Enemy_AggressionMax;
     if (Data4 < 0)
         Data0 = 0;
 
@@ -15346,7 +15349,7 @@ void cFodder::Sprite_Handle_BuildingDoor3(sSprite* pSprite) {
     Sound_Play(pSprite, eSound_Effect_BuildingDoor2, 1);
 
     Data0 = tool_RandomGet() & 0x0F;
-    Data4 = 0x14 - mGame_Data.mSprite_Enemy_AggressionMax;
+    Data4 = 0x14 - mGamePhase_Data.mSprite_Enemy_AggressionMax;
 
     if (Data4 < 0)
         Data0 = 0;
@@ -15387,7 +15390,7 @@ void cFodder::Sprite_Handle_OpenCloseDoor(sSprite* pSprite) {
 
     if (sub_222A3(pSprite)) {
         mSprite_OpenCloseDoor_Ptr = 0;
-        mMission_Aborted = true;
+        mPhase_Aborted = true;
         return;
     }
     pSprite->field_2C = eSprite_Draw_First;
@@ -15911,7 +15914,7 @@ loc_1DA13:;
 
 void cFodder::Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID) {
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return;
 
     if ((tool_RandomGet() & 0x7F) != 0x0E)
@@ -15981,7 +15984,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
         goto loc_1E3D2;
 
     pSprite->field_64 = 0;
-    if (mMission_TryAgain)
+    if (mPhase_TryAgain)
         pSprite->field_40 = -26506;
 
     if (!pSprite->field_58) {
@@ -16645,8 +16648,8 @@ loc_1F0BE:;
 
 int16 cFodder::Sprite_Handle_Player_MissionOver(sSprite* pSprite) {
 
-    if (!mMission_Aborted)
-        if (!mMission_Complete)
+    if (!mPhase_Aborted)
+        if (!mPhase_Complete)
             return 0;
 
     int16 Data0 = -1;
@@ -16683,7 +16686,7 @@ int16 cFodder::Sprite_Handle_Player_MissionOver(sSprite* pSprite) {
     pSprite->field_A = 0;
     pSprite->field_36 = 0;
 
-    if (!mMission_Aborted) {
+    if (!mPhase_Aborted) {
 
         Data0 = tool_RandomGet() & 1;
         if (Data0 == 0)
@@ -18223,7 +18226,7 @@ void cFodder::intro() {
     if (mVersionCurrent->mGame == eGame::CF1)
         intro_LegionMessage();
 
-    mMission_Aborted = false;
+    mPhase_Aborted = false;
 
     if (ShowImage_ForDuration("cftitle", 0x1F8 / 3))
         goto introDone;
@@ -18267,8 +18270,8 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
             if (mImageFaded)
                 mImageFaded = mSurface->palette_FadeTowardNew();
 
-            if (mMouseButtonStatus || mMission_Aborted) {
-                mMission_Aborted = false;
+            if (mMouseButtonStatus || mPhase_Aborted) {
+                mPhase_Aborted = false;
                 mImage_Aborted = -1;
                 mSurface->paletteNew_SetToBlack();
                 mImageFaded = -1;
@@ -18291,7 +18294,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
 void cFodder::Mission_Phase_Next() {
 
     // Next Phase
-    ++mGame_Data.mMissionPhase;
+    ++mGame_Data.mMission_Phase;
     --mGame_Data.mMission_Phases_Remaining;
 
     // Still got phases to complete?
@@ -18305,7 +18308,7 @@ void cFodder::Mission_Phase_Next() {
 
     ++mGame_Data.mMissionNumber;
     mGame_Data.mMission_Phases_Remaining = mGame_Data.mMission_Phases_Total = mCampaign.getNumberOfPhases(mGame_Data.mMissionNumber);
-    mGame_Data.mMissionPhase = 0;
+    mGame_Data.mMission_Phase = 0;
     mGame_Data.mRecruits_Available_Count += 0x0F;
 
     mGame_Data.mMission_Recruits_AliveCount = mGame_Data.mRecruits_Available_Count;
@@ -18313,7 +18316,7 @@ void cFodder::Mission_Phase_Next() {
     mGame_Data.mMission_Recruitment = -1;
     mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs = 0;
 
-    mGame_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
+    mGamePhase_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
 }
 
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
@@ -18439,7 +18442,7 @@ int16 cFodder::Sprite_Create_Bullet(sSprite* pSprite) {
     int16 Data0 = 1, Data8, Data4;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return -1;
 
     if (!pSprite->field_2E)
@@ -18587,7 +18590,7 @@ int16 cFodder::Sprite_Create_Grenade(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         goto loc_20ADE;
 
     if (mSprite_Projectile_Counters[pSprite->field_22] == 2)
@@ -19088,7 +19091,7 @@ loc_2132A:;
 
 loc_213F7:;
 
-    if (mMission_Completed_Timer)
+    if (mPhase_Completed_Timer)
         return;
 
     pSprite->field_38 = eSprite_Anim_Die2;
@@ -19341,7 +19344,7 @@ int16 cFodder::Sprite_Create_Building_Explosion(sSprite* pData2C, int16& pX, int
 
 int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
 
-    if (mMission_Complete || mTroops_Enemy_Count >= 0x0A)
+    if (mPhase_Complete || mTroops_Enemy_Count >= 0x0A)
         return -1;
     int16 Data0 = 1;
     sSprite* Data30 = 0;
@@ -19377,10 +19380,10 @@ int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
     pData2C->field_44 = (int8)Data4;
     Sprite_Enemy_Aggression_Update(pData2C);
 
-    mGame_Data.mSprite_Enemy_AggressionCreated_Count += 1;
-    mGame_Data.mSprite_Enemy_AggressionCreated_Count &= 0x0F;
-    if (!mGame_Data.mSprite_Enemy_AggressionCreated_Count && mGame_Data.mSprite_Enemy_AggressionMax < 0x1E)
-        ++mGame_Data.mSprite_Enemy_AggressionMax;
+    mGamePhase_Data.mSprite_Enemy_AggressionCreated_Count += 1;
+    mGamePhase_Data.mSprite_Enemy_AggressionCreated_Count &= 0x0F;
+    if (!mGamePhase_Data.mSprite_Enemy_AggressionCreated_Count && mGamePhase_Data.mSprite_Enemy_AggressionMax < 0x1E)
+        ++mGamePhase_Data.mSprite_Enemy_AggressionMax;
 
     ++mTroops_Enemy_Count;
     return 0;
@@ -19432,19 +19435,19 @@ loc_21B91:;
 }
 
 void cFodder::Sprite_Enemy_Aggression_Update(sSprite* pData2C) {
-    int16 Data8 = mGame_Data.mSprite_Enemy_AggressionNext;
+    int16 Data8 = mGamePhase_Data.mSprite_Enemy_AggressionNext;
     pData2C->field_62 = Data8;
 
-    int16 Data4 = mGame_Data.mSprite_Enemy_AggressionIncrement;
+    int16 Data4 = mGamePhase_Data.mSprite_Enemy_AggressionIncrement;
     Data8 += Data4;
 
     if (Data4 < 0)
         goto loc_21C42;
 
-    if (Data8 < mGame_Data.mSprite_Enemy_AggressionMax)
+    if (Data8 < mGamePhase_Data.mSprite_Enemy_AggressionMax)
         goto loc_21C5E;
 
-    Data8 = mGame_Data.mSprite_Enemy_AggressionMax;
+    Data8 = mGamePhase_Data.mSprite_Enemy_AggressionMax;
     Data4 = -Data4;
     goto loc_21C5E;
 
@@ -19452,16 +19455,16 @@ loc_21C42:;
     if (Data8 < 0)
         goto loc_21C52;
 
-    if (Data8 > mGame_Data.mSprite_Enemy_AggressionMin)
+    if (Data8 > mGamePhase_Data.mSprite_Enemy_AggressionMin)
         goto loc_21C5E;
 
 loc_21C52:;
-    Data8 = mGame_Data.mSprite_Enemy_AggressionMin;
+    Data8 = mGamePhase_Data.mSprite_Enemy_AggressionMin;
     Data4 = -Data4;
 
 loc_21C5E:;
-    mGame_Data.mSprite_Enemy_AggressionIncrement = Data4;
-    mGame_Data.mSprite_Enemy_AggressionNext = Data8;
+    mGamePhase_Data.mSprite_Enemy_AggressionIncrement = Data4;
+    mGamePhase_Data.mSprite_Enemy_AggressionNext = Data8;
 }
 
 void cFodder::Sprite_Create_Rank() {
@@ -19874,7 +19877,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     sSprite* Data2C = 0, *Data30 = 0, *Data34 = 0;
     int16 Data0, Data4, Data8, DataC;
 
-    if (mMission_Completed_Timer) {
+    if (mPhase_Completed_Timer) {
     loc_22592:;
 
         if (pSprite == mSquad_Leader)
@@ -20106,7 +20109,7 @@ void cFodder::Game_Setup(int16 pStartMap) {
     Game_ClearVariables();
 
     mIntroDone = false;
-    mMission_Complete = 0;
+    mPhase_Complete = 0;
     mGame_Data.mMapNumber = pStartMap;
 
     mGame_Data.mMission_Phases_Remaining = 1;
@@ -20114,7 +20117,7 @@ void cFodder::Game_Setup(int16 pStartMap) {
 
     Mission_Phase_Next();
 
-    mMission_TryAgain = -1;
+    mPhase_TryAgain = -1;
 
     mGraphics->Load_pStuff();
 }
@@ -20260,7 +20263,7 @@ int16 cFodder::Mission_Loop() {
     for (;;) {
 
         // Mission completed?
-        if (!mMission_Aborted && !mMission_TryAgain) {
+        if (!mPhase_Aborted && !mPhase_TryAgain) {
 
             // Demo / Custom Mission restart
             if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set)
@@ -20328,7 +20331,7 @@ int16 cFodder::Mission_Loop() {
         Mission_Troop_Prepare(false);
         Mission_Troop_Attach_Sprites();
 
-        mMission_Aborted = false;
+        mPhase_Aborted = false;
 
 
         // Show the Briefing screen for Retail and Custom 
@@ -20345,7 +20348,7 @@ int16 cFodder::Mission_Loop() {
 
                 mMission_Restart = -1;
                 mGame_Data.mMission_Recruitment = -1;
-                mMission_Aborted = true;
+                mPhase_Aborted = true;
 
                 mSound->Music_Play(0);
                 continue;
@@ -20405,13 +20408,13 @@ int16 cFodder::Mission_Loop() {
 
         mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 
-        mMission_Aborted = false;
-        mMission_Paused = 0;
+        mPhase_Aborted = false;
+        mPhase_Paused = 0;
         mMission_In_Progress = true;
         mMission_Finished = 0;
         mMission_ShowMapOverview = 0;
 
-        if (!Mission_Phase_Loop()) {
+        if (!Phase_Loop()) {
             mKeyCode = 0;
             mMission_In_Progress = false;
             Squad_Member_PhaseCount();
@@ -20426,7 +20429,7 @@ int16 cFodder::Mission_Loop() {
                 // Retail/Custom Set can do the service screen
                 if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set) {
 
-                    if (!mMission_Aborted)
+                    if (!mPhase_Aborted)
                         Service_Show();
                 }
                 break;
@@ -20434,7 +20437,7 @@ int16 cFodder::Mission_Loop() {
         }
 
         //loc_106F1
-        if (mMission_TryAgain) {
+        if (mPhase_TryAgain) {
             mGame_Data.mMission_TryingAgain = -1;
             continue;
         }
@@ -20443,13 +20446,13 @@ int16 cFodder::Mission_Loop() {
         if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
             // Custom can do the service screen, as it requires the 
-            if (!mMission_Aborted && mVersionCurrent->isCustom())
+            if (!mPhase_Aborted && mVersionCurrent->isCustom())
                 Service_Show();
 
             break;
         }
 
-        if (mMission_Aborted)
+        if (mPhase_Aborted)
             continue;
 
         if (mGame_Data.mMission_Phases_Remaining > 1)

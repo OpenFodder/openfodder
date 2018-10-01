@@ -67,11 +67,29 @@ struct sHero {
     }
 };
 
+struct sGamePhaseData {
+    // Aggression is set prior to entering a map
+    int16           mSprite_Enemy_AggressionAverage;
+    int16           mSprite_Enemy_AggressionMin;
+    int16           mSprite_Enemy_AggressionMax;
+    int16           mSprite_Enemy_AggressionNext;
+    int16           mSprite_Enemy_AggressionIncrement;
+    int16           mSprite_Enemy_AggressionCreated_Count;
+
+    bool            mGoals_Remaining[10];
+
+    size_t          mTroops_DiedCount;  // Count of number of heroes who had died before mission started
+
+    sGamePhaseData();
+
+    void Clear();
+};
+
 struct sGameData {
     uint16          mMapNumber;
 
     uint16          mMissionNumber;
-    uint16          mMissionPhase;
+    uint16          mMission_Phase;
     uint16          mRecruits_Available_Count;
     int16           mMission_Troop_Prepare_SetFromSpritePtrs;
 
@@ -82,17 +100,7 @@ struct sGameData {
     uint16          mMission_Phases_Total;
     uint16          mRecruit_NextID;
 
-    // Aggression is set prior to entering a map
-    int16           mSprite_Enemy_AggressionAverage;
-    int16           mSprite_Enemy_AggressionMin;
-    int16           mSprite_Enemy_AggressionMax;
-    int16           mSprite_Enemy_AggressionNext;
-    int16           mSprite_Enemy_AggressionIncrement;
-    int16           mSprite_Enemy_AggressionCreated_Count;
-
     sMission_Troop  mMission_Troops[9];
-
-    size_t          mTroops_DiedCount;  // Count of number of heroes who had died before mission started
 
     std::vector<sHero> mTroops_Died;
 
@@ -113,7 +121,6 @@ struct sGameData {
     void Troops_Clear();
 
     void Troop_Died(const sMission_Troop* pTroop);
-    void Hero_Add(const sMission_Troop* pTroop);
     std::vector<sHero> Heroes_Get() const;
 
     std::string ToJson(const std::string& pName);
