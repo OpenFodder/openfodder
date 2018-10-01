@@ -218,10 +218,11 @@ public:
     sMapPosition    m2A622_Unk_MapPosition;
 
     bool            mPhase_Aborted;
-    int16           mPhase_TryAgain;
     int16           mPhase_Complete;
     int16           mPhase_Completed_Timer;
     int16           mPhase_Paused;
+    int16           mPhase_TryAgain;
+    bool            mPhase_TryingAgain;
 
     int16           mEnemy_BuildingCount;
     int16           mSquad_SwitchWeapon;

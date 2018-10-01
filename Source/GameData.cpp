@@ -70,7 +70,6 @@ void sGameData::Clear() {
 
 	mMission_Recruits_AliveCount = 0;
 	mMission_Recruitment = 0;
-	mMission_TryingAgain = 0;
 	mMission_Phases_Remaining = 0;
 	mMission_Phases_Total = 0;
 	mRecruit_NextID = 0;
@@ -166,7 +165,6 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 
 	Save["mMission_Recruits_AliveCount"] = mMission_Recruits_AliveCount;
 	Save["mMission_Recruitment"] = mMission_Recruitment;
-	Save["mMission_TryingAgain"] = mMission_TryingAgain;
 	Save["mMission_Phases_Remaining"] = mMission_Phases_Remaining;
 	Save["mMission_Phases_Total"] = mMission_Phases_Total;
 	Save["mRecruit_NextID"] = mRecruit_NextID;
@@ -226,7 +224,6 @@ bool sGameData::FromJson(const std::string& pJson) {
 		
 		mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
 		mMission_Recruitment = LoadedData["mMission_Recruitment"];
-		mMission_TryingAgain = LoadedData["mMission_TryingAgain"];
 		mMission_Phases_Remaining = LoadedData["mMission_Phases_Remaining"];
 		mMission_Phases_Total = LoadedData["mMission_Phases_Total"];
 		mRecruit_NextID = LoadedData["mRecruit_NextID"];

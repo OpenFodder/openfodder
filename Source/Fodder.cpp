@@ -482,6 +482,7 @@ void cFodder::Game_ClearVariables() {
         mMission_Troops_SpritePtrs[x] = 0;
     }
 
+    mPhase_TryingAgain = false;
     mGame_Data.Clear();
     mGamePhase_Data.Clear();
 }
@@ -20418,7 +20419,7 @@ int16 cFodder::Mission_Loop() {
             mKeyCode = 0;
             mMission_In_Progress = false;
             Squad_Member_PhaseCount();
-            mGame_Data.mMission_TryingAgain = -1;
+            mPhase_TryingAgain = true;
         }
         else {
             mKeyCode = 0;
@@ -20438,7 +20439,7 @@ int16 cFodder::Mission_Loop() {
 
         //loc_106F1
         if (mPhase_TryAgain) {
-            mGame_Data.mMission_TryingAgain = -1;
+            mPhase_TryingAgain = true;
             continue;
         }
 

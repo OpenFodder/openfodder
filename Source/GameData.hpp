@@ -87,15 +87,14 @@ struct sGamePhaseData {
 
 struct sGameData {
     uint16          mMapNumber;
-
     uint16          mMissionNumber;
+
     uint16          mMission_Phase;
     uint16          mRecruits_Available_Count;
     int16           mMission_Troop_Prepare_SetFromSpritePtrs;
 
     uint16          mMission_Recruits_AliveCount;
     int16           mMission_Recruitment;
-    int16           mMission_TryingAgain;
     uint16          mMission_Phases_Remaining;
     uint16          mMission_Phases_Total;
     uint16          mRecruit_NextID;
