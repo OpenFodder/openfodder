@@ -3706,12 +3706,12 @@ void cFodder::CopyProtection() {
         std::string Line = "LINE " + std::to_string(word_44A1C->mLine);
         std::string Word = "WORD " + std::to_string(word_44A1C->mWord);
 
-        Recruit_Render_Text("ENTER WORD FROM", 0);
-        Recruit_Render_Text("MANUAL AT", 0x14);
-        Recruit_Render_Text(Page.c_str(), 0x3C);
-        Recruit_Render_Text(Paragraph.c_str(), 0x50);
-        Recruit_Render_Text(Line.c_str(), 0x64);
-        Recruit_Render_Text(Word.c_str(), 0x78);
+        GUI_Render_Text_Centred("ENTER WORD FROM", 0);
+        GUI_Render_Text_Centred("MANUAL AT", 0x14);
+        GUI_Render_Text_Centred(Page.c_str(), 0x3C);
+        GUI_Render_Text_Centred(Paragraph.c_str(), 0x50);
+        GUI_Render_Text_Centred(Line.c_str(), 0x64);
+        GUI_Render_Text_Centred(Word.c_str(), 0x78);
 
         mImageFaded = -1;
         int8 mCursorBlinkTimer = 0;
@@ -3940,7 +3940,7 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
         size_t YOffset = VERSION_BASED(0, 25);
 
         GUI_Element_Reset();
-        Recruit_Render_Text(pTitle, 0x0C);
+        GUI_Render_Text_Centred(pTitle, 0x0C);
 
         GUI_Button_Draw("UP", 0x24);
         GUI_Button_Setup(&cFodder::GUI_Button_Load_Up);
@@ -5271,7 +5271,7 @@ bool cFodder::Recruit_Check_Buttons_SaveLoad() {
     return true;
 }
 
-void cFodder::Recruit_Render_Text(const char* pText, const size_t pPosY) {
+void cFodder::GUI_Render_Text_Centred(const char* pText, const size_t pPosY) {
 
     String_CalculateWidth(320, mFont_Recruit_Width, pText);
     String_Print(mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText);
@@ -10227,7 +10227,7 @@ void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, co
 void cFodder::GUI_Button_Draw(std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
-    Recruit_Render_Text(pText.c_str(), pY);
+    GUI_Render_Text_Centred(pText.c_str(), pY);
 
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
@@ -10342,7 +10342,7 @@ void cFodder::Game_Save() {
 
     GUI_Element_Reset();
 
-    Recruit_Render_Text("TYPE A SAVE NAME IN", 0x32);
+    GUI_Render_Text_Centred("TYPE A SAVE NAME IN", 0x32);
 
     GUI_Button_Draw("EXIT", 0xA0);
     GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
@@ -10410,7 +10410,7 @@ void cFodder::GUI_Button_Load_Exit() {
 void cFodder::String_Input_Print(int16 pPosY) {
     GUI_Input_CheckKey();
 
-    Recruit_Render_Text(mInput.c_str(), pPosY);
+    GUI_Render_Text_Centred(mInput.c_str(), pPosY);
 
     if (mKeyCodeAscii == 0x0D && mInput.size())
         mGUI_SaveLoadAction = 2;

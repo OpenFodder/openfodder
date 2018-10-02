@@ -694,7 +694,7 @@ public:
     void            Recruit_Draw_Graves();
     void            Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const size_t pPosY);
     bool            Recruit_Check_Buttons_SaveLoad();
-    void            Recruit_Render_Text(const char* pText, const size_t pPosY);
+    void            GUI_Render_Text_Centred(const char* pText, const size_t pPosY);
     /* End Recruitment */
 
     /* Promotion / Heroes */
