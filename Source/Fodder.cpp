@@ -478,7 +478,7 @@ void cFodder::Game_ClearVariables() {
     mInput_Enabled = 0;
     mGame_InputTicks = 0;
     mMission_EngineTicks = 0;
-    mMission_Restart = 0;
+    mRecruit_Mission_Restarting = false;
 
     for (unsigned int x = 0; x < 9; ++x) {
         mMission_Troops_SpritePtrs[x] = 0;
@@ -710,7 +710,7 @@ void cFodder::Mission_Memory_Clear() {
         mRecruit_Hill_Positions_Use[x] = 0;
 
     mRecruit_Truck_Animation_Play = 0;
-    mRecruit_Truck_Enter_Count = 0;
+    mRecruit_Truck_Troops_ToEnter_Count = 0;
 
     mSquad_CurrentVehicle = 0;
     mMission_In_Progress = false;
@@ -3248,7 +3248,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
     if(mRecruit_Screen_Active) {
         Recruit_Prepare();
 
-        for (int i = 0; i < mGame_Data.mMission_Troops_Required - mRecruit_Truck_Enter_Count; ++i) {
+        for (int i = 0; i < mGame_Data.mMission_Troops_Required - mRecruit_Truck_Troops_ToEnter_Count; ++i) {
             Recruit_Sidebar_Render_SquadName();
         }
         mSound->Music_Play(0);
@@ -4212,7 +4212,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
         if (mMouse_Button_Left_Toggle)
             GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
-        GUI_Button_MouseWheel();
+        GUI_Button_Load_MouseWheel();
         Video_SurfaceRender();
         Cycle_End();
 
@@ -4341,7 +4341,7 @@ int16 cFodder::Recruit_Show() {
 
             // Did we just load/save a game?
             if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
-                mMission_Restart = -1;
+                mRecruit_Mission_Restarting = true;
                 mGame_Data.mMission_Recruitment = -1;
                 mPhase_Aborted = true;
                 return -3;
@@ -4362,7 +4362,7 @@ int16 cFodder::Recruit_Show() {
         }
     }
 
-    mMission_Restart = 0;
+    mRecruit_Mission_Restarting = false;
     Mission_Memory_Backup();
 
     // Retail or Custom Mode
@@ -4436,7 +4436,7 @@ bool cFodder::Recruit_Loop() {
 
     mMouseCursor_Enabled = -1;
 
-    sub_1787C();
+    Recruit_Prepare_Anims();
 
     Recruit_Update_Actors();
     Recruit_Update_Actors();
@@ -4872,7 +4872,7 @@ void cFodder::Recruit_Update_Actors() {
 void cFodder::sub_175C0() {
     sRecruit_Screen_Pos* Data20 = 0;
 
-    if (mRecruit_Truck_Enter_Count > 0) {
+    if (mRecruit_Truck_Troops_ToEnter_Count > 0) {
 
         sRecruit_Screen_Pos* Data20 = &mRecruit_Screen_Positions[293];
         do {
@@ -4892,7 +4892,7 @@ void cFodder::sub_175C0() {
             (Data20 + 1)->mFrame = Data0;
         }
         else {
-            --mRecruit_Truck_Enter_Count;
+            --mRecruit_Truck_Troops_ToEnter_Count;
             Recruit_Sidebar_Render_SquadName();
         }
     }
@@ -5030,12 +5030,12 @@ void cFodder::Recruit_Update_Soldiers() {
     }
 }
 
-void cFodder::sub_1787C() {
+void cFodder::Recruit_Prepare_Anims() {
 
-    if (mMission_Restart)
+    if (mRecruit_Mission_Restarting)
         return;
 
-    mRecruit_Truck_Enter_Count = mGame_Data.mMission_Troops_Required;
+    mRecruit_Truck_Troops_ToEnter_Count = mGame_Data.mMission_Troops_Required;
     mRecruit_Truck_Animation_Play = 0;
 
     int16 Data0 = 0x1E;
@@ -5070,7 +5070,7 @@ void cFodder::Recruit_Position_Troops() {
     // Calculate number of dead troops
     Data8 &= 0xF;
 
-    if (mMission_Restart)
+    if (mRecruit_Mission_Restarting)
         Recruits = mGame_Data.mRecruits_Available_Count;
     else {
         Recruits = mGame_Data.mMission_Recruits_AliveCount;
@@ -5099,7 +5099,7 @@ void cFodder::Recruit_Position_Troops() {
 
 loc_179B2:;
     // If the mission is restarting, troops are already over the hill
-    if (mMission_Restart)
+    if (mRecruit_Mission_Restarting)
         return;
 
     mRecruit_Truck_Reached = 0;
@@ -10286,7 +10286,7 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
         if (Mouse_Button_Left_Toggled() >= 0)
             GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
-        GUI_Button_MouseWheel();
+        GUI_Button_Load_MouseWheel();
 
         if (mGUI_Select_File_String_Input_Callback)
             (this->*mGUI_Select_File_String_Input_Callback)(0x50);
@@ -10566,7 +10566,7 @@ std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>
     return Results;
 }
 
-void cFodder::GUI_Button_MouseWheel() {
+void cFodder::GUI_Button_Load_MouseWheel() {
     if (mMouseWheel.mY > 0) {
         GUI_Button_Load_Up();
     }
@@ -20304,7 +20304,7 @@ int16 cFodder::Mission_Loop() {
 
                 Mission_Memory_Restore();
 
-                mMission_Restart = -1;
+                mRecruit_Mission_Restarting = true;
                 mGame_Data.mMission_Recruitment = -1;
                 mPhase_Aborted = true;
 

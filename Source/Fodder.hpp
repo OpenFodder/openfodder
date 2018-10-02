@@ -118,10 +118,6 @@ public:
 
     int16           mInput_Enabled;
     uint16          mGame_InputTicks;
-    int16           mMission_EngineTicks;
-    uint16          mMission_Restart;
-
-    sSprite*        mMission_Troops_SpritePtrs[9];
 
     int16           mButtonPressLeft, mButtonPressRight;
 
@@ -209,7 +205,6 @@ public:
     uint32          mStoredSpriteY;
     int16           mTmp_FrameNumber;
 
-    int16           mMission_IsFinished;
     int16           mSidebar_Draw_Y;
     int16           word_3A3BF;
 
@@ -322,12 +317,26 @@ public:
     int32           dword_3B1CB;
 
     eTileTypes      mMap_TileSet;
-    sSprite*        mSquad_CurrentVehicle;
+    int16           mMission_Finished;
+    int16           mMission_EngineTicks;
+    bool            mRecruit_Mission_Restarting;
+    int16           mMission_ShowMapOverview;
+    sSprite*        mMission_Troops_SpritePtrs[9];
+
+    int16           mMission_IsFinished;
     bool            mMission_In_Progress;
+    int16           mMission_Final_TimeToDie_Ticker;
+    int16           mMission_Final_TimeRemain;
+    int16           mMission_Final_TimeToAbort;
+    int16           mMission_Save_Availability[0x18];
+
+    sSprite*        mSquad_CurrentVehicles[3];
+    sSprite*        mSquad_CurrentVehicle;
+
     int16           mSprite_HumanVehicles_Found;
     sSprite*        mSprites_HumanVehicles[15];
     int16           dword_3B24B;
-    sSprite*        mSquad_CurrentVehicles[3];
+
     int16           word_3B25B;
     int16           word_3B25D;
     int16           word_3B2CB;
@@ -373,16 +382,14 @@ public:
     int16           mHelicopterCall_X;
     int16           mHelicopterCall_Y;
     sSprite*        mTroop_InRange_Callpad;
-    int16           mMission_Final_TimeToDie_Ticker;
-    int16           mMission_Final_TimeRemain;
-    int16           mMission_Final_TimeToAbort;
+
     int16           mGUI_Sidebar_MapButton_Prepared;
-    int16           mMission_ShowMapOverview;
+
     int16           mTurretFires_HomingMissile;
     int16           word_3B4E9;
     int16           word_3B4EB;
     int16           word_3B4ED[2];
-    int16           mMission_Finished;
+
     int16           mImage_Aborted;
     int16           mBriefing_Aborted;
 
@@ -405,7 +412,7 @@ public:
     bool                mRecruit_Screen_Active;
     int16               mRecruit_Sidebar_Draw_Y_Start;
     int16               mRecruit_Truck_Animation_Play;
-    int16               mRecruit_Truck_Enter_Count;
+    int16               mRecruit_Truck_Troops_ToEnter_Count;
     int16               mRecruit_Truck_Frame;
     int16               mRecruit_Truck_FrameAnimBufferPtr;
     uint16              mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
@@ -460,7 +467,6 @@ public:
     uint16*         mSidebar_Screen_BufferPtr;
 
     sGUI_Element    mSidebar_OverlayButtons[2];
-    int16           mMission_Save_Availability[0x18];
 
     int16           mBriefing_Render_1_Mode;
 
@@ -685,7 +691,7 @@ public:
     void            Recruit_Update_Actors();
     void            sub_175C0();
     void            Recruit_Update_Soldiers();
-    void            sub_1787C();
+    void            Recruit_Prepare_Anims();
     void            Recruit_Frame_Check();
     void            Recruit_Position_Troops();
     void            Recruit_Update_Truck();
@@ -1070,7 +1076,7 @@ public:
 
 
     void            GUI_Input_CheckKey();
-    void            GUI_Button_MouseWheel();
+    void            GUI_Button_Load_MouseWheel();
     void            GUI_Button_Load_Up();
     void            GUI_Button_Load_Down();
     void            GUI_Button_Load_Exit();
