@@ -702,7 +702,6 @@ void cFodder::Mission_Memory_Clear() {
     mSquad_WalkTargetY = 0;
     mSprite_Bullet_Destroy = 0;
     mSprite_Helicopter_DestroyLight = 0;
-    word_3B1A9 = 0;
     mSprite_Bullet_Deviate_Counter = 0;
     dword_3B1CB = 0;
 
@@ -8205,9 +8204,6 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
     int16 Data4;
 
     if (!pSprite->field_5C)
-        return -1;
-
-    if (word_3B1A9 >= 0x14)
         return -1;
 
     if (mPhase_Complete)

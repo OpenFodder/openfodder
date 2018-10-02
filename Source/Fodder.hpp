@@ -312,7 +312,6 @@ public:
     int16           mSprite_Tank_DistanceTo_Squad0;
     int16           mSprite_Missile_LaunchDistance_X;
     int16           mSprite_Missile_LaunchDistance_Y;
-    int16           word_3B1A9;								// Never written to
     int16           mSprite_Bullet_Deviate_Counter;
     int32           dword_3B1CB;
 
