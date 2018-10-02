@@ -3751,7 +3751,7 @@ void cFodder::CopyProtection() {
         const uint8* Answer = word_44A1C->mAnswer;
         bool Failed = false;
 
-        for (int16 Pos = 0; Pos < mInput.size() && *Answer != 0xFF; ++Pos) {
+        for (size_t Pos = 0; Pos < mInput.size() && *Answer != 0xFF; ++Pos) {
 
             if ((uint8)mInput[Pos] != *Answer++) {
                 Failed = true;
@@ -10412,28 +10412,27 @@ void cFodder::String_Input_Print(int16 pPosY) {
 
     Recruit_Render_Text(mInput.c_str(), pPosY);
 
-    int16 Data0 = mKeyCodeAscii;
-    if (Data0 == 0x0D && mInput.size())
+    if (mKeyCodeAscii == 0x0D && mInput.size())
         mGUI_SaveLoadAction = 2;
 
-    if (Data0 == 8)
+    if (mKeyCodeAscii == 8)
         goto loc_2E675;
 
-    if (Data0 < 0x30)
+    if (mKeyCodeAscii >= 0x30)
         goto loc_2E628;
 
-    if (Data0 <= 0x39)
+    if (mKeyCodeAscii <= 0x39)
         goto loc_2E636;
 
 loc_2E628:;
-    if (Data0 < 0x41 || Data0 > 0x5A)
+    if (mKeyCodeAscii < 0x41 || mKeyCodeAscii > 0x5A)
         goto loc_2E6A4;
 
 loc_2E636:;
     if (mInput.size() >= 8)
         goto loc_2E6A4;
 
-    mInput.push_back((char)Data0);
+    mInput.push_back((char)mKeyCodeAscii);
 
     goto loc_2E6A4;
 
