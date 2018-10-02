@@ -56,6 +56,20 @@ struct sSavedGame {
     std::string	mName;
 };
 
+struct sService_Draw {
+    int16 mSpriteType;
+    int16 mFrame;
+    int16 mX;
+    int16 mY;
+
+    sService_Draw(int16 pSpriteType, int16 pFrame, int16 pX, int16 pY) {
+        mSpriteType = pSpriteType;
+        mFrame = pFrame; 
+        mX = pX; 
+        mY = pY; 
+    }
+};
+
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
@@ -105,10 +119,6 @@ public:
     cSurface*       mSurface;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
-    cPosition       mMouse_CurrentEventPosition;
-    uint32          mMouseButtonsPressed;
-    cPosition       mMouseWheel;
-
     uint16          mMapWidth;
     uint16          mMapHeight;
     uint8           mKeyCode;
@@ -124,7 +134,7 @@ public:
     int16           mButtonPressLeft, mButtonPressRight;
 
     bool            mVehicle_Input_Disabled;
-    int16           mMouse_Exit_Loop;
+
     int16           mMapTile_PreviousMoveDirectionX;
     int16           word_39FA2;
     int16           mMapTile_Column;
@@ -139,6 +149,11 @@ public:
     int16           mMouse_Button_Right_Toggle;
     bool            mMouse_Button_LeftRight_Toggle;
     bool            mMouse_Button_LeftRight_Toggle2;
+
+    int16           mMouse_Exit_Loop;
+    cPosition       mMouse_EventLastPosition;
+    uint32          mMouse_EventLastButtonsPressed;
+    cPosition       mMouse_EventLastWheel;
 
     bool            mSquad_Member_Fire_CoolDown_Override;
 
@@ -270,7 +285,6 @@ public:
     sMission_Troop* mSquad_Member_Clicked_TroopPtr;
 
     int16           word_3ABFD;
-    int16           mService_Troop_Promotions[9];
 
     int16           mString_GapCharID;      // Replace spaces in strings with this id
 
@@ -322,7 +336,6 @@ public:
     int16           mMission_ShowMapOverview;
     sSprite*        mMission_Troops_SpritePtrs[9];
 
-    int16           mMission_IsFinished;
     bool            mMission_In_Progress;
     int16           mMission_Final_TimeToDie_Ticker;
     int16           mMission_Final_TimeRemain;
@@ -507,6 +520,7 @@ public:
     int16           mInputMouseY;
 
     int16           mService_Promotion_Exit_Loop;
+    std::vector<sService_Draw> mService_Draw_List;
 
     int16           mRandom_0;
     int16           mRandom_1;
@@ -611,30 +625,33 @@ public:
 
     void            Mission_Final_Timer();
 
-    void            Mission_Phase_Goals_Check();
-    void            Mission_Phase_Goals_Set();
-    void            Mission_Progress_Check();
+    void            Phase_Goals_Check();
+    void            Phase_Goals_Set();
+    void            Phase_Progress_Check();
 
     void            Mission_Map_Overview_Show();
 
     void            Mission_Set_Final_TimeRemaining();
     void            Mission_Sprites_Handle();
 
-    void            Mission_Text_Completed();
-    void            Mission_Text_Sprite_Mission(sSprite* pData2C);
-    void            Mission_Text_Sprite_Phase(sSprite* pData2C);
-    void            Mission_Text_Sprite_Complete(sSprite* pData2C);
-    void            Mission_Text_Prepare(sSprite* pData2C);
-    void            Mission_Text_TryAgain();
-    void            Mission_Text_Sprite_Try(sSprite* pData2C);
-    void            Mission_Text_Sprite_Again(sSprite* pData2C);
+    void            Phase_GameOver();
+    void            Phase_Paused();
+
+    void            Phase_Show_Complete();
+    void            Phase_Show_TryAgain();
+    void            Phase_TextSprite_Prepare(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Mission(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Phase(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Complete(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Try(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Again(sSprite* pData2C);
+    void            Phase_TextSprite_Create_GameOver(sSprite* pData2C);
 
     std::string     Filename_CreateFromBase(const std::string& pBase, const char* pFinish);
     void            Squad_Member_PhaseCount();
     void            Squad_Set_CurrentVehicle();
     void            Squad_EnteredVehicle_TimerTick();
 
-    void            Map_Clear_Destroy_Tiles();
     void            Map_Overview_Prepare();
     void            Map_SetTileType();
 
@@ -644,11 +661,7 @@ public:
     void            Sprite_HelicopterCallPad_Check();
 
     int16           Sprite_Create_RandomExplosion();
-    void            Mission_GameOver();
-    void            Mission_Text_GameOver(sSprite* pData2C);
-    void            Phase_Paused();
 
-    void            Mouse_DrawCursor();
     void            GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY);
     void            GUI_Draw_Frame_16(int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY);
     void            Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0);
@@ -706,17 +719,14 @@ public:
     void            Service_Promotion_Loop();
     int16           Service_KIA_Troop_Prepare();
     int16           Service_Promotion_Prepare_Draw();
-    void            Service_Draw_Troop_And_Rank(uint16*& pDi, int16 pRecruitID, int16 pRank);
-    void            sub_18149();
-    void            sub_181BD();
-    void            sub_181E6(uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC);
-    int16           sub_1828A(int16& pSpriteType, int16& pFrame, int16& pData8, int16& pDataC);
-    void            sub_182EA();
-    int16           sub_184C7();
-    void            Service_Mission_Text_Prepare(uint16*& pTarget);
-    void            Service_Promotion_Prepare();
+    void            Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank);
+    void            Service_Draw_List();
+    void            Service_ScrollUp_DrawList();
+    void            Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC);
+    int16           Service_Sprite_Draw(int16& pSpriteType, int16& pFrame, int16& pX, int16& pY);
+    int16           Service_Sprite_OnScreen_Check();
+    void            Service_Mission_Text_Prepare();
     void            Service_Promotion_Check();
-    void            Service_Promotion_SetNewRanks();
 
     /* End Promotion / Heroes */
 
@@ -1166,8 +1176,6 @@ public:
     void            sub_3037A();
     void            sub_3049B();
     void            GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper();
-    void            Mouse_Cursor_Update();
-    int16           Mouse_Button_Left_Toggled();
     void            Squad_Member_Click_Check();
 
     void            sub_303AE();
@@ -1178,9 +1186,9 @@ public:
     void            Squad_Switch_Weapon();
     void            Mission_Final_TimeToDie();
     int16           sub_305D5(sSprite*& pData20);
-    void            Mouse_Inputs_Check();
+
     void            Squad_Member_Target_Set();
-    int16           Mouse_Button_Right_Toggled();
+
     void            Squad_Switch_Timer();
     void            Squad_Switch_To(int16 pData0);
     void            Vehicle_Input_Handle();
@@ -1211,10 +1219,15 @@ public:
     void            sleepLoop(int64 pMilliseconds);
     int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration);
 
-    void            Mouse_Setup();
-    void            Mouse_Inputs_Get();
     void            Mouse_ButtonCheck();
+    int16           Mouse_Button_Left_Toggled();
+    int16           Mouse_Button_Right_Toggled();
     void            Mouse_Cursor_Handle();
+    void            Mouse_Cursor_Update();
+    void            Mouse_DrawCursor();
+    void            Mouse_Inputs_Get();
+    void            Mouse_Inputs_Check();
+    void            Mouse_Setup();
 
     void            eventProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);

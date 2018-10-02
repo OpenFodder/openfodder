@@ -47,6 +47,17 @@ struct sMission_Troop {
         field_6 = 0;
         mSelected = 0;
     }
+
+    uint8 GetPromotedRank() const {
+        auto newRank = (mPhaseCount + mRank);
+        return (newRank > 0x0F) ? 0x0F : newRank;
+    }
+
+    void Promote() {
+
+        if(mRecruitID!= -1)
+            mRank = GetPromotedRank();
+    }
 };
 
 struct sHero {
@@ -79,6 +90,8 @@ struct sGamePhaseData {
     bool            mGoals_Remaining[10];
 
     size_t          mTroops_DiedCount;  // Count of number of heroes who had died before mission started
+
+    bool            mIsComplete;
 
     sGamePhaseData();
 

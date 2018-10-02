@@ -40,6 +40,8 @@ void sGamePhaseData::Clear() {
     mSprite_Enemy_AggressionCreated_Count = 0;
     mTroops_DiedCount = 0;
 
+    mIsComplete = false;
+
     for(auto& Goal : mGoals_Remaining)
         Goal = false;
 }

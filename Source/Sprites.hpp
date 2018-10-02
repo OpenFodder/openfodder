@@ -192,7 +192,7 @@ enum ePstuff_Sprites {
 enum eSprite_DrawOrder {
 	eSprite_Draw_First	= -1,
 	eSprite_Draw_Second	= 0,
-	eSprite_Draw_Last	= 1
+	eSprite_Draw_OnTop	= 1
 };
 
 struct sMission_Troop;
