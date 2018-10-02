@@ -463,15 +463,15 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, size_t
 	}
 }
 
-void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16 pCopyToScreen, uint32*& pBuffer) {
-	pData0 += 0x18;
+void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) {
+    pRow += 0x18;
 	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
-	uint32* BuffPtr = (uint32*)(SptPtr + (48 * pData0));
+	uint32* BuffPtr = (uint32*)(SptPtr + (48 * pRow));
 
 	// Copying to pData20? or from it?
 	if (pCopyToScreen == 0) {
 
-		for (int16 cx = pData4; cx > 0; --cx) {
+		for (int16 cx = pRows; cx > 0; --cx) {
 			*pBuffer++ = *BuffPtr++;
 			*pBuffer++ = *BuffPtr++;
 			*pBuffer++ = *BuffPtr++;
@@ -490,7 +490,7 @@ void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16
 	}
 	else {
 
-		for (int16 cx = pData4; cx > 0; --cx) {
+		for (int16 cx = pRows; cx > 0; --cx) {
 			*BuffPtr++ = *pBuffer++;
 			*BuffPtr++ = *pBuffer++;
 			*BuffPtr++ = *pBuffer++;

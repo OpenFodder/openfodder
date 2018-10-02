@@ -194,7 +194,7 @@ public:
 
 	virtual void		Sidebar_Copy_To_Surface( int16 pStartY = 0 ) = 0;
 	virtual void		Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, size_t pX, size_t pY ) = 0;
-	virtual void		Sidebar_Copy_ScreenBuffer( uint16 Data0, int16 Data4, int16 pCopyToScreen, uint32*& pBuffer) = 0;
+	virtual void		Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) = 0;
 	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) = 0;
 
 	virtual void		Mission_Intro_Play() = 0;

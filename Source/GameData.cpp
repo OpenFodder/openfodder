@@ -162,14 +162,16 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 
 	Save["mMissionNumber"] = mMissionNumber;
 	Save["mMissionPhase"] = mMission_Phase;
-	Save["mRecruits_Available_Count"] = mRecruits_Available_Count;
+	
 	Save["Mission_Troop_Prepare_SetFromSpritePtrs"] = mMission_Troop_Prepare_SetFromSpritePtrs;
 
 	Save["mMission_Recruits_AliveCount"] = mMission_Recruits_AliveCount;
 	Save["mMission_Recruitment"] = mMission_Recruitment;
 	Save["mMission_Phases_Remaining"] = mMission_Phases_Remaining;
 	Save["mMission_Phases_Total"] = mMission_Phases_Total;
-	Save["mRecruit_NextID"] = mRecruit_NextID;
+    
+    Save["mRecruits_Available_Count"] = mRecruits_Available_Count; 
+    Save["mRecruit_NextID"] = mRecruit_NextID;
 
 	for (auto& MissionTroop : mMission_Troops) {
 		Json Troop;

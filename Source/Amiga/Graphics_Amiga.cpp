@@ -1054,14 +1054,14 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, si
 	}
 }
 
-void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16 pCopyToScreen, uint32*& pBuffer) {
-	pData0 += 8;
-	pData4 *= 4;
+void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) {
+    pRow += 8;
+    pRows *= 4;
 	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
-	uint32* BuffPtr = (uint32*)(SptPtr + (0x30 * pData0));
+	uint32* BuffPtr = (uint32*)(SptPtr + (0x30 * pRow));
 
 	if (pCopyToScreen == 0) {
-		for (int16 cx = pData4; cx > 0; --cx) {
+		for (int16 cx = pRows; cx > 0; --cx) {
 			*pBuffer++ = *BuffPtr++;
 			*pBuffer++ = *BuffPtr++;
 			*pBuffer++ = *BuffPtr++;
@@ -1079,7 +1079,7 @@ void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, in
 		}
 	}
 	else {
-		for (int16 cx = pData4; cx > 0; --cx) {
+		for (int16 cx = pRows; cx > 0; --cx) {
 			*BuffPtr++ = *pBuffer++;
 			*BuffPtr++ = *pBuffer++;
 			*BuffPtr++ = *pBuffer++;

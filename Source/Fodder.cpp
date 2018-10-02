@@ -618,7 +618,6 @@ void cFodder::Mission_Memory_Clear() {
     mMouseCursor_Enabled = 0;
     mRecruit_Sidebar_Draw_Y_Start = 0;
     mRecruit_Render_Name_SmallGap = 0;
-    mRecruit_RenderedPtr = 0;
     mRecruit_Truck_Frame = 0;
     mRecruit_Truck_FrameAnimBufferPtr = 0;
     mRecruit_Screen_Active = false;
@@ -3228,9 +3227,11 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
     if(mRecruit_Screen_Active) {
         Recruit_Prepare();
 
+        mRecruit_RenderedNext = mRecruit_Rendereds.begin();
         for (int i = 0; i < mGame_Data.mMission_Troops_Required - mRecruit_Truck_Troops_ToEnter_Count; ++i) {
             Recruit_Sidebar_Render_SquadName();
         }
+
         mSound->Music_Play(0);
     }
 
@@ -4383,11 +4384,12 @@ void cFodder::Recruit_Prepare() {
     mSurface->palette_FadeTowardNew();
     mSurface->Save();
 
+    mRecruit_Rendereds.clear();
     Recruit_Render_Names_UnusedSlots();
 
-    mRecruit_RenderedPtr = mRecruit_Rendered;
+    mRecruit_RenderedNext = mRecruit_Rendereds.begin();
     for (int16 ax = mGame_Data.mMission_Troop_Count - 1; ax >= 0; --ax)
-        Recruit_Sidebar_Render_SquadName();
+        Recruit_Sidebar_Render_SquadName();  
 }
 
 bool cFodder::Recruit_Loop() {
@@ -4566,11 +4568,11 @@ void cFodder::Recruit_Render_Sidebar() {
     int16 Data14 = 0x0E;
     SpriteType = 4;
 
-    for (auto&& Hero : mGame_Data.Heroes_Get()) {
+    for (auto& Hero : mGame_Data.Heroes_Get()) {
         if (SpriteType < 0)
             break;
 
-        if (Hero.mRecruitID == -1)
+        if (Hero.mRecruitID == -1 || Hero.mKills == 0)
             break;
 
         Data14 += 0x0C;
@@ -4737,15 +4739,14 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 void cFodder::Recruit_Render_Number(int16 pNumber, int16 pData10) {
 
     pData10 -= 0x30;
-    std::string Data20 = tool_StripLeadingZero(std::to_string(pNumber));
-    uint16 Data0 = (uint16)Data20.length() * 4;
+    std::string Number = tool_StripLeadingZero(std::to_string(pNumber));
+    uint16 Data0 = (uint16)Number.length() * 4;
 
     int16 Data8 = 0x30 - Data0;
     int16 DataC = 0x4B + mSidebar_Draw_Y + mRecruit_Sidebar_Draw_Y_Start;
 
-    for (std::string::iterator CharIT = Data20.begin(); CharIT != Data20.end(); ++CharIT) {
-
-        Data0 = (*CharIT & 0xFF) + pData10;
+    for (auto& Char : Number) {
+        Data0 = (Char & 0xFF) + pData10;
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, Data8, DataC + 0x18);
         Data8 += 4;
     }
@@ -4753,12 +4754,12 @@ void cFodder::Recruit_Render_Number(int16 pNumber, int16 pData10) {
 
 void cFodder::Recruit_Render_HeroList() {
 
-    int16 word_3A3BB = 4;
+    int16 HeroesToRender = 4;
     mSidebar_Draw_Y = 0;
 
     for (auto& Hero : mGame_Data.Heroes_Get()) {
 
-        if (Hero.mRecruitID < 0)
+        if (Hero.mRecruitID < 0 || Hero.mKills == 0)
             continue;
 
         int16 Data8 = 0;
@@ -4768,10 +4769,8 @@ void cFodder::Recruit_Render_HeroList() {
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Hero.mRank + 9, Data8, DataC);
 
         const sRecruit* Troop = &mRecruits[Hero.mRecruitID];
-
         int16 Position;
         for (Position = 0; Position <= 5; ++Position) {
-
             if (Troop->mName[Position] == 0x20)
                 break;
         }
@@ -4788,11 +4787,8 @@ void cFodder::Recruit_Render_HeroList() {
 
             Character -= 0x41;
             Character += 0x29;
-            Data8 = Position;
-            Data8 <<= 2;
-            Data8 += word_3A05F;
-            DataC = 0x4B;
-            DataC += mSidebar_Draw_Y + mRecruit_Sidebar_Draw_Y_Start;
+            Data8 = (Position << 2) + word_3A05F;
+            DataC = 0x4B + mSidebar_Draw_Y + mRecruit_Sidebar_Draw_Y_Start;
 
             mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Character, Data8, DataC + 0x18);
         }
@@ -4800,7 +4796,7 @@ void cFodder::Recruit_Render_HeroList() {
         Recruit_Render_Number(Hero.mKills, 0x67);
         mSidebar_Draw_Y += 0x0C;
 
-        if (--word_3A3BB < 0)
+        if (--HeroesToRender < 0)
             break;
     }
 }
@@ -4808,22 +4804,16 @@ void cFodder::Recruit_Render_HeroList() {
 void cFodder::Recruit_Render_Names_UnusedSlots() {
     uint32* Data20 = (uint32*)mGraphics->mImageTemporary.mData->data();
 
-    sRecruitRendered* Data24 = mRecruit_Rendered;
-    int16 Data0 = VERSION_BASED(0x58, 0x44);
+    int16 Row = VERSION_BASED(0x58, 0x44);
 
     // Squad Troop Names
-    for (; Data0 < 0xA0; Data0 += 0x0C) {
-        Data24->mDataPtr = Data20;
-        Data24->mPosition = Data0;
+    for (; Row < 0xA0; Row += 0x0C) {
+        mRecruit_Rendereds.emplace_back(Data20, Row);
 
-        mGraphics->Sidebar_Copy_ScreenBuffer(Data0, 0x0C, 0, Data20);
-        ++Data24;
+        mGraphics->Sidebar_Copy_ScreenBuffer(Row, 0x0C, 0, Data20);
     }
 
     //seg003:2532
-    Data24->mDataPtr = 0;
-    Data24->mPosition = -1;
-
     int16 DataC = 0x58;
     int16 Slots = VERSION_BASED(5, 7);    // Empty Slots
 
@@ -4835,12 +4825,14 @@ void cFodder::Recruit_Render_Names_UnusedSlots() {
 }
 
 void cFodder::Recruit_Sidebar_Render_SquadName() {
-    sRecruitRendered* Data24 = mRecruit_RenderedPtr;
-    if (Data24->mPosition < 0)
+    if (mRecruit_RenderedNext == mRecruit_Rendereds.end())
         return;
 
-    ++mRecruit_RenderedPtr;
-    mGraphics->Sidebar_Copy_ScreenBuffer((uint16)Data24->mPosition, 0x0C, -1, Data24->mDataPtr);
+    if (mRecruit_RenderedNext->mPosition < 0)
+        return;
+
+    mGraphics->Sidebar_Copy_ScreenBuffer((uint16)mRecruit_RenderedNext->mPosition, 0x0C, -1, mRecruit_RenderedNext->mDataPtr);
+    ++mRecruit_RenderedNext;
 }
 
 void cFodder::Recruit_Update_Actors() {

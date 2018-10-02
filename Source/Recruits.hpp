@@ -45,6 +45,11 @@ struct sRecruit_Screen_Pos {
 struct sRecruitRendered {
 	uint32* mDataPtr;
 	int16	mPosition;
+
+    sRecruitRendered(uint32* pDataPtr, int16 pPosition) {
+        mDataPtr = pDataPtr;
+        mPosition = pPosition;
+    }
 };
 
 extern const int16 mGravePositions[];

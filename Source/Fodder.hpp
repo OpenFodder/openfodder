@@ -416,8 +416,8 @@ public:
     int16               mRecruit_Button_Save_Pressed;
     int16               mRecruit_Hill_Positions_Use[0x0F];
 
-    sRecruitRendered    mRecruit_Rendered[0x0D];
-    sRecruitRendered*   mRecruit_RenderedPtr;
+    std::vector<sRecruitRendered> mRecruit_Rendereds;
+    std::vector<sRecruitRendered>::iterator mRecruit_RenderedNext;
 
     bool                mRecruit_Screen_Active;
     int16               mRecruit_Sidebar_Draw_Y_Start;
