@@ -11006,6 +11006,7 @@ void cFodder::Mission_Set_Initial_Weapon() {
 }
 
 void cFodder::Service_Show() {
+    mVersionPlatformSwitchDisabled = true;
 
     WindowTitleSet(false);
 
@@ -11019,6 +11020,7 @@ void cFodder::Service_Show() {
     Mouse_Setup();
 
     mGraphics->Load_pStuff();
+    mVersionPlatformSwitchDisabled = false;
 }
 
 void cFodder::Service_KIA_Loop() {
