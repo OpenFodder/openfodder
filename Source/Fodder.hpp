@@ -595,11 +595,11 @@ public:
     void            Music_Play_Tileset();
 
     // Mission Functions
-    void            Mission_Troop_Count();
-    void            Mission_Troop_Sort();
-    void            Mission_Troop_Prepare(const bool pPrebriefing);
+    void            Phase_Soldiers_Count();
+    void            Phase_Soldiers_Sort();
+    void            Phase_Soldiers_Prepare(const bool pPrebriefing);
     void            Mission_Troop_Prepare_Next_Recruits();
-    void            Mission_Troop_Attach_Sprites();
+    void            Phase_Soldiers_AttachToSprites();
     void            Mission_Troops_Clear_Selected();
 
     void            Camera_Speed_Update_From_PanTarget();

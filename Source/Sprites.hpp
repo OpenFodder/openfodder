@@ -275,8 +275,13 @@ struct sSprite {
 	int8 field_5A;
 	int8 field_5B;			// Human: Is Sinking
 	int8 field_5C;			// 1 = Was Drawn
-	int8 field_5D;          // 5E contains index into mGame_Data.mMission_Troops
-	int16 field_5E;			// Index inside mSprites (if 5D == false)
+	int8 field_5D;          // 5E contains index into mGame_Data.mSoldiers_Allocated
+
+    union {
+        int16 field_5E;			// Index inside mSprites (if 5D == false)
+        sMission_Troop *field_5E_SoldierAllocated;
+    };
+
 	int8 field_60;			// Current Terrain Type
 	int8 field_61;
 	int16 field_62;         // AI: Aggression

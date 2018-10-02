@@ -79,6 +79,12 @@ struct sHero {
 };
 
 struct sGamePhaseData {
+
+    int16           mSoldiers_Required;
+    int16           mSoldiers_Allocated_Count;
+    int16           mSoldiers_Available;
+    bool            mSoldiers_Prepare_SetFromSpritePtrs;
+
     // Aggression is set prior to entering a map
     int16           mSprite_Enemy_AggressionAverage;
     int16           mSprite_Enemy_AggressionMin;
@@ -104,7 +110,6 @@ struct sGameData {
 
     uint16          mMission_Phase;
     uint16          mRecruits_Available_Count;
-    int16           mMission_Troop_Prepare_SetFromSpritePtrs;
 
     uint16          mMission_Recruits_AliveCount;
     int16           mMission_Recruitment;
@@ -112,15 +117,13 @@ struct sGameData {
     uint16          mMission_Phases_Total;
     uint16          mRecruit_NextID;
 
-    sMission_Troop  mMission_Troops[9];
+    sMission_Troop  mSoldiers_Allocated[9];
 
-    std::vector<sHero> mTroops_Died;
+    std::vector<sHero> mSoldiers_Died;
 
     int16           mTroops_Away;
     int16           mTroops_Home;
-    int16           mMission_Troops_Required;
-    int16           mMission_Troop_Count;
-    int16           mMission_Troops_Available;
+
 
     std::string		mCampaignName;
     std::string		mSavedName;

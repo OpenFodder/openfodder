@@ -496,7 +496,7 @@ void cFodder::Mission_Memory_Restore() {
     mGame_Data = mGame_Data_Backup;
 
     // Reset grave pointers
-    mGamePhase_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
+    mGamePhase_Data.mTroops_DiedCount = mGame_Data.mSoldiers_Died.size();
 }
 
 void cFodder::Mission_Memory_Clear() {
@@ -1208,8 +1208,8 @@ void cFodder::Map_Load_Sprites_Count() {
     }
 }
 
-void cFodder::Mission_Troop_Count() {
-    mGame_Data.mMission_Troops_Required = 0;
+void cFodder::Phase_Soldiers_Count() {
+    mGamePhase_Data.mSoldiers_Required = 0;
     sSprite* Sprite = mSprites;
 
     // How many player sprites are on this map
@@ -1217,45 +1217,45 @@ void cFodder::Mission_Troop_Count() {
         if (Sprite->field_0 != -32768) {
 
             if (Sprite->field_18 == eSprite_Player)
-                ++mGame_Data.mMission_Troops_Required;
+                ++mGamePhase_Data.mSoldiers_Required;
         }
     }
 
     // How many recruits have already been allocated to the mission
-    mGame_Data.mMission_Troop_Count = 0;
+    mGamePhase_Data.mSoldiers_Allocated_Count = 0;
 
-    for( auto& Troop : mGame_Data.mMission_Troops) {
+    for( auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         if (Troop.mRecruitID != -1) {
-            --mGame_Data.mMission_Troops_Required;
-            ++mGame_Data.mMission_Troop_Count;
+            --mGamePhase_Data.mSoldiers_Required;
+            ++mGamePhase_Data.mSoldiers_Allocated_Count;
         }
     }
 
     // Do we still require troops?
-    int16 ax = mGame_Data.mMission_Troops_Required;
-    if (mGame_Data.mMission_Troops_Required >= 0) {
+    int16 ax = mGamePhase_Data.mSoldiers_Required;
+    if (mGamePhase_Data.mSoldiers_Required >= 0) {
 
         // Do we need more than available?
         if (ax > mGame_Data.mRecruits_Available_Count)
             ax = mGame_Data.mRecruits_Available_Count;
 
         // Set the Required amount
-        mGame_Data.mMission_Troops_Required = ax;
+        mGamePhase_Data.mSoldiers_Required = ax;
 
         // Reduce the available recruits by the number taken by the mission
         mGame_Data.mRecruits_Available_Count -= ax;
     }
 
-    mGame_Data.mMission_Troops_Available = mGame_Data.mMission_Troop_Count + ax;
+    mGamePhase_Data.mSoldiers_Available = mGamePhase_Data.mSoldiers_Allocated_Count + ax;
 }
 
-void cFodder::Mission_Troop_Sort() {
+void cFodder::Phase_Soldiers_Sort() {
 
     // Remove any 'dead' troops
     for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
 
-        sMission_Troop* Data20 = mGame_Data.mMission_Troops;
+        sMission_Troop* Data20 = mGame_Data.mSoldiers_Allocated;
 
         for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
 
@@ -1273,9 +1273,9 @@ void cFodder::Mission_Troop_Sort() {
 
     // Sort by kills
 
-    sMission_Troop* Data20 = mGame_Data.mMission_Troops;
+    sMission_Troop* Data20 = mGame_Data.mSoldiers_Allocated;
     for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
-        sMission_Troop* Data24 = mGame_Data.mMission_Troops;
+        sMission_Troop* Data24 = mGame_Data.mSoldiers_Allocated;
 
         for (int16 Data18 = 7; Data18 >= 0; --Data18, ++Data24) {
 
@@ -1299,31 +1299,31 @@ void cFodder::Mission_Troop_Sort() {
     }
 }
 
-void cFodder::Mission_Troop_Prepare(const bool pPrebriefing) {
+void cFodder::Phase_Soldiers_Prepare(const bool pPrebriefing) {
     Mission_Troops_Clear_Selected();
 
     if (!pPrebriefing) {
 
         // Set the sMission_Troop Sprites from mMission_Troops_SpritePtrs
-        if (mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs) {
+        if (mGamePhase_Data.mSoldiers_Prepare_SetFromSpritePtrs) {
             sSprite** Data24 = mMission_Troops_SpritePtrs;
 
-            for (auto& Troop : mGame_Data.mMission_Troops) {
+            for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
                 Troop.mSprite = *Data24++;
             }
         }
 
-        mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs = -1;
+        mGamePhase_Data.mSoldiers_Prepare_SetFromSpritePtrs = true;
 
         sSprite** Data24 = mMission_Troops_SpritePtrs;
-        for (auto& Troop : mGame_Data.mMission_Troops) {
+        for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
             *Data24++ = Troop.mSprite;
         }
 
     }
 
     // Join recruits into the squad
-    int16 Data1C = mGame_Data.mMission_Troops_Required - 1;
+    int16 Data1C = mGamePhase_Data.mSoldiers_Required - 1;
     while (Data1C >= 0) {
         Mission_Troop_Prepare_Next_Recruits();
         --Data1C;
@@ -1333,8 +1333,8 @@ void cFodder::Mission_Troop_Prepare(const bool pPrebriefing) {
         return;
 
     // Remove recruits which arn't needed for the map
-    Data1C = mGame_Data.mMission_Troops_Available;
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    Data1C = mGamePhase_Data.mSoldiers_Available;
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR)
             continue;
@@ -1350,7 +1350,7 @@ void cFodder::Mission_Troop_Prepare(const bool pPrebriefing) {
 void cFodder::Mission_Troop_Prepare_Next_Recruits() {
 
     // Loop each troop
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         // Does troop member have a recruit id?
         if (Troop.mRecruitID == -1) {
@@ -1386,11 +1386,11 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
     }
 }
 
-void cFodder::Mission_Troop_Attach_Sprites() {
+void cFodder::Phase_Soldiers_AttachToSprites() {
 
-    int16 TroopsRemaining = mGame_Data.mMission_Troops_Available;
+    int16 TroopsRemaining = mGamePhase_Data.mSoldiers_Available;
     sSprite* Sprite = mSprites;
-    sMission_Troop* Troop = mGame_Data.mMission_Troops;
+    sMission_Troop* Troop = mGame_Data.mSoldiers_Allocated;
 
     // Loop the game sprites looking for 'player' sprite
     for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, ++Sprite) {
@@ -2554,7 +2554,7 @@ std::string cFodder::Filename_CreateFromBase(const std::string& pBase, const cha
 
 void cFodder::Squad_Member_PhaseCount() {
 
-    for( auto& Troop : mGame_Data.mMission_Troops ) {
+    for( auto& Troop : mGame_Data.mSoldiers_Allocated ) {
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
 
@@ -3228,7 +3228,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
         Recruit_Prepare();
 
         mRecruit_RenderedNext = mRecruit_Rendereds.begin();
-        for (int i = 0; i < mGame_Data.mMission_Troops_Required - mRecruit_Truck_Troops_ToEnter_Count; ++i) {
+        for (int i = 0; i < mGamePhase_Data.mSoldiers_Required - mRecruit_Truck_Troops_ToEnter_Count; ++i) {
             Recruit_Sidebar_Render_SquadName();
         }
 
@@ -4279,10 +4279,10 @@ int16 cFodder::Recruit_Show() {
         Map_Load();
         Map_Load_Sprites();
 
-        Mission_Troop_Count();
-        Mission_Troop_Sort();
-        Mission_Troop_Prepare(true);
-        Mission_Troop_Attach_Sprites();
+        Phase_Soldiers_Count();
+        Phase_Soldiers_Sort();
+        Phase_Soldiers_Prepare(true);
+        Phase_Soldiers_AttachToSprites();
 
     }
     else {
@@ -4388,7 +4388,7 @@ void cFodder::Recruit_Prepare() {
     Recruit_Render_Names_UnusedSlots();
 
     mRecruit_RenderedNext = mRecruit_Rendereds.begin();
-    for (int16 ax = mGame_Data.mMission_Troop_Count - 1; ax >= 0; --ax)
+    for (int16 ax = mGamePhase_Data.mSoldiers_Allocated_Count- 1; ax >= 0; --ax)
         Recruit_Sidebar_Render_SquadName();  
 }
 
@@ -4483,12 +4483,12 @@ void cFodder::Recruit_Truck_Anim_Prepare() {
     int16  count;
 
     // Do any troops need to enter the truck?
-    if (mGame_Data.mMission_Troops_Required > 0) {
+    if (mGamePhase_Data.mSoldiers_Required > 0) {
 
         // Welcome Troops
         Recruit_Truck_Anim_CopyFrames(&di, mRecruit_Truck_Anim_Welcome);
 
-        count = mGame_Data.mMission_Troops_Required;
+        count = mGamePhase_Data.mSoldiers_Required;
         count -= 2;
 
         // Wave Troop Past
@@ -4540,14 +4540,14 @@ void cFodder::Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const si
 void cFodder::Recruit_Draw_Graves() {
     const int16* GravePosition = &mGravePositions[720];
 
-    for (size_t i = mGame_Data.mTroops_Died.size(); i > 0; --i) {
+    for (size_t i = mGame_Data.mSoldiers_Died.size(); i > 0; --i) {
         GravePosition -= 2;
     }
 
-    if (mGame_Data.mTroops_Died.empty())
+    if (mGame_Data.mSoldiers_Died.empty())
         return;
 
-   for(auto& Hero : mGame_Data.mTroops_Died) {
+   for(auto& Hero : mGame_Data.mSoldiers_Died) {
 
         int16 PosX = *GravePosition++;
         int16 PosY = *GravePosition++;
@@ -4569,10 +4569,7 @@ void cFodder::Recruit_Render_Sidebar() {
     SpriteType = 4;
 
     for (auto& Hero : mGame_Data.Heroes_Get()) {
-        if (SpriteType < 0)
-            break;
-
-        if (Hero.mRecruitID == -1 || Hero.mKills == 0)
+        if (Hero.mKills == 0)
             break;
 
         Data14 += 0x0C;
@@ -4581,7 +4578,6 @@ void cFodder::Recruit_Render_Sidebar() {
     // Draw Empty Hero Slots
     PosY = 0x0E;
     do {
-
         SpriteType = 0xA9;
         if (PosY >= Data14)
             SpriteType = 0xAB;
@@ -4601,7 +4597,7 @@ void cFodder::Recruit_Render_Sidebar() {
     mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(SpriteType, PosX, PosY);
 
     PosY = 0x58;
-    Data14 = mGame_Data.mMission_Troops_Required + mGame_Data.mMission_Troop_Count;
+    Data14 = mGamePhase_Data.mSoldiers_Required + mGamePhase_Data.mSoldiers_Allocated_Count;
     Data14 *= 0x0C;
     Data14 += PosY;
 
@@ -4637,7 +4633,7 @@ void cFodder::Recruit_Render_Squad_Names() {
     int16 word_3A3BB = 7;
     mSidebar_Draw_Y = 0;
 
-    for( auto& Troop : mGame_Data.mMission_Troops ) {
+    for( auto& Troop : mGame_Data.mSoldiers_Allocated ) {
 
         if (Troop.mRecruitID == -1)
             continue;
@@ -4696,7 +4692,7 @@ void cFodder::Recruit_Render_Squad_RankKills() {
 
     mSidebar_Draw_Y = 0;
 
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         if (Troop.mRecruitID == -1)
             continue;
@@ -5007,7 +5003,7 @@ void cFodder::Recruit_Prepare_Anims() {
     if (mRecruit_Mission_Restarting)
         return;
 
-    mRecruit_Truck_Troops_ToEnter_Count = mGame_Data.mMission_Troops_Required;
+    mRecruit_Truck_Troops_ToEnter_Count = mGamePhase_Data.mSoldiers_Required;
     mRecruit_Truck_Animation_Play = 0;
 
     int16 Data0 = 0x1E;
@@ -5036,7 +5032,7 @@ void cFodder::Recruit_Frame_Check() {
 void cFodder::Recruit_Position_Troops() {
     const int16*    Recruit_Next_Shirt = mRecruit_Shirt_Colors;
 
-    uint64 Data8 = mGame_Data.mTroops_Died.size();
+    uint64 Data8 = mGame_Data.mSoldiers_Died.size();
     int16 Recruits, Data4;
 
     // Calculate number of dead troops
@@ -8998,7 +8994,7 @@ int16 cFodder::Squad_Member_Sprite_Hit_In_Region(sSprite* pSprite, int16 pData8,
 
     int16 Data0;
 
-    for( auto& Troop : mGame_Data.mMission_Troops ) {
+    for( auto& Troop : mGame_Data.mSoldiers_Allocated ) {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
@@ -9508,7 +9504,7 @@ void cFodder::Squad_Troops_Count() {
     mSquad_4_Sprites[0] = INVALID_SPRITE_PTR;
 
     // Loop through all mission troops
-    for( auto& Troop : mGame_Data.mMission_Troops ) {
+    for( auto& Troop : mGame_Data.mSoldiers_Allocated ) {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
@@ -9823,8 +9819,8 @@ void cFodder::Sprite_Handle_Player_Destroy_Unk() {
 
 void cFodder::Squad_Prepare_GrenadesAndRockets() {
 
-    mSquad_Grenades[0] = mGame_Data.mMission_Troops_Available << 1;
-    mSquad_Rockets[0] = mGame_Data.mMission_Troops_Available;
+    mSquad_Grenades[0] = mGamePhase_Data.mSoldiers_Available << 1;
+    mSquad_Rockets[0] = mGamePhase_Data.mSoldiers_Available;
 
     if (mGame_Data.mMapNumber < 5)
         mSquad_Grenades[0] = 0;
@@ -10453,7 +10449,7 @@ void cFodder::Game_Load() {
         for (int16 x = 0; x < 8; ++x)
             mMission_Troops_SpritePtrs[x] = INVALID_SPRITE_PTR;
 
-        for (auto& Troop : mGame_Data.mMission_Troops)
+        for (auto& Troop : mGame_Data.mSoldiers_Allocated)
             Troop.mSprite = INVALID_SPRITE_PTR;
 
         Mission_Memory_Backup();
@@ -11113,7 +11109,7 @@ void cFodder::Service_Promotion_Loop() {
 
 loc_18001:;
 
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
         Troop.Promote();
     }
 }
@@ -11125,13 +11121,13 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
     Service_Mission_Text_Prepare();
     mVideo_Draw_PosY += 0x40;
 
-    if (mGame_Data.mTroops_Died.empty() || mGamePhase_Data.mTroops_DiedCount == mGame_Data.mTroops_Died.size())
+    if (mGame_Data.mSoldiers_Died.empty() || mGamePhase_Data.mTroops_DiedCount == mGame_Data.mSoldiers_Died.size())
         return -1;
 
    
-    for (size_t i = mGamePhase_Data.mTroops_DiedCount; i < mGame_Data.mTroops_Died.size(); ++i) {
+    for (size_t i = mGamePhase_Data.mTroops_DiedCount; i < mGame_Data.mSoldiers_Died.size(); ++i) {
 
-        auto& Hero = mGame_Data.mTroops_Died[i];
+        auto& Hero = mGame_Data.mSoldiers_Died[i];
 
         Service_Draw_Troop_And_Rank(Hero.mRecruitID, Hero.mRank);
         mVideo_Draw_PosY += 0x40;
@@ -11148,7 +11144,7 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
     mVideo_Draw_PosY += 0x40;
     int Drawn = mService_Draw_List.size();
 
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         if (Troop.mSprite != INVALID_SPRITE_PTR) {
             int16 ax = Troop.mRecruitID;
@@ -11192,7 +11188,7 @@ void cFodder::Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank) {
 }
 
 void cFodder::Service_Promotion_Check() {
-    auto* Troop = &mGame_Data.mMission_Troops[0];
+    auto* Troop = &mGame_Data.mSoldiers_Allocated[0];
 
     for( size_t x = 0; x < mService_Draw_List.size(); ++x) {
         auto Draw = &mService_Draw_List[x];
@@ -11451,9 +11447,9 @@ void cFodder::Briefing_Draw_With() {
     std::stringstream With;
 
     With << "WITH ";
-    With << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Troops_Available));
+    With << tool_StripLeadingZero(std::to_string(mGamePhase_Data.mSoldiers_Available));
 
-    if (mGame_Data.mMission_Troops_Available == 1) {
+    if (mGamePhase_Data.mSoldiers_Available == 1) {
         With << " SOLDIER YOU MUST";
     }
     else {
@@ -16271,10 +16267,10 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
         --mTroops_Enemy_Count;
         if (pSprite->field_5D) {
             pSprite->field_5D = 0;
-            Troop = mGame_Data.mMission_Troops;
+            Troop = mGame_Data.mSoldiers_Allocated;
 
             if (pSprite->field_5E >= 0) {
-                Troop = &mGame_Data.mMission_Troops[pSprite->field_5E];
+                Troop = &mGame_Data.mSoldiers_Allocated[pSprite->field_5E];
                 goto loc_1F1E9;
             }
         }
@@ -16286,7 +16282,7 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
         }
         loc_1F1E9:;
 
-        if (Troop >= mGame_Data.mMission_Troops && Troop <= &mGame_Data.mMission_Troops[8]) {
+        if (Troop >= mGame_Data.mSoldiers_Allocated && Troop <= &mGame_Data.mSoldiers_Allocated[8]) {
 
             if (Troop->mNumberOfKills >= 999)
                 Troop->mNumberOfKills = 998;
@@ -17987,7 +17983,7 @@ void cFodder::Mission_Phase_Next() {
         return;
 
     // Mission Complete
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
         Troop.mPhaseCount = 0;
     }
 
@@ -17999,9 +17995,9 @@ void cFodder::Mission_Phase_Next() {
     mGame_Data.mMission_Recruits_AliveCount = mGame_Data.mRecruits_Available_Count;
     mGame_Data.mMission_Recruits_AliveCount -= 0x0F;
     mGame_Data.mMission_Recruitment = -1;
-    mGame_Data.mMission_Troop_Prepare_SetFromSpritePtrs = 0;
+    mGamePhase_Data.mSoldiers_Prepare_SetFromSpritePtrs = false;
 
-    mGamePhase_Data.mTroops_DiedCount = mGame_Data.mTroops_Died.size();
+    mGamePhase_Data.mTroops_DiedCount = mGame_Data.mSoldiers_Died.size();
 }
 
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
@@ -18170,7 +18166,7 @@ int16 cFodder::Sprite_Create_Bullet(sSprite* pSprite) {
     }
     else {
 
-        Data2C->field_5E = (int16)(pSprite->field_46_mission_troop - mGame_Data.mMission_Troops);
+        Data2C->field_5E = (int16)(pSprite->field_46_mission_troop - mGame_Data.mSoldiers_Allocated);
         Data2C->field_5D = -1;
 
         // Bullet Travel time
@@ -20011,10 +20007,10 @@ int16 cFodder::Mission_Loop() {
         Briefing_Show_PreReady();
 
         // Prepare Squads
-        Mission_Troop_Count();
-        Mission_Troop_Sort();
-        Mission_Troop_Prepare(false);
-        Mission_Troop_Attach_Sprites();
+        Phase_Soldiers_Count();
+        Phase_Soldiers_Sort();
+        Phase_Soldiers_Prepare(false);
+        Phase_Soldiers_AttachToSprites();
 
         mPhase_Aborted = false;
 
@@ -20294,7 +20290,7 @@ loc_2F1BC:;
     mSidebar_Draw_Y = mGUI_Loop_Draw_Y + 0x22;
 
     // Loop the squad
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         sSprite* Data34 = Troop.mSprite;
 
@@ -20594,7 +20590,7 @@ void cFodder::GUI_Sidebar_Rockets_Draw(int16 pData0) {
 int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
 
     int16 Data10 = 0;
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
@@ -20851,7 +20847,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
     word_3A3BF = Data0;
 
-    sMission_Troop* Troop = mGame_Data.mMission_Troops;
+    sMission_Troop* Troop = mGame_Data.mSoldiers_Allocated;
     Data4 = mSquad_Selected;
     int16 Data8 = word_3A3BF;
 
@@ -20909,7 +20905,7 @@ loc_2FF79:;
     sMapTarget* Dataa34 = mSquad_WalkTargets[Data10];
     Dataa34->asInt = -1;
 
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
@@ -21023,7 +21019,7 @@ void cFodder::Squad_Member_Click_Check() {
     ClickedX -= 0x0F;
     ClickedY -= 3;
 
-    for (auto& SquadMember : mGame_Data.mMission_Troops) {
+    for (auto& SquadMember : mGame_Data.mSoldiers_Allocated) {
 
         if (SquadMember.mSprite == INVALID_SPRITE_PTR || SquadMember.mSprite == 0)
             continue;
@@ -21070,7 +21066,7 @@ void cFodder::Squad_Member_Click_Check() {
 
 void cFodder::Mission_Troops_Clear_Selected() {
 
-    for(auto& Troop : mGame_Data.mMission_Troops)
+    for(auto& Troop : mGame_Data.mSoldiers_Allocated)
         Troop.mSelected &= 0;
 }
 
@@ -21387,7 +21383,7 @@ loc_30814:;
 
     mMouse_Locked = false;
 
-    for (auto& Troop : mGame_Data.mMission_Troops) {
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
