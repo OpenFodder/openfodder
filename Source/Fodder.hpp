@@ -38,6 +38,8 @@ enum eSquad_Weapon_SplitMode {
 struct sMapPosition {
     int16   mX;
     int16   mY;
+
+    sMapPosition(const int16& pX = 0, const int16& pY = 0) { mX = pX; mY = pY; }
 };
 
 union sMapTarget {
@@ -295,9 +297,7 @@ public:
     int16           mMap_Destroy_Tile_X;
     int16           mMap_Destroy_Tile_Y;
     int16           mMap_Destroy_Tiles_Countdown;
-    sMapPosition    mMap_Destroy_Tiles[128];
-    sMapPosition*   mMap_Destroy_TilesPtr2;
-    sMapPosition*   mMap_Destroy_TilesPtr;
+    std::vector<sMapPosition> mMap_Destroy_Tiles;
 
     int16           mSprite_SpareUsed;
     int16           mSprite_SpareUsed2;
@@ -385,8 +385,6 @@ public:
     int16           mGUI_Sidebar_MapButton_Prepared;
 
     int16           mTurretFires_HomingMissile;
-    int16           word_3B4E9;
-    int16           word_3B4EB;
     int16           word_3B4ED[2];
 
     int16           mImage_Aborted;

@@ -676,14 +676,9 @@ void cFodder::Mission_Memory_Clear() {
     mMap_Destroy_Tile_X = 0;
     mMap_Destroy_Tile_Y = 0;
 
-    for (uint16 x = 0; x < 128; ++x) {
-        mMap_Destroy_Tiles[x].mX = 0;
-        mMap_Destroy_Tiles[x].mY = 0;
-    }
+    mMap_Destroy_Tiles.clear();
 
     mMap_Destroy_Tiles_Countdown = 0;
-    mMap_Destroy_TilesPtr2 = 0;
-    mMap_Destroy_TilesPtr = 0;
 
     for (uint16 x = 0; x < 42; ++x) {
         mGUI_Elements[x].field_0 = 0;
@@ -781,8 +776,6 @@ void cFodder::Mission_Memory_Clear() {
     mMission_ShowMapOverview = 0;
 
     mTurretFires_HomingMissile = 0;
-    word_3B4E9 = 0;
-    word_3B4EB = 0;
     word_3B4ED[0] = 0;
     word_3B4ED[1] = 0;
     mMission_Finished = 0;
@@ -2417,11 +2410,8 @@ loc_126A6:;
 }
 
 void cFodder::Map_Clear_Destroy_Tiles() {
-    mMap_Destroy_TilesPtr2 = mMap_Destroy_Tiles;
-    mMap_Destroy_TilesPtr = mMap_Destroy_Tiles;
 
-    mMap_Destroy_Tiles[0].mX = -1;
-    mMap_Destroy_Tiles[0].mY = -1;
+    mMap_Destroy_Tiles.clear();
 }
 
 void cFodder::Mission_Phase_Goals_Set() {
@@ -10033,20 +10023,13 @@ void cFodder::Squad_Walk_Target_Update(int16 pData0) {
 }
 
 void cFodder::Sprite_Handle_Explosion_MapTiles(sSprite* pSprite) {
-    word_3B4E9 = 0;
-    if (pSprite->field_18 == eSprite_Explosion2)
-        word_3B4E9 = -1;
-
-    sMapPosition* Data28 = mMap_Destroy_TilesPtr2;
 
     int16 Data0 = pSprite->field_0 + 4;
     int16 Data4 = pSprite->field_4 - 8;
 
     const int16* Data24 = mSprite_Explosion_Positions;
 
-    for (;;) {
-        if (*Data24 == -32768)
-            break;
+    for (; *Data24 != -32768;) {
 
         Data0 += *Data24++;
         Data4 += *Data24++;
@@ -10055,25 +10038,12 @@ void cFodder::Sprite_Handle_Explosion_MapTiles(sSprite* pSprite) {
         if (Data0 < 0 || Data4 < 0) {
             continue;
         }
-        Data28->mX = Data0;
-        Data28->mY = Data4;
-        ++Data28;
 
-        if (word_3B4E9)
-            (Data28 - 1)->mY = -Data4;
-
-        if (Data28 >= &mMap_Destroy_Tiles[128])
-            Data28 = mMap_Destroy_Tiles;
+        mMap_Destroy_Tiles.emplace_back( Data0, (pSprite->field_18 == eSprite_Explosion2) ? -Data4 : Data4 );
     }
-
-    Data28->mX = -1;
-    Data28->mY = -1;
-
-    mMap_Destroy_TilesPtr2 = Data28;
 }
 
 void cFodder::Map_Destroy_Tiles() {
-    int16* Data20 = 0;
     uint8* MapPtr = 0;
     const int16* IndestructibleTypes = 0;
     int32 Data0, Data4, MapTile, TileType;
@@ -10083,74 +10053,64 @@ void cFodder::Map_Destroy_Tiles() {
         goto loc_2DFC7;
     }
 
-loc_2DE3C:;
-    if (!mMap_Destroy_TilesPtr)
-        return;
+    for (auto& Tile : mMap_Destroy_Tiles) {
 
-    Data20 = (int16*)mMap_Destroy_TilesPtr;
+        Data0 = Tile.mX;
+        Data4 = Tile.mY;
 
-    Data0 = *Data20;
-    Data4 = *(Data20 + 1);
+        mMap_Destroy_Tile_X = Tile.mX;
+        bool word_3B4EB = false;
+        mMap_Destroy_Tile_Y = Tile.mY;
+        if (mMap_Destroy_Tile_Y < 0) {
+            word_3B4EB = true;
+            Data4 = -Data4;
+            mMap_Destroy_Tile_Y = -Tile.mY;
+        }
+        //loc_2DE89
+        Data4 >>= 4;
+        Data4 *= mMapWidth;
 
-    if (Data0 < 0)
-        return;
+        Data0 >>= 4;
+        Data4 += Data0;
+        Data4 <<= 1;
 
-    mMap_Destroy_Tile_X = Data0;
-    word_3B4EB = 0;
-    mMap_Destroy_Tile_Y = Data4;
-    if (mMap_Destroy_Tile_Y < 0) {
-        word_3B4EB = -1;
-        Data4 = -Data4;
-        mMap_Destroy_Tile_Y = Data4;
-    }
-    //loc_2DE89
-    Data4 >>= 4;
-    Data4 *= mMapWidth;
+        // In some cases, tiles outside the map can be 'destroyed'. This prevents memory corruption
+        if ((size_t)(0x60 + Data4) >= mMap->size())
+            continue;
 
-    Data0 >>= 4;
-    Data4 += Data0;
-    Data4 <<= 1;
+        MapPtr = mMap->data() + 0x60 + Data4;
+        MapTile = readLEWord(MapPtr);
+        MapTile &= 0x1FF;
+        TileType = MapTile;
 
-    // In some cases, tiles outside the map can be 'destroyed'. This prevents memory corruption
-    if ((size_t) (0x60 + Data4) >= mMap->size())
-        goto loc_2DF55;
+        Data4 = mTile_Destroy_Swap[MapTile];
+        if (Data4 < 0)
+            continue;
 
-    MapPtr = mMap->data() + 0x60 + Data4;
-
-    MapTile = readLEWord(MapPtr);
-    MapTile &= 0x1FF;
-    TileType = MapTile;
-
-    Data4 = mTile_Destroy_Swap[MapTile];
-    if (Data4 < 0)
-        goto loc_2DF55;
-
-    if (word_3B4EB)
-        goto loc_2DF7B;
-
-    IndestructibleTypes = mTiles_Indestructible[mMap_TileSet];
-
-    int16 ax;
-    do {
-        if (*IndestructibleTypes < 0)
+        if (word_3B4EB)
             goto loc_2DF7B;
 
-        ax = *IndestructibleTypes;
-        IndestructibleTypes++;
+        IndestructibleTypes = mTiles_Indestructible[mMap_TileSet];
 
-    } while (TileType != ax);
+        int16 ax;
+        do {
+            if (*IndestructibleTypes < 0)
+                goto loc_2DF7B;
 
-loc_2DF55:;
-    Map_Destroy_Tiles_Next();
-    goto loc_2DE3C;
+            ax = *IndestructibleTypes;
+            IndestructibleTypes++;
+
+        } while (TileType != ax);
+    }
+
+    mMap_Destroy_Tiles.clear();
+    return;
 
     //seg010:064C
         //UNUNSED BLOCK
 
 loc_2DF7B:;
-
     Data0 = Sprite_Create_Building_Explosion_Wrapper(mMap_Destroy_Tile_X, mMap_Destroy_Tile_Y);
-
     if (Data0)
         return;
 
@@ -10160,7 +10120,7 @@ loc_2DF7B:;
     Map_Destroy_Tiles_Next();
 
 loc_2DFC7:;
-    ax = mMap_Destroy_Tile_X >> 4;
+    int16 ax = (mMap_Destroy_Tile_X >> 4);
     ax -= mMapTile_MovedHorizontal;
     ax <<= 4;
     ax -= mMapTile_ColumnOffset;
@@ -10168,7 +10128,7 @@ loc_2DFC7:;
 
     mVideo_Draw_PosX = ax;
 
-    ax = mMap_Destroy_Tile_Y >> 4;
+    ax = (mMap_Destroy_Tile_Y >> 4);
     ax -= mMapTile_MovedVertical;
     ax <<= 4;
     ax -= mMapTile_RowOffset;
@@ -10184,13 +10144,8 @@ loc_2DFC7:;
 
 void cFodder::Map_Destroy_Tiles_Next() {
 
-    sMapPosition* Data20 = mMap_Destroy_TilesPtr;
-    ++Data20;
-
-    if (Data20 >= &mMap_Destroy_Tiles[128])
-        Data20 = mMap_Destroy_Tiles;
-
-    mMap_Destroy_TilesPtr = Data20;
+    if (mMap_Destroy_Tiles.size())
+        mMap_Destroy_Tiles.erase(mMap_Destroy_Tiles.begin());
 }
 
 void cFodder::Game_Save_Wrapper() {
