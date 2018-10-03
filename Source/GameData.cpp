@@ -117,13 +117,11 @@ void sGameData::Soldier_Sort() {
                 *Data20 = *Data24;
                 Data24->Clear();
                 Data24->mRecruitID = -1;
-                Data24->mRank = 0;
             }
         }
     }
 
     // Sort by kills
-
     sMission_Troop* Data20 = mSoldiers_Allocated;
     for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
         sMission_Troop* Data24 = mSoldiers_Allocated;

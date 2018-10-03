@@ -10960,6 +10960,7 @@ void cFodder::Service_Show() {
 
     mGraphics->Load_pStuff();
     mVersionPlatformSwitchDisabled = false;
+    mPhase_Aborted = false;
 }
 
 void cFodder::Service_KIA_Loop() {
