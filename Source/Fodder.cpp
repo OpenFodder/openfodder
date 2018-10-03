@@ -1250,55 +1250,6 @@ void cFodder::Phase_Soldiers_Count() {
     mGamePhase_Data.mSoldiers_Available = mGamePhase_Data.mSoldiers_Allocated_Count + ax;
 }
 
-void cFodder::Phase_Soldiers_Sort() {
-
-    // Remove any 'dead' troops
-    for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
-
-        sMission_Troop* Data20 = mGame_Data.mSoldiers_Allocated;
-
-        for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
-
-            if (Data20->mRecruitID == -1) {
-
-                sMission_Troop* Data24 = Data20 + 1;
-
-                *Data20 = *Data24;
-                Data24->Clear();
-                Data24->mRecruitID = -1;
-                Data24->mRank = 0;
-            }
-        }
-    }
-
-    // Sort by kills
-
-    sMission_Troop* Data20 = mGame_Data.mSoldiers_Allocated;
-    for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
-        sMission_Troop* Data24 = mGame_Data.mSoldiers_Allocated;
-
-        for (int16 Data18 = 7; Data18 >= 0; --Data18, ++Data24) {
-
-            if (Data20 == Data24)
-                continue;
-
-            if (Data20->mRecruitID == -1 || Data24->mRecruitID == -1)
-                continue;
-
-            if (Data20->mRank != Data24->mRank)
-                continue;
-
-            if (Data20->mNumberOfKills <= Data24->mNumberOfKills)
-                continue;
-
-            sMission_Troop Spare = *Data20;
-
-            *Data20 = *Data24;
-            *Data24 = Spare;
-        }
-    }
-}
-
 void cFodder::Phase_Soldiers_Prepare(const bool pPrebriefing) {
     Mission_Troops_Clear_Selected();
 
@@ -4280,7 +4231,7 @@ int16 cFodder::Recruit_Show() {
         Map_Load_Sprites();
 
         Phase_Soldiers_Count();
-        Phase_Soldiers_Sort();
+        mGame_Data.Soldier_Sort();
         Phase_Soldiers_Prepare(true);
         Phase_Soldiers_AttachToSprites();
 
@@ -6544,7 +6495,7 @@ loc_2439F:;
         goto FoundSprite;
 
 NextSprite:;
-    pSprite->field_5E++; //+= 0x76; This should be a sprite counter
+    pSprite->field_5E++;
     if (pSprite->field_5E >= 43)
         pSprite->field_5E = 0;
 
@@ -11197,6 +11148,11 @@ void cFodder::Service_Promotion_Check() {
             continue;
 
         int16 newRank = Troop->GetPromotedRank();
+        if (Troop->mRecruitID == -1) {
+            ++Troop;
+            --x;
+            continue;
+        }
         ++Troop;
         ++x;
 
@@ -16238,11 +16194,11 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
     if (pSprite->field_22 == eSprite_PersonType_Human) {
         //Yes, is player
 
-        ++mGame_Data.mTroops_Away;
+        ++mGame_Data.mScore_Kills_Away;
 
         if (pSprite->field_46_mission_troop) {
 
-            mGame_Data.Troop_Died(pSprite->field_46_mission_troop);
+            mGame_Data.Soldier_Died(pSprite->field_46_mission_troop);
 
             pSprite->field_46_mission_troop->mSprite = INVALID_SPRITE_PTR;
             pSprite->field_46_mission_troop->mRecruitID = -1;
@@ -16263,20 +16219,22 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
 
     if (pSprite->field_18 == eSprite_Enemy_Rocket || pSprite->field_18 == eSprite_Enemy) {
 
-        ++mGame_Data.mTroops_Home;
+        ++mGame_Data.mScore_Kills_Home;
         --mTroops_Enemy_Count;
         if (pSprite->field_5D) {
             pSprite->field_5D = 0;
             Troop = mGame_Data.mSoldiers_Allocated;
 
-            if (pSprite->field_5E >= 0) {
-                Troop = &mGame_Data.mSoldiers_Allocated[pSprite->field_5E];
+            if (pSprite->field_5E_SoldierAllocated >= 0) {
+                Troop = pSprite->field_5E_SoldierAllocated;
                 goto loc_1F1E9;
             }
         }
 
+        // Sprite didnt have a soldier who killed it attached
         if (mSquad_Selected != -1) {
             //loc_1F13E
+            // use the first squad member
             if (mSquads[mSquad_Selected][0] != INVALID_SPRITE_PTR && mSquads[mSquad_Selected][0] != 0)
                 Troop = mSquads[mSquad_Selected][0]->field_46_mission_troop;
         }
@@ -18166,7 +18124,7 @@ int16 cFodder::Sprite_Create_Bullet(sSprite* pSprite) {
     }
     else {
 
-        Data2C->field_5E = (int16)(pSprite->field_46_mission_troop - mGame_Data.mSoldiers_Allocated);
+        Data2C->field_5E_SoldierAllocated = pSprite->field_46_mission_troop;
         Data2C->field_5D = -1;
 
         // Bullet Travel time
@@ -18690,6 +18648,7 @@ void cFodder::Sprite_Clear(sSprite* pSprite) {
     pSprite->field_5C = 0;
     pSprite->field_5D = 0;
     pSprite->field_5E = 0;
+    pSprite->field_5E_SoldierAllocated = 0;
     pSprite->field_60 = 0;
     pSprite->field_61 = 0;
     pSprite->field_62 = 0;
@@ -20008,7 +19967,7 @@ int16 cFodder::Mission_Loop() {
 
         // Prepare Squads
         Phase_Soldiers_Count();
-        Phase_Soldiers_Sort();
+        mGame_Data.Soldier_Sort();
         Phase_Soldiers_Prepare(false);
         Phase_Soldiers_AttachToSprites();
 

@@ -596,7 +596,6 @@ public:
 
     // Mission Functions
     void            Phase_Soldiers_Count();
-    void            Phase_Soldiers_Sort();
     void            Phase_Soldiers_Prepare(const bool pPrebriefing);
     void            Mission_Troop_Prepare_Next_Recruits();
     void            Phase_Soldiers_AttachToSprites();

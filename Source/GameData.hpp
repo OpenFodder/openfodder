@@ -121,8 +121,8 @@ struct sGameData {
 
     std::vector<sHero> mSoldiers_Died;
 
-    int16           mTroops_Away;
-    int16           mTroops_Home;
+    int16           mScore_Kills_Away;    // Player soldiers killed
+    int16           mScore_Kills_Home;    //  Enemy soldiers killed
 
 
     std::string		mCampaignName;
@@ -133,9 +133,10 @@ struct sGameData {
     sGameData(const std::string& pFromJson);
 
     void Clear();
-    void Troops_Clear();
+    void Soldier_Clear();
+    void Soldier_Sort();
+    void Soldier_Died(const sMission_Troop* pTroop);
 
-    void Troop_Died(const sMission_Troop* pTroop);
     std::vector<sHero> Heroes_Get() const;
 
     std::string ToJson(const std::string& pName);

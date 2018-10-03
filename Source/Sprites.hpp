@@ -275,10 +275,11 @@ struct sSprite {
 	int8 field_5A;
 	int8 field_5B;			// Human: Is Sinking
 	int8 field_5C;			// 1 = Was Drawn
-	int8 field_5D;          // 5E contains index into mGame_Data.mSoldiers_Allocated
 
+	int8 field_5D;          // 5E contains index into mGame_Data.mSoldiers_Allocated
+    // Eventually this should be replaced
     union {
-        int16 field_5E;			// Index inside mSprites (if 5D == false)
+        int32 field_5E;			// Index inside mSprites (if 5D == false)
         sMission_Troop *field_5E_SoldierAllocated;
     };
 
@@ -288,7 +289,8 @@ struct sSprite {
 	int8 field_64;
 	int8 field_65;			// -1 = Enabled?
 	sSprite* field_66;		// Human-Player: Vehicle Walk Target
-
+    
+                            // Eventually this should be replaced
 	union {
 		int64	 field_6A;
 		sSprite* field_6A_sprite;	// Human-Player: Current Vehicle

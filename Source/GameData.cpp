@@ -84,14 +84,14 @@ void sGameData::Clear() {
     for (auto& Troop : mSoldiers_Allocated)
         Troop.Clear();
 
-	mTroops_Away = 0;
-	mTroops_Home = 0;
+	mScore_Kills_Away = 0;
+	mScore_Kills_Home = 0;
 
-	Troops_Clear();
+	Soldier_Clear();
 	mSoldiers_Died.clear();
 }
 
-void sGameData::Troops_Clear() {
+void sGameData::Soldier_Clear() {
 
 	for( auto& Troop : mSoldiers_Allocated) {
         Troop.mSprite = INVALID_SPRITE_PTR;
@@ -101,23 +101,56 @@ void sGameData::Troops_Clear() {
 	}
 }
 
-/*void sGameData::Troops_Sort() {
+void sGameData::Soldier_Sort() {
 
-    sort(mSoldiers_Allocated.begin(), mSoldiers_Allocated.end(),
-        [](const sMission_Troop & a, const sMission_Troop & b) -> bool
-    {
-        // if rank is not equal
-        if (a.mRank != b.mRank)
-            return false;
+    // Remove any 'dead' troops
+    for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
 
-        // Has less kills
-        if (a.mNumberOfKills <= b.mNumberOfKills)
-            return false;
-        return true;
-    });
-}*/
+        sMission_Troop* Data20 = mSoldiers_Allocated;
 
-void sGameData::Troop_Died(const sMission_Troop* pTroop) {
+        for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
+
+            if (Data20->mRecruitID == -1) {
+
+                sMission_Troop* Data24 = Data20 + 1;
+
+                *Data20 = *Data24;
+                Data24->Clear();
+                Data24->mRecruitID = -1;
+                Data24->mRank = 0;
+            }
+        }
+    }
+
+    // Sort by kills
+
+    sMission_Troop* Data20 = mSoldiers_Allocated;
+    for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
+        sMission_Troop* Data24 = mSoldiers_Allocated;
+
+        for (int16 Data18 = 7; Data18 >= 0; --Data18, ++Data24) {
+
+            if (Data20 == Data24)
+                continue;
+
+            if (Data20->mRecruitID == -1 || Data24->mRecruitID == -1)
+                continue;
+
+            if (Data20->mRank != Data24->mRank)
+                continue;
+
+            if (Data20->mNumberOfKills <= Data24->mNumberOfKills)
+                continue;
+
+            sMission_Troop Spare = *Data20;
+
+            *Data20 = *Data24;
+            *Data24 = Spare;
+        }
+    }
+}
+
+void sGameData::Soldier_Died(const sMission_Troop* pTroop) {
     if (!pTroop)
         return;
 
@@ -218,8 +251,8 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Save["mHeroes"].push_back(JsonHero);
 	}
 
-	Save["mTroops_Away"] = mTroops_Away;
-	Save["mTroops_Home"] = mTroops_Home;
+	Save["mTroops_Away"] = mScore_Kills_Away;
+	Save["mTroops_Home"] = mScore_Kills_Home;
 
 	return Save.dump(1);
 }
@@ -272,8 +305,8 @@ bool sGameData::FromJson(const std::string& pJson) {
 			mSoldiers_Died.push_back(Heroes);
 		}
 
-		mTroops_Away = LoadedData["mTroops_Away"];
-		mTroops_Home = LoadedData["mTroops_Home"];
+		mScore_Kills_Away = LoadedData["mTroops_Away"];
+		mScore_Kills_Home = LoadedData["mTroops_Home"];
 
 	 } catch (std::exception Exception) {
 		 std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
