@@ -3143,6 +3143,8 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
         exit(1);
     }
 
+    mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
+
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
     mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
 
@@ -3814,7 +3816,6 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (int16)mCampaignList.size();
-    mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
 
     // Create the title screen depending on which data is loaded
     if (mVersionCurrent->isRetail()) {
@@ -4100,8 +4101,6 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
 
     int16 Timedown = 0;
     do {
-        mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
-
         Sprite_Frame_Modifier_Update();
         Mission_Sprites_Handle();
 
@@ -10132,8 +10131,6 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
     bool mShow = false;
 
     do {
-        mGUI_Select_File_ShownItems = VERSION_BASED(4, 5);
-
         if (mImageFaded == -1)
             mImageFaded = mSurface->palette_FadeTowardNew();
 
