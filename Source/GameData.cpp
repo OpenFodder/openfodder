@@ -94,10 +94,9 @@ void sGameData::Clear() {
 void sGameData::Soldier_Clear() {
 
 	for( auto& Troop : mSoldiers_Allocated) {
-        Troop.mSprite = INVALID_SPRITE_PTR;
-		Troop.mRecruitID = -1;
-		Troop.mRank = 0;
-		Troop.mPhaseCount = 0;
+        
+        Troop.Clear();
+        Troop.mRecruitID = -1;
 	}
 }
 

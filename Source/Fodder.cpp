@@ -420,9 +420,6 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
             //loc_10A11
             mCamera_Panning_ToTarget = true;
 
-            mCamera_PanTargetX = SquadLeaderX;
-            mCamera_PanTargetY = SquadLeaderY;
-            // Original Logic
             mCamera_PanTargetX = (mCameraX >> 16) + 0x80;
             mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
         }

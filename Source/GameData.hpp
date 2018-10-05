@@ -38,6 +38,7 @@ struct sMission_Troop {
     }
 
     void Clear() {
+        mPhaseCount = 0;
         mRecruitID = 0;
         mRank = 0;
         mNumberOfKills = 0;
