@@ -397,6 +397,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     int16 Data18 = SquadLeaderX;
     int16 Data1C = SquadLeaderY;
 
+
     mCamera_Scroll_Speed = CAMERA_TOWARD_SQUAD_SPEED;
 
     // Mouse near sidebar?
@@ -10875,6 +10876,7 @@ void cFodder::Squad_Select(int16 pData4, bool pCheckMouse) {
     if (Data20 == INVALID_SPRITE_PTR)
         return;
 
+    mCamera_Panning_ToTarget = false;
     mCamera_StartPosition_X = Data20->field_0;
     mCamera_StartPosition_Y = Data20->field_4;
     mCamera_Start_Adjust = true;
