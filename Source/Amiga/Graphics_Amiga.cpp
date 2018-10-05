@@ -1125,7 +1125,7 @@ void cGraphics_Amiga::Recruit_Draw_HomeAway() {
 	const char* strHomeAndAway = "HOME                AWAY";
 
 	mFodder->GUI_Draw_Frame_8( 0x11, 0, 0xfe, 0 );
-	int16 Data4 = mFodder->mMission_Save_Availability[(mFodder->mGame_Data.mMissionNumber - 1)];
+	int16 Data4 = mFodder->mMission_Save_Blocked[(mFodder->mGame_Data.mMissionNumber - 1)];
 
 	// Draw Icon
 	mFodder->GUI_Draw_Frame_8( 0x16, 0x0, 0x0, 0 );

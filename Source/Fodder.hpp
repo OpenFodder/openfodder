@@ -135,13 +135,8 @@ public:
 
     bool            mVehicle_Input_Disabled;
 
-    int16           mMapTile_PreviousMoveDirectionX;
-    int16           word_39FA2;
-    int16           mMapTile_Column;
-    int16           mMapTile_Row;
-    int16           word_39FAC;
 
-    int16           word_39FAE;
+
 
 
     int16           mMouse_Button_Left_Toggle;
@@ -153,18 +148,26 @@ public:
     cPosition       mMouse_EventLastPosition;
     uint32          mMouse_EventLastButtonsPressed;
     cPosition       mMouse_EventLastWheel;
+    bool            mMouse_Locked;
 
     bool            mSquad_Member_Fire_CoolDown_Override;
 
 
     int32           dword_39F36;
 
+    int16           mMapTile_DrawX;
+    int16           mMapTile_DrawY;
     int16           mMapTile_MoveDirectionX;
     int16           mMapTile_MoveDirectionY;
-    int32           mMapTile_X;
-    int32           mMapTile_Y;
+    int16           mMapTile_MoveDirectionX_Previous;
+    int16           mMapTile_MoveDirectionY_Previous;
     int32           mMapTile_SpeedX;
     int32           mMapTile_SpeedY;
+    int16           mMapTile_SpeedX_Previous;
+    int16           mMapTile_SpeedY_Previous;
+
+    int32           mMapTile_TargetX;
+    int32           mMapTile_TargetY;
 
     int16           mCamera_Panning_ToTarget;
     int32           mCamera_AccelerationX;
@@ -208,7 +211,7 @@ public:
 
     uint16          mSidebar_SmallMode;
     int32           dword_3A030;
-    bool            mMouse_Locked;
+
     int8            mSquads_TroopCount[4];
     uint8           byte_3A05E;
     uint16          word_3A05F;
@@ -343,7 +346,7 @@ public:
     int16           mMission_Final_TimeToDie_Ticker;
     int16           mMission_Final_TimeRemain;
     int16           mMission_Final_TimeToAbort;
-    int16           mMission_Save_Availability[0x18];
+    int16           mMission_Save_Blocked[0x18];
 
     sSprite*        mSquad_CurrentVehicles[3];
     sSprite*        mSquad_CurrentVehicle;
@@ -1038,8 +1041,8 @@ public:
     void            MapTile_Move_Down(int16 pPanTiles);
     void            MapTile_Move_Up(int16 pPanTiles);
 
-    void            MapTile_Update_Row();
-    void            MapTile_Update_Column();
+    void            MapTile_Update_Y();
+    void            MapTile_Update_X();
 
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
     sSprite*		Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
