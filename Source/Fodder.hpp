@@ -602,7 +602,7 @@ public:
     void            Mission_Troops_Clear_Selected();
 
     void            Camera_Speed_Update_From_PanTarget();
-    int16           sub_119E1(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
+    int16           sub_119E1(int16& pX1, int16& pY1, int16 pX2, int16 pY2);
 
     void            Camera_Speed_Calculate();
     void            sub_11CAD();

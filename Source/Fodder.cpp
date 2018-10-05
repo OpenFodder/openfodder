@@ -403,16 +403,23 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     if (mMouseX <= 0x0F) {
 
         if (mCamera_Panning_ToTarget) {
-            mCamera_PanTargetX += (SquadLeaderX - mCamera_SquadLeaderX);
-            mCamera_PanTargetY += (SquadLeaderY - mCamera_SquadLeaderY);
+            mCamera_PanTargetX = SquadLeaderX;
+            mCamera_PanTargetY = SquadLeaderY;
+            // Original Logic
+            //mCamera_PanTargetX += (SquadLeaderX - mCamera_SquadLeaderX);
+            //mCamera_PanTargetY += (SquadLeaderY - mCamera_SquadLeaderY);
 
             mCamera_SquadLeaderX = SquadLeaderX;
             mCamera_SquadLeaderY = SquadLeaderY;
         } else {
             //loc_10A11
             mCamera_Panning_ToTarget = true;
-            mCamera_PanTargetX = (mCameraX >> 16) + 0x80;
-            mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
+
+            mCamera_PanTargetX = SquadLeaderX;
+            mCamera_PanTargetY = SquadLeaderY;
+            // Original Logic
+            //mCamera_PanTargetX = (mCameraX >> 16) + 0x80;
+            //mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
         }
         //loc_10A3A
         mMouse_Locked = false;
@@ -1376,25 +1383,21 @@ void cFodder::Phase_Soldiers_AttachToSprites() {
 }
 
 void cFodder::Camera_Speed_Update_From_PanTarget() {
-    int16 Data4 = mCamera_PanTargetY;
-    Data4 -= 108;
-
+    int16 Data4 = mCamera_PanTargetY - 108;
     if (Data4 < 0)
         Data4 = 0;
 
-    int16 Data0 = mCamera_PanTargetX;
-    Data0 -= 128;
-
+    int16 Data0 = mCamera_PanTargetX - 128;
     if (Data0 < 0)
         Data0 = 0;
 
     int16 Data8 = mCameraX >> 16;
     int16 DataC = mCameraY >> 16;
 
-    int16 Data0_Saved = Data0;
-    int16 Data4_Saved = Data4;
-    int16 Data8_Saved = Data8;
-    int16 DataC_Saved = DataC;
+    int16 PanTargetX = Data0;
+    int16 PanTargetY = Data4;
+    int16 CameraX = Data8;
+    int16 CameraY = DataC;
 
     Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
     if (Data0 > 0x10) {
@@ -1411,10 +1414,10 @@ void cFodder::Camera_Speed_Update_From_PanTarget() {
         dword_39F36 = Data0 << 16;
     }
 
-    DataC = DataC_Saved;
-    Data8 = Data8_Saved;
-    Data4 = Data4_Saved;
-    Data0 = Data0_Saved;
+    DataC = CameraY;
+    Data8 = CameraX;
+    Data4 = PanTargetY;
+    Data0 = PanTargetX;
 
     if (sub_119E1(Data0, Data4, Data8, DataC) >= 0) {
 
@@ -1455,81 +1458,78 @@ void cFodder::Camera_Speed_Update_From_PanTarget() {
 
 }
 
-int16 cFodder::sub_119E1(int16& pData0, int16& pData4, int16& pData8, int16& pDataC) {
+int16 cFodder::sub_119E1(int16& pX1, int16& pY1, int16 pX2, int16 pY2) {
 
     int16 Data10 = 0, Data14 = 0;
 
-    pData0 -= pData8;
-    pData4 -= pDataC;
+    pX1 -= pX2;
+    pY1 -= pY2;
 
-    if (pData0 < 0)
+    if (pX1 < 0)
         Data10 = 1;
 
     Data10 = -Data10;
-    if (pData0 < 0)
-        pData0 = -pData0;
+    if (pX1 < 0)
+        pX1 = -pX1;
 
 
-    if (pData4 < 0)
+    if (pY1 < 0)
         Data14 = 1;
 
     Data14 = -Data14;
-    if (pData4 < 0)
-        pData4 = -pData4;
+    if (pY1 < 0)
+        pY1 = -pY1;
 
-    pData8 = 0x0E;
-
-    for (pData8 = 0x0E; pData8 >= 0; --pData8) {
-
-        if (pData0 & (1 << pData8))
+    int16 count = 0;
+    for (count = 0x0E; count >= 0; --count) {
+        if (pX1 & (1 << count))
             break;
-
-        if (pData4 & (1 << pData8))
+        if (pY1 & (1 << count))
             break;
     }
 
-    pData8 -= 4;
-    if (pData8 >= 0) {
-        pData0 >>= pData8;
-        pData4 >>= pData8;
+    count -= 4;
+    if (count >= 0) {
+        pX1 >>= count;
+        pY1 >>= count;
     }
-    pData4 <<= 5;
-    pData4 |= pData0;
+    pY1 <<= 5;
+    pY1 |= pX1;
 
-    pData4 = mMap_DirectionsBetweenPoints[pData4];
-    if (pData4 < 0)
+    pY1 = mMap_DirectionsBetweenPoints[pY1];
+    if (pY1 < 0)
         return -1;
 
-    pData4 <<= 1;
-    if (Data10 < 0)
-        goto loc_11AD2;
-
-    if (Data14 < 0)
-        goto loc_11ABC;
-
-    pData0 = 0x80;
-    pData0 -= pData4;
-    pData4 = 0;
-    return 0;
-
-loc_11ABC:;
-    pData0 = 0x80;
-    pData0 += pData4;
-    pData4 = 0;
-    return 0;
-
-loc_11AD2:;
-    if (Data14 >= 0) {
-        pData0 = 0x180;
-        pData0 += pData4;
-        pData4 = 0;
+    pY1 <<= 1;
+    if (Data10 < 0) {
+    loc_11AD2:;
+        if (Data14 >= 0) {
+            pX1 = 0x180;
+            pX1 += pY1;
+            pY1 = 0;
+            return 0;
+        }
+        //loc_11AEF
+        pX1 = 0x180;
+        pX1 -= pY1;
+        pY1 = 0;
         return 0;
     }
-    //loc_11AEF
-    pData0 = 0x180;
-    pData0 -= pData4;
-    pData4 = 0;
+
+    if (Data14 < 0) {
+    loc_11ABC:;
+        pX1 = 0x80;
+        pX1 += pY1;
+        pY1 = 0;
+        return 0;
+    }
+
+    pX1 = 0x80;
+    pX1 -= pY1;
+    pY1 = 0;
     return 0;
+
+
 }
 
 void cFodder::Camera_Speed_Calculate() {
@@ -1544,7 +1544,7 @@ void cFodder::Camera_Speed_Calculate() {
 
     if (Data0 != mCamera_MoveDirectionX) {
         mCamera_MoveDirectionX = Data0;
-        mCamera_MovePauseX = 3;
+        mCamera_MovePauseX = 9;
     }
 
     if (mCamera_MovePauseX)
@@ -1556,27 +1556,24 @@ void cFodder::Camera_Speed_Calculate() {
 
     if (Data0 != mCamera_MoveDirectionY) {
         mCamera_MoveDirectionY = Data0;
-        mCamera_MovePauseY = 3;
+        mCamera_MovePauseY = 9;
     }
 
     if (mCamera_MovePauseY)
         mCamera_Speed_Y = 0;
 
     //loc_11B9C
-    Data0 = mMapWidth_Pixels;
-    Data0 -= 0x110;
+    Data0 = mMapWidth_Pixels -0x110;
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
-    int32 Data4 = mCameraX;
-    Data4 += mCamera_Speed_X;
+    int32 Data4 = mCameraX + mCamera_Speed_X;
 
     if (Data4 > Data0) {
         Data0 -= mCameraX;
         mCamera_Speed_X = Data0;
     }
     //loc_11BE8
-    Data0 = mMapHeight_Pixels;
-    Data0 -= mWindow->GetScreenSize().mHeight;
+    Data0 = mMapHeight_Pixels - mWindow->GetScreenSize().mHeight;
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     Data4 = mCameraY + mCamera_Speed_Y;
@@ -2076,9 +2073,8 @@ void cFodder::Camera_TileSpeedX_Set() {
     mCamera_TileSpeed_Overflow = 0;
 
     int32 dword_39F5A = mCameraX;
-    int32 Data0 = mCamera_Speed_X;
 
-    mCameraX += Data0;
+    mCameraX += mCamera_Speed_X;
     if (mCameraX < 0) {
         mCamera_Speed_X = dword_39F5A;
         if (mCamera_Speed_X)
@@ -2114,9 +2110,7 @@ void cFodder::Camera_TileSpeedY_Set() {
 
     int32 dword_39F5A = mCameraY;
 
-    int32 Data0 = mCamera_Speed_Y;
-    mCameraY += Data0;
-
+    mCameraY += mCamera_Speed_Y;
     if (mCameraY < 0) {
         mCamera_Speed_Y = dword_39F5A;
 
@@ -2127,10 +2121,8 @@ void cFodder::Camera_TileSpeedY_Set() {
     }
 
     //loc_121F2
-    Data0 = mCamera_Speed_Y;
-    Data0 += mCamera_TileSpeed_Overflow;
 
-    mCamera_TileSpeedY += Data0;
+    mCamera_TileSpeedY += (mCamera_Speed_Y + mCamera_TileSpeed_Overflow);
     mCamera_TileSpeedY &= (0x00FF << 16) | 0xFFFF;
 }
 
@@ -2170,14 +2162,14 @@ void cFodder::Camera_Acceleration_Set() {
     DistanceX -= mCameraX >> 16;
     DistanceY -= mCameraY >> 16;
 
-    if (mCamera_Speed_Reset_X && DistanceX > 0x90 && DistanceX < 0xCF) {
+    if (mCamera_Speed_Reset_X && DistanceX > 0x90 && DistanceX < 0xCF) { // 90 / A2 = Amiga
         mCamera_Speed_Reset_X = false;
-        mCamera_AccelerationX = mCamera_AccelerationX & 0xFFFF;
+        mCamera_AccelerationX = 0;
     }
 
-    if (mCamera_Speed_Reset_Y && DistanceY > 0x60 && DistanceY < 0x87) {
-        mCamera_Speed_Reset_Y = 0;
-        mCamera_AccelerationY &= 0xFFFF;
+    if (mCamera_Speed_Reset_Y && DistanceY > 0x60 && DistanceY < 0x87) {    // 64 / 8F = Amiga
+        mCamera_Speed_Reset_Y = false;
+        mCamera_AccelerationY = 0;
     }
     //loc_1234F
     if (DistanceX <= 0x40) {
@@ -2210,10 +2202,6 @@ void cFodder::Mission_Sprites_Handle() {
 
     Sprite_Sort_DrawList();
 
-    int16 Data0 = (mCameraX >> 16) - (mMapTile_X >> 16);
-
-    Data0 = (mCameraY >> 16);
-    Data0 -= (mMapTile_Y >> 16);
 
     mMapTile_X = mCameraX;
     mMapTile_Y = mCameraY;
