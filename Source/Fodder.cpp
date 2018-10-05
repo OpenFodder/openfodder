@@ -403,8 +403,13 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     if (mMouseX <= 0x0F) {
 
         if (mCamera_Panning_ToTarget) {
-            mCamera_PanTargetX = SquadLeaderX;
-            mCamera_PanTargetY = SquadLeaderY;
+
+            if ((SquadLeaderX - mCamera_SquadLeaderX) > 0 || 
+                (SquadLeaderY - mCamera_SquadLeaderY) > 0) {
+                mCamera_PanTargetX = SquadLeaderX;
+                mCamera_PanTargetY = SquadLeaderY;
+            }
+
             // Original Logic
             //mCamera_PanTargetX += (SquadLeaderX - mCamera_SquadLeaderX);
             //mCamera_PanTargetY += (SquadLeaderY - mCamera_SquadLeaderY);
@@ -418,8 +423,8 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
             mCamera_PanTargetX = SquadLeaderX;
             mCamera_PanTargetY = SquadLeaderY;
             // Original Logic
-            //mCamera_PanTargetX = (mCameraX >> 16) + 0x80;
-            //mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
+            mCamera_PanTargetX = (mCameraX >> 16) + 0x80;
+            mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
         }
         //loc_10A3A
         mMouse_Locked = false;
@@ -453,7 +458,6 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     SquadLeaderY = DataC_Saved;
     Data4 = Data4_Saved;    // MouseY
     Data0 = Data0_Saved;    // MouseX
-
 
     if (Direction_Between_Points(Data0, Data4, SquadLeaderX, SquadLeaderY) < 0)
         return;
@@ -1502,7 +1506,7 @@ int16 cFodder::sub_119E1(int16& pX1, int16& pY1, int16 pX2, int16 pY2) {
 
     pY1 <<= 1;
     if (Data10 < 0) {
-    loc_11AD2:;
+    //loc_11AD2
         if (Data14 >= 0) {
             pX1 = 0x180;
             pX1 += pY1;
@@ -1517,7 +1521,7 @@ int16 cFodder::sub_119E1(int16& pX1, int16& pY1, int16 pX2, int16 pY2) {
     }
 
     if (Data14 < 0) {
-    loc_11ABC:;
+    //loc_11ABC
         pX1 = 0x80;
         pX1 += pY1;
         pY1 = 0;
@@ -2026,6 +2030,9 @@ void cFodder::Camera_Pan_Set_Speed() {
         mCamera_Speed_Y = (mCamera_Speed_Y & 0xFFFF) | CAMERA_PAN_TO_START_ACCELARATION;    // (8 << 16);
 }
 
+/**
+ * Move the mouse position to follow the terrain as the camere pans
+ */
 void cFodder::Camera_Update_Mouse_Position_For_Pan() {
 
     if (!mMouse_Locked) {
@@ -2129,7 +2136,6 @@ void cFodder::Camera_TileSpeedY_Set() {
 void cFodder::Camera_Speed_MaxSet() {
 
     mCamera_Speed_Max = 0x20000;
-
     if (!mPhase_Aborted && !mPhase_TryAgain && !mPhase_Complete)
         return;
 

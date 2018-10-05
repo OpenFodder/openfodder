@@ -142,8 +142,7 @@ public:
     int16           word_39FAC;
 
     int16           word_39FAE;
-    int16           mCamera_MovePauseX;
-    int16           mCamera_MovePauseY;
+
 
     int16           mMouse_Button_Left_Toggle;
     int16           mMouse_Button_Right_Toggle;
@@ -157,13 +156,11 @@ public:
 
     bool            mSquad_Member_Fire_CoolDown_Override;
 
-    int32           mCamera_TileSpeedX;
-    int32           mCamera_TileSpeedY;
-    int32           dword_39F36;
-    int16           mCamera_Scroll_Speed;
-    int16           mCamera_SquadLeaderX;
-    int16           mCamera_SquadLeaderY;
 
+    int32           dword_39F36;
+
+    int16           mMapTile_MoveDirectionX;
+    int16           mMapTile_MoveDirectionY;
     int32           mMapTile_X;
     int32           mMapTile_Y;
     int32           mMapTile_SpeedX;
@@ -172,19 +169,29 @@ public:
     int16           mCamera_Panning_ToTarget;
     int32           mCamera_AccelerationX;
     int32           mCamera_AccelerationY;
+    int16           mCamera_MoveDirectionX;
+    int16           mCamera_MoveDirectionY;
+    int16           mCamera_MovePauseX;
+    int16           mCamera_MovePauseY;
+    int16           mCamera_PanTargetX;
+    int16           mCamera_PanTargetY;
+    int16           mCamera_Scroll_Speed;
     bool            mCamera_Speed_Reset_X;
     bool            mCamera_Speed_Reset_Y;
     int32           mCamera_Speed_X;
     int32           mCamera_Speed_Y;
+    int16           mCamera_StartPosition_X;
+    int16           mCamera_StartPosition_Y;
+    int16           mCamera_SquadLeaderX;
+    int16           mCamera_SquadLeaderY;
     int32           mCamera_TileSpeed_Overflow;
     int16           mCamera_TileX;
     int16           mCamera_TileY;
+    int32           mCamera_TileSpeedX;
+    int32           mCamera_TileSpeedY;
+
     int16           mKeyCodeAscii;
 
-    int16           mMapTile_MoveDirectionX;
-    int16           mMapTile_MoveDirectionY;
-    int16           mCamera_MoveDirectionX;
-    int16           mCamera_MoveDirectionY;
     sSprite*        mSquad_Leader;
     int16           mSquad_Selected;
     int16           mSquad_JoiningTo;
@@ -205,10 +212,6 @@ public:
     int8            mSquads_TroopCount[4];
     uint8           byte_3A05E;
     uint16          word_3A05F;
-    int16           mCamera_PanTargetX;
-    int16           mCamera_PanTargetY;
-    int16           mCamera_StartPosition_X;
-    int16           mCamera_StartPosition_Y;
 
     std::vector<sSprite*> mSprite_DrawList_First;
     std::vector<sSprite*> mSprite_DrawList_Second;
