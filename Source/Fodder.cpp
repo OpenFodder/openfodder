@@ -2350,6 +2350,9 @@ loc_126A6:;
 
 void cFodder::Phase_Goals_Set() {
 
+    for (auto& Goal : mGamePhase_Data.mGoals_Remaining)
+        Goal = false;
+
     for (auto Goal : mCampaign.getMapGoals(mGame_Data.mMapNumber)) {
 
         mGamePhase_Data.mGoals_Remaining[Goal - 1] = true;
@@ -10289,18 +10292,15 @@ void cFodder::String_Input_Print(int16 pPosY) {
     if (mKeyCodeAscii == 8)
         goto loc_2E675;
 
-    if (mKeyCodeAscii >= 0x30)
-        goto loc_2E628;
-
-    if (mKeyCodeAscii <= 0x39)
+    // Is Number
+    if (mKeyCodeAscii >= 0x30 && mKeyCodeAscii <= 0x39)
         goto loc_2E636;
 
-loc_2E628:;
     if (mKeyCodeAscii < 0x41 || mKeyCodeAscii > 0x5A)
         goto loc_2E6A4;
 
 loc_2E636:;
-    if (mInput.size() >= 8)
+    if (mInput.size() >= 12)
         goto loc_2E6A4;
 
     mInput.push_back((char)mKeyCodeAscii);
@@ -12091,17 +12091,14 @@ loc_19A9C:;
 void cFodder::Sprite_Handle_Bullet(sSprite* pSprite) {
     int16 Data8, DataC, Data0, Data4;
     int8 al;
-    sSprite* Data28;
 
     pSprite->field_64 += 1;
 
     if (!pSprite->field_2A)
         goto loc_19BA8;
 
-    Data28 = pSprite->field_1A_sprite;
-
-    Data0 = Data28->field_0;
-    Data4 = Data28->field_4;
+    Data0 = pSprite->field_1A_sprite->field_0;
+    Data4 = pSprite->field_1A_sprite->field_4;
 
     Data0 += pSprite->field_16;
     Data4 += pSprite->field_14;
@@ -12118,8 +12115,8 @@ void cFodder::Sprite_Handle_Bullet(sSprite* pSprite) {
     if (pSprite->field_22 != eSprite_PersonType_Human)
         pSprite->field_A = 3;
 
-    Data0 = Data28->field_0;
-    Data4 = Data28->field_4;
+    Data0 = pSprite->field_1A_sprite->field_0;
+    Data4 = pSprite->field_1A_sprite->field_4;
     Data0 += 7;
     Data4 += 5;
     pSprite->field_0 = Data0;
@@ -14198,14 +14195,11 @@ loc_1C82D:;
 loc_1C87E:;
 
     pSprite->field_57 = 0x3F;
-    Data0 = tool_RandomGet() & 0x3F;
 
-    Data0 += mMapTile_TargetX >> 16;
-    Data0 += 0x140;
+    Data0 = (tool_RandomGet() & 0x3F) + (mMapTile_TargetX >> 16) + 0x140;
     pSprite->field_0 = Data0;
 
-    Data0 = tool_RandomGet() & 0xFF;
-    Data0 += mMapTile_TargetY >> 16;
+    Data0 = (tool_RandomGet() & 0xFF) + (mMapTile_TargetY >> 16);
     pSprite->field_4 = Data0;
 
 loc_1C8C5:;

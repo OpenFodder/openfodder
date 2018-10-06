@@ -212,13 +212,13 @@ struct sSprite {
 	int16 field_E;
 	int16 field_10;		// Next Direction
 	int16 field_12;
-	int16 field_14;
-	int16 field_16;
+	int16 field_14;     //  Projectile: Add to Y
+	int16 field_16;     //  Projectile: Add to X
 	int16 field_18;		// Sprite Type
 
 	union {
 		int32		field_1A;
-		sSprite*	field_1A_sprite;
+		sSprite*	field_1A_sprite;    // Created by Sprite
 	};
 
 	union {
@@ -280,7 +280,7 @@ struct sSprite {
     // Eventually this should be replaced
     union {
         int32 field_5E;			// Index inside mSprites (if 5D == false)
-        sMission_Troop *field_5E_SoldierAllocated;
+        sMission_Troop *field_5E_SoldierAllocated;  // Soldier Ptr who killed sprite
     };
 
 	int8 field_60;			// Current Terrain Type
