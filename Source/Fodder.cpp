@@ -10434,6 +10434,11 @@ std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>
         }
     }
 
+    // Sort newest first
+    std::sort(Results.begin(), Results.end(), [](sSavedGame& pLeft, sSavedGame& pRight) {
+        return std::atoll(pLeft.mFileName.c_str()) > std::atoll(pRight.mFileName.c_str());
+    });
+
     return Results;
 }
 

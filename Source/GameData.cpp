@@ -21,6 +21,7 @@
 */
 
 #include "stdafx.hpp"
+#include <chrono>
 
 #include "Utils/json.hpp"
 using Json = nlohmann::json;
@@ -191,11 +192,14 @@ std::vector<sHero> sGameData::Heroes_Get() const {
 }
 
 std::string sGameData::ToJson(const std::string& pSaveName) {
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
 	Json Save;
 
 	// Not used yet
 	Save["SaveVersion"] = 2;
+    Save["Timestamp"] = in_time_t;
 
 	// Save the current game data version
 	{
@@ -230,9 +234,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Json Troop;
 		Troop["mRecruitID"] = MissionTroop.mRecruitID;
 		Troop["mRank"] = MissionTroop.mRank;
-		Troop["mPhaseCount"] = MissionTroop.mPhaseCount;
 		Troop["field_6"] = MissionTroop.field_6;
-		Troop["mSelected"] = MissionTroop.mSelected;
 		Troop["mNumberOfKills"] = MissionTroop.mNumberOfKills;
 
 		Save["mMission_Troops"].push_back(Troop);
@@ -255,60 +257,79 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 }
 
 bool sGameData::FromJson(const std::string& pJson) {
+    Json LoadedData;
 
 	 try {
-		Json LoadedData = Json::parse(pJson);
+		LoadedData = Json::parse(pJson);
+     }
+     catch (std::exception Exception) {
+         std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
+         return false;
+     }
 
-		Clear();
+     Clear();
 
-		mSavedName = LoadedData["SaveName"];
-		mCampaignName = LoadedData["Campaign"];
+     uint64 Version = LoadedData["SaveVersion"];
+     if (Version >= 2) {
+         try {
+             // Save["Timestamp"]
+         }
+         catch (std::exception Exception) {
+             std::cout << "V2 Elements not found: " << Exception.what() << "\n";
+             return false;
+         }
+     }
 
-		mSavedVersion.mName = LoadedData["DataVersion"]["mName"];
-		mSavedVersion.mGame = LoadedData["DataVersion"]["mGame"];
-		mSavedVersion.mPlatform = LoadedData["DataVersion"]["mPlatform"];
-		mSavedVersion.mRelease = LoadedData["DataVersion"]["mRelease"];
+     if (Version >= 1) {
+         try {
+             mSavedName = LoadedData["SaveName"];
+             mCampaignName = LoadedData["Campaign"];
 
-		mMapNumber = LoadedData["mMapNumber"];
+             mSavedVersion.mName = LoadedData["DataVersion"]["mName"];
+             mSavedVersion.mGame = LoadedData["DataVersion"]["mGame"];
+             mSavedVersion.mPlatform = LoadedData["DataVersion"]["mPlatform"];
+             mSavedVersion.mRelease = LoadedData["DataVersion"]["mRelease"];
 
-		mMissionNumber = LoadedData["mMissionNumber"];
-		mMission_Phase = LoadedData["mMissionPhase"];
-		mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
+             mMapNumber = LoadedData["mMapNumber"];
 
-		mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
-		mMission_Recruitment = LoadedData["mMission_Recruitment"];
-		mMission_Phases_Remaining = LoadedData["mMission_Phases_Remaining"];
-		mMission_Phases_Total = LoadedData["mMission_Phases_Total"];
-		mRecruit_NextID = LoadedData["mRecruit_NextID"];
+             mMissionNumber = LoadedData["mMissionNumber"];
+             mMission_Phase = LoadedData["mMissionPhase"];
+             mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
 
-		int x = 0;
-		for (auto& MissionTroop : LoadedData["mMission_Troops"]) {
-			mSoldiers_Allocated[x].mRecruitID = MissionTroop["mRecruitID"];
-			mSoldiers_Allocated[x].mRank = MissionTroop["mRank"];
-			mSoldiers_Allocated[x].mPhaseCount = MissionTroop["mPhaseCount"];
-			mSoldiers_Allocated[x].field_6 = MissionTroop["field_6"];
-			mSoldiers_Allocated[x].mSelected = MissionTroop["mSelected"];
-			mSoldiers_Allocated[x].mNumberOfKills = MissionTroop["mNumberOfKills"];
-			if (++x == 9)
-				break;
-		}
+             mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
+             mMission_Recruitment = LoadedData["mMission_Recruitment"];
+             mMission_Phases_Remaining = LoadedData["mMission_Phases_Remaining"];
+             mMission_Phases_Total = LoadedData["mMission_Phases_Total"];
+             mRecruit_NextID = LoadedData["mRecruit_NextID"];
 
-		for (auto& Hero : LoadedData["mHeroes"]) {
-			sHero Heroes;
-			Heroes.mRecruitID = Hero["mRecruitID"];
-			Heroes.mRank = Hero["mRank"];
-			Heroes.mKills = Hero["mKills"];
+             int x = 0;
+             for (auto& MissionTroop : LoadedData["mMission_Troops"]) {
+                 mSoldiers_Allocated[x].mRecruitID = MissionTroop["mRecruitID"];
+                 mSoldiers_Allocated[x].mRank = MissionTroop["mRank"];
+                 mSoldiers_Allocated[x].field_6 = MissionTroop["field_6"];
+                 mSoldiers_Allocated[x].mNumberOfKills = MissionTroop["mNumberOfKills"];
+                 if (++x == 9)
+                     break;
+             }
 
-			mSoldiers_Died.push_back(Heroes);
-		}
+             for (auto& Hero : LoadedData["mHeroes"]) {
+                 sHero Heroes;
+                 Heroes.mRecruitID = Hero["mRecruitID"];
+                 Heroes.mRank = Hero["mRank"];
+                 Heroes.mKills = Hero["mKills"];
 
-		mScore_Kills_Away = LoadedData["mTroops_Away"];
-		mScore_Kills_Home = LoadedData["mTroops_Home"];
+                 mSoldiers_Died.push_back(Heroes);
+             }
 
-	 } catch (std::exception Exception) {
-		 std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
-		 return false;
-	}
+             mScore_Kills_Away = LoadedData["mTroops_Away"];
+             mScore_Kills_Home = LoadedData["mTroops_Home"];
+
+         }
+         catch (std::exception Exception) {
+             std::cout << "V1 Elements not found: " << Exception.what() << "\n";
+             return false;
+         }
+     }
 
 	return true;
 }
