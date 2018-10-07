@@ -679,6 +679,9 @@ void cGraphics_Amiga::Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, 
 		// Each Tile Row
 		for (uint16 i = 0; i < 16; ++i) {
 
+            if (TilePtr > mBlkData->data() + mBlkData->size())
+                return;
+
 			uint16 RowData = readBEWord(TilePtr);
 			TilePtr += 2;
 

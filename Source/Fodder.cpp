@@ -9323,7 +9323,7 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
 
 sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
 
-    int16 Data0 = 0;
+    int16 Data0 = 2;
 
     sSprite* Data2C, *Data30;
 
