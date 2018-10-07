@@ -57,7 +57,12 @@ struct sRelease {
 	eRelease			mRelease;
 };
 
-struct sVersion {
+class cResources;
+class cGraphics;
+class cSound;
+
+
+struct sGameVersion {
 	const std::string	mName;
 
 	const eGame				mGame;
@@ -73,17 +78,14 @@ struct sVersion {
 
 
 	bool hasGfx(eGFX_Types pGfxType) const {
-
 		return std::find(mGfxTypes.begin(), mGfxTypes.end(), pGfxType) != mGfxTypes.end();
 	}
 
 	bool hasTileset(eTileTypes pTileType) const {
-
 		return std::find(mTileTypes.begin(), mTileTypes.end(), pTileType) != mTileTypes.end();
 	}
 
 	bool isCustom() const {
-
 		return mRelease == eRelease::Custom;
 	}
 
@@ -114,18 +116,50 @@ struct sVersion {
 		return mPlatform == ePlatform::PC;
 	}
 
+    cDimension GetScreenSize() const {
+        if (isAmiga())
+            return { 320,225 };
+
+        return { 320,200 };
+    }
+
+    cDimension GetOriginalRes() const {
+        if (isAmiga())
+            return { 320,225 };
+
+        return { 320,200 };
+    }
+
+    cDimension GetSecondScreenSize() const {
+        if (isAmiga())
+            return { 320,260 };
+
+        return { 320,200 };
+    }
+
+    std::shared_ptr<cResources> GetResources(const std::string& pDataPathOverride) const;
+    std::shared_ptr<cGraphics> GetGraphics() const;
+    std::shared_ptr<cSound> GetSound() const;
 };
 
-extern const sVersion Versions[];
-extern std::vector<const sVersion*> g_AvailableDataVersions;
+class cVersions {
 
-bool isCampaignKnown(const std::string& pName);
-bool IsCampaignDataAvailable(const std::string& pName);
+    std::vector<const sGameVersion*> mAvailable;
 
-std::vector<std::string> GetAvailableVersions();
-void FindFodderVersions();
+protected:
+    void FindKnownVersions();
 
-const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign);
-const sVersion* FindAvailableVersionForCampaignPlatform(const std::string& pCampaign, const ePlatform pPlatform);
-const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType);
-const sVersion* FindAvailableRetail();
+public:
+    cVersions();
+
+    bool isCampaignKnown(const std::string& pName) const;
+    bool isCampaignAvailable(const std::string& pName) const;
+    bool isDataAvailable() const;
+
+    std::vector<std::string> GetCampaignNames() const;
+
+    const sGameVersion* GetForCampaign(const std::string& pCampaign) const;
+    const sGameVersion* GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const;
+    const sGameVersion* GetForTileset(eTileTypes pTileType) const;
+    const sGameVersion* GetRetail() const;
+};

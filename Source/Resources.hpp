@@ -32,10 +32,9 @@ struct cResource_File {
 
 };
 
-class cResources : public cSingleton<cResources> {
+class cResources {
 protected:
 	std::string						mDataPath;
-
 
 
 public:

@@ -34,4 +34,9 @@ class cDimension {
 		int getWidth() const { return mWidth; }
 		int getHeight() const { return mHeight; }
 
+        cPosition getCentre() const { return { mWidth / 2, mHeight / 2 }; };
+
+        cDimension operator/(const cDimension& pDim) {
+            return cDimension(mWidth / pDim.mWidth, mHeight / pDim.mHeight);
+        }
 };

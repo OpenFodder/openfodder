@@ -28,7 +28,6 @@ struct sMission_Troop {
     sSprite*    mSprite;
 
     uint16      field_6;            // Unknown: This value is referenced, but it has no effect
-    int8        field_8;            // Unknown: Unused
     int8        mSelected;
     uint16      mNumberOfKills;
 
@@ -39,6 +38,7 @@ struct sMission_Troop {
     }
 
     void Clear() {
+        mPhaseCount = 0;
         mRecruitID = 0;
         mRank = 0;
         mNumberOfKills = 0;
@@ -46,13 +46,23 @@ struct sMission_Troop {
         mSprite = (sSprite*)-1;
 
         field_6 = 0;
-        field_8 = 0;
         mSelected = 0;
+    }
+
+    uint8 GetPromotedRank() const {
+        auto newRank = (mPhaseCount + mRank);
+        return (newRank > 0x0F) ? 0x0F : newRank;
+    }
+
+    void Promote() {
+
+        if(mRecruitID!= -1)
+            mRank = GetPromotedRank();
     }
 };
 
 struct sHero {
-    int16    mRecruitID;
+    int16   mRecruitID;
     int16   mRank;
     int16   mKills;
 
@@ -69,22 +79,14 @@ struct sHero {
     }
 };
 
-struct sGameData {
-    uint16          mMapNumber;
+struct sGamePhaseData {
 
+    int16           mSoldiers_Required;
+    int16           mSoldiers_Allocated_Count;
+    int16           mSoldiers_Available;
+    bool            mSoldiers_Prepare_SetFromSpritePtrs;
 
-    uint16          mMissionNumber;
-    uint16          mMissionPhase;
-    uint16          mRecruits_Available_Count;
-    int16           mMission_Troop_Prepare_SetFromSpritePtrs;
-
-    uint16          mMission_Recruits_AliveCount;
-    int16           mMission_Recruitment;
-    int16           mMission_TryingAgain;
-    uint16          mMission_Phases_Remaining;
-    uint16          mMission_Phases_Total;
-    uint16          mRecruit_NextID;
-
+    // Aggression is set prior to entering a map
     int16           mSprite_Enemy_AggressionAverage;
     int16           mSprite_Enemy_AggressionMin;
     int16           mSprite_Enemy_AggressionMax;
@@ -92,18 +94,37 @@ struct sGameData {
     int16           mSprite_Enemy_AggressionIncrement;
     int16           mSprite_Enemy_AggressionCreated_Count;
 
-    sMission_Troop  mMission_Troops[9];
+    bool            mGoals_Remaining[10];
 
-    int16           mGraveRanks[361];
-    int16           mGraveRecruitID[361];
+    size_t          mTroops_DiedCount;  // Count of number of heroes who had died before mission started
 
-    std::vector<sHero> mHeroes;
+    bool            mIsComplete;
 
-    int16           mTroops_Away;
-    int16           mTroops_Home;
-    int16           mMission_Troops_Required;
-    int16           mMission_Troop_Count;
-    int16           mMission_Troops_Available;
+    sGamePhaseData();
+
+    void Clear();
+};
+
+struct sGameData {
+    uint16          mMapNumber;
+    uint16          mMissionNumber;
+
+    uint16          mMission_Phase;
+    uint16          mRecruits_Available_Count;
+
+    uint16          mMission_Recruits_AliveCount;
+    int16           mMission_Recruitment;
+    uint16          mMission_Phases_Remaining;
+    uint16          mMission_Phases_Total;
+    uint16          mRecruit_NextID;
+
+    sMission_Troop  mSoldiers_Allocated[9];
+
+    std::vector<sHero> mSoldiers_Died;
+
+    int16           mScore_Kills_Away;    // Player soldiers killed
+    int16           mScore_Kills_Home;    //  Enemy soldiers killed
+
 
     std::string		mCampaignName;
     std::string		mSavedName;
@@ -113,9 +134,11 @@ struct sGameData {
     sGameData(const std::string& pFromJson);
 
     void Clear();
-    void Troops_Clear();
+    void Soldier_Clear();
+    void Soldier_Sort();
+    void Soldier_Died(const sMission_Troop* pTroop);
 
-    void Hero_Add(const sMission_Troop* pTroop);
+    std::vector<sHero> Heroes_Get() const;
 
     std::string ToJson(const std::string& pName);
     bool		FromJson(const std::string& pJson);

@@ -20,19 +20,25 @@
  *
  */
 
-class cWindow : public cSingleton<cWindow> {
+class cWindow {
 	
 	protected:
 		SDL_Window*			mWindow;
 		SDL_Renderer*		mRenderer;
 
+        std::vector<cEvent> mEvents;
+
 		cDimension			mOriginalResolution;
 
 		cDimension			mScreenSize;
+        cPosition           mMouseGlobal;
 
-		uint8				mWindow_Multiplier, mWindow_MultiplierPrevious;
+		uint8				mScaler, mScalerPrevious;
 
 		bool				mWindowMode;
+        bool                mHasFocus;
+        bool                mCursorGrabbed;
+		bool				mResized;
 
 	protected:
 
@@ -46,8 +52,11 @@ class cWindow : public cSingleton<cWindow> {
 		void				CalculateWindowSize();
 		int16				CalculateFullscreenSize();
 
-		bool				CanChangeToMultiplier( int pNewMultiplier );
+		bool				CanChangeToMultiplier( const int pNewMultiplier );
 
+        bool                Cycle();
+
+        std::vector<cEvent>* EventGet();
 		virtual void		EventCheck();
 		virtual void		FrameEnd();
 
@@ -55,24 +64,40 @@ class cWindow : public cSingleton<cWindow> {
 			
 		virtual void		PositionWindow();
 
-		virtual void		RenderAt( cSurface* pImage, cPosition pSource = cPosition(0,0) );
+		virtual void		RenderAt( cSurface* pImage, const cPosition pSource = cPosition(0,0) );
 		virtual void		RenderShrunk( cSurface* pImage );
 
 		void				WindowIncrease();
 		void				WindowDecrease();
 
+        bool                isFullscreen() const;
+        bool                isGrabbed() const;
+		bool				isMouseInside() const;
+		bool				isResized() const;
+        bool                isMouseButtonPressed_Global() const;
+
 		void				SetCursor();
-		void				SetMousePosition( const cPosition& pPosition );
+
+        cPosition           GetMousePosition(const bool pRelative = false) const;
+        void				SetMousePosition(const cPosition& pPosition);
+		void				SetMouseWindowPosition( const cPosition& pPosition );
+
 		void				SetScreenSize( const cDimension& pDimension );
 		void				SetOriginalRes( const cDimension& pDimension );
 
 		void				SetWindowTitle( const std::string& pWindowTitle );
 
-		void				SetFullScreen();
+		void				ToggleFullscreen();
+		void				ClearResized();
 
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
-		const cDimension	GetWindowSize() const;
-		const cDimension	GetScreenSize() const { return mScreenSize; }
-		const bool			GetWindowMode() const { return mWindowMode; }
+        cPosition           GetWindowPosition() const;
+		cDimension	        GetWindowSize() const;
+		cDimension	        GetScreenSize() const { return mScreenSize; }
+		bool			    GetWindowMode() const { return mWindowMode; }
+        bool                HasFocus();
+        bool                hasFocusEvent() const { return mHasFocus; }
+        bool                GetMouseGrabbed() const { return mCursorGrabbed; }
+        cDimension          GetScale() const;
 };

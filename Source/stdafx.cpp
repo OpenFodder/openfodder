@@ -27,32 +27,31 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+std::shared_ptr<cResources> g_Resource;
+std::shared_ptr<cWindow>    g_Window;
+std::shared_ptr<cFodder>    g_Fodder;
+
 #ifndef _OFED
 #ifndef _OFBOT
 int main(int argc, char *args[]) {
 	bool SkipIntro = false;
 	int16 MapNumber = 0;
 
-
 	if (argc > 1) {
-
 		if (strcmp( args[1], "skipintro" ) == 0)
 			SkipIntro = true;
-
 		if (strcmp( args[2], "map" ) == 0) {
 			MapNumber = atoi( args[3] );
 		}
 	}
 
-	cFodder* Fodder = new cFodder(new cWindow(), SkipIntro);
+    g_Window = std::make_shared<cWindow>();
 
-	Fodder->Prepare();
-	Fodder->Start( MapNumber );
-
-	delete Fodder;
+    g_Fodder = std::make_shared<cFodder>( g_Window, SkipIntro );
+    g_Fodder->Prepare();
+    g_Fodder->Start( MapNumber );
 
     return 0;
-
 }
 #endif
 #endif
@@ -202,7 +201,7 @@ tSharedBuffer local_FileRead( const std::string& pFile, const std::string& pPath
 
 		// Get file size
 		fileStream->seekg( 0, std::ios::end );
-		fileBuffer->resize( fileStream->tellg() );
+		fileBuffer->resize( static_cast<const unsigned int>(fileStream->tellg()) );
 		fileStream->seekg( std::ios::beg );
 
 		// Allocate buffer, and read the file into it

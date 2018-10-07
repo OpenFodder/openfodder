@@ -654,7 +654,7 @@ const std::vector<sFile> mPlusFiles = {
     { "junsub1.swp", "C551471A99FFF0B02FF7FE11163C63EE" }
 };
 
-const std::vector<eTileTypes> mKnownRetailTypes = {
+const std::vector<eTileTypes> Retail_Tile_Types = {
     eTileTypes_Jungle,
     eTileTypes_Desert,
     eTileTypes_Ice,
@@ -662,15 +662,15 @@ const std::vector<eTileTypes> mKnownRetailTypes = {
     eTileTypes_Int
 };
 
-const std::vector<eTileTypes> mKnownAFXTypes = {
+const std::vector<eTileTypes> AmigaFormat_Tile_Types = {
     eTileTypes_AFX
 };
 
-const std::vector<eTileTypes> mKnownPlusTypes = {
+const std::vector<eTileTypes> AmigaPlus_Tile_Types = {
     eTileTypes_Jungle
 };
 
-const std::vector<eGFX_Types> mKnownRetailData = {
+const std::vector<eGFX_Types> Retail_GFX_Types = {
     eGFX_IN_GAME,	eGFX_IN_GAME2,
     eGFX_FONT,		eGFX_HILL,
     eGFX_RECRUIT,   eGFX_BRIEFING,
@@ -678,7 +678,7 @@ const std::vector<eGFX_Types> mKnownRetailData = {
     eGFX_PSTUFF
 };
 
-const std::vector<eGFX_Types> mKnownAmigaDemoData = {
+const std::vector<eGFX_Types> Amiga_Demo_GFX_Types = {
     eGFX_IN_GAME,	eGFX_IN_GAME2,
     eGFX_PSTUFF
 };
@@ -686,44 +686,47 @@ const std::vector<eGFX_Types> mKnownAmigaDemoData = {
 /**
  * Known versions of Cannon Fodder
  */
-const sVersion Versions[] = {
+const sGameVersion KnownGameVersions[] = {
 
     /* Retail */
-    { "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles,	 mKnownRetailTypes, mKnownRetailData },
-    { "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files, mKnownRetailTypes, mKnownRetailData },
-    { "Cannon Fodder",					eGame::CF1, ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles,		 mKnownRetailTypes, mKnownRetailData },
-    { "Cannon Fodder 2",				eGame::CF2, ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files,		 mKnownRetailTypes, mKnownRetailData },
+    { "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles,	 Retail_Tile_Types, Retail_GFX_Types },
+    { "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files, Retail_Tile_Types, Retail_GFX_Types },
+    { "Cannon Fodder",					eGame::CF1, ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles,		 Retail_Tile_Types, Retail_GFX_Types },
+    { "Cannon Fodder 2",				eGame::CF2, ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files,		 Retail_Tile_Types, Retail_GFX_Types },
 
     /* Amiga Magazine Demos */
-    { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	mKnownAFXTypes,  mKnownAmigaDemoData },
-    { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		mIntroText_Amiga,	"Plus",				mPlusFiles,			mKnownPlusTypes, mKnownAmigaDemoData },
+    { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
+    { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		mIntroText_Amiga,	"Plus",				mPlusFiles,			AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types },
 
     /* Custom & Random must be last, as they depend on a previous retail version being detected first */
-    { "Single Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,		mIntroText_PC,      "Custom", { }, { } },
-    { "Single Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,		mIntroText_PC,      "Custom", { }, { } },
+    { "Single Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
+    { "Single Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
 
-    { "Random Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,		mIntroText_PC,      "Custom", { }, { } },
-    { "Random Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,		mIntroText_PC,      "Custom", { }, { } },
+    { "Random Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
+    { "Random Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
 
 };
 
-std::vector<const sVersion*> g_AvailableDataVersions;
+cVersions::cVersions() {
 
-const sVersion* FindAvailableRetail() {
+    FindKnownVersions();
+}
+
+const sGameVersion* cVersions::GetRetail() const {
 
     auto RetailRelease =
-        std::find_if(g_AvailableDataVersions.begin(), g_AvailableDataVersions.end(),
-            [](const sVersion* a)->bool { return a->mRelease == eRelease::Retail; });
+        std::find_if(mAvailable.begin(), mAvailable.end(),
+            [](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail; });
 
-    if (RetailRelease == g_AvailableDataVersions.end())
+    if (RetailRelease == mAvailable.end())
         return 0;
 
     return *RetailRelease;
 }
 
-const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType) {
+const sGameVersion* cVersions::GetForTileset(eTileTypes pTileType) const {
     // Look through all available versions for a campaign name match
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         if (Version->hasTileset(pTileType))
             return Version;
@@ -732,10 +735,9 @@ const sVersion* FindAvailableVersionForTileset(eTileTypes pTileType) {
     return 0;
 }
 
-const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
-
+const sGameVersion* cVersions::GetForCampaign(const std::string& pCampaign) const {
     // Look through all available versions for a campaign name match
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         if (Version->mName == pCampaign)
             return Version;
@@ -744,10 +746,9 @@ const sVersion* FindAvailableVersionForCampaign(const std::string& pCampaign) {
     return 0;
 }
 
-const sVersion* FindAvailableVersionForCampaignPlatform(const std::string& pCampaign, const ePlatform pPlatform) {
-
+const sGameVersion* cVersions::GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const {
     // Look through all available versions for a campaign name match
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         if (Version->mName == pCampaign && Version->mPlatform == pPlatform)
             return Version;
@@ -759,10 +760,8 @@ const sVersion* FindAvailableVersionForCampaignPlatform(const std::string& pCamp
 /**
  * Is the campaign name associated with a data version
  */
-bool isCampaignKnown(const std::string& pName) {
-
-    for (auto& KnownVersion : Versions) {
-
+bool cVersions::isCampaignKnown(const std::string& pName) const {
+    for (auto& KnownVersion : KnownGameVersions) {
         // Is this campaign known?
         if (KnownVersion.mName == pName) {
             return true;
@@ -772,13 +771,15 @@ bool isCampaignKnown(const std::string& pName) {
     return false;
 }
 
-bool IsCampaignDataAvailable(const std::string& pName) {
-
+/**
+ * Is a campaign available
+ */
+bool cVersions::isCampaignAvailable(const std::string& pName) const {
     if (!isCampaignKnown(pName))
         return false;
 
     // Loop each available version
-    for (auto& Version : g_AvailableDataVersions) {
+    for (auto& Version : mAvailable) {
 
         // Is the data available for it?
         if (Version->mName == pName)
@@ -788,15 +789,17 @@ bool IsCampaignDataAvailable(const std::string& pName) {
     return false;
 }
 
-std::vector<std::string> GetAvailableVersions() {
+bool cVersions::isDataAvailable() const {
+    return mAvailable.size() != 0; 
+}
+
+std::vector<std::string> cVersions::GetCampaignNames() const {
     std::vector<std::string> SortedList;
 
-    for (auto& KnownVersion : Versions) {
-
-        for (auto& Version : g_AvailableDataVersions) {
+    for (auto& KnownVersion : KnownGameVersions) {
+        for (auto& Version : mAvailable) {
 
             if (Version->mName == KnownVersion.mName) {
-
                 // Already have this campaign?
                 if (std::find(SortedList.begin(), SortedList.end(), Version->mName) != SortedList.end())
                     break;
@@ -810,12 +813,11 @@ std::vector<std::string> GetAvailableVersions() {
     return SortedList;
 }
 
-void FindFodderVersions() {
-
-    g_AvailableDataVersions.clear();
+void cVersions::FindKnownVersions() {
+    mAvailable.clear();
 
     // Loop all known versions
-    for (auto& KnownVersion : Versions) {
+    for (auto& KnownVersion : KnownGameVersions) {
         int16 FileMatches = 0;
 
         // Loop each file in this version
@@ -827,8 +829,7 @@ void FindFodderVersions() {
                 if (MD5.length() == 0) {
                     //std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
                     //std::cout << " File not found\n";
-                }
-                else {
+                } else {
                     std::cout << KnownVersion.mName << ": " << File.mName;
                     std::cout << " Unknown MD5: " << MD5 << "\n";
                     ++FileMatches;
@@ -836,28 +837,51 @@ void FindFodderVersions() {
             }
             else
                 ++FileMatches;
-
         }
 
         // A very hacky method for ensuring a retail version is available, before allowing Customs
         if (KnownVersion.isCustom()) {
-
-            // Loop all current found versions 
-            for (const auto Version : g_AvailableDataVersions) {
-
-                // Enable custom if we have a retail version available
-                if (Version->isRetail() && Version->mPlatform == KnownVersion.mPlatform) {
-
-                    g_AvailableDataVersions.push_back(&KnownVersion);
-                    break;
-                }
+            if (GetRetail()) {
+                mAvailable.push_back(&KnownVersion);
             }
         }
         else {
             // Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
             if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == FileMatches)
-                g_AvailableDataVersions.push_back(&KnownVersion);
+                mAvailable.push_back(&KnownVersion);
         }
 
     }
+}
+std::shared_ptr<cResources> sGameVersion::GetResources(const std::string& pDataPathOverride) const {
+    if (isPC()) {
+        return std::make_shared<cResource_PC_CD>(pDataPathOverride);
+    }
+    else if (isAmiga()) {
+        return std::make_shared<cResource_Amiga_File>(pDataPathOverride);
+    }
+    return 0;
+}
+
+std::shared_ptr<cGraphics> sGameVersion::GetGraphics() const {
+    if (isPC()) {
+        return std::make_shared<cGraphics_PC>();
+    }
+    else if (isAmiga()) {
+        return std::make_shared<cGraphics_Amiga>();
+    }
+    return 0;
+}
+
+std::shared_ptr<cSound> sGameVersion::GetSound() const {
+    if (isPC()) {
+        if (mGame == eGame::CF2)
+            return std::make_shared<cSound_PC2>();
+
+        return std::make_shared<cSound_PC>();
+    }
+    else if (isAmiga()) {
+        return std::make_shared<cSound_Amiga>();
+    }
+    return 0;
 }

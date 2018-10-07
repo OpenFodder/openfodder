@@ -45,9 +45,19 @@ struct sRecruit_Screen_Pos {
 struct sRecruitRendered {
 	uint32* mDataPtr;
 	int16	mPosition;
+
+    sRecruitRendered(uint32* pDataPtr, int16 pPosition) {
+        mDataPtr = pDataPtr;
+        mPosition = pPosition;
+    }
 };
 
-extern const int16 mGravePositions[];
+struct sGravePosition {
+    int16 mX;
+    int16 mY;
+};
+
+extern const std::vector<sGravePosition> mGravePositions;
 extern const struct sRecruit mRecruits[];
 extern const struct sRecruit_Sprites mRecruitSprite[34];
 extern struct sRecruit_Screen_Pos mRecruit_Screen_Positions[294];

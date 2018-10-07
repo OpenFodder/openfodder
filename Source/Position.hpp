@@ -22,15 +22,14 @@
 
 class cPosition {
 	public:
-		int64 mX, mY;
+		int32 mX, mY;
 
 	public:
 				cPosition() : mX( 0 ), mY( 0 ) {}
 				cPosition( unsigned int pX, unsigned int pY ) : mX( pX ), mY( pY ) {}
-				cPosition( const cDimension pDimension ) { mX = pDimension.mWidth; mY = pDimension.mHeight; }
 
 		void	Set( unsigned int pX, unsigned int pY ) { mX = pX; mY = pY; }
-
+        void Clear() { mX = 0; mY = 0; }
 		bool operator== (const cPosition& pPosition) const {
 
 			return pPosition.mX == mX && pPosition.mY == mY;
@@ -52,7 +51,25 @@ class cPosition {
 
 			return *this;
 		}
+        
+        cPosition operator-(const cPosition& pPosition) const {
+            
+            return cPosition( mX - pPosition.mX, mY - pPosition.mY );
+        }
+
+        cPosition operator+(const cPosition& pPosition) const {
+
+            return cPosition(mX + pPosition.mX, mY + pPosition.mY);
+        }
 
 		int getY() const { return (int) mY; }
 		int getX() const { return (int) mX; }
+
+        inline int16 x() const {
+            return (int16)mX;
+        }
+
+        inline int16 y() const {
+            return (int16)mY;
+        }
 };

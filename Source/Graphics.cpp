@@ -24,8 +24,8 @@
 
 cGraphics::cGraphics() {
 
-	mFodder = g_Fodder.GetSingletonPtr();
-	mSurface = g_Fodder.mSurface;
+    mFodder = g_Fodder;
+	mSurface = g_Fodder->mSurface;
 	mImageOriginal = mSurface;
 
 	mImageTemporary.mData->resize(100000);

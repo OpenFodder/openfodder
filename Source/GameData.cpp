@@ -21,11 +21,37 @@
 */
 
 #include "stdafx.hpp"
+#include <chrono>
 
 #include "Utils/json.hpp"
 using Json = nlohmann::json;
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
+
+sGamePhaseData::sGamePhaseData() {
+    Clear();
+}
+
+void sGamePhaseData::Clear() {
+    mSprite_Enemy_AggressionAverage = 0;
+    mSprite_Enemy_AggressionMin = 0;
+    mSprite_Enemy_AggressionMax = 0;
+    mSprite_Enemy_AggressionNext = 0;
+    mSprite_Enemy_AggressionIncrement = 0;
+    mSprite_Enemy_AggressionCreated_Count = 0;
+
+    mSoldiers_Required = 0;
+    mSoldiers_Allocated_Count = 0;
+    mSoldiers_Available = 0;
+    mSoldiers_Prepare_SetFromSpritePtrs = false;
+
+    mTroops_DiedCount = 0;
+
+    mIsComplete = false;
+
+    for(auto& Goal : mGoals_Remaining)
+        Goal = false;
+}
 
 sGameData::sGameData() {
 	mMapNumber = 0;
@@ -46,64 +72,101 @@ void sGameData::Clear() {
 
 	mMapNumber = 0;
 	mMissionNumber = 0;
-	mMissionPhase = 0;
-
-	mSprite_Enemy_AggressionAverage = 0;
-	mSprite_Enemy_AggressionMin = 0;
-	mSprite_Enemy_AggressionMax = 0;
-	mSprite_Enemy_AggressionNext = 0;
-	mSprite_Enemy_AggressionIncrement = 0;
-	mSprite_Enemy_AggressionCreated_Count = 0;
+	mMission_Phase = 0;
 
 	mRecruits_Available_Count = 0;
-	mMission_Troop_Prepare_SetFromSpritePtrs = 0;
 
 	mMission_Recruits_AliveCount = 0;
 	mMission_Recruitment = 0;
-	mMission_TryingAgain = 0;
 	mMission_Phases_Remaining = 0;
 	mMission_Phases_Total = 0;
 	mRecruit_NextID = 0;
 
-    for (auto& Troop : mMission_Troops)
+    for (auto& Troop : mSoldiers_Allocated)
         Troop.Clear();
 
-	for (unsigned int x = 0; x < 361; ++x)
-		mGraveRanks[x] = 0;
+	mScore_Kills_Away = 0;
+	mScore_Kills_Home = 0;
 
-	for (unsigned int x = 0; x < 361; ++x)
-		mGraveRecruitID[x] = 0;
-
-	mTroops_Away = 0;
-	mTroops_Home = 0;
-	mMission_Troops_Required = 0;
-	mMission_Troop_Count = 0;
-	mMission_Troops_Available = 0;
-	
-	Troops_Clear();
-	mHeroes.clear();
+	Soldier_Clear();
+	mSoldiers_Died.clear();
 }
 
-void sGameData::Troops_Clear() {
-	mMission_Troops[8].mRecruitID = -1;
-	mMission_Troops[8].mSprite = INVALID_SPRITE_PTR;
+void sGameData::Soldier_Clear() {
 
-	for (unsigned int x = 0; x < 8; ++x) {
-		mMission_Troops[x].mSprite = INVALID_SPRITE_PTR;
-		mMission_Troops[x].mRecruitID = -1;
-		mMission_Troops[x].mRank = 0;
-		mMission_Troops[x].mPhaseCount = 0;
+	for( auto& Troop : mSoldiers_Allocated) {
+        
+        Troop.Clear();
+        Troop.mRecruitID = -1;
 	}
 }
 
-void sGameData::Hero_Add(const sMission_Troop*  pTroop) {
+void sGameData::Soldier_Sort() {
 
+    // Remove any 'dead' troops
+    for (int16 Data1c = 7; Data1c >= 0; --Data1c) {
+
+        sMission_Troop* Data20 = mSoldiers_Allocated;
+
+        for (int16 Data0 = 7; Data0 >= 0; --Data0, ++Data20) {
+
+            if (Data20->mRecruitID == -1) {
+
+                sMission_Troop* Data24 = Data20 + 1;
+
+                *Data20 = *Data24;
+                Data24->Clear();
+                Data24->mRecruitID = -1;
+            }
+        }
+    }
+
+    // Sort by kills
+    sMission_Troop* Data20 = mSoldiers_Allocated;
+    for (int16 Data1c = 7; Data1c >= 0; --Data1c, ++Data20) {
+        sMission_Troop* Data24 = mSoldiers_Allocated;
+
+        for (int16 Data18 = 7; Data18 >= 0; --Data18, ++Data24) {
+
+            if (Data20 == Data24)
+                continue;
+
+            if (Data20->mRecruitID == -1 || Data24->mRecruitID == -1)
+                continue;
+
+            if (Data20->mRank != Data24->mRank)
+                continue;
+
+            if (Data20->mNumberOfKills <= Data24->mNumberOfKills)
+                continue;
+
+            sMission_Troop Spare = *Data20;
+
+            *Data20 = *Data24;
+            *Data24 = Spare;
+        }
+    }
+}
+
+void sGameData::Soldier_Died(const sMission_Troop* pTroop) {
     if (!pTroop)
         return;
 
-	mHeroes.push_back(sHero(pTroop));
+    mSoldiers_Died.push_back(sHero(pTroop));
+    /*
+    for(size_t x = 0; x < mSoldiers_Allocated.size(); ++x) {
+        if (&mSoldiers_Allocated[x] == pTroop) {
+            mSoldiers_Allocated.erase(mSoldiers_Allocated.begin() + x);
+            break;
+        }
+    }*/
 
-	sort(mHeroes.begin(), mHeroes.end(),
+}
+
+std::vector<sHero> sGameData::Heroes_Get() const {
+    std::vector<sHero> Final = mSoldiers_Died;
+
+	sort(Final.begin(), Final.end(),
 		[](const sHero & a, const sHero & b) -> bool
 	{
 		if (!a.mKills)
@@ -123,79 +186,61 @@ void sGameData::Hero_Add(const sMission_Troop*  pTroop) {
 
 		return true;
 	});
+
+    Final.resize(5);
+    return Final;
 }
 
 std::string sGameData::ToJson(const std::string& pSaveName) {
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
 	Json Save;
 
 	// Not used yet
-	Save["SaveVersion"] = 1;
+	Save["SaveVersion"] = 2;
+    Save["Timestamp"] = in_time_t;
 
 	// Save the current game data version
 	{
 		Json Version;
-		Version["mName"] = g_Fodder.mVersionCurrent->mName;
-		Version["mGame"] = g_Fodder.mVersionCurrent->mGame;
-		Version["mPlatform"] = g_Fodder.mVersionCurrent->mPlatform;
-		Version["mRelease"] = g_Fodder.mVersionCurrent->mRelease;
+		Version["mName"] = g_Fodder->mVersionCurrent->mName;
+		Version["mGame"] = g_Fodder->mVersionCurrent->mGame;
+		Version["mPlatform"] = g_Fodder->mVersionCurrent->mPlatform;
+		Version["mRelease"] = g_Fodder->mVersionCurrent->mRelease;
 
 		Save["DataVersion"] = Version;
 	}
 	
 	// Keep the campaign
-	Save["Campaign"] = g_Fodder.mCampaign.getName();
+	Save["Campaign"] = g_Fodder->mCampaign.getName();
 	Save["SaveName"] = pSaveName;
 
 	// Actual game states
 	Save["mMapNumber"] = mMapNumber;
 
 	Save["mMissionNumber"] = mMissionNumber;
-	Save["mMissionPhase"] = mMissionPhase;
-	Save["mRecruits_Available_Count"] = mRecruits_Available_Count;
-	Save["Mission_Troop_Prepare_SetFromSpritePtrs"] = mMission_Troop_Prepare_SetFromSpritePtrs;
-
+	Save["mMissionPhase"] = mMission_Phase;
+	
 	Save["mMission_Recruits_AliveCount"] = mMission_Recruits_AliveCount;
 	Save["mMission_Recruitment"] = mMission_Recruitment;
-	Save["mMission_TryingAgain"] = mMission_TryingAgain;
 	Save["mMission_Phases_Remaining"] = mMission_Phases_Remaining;
 	Save["mMission_Phases_Total"] = mMission_Phases_Total;
-	Save["mRecruit_NextID"] = mRecruit_NextID;
+    
+    Save["mRecruits_Available_Count"] = mRecruits_Available_Count; 
+    Save["mRecruit_NextID"] = mRecruit_NextID;
 
-	Save["mSprite_Enemy_AggressionAverage"] = mSprite_Enemy_AggressionAverage;
-	Save["mSprite_Enemy_AggressionMin"] = mSprite_Enemy_AggressionMin;
-	Save["mSprite_Enemy_AggressionMax"] = mSprite_Enemy_AggressionMax;
-	Save["mSprite_Enemy_AggressionNext"] = mSprite_Enemy_AggressionNext;
-	Save["mSprite_Enemy_AggressionIncrement"] = mSprite_Enemy_AggressionIncrement;
-	Save["mSprite_Enemy_AggressionCreated_Count"] = mSprite_Enemy_AggressionCreated_Count;
-
-
-	for (auto& MissionTroop : mMission_Troops) {
+	for (auto& MissionTroop : mSoldiers_Allocated) {
 		Json Troop;
-
 		Troop["mRecruitID"] = MissionTroop.mRecruitID;
 		Troop["mRank"] = MissionTroop.mRank;
-		Troop["mPhaseCount"] = MissionTroop.mPhaseCount;
 		Troop["field_6"] = MissionTroop.field_6;
-		Troop["field_8"] = MissionTroop.field_8;
-		Troop["mSelected"] = MissionTroop.mSelected;
 		Troop["mNumberOfKills"] = MissionTroop.mNumberOfKills;
 
 		Save["mMission_Troops"].push_back(Troop);
 	}
 
-	for (auto& GraveRank : mGraveRanks) {
-
-		Save["mGraveRanks"].push_back(GraveRank);
-
-	}
-
-	for (auto& GraveRank : mGraveRecruitID) {
-
-		Save["mGraveRecruitID"].push_back(GraveRank);
-	}
-
-	for (auto& Hero : mHeroes) {
+	for (auto& Hero : mSoldiers_Died) {
 		Json JsonHero;
 
 		JsonHero["mRecruitID"] = Hero.mRecruitID;
@@ -205,95 +250,86 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Save["mHeroes"].push_back(JsonHero);
 	}
 
-	Save["mTroops_Away"] = mTroops_Away;
-	Save["mTroops_Home"] = mTroops_Home;
-	Save["mMission_Troops_Required"] = mMission_Troops_Required;
-	Save["mMission_Troop_Count"] = mMission_Troop_Count;
-	Save["mMission_Troops_Available"] = mMission_Troops_Available;
+	Save["mTroops_Away"] = mScore_Kills_Away;
+	Save["mTroops_Home"] = mScore_Kills_Home;
 
 	return Save.dump(1);
 }
 
 bool sGameData::FromJson(const std::string& pJson) {
+    Json LoadedData;
 
 	 try {
-		Json LoadedData = Json::parse(pJson);
+		LoadedData = Json::parse(pJson);
+     }
+     catch (std::exception Exception) {
+         std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
+         return false;
+     }
 
-		Clear();
+     Clear();
 
-		mSavedName = LoadedData["SaveName"];
-		mCampaignName = LoadedData["Campaign"];
+     uint64 Version = LoadedData["SaveVersion"];
+     if (Version >= 2) {
+         try {
+             // Save["Timestamp"]
+         }
+         catch (std::exception Exception) {
+             std::cout << "V2 Elements not found: " << Exception.what() << "\n";
+             return false;
+         }
+     }
 
-		mSavedVersion.mName = LoadedData["DataVersion"]["mName"];
-		mSavedVersion.mGame = LoadedData["DataVersion"]["mGame"];
-		mSavedVersion.mPlatform = LoadedData["DataVersion"]["mPlatform"];
-		mSavedVersion.mRelease = LoadedData["DataVersion"]["mRelease"];
+     if (Version >= 1) {
+         try {
+             mSavedName = LoadedData["SaveName"];
+             mCampaignName = LoadedData["Campaign"];
 
-		mMapNumber = LoadedData["mMapNumber"];
+             mSavedVersion.mName = LoadedData["DataVersion"]["mName"];
+             mSavedVersion.mGame = LoadedData["DataVersion"]["mGame"];
+             mSavedVersion.mPlatform = LoadedData["DataVersion"]["mPlatform"];
+             mSavedVersion.mRelease = LoadedData["DataVersion"]["mRelease"];
 
-		mMissionNumber = LoadedData["mMissionNumber"];
-		mMissionPhase = LoadedData["mMissionPhase"];
-		mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
-		mMission_Troop_Prepare_SetFromSpritePtrs = LoadedData["Mission_Troop_Prepare_SetFromSpritePtrs"];
-		
-		mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
-		mMission_Recruitment = LoadedData["mMission_Recruitment"];
-		mMission_TryingAgain = LoadedData["mMission_TryingAgain"];
-		mMission_Phases_Remaining = LoadedData["mMission_Phases_Remaining"];
-		mMission_Phases_Total = LoadedData["mMission_Phases_Total"];
-		mRecruit_NextID = LoadedData["mRecruit_NextID"];
+             mMapNumber = LoadedData["mMapNumber"];
 
-		mSprite_Enemy_AggressionAverage = LoadedData["mSprite_Enemy_AggressionAverage"];
-		mSprite_Enemy_AggressionMin = LoadedData["mSprite_Enemy_AggressionMin"];
-		mSprite_Enemy_AggressionMax = LoadedData["mSprite_Enemy_AggressionMax"];
-		mSprite_Enemy_AggressionNext = LoadedData["mSprite_Enemy_AggressionNext"];
-		mSprite_Enemy_AggressionIncrement = LoadedData["mSprite_Enemy_AggressionIncrement"];
-		mSprite_Enemy_AggressionCreated_Count = LoadedData["mSprite_Enemy_AggressionCreated_Count"];
+             mMissionNumber = LoadedData["mMissionNumber"];
+             mMission_Phase = LoadedData["mMissionPhase"];
+             mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
 
-		int x = 0;
-		for (auto& MissionTroop : LoadedData["mMission_Troops"]) {
-			mMission_Troops[x].mRecruitID = MissionTroop["mRecruitID"];
-			mMission_Troops[x].mRank = MissionTroop["mRank"];
-			mMission_Troops[x].mPhaseCount = MissionTroop["mPhaseCount"];
-			mMission_Troops[x].field_6 = MissionTroop["field_6"];
-			mMission_Troops[x].field_8 = MissionTroop["field_8"];
-			mMission_Troops[x].mSelected = MissionTroop["mSelected"];
-			mMission_Troops[x].mNumberOfKills = MissionTroop["mNumberOfKills"];
+             mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
+             mMission_Recruitment = LoadedData["mMission_Recruitment"];
+             mMission_Phases_Remaining = LoadedData["mMission_Phases_Remaining"];
+             mMission_Phases_Total = LoadedData["mMission_Phases_Total"];
+             mRecruit_NextID = LoadedData["mRecruit_NextID"];
 
-			if (++x == 9)
-				break;
-		}
+             int x = 0;
+             for (auto& MissionTroop : LoadedData["mMission_Troops"]) {
+                 mSoldiers_Allocated[x].mRecruitID = MissionTroop["mRecruitID"];
+                 mSoldiers_Allocated[x].mRank = MissionTroop["mRank"];
+                 mSoldiers_Allocated[x].field_6 = MissionTroop["field_6"];
+                 mSoldiers_Allocated[x].mNumberOfKills = MissionTroop["mNumberOfKills"];
+                 if (++x == 9)
+                     break;
+             }
 
-		x = 0;
-		for (auto& GraveRank : LoadedData["mGraveRanks"]) {
-			mGraveRanks[x++] = GraveRank;
-		}
+             for (auto& Hero : LoadedData["mHeroes"]) {
+                 sHero Heroes;
+                 Heroes.mRecruitID = Hero["mRecruitID"];
+                 Heroes.mRank = Hero["mRank"];
+                 Heroes.mKills = Hero["mKills"];
 
-		x = 0;
-		for (auto& GraveRank : LoadedData["mGraveRecruitID"]) {
-			mGraveRecruitID[x++] = GraveRank;
-		}
+                 mSoldiers_Died.push_back(Heroes);
+             }
 
-		for (auto& Hero : LoadedData["mHeroes"]) {
-			sHero Heroes;
+             mScore_Kills_Away = LoadedData["mTroops_Away"];
+             mScore_Kills_Home = LoadedData["mTroops_Home"];
 
-			Heroes.mRecruitID = Hero["mRecruitID"];
-			Heroes.mRank = Hero["mRank"];
-			Heroes.mKills = Hero["mKills"];
-
-			mHeroes.push_back(Heroes);
-		}
-
-		mTroops_Away = LoadedData["mTroops_Away"];
-		mTroops_Home = LoadedData["mTroops_Home"];
-		mMission_Troops_Required = LoadedData["mMission_Troops_Required"];
-		mMission_Troop_Count = LoadedData["mMission_Troop_Count"];
-		mMission_Troops_Available = LoadedData["mMission_Troops_Available"];
-
-	 } catch (std::exception Exception) {
-		 std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
-		 return false;
-	}
+         }
+         catch (std::exception Exception) {
+             std::cout << "V1 Elements not found: " << Exception.what() << "\n";
+             return false;
+         }
+     }
 
 	return true;
 }

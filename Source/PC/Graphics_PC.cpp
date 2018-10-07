@@ -122,7 +122,7 @@ sImage cGraphics_PC::Decode_Image(const std::string& pFilename, const size_t pCo
 
 	sImage TmpImage;
 
-	TmpImage.mData = g_Resource.fileGet(pFilename);
+	TmpImage.mData = g_Resource->fileGet(pFilename);
 	TmpImage.LoadPalette(pPaletteOffset, pCount, pStartIndex);
 	TmpImage.CopyPalette(&mPalette[pStartIndex], pCount, pStartIndex);
 
@@ -235,12 +235,13 @@ void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, ui
 
 void cGraphics_PC::MapTiles_Draw() {
 
-	uint8* Target = mSurface->GetSurfaceBuffer();
+    uint8* Target = mSurface->GetSurfaceBuffer();
 
-	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
+    uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
-	// Y
+    // Y
     for (uint16 cx = 0; cx < 0x0F; ++cx) {
+        uint8* MapPtr = CurrentMapPtr;
         uint8* TargetRow = Target;
 
         uint16 StartY = 0;
@@ -248,25 +249,24 @@ void cGraphics_PC::MapTiles_Draw() {
         if (cx == 0)
             StartY = mFodder->mMapTile_RowOffset;
 
-        if (CurrentMapPtr >= mFodder->mMap->data()) {
+        // X
+        for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+            uint8* TargetTmp = TargetRow;
 
-            uint8* MapRowPtr = CurrentMapPtr;
+            // Verify we are inside the actual map data
+            if (MapPtr >= mFodder->mMap->data()) {
 
-            // X
-            for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
-                uint8* TargetTmp = TargetRow;
+                if (MapPtr >= mFodder->mMap->data() + mFodder->mMap->size())
+                    continue;
 
-                if (MapRowPtr >= mFodder->mMap->data() + mFodder->mMap->size())
-                    break;
-
-                uint16 Tile = readLEWord(MapRowPtr) & 0x1FF;
+                uint16 Tile = readLEWord(MapPtr) & 0x1FF;
                 if (Tile > 0x1DF)
                     Tile = 0;
 
                 uint8* TilePtr = mTile_Gfx_Ptrs[Tile];
                 uint16 StartX = 0;
 
-                TilePtr += StartY * 320;
+                TilePtr += StartY * 0x140;
 
                 if (cx2 == 0)
                     StartX = mFodder->mMapTile_ColumnOffset;
@@ -276,19 +276,19 @@ void cGraphics_PC::MapTiles_Draw() {
 
                     memcpy(TargetTmp, TilePtr + StartX, 16 - StartX);
 
-                    TilePtr += 320;
+                    TilePtr += 0x140;
                     TargetTmp += mSurface->GetWidth();
                 }
 
-                MapRowPtr += 2;
+                MapPtr += 2;
                 TargetRow += (16 - StartX);
             }
-
-            Target += mSurface->GetWidth() * (16 - StartY);
-            CurrentMapPtr += mFodder->mMapWidth << 1;
         }
+
+        Target += mSurface->GetWidth() * (16 - StartY);
+        CurrentMapPtr += mFodder->mMapWidth << 1;
     }
-	mSurface->Save();
+    mSurface->Save();
 }
 
 void cGraphics_PC::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
@@ -318,14 +318,14 @@ void cGraphics_PC::Map_Load_Resources() {
 
 	//
 	{
-		mSpriteSheet_InGame2.mData = g_Resource.fileGet( mFodder->mFilenameCopt );
+		mSpriteSheet_InGame2.mData = g_Resource->fileGet( mFodder->mFilenameCopt );
 		mSpriteSheet_InGame2.LoadPalette( 0xD360, 0x10, 0x90 );
 		mSpriteSheet_InGame2.LoadPalette( 0xD2A0, 0x40, 0xB0 );
 	}
 
 	// 
 	{
-		mSpriteSheet_InGame1.mData = g_Resource.fileGet( mFodder->mFilenameArmy );
+		mSpriteSheet_InGame1.mData = g_Resource->fileGet( mFodder->mFilenameArmy );
 		mSpriteSheet_InGame1.LoadPalette( 0xD200, 0x10, 0xA0 );
 	}
 
@@ -410,7 +410,7 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	uint8*	Buffer = mSurface->GetSurfaceBuffer();
 	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
 
-	Buffer += (16 * mSurface->GetWidth()) + 16;
+	Buffer += (16 * mSurface->GetWidth()) +     16;
 
 	for (unsigned int Y = 0; Y < 200; ++Y) {
 
@@ -463,15 +463,15 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, size_t
 	}
 }
 
-void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16 pCopyToScreen, uint32*& pBuffer) {
-	pData0 += 0x18;
+void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) {
+    pRow += 0x18;
 	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
-	uint32* BuffPtr = (uint32*)(SptPtr + (48 * pData0));
+	uint32* BuffPtr = (uint32*)(SptPtr + (48 * pRow));
 
 	// Copying to pData20? or from it?
 	if (pCopyToScreen == 0) {
 
-		for (int16 cx = pData4; cx > 0; --cx) {
+		for (int16 cx = pRows; cx > 0; --cx) {
 			*pBuffer++ = *BuffPtr++;
 			*pBuffer++ = *BuffPtr++;
 			*pBuffer++ = *BuffPtr++;
@@ -490,7 +490,7 @@ void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pData0, int16 pData4, int16
 	}
 	else {
 
-		for (int16 cx = pData4; cx > 0; --cx) {
+		for (int16 cx = pRows; cx > 0; --cx) {
 			*BuffPtr++ = *pBuffer++;
 			*BuffPtr++ = *pBuffer++;
 			*BuffPtr++ = *pBuffer++;
@@ -531,7 +531,7 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	mFodder->GUI_Draw_Frame_8( 0x18, 0, 0, 0 );
 	
 	// Save Icon (Coloured or Gray)
-	int16 Data4 = mFodder->mMission_Save_Availability[ (mFodder->mGame_Data.mMissionNumber - 1) ];
+	int16 Data4 = mFodder->mMission_Save_Blocked[ (mFodder->mGame_Data.mMissionNumber - 1) ];
 	mFodder->GUI_Draw_Frame_8( 0x19, Data4, 0x130, 0 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
@@ -539,10 +539,10 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	
 	mFodder->GUI_Draw_Frame_8( 0x0E, 0, 0x9B, 0x0A );
 	
-	auto Home = tool_StripLeadingZero(std::to_string( mFodder->mGame_Data.mTroops_Home ));
+	auto Home = tool_StripLeadingZero(std::to_string( mFodder->mGame_Data.mScore_Kills_Home ));
 	mFodder->Recruit_Draw_String( 0x0D, (int16) (0x9A - (Home.length() * 0x0C)), 0x0A, Home );
 
-	auto Away = tool_StripLeadingZero(std::to_string( mFodder->mGame_Data.mTroops_Away ));
+	auto Away = tool_StripLeadingZero(std::to_string( mFodder->mGame_Data.mScore_Kills_Away ));
 	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
 
 	SetActiveSpriteSheet(eGFX_HILL);
@@ -557,13 +557,13 @@ void cGraphics_PC::Mission_Intro_Load_Resources() {
 	std::string JunData4 = mTileTypes[mFodder->mMap_TileSet].mName + "p4.dat";
 	std::string JunData5 = mTileTypes[mFodder->mMap_TileSet].mName + "p5.dat";
 
-	mImageMissionIntro.mData = g_Resource.fileGet(JunData1);
-	mMission_Intro_Gfx_Clouds1 = g_Resource.fileGet(JunData2);
-	mMission_Intro_Gfx_Clouds2 = g_Resource.fileGet(JunData3);
-	mMission_Intro_Gfx_Clouds3 = g_Resource.fileGet(JunData4);
-	mMission_Intro_Gfx_TreesMain = g_Resource.fileGet(JunData5);
+	mImageMissionIntro.mData = g_Resource->fileGet(JunData1);
+	mMission_Intro_Gfx_Clouds1 = g_Resource->fileGet(JunData2);
+	mMission_Intro_Gfx_Clouds2 = g_Resource->fileGet(JunData3);
+	mMission_Intro_Gfx_Clouds3 = g_Resource->fileGet(JunData4);
+	mMission_Intro_Gfx_TreesMain = g_Resource->fileGet(JunData5);
 
-	mBriefing_ParaHeli = g_Resource.fileGet( "paraheli.dat" );
+	mBriefing_ParaHeli = g_Resource->fileGet( "paraheli.dat" );
 
 	// Copy the palette for the current map tileset, in from paraheli to the briefing intro images
 	uint8* si = mBriefing_ParaHeli->data() + 0xF00;
@@ -648,7 +648,7 @@ void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned i
 	if (Filename.find('.') == std::string::npos )
 		Filename.append( ".dat" );
 
-	auto fileBuffer = g_Resource.fileGet(Filename);
+	auto fileBuffer = g_Resource->fileGet(Filename);
 	uint8* srcBuffer = fileBuffer->data();
 
 	uint8 *Buffer = 0;
@@ -987,10 +987,12 @@ void cGraphics_PC::Mission_Intro_Jungle( ) {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Video_Sleep();
+		
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-        mFodder->Mouse_GetData();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+        mFodder->Cycle_End();
+
+		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1068,11 +1070,11 @@ void cGraphics_PC::Mission_Intro_Desert() {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Video_Sleep();
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
+        mFodder->Cycle_End();
 
-		mFodder->Mouse_GetData();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1152,11 +1154,10 @@ void cGraphics_PC::Mission_Intro_Ice() {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Video_Sleep();
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-
-		mFodder->Mouse_GetData();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+        mFodder->Cycle_End();
+		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1233,11 +1234,10 @@ void cGraphics_PC::Mission_Intro_Mor() {
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Video_Sleep();
+        mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-
-		mFodder->Mouse_GetData();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+        mFodder->Cycle_End();
+		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;
@@ -1315,10 +1315,10 @@ void cGraphics_PC::Mission_Intro_Int() {
 		if (mMission_Intro_Clouds3_X >= 320)
 			mMission_Intro_Clouds3_X = 0;
 
-		mFodder->Video_Sleep();
-		mFodder->Video_SurfaceRender();
-		mFodder->Mouse_GetData();
-		if (mFodder->mouse_Button_Status || (mFodder->mMission_Aborted && mFodder->word_428D8)) {
+        mFodder->Mouse_Inputs_Get();
+        mFodder->Video_SurfaceRender();
+        mFodder->Cycle_End();
+		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mFodder->mSurface->paletteNew_SetToBlack();
 			mFodder->mImageFaded = -1;

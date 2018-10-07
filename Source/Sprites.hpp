@@ -192,7 +192,7 @@ enum ePstuff_Sprites {
 enum eSprite_DrawOrder {
 	eSprite_Draw_First	= -1,
 	eSprite_Draw_Second	= 0,
-	eSprite_Draw_Last	= 1
+	eSprite_Draw_OnTop	= 1
 };
 
 struct sMission_Troop;
@@ -212,20 +212,20 @@ struct sSprite {
 	int16 field_E;
 	int16 field_10;		// Next Direction
 	int16 field_12;
-	int16 field_14;
-	int16 field_16;
+	int16 field_14;     //  Projectile: Add to Y
+	int16 field_16;     //  Projectile: Add to X
 	int16 field_18;		// Sprite Type
 
 	union {
 		int32		field_1A;
-		sSprite*	field_1A_sprite;
+		sSprite*	field_1A_sprite;    // Created by Sprite
 	};
 
 	union {
 
 		struct {
 			int16 field_1E;
-			int16 field_20;	// Vehicle Height
+			int16 field_20;	// Height
 		};
 
 		int32 field_1E_Big;
@@ -246,8 +246,8 @@ struct sSprite {
 	int16 field_3A;
 	int16 field_3C;		// Player: Face Direction
 	int16 field_3E;
-	int16 field_40;
-	int8 field_42;
+	int16 field_40; // Player: Next Squad Walk Target Index
+	int8 field_42;  // Player: Finished Walking
 	int8 field_43;	// Player: Reached other Troop
 	int8 field_44;
 	int8 field_45;
@@ -270,20 +270,27 @@ struct sSprite {
 	int8 field_55;
 	int8 field_56;
 	int8 field_57;			// Human: Weapon Fired Cooldown
-	int8 field_58;
+	int8 field_58;          // Has Shadow
 	int8 field_59;
 	int8 field_5A;
 	int8 field_5B;			// Human: Is Sinking
 	int8 field_5C;			// 1 = Was Drawn
-	int8 field_5D;
-	int16 field_5E;			// Index inside mSprites
+
+	int8 field_5D;          // 5E contains index into mGame_Data.mSoldiers_Allocated
+    // Eventually this should be replaced
+    union {
+        int32 field_5E;			// Index inside mSprites (if 5D == false)
+        sMission_Troop *field_5E_SoldierAllocated;  // Soldier Ptr who killed sprite
+    };
+
 	int8 field_60;			// Current Terrain Type
 	int8 field_61;
-	int16 field_62;
+	int16 field_62;         // AI: Aggression
 	int8 field_64;
 	int8 field_65;			// -1 = Enabled?
 	sSprite* field_66;		// Human-Player: Vehicle Walk Target
-
+    
+                            // Eventually this should be replaced
 	union {
 		int64	 field_6A;
 		sSprite* field_6A_sprite;	// Human-Player: Current Vehicle

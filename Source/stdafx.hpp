@@ -108,8 +108,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "Singleton.hpp"
 
-#include "Dimension.hpp"
 #include "Position.hpp"
+#include "Dimension.hpp"
 #include "Event.hpp"
 
 #include "Surface.hpp"
@@ -124,11 +124,11 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Tiles.hpp"
 #include "FontData.hpp"
 #include "Graphics.hpp"
+#include "Recruits.hpp"
 #include "Versions.hpp"
 
 #include "Window.hpp"
 #include "Sound.hpp"
-#include "Recruits.hpp"
 #include "GUI_Element.hpp"
 #include "SpriteSheet.hpp"
 #include "Fodder.hpp"
@@ -145,10 +145,9 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Amiga/Graphics_Amiga.hpp"
 
 
-#define g_Fodder	cFodder::GetSingleton()
-#define g_Window	cWindow::GetSingleton()
-#define g_Resource	cResources::GetSingleton()
-#define g_Graphics	cGraphics::GetSingleton()
-#define g_Sound		cSound::GetSingleton()
 
-#define VERSION_BASED( pPC, pAmiga ) (g_Fodder.mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
+extern std::shared_ptr<cResources> g_Resource;
+extern std::shared_ptr<cWindow>    g_Window;
+extern std::shared_ptr<cFodder>    g_Fodder;
+
+#define VERSION_BASED( pPC, pAmiga ) (g_Fodder->mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)

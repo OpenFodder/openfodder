@@ -38,6 +38,8 @@ enum eSquad_Weapon_SplitMode {
 struct sMapPosition {
     int16   mX;
     int16   mY;
+
+    sMapPosition(const int16& pX = 0, const int16& pY = 0) { mX = pX; mY = pY; }
 };
 
 union sMapTarget {
@@ -54,28 +56,45 @@ struct sSavedGame {
     std::string	mName;
 };
 
+struct sService_Draw {
+    int16 mSpriteType;
+    int16 mFrame;
+    int16 mX;
+    int16 mY;
+
+    sService_Draw(int16 pSpriteType, int16 pFrame, int16 pX, int16 pY) {
+        mSpriteType = pSpriteType;
+        mFrame = pFrame; 
+        mX = pX; 
+        mY = pY; 
+    }
+};
+
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
 public:
-    char                    mInputString[0x300];
+    std::string             mInput;
 
     bool                    mSkipIntro;
-    std::vector<cEvent>     mEvents;
     bool					mOpenFodder_Intro_Done;
     bool                    mSoundDisabled;
 
-    const sVersion*			mVersionDefault;		// Version to switch back to when looking for data
-    const sVersion*         mVersionCurrent;		// Version currently being used
+    bool                    mVersionPlatformSwitchDisabled;
+    const sGameVersion*     mVersionDefault;		// Version to switch back to when looking for data
+    const sGameVersion*     mVersionCurrent;		// Version currently being used
     cCampaign               mCampaign;				// Campaign currently being played
 
-    cGraphics*              mGraphics;
-    cSound*                 mSound;
-    cResources*             mResources;
-    cWindow*                mWindow;
+    std::shared_ptr<cGraphics>  mGraphics;
+    std::shared_ptr<cSound>     mSound;
+    std::shared_ptr<cResources> mResources;
+    std::shared_ptr<cWindow>    mWindow;
+    std::shared_ptr<cVersions>  mVersions;
 
     sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
+    
+    sGamePhaseData          mGamePhase_Data;
 
     sSprite                 mSprite_Spare;
     sSprite                 mSprites[45];
@@ -100,9 +119,6 @@ public:
     cSurface*       mSurface;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
-    cPosition       mMousePosition;
-    uint32          mMouseButtons;
-
     uint16          mMapWidth;
     uint16          mMapHeight;
     uint8           mKeyCode;
@@ -112,77 +128,79 @@ public:
     tSharedBuffer   mTile_BaseBlk;
     tSharedBuffer   mTile_SubBlk;
 
-    sRecruitRendered    mRecruit_Rendered[0x0D];
-
     int16           mInput_Enabled;
     uint16          mGame_InputTicks;
-    int16           mMission_EngineTicks;
-    uint16          mMission_Restart;
-
-    /* These used to be in the save game region */
-    sSprite*        mMission_Troops_SpritePtrs[9];
-
-    int16*          mGraveRankPtr;
-    int16*          mGraveRankPtr2;
-    int16*          mGraveRecruitIDPtr;
-    /* End old save game region */
 
     int16           mButtonPressLeft, mButtonPressRight;
-    int16           mMouse_Button_Left_Toggle;
+
     bool            mVehicle_Input_Disabled;
-    int16           mMouse_Exit_Loop;
-    int16           word_39FA0;
-    int16           word_39FA2;
-    int16           mMapTile_Column;
-    int16           mMapTile_Row;
-    int16           word_39FAC;
 
-    int16           word_39FAE;
-    int16           word_39FBA;
 
-    int16           word_39FBC;
+
+
+
+    int16           mMouse_Button_Left_Toggle;
     int16           mMouse_Button_Right_Toggle;
-    int16           mMouse_Button_LeftRight_Toggle;
-    int16           word_39F04;
+    bool            mMouse_Button_LeftRight_Toggle;
+    bool            mMouse_Button_LeftRight_Toggle2;
 
-    int32           dword_39F24;
-    int32           dword_39F28;
-    int32           mCamera_Adjust_Col;
-    int32           mCamera_Adjust_Row;
+    int16           mMouse_Exit_Loop;
+    cPosition       mMouse_EventLastPosition;
+    uint32          mMouse_EventLastButtonsPressed;
+    cPosition       mMouse_EventLastWheel;
+    bool            mMouse_Locked;
+
+    bool            mSquad_Member_Fire_CoolDown_Override;
+
+
     int32           dword_39F36;
+
+    int16           mMapTile_DrawX;
+    int16           mMapTile_DrawY;
+    int16           mMapTile_MoveDirectionX;
+    int16           mMapTile_MoveDirectionY;
+    int16           mMapTile_MoveDirectionX_Previous;
+    int16           mMapTile_MoveDirectionY_Previous;
+    int32           mMapTile_SpeedX;
+    int32           mMapTile_SpeedY;
+    int16           mMapTile_SpeedX_Previous;
+    int16           mMapTile_SpeedY_Previous;
+
+    int32           mMapTile_TargetX;
+    int32           mMapTile_TargetY;
+
+    int16           mCamera_Panning_ToTarget;
+    int32           mCamera_AccelerationX;
+    int32           mCamera_AccelerationY;
+    int16           mCamera_MoveDirectionX;
+    int16           mCamera_MoveDirectionY;
+    int16           mCamera_MovePauseX;
+    int16           mCamera_MovePauseY;
+    int16           mCamera_PanTargetX;
+    int16           mCamera_PanTargetY;
     int16           mCamera_Scroll_Speed;
-    int16           word_39F3C;
-    int16           word_39F3E;
-
-    int32           dword_39F84;        // X : Unknown
-    int32           dword_39F88;        // Y 
-    int32           dword_39F8C;
-    int32           dword_39F90;
-
-    int16           word_39F34;
-    int16           word_39F40;
-    int32           dword_39F4A;
-    int32           dword_39F4E;
-    int16           word_39F52;
-    int16           word_39F54;
+    bool            mCamera_Speed_Reset_X;
+    bool            mCamera_Speed_Reset_Y;
     int32           mCamera_Speed_X;
     int32           mCamera_Speed_Y;
-    int32           dword_39F56;
-    int32           dword_39F5A;
-    int16           mCamera_Adjust_Col_High;
-    int16           mCamera_Adjust_Row_High;
+    int16           mCamera_StartPosition_X;
+    int16           mCamera_StartPosition_Y;
+    int16           mCamera_SquadLeaderX;
+    int16           mCamera_SquadLeaderY;
+    int32           mCamera_TileSpeed_Overflow;
+    int16           mCamera_TileX;
+    int16           mCamera_TileY;
+    int32           mCamera_TileSpeedX;
+    int32           mCamera_TileSpeedY;
+
     int16           mKeyCodeAscii;
 
-    int16           word_39FB2;
-    int16           word_39FB4;
-    int16           word_39FB6;
-    int16           word_39FB8;
     sSprite*        mSquad_Leader;
     int16           mSquad_Selected;
     int16           mSquad_JoiningTo;
 
     int16           mSprite_Frame_1;
-    int16           word_39FF4;
+    int16           mSprite_Frame_Modifier_Update_Countdown;
     int16           mSprite_Frame_2;
     int16           mSprite_Frame3_ChangeCount;
     int16           mSprite_Frame_3;
@@ -191,30 +209,25 @@ public:
     bool            mTroop_Weapon_Bullet_Disabled;
     bool            mTroop_Weapon_Rocket_Disabled;
 
-    uint16          word_3A024;
-    sGUI_Element*   mGUI_Loop_Element;
+    uint16          mSidebar_SmallMode;
     int32           dword_3A030;
-    uint16          word_3A054;
+
     int8            mSquads_TroopCount[4];
     uint8           byte_3A05E;
     uint16          word_3A05F;
-    int16           mCamera_Position_Column;
-    int16           mCamera_Position_Row;
-    int16           mCamera_Position_X;
-    int16           mCamera_Position_Y;
 
-    sSprite*        mSprite_DrawList_First[45];
-    sSprite*        mSprite_DrawList_Second[45];
-    sSprite*        mSprite_DrawList_Third[45];
+    std::vector<sSprite*> mSprite_DrawList_First;
+    std::vector<sSprite*> mSprite_DrawList_Second;
+    std::vector<sSprite*> mSprite_DrawList_Third;
+    std::vector<sSprite*> mSprite_DrawList_Final;
 
     uint8           byte_3A8DE[200];
 
-    sSprite*        mSprite_DrawList_Final[64];
+   
     int32           mStoredSpriteX;
     uint32          mStoredSpriteY;
     int16           mTmp_FrameNumber;
 
-    int16           mMission_IsFinished;
     int16           mSidebar_Draw_Y;
     int16           word_3A3BF;
 
@@ -222,11 +235,12 @@ public:
 
     sMapPosition    m2A622_Unk_MapPosition;
 
-    bool            mMission_Aborted;
-    int16           mMission_TryAgain;
-    int16           mMission_Complete;
-    int16           mMission_Completed_Timer;
-    int16           mMission_Paused;
+    bool            mPhase_Aborted;
+    int16           mPhase_Complete;
+    int16           mPhase_Completed_Timer;
+    int16           mPhase_Paused;
+    int16           mPhase_TryAgain;
+    bool            mPhase_TryingAgain;
 
     int16           mEnemy_BuildingCount;
     int16           mSquad_SwitchWeapon;
@@ -239,12 +253,8 @@ public:
     int8            mSprite_Projectile_Counters[4];
     int8            mSprite_Missile_Projectile_Counters[4];
 
-    int16           mMouseX_Offset;
-    int16           mMouseY_Offset;
-    int16           mMouseSpriteNew;
+    int32           mCamera_Speed_Max;
 
-    int32           dword_3A9FD;
-    int16           mMouseSetToCursor;
     int16           mSprites_Found_Count;
 
     int16           mSquad_Grenades[3];
@@ -256,7 +266,7 @@ public:
     int16           mHostage_Count;
     sSprite*        mHostage_Rescue_Tent;
 
-    int16           mCamera_Start_Adjust;
+    bool            mCamera_Start_Adjust;
     int16           word_3AA1D;             // 2 = Use mSprite_Frame_3
     int16           mCamera_Reached_Target;
     int16           word_3AA21;
@@ -266,14 +276,7 @@ public:
     int16           mSprite_Find_Distance;
     int32           mMapWidth_Pixels;
     int32           mMapHeight_Pixels;
-    int16           mMouseCursor_Enabled;
-    int16           word_3AA55;
-    int16           mRecruit_Render_Name_SmallGap;
-    sRecruitRendered*           mRecruit_RenderedPtr;
-    int16           mRecruit_Truck_Frame;
-    int16           mRecruit_Truck_FrameAnimBufferPtr;
 
-    int16           mMouse_Button_LeftRight_Toggle2;
 
     int16           mSprite_Reached_Target;
     int16           mStoredSpriteFrame;
@@ -288,7 +291,6 @@ public:
     sMission_Troop* mSquad_Member_Clicked_TroopPtr;
 
     int16           word_3ABFD;
-    int16           mService_Troop_Promotions[9];
 
     int16           mString_GapCharID;      // Replace spaces in strings with this id
 
@@ -301,7 +303,7 @@ public:
     int8            mGUI_RefreshSquadGrenades[3];
     int8            mGUI_RefreshSquadRockets[3];
     int16           mSquad_CurrentWeapon[3];
-    int16           mMouseDisabled;
+
     int16           mGUI_Loop_Is_CurrentSquad;
     int16           word_3AC4B;
     int16           word_3AC4D;
@@ -314,9 +316,7 @@ public:
     int16           mMap_Destroy_Tile_X;
     int16           mMap_Destroy_Tile_Y;
     int16           mMap_Destroy_Tiles_Countdown;
-    sMapPosition    mMap_Destroy_Tiles[128];
-    sMapPosition*   mMap_Destroy_TilesPtr2;
-    sMapPosition*   mMap_Destroy_TilesPtr;
+    std::vector<sMapPosition> mMap_Destroy_Tiles;
 
     int16           mSprite_SpareUsed;
     int16           mSprite_SpareUsed2;
@@ -331,36 +331,43 @@ public:
     int16           mSprite_Tank_DistanceTo_Squad0;
     int16           mSprite_Missile_LaunchDistance_X;
     int16           mSprite_Missile_LaunchDistance_Y;
-    int16           word_3B1A9;								// Never written to
     int16           mSprite_Bullet_Deviate_Counter;
     int32           dword_3B1CB;
-    int16           mRecruit_Hill_Positions_Use[0x0F];
-    int16           mRecruit_Truck_Reached;
-    int16           mRecruit_Truck_Animation_Play;
-    int16           mRecruit_Truck_Enter_Count;
 
     eTileTypes      mMap_TileSet;
-    sSprite*        mSquad_CurrentVehicle;
+    int16           mMission_Finished;
+    int16           mMission_EngineTicks;
+    bool            mRecruit_Mission_Restarting;
+    int16           mMission_ShowMapOverview;
+    sSprite*        mMission_Troops_SpritePtrs[9];
+
     bool            mMission_In_Progress;
+    int16           mMission_Final_TimeToDie_Ticker;
+    int16           mMission_Final_TimeRemain;
+    int16           mMission_Final_TimeToAbort;
+    int16           mMission_Save_Blocked[0x18];
+
+    sSprite*        mSquad_CurrentVehicles[3];
+    sSprite*        mSquad_CurrentVehicle;
+
     int16           mSprite_HumanVehicles_Found;
     sSprite*        mSprites_HumanVehicles[15];
     int16           dword_3B24B;
-    sSprite*        mSquad_CurrentVehicles[3];
+
     int16           word_3B25B;
     int16           word_3B25D;
     int16           word_3B2CB;
     int16           mGUI_SaveLoadAction;
     int16           word_3B2CF;
     int16           word_3B2D1[6];
-    int16           word_3B2DD[5];
+    int16           mSprite_Find_Types[5];
     int16           word_3B2ED;
     int16           mSpawnSpriteType;
     int16           word_3B2F1;
     int16           word_3B2F3;
     int16           mSprite_Field10_Saved;
     int16           word_3B2F7;
-    int16           mRecruit_Button_Load_Pressed;
-    int16           mRecruit_Button_Save_Pressed;
+
     int16           mGUI_Temp_X;
     int16           mGUI_Temp_Width;
 
@@ -369,13 +376,11 @@ public:
 
     void            (cFodder::*mGUI_Select_File_String_Input_Callback)(int16 pPosY);
 
-    int16           mInputString_Position;
     int16			mGUI_Select_File_ShownItems;
     int16           mGUI_Select_File_CurrentIndex;
     int16           mGUI_Select_File_Count;
     int16           mGUI_Select_File_SelectedFileIndex;
 
-    int16           mPhase_Goals[10];
     int16           mIntro_PlayTextDuration;
     int16           mSoundEffectToPlay_Set;
     int16           mSoundEffectToPlay;
@@ -394,16 +399,12 @@ public:
     int16           mHelicopterCall_X;
     int16           mHelicopterCall_Y;
     sSprite*        mTroop_InRange_Callpad;
-    int16           mMission_Final_TimeToDie_Ticker;
-    int16           mMission_Final_TimeRemain;
-    int16           mMission_Final_TimeToAbort;
+
     int16           mGUI_Sidebar_MapButton_Prepared;
-    int16           mMission_ShowMapOverview;
+
     int16           mTurretFires_HomingMissile;
-    int16           word_3B4E9;
-    int16           word_3B4EB;
     int16           word_3B4ED[2];
-    int16           mMission_Finished;
+
     int16           mImage_Aborted;
     int16           mBriefing_Aborted;
 
@@ -416,10 +417,36 @@ public:
     uint16*         mSidebar_Screen_Buffer;
     uint16*         mSidebar_Back_Buffer;
 
-    uint16          mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
+    int16               mRecruit_Button_Load_Pressed;
+    int16               mRecruit_Button_Save_Pressed;
+    int16               mRecruit_Hill_Positions_Use[0x0F];
+
+    std::vector<sRecruitRendered> mRecruit_Rendereds;
+    std::vector<sRecruitRendered>::iterator mRecruit_RenderedNext;
+
+    bool                mRecruit_Screen_Active;
+    int16               mRecruit_Sidebar_Draw_Y_Start;
+    int16               mRecruit_Truck_Animation_Play;
+    int16               mRecruit_Truck_Troops_ToEnter_Count;
+    int16               mRecruit_Truck_Frame;
+    int16               mRecruit_Truck_FrameAnimBufferPtr;
+    uint16              mRecruit_Truck_FramesPlay[100]; // This probably doesn't need to be this big
+    int16               mRecruit_Truck_Reached;
+    int16               mRecruit_Render_Name_SmallGap;
 
     int16           mMouseX;
     int16           mMouseY;
+    int16           mMouseX_Offset;
+    int16           mMouseY_Offset;
+
+    int32           mCameraX;
+    int32           mCameraY;
+
+    int16           mMouseCursor_Enabled;
+
+    int16           mMouseSpriteNew;
+    int16           mMouseSetToCursor;
+    int16           mMouseDisabled;
 
     uint16          mSquad_Grenade_SplitMode;
     uint16          mSquad_Rocket_SplitMode;
@@ -455,12 +482,11 @@ public:
     uint16*         mSidebar_Screen_BufferPtr;
 
     sGUI_Element    mSidebar_OverlayButtons[2];
-    int16           mMission_Save_Availability[0x18];
 
     int16           mBriefing_Render_1_Mode;
 
     int16           mMap_Overview_MapNumberRendered;
-    int16           mDebug_MissionSkip;
+    int16           mDebug_PhaseSkip;
     int16           mPaused;
     int16           mKeyControlPressed;
 
@@ -494,13 +520,12 @@ public:
     int16           mBriefing_Helicopter_Moving;
     int16           word_428D8;
 
-    int16           mKeyNumberPressed;
-
-    int16           mouse_Button_Status;
-    int16           mouse_Pos_Column;
-    int16           mouse_Pos_Row;
+    int16           mMouseButtonStatus;
+    int16           mInputMouseX;
+    int16           mInputMouseY;
 
     int16           mService_Promotion_Exit_Loop;
+    std::vector<sService_Draw> mService_Draw_List;
 
     int16           mRandom_0;
     int16           mRandom_1;
@@ -535,11 +560,11 @@ public:
     void            Image_FadeOut();
 
     virtual int16   Mission_Loop();
-    virtual int16   Mission_Phase_Loop();
+    virtual int16   Phase_Loop();
 
     void            Game_Handle();
     void            Camera_Handle();
-    void            Camera_Position_Toward_SquadLeader();
+    void            Camera_PanTarget_AdjustToward_SquadLeader();
     void            Game_ClearVariables();
 
     void            Mission_Memory_Backup();
@@ -572,60 +597,65 @@ public:
     bool			Tiles_Load_Data();
     int16			Tile_FindType(eTerrainType pType);
 
-    // Mission Functions
-    void            Mission_Troop_Count();
-    void            Mission_Troop_Sort();
-    void            Mission_Troop_Prepare(const bool pPrebriefing);
-    void            Mission_Troop_Prepare_Next_Recruits();
-    void            Mission_Troop_Attach_Sprites();
-    void            Camera_Position_Update();
-    int16           sub_119E1(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
-
-    void            Camera_Calculate_Scroll();
-    void            sub_11CAD();
-    void            Camera_Refresh();
     void            Music_Play_Tileset();
+
+    // Mission Functions
+    void            Phase_Soldiers_Count();
+    void            Phase_Soldiers_Prepare(const bool pPrebriefing);
+    void            Mission_Troop_Prepare_Next_Recruits();
+    void            Phase_Soldiers_AttachToSprites();
+    void            Mission_Troops_Clear_Selected();
+
+    void            Camera_Speed_Update_From_PanTarget();
+    int16           sub_119E1(int16& pX1, int16& pY1, int16 pX2, int16 pY2);
+
+    void            Camera_Speed_Calculate();
+    void            sub_11CAD();
+    void            Camera_SetTargetToStartPosition();
     void            Camera_Pan_To_Target();
     void            Camera_Pan_Set_Speed();
-    void            Camera_Update_From_Mouse();
+    void            Camera_Update_Mouse_Position_For_Pan();
 
-    void            sub_12018();
+    void            MapTile_UpdateFromCamera();
     void            Camera_Reset();
-    void            sub_120F6();
-    void            Camera_Adjust_Row();
-    void            Camera_Mission_Over_Check();
+    void            Camera_TileSpeedX_Set();
+    void            Camera_TileSpeedY_Set();
+    void            Camera_Speed_MaxSet();
     void            Camera_Speed_Reset();
-    void            Camera_Pan_SetSpeed();
+    void            Camera_Acceleration_Set();
 
     void            Sprite_Sort_DrawList();
     void            Sprite_Bullet_SetData();
 
     void            Mission_Final_Timer();
 
-    void            Mission_Phase_Goals_Check();
-    void            Mission_Phase_Goals_Set();
-    void            Mission_Progress_Check();
+    void            Phase_Goals_Check();
+    void            Phase_Goals_Set();
+    void            Phase_Progress_Check();
 
     void            Mission_Map_Overview_Show();
 
     void            Mission_Set_Final_TimeRemaining();
     void            Mission_Sprites_Handle();
 
-    void            Mission_Text_Completed();
-    void            Mission_Text_Sprite_Mission(sSprite* pData2C);
-    void            Mission_Text_Sprite_Phase(sSprite* pData2C);
-    void            Mission_Text_Sprite_Complete(sSprite* pData2C);
-    void            Mission_Text_Prepare(sSprite* pData2C);
-    void            Mission_Text_TryAgain();
-    void            Mission_Text_Sprite_Try(sSprite* pData2C);
-    void            Mission_Text_Sprite_Again(sSprite* pData2C);
+    void            Phase_GameOver();
+    void            Phase_Paused();
+
+    void            Phase_Show_Complete();
+    void            Phase_Show_TryAgain();
+    void            Phase_TextSprite_Prepare(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Mission(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Phase(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Complete(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Try(sSprite* pData2C);
+    void            Phase_TextSprite_Create_Again(sSprite* pData2C);
+    void            Phase_TextSprite_Create_GameOver(sSprite* pData2C);
 
     std::string     Filename_CreateFromBase(const std::string& pBase, const char* pFinish);
     void            Squad_Member_PhaseCount();
     void            Squad_Set_CurrentVehicle();
     void            Squad_EnteredVehicle_TimerTick();
 
-    void            Map_Clear_Destroy_Tiles();
     void            Map_Overview_Prepare();
     void            Map_SetTileType();
 
@@ -635,12 +665,7 @@ public:
     void            Sprite_HelicopterCallPad_Check();
 
     int16           Sprite_Create_RandomExplosion();
-    void            Mission_GameOver();
-    void            Mission_Text_GameOver(sSprite* pData2C);
-    void            Mission_Paused();
 
-    void            Video_Sleep_Wrapper();
-    void            Mouse_DrawCursor();
     void            GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY);
     void            GUI_Draw_Frame_16(int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY);
     void            Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0);
@@ -665,31 +690,31 @@ public:
 
     /* Recruitment */
     int16           Recruit_Show();
+    void            Recruit_Prepare();
     bool            Recruit_Loop();
     void            Recruit_Draw_String(int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString);
     void            Recruit_Truck_Anim_Prepare();
     void            Recruit_Truck_Anim_CopyFrames(uint16** pDi, const int16* pSource);
-    void            sub_16C6C();
-    void            Recruit_Render_LeftMenu();
+    void            Recruit_Render_Sidebar();
     void            Recruit_Render_Squad_Names();
     void            Recruit_Render_Squad_RankKills();
     void            Recruit_Render_Number(int16 pNumber, int16 pData10);
     void            Recruit_Render_HeroList();
     void            Recruit_Render_Names_UnusedSlots();
     void            Recruit_Sidebar_Render_SquadName();
-    void            Recruit_Draw_Actors();
+    void            Recruit_Update_Actors();
     void            sub_175C0();
-    void            Recruit_Draw_Troops();
-    void            sub_1787C();
+    void            Recruit_Update_Soldiers();
+    void            Recruit_Prepare_Anims();
     void            Recruit_Frame_Check();
     void            Recruit_Position_Troops();
-    void            Recruit_Draw_Truck();
+    void            Recruit_Update_Truck();
     void            Recruit_Copy_Sprites();
-    void            Recruit_Draw();
+    void            Recruit_Cycle();
     void            Recruit_Draw_Graves();
     void            Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const size_t pPosY);
     bool            Recruit_Check_Buttons_SaveLoad();
-    void            Recruit_Render_Text(const char* pText, const size_t pPosY);
+    void            GUI_Render_Text_Centred(const char* pText, const size_t pPosY);
     /* End Recruitment */
 
     /* Promotion / Heroes */
@@ -698,17 +723,14 @@ public:
     void            Service_Promotion_Loop();
     int16           Service_KIA_Troop_Prepare();
     int16           Service_Promotion_Prepare_Draw();
-    void            Service_Draw_Troop_And_Rank(uint16*& pDi, int16 pRecruitID, int16 pRank);
-    void            sub_18149();
-    void            sub_181BD();
-    void            sub_181E6(uint16*& pDi, const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC);
-    int16           sub_1828A(int16& pSpriteType, int16& pFrame, int16& pData8, int16& pDataC);
-    void            sub_182EA();
-    int16           sub_184C7();
-    void            Service_Mission_Text_Prepare(uint16*& pTarget);
-    void            Service_Promotion_Prepare();
+    void            Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank);
+    void            Service_Draw_List();
+    void            Service_ScrollUp_DrawList();
+    void            Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC);
+    int16           Service_Sprite_Draw(int16& pSpriteType, int16& pFrame, int16& pX, int16& pY);
+    int16           Service_Sprite_OnScreen_Check();
+    void            Service_Mission_Text_Prepare();
     void            Service_Promotion_Check();
-    void            Service_Promotion_SetNewRanks();
 
     /* End Promotion / Heroes */
 
@@ -726,7 +748,7 @@ public:
     void            Briefing_Draw_Pixel(int16 pX, int16 pY, uint8 pColor);
 
     void			Mission_Intro_Play();
-    void            Intro_Print_String(int32 pPosX, const sIntroString* pString);
+    void            Intro_Print_String(const sIntroString* pString);
 
     void            Sprite_Frame_Modifier_Update();
 
@@ -1018,8 +1040,8 @@ public:
     void            MapTile_Move_Down(int16 pPanTiles);
     void            MapTile_Move_Up(int16 pPanTiles);
 
-    void            MapTile_Update_Row();
-    void            MapTile_Update_Column();
+    void            MapTile_Update_Y();
+    void            MapTile_Update_X();
 
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
     sSprite*		Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
@@ -1049,7 +1071,6 @@ public:
 
     void            GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20);
 
-    void            Game_Save_Wrapper2();
     void            Game_Save_Wrapper();
 
     void            GUI_Element_Reset();
@@ -1066,6 +1087,7 @@ public:
 
 
     void            GUI_Input_CheckKey();
+    void            GUI_Button_Load_MouseWheel();
     void            GUI_Button_Load_Up();
     void            GUI_Button_Load_Down();
     void            GUI_Button_Load_Exit();
@@ -1105,7 +1127,7 @@ public:
     void            GUI_Handle_Button_SelectSquad_0();
     void            GUI_Handle_Button_SelectSquad_1();
     void            GUI_Handle_Button_SelectSquad_2();
-    void            Squad_Select(int16 pData4);
+    void            Squad_Select(int16 pData4, bool pCheckMouse = true);
     void            GUI_Handle_Button_SplitSquad();
     void            Mission_Set_Initial_Weapon();
 
@@ -1158,10 +1180,8 @@ public:
     void            sub_3037A();
     void            sub_3049B();
     void            GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper();
-    void            Mouse_Cursor_Update();
-    int16           Mouse_Button_Left_Toggled();
     void            Squad_Member_Click_Check();
-    void            Mission_Troops_Clear_Selected();
+
     void            sub_303AE();
     void            sub_303B7();
     void            GUI_Sidebar_Squad_Split_Icon_Draw();
@@ -1170,9 +1190,9 @@ public:
     void            Squad_Switch_Weapon();
     void            Mission_Final_TimeToDie();
     int16           sub_305D5(sSprite*& pData20);
-    void            Mouse_Inputs_Check();
+
     void            Squad_Member_Target_Set();
-    int16           Mouse_Button_Right_Toggled();
+
     void            Squad_Switch_Timer();
     void            Squad_Switch_To(int16 pData0);
     void            Vehicle_Input_Handle();
@@ -1189,7 +1209,6 @@ public:
     void            intro_LegionMessage();
     int16           intro_Play();
     void            intro();
-    void            intro_Music_Play();
 
     void            Sidebar_Clear_ScreenBufferPtr();
     void            Mission_Phase_Next();
@@ -1199,24 +1218,37 @@ public:
     void            WonGame();
 
     void            Video_SurfaceRender( const bool pRestoreSurface = true );
-    void            Video_Sleep();
+    void            Cycle_End();
 
     void            sleepLoop(int64 pMilliseconds);
     int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration);
 
-    void            Mouse_Setup();
-    void            Mouse_Inputs_Get();
     void            Mouse_ButtonCheck();
-    void            Mouse_GetData();
+    int16           Mouse_Button_Left_Toggled();
+    int16           Mouse_Button_Right_Toggled();
+    void            Mouse_Cursor_Handle();
+    void            Mouse_Cursor_Update();
+    void            Mouse_DrawCursor();
+    void            Mouse_Inputs_Get();
+    void            Mouse_Inputs_Check();
+    void            Mouse_Setup();
 
     void            eventProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
 
     void            Game_Setup(int16 pStartMap);
 
+    template <typename tType> std::shared_ptr<tType> GetGraphics() {
+        return std::dynamic_pointer_cast<tType>(mGraphics);
+    }
+
+    template <typename tType> std::shared_ptr<tType> GetSound() {
+        return std::dynamic_pointer_cast<tType>(mSound);
+    }
+
 public:
 
-    cFodder(cWindow* pWindow, bool pSkipIntro = false);
+    cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro = false);
     virtual         ~cFodder();
 
     void            SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet);
@@ -1227,7 +1259,6 @@ public:
     void            String_Print_Small(std::string pText, const size_t pY);
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
-    bool            EventAdd(cEvent pEvent);
     void            Prepare();
 
     void            Playground();
@@ -1241,6 +1272,5 @@ public:
     void            Menu_Loop(const std::function<void()> pButtonHandler);
     bool            Menu_Draw(const std::function<void()> pButtonHandler);
 
-    void            VersionCleanup();
-    void            VersionLoad(const sVersion* pVersion);
+    void            VersionSwitch(const sGameVersion* pVersion);
 };
