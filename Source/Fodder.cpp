@@ -4484,21 +4484,18 @@ void cFodder::Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const si
 }
 
 void cFodder::Recruit_Draw_Graves() {
-    const int16* GravePosition = &mGravePositions[720];
-
-    for (size_t i = mGame_Data.mSoldiers_Died.size(); i > 0; --i) {
-        GravePosition -= 2;
-    }
+    auto GraveIT = mGravePositions.rbegin();
 
     if (mGame_Data.mSoldiers_Died.empty())
         return;
 
+    for (size_t i = mGame_Data.mSoldiers_Died.size(); i > 0; --i) {
+        ++GraveIT;
+    }
+
    for(auto& Hero : mGame_Data.mSoldiers_Died) {
-
-        int16 PosX = *GravePosition++;
-        int16 PosY = *GravePosition++;
-
-        Recruit_Draw_Grave(Hero.mRank, PosX, PosY);
+       --GraveIT;
+        Recruit_Draw_Grave(Hero.mRank, GraveIT->mX, GraveIT->mY + VERSION_BASED(0, 6));
     };
 
 }
@@ -10245,33 +10242,30 @@ void cFodder::Game_Save() {
     mMouse_Exit_Loop = false;
 }
 
-void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20) {
-    mGUI_Loop_Element = pData20;
+void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element* pLoop_Element) {
 
-    for (; mGUI_Loop_Element->field_0; ++mGUI_Loop_Element) {
+    for (; pLoop_Element->field_0; ++pLoop_Element) {
 
-        pData20 = mGUI_Loop_Element;
-
-        int16 Data0 = pData20->mX;
+        int16 Data0 = pLoop_Element->mX;
         int16 Data4 = mMouseX;
         Data4 += 0x20;
 
         if (Data0 > Data4)
             continue;
 
-        Data0 += pData20->mWidth;
+        Data0 += pLoop_Element->mWidth;
         if (Data0 < Data4)
             continue;
 
-        Data0 = pData20->mY;
+        Data0 = pLoop_Element->mY;
         if (Data0 > mMouseY)
             continue;
 
-        Data0 += pData20->mHeight;
+        Data0 += pLoop_Element->mHeight;
         if (Data0 < mMouseY)
             continue;
 
-        (*this.*pData20->mMouseInsideFuncPtr)();
+        (*this.*pLoop_Element->mMouseInsideFuncPtr)();
         return;
     }
 }
@@ -21113,24 +21107,19 @@ void cFodder::Mission_Final_TimeToDie() {
     if (mMission_Final_TimeRemain < 0)
         mMission_Final_TimeRemain = 0;
 
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x05;
+    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x0F;
+
+
+    for (unsigned int Y = 0x1000; Y < 0x1500; ++Y) {
+
+        mSidebar_Screen_Buffer[Y] = 0;
+    }
 
     GUI_Sidebar_TroopList_Name_Draw(0, 0, 0, 0xB7, "TIME TO DIE ");
 
-    int16 di = 0x900;
-    for (int16 dx = 4; dx > 0; --dx) {
-        int16 di2 = di / 2;
-
-        // Clear the sidebar buffer
-        for (int16 cx = 0x12; cx > 0; --cx) {
-            mSidebar_Screen_Buffer[di2] = 0;
-            mSidebar_Screen_Buffer[di2 + 1] = 0;
-            di2 += 2;
-        }
-        di += 0x960;
-    }
-
     GUI_Sidebar_Number_Draw(mMission_Final_TimeRemain, 0, 0x30, 0xC0, 0xAF);
+
+    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x05;
 }
 
 int16 cFodder::sub_305D5(sSprite*& pData20) {
@@ -21212,39 +21201,35 @@ void cFodder::Mouse_Inputs_Check() {
         return;
     }
 
-    mGUI_Loop_Element = mGUI_Elements;
+    for (sGUI_Element* Loop_Element = mGUI_Elements;; ++Loop_Element) {
 
-    for (;; ++mGUI_Loop_Element) {
-        sGUI_Element* Data20 = mGUI_Loop_Element;
-
-        if (Data20->field_0 == 0)
+        if (Loop_Element->field_0 == 0)
             break;
 
-        if ((*this.*Data20->field_0)() < 0)
+        if ((*this.*Loop_Element->field_0)() < 0)
             return;
 
-        Data20 = mGUI_Loop_Element;
-        Data0 = mGUI_Mouse_Modifier_X + Data20->mX;
+        Data0 = mGUI_Mouse_Modifier_X + Loop_Element->mX;
 
         int16 Data4 = mMouseX + 0x20;
 
         if (Data0 > Data4)
             continue;
 
-        Data0 += Data20->mWidth;
+        Data0 += Loop_Element->mWidth;
         if (Data0 < Data4)
             continue;
 
         Data0 = mGUI_Mouse_Modifier_Y;
-        Data0 += Data20->mY;
+        Data0 += Loop_Element->mY;
         if (Data0 > mMouseY)
             continue;
 
-        Data0 += Data20->mHeight;
+        Data0 += Loop_Element->mHeight;
         if (Data0 < mMouseY)
             continue;
 
-        (*this.*Data20->mMouseInsideFuncPtr)();
+        (*this.*Loop_Element->mMouseInsideFuncPtr)();
         return;
     }
 

@@ -308,7 +308,6 @@ public:
     int16           word_3AC4B;
     int16           word_3AC4D;
     int16           word_3AC51;
-    sGUI_Element*   mGUI_Loop_Element;
     sGUI_Element    mGUI_Elements[42];
     sGUI_Element*   mGUI_NextFreeElement;
     int16           mGUI_TroopName_DrawOffset;

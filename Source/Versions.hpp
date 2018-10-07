@@ -58,15 +58,9 @@ struct sRelease {
 };
 
 class cResources;
-class cResource_PC_CD;
-class cResource_Amiga_File;
 class cGraphics;
-class cGraphics_PC;
-class cGraphics_Amiga;
 class cSound;
-class cSound_PC;
-class cSound_PC2;
-class cSound_Amiga;
+
 
 struct sGameVersion {
 	const std::string	mName;
