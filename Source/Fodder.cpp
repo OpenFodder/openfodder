@@ -9306,6 +9306,9 @@ void cFodder::MapTile_Update_X() {
     mMapTile_SpeedX_Previous = mMapTile_SpeedX >> 16;
 }
 
+/**
+ * Sets a map tile to a certain ID, positioned based on the current camera
+ */
 void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
 
     if (pTileX > mMapWidth || pTileY > mMapHeight)
@@ -9424,8 +9427,9 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
         Data2C->field_28 = pTileY;
         break;
     }
-
+  
     Sprite_Handle_Loop();
+
     return Data2C;
 }
 
@@ -17955,9 +17959,11 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 void cFodder::Cycle_End() {
     static int64 delta = 2;
 
+#ifndef _OFED
     mTicksDiff = SDL_GetTicks() - mTicksDiff;
     mTicks = mTicksDiff * 40 / 1000;
     sleepLoop(delta * 1000 / 40 - mTicksDiff);
+#endif
 
     // New Cycle begins
     mTicksDiff = SDL_GetTicks();    
