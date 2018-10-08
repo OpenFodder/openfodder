@@ -109,6 +109,7 @@ While the game can start and is playable, it has no music or sound support and s
 Issues in the original engine which have been fixed  
   
 * Squad 2 and 3 grenade and rocket count did not refresh after use.
+* Camera pan could never finish, if the mouse was kept in the sidebar while changing squads
   
 #### Thanks To
 
