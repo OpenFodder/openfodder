@@ -9793,10 +9793,10 @@ void cFodder::Squad_Prepare_GrenadesAndRockets() {
     mSquad_Grenades[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available << 1;
     mSquad_Rockets[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available;
 
-    if (mGame_Data.mMission_Number < 4)      // Original CF: Map 5
+    if (mGame_Data.mMission_Number < 4 || (mGame_Data.mMission_Number == 4 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 5
         mSquad_Grenades[0] = 0;
 
-    if (mGame_Data.mMission_Number < 5 && mGame_Data.mMission_Phase < 2)     // Original CF: Map 10
+    if (mGame_Data.mMission_Number < 5 || (mGame_Data.mMission_Number == 5 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 10
         mSquad_Rockets[0] = 0;
 }
 
