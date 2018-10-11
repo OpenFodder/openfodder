@@ -87,12 +87,11 @@ bool cCampaign::LoadCustomMap(const std::string& pMapName) {
     // Map / Phase names must be upper case
     std::transform(CustomMapName.begin(), CustomMapName.end(), CustomMapName.begin(), ::toupper);
 
-    std::shared_ptr<cMission> Mission = std::make_shared<cMission>();
-    std::shared_ptr<cPhase> Phase = std::make_shared<cPhase>();
+    SetSingleMapCampaign();
+    std::shared_ptr<cMission> Mission = mMissions.back();
+    std::shared_ptr<cPhase> Phase = Mission->mPhases.back();
 
     Mission->mName = CustomMapName;
-    Mission->mPhases.push_back(Phase);
-    mMissions.push_back(Mission);
 
     Phase->mMapFilename = pMapName.substr(0, pMapName.size() - 4);
 
@@ -294,6 +293,14 @@ std::shared_ptr<cMission> cCampaign::getMission(size_t pMissionNumber) {
         return 0;
 
     return mMissions[pMissionNumber - 1];
+}
+
+void cCampaign::SetSingleMapCampaign() {
+    mName = "Single Map";
+
+    mMissions.clear();
+    mMissions.push_back(std::make_shared<cMission>());
+    mMissions.back()->mPhases.push_back(std::make_shared<cPhase>());
 }
 
 const std::string cCampaign::getName() const {

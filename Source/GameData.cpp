@@ -71,7 +71,7 @@ void sGameData::Clear() {
     mMission_Current = 0;
     mPhase_Current = 0;
 
-	mMissionNumber = 1;
+	mMission_Number = 1;
 	mMission_Phase = 1;
 
 	mRecruits_Available_Count = 0;
@@ -190,7 +190,7 @@ std::vector<sHero> sGameData::Heroes_Get() const {
 bool sGameData::Phase_Next() {
 
     if (!mMission_Current)
-        mMission_Current = mCampaign.getMission(mMissionNumber);
+        mMission_Current = mCampaign.getMission(mMission_Number);
 
     if (!mMission_Current)
         return true;
@@ -210,7 +210,7 @@ bool sGameData::Phase_Next() {
         Troop.mPhaseCount = 0;
     }
 
-    mMission_Current = mCampaign.getMission(++mMissionNumber);
+    mMission_Current = mCampaign.getMission(++mMission_Number);
     if (!mMission_Current)
         return false;
 
@@ -258,7 +258,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	Save["SaveName"] = pSaveName;
 
 	// Actual game states
-	Save["mMissionNumber"] = mMissionNumber;
+	Save["mMissionNumber"] = mMission_Number;
 
 	Save["mMission_Recruits_AliveCount"] = mMission_Recruits_AliveCount;
 	Save["mMission_Recruitment"] = mMission_Recruitment;
@@ -326,7 +326,7 @@ bool sGameData::FromJson(const std::string& pJson) {
              mSavedVersion.mPlatform = LoadedData["DataVersion"]["mPlatform"];
              mSavedVersion.mRelease = LoadedData["DataVersion"]["mRelease"];
 
-             mMissionNumber = LoadedData["mMissionNumber"];
+             mMission_Number = LoadedData["mMissionNumber"];
              mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
 
              mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
@@ -362,7 +362,7 @@ bool sGameData::FromJson(const std::string& pJson) {
          }
      }
 
-    mMission_Current = mCampaign.getMission(mMissionNumber);
+    mMission_Current = mCampaign.getMission(mMission_Number);
     if (mMission_Current) {
         mPhase_Current = mMission_Current->GetPhase(0);
         mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();

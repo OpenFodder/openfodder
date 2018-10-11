@@ -126,6 +126,8 @@ public:
 
     std::shared_ptr<cMission> getMission(size_t pMissionNumber);
 
+    void SetSingleMapCampaign();
+
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;
 	bool isRandom() const;

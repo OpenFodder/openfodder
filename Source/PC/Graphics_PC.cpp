@@ -531,7 +531,7 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	mFodder->GUI_Draw_Frame_8( 0x18, 0, 0, 0 );
 	
 	// Save Icon (Coloured or Gray)
-	int16 Data4 = mFodder->mMission_Save_Blocked[ (mFodder->mGame_Data.mMissionNumber - 1) ];
+	int16 Data4 = mFodder->mMission_Save_Blocked[ (mFodder->mGame_Data.mMission_Number - 1) ];
 	mFodder->GUI_Draw_Frame_8( 0x19, Data4, 0x130, 0 );
 	
 	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );

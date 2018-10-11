@@ -112,9 +112,9 @@ struct sGameData {
     std::shared_ptr<cMission>        mMission_Current;
     std::shared_ptr<cPhase>          mPhase_Current;
     
-    uint16          mMissionNumber; // Starts at 1
-
+    uint16          mMission_Number; // Starts at 1
     uint16          mMission_Phase; // Starts at 1
+
     uint16          mRecruits_Available_Count;
 
     uint16          mMission_Recruits_AliveCount;

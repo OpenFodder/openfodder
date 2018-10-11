@@ -1323,7 +1323,7 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
             // Demo sets static ranks
             if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
-                Troop.mRank = (mGame_Data.mMissionNumber - 1) >> 1;
+                Troop.mRank = (mGame_Data.mMission_Number - 1) >> 1;
 
                 // Jops
                 if (Troop.mRecruitID == 1)
@@ -1335,7 +1335,7 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
 
             }
             else {
-                Troop.mRank = (mGame_Data.mMissionNumber - 1) / 3;
+                Troop.mRank = (mGame_Data.mMission_Number - 1) / 3;
             }
 
             Troop.field_6 = 3;
@@ -1785,8 +1785,9 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
         Map[0x27] = Seed;
 
         Map_Randomise_Tiles(Seed);
-        Map_Randomise_Structures(2);
         Map_Randomise_Sprites();
+        Map_Randomise_Structures(2);
+
 
 #ifndef _OFED
         Map_Load_Sprites_Count();
@@ -3056,7 +3057,7 @@ void cFodder::WindowTitleSet(bool pInMission) {
             Title << mGame_Data.mPhase_Current->mName;
         }
         else {
-            Title << " ( Mission: " << mGame_Data.mMissionNumber;
+            Title << " ( Mission: " << mGame_Data.mMission_Number;
             Title << " " << mGame_Data.mMission_Current->mName;
 
             Title << "  Phase: " << (mGame_Data.mMission_Phase) << " ";
@@ -3248,7 +3249,7 @@ void cFodder::Mission_Final_Timer() {
 
     if (mVersionCurrent->isRetail() && mVersionCurrent->mGame == eGame::CF1) {
 
-        if (!(mGame_Data.mMissionNumber == 24 && mGame_Data.mMission_Phase == 6))
+        if (!(mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))
             return;
 
         if (mMission_Final_TimeRemain)
@@ -3565,7 +3566,7 @@ void cFodder::Mission_Intro_Draw_OpenFodder() {
 
 void cFodder::Mission_Intro_Draw_Mission_Name() {
 
-    if (mGame_Data.mMissionNumber == 0)
+    if (mGame_Data.mMission_Number == 0)
         Mission_Intro_Draw_OpenFodder();
     else
         Briefing_Draw_Mission_Title(0xB5);
@@ -3584,7 +3585,7 @@ void cFodder::Briefing_Draw_Mission_Title(int16 pDrawAtY) {
         std::stringstream Mission;
         Mission << "MISSION ";
         mString_GapCharID = 0x25;
-        Mission << tool_StripLeadingZero(std::to_string(mGame_Data.mMissionNumber));
+        Mission << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Number));
 
         String_Print_Large(Mission.str(), true, 0);
     }
@@ -3970,6 +3971,7 @@ void cFodder::Campaign_Selection() {
         // Single Map Mode?
         if (CampaignFile == "Single Map" || CampaignFile == "Random Map") {
             
+            mGame_Data.mCampaign.SetSingleMapCampaign();
             mCustom_Mode = eCustomMode_Map;
             return;
 
@@ -4179,8 +4181,11 @@ void cFodder::Custom_ShowMapSelection() {
 
     mGame_Data.mCampaign.LoadCustomMap(File);
 
-    mGame_Data.mMissionNumber = 1;
+    mGame_Data.mMission_Phases_Remaining = 1;
+    mGame_Data.mMission_Number = 0;
     mGame_Data.mMission_Phase = 0;
+    mGame_Data.Phase_Next();
+
     mDemo_ExitMenu = 1;
     mCustom_ExitMenu = 1;
     mCustom_Mode = eCustomMode_Map;
@@ -4237,6 +4242,11 @@ int16 cFodder::Recruit_Show() {
 
             mGame_Data.mCampaign.LoadCustomMap("random.map");
             mGame_Data.mCampaign.setRandom(true);
+
+            mGame_Data.mMission_Phases_Remaining = 1;
+            mGame_Data.mMission_Number = 0;
+            mGame_Data.mMission_Phase = 0;
+            mGame_Data.Phase_Next();
 
             auto Phase = mGame_Data.mCampaign.getMission(0)->GetPhase(0);
             int16 Min = (rand() % 5);
@@ -5170,7 +5180,7 @@ bool cFodder::Recruit_Check_Buttons_SaveLoad() {
         if (mMouseY > 0x1A)
             return true;
 
-        if (mMission_Save_Blocked[mGame_Data.mMissionNumber - 1])
+        if (mMission_Save_Blocked[mGame_Data.mMission_Number - 1])
             return false;
 
         mRecruit_Button_Save_Pressed = -1;
@@ -9435,13 +9445,13 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
   
     (*this.*mSprite_Function[First->field_18])(First);
 
-    if(Second && Second->field_0 != -1)
+    if(Second && Second->field_0 != -32768)
         (*this.*mSprite_Function[Second->field_18])(Second);
 
-    if(Third && Third->field_0 != -1)
+    if(Third && Third->field_0 != -32768)
         (*this.*mSprite_Function[Third->field_18])(Third);
 
-    if (Fourth && Fourth->field_0 != -1)
+    if (Fourth && Fourth->field_0 != -32768)
         (*this.*mSprite_Function[Fourth->field_18])(Fourth);
 
     return First;
@@ -9783,10 +9793,10 @@ void cFodder::Squad_Prepare_GrenadesAndRockets() {
     mSquad_Grenades[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available << 1;
     mSquad_Rockets[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available;
 
-    if (mGame_Data.mMissionNumber < 4)      // Original CF: Map 5
+    if (mGame_Data.mMission_Number < 4)      // Original CF: Map 5
         mSquad_Grenades[0] = 0;
 
-    if (mGame_Data.mMissionNumber < 5 && mGame_Data.mMission_Phase < 2)     // Original CF: Map 10
+    if (mGame_Data.mMission_Number < 5 && mGame_Data.mMission_Phase < 2)     // Original CF: Map 10
         mSquad_Rockets[0] = 0;
 }
 
@@ -10582,13 +10592,13 @@ void cFodder::GUI_Element_Mouse_Over(const sGUI_Element *pElement) {
 }
 
 void cFodder::GUI_Button_SelectMap0() {
-    mGame_Data.mMissionNumber = 0;
+    mGame_Data.mMission_Number = 0;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
 
 void cFodder::GUI_Button_SelectMap1() {
-    mGame_Data.mMissionNumber = 1;
+    mGame_Data.mMission_Number = 1;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
@@ -10599,13 +10609,13 @@ void cFodder::GUI_Button_SelectQuiz() {
 }
 
 void cFodder::GUI_Button_SelectMap2() {
-    mGame_Data.mMissionNumber = 2;
+    mGame_Data.mMission_Number = 2;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
 
 void cFodder::GUI_Button_SelectMap3() {
-    mGame_Data.mMissionNumber = 3;
+    mGame_Data.mMission_Number = 3;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
@@ -11312,7 +11322,7 @@ void cFodder::Service_Mission_Text_Prepare() {
     std::stringstream Mission;
     Mission << "MISSION ";
 
-    Mission << tool_StripLeadingZero(std::to_string(mGame_Data.mMissionNumber));
+    Mission << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Number));
 
     String_CalculateWidth(0x140, mFont_Service_Width, Mission.str().c_str());
 
@@ -16470,7 +16480,7 @@ void cFodder::Sprite_Handle_Troop_Weapon(sSprite* pSprite) {
         if (pSprite->field_18 == eSprite_Enemy) {
 
             // Retail CF didn't allow enemy troops to use grenades until mission 4
-            if(!(mVersionCurrent->isRetail() && mGame_Data.mMissionNumber < 4)) {
+            if(!(mVersionCurrent->isRetail() && mGame_Data.mMission_Number < 4)) {
 
             // Use a grenade?
                 if (!(tool_RandomGet() & 0x1F)) {
@@ -19735,7 +19745,7 @@ void cFodder::Game_Setup(int16 pMissionNumber) {
     mPhase_Complete = 0;
 
     mGame_Data.mMission_Phases_Remaining = 1;
-    mGame_Data.mMissionNumber = pMissionNumber - 1;
+    mGame_Data.mMission_Number = pMissionNumber - 1;
 
     mGame_Data.Phase_Next();
 
@@ -19843,7 +19853,7 @@ Start:;
     // Play the intro
     if (!mOpenFodder_Intro_Done && !mSkipIntro) {
 
-        mGame_Data.mMissionNumber = 0;
+        mGame_Data.mMission_Number = 0;
 
         // Random intro
         mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
@@ -19951,7 +19961,7 @@ int16 cFodder::Mission_Loop() {
 
 
         // Show the Briefing screen for Retail and Custom 
-        if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set || mGame_Data.mCampaign.isRandom()) {
+        if (mVersionCurrent->isRetail() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
             Briefing_Show_Ready();
 
             // Aborted?
@@ -20909,7 +20919,7 @@ void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
 
     // Don't display the map button on the final map
     if (mVersionCurrent->isRetail() && mVersionCurrent->mGame == eGame::CF1) {
-        if ((mGame_Data.mMissionNumber == 24 && mGame_Data.mMission_Phase == 6))
+        if ((mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))
             return;
     }
 
@@ -21087,7 +21097,7 @@ void cFodder::Mission_Final_TimeToDie() {
     if (!mVersionCurrent->isRetail() || mVersionCurrent->mGame != eGame::CF1)
         return;
 
-    if (!(mGame_Data.mMissionNumber == 24 && mGame_Data.mMission_Phase == 6))
+    if (!(mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))
         return;
 
     ++mMission_Final_TimeToDie_Ticker;
