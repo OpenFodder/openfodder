@@ -54,8 +54,6 @@ void sGamePhaseData::Clear() {
 }
 
 sGameData::sGameData() {
-	mMapNumber = 0;
-	mMissionNumber = 0;
 
 	Clear();
 }
@@ -70,16 +68,17 @@ sGameData::sGameData(const std::string& pFromJson) {
 
 void sGameData::Clear() {
 
-	mMapNumber = 0;
-	mMissionNumber = 0;
-	mMission_Phase = 0;
+    mMission_Current = 0;
+    mPhase_Current = 0;
+
+	mMissionNumber = 1;
+	mMission_Phase = 1;
 
 	mRecruits_Available_Count = 0;
 
 	mMission_Recruits_AliveCount = 0;
 	mMission_Recruitment = 0;
 	mMission_Phases_Remaining = 0;
-	mMission_Phases_Total = 0;
 	mRecruit_NextID = 0;
 
     for (auto& Troop : mSoldiers_Allocated)
@@ -153,14 +152,6 @@ void sGameData::Soldier_Died(const sMission_Troop* pTroop) {
         return;
 
     mSoldiers_Died.push_back(sHero(pTroop));
-    /*
-    for(size_t x = 0; x < mSoldiers_Allocated.size(); ++x) {
-        if (&mSoldiers_Allocated[x] == pTroop) {
-            mSoldiers_Allocated.erase(mSoldiers_Allocated.begin() + x);
-            break;
-        }
-    }*/
-
 }
 
 std::vector<sHero> sGameData::Heroes_Get() const {
@@ -191,6 +182,56 @@ std::vector<sHero> sGameData::Heroes_Get() const {
     return Final;
 }
 
+/**
+ * Proceed to next phase/mission
+ *
+ * @return false If no more missions
+ */
+bool sGameData::Phase_Next() {
+
+    if (!mMission_Current)
+        mMission_Current = mCampaign.getMission(mMissionNumber);
+
+    if (!mMission_Current)
+        return true;
+
+    // Next Phase
+    ++mMission_Phase;
+    --mMission_Phases_Remaining;
+
+    mPhase_Current = mMission_Current->GetPhase(mMission_Phase);
+
+    // Still got phases to complete?
+    if (mMission_Phases_Remaining)
+        return true;
+
+    // Mission Complete
+    for (auto& Troop : mSoldiers_Allocated) {
+        Troop.mPhaseCount = 0;
+    }
+
+    mMission_Current = mCampaign.getMission(++mMissionNumber);
+    if (!mMission_Current)
+        return false;
+
+    mMission_Phase = 1;
+
+    mMission_Phases_Remaining = (int16) mMission_Current->NumberOfPhases();
+
+    mPhase_Current = mMission_Current->GetPhase(mMission_Phase);
+    if (!mPhase_Current)
+        return false;
+
+    mRecruits_Available_Count += 0x0F;
+    mMission_Recruits_AliveCount = mRecruits_Available_Count;
+    mMission_Recruits_AliveCount -= 0x0F;
+    mMission_Recruitment = -1;
+
+    mGamePhase_Data.mSoldiers_Prepare_SetFromSpritePtrs = false;
+    mGamePhase_Data.mTroops_DiedCount = mSoldiers_Died.size();
+    return true;
+}
+
 std::string sGameData::ToJson(const std::string& pSaveName) {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -213,20 +254,15 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	}
 	
 	// Keep the campaign
-	Save["Campaign"] = g_Fodder->mCampaign.getName();
+	Save["Campaign"] = mCampaign.getName();
 	Save["SaveName"] = pSaveName;
 
 	// Actual game states
-	Save["mMapNumber"] = mMapNumber;
-
 	Save["mMissionNumber"] = mMissionNumber;
-	Save["mMissionPhase"] = mMission_Phase;
-	
+
 	Save["mMission_Recruits_AliveCount"] = mMission_Recruits_AliveCount;
 	Save["mMission_Recruitment"] = mMission_Recruitment;
-	Save["mMission_Phases_Remaining"] = mMission_Phases_Remaining;
-	Save["mMission_Phases_Total"] = mMission_Phases_Total;
-    
+
     Save["mRecruits_Available_Count"] = mRecruits_Available_Count; 
     Save["mRecruit_NextID"] = mRecruit_NextID;
 
@@ -290,16 +326,11 @@ bool sGameData::FromJson(const std::string& pJson) {
              mSavedVersion.mPlatform = LoadedData["DataVersion"]["mPlatform"];
              mSavedVersion.mRelease = LoadedData["DataVersion"]["mRelease"];
 
-             mMapNumber = LoadedData["mMapNumber"];
-
              mMissionNumber = LoadedData["mMissionNumber"];
-             mMission_Phase = LoadedData["mMissionPhase"];
              mRecruits_Available_Count = LoadedData["mRecruits_Available_Count"];
 
              mMission_Recruits_AliveCount = LoadedData["mMission_Recruits_AliveCount"];
              mMission_Recruitment = LoadedData["mMission_Recruitment"];
-             mMission_Phases_Remaining = LoadedData["mMission_Phases_Remaining"];
-             mMission_Phases_Total = LoadedData["mMission_Phases_Total"];
              mRecruit_NextID = LoadedData["mRecruit_NextID"];
 
              int x = 0;
@@ -331,5 +362,10 @@ bool sGameData::FromJson(const std::string& pJson) {
          }
      }
 
+    mMission_Current = mCampaign.getMission(mMissionNumber);
+    if (mMission_Current) {
+        mPhase_Current = mMission_Current->GetPhase(0);
+        mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
+    }
 	return true;
 }

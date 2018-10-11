@@ -106,16 +106,20 @@ struct sGamePhaseData {
 };
 
 struct sGameData {
-    uint16          mMapNumber;
-    uint16          mMissionNumber;
+    sGamePhaseData  mGamePhase_Data;
 
-    uint16          mMission_Phase;
+    cCampaign       mCampaign;
+    std::shared_ptr<cMission>        mMission_Current;
+    std::shared_ptr<cPhase>          mPhase_Current;
+    
+    uint16          mMissionNumber; // Starts at 1
+
+    uint16          mMission_Phase; // Starts at 1
     uint16          mRecruits_Available_Count;
 
     uint16          mMission_Recruits_AliveCount;
     int16           mMission_Recruitment;
     uint16          mMission_Phases_Remaining;
-    uint16          mMission_Phases_Total;
     uint16          mRecruit_NextID;
 
     sMission_Troop  mSoldiers_Allocated[9];
@@ -134,6 +138,9 @@ struct sGameData {
     sGameData(const std::string& pFromJson);
 
     void Clear();
+
+    bool Phase_Next();
+
     void Soldier_Clear();
     void Soldier_Sort();
     void Soldier_Died(const sMission_Troop* pTroop);

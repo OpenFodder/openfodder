@@ -35,13 +35,16 @@ std::shared_ptr<cFodder>    g_Fodder;
 #ifndef _OFBOT
 int main(int argc, char *args[]) {
 	bool SkipIntro = false;
-	int16 MapNumber = 0;
+    std::string Campaign;
+	int16 MissionNumber = 1;
 
 	if (argc > 1) {
 		if (strcmp( args[1], "skipintro" ) == 0)
 			SkipIntro = true;
-		if (strcmp( args[2], "map" ) == 0) {
-			MapNumber = atoi( args[3] );
+
+		if (strcmp( args[2], "mission" ) == 0) {
+            MissionNumber = atoi( args[3] );
+            Campaign = "CANNON FODDER";
 		}
 	}
 
@@ -49,7 +52,7 @@ int main(int argc, char *args[]) {
 
     g_Fodder = std::make_shared<cFodder>( g_Window, SkipIntro );
     g_Fodder->Prepare();
-    g_Fodder->Start( MapNumber );
+    g_Fodder->Start(Campaign, MissionNumber);
 
     return 0;
 }

@@ -20,7 +20,7 @@
  *
  */
 
-enum eMissionGoals {
+enum ePhaseGoals {
     eGoal_None = 0,
     eGoal_Kill_All_Enemy = 1,
     eGoal_Destroy_Enemy_Buildings = 2,
@@ -45,10 +45,52 @@ struct sAggression {
         return (mMin + mMax) / 2;
     }
 
+    sAggression() {
+        mMin = 4;
+        mMax = 8;
+    }
 	sAggression(int16 pMin, int16 pMax) { 
 		mMin = pMin; 
 		mMax = pMax; 
 	}
+};
+
+class cPhase {
+public:
+    sAggression mAggression;
+    std::string mName;
+    std::string mMapFilename;
+    std::vector<ePhaseGoals> mGoals;
+
+    std::string GetName() const {
+        std::string Name = mName;
+        transform(Name.begin(), Name.end(), Name.begin(), toupper);
+        return Name;
+    }
+};
+
+class cMission {
+public:
+    std::string mName;
+    std::vector<std::shared_ptr<cPhase>> mPhases;
+
+    std::string GetName() const {
+        std::string Name = mName;
+        transform(Name.begin(), Name.end(), Name.begin(), toupper);
+        return Name;
+    }
+
+    std::shared_ptr<cPhase> GetPhase(size_t pPhase) {
+        if (!pPhase)
+            pPhase = 1;
+
+        if (!mPhases.size() || pPhase > mPhases.size())
+            return 0;
+
+        return mPhases[pPhase - 1];
+    }
+
+    size_t NumberOfPhases() const { return mPhases.size(); }
 };
 
 class cCampaign {
@@ -56,45 +98,33 @@ private:
     std::string                             mName;
     std::string                             mAuthor;
 
-    std::vector<std::string>                mMissionNames;
-    std::vector<size_t>                     mMissionPhases;
-
-    std::vector<std::string>                mMapNames;
-    std::vector<std::vector<eMissionGoals>> mMapGoals;
-    std::vector<sAggression>                mMapAggression;
-    std::vector<std::string>                mMapFilenames;
+    std::vector<std::shared_ptr<cMission>>  mMissions;
 
     std::string                             mCustomMap;
 	bool									mIsCustomCampaign;
+    bool                                    mDirectPath;
 	bool									mIsRandom;
 
+protected:
+
+    std::string GetPath(const std::string& pName, const std::string& pPath = "") const;
 public:
 
     cCampaign();
 
     void Clear();
 
-	bool LoadCustomFromPath(const std::string& pMapName);
+	bool LoadCustomMapFromPath(const std::string& pMapName);
     bool LoadCustomMap(const std::string& pMapName);
 
-    bool LoadCampaign(const std::string& pName, bool pCustom);
+    bool LoadCampaign(const std::string& pName, bool pCustom, bool pDirectPath = false);
 
     const std::string getName() const;
 
-	std::string getMapFileName(size_t pMapNumber) const;
-	tSharedBuffer getMap(const size_t pMapNumber) const;
-	tSharedBuffer getSprites(const size_t pMapNumber) const;
+	tSharedBuffer getMap(std::shared_ptr<cPhase> pPhase) const;
+	tSharedBuffer getSprites(std::shared_ptr<cPhase> pPhase) const;
 
-    std::string getMissionName(size_t pMissionNumber) const;
-    uint16 getNumberOfPhases(size_t pMissionNumber) const;
-    std::string getMapName(const size_t& pMapNumber) const;
-
-    const std::vector<eMissionGoals>& getMapGoals(const uint16& pMapNumber) const;
-    const sAggression& getMapAggression(const uint16& pMapNumber) const;
-    const size_t getMapCount() const;
-
-	void setMapAggression(int16 pMin = 0, int16 pMax = 0);
-	void setMapGoals(const std::vector<eMissionGoals>& pGoals);
+    std::shared_ptr<cMission> getMission(size_t pMissionNumber);
 
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;

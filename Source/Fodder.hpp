@@ -83,7 +83,6 @@ public:
     bool                    mVersionPlatformSwitchDisabled;
     const sGameVersion*     mVersionDefault;		// Version to switch back to when looking for data
     const sGameVersion*     mVersionCurrent;		// Version currently being used
-    cCampaign               mCampaign;				// Campaign currently being played
 
     std::shared_ptr<cGraphics>  mGraphics;
     std::shared_ptr<cSound>     mSound;
@@ -94,7 +93,6 @@ public:
     sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
     
-    sGamePhaseData          mGamePhase_Data;
 
     sSprite                 mSprite_Spare;
     sSprite                 mSprites[45];
@@ -485,7 +483,6 @@ public:
 
     int16           mBriefing_Render_1_Mode;
 
-    int16           mMap_Overview_MapNumberRendered;
     int16           mDebug_PhaseSkip;
     int16           mPaused;
     int16           mKeyControlPressed;
@@ -1211,7 +1208,6 @@ public:
     void            intro();
 
     void            Sidebar_Clear_ScreenBufferPtr();
-    void            Mission_Phase_Next();
 
     void            Briefing_Set_Render_1_Mode_On();
 
@@ -1236,7 +1232,7 @@ public:
     void            eventProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
 
-    void            Game_Setup(int16 pStartMap);
+    void            Game_Setup(int16 pMissionNumber);
 
     template <typename tType> std::shared_ptr<tType> GetGraphics() {
         return std::dynamic_pointer_cast<tType>(mGraphics);
@@ -1262,7 +1258,7 @@ public:
     void            Prepare();
 
     void            Playground();
-    virtual void    Start(int16 pStartMap = 0);
+    virtual void    Start(const std::string pCampaign = "CANNON FODDER", const size_t pMissionNumber = 1, const size_t pPhaseNumber = 1);
     void            Exit(unsigned int pExitCode);
 
     void            WindowTitleSet(bool pInMission);
