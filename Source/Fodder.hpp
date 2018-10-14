@@ -234,7 +234,7 @@ public:
     sMapPosition    m2A622_Unk_MapPosition;
 
     bool            mPhase_Aborted;
-    int16           mPhase_Complete;
+    bool            mPhase_Complete;
     int16           mPhase_Completed_Timer;
     int16           mPhase_Paused;
     int16           mPhase_TryAgain;
@@ -1232,7 +1232,7 @@ public:
     void            eventProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
 
-    void            Game_Setup(int16 pMissionNumber = 1);
+    void            Game_Setup(size_t pMissionNumber = 1);
 
     template <typename tType> std::shared_ptr<tType> GetGraphics() {
         return std::dynamic_pointer_cast<tType>(mGraphics);

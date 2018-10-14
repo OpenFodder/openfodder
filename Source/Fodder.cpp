@@ -254,7 +254,7 @@ int16 cFodder::Phase_Loop() {
         // Cheat
         if (mDebug_PhaseSkip == -1) {
             mDebug_PhaseSkip = 0;
-            mPhase_Complete = -1;
+            mPhase_Complete = true;
         }
         else
             Phase_Goals_Check();
@@ -845,7 +845,7 @@ void cFodder::sub_10DEC() {
     m2A622_Unk_MapPosition.mX = 0;
     m2A622_Unk_MapPosition.mY = 0;
     mPhase_TryAgain = 0;
-    mPhase_Complete = 0;
+    mPhase_Complete = false;
     mPhase_Completed_Timer = 0;
 
     mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
@@ -2345,7 +2345,7 @@ loc_126A6:;
             return;
     }
 
-    mPhase_Complete = -1;
+    mPhase_Complete = true;
 }
 
 void cFodder::Phase_Goals_Set() {
@@ -2361,7 +2361,7 @@ void cFodder::Phase_Goals_Set() {
 
 void cFodder::Phase_Progress_Check() {
 
-    if (mPhase_Complete >= 0)
+    if (mPhase_Complete)
         if (!mPhase_Aborted)
             if (!mPhase_TryAgain)
                 return;
@@ -3921,7 +3921,7 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
 }
 
 void cFodder::Campaign_Selection() {
-    mPhase_Complete = 0;
+    mPhase_Complete = false;
 
     Mission_Memory_Clear();
     Game_ClearVariables();
@@ -16238,6 +16238,8 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
         --mTroops_Enemy_Count;
         if (pSprite->field_5D) {
             pSprite->field_5D = 0;
+
+            // Default to first human soldier
             Troop = mGame_Data.mSoldiers_Allocated;
 
             if (pSprite->field_5E_SoldierAllocated) {
@@ -19738,14 +19740,17 @@ void cFodder::Recruit_CheckLoadSaveButtons() {
     mVersionPlatformSwitchDisabled = false;
 }
 
-void cFodder::Game_Setup(int16 pMissionNumber) {
+void cFodder::Game_Setup(size_t pMissionNumber) {
+    if (pMissionNumber < 1)
+        pMissionNumber = 1;
+
     Game_ClearVariables();
 
     mIntroDone = false;
-    mPhase_Complete = 0;
+    mPhase_Complete = false;
 
     mGame_Data.mMission_Phases_Remaining = 1;
-    mGame_Data.mMission_Number = pMissionNumber - 1;
+    mGame_Data.mMission_Number = (uint16) (pMissionNumber - 1);
 
     mGame_Data.Phase_Next();
 
