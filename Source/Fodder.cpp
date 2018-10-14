@@ -16240,7 +16240,7 @@ int16 cFodder::Sprite_Troop_Dies(sSprite* pSprite) {
             pSprite->field_5D = 0;
             Troop = mGame_Data.mSoldiers_Allocated;
 
-            if (pSprite->field_5E_SoldierAllocated >= 0) {
+            if (pSprite->field_5E_SoldierAllocated) {
                 Troop = pSprite->field_5E_SoldierAllocated;
                 goto loc_1F1E9;
             }
