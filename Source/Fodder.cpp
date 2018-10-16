@@ -4179,7 +4179,7 @@ void cFodder::Custom_ShowMapSelection() {
         return;
     }
 
-    mGame_Data.mCampaign.LoadCustomMap(File);
+    mGame_Data.mCampaign.LoadCustomMapFromPath("Custom/Maps/" + File);
 
     mGame_Data.mMission_Phases_Remaining = 1;
     mGame_Data.mMission_Number = 0;

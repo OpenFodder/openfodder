@@ -100,7 +100,6 @@ private:
 
     std::vector<std::shared_ptr<cMission>>  mMissions;
 
-    std::string                             mCustomMap;
 	bool									mIsCustomCampaign;
     bool                                    mDirectPath;
 	bool									mIsRandom;
@@ -124,6 +123,7 @@ public:
 	tSharedBuffer getMap(std::shared_ptr<cPhase> pPhase) const;
 	tSharedBuffer getSprites(std::shared_ptr<cPhase> pPhase) const;
 
+    std::vector<std::shared_ptr<cMission>> &getMissions() { return mMissions; }
     std::shared_ptr<cMission> getMission(size_t pMissionNumber);
 
     void SetSingleMapCampaign();
