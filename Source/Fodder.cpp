@@ -2361,7 +2361,7 @@ void cFodder::Phase_Goals_Set() {
 
 void cFodder::Phase_Progress_Check() {
 
-    if (mPhase_Complete)
+    if (!mPhase_Complete)
         if (!mPhase_Aborted)
             if (!mPhase_TryAgain)
                 return;
