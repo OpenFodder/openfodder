@@ -367,7 +367,7 @@ void cGraphics_Amiga::Load_Service_Data() {
 	mSpriteSheet_RankFont = DecodeIFF("rankfont.lbm");
 }
 
-void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors ) {
+void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, unsigned int pBackColor) {
 	std::string	Filename = pFilename;
 
 	if (Filename.find( '.' ) == std::string::npos)
@@ -381,6 +381,9 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 
 		// No, treat as a raw file
 		Decoded.mData = g_Resource->fileGet( Filename );
+
+        if (!Decoded.mData->size())
+            return;
 
 		// Calculate planes based on file size
 		if (Decoded.mData->size() == 51464)
@@ -411,7 +414,7 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 	mFodder->mVideo_Draw_Rows = Decoded.mDimension.mHeight;
 	mFodder->mVideo_Draw_PaletteIndex = 0;
 
-	mSurface->clearBuffer();
+	mSurface->clearBuffer(pBackColor);
 
 	Video_Draw_16();
 	mBMHD_Current = 0;

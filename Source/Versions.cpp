@@ -616,6 +616,87 @@ const std::vector<sFile> mAmigaFormatFiles = {
     { "pstuff.lbm", "631BA67C90A5502391226A30A3849DC5" }
 };
 
+const std::vector<sFile> mAmigaTheOneFiles = {
+    { "cftitle.lbm", "D77B802DAFD6073ABB876D9038CE00A3" },
+    { "grave32.pal", "5DD21FA5759C74D26363BAB1CE08321D" },
+    { "icearmy.lbm", "CEB74AFA8DA5C7BF7B778A44202CEFC4" },
+    { "icebase.bht", "8E486F8E57EDC352860AE782D59DEF82" },
+    { "icebase.blk", "03A65415BCC7CD4324334DCE4653FF2C" },
+    { "icebase.hit", "C739F8C5B63AE6FE316AC2E2ADCE4D91" },
+    { "icebase.ins", "B85E2BD7C1BD9C00FE07B2E8E4B5484B" },
+    { "icebase.pal", "7EA341E95E1974422106E040F20F9DF2" },
+    { "icebase.sng", "70CBB58AA0ED60F8DF6A756B5BEA9892" },
+    { "icebase.swp", "D770F6FB8988626886DE000C0557A177" },
+    { "icecopt.lbm", "1360E0CBA79FEBE2FDFD245F0D428C88" },
+    { "icesub0.bht", "5042BBE5FF70EB2009CA58A9738E94D3" },
+    { "icesub0.blk", "F55627BB795C1501CF56CCAC554B2DC3" },
+    { "icesub0.hit", "CF7262827907A4D786AAC40F61E961B7" },
+    { "icesub0.swp", "3E16806CCDACC1899DD7CF429C0D7ACB" },
+    { "junarmy.lbm", "11542A9B6CF13408C43F66950936E06E" },
+    { "junbase.bht", "EEAF3AD454ECAA51480A84CC132E92B1" },
+    { "junbase.blk", "8F33B228AAE418C9C18CDA948D86E054" },
+    { "junbase.hit", "2A8D1AB76FD9387402A4A11DD7539347" },
+    { "junbase.ins", "C7AC0BA709C8446239F95878BB4DCE65" },
+    { "junbase.pal", "27DA36F06898A9549A1E4AF4CAC4D8B7" },
+    { "junbase.sng", "6C2ACFA3FA1B5012DB5DD9BF17980C81" },
+    { "junbase.swp", "EE9D6EB648BAF96EC356FB8A3F77A618" },
+    { "juncopt.lbm", "E9DC3CC39203D141ECA2F1B64B38CCFF" },
+    { "junsub0.bht", "30C5CBE1ABAF76FF19AFC03D8FDB0660" },
+    { "junsub0.blk", "08AD7F77011ABE4DD1B2D7DDB06B6A3B" },
+    { "junsub0.hit", "213269184B6B7BAB8D555BCEEC6DEF12" },
+    { "junsub0.swp", "5FA95031D65F76152589E8887900F876" },
+    { "junsub1.bht", "985A67DC52CA7191C4216A6F04D5EB0C" },
+    { "junsub1.blk", "D14563C1A31E5590E8B2D9BC545149BB" },
+    { "junsub1.hit", "75CA3DA267E8601D89BC4EBABC11407E" },
+    { "junsub1.swp", "C551471A99FFF0B02FF7FE11163C63EE" },
+    { "magpic.lbm", "297043924E02424C734DBAB2443B02F9" },
+    { "mapm1.map", "45DB6C9BD73A5EC451FB9E2BEE3F91FE" },
+    { "mapm1.spt", "655B285F8FA5421B70A9DE9C997517F4" },
+    { "mapm2.map", "864F0438B1F846AF648A3CA348AB9397" },
+    { "mapm2.spt", "48F47F3EE8DEFC445A612F22EB84A635" },
+    { "mapm3.map", "10CF513F74AFAD4043EEDDAFDC004D20" },
+    { "mapm3.spt", "6E317E11AC3D39A46D39C3A6F5487160" },
+    { "morphbig.lbm", "07E1F325F3F40D575D9F1D9A5F5DACF4" },
+    { "PRETENTIOUS1.RAW", "F24DA5431A9D5661CDA1BF7106228DC5" },
+    { "PRETENTIOUS2.RAW", "D0EA6250E83C09D96DF211F8ABB6AB29" },
+    { "PRETENTIOUS3.RAW", "43DFB39943A4B6639085FEE9850DA6EA" },
+    { "pstuff.lbm", "E314A882B0C280F86B6E471EA9112E90" },
+    { "rankfont.lbm", "3F261EBD25E6AF6B49CBA77BC7D60086" },
+    { "sensprod.lbm", "674632BBCC302CF2234476AA87A02986" },
+    { "startup.lbm", "2121703B31D751EBEA1D9BD14FC6390F" },
+    { "virgpres.lbm", "FFFB28D358220ADCFAB8FBCDB93FB333" },
+};
+
+const std::vector<sFile> mAmigaActionFiles = {
+    { "apmenu.lbm", "1DAE565C1EFAC3CE8967E31B13640AD8" },
+    { "junarmy.lbm", "7775C2ECA7230A2622C6DE2381104CBA" },
+    { "junbase.bht", "1D1AEA8B3B2EF9D0CD886DC7F39588D4" },
+    { "junbase.blk", "0D3C72390ADF47647339331A7736AC16" },
+    { "junbase.hit", "9974819A29D70D7ED1B7D89665C22290" },
+    { "junbase.ins", "C7AC0BA709C8446239F95878BB4DCE65" },
+    { "junbase.pal", "27DA36F06898A9549A1E4AF4CAC4D8B7" },
+    { "junbase.sng", "6C2ACFA3FA1B5012DB5DD9BF17980C81" },
+    { "junbase.swp", "6F6F179E0161E00D7BAA8946C98EC188" },
+    { "juncopt.lbm", "08DFA50E3C18E57C4A0E7F8749F36526" },
+    { "junsub0.bht", "7A550D7B049112CE48F515CAE89CBC2D" },
+    { "junsub0.blk", "BFE47F6B31DBE9A2E66F1112B63E24CE" },
+    { "junsub0.hit", "019F136162EEF0DE9EBE12DF9B0D2B0C" },
+    { "junsub0.swp", "629FD552C113216A23695FA0A38408FB" },
+    { "junsub1.bht", "A7B6F71467FA2006D97DB67C43741694" },
+    { "junsub1.blk", "70E25A00B8EA9BE9E2C1748A3026AEF2" },
+    { "junsub1.hit", "293CA1C5EB584F8D432A2BE60801D37E" },
+    { "junsub1.swp", "C551471A99FFF0B02FF7FE11163C63EE" },
+    { "mapm1.map", "4EC9CF26BD9BAD9FF2157F52820E9FFD" },
+    { "mapm1.spt", "9363F391620A6CE069F72BA36BB56C83" },
+    { "mapm2.map", "8FA8FB37CB727B7AFFF4EFB7AF725E32" },
+    { "mapm2.spt", "4500BB66226BC678BD116A53C03F88D2" },
+    { "mapm3.map", "D347F88815EE3B71F022544D073247FE" },
+    { "mapm3.spt", "9FBEF790F49274752C1E0DD4A7865769" },
+    { "mapm4.map", "1E78FEA9ADFAC8B0D58FA652B2243D56" },
+    { "mapm4.spt", "37F806D97518F883E80F8ED5896377C5" },
+    { "pstuff.lbm", "DC04FD82E27E5BACD46D5AF2A617127F" },
+};
+
 // Amiga Power Release
 const std::vector<sFile> mPlusFiles = {
     { "junbase.bht", "1D1AEA8B3B2EF9D0CD886DC7F39588D4" },
@@ -666,6 +747,10 @@ const std::vector<eTileTypes> AmigaFormat_Tile_Types = {
     eTileTypes_AFX
 };
 
+const std::vector<eTileTypes> AmigaTheOne_TileTypes = {
+    eTileTypes_Jungle
+};
+
 const std::vector<eTileTypes> AmigaPlus_Tile_Types = {
     eTileTypes_Jungle
 };
@@ -697,6 +782,8 @@ const sGameVersion KnownGameVersions[] = {
     /* Amiga Magazine Demos */
     { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
     { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		mIntroText_Amiga,	"Plus",				mPlusFiles,			AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types },
+    { "Amiga The One",                  eGame::CF1, ePlatform::Amiga,   eRelease::AmigaTheOne,      mIntroText_Amiga,   "AmigaTheOne",      mAmigaTheOneFiles,  AmigaTheOne_TileTypes, Amiga_Demo_GFX_Types },
+    { "Amiga Action",                   eGame::CF1, ePlatform::Amiga,   eRelease::AmigaAction,      mIntroText_Amiga,   "AmigaAction",      mAmigaActionFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
 
     /* Custom & Random must be last, as they depend on a previous retail version being detected first */
     { "Single Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
@@ -830,8 +917,9 @@ void cVersions::FindKnownVersions() {
                     //std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
                     //std::cout << " File not found\n";
                 } else {
-                    std::cout << KnownVersion.mName << ": " << File.mName;
-                    std::cout << " Unknown MD5: " << MD5 << "\n";
+                    std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
+                    //std::cout << KnownVersion.mName << ": " << File.mName;
+                    //std::cout << " Unknown MD5: " << MD5 << "\n";
                     ++FileMatches;
                 }
             }

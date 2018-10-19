@@ -150,4 +150,4 @@ extern std::shared_ptr<cResources> g_Resource;
 extern std::shared_ptr<cWindow>    g_Window;
 extern std::shared_ptr<cFodder>    g_Fodder;
 
-#define VERSION_BASED( pPC, pAmiga ) (g_Fodder->mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
+#define PLATFORM_BASED( pPC, pAmiga ) (g_Fodder->mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)

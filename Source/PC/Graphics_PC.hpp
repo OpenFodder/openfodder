@@ -59,7 +59,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		Load_Hill_Data();
 	virtual void		Load_Service_Data();
 
-	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors );
+	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, unsigned int pBackColor);
 	virtual sImage		Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex);
 
 	virtual void		Map_Load_Resources();

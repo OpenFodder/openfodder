@@ -40,6 +40,7 @@ struct sGUI_SquadVehicleIcon {
 extern const sGUI_Element mAfx_Buttons[];
 extern const sGUI_Element mPlus_Buttons[];
 extern const sGUI_Element mPlusQuiz_Buttons[];
+extern const sGUI_Element mAmigaAction_Buttons[];
 
 // Sidebar Squad Icons
 extern const int16 mGUI_Squad_Icons[];

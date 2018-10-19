@@ -30,7 +30,9 @@ enum eRelease {
 	Demo		= 1,
 	AmigaFormat = 2,
 	AmigaPower  = 3,
-	Custom		= 4
+    AmigaTheOne = 4,
+    AmigaAction = 5,
+	Custom
 };
 
 enum eGame {
@@ -93,8 +95,15 @@ struct sGameVersion {
 		return  mRelease == eRelease::Demo || 
 				mRelease == eRelease::AmigaFormat || 
 				mRelease == eRelease::AmigaPower ||
+                mRelease == eRelease::AmigaTheOne ||
+                mRelease == eRelease::AmigaAction ||
 				mRelease == eRelease::Custom;
 	}
+
+    bool isCoverDisk() const {
+
+        return (isAmigaPower() || isAmigaAction() || isAmigaTheOne());
+    }
 
 	bool isRetail() const {
 		return mRelease == eRelease::Retail;
@@ -107,6 +116,14 @@ struct sGameVersion {
 	bool isAmigaPower() const {
 		return mRelease == eRelease::AmigaPower;
 	}
+
+    bool isAmigaTheOne() const {
+        return mRelease == eRelease::AmigaTheOne;
+    }
+
+    bool isAmigaAction() const {
+        return mRelease == eRelease::AmigaAction;
+    }
 
 	bool isAmiga() const {
 		return mPlatform == ePlatform::Amiga;

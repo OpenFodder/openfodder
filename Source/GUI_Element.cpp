@@ -41,6 +41,14 @@ const sGUI_Element mPlus_Buttons[] = {
 	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3 },
 };
 
+/* Cannon Fodder Plus Menu Buttons */
+const sGUI_Element mAmigaAction_Buttons[] = {
+    { &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
+    { &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1 },
+    { &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap2 },
+    { &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3 },
+};
+
 /* Cannon Fodder Plus Quiz Buttons */
 const sGUI_Element mPlusQuiz_Buttons[] = {
 	{ &cFodder::GUI_Button_NoAction, 0x0BD, 0x19, 0x5B, 0x48,	&cFodder::GUI_Button_ExitMenu },

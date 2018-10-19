@@ -1206,6 +1206,7 @@ public:
     void            intro_LegionMessage();
     int16           intro_Play();
     void            intro();
+    void            intro_AmigaTheOne();
 
     void            Sidebar_Clear_ScreenBufferPtr();
 
@@ -1217,7 +1218,7 @@ public:
     void            Cycle_End();
 
     void            sleepLoop(int64 pMilliseconds);
-    int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration);
+    int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration, size_t pBackColor = 0, bool pCanAbort = true);
 
     void            Mouse_ButtonCheck();
     int16           Mouse_Button_Left_Toggled();

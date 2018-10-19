@@ -172,7 +172,7 @@ public:
 
 	virtual sImage		Decode_Image(const std::string& pFilename, const size_t pCount = 0, const size_t pPaletteOffset = 0, const size_t pStartIndex = 0) = 0;
 
-	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors ) = 0;
+	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, unsigned int pBackColor = 0) = 0;
 
 	virtual void		Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset) = 0;
 	virtual void		MapTiles_Draw() = 0;

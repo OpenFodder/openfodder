@@ -220,11 +220,11 @@ void cSurface::draw() {
 		SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 }
 
-void cSurface::clearBuffer() {
+void cSurface::clearBuffer(uint8 pColor) {
 
 	for (size_t i = 0; i < mSurfaceBufferSize; ++i) {
-		mSurfaceBuffer[i] = 0;
-		mSurfaceBufferSaved[i] = 0;
+		mSurfaceBuffer[i] = pColor;
+		mSurfaceBufferSaved[i] = pColor;
 	}
 
 	clearSDLSurface();

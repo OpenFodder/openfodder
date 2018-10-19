@@ -71,7 +71,7 @@ public:
 					cSurface( size_t pWidth, size_t pHeight );
 					~cSurface();
 
-	void			clearBuffer();
+	void			clearBuffer(uint8 pColor = 0);
 
 	void			draw();						// Draw image to SDL Surface
 

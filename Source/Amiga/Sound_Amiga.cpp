@@ -38,7 +38,11 @@ const sSoundData Tracks[] = {
 void cSound_AudioCallback(void *userdata, Uint8 *stream, int len) {
 	cSound_Amiga  *sound = (cSound_Amiga*) userdata;
 
-	sound->audioBufferFill( (short*) stream, len );
+    try {
+        sound->audioBufferFill((short*)stream, len);
+    } catch (...) {
+
+    }
 }
 
 cSound_Amiga::cSound_Amiga() {
