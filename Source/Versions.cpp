@@ -917,9 +917,9 @@ void cVersions::FindKnownVersions() {
                     //std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
                     //std::cout << " File not found\n";
                 } else {
-                    std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
-                    //std::cout << KnownVersion.mName << ": " << File.mName;
-                    //std::cout << " Unknown MD5: " << MD5 << "\n";
+                    //std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
+                    std::cout << KnownVersion.mName << ": " << File.mName;
+                    std::cout << " Unknown MD5: " << MD5 << "\n";
                     ++FileMatches;
                 }
             }

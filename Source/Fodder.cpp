@@ -17943,11 +17943,10 @@ void cFodder::intro_AmigaTheOne() {
 
     mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
     mImage_Aborted = 0;
-    //mGraphics->Load_Sprite_Font();
 
     if (!ShownWarning) {
         ShownWarning = true;
-        ShowImage_ForDuration("PRETENTIOUS1", 0x40, 3, false);
+        ShowImage_ForDuration("PRETENTIOUS1", 0x60, 3, false);
     }
 
     if (ShowImage_ForDuration("sensprod.lbm", 0x60))
@@ -18059,7 +18058,7 @@ void cFodder::WonGame() {
     Image_FadeIn();
 
     for (int count = 500; count >= 0; --count) {
-
+        Video_SurfaceRender();
         Cycle_End();
     }
 
