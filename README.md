@@ -90,11 +90,12 @@ Copy the files from the 'Fodder' folder on the CD-Rom, to the OpenFodder/Data/Am
   
 ##### Demos
   
-Two demos are included in the data pack.  
+Four Amiga magazine coverdisk demos are included in the data pack.  
   
-* Amiga Format Issue #53: Christmas Special (Cannon Soccer)
+* Amiga The One Issue #68
 * Amiga Power Issue #31: Cannon Fodder Plus
-  
+* Amiga Action Issue #51
+* Amiga Format Issue #53: Christmas Special (Cannon Soccer)
   
 ##### Unsupported Versions
   
