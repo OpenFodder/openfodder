@@ -20536,7 +20536,7 @@ void cFodder::GUI_Sidebar_SquadIcons_Draw() {
 
         mGUI_Loop_Draw_Y = word_3AC2D[mGUI_Loop_Squad_Current];
 
-        if (!mSquads_TroopCount[mGUI_Loop_Draw_Y])
+        if (!mSquads_TroopCount[mGUI_Loop_Squad_Current])
             continue;
 
         mGUI_Loop_Is_CurrentSquad = 0;
