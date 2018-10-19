@@ -5372,22 +5372,24 @@ void cFodder::Mouse_Cursor_Update() {
 
             mMouseSetToCursor = -1;
 
-            if (!Vehicle->field_20)
-                goto loc_30C7C;
+            // Is vehicle off ground
+            if (Vehicle->field_20) {
 
-            if (Vehicle != mSquad_CurrentVehicle)
+                // And is current
+                if (Vehicle != mSquad_CurrentVehicle)
+                    return;
+
+                if (Vehicle->field_8 == 0xA5)
+                    return;
+
+                // Show the helicopter land icon
+                mMouseSpriteNew = eSprite_pStuff_Mouse_Helicopter;
+                mMouseX_Offset = 0;
+                mMouseY_Offset = 0;
                 return;
+            }
 
-            if (Vehicle->field_8 == 0xA5)
-                return;
-
-            mMouseSpriteNew = eSprite_pStuff_Mouse_Helicopter;
-            mMouseX_Offset = 0;
-            mMouseY_Offset = 0;
-            return;
-
-        loc_30C7C:;
-
+            // Is this the vehicle the current squad is in
             if (Vehicle == mSquad_CurrentVehicle)
                 mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_DownRight;
             else
