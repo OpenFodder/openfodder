@@ -712,10 +712,8 @@ void cFodder::Mission_Memory_Clear() {
 
     mSquad_CurrentVehicle = 0;
     mMission_In_Progress = false;
-    mSprite_HumanVehicles_Found = 0;
-    for (uint16 x = 0; x < 14; ++x) {
-        mSprites_HumanVehicles[x] = 0;
-    }
+    mSprite_HumanVehicles_Found = false;
+    mSprites_HumanVehicles.clear();
     dword_3B24B = 0;
 
     for (uint16 x = 0; x < 3; ++x) {
@@ -2529,30 +2527,23 @@ void cFodder::Sprite_Find_HumanVehicles() {
     if (mSprite_HumanVehicles_Found)
         return;
 
-    mSprite_HumanVehicles_Found = -1;
-    sSprite* Data20 = mSprites;
-    sSprite** Data24 = mSprites_HumanVehicles;
+    mSprite_HumanVehicles_Found = true;
 
-    for (int16 Data1C = 0x1D; Data1C >= 0; --Data1C, ++Data20) {
+    for(auto& Sprite : mSprites) {
 
-        if (Data20->field_0 == -32768)
+        if (Sprite.field_0 == -32768)
             continue;
 
         // Is not Human?
-        if (Data20->field_22 != eSprite_PersonType_Human)
+        if (Sprite.field_22 != eSprite_PersonType_Human)
             continue;
 
         // Not Enabled?
-        if (!Data20->field_65)
+        if (!Sprite.field_65)
             continue;
 
-        *Data24 = Data20;
-        ++Data24;
+        mSprites_HumanVehicles.push_back(&Sprite);
     }
-
-    *Data24 = INVALID_SPRITE_PTR;
-    ++Data24;
-
 }
 
 void cFodder::Squad_Set_CurrentVehicle() {
@@ -5319,8 +5310,6 @@ void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper() {
 
 void cFodder::Mouse_Cursor_Update() {
     int16 Data0, Data4, Data8;
-    sSprite* Vehicle = 0;
-    sSprite** HumanVehicles = 0;
 
     // Sidebar
     if (mMouseX < 0x10) {
@@ -5330,96 +5319,85 @@ void cFodder::Mouse_Cursor_Update() {
         return;
     }
 
-    if (mButtonPressRight)
-        goto loc_30CBC;
+    if (!mButtonPressRight) {
 
-    Data0 = mMouseX + (mCameraX >> 16);
-    Data4 = mMouseY + (mCameraY >> 16);
+        Data0 = mMouseX + (mCameraX >> 16);
+        Data4 = mMouseY + (mCameraY >> 16);
 
-    Data0 -= 0x0F;
-    Data4 -= 3;
+        Data0 -= 0x0F;
+        Data4 -= 3;
 
-    HumanVehicles = mSprites_HumanVehicles;
+        //loc_30B36
+        for (auto& Vehicle : mSprites_HumanVehicles) {
 
-    //loc_30B36
-    for (int16 Data1C = 4; Data1C >= 0; --Data1C) {
+            if (Vehicle->field_0 < 0)
+                continue;
 
-        if (*HumanVehicles == INVALID_SPRITE_PTR)
-            goto loc_30CBC;
+            if (!Vehicle->field_65)
+                continue;
 
-        if (*HumanVehicles == 0)
-            continue;
+            // If not human
+            if (Vehicle->field_22 != eSprite_PersonType_Human)
+                continue;
 
-        Vehicle = *HumanVehicles++;
-        if (Vehicle->field_0 < 0)
-            continue;
+            Data8 = Vehicle->field_0;
+            if (Vehicle->field_6F == eVehicle_Turret_Cannon)
+                goto loc_30BB9;
+            if (Vehicle->field_6F == eVehicle_Turret_Missile)
+                goto loc_30BBE;
 
-        if (!Vehicle->field_65)
-            continue;
+        loc_30BB9:;
+            Data8 -= 8;
+        loc_30BBE:;
 
-        // If not human
-        if (Vehicle->field_22 != eSprite_PersonType_Human)
-            continue;
+            if (Data0 < Data8)
+                continue;
 
-        Data8 = Vehicle->field_0;
-        if (Vehicle->field_6F == eVehicle_Turret_Cannon)
-            goto loc_30BB9;
-        if (Vehicle->field_6F == eVehicle_Turret_Missile)
-            goto loc_30BBE;
+            Data8 += mSprite_Width[Vehicle->field_18];
+            if (Data0 > Data8)
+                continue;
 
-    loc_30BB9:;
-        Data8 -= 8;
-    loc_30BBE:;
+            Data8 = Vehicle->field_4;
+            Data8 -= Vehicle->field_20;
+            Data8 -= mSprite_Height_Top[Vehicle->field_18];
+            Data8 -= 0x14;
 
-        if (Data0 < Data8)
-            continue;
+            if (Data4 < Data8)
+                continue;
 
-        Data8 += mSprite_Width[Vehicle->field_18];
-        if (Data0 > Data8)
-            continue;
+            Data8 = Vehicle->field_4;
+            Data8 -= Vehicle->field_20;
+            if (Data4 > Data8)
+                continue;
 
-        Data8 = Vehicle->field_4;
-        Data8 -= Vehicle->field_20;
-        Data8 -= mSprite_Height_Top[Vehicle->field_18];
-        Data8 -= 0x14;
+            mMouseSetToCursor = -1;
 
-        if (Data4 < Data8)
-            continue;
+            if (!Vehicle->field_20)
+                goto loc_30C7C;
 
-        Data8 = Vehicle->field_4;
-        Data8 -= Vehicle->field_20;
-        if (Data4 > Data8)
-            continue;
+            if (Vehicle != mSquad_CurrentVehicle)
+                return;
 
-        mMouseSetToCursor = -1;
+            if (Vehicle->field_8 == 0xA5)
+                return;
 
-        if (!Vehicle->field_20)
-            goto loc_30C7C;
-
-        if (Vehicle != mSquad_CurrentVehicle)
+            mMouseSpriteNew = eSprite_pStuff_Mouse_Helicopter;
+            mMouseX_Offset = 0;
+            mMouseY_Offset = 0;
             return;
 
-        if (Vehicle->field_8 == 0xA5)
+        loc_30C7C:;
+
+            if (Vehicle == mSquad_CurrentVehicle)
+                mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_DownRight;
+            else
+                mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_UpLeft;
+
+            mMouseX_Offset = 0;
+            mMouseY_Offset = 0;
             return;
-
-        mMouseSpriteNew = eSprite_pStuff_Mouse_Helicopter;
-        mMouseX_Offset = 0;
-        mMouseY_Offset = 0;
-        return;
-
-    loc_30C7C:;
-
-        if (Vehicle == mSquad_CurrentVehicle)
-            mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_DownRight;
-        else
-            mMouseSpriteNew = eSprite_pStuff_Mouse_Arrow_UpLeft;
-
-        mMouseX_Offset = 0;
-        mMouseY_Offset = 0;
-        return;
+        }
     }
-
-loc_30CBC:;
 
     if (mMouseSetToCursor) {
         mMouseSetToCursor = 0;
@@ -6278,20 +6256,12 @@ loc_23E2F:;
 
 void cFodder::Sprites_HumanVehicles_Remove(sSprite* pSprite) {
 
-    for (sSprite** Data24 = mSprites_HumanVehicles; *Data24 != INVALID_SPRITE_PTR; ++Data24) {
+    auto it = remove_if(mSprites_HumanVehicles.begin(), mSprites_HumanVehicles.end(), 
+        [pSprite](sSprite* pSpriteFind) { 
+            return pSprite == pSpriteFind; 
+    });
 
-        if (*Data24 != pSprite)
-            continue;
-
-        do {
-            sSprite* eax = *(Data24 + 1);
-            *Data24 = eax;
-
-            ++Data24;
-        } while (*Data24 != INVALID_SPRITE_PTR);
-
-        return;
-    }
+    mSprites_HumanVehicles.erase(it, mSprites_HumanVehicles.end());
 }
 
 void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {

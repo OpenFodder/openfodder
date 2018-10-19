@@ -348,8 +348,8 @@ public:
     sSprite*        mSquad_CurrentVehicles[3];
     sSprite*        mSquad_CurrentVehicle;
 
-    int16           mSprite_HumanVehicles_Found;
-    sSprite*        mSprites_HumanVehicles[15];
+    bool           mSprite_HumanVehicles_Found;
+    std::vector<sSprite*>        mSprites_HumanVehicles;
     int16           dword_3B24B;
 
     int16           word_3B25B;
