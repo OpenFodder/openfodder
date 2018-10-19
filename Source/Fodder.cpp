@@ -9810,15 +9810,26 @@ void cFodder::Sprite_Handle_Player_Destroy_Unk() {
 }
 
 void cFodder::Squad_Prepare_GrenadesAndRockets() {
-
     mSquad_Grenades[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available << 1;
     mSquad_Rockets[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available;
 
-    if (mGame_Data.mMission_Number < 4 || (mGame_Data.mMission_Number == 4 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 5
-        mSquad_Grenades[0] = 0;
+    if (mVersionCurrent->isAmigaTheOne()) {
+        mSquad_Grenades[0] += mGame_Data.mGamePhase_Data.mSoldiers_Available;
 
-    if (mGame_Data.mMission_Number < 5 || (mGame_Data.mMission_Number == 5 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 10
+        if (mGame_Data.mMission_Number == 1 && mGame_Data.mMission_Phase < 3)
+            mSquad_Grenades[0] = 0;
+
         mSquad_Rockets[0] = 0;
+    }
+    else {
+
+        if (mGame_Data.mMission_Number < 4 || (mGame_Data.mMission_Number == 4 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 5
+            mSquad_Grenades[0] = 0;
+
+        if (mGame_Data.mMission_Number < 5 || (mGame_Data.mMission_Number == 5 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 10
+            mSquad_Rockets[0] = 0;
+    }
+
 }
 
 void cFodder::Sprite_Aggression_Set() {
@@ -19657,7 +19668,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
 
     // Amiga Power always has homing missiles
     if (pSprite->field_22 == eSprite_PersonType_Human &&
-        (mVersionCurrent->isAmigaPower() || (pSprite->field_75 & eSprite_Flag_HomingMissiles))) {
+        (mVersionCurrent->isCoverDisk() || (pSprite->field_75 & eSprite_Flag_HomingMissiles))) {
 
         // Within lock on range?
         if (Sprite_Homing_LockInRange(pSprite, Data34)) {
