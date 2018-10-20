@@ -30,10 +30,14 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 [Open Fodder 0.2 Video](https://www.youtube.com/watch?v=MLovwBEWr6k)  
 [Open Fodder 0.1 Video](https://www.youtube.com/watch?v=9QLg0hYsFFY)  
 
+#### Installation
 
+Please see INSTALL.md  
+  
+  
 #### How to play
 
-Open Fodder supports two demos from the Amiga platform, and 3 retail releases (See below for supported versions).
+Open Fodder supports four demos from the Amiga platform, and three retail releases (See below for supported versions).
   
   
 ##### Hot Keys
@@ -46,48 +50,19 @@ Open Fodder supports two demos from the Amiga platform, and 3 retail releases (S
 * ESC: Back Menu/Abort Phase
   
   
-##### Windows
-
-The Windows version of Open Fodder defaults to using and installing to the location '%USERPROFILE%/Documents/OpenFodder'.  
-While the demos will be installed as part of the package, you will be required to copy a full retail release into this folder (following the instructions below)
-  
-  
-##### Linux / Unix
-
-Open Fodder will check the environment variable $XDG_DATA_DIRS and iterate each path checking for the Data Folder "/OpenFodder/".  
-Failure to locate the folder in these paths, will result in a check of $HOME/.local/share/OpenFodder.  
-Failure on this path, will fall back to the current working directory.  
-  
-##### Campaign Data
-
-The campaign information was originally hardcoded in the executable, this is required to play and is downloadable alonside two demos from (https://github.com/OpenFodder/data/releases/download/1.4/OpenFodder.zip).  
-
-This data is packaged with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.  
-  
-  
 #### Purchasing the retail release
 
-Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder), this version is fully supported.  
+Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder).
   
   
 #### Supported Versions
   
 ##### Retail
   
-###### Dos CD Version
-  
-Copy 'CF_ENG.DAT' from the CD (or the GOG install destination) to the OpenFodder/Data/Dos_CD folder
-  
-###### Amiga
-  
-Use the [WHDLoad installer](http://www.whdload.de/games/CannonFodder.html) on an Amiga or an emulator (WinUAE/UAE) to extract the game files from the original floppy disks, then copy the contents of 'cf_data'  into the OpenFodder/Data/Amiga directory.
-  
-###### Amiga CD32
-  
-Copy the files from the 'Fodder' folder on the CD-Rom, to the OpenFodder/Data/Amiga_CD folder. For the final video, Extract Track2 from the CD and name it 'Track2.mpg', placed in the Amiga_CD folder.
-  
-* Please note: The video playback is not yet supported
-  
+* Dos CD Version
+* Amiga
+* Amiga CD32
+
 ##### Demos
   
 Four Amiga magazine coverdisk demos are included in the data pack.  
@@ -97,9 +72,9 @@ Four Amiga magazine coverdisk demos are included in the data pack.
 * Amiga Action  Issue #51: (Dec 1993)
 * Amiga Format  Issue #54: (Dec 1993) Christmas Special (Cannon Soccer)
   
-##### Unsupported Versions
+#### Unsupported Versions
   
-###### Cannon Fodder 2
+* Cannon Fodder 2
   
 Not officially supported.
 While the game can start and is playable, it has no music or sound support and some graphics will be missing and/or wrong.
