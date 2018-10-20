@@ -1,12 +1,14 @@
 # Open Fodder Installation instructions
 
-## Windows
+# OS Specific
+
+### Windows
 
 The Windows version of Open Fodder defaults to using and installing to the location '%USERPROFILE%/Documents/OpenFodder'.  
 While the demos will be installed as part of the package, you will be required to copy a full retail release into this folder (following the instructions below)
   
   
-## Linux / Unix
+### Linux / Unix
 
 Open Fodder will check the environment variable $XDG_DATA_DIRS and iterate each path checking for the Data Folder "/OpenFodder/".  
 Failure to locate the folder in these paths, will result in a check of $HOME/.local/share/OpenFodder.  
@@ -14,6 +16,7 @@ Failure on this path, will fall back to the current working directory.
   
   
 ## Data
+
 ### Campaign Data
 
 The campaign information was originally hardcoded in the executable, this is required to play and is downloadable alonside four demos from (https://github.com/OpenFodder/data/releases/download/1.5/OpenFodder.zip).  
@@ -26,6 +29,7 @@ This data is packaged with the Windows Installer, but will be a required downloa
 Copy 'CF_ENG.DAT' from the CD (or the GOG install destination) to the OpenFodder/Data/Dos_CD folder
   
 ### Amiga
+  
   
 Use the [SOS Unpacker](https://github.com/OpenFodder/SOS_Unpacker) to unpack Kyroflux 'CT Raw' images of your Cannon Fodder disks.
     
