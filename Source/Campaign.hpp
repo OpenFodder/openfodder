@@ -122,8 +122,9 @@ private:
     std::vector<std::shared_ptr<cMission>>  mMissions;
 
 	bool									mIsCustomCampaign;
-    bool                                    mDirectPath;
+    bool                                    mUseCustomPath;
 	bool									mIsRandom;
+    bool                                    mIsCustomMap;
 
 protected:
 
@@ -140,8 +141,11 @@ public:
     bool SaveCampaign();
 
     const std::string getName() const;
-    std::string GetPath(const std::string& pName, const std::string& pPath = "") const;
+    std::string GetPathToCampaign() const;
+    std::string GetPathToFile(const std::string& pName) const;
+    std::string GetPath(const bool pTrailingSeperator = true) const;
 
+    tSharedBuffer getCampaign() const;
 	tSharedBuffer getMap(std::shared_ptr<cPhase> pPhase) const;
 	tSharedBuffer getSprites(std::shared_ptr<cPhase> pPhase) const;
 
@@ -152,7 +156,10 @@ public:
 
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;
+    bool isCustomMap() const { return mIsCustomMap; }
+
 	bool isRandom() const;
+    std::string getAuthor() { return mAuthor; }
     void setAuthor(const std::string& pAuthor) { mAuthor = pAuthor; }
 };
 

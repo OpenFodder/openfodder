@@ -43,14 +43,31 @@ cCampaign::cCampaign() {
     Clear();
 }
 
-std::string cCampaign::GetPath(const std::string& pName, const std::string& pPath) const {
+std::string cCampaign::GetPathToCampaign() const {
 
-    auto Filename = local_PathGenerate(pName, pPath, eDataType::eCampaign);
+    return GetPath(false) + ".ofc";
+}
 
-    if (mDirectPath)
-        Filename = mPath;
+std::string cCampaign::GetPathToFile(const std::string& pName) const {
 
-    return Filename;
+    return GetPath() + pName;
+}
+
+/**
+ * Get the path to the current campaign
+ */
+std::string cCampaign::GetPath( const bool pTrailingSeperator ) const {
+    std::string path;
+
+    if (mUseCustomPath)
+        path = mPath;
+    else 
+        path = local_PathGenerate(mName, "", eDataType::eCampaign);
+
+    if(pTrailingSeperator && path.size())
+        path += gPathSeperator;
+
+    return path;
 }
 
 bool cCampaign::LoadCustomMapFromPath(const std::string& pPath) {
@@ -66,6 +83,7 @@ bool cCampaign::LoadCustomMapFromPath(const std::string& pPath) {
     std::shared_ptr<cPhase> Phase = mMissions.back()->mPhases.back();
     Phase->mMapFilename = pPath.substr(0, pPath.size() - 4);
 
+    mUseCustomPath = true;
     return true;
 }
 
@@ -95,6 +113,7 @@ bool cCampaign::LoadCustomMap(const std::string& pMapName) {
     Phase->mGoals.push_back({ eGoal_Kill_All_Enemy });
     Phase->mAggression = { 4, 8 };
 
+    mIsCustomMap = true;
     return true;
 }
 
@@ -133,7 +152,7 @@ bool cCampaign::SaveCampaign() {
     }
 
     // Save the campaign
-    std::ofstream MissionFile(GetPath(mName + ".ofc"));
+    std::ofstream MissionFile(GetPath() + ".ofc");
 
     if (MissionFile.is_open()) {
         MissionFile << Campaign.dump(1);
@@ -157,16 +176,16 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
     Clear();
     mName = pName;
     mPath = pName;
-    mDirectPath = pDirectPath;
+    mUseCustomPath = pDirectPath;
 
-    if (mDirectPath) {
+    if (mUseCustomPath) {
         auto Final = pName.find_last_of(gPathSeperator);
 
         mName = pName.substr(0, Final);
     }
 
 
-    std::ifstream MissionSetFile(GetPath(mName + ".ofc"));
+    std::ifstream MissionSetFile(GetPathToCampaign());
     if (MissionSetFile.is_open()) {
         Json MissionSet = Json::parse(MissionSetFile);
 
@@ -223,14 +242,15 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
  * Clear all missions/map names, goals and aggression rates
  */
 void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
-    mDirectPath = pDirectPath;
+    mIsCustomMap = false;
+    mUseCustomPath = pDirectPath;
     mIsRandom = false;
     mIsCustomCampaign = false;
     mName = pName;
     mAuthor = "";
     mPath = pName;
 
-    if (mDirectPath) {
+    if (mUseCustomPath) {
         auto Final = pName.find_last_of("/");
 
         mName = pName.substr(0, Final);
@@ -241,25 +261,25 @@ void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
 
 tSharedBuffer cCampaign::getMap(std::shared_ptr<cPhase> pPhase) const {
     std::string FinalName = pPhase->mMapFilename + ".map";
-    std::string FinalPath = GetPath(FinalName, mName);
+    std::string FinalPath = GetPathToFile(FinalName);
 
-    // If a campaign folder exists, return a path inside it
+    // If no campaign folder exists, load from the currently loaded resource
     if (!local_FileExists(FinalPath))
         return g_Resource->fileGet(FinalName);
 
-    // Otherwise fallback to loading the map from the currently loaded
+    // Otherwise load it from the campaign path
     return local_FileRead(FinalPath, "", eNone);
 }
 
 tSharedBuffer cCampaign::getSprites(std::shared_ptr<cPhase> pPhase) const {
     std::string FinalName = pPhase->mMapFilename + ".spt";
-    std::string FinalPath = GetPath(FinalName, mName);
+    std::string FinalPath = GetPathToFile(FinalName);
 
-    // If a campaign folder exists, return a path inside it
+    // If no campaign folder exists, load from the currently loaded resource
     if (!local_FileExists(FinalPath))
         return g_Resource->fileGet(FinalName);
 
-    // Otherwise fallback to loading the map from the currently loaded
+    // Otherwise load it from the campaign path
     return local_FileRead(FinalPath, "", eNone);
 }
 

@@ -136,15 +136,15 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 
 	switch (pDataType) {
 	case eData:
-		filePathFinal << "Data/";
+		filePathFinal << "Data" << gPathSeperator;
 		break;
 
 	case eSave:
-		filePathFinal << "Saves/";
+		filePathFinal << "Saves" << gPathSeperator;
 		break;
 
 	case eCampaign:
-		filePathFinal << "Campaigns/";
+		filePathFinal << "Campaigns" << gPathSeperator;
 		break;
 
 	case eNone:
@@ -152,7 +152,7 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 		break;
 	}
 	if( pPath.size() )
-		filePathFinal << pPath << "/";
+		filePathFinal << pPath << gPathSeperator;
 
 	filePathFinal << pFile;
 

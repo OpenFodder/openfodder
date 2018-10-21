@@ -13208,6 +13208,7 @@ void cFodder::Sprite_Handle_Text_Mission(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Text_Phase(sSprite* pSprite) {
     pSprite->field_0 = mMapTile_TargetX >> 16;
+
     pSprite->field_0 += 0x5F;
     pSprite->field_4 -= 0x20;
 
