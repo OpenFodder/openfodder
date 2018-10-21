@@ -31,6 +31,9 @@ std::shared_ptr<cResources> g_Resource;
 std::shared_ptr<cWindow>    g_Window;
 std::shared_ptr<cFodder>    g_Fodder;
 
+const char gPathSeperator = (_WIN32 ? '\\' : '/');
+
+
 #ifndef _OFED
 #ifndef _OFBOT
 int main(int argc, char *args[]) {

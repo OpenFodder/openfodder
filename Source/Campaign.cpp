@@ -48,7 +48,7 @@ std::string cCampaign::GetPath(const std::string& pName, const std::string& pPat
     auto Filename = local_PathGenerate(pName, pPath, eDataType::eCampaign);
 
     if (mDirectPath)
-        Filename = pName;
+        Filename = mPath;
 
     return Filename;
 }
@@ -97,60 +97,53 @@ bool cCampaign::LoadCustomMap(const std::string& pMapName) {
 
     return true;
 }
-/* This code was used to dump the original campaigns to JSON
-void cCampaign::DumpCampaign() {
+
+bool cCampaign::SaveCampaign() {
     auto MissionData = this;
 
     Json Campaign;
     Campaign["Author"] = "Sensible Software";
     Campaign["Name"] = mName;
 
-    size_t MissionNumber = 1;
-    size_t MapNumber = 0;
-
     // Each Mission
-    for (auto MissionName : MissionData->mMissionNames) {
+    for (auto CurrentMission : mMissions) {
 
         Json Mission;
-        Mission["Name"] = MissionName;
-
-        size_t MissionPhases = MissionData->getNumberOfPhases(MissionNumber);
+        Mission["Name"] = CurrentMission->mName;
 
         // Each Phase of a mission
-        for (size_t PhaseCount = 0; PhaseCount < MissionPhases; ++PhaseCount) {
+        for(auto CurrentPhase : CurrentMission->mPhases) {
             Json Phase;
 
-            Phase["MapName"] = MissionData->getMapFilename(MapNumber);
-            Phase["Name"] = MissionData->getMapName(MapNumber);
-            auto Agg = MissionData->getMapAggression(MapNumber);
+            Phase["MapName"] = CurrentPhase->mMapFilename;
+            Phase["Name"] = CurrentPhase->mName;
 
-            Phase["Aggression"][0] = Agg.mMin;
-            Phase["Aggression"][1] = Agg.mMax;
+            Phase["Aggression"][0] = CurrentPhase->mAggression.mMin;
+            Phase["Aggression"][1] = CurrentPhase->mAggression.mMax;
 
-            for (auto Goal : MissionData->getMapGoals(MapNumber)) {
+            for (auto Goal : CurrentPhase->mGoals) {
 
                 Phase["Objectives"].push_back(mMissionGoal_Titles[Goal - 1]);
             }
-
-            ++MapNumber;
 
             Mission["Phases"].push_back(Phase);
         }
 
         Campaign["Missions"].push_back(Mission);
-        ++MissionNumber;
     }
 
-    std::string file = "D:\\" + mName + ".of";
-    std::ofstream MissionFile(file);
+    // Save the campaign
+    std::ofstream MissionFile(GetPath(mName + ".ofc"));
+
     if (MissionFile.is_open()) {
-        auto ss = Campaign.dump(1);
-
-        MissionFile.write(ss.c_str(), ss.size());
+        MissionFile << Campaign.dump(1);
         MissionFile.close();
+        return true;
     }
+
+    return false;
 }
-*/
+
 
 /**
  * Load a campaign
@@ -162,9 +155,18 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
 
 
     Clear();
+    mName = pName;
+    mPath = pName;
     mDirectPath = pDirectPath;
 
-    std::ifstream MissionSetFile(GetPath(pName + ".ofc"));
+    if (mDirectPath) {
+        auto Final = pName.find_last_of(gPathSeperator);
+
+        mName = pName.substr(0, Final);
+    }
+
+
+    std::ifstream MissionSetFile(GetPath(mName + ".ofc"));
     if (MissionSetFile.is_open()) {
         Json MissionSet = Json::parse(MissionSetFile);
 
@@ -220,11 +222,19 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
 /**
  * Clear all missions/map names, goals and aggression rates
  */
-void cCampaign::Clear() {
-    mDirectPath = false;
+void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
+    mDirectPath = pDirectPath;
     mIsRandom = false;
     mIsCustomCampaign = false;
-    mName = "";
+    mName = pName;
+    mAuthor = "";
+    mPath = pName;
+
+    if (mDirectPath) {
+        auto Final = pName.find_last_of("/");
+
+        mName = pName.substr(0, Final);
+    }
 
     mMissions.clear();
 }

@@ -67,6 +67,26 @@ public:
         transform(Name.begin(), Name.end(), Name.begin(), toupper);
         return Name;
     }
+
+    void SetGoal(ePhaseGoals pGoal, int pValue) {
+        if (pValue)
+            AddGoal(pGoal);
+        else
+            RemoveGoal(pGoal);
+    }
+    void AddGoal(ePhaseGoals pGoal) {
+
+        if (std::find(mGoals.begin(), mGoals.end(), pGoal) == mGoals.end())
+            mGoals.push_back(pGoal);
+
+    }
+
+    void RemoveGoal(ePhaseGoals pGoal) {
+
+        auto Goal = std::find(mGoals.begin(), mGoals.end(), pGoal);
+        if (Goal != mGoals.end())
+            mGoals.erase(Goal);
+    }
 };
 
 class cMission {
@@ -95,6 +115,7 @@ public:
 
 class cCampaign {
 private:
+    std::string                             mPath;
     std::string                             mName;
     std::string                             mAuthor;
 
@@ -106,19 +127,20 @@ private:
 
 protected:
 
-    std::string GetPath(const std::string& pName, const std::string& pPath = "") const;
 public:
 
     cCampaign();
 
-    void Clear();
+    void Clear(const std::string& pName = "", const bool pDirectPath = false);
 
 	bool LoadCustomMapFromPath(const std::string& pMapName);
     bool LoadCustomMap(const std::string& pMapName);
 
     bool LoadCampaign(const std::string& pName, bool pCustom, bool pDirectPath = false);
+    bool SaveCampaign();
 
     const std::string getName() const;
+    std::string GetPath(const std::string& pName, const std::string& pPath = "") const;
 
 	tSharedBuffer getMap(std::shared_ptr<cPhase> pPhase) const;
 	tSharedBuffer getSprites(std::shared_ptr<cPhase> pPhase) const;
@@ -131,6 +153,7 @@ public:
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;
 	bool isRandom() const;
+    void setAuthor(const std::string& pAuthor) { mAuthor = pAuthor; }
 };
 
 extern const std::vector<std::string>   mMissionGoal_Titles;

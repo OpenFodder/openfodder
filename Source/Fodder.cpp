@@ -9321,6 +9321,8 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
     size_t Tile = (((pTileY * mMapWidth) + pTileX));
 
     uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
+    if (CurrentMapPtr > mMap->data() + mMap->size())
+        return;
 
     writeLEWord(CurrentMapPtr, (uint16)pTileID);
 }
