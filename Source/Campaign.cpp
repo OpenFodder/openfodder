@@ -152,8 +152,7 @@ bool cCampaign::SaveCampaign() {
     }
 
     // Save the campaign
-    std::ofstream MissionFile(GetPath() + ".ofc");
-
+    std::ofstream MissionFile(GetPathToCampaign());
     if (MissionFile.is_open()) {
         MissionFile << Campaign.dump(1);
         MissionFile.close();

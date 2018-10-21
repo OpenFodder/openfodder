@@ -34,7 +34,7 @@ std::shared_ptr<cFodder>    g_Fodder;
 #ifdef _WIN32
     const char gPathSeperator = '\\';
 #else
-    const char gPathSeperator = '/');
+    const char gPathSeperator = '/';
 #endif
 
 #ifndef _OFED

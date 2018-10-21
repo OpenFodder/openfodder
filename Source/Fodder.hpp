@@ -83,6 +83,7 @@ public:
     bool                    mVersionPlatformSwitchDisabled;
     const sGameVersion*     mVersionDefault;		// Version to switch back to when looking for data
     const sGameVersion*     mVersionCurrent;		// Version currently being used
+    bool                    mVersionReturnAfterPhase;   // Return to default data after phase
 
     std::shared_ptr<cGraphics>  mGraphics;
     std::shared_ptr<cSound>     mSound;

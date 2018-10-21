@@ -1896,6 +1896,7 @@ void cFodder::Map_Load_Resources() {
             }
         }
 
+        mVersionReturnAfterPhase = true;
     }
 
     // jun
@@ -20001,13 +20002,13 @@ int16 cFodder::Mission_Loop() {
 
         WindowTitleSet(true);
 
-        Map_Load();
-        Map_Load_Sprites();
-        Map_Overview_Prepare();
-
         //loc_10513
         // Show the pre ready Briefing Screen
         Briefing_Show_PreReady();
+
+        Map_Load();
+        Map_Load_Sprites();
+        Map_Overview_Prepare();
 
         // Prepare Squads
         Phase_Soldiers_Count();
@@ -20103,6 +20104,7 @@ int16 cFodder::Mission_Loop() {
             mMission_In_Progress = false;
             Squad_Member_PhaseCount();
             mPhase_TryingAgain = true;
+
         }
         else {
             mKeyCode = 0;
@@ -20124,6 +20126,12 @@ int16 cFodder::Mission_Loop() {
         if (mPhase_TryAgain) {
             mPhase_TryingAgain = true;
             continue;
+        }
+
+        // Switch back to the default data?
+        if (mVersionReturnAfterPhase) {
+            mVersionReturnAfterPhase = false;
+            VersionSwitch(mVersionDefault);
         }
 
         // Demo/Single mission, but not set mode (its handled at the end of the loop)
