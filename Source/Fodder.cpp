@@ -1731,7 +1731,7 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
 
     // In OF, this will only ever get called from the campaign selection screen,
     // so we pick a tile thats easy to read text on
-#ifndef OFED
+#ifndef _OFED
     if (mVersionCurrent->isAmigaFormat())
         TileID = 100;
 #endif
@@ -20162,7 +20162,7 @@ void cFodder::MapTiles_Draw() {
     mMapTile_ColumnOffset = 0;
     mMapTile_RowOffset = 0;
 
-    mMapTile_Ptr = (0x60 - 8) - (mMapWidth << 1);
+    mMapTile_Ptr = (0x60- 8) -(mMapWidth << 1);
     mMapTile_MovedHorizontal = 0;
     mMapTile_MovedVertical = 0;
     mMapTile_Column_CurrentScreen = 0;

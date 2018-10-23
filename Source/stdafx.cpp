@@ -32,7 +32,7 @@ std::shared_ptr<cWindow>    g_Window;
 std::shared_ptr<cFodder>    g_Fodder;
 
 #ifdef _WIN32
-    const char gPathSeperator = '\\';
+    const char gPathSeperator = '/';
 #else
     const char gPathSeperator = '/';
 #endif
