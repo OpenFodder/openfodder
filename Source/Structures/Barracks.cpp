@@ -45,8 +45,8 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 		},
 
 		{
-			{ 13, 2, eSprite_BuildingRoof },
-			{ 9, 34, eSprite_BuildingDoor }
+            { 13, 18, eSprite_BuildingRoof },
+			{ 9, 50, eSprite_BuildingDoor }
 		},
 	},
 
@@ -68,8 +68,8 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 			{ 3, 2, 287 },
 		},
 		{
-			{ 23, -5, eSprite_BuildingRoof },
-			{ 20, 27, eSprite_BuildingDoor }
+			{ 23, 11, eSprite_BuildingRoof },
+			{ 20, 43, eSprite_BuildingDoor }
 		},
 	},
 
@@ -90,8 +90,8 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 			{ 2, 2, 238 },
 		},
 		{
-			{ 12, -15, eSprite_BuildingRoof },
-			{ 7, 16, eSprite_BuildingDoor }
+			{ 12, 1, eSprite_BuildingRoof },
+			{ 7, 32, eSprite_BuildingDoor }
 		},
 	},
 
@@ -115,8 +115,8 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 			{ 2, 3, 396 },
 		},
 		{
-			{ 15, 1, eSprite_BuildingRoof },
-			{ 7, 33, eSprite_BuildingDoor }
+			{ 15, 17, eSprite_BuildingRoof },
+			{ 7, 49, eSprite_BuildingDoor }
 		},
 	},
 
@@ -128,7 +128,7 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 			{ 0, 1, 266 }
 		},
 		{
-			{ 3, 5, eSprite_BuildingDoor }
+			{ 3, 21, eSprite_BuildingDoor }
 		},
 	},
 
@@ -139,7 +139,7 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 			{ 0, 1, 266 }
 		},
 		{
-			{ 3, 5, eSprite_BuildingDoor }
+			{ 3, 21, eSprite_BuildingDoor }
 		},
 	},
 
@@ -163,7 +163,7 @@ const std::vector<sStructure> mStructuresBarracksWithSoldier = {
 			{ 2, 3, 397 },
 		},
 		{
-			{ 21, 40, eSprite_BuildingDoor }
+			{ 21, 56, eSprite_BuildingDoor }
 		},
 	},
 };

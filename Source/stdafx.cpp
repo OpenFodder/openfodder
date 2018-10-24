@@ -54,6 +54,7 @@ int main(int argc, char *args[]) {
 		}
 	}
 
+    Campaign = "Amiga Format Christmas Special";
     g_Window = std::make_shared<cWindow>();
 
     g_Fodder = std::make_shared<cFodder>( g_Window, SkipIntro );

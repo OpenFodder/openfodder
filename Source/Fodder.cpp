@@ -3389,13 +3389,15 @@ void cFodder::Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, c
     mVideo_Draw_Rows = SheetData->mRowCount - pDi->field_52;
 
 #if defined(_OFED) || defined(_OFBOT)
-
     mMapTile_DrawY = (mMapTile_MovedVertical * 16) + mMapTile_RowOffset;
     mMapTile_DrawX = (mMapTile_MovedHorizontal * 16) + mMapTile_ColumnOffset;
+    
+    mVideo_Draw_PosX = (int16)((SheetData->mModX + pDi->field_0) - mMapTile_DrawX);
+#else
+    mVideo_Draw_PosX = (int16)((SheetData->mModX + pDi->field_0) - mMapTile_DrawX + 0x40);
 #endif
 
-    mVideo_Draw_PosX = (int16)(SheetData->mModX + pDi->field_0) - mMapTile_DrawX + 0x40;
-    mVideo_Draw_PosY = (int16)(SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_DrawY;
+    mVideo_Draw_PosY = (int16)((SheetData->mModY + pDi->field_4) - mVideo_Draw_Rows - pDi->field_20 - mMapTile_DrawY);
     mVideo_Draw_PosY += 0x10;
 
     if (Sprite_OnScreen_Check()) {
@@ -4086,7 +4088,7 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
     word_3AA1D = word_3BED5[0];
 
     if(mMap_TileSet == eTileTypes_Jungle)
-        Map_Add_Structure(mStructuresBarracksWithSoldier[mMap_TileSet], 4, 3);
+        Map_Add_Structure(mStructuresBarracksWithSoldier[mMap_TileSet], 4, 2);
 
     if(mMap_TileSet == eTileTypes_AFX)
         Map_Add_Structure(mStructuresBarracksWithSoldier[mMap_TileSet], 2, 5);
@@ -9319,7 +9321,7 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
     if (pTileX > mMapWidth || pTileY > mMapHeight)
         return;
 
-    size_t Tile = (((pTileY * mMapWidth) + pTileX));
+    size_t Tile = (((pTileY * mMapWidth) + pTileX)) + mMapWidth;
 
     uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
     if (CurrentMapPtr > mMap->data() + mMap->size())
@@ -9328,7 +9330,7 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
     writeLEWord(CurrentMapPtr, (uint16)pTileID);
 }
 
-sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
+sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
 
     int16 Data0 = 2;
 
@@ -9339,10 +9341,10 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
 
     Data0 = 2;
     First->field_18 = (int16)pSpriteID;
-    First->field_0 = pTileX;
-    First->field_4 = pTileY;
-    First->field_26 = pTileX;
-    First->field_28 = pTileY;
+    First->field_0 = pSpriteX;
+    First->field_4 = pSpriteY;
+    First->field_26 = pSpriteX;
+    First->field_28 = pSpriteY;
 
     switch (pSpriteID) {
     case eSprite_BoilingPot:                        // 1 Null
@@ -9351,10 +9353,10 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             return First;
 
         Second->field_18 = eSprite_Null;
-        Second->field_0 = pTileX;
-        Second->field_4 = pTileY;
-        Second->field_26 = pTileX;
-        Second->field_28 = pTileY;
+        Second->field_0 = pSpriteX;
+        Second->field_4 = pSpriteY;
+        Second->field_26 = pSpriteX;
+        Second->field_28 = pSpriteY;
         break;
 
     case eSprite_Helicopter_Grenade_Enemy:          // 3 Nulls
@@ -9367,10 +9369,10 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             return First;
 
         Second->field_18 = eSprite_Null;
-        Second->field_0 = pTileX;
-        Second->field_4 = pTileY;
-        Second->field_26 = pTileX;
-        Second->field_28 = pTileY;
+        Second->field_0 = pSpriteX;
+        Second->field_4 = pSpriteY;
+        Second->field_26 = pSpriteX;
+        Second->field_28 = pSpriteY;
 
         // Fall Through
     case eSprite_Helicopter_Grenade2_Human:         // 2 Nulls
@@ -9386,16 +9388,16 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             return First;
 
         Third->field_18 = eSprite_Null;
-        Third->field_0 = pTileX;
-        Third->field_4 = pTileY;
-        Third->field_26 = pTileX;
-        Third->field_28 = pTileY;
+        Third->field_0 = pSpriteX;
+        Third->field_4 = pSpriteY;
+        Third->field_26 = pSpriteX;
+        Third->field_28 = pSpriteY;
 
         Fourth->field_18 = eSprite_Null;
-        Fourth->field_0 = pTileX;
-        Fourth->field_4 = pTileY;
-        Fourth->field_26 = pTileX;
-        Fourth->field_28 = pTileY;
+        Fourth->field_0 = pSpriteX;
+        Fourth->field_4 = pSpriteY;
+        Fourth->field_26 = pSpriteX;
+        Fourth->field_28 = pSpriteY;
 
         break;
 
@@ -9405,10 +9407,10 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             return First;
 
         Second->field_18 = eSprite_Null;
-        Second->field_0 = pTileX;
-        Second->field_4 = pTileY;
-        Second->field_26 = pTileX;
-        Second->field_28 = pTileY;
+        Second->field_0 = pSpriteX;
+        Second->field_4 = pSpriteY;
+        Second->field_26 = pSpriteX;
+        Second->field_28 = pSpriteY;
 
     case eSprite_Tank_Human:
         Data0 = 2;
@@ -9416,10 +9418,10 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             return First;
 
         Third->field_18 = eSprite_Null;
-        Third->field_0 = pTileX;
-        Third->field_4 = pTileY;
-        Third->field_26 = pTileX;
-        Third->field_28 = pTileY;
+        Third->field_0 = pSpriteX;
+        Third->field_4 = pSpriteY;
+        Third->field_26 = pSpriteX;
+        Third->field_28 = pSpriteY;
         break;
 
     case eSprite_VehicleNoGun_Human:
@@ -9432,10 +9434,10 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pTileX, int16 pTileY) {
             return First;
 
         Second->field_18 = eSprite_Null;
-        Second->field_0 = pTileX;
-        Second->field_4 = pTileY;
-        Second->field_26 = pTileX;
-        Second->field_28 = pTileY;
+        Second->field_0 = pSpriteX;
+        Second->field_4 = pSpriteY;
+        Second->field_26 = pSpriteX;
+        Second->field_28 = pSpriteY;
         break;
     }
   
@@ -20162,7 +20164,14 @@ void cFodder::MapTiles_Draw() {
     mMapTile_ColumnOffset = 0;
     mMapTile_RowOffset = 0;
 
-    mMapTile_Ptr = (0x60- 8) -(mMapWidth << 1);
+    // 0x60 - SidebarWidth - MapWidth
+    mMapTile_Ptr = (0x60 - 8) - (mMapWidth << 1);
+    
+    // No sidebar in OFED
+#ifdef _OFED
+    mMapTile_Ptr += 8;
+#endif
+
     mMapTile_MovedHorizontal = 0;
     mMapTile_MovedVertical = 0;
     mMapTile_Column_CurrentScreen = 0;
