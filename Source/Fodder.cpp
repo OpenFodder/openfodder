@@ -2208,13 +2208,7 @@ void cFodder::Mission_Sprites_Handle() {
 
     Sprite_Sort_DrawList();
 
-
-    mMapTile_TargetX = mCameraX;
-    mMapTile_TargetY = mCameraY;
-    mMapTile_SpeedX = mCamera_TileSpeedX;
-    mMapTile_SpeedY = mCamera_TileSpeedY;
-    mMapTile_MoveDirectionX = mCamera_MoveDirectionX;
-    mMapTile_MoveDirectionY = mCamera_MoveDirectionY;
+    MapTile_UpdateFromCamera();
 
     Map_Destroy_Tiles();
     Sprites_Draw();
@@ -3415,18 +3409,18 @@ bool cFodder::Sprite_OnScreen_Check() {
 
 void cFodder::Sprites_Draw() {
 
-    for( auto& spriteptr : mSprite_DrawList_Final) {
+    for( auto& Sprite : mSprite_DrawList_Final) {
 
-        if (spriteptr->field_24) {
-            spriteptr->field_24 = 0;
-            spriteptr->field_0 = -32768;
+        if (Sprite->field_24) {
+            Sprite->field_24 = 0;
+            Sprite->field_0 = -32768;
             mSprite_SpareUsed = 0;
             mSprite_SpareUsed2 = 0;
         }
         else {
-            int16 Data0 = spriteptr->field_8;
-            int16 Data4 = spriteptr->field_A;
-            Sprite_Draw_Frame(spriteptr, Data0, Data4);
+            int16 Data0 = Sprite->field_8;
+            int16 Data4 = Sprite->field_A;
+            Sprite_Draw_Frame(Sprite, Data0, Data4);
         }
     }
 }
@@ -10033,7 +10027,7 @@ void cFodder::Map_Destroy_Tiles() {
         Data4 += Data0;
         Data4 <<= 1;
 
-        // In some cases, tiles outside the map can be 'destroyed'. This prevents memory corruption
+        // In some cases, tiles outside the map can be 'destroyed'. This continue prevents memory corruption
         if ((size_t)(0x60 + Data4) >= mMap->size())
             continue;
 
