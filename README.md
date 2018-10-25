@@ -32,7 +32,7 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor f
 
 #### Installation
 
-Please see INSTALL.md  
+Please see [INSTALL.md](https://github.com/OpenFodder/openfodder/blob/master/INSTALL.md)
   
   
 #### How to play
