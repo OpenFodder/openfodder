@@ -105,6 +105,14 @@ struct sGameVersion {
         return (isAmigaPower() || isAmigaAction() || isAmigaTheOne());
     }
 
+    bool isCannonFodder1() const {
+        return mGame == eGame::CF1;
+    }
+
+    bool isCannonFodder2() const {
+        return mGame == eGame::CF2;
+    }
+
 	bool isRetail() const {
 		return mRelease == eRelease::Retail;
 	}

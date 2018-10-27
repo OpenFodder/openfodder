@@ -1445,7 +1445,7 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
 	}
 }
 
-void cGraphics_Amiga::Mission_Intro_Play() {
+void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter) {
 
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;
@@ -1496,26 +1496,28 @@ void cGraphics_Amiga::Mission_Intro_Play() {
 		if (mFodder->mBriefing_Helicopter_Moving == -1)
 			mFodder->Briefing_Update_Helicopter();
 
-		// Front
-		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;
-		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;
-		Mission_Intro_DrawHelicopter(203);
+        if (pShowHelicopter) {
+            // Front
+            mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;
+            mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;
+            Mission_Intro_DrawHelicopter(203);
 
-		// Tail
-		mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16) + 48;
-		mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
-		Mission_Intro_DrawHelicopter(204);
+            // Tail
+            mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16) + 48;
+            mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
+            Mission_Intro_DrawHelicopter(204);
 
-		int16 Blade = 205 + BladeFrame;
+            int16 Blade = 205 + BladeFrame;
 
-		++BladeFrame;
-		if (BladeFrame >= 3)
-			BladeFrame = 0;
+            ++BladeFrame;
+            if (BladeFrame >= 3)
+                BladeFrame = 0;
 
-		// Blade
-		mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
-		mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
-		Mission_Intro_DrawHelicopter(Blade);
+            // Blade
+            mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
+            mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
+            Mission_Intro_DrawHelicopter(Blade);
+        }
 
 		if (mFodder->mImageFaded)
 			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();

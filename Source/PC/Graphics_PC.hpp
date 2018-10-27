@@ -89,18 +89,13 @@ class cGraphics_PC : public cGraphics {
 	virtual void		Mission_Intro_Load_Resources();
 	virtual void		Mission_Intro_DrawHelicopter( uint16 pID );
 
-	virtual void		Mission_Intro_Play();
-	void				Mission_Intro_Jungle();
-	void				Mission_Intro_Desert();
-	void				Mission_Intro_Ice();
-	void				Mission_Intro_Mor();
-	void				Mission_Intro_Int();
+	virtual void		Mission_Intro_Play( const bool pShowHelicopter );
+	void				Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter );
 
-	void				Briefing_Render_2(tSharedBuffer pDs, int16 pCx);
-	void				Briefing_Render_1(tSharedBuffer pDs, int16 pCx);
+	void				Mission_Intro_Render_2(tSharedBuffer pDs, int16 pCx);
+	void				Mission_Intro_Render_1(tSharedBuffer pDs, int16 pCx);
 
 	void				sub_15B98(tSharedBuffer pDs, int16 pCx);
-	void				sub_15CE8(tSharedBuffer pDs, int16 pCx);
 
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();

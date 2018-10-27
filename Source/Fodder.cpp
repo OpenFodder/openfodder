@@ -15521,7 +15521,7 @@ void cFodder::sub_2DC72(sSprite* pSprite) {
 
     Data24->field_0 += (pSprite->field_20 >> 2);
     Data24->field_4 += (pSprite->field_20 >> 2);
-    Data24->field_2C = -1;
+    Data24->field_2C = eSprite_Draw_First;
 }
 
 int16 cFodder::sub_1D92E(sSprite* pSprite) {
@@ -17823,8 +17823,13 @@ void cFodder::Mission_Intro_Play() {
     Mission_Intro_Draw_Mission_Name();
     mSurface->Save();
 
+    bool ShowHelicopter = true;
+
+    if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4)
+        ShowHelicopter = false;
+
     mVersionPlatformSwitchDisabled = true;
-    mGraphics->Mission_Intro_Play();
+    mGraphics->Mission_Intro_Play(ShowHelicopter);
     mVersionPlatformSwitchDisabled = false;
 }
 

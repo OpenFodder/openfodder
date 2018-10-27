@@ -103,7 +103,7 @@ protected:
 	virtual bool		Sprite_OnScreen_Check(  );
 	virtual bool		Sprite_OnScreen_Check( bool p16bit = false );
 
-	virtual void		Mission_Intro_Play();
+	virtual void		Mission_Intro_Play( const bool pShowHelicopter );
 	virtual void		Mission_Intro_Load_Resources();
 	virtual void		Mission_Intro_DrawHelicopter( uint16 pID );
 

@@ -825,7 +825,7 @@ public:
     void            Sprite_Handle_Tank_Enemy(sSprite* pSprite);           // 69
 
     void            Sprite_Handle_Indigenous_Spear(sSprite* pSprite);     // 70
-    void            Sprite_Handle_Indigenous_Spear2(sSprite* pSprite);                            // 71
+    void            Sprite_Handle_Indigenous_Spear2(sSprite* pSprite);    // 71
     void            Sprite_Handle_Hostage(sSprite* pSprite);              // 72
     void            Sprite_Handle_Hostage_Rescue_Tent(sSprite* pSprite);  // 73
     void            Sprite_Handle_Door_Indigenous(sSprite* pSprite);      // 74
