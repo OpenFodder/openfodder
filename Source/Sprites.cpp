@@ -202,7 +202,8 @@ void cFodder::Sprite_Table_Setup() {
 	// End of Cannon Fodder Sprites
 
 	//  Cannon Foodder 2 only Sprites
-	SpriteTableFunction( 111, sub_2DB0A );
+    /* 111 */
+    SpriteFunction( UFO_Callpad );
 
         /* 112 */
         SpriteTableFunction( 112, sub_2CEAC );

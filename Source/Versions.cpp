@@ -748,7 +748,8 @@ const std::vector<eTileTypes> AmigaFormat_Tile_Types = {
 };
 
 const std::vector<eTileTypes> AmigaTheOne_TileTypes = {
-    eTileTypes_Jungle
+    eTileTypes_Jungle,
+    eTileTypes_Ice
 };
 
 const std::vector<eTileTypes> AmigaPlus_Tile_Types = {
@@ -941,6 +942,7 @@ void cVersions::FindKnownVersions() {
 
     }
 }
+
 std::shared_ptr<cResources> sGameVersion::GetResources(const std::string& pDataPathOverride) const {
     if (isPC()) {
         return std::make_shared<cResource_PC_CD>(pDataPathOverride);

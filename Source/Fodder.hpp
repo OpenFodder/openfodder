@@ -870,7 +870,7 @@ public:
     void            Sprite_Handle_Computer_3(sSprite* pSprite);                       // 110
 
     // Cannon Fodder 2 Sprites
-    void            sub_2DB0A(sSprite* pSprite);                                      // 111
+    void            Sprite_Handle_UFO_Callpad(sSprite* pSprite);                                      // 111
     void            sub_2CEAC(sSprite* pSprite);                                      // 112
     void            sub_2CEDA(sSprite* pSprite);                                      // 113
     void            sub_2D000(sSprite* pSprite);                                      // 114

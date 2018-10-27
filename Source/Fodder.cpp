@@ -15365,7 +15365,7 @@ void cFodder::Sprite_Handle_Computer_3(sSprite* pSprite) {
     Sprite_Handle_Computer(pSprite, 0xAF);
 }
 
-void cFodder::sub_2DB0A(sSprite* pSprite) {
+void cFodder::Sprite_Handle_UFO_Callpad(sSprite* pSprite) {
     
     if (mHelicopterCall_X > 0) {
 

@@ -133,6 +133,9 @@ enum eSprites {
 	eSprite_Computer_1							= 108,
 	eSprite_Computer_2							= 109,
 	eSprite_Computer_3							= 110,
+
+    // Cannon Fodder 2
+    eSprite_UFO_Callpad                         = 111,
 };
 
 enum eSprite_Flags {
