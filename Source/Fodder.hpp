@@ -878,7 +878,7 @@ public:
     void            sub_2D118(sSprite* pSprite);                                      // 116
     void            sub_2D16F(sSprite* pSprite);                                      // 117
 
-    void            sub_2DC72(sSprite* pSprite);
+    void            Sprite_PositionNext_AdjustByHeight(sSprite* pSprite);
     int16           sub_1D92E(sSprite* pSprite);
 
     void            Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID);

@@ -15398,7 +15398,7 @@ void cFodder::Sprite_Handle_UFO_Callpad(sSprite* pSprite) {
 
         pSprite->field_36 = Data0;
         Sprite_Movement_Calculate(pSprite);
-        sub_2DC72(pSprite);
+        Sprite_PositionNext_AdjustByHeight(pSprite);
     } else {
         // loc_2DBE8
         pSprite->field_8 = 0x7C;
@@ -15415,7 +15415,7 @@ void cFodder::Sprite_Handle_UFO_Callpad(sSprite* pSprite) {
         }
 
         pSprite->field_20 = 0x64;
-        sub_2DC72(pSprite);
+        Sprite_PositionNext_AdjustByHeight(pSprite);
     }
 }
 
@@ -15513,7 +15513,7 @@ void cFodder::sub_2D16F(sSprite* pSprite) {
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
-void cFodder::sub_2DC72(sSprite* pSprite) {
+void cFodder::Sprite_PositionNext_AdjustByHeight(sSprite* pSprite) {
     sSprite* Data24 = pSprite + 1;
 
     Data24->field_0 = pSprite->field_0 + 8;
