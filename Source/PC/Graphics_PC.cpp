@@ -297,7 +297,7 @@ void cGraphics_PC::MapTiles_Draw() {
                 if (MapPtr >= mFodder->mMap->data() + mFodder->mMap->size())
                     continue;
 
-                uint16 Tile = readLEWord(MapPtr) & 0x1FF;
+                uint16 Tile = readLE<uint16>(MapPtr) & 0x1FF;
                 if (Tile > 0x1DF)
                     Tile = 0;
 

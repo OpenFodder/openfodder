@@ -8645,7 +8645,7 @@ int16 cFodder::sub_2A622(int16& pData0) {
         }
         //loc_2A6A1
         if (MapTilePtr > mMap->data() && MapTilePtr < mMap->data() + mMap->size()) {
-            pData0 = readLEWord(MapTilePtr);
+            pData0 = readLE<uint16>(MapTilePtr);
         } else
             pData0 = 0;
 
@@ -8663,23 +8663,23 @@ int16 cFodder::sub_2A622(int16& pData0) {
         }
 
     loc_2A6D7:;
-        if (readLE_SDWORD(Data28) == -1) {
+        if (readLE<int32>(Data28) == -1) {
             pData0 = 0;
             return 0;
         }
-        pData0 = readLEWord(Data28);
+        pData0 = readLE<uint16>(Data28);
         Data28 += 2;
         if (pData0 == 0)
             goto loc_2A728;
 
-        if (readLE_SDWORD(Data28) == -1)
+        if (readLE<int32>(Data28) == -1)
             goto loc_2A728;
 
-        if (readLEWord(Data28) == 0)
+        if (readLE<uint16>(Data28) == 0)
             goto loc_2A728;
 
         MapTilePtr += pData0;
-        pData0 = readLEWord(Data28);
+        pData0 = readLE<uint16>(Data28);
         Data28 += 2;
 
     loc_2A728:;
@@ -8789,7 +8789,7 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
     if (mMap->data() + (0x60 + MapPtr) >= mMap->data() + mMap->size())
         return 0;
 
-    uint16 TileID = readLEWord(mMap->data() + (0x60 + MapPtr)) & 0x1FF;
+    uint16 TileID = readLE<uint16>(mMap->data() + (0x60 + MapPtr)) & 0x1FF;
 
     // There is two tables, the HIT and the BHIT
     // HIT contains the type of terrain used by a tile, a value < 0 indicates
@@ -9116,7 +9116,7 @@ int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, in
     if (mMap->data() + 0x60 + DataC >= mMap->data() + mMap->size())
         return pMovementData[0];
 
-    int16 Data0 = readLEWord(mMap->data() + 0x60 + DataC);
+    int16 Data0 = readLE<uint16>(mMap->data() + 0x60 + DataC);
     Data0 &= 0xFF;
 
     int16 Data4 = mTile_Hit[Data0];
@@ -10032,7 +10032,7 @@ void cFodder::Map_Destroy_Tiles() {
             continue;
 
         MapPtr = mMap->data() + 0x60 + Data4;
-        MapTile = readLEWord(MapPtr);
+        MapTile = readLE<uint16>(MapPtr);
         MapTile &= 0x1FF;
         TileType = MapTile;
 

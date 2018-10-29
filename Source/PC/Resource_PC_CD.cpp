@@ -115,7 +115,7 @@ bool cResource_PC_CD::headerLoad() {
 	if(!Data)
 		return false;
 
-	uint16 ptrEnd = readLEWord( Data );
+	uint16 ptrEnd = readLE<uint16>( Data );
 
 	mFiles.clear();
 
@@ -130,9 +130,9 @@ bool cResource_PC_CD::headerLoad() {
 		ptr += (uint16) File.mName.size();
 
 		// Start address and size
-		File.mAddressStart	= readLE_UDWORD( &Data[ptr] );
+		File.mAddressStart	= readLE<uint32>( &Data[ptr] );
 
-		File.mSize			= readLE_UDWORD( &Data[ptr + 4] );
+		File.mSize			= readLE<uint32>( &Data[ptr + 4] );
 
 		ptr += 8;
 
