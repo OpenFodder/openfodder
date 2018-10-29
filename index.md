@@ -7,15 +7,15 @@ Cannon Fodder is an action-strategy shoot 'em up game developed by Sensible Soft
 The game is military-themed and based on shooting action but with a strategy game-style control system. The player directs troops through numerous missions, battling enemy infantry, vehicles and installations.
 
 ### Requirements
-While Open Fodder is packaged with two demos, the full game requires the retail release available from [GOG](https://www.gog.com/game/cannon_fodder), or the data extracted from the Amiga version using the [WHDLoad](http://www.whdload.de/games/CannonFodder.html) installer.
+While Open Fodder is packaged with four demos, the full game requires the retail release available from [GOG](https://www.gog.com/game/cannon_fodder), or the data extracted from the Amiga version using [SOS_Unpacker](https://github.com/OpenFodder/SOS_Unpacker/releases) or the [WHDLoad](http://www.whdload.de/games/CannonFodder.html) installer.
 
 ### Downloads
 
 #### Windows
 The latest release of Open Fodder is available [here](https://github.com/OpenFodder/openfodder/releases)
 
-#### Windows Map Editor
-The latest release of the Map Editor is available [here](https://github.com/OpenFodder/editor/releases)
+#### Campaign/Map Editor
+The latest release of the editor is available [here](https://github.com/OpenFodder/editor/releases)
   
 #### Unix/Linux
 Ports for OpenBSD and RetroPie are available, and the game should compile on most *nix distributions
@@ -27,10 +27,7 @@ Ports for OpenBSD and RetroPie are available, and the game should compile on mos
 [Open Fodder 0.8 Video](https://www.youtube.com/watch?v=7AjELdOzoaw)  
 [Open Fodder 0.7 Video](https://www.youtube.com/watch?v=c9iu7Jwm3Ak)  
 [Open Fodder 0.6 Video](https://youtu.be/lHSw2vQDbfI)  
-[Open Fodder 0.5 Video](https://www.youtube.com/watch?v=qUH0BCSMDsY)  
-[Open Fodder 0.3 Video](https://www.youtube.com/watch?v=xVSWP2x0JBo)  
-[Open Fodder 0.2 Video](https://www.youtube.com/watch?v=MLovwBEWr6k)  
-[Open Fodder 0.1 Video](https://www.youtube.com/watch?v=9QLg0hYsFFY)  
+
 
 ### Authors and Contributors
 @segrax
