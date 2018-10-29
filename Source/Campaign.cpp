@@ -118,36 +118,28 @@ bool cCampaign::LoadCustomMap(const std::string& pMapName) {
 }
 
 bool cCampaign::SaveCampaign() {
-    auto MissionData = this;
-
     Json Campaign;
     Campaign["Author"] = "Sensible Software";
     Campaign["Name"] = mName;
 
     // Each Mission
     for (auto CurrentMission : mMissions) {
-
         Json Mission;
         Mission["Name"] = CurrentMission->mName;
 
         // Each Phase of a mission
         for(auto CurrentPhase : CurrentMission->mPhases) {
             Json Phase;
-
             Phase["MapName"] = CurrentPhase->mMapFilename;
             Phase["Name"] = CurrentPhase->mName;
-
             Phase["Aggression"][0] = CurrentPhase->mAggression.mMin;
             Phase["Aggression"][1] = CurrentPhase->mAggression.mMax;
 
-            for (auto Goal : CurrentPhase->mGoals) {
-
+            for (auto Goal : CurrentPhase->mGoals)
                 Phase["Objectives"].push_back(mMissionGoal_Titles[Goal - 1]);
-            }
 
             Mission["Phases"].push_back(Phase);
         }
-
         Campaign["Missions"].push_back(Mission);
     }
 
@@ -171,7 +163,6 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
     if (!pName.size())
         return false;
 
-
     Clear();
     mName = pName;
     mPath = pName;
@@ -183,13 +174,14 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
         mName = pName.substr(0, Final);
     }
 
-
     std::ifstream MissionSetFile(GetPathToCampaign());
     if (MissionSetFile.is_open()) {
         Json MissionSet = Json::parse(MissionSetFile);
 
         mAuthor = MissionSet["Author"];
         mName = MissionSet["Name"];
+
+        mIsCustomCampaign = pCustom;
 
         // Loop through the missions in this set
         for (auto& Mission : MissionSet["Missions"]) {
@@ -211,17 +203,14 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
                 }
 
                 // Each map goal
-                for (auto& ObjectiveName : Phase["Objectives"]) {
-                    std::string ObjectiveNameStr = ObjectiveName;
-                    transform(ObjectiveNameStr.begin(), ObjectiveNameStr.end(), ObjectiveNameStr.begin(), toupper);
+                for (std::string ObjectiveName : Phase["Objectives"]) {
+                    transform(ObjectiveName.begin(), ObjectiveName.end(), ObjectiveName.begin(), toupper);
 
                     // Check each goal
                     int x = 0;
-                    for (std::string GoalTitle : mMissionGoal_Titles) {
+                    for (const std::string& GoalTitle : mMissionGoal_Titles) {
                         ++x;
-
-                        if (GoalTitle == ObjectiveNameStr) {
-
+                        if (GoalTitle == ObjectiveName) {
                             newPhase->mGoals.push_back(static_cast<ePhaseGoals>(x));
                             break;
                         }
@@ -229,8 +218,6 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
                 }
             }
         }
-
-        mIsCustomCampaign = pCustom;
         return true;
     }
 
@@ -251,7 +238,6 @@ void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
 
     if (mUseCustomPath) {
         auto Final = pName.find_last_of("/");
-
         mName = pName.substr(0, Final);
     }
 
