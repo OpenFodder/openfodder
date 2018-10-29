@@ -224,7 +224,7 @@ public:
 
    
     int32           mStoredSpriteX;
-    uint32          mStoredSpriteY;
+    int32          mStoredSpriteY;
     int16           mTmp_FrameNumber;
 
     int16           mSidebar_Draw_Y;
@@ -1027,7 +1027,7 @@ public:
     void            Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C);
 
     int16           Map_Terrain_Get_Moveable_Wrapper(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14);
-    int16           Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14);
+    int16           Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, int16& pY);
 
     void            Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, int16& pX2, int16& pY2);
 
@@ -1137,7 +1137,7 @@ public:
     void            GUI_Prepare_Button_Grenade();
     void            GUI_Handle_Button_Grenades();
     virtual void    GUI_Sidebar_TroopList_Draw();
-    void            GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28);
+    void            GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 pDataC, const char* pData28);
     void            GUI_Sidebar_SquadIcon_Update();
     void            GUI_Sidebar_SquadIcon_Current_Draw();
     int16           GUI_Sidebar_SquadIcon_Set();
@@ -1260,7 +1260,7 @@ public:
     void            Prepare();
 
     void            Playground();
-    virtual void    Start(const std::string pCampaign = "CANNON FODDER", const size_t pMissionNumber = 1, const size_t pPhaseNumber = 1);
+    virtual void    Start(const std::string pCampaign = "CANNON FODDER", const size_t pMissionNumber = 1);
     void            Exit(unsigned int pExitCode);
 
     void            WindowTitleSet(bool pInMission);

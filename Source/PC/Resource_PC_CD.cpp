@@ -130,9 +130,9 @@ bool cResource_PC_CD::headerLoad() {
 		ptr += (uint16) File.mName.size();
 
 		// Start address and size
-		File.mAddressStart	= readLEDWord( &Data[ptr] );
+		File.mAddressStart	= readLE_UDWORD( &Data[ptr] );
 
-		File.mSize			= readLEDWord( &Data[ptr + 4] );
+		File.mSize			= readLE_UDWORD( &Data[ptr + 4] );
 
 		ptr += 8;
 

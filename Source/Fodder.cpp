@@ -8663,7 +8663,7 @@ int16 cFodder::sub_2A622(int16& pData0) {
         }
 
     loc_2A6D7:;
-        if (readLEDWord(Data28) == -1) {
+        if (readLE_SDWORD(Data28) == -1) {
             pData0 = 0;
             return 0;
         }
@@ -8672,7 +8672,7 @@ int16 cFodder::sub_2A622(int16& pData0) {
         if (pData0 == 0)
             goto loc_2A728;
 
-        if (readLEDWord(Data28) == -1)
+        if (readLE_SDWORD(Data28) == -1)
             goto loc_2A728;
 
         if (readLEWord(Data28) == 0)
@@ -9093,10 +9093,10 @@ int16 cFodder::Map_Terrain_Get_Moveable_Wrapper(const int8* pMovementData, int16
     pData10 = pX;
     pData14 = pY;
 
-    return Map_Terrain_Get_Moveable(pMovementData, pX, pY, pData10, pData14);
+    return Map_Terrain_Get_Moveable(pMovementData, pX, pY);
 }
 
-int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14) {
+int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, int16& pY) {
     uint32 DataC = pY;
     uint32 Data8 = pX;
 
@@ -11122,7 +11122,7 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
     mVideo_Draw_PosY = 0xE8;
     Service_Mission_Text_Prepare();
     mVideo_Draw_PosY += 0x40;
-    int Drawn = mService_Draw_List.size();
+    size_t Drawn = mService_Draw_List.size();
 
     for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
 
@@ -17998,9 +17998,9 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 }
 
 void cFodder::Cycle_End() {
+#ifndef _OFED
     static int64 delta = 2;
 
-#ifndef _OFED
     mTicksDiff = SDL_GetTicks() - mTicksDiff;
     mTicks = mTicksDiff * 40 / 1000;
     sleepLoop(delta * 1000 / 40 - mTicksDiff);
@@ -19894,7 +19894,7 @@ void cFodder::Playground() {
     }
 }
 
-void cFodder::Start(const std::string pCampaign, const size_t pMissionNumber, const size_t pPhaseNumber) {
+void cFodder::Start(const std::string pCampaign, const size_t pMissionNumber) {
 
 Start:;
     mGame_Data.mCampaign.Clear();
@@ -20340,12 +20340,12 @@ loc_2F1BC:;
             Data0 = Troop.mSelected & 1;
 
         //loc_2F318
-        GUI_Sidebar_TroopList_Name_Draw(Data0, 3, 0x23, mSidebar_Draw_Y + 2, Data28->mName);
+        GUI_Sidebar_TroopList_Name_Draw(Data0, 0x23, mSidebar_Draw_Y + 2, Data28->mName);
         mSidebar_Draw_Y += 0x0C;
     }
 }
 
-void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData4, int16 pData8, int16 pDataC, const char* pData28) {
+void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 pDataC, const char* pData28) {
 
     word_3AA21 = mGUI_Sidebar_TroopList_Sprite_Modifier[pData0];
 
@@ -20860,15 +20860,12 @@ void cFodder::GUI_Handle_Button_TroopName() {
     Data0 -= 0x22;
     Data0 /= 0x0C;
 
-    int16 Data4 = mSquads_TroopCount[mSquad_Selected];
-
-    if (Data0 >= Data4)
+    if (Data0 >= mSquads_TroopCount[mSquad_Selected])
         return;
 
     word_3A3BF = Data0;
 
     sMission_Troop* Troop = mGame_Data.mSoldiers_Allocated;
-    Data4 = mSquad_Selected;
     int16 Data8 = word_3A3BF;
 
     for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Troop) {
@@ -20878,7 +20875,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
         if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
             continue;
 
-        if (Data4 != Data34->field_32)
+        if (mSquad_Selected != Data34->field_32)
             continue;
 
         --Data8;
@@ -20890,7 +20887,6 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
     const sRecruit* Data28 = &mRecruits[Troop->mRecruitID];
     Data0 = Troop->mSelected & 1;
-    Data4 = 3;
     Data8 = word_3A3BF;
     Data8 *= 0x0C;
 
@@ -20899,7 +20895,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
     int16 DataC = Data8;
 
-    GUI_Sidebar_TroopList_Name_Draw(Data0, Data4, Data8, DataC, Data28->mName);
+    GUI_Sidebar_TroopList_Name_Draw(Data0, Data8, DataC, Data28->mName);
     sub_3049B();
     sub_3037A();
 }
@@ -21193,7 +21189,7 @@ void cFodder::Mission_Final_TimeToDie() {
         mSidebar_Screen_Buffer[Y] = 0;
     }
 
-    GUI_Sidebar_TroopList_Name_Draw(0, 0, 0, 0xB7, "TIME TO DIE ");
+    GUI_Sidebar_TroopList_Name_Draw(0, 0, 0xB7, "TIME TO DIE ");
 
     GUI_Sidebar_Number_Draw(mMission_Final_TimeRemain, 0, 0x30, 0xC0, 0xAF);
 

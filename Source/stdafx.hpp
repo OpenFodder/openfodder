@@ -82,10 +82,16 @@ inline uint32 readBEDWord( const void *buffer ) {
 	return uint32((bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + (bytes[3]));
 }
 
-// Read a word from the buffer
-inline uint32 readLEDWord( const void *buffer ) {
+// Read a dword from the buffer
+inline uint32 readLE_UDWORD( const void *buffer ) {
 	const uint32* wordBytes = (const uint32*) buffer;
 	return *wordBytes;
+}
+
+// Read a signed dword from the buffer
+inline int32 readLE_SDWORD(const void *buffer) {
+    const int32* wordBytes = (const int32*)buffer;
+    return *wordBytes;
 }
 
 // Read a word from the buffer
