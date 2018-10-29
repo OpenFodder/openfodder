@@ -32,8 +32,6 @@ enum ePhaseGoals {
     eGoal_Get_Civilian_Home = 8,
     eGoal_Activate_All_Switches = 9,        // CF2
     eGoal_Rescue_Hostage = 10,              // CF2: The CF2 engine has this as goal 3 instead of 10, and vica versa
-
-    eGoal_End = -1
 };
 
 struct sAggression {
