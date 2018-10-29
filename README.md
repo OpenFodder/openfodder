@@ -18,7 +18,7 @@ Open Fodder is an open source version of the Cannon Fodder engine, for modern op
   
 #### Map Editor
 
-See [OpenFodder Editor](https://github.com/OpenFodder/editor) for a map editor for Windows.
+See [OpenFodder Editor](https://github.com/OpenFodder/editor) for the campaign and map editor.
 
 
 #### Media
