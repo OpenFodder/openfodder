@@ -209,10 +209,6 @@ protected:
 		_voice[channel].dmaCount = dmaVal;
 	}
 
-	void setAudioFilter(bool enable) {
-		// TODO: implement
-	}
-
 private:
 	Channel _voice[NUM_VOICES];
 
