@@ -81,8 +81,10 @@ int main(int argc, char *argv[]) {
         Params.mPhaseNumber = result["phase"].as<std::uint32_t>();
         Params.mWindowMode = result["window"].as<bool>();
 
-        if (Params.mMissionNumber || Params.mPhaseNumber)
+        if (Params.mMissionNumber || Params.mPhaseNumber) {
             Params.mSkipToMission = true;
+            //Params.mSkipIntro = true;
+        }
 
 #ifdef _DEBUG
         Params.mWindowMode = true;
