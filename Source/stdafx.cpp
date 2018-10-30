@@ -51,9 +51,9 @@ int main(int argc, char *argv[]) {
         ("h,help",      "Help",                 cxxopts::value<bool>()->default_value("false")  )
         ("w,window",    "Start in window mode", cxxopts::value<bool>()->default_value("false")  )
         ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false")  )
-        ("c,campaign",  "Campaign Name",        cxxopts::value<std::string>()->default_value("Cannon Fodder"), "\"name\""  )
-        ("m,mission",   "Mission Number",       cxxopts::value<std::uint32_t>()->default_value("1"), "1"   )
-        ("p,phase",     "Phase Number",         cxxopts::value<std::uint32_t>()->default_value("1"), "2"   )
+        ("c,campaign",  "Campaign Name",        cxxopts::value<std::string>()->default_value(""), "\"name\""  )
+        ("m,mission",   "Mission Number",       cxxopts::value<std::uint32_t>()->default_value("0"), "1"   )
+        ("p,phase",     "Phase Number",         cxxopts::value<std::uint32_t>()->default_value("0"), "2"   )
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"));
 
 
