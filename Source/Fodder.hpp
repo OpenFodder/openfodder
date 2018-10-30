@@ -70,16 +70,16 @@ struct sService_Draw {
     }
 };
 
-struct sFodderParms {
-    bool mSkipIntro;
-    bool mSkipToMission;
-    bool mWindowMode;
+struct sFodderParameters {
+    bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
+    bool mSkipToMission;        // Skip the recruit screen and go straight into the mission
+    bool mWindowMode;           // Start in a window
 
     std::string mCampaignName;
     size_t mMissionNumber;
     size_t mPhaseNumber;
 
-    sFodderParms() {
+    sFodderParameters() {
         mSkipIntro = false;
         mSkipToMission = false;
         mMissionNumber = 0;
@@ -102,7 +102,7 @@ public:
     const sGameVersion*     mVersionCurrent;		// Version currently being used
     bool                    mVersionReturnAfterPhase;   // Return to default data after phase
 
-    sFodderParms            mParams;
+    sFodderParameters            mParams;
 
     std::shared_ptr<cGraphics>  mGraphics;
     std::shared_ptr<cSound>     mSound;
@@ -1276,7 +1276,7 @@ public:
     void            String_Print_Small(std::string pText, const size_t pY);
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
-    void            Prepare(const sFodderParms& pParams);
+    void            Prepare(const sFodderParameters& pParams);
 
     void            Playground();
 

@@ -3182,7 +3182,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 }
 
-void cFodder::Prepare(const sFodderParms& pParams) {
+void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
 
     if (!mVersions->isDataAvailable()) {
@@ -19991,6 +19991,7 @@ int16 cFodder::Mission_Loop() {
             if (mParams.mSkipToMission) {
                 mParams.mSkipToMission = false;
             } else {
+
                 switch (Recruit_Show()) {
                 case 0:     // Start Mission
                     break;
