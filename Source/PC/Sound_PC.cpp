@@ -137,8 +137,7 @@ void cSound_PC::Music_PlayFile( const char* pFilename ) {
 	if (mSound == false)
 		return;
 
-	std::string Filename = "Data/WAV/";
-	Filename.append( pFilename );
+    std::string Filename = local_PathGenerate(pFilename, "WAV", eData);
 	Filename.append( ".wav" );
 
 	Mix_FreeMusic( mMusicPlaying );
