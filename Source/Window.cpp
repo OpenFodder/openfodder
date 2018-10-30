@@ -79,10 +79,11 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 
 	SetCursor();
 
-#ifdef _DEBUG
-    ToggleFullscreen();
-    CalculateWindowSize();
-#endif
+    if (g_Fodder->mParams.mWindowMode) {
+        ToggleFullscreen();
+        CalculateWindowSize();
+    }
+
 
 	return true;
 }

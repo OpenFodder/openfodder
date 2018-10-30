@@ -139,6 +139,7 @@ struct sGameData {
 
     void Clear();
 
+    bool Phase_Start();
     bool Phase_Next();
 
     void Soldier_Clear();

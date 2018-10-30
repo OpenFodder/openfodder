@@ -182,6 +182,34 @@ std::vector<sHero> sGameData::Heroes_Get() const {
     return Final;
 }
 
+bool sGameData::Phase_Start() {
+    mMission_Current = mCampaign.getMission(mMission_Number);
+    if (!mMission_Current)
+        return true;
+
+    mPhase_Current = mMission_Current->GetPhase(mMission_Phase);
+    if(!mPhase_Current)
+
+    mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
+
+    // Mission Complete
+    for (auto& Troop : mSoldiers_Allocated) {
+        Troop.mPhaseCount = 0;
+    }
+
+    if (!mPhase_Current)
+        return false;
+
+    mRecruits_Available_Count += 0x0F;
+    mMission_Recruits_AliveCount = mRecruits_Available_Count;
+    mMission_Recruits_AliveCount -= 0x0F;
+    mMission_Recruitment = -1;
+
+    mGamePhase_Data.mSoldiers_Prepare_SetFromSpritePtrs = false;
+    mGamePhase_Data.mTroops_DiedCount = mSoldiers_Died.size();
+    return true;
+}
+
 /**
  * Proceed to next phase/mission
  *
@@ -189,11 +217,13 @@ std::vector<sHero> sGameData::Heroes_Get() const {
  */
 bool sGameData::Phase_Next() {
 
-    if (!mMission_Current)
+    if (!mMission_Current) {
         mMission_Current = mCampaign.getMission(mMission_Number);
+        if (!mMission_Current)
+            return true;
 
-    if (!mMission_Current)
-        return true;
+        mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
+    }
 
     // Next Phase
     ++mMission_Phase;

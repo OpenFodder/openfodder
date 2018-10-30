@@ -70,13 +70,30 @@ struct sService_Draw {
     }
 };
 
+struct sFodderParms {
+    bool mSkipIntro;
+    bool mSkipToMission;
+    bool mWindowMode;
+
+    std::string mCampaignName;
+    size_t mMissionNumber;
+    size_t mPhaseNumber;
+
+    sFodderParms() {
+        mSkipIntro = false;
+        mSkipToMission = false;
+        mMissionNumber = 0;
+        mPhaseNumber = 0;
+        mWindowMode = false;
+    }
+};
+
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder : public cSingleton < cFodder > {
 public:
     std::string             mInput;
 
-    bool                    mSkipIntro;
     bool					mOpenFodder_Intro_Done;
     bool                    mSoundDisabled;
 
@@ -84,6 +101,8 @@ public:
     const sGameVersion*     mVersionDefault;		// Version to switch back to when looking for data
     const sGameVersion*     mVersionCurrent;		// Version currently being used
     bool                    mVersionReturnAfterPhase;   // Return to default data after phase
+
+    sFodderParms            mParams;
 
     std::shared_ptr<cGraphics>  mGraphics;
     std::shared_ptr<cSound>     mSound;
@@ -1234,7 +1253,7 @@ public:
     void            eventProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
 
-    void            Game_Setup(size_t pMissionNumber = 1);
+    void            Game_Setup();
 
     template <typename tType> std::shared_ptr<tType> GetGraphics() {
         return std::dynamic_pointer_cast<tType>(mGraphics);
@@ -1246,7 +1265,7 @@ public:
 
 public:
 
-    cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro = false);
+    cFodder(std::shared_ptr<cWindow> pWindow);
     virtual         ~cFodder();
 
     void            SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet);
@@ -1257,10 +1276,11 @@ public:
     void            String_Print_Small(std::string pText, const size_t pY);
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
-    void            Prepare();
+    void            Prepare(const sFodderParms& pParams);
 
     void            Playground();
-    virtual void    Start(const std::string pCampaign = "CANNON FODDER", const size_t pMissionNumber = 1);
+
+    virtual void    Start();
     void            Exit(unsigned int pExitCode);
 
     void            WindowTitleSet(bool pInMission);

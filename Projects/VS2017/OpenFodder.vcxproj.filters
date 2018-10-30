@@ -145,6 +145,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\Source\Utils\cxxopts.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">

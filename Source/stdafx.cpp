@@ -22,6 +22,7 @@
 
 #include "stdafx.hpp"
 #include "md5.hpp"
+#include "Utils/cxxopts.hpp"
 
 #include <fcntl.h>
 #include <sys/types.h>
@@ -39,33 +40,54 @@ std::shared_ptr<cFodder>    g_Fodder;
 
 #ifndef _OFED
 #ifndef _OFBOT
-int main(int argc, char *args[]) {
-	bool SkipIntro = false;
-    std::string Campaign;
-	int16 MissionNumber = 1;
+int main(int argc, char *argv[]) {
+    sFodderParms Params;
 
-	if (argc > 1) {
-		if (strcmp( args[1], "skipintro" ) == 0)
-			SkipIntro = true;
+    cxxopts::Options options("OpenFodder", "War has never been so much fun");
+    options.allow_unrecognised_options();
+    options.add_options()
+        ("h,help",      "Help",                 cxxopts::value<bool>()->default_value("false")  )
+        ("w,window",    "Start in window mode", cxxopts::value<bool>()->default_value("false") )
+        ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false")  )
+        ("c,campaign",  "Campaign Name",        cxxopts::value<std::string>()->default_value("Cannon Fodder"), "\"name\""  )
+        ("m,mission",   "Mission Number",       cxxopts::value<std::uint32_t>()->default_value("0"), "1"   )
+        ("p,phase",     "Phase Number",         cxxopts::value<std::uint32_t>()->default_value("0"), "2"   );
 
-		if (strcmp( args[2], "mission" ) == 0) {
-            MissionNumber = atoi( args[3] );
-            Campaign = "CANNON FODDER";
-		}
-	}
+    try {
+        auto result = options.parse(argc, argv);
+
+        if (result["help"].as<bool>() == true) {
+            std::cout << options.help();
+            return -1;
+        }
+
+        Params.mSkipIntro = result["skipintro"].as<bool>();
+        Params.mCampaignName = result["campaign"].as<std::string>();
+        Params.mMissionNumber = result["mission"].as<std::uint32_t>();
+        Params.mPhaseNumber = result["phase"].as<std::uint32_t>();
+        Params.mWindowMode = result["window"].as<bool>();
+
+        if (Params.mMissionNumber || Params.mPhaseNumber)
+            Params.mSkipToMission = true;
+
+#ifdef _DEBUG
+        Params.mWindowMode = true;
+#endif
+    } catch (...) {
+        std::cout << options.help();
+        return -1;
+    }
 
     g_Window = std::make_shared<cWindow>();
 
-    g_Fodder = std::make_shared<cFodder>( g_Window, SkipIntro );
-    g_Fodder->Prepare();
-    g_Fodder->Start(Campaign, MissionNumber);
+    g_Fodder = std::make_shared<cFodder>( g_Window );
+    g_Fodder->Prepare(Params);
+    g_Fodder->Start();
 
     return 0;
 }
 #endif
 #endif
-
-#include <istream>
 
 std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
 	std::stringstream	 filePathFinal;
@@ -77,7 +99,7 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
         if (path)
             filePathFinal << path;
         
-        filePathFinal << "\\Documents\\OpenFodder\\";
+        filePathFinal << "/Documents/OpenFodder/";
 #else
         std::string FinalPath;
 

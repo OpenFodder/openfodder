@@ -137,8 +137,7 @@ void cSound_PC::Music_PlayFile( const char* pFilename ) {
 	if (mSound == false)
 		return;
 
-    std::string Filename = local_PathGenerate(pFilename, "WAV", eData);
-	Filename.append( ".wav" );
+    std::string Filename = local_PathGenerate(pFilename, "WAV", eData) + ".wav";
 
 	Mix_FreeMusic( mMusicPlaying );
 	SDL_Delay( 100 );

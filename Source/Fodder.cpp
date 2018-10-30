@@ -46,7 +46,7 @@ const int16 mBriefing_Helicopter_Offsets[] =
     -1, -1
 };
 
-cFodder::cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro) {
+cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mVersions = std::make_shared<cVersions>();
     mVersionCurrent = 0;
@@ -54,7 +54,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow, bool pSkipIntro) {
 
     mOpenFodder_Intro_Done = false;
     mCustom_Mode = eCustomMode_None;
-    mSkipIntro = pSkipIntro;
+    mParams.mSkipIntro = false;
     mGraphics = 0;
     mSound = 0;
     mWindow = pWindow;
@@ -3182,7 +3182,8 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 }
 
-void cFodder::Prepare() {
+void cFodder::Prepare(const sFodderParms& pParams) {
+    mParams = pParams;
 
     if (!mVersions->isDataAvailable()) {
         std::cout << "No data files found\n";
@@ -17890,7 +17891,7 @@ void cFodder::intro() {
     mImage_Aborted = 0;
     mGraphics->Load_Sprite_Font();
 
-    if (mSkipIntro)
+    if (mParams.mSkipIntro)
         goto introDone;
 
     mSound->Music_Play(16);
@@ -19789,9 +19790,9 @@ void cFodder::Recruit_CheckLoadSaveButtons() {
     mVersionPlatformSwitchDisabled = false;
 }
 
-void cFodder::Game_Setup(size_t pMissionNumber) {
-    if (pMissionNumber < 1)
-        pMissionNumber = 1;
+void cFodder::Game_Setup() {
+    if (mParams.mMissionNumber < 1)
+        mParams.mMissionNumber = 1;
 
     Game_ClearVariables();
 
@@ -19799,9 +19800,10 @@ void cFodder::Game_Setup(size_t pMissionNumber) {
     mPhase_Complete = false;
 
     mGame_Data.mMission_Phases_Remaining = 1;
-    mGame_Data.mMission_Number = (uint16) (pMissionNumber - 1);
+    mGame_Data.mMission_Number = (uint16) (mParams.mMissionNumber);
+    mGame_Data.mMission_Phase = (uint16) (mParams.mPhaseNumber ? (mParams.mPhaseNumber) : 1);
 
-    mGame_Data.Phase_Next();
+    mGame_Data.Phase_Start();
 
     mPhase_TryAgain = -1;
 
@@ -19894,7 +19896,7 @@ void cFodder::Playground() {
     }
 }
 
-void cFodder::Start(const std::string pCampaign, const size_t pMissionNumber) {
+void cFodder::Start() {
 
 Start:;
     mGame_Data.mCampaign.Clear();
@@ -19905,7 +19907,7 @@ Start:;
     //Playground();
 
     // Play the intro
-    if (!mOpenFodder_Intro_Done && !mSkipIntro) {
+    if (!mOpenFodder_Intro_Done && !mParams.mSkipIntro) {
 
         mGame_Data.mMission_Number = 0;
 
@@ -19917,7 +19919,7 @@ Start:;
     }
 
     // Select campaign menu
-    if (!(pCampaign.size() && Campaign_Load(pCampaign)))
+    if (!(mParams.mCampaignName.size() && Campaign_Load(mParams.mCampaignName)))
         Campaign_Selection();
 
     // Exit pushed?
@@ -19930,7 +19932,7 @@ Start:;
     // Game Loop
     for (;;) {
 
-        Game_Setup(pMissionNumber);
+        Game_Setup();
 
         if (Mission_Loop() == -1)
             goto Start;
@@ -19986,19 +19988,24 @@ int16 cFodder::Mission_Loop() {
         if (mGame_Data.mMission_Recruitment) {
             mGame_Data.mMission_Recruitment = 0;
 
-            switch (Recruit_Show()) {
-            case 0:     // Start Mission
-                break;
+            if (mParams.mSkipToMission) {
+                mParams.mSkipToMission = false;
+            } else {
+                switch (Recruit_Show()) {
+                case 0:     // Start Mission
+                    break;
 
-            case -1:    // Return to version select
-                return -1;
+                case -1:    // Return to version select
+                    return -1;
 
-            case -2:    // Custom set mode
-                return -2;
+                case -2:    // Custom set mode
+                    return -2;
 
-            case -3:    // Load/Save pressed
-                continue;
+                case -3:    // Load/Save pressed
+                    continue;
+                }
             }
+
         }
 
         WindowTitleSet(true);
