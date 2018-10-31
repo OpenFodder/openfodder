@@ -185,10 +185,11 @@ std::vector<sHero> sGameData::Heroes_Get() const {
 bool sGameData::Phase_Start() {
     mMission_Current = mCampaign.getMission(mMission_Number);
     if (!mMission_Current)
-        return true;
+        return false;
 
     mPhase_Current = mMission_Current->GetPhase(mMission_Phase);
-    if(!mPhase_Current)
+    if (!mPhase_Current)
+        return false;
 
     mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
 
@@ -196,9 +197,6 @@ bool sGameData::Phase_Start() {
     for (auto& Troop : mSoldiers_Allocated) {
         Troop.mPhaseCount = 0;
     }
-
-    if (!mPhase_Current)
-        return false;
 
     mRecruits_Available_Count += 0x0F;
     mMission_Recruits_AliveCount = mRecruits_Available_Count;
@@ -220,7 +218,7 @@ bool sGameData::Phase_Next() {
     if (!mMission_Current) {
         mMission_Current = mCampaign.getMission(mMission_Number);
         if (!mMission_Current)
-            return true;
+            return false;
 
         mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
     }

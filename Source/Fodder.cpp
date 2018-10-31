@@ -19998,7 +19998,7 @@ int16 cFodder::Mission_Loop() {
 
         mInput_Enabled = 0;
 
-        if (!mIntroDone) {
+        if (!mIntroDone && !mParams.mSkipIntro) {
             // Show the intro for retail releases
             if (!mVersionCurrent->isDemo()) {
                 intro();
