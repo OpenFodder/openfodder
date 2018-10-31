@@ -303,7 +303,9 @@ int16 cFodder::Phase_Loop() {
             mImageFaded = -1;
             mSurface->palette_FadeTowardNew();
             mPhase_Aborted = false;
-        }
+        } 
+
+        Mouse_DrawCursor();
 
         if (mImageFaded == -1)
             mImageFaded = mSurface->palette_FadeTowardNew();
