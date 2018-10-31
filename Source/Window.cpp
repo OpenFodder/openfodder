@@ -299,13 +299,13 @@ void cWindow::WindowDecrease() {
 	SetWindowSize( mScaler - 1 );
 }
 
-void cWindow::RenderAt( cSurface* pImage, const cPosition pSource ) {
+void cWindow::RenderAt( cSurface* pImage ) {
 	SDL_Rect Src, Dest;
 
 	Src.w = mScreenSize.mWidth;
 	Src.h = mScreenSize.mHeight;
-	Src.x = (int) pSource.mX + 16;
-	Src.y = (int) pSource.mY + 16;
+	Src.x = (int) 16;
+	Src.y = (int) 16;
 
 	Dest.w = GetWindowSize().mWidth;
 	Dest.h = GetWindowSize().mHeight;
@@ -321,7 +321,6 @@ void cWindow::RenderAt( cSurface* pImage, const cPosition pSource ) {
 		Dest.x = (current.w - Dest.w) / 2;
 		Dest.y = (current.h - Dest.h) / 2;
 	}
-	pImage->draw();
 
 	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, &Dest );
 }

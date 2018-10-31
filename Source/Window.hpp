@@ -64,7 +64,7 @@ class cWindow {
 			
 		virtual void		PositionWindow();
 
-		virtual void		RenderAt( cSurface* pImage, const cPosition pSource = cPosition(0,0) );
+		virtual void		RenderAt( cSurface* pImage );
 		virtual void		RenderShrunk( cSurface* pImage );
 
 		void				WindowIncrease();

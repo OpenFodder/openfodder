@@ -74,6 +74,7 @@ public:
 	void			clearBuffer(uint8 pColor = 0);
 
 	void			draw();						// Draw image to SDL Surface
+    void            mergeSurfaceBuffer(const cSurface* pFrom);
 
 	void			Save();
 	void			Restore();
@@ -86,7 +87,7 @@ public:
 
 	void			paletteNew_SetToBlack();
 
-	inline SDL_Surface* GetSurface() { return mSDLSurface; }
+	inline SDL_Surface* GetSurface() const { return mSDLSurface; }
 	inline SDL_Texture* GetTexture() const { return mTexture; };
 	inline uint8*		GetSurfaceBuffer() const { return mSurfaceBuffer; }
 	inline size_t		GetSurfaceBufferSize() const { return mSurfaceBufferSize; }

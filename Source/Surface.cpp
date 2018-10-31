@@ -220,6 +220,38 @@ void cSurface::draw() {
 		SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 }
 
+void cSurface::mergeSurfaceBuffer( const cSurface* pFrom ) {
+    auto SourceSurface = pFrom->GetSurface();
+
+    const uint32 *bufferCurrent = ((uint32*)SourceSurface->pixels);
+    const uint32 *bufferCurrentMax = (uint32*)(((uint8*)SourceSurface->pixels) + (SourceSurface->h * SourceSurface->pitch));
+
+    uint32 *bufferTarget = (uint32*)mSDLSurface->pixels;
+    uint32 *bufferTargetMax = (uint32*)(((uint8*)mSDLSurface->pixels) + (mSDLSurface->h * mSDLSurface->pitch));
+
+    // Loop until we reach the destination end
+    while (bufferTarget < bufferTargetMax) {
+
+        // Break out if we pass the source end
+        if (bufferCurrent >= bufferCurrentMax)
+            break;
+
+        // Non zero value to draw
+        if (*bufferCurrent) {
+
+            // Value in palette range?
+            *bufferTarget = *bufferCurrent;
+        }
+
+        // Next Source/Destination
+        ++bufferCurrent;
+        ++bufferTarget;
+    }
+
+    if (mTexture)
+        SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
+}
+
 void cSurface::clearBuffer(uint8 pColor) {
 
 	for (size_t i = 0; i < mSurfaceBufferSize; ++i) {

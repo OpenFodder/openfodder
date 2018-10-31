@@ -135,6 +135,7 @@ public:
 
     cSurface*       mSurfaceMapOverview;
     cSurface*       mSurface;
+    cSurface*       mSurface2;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
     uint16          mMapWidth;
@@ -504,7 +505,6 @@ public:
     int16           mBriefing_Render_1_Mode;
 
     int16           mDebug_PhaseSkip;
-    int16           mPaused;
     int16           mKeyControlPressed;
 
     int16           mImageFaded;

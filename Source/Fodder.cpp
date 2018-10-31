@@ -149,7 +149,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     word_3A3BF = 0;
 
     mDebug_PhaseSkip = 0;
-    mPaused = 0;
 
     mRandom_0 = 0;
     mRandom_1 = 0;
@@ -266,31 +265,50 @@ int16 cFodder::Phase_Loop() {
         Mission_Sprites_Handle();
         Squad_Switch_Timer();
         mGraphics->Sidebar_Copy_To_Surface();
-        Mouse_DrawCursor();
 
         // Game Paused
         if (mPhase_Paused != 0) {
             Phase_Paused();
 
-            while (mPhase_Paused) {
+            size_t FadeCount = 6;
+            int Surface2Fade = -1;
 
-                Video_SurfaceRender(false);
+            mSurface->Save();
+            while (mPhase_Paused) {
+                // Fade the background out, and the 'mission paused' message in
+                if (mImageFaded && FadeCount) {
+                    mImageFaded = mSurface->palette_FadeTowardNew();
+                    --FadeCount;
+                }
+                if (Surface2Fade) {
+                    Surface2Fade = mSurface2->palette_FadeTowardNew();
+                    mSurface2->draw();
+                }
+                // Update mouse
+                Mouse_Inputs_Get();
+                Mouse_DrawCursor();
+                // Draw surface
+                mSurface->draw();
+                // Copy the rendered surface of the 'mission paused' message over the top of the main surface
+                mSurface->mergeSurfaceBuffer(mSurface2);
+
+                mWindow->RenderAt(mSurface);
+                mWindow->FrameEnd();
                 Cycle_End();
+
+                mSurface->Restore();
             }
 
             mGraphics->PaletteSet();
             mImageFaded = -1;
             mSurface->palette_FadeTowardNew();
-            mPaused = -1;
+            mPhase_Aborted = false;
         }
 
         if (mImageFaded == -1)
             mImageFaded = mSurface->palette_FadeTowardNew();
 
         Camera_Update_Mouse_Position_For_Pan();
-        if (mPaused == -1) {
-            mPaused = 0;
-        }
 
         if (mMission_ShowMapOverview) {
             Mission_Map_Overview_Show();
@@ -3206,6 +3224,7 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     Briefing_Set_Render_1_Mode_On();
 
     mSurface = new cSurface(352, 364);
+    mSurface2 = new cSurface(352, 364);
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
@@ -3295,9 +3314,16 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
 }
 
 void cFodder::Phase_Paused() {
+    mGraphics->PaletteSet(mSurface2);
+    //mSurface2->palette_SetFromNew();
+   // mSurface2->surfaceSetToPalette();
+    mSurface2->clearBuffer();
 
+    // Dim the current surface
     mSurface->paletteNew_SetToBlack();
-    mSurface->palette_FadeTowardNew();
+
+    // Draw to the secondary surface
+    mGraphics->SetImage(mSurface2);
     mImageFaded = -1;
 
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
@@ -3307,6 +3333,9 @@ void cFodder::Phase_Paused() {
 
     mString_GapCharID = 0;
     mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+
+    mGraphics->SetImageOriginal();
+    mSurface2->draw();
 }
 
 void cFodder::Phase_GameOver() {
@@ -17991,6 +18020,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
 
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 
+    mSurface->draw();
     mWindow->RenderAt(mSurface);
     mWindow->FrameEnd();
 
