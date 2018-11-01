@@ -280,17 +280,19 @@ int16 cFodder::Phase_Loop() {
                     mImageFaded = mSurface->palette_FadeTowardNew();
                     --FadeCount;
                 }
-                if (Surface2Fade) {
+                if (Surface2Fade && !FadeCount) {
                     Surface2Fade = mSurface2->palette_FadeTowardNew();
                     mSurface2->draw();
                 }
+
                 // Update mouse
                 Mouse_Inputs_Get();
                 Mouse_DrawCursor();
                 // Draw surface
                 mSurface->draw();
                 // Copy the rendered surface of the 'mission paused' message over the top of the main surface
-                mSurface->mergeSurfaceBuffer(mSurface2);
+                if (!FadeCount)
+                    mSurface->mergeSurfaceBuffer(mSurface2);
 
                 mWindow->RenderAt(mSurface);
                 mWindow->FrameEnd();
@@ -3326,7 +3328,6 @@ void cFodder::Phase_Paused() {
 
     mGraphics->PaletteSet(mSurface2);
 
-    mSurface2->palette_FadeTowardNew();
     mSurface2->palette_FadeTowardNew();
 
     // Dim the current surface
