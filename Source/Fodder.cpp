@@ -3324,6 +3324,8 @@ void cFodder::Phase_Paused() {
     mGraphics->PaletteSet(mSurface2);
     mSurface2->clearBuffer();
 
+    mSurface2->palette_FadeTowardNew();
+
     // Dim the current surface
     mSurface->paletteNew_SetToBlack();
 
