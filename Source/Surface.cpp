@@ -220,6 +220,9 @@ void cSurface::draw() {
 		SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 }
 
+/**
+ * Merge another SDLsurface onto our rendered surface
+ */
 void cSurface::mergeSurfaceBuffer( const cSurface* pFrom ) {
     auto SourceSurface = pFrom->GetSurface();
 
