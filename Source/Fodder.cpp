@@ -303,6 +303,11 @@ int16 cFodder::Phase_Loop() {
             mImageFaded = -1;
             mSurface->palette_FadeTowardNew();
             mPhase_Aborted = false;
+
+            // Redraw the screen
+            mGraphics->MapTiles_Draw();
+            Sprites_Draw();
+            mGraphics->Sidebar_Copy_To_Surface();
         } 
 
         Mouse_DrawCursor();
@@ -3317,8 +3322,6 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
 
 void cFodder::Phase_Paused() {
     mGraphics->PaletteSet(mSurface2);
-    //mSurface2->palette_SetFromNew();
-   // mSurface2->surfaceSetToPalette();
     mSurface2->clearBuffer();
 
     // Dim the current surface
@@ -4649,7 +4652,7 @@ void cFodder::Recruit_Render_Squad_Names() {
         }
 
         Data14 <<= 2;
-        int16 word_3A05F = (0x30 - Data14) >> 1;
+        word_3A05F = (0x30 - Data14) >> 1;
 
         if (mRecruit_Render_Name_SmallGap)
             word_3A05F -= 1;
@@ -11636,8 +11639,8 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
                     //seg004:021A 
                     if (pSprite->field_4F == 0) {
                         //seg004:0228
-                        int16 Data0 = pSprite->field_0;
-                        int16 Data4 = pSprite->field_4;
+                        Data0 = pSprite->field_0;
+                        Data4 = pSprite->field_4;
 
                         int16 Data8 = Data28->field_0;
                         int16 DataC = Data28->field_4;
@@ -15768,7 +15771,8 @@ loc_1E2F4:;
     //seg004:55F3 
 
     if (!Data0) {
-        sSprite* Data2C = 0, *Data30 = 0;
+        sSprite* Data2C = 0;
+        Data30 = 0;
 
         Sprite_Create_BloodTrail(pSprite, Data2C, Data30);
 
@@ -15796,7 +15800,8 @@ loc_1E2F4:;
 loc_1E3D2:;
 
     if (pSprite->field_40 == -26506) {
-        sSprite* Data2C = 0, *Data30 = 0;
+        sSprite* Data2C = 0;
+        Data30 = 0;
 
         pSprite->field_28 += 1;
         Sprite_Create_BloodTrail(pSprite, Data2C, Data30);
@@ -15892,7 +15897,8 @@ loc_1E3D2:;
     if (pSprite->field_26) {
 
         if (!pSprite->field_20) {
-            sSprite* Data2C = 0, *Data30 = 0;
+            sSprite* Data2C = 0;
+            Data30 = 0;
             Sprite_Create_BloodTrail(pSprite, Data2C, Data30);
             pSprite->field_26 = 0;
         }
@@ -16019,11 +16025,11 @@ loc_1E831:;
         pSprite->field_28 += Data0;
         Data8 = pSprite->field_28;
 
-        sMapTarget* Data30 = mSquad_WalkTargets[pSprite->field_32];
+        sMapTarget* WalkTarget = mSquad_WalkTargets[pSprite->field_32];
         //seg004:5C49
         Data0 = pSprite->field_40;
-        if (Data30[Data0].mX >= 0)
-            Data30[Data0].mY = Data8;
+        if (WalkTarget[Data0].mX >= 0)
+            WalkTarget[Data0].mY = Data8;
     }
     //loc_1E9CD;
     Sprite_Terrain_Check(pSprite, Data4);
