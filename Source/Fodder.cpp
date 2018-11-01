@@ -3321,9 +3321,12 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
 }
 
 void cFodder::Phase_Paused() {
-    mGraphics->PaletteSet(mSurface2);
     mSurface2->clearBuffer();
+    mSurface2->palette_SetToBlack();
 
+    mGraphics->PaletteSet(mSurface2);
+
+    mSurface2->palette_FadeTowardNew();
     mSurface2->palette_FadeTowardNew();
 
     // Dim the current surface
