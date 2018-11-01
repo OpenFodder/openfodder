@@ -14,7 +14,7 @@ Open Fodder is an open source version of the Cannon Fodder engine, for modern op
   
 * Website: [http://openfodder.com](http://openfodder.com/)
 * Discord: [https://discord.gg/QapffKt](https://discord.gg/QapffKt)
-  
+* Facebook: [https://www.facebook.com/openfodder/](https://www.facebook.com/openfodder/)
   
 #### Map Editor
 
