@@ -3224,7 +3224,7 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
 
         Path.replace(Path.find("Data/"), 5, "");
 
-        std::cout << "Game is looking for data in: " << Path << "\n";
+        std::cout << "Game is looking in: " << Path << "\n";
         std::cout << "\nPress enter to quit\n";
         std::cin.get();
         exit(1);
