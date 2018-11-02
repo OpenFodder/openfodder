@@ -1055,18 +1055,14 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
 
             Column -= HeightMin;
 
-            // Dont set tile if its already set
-            if (*MapPtr == 0) {
-
-                if (Column < flood) {
-                    *MapPtr = TileWater;
-                }
-                else if (Column > mount) {
-                    *MapPtr = TileBounce;
-                }
-                else {
-                    *MapPtr = TileLand;
-                }
+            if (Column < flood) {
+                *MapPtr = TileWater;
+            }
+            else if (Column > mount) {
+                *MapPtr = TileBounce;
+            }
+            else {
+                *MapPtr = TileLand;
             }
 
             ++MapPtr;
