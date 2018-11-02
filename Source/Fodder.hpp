@@ -1225,7 +1225,7 @@ public:
 
     void            intro_LegionMessage();
     int16           intro_Play();
-    void            intro();
+    void            intro_Retail();
     void            intro_AmigaTheOne();
 
     void            Sidebar_Clear_ScreenBufferPtr();

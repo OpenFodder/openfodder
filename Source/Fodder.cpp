@@ -144,6 +144,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mMap = 0;
 
+    mVersionPlatformSwitchDisabled = false;
     mGame_Data.mGamePhase_Data.mIsComplete = false;
     mSidebar_Draw_Y = 0;
     word_3A3BF = 0;
@@ -17924,18 +17925,11 @@ void cFodder::SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet) {
     mSprite_SheetPtr = pSpriteSheet;
 }
 
-void cFodder::intro() {
-
-    mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
+void cFodder::intro_Retail() {
 
     // Disabled: GOG CD Version doesn't require a manual check
     //  CopyProtection();
-    mVersionPlatformSwitchDisabled = true;
-    mImage_Aborted = 0;
     mGraphics->Load_Sprite_Font();
-
-    if (mParams.mSkipIntro)
-        goto introDone;
 
     mSound->Music_Play(16);
 
@@ -17945,36 +17939,23 @@ void cFodder::intro() {
     mPhase_Aborted = false;
 
     if (ShowImage_ForDuration("cftitle", 0x1F8 / 3))
-        goto introDone;
+        return;
 
     if (intro_Play())
-        goto introDone;
+        return;
 
     if (ShowImage_ForDuration("virgpres", 0x2D0 / 3))
-        goto introDone;
+        return;
 
     if (ShowImage_ForDuration("sensprod", 0x2D0 / 3))
-        goto introDone;
+        return;
 
     if (ShowImage_ForDuration("cftitle", 0x318 / 3))
-        goto introDone;
-
-introDone:;
-    mVersionPlatformSwitchDisabled = false;
-    mIntroDone = true;
-    mSound->Music_Stop();
-
-    mGraphics->Load_pStuff();
-    mSound->Music_Play(0);
-
-    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+        return;
 }
 
 void cFodder::intro_AmigaTheOne() {
     static bool ShownWarning = false;
-
-    mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
-    mImage_Aborted = 0;
 
     if (!ShownWarning) {
         ShownWarning = true;
@@ -17982,17 +17963,13 @@ void cFodder::intro_AmigaTheOne() {
     }
 
     if (ShowImage_ForDuration("sensprod.lbm", 0x60))
-        goto introDone;
+        return;
 
     if (ShowImage_ForDuration("virgpres.lbm", 0x60))
-        goto introDone;
+        return;
 
     if (ShowImage_ForDuration("cftitle.lbm", 0x100))
-        goto introDone;
-
-introDone:;
-    mIntroDone = true;
-    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+        return;
 }
 
 int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration, size_t pBackColor, bool pCanAbort) {
@@ -20012,16 +19989,30 @@ int16 cFodder::Mission_Loop() {
 
         mInput_Enabled = 0;
 
-        if (!mIntroDone && !mParams.mSkipIntro) {
-            // Show the intro for retail releases
-            if (!mVersionCurrent->isDemo()) {
-                intro();
-            }
-            else {
-                if (mVersionCurrent->isAmigaTheOne()) {
-                    intro_AmigaTheOne();
+        if (!mIntroDone) {
+            mImage_Aborted = 0;
+            mVersionPlatformSwitchDisabled = true;
+            mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
+
+            if (!mParams.mSkipIntro) {
+                // Show the intro for retail releases
+                if (mVersionCurrent->isRetail()) {
+                    intro_Retail();
+                }
+                else {
+                    // Amiga The One has an intro too
+                    if (mVersionCurrent->isAmigaTheOne()) {
+                        intro_AmigaTheOne();
+                    }
                 }
             }
+
+            mGraphics->Load_pStuff();
+            mSound->Music_Play(0);
+
+            mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+            mVersionPlatformSwitchDisabled = false;
+            mIntroDone = true;
         }
 
         //loc_10496
