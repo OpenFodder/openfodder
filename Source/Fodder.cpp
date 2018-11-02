@@ -3214,10 +3214,13 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
 
     if (!mVersions->isDataAvailable()) {
+
+#ifdef WIN32
         AllocConsole();
         freopen("conin$", "r", stdin);
         freopen("conout$", "w", stdout);
         freopen("conout$", "w", stderr);
+#endif
 
         std::cout << "No game data could be found, including the demos, have you installed the data pack?\n";
         std::string Path = local_PathGenerate("", "", eData);
