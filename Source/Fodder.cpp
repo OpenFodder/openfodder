@@ -275,7 +275,7 @@ int16 cFodder::Phase_Loop() {
         if (mPhase_Paused != 0) {
             Phase_Paused();
 
-            size_t FadeCount = 6;
+            size_t FadeCount = 12;
             int Surface2Fade = -1;
 
             mSurface->Save();
