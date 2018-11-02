@@ -155,6 +155,7 @@ public:
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;
     bool isCustomMap() const { return mIsCustomMap; }
+    void setCustomMap() { mIsCustomMap = true; }
 
 	bool isRandom() const;
     std::string getAuthor() { return mAuthor; }

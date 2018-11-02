@@ -187,4 +187,5 @@ public:
     const sGameVersion* GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const;
     const sGameVersion* GetForTileset(eTileTypes pTileType) const;
     const sGameVersion* GetRetail() const;
+    const sGameVersion* GetDemo() const;
 };

@@ -812,6 +812,23 @@ const sGameVersion* cVersions::GetRetail() const {
     return *RetailRelease;
 }
 
+const sGameVersion* cVersions::GetDemo() const {
+
+    if (!mAvailable.size())
+        return 0;
+
+    auto Release =
+        std::find_if(mAvailable.begin(), mAvailable.end(),
+            [](const sGameVersion* a)->bool { return a->mRelease == eRelease::AmigaFormat; });
+
+    if (Release == mAvailable.end()) {
+        Release = mAvailable.begin();
+    }
+
+
+    return *Release;
+}
+
 const sGameVersion* cVersions::GetForTileset(eTileTypes pTileType) const {
     // Look through all available versions for a campaign name match
     for (auto& Version : mAvailable) {

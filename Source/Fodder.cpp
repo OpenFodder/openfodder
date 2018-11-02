@@ -23,6 +23,10 @@
 #include "stdafx.hpp"
 #include <chrono>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #define INVALID_SPRITE_PTR (sSprite*) -1
          
 const int32 CAMERA_PAN_TO_START_ACCELARATION = 0x80000;     // Dos: Original 0x80000
@@ -1021,8 +1025,8 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
     // Find the highest and lowest points in the height map
     double HeightMin = 0;
     double HeightMax = 0;
-    for (auto Row : HeightMap) {
-        for (auto Column : Row) {
+    for (auto& Row : HeightMap) {
+        for (auto& Column : Row) {
 
             if (Column > HeightMax) HeightMax = Column;
             if (Column < HeightMin) HeightMin = Column;
@@ -3210,7 +3214,19 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
 
     if (!mVersions->isDataAvailable()) {
-        std::cout << "No data files found\n";
+        AllocConsole();
+        freopen("conin$", "r", stdin);
+        freopen("conout$", "w", stdout);
+        freopen("conout$", "w", stderr);
+
+        std::cout << "No game data could be found, including the demos, have you installed the data pack?\n";
+        std::string Path = local_PathGenerate("", "", eData);
+
+        Path.replace(Path.find("Data/"), 5, "");
+
+        std::cout << "Game is looking for data in: " << Path << "\n";
+        std::cout << "\nPress enter to quit\n";
+        std::cin.get();
         exit(1);
     }
 
@@ -5471,7 +5487,7 @@ void cFodder::sub_22CD7(sSprite* pSprite, int16& pData0, int16& pData4) {
     mSprite_Field10_Saved = pSprite->field_10;
     pSprite->field_3E = 0;
 
-    sub_2B12E(pSprite);
+    Sprite_SetDirectionMod(pSprite);
 
     pSprite->field_10 = pSprite->field_3C;
 
@@ -6271,7 +6287,7 @@ void cFodder::sub_23E01(sSprite* pSprite, int16& pData0, int16& pData4) {
     Sprite_Direction_Between_Points(pSprite, pData0, pData4);
 
 loc_23E2F:;
-    sub_2B12E(pSprite);
+    Sprite_SetDirectionMod(pSprite);
 
     pSprite->field_10 = pSprite->field_3C;
     pData0 = mDirectionMod;
@@ -9079,7 +9095,7 @@ void cFodder::sub_2AEB6(int16 pColumns, int16 pRows, int16* pData8, int16* pData
 }
 
 
-void cFodder::sub_2B12E(sSprite* pSprite) {
+void cFodder::Sprite_SetDirectionMod(sSprite* pSprite) {
     mDirectionMod = 0;
     int16 Data0 = pSprite->field_10;
 
@@ -19921,6 +19937,14 @@ Start:;
     mVersionCurrent = 0;
     VersionSwitch(mVersions->GetRetail());
 
+    if (!mVersionCurrent) {
+        VersionSwitch(mVersions->GetDemo());
+
+        // This should never happen ,as a check in Prepare ensures atleast 1 ver is available
+        if (!mVersionCurrent) {
+            return;
+        }
+    }
     //Playground();
 
     // Play the intro

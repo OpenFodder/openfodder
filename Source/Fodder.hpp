@@ -1042,7 +1042,7 @@ public:
 
     void            sub_2AEB6(int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC);
 
-    void            sub_2B12E(sSprite* pSprite);
+    void            Sprite_SetDirectionMod(sSprite* pSprite);
     void            Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C);
 
     int16           Map_Terrain_Get_Moveable_Wrapper(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14);
