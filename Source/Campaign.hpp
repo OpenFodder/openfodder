@@ -119,12 +119,14 @@ private:
 
     std::vector<std::shared_ptr<cMission>>  mMissions;
 
-	bool									mIsCustomCampaign;
-    bool                                    mUseCustomPath;
-	bool									mIsRandom;
-    bool                                    mIsCustomMap;
+    bool mIsCustomCampaign;
+    bool mUseCustomPath;
+    bool mIsRandom;
+    bool mIsCustomMap;
 
 protected:
+
+    bool LoadCustomMap(const std::string& pMapName);
 
 public:
 
@@ -133,7 +135,6 @@ public:
     void Clear(const std::string& pName = "", const bool pDirectPath = false);
 
 	bool LoadCustomMapFromPath(const std::string& pMapName);
-    bool LoadCustomMap(const std::string& pMapName);
 
     bool LoadCampaign(const std::string& pName, bool pCustom, bool pDirectPath = false);
     bool SaveCampaign();

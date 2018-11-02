@@ -4289,13 +4289,13 @@ int16 cFodder::Recruit_Show() {
             Map_Create(mTileTypes[0], 0, 28, 22, true);
             Map_Save(RandomMapFile);
 
-            mGame_Data.mCampaign.LoadCustomMap("random.map");
+            mGame_Data.mCampaign.LoadCustomMapFromPath(RandomMapFile);
             mGame_Data.mCampaign.setRandom(true);
 
             mGame_Data.mMission_Phases_Remaining = 1;
-            mGame_Data.mMission_Number = 0;
-            mGame_Data.mMission_Phase = 0;
-            mGame_Data.Phase_Next();
+            mGame_Data.mMission_Number = 1;
+            mGame_Data.mMission_Phase = 1;
+            mGame_Data.Phase_Start();
 
             auto Phase = mGame_Data.mCampaign.getMission(0)->GetPhase(0);
             int16 Min = (rand() % 5);
