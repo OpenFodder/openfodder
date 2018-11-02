@@ -23,7 +23,7 @@
 struct sMission_Troop {
     int16       mRecruitID;
     uint8       mRank;
-    int8        mPhaseCount;        // Number of phases completed this Mission
+    uint8       mPhaseCount;        // Number of phases completed this Mission
 
     sSprite*    mSprite;
 
@@ -50,7 +50,7 @@ struct sMission_Troop {
     }
 
     uint8 GetPromotedRank() const {
-        auto newRank = (mPhaseCount + mRank);
+        uint8 newRank = (mPhaseCount + mRank);
         return (newRank > 0x0F) ? 0x0F : newRank;
     }
 

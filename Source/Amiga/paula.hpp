@@ -96,7 +96,7 @@ public:
 		setInterruptFreq((size_t)(((double)timerDelay * getRate()) / _timerBase));
 	}
 	void clearVoice(uint8 voice);
-	void clearVoices() { for (int i = 0; i < NUM_VOICES; ++i) clearVoice(i); }
+	void clearVoices() { for (uint8 i = 0; i < NUM_VOICES; ++i) clearVoice(i); }
 	void startPlay() { _playing = true; }
 	void stopPlay() { _playing = false; }
 	void pausePlay(bool pause) { _playing = !pause; }
