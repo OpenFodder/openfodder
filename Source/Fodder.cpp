@@ -2739,11 +2739,6 @@ void cFodder::Map_SetTileType() {
     mMap_TileSet = eTileTypes_Jungle;
 }
 
-void cFodder::Briefing_Set_Render_1_Mode_On() {
-
-    mBriefing_Render_1_Mode = -1;
-}
-
 void cFodder::eventProcess() {
     mMouse_EventLastWheel.Clear();
 
@@ -3217,9 +3212,9 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
 
 #ifdef WIN32
         AllocConsole();
-        freopen("conin$", "r", stdin);
-        freopen("conout$", "w", stdout);
-        freopen("conout$", "w", stderr);
+        FILE *stream, *stream2;
+        freopen_s(&stream, "CONIN$", "r", stdin);
+        freopen_s(&stream2, "CONOUT$", "w", stdout);
 #endif
 
         std::cout << "No game data could be found, including the demos, have you installed the data pack?\n";
@@ -3246,7 +3241,7 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     mSidebar_Screen_Buffer = (uint16*) new uint8[0x4000];
     mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 
-    Briefing_Set_Render_1_Mode_On();
+    mBriefing_Render_1_Mode = -1;
 
     mSurface = new cSurface(352, 364);
     mSurface2 = new cSurface(352, 364);
@@ -3254,14 +3249,11 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
 
-    sSprite* Data20 = mSprites;
     int16 Data0 = 0;
-    for (int16 Data4 = 0x1D; Data4 >= 0; Data4--) {
+    for(auto& Sprite : mSprites) {
 
-        if (Data20->field_18 == eSprite_Helicopter_CallPad)
+        if (Sprite.field_18 == eSprite_Helicopter_CallPad)
             ++Data0;
-
-        ++Data20;
     }
 
     mHelicopterCallPadCount = Data0;
@@ -3318,7 +3310,7 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
     int16 Data0 = 1;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30)) {
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30)) {
         Data0 = -1;
         return -1;
     }
@@ -5887,7 +5879,7 @@ int16 cFodder::Sprite_Create_Smoke(sSprite* pSprite, sSprite*& pData2C) {
     int16 Data0 = 1;
     sSprite* Data30 = 0;
 
-    if (Sprite_Get_Free(Data0, pData2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, pData2C, Data30))
         return -1;
 
     pData2C->field_0 = pSprite->field_0;
@@ -6114,7 +6106,7 @@ int16 cFodder::Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C) {
 
     int16 Data0 = 2;
     sSprite* Data30 = 0;
-    if (Sprite_Get_Free(Data0, pData2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, pData2C, Data30))
         return 0;
 
     ++mSprite_Missile_Projectile_Counters[pSprite->field_22];
@@ -6594,7 +6586,7 @@ int16 cFodder::Sprite_Handle_Vehicle_Sinking(sSprite* pSprite) {
     int16 Data0 = 1;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return -1;
 
     Data2C->field_0 = pSprite->field_0;
@@ -6691,7 +6683,7 @@ int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
     int16 Data0 = 1;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return -1;
 
     if (mSprite_Projectile_Counters[2] == 0x14)
@@ -6816,7 +6808,7 @@ int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
 
     Data0 = 2;
     sSprite* Data2C, *Data30;
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return 0;
 
     ++mSprite_Projectile_Counters[pSprite->field_22];
@@ -6905,7 +6897,7 @@ int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, 
 
     int16 Data0 = 2;
     sSprite *Data30 = 0;
-    if (Sprite_Get_Free(Data0, pData2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, pData2C, Data30))
         return 0;
 
     ++mSprite_Missile_Projectile_Counters[pSprite->field_22];
@@ -7581,7 +7573,7 @@ int16 cFodder::Sprite_Create_Indigenous_Spear2(sSprite* pSprite) {
 
     int16 Data0 = 1;
     sSprite* Data2C = 0, *Data30 = 0;
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return -1;
 
     if (mSprite_Projectile_Counters[2] == 0x14)
@@ -8184,7 +8176,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
 
     int16 Data0 = 1;
 
-    Sprite_Get_Free2(Data0, pData2C, pData30);
+    Sprite_Get_Free_Max29(Data0, pData2C, pData30);
     if (Data0)
         return -1;
 
@@ -9387,7 +9379,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
 
     sSprite* First = 0, *Second = 0, *Third = 0, *Fourth = 0;
 
-    if (Sprite_Get_Free(Data0, First, Second))
+    if (Sprite_Get_Free_Max42(Data0, First, Second))
         return First;
 
     Data0 = 2;
@@ -9400,7 +9392,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     switch (pSpriteID) {
     case eSprite_BoilingPot:                        // 1 Null
         Data0 = 2;
-        if (Sprite_Get_Free(Data0, Second, Third))
+        if (Sprite_Get_Free_Max42(Data0, Second, Third))
             return First;
 
         Second->field_18 = eSprite_Null;
@@ -9416,7 +9408,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     case eSprite_Helicopter_Homing_Enemy:
     case eSprite_Helicopter_Homing_Enemy2:
         Data0 = 2;
-        if (Sprite_Get_Free(Data0, Second, Third))
+        if (Sprite_Get_Free_Max42(Data0, Second, Third))
             return First;
 
         Second->field_18 = eSprite_Null;
@@ -9435,7 +9427,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     case eSprite_Helicopter_Missile_Human_Called:
     case eSprite_Helicopter_Homing_Human_Called:
         Data0 = 2;
-        if (Sprite_Get_Free(Data0, Third, Fourth))
+        if (Sprite_Get_Free_Max42(Data0, Third, Fourth))
             return First;
 
         Third->field_18 = eSprite_Null;
@@ -9454,7 +9446,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
 
     case eSprite_Tank_Enemy:                        // 2 Nulls
         Data0 = 2;
-        if (Sprite_Get_Free(Data0, Second, Third))
+        if (Sprite_Get_Free_Max42(Data0, Second, Third))
             return First;
 
         Second->field_18 = eSprite_Null;
@@ -9465,7 +9457,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
 
     case eSprite_Tank_Human:
         Data0 = 2;
-        if (Sprite_Get_Free(Data0, Third, Third))
+        if (Sprite_Get_Free_Max42(Data0, Third, Third))
             return First;
 
         Third->field_18 = eSprite_Null;
@@ -9481,7 +9473,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     case eSprite_VehicleGun_Enemy:
     case eSprite_Vehicle_Unk_Enemy:
         Data0 = 2;
-        if (Sprite_Get_Free(Data0, Second, Third))
+        if (Sprite_Get_Free_Max42(Data0, Second, Third))
             return First;
 
         Second->field_18 = eSprite_Null;
@@ -9804,36 +9796,34 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
 }
 
 void cFodder::Sprite_Handle_Player_DestroyAll() {
-    sSprite* Data20 = mSprites;
 
-    for (int16 Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20) {
+    for(auto& Sprite : mSprites) {
 
-        if (Data20->field_0 == -32768)
+        if (Sprite.field_0 == -32768)
             continue;
 
-        if (Data20->field_18 == eSprite_Player)
-            Sprite_Troop_Dies(Data20);
+        if (Sprite.field_18 == eSprite_Player)
+            Sprite_Troop_Dies(&Sprite);
     }
 }
 
 void cFodder::Sprite_Handle_Player_Destroy_Unk() {
-    sSprite* Data20 = mSprites;
 
-    for (int16 Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20) {
+    for (auto& Sprite : mSprites) {
 
-        if (Data20->field_0 == -32768)
+        if (Sprite.field_0 == -32768)
             continue;
 
-        if (Data20->field_18 != eSprite_Player)
+        if (Sprite.field_18 != eSprite_Player)
             continue;
 
-        if (!Data20->field_38)
+        if (!Sprite.field_38)
             continue;
 
-        if (Data20->field_38 >= eSprite_Anim_Slide1)
+        if (Sprite.field_38 >= eSprite_Anim_Slide1)
             continue;
 
-        Sprite_Troop_Dies(Data20);
+        Sprite_Troop_Dies(&Sprite);
     }
 }
 
@@ -17026,7 +17016,7 @@ void cFodder::Sprite_Create_Player_Shadow(sSprite* pSprite) {
     if (pSprite->field_5C == 0)
         return;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return;
 
     Data2C->field_1A_sprite = pSprite;
@@ -17052,7 +17042,7 @@ int16 cFodder::Sprite_Create_BloodTrail(sSprite* pSprite, sSprite*& pData2C, sSp
 
     Data0 = 1;
 
-    if (!Sprite_Get_Free(Data0, pData2C, pData30)) {
+    if (!Sprite_Get_Free_Max42(Data0, pData2C, pData30)) {
         pData2C->field_0 = pSprite->field_0;
         pData2C->field_2 = pSprite->field_2;
         pData2C->field_4 = pSprite->field_4;
@@ -17499,10 +17489,8 @@ void cFodder::sub_311A7() {
     sSprite** Data24 = mSquads[mSquad_Selected];
 
     for (;;) {
-
         if (*Data24 == INVALID_SPRITE_PTR)
             break;
-
         sSprite* Data28 = *Data24++;
         Data28->field_66 = 0;
     }
@@ -17516,27 +17504,25 @@ void cFodder::sub_311A7() {
     Data0 -= 0x0F;
     Data4 -= 3;
 
-    sSprite* Data20 = mSprites;
+    for(auto& Sprite : mSprites) {
 
-    for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++Data20) {
-
-        if (Data20->field_0 == -32768)
+        if (Sprite.field_0 == -32768)
             continue;
 
-        if (!Data20->field_65)
+        if (!Sprite.field_65)
             continue;
 
-        if (Data20->field_22 != eSprite_PersonType_Human)
+        if (Sprite.field_22 != eSprite_PersonType_Human)
             continue;
 
-        if (Data20->field_20)
+        if (Sprite.field_20)
             continue;
 
-        int16 Data18 = Data20->field_18;
-        int16 Data8 = Data20->field_0;
+        int16 Data18 = Sprite.field_18;
+        int16 Data8 = Sprite.field_0;
 
-        if (Data20->field_6F == eVehicle_Turret_Cannon ||
-            Data20->field_6F == eVehicle_Turret_Missile)
+        if (Sprite.field_6F == eVehicle_Turret_Cannon ||
+            Sprite.field_6F == eVehicle_Turret_Missile)
             Data8 -= 8;
 
         if (Data0 < Data8)
@@ -17546,12 +17532,12 @@ void cFodder::sub_311A7() {
         if (Data0 > Data8)
             continue;
 
-        Data8 = Data20->field_4 - mSprite_Height_Top[Data18];
+        Data8 = Sprite.field_4 - mSprite_Height_Top[Data18];
         Data8 -= 0x14;
         if (Data4 < Data8)
             continue;
 
-        Data8 = Data20->field_4 + mSprite_Height_Bottom[Data18];
+        Data8 = Sprite.field_4 + mSprite_Height_Bottom[Data18];
         if (Data4 > Data8)
             continue;
 
@@ -17564,7 +17550,7 @@ void cFodder::sub_311A7() {
                 goto loc_313C6;
 
             sSprite* Data28 = *Data24++;
-            Data28->field_66 = Data20;
+            Data28->field_66 = &Sprite;
         }
     }
 
@@ -18165,7 +18151,7 @@ int16 cFodder::Sprite_Create_Bullet(sSprite* pSprite) {
         if (pSprite->field_54 == 1)
             return -1;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return -1;
 
     if (mSprite_Projectile_Counters[2] == 0x14)
@@ -18327,7 +18313,7 @@ loc_20AC1:;
 
     Data0 = 2;
 
-    if (!Sprite_Get_Free(Data0, Data2C, Data30))
+    if (!Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         goto loc_20B0A;
 
     return -1;
@@ -18613,7 +18599,7 @@ void cFodder::Sprite_Handle_Player_Close_To_SquadMember(sSprite* pSprite) {
     word_3B2F3 = -1;
 }
 
-int16 cFodder::Sprite_Get_Free(int16& pData0, sSprite*& pData2C, sSprite*& pData30) {
+int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*& pData30) {
 
     // 
     if (!mSprite_SpareUsed) {
@@ -18623,7 +18609,7 @@ int16 cFodder::Sprite_Get_Free(int16& pData0, sSprite*& pData2C, sSprite*& pData
             pData2C = mSprites;
 
             // Loop all sprites
-            for (int16 Data1C = 0x29; Data1C >= 0; --Data1C, ++pData2C) {
+            for (int16 Data1C = 41; Data1C >= 0; --Data1C, ++pData2C) {
 
                 // Sprite free?
                 if (pData2C->field_0 != -32768)
@@ -18645,7 +18631,7 @@ int16 cFodder::Sprite_Get_Free(int16& pData0, sSprite*& pData2C, sSprite*& pData
             // Only looking for 1 sprite
             pData2C = &mSprites[42];
 
-            for (int16 Data1C = 0x2A; Data1C >= 0; --Data1C) {
+            for (int16 Data1C = 42; Data1C >= 0; --Data1C) {
 
                 // Free?
                 if (pData2C->field_0 == -32768) {
@@ -18664,6 +18650,51 @@ int16 cFodder::Sprite_Get_Free(int16& pData0, sSprite*& pData2C, sSprite*& pData
     pData30 = &mSprite_Spare;
     pData0 = -1;
     mSprite_SpareUsed = pData0;
+    return -1;
+}
+
+int16 cFodder::Sprite_Get_Free_Max29(int16& pData0, sSprite*& pData2C, sSprite*& pData30) {
+    if (mSprite_SpareUsed2)
+        goto loc_21B4B;
+
+    if (pData0 == 2)
+        goto loc_21B91;
+
+    pData2C = &mSprites[29];
+    for (int16 Data1C = 29; Data1C >= 0; --Data1C, --pData2C) {
+
+        if (pData2C->field_0 == -32768) {
+            Sprite_Clear(pData2C);
+            pData0 = 0;
+            return 0;
+        }
+    }
+
+loc_21B4B:;
+    pData2C = &mSprite_Spare;
+    pData30 = &mSprite_Spare;
+    pData0 = -1;
+    mSprite_SpareUsed2 = pData0;
+    return -1;
+
+loc_21B91:;
+    pData2C = mSprites;
+
+    for (int16 Data1C = 28; Data1C >= 0; --Data1C, ++pData2C) {
+
+        if (pData2C->field_0 != -32768)
+            continue;
+
+        if ((pData2C + 1)->field_0 == -32768) {
+            pData30 = pData2C + 1;
+            pData0 = 0;
+        }
+    }
+
+    pData2C = &mSprite_Spare;
+    pData30 = &mSprite_Spare;
+    pData0 = -1;
+    mSprite_SpareUsed2 = pData0;
     return -1;
 }
 
@@ -18834,7 +18865,7 @@ void cFodder::Sprite_Create_Shadow(sSprite* pSprite) {
     int16 Data0 = 1;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return;
 
     Data2C->field_1A_sprite = pSprite;
@@ -18951,7 +18982,7 @@ void cFodder::Sprite_Create_Sparks(sSprite* pSprite, int16 pData18) {
     int16 Data0 = 2;
     sSprite* Data2C, *Data30;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return;
 
     Data30 = Data2C + 1;
@@ -18994,7 +19025,7 @@ void cFodder::Sprite_Create_FireTrail(sSprite* pSprite) {
     int16 Data0 = 1;
     sSprite* Data2C = 0, *Data30 = 0;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return;
 
     Data2C->field_0 = pSprite->field_0;
@@ -19029,7 +19060,7 @@ int16 cFodder::Sprite_Create_Building_Explosion_Wrapper(int16& pX, int16& pY) {
     int16 Data0 = 1;
     sSprite* Data2C, *Data30;
 
-    if (Sprite_Get_Free(Data0, Data2C, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return -1;
 
     Sprite_Clear(Data2C);
@@ -19070,7 +19101,7 @@ int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
     int16 Data0 = 1;
     sSprite* Data30 = 0;
 
-    if (Sprite_Get_Free2(Data0, pData2C, Data30))
+    if (Sprite_Get_Free_Max29(Data0, pData2C, Data30))
         return -1;
 
     //loc_21A1C:;
@@ -19110,51 +19141,6 @@ int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
     return 0;
 }
 
-int16 cFodder::Sprite_Get_Free2(int16& pData0, sSprite*& pData2C, sSprite*& pData30) {
-    if (mSprite_SpareUsed2)
-        goto loc_21B4B;
-
-    if (pData0 == 2)
-        goto loc_21B91;
-
-    pData2C = &mSprites[29];
-    for (int16 Data1C = 29; Data1C >= 0; --Data1C, --pData2C) {
-
-        if (pData2C->field_0 == -32768) {
-            Sprite_Clear(pData2C);
-            pData0 = 0;
-            return 0;
-        }
-    }
-
-loc_21B4B:;
-    pData2C = &mSprite_Spare;
-    pData30 = &mSprite_Spare;
-    pData0 = -1;
-    mSprite_SpareUsed2 = pData0;
-    return -1;
-
-loc_21B91:;
-    pData2C = mSprites;
-
-    for (int16 Data1C = 0x1C; Data1C >= 0; --Data1C, ++pData2C) {
-
-        if (pData2C->field_0 != -32768)
-            continue;
-
-        if ((pData2C + 1)->field_0 == -32768) {
-            pData30 = pData2C + 1;
-            pData0 = 0;
-        }
-    }
-
-    pData2C = &mSprite_Spare;
-    pData30 = &mSprite_Spare;
-    pData0 = -1;
-    mSprite_SpareUsed2 = pData0;
-    return -1;
-}
-
 void cFodder::Sprite_Enemy_Aggression_Update(sSprite* pData2C) {
     int16 Data8 = mGame_Data.mGamePhase_Data.mSprite_Enemy_AggressionNext;
     pData2C->field_62 = Data8;
@@ -19192,7 +19178,7 @@ void cFodder::Sprite_Create_Rank() {
     sSprite* Sprite = 0, *Data30 = 0;
     int16 Data0 = 1;
 
-    if (Sprite_Get_Free(Data0, Sprite, Data30))
+    if (Sprite_Get_Free_Max42(Data0, Sprite, Data30))
         return;
 
     Sprite->field_0 = 0;
@@ -19627,7 +19613,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     }
 
     Data0 = 2;
-    Sprite_Get_Free(Data0, Data2C, Data30);
+    Sprite_Get_Free_Max42(Data0, Data2C, Data30);
 
     // No Free sprites?
     if (Data0)

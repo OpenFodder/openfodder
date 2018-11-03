@@ -935,7 +935,9 @@ public:
     void            Sprite_Movement_Speed_Update(sSprite* pSprite);
 
     void            Sprite_Handle_Player_Close_To_SquadMember(sSprite* pSprite);
-    int16           Sprite_Get_Free(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
+    int16           Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
+    int16           Sprite_Get_Free_Max29(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
+
     void            Sprite_Clear(sSprite* pSprite);
     void            Sprite_Handle_Exploidable(sSprite* pSprite);
     void            Sprite_Create_Shadow(sSprite* pSprite);
@@ -947,7 +949,6 @@ public:
     int16           Sprite_Create_Building_Explosion_Wrapper(int16& pX, int16& pY);
     int16           Sprite_Create_Building_Explosion(sSprite* pData2C, int16& pX, int16& pY);
     int16           Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C);
-    int16           Sprite_Get_Free2(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
     void            Sprite_Enemy_Aggression_Update(sSprite* pData2C);
     void            Sprite_Create_Rank();
     void            sub_21CD1(sSprite* pSprite);
@@ -1229,8 +1230,6 @@ public:
     void            intro_AmigaTheOne();
 
     void            Sidebar_Clear_ScreenBufferPtr();
-
-    void            Briefing_Set_Render_1_Mode_On();
 
     void            WonGame();
 
