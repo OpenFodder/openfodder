@@ -155,11 +155,12 @@ public:
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
 	bool isCustom() const;
     bool isCustomMap() const { return mIsCustomMap; }
-    void setCustomMap() { mIsCustomMap = true; }
+    void setCustomMap() { mIsCustomMap = true; mUseCustomPath = true; }
 
 	bool isRandom() const;
     std::string getAuthor() { return mAuthor; }
     void setAuthor(const std::string& pAuthor) { mAuthor = pAuthor; }
+
 };
 
 extern const std::vector<std::string>   mMissionGoal_Titles;

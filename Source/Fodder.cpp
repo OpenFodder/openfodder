@@ -989,13 +989,37 @@ int16 cFodder::Tile_FindType(eTerrainType pType) {
 
     for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
 
+        int16 TerrainType = mTile_Hit[TileID];
+
         // Single Type Tile
-        if (mTile_Hit[TileID] >= 0) {
+        if (TerrainType >= 0) {
 
             // Match?
-            if ((mTile_Hit[TileID] & 0x0F) == pType) {
+            if ((TerrainType & 0x0F) == pType) {
 
                 return TileID;
+            }
+        }
+        else {
+
+            if (TerrainType < 0) {
+                //loc_2A8D9
+                // X
+                /*pData10 >>= 1;
+                pData10 &= 0x07;
+
+                int16 TilePixel = 7;
+                TilePixel -= pData10;
+
+                // Y
+                pData14 >>= 1;
+                pData14 &= 0x07;
+
+                int8 RowTerrainType = mTile_BHit[TileID][pData14];
+
+                // If the bit for this X position is set, we use the UpperBits for the terrain type
+                if (RowTerrainType & (1 << TilePixel))
+                    TerrainType >>= 4;*/
             }
         }
     }

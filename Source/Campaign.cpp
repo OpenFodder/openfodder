@@ -282,7 +282,8 @@ std::shared_ptr<cMission> cCampaign::getMission(size_t pMissionNumber) {
 }
 
 void cCampaign::SetSingleMapCampaign() {
-    mName = "Single Map";
+    Clear("Single Map", false);
+    mPath = "";
 
     mMissions.clear();
     mMissions.push_back(std::make_shared<cMission>());
