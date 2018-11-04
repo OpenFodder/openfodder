@@ -1022,6 +1022,28 @@ int16 cFodder::Tile_FindType(eTerrainType pType) {
     return -1;
 }
 
+std::vector<int16> cFodder::Tile_FindType(const eTerrainType pType, const eTerrainType pType2) {
+    std::vector<int16> Results;
+
+    for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
+
+        int16 TerrainType = mTile_Hit[TileID];
+
+        // Second Type?
+        if (TerrainType < 0) {
+            auto Type1 = (TerrainType & 0x0F);
+            auto Type2 = (TerrainType >> 4) & 0x0F;
+
+            if ((Type1 == pType && Type2 == pType2) || (Type1 == pType2 || Type2 == pType)) {
+
+                Results.push_back(TileID);
+            }
+
+        }
+    }
+
+    return Results;
+}
 void cFodder::Map_Randomise_Tiles(const long pSeed) {
     int32 PowerOf = 0;
     int32 Size;
@@ -1075,6 +1097,8 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
     int16 X = 0;
     int16 Y = 0;
 
+    static bool Found = false;
+
     // Loop each tile row
     for (auto Row : HeightMap) {
 
@@ -1086,10 +1110,12 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
             Column -= HeightMin;
 
             if (Column < flood) {
-                *MapPtr = TileWater;
+                if(!Found)
+                    *MapPtr = TileWater;
+                Found = true;
             }
             else if (Column > mount) {
-                *MapPtr = TileBounce;
+                //*MapPtr = TileBounce;
             }
             else {
                 *MapPtr = TileLand;
@@ -1108,17 +1134,22 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
 
 }
 
+struct sFoundMatch {
+    int16 Matches;
+    int16 TileID;
+};
+
 void cFodder::Map_Randomise_TileSmooth() {
+    /* Bunch of useless code that might be good someday
 
-    int16* MapPtr = (int16*)(mMap->data() + 0x60);
-
-    for (int32 y = 0; y < mMapHeight; ++y) {
-        for (int32 x = 0; x < mMapWidth; ++x) {
+    for (int32 y = 1; y < mMapHeight; ++y) {
+        for (int32 x = 1; x < mMapWidth; ++x) {
 
             int32 TileX = x * 16;
             int32 TileY = y * 16;
 
-            
+            int16 Tile          = Map_Terrain_Get(TileX, TileY);
+
             int16 TileUp        = Map_Terrain_Get(TileX,      TileY - 1);
             int16 TileLeftUp    = Map_Terrain_Get(TileX - 1,  TileY - 1);
             int16 TileLeft      = Map_Terrain_Get(TileX - 1,  TileY);
@@ -1128,19 +1159,48 @@ void cFodder::Map_Randomise_TileSmooth() {
             int16 TileRight     = Map_Terrain_Get(TileX + 16, TileY);
             int16 TileRightUp   = Map_Terrain_Get(TileX + 16, TileY - 1);
            
+            std::vector< sFoundMatch> match;
 
-            size_t Matches = 0;
+            if (Tile == TileUp)
+                continue;
 
-            // Check the top row of this tile, against the bottom row of the tile in the above row
-            for (int32 X = 0; X < 16; X += 2) {
+            // Find tiles wihch have this tiles type, and the tile above us
+            auto Tiles = Tile_FindType((eTerrainType) Tile, (eTerrainType)TileUp);
 
-                int16 Tile   = Map_Terrain_Get(TileX, TileY);
-                int16 UpCell = Map_Terrain_Get(TileX + X, TileY - 1);
-                
-                if (Tile == UpCell)
-                    ++Matches;
+            // Loop over each tile, and check it for edge matches
+            for (auto& FindTile : Tiles) {
+
+                int16 Matches = 0;
+
+                // Check the top row of this tile, against the bottom row of the tile in the above row
+                for (int32 X = 0; X < 16; X += 2) {
+
+                    // Check the top edge of 'FindTile', against the bottom row tile above
+                    int16 FindCell = Tile_Terrain_Get(FindTile, TileX + X, 0);
+
+                    int16 CurrentCell = Map_Terrain_Get(TileX + X, TileY);
+                    int16 UpCell = Map_Terrain_Get(TileX + X, TileY - 1);
+
+                    if (FindCell == UpCell)
+                        ++Matches;
+                }
+
+                // Edge perfect match
+                if (!Matches)
+                    continue;
+
+                match.push_back({ Matches, FindTile });
             }
 
+            if (!match.size()) {
+                // TODO
+                continue;
+            }
+
+            std::sort(match.begin(), match.end(), [](const sFoundMatch& a, const sFoundMatch& b) { return a.Matches > b.Matches; });
+
+            MapTile_Set(x, y, match.begin()->TileID);
+            continue;
 
             //std::vector<int16> FindTypes = { TileUp, TileLeftUp, TileLeft, TileLeftDown, TileDown, TileRightDown, TileRight, TileRightUp };
             /*std::vector<int16> FindTypes = { TileUp };
@@ -1196,10 +1256,11 @@ void cFodder::Map_Randomise_TileSmooth() {
 
                 }
 
-            }*/
+            }
 
         } // Width
     } // Height
+    */
 }
 
 void cFodder::Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY) {
@@ -1889,6 +1950,7 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
     mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
 
     mMapTile_Ptr = (int32)((0x60 - 8) - (pWidth * 2));
+   // mMapTile_Ptr += 8;
     mMapTile_DrawX = 0;
     mMapTile_DrawY = 0;
 
@@ -1933,6 +1995,7 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
         Map[0x27] = Seed;
 
         Map_Randomise_Tiles(Seed);
+        Map_Randomise_TileSmooth();
         Map_Randomise_Sprites();
         Map_Randomise_Structures(2);
 
@@ -10249,7 +10312,7 @@ loc_2DF7B:;
     writeLEWord(MapPtr, Data4);
     mMap_Destroy_Tile_LastTile = Data4;
 
-    while (*mMap_Destroy_Tiles.begin() == LastTile)
+    while (!(*mMap_Destroy_Tiles.begin() == LastTile))
         Map_Destroy_Tiles_Next();
 
     Map_Destroy_Tiles_Next();
@@ -20106,9 +20169,16 @@ Start:;
         mOpenFodder_Intro_Done = true;
     }
 
-    // Select campaign menu
-    if (!(mParams.mCampaignName.size() && Campaign_Load(mParams.mCampaignName)))
-        Campaign_Selection();
+    if (mParams.mRandom) {
+        mGame_Data.mCampaign.SetSingleMapCampaign();
+        mCustom_Mode = eCustomMode_Map;
+
+        VersionSwitch(mVersions->GetForCampaign("Random Map"));
+    } else {
+        // Select campaign menu
+        if (!(mParams.mCampaignName.size() && Campaign_Load(mParams.mCampaignName)))
+            Campaign_Selection();
+    }
 
     // Exit pushed?
     if (mGUI_SaveLoadAction == 1)

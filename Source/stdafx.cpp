@@ -55,7 +55,9 @@ int main(int argc, char *argv[]) {
 
         ("c,campaign",  "Starting campaign",        cxxopts::value<std::string>()->default_value(""), "\"name\"" )
         ("m,mission",   "Starting mission",         cxxopts::value<std::uint32_t>()->default_value("0"), "1"   )
-        ("p,phase",     "Starting phase",               cxxopts::value<std::uint32_t>()->default_value("0"), "2");
+        ("p,phase",     "Starting phase",           cxxopts::value<std::uint32_t>()->default_value("0"), "2")
+        ("r,random",    "Start on a random map",    cxxopts::value<bool>()->default_value("false") )
+        ;
 
 
     try {
@@ -81,6 +83,7 @@ int main(int argc, char *argv[]) {
         Params.mMissionNumber = result["mission"].as<std::uint32_t>();
         Params.mPhaseNumber = result["phase"].as<std::uint32_t>();
         Params.mWindowMode = result["window"].as<bool>();
+        Params.mRandom = result["random"].as<bool>();
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
             Params.mSkipToMission = true;

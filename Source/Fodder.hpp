@@ -78,6 +78,7 @@ struct sFodderParameters {
     bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
     bool mSkipToMission;        // Skip the recruit screen and go straight into the mission
     bool mWindowMode;           // Start in a window
+    bool mRandom;
 
     std::string mCampaignName;
     size_t mMissionNumber;
@@ -89,6 +90,7 @@ struct sFodderParameters {
         mMissionNumber = 0;
         mPhaseNumber = 0;
         mWindowMode = false;
+        mRandom = false;
     }
 };
 
@@ -617,7 +619,8 @@ public:
     void			Map_Randomise_Sprites(const size_t pHumanCount = 2);
 
     bool			Tiles_Load_Data();
-    int16			Tile_FindType(eTerrainType pType);
+    int16			Tile_FindType(const eTerrainType pType);
+    std::vector<int16> Tile_FindType(const eTerrainType pType, const eTerrainType pType2);
 
     void            Music_Play_Tileset();
 
