@@ -1040,6 +1040,7 @@ public:
     int16           Map_Terrain_Get_Type_And_Walkable(sSprite* pSprite, int16& pY, int16& pX);
     int16           Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pData14);
     int16           Map_Terrain_Get(int16 pX, int16 pY);
+    int16           Tile_Terrain_Get(const int16 pTileID, int16 pX, int16 pY);
 
     void            Squad_Walk_Target_SetAll(int16 pValue);
     void            Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10);

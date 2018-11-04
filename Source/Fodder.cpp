@@ -1108,7 +1108,6 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
 
 }
 
-
 void cFodder::Map_Randomise_TileSmooth() {
 
     int16* MapPtr = (int16*)(mMap->data() + 0x60);
@@ -1119,7 +1118,7 @@ void cFodder::Map_Randomise_TileSmooth() {
             int32 TileX = x * 16;
             int32 TileY = y * 16;
 
-            int16 Tile          = Map_Terrain_Get(TileX,      TileY);
+            
             int16 TileUp        = Map_Terrain_Get(TileX,      TileY - 1);
             int16 TileLeftUp    = Map_Terrain_Get(TileX - 1,  TileY - 1);
             int16 TileLeft      = Map_Terrain_Get(TileX - 1,  TileY);
@@ -1129,15 +1128,26 @@ void cFodder::Map_Randomise_TileSmooth() {
             int16 TileRight     = Map_Terrain_Get(TileX + 16, TileY);
             int16 TileRightUp   = Map_Terrain_Get(TileX + 16, TileY - 1);
            
-            std::vector<int16> FindTypes = { TileUp, TileLeftUp, TileLeft, TileLeftDown, TileDown, TileRightDown, TileRight, TileRightUp };
+
+            size_t Matches = 0;
+
+            // Check the top row of this tile, against the bottom row of the tile in the above row
+            for (int32 X = 0; X < 16; X += 2) {
+
+                int16 Tile   = Map_Terrain_Get(TileX, TileY);
+                int16 UpCell = Map_Terrain_Get(TileX + X, TileY - 1);
+                
+                if (Tile == UpCell)
+                    ++Matches;
+            }
+
+
+            //std::vector<int16> FindTypes = { TileUp, TileLeftUp, TileLeft, TileLeftDown, TileDown, TileRightDown, TileRight, TileRightUp };
+            /*std::vector<int16> FindTypes = { TileUp };
 
             // Each tile can hold two terrain types
-
-            // we need to determine based on our neighbors, which tile to use
-
-            // this requires us to check the type of each
-
-            std::vector<int16> FoundTypes;
+            // Lets build a list of all tiles which have an both our (Tile) and one edge
+            std::vector<int16> FoundTiles;
 
             for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
 
@@ -1146,7 +1156,7 @@ void cFodder::Map_Randomise_TileSmooth() {
                 // Single Type Tile
                 if (TerrainType >= 0) {
                     TerrainType &= 0x0F;
-
+                    FoundTiles.push_back(TileID);
                 } else {
 
                     int16 Type1 = (TerrainType >> 4) & 0x0F;
@@ -1157,36 +1167,39 @@ void cFodder::Map_Randomise_TileSmooth() {
 
                     // One of the types must match the current Tile, and the other must match one of our neighbouring types
                     if ((Type1IT != FindTypes.end() && Type2 == Tile) || (Type2IT != FindTypes.end() && Type1 == Tile)) {
-                        FoundTypes.push_back(TileID);
+                        FoundTiles.push_back(TileID);
                     }
 
-                    //int8 RowTerrainType = mTile_BHit[TileID][ Y ];
+                    for (int32 X = 0; X < 7; ++X) {
 
-                    if (TerrainType < 0) {
-                        //loc_2A8D9
-                        // X
-                        /*pData10 >>= 1;
-                        pData10 &= 0x07;
-
-                        int16 TilePixel = 7;
-                        TilePixel -= pData10;
-
-                        // Y
-                        pData14 >>= 1;
-                        pData14 &= 0x07;
-
-                        int8 RowTerrainType = mTile_BHit[TileID][pData14];
+                        int16 TilePixel = 7 - ((X >> 1) & 0x07);
+                        int8 RowTerrainType = mTile_BHit[TileID][(Y >> 1) & 0x07];
 
                         // If the bit for this X position is set, we use the UpperBits for the terrain type
-                        if (RowTerrainType & (1 << TilePixel))
+                        if (RowTerrainType & (1 << TilePixel)) {
                             TerrainType >>= 4;
-                            */
-                    }
-                }
-            }
-        }
 
-    }
+                        }
+
+                    }
+
+                }
+            }*/
+
+            // Now we have an array of all tiles matching us and our neighbours
+            // we need to determine based on our neighbors, which tile to use
+
+            /*for (auto& CheckTile : FoundTiles) {
+
+                int16 TerrainType = mTile_Hit[CheckTile];
+                if (TerrainType < 0) {
+
+                }
+
+            }*/
+
+        } // Width
+    } // Height
 }
 
 void cFodder::Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY) {
@@ -8954,30 +8967,8 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
     //  Not being set, means we use the lower 4 bits
 
     // eTerrainType
-    int16 TerrainType = mTile_Hit[TileID];
+    int16 TerrainType = Tile_Terrain_Get(TileID, pData10, pData14);
 
-    // Tile contains two Terrain Types?
-    if (TerrainType < 0) {
-        //loc_2A8D9
-        // X
-        pData10 >>= 1;
-        pData10 &= 0x07;
-
-        int16 TilePixel = 7;
-        TilePixel -= pData10;
-
-        // Y
-        pData14 >>= 1;
-        pData14 &= 0x07;
-
-        int8 RowTerrainType = mTile_BHit[TileID][pData14];
-
-        // If the bit for this X position is set, we use the UpperBits for the terrain type
-        if (RowTerrainType & (1 << TilePixel))
-            TerrainType >>= 4;
-    }
-
-    TerrainType &= 0x0F;
     pY = mTiles_NotWalkable[TerrainType];
     pX = TerrainType;
 
@@ -8998,6 +8989,11 @@ int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
 
     uint16 TileID = readLE<uint16>(mMap->data() + (0x60 + MapPtr)) & 0x1FF;
 
+    // eTerrainType
+    return Tile_Terrain_Get(TileID, pX, pY);
+}
+
+int16 cFodder::Tile_Terrain_Get(const int16 pTileID, int16 pX, int16 pY) {
     // There is two tables, the HIT and the BHIT
     // HIT contains the type of terrain used by a tile, a value < 0 indicates
     // the tile contains two terrain types.
@@ -9006,13 +9002,9 @@ int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
     //  The bit being set, means we use the upper 4 bits as the terrain type
     //  Not being set, means we use the lower 4 bits
 
-    // eTerrainType
-    int16 TerrainType = mTile_Hit[TileID];
+    int16 TerrainType = mTile_Hit[pTileID];
 
-    // Tile contains two Terrain Types?
     if (TerrainType < 0) {
-        //loc_2A8D9
-        // X
         pX >>= 1;
         pX &= 0x07;
 
@@ -9023,15 +9015,16 @@ int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
         pY >>= 1;
         pY &= 0x07;
 
-        int8 RowTerrainType = mTile_BHit[TileID][pY];
+        int8 RowTerrainType = mTile_BHit[pTileID][pY];
 
         // If the bit for this X position is set, we use the UpperBits for the terrain type
         if (RowTerrainType & (1 << TilePixel))
             TerrainType >>= 4;
     }
 
-    return TerrainType & 0x0F;
+    return (TerrainType & 0x0F);
 }
+
 void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10) {
     int16 Data1C;
     sSprite** Saved_Data24 = 0;
@@ -10182,13 +10175,13 @@ void cFodder::Map_Destroy_Tiles() {
     uint8* MapPtr = 0;
     const int16* IndestructibleTypes = 0;
     int32 Data0, Data4, MapTile, TileType;
+    sMapPosition LastTile;
 
     if (mMap_Destroy_Tiles_Countdown) {
         --mMap_Destroy_Tiles_Countdown;
         goto loc_2DFC7;
     }
 
-    sMapPosition LastTile;
 
     for (auto& Tile : mMap_Destroy_Tiles) {
         LastTile = Tile;
