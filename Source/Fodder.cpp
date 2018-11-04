@@ -275,8 +275,7 @@ int16 cFodder::Phase_Loop() {
         if (mPhase_Paused != 0) {
             Phase_Paused();
 
-            size_t FadeCount = 12;
-            int Surface2Fade = -1;
+            size_t FadeCount = 3;
 
             mSurface->Save();
             while (mPhase_Paused) {
@@ -284,10 +283,6 @@ int16 cFodder::Phase_Loop() {
                 if (mImageFaded && FadeCount) {
                     mImageFaded = mSurface->palette_FadeTowardNew();
                     --FadeCount;
-                }
-                if (Surface2Fade && !FadeCount) {
-                    Surface2Fade = mSurface2->palette_FadeTowardNew();
-                    mSurface2->draw();
                 }
 
                 // Update mouse
@@ -1066,9 +1061,16 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
     flood *= diff;
     mount *= diff;
 
+    // Jungle
     int16 TileWater = Tile_FindType(eTerrainType_Water);
     int16 TileLand = Tile_FindType(eTerrainType_Land);
     int16 TileBounce = Tile_FindType(eTerrainType_BounceOff);
+
+    switch (mMap_TileSet) {
+    case eTileTypes_Ice:
+        TileLand = Tile_FindType(eTerrainType_Snow);
+        break;
+    }
 
     int16 X = 0;
     int16 Y = 0;
@@ -1104,6 +1106,87 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
     }
 
 
+}
+
+
+void cFodder::Map_Randomise_TileSmooth() {
+
+    int16* MapPtr = (int16*)(mMap->data() + 0x60);
+
+    for (int32 y = 0; y < mMapHeight; ++y) {
+        for (int32 x = 0; x < mMapWidth; ++x) {
+
+            int32 TileX = x * 16;
+            int32 TileY = y * 16;
+
+            int16 Tile          = Map_Terrain_Get(TileX,      TileY);
+            int16 TileUp        = Map_Terrain_Get(TileX,      TileY - 1);
+            int16 TileLeftUp    = Map_Terrain_Get(TileX - 1,  TileY - 1);
+            int16 TileLeft      = Map_Terrain_Get(TileX - 1,  TileY);
+            int16 TileLeftDown  = Map_Terrain_Get(TileX - 1,  TileY + 16);
+            int16 TileDown      = Map_Terrain_Get(TileX,      TileY + 16);
+            int16 TileRightDown = Map_Terrain_Get(TileX + 16, TileY + 16);
+            int16 TileRight     = Map_Terrain_Get(TileX + 16, TileY);
+            int16 TileRightUp   = Map_Terrain_Get(TileX + 16, TileY - 1);
+           
+            std::vector<int16> FindTypes = { TileUp, TileLeftUp, TileLeft, TileLeftDown, TileDown, TileRightDown, TileRight, TileRightUp };
+
+            // Each tile can hold two terrain types
+
+            // we need to determine based on our neighbors, which tile to use
+
+            // this requires us to check the type of each
+
+            std::vector<int16> FoundTypes;
+
+            for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
+
+                int16 TerrainType = mTile_Hit[TileID];
+
+                // Single Type Tile
+                if (TerrainType >= 0) {
+                    TerrainType &= 0x0F;
+
+                } else {
+
+                    int16 Type1 = (TerrainType >> 4) & 0x0F;
+                    int16 Type2 = TerrainType & 0x0F;
+
+                    auto Type1IT = std::find(FindTypes.begin(), FindTypes.end(), Type1);
+                    auto Type2IT = std::find(FindTypes.begin(), FindTypes.end(), Type2);
+
+                    // One of the types must match the current Tile, and the other must match one of our neighbouring types
+                    if ((Type1IT != FindTypes.end() && Type2 == Tile) || (Type2IT != FindTypes.end() && Type1 == Tile)) {
+                        FoundTypes.push_back(TileID);
+                    }
+
+                    //int8 RowTerrainType = mTile_BHit[TileID][ Y ];
+
+                    if (TerrainType < 0) {
+                        //loc_2A8D9
+                        // X
+                        /*pData10 >>= 1;
+                        pData10 &= 0x07;
+
+                        int16 TilePixel = 7;
+                        TilePixel -= pData10;
+
+                        // Y
+                        pData14 >>= 1;
+                        pData14 &= 0x07;
+
+                        int8 RowTerrainType = mTile_BHit[TileID][pData14];
+
+                        // If the bit for this X position is set, we use the UpperBits for the terrain type
+                        if (RowTerrainType & (1 << TilePixel))
+                            TerrainType >>= 4;
+                            */
+                    }
+                }
+            }
+        }
+
+    }
 }
 
 void cFodder::Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY) {
@@ -2828,7 +2911,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     // Switch between platforms
     if (!mVersionPlatformSwitchDisabled) {
         mVersionPlatformSwitchDisabled = true;
-        if ((mVersionDefault && mVersionDefault->isRetail()) || mVersionCurrent->isRetail()) {
+        if ((mVersionDefault && mVersionDefault->isRetail()) || (mVersionCurrent && mVersionCurrent->isRetail())) {
 
             if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
                 mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::Amiga);
@@ -3356,11 +3439,9 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
 
 void cFodder::Phase_Paused() {
     mSurface2->clearBuffer();
-    mSurface2->palette_SetToBlack();
 
     mGraphics->PaletteSet(mSurface2);
-
-    mSurface2->palette_FadeTowardNew();
+    mSurface2->surfaceSetToPaletteNew();
 
     // Dim the current surface
     mSurface->paletteNew_SetToBlack();
@@ -8903,6 +8984,54 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
     return mTiles_NotWalkable[TerrainType];
 }
 
+int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
+
+    if ((pY >> 4) > mMapHeight || (pX >> 4) > mMapWidth)
+        return -1;
+
+    int32 MapPtr = (pY >> 4) * mMapWidth;
+    MapPtr += (pX >> 4);
+    MapPtr <<= 1;
+
+    if (mMap->data() + (0x60 + MapPtr) >= mMap->data() + mMap->size())
+        return -1;
+
+    uint16 TileID = readLE<uint16>(mMap->data() + (0x60 + MapPtr)) & 0x1FF;
+
+    // There is two tables, the HIT and the BHIT
+    // HIT contains the type of terrain used by a tile, a value < 0 indicates
+    // the tile contains two terrain types.
+    // This is determined by looking up the terrain type and row
+    //  then checking if a bit is set for the column. 
+    //  The bit being set, means we use the upper 4 bits as the terrain type
+    //  Not being set, means we use the lower 4 bits
+
+    // eTerrainType
+    int16 TerrainType = mTile_Hit[TileID];
+
+    // Tile contains two Terrain Types?
+    if (TerrainType < 0) {
+        //loc_2A8D9
+        // X
+        pX >>= 1;
+        pX &= 0x07;
+
+        int16 TilePixel = 7;
+        TilePixel -= pX;
+
+        // Y
+        pY >>= 1;
+        pY &= 0x07;
+
+        int8 RowTerrainType = mTile_BHit[TileID][pY];
+
+        // If the bit for this X position is set, we use the UpperBits for the terrain type
+        if (RowTerrainType & (1 << TilePixel))
+            TerrainType >>= 4;
+    }
+
+    return TerrainType & 0x0F;
+}
 void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10) {
     int16 Data1C;
     sSprite** Saved_Data24 = 0;
@@ -9380,6 +9509,20 @@ void cFodder::MapTile_Update_X() {
     mMapTile_SpeedX_Previous = mMapTile_SpeedX >> 16;
 }
 
+int32 cFodder::MapTile_Get(const size_t pTileX, const size_t pTileY) {
+
+    if (pTileX > mMapWidth || pTileY > mMapHeight)
+        return -1;
+
+    size_t Tile = (((pTileY * mMapWidth) + pTileX)) + mMapWidth;
+
+    uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
+    if (CurrentMapPtr > mMap->data() + mMap->size())
+        return -1;
+
+    return readLE<int16>(CurrentMapPtr);
+}
+
 /**
  * Sets a map tile to a certain ID, positioned based on the current camera
  */
@@ -9399,14 +9542,16 @@ void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t
 
 sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
 
-    int16 Data0 = 2;
+    int16 Data0 = 3;
 
     sSprite* First = 0, *Second = 0, *Third = 0, *Fourth = 0;
 
     if (Sprite_Get_Free_Max42(Data0, First, Second))
         return First;
 
-    Data0 = 2;
+    Third = Second + 1;
+    Fourth = Third + 1;
+
     First->field_18 = (int16)pSpriteID;
     First->field_0 = pSpriteX;
     First->field_4 = pSpriteY;
@@ -9415,10 +9560,12 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
 
     switch (pSpriteID) {
     case eSprite_BoilingPot:                        // 1 Null
-        Data0 = 2;
-        if (Sprite_Get_Free_Max42(Data0, Second, Third))
-            return First;
-
+    case eSprite_Tank_Human:
+    case eSprite_VehicleNoGun_Human:
+    case eSprite_VehicleGun_Human:
+    case eSprite_VehicleNoGun_Enemy:
+    case eSprite_VehicleGun_Enemy:
+    case eSprite_Vehicle_Unk_Enemy:
         Second->field_18 = eSprite_Null;
         Second->field_0 = pSpriteX;
         Second->field_4 = pSpriteY;
@@ -9431,15 +9578,22 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     case eSprite_Helicopter_Missile_Enemy:
     case eSprite_Helicopter_Homing_Enemy:
     case eSprite_Helicopter_Homing_Enemy2:
-        Data0 = 2;
-        if (Sprite_Get_Free_Max42(Data0, Second, Third))
-            return First;
-
         Second->field_18 = eSprite_Null;
         Second->field_0 = pSpriteX;
         Second->field_4 = pSpriteY;
         Second->field_26 = pSpriteX;
         Second->field_28 = pSpriteY;
+        Third->field_18 = eSprite_Null;
+        Third->field_0 = pSpriteX;
+        Third->field_4 = pSpriteY;
+        Third->field_26 = pSpriteX;
+        Third->field_28 = pSpriteY;
+        Fourth->field_18 = eSprite_Null;
+        Fourth->field_0 = pSpriteX;
+        Fourth->field_4 = pSpriteY;
+        Fourth->field_26 = pSpriteX;
+        Fourth->field_28 = pSpriteY;
+        break;
 
         // Fall Through
     case eSprite_Helicopter_Grenade2_Human:         // 2 Nulls
@@ -9450,61 +9604,18 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     case eSprite_Helicopter_Grenade_Human_Called:
     case eSprite_Helicopter_Missile_Human_Called:
     case eSprite_Helicopter_Homing_Human_Called:
-        Data0 = 2;
-        if (Sprite_Get_Free_Max42(Data0, Third, Fourth))
-            return First;
-
+    case eSprite_Tank_Enemy:
+        Second->field_18 = eSprite_Null;
+        Second->field_0 = pSpriteX;
+        Second->field_4 = pSpriteY;
+        Second->field_26 = pSpriteX;
+        Second->field_28 = pSpriteY;
         Third->field_18 = eSprite_Null;
         Third->field_0 = pSpriteX;
         Third->field_4 = pSpriteY;
         Third->field_26 = pSpriteX;
         Third->field_28 = pSpriteY;
 
-        Fourth->field_18 = eSprite_Null;
-        Fourth->field_0 = pSpriteX;
-        Fourth->field_4 = pSpriteY;
-        Fourth->field_26 = pSpriteX;
-        Fourth->field_28 = pSpriteY;
-
-        break;
-
-    case eSprite_Tank_Enemy:                        // 2 Nulls
-        Data0 = 2;
-        if (Sprite_Get_Free_Max42(Data0, Second, Third))
-            return First;
-
-        Second->field_18 = eSprite_Null;
-        Second->field_0 = pSpriteX;
-        Second->field_4 = pSpriteY;
-        Second->field_26 = pSpriteX;
-        Second->field_28 = pSpriteY;
-
-    case eSprite_Tank_Human:
-        Data0 = 2;
-        if (Sprite_Get_Free_Max42(Data0, Third, Third))
-            return First;
-
-        Third->field_18 = eSprite_Null;
-        Third->field_0 = pSpriteX;
-        Third->field_4 = pSpriteY;
-        Third->field_26 = pSpriteX;
-        Third->field_28 = pSpriteY;
-        break;
-
-    case eSprite_VehicleNoGun_Human:
-    case eSprite_VehicleGun_Human:
-    case eSprite_VehicleNoGun_Enemy:
-    case eSprite_VehicleGun_Enemy:
-    case eSprite_Vehicle_Unk_Enemy:
-        Data0 = 2;
-        if (Sprite_Get_Free_Max42(Data0, Second, Third))
-            return First;
-
-        Second->field_18 = eSprite_Null;
-        Second->field_0 = pSpriteX;
-        Second->field_4 = pSpriteY;
-        Second->field_26 = pSpriteX;
-        Second->field_28 = pSpriteY;
         break;
     }
   
@@ -10077,7 +10188,10 @@ void cFodder::Map_Destroy_Tiles() {
         goto loc_2DFC7;
     }
 
+    sMapPosition LastTile;
+
     for (auto& Tile : mMap_Destroy_Tiles) {
+        LastTile = Tile;
 
         Data0 = Tile.mX;
         Data4 = Tile.mY;
@@ -10141,6 +10255,10 @@ loc_2DF7B:;
     mMap_Destroy_Tiles_Countdown = 1;
     writeLEWord(MapPtr, Data4);
     mMap_Destroy_Tile_LastTile = Data4;
+
+    while (*mMap_Destroy_Tiles.begin() == LastTile)
+        Map_Destroy_Tiles_Next();
+
     Map_Destroy_Tiles_Next();
 
 loc_2DFC7:;
@@ -18629,7 +18747,31 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
     if (!mSprite_SpareUsed) {
 
         // Looking for two sprites?
-        if (pData0 == 2) {
+        if (pData0 == 3) {
+            pData2C = mSprites;
+
+            // Loop all sprites
+            for (int16 Data1C = 40; Data1C >= 0; --Data1C, ++pData2C) {
+
+                // Sprite free?
+                if (pData2C->field_0 != -32768)
+                    continue;
+
+                if ((pData2C + 1)->field_0 != -32768)
+                    continue;
+
+                // Second sprite free?
+                if ((pData2C + 2)->field_0 == -32768) {
+                    pData30 = pData2C + 1;
+
+                    Sprite_Clear(pData2C);
+                    Sprite_Clear(pData30);
+                    Sprite_Clear(pData30 + 1);
+                    pData0 = 0;
+                    return 0;
+                }
+            }
+        } else if (pData0 == 2) {
             pData2C = mSprites;
 
             // Loop all sprites
@@ -18649,7 +18791,6 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
                     return 0;
                 }
             }
-
         }
         else {
             // Only looking for 1 sprite

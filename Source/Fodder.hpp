@@ -40,6 +40,10 @@ struct sMapPosition {
     int16   mY;
 
     sMapPosition(const int16& pX = 0, const int16& pY = 0) { mX = pX; mY = pY; }
+
+    bool operator==(const sMapPosition& pPos) {
+        return mX == pPos.mX && mY == pPos.mY;
+    }
 };
 
 union sMapTarget {
@@ -608,6 +612,7 @@ public:
 
     void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
     void			Map_Randomise_Tiles(const long pSeed);
+    void            Map_Randomise_TileSmooth();
     void			Map_Randomise_Structures(const size_t pCount);
     void			Map_Randomise_Sprites(const size_t pHumanCount = 2);
 
@@ -1034,6 +1039,7 @@ public:
     int16           Map_Terrain_Get_Type_And_Walkable(int16& pY, int16& pX);
     int16           Map_Terrain_Get_Type_And_Walkable(sSprite* pSprite, int16& pY, int16& pX);
     int16           Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pData14);
+    int16           Map_Terrain_Get(int16 pX, int16 pY);
 
     void            Squad_Walk_Target_SetAll(int16 pValue);
     void            Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10);
@@ -1061,6 +1067,7 @@ public:
     void            MapTile_Update_Y();
     void            MapTile_Update_X();
 
+    int32           MapTile_Get(const size_t pTileX, const size_t pTileY);
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
     sSprite*		Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
 
