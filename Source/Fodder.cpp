@@ -280,8 +280,8 @@ int16 cFodder::Phase_Loop() {
             mSurface->Save();
             while (mPhase_Paused) {
                 // Fade the background out, and the 'mission paused' message in
-                if (mSurfacePaletteAdjusting && FadeCount) {
-                    mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+                if (mSurface->isPaletteAdjusting() && FadeCount) {
+                    mSurface->palette_FadeTowardNew();
                     --FadeCount;
                 }
 
@@ -302,8 +302,9 @@ int16 cFodder::Phase_Loop() {
             }
 
             mGraphics->PaletteSet();
-            mSurfacePaletteAdjusting = true;
-            mSurface->palette_FadeTowardNew();
+            mSurface->palette_SetFromNew();
+            mSurface->surfaceSetToPalette();
+
             mPhase_Aborted = false;
 
             // Redraw the screen
@@ -314,8 +315,8 @@ int16 cFodder::Phase_Loop() {
 
         Mouse_DrawCursor();
 
-        if (mSurfacePaletteAdjusting == true)
-            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+        if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
         Camera_Update_Mouse_Position_For_Pan();
 
@@ -1903,7 +1904,6 @@ loc_11D8A:;
     mInput_Enabled = -1;
 
     mGraphics->PaletteSet();
-    mSurfacePaletteAdjusting = true;
 
 loc_11E5B:;
     Music_Play_Tileset();
@@ -2618,7 +2618,6 @@ void cFodder::Phase_Progress_Check() {
 loc_1280A:;
 
     if (mPhase_Completed_Timer == 0x19) {
-        mSurfacePaletteAdjusting = true;
         mSurface->paletteNew_SetToBlack();
     }
     --mPhase_Completed_Timer;
@@ -3023,11 +3022,8 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
                 mKeyControlPressed = 0;
         }
 
-        if (pKeyCode == SDL_SCANCODE_P && pPressed) {
-
-            if(mPhase_Paused || !mSurfacePaletteAdjusting)
+        if (pKeyCode == SDL_SCANCODE_P && pPressed)
                 mPhase_Paused = ~mPhase_Paused;
-        }
 
         if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
             ++mSquad_SwitchWeapon;
@@ -3374,7 +3370,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
         while(mGUI_Sidebar_Setup>=0)
             GUI_Sidebar_Setup();
 
-        mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+        mSurface->palette_FadeTowardNew();
         Music_Play_Tileset();
     }
     
@@ -3524,19 +3520,17 @@ void cFodder::Phase_Paused() {
     mSurface->paletteNew_SetToBlack();
 
     // Draw to the secondary surface
-    mGraphics->SetImage(mSurface2);
-    mSurfacePaletteAdjusting = true;
+    {
+        mGraphics->SetImage(mSurface2);
 
-    mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
-
-    mString_GapCharID = 0x25;
-    String_Print_Large("GAME PAUSED", true, 0x54);
-
-    mString_GapCharID = 0;
-    mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
-
-    mGraphics->SetImageOriginal();
-    mSurface2->draw();
+        mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+        mString_GapCharID = 0x25;
+        String_Print_Large("GAME PAUSED", true, 0x54);
+        mSurface2->draw();
+        mString_GapCharID = 0;
+        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+        mGraphics->SetImageOriginal();
+    }
 }
 
 void cFodder::Phase_GameOver() {
@@ -3778,7 +3772,6 @@ void cFodder::sub_1594F() {
 
         mGraphics->mImageMissionIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
         mSurface->paletteNew_SetToBlack();
-        mSurfacePaletteAdjusting = true;
     }
 
 }
@@ -3876,7 +3869,6 @@ void cFodder::CopyProtection() {
         GUI_Render_Text_Centred(Line.c_str(), 0x64);
         GUI_Render_Text_Centred(Word.c_str(), 0x78);
 
-        mSurfacePaletteAdjusting = true;
         int8 mCursorBlinkTimer = 0;
         bool mShow = false;
 
@@ -3889,9 +3881,8 @@ void cFodder::CopyProtection() {
 
         while (mKeyCodeAscii != 0x0D) {
 
-            if (mSurfacePaletteAdjusting) {
-                mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
-            }
+            if (mSurface->isPaletteAdjusting())
+                 mSurface->palette_FadeTowardNew();
 
             String_Input_Print(0xA0);
 
@@ -4332,7 +4323,6 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
 
     mSurface->Save();
 
-    mSurfacePaletteAdjusting = true;
     mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
     mDemo_ExitMenu = 0;
 
@@ -4348,8 +4338,8 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Sprites_Draw();
 
-        if (mSurfacePaletteAdjusting == true)
-            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+        if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
@@ -4646,7 +4636,7 @@ bool cFodder::Recruit_Loop() {
 
     mSurface->paletteNew_SetToBlack();
 
-    while (mSurface->GetFaded() == false) {
+    while (mSurface->isPaletteAdjusting()) {
         Recruit_Cycle();
 
         Video_SurfaceRender();
@@ -5403,7 +5393,7 @@ void cFodder::Recruit_Cycle() {
 
     Mouse_DrawCursor();
 
-    if (mSurface->GetFaded() == false)
+    if (mSurface->isPaletteAdjusting())
         mSurface->palette_FadeTowardNew();
 }
 
@@ -10404,15 +10394,14 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
     }
     mGUI_SaveLoadAction = 0;
 
-    mSurfacePaletteAdjusting = true;
     mGraphics->PaletteSet();
 
     mSurface->Save();
     bool mShow = false;
 
     do {
-        if (mSurfacePaletteAdjusting == true)
-            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+        if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
         ++byte_44B49;
         byte_44B49 &= 0x0F;
@@ -10975,7 +10964,7 @@ bool cFodder::Menu_Draw(const std::function<void()> pButtonHandler) {
     if (mDemo_ExitMenu > 0 || mPhase_Aborted || mCustom_ExitMenu)
         return true;
 
-    if (mSurface->GetFaded() == false)
+    if (mSurface->isPaletteAdjusting())
         mSurface->palette_FadeTowardNew();
 
     Video_SurfaceRender();
@@ -11001,7 +10990,7 @@ void cFodder::Demo_Quiz_ShowScreen(const char* pFilename) {
         if (mButtonPressLeft || mPhase_Aborted)
             break;
 
-        if (mSurface->GetFaded() == false)
+        if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
         Video_SurfaceRender();
@@ -11259,7 +11248,6 @@ void cFodder::Service_KIA_Loop() {
         GetGraphics<cGraphics_Amiga>()->Service_Draw(4, 0xF0, 0x40);
     }
 
-    mSurfacePaletteAdjusting = true;
     mMouse_Exit_Loop = false;
     mService_ExitLoop = 0;
     mGraphics->PaletteSet();
@@ -11271,12 +11259,11 @@ void cFodder::Service_KIA_Loop() {
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
-            mSurfacePaletteAdjusting = true;
             mService_ExitLoop = 1;
         }
 
-        if (mSurfacePaletteAdjusting == true)
-            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+        if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
         Service_Draw_List();
         Cycle_End();
@@ -11284,7 +11271,7 @@ void cFodder::Service_KIA_Loop() {
 
         Video_SurfaceRender();
 
-    } while (mSurfacePaletteAdjusting == true || mService_ExitLoop == 0);
+    } while (mSurface->isPaletteAdjusting() || mService_ExitLoop == 0);
 }
 
 void cFodder::Service_Promotion_Loop() {
@@ -11306,7 +11293,6 @@ void cFodder::Service_Promotion_Loop() {
         ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
     }
 
-    mSurfacePaletteAdjusting = true;
     mService_ExitLoop = 0;
     mMouse_Exit_Loop = false;
     mGraphics->PaletteSet();
@@ -11318,12 +11304,11 @@ void cFodder::Service_Promotion_Loop() {
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
-            mSurfacePaletteAdjusting = true;
             mService_ExitLoop = 1;
         }
 
-        if (mSurfacePaletteAdjusting == true)
-            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+        if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
         Service_Promotion_Check();
         Service_Draw_List();
@@ -11333,7 +11318,7 @@ void cFodder::Service_Promotion_Loop() {
 
         Video_SurfaceRender();
 
-    } while (mSurfacePaletteAdjusting == true || mService_ExitLoop == 0);
+    } while (mSurface->isPaletteAdjusting() || mService_ExitLoop == 0);
 
 loc_18001:;
 
@@ -17939,25 +17924,22 @@ void cFodder::intro_LegionMessage() {
     mSurface->clearBuffer();
     mGraphics->PaletteSet();
 
-    mSurfacePaletteAdjusting = true;
-
     Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[0]);
     Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[1]);
     Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[2]);
 
-    while (mSurfacePaletteAdjusting == true || DoBreak == false) {
+    while (mSurface->isPaletteAdjusting() || DoBreak == false) {
 
         Mouse_Inputs_Get();
 
-        if (mSurfacePaletteAdjusting)
-            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+       if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
         if (Duration > 1)
             --Duration;
         else {
             if (DoBreak == false) {
                 mSurface->paletteNew_SetToBlack();
-                mSurfacePaletteAdjusting = true;
                 Duration = 0;
                 DoBreak = true;
             }
@@ -18009,12 +17991,11 @@ int16 cFodder::intro_Play() {
         int16 Fade = -1;
         bool DoBreak = false;
 
-        while (Fade == -1 || DoBreak == false) {
+        while (mSurface->isPaletteAdjusting() || DoBreak == false) {
             --Duration;
 
             if (Duration) {
-                if (Fade)
-                    Fade = mSurface->palette_FadeTowardNew();
+                mSurface->palette_FadeTowardNew();
 
                 Mouse_Inputs_Get();
                 if (mMouseButtonStatus) {
@@ -18024,13 +18005,11 @@ int16 cFodder::intro_Play() {
 
                     mImage_Aborted = -1;
                     mSurface->paletteNew_SetToBlack();
-                    Fade = -1;
                     DoBreak = true;
                 }
             }
             else {
                 mSurface->paletteNew_SetToBlack();
-                Fade = -1;
                 DoBreak = true;
             }
 
@@ -18092,8 +18071,8 @@ void cFodder::Image_FadeIn() {
     mSurface->Save();
     mGraphics->PaletteSet();
 
-    while (mSurface->palette_FadeTowardNew() == -1) {
-
+    while (mSurface->isPaletteAdjusting()) {
+        mSurface->palette_FadeTowardNew();
         Mouse_Inputs_Get();
 
         Video_SurfaceRender();
@@ -18106,7 +18085,7 @@ void cFodder::Image_FadeOut() {
     mSurface->Save();
     mSurface->paletteNew_SetToBlack();
 
-    while (mSurface->GetFaded() == false) {
+    while (mSurface->isPaletteAdjusting()) {
 
         Mouse_Inputs_Get();
         //Mouse_DrawCursor();
@@ -18180,27 +18159,23 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
     mGraphics->Load_And_Draw_Image(pFilename, 0x100, pBackColor);
     mGraphics->PaletteSet();
 
-    mSurfacePaletteAdjusting = true;
-
-    while (mSurfacePaletteAdjusting == true || DoBreak == false) {
+    while (mSurface->isPaletteAdjusting() || DoBreak == false) {
         Mouse_Inputs_Get();
         --pDuration;
 
         if (pDuration) {
-            if (mSurfacePaletteAdjusting)
-                mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+           if (mSurface->isPaletteAdjusting())
+                mSurface->palette_FadeTowardNew();
 
             if (pCanAbort && (mMouseButtonStatus || mPhase_Aborted)) {
                 mPhase_Aborted = false;
                 mImage_Aborted = -1;
                 mSurface->paletteNew_SetToBlack();
-                mSurfacePaletteAdjusting = true;
                 DoBreak = true;
             }
         }
         else {
             mSurface->paletteNew_SetToBlack();
-            mSurfacePaletteAdjusting = true;
             DoBreak = true;
         }
 
@@ -20059,7 +20034,6 @@ void cFodder::Game_Setup() {
 // This function is for viewing/iterating sprites
 void cFodder::Playground() {
     //return;
-    mSurfacePaletteAdjusting = true;
     Map_Load();
 
     mGraphics->PaletteSet();
@@ -20103,8 +20077,8 @@ void cFodder::Playground() {
             GUI_Draw_Frame_8(SpriteID, Frame, 65, 65);
         }
 
-        if (mSurfacePaletteAdjusting)
-            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
+       if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
@@ -20366,8 +20340,6 @@ int16 cFodder::Mission_Loop() {
         Phase_Goals_Set();
 
         mGraphics->PaletteSet();
-
-        mSurfacePaletteAdjusting = true;
 
         GUI_Sidebar_Prepare_Squads();
         Squad_Select_Grenades();

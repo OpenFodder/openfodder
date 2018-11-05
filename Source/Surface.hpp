@@ -57,7 +57,7 @@ protected:
 	SDL_Texture*	mTexture;
 
 	size_t			mWidth, mHeight;
-	bool			mFaded;
+	bool			mPaletteAdjusting;
 
 
 	void			clearSDLSurface(uint32 pColor = 0);						// Clear the surface
@@ -95,5 +95,5 @@ public:
 	inline size_t		GetWidth() const { return mWidth; }
 	inline size_t		GetHeight() const { return mHeight; }
 
-	inline bool			GetFaded() { return mFaded; }
+	inline bool			isPaletteAdjusting() const { return mPaletteAdjusting; }
 };

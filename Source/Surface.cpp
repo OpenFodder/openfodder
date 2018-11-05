@@ -25,7 +25,7 @@
 cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mWidth = pWidth; 
 	mHeight = pHeight;
-	mFaded = false;
+	mPaletteAdjusting = false;
 
 	// Create the screen buffer
 	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF << 16, 0xFF << 8, 0xFF, 0 );
@@ -77,13 +77,14 @@ void cSurface::palette_SetFromNew() {
 }
 
 void cSurface::paletteNew_SetToBlack() {
-	mFaded = false;
 
 	for (int cx = 0; cx < g_MaxColors; ++cx) {
 		mPaletteNew[cx].mBlue = 0;
 		mPaletteNew[cx].mRed = 0;
 		mPaletteNew[cx].mGreen = 0;
 	}
+
+    mPaletteAdjusting = true;
 }
 
 void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, uint32 pColors, bool pUseNow ) {
@@ -105,7 +106,7 @@ void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, uint32 pColors, 
 	surfaceSetToPalette();
 
 	if (!pUseNow)
-		mFaded = false;
+		mPaletteAdjusting = true;
 }
 
 /**
@@ -114,7 +115,7 @@ void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, uint32 pColors, 
  * @return True if still fading
  */
 bool cSurface::palette_FadeTowardNew() {
-	mFaded = true;
+	mPaletteAdjusting = false;
 
 	// Loop each color 
 	for( int cx = 0x0; cx < g_MaxColors; ++cx ) {
@@ -149,12 +150,12 @@ bool cSurface::palette_FadeTowardNew() {
 			mPalette[cx].setPos(i, bl + al );
 
 			// Still fading
-			mFaded = false;
+			mPaletteAdjusting = true;
 		}
 	}
 
 	surfaceSetToPalette();
-	return !mFaded;
+	return !mPaletteAdjusting;
 }
 
 /**
