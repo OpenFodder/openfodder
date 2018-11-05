@@ -3525,7 +3525,7 @@ void cFodder::Phase_Paused() {
         mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
         mString_GapCharID = 0x25;
 
-        String_CalculateWidth(320 + 46, mFont_Underlined_Width, "GAME PAUSED");
+        String_CalculateWidth(320 + 48, mFont_Underlined_Width, "GAME PAUSED");
         String_Print(mFont_Underlined_Width, 1, mGUI_Temp_X, 0x54,  "GAME PAUSED");
 
         mSurface2->draw();
