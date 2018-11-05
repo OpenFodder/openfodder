@@ -275,8 +275,6 @@ int16 cFodder::Phase_Loop() {
         if (mPhase_Paused != 0) {
             Phase_Paused();
 
-            size_t FadeCount = 3;
-
             mSurface->Save();
 
             // Fade the background out, and the 'mission paused' message in
@@ -291,9 +289,9 @@ int16 cFodder::Phase_Loop() {
                 Mouse_DrawCursor();
                 // Draw surface
                 mSurface->draw();
+
                 // Copy the rendered surface of the 'mission paused' message over the top of the main surface
-               // if (!FadeCount)
-                    mSurface->mergeSurfaceBuffer(mSurface2);
+                mSurface->mergeSurfaceBuffer(mSurface2);
 
                 mWindow->RenderAt(mSurface);
                 mWindow->FrameEnd();
@@ -3526,7 +3524,10 @@ void cFodder::Phase_Paused() {
 
         mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
         mString_GapCharID = 0x25;
-        String_Print_Large("GAME PAUSED", true, 0x54);
+
+        String_CalculateWidth(320 + 46, mFont_Underlined_Width, "GAME PAUSED");
+        String_Print(mFont_Underlined_Width, 1, mGUI_Temp_X, 0x54,  "GAME PAUSED");
+
         mSurface2->draw();
         mString_GapCharID = 0;
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
