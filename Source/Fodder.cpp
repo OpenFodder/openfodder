@@ -3403,9 +3403,7 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
         std::cout << "No game data could be found, including the demos, have you installed the data pack?\n";
         std::string Path = local_PathGenerate("", "", eData);
 
-        Path.replace(Path.find("Data/"), 5, "");
-
-        std::cout << "Game is looking in: " << Path << "\n";
+        std::cout << "We are looking for the 'Data' directory at: " << Path << "\n";
         std::cout << "\nPress enter to quit\n";
         std::cin.get();
         exit(1);
@@ -10247,16 +10245,18 @@ void cFodder::Map_Destroy_Tiles() {
 
 
     for (auto& Tile : mMap_Destroy_Tiles) {
+        bool TriggerExplosion = false;
+
         LastTile = Tile;
 
         Data0 = Tile.mX;
         Data4 = Tile.mY;
 
         mMap_Destroy_Tile_X = Tile.mX;
-        bool word_3B4EB = false;
         mMap_Destroy_Tile_Y = Tile.mY;
+
         if (mMap_Destroy_Tile_Y < 0) {
-            word_3B4EB = true;
+            TriggerExplosion = true;
             Data4 = -Data4;
             mMap_Destroy_Tile_Y = -Tile.mY;
         }
@@ -10281,7 +10281,7 @@ void cFodder::Map_Destroy_Tiles() {
         if (Data4 < 0)
             continue;
 
-        if (word_3B4EB)
+        if (TriggerExplosion)
             goto loc_2DF7B;
 
         IndestructibleTypes = mTiles_Indestructible[mMap_TileSet];
