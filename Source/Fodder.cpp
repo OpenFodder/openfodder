@@ -278,12 +278,13 @@ int16 cFodder::Phase_Loop() {
             size_t FadeCount = 3;
 
             mSurface->Save();
+
+            // Fade the background out, and the 'mission paused' message in
+            mSurface->palette_FadeTowardNew();
+            mSurface->palette_FadeTowardNew();
+            mSurface->palette_FadeTowardNew();
+
             while (mPhase_Paused) {
-                // Fade the background out, and the 'mission paused' message in
-                if (mSurface->isPaletteAdjusting() && FadeCount) {
-                    mSurface->palette_FadeTowardNew();
-                    --FadeCount;
-                }
 
                 // Update mouse
                 Mouse_Inputs_Get();
@@ -291,7 +292,7 @@ int16 cFodder::Phase_Loop() {
                 // Draw surface
                 mSurface->draw();
                 // Copy the rendered surface of the 'mission paused' message over the top of the main surface
-                if (!FadeCount)
+               // if (!FadeCount)
                     mSurface->mergeSurfaceBuffer(mSurface2);
 
                 mWindow->RenderAt(mSurface);
@@ -3023,7 +3024,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
         }
 
         if (pKeyCode == SDL_SCANCODE_P && pPressed)
-                mPhase_Paused = ~mPhase_Paused;
+            mPhase_Paused = ~mPhase_Paused;
 
         if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
             ++mSquad_SwitchWeapon;
