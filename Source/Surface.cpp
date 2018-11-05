@@ -108,8 +108,12 @@ void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, uint32 pColors, 
 		mFaded = false;
 }
 
-int16 cSurface::palette_FadeTowardNew() {
-	int bx = 0;
+/**
+ * Fade each color of mPalette by a factor of 2, until mPalette reaches mPaletteNew
+ *
+ * @return True if still fading
+ */
+bool cSurface::palette_FadeTowardNew() {
 	mFaded = true;
 
 	// Loop each color 
@@ -145,13 +149,12 @@ int16 cSurface::palette_FadeTowardNew() {
 			mPalette[cx].setPos(i, bl + al );
 
 			// Still fading
-			bx = -1;
 			mFaded = false;
 		}
 	}
 
 	surfaceSetToPalette();
-	return bx;
+	return !mFaded;
 }
 
 /**

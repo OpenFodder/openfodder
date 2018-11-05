@@ -280,8 +280,8 @@ int16 cFodder::Phase_Loop() {
             mSurface->Save();
             while (mPhase_Paused) {
                 // Fade the background out, and the 'mission paused' message in
-                if (mImageFaded && FadeCount) {
-                    mImageFaded = mSurface->palette_FadeTowardNew();
+                if (mSurfacePaletteAdjusting && FadeCount) {
+                    mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
                     --FadeCount;
                 }
 
@@ -302,7 +302,7 @@ int16 cFodder::Phase_Loop() {
             }
 
             mGraphics->PaletteSet();
-            mImageFaded = -1;
+            mSurfacePaletteAdjusting = true;
             mSurface->palette_FadeTowardNew();
             mPhase_Aborted = false;
 
@@ -314,8 +314,8 @@ int16 cFodder::Phase_Loop() {
 
         Mouse_DrawCursor();
 
-        if (mImageFaded == -1)
-            mImageFaded = mSurface->palette_FadeTowardNew();
+        if (mSurfacePaletteAdjusting == true)
+            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         Camera_Update_Mouse_Position_For_Pan();
 
@@ -1903,7 +1903,7 @@ loc_11D8A:;
     mInput_Enabled = -1;
 
     mGraphics->PaletteSet();
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
 
 loc_11E5B:;
     Music_Play_Tileset();
@@ -2618,7 +2618,7 @@ void cFodder::Phase_Progress_Check() {
 loc_1280A:;
 
     if (mPhase_Completed_Timer == 0x19) {
-        mImageFaded = -1;
+        mSurfacePaletteAdjusting = true;
         mSurface->paletteNew_SetToBlack();
     }
     --mPhase_Completed_Timer;
@@ -3023,8 +3023,11 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
                 mKeyControlPressed = 0;
         }
 
-        if (pKeyCode == SDL_SCANCODE_P && pPressed)
-            mPhase_Paused = ~mPhase_Paused;
+        if (pKeyCode == SDL_SCANCODE_P && pPressed) {
+
+            if(mPhase_Paused || !mSurfacePaletteAdjusting)
+                mPhase_Paused = ~mPhase_Paused;
+        }
 
         if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
             ++mSquad_SwitchWeapon;
@@ -3371,7 +3374,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
         while(mGUI_Sidebar_Setup>=0)
             GUI_Sidebar_Setup();
 
-        mImageFaded = mSurface->palette_FadeTowardNew();
+        mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
         Music_Play_Tileset();
     }
     
@@ -3522,7 +3525,7 @@ void cFodder::Phase_Paused() {
 
     // Draw to the secondary surface
     mGraphics->SetImage(mSurface2);
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
 
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
@@ -3775,7 +3778,7 @@ void cFodder::sub_1594F() {
 
         mGraphics->mImageMissionIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
         mSurface->paletteNew_SetToBlack();
-        mImageFaded = -1;
+        mSurfacePaletteAdjusting = true;
     }
 
 }
@@ -3873,7 +3876,7 @@ void cFodder::CopyProtection() {
         GUI_Render_Text_Centred(Line.c_str(), 0x64);
         GUI_Render_Text_Centred(Word.c_str(), 0x78);
 
-        mImageFaded = -1;
+        mSurfacePaletteAdjusting = true;
         int8 mCursorBlinkTimer = 0;
         bool mShow = false;
 
@@ -3886,8 +3889,8 @@ void cFodder::CopyProtection() {
 
         while (mKeyCodeAscii != 0x0D) {
 
-            if (mImageFaded) {
-                mImageFaded = mSurface->palette_FadeTowardNew();
+            if (mSurfacePaletteAdjusting) {
+                mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
             }
 
             String_Input_Print(0xA0);
@@ -4329,7 +4332,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
 
     mSurface->Save();
 
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
     mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
     mDemo_ExitMenu = 0;
 
@@ -4345,8 +4348,8 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Sprites_Draw();
 
-        if (mImageFaded == -1)
-            mImageFaded = mSurface->palette_FadeTowardNew();
+        if (mSurfacePaletteAdjusting == true)
+            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
@@ -10401,15 +10404,15 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
     }
     mGUI_SaveLoadAction = 0;
 
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
     mGraphics->PaletteSet();
 
     mSurface->Save();
     bool mShow = false;
 
     do {
-        if (mImageFaded == -1)
-            mImageFaded = mSurface->palette_FadeTowardNew();
+        if (mSurfacePaletteAdjusting == true)
+            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         ++byte_44B49;
         byte_44B49 &= 0x0F;
@@ -11256,7 +11259,7 @@ void cFodder::Service_KIA_Loop() {
         GetGraphics<cGraphics_Amiga>()->Service_Draw(4, 0xF0, 0x40);
     }
 
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
     mMouse_Exit_Loop = false;
     mService_ExitLoop = 0;
     mGraphics->PaletteSet();
@@ -11268,12 +11271,12 @@ void cFodder::Service_KIA_Loop() {
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
-            mImageFaded = -1;
+            mSurfacePaletteAdjusting = true;
             mService_ExitLoop = 1;
         }
 
-        if (mImageFaded == -1)
-            mImageFaded = mSurface->palette_FadeTowardNew();
+        if (mSurfacePaletteAdjusting == true)
+            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         Service_Draw_List();
         Cycle_End();
@@ -11281,7 +11284,7 @@ void cFodder::Service_KIA_Loop() {
 
         Video_SurfaceRender();
 
-    } while (mImageFaded == -1 || mService_ExitLoop == 0);
+    } while (mSurfacePaletteAdjusting == true || mService_ExitLoop == 0);
 }
 
 void cFodder::Service_Promotion_Loop() {
@@ -11303,7 +11306,7 @@ void cFodder::Service_Promotion_Loop() {
         ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
     }
 
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
     mService_ExitLoop = 0;
     mMouse_Exit_Loop = false;
     mGraphics->PaletteSet();
@@ -11315,12 +11318,12 @@ void cFodder::Service_Promotion_Loop() {
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
-            mImageFaded = -1;
+            mSurfacePaletteAdjusting = true;
             mService_ExitLoop = 1;
         }
 
-        if (mImageFaded == -1)
-            mImageFaded = mSurface->palette_FadeTowardNew();
+        if (mSurfacePaletteAdjusting == true)
+            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         Service_Promotion_Check();
         Service_Draw_List();
@@ -11330,7 +11333,7 @@ void cFodder::Service_Promotion_Loop() {
 
         Video_SurfaceRender();
 
-    } while (mImageFaded == -1 || mService_ExitLoop == 0);
+    } while (mSurfacePaletteAdjusting == true || mService_ExitLoop == 0);
 
 loc_18001:;
 
@@ -17936,25 +17939,25 @@ void cFodder::intro_LegionMessage() {
     mSurface->clearBuffer();
     mGraphics->PaletteSet();
 
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
 
     Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[0]);
     Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[1]);
     Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[2]);
 
-    while (mImageFaded == -1 || DoBreak == false) {
+    while (mSurfacePaletteAdjusting == true || DoBreak == false) {
 
         Mouse_Inputs_Get();
 
-        if (mImageFaded)
-            mImageFaded = mSurface->palette_FadeTowardNew();
+        if (mSurfacePaletteAdjusting)
+            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         if (Duration > 1)
             --Duration;
         else {
             if (DoBreak == false) {
                 mSurface->paletteNew_SetToBlack();
-                mImageFaded = -1;
+                mSurfacePaletteAdjusting = true;
                 Duration = 0;
                 DoBreak = true;
             }
@@ -18177,27 +18180,27 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
     mGraphics->Load_And_Draw_Image(pFilename, 0x100, pBackColor);
     mGraphics->PaletteSet();
 
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
 
-    while (mImageFaded == -1 || DoBreak == false) {
+    while (mSurfacePaletteAdjusting == true || DoBreak == false) {
         Mouse_Inputs_Get();
         --pDuration;
 
         if (pDuration) {
-            if (mImageFaded)
-                mImageFaded = mSurface->palette_FadeTowardNew();
+            if (mSurfacePaletteAdjusting)
+                mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
             if (pCanAbort && (mMouseButtonStatus || mPhase_Aborted)) {
                 mPhase_Aborted = false;
                 mImage_Aborted = -1;
                 mSurface->paletteNew_SetToBlack();
-                mImageFaded = -1;
+                mSurfacePaletteAdjusting = true;
                 DoBreak = true;
             }
         }
         else {
             mSurface->paletteNew_SetToBlack();
-            mImageFaded = -1;
+            mSurfacePaletteAdjusting = true;
             DoBreak = true;
         }
 
@@ -20056,7 +20059,7 @@ void cFodder::Game_Setup() {
 // This function is for viewing/iterating sprites
 void cFodder::Playground() {
     //return;
-    mImageFaded = -1;
+    mSurfacePaletteAdjusting = true;
     Map_Load();
 
     mGraphics->PaletteSet();
@@ -20100,8 +20103,8 @@ void cFodder::Playground() {
             GUI_Draw_Frame_8(SpriteID, Frame, 65, 65);
         }
 
-        if (mImageFaded)
-            mImageFaded = mSurface->palette_FadeTowardNew();
+        if (mSurfacePaletteAdjusting)
+            mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         Mouse_Inputs_Get();
         Mouse_DrawCursor();
@@ -20364,7 +20367,7 @@ int16 cFodder::Mission_Loop() {
 
         mGraphics->PaletteSet();
 
-        mImageFaded = -1;
+        mSurfacePaletteAdjusting = true;
 
         GUI_Sidebar_Prepare_Squads();
         Squad_Select_Grenades();

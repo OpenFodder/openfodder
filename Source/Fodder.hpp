@@ -513,7 +513,7 @@ public:
     int16           mDebug_PhaseSkip;
     int16           mKeyControlPressed;
 
-    int16           mImageFaded;
+    bool            mSurfacePaletteAdjusting;
     int16           mMouseSpriteCurrent;
     int16           mService_ExitLoop;
 

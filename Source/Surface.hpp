@@ -80,7 +80,7 @@ public:
 	void			Restore();
 
 	void			palette_SetToBlack();
-	int16			palette_FadeTowardNew();
+	bool			palette_FadeTowardNew();
 	void			palette_SetFromNew();
 
 	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, uint32 pColors = g_MaxColors, bool pUseNow = false );

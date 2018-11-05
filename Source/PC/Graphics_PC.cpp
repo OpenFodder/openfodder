@@ -947,14 +947,14 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 
 	mSurface->paletteSet(mPalette );
 
-	mFodder->mImageFaded = -1;
+	mFodder->mSurfacePaletteAdjusting = true;
 
 	do {
 		if (mFodder->mBriefing_Helicopter_Moving == -1)
 			mFodder->Briefing_Update_Helicopter();
 
-		if(mFodder->mImageFaded == -1 )
-			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
+		if(mFodder->mSurfacePaletteAdjusting == -1 )
+			mFodder->mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
 		// Clouds
 		word_42859 = pPositions[0].mX;
@@ -1013,7 +1013,7 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
-			mFodder->mImageFaded = -1;
+			mFodder->mSurfacePaletteAdjusting = true;
 		}
-	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
+	} while (mFodder->word_428D8 || mFodder->mSurfacePaletteAdjusting != 0);
 }

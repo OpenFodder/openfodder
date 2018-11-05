@@ -1456,7 +1456,7 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter) {
     PaletteSet(mSurface);
 	PaletteBriefingSet();
 	mSurface->palette_FadeTowardNew();
-	mFodder->mImageFaded = -1;
+	mFodder->mSurfacePaletteAdjusting = true;
 
 	mFodder->mVideo_Draw_PosX = 16;
 
@@ -1519,8 +1519,8 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter) {
             Mission_Intro_DrawHelicopter(Blade);
         }
 
-		if (mFodder->mImageFaded)
-			mFodder->mImageFaded = mSurface->palette_FadeTowardNew();
+		if (mFodder->mSurfacePaletteAdjusting)
+			mFodder->mSurfacePaletteAdjusting = mSurface->palette_FadeTowardNew();
 
         mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
@@ -1528,13 +1528,13 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter) {
 		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
 			mFodder->word_428D8 = 0;
 			mSurface->paletteNew_SetToBlack();
-			mFodder->mImageFaded = -1;
+			mFodder->mSurfacePaletteAdjusting = true;
 			mFodder->mMouse_Exit_Loop = false;
             mFodder->mPhase_Aborted = 0;
 		}
 
         mFodder->Cycle_End();
-	} while (mFodder->word_428D8 || mFodder->mImageFaded != 0);
+	} while (mFodder->word_428D8 || mFodder->mSurfacePaletteAdjusting != 0);
 
 	mFodder->mMouse_Exit_Loop = false;
 }
