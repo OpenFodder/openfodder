@@ -432,7 +432,11 @@ void cGraphics_Amiga::SetActiveSpriteSheet(eGFX_Types pSpriteType ) {
 
 	switch (pSpriteType) {
 	case eGFX_IN_GAME:
-		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_Amiga );
+        if (mFodder->mVersionCurrent->isAmigaTheOne())
+            mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_InGame_Amiga_TheOne);
+        else
+    		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_Amiga );
+
 		return;
 
 	case eGFX_FONT:

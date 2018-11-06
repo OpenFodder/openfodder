@@ -21,6 +21,7 @@
  */
 
 const extern sSpriteSheet* mSpriteSheetTypes_InGame_Amiga[];
+const extern sSpriteSheet* mSpriteSheetTypes_InGame_Amiga_TheOne[];
 const extern sSpriteSheet* mSpriteSheetTypes_Font_Amiga[];
 const extern sSpriteSheet* mSpriteSheetTypes_Recruit_Amiga[];
 const extern sSpriteSheet* mSpriteSheetTypes_Hill_Amiga[];
