@@ -154,6 +154,13 @@ bool cCampaign::SaveCampaign() {
     return false;
 }
 
+bool cCampaign::isAvailable(const std::string& pName ) const {
+    if (!pName.size())
+        return false;
+
+    auto File = local_PathGenerate(pName, "", eDataType::eCampaign) + ".ofc";
+    return local_FileExists(File);
+}
 
 /**
  * Load a campaign

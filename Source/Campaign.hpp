@@ -153,6 +153,7 @@ public:
     void SetSingleMapCampaign();
 
 	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
+    bool isAvailable(const std::string& pCampaignName) const;
 	bool isCustom() const;
     bool isCustomMap() const { return mIsCustomMap; }
     void setCustomMap() { mIsCustomMap = true; mUseCustomPath = true; }

@@ -4017,11 +4017,19 @@ static std::vector<unsigned char> mCampaignSelectMap_AF = {
 };
 
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
-    mCampaignList = mVersions->GetCampaignNames();
+    mCampaignList.clear();
 
     mPhase_In_Progress = true;
     mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
+
+    {
+        for (auto& Name : mVersions->GetCampaignNames()) {
+
+            if(mGame_Data.mCampaign.isAvailable(Name) || Name == "Single Map" || Name == "Random Map")
+                mCampaignList.push_back(Name);
+        }
+    }
 
     {
         auto Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
@@ -20352,7 +20360,7 @@ int16 cFodder::Mission_Loop() {
         mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 
         mPhase_Aborted = false;
-        mPhase_Paused = true;
+        mPhase_Paused = false;
         mPhase_In_Progress = true;
         mMission_Finished = 0;
         mMission_ShowMapOverview = 0;
