@@ -226,6 +226,7 @@ const int16 mEnemy_Unit_Types[] = {
 	eSprite_Turret_Missile_Enemy,			eSprite_Turret_Missile2_Enemy,		eSprite_Turret_HomingMissile_Enemy,
 	eSprite_Computer_1,						eSprite_Computer_2,					eSprite_Computer_3,
 
+    // TODO: CF2 sprites may be required here
 	-1
 };
 
