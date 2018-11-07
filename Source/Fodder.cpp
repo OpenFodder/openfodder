@@ -272,7 +272,7 @@ int16 cFodder::Phase_Loop() {
         mGraphics->Sidebar_Copy_To_Surface();
 
         // Game Paused
-        if (mPhase_Paused != 0) {
+        if (mPhase_Paused) {
             Phase_Paused();
 
             mSurface->Save();
@@ -387,7 +387,7 @@ void cFodder::Game_Handle() {
     if (!mInput_Enabled)
         return;
 
-    if (!mMission_In_Progress)
+    if (!mPhase_In_Progress)
         return;
 
     if (mPhase_Completed_Timer || mPhase_Complete || mPhase_TryAgain || mPhase_Aborted) {
@@ -404,7 +404,7 @@ void cFodder::Game_Handle() {
 
 void cFodder::Camera_Handle() {
 
-    if (mMission_In_Progress) {
+    if (mPhase_In_Progress) {
         Camera_Speed_Reset();
         Camera_Speed_MaxSet();
         Camera_Speed_Calculate();
@@ -618,7 +618,7 @@ void cFodder::Mission_Memory_Clear() {
 
     mSprite_Bumped_Into_SquadMember = 0;
     mSprite_Player_CheckWeapon = 0;
-    mPhase_Paused = 0;
+    mPhase_Paused = false;
     for (uint8 x = 0; x < 4; ++x) {
         mSprite_Projectile_Counters[x] = 0;
         mSprite_Missile_Projectile_Counters[x] = 0;
@@ -738,7 +738,7 @@ void cFodder::Mission_Memory_Clear() {
     mRecruit_Truck_Troops_ToEnter_Count = 0;
 
     mSquad_CurrentVehicle = 0;
-    mMission_In_Progress = false;
+    mPhase_In_Progress = false;
     mSprite_HumanVehicles_Found = false;
     mSprites_HumanVehicles.clear();
     dword_3B24B = 0;
@@ -869,7 +869,7 @@ void cFodder::sub_10DEC() {
     mSquad_Selected = 0;
     m2A622_Unk_MapPosition.mX = 0;
     m2A622_Unk_MapPosition.mY = 0;
-    mPhase_TryAgain = 0;
+    mPhase_TryAgain = false;
     mPhase_Complete = false;
     mPhase_Completed_Timer = 0;
 
@@ -3012,7 +3012,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
         mPhase_Aborted = true;
 
     // In Mission and not on map overview
-    if (mMission_In_Progress && !mMission_ShowMapOverview) {
+    if (mPhase_In_Progress && !mMission_ShowMapOverview) {
 
         if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
             if (pPressed)
@@ -3022,7 +3022,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
         }
 
         if (pKeyCode == SDL_SCANCODE_P && pPressed)
-            mPhase_Paused = ~mPhase_Paused;
+            mPhase_Paused = !mPhase_Paused;
 
         if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
             ++mSquad_SwitchWeapon;
@@ -3299,7 +3299,7 @@ void cFodder::WindowTitleBaseSetup() {
         }
     }
 
-    WindowTitleSet(mMission_In_Progress);
+    WindowTitleSet(mPhase_In_Progress);
 }
 
 /**
@@ -3356,7 +3356,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
     mGraphics->Load_Hill_Data();
     mGraphics->Load_pStuff();
 
-    if (mMission_In_Progress) {
+    if (mPhase_In_Progress) {
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 
         // Reload Map Data
@@ -4019,7 +4019,7 @@ static std::vector<unsigned char> mCampaignSelectMap_AF = {
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
     mCampaignList = mVersions->GetCampaignNames();
 
-    mMission_In_Progress = true;
+    mPhase_In_Progress = true;
     mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
@@ -4064,7 +4064,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 
     } while (mGUI_SaveLoadAction == 3);
 
-    mMission_In_Progress = false;
+    mPhase_In_Progress = false;
 
     if (mGUI_SaveLoadAction == 1)
         return "";
@@ -9741,7 +9741,7 @@ void cFodder::Squad_Troops_Count() {
     //seg009:019E
 
     if (!TotalTroops)
-        mPhase_TryAgain = -1;
+        mPhase_TryAgain = true;
 
     byte_3A8DE[1] = byte_3A05E;
 
@@ -20028,7 +20028,7 @@ void cFodder::Game_Setup() {
 
     mGame_Data.Phase_Start();
 
-    mPhase_TryAgain = -1;
+    mPhase_TryAgain = true;
 
     mGraphics->Load_pStuff();
 }
@@ -20352,21 +20352,21 @@ int16 cFodder::Mission_Loop() {
         mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
 
         mPhase_Aborted = false;
-        mPhase_Paused = 0;
-        mMission_In_Progress = true;
+        mPhase_Paused = true;
+        mPhase_In_Progress = true;
         mMission_Finished = 0;
         mMission_ShowMapOverview = 0;
 
         if (!Phase_Loop()) {
             mKeyCode = 0;
-            mMission_In_Progress = false;
+            mPhase_In_Progress = false;
             Squad_Member_PhaseCount();
             mPhase_TryingAgain = true;
 
         }
         else {
             mKeyCode = 0;
-            mMission_In_Progress = false;
+            mPhase_In_Progress = false;
             // Game over?
             if (!mGame_Data.mRecruits_Available_Count) {
 
@@ -21523,7 +21523,7 @@ void cFodder::Mouse_Inputs_Check() {
     if (mMouseDisabled)
         return;
 
-    if (mMission_In_Progress)
+    if (mPhase_In_Progress)
         Mouse_Cursor_Update();
 
     if (dword_3A030) {

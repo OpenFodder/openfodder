@@ -263,8 +263,9 @@ public:
     bool            mPhase_Aborted;
     bool            mPhase_Complete;
     int16           mPhase_Completed_Timer;
-    int16           mPhase_Paused;
-    int16           mPhase_TryAgain;
+    bool            mPhase_In_Progress;
+    bool            mPhase_Paused;
+    bool            mPhase_TryAgain;
     bool            mPhase_TryingAgain;
 
     int16           mEnemy_BuildingCount;
@@ -366,7 +367,6 @@ public:
     int16           mMission_ShowMapOverview;
     sSprite*        mMission_Troops_SpritePtrs[9];
 
-    bool            mMission_In_Progress;
     int16           mMission_Final_TimeToDie_Ticker;
     int16           mMission_Final_TimeRemain;
     int16           mMission_Final_TimeToAbort;
