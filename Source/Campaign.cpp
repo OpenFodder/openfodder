@@ -154,6 +154,9 @@ bool cCampaign::SaveCampaign() {
     return false;
 }
 
+/**
+ * Test if a campaign is available
+ */
 bool cCampaign::isAvailable(const std::string& pName ) const {
     if (!pName.size())
         return false;

@@ -27,11 +27,13 @@ enum ePlatform {
 
 enum eRelease {
 	Retail		= 0,
-	Demo		= 1,
-	AmigaFormat = 2,
-	AmigaPower  = 3,
-    AmigaTheOne = 4,
-    AmigaAction = 5,
+	Demo,
+	AmigaFormat,
+	AmigaPower,
+    AmigaTheOne,
+    AmigaAction,
+    AmigaNotVeryFestive,
+
 	Custom
 };
 
@@ -97,6 +99,7 @@ struct sGameVersion {
 				mRelease == eRelease::AmigaPower ||
                 mRelease == eRelease::AmigaTheOne ||
                 mRelease == eRelease::AmigaAction ||
+                mRelease == eRelease::AmigaNotVeryFestive ||
 				mRelease == eRelease::Custom;
 	}
 
@@ -131,6 +134,10 @@ struct sGameVersion {
 
     bool isAmigaAction() const {
         return mRelease == eRelease::AmigaAction;
+    }
+
+    bool isAmigaNotVeryFestive() const {
+        return mRelease == eRelease::AmigaNotVeryFestive;
     }
 
 	bool isAmiga() const {

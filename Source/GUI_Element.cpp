@@ -22,7 +22,7 @@
 
 #include "stdafx.hpp"
 
-/* AFX Menu Buttons */
+/* Amiga Format Menu Buttons */
 const sGUI_Element mAfx_Buttons[] = {
 	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2 },
 	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
@@ -41,8 +41,9 @@ const sGUI_Element mPlus_Buttons[] = {
 	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3 },
 };
 
-/* Cannon Fodder Plus Menu Buttons */
+/* Amiga Action Menu Buttons */
 const sGUI_Element mAmigaAction_Buttons[] = {
+    { &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2 },
     { &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
     { &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1 },
     { &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap2 },

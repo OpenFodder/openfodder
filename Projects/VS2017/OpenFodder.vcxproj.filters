@@ -148,6 +148,9 @@
     <ClInclude Include="..\..\Source\Utils\cxxopts.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga2.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -245,6 +248,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\GameData.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga2.cpp">
+      <Filter>Source\Amiga</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

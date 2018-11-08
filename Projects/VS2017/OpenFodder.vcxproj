@@ -93,7 +93,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -166,6 +166,7 @@
     <ClInclude Include="..\..\Source\Amiga\audiostream.hpp" />
     <ClInclude Include="..\..\Source\Amiga\dernc.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp" />
+    <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga2.hpp" />
     <ClInclude Include="..\..\Source\Amiga\paula.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp" />
     <ClInclude Include="..\..\Source\Amiga\rjp1.hpp" />
@@ -211,6 +212,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Amiga\dernc.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp" />
+    <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga2.cpp" />
     <ClCompile Include="..\..\Source\Amiga\IntroData_Amiga.cpp" />
     <ClCompile Include="..\..\Source\Amiga\paula.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp" />

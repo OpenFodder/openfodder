@@ -735,6 +735,51 @@ const std::vector<sFile> mPlusFiles = {
     { "junsub1.swp", "C551471A99FFF0B02FF7FE11163C63EE" }
 };
 
+const std::vector<sFile> mAmigaFormat_NotVeryFestiveFiles = {
+    { "DESARMY.PAL", "" },
+    { "DESARMY.RAW", "" },
+    { "DESBASE.BHT", "" },
+    { "DESBASE.BLK", "" },
+    { "DESBASE.HIT", "" },
+    { "DESBASE.INS", "" },
+    { "desbase.pal", "" },
+    { "DESBASE.SNG", "" },
+    { "DESBASE.SWP", "" },
+    { "DESCOPT.PAL", "" },
+    { "DESCOPT.RAW", "" },
+    { "DESSUB0.BHT", "" },
+    { "DESSUB0.BLK", "" },
+    { "DESSUB0.HIT", "" },
+    { "DESSUB0.SWP", "" },
+    { "ICEARMY.PAL", "" },
+    { "ICEARMY.RAW", "" },
+    { "ICEBASE.BHT", "" },
+    { "ICEBASE.BLK", "" },
+    { "ICEBASE.HIT", "" },
+    { "ICEBASE.INS", "" },
+    { "icebase.pal", "" },
+    { "ICEBASE.SNG", "" },
+    { "ICEBASE.SWP", "" },
+    { "ICECOPT.PAL", "" },
+    { "ICECOPT.RAW", "" },
+    { "ICESUB0.BHT", "" },
+    { "ICESUB0.BLK", "" },
+    { "ICESUB0.HIT", "" },
+    { "ICESUB0.SWP", "" },
+    { "MAPM1.MAP  ", "" },
+    { "MAPM1.SPT  ", "" },
+    { "MAPM2.MAP  ", "" },
+    { "MAPM2.SPT  ", "" },
+    { "MAPM3.MAP  ", "" },
+    { "MAPM3.SPT  ", "" },
+    { "MAPM4.MAP  ", "" },
+    { "MAPM4.SPT  ", "" },
+    { "PSTUFF.PAL ", "" },
+    { "PSTUFF.RAW ", "" },
+    { "VMENU.PAL  ", "" },
+    { "VMENU.RAW  ", "" }
+};
+
 const std::vector<eTileTypes> Retail_Tile_Types = {
     eTileTypes_Jungle,
     eTileTypes_Desert,
@@ -756,6 +801,10 @@ const std::vector<eTileTypes> AmigaPlus_Tile_Types = {
     eTileTypes_Jungle
 };
 
+const std::vector<eTileTypes> AmigaNVF_Tile_Types = {
+    eTileTypes_Desert,
+    eTileTypes_Ice
+};
 const std::vector<eGFX_Types> Retail_GFX_Types = {
     eGFX_IN_GAME,	eGFX_IN_GAME2,
     eGFX_FONT,		eGFX_HILL,
@@ -782,10 +831,13 @@ const sGameVersion KnownGameVersions[] = {
 
     /* Amiga Magazine Demos */
     { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		mIntroText_Amiga,	"Plus",				mPlusFiles,			AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types },
-    { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
+    { "Amiga Format Christmas Special",      eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
     { "Amiga The One",                  eGame::CF1, ePlatform::Amiga,   eRelease::AmigaTheOne,      mIntroText_Amiga,   "AmigaTheOne",      mAmigaTheOneFiles,  AmigaTheOne_TileTypes, Amiga_Demo_GFX_Types },
     { "Amiga Action",                   eGame::CF1, ePlatform::Amiga,   eRelease::AmigaAction,      mIntroText_Amiga,   "AmigaAction",      mAmigaActionFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
 
+    { "Amiga Format Not Very Festive",  eGame::CF2, ePlatform::Amiga,   eRelease::AmigaNotVeryFestive,      mIntroText_Amiga,   "AmigaFormat_NVF",      mAmigaFormat_NotVeryFestiveFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
+
+    
     /* Custom & Random must be last, as they depend on a previous retail version being detected first */
     { "Single Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
     { "Single Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
@@ -935,9 +987,9 @@ void cVersions::FindKnownVersions() {
                     //std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
                     //std::cout << " File not found\n";
                 } else {
-                    //std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
-                    std::cout << KnownVersion.mName << ": " << File.mName;
-                    std::cout << " Unknown MD5: " << MD5 << "\n";
+                    std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
+                    //std::cout << KnownVersion.mName << ": " << File.mName;
+                    //std::cout << " Unknown MD5: " << MD5 << "\n";
                     ++FileMatches;
                 }
             }
@@ -975,6 +1027,10 @@ std::shared_ptr<cGraphics> sGameVersion::GetGraphics() const {
         return std::make_shared<cGraphics_PC>();
     }
     else if (isAmiga()) {
+
+        if (isCannonFodder2())
+            return std::make_shared<cGraphics_Amiga2>();
+
         return std::make_shared<cGraphics_Amiga>();
     }
     return 0;

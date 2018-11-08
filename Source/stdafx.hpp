@@ -137,6 +137,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Amiga/rjp1.hpp"
 #include "Amiga/Sound_Amiga.hpp"
 #include "Amiga/Graphics_Amiga.hpp"
+#include "Amiga/Graphics_Amiga2.hpp"
+
 
 
 

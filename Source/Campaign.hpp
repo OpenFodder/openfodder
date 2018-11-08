@@ -152,13 +152,15 @@ public:
 
     void SetSingleMapCampaign();
 
-	void setRandom( const bool pRandom = false ) { mIsRandom = pRandom;  }
     bool isAvailable(const std::string& pCampaignName) const;
+
 	bool isCustom() const;
     bool isCustomMap() const { return mIsCustomMap; }
     void setCustomMap() { mIsCustomMap = true; mUseCustomPath = true; }
 
 	bool isRandom() const;
+    void setRandom(const bool pRandom = false) { mIsRandom = pRandom; }
+
     std::string getAuthor() { return mAuthor; }
     void setAuthor(const std::string& pAuthor) { mAuthor = pAuthor; }
 

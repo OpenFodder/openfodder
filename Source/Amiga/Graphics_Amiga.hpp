@@ -45,13 +45,14 @@ struct sStruct0_Amiga {
 };
 
 class cGraphics_Amiga : public cGraphics {
-public:
+protected:
+
 	tSharedBuffer 		mBlkData;
 
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
 
-protected:
+
 	virtual void		DecodePalette(const uint8* pData, size_t pColorID, const size_t pColors);
 	virtual sImage		DecodeIFF(const std::string& pFilename);
 

@@ -4430,7 +4430,10 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
     mSound->Music_Stop();
 
-    mGraphics->Load_And_Draw_Image("apmenu.lbm", 32);
+    if(mVersionCurrent->isAmigaNotVeryFestive()) 
+        mGraphics->Load_And_Draw_Image("VMENU.RAW", 32);
+    else
+        mGraphics->Load_And_Draw_Image("apmenu.lbm", 32);
 
     // Amiga Demos have a different cursor palette
     GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0x10);
@@ -4447,8 +4450,10 @@ bool cFodder::Demo_Amiga_ShowMenu() {
             if (mVersionCurrent->isAmigaPower())
                 GUI_Element_Mouse_Over(mPlus_Buttons);
 
-            if (mVersionCurrent->isAmigaAction())
+            if (mVersionCurrent->isAmigaAction() || mVersionCurrent->isAmigaNotVeryFestive())
                 GUI_Element_Mouse_Over(mAmigaAction_Buttons);
+
+
         }
     });
 
