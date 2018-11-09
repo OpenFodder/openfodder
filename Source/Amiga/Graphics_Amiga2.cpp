@@ -53,6 +53,36 @@ void cGraphics_Amiga2::SetActiveSpriteSheet(eGFX_Types pSpriteType) {
     }
 }
 
+tSharedBuffer cGraphics_Amiga2::GetPalette(const std::string pFilename) {
+    tSharedBuffer PaletteFinal = std::make_shared<std::vector<uint8>>();
+
+    auto Palette = g_Resource->fileGet(pFilename + ".PAL");
+
+    auto a0 = Palette->data();
+    for (; a0 < Palette->data() + Palette->size(); ++a0) {
+
+        uint16 d0 = *a0++;
+        uint16 d1 = *a0++;
+
+        d0 &= 0xF0;
+        d0 <<= 4;
+
+        d1 &= 0xF0;
+        d0 |= d1;
+
+        d1 = *a0;
+        d1 &= 0xF0;
+        d1 >>= 4;
+        d0 |= d1;
+
+        // push as little endian
+        PaletteFinal->push_back(d0 >> 8);
+        PaletteFinal->push_back(d0 & 0xFFFF);
+    }
+
+    return PaletteFinal;
+}
+
 sImage cGraphics_Amiga2::GetImage(const std::string& pFilename, const size_t pPaletteIndex) {
     auto Palette = GetPalette(pFilename);
 
@@ -78,6 +108,14 @@ sImage cGraphics_Amiga2::GetImage(const std::string& pFilename, const size_t pPa
     return Decoded;
 }
 
+sImage cGraphics_Amiga2::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
+    sImage Image;
+
+    Image = GetImage(pFilename, 0);
+    Image.CopyPalette(mPalette, pCount, pStartIndex);
+
+    return Image;
+}
 void cGraphics_Amiga2::Load_pStuff() {
 
     mImagePStuff = GetImage("PSTUFF", 0x00);
@@ -85,37 +123,6 @@ void cGraphics_Amiga2::Load_pStuff() {
 
     mImageFonts = mImagePStuff;
 }
-
-tSharedBuffer cGraphics_Amiga2::GetPalette(const std::string pFilename) {
-    tSharedBuffer PaletteFinal = std::make_shared<std::vector<uint8>>();
-
-    auto Palette = g_Resource->fileGet(pFilename + ".pal");
-
-    auto a0 = Palette->data();
-    for (; a0 < Palette->data() + Palette->size(); ++a0) {
-
-        uint16 d0 = *a0++;
-        uint16 d1 = *a0++;
-
-        d0 &= 0xF0;
-        d0 <<= 4;
-
-        d1 &= 0xF0;
-        d0 |= d1;
-
-        d1 = *a0;
-        d1 &= 0xF0;
-        d1 >>= 4;
-        d0 |= d1;
-
-        // push as little endian
-        PaletteFinal->push_back(d0 >> 8);
-        PaletteFinal->push_back(d0 & 0xFFFF);   
-    }
-
-    return PaletteFinal;
-}
-
 
 void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigned int pColors, unsigned int pBackColor) {
     std::string	Filename = pFilename;

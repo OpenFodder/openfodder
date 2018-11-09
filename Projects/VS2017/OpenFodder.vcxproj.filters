@@ -151,6 +151,9 @@
     <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga2.hpp">
       <Filter>Source\Amiga</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Versions_Files.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">

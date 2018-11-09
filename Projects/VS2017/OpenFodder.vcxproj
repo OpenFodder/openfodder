@@ -242,6 +242,9 @@
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Tiles.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />
+    <ClInclude Include="..\..\Source\Versions_Files.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="..\..\Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>

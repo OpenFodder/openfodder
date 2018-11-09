@@ -290,14 +290,14 @@ void cGraphics_Amiga::Load_pStuff() {
 
 void cGraphics_Amiga::Load_Hill_Data() {
 
-	mImageHillBackground = Decode_Image("hills.lbm", 64);
+	mImageHillBackground = Decode_Image("hills", 64);
 	if (!mImageHillBackground.mData->size())
 		return;
 
 	mImageHillBackground.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() *(mImageHillBackground.GetHeader()->mPlanes + 30));
 
 	// We increase these buffers because the engine still writes to it
-	mImageHillSprites = Decode_Image("hills.lbm", 64);
+	mImageHillSprites = Decode_Image("hills", 64);
 	mImageHillSprites.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() * (mImageHillBackground.GetHeader()->mPlanes + 30));
 
 	// A5A7E
@@ -354,7 +354,7 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 sImage cGraphics_Amiga::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
 	sImage Image;
 
-	Image = DecodeIFF(pFilename);
+	Image = DecodeIFF(pFilename + ".lbm");
 	Image.CopyPalette(mPalette, pCount, pStartIndex);
 
 	return Image;
@@ -362,9 +362,9 @@ sImage cGraphics_Amiga::Decode_Image(const std::string& pFilename, const size_t 
 
 void cGraphics_Amiga::Load_Service_Data() {
 
-	mImageService = Decode_Image("morphbig.lbm", 64);
+	mImageService = Decode_Image("morphbig", 64);
 
-	mSpriteSheet_RankFont = DecodeIFF("rankfont.lbm");
+	mSpriteSheet_RankFont = DecodeIFF("rankfont");
 }
 
 void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, unsigned int pBackColor) {
