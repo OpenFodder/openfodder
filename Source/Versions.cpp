@@ -736,48 +736,48 @@ const std::vector<sFile> mPlusFiles = {
 };
 
 const std::vector<sFile> mAmigaFormat_NotVeryFestiveFiles = {
-    { "DESARMY.PAL", "" },
-    { "DESARMY.RAW", "" },
-    { "DESBASE.BHT", "" },
-    { "DESBASE.BLK", "" },
-    { "DESBASE.HIT", "" },
-    { "DESBASE.INS", "" },
-    { "desbase.pal", "" },
-    { "DESBASE.SNG", "" },
-    { "DESBASE.SWP", "" },
-    { "DESCOPT.PAL", "" },
-    { "DESCOPT.RAW", "" },
-    { "DESSUB0.BHT", "" },
-    { "DESSUB0.BLK", "" },
-    { "DESSUB0.HIT", "" },
-    { "DESSUB0.SWP", "" },
-    { "ICEARMY.PAL", "" },
-    { "ICEARMY.RAW", "" },
-    { "ICEBASE.BHT", "" },
-    { "ICEBASE.BLK", "" },
-    { "ICEBASE.HIT", "" },
-    { "ICEBASE.INS", "" },
-    { "icebase.pal", "" },
-    { "ICEBASE.SNG", "" },
-    { "ICEBASE.SWP", "" },
-    { "ICECOPT.PAL", "" },
-    { "ICECOPT.RAW", "" },
-    { "ICESUB0.BHT", "" },
-    { "ICESUB0.BLK", "" },
-    { "ICESUB0.HIT", "" },
-    { "ICESUB0.SWP", "" },
-    { "MAPM1.MAP  ", "" },
-    { "MAPM1.SPT  ", "" },
-    { "MAPM2.MAP  ", "" },
-    { "MAPM2.SPT  ", "" },
-    { "MAPM3.MAP  ", "" },
-    { "MAPM3.SPT  ", "" },
-    { "MAPM4.MAP  ", "" },
-    { "MAPM4.SPT  ", "" },
-    { "PSTUFF.PAL ", "" },
-    { "PSTUFF.RAW ", "" },
-    { "VMENU.PAL  ", "" },
-    { "VMENU.RAW  ", "" }
+    { "DESARMY.PAL", "C85EC39DF39A4DFA5EF14E7F136510DC" },
+    { "DESARMY.RAW", "B102A4AF6A3DE2DF3A0C93589B093E03" },
+    { "DESBASE.BHT", "79EC0CC208047BA7BCFF50071CABA074" },
+    { "DESBASE.BLK", "9F0F19DA13F356E89E74211557B4FF2C" },
+    { "DESBASE.HIT", "931BC2ACB018C8DD02AFBF7D63A04E82" },
+    { "DESBASE.INS", "550F5EDA26554638CD776CA7F5B896D0" },
+    { "desbase.pal", "7CC9B7F479B3D96D6D727C48CFA4AC9F" },
+    { "DESBASE.SNG", "B943724BC5B21A8177DF9026C7BAAB39" },
+    { "DESBASE.SWP", "CF49E8E2F0F522753EC900D1E840E849" },
+    { "DESCOPT.PAL", "C85EC39DF39A4DFA5EF14E7F136510DC" },
+    { "DESCOPT.RAW", "1F162966B0EE88F05B5F536C124F5AF1" },
+    { "DESSUB0.BHT", "9003592A4A2274129D67FA13FC24FAED" },
+    { "DESSUB0.BLK", "33A019581548538E328BF6327263FCC0" },
+    { "DESSUB0.HIT", "825BFCC75922F87914BA66C3B77BC956" },
+    { "DESSUB0.SWP", "0C2EE270602A0A952101B1885A739AC3" },
+    { "ICEARMY.PAL", "034F99283628233A2D66A54A36D4D3E9" },
+    { "ICEARMY.RAW", "F62DA76B1B2F8DAD9532DDFA6C2E7652" },
+    { "ICEBASE.BHT", "D949F094359406551BF5AF66EA9A5E7F" },
+    { "ICEBASE.BLK", "2EC17F7962D0C48F5F3FD6934E002203" },
+    { "ICEBASE.HIT", "070B6FCE31684E945E46C7C98604E7AB" },
+    { "ICEBASE.INS", "1738B8A58182920E73DC98A0DA65AEF5" },
+    { "icebase.pal", "F531809D0BECED820511017804100DBF" },
+    { "ICEBASE.SNG", "EEEA051381A5436D8F2F55B76B896BEF" },
+    { "ICEBASE.SWP", "B469EE7ADA55E9DD11C6AECBE28743C7" },
+    { "ICECOPT.PAL", "034F99283628233A2D66A54A36D4D3E9" },
+    { "ICECOPT.RAW", "7D113D1FED086688166607BFD7BB0C85" },
+    { "ICESUB0.BHT", "FC518045A2CAF8190F637CEA7A738A35" },
+    { "ICESUB0.BLK", "70385CC1A59A6653D5E78FF848CED2F6" },
+    { "ICESUB0.HIT", "40218776D53C159BE6A05A7A89905CBD" },
+    { "ICESUB0.SWP", "425CC1E357EBDAFC4F63FA3E010A5107" },
+    { "MAPM1.MAP  ", "DD76871153811E38FD93CC5057C5FA8E" },
+    { "MAPM1.SPT  ", "E30B230D0328F2BED07A5AE24CF74704" },
+    { "MAPM2.MAP  ", "CAC25D2FAA9120FBDF455D90583C6E95" },
+    { "MAPM2.SPT  ", "8B5B519E5222F6BA8EEB12B963AB4851" },
+    { "MAPM3.MAP  ", "F7233C8EAAFC97E01243935A9EF7B6F8" },
+    { "MAPM3.SPT  ", "AF771B83CE1A21569486AE4437A44FF0" },
+    { "MAPM4.MAP  ", "31B5FAD4AFB2E82F50E5FA237801B1DE" },
+    { "MAPM4.SPT  ", "45DEEE1D0F2CC0D0F9B7EAED3B93FC4E" },
+    { "PSTUFF.PAL ", "E23D3946DE0B8CFB13D4E9051A8EA35B" },
+    { "PSTUFF.RAW ", "713A1241AB6B54657813BB047978DB2D" },
+    { "VMENU.PAL  ", "58491B18128EE48D2CF290A6C5CE355E" },
+    { "VMENU.RAW  ", "BBB7D6CAF06669CEB1D726DF0B010D99" }
 };
 
 const std::vector<eTileTypes> Retail_Tile_Types = {
@@ -987,9 +987,9 @@ void cVersions::FindKnownVersions() {
                     //std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
                     //std::cout << " File not found\n";
                 } else {
-                    std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
-                    //std::cout << KnownVersion.mName << ": " << File.mName;
-                    //std::cout << " Unknown MD5: " << MD5 << "\n";
+                    //std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
+                    std::cout << KnownVersion.mName << ": " << File.mName;
+                    std::cout << " Unknown MD5: " << MD5 << "\n";
                     ++FileMatches;
                 }
             }

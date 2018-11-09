@@ -48,16 +48,19 @@ sImage cGraphics_Amiga2::GetImage(const std::string& pFilename, const size_t pPa
         Decoded.mPlanes = 4;
     }
 
-    Decoded.LoadPalette_Amiga((uint8*)Palette->data(), Palette->size(), pPaletteIndex);
-    Decoded.CopyPalette(mPalette, (1LL << Decoded.mPlanes), pPaletteIndex);
+    Decoded.mDimension.mWidth = 0x140;
+    Decoded.mDimension.mHeight = 0x100;
+
+    Decoded.LoadPalette_Amiga((uint8*)Palette->data(), Palette->size() / 2, pPaletteIndex);
 
     return Decoded;
 }
 
 void cGraphics_Amiga2::Load_pStuff() {
 
-    mImagePStuff = GetImage("PSTUFF", 0xE0);
-    
+    mImagePStuff = GetImage("PSTUFF", 0x00);
+    mImagePStuff.CopyPalette(mImageFonts.mPalette, 16);
+
     mImageFonts = mImagePStuff;
 }
 
@@ -81,6 +84,7 @@ tSharedBuffer cGraphics_Amiga2::GetPalette(const std::string pFilename) {
         d1 >>= 4;
         d0 |= d1;
 
+        // push as little endian
         PaletteFinal->push_back(d0 >> 8);
         PaletteFinal->push_back(d0 & 0xFFFF);   
     }
@@ -107,21 +111,18 @@ void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigne
     else
         Decoded.mPlanes = 4;
 
-
     if (Filename.find('.') != std::string::npos)
         Filename.erase(Filename.find('.'));
 
-     auto Palette = GetPalette(Filename);
-
-    Decoded.LoadPalette_Amiga((uint8*)Palette->data(), Palette->size(), 0x00);
+    auto Palette = GetPalette(Filename);
+    Decoded.LoadPalette_Amiga((uint8*)Palette->data(), Palette->size() / 2, 0x00);
 
     // All raws are 320x257
     Decoded.mDimension.mWidth = 0x140;
     Decoded.mDimension.mHeight = 0x101;
     
-
     // Load the palette
-    Decoded.CopyPalette(mPalette, (1LL << Decoded.mPlanes));
+    Decoded.CopyPalette(mPalette, (1LL << 5));
 
     mBMHD_Current = Decoded.GetHeader();
 
