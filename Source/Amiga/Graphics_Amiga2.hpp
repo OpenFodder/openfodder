@@ -32,11 +32,14 @@ public:
     sImage              Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex);
 
     tSharedBuffer       GetPalette(const std::string pFilename);
-
     virtual sImage		GetImage(const std::string& pFilename, const size_t pPaletteIndex);
+
     virtual void        Map_Load_Resources();
+    virtual void        Mission_Intro_Load_Resources();
+
     virtual void		SetActiveSpriteSheet(eGFX_Types pSpriteType);
 
+    void                Recruit_Draw_Hill();
 
     cGraphics_Amiga2();
     ~cGraphics_Amiga2();

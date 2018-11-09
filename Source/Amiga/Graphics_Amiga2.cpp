@@ -41,6 +41,41 @@ void cGraphics_Amiga2::Map_Load_Resources() {
     SetActiveSpriteSheet(eGFX_IN_GAME);
 }
 
+void cGraphics_Amiga2::Mission_Intro_Load_Resources() {
+
+    // Briefing images
+    std::string JunData1 = mTileTypes[mFodder->mMap_TileSet].mName + "PLAY";
+    std::string JunData2 = mTileTypes[mFodder->mMap_TileSet].mName + "sky.pl8";
+    std::string JunData3 = mTileTypes[mFodder->mMap_TileSet].mName + "mid.pl8";
+    std::string JunData4 = mTileTypes[mFodder->mMap_TileSet].mName + "fgnd.pl8";
+    std::string JunData5 = mTileTypes[mFodder->mMap_TileSet].mName + "fgn2.pl8";
+    std::string JunData6 = mTileTypes[mFodder->mMap_TileSet].mName + "heli.pal";
+
+    // Load the intro images
+    mImageMissionIntro = GetImage(JunData1, 0);
+    if (!mImageMissionIntro.mData->size())
+        return;
+
+    mImageMissionIntro.mPlanes = 3;
+    mImageMissionIntro.mDimension.mHeight = 0x12C;
+
+    // Load the palettes
+    auto Data = g_Resource->fileGet(JunData2);
+    mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xA0);
+
+    Data = g_Resource->fileGet(JunData3);
+    mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xB0);
+
+    Data = g_Resource->fileGet(JunData4);
+    mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xC0);
+
+    Data = g_Resource->fileGet(JunData5);
+    mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xD0);
+
+    Data = g_Resource->fileGet(JunData6);
+    mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xE0);
+}
+
 void cGraphics_Amiga2::SetActiveSpriteSheet(eGFX_Types pSpriteType) {
     switch (pSpriteType) {
     case eGFX_IN_GAME:
@@ -55,8 +90,12 @@ void cGraphics_Amiga2::SetActiveSpriteSheet(eGFX_Types pSpriteType) {
 
 tSharedBuffer cGraphics_Amiga2::GetPalette(const std::string pFilename) {
     tSharedBuffer PaletteFinal = std::make_shared<std::vector<uint8>>();
+    std::string Filename = pFilename;
 
-    auto Palette = g_Resource->fileGet(pFilename + ".PAL");
+    if (Filename.find('.') == std::string::npos)
+        Filename.append(".PAL");
+
+    auto Palette = g_Resource->fileGet(Filename);
 
     auto a0 = Palette->data();
     for (; a0 < Palette->data() + Palette->size(); ++a0) {
@@ -167,4 +206,27 @@ void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigne
 
     Video_Draw_16();
     mBMHD_Current = 0;
+}
+
+
+void cGraphics_Amiga2::Recruit_Draw_Hill() {
+    //auto Grave = GetPalette("grave32");
+    // mImagePStuff.LoadPalette_Amiga(Grave->data(), Grave->size() / 2);
+
+    {
+        mFodder->mVideo_Draw_FrameDataPtr = mImageHillBackground.mData->data() + (29 * 40) + 6;
+
+        mBMHD_Current = mImageHillBackground.GetHeader();
+        mFodder->mVideo_Draw_PaletteIndex = 0xD0;
+
+        mFodder->mVideo_Draw_PosX = 0x40;
+        mFodder->mVideo_Draw_PosY = 0x28;
+        mFodder->mVideo_Draw_Columns = 0x110 >> 3;		// W
+        mFodder->mVideo_Draw_Rows = 0xB8;				// H
+        mFodder->mVideo_Draw_ColumnsMax = 0x140;
+
+        Video_Draw_16();
+    }
+
+    Recruit_Draw_HomeAway();
 }
