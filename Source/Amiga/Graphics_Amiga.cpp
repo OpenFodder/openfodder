@@ -885,8 +885,8 @@ void cGraphics_Amiga::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uin
 }
 
 void cGraphics_Amiga::Map_Load_Resources() {
-	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "lbm" );
-	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "lbm" );
+	mFodder->mFilenameCopt += ".lbm";
+	mFodder->mFilenameArmy += ".lbm";
 
 	mSpriteSheet_InGame2 = DecodeIFF( mFodder->mFilenameCopt );
 	mSpriteSheet_InGame1 = DecodeIFF( mFodder->mFilenameArmy );

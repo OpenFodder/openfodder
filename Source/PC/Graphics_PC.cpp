@@ -351,8 +351,8 @@ void cGraphics_PC::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16
 void cGraphics_PC::Map_Load_Resources() {
 	PaletteLoad( mFodder->mTile_BaseBlk->data() + 0xFA00, 0x80, 0x00 );
 
-	mFodder->mFilenameCopt = mFodder->Filename_CreateFromBase( mFodder->mFilenameCopt, "dat" );
-	mFodder->mFilenameArmy = mFodder->Filename_CreateFromBase( mFodder->mFilenameArmy, "dat" );
+	mFodder->mFilenameCopt += ".dat";
+	mFodder->mFilenameArmy += ".dat";
 
 	//
 	{

@@ -2122,15 +2122,16 @@ void cFodder::Map_Load_Resources() {
     BaseSub.append(mMap->data() + 0x10, mMap->data() + 0x10 + 7);
 
 
-    mFilenameCopt = Filename_CreateFromBase(BaseBaseSet, "copt.");
-    mFilenameBaseSwp = Filename_CreateFromBase(BaseBase, ".swp");
-    mFilenameBaseHit = Filename_CreateFromBase(BaseBase, ".hit");
-    mFilenameBaseBht = Filename_CreateFromBase(BaseBase, ".bht");
-    mFilenameArmy = Filename_CreateFromBase(BaseSubSet, "army.");
-    mFilenameSubSwp = Filename_CreateFromBase(BaseSub, ".swp");
-    mFilenameSubHit = Filename_CreateFromBase(BaseSub, ".hit");
-    mFilenameSubBht = Filename_CreateFromBase(BaseSub, ".bht");
-    mFilenameBasePal = Filename_CreateFromBase(BaseBase, ".pal");
+    mFilenameCopt = BaseBaseSet + "copt";
+    mFilenameArmy = BaseSubSet + "army";
+
+    mFilenameBaseSwp = BaseBase + ".swp";
+    mFilenameBaseHit = BaseBase + ".hit";
+    mFilenameBaseBht = BaseBase + ".bht";
+    mFilenameSubSwp = BaseSub + ".swp";
+    mFilenameSubHit = BaseSub + ".hit";
+    mFilenameSubBht = BaseSub + ".bht";
+    mFilenameBasePal = BaseBase + ".pal";
 
 
     size_t Size = mResources->fileLoadTo(mFilenameBaseSwp, (uint8*)&mTile_Destroy_Swap[0]);
@@ -2705,15 +2706,6 @@ void cFodder::Phase_TextSprite_Create_Again(sSprite* pData2C) {
 
     pData2C->field_8 = 0xCB;
     pData2C->field_18 = eSprite_Text_Again;
-}
-
-std::string cFodder::Filename_CreateFromBase(const std::string& pBase, const char* pFinish) {
-    std::string Final;
-
-    Final.append(pBase);
-    Final.append(pFinish);
-
-    return Final;
 }
 
 void cFodder::Squad_Member_PhaseCount() {

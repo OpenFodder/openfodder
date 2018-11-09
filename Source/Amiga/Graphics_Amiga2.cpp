@@ -30,6 +30,29 @@ cGraphics_Amiga2::~cGraphics_Amiga2() {
 
 }
 
+void cGraphics_Amiga2::Map_Load_Resources() {
+
+    mSpriteSheet_InGame2 = GetImage(mFodder->mFilenameCopt, 0 );
+    mSpriteSheet_InGame1 = GetImage(mFodder->mFilenameArmy, 0 );
+
+    mSpriteSheet_InGame2.mDimension.mHeight = 0x151;
+    mSpriteSheet_InGame1.mDimension.mHeight = 0x150;
+
+    SetActiveSpriteSheet(eGFX_IN_GAME);
+}
+
+void cGraphics_Amiga2::SetActiveSpriteSheet(eGFX_Types pSpriteType) {
+    switch (pSpriteType) {
+    case eGFX_IN_GAME:
+        mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_InGame_Amiga_CF2);
+        return;
+
+    default:
+        cGraphics_Amiga::SetActiveSpriteSheet(pSpriteType);
+        return;
+    }
+}
+
 sImage cGraphics_Amiga2::GetImage(const std::string& pFilename, const size_t pPaletteIndex) {
     auto Palette = GetPalette(pFilename);
 
@@ -37,7 +60,6 @@ sImage cGraphics_Amiga2::GetImage(const std::string& pFilename, const size_t pPa
 
     // No, treat as a raw file
     Decoded.mData = g_Resource->fileGet(pFilename + ".RAW");
-
     if (!Decoded.mData->size())
         return Decoded;
 
@@ -73,9 +95,11 @@ tSharedBuffer cGraphics_Amiga2::GetPalette(const std::string pFilename) {
     for (; a0 < Palette->data() + Palette->size(); ++a0) {
 
         uint16 d0 = *a0++;
+        uint16 d1 = *a0++;
+
         d0 &= 0xF0;
         d0 <<= 4;
-        uint16 d1 = *a0++;
+
         d1 &= 0xF0;
         d0 |= d1;
 
@@ -101,7 +125,6 @@ void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigne
 
     // No, treat as a raw file
     Decoded.mData = g_Resource->fileGet(Filename);
-
     if (!Decoded.mData->size())
         return;
 

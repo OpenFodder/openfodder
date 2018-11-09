@@ -675,7 +675,6 @@ public:
     void            Phase_TextSprite_Create_Again(sSprite* pData2C);
     void            Phase_TextSprite_Create_GameOver(sSprite* pData2C);
 
-    std::string     Filename_CreateFromBase(const std::string& pBase, const char* pFinish);
     void            Squad_Member_PhaseCount();
     void            Squad_Set_CurrentVehicle();
     void            Squad_EnteredVehicle_TimerTick();
