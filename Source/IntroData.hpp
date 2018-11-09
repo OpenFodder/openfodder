@@ -33,3 +33,4 @@ struct sIntroText {
 extern std::vector< sIntroText > mIntroText_PC;
 extern std::vector< sIntroText > mIntroText_PC2;
 extern std::vector< sIntroText > mIntroText_Amiga;
+extern std::vector< sIntroText > mIntroText_Amiga2;

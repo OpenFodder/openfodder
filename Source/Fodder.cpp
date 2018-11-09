@@ -4426,7 +4426,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     mSound->Music_Stop();
 
     if(mVersionCurrent->isAmigaNotVeryFestive()) 
-        mGraphics->Load_And_Draw_Image("VMENU.RAW", 32);
+        mGraphics->Load_And_Draw_Image("VMENU", 32);
     else
         mGraphics->Load_And_Draw_Image("apmenu.lbm", 32);
 

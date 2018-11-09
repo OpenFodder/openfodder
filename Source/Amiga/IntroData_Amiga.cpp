@@ -150,3 +150,21 @@ std::vector< sIntroText > mIntroText_Amiga = {
 	{ 0, 0 },
 	{ 0, 0 }
 };
+
+std::vector< sIntroText > mIntroText_Amiga2 = {
+    { 0, 0 },
+    { 0x31, 0 },
+    { 0x32, 0 },
+    { 0x33, 0 },
+    { 0x34, 0 },
+    { 0x35, 0 },
+    { 0x36, 0 },
+    { 0x37, 0 },
+    { 0x38, 0 },
+    { 0x39, 0 },
+    { 0x61, 0 },
+    { 0x62, 0 },
+    { 0x63, 0 },
+    { 0x64, 0 },
+    { 0, 0 }
+};

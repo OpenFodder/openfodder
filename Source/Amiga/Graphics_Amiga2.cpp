@@ -167,24 +167,7 @@ void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigne
     std::string	Filename = pFilename;
 
     // Try it as an IFF
-    sImage Decoded;
-
-    // No, treat as a raw file
-    Decoded.mData = g_Resource->fileGet(Filename);
-    if (!Decoded.mData->size())
-        return;
-
-    // Calculate planes based on file size
-    if (Decoded.mData->size() == 51400)
-        Decoded.mPlanes = 5;
-    else
-        Decoded.mPlanes = 4;
-
-    if (Filename.find('.') != std::string::npos)
-        Filename.erase(Filename.find('.'));
-
-    auto Palette = GetPalette(Filename);
-    Decoded.LoadPalette_Amiga((uint8*)Palette->data(), Palette->size() / 2, 0x00);
+    sImage Decoded = GetImage(pFilename, 0);
 
     // All raws are 320x257
     Decoded.mDimension.mWidth = 0x140;
