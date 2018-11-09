@@ -35,7 +35,7 @@ Please see [INSTALL.md](https://github.com/OpenFodder/openfodder/blob/master/INS
   
 #### How to play
 
-Open Fodder supports four demos from the Amiga platform, and three retail releases (See below for supported versions).
+Open Fodder supports five demos from the Amiga platform, and three retail releases (See below for supported versions).
   
   
 ##### Hot Keys
@@ -70,7 +70,8 @@ Four Amiga magazine coverdisk demos are included in the data pack.
 * Amiga Power   Issue #31: (Nov 1993) Cannon Fodder Plus
 * Amiga Action  Issue #51: (Dec 1993)
 * Amiga Format  Issue #54: (Dec 1993) Christmas Special (Cannon Soccer)
-  
+* Amiga Format  Issue #68: (Feb 1995) Not Very Festive Fodder
+
 #### Unsupported Versions
   
 * Cannon Fodder 2
