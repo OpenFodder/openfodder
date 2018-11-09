@@ -24,7 +24,7 @@ Failure on this path, will fall back to the current working directory.
 
 ### Campaign Data
 
-The campaign information was originally hardcoded in the executable, this is required to play and is downloadable alonside four demos from (https://github.com/OpenFodder/data/releases/download/1.5/OpenFodder.zip).  
+The campaign information was originally hardcoded in the executable, this is required to play and is downloadable alonside four demos from (https://github.com/OpenFodder/data/releases/download/1.5/Data.Pack.1.5.zip).  
 
 This data is packaged with the Windows Installer, but will be a required download if you're compiling / running on Linux/Unix.  
   
