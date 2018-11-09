@@ -742,7 +742,7 @@ const std::vector<sFile> mAmigaFormat_NotVeryFestiveFiles = {
     { "DESBASE.BLK", "9F0F19DA13F356E89E74211557B4FF2C" },
     { "DESBASE.HIT", "931BC2ACB018C8DD02AFBF7D63A04E82" },
     { "DESBASE.INS", "550F5EDA26554638CD776CA7F5B896D0" },
-    { "desbase.pal", "7CC9B7F479B3D96D6D727C48CFA4AC9F" },
+    { "DESBASE.PAL", "7CC9B7F479B3D96D6D727C48CFA4AC9F" },
     { "DESBASE.SNG", "B943724BC5B21A8177DF9026C7BAAB39" },
     { "DESBASE.SWP", "CF49E8E2F0F522753EC900D1E840E849" },
     { "DESCOPT.PAL", "C85EC39DF39A4DFA5EF14E7F136510DC" },
@@ -757,7 +757,7 @@ const std::vector<sFile> mAmigaFormat_NotVeryFestiveFiles = {
     { "ICEBASE.BLK", "2EC17F7962D0C48F5F3FD6934E002203" },
     { "ICEBASE.HIT", "070B6FCE31684E945E46C7C98604E7AB" },
     { "ICEBASE.INS", "1738B8A58182920E73DC98A0DA65AEF5" },
-    { "icebase.pal", "F531809D0BECED820511017804100DBF" },
+    { "ICEBASE.PAL", "F531809D0BECED820511017804100DBF" },
     { "ICEBASE.SNG", "EEEA051381A5436D8F2F55B76B896BEF" },
     { "ICEBASE.SWP", "B469EE7ADA55E9DD11C6AECBE28743C7" },
     { "ICECOPT.PAL", "034F99283628233A2D66A54A36D4D3E9" },
@@ -831,11 +831,10 @@ const sGameVersion KnownGameVersions[] = {
 
     /* Amiga Magazine Demos */
     { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		mIntroText_Amiga,	"Plus",				mPlusFiles,			AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types },
-    { "Amiga Format Christmas Special",      eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
-    { "Amiga The One",                  eGame::CF1, ePlatform::Amiga,   eRelease::AmigaTheOne,      mIntroText_Amiga,   "AmigaTheOne",      mAmigaTheOneFiles,  AmigaTheOne_TileTypes, Amiga_Demo_GFX_Types },
     { "Amiga Action",                   eGame::CF1, ePlatform::Amiga,   eRelease::AmigaAction,      mIntroText_Amiga,   "AmigaAction",      mAmigaActionFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
-
+    { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
     { "Amiga Format Not Very Festive",  eGame::CF2, ePlatform::Amiga,   eRelease::AmigaNotVeryFestive,      mIntroText_Amiga,   "AmigaFormat_NVF",      mAmigaFormat_NotVeryFestiveFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
+    { "Amiga The One",                  eGame::CF1, ePlatform::Amiga,   eRelease::AmigaTheOne,      mIntroText_Amiga,   "AmigaTheOne",      mAmigaTheOneFiles,  AmigaTheOne_TileTypes, Amiga_Demo_GFX_Types },
 
     
     /* Custom & Random must be last, as they depend on a previous retail version being detected first */

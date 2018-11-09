@@ -60,6 +60,14 @@ public:
     std::string mMapFilename;
     std::vector<ePhaseGoals> mGoals;
 
+    int16       mGrenades;
+    int16       mRockets;
+
+    cPhase() {
+        mGrenades = -1;
+        mRockets = -1;
+    }
+
     std::string GetName() const {
         std::string Name = mName;
         transform(Name.begin(), Name.end(), Name.begin(), toupper);

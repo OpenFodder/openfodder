@@ -3944,7 +3944,6 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
     GUI_Element_Reset();
-    MapTiles_Draw();
 
     mString_GapCharID = 0x25;
     String_Print_Large(pTitle, true, 0x01);
@@ -4094,6 +4093,7 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
     do {
         size_t YOffset = PLATFORM_BASED(0, 25);
 
+        mSurface->clearBuffer();
         GUI_Element_Reset();
         GUI_Render_Text_Centred(pTitle, 0x0C);
 
@@ -4335,10 +4335,13 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
         Sprite_Frame_Modifier_Update();
         Mission_Sprites_Handle();
 
-        Campaign_Select_DrawMenu(pTitle, pSubTitle);
-
+        mSurface->clearBuffer();
+        MapTiles_Draw();
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Sprites_Draw();
+
+        Campaign_Select_DrawMenu(pTitle, pSubTitle);
+
 
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
@@ -10020,23 +10023,32 @@ void cFodder::Squad_Prepare_GrenadesAndRockets() {
     mSquad_Grenades[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available << 1;
     mSquad_Rockets[0] = mGame_Data.mGamePhase_Data.mSoldiers_Available;
 
-    if (mVersionCurrent->isAmigaTheOne()) {
-        mSquad_Grenades[0] += mGame_Data.mGamePhase_Data.mSoldiers_Available;
+    if (mVersionCurrent->isCannonFodder1()) {
+        if (mVersionCurrent->isAmigaTheOne()) {
+            mSquad_Grenades[0] += mGame_Data.mGamePhase_Data.mSoldiers_Available;
 
-        if (mGame_Data.mMission_Number == 1 && mGame_Data.mMission_Phase < 3)
-            mSquad_Grenades[0] = 0;
+            if (mGame_Data.mMission_Number == 1 && mGame_Data.mMission_Phase < 3)
+                mSquad_Grenades[0] = 0;
 
-        mSquad_Rockets[0] = 0;
+            mSquad_Rockets[0] = 0;
+        }
+        else {
+
+            if (mGame_Data.mMission_Number < 4 || (mGame_Data.mMission_Number == 4 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 5
+                mSquad_Grenades[0] = 0;
+
+            if (mGame_Data.mMission_Number < 5 || (mGame_Data.mMission_Number == 5 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 10
+                mSquad_Rockets[0] = 0;
+        }
     }
     else {
+        if (mGame_Data.mPhase_Current->mGrenades != -1)
+            mSquad_Grenades[0] = mGame_Data.mPhase_Current->mGrenades;
 
-        if (mGame_Data.mMission_Number < 4 || (mGame_Data.mMission_Number == 4 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 5
-            mSquad_Grenades[0] = 0;
-
-        if (mGame_Data.mMission_Number < 5 || (mGame_Data.mMission_Number == 5 && mGame_Data.mMission_Phase < 2))       // Original CF: Map 10
-            mSquad_Rockets[0] = 0;
+        if(mGame_Data.mPhase_Current->mRockets != -1)
+            mSquad_Rockets[0] = mGame_Data.mPhase_Current->mRockets;
+        
     }
-
 }
 
 void cFodder::Sprite_Aggression_Set() {
@@ -10353,7 +10365,6 @@ void cFodder::Game_Save_Wrapper() {
 }
 
 void cFodder::GUI_Element_Reset() {
-    mSurface->clearBuffer();
 
     mGUI_NextFreeElement = mGUI_Elements;
 
@@ -10485,6 +10496,7 @@ void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
 void cFodder::Game_Save() {
     mInput.clear();
     mGUI_Select_File_String_Input_Callback = 0;
+    mSurface->clearBuffer();
 
     GUI_Element_Reset();
 

@@ -135,6 +135,9 @@ bool cCampaign::SaveCampaign() {
             Phase["Aggression"][0] = CurrentPhase->mAggression.mMin;
             Phase["Aggression"][1] = CurrentPhase->mAggression.mMax;
 
+            Phase["Grenades"] = CurrentPhase->mGrenades;
+            Phase["Rockets"] = CurrentPhase->mRockets;
+
             for (auto Goal : CurrentPhase->mGoals)
                 Phase["Objectives"].push_back(mMissionGoal_Titles[Goal - 1]);
 
@@ -211,6 +214,13 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
                     newPhase->mAggression.mMin = Phase["Aggression"][0];
                     newPhase->mAggression.mMax = Phase["Aggression"][1];
                 }
+
+                if(Phase["Grenades"].size())
+                    newPhase->mGrenades = Phase["Grenades"];
+
+                if(Phase["Rockets"].size())
+                    newPhase->mRockets = Phase["Rockets"];
+
 
                 // Each map goal
                 for (std::string ObjectiveName : Phase["Objectives"]) {
