@@ -4331,7 +4331,7 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
     Camera_Reset();
 
     int16 Timedown = 0;
-    do 
+    do {
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Sprite_Frame_Modifier_Update();
         Mission_Sprites_Handle();
