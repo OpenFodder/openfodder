@@ -4331,13 +4331,13 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
     Camera_Reset();
 
     int16 Timedown = 0;
-    do {
+    do 
+        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Sprite_Frame_Modifier_Update();
         Mission_Sprites_Handle();
 
         mSurface->clearBuffer();
         MapTiles_Draw();
-        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Sprites_Draw();
 
         Campaign_Select_DrawMenu(pTitle, pSubTitle);
@@ -15193,7 +15193,7 @@ void cFodder::Sprite_Handle_Indigenous_Invisible(sSprite* pSprite) {
      seg004:4A78 C4 36 20 00                       les     si, ds:20h
     seg004:4A7C 26 C7 44 22 02 00                 mov     word ptr es:[si+22h], 2
     seg004:4A82 C4 36 20 00                       les     si, ds:20h
-    seg004:4A86 26 C7 44 08 D0 00                 mov     word ptr es:[si+8], 0D0h ; 'ð'
+    seg004:4A86 26 C7 44 08 D0 00                 mov     word ptr es:[si+8], 0D0h ; 'Ã°'
     */
 }
 
