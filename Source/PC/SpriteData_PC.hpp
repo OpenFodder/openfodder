@@ -2026,8 +2026,11 @@ sSpriteSheet stru_3509C[] = {
 	{ 38120, eGFX_IN_GAME2, 0, 0, 64, 17, 192, 0, 0 }
 };
 
-sSpriteSheet stru_350AC[] = {
+sSpriteSheet SpriteSheet_Text_Again[] = {
 	{ 38152, eGFX_IN_GAME2, 0, 0, 96, 17, 192, 10, 0 }
+};
+sSpriteSheet SpriteSheet_Text_Again_CF2[] = {
+    { 38152, eGFX_IN_GAME2, 0, 0, 80, 17, 192, 10, 0 }
 };
 
 sSpriteSheet stru_350BC[5] =
@@ -2543,7 +2546,7 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	/* 0xC8 */ stru_3503C,
 	/* 0xC9 */ stru_3504C,
 	/* 0xCA */ stru_3509C,
-	/* 0xCB */ stru_350AC,
+	/* 0xCB */ SpriteSheet_Text_Again,
 	/* 0xCC */ stru_350BC,
 	/* 0xCD */ stru_3510C,
 	/* 0xCE */ stru_3514C,
@@ -2796,7 +2799,7 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_PC2[] = {
     /* 0xC8 */ stru_3503C,
     /* 0xC9 */ stru_3504C,
     /* 0xCA */ stru_3509C,
-    /* 0xCB */ stru_350AC,
+    /* 0xCB */ SpriteSheet_Text_Again_CF2,
     /* 0xCC */ stru_350BC,
     /* 0xCD */ stru_3510C,
     /* 0xCE */ stru_3514C,
