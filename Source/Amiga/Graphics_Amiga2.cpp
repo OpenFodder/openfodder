@@ -163,6 +163,15 @@ void cGraphics_Amiga2::Load_pStuff() {
     mImageFonts = mImagePStuff;
 }
 
+void cGraphics_Amiga2::Load_Service_Data() {
+
+    mImageService = Decode_Image("morphbig", 64, 0, 0);
+    mImageService.mDimension.mHeight = 0x150;
+    mImageService.mPlanes = 5;
+
+    mSpriteSheet_RankFont = GetImage("rankfont", 0);
+}
+
 void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigned int pColors, unsigned int pBackColor) {
     std::string	Filename = pFilename;
 

@@ -364,7 +364,7 @@ void cGraphics_Amiga::Load_Service_Data() {
 
 	mImageService = Decode_Image("morphbig", 64);
 
-	mSpriteSheet_RankFont = DecodeIFF("rankfont");
+	mSpriteSheet_RankFont = DecodeIFF("rankfont.lbm");
 }
 
 void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, unsigned int pBackColor) {

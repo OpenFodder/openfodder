@@ -28,7 +28,8 @@ public:
 
     virtual void		Load_pStuff();
     virtual void        Load_And_Draw_Image(const std::string &pFilename, unsigned int pColors, unsigned int pBackColor);
-    
+    virtual void		Load_Service_Data();
+
     sImage              Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex);
 
     tSharedBuffer       GetPalette(const std::string pFilename);

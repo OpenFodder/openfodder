@@ -11307,9 +11307,9 @@ void cFodder::Service_Promotion_Loop() {
         GUI_Draw_Frame_16(8, 0, 0xF0, 0x31);
     }
     else {
-        ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(9, 0x30, 0);        // Heroes in Victory
-        ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(3, 0, 0x40);     //  Left Symbol
-        ((cGraphics_Amiga*)&mGraphics.operator*())->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
+        std::dynamic_pointer_cast<cGraphics_Amiga>(mGraphics)->Service_Draw(9, 0x30, 0);        // Heroes in Victory
+        std::dynamic_pointer_cast<cGraphics_Amiga>(mGraphics)->Service_Draw(3, 0, 0x40);        //  Left Symbol
+        std::dynamic_pointer_cast<cGraphics_Amiga>(mGraphics)->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
     }
 
     mService_ExitLoop = 0;
