@@ -49,14 +49,18 @@ int main(int argc, char *argv[]) {
     options.allow_unrecognised_options();
     options.add_options()
         ("h,help",      "Help",                 cxxopts::value<bool>()->default_value("false")  )
+        ("pc",          "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
+        ("amiga",       "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
+        ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
+        ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
         ("w,window",    "Start in window mode", cxxopts::value<bool>()->default_value("false")  )
-        ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false")  )
-        ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false") )
 
         ("c,campaign",  "Starting campaign",        cxxopts::value<std::string>()->default_value(""), "\"name\"" )
         ("m,mission",   "Starting mission",         cxxopts::value<std::uint32_t>()->default_value("0"), "1"   )
         ("p,phase",     "Starting phase",           cxxopts::value<std::uint32_t>()->default_value("0"), "2")
         ("r,random",    "Generate and play a random map",    cxxopts::value<bool>()->default_value("false") )
+
+
         ;
 
 
@@ -90,6 +94,13 @@ int main(int argc, char *argv[]) {
             //Params.mSkipIntro = true;
         }
 
+        if (result["pc"].as<bool>()) {
+            Params.mDefaultPlatform = ePlatform::PC;
+        }
+
+        if (result["amiga"].as<bool>()) {
+            Params.mDefaultPlatform = ePlatform::Amiga;
+        }
 #ifdef _DEBUG
         Params.mWindowMode = true;
 #endif

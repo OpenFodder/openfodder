@@ -79,6 +79,7 @@ struct sFodderParameters {
     bool mSkipToMission;        // Skip the recruit screen and go straight into the mission
     bool mWindowMode;           // Start in a window
     bool mRandom;
+    ePlatform mDefaultPlatform;
 
     std::string mCampaignName;
     size_t mMissionNumber;
@@ -91,6 +92,7 @@ struct sFodderParameters {
         mPhaseNumber = 0;
         mWindowMode = false;
         mRandom = false;
+        mDefaultPlatform = ePlatform::Any;
     }
 };
 

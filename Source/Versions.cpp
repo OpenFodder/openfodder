@@ -95,14 +95,22 @@ cVersions::cVersions() {
     FindKnownVersions();
 }
 
-const sGameVersion* cVersions::GetRetail() const {
+const sGameVersion* cVersions::GetRetail(const ePlatform pPlatform) const {
 
     auto RetailRelease =
         std::find_if(mAvailable.begin(), mAvailable.end(),
-            [](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail; });
+            [pPlatform](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail && 
+                                                                (pPlatform == ePlatform::Any || a->mPlatform == pPlatform); });
 
-    if (RetailRelease == mAvailable.end())
-        return 0;
+    // If we didnt find the platform, revert to any
+    if (RetailRelease == mAvailable.end()) {
+
+        RetailRelease = std::find_if(mAvailable.begin(), mAvailable.end(),
+                            [pPlatform](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail; });
+
+        if (RetailRelease == mAvailable.end())
+            return 0;
+    }
 
     return *RetailRelease;
 }
@@ -150,11 +158,12 @@ const sGameVersion* cVersions::GetForCampaign(const std::string& pCampaign, cons
     // Look through all available versions for a campaign name match
     for (auto& Version : mAvailable) {
 
-        if (Version->mName == pCampaign && Version->mPlatform == pPlatform)
+        if (Version->mName == pCampaign && (Version->mPlatform == pPlatform || pPlatform == ePlatform::Any))
             return Version;
     }
 
-    return 0;
+    // Couldnt find one for requested platform
+    return GetForCampaign(pCampaign);
 }
 
 /**
@@ -242,7 +251,7 @@ void cVersions::FindKnownVersions() {
 
         // A very hacky method for ensuring a retail version is available, before allowing Customs
         if (KnownVersion.isCustom()) {
-            if (GetRetail()) {
+            if (GetRetail(ePlatform::Any)) {
                 mAvailable.push_back(&KnownVersion);
             }
         }

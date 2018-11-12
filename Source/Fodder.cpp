@@ -1918,7 +1918,7 @@ bool cFodder::Campaign_Load(std::string pName) {
         }
     }
 
-    VersionSwitch(mVersions->GetForCampaign(pName));
+    VersionSwitch(mVersions->GetForCampaign(pName, mParams.mDefaultPlatform));
     if (!mGame_Data.mCampaign.LoadCampaign(pName, pName != mVersionCurrent->mName)) {
         // TODO
 
@@ -3308,7 +3308,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     // Custom version?
     if (pVersion->isCustom()) {
-        auto RetailRelease = mVersions->GetRetail();
+        auto RetailRelease = mVersions->GetRetail(mParams.mDefaultPlatform);
 
         // If a retail release is found, we use its data path
         if (RetailRelease != 0)
@@ -20141,7 +20141,7 @@ Start:;
     mGame_Data.mCampaign.Clear();
     mVersionDefault = 0;
     mVersionCurrent = 0;
-    VersionSwitch(mVersions->GetRetail());
+    VersionSwitch(mVersions->GetRetail( mParams.mDefaultPlatform ));
 
     if (!mVersionCurrent) {
         VersionSwitch(mVersions->GetDemo());

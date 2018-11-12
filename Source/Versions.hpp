@@ -21,8 +21,9 @@
  */
 
 enum ePlatform {
-	PC		= 0,
-	Amiga	= 1
+    Any     = 0,
+	PC		= 1,
+	Amiga	= 2
 };
 
 enum eRelease {
@@ -193,6 +194,6 @@ public:
     const sGameVersion* GetForCampaign(const std::string& pCampaign) const;
     const sGameVersion* GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const;
     const sGameVersion* GetForTileset(eTileTypes pTileType) const;
-    const sGameVersion* GetRetail() const;
+    const sGameVersion* GetRetail(const ePlatform pPlatform) const;
     const sGameVersion* GetDemo() const;
 };
