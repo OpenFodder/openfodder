@@ -127,7 +127,10 @@ void cGraphics_PC::SetActiveSpriteSheet( eGFX_Types pSpriteType ) {
 	
 	switch (pSpriteType) {
 		case eGFX_IN_GAME:
-			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_PC );
+            if (mFodder->mVersionCurrent->isCannonFodder2())
+                mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_InGame_PC2);
+            else
+    			mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_PC );
 			return;
 
 		case eGFX_FONT:

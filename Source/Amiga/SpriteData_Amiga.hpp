@@ -1259,6 +1259,10 @@ const sSpriteSheet stru_8EFD8[] = {
 	{ 11206, eGFX_IN_GAME, 0, 0, 2, 14, 13440, 0x0, 0 },
 };
 
+const sSpriteSheet stru_8FF0A[] = {
+    { 9548, eGFX_IN_GAME2, 0, 0, 3, 16, 13480, 0x0, 0 }
+};
+
 const sSpriteSheet* mSpriteSheetTypes_InGame_Amiga[] = {
 	/* 0x00 */	stru_8C358,		// Soldier Walk		Face Forward
 	/* 0x01 */	stru_8C388,		// Soldier Walk		Face Forward + Left
@@ -1985,7 +1989,8 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_Amiga_CF2[] = {
     /* 0x00 */	stru_8EFA8,
     /* 0x00 */	stru_8EFB8,
     /* 0x00 */	stru_8EFC8,
-    /* 0x00 */	stru_8EFD8
+    /* 0x00 */	stru_8EFD8,
+    /* 0x00 */  stru_8FF0A  // CF2 UFO
 };
 
 const sSpriteSheet mRecruitSpriteFrames_Graves_Amiga[] = {

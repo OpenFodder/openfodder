@@ -20151,7 +20151,6 @@ Start:;
             return;
         }
     }
-    //Playground();
 
     // Play the intro
     if (!mOpenFodder_Intro_Done && !mParams.mSkipIntro) {
@@ -20165,17 +20164,20 @@ Start:;
         mOpenFodder_Intro_Done = true;
     }
 
+    // Start a random map?
     if (mParams.mRandom) {
         mGame_Data.mCampaign.SetSingleMapCampaign();
         mCustom_Mode = eCustomMode_Map;
 
         VersionSwitch(mVersions->GetForCampaign("Random Map"));
+
     } else {
         // Select campaign menu
         if (!(mParams.mCampaignName.size() && Campaign_Load(mParams.mCampaignName)))
             Campaign_Selection();
     }
 
+     //   Playground();
     // Exit pushed?
     if (mGUI_SaveLoadAction == 1)
         return;

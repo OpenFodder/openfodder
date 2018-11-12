@@ -2318,6 +2318,11 @@ sSpriteSheet stru_35C2C[4] =
 	{ 44824, eGFX_IN_GAME, 0, 0, 16, 14, 160, 0, 0 }
 };
 
+// CF2 UFO
+sSpriteSheet stru_1B108[] = {
+    { 38192, eGFX_IN_GAME2, 0, 0, 32, 16, 176, 0, 0 }
+};
+
 const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	/* 0x00 */ stru_32FAC,		// Soldier Walk		Face Forward
 	/* 0x01 */ stru_32FDC,		// Soldier Walk		Face Forward + Left
@@ -2459,102 +2464,108 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	/* 0x7E */ stru_3432C,
 	/* 0x7F */ stru_3436C,
 
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_343EC,
-	/* 0x00 */ stru_344EC,
-	/* 0x00 */ stru_3452C,
-	/* 0x00 */ stru_3455C,
-	/* 0x00 */ stru_345CC,
-	/* 0x00 */ stru_345DC,
-	/* 0x00 */ stru_345EC,
-	/* 0x00 */ stru_345FC,
-	/* 0x00 */ stru_3460C,
-	/* 0x00 */ stru_3461C,
-	/* 0x00 */ stru_3464C,
-	/* 0x00 */ stru_3474C,
-	/* 0x00 */ stru_3478C,
-	/* 0x00 */ stru_347AC,
-	/* 0x00 */ stru_347CC,
-	/* 0x00 */ stru_347DC,
-	/* 0x00 */ stru_3481C,
-	/* 0x00 */ stru_3482C,
-	/* 0x00 */ stru_3486C,
-	/* 0x00 */ stru_348EC,
-	/* 0x00 */ stru_3490C,
-	/* 0x00 */ stru_3494C,
-	/* 0x00 */ stru_3495C,
-	/* 0x00 */ stru_3496C,
-	/* 0x00 */ stru_3497C,
-	/* 0x00 */ stru_34A7C,
-	/* 0x00 */ stru_34AFC,
-	/* 0x00 */ stru_34BFC,
-	/* 0x00 */ stru_34BFC,
-	/* 0x00 */ stru_34C7C,
-	/* 0x00 */ stru_34CAC,
-	/* 0x00 */ stru_34CDC,
-	/* 0x00 */ stru_34D0C,
-	/* 0x00 */ stru_34D3C,
-	/* 0x00 */ stru_34D6C,
-	/* 0x00 */ stru_34DAC,
-	/* 0x00 */ stru_34DDC,
-	/* 0x00 */ stru_34E0C,
-	/* 0x00 */ stru_34E1C,
-	/* 0x00 */ stru_34E2C,
-	/* 0x00 */ stru_34E3C,
-	/* 0x00 */ stru_34E4C,
-	/* 0x00 */ stru_34E5C,
-	/* 0x00 */ stru_34E6C,
-	/* 0x00 */ stru_34E7C,
-	/* 0x00 */ stru_34E8C,
-	/* 0x00 */ stru_34E9C,
-	/* 0x00 */ stru_34EAC,
-	/* 0x00 */ stru_34EBC,
-	/* 0x00 */ stru_34ECC,
-	/* 0x00 */ stru_34EDC,
-	/* 0x00 */ stru_34EEC,
-	/* 0x00 */ stru_34EFC,
-	/* 0x00 */ stru_34F0C,
-	/* 0x00 */ stru_34F4C,
-	/* 0x00 */ stru_34F5C,
-	/* 0x00 */ stru_34F6C,
-	/* 0x00 */ stru_34F7C,
-	/* 0x00 */ stru_34FBC,
-	/* 0x00 */ stru_34FEC,
-	/* 0x00 */ stru_3502C,
-	/* 0x00 */ stru_3503C,
-	/* 0x00 */ stru_3504C,
-	/* 0x00 */ stru_3509C,
-	/* 0x00 */ stru_350AC,
-	/* 0x00 */ stru_350BC,
-	/* 0x00 */ stru_3510C,
-	/* 0x00 */ stru_3514C,
-	/* 0x00 */ stru_351BC,
-	/* 0x00 */ stru_351BC,
-	/* 0x00 */ stru_352BC,
-	/* 0x00 */ stru_353BC,
-	/* 0x00 */ stru_354BC,
-	/* 0x00 */ stru_3551C,
-	/* 0x00 */ stru_3557C,
-	/* 0x00 */ stru_355AC,
-	/* 0x00 */ stru_3564C,
-	/* 0x00 */ stru_356CC,
-	/* 0x00 */ stru_3584C,
-	/* 0x00 */ stru_359CC,
-	/* 0x00 */ stru_359FC,
-	/* 0x00 */ stru_35A9C,
-	/* 0x00 */ stru_35AAC,
-	/* 0x00 */ stru_35ABC,
-	/* 0x00 */ stru_35B0C,
+	/* 0x80 */ stru_343EC,
+	/* 0x81 */ stru_343EC,
+	/* 0x82 */ stru_343EC,
+	/* 0x83 */ stru_343EC,
+	/* 0x84 */ stru_343EC,
+	/* 0x85 */ stru_343EC,
+	/* 0x86 */ stru_343EC,
+	/* 0x87 */ stru_343EC,
+	/* 0x88 */ stru_343EC,
+	/* 0x89 */ stru_343EC,
+	/* 0x8A */ stru_343EC,
+	/* 0x8B */ stru_343EC,
+	/* 0x8C */ stru_344EC,
+	/* 0x8D */ stru_3452C,
+	/* 0x8E */ stru_3455C,
+	/* 0x8F */ stru_345CC,
+
+	/* 0x90 */ stru_345DC,
+	/* 0x91 */ stru_345EC,
+	/* 0x92 */ stru_345FC,
+	/* 0x93 */ stru_3460C,
+	/* 0x94 */ stru_3461C,
+	/* 0x95 */ stru_3464C,
+	/* 0x96 */ stru_3474C,
+	/* 0x97 */ stru_3478C,
+	/* 0x98 */ stru_347AC,
+	/* 0x99 */ stru_347CC,
+	/* 0x9A */ stru_347DC,
+	/* 0x9B */ stru_3481C,
+	/* 0x9C */ stru_3482C,
+	/* 0x9D */ stru_3486C,
+	/* 0x9E */ stru_348EC,
+	/* 0x9F */ stru_3490C,
+
+	/* 0xA0 */ stru_3494C,
+	/* 0xA1 */ stru_3495C,
+	/* 0xA2 */ stru_3496C,
+	/* 0xA3 */ stru_3497C,
+	/* 0xA4 */ stru_34A7C,
+	/* 0xA5 */ stru_34AFC,
+	/* 0xA6 */ stru_34BFC,
+	/* 0xA7 */ stru_34BFC,
+	/* 0xA8 */ stru_34C7C,
+	/* 0xA9 */ stru_34CAC,
+	/* 0xAA */ stru_34CDC,
+	/* 0xAB */ stru_34D0C,
+	/* 0xAC */ stru_34D3C,
+	/* 0xAD */ stru_34D6C,
+	/* 0xAE */ stru_34DAC,
+	/* 0xAF */ stru_34DDC,
+
+	/* 0xB0 */ stru_34E0C,
+	/* 0xB1 */ stru_34E1C,
+	/* 0xB2 */ stru_34E2C,
+	/* 0xB3 */ stru_34E3C,
+	/* 0xB4 */ stru_34E4C,
+	/* 0xB5 */ stru_34E5C,
+	/* 0xB6 */ stru_34E6C,
+	/* 0xB7 */ stru_34E7C,
+	/* 0xB8 */ stru_34E8C,
+	/* 0xB9 */ stru_34E9C,
+	/* 0xBA */ stru_34EAC,
+	/* 0xBB */ stru_34EBC,
+	/* 0xBC */ stru_34ECC,
+	/* 0xBD */ stru_34EDC,
+	/* 0xBE */ stru_34EEC,
+	/* 0xBF */ stru_34EFC,
+
+	/* 0xC0 */ stru_34F0C,
+	/* 0xC1 */ stru_34F4C,
+	/* 0xC2 */ stru_34F5C,
+	/* 0xC3 */ stru_34F6C,
+	/* 0xC4 */ stru_34F7C,
+	/* 0xC5 */ stru_34FBC,
+	/* 0xC6 */ stru_34FEC,
+	/* 0xC7 */ stru_3502C,
+	/* 0xC8 */ stru_3503C,
+	/* 0xC9 */ stru_3504C,
+	/* 0xCA */ stru_3509C,
+	/* 0xCB */ stru_350AC,
+	/* 0xCC */ stru_350BC,
+	/* 0xCD */ stru_3510C,
+	/* 0xCE */ stru_3514C,
+	/* 0xCF */ stru_351BC,
+
+	/* 0xD0 */ stru_351BC,
+	/* 0xD1 */ stru_352BC,
+	/* 0xD2 */ stru_353BC,
+	/* 0xD3 */ stru_354BC,
+	/* 0xD4 */ stru_3551C,
+	/* 0xD5 */ stru_3557C,
+	/* 0xD6 */ stru_355AC,
+	/* 0xD7 */ stru_3564C,
+	/* 0xD8 */ stru_356CC,
+	/* 0xD9 */ stru_3584C,
+	/* 0xDA */ stru_359CC,
+	/* 0xDB */ stru_359FC,
+	/* 0xDC */ stru_35A9C,
+	/* 0xDD */ stru_35AAC,
+	/* 0xDE */ stru_35ABC,
+	/* 0xDF */ stru_35B0C,
+
 	/* 0x00 */ stru_35B6C,
 	/* 0x00 */ stru_35B7C,
 	/* 0x00 */ stru_35BBC,
@@ -2565,6 +2576,259 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	/* 0x00 */ stru_35C2C
 };
 
+const sSpriteSheet* mSpriteSheetTypes_InGame_PC2[] = {
+    /* 0x00 */ stru_32FAC,		// Soldier Walk		Face Forward
+    /* 0x01 */ stru_32FDC,		// Soldier Walk		Face Forward + Left
+    /* 0x02 */ stru_3300C,		// Soldier Walk		Face Left
+    /* 0x03 */ stru_3303C,		// Soldier Walk		Face Left + Away
+    /* 0x04 */ stru_3306C,		// Soldier Walk		Face Away
+    /* 0x05 */ stru_3309C,		// Soldier Walk		Face Away + Right
+    /* 0x06 */ stru_330CC,		// Soldier Walk		Face Right
+    /* 0x07 */ stru_330FC,		// Soldier Walk		Face Right + Forward
+
+    /* 0x08 */ stru_3312C,		// Soldier Throw	Face Forward
+    /* 0x09 */ stru_3315C, 		// Soldier Throw	Face Forward + Left
+    /* 0x0A */ stru_3318C, 		// Soldier Throw	Face Left
+    /* 0x0B */ stru_331BC, 		// Soldier Throw	Face Left + Away
+    /* 0x0C */ stru_331EC, 		// Soldier Throw	Face Away
+    /* 0x0D */ stru_3321C, 		// Soldier Throw	Face Away + Right
+    /* 0x0E */ stru_3324C, 		// Soldier Throw	Face Right
+    /* 0x0F */ stru_3327C, 		// Soldier Throw	Face Right + Forward
+
+    /* 0x10 */ stru_332AC,		// Soldier Prone	Face Forward
+    /* 0x11 */ stru_332BC, 		// Soldier Prone	Face Forward + Left
+    /* 0x12 */ stru_332CC, 		// Soldier Prone	Face Left
+    /* 0x13 */ stru_332DC, 		// Soldier Prone	Face Left + Away
+    /* 0x14 */ stru_332EC, 		// Soldier Prone	Face Away
+    /* 0x15 */ stru_332FC, 		// Soldier Prone	Face Away + Right
+    /* 0x16 */ stru_3330C, 		// Soldier Prone	Face Right
+    /* 0x17 */ stru_3331C, 		// Soldier Prone	Face Right + Forward
+
+    /* 0x18 */ stru_3332C,		// Soldier Swim		Face Forward
+    /* 0x19 */ stru_3334C,		// Soldier Swim		Face Forward + Left
+    /* 0x1A */ stru_3336C,		// Soldier Swim		Face Left
+    /* 0x1B */ stru_3338C,		// Soldier Swim		Face Left + Away
+    /* 0x1C */ stru_333AC,		// Soldier Swim		Face Away
+    /* 0x1D */ stru_333CC,		// Soldier Swim		Face Away + Right
+    /* 0x1E */ stru_333EC,		// Soldier Swim		Face Right
+    /* 0x1F */ stru_3340C,		// Soldier Swim		Face Right + Forward
+
+    /* 0x20 */ stru_3342C,		// Soldier Death	Face Forward
+    /* 0x21 */ stru_3344C,		// Soldier Death	Face Forward + Left
+    /* 0x22 */ stru_3346C,		// Soldier Death	Face Left
+    /* 0x23 */ stru_3348C,		// Soldier Death	Face Left + Away
+    /* 0x24 */ stru_334AC,		// Soldier Death	Face Away
+    /* 0x25 */ stru_334CC,		// Soldier Death	Face Away + Right
+    /* 0x26 */ stru_334EC,		// Soldier Death	Face Right
+    /* 0x27 */ stru_3350C,		// Soldier Death	Face Right + Forward
+
+    /* 0x28 */ stru_3352C,		// Soldier Death	Face Forward
+    /* 0x29 */ stru_3354C,		// Soldier Death	Face Forward + Left
+    /* 0x2A */ stru_3356C,		// Soldier Death	Face Left
+    /* 0x2B */ stru_3358C,		// Soldier Death	Face Left + Away
+    /* 0x2C */ stru_335AC,		// Soldier Death	Face Away
+    /* 0x2D */ stru_335CC,		// Soldier Death	Face Away + Right
+    /* 0x2E */ stru_335EC,		// Soldier Death	Face Right
+    /* 0x2F */ stru_3360C,		// Soldier Death	Face Right + Forward
+
+    /* 0x30 */ stru_3362C,		// Start Face Forward
+    /* 0x31 */ stru_3365C,		// Start Face Left
+    /* 0x32 */ stru_3368C,		// Start Right
+
+    /* 0x33 */ stru_336BC,
+    /* 0x34 */ stru_336EC,
+    /* 0x35 */ stru_3371C,
+    /* 0x36 */ stru_3374C,
+    /* 0x37 */ stru_3377C,
+    /* 0x38 */ stru_337AC,
+    /* 0x39 */ stru_3380C,
+    /* 0x3A */ stru_3383C,
+    /* 0x3B */ stru_3386C,
+    /* 0x3C */ stru_3389C,
+    /* 0x3D */ stru_338CC,
+    /* 0x3E */ stru_338FC,
+    /* 0x3F */ stru_3393C,
+
+    /* 0x40 */ stru_3396C,
+    /* 0x41 */ stru_3399C,
+    /* 0x42 */ stru_339FC,
+    /* 0x43 */ stru_33A2C,
+    /* 0x44 */ stru_33A5C,
+    /* 0x45 */ stru_33A8C,
+    /* 0x46 */ stru_33ABC,
+    /* 0x47 */ stru_33AEC,
+    /* 0x48 */ stru_33B1C,
+    /* 0x49 */ stru_33B4C,
+    /* 0x4A */ stru_33B7C,
+    /* 0x4B */ stru_33BAC,
+    /* 0x4C */ stru_33BDC,
+    /* 0x4D */ stru_33C0C,
+    /* 0x4E */ stru_33C3C,
+    /* 0x4F */ stru_33C6C,
+
+    /* 0x50 */ stru_33C9C,
+    /* 0x51 */ stru_33CCC,
+    /* 0x52 */ stru_33CFC,
+    /* 0x53 */ stru_33D0C,
+    /* 0x54 */ stru_33D1C,
+    /* 0x55 */ stru_33D2C,
+    /* 0x56 */ stru_33D3C,
+    /* 0x57 */ stru_33D4C,
+    /* 0x58 */ stru_33D5C,
+    /* 0x59 */ stru_33D6C,
+    /* 0x5A */ stru_33D7C,
+    /* 0x5B */ stru_33D9C,
+    /* 0x5C */ stru_33DBC,
+    /* 0x5D */ stru_33DDC,
+    /* 0x5E */ stru_33DFC,
+    /* 0x5F */ stru_33E1C,
+
+    /* 0x60 */ stru_33E3C,
+    /* 0x61 */ stru_33E5C,
+    /* 0x62 */ stru_33E7C,
+    /* 0x63 */ stru_33E9C,
+    /* 0x64 */ stru_33EBC,
+    /* 0x65 */ stru_33EDC,
+    /* 0x66 */ stru_33EFC,
+    /* 0x67 */ stru_33F1C,
+    /* 0x68 */ stru_33F3C,
+    /* 0x69 */ stru_33F5C,
+    /* 0x6A */ stru_33F8C,
+    /* 0x6B */ stru_33FAC,
+    /* 0x6C */ stru_33FCC,
+    /* 0x6D */ stru_33FEC,
+    /* 0x6E */ stru_3400C,
+    /* 0x6F */ stru_3402C,
+
+    /* 0x70 */ stru_3404C,
+    /* 0x71 */ stru_3406C,
+    /* 0x72 */ stru_3408C,
+    /* 0x73 */ stru_340BC,
+    /* 0x74 */ stru_340EC,
+    /* 0x75 */ stru_3411C,
+    /* 0x76 */ stru_3414C,
+    /* 0x77 */ stru_3417C,
+    /* 0x78 */ stru_341AC,
+    /* 0x79 */ stru_341DC,
+    /* 0x7A */ stru_3420C,
+    /* 0x7B */ stru_3426C,
+    /* 0x7C */ stru_3426C,
+    /* 0x7D */ stru_342EC,
+    /* 0x7E */ stru_3432C,
+    /* 0x7F */ stru_3436C,
+
+    /* 0x80 */ stru_343EC,
+    /* 0x81 */ stru_343EC,
+    /* 0x82 */ stru_343EC,
+    /* 0x83 */ stru_343EC,
+    /* 0x84 */ stru_343EC,
+    /* 0x85 */ stru_343EC,
+    /* 0x86 */ stru_343EC,
+    /* 0x87 */ stru_343EC,
+    /* 0x88 */ stru_343EC,
+    /* 0x89 */ stru_343EC,
+    /* 0x8A */ stru_343EC,
+    /* 0x8B */ stru_343EC,
+    /* 0x8C */ stru_344EC,
+    /* 0x8D */ stru_3452C,
+    /* 0x8E */ stru_3455C,
+    /* 0x8F */ stru_345CC,
+
+    /* 0x90 */ stru_345DC,
+    /* 0x91 */ stru_345EC,
+    /* 0x92 */ stru_345FC,
+    /* 0x93 */ stru_3460C,
+    /* 0x94 */ stru_3461C,
+    /* 0x95 */ stru_3464C,
+    /* 0x96 */ stru_3474C,
+    /* 0x97 */ stru_3478C,
+    /* 0x98 */ stru_347AC,
+    /* 0x99 */ stru_347CC,
+    /* 0x9A */ stru_347DC,
+    /* 0x9B */ stru_3481C,
+    /* 0x9C */ stru_3482C,
+    /* 0x9D */ stru_3486C,
+    /* 0x9E */ stru_348EC,
+    /* 0x9F */ stru_3490C,
+
+    /* 0xA0 */ stru_3494C,
+    /* 0xA1 */ stru_3495C,
+    /* 0xA2 */ stru_3496C,
+    /* 0xA3 */ stru_3497C,
+    /* 0xA4 */ stru_34A7C,
+    /* 0xA5 */ stru_34AFC,
+    /* 0xA6 */ stru_34BFC,
+    /* 0xA7 */ stru_34BFC,
+    /* 0xA8 */ stru_34C7C,
+    /* 0xA9 */ stru_34CAC,
+    /* 0xAA */ stru_34CDC,
+    /* 0xAB */ stru_34D0C,
+    /* 0xAC */ stru_34D3C,
+    /* 0xAD */ stru_34D6C,
+    /* 0xAE */ stru_34DAC,
+    /* 0xAF */ stru_34DDC,
+
+    /* 0xB0 */ stru_34E0C,
+    /* 0xB1 */ stru_34E1C,
+    /* 0xB2 */ stru_34E2C,
+    /* 0xB3 */ stru_34E3C,
+    /* 0xB4 */ stru_34E4C,
+    /* 0xB5 */ stru_34E5C,
+    /* 0xB6 */ stru_34E6C,
+    /* 0xB7 */ stru_34E7C,
+    /* 0xB8 */ stru_34E8C,
+    /* 0xB9 */ stru_34E9C,
+    /* 0xBA */ stru_34EAC,
+    /* 0xBB */ stru_34EBC,
+    /* 0xBC */ stru_34ECC,
+    /* 0xBD */ stru_34EDC,
+    /* 0xBE */ stru_34EEC,
+    /* 0xBF */ stru_34EFC,
+
+    /* 0xC0 */ stru_34F0C,
+    /* 0xC1 */ stru_34F4C,
+    /* 0xC2 */ stru_34F5C,
+    /* 0xC3 */ stru_34F6C,
+    /* 0xC4 */ stru_34F7C,
+    /* 0xC5 */ stru_34FBC,
+    /* 0xC6 */ stru_34FEC,
+    /* 0xC7 */ stru_3502C,
+    /* 0xC8 */ stru_3503C,
+    /* 0xC9 */ stru_3504C,
+    /* 0xCA */ stru_3509C,
+    /* 0xCB */ stru_350AC,
+    /* 0xCC */ stru_350BC,
+    /* 0xCD */ stru_3510C,
+    /* 0xCE */ stru_3514C,
+    /* 0xCF */ stru_351BC,
+
+    /* 0xD0 */ stru_351BC,
+    /* 0xD1 */ stru_352BC,
+    /* 0xD2 */ stru_353BC,
+    /* 0xD3 */ stru_354BC,
+    /* 0xD4 */ stru_3551C,
+    /* 0xD5 */ stru_3557C,
+    /* 0xD6 */ stru_355AC,
+    /* 0xD7 */ stru_3564C,
+    /* 0xD8 */ stru_356CC,
+    /* 0xD9 */ stru_3584C,
+    /* 0xDA */ stru_359CC,
+    /* 0xDB */ stru_359FC,
+    /* 0xDC */ stru_35A9C,
+    /* 0xDD */ stru_35AAC,
+    /* 0xDE */ stru_35ABC,
+    /* 0xDF */ stru_35B0C,
+
+    /* 0x00 */ stru_35B6C,
+    /* 0x00 */ stru_35B7C,
+    /* 0x00 */ stru_35BBC,
+    /* 0x00 */ stru_35BEC,
+    /* 0x00 */ stru_35BFC,
+    /* 0x00 */ stru_35C0C,
+    /* 0x00 */ stru_35C1C,
+    /* 0x00 */ stru_35C2C,
+    /* 0x00 */ stru_1B108
+};
 
 /**
  * Service Screen
