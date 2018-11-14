@@ -64,7 +64,7 @@ Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com/game/can
 
 ##### Demos
   
-Four Amiga magazine coverdisk demos are included in the data pack.  
+Five Amiga magazine coverdisk demos are included in the data pack.  
   
 * Amiga The One Issue #68: (Jun 1993)
 * Amiga Power   Issue #31: (Nov 1993) Cannon Fodder Plus
