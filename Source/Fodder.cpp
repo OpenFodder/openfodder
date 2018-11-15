@@ -9438,7 +9438,7 @@ loc_2B403:;
     pX = 640;
 }
 
-void cFodder::MapTile_Update_Position() {
+bool cFodder::MapTile_Update_Position() {
 
     MapTile_Update_Y();
     MapTile_Update_X();
@@ -9463,8 +9463,12 @@ void cFodder::MapTile_Update_Position() {
             MapTile_Move_Down(TileRows);
     }
 
-    if (TileColumns || TileRows)
+    if (TileColumns || TileRows) {
         mGraphics->MapTiles_Draw();
+        return true;
+    }
+
+    return false;
 }
 
 void cFodder::MapTile_Move_Right(int16 pPanTiles) {

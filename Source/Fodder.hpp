@@ -1061,7 +1061,7 @@ public:
 
     void            Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, int16& pX2, int16& pY2);
 
-    void            MapTile_Update_Position();
+    bool            MapTile_Update_Position();
 
     void            MapTile_Move_Right(int16 pPanTiles);
     void            MapTile_Move_Left(int16 pPanTiles);
