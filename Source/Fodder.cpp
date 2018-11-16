@@ -10046,13 +10046,19 @@ void cFodder::Squad_Prepare_GrenadesAndRockets() {
         }
     }
     else {
-        if (mGame_Data.mPhase_Current->mGrenades != -1)
-            mSquad_Grenades[0] = mGame_Data.mPhase_Current->mGrenades;
+        if (mGame_Data.mMission_Number < 3)       // Original CF2: Map 5
+            mSquad_Grenades[0] = 0;
 
-        if(mGame_Data.mPhase_Current->mRockets != -1)
-            mSquad_Rockets[0] = mGame_Data.mPhase_Current->mRockets;
-        
+        if (mGame_Data.mMission_Number < 4 || (mGame_Data.mMission_Number == 4 && mGame_Data.mMission_Phase < 2))       // Original CF2: Map 10
+            mSquad_Rockets[0] = 0;
     }
+
+    // If grenades/rockets are provided in the campaign data, override with those
+    if (mGame_Data.mPhase_Current->mGrenades != -1)
+        mSquad_Grenades[0] = mGame_Data.mPhase_Current->mGrenades;
+
+    if (mGame_Data.mPhase_Current->mRockets != -1)
+        mSquad_Rockets[0] = mGame_Data.mPhase_Current->mRockets;
 }
 
 void cFodder::Sprite_Aggression_Set() {
