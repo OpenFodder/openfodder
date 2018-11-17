@@ -98,7 +98,7 @@ struct sFodderParameters {
 
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
-class cFodder : public cSingleton < cFodder > {
+class cFodder {
 public:
     std::string             mInput;
 

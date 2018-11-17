@@ -30,6 +30,7 @@
 #include <functional>
 #include <memory>
 #include <cstring>
+#include <cassert>
 
 #include <SDL.h>
 #ifndef EMSCRIPTEN
@@ -99,8 +100,6 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 	#define _stricmp( a, b ) strcmp(a, b)
 #endif
-
-#include "Singleton.hpp"
 
 #include "Position.hpp"
 #include "Dimension.hpp"
