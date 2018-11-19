@@ -1076,8 +1076,8 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
 
     // Calcukate the difference between top/bottom
     double diff = HeightMax - HeightMin;
-    double flood = 0.5;
-    double mount = 0.85;
+    double flood = 0.3;
+    double mount = 0.7;
 
     // Calculate the flood/moutain levels
     flood *= diff;
@@ -1110,12 +1110,12 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
             Column -= HeightMin;
 
             if (Column < flood) {
-                if(!Found)
+                //if(!Found)
                     *MapPtr = TileWater;
                 Found = true;
             }
             else if (Column > mount) {
-                //*MapPtr = TileBounce;
+                *MapPtr = TileBounce;
             }
             else {
                 *MapPtr = TileLand;
@@ -1287,20 +1287,27 @@ void cFodder::Map_Randomise_Structures(const size_t pCount) {
 
     size_t StructsCount = 0;
 
+    int16 TileLand = Tile_FindType(eTerrainType_Land);
+
     // This is very lame :)
-    while (StructsCount++ < pCount) {
+    while (StructsCount < pCount) {
         auto Struct = mStructuresBarracksWithSoldier[mMap_TileSet];
 
-        int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - Struct.MaxWidth() - 2)) + 2;
-        int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - Struct.MaxHeight() - 2)) + 2;
+        int16 StartTileX = tool_RandomGet(Struct.MaxWidth() + 2, mMapWidth - Struct.MaxWidth());
+        int16 StartTileY = tool_RandomGet(Struct.MaxHeight() + 2, mMapHeight - Struct.MaxWidth());
 
         // TODO: Check if we will overlap an existing structure,
         //       or place on water
+        auto Tile = MapTile_Get(StartTileX, StartTileY);
+        if (Tile != TileLand)
+            continue;
 
         Map_Add_Structure(Struct, StartTileX, StartTileY);
 
         // Add an enemy below each building
         Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
+
+        ++StructsCount;
     }
 }
 
@@ -1308,11 +1315,26 @@ void cFodder::Map_Randomise_Sprites(const size_t pHumanCount) {
     int16 DistanceY = 8;
     int16 DistanceX = 8;
 
-    int16 StartTileX = (((uint16)tool_RandomGet()) % (mMapWidth - 2)) + 2;
-    int16 StartTileY = (((uint16)tool_RandomGet()) % (mMapHeight - 2)) + 2;
+    int16 MiddleX = 0;
+    int16 MiddleY = 0;
 
-    int16 MiddleX = StartTileX * 16;
-    int16 MiddleY = StartTileY * 16;
+    int16 TileLand = Tile_FindType(eTerrainType_Land);
+
+    size_t Count = 0;
+    while (Count < 100000) {
+        int16 StartTileX = tool_RandomGet(2, mMapWidth - 2);
+        int16 StartTileY = tool_RandomGet(2, mMapHeight - 2);
+
+        // TODO: Check if we will overlap an existing structure,
+        //       or place on water
+        auto Tile = MapTile_Get(StartTileX, StartTileY);
+        if (Tile != TileLand)
+            continue;
+
+        MiddleX = StartTileX * 16;
+        MiddleY = StartTileY * 16;
+        break;
+    }
 
     // Add atleast two sprites
     for (size_t x = 0; x < pHumanCount; ++x) {
@@ -4475,7 +4497,7 @@ int16 cFodder::Recruit_Show() {
         if (mVersionCurrent->mName == "Random Map") {
 
             std::string RandomMapFile = local_PathGenerate("random.map", "Custom/Maps", eData);
-            Map_Create(mTileTypes[0], 0, 28, 22, true);
+            Map_Create(mTileTypes[0], 0, tool_RandomGet(28, 70), tool_RandomGet(22, 70), true);
             Map_Save(RandomMapFile);
 
             mGame_Data.mCampaign.LoadCustomMapFromPath(RandomMapFile);
@@ -8490,6 +8512,11 @@ void cFodder::tool_RandomSeed() {
     mRandom_0 = ax;
     mRandom_2 = 1;
     mRandom_3 = 0;
+}
+
+uint16 cFodder::tool_RandomGet(uint16 pMin, uint16 pMax) {
+
+    return ((uint16)tool_RandomGet()) % (pMax - pMin + 1) + pMin;
 }
 
 int16 cFodder::tool_RandomGet() {

@@ -1030,6 +1030,8 @@ public:
 
     void            tool_RandomSeed();
     int16           tool_RandomGet();
+    uint16          tool_RandomGet(uint16 pMin, uint16 pMax);
+
     void            Sprite_Movement_Calculate(sSprite* pSprite);
     int16           Sprite_Direction_Between_Points(sSprite* pSprite, int16& pData0, int16& pData4);
     void            sub_2A3D4(sSprite* pSprite);
