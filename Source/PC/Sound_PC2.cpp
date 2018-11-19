@@ -31,6 +31,9 @@ cSound_PC2::cSound_PC2() {
 
 	mSound = false;
 	mMusicPlaying = 0;
+
+    devicePrepare();
+
 }
 
 cSound_PC2::~cSound_PC2() {
@@ -74,7 +77,16 @@ void cSound_PC2::Music_PlayFile( const char* pFilename ) {
 	if (mSound == false)
 		return;
 
+    std::string Filename = local_PathGenerate(pFilename, g_Fodder->mVersionCurrent->mDataPath, eData) + ".AMF";
 
+    Mix_FreeMusic(mMusicPlaying);
+    SDL_Delay(100);
+
+    mMusicPlaying = Mix_LoadMUS(Filename.c_str());
+    Mix_VolumeMusic(0x70);
+
+    if (mMusicPlaying)
+        Mix_PlayMusic(mMusicPlaying, -1);
 }
 
 void cSound_PC2::Music_Stop() {
@@ -86,6 +98,41 @@ void cSound_PC2::Music_Stop() {
 }
 
 void cSound_PC2::Music_Play( int16 pTrack ) {
+    std::string filename;
 
+    switch (pTrack) {
+        case 0:
+            filename = "MENU";
+            break;
+
+        case 6:
+            filename = "WINZONE";
+            break;
+
+        case 12:
+            filename = "WINLEVEL";
+            break;
+
+        case 7:
+            filename = "HELIANIM";
+            break;
+
+       // case xx:
+       //   filename = "LOADER.AMF";
+       //   break;
+
+        case 15:
+        case 8:
+            filename = "GAMEOVER";
+            break;
+
+        case 16:
+            filename = "TITLE";
+            break;
+
+    }
+
+    if(filename.size())
+        Music_PlayFile(filename.c_str());
 
 }
