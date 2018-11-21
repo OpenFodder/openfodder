@@ -18168,14 +18168,17 @@ void cFodder::intro_Retail() {
     //  CopyProtection();
     mGraphics->Load_Sprite_Font();
 
-    mSound->Music_Play(CANNON_BASED(16, 20));
+    mSound->Music_Play(CANNON_BASED(16, PLATFORM_BASED(16, 20)));
 
     if (mVersionCurrent->isCannonFodder1())
         intro_LegionMessage();
 
+    if (mVersionCurrent->isCannonFodder2())
+        sleepLoop(3000);
+
     mPhase_Aborted = false;
 
-    if (ShowImage_ForDuration("cftitle", 0x1F8 / 3))
+    if (ShowImage_ForDuration("cftitle", CANNON_BASED(0x1F8 / 3, 0x205 / 3)))
         return;
 
     if (intro_Play())

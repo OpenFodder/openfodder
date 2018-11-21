@@ -441,9 +441,13 @@ void Rjp1::modulateVolumeWaveform(Rjp1Channel *channel) {
 	}
 }
 
+template<typename T> inline T CLIP(T v, T amin, T amax) {
+    if (v < amin) return amin; else if (v > amax) return amax; else return v;
+}
+
 void Rjp1::setVolume(Rjp1Channel *channel) {
 	channel->volume = (channel->volume * channel->volumeScale) / 64;
-	//channel->volume = CLIP<int16>(channel->volume, 0, 64);
+	channel->volume = CLIP<int16>(channel->volume, 0, 64);
 	setChannelVolume(channel - _channelsTable, (uint8) channel->volume);
 }
 
