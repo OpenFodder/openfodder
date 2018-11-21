@@ -22,9 +22,9 @@
 
 #include "stdafx.hpp"
 
-const sSoundData Tracks[] = {
+const sSoundData Tracks1[] = {
 	{ "JON.SNG", "JON.INS" },
-	{ "KILLER.SNG", "KILLER.INS" },
+	{ "WARX4.SNG", "WARX1.INS" },
 	{ "JUNBASE.SNG", "JUNBASE.INS" },
 	{ "DESBASE.SNG", "DESBASE.INS" },
 	{ "ICEBASE.SNG", "ICEBASE.INS" },
@@ -32,6 +32,18 @@ const sSoundData Tracks[] = {
 	{ "INTBASE.SNG", "INTBASE.INS" },
 	{ "", "" },
 	{ "AFXBASE.SNG", "AFXBASE.INS" }
+};
+
+const sSoundData Tracks2[] = {
+    { "JON.SNG", "JON.INS" },
+    { "KILLER.SNG", "KILLER.INS" },
+    { "JUNBASE.SNG", "JUNBASE.INS" },
+    { "DESBASE.SNG", "DESBASE.INS" },
+    { "ICEBASE.SNG", "ICEBASE.INS" },
+    { "MORBASE.SNG", "MORBASE.INS" },
+    { "INTBASE.SNG", "INTBASE.INS" },
+    { "", "" },
+    { "AFXBASE.SNG", "AFXBASE.INS" }
 };
 
 // Call back from Audio Device to fill audio output buffer
@@ -134,12 +146,16 @@ bool cSound_Amiga::devicePrepare() {
 
 int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 	int16 Number = 0;
-	const sSoundData *Track = 0;
+    const sSoundData *Tracks = CANNON_BASED(Tracks1, Tracks2);
+    const sSoundData *Track = 0;
 	
 	// Intro
 	if (pTrack >= 16 && pTrack <= 20) {
 		Track = &Tracks[1];
 		Number = (pTrack - 16);
+
+        if (!Number)
+            Number = 1;
 	}
 
 	// Mission

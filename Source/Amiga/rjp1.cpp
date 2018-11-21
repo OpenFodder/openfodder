@@ -239,8 +239,14 @@ bool Rjp1::executeSongSequenceOp(Rjp1Channel *channel, uint8 code, const uint8 *
 		break;
 	case 4:
 		code = *p++;
-		if (code != 0 && code != 0x24) {
-			setupInstrument(channel, code);
+		if (code != 0) {
+            // HACK: This avoids a crash in KILLER.SNG 
+            if (g_Fodder->mVersionCurrent->isCannonFodder2() && code == 0x24) {
+
+            }
+            else {
+                setupInstrument(channel, code);
+            }
 		}
 		break;
 	case 5:

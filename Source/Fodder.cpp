@@ -3003,9 +3003,11 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
             if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
                 mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::Amiga);
+                mParams.mDefaultPlatform = ePlatform::Amiga;
             }
             if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
                 mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::PC); 
+                mParams.mDefaultPlatform = ePlatform::PC;
             }
 
             VersionSwitch(mVersionDefault);
@@ -18168,7 +18170,8 @@ void cFodder::intro_Retail() {
     //  CopyProtection();
     mGraphics->Load_Sprite_Font();
 
-    mSound->Music_Play(CANNON_BASED(16, PLATFORM_BASED(16, 20)));
+    
+    mSound->Music_Play(PLATFORM_BASED(16, CANNON_BASED(16, 20)));
 
     if (mVersionCurrent->isCannonFodder1())
         intro_LegionMessage();
