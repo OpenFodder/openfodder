@@ -164,6 +164,7 @@
     <ClInclude Include="..\..\Source\Amiga\audiostream.hpp" />
     <ClInclude Include="..\..\Source\Amiga\dernc.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp" />
+    <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga2.hpp" />
     <ClInclude Include="..\..\Source\Amiga\paula.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Resource_Amiga_File.hpp" />
     <ClInclude Include="..\..\Source\Amiga\rjp1.hpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="..\..\Source\Campaign.hpp" />
     <ClInclude Include="..\..\Source\CopyProtection.hpp" />
     <ClInclude Include="..\..\Source\FontData.hpp" />
+    <ClInclude Include="..\..\Source\GameData.hpp" />
     <ClInclude Include="..\..\Source\GUI_Element.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
     <ClInclude Include="..\..\Source\Event.hpp" />
@@ -193,10 +195,13 @@
     <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\SpriteSheet.hpp" />
     <ClInclude Include="..\..\Source\stdafx.hpp" />
+    <ClInclude Include="..\..\Source\Structures\Barracks.hpp" />
     <ClInclude Include="..\..\Source\Surface.hpp" />
     <ClInclude Include="..\..\Source\Tiles.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
     <ClInclude Include="..\..\Source\UnknownData.hpp" />
+    <ClInclude Include="..\..\Source\Utils\cxxopts.hpp" />
+    <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp" />
     <ClInclude Include="..\..\Source\Utils\json.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />
@@ -204,6 +209,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Amiga\dernc.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp" />
+    <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga2.cpp" />
     <ClCompile Include="..\..\Source\Amiga\IntroData_Amiga.cpp" />
     <ClCompile Include="..\..\Source\Amiga\paula.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Resource_Amiga_File.cpp" />
@@ -212,6 +218,7 @@
     <ClCompile Include="..\..\Source\Campaign.cpp" />
     <ClCompile Include="..\..\Source\CopyProtection.cpp" />
     <ClCompile Include="..\..\Source\FontData.cpp" />
+    <ClCompile Include="..\..\Source\GameData.cpp" />
     <ClCompile Include="..\..\Source\GUI_Element.cpp" />
     <ClCompile Include="..\..\Source\Event.cpp" />
     <ClCompile Include="..\..\Source\Fodder.cpp" />
@@ -228,6 +235,7 @@
     <ClCompile Include="..\..\Source\Sprites.cpp" />
     <ClCompile Include="..\..\Source\SpriteSheet.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
+    <ClCompile Include="..\..\Source\Structures\Barracks.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Tiles.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />

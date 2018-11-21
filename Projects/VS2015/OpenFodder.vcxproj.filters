@@ -13,6 +13,9 @@
     <Filter Include="Source\Utils">
       <UniqueIdentifier>{d4573b8f-ce37-4999-9e66-f06154aad614}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Structures">
+      <UniqueIdentifier>{709d60bc-d8cf-4704-b231-1f3c7f435184}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -132,6 +135,21 @@
     <ClInclude Include="..\..\Source\Campaign.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga2.hpp">
+      <Filter>Source\Amiga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\cxxopts.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Structures\Barracks.hpp">
+      <Filter>Source\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GameData.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -222,6 +240,15 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Campaign.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga2.cpp">
+      <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Structures\Barracks.cpp">
+      <Filter>Source\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GameData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
