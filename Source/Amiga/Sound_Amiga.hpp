@@ -38,7 +38,7 @@ struct sSound {
 };
 
 class cSound_Amiga : public cSound {
-	Audio::AudioStream*					mCurrentMusic;
+	Audio::Rjp1*					    mCurrentMusic;
 	sSound								mSound_Music;
 	sSound								mSound_Sfx;
 
@@ -64,6 +64,8 @@ public:
 	void				Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume );
 
 	void				Music_Play( int16 pTrack );
-	void				Music_Stop();
+    void				Music_Stop();
 	void				Sound_Stop();
+        
+    
 };

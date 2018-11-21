@@ -96,7 +96,7 @@ public:
 
 protected:
 
-	void startSequence(uint8 channelNum, uint8 seqNum);
+    void startSequence(uint8 channelNum, uint8 seqNum);
 	void turnOffChannel(Rjp1Channel *channel);
 	void playChannel(Rjp1Channel *channel);
 	void turnOnChannel(Rjp1Channel *channel);
@@ -132,7 +132,7 @@ class AudioStream;
  * given songData and instrumentsData streams and creates an AudioStream
  * from this. No references to these stream objects are kept.
  */
-AudioStream *makeRjp1Stream(uint8 *songData, uint8 *instrumentsData, size_t instructmentsDataSize, int num, int rate = 44100, bool stereo = true);
+Rjp1 *makeRjp1Stream(uint8 *songData, uint8 *instrumentsData, size_t instructmentsDataSize, int num, int rate = 44100, bool stereo = true);
 
 } // End of namespace Audio
 

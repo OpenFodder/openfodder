@@ -24,7 +24,7 @@
 
 const sSoundData Tracks[] = {
 	{ "JON.SNG", "JON.INS" },
-	{ "WARX4.SNG", "WARX1.INS" },
+	{ "KILLER.SNG", "KILLER.INS" },
 	{ "JUNBASE.SNG", "JUNBASE.INS" },
 	{ "DESBASE.SNG", "DESBASE.INS" },
 	{ "ICEBASE.SNG", "ICEBASE.INS" },
@@ -137,7 +137,7 @@ int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 	const sSoundData *Track = 0;
 	
 	// Intro
-	if (pTrack >= 16 && pTrack <= 17) {
+	if (pTrack >= 16 && pTrack <= 20) {
 		Track = &Tracks[1];
 		Number = (pTrack - 16);
 	}

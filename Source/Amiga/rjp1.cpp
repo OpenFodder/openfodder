@@ -239,7 +239,7 @@ bool Rjp1::executeSongSequenceOp(Rjp1Channel *channel, uint8 code, const uint8 *
 		break;
 	case 4:
 		code = *p++;
-		if (code != 0) {
+		if (code != 0 && code != 0x24) {
 			setupInstrument(channel, code);
 		}
 		break;
@@ -474,7 +474,7 @@ const int16 Rjp1::_periodsTable[] = {
 
 const int Rjp1::_periodsCount = (sizeof( _periodsTable ) / sizeof( *_periodsTable ));
 
-AudioStream *makeRjp1Stream(uint8 *songData, uint8 *instrumentsData, size_t instructmentsDataSize,  int num, int rate, bool stereo) {
+Rjp1 *makeRjp1Stream(uint8 *songData, uint8 *instrumentsData, size_t instructmentsDataSize,  int num, int rate, bool stereo) {
 	Rjp1 *stream = new Rjp1(rate, stereo);
 	if (stream->load(songData, instrumentsData, instructmentsDataSize)) {
 		if (num < 0) {

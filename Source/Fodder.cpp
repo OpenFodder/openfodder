@@ -18168,9 +18168,9 @@ void cFodder::intro_Retail() {
     //  CopyProtection();
     mGraphics->Load_Sprite_Font();
 
-    mSound->Music_Play(16);
+    mSound->Music_Play(CANNON_BASED(16, 20));
 
-    if (mVersionCurrent->mGame == eGame::CF1)
+    if (mVersionCurrent->isCannonFodder1())
         intro_LegionMessage();
 
     mPhase_Aborted = false;

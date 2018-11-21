@@ -147,4 +147,5 @@ extern std::shared_ptr<cFodder>    g_Fodder;
 
 extern const char gPathSeperator;
 
-#define PLATFORM_BASED( pPC, pAmiga ) (g_Fodder->mVersionCurrent->mPlatform == ePlatform::Amiga ? pAmiga : pPC)
+#define CANNON_BASED( pCF1, pCF2 )    (g_Fodder->mVersionCurrent->isCannonFodder1() ? pCF1 : pCF2 )
+#define PLATFORM_BASED( pPC, pAmiga ) (g_Fodder->mVersionCurrent->isAmiga() ? pAmiga : pPC )
