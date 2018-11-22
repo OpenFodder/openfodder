@@ -262,6 +262,7 @@ public:
 
     sMapPosition    m2A622_Unk_MapPosition;
 
+    bool            mPhase_Aborted2;
     bool            mPhase_Aborted;
     bool            mPhase_Complete;
     int16           mPhase_Completed_Timer;

@@ -537,6 +537,7 @@ void cFodder::Mission_Memory_Restore() {
 
 void cFodder::Mission_Memory_Clear() {
     // Clear memory 2454 to 3B58
+    mPhase_Aborted2 = false;
     mButtonPressLeft = 0;
     mButtonPressRight = 0;
     mMouse_Button_Left_Toggle = 0;
@@ -3023,6 +3024,9 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
     if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
         mWindow->ToggleFullscreen();
+
+    if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed && mPhase_Aborted)
+        mPhase_Aborted2 = true;
 
     if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
         mPhase_Aborted = true;
@@ -20257,6 +20261,11 @@ int16 cFodder::Mission_Loop() {
                 WonGame();
                 return -1;
             }
+        }
+
+        // Double escape aborts out to OF selection, on Amiga the one
+        if (mPhase_Aborted2 && mVersionCurrent->isAmigaTheOne()) {
+            return -1;
         }
 
         // loc_1045F
