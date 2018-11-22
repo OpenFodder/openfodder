@@ -78,7 +78,11 @@ public:
 
 	struct Vars {
 		int8 *instData;
+        uint32 instDataSize;
+
 		uint8 *songData[7];
+        uint32 songDataSize[7];
+
 		uint8 activeChannelsMask;
 		uint8 currentChannel;
 		int subsongsCount;
@@ -88,7 +92,7 @@ public:
 	Rjp1(int rate, bool stereo);
 	virtual ~Rjp1();
 
-	bool load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSize);
+	bool load(tSharedBuffer songData, tSharedBuffer instrumentsData);
 	void unload();
 
 	void startPattern(int ch, int pat);
@@ -132,7 +136,7 @@ class AudioStream;
  * given songData and instrumentsData streams and creates an AudioStream
  * from this. No references to these stream objects are kept.
  */
-Rjp1 *makeRjp1Stream(uint8 *songData, uint8 *instrumentsData, size_t instructmentsDataSize, int num, int rate = 44100, bool stereo = true);
+Rjp1 *makeRjp1Stream(tSharedBuffer songData, tSharedBuffer instrumentsData, int num, int rate = 44100, bool stereo = true);
 
 } // End of namespace Audio
 

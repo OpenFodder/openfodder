@@ -18177,11 +18177,11 @@ void cFodder::intro_Retail() {
         intro_LegionMessage();
 
     if (mVersionCurrent->isCannonFodder2())
-        sleepLoop(3000);
+        sleepLoop(1000);
 
     mPhase_Aborted = false;
 
-    if (ShowImage_ForDuration("cftitle", CANNON_BASED(0x1F8 / 3, 0x205 / 3)))
+    if (ShowImage_ForDuration("cftitle", CANNON_BASED(0x1F8 / 3, 0x280 / 3)))
         return;
 
     if (intro_Play())

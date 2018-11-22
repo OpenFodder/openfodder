@@ -37,7 +37,10 @@ Rjp1::~Rjp1() {
 	unload();
 }
 
-bool Rjp1::load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSize ) {
+bool Rjp1::load(tSharedBuffer pSong, tSharedBuffer pInstruments ) {
+    uint8* songData = pSong->data();
+    uint8* instrumentsData = pInstruments->data();
+
 	if ( readBEDWord(songData) == 'RJP1' && readBEDWord(songData + 4) == 'SMOD') {
 		songData += 8;
 
@@ -45,6 +48,7 @@ bool Rjp1::load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSi
 			uint32 size = readBEDWord(songData);
 			songData += 4;
 
+            _vars.songDataSize[i] = size;
 			_vars.songData[i] = (uint8 *)malloc(size);
 			if (!_vars.songData[i])
 				return false;
@@ -76,8 +80,10 @@ bool Rjp1::load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSi
 		if (readBEDWord(instrumentsData) == 'RJP1') {
 			instrumentsData += 4;
 
-			size_t size = instrumentDataSize - 4;
+			size_t size = pInstruments->size() - 4;
 			_vars.instData = (int8 *)malloc(size);
+            _vars.instDataSize = size;
+
 			if (!_vars.instData)
 				return false;
 
@@ -86,7 +92,6 @@ bool Rjp1::load(uint8 *songData, uint8 *instrumentsData, size_t instrumentDataSi
 		}
 	}
 
-	//debug(5, "Rjp1::load() _instrumentsCount = %d _subsongsCount = %d", _vars.instrumentsCount, _vars.subsongsCount);
 	return true;
 }
 
@@ -240,13 +245,10 @@ bool Rjp1::executeSongSequenceOp(Rjp1Channel *channel, uint8 code, const uint8 *
 	case 4:
 		code = *p++;
 		if (code != 0) {
-            // HACK: This avoids a crash in KILLER.SNG 
-            if (g_Fodder->mVersionCurrent->isCannonFodder2() && code == 0x24) {
+            if (code >= _vars.instrumentsCount)
+                code = 0;
 
-            }
-            else {
-                setupInstrument(channel, code);
-            }
+            setupInstrument(channel, code);
 		}
 		break;
 	case 5:
@@ -357,13 +359,9 @@ void Rjp1::setupInstrument(Rjp1Channel *channel, uint8 num) {
 		channel->modulateVolumeLimit = readBEWord(p + 30) * 2;
 		channel->waveData = _vars.instData + readBEDWord(p);
 		uint32 off = readBEDWord(p + 4);
-		if (off) {
-			channel->modulatePeriodData = _vars.instData + off;
-		}
+		channel->modulatePeriodData = _vars.instData + off;
 		off = readBEDWord(p + 8);
-		if (off) {
-			channel->modulateVolumeData = _vars.instData + off;
-		}
+	    channel->modulateVolumeData = _vars.instData + off;
 	}
 }
 
@@ -447,13 +445,13 @@ void Rjp1::modulateVolumeWaveform(Rjp1Channel *channel) {
 	}
 }
 
-inline int16 CLIP(int16 v, int16 amin, int16 amax) {
+template<typename T> inline T CLIP(T v, T amin, T amax) {
     if (v < amin) return amin; else if (v > amax) return amax; else return v;
 }
 
 void Rjp1::setVolume(Rjp1Channel *channel) {
 	channel->volume = (channel->volume * channel->volumeScale) / 64;
-    //channel->volume = CLIP(channel->volume, 0, 64);
+    //channel->volume = CLIP<uint8>(channel->volume, 0, 64);
 	setChannelVolume(channel - _channelsTable, (uint8) channel->volume);
 }
 
@@ -484,9 +482,9 @@ const int16 Rjp1::_periodsTable[] = {
 
 const int Rjp1::_periodsCount = (sizeof( _periodsTable ) / sizeof( *_periodsTable ));
 
-Rjp1 *makeRjp1Stream(uint8 *songData, uint8 *instrumentsData, size_t instructmentsDataSize,  int num, int rate, bool stereo) {
+Rjp1 *makeRjp1Stream(tSharedBuffer songData, tSharedBuffer instrumentsData,  int num, int rate, bool stereo) {
 	Rjp1 *stream = new Rjp1(rate, stereo);
-	if (stream->load(songData, instrumentsData, instructmentsDataSize)) {
+	if (stream->load(songData, instrumentsData)) {
 		if (num < 0) {
 			stream->startPattern(3, -num);
 		} else {

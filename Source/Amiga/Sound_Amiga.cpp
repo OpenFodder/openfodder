@@ -186,7 +186,7 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
 
 	if (SDL_LockMutex( mLock ) == 0) {
 		if (mSound_Sfx.mCurrentMusicSongData && mSound_Sfx.mCurrentMusicInstrumentData) {
-			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData->data(), mSound_Sfx.mCurrentMusicInstrumentData->data(), mSound_Sfx.mCurrentMusicInstrumentData->size(), -pSoundEffect );
+			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, -pSoundEffect );
 			Sfx->mVolume = pVolume;
 			mCurrentSfx.push_back( Sfx );
 		}
@@ -203,10 +203,11 @@ void cSound_Amiga::Music_Play( int16 pTrack ) {
 		
 	Music_Stop();
 
-	if (mSound_Music.mCurrentMusicSongData->size() && 
-		 mSound_Music.mCurrentMusicInstrumentData->size())
-		mCurrentMusic = Audio::makeRjp1Stream( mSound_Music.mCurrentMusicSongData->data(), mSound_Music.mCurrentMusicInstrumentData->data(), mSound_Music.mCurrentMusicInstrumentData->size(), Number );
-	
+    if (mSound_Music.mCurrentMusicSongData && mSound_Music.mCurrentMusicInstrumentData) {
+        if (mSound_Music.mCurrentMusicSongData->size() && mSound_Music.mCurrentMusicInstrumentData->size())
+            mCurrentMusic = Audio::makeRjp1Stream(mSound_Music.mCurrentMusicSongData, mSound_Music.mCurrentMusicInstrumentData, Number);
+    }
+
 	SDL_PauseAudio(0);
 }
 
