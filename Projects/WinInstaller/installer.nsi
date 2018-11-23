@@ -76,9 +76,9 @@ Section "Copy Files" drcreepInst
   File ".\packages\VC_redist.x86.exe"
   File "..\..\gpl-3.0.txt"
   File "..\..\Readme.md"
-  File "..\..\Run_x86\OpenFodder.exe"
-  File "..\..\Run_x86\SDL2.dll"
-  File "..\..\Run_x86\SDL2_mixer.dll"
+  File "..\VS2017\Release\OpenFodder.exe"
+  File "..\VS2017\Release\SDL2.dll"
+  File "..\VS2017\Release\SDL2_mixer.dll"
   
   SetOutPath "$PROFILE\Documents\OpenFodder"
   File /r "..\..\Run\Campaigns"
