@@ -20,6 +20,44 @@
 *
 */
 
+
+struct sFodderParameters {
+    bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
+    bool mSkipToMission;        // Skip the recruit screen and go straight into the mission
+    bool mSkipBriefing;         // Skip mission briefing
+    bool mSkipService;          // Skip mission debrief
+
+    bool mWindowMode;           // Start in a window
+    bool mRandom;
+    ePlatform mDefaultPlatform;
+
+    bool mDemoRecord;
+    bool mDemoPlayback;
+
+    std::string mDemoFile;
+
+    std::string mCampaignName;
+    size_t mMissionNumber;
+    size_t mPhaseNumber;
+
+    sFodderParameters() {
+        mSkipService = false;
+        mSkipBriefing = false;
+        mSkipIntro = false;
+        mSkipToMission = false;
+        mMissionNumber = 0;
+        mPhaseNumber = 0;
+        mWindowMode = false;
+        mRandom = false;
+        mDefaultPlatform = ePlatform::Any;
+        mDemoRecord = false;
+        mDemoPlayback = false;
+    }
+
+    std::string ToJson();
+    bool		FromJson(const std::string& pJson);
+};
+
 struct sMission_Troop {
     int16       mRecruitID;
     uint8       mRank;
@@ -105,10 +143,76 @@ struct sGamePhaseData {
     void Clear();
 };
 
+struct cEventRecorded {
+    cEvent mEvent;
+    int16 mMouseX, mMouseY;
+
+    bool operator==(const cEventRecorded& pRight) const {
+
+        if (mMouseX != pRight.mMouseX || mMouseY != pRight.mMouseY)
+            return false;
+
+        if (!(mEvent.mPosition == pRight.mEvent.mPosition))
+            return false;
+
+        if (mEvent.mButton != pRight.mEvent.mButton && mEvent.mButtonCount != pRight.mEvent.mButtonCount)
+            return false;
+
+        if (mEvent.mType != pRight.mEvent.mType)
+            return false;
+
+        return true;
+    }
+};
+
+struct sGameData;
+
+struct sGameRecorded {
+    int16 mSeed[4];
+    int16 mInputTicks;
+       
+    sFodderParameters mParams;
+
+    std::multimap< uint16, cEventRecorded > mEvents;
+
+    void AddEvent(const uint32 pTicks, const cEventRecorded& pEvent) {
+        if (mEvents.size()) {
+            if (mEvents.crbegin()->first == pTicks) {
+
+                if (mEvents.crbegin()->second == pEvent)
+                    return;
+            }
+        }
+
+        mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
+    }
+
+    std::vector<cEventRecorded> GetEvents(const uint16 pTicks) {
+        std::vector<cEventRecorded> Events;
+        auto test = mEvents.equal_range(pTicks);
+
+        for( auto Event = test.first; Event != test.second; ++Event)
+            Events.push_back(Event->second);
+        
+        return Events;
+    }
+
+    void clear();
+    void playback();
+
+    void save();
+
+    std::string ToJson();
+    bool		FromJson(const std::string& pJson);
+};
+
 struct sGameData {
     sGamePhaseData  mGamePhase_Data;
 
     cCampaign       mCampaign;
+    sGameRecorded   mDemoRecorded;
+    uint64          mGameTicks;
+
     std::shared_ptr<cMission>        mMission_Current;
     std::shared_ptr<cPhase>          mPhase_Current;
     

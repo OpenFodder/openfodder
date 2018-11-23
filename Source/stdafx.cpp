@@ -49,11 +49,18 @@ int start(int argc, char *argv[]) {
     cxxopts::Options options("OpenFodder", "War has never been so much fun");
     options.allow_unrecognised_options();
     options.add_options()
-        ("h,help",      "Help",                 cxxopts::value<bool>()->default_value("false")  )
-        ("pc",          "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
-        ("amiga",       "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
+        ("h,help",        "Help",                 cxxopts::value<bool>()->default_value("false")  )
+        ("pc",            "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
+        ("amiga",         "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
+        ("demo-record",   "Record Demo",    cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
+        ("demo-play",     "Play Demo",      cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
+       
+
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
         ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
+        ("skipbriefing", "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
+        ("skipservice", "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
+
         ("w,window",    "Start in window mode", cxxopts::value<bool>()->default_value("false")  )
 
         ("c,campaign",  "Starting campaign",        cxxopts::value<std::string>()->default_value(""), "\"name\"" )
@@ -82,7 +89,18 @@ int start(int argc, char *argv[]) {
             return -1;
         }
 
+        Params.mDemoFile = result["demo-record"].as<std::string>();
+        if (Params.mDemoFile.size())
+            Params.mDemoRecord = true;
+        else {
+            Params.mDemoFile = result["demo-play"].as<std::string>();
+            if (Params.mDemoFile.size())
+                Params.mDemoPlayback = true;
+        }
+
         Params.mSkipIntro = result["skipintro"].as<bool>();
+        Params.mSkipService = result["skipservice"].as<bool>();
+        Params.mSkipBriefing = result["skipbriefing"].as<bool>();
         Params.mCampaignName = result["campaign"].as<std::string>();
         Params.mMissionNumber = result["mission"].as<std::uint32_t>();
         Params.mPhaseNumber = result["phase"].as<std::uint32_t>();
@@ -91,7 +109,7 @@ int start(int argc, char *argv[]) {
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
             Params.mSkipToMission = true;
-            //Params.mSkipIntro = true;
+            Params.mSkipIntro = true;
         }
 
         if (result["pc"].as<bool>())

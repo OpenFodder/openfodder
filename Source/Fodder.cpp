@@ -159,6 +159,8 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mRandom_1 = 0;
     mRandom_2 = 0;
     mRandom_3 = 0;
+    mGame_InputTicks = 0;
+
     byte_44AC0 = 0;
     mSoundDisabled = false;
     Squad_Walk_Target_SetAll(0);
@@ -2935,57 +2937,77 @@ void cFodder::Map_SetTileType() {
     mMap_TileSet = eTileTypes_Jungle;
 }
 
-void cFodder::eventProcess() {
+void cFodder::eventProcess(const cEvent& pEvent) {
+    switch (pEvent.mType) {
+
+    case eEvent_KeyDown:
+        keyProcess(pEvent.mButton, false);
+        break;
+
+    case eEvent_KeyUp:
+        keyProcess(pEvent.mButton, true);
+        break;
+
+    case eEvent_MouseLeftDown:
+        mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastButtonsPressed |= 1;
+        break;
+
+    case eEvent_MouseRightDown:
+        mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastButtonsPressed |= 2;
+        break;
+
+    case eEvent_MouseLeftUp:
+        mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastButtonsPressed &= ~1;
+        break;
+
+    case eEvent_MouseRightUp:
+        mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastButtonsPressed &= ~2;
+        break;
+
+    case eEvent_MouseMove:
+        mMouse_EventLastPosition = pEvent.mPosition;
+        break;
+
+    case eEvent_MouseWheel:
+        mMouse_EventLastWheel = pEvent.mPosition;
+        break;
+
+    case eEvent_None:
+        break;
+
+    case eEvent_Quit:
+        Exit(0);
+        break;
+    }
+}
+
+void cFodder::eventsProcess() {
+    ++mGame_Data.mGameTicks;
+
     mMouse_EventLastWheel.Clear();
 
-    for (auto Event : *mWindow->EventGet()) {
+    if (mParams.mDemoPlayback) {
 
-        switch (Event.mType) {
+        for (auto Event : mGame_Data.mDemoRecorded.GetEvents(mGame_Data.mGameTicks)) {
+            mMouseX = Event.mMouseX;
+            mMouseY = Event.mMouseY;
 
-        case eEvent_KeyDown:
-            keyProcess(Event.mButton, false);
-            break;
-
-        case eEvent_KeyUp:
-            keyProcess(Event.mButton, true);
-            break;
-
-        case eEvent_MouseLeftDown:
-            mMouse_EventLastPosition = Event.mPosition;
-            mMouse_EventLastButtonsPressed |= 1;
-            break;
-
-        case eEvent_MouseRightDown:
-            mMouse_EventLastPosition = Event.mPosition;
-            mMouse_EventLastButtonsPressed |= 2;
-            break;
-
-        case eEvent_MouseLeftUp:
-            mMouse_EventLastPosition = Event.mPosition;
-            mMouse_EventLastButtonsPressed &= ~1;
-            break;
-
-        case eEvent_MouseRightUp:
-            mMouse_EventLastPosition = Event.mPosition;
-            mMouse_EventLastButtonsPressed &= ~2;
-            break;
-
-        case eEvent_MouseMove:
-            mMouse_EventLastPosition = Event.mPosition;
-            break;
-
-        case eEvent_MouseWheel:
-            mMouse_EventLastWheel = Event.mPosition;
-            break;
-
-        case eEvent_None:
-            break;
-
-        case eEvent_Quit:
-            Exit(0);
-            break;
+            eventProcess(Event.mEvent);
         }
 
+    } else {
+
+        for (auto Event : *mWindow->EventGet()) {
+
+            if (mParams.mDemoRecord)
+                mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, cEventRecorded{ Event, mMouseX, mMouseY });
+
+            eventProcess(Event);
+        }
     }
 
     mWindow->EventGet()->clear();
@@ -3108,11 +3130,21 @@ void cFodder::Mouse_Cursor_Handle() {
 
     mMouseButtonStatus = mMouse_EventLastButtonsPressed;
 
-    if (!mWindow->hasFocusEvent() && CursorGrabbed)
-        CursorGrabbed = false;
+    if (!mParams.mDemoPlayback)
+        if (!mWindow->hasFocusEvent() && CursorGrabbed)
+            CursorGrabbed = false;
 
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
+
+        if (mParams.mDemoPlayback) {
+            CursorGrabbed = true;
+
+            mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
+            mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
+            return;
+        }
+
         if (!mWindow->hasFocusEvent() || mWindow->isMouseInside()) {
             // Register mouse position even when not focused but cursor on window
             mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
@@ -3162,9 +3194,11 @@ void cFodder::Mouse_Cursor_Handle() {
             }
 
             //  if yes set system cursor outside the border
+            //  if yes set system cursor outside the border
             if (BorderMouse.mX || BorderMouse.mY) {
                 CursorGrabbed = false;
-                mWindow->SetMousePosition(BorderMouse);
+                if (!mParams.mDemoPlayback)
+                    mWindow->SetMousePosition(BorderMouse);
                 return;
             }
         }
@@ -3186,7 +3220,8 @@ void cFodder::Mouse_Cursor_Handle() {
         }
 
         // Set system cursor back to centre of window
-        mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
+        if (!mParams.mDemoPlayback)
+            mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
     }
 }
 
@@ -11274,6 +11309,9 @@ void cFodder::Mission_Set_Initial_Weapon() {
 }
 
 void cFodder::Service_Show() {
+    if (mParams.mSkipService)
+        return;
+
     mVersionPlatformSwitchDisabled = true;
 
     WindowTitleSet(false);
@@ -18279,7 +18317,7 @@ void cFodder::Cycle_End() {
     // New Cycle begins
     mTicksDiff = SDL_GetTicks();    
     mWindow->Cycle();
-    eventProcess();
+    eventsProcess();
 }
 
 void cFodder::sleepLoop(int64 pMilliseconds) {
@@ -20189,7 +20227,31 @@ void cFodder::Playground() {
 
 void cFodder::Start() {
 
-Start:;
+    if (mParams.mDemoPlayback) {
+
+        std::ifstream DemoContent(mParams.mDemoFile, std::ios::binary);
+        if (DemoContent.is_open()) {
+
+            std::string SaveGameContent(
+                (std::istreambuf_iterator<char>(DemoContent)),
+                (std::istreambuf_iterator<char>())
+            );
+
+            mGame_Data.mDemoRecorded.FromJson(SaveGameContent);
+            mGame_Data.mDemoRecorded.playback();
+
+            mParams = mGame_Data.mDemoRecorded.mParams;
+            mOpenFodder_Intro_Done = false;
+        }
+    }
+
+    if (mParams.mDemoRecord)
+        mGame_Data.mDemoRecorded.clear();
+
+    Start:;
+
+    mGame_Data.mDemoRecorded.save();
+
     mGame_Data.mCampaign.Clear();
     mVersionDefault = 0;
     mVersionCurrent = 0;
@@ -20207,6 +20269,7 @@ Start:;
     // Play the intro
     if (!mOpenFodder_Intro_Done && !mParams.mSkipIntro) {
 
+        mPhase_Aborted = false;
         mGame_Data.mMission_Number = 0;
 
         // Random intro
@@ -20244,7 +20307,13 @@ Start:;
 
         if (Mission_Loop() == -1)
             goto Start;
+
+        if (mParams.mPhaseNumber) {
+            break;
+        }
     }
+
+    mGame_Data.mDemoRecorded.save();
 }
 
 int16 cFodder::Mission_Loop() {
@@ -20253,6 +20322,7 @@ int16 cFodder::Mission_Loop() {
 
     //loc_1042E:;
     for (;;) {
+        mGame_Data.mDemoRecorded.save();
 
         // Mission completed?
         if (!mPhase_Aborted && !mPhase_TryAgain) {
@@ -20340,7 +20410,8 @@ int16 cFodder::Mission_Loop() {
 
         //loc_10513
         // Show the pre ready Briefing Screen
-        Briefing_Show_PreReady();
+        if(!mParams.mSkipBriefing)
+            Briefing_Show_PreReady();
 
         Map_Load();
         Map_Load_Sprites();
@@ -20357,7 +20428,9 @@ int16 cFodder::Mission_Loop() {
 
         // Show the Briefing screen for Retail and Custom 
         if (mVersionCurrent->isRetail() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
-            Briefing_Show_Ready();
+
+            if (!mParams.mSkipBriefing)
+                Briefing_Show_Ready();
 
             // Aborted?
             if (mBriefing_Aborted == -1) {
@@ -20454,6 +20527,11 @@ int16 cFodder::Mission_Loop() {
                 }
                 break;
             }
+        }
+
+        // Single Phase?
+        if (mParams.mPhaseNumber) {
+            return 0;
         }
 
         //loc_106F1

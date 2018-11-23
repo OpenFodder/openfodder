@@ -31,6 +31,7 @@
 #include <memory>
 #include <cstring>
 #include <cassert>
+#include <map>
 
 #include <SDL.h>
 #ifndef EMSCRIPTEN

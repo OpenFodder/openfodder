@@ -74,28 +74,6 @@ struct sService_Draw {
     }
 };
 
-struct sFodderParameters {
-    bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
-    bool mSkipToMission;        // Skip the recruit screen and go straight into the mission
-    bool mWindowMode;           // Start in a window
-    bool mRandom;
-    ePlatform mDefaultPlatform;
-
-    std::string mCampaignName;
-    size_t mMissionNumber;
-    size_t mPhaseNumber;
-
-    sFodderParameters() {
-        mSkipIntro = false;
-        mSkipToMission = false;
-        mMissionNumber = 0;
-        mPhaseNumber = 0;
-        mWindowMode = false;
-        mRandom = false;
-        mDefaultPlatform = ePlatform::Any;
-    }
-};
-
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 
 class cFodder {
@@ -1265,7 +1243,8 @@ public:
     void            Mouse_Inputs_Check();
     void            Mouse_Setup();
 
-    void            eventProcess();
+    void            eventProcess(const cEvent& pEvent);
+    void            eventsProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
 
     void            Game_Setup();

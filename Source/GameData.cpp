@@ -28,6 +28,53 @@ using Json = nlohmann::json;
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
+std::string sFodderParameters::ToJson() {
+    Json Save;
+
+    Save["mSkipService"] = mSkipService;
+    Save["mSkipIntro"] = mSkipIntro;
+    Save["mSkipToMission"] = mSkipToMission;
+    Save["mSkipBriefing"] = mSkipBriefing;
+    Save["mMissionNumber"] = mMissionNumber;
+    Save["mPhaseNumber"] = mPhaseNumber;
+    Save["mWindowMode"] = mWindowMode;
+    Save["mRandom"] = mRandom ;
+    Save["mDefaultPlatform"] = mDefaultPlatform;
+    Save["mCampaignName"] = mCampaignName;
+
+    //Save["mDemoRecord"] = mDemoRecord;
+    //Save["mDemoPlayback"] = mDemoPlayback;
+
+    return Save.dump(1);
+}
+
+bool sFodderParameters::FromJson(const std::string& pJson) {
+    Json LoadedData;
+
+    try {
+        LoadedData = Json::parse(pJson);
+    }
+    catch (std::exception Exception) {
+        std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
+        return false;
+    }
+
+    mSkipService = LoadedData["mSkipService"];
+    mSkipBriefing = LoadedData["mSkipBriefing"];
+    mSkipIntro = LoadedData["mSkipIntro"];
+    mSkipToMission = LoadedData["mSkipToMission"];
+    mMissionNumber = LoadedData["mMissionNumber"];
+    mPhaseNumber = LoadedData["mPhaseNumber"];
+    mWindowMode = LoadedData["mWindowMode"];
+    mRandom = LoadedData["mRandom"];
+    mDefaultPlatform = LoadedData["mDefaultPlatform"];
+    mCampaignName = LoadedData["mCampaignName"];
+
+    //mDemoRecord = Save["mDemoRecord"];
+    //mDemoPlayback = Save["mDemoPlayback"];
+    return true;
+}
+
 sGamePhaseData::sGamePhaseData() {
     Clear();
 }
@@ -53,12 +100,138 @@ void sGamePhaseData::Clear() {
         Goal = false;
 }
 
+void sGameRecorded::clear() {
+    mEvents.clear();
+    mSeed[0] = g_Fodder->mRandom_0;
+    mSeed[1] = g_Fodder->mRandom_1;
+    mSeed[2] = g_Fodder->mRandom_2;
+    mSeed[3] = g_Fodder->mRandom_3;
+    mInputTicks = g_Fodder->mGame_InputTicks;
+
+    mParams = g_Fodder->mParams;
+}
+
+void sGameRecorded::playback() {
+    g_Fodder->mGame_InputTicks = mInputTicks;
+    g_Fodder->mGame_Data.mGameTicks = 0;
+
+    g_Fodder->mRandom_0 = mSeed[0];
+    g_Fodder->mRandom_1 = mSeed[1];
+    g_Fodder->mRandom_2 = mSeed[2];
+    g_Fodder->mRandom_3 = mSeed[3];
+
+    g_Fodder->mParams = mParams;
+}
+
+void sGameRecorded::save() {
+
+    if (g_Fodder->mParams.mDemoRecord) {
+        std::string Filename = g_Fodder->mParams.mDemoFile;
+        if (Filename == "-") {
+            Filename = std::to_string(g_Fodder->mGame_Data.mMission_Number);
+            Filename += "-";
+            Filename += std::to_string(g_Fodder->mGame_Data.mMission_Phase);
+        }
+
+        std::ofstream outfile(Filename + ".ofd", std::ofstream::binary);
+        outfile << ToJson();
+        outfile.close();
+    }
+}
+
+std::string sGameRecorded::ToJson() {
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    Json Save;
+
+    Save["SaveVersion"] = 1;
+
+    Save["Timestamp"] = in_time_t;
+    Save["Seed1"] = mSeed[0];
+    Save["Seed2"] = mSeed[1];
+    Save["Seed3"] = mSeed[2];
+    Save["Seed4"] = mSeed[3];
+    Save["InputTicks"] = mInputTicks;
+
+    Save["mParams"] = mParams.ToJson();
+
+    for (auto& Event : mEvents) {
+        Json JsonHero;
+
+        JsonHero["1"] = Event.first;
+        JsonHero["2"] = Event.second.mMouseX;
+        JsonHero["3"] = Event.second.mMouseY;
+        JsonHero["4"] = Event.second.mEvent.mButton;
+        JsonHero["5"] = Event.second.mEvent.mButtonCount;
+        JsonHero["6"] = Event.second.mEvent.mPosition.mX;
+        JsonHero["7"] = Event.second.mEvent.mPosition.mY;
+        JsonHero["8"] = Event.second.mEvent.mType;
+
+        Save["mEvents"].push_back(JsonHero);
+    }
+
+    return Save.dump(-1);
+}
+
+bool sGameRecorded::FromJson(const std::string& pJson) {
+    Json LoadedData;
+
+    try {
+        LoadedData = Json::parse(pJson);
+    }
+    catch (std::exception Exception) {
+        std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
+        return false;
+    }
+
+    clear();
+
+    uint64 Version = LoadedData["SaveVersion"];
+    if (Version >= 1) {
+        try {
+            mSeed[0] = LoadedData["Seed1"];
+            mSeed[1] = LoadedData["Seed2"];
+            mSeed[2] = LoadedData["Seed3"];
+            mSeed[3] = LoadedData["Seed4"];
+            mInputTicks = LoadedData["InputTicks"];
+
+            mParams.FromJson(LoadedData["mParams"]);
+            for (auto& Event : LoadedData["mEvents"]) {
+                uint32 Ticks = Event["1"];
+
+                cEventRecorded EventRecorded;
+
+                EventRecorded.mMouseX = Event["2"];
+                EventRecorded.mMouseY = Event["3"];
+
+                EventRecorded.mEvent.mButton = Event["4"];
+                EventRecorded.mEvent.mButtonCount = Event["5"];
+                EventRecorded.mEvent.mPosition.mX = Event["6"];
+                EventRecorded.mEvent.mPosition.mY = Event["7"];
+                EventRecorded.mEvent.mType = Event["8"];
+
+                mEvents.insert(mEvents.end(), { Ticks, EventRecorded });
+            }
+
+        }
+        catch (std::exception Exception) {
+            std::cout << "V1 Elements not found: " << Exception.what() << "\n";
+            return false;
+        }
+    }
+
+    return true;
+}
+
 sGameData::sGameData() {
 
+    mGameTicks = 0;
 	Clear();
 }
 
 sGameData::sGameData(const std::string& pFromJson) {
+    mGameTicks = 0;
 
 	sGameData();
 
