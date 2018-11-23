@@ -572,6 +572,8 @@ public:
     void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
+    void            ConsoleOpen();
+
     bool            Demo_Amiga_ShowMenu();
 
     void            Custom_ShowMapSelection();

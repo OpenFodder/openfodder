@@ -40,7 +40,8 @@ std::shared_ptr<cFodder>    g_Fodder;
 
 #ifndef _OFED
 #ifndef _OFBOT
-int main(int argc, char *argv[]) {
+
+int start(int argc, char *argv[]) {
     sFodderParameters Params;
     g_Window = std::make_shared<cWindow>();
     g_Fodder = std::make_shared<cFodder>(g_Window);
@@ -59,8 +60,6 @@ int main(int argc, char *argv[]) {
         ("m,mission",   "Starting mission",         cxxopts::value<std::uint32_t>()->default_value("0"), "1"   )
         ("p,phase",     "Starting phase",           cxxopts::value<std::uint32_t>()->default_value("0"), "2")
         ("r,random",    "Generate and play a random map",    cxxopts::value<bool>()->default_value("false") )
-
-
         ;
 
 
@@ -68,20 +67,21 @@ int main(int argc, char *argv[]) {
         auto result = options.parse(argc, argv);
 
         if (result["help"].as<bool>() == true) {
+            g_Fodder->ConsoleOpen();
             std::cout << options.help();
             return -1;
         }
 
         if (result["list-campaigns"].as<bool>() == true) {
+            g_Fodder->ConsoleOpen();
             std::cout << "\nAvailable Campaigns\n\n";
 
-            for (auto& Name : g_Fodder->mVersions->GetCampaignNames()) {
-                
+            for (auto& Name : g_Fodder->mVersions->GetCampaignNames())
                 std::cout << Name << "\n";
-            }
 
             return -1;
         }
+
         Params.mSkipIntro = result["skipintro"].as<bool>();
         Params.mCampaignName = result["campaign"].as<std::string>();
         Params.mMissionNumber = result["mission"].as<std::uint32_t>();
@@ -94,27 +94,33 @@ int main(int argc, char *argv[]) {
             //Params.mSkipIntro = true;
         }
 
-        if (result["pc"].as<bool>()) {
+        if (result["pc"].as<bool>())
             Params.mDefaultPlatform = ePlatform::PC;
-        }
-
-        if (result["amiga"].as<bool>()) {
+        if (result["amiga"].as<bool>())
             Params.mDefaultPlatform = ePlatform::Amiga;
-        }
+
 #ifdef _DEBUG
         Params.mWindowMode = true;
 #endif
     } catch (...) {
+        g_Fodder->ConsoleOpen();
         std::cout << options.help();
         return -1;
     }
-
-
-
     g_Fodder->Prepare(Params);
     g_Fodder->Start();
-
     return 0;
+}
+
+int main(int argc, char *argv[]) {
+
+    auto result = start(argc, argv);
+    if (result == -1) {
+        std::cout << "Press enter to continue\n";
+        std::cin.get();
+    }
+
+    return result;
 }
 #endif
 #endif

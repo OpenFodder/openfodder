@@ -3406,18 +3406,23 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 }
 
+void cFodder::ConsoleOpen() {
+#ifdef WIN32
+    static bool attached = false;
+
+    if(!(attached = AttachConsole(-1)))
+        attached = AllocConsole();
+    FILE *stream, *stream2;
+    freopen_s(&stream, "CONIN$", "r", stdin);
+    freopen_s(&stream2, "CONOUT$", "w", stdout);
+#endif
+}
+
 void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
 
     if (!mVersions->isDataAvailable()) {
-
-#ifdef WIN32
-        AllocConsole();
-        FILE *stream, *stream2;
-        freopen_s(&stream, "CONIN$", "r", stdin);
-        freopen_s(&stream2, "CONOUT$", "w", stdout);
-#endif
-
+        ConsoleOpen();
         std::cout << "No game data could be found, including the demos, have you installed the data pack?\n";
         std::string Path = local_PathGenerate("", "", eData);
 
