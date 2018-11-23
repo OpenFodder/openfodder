@@ -1,5 +1,6 @@
 # Open Fodder
 [![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder)
+[![Build status](https://ci.appveyor.com/api/projects/status/7pc2r2qe4niv4848?svg=true)](https://ci.appveyor.com/project/segrax/openfodder)
 
 ![image](https://user-images.githubusercontent.com/1327406/35489590-9f823528-04ec-11e8-9f03-6d18b8d9b581.png)
 
@@ -39,29 +40,37 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
   
   
 ##### Hot Keys
-
-* P:   Pause game
-* +:   Increase Window Size
-* -:   Decrease Window Size
-* F1:  Switch to Amiga version (if available)
-* F2:  Switch to PC version (if available)
-* F11: Full screen  
-* ESC: Back Menu/Abort Phase
+  
+* F1:    Switch to Amiga version (if available)
+* F2:    Switch to PC version (if available)
+* F11:   Toggle full screen  
+* +:     Increase window size
+* -:     Decrease window size
+* ESC:   Back menu/abort phase
+* P:     Pause game
+* 1:     Select squad 1
+* 2:     Select squad 2
+* 3:     Select squad 3
+* Space: Switch weapon
   
   
 #### Purchasing the retail release
 
-Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com/game/cannon_fodder).
-  
+Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com), directly at [Cannon Fodder](http://www.gog.com/game/cannon_fodder) and [Cannon Fodder 2](http://www.gog.com/game/cannon_fodder_2)  
   
 #### Supported Versions
   
-##### Retail
+##### Cannon Fodder
   
-* Dos CD Version
 * Amiga
 * Amiga CD32
-
+* Dos CD
+  
+##### Cannon Fodder 2
+  
+* Amiga
+* Dos CD
+  
 ##### Demos
   
 Five Amiga magazine coverdisk demos are included in the data pack.  
@@ -72,13 +81,6 @@ Five Amiga magazine coverdisk demos are included in the data pack.
 * Amiga Format  Issue #54: (Dec 1993) Christmas Special (Cannon Soccer)
 * Amiga Format  Issue #68: (Feb 1995) Not Very Festive Fodder
 
-#### Unsupported Versions
-  
-* Cannon Fodder 2
-  
-Not officially supported.
-While the game can start and is playable, it has no music or sound support and some graphics will be missing and/or wrong.
-  
   
 #### Original Engine Bugs
 
