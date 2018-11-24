@@ -154,7 +154,6 @@ struct cEventRecorded {
 };
 
 struct cStateRecorded {
-    int16 mMouseX, mMouseY;
     int16 mInputMouseX, mInputMouseY;
     int16 mMouseButtonStatus;
 };

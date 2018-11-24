@@ -188,11 +188,9 @@ std::string sGameRecorded::ToJson() {
         Json JsonHero;
 
         JsonHero["1"] = State.first;
-        JsonHero["2"] = State.second.mMouseX;
-        JsonHero["3"] = State.second.mMouseY;
-        JsonHero["4"] = State.second.mInputMouseX;
-        JsonHero["5"] = State.second.mInputMouseY;
-        JsonHero["6"] = State.second.mMouseButtonStatus;
+        JsonHero["2"] = State.second.mInputMouseX;
+        JsonHero["3"] = State.second.mInputMouseY;
+        JsonHero["4"] = State.second.mMouseButtonStatus;
 
         Save["mStates"].push_back(JsonHero);
     }
@@ -243,11 +241,9 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
 
                 cStateRecorded StateRecorded;
 
-                StateRecorded.mMouseX = State["2"];
-                StateRecorded.mMouseY = State["3"];
-                StateRecorded.mInputMouseX = State["4"];
-                StateRecorded.mInputMouseY = State["5"];
-                StateRecorded.mMouseButtonStatus = State["6"];
+                StateRecorded.mInputMouseX = State["2"];
+                StateRecorded.mInputMouseY = State["3"];
+                StateRecorded.mMouseButtonStatus = State["4"];
 
                 mState.insert(mState.end(), { Ticks, StateRecorded });
             }

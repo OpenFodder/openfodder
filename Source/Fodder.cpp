@@ -3031,7 +3031,8 @@ void cFodder::eventsProcess() {
 
             if (mParams.mDemoRecord) {
 
-                mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, cEventRecorded{ Event });
+                if(Event.mType != eEventType::eEvent_MouseMove)
+                    mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, cEventRecorded{ Event });
             }
 
             eventProcess(Event);
@@ -3251,9 +3252,6 @@ void cFodder::Mouse_Inputs_Get() {
     if (mParams.mDemoPlayback) {
         auto State = mGame_Data.mDemoRecorded.GetState(mGame_Data.mGameTicks);
         if (State) {
-
-            mMouseX = State->mMouseX;
-            mMouseY = State->mMouseY;
             mInputMouseX = State->mInputMouseX;
             mInputMouseY = State->mInputMouseY;
             mMouseButtonStatus = State->mMouseButtonStatus;
@@ -3264,7 +3262,8 @@ void cFodder::Mouse_Inputs_Get() {
     }
 
     if (mParams.mDemoRecord)
-        mGame_Data.mDemoRecorded.AddState(mGame_Data.mGameTicks, cStateRecorded{ mMouseX, mMouseY, mInputMouseX, mInputMouseY, mMouseButtonStatus });
+
+        mGame_Data.mDemoRecorded.AddState(mGame_Data.mGameTicks, cStateRecorded{ mInputMouseX, mInputMouseY, mMouseButtonStatus });
 
     Mouse_ButtonCheck();
 
@@ -20302,7 +20301,6 @@ bool cFodder::StartUnitTests() {
 
     while (mGame_Data.mMission_Current) {
         mIntroDone = false;
-        mGame_Data.Soldier_Clear();
 
         mSurface->palette_SetToBlack();
         mSurface->paletteNew_SetToBlack();
@@ -20361,6 +20359,7 @@ bool cFodder::StartUnitTests() {
 
             if(mPhase_Complete)
                 mGame_Data.mDemoRecorded.save();
+
             else {
                 Retry = true;
                 mGame_Data = mGame_Data_Backup;
@@ -20378,6 +20377,7 @@ bool cFodder::StartUnitTests() {
             return false;
         }
 
+        mGame_Data = mGame_Data_Backup;
         mGame_Data.Phase_Next();
     }
 
