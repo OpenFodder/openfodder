@@ -96,4 +96,5 @@ public:
 	inline size_t		GetHeight() const { return mHeight; }
 
 	inline bool			isPaletteAdjusting() const { return mPaletteAdjusting; }
+    inline void         resetPaletteAdjusting() { mPaletteAdjusting = false; }
 };

@@ -31,17 +31,21 @@ using Json = nlohmann::json;
 std::string sFodderParameters::ToJson() {
     Json Save;
 
-    Save["mSkipService"] = mSkipService;
     Save["mSkipIntro"] = mSkipIntro;
-    Save["mSkipToMission"] = mSkipToMission;
+    Save["mSkipToMission"] = mSkipRecruit;
     Save["mSkipBriefing"] = mSkipBriefing;
-    Save["mMissionNumber"] = mMissionNumber;
-    Save["mPhaseNumber"] = mPhaseNumber;
+    Save["mSkipService"] = mSkipService;
+
     Save["mWindowMode"] = mWindowMode;
     Save["mRandom"] = mRandom ;
     Save["mDefaultPlatform"] = mDefaultPlatform;
     Save["mCampaignName"] = mCampaignName;
+    Save["mMissionNumber"] = mMissionNumber;
+    Save["mPhaseNumber"] = mPhaseNumber;
 
+    Save["mUnitTesting"] = mUnitTesting;
+    Save["mSinglePhase"] = mSinglePhase;
+        
     //Save["mDemoRecord"] = mDemoRecord;
     //Save["mDemoPlayback"] = mDemoPlayback;
 
@@ -62,16 +66,18 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
     mSkipService = LoadedData["mSkipService"];
     mSkipBriefing = LoadedData["mSkipBriefing"];
     mSkipIntro = LoadedData["mSkipIntro"];
-    mSkipToMission = LoadedData["mSkipToMission"];
+    mSkipRecruit = LoadedData["mSkipToMission"];
     mMissionNumber = LoadedData["mMissionNumber"];
     mPhaseNumber = LoadedData["mPhaseNumber"];
     mWindowMode = LoadedData["mWindowMode"];
     mRandom = LoadedData["mRandom"];
     mDefaultPlatform = LoadedData["mDefaultPlatform"];
     mCampaignName = LoadedData["mCampaignName"];
+    mUnitTesting = LoadedData["mUnitTesting"];
+    mSinglePhase = LoadedData["mSinglePhase"];
 
-    //mDemoRecord = Save["mDemoRecord"];
-    //mDemoPlayback = Save["mDemoPlayback"];
+    //mDemoRecord = LoadedData["mDemoRecord"];
+    //mDemoPlayback = LoadedData["mDemoPlayback"];
     return true;
 }
 
@@ -101,17 +107,22 @@ void sGamePhaseData::Clear() {
 }
 
 void sGameRecorded::clear() {
+    mState.clear();
     mEvents.clear();
+
+    g_Fodder->mGame_Data.mGameTicks = 0;
     mSeed[0] = g_Fodder->mRandom_0;
     mSeed[1] = g_Fodder->mRandom_1;
     mSeed[2] = g_Fodder->mRandom_2;
     mSeed[3] = g_Fodder->mRandom_3;
     mInputTicks = g_Fodder->mGame_InputTicks;
+    mEngineTicks = g_Fodder->mMission_EngineTicks;
 
     mParams = g_Fodder->mParams;
 }
 
 void sGameRecorded::playback() {
+    g_Fodder->mMission_EngineTicks = mEngineTicks;
     g_Fodder->mGame_InputTicks = mInputTicks;
     g_Fodder->mGame_Data.mGameTicks = 0;
 
@@ -133,7 +144,10 @@ void sGameRecorded::save() {
             Filename += std::to_string(g_Fodder->mGame_Data.mMission_Phase);
         }
 
-        std::ofstream outfile(Filename + ".ofd", std::ofstream::binary);
+        if (Filename.find(".") == Filename.npos)
+            Filename += ".ofd";
+
+        std::ofstream outfile(Filename, std::ofstream::binary);
         outfile << ToJson();
         outfile.close();
     }
@@ -153,6 +167,7 @@ std::string sGameRecorded::ToJson() {
     Save["Seed3"] = mSeed[2];
     Save["Seed4"] = mSeed[3];
     Save["InputTicks"] = mInputTicks;
+    Save["mEngineTicks"] = mEngineTicks;
 
     Save["mParams"] = mParams.ToJson();
 
@@ -160,15 +175,26 @@ std::string sGameRecorded::ToJson() {
         Json JsonHero;
 
         JsonHero["1"] = Event.first;
-        JsonHero["2"] = Event.second.mMouseX;
-        JsonHero["3"] = Event.second.mMouseY;
-        JsonHero["4"] = Event.second.mEvent.mButton;
-        JsonHero["5"] = Event.second.mEvent.mButtonCount;
-        JsonHero["6"] = Event.second.mEvent.mPosition.mX;
-        JsonHero["7"] = Event.second.mEvent.mPosition.mY;
-        JsonHero["8"] = Event.second.mEvent.mType;
+        JsonHero["2"] = Event.second.mEvent.mButton;
+        JsonHero["3"] = Event.second.mEvent.mButtonCount;
+        JsonHero["4"] = Event.second.mEvent.mPosition.mX;
+        JsonHero["5"] = Event.second.mEvent.mPosition.mY;
+        JsonHero["6"] = Event.second.mEvent.mType;
 
         Save["mEvents"].push_back(JsonHero);
+    }
+
+    for (auto& State : mState) {
+        Json JsonHero;
+
+        JsonHero["1"] = State.first;
+        JsonHero["2"] = State.second.mMouseX;
+        JsonHero["3"] = State.second.mMouseY;
+        JsonHero["4"] = State.second.mInputMouseX;
+        JsonHero["5"] = State.second.mInputMouseY;
+        JsonHero["6"] = State.second.mMouseButtonStatus;
+
+        Save["mStates"].push_back(JsonHero);
     }
 
     return Save.dump(-1);
@@ -195,6 +221,7 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
             mSeed[2] = LoadedData["Seed3"];
             mSeed[3] = LoadedData["Seed4"];
             mInputTicks = LoadedData["InputTicks"];
+            mEngineTicks = LoadedData["mEngineTicks"];
 
             mParams.FromJson(LoadedData["mParams"]);
             for (auto& Event : LoadedData["mEvents"]) {
@@ -202,18 +229,28 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
 
                 cEventRecorded EventRecorded;
 
-                EventRecorded.mMouseX = Event["2"];
-                EventRecorded.mMouseY = Event["3"];
-
-                EventRecorded.mEvent.mButton = Event["4"];
-                EventRecorded.mEvent.mButtonCount = Event["5"];
-                EventRecorded.mEvent.mPosition.mX = Event["6"];
-                EventRecorded.mEvent.mPosition.mY = Event["7"];
-                EventRecorded.mEvent.mType = Event["8"];
+                EventRecorded.mEvent.mButton = Event["2"];
+                EventRecorded.mEvent.mButtonCount = Event["3"];
+                EventRecorded.mEvent.mPosition.mX = Event["4"];
+                EventRecorded.mEvent.mPosition.mY = Event["5"];
+                EventRecorded.mEvent.mType = Event["6"];
 
                 mEvents.insert(mEvents.end(), { Ticks, EventRecorded });
             }
 
+            for (auto& State : LoadedData["mStates"]) {
+                uint32 Ticks = State["1"];
+
+                cStateRecorded StateRecorded;
+
+                StateRecorded.mMouseX = State["2"];
+                StateRecorded.mMouseY = State["3"];
+                StateRecorded.mInputMouseX = State["4"];
+                StateRecorded.mInputMouseY = State["5"];
+                StateRecorded.mMouseButtonStatus = State["6"];
+
+                mState.insert(mState.end(), { Ticks, StateRecorded });
+            }
         }
         catch (std::exception Exception) {
             std::cout << "V1 Elements not found: " << Exception.what() << "\n";
@@ -241,6 +278,7 @@ sGameData::sGameData(const std::string& pFromJson) {
 
 void sGameData::Clear() {
 
+    mGameWon = false;
     mMission_Current = 0;
     mPhase_Current = 0;
 

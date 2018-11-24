@@ -45,10 +45,11 @@
 typedef std::shared_ptr<std::vector<uint8>> tSharedBuffer;
 
 enum eDataType {
-	eData		= 0,
-	eSave		= 1,
-	eCampaign	= 2,
-	eNone		= 3,
+	eData = 0,
+	eSave,
+	eCampaign,
+    eTest,
+	eNone,
 };
 
 std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension );

@@ -96,8 +96,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mPhase_Aborted = false;
     mMouse_Button_LeftRight_Toggle2 = false;
 
-    word_3ABFD = 0;
-
     mSprite_SpareUsed = 0;
     mSprite_SpareUsed2 = 0;
     mSquad_WalkTargetX = 0;
@@ -160,6 +158,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mRandom_2 = 0;
     mRandom_3 = 0;
     mGame_InputTicks = 0;
+    mKeyControlPressed = 0;
 
     byte_44AC0 = 0;
     mSoundDisabled = false;
@@ -189,9 +188,14 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mDemo_ExitMenu = 0;
 
-    for (int16 x = 0; x < 45; ++x) {
-        Sprite_Clear(&mSprites[x]);
-    }
+    mSurfaceMapTop = 0;
+    mSurfaceMapLeft = 0;
+    mMapWidth = 0;
+    mMapHeight = 0;
+
+    mSprite_SheetPtr = 0;
+    Sprite_Clear_All();
+
     Mission_Memory_Clear();
 
     Sprite_Table_Setup();
@@ -479,7 +483,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
             Data0 = 0x8C;
     }
     //loc_10AAA
-    word_3ABFD = Data0;
+    int16 word_3ABFD = Data0;
 
     SquadLeaderX = Data8_Saved;
     SquadLeaderY = DataC_Saved;
@@ -550,6 +554,7 @@ void cFodder::Mission_Memory_Clear() {
     mMouse_Exit_Loop = false;
     mSquad_Member_Fire_CoolDown_Override = false;
 
+    mCameraX = 0;
     mCameraY = 0;
     dword_39F36 = 0;
     mCamera_Scroll_Speed = 0;
@@ -567,6 +572,9 @@ void cFodder::Mission_Memory_Clear() {
     mCamera_TileSpeed_Overflow = 0;
     mCamera_TileX = 0;
     mCamera_TileY = 0;
+    mCamera_TileSpeedX = 0;
+    mCamera_TileSpeedY = 0;
+
     mKeyCodeAscii = 0;
     mMapTile_TargetX = 0;
     mMapTile_TargetY = 0;
@@ -578,6 +586,11 @@ void cFodder::Mission_Memory_Clear() {
     mMapTile_DrawX = 0;
     mMapTile_DrawY = 0;
     mMapTile_SpeedX_Previous = 0;
+    mMapTile_SpeedY_Previous = 0;
+    mMapTile_MovedHorizontal = 0;
+    mMapTile_MovedVertical = 0;
+    mMapTile_ColumnOffset = 0;
+    mMapTile_RowOffset = 0;
 
     mSquad_Leader = 0;
     mMapTile_MoveDirectionX = 0;
@@ -585,6 +598,7 @@ void cFodder::Mission_Memory_Clear() {
     mCamera_MoveDirectionX = 0;
     mCamera_MoveDirectionY = 0;
     mCamera_MovePauseX = 0;
+    mCamera_MovePauseY = 0;
     mSquad_Selected = 0;
     mSquad_JoiningTo = 0;
 
@@ -612,6 +626,7 @@ void cFodder::Mission_Memory_Clear() {
     word_3A3BF = 0;
     mDirectionMod = 0;
     mPhase_Aborted = false;
+    mPhase_Aborted2 = false;
     mSquad_SwitchWeapon = 0;
     word_3A9B8 = 0;
     for (uint8 x = 0; x < 3; ++x) {
@@ -644,6 +659,8 @@ void cFodder::Mission_Memory_Clear() {
 
     mTroops_Enemy_Count = 0;
     mHostage_Count = 0;
+    mEnemy_BuildingCount = 0;
+
     mCamera_Start_Adjust = false;
     word_3AA1D = 0;
     mCamera_Reached_Target = 0;
@@ -814,6 +831,13 @@ void cFodder::Mission_Memory_Clear() {
     mImage_Aborted = 0;
     mBriefing_Aborted = 0;
     mHostage_Rescue_Tent = 0;
+
+    mSprite_Missile_LaunchDistance_X = 0;
+    mSprite_Missile_LaunchDistance_Y = 0;
+    mKeyControlPressed = 0;
+
+    mVideo_Draw_PosX = 0;
+    mVideo_Draw_PosY = 0;
 }
 
 void cFodder::Mission_Prepare_Squads() {
@@ -907,9 +931,9 @@ void cFodder::Sprite_Clear_All() {
 
         Sprite_Clear(Data);
     }
+    Sprite_Clear(&mSprite_Spare);
 
     mSprites[44].field_0 = -1;
-
     mSprite_SpareUsed = 0;
 }
 
@@ -1552,22 +1576,27 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
 
             Troop.mRecruitID = mGame_Data.mRecruit_NextID;
 
-            // Demo sets static ranks
-            if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
+            // All troops are equal during unit testing
+            if (mParams.mUnitTesting) {
+                Troop.mRank = 0;
+            } else {
+                // Demo sets static ranks
+                if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set) {
 
-                Troop.mRank = (mGame_Data.mMission_Number - 1) >> 1;
+                    Troop.mRank = (mGame_Data.mMission_Number - 1) >> 1;
 
-                // Jops
-                if (Troop.mRecruitID == 1)
-                    Troop.mRank = 2;
+                    // Jops
+                    if (Troop.mRecruitID == 1)
+                        Troop.mRank = 2;
 
-                // Jools
-                if (Troop.mRecruitID == 0)
-                    Troop.mRank = 4;
+                    // Jools
+                    if (Troop.mRecruitID == 0)
+                        Troop.mRank = 4;
 
-            }
-            else {
-                Troop.mRank = (mGame_Data.mMission_Number - 1) / 3;
+                }
+                else {
+                    Troop.mRank = (mGame_Data.mMission_Number - 1) / 3;
+                }
             }
 
             Troop.field_6 = 3;
@@ -2646,7 +2675,7 @@ loc_1280A:;
         mSurface->paletteNew_SetToBlack();
     }
     --mPhase_Completed_Timer;
-    if (mPhase_Completed_Timer)
+    if (mPhase_Completed_Timer && !mParams.mUnitTesting)
         return;
 
     mPhase_Completed_Timer = -1;
@@ -2986,15 +3015,12 @@ void cFodder::eventProcess(const cEvent& pEvent) {
 }
 
 void cFodder::eventsProcess() {
-    ++mGame_Data.mGameTicks;
 
     mMouse_EventLastWheel.Clear();
 
     if (mParams.mDemoPlayback) {
 
         for (auto Event : mGame_Data.mDemoRecorded.GetEvents(mGame_Data.mGameTicks)) {
-            mMouseX = Event.mMouseX;
-            mMouseY = Event.mMouseY;
 
             eventProcess(Event.mEvent);
         }
@@ -3003,14 +3029,18 @@ void cFodder::eventsProcess() {
 
         for (auto Event : *mWindow->EventGet()) {
 
-            if (mParams.mDemoRecord)
-                mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, cEventRecorded{ Event, mMouseX, mMouseY });
+            if (mParams.mDemoRecord) {
+
+                mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, cEventRecorded{ Event });
+            }
 
             eventProcess(Event);
         }
     }
 
     mWindow->EventGet()->clear();
+    ++mGame_Data.mGameTicks;
+
 }
 
 void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
@@ -3130,20 +3160,11 @@ void cFodder::Mouse_Cursor_Handle() {
 
     mMouseButtonStatus = mMouse_EventLastButtonsPressed;
 
-    if (!mParams.mDemoPlayback)
-        if (!mWindow->hasFocusEvent() && CursorGrabbed)
-            CursorGrabbed = false;
+    if (!mWindow->hasFocusEvent() && CursorGrabbed)
+        CursorGrabbed = false;
 
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
-
-        if (mParams.mDemoPlayback) {
-            CursorGrabbed = true;
-
-            mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
-            mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
-            return;
-        }
 
         if (!mWindow->hasFocusEvent() || mWindow->isMouseInside()) {
             // Register mouse position even when not focused but cursor on window
@@ -3197,8 +3218,7 @@ void cFodder::Mouse_Cursor_Handle() {
             //  if yes set system cursor outside the border
             if (BorderMouse.mX || BorderMouse.mY) {
                 CursorGrabbed = false;
-                if (!mParams.mDemoPlayback)
-                    mWindow->SetMousePosition(BorderMouse);
+                mWindow->SetMousePosition(BorderMouse);
                 return;
             }
         }
@@ -3214,20 +3234,38 @@ void cFodder::Mouse_Cursor_Handle() {
                 // Calc the distance from the cursor to the centre of the window
                 const cPosition Diff = (mMouse_EventLastPosition - WindowSize.getCentre());
 
-                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth() ) * 1.5);
-                mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
+                if (!mParams.mDemoPlayback) {
+                    mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth()) * 1.5);
+                    mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
+                }
             }
         }
 
         // Set system cursor back to centre of window
-        if (!mParams.mDemoPlayback)
-            mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
+        mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
     }
 }
 
 void cFodder::Mouse_Inputs_Get() {
 
-    Mouse_Cursor_Handle();
+    if (mParams.mDemoPlayback) {
+        auto State = mGame_Data.mDemoRecorded.GetState(mGame_Data.mGameTicks);
+        if (State) {
+
+            mMouseX = State->mMouseX;
+            mMouseY = State->mMouseY;
+            mInputMouseX = State->mInputMouseX;
+            mInputMouseY = State->mInputMouseY;
+            mMouseButtonStatus = State->mMouseButtonStatus;
+        }
+    }
+    else {
+        Mouse_Cursor_Handle();
+    }
+
+    if (mParams.mDemoRecord)
+        mGame_Data.mDemoRecorded.AddState(mGame_Data.mGameTicks, cStateRecorded{ mMouseX, mMouseY, mInputMouseX, mInputMouseY, mMouseButtonStatus });
+
     Mouse_ButtonCheck();
 
     int16 Data4 = mInputMouseX;
@@ -4313,7 +4351,7 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
     mSprites[x].field_18 = eSprite_Turret_Missile_Human;
     mSprites[x++].field_6F = eVehicle_Turret_Missile;
 
-    mSprites[x].field_0 = rand() & 0xFF;
+    mSprites[x].field_0 = tool_RandomGet() & 0xFF;
     mSprites[x].field_4 = tool_RandomGet() & 0xff;
     mSprites[x].field_8 = 6;
     mSprites[x].field_A = 0;
@@ -4322,7 +4360,7 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
     mSprites[x++].field_18 = eSprite_Indigenous_Spear;
 
     mSprites[x].field_0 = 0xff;
-    mSprites[x].field_4 = 16 + (rand() % 0x60);
+    mSprites[x].field_4 = 16 + (tool_RandomGet() % 0x60);
     mSprites[x].field_8 = 2;
     mSprites[x].field_A = 0;
     mSprites[x].field_52 = 0;
@@ -4330,7 +4368,7 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
     mSprites[x++].field_18 = eSprite_Bird_Left;
 
     mSprites[x].field_0 = 0;
-    mSprites[x].field_4 = 16 + (rand() % 0xc0);
+    mSprites[x].field_4 = 16 + (tool_RandomGet() % 0xc0);
     mSprites[x].field_8 = 2;
     mSprites[x].field_A = 0;
     mSprites[x].field_52 = 0;
@@ -18309,9 +18347,15 @@ void cFodder::Cycle_End() {
 #ifndef _OFED
     static int64 delta = 2;
 
-    mTicksDiff = SDL_GetTicks() - mTicksDiff;
-    mTicks = mTicksDiff * 40 / 1000;
-    sleepLoop(delta * 1000 / 40 - mTicksDiff);
+    //if (mParams.mDemoPlayback)
+    //    delta = 1;
+
+    // TEMP: HACK
+    if (!mParams.mDemoPlayback) {
+        mTicksDiff = SDL_GetTicks() - mTicksDiff;
+        mTicks = mTicksDiff * 40 / 1000;
+        sleepLoop(delta * 1000 / 40 - mTicksDiff);
+    }
 #endif
 
     // New Cycle begins
@@ -18338,9 +18382,13 @@ void cFodder::sleepLoop(int64 pMilliseconds) {
 }
 
 void cFodder::WonGame() {
+    
+    if (mParams.mSinglePhase)
+        return;
+
     mMouseX = -1;
     mMouseY = -1;
-
+    
     mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
 
     if (mVersionCurrent->isAmigaTheOne()) {
@@ -20225,24 +20273,140 @@ void cFodder::Playground() {
     }
 }
 
+bool cFodder::StartUnitTests() {
+
+    mParams.mSinglePhase = true;
+    mParams.mSkipBriefing = true;
+    mParams.mSkipIntro = true;
+    mParams.mSkipService = true;
+    mParams.mSkipRecruit = true;
+
+    if (!mParams.mDemoRecord)
+        mParams.mDemoPlayback = true;
+
+    mGame_Data.mCampaign.Clear();
+    if (!Campaign_Load(mParams.mCampaignName)) {
+        ConsoleOpen();
+        std::cout << "Campaign not found\n";
+        return false;
+    }
+
+    // Create test folder
+    std::string Command = "mkdir \"" + local_PathGenerate("", mParams.mCampaignName, eTest) + "\"";
+    system(Command.c_str());
+
+    Game_Setup();
+
+    sFodderParameters StartParams = mParams;
+    bool Retry = false;
+
+    while (mGame_Data.mMission_Current) {
+        mIntroDone = false;
+        mGame_Data.Soldier_Clear();
+
+        mSurface->palette_SetToBlack();
+        mSurface->paletteNew_SetToBlack();
+        mSurface->surfaceSetToPalette();
+        mSurface->resetPaletteAdjusting();
+
+        mPhase_TryingAgain = false;
+        Mouse_Setup();
+
+        // Set demo file name
+        std::string MissionPhase = "";
+        MissionPhase += "m" + std::to_string(mGame_Data.mMission_Number);
+        MissionPhase += "p" + std::to_string(mGame_Data.mMission_Phase);
+        mParams.mDemoFile = local_PathGenerate(MissionPhase + ".ofd", mParams.mCampaignName, eTest);
+
+        std::string MissionTitle = MissionPhase + ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")\n";;
+
+        if (StartParams.mDemoRecord && !Retry) {
+            if (local_FileExists(mParams.mDemoFile)) {
+                std::cout << "Test found for " << MissionTitle;
+                mGame_Data.Phase_Next();
+                continue;
+            }
+        }
+
+        Retry = false;
+
+        if (StartParams.mDemoPlayback) {
+            if (!Demo_Load()) {
+                ConsoleOpen();
+                std::cout << "No test for " << MissionTitle;
+                mGame_Data.Phase_Next();
+                continue;
+            }
+
+            mGame_Data.mDemoRecorded.playback();
+            std::cout << "Testing " << MissionTitle;
+        }
+
+        if (StartParams.mDemoRecord) {
+            mGame_Data.mDemoRecorded.clear();
+            std::cout << "Recording " << MissionTitle;
+        } 
+
+        // Reset demo status
+        mParams.mDemoRecord = StartParams.mDemoRecord;
+        mParams.mDemoPlayback = StartParams.mDemoPlayback;
+
+        mGame_Data_Backup = mGame_Data;
+
+        // Run the phase
+        auto res = Mission_Loop();
+
+        // If recording
+        if (StartParams.mDemoRecord) {
+
+            if(mPhase_Complete)
+                mGame_Data.mDemoRecorded.save();
+            else {
+                Retry = true;
+                mGame_Data = mGame_Data_Backup;
+                continue;
+            }
+        }
+
+        if (mGame_Data.mGameWon) {
+            return true;
+        }
+
+        if (!mPhase_Complete) {
+            ConsoleOpen();
+            std::cout << "Failed on " << MissionPhase << ": " << mGame_Data.mMission_Current->mName << " (" + mGame_Data.mPhase_Current->mName + ")\n";
+            return false;
+        }
+
+        mGame_Data.Phase_Next();
+    }
+
+    return true;
+}
+
+bool cFodder::Demo_Load() {
+
+    std::ifstream DemoContent(mParams.mDemoFile, std::ios::binary);
+    if (DemoContent.is_open()) {
+
+        std::string SaveGameContent(
+            (std::istreambuf_iterator<char>(DemoContent)),
+            (std::istreambuf_iterator<char>())
+        );
+
+        mGame_Data.mDemoRecorded.FromJson(SaveGameContent);
+        return true;
+    }
+    return false;
+}
+
 void cFodder::Start() {
 
     if (mParams.mDemoPlayback) {
-
-        std::ifstream DemoContent(mParams.mDemoFile, std::ios::binary);
-        if (DemoContent.is_open()) {
-
-            std::string SaveGameContent(
-                (std::istreambuf_iterator<char>(DemoContent)),
-                (std::istreambuf_iterator<char>())
-            );
-
-            mGame_Data.mDemoRecorded.FromJson(SaveGameContent);
-            mGame_Data.mDemoRecorded.playback();
-
-            mParams = mGame_Data.mDemoRecorded.mParams;
-            mOpenFodder_Intro_Done = false;
-        }
+        Demo_Load();
+        mGame_Data.mDemoRecorded.playback();
+        mParams = mGame_Data.mDemoRecorded.mParams;
+        mOpenFodder_Intro_Done = false;
     }
 
     if (mParams.mDemoRecord)
@@ -20308,9 +20472,8 @@ void cFodder::Start() {
         if (Mission_Loop() == -1)
             goto Start;
 
-        if (mParams.mPhaseNumber) {
+        if (mParams.mSinglePhase)
             break;
-        }
     }
 
     mGame_Data.mDemoRecorded.save();
@@ -20318,23 +20481,25 @@ void cFodder::Start() {
 
 int16 cFodder::Mission_Loop() {
     
-    //mGame_Data.mMission_Recruitment = -1;
-
     //loc_1042E:;
     for (;;) {
         mGame_Data.mDemoRecorded.save();
 
-        // Mission completed?
-        if (!mPhase_Aborted && !mPhase_TryAgain) {
+        if (!mParams.mUnitTesting) {
+            // Mission completed?
+            if (!mPhase_Aborted && !mPhase_TryAgain) {
 
-            // Demo / Custom Mission restart
-            if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set && !mVersionCurrent->isAmigaTheOne())
-                break;
+                // Demo / Custom Mission restart
+                if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set && !mVersionCurrent->isAmigaTheOne())
+                    break;
 
-            // Reached last map in this mission set?
-            if (!mGame_Data.Phase_Next()) {
-                WonGame();
-                return -1;
+                // Reached last map in this mission set?
+                if (!mGame_Data.Phase_Next()) {
+
+                    mGame_Data.mGameWon = true;
+                    WonGame();
+                    return -1;
+                }
             }
         }
 
@@ -20382,28 +20547,22 @@ int16 cFodder::Mission_Loop() {
         Sprite_Clear_All();
 
         // Prepare a new game?
-        if (mGame_Data.mMission_Recruitment) {
+        if (mGame_Data.mMission_Recruitment && !mParams.mSkipRecruit) {
             mGame_Data.mMission_Recruitment = 0;
 
-            if (mParams.mSkipToMission) {
-                mParams.mSkipToMission = false;
-            } else {
+            switch (Recruit_Show()) {
+            case 0:     // Start Mission
+                break;
 
-                switch (Recruit_Show()) {
-                case 0:     // Start Mission
-                    break;
+            case -1:    // Return to version select
+                return -1;
 
-                case -1:    // Return to version select
-                    return -1;
+            case -2:    // Custom set mode
+                return -2;
 
-                case -2:    // Custom set mode
-                    return -2;
-
-                case -3:    // Load/Save pressed
-                    continue;
-                }
+            case -3:    // Load/Save pressed
+                continue;
             }
-
         }
 
         WindowTitleSet(true);
@@ -20459,11 +20618,14 @@ int16 cFodder::Mission_Loop() {
         Sprite_Frame_Modifier_Update();
 
         mSound->Stop();
-
-        Sprite_Handle_Loop();
+        Sprite_Aggression_Set();
+       
         //seg000:05D1
 
+        Phase_Goals_Set();
+
         Sprite_Bullet_SetData();
+        Sprite_Handle_Loop();
         Sprite_Create_Rank();
 
         mCamera_Start_Adjust = true;
@@ -20487,8 +20649,6 @@ int16 cFodder::Mission_Loop() {
         mCamera_Start_Adjust = true;
 
         Squad_Prepare_GrenadesAndRockets();
-        Sprite_Aggression_Set();
-        Phase_Goals_Set();
 
         mGraphics->PaletteSet();
 
@@ -20530,7 +20690,7 @@ int16 cFodder::Mission_Loop() {
         }
 
         // Single Phase?
-        if (mParams.mPhaseNumber) {
+        if (mParams.mSinglePhase) {
             return 0;
         }
 

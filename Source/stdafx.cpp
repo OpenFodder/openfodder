@@ -52,9 +52,11 @@ int start(int argc, char *argv[]) {
         ("h,help",        "Help",                 cxxopts::value<bool>()->default_value("false")  )
         ("pc",            "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
         ("amiga",         "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
+
         ("demo-record",   "Record Demo",    cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
+        ("demo-record-all", "Record Demo")
         ("demo-play",     "Play Demo",      cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
-       
+        ("unit-test",     "Run Tests",      cxxopts::value<bool>()->default_value("false"))
 
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
         ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
@@ -64,8 +66,8 @@ int start(int argc, char *argv[]) {
         ("w,window",    "Start in window mode", cxxopts::value<bool>()->default_value("false")  )
 
         ("c,campaign",  "Starting campaign",        cxxopts::value<std::string>()->default_value(""), "\"name\"" )
-        ("m,mission",   "Starting mission",         cxxopts::value<std::uint32_t>()->default_value("0"), "1"   )
-        ("p,phase",     "Starting phase",           cxxopts::value<std::uint32_t>()->default_value("0"), "2")
+        ("m,mission",   "Starting mission",         cxxopts::value<std::uint32_t>()->default_value("0"), "1" )
+        ("p,phase",     "Starting phase",           cxxopts::value<std::uint32_t>()->default_value("0"), "2" )
         ("r,random",    "Generate and play a random map",    cxxopts::value<bool>()->default_value("false") )
         ;
 
@@ -89,18 +91,27 @@ int start(int argc, char *argv[]) {
             return -1;
         }
 
-        Params.mDemoFile = result["demo-record"].as<std::string>();
-        if (Params.mDemoFile.size())
+        if (result.count("demo-record-all")) {
             Params.mDemoRecord = true;
-        else {
-            Params.mDemoFile = result["demo-play"].as<std::string>();
-            if (Params.mDemoFile.size())
-                Params.mDemoPlayback = true;
+            Params.mDemoFile = "-";
         }
-
+        else {
+            Params.mDemoFile = result["demo-record"].as<std::string>();
+            if (Params.mDemoFile.size())
+                Params.mDemoRecord = true;
+            else {
+                Params.mDemoFile = result["demo-play"].as<std::string>();
+                if (Params.mDemoFile.size())
+                    Params.mDemoPlayback = true;
+            }
+        }
+        
         Params.mSkipIntro = result["skipintro"].as<bool>();
         Params.mSkipService = result["skipservice"].as<bool>();
         Params.mSkipBriefing = result["skipbriefing"].as<bool>();
+
+        Params.mUnitTesting = result["unit-test"].as<bool>();
+
         Params.mCampaignName = result["campaign"].as<std::string>();
         Params.mMissionNumber = result["mission"].as<std::uint32_t>();
         Params.mPhaseNumber = result["phase"].as<std::uint32_t>();
@@ -108,7 +119,7 @@ int start(int argc, char *argv[]) {
         Params.mRandom = result["random"].as<bool>();
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
-            Params.mSkipToMission = true;
+            Params.mSkipRecruit = true;
             Params.mSkipIntro = true;
         }
 
@@ -126,7 +137,14 @@ int start(int argc, char *argv[]) {
         return -1;
     }
     g_Fodder->Prepare(Params);
-    g_Fodder->Start();
+
+    if (Params.mUnitTesting) {
+        if (!g_Fodder->StartUnitTests()) {
+            return -1;
+        }
+    } else
+        g_Fodder->Start();
+
     return 0;
 }
 
@@ -222,6 +240,10 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 	case eCampaign:
 		filePathFinal << "Campaigns" << gPathSeperator;
 		break;
+
+    case eTest:
+        filePathFinal << "Tests" << gPathSeperator;
+        break;
 
 	case eNone:
 	default:

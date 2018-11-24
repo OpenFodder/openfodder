@@ -297,8 +297,6 @@ public:
     int16           mSquad_Member_Clicked_TroopInSameSquad;
     sMission_Troop* mSquad_Member_Clicked_TroopPtr;
 
-    int16           word_3ABFD;
-
     int16           mString_GapCharID;      // Replace spaces in strings with this id
 
     int16           mGUI_Loop_Squad_Current;
@@ -1274,6 +1272,7 @@ public:
 
     void            Playground();
 
+    virtual bool    StartUnitTests();
     virtual void    Start();
     void            Exit(unsigned int pExitCode);
 
@@ -1283,6 +1282,8 @@ public:
     void			Menu_Button_Reset();
     void            Menu_Loop(const std::function<void()> pButtonHandler);
     bool            Menu_Draw(const std::function<void()> pButtonHandler);
+
+    bool            Demo_Load();
 
     void            VersionSwitch(const sGameVersion* pVersion);
 };

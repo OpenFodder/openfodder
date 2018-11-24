@@ -23,7 +23,7 @@
 
 struct sFodderParameters {
     bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
-    bool mSkipToMission;        // Skip the recruit screen and go straight into the mission
+    bool mSkipRecruit;        // Skip the recruit screen and go straight into the mission
     bool mSkipBriefing;         // Skip mission briefing
     bool mSkipService;          // Skip mission debrief
 
@@ -40,11 +40,14 @@ struct sFodderParameters {
     size_t mMissionNumber;
     size_t mPhaseNumber;
 
+    bool mUnitTesting;
+    bool mSinglePhase;
+
     sFodderParameters() {
         mSkipService = false;
         mSkipBriefing = false;
         mSkipIntro = false;
-        mSkipToMission = false;
+        mSkipRecruit = false;
         mMissionNumber = 0;
         mPhaseNumber = 0;
         mWindowMode = false;
@@ -52,6 +55,8 @@ struct sFodderParameters {
         mDefaultPlatform = ePlatform::Any;
         mDemoRecord = false;
         mDemoPlayback = false;
+        mUnitTesting = false;
+        mSinglePhase = false;
     }
 
     std::string ToJson();
@@ -145,24 +150,13 @@ struct sGamePhaseData {
 
 struct cEventRecorded {
     cEvent mEvent;
+
+};
+
+struct cStateRecorded {
     int16 mMouseX, mMouseY;
-
-    bool operator==(const cEventRecorded& pRight) const {
-
-        if (mMouseX != pRight.mMouseX || mMouseY != pRight.mMouseY)
-            return false;
-
-        if (!(mEvent.mPosition == pRight.mEvent.mPosition))
-            return false;
-
-        if (mEvent.mButton != pRight.mEvent.mButton && mEvent.mButtonCount != pRight.mEvent.mButtonCount)
-            return false;
-
-        if (mEvent.mType != pRight.mEvent.mType)
-            return false;
-
-        return true;
-    }
+    int16 mInputMouseX, mInputMouseY;
+    int16 mMouseButtonStatus;
 };
 
 struct sGameData;
@@ -170,20 +164,14 @@ struct sGameData;
 struct sGameRecorded {
     int16 mSeed[4];
     int16 mInputTicks;
-       
+    int16 mEngineTicks;
+
     sFodderParameters mParams;
 
     std::multimap< uint16, cEventRecorded > mEvents;
+    std::map< uint16, cStateRecorded > mState;
 
     void AddEvent(const uint32 pTicks, const cEventRecorded& pEvent) {
-        if (mEvents.size()) {
-            if (mEvents.crbegin()->first == pTicks) {
-
-                if (mEvents.crbegin()->second == pEvent)
-                    return;
-            }
-        }
-
         mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
     }
 
@@ -195,6 +183,18 @@ struct sGameRecorded {
             Events.push_back(Event->second);
         
         return Events;
+    }
+
+    void AddState(const uint32 pTicks, const cStateRecorded& pEvent) {
+        mState.insert(mState.end(), std::make_pair(pTicks, pEvent));
+    }
+
+    cStateRecorded* GetState(const uint32 pTicks) {
+
+        if (mState.find(pTicks) != mState.end())
+            return &mState.find(pTicks)->second;
+
+        return 0;
     }
 
     void clear();
@@ -233,6 +233,7 @@ struct sGameData {
     int16           mScore_Kills_Away;    // Player soldiers killed
     int16           mScore_Kills_Home;    //  Enemy soldiers killed
 
+    bool            mGameWon;
 
     std::string		mCampaignName;
     std::string		mSavedName;
