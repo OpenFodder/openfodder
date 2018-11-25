@@ -20333,7 +20333,7 @@ bool cFodder::StartUnitTests() {
         MissionPhase += "p" + std::to_string(mGame_Data.mMission_Phase);
         mParams.mDemoFile = local_PathGenerate(MissionPhase + ".ofd", mParams.mCampaignName, eTest);
 
-        std::string MissionTitle = mParams.mCampaignName + " " + MissionPhase + ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")";
+        std::string MissionTitle = MissionPhase + ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")";
 
         if (StartParams.mDemoRecord && !Retry) {
             if (local_FileExists(mParams.mDemoFile)) {
@@ -20344,11 +20344,11 @@ bool cFodder::StartUnitTests() {
         }
 
         Retry = false;
-        g_Debugger->TestStart(MissionTitle);
+        g_Debugger->TestStart(MissionTitle, mParams.mCampaignName);
 
         if (StartParams.mDemoPlayback) {
             if (!Demo_Load()) {
-                g_Debugger->TestComplete(MissionTitle, "No test found", eTest_Skipped);
+                g_Debugger->TestComplete(MissionTitle, mParams.mCampaignName, "No test found", 0, eTest_Skipped);
                 mGame_Data.Phase_Next();
                 continue;
             }
@@ -20368,7 +20368,10 @@ bool cFodder::StartUnitTests() {
         mGame_Data_Backup = mGame_Data;
 
         // Run the phase
+        auto missionStartTime = std::chrono::steady_clock::now();
         auto res = Mission_Loop();
+        auto missionDuration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - missionStartTime);
+
 
         // If recording
         if (StartParams.mDemoRecord) {
@@ -20388,11 +20391,11 @@ bool cFodder::StartUnitTests() {
         }
 
         if (!mPhase_Complete) {
-            g_Debugger->TestComplete(MissionTitle, "Phase not completed: " + mGame_Data.mMission_Current->mName + " - " + mGame_Data.mPhase_Current->mName, eTest_Failed);
+            g_Debugger->TestComplete(MissionTitle, mParams.mCampaignName, "Phase not completed: " + mGame_Data.mMission_Current->mName + " - " + mGame_Data.mPhase_Current->mName, (size_t)missionDuration.count(), eTest_Failed);
             return false;
         }
 
-        g_Debugger->TestComplete(MissionTitle, "Phase Complete", eTest_Passed);
+        g_Debugger->TestComplete(MissionTitle, mParams.mCampaignName, "Phase Complete", (size_t) missionDuration.count(), eTest_Passed);
 
         mGame_Data = mGame_Data_Backup;
         mGame_Data.Phase_Next();

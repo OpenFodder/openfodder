@@ -38,7 +38,7 @@ public:
     void Notice(const std::string& pMessage);
     void Error(const std::string& pMessage);
 
-    void TestStart( const std::string& pName );
-    void TestComplete(const std::string& pName, const std::string& pMessage, eTestState pTestState);
+    void TestStart( const std::string& pName, const std::string& pGroup );
+    void TestComplete(const std::string& pName, const std::string& pGroup, const std::string& pMessage, const size_t pTime, eTestState pTestState);
 
 };
