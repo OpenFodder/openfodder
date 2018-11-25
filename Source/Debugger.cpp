@@ -48,6 +48,8 @@ void cDebugger::ConsoleOpen() {
 }
 
 void cDebugger::Notice(const std::string& pMessage) {
+    ConsoleOpen();
+
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor AddMessage ";
         Command += pMessage;
@@ -62,6 +64,7 @@ void cDebugger::Notice(const std::string& pMessage) {
 }
 
 void cDebugger::Error(const std::string& pMessage) {
+    ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor AddMessage ";
         Command += pMessage;
@@ -74,6 +77,7 @@ void cDebugger::Error(const std::string& pMessage) {
 }
 
 void cDebugger::TestStart(const std::string& pName) {
+    ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor AddTest ";
 
@@ -88,6 +92,7 @@ void cDebugger::TestStart(const std::string& pName) {
 }
 
 void cDebugger::TestComplete(const std::string& pName, const std::string& pMessage, eTestState pTestState) {
+    ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor UpdateTest ";
         Command += pName;

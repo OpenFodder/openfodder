@@ -20333,7 +20333,7 @@ bool cFodder::StartUnitTests() {
         MissionPhase += "p" + std::to_string(mGame_Data.mMission_Phase);
         mParams.mDemoFile = local_PathGenerate(MissionPhase + ".ofd", mParams.mCampaignName, eTest);
 
-        std::string MissionTitle = MissionPhase + ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")\n";;
+        std::string MissionTitle = MissionPhase + ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")";
 
         if (StartParams.mDemoRecord && !Retry) {
             if (local_FileExists(mParams.mDemoFile)) {
@@ -20391,6 +20391,8 @@ bool cFodder::StartUnitTests() {
             g_Debugger->TestComplete(MissionTitle, "Phase not completed: " + mGame_Data.mMission_Current->mName + " - " + mGame_Data.mPhase_Current->mName, eTest_Failed);
             return false;
         }
+
+        g_Debugger->TestComplete(MissionTitle, "Phase Complete", eTest_Passed);
 
         mGame_Data = mGame_Data_Backup;
         mGame_Data.Phase_Next();
