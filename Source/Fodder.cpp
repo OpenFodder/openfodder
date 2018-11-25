@@ -20275,6 +20275,8 @@ void cFodder::Playground() {
 
 bool cFodder::StartUnitTests() {
 
+    ConsoleOpen();
+
     mParams.mSinglePhase = true;
     mParams.mSkipBriefing = true;
     mParams.mSkipIntro = true;
@@ -20286,7 +20288,6 @@ bool cFodder::StartUnitTests() {
 
     mGame_Data.mCampaign.Clear();
     if (!Campaign_Load(mParams.mCampaignName)) {
-        ConsoleOpen();
         std::cout << "Campaign not found\n";
         return false;
     }
@@ -20299,6 +20300,8 @@ bool cFodder::StartUnitTests() {
 
     sFodderParameters StartParams = mParams;
     bool Retry = false;
+
+    std::cout << "Starting tests...\n";
 
     while (mGame_Data.mMission_Current) {
         mIntroDone = false;
