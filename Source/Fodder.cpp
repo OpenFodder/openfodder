@@ -20366,6 +20366,7 @@ bool cFodder::StartUnitTests() {
         // Reset demo status
         mParams.mDemoRecord = StartParams.mDemoRecord;
         mParams.mDemoPlayback = StartParams.mDemoPlayback;
+        mParams.mAppVeyor = StartParams.mAppVeyor;
 
         mGame_Data_Backup = mGame_Data;
 
@@ -20373,7 +20374,6 @@ bool cFodder::StartUnitTests() {
         auto missionStartTime = std::chrono::steady_clock::now();
         auto res = Mission_Loop();
         auto missionDuration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - missionStartTime);
-
 
         // If recording
         if (StartParams.mDemoRecord) {

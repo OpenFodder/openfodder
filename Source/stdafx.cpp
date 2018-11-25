@@ -59,7 +59,7 @@ int start(int argc, char *argv[]) {
         ("demo-record-all", "Record Demo")
         ("demo-play",     "Play Demo",      cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
         ("unit-test",     "Run Tests",      cxxopts::value<bool>()->default_value("false"))
-        ("appveyor",     "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
+        ("appveyor",      "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
 
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
         ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
