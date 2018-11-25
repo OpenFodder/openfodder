@@ -342,4 +342,4 @@ extern const int8 mSprite_Soldier_Unk[];
 extern const int16 mSprite_Direction_Frame_Unk[];
 extern const int16* mSprite_AnimationPtrs[];
 extern const int16 mSprite_Speed_Direction_Modifier[];
-extern const int16* mSoldier_Squad_Fire_RotationOrder[];
+extern const std::vector<std::vector<int16>> mSoldier_Squad_Fire_RotationOrder;

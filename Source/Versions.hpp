@@ -60,6 +60,13 @@ struct sRelease {
 	eGame				mGame;
 	ePlatform			mPlatform;
 	eRelease			mRelease;
+
+    sRelease() {
+        mName = "";
+        mGame = eGame::CF1;
+        mPlatform = ePlatform::Any;
+        mRelease = eRelease::Retail;
+    }
 };
 
 class cResources;

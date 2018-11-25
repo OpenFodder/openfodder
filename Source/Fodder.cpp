@@ -84,6 +84,8 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mMouse_Button_Left_Toggle = 0;
     mMouse_Button_Right_Toggle = 0;
     mMouse_Button_LeftRight_Toggle = mSquad_Member_Fire_CoolDown_Override = false;
+    mMouse_Button_LeftRight_Toggle2 = false;
+
     mMouse_Exit_Loop = false;
 
     mSprite_Frame_1 = 0;
@@ -94,7 +96,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mEnemy_BuildingCount = 0;
     mPhase_Aborted = false;
-    mMouse_Button_LeftRight_Toggle2 = false;
 
     mSprite_SpareUsed = 0;
     mSprite_SpareUsed2 = 0;
@@ -159,11 +160,30 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mRandom_3 = 0;
     mGame_InputTicks = 0;
     mKeyControlPressed = 0;
+    mVersionReturnAfterPhase = false;
 
+    mInput_LastKey = 0;
+    mCustom_ExitMenu = 0;
+
+    word_428D8 = 0;
+    word_3A05F = 0;
     byte_44AC0 = 0;
     mSoundDisabled = false;
     Squad_Walk_Target_SetAll(0);
     mPhase_Completed_Timer = 0;
+    mVideo_Draw_ColumnsMax = 0;
+    word_428B6 = 0;
+    word_428B8 = 0;
+    word_428BA = 0;
+    mHelicopterPosX = 0;
+    mHelicopterPosY = 0;
+    mBriefing_Helicopter_Off1 = 0;
+    mBriefing_Helicopter_Off2 = 0;
+    mBriefing_Helicopter_Off3 = 0;
+    mBriefing_Helicopter_Off4 = 0;
+    mBriefing_ParaHeli_Frame = 0;
+    mBriefing_Helicopter_Moving = 0;
+    mTroop_InRange_Callpad = 0;
 
     for (unsigned int x = 0; x < 0x18; ++x) {
         mMission_Save_Blocked[x] = 0;
@@ -549,6 +569,7 @@ void cFodder::Mission_Memory_Clear() {
     mMouse_Button_Left_Toggle = 0;
     mMouse_Button_Right_Toggle = 0;
     mMouse_Button_LeftRight_Toggle = false;
+    mMouse_Button_LeftRight_Toggle2 = false;
 
     mVehicle_Input_Disabled = false;
     mMouse_Exit_Loop = false;
@@ -838,6 +859,11 @@ void cFodder::Mission_Memory_Clear() {
 
     mVideo_Draw_PosX = 0;
     mVideo_Draw_PosY = 0;
+
+    mMapTile_Column_CurrentScreen = 0;
+    mMapTile_Row_CurrentScreen = 0;
+
+    mTroop_InRange_Callpad = 0;
 }
 
 void cFodder::Mission_Prepare_Squads() {
@@ -9939,7 +9965,9 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
         return;
 
     // Order based on number of troops in squad
-    const int16* Rotate_Fire_Order = mSoldier_Squad_Fire_RotationOrder[TroopsInSquad];
+    const std::vector<int16>& Rotate_Fire_Order = mSoldier_Squad_Fire_RotationOrder[TroopsInSquad];
+    if (mTroop_Rotate_Next >= Rotate_Fire_Order.size())
+        mTroop_Rotate_Next = 0;
 
     int16 Data0 = mTroop_Rotate_Next;
 
@@ -19102,6 +19130,7 @@ void cFodder::Sprite_Clear(sSprite* pSprite) {
     pSprite->field_54 = 0;
     pSprite->field_55 = 0;
     pSprite->field_56 = 0;
+    pSprite->field_57 = 0;
     pSprite->field_58 = 0;
     pSprite->field_59 = 0;
     pSprite->field_5A = 0;

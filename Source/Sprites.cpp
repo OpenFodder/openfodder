@@ -688,52 +688,52 @@ const int16 mSprite_Speed_Direction_Modifier[] = {
 	0x0A, 0x0E, 0x14
 };
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf1[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf1 = {
 	0,
 	-1
 };
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf2[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf2 = {
 	0, 1,
 	-1
 };
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf3[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf3 = {
 	0, 1, 0, 2,
 	-1
 };
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf4[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf4 = {
 	0, 1, 0, 2, 0, 3, 0, 2,
 	-1
 };
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf5[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf5 = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 3,
 	0, 2,
 	-1,
 };
 
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf6[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf6 = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
 	0, 4, 0, 3, 0, 2,
 	-1
 };
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf7[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf7 = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
 	0, 6, 0, 5, 0, 4, 0, 3, 0, 2,
 	-1,
 };
 
-const int16 mSoldier_Squad_Fire_RotationSquadOf8[] = {
+const std::vector<int16> mSoldier_Squad_Fire_RotationSquadOf8 = {
 	0, 1, 0, 2, 0, 3, 0, 4, 0, 5,
 	0, 6, 0, 5, 0, 4, 0, 3, 0, 2,
 	-1
 };
 
-const int16* mSoldier_Squad_Fire_RotationOrder[] = {
+const std::vector<std::vector<int16>> mSoldier_Squad_Fire_RotationOrder = {
 	mSoldier_Squad_Fire_RotationSquadOf1,
 	mSoldier_Squad_Fire_RotationSquadOf2,
 	mSoldier_Squad_Fire_RotationSquadOf3,
