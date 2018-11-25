@@ -52,7 +52,7 @@ void cDebugger::Notice(const std::string& pMessage) {
 
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor AddMessage ";
-        Command += pMessage;
+        Command += "\"" + pMessage + "\"";
         Command += " -Category Information";
         system(Command.c_str());
     }
@@ -67,7 +67,7 @@ void cDebugger::Error(const std::string& pMessage) {
     ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor AddMessage ";
-        Command += pMessage;
+        Command += "\"" + pMessage + "\"";
         Command += " -Category Error";
         system(Command.c_str());
     }
@@ -81,7 +81,7 @@ void cDebugger::TestStart(const std::string& pName) {
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor AddTest ";
 
-        Command += pName;
+        Command += "\"" + pName + "\"";
         Command += " -Framework none -FileName OpenFodder";
         Command += " -Outcome Running";
         system(Command.c_str());
@@ -95,9 +95,9 @@ void cDebugger::TestComplete(const std::string& pName, const std::string& pMessa
     ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor UpdateTest ";
-        Command += pName;
+        Command += "\"" + pName + "\"";
         Command += " -Framework none -FileName OpenFodder";
-        Command += " -ErrorMessage " + pMessage;
+        Command += " -ErrorMessage \"" + pMessage + "\"";
         Command += " -Outcome ";
 
         switch (pTestState) {
