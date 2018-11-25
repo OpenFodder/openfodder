@@ -128,6 +128,9 @@ int start(int argc, char *argv[]) {
         if (result["amiga"].as<bool>())
             Params.mDefaultPlatform = ePlatform::Amiga;
 
+        if (Params.mUnitTesting) {
+            Params.mWindowMode = true;
+        }
 #ifdef _DEBUG
         Params.mWindowMode = true;
 #endif

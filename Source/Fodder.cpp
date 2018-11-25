@@ -3507,9 +3507,9 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 void cFodder::ConsoleOpen() {
 #ifdef WIN32
     static bool attached = false;
-
     if(!(attached = AttachConsole(-1)))
         attached = AllocConsole();
+
     FILE *stream, *stream2;
     freopen_s(&stream, "CONIN$", "r", stdin);
     freopen_s(&stream2, "CONOUT$", "w", stdout);
