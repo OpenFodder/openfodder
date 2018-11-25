@@ -100,7 +100,7 @@ void cDebugger::TestComplete(const std::string& pName, const std::string& pGroup
         if (pTestState == eTest_Failed)
             Command += " -ErrorMessage \"" + pMessage + "\"";
 
-        Command += " -Duration " + pTime;
+        Command += " -Duration " + std::to_string(pTime);
         Command += " -Outcome ";
 
         switch (pTestState) {
