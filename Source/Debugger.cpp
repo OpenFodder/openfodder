@@ -79,10 +79,10 @@ void cDebugger::Error(const std::string& pMessage) {
 void cDebugger::TestStart(const std::string& pName) {
     ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
-        std::string Command = "appveyor AddTest ";
+        std::string Command = "appveyor AddTest";
 
-        Command += "\"" + pName + "\"";
-        Command += " -Framework none -FileName OpenFodder";
+        Command += " -Name \"" + pName + "\"";
+        Command += " -Framework NUnit -FileName OpenFodder";
         Command += " -Outcome Running";
         system(Command.c_str());
     }
@@ -94,12 +94,13 @@ void cDebugger::TestStart(const std::string& pName) {
 void cDebugger::TestComplete(const std::string& pName, const std::string& pMessage, eTestState pTestState) {
     ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
-        std::string Command = "appveyor UpdateTest ";
+        std::string Command = "appveyor UpdateTest";
         Command += " -Name \"" + pName + "\"";
-        Command += " -Framework none -FileName OpenFodder";
+        Command += " -Framework NUnit -FileName OpenFodder";
         if (pTestState == eTest_Failed)
             Command += " -ErrorMessage \"" + pMessage + "\"";
 
+        Command += " -Duration 10000";
         Command += " -Outcome ";
 
         switch (pTestState) {
