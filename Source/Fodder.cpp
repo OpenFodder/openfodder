@@ -18346,19 +18346,20 @@ void cFodder::Cycle_End() {
 #ifndef _OFED
     static int64 delta = 2;
 
-    //if (mParams.mDemoPlayback)
-    //    delta = 1;
+    // Unit testing in playback mode, has no sleep
+    if (mParams.mUnitTesting && mParams.mDemoPlayback)
+        delta = 0;
 
-    // TEMP: HACK
-    if (!mParams.mDemoPlayback) {
+    if (delta) {
         mTicksDiff = SDL_GetTicks() - mTicksDiff;
         mTicks = mTicksDiff * 40 / 1000;
         sleepLoop(delta * 1000 / 40 - mTicksDiff);
+        mTicksDiff = SDL_GetTicks();
     }
 #endif
 
     // New Cycle begins
-    mTicksDiff = SDL_GetTicks();    
+       
     mWindow->Cycle();
     eventsProcess();
 }
