@@ -233,7 +233,7 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
                 EventRecorded.mEvent.mPosition.mY = Event["5"];
                 EventRecorded.mEvent.mType = Event["6"];
 
-                mEvents.insert(mEvents.end(), { Ticks, EventRecorded });
+                mEvents.insert(mEvents.end(), std::make_pair(Ticks, EventRecorded ));
             }
 
             for (auto& State : LoadedData["mStates"]) {
@@ -245,7 +245,7 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
                 StateRecorded.mInputMouseY = State["3"];
                 StateRecorded.mMouseButtonStatus = State["4"];
 
-                mState.insert(mState.end(), { Ticks, StateRecorded });
+                mState.insert(mState.end(), std::make_pair( Ticks, StateRecorded ));
             }
         }
         catch (std::exception Exception) {

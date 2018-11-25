@@ -167,14 +167,14 @@ struct sGameRecorded {
 
     sFodderParameters mParams;
 
-    std::multimap< uint16, cEventRecorded > mEvents;
-    std::map< uint16, cStateRecorded > mState;
+    std::multimap< uint64, cEventRecorded > mEvents;
+    std::map< uint64, cStateRecorded > mState;
 
-    void AddEvent(const uint32 pTicks, const cEventRecorded& pEvent) {
+    void AddEvent(const uint64 pTicks, const cEventRecorded& pEvent) {
         mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
     }
 
-    std::vector<cEventRecorded> GetEvents(const uint16 pTicks) {
+    std::vector<cEventRecorded> GetEvents(const uint64 pTicks) {
         std::vector<cEventRecorded> Events;
         auto test = mEvents.equal_range(pTicks);
 
@@ -184,11 +184,11 @@ struct sGameRecorded {
         return Events;
     }
 
-    void AddState(const uint32 pTicks, const cStateRecorded& pEvent) {
+    void AddState(const uint64 pTicks, const cStateRecorded& pEvent) {
         mState.insert(mState.end(), std::make_pair(pTicks, pEvent));
     }
 
-    cStateRecorded* GetState(const uint32 pTicks) {
+    cStateRecorded* GetState(const uint64 pTicks) {
 
         if (mState.find(pTicks) != mState.end())
             return &mState.find(pTicks)->second;
