@@ -34,6 +34,8 @@ void cDebugger::ConsoleOpen() {
 #ifdef _CONSOLE
     return;
 #endif
+    if (g_Fodder->mParams.mAppVeyor)
+        return;
 
 #ifdef WIN32
     static bool attached = AttachConsole(ATTACH_PARENT_PROCESS);
