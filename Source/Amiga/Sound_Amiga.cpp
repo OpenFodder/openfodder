@@ -73,7 +73,7 @@ cSound_Amiga::~cSound_Amiga() {
 
 	delete mAudioSpec;
 
-	SDL_CloseAudio();
+	SDL_CloseAudioDevice(mVal);
 	SDL_DestroyMutex(mLock);
 }
 
@@ -131,7 +131,7 @@ bool cSound_Amiga::devicePrepare() {
 	desired->userdata = this;
 
 	// Open the audio device
-	mVal = SDL_OpenAudio(desired, mAudioSpec);
+    mVal = SDL_OpenAudioDevice(NULL, 0, desired, mAudioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
 	delete desired;
 
@@ -194,7 +194,7 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
 		SDL_UnlockMutex( mLock );
 	}
 
-	SDL_PauseAudio(0);
+    SDL_PauseAudioDevice(mVal, 0);
 }
 
 void cSound_Amiga::Music_Play( int16 pTrack ) {
@@ -208,7 +208,7 @@ void cSound_Amiga::Music_Play( int16 pTrack ) {
             mCurrentMusic = Audio::makeRjp1Stream(mSound_Music.mCurrentMusicSongData, mSound_Music.mCurrentMusicInstrumentData, Number);
     }
 
-	SDL_PauseAudio(0);
+    SDL_PauseAudioDevice(mVal, 0);
 }
 
 void cSound_Amiga::Music_Stop() {
