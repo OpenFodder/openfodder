@@ -95,9 +95,11 @@ void cDebugger::TestComplete(const std::string& pName, const std::string& pMessa
     ConsoleOpen();
     if (g_Fodder->mParams.mAppVeyor) {
         std::string Command = "appveyor UpdateTest ";
-        Command += "\"" + pName + "\"";
+        Command += " -Name \"" + pName + "\"";
         Command += " -Framework none -FileName OpenFodder";
-        Command += " -ErrorMessage \"" + pMessage + "\"";
+        if (pTestState == eTest_Failed)
+            Command += " -ErrorMessage \"" + pMessage + "\"";
+
         Command += " -Outcome ";
 
         switch (pTestState) {
