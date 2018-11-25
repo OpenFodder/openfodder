@@ -31,6 +31,7 @@
 std::shared_ptr<cResources> g_Resource;
 std::shared_ptr<cWindow>    g_Window;
 std::shared_ptr<cFodder>    g_Fodder;
+std::shared_ptr<cDebugger>  g_Debugger;
 
 #ifdef _WIN32
     const char gPathSeperator = '/';
@@ -43,6 +44,7 @@ std::shared_ptr<cFodder>    g_Fodder;
 
 int start(int argc, char *argv[]) {
     sFodderParameters Params;
+    g_Debugger = std::make_shared<cDebugger>();
     g_Window = std::make_shared<cWindow>();
     g_Fodder = std::make_shared<cFodder>(g_Window);
 
@@ -57,6 +59,7 @@ int start(int argc, char *argv[]) {
         ("demo-record-all", "Record Demo")
         ("demo-play",     "Play Demo",      cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
         ("unit-test",     "Run Tests",      cxxopts::value<bool>()->default_value("false"))
+        ("appveyor",     "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
 
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
         ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
@@ -75,18 +78,20 @@ int start(int argc, char *argv[]) {
     try {
         auto result = options.parse(argc, argv);
 
+        if (result["appveyor"].as<bool>()) {
+            Params.mAppVeyor = true;
+        }
+
         if (result["help"].as<bool>() == true) {
-            g_Fodder->ConsoleOpen();
-            std::cout << options.help();
+            g_Debugger->Notice( options.help() );
             return -1;
         }
 
         if (result["list-campaigns"].as<bool>() == true) {
-            g_Fodder->ConsoleOpen();
-            std::cout << "\nAvailable Campaigns\n\n";
+            g_Debugger->Notice("\nAvailable Campaigns\n\n");
 
             for (auto& Name : g_Fodder->mVersions->GetCampaignNames())
-                std::cout << Name << "\n";
+                g_Debugger->Notice(Name);
 
             return -1;
         }
@@ -135,8 +140,7 @@ int start(int argc, char *argv[]) {
         Params.mWindowMode = true;
 #endif
     } catch (...) {
-        g_Fodder->ConsoleOpen();
-        std::cout << options.help();
+        g_Debugger->Notice(options.help());
         return -1;
     }
     g_Fodder->Prepare(Params);

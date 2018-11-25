@@ -3504,28 +3504,16 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 }
 
-void cFodder::ConsoleOpen() {
-#ifdef WIN32
-    static bool attached = false;
-    if(!(attached = AttachConsole(-1)))
-        attached = AllocConsole();
-
-    FILE *stream, *stream2;
-    freopen_s(&stream, "CONIN$", "r", stdin);
-    freopen_s(&stream2, "CONOUT$", "w", stdout);
-#endif
-}
-
 void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
 
     if (!mVersions->isDataAvailable()) {
-        ConsoleOpen();
-        std::cout << "No game data could be found, including the demos, have you installed the data pack?\n";
+        g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
+
         std::string Path = local_PathGenerate("", "", eData);
 
-        std::cout << "We are looking for the 'Data' directory at: " << Path << "\n";
-        std::cout << "\nPress enter to quit\n";
+        g_Debugger->Error("We are looking for the 'Data' directory at: " + Path);
+        g_Debugger->Error("Press enter to quit");
         std::cin.get();
         exit(1);
     }
@@ -9969,7 +9957,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
     if (mTroop_Rotate_Next >= Rotate_Fire_Order.size())
         mTroop_Rotate_Next = 0;
 
-    int16 Data0 = mTroop_Rotate_Next;
+    size_t Data0 = mTroop_Rotate_Next;
 
     // Squad Member Number
     int16 Data4 = Rotate_Fire_Order[Data0];
@@ -20304,8 +20292,6 @@ void cFodder::Playground() {
 
 bool cFodder::StartUnitTests() {
 
-    ConsoleOpen();
-
     mParams.mSinglePhase = true;
     mParams.mSkipBriefing = true;
     mParams.mSkipIntro = true;
@@ -20317,7 +20303,7 @@ bool cFodder::StartUnitTests() {
 
     mGame_Data.mCampaign.Clear();
     if (!Campaign_Load(mParams.mCampaignName)) {
-        std::cout << "Campaign not found\n";
+        g_Debugger->Error("Campaign " + mParams.mCampaignName + " not found");
         return false;
     }
 
@@ -20329,8 +20315,6 @@ bool cFodder::StartUnitTests() {
 
     sFodderParameters StartParams = mParams;
     bool Retry = false;
-
-    std::cout << "Starting tests...\n";
 
     while (mGame_Data.mMission_Current) {
         mIntroDone = false;
@@ -20353,29 +20337,28 @@ bool cFodder::StartUnitTests() {
 
         if (StartParams.mDemoRecord && !Retry) {
             if (local_FileExists(mParams.mDemoFile)) {
-                std::cout << "Test found for " << MissionTitle;
+                g_Debugger->Notice("Test exists for " + MissionTitle + ", skipping");
                 mGame_Data.Phase_Next();
                 continue;
             }
         }
 
         Retry = false;
+        g_Debugger->TestStart(MissionTitle);
 
         if (StartParams.mDemoPlayback) {
             if (!Demo_Load()) {
-                ConsoleOpen();
-                std::cout << "No test for " << MissionTitle;
+                g_Debugger->TestComplete(MissionTitle, "No test found", eTest_Skipped);
                 mGame_Data.Phase_Next();
                 continue;
             }
 
             mGame_Data.mDemoRecorded.playback();
-            std::cout << "Testing " << MissionTitle;
         }
 
         if (StartParams.mDemoRecord) {
             mGame_Data.mDemoRecorded.clear();
-            std::cout << "Recording " << MissionTitle;
+            g_Debugger->Notice("Recording " + MissionTitle);;
         } 
 
         // Reset demo status
@@ -20405,8 +20388,7 @@ bool cFodder::StartUnitTests() {
         }
 
         if (!mPhase_Complete) {
-            ConsoleOpen();
-            std::cout << "Failed on " << MissionPhase << ": " << mGame_Data.mMission_Current->mName << " (" + mGame_Data.mPhase_Current->mName + ")\n";
+            g_Debugger->TestComplete(MissionTitle, "Phase not completed: " + mGame_Data.mMission_Current->mName + " - " + mGame_Data.mPhase_Current->mName, eTest_Failed);
             return false;
         }
 

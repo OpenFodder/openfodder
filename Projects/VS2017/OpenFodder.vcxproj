@@ -173,6 +173,7 @@
     <ClInclude Include="..\..\Source\Amiga\SpriteData_Amiga.hpp" />
     <ClInclude Include="..\..\Source\Campaign.hpp" />
     <ClInclude Include="..\..\Source\CopyProtection.hpp" />
+    <ClInclude Include="..\..\Source\Debugger.hpp" />
     <ClInclude Include="..\..\Source\FontData.hpp" />
     <ClInclude Include="..\..\Source\GameData.hpp" />
     <ClInclude Include="..\..\Source\GUI_Element.hpp" />
@@ -219,6 +220,7 @@
     <ClCompile Include="..\..\Source\Amiga\Sound_Amiga.cpp" />
     <ClCompile Include="..\..\Source\Campaign.cpp" />
     <ClCompile Include="..\..\Source\CopyProtection.cpp" />
+    <ClCompile Include="..\..\Source\Debugger.cpp" />
     <ClCompile Include="..\..\Source\FontData.cpp" />
     <ClCompile Include="..\..\Source\GameData.cpp" />
     <ClCompile Include="..\..\Source\GUI_Element.cpp" />

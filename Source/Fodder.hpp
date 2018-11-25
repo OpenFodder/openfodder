@@ -289,7 +289,7 @@ public:
     int16           mStoredSpriteFrame;
     int16           word_3ABB1;
     int16           mSquad_Member_Fire_CoolDown;
-    int16           mTroop_Rotate_Next;
+    size_t          mTroop_Rotate_Next;
     int16           word_3ABB7;
     sWeaponData     mSprite_Weapon_Data;
     int16           mSprite_Bullet_Time_Modifier;
@@ -548,7 +548,6 @@ public:
     void(cFodder::*mGUI_Handle_Button_SelectSquad_Array[3])(void);
 
 public:
-    void            ConsoleOpen();
 
     bool            Demo_Amiga_ShowMenu();
 

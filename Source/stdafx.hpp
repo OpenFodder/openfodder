@@ -103,6 +103,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 	#define _stricmp( a, b ) strcmp(a, b)
 #endif
 
+#include "Debugger.hpp"
+
 #include "Position.hpp"
 #include "Dimension.hpp"
 #include "Event.hpp"
@@ -146,6 +148,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 extern std::shared_ptr<cResources> g_Resource;
 extern std::shared_ptr<cWindow>    g_Window;
 extern std::shared_ptr<cFodder>    g_Fodder;
+extern std::shared_ptr<cDebugger>  g_Debugger;
 
 extern const char gPathSeperator;
 

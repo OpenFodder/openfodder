@@ -154,6 +154,9 @@
     <ClInclude Include="..\..\Source\Versions_Files.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Debugger.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -254,6 +257,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga2.cpp">
       <Filter>Source\Amiga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Debugger.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -22,6 +22,7 @@
 
 
 struct sFodderParameters {
+    bool mAppVeyor;
     bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
     bool mSkipRecruit;        // Skip the recruit screen and go straight into the mission
     bool mSkipBriefing;         // Skip mission briefing
@@ -44,6 +45,7 @@ struct sFodderParameters {
     bool mSinglePhase;
 
     sFodderParameters() {
+        mAppVeyor = false;
         mSkipService = false;
         mSkipBriefing = false;
         mSkipIntro = false;
