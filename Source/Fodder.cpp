@@ -20329,11 +20329,13 @@ bool cFodder::StartUnitTests() {
 
         // Set demo file name
         std::string MissionPhase = "";
-        MissionPhase += "Mission " + std::to_string(mGame_Data.mMission_Number);
-        MissionPhase += " Phase " + std::to_string(mGame_Data.mMission_Phase);
+        MissionPhase += "m" + std::to_string(mGame_Data.mMission_Number);
+        MissionPhase += "p" + std::to_string(mGame_Data.mMission_Phase);
         mParams.mDemoFile = local_PathGenerate(MissionPhase + ".ofd", mParams.mCampaignName, eTest);
 
-        std::string MissionTitle = MissionPhase + ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")";
+        std::string MissionTitle = "Mission " + std::to_string(mGame_Data.mMission_Number);
+        MissionTitle += " Phase " + std::to_string(mGame_Data.mMission_Phase);
+        MissionTitle += ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")";
 
         if (StartParams.mDemoRecord && !Retry) {
             if (local_FileExists(mParams.mDemoFile)) {
