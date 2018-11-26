@@ -131,7 +131,7 @@ bool cSound_Amiga::devicePrepare() {
 	desired->userdata = this;
 
 	// Open the audio device
-    mVal = SDL_OpenAudioDevice(NULL, 0, desired, mAudioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    mVal = SDL_OpenAudioDevice(NULL, 0, desired, mAudioSpec, 0);
 
 	delete desired;
 
