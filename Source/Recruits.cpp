@@ -1148,3 +1148,991 @@ const std::vector<sGravePosition> mGravePositions = {
     { 0x95, 0xB6 },
     { 0x115, 0x8A },
 };
+
+
+int16 cFodder::Recruit_Show() {
+
+    if (mCustom_Mode != eCustomMode_Map) {
+        Map_Load();
+        Map_Load_Sprites();
+
+        Phase_Soldiers_Count();
+        mGame_Data.Soldier_Sort();
+        Phase_Soldiers_Prepare(true);
+        Phase_Soldiers_AttachToSprites();
+
+    }
+    else {
+        if (mVersionCurrent->mName == "Random Map") {
+
+            std::string RandomMapFile = local_PathGenerate("random.map", "Custom/Maps", eData);
+            Map_Create(mTileTypes[0], 0, tool_RandomGet(28, 70), tool_RandomGet(22, 70), true);
+            Map_Save(RandomMapFile);
+
+            mGame_Data.mCampaign.LoadCustomMapFromPath(RandomMapFile);
+            mGame_Data.mCampaign.setRandom(true);
+
+            mGame_Data.mMission_Phases_Remaining = 1;
+            mGame_Data.mMission_Number = 1;
+            mGame_Data.mMission_Phase = 1;
+            mGame_Data.Phase_Start();
+
+            auto Phase = mGame_Data.mCampaign.getMission(0)->GetPhase(0);
+            int16 Min = (rand() % 5);
+            int16 Max = Min + (rand() % 5);
+
+            Phase->mAggression = { Min, Max };
+            Phase->mGoals = { eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings };
+        }
+        else {
+            Custom_ShowMapSelection();
+        }
+
+        if (mCustom_Mode == eCustomMode_None)
+            return -1;
+    }
+
+    WindowTitleSet(false);
+
+    // Single Map does not have a recruit screen
+    if (mCustom_Mode != eCustomMode_Map) {
+
+        // Retail / Custom set show the Recruitment Hill
+        if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set) {
+
+            // Recruit Screen
+            if (Recruit_Loop())
+                return -1;
+
+            Recruit_CheckLoadSaveButtons();
+
+            // Did we just load/save a game?
+            if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
+                mRecruit_Mission_Restarting = true;
+                mGame_Data.mMission_Recruitment = -1;
+                mPhase_Aborted = true;
+                return -3;
+            }
+        }
+        else {
+
+            // Amiga demos have a menu
+            if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
+
+                // But not custom games
+                if (mCustom_Mode == eCustomMode_None) {
+
+                    if (!mVersionCurrent->isAmigaTheOne()) {
+                        if (Demo_Amiga_ShowMenu())
+                            return -1;
+                    }
+                }
+            }
+        }
+    }
+
+    mRecruit_Mission_Restarting = false;
+    Mission_Memory_Backup();
+
+    // Retail or Custom Mode
+    if (mVersionCurrent->isRetail() ||
+        mCustom_Mode != eCustomMode_None) {
+        Map_Load();
+
+        // Show the intro for the briefing screen
+        Mission_Intro_Play();
+    }
+
+    mGraphics->Load_pStuff();
+
+    return 0;
+}
+
+void cFodder::Recruit_Prepare() {
+
+    mPhase_Aborted = false;
+
+    Recruit_Truck_Anim_Prepare();
+    Recruit_Render_Sidebar();
+
+    mGraphics->Load_Hill_Data();
+    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+    mGraphics->Recruit_Draw_Hill();
+
+    Recruit_Copy_Sprites();
+
+    if (mVersionCurrent->mPlatform == ePlatform::Amiga)
+        GetGraphics<cGraphics_Amiga>()->Hill_Prepare_Overlays();
+
+    mGraphics->SetActiveSpriteSheet(eGFX_HILL);
+
+    Recruit_Draw_Graves();
+
+    mGraphics->PaletteSet();
+    mSurface->palette_FadeTowardNew();
+    mSurface->Save();
+
+    mRecruit_Rendereds.clear();
+    Recruit_Render_Names_UnusedSlots();
+
+    mRecruit_RenderedNext = mRecruit_Rendereds.begin();
+    for (int16 ax = mGame_Data.mGamePhase_Data.mSoldiers_Allocated_Count - 1; ax >= 0; --ax)
+        Recruit_Sidebar_Render_SquadName();
+}
+
+bool cFodder::Recruit_Loop() {
+
+    mRecruit_Screen_Active = true;
+    mSurface->clearBuffer();
+
+    // If demo data is loaded, we need to load
+    if (mVersionCurrent->isDemo()) {
+
+        if (mCustom_Mode == eCustomMode_Set) {
+            VersionSwitch(mVersionDefault);
+        }
+        // Failed to switch mode?
+        if (mVersionCurrent->isDemo())
+            return 0;
+    }
+
+    Mouse_Setup();
+
+    Sidebar_Clear_ScreenBufferPtr();
+    Recruit_Prepare();
+
+    mGUI_Mouse_Modifier_X = 0;
+    mGUI_Mouse_Modifier_Y = 0x1D;
+
+    mMouseCursor_Enabled = -1;
+
+    Recruit_Prepare_Anims();
+
+    Recruit_Update_Actors();
+    Recruit_Update_Actors();
+
+    mMouse_Exit_Loop = false;
+
+    for (;; ) {
+        if (mMouse_Exit_Loop) {
+            mMouse_Exit_Loop = false;
+
+            if (Recruit_Check_Buttons_SaveLoad())
+                break;
+        }
+
+        if (mPhase_Aborted)
+            break;
+
+        Recruit_Cycle();
+
+        Video_SurfaceRender();
+        Cycle_End();
+    }
+
+    mRecruit_Screen_Active = false;
+
+    mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
+    mMouseCursor_Enabled = 0;
+
+    mSurface->paletteNew_SetToBlack();
+
+    while (mSurface->isPaletteAdjusting()) {
+        Recruit_Cycle();
+
+        Video_SurfaceRender();
+        Cycle_End();
+    }
+
+    return mPhase_Aborted;
+}
+
+void cFodder::Recruit_Draw_String(int32 pParam0, size_t pParam8, size_t pParamC, const std::string& pString) {
+
+    for (std::string::const_iterator Text = pString.begin(); Text != pString.end(); ++Text, pParam8 += 0x0C) {
+        char NextChar = *Text;
+
+        if (NextChar == 0x20)
+            continue;
+
+        if (NextChar <= 0x39) {
+            NextChar -= 0x30;
+            NextChar += 0x1A;
+        }
+        else
+            NextChar -= 0x41;
+
+        GUI_Draw_Frame_8(pParam0, NextChar, pParam8, pParamC);
+    }
+}
+
+void cFodder::Recruit_Truck_Anim_Prepare() {
+    uint16* di = mRecruit_Truck_FramesPlay;
+    int16  count;
+
+    // Do any troops need to enter the truck?
+    if (mGame_Data.mGamePhase_Data.mSoldiers_Required > 0) {
+
+        // Welcome Troops
+        Recruit_Truck_Anim_CopyFrames(&di, mRecruit_Truck_Anim_Welcome);
+
+        count = mGame_Data.mGamePhase_Data.mSoldiers_Required;
+        count -= 2;
+
+        // Wave Troop Past
+        while (count >= 0) {
+            Recruit_Truck_Anim_CopyFrames(&di, mRecruit_Truck_Anim_PassTroop);
+            --count;
+        }
+
+        // Swing Arm to stop Troops
+        Recruit_Truck_Anim_CopyFrames(&di, mRecruit_Truck_Anim_SwingArm);
+
+        // Close the truck door
+        Recruit_Truck_Anim_CopyFrames(&di, mRecruit_Truck_Anim_CloseDoor);
+    }
+
+    // Set end markers
+    *di++ = 0;
+    *di = -1;
+}
+
+void cFodder::Recruit_Truck_Anim_CopyFrames(uint16** pDi, const int16* pSource) {
+    int16 ax;
+
+    for (;;) {
+        ax = *pSource++;
+
+        if (ax < 0)
+            break;
+
+        **pDi = ax;
+        (*pDi)++;
+    }
+}
+
+void cFodder::Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const size_t pPosY) {
+    pSpriteType >>= 1;
+    if (pSpriteType > 8)
+        pSpriteType = 8;
+
+    int32 Frame = (int32)pPosY;
+    Frame -= 0x14;
+    Frame >>= 5;
+    if (Frame >= 5)
+        Frame = 4;
+
+    GUI_Draw_Frame_8(pSpriteType, Frame, pPosX, pPosY - 8);
+}
+
+void cFodder::Recruit_Draw_Graves() {
+    auto GraveIT = mGravePositions.rbegin();
+
+    if (mGame_Data.mSoldiers_Died.empty())
+        return;
+
+    for (size_t i = mGame_Data.mSoldiers_Died.size(); i > 0; --i) {
+        ++GraveIT;
+    }
+
+    for (auto& Hero : mGame_Data.mSoldiers_Died) {
+        --GraveIT;
+        Recruit_Draw_Grave(Hero.mRank, GraveIT->mX, GraveIT->mY + PLATFORM_BASED(0, 6));
+    };
+
+}
+
+void cFodder::Recruit_Render_Sidebar() {
+    int16 SpriteType = 0xAD;
+    int16 PosX = 0;
+    int16 PosY = 0x18;
+
+    // Draw Heroes Heading
+    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(SpriteType, PosX, PosY);
+
+    int16 Data14 = 0x0E;
+    SpriteType = 4;
+
+    for (auto& Hero : mGame_Data.Heroes_Get()) {
+        if (Hero.mKills == 0)
+            break;
+
+        Data14 += 0x0C;
+    }
+
+    // Draw Empty Hero Slots
+    PosY = 0x0E;
+    do {
+        SpriteType = 0xA9;
+        if (PosY >= Data14)
+            SpriteType = 0xAB;
+
+        PosX = 0;
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(SpriteType, PosX, PosY + 0x18);
+        PosY += 0x0C;
+
+    } while (PosY < 0x4A);
+
+    //seg003:1E89
+
+    // Draw Squad Heading
+    SpriteType = 0xAE;
+    PosX = 0;
+    PosY = 0x4A + 0x18;
+    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(SpriteType, PosX, PosY);
+
+    PosY = 0x58;
+    Data14 = mGame_Data.mGamePhase_Data.mSoldiers_Required + mGame_Data.mGamePhase_Data.mSoldiers_Allocated_Count;
+    Data14 *= 0x0C;
+    Data14 += PosY;
+
+    int16 Final = PLATFORM_BASED(0xA0, 0xB8);
+
+    // Draw Used Slot
+    do {
+        SpriteType = 0xA9;
+        if (PosY >= Data14)
+            SpriteType = 0xAB;
+
+        PosX = 0;
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(SpriteType, PosX, PosY + 0x18);
+        PosY += 0x0C;
+
+    } while (PosY < Final);
+
+    mRecruit_Sidebar_Draw_Y_Start = 0x0F;
+    mRecruit_Render_Name_SmallGap = -1;
+
+    Recruit_Render_Squad_RankKills();
+    Recruit_Render_Squad_Names();
+
+    mRecruit_Render_Name_SmallGap = 0;
+    mRecruit_Sidebar_Draw_Y_Start = -59;
+
+    Recruit_Render_HeroList();
+    mRecruit_Sidebar_Draw_Y_Start = 0;
+}
+
+void cFodder::Recruit_Render_Squad_Names() {
+
+    int16 word_3A3BB = 7;
+    mSidebar_Draw_Y = 0;
+
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+
+        if (Troop.mRecruitID == -1)
+            continue;
+
+        if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
+            continue;
+
+        if (mSquad_Selected != Troop.mSprite->field_32)
+            continue;
+
+        const sRecruit* Data28 = &mRecruits[Troop.mRecruitID];
+        int16 Data14;
+
+        for (Data14 = 0; Data14 <= 5; ++Data14) {
+
+            if (Data28->mName[Data14] == 0x20)
+                break;
+        }
+
+        Data14 <<= 2;
+        word_3A05F = (0x30 - Data14) >> 1;
+
+        if (mRecruit_Render_Name_SmallGap)
+            word_3A05F -= 1;
+
+        // Draw Troop name to list
+        for (Data14 = 0; Data14 <= 5; ++Data14) {
+
+            if (Data28->mName[Data14] != 0x20) {
+                int16 Data0 = Data28->mName[Data14];
+                Data0 -= 0x41;
+                Data0 += 0x29;
+
+                int16 X = Data14;
+                X <<= 2;
+                X += word_3A05F;
+
+                int16 Y = 0x4B;
+                Y += mSidebar_Draw_Y;
+                Y += mRecruit_Sidebar_Draw_Y_Start;
+
+                mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, X, Y + 0x18);
+            }
+        }
+
+        mSidebar_Draw_Y += 0x0C;
+
+        if (--word_3A3BB < 0)
+            break;
+    }
+
+}
+
+void cFodder::Recruit_Render_Squad_RankKills() {
+    int16 Data0;
+
+    mSidebar_Draw_Y = 0;
+
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+
+        if (Troop.mRecruitID == -1)
+            continue;
+
+        if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
+            continue;
+
+        if (mSquad_Selected != Troop.mSprite->field_32)
+            continue;
+
+        int16 Data8 = 0;
+        int16 DataC = mSidebar_Draw_Y - 1;
+
+        if (!mRecruit_Render_Name_SmallGap) {
+            Data0 = Troop.mRank + 9;
+            Data8 = 0x23;
+
+            DataC += 0x4A;
+            DataC += mRecruit_Sidebar_Draw_Y_Start;
+
+            mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, Data8, DataC + 0x18);
+
+        }
+        else {
+            // Draw Kills
+            Recruit_Render_Number(Troop.mNumberOfKills, 0x43);
+
+        }
+
+        //Draw Rank
+        Data0 = Troop.mRank + 9;
+
+        DataC += 0x4A;
+        DataC += mRecruit_Sidebar_Draw_Y_Start;
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, 0, DataC + 0x18);
+        mSidebar_Draw_Y += 0x0C;
+    }
+}
+
+void cFodder::Recruit_Render_Number(int16 pNumber, int16 pData10) {
+
+    pData10 -= 0x30;
+    std::string Number = tool_StripLeadingZero(std::to_string(pNumber));
+    uint16 Data0 = (uint16)Number.length() * 4;
+
+    int16 Data8 = 0x30 - Data0;
+    int16 DataC = 0x4B + mSidebar_Draw_Y + mRecruit_Sidebar_Draw_Y_Start;
+
+    for (auto& Char : Number) {
+        Data0 = (Char & 0xFF) + pData10;
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, Data8, DataC + 0x18);
+        Data8 += 4;
+    }
+}
+
+void cFodder::Recruit_Render_HeroList() {
+
+    int16 HeroesToRender = 4;
+    mSidebar_Draw_Y = 0;
+
+    for (auto& Hero : mGame_Data.Heroes_Get()) {
+
+        if (Hero.mRecruitID < 0 || Hero.mKills == 0)
+            continue;
+
+        int16 Data8 = 0;
+        int16 DataC = mSidebar_Draw_Y - 1;
+        DataC += 0x4A + mRecruit_Sidebar_Draw_Y_Start + 0x18;
+
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Hero.mRank + 9, Data8, DataC);
+
+        const sRecruit* Troop = &mRecruits[Hero.mRecruitID];
+        int16 Position;
+        for (Position = 0; Position <= 5; ++Position) {
+            if (Troop->mName[Position] == 0x20)
+                break;
+        }
+
+        Position <<= 2;
+        word_3A05F = (0x30 - Position) >> 1;
+        --word_3A05F;
+
+        for (Position = 0; Position <= 5; ++Position) {
+
+            uint8 Character = Troop->mName[Position];
+            if (Character == 0x20)
+                continue;
+
+            Character -= 0x41;
+            Character += 0x29;
+            Data8 = (Position << 2) + word_3A05F;
+            DataC = 0x4B + mSidebar_Draw_Y + mRecruit_Sidebar_Draw_Y_Start;
+
+            mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Character, Data8, DataC + 0x18);
+        }
+
+        Recruit_Render_Number(Hero.mKills, 0x67);
+        mSidebar_Draw_Y += 0x0C;
+
+        if (--HeroesToRender < 0)
+            break;
+    }
+}
+
+void cFodder::Recruit_Render_Names_UnusedSlots() {
+    uint32* Data20 = (uint32*)mGraphics->mImageTemporary.mData->data();
+
+    int16 Row = PLATFORM_BASED(0x58, 0x44);
+
+    // Squad Troop Names
+    for (; Row < 0xA0; Row += 0x0C) {
+        mRecruit_Rendereds.emplace_back(Data20, Row);
+
+        mGraphics->Sidebar_Copy_ScreenBuffer(Row, 0x0C, 0, Data20);
+    }
+
+    //seg003:2532
+    int16 DataC = 0x58;
+    int16 Slots = PLATFORM_BASED(5, 7);    // Empty Slots
+
+    for (; Slots >= 0; --Slots) {
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(0xAC, 0, DataC + 0x18);
+
+        DataC += 0x0C;
+    }
+}
+
+void cFodder::Recruit_Sidebar_Render_SquadName() {
+    if (mRecruit_RenderedNext == mRecruit_Rendereds.end())
+        return;
+
+    if (mRecruit_RenderedNext->mPosition < 0)
+        return;
+
+    mGraphics->Sidebar_Copy_ScreenBuffer((uint16)mRecruit_RenderedNext->mPosition, 0x0C, -1, mRecruit_RenderedNext->mDataPtr);
+    ++mRecruit_RenderedNext;
+}
+
+void cFodder::Recruit_Update_Actors() {
+
+    Recruit_Update_Truck();
+    Recruit_Update_Soldiers();
+}
+
+void cFodder::sub_175C0() {
+    sRecruit_Screen_Pos* Data20 = 0;
+
+    if (mRecruit_Truck_Troops_ToEnter_Count > 0) {
+
+        sRecruit_Screen_Pos* Data20 = &mRecruit_Screen_Positions[293];
+        do {
+            if (Data20 == &mRecruit_Screen_Positions[0])
+                return;
+
+            --Data20;
+
+        } while (Data20->mFrame == 0 || Data20->mFrame < 4);
+
+        int16 Data0 = Data20->mFrame;
+        Data20->mFrame = 0;
+        Data0 ^= 1;
+
+
+        if ((Data20 + 1)->mX >= 0) {
+            (Data20 + 1)->mFrame = Data0;
+        }
+        else {
+            --mRecruit_Truck_Troops_ToEnter_Count;
+            Recruit_Sidebar_Render_SquadName();
+        }
+    }
+    //loc_17652
+
+    uint16 aa = ~(dword_3B1CB >> 16);
+
+    dword_3B1CB = (aa << 16) | (dword_3B1CB & 0xFFFF);
+
+    Data20 = &mRecruit_Screen_Positions[293];
+    sRecruit_Screen_Pos* Data28 = &mRecruit_Screen_Positions[271];
+
+loc_17686:;
+    for (; Data20 != &mRecruit_Screen_Positions[0];) {
+        --Data20;
+
+        if (Data20->mFrame == 0)
+            continue;
+
+        if (Data20->mFrame < 4)
+            continue;
+
+        if (Data20 >= Data28)
+            continue;
+
+        int16 Data8 = 3;
+        sRecruit_Screen_Pos* Data30 = Data20;
+        //loc_176CE
+
+        do {
+            ++Data30;
+            if (Data30->mFrame) {
+                if (Data30->mFrame > 3)
+                    goto loc_17686;
+
+                ++Data30;
+            }
+            --Data8;
+        } while (Data8 >= 0);
+
+        // Animate the frame
+        int16 Data0 = Data20->mFrame;
+        Data20->mFrame = 0;
+
+        if ((dword_3B1CB >> 16) < 0)
+            Data0 ^= 1;
+
+        if ((Data20 + 1)->mFrame) {
+            (Data20 + 2)->mFrame = Data0;
+        }
+        else {
+            (Data20 + 1)->mFrame = Data0;
+        }
+    }
+
+}
+
+void cFodder::Recruit_Update_Soldiers() {
+
+    if (mRecruit_Truck_Animation_Play) {
+        sub_175C0();
+    }
+    else {
+        Recruit_Frame_Check();
+        Recruit_Position_Troops();
+    }
+
+    sRecruit_Screen_Pos* Data20 = mRecruit_Screen_Positions;
+    sRecruit_Screen_Pos* dword_3B1C7;
+
+    for (; ; Data20 = dword_3B1C7) {
+
+        dword_3B1C7 = Data20;
+
+        if (Data20->mX < 0)
+            break;
+
+        int16 Data0;
+        int16 Data8 = Data20->mX;
+        int16 DataC = Data20->mY;
+        int16 Data4 = Data20->mFrame;
+        ++Data20;
+        dword_3B1C7 = Data20;
+
+        if (Data4 == 0)
+            continue;
+
+        --Data4;
+        if (Data4 >= 3) {
+            //loc_177E3
+            Data4 -= 3;
+            Data0 = 0x0A;
+            Data0 += Data4;
+
+            // Sprite reached end of last curve
+            if (DataC >= 0xB7)
+                Data0 += 4;
+
+            // Sprite on last curve
+            else if (DataC > 0x7C)
+                Data0 += 2;
+
+            // First dip of mountain is frame 0
+            Data4 = 0;
+
+            // Second Dip is frame 1
+            if (Data20 > &mRecruit_Screen_Positions[0x46]) {
+                Data4 = 1;
+
+                // Last leg of mountain
+                if (Data20 > &mRecruit_Screen_Positions[0x7A])
+                    Data4 = 2;
+            }
+        }
+        else
+            Data0 = 9;  // Hill Piece
+
+        //loc_1784C
+        if (mVersionCurrent->isPC()) {
+            DataC -= 8;
+
+            // Hill pieces are 16bit graphics
+            if (Data0 != 9)
+                GUI_Draw_Frame_8(Data0, Data4, Data8, DataC);
+            else {
+                ++Data8;
+                --DataC;
+                GUI_Draw_Frame_16(Data0, Data4, Data8, DataC);
+            }
+
+        }
+        else {
+            GUI_Draw_Frame_8(Data0, Data4, Data8, DataC);
+        }
+    }
+}
+
+void cFodder::Recruit_Prepare_Anims() {
+
+    if (mRecruit_Mission_Restarting)
+        return;
+
+    mRecruit_Truck_Troops_ToEnter_Count = mGame_Data.mGamePhase_Data.mSoldiers_Required;
+    mRecruit_Truck_Animation_Play = 0;
+
+    int16 Data0 = 0x1E;
+    int16* Data20 = mRecruit_Hill_Positions_Use;
+    const int16* Data24 = mRecruit_Hill_Position_Gaps;
+
+    // Loop the 15 positions
+    for (int16 Data4 = 0x0E; Data4 >= 0; --Data4) {
+
+        *Data20++ = Data0;
+        Data0 -= *Data24++;
+
+    }
+}
+
+void cFodder::Recruit_Frame_Check() {
+    sRecruit_Screen_Pos* Data20 = mRecruit_Screen_Positions;
+
+    for (; Data20->mX >= 0; ++Data20) {
+
+        if (Data20->mFrame >= 4)
+            Data20->mFrame = 0;
+    }
+}
+
+void cFodder::Recruit_Position_Troops() {
+    const int16*    Recruit_Next_Shirt = mRecruit_Shirt_Colors;
+
+    uint64 Data8 = mGame_Data.mSoldiers_Died.size();
+    int16 Recruits, Data4;
+
+    // Calculate number of dead troops
+    Data8 &= 0xF;
+
+    if (mRecruit_Mission_Restarting)
+        Recruits = mGame_Data.mRecruits_Available_Count;
+    else {
+        Recruits = mGame_Data.mMission_Recruits_AliveCount;
+        if (!Recruits)
+            goto loc_179B2;
+    }
+
+    // loc_1795E
+    --Recruits;
+    Data4 = 0x110;
+
+    // Set the recruit position frames
+    for (; Recruits >= 0; --Recruits) {
+
+        if (Data4 >= 0) {
+            if (mRecruit_Screen_Positions[Data4].mFrame)
+                --Data4;
+
+            mRecruit_Screen_Positions[Data4].mFrame = mRecruit_Shirt_Colors[Data8];
+        }
+
+        Data8 += 1;
+        Data8 &= 0xF;
+        Data4 -= 4;
+    }
+
+loc_179B2:;
+    // If the mission is restarting, troops are already over the hill
+    if (mRecruit_Mission_Restarting)
+        return;
+
+    mRecruit_Truck_Reached = 0;
+    int16 Data0 = mRecruit_Hill_Positions_Use[0];
+    Data8 = 5;
+
+    for (; ; Data0++) {
+
+        Data4 = mRecruit_Screen_Positions[Data0].mFrame;
+        if (Data4) {
+            if (Data4 > 3) {
+                mRecruit_Truck_Reached = -1;
+                break;
+            }
+            else
+                continue;
+
+        }
+        else {
+            if (Data0 == 0x110) {
+                mRecruit_Truck_Reached = -1;
+                break;
+            }
+            --Data8;
+            if (!Data8)
+                break;
+        }
+    }
+    //seg003:2B6D
+    if (!mRecruit_Truck_Reached) {
+        dword_3B1CB += 0x8000;
+        dword_3B1CB &= 0x1FFFF;
+    }
+    else
+        dword_3B1CB = 0x10000;
+
+    int16* Data20 = mRecruit_Hill_Positions_Use;
+
+    // 14 moving recruits
+    for (int16 DData8 = 0x0E; DData8 >= 0; --DData8) {
+
+        // Get the next position
+        Data0 = *Data20;
+
+        if (Data0 >= 0) {
+
+            // Frame
+            Data4 = (dword_3B1CB >> 16);
+            Data4 += *Recruit_Next_Shirt++;
+
+            if (mRecruit_Screen_Positions[Data0].mX < 0)
+                Data0 = 0;
+
+            if (mRecruit_Screen_Positions[Data0].mFrame)
+                ++Data0;
+
+            mRecruit_Screen_Positions[Data0].mFrame = Data4;
+        }
+        // 17A9D
+
+        if (!mRecruit_Truck_Reached)
+            Data0++;
+
+        //loc_17AA9
+        *Data20 = Data0;
+        ++Data20;
+    }
+
+    if (mRecruit_Truck_Reached)
+        mRecruit_Truck_Animation_Play = -1;
+}
+
+void cFodder::Recruit_Update_Truck() {
+    int16 DataC = PLATFORM_BASED(0xB6, 0xBE);
+
+    GUI_Draw_Frame_8(0x22, mRecruit_Truck_Frame, 0x31, DataC);
+
+    // If no troop has reached the truck, don't do animation
+    if (!mRecruit_Truck_Animation_Play)
+        return;
+
+    int16 Data0 = *(mRecruit_Truck_FramesPlay + mRecruit_Truck_FrameAnimBufferPtr);
+    if (Data0 < 0)
+        return;
+
+    ++mRecruit_Truck_FrameAnimBufferPtr;
+    mRecruit_Truck_Frame = Data0;
+}
+
+void cFodder::Recruit_Copy_Sprites() {
+
+    const sRecruit_Sprites* stru = mRecruitSprite;
+
+    for (; stru->mSpriteType != -1;) {
+        int16 word_3B1A3 = stru->field_4;
+        int16 word_3B1A5 = stru->field_6;
+        int16* Data34 = stru->field_8;
+
+        for (;;) {
+            auto SpriteSheet = Sprite_Get_Sheet(stru->mSpriteType, stru->mFrame);
+
+            int16 Columns = SpriteSheet->mColCount;
+            int16 Rows = SpriteSheet->mRowCount;
+            int16 Data8 = *Data34++;
+            int16 DataC = 0;
+
+            if (Data8 < 0) {
+                ++stru;
+                break;
+            }
+
+            // Originally Inside sub_A094C
+            if (mVersionCurrent->isAmiga()) {
+                Columns -= 1;
+                Columns <<= 4;
+            }
+
+            // Multiply 
+            sub_2AEB6(Columns, Rows, &Data8, &DataC);
+
+            int16 Data10 = word_3B1A3 + 0x08;
+            int16 Data14 = word_3B1A5;
+            mGraphics->Recruit_Sprite_Draw(Columns, Rows,
+                Data8, Data10,
+                Data14, DataC, SpriteSheet->GetGraphicsPtr());
+            word_3B1A3 += 0x10;
+        }
+    }
+}
+
+void cFodder::Recruit_Cycle() {
+    Mouse_Inputs_Get();
+
+    Recruit_Update_Actors();
+    mGraphics->Sidebar_Copy_To_Surface(0x18);
+
+    if (mVersionCurrent->isPC())
+        mGraphics->Recruit_Draw_HomeAway();
+
+    Mouse_DrawCursor();
+
+    if (mSurface->isPaletteAdjusting())
+        mSurface->palette_FadeTowardNew();
+}
+
+bool cFodder::Recruit_Check_Buttons_SaveLoad() {
+    mRecruit_Button_Load_Pressed = 0;
+    mRecruit_Button_Save_Pressed = 0;
+
+    if (mMouseX <= -16 && mMouseY <= 26) {
+        mRecruit_Button_Load_Pressed = -1;
+        return true;
+    }
+
+    if (mMouseX >= 0x10F) {
+        if (mMouseY > 0x1A)
+            return true;
+
+        if (mMission_Save_Blocked[mGame_Data.mMission_Number - 1])
+            return false;
+
+        mRecruit_Button_Save_Pressed = -1;
+        return true;
+    }
+
+    if (mMouseY < 0x1A)
+        return false;
+
+    return true;
+}
+
+void cFodder::Recruit_CheckLoadSaveButtons() {
+
+    mVersionPlatformSwitchDisabled = true;
+    if (mRecruit_Button_Load_Pressed) {
+        Game_Load();
+
+    }
+    else if (mRecruit_Button_Save_Pressed) {
+        Game_Save_Wrapper();
+    }
+    mVersionPlatformSwitchDisabled = false;
+}

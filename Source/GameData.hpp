@@ -166,6 +166,7 @@ struct sGameRecorded {
     int16 mSeed[4];
     int16 mInputTicks;
     int16 mEngineTicks;
+    ePlatform mRecordedPlatform;
 
     sFodderParameters mParams;
 
@@ -196,6 +197,13 @@ struct sGameRecorded {
             return &mState.find(pTicks)->second;
 
         return 0;
+    }
+
+    uint64 GetTotalTicks() const {
+        if (!mState.size())
+            return 0;
+
+        return mState.rbegin()->first;
     }
 
     void clear();

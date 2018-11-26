@@ -23,6 +23,9 @@
 #include "Sprites.hpp"
 #include "GameData.hpp"
 
+#define INVALID_SPRITE_PTR (sSprite*) -1
+
+
 enum eWeaponSelected {
     eWeapon_None = 0,
     eWeapon_Grenade = 1,
@@ -1283,6 +1286,7 @@ public:
     bool            Menu_Draw(const std::function<void()> pButtonHandler);
 
     bool            Demo_Load();
+    void            Demo_FixScreenSize();
 
     void            VersionSwitch(const sGameVersion* pVersion);
 };

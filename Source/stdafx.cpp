@@ -148,9 +148,11 @@ int start(int argc, char *argv[]) {
     if (Params.mUnitTesting) {
         cUnitTesting Testing;
         return Testing.Start() ? 0 : -1;
-    } else
+    }
+    else {
         g_Fodder->Start();
-
+        g_Fodder->mGame_Data.mDemoRecorded.save();
+    }
     return 0;
 }
 

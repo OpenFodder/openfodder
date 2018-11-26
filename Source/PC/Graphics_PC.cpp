@@ -281,7 +281,7 @@ void cGraphics_PC::MapTiles_Draw() {
     uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
     // Y
-    for (uint16 cx = 0; cx < 0x0F; ++cx) {
+    for (uint16 cx = 0; cx < 0x10; ++cx) {
         uint8* MapPtr = CurrentMapPtr;
         uint8* TargetRow = Target;
 

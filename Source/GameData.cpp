@@ -117,6 +117,7 @@ void sGameRecorded::clear() {
     mSeed[3] = g_Fodder->mRandom_3;
     mInputTicks = g_Fodder->mGame_InputTicks;
     mEngineTicks = g_Fodder->mMission_EngineTicks;
+    mRecordedPlatform = g_Fodder->mVersionCurrent->mPlatform;
 
     mParams = g_Fodder->mParams;
 }
@@ -147,6 +148,7 @@ void sGameRecorded::save() {
         if (Filename.find(".") == Filename.npos)
             Filename += ".ofd";
 
+        g_Debugger->Notice("Writing demo to " + Filename);
         std::ofstream outfile(Filename, std::ofstream::binary);
         outfile << ToJson();
         outfile.close();
@@ -170,6 +172,7 @@ std::string sGameRecorded::ToJson() {
     Save["mEngineTicks"] = mEngineTicks;
 
     Save["mParams"] = mParams.ToJson();
+    Save["mPlatform"] = mRecordedPlatform;
 
     for (auto& Event : mEvents) {
         Json JsonHero;
@@ -220,6 +223,7 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
             mSeed[3] = LoadedData["Seed4"];
             mInputTicks = LoadedData["InputTicks"];
             mEngineTicks = LoadedData["mEngineTicks"];
+            mRecordedPlatform = LoadedData["mPlatform"];
 
             mParams.FromJson(LoadedData["mParams"]);
             for (auto& Event : LoadedData["mEvents"]) {
