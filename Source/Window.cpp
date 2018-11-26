@@ -432,6 +432,11 @@ void cWindow::SetScreenSize( const cDimension& pDimension ) {
 	mScreenSize = pDimension;
 }
 
+/**
+ * Set the window size / resolution using the aspect ratio of the original resolution
+ * 
+ * @param pDimension Original resolution
+ */
 void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 
 	mOriginalResolution = pDimension;

@@ -1676,3 +1676,37 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
     mSquad_Select_Timer = 1;
     mGUI_Sidebar_Setup = 0;
 }
+
+void cFodder::Sidebar_Render_SquadIcon() {
+    if (mSquad_Selected < 0)
+        return;
+
+    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(mSquad_Selected, 0, mGUI_Loop_Draw_Y);
+}
+
+void cFodder::Sidebar_Clear_ScreenBufferPtr() {
+
+    for (uint16 cx = 0; cx < 0x2000; ++cx)
+        mSidebar_Screen_BufferPtr[cx] = 0;
+}
+
+void cFodder::Sidebar_Render_To_BackBuffer() {
+
+    for (int16 cx = 0; cx < 0x2000; ++cx) {
+        mSidebar_Back_Buffer[cx] = mSidebar_Screen_Buffer[cx];
+    }
+
+    mSidebar_Screen_BufferPtr = mSidebar_Back_Buffer;
+}
+
+/**
+ * Copy 'mSidebar_Back_Buffer' to the Screen Buffer, and set the Ptr to the Screen Buffer
+ */
+void cFodder::Sidebar_Render_To_ScreenBuffer() {
+
+    for (int16 cx = 0; cx < 0x2000; ++cx) {
+        mSidebar_Screen_Buffer[cx] = mSidebar_Back_Buffer[cx];
+    }
+
+    mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
+}

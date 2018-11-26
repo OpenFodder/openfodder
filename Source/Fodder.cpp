@@ -10027,12 +10027,6 @@ void cFodder::Service_Mission_Text_Prepare() {
     Service_Draw_String(Mission.str(), mFont_Service_Width, 4, mGUI_Temp_X, mVideo_Draw_PosY);
 }
 
-void cFodder::Sidebar_Clear_ScreenBufferPtr() {
-
-    for (uint16 cx = 0; cx < 0x2000; ++cx)
-        mSidebar_Screen_BufferPtr[cx] = 0;
-}
-
 void cFodder::Briefing_Draw_Phase() {
     const char* Str_Brief = "BRIEFING";
     const char* Str_Phase = "PHASE ";
@@ -18597,27 +18591,28 @@ bool cFodder::Demo_Load() {
 
 void cFodder::Window_UpdateScreenSize() {
 
-    if (g_Fodder->mVersionCurrent) {
-        if (mParams.mDemoPlayback && mGame_Data.mDemoRecorded.mRecordedPlatform != ePlatform::Any && mGame_Data.mDemoRecorded.mRecordedPlatform != mVersionCurrent->mPlatform) {
+    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+    mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
 
+    // This next section is done
+    //
+    // If we're playing back a demo
+    if (mParams.mDemoPlayback && g_Fodder->mVersionCurrent) {
+        // And the current platform, does not match the platform the demo was recorded with
+        if (mGame_Data.mDemoRecorded.mRecordedPlatform != mVersionCurrent->mPlatform && mGame_Data.mDemoRecorded.mRecordedPlatform != ePlatform::Any ) {
+            // Alter the screen size, to the other platforms
             switch (mGame_Data.mDemoRecorded.mRecordedPlatform) {
             case ePlatform::Amiga: // Viewing Amiga recording on PC Data
-                g_Window->SetScreenSize({ 320,225 });
+                mWindow->SetScreenSize({ 320,225 });
                 break;
             case ePlatform::PC: // Viewing PC recording on Amiga Data
-                g_Window->SetScreenSize({ 320,200 });
+                mWindow->SetScreenSize({ 320,200 });
                 break;
             case ePlatform::Any:
                 break;
             }
         }
-        else {
-
-            mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
-            mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
-        }
     }
-
 }
 
 void cFodder::Start() {
@@ -19087,34 +19082,6 @@ void cFodder::Mission_Troops_Clear_Selected() {
 void cFodder::sub_303AE() {
     GUI_Sidebar_Grenades_CurrentSquad_Draw();
     GUI_Sidebar_Squad_Split_Icon_Draw();
-}
-
-void cFodder::Sidebar_Render_SquadIcon() {
-    if (mSquad_Selected < 0)
-        return;
-
-    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(mSquad_Selected, 0, mGUI_Loop_Draw_Y);
-}
-
-void cFodder::Sidebar_Render_To_BackBuffer() {
-
-    for (int16 cx = 0; cx < 0x2000; ++cx) {
-        mSidebar_Back_Buffer[cx] = mSidebar_Screen_Buffer[cx];
-    }
-
-    mSidebar_Screen_BufferPtr = mSidebar_Back_Buffer;
-}
-
-/**
- * Copy 'mSidebar_Back_Buffer' to the Screen Buffer, and set the Ptr to the Screen Buffer
- */
-void cFodder::Sidebar_Render_To_ScreenBuffer() {
-
-    for (int16 cx = 0; cx < 0x2000; ++cx) {
-        mSidebar_Screen_Buffer[cx] = mSidebar_Back_Buffer[cx];
-    }
-
-    mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 }
 
 void cFodder::Squad_Switch_Weapon() {
