@@ -152,6 +152,7 @@ bool cUnitTesting::Start() {
 
     bool Result = true;
     for (auto& CampaignName : Campaigns) {
+        g_Fodder->mParams = g_Fodder->mStartParams;
         g_Fodder->mParams.mCampaignName = CampaignName;
 
         g_Debugger->TestStart(CampaignName, "Campaign");
@@ -164,8 +165,11 @@ bool cUnitTesting::Start() {
         }
 
         // FIXME: Create test folder
-        std::string Command = "mkdir \"" + local_PathGenerate("", CampaignName, eTest) + "\"";
-        system(Command.c_str());
+        if (!local_FileExists(local_PathGenerate("", CampaignName, eTest)) && g_Fodder->mStartParams.mDemoRecord) {
+
+            std::string Command = "mkdir \"" + local_PathGenerate("", CampaignName, eTest) + "\"";
+            system(Command.c_str());
+        }
 
         auto campaignStartTime = std::chrono::steady_clock::now();
         if (!RunTests(CampaignName))
