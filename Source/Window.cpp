@@ -54,7 +54,7 @@ cWindow::~cWindow() {
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
-		std::cout << "Failed to initialise SDL\n";
+        g_Debugger->Error("Failed to initialise SDL");
 		exit( 1 );
 		return false;
 	}
@@ -63,14 +63,14 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 
 	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GetWindowSize().mWidth, GetWindowSize().mHeight, SDL_WINDOW_SHOWN );
 	if (!mWindow) {
-		std::cout << "Failed to create window\n";
+        g_Debugger->Error("Failed to create window");
 		exit( 1 );
 		return false;
 	}
 
 	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (!mRenderer) {
-		std::cout << "Failed to create rendered\n";
+        g_Debugger->Error("Failed to create rendered");
 		exit( 1 );
 		return false;
 	}

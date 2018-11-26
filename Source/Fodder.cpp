@@ -19089,7 +19089,7 @@ void cFodder::sub_303AE() {
     GUI_Sidebar_Squad_Split_Icon_Draw();
 }
 
-void cFodder::sub_303B7() {
+void cFodder::Sidebar_Render_SquadIcon() {
     if (mSquad_Selected < 0)
         return;
 

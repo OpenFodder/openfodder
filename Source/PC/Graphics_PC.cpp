@@ -25,39 +25,39 @@
 
 std::vector<cPosition> BackgroundPositions[] = {
     {   // eTileTypes_Jungle
-        { 0x30, 0x0C64 * 4},
-        { 0x38, 0x102C * 4},
-        { 0x12, 0x1D3C * 4},
-        { 0x5C, 0x236C * 4},
-        { 0x2D, 0x33EC * 4}
+        { 0x30, 0x0C64 * 4 },
+        { 0x38, 0x102C * 4 },
+        { 0x12, 0x1D3C * 4 },
+        { 0x5C, 0x236C * 4 },
+        { 0x2D, 0x33EC * 4 }
     },
     {   // eTileTypes_Desert
-        { 0x3A, 0x0C64 * 4},
-        { 0x4C, 0x139C * 4},
-        { 0x30, 0x1CE4 * 4},
-        { 0x40, 0x2D64 * 4},
-        { 0x30, 0x32E4 * 4}
+        { 0x3A, 0x0C64 * 4 },
+        { 0x4C, 0x139C * 4 },
+        { 0x30, 0x1CE4 * 4 },
+        { 0x40, 0x2D64 * 4 },
+        { 0x30, 0x32E4 * 4 }
     },
     {   // eTileTypes_Ice
-        {0x24, 0x0C64 * 4},
-        {0x42, 0x102C * 4},
-        {0x18, 0x1CE4 * 4},
-        {0x58, 0x2524 * 4},
-        {0x2E, 0x3394 * 4}
+        { 0x24, 0x0C64 * 4 },
+        { 0x42, 0x102C * 4 },
+        { 0x18, 0x1CE4 * 4 },
+        { 0x58, 0x2524 * 4 },
+        { 0x2E, 0x3394 * 4 }
     },
     {   // eTileTypes_Moors
-        { 0x1D, 0x0C64 * 4},
-        { 0x40, 0x1134 * 4},
-        { 0x06, 0x2524 * 4},
-        { 0x52, 0x2734 * 4},
-        { 0x30, 0x32E4 * 4}
+        { 0x1D, 0x0C64 * 4 },
+        { 0x40, 0x1134 * 4 },
+        { 0x06, 0x2524 * 4 },
+        { 0x52, 0x2734 * 4 },
+        { 0x30, 0x32E4 * 4 }
     },
     {   // eTileTypes_Int
-        {0x40, 0x0C64 * 4},
-        {0x2F, 0x16B4 * 4},
-        {0x22, 0x1B2C * 4},
-        {0x53, 0x26DC * 4},
-        {0x23, 0x375C * 4}
+        { 0x40, 0x0C64 * 4 },
+        { 0x2F, 0x16B4 * 4 },
+        { 0x22, 0x1B2C * 4 },
+        { 0x53, 0x26DC * 4 },
+        { 0x23, 0x375C * 4 }
     }
 };
 
@@ -453,7 +453,7 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 	Buffer += (16 * mSurface->GetWidth()) +     16;
 
-	for (unsigned int Y = 0; Y < 200; ++Y) {
+	for (unsigned int Y = 0; Y < 250; ++Y) {
 
 		for (unsigned int X = 0; X < 0x30; ++X) {
 

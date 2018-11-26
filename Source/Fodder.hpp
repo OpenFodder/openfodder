@@ -1196,7 +1196,7 @@ public:
     void            Squad_Member_Click_Check();
 
     void            sub_303AE();
-    void            sub_303B7();
+    void            Sidebar_Render_SquadIcon();
     void            GUI_Sidebar_Squad_Split_Icon_Draw();
     void            Sidebar_Render_To_BackBuffer();
     void            Sidebar_Render_To_ScreenBuffer();

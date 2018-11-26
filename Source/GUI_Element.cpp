@@ -1014,7 +1014,7 @@ void cFodder::sub_3037A() {
     mSquad_Grenade_SplitMode = 1;
 
     GUI_Sidebar_Grenades_CurrentSquad_Draw();
-    sub_303B7();
+    Sidebar_Render_SquadIcon();
 }
 
 void cFodder::sub_3049B() {
