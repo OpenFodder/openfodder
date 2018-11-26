@@ -62,9 +62,9 @@ int start(int argc, char *argv[]) {
         ("appveyor",      "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
 
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
-        ("skipintro",   "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
-        ("skipbriefing", "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
-        ("skipservice", "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
+        ("skipintro",      "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
+        ("skipbriefing",   "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
+        ("skipservice",    "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
 
         ("w,window",    "Start in window mode", cxxopts::value<bool>()->default_value("false")  )
 
@@ -146,9 +146,8 @@ int start(int argc, char *argv[]) {
     g_Fodder->Prepare(Params);
 
     if (Params.mUnitTesting) {
-        if (!g_Fodder->StartUnitTests()) {
-            return -1;
-        }
+        cUnitTesting Testing;
+        return Testing.Start() ? 0 : -1;
     } else
         g_Fodder->Start();
 

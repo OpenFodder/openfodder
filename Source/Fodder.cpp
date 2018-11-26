@@ -3506,6 +3506,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
+    mStartParams = mParams;
 
     if (!mVersions->isDataAvailable()) {
         g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
@@ -20288,122 +20289,6 @@ void cFodder::Playground() {
 
         Video_SurfaceRender();
     }
-}
-
-bool cFodder::StartUnitTests() {
-
-    mParams.mSinglePhase = true;
-    mParams.mSkipBriefing = true;
-    mParams.mSkipIntro = true;
-    mParams.mSkipService = true;
-    mParams.mSkipRecruit = true;
-
-    if (!mParams.mDemoRecord)
-        mParams.mDemoPlayback = true;
-
-    mGame_Data.mCampaign.Clear();
-    if (!Campaign_Load(mParams.mCampaignName)) {
-        g_Debugger->Error("Campaign " + mParams.mCampaignName + " not found");
-        return false;
-    }
-
-    // Create test folder
-    std::string Command = "mkdir \"" + local_PathGenerate("", mParams.mCampaignName, eTest) + "\"";
-    system(Command.c_str());
-
-    Game_Setup();
-
-    sFodderParameters StartParams = mParams;
-    bool Retry = false;
-
-    while (mGame_Data.mMission_Current) {
-        mIntroDone = false;
-
-        mSurface->palette_SetToBlack();
-        mSurface->paletteNew_SetToBlack();
-        mSurface->surfaceSetToPalette();
-        mSurface->resetPaletteAdjusting();
-
-        mPhase_TryingAgain = false;
-        Mouse_Setup();
-
-        // Set demo file name
-        std::string MissionPhase = "";
-        MissionPhase += "m" + std::to_string(mGame_Data.mMission_Number);
-        MissionPhase += "p" + std::to_string(mGame_Data.mMission_Phase);
-        mParams.mDemoFile = local_PathGenerate(MissionPhase + ".ofd", mParams.mCampaignName, eTest);
-
-        std::string MissionTitle = "Mission " + std::to_string(mGame_Data.mMission_Number);
-        MissionTitle += " Phase " + std::to_string(mGame_Data.mMission_Phase);
-        MissionTitle += ": " + mGame_Data.mMission_Current->mName + " (" + mGame_Data.mPhase_Current->mName + ")";
-
-        if (StartParams.mDemoRecord && !Retry) {
-            if (local_FileExists(mParams.mDemoFile)) {
-                g_Debugger->Notice("Test exists for " + MissionTitle + ", skipping");
-                mGame_Data.Phase_Next();
-                continue;
-            }
-        }
-
-        Retry = false;
-        g_Debugger->TestStart(MissionTitle, mParams.mCampaignName);
-
-        if (StartParams.mDemoPlayback) {
-            if (!Demo_Load()) {
-                g_Debugger->TestComplete(MissionTitle, mParams.mCampaignName, "No test found", 0, eTest_Skipped);
-                mGame_Data.Phase_Next();
-                continue;
-            }
-
-            mGame_Data.mDemoRecorded.playback();
-        }
-
-        if (StartParams.mDemoRecord) {
-            mGame_Data.mDemoRecorded.clear();
-            g_Debugger->Notice("Recording " + MissionTitle);;
-        } 
-
-        // Reset demo status
-        mParams.mDemoRecord = StartParams.mDemoRecord;
-        mParams.mDemoPlayback = StartParams.mDemoPlayback;
-        mParams.mAppVeyor = StartParams.mAppVeyor;
-
-        mGame_Data_Backup = mGame_Data;
-
-        // Run the phase
-        auto missionStartTime = std::chrono::steady_clock::now();
-        auto res = Mission_Loop();
-        auto missionDuration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - missionStartTime);
-
-        // If recording
-        if (StartParams.mDemoRecord) {
-
-            if(mPhase_Complete)
-                mGame_Data.mDemoRecorded.save();
-
-            else {
-                Retry = true;
-                mGame_Data = mGame_Data_Backup;
-                continue;
-            }
-        }
-
-        if (mGame_Data.mGameWon) {
-            return true;
-        }
-
-        if (!mPhase_Complete) {
-            g_Debugger->TestComplete(MissionTitle, mParams.mCampaignName, "Phase not completed: " + mGame_Data.mMission_Current->mName + " - " + mGame_Data.mPhase_Current->mName, (size_t)missionDuration.count(), eTest_Failed);
-            return false;
-        }
-
-        g_Debugger->TestComplete(MissionTitle, mParams.mCampaignName, "Phase Complete", (size_t) missionDuration.count(), eTest_Passed);
-
-        mGame_Data = mGame_Data_Backup;
-        mGame_Data.Phase_Next();
-    }
-
-    return true;
 }
 
 bool cFodder::Demo_Load() {

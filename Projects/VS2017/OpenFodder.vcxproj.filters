@@ -157,6 +157,9 @@
     <ClInclude Include="..\..\Source\Debugger.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\UnitTesting.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -259,6 +262,9 @@
       <Filter>Source\Amiga</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Debugger.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UnitTesting.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

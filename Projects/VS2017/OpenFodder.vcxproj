@@ -202,6 +202,7 @@
     <ClInclude Include="..\..\Source\Tiles.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
     <ClInclude Include="..\..\Source\Map.hpp" />
+    <ClInclude Include="..\..\Source\UnitTesting.hpp" />
     <ClInclude Include="..\..\Source\Utils\cxxopts.hpp" />
     <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp" />
     <ClInclude Include="..\..\Source\Utils\json.hpp" />
@@ -242,6 +243,7 @@
     <ClCompile Include="..\..\Source\Structures\Barracks.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Tiles.cpp" />
+    <ClCompile Include="..\..\Source\UnitTesting.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />
     <ClInclude Include="..\..\Source\Versions_Files.hpp">
       <FileType>CppCode</FileType>

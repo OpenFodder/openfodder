@@ -142,8 +142,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Amiga/Graphics_Amiga.hpp"
 #include "Amiga/Graphics_Amiga2.hpp"
 
-
-
+#include "UnitTesting.hpp"
 
 extern std::shared_ptr<cResources> g_Resource;
 extern std::shared_ptr<cWindow>    g_Window;
