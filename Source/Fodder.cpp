@@ -250,6 +250,20 @@ int16 cFodder::Phase_Loop() {
     mSurface->Save();
 
     for (;;) {
+        // If demo playback is enabled, and a record resume cycle is set
+        if (mStartParams.mDemoPlayback && mStartParams.mDemoRecordResumeCycle) {
+            // See if we hit the tick count
+            if (mGame_Data.mGameTicks >= mStartParams.mDemoRecordResumeCycle) {
+                // Then resume recording
+                mStartParams.mDemoPlayback = false;
+                mStartParams.mDemoRecord = true;
+                mStartParams.mDemoRecordResumeCycle = 0;
+                mStartParams.mSleepDelta = 2;
+                mParams.mDemoRecord = mStartParams.mDemoRecord;
+                mParams.mDemoPlayback = mStartParams.mDemoPlayback;
+            }
+        }
+
         Cycle_End();
 
         MapTile_UpdateFromCamera();
@@ -3259,10 +3273,8 @@ void cFodder::Mouse_Cursor_Handle() {
                 // Calc the distance from the cursor to the centre of the window
                 const cPosition Diff = (mMouse_EventLastPosition - WindowSize.getCentre());
 
-                if (!mParams.mDemoPlayback) {
-                    mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth()) * 1.5);
-                    mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
-                }
+                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth()) * 1.5);
+                mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
             }
         }
 
@@ -3285,7 +3297,7 @@ void cFodder::Mouse_Inputs_Get() {
             mMouseButtonStatus = State->mMouseButtonStatus;
         }
         else {
-            if(mGame_Data.mGameTicks > mGame_Data.mDemoRecorded.GetTotalTicks() + 10 )
+            if(mGame_Data.mGameTicks > mGame_Data.mDemoRecorded.GetTotalTicks() + 100 )
                 mPhase_Aborted = true;
         }
     }
@@ -16655,16 +16667,10 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 
 void cFodder::Cycle_End() {
 #ifndef _OFED
-    static int64 delta = 2;
-
-    // Unit testing in playback mode, has no sleep
-    if (mParams.mUnitTesting && mParams.mDemoPlayback)
-        delta = 0;
-
-    if (delta) {
+    if (mParams.mSleepDelta) {
         mTicksDiff = SDL_GetTicks() - mTicksDiff;
         mTicks = mTicksDiff * 40 / 1000;
-        sleepLoop(delta * 1000 / 40 - mTicksDiff);
+        sleepLoop(mParams.mSleepDelta * 1000 / 40 - mTicksDiff);
         mTicksDiff = SDL_GetTicks();
     }
 #endif

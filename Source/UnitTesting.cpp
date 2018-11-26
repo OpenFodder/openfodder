@@ -68,6 +68,10 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
     bool Retry = false;
     g_Fodder->Game_Setup();
 
+    if (g_Fodder->mParams.mUnitTesting && g_Fodder->mParams.mDemoPlayback)
+        g_Fodder->mParams.mSleepDelta = 0;
+
+
     while (g_Fodder->mGame_Data.mMission_Current) {
         EngineSetup();
 
@@ -88,18 +92,25 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
         g_Debugger->TestStart(MissionTitle, g_Fodder->mParams.mCampaignName);
 
         if (g_Fodder->mStartParams.mDemoPlayback) {
-            if (!g_Fodder->Demo_Load()) {
-                g_Debugger->TestComplete(MissionTitle, g_Fodder->mParams.mCampaignName, "No test found", 0, eTest_Skipped);
-                g_Fodder->mGame_Data.Phase_Next();
-                continue;
+            if (!g_Fodder->mStartParams.mDemoRecord) {
+                if (!g_Fodder->Demo_Load()) {
+                    g_Debugger->TestComplete(MissionTitle, g_Fodder->mParams.mCampaignName, "No test found", 0, eTest_Skipped);
+                    g_Fodder->mGame_Data.Phase_Next();
+                    continue;
+                }
             }
 
             g_Fodder->mGame_Data.mDemoRecorded.playback();
         }
 
         if (g_Fodder->mStartParams.mDemoRecord) {
-            g_Fodder->mGame_Data.mDemoRecorded.clear();
-            g_Debugger->Notice("Recording " + MissionTitle);;
+            if (g_Fodder->mStartParams.mDemoRecordResumeCycle) {
+                g_Debugger->Notice("Resuming " + MissionTitle);;
+            }
+            else {
+                g_Fodder->mGame_Data.mDemoRecorded.clear();
+                g_Debugger->Notice("Recording " + MissionTitle);
+            }
         }
 
         // Reset demo status
@@ -121,7 +132,23 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                 g_Fodder->mGame_Data.mDemoRecorded.save();
 
             else {
+
                 Retry = true;
+                // If the phase was aborted (ESC key), don't replay it.. start over
+                if (!g_Fodder->mPhase_Aborted) {
+
+                    // Less than 10 cycles, player can start over
+                    if (g_Fodder->mGame_Data.mGameTicks - 10 > 0) {
+                        g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mGameTicks - 10);
+                        g_Fodder->mStartParams.mDemoPlayback = true;
+
+                        auto Demo = g_Fodder->mGame_Data.mDemoRecorded;
+                        Demo.removeFrom(g_Fodder->mStartParams.mDemoRecordResumeCycle);
+                        g_Fodder->mGame_Data_Backup.mDemoRecorded = Demo;
+                        g_Fodder->mStartParams.mSleepDelta = 0;
+                    }
+                }
+
                 g_Fodder->mGame_Data = g_Fodder->mGame_Data_Backup;
                 continue;
             }

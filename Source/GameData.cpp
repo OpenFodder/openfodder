@@ -106,6 +106,53 @@ void sGamePhaseData::Clear() {
         Goal = false;
 }
 
+sGameRecorded::sGameRecorded() {
+    mSeed[0] = mSeed[1] = mSeed[2] = mSeed[3] = 0;
+    mInputTicks = 0;
+    mEngineTicks = 0;
+    mRecordedPlatform = ePlatform::Any;
+
+}
+void sGameRecorded::AddEvent(const uint64 pTicks, const cEventRecorded& pEvent) {
+    mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
+}
+
+std::vector<cEventRecorded> sGameRecorded::GetEvents(const uint64 pTicks) {
+    std::vector<cEventRecorded> Events;
+    auto test = mEvents.equal_range(pTicks);
+
+    for (auto Event = test.first; Event != test.second; ++Event)
+        Events.push_back(Event->second);
+
+    return Events;
+}
+
+void sGameRecorded::AddState(const uint64 pTicks, const cStateRecorded& pEvent) {
+    mState.insert(mState.end(), std::make_pair(pTicks, pEvent));
+}
+
+cStateRecorded* sGameRecorded::GetState(const uint64 pTicks) {
+    if (mState.find(pTicks) != mState.end())
+        return &mState.find(pTicks)->second;
+
+    return 0;
+}
+
+uint64 sGameRecorded::GetTotalTicks() const {
+    if (!mState.size())
+        return 0;
+
+    return mState.rbegin()->first;
+}
+
+void sGameRecorded::removeFrom(const uint64 pTicks) {
+    auto from = mState.lower_bound(pTicks);
+    mState.erase(from, mState.end());
+
+    auto fromEvent = mEvents.lower_bound(pTicks);
+    mEvents.erase(fromEvent, mEvents.end());
+}
+
 void sGameRecorded::clear() {
     mState.clear();
     mEvents.clear();
@@ -406,7 +453,7 @@ bool sGameData::Phase_Start() {
     if (!mPhase_Current)
         return false;
 
-    mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
+    mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases() - (mMission_Phase-1);
 
     // Mission Complete
     for (auto& Troop : mSoldiers_Allocated) {

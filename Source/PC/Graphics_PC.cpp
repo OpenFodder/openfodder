@@ -743,11 +743,12 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 	ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
 	--ax;
 
-	if (ax > 231) {
-		if (mFodder->mVideo_Draw_PosY > 231)
+    auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
+	if (ax > maxHeight) {
+		if (mFodder->mVideo_Draw_PosY > maxHeight)
 			return false;
 
-		ax -= 231;
+		ax -= maxHeight;
 		mFodder->mVideo_Draw_Rows -= ax;
 	}
 
@@ -757,15 +758,10 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 		if (ax < 0)
 			return false;
 
-		ax -= 0;
 		ax -= mFodder->mVideo_Draw_Columns;
 		++ax;
 		ax = -ax;
 		--ax;
-
-		do {
-			++ax;
-		} while (ax & 3);
 
 		mFodder->mVideo_Draw_PosX += ax;
 		mFodder->mVideo_Draw_Columns -= ax;
@@ -785,7 +781,7 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 
 		do {
 			++ax;
-		} while (ax & 3);
+		} while (ax & 8);
 
 		mFodder->mVideo_Draw_Columns -= ax;
 	}

@@ -174,6 +174,12 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check() {
 
 bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 	int16 ax;
+    int16  drawColumns;
+
+    if (p16bit)
+        drawColumns = (mFodder->mVideo_Draw_Columns);
+    else
+        drawColumns = (mFodder->mVideo_Draw_Columns << 3);
 
 	if (mFodder->mVideo_Draw_PosY < 0) {
 		ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
@@ -196,38 +202,41 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 	ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
 	--ax;
 
-	if (ax > 256) {
-		if (mFodder->mVideo_Draw_PosY > 256)
+    auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
+	if (ax > maxHeight) {
+		if (mFodder->mVideo_Draw_PosY > maxHeight)
 			return false;
 
-		ax -= 256;
+		ax -= maxHeight;
 		mFodder->mVideo_Draw_Rows -= ax;
 
 	}
 
 	if (mFodder->mVideo_Draw_PosX < 0) {
-		ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
+
+        ax = mFodder->mVideo_Draw_PosX + drawColumns;
 		--ax;
 		if (ax < 0)
 			return false;
 
 
-		ax -= mFodder->mVideo_Draw_Columns;
+		ax -= drawColumns;
 		++ax;
 		ax = -ax;
 		--ax;
 
 		mFodder->mVideo_Draw_PosX += ax;
-		mFodder->mVideo_Draw_Columns -= ax;
+        drawColumns -= ax;
+        //mFodder->mVideo_Draw_Columns = drawColumns >> (p16bit ? 0 : 1);
 
 		if (!p16bit)
 			ax >>= 1;
 		else
-			ax >>= 2;
+			ax >>= 3;
 		mFodder->mVideo_Draw_FrameDataPtr += ax;
 	}
 
-	ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
+    ax = mFodder->mVideo_Draw_PosX + drawColumns;
 	--ax;
 
 	if (ax > 351) {
@@ -242,7 +251,7 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
 		} while (ax & 8);
 
 
-		mFodder->mVideo_Draw_Columns -= ax;
+		mFodder->mVideo_Draw_Columns -= (ax >> 3);
 	}
 
 	if (mFodder->mVideo_Draw_Columns <= 0)

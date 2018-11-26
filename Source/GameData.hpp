@@ -34,7 +34,9 @@ struct sFodderParameters {
 
     bool mDemoRecord;
     bool mDemoPlayback;
+    size_t mDemoRecordResumeCycle;
 
+    int64 mSleepDelta;
     std::string mDemoFile;
 
     std::string mCampaignName;
@@ -45,11 +47,15 @@ struct sFodderParameters {
     bool mSinglePhase;
 
     sFodderParameters() {
+
+        mSleepDelta = 2;
+
         mAppVeyor = false;
         mSkipService = false;
         mSkipBriefing = false;
         mSkipIntro = false;
         mSkipRecruit = false;
+
         mMissionNumber = 0;
         mPhaseNumber = 0;
         mWindowMode = false;
@@ -57,6 +63,7 @@ struct sFodderParameters {
         mDefaultPlatform = ePlatform::Any;
         mDemoRecord = false;
         mDemoPlayback = false;
+        mDemoRecordResumeCycle = 0;
         mUnitTesting = false;
         mSinglePhase = false;
     }
@@ -173,45 +180,14 @@ struct sGameRecorded {
     std::multimap< uint64, cEventRecorded > mEvents;
     std::map< uint64, cStateRecorded > mState;
 
-    sGameRecorded() {
-        mSeed[0] = mSeed[1] = mSeed[2] = mSeed[3] = 0;
-        mInputTicks = 0;
-        mEngineTicks = 0;
-        mRecordedPlatform = ePlatform::Any;
+    sGameRecorded();
+    void AddEvent(const uint64 pTicks, const cEventRecorded& pEvent);
+    std::vector<cEventRecorded> GetEvents(const uint64 pTicks);
+    void AddState(const uint64 pTicks, const cStateRecorded& pEvent);
+    cStateRecorded* GetState(const uint64 pTicks);
 
-    }
-    void AddEvent(const uint64 pTicks, const cEventRecorded& pEvent) {
-        mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
-    }
-
-    std::vector<cEventRecorded> GetEvents(const uint64 pTicks) {
-        std::vector<cEventRecorded> Events;
-        auto test = mEvents.equal_range(pTicks);
-
-        for( auto Event = test.first; Event != test.second; ++Event)
-            Events.push_back(Event->second);
-        
-        return Events;
-    }
-
-    void AddState(const uint64 pTicks, const cStateRecorded& pEvent) {
-        mState.insert(mState.end(), std::make_pair(pTicks, pEvent));
-    }
-
-    cStateRecorded* GetState(const uint64 pTicks) {
-
-        if (mState.find(pTicks) != mState.end())
-            return &mState.find(pTicks)->second;
-
-        return 0;
-    }
-
-    uint64 GetTotalTicks() const {
-        if (!mState.size())
-            return 0;
-
-        return mState.rbegin()->first;
-    }
+    uint64 GetTotalTicks() const;
+    void removeFrom(const uint64 pTicks);
 
     void clear();
     void playback();
