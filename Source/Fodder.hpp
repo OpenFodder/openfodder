@@ -1286,7 +1286,7 @@ public:
     bool            Menu_Draw(const std::function<void()> pButtonHandler);
 
     bool            Demo_Load();
-    void            Demo_FixScreenSize();
+    void            Window_UpdateScreenSize();
 
     void            VersionSwitch(const sGameVersion* pVersion);
 };

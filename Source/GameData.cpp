@@ -117,7 +117,11 @@ void sGameRecorded::clear() {
     mSeed[3] = g_Fodder->mRandom_3;
     mInputTicks = g_Fodder->mGame_InputTicks;
     mEngineTicks = g_Fodder->mMission_EngineTicks;
-    mRecordedPlatform = g_Fodder->mVersionCurrent->mPlatform;
+
+    if (g_Fodder->mVersionCurrent)
+        mRecordedPlatform = g_Fodder->mVersionCurrent->mPlatform;
+    else
+        mRecordedPlatform = g_Fodder->mParams.mDefaultPlatform;
 
     mParams = g_Fodder->mParams;
 }

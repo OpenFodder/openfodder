@@ -3275,7 +3275,7 @@ void cFodder::Mouse_Inputs_Get() {
 
     if (mParams.mDemoPlayback) {
 
-       // Demo_FixScreenSize();
+       // Window_UpdateScreenSize();
 
         auto State = mGame_Data.mDemoRecorded.GetState(mGame_Data.mGameTicks);
         if (State) {
@@ -3473,10 +3473,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     mGUI_Select_File_ShownItems = PLATFORM_BASED(4, 5);
 
-    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
-    mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
-
-    Demo_FixScreenSize();
+    Window_UpdateScreenSize();
 
     mGraphics->Load_Sprite_Font();
     mGraphics->Load_Hill_Data();
@@ -18598,10 +18595,10 @@ bool cFodder::Demo_Load() {
     return false;
 }
 
-void cFodder::Demo_FixScreenSize() {
+void cFodder::Window_UpdateScreenSize() {
 
     if (g_Fodder->mVersionCurrent) {
-        if (mGame_Data.mDemoRecorded.mRecordedPlatform != mVersionCurrent->mPlatform) {
+        if (mParams.mDemoPlayback && mGame_Data.mDemoRecorded.mRecordedPlatform != ePlatform::Any && mGame_Data.mDemoRecorded.mRecordedPlatform != mVersionCurrent->mPlatform) {
 
             switch (mGame_Data.mDemoRecorded.mRecordedPlatform) {
             case ePlatform::Amiga: // Viewing Amiga recording on PC Data
@@ -18610,7 +18607,14 @@ void cFodder::Demo_FixScreenSize() {
             case ePlatform::PC: // Viewing PC recording on Amiga Data
                 g_Window->SetScreenSize({ 320,200 });
                 break;
+            case ePlatform::Any:
+                break;
             }
+        }
+        else {
+
+            mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+            mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
         }
     }
 
@@ -18622,6 +18626,8 @@ void cFodder::Start() {
         Demo_Load();
         mGame_Data.mDemoRecorded.playback();
         mParams = mGame_Data.mDemoRecorded.mParams;
+        mParams.mDefaultPlatform = mStartParams.mDefaultPlatform;
+
         mOpenFodder_Intro_Done = false;
     }
 
@@ -18629,9 +18635,6 @@ void cFodder::Start() {
         mGame_Data.mDemoRecorded.clear();
 
     Start:;
-
-    mGame_Data.mDemoRecorded.save();
-
     mGame_Data.mCampaign.Clear();
     mVersionDefault = 0;
     mVersionCurrent = 0;
@@ -18641,10 +18644,14 @@ void cFodder::Start() {
         VersionSwitch(mVersions->GetDemo());
 
         // This should never happen ,as a check in Prepare ensures atleast 1 ver is available
-        if (!mVersionCurrent) {
+        if (!mVersionCurrent)
             return;
-        }
     }
+
+    if (mParams.mDemoRecord && mGame_Data.mDemoRecorded.mRecordedPlatform == ePlatform::Any)
+        mGame_Data.mDemoRecorded.mRecordedPlatform = mVersionCurrent->mPlatform;
+
+    mGame_Data.mDemoRecorded.save();
 
     // Play the intro
     if (!mOpenFodder_Intro_Done && !mParams.mSkipIntro) {
@@ -18880,7 +18887,7 @@ int16 cFodder::Mission_Loop() {
         mMission_Finished = 0;
         mMission_ShowMapOverview = 0;
 
-        Demo_FixScreenSize();
+        Window_UpdateScreenSize();
 
         if (!Phase_Loop()) {
             mKeyCode = 0;

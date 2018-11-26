@@ -173,6 +173,13 @@ struct sGameRecorded {
     std::multimap< uint64, cEventRecorded > mEvents;
     std::map< uint64, cStateRecorded > mState;
 
+    sGameRecorded() {
+        mSeed[0] = mSeed[1] = mSeed[2] = mSeed[3] = 0;
+        mInputTicks = 0;
+        mEngineTicks = 0;
+        mRecordedPlatform = ePlatform::Any;
+
+    }
     void AddEvent(const uint64 pTicks, const cEventRecorded& pEvent) {
         mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
     }
