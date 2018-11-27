@@ -26,6 +26,8 @@ protected:
     std::string getCurrentTestFileName();
     std::string getCurrentTestName();
 
+    void setDemoName();
+
     void EngineSetup();
     bool RunTests(const std::string pCampaign);
 

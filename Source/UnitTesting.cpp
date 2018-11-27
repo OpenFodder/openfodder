@@ -39,7 +39,6 @@ std::string cUnitTesting::getCurrentTestFileName() {
     std::string MissionPhase = "";
     MissionPhase += "m" + std::to_string(g_Fodder->mGame_Data.mMission_Number);
     MissionPhase += "p" + std::to_string(g_Fodder->mGame_Data.mMission_Phase);
-    MissionPhase += ".ofd";
     return MissionPhase;
 }
 
@@ -64,6 +63,26 @@ void cUnitTesting::EngineSetup() {
     g_Fodder->Mouse_Setup();
 }
 
+void cUnitTesting::setDemoName() {
+    // Set demo file name
+    g_Fodder->mParams.mDemoFile = local_PathGenerate(getCurrentTestFileName(), g_Fodder->mParams.mCampaignName, eTest);
+    if (!local_FileExists(g_Fodder->mParams.mDemoFile + ".ofd")) {
+
+        if (g_Fodder->mVersionCurrent->isAmiga()) {
+            if (local_FileExists(g_Fodder->mParams.mDemoFile + "-amiga.ofd")) {
+                g_Fodder->mParams.mDemoFile += "-amiga";
+            }
+        }
+        else {
+            if (local_FileExists(g_Fodder->mParams.mDemoFile + "-pc.ofd")) {
+                g_Fodder->mParams.mDemoFile += "-pc";
+            }
+        }
+    }
+
+    g_Fodder->mParams.mDemoFile += ".ofd";
+}
+
 bool cUnitTesting::RunTests(const std::string pCampaign) {
     bool Retry = false;
     g_Fodder->Game_Setup();
@@ -74,9 +93,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
 
     while (g_Fodder->mGame_Data.mMission_Current) {
         EngineSetup();
-
-        // Set demo file name
-        g_Fodder->mParams.mDemoFile = local_PathGenerate(getCurrentTestFileName(), g_Fodder->mParams.mCampaignName, eTest);
+        setDemoName();
 
         std::string MissionTitle = getCurrentTestName();
 

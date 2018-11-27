@@ -58,7 +58,10 @@ int start(int argc, char *argv[]) {
         ("demo-record",   "Record Demo",    cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
         ("demo-record-all", "Record Demo")
         ("demo-play",     "Play Demo",      cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
+        
         ("unit-test",     "Run Tests",      cxxopts::value<bool>()->default_value("false"))
+        ("unit-test-headless", "Run Tests, with no output", cxxopts::value<bool>()->default_value("false"))
+
         ("appveyor",      "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
         ("novideo",       "Disable video output", cxxopts::value<bool>()->default_value("false"))
         ("nosound",       "Disable sound output", cxxopts::value<bool>()->default_value("false"))
@@ -118,6 +121,11 @@ int start(int argc, char *argv[]) {
         Params.mSkipBriefing = result["skipbriefing"].as<bool>();
 
         Params.mUnitTesting = result["unit-test"].as<bool>();
+        if (result["unit-test-headless"].as<bool>()) {
+            Params.mUnitTesting = true;
+            Params.mDisableVideo = true;
+            Params.mDisableSound = true;
+        }
 
         Params.mCampaignName = result["campaign"].as<std::string>();
         Params.mMissionNumber = result["mission"].as<std::uint32_t>();

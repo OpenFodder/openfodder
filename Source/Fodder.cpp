@@ -391,8 +391,7 @@ int16 cFodder::Phase_Loop() {
         Sprite_HelicopterCallPad_Check();
         Mission_Final_Timer();
 
-        if(!mParams.mDisableVideo)
-            Video_SurfaceRender();
+        Video_SurfaceRender();
     }
 
     return 0;
@@ -16667,6 +16666,9 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
 }
 
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
+
+    if (mParams.mDisableVideo)
+        return;
 
     mSurface->draw();
     mWindow->RenderAt(mSurface);
