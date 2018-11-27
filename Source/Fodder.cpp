@@ -258,9 +258,11 @@ int16 cFodder::Phase_Loop() {
                 mStartParams.mDemoPlayback = false;
                 mStartParams.mDemoRecord = true;
                 mStartParams.mDemoRecordResumeCycle = 0;
-                mStartParams.mSleepDelta = 2;
+                mParams.mSleepDelta = 2;
                 mParams.mDemoRecord = mStartParams.mDemoRecord;
                 mParams.mDemoPlayback = mStartParams.mDemoPlayback;
+
+                Mouse_Setup();
             }
         }
 
@@ -307,7 +309,8 @@ int16 cFodder::Phase_Loop() {
 
         Mission_Sprites_Handle();
         Squad_Switch_Timer();
-        mGraphics->Sidebar_Copy_To_Surface();
+        if (!mParams.mDisableVideo)
+            mGraphics->Sidebar_Copy_To_Surface();
 
         // Game Paused
         if (mPhase_Paused) {
@@ -388,7 +391,8 @@ int16 cFodder::Phase_Loop() {
         Sprite_HelicopterCallPad_Check();
         Mission_Final_Timer();
 
-        Video_SurfaceRender();
+        if(!mParams.mDisableVideo)
+            Video_SurfaceRender();
     }
 
     return 0;
@@ -2247,8 +2251,8 @@ void cFodder::Map_Load_Resources() {
 }
 
 void cFodder::Music_Play_Tileset() {
-
-    mSound->Music_Play(mMap_TileSet + 0x32);
+    if (!mParams.mDisableSound)
+        mSound->Music_Play(mMap_TileSet + 0x32);
 }
 
 void cFodder::Camera_Pan_To_Target() {
@@ -2738,8 +2742,8 @@ void cFodder::Phase_TextSprite_Create_Mission(sSprite* pData2C) {
     pData2C->field_0 += 0x12;
     pData2C->field_8 = 0xA2;
     pData2C->field_18 = eSprite_Text_Mission;
-
-    mSound->Music_Play(6);
+    if (!mParams.mDisableSound)
+        mSound->Music_Play(6);
 }
 
 void cFodder::Phase_TextSprite_Create_Phase(sSprite* pData2C) {
@@ -2749,8 +2753,9 @@ void cFodder::Phase_TextSprite_Create_Phase(sSprite* pData2C) {
     pData2C->field_0 += 0x1B;
     pData2C->field_8 = 0xA1;
     pData2C->field_18 = eSprite_Text_Phase;
-
-    mSound->Music_Play(0x0C);
+    
+    if (!mParams.mDisableSound)
+        mSound->Music_Play(0x0C);
 }
 
 void cFodder::Phase_TextSprite_Create_Complete(sSprite* pData2C) {
@@ -2782,7 +2787,8 @@ void cFodder::Phase_Show_TryAgain() {
     Phase_TextSprite_Create_Try(&mSprites[41]);
     Phase_TextSprite_Create_Again(&mSprites[42]);
 
-    mSound->Music_Play(0x0F);
+    if (!mParams.mDisableSound)
+        mSound->Music_Play(0x0F);
 }
 
 void cFodder::Phase_TextSprite_Create_Try(sSprite* pData2C) {
@@ -3516,7 +3522,8 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
             Recruit_Sidebar_Render_SquadName();
         }
 
-        mSound->Music_Play(0);
+        if (!mParams.mDisableSound)
+            mSound->Music_Play(0);
     }
 
 }
@@ -3676,8 +3683,9 @@ void cFodder::Phase_TextSprite_Create_GameOver(sSprite* pData2C) {
     Phase_TextSprite_Prepare(pData2C);
     pData2C->field_8 = 0xC1;
     pData2C->field_18 = eSprite_Text_GameOver;
-
-    mSound->Music_Play(8);
+    
+    if (!mParams.mDisableSound)
+        mSound->Music_Play(8);
 }
 
 void cFodder::Mouse_DrawCursor() {
@@ -3717,7 +3725,8 @@ void cFodder::Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, c
 
     if (Sprite_OnScreen_Check()) {
         pDi->field_5C = 1;
-        mGraphics->Video_Draw_8(pDestination);
+        if(!mParams.mDisableVideo)
+            mGraphics->Video_Draw_8(pDestination);
     }
     else
         pDi->field_5C = 0;
@@ -3790,7 +3799,8 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
     if (Volume <= 0)
         return;
 
-    mSound->Sound_Play(mMap_TileSet, pSoundEffect, Volume);
+    if (!mParams.mDisableSound)
+        mSound->Sound_Play(mMap_TileSet, pSoundEffect, Volume);
 }
 
 void cFodder::Mission_Intro_Helicopter_Start() {
@@ -8436,7 +8446,8 @@ bool cFodder::MapTile_Update_Position() {
     }
 
     if (TileColumns || TileRows) {
-        mGraphics->MapTiles_Draw();
+        if (!mParams.mDisableVideo)
+            mGraphics->MapTiles_Draw();
         return true;
     }
 
@@ -9332,8 +9343,8 @@ loc_2DFC7:;
 
     mVideo_Draw_Columns = 0x10;
     mVideo_Draw_Rows = 0x10;
-
-    mGraphics->MapTiles_Draw();
+    if (!mParams.mDisableVideo)
+        mGraphics->MapTiles_Draw();
 }
 
 void cFodder::Map_Destroy_Tiles_Next() {
@@ -18757,7 +18768,8 @@ int16 cFodder::Mission_Loop() {
             }
 
             mGraphics->Load_pStuff();
-            mSound->Music_Play(0);
+            if (!mParams.mDisableSound)
+                mSound->Music_Play(0);
 
             mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
             mVersionPlatformSwitchDisabled = false;
@@ -18825,7 +18837,8 @@ int16 cFodder::Mission_Loop() {
                 mGame_Data.mMission_Recruitment = -1;
                 mPhase_Aborted = true;
 
-                mSound->Music_Play(0);
+                if (!mParams.mDisableSound)
+                    mSound->Music_Play(0);
                 continue;
             }
         }

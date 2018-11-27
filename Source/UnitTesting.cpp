@@ -105,7 +105,8 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
 
         if (g_Fodder->mStartParams.mDemoRecord) {
             if (g_Fodder->mStartParams.mDemoRecordResumeCycle) {
-                g_Debugger->Notice("Resuming " + MissionTitle);;
+                g_Debugger->Notice("Resuming " + MissionTitle);
+                g_Fodder->mParams.mSleepDelta = 0;
             }
             else {
                 g_Fodder->mGame_Data.mDemoRecorded.clear();
@@ -138,14 +139,13 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                 if (!g_Fodder->mPhase_Aborted) {
 
                     // Less than 10 cycles, player can start over
-                    if (g_Fodder->mGame_Data.mGameTicks - 10 > 0) {
-                        g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mGameTicks - 10);
+                    if (g_Fodder->mGame_Data.mGameTicks - 80 > 0) {
+                        g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mGameTicks - 80);
                         g_Fodder->mStartParams.mDemoPlayback = true;
 
                         auto Demo = g_Fodder->mGame_Data.mDemoRecorded;
                         Demo.removeFrom(g_Fodder->mStartParams.mDemoRecordResumeCycle);
                         g_Fodder->mGame_Data_Backup.mDemoRecorded = Demo;
-                        g_Fodder->mStartParams.mSleepDelta = 0;
                     }
                 }
 

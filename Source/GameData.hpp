@@ -46,8 +46,12 @@ struct sFodderParameters {
     bool mUnitTesting;
     bool mSinglePhase;
 
-    sFodderParameters() {
+    bool mDisableVideo;
+    bool mDisableSound;
 
+    sFodderParameters() {
+        mDisableSound = false;
+        mDisableVideo = false;
         mSleepDelta = 2;
 
         mAppVeyor = false;
