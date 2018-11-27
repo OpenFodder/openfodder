@@ -1049,7 +1049,8 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
     sGUI_Element* Element = mGUI_NextFreeElement;
     Element->field_0 = &cFodder::GUI_Button_NoAction;
     Element->mX = 0;
-    Element->mY = PLATFORM_BASED(189, 214);
+
+    Element->mY = (mWindow->GetScreenSize().mHeight - 0x0B); // PLATFORM_BASED(189, 214);
     Element->mWidth = 0x2F;
     Element->mHeight = 0x0B;
     Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;

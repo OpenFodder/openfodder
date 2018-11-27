@@ -120,11 +120,6 @@ int start(int argc, char *argv[]) {
         Params.mSkipBriefing = result["skipbriefing"].as<bool>();
 
         Params.mUnitTesting = result["unit-test"].as<bool>();
-        if (result["unit-test-headless"].as<bool>()) {
-            Params.mUnitTesting = true;
-            Params.mDisableVideo = true;
-            Params.mDisableSound = true;
-        }
 
         Params.mCampaignName = result["campaign"].as<std::string>();
         Params.mMissionNumber = result["mission"].as<std::uint32_t>();
@@ -142,6 +137,12 @@ int start(int argc, char *argv[]) {
             Params.mDefaultPlatform = ePlatform::PC;
         if (result["amiga"].as<bool>())
             Params.mDefaultPlatform = ePlatform::Amiga;
+
+        if (result["unit-test-headless"].as<bool>()) {
+            Params.mUnitTesting = true;
+            Params.mDisableVideo = true;
+            Params.mDisableSound = true;
+        }
 
         if (Params.mUnitTesting) {
             Params.mWindowMode = true;

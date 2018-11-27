@@ -309,7 +309,7 @@ int16 cFodder::Phase_Loop() {
 
         Mission_Sprites_Handle();
         Squad_Switch_Timer();
-        if (!mParams.mDisableVideo)
+        if (!mStartParams.mDisableVideo)
             mGraphics->Sidebar_Copy_To_Surface();
 
         // Game Paused
@@ -2250,7 +2250,7 @@ void cFodder::Map_Load_Resources() {
 }
 
 void cFodder::Music_Play_Tileset() {
-    if (!mParams.mDisableSound)
+    if (!mStartParams.mDisableSound)
         mSound->Music_Play(mMap_TileSet + 0x32);
 }
 
@@ -2741,7 +2741,7 @@ void cFodder::Phase_TextSprite_Create_Mission(sSprite* pData2C) {
     pData2C->field_0 += 0x12;
     pData2C->field_8 = 0xA2;
     pData2C->field_18 = eSprite_Text_Mission;
-    if (!mParams.mDisableSound)
+    if (!mStartParams.mDisableSound)
         mSound->Music_Play(6);
 }
 
@@ -2753,7 +2753,7 @@ void cFodder::Phase_TextSprite_Create_Phase(sSprite* pData2C) {
     pData2C->field_8 = 0xA1;
     pData2C->field_18 = eSprite_Text_Phase;
     
-    if (!mParams.mDisableSound)
+    if (!mStartParams.mDisableSound)
         mSound->Music_Play(0x0C);
 }
 
@@ -2786,7 +2786,7 @@ void cFodder::Phase_Show_TryAgain() {
     Phase_TextSprite_Create_Try(&mSprites[41]);
     Phase_TextSprite_Create_Again(&mSprites[42]);
 
-    if (!mParams.mDisableSound)
+    if (!mStartParams.mDisableSound)
         mSound->Music_Play(0x0F);
 }
 
@@ -2936,9 +2936,10 @@ void cFodder::Mission_Map_Overview_Show() {
         }
 
         Mouse_Inputs_Get();
-        mWindow->RenderShrunk(mSurfaceMapOverview);
-        mWindow->FrameEnd();
-
+        if (!mStartParams.mDisableVideo) {
+            mWindow->RenderShrunk(mSurfaceMapOverview);
+            mWindow->FrameEnd();
+        }
         if (mPhase_Aborted)
             break;
         Cycle_End();
@@ -3521,7 +3522,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
             Recruit_Sidebar_Render_SquadName();
         }
 
-        if (!mParams.mDisableSound)
+        if (!mStartParams.mDisableSound)
             mSound->Music_Play(0);
     }
 
@@ -3683,7 +3684,7 @@ void cFodder::Phase_TextSprite_Create_GameOver(sSprite* pData2C) {
     pData2C->field_8 = 0xC1;
     pData2C->field_18 = eSprite_Text_GameOver;
     
-    if (!mParams.mDisableSound)
+    if (!mStartParams.mDisableSound)
         mSound->Music_Play(8);
 }
 
@@ -3724,7 +3725,7 @@ void cFodder::Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, c
 
     if (Sprite_OnScreen_Check()) {
         pDi->field_5C = 1;
-        if(!mParams.mDisableVideo)
+        if(!mStartParams.mDisableVideo)
             mGraphics->Video_Draw_8(pDestination);
     }
     else
@@ -3798,7 +3799,7 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
     if (Volume <= 0)
         return;
 
-    if (!mParams.mDisableSound)
+    if (!mStartParams.mDisableSound)
         mSound->Sound_Play(mMap_TileSet, pSoundEffect, Volume);
 }
 
@@ -8445,7 +8446,7 @@ bool cFodder::MapTile_Update_Position() {
     }
 
     if (TileColumns || TileRows) {
-        if (!mParams.mDisableVideo)
+        if (!mStartParams.mDisableVideo)
             mGraphics->MapTiles_Draw();
         return true;
     }
@@ -9342,7 +9343,7 @@ loc_2DFC7:;
 
     mVideo_Draw_Columns = 0x10;
     mVideo_Draw_Rows = 0x10;
-    if (!mParams.mDisableVideo)
+    if (!mStartParams.mDisableVideo)
         mGraphics->MapTiles_Draw();
 }
 
@@ -16667,7 +16668,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
 
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 
-    if (mParams.mDisableVideo)
+    if (mStartParams.mDisableVideo)
         return;
 
     mSurface->draw();
@@ -18770,7 +18771,7 @@ int16 cFodder::Mission_Loop() {
             }
 
             mGraphics->Load_pStuff();
-            if (!mParams.mDisableSound)
+            if (!mStartParams.mDisableSound)
                 mSound->Music_Play(0);
 
             mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
@@ -18839,7 +18840,7 @@ int16 cFodder::Mission_Loop() {
                 mGame_Data.mMission_Recruitment = -1;
                 mPhase_Aborted = true;
 
-                if (!mParams.mDisableSound)
+                if (!mStartParams.mDisableSound)
                     mSound->Music_Play(0);
                 continue;
             }
