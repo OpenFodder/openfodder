@@ -3114,9 +3114,11 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     }
 
     if (pKeyCode == SDL_SCANCODE_F3 && pPressed) {
-        mStartParams.mDemoRecordResumeCycle = mGame_Data.mGameTicks - 80;
-        mGame_Data.mGamePhase_Data.mIsComplete = true;
-        mPhase_TryAgain = true;
+        if (mParams.mDemoRecord) {
+            mStartParams.mDemoRecordResumeCycle = mGame_Data.mGameTicks - 80;
+            mGame_Data.mGamePhase_Data.mIsComplete = true;
+            mPhase_TryAgain = true;
+        }
     }
 
     if ((pKeyCode == SDL_SCANCODE_EQUALS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_PLUS && pPressed))
