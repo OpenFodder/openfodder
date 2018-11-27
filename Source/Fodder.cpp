@@ -3101,13 +3101,13 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
             if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
                 mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::Amiga);
                 mParams.mDefaultPlatform = ePlatform::Amiga;
+                VersionSwitch(mVersionDefault);
             }
             if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
                 mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::PC); 
                 mParams.mDefaultPlatform = ePlatform::PC;
+                VersionSwitch(mVersionDefault);
             }
-
-            VersionSwitch(mVersionDefault);
         }
         mVersionPlatformSwitchDisabled = false;
     }

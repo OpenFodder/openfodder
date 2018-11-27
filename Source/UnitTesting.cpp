@@ -68,13 +68,15 @@ void cUnitTesting::setDemoName() {
     g_Fodder->mParams.mDemoFile = local_PathGenerate(getCurrentTestFileName(), g_Fodder->mParams.mCampaignName, eTest);
     if (!local_FileExists(g_Fodder->mParams.mDemoFile + ".ofd")) {
 
-        if (g_Fodder->mVersionCurrent->isAmiga()) {
-            if (local_FileExists(g_Fodder->mParams.mDemoFile + "-amiga.ofd")) {
+        bool AmigaExists = local_FileExists(g_Fodder->mParams.mDemoFile + "-amiga.ofd");
+        bool PcExists = local_FileExists(g_Fodder->mParams.mDemoFile + "-pc.ofd");
+
+        // If we a PC or Amiga specific test exists, then use it as the name
+        if (AmigaExists || PcExists) {
+
+            if (g_Fodder->mVersionCurrent->isAmiga()) {
                 g_Fodder->mParams.mDemoFile += "-amiga";
-            }
-        }
-        else {
-            if (local_FileExists(g_Fodder->mParams.mDemoFile + "-pc.ofd")) {
+            } else {
                 g_Fodder->mParams.mDemoFile += "-pc";
             }
         }

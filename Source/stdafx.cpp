@@ -63,7 +63,6 @@ int start(int argc, char *argv[]) {
         ("unit-test-headless", "Run Tests, with no output", cxxopts::value<bool>()->default_value("false"))
 
         ("appveyor",      "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
-        ("novideo",       "Disable video output", cxxopts::value<bool>()->default_value("false"))
         ("nosound",       "Disable sound output", cxxopts::value<bool>()->default_value("false"))
 
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
@@ -132,7 +131,6 @@ int start(int argc, char *argv[]) {
         Params.mPhaseNumber = result["phase"].as<std::uint32_t>();
         Params.mWindowMode = result["window"].as<bool>();
         Params.mRandom = result["random"].as<bool>();
-        Params.mDisableVideo = result["novideo"].as<bool>();
         Params.mDisableSound = result["nosound"].as<bool>();
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
