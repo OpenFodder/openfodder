@@ -261,7 +261,7 @@ int16 cFodder::Phase_Loop() {
                 mParams.mSleepDelta = 2;
                 mParams.mDemoRecord = mStartParams.mDemoRecord;
                 mParams.mDemoPlayback = mStartParams.mDemoPlayback;
-
+                mStartParams.mDisableVideo = false;
                 Mouse_Setup();
             }
         }
@@ -3111,6 +3111,12 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
             }
         }
         mVersionPlatformSwitchDisabled = false;
+    }
+
+    if (pKeyCode == SDL_SCANCODE_F3 && pPressed) {
+        mStartParams.mDemoRecordResumeCycle = mGame_Data.mGameTicks - 80;
+        mGame_Data.mGamePhase_Data.mIsComplete = true;
+        mPhase_TryAgain = true;
     }
 
     if ((pKeyCode == SDL_SCANCODE_EQUALS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_PLUS && pPressed))

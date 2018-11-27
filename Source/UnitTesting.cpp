@@ -165,6 +165,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                         auto Demo = g_Fodder->mGame_Data.mDemoRecorded;
                         Demo.removeFrom(g_Fodder->mStartParams.mDemoRecordResumeCycle);
                         g_Fodder->mGame_Data_Backup.mDemoRecorded = Demo;
+                        g_Fodder->mStartParams.mDisableVideo = true;
                     }
                 }
 
