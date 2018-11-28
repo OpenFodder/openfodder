@@ -39,4 +39,8 @@ class cDimension {
         cDimension operator/(const cDimension& pDim) {
             return cDimension(mWidth / pDim.mWidth, mHeight / pDim.mHeight);
         }
+
+        bool operator==(const cDimension& pRight) {
+            return mWidth == pRight.mWidth && mHeight == pRight.mHeight;
+        }
 };

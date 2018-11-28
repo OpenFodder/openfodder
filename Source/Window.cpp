@@ -439,6 +439,9 @@ void cWindow::SetScreenSize( const cDimension& pDimension ) {
  */
 void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 
+    if (mOriginalResolution == pDimension)
+        return;
+
 	mOriginalResolution = pDimension;
 	
 	if (!mWindowMode) {
@@ -454,6 +457,7 @@ void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
 }
 
 void cWindow::SetWindowSize( const int pMultiplier ) {
+
 	mScaler = pMultiplier;
 
 	if (mWindow) {
