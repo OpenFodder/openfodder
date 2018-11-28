@@ -28,4 +28,4 @@ struct sCopyProtection {
 	const uint8*	mAnswer;
 };
 
-extern const sCopyProtection mCopyProtection_Values[];
+//extern const sCopyProtection mCopyProtection_Values[];

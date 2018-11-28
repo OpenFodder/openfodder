@@ -29,6 +29,7 @@ enum ePlatform {
 enum eRelease {
 	Retail		= 0,
 	Demo,
+    PCFormat,
 	AmigaFormat,
 	AmigaPower,
     AmigaTheOne,
@@ -155,6 +156,10 @@ struct sGameVersion {
 	bool isPC() const {
 		return mPlatform == ePlatform::PC;
 	}
+
+    bool isPCFormat() const {
+        return mRelease == eRelease::PCFormat;
+    }
 
     cDimension GetScreenSize() const {
         if (isAmiga())

@@ -105,3 +105,111 @@ const sCopyProtection mCopyProtection_Values[] = {
 	{ 11, 4, 1, 4, byte_44A0D },
 	{ 15, 1, 1, 1, mCopyProtection_Word_Pay }
 };
+
+void cFodder::CopyProtection() {
+
+    // Only DOS CD had copy protection
+    if (!mVersionCurrent->isPC())
+        return;
+
+    mGraphics->SetActiveSpriteSheet(eGFX_Types::eGFX_RECRUIT);
+
+    // 3 Attempts
+    for (int16 Attempts = 0; Attempts < 3; ++Attempts) {
+
+        int16 Data0;
+        do {
+            Data0 = tool_RandomGet() & 0x0F;
+        } while (Data0 == 0x0F);
+
+        mSurface->clearBuffer();
+        mGraphics->PaletteSet();
+
+        const sCopyProtection* word_44A1C = &mCopyProtection_Values[Data0];
+
+        std::string Page = "PAGE " + std::to_string(word_44A1C->mPage);
+        std::string Paragraph = "PARAGRAPH " + std::to_string(word_44A1C->mParagraph);
+        std::string Line = "LINE " + std::to_string(word_44A1C->mLine);
+        std::string Word = "WORD " + std::to_string(word_44A1C->mWord);
+
+        GUI_Render_Text_Centred("ENTER WORD FROM", 0);
+        GUI_Render_Text_Centred("MANUAL AT", 0x14);
+        GUI_Render_Text_Centred(Page.c_str(), 0x3C);
+        GUI_Render_Text_Centred(Paragraph.c_str(), 0x50);
+        GUI_Render_Text_Centred(Line.c_str(), 0x64);
+        GUI_Render_Text_Centred(Word.c_str(), 0x78);
+
+        int8 mCursorBlinkTimer = 0;
+        bool mShow = false;
+
+        mGUI_Temp_X = 5;
+        mGUI_Temp_Width = 10;
+        mInput.clear();
+
+        mSurface->Save();
+        mKeyCodeAscii = 0;
+
+        while (mKeyCodeAscii != 0x0D) {
+
+            if (mSurface->isPaletteAdjusting())
+                mSurface->palette_FadeTowardNew();
+
+            String_Input_Print(0xA0);
+
+            ++mCursorBlinkTimer;
+            mCursorBlinkTimer &= 0x0F;
+            if (!mCursorBlinkTimer)
+                mShow = !mShow;
+
+            if (mShow)
+                GUI_Draw_Frame_8(0x0F, 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0xA0);
+
+            Video_SurfaceRender();
+            Cycle_End();
+        }
+
+        Image_FadeOut();
+
+        CopyProtection_EncodeInput();
+
+        const uint8* Answer = word_44A1C->mAnswer;
+        bool Failed = false;
+
+        for (size_t Pos = 0; Pos < mInput.size() && *Answer != 0xFF; ++Pos) {
+
+            if ((uint8)mInput[Pos] != *Answer++) {
+                Failed = true;
+                break;
+            }
+        }
+
+        if (!Failed && (*Answer == 0xFF))
+            return;
+    }
+
+    std::cout << "Copy protection failed.\n";
+    Exit(1);
+}
+
+void cFodder::CopyProtection_EncodeInput() {
+    int16 bx = mInput[0] & 0xFF;
+    int16 cx = 0;
+
+    for (auto& Character : mInput) {
+        cx -= bx;
+
+        if (Character == -1)
+            return;
+
+    rollLoop:;
+
+        bx = (bx << 8) | (bx >> 8);
+
+        Character ^= (bx & 0xFF);
+        Character ^= (cx & 0xFF);
+        --Character;
+
+        if (Character == -1)
+            goto rollLoop;
+    }
+}

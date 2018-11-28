@@ -20,13 +20,19 @@
  *
  */
 
+// PC: PC Format Demo
+const std::vector<sFile> mPCFormatFiles = {
+    { "CFCOVER.DAT", "66A8C78BB32C098B744F9F0F039A25A6" },
+    { "CANNON2.DAT", "0761BE616F5A1542CA81212C566C6A5A" }
+};
+
 // Dos: CD/GOG Release
-const std::vector<sFile> mDosFiles = {
+const std::vector<sFile> mPCFiles = {
     { "CF_ENG.DAT", "EEB82D5A6B14E7E59C8F7B5169BFCD55" }
 };
 
 // Dos 2: CD/GOG Release
-const std::vector<sFile> mDos2Files = {
+const std::vector<sFile> mPC2Files = {
     { "CF_ENG.DAT",		"8A3EB9B9F134B2997E6534D4C39B23D6" },
     { "BIRD.SMP",		"EFE57BF26BBA0C7AC35720EB86AE37EA" },
     { "DIE1.SMP",		"124EFA03F13669D59EB03F1812A71624" },

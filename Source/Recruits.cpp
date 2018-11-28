@@ -1178,8 +1178,8 @@ int16 cFodder::Recruit_Show() {
             mGame_Data.Phase_Start();
 
             auto Phase = mGame_Data.mCampaign.getMission(0)->GetPhase(0);
-            int16 Min = (rand() % 5);
-            int16 Max = Min + (rand() % 5);
+            int16 Min = (tool_RandomGet() % 5);
+            int16 Max = Min + (tool_RandomGet() % 5);
 
             Phase->mAggression = { Min, Max };
             Phase->mGoals = { eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings };
@@ -1198,7 +1198,7 @@ int16 cFodder::Recruit_Show() {
     if (mCustom_Mode != eCustomMode_Map) {
 
         // Retail / Custom set show the Recruitment Hill
-        if (mVersionCurrent->isRetail() || mCustom_Mode == eCustomMode_Set) {
+        if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat() || mCustom_Mode == eCustomMode_Set) {
 
             // Recruit Screen
             if (Recruit_Loop())

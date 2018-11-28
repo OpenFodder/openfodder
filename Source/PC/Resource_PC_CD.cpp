@@ -82,7 +82,7 @@ const uint8 cResource_PC_CD::byte_29A21[0x101] = {
    58,  59,  60,  61,  62,  63, 0
 };
 
-cResource_PC_CD::cResource_PC_CD( std::string pDataPath ) : cResources(pDataPath) {
+cResource_PC_CD::cResource_PC_CD( const std::string& pDataPath, const std::string& pDataFile ) : cResources(pDataPath) {
 
 	memset( word_26DBE, 0, 0x273 * 2 );
 	memset( word_272A4, 0, 0x13A * 2 );
@@ -95,10 +95,10 @@ cResource_PC_CD::cResource_PC_CD( std::string pDataPath ) : cResources(pDataPath
 	mBytesRead = word_26DA8 = word_26DBA = 0;
 	word_26DAA = word_26DB4 = saveSI = saveBP = 0;
 
-
-	mData = local_FileRead( "CF_ENG.DAT", pDataPath );
+    
+	mData = local_FileRead(pDataFile, pDataPath );
 	if (!mData) {
-		std::cout << "CF_ENG.DAT not found\n";
+		std::cout << pDataFile << " not found\n";
 		exit( 1 );
 	}
 

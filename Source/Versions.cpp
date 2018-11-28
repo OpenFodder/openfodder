@@ -31,6 +31,11 @@ const std::vector<eTileTypes> Retail_Tile_Types = {
     eTileTypes_Int
 };
 
+const std::vector<eTileTypes> PCFormat_TileTypes = {
+    eTileTypes_Jungle,
+    eTileTypes_Ice
+};
+
 const std::vector<eTileTypes> AmigaFormat_Tile_Types = {
     eTileTypes_AFX
 };
@@ -61,6 +66,14 @@ const std::vector<eGFX_Types> Amiga_Demo_GFX_Types = {
     eGFX_PSTUFF
 };
 
+const std::vector<eGFX_Types> PCFormat_GFX_Types = {
+    eGFX_IN_GAME,	eGFX_IN_GAME2,
+    eGFX_FONT,      eGFX_HILL,
+    eGFX_RECRUIT,   eGFX_BRIEFING,
+    eGFX_SERVICE,   eGFX_RANKFONT,  
+    eGFX_PSTUFF
+};
+
 /**
  * Known versions of Cannon Fodder
  */
@@ -69,9 +82,12 @@ const sGameVersion KnownGameVersions[] = {
     /* Retail */
     { "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga",			mAmigaFiles,	 Retail_Tile_Types, Retail_GFX_Types },
     { "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga,	"Amiga_CD",			mAmigaCD32Files, Retail_Tile_Types, Retail_GFX_Types },
-    { "Cannon Fodder",					eGame::CF1, ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mDosFiles,		 Retail_Tile_Types, Retail_GFX_Types },
-    { "Cannon Fodder 2",				eGame::CF2, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga2,		"Amiga2",			mAmiga2Files,	 Retail_Tile_Types, Retail_GFX_Types },
-    { "Cannon Fodder 2",				eGame::CF2, ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mDos2Files,		 Retail_Tile_Types, Retail_GFX_Types },
+    { "Cannon Fodder",					eGame::CF1, ePlatform::PC,		eRelease::Retail,	mIntroText_PC,		"Dos_CD",			mPCFiles,		 Retail_Tile_Types, Retail_GFX_Types },
+    { "Cannon Fodder 2",				eGame::CF2, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga2,	"Amiga2",			mAmiga2Files,	 Retail_Tile_Types, Retail_GFX_Types },
+    { "Cannon Fodder 2",				eGame::CF2, ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mPC2Files,		 Retail_Tile_Types, Retail_GFX_Types },
+
+    /* PC Demos */
+    { "PC Format",                      eGame::CF1, ePlatform::PC,      eRelease::PCFormat, mIntroText_PC, "PCFormat", mPCFormatFiles, PCFormat_TileTypes, PCFormat_GFX_Types  },
 
     /* Amiga Magazine Demos */
     { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		    mIntroText_Amiga,	"Plus",				mPlusFiles,			AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types },
@@ -266,9 +282,12 @@ void cVersions::FindKnownVersions() {
 
 std::shared_ptr<cResources> sGameVersion::GetResources(const std::string& pDataPathOverride) const {
     if (isPC()) {
-        return std::make_shared<cResource_PC_CD>(pDataPathOverride);
-    }
-    else if (isAmiga()) {
+        if(isRetail())
+            return std::make_shared<cResource_PC_CD>(pDataPathOverride, "CF_ENG.DAT");
+        else
+            return std::make_shared<cResource_PC_CD>(pDataPathOverride, "CFCOVER.DAT");
+
+    } else if (isAmiga()) {
         return std::make_shared<cResource_Amiga_File>(pDataPathOverride);
     }
     return 0;
