@@ -498,3 +498,9 @@ cDimension cWindow::GetScale() const {
         Result.mWidth = 1;
     return Result;
 }
+
+bool cWindowNull::InitWindow(const std::string& pWindowTitle) {
+
+
+    return true;
+}

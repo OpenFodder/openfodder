@@ -18886,7 +18886,8 @@ void cFodder::MapTiles_Draw() {
     mMapTile_Column_CurrentScreen = 0;
     mMapTile_Row_CurrentScreen = 0;
 
-    mGraphics->MapTiles_Draw();
+    if (!mStartParams.mDisableVideo)
+        mGraphics->MapTiles_Draw();
 }
 
 void cFodder::Exit(unsigned int pExitCode) {

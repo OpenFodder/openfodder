@@ -49,7 +49,7 @@ class cWindow {
 							cWindow();
 							~cWindow();
 
-		void				CalculateWindowSize();
+		void		        CalculateWindowSize();
 		int16				CalculateFullscreenSize();
 
 		bool				CanChangeToMultiplier( const int pNewMultiplier );
@@ -100,4 +100,11 @@ class cWindow {
         bool                hasFocusEvent() const { return mHasFocus; }
         bool                GetMouseGrabbed() const { return mCursorGrabbed; }
         cDimension          GetScale() const;
+};
+
+class cWindowNull : public cWindow {
+
+public:
+
+    virtual bool InitWindow(const std::string& pWindowTitle);
 };

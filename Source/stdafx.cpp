@@ -142,6 +142,9 @@ int start(int argc, char *argv[]) {
             Params.mUnitTesting = true;
             Params.mDisableVideo = true;
             Params.mDisableSound = true;
+
+            g_Window = std::make_shared<cWindowNull>();
+            g_Fodder->mWindow = g_Window;
         }
 
         if (Params.mUnitTesting) {
