@@ -93,7 +93,7 @@ const sGameVersion KnownGameVersions[] = {
     { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		    mIntroText_Amiga,	"Plus",				mPlusFiles,			AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types },
     { "Amiga The One",                  eGame::CF1, ePlatform::Amiga,   eRelease::AmigaTheOne,          mIntroText_Amiga,   "AmigaTheOne",      mAmigaTheOneFiles,  AmigaTheOne_TileTypes, Amiga_Demo_GFX_Types },
     { "Amiga Action",                   eGame::CF1, ePlatform::Amiga,   eRelease::AmigaAction,          mIntroText_Amiga,   "AmigaAction",      mAmigaActionFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
-    { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaFormat,		    mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
+    { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaXMAS,		    mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
     { "Amiga Format Not Very Festive",  eGame::CF2, ePlatform::Amiga,   eRelease::AmigaNotVeryFestive,  mIntroText_Amiga,   "AmigaFormat_NVF",      mAmigaFormat_NotVeryFestiveFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
 
     
@@ -138,7 +138,7 @@ const sGameVersion* cVersions::GetDemo() const {
 
     auto Release =
         std::find_if(mAvailable.begin(), mAvailable.end(),
-            [](const sGameVersion* a)->bool { return a->mRelease == eRelease::AmigaFormat; });
+            [](const sGameVersion* a)->bool { return a->mRelease == eRelease::AmigaXMAS; });
 
     if (Release == mAvailable.end()) {
         Release = mAvailable.begin();

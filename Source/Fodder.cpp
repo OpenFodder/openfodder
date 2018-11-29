@@ -2033,7 +2033,7 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
     // In OF, this will only ever get called from the campaign selection screen,
     // so we pick a tile thats easy to read text on
 #ifndef _OFED
-    if (mVersionCurrent->isAmigaFormat())
+    if (mVersionCurrent->isAmigaXmas())
         TileID = 100;
 #endif
 
@@ -4374,7 +4374,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     Menu_Loop(
         [this]() {
         if (mButtonPressLeft) {
-            if (mVersionCurrent->isAmigaFormat())
+            if (mVersionCurrent->isAmigaXmas())
                 GUI_Element_Mouse_Over(mAfx_Buttons);
 
             if (mVersionCurrent->isAmigaPower())
@@ -18656,7 +18656,7 @@ int16 cFodder::Mission_Loop() {
             mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
 
             if (!mParams.mSkipIntro) {
-                // Show the intro for retail releases
+                // Show the intro for retail releases (and the PC Format demo)
                 if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat()) {
                     intro_Retail();
                 }
@@ -18721,7 +18721,7 @@ int16 cFodder::Mission_Loop() {
 
 
         // Show the Briefing screen for Retail and Custom 
-        if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
+        if (mVersionCurrent->hasBriefingScreen() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
 
             if (!mParams.mSkipBriefing)
                 Briefing_Show_Ready();
@@ -18814,6 +18814,7 @@ int16 cFodder::Mission_Loop() {
         else {
             mKeyCode = 0;
             mPhase_In_Progress = false;
+
             // Game over?
             if (!mGame_Data.mRecruits_Available_Count) {
 

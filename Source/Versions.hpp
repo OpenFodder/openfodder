@@ -28,9 +28,8 @@ enum ePlatform {
 
 enum eRelease {
 	Retail		= 0,
-	Demo,
     PCFormat,
-	AmigaFormat,
+	AmigaXMAS,
 	AmigaPower,
     AmigaTheOne,
     AmigaAction,
@@ -102,9 +101,13 @@ struct sGameVersion {
 		return mRelease == eRelease::Custom;
 	}
 
+    /**
+     * Is this version a demo?
+     *
+     * NOTE: The PC-Format version is not considered a demo, as it is very close to the dos retail
+     */
 	bool isDemo() const {
-		return  mRelease == eRelease::Demo || 
-				mRelease == eRelease::AmigaFormat || 
+		return 	mRelease == eRelease::AmigaXMAS || 
 				mRelease == eRelease::AmigaPower ||
                 mRelease == eRelease::AmigaTheOne ||
                 mRelease == eRelease::AmigaAction ||
@@ -129,8 +132,12 @@ struct sGameVersion {
 		return mRelease == eRelease::Retail;
 	}
 
-	bool isAmigaFormat() const {
-		return mRelease == eRelease::AmigaFormat;
+    bool isPCFormat() const {
+        return mRelease == eRelease::PCFormat;
+    }
+
+	bool isAmigaXmas() const {
+		return mRelease == eRelease::AmigaXMAS;
 	}
 
 	bool isAmigaPower() const {
@@ -149,16 +156,20 @@ struct sGameVersion {
         return mRelease == eRelease::AmigaNotVeryFestive;
     }
 
-	bool isAmiga() const {
-		return mPlatform == ePlatform::Amiga;
-	}
+    bool isAmiga() const {
+        return mPlatform == ePlatform::Amiga;
+    }
 
 	bool isPC() const {
 		return mPlatform == ePlatform::PC;
 	}
 
-    bool isPCFormat() const {
-        return mRelease == eRelease::PCFormat;
+    bool hasBriefingScreen() const {
+        return hasGfx(eGFX_BRIEFING);
+    }
+
+    bool hasServiceScreen() const {
+        return hasGfx(eGFX_SERVICE);
     }
 
     cDimension GetScreenSize() const {
