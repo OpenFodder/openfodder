@@ -5252,7 +5252,7 @@ int16 cFodder::Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C) {
     Data30->field_2C = eSprite_Draw_First;
     pData2C->field_38 = eSprite_Anim_None;
 
-    // HACK: Disable sound for Amiga Plus
+    // HACK: Disable sound for Amiga Coverdisks (it crashes)
     if (!mVersionCurrent->isCoverDisk())
         Sound_Play(pSprite, eSound_Effect_Missile_Launch, 0x0F);
 

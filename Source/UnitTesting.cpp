@@ -122,7 +122,9 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
             g_Fodder->mGame_Data.mDemoRecorded.playback();
         }
 
+        // If demo is recording
         if (g_Fodder->mStartParams.mDemoRecord) {
+            // And we have a resume cycle set
             if (g_Fodder->mStartParams.mDemoRecordResumeCycle) {
                 g_Debugger->Notice("Resuming " + MissionTitle);
                 g_Fodder->mParams.mSleepDelta = 0;
@@ -147,11 +149,9 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
 
         // If recording
         if (g_Fodder->mStartParams.mDemoRecord) {
-
-            if (g_Fodder->mPhase_Complete)
+            if (g_Fodder->mPhase_Complete) {
                 g_Fodder->mGame_Data.mDemoRecorded.save();
-
-            else {
+            } else {
 
                 Retry = true;
                 // If the phase was aborted (ESC key), don't replay it.. start over
@@ -161,14 +161,15 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                     if (g_Fodder->mGame_Data.mGameTicks - 80 > 0) {
                         g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mGameTicks - 80);
                         g_Fodder->mStartParams.mDemoPlayback = true;
-
-                        auto Demo = g_Fodder->mGame_Data.mDemoRecorded;
-                        Demo.removeFrom(g_Fodder->mStartParams.mDemoRecordResumeCycle);
-                        g_Fodder->mGame_Data_Backup.mDemoRecorded = Demo;
+                        
+                        // Delete events occruing after resume cycle
+                        g_Fodder->mGame_Data.mDemoRecorded.removeFrom(g_Fodder->mStartParams.mDemoRecordResumeCycle);
+                        g_Fodder->mGame_Data_Backup.mDemoRecorded = g_Fodder->mGame_Data.mDemoRecorded;
+                        // Disable video output for speed
                         g_Fodder->mStartParams.mDisableVideo = true;
                     }
                 }
-
+                // Reset game to before start of phase
                 g_Fodder->mGame_Data = g_Fodder->mGame_Data_Backup;
                 continue;
             }

@@ -97,6 +97,14 @@ struct sGameVersion {
 		return std::find(mTileTypes.begin(), mTileTypes.end(), pTileType) != mTileTypes.end();
 	}
 
+    bool isCannonFodder1() const {
+        return mGame == eGame::CF1;
+    }
+
+    bool isCannonFodder2() const {
+        return mGame == eGame::CF2;
+    }
+
 	bool isCustom() const {
 		return mRelease == eRelease::Custom;
 	}
@@ -118,14 +126,6 @@ struct sGameVersion {
     bool isCoverDisk() const {
 
         return (isAmigaPower() || isAmigaAction() || isAmigaTheOne());
-    }
-
-    bool isCannonFodder1() const {
-        return mGame == eGame::CF1;
-    }
-
-    bool isCannonFodder2() const {
-        return mGame == eGame::CF2;
     }
 
 	bool isRetail() const {
