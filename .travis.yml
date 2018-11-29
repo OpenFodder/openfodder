@@ -50,5 +50,5 @@ before_script: mkdir obj
 script: 
   - make
   - cd Run
-  - git clone --depth=50 https://github.com/OpenFodder/tests.git
+  - git clone --depth=50 https://github.com/OpenFodder/tests.git Tests
   - ./OpenFodder --unit-test-headless
