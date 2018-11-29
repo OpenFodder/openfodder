@@ -49,3 +49,6 @@ install:
 before_script: mkdir obj
 script: 
   - make
+  - cd Run
+  - git clone --depth=50 https://github.com/OpenFodder/tests.git
+  - ./OpenFodder --unit-test-headless
