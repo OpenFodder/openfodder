@@ -155,7 +155,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
 
                 Retry = true;
                 // If the phase was aborted (ESC key), don't replay it.. start over
-                if (!g_Fodder->mPhase_Aborted) {
+                if (!g_Fodder->mPhase_EscapeKeyAbort) {
 
                     // Less than 10 cycles, player can start over
                     if (g_Fodder->mGame_Data.mGameTicks >= 80) {

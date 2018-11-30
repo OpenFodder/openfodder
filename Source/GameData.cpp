@@ -115,12 +115,12 @@ sGameRecorded::sGameRecorded() {
     mRecordedPlatform = ePlatform::Any;
 
 }
-void sGameRecorded::AddEvent(const uint64 pTicks, const cEventRecorded& pEvent) {
+void sGameRecorded::AddEvent(const uint64 pTicks, const cEvent& pEvent) {
     mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
 }
 
-std::vector<cEventRecorded> sGameRecorded::GetEvents(const uint64 pTicks) {
-    std::vector<cEventRecorded> Events;
+std::vector<cEvent> sGameRecorded::GetEvents(const uint64 pTicks) {
+    std::vector<cEvent> Events;
     auto test = mEvents.equal_range(pTicks);
 
     for (auto Event = test.first; Event != test.second; ++Event)
@@ -233,11 +233,11 @@ std::string sGameRecorded::ToJson() {
         Json JsonHero;
 
         JsonHero["1"] = Event.first;
-        JsonHero["2"] = Event.second.mEvent.mButton;
-        JsonHero["3"] = Event.second.mEvent.mButtonCount;
-        JsonHero["4"] = Event.second.mEvent.mPosition.mX;
-        JsonHero["5"] = Event.second.mEvent.mPosition.mY;
-        JsonHero["6"] = Event.second.mEvent.mType;
+        JsonHero["2"] = Event.second.mButton;
+        JsonHero["3"] = Event.second.mButtonCount;
+        JsonHero["4"] = Event.second.mPosition.mX;
+        JsonHero["5"] = Event.second.mPosition.mY;
+        JsonHero["6"] = Event.second.mType;
 
         Save["mEvents"].push_back(JsonHero);
     }
@@ -284,13 +284,13 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
             for (auto& Event : LoadedData["mEvents"]) {
                 uint32 Ticks = Event["1"];
 
-                cEventRecorded EventRecorded;
+                cEvent EventRecorded;
 
-                EventRecorded.mEvent.mButton = Event["2"];
-                EventRecorded.mEvent.mButtonCount = Event["3"];
-                EventRecorded.mEvent.mPosition.mX = Event["4"];
-                EventRecorded.mEvent.mPosition.mY = Event["5"];
-                EventRecorded.mEvent.mType = Event["6"];
+                EventRecorded.mButton = Event["2"];
+                EventRecorded.mButtonCount = Event["3"];
+                EventRecorded.mPosition.mX = Event["4"];
+                EventRecorded.mPosition.mY = Event["5"];
+                EventRecorded.mType = Event["6"];
 
                 mEvents.insert(mEvents.end(), std::make_pair(Ticks, EventRecorded ));
             }

@@ -94,6 +94,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mEnemy_BuildingCount = 0;
     mPhase_Aborted = false;
+    mPhase_EscapeKeyAbort = false;
 
     mSprite_SpareUsed = 0;
     mSprite_SpareUsed2 = 0;
@@ -247,6 +248,7 @@ void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
 
 int16 cFodder::Phase_Loop() {
 
+    mPhase_EscapeKeyAbort = false;
     mSurface->Save();
 
     for (;;) {
@@ -582,6 +584,7 @@ void cFodder::Mission_Memory_Restore() {
 
 void cFodder::Mission_Memory_Clear() {
     // Clear memory 2454 to 3B58
+    mPhase_EscapeKeyAbort = false;
     mPhase_Aborted2 = false;
     mButtonPressLeft = 0;
     mButtonPressRight = 0;
@@ -2017,11 +2020,10 @@ bool cFodder::Campaign_Load(std::string pName) {
 
     VersionSwitch(mVersions->GetForCampaign(pName, mParams.mDefaultPlatform));
     if (!mGame_Data.mCampaign.LoadCampaign(pName, pName != mVersionCurrent->mName)) {
-        // TODO
+        // TODO: But what?
 
         return false;
     }
-
 
     return true;
 }
@@ -3063,22 +3065,15 @@ void cFodder::eventsProcess() {
     mMouse_EventLastWheel.Clear();
 
     if (mParams.mDemoPlayback) {
-
-        for (auto Event : mGame_Data.mDemoRecorded.GetEvents(mGame_Data.mGameTicks)) {
-
-            eventProcess(Event.mEvent);
-        }
+        for (auto Event : mGame_Data.mDemoRecorded.GetEvents(mGame_Data.mGameTicks))
+            eventProcess(Event);
 
     } else {
-
         for (auto Event : *mWindow->EventGet()) {
-
             if (mParams.mDemoRecord) {
-
                 if(Event.mType != eEventType::eEvent_MouseMove)
-                    mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, cEventRecorded{ Event });
+                    mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, Event);
             }
-
             eventProcess(Event);
         }
     }
@@ -3134,9 +3129,10 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed && mPhase_Aborted)
         mPhase_Aborted2 = true;
 
-    if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
+    if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed) {
         mPhase_Aborted = true;
-
+        mPhase_EscapeKeyAbort = true;
+    }
     // In Mission and not on map overview
     if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
 

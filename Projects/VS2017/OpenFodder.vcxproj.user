@@ -21,6 +21,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run_x86  </LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--unit-test --campaign "Cannon Fodder" --amiga --mission 18 --phase 1   --demo-record-all</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--unit-test --campaign "Cannon Fodder" --amiga --demo-record-all</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

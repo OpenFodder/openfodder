@@ -22,33 +22,33 @@
 
 
 struct sFodderParameters {
-    bool mAppVeyor;
+    bool mAppVeyor;             // Running on AppVeyor
     bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
-    bool mSkipRecruit;        // Skip the recruit screen and go straight into the mission
+    bool mSkipRecruit;          // Skip the recruit screen and go straight into the mission
     bool mSkipBriefing;         // Skip mission briefing
     bool mSkipService;          // Skip mission debrief
 
     bool mWindowMode;           // Start in a window
-    bool mRandom;
-    ePlatform mDefaultPlatform;
+    bool mRandom;               // Start a random map
+    ePlatform mDefaultPlatform; // Default platform to use
 
-    bool mDemoRecord;
-    bool mDemoPlayback;
-    size_t mDemoRecordResumeCycle;
+    bool mDemoRecord;               // Recording a demo
+    bool mDemoPlayback;             // Playing back a demo
+    size_t mDemoRecordResumeCycle;  // Record a demo, after playing back the event queue up until this cycle
+    std::string mDemoFile;          // The Demo file to save/load to/from
 
-    int64 mSleepDelta;
-    std::string mDemoFile;
+    int64 mSleepDelta;              // Engine sleep delta
 
-    std::string mCampaignName;
-    size_t mMissionNumber;
-    size_t mPhaseNumber;
+    std::string mCampaignName;      // Campaign to start
+    size_t mMissionNumber;          // Mission to start on
+    size_t mPhaseNumber;            // Phase to start on
 
-    bool mUnitTesting;
-    bool mSinglePhase;
-    bool mPlayground;
+    bool mUnitTesting;              // Execute unit testing
+    bool mSinglePhase;              // Play a single phase
+    bool mPlayground;               // Launch into the sprite playground
 
-    bool mDisableVideo;
-    bool mDisableSound;
+    bool mDisableVideo;             // Disable all video output
+    bool mDisableSound;             // Disable all sound
 
     sFodderParameters() {
         mPlayground = false;
@@ -163,17 +163,10 @@ struct sGamePhaseData {
     void Clear();
 };
 
-struct cEventRecorded {
-    cEvent mEvent;
-
-};
-
 struct cStateRecorded {
     int16 mInputMouseX, mInputMouseY;
     int16 mMouseButtonStatus;
 };
-
-struct sGameData;
 
 struct sGameRecorded {
     int16 mVersion;
@@ -184,18 +177,19 @@ struct sGameRecorded {
 
     sFodderParameters mParams;
 
-    std::multimap< uint64, cEventRecorded > mEvents;
+    std::multimap< uint64, cEvent > mEvents;
     std::map< uint64, cStateRecorded > mState;
 
     sGameRecorded();
-    void AddEvent(const uint64 pTicks, const cEventRecorded& pEvent);
-    std::vector<cEventRecorded> GetEvents(const uint64 pTicks);
+    void AddEvent(const uint64 pTicks, const cEvent& pEvent);
+    std::vector<cEvent> GetEvents(const uint64 pTicks);
+
     void AddState(const uint64 pTicks, const cStateRecorded& pEvent);
-    
+    cStateRecorded* GetState(const uint64 pTicks);
+
     void DisableTicks();
     void EnableTicks();
-
-    cStateRecorded* GetState(const uint64 pTicks);
+    void Tick();
 
     uint64 GetTotalTicks() const;
     void removeFrom(const uint64 pTicks);

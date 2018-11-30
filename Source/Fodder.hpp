@@ -245,6 +245,8 @@ public:
 
     bool            mPhase_Aborted2;
     bool            mPhase_Aborted;
+    bool            mPhase_EscapeKeyAbort;
+
     bool            mPhase_Complete;
     int16           mPhase_Completed_Timer;
     bool            mPhase_In_Progress;
