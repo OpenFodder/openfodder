@@ -16,11 +16,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run_x86</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--campaign "Cannon Fodder" --pc --unit-test</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--unit-test --campaign "Cannon Fodder" --pc --mission 2 --phase 1 --demo-record-all</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run_x86 </LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\run_x86  </LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--campaign "Cannon Fodder" --pc --unit-test</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--unit-test --campaign "Cannon Fodder" --amiga --mission 18 --phase 1   --demo-record-all</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

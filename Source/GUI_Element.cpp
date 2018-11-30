@@ -992,7 +992,7 @@ void cFodder::GUI_Handle_Button_ShowOverview() {
     if (Mouse_Button_Left_Toggled() < 0)
         return;
 
-    mMission_ShowMapOverview = -1;
+    mPhase_ShowMapOverview = -1;
 }
 
 void cFodder::sub_3037A() {

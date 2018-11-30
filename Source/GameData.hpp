@@ -45,11 +45,13 @@ struct sFodderParameters {
 
     bool mUnitTesting;
     bool mSinglePhase;
+    bool mPlayground;
 
     bool mDisableVideo;
     bool mDisableSound;
 
     sFodderParameters() {
+        mPlayground = false;
         mDisableSound = false;
         mDisableVideo = false;
         mSleepDelta = 2;
@@ -174,6 +176,7 @@ struct cStateRecorded {
 struct sGameData;
 
 struct sGameRecorded {
+    int16 mVersion;
     int16 mSeed[4];
     int16 mInputTicks;
     int16 mEngineTicks;
@@ -188,6 +191,10 @@ struct sGameRecorded {
     void AddEvent(const uint64 pTicks, const cEventRecorded& pEvent);
     std::vector<cEventRecorded> GetEvents(const uint64 pTicks);
     void AddState(const uint64 pTicks, const cStateRecorded& pEvent);
+    
+    void DisableTicks();
+    void EnableTicks();
+
     cStateRecorded* GetState(const uint64 pTicks);
 
     uint64 GetTotalTicks() const;

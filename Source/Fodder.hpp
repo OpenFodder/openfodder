@@ -103,7 +103,6 @@ public:
     sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
     
-
     sSprite                 mSprite_Spare;
     sSprite                 mSprites[45];
 
@@ -347,7 +346,7 @@ public:
     int16           mMission_Finished;
     int16           mMission_EngineTicks;
     bool            mRecruit_Mission_Restarting;
-    int16           mMission_ShowMapOverview;
+    int16           mPhase_ShowMapOverview;
     sSprite*        mMission_Troops_SpritePtrs[9];
 
     int16           mMission_Final_TimeToDie_Ticker;
@@ -641,7 +640,7 @@ public:
     void            Phase_Goals_Set();
     void            Phase_Progress_Check();
 
-    void            Mission_Map_Overview_Show();
+    void            Phase_Map_Overview_Show();
 
     void            Mission_Set_Final_TimeRemaining();
     void            Mission_Sprites_Handle();

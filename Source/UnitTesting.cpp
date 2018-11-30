@@ -158,7 +158,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                 if (!g_Fodder->mPhase_Aborted) {
 
                     // Less than 10 cycles, player can start over
-                    if (g_Fodder->mGame_Data.mGameTicks - 80 > 0) {
+                    if (g_Fodder->mGame_Data.mGameTicks >= 80) {
                         g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mGameTicks - 80);
                         g_Fodder->mStartParams.mDemoPlayback = true;
                         
@@ -200,6 +200,9 @@ bool cUnitTesting::Start() {
 
     bool Result = true;
     for (auto& CampaignName : Campaigns) {
+        if (CampaignName == "Random Map" || CampaignName == "Single Map")
+            continue;
+
         g_Fodder->mParams = g_Fodder->mStartParams;
         g_Fodder->mParams.mCampaignName = CampaignName;
 

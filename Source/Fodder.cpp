@@ -250,6 +250,7 @@ int16 cFodder::Phase_Loop() {
     mSurface->Save();
 
     for (;;) {
+
         // If demo playback is enabled, and a record resume cycle is set
         if (mStartParams.mDemoPlayback && mStartParams.mDemoRecordResumeCycle) {
             // See if we hit the tick count
@@ -360,10 +361,13 @@ int16 cFodder::Phase_Loop() {
 
         Camera_Update_Mouse_Position_For_Pan();
 
-        if (mMission_ShowMapOverview) {
-            Mission_Map_Overview_Show();
+        if (mPhase_ShowMapOverview) {
 
-            mMission_ShowMapOverview = 0;
+            // Dont show the map while recording
+            if(!mParams.mDemoRecord)
+                Phase_Map_Overview_Show();
+
+            mPhase_ShowMapOverview = 0;
         }
 
         if (mGame_Data.mGamePhase_Data.mIsComplete) {
@@ -858,7 +862,7 @@ void cFodder::Mission_Memory_Clear() {
     mMission_Final_TimeRemain = 0;
     mMission_Final_TimeToAbort = 0;
     mGUI_Sidebar_MapButton_Prepared = 0;
-    mMission_ShowMapOverview = 0;
+    mPhase_ShowMapOverview = 0;
 
     mTurretFires_HomingMissile = 0;
     word_3B4ED[0] = 0;
@@ -2897,7 +2901,7 @@ void cFodder::Squad_EnteredVehicle_TimerTick() {
     }
 }
 
-void cFodder::Mission_Map_Overview_Show() {
+void cFodder::Phase_Map_Overview_Show() {
 #ifndef _DEBUG
     // Overview map is disabled for demos
     if (mVersionCurrent->isDemo() && !mVersionCurrent->isCustom())
@@ -2905,8 +2909,6 @@ void cFodder::Mission_Map_Overview_Show() {
 #endif
 
     int16 word_3A016 = 0;
-
-
     mVideo_Draw_PosX = (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
     mVideo_Draw_PosY = (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
     mVideo_Draw_PaletteIndex = 0xF0;
@@ -3082,6 +3084,7 @@ void cFodder::eventsProcess() {
     }
 
     mWindow->EventGet()->clear();
+
     ++mGame_Data.mGameTicks;
 
 }
@@ -3135,7 +3138,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
         mPhase_Aborted = true;
 
     // In Mission and not on map overview
-    if (mPhase_In_Progress && !mMission_ShowMapOverview) {
+    if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
 
         if (pKeyCode == SDL_SCANCODE_LCTRL || pKeyCode == SDL_SCANCODE_RCTRL) {
             if (pPressed)
@@ -3152,7 +3155,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
         if (pKeyCode == SDL_SCANCODE_M && pPressed) {
             if (mMission_Finished == 0)
-                mMission_ShowMapOverview = -1;
+                mPhase_ShowMapOverview = -1;
         }
 
         if (pKeyCode == SDL_SCANCODE_1 && pPressed) {
@@ -3695,7 +3698,9 @@ void cFodder::Phase_TextSprite_Create_GameOver(sSprite* pData2C) {
 }
 
 void cFodder::Mouse_DrawCursor() {
-    
+    if (mParams.mDisableVideo)
+        return;
+
     mVideo_Draw_PosX = (mMouseX + mMouseX_Offset) + 48;
     mVideo_Draw_PosY = (mMouseY + mMouseY_Offset) + 12;
 
@@ -7183,8 +7188,8 @@ void cFodder::Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C) {
         Data0 = 0;
 
     pSprite->field_2A = Data0;
-    pSprite->field_8 = mSprite_ComputerAnimation[Data0 / 2];
-    pSprite->field_20 = mSprite_Computer_Unk[Data0 / 2];
+    pSprite->field_8 = mSprite_Computer_Animation[Data0 / 2];
+    pSprite->field_20 = mSprite_Computer_Frames[Data0 / 2];
 }
 
 int16 cFodder::Map_Get_Distance_BetweenSprites_Within_320( const sSprite *pSprite, const sSprite *pSprite2 ) {
@@ -14282,7 +14287,6 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
     Data8 &= 0x0E;
     Data0 = pSprite->field_22;
 
-    //Data0 <<= 2;
     Data28 = mSprite_AnimationPtrs[Data0];
     pSprite->field_8 = Data28[(Data8 + 0x20) / 2];
 
@@ -14404,11 +14408,10 @@ loc_1E3D2:;
         Data28 = mSprite_AnimationPtrs[pSprite->field_22];
         pSprite->field_8 = Data28[(Data8 + 0x20) / 2];
 
-        if (pSprite->field_59) {
-
+        if (pSprite->field_59)
             pSprite->field_8 = Data28[(Data8 + 0x10) / 2];
-        }
 
+        pSprite->field_A %= 2;
     }
     //loc_1E50A
     Sprite_XY_Store(pSprite);
@@ -14652,6 +14655,7 @@ loc_1EA82:;
     if (pSprite->field_59)
         pSprite->field_8 = Data28[(Data8 + 0x10) / 2];
 
+    pSprite->field_A %= 2;
 loc_1EB0E:;
     Field_52 = pSprite->field_52;
     Field_0 = pSprite->field_0;
@@ -14696,6 +14700,7 @@ loc_1EB87:;
     if (pSprite->field_59)
         pSprite->field_8 = Data28[(Data8 + 0x10) / 2];
 
+    pSprite->field_A = 0;
     //loc_1EC4F
     Field_52 = pSprite->field_52;
     Sprite_Terrain_Check(pSprite, Data4);
@@ -18409,6 +18414,7 @@ void cFodder::Game_Setup() {
 // This function is for viewing/iterating sprites
 void cFodder::Playground() {
     //return;
+    mGame_Data.Phase_Start();
     Map_Load();
 
     mGraphics->PaletteSet();
@@ -18431,7 +18437,7 @@ void cFodder::Playground() {
     mString_GapCharID = 0x25;
     mGUI_Print_String_To_Sidebar = false;
 
-    int32 SpriteID = 0xB;
+    int32 SpriteID = 0x62;
     int32 Frame = 0;
 
 
@@ -18448,15 +18454,18 @@ void cFodder::Playground() {
         }
 
         {
-            mGraphics->SetActiveSpriteSheet(eGFX_HILL);
+            mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
             GUI_Draw_Frame_8(SpriteID, Frame, 65, 65);
         }
 
        if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
-        Mouse_Inputs_Get();
-        Mouse_DrawCursor();
+        //Mouse_Inputs_Get();
+        //Mouse_DrawCursor();
+
+       Video_SurfaceRender();
+       Cycle_End();
 
         // Q
         if (mKeyCode == 0x14) {
@@ -18487,7 +18496,6 @@ void cFodder::Playground() {
         if (mDemo_ExitMenu)
             break;
 
-        Video_SurfaceRender();
     }
 }
 
@@ -18592,7 +18600,11 @@ void cFodder::Start() {
             Campaign_Selection();
     }
 
-     //   Playground();
+    if (mParams.mPlayground) {
+        Playground();
+        return;
+    }
+
     // Exit pushed?
     if (mGUI_SaveLoadAction == 1)
         return;
@@ -18800,7 +18812,7 @@ int16 cFodder::Mission_Loop() {
         mPhase_Paused = false;
         mPhase_In_Progress = true;
         mMission_Finished = 0;
-        mMission_ShowMapOverview = 0;
+        mPhase_ShowMapOverview = 0;
 
         Window_UpdateScreenSize();
 

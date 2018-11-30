@@ -107,6 +107,8 @@ void sGamePhaseData::Clear() {
 }
 
 sGameRecorded::sGameRecorded() {
+    mVersion = 2;
+
     mSeed[0] = mSeed[1] = mSeed[2] = mSeed[3] = 0;
     mInputTicks = 0;
     mEngineTicks = 0;
@@ -154,6 +156,8 @@ void sGameRecorded::removeFrom(const uint64 pTicks) {
 }
 
 void sGameRecorded::clear() {
+    mVersion = 2;
+
     mState.clear();
     mEvents.clear();
 
@@ -212,7 +216,7 @@ std::string sGameRecorded::ToJson() {
 
     Json Save;
 
-    Save["SaveVersion"] = 1;
+    Save["SaveVersion"] = 2;
 
     Save["Timestamp"] = in_time_t;
     Save["Seed1"] = mSeed[0];
@@ -265,8 +269,8 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
 
     clear();
 
-    uint64 Version = LoadedData["SaveVersion"];
-    if (Version >= 1) {
+    mVersion = LoadedData["SaveVersion"];
+    if (mVersion >= 1) {
         try {
             mSeed[0] = LoadedData["Seed1"];
             mSeed[1] = LoadedData["Seed2"];
@@ -313,7 +317,6 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
 }
 
 sGameData::sGameData() {
-
     mGameTicks = 0;
 	Clear();
 }
@@ -529,7 +532,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	Json Save;
 
 	// Not used yet
-	Save["SaveVersion"] = 2;
+	Save["SaveVersion"] = 1;
     Save["Timestamp"] = in_time_t;
 
 	// Save the current game data version
