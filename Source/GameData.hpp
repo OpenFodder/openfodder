@@ -175,6 +175,9 @@ struct sGameRecorded {
     int16 mEngineTicks;
     ePlatform mRecordedPlatform;
 
+    uint64  mTick;
+    bool    mTickDisabled;
+
     sFodderParameters mParams;
 
     std::multimap< uint64, cEvent > mEvents;
@@ -208,7 +211,6 @@ struct sGameData {
 
     cCampaign       mCampaign;
     sGameRecorded   mDemoRecorded;
-    uint64          mGameTicks;
 
     std::shared_ptr<cMission>        mMission_Current;
     std::shared_ptr<cPhase>          mPhase_Current;

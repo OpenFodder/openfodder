@@ -2438,35 +2438,36 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	/* 0x60 */ stru_33E3C,     // Enemy Soldier Swim Face Right
 	/* 0x61 */ stru_33E5C,     // Enemy Soldier Swim Face Right + Forward
 
-	/* 0x62 */ stru_33E7C,     // Soldier Death	Face Forward
-	/* 0x63 */ stru_33E9C,     // Soldier Death	Face Forward + Left
-	/* 0x64 */ stru_33EBC,     // Soldier Death	Face Left
-	/* 0x65 */ stru_33EDC,     // Soldier Death	Face Left + Away
-	/* 0x66 */ stru_33EFC,     // Soldier Death	Face Away
-	/* 0x67 */ stru_33F1C,     // Soldier Death	Face Away + Right
-	/* 0x68 */ stru_33F3C,     // Soldier Death	Face Right
-	/* 0x69 */ stru_33F5C,     // Soldier Death	Face Right + Forward 
+	/* 0x62 */ stru_33E7C,     // Enemy Soldier Death	Face Forward
+	/* 0x63 */ stru_33E9C,     // Enemy Soldier Death	Face Forward + Left
+	/* 0x64 */ stru_33EBC,     // Enemy Soldier Death	Face Left
+	/* 0x65 */ stru_33EDC,     // Enemy Soldier Death	Face Left + Away
+	/* 0x66 */ stru_33EFC,     // Enemy Soldier Death	Face Away
+	/* 0x67 */ stru_33F1C,     // Enemy Soldier Death	Face Away + Right
+	/* 0x68 */ stru_33F3C,     // Enemy Soldier Death	Face Right
+	/* 0x69 */ stru_33F5C,     // Enemy Soldier Death	Face Right + Forward 
 
-	/* 0x6A */ stru_33F8C,     // Soldier Death-2 Face Forward 
-	/* 0x6B */ stru_33FAC,     // Soldier Death-2 Face Forward + Left 
-	/* 0x6C */ stru_33FCC,     // Soldier Death-2 Face Left 
-	/* 0x6D */ stru_33FEC,     // Soldier Death-2 Face Left + Away 
-	/* 0x6E */ stru_3400C,     // Soldier Death-2 Face Away 
-	/* 0x6F */ stru_3402C,     // Soldier Death-2 Face Away + Right                    
-	/* 0x70 */ stru_3404C,     // Soldier Death-2 Face Right
-	/* 0x71 */ stru_3406C,     // Soldier Death-2 Face Right + Forward 
+	/* 0x6A */ stru_33F8C,     // Enemy Soldier Death-2 Face Forward 
+	/* 0x6B */ stru_33FAC,     // Enemy Soldier Death-2 Face Forward + Left 
+	/* 0x6C */ stru_33FCC,     // Enemy Soldier Death-2 Face Left 
+	/* 0x6D */ stru_33FEC,     // Enemy Soldier Death-2 Face Left + Away 
+	/* 0x6E */ stru_3400C,     // Enemy Soldier Death-2 Face Away 
+	/* 0x6F */ stru_3402C,     // Enemy Soldier Death-2 Face Away + Right                    
+	/* 0x70 */ stru_3404C,     // Enemy Soldier Death-2 Face Right
+	/* 0x71 */ stru_3406C,     // Enemy Soldier Death-2 Face Right + Forward 
 
-	/* 0x72 */ stru_3408C,
-	/* 0x73 */ stru_340BC,
-	/* 0x74 */ stru_340EC,
-	/* 0x75 */ stru_3411C,
-	/* 0x76 */ stru_3414C,
-	/* 0x77 */ stru_3417C,
-	/* 0x78 */ stru_341AC,
-	/* 0x79 */ stru_341DC,
-	/* 0x7A */ stru_3420C,
-	/* 0x7B */ stru_3426C,
-	/* 0x7C */ stru_3426C,
+	/* 0x72 */ stru_3408C,     // Enemy Soldier Still Face Forward 
+	/* 0x73 */ stru_340BC,     // Enemy Soldier Still Face Forward + Left 
+	/* 0x74 */ stru_340EC,     // Enemy Soldier Still Face Left 
+	/* 0x75 */ stru_3411C,     // Enemy Soldier Still Face Left + Away 
+	/* 0x76 */ stru_3414C,     // Enemy Soldier Still Face Away 
+	/* 0x77 */ stru_3417C,     // Enemy Soldier Still Face Away + Right     
+	/* 0x78 */ stru_341AC,     // Enemy Soldier Still Face Right
+	/* 0x79 */ stru_341DC,     // Enemy Soldier Still Face Right + Forward 
+
+	/* 0x7A */ stru_3420C,     // 
+	/* 0x7B */ stru_3426C,     // 
+	/* 0x7C */ stru_3426C,     // 
 	/* 0x7D */ stru_342EC,
 	/* 0x7E */ stru_3432C,
 	/* 0x7F */ stru_3436C,

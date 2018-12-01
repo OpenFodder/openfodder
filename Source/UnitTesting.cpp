@@ -158,8 +158,8 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                 if (!g_Fodder->mPhase_EscapeKeyAbort) {
 
                     // Less than 10 cycles, player can start over
-                    if (g_Fodder->mGame_Data.mGameTicks >= 80) {
-                        g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mGameTicks - 80);
+                    if (g_Fodder->mGame_Data.mDemoRecorded.mTick >= 80) {
+                        g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mDemoRecorded.mTick - 80);
                         g_Fodder->mStartParams.mDemoPlayback = true;
                         
                         // Delete events occruing after resume cycle
@@ -198,8 +198,10 @@ bool cUnitTesting::Start() {
     else
         Campaigns.push_back(g_Fodder->mParams.mCampaignName);
 
-    bool Result = true;
+    bool TotalResult = true;
     for (auto& CampaignName : Campaigns) {
+        bool Result = true;
+
         if (CampaignName == "Random Map" || CampaignName == "Single Map")
             continue;
 
@@ -228,6 +230,10 @@ bool cUnitTesting::Start() {
         auto campaignDuration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - campaignStartTime);
 
         g_Debugger->TestComplete(CampaignName, "Campaign", "", (size_t)campaignDuration.count(), Result ? eTest_Passed : eTest_Failed);
+
+        if (!Result)
+            TotalResult = false;
     }
-    return Result;
+
+    return TotalResult;
 }

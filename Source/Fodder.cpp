@@ -256,7 +256,7 @@ int16 cFodder::Phase_Loop() {
         // If demo playback is enabled, and a record resume cycle is set
         if (mStartParams.mDemoPlayback && mStartParams.mDemoRecordResumeCycle) {
             // See if we hit the tick count
-            if (mGame_Data.mGameTicks >= mStartParams.mDemoRecordResumeCycle) {
+            if (mGame_Data.mDemoRecorded.mTick >= mStartParams.mDemoRecordResumeCycle) {
                 // Then resume recording
                 mStartParams.mDemoPlayback = false;
                 mStartParams.mDemoRecord = true;
@@ -3065,14 +3065,14 @@ void cFodder::eventsProcess() {
     mMouse_EventLastWheel.Clear();
 
     if (mParams.mDemoPlayback) {
-        for (auto Event : mGame_Data.mDemoRecorded.GetEvents(mGame_Data.mGameTicks))
+        for (auto Event : mGame_Data.mDemoRecorded.GetEvents(mGame_Data.mDemoRecorded.mTick))
             eventProcess(Event);
 
     } else {
         for (auto Event : *mWindow->EventGet()) {
             if (mParams.mDemoRecord) {
                 if(Event.mType != eEventType::eEvent_MouseMove)
-                    mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mGameTicks, Event);
+                    mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mDemoRecorded.mTick, Event);
             }
             eventProcess(Event);
         }
@@ -3080,8 +3080,7 @@ void cFodder::eventsProcess() {
 
     mWindow->EventGet()->clear();
 
-    ++mGame_Data.mGameTicks;
-
+    mGame_Data.mDemoRecorded.Tick();
 }
 
 void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
@@ -3111,7 +3110,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
     if (pKeyCode == SDL_SCANCODE_F3 && pPressed) {
         if (mParams.mDemoRecord) {
-            mStartParams.mDemoRecordResumeCycle = mGame_Data.mGameTicks - 80;
+            mStartParams.mDemoRecordResumeCycle = mGame_Data.mDemoRecorded.mTick - 80;
             mGame_Data.mGamePhase_Data.mIsComplete = true;
             mPhase_TryAgain = true;
         }
@@ -3300,7 +3299,7 @@ void cFodder::Mouse_Inputs_Get() {
 
        // Window_UpdateScreenSize();
 
-        auto State = mGame_Data.mDemoRecorded.GetState(mGame_Data.mGameTicks);
+        auto State = mGame_Data.mDemoRecorded.GetState(mGame_Data.mDemoRecorded.mTick);
         if (State) {
             mInputMouseX = State->mInputMouseX;
             mInputMouseY = State->mInputMouseY;
@@ -3308,7 +3307,7 @@ void cFodder::Mouse_Inputs_Get() {
             mMouseButtonStatus = State->mMouseButtonStatus;
         }
         else {
-            if(mGame_Data.mGameTicks > mGame_Data.mDemoRecorded.GetTotalTicks() + 100 )
+            if(mGame_Data.mDemoRecorded.mTick > mGame_Data.mDemoRecorded.GetTotalTicks() + 100 )
                 mPhase_Aborted = true;
         }
     }
@@ -3318,7 +3317,7 @@ void cFodder::Mouse_Inputs_Get() {
 
     if (mParams.mDemoRecord)
 
-        mGame_Data.mDemoRecorded.AddState(mGame_Data.mGameTicks, cStateRecorded{ mInputMouseX, mInputMouseY, mMouseButtonStatus });
+        mGame_Data.mDemoRecorded.AddState(mGame_Data.mDemoRecorded.mTick, cStateRecorded{ mInputMouseX, mInputMouseY, mMouseButtonStatus });
 
     Mouse_ButtonCheck();
 
@@ -16445,21 +16444,23 @@ void cFodder::Intro_Print_String(const sIntroString* pString) {
 void cFodder::Image_FadeIn() {
     mSurface->Save();
     mGraphics->PaletteSet();
-
+    mGame_Data.mDemoRecorded.DisableTicks();
     while (mSurface->isPaletteAdjusting()) {
         mSurface->palette_FadeTowardNew();
         Mouse_Inputs_Get();
 
         Video_SurfaceRender();
+        Cycle_End();
     }
 
-    Video_SurfaceRender();
+    mGame_Data.mDemoRecorded.EnableTicks();
 }
 
 void cFodder::Image_FadeOut() {
     mSurface->Save();
     mSurface->paletteNew_SetToBlack();
 
+    mGame_Data.mDemoRecorded.DisableTicks();
     while (mSurface->isPaletteAdjusting()) {
 
         Mouse_Inputs_Get();
@@ -16474,6 +16475,8 @@ void cFodder::Image_FadeOut() {
         Video_SurfaceRender();
         Cycle_End();
     }
+    mGame_Data.mDemoRecorded.EnableTicks();
+
 }
 
 void cFodder::SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet) {
@@ -18427,7 +18430,7 @@ void cFodder::Playground() {
     }
 
     // Load Icon
-
+    mSurface->clearBuffer();
     mSurface->palette_FadeTowardNew();
     mSurface->Save();
     mString_GapCharID = 0x25;
@@ -19048,13 +19051,15 @@ void cFodder::Mission_Final_TimeToDie() {
     if (mMission_Final_TimeRemain < 0)
         mMission_Final_TimeRemain = 0;
 
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x0F;
-
+    if (mParams.mDisableVideo)
+        return;
 
     for (unsigned int Y = 0x1000; Y < 0x1500; ++Y) {
 
         mSidebar_Screen_Buffer[Y] = 0;
     }
+
+    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x0F;
 
     GUI_Sidebar_TroopList_Name_Draw(0, 0, 0xB7, "TIME TO DIE ");
 

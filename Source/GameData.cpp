@@ -108,6 +108,8 @@ void sGamePhaseData::Clear() {
 
 sGameRecorded::sGameRecorded() {
     mVersion = 2;
+    mTick = 0;
+    mTickDisabled = false;
 
     mSeed[0] = mSeed[1] = mSeed[2] = mSeed[3] = 0;
     mInputTicks = 0;
@@ -116,13 +118,19 @@ sGameRecorded::sGameRecorded() {
 
 }
 void sGameRecorded::AddEvent(const uint64 pTicks, const cEvent& pEvent) {
+    if (mTickDisabled)
+        return;
+
     mEvents.insert(mEvents.end(), std::make_pair(pTicks, pEvent));
 }
 
 std::vector<cEvent> sGameRecorded::GetEvents(const uint64 pTicks) {
     std::vector<cEvent> Events;
-    auto test = mEvents.equal_range(pTicks);
 
+    if (mTickDisabled)
+        return Events;
+
+    auto test = mEvents.equal_range(pTicks);
     for (auto Event = test.first; Event != test.second; ++Event)
         Events.push_back(Event->second);
 
@@ -130,10 +138,16 @@ std::vector<cEvent> sGameRecorded::GetEvents(const uint64 pTicks) {
 }
 
 void sGameRecorded::AddState(const uint64 pTicks, const cStateRecorded& pEvent) {
+    if (mTickDisabled)
+        return;
+
     mState.insert(mState.end(), std::make_pair(pTicks, pEvent));
 }
 
 cStateRecorded* sGameRecorded::GetState(const uint64 pTicks) {
+    if (mTickDisabled)
+        return 0;
+
     if (mState.find(pTicks) != mState.end())
         return &mState.find(pTicks)->second;
 
@@ -161,7 +175,9 @@ void sGameRecorded::clear() {
     mState.clear();
     mEvents.clear();
 
-    g_Fodder->mGame_Data.mGameTicks = 0;
+    mTick = 0;
+    mTickDisabled = false;
+
     mSeed[0] = g_Fodder->mRandom_0;
     mSeed[1] = g_Fodder->mRandom_1;
     mSeed[2] = g_Fodder->mRandom_2;
@@ -180,7 +196,8 @@ void sGameRecorded::clear() {
 void sGameRecorded::playback() {
     g_Fodder->mMission_EngineTicks = mEngineTicks;
     g_Fodder->mGame_InputTicks = mInputTicks;
-    g_Fodder->mGame_Data.mGameTicks = 0;
+    mTick = 0;
+    mTickDisabled = false;
 
     g_Fodder->mRandom_0 = mSeed[0];
     g_Fodder->mRandom_1 = mSeed[1];
@@ -188,6 +205,20 @@ void sGameRecorded::playback() {
     g_Fodder->mRandom_3 = mSeed[3];
 
     g_Fodder->mParams = mParams;
+}
+
+void sGameRecorded::DisableTicks() {
+    if (mVersion >= 2)
+        mTickDisabled = true;
+}
+void sGameRecorded::EnableTicks() {
+
+    if(mVersion >= 2)
+        mTickDisabled = false;
+}
+void sGameRecorded::Tick() {
+    if(!mTickDisabled)
+        ++mTick;
 }
 
 void sGameRecorded::save() {
@@ -216,7 +247,7 @@ std::string sGameRecorded::ToJson() {
 
     Json Save;
 
-    Save["SaveVersion"] = 2;
+    Save["SaveVersion"] = mVersion;
 
     Save["Timestamp"] = in_time_t;
     Save["Seed1"] = mSeed[0];
@@ -317,12 +348,11 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
 }
 
 sGameData::sGameData() {
-    mGameTicks = 0;
+
 	Clear();
 }
 
 sGameData::sGameData(const std::string& pFromJson) {
-    mGameTicks = 0;
 
 	sGameData();
 
