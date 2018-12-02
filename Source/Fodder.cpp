@@ -12982,12 +12982,15 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
         pSprite->field_4C--;
 
     int16 Data1C = pSprite->field_5E;
-    if (mSquad_0_Sprites[Data1C] == INVALID_SPRITE_PTR)
-        goto loc_1CD7B;
+    if (mSquads[Data1C / 9] == (sSprite**)INVALID_SPRITE_PTR)
+        goto NextSquadMember;
 
-    Data30 = mSquad_0_Sprites[Data1C];
+    Data30 = mSquads[Data1C / 9][Data1C % 9];
+    if (Data30 == INVALID_SPRITE_PTR)
+        goto NextSquadMember;
+
     if (Data30->field_52)
-        goto loc_1CD7B;
+        goto NextSquadMember;
 
     Data8 = Data30->field_0;
     Data8 += 8;
@@ -12996,7 +12999,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     DataC += -5;
 
     if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotDriveable, Data8, DataC, Data10, Data14))
-        goto loc_1CD7B;
+        goto NextSquadMember;
 
     Data0 = pSprite->field_0;
     Data4 = pSprite->field_4;
@@ -13011,7 +13014,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
     mSprite_DistanceTo_Squad0 = Data0;
     if (Data0 >= 250)
-        goto loc_1CD7B;
+        goto NextSquadMember;
 
     Data0 = mSprite_Tank_SpriteX;
     Data4 = mSprite_Tank_SpriteY;
@@ -13021,7 +13024,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     DataC -= 0x0A;
 
     if (sub_2A4A2(Data0, Data4, Data8, DataC))
-        goto loc_1CD7B;
+        goto NextSquadMember;
 
     pSprite->field_2E = Data30->field_0;
     pSprite->field_30 = Data30->field_4;
@@ -13047,7 +13050,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     Sprite_Handle_Tank_FireMissile(pSprite);
     goto loc_1CDA3;
 
-loc_1CD7B:;
+NextSquadMember:;
     pSprite->field_5E += 1;
     if (pSprite->field_5E >= 0x1E) {
         pSprite->field_5E = 0;

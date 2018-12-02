@@ -2465,7 +2465,7 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	/* 0x78 */ stru_341AC,     // Enemy Soldier Still Face Right
 	/* 0x79 */ stru_341DC,     // Enemy Soldier Still Face Right + Forward 
 
-	/* 0x7A */ stru_3420C,     // 
+	/* 0x7A */ stru_3420C,     // Soldier Salute
 	/* 0x7B */ stru_3426C,     // 
 	/* 0x7C */ stru_3426C,     // 
 	/* 0x7D */ stru_342EC,
