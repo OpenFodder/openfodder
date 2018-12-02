@@ -26,7 +26,7 @@
 #include "Utils/json.hpp"
 using Json = nlohmann::json;
 
-#define INVALID_SPRITE_PTR (sSprite*) -1
+const char* DEMO_EXTENSION = ".ofd";
 
 std::string sFodderParameters::ToJson() {
     Json Save;
@@ -45,9 +45,6 @@ std::string sFodderParameters::ToJson() {
 
     Save["mUnitTesting"] = mUnitTesting;
     Save["mSinglePhase"] = mSinglePhase;
-        
-    //Save["mDemoRecord"] = mDemoRecord;
-    //Save["mDemoPlayback"] = mDemoPlayback;
 
     return Save.dump(1);
 }
@@ -57,8 +54,7 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 
     try {
         LoadedData = Json::parse(pJson);
-    }
-    catch (std::exception Exception) {
+    } catch (std::exception Exception) {
         std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
         return false;
     }
@@ -76,8 +72,6 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
     mUnitTesting = LoadedData["mUnitTesting"];
     mSinglePhase = LoadedData["mSinglePhase"];
 
-    //mDemoRecord = LoadedData["mDemoRecord"];
-    //mDemoPlayback = LoadedData["mDemoPlayback"];
     return true;
 }
 
@@ -235,7 +229,7 @@ void sGameRecorded::save() {
         }
 
         if (Filename.find(".") == Filename.npos)
-            Filename += ".ofd";
+            Filename += DEMO_EXTENSION;
 
         g_Debugger->Notice("Writing demo to " + Filename);
         std::ofstream outfile(Filename, std::ofstream::binary);
