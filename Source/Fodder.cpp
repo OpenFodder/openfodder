@@ -14406,6 +14406,7 @@ loc_1E3D2:;
         if (pSprite->field_59)
             pSprite->field_8 = Data28[(Data8 + 0x10) / 2];
 
+        // FIX: Added as only 2 frames exist for all sprites in mSprite_AnimationPtrs
         pSprite->field_A %= 2;
     }
     //loc_1E50A
@@ -14650,6 +14651,7 @@ loc_1EA82:;
     if (pSprite->field_59)
         pSprite->field_8 = Data28[(Data8 + 0x10) / 2];
 
+    // FIX: Added as only 2 frames exist for all sprites in mSprite_AnimationPtrs
     pSprite->field_A %= 2;
 loc_1EB0E:;
     Field_52 = pSprite->field_52;
@@ -15381,6 +15383,8 @@ loc_1F9C0:;
         if (word_3AA1D == 2) {
             pSprite->field_8 = *(Data28 + Data8);
             pSprite->field_A = mSprite_Frame_3;
+            // FIX: Added as only 2 frames exist for all sprites in mSprite_AnimationPtrs
+            pSprite->field_A %= 2;
         }
         else {
             //loc_1F9FF
@@ -15497,7 +15501,9 @@ loc_1FCD7:;
     if (!mSprite_Bumped_Into_SquadMember)
         return;
 
-    pSprite->field_A = mTmp_FrameNumber;
+    // FIX: Added % as only 2 frames exist for all sprites in mSprite_AnimationPtrs
+    // There is one case where mTmp_FrameNumber isnt set by the current sprite
+    pSprite->field_A = mTmp_FrameNumber % 2;
     mSprite_Bumped_Into_SquadMember = 0;
 }
 

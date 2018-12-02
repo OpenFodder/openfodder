@@ -208,14 +208,17 @@ void sGameRecorded::playback() {
 }
 
 void sGameRecorded::DisableTicks() {
+    // Version 1 Savegames didnt stop ticks 
+    // Version 2 Savegames stop ticks during image fadeout/fadein
     if (mVersion >= 2)
         mTickDisabled = true;
 }
-void sGameRecorded::EnableTicks() {
 
+void sGameRecorded::EnableTicks() {
     if(mVersion >= 2)
         mTickDisabled = false;
 }
+
 void sGameRecorded::Tick() {
     if(!mTickDisabled)
         ++mTick;
