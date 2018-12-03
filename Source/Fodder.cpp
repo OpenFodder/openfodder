@@ -5396,10 +5396,13 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     sSprite* Data34 = 0;
     int16 Data0, Data4, Data8, DataC, Data10;
 
-    // Turrets in Moors / Interior can't be destroyed
-    if (mMap_TileSet == eTileTypes_Moors || mMap_TileSet == eTileTypes_Int) {
-        if (pSprite->field_38 == eSprite_Anim_Die1)
-            pSprite->field_38 = eSprite_Anim_None;
+    if (mVersionCurrent->isCannonFodder1()) {
+        // Turrets in Moors / Interior can't be destroyed
+        if (mMap_TileSet == eTileTypes_Moors || mMap_TileSet == eTileTypes_Int) {
+
+            if (pSprite->field_38 == eSprite_Anim_Die1)
+                pSprite->field_38 = eSprite_Anim_None;
+        }
     }
 
     if (pSprite->field_38 == eSprite_Anim_Die3 || pSprite->field_38 == eSprite_Anim_Die1) {
