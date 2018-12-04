@@ -180,6 +180,7 @@ enum eVehicles {
     eVehicle_Helicopter_Homing = 8,
     eVehicle_Turret_Homing = 9,
     eVehicle_Unknown = 10,
+    eVehicle_Unknown_CF2_1 = 12,
     eVehicle_Unknown_CF2 = 13
 };
 

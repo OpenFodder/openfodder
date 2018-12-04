@@ -265,6 +265,7 @@ int16 cFodder::Phase_Loop() {
                 mParams.mDemoRecord = mStartParams.mDemoRecord;
                 mParams.mDemoPlayback = mStartParams.mDemoPlayback;
                 mStartParams.mDisableVideo = false;
+                mStartParams.mDisableSound = false;
                 Mouse_Setup();
             }
         }
@@ -1468,6 +1469,15 @@ void cFodder::Map_Load_Sprites() {
 
         // 114B
 
+        // HACK: Some SPT files don't contain enough null sprites between entries
+        //       This causes some sprites to be overwritten by null/lights on later missions in CF2
+        if (mVersionCurrent->isCannonFodder2()) {
+
+            if(Sprite > mSprites)
+                if (Sprite->field_18 == 4 && (Sprite - 1)->field_18 >= 114 && (Sprite - 1)->field_18 <= 117) {
+                    ++Sprite;
+            }
+        }
     }
 
     Map_Load_Sprites_Count();
@@ -2639,10 +2649,9 @@ void cFodder::Phase_Goals_Check() {
     }
 
     if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Kidnap_Leader - 1]) {
-        if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Rescue_Hostages - 1]) {
+        if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Rescue_Hostages - 1]) 
             if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Rescue_Hostage - 1])
                 goto loc_126A6;
-        }
     }
 
     if (mHostage_Count)
@@ -6156,8 +6165,14 @@ void cFodder::Sprite_Handle_Vehicle_Enemy(sSprite* pSprite) {
         return;
     }
 
-    if (pSprite->field_6F == eVehicle_Unknown)
-        goto loc_255DA;
+    if (mVersionCurrent->isCannonFodder1()) {
+        if (pSprite->field_6F == eVehicle_Unknown)
+            goto loc_255DA;
+    }
+    else if (mVersionCurrent->isCannonFodder2()) {
+        if (pSprite->field_6F == eVehicle_Unknown_CF2_1 || pSprite->field_6F == eVehicle_Unknown_CF2)
+            goto loc_255DA;
+    }
 
     Data0 = eSprite_Player;
     Data4 = eSprite_Indigenous;
@@ -6191,8 +6206,8 @@ loc_255DA:;
 
     sSprite* Data24 = pSprite + 1;
     Data24->field_18 = eSprite_Null;
-    Data24 = pSprite + 2;
 
+    Data24 = pSprite + 2;
     Data24->field_18 = eSprite_Flashing_Light;
     Data4 = pSprite->field_0;
     Data4 += 0x0D;

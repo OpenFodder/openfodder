@@ -167,6 +167,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                         g_Fodder->mGame_Data_Backup.mDemoRecorded = g_Fodder->mGame_Data.mDemoRecorded;
                         // Disable video output for speed
                         g_Fodder->mStartParams.mDisableVideo = true;
+                        g_Fodder->mStartParams.mDisableSound = true;
                     }
                 }
                 // Reset game to before start of phase
