@@ -13550,7 +13550,13 @@ void cFodder::Sprite_Handle_VehicleGun_Enemy(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite) {
-    pSprite->field_6F = eVehicle_Unknown;
+
+    if(mVersionCurrent->isCannonFodder1())
+        pSprite->field_6F = eVehicle_Unknown;
+    
+    if (mVersionCurrent->isCannonFodder2())
+        pSprite->field_6F = eVehicle_Unknown_CF2_1;
+
     pSprite->field_26 = pSprite->field_0;
     pSprite->field_26 += 0x28;
 
