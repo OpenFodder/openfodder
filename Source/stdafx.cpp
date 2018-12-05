@@ -185,72 +185,85 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
+std::string gLocalBasePath;
+
+void local_BasePathGenerate() {
+    std::stringstream filePathFinal;
+
+    // TODO: This needs improvements for LINUX/UNIX
+
+#ifdef WIN32
+    const char* path = std::getenv("USERPROFILE");
+    if (path)
+        filePathFinal << path;
+
+    filePathFinal << "/Documents/OpenFodder/";
+#else
+    std::string FinalPath;
+
+    // Lets find a base data folder
+    const char* path = std::getenv("XDG_DATA_DIRS");
+    if (path) {
+        std::vector<std::string> Paths;
+
+        std::stringstream ss;
+        ss << path;
+        while (ss.good()) {
+            std::string substr;
+            std::getline(ss, substr, ':');
+            Paths.push_back(substr);
+        }
+
+        // Dodgy loop and test all paths
+        for (auto& CheckPath : Paths) {
+            FinalPath = CheckPath;
+
+            filePathFinal << FinalPath << "/OpenFodder/";
+
+            // If the path exists, abort the search
+            if (local_FileExists(filePathFinal.str()))
+                break;
+
+            FinalPath = "";
+            filePathFinal.str("");
+        }
+
+    }
+
+    // No path found? check the home directory
+    if (!FinalPath.size()) {
+        // Test the home directory
+        path = std::getenv("HOME");
+
+        if (path) {
+            FinalPath = path;
+            FinalPath.append("/.local/share/");
+        }
+    }
+
+    // Fall back just incase
+    if (!FinalPath.size())
+        FinalPath = "/usr/local/share/";
+
+    filePathFinal << FinalPath << "OpenFodder/";
+
+#endif
+
+    // If this base path doesnt exist, then clear it and fall back to the exe working path
+    if (!local_FileExists(filePathFinal.str()))
+        filePathFinal.str("");
+
+    gLocalBasePath = filePathFinal.str();
+}
+
 std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
 	std::stringstream	 filePathFinal;
 
-    // TODO: This needs improvements for LINUX/UNIX
-    if (pDataType != eNone) {
-#ifdef WIN32
-        const char* path = std::getenv("USERPROFILE");
-        if (path)
-            filePathFinal << path;
-        
-        filePathFinal << "/Documents/OpenFodder/";
-#else
-        std::string FinalPath;
+    if (!gLocalBasePath.size())
+        local_BasePathGenerate();
 
-        // Lets find a base data folder
-        const char* path = std::getenv("XDG_DATA_DIRS");
-        if (path) {
-            std::vector<std::string> Paths;
-
-            std::stringstream ss;
-            ss << path;
-            while (ss.good()) {
-                std::string substr;
-                std::getline(ss, substr, ':');
-                Paths.push_back(substr);
-            }
-
-            // Dodgy loop and test all paths
-            for (auto& CheckPath : Paths) {
-                FinalPath = CheckPath;
-
-                filePathFinal << FinalPath << "/OpenFodder/";
-
-                // If the path exists, abort the search
-                if (local_FileExists(filePathFinal.str()))
-                    break;
-                
-                FinalPath = "";
-                filePathFinal.str("");
-            }
-
-        }
-        
-        // No path found? check the home directory
-        if(!FinalPath.size()) {
-            // Test the home directory
-            path = std::getenv("HOME");
-
-            if (path) {
-                FinalPath = path;
-                FinalPath.append("/.local/share/");
-            }
-        }
-
-        // Fall back just incase
-        if(!FinalPath.size())
-            FinalPath = "/usr/local/share/";
-
-        filePathFinal << FinalPath << "OpenFodder/";
-
-    #endif
-
-        // If this base path doesnt exist, then clear it and fall back to the exe working path
-        if (!local_FileExists(filePathFinal.str()))
-            filePathFinal.str("");
-    }
+    if (pDataType != eNone)
+        filePathFinal << gLocalBasePath;
 
 	switch (pDataType) {
 	case eData:
