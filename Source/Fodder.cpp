@@ -6058,7 +6058,7 @@ int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, 
     return -1;
 }
 
-int16 cFodder::sub_2531F(sSprite* pSprite, sSprite*& pData30) {
+int16 cFodder::Sprite_Handle_Helicopter_Enemy_Weapon(sSprite* pSprite, sSprite*& pData30) {
     int16 Data0;
     sSprite* Data2C = 0, *Data34 = 0;
 
@@ -6331,8 +6331,10 @@ loc_250D2:;
 
     Data1C = pSprite->field_5E;
 
-    Dataa30 = mSquad_0_Sprites;
-    Data30 = Dataa30[Data1C];
+    if (mSquads[Data1C / 9] == (sSprite**)INVALID_SPRITE_PTR)
+        goto loc_251B4;
+
+    Data30 = mSquads[Data1C / 9][Data1C % 9];
     if (Data30 == INVALID_SPRITE_PTR)
         goto loc_251B4;
 
@@ -6355,7 +6357,7 @@ loc_250D2:;
 
     mSprite_DistanceTo_Squad0 = Data0;
     if (Data0 < 0xFA)
-        if (sub_2531F(pSprite, Data30))
+        if (Sprite_Handle_Helicopter_Enemy_Weapon(pSprite, Data30))
             goto loc_251D2;
 
 loc_251B4:;
@@ -13554,7 +13556,7 @@ void cFodder::Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite) {
     if(mVersionCurrent->isCannonFodder1())
         pSprite->field_6F = eVehicle_Unknown;
     
-    if (mVersionCurrent->isCannonFodder2())
+    if(mVersionCurrent->isCannonFodder2())
         pSprite->field_6F = eVehicle_Unknown_CF2_1;
 
     pSprite->field_26 = pSprite->field_0;

@@ -983,7 +983,7 @@ public:
     void            Sprite_Handle_Helicopter_Human_Deploy_Weapon(sSprite* pSprite);
     int16           Sprite_Create_Grenade2(sSprite* pSprite);
     int16           Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData34);
-    int16           sub_2531F(sSprite* pSprite, sSprite*& pData30);
+    int16           Sprite_Handle_Helicopter_Enemy_Weapon(sSprite* pSprite, sSprite*& pData30);
     void            Sprite_Handle_Vehicle_Enemy(sSprite* pSprite);
     void            Sprite_Handle_Helicopter_Enemy(sSprite* pSprite);
     void            Sprite_Handle_Indigenous_Unk(sSprite* pSprite);
