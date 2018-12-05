@@ -2603,7 +2603,7 @@ void cFodder::Phase_Goals_Check() {
             continue;
 
         int16 Data10 = Data20->field_18;
-        if (Data10 == eSprite_Computer_1 || Data10 == eSprite_Computer_2 || Data10 == eSprite_Computer_3 || Data10 == eSprite_BuildingDoor3 || Data10 == 0x64)
+        if (Data10 == eSprite_Computer_1 || Data10 == eSprite_Computer_2 || Data10 == eSprite_Computer_3 || Data10 == eSprite_BuildingDoor3 || Data10 == eSprite_BuildingDoor_Reinforced)
             goto loc_12620;
 
         if (Data10 == eSprite_BuildingDoor2 || Data10 == eSprite_BuildingDoor) {
@@ -5405,8 +5405,8 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     sSprite* Data34 = 0;
     int16 Data0, Data4, Data8, DataC, Data10;
 
+    // Turrets in Moors / Interior can't be destroyed
     if (mVersionCurrent->isCannonFodder1()) {
-        // Turrets in Moors / Interior can't be destroyed
         if (mMap_TileSet == eTileTypes_Moors || mMap_TileSet == eTileTypes_Int) {
 
             if (pSprite->field_38 == eSprite_Anim_Die1)
@@ -14055,7 +14055,7 @@ void cFodder::Sprite_Handle_UFO_Callpad(sSprite* pSprite) {
     }
 }
 
-void cFodder::sub_2CEAC(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Turret_Cannon_Invulnerable(sSprite* pSprite) {
     
     if (pSprite->field_38 == eSprite_Anim_Die1)
         pSprite->field_38 = eSprite_Anim_None;
@@ -14066,7 +14066,7 @@ void cFodder::sub_2CEAC(sSprite* pSprite) {
     Sprite_Handle_Turret(pSprite);
 }
 
-void cFodder::sub_2CEDA(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Turret_Missile_Invulnerable(sSprite* pSprite) {
     
     if (pSprite->field_38 == eSprite_Anim_Die1)
         pSprite->field_38 = eSprite_Anim_None;
@@ -14077,7 +14077,7 @@ void cFodder::sub_2CEDA(sSprite* pSprite) {
     Sprite_Handle_Turret(pSprite);
 }
 
-void cFodder::sub_2D000(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite) {
     
     pSprite->field_6F = eVehicle_Unknown_CF2;
 
@@ -14110,7 +14110,7 @@ void cFodder::sub_2D000(sSprite* pSprite) {
     pSprite->field_4 = Saved_F4;
 }
 
-void cFodder::sub_2D0C6(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Looping_Vehicle_Right(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_Unknown_CF2;
 
@@ -14123,7 +14123,7 @@ void cFodder::sub_2D0C6(sSprite* pSprite) {
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
-void cFodder::sub_2D118(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Looping_Vehicle_Up(sSprite* pSprite) {
     
     pSprite->field_6F = eVehicle_Unknown_CF2;
 
@@ -14136,7 +14136,7 @@ void cFodder::sub_2D118(sSprite* pSprite) {
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
-void cFodder::sub_2D16F(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Looping_Vehicle_Down(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_Unknown_CF2;
 

@@ -881,12 +881,12 @@ public:
 
     // Cannon Fodder 2 Sprites
     void            Sprite_Handle_UFO_Callpad(sSprite* pSprite);                                      // 111
-    void            sub_2CEAC(sSprite* pSprite);                                      // 112
-    void            sub_2CEDA(sSprite* pSprite);                                      // 113
-    void            sub_2D000(sSprite* pSprite);                                      // 114
-    void            sub_2D0C6(sSprite* pSprite);                                      // 115
-    void            sub_2D118(sSprite* pSprite);                                      // 116
-    void            sub_2D16F(sSprite* pSprite);                                      // 117
+    void            Sprite_Handle_Turret_Cannon_Invulnerable(sSprite* pSprite);                                      // 112
+    void            Sprite_Handle_Turret_Missile_Invulnerable(sSprite* pSprite);                                      // 113
+    void            Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite);                                      // 114
+    void            Sprite_Handle_Looping_Vehicle_Right(sSprite* pSprite);                                      // 115
+    void            Sprite_Handle_Looping_Vehicle_Up(sSprite* pSprite);                                      // 116
+    void            Sprite_Handle_Looping_Vehicle_Down(sSprite* pSprite);                                      // 117
 
     void            Sprite_PositionNext_AdjustByHeight(sSprite* pSprite);
     int16           sub_1D92E(sSprite* pSprite);

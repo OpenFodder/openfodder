@@ -136,6 +136,14 @@ enum eSprites {
 
     // Cannon Fodder 2
     eSprite_UFO_Callpad                         = 111,
+
+    eSprite_Turret_Cannon_Invulnerable          = 112,
+    eSprite_Turret_Missile_Invulnerable         = 113,
+    eSprite_Looping_Vehicle_Left                = 114,
+    eSprite_Looping_Vehicle_Right               = 115,
+
+    eSprite_Looping_Vehicle_Up                  = 116,
+    eSprite_Looping_Vehicle_Down                = 117
 };
 
 enum eSprite_Flags {

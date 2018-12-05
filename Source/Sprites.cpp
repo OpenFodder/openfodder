@@ -203,17 +203,16 @@ void cFodder::Sprite_Table_Setup() {
 
 	//  Cannon Foodder 2 only Sprites
     /* 111 */
-    SpriteFunction( UFO_Callpad );
+    SpriteFunction( UFO_Callpad);
+    SpriteFunction( Turret_Cannon_Invulnerable );
+    SpriteFunction( Turret_Missile_Invulnerable );
 
-        /* 112 */
-        SpriteTableFunction( 112, sub_2CEAC );
-        SpriteTableFunction( 113, sub_2CEDA );
-        SpriteTableFunction( 114, sub_2D000 );
-        SpriteTableFunction( 115, sub_2D0C6 );
+    SpriteFunction( Looping_Vehicle_Left );
+    SpriteFunction( Looping_Vehicle_Right );
     
-        /* 116 */
-        SpriteTableFunction( 116, sub_2D118 );
-        SpriteTableFunction( 117, sub_2D16F );
+    /* 116 */
+    SpriteFunction( Looping_Vehicle_Up );
+    SpriteFunction( Looping_Vehicle_Down );
 
 	//  End Cannon Fodder 2 Sprites
 }
@@ -225,8 +224,9 @@ const int16 mEnemy_Unit_Types[] = {
 	eSprite_VehicleNoGun_Enemy,				eSprite_VehicleGun_Enemy,			eSprite_Vehicle_Unk_Enemy,
 	eSprite_Turret_Missile_Enemy,			eSprite_Turret_Missile2_Enemy,		eSprite_Turret_HomingMissile_Enemy,
 	eSprite_Computer_1,						eSprite_Computer_2,					eSprite_Computer_3,
-
-    // TODO: CF2 sprites may be required here
+   
+    // CF2 sprites
+    eSprite_Turret_Cannon_Invulnerable, eSprite_Turret_Missile_Invulnerable,
 	-1
 };
 
