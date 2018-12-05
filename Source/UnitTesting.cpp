@@ -158,7 +158,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                 if (!g_Fodder->mPhase_EscapeKeyAbort) {
 
                     // Less than 10 cycles, player can start over
-                    if (g_Fodder->mGame_Data.mDemoRecorded.mTick >= 80) {
+                    if (g_Fodder->mGame_Data.mDemoRecorded.mTick > 80) {
                         g_Fodder->mStartParams.mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mDemoRecorded.mTick - 80);
                         g_Fodder->mStartParams.mDemoPlayback = true;
                         
