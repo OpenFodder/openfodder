@@ -6168,14 +6168,8 @@ void cFodder::Sprite_Handle_Vehicle_Enemy(sSprite* pSprite) {
         return;
     }
 
-    if (mVersionCurrent->isCannonFodder1()) {
-        if (pSprite->field_6F == eVehicle_Unknown)
-            goto loc_255DA;
-    }
-    else if (mVersionCurrent->isCannonFodder2()) {
-        if (pSprite->field_6F == eVehicle_Unknown_CF2_1 || pSprite->field_6F == eVehicle_Unknown_CF2)
-            goto loc_255DA;
-    }
+    if (pSprite->field_6F == eVehicle_DontTargetPlayer)
+        goto loc_255DA;
 
     Data0 = eSprite_Player;
     Data4 = eSprite_Indigenous;
@@ -13556,12 +13550,8 @@ void cFodder::Sprite_Handle_VehicleGun_Enemy(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite) {
 
-    if(mVersionCurrent->isCannonFodder1())
-        pSprite->field_6F = eVehicle_Unknown;
+    pSprite->field_6F = eVehicle_DontTargetPlayer;
     
-    if(mVersionCurrent->isCannonFodder2())
-        pSprite->field_6F = eVehicle_Unknown_CF2_1;
-
     pSprite->field_26 = pSprite->field_0;
     pSprite->field_26 += 0x28;
 
@@ -14082,7 +14072,7 @@ void cFodder::Sprite_Handle_Turret_Missile_Invulnerable(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite) {
     
-    pSprite->field_6F = eVehicle_Unknown_CF2;
+    pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_0 <= 6) {
 
@@ -14115,7 +14105,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Right(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Unknown_CF2;
+    pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_0 >= mMapWidth_Pixels) {
         pSprite->field_0 = 0;
@@ -14128,7 +14118,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Right(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Up(sSprite* pSprite) {
     
-    pSprite->field_6F = eVehicle_Unknown_CF2;
+    pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_4 <= 6) {
         pSprite->field_4 = mMapHeight_Pixels - 4;
@@ -14141,7 +14131,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Up(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Down(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Unknown_CF2;
+    pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_4 >= mMapHeight_Pixels) {
         pSprite->field_4 = 0;

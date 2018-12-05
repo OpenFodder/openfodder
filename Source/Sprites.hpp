@@ -187,9 +187,7 @@ enum eVehicles {
     eVehicle_Helicopter_Missile = 7,
     eVehicle_Helicopter_Homing = 8,
     eVehicle_Turret_Homing = 9,
-    eVehicle_Unknown = 10,
-    eVehicle_Unknown_CF2_1 = 12,
-    eVehicle_Unknown_CF2 = 13
+    eVehicle_DontTargetPlayer = 10
 };
 
 enum ePstuff_Sprites {
