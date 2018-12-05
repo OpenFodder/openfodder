@@ -2965,6 +2965,9 @@ void cFodder::Phase_Map_Overview_Show() {
 
 void cFodder::Map_Overview_Prepare() {
 
+    if (mParams.mUnitTesting)
+        return;
+
     delete mSurfaceMapOverview;
     size_t Size = mMapWidth < mMapHeight ? mMapHeight : mMapWidth;
 
