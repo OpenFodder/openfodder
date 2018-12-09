@@ -103,6 +103,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>gitver.cmd</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -139,6 +142,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>gitver.cmd</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -162,6 +168,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\About.hpp" />
     <ClInclude Include="..\..\Source\Amiga\audiostream.hpp" />
     <ClInclude Include="..\..\Source\Amiga\dernc.hpp" />
     <ClInclude Include="..\..\Source\Amiga\Graphics_Amiga.hpp" />
@@ -176,6 +183,7 @@
     <ClInclude Include="..\..\Source\Debugger.hpp" />
     <ClInclude Include="..\..\Source\FontData.hpp" />
     <ClInclude Include="..\..\Source\GameData.hpp" />
+    <ClInclude Include="..\..\Source\gitver.h" />
     <ClInclude Include="..\..\Source\GUI_Element.hpp" />
     <ClInclude Include="..\..\Source\Dimension.hpp" />
     <ClInclude Include="..\..\Source\Event.hpp" />
@@ -211,6 +219,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\About.cpp" />
     <ClCompile Include="..\..\Source\Amiga\dernc.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga.cpp" />
     <ClCompile Include="..\..\Source\Amiga\Graphics_Amiga2.cpp" />

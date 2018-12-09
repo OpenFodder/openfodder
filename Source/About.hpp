@@ -20,17 +20,13 @@
  *
  */
 
-struct sIntroString {
-	uint32		mPosition;
-	const char* mText;
-};
+class cAbout {
+    
+    cSurface*    mSurface;
 
-struct sIntroText {
-	uint32				mImageNumber;
-	const sIntroString*	mText;
-};
+public:
+        cAbout();
+        ~cAbout();
 
-extern std::vector< sIntroText > mIntroText_PC;
-extern std::vector< sIntroText > mIntroText_PC2;
-extern std::vector< sIntroText > mIntroText_Amiga;
-extern std::vector< sIntroText > mIntroText_Amiga2;
+        bool Cycle();
+};

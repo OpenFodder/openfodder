@@ -287,7 +287,9 @@ struct sSprite {
 	int8 field_5C;			// 1 = Was Drawn
 
 	int8 field_5D;          // 5E contains index into mGame_Data.mSoldiers_Allocated
+
     // Eventually this should be replaced
+    // Perhaps a linked list could replace mSprite and we use an iterator here
     union {
         int32 field_5E;			// Index inside mSprites (if 5D == false)
         sMission_Troop *field_5E_SoldierAllocated;  // Soldier Ptr who killed sprite

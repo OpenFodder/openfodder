@@ -51,6 +51,7 @@ int start(int argc, char *argv[]) {
     cxxopts::Options options("OpenFodder", "War has never been so much fun");
     options.allow_unrecognised_options();
     options.add_options()
+        ("about",         "About",                cxxopts::value<bool>()->default_value("false"))
         ("h,help",        "Help",                 cxxopts::value<bool>()->default_value("false")  )
         ("pc",            "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
         ("amiga",         "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
@@ -116,6 +117,7 @@ int start(int argc, char *argv[]) {
             }
         }
         
+        Params.mShowAbout = result["about"].as<bool>();
         Params.mSkipIntro = result["skipintro"].as<bool>();
         Params.mSkipService = result["skipservice"].as<bool>();
         Params.mSkipBriefing = result["skipbriefing"].as<bool>();
@@ -160,6 +162,11 @@ int start(int argc, char *argv[]) {
         return -1;
     }
     g_Fodder->Prepare(Params);
+
+    if (Params.mShowAbout) {
+        g_Fodder->About();
+        return 0;
+    }
 
     if (Params.mUnitTesting) {
         cUnitTesting Testing;
@@ -282,6 +289,7 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
         filePathFinal << "Tests" << gPathSeperator;
         break;
 
+    case eRoot:
 	case eNone:
 	default:
 		break;

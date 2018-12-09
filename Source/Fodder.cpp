@@ -3984,6 +3984,10 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
     GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
 
+    GUI_Button_Draw_SmallAt("ABOUT", 0x05, 0xB3 + YOffset);
+    GUI_Button_Setup_Small(&cFodder::GUI_Button_Show_About);
+
+
     int16 ItemCount = 0;
 
     auto FileIT = mCampaignList.begin() + mGUI_Select_File_CurrentIndex;
@@ -4117,7 +4121,7 @@ void cFodder::Campaign_Selection() {
     std::string CampaignFile = Campaign_Select_File("OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign);
 
     // Exit Pressed?
-    if (mGUI_SaveLoadAction == 1 || !CampaignFile.size()) {
+    if (mGUI_SaveLoadAction == 1 || mGUI_SaveLoadAction == 4 || !CampaignFile.size()) {
 
         // Return to custom menu
         mDemo_ExitMenu = 1;
@@ -9775,6 +9779,13 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
     return 0;
 }
 
+void cFodder::Service_Draw_String(const std::string& pText, const uint8* pFontWidth, const bool pLarge, const size_t pY) {
+
+    String_CalculateWidth(0x140, pFontWidth, pText.c_str());
+    Service_Draw_String(pText, pFontWidth, pLarge ? 3 : 0, mGUI_Temp_X, pY);
+
+}
+
 void cFodder::Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank) {
 
     mService_Draw_List.emplace_back(PLATFORM_BASED(9, 0), PLATFORM_BASED(0, 1), 0x60, mVideo_Draw_PosY);
@@ -9793,8 +9804,7 @@ void cFodder::Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank) {
         tmpString << *si++;
     }
 
-    String_CalculateWidth(0x140, mFont_ServiceName_Width, tmpString.str().c_str());
-    Service_Draw_String(tmpString.str().c_str(), mFont_ServiceName_Width, 3, mGUI_Temp_X, mVideo_Draw_PosY + 6);
+    Service_Draw_String(tmpString.str(), mFont_ServiceName_Width, 3, mVideo_Draw_PosY + 6);
 }
 
 void cFodder::Service_Promotion_Check() {
@@ -9827,6 +9837,9 @@ void cFodder::Service_Draw_List() {
 
     for(auto& Draw : mService_Draw_List) {
 
+        if (Draw.mY < 16)
+            continue;
+
         Service_Sprite_Draw(Draw.mSpriteType, Draw.mFrame, Draw.mX, Draw.mY);
     }
 }
@@ -9842,6 +9855,8 @@ void cFodder::Service_ScrollUp_DrawList() {
             mService_Promotion_Exit_Loop = 0;
 
     }
+
+    std::remove_if(mService_Draw_List.begin(), mService_Draw_List.end(), [](auto pVal) { return pVal.mY < -48; });
 }
 
 void cFodder::Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC) {
@@ -12924,6 +12939,7 @@ void cFodder::Sprite_Handle_Bird_Right(sSprite* pSprite) {
         pSprite->field_57 -= 1;
         goto loc_1CA20;
     }
+
     //loc_1C9D3
     pSprite->field_57 = 0x3F;
     Data0 = tool_RandomGet() & 0x3F;
@@ -14075,7 +14091,6 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite) {
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_0 <= 6) {
-
         pSprite->field_0 = mMapWidth_Pixels - 4;
         pSprite->field_75 = 0;
     }
@@ -15908,6 +15923,13 @@ void cFodder::String_Print_Small(std::string pText, const size_t pY) {
     String_Print(mFont_Briefing_Width, 0, mGUI_Temp_X, pY, pText);
 }
 
+void cFodder::String_Print_Small(std::string pText, const size_t pX, const size_t pY) {
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+
+    String_CalculateWidth(320, mFont_Briefing_Width, pText);
+    String_Print(mFont_Briefing_Width, 0, pX, pY, pText);
+}
+
 void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
@@ -16463,7 +16485,7 @@ void cFodder::Mission_Intro_Play() {
 
 void cFodder::Intro_Print_String(const sIntroString* pString) {
 
-    int PosY = pString->mPosition + PLATFORM_BASED(-0x19, 9);
+    auto PosY = pString->mPosition + PLATFORM_BASED(-0x19, 9);
 
     String_CalculateWidth(320, mFont_Intro_Width, pString->mText);
     String_Print(mFont_Intro_Width, 0, mGUI_Temp_X, PosY, pString->mText);
@@ -18568,6 +18590,24 @@ void cFodder::Window_UpdateScreenSize() {
     }
 }
 
+void cFodder::About() {
+    
+    VersionSwitch(mVersions->GetRetail(mParams.mDefaultPlatform));
+    if (!mVersionCurrent)
+        VersionSwitch(mVersions->GetDemo());
+
+    cAbout About;
+    while (About.Cycle()) {
+
+
+        mWindow->RenderAt(mSurface);
+        mWindow->FrameEnd();
+        Cycle_End();
+    }
+
+    g_Fodder->mPhase_Aborted = false;
+}
+
 void cFodder::Start() {
 
     if (mParams.mDemoPlayback) {
@@ -18636,6 +18676,12 @@ void cFodder::Start() {
     if (mGUI_SaveLoadAction == 1)
         return;
 
+    if (mGUI_SaveLoadAction == 4) {
+        
+        About();
+
+        goto Start;
+    }
     Mouse_Setup();
     Mouse_Inputs_Get();
 

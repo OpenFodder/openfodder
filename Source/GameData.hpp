@@ -23,6 +23,7 @@
 
 struct sFodderParameters {
     bool mAppVeyor;             // Running on AppVeyor
+    bool mShowAbout;            // Show the about screen
     bool mSkipIntro;            // Skip the OpenFodder intro, and the game intro
     bool mSkipRecruit;          // Skip the recruit screen and go straight into the mission
     bool mSkipBriefing;         // Skip mission briefing
@@ -51,6 +52,7 @@ struct sFodderParameters {
     bool mDisableSound;             // Disable all sound
 
     sFodderParameters() {
+        mShowAbout = false;
         mPlayground = false;
         mDisableSound = false;
         mDisableVideo = false;

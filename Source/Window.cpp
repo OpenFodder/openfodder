@@ -247,8 +247,9 @@ bool cWindow::CanChangeToMultiplier( const int pNewMultiplier ) {
 }
 
 void cWindow::FrameEnd() {
-
+    
 	SDL_RenderPresent( mRenderer );
+    SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
 	SDL_RenderClear( mRenderer );
 }
 

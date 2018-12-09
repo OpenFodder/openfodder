@@ -44,6 +44,7 @@ public:
 
 class cSurface {
 protected:
+    bool            mIsLoadedImage;
 	cPalette		mPalette[ g_MaxColors ];
 	cPalette		mPaletteNew[ g_MaxColors ];
 
@@ -75,6 +76,8 @@ public:
 
 	void			draw();						// Draw image to SDL Surface
     void            mergeSurfaceBuffer(const cSurface* pFrom);
+
+    bool            LoadBitmap(const std::string& pFile);
 
 	void			Save();
 	void			Restore();

@@ -160,6 +160,12 @@
     <ClInclude Include="..\..\Source\UnitTesting.hpp">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\About.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\gitver.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -265,6 +271,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UnitTesting.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\About.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

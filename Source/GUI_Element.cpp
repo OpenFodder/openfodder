@@ -1084,6 +1084,15 @@ void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, co
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
 
+void cFodder::GUI_Button_Draw_SmallAt(const std::string pText, const size_t pX, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
+    String_Print_Small(pText, pX, pY);
+
+    mGUI_Temp_X = pX;
+    mGUI_Temp_Y = pY;
+
+    GUI_Box_Draw(pColorShadow, pColorPrimary);
+}
+
 void cFodder::GUI_Button_Draw(std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
@@ -1302,6 +1311,10 @@ void cFodder::GUI_Button_Load_Exit() {
     mGUI_SaveLoadAction = 1;
 }
 
+void cFodder::GUI_Button_Show_About() {
+    mGUI_Select_File_String_Input_Callback = 0;
+    mGUI_SaveLoadAction = 4;
+}
 
 void cFodder::GUI_Input_CheckKey() {
 

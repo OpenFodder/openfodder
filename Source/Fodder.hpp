@@ -732,6 +732,7 @@ public:
     int16           Service_KIA_Troop_Prepare();
     int16           Service_Promotion_Prepare_Draw();
     void            Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank);
+    void            Service_Draw_String(const std::string& pText, const uint8* pFontWidth, const bool pLarge, const size_t pY);
     void            Service_Draw_List();
     void            Service_ScrollUp_DrawList();
     void            Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC);
@@ -1094,6 +1095,7 @@ public:
 
     void            GUI_Button_Draw(std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
     void            GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
+    void            GUI_Button_Draw_SmallAt(const std::string pText, const size_t pX, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
 
     void            GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary);
     void            GUI_Select_File_Loop(bool pShowCursor);
@@ -1105,6 +1107,7 @@ public:
     void            GUI_Button_Load_Up();
     void            GUI_Button_Load_Down();
     void            GUI_Button_Load_Exit();
+    void            GUI_Button_Show_About();
     void            GUI_Button_Filename();
 
     int16           GUI_Button_NoAction();
@@ -1270,12 +1273,15 @@ public:
     void            String_Input_Check();
 
     void            String_Print_Small(std::string pText, const size_t pY);
+    void            String_Print_Small(std::string pText, const size_t pX, const size_t pY);
+
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
     void            Prepare(const sFodderParameters& pParams);
 
     void            Playground();
 
+    void            About();
     virtual void    Start();
     void            Exit(unsigned int pExitCode);
 

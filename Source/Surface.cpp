@@ -23,6 +23,7 @@
 #include "stdafx.hpp"
 
 cSurface::cSurface( size_t pWidth, size_t pHeight ) {
+    mIsLoadedImage = false;
 	mWidth = pWidth; 
 	mHeight = pHeight;
 	mPaletteAdjusting = false;
@@ -31,9 +32,13 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF << 16, 0xFF << 8, 0xFF, 0 );
 	mTexture = 0;
 
-	if(g_Window->GetRenderer())
-		mTexture = SDL_CreateTexture(g_Window->GetRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, (int) pWidth, (int) pHeight);
-	
+    if (g_Window->GetRenderer()) {
+        mTexture = SDL_CreateTexture(g_Window->GetRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, (int)pWidth, (int)pHeight);
+
+        SDL_SetTextureBlendMode(mTexture, SDL_BLENDMODE_ADD);
+        SDL_SetTextureAlphaMod(mTexture, 0xFF);
+        SDL_SetTextureColorMod(mTexture, 0xFF, 0xFF, 0xFF);
+    }
 	mSurfaceBuffer = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSaved = new uint8[ mWidth * mHeight ];
 	mSurfaceBufferSize = mWidth * mHeight;
@@ -190,13 +195,16 @@ inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
  */
 void cSurface::draw() {
 
+    if (mIsLoadedImage)
+        return;
+
 	const uint8 *bufferCurrent = mSurfaceBuffer;
 	const uint8 *bufferCurrentMax = (mSurfaceBuffer + mSurfaceBufferSize);
 
 	uint32 *bufferTarget = (uint32*)mSDLSurface->pixels;
 	uint32 *bufferTargetMax = (uint32*) (((uint8*) mSDLSurface->pixels) + (mSDLSurface->h * mSDLSurface->pitch));
 	
-	clearSDLSurface();
+	clearSDLSurface(0);
 
 	// Loop until we reach the destination end
 	while( bufferTarget < bufferTargetMax ) {
@@ -267,6 +275,28 @@ void cSurface::clearBuffer(uint8 pColor) {
 	}
 
 	clearSDLSurface();
+}
+
+bool cSurface::LoadBitmap(const std::string& pFile) {
+    
+    SDL_FreeSurface(mSDLSurface);
+    mSDLSurface = SDL_LoadBMP(pFile.c_str());
+    if (!mSDLSurface)
+        return false;
+
+    mIsLoadedImage = true;
+    mWidth = mSDLSurface->w;
+    mHeight = mSDLSurface->h;
+
+    if (g_Window->GetRenderer()) {
+        SDL_DestroyTexture(mTexture);
+        mTexture = SDL_CreateTextureFromSurface(g_Window->GetRenderer(), mSDLSurface );
+        SDL_SetTextureBlendMode(mTexture, SDL_BLENDMODE_ADD);
+        SDL_SetTextureAlphaMod(mTexture, 0xa0);
+        SDL_SetTextureColorMod(mTexture, 0xFF, 0xFF, 0xFF);
+    }
+
+    return mSDLSurface != 0;
 }
 
 void cSurface::Save() {
