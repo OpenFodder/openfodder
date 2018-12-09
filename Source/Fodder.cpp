@@ -6229,7 +6229,6 @@ void cFodder::Sprite_Handle_Helicopter_Enemy(sSprite* pSprite) {
     int16 DataC;
     int16 Data10, Data14, Data1C;
     sSprite* Data24 = 0, *Data30 = 0;
-    sSprite** Dataa30 = 0;
 
     // Bullets don't hit choppers
     if (pSprite->field_38 == eSprite_Anim_Hit)
@@ -16412,7 +16411,6 @@ int16 cFodder::intro_Play() {
         //loc_16710
 
         int16 Duration = mIntro_PlayTextDuration;
-        int16 Fade = -1;
         bool DoBreak = false;
 
         while (mSurface->isPaletteAdjusting() || DoBreak == false) {

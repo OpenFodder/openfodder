@@ -115,6 +115,9 @@ void cDebugger::TestComplete(const std::string& pName, const std::string& pGroup
         case eTest_Skipped:
             Command += "Skipped";
             break;
+        case eTest_Running:
+            Command += "Running";
+            break;
         }
 
         system(Command.c_str());

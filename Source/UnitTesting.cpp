@@ -144,7 +144,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
 
         // Run the phase
         auto missionStartTime = std::chrono::steady_clock::now();
-        auto res = g_Fodder->Mission_Loop();
+        g_Fodder->Mission_Loop();
         auto missionDuration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - missionStartTime);
 
         // If recording
