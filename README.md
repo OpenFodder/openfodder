@@ -73,14 +73,14 @@ Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com), direct
   
 ##### Demos
   
-Five Amiga magazine coverdisk demos are included in the data pack.  
+Five Amiga magazine coverdisk demos and one PC demo are included in the data pack.  
   
 * Amiga The One Issue #68: (Jun 1993)
 * Amiga Power   Issue #31: (Nov 1993) Cannon Fodder Plus
 * Amiga Action  Issue #51: (Dec 1993)
 * Amiga Format  Issue #54: (Dec 1993) Christmas Special (Cannon Soccer)
 * Amiga Format  Issue #68: (Feb 1995) Not Very Festive Fodder
-
+* PC    Format 	CD-ROM #1: (May 1994)
   
 #### Original Engine Bugs
 

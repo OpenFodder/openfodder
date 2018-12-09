@@ -86,9 +86,6 @@ const sGameVersion KnownGameVersions[] = {
     { "Cannon Fodder 2",				eGame::CF2, ePlatform::Amiga,	eRelease::Retail,	mIntroText_Amiga2,	"Amiga2",			mAmiga2Files,	 Retail_Tile_Types, Retail_GFX_Types },
     { "Cannon Fodder 2",				eGame::CF2, ePlatform::PC,		eRelease::Retail,	mIntroText_PC2,		"Dos2_CD",			mPC2Files,		 Retail_Tile_Types, Retail_GFX_Types },
 
-    /* PC Demos */
-    { "PC Format",                      eGame::CF1, ePlatform::PC,      eRelease::PCFormat, mIntroText_PC, "PCFormat", mPCFormatFiles, PCFormat_TileTypes, PCFormat_GFX_Types  },
-
     /* Amiga Magazine Demos */
     { "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		    mIntroText_Amiga,	"Plus",				mPlusFiles,			AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types },
     { "Amiga The One",                  eGame::CF1, ePlatform::Amiga,   eRelease::AmigaTheOne,          mIntroText_Amiga,   "AmigaTheOne",      mAmigaTheOneFiles,  AmigaTheOne_TileTypes, Amiga_Demo_GFX_Types },
@@ -96,7 +93,9 @@ const sGameVersion KnownGameVersions[] = {
     { "Amiga Format Christmas Special", eGame::CF1, ePlatform::Amiga,	eRelease::AmigaXMAS,		    mIntroText_Amiga,	"AmigaFormat_XMAS", mAmigaFormatFiles,	AmigaFormat_Tile_Types,  Amiga_Demo_GFX_Types },
     { "Amiga Format Not Very Festive",  eGame::CF2, ePlatform::Amiga,   eRelease::AmigaNotVeryFestive,  mIntroText_Amiga,   "AmigaFormat_NVF",      mAmigaFormat_NotVeryFestiveFiles,  AmigaPlus_Tile_Types, Amiga_Demo_GFX_Types},
 
-    
+    /* PC Demos */
+    { "PC Format",                      eGame::CF1, ePlatform::PC,      eRelease::PCFormat, mIntroText_PC, "PCFormat", mPCFormatFiles, PCFormat_TileTypes, PCFormat_GFX_Types  },
+
     /* Custom & Random must be last, as they depend on a previous retail version being detected first */
     { "Single Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
     { "Single Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	mIntroText_PC,      "Custom", { }, { } },
