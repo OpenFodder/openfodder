@@ -732,7 +732,7 @@ public:
     int16           Service_KIA_Troop_Prepare();
     int16           Service_Promotion_Prepare_Draw();
     void            Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank);
-    void            Service_Draw_String(const std::string& pText, const uint8* pFontWidth, const bool pLarge, const size_t pY);
+    void            Service_Draw_String(const std::string& pText, const bool pLarge, const size_t pY);
     void            Service_Draw_List();
     void            Service_ScrollUp_DrawList();
     void            Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC);

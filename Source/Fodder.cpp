@@ -9778,10 +9778,14 @@ int16 cFodder::Service_Promotion_Prepare_Draw() {
     return 0;
 }
 
-void cFodder::Service_Draw_String(const std::string& pText, const uint8* pFontWidth, const bool pLarge, const size_t pY) {
+void cFodder::Service_Draw_String(const std::string& pText, const bool pLarge, const size_t pY) {
 
-    String_CalculateWidth(0x140, pFontWidth, pText.c_str());
-    Service_Draw_String(pText, pFontWidth, pLarge ? 3 : 0, mGUI_Temp_X, pY);
+    const uint8* FontWidth = mFont_Briefing_Width;
+    if (pLarge)
+        FontWidth = mFont_ServiceName_Width;
+
+    String_CalculateWidth(0x140, FontWidth, pText.c_str());
+    Service_Draw_String(pText, FontWidth, pLarge ? 3 : 0, mGUI_Temp_X, (int16) pY);
 
 }
 
@@ -9803,7 +9807,7 @@ void cFodder::Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank) {
         tmpString << *si++;
     }
 
-    Service_Draw_String(tmpString.str(), mFont_ServiceName_Width, 3, mVideo_Draw_PosY + 6);
+    Service_Draw_String(tmpString.str(), true, (size_t) mVideo_Draw_PosY + 6);
 }
 
 void cFodder::Service_Promotion_Check() {

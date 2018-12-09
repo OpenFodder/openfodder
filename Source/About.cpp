@@ -52,12 +52,12 @@ cAbout::cAbout() {
     g_Fodder->mService_Draw_List.clear();
 
     g_Fodder->mGraphics->Load_Service_Data();
-    g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_SERVICE);
     g_Fodder->mGraphics->PaletteSet();
 
 
     for (auto& Text : AboutText) {
-        g_Fodder->Service_Draw_String(Text.mText, mFont_Briefing_Width, false, Text.mPosition);
+        g_Fodder->Service_Draw_String(Text.mText, false, Text.mPosition);
     }
 
     g_Fodder->mSound->Music_Play(PLATFORM_BASED(16, CANNON_BASED(16, 20)));

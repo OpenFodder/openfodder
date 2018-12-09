@@ -1087,8 +1087,8 @@ void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, co
 void cFodder::GUI_Button_Draw_SmallAt(const std::string pText, const size_t pX, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
     String_Print_Small(pText, pX, pY);
 
-    mGUI_Temp_X = pX;
-    mGUI_Temp_Y = pY;
+    mGUI_Temp_X = (int16) pX;
+    mGUI_Temp_Y = (int16) pY;
 
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
