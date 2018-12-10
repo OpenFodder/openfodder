@@ -2,7 +2,7 @@
 [![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder)
 [![Build status](https://ci.appveyor.com/api/projects/status/7pc2r2qe4niv4848?svg=true)](https://ci.appveyor.com/project/segrax/openfodder)
 
-![image](https://user-images.githubusercontent.com/1327406/35489590-9f823528-04ec-11e8-9f03-6d18b8d9b581.png)
+![image](https://user-images.githubusercontent.com/1327406/48664961-e33dc580-eafa-11e8-8d24-3b9a8074d2a2.png)
 
 #### About
 
@@ -14,7 +14,7 @@ control system. The player directs troops through numerous missions, battling en
 Open Fodder is an open source version of the Cannon Fodder engine, for modern operating systems.
   
 * Website: [http://openfodder.com](http://openfodder.com/)
-* Discord: [https://discord.gg/QapffKt](https://discord.gg/QapffKt)
+* Discord: [https://discord.gg/4mX2wFM](https://discord.gg/4mX2wFM)
 * Facebook: [https://www.facebook.com/openfodder/](https://www.facebook.com/openfodder/)
   
 #### Map Editor
@@ -46,6 +46,7 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
 * F11:   Toggle full screen  
 * +:     Increase window size
 * -:     Decrease window size
+  
 * ESC:   Back menu/abort phase
 * P:     Pause game
 * 1:     Select squad 1
