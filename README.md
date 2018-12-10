@@ -2,7 +2,7 @@
 [![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder)
 [![Build status](https://ci.appveyor.com/api/projects/status/7pc2r2qe4niv4848?svg=true)](https://ci.appveyor.com/project/segrax/openfodder)
 
-![image](https://user-images.githubusercontent.com/1327406/48664961-e33dc580-eafa-11e8-8d24-3b9a8074d2a2.png)
+![image](https://user-images.githubusercontent.com/1327406/49718991-f1bd6e00-fcaf-11e8-88e3-68136828c2d1.png)
 
 #### About
 

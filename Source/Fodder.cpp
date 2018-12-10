@@ -3984,7 +3984,7 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
     GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
 
-    GUI_Button_Draw_SmallAt("ABOUT", 0x05, 0xB3 + YOffset);
+    GUI_Button_Draw_SmallAt("ABOUT", 0xA, 0xB3 + YOffset);
     GUI_Button_Setup_Small(&cFodder::GUI_Button_Show_About);
 
 

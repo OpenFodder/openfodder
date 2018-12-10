@@ -24,7 +24,12 @@
 #include "gitver.hpp"
 
 static std::string compiled = std::string(__DATE__) + " AT " + std::string(__TIME__);
-static std::string version = "" + std::string(gitversion);
+static std::string version = "VERSION " + std::string(gitversion);
+
+const size_t TEXTPOS_BUILD    = 250;
+const size_t TEXTPOS_TEAM     = 400;
+const size_t TEXTPOS_THANKS   = 550;
+const size_t TEXTPOS_POWERED  = 660;
 
 cAbout::cAbout() {
     std::transform(compiled.begin(), compiled.end(), compiled.begin(), ::toupper);
@@ -32,16 +37,43 @@ cAbout::cAbout() {
     std::replace(compiled.begin(), compiled.end(), ':', ' ');
 
     std::vector<sIntroString> AboutText = {
-        { 250, "BUILD VERSION"},
-        { 260, version.c_str()},
-        { 270, compiled.c_str()},
-        { 300, "AUTHORS" },
-        { 310, "ROBERT CROSSFIELD" },
-        { 320, "ALESSANDRO PETRALIA" },
-        { 360, "THANKS TO" },
-        { 370, "SENSIBLE SOFTWARE"},
-        { 380, ""},
+        { TEXTPOS_BUILD + 0 , "OPEN FODDER"},
+        //{ TEXTPOS_BUILD + 10 , "BUILD VERSION "},
+        { TEXTPOS_BUILD + 10, version.c_str()},
+        { TEXTPOS_BUILD + 20, compiled.c_str()},
+        { TEXTPOS_BUILD + 30, "WWW DOT OPENFODDER DOT COM"},
 
+        { TEXTPOS_TEAM + 0 ,  "THE TEAM" },
+        { TEXTPOS_TEAM + 20 , "PROJECT LEAD" },
+        { TEXTPOS_TEAM + 30,  "ROBERT CROSSFIELD" },
+
+        { TEXTPOS_TEAM + 80, "TESTING" },
+        { TEXTPOS_TEAM + 90, "ALESSANDRO PETRALIA" },
+
+        { TEXTPOS_THANKS + 0 , "THANKS TO" },
+        { TEXTPOS_THANKS + 10, "SENSIBLE SOFTWARE"},
+        { TEXTPOS_THANKS + 20, "CLAIRE CROSSFIELD"},
+        { TEXTPOS_THANKS + 30, "LACHIE CROSSFIELD"},
+        { TEXTPOS_THANKS + 40, "RILEY ELLETT"},
+        { TEXTPOS_THANKS + 50, "SCUMMVM"},
+
+        { TEXTPOS_POWERED + 0,  "POWERED BY"},
+        { TEXTPOS_POWERED + 10, "CPP14"},
+        { TEXTPOS_POWERED + 20, "SDL2"},
+
+        // Just for fun: loc_2B48E
+        { 1100, "PUSH CX"},
+        { 1110, "PUSH SI"},
+        { 1120, "PUSH DI"},
+        { 1130, "MOV CX 16H"},
+
+        { 1150, "MOV BX ES SI"},
+        { 1160, "AND BX 1FFH"},
+        { 1170, "PUSH CS"},
+        { 1180, "CALL SUB 2B4B8"},
+        { 1190, "ADD SI 2"},
+
+        { 1500, "W W W  DOT  O P E N F O D D E R  DOT  C O M"}
     };
 
     mSurface = new cSurface(0, 0);
