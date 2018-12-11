@@ -48,7 +48,8 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
 * F2:    Switch to PC version (if available)
 * F11:   Toggle full screen
 * +:     Increase window size
-* -:     Decrease window size
+* -:     Decrease window size  
+  
 * ESC:   Back menu/abort phase
 * P:     Pause game
 * 1:     Select squad 1
