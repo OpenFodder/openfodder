@@ -278,11 +278,12 @@ void cSurface::clearBuffer(uint8 pColor) {
 }
 
 bool cSurface::LoadBitmap(const std::string& pFile) {
-    
-    SDL_FreeSurface(mSDLSurface);
-    mSDLSurface = SDL_LoadBMP(pFile.c_str());
-    if (!mSDLSurface)
+    auto Surface = SDL_LoadBMP(pFile.c_str());
+    if (!Surface)
         return false;
+
+    SDL_FreeSurface(mSDLSurface);
+    mSDLSurface = Surface;
 
     mIsLoadedImage = true;
     mWidth = mSDLSurface->w;
