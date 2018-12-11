@@ -15,7 +15,8 @@ Open Fodder is an open source version of the Cannon Fodder engine, for modern op
   
 * Website: [http://openfodder.com](http://openfodder.com/)
 * Discord: [https://discord.gg/4mX2wFM](https://discord.gg/4mX2wFM)
-* Facebook: [https://www.facebook.com/openfodder/](https://www.facebook.com/openfodder/)
+* Facebook:[https://www.facebook.com/openfodder/](https://www.facebook.com/openfodder/)
+* Twitter: [https://twitter.com/segrax](https://twitter.com/segrax)
   
 #### Map Editor
 
@@ -33,6 +34,7 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for the campaign a
 
 Please see [INSTALL.md](https://github.com/OpenFodder/openfodder/blob/master/INSTALL.md)
   
+For the most recent Windows build, you may obtain the executable built during testing from [Here](https://s3.amazonaws.com/openfodder-builds/OpenFodder-latest.zip) 
   
 #### How to play
 

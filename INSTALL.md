@@ -9,6 +9,8 @@ Open Fodder requires campaign and mission information, as well as the data files
 
 #### Windows
 
+Download the [installer package](https://github.com/OpenFodder/openfodder/releases).  
+
 The Windows version of Open Fodder defaults to using and installing data to the location '%USERPROFILE%/Documents/OpenFodder'.  
 While the demos will be installed as part of the Windows installer package, you will be required to copy a full retail release into this folder (following the instructions below, or when prompted to select it during the installer)
   
