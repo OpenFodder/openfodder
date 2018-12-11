@@ -1,5 +1,5 @@
 
-![image](https://user-images.githubusercontent.com/1327406/35489590-9f823528-04ec-11e8-9f03-6d18b8d9b581.png)
+![image](https://user-images.githubusercontent.com/1327406/49718991-f1bd6e00-fcaf-11e8-88e3-68136828c2d1.png)
 
 ### About
 Cannon Fodder is an action-strategy shoot 'em up game developed by Sensible Software and published by Virgin Interactive.
