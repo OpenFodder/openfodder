@@ -21,12 +21,11 @@ The latest release of the editor is available [here](https://github.com/OpenFodd
 Ports for OpenBSD and RetroPie are available, and the game should compile on most *nix distributions
 
 ### Media
+[Open Fodder 1.5 Video](https://youtu.be/f16FarouchY)  
 [Open Fodder 1.4 Video](https://youtu.be/jb4TmM9zcr4)  
-[Open Fodder 1.3 Video - Custom: Segra's First](https://www.youtube.com/watch?v=D0Ap38IYVUU)  
 [Open Fodder 1.3 Video - Amiga Format Special](https://www.youtube.com/watch?v=aSGOTSw-LlI)  
 [Open Fodder 0.8 Video](https://www.youtube.com/watch?v=7AjELdOzoaw)  
-[Open Fodder 0.7 Video](https://www.youtube.com/watch?v=c9iu7Jwm3Ak)  
-[Open Fodder 0.6 Video](https://youtu.be/lHSw2vQDbfI)  
+
 
 
 ### Authors and Contributors
