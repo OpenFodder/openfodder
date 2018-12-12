@@ -85,13 +85,6 @@ Five Amiga magazine coverdisk demos and one PC demo are included in the data pac
 * Amiga Format  Issue #68: (Feb 1995) Not Very Festive Fodder
 * PC    Format 	CD-ROM #1: (May 1994)
   
-#### Original Engine Bugs
-
-Issues in the original engine which have been fixed  
-  
-* Squad 2 and 3 grenade and rocket count did not refresh after use.
-* Camera pan could never finish, if the mouse was kept in the sidebar while changing squads
-  
 #### Thanks To
 
 Sensible Software, for the original game  
