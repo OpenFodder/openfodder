@@ -115,14 +115,27 @@ Section "Copy Files" drcreepInst
 			
 	${EndIf}
 	
-	nsDialogs::SelectFolderDialog "Please locate your Amiga WHDLoad release of Cannon Fodder" "C:\"
+	nsDialogs::SelectFolderDialog "Please locate your GOG or DOS CD-Rom release of Cannon Fodder 2" "C:\"
+	Pop $0
+	${If} $0 != "error"
+		IfFileExists $0\CF_ENG.DAT 0 +2
+			CopyFiles "$0\*.*" "$PROFILE\Documents\OpenFodder\Data\Dos2_CD"
+			
+	${EndIf}
+	nsDialogs::SelectFolderDialog "Please locate your extracted Amiga release of Cannon Fodder" "C:\"
 	Pop $0
 	${If} $0 != "error"
 		IfFileExists $0\CFTITLE.RAW 0 +2
 			CopyFiles "$0\*.*" "$PROFILE\Documents\OpenFodder\Data\Amiga"
 	${EndIf}
 	
-  NoOpenData:
+	nsDialogs::SelectFolderDialog "Please locate your extracted Amiga release of Cannon Fodder 2" "C:\"
+	Pop $0
+	${If} $0 != "error"
+		IfFileExists $0\CFTITLE.RAW 0 +2
+			CopyFiles "$0\*.*" "$PROFILE\Documents\OpenFodder\Data\Amiga2"
+	${EndIf}
+
 SectionEnd 
 
 ;--------------------------------
