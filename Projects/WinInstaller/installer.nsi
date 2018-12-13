@@ -186,11 +186,7 @@ Section "Uninstall"
     Delete "$INSTDIR\Readme.md"
     Delete "$INSTDIR\SDL2.dll"
 	Delete "$INSTDIR\SDL2_mixer.dll"
-    Delete "$INSTDIR\data\*"
-    Delete "$INSTDIR\data\castles\*"
 
-	RMDir "$INSTDIR\data\castles"
-	RMDir "$INSTDIR\data"
 	RMDir "$INSTDIR"
 		
 	IfFileExists $INSTDIR 0 no 
