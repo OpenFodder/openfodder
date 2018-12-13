@@ -175,7 +175,6 @@ void cSound_PC2::MixerChannelFinished( int32 pChannel ) {
     });
 
     mMixerChunks.erase(end, mMixerChunks.end());
-
 }
 
 void cSound_PC2::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume) {
@@ -189,13 +188,12 @@ void cSound_PC2::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume) 
         return;
 
     chunk = mSoundEffects[map.mEffectID];
-
     if (!chunk) {
         return;
     }
+
     auto Channel = Mix_PlayChannel(-1, chunk, 0);
     Mix_Volume(Channel, 100 - pVolume);
-
     mMixerChunks.push_back({ Channel, chunk });
 }
 
