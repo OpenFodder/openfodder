@@ -20,25 +20,19 @@
  *
  */
 
-struct sVocPlaying {
-	int32		mChannel;
-	Mix_Chunk*	mCurrentChunk;
-};
-
 class cSound_PC : public cSound {
 	bool					mSound;
 
 	Mix_Music*				mMusicPlaying;
 	
-
-	std::vector<sVocPlaying> mMixerChunks;
+	std::vector<sChunkPlaying> mMixerChunks;
 
 	tSharedBuffer *			word_42316[7];
-	tSharedBuffer 				dword_42320[0x3C];
-	tSharedBuffer 				dword_42410[0x3C];
-	tSharedBuffer 				dword_42500[0x3C];
-	tSharedBuffer 				dword_425F0[0x3C];
-	tSharedBuffer 				dword_426E0[0x3C];
+	tSharedBuffer 			dword_42320[0x3C];
+	tSharedBuffer 			dword_42410[0x3C];
+	tSharedBuffer 			dword_42500[0x3C];
+	tSharedBuffer 			dword_425F0[0x3C];
+	tSharedBuffer 			dword_426E0[0x3C];
 
 	private:
 	bool					devicePrepare();

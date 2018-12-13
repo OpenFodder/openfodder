@@ -101,7 +101,7 @@ bool cSound_PC::devicePrepare() {
 
 void cSound_PC::MixerChannelFinished( int32 pChannel ) {
 
-	for (std::vector<sVocPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
+	for (std::vector<sChunkPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
 		
 		if (ChannelIT->mChannel == pChannel) {
 			Mix_FreeChunk( ChannelIT->mCurrentChunk );
@@ -113,7 +113,7 @@ void cSound_PC::MixerChannelFinished( int32 pChannel ) {
 }
 
 void cSound_PC::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume ) {
-	sVocPlaying Playing;
+	sChunkPlaying Playing;
 	auto eax = word_42316[pTileset][pSoundEffect];
 	if (!eax || !eax->size() || mSound == false )
 		return;

@@ -31,6 +31,11 @@ enum eSound_Effect {
 	eSound_Effect_Rocket			= 0x2E,
 };
 
+struct sChunkPlaying {
+    int32		mChannel;
+    Mix_Chunk*	mCurrentChunk;
+};
+
 class cSound {
 
 	virtual bool		devicePrepare() = 0;

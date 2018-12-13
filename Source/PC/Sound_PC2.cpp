@@ -22,6 +22,91 @@
 
 #include "stdafx.hpp"
 
+const char* gSoundEffects[] = {
+    "BIRD.SMP",
+    "DIE1.SMP",
+    "DIE2.SMP",
+    "DIE3.SMP",
+    "DUCK.SMP",
+    "ENGINE.SMP",
+    "EXPLOSN.SMP",
+    "GRENADE.SMP",
+    "GUN.SMP",      // 0x11
+    "HELI.SMP",
+    "MGUN.SMP",
+    "MISSILE.SMP",
+    "SHEEP.SMP",
+    "ROOK.SMP",
+};
+
+sSoundMap stru_496DB[] = {
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { 6, 6302 },
+  { 6, 6302 },
+  { 6, 8363 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { 1, 8363 },
+  { 2, 8363 },
+  { 3, 8363 },
+  { -1, -1 },
+  { 7, 8363 },
+  { 8, 8363 },
+  { 8, 8363 },
+  { -1, -1 },
+  { -1, -1 },
+  { 1, 8363 },
+  { 2, 8363 },
+  { 3, 8363 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { 10, 8363 },
+  { 11, 16726 },
+  { 11, 16726 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+};
+
 void Mixer_ChannelFinished2(int32 pChannel) {
 
     g_Fodder->GetSound<cSound_PC2>()->MixerChannelFinished( pChannel );
@@ -33,7 +118,7 @@ cSound_PC2::cSound_PC2() {
 	mMusicPlaying = 0;
 
     devicePrepare();
-
+    Sound_Voc_Load();
 }
 
 cSound_PC2::~cSound_PC2() {
@@ -43,6 +128,25 @@ cSound_PC2::~cSound_PC2() {
 
 void cSound_PC2::Sound_Voc_Load() {
 
+    for (auto File : gSoundEffects) {
+
+        auto file = g_Resource->fileGet(File);
+
+        SDL_AudioCVT cvt;
+        SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, 8000, AUDIO_U8, 2, 22050);
+        SDL_assert(cvt.needed);
+
+        cvt.len = file->size();
+        cvt.buf = (Uint8 *)SDL_malloc(cvt.len * cvt.len_mult);
+
+        memcpy(cvt.buf, file->data(), file->size());
+
+        SDL_ConvertAudio(&cvt);
+
+        Mix_Chunk* chunk = Mix_QuickLoad_RAW(cvt.buf, cvt.len_cvt);
+        mSoundEffects.push_back(chunk);
+        //SDL_free(cvt.buf);
+    }
 }
 
 // Prepare the local audio device
@@ -66,10 +170,33 @@ bool cSound_PC2::devicePrepare() {
 
 void cSound_PC2::MixerChannelFinished( int32 pChannel ) {
 
+    auto end = std::remove_if(mMixerChunks.begin(), mMixerChunks.end(), [pChannel](auto& a) {
+        return a.mChannel == pChannel;
+    });
+
+    mMixerChunks.erase(end, mMixerChunks.end());
+
 }
 
-void cSound_PC2::Sound_Play( int16 pBx, int16 pData4, int16 pData8 ) {
+void cSound_PC2::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume) {
+    Mix_Chunk* chunk = 0;
 
+    if (pSoundEffect >= 65)
+        return;
+
+    auto map = stru_496DB[pSoundEffect];
+    if (map.mEffectID == -1)
+        return;
+
+    chunk = mSoundEffects[map.mEffectID];
+
+    if (!chunk) {
+        return;
+    }
+    auto Channel = Mix_PlayChannel(-1, chunk, 0);
+    Mix_Volume(Channel, 100 - pVolume);
+
+    mMixerChunks.push_back({ Channel, chunk });
 }
 
 void cSound_PC2::Music_PlayFile( const char* pFilename ) {

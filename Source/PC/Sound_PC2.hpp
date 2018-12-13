@@ -20,11 +20,17 @@
  *
  */
 
+struct sSoundMap {
+    int16 mEffectID;
+    int16 mUnk;
+};
 
 class cSound_PC2 : public cSound {
 	bool					mSound;
 
-	Mix_Music*				mMusicPlaying;
+    Mix_Music*				    mMusicPlaying;
+    std::vector<sChunkPlaying>  mMixerChunks;
+    std::vector<Mix_Chunk*>     mSoundEffects;
 
 	private:
 	bool					devicePrepare();
