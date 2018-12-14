@@ -83,6 +83,10 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
         ToggleFullscreen();
         CalculateWindowSize();
     }
+    else {
+        ToggleFullscreen();
+        ToggleFullscreen();
+    }
 
 
 	return true;
