@@ -55,6 +55,7 @@ int start(int argc, char *argv[]) {
         ("h,help",        "Help",                 cxxopts::value<bool>()->default_value("false")  )
         ("pc",            "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
         ("amiga",         "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
+        ("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 
         ("demo-record",   "Record Demo",    cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
         ("demo-record-all", "Record Demo")
@@ -67,13 +68,12 @@ int start(int argc, char *argv[]) {
         ("nosound",       "Disable sound output", cxxopts::value<bool>()->default_value("false"))
         ("playground",    "Sprite playground", cxxopts::value<bool>()->default_value("false"))
 
-        ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
         ("skipintro",      "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
         ("skipbriefing",   "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
         ("skipservice",    "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
 
-        ("w,window",    "Start in window mode", cxxopts::value<bool>()->default_value("false")  )
 
+        ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
         ("c,campaign",  "Starting campaign",        cxxopts::value<std::string>()->default_value(""), "\"name\"" )
         ("m,mission",   "Starting mission",         cxxopts::value<std::uint32_t>()->default_value("0"), "1" )
         ("p,phase",     "Starting phase",           cxxopts::value<std::uint32_t>()->default_value("0"), "2" )

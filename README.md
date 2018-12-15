@@ -52,6 +52,7 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
   -h, --help                    Help  
       --pc                      Default to PC platform data  
       --amiga                   Default to Amiga platform data  
+  -w, --window                  Start in window mode  
       --demo-record "Demo File"
                                 Record Demo (default: )  
       --demo-record-all         Record Demo  
@@ -60,11 +61,10 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
       --unit-test-headless      Run Tests, with no output  
       --nosound                 Disable sound output  
       --playground              Sprite playground  
-      --list-campaigns          List available campaigns  
       --skipintro               Skip all game intros  
       --skipbriefing            Skip mission briefing  
       --skipservice             Skip mission debriefing  
-  -w, --window                  Start in window mode  
+      --list-campaigns          List available campaigns  
   -c, --campaign "name"         Starting campaign (default: )  
   -m, --mission 1               Starting mission (default: 0)  
   -p, --phase 2                 Starting phase (default: 0)  
