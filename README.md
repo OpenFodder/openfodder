@@ -1,6 +1,8 @@
 # Open Fodder
 [![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder)
 [![Build status](https://ci.appveyor.com/api/projects/status/7pc2r2qe4niv4848?svg=true)](https://ci.appveyor.com/project/segrax/openfodder)
+  
+[Discord](https://discord.gg/4mX2wFM)  
 
 ![image](https://user-images.githubusercontent.com/1327406/49718991-f1bd6e00-fcaf-11e8-88e3-68136828c2d1.png)
 
@@ -30,6 +32,7 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for the campaign a
 [Open Fodder 1.3 Video - Amiga Format Special](https://www.youtube.com/watch?v=aSGOTSw-LlI)  
 [Open Fodder 0.8 Video](https://www.youtube.com/watch?v=7AjELdOzoaw)  
 
+[Open Fodder Smoke Testing](https://youtu.be/z-Lct_oxu0k)
 
 #### Installation
 
@@ -41,25 +44,54 @@ For the most recent Windows build, you may obtain the executable built during te
 
 Open Fodder supports five demos from the Amiga platform, and three retail releases (See below for supported versions).
   
+##### Command Line Parameters
+```
+  OpenFodder [OPTION...]  
+  
+      --about                   About  
+  -h, --help                    Help  
+      --pc                      Default to PC platform data  
+      --amiga                   Default to Amiga platform data  
+      --demo-record "Demo File"
+                                Record Demo (default: )  
+      --demo-record-all         Record Demo  
+      --demo-play "Demo File"   Play Demo (default: )  
+      --unit-test               Run Tests  
+      --unit-test-headless      Run Tests, with no output  
+      --nosound                 Disable sound output  
+      --playground              Sprite playground  
+      --list-campaigns          List available campaigns  
+      --skipintro               Skip all game intros  
+      --skipbriefing            Skip mission briefing  
+      --skipservice             Skip mission debriefing  
+  -w, --window                  Start in window mode  
+  -c, --campaign "name"         Starting campaign (default: )  
+  -m, --mission 1               Starting mission (default: 0)  
+  -p, --phase 2                 Starting phase (default: 0)  
+  -r, --random                  Generate and play a random map  
+```
   
 ##### Hot Keys
   
+```
 * F1:    Switch to Amiga version (if available)
 * F2:    Switch to PC version (if available)
 * F11:   Toggle full screen
 * +:     Increase window size
 * -:     Decrease window size  
+
 * ESC:   Back menu/abort phase
 * P:     Pause game
 * 1:     Select squad 1
 * 2:     Select squad 2
 * 3:     Select squad 3
 * Space: Switch weapon
-  
+```
   
 #### Purchasing the retail release
 
 Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com), directly at [Cannon Fodder](http://www.gog.com/game/cannon_fodder) and [Cannon Fodder 2](http://www.gog.com/game/cannon_fodder_2)  
+  
   
 #### Supported Versions
   
