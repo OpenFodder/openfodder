@@ -101,6 +101,7 @@ cAbout::~cAbout() {
 }
 
 bool cAbout::Cycle() {
+
     g_Fodder->GUI_Element_Reset();
 
     g_Fodder->mSurface->palette_FadeTowardNew();
@@ -115,7 +116,7 @@ bool cAbout::Cycle() {
         g_Fodder->String_Print_Large("Open Fodder", true, 0x01);
         g_Fodder->mString_GapCharID = 0x00;
 
-        g_Fodder->GUI_Button_Draw_Small("BACK", 0xD3);
+        g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + PLATFORM_BASED(0, 25));
         g_Fodder->GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
     }
 

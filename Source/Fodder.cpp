@@ -9813,7 +9813,10 @@ void cFodder::Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank) {
 void cFodder::Service_Promotion_Check() {
     auto* Troop = &mGame_Data.mSoldiers_Allocated[0];
 
-    for( size_t x = 0; x < mService_Draw_List.size(); ++x) {
+    if (!mService_Draw_List.size())
+        return;
+
+    for( size_t x = 0; x < mService_Draw_List.size() - 1; ++x) {
         auto Draw = &mService_Draw_List[x];
 
         if (Draw->mSpriteType != 2)
@@ -9840,7 +9843,7 @@ void cFodder::Service_Draw_List() {
 
     for(auto& Draw : mService_Draw_List) {
 
-        if (Draw.mY < 16)
+        if (Draw.mY < 8)
             continue;
 
         Service_Sprite_Draw(Draw.mSpriteType, Draw.mFrame, Draw.mX, Draw.mY);
@@ -9859,7 +9862,10 @@ void cFodder::Service_ScrollUp_DrawList() {
 
     }
 
-    std::remove_if(mService_Draw_List.begin(), mService_Draw_List.end(), [](auto pVal) { return pVal.mY < -48; });
+    auto remove = std::remove_if(mService_Draw_List.begin(), mService_Draw_List.end(), [](auto pVal) 
+    { return pVal.mY < -48; });
+
+    mService_Draw_List.erase(remove, mService_Draw_List.end());
 }
 
 void cFodder::Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC) {
@@ -18594,6 +18600,7 @@ void cFodder::Window_UpdateScreenSize() {
 
 void cFodder::About() {
     
+    mService_Draw_List.clear();
     VersionSwitch(mVersions->GetRetail(mParams.mDefaultPlatform));
     if (!mVersionCurrent)
         VersionSwitch(mVersions->GetDemo());
