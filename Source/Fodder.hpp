@@ -274,7 +274,7 @@ public:
 
     int16           mGUI_Squad_Icon[3];
 
-    int16           mTroops_Enemy_Count;
+	size_t           mTroops_Enemy_Count;
     int16           mHostage_Count;
     sSprite*        mHostage_Rescue_Tent;
 

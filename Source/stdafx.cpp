@@ -59,6 +59,7 @@ int start(int argc, char *argv[]) {
 
 		("max-sprite",	  "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
 		("max-spawn",	  "Set the maximum spawn", cxxopts::value<std::uint32_t>()->default_value("10"), "10")
+		("sleep-delta",	  "Set the engine speed", cxxopts::value<std::uint32_t>()->default_value("2"), "2")
 
         ("demo-record",   "Record Demo",    cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
         ("demo-record-all", "Record Demo")
@@ -137,6 +138,7 @@ int start(int argc, char *argv[]) {
 
 		Params.mSpritesMax = result["max-sprite"].as<uint32_t>();
 		Params.mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
+		Params.mSleepDelta = result["sleep-delta"].as<uint32_t>();
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
             Params.mSkipRecruit = true;
