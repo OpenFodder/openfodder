@@ -144,7 +144,6 @@
     <ClInclude Include="..\..\Source\GameData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
     <ClInclude Include="..\..\Source\Utils\cxxopts.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
@@ -163,9 +162,7 @@
     <ClInclude Include="..\..\Source\About.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\gitver.h">
-      <Filter>Source</Filter>
-    </ClInclude>
+    <ClInclude Include="..\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -278,12 +275,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="..\openfodder.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="OpenFodder.rc" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OpenFodder.rc" />
   </ItemGroup>
 </Project>

@@ -79,6 +79,7 @@ Section "Copy Files" drcreepInst
   File "..\VS2017\Release\OpenFodder.exe"
   File "..\VS2017\Release\SDL2.dll"
   File "..\VS2017\Release\SDL2_mixer.dll"
+  File "..\VS2017\Release\libmodplug-1.dll"
   
   SetOutPath "$PROFILE\Documents\OpenFodder"
   File /r "..\..\Run\Campaigns"
