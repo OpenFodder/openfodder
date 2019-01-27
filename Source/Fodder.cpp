@@ -8776,7 +8776,7 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
 
     pData24 = mSprites.data();
 
-    for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pData24) {
+    for (int32 Data1C = mParams.mSpritesMax - 2; Data1C >= 0; --Data1C, ++pData24) {
         int16 Data4 = pData24->field_18;
 
         if (!mSprite_Can_Be_RunOver[Data4])
