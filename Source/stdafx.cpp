@@ -58,6 +58,8 @@ int start(int argc, char *argv[]) {
         ("w,window",	  "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 
 		("max-sprite",	  "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
+		("max-spawn",	  "Set the maximum spawn", cxxopts::value<std::uint32_t>()->default_value("10"), "10")
+
         ("demo-record",   "Record Demo",    cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
         ("demo-record-all", "Record Demo")
         ("demo-play",     "Play Demo",      cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
@@ -134,6 +136,7 @@ int start(int argc, char *argv[]) {
         Params.mPlayground = result["playground"].as<bool>();
 
 		Params.mSpritesMax = result["max-sprite"].as<uint32_t>();
+		Params.mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
             Params.mSkipRecruit = true;

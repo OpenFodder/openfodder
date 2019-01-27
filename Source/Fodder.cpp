@@ -975,8 +975,7 @@ void cFodder::Squad_Set_Squad_Leader() {
 }
 
 void cFodder::Sprite_Clear_All() {
-	mSpritesMax = mParams.mSpritesMax;
-	mSprites.resize(mSpritesMax);
+	mSprites.resize(mParams.mSpritesMax);
 
     for (auto& Sprite : mSprites) {
         Sprite_Clear(&Sprite);
@@ -1534,6 +1533,7 @@ void cFodder::Phase_Soldiers_Count() {
     mGame_Data.mGamePhase_Data.mSoldiers_Required = 0;
     sSprite* Sprite = mSprites.data();
 
+	// TODO: This counter needs fixing
     // How many player sprites are on this map
     for (int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount, ++Sprite) {
         if (Sprite->field_0 != -32768) {
@@ -1670,6 +1670,7 @@ void cFodder::Phase_Soldiers_AttachToSprites() {
     sSprite* Sprite = mSprites.data();
     sMission_Troop* Troop = mGame_Data.mSoldiers_Allocated;
 
+	// TODO: This counter needs fixing
     // Loop the game sprites looking for 'player' sprite
     for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, ++Sprite) {
 
@@ -2594,12 +2595,13 @@ void cFodder::Sprite_Bullet_SetData() {
 
 void cFodder::Phase_Goals_Check() {
 
-    sSprite* Data20 = mSprites.data();
     int16 Data8 = 0;
     int16 DataC = 0;
     int16 Data0 = 0x2B;
 
-    for (Data0 = 0x2B; Data0 >= 0; --Data0, ++Data20) {
+	for (auto& Sprite : mSprites) {
+		sSprite* Data20 = &Sprite;
+
         if (Data20->field_0 == -32768)
             continue;
 
@@ -4821,6 +4823,7 @@ void cFodder::Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC,
 
     sSprite* Sprite = mSprites.data();
 
+	// TODO: Fix counter
     for (int16 Count = 0x1D; Count >= 0; --Count, ++Sprite) {
         if (Sprite->field_0 == -32768)
             continue;
@@ -5639,7 +5642,7 @@ loc_2439F:;
 
 NextSprite:;
     pSprite->field_5E++;
-    if (pSprite->field_5E >= (mSpritesMax - 2))
+    if (pSprite->field_5E >= (mParams.mSpritesMax - 2))
         pSprite->field_5E = 0;
 
     goto loc_243DD;
@@ -7048,7 +7051,7 @@ void cFodder::Sprite_Handle_Hostage_FrameUpdate(sSprite* pSprite) {
 
 void cFodder::sub_26490(sSprite* pSprite) {
     ++pSprite->field_5E;
-    if (pSprite->field_5E >= (mSpritesMax - 2))
+    if (pSprite->field_5E >= (mParams.mSpritesMax - 2))
 		pSprite->field_5E = 0;
 }
 
@@ -7066,7 +7069,7 @@ void cFodder::sub_264B0(sSprite* pSprite) {
 
 loc_264CF:;
 
-    if (mTroops_Enemy_Count >= 0x0A) {
+    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
         pSprite->field_8 = 0x9B;
         return;
     }
@@ -7271,7 +7274,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
     if (mPhase_Complete)
         return -1;
 
-    if (mTroops_Enemy_Count >= 0x0A)
+    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax)
         return -1;
 
     int16 Data0 = 1;
@@ -10176,7 +10179,7 @@ void cFodder::Sprite_Frame_Modifier_Update() {
 void cFodder::Sprite_Handle_Loop() {
     sSprite* Data20 = mSprites.data();
 
-    for (int16 Data1C = 0x2B; Data1C > 0; --Data1C, ++Data20) {
+    for (int16 Data1C = mParams.mSpritesMax - 2; Data1C > 0; --Data1C, ++Data20) {
 
         if (Data20->field_0 == -32768)
             continue;
@@ -10287,7 +10290,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
     loc_1901C:;
         pSprite->field_4A = 0;
         pSprite->field_5E++;
-        if (pSprite->field_5E >= (mSpritesMax - 2))
+        if (pSprite->field_5E >= (mParams.mSpritesMax - 2))
 			pSprite->field_5E = 0;
 
         goto loc_191C3;
@@ -11472,7 +11475,7 @@ void cFodder::Sprite_Handle_BuildingDoor(sSprite* pSprite) {
     if (Sprite_Handle_BuildingDoor_Explode(pSprite))
         return;
 
-    if (mTroops_Enemy_Count >= 0x0A) {
+    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
         pSprite->field_8 = 0x99;
         return;
     }
@@ -11721,7 +11724,7 @@ void cFodder::Sprite_Handle_BuildingDoor2(sSprite* pSprite) {
     if (sub_222A3(pSprite))
         return;
 
-    if (mTroops_Enemy_Count >= 0x0A) {
+    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
         pSprite->field_8 = 0x9B;
         return;
     }
@@ -13656,7 +13659,7 @@ void cFodder::Sprite_Handle_BuildingDoor3(sSprite* pSprite) {
     if (sub_1D92E(pSprite))
         return;
 
-    if (mTroops_Enemy_Count >= 0x0A) {
+    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
         pSprite->field_8 = 0xE0;
         return;
     }
@@ -17233,7 +17236,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
             pData2C = mSprites.data();
 
             // Loop all sprites
-            for (int16 Data1C = 40; Data1C >= 0; --Data1C, ++pData2C) {
+            for (int16 Data1C = mParams.mSpritesMax - 5; Data1C >= 0; --Data1C, ++pData2C) {
 
                 // Sprite free?
                 if (pData2C->field_0 != -32768)
@@ -17257,7 +17260,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
             pData2C = mSprites.data();
 
             // Loop all sprites
-            for (int16 Data1C = 41; Data1C >= 0; --Data1C, ++pData2C) {
+            for (int16 Data1C = mParams.mSpritesMax - 4; Data1C >= 0; --Data1C, ++pData2C) {
 
                 // Sprite free?
                 if (pData2C->field_0 != -32768)
@@ -17276,9 +17279,9 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
         }
         else {
             // Only looking for 1 sprite
-            pData2C = &mSprites[42];
+            pData2C = &mSprites[mParams.mSpritesMax - 3];
 
-            for (int16 Data1C = 42; Data1C >= 0; --Data1C) {
+            for (int16 Data1C = mParams.mSpritesMax - 3; Data1C >= 0; --Data1C) {
 
                 // Free?
                 if (pData2C->field_0 == -32768) {
@@ -17307,8 +17310,8 @@ int16 cFodder::Sprite_Get_Free_Max29(int16& pData0, sSprite*& pData2C, sSprite*&
     if (pData0 == 2)
         goto loc_21B91;
 
-    pData2C = &mSprites[29];
-    for (int16 Data1C = 29; Data1C >= 0; --Data1C, --pData2C) {
+    pData2C = &mSprites[mParams.mSpritesMax - 16];
+    for (int16 Data1C = mParams.mSpritesMax - 16; Data1C >= 0; --Data1C, --pData2C) {
 
         if (pData2C->field_0 == -32768) {
             Sprite_Clear(pData2C);
@@ -17327,7 +17330,7 @@ loc_21B4B:;
 loc_21B91:;
     pData2C = mSprites.data();
 
-    for (int16 Data1C = 28; Data1C >= 0; --Data1C, ++pData2C) {
+    for (int16 Data1C = mParams.mSpritesMax - 17; Data1C >= 0; --Data1C, ++pData2C) {
 
         if (pData2C->field_0 != -32768)
             continue;
@@ -17746,7 +17749,7 @@ int16 cFodder::Sprite_Create_Building_Explosion(sSprite* pData2C, int16& pX, int
 
 int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
 
-    if (mPhase_Complete || mTroops_Enemy_Count >= 0x0A)
+    if (mPhase_Complete || mTroops_Enemy_Count >= mParams.mSpawnEnemyMax)
         return -1;
     int16 Data0 = 1;
     sSprite* Data30 = 0;
@@ -18376,8 +18379,7 @@ int16 cFodder::Sprite_Homing_LockInRange(sSprite* pSprite, sSprite*& pFoundSprit
 
     MouseY += 0x08;
 
-    pFoundSprite = mSprites.data();
-    for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pFoundSprite) {
+	for (pFoundSprite = mSprites.data(); pFoundSprite < (&*mSprites.end()); ++pFoundSprite) {
 
         if (pFoundSprite->field_0 == -32768)
             continue;

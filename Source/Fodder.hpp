@@ -105,7 +105,6 @@ public:
     
     sSprite                 mSprite_Spare;
     std::vector<sSprite>    mSprites;
-	size_t					mSpritesMax;
 
     const sSpriteSheet**    mSprite_SheetPtr;
 

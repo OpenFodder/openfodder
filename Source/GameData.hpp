@@ -52,6 +52,7 @@ struct sFodderParameters {
     bool mDisableSound;             // Disable all sound
 
 	size_t mSpritesMax;
+	size_t mSpawnEnemyMax;
 
     sFodderParameters() {
         mShowAbout = false;
@@ -77,6 +78,7 @@ struct sFodderParameters {
         mUnitTesting = false;
         mSinglePhase = false;
 		mSpritesMax = 45;
+		mSpawnEnemyMax = 10;
     }
 
     std::string ToJson();
