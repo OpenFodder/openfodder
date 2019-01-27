@@ -51,6 +51,8 @@ struct sFodderParameters {
     bool mDisableVideo;             // Disable all video output
     bool mDisableSound;             // Disable all sound
 
+	size_t mSpritesMax;
+
     sFodderParameters() {
         mShowAbout = false;
         mPlayground = false;
@@ -74,6 +76,7 @@ struct sFodderParameters {
         mDemoRecordResumeCycle = 0;
         mUnitTesting = false;
         mSinglePhase = false;
+		mSpritesMax = 45;
     }
 
     std::string ToJson();
@@ -175,7 +178,7 @@ struct sGameRecorded {
     int16 mSeed[4];
     int16 mInputTicks;
     int16 mEngineTicks;
-    ePlatform mRecordedPlatform;
+	ePlatform mRecordedPlatform;
 
     uint64  mTick;
     bool    mTickDisabled;

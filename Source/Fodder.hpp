@@ -104,7 +104,8 @@ public:
     sGameData               mGame_Data_Backup;
     
     sSprite                 mSprite_Spare;
-    sSprite                 mSprites[45];
+    std::vector<sSprite>    mSprites;
+	size_t					mSpritesMax;
 
     const sSpriteSheet**    mSprite_SheetPtr;
 

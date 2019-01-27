@@ -45,6 +45,7 @@ std::string sFodderParameters::ToJson() {
 
     Save["mUnitTesting"] = mUnitTesting;
     Save["mSinglePhase"] = mSinglePhase;
+	Save["mSpritesMax"] = mSpritesMax;
 
     return Save.dump(1);
 }
@@ -71,6 +72,11 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
     mCampaignName = LoadedData["mCampaignName"];
     mUnitTesting = LoadedData["mUnitTesting"];
     mSinglePhase = LoadedData["mSinglePhase"];
+
+	if (LoadedData.count("mSpritesMax") > 0)
+		mSpritesMax = LoadedData["mSpritesMax"];
+	else
+		mSpritesMax = 45; // The original engine limit
 
     return true;
 }
@@ -188,6 +194,8 @@ void sGameRecorded::clear() {
 }
 
 void sGameRecorded::playback() {
+
+	//
     g_Fodder->mMission_EngineTicks = mEngineTicks;
     g_Fodder->mGame_InputTicks = mInputTicks;
     mTick = 0;
@@ -202,8 +210,9 @@ void sGameRecorded::playback() {
 }
 
 void sGameRecorded::DisableTicks() {
-    // Version 1 Savegames didnt stop ticks 
-    // Version 2 Savegames stop ticks during image fadeout/fadein
+    // Version 1 Demos didnt stop ticks 
+    // Version 2 Demos stop ticks during image fadeout/fadein
+	// Version 3 Demos have an greater number of sprites
     if (mVersion >= 2)
         mTickDisabled = true;
 }

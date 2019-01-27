@@ -291,7 +291,8 @@ struct sSprite {
     // Eventually this should be replaced
     // Perhaps a linked list could replace mSprite and we use an iterator here
     union {
-        int32 field_5E;			// Index inside mSprites (if 5D == false)
+		int32 field_5E_Squad;
+        uint32 field_5E;			// Index inside mSprites (if 5D == false)
         sMission_Troop *field_5E_SoldierAllocated;  // Soldier Ptr who killed sprite
     };
 

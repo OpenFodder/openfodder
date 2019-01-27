@@ -213,6 +213,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mMapHeight = 0;
 
     mSprite_SheetPtr = 0;
+
     Sprite_Clear_All();
 
     Mission_Memory_Clear();
@@ -974,11 +975,11 @@ void cFodder::Squad_Set_Squad_Leader() {
 }
 
 void cFodder::Sprite_Clear_All() {
+	mSpritesMax = mParams.mSpritesMax;
+	mSprites.resize(mSpritesMax);
 
-    sSprite* Data = mSprites;
-    for (int16 count = 0x2C; count >= 0; --count, ++Data) {
-
-        Sprite_Clear(Data);
+    for (auto& Sprite : mSprites) {
+        Sprite_Clear(&Sprite);
     }
     Sprite_Clear(&mSprite_Spare);
 
@@ -1438,7 +1439,7 @@ void cFodder::Map_Load_Sprites() {
     tool_EndianSwap((uint8*)MapSprites->data(), MapSprites->size());
 
     uint16* SptPtr = (uint16*)MapSprites->data();
-    sSprite* Sprite = mSprites;
+    sSprite* Sprite = mSprites.data();
 
     uint16* SptFileEnd = SptPtr + (MapSprites->size() / 2);
 
@@ -1473,7 +1474,7 @@ void cFodder::Map_Load_Sprites() {
         //       This causes some sprites to be overwritten by null/lights on later missions in CF2
         if (mVersionCurrent->isCannonFodder2()) {
 
-            if(Sprite > mSprites)
+            if(Sprite > mSprites.data())
                 if (Sprite->field_18 == 4 && (Sprite - 1)->field_18 >= 114 && (Sprite - 1)->field_18 <= 117) {
                     ++Sprite;
             }
@@ -1531,7 +1532,7 @@ void cFodder::Map_Load_Sprites_Count() {
 
 void cFodder::Phase_Soldiers_Count() {
     mGame_Data.mGamePhase_Data.mSoldiers_Required = 0;
-    sSprite* Sprite = mSprites;
+    sSprite* Sprite = mSprites.data();
 
     // How many player sprites are on this map
     for (int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount, ++Sprite) {
@@ -1666,7 +1667,7 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
 void cFodder::Phase_Soldiers_AttachToSprites() {
 
     int16 TroopsRemaining = mGame_Data.mGamePhase_Data.mSoldiers_Available;
-    sSprite* Sprite = mSprites;
+    sSprite* Sprite = mSprites.data();
     sMission_Troop* Troop = mGame_Data.mSoldiers_Allocated;
 
     // Loop the game sprites looking for 'player' sprite
@@ -2593,7 +2594,7 @@ void cFodder::Sprite_Bullet_SetData() {
 
 void cFodder::Phase_Goals_Check() {
 
-    sSprite* Data20 = mSprites;
+    sSprite* Data20 = mSprites.data();
     int16 Data8 = 0;
     int16 DataC = 0;
     int16 Data0 = 0x2B;
@@ -3576,6 +3577,8 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
 
     mSurface = new cSurface(352, 364);
     mSurface2 = new cSurface(352, 364);
+
+	Sprite_Clear_All();
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
@@ -4816,7 +4819,7 @@ void cFodder::Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC,
     if (mMission_Finished)
         return;
 
-    sSprite* Sprite = mSprites;
+    sSprite* Sprite = mSprites.data();
 
     for (int16 Count = 0x1D; Count >= 0; --Count, ++Sprite) {
         if (Sprite->field_0 == -32768)
@@ -5636,7 +5639,7 @@ loc_2439F:;
 
 NextSprite:;
     pSprite->field_5E++;
-    if (pSprite->field_5E >= 43)
+    if (pSprite->field_5E >= (mSpritesMax - 2))
         pSprite->field_5E = 0;
 
     goto loc_243DD;
@@ -6329,7 +6332,7 @@ loc_250D2:;
     if (pSprite->field_6F == eVehicle_Helicopter)
         goto loc_251D2;
 
-    Data1C = pSprite->field_5E;
+    Data1C = pSprite->field_5E_Squad;
 
     if (mSquads[Data1C / 9] == (sSprite**)INVALID_SPRITE_PTR)
         goto loc_251B4;
@@ -6361,9 +6364,9 @@ loc_250D2:;
             goto loc_251D2;
 
 loc_251B4:;
-    pSprite->field_5E += 1;
-    if (pSprite->field_5E >= 0x1E)
-        pSprite->field_5E = 0;
+    pSprite->field_5E_Squad += 1;
+    if (pSprite->field_5E_Squad >= 0x1E)
+        pSprite->field_5E_Squad = 0;
 
 loc_251D2:;
     if (pSprite->field_62) {
@@ -6870,7 +6873,7 @@ void cFodder::Sprite_Handle_Hostage_Movement(sSprite* pSprite) {
     // Distance to rescue tent < 127?
     Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
     if (Data10 < 0x7F)
-        pSprite->field_5E = (int16)(mHostage_Rescue_Tent - mSprites);
+        pSprite->field_5E = (int16)(mHostage_Rescue_Tent - mSprites.data());
 
 loc_2608B:;
     word_3B2ED = 0;
@@ -7045,10 +7048,8 @@ void cFodder::Sprite_Handle_Hostage_FrameUpdate(sSprite* pSprite) {
 
 void cFodder::sub_26490(sSprite* pSprite) {
     ++pSprite->field_5E;
-    if (pSprite->field_5E < 43)
-        return;
-
-    pSprite->field_5E = 0;
+    if (pSprite->field_5E >= (mSpritesMax - 2))
+		pSprite->field_5E = 0;
 }
 
 void cFodder::sub_264B0(sSprite* pSprite) {
@@ -8770,7 +8771,7 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
 
     mSprites_Found_Count = 0;
 
-    pData24 = mSprites;
+    pData24 = mSprites.data();
 
     for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pData24) {
         int16 Data4 = pData24->field_18;
@@ -10173,7 +10174,7 @@ void cFodder::Sprite_Frame_Modifier_Update() {
 }
 
 void cFodder::Sprite_Handle_Loop() {
-    sSprite* Data20 = mSprites;
+    sSprite* Data20 = mSprites.data();
 
     for (int16 Data1C = 0x2B; Data1C > 0; --Data1C, ++Data20) {
 
@@ -10286,10 +10287,9 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
     loc_1901C:;
         pSprite->field_4A = 0;
         pSprite->field_5E++;
-        if (pSprite->field_5E < 43)
-            goto loc_191C3;
+        if (pSprite->field_5E >= (mSpritesMax - 2))
+			pSprite->field_5E = 0;
 
-        pSprite->field_5E = 0;
         goto loc_191C3;
 
     loc_1904A:;
@@ -13023,7 +13023,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     if (pSprite->field_4C)
         pSprite->field_4C--;
 
-    int16 Data1C = pSprite->field_5E;
+    int16 Data1C = pSprite->field_5E_Squad;
     if (mSquads[Data1C / 9] == (sSprite**)INVALID_SPRITE_PTR)
         goto NextSquadMember;
 
@@ -13093,9 +13093,9 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     goto loc_1CDA3;
 
 NextSquadMember:;
-    pSprite->field_5E += 1;
-    if (pSprite->field_5E >= 0x1E) {
-        pSprite->field_5E = 0;
+    pSprite->field_5E_Squad += 1;
+    if (pSprite->field_5E_Squad >= 0x1E) {
+        pSprite->field_5E_Squad = 0;
         pSprite->field_2E = -1;
     }
 
@@ -17230,7 +17230,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
 
         // Looking for two sprites?
         if (pData0 == 3) {
-            pData2C = mSprites;
+            pData2C = mSprites.data();
 
             // Loop all sprites
             for (int16 Data1C = 40; Data1C >= 0; --Data1C, ++pData2C) {
@@ -17254,7 +17254,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
                 }
             }
         } else if (pData0 == 2) {
-            pData2C = mSprites;
+            pData2C = mSprites.data();
 
             // Loop all sprites
             for (int16 Data1C = 41; Data1C >= 0; --Data1C, ++pData2C) {
@@ -17325,7 +17325,7 @@ loc_21B4B:;
     return -1;
 
 loc_21B91:;
-    pData2C = mSprites;
+    pData2C = mSprites.data();
 
     for (int16 Data1C = 28; Data1C >= 0; --Data1C, ++pData2C) {
 
@@ -17401,6 +17401,7 @@ void cFodder::Sprite_Clear(sSprite* pSprite) {
     pSprite->field_5C = 0;
     pSprite->field_5D = 0;
     pSprite->field_5E = 0;
+	pSprite->field_5E_Squad = 0;
     pSprite->field_5E_SoldierAllocated = 0;
     pSprite->field_60 = 0;
     pSprite->field_61 = 0;
@@ -17619,6 +17620,7 @@ int16 cFodder::Sprite_Projectile_Collision_Check(sSprite* pSprite) {
 
     if (Data24->field_18 == eSprite_Enemy) {
 
+		Data24->field_5E_Squad = pSprite->field_5E_Squad;
         Data24->field_5E = pSprite->field_5E;
         Data24->field_5D = pSprite->field_5D;
     }
@@ -17852,9 +17854,9 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
 
     sSprite* Data0, *Following = 0, *Squad0_Member = 0;
 
-    if (pSprite->field_5E < 0) {
+    if (pSprite->field_5E_Squad < 0) {
 
-        pSprite->field_5E += 1;
+        pSprite->field_5E_Squad += 1;
         mSprite_FaceWeaponTarget = 0;
 
         Data0 = mSquad_Leader;
@@ -17864,7 +17866,7 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
     }
     else {
 
-        Squad0_Member = mSquad_0_Sprites[pSprite->field_5E];
+        Squad0_Member = mSquad_0_Sprites[pSprite->field_5E_Squad];
         if (Squad0_Member == INVALID_SPRITE_PTR)
             goto loc_21E4A;
 
@@ -17925,9 +17927,9 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
                 // Following a hostage?
                 if (Following->field_18 == eSprite_Hostage) {
 
-                    pSprite->field_5E += 1;
-                    if (pSprite->field_5E >= 0x1E)
-                        pSprite->field_5E = 0;
+                    pSprite->field_5E_Squad += 1;
+                    if (pSprite->field_5E_Squad >= 0x1E)
+                        pSprite->field_5E_Squad = 0;
 
                     mSprite_FaceWeaponTarget = 0;
                     pSprite->field_26 = Following->field_0 + 0x0C;
@@ -17952,9 +17954,9 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
         pSprite->field_28 = pSprite->field_4;
         pSprite->field_4A = 0;
 
-        pSprite->field_5E += 1;
-        if (pSprite->field_5E > 0x1E)
-            pSprite->field_5E = 0;
+        pSprite->field_5E_Squad += 1;
+        if (pSprite->field_5E_Squad > 0x1E)
+            pSprite->field_5E_Squad = 0;
 
         goto loc_22000;
 
@@ -17995,15 +17997,15 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
         if (mSprite_FaceWeaponTarget)
             goto loc_22125;
 
-        if (mSquad_0_Sprites[pSprite->field_5E] == INVALID_SPRITE_PTR)
+        if (mSquad_0_Sprites[pSprite->field_5E_Squad] == INVALID_SPRITE_PTR)
             goto loc_22125;
 
-        Data0 = mSquad_0_Sprites[pSprite->field_5E];
+        Data0 = mSquad_0_Sprites[pSprite->field_5E_Squad];
     }
 
     // "Sort of" Random Movement Target
     // Depending on the sprite index, we add a factor to the X/Y target of a movement
-    Data8 = (int16)(pSprite - mSprites);
+    Data8 = (int16)(pSprite - mSprites.data());
     Data8 *= 0x76;
     Data8 &= 0x1FE;
 
@@ -18374,7 +18376,7 @@ int16 cFodder::Sprite_Homing_LockInRange(sSprite* pSprite, sSprite*& pFoundSprit
 
     MouseY += 0x08;
 
-    pFoundSprite = mSprites;
+    pFoundSprite = mSprites.data();
     for (int16 Data1C = 0x2B; Data1C >= 0; --Data1C, ++pFoundSprite) {
 
         if (pFoundSprite->field_0 == -32768)

@@ -55,8 +55,9 @@ int start(int argc, char *argv[]) {
         ("h,help",        "Help",                 cxxopts::value<bool>()->default_value("false")  )
         ("pc",            "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
         ("amiga",         "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
-        ("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
+        ("w,window",	  "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 
+		("max-sprite",	  "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
         ("demo-record",   "Record Demo",    cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
         ("demo-record-all", "Record Demo")
         ("demo-play",     "Play Demo",      cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
@@ -131,6 +132,8 @@ int start(int argc, char *argv[]) {
         Params.mRandom = result["random"].as<bool>();
         Params.mDisableSound = result["nosound"].as<bool>();
         Params.mPlayground = result["playground"].as<bool>();
+
+		Params.mSpritesMax = result["max-sprite"].as<uint32_t>();
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
             Params.mSkipRecruit = true;
