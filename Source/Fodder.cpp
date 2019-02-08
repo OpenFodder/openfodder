@@ -4381,7 +4381,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
 
     mSound->Music_Stop();
 
-    if(mVersionCurrent->isAmigaNotVeryFestive()) 
+    if(mVersionCurrent->isAmigaNotVeryFestive() || mVersionCurrent->isAmigaAlienLevels()) 
         mGraphics->Load_And_Draw_Image("VMENU", 32);
     else
         mGraphics->Load_And_Draw_Image("apmenu.lbm", 32);
@@ -4401,7 +4401,7 @@ bool cFodder::Demo_Amiga_ShowMenu() {
             if (mVersionCurrent->isAmigaPower())
                 GUI_Element_Mouse_Over(mPlus_Buttons);
 
-            if (mVersionCurrent->isAmigaAction() || mVersionCurrent->isAmigaNotVeryFestive())
+            if (mVersionCurrent->isAmigaAction() || mVersionCurrent->isAmigaNotVeryFestive() || mVersionCurrent->isAmigaAlienLevels())
                 GUI_Element_Mouse_Over(mAmigaAction_Buttons);
 
 

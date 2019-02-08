@@ -34,6 +34,7 @@ enum eRelease {
     AmigaTheOne,
     AmigaAction,
     AmigaNotVeryFestive,
+	AmigaAlienLevels,
 
 	Custom
 };
@@ -120,6 +121,7 @@ struct sGameVersion {
                 mRelease == eRelease::AmigaTheOne ||
                 mRelease == eRelease::AmigaAction ||
                 mRelease == eRelease::AmigaNotVeryFestive ||
+				mRelease == eRelease::AmigaAlienLevels ||
 				mRelease == eRelease::Custom;
 	}
 
@@ -155,6 +157,10 @@ struct sGameVersion {
     bool isAmigaNotVeryFestive() const {
         return mRelease == eRelease::AmigaNotVeryFestive;
     }
+
+	bool isAmigaAlienLevels() const {
+		return mRelease == eRelease::AmigaAlienLevels;
+	}
 
     bool isAmiga() const {
         return mPlatform == ePlatform::Amiga;
