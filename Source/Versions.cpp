@@ -293,7 +293,7 @@ std::shared_ptr<cResources> sGameVersion::GetResources(const std::string& pDataP
             return std::make_shared<cResource_PC_CD>(pDataPathOverride, "CFCOVER.DAT");
 
     } else if (isAmiga()) {
-        return std::make_shared<cResource_Amiga_File>(pDataPathOverride);
+        return std::make_shared<cResources>(pDataPathOverride);
     }
     return 0;
 }
@@ -317,7 +317,12 @@ std::shared_ptr<cSound> sGameVersion::GetSound() const {
         if (mGame == eGame::CF2)
             return std::make_shared<cSound_PC2>();
 
-        return std::make_shared<cSound_PC>();
+		// Do we override the dos sounds/music with Amiga files?
+		auto path = local_PathGenerate("WARX1.INS", this->mDataPath, eDataType::eData);
+		if(local_FileExists(path))
+			return std::make_shared<cSound_Amiga>();
+
+		return std::make_shared<cSound_PC>();
     }
     else if (isAmiga()) {
         return std::make_shared<cSound_Amiga>();

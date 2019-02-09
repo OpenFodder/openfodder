@@ -44,6 +44,7 @@ struct sFodderParameters {
     size_t mMissionNumber;          // Mission to start on
     size_t mPhaseNumber;            // Phase to start on
 
+	bool mCheatsEnabled;
     bool mUnitTesting;              // Execute unit testing
     bool mSinglePhase;              // Play a single phase
     bool mPlayground;               // Launch into the sprite playground
@@ -75,6 +76,8 @@ struct sFodderParameters {
         mDemoRecord = false;
         mDemoPlayback = false;
         mDemoRecordResumeCycle = 0;
+
+		mCheatsEnabled = false;
         mUnitTesting = false;
         mSinglePhase = false;
 		mSpritesMax = 45;

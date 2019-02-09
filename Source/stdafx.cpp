@@ -57,6 +57,7 @@ int start(int argc, char *argv[]) {
         ("amiga",         "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
         ("w,window",	  "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 
+		("cheats",		  "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
 		("max-sprite",	  "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
 		("max-spawn",	  "Set the maximum spawn", cxxopts::value<std::uint32_t>()->default_value("10"), "10")
 		("sleep-delta",	  "Set the engine speed", cxxopts::value<std::uint32_t>()->default_value("2"), "2")
@@ -139,6 +140,13 @@ int start(int argc, char *argv[]) {
 		Params.mSpritesMax = result["max-sprite"].as<uint32_t>();
 		Params.mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
 		Params.mSleepDelta = result["sleep-delta"].as<uint32_t>();
+
+		Params.mCheatsEnabled = result["cheats"].as<bool>();
+
+		// Cheats perm enabled in debug build
+#ifdef _DEBUG
+		Params.mCheatsEnabled = true;
+#endif
 
         if (Params.mMissionNumber || Params.mPhaseNumber) {
             Params.mSkipRecruit = true;

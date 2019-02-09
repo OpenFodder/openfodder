@@ -3182,24 +3182,25 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
                 Squad_Select(2, false);
         }
 
-#ifdef _DEBUG
-        // Debug: Mission Complete
-        if (pKeyCode == SDL_SCANCODE_F10 && pPressed) {
-            mDebug_PhaseSkip = -1;
-        }
+		if (mParams.mCheatsEnabled) {
 
-        // Debug: Make current squad invincible
-        if (pKeyCode == SDL_SCANCODE_F9 && pPressed) {
-            if (mSquad_Selected >= 0) {
-                sSprite** Data28 = mSquads[mSquad_Selected];
-                for (; *Data28 != INVALID_SPRITE_PTR;) {
+			// Debug: Mission Complete
+			if (pKeyCode == SDL_SCANCODE_F10 && pPressed) {
+				mDebug_PhaseSkip = -1;
+			}
 
-                    sSprite* Data2C = *Data28++;
-                    Data2C->field_75 |= eSprite_Flag_Invincibility;
-                }
-            }
-        }
-#endif
+			// Debug: Make current squad invincible
+			if (pKeyCode == SDL_SCANCODE_F9 && pPressed) {
+				if (mSquad_Selected >= 0) {
+					sSprite** Data28 = mSquads[mSquad_Selected];
+					for (; *Data28 != INVALID_SPRITE_PTR;) {
+
+						sSprite* Data2C = *Data28++;
+						Data2C->field_75 |= eSprite_Flag_Invincibility;
+					}
+				}
+			}
+		}
     }
 }
 

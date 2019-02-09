@@ -48,6 +48,7 @@ std::string sFodderParameters::ToJson() {
 	Save["mSpritesMax"] = mSpritesMax;
 	Save["mSpawnEnemyMax"] = mSpawnEnemyMax;
 
+	Save["mCheatsEnabled"] = mCheatsEnabled;
     return Save.dump(1);
 }
 
@@ -84,6 +85,10 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	else
 		mSpawnEnemyMax = 0x0A; // The original engine limit
 
+	if (LoadedData.count("mCheatsEnabled") > 0)
+		mCheatsEnabled = LoadedData["mCheatsEnabled"];
+	else
+		mCheatsEnabled = false;
     return true;
 }
 
