@@ -313,14 +313,15 @@ std::shared_ptr<cGraphics> sGameVersion::GetGraphics() const {
 }
 
 std::shared_ptr<cSound> sGameVersion::GetSound() const {
-    if (isPC()) {
-        if (mGame == eGame::CF2)
-            return std::make_shared<cSound_PC2>();
 
-		// Do we override the dos sounds/music with Amiga files?
-		auto paths = g_Resource->fileGetLocal("WARX1.INS");
-		if(paths->size())
-			return std::make_shared<cSound_Amiga>();
+	// Check for JON.INS in the game data folder, this allows replacing PC audio with Amiga
+	auto paths = g_Resource->fileGetLocal("JON.INS");
+	if (paths->size())
+		return std::make_shared<cSound_Amiga>();
+
+    if (isPC()) {
+		if (mGame == eGame::CF2)
+			return std::make_shared<cSound_PC2>();
 
 		return std::make_shared<cSound_PC>();
     }
