@@ -1415,7 +1415,7 @@ void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSou
 }
 
 void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
-	uint8	Planes[5];
+	uint8	Planes[8];
 
 	// Load bits for all planes
 	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
@@ -1437,7 +1437,7 @@ void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 }
 
 void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
-	uint16	Planes[5];
+	uint16	Planes[8];
 
 	// Load bits for all planes
 	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
