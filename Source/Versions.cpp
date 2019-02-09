@@ -318,7 +318,7 @@ std::shared_ptr<cSound> sGameVersion::GetSound() const {
             return std::make_shared<cSound_PC2>();
 
 		// Do we override the dos sounds/music with Amiga files?
-		auto paths = g_Resource->fileGet("WARX1.INS");
+		auto paths = g_Resource->fileGetLocal("WARX1.INS");
 		if(paths->size())
 			return std::make_shared<cSound_Amiga>();
 
