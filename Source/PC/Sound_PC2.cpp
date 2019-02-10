@@ -251,7 +251,7 @@ void cSound_PC2::Music_Play( int16 pTrack ) {
             filename = "GAMEOVER";
             break;
 
-        case 16:
+        case 20:
             filename = "TITLE";
             break;
 

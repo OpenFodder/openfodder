@@ -16552,8 +16552,7 @@ void cFodder::intro_Retail() {
     //  CopyProtection();
     mGraphics->Load_Sprite_Font();
 
-    
-    mSound->Music_Play(PLATFORM_BASED(16, CANNON_BASED(16, 20)));
+	mSound->Music_Play(CANNON_BASED(16, 20));
 
     if (mVersionCurrent->isCannonFodder1())
         intro_LegionMessage();
@@ -16691,7 +16690,7 @@ void cFodder::WonGame() {
         mGraphics->Load_And_Draw_Image("PRETENTIOUS3", 0x100);
     } else {
         mSound->Music_Play(17);
-        mGraphics->Load_And_Draw_Image("won", 0x100);
+        mGraphics->Load_And_Draw_Image("WON", 0x100);
     }
 
     Image_FadeIn();
