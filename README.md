@@ -46,29 +46,34 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
   
 ##### Command Line Parameters
 ```
-  OpenFodder [OPTION...]  
-  
-      --about                   About  
-  -h, --help                    Help  
-      --pc                      Default to PC platform data  
-      --amiga                   Default to Amiga platform data  
-  -w, --window                  Start in window mode  
+  OpenFodder [OPTION...]
+
+      --about                   About
+  -h, --help                    Help
+      --pc                      Default to PC platform data
+      --amiga                   Default to Amiga platform data
+  -w, --window                  Start in window mode
+      --cheats                  Enable cheat keys
+      --max-sprite 45           Set the maximum sprites (default: 45)
+      --max-spawn 10            Set the maximum spawn (default: 10)
+      --sleep-delta 2           Set the engine speed (default: 2)
       --demo-record "Demo File"
-                                Record Demo (default: )  
-      --demo-record-all         Record Demo  
-      --demo-play "Demo File"   Play Demo (default: )  
-      --unit-test               Run Tests  
-      --unit-test-headless      Run Tests, with no output  
-      --nosound                 Disable sound output  
-      --playground              Sprite playground  
-      --skipintro               Skip all game intros  
-      --skipbriefing            Skip mission briefing  
-      --skipservice             Skip mission debriefing  
-      --list-campaigns          List available campaigns  
-  -c, --campaign "name"         Starting campaign (default: )  
-  -m, --mission 1               Starting mission (default: 0)  
-  -p, --phase 2                 Starting phase (default: 0)  
-  -r, --random                  Generate and play a random map  
+                                Record Demo (default: )
+      --demo-record-all         Record Demo
+      --demo-play "Demo File"   Play Demo (default: )
+      --unit-test               Run Tests
+      --unit-test-headless      Run Tests, with no output
+      --appveyor                Output for appveyor
+      --nosound                 Disable sound output
+      --playground              Sprite playground
+      --skipintro               Skip all game intros
+      --skipbriefing            Skip mission briefing
+      --skipservice             Skip mission debriefing
+      --list-campaigns          List available campaigns
+  -c, --campaign "name"         Starting campaign (default: )
+  -m, --mission 1               Starting mission (default: 0)
+  -p, --phase 2                 Starting phase (default: 0)
+  -r, --random                  Generate and play a random map
 ```
   
 ##### Hot Keys
@@ -76,6 +81,8 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
 ```
 * F1:    Switch to Amiga version (if available)
 * F2:    Switch to PC version (if available)
+* F9: 	 Make current squad invincible (with --cheats enabled)
+* F10:	 Complete current map (with --cheats enabled)
 * F11:   Toggle full screen
 * +:     Increase window size
 * -:     Decrease window size  
