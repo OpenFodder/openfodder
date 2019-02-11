@@ -10685,12 +10685,12 @@ loc_1992D:;
 
     if (pSprite->field_52 < 8) {
         pSprite->field_18 = eSprite_Explosion;
-        sub_1998C(pSprite);
+        Sprite_Projectile_Counters_Decrease(pSprite);
         Sprite_Destroy(pSprite + 1);
         return;
     }
     //loc_19957
-    sub_1998C(pSprite);
+    Sprite_Projectile_Counters_Decrease(pSprite);
     pSprite->field_0 = 0;
     pSprite->field_4 = 0;
 
@@ -10698,11 +10698,9 @@ loc_1992D:;
     Sprite_Destroy(pSprite + 1);
 }
 
-void cFodder::sub_1998C(sSprite* pSprite) {
-    int16 Data0 = pSprite->field_22;
+void cFodder::Sprite_Projectile_Counters_Decrease(sSprite* pSprite) {
 
-    int8* Data24 = mSprite_Projectile_Counters;
-    --Data24[Data0];
+    --mSprite_Projectile_Counters[pSprite->field_22];
 }
 
 void cFodder::Sprite_Handle_ShadowSmall(sSprite* pSprite) {

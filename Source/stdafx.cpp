@@ -98,6 +98,12 @@ int start(int argc, char *argv[]) {
             return -1;
         }
 
+		if (result["pc"].as<bool>())
+			Params.mDefaultPlatform = ePlatform::PC;
+
+		if (result["amiga"].as<bool>())
+			Params.mDefaultPlatform = ePlatform::Amiga;
+
         if (result["list-campaigns"].as<bool>() == true) {
             g_Debugger->Notice("\nAvailable Campaigns\n\n");
 
@@ -143,6 +149,9 @@ int start(int argc, char *argv[]) {
 
 		Params.mCheatsEnabled = result["cheats"].as<bool>();
 
+		if (Params.mSpritesMax < 16)
+			Params.mSpritesMax = 16;
+
 		// Cheats perm enabled in debug build
 #ifdef _DEBUG
 		Params.mCheatsEnabled = true;
@@ -152,11 +161,6 @@ int start(int argc, char *argv[]) {
             Params.mSkipRecruit = true;
             Params.mSkipIntro = true;
         }
-
-        if (result["pc"].as<bool>())
-            Params.mDefaultPlatform = ePlatform::PC;
-        if (result["amiga"].as<bool>())
-            Params.mDefaultPlatform = ePlatform::Amiga;
 
         if (result["unit-test-headless"].as<bool>()) {
             Params.mUnitTesting = true;

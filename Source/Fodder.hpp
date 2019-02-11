@@ -768,7 +768,7 @@ public:
 
     void            Sprite_Handle_Player(sSprite* pSprite);               // 0
     void            Sprite_Handle_Grenade(sSprite* pSprite);              // 2
-    void            sub_1998C(sSprite* pSprite);
+    void            Sprite_Projectile_Counters_Decrease(sSprite* pSprite);
     void            Sprite_Handle_ShadowSmall(sSprite* pSprite);          // 3
     void            Sprite_Handle_Enemy(sSprite* pSprite);                // 5
     void            Sprite_Handle_Bullet(sSprite* pSprite);               // 6

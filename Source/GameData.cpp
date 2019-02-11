@@ -75,20 +75,30 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
     mUnitTesting = LoadedData["mUnitTesting"];
     mSinglePhase = LoadedData["mSinglePhase"];
 
-	if (LoadedData.count("mSpritesMax") > 0)
-		mSpritesMax = LoadedData["mSpritesMax"];
-	else
-		mSpritesMax = 45; // The original engine limit
+	// Max Sprites
+	{
+		if (LoadedData.count("mSpritesMax") > 0)
+			mSpritesMax = LoadedData["mSpritesMax"];
+		else
+			mSpritesMax = 45; // The original engine limit
 
-	if (LoadedData.count("mSpawnEnemyMax") > 0)
-		mSpawnEnemyMax = LoadedData["mSpawnEnemyMax"];
-	else
-		mSpawnEnemyMax = 0x0A; // The original engine limit
+		if (mSpritesMax < 16)
+			mSpritesMax = 16;
+	}
+
+	// Max Spawned
+	{
+		if (LoadedData.count("mSpawnEnemyMax") > 0)
+			mSpawnEnemyMax = LoadedData["mSpawnEnemyMax"];
+		else
+			mSpawnEnemyMax = 0x0A; // The original engine limit
+	}
 
 	if (LoadedData.count("mCheatsEnabled") > 0)
 		mCheatsEnabled = LoadedData["mCheatsEnabled"];
 	else
 		mCheatsEnabled = false;
+
     return true;
 }
 
