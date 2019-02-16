@@ -35,7 +35,6 @@ std::shared_ptr<cResources> g_Resource;
 std::shared_ptr<cWindow>    g_Window;
 std::shared_ptr<cFodder>    g_Fodder;
 std::shared_ptr<cDebugger>  g_Debugger;
-std::shared_ptr<cResourceMan> g_ResourceMan;
 
 const char gPathSeperator = '/';
 
@@ -106,8 +105,6 @@ sFodderParameters parseini() {
 		// TODO: We should loop every entry in this section and add the path to the res manager
 		auto path = ini.get("path", "");
 	
-		if(path.size())
-			g_ResourceMan->addDir(path);
 	}
 
 	return params;
@@ -121,7 +118,6 @@ int start(int argc, char *argv[]) {
     g_Debugger = std::make_shared<cDebugger>();
     g_Window = std::make_shared<cWindow>();
     g_Fodder = std::make_shared<cFodder>(g_Window);
-	g_ResourceMan = std::make_shared<cResourceMan>();
 
     cxxopts::Options options("OpenFodder", "War has never been so much fun");
     options.allow_unrecognised_options();
