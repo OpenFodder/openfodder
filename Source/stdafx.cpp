@@ -21,32 +21,107 @@
  */
 
 #include "stdafx.hpp"
-#include "md5.hpp"
+#include "Utils/md5.hpp"
 #include "Utils/cxxopts.hpp"
+#include "Utils/ini.hpp"
 
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <algorithm>
+#include <string>
 
 std::shared_ptr<cResources> g_Resource;
 std::shared_ptr<cWindow>    g_Window;
 std::shared_ptr<cFodder>    g_Fodder;
 std::shared_ptr<cDebugger>  g_Debugger;
+std::shared_ptr<cResourceMan> g_ResourceMan;
 
-#ifdef _WIN32
-    const char gPathSeperator = '/';
-#else
-    const char gPathSeperator = '/';
-#endif
+const char gPathSeperator = '/';
+
+std::string str_to_lower(std::string pStr) {
+	std::transform(pStr.begin(), pStr.end(), pStr.begin(), ::tolower);
+	return pStr;
+}
+
+sFodderParameters parseini() {
+	INI<> ini("openfodder.ini", false);
+	sFodderParameters params;
+
+	if (!ini.parse())
+		return params;
+
+	// Section: Openfodder
+	{
+		if (ini.select("openfodder")) {
+			if (ini.get("window", "false") == "true")
+				params.mWindowMode = true;
+			else
+				params.mWindowMode = false;
+
+			if (ini.get("cheats", "false") == "true")
+				params.mCheatsEnabled = true;
+			else
+				params.mCheatsEnabled = false;
+		}
+	}
+
+	// Section: Engine
+	{
+		if (ini.select("engine")) {
+			auto platform = str_to_lower(ini.get("platform", ""));
+			if (platform == "amiga")
+				params.mDefaultPlatform = ePlatform::Amiga;
+			if (platform == "pc")
+				params.mDefaultPlatform = ePlatform::PC;
+
+			auto maxsprite = ini.get("maxsprite", 0);
+			if(maxsprite)
+				params.mSpritesMax = maxsprite;
+			auto maxspawn = ini.get("maxspawn", 0);
+			if(maxspawn)
+				params.mSpawnEnemyMax = maxspawn;
+		}
+	}
+
+	// Section: Skip
+	{
+		if (ini.select("engine")) {
+			if (ini.get("intro", "false") == "true")
+				params.mSkipIntro = true;
+
+			if (ini.get("briefing", "false") == "true")
+				params.mSkipBriefing = true;
+
+			if (ini.get("service", "false") == "true")
+				params.mSkipService = true;
+
+			if (ini.get("recruit", "false") == "true")
+				params.mSkipRecruit = true;
+		}
+	}
+
+	if (ini.select("data")) {
+
+		// TODO: We should loop every entry in this section and add the path to the res manager
+		auto path = ini.get("path", "");
+	
+		if(path.size())
+			g_ResourceMan->addDir(path);
+	}
+
+	return params;
+}
 
 #ifndef _OFED
 #ifndef _OFBOT
 
 int start(int argc, char *argv[]) {
-    sFodderParameters Params;
+    sFodderParameters Params = parseini();
     g_Debugger = std::make_shared<cDebugger>();
     g_Window = std::make_shared<cWindow>();
     g_Fodder = std::make_shared<cFodder>(g_Window);
+	g_ResourceMan = std::make_shared<cResourceMan>();
 
     cxxopts::Options options("OpenFodder", "War has never been so much fun");
     options.allow_unrecognised_options();
@@ -98,10 +173,9 @@ int start(int argc, char *argv[]) {
             return -1;
         }
 
-		if (result["pc"].as<bool>())
+		if(result.count("pc"))
 			Params.mDefaultPlatform = ePlatform::PC;
-
-		if (result["amiga"].as<bool>())
+		if (result.count("amiga"))
 			Params.mDefaultPlatform = ePlatform::Amiga;
 
         if (result["list-campaigns"].as<bool>() == true) {
@@ -129,22 +203,34 @@ int start(int argc, char *argv[]) {
         }
         
         Params.mShowAbout = result["about"].as<bool>();
-        Params.mSkipIntro = result["skipintro"].as<bool>();
-        Params.mSkipService = result["skipservice"].as<bool>();
-        Params.mSkipBriefing = result["skipbriefing"].as<bool>();
+
+		if (result.count("skipintro"))
+			Params.mSkipIntro = result["skipintro"].as<bool>();
+		if (result.count("skipservice"))
+			Params.mSkipService = result["skipservice"].as<bool>();
+		if (result.count("skipbriefing"))
+			Params.mSkipBriefing = result["skipbriefing"].as<bool>();
+		if (result.count("skiphill"))
+			Params.mSkipRecruit = result["skiphill"].as<bool>();
 
         Params.mUnitTesting = result["unit-test"].as<bool>();
 
         Params.mCampaignName = result["campaign"].as<std::string>();
         Params.mMissionNumber = result["mission"].as<std::uint32_t>();
         Params.mPhaseNumber = result["phase"].as<std::uint32_t>();
-        Params.mWindowMode = result["window"].as<bool>();
+
+		if(result.count("window"))
+	        Params.mWindowMode = result["window"].as<bool>();
+
         Params.mRandom = result["random"].as<bool>();
         Params.mDisableSound = result["nosound"].as<bool>();
         Params.mPlayground = result["playground"].as<bool>();
 
-		Params.mSpritesMax = result["max-sprite"].as<uint32_t>();
-		Params.mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
+		if(result.count("max-sprite"))
+			Params.mSpritesMax = result["max-sprite"].as<uint32_t>();
+		if (result.count("max-spawn"))
+			Params.mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
+
 		Params.mSleepDelta = result["sleep-delta"].as<uint32_t>();
 
 		Params.mCheatsEnabled = result["cheats"].as<bool>();
@@ -211,86 +297,85 @@ int main(int argc, char *argv[]) {
 }
 #endif
 #endif
-
 std::string gLocalBasePath;
 
 void local_BasePathGenerate() {
-    std::stringstream filePathFinal;
+	std::stringstream filePathFinal;
 
-    // TODO: This needs improvements for LINUX/UNIX
+	// TODO: This needs improvements for LINUX/UNIX
 
 #ifdef WIN32
-    const char* path = std::getenv("USERPROFILE");
-    if (path)
-        filePathFinal << path;
+	const char* path = std::getenv("USERPROFILE");
+	if (path)
+		filePathFinal << path;
 
-    filePathFinal << "/Documents/OpenFodder/";
+	filePathFinal << "/Documents/OpenFodder/";
 #else
-    std::string FinalPath;
+	std::string FinalPath;
 
-    // Lets find a base data folder
-    const char* path = std::getenv("XDG_DATA_DIRS");
-    if (path) {
-        std::vector<std::string> Paths;
+	// Lets find a base data folder
+	const char* path = std::getenv("XDG_DATA_DIRS");
+	if (path) {
+		std::vector<std::string> Paths;
 
-        std::stringstream ss;
-        ss << path;
-        while (ss.good()) {
-            std::string substr;
-            std::getline(ss, substr, ':');
-            Paths.push_back(substr);
-        }
+		std::stringstream ss;
+		ss << path;
+		while (ss.good()) {
+			std::string substr;
+			std::getline(ss, substr, ':');
+			Paths.push_back(substr);
+		}
 
-        // Dodgy loop and test all paths
-        for (auto& CheckPath : Paths) {
-            FinalPath = CheckPath;
+		// Dodgy loop and test all paths
+		for (auto& CheckPath : Paths) {
+			FinalPath = CheckPath;
 
-            filePathFinal << FinalPath << "/OpenFodder/";
+			filePathFinal << FinalPath << "/OpenFodder/";
 
-            // If the path exists, abort the search
-            if (local_FileExists(filePathFinal.str()))
-                break;
+			// If the path exists, abort the search
+			if (local_FileExists(filePathFinal.str()))
+				break;
 
-            FinalPath = "";
-            filePathFinal.str("");
-        }
+			FinalPath = "";
+			filePathFinal.str("");
+		}
 
-    }
+	}
 
-    // No path found? check the home directory
-    if (!FinalPath.size()) {
-        // Test the home directory
-        path = std::getenv("HOME");
+	// No path found? check the home directory
+	if (!FinalPath.size()) {
+		// Test the home directory
+		path = std::getenv("HOME");
 
-        if (path) {
-            FinalPath = path;
-            FinalPath.append("/.local/share/");
-        }
-    }
+		if (path) {
+			FinalPath = path;
+			FinalPath.append("/.local/share/");
+		}
+	}
 
-    // Fall back just incase
-    if (!FinalPath.size())
-        FinalPath = "/usr/local/share/";
+	// Fall back just incase
+	if (!FinalPath.size())
+		FinalPath = "/usr/local/share/";
 
-    filePathFinal << FinalPath << "OpenFodder/";
+	filePathFinal << FinalPath << "OpenFodder/";
 
 #endif
 
-    // If this base path doesnt exist, then clear it and fall back to the exe working path
-    if (!local_FileExists(filePathFinal.str()))
-        filePathFinal.str("");
+	// If this base path doesnt exist, then clear it and fall back to the exe working path
+	if (!local_FileExists(filePathFinal.str()))
+		filePathFinal.str("");
 
-    gLocalBasePath = filePathFinal.str();
+	gLocalBasePath = filePathFinal.str();
 }
 
-std::string local_PathGenerate( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
+std::string local_PathGenerate(const std::string& pFile, const std::string& pPath, eDataType pDataType = eData) {
 	std::stringstream	 filePathFinal;
 
-    if (!gLocalBasePath.size())
-        local_BasePathGenerate();
+	if (!gLocalBasePath.size())
+		local_BasePathGenerate();
 
-    if (pDataType != eNone)
-        filePathFinal << gLocalBasePath;
+	if (pDataType != eNone)
+		filePathFinal << gLocalBasePath;
 
 	switch (pDataType) {
 	case eData:
@@ -305,16 +390,16 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 		filePathFinal << "Campaigns" << gPathSeperator;
 		break;
 
-    case eTest:
-        filePathFinal << "Tests" << gPathSeperator;
-        break;
+	case eTest:
+		filePathFinal << "Tests" << gPathSeperator;
+		break;
 
-    case eRoot:
+	case eRoot:
 	case eNone:
 	default:
 		break;
 	}
-	if( pPath.size() )
+	if (pPath.size())
 		filePathFinal << pPath << gPathSeperator;
 
 	filePathFinal << pFile;
@@ -322,29 +407,29 @@ std::string local_PathGenerate( const std::string& pFile, const std::string& pPa
 	return filePathFinal.str();
 }
 
-std::string local_FileMD5( const std::string& pFile, const std::string& pPath ) {
+std::string local_FileMD5(const std::string& pFile, const std::string& pPath) {
 	md5_context ctx;
 	unsigned char MD5[16];
 
-	auto File = local_FileRead( pFile, pPath );
+	auto File = local_FileRead(pFile, pPath);
 	if (!File->size())
 		return "";
 
-	md5_starts( &ctx );
-	md5_update( &ctx, File->data(), (uint32) File->size() );
-	md5_finish( &ctx, MD5 );
+	md5_starts(&ctx);
+	md5_update(&ctx, File->data(), (uint32)File->size());
+	md5_finish(&ctx, MD5);
 
 	std::string FinalMD5;
 	FinalMD5.reserve(32);
 
 	for (size_t i = 0; i != 16; ++i) {
-	  FinalMD5 += "0123456789ABCDEF"[MD5[i] / 16];
-	  FinalMD5 += "0123456789ABCDEF"[MD5[i] % 16];
+		FinalMD5 += "0123456789ABCDEF"[MD5[i] / 16];
+		FinalMD5 += "0123456789ABCDEF"[MD5[i] % 16];
 	}
 
 	return FinalMD5;
 }
-	
+
 
 bool local_FileExists(const std::string& pPath) {
 	struct stat info;
@@ -359,25 +444,25 @@ bool local_FileExists(const std::string& pPath) {
 	return false;
 }
 
-tSharedBuffer local_FileRead( const std::string& pFile, const std::string& pPath, eDataType pDataType ) {
+tSharedBuffer local_FileRead(const std::string& pFile, const std::string& pPath, eDataType pDataType) {
 	std::ifstream*	fileStream;
 	auto			fileBuffer = std::make_shared<std::vector<uint8_t>>();
 
 	std::string finalPath;
-	
-	finalPath = local_PathGenerate(pFile, pPath, pDataType );
+
+	finalPath = local_PathGenerate(pFile, pPath, pDataType);
 
 	// Attempt to open the file
- 	fileStream = new std::ifstream ( finalPath.c_str(), std::ios::binary );
+	fileStream = new std::ifstream(finalPath.c_str(), std::ios::binary);
 	if (fileStream->is_open() != false) {
 
 		// Get file size
-		fileStream->seekg( 0, std::ios::end );
-		fileBuffer->resize( static_cast<const unsigned int>(fileStream->tellg()) );
-		fileStream->seekg( std::ios::beg );
+		fileStream->seekg(0, std::ios::end);
+		fileBuffer->resize(static_cast<const unsigned int>(fileStream->tellg()));
+		fileStream->seekg(std::ios::beg);
 
 		// Allocate buffer, and read the file into it
-		fileStream->read( (char*) fileBuffer->data(), fileBuffer->size() );
+		fileStream->read((char*)fileBuffer->data(), fileBuffer->size());
 		if (!(*fileStream))
 			fileBuffer->clear();
 	}
@@ -395,12 +480,12 @@ tSharedBuffer local_FileRead( const std::string& pFile, const std::string& pPath
  * @param pBuffer
  * @param pSize Number of words
  */
-void tool_EndianSwap( uint8 *pBuffer, size_t pSize ) {
+void tool_EndianSwap(uint8 *pBuffer, size_t pSize) {
 	uint8 *pDest = pBuffer;
-	
+
 	pSize /= 2;
 
-	while( pSize-- ) {
+	while (pSize--) {
 		uint8 al = *pBuffer++;
 		uint8 ah = *pBuffer++;
 
@@ -409,12 +494,12 @@ void tool_EndianSwap( uint8 *pBuffer, size_t pSize ) {
 	}
 }
 
-std::string tool_StripLeadingZero( const std::string& pValue ) {
+std::string tool_StripLeadingZero(const std::string& pValue) {
 	std::string Final = pValue;
 
-	while (*Final.begin() == 0x30 && Final.length() > 1 ) {
+	while (*Final.begin() == 0x30 && Final.length() > 1) {
 
-		Final.erase( Final.begin() );
+		Final.erase(Final.begin());
 	}
 
 	return Final;
@@ -422,16 +507,16 @@ std::string tool_StripLeadingZero( const std::string& pValue ) {
 
 uint16 tool_DecimalToBinaryCodedDecimal(uint16 pDecimal) {
 
-	return ((pDecimal/10)<<4)+(pDecimal%10);
+	return ((pDecimal / 10) << 4) + (pDecimal % 10);
 }
 
 #ifdef WIN32
 #include "Windows.h"
 #include <direct.h>
 
-std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension) {
-    WIN32_FIND_DATA fdata;
-    HANDLE dhandle;
+std::vector<std::string> local_DirectoryList(const std::string& pPath, const std::string& pExtension) {
+	WIN32_FIND_DATA fdata;
+	HANDLE dhandle;
 	std::vector<std::string> results;
 
 	char path[2000];
@@ -440,55 +525,57 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 	// Build the file path
 	std::stringstream finalPath;
 
-	if(pPath.size())
+	if (pPath.size())
 		finalPath << pPath;
 
 	finalPath << "/*" << pExtension;
 
-	size_t size = MultiByteToWideChar( 0,0, finalPath.str().c_str(), (int) finalPath.str().length(), 0, 0);
-	WCHAR    *pathFin = new WCHAR[ size + 1];
-	memset( pathFin, 0, size + 1);
+	size_t size = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)finalPath.str().length(), 0, 0);
+	WCHAR    *pathFin = new WCHAR[size + 1];
+	memset(pathFin, 0, size + 1);
 
-	size = MultiByteToWideChar( 0,0, finalPath.str().c_str(), (int) size, pathFin, (int) size);
+	size = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)size, pathFin, (int)size);
 	pathFin[size] = 0;
 
-	if((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
+	if ((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
 		delete pathFin;
 		return results;
 	}
-	
+
 	delete pathFin;
-    size_t tmp = 0;
+	size_t tmp = 0;
 
-    {
-        char *file = new char[wcslen(fdata.cFileName) + 1];
-        memset(file, 0, wcslen(fdata.cFileName) + 1);
-       
-        wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
-        results.push_back(std::string(file));
-        delete file;
-    }
+	{
+		char *file = new char[wcslen(fdata.cFileName) + 1];
+		memset(file, 0, wcslen(fdata.cFileName) + 1);
 
-    while(1) {
-        if(FindNextFile(dhandle, &fdata)) {
-			char *file = new char[ wcslen(fdata.cFileName) + 1];
-			memset(file, 0, wcslen(fdata.cFileName) + 1 );
-			
-			wcstombs_s( &tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName) );
+		wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
+		results.push_back(std::string(file));
+		delete file;
+	}
+
+	while (1) {
+		if (FindNextFile(dhandle, &fdata)) {
+			char *file = new char[wcslen(fdata.cFileName) + 1];
+			memset(file, 0, wcslen(fdata.cFileName) + 1);
+
+			wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
 			results.push_back(std::string(file));
 			delete file;
-				
-        } else {
-                if(GetLastError() == ERROR_NO_MORE_FILES) {
-                        break;
-                } else {
-                        FindClose(dhandle);
-                        return results;
-                }
-        }
-    }
 
-    FindClose(dhandle);
+		}
+		else {
+			if (GetLastError() == ERROR_NO_MORE_FILES) {
+				break;
+			}
+			else {
+				FindClose(dhandle);
+				return results;
+			}
+		}
+	}
+
+	FindClose(dhandle);
 
 	return results;
 }
@@ -500,15 +587,15 @@ std::string findType;
 int file_select(const struct dirent *entry) {
 	std::string name = entry->d_name;
 
-	transform( name.begin(), name.end(), name.begin(), ::toupper );
-   	
-	if( name.find( findType ) == std::string::npos )
+	transform(name.begin(), name.end(), name.begin(), ::toupper);
+
+	if (name.find(findType) == std::string::npos)
 		return false;
-	
+
 	return true;
 }
 
-std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension) {
+std::vector<std::string> local_DirectoryList(const std::string& pPath, const std::string& pExtension) {
 	struct dirent		**directFiles;
 	std::vector<std::string>		  results;
 
@@ -518,23 +605,23 @@ std::vector<std::string> local_DirectoryList( const std::string& pPath, const st
 	finalPath << pPath << "/";
 
 	findType = pExtension;
-		
-    transform( findType.begin(), findType.end(), findType.begin(), ::toupper);
 
-	int count = scandir(finalPath.str().c_str(), (dirent***) &directFiles, file_select, 0);
-	
-	for( int i = 0; i < count; ++i ) {
+	transform(findType.begin(), findType.end(), findType.begin(), ::toupper);
 
-		results.push_back( std::string( directFiles[i]->d_name ) );
-	}
-
-	transform( findType.begin(), findType.end(), findType.begin(), ::tolower );
-
-	count = scandir( finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0 );
+	int count = scandir(finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0);
 
 	for (int i = 0; i < count; ++i) {
 
-		results.push_back( std::string( directFiles[i]->d_name ) );
+		results.push_back(std::string(directFiles[i]->d_name));
+	}
+
+	transform(findType.begin(), findType.end(), findType.begin(), ::tolower);
+
+	count = scandir(finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0);
+
+	for (int i = 0; i < count; ++i) {
+
+		results.push_back(std::string(directFiles[i]->d_name));
 	}
 
 	return results;
