@@ -163,9 +163,6 @@
     <ClInclude Include="..\..\Source\Utils\md5.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ResourceMan.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -275,9 +272,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Utils\md5.cpp">
       <Filter>Source\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ResourceMan.cpp">
-      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
