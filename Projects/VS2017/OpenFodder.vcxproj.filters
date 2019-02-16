@@ -66,9 +66,6 @@
     <ClInclude Include="..\..\Source\Recruits.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\md5.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp">
       <Filter>Source\PC</Filter>
     </ClInclude>
@@ -163,6 +160,12 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\resource.h" />
+    <ClInclude Include="..\..\Source\Utils\md5.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ResourceMan.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -193,9 +196,6 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Recruits.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\md5.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Versions.cpp">
@@ -271,6 +271,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\About.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utils\md5.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ResourceMan.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
