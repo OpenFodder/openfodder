@@ -290,7 +290,6 @@ public:
 					if (line[0] == '[')
 					{
 						// without section brackets
-						size_t length = len - 2;
 						auto ssection = line.substr(1, line.find(']') - 1);
 						out << ssection;
 

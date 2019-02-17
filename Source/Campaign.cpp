@@ -273,7 +273,7 @@ tSharedBuffer cCampaign::getMap(std::shared_ptr<cPhase> pPhase) const {
         return g_Resource->fileGet(FinalName);
 
     // Otherwise load it from the campaign path
-    return local_FileRead(FinalPath, "", eNone);
+    return g_ResourceMan->FileRead(FinalPath);
 }
 
 tSharedBuffer cCampaign::getSprites(std::shared_ptr<cPhase> pPhase) const {
@@ -285,7 +285,7 @@ tSharedBuffer cCampaign::getSprites(std::shared_ptr<cPhase> pPhase) const {
         return g_Resource->fileGet(FinalName);
 
     // Otherwise load it from the campaign path
-    return local_FileRead(FinalPath, "", eNone);
+    return g_ResourceMan->FileRead(FinalPath);
 }
 
 /**

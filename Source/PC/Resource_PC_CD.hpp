@@ -36,7 +36,7 @@ class cResource_PC_CD : public cResources {
 
 public:
 	
-									cResource_PC_CD( const std::string& pDataPath, const std::string& pDataFile );
+									cResource_PC_CD( const std::string& pDataFile );
 	virtual							~cResource_PC_CD();
 
 	virtual tSharedBuffer 			fileGet( std::string pFilename );

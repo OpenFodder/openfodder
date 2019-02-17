@@ -34,16 +34,15 @@ struct cResource_File {
 
 class cResources {
 protected:
-	std::string						mDataPath;
 
 	tSharedBuffer					fileDeRNC(tSharedBuffer pBuffer);
 
 public:
-	 								cResources( std::string pDataPath = "" );
+	 								cResources( );
 	virtual							~cResources() { };
 						
-	virtual tSharedBuffer 			fileGetLocal(std::string pFilename);
 	virtual tSharedBuffer 			fileGet( std::string pFilename );
+	tSharedBuffer					fileGetLocal(std::string pFilename);
 
 	size_t							fileLoadTo( const std::string& pFilename, uint8* pTarget );
 };

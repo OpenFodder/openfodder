@@ -23,33 +23,21 @@
 #include "stdafx.hpp"
 #include "Amiga/dernc.hpp"
 
-cResources::cResources( std::string pDataPath ) {
+cResources::cResources( ) {
 
-	mDataPath = pDataPath;
 }
 
 tSharedBuffer cResources::fileGetLocal(std::string pFilename) {
 	// This is really hacky
 
-	// First look for lower case, without a path
+	// First look for lower case
 	std::transform(pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower);
-	auto File = local_FileRead(pFilename, "");
-	if (File->size())
-		return File;
-
-	// Then check in the data path
-	File = local_FileRead(pFilename, mDataPath.c_str());
+	auto File = g_ResourceMan->FileRead(g_Fodder->mVersionCurrent->getDataPath() + pFilename);
 	if (File->size())
 		return File;
 
 	// Then check for upper case
-	std::transform(pFilename.begin(), pFilename.end(), pFilename.begin(), ::toupper);
-	File = local_FileRead(pFilename, "");
-	if (File->size())
-		return File;
-
-	// Then check for upper case in the data path
-	File = local_FileRead(pFilename, mDataPath.c_str());
+	File = g_ResourceMan->FileRead(g_Fodder->mVersionCurrent->getDataPath() + pFilename);
 	return File;
 }
 

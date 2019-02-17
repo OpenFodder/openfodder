@@ -21,7 +21,6 @@
  */
 
 #include "stdafx.hpp"
-#include "Utils/md5.hpp"
 #include "Utils/cxxopts.hpp"
 #include "Utils/ini.hpp"
 
@@ -35,6 +34,7 @@ std::shared_ptr<cResources> g_Resource;
 std::shared_ptr<cWindow>    g_Window;
 std::shared_ptr<cFodder>    g_Fodder;
 std::shared_ptr<cDebugger>  g_Debugger;
+std::shared_ptr<cResourceMan> g_ResourceMan;
 
 const char gPathSeperator = '/';
 
@@ -105,6 +105,8 @@ sFodderParameters parseini() {
 		// TODO: We should loop every entry in this section and add the path to the res manager
 		auto path = ini.get("path", "");
 	
+		if(path.size())
+			g_ResourceMan->addDir(path);
 	}
 
 	return params;
@@ -117,7 +119,9 @@ int start(int argc, char *argv[]) {
     sFodderParameters Params = parseini();
     g_Debugger = std::make_shared<cDebugger>();
     g_Window = std::make_shared<cWindow>();
+	g_ResourceMan = std::make_shared<cResourceMan>();
     g_Fodder = std::make_shared<cFodder>(g_Window);
+
 
     cxxopts::Options options("OpenFodder", "War has never been so much fun");
     options.allow_unrecognised_options();
@@ -403,30 +407,6 @@ std::string local_PathGenerate(const std::string& pFile, const std::string& pPat
 	return filePathFinal.str();
 }
 
-std::string local_FileMD5(const std::string& pFile, const std::string& pPath) {
-	md5_context ctx;
-	unsigned char MD5[16];
-
-	auto File = local_FileRead(pFile, pPath);
-	if (!File->size())
-		return "";
-
-	md5_starts(&ctx);
-	md5_update(&ctx, File->data(), (uint32)File->size());
-	md5_finish(&ctx, MD5);
-
-	std::string FinalMD5;
-	FinalMD5.reserve(32);
-
-	for (size_t i = 0; i != 16; ++i) {
-		FinalMD5 += "0123456789ABCDEF"[MD5[i] / 16];
-		FinalMD5 += "0123456789ABCDEF"[MD5[i] % 16];
-	}
-
-	return FinalMD5;
-}
-
-
 bool local_FileExists(const std::string& pPath) {
 	struct stat info;
 
@@ -440,36 +420,6 @@ bool local_FileExists(const std::string& pPath) {
 	return false;
 }
 
-tSharedBuffer local_FileRead(const std::string& pFile, const std::string& pPath, eDataType pDataType) {
-	std::ifstream*	fileStream;
-	auto			fileBuffer = std::make_shared<std::vector<uint8_t>>();
-
-	std::string finalPath;
-
-	finalPath = local_PathGenerate(pFile, pPath, pDataType);
-
-	// Attempt to open the file
-	fileStream = new std::ifstream(finalPath.c_str(), std::ios::binary);
-	if (fileStream->is_open() != false) {
-
-		// Get file size
-		fileStream->seekg(0, std::ios::end);
-		fileBuffer->resize(static_cast<const unsigned int>(fileStream->tellg()));
-		fileStream->seekg(std::ios::beg);
-
-		// Allocate buffer, and read the file into it
-		fileStream->read((char*)fileBuffer->data(), fileBuffer->size());
-		if (!(*fileStream))
-			fileBuffer->clear();
-	}
-
-	// Close the stream
-	fileStream->close();
-	delete fileStream;
-
-	// All done ;)
-	return fileBuffer;
-}
 
 /**
  *
@@ -510,13 +460,17 @@ uint16 tool_DecimalToBinaryCodedDecimal(uint16 pDecimal) {
 #include "Windows.h"
 #include <direct.h>
 
+std::string local_getcwd() {
+	char buff[1024];
+	_getcwd(buff, 1024);	
+	std::string cwd(buff);
+	return cwd;
+}
+
 std::vector<std::string> local_DirectoryList(const std::string& pPath, const std::string& pExtension) {
 	WIN32_FIND_DATA fdata;
 	HANDLE dhandle;
 	std::vector<std::string> results;
-
-	char path[2000];
-	_getcwd(path, 2000);
 
 	// Build the file path
 	std::stringstream finalPath;
@@ -579,6 +533,13 @@ std::vector<std::string> local_DirectoryList(const std::string& pPath, const std
 #else
 #include <dirent.h>
 std::string findType;
+
+std::string local_getcwd() {
+	char buff[1024];
+	getcwd(buff, 1024);
+	std::string cwd(buff);
+	return cwd;
+}
 
 int file_select(const struct dirent *entry) {
 	std::string name = entry->d_name;

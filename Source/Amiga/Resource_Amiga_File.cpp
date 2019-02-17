@@ -22,8 +22,9 @@
 
 #include "stdafx.hpp"
 #include "Amiga/dernc.hpp"
+#include "Amiga/Resource_Amiga_File.hpp"
 
-cResource_Amiga_File::cResource_Amiga_File( std::string pDataPath  ) : cResources(pDataPath) {
+cResource_Amiga_File::cResource_Amiga_File(  ) : cResources() {
 
 }
 

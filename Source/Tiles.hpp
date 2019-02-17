@@ -20,16 +20,6 @@
 *
 */
 
-enum eTileTypes {
-	eTileTypes_Jungle	= 0,
-	eTileTypes_Desert	= 1,
-	eTileTypes_Ice		= 2,
-	eTileTypes_Moors	= 3,
-	eTileTypes_Int		= 4,
-	eTileTypes_Hid		= 5,
-	eTileTypes_AFX		= 6,	// Amiga Format Christmas Special
-};
-
 enum eTerrainType {
 	eTerrainType_Land			= 0,
 	eTerrainType_Rocky			= 1,

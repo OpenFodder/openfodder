@@ -246,7 +246,7 @@ struct sGameData {
 
     std::string		mCampaignName;
     std::string		mSavedName;
-    sRelease		mSavedVersion;
+	sVersion		mSavedVersion;
 
     sGameData();
     sGameData(const std::string& pFromJson);

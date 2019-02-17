@@ -56,9 +56,9 @@ enum eDataType {
 std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension );
 
 bool				local_FileExists(const std::string& pPath);
-std::string			local_FileMD5( const std::string& pFile, const std::string& pPath );
-tSharedBuffer 		local_FileRead( const std::string& pFile, const std::string& pPath, eDataType pDataType = eData);
 std::string			local_PathGenerate(  const std::string& pFile, const std::string& pPath, eDataType pDataType );
+
+std::string			local_getcwd();
 
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
 std::string tool_StripLeadingZero( const std::string& pValue );
@@ -111,9 +111,11 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Event.hpp"
 
 #include "Surface.hpp"
+#include "Version.hpp"
 #include "Resources.hpp"
+
 #include "PC/Resource_PC_CD.hpp"
-#include "Amiga/Resource_Amiga_File.hpp"
+//#include "Amiga/Resource_Amiga_File.hpp"
 
 #include "CopyProtection.hpp"
 #include "IntroData.hpp"
@@ -124,6 +126,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Graphics.hpp"
 #include "Recruits.hpp"
 #include "Versions.hpp"
+#include "ResourceMan.hpp"
 
 #include "Window.hpp"
 #include "Sound.hpp"
@@ -150,6 +153,7 @@ extern std::shared_ptr<cResources> g_Resource;
 extern std::shared_ptr<cWindow>    g_Window;
 extern std::shared_ptr<cFodder>    g_Fodder;
 extern std::shared_ptr<cDebugger>  g_Debugger;
+extern std::shared_ptr<cResourceMan> g_ResourceMan;
 
 extern const char gPathSeperator;
 

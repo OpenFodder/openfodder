@@ -50,6 +50,8 @@ const int16 mBriefing_Helicopter_Offsets[] =
 
 cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
+	g_ResourceMan->findVersions();
+
     mVersions = std::make_shared<cVersions>();
     mVersionCurrent = 0;
     mVersionDefault = 0;
@@ -2597,7 +2599,6 @@ void cFodder::Phase_Goals_Check() {
 
     int16 Data8 = 0;
     int16 DataC = 0;
-    int16 Data0 = 0x2B;
 
 	for (auto& Sprite : mSprites) {
 		sSprite* Data20 = &Sprite;
@@ -3474,21 +3475,6 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
     if (!pVersion)
         return;
 
-    auto DataPath = pVersion->mDataPath;
-
-    // Custom version?
-    if (pVersion->isCustom()) {
-        auto RetailRelease = mVersions->GetRetail(mParams.mDefaultPlatform);
-
-        // If a retail release is found, we use its data path
-        if (RetailRelease != 0)
-            DataPath = RetailRelease->mDataPath;
-        else {
-            std::cout << "Retail release not found";
-            return;
-        }
-    }
-
     if (mVersionCurrent == pVersion)
         return;
 
@@ -3500,7 +3486,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
     // Sound must be released first, to unlock the audio device
     mSound = 0;
-    mResources = g_Resource = mVersionCurrent->GetResources(DataPath);
+    mResources = g_Resource = mVersionCurrent->GetResources();
     mGraphics = mVersionCurrent->GetGraphics();
     mSound = mVersionCurrent->GetSound();
 
@@ -3551,8 +3537,9 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
     mStartParams = mParams;
+	//mVersions->FindKnownVersions();
 
-    if (!mVersions->isDataAvailable()) {
+    if (!g_ResourceMan->isDataAvailable()) {
         g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
 
         std::string Path = local_PathGenerate("", "", eData);
@@ -16359,9 +16346,9 @@ void cFodder::intro_LegionMessage() {
     mSurface->clearBuffer();
     mGraphics->PaletteSet();
 
-    Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[0]);
-    Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[1]);
-    Intro_Print_String(&mVersionCurrent->mIntroData[0].mText[2]);
+    Intro_Print_String(&mVersionCurrent->getIntroData()->at(0).mText[0]);
+	Intro_Print_String(&mVersionCurrent->getIntroData()->at(0).mText[1]);
+	Intro_Print_String(&mVersionCurrent->getIntroData()->at(0).mText[2]);
 
     while (mSurface->isPaletteAdjusting() || DoBreak == false) {
 
@@ -16390,19 +16377,19 @@ int16 cFodder::intro_Play() {
     mGraphics->Load_Sprite_Font();
     mGraphics->SetActiveSpriteSheet(eGFX_Types::eGFX_FONT);
 
-    for (word_3B2CF = 1; mVersionCurrent->mIntroData[word_3B2CF].mImageNumber != 0; ++word_3B2CF) {
+    for (word_3B2CF = 1; mVersionCurrent->getIntroData()->at(word_3B2CF).mImageNumber != 0; ++word_3B2CF) {
 
         mIntro_PlayTextDuration = 0x288 / 5;
 
         mSurface->palette_SetToBlack();
 
-        if (mVersionCurrent->mIntroData[word_3B2CF].mImageNumber == 0 && mVersionCurrent->mIntroData[word_3B2CF].mText == 0)
+        if (mVersionCurrent->getIntroData()->at(word_3B2CF).mImageNumber == 0 && mVersionCurrent->getIntroData()->at(word_3B2CF).mText == 0)
             break;
 
-        if (mVersionCurrent->mIntroData[word_3B2CF].mImageNumber != 0xFF) {
+        if (mVersionCurrent->getIntroData()->at(word_3B2CF).mImageNumber != 0xFF) {
 
             std::stringstream ImageName;
-            ImageName << (char)mVersionCurrent->mIntroData[word_3B2CF].mImageNumber;
+            ImageName << (char)mVersionCurrent->getIntroData()->at(word_3B2CF).mImageNumber;
 
             mGraphics->Load_And_Draw_Image(ImageName.str(), 0xD0);
         }
@@ -16412,7 +16399,7 @@ int16 cFodder::intro_Play() {
         }
 
         mGraphics->PaletteSet();
-        const sIntroString* IntroString = mVersionCurrent->mIntroData[word_3B2CF].mText;
+        const sIntroString* IntroString = mVersionCurrent->getIntroData()->at(word_3B2CF).mText;
         if (IntroString) {
             while (IntroString->mPosition) {
 
@@ -16434,8 +16421,8 @@ int16 cFodder::intro_Play() {
                 Mouse_Inputs_Get();
                 if (mMouseButtonStatus) {
 
-                    if (mVersionCurrent->mIntroData.size() >= 2)
-                        word_3B2CF = ((int16)mVersionCurrent->mIntroData.size()) - 2;
+                    if (mVersionCurrent->getIntroData()->size() >= 2)
+                        word_3B2CF = ((int16)mVersionCurrent->getIntroData()->size()) - 2;
 
                     mImage_Aborted = -1;
                     mSurface->paletteNew_SetToBlack();
@@ -16483,8 +16470,8 @@ void cFodder::Mission_Intro_Play() {
     Mission_Intro_Draw_Mission_Name();
     mSurface->Save();
 
+	// Prior to mission 4, the UFO is not shown on the mission intro
     bool ShowHelicopter = true;
-
     if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4)
         ShowHelicopter = false;
 
@@ -18377,7 +18364,8 @@ int16 cFodder::Sprite_Homing_LockInRange(sSprite* pSprite, sSprite*& pFoundSprit
 
     MouseY += 0x08;
 
-	for (pFoundSprite = mSprites.data(); pFoundSprite < (&*mSprites.end()); ++pFoundSprite) {
+	for( auto& Sprite : mSprites ) {
+		pFoundSprite = &Sprite;
 
         if (pFoundSprite->field_0 == -32768)
             continue;

@@ -26,7 +26,7 @@ class cResource_Amiga_File : public cResources {
 
 	public:
 	
-									cResource_Amiga_File( std::string pDataPath = "" );
+									cResource_Amiga_File( );
 	virtual							~cResource_Amiga_File();
 
 	virtual tSharedBuffer 		fileGet( std::string pFilename );

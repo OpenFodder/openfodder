@@ -22,23 +22,6 @@
 
 class cFodder;
 
-enum eGFX_Types {
-	eGFX_IN_GAME = 0,
-	eGFX_IN_GAME2 = 1,
-	eGFX_FONT = 2,
-	eGFX_HILL = 3,
-	eGFX_RECRUIT = 4,
-	eGFX_BRIEFING = 5,
-	eGFX_SERVICE = 6,
-
-	eGFX_RANKFONT = 7,
-	eGFX_PSTUFF = 8,
-
-	eGFX_BRIEFING_AMIGA_1 = 9,
-	eGFX_BRIEFING_AMIGA_2 = 10,
-	eGFX_BRIEFING_AMIGA_3 = 11
-};
-
 struct sILBM_BMHD {
 	uint16	mWidth, mHeight;
 	uint16	mX, mY;
