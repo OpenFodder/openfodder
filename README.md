@@ -42,7 +42,7 @@ For the most recent Windows build, you may obtain the executable built during te
   
 #### How to play
 
-Open Fodder supports five demos from the Amiga platform, and three retail releases (See below for supported versions).
+Open Fodder supports six demos from the Amiga platform, and three retail releases (See below for supported versions).
   
 ##### Command Line Parameters
 ```
@@ -56,7 +56,6 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
       --cheats                  Enable cheat keys
       --max-sprite 45           Set the maximum sprites (default: 45)
       --max-spawn 10            Set the maximum spawn (default: 10)
-      --sleep-delta 2           Set the engine speed (default: 2)
       --demo-record "Demo File"
                                 Record Demo (default: )
       --demo-record-all         Record Demo
@@ -65,10 +64,10 @@ Open Fodder supports five demos from the Amiga platform, and three retail releas
       --unit-test-headless      Run Tests, with no output
       --appveyor                Output for appveyor
       --nosound                 Disable sound output
-      --playground              Sprite playground
       --skipintro               Skip all game intros
       --skipbriefing            Skip mission briefing
       --skipservice             Skip mission debriefing
+      --skiphill                Skip the hill
       --list-campaigns          List available campaigns
   -c, --campaign "name"         Starting campaign (default: )
   -m, --mission 1               Starting mission (default: 0)
@@ -115,7 +114,7 @@ Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com), direct
   
 ##### Demos
   
-Five Amiga magazine coverdisk demos and one PC demo are included in the data pack.  
+Six Amiga magazine coverdisk demos and one PC demo are included in the data pack.  
   
 * Amiga The One Issue #68: (Jun 1993)
 * Amiga Power   Issue #31: (Nov 1993) Cannon Fodder Plus
