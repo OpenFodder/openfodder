@@ -73,6 +73,7 @@ Section "Copy Files" drcreepInst
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   
+  File ".\openfodder.ini"
   File ".\packages\VC_redist.x86.exe"
   File "..\..\gpl-3.0.txt"
   File "..\..\Readme.md"
@@ -81,12 +82,20 @@ Section "Copy Files" drcreepInst
   File "..\VS2017\Release\SDL2_mixer.dll"
   File "..\VS2017\Release\libmodplug-1.dll"
   
-  SetOutPath "$PROFILE\Documents\OpenFodder"
+  Var /GLOBAL DataDest
+  StrCpy $DataDest "$INSTDIR"
+  
+  MessageBox MB_YESNO|MB_ICONQUESTION "Install data to $PROFILE\Documents\OpenFodder ?" IDNO CopyFilesLocal
+    StrCpy $DataDest "$PROFILE\Documents\OpenFodder"
+  CopyFilesLocal:
+  
+  SetOutPath "$DataDest"
   File /r "..\..\Run\Campaigns"
   File /r "..\..\Run\Data"
   File /r "..\..\Run\Saves"
 
   SetOutPath "$INSTDIR"
+  
   ;Store installation folder
   WriteRegStr HKLM "Software\OpenFodder" "Install_Dir" $INSTDIR
   
@@ -104,15 +113,30 @@ Section "Copy Files" drcreepInst
 
 	CreateShortCut "$DESKTOP\OpenFodder.lnk" "$INSTDIR\OpenFodder.exe"
 
-	;MessageBox MB_YESNO|MB_ICONQUESTION "Install Microsoft Visual C++ 2017 64bit Redistributable Package?" IDNO NoRunVC
+	MessageBox MB_YESNO|MB_ICONQUESTION "Install Microsoft Visual C++ 2017 64bit Redistributable Package?" IDNO NoRunVC
     Exec "$INSTDIR\VC_redist.x86.exe"
-	
   NoRunVC:
+  
+  	nsDialogs::SelectFolderDialog "Please locate your extracted Amiga release of Cannon Fodder" "C:\"
+	Pop $0
+	${If} $0 != "error"
+		IfFileExists $0\CFTITLE.RAW 0 +2
+			CopyFiles "$0\*.*" "$DataDest\Data\Amiga"
+	${EndIf}
+	
+	nsDialogs::SelectFolderDialog "Please locate your extracted Amiga release of Cannon Fodder 2" "C:\"
+	Pop $0
+	${If} $0 != "error"
+		IfFileExists $0\CFTITLE.RAW 0 +2
+			CopyFiles "$0\*.*" "$DataDest\Data\Amiga2"
+	${EndIf}
+	
+  
     nsDialogs::SelectFolderDialog "Please locate your GOG or DOS CD-Rom release of Cannon Fodder" "C:\"
 	Pop $0
 	${If} $0 != "error"
 		IfFileExists $0\CF_ENG.DAT 0 +2
-			CopyFiles "$0\CF_ENG.DAT" "$PROFILE\Documents\OpenFodder\Data\Dos_CD"
+			CopyFiles "$0\CF_ENG.DAT" "$DataDest\Data\Dos_CD"
 			
 	${EndIf}
 	
@@ -120,21 +144,8 @@ Section "Copy Files" drcreepInst
 	Pop $0
 	${If} $0 != "error"
 		IfFileExists $0\CF_ENG.DAT 0 +2
-			CopyFiles "$0\*.*" "$PROFILE\Documents\OpenFodder\Data\Dos2_CD"
+			CopyFiles "$0\*.*" "$DataDest\Data\Dos2_CD"
 			
-	${EndIf}
-	nsDialogs::SelectFolderDialog "Please locate your extracted Amiga release of Cannon Fodder" "C:\"
-	Pop $0
-	${If} $0 != "error"
-		IfFileExists $0\CFTITLE.RAW 0 +2
-			CopyFiles "$0\*.*" "$PROFILE\Documents\OpenFodder\Data\Amiga"
-	${EndIf}
-	
-	nsDialogs::SelectFolderDialog "Please locate your extracted Amiga release of Cannon Fodder 2" "C:\"
-	Pop $0
-	${If} $0 != "error"
-		IfFileExists $0\CFTITLE.RAW 0 +2
-			CopyFiles "$0\*.*" "$PROFILE\Documents\OpenFodder\Data\Amiga2"
 	${EndIf}
 
 SectionEnd 
@@ -187,7 +198,9 @@ Section "Uninstall"
     Delete "$INSTDIR\Readme.md"
     Delete "$INSTDIR\SDL2.dll"
 	Delete "$INSTDIR\SDL2_mixer.dll"
-
+	Delete "$INSTDIR\libmodplug-1.dll"
+	Delete "$INSTDIR\openfodder.ini"
+	
 	RMDir "$INSTDIR"
 		
 	IfFileExists $INSTDIR 0 no 
