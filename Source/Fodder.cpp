@@ -3550,6 +3550,7 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     }
 
     mWindow->InitWindow("Open Fodder");
+	mWindow->SetWindowSize(mParams.mWindowScale);
 
     tool_RandomSeed();
 

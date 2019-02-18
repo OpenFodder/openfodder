@@ -463,6 +463,9 @@ void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
 
 void cWindow::SetWindowSize( const int pMultiplier ) {
 
+	if (pMultiplier < 1 )
+		return;
+
 	mScaler = pMultiplier;
 
 	if (mWindow) {

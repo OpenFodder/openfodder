@@ -42,7 +42,6 @@ class cWindow {
 
 	protected:
 
-		void				SetWindowSize( const int pMultiplier  );
 
 	public:
 
@@ -86,6 +85,7 @@ class cWindow {
 		void				SetOriginalRes( const cDimension& pDimension );
 
 		void				SetWindowTitle( const std::string& pWindowTitle );
+		void				SetWindowSize(const int pMultiplier);
 
 		void				ToggleFullscreen();
 		void				ClearResized();

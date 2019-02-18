@@ -30,6 +30,7 @@ struct sFodderParameters {
     bool mSkipService;          // Skip mission debrief
 
     bool mWindowMode;           // Start in a window
+	size_t mWindowScale;		// Start with window scaled at
     bool mRandom;               // Start a random map
     ePlatform mDefaultPlatform; // Default platform to use
 
@@ -71,6 +72,7 @@ struct sFodderParameters {
         mMissionNumber = 0;
         mPhaseNumber = 0;
         mWindowMode = false;
+		mWindowScale = 0;
         mRandom = false;
         mDefaultPlatform = ePlatform::Any;
         mDemoRecord = false;

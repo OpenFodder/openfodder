@@ -62,6 +62,12 @@ sFodderParameters parseini() {
 				params.mCheatsEnabled = true;
 			else
 				params.mCheatsEnabled = false;
+
+			if (ini.get("scale", "false") == "auto")
+				params.mWindowScale = 0;
+			else {
+				params.mWindowScale = ini.get("scale", 0);
+			}
 		}
 	}
 
@@ -120,7 +126,6 @@ int start(int argc, char *argv[]) {
     g_Window = std::make_shared<cWindow>();
 	g_ResourceMan = std::make_shared<cResourceMan>();
     g_Fodder = std::make_shared<cFodder>(g_Window);
-
 
     cxxopts::Options options("OpenFodder", "War has never been so much fun");
     options.allow_unrecognised_options();
