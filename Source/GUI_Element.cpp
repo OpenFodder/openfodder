@@ -1144,23 +1144,14 @@ void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
     mGUI_NextFreeElement = Element;
 }
 
-std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, const char* pType, eDataType pData) {
+std::string cFodder::GUI_Select_File(const char* pTitle, const std::vector<sSavedGame>& pSave, const std::vector<std::string> &pMaps) {
     mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
 
-    auto Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
-    std::vector<sSavedGame> SaveFiles;
-
-    // Filter out save games to match the current data set
-    if (pData == eDataType::eSave) {
-        SaveFiles = Game_Load_Filter(Files);
-        Files.clear();
-    }
-
     mGUI_Select_File_CurrentIndex = 0;
-    mGUI_Select_File_Count = (SaveFiles.size() == 0 ? (int16)Files.size() : (int16)SaveFiles.size());
+    mGUI_Select_File_Count = (pSave.size() == 0 ? (int16)pMaps.size() : (int16)pSave.size());
 
     do {
         size_t YOffset = PLATFORM_BASED(0, 25);
@@ -1183,10 +1174,10 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
         int16 DataC = 0;
 
         // Draw the raw files list?
-        if (!SaveFiles.size()) {
-            auto FileIT = Files.begin() + mGUI_Select_File_CurrentIndex;
+        if (!pSave.size()) {
+            auto FileIT = pMaps.begin() + mGUI_Select_File_CurrentIndex;
 
-            for (; DataC < mGUI_Select_File_ShownItems && FileIT != Files.end(); ++DataC) {
+            for (; DataC < mGUI_Select_File_ShownItems && FileIT != pMaps.end(); ++DataC) {
                 size_t Pos = FileIT->find_first_of(".");
 
                 GUI_Button_Draw(FileIT->substr(0, Pos), 0x3E + (DataC * 0x15), 0xB2, 0xB3);
@@ -1196,9 +1187,9 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
         }
         else {
             // Or the save game list
-            auto FileIT = SaveFiles.begin() + mGUI_Select_File_CurrentIndex;
+            auto FileIT = pSave.begin() + mGUI_Select_File_CurrentIndex;
 
-            for (; DataC < mGUI_Select_File_ShownItems && FileIT != SaveFiles.end(); ++DataC) {
+            for (; DataC < mGUI_Select_File_ShownItems && FileIT != pSave.end(); ++DataC) {
 
                 GUI_Button_Draw(FileIT->mName, 0x3E + (DataC * 0x15), 0xB2, 0xB3);
                 GUI_Button_Setup(&cFodder::GUI_Button_Filename);
@@ -1214,10 +1205,10 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const char* pPath, cons
     if (mGUI_SaveLoadAction == 1)
         return "";
 
-    if (SaveFiles.size())
-        return SaveFiles[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex].mFileName;
+    if (pSave.size())
+        return pSave[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex].mFileName;
 
-    return Files[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+    return pMaps[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
 void cFodder::GUI_Select_File_Loop(bool pShowCursor) {

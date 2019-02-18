@@ -34,8 +34,6 @@ const int32 CAMERA_TOWARD_SQUAD_SPEED = 0x14;               // Dos: Original 0x1
 const int16 MOUSE_POSITION_X_ADJUST = -32;
 const int16 MOUSE_POSITION_Y_ADJUST = 4;
 
-const char* SAVEGAME_EXTENSION = ".ofg";
-
 const int16 mBriefing_Helicopter_Offsets[] =
 {
     0x0180, 0x0040, 0x0004, 0x01A0,
@@ -49,8 +47,6 @@ const int16 mBriefing_Helicopter_Offsets[] =
 };
 
 cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
-
-	g_ResourceMan->findVersions();
 
     mVersions = std::make_shared<cVersions>();
     mVersionCurrent = 0;
@@ -3537,14 +3533,17 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 void cFodder::Prepare(const sFodderParameters& pParams) {
     mParams = pParams;
     mStartParams = mParams;
-	//mVersions->FindKnownVersions();
 
+	g_ResourceMan->refresh();
+		
     if (!g_ResourceMan->isDataAvailable()) {
         g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
 
-        std::string Path = local_PathGenerate("", "", eData);
+		g_Debugger->Error("We are looking for the 'Data' directory in: ");
+		for (auto path : g_ResourceMan->getAllPaths()) {
+			g_Debugger->Error(path);
+		}
 
-        g_Debugger->Error("We are looking for the 'Data' directory at: " + Path);
         g_Debugger->Error("Press enter to quit");
         std::cin.get();
         exit(1);
@@ -4036,18 +4035,13 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     {
         for (auto& Name : mVersions->GetCampaignNames()) {
 
-            if(mGame_Data.mCampaign.isAvailable(Name) || Name == "Single Map" || Name == "Random Map")
+            if(g_ResourceMan->isCampaignAvailable(Name) || Name == "Single Map" || Name == "Random Map")
                 mCampaignList.push_back(Name);
         }
     }
 
     {
-        auto Files = local_DirectoryList(local_PathGenerate("", pPath, pData), pType);
-
-        // Sort files alphabetical
-        std::sort(Files.begin(), Files.end(), [](std::string& pLeft, std::string& pRight) {
-            return pLeft < pRight;
-        });
+		auto Files = g_ResourceMan->GetCampaigns();
 
         // Append all custom campaigns to the list
         for (auto& File : Files) {
@@ -4087,7 +4081,7 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     if (mGUI_SaveLoadAction == 1)
         return "";
 
-    return mCampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+	return mCampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
 
@@ -4341,7 +4335,8 @@ void cFodder::Custom_ShowMapSelection() {
     Image_FadeOut();
     mGraphics->PaletteSet();
 
-    const std::string File = GUI_Select_File("SELECT MAP", "Custom/Maps", "*.map");
+	auto Maps = g_ResourceMan->GetMaps();
+	const std::string File = GUI_Select_File("SELECT MAP", {}, Maps);
 
     // Exit Pressed?
     if (mGUI_SaveLoadAction == 1 || !File.size()) {
@@ -4353,7 +4348,7 @@ void cFodder::Custom_ShowMapSelection() {
         return;
     }
 
-    mGame_Data.mCampaign.LoadCustomMapFromPath("Custom/Maps/" + File);
+    mGame_Data.mCampaign.LoadCustomMapFromPath(g_ResourceMan->GetMapPath(File));
 
     mGame_Data.mMission_Phases_Remaining = 1;
     mGame_Data.mMission_Number = 0;
@@ -9291,12 +9286,7 @@ void cFodder::Game_Save() {
     }
 
     {
-        auto now = std::chrono::system_clock::now();
-        auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-        std::string SaveFilename = std::to_string(in_time_t) + SAVEGAME_EXTENSION;
-        std::string Filename = local_PathGenerate(SaveFilename, "", eDataType::eSave);
-
+		std::string Filename = g_ResourceMan->GetSaveNewName();
         std::ofstream outfile(Filename, std::ofstream::binary);
         outfile << mGame_Data.ToJson(mInput);
         outfile.close();
@@ -9354,43 +9344,40 @@ loc_2E6EA:;
 }
 
 void cFodder::Game_Load() {
+	auto Files = g_ResourceMan->GetSaves();
+	std::vector<sSavedGame> SaveFiles;
 
-    const std::string File = GUI_Select_File("SELECT SAVED GAME", "", SAVEGAME_EXTENSION, eDataType::eSave);
+	SaveFiles = Game_Load_Filter(Files);
+	Files.clear();
+
+
+    const std::string File = GUI_Select_File("SELECT SAVED GAME", SaveFiles, Files);
     if (!File.size())
         return;
 
-    std::string Filename = local_PathGenerate(File, "", eDataType::eSave);
+	auto SaveData = g_ResourceMan->FileRead(g_ResourceMan->GetSave(File));
 
-    std::ifstream SaveFile(Filename, std::ios::binary);
-    if (SaveFile.is_open()) {
-
-        std::string SaveGameContent(
-            (std::istreambuf_iterator<char>(SaveFile)),
-            (std::istreambuf_iterator<char>())
-        );
-
-        // Load the game data from the JSON
-        if (!mGame_Data.FromJson(SaveGameContent)) {
-            return;
-        }
-
-        // If the game was saved on a different platform, lets look for it and attempt to switch
-        if (mGame_Data.mSavedVersion.mPlatform != mVersionCurrent->mPlatform) {
-
-            VersionSwitch( mVersions->GetForCampaign(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform) );
-        }
-
-        mMouse_Exit_Loop = false;
-
-        for (int16 x = 0; x < 8; ++x)
-            mMission_Troops_SpritePtrs[x] = INVALID_SPRITE_PTR;
-
-        for (auto& Troop : mGame_Data.mSoldiers_Allocated)
-            Troop.mSprite = INVALID_SPRITE_PTR;
-
-        Mission_Memory_Backup();
-        Mission_Memory_Restore();
+    // Load the game data from the JSON
+    if (!mGame_Data.FromJson(std::string((char*)SaveData->data(), SaveData->size()))) {
+        return;
     }
+
+    // If the game was saved on a different platform, lets look for it and attempt to switch
+    if (mGame_Data.mSavedVersion.mPlatform != mVersionCurrent->mPlatform) {
+
+        VersionSwitch( mVersions->GetForCampaign(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform) );
+    }
+
+    mMouse_Exit_Loop = false;
+
+    for (int16 x = 0; x < 8; ++x)
+        mMission_Troops_SpritePtrs[x] = INVALID_SPRITE_PTR;
+
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated)
+        Troop.mSprite = INVALID_SPRITE_PTR;
+
+    Mission_Memory_Backup();
+    Mission_Memory_Restore();
 }
 
 std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>& pFiles) {
@@ -9398,34 +9385,24 @@ std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>
 
     for (auto& CurrentFile : pFiles) {
 
-        std::string Filename = local_PathGenerate(CurrentFile, "", eDataType::eSave);
+		auto SaveData = g_ResourceMan->FileRead(g_ResourceMan->GetSave(CurrentFile));
 
-        // Load the save game
-        std::ifstream SaveFile(Filename, std::ios::binary);
-        if (SaveFile.is_open()) {
+        // Verify the savegame is for the current campaign
+        try {
+            sGameData NewData( std::string((char*)SaveData->data(), SaveData->size()) );
 
-            std::string SaveGameContent(
-                (std::istreambuf_iterator<char>(SaveFile)),
-                (std::istreambuf_iterator<char>())
-            );
-
-            // Verify the savegame is for the current campaign
-            try {
-                sGameData NewData(SaveGameContent);
-
-                // Ensure for this campaign
-                if (NewData.mCampaignName != mGame_Data.mCampaign.getName())
-                    continue;
-
-                // Ensure the game is the same
-                if (NewData.mSavedVersion.mGame != mVersionCurrent->mGame)
-                    continue;
-
-                Results.push_back({ CurrentFile, NewData.mSavedName });
-            }
-            catch (...) {
+            // Ensure for this campaign
+            if (NewData.mCampaignName != mGame_Data.mCampaign.getName())
                 continue;
-            }
+
+            // Ensure the game is the same
+            if (NewData.mSavedVersion.mGame != mVersionCurrent->mGame)
+                continue;
+
+            Results.push_back({ CurrentFile, NewData.mSavedName });
+        }
+        catch (...) {
+            continue;
         }
     }
 

@@ -59,10 +59,10 @@ std::string cCampaign::GetPathToFile(const std::string& pName) const {
 std::string cCampaign::GetPath( const bool pTrailingSeperator ) const {
     std::string path;
 
-    if (mUseCustomPath)
-        path = mPath;
-    else 
-        path = local_PathGenerate(mName, "", eDataType::eCampaign);
+	if (mUseCustomPath)
+		path = mPath;
+	else
+		path = g_ResourceMan->GetCampaignData(mName);
 
     if(pTrailingSeperator && path.size())
         path += gPathSeperator;
@@ -155,17 +155,6 @@ bool cCampaign::SaveCampaign() {
     }
 
     return false;
-}
-
-/**
- * Test if a campaign is available
- */
-bool cCampaign::isAvailable(const std::string& pName ) const {
-    if (!pName.size())
-        return false;
-
-    auto File = local_PathGenerate(pName, "", eDataType::eCampaign) + ".ofc";
-    return local_FileExists(File);
 }
 
 /**

@@ -72,6 +72,7 @@ inline uint16 readBEWord( const void *buffer ) {
 	return uint16((bytes[0] << 8) + bytes[1]);
 }
 
+// Write a LE word in BE
 inline void writeBEWord( const void *buffer, uint16 pValue ) {
 	uint8* bytes = (uint8*) buffer;
 
@@ -79,7 +80,7 @@ inline void writeBEWord( const void *buffer, uint16 pValue ) {
 	bytes[1] = (uint8) (pValue & 0xFF);
 }
 
-
+// Read a LE DWord in BE
 inline uint32 readBEDWord( const void *buffer ) {
 	const uint8* bytes = (const uint8*) buffer;
 

@@ -203,6 +203,7 @@
     <ClInclude Include="..\..\Source\PC\VocTable.hpp" />
     <ClInclude Include="..\..\Source\Position.hpp" />
     <ClInclude Include="..\..\Source\Recruits.hpp" />
+    <ClInclude Include="..\..\Source\ResourceMan.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
     <ClInclude Include="..\..\Source\Singleton.hpp" />
     <ClInclude Include="..\..\Source\Sound.hpp" />
@@ -217,8 +218,10 @@
     <ClInclude Include="..\..\Source\UnitTesting.hpp" />
     <ClInclude Include="..\..\Source\Utils\cxxopts.hpp" />
     <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp" />
+    <ClInclude Include="..\..\Source\Utils\ini.hpp" />
     <ClInclude Include="..\..\Source\Utils\json.hpp" />
     <ClInclude Include="..\..\Source\Utils\md5.hpp" />
+    <ClInclude Include="..\..\Source\Version.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />
     <ClInclude Include="..\resource.h" />
@@ -248,6 +251,7 @@
     <ClCompile Include="..\..\Source\PC\Sound_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Sound_PC2.cpp" />
     <ClCompile Include="..\..\Source\Recruits.cpp" />
+    <ClCompile Include="..\..\Source\ResourceMan.cpp" />
     <ClCompile Include="..\..\Source\Resources.cpp" />
     <ClCompile Include="..\..\Source\Sound.cpp" />
     <ClCompile Include="..\..\Source\Sprites.cpp" />

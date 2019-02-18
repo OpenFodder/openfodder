@@ -25,8 +25,10 @@ class cResourceMan {
 	std::vector<std::string> mValidPaths;
 
 	std::map<const sGameVersion*, std::string> mReleasePath;
+	std::map<std::string, std::string> mCampaigns;
 
-	std::map<std::string> mCampaigns;
+	std::map<std::string, std::string> mMaps;
+	std::map<std::string, std::string> mSaves;
 
 protected:
 	void addBaseDir(std::string pPath);
@@ -36,6 +38,10 @@ protected:
 
 	std::string FileMD5(const std::string& pFile);
 
+	void findCampaigns();
+	void findVersions();
+	void findSaves();
+	void findMaps();
 
 public:
 
@@ -43,17 +49,27 @@ public:
 
 	void addDir(const std::string& pPath);
 
-	void findCampaigns();
-	void findVersions();
-
+	void refresh();
 
 	std::string	FindVersionPath(eRelease pRelease, eGame pGame, ePlatform pPlatform) const;
 	bool		VersionHasFile(eRelease pRelease, eGame pGame, ePlatform pPlatform, const std::string& pFile) const;
 
 	tSharedBuffer 		FileRead(const std::string& pFile);
+	std::string			PathGenerate(const std::string& pFile, eDataType pDataType) const;
 
-	std::string			PathGenerate(const std::string& pFile, eDataType pDataType);
+	std::string			GetCampaignData(const std::string& pName);
+	std::string			GetSaveNewName() const;
+	std::string			GetMapPath(const std::string& pName) const;
+	std::string			GetSave(const std::string &pName) const;
 
-	std::vector<const sGameVersion*> GetAvailable();
+	std::vector<const sGameVersion*> GetAvailable() const;
+	std::vector<std::string> GetCampaigns() const;
+	std::vector<std::string> GetSaves() const;
+	std::vector<std::string> GetMaps() const;
+
+	bool isCampaignAvailable(std::string pName) const;
 	bool isDataAvailable() const;
+
+	std::vector<std::string> getValidPaths() const;
+	std::vector<std::string> getAllPaths() const;
 };

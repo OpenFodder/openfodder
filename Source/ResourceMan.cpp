@@ -23,6 +23,12 @@
 #include "stdafx.hpp"
 #include "Utils/md5.hpp"
 
+#include <chrono>
+
+const char* EXTENSION_SAVEGAME = ".ofg";
+const char* EXTENSION_CAMPAIGN = ".ofc";
+const char* EXTENSION_MAP = ".map";
+
 cResourceMan::cResourceMan() {
 
 	addDefaultDirs();
@@ -32,6 +38,7 @@ void cResourceMan::addDir(const std::string& pPath) {
 	mAllPaths.push_back(pPath);
 
 	findVersions();
+	findCampaigns();
 }
 
 void cResourceMan::addBaseDir(std::string pPath) {
@@ -88,10 +95,32 @@ void cResourceMan::validatePaths() {
 	}
 }
 
+void cResourceMan::findCampaigns() {
+	mCampaigns.clear();
+
+	// Loop each path
+	for (auto& ValidPath : mValidPaths) {
+		auto basepath = ValidPath + PathGenerate("", eCampaign);
+
+		auto files = local_DirectoryList(basepath, EXTENSION_CAMPAIGN);
+
+		for (auto& file : files) {
+			size_t Pos = file.find_first_of(".");
+			std::string FileName = file.substr(0, Pos);
+
+			// Don't add known campaigns
+			//if (g_Fodder->mVersions->isCampaignKnown(FileName))
+			//	continue;
+
+			mCampaigns.emplace(std::make_pair(FileName, basepath + FileName));
+		}
+	}
+
+}
+
 void cResourceMan::findVersions() {
 	
 	mReleasePath.clear();
-	validatePaths();
 
 	// Loop each path
 	for (auto& ValidPath : mValidPaths) {
@@ -134,6 +163,44 @@ void cResourceMan::findVersions() {
 	}
 }
 
+void cResourceMan::findSaves() {
+	mSaves.clear();
+
+	// Loop each path
+	for (auto& ValidPath : mValidPaths) {
+		auto basepath = ValidPath + PathGenerate("", eSave);
+
+		auto files = local_DirectoryList(basepath, EXTENSION_SAVEGAME);
+
+		for (auto& file : files) {
+			mSaves.emplace(std::make_pair(file, basepath + file));
+		}
+	}
+}
+
+void cResourceMan::findMaps() {
+	mMaps.clear();
+
+	// Loop each path
+	for (auto& ValidPath : mValidPaths) {
+		auto basepath = ValidPath + PathGenerate("Custom/Maps/", eData);
+
+		auto files = local_DirectoryList(basepath, EXTENSION_MAP);
+
+		for (auto& file : files) {
+			mMaps.emplace(std::make_pair(file, basepath + file));
+		}
+	}
+}
+void cResourceMan::refresh() {
+	validatePaths();
+
+	findCampaigns();
+	findVersions();
+	findSaves();
+	findMaps();
+}
+
 std::string cResourceMan::FindVersionPath(eRelease pRelease, eGame pGame, ePlatform pPlatform) const {
 
 	for (auto Release = mReleasePath.begin(); Release != mReleasePath.end(); ++Release) {
@@ -171,7 +238,7 @@ bool cResourceMan::VersionHasFile(eRelease pRelease, eGame pGame, ePlatform pPla
 	return false;
 }
 
-std::string cResourceMan::PathGenerate(const std::string& pFile, eDataType pDataType) {
+std::string cResourceMan::PathGenerate(const std::string& pFile, eDataType pDataType) const {
 	std::stringstream	 filePathFinal;
 
 	switch (pDataType) {
@@ -252,7 +319,17 @@ tSharedBuffer cResourceMan::FileRead(const std::string& pFile) {
 	return fileBuffer;
 }
 
-std::vector<const sGameVersion*> cResourceMan::GetAvailable() {
+std::string	cResourceMan::GetCampaignData(const std::string& pName) {
+	
+	for (auto& Campaign : mCampaigns) {
+		if (Campaign.first == pName)
+			return Campaign.second;
+	}
+
+	return "";
+}
+
+std::vector<const sGameVersion*> cResourceMan::GetAvailable() const {
 	std::vector<const sGameVersion*> results;
 
 	for (auto release : mReleasePath) {
@@ -262,6 +339,78 @@ std::vector<const sGameVersion*> cResourceMan::GetAvailable() {
 	return results;
 }
 
+std::vector<std::string> cResourceMan::GetCampaigns() const {
+	std::vector<std::string> results;
+
+	for (auto& Campaign : mCampaigns) {
+
+		results.push_back(Campaign.first);
+	}
+
+	return results;
+}
+
+std::vector<std::string> cResourceMan::GetSaves() const {
+	std::vector<std::string> results;
+
+	for (auto& Campaign : mSaves) {
+
+		results.push_back(Campaign.first);
+	}
+
+	return results;
+}
+
+std::vector<std::string> cResourceMan::GetMaps() const {
+	std::vector<std::string> results;
+
+	for (auto& Campaign : mMaps) {
+
+		results.push_back(Campaign.first);
+	}
+
+	return results;
+}
+
+std::string cResourceMan::GetSaveNewName() const {
+	auto now = std::chrono::system_clock::now();
+	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+	return PathGenerate(mValidPaths[0] + std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave);
+}
+
+std::string cResourceMan::GetMapPath(const std::string& pName) const {
+
+	for (auto& Map : mMaps) {
+		if (Map.first == pName)
+			return Map.second;
+	}
+	return "";
+}
+
+std::string cResourceMan::GetSave(const std::string &pName) const {
+	for (auto& Save : mSaves) {
+		if (Save.first == pName)
+			return Save.second;
+	}
+	return "";
+}
+
 bool cResourceMan::isDataAvailable() const {
 	return mReleasePath.size() > 0;
+}
+
+bool cResourceMan::isCampaignAvailable(std::string pName) const {
+
+	if (mCampaigns.find(pName) != mCampaigns.end())
+		return true;
+
+	return false;
+}
+
+std::vector<std::string> cResourceMan::getValidPaths() const {
+	return mValidPaths;
+}
+std::vector<std::string> cResourceMan::getAllPaths() const {
+	return mAllPaths;
 }

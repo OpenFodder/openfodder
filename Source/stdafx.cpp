@@ -85,7 +85,7 @@ sFodderParameters parseini() {
 
 	// Section: Skip
 	{
-		if (ini.select("engine")) {
+		if (ini.select("skip")) {
 			if (ini.get("intro", "false") == "true")
 				params.mSkipIntro = true;
 
@@ -95,18 +95,17 @@ sFodderParameters parseini() {
 			if (ini.get("service", "false") == "true")
 				params.mSkipService = true;
 
-			if (ini.get("recruit", "false") == "true")
+			if (ini.get("hill", "false") == "true")
 				params.mSkipRecruit = true;
 		}
 	}
 
 	if (ini.select("data")) {
 
-		// TODO: We should loop every entry in this section and add the path to the res manager
-		auto path = ini.get("path", "");
-	
-		if(path.size())
-			g_ResourceMan->addDir(path);
+		for (auto& path : ini["paths"]) {
+
+			g_ResourceMan->addDir(path.second);
+		}
 	}
 
 	return params;
@@ -151,7 +150,7 @@ int start(int argc, char *argv[]) {
         ("skipintro",      "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
         ("skipbriefing",   "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
         ("skipservice",    "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
-
+		("skiphill",		"Skip the hill", cxxopts::value<bool>()->default_value("false"))
 
         ("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
         ("c,campaign",  "Starting campaign",        cxxopts::value<std::string>()->default_value(""), "\"name\"" )

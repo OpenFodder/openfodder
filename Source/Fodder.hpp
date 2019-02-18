@@ -1099,7 +1099,7 @@ public:
 
     void            GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary);
     void            GUI_Select_File_Loop(bool pShowCursor);
-    std::string     GUI_Select_File(const char* pTitle, const char* pPath, const char* pType, eDataType pData = eData);
+    std::string     GUI_Select_File(const char* pTitle, const std::vector<sSavedGame>& pSave, const std::vector<std::string> &pMaps);
 
 
     void            GUI_Input_CheckKey();

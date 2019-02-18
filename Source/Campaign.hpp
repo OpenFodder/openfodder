@@ -160,8 +160,6 @@ public:
 
     void SetSingleMapCampaign();
 
-    bool isAvailable(const std::string& pCampaignName) const;
-
 	bool isCustom() const;
     bool isCustomMap() const { return mIsCustomMap; }
     void setCustomMap() { mIsCustomMap = true; mUseCustomPath = true; }

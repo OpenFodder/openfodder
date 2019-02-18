@@ -1,0 +1,22 @@
+; OpenFodder
+;
+;
+
+[openfodder]
+window=true
+cheats=false
+
+[paths]
+;path1=c:/games/openfodder
+;path2=d:/games/openfodder
+
+[engine]
+platform=amiga
+maxsprite=45
+maxspawn=10
+
+[skip]
+intro=false
+briefing=false
+service=false
+hill=false
