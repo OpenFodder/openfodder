@@ -276,7 +276,7 @@ std::shared_ptr<cSound> sGameVersion::GetSound() const {
 		return std::make_shared<cSound_Amiga>();
 
     if (isPC()) {
-		if (mGame == eGame::CF2)
+		if (isCannonFodder2())
 			return std::make_shared<cSound_PC2>();
 
 		return std::make_shared<cSound_PC>();

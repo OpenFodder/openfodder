@@ -30,13 +30,18 @@ cResources::cResources( ) {
 tSharedBuffer cResources::fileGetLocal(std::string pFilename) {
 	// This is really hacky
 
-	// First look for lower case
+	auto File = g_ResourceMan->FileRead(g_Fodder->mVersionCurrent->getDataPath() + pFilename);
+	if (File->size())
+		return File;
+
+	// look for lower case
 	std::transform(pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower);
 	auto File = g_ResourceMan->FileRead(g_Fodder->mVersionCurrent->getDataPath() + pFilename);
 	if (File->size())
 		return File;
 
 	// Then check for upper case
+	std::transform(pFilename.begin(), pFilename.end(), pFilename.begin(), ::toupper);
 	File = g_ResourceMan->FileRead(g_Fodder->mVersionCurrent->getDataPath() + pFilename);
 	return File;
 }

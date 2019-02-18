@@ -280,8 +280,8 @@ tSharedBuffer cResource_PC_CD::fileGet( std::string pFilename ) {
 		}
 	}
 
-	g_Debugger->Error("File " + pFilename + " Not Found!");
-	std::cout << "mFiles: " << mFiles.size() << "\n";
+	g_Debugger->Error("File " + pFilename + " Not Found in DAT");
+	std::cout << "Total files inside DAT: " << mFiles.size() << "\n";
 
 	for (fileIT = mFiles.begin(); fileIT != mFiles.end(); ++fileIT)
 		g_Debugger->Error(fileIT->mName + "\n");
