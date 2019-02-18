@@ -280,7 +280,12 @@ tSharedBuffer cResource_PC_CD::fileGet( std::string pFilename ) {
 		}
 	}
 
-	std::cout << "File " << pFilename << " Not Found!\n";
+	g_Debugger->Error("File " + pFilename + " Not Found!");
+	std::cout << "mFiles: " << mFiles.size() << "\n";
+
+	for (fileIT = mFiles.begin(); fileIT != mFiles.end(); ++fileIT)
+		g_Debugger->Error(fileIT->mName + "\n");
+
 	exit( 1 );
 	return File;
 }
