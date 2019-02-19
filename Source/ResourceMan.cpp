@@ -119,7 +119,8 @@ void cResourceMan::findCampaigns() {
 }
 
 void cResourceMan::findVersions() {
-	
+	bool haveRetail = false;
+
 	mReleasePath.clear();
 
 	// Loop each path
@@ -151,12 +152,17 @@ void cResourceMan::findVersions() {
 
 			// A very hacky method for ensuring a retail version is available, before allowing Customs
 			if (KnownVersion.isCustom()) {
-				mReleasePath.insert(std::make_pair(&KnownVersion, base));
+				if(haveRetail)
+					mReleasePath.insert(std::make_pair(&KnownVersion, base));
 			}
 			else {
 				// Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
-				if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == FileMatches)
+				if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == FileMatches) {
+					if (!haveRetail)
+						haveRetail = KnownVersion.isRetail();
+
 					mReleasePath.insert(mReleasePath.end(), std::make_pair(&KnownVersion, base));
+				}
 			}
 
 		}
