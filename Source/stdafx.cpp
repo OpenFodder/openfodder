@@ -106,7 +106,7 @@ sFodderParameters parseini() {
 		}
 	}
 
-	if (ini.select("data")) {
+	if (ini.select("paths")) {
 
 		for (auto& path : ini["paths"]) {
 
@@ -121,11 +121,12 @@ sFodderParameters parseini() {
 #ifndef _OFBOT
 
 int start(int argc, char *argv[]) {
-    sFodderParameters Params = parseini();
     g_Debugger = std::make_shared<cDebugger>();
     g_Window = std::make_shared<cWindow>();
 	g_ResourceMan = std::make_shared<cResourceMan>();
     g_Fodder = std::make_shared<cFodder>(g_Window);
+
+	sFodderParameters Params = parseini();
 
     cxxopts::Options options("OpenFodder", "War has never been so much fun");
     options.allow_unrecognised_options();

@@ -36,9 +36,6 @@ cResourceMan::cResourceMan() {
 
 void cResourceMan::addDir(const std::string& pPath) {
 	mAllPaths.push_back(pPath);
-
-	findVersions();
-	findCampaigns();
 }
 
 void cResourceMan::addBaseDir(std::string pPath) {
