@@ -1,23 +1,51 @@
 ; OpenFodder
 ;
-;
+; 
+
 
 [openfodder]
+
+; Start the game in a window
 window=true
+
+; Enable cheat keys
 cheats=false
+
+; Window size multipler by original game resolution (Amiga 320x225, Dos 320x200)
+; auto finds a size approximately half your screen resolution
 scale=auto
 
+
 [paths]
+; Paths to data base folder
+; There is no limit to the number paths in this section (eg, path1, path2... path10)
 ;path1=c:/games/openfodder
 ;path2=d:/games/openfodder
 
+;
+;
 [engine]
+
+; Default platform (amiga/pc)
 platform=amiga
+
+; Maximum number of sprites in game (original engine is 45)
 maxsprite=45
+
+; Maximum number of enemies which can spawn (original engine is 10)
 maxspawn=10
 
+
 [skip]
+
+; Skip the game introduction screens
 intro=false
+
+; Skip the briefing screen
 briefing=false
+
+; Skip the killed in action / promotion screens
 service=false
+
+; Skip the hill recruit screen
 hill=false
