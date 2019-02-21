@@ -284,21 +284,15 @@ void cWindow::WindowIncrease() {
 void cWindow::WindowDecrease() {
 
 	// If we're in full screen mode remove it
-	if (!mWindowMode) {
-		/*
-		while (CanChangeToMultiplier( mScaler )) {
-			--mScaler;
-		}
+	if (!mWindowMode) { 
 
-		++mScaler;*/
-
-		//mWindowMode = true;
-		//SetWindowSize( mScalerPrevious );
-		ToggleFullscreen();
+		mWindowMode = true;
+		SetWindowSize(mScaler);
+		//ToggleFullscreen();
 		return;
 	}
 
-	if (!CanChangeToMultiplier(mScaler - 1 ))
+	if (!CanChangeToMultiplier(mScaler - 1))
 		return;
 
 	SetWindowSize( mScaler - 1 );
