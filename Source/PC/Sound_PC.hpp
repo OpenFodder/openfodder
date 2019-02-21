@@ -46,7 +46,7 @@ class cSound_PC : public cSound {
 	void				Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume );
 
 	void				Music_Play( int16 pTrack );
-	void				Music_PlayFile( const char* pFilename );
+	void				Music_PlayFile( const std::string& pFilename );
 	void				Music_Stop();
 
 	void				MixerChannelFinished( int32 pChannel );
