@@ -121,9 +121,10 @@ Six Amiga magazine coverdisk demos and one PC demo are included in the data pack
 * Amiga Power   Issue #31: (Nov 1993) Cannon Fodder Plus
 * Amiga Action  Issue #51: (Dec 1993)
 * Amiga Format  Issue #54: (Dec 1993) Christmas Special (Cannon Soccer)
+* PC    Format  CD-ROM #1: (May 1994)
 * Amiga Power   Issue #45: (Jan 1995) Alien Levels
 * Amiga Format  Issue #68: (Feb 1995) Not Very Festive Fodder
-* PC    Format  CD-ROM #1: (May 1994)
+
   
 #### Thanks To
 
