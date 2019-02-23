@@ -121,22 +121,18 @@ void cResourceMan::findVersions() {
 
 	// Loop each path
 	for (auto& ValidPath : mValidPaths) {
-
 		// Loop all known versions
 		for (auto& KnownVersion : KnownGameVersions) {
-
 			// If this release has files, continue on
 			if (mReleaseFiles.find(&KnownVersion) != mReleaseFiles.end())
 				continue;
 
-			int16 FileMatches = 0;
 			std::string base = ValidPath + PathGenerate(KnownVersion.mDataPath, eData) + "/";
 			tStringMap ReleaseFiles;
 
 			// Loop all files in the data directory
 			auto baseFiles = local_DirectoryList(base, "");
 			for (auto& baseFile : baseFiles) {
-
 				std::string baseFileLower = baseFile;
 				transform(baseFileLower.begin(), baseFileLower.end(), baseFileLower.begin(), ::tolower);
 
@@ -159,10 +155,8 @@ void cResourceMan::findVersions() {
 								//std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
 								std::cout << KnownVersion.mName << ": " << File.mName;
 								std::cout << " Unknown MD5: " << MD5 << "\n";
-								++FileMatches;
 							}
-						} else
-							++FileMatches;
+						}
 
 						break;
 					}
@@ -175,15 +169,16 @@ void cResourceMan::findVersions() {
 					mReleasePath.insert(std::make_pair(&KnownVersion, base));
 			} else {
 				// Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
-				if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == FileMatches) {
+				if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == ReleaseFiles.size()) {
 					if (!haveRetail)
 						haveRetail = KnownVersion.isRetail();
 
 					// if we found files, add them to our tracker
-					if (ReleaseFiles.size())
-						mReleaseFiles.insert(std::make_pair(&KnownVersion, ReleaseFiles));
-
+					mReleaseFiles.insert(std::make_pair(&KnownVersion, ReleaseFiles));
 					mReleasePath.insert(mReleasePath.end(), std::make_pair(&KnownVersion, base));
+				}
+				else {
+					// 
 				}
 			}
 		}

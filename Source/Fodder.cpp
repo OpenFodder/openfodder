@@ -16417,7 +16417,7 @@ int16 cFodder::intro_Play() {
     return mImage_Aborted;
 }
 
-void cFodder::Mission_Intro_Play() {
+void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
 
     // Single maps
     if (mCustom_Mode == eCustomMode_Map)
@@ -16445,7 +16445,7 @@ void cFodder::Mission_Intro_Play() {
 
 	// Prior to mission 4, the UFO is not shown on the mission intro
     bool ShowHelicopter = true;
-    if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4)
+    if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4 && !pShowHelicopter)
         ShowHelicopter = false;
 
     mVersionPlatformSwitchDisabled = true;
@@ -18615,15 +18615,25 @@ void cFodder::Start() {
 
     // Play the intro
     if (!mOpenFodder_Intro_Done && !mParams.mSkipIntro) {
+		bool CF2 = false;
 
         mPhase_Aborted = false;
         mGame_Data.mMission_Number = 0;
 
+		if (mVersions->isCampaignAvailable("Cannon Fodder 2"))
+			CF2 = (tool_RandomGet() % 2);
+
+		if (CF2)
+			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2"));
+
         // Random intro
         mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 
-        Mission_Intro_Play();
+        Mission_Intro_Play(true);
         mOpenFodder_Intro_Done = true;
+
+		if (CF2)
+			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder"));
     }
 
     // Start a random map?

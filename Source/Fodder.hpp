@@ -756,7 +756,7 @@ public:
 
     void            Briefing_Draw_Pixel(int16 pX, int16 pY, uint8 pColor);
 
-    void			Mission_Intro_Play();
+    void			Mission_Intro_Play(const bool pShowHelicopter = false);
     void            Intro_Print_String(const sIntroString* pString);
 
     void            Sprite_Frame_Modifier_Update();
