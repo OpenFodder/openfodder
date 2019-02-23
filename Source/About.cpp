@@ -77,7 +77,7 @@ cAbout::cAbout() {
     };
 
     mSurface = new cSurface(0, 0);
-    mSurface->LoadBitmap(local_PathGenerate("about.bmp", "", eDataType::eRoot).c_str());
+    mSurface->LoadBitmap(g_ResourceMan->GetAboutFile());
     g_Fodder->mGraphics->PaletteSet();
     g_Fodder->Mission_Memory_Clear();
     g_Fodder->mMouseSpriteNew = eSprite_pStuff_Mouse_Target;

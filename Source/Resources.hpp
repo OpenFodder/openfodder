@@ -42,7 +42,6 @@ public:
 	virtual							~cResources() { };
 						
 	virtual tSharedBuffer 			fileGet( std::string pFilename );
-	tSharedBuffer					fileGetLocal(std::string pFilename);
 
 	size_t							fileLoadTo( const std::string& pFilename, uint8* pTarget );
 };

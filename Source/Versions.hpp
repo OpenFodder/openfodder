@@ -87,6 +87,7 @@ struct sGameVersion : public sVersion {
     std::shared_ptr<cSound> GetSound() const;
 
 	std::string getDataPath() const;
+	std::string getDataFilePath(std::string pFile) const;
 };
 
 class cVersions {
@@ -94,7 +95,6 @@ class cVersions {
 protected:
 
 public:
-    cVersions();
 
     bool isCampaignKnown(const std::string& pName) const;
     bool isCampaignAvailable(const std::string& pName) const;

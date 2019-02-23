@@ -202,8 +202,7 @@ void cSound_PC2::Music_PlayFile( const char* pFilename ) {
 	if (mSound == false)
 		return;
 
-    std::string Filename = g_Fodder->mVersionCurrent->getDataPath() + pFilename + ".AMF";
-
+    std::string Filename = g_Fodder->mVersionCurrent->getDataFilePath(std::string(pFilename) + ".AMF");
     Mix_FreeMusic(mMusicPlaying);
     SDL_Delay(100);
 

@@ -157,7 +157,7 @@ void cSound_PC::Music_Stop() {
 
 void cSound_PC::Music_Play( int16 pTrack ) {
 	
-	const char* Tracks[] = {
+	static std::string Tracks[] = {
 		"rjp.JON(1)",
 		"rjp.JON(2)",
 		"rjp.JON(3)",
@@ -219,9 +219,9 @@ void cSound_PC::Music_Play( int16 pTrack ) {
 	};
 
 	if (g_Fodder->mVersionCurrent->isPCFormat() && pTrack == 16)
-		Music_PlayFile(g_ResourceMan->FindVersionPath(eRelease::PCFormat, eGame::CF1, ePlatform::PC) + "CANNON2.DAT");
+		Music_PlayFile(g_ResourceMan->GetFilePath(g_Fodder->mVersionCurrent, "CANNON2.DAT"));
 	else {
-		Music_PlayFile(local_PathGenerate(Tracks[pTrack], "WAV", eData) + ".wav");
+		Music_PlayFile(g_ResourceMan->GetWavPath(Tracks[pTrack] + ".wav"));
 	}
 
 

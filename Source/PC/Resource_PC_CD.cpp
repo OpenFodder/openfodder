@@ -96,7 +96,7 @@ cResource_PC_CD::cResource_PC_CD( const std::string& pDataFile ) : cResources() 
 	word_26DAA = word_26DB4 = saveSI = saveBP = 0;
 
     
-	mData = fileGetLocal (pDataFile);
+	mData = g_ResourceMan->FileRead(g_Fodder->mVersionCurrent->getDataFilePath(pDataFile));
 	if (!mData) {
 		std::cout << pDataFile << " not found\n";
 		exit( 1 );
@@ -147,11 +147,12 @@ void cResource_PC_CD::ExtractFiles() {
 	for (auto File : mFiles) {
 
 		auto FileData = fileGet( File.mName );
+		/*
 		std::string Filename = local_PathGenerate( File.mName, "ExtractedData", eDataType::eData);
 
 		std::ofstream outfile( Filename, std::ofstream::binary );
 		outfile.write( (const char*)FileData->data(), FileData->size() );
-		outfile.close();
+		outfile.close();*/
 	}
 }
 
@@ -266,6 +267,7 @@ tSharedBuffer cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
 tSharedBuffer cResource_PC_CD::fileGet( std::string pFilename ) {
 	std::vector< cResource_File >::iterator		fileIT;
 
+	// Look for local overrides
 	auto File = cResources::fileGet( pFilename );
 	if (File->size())
 		return File;

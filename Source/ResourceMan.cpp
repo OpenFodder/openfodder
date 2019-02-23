@@ -28,6 +28,7 @@
 const char* EXTENSION_SAVEGAME = ".ofg";
 const char* EXTENSION_CAMPAIGN = ".ofc";
 const char* EXTENSION_MAP = ".map";
+const char* EXTENSION_DEMO = ".ofd";
 
 cResourceMan::cResourceMan() {
 
@@ -81,7 +82,10 @@ void cResourceMan::validatePaths() {
 	mValidPaths.clear();
 	for (auto path : mAllPaths) {
 
-		if (local_FileExists(path)) {
+		if (path[path.size() - 1] != '/')
+			path.append("/");
+
+		if (local_FileExists(path + "Data")) {
 
 			// Ensure we have a trailing /
 			if (path[path.size() - 1] != '/')
@@ -104,64 +108,84 @@ void cResourceMan::findCampaigns() {
 		for (auto& file : files) {
 			size_t Pos = file.find_first_of(".");
 			std::string FileName = file.substr(0, Pos);
-
-			// Don't add known campaigns
-			//if (g_Fodder->mVersions->isCampaignKnown(FileName))
-			//	continue;
-
 			mCampaigns.emplace(std::make_pair(FileName, basepath + FileName));
 		}
 	}
-
 }
 
 void cResourceMan::findVersions() {
 	bool haveRetail = false;
 
 	mReleasePath.clear();
+	mReleaseFiles.clear();
 
 	// Loop each path
 	for (auto& ValidPath : mValidPaths) {
 
 		// Loop all known versions
 		for (auto& KnownVersion : KnownGameVersions) {
+
+			// If this release has files, continue on
+			if (mReleaseFiles.find(&KnownVersion) != mReleaseFiles.end())
+				continue;
+
 			int16 FileMatches = 0;
 			std::string base = ValidPath + PathGenerate(KnownVersion.mDataPath, eData) + "/";
+			tStringMap ReleaseFiles;
 
-			// Loop each file in this version
-			for (auto& File : KnownVersion.mFiles) {
-				std::string MD5 = FileMD5(base + File.mName);
+			// Loop all files in the data directory
+			auto baseFiles = local_DirectoryList(base, "");
+			for (auto& baseFile : baseFiles) {
 
-				if (MD5 != File.mChecksum) {
-					if (MD5.length() == 0) {
-						//std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
-						//std::cout << " File not found\n";
-					} else {
-						//std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
-						std::cout << KnownVersion.mName << ": " << File.mName;
-						std::cout << " Unknown MD5: " << MD5 << "\n";
-						++FileMatches;
+				std::string baseFileLower = baseFile;
+				transform(baseFileLower.begin(), baseFileLower.end(), baseFileLower.begin(), ::tolower);
+
+				// Loop each file of known version
+				for (auto& File : KnownVersion.mFiles) {
+					std::string FileLower = File.mName;
+					transform(FileLower.begin(), FileLower.end(), FileLower.begin(), ::tolower);
+
+					// See if we match
+					if (baseFileLower == FileLower) {
+						std::string MD5 = FileMD5(base + File.mName);
+
+						ReleaseFiles.insert(std::make_pair(FileLower, base + File.mName));
+
+						if (MD5 != File.mChecksum) {
+							if (MD5.length() == 0) {
+								//std::cout << KnownVersion.mName << ": " << KnownVersion.mFiles[FileNo].mName;
+								//std::cout << " File not found\n";
+							} else {
+								//std::cout << "{ \"" << File.mName << "\", \"" << MD5 << "\" }, \n";
+								std::cout << KnownVersion.mName << ": " << File.mName;
+								std::cout << " Unknown MD5: " << MD5 << "\n";
+								++FileMatches;
+							}
+						} else
+							++FileMatches;
+
+						break;
 					}
 				}
-				else
-					++FileMatches;
 			}
 
 			// A very hacky method for ensuring a retail version is available, before allowing Customs
 			if (KnownVersion.isCustom()) {
 				if(haveRetail)
 					mReleasePath.insert(std::make_pair(&KnownVersion, base));
-			}
-			else {
+			} else {
 				// Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
 				if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == FileMatches) {
 					if (!haveRetail)
 						haveRetail = KnownVersion.isRetail();
 
+					// if we found files, add them to our tracker
+					if (ReleaseFiles.size())
+						mReleaseFiles.insert(std::make_pair(&KnownVersion, ReleaseFiles));
+
 					mReleasePath.insert(mReleasePath.end(), std::make_pair(&KnownVersion, base));
 				}
 			}
-
 		}
 	}
 }
@@ -181,7 +205,7 @@ void cResourceMan::findSaves() {
 	}
 }
 
-void cResourceMan::findMaps() {
+void cResourceMan::findCustomMaps() {
 	mMaps.clear();
 
 	// Loop each path
@@ -195,22 +219,23 @@ void cResourceMan::findMaps() {
 		}
 	}
 }
+
 void cResourceMan::refresh() {
 	validatePaths();
 
 	findCampaigns();
 	findVersions();
 	findSaves();
-	findMaps();
+	findCustomMaps();
 }
 
-std::string cResourceMan::FindVersionPath(eRelease pRelease, eGame pGame, ePlatform pPlatform) const {
+std::string cResourceMan::FindVersionPath(const sGameVersion* pVersion) const {
 
 	for (auto Release = mReleasePath.begin(); Release != mReleasePath.end(); ++Release) {
 
-		if (Release->first->mRelease == pRelease) {
-			if (Release->first->mGame == pGame) {
-				if (Release->first->mPlatform == pPlatform || pPlatform == ePlatform::Any) {
+		if (Release->first->mRelease == pVersion->mRelease) {
+			if (Release->first->mGame == pVersion->mGame) {
+				if (Release->first->mPlatform == pVersion->mPlatform || pVersion->mPlatform == ePlatform::Any) {
 
 					return Release->second;
 				}
@@ -221,24 +246,19 @@ std::string cResourceMan::FindVersionPath(eRelease pRelease, eGame pGame, ePlatf
 	return "";
 }
 
-/*
- * Check if a data version has a file, not this wont find files inside the PC.DAT format
- */
-bool cResourceMan::VersionHasFile(eRelease pRelease, eGame pGame, ePlatform pPlatform, const std::string& pFile) const {
-	
-	for (auto Release : mReleasePath) {
+std::string cResourceMan::GetFilePath(const sGameVersion* pVersion, std::string pFile) const {
+	transform(pFile.begin(), pFile.end(), pFile.begin(), ::tolower);
 
-		if (Release.first->mRelease == pRelease) {
-			if (Release.first->mGame == pGame) {
-				if (Release.first->mPlatform == pPlatform) {
+	auto VerFiles = mReleaseFiles.find(pVersion);
+	if (VerFiles == mReleaseFiles.end())
+		return "";
 
-					return local_FileExists(Release.second + pFile);
-				}
-			}
-		}
+	for (const auto& File : VerFiles->second) {
+		if (File.first == pFile)
+			return File.second;
 	}
 
-	return false;
+	return "";
 }
 
 std::string cResourceMan::PathGenerate(const std::string& pFile, eDataType pDataType) const {
@@ -323,7 +343,6 @@ tSharedBuffer cResourceMan::FileRead(const std::string& pFile) {
 }
 
 std::string	cResourceMan::GetCampaignData(const std::string& pName) {
-	
 	for (auto& Campaign : mCampaigns) {
 		if (Campaign.first == pName)
 			return Campaign.second;
@@ -334,7 +353,6 @@ std::string	cResourceMan::GetCampaignData(const std::string& pName) {
 
 std::vector<const sGameVersion*> cResourceMan::GetAvailable() const {
 	std::vector<const sGameVersion*> results;
-
 	for (auto release : mReleasePath) {
 		results.push_back(release.first);
 	}
@@ -344,22 +362,16 @@ std::vector<const sGameVersion*> cResourceMan::GetAvailable() const {
 
 std::vector<std::string> cResourceMan::GetCampaigns() const {
 	std::vector<std::string> results;
-
-	for (auto& Campaign : mCampaigns) {
-
+	for (auto& Campaign : mCampaigns)
 		results.push_back(Campaign.first);
-	}
 
 	return results;
 }
 
 std::vector<std::string> cResourceMan::GetSaves() const {
 	std::vector<std::string> results;
-
-	for (auto& Campaign : mSaves) {
-
+	for (auto& Campaign : mSaves)
 		results.push_back(Campaign.first);
-	}
 
 	return results;
 }
@@ -367,10 +379,8 @@ std::vector<std::string> cResourceMan::GetSaves() const {
 std::vector<std::string> cResourceMan::GetMaps() const {
 	std::vector<std::string> results;
 
-	for (auto& Campaign : mMaps) {
-
+	for (auto& Campaign : mMaps)
 		results.push_back(Campaign.first);
-	}
 
 	return results;
 }
@@ -382,8 +392,36 @@ std::string cResourceMan::GetSaveNewName() const {
 	return PathGenerate(mValidPaths[0] + std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave);
 }
 
-std::string cResourceMan::GetMapPath(const std::string& pName) const {
+std::string cResourceMan::GetTestPath(const sGameVersion* pVersion, const std::string pFile) const {
+	for (auto& ValidPath : mValidPaths) {
+		auto basepath = ValidPath + PathGenerate(pFile, eTest);
+		if (local_FileExists(basepath))
+			return basepath;
+	}
+	return "";
+}
 
+std::string cResourceMan::GetAboutFile() const {
+	for (auto& ValidPath : mValidPaths) {
+		auto basepath = ValidPath + "about.bmp";
+		if (local_FileExists(basepath))
+			return basepath;
+	}
+
+	return "";
+}
+
+std::string cResourceMan::GetWavPath(const std::string& pFile) const {
+	for (auto& ValidPath : mValidPaths) {
+		auto basepath = ValidPath + PathGenerate("WAV/" + pFile, eData);
+		if (local_FileExists(basepath))
+			return basepath;
+	}
+
+	return "";
+}
+
+std::string cResourceMan::GetMapPath(const std::string& pName) const {
 	for (auto& Map : mMaps) {
 		if (Map.first == pName)
 			return Map.second;
@@ -404,11 +442,7 @@ bool cResourceMan::isDataAvailable() const {
 }
 
 bool cResourceMan::isCampaignAvailable(std::string pName) const {
-
-	if (mCampaigns.find(pName) != mCampaigns.end())
-		return true;
-
-	return false;
+	return (mCampaigns.find(pName) != mCampaigns.end());
 }
 
 std::vector<std::string> cResourceMan::getValidPaths() const {

@@ -975,7 +975,6 @@ const std::vector<sFile> mAmigaTheOneFiles = {
     { "pstuff.lbm", "E314A882B0C280F86B6E471EA9112E90" },
     { "rankfont.lbm", "3F261EBD25E6AF6B49CBA77BC7D60086" },
     { "sensprod.lbm", "674632BBCC302CF2234476AA87A02986" },
-    { "startup.lbm", "2121703B31D751EBEA1D9BD14FC6390F" },
     { "virgpres.lbm", "FFFB28D358220ADCFAB8FBCDB93FB333" },
 };
 

@@ -85,11 +85,11 @@ const std::vector<eGFX_Types> PCFormat_GFX_Types = {
 const sGameVersion KnownGameVersions[] = {
 
 	/* Retail */
-	{ "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	"Amiga",			mAmigaFiles },
-	{ "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	"Amiga_CD",			mAmigaCD32Files },
-	{ "Cannon Fodder",					eGame::CF1, ePlatform::PC,		eRelease::Retail,	"Dos_CD",			mPCFiles },
-	{ "Cannon Fodder 2",				eGame::CF2, ePlatform::Amiga,	eRelease::Retail,	"Amiga2",			mAmiga2Files },
-	{ "Cannon Fodder 2",				eGame::CF2, ePlatform::PC,		eRelease::Retail,	"Dos2_CD",			mPC2Files },
+	{ "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	"Amiga",	mAmigaFiles },
+	{ "Cannon Fodder",					eGame::CF1, ePlatform::Amiga,	eRelease::Retail,	"Amiga_CD",	mAmigaCD32Files },
+	{ "Cannon Fodder",					eGame::CF1, ePlatform::PC,		eRelease::Retail,	"Dos_CD",	mPCFiles },
+	{ "Cannon Fodder 2",				eGame::CF2, ePlatform::Amiga,	eRelease::Retail,	"Amiga2",	mAmiga2Files },
+	{ "Cannon Fodder 2",				eGame::CF2, ePlatform::PC,		eRelease::Retail,	"Dos2_CD",	mPC2Files },
 
 	/* Amiga Magazine Demos */
 	{ "Cannon Fodder Plus",				eGame::CF1, ePlatform::Amiga,	eRelease::AmigaPower,		    "Plus",				mPlusFiles },
@@ -110,10 +110,6 @@ const sGameVersion KnownGameVersions[] = {
 	{ "Random Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
 
 };
-
-cVersions::cVersions() {
-
-}
 
 const sGameVersion* cVersions::GetRetail(const ePlatform pPlatform) const {
 
@@ -243,10 +239,10 @@ std::vector<std::string> cVersions::GetCampaignNames() const {
 
 std::shared_ptr<cResources> sGameVersion::GetResources() const {
     if (isPC()) {
-        if(isRetail())
-            return std::make_shared<cResource_PC_CD>("CF_ENG.DAT");
-        else
+        if(isPCFormat())
             return std::make_shared<cResource_PC_CD>("CFCOVER.DAT");
+		else
+			return std::make_shared<cResource_PC_CD>("CF_ENG.DAT");
 
     } else if (isAmiga()) {
         return std::make_shared<cResources>();
@@ -270,9 +266,8 @@ std::shared_ptr<cGraphics> sGameVersion::GetGraphics() const {
 
 std::shared_ptr<cSound> sGameVersion::GetSound() const {
 
-	// Check for JON.INS in the game data folder, this allows replacing PC audio with Amiga
-	auto paths = g_ResourceMan->VersionHasFile(mRelease, mGame, mPlatform, "JON.INS");
-	if (paths)
+	// Check for JON.INS in the game data folder, this allows replacing PC audio with Amiga for both CF1 and CF2
+	if (local_FileExists(getDataPath() + "JON.INS"))
 		return std::make_shared<cSound_Amiga>();
 
     if (isPC()) {
@@ -293,7 +288,25 @@ std::string sGameVersion::getDataPath() const {
 		return g_Fodder->mVersions->GetRetail(ePlatform::Any)->getDataPath();
 	}
 
-	return g_ResourceMan->FindVersionPath(mRelease, mGame, mPlatform);
+	return g_ResourceMan->FindVersionPath(this);
+}
+
+std::string sGameVersion::getDataFilePath(std::string pFile) const {
+
+	// First try get the file from found files in the data folder
+	auto path = g_ResourceMan->GetFilePath(this, pFile);
+	if (path.size())
+		return path;
+
+	// If its custom, check the retail data
+	if (isCustom()) {
+		path = g_Fodder->mVersions->GetRetail(mPlatform)->getDataFilePath(pFile);
+		if (path.size() && local_FileExists(path))
+			return path;
+	}
+
+	// Fall back to the data folder
+	return g_ResourceMan->FindVersionPath(this) + pFile;
 }
 
 std::vector<eGFX_Types> sGameVersion::getGfxTypes() const {

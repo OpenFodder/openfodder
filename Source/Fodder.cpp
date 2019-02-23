@@ -2913,6 +2913,8 @@ void cFodder::Squad_EnteredVehicle_TimerTick() {
 }
 
 void cFodder::Phase_Map_Overview_Show() {
+
+	// We allow the overview map to be shown on all versions in debug mode
 #ifndef _DEBUG
     // Overview map is disabled for demos
     if (mVersionCurrent->isDemo() && !mVersionCurrent->isCustom())
@@ -4326,12 +4328,9 @@ void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitl
  * Display a list of custom maps
  */
 void cFodder::Custom_ShowMapSelection() {
-
     // If demo data is loaded, we need to enture a retail release is loaded for the menu draw data
-    if (mVersionCurrent->isDemo()) {
-
+    if (mVersionCurrent->isDemo())
         VersionSwitch(mVersionDefault);
-    }
 
     Image_FadeOut();
     mGraphics->PaletteSet();
@@ -4362,7 +4361,6 @@ void cFodder::Custom_ShowMapSelection() {
 }
 
 bool cFodder::Demo_Amiga_ShowMenu() {
-
     mSound->Music_Stop();
 
     if(mVersionCurrent->isAmigaNotVeryFestive() || mVersionCurrent->isAmigaAlienLevels()) 
@@ -4393,14 +4391,11 @@ bool cFodder::Demo_Amiga_ShowMenu() {
     });
 
     GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0xE0);
-
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
-
     return mPhase_Aborted;
 }
 
 void cFodder::Sprite_Handle_Player_Enter_Vehicle(sSprite* pSprite) {
-
     // Have a target vehicle?
     if (!pSprite->field_66)
         return;

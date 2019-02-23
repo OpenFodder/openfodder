@@ -56,7 +56,6 @@ enum eDataType {
 std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension );
 
 bool				local_FileExists(const std::string& pPath);
-std::string			local_PathGenerate(  const std::string& pFile, const std::string& pPath, eDataType pDataType );
 
 std::string			local_getcwd();
 
