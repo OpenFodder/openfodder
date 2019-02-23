@@ -1166,6 +1166,8 @@ void cFodder::Map_Randomise_Tiles(const long pSeed) {
     case eTileTypes_Ice:
         TileLand = Tile_FindType(eTerrainType_Snow);
         break;
+	default:
+		break;
     }
 
     int16 X = 0;
@@ -1233,105 +1235,6 @@ void cFodder::Map_Randomise_TileSmooth() {
             int16 TileRight     = Map_Terrain_Get(TileX + 16, TileY);
             int16 TileRightUp   = Map_Terrain_Get(TileX + 16, TileY - 1);
            
-            std::vector< sFoundMatch> match;
-
-            if (Tile == TileUp)
-                continue;
-
-            // Find tiles wihch have this tiles type, and the tile above us
-            auto Tiles = Tile_FindType((eTerrainType) Tile, (eTerrainType)TileUp);
-
-            // Loop over each tile, and check it for edge matches
-            for (auto& FindTile : Tiles) {
-
-                int16 Matches = 0;
-
-                // Check the top row of this tile, against the bottom row of the tile in the above row
-                for (int32 X = 0; X < 16; X += 2) {
-
-                    // Check the top edge of 'FindTile', against the bottom row tile above
-                    int16 FindCell = Tile_Terrain_Get(FindTile, TileX + X, 0);
-
-                    int16 CurrentCell = Map_Terrain_Get(TileX + X, TileY);
-                    int16 UpCell = Map_Terrain_Get(TileX + X, TileY - 1);
-
-                    if (FindCell == UpCell)
-                        ++Matches;
-                }
-
-                // Edge perfect match
-                if (!Matches)
-                    continue;
-
-                match.push_back({ Matches, FindTile });
-            }
-
-            if (!match.size()) {
-                // TODO
-                continue;
-            }
-
-            std::sort(match.begin(), match.end(), [](const sFoundMatch& a, const sFoundMatch& b) { return a.Matches > b.Matches; });
-
-            MapTile_Set(x, y, match.begin()->TileID);
-            continue;
-
-            //std::vector<int16> FindTypes = { TileUp, TileLeftUp, TileLeft, TileLeftDown, TileDown, TileRightDown, TileRight, TileRightUp };
-            /*std::vector<int16> FindTypes = { TileUp };
-
-            // Each tile can hold two terrain types
-            // Lets build a list of all tiles which have an both our (Tile) and one edge
-            std::vector<int16> FoundTiles;
-
-            for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
-
-                int16 TerrainType = mTile_Hit[TileID];
-
-                // Single Type Tile
-                if (TerrainType >= 0) {
-                    TerrainType &= 0x0F;
-                    FoundTiles.push_back(TileID);
-                } else {
-
-                    int16 Type1 = (TerrainType >> 4) & 0x0F;
-                    int16 Type2 = TerrainType & 0x0F;
-
-                    auto Type1IT = std::find(FindTypes.begin(), FindTypes.end(), Type1);
-                    auto Type2IT = std::find(FindTypes.begin(), FindTypes.end(), Type2);
-
-                    // One of the types must match the current Tile, and the other must match one of our neighbouring types
-                    if ((Type1IT != FindTypes.end() && Type2 == Tile) || (Type2IT != FindTypes.end() && Type1 == Tile)) {
-                        FoundTiles.push_back(TileID);
-                    }
-
-                    for (int32 X = 0; X < 7; ++X) {
-
-                        int16 TilePixel = 7 - ((X >> 1) & 0x07);
-                        int8 RowTerrainType = mTile_BHit[TileID][(Y >> 1) & 0x07];
-
-                        // If the bit for this X position is set, we use the UpperBits for the terrain type
-                        if (RowTerrainType & (1 << TilePixel)) {
-                            TerrainType >>= 4;
-
-                        }
-
-                    }
-
-                }
-            }*/
-
-            // Now we have an array of all tiles matching us and our neighbours
-            // we need to determine based on our neighbors, which tile to use
-
-            /*for (auto& CheckTile : FoundTiles) {
-
-                int16 TerrainType = mTile_Hit[CheckTile];
-                if (TerrainType < 0) {
-
-                }
-
-            }
-
         } // Width
     } // Height
     */
