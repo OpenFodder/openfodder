@@ -794,7 +794,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 		}
 
 		Target += (mSurface->GetWidth() * (16 - StartY));
-		CurrentMapPtr += (mFodder->mMapWidth << 1);
+		CurrentMapPtr += (mFodder->mMapLoaded.getWidth() << 1);
 	}
 
 	mSurface->Save();

@@ -253,6 +253,13 @@ void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
     mMissions.clear();
 }
 
+cMap cCampaign::getCMap(std::shared_ptr<cPhase> pPhase) const {
+
+	cMap Map(getMap(pPhase), getSprites(pPhase), mName == "Cannon Fodder 2");
+
+	return Map;
+}
+
 tSharedBuffer cCampaign::getMap(std::shared_ptr<cPhase> pPhase) const {
     std::string FinalName = pPhase->mMapFilename + ".map";
     std::string FinalPath = GetPathToFile(FinalName);

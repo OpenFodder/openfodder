@@ -152,6 +152,8 @@ public:
     std::string GetPathToFile(const std::string& pName) const;
     std::string GetPath(const bool pTrailingSeperator = true) const;
 
+	cMap getCMap(std::shared_ptr<cPhase> pPhase) const;
+
 	tSharedBuffer getMap(std::shared_ptr<cPhase> pPhase) const;
 	tSharedBuffer getSprites(std::shared_ptr<cPhase> pPhase) const;
 

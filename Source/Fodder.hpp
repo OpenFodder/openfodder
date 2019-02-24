@@ -127,11 +127,10 @@ public:
     cSurface*       mSurface2;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
-    uint16          mMapWidth;
-    uint16          mMapHeight;
     uint8           mKeyCode;
 
     tSharedBuffer   mMap;
+	cMap			mMapLoaded;
 
     tSharedBuffer   mTile_BaseBlk;
     tSharedBuffer   mTile_SubBlk;
@@ -286,9 +285,6 @@ public:
     int16           word_3AA45;
     int16           mSquad_Select_Timer;
     int16           mSprite_Find_Distance;
-    int32           mMapWidth_Pixels;
-    int32           mMapHeight_Pixels;
-
 
     int16           mSprite_Reached_Target;
     int16           mStoredSpriteFrame;
@@ -593,14 +589,7 @@ public:
     void			Map_Load_Sprites_Count();
     void            Map_Load_Resources();
 
-    void            Map_Save(const std::string pFilename);
-    void            Map_Save_Sprites(const std::string pFilename);
-
     void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
-    void			Map_Randomise_Tiles(const long pSeed);
-    void            Map_Randomise_TileSmooth();
-    void			Map_Randomise_Structures(const size_t pCount);
-    void			Map_Randomise_Sprites(const size_t pHumanCount = 2);
 
     bool			Tiles_Load_Data();
     int16			Tile_FindType(const eTerrainType pType);
@@ -930,7 +919,6 @@ public:
     int16           Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
     int16           Sprite_Get_Free_Max29(int16& pData0, sSprite*& pData2C, sSprite*& pData30);
 
-    void            Sprite_Clear(sSprite* pSprite);
     void            Sprite_Handle_Exploidable(sSprite* pSprite);
     void            Sprite_Create_Shadow(sSprite* pSprite);
     void            Sprite_Handle_Grenade_Terrain_Check(sSprite* pSprite);
@@ -1014,7 +1002,7 @@ public:
 
     void            tool_RandomSeed();
     int16           tool_RandomGet();
-    uint16          tool_RandomGet(uint16 pMin, uint16 pMax);
+    uint16          tool_RandomGet(size_t pMin, size_t pMax);
 
     void            Sprite_Movement_Calculate(sSprite* pSprite);
     int16           Sprite_Direction_Between_Points(sSprite* pSprite, int16& pData0, int16& pData4);

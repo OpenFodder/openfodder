@@ -172,6 +172,9 @@
     <ClInclude Include="..\..\Source\Utils\ini.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\SimplexNoise.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -283,6 +286,12 @@
       <Filter>Source\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ResourceMan.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utils\SimplexNoise.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Map.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

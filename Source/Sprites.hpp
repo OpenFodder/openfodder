@@ -314,6 +314,12 @@ struct sSprite {
 	sSprite* field_70;		// Hostage: Following Sprite
 	int8 field_74;			// Helicopter: Restart Anim Frame Number
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
+
+	sSprite() {
+		Clear();
+	}
+
+	void Clear();
 };
 
 struct sWeaponData {

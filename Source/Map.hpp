@@ -265,3 +265,63 @@ const int16 mMap_DirectionsBetweenPoints[] = {
 	45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 
 	35, 34, 33, 32, 
 };
+
+struct sSprite;
+
+class cMap {
+
+protected:
+	size_t mSeed;
+	tSharedBuffer mData;
+
+	size_t mWidth;
+	size_t mHeight;
+
+	eTileTypes mTileSet;
+	size_t mTileSub;
+	int32 mTile_Ptr;
+
+	std::vector<sSprite> mSprites;
+private:
+
+	void loadCF1Map(tSharedBuffer pMapData);
+	void loadCF1Spt(tSharedBuffer pSpriteData, bool pCF2);
+
+	bool saveCF1Map(const std::string& pFilename);
+	bool saveCF1Sprites(std::string pFilename);
+
+protected:
+
+	void CreateHeader();
+	void SetTileTypeFromHeader();
+	void SetTileTypeInHeader();
+
+	int32 Tile_Get(const size_t pTileX, const size_t pTileY);
+	void  Tile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
+	void  Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY);
+	void  Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTileY);
+
+	virtual void Randomise_Tiles(const long pSeed);
+	virtual void Randomise_TileSmooth();
+	virtual void Randomise_Structures(const size_t pCount);
+	virtual void Randomise_Sprites(const size_t pHumanCount = 2);
+
+public:
+	cMap();
+	cMap(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight);
+	cMap(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2);
+
+	virtual void ClearTiles(const size_t pTileID);
+	virtual void Randomise();
+
+	int32 getWidth() const { return mWidth; }
+	int32 getHeight() const { return mHeight; }
+
+	int32 getWidthPixels() const { return mWidth << 4; }
+	int32 getHeightPixels() const { return mHeight << 4; }
+
+	bool save(const std::string& pFilename, const bool CF1);
+
+	tSharedBuffer			getData() const;
+	std::vector<sSprite>	getSprites() const;
+};

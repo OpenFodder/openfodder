@@ -207,8 +207,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mSurfaceMapTop = 0;
     mSurfaceMapLeft = 0;
-    mMapWidth = 0;
-    mMapHeight = 0;
 
     mSprite_SheetPtr = 0;
 
@@ -712,8 +710,6 @@ void cFodder::Mission_Memory_Clear() {
     word_3AA45 = 0;
     mSquad_Select_Timer = 0;
     mSprite_Find_Distance = 0;
-    mMapWidth_Pixels = 0;
-    mMapHeight_Pixels = 0;
     mMouseCursor_Enabled = 0;
     mRecruit_Sidebar_Draw_Y_Start = 0;
     mRecruit_Render_Name_SmallGap = 0;
@@ -968,91 +964,21 @@ void cFodder::sub_10DEC() {
 
 void cFodder::Squad_Set_Squad_Leader() {
 
-    mSprites[0].field_0 = -32768;
     mSquad_Leader = &mSprites[0];
 }
 
 void cFodder::Sprite_Clear_All() {
 	mSprites.resize(mParams.mSpritesMax);
+	Squad_Set_Squad_Leader();
 
     for (auto& Sprite : mSprites) {
-        Sprite_Clear(&Sprite);
+        Sprite.Clear();
     }
-    Sprite_Clear(&mSprite_Spare);
+	mSprite_Spare.Clear();
 
     mSprites[44].field_0 = -1;
     mSprite_SpareUsed = 0;
 }
-
-void cFodder::Map_Save(const std::string pFilename) {
-
-    std::ofstream outfile(pFilename, std::ofstream::binary);
-
-    // The original game stores the maps in big endian
-    tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
-    outfile.write((const char*)mMap->data(), mMap->size());
-    outfile.close();
-
-    // Now we can swap it back to little endian
-    tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
-
-    Map_Save_Sprites(pFilename);
-}
-
-void cFodder::Map_Save_Sprites(const std::string pFilename) {
-    std::string SptFilename = pFilename;
-
-    // Replace .map with .spt
-    SptFilename.replace(pFilename.length() - 3, pFilename.length(), "spt");
-
-    std::ofstream outfile(SptFilename, std::ofstream::binary);
-
-    // Number of sprites in use
-    size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](auto& l) {
-        return l.field_0 != -32768 && l.field_0 != -1;
-    });
-
-    auto MapSpt = tSharedBuffer(new std::vector<uint8>());
-    MapSpt->resize(SpriteCount * 0x0A);
-
-    uint8* SptPtr = MapSpt->data();
-
-    // Cheap way of writing human players first
-    for (const auto SpriteIT : mSprites) {
-
-        if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
-            continue;
-
-        if (SpriteIT.field_18 != eSprite_Player)
-            continue;
-
-        writeBEWord(SptPtr, 0x7C);  SptPtr += 2;                        // Direction
-        writeBEWord(SptPtr, 0x00);  SptPtr += 2;                        // Ignored
-        writeBEWord(SptPtr, SpriteIT.field_0 - 0x10);  SptPtr += 2;    // X    
-        writeBEWord(SptPtr, SpriteIT.field_4);  SptPtr += 2;            // Y    
-        writeBEWord(SptPtr, SpriteIT.field_18); SptPtr += 2;            // Type 
-    }
-
-    // Now write out all other players
-    for (const auto SpriteIT : mSprites) {
-
-        if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
-            continue;
-
-        if (SpriteIT.field_18 == eSprite_Player)
-            continue;
-
-        writeBEWord(SptPtr, 0x7C);  SptPtr += 2;                // Direction
-        writeBEWord(SptPtr, 0x00);  SptPtr += 2;                // Ignored
-        writeBEWord(SptPtr, SpriteIT.field_0 - 0x10);  SptPtr += 2;    // X    
-        writeBEWord(SptPtr, SpriteIT.field_4);  SptPtr += 2;    // Y    
-        writeBEWord(SptPtr, SpriteIT.field_18); SptPtr += 2;    // Type 
-    }
-    outfile.write((const char*)MapSpt->data(), MapSpt->size());
-    outfile.close();
-}
-
-#include "Utils//diamondsquare.hpp"
 
 int16 cFodder::Tile_FindType(eTerrainType pType) {
 
@@ -1118,127 +1044,6 @@ std::vector<int16> cFodder::Tile_FindType(const eTerrainType pType, const eTerra
 
     return Results;
 }
-void cFodder::Map_Randomise_Tiles(const long pSeed) {
-    int32 PowerOf = 0;
-    int32 Size;
-
-    if (mMapWidth < mMapHeight)
-        Size = mMapHeight;
-    else
-        Size = mMapWidth;
-
-    while (Size > 0) {
-        PowerOf++;
-        Size = Size >> 1;
-    }
-
-    cDiamondSquare DS(PowerOf, pSeed);
-    auto HeightMap = DS.generate();
-
-    int16* MapPtr = (int16*)(mMap->data() + 0x60);
-
-    // Find the highest and lowest points in the height map
-    double HeightMin = 0;
-    double HeightMax = 0;
-    for (auto& Row : HeightMap) {
-        for (auto& Column : Row) {
-
-            if (Column > HeightMax) HeightMax = Column;
-            if (Column < HeightMin) HeightMin = Column;
-        }
-    }
-
-    // Calcukate the difference between top/bottom
-    double diff = HeightMax - HeightMin;
-    double flood = 0.3;
-    double mount = 0.7;
-
-    // Calculate the flood/moutain levels
-    flood *= diff;
-    mount *= diff;
-
-    // Jungle
-    int16 TileWater = Tile_FindType(eTerrainType_Water);
-    int16 TileLand = Tile_FindType(eTerrainType_Land);
-    int16 TileBounce = Tile_FindType(eTerrainType_BounceOff);
-
-    switch (mMap_TileSet) {
-    case eTileTypes_Ice:
-        TileLand = Tile_FindType(eTerrainType_Snow);
-        break;
-	default:
-		break;
-    }
-
-    int16 X = 0;
-    int16 Y = 0;
-
-    static bool Found = false;
-
-    // Loop each tile row
-    for (auto Row : HeightMap) {
-
-        X = 0;
-
-        // Loop each tile column
-        for (auto Column : Row) {
-
-            Column -= HeightMin;
-
-            if (Column < flood) {
-                //if(!Found)
-                    *MapPtr = TileWater;
-                Found = true;
-            }
-            else if (Column > mount) {
-                *MapPtr = TileBounce;
-            }
-            else {
-                *MapPtr = TileLand;
-            }
-
-            ++MapPtr;
-
-            if (++X >= mMapWidth)
-                break;
-        }
-
-        if (++Y >= mMapHeight)
-            break;
-    }
-
-
-}
-
-struct sFoundMatch {
-    int16 Matches;
-    int16 TileID;
-};
-
-void cFodder::Map_Randomise_TileSmooth() {
-    /* Bunch of useless code that might be good someday
-
-    for (int32 y = 1; y < mMapHeight; ++y) {
-        for (int32 x = 1; x < mMapWidth; ++x) {
-
-            int32 TileX = x * 16;
-            int32 TileY = y * 16;
-
-            int16 Tile          = Map_Terrain_Get(TileX, TileY);
-
-            int16 TileUp        = Map_Terrain_Get(TileX,      TileY - 1);
-            int16 TileLeftUp    = Map_Terrain_Get(TileX - 1,  TileY - 1);
-            int16 TileLeft      = Map_Terrain_Get(TileX - 1,  TileY);
-            int16 TileLeftDown  = Map_Terrain_Get(TileX - 1,  TileY + 16);
-            int16 TileDown      = Map_Terrain_Get(TileX,      TileY + 16);
-            int16 TileRightDown = Map_Terrain_Get(TileX + 16, TileY + 16);
-            int16 TileRight     = Map_Terrain_Get(TileX + 16, TileY);
-            int16 TileRightUp   = Map_Terrain_Get(TileX + 16, TileY - 1);
-           
-        } // Width
-    } // Height
-    */
-}
 
 void cFodder::Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY) {
 
@@ -1258,129 +1063,22 @@ void cFodder::Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int1
     }
 }
 
-void cFodder::Map_Randomise_Structures(const size_t pCount) {
-
-    mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
-
-    size_t StructsCount = 0;
-
-    int16 TileLand = Tile_FindType(eTerrainType_Land);
-
-    // This is very lame :)
-    while (StructsCount < pCount) {
-        auto Struct = mStructuresBarracksWithSoldier[mMap_TileSet];
-
-        int16 StartTileX = tool_RandomGet(Struct.MaxWidth() + 2, mMapWidth - Struct.MaxWidth());
-        int16 StartTileY = tool_RandomGet(Struct.MaxHeight() + 2, mMapHeight - Struct.MaxWidth());
-
-        // TODO: Check if we will overlap an existing structure,
-        //       or place on water
-        auto Tile = MapTile_Get(StartTileX, StartTileY);
-        if (Tile != TileLand)
-            continue;
-
-        Map_Add_Structure(Struct, StartTileX, StartTileY);
-
-        // Add an enemy below each building
-        Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
-
-        ++StructsCount;
-    }
-}
-
-void cFodder::Map_Randomise_Sprites(const size_t pHumanCount) {
-    int16 DistanceY = 8;
-    int16 DistanceX = 8;
-
-    int16 MiddleX = 0;
-    int16 MiddleY = 0;
-
-    int16 TileLand = Tile_FindType(eTerrainType_Land);
-
-    size_t Count = 0;
-    while (Count < 100000) {
-        int16 StartTileX = tool_RandomGet(2, mMapWidth - 2);
-        int16 StartTileY = tool_RandomGet(2, mMapHeight - 2);
-
-        // TODO: Check if we will overlap an existing structure,
-        //       or place on water
-        auto Tile = MapTile_Get(StartTileX, StartTileY);
-        if (Tile != TileLand)
-            continue;
-
-        MiddleX = StartTileX * 16;
-        MiddleY = StartTileY * 16;
-        break;
-    }
-
-    // Add atleast two sprites
-    for (size_t x = 0; x < pHumanCount; ++x) {
-        if (tool_RandomGet() % 2)
-            Sprite_Add(eSprite_Player, MiddleX - DistanceX, MiddleY + DistanceY);
-        else
-            Sprite_Add(eSprite_Player, MiddleX + DistanceX, MiddleY - DistanceY);
-
-        DistanceX += 6;
-        DistanceY += 6;
-    }
-
-
-    // Add some weapons
-    Sprite_Add(eSprite_RocketBox, MiddleX, MiddleY + DistanceY);
-    Sprite_Add(eSprite_GrenadeBox, MiddleX + DistanceX, MiddleY + DistanceY);
-
-}
-
 void cFodder::Map_Load_Sprites() {
 
     Sprite_Clear_All();
 
-    auto MapSprites = mGame_Data.mCampaign.getSprites(mGame_Data.mPhase_Current);
-    tool_EndianSwap((uint8*)MapSprites->data(), MapSprites->size());
+	mSprites = mMapLoaded.getSprites();
 
-    uint16* SptPtr = (uint16*)MapSprites->data();
-    sSprite* Sprite = mSprites.data();
+	if (mSprites.size() < mParams.mSpritesMax) {
+		size_t start = mSprites.size();
+		mSprites.resize(mParams.mSpritesMax);
 
-    uint16* SptFileEnd = SptPtr + (MapSprites->size() / 2);
+		for (; start < mSprites.size(); ++start) {
+			mSprites[start].Clear();
+		}
+	}
 
-    for (uint16 HumanCount = 0; SptPtr != SptFileEnd; ++Sprite) {
-        ++SptPtr;
-
-        Sprite->field_8 = 0x7C;
-
-        uint16 ax = HumanCount / 8;
-
-        Sprite->field_32 = ax;
-        ++SptPtr;
-        ax = SptPtr[0];
-        ++SptPtr;
-
-        ax += 0x10;
-        Sprite->field_0 = ax;
-        Sprite->field_26 = ax;
-
-        ax = SptPtr[0];
-        ++SptPtr;
-        Sprite->field_4 = ax;
-        Sprite->field_28 = ax;
-
-        ax = SptPtr[0];
-        ++SptPtr;
-        Sprite->field_18 = ax;
-
-        // 114B
-
-        // HACK: Some SPT files don't contain enough null sprites between entries
-        //       This causes some sprites to be overwritten by null/lights on later missions in CF2
-        if (mVersionCurrent->isCannonFodder2()) {
-
-            if(Sprite > mSprites.data())
-                if (Sprite->field_18 == 4 && (Sprite - 1)->field_18 >= 114 && (Sprite - 1)->field_18 <= 117) {
-                    ++Sprite;
-            }
-        }
-    }
-
+	Squad_Set_Squad_Leader();
     Map_Load_Sprites_Count();
 }
 
@@ -1785,7 +1483,7 @@ void cFodder::Camera_Speed_Calculate() {
         mCamera_Speed_Y = 0;
 
     //loc_11B9C
-    Data0 = mMapWidth_Pixels -0x110;
+    Data0 = mMapLoaded.getWidthPixels() - 0x110;
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     int32 Data4 = mCameraX + mCamera_Speed_X;
@@ -1795,7 +1493,7 @@ void cFodder::Camera_Speed_Calculate() {
         mCamera_Speed_X = Data0;
     }
     //loc_11BE8
-    Data0 = mMapHeight_Pixels - mWindow->GetScreenSize().mHeight;
+    Data0 = mMapLoaded.getHeightPixels() - mWindow->GetScreenSize().mHeight;
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     Data4 = mCameraY + mCamera_Speed_Y;
@@ -1851,7 +1549,7 @@ void cFodder::Camera_SetTargetToStartPosition() {
     if (Data8 < 0)
         Data8 = 0;
 
-    int16 Data10 = mMapWidth_Pixels;
+    int16 Data10 = mMapLoaded.getWidthPixels();
     Data10 -= 0x88;
     if (Data8 >= Data10)
         Data8 = Data10;
@@ -1861,7 +1559,7 @@ void cFodder::Camera_SetTargetToStartPosition() {
     if (DataC < 0)
         DataC = 0;
 
-    Data10 = mMapHeight_Pixels;
+    Data10 = mMapLoaded.getHeightPixels();
     Data10 -= 0x6C;
     if (DataC >= Data10)
         DataC = Data10;
@@ -1956,42 +1654,12 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
         TileID = 100;
 #endif
 
-    mMap = std::make_shared<std::vector<uint8_t>>();
-    mMap->clear();
-    mMap->resize(0x60 + ((pWidth * pHeight) * 2), TileID);
+	mMapLoaded = cMap(pTileType, pTileSub, pWidth, pHeight);
+	mMap = mMapLoaded.getData();
 
     mMapTile_Ptr = (int32)((0x60 - 8) - (pWidth * 2));
-   // mMapTile_Ptr += 8;
     mMapTile_DrawX = 0;
     mMapTile_DrawY = 0;
-
-    uint16* Map = (uint16*)mMap->data();
-
-    // Header
-    {
-        // Map Marker ('ofed')
-        Map[0x28] = 'fo'; Map[0x29] = 'de';
-
-        // Put the map size
-        writeBEWord(&Map[0x2A], (uint16)pWidth);
-        writeBEWord(&Map[0x2B], (uint16)pHeight);
-    }
-
-    // Tileset filenames
-    {
-        std::string mBaseName = pTileType.mName + "base.blk";
-        std::string mSubName = pTileType.mName;
-
-        // Only Jungle has a sub1
-        if (pTileSub == 0 || pTileType.mType != eTileTypes_Jungle)
-            mSubName.append("sub0.blk");
-        else
-            mSubName.append("sub1.blk");
-
-        // Write the base/sub filenames
-        std::memcpy(mMap->data(), mBaseName.c_str(), 11);
-        std::memcpy(mMap->data() + 16, mSubName.c_str(), 11);
-    }
 
     // Clear current sprites
     Sprite_Clear_All();
@@ -1999,17 +1667,9 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
     // Load the map specific resources
     Map_Load_Resources();
 
-    if (pRandomise) {
-        uint16 Seed = tool_RandomGet();
-
-        // Lets store the seed for later
-        Map[0x27] = Seed;
-
-        Map_Randomise_Tiles(Seed);
-        Map_Randomise_TileSmooth();
-        Map_Randomise_Sprites();
-        Map_Randomise_Structures(2);
-
+	if (pRandomise) {
+		mMapLoaded.Randomise();
+		Map_Load_Sprites();
 
 #ifndef _OFED
         Map_Load_Sprites_Count();
@@ -2031,13 +1691,11 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
 }
 
 void cFodder::Map_Load() {
-
-    mMap = mGame_Data.mCampaign.getMap(mGame_Data.mPhase_Current);
+	mMapLoaded = mGame_Data.mCampaign.getCMap(mGame_Data.mPhase_Current);
+	mMap = mMapLoaded.getData();
 
     if (!mMap->size())
         return;
-
-    tool_EndianSwap(mMap->data() + 0x60, mMap->size() - 0x60);
 
     Map_Load_Resources();
 }
@@ -2067,24 +1725,6 @@ bool cFodder::Tiles_Load_Data() {
 
 void cFodder::Map_Load_Resources() {
     std::string BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
-
-    // Check Editor used
-    switch (readBEDWord(mMap->data() + 0x50)) {
-    default:        // Unknown Editor
-    case 'cfed':    // Original Engine Map
-        break;
-
-    case 'ofed':    // Open Fodder Map
-        break;
-    }
-
-    // Set the width/height in tiles
-    mMapWidth = readBEWord(mMap->data() + 0x54);
-    mMapHeight = readBEWord(mMap->data() + 0x56);
-
-    // Calculate width/height in pixels
-    mMapWidth_Pixels = (mMapWidth << 4);
-    mMapHeight_Pixels = (mMapHeight << 4);
 
     // Map Tileset
     Map_SetTileType();
@@ -2212,7 +1852,7 @@ void cFodder::Camera_Pan_Set_Speed() {
 
     Data4 >>= 4;
 
-    int16 Data8 = mMapWidth;
+    int16 Data8 = mMapLoaded.getWidth();
     Data8 -= 0x12;
     if (Data8 < 0)
         Data8 = 0;
@@ -2220,7 +1860,7 @@ void cFodder::Camera_Pan_Set_Speed() {
     if (Data0 >= Data8)
         Data0 = Data8;
 
-    Data8 = mMapHeight;
+    Data8 = mMapLoaded.getHeight();
     Data8 -= 0x10;
     if (Data8 < 0)
         Data8 = 0;
@@ -2827,6 +2467,13 @@ void cFodder::Phase_Map_Overview_Show() {
     int16 word_3A016 = 0;
     mVideo_Draw_PosX = (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
     mVideo_Draw_PosY = (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
+	
+	if (mVideo_Draw_PosX < 0)
+		mVideo_Draw_PosX = 0;
+
+	if (mVideo_Draw_PosY < 0)
+		mVideo_Draw_PosY = 0;
+
     mVideo_Draw_PaletteIndex = 0xF0;
 
     mGraphics->PaletteSetOverview();
@@ -2874,7 +2521,7 @@ void cFodder::Map_Overview_Prepare() {
         return;
 
     delete mSurfaceMapOverview;
-    size_t Size = mMapWidth < mMapHeight ? mMapHeight : mMapWidth;
+    size_t Size = mMapLoaded.getWidth() < mMapLoaded.getHeight() ? mMapLoaded.getHeight() : mMapLoaded.getWidth();
 
     mSurfaceMapOverview = new cSurface(Size * 16, Size * 16);
     mSurfaceMapOverview->clearBuffer();
@@ -2883,21 +2530,21 @@ void cFodder::Map_Overview_Prepare() {
 
     mSurfaceMapTop = mSurfaceMapLeft = 0;
 
-    if (mMapHeight < mMapWidth) {
-        mSurfaceMapTop = (mMapWidth / 2) - (mMapHeight / 2);
+    if (mMapLoaded.getHeight() < mMapLoaded.getWidth()) {
+        mSurfaceMapTop = (mMapLoaded.getWidth() / 2) - (mMapLoaded.getHeight() / 2);
         if (mSurfaceMapTop < 0)
             mSurfaceMapTop = 0;
     }
 
-    if (mMapWidth < mMapHeight) {
-        mSurfaceMapLeft = (mMapHeight / 2) - (mMapWidth / 2);
+    if (mMapLoaded.getWidth() < mMapLoaded.getHeight()) {
+        mSurfaceMapLeft = (mMapLoaded.getHeight() / 2) - (mMapLoaded.getWidth() / 2);
         if (mSurfaceMapLeft < 0)
             mSurfaceMapLeft = 0;
     }
 
-    for (uint16 dx = 0; dx < mMapHeight; ++dx) {
+    for (uint16 dx = 0; dx < mMapLoaded.getHeight(); ++dx) {
 
-        for (uint16 cx = 0; cx < mMapWidth; ++cx, ++MapPtr) {
+        for (uint16 cx = 0; cx < mMapLoaded.getWidth(); ++cx, ++MapPtr) {
             
             if (MapPtr < (int16*) mMap->data() || MapPtr >= (int16*) (mMap->data() + mMap->size()))
                 continue;
@@ -6186,14 +5833,14 @@ loc_2500F:;
 
     Data0 = tool_RandomGet() & 0x7F;
     Data0 += 4;
-    if (Data0 > mMapWidth)
+    if (Data0 > mMapLoaded.getWidth())
         goto loc_25239;
 
     Data8 = Data0;
     Data0 = tool_RandomGet() & 0x3F;
     Data0 += 4;
 
-    if (Data0 > mMapHeight)
+    if (Data0 > mMapLoaded.getHeight())
         goto loc_25239;
 
     DataC = Data0;
@@ -6520,7 +6167,7 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite) {
     Data0 += 4;
 
     // Map Width
-    if (Data0 >= mMapWidth)
+    if (Data0 >= mMapLoaded.getWidth())
         return -1;
 
     int16 Data8 = Data0;
@@ -6528,7 +6175,7 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite) {
     Data0 += 4;
 
     // Map Height
-    if (Data0 >= mMapHeight)
+    if (Data0 >= mMapLoaded.getHeight())
         return -1;
 
     int16 DataC = Data0;
@@ -7165,7 +6812,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
     if (Data0)
         return -1;
 
-    Sprite_Clear(pData2C);
+    pData2C->Clear();
     pData2C->field_18 = mSpawnSpriteType;
     pData2C->field_0 = pSprite->field_0;
     pData2C->field_0 -= 6;
@@ -7295,7 +6942,7 @@ void cFodder::tool_RandomSeed() {
     mRandom_3 = 0;
 }
 
-uint16 cFodder::tool_RandomGet(uint16 pMin, uint16 pMax) {
+uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax) {
 
     return ((uint16)tool_RandomGet()) % (pMax - pMin + 1) + pMin;
 }
@@ -7561,7 +7208,7 @@ int16 cFodder::sub_2A4A2(int16& pData0, int16& pData4, int16& pData8, int16& pDa
 
     int16 Data18 = 2;
 
-    int16 Data1C = mMapWidth;
+    int16 Data1C = mMapLoaded.getWidth();
     Data1C <<= 1;
 
     m2A622_Unk_MapPosition.mX = pData0;
@@ -7646,7 +7293,7 @@ int16 cFodder::sub_2A622(int16& pData0) {
 
     uint8* MapTilePtr = mMap->data() + 0x60;
 
-    Data4 *= mMapWidth;
+    Data4 *= mMapLoaded.getWidth();
     Data4 += m2A622_Unk_MapPosition.mX;
 
     MapTilePtr += (Data4 << 1);
@@ -7796,10 +7443,10 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable(sSprite* pSprite, int16& pY, in
 
 int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pData14) {
 
-    if ((pY >> 4) > mMapHeight || (pX >> 4) > mMapWidth)
+    if ((pY >> 4) > mMapLoaded.getHeight() || (pX >> 4) > mMapLoaded.getWidth())
         return 0;
 
-    int32 MapPtr = (pY >> 4) * mMapWidth;
+    int32 MapPtr = (pY >> 4) * mMapLoaded.getWidth();
     MapPtr += (pX >> 4);
     MapPtr <<= 1;
 
@@ -7827,10 +7474,10 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
 
 int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
 
-    if ((pY >> 4) > mMapHeight || (pX >> 4) > mMapWidth)
+    if ((pY >> 4) > mMapLoaded.getHeight() || (pX >> 4) > mMapLoaded.getWidth())
         return -1;
 
-    int32 MapPtr = (pY >> 4) * mMapWidth;
+    int32 MapPtr = (pY >> 4) * mMapLoaded.getWidth();
     MapPtr += (pX >> 4);
     MapPtr <<= 1;
 
@@ -8152,7 +7799,7 @@ int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, in
 
     DataC >>= 4;
 
-    DataC *= mMapWidth;
+    DataC *= mMapLoaded.getWidth();
     Data8 >>= 4;
 
     DataC += Data8;
@@ -8291,7 +7938,7 @@ void cFodder::MapTile_Move_Down(int16 pPanTiles) {
         ++mMapTile_RowOffset;
         mMapTile_RowOffset &= 0x0F;
         if (!mMapTile_RowOffset) {
-            mMapTile_Ptr += (mMapWidth << 1);
+            mMapTile_Ptr += (mMapLoaded.getWidth() << 1);
             ++mMapTile_MovedVertical;
         }
     }
@@ -8304,7 +7951,7 @@ void cFodder::MapTile_Move_Up(int16 pPanTiles) {
         --mMapTile_RowOffset;
         mMapTile_RowOffset &= 0x0F;
         if (mMapTile_RowOffset == 0x0F) {
-            mMapTile_Ptr -= (mMapWidth << 1);
+            mMapTile_Ptr -= (mMapLoaded.getWidth() << 1);
             --mMapTile_MovedVertical;
         }
     }
@@ -8359,10 +8006,10 @@ void cFodder::MapTile_Update_X() {
 
 int32 cFodder::MapTile_Get(const size_t pTileX, const size_t pTileY) {
 
-    if (pTileX > mMapWidth || pTileY > mMapHeight)
+    if (pTileX > mMapLoaded.getWidth() || pTileY > mMapLoaded.getHeight())
         return -1;
 
-    size_t Tile = (((pTileY * mMapWidth) + pTileX)) + mMapWidth;
+    size_t Tile = (((pTileY * mMapLoaded.getWidth()) + pTileX)) + mMapLoaded.getWidth();
 
     uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
     if (CurrentMapPtr > mMap->data() + mMap->size())
@@ -8376,10 +8023,10 @@ int32 cFodder::MapTile_Get(const size_t pTileX, const size_t pTileY) {
  */
 void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
 
-    if (pTileX > mMapWidth || pTileY > mMapHeight)
+    if (pTileX > mMapLoaded.getWidth() || pTileY > mMapLoaded.getHeight())
         return;
 
-    size_t Tile = (((pTileY * mMapWidth) + pTileX)) + mMapWidth;
+    size_t Tile = (((pTileY * mMapLoaded.getWidth()) + pTileX)) + mMapLoaded.getWidth();
 
     uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
     if (CurrentMapPtr > mMap->data() + mMap->size())
@@ -9073,7 +8720,7 @@ void cFodder::Map_Destroy_Tiles() {
         }
         //loc_2DE89
         Data4 >>= 4;
-        Data4 *= mMapWidth;
+        Data4 *= mMapLoaded.getWidth();
 
         Data0 >>= 4;
         Data4 += Data0;
@@ -13267,7 +12914,7 @@ loc_1D3C6:;
 
 loc_1D411:;
     Data4 = pSprite->field_4;
-    Data0 = mMapHeight_Pixels;
+    Data0 = mMapLoaded.getHeightPixels();
 
     if (Data4 < Data0)
         goto loc_1D441;
@@ -13965,7 +13612,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite) {
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_0 <= 6) {
-        pSprite->field_0 = mMapWidth_Pixels - 4;
+        pSprite->field_0 = mMapLoaded.getWidthPixels() - 4;
         pSprite->field_75 = 0;
     }
 
@@ -13996,7 +13643,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Right(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_0 >= mMapWidth_Pixels) {
+    if (pSprite->field_0 >= mMapLoaded.getWidthPixels()) {
         pSprite->field_0 = 0;
         pSprite->field_75 = 0;
     }
@@ -14010,7 +13657,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Up(sSprite* pSprite) {
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_4 <= 6) {
-        pSprite->field_4 = mMapHeight_Pixels - 4;
+        pSprite->field_4 = mMapLoaded.getHeightPixels() - 4;
         pSprite->field_75 = 0;
     }
 
@@ -14022,7 +13669,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Down(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_4 >= mMapHeight_Pixels) {
+    if (pSprite->field_4 >= mMapLoaded.getHeightPixels()) {
         pSprite->field_4 = 0;
         pSprite->field_75 = 0;
     }
@@ -14140,8 +13787,8 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
         goto loc_1EB87;
 
     Data0 = pSprite->field_4;
-    if (Data0 >= mMapHeight_Pixels)
-        pSprite->field_4 = mMapHeight_Pixels;
+    if (Data0 >= mMapLoaded.getHeightPixels())
+        pSprite->field_4 = mMapLoaded.getHeightPixels();
 
     //loc_1E0A4
     if (pSprite->field_56)
@@ -14491,7 +14138,7 @@ loc_1E831:;
     //loc_1E8D6
     pSprite->field_4 += Data0;
     Data0 = pSprite->field_4;
-    if (Data0 >= mMapHeight_Pixels)
+    if (Data0 >= mMapLoaded.getHeightPixels())
         pSprite->field_38 = eSprite_Anim_Hit2;
 
     mStoredSpriteY = pSprite->field_4;
@@ -16584,7 +16231,7 @@ void cFodder::Sprite_Reached_MapEdge(sSprite* pSprite) {
         mSprite_Reached_Target = -1;
     }
 
-    if (pSprite->field_4 >= mMapHeight_Pixels) {
+    if (pSprite->field_4 >= mMapLoaded.getHeightPixels()) {
         if (pSprite->field_38 == eSprite_Anim_None || pSprite->field_38 >= eSprite_Anim_Slide1) {
             pSprite->field_4 = mStoredSpriteY;
             mSprite_Reached_Target = -1;
@@ -16598,10 +16245,10 @@ void cFodder::Sprite_Reached_MapEdge(sSprite* pSprite) {
         goto loc_20521;
     }
 
-    if (pSprite->field_0 + 12 < mMapWidth_Pixels)
+    if (pSprite->field_0 + 12 < mMapLoaded.getWidthPixels())
         return;
 
-    if (mStoredSpriteX + 16 >= mMapWidth_Pixels)
+    if (mStoredSpriteX + 16 >= mMapLoaded.getWidthPixels())
         return;
 
 loc_20521:;
@@ -17110,9 +16757,10 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
                 if ((pData2C + 2)->field_0 == -32768) {
                     pData30 = pData2C + 1;
 
-                    Sprite_Clear(pData2C);
-                    Sprite_Clear(pData30);
-                    Sprite_Clear(pData30 + 1);
+                    pData2C->Clear();
+					pData30->Clear();
+					(pData30 + 1)->Clear();	// Yuck
+
                     pData0 = 0;
                     return 0;
                 }
@@ -17131,8 +16779,8 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
                 if ((pData2C + 1)->field_0 == -32768) {
                     pData30 = pData2C + 1;
 
-                    Sprite_Clear(pData2C);
-                    Sprite_Clear(pData30);
+                    pData2C->Clear();
+					pData30->Clear();
                     pData0 = 0;
                     return 0;
                 }
@@ -17146,7 +16794,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
 
                 // Free?
                 if (pData2C->field_0 == -32768) {
-                    Sprite_Clear(pData2C);
+                    pData2C->Clear();
                     pData0 = 0;
                     return 0;
                 }
@@ -17175,7 +16823,7 @@ int16 cFodder::Sprite_Get_Free_Max29(int16& pData0, sSprite*& pData2C, sSprite*&
      for (int32_t Data1C = mParams.mSpritesMax - 16; Data1C >= 0; --Data1C, --pData2C) {
 
         if (pData2C->field_0 == -32768) {
-            Sprite_Clear(pData2C);
+            pData2C->Clear();
             pData0 = 0;
             return 0;
         }
@@ -17207,78 +16855,6 @@ loc_21B91:;
     pData0 = -1;
     mSprite_SpareUsed2 = pData0;
     return -1;
-}
-
-void cFodder::Sprite_Clear(sSprite* pSprite) {
-    pSprite->field_0 = -32768;
-    pSprite->field_2 = 0;
-    pSprite->field_4 = 0;
-    pSprite->field_6 = 0;
-    pSprite->field_8 = 0;
-    pSprite->field_A = 0;
-    pSprite->field_C = 0;
-    pSprite->field_E = 0;
-    pSprite->field_10 = 0;
-    pSprite->field_12 = 0;
-    pSprite->field_14 = 0;
-    pSprite->field_16 = 0;
-    pSprite->field_18 = 0;
-    pSprite->field_1A_sprite = 0;
-    pSprite->field_1E = 0;
-    pSprite->field_20 = 0;
-    pSprite->field_22 = eSprite_PersonType_Human;
-    pSprite->field_24 = 0;
-    pSprite->field_26 = 0;
-    pSprite->field_28 = 0;
-    pSprite->field_2A = 0;
-    pSprite->field_2C = eSprite_Draw_Second;
-    pSprite->field_2E = 0;
-    pSprite->field_30 = 0;
-    pSprite->field_32 = 0;
-    pSprite->field_34 = 0;
-    pSprite->field_36 = 0;
-    pSprite->field_38 = eSprite_Anim_None;
-    pSprite->field_3A = 0;
-    pSprite->field_3C = 0;
-    pSprite->field_3E = 0;
-    pSprite->field_40 = 0;
-    pSprite->field_42 = 0;
-    pSprite->field_43 = 0;
-    pSprite->field_44 = 0;
-    pSprite->field_45 = 0;
-    pSprite->field_46_sprite = 0;
-    pSprite->field_4A = 0;
-    pSprite->field_4C = 0;
-    pSprite->field_4D = 0;
-    pSprite->field_4E = 0;
-    pSprite->field_4F = 0;
-    pSprite->field_50 = 0;
-    pSprite->field_52 = 0;
-    pSprite->field_54 = 0;
-    pSprite->field_55 = 0;
-    pSprite->field_56 = 0;
-    pSprite->field_57 = 0;
-    pSprite->field_58 = 0;
-    pSprite->field_59 = 0;
-    pSprite->field_5A = 0;
-    pSprite->field_5B = 0;
-    pSprite->field_5C = 0;
-    pSprite->field_5D = 0;
-    pSprite->field_5E = 0;
-	pSprite->field_5E_Squad = 0;
-    pSprite->field_5E_SoldierAllocated = 0;
-    pSprite->field_60 = 0;
-    pSprite->field_61 = 0;
-    pSprite->field_62 = 0;
-    pSprite->field_64 = 0;
-    pSprite->field_65 = 0;
-    pSprite->field_66 = 0;
-    pSprite->field_6A_sprite = 0;
-    pSprite->field_6E = 0;
-    pSprite->field_6F = 0;
-    pSprite->field_70 = 0;
-    pSprite->field_74 = 0;
-    pSprite->field_75 = 0;
 }
 
 void cFodder::Sprite_Handle_Exploidable(sSprite* pSprite) {
@@ -17566,7 +17142,7 @@ void cFodder::Sprite_Turn_Into_Building_Explosion(sSprite* pSprite) {
     int16 Data8 = pSprite->field_0;
     int16 DataC = pSprite->field_4;
 
-    Sprite_Clear(pSprite);
+    pSprite->Clear();
     Sprite_Create_Building_Explosion(pSprite, Data8, DataC);
 }
 
@@ -17577,7 +17153,7 @@ int16 cFodder::Sprite_Create_Building_Explosion_Wrapper(int16& pX, int16& pY) {
     if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return -1;
 
-    Sprite_Clear(Data2C);
+    Data2C->Clear();
 
     pX &= -16;
     pY &= -16;
@@ -17619,7 +17195,7 @@ int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
         return -1;
 
     //loc_21A1C:;
-    Sprite_Clear(pData2C);
+    pData2C->Clear();
     pData2C->field_18 = eSprite_Enemy;
     pData2C->field_0 = pSprite->field_0;
     pData2C->field_0 -= 6;
@@ -18648,7 +18224,6 @@ int16 cFodder::Mission_Loop() {
         }
 
         //loc_10496
-        Squad_Set_Squad_Leader();
         Sprite_Clear_All();
 
         // Prepare a new game?
@@ -18740,8 +18315,8 @@ int16 cFodder::Mission_Loop() {
 
         // Is map 17 x 12
         {
-            if (mMapWidth == 17) {
-                if (mMapHeight == 12)
+            if (mMapLoaded.getWidth() == 17) {
+                if (mMapLoaded.getHeight() == 12)
                     word_3ABB7 = -1;
             }
         }
@@ -18844,7 +18419,7 @@ void cFodder::MapTiles_Draw() {
     mMapTile_RowOffset = 0;
 
     // 0x60 - SidebarWidth - MapWidth
-    mMapTile_Ptr = (0x60 - 8) - (mMapWidth << 1);
+    mMapTile_Ptr = (0x60 - 8) - (mMapLoaded.getWidth() << 1);
     
     // No sidebar in OFED
 #ifdef _OFED
