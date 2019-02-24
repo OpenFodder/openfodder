@@ -103,6 +103,7 @@ public:
     sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
     
+	cPseudorand				mRandom;
     sSprite                 mSprite_Spare;
     std::vector<sSprite>    mSprites;
 
@@ -529,11 +530,6 @@ public:
     int16           mService_Promotion_Exit_Loop;
     std::vector<sService_Draw> mService_Draw_List;
 
-    int16           mRandom_0;
-    int16           mRandom_1;
-    int16           mRandom_2;
-    int16           mRandom_3;
-
     int16           byte_44AC0;
     int16           mInput_LastKey;
 
@@ -583,7 +579,7 @@ public:
     bool            Campaign_Load(std::string pName);
 
     // Map Functions
-    void            Map_Create(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise = false);
+    void            Map_Create(sMapParams pParams, const bool pRandomise = false);
     void            Map_Load();
     void            Map_Load_Sprites();
     void			Map_Load_Sprites_Count();
@@ -1000,7 +996,6 @@ public:
     int16           Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2);
     int16           Direction_Between_Points(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
-    void            tool_RandomSeed();
     int16           tool_RandomGet();
     uint16          tool_RandomGet(size_t pMin, size_t pMax);
 

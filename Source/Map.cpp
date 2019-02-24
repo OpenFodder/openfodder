@@ -24,20 +24,50 @@
 #include "Utils/SimplexNoise.hpp"
 #include "Utils/diamondsquare.hpp"
 
-cMap::cMap() {
-	mTileSet = eTileTypes_Jungle;
-	mTileSub = 0;
+sMapParams::sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, size_t pTileSub) {
+	mAlgorithm = eRandom_SimplexNoise;
 
-	mWidth = 0;
-	mHeight = 0;
-	mData = std::make_shared<std::vector<uint8_t>>();
-}
-
-cMap::cMap(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight) {
-	mTileSet = pTileType.mType;
+	mTileType = pTileType;
 	mTileSub = pTileSub;
 	mWidth = pWidth;
 	mHeight = pHeight;
+}
+
+sMapParams::sMapParams(size_t pSeed) {
+	mTileType = eTileTypes_Jungle;
+	mTileSub = 0;
+	mWidth = 0;
+	mHeight = 0;
+
+	if(pSeed)
+		Randomise(pSeed);
+}
+
+void sMapParams::Randomise(const size_t pSeed) {
+	mRandom.setSeed(pSeed);
+
+	mAlgorithm = (eRandom_Algorithms)(mRandom.getu() % eRandom_SimplexNoise);
+
+	do {
+		mTileType = (eTileTypes)(mRandom.getu() % eTileTypes_AFX);
+	} while (mTileType == eTileTypes_Hid);
+
+	// HACK: While we only support jungle random
+	mTileType = eTileTypes_Jungle;
+	mTileSub = 0;
+
+	mWidth = (mRandom.getu() % 100) + 0x15;
+	mHeight = (mRandom.getu() % 100) + 0x10;
+
+	// TODO: Normalise width/height
+}
+
+cMap::cMap() {
+	mData = std::make_shared<std::vector<uint8_t>>();
+}
+
+cMap::cMap(const sMapParams& pParams) {
+	mParams = pParams;
 
 	mData = std::make_shared<std::vector<uint8_t>>();
 	ClearTiles(0);
@@ -51,19 +81,17 @@ cMap::cMap(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2) {
 	loadCF1Spt(pSptFile, pCF2);
 }
 
-void cMap::Randomise_Tiles(const long pSeed) {
-	float scale = 2.f;
-	float lacunarity = 1555.99f;
-	float persistance = 0.001f;
-	float offset_z = 0.1f;
+// persistance closer to 0 produces more rivers,
+// but a higher number produces more mountains
 
-	const SimplexNoise simplex(0.02f, 200.01f, lacunarity, persistance); // Amplitude of 0.5 for the 1st octave : sum ~1.0f
-	const int octaves = static_cast<int>(5 + std::log(scale)); // Estimate number of octaves needed for the current scale
+void cMap::Randomise_Tiles() {
+	float scale = mParams.mRandom.getf(0.001, 0.1);
+	float lacunarity = mParams.mRandom.getf(0.01, 0.1);
+	float persistance = mParams.mRandom.getf(0.0001, 1);	// higher produces more river
+	float offset_z = mParams.mRandom.getf(1, 100);
 
-
-	double flood = -0.500f;
-	double land = 0.500f;
-	double mount = 0.9f;
+	const SimplexNoise simplex(scale, scale, lacunarity, persistance);
+	const int octaves = static_cast<int>(5 + std::log(scale)); 
 
 	// jungle only
 	int16 TileWater		= 326;
@@ -72,11 +100,11 @@ void cMap::Randomise_Tiles(const long pSeed) {
 
 	int16* MapPtr = (int16*)(mData->data() + 0x60);
 
-	for (size_t Y = 0; Y < mHeight; ++Y) {
+	for (size_t Y = 0; Y < mParams.mHeight; ++Y) {
 
-		for (size_t X = 0; X < mWidth; ++X) {
+		for (size_t X = 0; X < mParams.mWidth; ++X) {
 
-			const float noise = simplex.fractal(octaves, (float) X, (float) Y) + offset_z;
+			const float noise = simplex.fractal(octaves, (float)X, (float)Y, offset_z);
 
 			if (noise < -0.500f) {
 				*MapPtr = TileWater;
@@ -105,83 +133,6 @@ void cMap::Randomise_Tiles(const long pSeed) {
 			++MapPtr;
 		}
 	}
-
-	/*
-	cDiamondSquare DS(PowerOf, pSeed);
-	auto HeightMap = DS.generate();
-
-	int16* MapPtr = (int16*)(mMap->data() + 0x60);
-
-	// Find the highest and lowest points in the height map
-	double HeightMin = 0;
-	double HeightMax = 0;
-	for (auto& Row : HeightMap) {
-		for (auto& Column : Row) {
-
-			if (Column > HeightMax) HeightMax = Column;
-			if (Column < HeightMin) HeightMin = Column;
-		}
-	}
-
-	// Calcukate the difference between top/bottom
-	double diff = HeightMax - HeightMin;
-	double flood = 0.3;
-	double mount = 0.7;
-
-	// Calculate the flood/moutain levels
-	flood *= diff;
-	mount *= diff;
-
-	// Jungle
-	int16 TileWater = Tile_FindType(eTerrainType_Water);
-	int16 TileLand = Tile_FindType(eTerrainType_Land);
-	int16 TileBounce = Tile_FindType(eTerrainType_BounceOff);
-
-	switch (mMap_TileSet) {
-	case eTileTypes_Ice:
-		TileLand = Tile_FindType(eTerrainType_Snow);
-		break;
-	default:
-		break;
-	}
-
-	int16 X = 0;
-	int16 Y = 0;
-
-	static bool Found = false;
-
-	// Loop each tile row
-	for (auto Row : HeightMap) {
-
-		X = 0;
-
-		// Loop each tile column
-		for (auto Column : Row) {
-
-			Column -= HeightMin;
-
-			if (Column < flood) {
-				//if(!Found)
-					*MapPtr = TileWater;
-				Found = true;
-			}
-			else if (Column > mount) {
-				*MapPtr = TileBounce;
-			}
-			else {
-				*MapPtr = TileLand;
-			}
-
-			++MapPtr;
-
-			if (++X >= mWidth)
-				break;
-		}
-
-		if (++Y >= mHeight)
-			break;
-	}*/
-
 
 }
 
@@ -218,10 +169,10 @@ void cMap::Randomise_Structures(const size_t pCount) {
 
 	// This is very lame :)
 	while (StructsCount < pCount) {
-		auto Struct = mStructuresBarracksWithSoldier[mTileSet];
+		auto Struct = mStructuresBarracksWithSoldier[mParams.mTileType];
 
-		size_t StartTileX = (size_t) g_Fodder->tool_RandomGet(Struct.MaxWidth() + 2, mWidth - Struct.MaxWidth());
-		size_t StartTileY = (size_t) g_Fodder->tool_RandomGet(Struct.MaxHeight() + 2, mHeight - Struct.MaxWidth());
+		size_t StartTileX = (size_t) g_Fodder->tool_RandomGet(Struct.MaxWidth() + 2, mParams.mWidth - Struct.MaxWidth());
+		size_t StartTileY = (size_t) g_Fodder->tool_RandomGet(Struct.MaxHeight() + 2, mParams.mHeight - Struct.MaxWidth());
 
 		// TODO: Check if we will overlap an existing structure,
 		//       or place on water
@@ -249,8 +200,8 @@ void cMap::Randomise_Sprites(const size_t pHumanCount) {
 
 	size_t Count = 0;
 	while (Count < 100000) {
-		int16 StartTileX = g_Fodder->tool_RandomGet(2, mWidth - 2);
-		int16 StartTileY = g_Fodder->tool_RandomGet(2, mHeight - 2);
+		int16 StartTileX = g_Fodder->tool_RandomGet(2, mParams.mWidth - 2);
+		int16 StartTileY = g_Fodder->tool_RandomGet(2, mParams.mHeight - 2);
 
 		// TODO: Check if we will overlap an existing structure,
 		//       or place on water
@@ -287,18 +238,18 @@ void cMap::CreateHeader() {
 	Map[0x28] = 'fo'; Map[0x29] = 'de';
 
 	// Put the map size
-	writeBEWord(&Map[0x2A], (uint16)mWidth);
-	writeBEWord(&Map[0x2B], (uint16)mHeight);
+	writeBEWord(&Map[0x2A], (uint16)mParams.mWidth);
+	writeBEWord(&Map[0x2B], (uint16)mParams.mHeight);
 
 	SetTileTypeInHeader();
 }
 
 void cMap::SetTileTypeInHeader() {
-	std::string mBaseName = mTileTypes[mTileSet].mName + "base.blk";
-	std::string mSubName = mTileTypes[mTileSet].mName;
+	std::string mBaseName = mTileTypes[mParams.mTileType].mName + "base.blk";
+	std::string mSubName = mTileTypes[mParams.mTileType].mName;
 
 	// Only Jungle has a sub1
-	if (mTileSub == 0 || mTileSet != eTileTypes_Jungle)
+	if (mParams.mTileSub == 0 || mParams.mTileType != eTileTypes_Jungle)
 		mSubName.append("sub0.blk");
 	else
 		mSubName.append("sub1.blk");
@@ -310,8 +261,8 @@ void cMap::SetTileTypeInHeader() {
 
 void cMap::SetTileTypeFromHeader() {
 	// Default to Jungle
-	mTileSet = eTileTypes_Jungle;
-	mTileSub = 0;
+	mParams.mTileType = eTileTypes_Jungle;
+	mParams.mTileSub = 0;
 
 	for (auto& TileType : mTileTypes) {
 		if (TileType.mName[0] != mData->data()[0])
@@ -320,20 +271,20 @@ void cMap::SetTileTypeFromHeader() {
 			continue;
 		if (TileType.mName[2] != mData->data()[2])
 			continue;
-		mTileSet = TileType.mType;
+		mParams.mTileType = TileType.mType;
 		break;
 	}
 
 	// Tile Sub
 	if (mData->data()[16] == '1')
-		mTileSub = 1;
+		mParams.mTileSub = 1;
 }
 
 int32 cMap::Tile_Get(const size_t pTileX, const size_t pTileY) {
-	if (pTileX > mWidth || pTileY > mHeight)
+	if (pTileX > mParams.mWidth || pTileY > mParams.mHeight)
 		return -1;
 
-	size_t Tile = (((pTileY * mWidth) + pTileX)) + mWidth;
+	size_t Tile = (((pTileY * mParams.mWidth) + pTileX)) + mParams.mWidth;
 
 	uint8* CurrentMapPtr = mData->data() + mTile_Ptr + (Tile * 2);
 	if (CurrentMapPtr > mData->data() + mData->size())
@@ -343,10 +294,10 @@ int32 cMap::Tile_Get(const size_t pTileX, const size_t pTileY) {
 }
 
 void cMap::Tile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
-	if (pTileX > mWidth || pTileY > mHeight)
+	if (pTileX > mParams.mWidth || pTileY > mParams.mHeight)
 		return;
 
-	size_t Tile = (((pTileY * mWidth) + pTileX)) + mWidth;
+	size_t Tile = (((pTileY *  mParams.mWidth) + pTileX)) + mParams.mWidth;
 
 	uint8* CurrentMapPtr = mData->data() + mTile_Ptr + (Tile * 2);
 	if (CurrentMapPtr > mData->data() + mData->size())
@@ -423,13 +374,13 @@ void cMap::Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTi
 
 void cMap::ClearTiles(const size_t pTileID) {
 
-	mData->resize(0x60 + ((mWidth * mHeight) * 2), (uint8) pTileID);
-	mTile_Ptr = (int32)((0x60 - 8) - (mWidth * 2));
+	mData->resize(0x60 + ((mParams.mWidth * mParams.mHeight) * 2), (uint8) pTileID);
+	mTile_Ptr = (int32)((0x60 - 8) - (mParams.mWidth * 2));
 }
 
 void cMap::Randomise() {
 
-	Randomise_Tiles(0);
+	Randomise_Tiles();
 	Randomise_TileSmooth();
 	Randomise_Structures(2);
 	Randomise_Sprites(2);
@@ -448,8 +399,8 @@ void cMap::loadCF1Map(tSharedBuffer pMapData) {
 
 	SetTileTypeFromHeader();
 
-	mWidth = readBEWord(mData->data() + 0x54);
-	mHeight = readBEWord(mData->data() + 0x56);
+	mParams.mWidth = readBEWord(mData->data() + 0x54);
+	mParams.mHeight = readBEWord(mData->data() + 0x56);
 
 	tool_EndianSwap(mData->data() + 0x60, mData->size() - 0x60);
 	/*
@@ -581,4 +532,89 @@ bool cMap::saveCF1Sprites(std::string pFilename) {
 	outfile.write((const char*)MapSpt->data(), MapSpt->size());
 	outfile.close();
 	return true;
+}
+
+
+void cMap::Randomise_Tiles_DS() {
+	int32 PowerOf = 0;
+	int32 Size;
+
+	if (mParams.mWidth < mParams.mHeight)
+		Size = mParams.mHeight;
+	else
+		Size = mParams.mWidth;
+	while (Size > 0) {
+		PowerOf++;
+		Size = Size >> 1;
+	}
+
+	cDiamondSquare DS(PowerOf, mParams.mRandom.getStartingSeed());
+	auto HeightMap = DS.generate();
+
+	int16* MapPtr = (int16*)(mData->data() + 0x60);
+
+	// Find the highest and lowest points in the height map
+	double HeightMin = 0;
+	double HeightMax = 0;
+	for (auto& Row : HeightMap) {
+		for (auto& Column : Row) {
+
+			if (Column > HeightMax) HeightMax = Column;
+			if (Column < HeightMin) HeightMin = Column;
+		}
+	}
+
+	// Calcukate the difference between top/bottom
+	double diff = HeightMax - HeightMin;
+	double flood = 0.3;
+	double mount = 0.7;
+
+	// Calculate the flood/moutain levels
+	flood *= diff;
+	mount *= diff;
+
+	// Jungle
+	int16 TileWater = 326;
+	int16 TileLand = 123;
+	int16 TileBounce = 82;
+	size_t X = 0;
+	size_t Y = 0;
+
+	switch (mParams.mTileType) {
+	case eTileTypes_Ice:
+		TileLand = 1;
+		break;
+	default:
+		break;
+	}
+
+	static bool Found = false;
+
+	// Loop each tile row
+	for (auto Row : HeightMap) {
+		X = 0;
+		// Loop each tile column
+		for (auto Column : Row) {
+			Column -= HeightMin;
+
+			if (Column < flood) {
+				//if(!Found)
+				*MapPtr = TileWater;
+				Found = true;
+			}
+			else if (Column > mount) {
+				*MapPtr = TileBounce;
+			}
+			else {
+				*MapPtr = TileLand;
+			}
+			++MapPtr;
+
+			if (++X >= mParams.mWidth)
+				break;
+		}
+
+		if (++Y >= mParams.mHeight)
+			break;
+	}
 }

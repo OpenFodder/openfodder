@@ -151,10 +151,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mDebug_PhaseSkip = 0;
 
-    mRandom_0 = 0;
-    mRandom_1 = 0;
-    mRandom_2 = 0;
-    mRandom_3 = 0;
     mGame_InputTicks = 0;
     mKeyControlPressed = 0;
     mVersionReturnAfterPhase = false;
@@ -1639,13 +1635,13 @@ bool cFodder::Campaign_Load(std::string pName) {
     return true;
 }
 
-void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight, const bool pRandomise) {
-    uint8 TileID = (pTileType.mType == eTileTypes_Int) ? 4 
-                 : (pTileType.mType == eTileTypes_AFX) ? 20 
+void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
+    uint8 TileID = (pParams.mTileType == eTileTypes_Int) ? 4
+                 : (pParams.mTileType == eTileTypes_AFX) ? 20
                  : 16;
 
     if (mVersionCurrent->isAmigaPower())
-        pTileSub = 1;
+		pParams.mTileSub = 1;
 
     // In OF, this will only ever get called from the campaign selection screen,
     // so we pick a tile thats easy to read text on
@@ -1654,10 +1650,11 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
         TileID = 100;
 #endif
 
-	mMapLoaded = cMap(pTileType, pTileSub, pWidth, pHeight);
+	mMapLoaded = cMap(pParams);
+	
 	mMap = mMapLoaded.getData();
 
-    mMapTile_Ptr = (int32)((0x60 - 8) - (pWidth * 2));
+    mMapTile_Ptr = (int32)((0x60 - 8) - (mMapLoaded.getWidth() * 2));
     mMapTile_DrawX = 0;
     mMapTile_DrawY = 0;
 
@@ -1669,6 +1666,7 @@ void cFodder::Map_Create(const sTileType& pTileType, size_t pTileSub, const size
 
 	if (pRandomise) {
 		mMapLoaded.Randomise();
+
 		Map_Load_Sprites();
 
 #ifndef _OFED
@@ -3104,8 +3102,6 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     mWindow->InitWindow("Open Fodder");
 	mWindow->SetWindowSize(mParams.mWindowScale);
 
-    tool_RandomSeed();
-
     mTile_BaseBlk = tSharedBuffer();
     mTile_SubBlk = tSharedBuffer();
 
@@ -3612,12 +3608,16 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (int16)mCampaignList.size();
 
+	
+
     // Create the title screen depending on which data is loaded
     if (mVersionCurrent->isRetail()) {
-        Map_Create(mTileTypes[eTileTypes_Jungle], 0, 0x15, 0x0F, false);
+		sMapParams Params(0x15, 0x0F, eTileTypes_Jungle, 0);
+        Map_Create(Params);
         std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_Jungle.data(), mMap->size() - 0x60);
     } else {
-        Map_Create(mTileTypes[eTileTypes_AFX], 0, 0x15, 0x0F, false);
+		sMapParams Params(0x15, 0x0F, eTileTypes_AFX, 0);
+		Map_Create(Params);
         std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_AF.data(), mMap->size() - 0x60);
     }
 
@@ -6919,90 +6919,14 @@ loc_29FC2:;
     return 0;
 }
 
-void cFodder::tool_RandomSeed() {
-    const time_t now = time(0);
-    tm* ltm;
-
-#ifndef _WIN32
-    ltm = localtime(&now);
-#else
-    ltm = new tm();
-    localtime_s(ltm, &now);
-#endif
-
-    uint16 ax = tool_DecimalToBinaryCodedDecimal(ltm->tm_sec);
-    ax |= tool_DecimalToBinaryCodedDecimal(ltm->tm_min) << 8;
-    ax += 0x40B;
-#ifdef _WIN32
-    delete ltm;
-#endif
-    mRandom_1 = -ax;
-    mRandom_0 = ax;
-    mRandom_2 = 1;
-    mRandom_3 = 0;
-}
-
 uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax) {
 
-    return (uint16) (tool_RandomGet() % (pMax - pMin + 1) + pMin);
+    return (uint16) (mRandom.get() % (pMax - pMin + 1) + pMin);
 }
 
 int16 cFodder::tool_RandomGet() {
-    int16 Data0 = mRandom_0;
-    int16 Data2 = mRandom_1;
-    int16 Data4 = mRandom_2;
-    int16 Data6 = mRandom_3;
 
-    uint32 Dat4 = Data4 | (Data6 << 16);
-    //seg007:053F
-    uint8 CF = Data4 & 1;
-    uint32 Data8 = Data0 | (Data2 << 16);
-
-    uint8 CF2 = Data8 & 1;
-    Data8 >>= 1;
-
-    if (CF)
-        Data8 |= 0x80000000;
-
-    Dat4 += CF2;
-    Data4 = Dat4 & 0xFFFF;
-    Data6 = Dat4 >> 16;
-
-    for (uint16 cx = 0x0C; cx > 0; --cx) {
-        CF = 0;
-
-        if (Data0 & 0x8000)
-            CF = 1;
-        Data0 <<= 1;
-        Data2 <<= 1;
-        if (CF)
-            Data2 |= 1;
-    }
-
-    int16 DataA = Data8 >> 16;
-
-    //seg007:0575
-    Data0 ^= Data8 & 0xFFFF;
-    Data2 ^= DataA;
-    Data8 = Data0;
-    DataA = Data2;
-
-    //seg007:058F
-    int16 ax = Data8;
-    int16 bx = DataA;
-    Data8 = bx;
-    DataA = ax;
-
-    Data8 >>= 4;
-    Data0 ^= Data8;
-
-    mRandom_0 = Data0;
-    mRandom_1 = Data2;
-    mRandom_2 = Data4;
-    mRandom_3 = Data6;
-
-    Data2 = 0;
-    return Data0;
+    return mRandom.get();
 }
 
 void cFodder::Sprite_Movement_Calculate(sSprite* pSprite) {

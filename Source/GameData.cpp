@@ -199,10 +199,8 @@ void sGameRecorded::clear() {
     mTick = 0;
     mTickDisabled = false;
 
-    mSeed[0] = g_Fodder->mRandom_0;
-    mSeed[1] = g_Fodder->mRandom_1;
-    mSeed[2] = g_Fodder->mRandom_2;
-    mSeed[3] = g_Fodder->mRandom_3;
+	g_Fodder->mRandom.getSeeds(mSeed[0], mSeed[1], mSeed[2], mSeed[3]);
+
     mInputTicks = g_Fodder->mGame_InputTicks;
     mEngineTicks = g_Fodder->mMission_EngineTicks;
 
@@ -221,11 +219,7 @@ void sGameRecorded::playback() {
     g_Fodder->mGame_InputTicks = mInputTicks;
     mTick = 0;
     mTickDisabled = false;
-
-    g_Fodder->mRandom_0 = mSeed[0];
-    g_Fodder->mRandom_1 = mSeed[1];
-    g_Fodder->mRandom_2 = mSeed[2];
-    g_Fodder->mRandom_3 = mSeed[3];
+    g_Fodder->mRandom.setSeed(mSeed[0], mSeed[1], mSeed[2], mSeed[3]);
 
     g_Fodder->mParams = mParams;
 }

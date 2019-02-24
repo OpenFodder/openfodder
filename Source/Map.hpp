@@ -268,17 +268,30 @@ const int16 mMap_DirectionsBetweenPoints[] = {
 
 struct sSprite;
 
+enum eRandom_Algorithms {
+	eRandom_DiamondSquare = 0,
+	eRandom_SimplexNoise = 1
+};
+
+struct sMapParams {
+	eRandom_Algorithms mAlgorithm;
+	size_t		mWidth;
+	size_t		mHeight;
+	eTileTypes	mTileType;
+	size_t		mTileSub;
+	cPseudorand mRandom;
+
+	sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, size_t pTileSub);
+	sMapParams(size_t pSeed = 0);
+	void Randomise(const size_t pSeed = 0);
+};
+
 class cMap {
 
 protected:
-	size_t mSeed;
+	sMapParams mParams;
 	tSharedBuffer mData;
 
-	size_t mWidth;
-	size_t mHeight;
-
-	eTileTypes mTileSet;
-	size_t mTileSub;
 	int32 mTile_Ptr;
 
 	std::vector<sSprite> mSprites;
@@ -301,24 +314,26 @@ protected:
 	void  Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY);
 	void  Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTileY);
 
-	virtual void Randomise_Tiles(const long pSeed);
+	virtual void Randomise_Tiles();
+	virtual void Randomise_Tiles_DS();
+
 	virtual void Randomise_TileSmooth();
 	virtual void Randomise_Structures(const size_t pCount);
 	virtual void Randomise_Sprites(const size_t pHumanCount = 2);
 
 public:
 	cMap();
-	cMap(const sTileType& pTileType, size_t pTileSub, const size_t pWidth, const size_t pHeight);
+	cMap(const sMapParams& pParams);
 	cMap(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2);
 
 	virtual void ClearTiles(const size_t pTileID);
 	virtual void Randomise();
 
-	int32 getWidth() const { return mWidth; }
-	int32 getHeight() const { return mHeight; }
+	int32 getWidth() const { return mParams.mWidth; }
+	int32 getHeight() const { return mParams.mHeight; }
 
-	int32 getWidthPixels() const { return mWidth << 4; }
-	int32 getHeightPixels() const { return mHeight << 4; }
+	int32 getWidthPixels() const { return mParams.mWidth << 4; }
+	int32 getHeightPixels() const { return mParams.mHeight << 4; }
 
 	bool save(const std::string& pFilename, const bool CF1);
 

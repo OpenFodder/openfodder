@@ -332,20 +332,25 @@ std::vector<eTileTypes> sGameVersion::getTileTypes() const {
 	switch (mRelease) {
 	case eRelease::Retail:
 		return Retail_Tile_Types;
-
+		
 	case eRelease::PCFormat:
 		return PCFormat_TileTypes;
-
+		
 	case eRelease::AmigaPower:
 		return AmigaPlus_Tile_Types;
+		
 	case eRelease::AmigaTheOne:
 		return AmigaTheOne_TileTypes;
+		
 	case eRelease::AmigaAction:
 		return AmigaPlus_Tile_Types;
+		
 	case eRelease::AmigaAlienLevels:
 		return AmigaAL_Tile_Types;
+		
 	case eRelease::AmigaXMAS:
 		return AmigaFormat_Tile_Types;
+		
 	case eRelease::AmigaNotVeryFestive:
 		return AmigaPlus_Tile_Types;
 
