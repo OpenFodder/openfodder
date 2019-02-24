@@ -6944,7 +6944,7 @@ void cFodder::tool_RandomSeed() {
 
 uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax) {
 
-    return ((uint16)tool_RandomGet()) % (pMax - pMin + 1) + pMin;
+    return (uint16) (tool_RandomGet() % (pMax - pMin + 1) + pMin);
 }
 
 int16 cFodder::tool_RandomGet() {
@@ -8006,7 +8006,7 @@ void cFodder::MapTile_Update_X() {
 
 int32 cFodder::MapTile_Get(const size_t pTileX, const size_t pTileY) {
 
-    if (pTileX > mMapLoaded.getWidth() || pTileY > mMapLoaded.getHeight())
+    if ((int32) pTileX > mMapLoaded.getWidth() || (int32) pTileY > mMapLoaded.getHeight())
         return -1;
 
     size_t Tile = (((pTileY * mMapLoaded.getWidth()) + pTileX)) + mMapLoaded.getWidth();
@@ -8023,7 +8023,7 @@ int32 cFodder::MapTile_Get(const size_t pTileX, const size_t pTileY) {
  */
 void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
 
-    if (pTileX > mMapLoaded.getWidth() || pTileY > mMapLoaded.getHeight())
+    if ((int32) pTileX > mMapLoaded.getWidth() || (int32) pTileY > mMapLoaded.getHeight())
         return;
 
     size_t Tile = (((pTileY * mMapLoaded.getWidth()) + pTileX)) + mMapLoaded.getWidth();
