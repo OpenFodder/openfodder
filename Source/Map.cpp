@@ -22,7 +22,7 @@
 
 #include "stdafx.hpp"
 #include "Utils/SimplexNoise.hpp"
-#include "Utils//diamondsquare.hpp"
+#include "Utils/diamondsquare.hpp"
 
 cMap::cMap() {
 	mTileSet = eTileTypes_Jungle;
@@ -186,24 +186,23 @@ void cMap::Randomise_Tiles(const long pSeed) {
 }
 
 void cMap::Randomise_TileSmooth() {
-	/* Bunch of useless code that might be good someday
-
+	/*
 	for (int32 y = 1; y < mHeight; ++y) {
 		for (int32 x = 1; x < mWidth; ++x) {
 
 			int32 TileX = x * 16;
 			int32 TileY = y * 16;
 
-			int16 Tile          = Map_Terrain_Get(TileX, TileY);
+			int16 Tile          = Tile_Get(TileX, TileY);
 
-			int16 TileUp        = Map_Terrain_Get(TileX,      TileY - 1);
-			int16 TileLeftUp    = Map_Terrain_Get(TileX - 1,  TileY - 1);
-			int16 TileLeft      = Map_Terrain_Get(TileX - 1,  TileY);
-			int16 TileLeftDown  = Map_Terrain_Get(TileX - 1,  TileY + 16);
-			int16 TileDown      = Map_Terrain_Get(TileX,      TileY + 16);
-			int16 TileRightDown = Map_Terrain_Get(TileX + 16, TileY + 16);
-			int16 TileRight     = Map_Terrain_Get(TileX + 16, TileY);
-			int16 TileRightUp   = Map_Terrain_Get(TileX + 16, TileY - 1);
+			int16 TileUp        = Tile_Get(TileX,      TileY - 1);
+			int16 TileLeftUp    = Tile_Get(TileX - 1,  TileY - 1);
+			int16 TileLeft      = Tile_Get(TileX - 1,  TileY);
+			int16 TileLeftDown  = Tile_Get(TileX - 1,  TileY + 1);
+			int16 TileDown      = Tile_Get(TileX,      TileY + 1);
+			int16 TileRightDown = Tile_Get(TileX + 1,  TileY + 1);
+			int16 TileRight     = Tile_Get(TileX + 1,  TileY);
+			int16 TileRightUp   = Tile_Get(TileX + 1,  TileY - 1);
 
 		} // Width
 	} // Height
@@ -426,7 +425,6 @@ void cMap::ClearTiles(const size_t pTileID) {
 
 	mData->resize(0x60 + ((mWidth * mHeight) * 2), (uint8) pTileID);
 	mTile_Ptr = (int32)((0x60 - 8) - (mWidth * 2));
-
 }
 
 void cMap::Randomise() {
