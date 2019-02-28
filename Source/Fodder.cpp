@@ -18024,7 +18024,7 @@ void cFodder::Start() {
         mGame_Data.mMission_Number = 0;
 
 		if (mVersions->isCampaignAvailable("Cannon Fodder 2"))
-			CF2 = (tool_RandomGet() % 2);
+			CF2 = (tool_RandomGet() & 2);
 
 		if (CF2)
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2"));
