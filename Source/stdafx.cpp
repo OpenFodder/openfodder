@@ -80,6 +80,13 @@ sFodderParameters parseini() {
 			if (platform == "pc")
 				params.mDefaultPlatform = ePlatform::PC;
 
+			auto game = str_to_lower(ini.get("engine", ""));
+			if (game == "cf1")
+				params.mDefaultGame = eGame::CF1;
+			if (game == "cf2")
+				params.mDefaultGame = eGame::CF2;
+
+
 			auto maxsprite = ini.get("maxsprite", 0);
 			if(maxsprite)
 				params.mSpritesMax = maxsprite;
@@ -135,6 +142,8 @@ int start(int argc, char *argv[]) {
         ("h,help",        "Help",                 cxxopts::value<bool>()->default_value("false")  )
         ("pc",            "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
         ("amiga",         "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
+		("engine",		  "Default to engine (single map/random)", cxxopts::value<std::string>()->default_value("cf1"), "cf1")
+
         ("w,window",	  "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 
 		("cheats",		  "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
@@ -182,6 +191,15 @@ int start(int argc, char *argv[]) {
 			Params.mDefaultPlatform = ePlatform::PC;
 		if (result.count("amiga"))
 			Params.mDefaultPlatform = ePlatform::Amiga;
+
+		if (result.count("engine")) {
+			if (result["engine"].as<std::string>() == "cf1")
+				Params.mDefaultGame = eGame::CF1;
+
+			if (result["engine"].as<std::string>() == "cf2")
+				Params.mDefaultGame = eGame::CF2;
+
+		}
 
         if (result["list-campaigns"].as<bool>() == true) {
             g_Debugger->Notice("\nAvailable Campaigns\n\n");

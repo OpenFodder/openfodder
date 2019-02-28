@@ -17967,7 +17967,7 @@ void cFodder::Window_UpdateScreenSize() {
 void cFodder::About() {
     
     mService_Draw_List.clear();
-    VersionSwitch(mVersions->GetRetail(mParams.mDefaultPlatform));
+    VersionSwitch(mVersions->GetRetail(mParams.mDefaultPlatform, mParams.mDefaultGame));
     if (!mVersionCurrent)
         VersionSwitch(mVersions->GetDemo());
 
@@ -18001,7 +18001,7 @@ void cFodder::Start() {
     mGame_Data.mCampaign.Clear();
     mVersionDefault = 0;
     mVersionCurrent = 0;
-    VersionSwitch(mVersions->GetRetail( mParams.mDefaultPlatform ));
+    VersionSwitch(mVersions->GetRetail( mParams.mDefaultPlatform, mParams.mDefaultGame ));
 
     if (!mVersionCurrent) {
         VersionSwitch(mVersions->GetDemo());

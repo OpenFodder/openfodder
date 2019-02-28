@@ -104,8 +104,8 @@ public:
     const sGameVersion* GetForCampaign(const std::string& pCampaign) const;
     const sGameVersion* GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const;
     const sGameVersion* GetForTileset(eTileTypes pTileType) const;
-    const sGameVersion* GetRetail(const ePlatform pPlatform) const;
+    const sGameVersion* GetRetail(const ePlatform pPlatform, const eGame pGame) const;
     const sGameVersion* GetDemo() const;
 };
 
-extern const sGameVersion KnownGameVersions[16];
+extern const sGameVersion KnownGameVersions[20];

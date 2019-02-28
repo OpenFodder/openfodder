@@ -105,19 +105,23 @@ const sGameVersion KnownGameVersions[] = {
 	/* Custom & Random must be last, as they depend on a previous retail version being detected first */
 	{ "Single Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	"Custom", { } },
 	{ "Single Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
+	{ "Single Map", eGame::CF2, ePlatform::Amiga,   eRelease::Custom,	"Custom", { } },
+	{ "Single Map", eGame::CF2, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
 
 	{ "Random Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	"Custom", { } },
 	{ "Random Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
+	{ "Random Map", eGame::CF2, ePlatform::Amiga,   eRelease::Custom,	"Custom", { } },
+	{ "Random Map", eGame::CF2, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
 
 };
 
-const sGameVersion* cVersions::GetRetail(const ePlatform pPlatform) const {
+const sGameVersion* cVersions::GetRetail(const ePlatform pPlatform, const eGame pGame) const {
 
 	auto Available = g_ResourceMan->GetAvailable();
 
     auto RetailRelease =
         std::find_if(Available.begin(), Available.end(),
-            [pPlatform](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail && 
+            [pPlatform, pGame](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail && a->mGame == pGame &&
                                                                 (pPlatform == ePlatform::Any || a->mPlatform == pPlatform); });
 
     // If we didnt find the platform, revert to any
@@ -285,7 +289,7 @@ std::shared_ptr<cSound> sGameVersion::GetSound() const {
 std::string sGameVersion::getDataPath() const {
 	
 	if (isCustom()) {
-		return g_Fodder->mVersions->GetRetail(ePlatform::Any)->getDataPath();
+		return g_Fodder->mVersions->GetRetail(ePlatform::Any, mGame)->getDataPath();
 	}
 
 	return g_ResourceMan->FindVersionPath(this);
@@ -300,7 +304,7 @@ std::string sGameVersion::getDataFilePath(std::string pFile) const {
 
 	// If its custom, check the retail data
 	if (isCustom()) {
-		path = g_Fodder->mVersions->GetRetail(mPlatform)->getDataFilePath(pFile);
+		path = g_Fodder->mVersions->GetRetail(mPlatform, mGame)->getDataFilePath(pFile);
 		if (path.size() && local_FileExists(path))
 			return path;
 	}

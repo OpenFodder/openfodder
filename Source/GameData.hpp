@@ -33,6 +33,7 @@ struct sFodderParameters {
 	size_t mWindowScale;		// Start with window scaled at
     bool mRandom;               // Start a random map
     ePlatform mDefaultPlatform; // Default platform to use
+	eGame mDefaultGame;			// Default game to use for single/random
 
     bool mDemoRecord;               // Recording a demo
     bool mDemoPlayback;             // Playing back a demo
@@ -75,6 +76,8 @@ struct sFodderParameters {
 		mWindowScale = 0;
         mRandom = false;
         mDefaultPlatform = ePlatform::Any;
+		mDefaultGame = eGame::CF1;
+
         mDemoRecord = false;
         mDemoPlayback = false;
         mDemoRecordResumeCycle = 0;

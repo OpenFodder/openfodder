@@ -221,6 +221,7 @@
     <ClInclude Include="..\..\Source\Utils\ini.hpp" />
     <ClInclude Include="..\..\Source\Utils\json.hpp" />
     <ClInclude Include="..\..\Source\Utils\md5.hpp" />
+    <ClInclude Include="..\..\Source\Utils\pseudorand.hpp" />
     <ClInclude Include="..\..\Source\Utils\SimplexNoise.hpp" />
     <ClInclude Include="..\..\Source\Version.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />

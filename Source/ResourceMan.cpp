@@ -165,9 +165,12 @@ void cResourceMan::findVersions() {
 
 			// A very hacky method for ensuring a retail version is available, before allowing Customs
 			if (KnownVersion.isCustom()) {
-				if(haveRetail)
-					mReleasePath.insert(std::make_pair(&KnownVersion, base));
+				if (g_Fodder->mParams.mDefaultGame == KnownVersion.mGame) {
+					if (haveRetail)
+						mReleasePath.insert(std::make_pair(&KnownVersion, base));
+				}
 			} else {
+
 				// Ensure we atleast have found 1 file, and we have atleast the reuqired number of files, or every file with an MD5 match
 				if (KnownVersion.mFiles.size() > 0 && KnownVersion.mFiles.size() == ReleaseFiles.size()) {
 					if (!haveRetail)

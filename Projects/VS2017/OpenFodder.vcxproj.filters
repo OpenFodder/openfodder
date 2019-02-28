@@ -175,6 +175,9 @@
     <ClInclude Include="..\..\Source\Utils\SimplexNoise.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\pseudorand.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">

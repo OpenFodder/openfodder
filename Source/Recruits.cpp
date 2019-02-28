@@ -1168,7 +1168,7 @@ int16 cFodder::Recruit_Show() {
 			sMapParams Params;
 			Params.Randomise( mRandom.get() );
 
-			std::string RandomMapFile = mVersionCurrent->getDataFilePath("random.map");//local_PathGenerate("random.map", "Custom/Maps", eData);
+			std::string RandomMapFile = mVersionCurrent->getDataFilePath("random.map");
             Map_Create(Params, true);
             mMapLoaded.save(RandomMapFile, true);
 

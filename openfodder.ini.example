@@ -29,6 +29,9 @@ scale=auto
 ; Default platform (amiga/pc)
 platform=amiga
 
+; Game engine to use in single/random maps
+game=cf1
+
 ; Maximum number of sprites in game (original engine is 45)
 maxsprite=45
 
