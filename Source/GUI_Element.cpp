@@ -880,7 +880,7 @@ loc_2FF79:;
 void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
 
     // Don't display the map button on the final map
-    if (mVersionCurrent->isRetail() && mVersionCurrent->mGame == eGame::CF1) {
+    if (mVersionCurrent->isRetail() && mVersionCurrent->isCannonFodder1()) {
         if ((mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))
             return;
     }

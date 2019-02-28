@@ -3158,7 +3158,7 @@ void cFodder::Sprite_HelicopterCallPad_Check() {
 
 void cFodder::Mission_Final_Timer() {
 
-    if (mVersionCurrent->isRetail() && mVersionCurrent->mGame == eGame::CF1) {
+    if (mVersionCurrent->isRetail() && mVersionCurrent->isCannonFodder1()) {
 
         if (!(mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))
             return;
@@ -18493,7 +18493,7 @@ void cFodder::Squad_Switch_Weapon() {
 void cFodder::Mission_Final_TimeToDie() {
 
     // Retail CF1 only
-    if (!mVersionCurrent->isRetail() || mVersionCurrent->mGame != eGame::CF1)
+    if (!mVersionCurrent->isRetail() || !mVersionCurrent->isCannonFodder1())
         return;
 
     if (!(mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))

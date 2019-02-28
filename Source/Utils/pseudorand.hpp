@@ -1,3 +1,25 @@
+/*
+ *  Open Fodder
+ *  ---------------
+ *
+ *  Copyright (C) 2008-2018 Open Fodder
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
 class cPseudorand {
 private:
 	int16 mRandom_0;
@@ -46,8 +68,7 @@ public:
 		mRandom_3 = pSeed3;
 	}
 
-	void getSeeds(int16& pSeed0, int16& pSeed1, int16& pSeed2, int16& pSeed3)
-	{
+	void getSeeds(int16& pSeed0, int16& pSeed1, int16& pSeed2, int16& pSeed3) {
 		pSeed0 = mRandom_0;
 		pSeed1 = mRandom_1;
 		pSeed2 = mRandom_2;
@@ -63,13 +84,10 @@ public:
 
 		return fin > 0 ? fin : -fin;
 	}
-	float getf(float pMin, float pMax) {
-		float fin = ((float)(((uint32)(get() << 16)) | get()));
-		fin += pMin;
-		while (fin > pMax)
-			fin /= 2;
 
-		return fin > 0 ? fin : -fin;
+	float getf(float pMin, float pMax) {
+		
+		return pMin + static_cast <float> (getf()) / (static_cast <float> (RAND_MAX / (pMax - pMin)));;
 	}
 
 	uint16 getu() {
