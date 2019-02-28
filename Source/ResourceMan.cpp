@@ -207,10 +207,14 @@ void cResourceMan::findCustomMaps() {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate("Custom/Maps/", eData);
 
-		auto files = local_DirectoryList(basepath, EXTENSION_MAP);
+		if (local_FileExists(basepath)) {
+			mCustomMapPath = basepath;
 
-		for (auto& file : files) {
-			mMaps.emplace(std::make_pair(file, basepath + file));
+			auto files = local_DirectoryList(basepath, EXTENSION_MAP);
+
+			for (auto& file : files) {
+				mMaps.emplace(std::make_pair(file, basepath + file));
+			}
 		}
 	}
 }

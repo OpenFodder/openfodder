@@ -35,6 +35,8 @@ class cResourceMan {
 
 	std::multimap<const sGameVersion*, tStringMap> mReleaseFiles;
 
+	std::string mCustomMapPath;
+
 protected:
 	void addBaseDir(std::string pPath);
 	void addDefaultDirs();
@@ -83,4 +85,6 @@ public:
 
 	std::vector<std::string> getValidPaths() const;
 	std::vector<std::string> getAllPaths() const;
+
+	std::string getCustomMapPath() const { return mCustomMapPath;  }
 };
