@@ -87,7 +87,7 @@ class cGraphics_PC : public cGraphics {
 	virtual bool		Sprite_OnScreen_Check();
 
 	virtual void		Mission_Intro_Load_Resources();
-	virtual void		Mission_Intro_DrawHelicopter( uint16 pID );
+	virtual void		Mission_Intro_DrawHelicopter( uint16 );
 
 	virtual void		Mission_Intro_Play( const bool pShowHelicopter );
 	void				Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter );

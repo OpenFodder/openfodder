@@ -714,10 +714,9 @@ void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned i
 		PaletteLoad( fileBuffer->data() + (fileBuffer->size() - (0x100 * 3)), pColors );
 }
 
-void cGraphics_PC::Mission_Intro_DrawHelicopter( uint16 pID ) {
+void cGraphics_PC::Mission_Intro_DrawHelicopter( uint16 ) {
 
 }
-
 
 bool cGraphics_PC::Sprite_OnScreen_Check() {
 	int16 ax;

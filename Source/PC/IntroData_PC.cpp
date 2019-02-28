@@ -30,69 +30,69 @@ const sIntroString mIntro_0[] = {
 	{ 0x5F, "This game is not in any way" },
 	{ 0x77, "endorsed by the" },
 	{ 0x91, "ROYAL BRITISH LEGION" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_1[] = {
 	{ 0xCC, "A Sensible Software Game" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_2[] = {
 	{ 0x64, "STARRING" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_3[] = {
 	{ 0xA4, "JOOLS" },
 	{ 0xB5, "as" },
 	{ 0xC8, "James Dean" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_4[] = {
 	{ 0xA4, "STOO" },
 	{ 0xB4, "as" },
 	{ 0xC8, "Elvis" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_5[] = {
 	{ 0xA4, "RICHARD JOSEPH" },
 	{ 0xB4, "as" },
 	{ 0xC8, "Sgt. Bilko" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_6[] = {
 	{ 0x64, "Co. STARRING" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_7[] = {
 	{ 0xA4, "CHRIS YATES" },
 	{ 0xB4, "as" },
 	{ 0xC8, "JR out of Dallas" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_8[] = {
 	{ 0xA4, "JON HARE" },
 	{ 0xB5, "as" },
 	{ 0xC8, "Vera Lynn" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_9[] = {
 	{ 0x64, "SPECIAL GUEST STAR" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_10[] = {
 	{ 0xA4, "CHRIS CHAPMAN" },
 	{ 0xB4, "as" },
 	{ 0xC8, "Norman Wisdom" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_11[] = {
@@ -100,7 +100,7 @@ const sIntroString mIntro_11[] = {
 	{ 0x8C, "Stoo" },
 	{ 0x3C, "Program Design" },
 	{ 0x78, "Graphic Design" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_12[] = {
@@ -110,7 +110,7 @@ const sIntroString mIntro_12[] = {
 	{ 0x1E, "Sound effects and Music" },
 	{ 0x5A, "Original Soundtrack"},
 	{ 0x96, "Cameraman" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_13[] = {
@@ -122,7 +122,7 @@ const sIntroString mIntro_13[] = {
 	{ 0x46, "Flatbed Scanning" },
 	{ 0x78, "Costumes" },
 	{ 0xAA, "Mr Virgin" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_14[] = {
@@ -134,7 +134,7 @@ const sIntroString mIntro_14[] = {
 	{ 0x91, "Mark Smith" },
 	{ 0xAF, "PC Sound and Music" },
 	{ 0xC3, "Nigel Taylor" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_15[] = {
@@ -143,13 +143,13 @@ const sIntroString mIntro_15[] = {
 	{ 0x4B, "Gavin Wade" },
 	{ 0x5F, "and" },
 	{ 0x73, "Scott Walsh" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 const sIntroString mIntro_16[] = {
 	{ 0xD2, "Sensible Software." },
 	{ 0xBE, "Designed By" },
-	{ 0 }
+	{ 0, 0 }
 };
 
 std::vector< sIntroText > mIntroText_PC = {
