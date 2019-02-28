@@ -64,7 +64,7 @@ void cSurface::clearSDLSurface( uint32 pColor ) {
 
 void cSurface::palette_SetToBlack() {
 
-	for(int16 ColorID = 0; ColorID < g_MaxColors; ColorID++) {
+	for(size_t ColorID = 0; ColorID < g_MaxColors; ColorID++) {
 		
 		// Get the next color values
 		mPalette[ColorID].mRed = 0;
@@ -77,13 +77,13 @@ void cSurface::palette_SetToBlack() {
 
 void cSurface::palette_SetFromNew() {
 
-	for (int cx = 0x0; cx < g_MaxColors; ++cx)
+	for (size_t cx = 0; cx < g_MaxColors; ++cx)
 		mPalette[cx] = mPaletteNew[cx];
 }
 
 void cSurface::paletteNew_SetToBlack() {
 
-	for (int cx = 0; cx < g_MaxColors; ++cx) {
+	for (size_t cx = 0; cx < g_MaxColors; ++cx) {
 		mPaletteNew[cx].mBlue = 0;
 		mPaletteNew[cx].mRed = 0;
 		mPaletteNew[cx].mGreen = 0;
@@ -123,7 +123,7 @@ bool cSurface::palette_FadeTowardNew() {
 	mPaletteAdjusting = false;
 
 	// Loop each color 
-	for( int cx = 0x0; cx < g_MaxColors; ++cx ) {
+	for(size_t cx = 0; cx < g_MaxColors; ++cx ) {
 
 		// Each component of the current color
 		for( int i = 0; i < 3; ++i ) {
@@ -168,7 +168,7 @@ bool cSurface::palette_FadeTowardNew() {
  */
 void cSurface::surfaceSetToPalette() {
 
-	for( int cx = 0; cx < g_MaxColors; ++cx )
+	for(size_t cx = 0; cx < g_MaxColors; ++cx )
 		paletteSDLColorSet( cx, &mPalette[cx] );
 }
 
@@ -177,7 +177,7 @@ void cSurface::surfaceSetToPalette() {
  */
 void cSurface::surfaceSetToPaletteNew() {
 
-	for( int cx = 0; cx < g_MaxColors; ++cx )
+	for(size_t cx = 0; cx < g_MaxColors; ++cx )
 		paletteSDLColorSet( cx, &mPaletteNew[cx] );
 }
 
