@@ -79,15 +79,10 @@ public:
 		return mStartingSeed;
 	}
 
-	float getf() {
-		float fin = ((float) (((uint32) (get() << 16)) | get()));
-
-		return fin > 0 ? fin : -fin;
-	}
 
 	float getf(float pMin, float pMax) {
 		
-		return pMin + static_cast <float> (getf()) / (static_cast <float> (RAND_MAX / (pMax - pMin)));;
+		return pMin + static_cast <float> (getu() % RAND_MAX) / (static_cast <float> (RAND_MAX) / (pMax - pMin));
 	}
 
 	uint16 getu() {

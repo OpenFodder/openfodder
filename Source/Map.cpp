@@ -85,17 +85,17 @@ cMap::cMap(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2) {
 // but a higher number produces more mountains
 
 void cMap::Randomise_Tiles() {
-	float scale = mParams.mRandom.getf(0.1, 0.1);
-	float lacunarity = mParams.mRandom.getf(0.1, 0.01);
+	float scale = mParams.mRandom.getf(0.01, 0.1);
+	float lacunarity =  mParams.mRandom.getf(0.1, 0.5);
 	float persistance = mParams.mRandom.getf(0.1, 1);	// higher produces more trees
-	float offset_z = mParams.mRandom.getf(0, 10);
+	float offset_z = mParams.mRandom.getf(0.1, 10);
 
 	const SimplexNoise simplex(scale, scale, lacunarity, persistance);
 	const int octaves = static_cast<int>(5 + std::log(scale)); 
 
 	// jungle only
 	int16 TileWater		= 326;
-	int16 TileQuickSand = 167;
+	//int16 TileQuickSand = 167;
 	int16 TileLand		= 123;
 	int16 TileBounce	= 82;
 
@@ -118,6 +118,9 @@ void cMap::Randomise_Tiles() {
 			} 
 			else if (noise < 0.005f) {
 				*MapPtr = TileLand;
+			}
+			else if (noise > 0.300f && noise < 0.400f) {
+				*MapPtr = TileLand;// TileQuickSand;
 			}
 			else if (noise < 0.500f) {
 				*MapPtr = TileLand;
