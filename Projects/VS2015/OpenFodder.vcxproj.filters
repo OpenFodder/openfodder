@@ -69,8 +69,20 @@
     <ClInclude Include="..\..\Source\Recruits.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\md5.hpp">
+    <ClInclude Include="..\..\Source\Utils\md5.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ResourceMan.hpp">
       <Filter>Source</Filter>
+    </ClInclude>
+	    <ClInclude Include="..\..\Source\Utils\ini.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\SimplexNoise.hpp">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\pseudorand.hpp">
+      <Filter>Source\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp">
       <Filter>Source\PC</Filter>
@@ -271,6 +283,18 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\UnitTesting.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+	    <ClCompile Include="..\..\Source\Utils\md5.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ResourceMan.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utils\SimplexNoise.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Map.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
