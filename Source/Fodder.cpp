@@ -3100,7 +3100,7 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     }
 
     mWindow->InitWindow("Open Fodder");
-	mWindow->SetWindowSize(mParams.mWindowScale);
+	mWindow->SetWindowSize((int)mParams.mWindowScale);
 
     mTile_BaseBlk = tSharedBuffer();
     mTile_SubBlk = tSharedBuffer();

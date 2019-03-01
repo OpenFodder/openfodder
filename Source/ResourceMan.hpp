@@ -87,4 +87,11 @@ public:
 	std::vector<std::string> getAllPaths() const;
 
 	std::string getCustomMapPath() const { return mCustomMapPath;  }
+
+
+	std::vector<std::string> DirectoryList(const std::string& pPath, const std::string& pExtension);
+	bool				FileExists(const std::string& pPath) const;
+
+	std::string			getcwd();
+
 };

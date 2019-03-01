@@ -82,7 +82,7 @@ bool Rjp1::load(tSharedBuffer pSong, tSharedBuffer pInstruments ) {
 
 			size_t size = pInstruments->size() - 4;
 			_vars.instData = (int8 *)malloc(size);
-            _vars.instDataSize = size;
+            _vars.instDataSize = (uint32)size;
 
 			if (!_vars.instData)
 				return false;

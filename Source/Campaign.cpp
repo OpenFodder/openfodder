@@ -265,7 +265,7 @@ tSharedBuffer cCampaign::getMap(std::shared_ptr<cPhase> pPhase) const {
     std::string FinalPath = GetPathToFile(FinalName);
 
     // If no campaign folder exists, load from the currently loaded resource
-    if (!local_FileExists(FinalPath))
+    if (!g_ResourceMan->FileExists(FinalPath))
         return g_Resource->fileGet(FinalName);
 
     // Otherwise load it from the campaign path
@@ -277,7 +277,7 @@ tSharedBuffer cCampaign::getSprites(std::shared_ptr<cPhase> pPhase) const {
     std::string FinalPath = GetPathToFile(FinalName);
 
     // If no campaign folder exists, load from the currently loaded resource
-    if (!local_FileExists(FinalPath))
+    if (!g_ResourceMan->FileExists(FinalPath))
         return g_Resource->fileGet(FinalName);
 
     // Otherwise load it from the campaign path

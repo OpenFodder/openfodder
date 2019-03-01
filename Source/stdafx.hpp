@@ -53,12 +53,6 @@ enum eDataType {
 	eNone,
 };
 
-std::vector<std::string> local_DirectoryList( const std::string& pPath, const std::string& pExtension );
-
-bool				local_FileExists(const std::string& pPath);
-
-std::string			local_getcwd();
-
 void		tool_EndianSwap( uint8* pBuffer, size_t pSize );
 std::string tool_StripLeadingZero( const std::string& pValue );
 uint16		tool_DecimalToBinaryCodedDecimal( uint16 pDecimal );

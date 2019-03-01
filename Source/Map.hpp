@@ -329,11 +329,11 @@ public:
 	virtual void ClearTiles(const size_t pTileID);
 	virtual void Randomise();
 
-	int32 getWidth() const { return mParams.mWidth; }
-	int32 getHeight() const { return mParams.mHeight; }
+	int32 getWidth() const { return static_cast<int32>(mParams.mWidth); }
+	int32 getHeight() const { return static_cast<int32>(mParams.mHeight); }
 
-	int32 getWidthPixels() const { return mParams.mWidth << 4; }
-	int32 getHeightPixels() const { return mParams.mHeight << 4; }
+	int32 getWidthPixels() const { return static_cast<int32>(mParams.mWidth) << 4; }
+	int32 getHeightPixels() const { return static_cast<int32>(mParams.mHeight) << 4; }
 
 	bool save(const std::string& pFilename, const bool CF1);
 

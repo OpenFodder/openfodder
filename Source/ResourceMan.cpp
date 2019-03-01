@@ -52,10 +52,14 @@ void cResourceMan::addDefaultDirs() {
 	std::string path;
 	
 	// Working Dir
-	mAllPaths.push_back(local_getcwd());
+	mAllPaths.push_back(getcwd());
 
 #ifdef WIN32
-	path = std::getenv("USERPROFILE");
+	size_t a = 512;
+	char path1[512];
+	getenv_s(&a, path1, "USERPROFILE");
+	path.append(path1, a);
+
 	if (path.size())
 		addBaseDir(path + "/Documents/");
 #else
@@ -85,7 +89,7 @@ void cResourceMan::validatePaths() {
 		if (path[path.size() - 1] != '/')
 			path.append("/");
 
-		if (local_FileExists(path + "Data")) {
+		if (FileExists(path + "Data")) {
 
 			// Ensure we have a trailing /
 			if (path[path.size() - 1] != '/')
@@ -103,7 +107,7 @@ void cResourceMan::findCampaigns() {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate("", eCampaign);
 
-		auto files = local_DirectoryList(basepath, EXTENSION_CAMPAIGN);
+		auto files = DirectoryList(basepath, EXTENSION_CAMPAIGN);
 
 		for (auto& file : files) {
 			size_t Pos = file.find_first_of(".");
@@ -131,7 +135,7 @@ void cResourceMan::findVersions() {
 			tStringMap ReleaseFiles;
 
 			// Loop all files in the data directory
-			auto baseFiles = local_DirectoryList(base, "");
+			auto baseFiles = DirectoryList(base, "");
 			for (auto& baseFile : baseFiles) {
 				std::string baseFileLower = baseFile;
 				transform(baseFileLower.begin(), baseFileLower.end(), baseFileLower.begin(), ::tolower);
@@ -195,7 +199,7 @@ void cResourceMan::findSaves() {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate("", eSave);
 
-		auto files = local_DirectoryList(basepath, EXTENSION_SAVEGAME);
+		auto files = DirectoryList(basepath, EXTENSION_SAVEGAME);
 
 		for (auto& file : files) {
 			mSaves.emplace(std::make_pair(file, basepath + file));
@@ -210,10 +214,10 @@ void cResourceMan::findCustomMaps() {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate("Custom/Maps/", eData);
 
-		if (local_FileExists(basepath)) {
+		if (FileExists(basepath)) {
 			mCustomMapPath = basepath;
 
-			auto files = local_DirectoryList(basepath, EXTENSION_MAP);
+			auto files = DirectoryList(basepath, EXTENSION_MAP);
 
 			for (auto& file : files) {
 				mMaps.emplace(std::make_pair(file, basepath + file));
@@ -397,7 +401,7 @@ std::string cResourceMan::GetSaveNewName() const {
 std::string cResourceMan::GetTestPath(const sGameVersion* pVersion, const std::string pFile) const {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate(pFile, eTest);
-		if (local_FileExists(basepath))
+		if (FileExists(basepath))
 			return basepath;
 	}
 	return "";
@@ -406,7 +410,7 @@ std::string cResourceMan::GetTestPath(const sGameVersion* pVersion, const std::s
 std::string cResourceMan::GetAboutFile() const {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + "about.bmp";
-		if (local_FileExists(basepath))
+		if (FileExists(basepath))
 			return basepath;
 	}
 
@@ -416,7 +420,7 @@ std::string cResourceMan::GetAboutFile() const {
 std::string cResourceMan::GetWavPath(const std::string& pFile) const {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate("WAV/" + pFile, eData);
-		if (local_FileExists(basepath))
+		if (FileExists(basepath))
 			return basepath;
 	}
 
@@ -453,3 +457,146 @@ std::vector<std::string> cResourceMan::getValidPaths() const {
 std::vector<std::string> cResourceMan::getAllPaths() const {
 	return mAllPaths;
 }
+
+bool cResourceMan::FileExists(const std::string& pPath) const {
+	struct stat info;
+
+	if (stat(pPath.c_str(), &info) != 0)
+		return false;
+	else if (info.st_mode & S_IFDIR)
+		return true;
+	else if (info.st_mode & S_IFMT)
+		return true;
+
+	return false;
+}
+
+#ifdef WIN32
+#include "Windows.h"
+#include <direct.h>
+
+std::string cResourceMan::getcwd() {
+	char buff[1024];
+	_getcwd(buff, 1024);
+	std::string cwd(buff);
+	return cwd;
+}
+
+std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, const std::string& pExtension) {
+	WIN32_FIND_DATA fdata;
+	HANDLE dhandle;
+	std::vector<std::string> results;
+
+	// Build the file path
+	std::stringstream finalPath;
+
+	if (pPath.size())
+		finalPath << pPath;
+
+	finalPath << "/*" << pExtension;
+
+	size_t size = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)finalPath.str().length(), 0, 0);
+	WCHAR    *pathFin = new WCHAR[size + 1];
+	memset(pathFin, 0, size + 1);
+
+	size = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)size, pathFin, (int)size);
+	pathFin[size] = 0;
+
+	if ((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
+		delete pathFin;
+		return results;
+	}
+
+	delete pathFin;
+	size_t tmp = 0;
+
+	{
+		char *file = new char[wcslen(fdata.cFileName) + 1];
+		memset(file, 0, wcslen(fdata.cFileName) + 1);
+
+		wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
+		results.push_back(std::string(file));
+		delete file;
+	}
+
+	while (1) {
+		if (FindNextFile(dhandle, &fdata)) {
+			char *file = new char[wcslen(fdata.cFileName) + 1];
+			memset(file, 0, wcslen(fdata.cFileName) + 1);
+
+			wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
+			results.push_back(std::string(file));
+			delete file;
+
+		}
+		else {
+			if (GetLastError() == ERROR_NO_MORE_FILES) {
+				break;
+			}
+			else {
+				FindClose(dhandle);
+				return results;
+			}
+		}
+	}
+
+	FindClose(dhandle);
+
+	return results;
+}
+
+#else
+#include <dirent.h>
+std::string findType;
+
+std::string cResourceMan::getcwd() {
+	char buff[1024];
+	getcwd(buff, 1024);
+	std::string cwd(buff);
+	return cwd;
+}
+
+int file_select(const struct dirent *entry) {
+	std::string name = entry->d_name;
+
+	transform(name.begin(), name.end(), name.begin(), ::toupper);
+
+	if (name.find(findType) == std::string::npos)
+		return false;
+
+	return true;
+}
+
+std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, const std::string& pExtension) {
+	struct dirent		**directFiles;
+	std::vector<std::string>		  results;
+
+	// Build the file path
+	std::stringstream finalPath;
+
+	finalPath << pPath << "/";
+
+	findType = pExtension;
+
+	transform(findType.begin(), findType.end(), findType.begin(), ::toupper);
+
+	int count = scandir(finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0);
+
+	for (int i = 0; i < count; ++i) {
+
+		results.push_back(std::string(directFiles[i]->d_name));
+	}
+
+	transform(findType.begin(), findType.end(), findType.begin(), ::tolower);
+
+	count = scandir(finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0);
+
+	for (int i = 0; i < count; ++i) {
+
+		results.push_back(std::string(directFiles[i]->d_name));
+	}
+
+	return results;
+}
+
+#endif

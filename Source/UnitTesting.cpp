@@ -66,10 +66,10 @@ void cUnitTesting::EngineSetup() {
 void cUnitTesting::setDemoName() {
     // Set demo file name
     g_Fodder->mParams.mDemoFile = g_ResourceMan->GetTestPath(g_Fodder->mVersionCurrent, g_Fodder->mParams.mCampaignName) + "/" + getCurrentTestFileName();
-    if (!local_FileExists(g_Fodder->mParams.mDemoFile + ".ofd")) {
+    if (!g_ResourceMan->FileExists(g_Fodder->mParams.mDemoFile + ".ofd")) {
 
-        bool AmigaExists = local_FileExists(g_Fodder->mParams.mDemoFile + "-amiga.ofd");
-        bool PcExists = local_FileExists(g_Fodder->mParams.mDemoFile + "-pc.ofd");
+        bool AmigaExists = g_ResourceMan->FileExists(g_Fodder->mParams.mDemoFile + "-amiga.ofd");
+        bool PcExists = g_ResourceMan->FileExists(g_Fodder->mParams.mDemoFile + "-pc.ofd");
 
         // If we a PC or Amiga specific test exists, then use it as the name
         if (AmigaExists || PcExists) {
@@ -100,7 +100,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
         std::string MissionTitle = getCurrentTestName();
 
         if (g_Fodder->mStartParams.mDemoRecord && !Retry) {
-            if (local_FileExists(g_Fodder->mParams.mDemoFile)) {
+            if (g_ResourceMan->FileExists(g_Fodder->mParams.mDemoFile)) {
                 g_Debugger->Notice("Test exists for " + MissionTitle + ", skipping");
                 g_Fodder->mGame_Data.Phase_Next();
                 continue;
@@ -219,7 +219,7 @@ bool cUnitTesting::Start() {
         }
 
         // FIXME: Create test folder
-        if (!local_FileExists(g_ResourceMan->GetTestPath(g_Fodder->mVersionCurrent, "")) && g_Fodder->mStartParams.mDemoRecord) {
+        if (!g_ResourceMan->FileExists(g_ResourceMan->GetTestPath(g_Fodder->mVersionCurrent, "")) && g_Fodder->mStartParams.mDemoRecord) {
 
             std::string Command = "mkdir \"" + g_ResourceMan->GetTestPath(g_Fodder->mVersionCurrent, "") + "\"";
             system(Command.c_str());
