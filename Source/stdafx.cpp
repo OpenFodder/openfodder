@@ -52,19 +52,14 @@ int start(int argc, char *argv[]) {
 
     g_Fodder->Prepare(Params);
 
-    if (Params.mShowAbout) {
-        g_Fodder->About();
-        return 0;
-    }
-
     if (Params.mUnitTesting) {
         cUnitTesting Testing;
         return Testing.Start() ? 0 : -1;
-    }
-    else {
-        g_Fodder->Start();
-        g_Fodder->mGame_Data.mDemoRecorded.save();
-    }
+	} else {
+		g_Fodder->Start();
+		g_Fodder->mGame_Data.mDemoRecorded.save();
+	}
+
     return 0;
 }
 

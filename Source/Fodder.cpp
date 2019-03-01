@@ -17985,6 +17985,11 @@ void cFodder::About() {
 
 void cFodder::Start() {
 
+	if (mParams.mShowAbout) {
+		About();
+		return;
+	}
+
     if (mParams.mDemoPlayback) {
         Demo_Load();
         mGame_Data.mDemoRecorded.playback();

@@ -250,7 +250,6 @@ std::string str_to_lower(std::string pStr) {
 bool sFodderParameters::ProcessINI() {
 
 	INI<> ini("openfodder.ini", false);
-	sFodderParameters params;
 
 	if (!ini.parse())
 		return false;
@@ -259,19 +258,19 @@ bool sFodderParameters::ProcessINI() {
 	{
 		if (ini.select("openfodder")) {
 			if (ini.get("window", "false") == "true")
-				params.mWindowMode = true;
+				mWindowMode = true;
 			else
-				params.mWindowMode = false;
+				mWindowMode = false;
 
 			if (ini.get("cheats", "false") == "true")
-				params.mCheatsEnabled = true;
+				mCheatsEnabled = true;
 			else
-				params.mCheatsEnabled = false;
+				mCheatsEnabled = false;
 
 			if (ini.get("scale", "false") == "auto")
-				params.mWindowScale = 0;
+				mWindowScale = 0;
 			else {
-				params.mWindowScale = ini.get("scale", 0);
+				mWindowScale = ini.get("scale", 0);
 			}
 		}
 	}
@@ -281,23 +280,23 @@ bool sFodderParameters::ProcessINI() {
 		if (ini.select("engine")) {
 			auto platform = str_to_lower(ini.get("platform", ""));
 			if (platform == "amiga")
-				params.mDefaultPlatform = ePlatform::Amiga;
+				mDefaultPlatform = ePlatform::Amiga;
 			if (platform == "pc")
-				params.mDefaultPlatform = ePlatform::PC;
+				mDefaultPlatform = ePlatform::PC;
 
 			auto game = str_to_lower(ini.get("engine", ""));
 			if (game == "cf1")
-				params.mDefaultGame = eGame::CF1;
+				mDefaultGame = eGame::CF1;
 			if (game == "cf2")
-				params.mDefaultGame = eGame::CF2;
+				mDefaultGame = eGame::CF2;
 
 
 			auto maxsprite = ini.get("maxsprite", 0);
 			if (maxsprite)
-				params.mSpritesMax = maxsprite;
+				mSpritesMax = maxsprite;
 			auto maxspawn = ini.get("maxspawn", 0);
 			if (maxspawn)
-				params.mSpawnEnemyMax = maxspawn;
+				mSpawnEnemyMax = maxspawn;
 		}
 	}
 
@@ -305,16 +304,16 @@ bool sFodderParameters::ProcessINI() {
 	{
 		if (ini.select("skip")) {
 			if (ini.get("intro", "false") == "true")
-				params.mSkipIntro = true;
+				mSkipIntro = true;
 
 			if (ini.get("briefing", "false") == "true")
-				params.mSkipBriefing = true;
+				mSkipBriefing = true;
 
 			if (ini.get("service", "false") == "true")
-				params.mSkipService = true;
+				mSkipService = true;
 
 			if (ini.get("hill", "false") == "true")
-				params.mSkipRecruit = true;
+				mSkipRecruit = true;
 		}
 	}
 
