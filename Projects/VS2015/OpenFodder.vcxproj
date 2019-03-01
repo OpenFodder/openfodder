@@ -172,7 +172,7 @@
       <Command>gitver.cmd</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
+ <ItemGroup>
     <ClInclude Include="..\..\Source\About.hpp" />
     <ClInclude Include="..\..\Source\Amiga\audiostream.hpp" />
     <ClInclude Include="..\..\Source\Amiga\dernc.hpp" />
@@ -194,8 +194,6 @@
     <ClInclude Include="..\..\Source\Fodder.hpp" />
     <ClInclude Include="..\..\Source\Graphics.hpp" />
     <ClInclude Include="..\..\Source\IntroData.hpp" />
-    <ClInclude Include="..\..\Source\Map.hpp" />
-    <ClInclude Include="..\..\Source\md5.hpp" />
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp" />
     <ClInclude Include="..\..\Source\PC\Sound_PC.hpp" />
@@ -204,6 +202,7 @@
     <ClInclude Include="..\..\Source\PC\VocTable.hpp" />
     <ClInclude Include="..\..\Source\Position.hpp" />
     <ClInclude Include="..\..\Source\Recruits.hpp" />
+    <ClInclude Include="..\..\Source\ResourceMan.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
     <ClInclude Include="..\..\Source\Singleton.hpp" />
     <ClInclude Include="..\..\Source\Sound.hpp" />
@@ -214,11 +213,16 @@
     <ClInclude Include="..\..\Source\Surface.hpp" />
     <ClInclude Include="..\..\Source\Tiles.hpp" />
     <ClInclude Include="..\..\Source\Types.hpp" />
+    <ClInclude Include="..\..\Source\Map.hpp" />
     <ClInclude Include="..\..\Source\UnitTesting.hpp" />
-    <ClInclude Include="..\..\Source\UnknownData.hpp" />
     <ClInclude Include="..\..\Source\Utils\cxxopts.hpp" />
     <ClInclude Include="..\..\Source\Utils\diamondsquare.hpp" />
+    <ClInclude Include="..\..\Source\Utils\ini.hpp" />
     <ClInclude Include="..\..\Source\Utils\json.hpp" />
+    <ClInclude Include="..\..\Source\Utils\md5.hpp" />
+    <ClInclude Include="..\..\Source\Utils\pseudorand.hpp" />
+    <ClInclude Include="..\..\Source\Utils\SimplexNoise.hpp" />
+    <ClInclude Include="..\..\Source\Version.hpp" />
     <ClInclude Include="..\..\Source\Versions.hpp" />
     <ClInclude Include="..\..\Source\Window.hpp" />
     <ClInclude Include="..\resource.h" />
@@ -242,13 +246,14 @@
     <ClCompile Include="..\..\Source\Event.cpp" />
     <ClCompile Include="..\..\Source\Fodder.cpp" />
     <ClCompile Include="..\..\Source\Graphics.cpp" />
-    <ClCompile Include="..\..\Source\md5.cpp" />
+    <ClCompile Include="..\..\Source\Map.cpp" />
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />
     <ClCompile Include="..\..\Source\PC\Sound_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Sound_PC2.cpp" />
     <ClCompile Include="..\..\Source\Recruits.cpp" />
+    <ClCompile Include="..\..\Source\ResourceMan.cpp" />
     <ClCompile Include="..\..\Source\Resources.cpp" />
     <ClCompile Include="..\..\Source\Sound.cpp" />
     <ClCompile Include="..\..\Source\Sprites.cpp" />
@@ -258,9 +263,14 @@
     <ClCompile Include="..\..\Source\Surface.cpp" />
     <ClCompile Include="..\..\Source\Tiles.cpp" />
     <ClCompile Include="..\..\Source\UnitTesting.cpp" />
+    <ClCompile Include="..\..\Source\Utils\md5.cpp" />
+    <ClCompile Include="..\..\Source\Utils\SimplexNoise.cpp" />
     <ClCompile Include="..\..\Source\Versions.cpp" />
+    <ClInclude Include="..\..\Source\Versions_Files.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="..\..\Source\Window.cpp" />
-  </ItemGroup>
+  </ItemGroup> 
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
