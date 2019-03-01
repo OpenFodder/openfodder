@@ -303,6 +303,9 @@
     <ClCompile Include="..\..\Source\Parameters.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Start.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\openfodder.ico" />
