@@ -13,6 +13,7 @@ cheats=false
 
 ; Window size multipler by original game resolution (Amiga 320x225, Dos 320x200)
 ; auto finds a size approximately half your screen resolution
+; so values such as 1, 2 or 3
 scale=auto
 
 
