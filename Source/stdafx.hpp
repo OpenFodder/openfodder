@@ -115,6 +115,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Version.hpp"
 #include "Resources.hpp"
 
+#include "Parameters.hpp"
+
 #include "PC/Resource_PC_CD.hpp"
 //#include "Amiga/Resource_Amiga_File.hpp"
 

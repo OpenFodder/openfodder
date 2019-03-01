@@ -195,6 +195,7 @@
     <ClInclude Include="..\..\Source\Fodder.hpp" />
     <ClInclude Include="..\..\Source\Graphics.hpp" />
     <ClInclude Include="..\..\Source\IntroData.hpp" />
+    <ClInclude Include="..\..\Source\Parameters.hpp" />
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp" />
     <ClInclude Include="..\..\Source\PC\Sound_PC.hpp" />
@@ -248,6 +249,7 @@
     <ClCompile Include="..\..\Source\Fodder.cpp" />
     <ClCompile Include="..\..\Source\Graphics.cpp" />
     <ClCompile Include="..\..\Source\Map.cpp" />
+    <ClCompile Include="..\..\Source\Parameters.cpp" />
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />

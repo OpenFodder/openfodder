@@ -1,0 +1,328 @@
+#include <stdafx.hpp>
+#include "Utils/ini.hpp"
+#include "Utils/cxxopts.hpp"
+#include "Utils/json.hpp"
+
+using Json = nlohmann::json;
+
+std::string sFodderParameters::ToJson() {
+	Json Save;
+
+	Save["mSkipIntro"] = mSkipIntro;
+	Save["mSkipToMission"] = mSkipRecruit;
+	Save["mSkipBriefing"] = mSkipBriefing;
+	Save["mSkipService"] = mSkipService;
+
+	Save["mWindowMode"] = mWindowMode;
+	Save["mRandom"] = mRandom;
+	Save["mDefaultPlatform"] = mDefaultPlatform;
+	Save["mCampaignName"] = mCampaignName;
+	Save["mMissionNumber"] = mMissionNumber;
+	Save["mPhaseNumber"] = mPhaseNumber;
+
+	Save["mUnitTesting"] = mUnitTesting;
+	Save["mSinglePhase"] = mSinglePhase;
+	Save["mSpritesMax"] = mSpritesMax;
+	Save["mSpawnEnemyMax"] = mSpawnEnemyMax;
+
+	Save["mCheatsEnabled"] = mCheatsEnabled;
+	return Save.dump(1);
+}
+
+bool sFodderParameters::FromJson(const std::string& pJson) {
+	Json LoadedData;
+
+	try {
+		LoadedData = Json::parse(pJson);
+	}
+	catch (std::exception Exception) {
+		std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
+		return false;
+	}
+
+	mSkipService = LoadedData["mSkipService"];
+	mSkipBriefing = LoadedData["mSkipBriefing"];
+	mSkipIntro = LoadedData["mSkipIntro"];
+	mSkipRecruit = LoadedData["mSkipToMission"];
+	mMissionNumber = LoadedData["mMissionNumber"];
+	mPhaseNumber = LoadedData["mPhaseNumber"];
+	mWindowMode = LoadedData["mWindowMode"];
+	mRandom = LoadedData["mRandom"];
+	mDefaultPlatform = LoadedData["mDefaultPlatform"];
+	mCampaignName = LoadedData["mCampaignName"];
+	mUnitTesting = LoadedData["mUnitTesting"];
+	mSinglePhase = LoadedData["mSinglePhase"];
+
+	// Max Sprites
+	{
+		if (LoadedData.count("mSpritesMax") > 0)
+			mSpritesMax = LoadedData["mSpritesMax"];
+		else
+			mSpritesMax = 45; // The original engine limit
+
+		if (mSpritesMax < 16)
+			mSpritesMax = 16;
+	}
+
+	// Max Spawned
+	{
+		if (LoadedData.count("mSpawnEnemyMax") > 0)
+			mSpawnEnemyMax = LoadedData["mSpawnEnemyMax"];
+		else
+			mSpawnEnemyMax = 0x0A; // The original engine limit
+	}
+
+	if (LoadedData.count("mCheatsEnabled") > 0)
+		mCheatsEnabled = LoadedData["mCheatsEnabled"];
+	else
+		mCheatsEnabled = false;
+
+	return true;
+}
+
+bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
+
+	cxxopts::Options options("OpenFodder", "War has never been so much fun");
+	options.allow_unrecognised_options();
+	options.add_options()
+		("about", "About", cxxopts::value<bool>()->default_value("false"))
+		("h,help", "Help", cxxopts::value<bool>()->default_value("false"))
+		("pc", "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
+		("amiga", "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
+		("engine", "Default to engine (single map/random)", cxxopts::value<std::string>()->default_value("cf1"), "cf1")
+
+		("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
+
+		("cheats", "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
+		("max-sprite", "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
+		("max-spawn", "Set the maximum spawn", cxxopts::value<std::uint32_t>()->default_value("10"), "10")
+		("sleep-delta", "Set the engine speed", cxxopts::value<std::uint32_t>()->default_value("2"), "2")
+
+		("demo-record", "Record Demo", cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
+		("demo-record-all", "Record Demo")
+		("demo-play", "Play Demo", cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
+
+		("unit-test", "Run Tests", cxxopts::value<bool>()->default_value("false"))
+		("unit-test-headless", "Run Tests, with no output", cxxopts::value<bool>()->default_value("false"))
+
+		("appveyor", "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
+		("nosound", "Disable sound output", cxxopts::value<bool>()->default_value("false"))
+		("playground", "Sprite playground", cxxopts::value<bool>()->default_value("false"))
+
+		("skipintro", "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
+		("skipbriefing", "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
+		("skipservice", "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
+		("skiphill", "Skip the hill", cxxopts::value<bool>()->default_value("false"))
+
+		("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
+		("c,campaign", "Starting campaign", cxxopts::value<std::string>()->default_value(""), "\"name\"")
+		("m,mission", "Starting mission", cxxopts::value<std::uint32_t>()->default_value("0"), "1")
+		("p,phase", "Starting phase", cxxopts::value<std::uint32_t>()->default_value("0"), "2")
+		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
+		;
+
+
+	try {
+		auto result = options.parse(argc, argv);
+
+		if (result["appveyor"].as<bool>()) {
+			mAppVeyor = true;
+		}
+
+		if (result["help"].as<bool>() == true) {
+			g_Debugger->Notice(options.help());
+			return false;
+		}
+
+		if (result.count("pc"))
+			mDefaultPlatform = ePlatform::PC;
+		if (result.count("amiga"))
+			mDefaultPlatform = ePlatform::Amiga;
+
+		if (result.count("engine")) {
+			if (result["engine"].as<std::string>() == "cf1")
+				mDefaultGame = eGame::CF1;
+
+			if (result["engine"].as<std::string>() == "cf2")
+				mDefaultGame = eGame::CF2;
+
+		}
+
+		if (result["list-campaigns"].as<bool>() == true) {
+			g_Debugger->Notice("\nAvailable Campaigns\n\n");
+
+			for (auto& Name : g_Fodder->mVersions->GetCampaignNames())
+				g_Debugger->Notice(Name);
+
+			return false;
+		}
+
+		if (result.count("demo-record-all")) {
+			mDemoRecord = true;
+			mDemoFile = "-";
+		}
+		else {
+			mDemoFile = result["demo-record"].as<std::string>();
+			if (mDemoFile.size())
+				mDemoRecord = true;
+			else {
+				mDemoFile = result["demo-play"].as<std::string>();
+				if (mDemoFile.size())
+					mDemoPlayback = true;
+			}
+		}
+
+		mShowAbout = result["about"].as<bool>();
+
+		if (result.count("skipintro"))
+			mSkipIntro = result["skipintro"].as<bool>();
+		if (result.count("skipservice"))
+			mSkipService = result["skipservice"].as<bool>();
+		if (result.count("skipbriefing"))
+			mSkipBriefing = result["skipbriefing"].as<bool>();
+		if (result.count("skiphill"))
+			mSkipRecruit = result["skiphill"].as<bool>();
+
+		mUnitTesting = result["unit-test"].as<bool>();
+
+		mCampaignName = result["campaign"].as<std::string>();
+		mMissionNumber = result["mission"].as<std::uint32_t>();
+		mPhaseNumber = result["phase"].as<std::uint32_t>();
+
+		if (result.count("window"))
+			mWindowMode = result["window"].as<bool>();
+
+		mRandom = result["random"].as<bool>();
+		mDisableSound = result["nosound"].as<bool>();
+		mPlayground = result["playground"].as<bool>();
+
+		if (result.count("max-sprite"))
+			mSpritesMax = result["max-sprite"].as<uint32_t>();
+		if (result.count("max-spawn"))
+			mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
+
+		mSleepDelta = result["sleep-delta"].as<uint32_t>();
+
+		mCheatsEnabled = result["cheats"].as<bool>();
+
+		if (mSpritesMax < 16)
+			mSpritesMax = 16;
+
+		// Cheats perm enabled in debug build
+#ifdef _DEBUG
+		mCheatsEnabled = true;
+#endif
+
+		if (mMissionNumber || mPhaseNumber) {
+			mSkipRecruit = true;
+			mSkipIntro = true;
+		}
+
+		if (result["unit-test-headless"].as<bool>()) {
+			mUnitTesting = true;
+			mDisableVideo = true;
+			mDisableSound = true;
+
+			g_Window = std::make_shared<cWindowNull>();
+			g_Fodder->mWindow = g_Window;
+		}
+
+		if (mUnitTesting) {
+			mWindowMode = true;
+		}
+#ifdef _DEBUG
+		mWindowMode = true;
+#endif
+	}
+	catch (...) {
+		g_Debugger->Notice(options.help());
+		return false;
+	}
+
+	return true;
+}
+
+std::string str_to_lower(std::string pStr) {
+	std::transform(pStr.begin(), pStr.end(), pStr.begin(), ::tolower);
+	return pStr;
+}
+
+bool sFodderParameters::ProcessINI() {
+
+	INI<> ini("openfodder.ini", false);
+	sFodderParameters params;
+
+	if (!ini.parse())
+		return false;
+
+	// Section: Openfodder
+	{
+		if (ini.select("openfodder")) {
+			if (ini.get("window", "false") == "true")
+				params.mWindowMode = true;
+			else
+				params.mWindowMode = false;
+
+			if (ini.get("cheats", "false") == "true")
+				params.mCheatsEnabled = true;
+			else
+				params.mCheatsEnabled = false;
+
+			if (ini.get("scale", "false") == "auto")
+				params.mWindowScale = 0;
+			else {
+				params.mWindowScale = ini.get("scale", 0);
+			}
+		}
+	}
+
+	// Section: Engine
+	{
+		if (ini.select("engine")) {
+			auto platform = str_to_lower(ini.get("platform", ""));
+			if (platform == "amiga")
+				params.mDefaultPlatform = ePlatform::Amiga;
+			if (platform == "pc")
+				params.mDefaultPlatform = ePlatform::PC;
+
+			auto game = str_to_lower(ini.get("engine", ""));
+			if (game == "cf1")
+				params.mDefaultGame = eGame::CF1;
+			if (game == "cf2")
+				params.mDefaultGame = eGame::CF2;
+
+
+			auto maxsprite = ini.get("maxsprite", 0);
+			if (maxsprite)
+				params.mSpritesMax = maxsprite;
+			auto maxspawn = ini.get("maxspawn", 0);
+			if (maxspawn)
+				params.mSpawnEnemyMax = maxspawn;
+		}
+	}
+
+	// Section: Skip
+	{
+		if (ini.select("skip")) {
+			if (ini.get("intro", "false") == "true")
+				params.mSkipIntro = true;
+
+			if (ini.get("briefing", "false") == "true")
+				params.mSkipBriefing = true;
+
+			if (ini.get("service", "false") == "true")
+				params.mSkipService = true;
+
+			if (ini.get("hill", "false") == "true")
+				params.mSkipRecruit = true;
+		}
+	}
+
+	if (ini.select("paths")) {
+
+		for (auto& path : ini["paths"]) {
+
+			g_ResourceMan->addDir(path.second);
+		}
+	}
+}

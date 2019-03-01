@@ -22,85 +22,11 @@
 
 #include "stdafx.hpp"
 #include <chrono>
-
 #include "Utils/json.hpp"
+
 using Json = nlohmann::json;
 
 const char* DEMO_EXTENSION = ".ofd";
-
-std::string sFodderParameters::ToJson() {
-    Json Save;
-
-    Save["mSkipIntro"] = mSkipIntro;
-    Save["mSkipToMission"] = mSkipRecruit;
-    Save["mSkipBriefing"] = mSkipBriefing;
-    Save["mSkipService"] = mSkipService;
-
-    Save["mWindowMode"] = mWindowMode;
-    Save["mRandom"] = mRandom ;
-    Save["mDefaultPlatform"] = mDefaultPlatform;
-    Save["mCampaignName"] = mCampaignName;
-    Save["mMissionNumber"] = mMissionNumber;
-    Save["mPhaseNumber"] = mPhaseNumber;
-
-    Save["mUnitTesting"] = mUnitTesting;
-    Save["mSinglePhase"] = mSinglePhase;
-	Save["mSpritesMax"] = mSpritesMax;
-	Save["mSpawnEnemyMax"] = mSpawnEnemyMax;
-
-	Save["mCheatsEnabled"] = mCheatsEnabled;
-    return Save.dump(1);
-}
-
-bool sFodderParameters::FromJson(const std::string& pJson) {
-    Json LoadedData;
-
-    try {
-        LoadedData = Json::parse(pJson);
-    } catch (std::exception Exception) {
-        std::cout << "SaveGame JSON Parsing Error: " << Exception.what() << "\n";
-        return false;
-    }
-
-    mSkipService = LoadedData["mSkipService"];
-    mSkipBriefing = LoadedData["mSkipBriefing"];
-    mSkipIntro = LoadedData["mSkipIntro"];
-    mSkipRecruit = LoadedData["mSkipToMission"];
-    mMissionNumber = LoadedData["mMissionNumber"];
-    mPhaseNumber = LoadedData["mPhaseNumber"];
-    mWindowMode = LoadedData["mWindowMode"];
-    mRandom = LoadedData["mRandom"];
-    mDefaultPlatform = LoadedData["mDefaultPlatform"];
-    mCampaignName = LoadedData["mCampaignName"];
-    mUnitTesting = LoadedData["mUnitTesting"];
-    mSinglePhase = LoadedData["mSinglePhase"];
-
-	// Max Sprites
-	{
-		if (LoadedData.count("mSpritesMax") > 0)
-			mSpritesMax = LoadedData["mSpritesMax"];
-		else
-			mSpritesMax = 45; // The original engine limit
-
-		if (mSpritesMax < 16)
-			mSpritesMax = 16;
-	}
-
-	// Max Spawned
-	{
-		if (LoadedData.count("mSpawnEnemyMax") > 0)
-			mSpawnEnemyMax = LoadedData["mSpawnEnemyMax"];
-		else
-			mSpawnEnemyMax = 0x0A; // The original engine limit
-	}
-
-	if (LoadedData.count("mCheatsEnabled") > 0)
-		mCheatsEnabled = LoadedData["mCheatsEnabled"];
-	else
-		mCheatsEnabled = false;
-
-    return true;
-}
 
 sGamePhaseData::sGamePhaseData() {
     Clear();

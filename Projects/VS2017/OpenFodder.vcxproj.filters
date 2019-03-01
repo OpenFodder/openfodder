@@ -178,6 +178,9 @@
     <ClInclude Include="..\..\Source\Utils\pseudorand.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Parameters.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -295,6 +298,9 @@
       <Filter>Source\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Map.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Parameters.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
