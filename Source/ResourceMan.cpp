@@ -58,7 +58,7 @@ void cResourceMan::addDefaultDirs() {
 	size_t a = 512;
 	char path1[512];
 	getenv_s(&a, path1, "USERPROFILE");
-	path.append(path1, a);
+	path.append(path1, a - 1);
 
 	if (path.size())
 		addBaseDir(path + "/Documents/");

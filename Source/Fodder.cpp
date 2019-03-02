@@ -241,159 +241,166 @@ void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
 
 }
 
+int16 cFodder::Phase_Cycle() {
+
+	// If demo playback is enabled, and a record resume cycle is set
+	if (mStartParams->mDemoPlayback && mStartParams->mDemoRecordResumeCycle) {
+		// See if we hit the tick count
+		if (mGame_Data.mDemoRecorded.mTick >= mStartParams->mDemoRecordResumeCycle) {
+			// Then resume recording
+			mStartParams->mDemoPlayback = false;
+			mStartParams->mDemoRecord = true;
+			mStartParams->mDemoRecordResumeCycle = 0;
+			mParams->mSleepDelta = 2;
+			mParams->mDemoRecord = mStartParams->mDemoRecord;
+			mParams->mDemoPlayback = mStartParams->mDemoPlayback;
+			mStartParams->mDisableVideo = false;
+			mStartParams->mDisableSound = false;
+			Mouse_Setup();
+		}
+	}
+
+	Cycle_End();
+
+	MapTile_UpdateFromCamera();
+	MapTile_Update_Position();
+
+	Game_Handle();
+	++mMission_EngineTicks;
+
+	if (mCamera_Start_Adjust) {
+		Camera_SetTargetToStartPosition();
+		mCamera_Start_Adjust = false;
+		return 1;
+	}
+
+	//loc_1074E
+	if (mGUI_Sidebar_Setup >= 0 && !mPhase_TryAgain)
+		GUI_Sidebar_Setup();
+	else {
+		GUI_Sidebar_Draw();
+	}
+
+	//loc_10768
+	Phase_Progress_Check();
+	mHelicopterCallPadPressedCount = 0;
+	if (word_3A9B8 >= 0)
+		--word_3A9B8;
+
+	Sprite_Find_HumanVehicles();
+
+	// Cheat
+	if (mDebug_PhaseSkip == -1) {
+		mDebug_PhaseSkip = 0;
+		mPhase_Complete = true;
+	}
+	else
+		Phase_Goals_Check();
+
+	//loc_1079C
+	Squad_Walk_Steps_Decrease();
+	Squad_Troops_Count();
+
+	Mission_Sprites_Handle();
+	Squad_Switch_Timer();
+	if (!mStartParams->mDisableVideo)
+		mGraphics->Sidebar_Copy_To_Surface();
+
+	// Game Paused
+	if (mPhase_Paused) {
+		Phase_Paused();
+
+		mSurface->Save();
+
+		// Fade the background out, and the 'mission paused' message in
+		mSurface->palette_FadeTowardNew();
+		mSurface->palette_FadeTowardNew();
+		mSurface->palette_FadeTowardNew();
+
+		while (mPhase_Paused) {
+
+			// Update mouse
+			Mouse_Inputs_Get();
+			Mouse_DrawCursor();
+			// Draw surface
+			mSurface->draw();
+
+			// Copy the rendered surface of the 'mission paused' message over the top of the main surface
+			mSurface->mergeSurfaceBuffer(mSurface2);
+
+			mWindow->RenderAt(mSurface);
+			mWindow->FrameEnd();
+			Cycle_End();
+
+			mSurface->Restore();
+		}
+
+		mGraphics->PaletteSet();
+		mSurface->palette_SetFromNew();
+		mSurface->surfaceSetToPalette();
+
+		mPhase_Aborted = false;
+
+		// Redraw the screen
+		mGraphics->MapTiles_Draw();
+		Sprites_Draw();
+		mGraphics->Sidebar_Copy_To_Surface();
+	}
+
+	Mouse_DrawCursor();
+
+	if (mSurface->isPaletteAdjusting())
+		mSurface->palette_FadeTowardNew();
+
+	Camera_Update_Mouse_Position_For_Pan();
+
+	if (mPhase_ShowMapOverview) {
+
+		// Dont show the map while recording
+		if (!mParams->mDemoRecord)
+			Phase_Map_Overview_Show();
+
+		mPhase_ShowMapOverview = 0;
+	}
+
+	if (mGame_Data.mGamePhase_Data.mIsComplete) {
+
+		if (mPhase_Aborted)
+			Sprite_Handle_Player_Destroy_Unk();
+		else {
+			if (!mPhase_TryAgain)
+				return 0;
+
+			Sprite_Handle_Player_DestroyAll();
+		}
+		return -1;
+	}
+
+	//loc_10841
+	Sprite_Bullet_SetData();
+	Squad_EnteredVehicle_TimerTick();
+	Squad_Set_CurrentVehicle();
+
+	// No squad is selected, so set count down timer
+	if (mSquad_Selected < 0 && !mSquad_Select_Timer)
+		mSquad_Select_Timer = 0x14;
+
+	Sprite_HelicopterCallPad_Check();
+	Mission_Final_Timer();
+
+	Video_SurfaceRender();
+	return 1;
+}
+
 int16 cFodder::Phase_Loop() {
 
     mPhase_EscapeKeyAbort = false;
     mSurface->Save();
 
     for (;;) {
-
-        // If demo playback is enabled, and a record resume cycle is set
-        if (mStartParams->mDemoPlayback && mStartParams->mDemoRecordResumeCycle) {
-            // See if we hit the tick count
-            if (mGame_Data.mDemoRecorded.mTick >= mStartParams->mDemoRecordResumeCycle) {
-                // Then resume recording
-                mStartParams->mDemoPlayback = false;
-                mStartParams->mDemoRecord = true;
-                mStartParams->mDemoRecordResumeCycle = 0;
-                mParams->mSleepDelta = 2;
-                mParams->mDemoRecord = mStartParams->mDemoRecord;
-                mParams->mDemoPlayback = mStartParams->mDemoPlayback;
-                mStartParams->mDisableVideo = false;
-                mStartParams->mDisableSound = false;
-                Mouse_Setup();
-            }
-        }
-
-        Cycle_End();
-
-        MapTile_UpdateFromCamera();
-        MapTile_Update_Position();
-
-        Game_Handle();
-        ++mMission_EngineTicks;
-
-        if (mCamera_Start_Adjust) {
-            Camera_SetTargetToStartPosition();
-            mCamera_Start_Adjust = false;
-            continue;
-        }
-
-        //loc_1074E
-        if (mGUI_Sidebar_Setup >= 0 && !mPhase_TryAgain)
-            GUI_Sidebar_Setup();
-        else {
-            GUI_Sidebar_Draw();
-        }
-
-        //loc_10768
-        Phase_Progress_Check();
-        mHelicopterCallPadPressedCount = 0;
-        if (word_3A9B8 >= 0)
-            --word_3A9B8;
-
-        Sprite_Find_HumanVehicles();
-
-        // Cheat
-        if (mDebug_PhaseSkip == -1) {
-            mDebug_PhaseSkip = 0;
-            mPhase_Complete = true;
-        }
-        else
-            Phase_Goals_Check();
-
-        //loc_1079C
-        Squad_Walk_Steps_Decrease();
-        Squad_Troops_Count();
-
-        Mission_Sprites_Handle();
-        Squad_Switch_Timer();
-        if (!mStartParams->mDisableVideo)
-            mGraphics->Sidebar_Copy_To_Surface();
-
-        // Game Paused
-        if (mPhase_Paused) {
-            Phase_Paused();
-
-            mSurface->Save();
-
-            // Fade the background out, and the 'mission paused' message in
-            mSurface->palette_FadeTowardNew();
-            mSurface->palette_FadeTowardNew();
-            mSurface->palette_FadeTowardNew();
-
-            while (mPhase_Paused) {
-
-                // Update mouse
-                Mouse_Inputs_Get();
-                Mouse_DrawCursor();
-                // Draw surface
-                mSurface->draw();
-
-                // Copy the rendered surface of the 'mission paused' message over the top of the main surface
-                mSurface->mergeSurfaceBuffer(mSurface2);
-
-                mWindow->RenderAt(mSurface);
-                mWindow->FrameEnd();
-                Cycle_End();
-
-                mSurface->Restore();
-            }
-
-            mGraphics->PaletteSet();
-            mSurface->palette_SetFromNew();
-            mSurface->surfaceSetToPalette();
-
-            mPhase_Aborted = false;
-
-            // Redraw the screen
-            mGraphics->MapTiles_Draw();
-            Sprites_Draw();
-            mGraphics->Sidebar_Copy_To_Surface();
-        } 
-
-        Mouse_DrawCursor();
-
-        if (mSurface->isPaletteAdjusting())
-            mSurface->palette_FadeTowardNew();
-
-        Camera_Update_Mouse_Position_For_Pan();
-
-        if (mPhase_ShowMapOverview) {
-
-            // Dont show the map while recording
-            if(!mParams->mDemoRecord)
-                Phase_Map_Overview_Show();
-
-            mPhase_ShowMapOverview = 0;
-        }
-
-        if (mGame_Data.mGamePhase_Data.mIsComplete) {
-
-            if (mPhase_Aborted)
-                Sprite_Handle_Player_Destroy_Unk();
-            else {
-                if (!mPhase_TryAgain)
-                    return 0;
-
-                Sprite_Handle_Player_DestroyAll();
-            }
-            return -1;
-        }
-
-        //loc_10841
-        Sprite_Bullet_SetData();
-        Squad_EnteredVehicle_TimerTick();
-        Squad_Set_CurrentVehicle();
-
-        // No squad is selected, so set count down timer
-        if (mSquad_Selected < 0 && !mSquad_Select_Timer)
-            mSquad_Select_Timer = 0x14;
-
-        Sprite_HelicopterCallPad_Check();
-        Mission_Final_Timer();
-
-        Video_SurfaceRender();
+		
+		if (Phase_Cycle() == 0)
+			break;
     }
 
     return 0;
@@ -2860,6 +2867,7 @@ void cFodder::Mouse_Cursor_Handle() {
 
 void cFodder::Mouse_Inputs_Get() {
 
+	
     if (mParams->mDemoPlayback) {
 
        // Window_UpdateScreenSize();
@@ -9298,15 +9306,15 @@ void cFodder::Service_ScrollUp_DrawList() {
 
         Draw.mY -= 1;
 
-        if(Draw.mY >= -48)
+        if(Draw.mY >= -4)
             mService_Promotion_Exit_Loop = 0;
 
     }
 
-    auto remove = std::remove_if(mService_Draw_List.begin(), mService_Draw_List.end(), [](auto pVal) 
-    { return pVal.mY < -48; });
+    //auto remove = std::remove_if(mService_Draw_List.begin(), mService_Draw_List.end(), [](auto pVal) 
+    //{ return pVal.mY < -48; });
 
-    mService_Draw_List.erase(remove, mService_Draw_List.end());
+    //mService_Draw_List.erase(remove, mService_Draw_List.end());
 }
 
 void cFodder::Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC) {

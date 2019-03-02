@@ -559,6 +559,7 @@ public:
     void            Image_FadeOut();
 
     virtual int16   Mission_Loop();
+	virtual int16	Phase_Cycle();
     virtual int16   Phase_Loop();
 
     void            Game_Handle();
@@ -1227,7 +1228,7 @@ public:
     void            Mouse_Cursor_Handle();
     void            Mouse_Cursor_Update();
     void            Mouse_DrawCursor();
-    void            Mouse_Inputs_Get();
+    virtual void    Mouse_Inputs_Get();
     void            Mouse_Inputs_Check();
     void            Mouse_Setup();
 
