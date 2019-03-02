@@ -167,8 +167,8 @@ public:
 	virtual void		PaletteSet(cSurface *pTarget = 0) = 0;
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 ) = 0;
 
-	virtual void		Video_Draw_16() = 0;
-	virtual void		Video_Draw_8(cSurface *pTarget = 0) = 0;
+	virtual void		Video_Draw_16(const uint8* RowPallete = 0) = 0;
+	virtual void		Video_Draw_8(cSurface *pTarget = 0, const uint8* RowPallete = 0) = 0;
 
 	virtual void		SetActiveSpriteSheet( eGFX_Types pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );

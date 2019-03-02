@@ -27,5 +27,7 @@ const extern uint8 mFont_Underlined_Width[];
 const extern uint8 mFont_Service_Width[];
 const extern uint8 mFont_Intro_Width[];
 const extern uint8 mFont_Service_PalleteIndex[];
+const extern uint8 mFont_Service_PalleteIndex_Amiga[];
+
 const extern uint8 mFont_ServiceName_Width[];
 const extern unsigned char mGUI_Font_SpecialCharacters[];

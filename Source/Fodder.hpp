@@ -136,7 +136,7 @@ public:
     tSharedBuffer   mTile_BaseBlk;
     tSharedBuffer   mTile_SubBlk;
 
-    int16           mInput_Enabled;
+    bool            mInput_Enabled;
     uint16          mGame_InputTicks;
 
     int16           mButtonPressLeft, mButtonPressRight;
@@ -254,6 +254,9 @@ public:
     bool            mPhase_TryAgain;
     bool            mPhase_TryingAgain;
 
+	bool            mPhase_Finished;
+	int16           mPhase_ShowMapOverview;
+
     int16           mEnemy_BuildingCount;
     int16           mSquad_SwitchWeapon;
     int16           word_3A9B8;
@@ -292,7 +295,7 @@ public:
     int16           word_3ABB1;
     int16           mSquad_Member_Fire_CoolDown;
     size_t          mTroop_Rotate_Next;
-    int16           word_3ABB7;
+    int16           mPhase_MapIs17x12;
     sWeaponData     mSprite_Weapon_Data;
     int16           mSprite_Bullet_Time_Modifier;
     int16           mSprite_Bullet_Fire_Speed_Modifier;
@@ -342,10 +345,8 @@ public:
     int32           dword_3B1CB;
 
     eTileTypes      mMap_TileSet;
-    int16           mMission_Finished;
     int16           mMission_EngineTicks;
     bool            mRecruit_Mission_Restarting;
-    int16           mPhase_ShowMapOverview;
     sSprite*        mMission_Troops_SpritePtrs[9];
 
     int16           mMission_Final_TimeToDie_Ticker;
@@ -561,6 +562,7 @@ public:
     virtual int16   Mission_Loop();
 	virtual int16	Phase_Cycle();
     virtual int16   Phase_Loop();
+	void			Phase_Prepare();
 
     void            Game_Handle();
     void            Camera_Handle();
@@ -605,7 +607,7 @@ public:
     int16           sub_119E1(int16& pX1, int16& pY1, int16 pX2, int16 pY2);
 
     void            Camera_Speed_Calculate();
-    void            sub_11CAD();
+    void            Camera_Prepare();
     void            Camera_SetTargetToStartPosition();
     void            Camera_Pan_To_Target();
     void            Camera_Pan_Set_Speed();

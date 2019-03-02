@@ -903,7 +903,7 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	SetActiveSpriteSheet( eGFX_IN_GAME );
 }
 
-void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget) {
+void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget, const uint8* RowPallete) {
 	if (!pTarget)
 		pTarget = mSurface;
 
@@ -969,7 +969,7 @@ void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 
 }
 
-void cGraphics_Amiga::Video_Draw_16() {
+void cGraphics_Amiga::Video_Draw_16(const uint8* RowPallete) {
 
 	uint8*	di = mSurface->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
@@ -984,12 +984,19 @@ void cGraphics_Amiga::Video_Draw_16() {
 	mFodder->mDraw_Dest_SkipPixelsPerRow = mSurface->GetWidth() - (mFodder->mVideo_Draw_Columns * 16);
 
 	// Height
-	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+	for (int16 dx = 0; dx < mFodder->mVideo_Draw_Rows; ++dx) {
+
+		uint8 Palette = mFodder->mVideo_Draw_PaletteIndex;
+		if (RowPallete) {
+			int16 bx = mFodder->mVideo_Draw_PosY + dx;
+
+			//Palette = 1;// RowPallete[bx];
+		}
 
 		// Width
 		for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns; ++cx) {
 
-			DrawPixels_16( si, di );
+			DrawPixels_16( si, di, Palette );
 
 			di += 16;
 			si += 2;
@@ -1062,7 +1069,7 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, si
 		// Width
 		for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns / 2; ++cx) {
 
-			DrawPixels_16( si, di );
+			DrawPixels_16( si, di, mFodder->mVideo_Draw_PaletteIndex);
 
 			di += 16;
 			si += 2;
@@ -1195,7 +1202,7 @@ void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 		// Width
 		for (int16 cx = 0; cx < stru_A918A[pSpriteID].mWidth; ++cx) {
 
-			DrawPixels_16( si, di );
+			DrawPixels_16( si, di, mFodder->mVideo_Draw_PaletteIndex);
 
 			di += 16;
 			si += 2;
@@ -1436,7 +1443,7 @@ void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 	}
 }
 
-void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
+void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination, const uint8 pPalleteIndex) {
 	uint16	Planes[8];
 
 	// Load bits for all planes
@@ -1454,7 +1461,7 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination ) {
 		}
 
 		if (Result)
-			pDestination[X] = mFodder->mVideo_Draw_PaletteIndex | Result;
+			pDestination[X] = pPalleteIndex | Result;
 	}
 }
 

@@ -75,8 +75,8 @@ class cGraphics_PC : public cGraphics {
 	uint8				Video_Get_Pixel(uint8* pSi, int16 pX, int16 pY);
 	void				Video_Put_Pixel(uint8* pDi, uint8 pAl);
 
-	virtual void		Video_Draw_16();
-	virtual void		Video_Draw_8(cSurface *pTarget = 0);
+	virtual void		Video_Draw_16(const uint8* RowPallete = 0);
+	virtual void		Video_Draw_8(cSurface *pTarget = 0, const uint8* RowPallete = 0);
 
 	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
 	virtual void		Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, size_t pX, size_t pY );

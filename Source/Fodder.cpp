@@ -241,6 +241,13 @@ void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
 
 }
 
+/**
+ * Execute one cycle of the current phase
+ *
+ * -1 = Phase Try Again 
+ *  0 = Phase Won
+ *  1 = Phase Running
+ */
 int16 cFodder::Phase_Cycle() {
 
 	// If demo playback is enabled, and a record resume cycle is set
@@ -390,15 +397,81 @@ int16 cFodder::Phase_Cycle() {
 	return 1;
 }
 
+void cFodder::Phase_Prepare() {
+
+	Map_Load();
+	mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+
+	MapTiles_Draw();
+	Camera_Reset();
+
+	Mouse_Inputs_Get();
+	Sprite_Frame_Modifier_Update();
+
+	mSound->Stop();
+	Sprite_Aggression_Set();
+
+	//seg000:05D1
+
+	Phase_Goals_Set();
+
+	Sprite_Bullet_SetData();
+	Sprite_Handle_Loop();
+	Sprite_Create_Rank();
+
+	mCamera_Start_Adjust = true;
+	mCamera_StartPosition_X = mSprites[0].field_0;
+	mCamera_StartPosition_Y = mSprites[0].field_4;
+
+	// Is map 17 x 12
+	{
+		if (mMapLoaded.getWidth() == 17) {
+			if (mMapLoaded.getHeight() == 12)
+				mPhase_MapIs17x12 = -1;
+		}
+	}
+
+	GUI_Element_Reset();
+	mInput_Enabled = true;
+	Camera_Prepare();
+
+	mGUI_Mouse_Modifier_X = 0;
+	mGUI_Mouse_Modifier_Y = 4;
+	mCamera_Start_Adjust = true;
+
+	Squad_Prepare_GrenadesAndRockets();
+
+	mGraphics->PaletteSet();
+
+	GUI_Sidebar_Prepare_Squads();
+	Squad_Select_Grenades();
+	mMap_Destroy_Tiles.clear();
+	Sprite_Count_HelicopterCallPads();
+	Mission_Set_Final_TimeRemaining();
+
+	mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
+
+	mPhase_Aborted = false;
+	mPhase_Paused = false;
+	mPhase_In_Progress = true;
+	mPhase_EscapeKeyAbort = false;
+
+	mPhase_Finished = false;
+	mPhase_ShowMapOverview = 0;
+
+	Window_UpdateScreenSize();
+
+	mSurface->Save();
+}
+
 int16 cFodder::Phase_Loop() {
 	int16 result = 1;
 
-    mPhase_EscapeKeyAbort = false;
-    mSurface->Save();
-
+	// -1 = Phase Try Again 
+	//  0 = Phase Won
+	//  1 = Phase Running
     for (result = 1; result == 1; result = Phase_Cycle()) {
 		
-
 		Cycle_End();
     }
 
@@ -419,7 +492,7 @@ void cFodder::Game_Handle() {
             Camera_Handle();
             Camera_Handle();
 
-            if (!mMission_Finished)
+            if (!mPhase_Finished)
                 Mouse_Inputs_Check();
         }
     }
@@ -440,7 +513,7 @@ void cFodder::Game_Handle() {
         return;
 
     if (mPhase_Completed_Timer || mPhase_Complete || mPhase_TryAgain || mPhase_Aborted) {
-        mMission_Finished = -1;
+        mPhase_Finished = true;
         return;
     }
 
@@ -559,7 +632,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
 
 void cFodder::Game_ClearVariables() {
     mDebug_PhaseSkip = 0;
-    mInput_Enabled = 0;
+    mInput_Enabled = false;
     mGame_InputTicks = 0;
     mMission_EngineTicks = 0;
     mRecruit_Mission_Restarting = false;
@@ -724,7 +797,7 @@ void cFodder::Mission_Memory_Clear() {
     word_3ABB1 = 0;
     mSquad_Member_Fire_CoolDown = 0;
     mTroop_Rotate_Next = 0;
-    word_3ABB7 = 0;
+    mPhase_MapIs17x12 = 0;
     mSprite_Weapon_Data.mSpeed = 0;
     mSprite_Weapon_Data.mAliveTime = 0;
     mSprite_Weapon_Data.mCooldown = 0;
@@ -870,7 +943,7 @@ void cFodder::Mission_Memory_Clear() {
     mTurretFires_HomingMissile = 0;
     word_3B4ED[0] = 0;
     word_3B4ED[1] = 0;
-    mMission_Finished = 0;
+    mPhase_Finished = false;
     mImage_Aborted = 0;
     mBriefing_Aborted = 0;
     mHostage_Rescue_Tent = 0;
@@ -1534,7 +1607,7 @@ void cFodder::Camera_Speed_Calculate() {
     mCamera_Speed_Y = Data0;
 }
 
-void cFodder::sub_11CAD() {
+void cFodder::Camera_Prepare() {
 
     mCamera_TileX = mCameraX >> 16;
     mCamera_TileY = mCameraY >> 16;
@@ -1568,7 +1641,7 @@ void cFodder::Camera_SetTargetToStartPosition() {
     if (DataC >= Data10)
         DataC = Data10;
 
-    if (!word_3ABB7) {
+    if (!mPhase_MapIs17x12) {
         Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
 
         if (Data0 >= 0x8C)
@@ -1588,7 +1661,7 @@ loc_11D8A:;
 
     mCamera_MovePauseX = 6;
     mCamera_MovePauseY = 6;
-    mInput_Enabled = 0;
+    mInput_Enabled = false;
 
     mCamera_PanTargetX = mCamera_StartPosition_X;
     mCamera_PanTargetY = mCamera_StartPosition_Y;
@@ -1613,9 +1686,9 @@ loc_11D8A:;
     Mission_Sprites_Handle();
     mGraphics->Sidebar_Copy_To_Surface();
     Mouse_DrawCursor();
-    sub_11CAD();
+    Camera_Prepare();
 
-    mInput_Enabled = -1;
+    mInput_Enabled = true;
 
     mGraphics->PaletteSet();
 
@@ -2142,8 +2215,8 @@ void cFodder::Sprite_Bullet_SetData() {
 
 void cFodder::Phase_Goals_Check() {
 
-    int16 Data8 = 0;
-    int16 DataC = 0;
+    int16 Enemys = 0;
+    int16 Buildings = 0;
 
 	for (auto& Sprite : mSprites) {
 		sSprite* Data20 = &Sprite;
@@ -2163,7 +2236,7 @@ void cFodder::Phase_Goals_Check() {
             if (Data20->field_38 == eSprite_Anim_Die3)
                 continue;
 
-            ++DataC;
+            ++Buildings;
             continue;
         }
 
@@ -2172,28 +2245,28 @@ void cFodder::Phase_Goals_Check() {
             if (Data10 != *Data24)
                 continue;
 
-            ++Data8;
+            ++Enemys;
         }
     }
 
     // The one demo just has two objectives for each map
     if (mVersionCurrent->isAmigaTheOne()) {
 
-        if (DataC || Data8)
+        if (Buildings || Enemys)
             return;
 
         mPhase_Complete = true;
         return;
     }
 
-    mEnemy_BuildingCount = DataC;
+    mEnemy_BuildingCount = Buildings;
     if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Destroy_Enemy_Buildings - 1]) {
-        if (DataC)
+        if (Buildings)
             return;
     }
 
     if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Kill_All_Enemy - 1]) {
-        if (Data8)
+        if (Enemys)
             return;
     }
 
@@ -2719,7 +2792,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
             ++mSquad_SwitchWeapon;
 
         if (pKeyCode == SDL_SCANCODE_M && pPressed) {
-            if (mMission_Finished == 0)
+            if (mPhase_Finished == false)
                 mPhase_ShowMapOverview = -1;
         }
 
@@ -4356,7 +4429,7 @@ loc_23100:;
 
 void cFodder::Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C) {
 
-    if (mMission_Finished)
+    if (mPhase_Finished)
         return;
 
     sSprite* Sprite = mSprites.data();
@@ -7554,7 +7627,7 @@ loc_2ABF8:;
 int16 cFodder::Squad_Member_Sprite_Hit_In_Region(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14) {
     int16 Data4;
 
-    if (mMission_Finished) {
+    if (mPhase_Finished) {
         word_3AA45 = 0;
         return 0;
     }
@@ -8229,7 +8302,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
 
 int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14) {
 
-    if (mMission_Finished) {
+    if (mPhase_Finished) {
         word_3AA45 = 0;
         return 0;
     }
@@ -9374,14 +9447,15 @@ int16 cFodder::Service_Sprite_Draw(int16& pSpriteType, int16& pFrame, int16& pX,
     mVideo_Draw_PosX = pX + 0x10;
     mVideo_Draw_PosY = pY + 0x10;
 
+
     mVideo_Draw_Columns = SheetData->mColCount;
     mVideo_Draw_Rows = SheetData->mRowCount;
 
     if (!Service_Sprite_OnScreen_Check()) {
         if (mVersionCurrent->mPlatform == ePlatform::Amiga)
-            mGraphics->Video_Draw_16();
+            mGraphics->Video_Draw_16(mFont_Service_PalleteIndex_Amiga);
         else
-            mGraphics->Video_Draw_8();
+            mGraphics->Video_Draw_8(0, mFont_Service_PalleteIndex);
 
         return 1;
     }
@@ -18132,7 +18206,7 @@ int16 cFodder::Mission_Loop() {
         Mission_Prepare_Squads();
         sub_10DEC();
 
-        mInput_Enabled = 0;
+        mInput_Enabled = false;
 
         if (!mIntroDone) {
             mImage_Aborted = 0;
@@ -18227,65 +18301,7 @@ int16 cFodder::Mission_Loop() {
             }
         }
 
-        Map_Load();
-        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
-
-        MapTiles_Draw();
-        Camera_Reset();
-
-        Mouse_Inputs_Get();
-        Sprite_Frame_Modifier_Update();
-
-        mSound->Stop();
-        Sprite_Aggression_Set();
-       
-        //seg000:05D1
-
-        Phase_Goals_Set();
-
-        Sprite_Bullet_SetData();
-        Sprite_Handle_Loop();
-        Sprite_Create_Rank();
-
-        mCamera_Start_Adjust = true;
-        mCamera_StartPosition_X = mSprites[0].field_0;
-        mCamera_StartPosition_Y = mSprites[0].field_4;
-
-        // Is map 17 x 12
-        {
-            if (mMapLoaded.getWidth() == 17) {
-                if (mMapLoaded.getHeight() == 12)
-                    word_3ABB7 = -1;
-            }
-        }
-
-        mGUI_Elements[0].field_0 = 0;
-        mInput_Enabled = -1;
-        sub_11CAD();
-
-        mGUI_Mouse_Modifier_X = 0;
-        mGUI_Mouse_Modifier_Y = 4;
-        mCamera_Start_Adjust = true;
-
-        Squad_Prepare_GrenadesAndRockets();
-
-        mGraphics->PaletteSet();
-
-        GUI_Sidebar_Prepare_Squads();
-        Squad_Select_Grenades();
-        mMap_Destroy_Tiles.clear();
-        Sprite_Count_HelicopterCallPads();
-        Mission_Set_Final_TimeRemaining();
-
-        mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
-
-        mPhase_Aborted = false;
-        mPhase_Paused = false;
-        mPhase_In_Progress = true;
-        mMission_Finished = 0;
-        mPhase_ShowMapOverview = 0;
-
-        Window_UpdateScreenSize();
+		Phase_Prepare();
 
         if (!Phase_Loop()) {
             mKeyCode = 0;
@@ -18491,7 +18507,7 @@ void cFodder::sub_303AE() {
 
 void cFodder::Squad_Switch_Weapon() {
 
-    if (!mInput_Enabled || mMission_Finished)
+    if (!mInput_Enabled || mPhase_Finished)
         return;
 
     if (mSquad_CurrentWeapon[mSquad_Selected] != eWeapon_Rocket) {

@@ -986,7 +986,7 @@ void cFodder::GUI_Render_Text_Centred(const char* pText, const size_t pPosY) {
 
 void cFodder::GUI_Handle_Button_ShowOverview() {
 
-    if (mMission_Finished)
+    if (mPhase_Finished)
         return;
 
     if (Mouse_Button_Left_Toggled() < 0)

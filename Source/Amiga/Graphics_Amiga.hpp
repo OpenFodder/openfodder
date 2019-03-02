@@ -66,7 +66,7 @@ protected:
 	
 	virtual void		DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSourceX, uint16 pSourceY, uint16 pX, uint16 pY);
 	virtual void		DrawPixels_8( uint8* pSource, uint8* pDestination );
-	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination );
+	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination, const uint8 pPalleteIndex );
 
 	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors = 0, unsigned int pBackColor = 0 );
 
@@ -91,8 +91,8 @@ protected:
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 
 	virtual void		Video_Draw_16_Offset( int16 pCx );
-	virtual void		Video_Draw_16();
-	virtual void		Video_Draw_8(cSurface *pTarget = 0);
+	virtual void		Video_Draw_16(const uint8* RowPallete = 0);
+	virtual void		Video_Draw_8(cSurface *pTarget = 0, const uint8* RowPallete = 0);
 
 	virtual void		SetActiveSpriteSheet(eGFX_Types pSpriteType );
 
