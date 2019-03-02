@@ -91,8 +91,8 @@ public:
     const sGameVersion*     mVersionCurrent;		// Version currently being used
     bool                    mVersionReturnAfterPhase;   // Return to default data after phase
 
-    sFodderParameters       mStartParams;
-    sFodderParameters       mParams;
+	std::shared_ptr<sFodderParameters> mStartParams;
+	std::shared_ptr<sFodderParameters> mParams;
 
     std::shared_ptr<cGraphics>  mGraphics;
     std::shared_ptr<cSound>     mSound;
@@ -1260,7 +1260,7 @@ public:
 
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
-    void            Prepare(const sFodderParameters& pParams);
+    virtual void    Prepare(std::shared_ptr<sFodderParameters> pParams);
 
     void            Playground();
 

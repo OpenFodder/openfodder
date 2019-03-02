@@ -34,7 +34,7 @@ void cDebugger::ConsoleOpen() {
 #ifdef _CONSOLE
     return;
 #endif
-    if (g_Fodder->mParams.mAppVeyor)
+    if (g_Fodder->mParams->mAppVeyor)
         return;
 
 #ifdef WIN32
@@ -52,7 +52,7 @@ void cDebugger::ConsoleOpen() {
 void cDebugger::Notice(const std::string& pMessage) {
     ConsoleOpen();
 
-    if (g_Fodder->mParams.mAppVeyor) {
+    if (g_Fodder->mParams->mAppVeyor) {
         std::string Command = "appveyor AddMessage ";
         Command += "\"" + pMessage + "\"";
         Command += " -Category Information";
@@ -67,7 +67,7 @@ void cDebugger::Notice(const std::string& pMessage) {
 
 void cDebugger::Error(const std::string& pMessage) {
     ConsoleOpen();
-    if (g_Fodder->mParams.mAppVeyor) {
+    if (g_Fodder->mParams->mAppVeyor) {
         std::string Command = "appveyor AddMessage ";
         Command += "\"" + pMessage + "\"";
         Command += " -Category Error";
@@ -80,7 +80,7 @@ void cDebugger::Error(const std::string& pMessage) {
 
 void cDebugger::TestStart(const std::string& pName, const std::string& pGroup) {
     ConsoleOpen();
-    if (g_Fodder->mParams.mAppVeyor) {
+    if (g_Fodder->mParams->mAppVeyor) {
         std::string Command = "appveyor AddTest";
 
         Command += " -Name \"" + pName + "\"";
@@ -95,7 +95,7 @@ void cDebugger::TestStart(const std::string& pName, const std::string& pGroup) {
 
 void cDebugger::TestComplete(const std::string& pName, const std::string& pGroup, const std::string& pMessage, const size_t pTime, eTestState pTestState) {
     ConsoleOpen();
-    if (g_Fodder->mParams.mAppVeyor) {
+    if (g_Fodder->mParams->mAppVeyor) {
         std::string Command = "appveyor UpdateTest";
         Command += " -Name \"" + pName + "\"";
         Command += " -Framework NUnit -FileName \"" + pGroup +"\"";

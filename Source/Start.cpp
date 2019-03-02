@@ -36,7 +36,7 @@ int start(int argc, char *argv[]) {
 	Params.ProcessINI();
 	Params.ProcessCLI(argc, argv);
 
-	g_Fodder->Prepare(Params);
+	g_Fodder->Prepare( std::make_shared<sFodderParameters>(Params) );
 
 	if (Params.mUnitTesting) {
 		cUnitTesting Testing;

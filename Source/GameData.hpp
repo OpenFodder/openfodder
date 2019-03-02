@@ -121,7 +121,7 @@ struct sGameRecorded {
     uint64  mTick;
     bool    mTickDisabled;
 
-    sFodderParameters mParams;
+    std::shared_ptr<sFodderParameters> mParams;
 
     std::multimap< uint64, cEvent > mEvents;
     std::map< uint64, cStateRecorded > mState;

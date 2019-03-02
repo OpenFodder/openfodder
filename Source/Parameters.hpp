@@ -20,7 +20,13 @@
  *
  */
 
+namespace cxxopts {
+	class Options;
+}
+
 struct sFodderParameters {
+
+	static cxxopts::Options* mCliOptions;
 
 	bool mAppVeyor;             // Running on AppVeyor
 	bool mShowAbout;            // Show the about screen
@@ -89,8 +95,10 @@ struct sFodderParameters {
 		mSpawnEnemyMax = 10;
 	}
 
+	virtual void PrepareOptions();
+
 	std::string ToJson();
-	bool		FromJson(const std::string& pJson);
-	bool		ProcessCLI(int argc, char *argv[]);
-	bool		ProcessINI();
+	bool FromJson(const std::string& pJson);
+	virtual bool ProcessCLI(int argc, char *argv[]);
+	bool ProcessINI();
 };

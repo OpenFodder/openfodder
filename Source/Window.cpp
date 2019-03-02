@@ -79,7 +79,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 
 	SetCursor();
 
-    if (g_Fodder->mParams.mWindowMode) {
+    if (g_Fodder->mParams->mWindowMode) {
         ToggleFullscreen();
         CalculateWindowSize();
     }

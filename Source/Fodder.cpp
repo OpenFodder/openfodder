@@ -52,9 +52,11 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mVersionCurrent = 0;
     mVersionDefault = 0;
 
+	mParams = std::make_shared<sFodderParameters>();
+	mStartParams = std::make_shared<sFodderParameters>();
+
     mOpenFodder_Intro_Done = false;
     mCustom_Mode = eCustomMode_None;
-    mParams.mSkipIntro = false;
     mGraphics = 0;
     mSound = 0;
     mWindow = pWindow;
@@ -247,18 +249,18 @@ int16 cFodder::Phase_Loop() {
     for (;;) {
 
         // If demo playback is enabled, and a record resume cycle is set
-        if (mStartParams.mDemoPlayback && mStartParams.mDemoRecordResumeCycle) {
+        if (mStartParams->mDemoPlayback && mStartParams->mDemoRecordResumeCycle) {
             // See if we hit the tick count
-            if (mGame_Data.mDemoRecorded.mTick >= mStartParams.mDemoRecordResumeCycle) {
+            if (mGame_Data.mDemoRecorded.mTick >= mStartParams->mDemoRecordResumeCycle) {
                 // Then resume recording
-                mStartParams.mDemoPlayback = false;
-                mStartParams.mDemoRecord = true;
-                mStartParams.mDemoRecordResumeCycle = 0;
-                mParams.mSleepDelta = 2;
-                mParams.mDemoRecord = mStartParams.mDemoRecord;
-                mParams.mDemoPlayback = mStartParams.mDemoPlayback;
-                mStartParams.mDisableVideo = false;
-                mStartParams.mDisableSound = false;
+                mStartParams->mDemoPlayback = false;
+                mStartParams->mDemoRecord = true;
+                mStartParams->mDemoRecordResumeCycle = 0;
+                mParams->mSleepDelta = 2;
+                mParams->mDemoRecord = mStartParams->mDemoRecord;
+                mParams->mDemoPlayback = mStartParams->mDemoPlayback;
+                mStartParams->mDisableVideo = false;
+                mStartParams->mDisableSound = false;
                 Mouse_Setup();
             }
         }
@@ -306,7 +308,7 @@ int16 cFodder::Phase_Loop() {
 
         Mission_Sprites_Handle();
         Squad_Switch_Timer();
-        if (!mStartParams.mDisableVideo)
+        if (!mStartParams->mDisableVideo)
             mGraphics->Sidebar_Copy_To_Surface();
 
         // Game Paused
@@ -360,7 +362,7 @@ int16 cFodder::Phase_Loop() {
         if (mPhase_ShowMapOverview) {
 
             // Dont show the map while recording
-            if(!mParams.mDemoRecord)
+            if(!mParams->mDemoRecord)
                 Phase_Map_Overview_Show();
 
             mPhase_ShowMapOverview = 0;
@@ -964,7 +966,7 @@ void cFodder::Squad_Set_Squad_Leader() {
 }
 
 void cFodder::Sprite_Clear_All() {
-	mSprites.resize(mParams.mSpritesMax);
+	mSprites.resize(mParams->mSpritesMax);
 	Squad_Set_Squad_Leader();
 
     for (auto& Sprite : mSprites) {
@@ -1065,9 +1067,9 @@ void cFodder::Map_Load_Sprites() {
 
 	mSprites = mMapLoaded.getSprites();
 
-	if (mSprites.size() < mParams.mSpritesMax) {
+	if (mSprites.size() < mParams->mSpritesMax) {
 		size_t start = mSprites.size();
-		mSprites.resize(mParams.mSpritesMax);
+		mSprites.resize(mParams->mSpritesMax);
 
 		for (; start < mSprites.size(); ++start) {
 			mSprites[start].Clear();
@@ -1229,7 +1231,7 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits() {
             Troop.mRecruitID = mGame_Data.mRecruit_NextID;
 
             // All troops are equal during unit testing
-            if (mParams.mUnitTesting) {
+            if (mParams->mUnitTesting) {
                 Troop.mRank = 0;
             } else {
                 // Demo sets static ranks
@@ -1625,7 +1627,7 @@ bool cFodder::Campaign_Load(std::string pName) {
         }
     }
 
-    VersionSwitch(mVersions->GetForCampaign(pName, mParams.mDefaultPlatform));
+    VersionSwitch(mVersions->GetForCampaign(pName, mParams->mDefaultPlatform));
     if (!mGame_Data.mCampaign.LoadCampaign(pName, pName != mVersionCurrent->mName)) {
         // TODO: But what?
 
@@ -1805,7 +1807,7 @@ void cFodder::Map_Load_Resources() {
 }
 
 void cFodder::Music_Play_Tileset() {
-    if (!mStartParams.mDisableSound)
+    if (!mStartParams->mDisableSound)
         mSound->Music_Play(mMap_TileSet + 0x32);
 }
 
@@ -2270,7 +2272,7 @@ loc_1280A:;
         mSurface->paletteNew_SetToBlack();
     }
     --mPhase_Completed_Timer;
-    if (mPhase_Completed_Timer && !mParams.mUnitTesting)
+    if (mPhase_Completed_Timer && !mParams->mUnitTesting)
         return;
 
     mPhase_Completed_Timer = -1;
@@ -2295,7 +2297,7 @@ void cFodder::Phase_TextSprite_Create_Mission(sSprite* pData2C) {
     pData2C->field_0 += 0x12;
     pData2C->field_8 = 0xA2;
     pData2C->field_18 = eSprite_Text_Mission;
-    if (!mStartParams.mDisableSound)
+    if (!mStartParams->mDisableSound)
         mSound->Music_Play(6);
 }
 
@@ -2307,7 +2309,7 @@ void cFodder::Phase_TextSprite_Create_Phase(sSprite* pData2C) {
     pData2C->field_8 = 0xA1;
     pData2C->field_18 = eSprite_Text_Phase;
     
-    if (!mStartParams.mDisableSound)
+    if (!mStartParams->mDisableSound)
         mSound->Music_Play(0x0C);
 }
 
@@ -2340,7 +2342,7 @@ void cFodder::Phase_Show_TryAgain() {
     Phase_TextSprite_Create_Try(&mSprites[41]);
     Phase_TextSprite_Create_Again(&mSprites[42]);
 
-    if (!mStartParams.mDisableSound)
+    if (!mStartParams->mDisableSound)
         mSound->Music_Play(0x0F);
 }
 
@@ -2497,7 +2499,7 @@ void cFodder::Phase_Map_Overview_Show() {
         }
 
         Mouse_Inputs_Get();
-        if (!mStartParams.mDisableVideo) {
+        if (!mStartParams->mDisableVideo) {
             mWindow->RenderShrunk(mSurfaceMapOverview);
             mWindow->FrameEnd();
         }
@@ -2515,7 +2517,7 @@ void cFodder::Phase_Map_Overview_Show() {
 
 void cFodder::Map_Overview_Prepare() {
 
-    if (mParams.mUnitTesting)
+    if (mParams->mUnitTesting)
         return;
 
     delete mSurfaceMapOverview;
@@ -2626,13 +2628,13 @@ void cFodder::eventsProcess() {
 
     mMouse_EventLastWheel.Clear();
 
-    if (mParams.mDemoPlayback) {
+    if (mParams->mDemoPlayback) {
         for (auto Event : mGame_Data.mDemoRecorded.GetEvents(mGame_Data.mDemoRecorded.mTick))
             eventProcess(Event);
 
     } else {
         for (auto Event : *mWindow->EventGet()) {
-            if (mParams.mDemoRecord) {
+            if (mParams->mDemoRecord) {
                 if(Event.mType != eEventType::eEvent_MouseMove)
                     mGame_Data.mDemoRecorded.AddEvent(mGame_Data.mDemoRecorded.mTick, Event);
             }
@@ -2658,12 +2660,12 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
             if (pKeyCode == SDL_SCANCODE_F1 && pPressed) {
                 mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::Amiga);
-                mParams.mDefaultPlatform = ePlatform::Amiga;
+                mParams->mDefaultPlatform = ePlatform::Amiga;
                 VersionSwitch(mVersionDefault);
             }
             if (pKeyCode == SDL_SCANCODE_F2 && pPressed) {
                 mVersionDefault = mVersions->GetForCampaign(mVersionCurrent->mName, ePlatform::PC); 
-                mParams.mDefaultPlatform = ePlatform::PC;
+                mParams->mDefaultPlatform = ePlatform::PC;
                 VersionSwitch(mVersionDefault);
             }
         }
@@ -2671,8 +2673,8 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     }
 
     if (pKeyCode == SDL_SCANCODE_F3 && pPressed) {
-        if (mParams.mDemoRecord) {
-            mStartParams.mDemoRecordResumeCycle = mGame_Data.mDemoRecorded.mTick - 80;
+        if (mParams->mDemoRecord) {
+            mStartParams->mDemoRecordResumeCycle = mGame_Data.mDemoRecorded.mTick - 80;
             mGame_Data.mGamePhase_Data.mIsComplete = true;
             mPhase_TryAgain = true;
         }
@@ -2729,7 +2731,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
                 Squad_Select(2, false);
         }
 
-		if (mParams.mCheatsEnabled) {
+		if (mParams->mCheatsEnabled) {
 
 			// Debug: Mission Complete
 			if (pKeyCode == SDL_SCANCODE_F10 && pPressed) {
@@ -2858,7 +2860,7 @@ void cFodder::Mouse_Cursor_Handle() {
 
 void cFodder::Mouse_Inputs_Get() {
 
-    if (mParams.mDemoPlayback) {
+    if (mParams->mDemoPlayback) {
 
        // Window_UpdateScreenSize();
 
@@ -2878,7 +2880,7 @@ void cFodder::Mouse_Inputs_Get() {
         Mouse_Cursor_Handle();
     }
 
-    if (mParams.mDemoRecord)
+    if (mParams->mDemoRecord)
 
         mGame_Data.mDemoRecorded.AddState(mGame_Data.mDemoRecorded.mTick, cStateRecorded{ mInputMouseX, mInputMouseY, mMouseButtonStatus });
 
@@ -3074,15 +3076,15 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
             Recruit_Sidebar_Render_SquadName();
         }
 
-        if (!mStartParams.mDisableSound)
+        if (!mStartParams->mDisableSound)
             mSound->Music_Play(0);
     }
 
 }
 
-void cFodder::Prepare(const sFodderParameters& pParams) {
-    mParams = pParams;
-    mStartParams = mParams;
+void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
+    mParams = std::make_shared<sFodderParameters>(*pParams);
+    mStartParams = std::make_shared<sFodderParameters>(*pParams);
 
 	g_ResourceMan->refresh();
 		
@@ -3100,7 +3102,7 @@ void cFodder::Prepare(const sFodderParameters& pParams) {
     }
 
     mWindow->InitWindow("Open Fodder");
-	mWindow->SetWindowSize((int)mParams.mWindowScale);
+	mWindow->SetWindowSize((int)mParams->mWindowScale);
 
     mTile_BaseBlk = tSharedBuffer();
     mTile_SubBlk = tSharedBuffer();
@@ -3241,12 +3243,12 @@ void cFodder::Phase_TextSprite_Create_GameOver(sSprite* pData2C) {
     pData2C->field_8 = 0xC1;
     pData2C->field_18 = eSprite_Text_GameOver;
     
-    if (!mStartParams.mDisableSound)
+    if (!mStartParams->mDisableSound)
         mSound->Music_Play(8);
 }
 
 void cFodder::Mouse_DrawCursor() {
-    if (mParams.mDisableVideo)
+    if (mParams->mDisableVideo)
         return;
 
     mVideo_Draw_PosX = (mMouseX + mMouseX_Offset) + 48;
@@ -3284,7 +3286,7 @@ void cFodder::Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, c
 
     if (Sprite_OnScreen_Check()) {
         pDi->field_5C = 1;
-        if(!mStartParams.mDisableVideo)
+        if(!mStartParams->mDisableVideo)
             mGraphics->Video_Draw_8(pDestination);
     }
     else
@@ -3358,7 +3360,7 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
     if (Volume <= 0)
         return;
 
-    if (!mStartParams.mDisableSound)
+    if (!mStartParams->mDisableSound)
         mSound->Sound_Play(mMap_TileSet, pSoundEffect, Volume);
 }
 
@@ -5171,7 +5173,7 @@ loc_2439F:;
 
 NextSprite:;
     pSprite->field_5E++;
-    if (pSprite->field_5E >= (mParams.mSpritesMax - 2))
+    if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
         pSprite->field_5E = 0;
 
     goto loc_243DD;
@@ -6580,7 +6582,7 @@ void cFodder::Sprite_Handle_Hostage_FrameUpdate(sSprite* pSprite) {
 
 void cFodder::sub_26490(sSprite* pSprite) {
     ++pSprite->field_5E;
-    if (pSprite->field_5E >= (mParams.mSpritesMax - 2))
+    if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
 		pSprite->field_5E = 0;
 }
 
@@ -6598,7 +6600,7 @@ void cFodder::sub_264B0(sSprite* pSprite) {
 
 loc_264CF:;
 
-    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
+    if (mTroops_Enemy_Count >= mParams->mSpawnEnemyMax) {
         pSprite->field_8 = 0x9B;
         return;
     }
@@ -6803,7 +6805,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
     if (mPhase_Complete)
         return -1;
 
-    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax)
+    if (mTroops_Enemy_Count >= mParams->mSpawnEnemyMax)
         return -1;
 
     int16 Data0 = 1;
@@ -7821,7 +7823,7 @@ bool cFodder::MapTile_Update_Position() {
     }
 
     if (TileColumns || TileRows) {
-        if (!mStartParams.mDisableVideo)
+        if (!mStartParams->mDisableVideo)
             mGraphics->MapTiles_Draw();
         return true;
     }
@@ -8229,7 +8231,7 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
 
     pData24 = mSprites.data();
 
-    for (int32 Data1C = mParams.mSpritesMax - 2; Data1C >= 0; --Data1C, ++pData24) {
+    for (int32 Data1C = mParams->mSpritesMax - 2; Data1C >= 0; --Data1C, ++pData24) {
         int16 Data4 = pData24->field_18;
 
         if (!mSprite_Can_Be_RunOver[Data4])
@@ -8718,7 +8720,7 @@ loc_2DFC7:;
 
     mVideo_Draw_Columns = 0x10;
     mVideo_Draw_Rows = 0x10;
-    if (!mStartParams.mDisableVideo)
+    if (!mStartParams->mDisableVideo)
         mGraphics->MapTiles_Draw();
 }
 
@@ -9043,7 +9045,7 @@ void cFodder::Mission_Set_Initial_Weapon() {
 }
 
 void cFodder::Service_Show() {
-    if (mParams.mSkipService)
+    if (mParams->mSkipService)
         return;
 
     mVersionPlatformSwitchDisabled = true;
@@ -9614,7 +9616,7 @@ void cFodder::Sprite_Frame_Modifier_Update() {
 void cFodder::Sprite_Handle_Loop() {
     sSprite* Data20 = mSprites.data();
 
-    for (int32 Data1C = mParams.mSpritesMax - 2; Data1C > 0; --Data1C, ++Data20) {
+    for (int32 Data1C = mParams->mSpritesMax - 2; Data1C > 0; --Data1C, ++Data20) {
 
         if (Data20->field_0 == -32768)
             continue;
@@ -9725,7 +9727,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
     loc_1901C:;
         pSprite->field_4A = 0;
         pSprite->field_5E++;
-        if (pSprite->field_5E >= (mParams.mSpritesMax - 2))
+        if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
 			pSprite->field_5E = 0;
 
         goto loc_191C3;
@@ -10908,7 +10910,7 @@ void cFodder::Sprite_Handle_BuildingDoor(sSprite* pSprite) {
     if (Sprite_Handle_BuildingDoor_Explode(pSprite))
         return;
 
-    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
+    if (mTroops_Enemy_Count >= mParams->mSpawnEnemyMax) {
         pSprite->field_8 = 0x99;
         return;
     }
@@ -11157,7 +11159,7 @@ void cFodder::Sprite_Handle_BuildingDoor2(sSprite* pSprite) {
     if (sub_222A3(pSprite))
         return;
 
-    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
+    if (mTroops_Enemy_Count >= mParams->mSpawnEnemyMax) {
         pSprite->field_8 = 0x9B;
         return;
     }
@@ -13092,7 +13094,7 @@ void cFodder::Sprite_Handle_BuildingDoor3(sSprite* pSprite) {
     if (sub_1D92E(pSprite))
         return;
 
-    if (mTroops_Enemy_Count >= mParams.mSpawnEnemyMax) {
+    if (mTroops_Enemy_Count >= mParams->mSpawnEnemyMax) {
         pSprite->field_8 = 0xE0;
         return;
     }
@@ -16063,7 +16065,7 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
 
 void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 
-    if (mStartParams.mDisableVideo)
+    if (mStartParams->mDisableVideo)
         return;
 
     mSurface->draw();
@@ -16076,10 +16078,10 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
 
 void cFodder::Cycle_End() {
 #ifndef _OFED
-    if (mParams.mSleepDelta) {
+    if (mParams->mSleepDelta) {
         mTicksDiff = SDL_GetTicks() - mTicksDiff;
         mTicks = mTicksDiff * 40 / 1000;
-        sleepLoop(mParams.mSleepDelta * 1000 / 40 - mTicksDiff);
+        sleepLoop(mParams->mSleepDelta * 1000 / 40 - mTicksDiff);
         mTicksDiff = SDL_GetTicks();
     }
 #endif
@@ -16109,7 +16111,7 @@ void cFodder::sleepLoop(int64 pMilliseconds) {
 
 void cFodder::WonGame() {
     
-    if (mParams.mSinglePhase)
+    if (mParams->mSinglePhase)
         return;
 
     mMouseX = -1;
@@ -16668,7 +16670,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
             pData2C = mSprites.data();
 
             // Loop all sprites
-             for (int32_t Data1C = mParams.mSpritesMax - 5; Data1C >= 0; --Data1C, ++pData2C) {
+             for (int32_t Data1C = mParams->mSpritesMax - 5; Data1C >= 0; --Data1C, ++pData2C) {
 
                 // Sprite free?
                 if (pData2C->field_0 != -32768)
@@ -16693,7 +16695,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
             pData2C = mSprites.data();
 
             // Loop all sprites
-             for (int32_t Data1C = mParams.mSpritesMax - 4; Data1C >= 0; --Data1C, ++pData2C) {
+             for (int32_t Data1C = mParams->mSpritesMax - 4; Data1C >= 0; --Data1C, ++pData2C) {
 
                 // Sprite free?
                 if (pData2C->field_0 != -32768)
@@ -16712,9 +16714,9 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
         }
         else {
             // Only looking for 1 sprite
-            pData2C = &mSprites[mParams.mSpritesMax - 3];
+            pData2C = &mSprites[mParams->mSpritesMax - 3];
 
-            for (int32 Data1C = mParams.mSpritesMax - 3; Data1C >= 0; --Data1C) {
+            for (int32 Data1C = mParams->mSpritesMax - 3; Data1C >= 0; --Data1C) {
 
                 // Free?
                 if (pData2C->field_0 == -32768) {
@@ -16743,8 +16745,8 @@ int16 cFodder::Sprite_Get_Free_Max29(int16& pData0, sSprite*& pData2C, sSprite*&
     if (pData0 == 2)
         goto loc_21B91;
 
-    pData2C = &mSprites[mParams.mSpritesMax - 16];
-     for (int32_t Data1C = mParams.mSpritesMax - 16; Data1C >= 0; --Data1C, --pData2C) {
+    pData2C = &mSprites[mParams->mSpritesMax - 16];
+     for (int32_t Data1C = mParams->mSpritesMax - 16; Data1C >= 0; --Data1C, --pData2C) {
 
         if (pData2C->field_0 == -32768) {
             pData2C->Clear();
@@ -16763,7 +16765,7 @@ loc_21B4B:;
 loc_21B91:;
     pData2C = mSprites.data();
 
-     for (int32_t Data1C = mParams.mSpritesMax - 17; Data1C >= 0; --Data1C, ++pData2C) {
+     for (int32_t Data1C = mParams->mSpritesMax - 17; Data1C >= 0; --Data1C, ++pData2C) {
 
         if (pData2C->field_0 != -32768)
             continue;
@@ -17110,7 +17112,7 @@ int16 cFodder::Sprite_Create_Building_Explosion(sSprite* pData2C, int16& pX, int
 
 int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
 
-    if (mPhase_Complete || mTroops_Enemy_Count >= mParams.mSpawnEnemyMax)
+    if (mPhase_Complete || mTroops_Enemy_Count >= mParams->mSpawnEnemyMax)
         return -1;
     int16 Data0 = 1;
     sSprite* Data30 = 0;
@@ -17815,8 +17817,8 @@ void cFodder::Sprite_Handle_Player_InVehicle(sSprite* pSprite) {
 }
 
 void cFodder::Game_Setup() {
-    if (mParams.mMissionNumber < 1)
-        mParams.mMissionNumber = 1;
+    if (mParams->mMissionNumber < 1)
+        mParams->mMissionNumber = 1;
 
     Game_ClearVariables();
 
@@ -17824,8 +17826,8 @@ void cFodder::Game_Setup() {
     mPhase_Complete = false;
 
     mGame_Data.mMission_Phases_Remaining = 1;
-    mGame_Data.mMission_Number = (uint16) (mParams.mMissionNumber);
-    mGame_Data.mMission_Phase = (uint16) (mParams.mPhaseNumber ? (mParams.mPhaseNumber) : 1);
+    mGame_Data.mMission_Number = (uint16) (mParams->mMissionNumber);
+    mGame_Data.mMission_Phase = (uint16) (mParams->mPhaseNumber ? (mParams->mPhaseNumber) : 1);
 
     mGame_Data.Phase_Start();
 
@@ -17924,7 +17926,7 @@ void cFodder::Playground() {
 
 bool cFodder::Demo_Load() {
 
-    std::ifstream DemoContent(mParams.mDemoFile, std::ios::binary);
+    std::ifstream DemoContent(mParams->mDemoFile, std::ios::binary);
     if (DemoContent.is_open()) {
 
         std::string SaveGameContent(
@@ -17946,7 +17948,7 @@ void cFodder::Window_UpdateScreenSize() {
     // This next section is done
     //
     // If we're playing back a demo
-    if (mParams.mDemoPlayback && g_Fodder->mVersionCurrent) {
+    if (mParams->mDemoPlayback && g_Fodder->mVersionCurrent) {
         // And the current platform, does not match the platform the demo was recorded with
         if (mGame_Data.mDemoRecorded.mRecordedPlatform != mVersionCurrent->mPlatform && mGame_Data.mDemoRecorded.mRecordedPlatform != ePlatform::Any ) {
             // Alter the screen size, to the other platforms
@@ -17967,7 +17969,7 @@ void cFodder::Window_UpdateScreenSize() {
 void cFodder::About() {
     
     mService_Draw_List.clear();
-    VersionSwitch(mVersions->GetRetail(mParams.mDefaultPlatform, mParams.mDefaultGame));
+    VersionSwitch(mVersions->GetRetail(mParams->mDefaultPlatform, mParams->mDefaultGame));
     if (!mVersionCurrent)
         VersionSwitch(mVersions->GetDemo());
 
@@ -17985,28 +17987,28 @@ void cFodder::About() {
 
 void cFodder::Start() {
 
-	if (mParams.mShowAbout) {
+	if (mParams->mShowAbout) {
 		About();
 		return;
 	}
 
-    if (mParams.mDemoPlayback) {
+    if (mParams->mDemoPlayback) {
         Demo_Load();
         mGame_Data.mDemoRecorded.playback();
         mParams = mGame_Data.mDemoRecorded.mParams;
-        mParams.mDefaultPlatform = mStartParams.mDefaultPlatform;
+        mParams->mDefaultPlatform = mStartParams->mDefaultPlatform;
 
         mOpenFodder_Intro_Done = false;
     }
 
-    if (mParams.mDemoRecord)
+    if (mParams->mDemoRecord)
         mGame_Data.mDemoRecorded.clear();
 
     Start:;
     mGame_Data.mCampaign.Clear();
     mVersionDefault = 0;
     mVersionCurrent = 0;
-    VersionSwitch(mVersions->GetRetail( mParams.mDefaultPlatform, mParams.mDefaultGame ));
+    VersionSwitch(mVersions->GetRetail( mParams->mDefaultPlatform, mParams->mDefaultGame ));
 
     if (!mVersionCurrent) {
         VersionSwitch(mVersions->GetDemo());
@@ -18016,13 +18018,13 @@ void cFodder::Start() {
             return;
     }
 
-    if (mParams.mDemoRecord && mGame_Data.mDemoRecorded.mRecordedPlatform == ePlatform::Any)
+    if (mParams->mDemoRecord && mGame_Data.mDemoRecorded.mRecordedPlatform == ePlatform::Any)
         mGame_Data.mDemoRecorded.mRecordedPlatform = mVersionCurrent->mPlatform;
 
     mGame_Data.mDemoRecorded.save();
 
     // Play the intro
-    if (!mOpenFodder_Intro_Done && !mParams.mSkipIntro) {
+    if (!mOpenFodder_Intro_Done && !mParams->mSkipIntro) {
 		bool CF2 = false;
 
         mPhase_Aborted = false;
@@ -18045,7 +18047,7 @@ void cFodder::Start() {
     }
 
     // Start a random map?
-    if (mParams.mRandom) {
+    if (mParams->mRandom) {
         mGame_Data.mCampaign.SetSingleMapCampaign();
         mCustom_Mode = eCustomMode_Map;
 
@@ -18053,11 +18055,11 @@ void cFodder::Start() {
 
     } else {
         // Select campaign menu
-        if (!(mParams.mCampaignName.size() && Campaign_Load(mParams.mCampaignName)))
+        if (!(mParams->mCampaignName.size() && Campaign_Load(mParams->mCampaignName)))
             Campaign_Selection();
     }
 
-    if (mParams.mPlayground) {
+    if (mParams->mPlayground) {
         Playground();
         return;
     }
@@ -18083,7 +18085,7 @@ void cFodder::Start() {
         if (Mission_Loop() == -1)
             goto Start;
 
-        if (mParams.mSinglePhase)
+        if (mParams->mSinglePhase)
             break;
     }
 }
@@ -18094,7 +18096,7 @@ int16 cFodder::Mission_Loop() {
     for (;;) {
         mGame_Data.mDemoRecorded.save();
 
-        if (!mParams.mUnitTesting) {
+        if (!mParams->mUnitTesting) {
             // Mission completed?
             if (!mPhase_Aborted && !mPhase_TryAgain) {
 
@@ -18130,7 +18132,7 @@ int16 cFodder::Mission_Loop() {
             mVersionPlatformSwitchDisabled = true;
             mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
 
-            if (!mParams.mSkipIntro) {
+            if (!mParams->mSkipIntro) {
                 // Show the intro for retail releases (and the PC Format demo)
                 if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat()) {
                     intro_Retail();
@@ -18144,7 +18146,7 @@ int16 cFodder::Mission_Loop() {
             }
 
             mGraphics->Load_pStuff();
-            if (!mStartParams.mDisableSound)
+            if (!mStartParams->mDisableSound)
                 mSound->Music_Play(0);
 
             mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
@@ -18156,7 +18158,7 @@ int16 cFodder::Mission_Loop() {
         Sprite_Clear_All();
 
         // Prepare a new game?
-        if (mGame_Data.mMission_Recruitment && !mParams.mSkipRecruit) {
+        if (mGame_Data.mMission_Recruitment && !mParams->mSkipRecruit) {
             mGame_Data.mMission_Recruitment = 0;
 
             switch (Recruit_Show()) {
@@ -18178,7 +18180,7 @@ int16 cFodder::Mission_Loop() {
 
         //loc_10513
         // Show the pre ready Briefing Screen
-        if(!mParams.mSkipBriefing)
+        if(!mParams->mSkipBriefing)
             Briefing_Show_PreReady();
 
         Map_Load();
@@ -18197,7 +18199,7 @@ int16 cFodder::Mission_Loop() {
         // Show the Briefing screen for Retail and Custom 
         if (mVersionCurrent->hasBriefingScreen() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
 
-            if (!mParams.mSkipBriefing)
+            if (!mParams->mSkipBriefing)
                 Briefing_Show_Ready();
 
             // Aborted?
@@ -18212,7 +18214,7 @@ int16 cFodder::Mission_Loop() {
                 mGame_Data.mMission_Recruitment = -1;
                 mPhase_Aborted = true;
 
-                if (!mStartParams.mDisableSound)
+                if (!mStartParams->mDisableSound)
                     mSound->Music_Play(0);
                 continue;
             }
@@ -18303,7 +18305,7 @@ int16 cFodder::Mission_Loop() {
         }
 
         // Single Phase?
-        if (mParams.mSinglePhase) {
+        if (mParams->mSinglePhase) {
             return 0;
         }
 
@@ -18360,7 +18362,7 @@ void cFodder::MapTiles_Draw() {
     mMapTile_Column_CurrentScreen = 0;
     mMapTile_Row_CurrentScreen = 0;
 
-    if (!mStartParams.mDisableVideo)
+    if (!mStartParams->mDisableVideo)
         mGraphics->MapTiles_Draw();
 }
 
@@ -18514,7 +18516,7 @@ void cFodder::Mission_Final_TimeToDie() {
     if (mMission_Final_TimeRemain < 0)
         mMission_Final_TimeRemain = 0;
 
-    if (mParams.mDisableVideo)
+    if (mParams->mDisableVideo)
         return;
 
     for (unsigned int Y = 0x1000; Y < 0x1500; ++Y) {

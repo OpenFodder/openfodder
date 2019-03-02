@@ -426,7 +426,7 @@ void cMap::loadCF1Spt(tSharedBuffer pSpriteData, bool pCF2) {
 	uint16* SptFileEnd = SptPtr + (pSpriteData->size() / 2);
 
 	size_t Sprites = pSpriteData->size() / 8;
-	mSprites.resize(Sprites < g_Fodder->mParams.mSpritesMax ? g_Fodder->mParams.mSpritesMax : Sprites);
+	mSprites.resize(Sprites < g_Fodder->mParams->mSpritesMax ? g_Fodder->mParams->mSpritesMax : Sprites);
 	sSprite* Sprite = mSprites.data();
 
 

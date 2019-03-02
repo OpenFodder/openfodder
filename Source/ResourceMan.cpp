@@ -169,7 +169,7 @@ void cResourceMan::findVersions() {
 
 			// A very hacky method for ensuring a retail version is available, before allowing Customs
 			if (KnownVersion.isCustom()) {
-				if (g_Fodder->mParams.mDefaultGame == KnownVersion.mGame) {
+				if (g_Fodder->mParams->mDefaultGame == KnownVersion.mGame) {
 					if (haveRetail)
 						mReleasePath.insert(std::make_pair(&KnownVersion, base));
 				}

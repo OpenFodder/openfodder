@@ -62,7 +62,7 @@ sGameRecorded::sGameRecorded() {
     mInputTicks = 0;
     mEngineTicks = 0;
     mRecordedPlatform = ePlatform::Any;
-
+	mParams = std::make_shared<sFodderParameters>();
 }
 void sGameRecorded::AddEvent(const uint64 pTicks, const cEvent& pEvent) {
     if (mTickDisabled)
@@ -133,9 +133,9 @@ void sGameRecorded::clear() {
     if (g_Fodder->mVersionCurrent)
         mRecordedPlatform = g_Fodder->mVersionCurrent->mPlatform;
     else
-        mRecordedPlatform = g_Fodder->mParams.mDefaultPlatform;
+        mRecordedPlatform = g_Fodder->mParams->mDefaultPlatform;
 
-    mParams = g_Fodder->mParams;
+    *mParams = *g_Fodder->mParams;
 }
 
 void sGameRecorded::playback() {
@@ -147,7 +147,7 @@ void sGameRecorded::playback() {
     mTickDisabled = false;
     g_Fodder->mRandom.setSeed(mSeed[0], mSeed[1], mSeed[2], mSeed[3]);
 
-    g_Fodder->mParams = mParams;
+    *g_Fodder->mParams = *mParams;
 }
 
 void sGameRecorded::DisableTicks() {
@@ -170,8 +170,8 @@ void sGameRecorded::Tick() {
 
 void sGameRecorded::save() {
 
-    if (g_Fodder->mParams.mDemoRecord) {
-        std::string Filename = g_Fodder->mParams.mDemoFile;
+    if (g_Fodder->mParams->mDemoRecord) {
+        std::string Filename = g_Fodder->mParams->mDemoFile;
         if (Filename == "-") {
             Filename = std::to_string(g_Fodder->mGame_Data.mMission_Number);
             Filename += "-";
@@ -204,7 +204,7 @@ std::string sGameRecorded::ToJson() {
     Save["InputTicks"] = mInputTicks;
     Save["mEngineTicks"] = mEngineTicks;
 
-    Save["mParams"] = mParams.ToJson();
+    Save["mParams"] = mParams->ToJson();
     Save["mPlatform"] = mRecordedPlatform;
 
     for (auto& Event : mEvents) {
@@ -258,7 +258,7 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
             mEngineTicks = LoadedData["mEngineTicks"];
             mRecordedPlatform = LoadedData["mPlatform"];
 
-            mParams.FromJson(LoadedData["mParams"]);
+            mParams->FromJson(LoadedData["mParams"]);
             for (auto& Event : LoadedData["mEvents"]) {
                 uint32 Ticks = Event["1"];
 

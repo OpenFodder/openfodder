@@ -27,6 +27,8 @@
 
 using Json = nlohmann::json;
 
+cxxopts::Options* sFodderParameters::mCliOptions = 0;
+
 std::string sFodderParameters::ToJson() {
 	Json Save;
 
@@ -102,11 +104,13 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	return true;
 }
 
-bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
+void sFodderParameters::PrepareOptions() {
 
-	cxxopts::Options options("OpenFodder", "War has never been so much fun");
-	options.allow_unrecognised_options();
-	options.add_options()
+	if (!mCliOptions)
+		mCliOptions = new cxxopts::Options("OpenFodder", "War has never been so much fun");
+	
+	mCliOptions->allow_unrecognised_options();
+	mCliOptions->add_options()
 		("about", "About", cxxopts::value<bool>()->default_value("false"))
 		("h,help", "Help", cxxopts::value<bool>()->default_value("false"))
 		("pc", "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
@@ -142,17 +146,22 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		("p,phase", "Starting phase", cxxopts::value<std::uint32_t>()->default_value("0"), "2")
 		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
 		;
+}
 
+bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
+
+	if (!mCliOptions)
+		PrepareOptions();
 
 	try {
-		auto result = options.parse(argc, argv);
+		auto result = mCliOptions->parse(argc, argv);
 
 		if (result["appveyor"].as<bool>()) {
 			mAppVeyor = true;
 		}
 
 		if (result["help"].as<bool>() == true) {
-			g_Debugger->Notice(options.help());
+			g_Debugger->Notice(mCliOptions->help());
 			return false;
 		}
 
@@ -257,7 +266,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 #endif
 	}
 	catch (...) {
-		g_Debugger->Notice(options.help());
+		g_Debugger->Notice(mCliOptions->help());
 		return false;
 	}
 
