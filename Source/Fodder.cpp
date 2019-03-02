@@ -260,8 +260,6 @@ int16 cFodder::Phase_Cycle() {
 		}
 	}
 
-	Cycle_End();
-
 	MapTile_UpdateFromCamera();
 	MapTile_Update_Position();
 
@@ -393,17 +391,18 @@ int16 cFodder::Phase_Cycle() {
 }
 
 int16 cFodder::Phase_Loop() {
+	int16 result = 1;
 
     mPhase_EscapeKeyAbort = false;
     mSurface->Save();
 
-    for (;;) {
+    for (result = 1; result == 1; result = Phase_Cycle()) {
 		
-		if (Phase_Cycle() == 0)
-			break;
+
+		Cycle_End();
     }
 
-    return 0;
+    return result;
 }
 
 void cFodder::Game_Handle() {
@@ -9137,9 +9136,9 @@ void cFodder::Service_Promotion_Loop() {
         GUI_Draw_Frame_16(8, 0, 0xF0, 0x31);
     }
     else {
-        std::dynamic_pointer_cast<cGraphics_Amiga>(mGraphics)->Service_Draw(9, 0x30, 0);        // Heroes in Victory
-        std::dynamic_pointer_cast<cGraphics_Amiga>(mGraphics)->Service_Draw(3, 0, 0x40);        //  Left Symbol
-        std::dynamic_pointer_cast<cGraphics_Amiga>(mGraphics)->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
+        GetGraphics<cGraphics_Amiga>()->Service_Draw(9, 0x30, 0);        // Heroes in Victory
+		GetGraphics<cGraphics_Amiga>()->Service_Draw(3, 0, 0x40);        //  Left Symbol
+		GetGraphics<cGraphics_Amiga>()->Service_Draw(7, 0xF0, 0x40);     //  Right Symbol
     }
 
     mService_ExitLoop = 0;
