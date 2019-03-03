@@ -1,6 +1,9 @@
 * text=auto
 
+*.cmd        text eol=crlf
 *.sln        text eol=crlf
 *.vcxproj    text eol=crlf
+
 *.props      text eol=crlf
-*.filters text eol=crlf
+*.filters 	 text eol=crlf
+*.user 	 	 text eol=crlf
