@@ -32,7 +32,9 @@ int start(int argc, char *argv[]) {
 	g_ResourceMan = std::make_shared<cResourceMan>();
 	g_Fodder = std::make_shared<cFodder>(g_Window);
 
-	auto Params = std::make_shared<sFodderParameters>(argc, argv);
+	auto Params = std::make_shared<sFodderParameters>();
+	Params->Process(argc, argv);
+
 	if (Params->mShowHelp)
 		return 0;
 
