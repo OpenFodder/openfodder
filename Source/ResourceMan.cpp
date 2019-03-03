@@ -24,6 +24,9 @@
 #include "Utils/md5.hpp"
 
 #include <chrono>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 const char* EXTENSION_SAVEGAME = ".ofg";
 const char* EXTENSION_CAMPAIGN = ".ofc";
