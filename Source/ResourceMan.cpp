@@ -554,7 +554,7 @@ std::string findType;
 
 std::string cResourceMan::getcwd() {
 	char buff[1024];
-	getcwd(buff, 1024);
+	::getcwd(buff, 1024);
 	std::string cwd(buff);
 	return cwd;
 }
