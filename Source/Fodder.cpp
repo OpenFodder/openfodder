@@ -15869,6 +15869,29 @@ void cFodder::String_CalculateWidth(int32 pPosX, const uint8* pWidths, const cha
     mGUI_Temp_Width = PositionX;
 }
 
+void cFodder::Intro_OpenFodder() {
+
+	if (!mOpenFodder_Intro_Done && !mParams->mSkipIntro) {
+		bool CF2 = false;
+
+		mPhase_Aborted = false;
+		mGame_Data.mMission_Number = 0;
+
+		// Use a CF2 intro?
+		if (mVersions->isCampaignAvailable("Cannon Fodder 2"))
+			CF2 = (tool_RandomGet() & 2);
+		if (CF2)
+			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2"));
+
+		// Random intro
+		mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
+		Mission_Intro_Play(true);
+		mOpenFodder_Intro_Done = true;
+		if (CF2)
+			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder"));
+	}
+}
+
 void cFodder::intro_LegionMessage() {
     int16 Duration = 325 / 4;
     bool DoBreak = false;
@@ -18105,27 +18128,7 @@ void cFodder::Start() {
     mGame_Data.mDemoRecorded.save();
 
     // Play the intro
-    if (!mOpenFodder_Intro_Done && !mParams->mSkipIntro) {
-		bool CF2 = false;
-
-        mPhase_Aborted = false;
-        mGame_Data.mMission_Number = 0;
-
-		if (mVersions->isCampaignAvailable("Cannon Fodder 2"))
-			CF2 = (tool_RandomGet() & 2);
-
-		if (CF2)
-			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2"));
-
-        // Random intro
-        mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
-
-        Mission_Intro_Play(true);
-        mOpenFodder_Intro_Done = true;
-
-		if (CF2)
-			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder"));
-    }
+	Intro_OpenFodder();
 
     // Start a random map?
     if (mParams->mRandom) {
@@ -18150,25 +18153,36 @@ void cFodder::Start() {
         return;
 
     if (mGUI_SaveLoadAction == 4) {
-        
         About();
-
         goto Start;
     }
     Mouse_Setup();
     Mouse_Inputs_Get();
 
-    // Game Loop
-    for (;;) {
+	if (Engine_Loop())
+		goto Start;
+}
 
-        Game_Setup();
+/**
+ * Main Engine Loop
+ *
+ * 0 = Exit
+ * 1 = Restart
+ */
+int16 cFodder::Engine_Loop() {
 
-        if (Mission_Loop() == -1)
-            goto Start;
+	for (;;) {
 
-        if (mParams->mSinglePhase)
-            break;
-    }
+		Game_Setup();
+
+		if (Mission_Loop() == -1)
+			return 1;
+
+		if (mParams->mSinglePhase)
+			break;
+	}
+
+	return 0;
 }
 
 int16 cFodder::Mission_Loop() {

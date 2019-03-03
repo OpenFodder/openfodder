@@ -25,20 +25,20 @@
 #ifndef _OFED
 #ifndef _OFBOT
 
+
 int start(int argc, char *argv[]) {
 	g_Debugger = std::make_shared<cDebugger>();
 	g_Window = std::make_shared<cWindow>();
 	g_ResourceMan = std::make_shared<cResourceMan>();
 	g_Fodder = std::make_shared<cFodder>(g_Window);
 
-	sFodderParameters Params;
+	auto Params = std::make_shared<sFodderParameters>(argc, argv);
+	if (Params->mShowHelp)
+		return 0;
 
-	Params.ProcessINI();
-	Params.ProcessCLI(argc, argv);
+	g_Fodder->Prepare(Params);
 
-	g_Fodder->Prepare( std::make_shared<sFodderParameters>(Params) );
-
-	if (Params.mUnitTesting) {
+	if (g_Fodder->mStartParams->mUnitTesting) {
 		cUnitTesting Testing;
 		return Testing.Start() ? 0 : -1;
 	}
@@ -60,5 +60,25 @@ int main(int argc, char *argv[]) {
 
 	return result;
 }
+
+// Debug stuff
+void quickServiceScreen() {
+	g_Fodder->VersionSwitch(g_Fodder->mVersions->GetRetail(g_Fodder->mParams->mDefaultPlatform, g_Fodder->mParams->mDefaultGame));
+	g_Fodder->mGame_Data.mCampaign.Clear();
+	g_Fodder->mGame_Data.mCampaign.LoadCampaign("Cannon Fodder", false);
+
+	g_Fodder->Game_Setup();
+	g_Fodder->Map_Load();
+	g_Fodder->Map_Load_Sprites();
+
+	//g_Fodder->Phase_Prepare();
+	g_Fodder->Phase_Soldiers_Count();
+	g_Fodder->mGame_Data.Soldier_Sort();
+	g_Fodder->Phase_Soldiers_Prepare(false);
+	g_Fodder->Phase_Soldiers_AttachToSprites();
+	g_Fodder->Service_Show();
+}
+
+
 #endif
 #endif

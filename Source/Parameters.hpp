@@ -24,8 +24,8 @@ namespace cxxopts {
 	class Options;
 }
 
-struct sFodderParameters {
-
+class sFodderParameters {
+public:
 	static cxxopts::Options* mCliOptions;
 
 	bool mAppVeyor;             // Running on AppVeyor
@@ -63,7 +63,14 @@ struct sFodderParameters {
 	size_t mSpritesMax;
 	size_t mSpawnEnemyMax;
 
+	bool mShowHelp;
+
 	sFodderParameters() {
+		clear();
+	}
+
+	virtual void clear() {
+		mShowHelp = false;
 		mShowAbout = false;
 		mPlayground = false;
 		mDisableSound = false;
@@ -95,10 +102,17 @@ struct sFodderParameters {
 		mSpawnEnemyMax = 10;
 	}
 
+protected:
 	virtual void PrepareOptions();
-
-	std::string ToJson();
-	bool FromJson(const std::string& pJson);
 	virtual bool ProcessCLI(int argc, char *argv[]);
 	bool ProcessINI();
+
+public:
+	std::string ToJson();
+	bool FromJson(const std::string& pJson);
+
+	void Process(int argc, char *argv[]) {
+		ProcessINI();
+		ProcessCLI(argc, argv);
+	}
 };

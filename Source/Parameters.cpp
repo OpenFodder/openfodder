@@ -162,6 +162,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 
 		if (result["help"].as<bool>() == true) {
 			g_Debugger->Notice(mCliOptions->help());
+			mShowHelp = true;
 			return false;
 		}
 

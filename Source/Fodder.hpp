@@ -559,6 +559,8 @@ public:
     void            Image_FadeIn();
     void            Image_FadeOut();
 
+	int16			Engine_Loop();
+
     virtual int16   Mission_Loop();
 	virtual int16	Phase_Cycle();
     virtual int16   Phase_Loop();
@@ -1213,6 +1215,7 @@ public:
     int16           intro_Play();
     void            intro_Retail();
     void            intro_AmigaTheOne();
+	void			Intro_OpenFodder();
 
     void            Sidebar_Clear_ScreenBufferPtr();
 
@@ -1260,7 +1263,6 @@ public:
 
     void            String_Print_Small(std::string pText, const size_t pY);
     void            String_Print_Small(std::string pText, const size_t pX, const size_t pY);
-
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
     virtual void    Prepare(std::shared_ptr<sFodderParameters> pParams);
