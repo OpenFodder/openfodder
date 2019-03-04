@@ -24,9 +24,6 @@
     <ClInclude Include="..\..\Source\Window.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Singleton.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Fodder.hpp">
       <Filter>Source</Filter>
     </ClInclude>

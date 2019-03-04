@@ -206,7 +206,6 @@
     <ClInclude Include="..\..\Source\Recruits.hpp" />
     <ClInclude Include="..\..\Source\ResourceMan.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
-    <ClInclude Include="..\..\Source\Singleton.hpp" />
     <ClInclude Include="..\..\Source\Sound.hpp" />
     <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\SpriteSheet.hpp" />
