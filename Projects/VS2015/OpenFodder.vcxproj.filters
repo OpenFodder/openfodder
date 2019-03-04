@@ -24,9 +24,6 @@
     <ClInclude Include="..\..\Source\Window.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Singleton.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Fodder.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -46,9 +43,6 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Surface.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\UnknownData.hpp">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Sprites.hpp">
@@ -75,7 +69,7 @@
     <ClInclude Include="..\..\Source\ResourceMan.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-	    <ClInclude Include="..\..\Source\Utils\ini.hpp">
+    <ClInclude Include="..\..\Source\Utils\ini.hpp">
       <Filter>Source\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utils\SimplexNoise.hpp">
@@ -175,6 +169,15 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\resource.h" />
+    <ClInclude Include="..\..\Source\Parameters.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Versions_Files.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Version.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -205,9 +208,6 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Recruits.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\md5.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Versions.cpp">
@@ -285,7 +285,7 @@
     <ClCompile Include="..\..\Source\UnitTesting.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-	    <ClCompile Include="..\..\Source\Utils\md5.cpp">
+    <ClCompile Include="..\..\Source\Utils\md5.cpp">
       <Filter>Source\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ResourceMan.cpp">
@@ -295,6 +295,12 @@
       <Filter>Source\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Map.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Parameters.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Start.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

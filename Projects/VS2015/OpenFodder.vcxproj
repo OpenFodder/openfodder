@@ -40,7 +40,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -172,7 +172,7 @@
       <Command>gitver.cmd</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
- <ItemGroup>
+  <ItemGroup>
     <ClInclude Include="..\..\Source\About.hpp" />
     <ClInclude Include="..\..\Source\Amiga\audiostream.hpp" />
     <ClInclude Include="..\..\Source\Amiga\dernc.hpp" />
@@ -194,6 +194,7 @@
     <ClInclude Include="..\..\Source\Fodder.hpp" />
     <ClInclude Include="..\..\Source\Graphics.hpp" />
     <ClInclude Include="..\..\Source\IntroData.hpp" />
+    <ClInclude Include="..\..\Source\Parameters.hpp" />
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp" />
     <ClInclude Include="..\..\Source\PC\Sound_PC.hpp" />
@@ -204,7 +205,6 @@
     <ClInclude Include="..\..\Source\Recruits.hpp" />
     <ClInclude Include="..\..\Source\ResourceMan.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
-    <ClInclude Include="..\..\Source\Singleton.hpp" />
     <ClInclude Include="..\..\Source\Sound.hpp" />
     <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\SpriteSheet.hpp" />
@@ -247,6 +247,7 @@
     <ClCompile Include="..\..\Source\Fodder.cpp" />
     <ClCompile Include="..\..\Source\Graphics.cpp" />
     <ClCompile Include="..\..\Source\Map.cpp" />
+    <ClCompile Include="..\..\Source\Parameters.cpp" />
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\Resource_PC_CD.cpp" />
@@ -258,6 +259,7 @@
     <ClCompile Include="..\..\Source\Sound.cpp" />
     <ClCompile Include="..\..\Source\Sprites.cpp" />
     <ClCompile Include="..\..\Source\SpriteSheet.cpp" />
+    <ClCompile Include="..\..\Source\Start.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Structures\Barracks.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
@@ -270,7 +272,7 @@
       <FileType>CppCode</FileType>
     </ClInclude>
     <ClCompile Include="..\..\Source\Window.cpp" />
-  </ItemGroup> 
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
