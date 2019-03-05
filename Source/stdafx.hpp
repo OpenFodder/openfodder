@@ -37,6 +37,7 @@
 #ifndef EMSCRIPTEN
 #include <SDL_mixer.h>
 #else
+#include <emscripten.h>
 #include <SDL/SDL_mixer.h>
 #endif
 

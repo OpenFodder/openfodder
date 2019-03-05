@@ -559,7 +559,7 @@ public:
     void            Image_FadeIn();
     void            Image_FadeOut();
 
-	int16			Engine_Loop();
+	bool			Engine_Loop();
 
     virtual int16   Mission_Loop();
 	virtual int16	Phase_Cycle();
@@ -1071,6 +1071,7 @@ public:
     std::vector<sSavedGame>	Game_Load_Filter(const std::vector<std::string>& pFiles);
 
     void					Game_Save();
+	bool			GameOverCheck();
 
     void            GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20);
 
@@ -1213,6 +1214,9 @@ public:
 
     void            intro_LegionMessage();
     int16           intro_Play();
+
+	void			intro_main();
+
     void            intro_Retail();
     void            intro_AmigaTheOne();
 	void			Intro_OpenFodder();

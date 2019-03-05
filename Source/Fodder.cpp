@@ -464,6 +464,19 @@ void cFodder::Phase_Prepare() {
 	mSurface->Save();
 }
 
+#ifdef EMSCRIPTEN
+int16 cFodder::Phase_Loop() {
+	int16 result = 1;
+
+	// -1 = Phase Try Again 
+	//  0 = Phase Won
+	//  1 = Phase Running
+	result = Phase_Cycle();
+	Cycle_End();
+
+	return result;
+}
+#else
 int16 cFodder::Phase_Loop() {
 	int16 result = 1;
 
@@ -477,6 +490,7 @@ int16 cFodder::Phase_Loop() {
 
     return result;
 }
+#endif
 
 void cFodder::Game_Handle() {
 
@@ -1053,7 +1067,7 @@ void cFodder::Sprite_Clear_All() {
     }
 	mSprite_Spare.Clear();
 
-    mSprites[44].field_0 = -1;
+    mSprites[mSprites.size() - 1].field_0 = -1;
     mSprite_SpareUsed = 0;
 }
 
@@ -2855,6 +2869,12 @@ void cFodder::Mouse_Cursor_Handle() {
 
     if (!mWindow->hasFocusEvent() && CursorGrabbed)
         CursorGrabbed = false;
+
+#ifdef EMSCRIPTEN
+	mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
+	mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
+	return;
+#endif
 
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
@@ -17921,6 +17941,7 @@ void cFodder::Sprite_Handle_Player_InVehicle(sSprite* pSprite) {
 }
 
 void cFodder::Game_Setup() {
+
     if (mParams->mMissionNumber < 1)
         mParams->mMissionNumber = 1;
 
@@ -17936,7 +17957,6 @@ void cFodder::Game_Setup() {
     mGame_Data.Phase_Start();
 
     mPhase_TryAgain = true;
-
     mGraphics->Load_pStuff();
 }
 
@@ -18166,53 +18186,63 @@ void cFodder::Start() {
 /**
  * Main Engine Loop
  *
- * 0 = Exit
- * 1 = Restart
+ * false = Exit
+ * true  = Restart
  */
-int16 cFodder::Engine_Loop() {
+bool cFodder::Engine_Loop() {
 
 	for (;;) {
 
 		Game_Setup();
 
 		if (Mission_Loop() == -1)
-			return 1;
+			return true;
 
 		if (mParams->mSinglePhase)
 			break;
 	}
 
-	return 0;
+	return false;
+}
+
+bool cFodder::GameOverCheck() {
+
+	if (!mParams->mUnitTesting) {
+		// Mission completed?
+		if (!mPhase_Aborted && !mPhase_TryAgain) {
+
+			// Demo / Custom Mission restart
+			if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set && !mVersionCurrent->isAmigaTheOne())
+				return false;
+
+			// Reached last map in this mission set?
+			if (!mGame_Data.Phase_Next()) {
+
+				mGame_Data.mGameWon = true;
+				WonGame();
+				return true;
+			}
+		}
+	}
+
+	// Double escape aborts out to OF selection, on Amiga the one
+	if (mPhase_Aborted2 && mVersionCurrent->isAmigaTheOne()) {
+		return true;
+	}
+
+	return false;
 }
 
 int16 cFodder::Mission_Loop() {
-    
+  
     //loc_1042E:;
     for (;;) {
         mGame_Data.mDemoRecorded.save();
 
-        if (!mParams->mUnitTesting) {
-            // Mission completed?
-            if (!mPhase_Aborted && !mPhase_TryAgain) {
+		if (GameOverCheck())
+			return -1;
 
-                // Demo / Custom Mission restart
-                if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set && !mVersionCurrent->isAmigaTheOne())
-                    break;
 
-                // Reached last map in this mission set?
-                if (!mGame_Data.Phase_Next()) {
-
-                    mGame_Data.mGameWon = true;
-                    WonGame();
-                    return -1;
-                }
-            }
-        }
-
-        // Double escape aborts out to OF selection, on Amiga the one
-        if (mPhase_Aborted2 && mVersionCurrent->isAmigaTheOne()) {
-            return -1;
-        }
 
         // loc_1045F
         // Prepare the next mission
@@ -18222,32 +18252,7 @@ int16 cFodder::Mission_Loop() {
 
         mInput_Enabled = false;
 
-        if (!mIntroDone) {
-            mImage_Aborted = 0;
-            mVersionPlatformSwitchDisabled = true;
-            mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
-
-            if (!mParams->mSkipIntro) {
-                // Show the intro for retail releases (and the PC Format demo)
-                if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat()) {
-                    intro_Retail();
-                }
-                else {
-                    // Amiga The One has an intro too
-                    if (mVersionCurrent->isAmigaTheOne()) {
-                        intro_AmigaTheOne();
-                    }
-                }
-            }
-
-            mGraphics->Load_pStuff();
-            if (!mStartParams->mDisableSound)
-                mSound->Music_Play(0);
-
-            mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
-            mVersionPlatformSwitchDisabled = false;
-            mIntroDone = true;
-        }
+		intro_main();
 
         //loc_10496
         Sprite_Clear_All();
@@ -18379,6 +18384,35 @@ int16 cFodder::Mission_Loop() {
     }
 
     return 0;
+}
+
+void cFodder::intro_main() {
+	if (!mIntroDone) {
+		mImage_Aborted = 0;
+		mVersionPlatformSwitchDisabled = true;
+		mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
+
+		if (!mParams->mSkipIntro) {
+			// Show the intro for retail releases (and the PC Format demo)
+			if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat()) {
+				intro_Retail();
+			}
+			else {
+				// Amiga The One has an intro too
+				if (mVersionCurrent->isAmigaTheOne()) {
+					intro_AmigaTheOne();
+				}
+			}
+		}
+
+		mGraphics->Load_pStuff();
+		if (!mStartParams->mDisableSound)
+			mSound->Music_Play(0);
+
+		mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+		mVersionPlatformSwitchDisabled = false;
+		mIntroDone = true;
+	}
 }
 
 void cFodder::MapTiles_Draw() {

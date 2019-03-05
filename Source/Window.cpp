@@ -254,7 +254,9 @@ void cWindow::FrameEnd() {
     
 	SDL_RenderPresent( mRenderer );
     SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
+#ifndef EMSCRIPTEN
 	SDL_RenderClear( mRenderer );
+#endif
 }
 
 void cWindow::PositionWindow() {

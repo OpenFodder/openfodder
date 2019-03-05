@@ -170,7 +170,7 @@ bool cSound_PC2::devicePrepare() {
 
 void cSound_PC2::MixerChannelFinished( int32 pChannel ) {
 
-    auto end = std::remove_if(mMixerChunks.begin(), mMixerChunks.end(), [pChannel](auto& a) {
+    auto end = std::remove_if(mMixerChunks.begin(), mMixerChunks.end(), [pChannel](sChunkPlaying& a) {
         return a.mChannel == pChannel;
     });
 

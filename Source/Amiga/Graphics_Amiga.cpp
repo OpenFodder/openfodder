@@ -515,13 +515,11 @@ void cGraphics_Amiga::PaletteSet(cSurface *pTarget) {
 
 sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
 	sImage			Result;
-
 	auto			File = g_Resource->fileGet( pFilename );
 	auto			DataPtr = File->data();
 
 	if (!DataPtr || readBEDWord( DataPtr ) != 'FORM')
 		return Result;
-
 	DataPtr += 4;
 	size_t FileSize = readBEDWord( DataPtr );
 	DataPtr += 4;
@@ -988,8 +986,8 @@ void cGraphics_Amiga::Video_Draw_16(const uint8* RowPallete) {
 
 		uint8 Palette = mFodder->mVideo_Draw_PaletteIndex;
 		if (RowPallete) {
-			int16 bx = mFodder->mVideo_Draw_PosY + dx;
-
+			// TODO: palette should degrade closer to top/bottom of screen 
+			//int16 bx = mFodder->mVideo_Draw_PosY + dx;
 			//Palette = 1;// RowPallete[bx];
 		}
 

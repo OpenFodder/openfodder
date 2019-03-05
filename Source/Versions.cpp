@@ -128,7 +128,7 @@ const sGameVersion* cVersions::GetRetail(const ePlatform pPlatform, const eGame 
     if (RetailRelease == Available.end()) {
 
         RetailRelease = std::find_if(Available.begin(), Available.end(),
-                            [pPlatform](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail; });
+                            [](const sGameVersion* a)->bool { return a->mRelease == eRelease::Retail; });
 
         if (RetailRelease == Available.end())
             return 0;

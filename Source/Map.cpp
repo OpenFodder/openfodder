@@ -493,7 +493,7 @@ bool cMap::saveCF1Sprites(std::string pFilename) {
 	std::ofstream outfile(pFilename, std::ofstream::binary);
 
 	// Number of sprites in use
-	size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](auto& l) {
+	size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](sSprite& l) {
 		return l.field_0 != -32768 && l.field_0 != -1;
 	});
 
