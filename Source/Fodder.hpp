@@ -551,6 +551,11 @@ public:
     void            Campaign_Selection();
 
     void			Campaign_Select_Sprite_Prepare();
+
+	void			Campaign_Select_Setup();
+
+	std::string 	Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
+	void            Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle);
     void            Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle);
     void			Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle);
 
@@ -1065,8 +1070,6 @@ public:
     void            Sprite_Handle_Explosion_MapTiles(sSprite* pSprite);
     void            Map_Destroy_Tiles();
     void            Map_Destroy_Tiles_Next();
-
-    std::string 	Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
 
     void					Game_Load();
     std::vector<sSavedGame>	Game_Load_Filter(const std::vector<std::string>& pFiles);

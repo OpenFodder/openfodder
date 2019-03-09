@@ -139,8 +139,11 @@ void cSound_PC::Music_PlayFile( const std::string& pFilename ) {
 
 	Mix_FreeMusic( mMusicPlaying );
 	SDL_Delay( 100 );
+	mMusicPlaying = 0;
 
-	mMusicPlaying = Mix_LoadMUS(pFilename.c_str());
+	if(g_ResourceMan->FileExists(pFilename.c_str()))
+		mMusicPlaying = Mix_LoadMUS(pFilename.c_str());
+
 	Mix_VolumeMusic( 0x70 );
 
 	if (mMusicPlaying)

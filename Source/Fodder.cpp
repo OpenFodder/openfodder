@@ -3670,54 +3670,74 @@ static std::vector<unsigned char> mCampaignSelectMap_AF = {
     0x10, 0x10, 0x0b, 0x00, 0x10, 0x10, 0x07, 0x00, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10
 };
 
-std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
-    mCampaignList.clear();
+void cFodder::Campaign_Select_Setup() {
+	mCampaignList.clear();
 
-    mPhase_In_Progress = true;
-    mPhase_Aborted = false;
-    mGUI_SaveLoadAction = 0;
+	mPhase_In_Progress = true;
+	mPhase_Aborted = false;
+	mGUI_SaveLoadAction = 0;
 
-    {
-        for (auto& Name : mVersions->GetCampaignNames()) {
+	{
+		for (auto& Name : mVersions->GetCampaignNames()) {
 
-            if(g_ResourceMan->isCampaignAvailable(Name) || Name == "Single Map" || Name == "Random Map")
-                mCampaignList.push_back(Name);
-        }
-    }
+			if (g_ResourceMan->isCampaignAvailable(Name) || Name == "Single Map" || Name == "Random Map")
+				mCampaignList.push_back(Name);
+		}
+	}
 
-    {
+	{
 		auto Files = g_ResourceMan->GetCampaigns();
 
-        // Append all custom campaigns to the list
-        for (auto& File : Files) {
-            size_t Pos = File.find_first_of(".");
-            std::string FileName = File.substr(0, Pos);
+		// Append all custom campaigns to the list
+		for (auto& File : Files) {
+			size_t Pos = File.find_first_of(".");
+			std::string FileName = File.substr(0, Pos);
 
-            // Don't add known campaigns
-            if (mVersions->isCampaignKnown(FileName))
-                continue;
+			// Don't add known campaigns
+			if (mVersions->isCampaignKnown(FileName))
+				continue;
 
-            mCampaignList.push_back(FileName);
-        }
-    }
+			mCampaignList.push_back(FileName);
+		}
+	}
 
-    mGUI_Select_File_CurrentIndex = 0;
-    mGUI_Select_File_Count = (int16)mCampaignList.size();
+	mGUI_Select_File_CurrentIndex = 0;
+	mGUI_Select_File_Count = (int16)mCampaignList.size();
 
-	
 
-    // Create the title screen depending on which data is loaded
-    if (mVersionCurrent->isRetail()) {
+
+	// Create the title screen depending on which data is loaded
+	if (mVersionCurrent->isRetail()) {
 		sMapParams Params(0x15, 0x0F, eTileTypes_Jungle, 0);
-        Map_Create(Params);
-        std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_Jungle.data(), mMap->size() - 0x60);
-    } else {
+		Map_Create(Params);
+		std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_Jungle.data(), mMap->size() - 0x60);
+	}
+	else {
 		sMapParams Params(0x15, 0x0F, eTileTypes_AFX, 0);
 		Map_Create(Params);
-        std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_AF.data(), mMap->size() - 0x60);
-    }
+		std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_AF.data(), mMap->size() - 0x60);
+	}
 
-    Campaign_Select_Sprite_Prepare();
+	Campaign_Select_Sprite_Prepare();
+
+	if (mGUI_SaveLoadAction != 3) {
+		mSurface->palette_FadeTowardNew();
+		Mouse_Setup();
+	}
+	mGUI_SaveLoadAction = 0;
+
+	mGraphics->PaletteSet();
+	mSurface->Save();
+
+	mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
+	mDemo_ExitMenu = 0;
+
+	Camera_Reset();
+}
+
+std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
+
+	Campaign_Select_Setup();
 
     do {
 
@@ -3899,66 +3919,56 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
         Map_Add_Structure(mStructuresBarracksWithSoldier[mMap_TileSet], 2, 5);
 }
 
+void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle) {
+	static int16 Timedown = 0;
+
+	mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+	Sprite_Frame_Modifier_Update();
+	Mission_Sprites_Handle();
+
+	mSurface->clearBuffer();
+	MapTiles_Draw();
+	Sprites_Draw();
+
+	Campaign_Select_DrawMenu(pTitle, pSubTitle);
+
+
+	if (mSurface->isPaletteAdjusting())
+		mSurface->palette_FadeTowardNew();
+
+	Mouse_Inputs_Get();
+	Mouse_DrawCursor();
+
+	if (Timedown)
+		--Timedown;
+
+	if (mMouse_Button_Left_Toggle && !Timedown) {
+		Vehicle_Input_Handle();
+
+		mMouse_Button_Left_Toggle = 0;
+		mSprites[0].field_57 = -1;
+		mSprites[0].field_2E = mSquad_Leader->field_26 + 10;
+		mSprites[0].field_30 = mSquad_Leader->field_28 - 18;
+
+		Timedown = 10;
+	}
+
+	if (mPhase_Aborted)
+		GUI_Button_Load_Exit();
+
+	if (mMouse_Button_Left_Toggle)
+		GUI_Handle_Element_Mouse_Check(mGUI_Elements);
+
+	GUI_Button_Load_MouseWheel();
+	Video_SurfaceRender();
+	Cycle_End();
+}
+
 void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle) {
 
-    if (mGUI_SaveLoadAction != 3) {
 
-        mSurface->palette_FadeTowardNew();
-        Mouse_Setup();
-    }
-    mGUI_SaveLoadAction = 0;
-
-    mGraphics->PaletteSet();
-
-    mSurface->Save();
-
-    mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
-    mDemo_ExitMenu = 0;
-
-    Camera_Reset();
-
-    int16 Timedown = 0;
     do {
-        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
-        Sprite_Frame_Modifier_Update();
-        Mission_Sprites_Handle();
-
-        mSurface->clearBuffer();
-        MapTiles_Draw();
-        Sprites_Draw();
-
-        Campaign_Select_DrawMenu(pTitle, pSubTitle);
-
-
-        if (mSurface->isPaletteAdjusting())
-            mSurface->palette_FadeTowardNew();
-
-        Mouse_Inputs_Get();
-        Mouse_DrawCursor();
-
-        if (Timedown)
-            --Timedown;
-
-        if (mMouse_Button_Left_Toggle && !Timedown) {
-            Vehicle_Input_Handle();
-
-            mMouse_Button_Left_Toggle = 0;
-            mSprites[0].field_57 = -1;
-            mSprites[0].field_2E = mSquad_Leader->field_26 + 10;
-            mSprites[0].field_30 = mSquad_Leader->field_28 - 18;
-
-            Timedown = 10;
-        }
-
-        if (mPhase_Aborted)
-            GUI_Button_Load_Exit();
-
-        if (mMouse_Button_Left_Toggle)
-            GUI_Handle_Element_Mouse_Check(mGUI_Elements);
-
-        GUI_Button_Load_MouseWheel();
-        Video_SurfaceRender();
-        Cycle_End();
+		Campaign_Select_File_Cycle(pTitle, pSubTitle);
 
     } while (mGUI_SaveLoadAction <= 0);
 
@@ -16067,9 +16077,12 @@ void cFodder::Image_FadeIn() {
 }
 
 void cFodder::Image_FadeOut() {
+
     mSurface->Save();
     mSurface->paletteNew_SetToBlack();
-
+#ifdef EMSCRIPTEN
+	return;
+#endif
     mGame_Data.mDemoRecorded.DisableTicks();
     while (mSurface->isPaletteAdjusting()) {
 
@@ -16084,6 +16097,7 @@ void cFodder::Image_FadeOut() {
 
         Video_SurfaceRender();
         Cycle_End();
+
     }
     mGame_Data.mDemoRecorded.EnableTicks();
 
