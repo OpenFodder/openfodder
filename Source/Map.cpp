@@ -44,7 +44,7 @@ sMapParams::sMapParams(size_t pSeed) {
 }
 
 void sMapParams::Randomise(const size_t pSeed) {
-	mRandom.setSeed(pSeed);
+	mRandom.setSeed((int16)pSeed);
 
 	mAlgorithm = (eRandom_Algorithms)(mRandom.getu() % eRandom_SimplexNoise);
 
@@ -85,10 +85,10 @@ cMap::cMap(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2) {
 // but a higher number produces more mountains
 
 void cMap::Randomise_Tiles() {
-	float scale = mParams.mRandom.getf(0.01, 0.1);
-	float lacunarity =  mParams.mRandom.getf(0.1, 0.5);
-	float persistance = mParams.mRandom.getf(0.1, 1);	// higher produces more trees
-	float offset_z = mParams.mRandom.getf(0.1, 10);
+	float scale = mParams.mRandom.getf(0.01f, 0.1f);
+	float lacunarity =  mParams.mRandom.getf(0.1f, 0.5f);
+	float persistance = mParams.mRandom.getf(0.1f, 1.f);	// higher produces more trees
+	float offset_z = mParams.mRandom.getf(0.1f, 10.f);
 
 	const SimplexNoise simplex(scale, scale, lacunarity, persistance);
 	const int octaves = static_cast<int>(5 + std::log(scale)); 

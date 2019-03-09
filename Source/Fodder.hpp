@@ -221,7 +221,6 @@ public:
     int32           dword_3A030;
 
     int8            mSquads_TroopCount[4];
-    uint8           byte_3A05E;
     uint16          word_3A05F;
 
     std::vector<sSprite*> mSprite_DrawList_First;
@@ -229,7 +228,7 @@ public:
     std::vector<sSprite*> mSprite_DrawList_Third;
     std::vector<sSprite*> mSprite_DrawList_Final;
 
-    uint8           byte_3A8DE[200];
+    uint8           mMap_PathCheck[200];
 
    
     int32           mStoredSpriteX;
@@ -241,7 +240,7 @@ public:
 
     int16           mDirectionMod;
 
-    sMapPosition    m2A622_Unk_MapPosition;
+    sMapPosition    mCheckPattern_Position;
 
     bool            mPhase_Aborted2;
     bool            mPhase_Aborted;
@@ -363,7 +362,6 @@ public:
 
     int16           word_3B25B;
     int16           word_3B25D;
-    int16           word_3B2CB;
     int16           mGUI_SaveLoadAction;
     int16           word_3B2CF;
     int16           word_3B2D1[6];
@@ -569,13 +567,13 @@ public:
     void            Game_Handle();
     void            Camera_Handle();
     void            Camera_PanTarget_AdjustToward_SquadLeader();
-    void            Game_ClearVariables();
 
-    void            Mission_Memory_Backup();
-    void            Mission_Memory_Restore();
-    void            Mission_Memory_Clear();
-    void            Mission_Prepare_Squads();
-    void            sub_10DEC();
+    void            GameData_Reset();
+    void            GameData_Backup();
+    void            GameData_Restore();
+
+    void            Phase_EngineReset();
+    void            Phase_SquadPrepare();
     void            Squad_Set_Squad_Leader();
 
     void            Sprite_Clear_All();
@@ -1011,9 +1009,9 @@ public:
     int16           Sprite_Direction_Between_Points(sSprite* pSprite, int16& pData0, int16& pData4);
     void            sub_2A3D4(sSprite* pSprite);
     void            Squad_Walk_Steps_Decrease();
-    int16           sub_2A4A2(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
-    void            sub_2A4FD(int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C);
-    int16           sub_2A622(int16& pData0);
+    int16           Map_PathCheck_CalculateTo(int16& pX1, int16& pY1, int16& pX2, int16& pY2);
+    void            Map_PathCheck_Generate(int16& pX1, int16&  pY1, int16& pX2, int16& pY2, int16& pData18, int16& pData1C);
+    int16           Map_PathCheck_CanPass(int16& pData0);
     int16           Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2);
 
     int16           Map_Terrain_Get_Type_And_Walkable(int16& pY, int16& pX);

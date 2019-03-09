@@ -157,15 +157,15 @@ void cWindow::EventCheck() {
 			Event.mType = eEvent_MouseRightDown;
 			Event.mButton = 3;
 
-			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
-				(SysEvent.tfinger.y * GetWindowHeight()));
+			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
+										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
 
 			break;
 
 		case SDL_FINGERMOTION:
 			Event.mType = eEvent_MouseMove;
-			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
-				(SysEvent.tfinger.y * GetWindowHeight()));
+			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
+										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
 
 
 			break;
@@ -174,8 +174,8 @@ void cWindow::EventCheck() {
 			
 			Event.mType = eEvent_MouseLeftDown;
 			Event.mButton = 1;
-			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
-				(SysEvent.tfinger.y * GetWindowHeight()));
+			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
+										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
 
 			Event.mButtonCount = SysEvent.button.clicks;
 
@@ -185,8 +185,8 @@ void cWindow::EventCheck() {
 			Event.mType = eEvent_MouseLeftUp;
 			Event.mButton = 1;
 
-			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
-				(SysEvent.tfinger.y * GetWindowHeight()));
+			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
+										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
 
 			Event.mButtonCount = SysEvent.button.clicks;
 			mEvents.push_back(Event);

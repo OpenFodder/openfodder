@@ -79,7 +79,7 @@ cAbout::cAbout() {
     mSurface = new cSurface(0, 0);
     mSurface->LoadBitmap(g_ResourceMan->GetAboutFile());
     g_Fodder->mGraphics->PaletteSet();
-    g_Fodder->Mission_Memory_Clear();
+    g_Fodder->Phase_EngineReset();
     g_Fodder->mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
     g_Fodder->mService_Draw_List.clear();
 

@@ -30,6 +30,16 @@ std::shared_ptr<cResourceMan> g_ResourceMan;
 
 const char gPathSeperator = '/';
 
+int main(int argc, char *argv[]) {
+	auto result = start(argc, argv);
+	if (result == -1) {
+		std::cout << "Press enter to continue\n";
+		std::cin.get();
+	}
+
+	return result;
+}
+
 /**
  *
  * @param pBuffer

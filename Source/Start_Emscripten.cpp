@@ -20,12 +20,50 @@
  *
  */
 
+#ifdef EMSCRIPTEN
 #include "stdafx.hpp"
 
-#ifndef _OFED
-#ifndef _OFBOT
+void phase_loop() {
+	static int16 result = -1;
+
+	// No recruits left?
+	if (!g_Fodder->mGame_Data.mRecruits_Available_Count) {
+		g_Fodder->mGame_Data.mCampaign.Clear();
+
+		g_Fodder->Game_Setup();
+
+		result = -1;
+	}
+
+	if (result == 0) {
+
+		// Game Won?
+		if (!g_Fodder->mGame_Data.Phase_Next()) {
+
+			emscripten_cancel_main_loop();
+
+			// Break to version screen
+			return;
+		}
+
+		result = -1;
+	}
+	if (result == -1) {
+		g_Fodder->Phase_EngineReset();
+		g_Fodder->Phase_SquadPrepare();
+		g_Fodder->Phase_Prepare();
+	}
+
+	// -1 = Phase Try Again 
+	//  0 = Phase Won
+	//  1 = Phase Running
+
+	result = g_Fodder->Phase_Cycle();
+	g_Fodder->Cycle_End();
+}
 
 int start(int argc, char *argv[]) {
+
 	g_Debugger = std::make_shared<cDebugger>();
 	g_Window = std::make_shared<cWindow>();
 	g_ResourceMan = std::make_shared<cResourceMan>();
@@ -37,38 +75,26 @@ int start(int argc, char *argv[]) {
 	if (Params->mShowHelp)
 		return 0;
 
-	g_Fodder->Prepare(Params);
+	Params->mCheatsEnabled = true;
 
-	if (g_Fodder->mStartParams->mUnitTesting) {
-		cUnitTesting Testing;
-		return Testing.Start() ? 0 : -1;
-	}
-	else {
-		g_Fodder->Start();
-		g_Fodder->mGame_Data.mDemoRecorded.save();
-	}
+	g_Fodder->Prepare(Params);
+	g_Fodder->Phase_SquadPrepare();
+
+	g_Fodder->VersionSwitch(g_Fodder->mVersions->GetForCampaign("Amiga Format Christmas Special"));
+	g_Fodder->mGame_Data.mCampaign.Clear();
+
+	if (g_Fodder->mParams->mCampaignName == "")
+		g_Fodder->mGame_Data.mCampaign.LoadCampaign("Amiga Format Christmas Special", false);
+	else
+		g_Fodder->mGame_Data.mCampaign.LoadCampaign(g_Fodder->mParams->mCampaignName, false);
+
+	g_Fodder->Game_Setup();
+
+	emscripten_set_main_loop(phase_loop, 24, 1);
+
+	//g_Fodder->Service_Show();
 
 	return 0;
 }
 
-// Debug stuff
-void quickServiceScreen() {
-	g_Fodder->VersionSwitch(g_Fodder->mVersions->GetRetail(g_Fodder->mParams->mDefaultPlatform, g_Fodder->mParams->mDefaultGame));
-	g_Fodder->mGame_Data.mCampaign.Clear();
-	g_Fodder->mGame_Data.mCampaign.LoadCampaign("Cannon Fodder", false);
-
-	g_Fodder->Game_Setup();
-	g_Fodder->Map_Load();
-	g_Fodder->Map_Load_Sprites();
-
-	//g_Fodder->Phase_Prepare();
-	g_Fodder->Phase_Soldiers_Count();
-	g_Fodder->mGame_Data.Soldier_Sort();
-	g_Fodder->Phase_Soldiers_Prepare(false);
-	g_Fodder->Phase_Soldiers_AttachToSprites();
-	g_Fodder->Service_Show();
-}
-
-
-#endif
 #endif

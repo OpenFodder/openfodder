@@ -1235,7 +1235,7 @@ int16 cFodder::Recruit_Show() {
     }
 
     mRecruit_Mission_Restarting = false;
-    Mission_Memory_Backup();
+    GameData_Backup();
 
     // Retail or Custom Mode
     if (mVersionCurrent->isRetail() ||

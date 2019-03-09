@@ -210,7 +210,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     Sprite_Clear_All();
 
-    Mission_Memory_Clear();
+    Phase_EngineReset();
 
     Sprite_Table_Setup();
 }
@@ -642,7 +642,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     mMouse_Locked = false;
 }
 
-void cFodder::Game_ClearVariables() {
+void cFodder::GameData_Reset() {
     mDebug_PhaseSkip = 0;
     mInput_Enabled = false;
     mGame_InputTicks = 0;
@@ -658,18 +658,18 @@ void cFodder::Game_ClearVariables() {
     mGame_Data.mGamePhase_Data.Clear();
 }
 
-void cFodder::Mission_Memory_Backup() {
+void cFodder::GameData_Backup() {
     mGame_Data_Backup = mGame_Data;
 }
 
-void cFodder::Mission_Memory_Restore() {
+void cFodder::GameData_Restore() {
     mGame_Data = mGame_Data_Backup;
 
     // Reset grave pointers
     mGame_Data.mGamePhase_Data.mHeroesCount = mGame_Data.mHeroes.size();
 }
 
-void cFodder::Mission_Memory_Clear() {
+void cFodder::Phase_EngineReset() {
     // Clear memory 2454 to 3B58
     mPhase_EscapeKeyAbort = false;
     mPhase_Aborted2 = false;
@@ -897,7 +897,6 @@ void cFodder::Mission_Memory_Clear() {
 
     word_3B25B = 0;
     word_3B25D = 0;
-    word_3B2CB = 0;
     mGUI_SaveLoadAction = 0;
     word_3B2CF = 0;
     for (uint16 x = 0; x < 6; ++x)
@@ -973,7 +972,7 @@ void cFodder::Mission_Memory_Clear() {
     mTroop_InRange_Callpad = 0;
 }
 
-void cFodder::Mission_Prepare_Squads() {
+void cFodder::Phase_SquadPrepare() {
     mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
     mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
     mGUI_Sidebar_TroopList_Name_BreakOnSpace = 5;
@@ -1021,14 +1020,10 @@ void cFodder::Mission_Prepare_Squads() {
     mSquad_Join_TargetSprite[3] = 0;
     mSquad_Join_TargetSprite[4] = 0;
     mSquad_Join_TargetSprite[5] = 0;
-}
 
-void cFodder::sub_10DEC() {
     mMouse_Locked = false;
 
     mSquad_Selected = 0;
-    m2A622_Unk_MapPosition.mX = 0;
-    m2A622_Unk_MapPosition.mY = 0;
     mPhase_TryAgain = false;
     mPhase_Complete = false;
     mPhase_Completed_Timer = 0;
@@ -1040,10 +1035,11 @@ void cFodder::sub_10DEC() {
     mSquads_TroopCount[2] = 0;
     mSquads_TroopCount[3] = 0;
 
-    byte_3A05E = 0;
+	mCheckPattern_Position.mX = 0;
+	mCheckPattern_Position.mY = 0;
 
     for (uint16 x = 0; x < 200; ++x)
-        byte_3A8DE[x] = 0;
+        mMap_PathCheck[x] = 0;
 
     mCamera_StartPosition_X = 0;
     mCamera_StartPosition_Y = 0;
@@ -3742,8 +3738,8 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 void cFodder::Campaign_Selection() {
     mPhase_Complete = false;
 
-    Mission_Memory_Clear();
-    Game_ClearVariables();
+    Phase_EngineReset();
+    GameData_Reset();
     mMap_Destroy_Tiles.clear();
 
     Image_FadeOut();
@@ -3824,7 +3820,7 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
 
     Sprite_Clear_All();
 
-    Mission_Prepare_Squads();
+    Phase_SquadPrepare();
 
     mSquad_CurrentVehicle = &mSprites[x];
     mSprites[x].field_0 = 0xe6;
@@ -5259,7 +5255,7 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
     pData8 = pData28->field_0;
     pDataC = pData28->field_4;
 
-    if (sub_2A4A2(pData0, pData4, pData8, pDataC))
+    if (Map_PathCheck_CalculateTo(pData0, pData4, pData8, pDataC))
         goto loc_2439F;
 
     pData0 = mSprite_Find_Distance;
@@ -6135,7 +6131,7 @@ int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(sSprite* pSpr
     Data8 = word_3B481;
     DataC = word_3B483;
 
-    if (!sub_2A4A2(Data0, Data4, Data8, DataC))
+    if (!Map_PathCheck_CalculateTo(Data0, Data4, Data8, DataC))
         return 0;
 
     Data0 = tool_RandomGet() & 0x3F;
@@ -7224,154 +7220,153 @@ void cFodder::Squad_Walk_Steps_Decrease() {
     }
 }
 
-int16 cFodder::sub_2A4A2(int16& pData0, int16& pData4, int16& pData8, int16& pDataC) {
-    pData0 >>= 4;
-    pData4 >>= 4;
-    pData8 >>= 4;
-    pDataC >>= 4;
+int16 cFodder::Map_PathCheck_CalculateTo(int16& pX1, int16& pY1, int16& pX2, int16& pY2) {
+	pX1 >>= 4;
+	pY1 >>= 4;
+	pX2 >>= 4;
+	pY2 >>= 4;
 
     int16 Data18 = 2;
 
-    int16 Data1C = mMapLoaded.getWidth();
-    Data1C <<= 1;
+    int16 RowBytes = mMapLoaded.getWidth();
+	RowBytes <<= 1;
 
-    m2A622_Unk_MapPosition.mX = pData0;
-    m2A622_Unk_MapPosition.mY = pData4;
+    mCheckPattern_Position.mX = pX1;
+    mCheckPattern_Position.mY = pY1;
 
-    sub_2A4FD(pData0, pData4, pData8, pDataC, Data18, Data1C);
+    Map_PathCheck_Generate(pX1, pY1, pX2, pY2, Data18, RowBytes);
 
-    return sub_2A622(pData0);
+    return Map_PathCheck_CanPass(pX1);
 }
 
-void cFodder::sub_2A4FD(int16& pData0, int16&  pData4, int16& pData8, int16& pDataC, int16& pData18, int16& pData1C) {
-    uint8* Data20 = byte_3A8DE;
+void cFodder::Map_PathCheck_Generate(int16& pX1, int16&  pY1, int16& pX2, int16& pY2, int16& pColumnWidth, int16& pRowWidth) {
+    uint8* PathCheck = mMap_PathCheck;
 
-    int16 Data10 = pData8;
-    Data10 -= pData0;
+    int16 X = pX2;
+	X -= pX1;
 
-    int16 Data14 = pDataC;
-    Data14 -= pData4;
+    int16 Y = pY2;
+	Y -= pY1;
 
-    int16 Data28 = pData8;
+    int16 Data28 = pX2;
 
     int16 WriteFinalValue, WriteValue;
 
-    if (Data10 < 0) {
-        pData18 = -pData18;
-        WriteFinalValue = pData18;
-        Data10 = -Data10;
-        pData18 = -1;
+    if (X < 0) {
+		pColumnWidth = -pColumnWidth;
+        WriteFinalValue = pColumnWidth;
+		X = -X;
+		pColumnWidth = -1;
     }
     else {
-        WriteFinalValue = pData18;
-        pData18 = 1;
+        WriteFinalValue = pColumnWidth;
+		pColumnWidth = 1;
     }
     //loc_2A56A
 
-    if (Data14 < 0) {
-        pData1C = -pData1C;
-        WriteValue = pData1C;
-        Data14 = -Data14;
-        pData1C = -1;
+    if (Y < 0) {
+		pRowWidth = -pRowWidth;
+        WriteValue = pRowWidth;
+		Y = -Y;
+		pRowWidth = -1;
     }
     else {
-        WriteValue = pData1C;
-        pData1C = 1;
+        WriteValue = pRowWidth;
+		pRowWidth = 1;
     }
     //loc_2A59D
-    pData8 = 0;
-    if (Data14 == 0)
-        pData8 = 1;
+	pX2 = 0;
+    if (Y == 0)
+		pX2 = 1;
     else
-        pData8 = 0;
+		pX2 = 0;
 
-    pData8 = -pData8;
+	pX2 = -pX2;
 
 loc_2A5BA:;
-    if (Data28 == pData0 && pDataC == pData4) {
-        Data20[0] = -1;
-        Data20[1] = -1;
-        Data20[2] = -1;
-        Data20[3] = -1;
+    if (Data28 == pX1 && pY2 == pY1) {
+		PathCheck[0] = -1;
+		PathCheck[1] = -1;
+		PathCheck[2] = -1;
+		PathCheck[3] = -1;
         return;
     }
 
-    if (pData8 >= 0) {
-        pData4 += pData1C;
-        pData8 -= Data10;
-        writeLEWord(Data20, WriteValue);
-        Data20 += 2;
+    if (pX2 >= 0) {
+		pY1 += pRowWidth;
+		pX2 -= X;
+        writeLEWord(PathCheck, WriteValue);
+		PathCheck += 2;
         goto loc_2A5BA;
     }
     //loc_2A601
-    pData0 += pData18;
-    pData8 += Data14;
-    writeLEWord(Data20, WriteFinalValue);
-    Data20 += 2;
+	pX1 += pColumnWidth;
+	pX2 += Y;
+    writeLEWord(PathCheck, WriteFinalValue);
+	PathCheck += 2;
     goto loc_2A5BA;
 }
 
-int16 cFodder::sub_2A622(int16& pData0) {
+int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
 
-    int32 Data4 = m2A622_Unk_MapPosition.mY;
+    int32 Data4 = mCheckPattern_Position.mY;
 
     uint8* MapTilePtr = mMap->data() + 0x60;
 
     Data4 *= mMapLoaded.getWidth();
-    Data4 += m2A622_Unk_MapPosition.mX;
+    Data4 += mCheckPattern_Position.mX;
 
     MapTilePtr += (Data4 << 1);
-    //seg007:0B48
 
-    uint8* Data28 = byte_3A8DE;
-    word_3B2CB = -1;
+    uint8* CheckPatternPtr = mMap_PathCheck;
+    bool CheckPattern = true;
 
     for (;;) {
-        if (word_3B2CB) {
-            word_3B2CB = 0;
+        if (CheckPattern) {
+			CheckPattern = false;
             goto loc_2A6D7;
         }
         //loc_2A6A1
         if (MapTilePtr > mMap->data() && MapTilePtr < mMap->data() + mMap->size()) {
-            pData0 = readLE<uint16>(MapTilePtr);
+			pTileHit = readLE<uint16>(MapTilePtr);
         } else
-            pData0 = 0;
+			pTileHit = 0;
 
-        pData0 = mTile_Hit[pData0 & 0x1FF];
+		pTileHit = mTile_Hit[pTileHit & 0x1FF];
 
         // Tile has hit?
-        if (pData0 >= 0) {
-            pData0 &= 0x0F;
+        if (pTileHit >= 0) {
+			pTileHit &= 0x0F;
 
             // Check if tile is passable
-            if (mTiles_NotWalkable[pData0]) {
-                pData0 = -1;
+            if (mTiles_NotWalkable[pTileHit]) {
+				pTileHit = -1;
                 return -1;
             }
         }
 
     loc_2A6D7:;
-        if (readLE<int32>(Data28) == -1) {
-            pData0 = 0;
+        if (readLE<int32>(CheckPatternPtr) == -1) {
+			pTileHit = 0;
             return 0;
         }
-        pData0 = readLE<uint16>(Data28);
-        Data28 += 2;
-        if (pData0 == 0)
+		pTileHit = readLE<uint16>(CheckPatternPtr);
+		CheckPatternPtr += 2;
+        if (pTileHit == 0)
             goto loc_2A728;
 
-        if (readLE<int32>(Data28) == -1)
+        if (readLE<int32>(CheckPatternPtr) == -1)
             goto loc_2A728;
 
-        if (readLE<uint16>(Data28) == 0)
+        if (readLE<uint16>(CheckPatternPtr) == 0)
             goto loc_2A728;
 
-        MapTilePtr += pData0;
-        pData0 = readLE<uint16>(Data28);
-        Data28 += 2;
+        MapTilePtr += pTileHit;
+		pTileHit = readLE<uint16>(CheckPatternPtr);
+		CheckPatternPtr += 2;
 
     loc_2A728:;
-        MapTilePtr += pData0;
+        MapTilePtr += pTileHit;
 
     }
 }
@@ -8159,7 +8154,6 @@ void cFodder::Squad_Troops_Count() {
     mSquads_TroopCount[1] = 0;
     mSquads_TroopCount[2] = 0;
     mSquads_TroopCount[3] = 0;
-    byte_3A05E = 0;
 
     int16 TotalTroops = 0;
 
@@ -8213,12 +8207,10 @@ void cFodder::Squad_Troops_Count() {
     if (!TotalTroops)
         mPhase_TryAgain = true;
 
-    byte_3A8DE[1] = byte_3A05E;
+    mMap_PathCheck[1] = 0;
 
     for (int16 Data0 = 2; Data0 >= 0; --Data0) {
-
-        int8 al = mSquads_TroopCount[Data0];
-        if (al)
+        if (mSquads_TroopCount[Data0])
             continue;
 
         mSquad_Join_TargetSquad[Data0] = -1;
@@ -8946,8 +8938,8 @@ void cFodder::Game_Load() {
     for (auto& Troop : mGame_Data.mSoldiers_Allocated)
         Troop.mSprite = INVALID_SPRITE_PTR;
 
-    Mission_Memory_Backup();
-    Mission_Memory_Restore();
+    GameData_Backup();
+    GameData_Restore();
 }
 
 std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>& pFiles) {
@@ -9811,7 +9803,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
                             Data8 = Data28->field_0;
                             DataC = Data28->field_4;
 
-                            if (sub_2A4A2(Data0, Data4, Data8, DataC) == 0) {
+                            if (Map_PathCheck_CalculateTo(Data0, Data4, Data8, DataC) == 0) {
                                 Data0 = mSprite_Find_Distance;
                                 goto loc_1904A;
                             }
@@ -11948,7 +11940,7 @@ void cFodder::Sprite_Handle_MissileHoming(sSprite* pSprite) {
             Data8 += 8;
             DataC += 8;
 
-            if (!sub_2A4A2(Data0, Data4, Data8, DataC)) {
+            if (!Map_PathCheck_CalculateTo(Data0, Data4, Data8, DataC)) {
                 if (pSprite->field_20 > 8)
                     pSprite->field_1E_Big -= 0x12000;
             }
@@ -12602,7 +12594,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     Data8 += 0x0F;
     DataC -= 0x0A;
 
-    if (sub_2A4A2(Data0, Data4, Data8, DataC))
+    if (Map_PathCheck_CalculateTo(Data0, Data4, Data8, DataC))
         goto NextSquadMember;
 
     pSprite->field_2E = Data30->field_0;
@@ -16215,7 +16207,9 @@ void cFodder::Cycle_End() {
 }
 
 void cFodder::sleepLoop(int64 pMilliseconds) {
-
+#ifdef EMSCRIPTEN
+	return;
+#endif
     uint64 TimeStarted = SDL_GetTicks();
     uint64 TimeFinish = TimeStarted + pMilliseconds;
 
@@ -17395,7 +17389,7 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
         Data8 = Squad0_Member->field_0;
         DataC = Squad0_Member->field_4;
 
-        if (!sub_2A4A2(Dataa0, Data4, Data8, DataC)) {
+        if (!Map_PathCheck_CalculateTo(Dataa0, Data4, Data8, DataC)) {
             Dataa0 = mSprite_Find_Distance;
             goto loc_21F77;
         }
@@ -17943,7 +17937,7 @@ void cFodder::Game_Setup() {
     if (mParams->mMissionNumber < 1)
         mParams->mMissionNumber = 1;
 
-    Game_ClearVariables();
+    GameData_Reset();
 
     mIntroDone = false;
     mPhase_Complete = false;
@@ -18263,7 +18257,7 @@ int16 cFodder::Briefing_Show() {
 			if (mGame_Data.mCampaign.isRandom())
 				return -1;// Return to version select
 
-			Mission_Memory_Restore();
+			GameData_Restore();
 
 			mRecruit_Mission_Restarting = true;
 			mGame_Data.mMission_Recruitment = -1;
@@ -18288,16 +18282,12 @@ int16 cFodder::Mission_Loop() {
 			return -1;
 
         // Prepare the next mission
-        Mission_Memory_Clear();
-        Mission_Prepare_Squads();
-        sub_10DEC();
-
+        Phase_EngineReset();
+        Phase_SquadPrepare();
+        
         mInput_Enabled = false;
 
 		intro_main();
-
-        //loc_10496
-        Sprite_Clear_All();
 
         // Prepare a new game?
         if (mGame_Data.mMission_Recruitment && !mParams->mSkipRecruit) {
@@ -18331,7 +18321,6 @@ int16 cFodder::Mission_Loop() {
 			case 1:			// Continue to phase
 				break;
 		}
-
 
 		Phase_Prepare();
 
