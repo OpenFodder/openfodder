@@ -22,10 +22,9 @@ Open Fodder is an open source version of the Cannon Fodder engine, for modern op
 * Twitter: [https://twitter.com/segrax](https://twitter.com/segrax)
 
 
-#### Play demo now!
+#### Play now
 
-Thanks to [Emscripten](https://emscripten.org/) 
-you can play the 'Amiga Format Christmas Special' demo in your browser via [here](https://s3.amazonaws.com/openfodder/OpenFodder.html).
+You can play the 'Amiga Format Christmas Special' demo in your browser via [here](https://s3.amazonaws.com/openfodder/OpenFodder.html).  
 
  
 #### Map Editor
