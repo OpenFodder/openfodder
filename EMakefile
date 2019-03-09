@@ -1,9 +1,9 @@
 
 pathInc = -I./Source/
-Libs = -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1 -s EMTERPRETIFY_FILE="RunE/data.binary" -s ASSERTIONS=1
+Libs = -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1
 DLibs = -s USE_SDL=2
 
-CC = em++ -Wall -std=c++0x -O2 -Oz -ferror-limit=100 $(pathInc) $(Libs) --no-heap-copy --preload-file Run@/ -o RunE/OpenFodder.html
+CC = em++ -Wall -std=c++0x -O3 -ferror-limit=100 $(pathInc) $(Libs) --no-heap-copy --preload-file Run@/ -o RunE/OpenFodder.html
 
 all : fodder
 

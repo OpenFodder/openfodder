@@ -93,6 +93,9 @@ class cWindow {
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
         cPosition           GetWindowPosition() const;
+		int32				GetWindowWidth() const;
+		int32				GetWindowHeight() const;
+
 		cDimension	        GetWindowSize() const;
 		cDimension	        GetScreenSize() const { return mScreenSize; }
 		bool			    GetWindowMode() const { return mWindowMode; }

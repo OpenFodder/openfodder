@@ -1,3 +1,4 @@
+copy openfodder.ini ..\..\Run
 docker run --rm -v %cd%\..\..\:/src -t apiaryio/emcc make -f EMakefile
 
 docker stop openfodder-web

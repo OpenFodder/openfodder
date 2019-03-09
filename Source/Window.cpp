@@ -125,88 +125,140 @@ void cWindow::EventCheck() {
 
 	SDL_Event SysEvent;
 	
-	while (SDL_PollEvent( &SysEvent )) {
+	while (SDL_PollEvent(&SysEvent)) {
 
 		cEvent Event;
 
-		switch ( SysEvent.type ) {
-            case SDL_WINDOWEVENT:
+		switch (SysEvent.type) {
+		case SDL_WINDOWEVENT:
 
-                switch ( SysEvent.window.event ) {
-                    case SDL_WINDOWEVENT_FOCUS_LOST:
-                        mHasFocus = false;
-                        break;
-
-                    case SDL_WINDOWEVENT_FOCUS_GAINED:
-                        mHasFocus = true;
-                        break;
-                }
-            break;
-
-			case SDL_KEYDOWN:
-				Event.mType = eEvent_KeyDown;
-				Event.mButton = SysEvent.key.keysym.scancode;
+			switch (SysEvent.window.event) {
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+				mHasFocus = false;
 				break;
 
-			case SDL_KEYUP:
-				Event.mType = eEvent_KeyUp;
-				Event.mButton = SysEvent.key.keysym.scancode;
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+				mHasFocus = true;
+				break;
+			}
+			break;
+
+		case SDL_KEYDOWN:
+			Event.mType = eEvent_KeyDown;
+			Event.mButton = SysEvent.key.keysym.scancode;
+			break;
+
+		case SDL_KEYUP:
+			Event.mType = eEvent_KeyUp;
+			Event.mButton = SysEvent.key.keysym.scancode;
+			break;
+
+		case SDL_MULTIGESTURE:
+			Event.mType = eEvent_MouseRightDown;
+			Event.mButton = 3;
+
+			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
+				(SysEvent.tfinger.y * GetWindowHeight()));
+
+			break;
+
+		case SDL_FINGERMOTION:
+			Event.mType = eEvent_MouseMove;
+			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
+				(SysEvent.tfinger.y * GetWindowHeight()));
+
+
+			break;
+
+		case SDL_FINGERDOWN:
+			
+			Event.mType = eEvent_MouseLeftDown;
+			Event.mButton = 1;
+			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
+				(SysEvent.tfinger.y * GetWindowHeight()));
+
+			Event.mButtonCount = SysEvent.button.clicks;
+
+			break;
+
+		case SDL_FINGERUP:
+			Event.mType = eEvent_MouseLeftUp;
+			Event.mButton = 1;
+
+			Event.mPosition = cPosition((SysEvent.tfinger.x * GetWindowWidth()),
+				(SysEvent.tfinger.y * GetWindowHeight()));
+
+			Event.mButtonCount = SysEvent.button.clicks;
+			mEvents.push_back(Event);
+
+			Event.mType = eEvent_MouseRightUp;
+			Event.mButton = 3;
+
+			break;
+
+		case SDL_MOUSEMOTION:
+			Event.mType = eEvent_MouseMove;
+			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
+			break;
+
+		case SDL_MOUSEWHEEL:
+			Event.mType = Event.mType = eEvent_MouseWheel;
+			Event.mPosition = cPosition(SysEvent.wheel.x, SysEvent.wheel.y);
+			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+
+			switch (SysEvent.button.button) {
+
+			case 1:
+				Event.mType = eEvent_MouseLeftDown;
+				Event.mButton = 1;
 				break;
 
-			case SDL_MOUSEMOTION:
-				Event.mType = eEvent_MouseMove;
-				Event.mPosition = cPosition( SysEvent.motion.x, SysEvent.motion.y );
+			case 3:
+				Event.mType = eEvent_MouseRightDown;
+				Event.mButton = 3;
+				break;
+			}
+
+			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
+			Event.mButtonCount = SysEvent.button.clicks;
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+
+			switch (SysEvent.button.button) {
+
+			case 1:
+				Event.mType = eEvent_MouseLeftUp;
+				Event.mButton = 1;
 				break;
 
-            case SDL_MOUSEWHEEL:
-                Event.mType = Event.mType = eEvent_MouseWheel;
-                Event.mPosition = cPosition(SysEvent.wheel.x, SysEvent.wheel.y);
-                
-                break;
-
-			case SDL_MOUSEBUTTONDOWN:
-
-				switch ( SysEvent.button.button ) {
-
-					case 1:
-						Event.mType = eEvent_MouseLeftDown;
-						Event.mButton = 1;
-						break;
-
-					case 3:
-						Event.mType = eEvent_MouseRightDown;
-						Event.mButton = 3;
-						break;
-				}
-
-				Event.mPosition = cPosition( SysEvent.motion.x, SysEvent.motion.y );
-				Event.mButtonCount = SysEvent.button.clicks;
+			case 3:
+				Event.mType = eEvent_MouseRightUp;
+				Event.mButton = 3;
 				break;
+			}
 
-			case SDL_MOUSEBUTTONUP:
+			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
+			Event.mButtonCount = SysEvent.button.clicks;
+			break;
 
-				switch ( SysEvent.button.button ) {
-
-					case 1:
-						Event.mType = eEvent_MouseLeftUp;
-						Event.mButton = 1;
-						break;
-
-					case 3:
-						Event.mType = eEvent_MouseRightUp;
-						Event.mButton = 3;
-						break;
-				}
-
-				Event.mPosition = cPosition( SysEvent.motion.x, SysEvent.motion.y );
-				Event.mButtonCount = SysEvent.button.clicks;
-				break;
-
-			case SDL_QUIT:
-				Event.mType = eEvent_Quit;
-				break;
+		case SDL_QUIT:
+			Event.mType = eEvent_Quit;
+			break;
 		}
 
+#ifdef EMSCRIPTEN
+		// Drop events which have no x/y
+		if (SysEvent.type == SDL_MOUSEMOTION || 
+			SysEvent.type == SDL_MOUSEBUTTONDOWN || 
+			SysEvent.type == SDL_MOUSEBUTTONUP) {
+
+			if (Event.mPosition.mX == 0 || Event.mPosition.mY == 0)
+				continue;
+		}
+#endif
 		if ( Event.mType != eEvent_None )
 			mEvents.push_back( Event );
 	}
@@ -485,6 +537,13 @@ cPosition cWindow::GetWindowPosition() const {
 
 cDimension cWindow::GetWindowSize() const {
 	return cDimension( mOriginalResolution.mWidth * mScaler, mOriginalResolution.mHeight * mScaler ); 
+}
+int32 cWindow::GetWindowWidth() const {
+	return mOriginalResolution.mWidth * mScaler;
+}
+
+int32 cWindow::GetWindowHeight() const {
+	return mOriginalResolution.mHeight * mScaler;
 }
 
 bool cWindow::HasFocus() {

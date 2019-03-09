@@ -1431,14 +1431,14 @@ void cFodder::Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const si
 void cFodder::Recruit_Draw_Graves() {
     auto GraveIT = mGravePositions.rbegin();
 
-    if (mGame_Data.mSoldiers_Died.empty())
+    if (mGame_Data.mHeroes.empty())
         return;
 
-    for (size_t i = mGame_Data.mSoldiers_Died.size(); i > 0; --i) {
+    for (size_t i = mGame_Data.mHeroes.size(); i > 0; --i) {
         ++GraveIT;
     }
 
-    for (auto& Hero : mGame_Data.mSoldiers_Died) {
+    for (auto& Hero : mGame_Data.mHeroes) {
         --GraveIT;
         Recruit_Draw_Grave(Hero.mRank, GraveIT->mX, GraveIT->mY + PLATFORM_BASED(0, 6));
     };
@@ -1920,7 +1920,7 @@ void cFodder::Recruit_Frame_Check() {
 void cFodder::Recruit_Position_Troops() {
     const int16*    Recruit_Next_Shirt = mRecruit_Shirt_Colors;
 
-    uint64 Data8 = mGame_Data.mSoldiers_Died.size();
+    uint64 Data8 = mGame_Data.mHeroes.size();
     int16 Recruits, Data4;
 
     // Calculate number of dead troops

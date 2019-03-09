@@ -26,7 +26,33 @@
 
 void phase_loop() {
 	
-	int16 result = g_Fodder->Phase_Loop();
+	// -1 = Phase Try Again 
+	//  0 = Phase Won
+	//  1 = Phase Running
+	int16 result = g_Fodder->Phase_Cycle();
+	g_Fodder->Cycle_End();
+
+	if (result == -1) {
+		g_Fodder->Mission_Memory_Clear();
+		g_Fodder->Mission_Prepare_Squads();
+		g_Fodder->sub_10DEC();
+
+
+		g_Fodder->Map_Load();
+		g_Fodder->Map_Load_Sprites();
+		g_Fodder->Map_Overview_Prepare();
+
+		g_Fodder->Phase_Soldiers_Count();
+		g_Fodder->mGame_Data.Soldier_Sort();
+		g_Fodder->Phase_Soldiers_Prepare(false);
+		g_Fodder->Phase_Soldiers_AttachToSprites();
+		g_Fodder->Phase_Prepare();
+	}
+
+	if (result == 0) {
+		g_Fodder->GameOverCheck();
+	}
+
 }
 
 int start(int argc, char *argv[]) {
@@ -56,6 +82,7 @@ int start(int argc, char *argv[]) {
 	g_Fodder->Game_Setup();
 
 	g_Fodder->Mission_Memory_Clear();
+	g_Fodder->Mission_Prepare_Squads();
 	g_Fodder->sub_10DEC();
 
 
@@ -69,7 +96,6 @@ int start(int argc, char *argv[]) {
 	g_Fodder->Phase_Soldiers_AttachToSprites();
 
 	g_Fodder->Phase_Prepare();
-	g_Fodder->Phase_Loop();
 	emscripten_set_main_loop(phase_loop, 0, 1);
 
 	//g_Fodder->Service_Show();

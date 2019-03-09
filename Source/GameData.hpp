@@ -97,7 +97,7 @@ struct sGamePhaseData {
 
     bool            mGoals_Remaining[10];
 
-    size_t          mTroops_DiedCount;  // Count of number of heroes who had died before mission started
+    size_t          mHeroesCount;  // Count of number of heroes who had died before mission started
 
     bool            mIsComplete;
 
@@ -170,7 +170,7 @@ struct sGameData {
 
     sMission_Troop  mSoldiers_Allocated[9];
 
-    std::vector<sHero> mSoldiers_Died;
+    std::vector<sHero> mHeroes;
 
     int16           mScore_Kills_Away;    // Player soldiers killed
     int16           mScore_Kills_Home;    //  Enemy soldiers killed

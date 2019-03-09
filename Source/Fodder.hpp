@@ -677,11 +677,9 @@ public:
     // 14EAC
     void			Mission_Intro_Draw_OpenFodder();
     void            Mission_Intro_Helicopter_Start();
-    void            sub_1594F();
-    void            Briefing_Update_Helicopter();
+	void            Mission_Intro_Draw_Mission_Name();
 
-    void            Mission_Intro_Draw_Mission_Name();
-    void            Briefing_Draw_Mission_Title(int16 pDrawAtY);
+    void            sub_1594F();
 
     void            CopyProtection();
     void            CopyProtection_EncodeInput();
@@ -736,15 +734,20 @@ public:
     int16           Squad_Join(sSprite* pSprite);
 
 
+	void            Briefing_Update_Helicopter();
+	void            Briefing_Draw_Mission_Title(int16 pDrawAtY);
+
     void            Briefing_Draw_Phase();
-    void            Briefing_Show_PreReady();
-    void            Briefing_Show_Ready();
     void            Briefing_Draw_With();
     void            Briefing_DrawBox(int16 pX, int16 pY, int16 pWidth, int16 pHeight, uint8 pColor);
     void            Briefing_Draw_Horizontal_Line(int16 pX, int16 pWidth, int16 pY, uint8 pColor);
     void            Briefing_Draw_Vertical_Line(int16 pX, int16 pHeight, int16 pY, uint8 pColor);
 
     void            Briefing_Draw_Pixel(int16 pX, int16 pY, uint8 pColor);
+
+	int16			Briefing_Show();
+	void            Briefing_Show_PreReady();
+	void            Briefing_Show_Ready();
 
     void			Mission_Intro_Play(const bool pShowHelicopter = false);
     void            Intro_Print_String(const sIntroString* pString);

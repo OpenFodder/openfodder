@@ -45,7 +45,7 @@ void sGamePhaseData::Clear() {
     mSoldiers_Available = 0;
     mSoldiers_Prepare_SetFromSpritePtrs = false;
 
-    mTroops_DiedCount = 0;
+    mHeroesCount = 0;
 
     mIsComplete = false;
 
@@ -330,7 +330,7 @@ void sGameData::Clear() {
 	mScore_Kills_Home = 0;
 
 	Soldier_Clear();
-	mSoldiers_Died.clear();
+	mHeroes.clear();
 }
 
 void sGameData::Soldier_Clear() {
@@ -393,11 +393,11 @@ void sGameData::Soldier_Died(const sMission_Troop* pTroop) {
     if (!pTroop)
         return;
 
-    mSoldiers_Died.push_back(sHero(pTroop));
+    mHeroes.push_back(sHero(pTroop));
 }
 
 std::vector<sHero> sGameData::Heroes_Get() const {
-    std::vector<sHero> Final = mSoldiers_Died;
+    std::vector<sHero> Final = mHeroes;
 
 	sort(Final.begin(), Final.end(),
 		[](const sHero & a, const sHero & b) -> bool
@@ -446,7 +446,7 @@ bool sGameData::Phase_Start() {
     mMission_Recruitment = -1;
 
     mGamePhase_Data.mSoldiers_Prepare_SetFromSpritePtrs = false;
-    mGamePhase_Data.mTroops_DiedCount = mSoldiers_Died.size();
+    mGamePhase_Data.mHeroesCount = mHeroes.size();
     return true;
 }
 
@@ -498,7 +498,7 @@ bool sGameData::Phase_Next() {
     mMission_Recruitment = -1;
 
     mGamePhase_Data.mSoldiers_Prepare_SetFromSpritePtrs = false;
-    mGamePhase_Data.mTroops_DiedCount = mSoldiers_Died.size();
+    mGamePhase_Data.mHeroesCount = mHeroes.size();
     return true;
 }
 
@@ -546,7 +546,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Save["mMission_Troops"].push_back(Troop);
 	}
 
-	for (auto& Hero : mSoldiers_Died) {
+	for (auto& Hero : mHeroes) {
 		Json JsonHero;
 
 		JsonHero["mRecruitID"] = Hero.mRecruitID;
@@ -619,7 +619,7 @@ bool sGameData::FromJson(const std::string& pJson) {
                  Heroes.mRank = Hero["mRank"];
                  Heroes.mKills = Hero["mKills"];
 
-                 mSoldiers_Died.push_back(Heroes);
+                 mHeroes.push_back(Heroes);
              }
 
              mScore_Kills_Away = LoadedData["mTroops_Away"];

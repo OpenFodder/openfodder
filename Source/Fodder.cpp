@@ -400,6 +400,18 @@ int16 cFodder::Phase_Cycle() {
 void cFodder::Phase_Prepare() {
 
 	Map_Load();
+	Map_Load_Sprites();
+	Map_Overview_Prepare();
+
+	// Prepare Squads
+	Phase_Soldiers_Count();
+	mGame_Data.Soldier_Sort();
+	Phase_Soldiers_Prepare(false);
+	Phase_Soldiers_AttachToSprites();
+
+	mPhase_Aborted = false;
+
+	Map_Load();
 	mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 
 	MapTiles_Draw();
@@ -464,19 +476,6 @@ void cFodder::Phase_Prepare() {
 	mSurface->Save();
 }
 
-#ifdef EMSCRIPTEN
-int16 cFodder::Phase_Loop() {
-	int16 result = 1;
-
-	// -1 = Phase Try Again 
-	//  0 = Phase Won
-	//  1 = Phase Running
-	result = Phase_Cycle();
-	Cycle_End();
-
-	return result;
-}
-#else
 int16 cFodder::Phase_Loop() {
 	int16 result = 1;
 
@@ -490,7 +489,6 @@ int16 cFodder::Phase_Loop() {
 
     return result;
 }
-#endif
 
 void cFodder::Game_Handle() {
 
@@ -668,7 +666,7 @@ void cFodder::Mission_Memory_Restore() {
     mGame_Data = mGame_Data_Backup;
 
     // Reset grave pointers
-    mGame_Data.mGamePhase_Data.mTroops_DiedCount = mGame_Data.mSoldiers_Died.size();
+    mGame_Data.mGamePhase_Data.mHeroesCount = mGame_Data.mHeroes.size();
 }
 
 void cFodder::Mission_Memory_Clear() {
@@ -9275,13 +9273,13 @@ int16 cFodder::Service_KIA_Troop_Prepare() {
     Service_Mission_Text_Prepare();
     mVideo_Draw_PosY += 0x40;
 
-    if (mGame_Data.mSoldiers_Died.empty() || mGame_Data.mGamePhase_Data.mTroops_DiedCount == mGame_Data.mSoldiers_Died.size())
+    if (mGame_Data.mHeroes.empty() || mGame_Data.mGamePhase_Data.mHeroesCount == mGame_Data.mHeroes.size())
         return -1;
 
    
-    for (size_t i = mGame_Data.mGamePhase_Data.mTroops_DiedCount; i < mGame_Data.mSoldiers_Died.size(); ++i) {
+    for (size_t i = mGame_Data.mGamePhase_Data.mHeroesCount; i < mGame_Data.mHeroes.size(); ++i) {
 
-        auto& Hero = mGame_Data.mSoldiers_Died[i];
+        auto& Hero = mGame_Data.mHeroes[i];
 
         Service_Draw_Troop_And_Rank(Hero.mRecruitID, Hero.mRank);
         mVideo_Draw_PosY += 0x40;
@@ -18233,18 +18231,62 @@ bool cFodder::GameOverCheck() {
 	return false;
 }
 
+int16 cFodder::Briefing_Show() {
+
+	if (mParams->mSkipBriefing)
+		return 1;
+
+	// Show the Briefing screen for Retail and Custom 
+	if (mVersionCurrent->hasBriefingScreen() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
+
+		// Show the pre ready Briefing Screen
+		Briefing_Show_PreReady();
+
+		Map_Load();
+		Map_Load_Sprites();
+		Map_Overview_Prepare();
+
+		// Prepare Squads
+		Phase_Soldiers_Count();
+		mGame_Data.Soldier_Sort();
+		Phase_Soldiers_Prepare(false);
+		Phase_Soldiers_AttachToSprites();
+
+		mPhase_Aborted = false;
+
+		// Needs to split into cycle function
+		Briefing_Show_Ready();
+
+		// Aborted?
+		if (mBriefing_Aborted == -1) {
+
+			if (mGame_Data.mCampaign.isRandom())
+				return -1;// Return to version select
+
+			Mission_Memory_Restore();
+
+			mRecruit_Mission_Restarting = true;
+			mGame_Data.mMission_Recruitment = -1;
+			mPhase_Aborted = true;
+
+			if (!mStartParams->mDisableSound)
+				mSound->Music_Play(0);
+
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
 int16 cFodder::Mission_Loop() {
   
-    //loc_1042E:;
     for (;;) {
         mGame_Data.mDemoRecorded.save();
 
 		if (GameOverCheck())
 			return -1;
 
-
-
-        // loc_1045F
         // Prepare the next mission
         Mission_Memory_Clear();
         Mission_Prepare_Squads();
@@ -18278,47 +18320,18 @@ int16 cFodder::Mission_Loop() {
 
         WindowTitleSet(true);
 
-        //loc_10513
-        // Show the pre ready Briefing Screen
-        if(!mParams->mSkipBriefing)
-            Briefing_Show_PreReady();
+		switch (Briefing_Show()) {
 
-        Map_Load();
-        Map_Load_Sprites();
-        Map_Overview_Prepare();
+			case -1:
+				return -1;	// Return to version select
 
-        // Prepare Squads
-        Phase_Soldiers_Count();
-        mGame_Data.Soldier_Sort();
-        Phase_Soldiers_Prepare(false);
-        Phase_Soldiers_AttachToSprites();
+			case 0:			// Back to hill 
+				continue;
 
-        mPhase_Aborted = false;
+			case 1:			// Continue to phase
+				break;
+		}
 
-
-        // Show the Briefing screen for Retail and Custom 
-        if (mVersionCurrent->hasBriefingScreen() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
-
-            if (!mParams->mSkipBriefing)
-                Briefing_Show_Ready();
-
-            // Aborted?
-            if (mBriefing_Aborted == -1) {
-
-                if (mGame_Data.mCampaign.isRandom())
-                    return -1;
-
-                Mission_Memory_Restore();
-
-                mRecruit_Mission_Restarting = true;
-                mGame_Data.mMission_Recruitment = -1;
-                mPhase_Aborted = true;
-
-                if (!mStartParams->mDisableSound)
-                    mSound->Music_Play(0);
-                continue;
-            }
-        }
 
 		Phase_Prepare();
 
