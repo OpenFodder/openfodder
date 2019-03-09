@@ -27,12 +27,14 @@ void phase_loop() {
 	static int16 result = -1;
 
 	// No recruits left?
-	if (!g_Fodder->mGame_Data.mRecruits_Available_Count) {
-		g_Fodder->mGame_Data.mCampaign.Clear();
+	if (result != 1) {
+		if (!g_Fodder->mGame_Data.mRecruits_Available_Count) {
+			//g_Fodder->mGame_Data.mCampaign.Clear();
 
-		g_Fodder->Game_Setup();
+			g_Fodder->Game_Setup();
 
-		result = -1;
+			result = -1;
+		}
 	}
 
 	if (result == 0) {

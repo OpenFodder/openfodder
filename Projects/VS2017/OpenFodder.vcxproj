@@ -261,6 +261,9 @@
     <ClCompile Include="..\..\Source\Sprites.cpp" />
     <ClCompile Include="..\..\Source\SpriteSheet.cpp" />
     <ClCompile Include="..\..\Source\Start.cpp" />
+    <ClCompile Include="..\..\Source\Start_Emscripten.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\Source\stdafx.cpp" />
     <ClCompile Include="..\..\Source\Structures\Barracks.cpp" />
     <ClCompile Include="..\..\Source\Surface.cpp" />
