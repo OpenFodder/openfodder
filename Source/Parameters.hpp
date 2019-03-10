@@ -69,6 +69,9 @@ public:
 		clear();
 	}
 
+	virtual ~sFodderParameters() {
+	}
+
 	virtual void clear() {
 		mShowHelp = false;
 		mShowAbout = false;

@@ -46,7 +46,7 @@ class cWindow {
 	public:
 
 							cWindow();
-							~cWindow();
+		virtual				~cWindow();
 
 		void		        CalculateWindowSize();
 		int16				CalculateFullscreenSize();
@@ -108,6 +108,6 @@ class cWindow {
 class cWindowNull : public cWindow {
 
 public:
-
+	virtual ~cWindowNull() {}
     virtual bool InitWindow(const std::string& pWindowTitle);
 };

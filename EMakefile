@@ -1,6 +1,6 @@
 
 pathInc = -I./Source/
-Libs = -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1
+Libs = -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 -s BINARYEN_TRAP_MODE='clamp'
 DLibs = -s USE_SDL=2
 
 CC = em++ -Wall -std=c++0x -O3 -ferror-limit=100 $(pathInc) $(Libs) --no-heap-copy --preload-file Run@/ -o RunE/OpenFodder.html
