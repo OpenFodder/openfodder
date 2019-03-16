@@ -44,9 +44,17 @@ struct sGameVersion : public sVersion {
 		return std::find(gfx.begin(), gfx.end(), pGfxType) != gfx.end();
 	}
 
-	bool hasTileset(eTileTypes pTileType) const {
+	bool hasTileset(eTileTypes pTileType, eTileSub pSub = eTileSub::eTileSub_0 ) const {
 		auto tiles = getTileTypes();
-		return std::find(tiles.begin(), tiles.end(), pTileType) != tiles.end();
+
+		return std::find_if(tiles.begin(), tiles.end(),
+			[pTileType, pSub](const sTileset& ms) {
+				if (ms.Type != pTileType)
+					return false;
+
+				return std::find(ms.Subs.begin(), ms.Subs.end(), pSub) != ms.Subs.end();
+		}
+		) != tiles.end();
 	}
 
     bool hasBriefingScreen() const {
@@ -79,7 +87,8 @@ struct sGameVersion : public sVersion {
     }
 
 	std::vector<eGFX_Types> getGfxTypes() const;
-	std::vector<eTileTypes> getTileTypes() const;
+	std::vector<sTileset> getTileTypes() const;
+
 	std::vector<sIntroText>* getIntroData() const;
 
     std::shared_ptr<cResources> GetResources() const;
@@ -103,7 +112,7 @@ public:
 
     const sGameVersion* GetForCampaign(const std::string& pCampaign) const;
     const sGameVersion* GetForCampaign(const std::string& pCampaign, const ePlatform pPlatform) const;
-    const sGameVersion* GetForTileset(eTileTypes pTileType) const;
+    const sGameVersion* GetForTileset(eTileTypes pTileType, eTileSub pSub) const;
     const sGameVersion* GetRetail(const ePlatform pPlatform, const eGame pGame) const;
     const sGameVersion* GetDemo() const;
 };

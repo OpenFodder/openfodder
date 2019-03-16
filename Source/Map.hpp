@@ -278,10 +278,10 @@ struct sMapParams {
 	size_t		mWidth;
 	size_t		mHeight;
 	eTileTypes	mTileType;
-	size_t		mTileSub;
+	eTileSub	mTileSub;
 	cPseudorand mRandom;
 
-	sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, size_t pTileSub);
+	sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub);
 	sMapParams(size_t pSeed = 0);
 	void Randomise(const size_t pSeed = 0);
 };
@@ -328,6 +328,10 @@ public:
 
 	virtual void ClearTiles(const size_t pTileID);
 	virtual void Randomise();
+
+	sMapParams *getMapParams() { return &mParams; }
+	eTileTypes getTileType() const { return mParams.mTileType; }
+	eTileSub getTileSub() const { return mParams.mTileSub; }
 
 	int32 getWidth() const { return static_cast<int32>(mParams.mWidth); }
 	int32 getHeight() const { return static_cast<int32>(mParams.mHeight); }

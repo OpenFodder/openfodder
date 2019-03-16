@@ -342,8 +342,7 @@ public:
     int16           mSprite_Missile_LaunchDistance_Y;
     int16           mSprite_Bullet_Deviate_Counter;
     int32           dword_3B1CB;
-
-    eTileTypes      mMap_TileSet;
+			
     int16           mMission_EngineTicks;
     bool            mRecruit_Mission_Restarting;
     sSprite*        mMission_Troops_SpritePtrs[9];
@@ -658,7 +657,6 @@ public:
     void            Squad_EnteredVehicle_TimerTick();
 
     void            Map_Overview_Prepare();
-    void            Map_SetTileType();
 
     void            Sprite_Find_HumanVehicles();
     void            Sprite_Count_HelicopterCallPads();
@@ -1273,6 +1271,7 @@ public:
     void            String_Print_Small(std::string pText, const size_t pX, const size_t pY);
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
 
+	void			DataNotFound();
     virtual void    Prepare(std::shared_ptr<sFodderParameters> pParams);
 
     void            Playground();

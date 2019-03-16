@@ -24,7 +24,7 @@
 #include "Utils/SimplexNoise.hpp"
 #include "Utils/diamondsquare.hpp"
 
-sMapParams::sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, size_t pTileSub) {
+sMapParams::sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub) {
 	mAlgorithm = eRandom_SimplexNoise;
 
 	mTileType = pTileType;
@@ -35,7 +35,7 @@ sMapParams::sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, size
 
 sMapParams::sMapParams(size_t pSeed) {
 	mTileType = eTileTypes_Jungle;
-	mTileSub = 0;
+	mTileSub = eTileSub_0;
 	mWidth = 0;
 	mHeight = 0;
 
@@ -54,7 +54,7 @@ void sMapParams::Randomise(const size_t pSeed) {
 
 	// HACK: While we only support jungle random
 	mTileType = eTileTypes_Jungle;
-	mTileSub = 0;
+	mTileSub = eTileSub_0;
 
 	mWidth = (mRandom.getu() % 100) + 0x15;
 	mHeight = (mRandom.getu() % 100) + 0x10;
@@ -253,7 +253,7 @@ void cMap::SetTileTypeInHeader() {
 	std::string mSubName = mTileTypes[mParams.mTileType].mName;
 
 	// Only Jungle has a sub1
-	if (mParams.mTileSub == 0 || mParams.mTileType != eTileTypes_Jungle)
+	if (mParams.mTileSub == eTileSub_0 || mParams.mTileType != eTileTypes_Jungle)
 		mSubName.append("sub0.blk");
 	else
 		mSubName.append("sub1.blk");
@@ -266,7 +266,7 @@ void cMap::SetTileTypeInHeader() {
 void cMap::SetTileTypeFromHeader() {
 	// Default to Jungle
 	mParams.mTileType = eTileTypes_Jungle;
-	mParams.mTileSub = 0;
+	mParams.mTileSub = eTileSub_0;
 
 	for (auto& TileType : mTileTypes) {
 		if (TileType.mName[0] != mData->data()[0])
@@ -281,7 +281,7 @@ void cMap::SetTileTypeFromHeader() {
 
 	// Tile Sub
 	if (mData->data()[16] == '1')
-		mParams.mTileSub = 1;
+		mParams.mTileSub = eTileSub_1;
 }
 
 int32 cMap::Tile_Get(const size_t pTileX, const size_t pTileY) {

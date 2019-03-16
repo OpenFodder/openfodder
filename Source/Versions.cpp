@@ -23,39 +23,43 @@
 #include "stdafx.hpp"
 #include "Versions_Files.hpp"
 
-const std::vector<eTileTypes> Retail_Tile_Types = {
-    eTileTypes_Jungle,
-    eTileTypes_Desert,
-    eTileTypes_Ice,
-    eTileTypes_Moors,
-    eTileTypes_Int
+const std::vector<sTileset> Retail_Tile_Types = {
+	{ eTileTypes_Jungle,	{ eTileSub_0, eTileSub_1 } },
+    { eTileTypes_Desert,	{ eTileSub_0 } },
+    { eTileTypes_Ice,		{ eTileSub_0 } },
+    { eTileTypes_Moors,		{ eTileSub_0 } },
+    { eTileTypes_Int,		{ eTileSub_0 } },
 };
 
-const std::vector<eTileTypes> PCFormat_TileTypes = {
-    eTileTypes_Jungle,
-    eTileTypes_Ice
+const std::vector<sTileset> PCFormat_TileTypes = {
+	{ eTileTypes_Jungle,	{ eTileSub_0, eTileSub_1 } },
+	{ eTileTypes_Ice,		{ eTileSub_0 } },
 };
 
-const std::vector<eTileTypes> AmigaFormat_Tile_Types = {
-    eTileTypes_AFX
+const std::vector<sTileset> AmigaFormat_Tile_Types = {
+	{ eTileTypes_AFX,		{ eTileSub_0 } },
 };
 
-const std::vector<eTileTypes> AmigaTheOne_TileTypes = {
-    eTileTypes_Jungle,
-    eTileTypes_Ice
+const std::vector<sTileset> AmigaTheOne_TileTypes = {
+	{ eTileTypes_Jungle,	{ eTileSub_0, eTileSub_1 } },
+	{ eTileTypes_Ice,		{ eTileSub_0 } },
 };
 
-const std::vector<eTileTypes> AmigaPlus_Tile_Types = {
-    eTileTypes_Jungle
+const std::vector<sTileset> AmigaPlus_Tile_Types = {
+	{ eTileTypes_Jungle,	{ eTileSub_1 } },
 };
 
-const std::vector<eTileTypes> AmigaNVF_Tile_Types = {
-    eTileTypes_Desert,
-    eTileTypes_Ice
+const std::vector<sTileset> AmigaAction_Tile_Types = {
+	{ eTileTypes_Jungle,	{ eTileSub_0, eTileSub_1 } },
 };
 
-const std::vector<eTileTypes> AmigaAL_Tile_Types = {
-	eTileTypes_Int,
+const std::vector<sTileset> AmigaNVF_Tile_Types = {
+	{ eTileTypes_Desert,	{ eTileSub_0 } },
+	{ eTileTypes_Ice,		{ eTileSub_0 } },
+};
+
+const std::vector<sTileset> AmigaAL_Tile_Types = {
+	{ eTileTypes_Int,	{ eTileSub_0 } },
 };
 
 const std::vector<eGFX_Types> Retail_GFX_Types = {
@@ -155,11 +159,11 @@ const sGameVersion* cVersions::GetDemo() const {
     return *Release;
 }
 
-const sGameVersion* cVersions::GetForTileset(eTileTypes pTileType) const {
+const sGameVersion* cVersions::GetForTileset(eTileTypes pTileType, eTileSub pSub) const {
     // Look through all available versions for a campaign name match
     for (auto& Version : g_ResourceMan->GetAvailable()) {
 
-        if (Version->hasTileset(pTileType))
+        if (Version->hasTileset(pTileType, pSub))
             return Version;
     }
 
@@ -331,7 +335,7 @@ std::vector<eGFX_Types> sGameVersion::getGfxTypes() const {
 
 }
 
-std::vector<eTileTypes> sGameVersion::getTileTypes() const {
+std::vector<sTileset> sGameVersion::getTileTypes() const {
 
 	switch (mRelease) {
 	case eRelease::Retail:
@@ -347,7 +351,7 @@ std::vector<eTileTypes> sGameVersion::getTileTypes() const {
 		return AmigaTheOne_TileTypes;
 		
 	case eRelease::AmigaAction:
-		return AmigaPlus_Tile_Types;
+		return AmigaAction_Tile_Types;
 		
 	case eRelease::AmigaAlienLevels:
 		return AmigaAL_Tile_Types;
@@ -356,7 +360,7 @@ std::vector<eTileTypes> sGameVersion::getTileTypes() const {
 		return AmigaFormat_Tile_Types;
 		
 	case eRelease::AmigaNotVeryFestive:
-		return AmigaPlus_Tile_Types;
+		return AmigaNVF_Tile_Types;
 
 	default:
 	case eRelease::Custom:

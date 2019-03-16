@@ -77,6 +77,16 @@ enum eTileTypes {
 	eTileTypes_AFX = 6,	// Amiga Format Christmas Special
 };
 
+enum eTileSub {
+	eTileSub_0 = 0,
+	eTileSub_1 = 1
+};
+
+struct sTileset {
+	eTileTypes Type;
+	std::vector<eTileSub> Subs;
+};
+
 struct sVersion {
 	std::string			mName;
 
@@ -109,7 +119,6 @@ struct sVersion {
 	bool isCustom() const {
 		return mRelease == eRelease::Custom;
 	}
-
 
 	bool isRetail() const {
 		return mRelease == eRelease::Retail;

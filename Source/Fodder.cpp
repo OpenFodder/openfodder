@@ -1730,7 +1730,7 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
                  : 16;
 
     if (mVersionCurrent->isAmigaPower())
-		pParams.mTileSub = 1;
+		pParams.mTileSub = eTileSub_1;
 
     // In OF, this will only ever get called from the campaign selection screen,
     // so we pick a tile thats easy to read text on
@@ -1813,17 +1813,8 @@ bool cFodder::Tiles_Load_Data() {
 void cFodder::Map_Load_Resources() {
     std::string BaseBase, BaseSub, BaseBaseSet, BaseSubSet;
 
-    // Map Tileset
-    Map_SetTileType();
-
     // Is the tileset available?
     if (!Tiles_Load_Data()) {
-
-        // Is the current version meant to have the required tileset?
-        if (mVersionCurrent->hasTileset(mMap_TileSet)) {
-
-            // TODO: Warn user about missing data?
-        }
 
         // Load the default version
         VersionSwitch(mVersionDefault);
@@ -1832,7 +1823,7 @@ void cFodder::Map_Load_Resources() {
         if (!Tiles_Load_Data()) {
 
             // Not found, so lets go find it
-            auto Version = mVersions->GetForTileset(mMap_TileSet);
+            auto Version = mVersions->GetForTileset(mMapLoaded.getTileType(), mMapLoaded.getTileSub());
 
             // Load it
             if (Version) {
@@ -1840,8 +1831,8 @@ void cFodder::Map_Load_Resources() {
                 Tiles_Load_Data();
             }
             else {
-                std::cout << "Data not found\n";
-                exit(1);
+				DataNotFound();
+				return;
             }
         }
 
@@ -1895,7 +1886,7 @@ void cFodder::Map_Load_Resources() {
 
 void cFodder::Music_Play_Tileset() {
     if (!mStartParams->mDisableSound)
-        mSound->Music_Play(mMap_TileSet + 0x32);
+        mSound->Music_Play(mMapLoaded.getTileType() + 0x32);
 }
 
 void cFodder::Camera_Pan_To_Target() {
@@ -2642,27 +2633,6 @@ void cFodder::Map_Overview_Prepare() {
 
 }
 
-void cFodder::Map_SetTileType() {
-
-    for (auto& TileType : mTileTypes) {
-
-        if (TileType.mName[0] != mMap->data()[0])
-            continue;
-
-        if (TileType.mName[1] != mMap->data()[1])
-            continue;
-
-        if (TileType.mName[2] != mMap->data()[2])
-            continue;
-
-        mMap_TileSet = TileType.mType;
-        return;
-    }
-
-    // Fallback to Jungle
-    mMap_TileSet = eTileTypes_Jungle;
-}
-
 void cFodder::eventProcess(const cEvent& pEvent) {
     switch (pEvent.mType) {
 
@@ -3162,7 +3132,7 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
         Music_Play_Tileset();
     }
     
-    if(mRecruit_Screen_Active) {
+    if(mRecruit_Screen_Active && mVersionCurrent->hasGfx(eGFX_HILL)) {
         Recruit_Prepare();
 
         mRecruit_RenderedNext = mRecruit_Rendereds.begin();
@@ -3176,24 +3146,28 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 }
 
+void cFodder::DataNotFound() {
+	g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
+
+	g_Debugger->Error("We are looking for the 'Data' directory in: ");
+	for (auto path : g_ResourceMan->getAllPaths()) {
+		g_Debugger->Error(path);
+	}
+
+	g_Debugger->Error("Press enter to quit");
+	std::cin.get();
+	exit(1);
+}
+
 void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
     mParams = std::make_shared<sFodderParameters>(*pParams);
     mStartParams = std::make_shared<sFodderParameters>(*pParams);
 
 	g_ResourceMan->refresh();
 		
-    if (!g_ResourceMan->isDataAvailable()) {
-        g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
+    if (!g_ResourceMan->isDataAvailable())
+		DataNotFound();
 
-		g_Debugger->Error("We are looking for the 'Data' directory in: ");
-		for (auto path : g_ResourceMan->getAllPaths()) {
-			g_Debugger->Error(path);
-		}
-
-        g_Debugger->Error("Press enter to quit");
-        std::cin.get();
-        exit(1);
-    }
 
     mWindow->InitWindow("Open Fodder");
 	mWindow->SetWindowSize((int)mParams->mWindowScale);
@@ -3455,7 +3429,7 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
         return;
 
     if (!mStartParams->mDisableSound)
-        mSound->Sound_Play(mMap_TileSet, pSoundEffect, Volume);
+        mSound->Sound_Play(mMapLoaded.getTileType(), pSoundEffect, Volume);
 }
 
 void cFodder::Mission_Intro_Helicopter_Start() {
@@ -3708,12 +3682,12 @@ void cFodder::Campaign_Select_Setup() {
 
 	// Create the title screen depending on which data is loaded
 	if (mVersionCurrent->isRetail()) {
-		sMapParams Params(0x15, 0x0F, eTileTypes_Jungle, 0);
+		sMapParams Params(0x15, 0x0F, eTileTypes_Jungle, eTileSub_0);
 		Map_Create(Params);
 		std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_Jungle.data(), mMap->size() - 0x60);
 	}
 	else {
-		sMapParams Params(0x15, 0x0F, eTileTypes_AFX, 0);
+		sMapParams Params(0x15, 0x0F, eTileTypes_AFX, eTileSub_0);
 		Map_Create(Params);
 		std::memcpy(mMap->data() + 0x60, mCampaignSelectMap_AF.data(), mMap->size() - 0x60);
 	}
@@ -3813,6 +3787,16 @@ void cFodder::Campaign_Selection() {
             // If no version, it must be a custom campaign
         }
         else if (!Version) {
+
+			// If version is currently XMAS, it means no retail is available
+			if (mVersionCurrent->isAmigaXmas()) {
+
+				VersionSwitch(mVersions->GetForCampaign("Amiga Action"));
+
+				// Set the default/starting version
+				mVersionDefault = mVersions->GetForCampaign("Amiga Action");
+			}
+
             mCustom_Mode = eCustomMode_Set;
         }
     }
@@ -3912,11 +3896,11 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
 
     word_3AA1D = word_3BED5[0];
 
-    if(mMap_TileSet == eTileTypes_Jungle)
-        Map_Add_Structure(mStructuresBarracksWithSoldier[mMap_TileSet], 4, 2);
+    if(mMapLoaded.getTileType() == eTileTypes_Jungle)
+        Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded.getTileType()], 4, 2);
 
-    if(mMap_TileSet == eTileTypes_AFX)
-        Map_Add_Structure(mStructuresBarracksWithSoldier[mMap_TileSet], 2, 5);
+    if(mMapLoaded.getTileType() == eTileTypes_AFX)
+        Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded.getTileType()], 2, 5);
 }
 
 void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle) {
@@ -5055,7 +5039,7 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
 
     // Turrets in Moors / Interior can't be destroyed
     if (mVersionCurrent->isCannonFodder1()) {
-        if (mMap_TileSet == eTileTypes_Moors || mMap_TileSet == eTileTypes_Int) {
+        if (mMapLoaded.getTileType() == eTileTypes_Moors || mMapLoaded.getTileType() == eTileTypes_Int) {
 
             if (pSprite->field_38 == eSprite_Anim_Die1)
                 pSprite->field_38 = eSprite_Anim_None;
@@ -6374,7 +6358,7 @@ int16 cFodder::Sprite_Create_Indigenous_Spear2(sSprite* pSprite) {
 
     Data2C->field_50 = Data0;
 
-    if (mMap_TileSet == eTileTypes_Moors) {
+    if (mMapLoaded.getTileType() == eTileTypes_Moors) {
         Data0 = tool_RandomGet() & 1;
         if (Data0)
             goto loc_25D9D;
@@ -8768,7 +8752,7 @@ void cFodder::Map_Destroy_Tiles() {
         if (TriggerExplosion)
             goto loc_2DF7B;
 
-        IndestructibleTypes = mTiles_Indestructible[mMap_TileSet];
+        IndestructibleTypes = mTiles_Indestructible[mMapLoaded.getTileType()];
 
         int16 ax;
         do {
@@ -12427,10 +12411,10 @@ loc_1C87E:;
 
 loc_1C8C5:;
 
-    if (mMap_TileSet == eTileTypes_Jungle)
+    if (mMapLoaded.getTileType() == eTileTypes_Jungle)
         Sprite_Native_Sound_Play(pSprite, 0x1A);
 
-    if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX)
+    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX)
         Sprite_Native_Sound_Play(pSprite, 0x1F);
 
 }
@@ -12500,10 +12484,10 @@ void cFodder::Sprite_Handle_Bird_Right(sSprite* pSprite) {
     pSprite->field_4 = Data0;
 
 loc_1CA20:;
-    if (mMap_TileSet == eTileTypes_Jungle)
+    if (mMapLoaded.getTileType() == eTileTypes_Jungle)
         Sprite_Native_Sound_Play(pSprite, 0x1A);
 
-    if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX)
+    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX)
         Sprite_Native_Sound_Play(pSprite, 0x1F);
 }
 
@@ -12527,7 +12511,7 @@ void cFodder::Sprite_Handle_Seal(sSprite* pSprite) {
     Data0 = mSprite_Seal_AnimFrames[Data0];
     pSprite->field_A = Data0;
 
-    if (mMap_TileSet == eTileTypes_Moors) {
+    if (mMapLoaded.getTileType() == eTileTypes_Moors) {
         Data0 = tool_RandomGet() & 3;
         if (Data0 != 3) {
             Data0 += 0x23;
@@ -12535,7 +12519,7 @@ void cFodder::Sprite_Handle_Seal(sSprite* pSprite) {
         }
     }
 
-    if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX) {
+    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX) {
         Sprite_Native_Sound_Play(pSprite, 0x1E);
     }
 }
@@ -12671,10 +12655,10 @@ void cFodder::Sprite_Handle_Indigenous_Spear(sSprite* pSprite) {
     pSprite->field_22 = eSprite_PersonType_Native;
     pSprite->field_8 = 0xD0;
 
-    if (mMap_TileSet == eTileTypes_Moors)
+    if (mMapLoaded.getTileType() == eTileTypes_Moors)
         Sprite_Native_Sound_Play(pSprite, 0x26);
 
-    if (mMap_TileSet == eTileTypes_Int)
+    if (mMapLoaded.getTileType() == eTileTypes_Int)
         Sprite_Native_Sound_Play(pSprite, 0x1F);
 
     int16 ax = Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(pSprite);
@@ -13789,7 +13773,7 @@ void cFodder::Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID) {
 
     int16 Data8 = 0;
 
-    if (mMap_TileSet == eTileTypes_Int || mMap_TileSet == eTileTypes_Moors)
+    if (mMapLoaded.getTileType() == eTileTypes_Int || mMapLoaded.getTileType() == eTileTypes_Moors)
         Data8 = 0x7F;
 
     Sound_Play(pSprite, pSoundID, Data8);
@@ -15904,7 +15888,7 @@ void cFodder::Intro_OpenFodder() {
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2"));
 
 		// Random intro
-		mMap_TileSet = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
+		mMapLoaded.getMapParams()->mTileType = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 		Mission_Intro_Play(true);
 		mOpenFodder_Intro_Done = true;
 		if (CF2)
@@ -16030,8 +16014,8 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
 
     mSurface->clearBuffer();
 
-    if (mMap_TileSet >= eTileTypes_Hid)
-        mMap_TileSet = eTileTypes_Jungle;
+    if (mMapLoaded.getTileType() >= eTileTypes_Hid)
+		mMapLoaded.getMapParams()->mTileType = eTileTypes_Jungle;
 
     mGraphics->Mission_Intro_Load_Resources();
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
@@ -17630,7 +17614,7 @@ int16 cFodder::sub_222A3(sSprite* pSprite) {
     if (Data4 < 0)
         Data0 = -Data0;
 
-    if (mMap_TileSet == eTileTypes_Ice || mMap_TileSet == eTileTypes_AFX)
+    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX)
         Data0 += 0x1C0;
 
     pSprite->field_10 = Data0;
@@ -18242,6 +18226,9 @@ bool cFodder::GameOverCheck() {
 int16 cFodder::Briefing_Show() {
 
 	if (mParams->mSkipBriefing)
+		return 1;
+
+	if (mVersionCurrent->isDemo() && mVersionDefault->isDemo())
 		return 1;
 
 	// Show the Briefing screen for Retail and Custom 
