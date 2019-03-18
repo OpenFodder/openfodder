@@ -281,7 +281,7 @@ void cGraphics_PC::MapTiles_Draw() {
     uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
     // Y
-    for (uint16 cx = 0; cx < 0x10; ++cx) {
+    for (uint16 cx = 0; cx <= g_Fodder->mStartParams->mWindowRows + 1; ++cx) {
         uint8* MapPtr = CurrentMapPtr;
         uint8* TargetRow = Target;
 
@@ -291,7 +291,7 @@ void cGraphics_PC::MapTiles_Draw() {
             StartY = mFodder->mMapTile_RowOffset;
 
         // X
-        for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+        for (uint16 cx2 = 0; cx2 <= g_Fodder->mStartParams->mWindowColumns + 1; ++cx2) {
             uint8* TargetTmp = TargetRow;
 
             // Verify we are inside the actual map data
@@ -429,13 +429,13 @@ void cGraphics_PC::Video_Draw_16(const uint8* RowPallete) {
 	uint8*	di = mSurface->GetSurfaceBuffer();
 	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
 
-	di += 352 * mFodder->mVideo_Draw_PosY;
+	di += mSurface->GetWidth() * mFodder->mVideo_Draw_PosY;
 	di += mFodder->mVideo_Draw_PosX;
 
 	mFodder->word_42066 = di;
 
 	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->mVideo_Draw_ColumnsMax - mFodder->mVideo_Draw_Columns;
-	mFodder->mDraw_Dest_SkipPixelsPerRow = 352 - mFodder->mVideo_Draw_Columns;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = mSurface->GetWidth() - mFodder->mVideo_Draw_Columns;
 
 	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
 
@@ -460,14 +460,14 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 	Buffer += (16 * mSurface->GetWidth()) +     16;
 
-	for (unsigned int Y = 0; Y < 250; ++Y) {
+	for (unsigned int Y = 0; Y < mSurface->GetHeight(); ++Y) {
 
 		for (unsigned int X = 0; X < 0x30; ++X) {
 
 			Buffer[X] = *si++;
 		}
 			
-		Buffer += 352;
+		Buffer += mSurface->GetWidth();
 	}
 }
 
@@ -777,12 +777,13 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 
 	ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
 	--ax;
+	int16 maxWindowX = mFodder->mParams->getWindowSize().mWidth + 31; // 351
 
-	if (ax > 351) {
-		if (mFodder->mVideo_Draw_PosX > 351)
+	if (ax > maxWindowX) {
+		if (mFodder->mVideo_Draw_PosX > maxWindowX)
 			return false;
 
-		ax -= 351;
+		ax -= maxWindowX;
 		--ax;
 
 		do {

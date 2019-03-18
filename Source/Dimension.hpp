@@ -43,4 +43,9 @@ class cDimension {
         bool operator==(const cDimension& pRight) {
             return mWidth == pRight.mWidth && mHeight == pRight.mHeight;
         }
+
+		cDimension operator+(const cDimension& pRight) {
+
+			return cDimension(mWidth + pRight.mWidth, mHeight + pRight.mHeight);
+		}
 };

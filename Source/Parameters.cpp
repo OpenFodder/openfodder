@@ -117,6 +117,9 @@ void sFodderParameters::PrepareOptions() {
 		("amiga", "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
 		("engine", "Default to engine (single map/random)", cxxopts::value<std::string>()->default_value("cf1"), "cf1")
 
+		("columns", "Number of columns", cxxopts::value<std::uint32_t>()->default_value("22"), "22")
+		("rows", "Number of rows", cxxopts::value<std::uint32_t>()->default_value("16"), "16")
+
 		("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 
 		("cheats", "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
@@ -237,6 +240,12 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 
 		mCheatsEnabled = result["cheats"].as<bool>();
 
+		if(result.count("rows"))
+			mWindowRows = result["rows"].as<std::uint32_t>();
+		
+		if (result.count("columns"))
+			mWindowColumns = result["columns"].as<std::uint32_t>();
+
 		if (mSpritesMax < 16)
 			mSpritesMax = 16;
 
@@ -303,6 +312,18 @@ bool sFodderParameters::ProcessINI() {
 				mWindowScale = 0;
 			else {
 				mWindowScale = ini.get("scale", 0);
+			}
+
+			if (ini.get("columns", "22") == "22")
+				mWindowColumns = 22;
+			else {
+				mWindowColumns = ini.get("columns", 22);
+			}
+
+			if (ini.get("rows", "16") == "16")
+				mWindowRows = 16;
+			else {
+				mWindowRows = ini.get("rows", 16);
 			}
 		}
 	}

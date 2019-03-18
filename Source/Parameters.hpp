@@ -37,6 +37,9 @@ public:
 
 	bool mWindowMode;           // Start in a window
 	size_t mWindowScale;		// Start with window scaled at
+	size_t mWindowRows;
+	size_t mWindowColumns;
+
 	bool mRandom;               // Start a random map
 	ePlatform mDefaultPlatform; // Default platform to use
 	eGame mDefaultGame;			// Default game to use for single/random
@@ -73,6 +76,7 @@ public:
 	}
 
 	virtual void clear() {
+
 		mShowHelp = false;
 		mShowAbout = false;
 		mPlayground = false;
@@ -90,6 +94,10 @@ public:
 		mPhaseNumber = 0;
 		mWindowMode = false;
 		mWindowScale = 0;
+
+		mWindowRows = 16;
+		mWindowColumns = 22;
+
 		mRandom = false;
 		mDefaultPlatform = ePlatform::Any;
 		mDefaultGame = eGame::CF1;
@@ -117,5 +125,13 @@ public:
 	void Process(int argc, char *argv[]) {
 		ProcessINI();
 		ProcessCLI(argc, argv);
+	}
+
+	bool isWindowMapDefault() const {
+		return mWindowRows == 16 && mWindowColumns == 22;
+	}
+
+	cDimension getWindowSize() const {
+		return { mWindowColumns * 16, mWindowRows * 16 };
 	}
 };

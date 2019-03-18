@@ -1299,6 +1299,8 @@ bool cFodder::Recruit_Loop() {
             return 0;
     }
 
+	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+
     Mouse_Setup();
 
     Sidebar_Clear_ScreenBufferPtr();

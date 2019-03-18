@@ -239,11 +239,13 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
     ax = mFodder->mVideo_Draw_PosX + drawColumns;
 	--ax;
 
-	if (ax > 351) {
-		if (mFodder->mVideo_Draw_PosX > 351)
+	int16 maxWindowX = mFodder->mParams->getWindowSize().mWidth + 31; // 351
+
+	if (ax > maxWindowX) {
+		if (mFodder->mVideo_Draw_PosX > maxWindowX)
 			return false;
 
-		ax -= 351;
+		ax -= maxWindowX;
 		--ax;
 
 		do {
@@ -724,7 +726,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
 	// Y
-	for (uint16 cx = 0; cx < 0x10; ++cx) {
+	for (uint16 cx = 0; cx <= g_Fodder->mStartParams->mWindowRows + 1; ++cx) {
 
 		uint8* TargetRow = Target;
 
@@ -738,7 +740,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
             uint8* MapRowPtr = CurrentMapPtr;
 
 			// X
-			for (uint16 cx2 = 0; cx2 < 0x16; ++cx2) {
+			for (uint16 cx2 = 0; cx2 <= g_Fodder->mStartParams->mWindowColumns + 1; ++cx2) {
 				uint8* TargetTmp = TargetRow;
 
                 if (MapRowPtr >= mFodder->mMap->data() + mFodder->mMap->size())
@@ -1020,7 +1022,7 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	}
 
 	// Entire Height of Sidebar
-	for (unsigned int Y = 0; Y < 250; ++Y) {
+	for (unsigned int Y = 0; Y < mSurface->GetHeight(); ++Y) {
 
 		// Width of Sidebar
 		for (unsigned int X = 0; X < 0x30; X++) {

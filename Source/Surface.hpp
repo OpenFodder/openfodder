@@ -70,6 +70,7 @@ public:
 	void			surfaceSetToPalette();
 	void			surfaceSetToPaletteNew();
 					cSurface( size_t pWidth, size_t pHeight );
+					cSurface( const cDimension& pDimension );
 					~cSurface();
 
 	void			clearBuffer(uint8 pColor = 0);

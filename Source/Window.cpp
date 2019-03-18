@@ -538,6 +538,7 @@ cPosition cWindow::GetWindowPosition() const {
 cDimension cWindow::GetWindowSize() const {
 	return cDimension( mOriginalResolution.mWidth * mScaler, mOriginalResolution.mHeight * mScaler ); 
 }
+
 int32 cWindow::GetWindowWidth() const {
 	return mOriginalResolution.mWidth * mScaler;
 }

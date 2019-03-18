@@ -47,6 +47,10 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	clearSDLSurface();
 }
 
+cSurface::cSurface(const cDimension& pDimension) : cSurface(pDimension.mWidth, pDimension.mHeight) {
+
+}
+
 cSurface::~cSurface() {
 	delete[] mSurfaceBuffer;
 	delete[] mSurfaceBufferSaved;
