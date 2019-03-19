@@ -1291,4 +1291,11 @@ public:
     void            Window_UpdateScreenSize();
 
     void            VersionSwitch(const sGameVersion* pVersion);
+
+	cDimension		getWindowSize() const;
+	int16			getWindowRows() const;
+	int16			getWindowColumns() const;
+
+	int16			getCameraWidth() const;
+	int16			getCameraHeight() const;
 };

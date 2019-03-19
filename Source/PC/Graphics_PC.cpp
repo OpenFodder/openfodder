@@ -281,7 +281,7 @@ void cGraphics_PC::MapTiles_Draw() {
     uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
     // Y
-    for (uint16 cx = 0; cx <= g_Fodder->mStartParams->mWindowRows + 1; ++cx) {
+    for (uint16 cx = 0; cx <= g_Fodder->getWindowRows() + 1; ++cx) {
         uint8* MapPtr = CurrentMapPtr;
         uint8* TargetRow = Target;
 
@@ -291,7 +291,7 @@ void cGraphics_PC::MapTiles_Draw() {
             StartY = mFodder->mMapTile_RowOffset;
 
         // X
-        for (uint16 cx2 = 0; cx2 <= g_Fodder->mStartParams->mWindowColumns + 1; ++cx2) {
+        for (uint16 cx2 = 0; cx2 <= g_Fodder->getWindowColumns() + 1; ++cx2) {
             uint8* TargetTmp = TargetRow;
 
             // Verify we are inside the actual map data
@@ -777,7 +777,7 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 
 	ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
 	--ax;
-	int16 maxWindowX = mFodder->mParams->getWindowSize().mWidth + 31; // 351
+	int16 maxWindowX = mFodder->getWindowSize().mWidth + 31; // 351
 
 	if (ax > maxWindowX) {
 		if (mFodder->mVideo_Draw_PosX > maxWindowX)

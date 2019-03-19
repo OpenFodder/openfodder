@@ -609,8 +609,8 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
         if (Data0 >= 0x64)
             Data0 = 0x64;
     } else {
-        if (Data0 >= mParams->getWindowSize().mWidth / 2)
-            Data0 = mParams->getWindowSize().mWidth / 2;
+        if (Data0 >= 0x8C)
+            Data0 = 0x8C;
     }
     //loc_10AAA
     int16 word_3ABFD = Data0;
@@ -1570,17 +1570,17 @@ void cFodder::Camera_Speed_Calculate() {
         mCamera_Speed_Y = 0;
 
     //loc_11B9C
-	Data0 = mMapLoaded.getWidthPixels() - ((mParams->getWindowSize().mWidth - SIDEBAR_WIDTH - 32) );
+	// Calculate maximum right position of camera
+    Data0 = mMapLoaded.getWidthPixels() - getCameraWidth();
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     int32 Data4 = mCameraX + mCamera_Speed_X;
-
     if (Data4 > Data0) {
         Data0 -= mCameraX;
         mCamera_Speed_X = Data0;
     }
     //loc_11BE8
-	Data0 = mMapLoaded.getHeightPixels() - (mParams->getWindowSize().mHeight);
+    Data0 = mMapLoaded.getHeightPixels() - getCameraHeight();
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     Data4 = mCameraY + mCamera_Speed_Y;
@@ -1632,22 +1632,22 @@ void cFodder::Camera_SetTargetToStartPosition() {
     int16 Data4 = mCameraY >> 16;
 
     int16 Data8 = mCamera_StartPosition_X;
-    Data8 -= ((mParams->getWindowSize().mWidth - SIDEBAR_WIDTH) - 32) / 2;	// 0x88
+    Data8 -= 0x88;
     if (Data8 < 0)
         Data8 = 0;
 
     int16 Data10 = mMapLoaded.getWidthPixels();
-    Data10 -= ((mParams->getWindowSize().mWidth - SIDEBAR_WIDTH) - 32) / 2;
+    Data10 -= 0x88;
     if (Data8 >= Data10)
         Data8 = Data10;
 
     int16 DataC = mCamera_StartPosition_Y;
-	DataC -= (mParams->getWindowSize().mHeight) / 2;//0x6C;
+    DataC -= 0x6C;
     if (DataC < 0)
         DataC = 0;
 
     Data10 = mMapLoaded.getHeightPixels();
-    Data10 -= (mParams->getWindowSize().mHeight) / 2;
+    Data10 -= 0x6C;
     if (DataC >= Data10)
         DataC = Data10;
 
@@ -1685,11 +1685,11 @@ loc_11D8A:;
     if (mMap_Destroy_Tiles_Countdown)
         Map_Destroy_Tiles();
 
-    for (;  ;) {
+    for (;;) {
         Camera_Pan_To_Target();
         Camera_Pan_To_Target();
 
-        if (!mCamera_Reached_Target )
+        if (!mCamera_Reached_Target)
             break;
     }
 
@@ -1920,20 +1920,24 @@ void cFodder::Camera_Pan_Set_Speed() {
     mCamera_Speed_Y = 0;
 
     int16 Data0 = mCamera_PanTargetX;
-    Data0 -= ((mParams->getWindowSize().mWidth - SIDEBAR_WIDTH) - 32) / 2;
+    Data0 -= getCameraWidth() / 2;
     if (Data0 < 0)
         Data0 = 0;
 
     Data0 >>= 4;
     int16 Data4 = mCamera_PanTargetY;
-    Data4 -= (mParams->getWindowSize().mHeight) / 2;
+    Data4 -= 0x6C;
     if (Data4 < 0)
         Data4 = 0;
 
     Data4 >>= 4;
 
     int16 Data8 = mMapLoaded.getWidth();
-    Data8 -= 0x12;
+	if (mParams->mUnitTesting)
+		Data8 -= 0x12;
+	else
+		Data8 -= getCameraWidth() >> 4;
+
     if (Data8 < 0)
         Data8 = 0;
 
@@ -2039,14 +2043,14 @@ void cFodder::Camera_TileSpeedX_Set() {
 
         if ((mCamera_TileSpeedX >> 16) < 0) {
 
-            mCamera_TileSpeedX += (mParams->getWindowSize().mWidth << 16);
+            mCamera_TileSpeedX += (0x140 << 16);
             mCamera_TileSpeed_Overflow = (0xFFFF << 16) | (mCamera_TileSpeed_Overflow & 0xFFFF);
         }
     }
     else {
         //loc_12181
-        if ((mCamera_TileSpeedX >> 16) >= mParams->getWindowSize().mWidth) {
-            mCamera_TileSpeedX -= (mParams->getWindowSize().mWidth << 16);
+        if ((mCamera_TileSpeedX >> 16) >= 0x140) {
+            mCamera_TileSpeedX -= (0x140 << 16);
             mCamera_TileSpeed_Overflow = (1 << 16) | (mCamera_TileSpeed_Overflow & 0xFFFF);
         }
     }
@@ -3148,6 +3152,45 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 }
 
+cDimension cFodder::getWindowSize() const {
+
+	if (!mParams->mWindowColumns || !mParams->mWindowRows) {
+		if (mVersionCurrent)
+			return mVersionCurrent->GetScreenSize();
+
+		return { 352, 364 };
+	}
+
+	return { mParams->mWindowColumns * 16, mParams->mWindowRows * 16 };
+}
+
+int16 cFodder::getWindowRows() const {
+	if (!mParams->mWindowRows) {
+		return 22;
+	}
+	return mParams->mWindowRows;
+}
+
+int16 cFodder::getWindowColumns() const {
+	if (!mParams->mWindowColumns) {
+		return 22;
+	}
+	return mParams->mWindowColumns;
+}
+
+int16 cFodder::getCameraWidth() const {
+	if (mParams->mUnitTesting)
+		return 0x110;
+
+	return ((getWindowSize().mWidth - SIDEBAR_WIDTH));
+}
+
+int16 cFodder::getCameraHeight() const {
+	//if (!mParams->mUnitTesting)
+	//	return 0x110;
+
+	return getWindowSize().mHeight;
+}
 void cFodder::DataNotFound() {
 	g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
 
@@ -3185,8 +3228,8 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     mBriefing_Render_1_Mode = -1;
 
-	mSurface = new cSurface( pParams->getWindowSize() + cDimension(16, 16) );
-    mSurface2 = new cSurface( pParams->getWindowSize() + cDimension(16, 16) );
+    mSurface = new cSurface(  getWindowSize() + cDimension(16, 16) );
+    mSurface2 = new cSurface( getWindowSize() + cDimension(16, 16) );
 
 	Sprite_Clear_All();
 }
@@ -3793,7 +3836,6 @@ void cFodder::Campaign_Selection() {
 			// If version is currently XMAS, it means no retail is available
 			if (mVersionCurrent->isAmigaXmas()) {
 
-				// So we default to Amiga Action for now
 				VersionSwitch(mVersions->GetForCampaign("Amiga Action"));
 
 				// Set the default/starting version
@@ -9135,7 +9177,7 @@ void cFodder::Service_Show() {
     if (mParams->mSkipService)
         return;
 
-	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+	mWindow->SetScreenSize(mVersionCurrent->GetOriginalRes());
     mVersionPlatformSwitchDisabled = true;
 
     WindowTitleSet(false);
@@ -9562,6 +9604,7 @@ void cFodder::Briefing_Show_PreReady() {
     if (!mVersionCurrent->hasGfx(eGFX_BRIEFING) && !mGame_Data.mCampaign.isRandom())
         VersionSwitch(mVersionDefault);
 
+	mWindow->SetScreenSize(mVersionCurrent->GetOriginalRes());
     mSurface->clearBuffer();
     mGraphics->PaletteSet();
 
@@ -18061,14 +18104,12 @@ bool cFodder::Demo_Load() {
 void cFodder::Window_UpdateScreenSize() {
 
 	// We can override the window 
-	if (mStartParams->isWindowMapDefault()) {
-		mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
-		mWindow->SetOriginalRes(mVersionCurrent->GetOriginalRes());
-	} else {
-		mWindow->SetScreenSize( mStartParams->getWindowSize() );
-		mWindow->SetOriginalRes(mStartParams->getWindowSize() );
-	}
+	mWindow->SetScreenSize(getWindowSize());
+	mWindow->SetOriginalRes(getWindowSize());
+	
 
+    // This next section is done
+    //
     // If we're playing back a demo
     if (mParams->mDemoPlayback && g_Fodder->mVersionCurrent) {
         // And the current platform, does not match the platform the demo was recorded with
@@ -18086,7 +18127,6 @@ void cFodder::Window_UpdateScreenSize() {
             }
         }
     }
-
 }
 
 void cFodder::About() {
@@ -18242,6 +18282,8 @@ int16 cFodder::Briefing_Show() {
 
 	// Show the Briefing screen for Retail and Custom 
 	if (mVersionCurrent->hasBriefingScreen() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
+
+		Window_UpdateScreenSize();
 
 		// Show the pre ready Briefing Screen
 		Briefing_Show_PreReady();

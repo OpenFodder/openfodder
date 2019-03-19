@@ -314,14 +314,14 @@ bool sFodderParameters::ProcessINI() {
 				mWindowScale = ini.get("scale", 0);
 			}
 
-			if (ini.get("columns", "22") == "22")
-				mWindowColumns = 22;
+			if (ini.get("columns", "0") == "0")
+				mWindowColumns = 0;
 			else {
 				mWindowColumns = ini.get("columns", 22);
 			}
 
-			if (ini.get("rows", "16") == "16")
-				mWindowRows = 16;
+			if (ini.get("rows", "0") == "0")
+				mWindowRows = 0;
 			else {
 				mWindowRows = ini.get("rows", 16);
 			}

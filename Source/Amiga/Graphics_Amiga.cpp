@@ -239,7 +239,7 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
     ax = mFodder->mVideo_Draw_PosX + drawColumns;
 	--ax;
 
-	int16 maxWindowX = mFodder->mParams->getWindowSize().mWidth + 31; // 351
+	int16 maxWindowX = mFodder->getWindowSize().mWidth + 31; // 351
 
 	if (ax > maxWindowX) {
 		if (mFodder->mVideo_Draw_PosX > maxWindowX)
@@ -726,7 +726,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 	uint8* CurrentMapPtr = mFodder->mMap->data() + mFodder->mMapTile_Ptr;
 
 	// Y
-	for (uint16 cx = 0; cx <= g_Fodder->mStartParams->mWindowRows + 1; ++cx) {
+	for (uint16 cx = 0; cx <= g_Fodder->getWindowRows() + 1; ++cx) {
 
 		uint8* TargetRow = Target;
 
@@ -740,7 +740,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
             uint8* MapRowPtr = CurrentMapPtr;
 
 			// X
-			for (uint16 cx2 = 0; cx2 <= g_Fodder->mStartParams->mWindowColumns + 1; ++cx2) {
+			for (uint16 cx2 = 0; cx2 <= g_Fodder->getWindowColumns() + 1; ++cx2) {
 				uint8* TargetTmp = TargetRow;
 
                 if (MapRowPtr >= mFodder->mMap->data() + mFodder->mMap->size())

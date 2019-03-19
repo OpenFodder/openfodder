@@ -95,8 +95,8 @@ public:
 		mWindowMode = false;
 		mWindowScale = 0;
 
-		mWindowRows = 16;
-		mWindowColumns = 22;
+		mWindowRows = 0;
+		mWindowColumns = 0;
 
 		mRandom = false;
 		mDefaultPlatform = ePlatform::Any;
@@ -125,13 +125,5 @@ public:
 	void Process(int argc, char *argv[]) {
 		ProcessINI();
 		ProcessCLI(argc, argv);
-	}
-
-	bool isWindowMapDefault() const {
-		return mWindowRows == 16 && mWindowColumns == 22;
-	}
-
-	cDimension getWindowSize() const {
-		return { mWindowColumns * 16, mWindowRows * 16 };
 	}
 };
