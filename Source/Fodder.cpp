@@ -1933,10 +1933,7 @@ void cFodder::Camera_Pan_Set_Speed() {
     Data4 >>= 4;
 
     int16 Data8 = mMapLoaded.getWidth();
-	if (mParams->mUnitTesting)
-		Data8 -= 0x12;
-	else
-		Data8 -= getCameraWidth() >> 4;
+	Data8 -= (getCameraWidth() >> 4) + 1;
 
     if (Data8 < 0)
         Data8 = 0;
