@@ -16,6 +16,11 @@ cheats=false
 ; so values such as 1, 2 or 3
 scale=auto
 
+; Number of map tiles to draw horizontally (0 for platform default)
+columns=22
+
+; Number of map tiles to draw vertically (0 for platform default)
+rows=16
 
 [paths]
 ; Paths to data base folder
