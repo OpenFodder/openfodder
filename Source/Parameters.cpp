@@ -121,6 +121,7 @@ void sFodderParameters::PrepareOptions() {
 		("rows", "Number of rows", cxxopts::value<std::uint32_t>()->default_value("16"), "16")
 
 		("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
+		("window-scale", "Set the window scale", cxxopts::value<std::uint32_t>()->default_value("0"))
 
 		("cheats", "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
 		("max-sprite", "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
@@ -226,6 +227,9 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 
 		if (result.count("window"))
 			mWindowMode = result["window"].as<bool>();
+
+		if(result.count("window-scale"))
+			mWindowScale = result["window-scale"].as<uint32>();
 
 		mRandom = result["random"].as<bool>();
 		mDisableSound = result["nosound"].as<bool>();
