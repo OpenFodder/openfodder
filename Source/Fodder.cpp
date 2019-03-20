@@ -3225,8 +3225,8 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     mBriefing_Render_1_Mode = -1;
 
-    mSurface = new cSurface(  getWindowSize() + cDimension(16, 16) );
-    mSurface2 = new cSurface( getWindowSize() + cDimension(16, 16) );
+    mSurface = new cSurface(  getWindowSize() + cDimension(32, 32) );
+    mSurface2 = new cSurface( getWindowSize() + cDimension(32, 32) );
 
 	Sprite_Clear_All();
 }

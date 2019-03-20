@@ -1022,7 +1022,7 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 	}
 
 	// Entire Height of Sidebar
-	for (unsigned int Y = 0; Y < mSurface->GetHeight(); ++Y) {
+	for (unsigned int Y = 0; Y < mSurface->GetHeight() - 17; ++Y) {
 
 		// Width of Sidebar
 		for (unsigned int X = 0; X < 0x30; X++) {
