@@ -68,7 +68,7 @@ protected:
 	virtual void		DrawPixels_8( uint8* pSource, uint8* pDestination );
 	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination, const uint8 pPalleteIndex );
 
-	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors = 0, unsigned int pBackColor = 0 );
+	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors = 0, size_t pBackColor = 0 );
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
 	virtual void		Mouse_DrawCursor();

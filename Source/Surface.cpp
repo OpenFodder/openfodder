@@ -32,6 +32,10 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF << 16, 0xFF << 8, 0xFF, 0 );
 	mTexture = 0;
 
+	if (!mSDLSurface) {
+		g_Debugger->Error("SDLSurface not initialised");
+		exit(1);
+	}
     if (g_Window->GetRenderer()) {
         mTexture = SDL_CreateTexture(g_Window->GetRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, (int)pWidth, (int)pHeight);
 
@@ -271,12 +275,10 @@ void cSurface::mergeSurfaceBuffer( const cSurface* pFrom ) {
         SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 }
 
-void cSurface::clearBuffer(uint8 pColor) {
+void cSurface::clearBuffer(size_t pColor) {
 
-	for (size_t i = 0; i < mSurfaceBufferSize; ++i) {
-		mSurfaceBuffer[i] = pColor;
-		mSurfaceBufferSaved[i] = pColor;
-	}
+	memset(mSurfaceBuffer, (int) pColor, mSurfaceBufferSize);
+	memset(mSurfaceBufferSaved, (int) pColor, mSurfaceBufferSize);
 
 	clearSDLSurface();
 }

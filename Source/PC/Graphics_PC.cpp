@@ -690,7 +690,7 @@ void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows,
 
 }
 
-void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, unsigned int pBackColor) {
+void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, size_t pBackColor) {
 	std::string Filename = pFilename;
 
 	if (Filename.find('.') == std::string::npos )

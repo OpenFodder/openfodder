@@ -541,7 +541,7 @@ bool cMap::saveCF1Sprites(std::string pFilename) {
 
 void cMap::Randomise_Tiles_DS() {
 	int32 PowerOf = 0;
-	int32 Size;
+	size_t Size;
 
 	if (mParams.mWidth < mParams.mHeight)
 		Size = mParams.mHeight;

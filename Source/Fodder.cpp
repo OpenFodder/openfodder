@@ -361,7 +361,7 @@ int16 cFodder::Phase_Cycle() {
 
 	Camera_Update_Mouse_Position_For_Pan();
 
-	if (mPhase_ShowMapOverview) {
+	if (mPhase_ShowMapOverview && mSurfaceMapOverview) {
 
 		// Dont show the map while recording
 		if (!mParams->mDemoRecord)
@@ -1390,11 +1390,11 @@ void cFodder::Phase_Soldiers_AttachToSprites() {
 }
 
 void cFodder::Camera_Speed_Update_From_PanTarget() {
-    int16 Data4 = mCamera_PanTargetY - 108;
+	int16 Data4 = mCamera_PanTargetY - (getCameraHeight() - 8) / 2;
     if (Data4 < 0)
         Data4 = 0;
 
-    int16 Data0 = mCamera_PanTargetX - 128;
+	int16 Data0 = mCamera_PanTargetX - (getCameraWidth() / 2) + 8;
     if (Data0 < 0)
         Data0 = 0;
 
@@ -1685,7 +1685,8 @@ loc_11D8A:;
     if (mMap_Destroy_Tiles_Countdown)
         Map_Destroy_Tiles();
 
-    for (;;) {
+	// THis count is really meant as a backup to stop it looping forever
+	for (int count = 0; count < 10000000; ++count) {
         Camera_Pan_To_Target();
         Camera_Pan_To_Target();
 
@@ -1693,6 +1694,9 @@ loc_11D8A:;
             break;
     }
 
+	if (mCamera_Reached_Target) {
+		g_Debugger->Notice("Camera didnt reach target");
+	}
     Mission_Sprites_Handle();
     mGraphics->Sidebar_Copy_To_Surface();
     Mouse_DrawCursor();
@@ -1901,15 +1905,6 @@ void cFodder::Camera_Pan_To_Target() {
 
     Camera_TileSpeedX_Set();
 
-    int16 Data0 = mCamera_TileSpeedX >> 16;
-    Data0 >>= 3;
-    Data0 -= 2;
-
-    if (Data0 < 0)
-        Data0 += 0x28;
-
-    Data0 &= 0x0FFFE;
-
     MapTile_UpdateFromCamera();
     MapTile_Update_Position();
 }
@@ -1926,7 +1921,7 @@ void cFodder::Camera_Pan_Set_Speed() {
 
     Data0 >>= 4;
     int16 Data4 = mCamera_PanTargetY;
-    Data4 -= 0x6C;
+    Data4 -= (getCameraHeight() - 8) / 2;
     if (Data4 < 0)
         Data4 = 0;
 
@@ -1942,7 +1937,7 @@ void cFodder::Camera_Pan_Set_Speed() {
         Data0 = Data8;
 
     Data8 = mMapLoaded.getHeight();
-    Data8 -= 0x10;
+    Data8 -= (getCameraHeight() + 32) >> 4;
     if (Data8 < 0)
         Data8 = 0;
 
@@ -2127,7 +2122,7 @@ void cFodder::Camera_Acceleration_Set() {
         mCamera_Speed_Reset_X = true;
     }
     //loc_12362
-    if (DistanceX >= 0x150) {
+    if (DistanceX >= getCameraWidth() + 64) {
         mCamera_AccelerationX = (mCamera_AccelerationX & 0xFFFF) | CAMERA_PAN_TO_SQUAD_ACCELERATION;  // (2 << 16);
         mCamera_Speed_Reset_X = true;
     }
@@ -2137,7 +2132,7 @@ void cFodder::Camera_Acceleration_Set() {
         mCamera_Speed_Reset_Y = true;
     }
 
-    if (DistanceY >= 0xD8) {
+    if (DistanceY >= (getCameraHeight() - 9)) {
         mCamera_AccelerationY = (mCamera_AccelerationY & 0xFFFF) | CAMERA_PAN_TO_SQUAD_ACCELERATION;  // (2 << 16);
         mCamera_Speed_Reset_Y = true;
     }
@@ -2603,6 +2598,8 @@ void cFodder::Map_Overview_Prepare() {
 
     delete mSurfaceMapOverview;
     size_t Size = mMapLoaded.getWidth() < mMapLoaded.getHeight() ? mMapLoaded.getHeight() : mMapLoaded.getWidth();
+	if ((Size * 16) * (Size * 16) >= SDL_MAX_SINT32)
+		return;
 
     mSurfaceMapOverview = new cSurface(Size * 16, Size * 16);
     mSurfaceMapOverview->clearBuffer();
@@ -3165,29 +3162,26 @@ int16 cFodder::getWindowRows() const {
 	if (!mParams->mWindowRows) {
 		return 22;
 	}
-	return mParams->mWindowRows;
+	return (int16) mParams->mWindowRows;
 }
 
 int16 cFodder::getWindowColumns() const {
 	if (!mParams->mWindowColumns) {
 		return 22;
 	}
-	return mParams->mWindowColumns;
+	return (int16) mParams->mWindowColumns;
 }
 
 int16 cFodder::getCameraWidth() const {
-	if (mParams->mUnitTesting)
-		return 0x110;
 
 	return ((getWindowSize().mWidth - SIDEBAR_WIDTH));
 }
 
 int16 cFodder::getCameraHeight() const {
-	//if (!mParams->mUnitTesting)
-	//	return 0x110;
 
 	return getWindowSize().mHeight;
 }
+
 void cFodder::DataNotFound() {
 	g_Debugger->Error("No game data could be found, including the demos, have you installed the data pack?");
 

@@ -136,7 +136,7 @@ void cSound_PC2::Sound_Voc_Load() {
         SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, 8000, AUDIO_U8, 2, 22050);
         SDL_assert(cvt.needed);
 
-        cvt.len = file->size();
+        cvt.len = (int) file->size();
         cvt.buf = (Uint8 *)SDL_malloc(cvt.len * cvt.len_mult);
 
         memcpy(cvt.buf, file->data(), file->size());
