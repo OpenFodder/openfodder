@@ -418,6 +418,7 @@ public:
     int16           mMapTile_MovedHorizontal;
     int16           mMapTile_MovedVertical;
 
+	size_t			mSidebar_Buffer_Size;
     uint16*         mSidebar_Screen_Buffer;
     uint16*         mSidebar_Back_Buffer;
 

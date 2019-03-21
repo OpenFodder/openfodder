@@ -460,7 +460,7 @@ void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 	Buffer += (16 * mSurface->GetWidth()) +     16;
 
-	for (unsigned int Y = 0; Y < mSurface->GetHeight() - 17; ++Y) {
+	for (unsigned int Y = 17 + pStartY; Y < mSurface->GetHeight(); ++Y) {
 
 		for (unsigned int X = 0; X < 0x30; ++X) {
 

@@ -1050,7 +1050,7 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
     Element->field_0 = &cFodder::GUI_Button_NoAction;
     Element->mX = 0;
 
-    Element->mY = (mWindow->GetScreenSize().mHeight - 0x0B); // PLATFORM_BASED(189, 214);
+    Element->mY = (getCameraHeight() - 0x0B); // PLATFORM_BASED(189, 214);
     Element->mWidth = 0x2F;
     Element->mHeight = 0x0B;
     Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_ShowOverview;
@@ -1691,15 +1691,12 @@ void cFodder::Sidebar_Render_SquadIcon() {
 
 void cFodder::Sidebar_Clear_ScreenBufferPtr() {
 
-    for (uint16 cx = 0; cx < 0x2000; ++cx)
-        mSidebar_Screen_BufferPtr[cx] = 0;
+	memset(mSidebar_Screen_BufferPtr, 0, mSidebar_Buffer_Size);
 }
 
 void cFodder::Sidebar_Render_To_BackBuffer() {
 
-    for (int16 cx = 0; cx < 0x2000; ++cx) {
-        mSidebar_Back_Buffer[cx] = mSidebar_Screen_Buffer[cx];
-    }
+	memcpy(mSidebar_Back_Buffer, mSidebar_Screen_Buffer, mSidebar_Buffer_Size);
 
     mSidebar_Screen_BufferPtr = mSidebar_Back_Buffer;
 }
@@ -1709,9 +1706,7 @@ void cFodder::Sidebar_Render_To_BackBuffer() {
  */
 void cFodder::Sidebar_Render_To_ScreenBuffer() {
 
-    for (int16 cx = 0; cx < 0x2000; ++cx) {
-        mSidebar_Screen_Buffer[cx] = mSidebar_Back_Buffer[cx];
-    }
+	memcpy(mSidebar_Screen_Buffer, mSidebar_Back_Buffer, mSidebar_Buffer_Size);
 
     mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 }

@@ -3230,8 +3230,10 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     mMap = tSharedBuffer();
 
-    mSidebar_Back_Buffer = (uint16*) new uint8[0x4000];
-    mSidebar_Screen_Buffer = (uint16*) new uint8[0x4000];
+	mSidebar_Buffer_Size = 0x30 * getCameraHeight();
+
+    mSidebar_Back_Buffer = (uint16*) new uint8[mSidebar_Buffer_Size];
+    mSidebar_Screen_Buffer = (uint16*) new uint8[mSidebar_Buffer_Size];
     mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 
     mBriefing_Render_1_Mode = -1;
@@ -16070,7 +16072,7 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
     if (!mVersionCurrent->hasGfx(eGFX_BRIEFING))
         return;
 
-	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+	mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
     mSurface->clearBuffer();
 
     if (mMapLoaded.getTileType() >= eTileTypes_Hid)
