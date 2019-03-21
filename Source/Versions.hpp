@@ -72,13 +72,6 @@ struct sGameVersion : public sVersion {
         return { 320,200 };
     }
 
-    cDimension GetOriginalRes() const {
-        if (isAmiga())
-            return { 320,225 };
-
-        return { 320,200 };
-    }
-
     cDimension GetSecondScreenSize() const {
         if (isAmiga())
             return { 320,260 };

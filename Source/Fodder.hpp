@@ -1001,8 +1001,8 @@ public:
     void            Sprite_Handle_Helicopter_Human_CallCheck(sSprite* pSprite);
     void            Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C);
 
-    int16           Map_Get_Distance_BetweenSprites_Within_320(const sSprite* pSprite, const sSprite* pSprite2);
-    int16           Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2);
+    int16           Map_Get_Distance_BetweenSprites_Within_Window(const sSprite* pSprite, const sSprite* pSprite2);
+    int16           Map_Get_Distance_BetweenPoints_Within_Window(int16& pX, int16 pY, int16& pX2, int16& pY2);
     int16           Direction_Between_Points(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
     int16           tool_RandomGet();
@@ -1293,6 +1293,8 @@ public:
     void            VersionSwitch(const sGameVersion* pVersion);
 
 	cDimension		getWindowSize() const;
+	int16			getWindowWidth() const;
+
 	int16			getWindowRows() const;
 	int16			getWindowColumns() const;
 

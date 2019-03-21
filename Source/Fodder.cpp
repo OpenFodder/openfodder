@@ -603,7 +603,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     int16 Data8_Saved = SquadLeaderX;
     int16 DataC_Saved = SquadLeaderY;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, SquadLeaderX, SquadLeaderY);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, SquadLeaderX, SquadLeaderY);
 
     if (mSquad_CurrentVehicle) {
         if (Data0 >= 0x64)
@@ -1406,7 +1406,7 @@ void cFodder::Camera_Speed_Update_From_PanTarget() {
     int16 CameraX = Data8;
     int16 CameraY = DataC;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 > 0x10) {
         Data4 = mCamera_Scroll_Speed;
 
@@ -1652,7 +1652,7 @@ void cFodder::Camera_SetTargetToStartPosition() {
         DataC = Data10;
 
     if (!mPhase_MapIs17x12) {
-        Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+        Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
 
         if (Data0 >= 0x8C)
             goto loc_11D8A;
@@ -2035,14 +2035,14 @@ void cFodder::Camera_TileSpeedX_Set() {
 
         if ((mCamera_TileSpeedX >> 16) < 0) {
 
-            mCamera_TileSpeedX += (0x140 << 16);
+            mCamera_TileSpeedX += (getWindowWidth() << 16);
             mCamera_TileSpeed_Overflow = (0xFFFF << 16) | (mCamera_TileSpeed_Overflow & 0xFFFF);
         }
     }
     else {
         //loc_12181
-        if ((mCamera_TileSpeedX >> 16) >= 0x140) {
-            mCamera_TileSpeedX -= (0x140 << 16);
+        if ((mCamera_TileSpeedX >> 16) >= getWindowWidth()) {
+            mCamera_TileSpeedX -= (getWindowWidth() << 16);
             mCamera_TileSpeed_Overflow = (1 << 16) | (mCamera_TileSpeed_Overflow & 0xFFFF);
         }
     }
@@ -3146,6 +3146,17 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
 
 }
 
+int16 cFodder::getWindowWidth() const {
+	if (!mParams->mWindowColumns) {
+		if (mVersionCurrent)
+			return 320;
+
+		return 352;
+	}
+
+	return (int16) mParams->mWindowColumns * 16;
+}
+
 cDimension cFodder::getWindowSize() const {
 
 	if (!mParams->mWindowColumns || !mParams->mWindowRows) {
@@ -3174,12 +3185,18 @@ int16 cFodder::getWindowColumns() const {
 
 int16 cFodder::getCameraWidth() const {
 
-	return ((getWindowSize().mWidth - SIDEBAR_WIDTH));
+	return ((getWindowWidth() - SIDEBAR_WIDTH));
 }
 
 int16 cFodder::getCameraHeight() const {
+	if (!mParams->mWindowRows) {
+		if (mVersionCurrent)
+			return mVersionCurrent->GetScreenSize().mHeight;
 
-	return getWindowSize().mHeight;
+		return 364;
+	}
+
+	return (int16) mParams->mWindowRows * 16;
 }
 
 void cFodder::DataNotFound() {
@@ -3324,7 +3341,7 @@ void cFodder::Phase_Paused() {
         mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
         mString_GapCharID = 0x25;
 
-        String_CalculateWidth(320 + SIDEBAR_WIDTH, mFont_Underlined_Width, "GAME PAUSED");
+        String_CalculateWidth(getWindowWidth() + SIDEBAR_WIDTH, mFont_Underlined_Width, "GAME PAUSED");
         String_Print(mFont_Underlined_Width, 1, mGUI_Temp_X, 0x54,  "GAME PAUSED");
 
         mSurface2->draw();
@@ -4704,7 +4721,7 @@ loc_2356B:;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 >= 0x1E)
         goto loc_2361A;
 
@@ -5274,7 +5291,7 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
     pData8 = pData28->field_0;
     pDataC = pData28->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(pData0, pData4, pData8, pDataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(pData0, pData4, pData8, pDataC);
     mSprite_Find_Distance = pData0;
 
     if (pData0 >= 0xD2)
@@ -5597,7 +5614,7 @@ int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
     Data0 = pSprite->field_0;
     Data4 = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 < 0x28)
         Data0 = 0x28;
 
@@ -5925,7 +5942,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy(sSprite* pSprite) {
     Data8 = ((int64)pSprite->field_46) >> 16;
     DataC = ((int64)pSprite->field_46) & 0xFFFF;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 > 0x14)
         goto loc_250D2;
 
@@ -6017,7 +6034,7 @@ loc_250D2:;
     Data4 = Data30->field_4;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
 
     mSprite_DistanceTo_Squad0 = Data0;
     if (Data0 < 0xFA)
@@ -6869,7 +6886,7 @@ void cFodder::Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C) {
     pSprite->field_20 = mSprite_Computer_Frames[Data0 / 2];
 }
 
-int16 cFodder::Map_Get_Distance_BetweenSprites_Within_320( const sSprite *pSprite, const sSprite *pSprite2 ) {
+int16 cFodder::Map_Get_Distance_BetweenSprites_Within_Window( const sSprite *pSprite, const sSprite *pSprite2 ) {
 
     auto X1 = pSprite->field_0;
     auto Y1 = pSprite->field_4;
@@ -6877,10 +6894,10 @@ int16 cFodder::Map_Get_Distance_BetweenSprites_Within_320( const sSprite *pSprit
     auto X2 = pSprite2->field_0;
     auto Y2 = pSprite2->field_4;
 
-    return Map_Get_Distance_BetweenPoints_Within_320(X1, Y1, X2, Y2);
+    return Map_Get_Distance_BetweenPoints_Within_Window(X1, Y1, X2, Y2);
 }
 
-int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, int16& pX2, int16& pY2) {
+int16 cFodder::Map_Get_Distance_BetweenPoints_Within_Window(int16& pX, int16 pY, int16& pX2, int16& pY2) {
     const int8* Data24 = mMap_Distance_Calculations;
     int16 Data10 = 0;
 
@@ -6888,14 +6905,14 @@ int16 cFodder::Map_Get_Distance_BetweenPoints_Within_320(int16& pX, int16 pY, in
     if (pX2 < 0)
         pX2 = -pX2;
 
-    if (pX2 >= 0x140)
+    if (pX2 >= getWindowWidth())
         goto loc_29EBB;
 
     pY2 -= pY;
     if (pY2 < 0)
         pY2 = -pY2;
 
-    if (pY2 >= 0x140)
+    if (pY2 >= getWindowWidth())
         goto loc_29EBB;
 
 
@@ -8693,7 +8710,7 @@ int16 cFodder::Squad_Join_Check(sSprite* pSprite) {
     int16 Data4 = Dataa2C->field_4;
     int16 Data8 = pSprite->field_0;
     int16 DataC = pSprite->field_4;
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 <= MaxDistance)
         return Squad_Join(pSprite);
 
@@ -9171,7 +9188,7 @@ void cFodder::Service_Show() {
     if (mParams->mSkipService)
         return;
 
-	mWindow->SetScreenSize(mVersionCurrent->GetOriginalRes());
+	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
     mVersionPlatformSwitchDisabled = true;
 
     WindowTitleSet(false);
@@ -9349,7 +9366,7 @@ void cFodder::Service_Draw_String(const std::string& pText, const bool pLarge, c
     if (pLarge)
         FontWidth = mFont_ServiceName_Width;
 
-    String_CalculateWidth(0x140, FontWidth, pText.c_str());
+    String_CalculateWidth(getWindowWidth(), FontWidth, pText.c_str());
     Service_Draw_String(pText, FontWidth, pLarge ? 3 : 0, mGUI_Temp_X, (int16) pY);
 
 }
@@ -9550,7 +9567,7 @@ void cFodder::Service_Mission_Text_Prepare() {
 
     Mission << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Number));
 
-    String_CalculateWidth(0x140, mFont_Service_Width, Mission.str().c_str());
+    String_CalculateWidth(getWindowWidth(), mFont_Service_Width, Mission.str().c_str());
 
     Service_Draw_String(Mission.str(), mFont_Service_Width, 4, mGUI_Temp_X, mVideo_Draw_PosY);
 }
@@ -9598,7 +9615,7 @@ void cFodder::Briefing_Show_PreReady() {
     if (!mVersionCurrent->hasGfx(eGFX_BRIEFING) && !mGame_Data.mCampaign.isRandom())
         VersionSwitch(mVersionDefault);
 
-	mWindow->SetScreenSize(mVersionCurrent->GetOriginalRes());
+	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
     mSurface->clearBuffer();
     mGraphics->PaletteSet();
 
@@ -9825,7 +9842,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
                         int16 Data8 = Data28->field_0;
                         int16 DataC = Data28->field_4;
 
-                        Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+                        Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
                         if (Data0 < 0xD2) {
 
                             if (Data0 <= 0x28)
@@ -10151,7 +10168,7 @@ loc_19701:;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 <= 1)
         pSprite->field_36 = 0;
 
@@ -10419,7 +10436,7 @@ loc_19C6B:;
     Data8 = pSprite->field_2E;
     DataC = pSprite->field_30;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
 
     Data4 = pSprite->field_36;
     Data4 >>= 3;
@@ -10660,7 +10677,7 @@ loc_1A149:;
     Data8 = pSprite->field_26;
     DataC = pSprite->field_28;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     dword_3B24B = Data0;
 
     if (Data0 >= 0x60)
@@ -11475,7 +11492,7 @@ loc_1B523:;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 >= 0x1E)
         goto loc_1B5D2;
 
@@ -11583,7 +11600,7 @@ void cFodder::Sprite_Handle_Rocket(sSprite* pSprite) {
     int16 Data8 = pSprite->field_0;
     int16 DataC = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 <= 7)
         goto loc_1B843;
 
@@ -11956,7 +11973,7 @@ void cFodder::Sprite_Handle_MissileHoming(sSprite* pSprite) {
     Data4 = Data34->field_4 + 8;
     Data8 = pSprite->field_0;
     DataC = pSprite->field_4;
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
 
     Data4 = pSprite->field_36 >> 4;
     Data4 += 1;
@@ -12444,7 +12461,7 @@ loc_1C87E:;
 
     pSprite->field_57 = 0x3F;
 
-    Data0 = (tool_RandomGet() & 0x3F) + (mMapTile_TargetX >> 16) + 0x140;
+	Data0 = (tool_RandomGet() & 0x3F) + (mMapTile_TargetX >> 16) + getWindowWidth();
     pSprite->field_0 = Data0;
 
     Data0 = (tool_RandomGet() & 0xFF) + (mMapTile_TargetY >> 16);
@@ -12617,7 +12634,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     mSprite_Tank_Squad0_X = Data8;
     mSprite_Tank_DistanceTo_Squad0 = DataC;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     mSprite_DistanceTo_Squad0 = Data0;
     if (Data0 >= 250)
         goto NextSquadMember;
@@ -12765,7 +12782,7 @@ loc_1CF3E:;
     Data8 = pSprite->field_2E;
     DataC = pSprite->field_30;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     Data4 = pSprite->field_36;
     Data4 >>= 3;
     if (Data0 > Data4)
@@ -13037,7 +13054,7 @@ void cFodder::Sprite_Handle_Cannon(sSprite* pSprite) {
     Data8 = pSprite->field_2E;
     DataC = pSprite->field_30;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
 
     Data4 = pSprite->field_36;
     Data4 >>= 3;
@@ -13320,7 +13337,7 @@ void cFodder::Sprite_Handle_Seal_Mine(sSprite* pSprite) {
     int16 Data8 = pSprite->field_0;
     int16 DataC = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 > 0x14)
         return;
 
@@ -13359,7 +13376,7 @@ void cFodder::Sprite_Handle_Spider_Mine(sSprite* pSprite) {
     DataC = pSprite->field_4;
     DataC -= 2;
     Data10 = 0x20;
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 > 0x0A)
         return;
 
@@ -15492,21 +15509,21 @@ loc_2035C:;
 void cFodder::String_Print_Small(std::string pText, const size_t pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
-    String_CalculateWidth(320, mFont_Briefing_Width, pText);
+    String_CalculateWidth(getWindowWidth(), mFont_Briefing_Width, pText);
     String_Print(mFont_Briefing_Width, 0, mGUI_Temp_X, pY, pText);
 }
 
 void cFodder::String_Print_Small(std::string pText, const size_t pX, const size_t pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
-    String_CalculateWidth(320, mFont_Briefing_Width, pText);
+    String_CalculateWidth(getWindowWidth(), mFont_Briefing_Width, pText);
     String_Print(mFont_Briefing_Width, 0, pX, pY, pText);
 }
 
 void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
-    String_CalculateWidth(320, mFont_Underlined_Width, pText);
+    String_CalculateWidth(getWindowWidth(), mFont_Underlined_Width, pText);
     String_Print(mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, mGUI_Temp_X, pY, pText);
 }
 
@@ -16082,7 +16099,7 @@ void cFodder::Intro_Print_String(const sIntroString* pString) {
 
     auto PosY = pString->mPosition + PLATFORM_BASED(-0x19, 9);
 
-    String_CalculateWidth(320, mFont_Intro_Width, pString->mText);
+    String_CalculateWidth(getWindowWidth(), mFont_Intro_Width, pString->mText);
     String_Print(mFont_Intro_Width, 0, mGUI_Temp_X, PosY, pString->mText);
 }
 
@@ -16521,7 +16538,7 @@ int16 cFodder::Sprite_Create_Grenade(sSprite* pSprite) {
     Data4 = pSprite->field_4;
     Data8 = pSprite->field_2E;
     DataC = pSprite->field_30;
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 >= 0x82)
         goto loc_20ADE;
 
@@ -16589,7 +16606,7 @@ loc_20B6E:;
     Data0 = pSprite->field_0;
     Data4 = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 < 0x14)
         Data0 = 0x14;
 
@@ -16661,7 +16678,7 @@ int16 cFodder::Sprite_Reached_Target(sSprite* pSprite) {
     int16 Data8 = pSprite->field_0;
     int16 DataC = pSprite->field_4;
 
-    Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+    Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 > 2)
         return 0;
 
@@ -17414,7 +17431,7 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
         Data8 = Squad0_Member->field_0;
         DataC = Squad0_Member->field_4;
 
-        Map_Get_Distance_BetweenPoints_Within_320(Dataa0, Data4, Data8, DataC);
+        Map_Get_Distance_BetweenPoints_Within_Window(Dataa0, Data4, Data8, DataC);
 
         mSprite_Find_Distance = Dataa0;
         if (Dataa0 > 0xC8)
@@ -17778,7 +17795,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
         DataC = pSprite->field_30;
 
         // Don't let the AI fire further than 129
-        Map_Get_Distance_BetweenPoints_Within_320(Data0, Data4, Data8, DataC);
+        Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
         if (Data0 >= 0x82)
             goto loc_22592;
     }

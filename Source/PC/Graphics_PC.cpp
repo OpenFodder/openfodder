@@ -777,7 +777,7 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 
 	ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
 	--ax;
-	int16 maxWindowX = mFodder->getWindowSize().mWidth + 31; // 351
+	int16 maxWindowX = mFodder->getWindowWidth() + 31; // 351
 
 	if (ax > maxWindowX) {
 		if (mFodder->mVideo_Draw_PosX > maxWindowX)
