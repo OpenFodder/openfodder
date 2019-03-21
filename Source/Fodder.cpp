@@ -2598,7 +2598,7 @@ void cFodder::Map_Overview_Prepare() {
 
     delete mSurfaceMapOverview;
     size_t Size = mMapLoaded.getWidth() < mMapLoaded.getHeight() ? mMapLoaded.getHeight() : mMapLoaded.getWidth();
-	if ((Size * 16) * (Size * 16) >= SDL_MAX_SINT32)
+	if ((Size * 16) * (Size * 16) >= 0x7FFFFFFF)
 		return;
 
     mSurfaceMapOverview = new cSurface(Size * 16, Size * 16);
@@ -3155,7 +3155,7 @@ cDimension cFodder::getWindowSize() const {
 		return { 352, 364 };
 	}
 
-	return { mParams->mWindowColumns * 16, mParams->mWindowRows * 16 };
+	return { (unsigned int) mParams->mWindowColumns * 16, (unsigned int) mParams->mWindowRows * 16 };
 }
 
 int16 cFodder::getWindowRows() const {
