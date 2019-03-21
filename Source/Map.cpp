@@ -488,6 +488,8 @@ bool cMap::saveCF1Map(const std::string& pFilename) {
 
 bool cMap::saveCF1Sprites(std::string pFilename) {
 
+	mSprites = g_Fodder->mSprites;
+
 	// Replace .map with .spt
 	pFilename.replace(pFilename.length() - 3, pFilename.length(), "spt");
 	std::ofstream outfile(pFilename, std::ofstream::binary);

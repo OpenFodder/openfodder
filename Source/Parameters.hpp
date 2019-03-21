@@ -51,6 +51,7 @@ public:
 
 	int64 mSleepDelta;              // Engine sleep delta
 
+	std::string mSingleMap;			// Name of single map to load
 	std::string mCampaignName;      // Campaign to start
 	size_t mMissionNumber;          // Mission to start on
 	size_t mPhaseNumber;            // Phase to start on

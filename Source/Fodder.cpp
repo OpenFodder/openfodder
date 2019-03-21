@@ -4011,18 +4011,21 @@ void cFodder::Custom_ShowMapSelection() {
     Image_FadeOut();
     mGraphics->PaletteSet();
 
-	auto Maps = g_ResourceMan->GetMaps();
-	const std::string File = GUI_Select_File("SELECT MAP", {}, Maps);
+	std::string File = mParams->mSingleMap;
 
-    // Exit Pressed?
-    if (mGUI_SaveLoadAction == 1 || !File.size()) {
+	if (!File.size()) {
+		auto Maps = g_ResourceMan->GetMaps();
+		File = GUI_Select_File("SELECT MAP", {}, Maps);
+		// Exit Pressed?
+		if (mGUI_SaveLoadAction == 1 || !File.size()) {
 
-        // Return to custom menu
-        mDemo_ExitMenu = 1;
-        mCustom_Mode = eCustomMode_None;
+			// Return to custom menu
+			mDemo_ExitMenu = 1;
+			mCustom_Mode = eCustomMode_None;
 
-        return;
-    }
+			return;
+		}
+	}
 
     mGame_Data.mCampaign.LoadCustomMapFromPath(g_ResourceMan->GetMapPath(File));
 
@@ -18180,32 +18183,39 @@ void cFodder::Start() {
     // Play the intro
 	Intro_OpenFodder();
 
+	if (mParams->mPlayground) {
+		Playground();
+		return;
+	}
+
     // Start a random map?
-    if (mParams->mRandom) {
+    if (mParams->mRandom || mParams->mSingleMap.size()) {
+
         mGame_Data.mCampaign.SetSingleMapCampaign();
         mCustom_Mode = eCustomMode_Map;
 
-        VersionSwitch(mVersions->GetForCampaign("Random Map"));
+		if(mParams->mRandom)
+	        VersionSwitch(mVersions->GetForCampaign("Random Map"));
+		else
+			VersionSwitch(mVersions->GetForCampaign("Single Map"));
 
-    } else {
+		mVersionDefault = mVersionCurrent;
+	} else {
+
         // Select campaign menu
-        if (!(mParams->mCampaignName.size() && Campaign_Load(mParams->mCampaignName)))
-            Campaign_Selection();
+		if (!(mParams->mCampaignName.size() && Campaign_Load(mParams->mCampaignName))) {
+			Campaign_Selection();
+			// Exit pushed?
+			if (mGUI_SaveLoadAction == 1)
+				return;
+
+			if (mGUI_SaveLoadAction == 4) {
+				About();
+				goto Start;
+			}
+		}
     }
 
-    if (mParams->mPlayground) {
-        Playground();
-        return;
-    }
-
-    // Exit pushed?
-    if (mGUI_SaveLoadAction == 1)
-        return;
-
-    if (mGUI_SaveLoadAction == 4) {
-        About();
-        goto Start;
-    }
     Mouse_Setup();
     Mouse_Inputs_Get();
 

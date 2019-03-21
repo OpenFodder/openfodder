@@ -144,6 +144,8 @@ void sFodderParameters::PrepareOptions() {
 		("skipservice", "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
 		("skiphill", "Skip the hill", cxxopts::value<bool>()->default_value("false"))
 
+		("single-map", "Play a single map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
+
 		("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
 		("c,campaign", "Starting campaign", cxxopts::value<std::string>()->default_value(""), "\"name\"")
 		("m,mission", "Starting mission", cxxopts::value<std::uint32_t>()->default_value("0"), "1")
@@ -220,6 +222,14 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mSkipRecruit = result["skiphill"].as<bool>();
 
 		mUnitTesting = result["unit-test"].as<bool>();
+
+		mSingleMap = result["single-map"].as<std::string>();
+
+		if (mSingleMap.size()) {
+			
+			mSingleMap.append(".map");
+			mSinglePhase = true;
+		}
 
 		mCampaignName = result["campaign"].as<std::string>();
 		mMissionNumber = result["mission"].as<std::uint32_t>();
