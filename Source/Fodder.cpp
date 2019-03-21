@@ -3341,7 +3341,7 @@ void cFodder::Phase_Paused() {
         mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
         mString_GapCharID = 0x25;
 
-        String_CalculateWidth(getWindowWidth() + SIDEBAR_WIDTH, mFont_Underlined_Width, "GAME PAUSED");
+        String_CalculateWidth(320 + SIDEBAR_WIDTH, mFont_Underlined_Width, "GAME PAUSED");
         String_Print(mFont_Underlined_Width, 1, mGUI_Temp_X, 0x54,  "GAME PAUSED");
 
         mSurface2->draw();
@@ -9366,7 +9366,7 @@ void cFodder::Service_Draw_String(const std::string& pText, const bool pLarge, c
     if (pLarge)
         FontWidth = mFont_ServiceName_Width;
 
-    String_CalculateWidth(getWindowWidth(), FontWidth, pText.c_str());
+    String_CalculateWidth(320, FontWidth, pText.c_str());
     Service_Draw_String(pText, FontWidth, pLarge ? 3 : 0, mGUI_Temp_X, (int16) pY);
 
 }
@@ -9567,7 +9567,7 @@ void cFodder::Service_Mission_Text_Prepare() {
 
     Mission << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Number));
 
-    String_CalculateWidth(getWindowWidth(), mFont_Service_Width, Mission.str().c_str());
+    String_CalculateWidth(320, mFont_Service_Width, Mission.str().c_str());
 
     Service_Draw_String(Mission.str(), mFont_Service_Width, 4, mGUI_Temp_X, mVideo_Draw_PosY);
 }
@@ -15509,21 +15509,21 @@ loc_2035C:;
 void cFodder::String_Print_Small(std::string pText, const size_t pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
-    String_CalculateWidth(getWindowWidth(), mFont_Briefing_Width, pText);
+    String_CalculateWidth(320, mFont_Briefing_Width, pText);
     String_Print(mFont_Briefing_Width, 0, mGUI_Temp_X, pY, pText);
 }
 
 void cFodder::String_Print_Small(std::string pText, const size_t pX, const size_t pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
-    String_CalculateWidth(getWindowWidth(), mFont_Briefing_Width, pText);
+    String_CalculateWidth(320, mFont_Briefing_Width, pText);
     String_Print(mFont_Briefing_Width, 0, pX, pY, pText);
 }
 
 void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
-    String_CalculateWidth(getWindowWidth(), mFont_Underlined_Width, pText);
+    String_CalculateWidth(320, mFont_Underlined_Width, pText);
     String_Print(mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, mGUI_Temp_X, pY, pText);
 }
 
@@ -16070,6 +16070,7 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
     if (!mVersionCurrent->hasGfx(eGFX_BRIEFING))
         return;
 
+	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
     mSurface->clearBuffer();
 
     if (mMapLoaded.getTileType() >= eTileTypes_Hid)
@@ -16099,7 +16100,7 @@ void cFodder::Intro_Print_String(const sIntroString* pString) {
 
     auto PosY = pString->mPosition + PLATFORM_BASED(-0x19, 9);
 
-    String_CalculateWidth(getWindowWidth(), mFont_Intro_Width, pString->mText);
+    String_CalculateWidth(320, mFont_Intro_Width, pString->mText);
     String_Print(mFont_Intro_Width, 0, mGUI_Temp_X, PosY, pString->mText);
 }
 
