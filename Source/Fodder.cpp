@@ -16104,6 +16104,7 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
         return;
 
     mSurface->clearBuffer();
+	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 
     if (mMapLoaded.getTileType() >= eTileTypes_Hid)
 		mMapLoaded.getMapParams()->mTileType = eTileTypes_Jungle;
