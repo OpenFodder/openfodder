@@ -18235,8 +18235,6 @@ void cFodder::Start() {
 	        VersionSwitch(mVersions->GetForCampaign("Random Map"));
 		else
 			VersionSwitch(mVersions->GetForCampaign("Single Map"));
-
-		mVersionDefault = mVersionCurrent;
 	} else {
 
         // Select campaign menu
@@ -18253,6 +18251,7 @@ void cFodder::Start() {
 		}
     }
 
+	mVersionDefault = mVersionCurrent;
     Mouse_Setup();
     Mouse_Inputs_Get();
 
