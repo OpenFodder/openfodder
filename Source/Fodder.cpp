@@ -2817,8 +2817,8 @@ void cFodder::Mouse_Setup() {
     mButtonPressRight = 0;
     mMouseButtonStatus = 0;
 
-    mMouseX = 0x7F;
-    mMouseY = 0x67;
+    mMouseX = (getCameraWidth() / 2) - 9;
+    mMouseY = (getCameraHeight() / 2) - 9;
 }
 
 void cFodder::Mouse_Cursor_Handle() {
@@ -5979,13 +5979,13 @@ loc_2500F:;
     if (pSprite->field_4C)
         goto loc_25239;
 
-	Data0 = tool_RandomGet() & 0x7F;
+	Data0 = map_GetRandomX();
 	Data0 += 4;
 	if (Data0 > mMapLoaded.getWidth())
 		goto loc_25239;
 
 	Data8 = Data0;
-	Data0 = tool_RandomGet() & 0x3F;
+	Data0 = map_GetRandomY();
 	Data0 += 4;
 
     if (Data0 > mMapLoaded.getHeight())
@@ -6318,38 +6318,29 @@ void cFodder::sub_25A66(sSprite* pSprite) {
 }
 
 int16 cFodder::Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite) {
-    int16 Data0 = tool_RandomGet() & 0x7F;
-    Data0 += 4;
-
-    // Map Width
-    if (Data0 >= mMapLoaded.getWidth())
+    int16 Data8 = map_GetRandomX();
+	Data8 += 4;
+    if (Data8 >= mMapLoaded.getWidth())
         return -1;
 
-    int16 Data8 = Data0;
-    Data0 = tool_RandomGet() & 0x3F;
-    Data0 += 4;
-
-    // Map Height
-    if (Data0 >= mMapLoaded.getHeight())
+	int16 DataC = map_GetRandomY();
+	DataC += 4;
+    if (DataC >= mMapLoaded.getHeight())
         return -1;
-
-    int16 DataC = Data0;
 
     Data8 <<= 4;
-    Data0 = tool_RandomGet() & 0x0F;
-    Data8 += Data0;
+    Data8 += tool_RandomGet() & 0x0F;
 
     DataC <<= 4;
-    Data0 = tool_RandomGet() & 0x0F;
-    DataC += Data0;
+    DataC += tool_RandomGet() & 0x0F;
 
-    int16 Data10, Data14;
+    int16 X, Y;
 
-    if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
+    if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, X, Y))
         return -1;
 
-    pSprite->field_26 = Data10;
-    pSprite->field_28 = Data14;
+    pSprite->field_26 = X;
+    pSprite->field_28 = Y;
     return 0;
 }
 
@@ -7072,6 +7063,20 @@ loc_29FC2:;
     pData0 = 0;
 
     return 0;
+}
+
+int16 cFodder::map_GetRandomX() {
+	if (mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
+		return tool_RandomGet() & 0x7F;
+
+	return tool_RandomGet(1, mMapLoaded.getWidth());
+}
+
+int16 cFodder::map_GetRandomY() {
+	if(mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
+		return tool_RandomGet() & 0x3F;
+
+	return tool_RandomGet(1, mMapLoaded.getHeight());
 }
 
 uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax) {

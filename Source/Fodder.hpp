@@ -1006,6 +1006,9 @@ public:
     int16           Map_Get_Distance_BetweenPoints_Within_Window(int16& pX, int16 pY, int16& pX2, int16& pY2);
     int16           Direction_Between_Points(int16& pData0, int16& pData4, int16& pData8, int16& pDataC);
 
+	int16			map_GetRandomX();
+	int16			map_GetRandomY();
+
     int16           tool_RandomGet();
     uint16          tool_RandomGet(size_t pMin, size_t pMax);
 
