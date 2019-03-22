@@ -113,6 +113,7 @@ void sFodderParameters::PrepareOptions() {
 	mCliOptions->add_options()
 		("about", "About", cxxopts::value<bool>()->default_value("false"))
 		("h,help", "Help", cxxopts::value<bool>()->default_value("false"))
+
 		("pc", "Default to PC platform data", cxxopts::value<bool>()->default_value("false"))
 		("amiga", "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
 		("engine", "Default to engine (single map/random)", cxxopts::value<std::string>()->default_value("cf1"), "cf1")
@@ -144,12 +145,12 @@ void sFodderParameters::PrepareOptions() {
 		("skipservice", "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
 		("skiphill", "Skip the hill", cxxopts::value<bool>()->default_value("false"))
 
-		("single-map", "Play a single map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
-
 		("list-campaigns", "List available campaigns", cxxopts::value<bool>()->default_value("false"))
 		("c,campaign", "Starting campaign", cxxopts::value<std::string>()->default_value(""), "\"name\"")
 		("m,mission", "Starting mission", cxxopts::value<std::uint32_t>()->default_value("0"), "1")
 		("p,phase", "Starting phase", cxxopts::value<std::uint32_t>()->default_value("0"), "2")
+
+		("single-map", "Play a single map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
 		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
 		;
 }

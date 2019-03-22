@@ -54,7 +54,7 @@ void sGamePhaseData::Clear() {
 }
 
 sGameRecorded::sGameRecorded() {
-    mVersion = 2;
+    mVersion = 3;
     mTick = 0;
     mTickDisabled = false;
 

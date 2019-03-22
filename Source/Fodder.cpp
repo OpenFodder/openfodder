@@ -5979,26 +5979,33 @@ loc_2500F:;
     if (pSprite->field_4C)
         goto loc_25239;
 
-    Data0 = tool_RandomGet() & 0x7F;
-    Data0 += 4;
-    if (Data0 > mMapLoaded.getWidth())
-        goto loc_25239;
+	Data0 = tool_RandomGet() & 0x7F;
+	Data0 += 4;
+	if (Data0 > mMapLoaded.getWidth())
+		goto loc_25239;
 
-    Data8 = Data0;
-    Data0 = tool_RandomGet() & 0x3F;
-    Data0 += 4;
+	Data8 = Data0;
+	Data0 = tool_RandomGet() & 0x3F;
+	Data0 += 4;
 
     if (Data0 > mMapLoaded.getHeight())
         goto loc_25239;
 
     DataC = Data0;
+
     Data8 <<= 4;
     Data0 = tool_RandomGet() & 0x0F;
     Data8 += Data0;
 
+	DataC <<= 4;
+
+	// TODO: For later removal after re-recording all demos
+	if (mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
+		DataC >>= 4;
+
     Data0 = tool_RandomGet() & 0x0F;
     DataC += Data0;
-
+	
     if (Map_Terrain_Get_Moveable_Wrapper(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
         goto loc_25239;
 
@@ -6327,12 +6334,12 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite) {
         return -1;
 
     int16 DataC = Data0;
-    Data8 <<= 4;
 
+    Data8 <<= 4;
     Data0 = tool_RandomGet() & 0x0F;
     Data8 += Data0;
-    DataC <<= 4;
 
+    DataC <<= 4;
     Data0 = tool_RandomGet() & 0x0F;
     DataC += Data0;
 
@@ -7880,7 +7887,12 @@ int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, in
         return pMovementData[0];
 
     int16 Data0 = readLE<uint16>(mMap->data() + 0x60 + DataC);
-    Data0 &= 0xFF;
+
+	// TODO: For later removal after re-recording all demos
+	if (mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
+		Data0 &= 0xFF;
+	else
+	    Data0 &= 0x1FF;
 
     int16 Data4 = mTile_Hit[Data0];
 
