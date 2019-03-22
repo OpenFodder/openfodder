@@ -1026,12 +1026,7 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
 
 		// Width of Sidebar
 		for (unsigned int X = 0; X < 0x30; X++) {
-
-			// Clear at bottom
-			//if (si >= ((uint8*)mFodder->mSidebar_Screen_Buffer) + (0x300 * g_Fodder->getCameraHeight()))
-			//	Buffer[X] = 0;
-			//else
-				Buffer[X] = *si++;
+			Buffer[X] = *si++;
 		}
 
 		// Next Row

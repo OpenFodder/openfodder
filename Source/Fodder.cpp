@@ -584,8 +584,8 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
             //loc_10A11
             mCamera_Panning_ToTarget = true;
 
-            mCamera_PanTargetX = (mCameraX >> 16) + 0x80;
-            mCamera_PanTargetY = (mCameraY >> 16) + 0x6C;
+            mCamera_PanTargetX = (mCameraX >> 16) + (getCameraWidth() / 2) - 8;
+            mCamera_PanTargetY = (mCameraY >> 16) + (getCameraHeight() - 8) / 2;
         }
         //loc_10A3A
         mMouse_Locked = false;
@@ -1632,22 +1632,22 @@ void cFodder::Camera_SetTargetToStartPosition() {
     int16 Data4 = mCameraY >> 16;
 
     int16 Data8 = mCamera_StartPosition_X;
-    Data8 -= 0x88;
+    Data8 -= (getCameraWidth() / 2) - 8;
     if (Data8 < 0)
         Data8 = 0;
 
     int16 Data10 = mMapLoaded.getWidthPixels();
-    Data10 -= 0x88;
+    Data10 -= (getCameraWidth() / 2) - 8;
     if (Data8 >= Data10)
         Data8 = Data10;
 
     int16 DataC = mCamera_StartPosition_Y;
-    DataC -= 0x6C;
+    DataC -= (getCameraHeight() - 8) / 2;
     if (DataC < 0)
         DataC = 0;
 
     Data10 = mMapLoaded.getHeightPixels();
-    Data10 -= 0x6C;
+    Data10 -= (getCameraHeight() - 8) / 2;
     if (DataC >= Data10)
         DataC = Data10;
 
@@ -2399,10 +2399,10 @@ void cFodder::Phase_TextSprite_Create_Complete(sSprite* pData2C) {
 void cFodder::Phase_TextSprite_Prepare(sSprite* pData2C) {
 
     pData2C->field_0 = mMapTile_TargetX >> 16;
-    pData2C->field_0 += 0x54;
+    pData2C->field_0 += (getCameraWidth() / 2) - 52;
 
     pData2C->field_4 = mMapTile_TargetY >> 16;
-    pData2C->field_4 += 0xEB;
+    pData2C->field_4 += getCameraHeight() + 10;
 
     pData2C->field_A = 0;
     pData2C->field_20 = 0;
@@ -3461,13 +3461,13 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
 
     //loc_14BD4
     pData8 = mCameraX >> 16;
-    pData8 += 0x88;
+    pData8 += (getCameraWidth() / 2) - 8;
 
     if (pSprite != INVALID_SPRITE_PTR)
         pData8 -= pSprite->field_0;
 
     int16 DataC = mCameraY >> 16;
-    DataC += 0x6C;
+    DataC += (getCameraHeight() - 8) / 2;
 
     if (pSprite != INVALID_SPRITE_PTR)
         DataC -= pSprite->field_4;
@@ -9415,7 +9415,7 @@ void cFodder::Service_Promotion_Check() {
         ++Troop;
         ++x;
 
-        if (Draw->mY >= 0x6C)
+        if (Draw->mY >= (getCameraHeight() - 8) / 2)
             continue;
 
         (Draw+0)->mFrame = newRank;
@@ -11408,11 +11408,11 @@ loc_1B35A:;
 
 void cFodder::Sprite_Handle_Text_Complete(sSprite* pSprite) {
     pSprite->field_0 = mMapTile_TargetX >> 16;
-    pSprite->field_0 += 0x47;
+    pSprite->field_0 += (getCameraWidth() / 2) - 65;
     pSprite->field_4 -= 0x20;
 
     int16 Data0 = mMapTile_TargetY >> 16;
-    Data0 += 0x77;
+    Data0 += getCameraHeight() / 2 + 7;
 
     if (Data0 < pSprite->field_4)
         return;
@@ -11422,11 +11422,11 @@ void cFodder::Sprite_Handle_Text_Complete(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Text_Mission(sSprite* pSprite) {
     pSprite->field_0 = mMapTile_TargetX >> 16;
-    pSprite->field_0 += 0x56;
+    pSprite->field_0 += (getCameraWidth() / 2) - 50;
     pSprite->field_4 -= 0x20;
 
     int16 Data0 = mMapTile_TargetY >> 16;
-    Data0 += 0x63;
+    Data0 += (getCameraHeight() / 2 - 13);
 
     if (Data0 < pSprite->field_4)
         return;
@@ -11436,12 +11436,12 @@ void cFodder::Sprite_Handle_Text_Mission(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Text_Phase(sSprite* pSprite) {
     pSprite->field_0 = mMapTile_TargetX >> 16;
+    pSprite->field_0 += (getCameraWidth() / 2) - 41;
 
-    pSprite->field_0 += 0x5F;
     pSprite->field_4 -= 0x20;
 
     int16 Data0 = mMapTile_TargetY >> 16;
-    Data0 += 0x63;
+    Data0 += (getCameraHeight() / 2 - 13);
 
     if (Data0 < pSprite->field_4)
         return;
@@ -12270,11 +12270,11 @@ void cFodder::Sprite_Handle_Smoke(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Text_Try(sSprite* pSprite) {
     pSprite->field_0 = mMapTile_TargetX >> 16;
-    pSprite->field_0 += 0x71;
+    pSprite->field_0 += (getCameraWidth() / 2) - 23;
     pSprite->field_4 -= 0x20;
 
     int16 Data0 = mMapTile_TargetY >> 16;
-    Data0 += 0x63;
+    Data0 += (getCameraHeight() / 2 - 13);
 
     if (Data0 < pSprite->field_4)
         return;
@@ -12284,11 +12284,11 @@ void cFodder::Sprite_Handle_Text_Try(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Text_Again(sSprite* pSprite) {
     pSprite->field_0 = mMapTile_TargetX >> 16;
-    pSprite->field_0 += 0x57;
+    pSprite->field_0 += (getCameraWidth() / 2) - 49;
     pSprite->field_4 -= 0x20;
 
     int16 Data0 = mMapTile_TargetY >> 16;
-    Data0 += 0x75;
+    Data0 += getCameraHeight() / 2 + 5;
 
     if (Data0 < pSprite->field_4)
         return;
