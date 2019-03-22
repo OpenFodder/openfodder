@@ -3165,7 +3165,7 @@ cDimension cFodder::getSurfaceSize() const {
 		return { 352, 364 };
 	}
 
-	return { (unsigned int)(mParams->mWindowColumns + 1) * 16, (unsigned int)(mParams->mWindowRows + 1) * 16 };
+	return { (unsigned int)(mParams->mWindowColumns + 2) * 16, (unsigned int)(mParams->mWindowRows + 2) * 16 };
 }
 
 cDimension cFodder::getWindowSize() const {
@@ -3182,6 +3182,8 @@ cDimension cFodder::getWindowSize() const {
 
 int16 cFodder::getWindowRows() const {
 	if (!mParams->mWindowRows) {
+
+
 		return 16;
 	}
 	return (int16) mParams->mWindowRows;
