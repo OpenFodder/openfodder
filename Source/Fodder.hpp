@@ -1296,6 +1296,7 @@ public:
 
     void            VersionSwitch(const sGameVersion* pVersion);
 
+	cDimension		getSurfaceSize() const;
 	cDimension		getWindowSize() const;
 	int16			getWindowWidth() const;
 

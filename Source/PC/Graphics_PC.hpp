@@ -43,9 +43,8 @@ class cGraphics_PC : public cGraphics {
 	tSharedBuffer		mMission_Intro_Gfx_Clouds3;
 	tSharedBuffer		mMission_Intro_Gfx_TreesMain;
 
-	uint16          word_42859;
-	uint16          word_4285B;
-	int16           word_4285F;
+	uint16          mMission_Intro_DrawX;
+	uint16          mMission_Intro_DrawY;
 
 	public:
 	virtual				~cGraphics_PC();

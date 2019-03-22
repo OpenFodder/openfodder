@@ -827,25 +827,26 @@ void cGraphics_PC::Mission_Intro_Render_1(tSharedBuffer pDs, int16 pCx) {
 
 
 void cGraphics_PC::Mission_Intro_Render_2(tSharedBuffer pSource, int16 pCx) {
+
 	uint8* pDs = pSource->data();
 
 	int16 ax = pCx >> 2;
 	int16 dx = ax;
 
-	ax -= 0x50;
-	word_4285F = -ax;
+	ax -= 80;
+	int16 word_4285F = -ax;
 
-	uint8* word_4285D = mSurface->GetSurfaceBuffer() + word_4285B + (dx * 4);
+	uint8* destPtr = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (dx * 4);
 
 	++dx;
 
-	uint8* di = word_4285D;
+	uint8* di = destPtr;
 
 	// Loop the 4 planes
 	for (uint8 Plane = 0; Plane < 4; ++Plane) {
-		di = word_4285D + Plane;
+		di = destPtr + Plane;
 
-		for (int16 bx = word_42859; bx > 0; --bx) {
+		for (int16 bx = mMission_Intro_DrawX; bx > 0; --bx) {
 			int16 cx;
 			for (cx = word_4285F; cx > 0; --cx) {
                 if (pDs >= pSource->data() + pSource->size())
@@ -859,7 +860,9 @@ void cGraphics_PC::Mission_Intro_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di -= (0x51 * 4);
+			// 28 difference
+
+			di -= mSurface->GetWidth() - 12 - 16; // (81 * 4) // 324;
 			--pDs;
 			for (cx = dx; cx > 0; --cx) {
                 if (pDs >= pSource->data() + pSource->size())
@@ -873,30 +876,31 @@ void cGraphics_PC::Mission_Intro_Render_2(tSharedBuffer pSource, int16 pCx) {
 				di += 4;
 			}
 
-			di += (0x58 * 4);
+			di += mSurface->GetWidth(); // (88 * 4) // 352;
 		}
 	}
 }
 
 void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
+
     uint8* Ds = pDsSi->data();
 
 	int16 ax = pCx >> 2;
 	int16 dx = ax;
 
-	ax -= 0x50;
-	word_4285F = -ax;
+	ax -= 80;
+	int16 word_4285F = -ax;
 
-	uint8* word_4285D = mSurface->GetSurfaceBuffer() + word_4285B + (dx * 4);
+	uint8* destPtr = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (dx * 4);
 
 	++dx;
 
-	uint8* di = word_4285D;
+	uint8* di = destPtr;
 
 	for (uint8 Plane = 0; Plane < 4; ++Plane) {
-		di = word_4285D + Plane;
+		di = destPtr + Plane;
 
-		for (int16 bx = word_42859; bx > 0; --bx) {
+		for (int16 bx = mMission_Intro_DrawX; bx > 0; --bx) {
 			int16 cx = word_4285F;
 
 			if (cx & 1) {
@@ -916,7 +920,7 @@ void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
 			}
 
 			cx = dx;
-			di -= 0x51 * 4;
+			di -= mSurface->GetWidth() - 12 - 16;
 			--Ds;
 			if (cx & 1) {
 				*di = *Ds++;
@@ -933,7 +937,7 @@ void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
 
 				--cx;
 			}
-			di += 0x58 * 4;
+			di += mSurface->GetWidth();
 		}
 	}
 }
@@ -961,21 +965,21 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
             mSurface->palette_FadeTowardNew();
 
 		// Clouds
-		word_42859 = pPositions[0].mX;
-		word_4285B = pPositions[0].mY;
+		mMission_Intro_DrawX = pPositions[0].mX;
+		mMission_Intro_DrawY = pPositions[0].mY;
 		Mission_Intro_Render_1( mMission_Intro_Gfx_Clouds3, word_42875 );
 
-		word_42859 = pPositions[1].mX;
-		word_4285B = pPositions[1].mY;
+		mMission_Intro_DrawX = pPositions[1].mX;
+		mMission_Intro_DrawY = pPositions[1].mY;
 		Mission_Intro_Render_2( mMission_Intro_Gfx_Clouds2, word_42873 );
 
-		word_42859 = pPositions[2].mX;
-        word_4285B = pPositions[2].mY;
+		mMission_Intro_DrawX = pPositions[2].mX;
+        mMission_Intro_DrawY = pPositions[2].mY;
 		Mission_Intro_Render_2( mMission_Intro_Gfx_Clouds1, word_42871 );
 
 		// Trees (Main)
-		word_42859 = pPositions[3].mX;
-        word_4285B = pPositions[3].mY;
+		mMission_Intro_DrawX = pPositions[3].mX;
+        mMission_Intro_DrawY = pPositions[3].mY;
 		Mission_Intro_Render_1( mMission_Intro_Gfx_TreesMain, word_42871 );
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
@@ -990,8 +994,8 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
                 Video_Draw_8();
         }
 
-		word_42859 = pPositions[4].mX;
-        word_4285B = pPositions[4].mY;
+		mMission_Intro_DrawX = pPositions[4].mX;
+        mMission_Intro_DrawY = pPositions[4].mY;
 		Mission_Intro_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		word_4286F += 8;

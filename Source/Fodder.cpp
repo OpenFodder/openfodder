@@ -3157,8 +3157,7 @@ int16 cFodder::getWindowWidth() const {
 	return (int16) mParams->mWindowColumns * 16;
 }
 
-cDimension cFodder::getWindowSize() const {
-
+cDimension cFodder::getSurfaceSize() const {
 	if (!mParams->mWindowColumns || !mParams->mWindowRows) {
 		if (mVersionCurrent)
 			return mVersionCurrent->GetScreenSize();
@@ -3166,18 +3165,33 @@ cDimension cFodder::getWindowSize() const {
 		return { 352, 364 };
 	}
 
+	return { (unsigned int)(mParams->mWindowColumns + 1) * 16, (unsigned int)(mParams->mWindowRows + 1) * 16 };
+}
+
+cDimension cFodder::getWindowSize() const {
+
+	if (!mParams->mWindowColumns || !mParams->mWindowRows) {
+		if (mVersionCurrent)
+			return mVersionCurrent->GetScreenSize();
+
+		return { 336, 348 };
+	}
+
 	return { (unsigned int) mParams->mWindowColumns * 16, (unsigned int) mParams->mWindowRows * 16 };
 }
 
 int16 cFodder::getWindowRows() const {
 	if (!mParams->mWindowRows) {
-		return 22;
+		return 16;
 	}
 	return (int16) mParams->mWindowRows;
 }
 
 int16 cFodder::getWindowColumns() const {
 	if (!mParams->mWindowColumns) {
+		if (mVersionCurrent->isAmiga())
+			return 21;
+
 		return 22;
 	}
 	return (int16) mParams->mWindowColumns;
@@ -3238,8 +3252,8 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     mBriefing_Render_1_Mode = -1;
 
-    mSurface = new cSurface(  getWindowSize() + cDimension(32, 32) );
-    mSurface2 = new cSurface( getWindowSize() + cDimension(32, 32) );
+    mSurface = new cSurface( getSurfaceSize() );
+    mSurface2 = new cSurface(getSurfaceSize() );
 
 	Sprite_Clear_All();
 }
@@ -15962,14 +15976,14 @@ void cFodder::Intro_OpenFodder() {
 		if (mVersions->isCampaignAvailable("Cannon Fodder 2"))
 			CF2 = (tool_RandomGet() & 2);
 		if (CF2)
-			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2"));
+			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2", mParams->mDefaultPlatform));
 
 		// Random intro
 		mMapLoaded.getMapParams()->mTileType = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 		Mission_Intro_Play(true);
 		mOpenFodder_Intro_Done = true;
 		if (CF2)
-			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder"));
+			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder", mParams->mDefaultPlatform));
 	}
 }
 
@@ -16089,7 +16103,6 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
     if (!mVersionCurrent->hasGfx(eGFX_BRIEFING))
         return;
 
-	mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
     mSurface->clearBuffer();
 
     if (mMapLoaded.getTileType() >= eTileTypes_Hid)
