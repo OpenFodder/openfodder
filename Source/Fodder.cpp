@@ -18248,9 +18248,9 @@ void cFodder::Start() {
         mCustom_Mode = eCustomMode_Map;
 
 		if(mParams->mRandom)
-	        VersionSwitch(mVersions->GetForCampaign("Random Map"));
+	        VersionSwitch(mVersions->GetForCampaign("Random Map", mParams->mDefaultPlatform));
 		else
-			VersionSwitch(mVersions->GetForCampaign("Single Map"));
+			VersionSwitch(mVersions->GetForCampaign("Single Map", mParams->mDefaultPlatform));
 	} else {
 
         // Select campaign menu

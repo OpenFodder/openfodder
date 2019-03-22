@@ -497,6 +497,7 @@ void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 
 	mOriginalResolution = pDimension;
 	
+
 	if (!mWindowMode) {
 		ToggleFullscreen();
 		ToggleFullscreen();
