@@ -117,8 +117,8 @@ void sFodderParameters::PrepareOptions() {
 		("amiga", "Default to Amiga platform data", cxxopts::value<bool>()->default_value("false"))
 		("engine", "Default to engine (single map/random)", cxxopts::value<std::string>()->default_value("cf1"), "cf1")
 
-		("columns", "Number of columns", cxxopts::value<std::uint32_t>()->default_value("22"), "22")
-		("rows", "Number of rows", cxxopts::value<std::uint32_t>()->default_value("16"), "16")
+		("columns", "Number of camera columns", cxxopts::value<std::uint32_t>()->default_value("22"), "22")
+		("rows", "Number of camera rows", cxxopts::value<std::uint32_t>()->default_value("16"), "16")
 
 		("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 		("window-scale", "Set the window scale", cxxopts::value<std::uint32_t>()->default_value("0"))
