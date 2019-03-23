@@ -87,6 +87,7 @@ struct sGameVersion : public sVersion {
     std::shared_ptr<cResources> GetResources() const;
     std::shared_ptr<cGraphics> GetGraphics() const;
     std::shared_ptr<cSound> GetSound() const;
+	bool CanUseAmigaSound() const;
 
 	std::string getDataPath() const;
 	std::string getDataFilePath(std::string pFile) const;

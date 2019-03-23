@@ -272,10 +272,16 @@ std::shared_ptr<cGraphics> sGameVersion::GetGraphics() const {
     return 0;
 }
 
+bool sGameVersion::CanUseAmigaSound() const {
+	if (g_ResourceMan->FileExists(getDataPath() + "JON.INS"))
+		return true;
+	return false;
+}
+
 std::shared_ptr<cSound> sGameVersion::GetSound() const {
 
 	// Check for JON.INS in the game data folder, this allows replacing PC audio with Amiga for both CF1 and CF2
-	if (g_ResourceMan->FileExists(getDataPath() + "JON.INS"))
+	if (CanUseAmigaSound())
 		return std::make_shared<cSound_Amiga>();
 
     if (isPC()) {

@@ -3083,6 +3083,7 @@ void cFodder::WindowTitleBaseSetup() {
  *
  */
 void cFodder::VersionSwitch(const sGameVersion* pVersion) {
+	const sGameVersion* VersionPrevious = mVersionCurrent;
 
     if (!pVersion)
         return;
@@ -3097,10 +3098,15 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
     WindowTitleBaseSetup();
 
     // Sound must be released first, to unlock the audio device
-    mSound = 0;
+	// But only if we actually have to change the sound object
+	if (mVersionCurrent && VersionPrevious && !(mVersionCurrent->CanUseAmigaSound() && VersionPrevious->CanUseAmigaSound()))
+		mSound = 0;
+
     mResources = g_Resource = mVersionCurrent->GetResources();
     mGraphics = mVersionCurrent->GetGraphics();
-    mSound = mVersionCurrent->GetSound();
+
+	if(!mSound)
+		mSound = mVersionCurrent->GetSound();
 
     if(!mResources) {
         std::cout << "Unknown Platform";
@@ -3182,8 +3188,6 @@ cDimension cFodder::getWindowSize() const {
 
 int16 cFodder::getWindowRows() const {
 	if (!mParams->mWindowRows) {
-
-
 		return 16;
 	}
 	return (int16) mParams->mWindowRows;
@@ -18514,9 +18518,6 @@ void cFodder::intro_main() {
 		}
 
 		mGraphics->Load_pStuff();
-		if (!mStartParams->mDisableSound)
-			mSound->Music_Play(0);
-
 		mVersionPlatformSwitchDisabled = false;
 		mIntroDone = true;
 	}
