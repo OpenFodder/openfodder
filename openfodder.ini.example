@@ -22,6 +22,9 @@ columns=22
 ; Number of map tiles to draw vertically (0 for platform default)
 rows=16
 
+; Don't use mouse grab (this alters the behaviour of the in-game camera window) -- Useful of VMs
+alternate-mouse=false
+
 [paths]
 ; Paths to data base folder
 ; There is no limit to the number paths in this section (eg, path1, path2... path10)

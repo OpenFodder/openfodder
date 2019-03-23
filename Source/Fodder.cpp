@@ -2822,23 +2822,23 @@ void cFodder::Mouse_Setup() {
 }
 
 void cFodder::Mouse_Cursor_Handle() {
-    static bool WasClicked = false;
-    static bool CursorGrabbed = false;
-    const cPosition WindowPos = mWindow->GetWindowPosition();
-    const cDimension ScreenSize = mWindow->GetScreenSize();
-    const cDimension WindowSize = mWindow->GetWindowSize();
-    const cDimension scale = mWindow->GetScale();
+	static bool WasClicked = false;
+	static bool CursorGrabbed = false;
+	const cPosition WindowPos = mWindow->GetWindowPosition();
+	const cDimension ScreenSize = mWindow->GetScreenSize();
+	const cDimension WindowSize = mWindow->GetWindowSize();
+	const cDimension scale = mWindow->GetScale();
 
-    mMouseButtonStatus = mMouse_EventLastButtonsPressed;
+	mMouseButtonStatus = mMouse_EventLastButtonsPressed;
 
-    if (!mWindow->hasFocusEvent() && CursorGrabbed)
-        CursorGrabbed = false;
+	if (!mWindow->hasFocusEvent() && CursorGrabbed)
+		CursorGrabbed = false;
 
-#ifdef EMSCRIPTEN
-	mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
-	mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
-	return;
-#endif
+	if (mStartParams->mMouseAlternative) {
+		mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
+		mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
+		return;
+	}
 
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {

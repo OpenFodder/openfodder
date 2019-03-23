@@ -121,6 +121,7 @@ void sFodderParameters::PrepareOptions() {
 		("columns", "Number of camera columns", cxxopts::value<std::uint32_t>()->default_value("22"), "22")
 		("rows", "Number of camera rows", cxxopts::value<std::uint32_t>()->default_value("16"), "16")
 
+		("alternate-mouse", "Play with non-original mouse behaviour", cxxopts::value<bool>()->default_value("false"))
 		("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 		("window-scale", "Set the window scale", cxxopts::value<std::uint32_t>()->default_value("0"))
 
@@ -236,6 +237,9 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		mMissionNumber = result["mission"].as<std::uint32_t>();
 		mPhaseNumber = result["phase"].as<std::uint32_t>();
 
+		if(result.count("alternate-mouse"))
+			mMouseAlternative = result["alternate-mouse"].as<bool>();
+
 		if (result.count("window"))
 			mWindowMode = result["window"].as<bool>();
 
@@ -340,6 +344,9 @@ bool sFodderParameters::ProcessINI() {
 			else {
 				mWindowRows = ini.get("rows", 16);
 			}
+
+			if (ini.get("alternate-mouse", "false") == "true")
+				mMouseAlternative = true;
 		}
 	}
 

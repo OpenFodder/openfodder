@@ -137,7 +137,7 @@ int start(int argc, char *argv[]) {
 		return 0;
 
 	Params->mCheatsEnabled = true;
-
+	Params->mMouseAlternative = true;
 	g_Fodder->Prepare(Params);
 	g_Fodder->Phase_SquadPrepare();
 

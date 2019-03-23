@@ -35,6 +35,7 @@ public:
 	bool mSkipBriefing;         // Skip mission briefing
 	bool mSkipService;          // Skip mission debrief
 
+	bool mMouseAlternative;		// Use the alternate mouse behaviour
 	bool mWindowMode;           // Start in a window
 	size_t mWindowScale;		// Start with window scaled at
 	size_t mWindowRows;
@@ -93,6 +94,7 @@ public:
 
 		mMissionNumber = 0;
 		mPhaseNumber = 0;
+		mMouseAlternative = false;
 		mWindowMode = false;
 		mWindowScale = 0;
 
