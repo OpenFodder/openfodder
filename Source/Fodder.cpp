@@ -18138,7 +18138,7 @@ void cFodder::Playground() {
 
 bool cFodder::Demo_Load() {
 
-    std::ifstream DemoContent(mParams->mDemoFile, std::ios::binary);
+    std::ifstream DemoContent(mStartParams->mDemoFile, std::ios::binary);
     if (DemoContent.is_open()) {
 
         std::string SaveGameContent(

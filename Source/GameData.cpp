@@ -27,6 +27,7 @@
 using Json = nlohmann::json;
 
 const char* DEMO_EXTENSION = ".ofd";
+const size_t SAVE_CURRENT_VERSION = 3;
 
 sGamePhaseData::sGamePhaseData() {
     Clear();
@@ -35,6 +36,7 @@ sGamePhaseData::sGamePhaseData() {
 void sGamePhaseData::Clear() {
     mSprite_Enemy_AggressionAverage = 0;
     mSprite_Enemy_AggressionMin = 0;
+    mSprite_Enemy_AggressionMax = 0;
     mSprite_Enemy_AggressionMax = 0;
     mSprite_Enemy_AggressionNext = 0;
     mSprite_Enemy_AggressionIncrement = 0;
@@ -54,7 +56,7 @@ void sGamePhaseData::Clear() {
 }
 
 sGameRecorded::sGameRecorded() {
-    mVersion = 3;
+    mVersion = SAVE_CURRENT_VERSION;
     mTick = 0;
     mTickDisabled = false;
 
@@ -117,7 +119,7 @@ void sGameRecorded::removeFrom(const uint64 pTicks) {
 }
 
 void sGameRecorded::clear() {
-    mVersion = 2;
+    mVersion = SAVE_CURRENT_VERSION;
 
     mState.clear();
     mEvents.clear();
