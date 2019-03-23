@@ -27,7 +27,7 @@
 using Json = nlohmann::json;
 
 const char* DEMO_EXTENSION = ".ofd";
-const size_t SAVE_CURRENT_VERSION = 3;
+const size_t DEMO_CURRENT_VERSION = 3;
 
 sGamePhaseData::sGamePhaseData() {
     Clear();
@@ -56,7 +56,7 @@ void sGamePhaseData::Clear() {
 }
 
 sGameRecorded::sGameRecorded() {
-    mVersion = SAVE_CURRENT_VERSION;
+    mVersion = DEMO_CURRENT_VERSION;
     mTick = 0;
     mTickDisabled = false;
 
@@ -119,7 +119,7 @@ void sGameRecorded::removeFrom(const uint64 pTicks) {
 }
 
 void sGameRecorded::clear() {
-    mVersion = SAVE_CURRENT_VERSION;
+    mVersion = DEMO_CURRENT_VERSION;
 
     mState.clear();
     mEvents.clear();
