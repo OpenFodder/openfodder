@@ -1200,6 +1200,9 @@ int16 cFodder::Recruit_Show() {
     // Single Map does not have a recruit screen
     if (mCustom_Mode != eCustomMode_Map) {
 
+		if (!mStartParams->mDisableSound)
+			mSound->Music_Play(0);
+
         // Retail / Custom set show the Recruitment Hill
         if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat() || mCustom_Mode == eCustomMode_Set) {
 
