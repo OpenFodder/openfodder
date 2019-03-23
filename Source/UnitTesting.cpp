@@ -127,7 +127,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
             // And we have a resume cycle set
             if (g_Fodder->mStartParams->mDemoRecordResumeCycle) {
                 g_Debugger->Notice("Resuming " + MissionTitle);
-                g_Fodder->mStartParams->mSleepDelta = 0;
+                g_Fodder->mParams->mSleepDelta = 0;
             }
             else {
                 g_Fodder->mGame_Data.mDemoRecorded.clear();
@@ -136,9 +136,10 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
         }
 
         // Reset demo status
-        g_Fodder->mStartParams->mDemoRecord = g_Fodder->mStartParams->mDemoRecord;
-        g_Fodder->mStartParams->mDemoPlayback = g_Fodder->mStartParams->mDemoPlayback;
-        g_Fodder->mStartParams->mAppVeyor = g_Fodder->mStartParams->mAppVeyor;
+		g_Fodder->mParams->mDemoFile = g_Fodder->mStartParams->mDemoFile;
+        g_Fodder->mParams->mDemoRecord = g_Fodder->mStartParams->mDemoRecord;
+        g_Fodder->mParams->mDemoPlayback = g_Fodder->mStartParams->mDemoPlayback;
+        g_Fodder->mParams->mAppVeyor = g_Fodder->mStartParams->mAppVeyor;
         // Keep game state
         g_Fodder->mGame_Data_Backup = g_Fodder->mGame_Data;
 
@@ -206,7 +207,7 @@ bool cUnitTesting::Start() {
         if (CampaignName == "Random Map" || CampaignName == "Single Map")
             continue;
 
-        g_Fodder->mParams = g_Fodder->mStartParams;
+        *g_Fodder->mParams = *g_Fodder->mStartParams;
         g_Fodder->mStartParams->mCampaignName = CampaignName;
 
         g_Debugger->TestStart(CampaignName, "Campaign");
