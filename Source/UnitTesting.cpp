@@ -136,6 +136,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
         }
 
         // Reset demo status
+		g_Fodder->mParams->mSleepDelta = g_Fodder->mStartParams->mSleepDelta;
 		g_Fodder->mParams->mDemoFile = g_Fodder->mStartParams->mDemoFile;
         g_Fodder->mParams->mDemoRecord = g_Fodder->mStartParams->mDemoRecord;
         g_Fodder->mParams->mDemoPlayback = g_Fodder->mStartParams->mDemoPlayback;
