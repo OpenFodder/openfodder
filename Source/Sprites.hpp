@@ -111,7 +111,7 @@ enum eSprites {
 	eSprite_BuildingDoor3						= 88,
 	eSprite_Explosion2							= 89,
 
-	eSprite_OpenCloseDoor						= 90,
+	eSprite_Civilian_Door						= 90,
 	eSprite_Seal_Mine							= 91,
 	eSprite_Spider_Mine							= 92,
 	eSprite_Bonus_RankToGeneral					= 93,
@@ -128,7 +128,7 @@ enum eSprites {
 	eSprite_Helicopter_Missile_Human_Called		= 103,
 	eSprite_Helicopter_Homing_Human_Called		= 104,
 	eSprite_Turret_HomingMissile_Enemy			= 105,
-	eSprite_Hostage_2							= 106,
+	eSprite_Enemy_Leader						= 106,
 	eSprite_Helicopter_Homing_Enemy2			= 107,
 	eSprite_Computer_1							= 108,
 	eSprite_Computer_2							= 109,

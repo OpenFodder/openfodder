@@ -852,7 +852,7 @@ public:
     void            Sprite_Handle_BuildingDoor3(sSprite* pSprite);        // 88
     void            Sprite_Handle_Explosion2(sSprite* pSprite);           // 89
 
-    void            Sprite_Handle_OpenCloseDoor(sSprite* pSprite);                                        // 90
+    void            Sprite_Handle_Civilian_Door(sSprite* pSprite);                                        // 90
     void            Sprite_Handle_Seal_Mine(sSprite* pSprite);                    // 91
     void            Sprite_Handle_Spider_Mine(sSprite* pSprite);                      // 92
     void            Sprite_Handle_Bonus_RankToGeneral(sSprite* pSprite);              // 93
@@ -869,7 +869,7 @@ public:
     void            Sprite_Handle_Helicopter_Missile_Human_Called(sSprite* pSprite);  // 103
     void            Sprite_Handle_Helicopter_Homing_Human_Called(sSprite* pSprite);   // 104
     void            Sprite_Handle_Turret_HomingMissile_Enemy(sSprite* pSprite);       // 105
-    void            Sprite_Handle_Hostage_2(sSprite* pSprite);                        // 106
+    void            Sprite_Handle_Enemy_Leader(sSprite* pSprite);                        // 106
     void            Sprite_Handle_Helicopter_Homing_Enemy2(sSprite* pSprite);         // 107
     void            Sprite_Handle_Computer_1(sSprite* pSprite);                       // 108
     void            Sprite_Handle_Computer_2(sSprite* pSprite);                       // 109

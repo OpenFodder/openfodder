@@ -168,7 +168,7 @@ void cFodder::Sprite_Table_Setup() {
 	/* 88 */
 	SpriteFunction( BuildingDoor3 );
 	SpriteFunction( Explosion2 );
-	SpriteFunction( OpenCloseDoor );
+	SpriteFunction( Civilian_Door);
 	SpriteFunction( Seal_Mine);
 
 	/* 92 */
@@ -192,7 +192,7 @@ void cFodder::Sprite_Table_Setup() {
 	/* 104 */
 	SpriteFunction( Helicopter_Homing_Human_Called );
 	SpriteFunction( Turret_HomingMissile_Enemy );
-	SpriteFunction( Hostage_2 );
+	SpriteFunction( Enemy_Leader );
 	SpriteFunction( Helicopter_Homing_Enemy2 );
 
 	/* 108 */

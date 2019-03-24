@@ -931,7 +931,7 @@ void cFodder::Phase_EngineReset() {
 
     for (uint16 x = 0; x < 3; ++x)
         mSquad_EnteredVehicleTimer[x] = 0;
-
+	
     mSprite_OpenCloseDoor_Ptr = 0;
     mSprite_Civilian_GotHome = 0;
     mSwitchesActivated = false;
@@ -1184,7 +1184,7 @@ void cFodder::Map_Load_Sprites_Count() {
         Sprite.field_8 = 0x7C;
         Sprite.field_32 = (HumanCount / 8);
 
-        if (Sprite.field_18 == eSprite_Hostage_2 || Sprite.field_18 == eSprite_Hostage) {
+        if (Sprite.field_18 == eSprite_Enemy_Leader || Sprite.field_18 == eSprite_Hostage) {
 
             ++mHostage_Count;
         }
@@ -4537,7 +4537,7 @@ void cFodder::Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC,
         if (Sprite->field_18 == eSprite_Hostage)
             continue;
 
-        if (Sprite->field_18 == eSprite_Hostage_2)
+        if (Sprite->field_18 == eSprite_Enemy_Leader)
             continue;
 
         if (pData8 > Sprite->field_0)
@@ -6152,7 +6152,7 @@ void cFodder::Sprite_Handle_Indigenous_Movement(sSprite* pSprite) {
             return;
     }
 
-    if (pSprite->field_18 == eSprite_Hostage || pSprite->field_18 == eSprite_Hostage_2) {
+    if (pSprite->field_18 == eSprite_Hostage || pSprite->field_18 == eSprite_Enemy_Leader) {
         pSprite->field_26 = pSprite->field_0;
         pSprite->field_28 = pSprite->field_4;
     }
@@ -6547,7 +6547,7 @@ void cFodder::Sprite_Handle_Hostage_Movement(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC, Data10;
     sSprite* Data28 = 0;
 
-    if (pSprite->field_18 == eSprite_Hostage_2)
+    if (pSprite->field_18 == eSprite_Enemy_Leader)
         goto CheckRescueTent;
 
     // No known rescue tent?
@@ -12952,7 +12952,7 @@ void cFodder::Sprite_Handle_Hostage(sSprite* pSprite) {
     pSprite->field_10 = Sprite_Field_10;
     sub_25F2B(pSprite);
 
-    if (pSprite->field_18 != eSprite_Hostage_2)
+    if (pSprite->field_18 != eSprite_Enemy_Leader)
         return;
 
     Data24 = pSprite + 1;
@@ -13334,7 +13334,7 @@ void cFodder::Sprite_Handle_Explosion2(sSprite* pSprite) {
     Sprite_Handle_Explosion(pSprite);
 }
 
-void cFodder::Sprite_Handle_OpenCloseDoor(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Door(sSprite* pSprite) {
     mSprite_OpenCloseDoor_Ptr = pSprite;
 
     if (sub_222A3(pSprite)) {
@@ -13614,7 +13614,7 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Human_Called(sSprite* pSprite) {
     Sprite_Handle_Helicopter_Homing_Human(pSprite);
 }
 
-void cFodder::Sprite_Handle_Hostage_2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Enemy_Leader(sSprite* pSprite) {
 
     Sprite_Handle_Hostage(pSprite);
 }
