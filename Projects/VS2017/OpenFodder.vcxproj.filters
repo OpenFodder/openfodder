@@ -16,6 +16,9 @@
     <Filter Include="Source\Structures">
       <UniqueIdentifier>{5c64d2e5-eaa0-44f1-ad36-b2c67625baf6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Map">
+      <UniqueIdentifier>{53095f20-80bc-4b7b-a896-cfc3e7f0b34e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -123,9 +126,6 @@
     <ClInclude Include="..\..\Source\SpriteSheet.hpp">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Map.hpp">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Campaign.hpp">
       <Filter>Source</Filter>
     </ClInclude>
@@ -177,6 +177,15 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Parameters.hpp">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Map\Map.hpp">
+      <Filter>Source\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Map\Original.hpp">
+      <Filter>Source\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Map\Random.hpp">
+      <Filter>Source\Map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -294,9 +303,6 @@
     <ClCompile Include="..\..\Source\Utils\SimplexNoise.cpp">
       <Filter>Source\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Map.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Parameters.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -304,6 +310,18 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Start_Emscripten.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Map\Original.cpp">
+      <Filter>Source\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Map\Map.cpp">
+      <Filter>Source\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Map\Random.cpp">
+      <Filter>Source\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MapData.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

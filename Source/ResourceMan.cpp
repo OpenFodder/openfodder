@@ -398,7 +398,7 @@ std::string cResourceMan::GetSaveNewName() const {
 	auto now = std::chrono::system_clock::now();
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
-	return PathGenerate(mValidPaths[0] + std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave);
+	return mValidPaths[0] + PathGenerate( std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave);
 }
 
 std::string cResourceMan::GetTestPath(const sGameVersion* pVersion, const std::string pFile) const {

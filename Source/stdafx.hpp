@@ -118,7 +118,11 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "CopyProtection.hpp"
 #include "IntroData.hpp"
 #include "Tiles.hpp"
-#include "Map.hpp"
+
+#include "Map/Map.hpp"
+#include "Map/Original.hpp"
+#include "Map/Random.hpp"
+
 #include "Campaign.hpp"
 #include "FontData.hpp"
 #include "Graphics.hpp"

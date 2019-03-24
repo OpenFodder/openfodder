@@ -44,12 +44,12 @@ void cGraphics_Amiga2::Map_Load_Resources() {
 void cGraphics_Amiga2::Mission_Intro_Load_Resources() {
 
     // Briefing images
-    std::string JunData1 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "PLAY";
-    std::string JunData2 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "sky.pl8";
-    std::string JunData3 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "mid.pl8";
-    std::string JunData4 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "fgnd.pl8";
-    std::string JunData5 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "fgn2.pl8";
-    std::string JunData6 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "heli.pal";
+    std::string JunData1 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "PLAY";
+    std::string JunData2 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "sky.pl8";
+    std::string JunData3 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "mid.pl8";
+    std::string JunData4 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "fgnd.pl8";
+    std::string JunData5 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "fgn2.pl8";
+    std::string JunData6 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "heli.pal";
 
     // Load the intro images
     mImageMissionIntro = GetImage(JunData1, 0);

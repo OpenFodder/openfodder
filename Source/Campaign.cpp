@@ -253,11 +253,12 @@ void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
     mMissions.clear();
 }
 
-cMap cCampaign::getCMap(std::shared_ptr<cPhase> pPhase) const {
+std::shared_ptr<cMap> cCampaign::getCMap(std::shared_ptr<cPhase> pPhase) const {
 
-	cMap Map(getMap(pPhase), getSprites(pPhase), mName == "Cannon Fodder 2");
+	
+	auto map = std::make_shared<cOriginalMap>(getMap(pPhase), getSprites(pPhase), mName == "Cannon Fodder 2");
 
-	return Map;
+	return map;
 }
 
 tSharedBuffer cCampaign::getMap(std::shared_ptr<cPhase> pPhase) const {

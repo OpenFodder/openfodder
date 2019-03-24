@@ -794,7 +794,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 		}
 
 		Target += (mSurface->GetWidth() * (16 - StartY));
-		CurrentMapPtr += (mFodder->mMapLoaded.getWidth() << 1);
+		CurrentMapPtr += (mFodder->mMapLoaded->getWidth() << 1);
 	}
 
 	mSurface->Save();
@@ -1211,12 +1211,12 @@ void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 void cGraphics_Amiga::Mission_Intro_Load_Resources() {
 
 	// Briefing images
-	std::string JunData1 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "play.lbm";
-	std::string JunData2 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "sky.pl8";
-	std::string JunData3 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "mid.pl8";
-	std::string JunData4 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "fgnd.pl8";
-	std::string JunData5 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "fgn2.pl8";
-	std::string JunData6 = mTileTypes[mFodder->mMapLoaded.getTileType()].mName + "heli.pal";
+	std::string JunData1 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "play.lbm";
+	std::string JunData2 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "sky.pl8";
+	std::string JunData3 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "mid.pl8";
+	std::string JunData4 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "fgnd.pl8";
+	std::string JunData5 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "fgn2.pl8";
+	std::string JunData6 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "heli.pal";
 
 	// Load the intro images
 	mImageMissionIntro = DecodeIFF(JunData1);

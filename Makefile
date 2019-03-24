@@ -14,7 +14,7 @@ fodder: 	main
 
 main:
 		git log -n 1 --pretty="const char* gitversion=\"%%h\";" > ./Source/gitver.hpp
-		$(CC) Source/*.cpp Source/PC/*.cpp Source/Amiga/*.cpp Source/Structures/*.cpp Source/Utils/*.cpp
+		$(CC) Source/*.cpp Source/PC/*.cpp Source/Amiga/*.cpp Source/Structures/*.cpp Source/Utils/*.cpp Source/Map/*.cpp
 		mkdir -p obj
 
 clean:

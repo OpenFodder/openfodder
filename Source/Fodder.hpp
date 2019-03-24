@@ -78,6 +78,9 @@ struct sService_Draw {
 };
 
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
+extern const int16 mMap_Direction_Calculations[256];
+extern const int8 mMap_Distance_Calculations[];
+extern const int16 mMap_DirectionsBetweenPoints[];
 
 class cFodder {
 public:
@@ -131,7 +134,7 @@ public:
     uint8           mKeyCode;
 
     tSharedBuffer   mMap;
-	cMap			mMapLoaded;
+	std::shared_ptr<cMap> mMapLoaded;
 
     tSharedBuffer   mTile_BaseBlk;
     tSharedBuffer   mTile_SubBlk;

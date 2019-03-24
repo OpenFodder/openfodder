@@ -21,7 +21,6 @@
  */
 
 #include "stdafx.hpp"
-#include <chrono>
 
 #ifdef WIN32
 #include <windows.h>
@@ -439,8 +438,8 @@ void cFodder::Phase_Prepare() {
 
 	// Is map 17 x 12
 	{
-		if (mMapLoaded.getWidth() == 17) {
-			if (mMapLoaded.getHeight() == 12)
+		if (mMapLoaded->getWidth() == 17) {
+			if (mMapLoaded->getHeight() == 12)
 				mPhase_MapIs17x12 = -1;
 		}
 	}
@@ -1154,7 +1153,7 @@ void cFodder::Map_Load_Sprites() {
 
     Sprite_Clear_All();
 
-	mSprites = mMapLoaded.getSprites();
+	mSprites = mMapLoaded->getSprites();
 
 	if (mSprites.size() < mParams->mSpritesMax) {
 		size_t start = mSprites.size();
@@ -1571,7 +1570,7 @@ void cFodder::Camera_Speed_Calculate() {
 
     //loc_11B9C
 	// Calculate maximum right position of camera
-    Data0 = mMapLoaded.getWidthPixels() - getCameraWidth();
+    Data0 = mMapLoaded->getWidthPixels() - getCameraWidth();
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     int32 Data4 = mCameraX + mCamera_Speed_X;
@@ -1580,7 +1579,7 @@ void cFodder::Camera_Speed_Calculate() {
         mCamera_Speed_X = Data0;
     }
     //loc_11BE8
-    Data0 = mMapLoaded.getHeightPixels() - getCameraHeight();
+    Data0 = mMapLoaded->getHeightPixels() - getCameraHeight();
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     Data4 = mCameraY + mCamera_Speed_Y;
@@ -1636,7 +1635,7 @@ void cFodder::Camera_SetTargetToStartPosition() {
     if (Data8 < 0)
         Data8 = 0;
 
-    int16 Data10 = mMapLoaded.getWidthPixels();
+    int16 Data10 = mMapLoaded->getWidthPixels();
     Data10 -= (getCameraWidth() / 2) - 8;
     if (Data8 >= Data10)
         Data8 = Data10;
@@ -1646,7 +1645,7 @@ void cFodder::Camera_SetTargetToStartPosition() {
     if (DataC < 0)
         DataC = 0;
 
-    Data10 = mMapLoaded.getHeightPixels();
+    Data10 = mMapLoaded->getHeightPixels();
     Data10 -= (getCameraHeight() - 8) / 2;
     if (DataC >= Data10)
         DataC = Data10;
@@ -1745,11 +1744,11 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
         TileID = 100;
 #endif
 
-	mMapLoaded = cMap(pParams);
+	mMapLoaded = std::make_shared<cRandomMap>(pParams);
 	
-	mMap = mMapLoaded.getData();
+	mMap = mMapLoaded->getData();
 
-    mMapTile_Ptr = (int32)((0x60 - 8) - (mMapLoaded.getWidth() * 2));
+    mMapTile_Ptr = (int32)((0x60 - 8) - (mMapLoaded->getWidth() * 2));
     mMapTile_DrawX = 0;
     mMapTile_DrawY = 0;
 
@@ -1760,7 +1759,7 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
     Map_Load_Resources();
 
 	if (pRandomise) {
-		mMapLoaded.Randomise();
+		mMapLoaded->Randomise();
 
 		Map_Load_Sprites();
 
@@ -1785,7 +1784,7 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
 
 void cFodder::Map_Load() {
 	mMapLoaded = mGame_Data.mCampaign.getCMap(mGame_Data.mPhase_Current);
-	mMap = mMapLoaded.getData();
+	mMap = mMapLoaded->getData();
 
     if (!mMap->size())
         return;
@@ -1829,7 +1828,7 @@ void cFodder::Map_Load_Resources() {
         if (!Tiles_Load_Data()) {
 
             // Not found, so lets go find it
-            auto Version = mVersions->GetForTileset(mMapLoaded.getTileType(), mMapLoaded.getTileSub());
+            auto Version = mVersions->GetForTileset(mMapLoaded->getTileType(), mMapLoaded->getTileSub());
 
             // Load it
             if (Version) {
@@ -1892,7 +1891,7 @@ void cFodder::Map_Load_Resources() {
 
 void cFodder::Music_Play_Tileset() {
     if (!mStartParams->mDisableSound)
-        mSound->Music_Play(mMapLoaded.getTileType() + 0x32);
+        mSound->Music_Play(mMapLoaded->getTileType() + 0x32);
 }
 
 void cFodder::Camera_Pan_To_Target() {
@@ -1927,7 +1926,7 @@ void cFodder::Camera_Pan_Set_Speed() {
 
     Data4 >>= 4;
 
-    int16 Data8 = mMapLoaded.getWidth();
+    int16 Data8 = mMapLoaded->getWidth();
 	Data8 -= (getCameraWidth() >> 4) + 1;
 
     if (Data8 < 0)
@@ -1936,7 +1935,7 @@ void cFodder::Camera_Pan_Set_Speed() {
     if (Data0 >= Data8)
         Data0 = Data8;
 
-    Data8 = mMapLoaded.getHeight();
+    Data8 = mMapLoaded->getHeight();
     Data8 -= (getCameraHeight() + 32) >> 4;
     if (Data8 < 0)
         Data8 = 0;
@@ -2597,7 +2596,7 @@ void cFodder::Map_Overview_Prepare() {
         return;
 
     delete mSurfaceMapOverview;
-    size_t Size = mMapLoaded.getWidth() < mMapLoaded.getHeight() ? mMapLoaded.getHeight() : mMapLoaded.getWidth();
+    size_t Size = mMapLoaded->getWidth() < mMapLoaded->getHeight() ? mMapLoaded->getHeight() : mMapLoaded->getWidth();
 	if ((Size * 16) * (Size * 16) >= 0x7FFFFFFF)
 		return;
 
@@ -2608,21 +2607,21 @@ void cFodder::Map_Overview_Prepare() {
 
     mSurfaceMapTop = mSurfaceMapLeft = 0;
 
-    if (mMapLoaded.getHeight() < mMapLoaded.getWidth()) {
-        mSurfaceMapTop = (mMapLoaded.getWidth() / 2) - (mMapLoaded.getHeight() / 2);
+    if (mMapLoaded->getHeight() < mMapLoaded->getWidth()) {
+        mSurfaceMapTop = (mMapLoaded->getWidth() / 2) - (mMapLoaded->getHeight() / 2);
         if (mSurfaceMapTop < 0)
             mSurfaceMapTop = 0;
     }
 
-    if (mMapLoaded.getWidth() < mMapLoaded.getHeight()) {
-        mSurfaceMapLeft = (mMapLoaded.getHeight() / 2) - (mMapLoaded.getWidth() / 2);
+    if (mMapLoaded->getWidth() < mMapLoaded->getHeight()) {
+        mSurfaceMapLeft = (mMapLoaded->getHeight() / 2) - (mMapLoaded->getWidth() / 2);
         if (mSurfaceMapLeft < 0)
             mSurfaceMapLeft = 0;
     }
 
-    for (uint16 dx = 0; dx < mMapLoaded.getHeight(); ++dx) {
+    for (uint16 dx = 0; dx < mMapLoaded->getHeight(); ++dx) {
 
-        for (uint16 cx = 0; cx < mMapLoaded.getWidth(); ++cx, ++MapPtr) {
+        for (uint16 cx = 0; cx < mMapLoaded->getWidth(); ++cx, ++MapPtr) {
             
             if (MapPtr < (int16*) mMap->data() || MapPtr >= (int16*) (mMap->data() + mMap->size()))
                 continue;
@@ -3504,7 +3503,7 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
         return;
 
     if (!mStartParams->mDisableSound)
-        mSound->Sound_Play(mMapLoaded.getTileType(), pSoundEffect, Volume);
+        mSound->Sound_Play(mMapLoaded->getTileType(), pSoundEffect, Volume);
 }
 
 void cFodder::Mission_Intro_Helicopter_Start() {
@@ -3971,11 +3970,11 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
 
     word_3AA1D = word_3BED5[0];
 
-    if(mMapLoaded.getTileType() == eTileTypes_Jungle)
-        Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded.getTileType()], 4, 2);
+    if(mMapLoaded->getTileType() == eTileTypes_Jungle)
+        Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded->getTileType()], 4, 2);
 
-    if(mMapLoaded.getTileType() == eTileTypes_AFX)
-        Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded.getTileType()], 2, 5);
+    if(mMapLoaded->getTileType() == eTileTypes_AFX)
+        Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded->getTileType()], 2, 5);
 }
 
 void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle) {
@@ -5117,7 +5116,7 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
 
     // Turrets in Moors / Interior can't be destroyed
     if (mVersionCurrent->isCannonFodder1()) {
-        if (mMapLoaded.getTileType() == eTileTypes_Moors || mMapLoaded.getTileType() == eTileTypes_Int) {
+        if (mMapLoaded->getTileType() == eTileTypes_Moors || mMapLoaded->getTileType() == eTileTypes_Int) {
 
             if (pSprite->field_38 == eSprite_Anim_Die1)
                 pSprite->field_38 = eSprite_Anim_None;
@@ -6001,14 +6000,14 @@ loc_2500F:;
 
 	Data0 = map_GetRandomX();
 	Data0 += 4;
-	if (Data0 > mMapLoaded.getWidth())
+	if (Data0 > mMapLoaded->getWidth())
 		goto loc_25239;
 
 	Data8 = Data0;
 	Data0 = map_GetRandomY();
 	Data0 += 4;
 
-    if (Data0 > mMapLoaded.getHeight())
+    if (Data0 > mMapLoaded->getHeight())
         goto loc_25239;
 
     DataC = Data0;
@@ -6340,12 +6339,12 @@ void cFodder::sub_25A66(sSprite* pSprite) {
 int16 cFodder::Sprite_Handle_Civilian_RandomMovement(sSprite* pSprite) {
     int16 Data8 = map_GetRandomX();
 	Data8 += 4;
-    if (Data8 >= mMapLoaded.getWidth())
+    if (Data8 >= mMapLoaded->getWidth())
         return -1;
 
 	int16 DataC = map_GetRandomY();
 	DataC += 4;
-    if (DataC >= mMapLoaded.getHeight())
+    if (DataC >= mMapLoaded->getHeight())
         return -1;
 
     Data8 <<= 4;
@@ -6434,7 +6433,7 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
 
     Data2C->field_50 = Data0;
 
-    if (mMapLoaded.getTileType() == eTileTypes_Moors) {
+    if (mMapLoaded->getTileType() == eTileTypes_Moors) {
         Data0 = tool_RandomGet() & 1;
         if (Data0)
             goto loc_25D9D;
@@ -7089,14 +7088,14 @@ int16 cFodder::map_GetRandomX() {
 	if (mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
 		return tool_RandomGet() & 0x7F;
 
-	return tool_RandomGet(1, mMapLoaded.getWidth());
+	return tool_RandomGet(1, mMapLoaded->getWidth());
 }
 
 int16 cFodder::map_GetRandomY() {
 	if(mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
 		return tool_RandomGet() & 0x3F;
 
-	return tool_RandomGet(1, mMapLoaded.getHeight());
+	return tool_RandomGet(1, mMapLoaded->getHeight());
 }
 
 uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax) {
@@ -7312,7 +7311,7 @@ int16 cFodder::Map_PathCheck_CalculateTo(int16& pX1, int16& pY1, int16& pX2, int
 
     int16 Data18 = 2;
 
-    int16 RowBytes = mMapLoaded.getWidth();
+    int16 RowBytes = mMapLoaded->getWidth();
 	RowBytes <<= 1;
 
     mCheckPattern_Position.mX = pX1;
@@ -7397,7 +7396,7 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
 
     uint8* MapTilePtr = mMap->data() + 0x60;
 
-    Data4 *= mMapLoaded.getWidth();
+    Data4 *= mMapLoaded->getWidth();
     Data4 += mCheckPattern_Position.mX;
 
     MapTilePtr += (Data4 << 1);
@@ -7546,10 +7545,10 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable(sSprite* pSprite, int16& pY, in
 
 int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pData14) {
 
-    if ((pY >> 4) > mMapLoaded.getHeight() || (pX >> 4) > mMapLoaded.getWidth())
+    if ((pY >> 4) > mMapLoaded->getHeight() || (pX >> 4) > mMapLoaded->getWidth())
         return 0;
 
-    int32 MapPtr = (pY >> 4) * mMapLoaded.getWidth();
+    int32 MapPtr = (pY >> 4) * mMapLoaded->getWidth();
     MapPtr += (pX >> 4);
     MapPtr <<= 1;
 
@@ -7577,10 +7576,10 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
 
 int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
 
-    if ((pY >> 4) > mMapLoaded.getHeight() || (pX >> 4) > mMapLoaded.getWidth())
+    if ((pY >> 4) > mMapLoaded->getHeight() || (pX >> 4) > mMapLoaded->getWidth())
         return -1;
 
-    int32 MapPtr = (pY >> 4) * mMapLoaded.getWidth();
+    int32 MapPtr = (pY >> 4) * mMapLoaded->getWidth();
     MapPtr += (pX >> 4);
     MapPtr <<= 1;
 
@@ -7902,7 +7901,7 @@ int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, in
 
     DataC >>= 4;
 
-    DataC *= mMapLoaded.getWidth();
+    DataC *= mMapLoaded->getWidth();
     Data8 >>= 4;
 
     DataC += Data8;
@@ -8046,7 +8045,7 @@ void cFodder::MapTile_Move_Down(int16 pPanTiles) {
         ++mMapTile_RowOffset;
         mMapTile_RowOffset &= 0x0F;
         if (!mMapTile_RowOffset) {
-            mMapTile_Ptr += (mMapLoaded.getWidth() << 1);
+            mMapTile_Ptr += (mMapLoaded->getWidth() << 1);
             ++mMapTile_MovedVertical;
         }
     }
@@ -8059,7 +8058,7 @@ void cFodder::MapTile_Move_Up(int16 pPanTiles) {
         --mMapTile_RowOffset;
         mMapTile_RowOffset &= 0x0F;
         if (mMapTile_RowOffset == 0x0F) {
-            mMapTile_Ptr -= (mMapLoaded.getWidth() << 1);
+            mMapTile_Ptr -= (mMapLoaded->getWidth() << 1);
             --mMapTile_MovedVertical;
         }
     }
@@ -8114,10 +8113,10 @@ void cFodder::MapTile_Update_X() {
 
 int32 cFodder::MapTile_Get(const size_t pTileX, const size_t pTileY) {
 
-    if ((int32) pTileX > mMapLoaded.getWidth() || (int32) pTileY > mMapLoaded.getHeight())
+    if ((int32) pTileX > mMapLoaded->getWidth() || (int32) pTileY > mMapLoaded->getHeight())
         return -1;
 
-    size_t Tile = (((pTileY * mMapLoaded.getWidth()) + pTileX)) + mMapLoaded.getWidth();
+    size_t Tile = (((pTileY * mMapLoaded->getWidth()) + pTileX)) + mMapLoaded->getWidth();
 
     uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
     if (CurrentMapPtr > mMap->data() + mMap->size())
@@ -8131,10 +8130,10 @@ int32 cFodder::MapTile_Get(const size_t pTileX, const size_t pTileY) {
  */
 void cFodder::MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
 
-    if ((int32) pTileX > mMapLoaded.getWidth() || (int32) pTileY > mMapLoaded.getHeight())
+    if ((int32) pTileX > mMapLoaded->getWidth() || (int32) pTileY > mMapLoaded->getHeight())
         return;
 
-    size_t Tile = (((pTileY * mMapLoaded.getWidth()) + pTileX)) + mMapLoaded.getWidth();
+    size_t Tile = (((pTileY * mMapLoaded->getWidth()) + pTileX)) + mMapLoaded->getWidth();
 
     uint8* CurrentMapPtr = mMap->data() + mMapTile_Ptr + (Tile * 2);
     if (CurrentMapPtr > mMap->data() + mMap->size())
@@ -8825,7 +8824,7 @@ void cFodder::Map_Destroy_Tiles() {
         }
         //loc_2DE89
         Data4 >>= 4;
-        Data4 *= mMapLoaded.getWidth();
+        Data4 *= mMapLoaded->getWidth();
 
         Data0 >>= 4;
         Data4 += Data0;
@@ -8847,7 +8846,7 @@ void cFodder::Map_Destroy_Tiles() {
         if (TriggerExplosion)
             goto loc_2DF7B;
 
-        IndestructibleTypes = mTiles_Indestructible[mMapLoaded.getTileType()];
+        IndestructibleTypes = mTiles_Indestructible[mMapLoaded->getTileType()];
 
         int16 ax;
         do {
@@ -12508,10 +12507,10 @@ loc_1C87E:;
 
 loc_1C8C5:;
 
-    if (mMapLoaded.getTileType() == eTileTypes_Jungle)
+    if (mMapLoaded->getTileType() == eTileTypes_Jungle)
         Sprite_Native_Sound_Play(pSprite, 0x1A);
 
-    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX)
+    if (mMapLoaded->getTileType() == eTileTypes_Ice || mMapLoaded->getTileType() == eTileTypes_AFX)
         Sprite_Native_Sound_Play(pSprite, 0x1F);
 
 }
@@ -12581,10 +12580,10 @@ void cFodder::Sprite_Handle_Bird_Right(sSprite* pSprite) {
     pSprite->field_4 = Data0;
 
 loc_1CA20:;
-    if (mMapLoaded.getTileType() == eTileTypes_Jungle)
+    if (mMapLoaded->getTileType() == eTileTypes_Jungle)
         Sprite_Native_Sound_Play(pSprite, 0x1A);
 
-    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX)
+    if (mMapLoaded->getTileType() == eTileTypes_Ice || mMapLoaded->getTileType() == eTileTypes_AFX)
         Sprite_Native_Sound_Play(pSprite, 0x1F);
 }
 
@@ -12608,7 +12607,7 @@ void cFodder::Sprite_Handle_Seal(sSprite* pSprite) {
     Data0 = mSprite_Seal_AnimFrames[Data0];
     pSprite->field_A = Data0;
 
-    if (mMapLoaded.getTileType() == eTileTypes_Moors) {
+    if (mMapLoaded->getTileType() == eTileTypes_Moors) {
         Data0 = tool_RandomGet() & 3;
         if (Data0 != 3) {
             Data0 += 0x23;
@@ -12616,7 +12615,7 @@ void cFodder::Sprite_Handle_Seal(sSprite* pSprite) {
         }
     }
 
-    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX) {
+    if (mMapLoaded->getTileType() == eTileTypes_Ice || mMapLoaded->getTileType() == eTileTypes_AFX) {
         Sprite_Native_Sound_Play(pSprite, 0x1E);
     }
 }
@@ -12752,10 +12751,10 @@ void cFodder::Sprite_Handle_Civilian_Spear(sSprite* pSprite) {
     pSprite->field_22 = eSprite_PersonType_Native;
     pSprite->field_8 = 0xD0;
 
-    if (mMapLoaded.getTileType() == eTileTypes_Moors)
+    if (mMapLoaded->getTileType() == eTileTypes_Moors)
         Sprite_Native_Sound_Play(pSprite, 0x26);
 
-    if (mMapLoaded.getTileType() == eTileTypes_Int)
+    if (mMapLoaded->getTileType() == eTileTypes_Int)
         Sprite_Native_Sound_Play(pSprite, 0x1F);
 
     int16 ax = Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(pSprite);
@@ -13022,7 +13021,7 @@ loc_1D3C6:;
 
 loc_1D411:;
     Data4 = pSprite->field_4;
-    Data0 = mMapLoaded.getHeightPixels();
+    Data0 = mMapLoaded->getHeightPixels();
 
     if (Data4 < Data0)
         goto loc_1D441;
@@ -13720,7 +13719,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite) {
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_0 <= 6) {
-        pSprite->field_0 = mMapLoaded.getWidthPixels() - 4;
+        pSprite->field_0 = mMapLoaded->getWidthPixels() - 4;
         pSprite->field_75 = 0;
     }
 
@@ -13751,7 +13750,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Right(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_0 >= mMapLoaded.getWidthPixels()) {
+    if (pSprite->field_0 >= mMapLoaded->getWidthPixels()) {
         pSprite->field_0 = 0;
         pSprite->field_75 = 0;
     }
@@ -13765,7 +13764,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Up(sSprite* pSprite) {
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
     if (pSprite->field_4 <= 6) {
-        pSprite->field_4 = mMapLoaded.getHeightPixels() - 4;
+        pSprite->field_4 = mMapLoaded->getHeightPixels() - 4;
         pSprite->field_75 = 0;
     }
 
@@ -13777,7 +13776,7 @@ void cFodder::Sprite_Handle_Looping_Vehicle_Down(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_4 >= mMapLoaded.getHeightPixels()) {
+    if (pSprite->field_4 >= mMapLoaded->getHeightPixels()) {
         pSprite->field_4 = 0;
         pSprite->field_75 = 0;
     }
@@ -13870,7 +13869,7 @@ void cFodder::Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID) {
 
     int16 Data8 = 0;
 
-    if (mMapLoaded.getTileType() == eTileTypes_Int || mMapLoaded.getTileType() == eTileTypes_Moors)
+    if (mMapLoaded->getTileType() == eTileTypes_Int || mMapLoaded->getTileType() == eTileTypes_Moors)
         Data8 = 0x7F;
 
     Sound_Play(pSprite, pSoundID, Data8);
@@ -13895,8 +13894,8 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
         goto loc_1EB87;
 
     Data0 = pSprite->field_4;
-    if (Data0 >= mMapLoaded.getHeightPixels())
-        pSprite->field_4 = mMapLoaded.getHeightPixels();
+    if (Data0 >= mMapLoaded->getHeightPixels())
+        pSprite->field_4 = mMapLoaded->getHeightPixels();
 
     //loc_1E0A4
     if (pSprite->field_56)
@@ -14246,7 +14245,7 @@ loc_1E831:;
     //loc_1E8D6
     pSprite->field_4 += Data0;
     Data0 = pSprite->field_4;
-    if (Data0 >= mMapLoaded.getHeightPixels())
+    if (Data0 >= mMapLoaded->getHeightPixels())
         pSprite->field_38 = eSprite_Anim_Hit2;
 
     mStoredSpriteY = pSprite->field_4;
@@ -15985,7 +15984,7 @@ void cFodder::Intro_OpenFodder() {
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2", mParams->mDefaultPlatform));
 
 		// Random intro
-		mMapLoaded.getMapParams()->mTileType = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
+		mMapLoaded->getMapParams()->mTileType = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 		Mission_Intro_Play(true);
 		mOpenFodder_Intro_Done = true;
 		if (CF2)
@@ -16112,8 +16111,8 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
     mSurface->clearBuffer();
 	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 
-    if (mMapLoaded.getTileType() >= eTileTypes_Hid)
-		mMapLoaded.getMapParams()->mTileType = eTileTypes_Jungle;
+    if (mMapLoaded->getTileType() >= eTileTypes_Hid)
+		mMapLoaded->getMapParams()->mTileType = eTileTypes_Jungle;
 
     mGraphics->Mission_Intro_Load_Resources();
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
@@ -16369,7 +16368,7 @@ void cFodder::Sprite_Reached_MapEdge(sSprite* pSprite) {
         mSprite_Reached_Target = -1;
     }
 
-    if (pSprite->field_4 >= mMapLoaded.getHeightPixels()) {
+    if (pSprite->field_4 >= mMapLoaded->getHeightPixels()) {
         if (pSprite->field_38 == eSprite_Anim_None || pSprite->field_38 >= eSprite_Anim_Slide1) {
             pSprite->field_4 = mStoredSpriteY;
             mSprite_Reached_Target = -1;
@@ -16383,10 +16382,10 @@ void cFodder::Sprite_Reached_MapEdge(sSprite* pSprite) {
         goto loc_20521;
     }
 
-    if (pSprite->field_0 + 12 < mMapLoaded.getWidthPixels())
+    if (pSprite->field_0 + 12 < mMapLoaded->getWidthPixels())
         return;
 
-    if (mStoredSpriteX + 16 >= mMapLoaded.getWidthPixels())
+    if (mStoredSpriteX + 16 >= mMapLoaded->getWidthPixels())
         return;
 
 loc_20521:;
@@ -17712,7 +17711,7 @@ int16 cFodder::sub_222A3(sSprite* pSprite) {
     if (Data4 < 0)
         Data0 = -Data0;
 
-    if (mMapLoaded.getTileType() == eTileTypes_Ice || mMapLoaded.getTileType() == eTileTypes_AFX)
+    if (mMapLoaded->getTileType() == eTileTypes_Ice || mMapLoaded->getTileType() == eTileTypes_AFX)
         Data0 += 0x1C0;
 
     pSprite->field_10 = Data0;
@@ -18529,7 +18528,7 @@ void cFodder::MapTiles_Draw() {
     mMapTile_RowOffset = 0;
 
     // 0x60 - SidebarWidth - MapWidth
-    mMapTile_Ptr = (0x60 - 8) - (mMapLoaded.getWidth() << 1);
+    mMapTile_Ptr = (0x60 - 8) - (mMapLoaded->getWidth() << 1);
     
     // No sidebar in OFED
 #ifdef _OFED
