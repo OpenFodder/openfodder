@@ -935,8 +935,8 @@ void cFodder::Phase_EngineReset() {
     mSprite_OpenCloseDoor_Ptr = 0;
     mSprite_Civilian_GotHome = 0;
     mSwitchesActivated = false;
-    mSprite_Indigenous_Tmp_X = 0;
-    mSprite_Indigenous_Tmp_Y = 0;
+    mSprite_Civilian_Tmp_X = 0;
+    mSprite_Civilian_Tmp_Y = 0;
     word_3B481 = 0;
     word_3B483 = 0;
     mHelicopterCallPadCount = 0;
@@ -3917,7 +3917,7 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
     mSprites[x].field_A = 0;
     mSprites[x].field_52 = 0;
     mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_Indigenous_Spear;
+    mSprites[x++].field_18 = eSprite_Civilian_Spear;
 
     mSprites[x].field_0 = 0xff;
     mSprites[x].field_4 = 16 + (tool_RandomGet() % 0x60);
@@ -5150,9 +5150,9 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     Data10 = -1;
 
     if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Get_Civilian_Home - 1]) {
-        Data4 = eSprite_Indigenous;
-        Data8 = eSprite_Indigenous2;
-        DataC = eSprite_Indigenous_Spear;
+        Data4 = eSprite_Civilian;
+        Data8 = eSprite_Civilian2;
+        DataC = eSprite_Civilian_Spear;
         Data10 = -1;
     }
 
@@ -5879,7 +5879,7 @@ void cFodder::Sprite_Handle_Vehicle_Enemy(sSprite* pSprite) {
         goto loc_255DA;
 
     Data0 = eSprite_Player;
-    Data4 = eSprite_Indigenous;
+    Data4 = eSprite_Civilian;
     Data8 = 0x3E;
     DataC = 0x46;
     Data10 = -1;
@@ -6127,7 +6127,7 @@ loc_25288:;
     Data24->field_20 = pSprite->field_20;
 }
 
-void cFodder::Sprite_Handle_Indigenous_Unk(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Unk(sSprite* pSprite) {
     if (!pSprite->field_5C)
         return;
 
@@ -6140,10 +6140,10 @@ void cFodder::Sprite_Handle_Indigenous_Unk(sSprite* pSprite) {
     pSprite->field_2E = mSquad_Leader->field_0;
     pSprite->field_30 = mSquad_Leader->field_4;
 
-    Sprite_Create_Indigenous_Spear2(pSprite);
+    Sprite_Create_Civilian_Spear2(pSprite);
 }
 
-void cFodder::Sprite_Handle_Indigenous_Movement(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Movement(sSprite* pSprite) {
 
     // Destination change cool down
     if (pSprite->field_4C) {
@@ -6157,7 +6157,7 @@ void cFodder::Sprite_Handle_Indigenous_Movement(sSprite* pSprite) {
         pSprite->field_28 = pSprite->field_4;
     }
     else {
-        if (Sprite_Handle_Indigenous_RandomMovement(pSprite) < 0)
+        if (Sprite_Handle_Civilian_RandomMovement(pSprite) < 0)
             return;
     }
 
@@ -6167,7 +6167,7 @@ void cFodder::Sprite_Handle_Indigenous_Movement(sSprite* pSprite) {
     pSprite->field_4C = static_cast<int8>(Data0);
 }
 
-int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(sSprite* pSprite) {
+int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprite) {
 
     if (!mSprite_OpenCloseDoor_Ptr)
         return -1;
@@ -6187,8 +6187,8 @@ int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(sSprite* pSpr
     pSprite->field_26 = Data8;
     pSprite->field_28 = DataC;
 
-    mSprite_Indigenous_Tmp_X = Data0;
-    mSprite_Indigenous_Tmp_Y = Data4;
+    mSprite_Civilian_Tmp_X = Data0;
+    mSprite_Civilian_Tmp_Y = Data4;
     word_3B481 = Data8;
     word_3B483 = DataC;
     int16 Data10 = 0x20;
@@ -6205,8 +6205,8 @@ int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(sSprite* pSpr
         return 0;
     }
 
-    Data0 = mSprite_Indigenous_Tmp_X;
-    Data4 = mSprite_Indigenous_Tmp_Y;
+    Data0 = mSprite_Civilian_Tmp_X;
+    Data4 = mSprite_Civilian_Tmp_Y;
     Data8 = word_3B481;
     DataC = word_3B483;
 
@@ -6226,7 +6226,7 @@ int16 cFodder::Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(sSprite* pSpr
     return 0;
 }
 
-void cFodder::Sprite_Handle_Indigenous_Death(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Death(sSprite* pSprite) {
 
     if (pSprite->field_8 != 0xD6) {
         word_3B2D1[2] = -1;
@@ -6241,7 +6241,7 @@ void cFodder::Sprite_Handle_Indigenous_Death(sSprite* pSprite) {
         pSprite->field_A = 0;
 
         int16 Data0 = tool_RandomGet() & 7;
-        int16 Data4 = mSprite_Indigenous_Sound_Death[Data0];
+        int16 Data4 = mSprite_Civilian_Sound_Death[Data0];
 
         Sound_Play(pSprite, Data4, 0x14);
     }
@@ -6337,7 +6337,7 @@ void cFodder::sub_25A66(sSprite* pSprite) {
     pSprite->field_A = Data0;
 }
 
-int16 cFodder::Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite) {
+int16 cFodder::Sprite_Handle_Civilian_RandomMovement(sSprite* pSprite) {
     int16 Data8 = map_GetRandomX();
 	Data8 += 4;
     if (Data8 >= mMapLoaded.getWidth())
@@ -6364,7 +6364,7 @@ int16 cFodder::Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite) {
     return 0;
 }
 
-int16 cFodder::Sprite_Create_Indigenous_Spear2(sSprite* pSprite) {
+int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
     if (mPhase_Completed_Timer)
         return -1;
 
@@ -6393,7 +6393,7 @@ int16 cFodder::Sprite_Create_Indigenous_Spear2(sSprite* pSprite) {
         Data0 = 0x10;
 
     Data2C->field_12 = Data0;
-    Data2C->field_18 = eSprite_Indigenous_Spear2;
+    Data2C->field_18 = eSprite_Civilian_Spear2;
     Data2C->field_1E_Big = pSprite->field_1E_Big;
     Data2C->field_1E_Big += 0x60000;
 
@@ -12353,22 +12353,22 @@ void cFodder::Sprite_Handle_BoilingPot(sSprite* pSprite) {
     Data24->field_20 = 0x10;
 }
 
-void cFodder::Sprite_Handle_Indigenous(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian(sSprite* pSprite) {
     if (pSprite->field_38) {
-        Sprite_Handle_Indigenous_Death(pSprite);
+        Sprite_Handle_Civilian_Death(pSprite);
         return;
     }
 
     pSprite->field_22 = eSprite_PersonType_Native;
     pSprite->field_8 = 0xD0;
 
-    int16 ax = Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(pSprite);
+    int16 ax = Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(pSprite);
 
     if (ax) {
         if (ax >= 0)
             return;
 
-        Sprite_Handle_Indigenous_Movement(pSprite);
+        Sprite_Handle_Civilian_Movement(pSprite);
     }
 
     pSprite->field_36 = 6;
@@ -12377,21 +12377,21 @@ void cFodder::Sprite_Handle_Indigenous(sSprite* pSprite) {
     sub_25A66(pSprite);
 }
 
-void cFodder::Sprite_Handle_Indigenous2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian2(sSprite* pSprite) {
 
     if (pSprite->field_38) {
-        Sprite_Handle_Indigenous_Death(pSprite);
+        Sprite_Handle_Civilian_Death(pSprite);
         return;
     }
 
     pSprite->field_22 = eSprite_PersonType_Native;
     pSprite->field_8 = 0xD0;
 
-    int16 ax = Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(pSprite);
+    int16 ax = Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(pSprite);
     if (ax > 0)
         return;
     if (ax < 0)
-        Sprite_Handle_Indigenous_Movement(pSprite);
+        Sprite_Handle_Civilian_Movement(pSprite);
 
     pSprite->field_36 = 0x0A;
     sub_2593D(pSprite);
@@ -12400,7 +12400,7 @@ void cFodder::Sprite_Handle_Indigenous2(sSprite* pSprite) {
     if (!word_3B2D1[1])
         return;
 
-    Sprite_Handle_Indigenous_Unk(pSprite);
+    Sprite_Handle_Civilian_Unk(pSprite);
 }
 
 void cFodder::Sprite_Handle_VehicleNoGun_Human(sSprite* pSprite) {
@@ -12742,10 +12742,10 @@ loc_1CDA3:;
     Data24->field_20 = pSprite->field_20;
 }
 
-void cFodder::Sprite_Handle_Indigenous_Spear(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Spear(sSprite* pSprite) {
     pSprite->field_22 = eSprite_PersonType_AI;
     if (pSprite->field_38) {
-        Sprite_Handle_Indigenous_Death(pSprite);
+        Sprite_Handle_Civilian_Death(pSprite);
         return;
     }
 
@@ -12758,21 +12758,21 @@ void cFodder::Sprite_Handle_Indigenous_Spear(sSprite* pSprite) {
     if (mMapLoaded.getTileType() == eTileTypes_Int)
         Sprite_Native_Sound_Play(pSprite, 0x1F);
 
-    int16 ax = Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(pSprite);
+    int16 ax = Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(pSprite);
     if (ax > 0)
         return;
     if (ax)
-        Sprite_Handle_Indigenous_Movement(pSprite);
+        Sprite_Handle_Civilian_Movement(pSprite);
 
     pSprite->field_36 = 0x0C;
 
     sub_2593D(pSprite);
     sub_25A31(pSprite);
     sub_25A66(pSprite);
-    Sprite_Handle_Indigenous_Unk(pSprite);
+    Sprite_Handle_Civilian_Unk(pSprite);
 }
 
-void cFodder::Sprite_Handle_Indigenous_Spear2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Spear2(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC, Data1C;
 
     ++pSprite->field_64;
@@ -12935,7 +12935,7 @@ void cFodder::Sprite_Handle_Hostage(sSprite* pSprite) {
     word_3B2D1[5] = pSprite->field_6;
 
     Sprite_Handle_Hostage_Movement(pSprite);
-    Sprite_Handle_Indigenous_Movement(pSprite);
+    Sprite_Handle_Civilian_Movement(pSprite);
 
     pSprite->field_36 = 0x0C;
     sub_2593D(pSprite);
@@ -13049,19 +13049,19 @@ void cFodder::Sprite_Handle_Hostage_Rescue_Tent(sSprite* pSprite) {
         pSprite->field_18 = eSprite_Explosion2;
 }
 
-void cFodder::Sprite_Handle_Door_Indigenous(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Door_Civilian(sSprite* pSprite) {
     mSpawnSpriteType = 0x3D;
 
     sub_264B0(pSprite);
 }
 
-void cFodder::Sprite_Handle_Door2_Indigenous(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Door2_Civilian(sSprite* pSprite) {
     mSpawnSpriteType = 0x3E;
 
     sub_264B0(pSprite);
 }
 
-void cFodder::Sprite_Handle_Door_Indigenous_Spear(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Door_Civilian_Spear(sSprite* pSprite) {
     mSpawnSpriteType = 0x46;
 
     sub_264B0(pSprite);
@@ -13203,12 +13203,12 @@ void cFodder::Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite) {
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
-void cFodder::Sprite_Handle_Indigenous_Invisible(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Invisible(sSprite* pSprite) {
 
     if (!pSprite->field_38)
         return;
 
-    Sprite_Handle_Indigenous_Death(pSprite);
+    Sprite_Handle_Civilian_Death(pSprite);
 
     /* Unused code block
 
@@ -13971,7 +13971,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
     Data0 = tool_RandomGet();
     Data4 = 0;
     Data0 &= 7;
-    Data4 = mSprite_Indigenous_Sound_Death[Data0];
+    Data4 = mSprite_Civilian_Sound_Death[Data0];
     //seg004:5508
     Sound_Play(pSprite, Data4, 0x14);
 
@@ -14029,7 +14029,7 @@ loc_1E2F4:;
     pSprite->field_2A = Data0;
     Data0 = tool_RandomGet() & 7;
 
-    Data4 = mSprite_Indigenous_Sound_Death[Data0];
+    Data4 = mSprite_Civilian_Sound_Death[Data0];
     Data8 = 0;
     Sound_Play(pSprite, Data4, Data8);
     return -1;
@@ -14045,7 +14045,7 @@ loc_1E3D2:;
 
         if (!(pSprite->field_28 & 7)) {
             Data0 = tool_RandomGet() & 7;
-            Data4 = mSprite_Indigenous_Sound_Death[Data0];
+            Data4 = mSprite_Civilian_Sound_Death[Data0];
             Data8 = 0x14;
             Sound_Play(pSprite, Data4, Data8);
         }
@@ -14238,7 +14238,7 @@ loc_1E831:;
         pSprite->field_52 = 0x0E;
         pSprite->field_12 = 0x14;
         Data0 = tool_RandomGet() & 0x07;
-        Data4 = mSprite_Indigenous_Sound_Death[Data0];
+        Data4 = mSprite_Civilian_Sound_Death[Data0];
         Data8 = 0x0A;
         Sound_Play(pSprite, Data4, Data8);
         goto loc_1E9EC;

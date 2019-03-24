@@ -125,8 +125,8 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 60 */
 	SpriteFunction( BoilingPot );
-	SpriteFunction( Indigenous );
-	SpriteFunction( Indigenous2 );
+	SpriteFunction( Civilian );
+	SpriteFunction( Civilian2 );
 	SpriteFunction( VehicleNoGun_Human );
 
 	/* 64 */
@@ -138,17 +138,17 @@ void cFodder::Sprite_Table_Setup() {
 	/* 68 */
 	SpriteFunction( Seal );
 	SpriteFunction( Tank_Enemy );
-	SpriteFunction( Indigenous_Spear );
-	SpriteFunction( Indigenous_Spear2 );
+	SpriteFunction( Civilian_Spear );
+	SpriteFunction( Civilian_Spear2 );
 
 	/* 72 */
 	SpriteFunction( Hostage );
 	SpriteFunction( Hostage_Rescue_Tent );
-	SpriteFunction( Door_Indigenous );
-	SpriteFunction( Door2_Indigenous );
+	SpriteFunction( Door_Civilian );
+	SpriteFunction( Door2_Civilian );
 
 	/* 76 */
-	SpriteFunction( Door_Indigenous_Spear );
+	SpriteFunction( Door_Civilian_Spear );
 	SpriteFunction( Cannon );
 	SpriteFunction( Turret_Missile_Human );
 	SpriteFunction( Turret_Missile2_Human );
@@ -157,7 +157,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( VehicleNoGun_Enemy );
 	SpriteFunction( VehicleGun_Enemy );
 	SpriteFunction( Vehicle_Unk_Enemy );
-	SpriteFunction( Indigenous_Invisible );
+	SpriteFunction( Civilian_Invisible );
 
 	/* 84 */
 	SpriteFunction( Turret_Missile_Enemy );
@@ -433,7 +433,7 @@ const int16 mSprite_Computer_Frames[] = {
 	1, 0, 4, 0
 };
 
-const int8 mSprite_Indigenous_Sound_Death[] = {
+const int8 mSprite_Civilian_Sound_Death[] = {
 	0x0B, 0x0C, 0x0D, 0x14, 0x15, 0x16, 0x0D, 0x14
 };
 

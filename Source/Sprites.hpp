@@ -79,8 +79,8 @@ enum eSprites {
 	eSprite_Text_Again							= 59,
 
 	eSprite_BoilingPot							= 60,
-	eSprite_Indigenous							= 61,
-	eSprite_Indigenous2							= 62,
+	eSprite_Civilian							= 61,
+	eSprite_Civilian2							= 62,
 	eSprite_VehicleNoGun_Human					= 63,		// Skidu
 	eSprite_VehicleGun_Human					= 64,
 	eSprite_Tank_Human							= 65,
@@ -89,13 +89,13 @@ enum eSprites {
 	eSprite_Seal								= 68,
 	eSprite_Tank_Enemy							= 69,
 
-	eSprite_Indigenous_Spear					= 70,
-	eSprite_Indigenous_Spear2					= 71,
+	eSprite_Civilian_Spear					= 70,
+	eSprite_Civilian_Spear2					= 71,
 	eSprite_Hostage								= 72,
 	eSprite_Hostage_Rescue_Tent					= 73,
-	eSprite_Door_Indigenous						= 74,
-	eSprite_Door2_Indigenous					= 75,
-	eSprite_Door_Indigenous_Spear				= 76,
+	eSprite_Door_Civilian						= 74,
+	eSprite_Door2_Civilian					= 75,
+	eSprite_Door_Civilian_Spear				= 76,
 	eSprite_Cannon								= 77,
 	eSprite_Turret_Missile_Human				= 78,
 	eSprite_Turret_Missile2_Human				= 79,
@@ -103,7 +103,7 @@ enum eSprites {
 	eSprite_VehicleNoGun_Enemy					= 80,
 	eSprite_VehicleGun_Enemy					= 81,
 	eSprite_Vehicle_Unk_Enemy					= 82,
-	eSprite_Indigenous_Invisible				= 83,
+	eSprite_Civilian_Invisible				= 83,
 	eSprite_Turret_Missile_Enemy				= 84,
 	eSprite_Turret_Missile2_Enemy				= 85,
 	eSprite_Vehicle_Sinking_1					= 86,
@@ -353,7 +353,7 @@ extern const int16 mSprite_VehiclePosition_Mod[];
 extern const int16 mSprite_Computer_Animation[];
 extern const int16 mSprite_Seal_Frames[];
 extern const int16 mSprite_Computer_Frames[];
-extern const int8 mSprite_Indigenous_Sound_Death[];
+extern const int8 mSprite_Civilian_Sound_Death[];
 extern const int8 mSprite_Soldier_Unk[];
 extern const int16 mSprite_Direction_Frame_Unk[];
 extern const int16* mSprite_AnimationPtrs[];

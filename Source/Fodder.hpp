@@ -393,8 +393,8 @@ public:
     sSprite*        mSprite_OpenCloseDoor_Ptr;
     int16           mSprite_Civilian_GotHome;
     bool            mSwitchesActivated;
-    int16           mSprite_Indigenous_Tmp_X;
-    int16           mSprite_Indigenous_Tmp_Y;
+    int16           mSprite_Civilian_Tmp_X;
+    int16           mSprite_Civilian_Tmp_Y;
     int16           word_3B481;
     int16           word_3B483;
     int16           mHelicopterCallPadCount;
@@ -820,8 +820,8 @@ public:
     void            Sprite_Handle_Text_Again(sSprite* pSprite);                           // 59
 
     void            Sprite_Handle_BoilingPot(sSprite* pSprite);           // 60
-    void            Sprite_Handle_Indigenous(sSprite* pSprite);           // 61
-    void            Sprite_Handle_Indigenous2(sSprite* pSprite);          // 62
+    void            Sprite_Handle_Civilian(sSprite* pSprite);           // 61
+    void            Sprite_Handle_Civilian2(sSprite* pSprite);          // 62
     void            Sprite_Handle_VehicleNoGun_Human(sSprite* pSprite);   // 63
     void            Sprite_Handle_VehicleGun_Human(sSprite* pSprite);     // 64
     void            Sprite_Handle_Tank_Human(sSprite* pSprite);           // 65
@@ -830,13 +830,13 @@ public:
     void            Sprite_Handle_Seal(sSprite* pSprite);                 // 68
     void            Sprite_Handle_Tank_Enemy(sSprite* pSprite);           // 69
 
-    void            Sprite_Handle_Indigenous_Spear(sSprite* pSprite);     // 70
-    void            Sprite_Handle_Indigenous_Spear2(sSprite* pSprite);    // 71
+    void            Sprite_Handle_Civilian_Spear(sSprite* pSprite);     // 70
+    void            Sprite_Handle_Civilian_Spear2(sSprite* pSprite);    // 71
     void            Sprite_Handle_Hostage(sSprite* pSprite);              // 72
     void            Sprite_Handle_Hostage_Rescue_Tent(sSprite* pSprite);  // 73
-    void            Sprite_Handle_Door_Indigenous(sSprite* pSprite);      // 74
-    void            Sprite_Handle_Door2_Indigenous(sSprite* pSprite);     // 75
-    void            Sprite_Handle_Door_Indigenous_Spear(sSprite* pSprite);// 76
+    void            Sprite_Handle_Door_Civilian(sSprite* pSprite);      // 74
+    void            Sprite_Handle_Door2_Civilian(sSprite* pSprite);     // 75
+    void            Sprite_Handle_Door_Civilian_Spear(sSprite* pSprite);// 76
     void            Sprite_Handle_Cannon(sSprite* pSprite);               // 77
     void            Sprite_Handle_Turret_Missile_Human(sSprite* pSprite); // 78
     void            Sprite_Handle_Turret_Missile2_Human(sSprite* pSprite);// 79
@@ -844,7 +844,7 @@ public:
     void            Sprite_Handle_VehicleNoGun_Enemy(sSprite* pSprite);   // 80
     void            Sprite_Handle_VehicleGun_Enemy(sSprite* pSprite);     // 81
     void            Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite);    // 82
-    void            Sprite_Handle_Indigenous_Invisible(sSprite* pSprite); // 83
+    void            Sprite_Handle_Civilian_Invisible(sSprite* pSprite); // 83
     void            Sprite_Handle_Turret_Missile_Enemy(sSprite* pSprite); // 84
     void            Sprite_Handle_Turret_Missile2_Enemy(sSprite* pSprite);// 85
     void            Sprite_Handle_Vehicle_Sinking_1(sSprite* pSprite);    // 86
@@ -981,15 +981,15 @@ public:
     int16           Sprite_Handle_Helicopter_Enemy_Weapon(sSprite* pSprite, sSprite*& pData30);
     void            Sprite_Handle_Vehicle_Enemy(sSprite* pSprite);
     void            Sprite_Handle_Helicopter_Enemy(sSprite* pSprite);
-    void            Sprite_Handle_Indigenous_Unk(sSprite* pSprite);
-    void            Sprite_Handle_Indigenous_Movement(sSprite* pSprite);
-    int16           Sprite_Handle_Indigenous_Within_Range_OpenCloseDoor(sSprite* pSprite);
-    void            Sprite_Handle_Indigenous_Death(sSprite* pSprite);
+    void            Sprite_Handle_Civilian_Unk(sSprite* pSprite);
+    void            Sprite_Handle_Civilian_Movement(sSprite* pSprite);
+    int16           Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprite);
+    void            Sprite_Handle_Civilian_Death(sSprite* pSprite);
     void            sub_2593D(sSprite* pSprite);
     void            sub_25A31(sSprite* pSprite);
     void            sub_25A66(sSprite* pSprite);
-    int16           Sprite_Handle_Indigenous_RandomMovement(sSprite* pSprite);
-    int16           Sprite_Create_Indigenous_Spear2(sSprite* pSprite);
+    int16           Sprite_Handle_Civilian_RandomMovement(sSprite* pSprite);
+    int16           Sprite_Create_Civilian_Spear2(sSprite* pSprite);
     int16           sub_25DCF(sSprite* pSprite);
     void            sub_25F2B(sSprite* pSprite);
     void            Sprite_Handle_Hostage_Movement(sSprite* pSprite);
