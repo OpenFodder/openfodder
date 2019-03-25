@@ -8168,6 +8168,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     case eSprite_VehicleNoGun_Enemy:
     case eSprite_VehicleGun_Enemy:
     case eSprite_Vehicle_Unk_Enemy:
+	case eSprite_Enemy_Leader:
         Second->field_18 = eSprite_Null;
         Second->field_0 = pSpriteX;
         Second->field_4 = pSpriteY;
@@ -15984,6 +15985,7 @@ void cFodder::Intro_OpenFodder() {
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2", mParams->mDefaultPlatform));
 
 		// Random intro
+		mMapLoaded = std::make_shared<cOriginalMap>();
 		mMapLoaded->getMapParams()->mTileType = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 		Mission_Intro_Play(true);
 		mOpenFodder_Intro_Done = true;
