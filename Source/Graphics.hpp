@@ -180,8 +180,8 @@ public:
 	virtual void		Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) = 0;
 	virtual void		Recruit_Sprite_Draw( int16 pColumns, int16 pRows, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pGraphics ) = 0;
 
-	virtual void		Mission_Intro_Play( const bool pShowHelicopter ) = 0;
-	virtual void		Mission_Intro_Load_Resources() = 0;
+	virtual void		Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset) = 0;
+	virtual void		Mission_Intro_Load_Resources(const eTileTypes pTileset) = 0;
 	virtual void		Mission_Intro_DrawHelicopter( uint16 pID ) = 0;
 
 	virtual void		Recruit_Draw_Hill() = 0;

@@ -754,7 +754,7 @@ public:
 	void            Briefing_Show_PreReady();
 	void            Briefing_Show_Ready();
 
-    void			Mission_Intro_Play(const bool pShowHelicopter = false);
+    void			Mission_Intro_Play(const bool pShowHelicopter = false, eTileTypes pTileset = eTileTypes_Jungle);
     void            Intro_Print_String(const sIntroString* pString);
 
     void            Sprite_Frame_Modifier_Update();

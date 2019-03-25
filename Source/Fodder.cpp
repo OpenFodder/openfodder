@@ -15985,9 +15985,8 @@ void cFodder::Intro_OpenFodder() {
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2", mParams->mDefaultPlatform));
 
 		// Random intro
-		mMapLoaded = std::make_shared<cOriginalMap>();
-		mMapLoaded->getMapParams()->mTileType = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
-		Mission_Intro_Play(true);
+		auto Tileset = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
+		Mission_Intro_Play(true, Tileset);
 		mOpenFodder_Intro_Done = true;
 		if (CF2)
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder", mParams->mDefaultPlatform));
@@ -16099,7 +16098,7 @@ int16 cFodder::intro_Play() {
     return mImage_Aborted;
 }
 
-void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
+void cFodder::Mission_Intro_Play(const bool pShowHelicopter, eTileTypes pTileset) {
 
     // Single maps
     if (mCustom_Mode == eCustomMode_Map)
@@ -16113,10 +16112,10 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
     mSurface->clearBuffer();
 	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 
-    if (mMapLoaded->getTileType() >= eTileTypes_Hid)
-		mMapLoaded->getMapParams()->mTileType = eTileTypes_Jungle;
+    if (pTileset >= eTileTypes_Hid)
+		pTileset = eTileTypes_Jungle;
 
-    mGraphics->Mission_Intro_Load_Resources();
+    mGraphics->Mission_Intro_Load_Resources(pTileset);
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
 
     mMouse_Exit_Loop = false;
@@ -16131,8 +16130,9 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter) {
     if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4 && !pShowHelicopter)
         ShowHelicopter = false;
 
+	
     mVersionPlatformSwitchDisabled = true;
-    mGraphics->Mission_Intro_Play(ShowHelicopter);
+    mGraphics->Mission_Intro_Play(ShowHelicopter, pTileset);
     mVersionPlatformSwitchDisabled = false;
 }
 

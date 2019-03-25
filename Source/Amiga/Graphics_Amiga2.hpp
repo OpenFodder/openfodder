@@ -36,7 +36,7 @@ public:
     virtual sImage		GetImage(const std::string& pFilename, const size_t pPaletteIndex);
 
     virtual void        Map_Load_Resources();
-    virtual void        Mission_Intro_Load_Resources();
+    virtual void        Mission_Intro_Load_Resources(const eTileTypes pTileset);
 
     virtual void		SetActiveSpriteSheet(eGFX_Types pSpriteType);
 

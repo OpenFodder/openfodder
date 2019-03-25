@@ -1208,15 +1208,15 @@ void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 	}
 }
 
-void cGraphics_Amiga::Mission_Intro_Load_Resources() {
+void cGraphics_Amiga::Mission_Intro_Load_Resources(const eTileTypes pTileset) {
 
 	// Briefing images
-	std::string JunData1 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "play.lbm";
-	std::string JunData2 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "sky.pl8";
-	std::string JunData3 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "mid.pl8";
-	std::string JunData4 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "fgnd.pl8";
-	std::string JunData5 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "fgn2.pl8";
-	std::string JunData6 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "heli.pal";
+	std::string JunData1 = mTileTypes[pTileset].mName + "play.lbm";
+	std::string JunData2 = mTileTypes[pTileset].mName + "sky.pl8";
+	std::string JunData3 = mTileTypes[pTileset].mName + "mid.pl8";
+	std::string JunData4 = mTileTypes[pTileset].mName + "fgnd.pl8";
+	std::string JunData5 = mTileTypes[pTileset].mName + "fgn2.pl8";
+	std::string JunData6 = mTileTypes[pTileset].mName + "heli.pal";
 
 	// Load the intro images
 	mImageMissionIntro = DecodeIFF(JunData1);
@@ -1460,7 +1460,7 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination, const 
 	}
 }
 
-void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter) {
+void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTileTypes pTileset) {
 
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;

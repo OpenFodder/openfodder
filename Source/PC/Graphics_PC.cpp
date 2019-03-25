@@ -596,14 +596,14 @@ void cGraphics_PC::Recruit_Draw_HomeAway( ) {
 	SetActiveSpriteSheet(eGFX_HILL);
 }
 
-void cGraphics_PC::Mission_Intro_Load_Resources() {
+void cGraphics_PC::Mission_Intro_Load_Resources(const eTileTypes pTileset) {
 
 	// Briefing images
-	std::string JunData1 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "p1.dat";
-	std::string JunData2 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "p2.dat";
-	std::string JunData3 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "p3.dat";
-	std::string JunData4 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "p4.dat";
-	std::string JunData5 = mTileTypes[mFodder->mMapLoaded->getTileType()].mName + "p5.dat";
+	std::string JunData1 = mTileTypes[pTileset].mName + "p1.dat";
+	std::string JunData2 = mTileTypes[pTileset].mName + "p2.dat";
+	std::string JunData3 = mTileTypes[pTileset].mName + "p3.dat";
+	std::string JunData4 = mTileTypes[pTileset].mName + "p4.dat";
+	std::string JunData5 = mTileTypes[pTileset].mName + "p5.dat";
 
 	mImageMissionIntro.mData = g_Resource->fileGet(JunData1);
 	mMission_Intro_Gfx_Clouds1 = g_Resource->fileGet(JunData2);
@@ -615,7 +615,7 @@ void cGraphics_PC::Mission_Intro_Load_Resources() {
 
 	// Copy the palette for the current map tileset, in from paraheli to the briefing intro images
 	uint8* si = mBriefing_ParaHeli->data() + 0xF00;
-	si += 0x30 * mFodder->mMapLoaded->getTileType();
+	si += 0x30 * pTileset;
 	std::memcpy( (mImageMissionIntro.mData->data() + mImageMissionIntro.mData->size()) - 0x60, si, 0x30 );
 
 	// Copy the palette from mImagePStuff 
@@ -802,15 +802,15 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 	return true;
 }
 
-void cGraphics_PC::Mission_Intro_Play(const bool pShowHelicopter) {
+void cGraphics_PC::Mission_Intro_Play(const bool pShowHelicopter, const eTileTypes pTileset) {
 
-	switch (mFodder->mMapLoaded->getTileType()) {
+	switch (pTileset) {
 	case eTileTypes_Jungle:
 	case eTileTypes_Desert:
     case eTileTypes_Ice:
 	case eTileTypes_Moors:
 	case eTileTypes_Int:
-        Mission_Intro(BackgroundPositions[mFodder->mMapLoaded->getTileType()], pShowHelicopter);
+        Mission_Intro(BackgroundPositions[pTileset], pShowHelicopter);
 
     default:
         return;
