@@ -649,8 +649,8 @@ const sSpriteSheet_pstuff mSpriteSheet_PStuff[209] = {
 	{ 272, 93, 16, 19 },
 	{ 288, 93, 16, 19 },
 	{ 160, 93, 32, 19 },
-	{ 0, 175, 48, 23 },				// Briefing Helicopter: Front
-	{ 48, 175, 16, 15 },			// Briefing Helicopter: Tail
+	{ 0, 178, 48, 22 },				// Briefing Helicopter: Front
+	{ 48, 178, 16, 14 },			// Briefing Helicopter: Tail
 	/* 205 */{ 64, 175, 48, 2 },	// Briefing Helicopter: Blade-1
 	/* 206 */{ 64, 178, 48, 2 },	// Briefing Helicopter: Blade-2
 	/* 207 */{ 64, 181, 48, 2 },	// Briefing Helicopter: Blade-3

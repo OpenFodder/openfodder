@@ -3556,7 +3556,9 @@ void cFodder::Briefing_Update_Helicopter() {
             word_428B8 += 4;
     }
 
-    mBriefing_ParaHeli_Frame += 1;
+	if (mVersionCurrent->isCannonFodder1() && mVersionCurrent->isPC())
+		mBriefing_ParaHeli_Frame += 1;
+
     if (mBriefing_ParaHeli_Frame == 4)
         mBriefing_ParaHeli_Frame = 0;
 

@@ -1486,26 +1486,6 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_2);
 		mFodder->mVideo_Draw_PosY = 100;
 		Video_Draw_16_Offset(word_42871);
-		
-		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);
-		mFodder->mVideo_Draw_PosY = 163;
-		Video_Draw_16_Offset(word_4286F);
-
-		word_4286F += 8;
-		if (word_4286F >= 320)
-			word_4286F = 0;
-
-		word_42871 += 4;
-		if (word_42871 >= 320)
-			word_42871 = 0;
-
-		word_42873 += 2;
-		if (word_42873 >= 320)
-			word_42873 = 0;
-
-		++word_42875;
-		if (word_42875 >= 320)
-			word_42875 = 0;
 
 		if (mFodder->mBriefing_Helicopter_Moving == -1)
 			mFodder->Briefing_Update_Helicopter();
@@ -1529,9 +1509,29 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 
             // Blade
             mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
-            mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
+			mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16) - 3;
             Mission_Intro_DrawHelicopter(Blade);
         }
+
+		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);
+		mFodder->mVideo_Draw_PosY = 163;
+		Video_Draw_16_Offset(word_4286F);
+
+		word_4286F += 8;
+		if (word_4286F >= 320)
+			word_4286F = 0;
+
+		word_42871 += 4;
+		if (word_42871 >= 320)
+			word_42871 = 0;
+
+		word_42873 += 2;
+		if (word_42873 >= 320)
+			word_42873 = 0;
+
+		++word_42875;
+		if (word_42875 >= 320)
+			word_42875 = 0;
 
 		if (mSurface->isPaletteAdjusting())
 			mSurface->palette_FadeTowardNew();
