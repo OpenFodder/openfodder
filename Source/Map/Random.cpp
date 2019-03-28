@@ -22,8 +22,11 @@
 
 
 #include "stdafx.hpp"
+#include "Random.hpp"
+
 #include "Utils/SimplexNoise.hpp"
 #include "Utils/diamondsquare.hpp"
+#include "Utils/dukglue/dukglue.h"
 
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	mParams = pParams;
@@ -35,11 +38,15 @@ cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 }
 
 void cRandomMap::Randomise() {
-
+	ClearTiles(0);
+	mRandomSprites = std::make_shared<cRandomSprites>(this);
+	
 	Randomise_Tiles();
 	Randomise_TileSmooth();
 	Randomise_Structures(2);
-	Randomise_Sprites(2);
+	//Randomise_Sprites(2);
+
+	mRandomSprites->Randomise();
 }
 
  // persistance closer to 0 produces more rivers,
@@ -148,7 +155,7 @@ void cRandomMap::Randomise_Structures(const size_t pCount) {
 		Structure_Add(Struct, StartTileX, StartTileY);
 
 		// Add an enemy below each building
-		Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
+		//Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
 
 		++StructsCount;
 	}
@@ -279,4 +286,268 @@ void cRandomMap::Randomise_Tiles_DS() {
 		if (++Y >= mParams.mHeight)
 			break;
 	}
+}
+
+int32 cRandomMap::getSpriteTypeCount(size_t pSpriteType) {
+	int32 count = 0;
+
+	for (auto& Sprite : mSprites) {
+
+		if (Sprite.field_18 == pSpriteType)
+			++count;
+	}
+
+	return count;
+}
+
+std::vector<sSprite*> cRandomMap::getSpritesByType(size_t pSpriteType) {
+	std::vector<sSprite*> results;
+
+	for (auto& Sprite : mSprites) {
+		
+		if(Sprite.field_18 == pSpriteType)
+			results.push_back(&Sprite);
+	}
+
+	return results;
+}
+
+bool cRandomMap::CheckRadiusTerrain(eTerrainType pType, cPosition* pPosition, int32 pRadius) {
+
+	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
+
+		int32 yspan = (int32) (pRadius * std::sin(std::acos((pPosition->mX - x) / pRadius)));
+
+		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
+			
+			if (g_Fodder->Map_Terrain_Get(x, y) != pType)
+				return false;
+		}
+	}
+
+	return true;
+}
+
+int32 cRandomMap::getRandomNumber(int32 pMin, int32 pMax) {
+	if(pMin || pMax)
+		return mParams.mRandom.getu(pMin, pMax);
+
+	return mParams.mRandom.getu();
+}
+
+cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainType pType, size_t pRadius) {
+	size_t Radius = pRadius * 16;
+
+	cPosition* Position = new cPosition();
+
+	int count = 0;
+
+	do {
+		Position->mX = (mParams.mRandom.getu() % (mParams.mWidth - pRadius)) * 16;
+		Position->mY = (mParams.mRandom.getu() % (mParams.mHeight - pRadius)) * 16;
+
+		if (count++ > 1000) {
+			Position->mX = -1;
+			Position->mY = -1;
+			break;
+		}
+
+	} while (!CheckRadiusTerrain(pType, Position, Radius));
+
+	// Scan from top left to bottom right
+	if (Position->mX == -1 || Position->mY == -1) {
+
+		for (Position->mY = Radius; Position->mY < getHeightPixels() - 16; Position->mY += Radius) {
+
+			for (Position->mX = Radius; Position->mX < getWidthPixels() - 16; Position->mX += Radius) {
+
+				if (CheckRadiusTerrain(pType, Position, Radius))
+					return Position;
+			}
+		}
+		// Fail
+	}
+
+	return Position;
+}
+
+namespace dukglue {
+	namespace types {
+		DUKGLUE_SIMPLE_VALUE_TYPE(eTileTypes, duk_is_number, duk_get_uint, duk_push_uint, value);
+		DUKGLUE_SIMPLE_VALUE_TYPE(eTileSub, duk_is_number, duk_get_uint, duk_push_uint, value);
+		DUKGLUE_SIMPLE_VALUE_TYPE(eTerrainType, duk_is_number, duk_get_uint, duk_push_uint, value);
+
+	}
+}
+
+void print(const std::string pString) {
+	std::cout << pString << "\n";
+}
+
+cRandomSprites::cRandomSprites(cRandomMap *pMap) {
+
+	mContext = duk_create_heap_default();
+	mMap = pMap;
+
+	init();
+	spritesCreateObject();
+
+	scriptsLoadFolder( g_ResourceMan->GetScriptPath("General/") );
+
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Kill.All.Enemy/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Enemy.Building/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Rescue.Hostages/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Protect.Civilians/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Kidnap.Leader/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Factory/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Computer/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Get.Civilian.Home/"));
+
+	// CF2 Engine
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Activate.Switches/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Rescue.Hostage/"));
+}
+
+cRandomSprites::~cRandomSprites() {
+
+	duk_destroy_heap(mContext);
+}
+
+void cRandomSprites::spritesCreateObject() {
+
+	// Setup the "SpriteTypes" object
+	duk_push_global_object(mContext);
+	duk_idx_t obj_idx = duk_push_object(mContext);
+	for (int x = 0; x < 118; ++x) {
+		if (!g_Fodder->mSprite_Names[x].size())
+			continue;
+
+		duk_push_int(mContext, x);
+		duk_put_prop_string(mContext, obj_idx, g_Fodder->mSprite_Names[x].c_str());
+	}
+	duk_put_global_string(mContext, "SpriteTypes");
+
+	// Setup Tilesets
+	duk_push_global_object(mContext);
+	obj_idx = duk_push_object(mContext);
+	for(auto &TileType : mTileTypes) {
+
+		duk_push_int(mContext, TileType.mType);
+		duk_put_prop_string(mContext, obj_idx, TileType.mFullName.c_str());
+	}
+	duk_put_global_string(mContext, "TileTypes");
+
+	duk_push_global_object(mContext);
+	obj_idx = duk_push_object(mContext);
+	for (int x = 0; x < mTerrainTypeNames.size(); ++x) {
+
+		duk_push_int(mContext, (eTerrainType) x);
+		duk_put_prop_string(mContext, obj_idx, mTerrainTypeNames[x].c_str());
+	}
+	duk_put_global_string(mContext, "TerrainType");
+	
+}
+
+void cRandomSprites::init() {
+
+	dukglue_register_function(mContext, print, "print");
+
+	dukglue_register_method(mContext, &cRandomSprites::scriptCall, "scriptCall");
+
+	// cPosition
+	dukglue_register_constructor<cPosition>(mContext, "cPosition");
+	dukglue_register_property(mContext, &cPosition::getX, &cPosition::setX, "x");
+	dukglue_register_property(mContext, &cPosition::getY, &cPosition::setY, "y");
+
+	// sSprite
+	dukglue_register_constructor<sSprite>(mContext, "sSprite");
+	dukglue_register_method(mContext, &sSprite::Clear, "Clear");
+	dukglue_register_property(mContext, &sSprite::getX, &sSprite::setX, "x");
+	dukglue_register_property(mContext, &sSprite::getY, &sSprite::setY, "y");
+
+	// cMap
+	dukglue_set_base_class<cMap, cRandomMap>(mContext);
+	dukglue_register_constructor<cRandomMap, const sMapParams& >(mContext, "cRandomMap");
+	dukglue_register_method(mContext, &cRandomMap::getTileType, "getTileType");
+	dukglue_register_method(mContext, &cRandomMap::getTileSub, "getTileSub");
+
+	dukglue_register_method(mContext, &cRandomMap::getWidth, "getWidth");
+	dukglue_register_method(mContext, &cRandomMap::getHeight, "getHeight");
+	dukglue_register_method(mContext, &cRandomMap::getWidthPixels, "getWidthPixels");
+	dukglue_register_method(mContext, &cRandomMap::getHeightPixels, "getHeightPixels");
+
+	dukglue_register_method(mContext, &cRandomMap::getSpriteTypeCount, "getSpriteTypeCount");
+	dukglue_register_method(mContext, &cRandomMap::getSpritesByType, "getSpritesByType");
+	dukglue_register_method(mContext, &cRandomMap::getRandomXYByTerrainType, "getRandomXYByTerrainType");
+	
+	dukglue_register_method(mContext, &cRandomMap::Sprite_Add, "SpriteAdd");
+	dukglue_register_method(mContext, &cRandomMap::Tile_Get, "TileGet");
+	dukglue_register_method(mContext, &cRandomMap::Tile_Set, "TileSet");
+
+	dukglue_register_method(mContext, &cRandomMap::getRandomNumber, "getRandomNumber");
+
+	dukglue_register_global(mContext, mMap, "Map");
+	dukglue_register_global(mContext, this, "RandomSprite");
+}
+
+bool cRandomSprites::scriptCall(const std::string& pFilename) {
+
+	auto path = g_ResourceMan->GetScriptPath(pFilename);
+
+	if (path.size()) {
+		auto script = g_ResourceMan->FileReadStr(path);
+		return scriptLoad(script);
+	}
+
+	return false;
+}
+
+bool cRandomSprites::scriptLoad(const std::string& pJS) {
+	// Compile the JS into bytecode
+	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
+		g_Debugger->Error("Compile failed: ");
+		g_Debugger->Error(duk_safe_to_string(mContext, -1));
+		return false;
+	}
+	else {
+		duk_pcall(mContext, 0);
+		//printf("program result: %s\n", duk_safe_to_string(mContext, -1));
+	}
+	duk_pop(mContext);
+	return true;
+}
+
+bool cRandomSprites::scriptsLoadFolder(const std::string& pFolder) {
+	auto scripts = g_ResourceMan->DirectoryList(pFolder, "js");
+
+	for (auto scriptFile : scripts) {
+		auto script = g_ResourceMan->FileReadStr(pFolder + scriptFile);
+		scriptLoad(script);
+	}
+
+	return true;
+}
+
+bool cRandomSprites::scriptRun(const std::string& pJS) {
+	bool success = false;
+
+	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
+		g_Debugger->Error("Compile failed: ");
+		g_Debugger->Error(duk_safe_to_string(mContext, -1));
+	}
+	else {
+		duk_pcall(mContext, 0);
+		success = true;
+		printf("program result: %s\n", duk_safe_to_string(mContext, -1));
+	}
+	duk_pop(mContext);
+	return success;
+}
+
+void cRandomSprites::Randomise() {
+	auto path = g_ResourceMan->GetScriptPath("test.js");
+
+	auto script = g_ResourceMan->FileReadStr(path);
+	scriptRun(script);
+
 }

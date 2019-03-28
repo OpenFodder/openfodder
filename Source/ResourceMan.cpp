@@ -290,6 +290,10 @@ std::string cResourceMan::PathGenerate(const std::string& pFile, eDataType pData
 		filePathFinal << "Tests" << gPathSeperator;
 		break;
 
+	case eScript:
+		filePathFinal << "Scripts" << gPathSeperator;
+		break;
+
 	case eRoot:
 	case eNone:
 	default:
@@ -322,6 +326,13 @@ std::string cResourceMan::FileMD5(const std::string& pFile) {
 	}
 
 	return FinalMD5;
+}
+
+std::string	cResourceMan::FileReadStr(const std::string& pFile) {
+
+	auto content = FileRead(pFile);
+	
+	return std::string((char*)content->data(), content->size());
 }
 
 tSharedBuffer cResourceMan::FileRead(const std::string& pFile) {
@@ -399,6 +410,16 @@ std::string cResourceMan::GetSaveNewName() const {
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
 	return mValidPaths[0] + PathGenerate( std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave);
+}
+
+std::string cResourceMan::GetScriptPath(const std::string& pType) const {
+	
+	for (auto& ValidPath : mValidPaths) {
+		auto basepath = ValidPath + PathGenerate(pType, eScript);
+		if (FileExists(basepath))
+			return basepath;
+	}
+	return "";
 }
 
 std::string cResourceMan::GetTestPath(const sGameVersion* pVersion, const std::string pFile) const {

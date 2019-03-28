@@ -89,6 +89,10 @@ public:
 		return (uint16)get();
 	}
 
+	uint16 getu(size_t pMin, size_t pMax) {
+		return (uint16) (get() % pMax + pMin);
+	}
+
 	int16 get() {
 		int16 Data0 = mRandom_0;
 		int16 Data2 = mRandom_1;

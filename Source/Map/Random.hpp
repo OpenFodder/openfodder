@@ -20,9 +20,13 @@
  *
  */
 
-class cRandomMap : public cOriginalMap {
+class cRandomSprites;
+struct duk_hthread;
 
+class cRandomMap : public cOriginalMap {
+	friend class cRandomSprites;
 private:
+	std::shared_ptr<cRandomSprites> mRandomSprites;
 
 protected:
 	virtual void Randomise_Tiles();
@@ -36,4 +40,34 @@ public:
 	cRandomMap(const sMapParams& pParams);
 	virtual void Randomise();
 	
+	bool					CheckRadiusTerrain(eTerrainType pType, cPosition* pPosition, int32 pRadius);
+
+	int32					getSpriteTypeCount(size_t pSpriteType);
+	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
+	int32					getRandomNumber(int32 pMin = 0, int32 pMax = 0);
+	cPosition*				getRandomXYByTerrainType(eTerrainType pType, size_t pRadius);
+
+};
+
+class cRandomSprites {
+	duk_hthread *mContext;
+	cRandomMap *mMap;
+
+protected:
+
+	bool scriptCall(const std::string& pFilename);
+	bool scriptLoad(const std::string& pJS);
+	bool scriptsLoadFolder(const std::string& pFolder);
+
+	bool scriptRun(const std::string& pJS);
+
+	void spritesCreateObject();
+public:
+
+	cRandomSprites(cRandomMap *pMap);
+	~cRandomSprites();
+
+	void init();
+
+	virtual void Randomise();
 };

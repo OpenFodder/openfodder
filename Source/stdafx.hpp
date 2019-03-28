@@ -51,6 +51,7 @@ enum eDataType {
 	eCampaign,
     eTest,
     eRoot,
+	eScript,
 	eNone,
 };
 
@@ -121,7 +122,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "Map/Map.hpp"
 #include "Map/Original.hpp"
-#include "Map/Random.hpp"
+//#include "Map/Random.hpp"
 
 #include "Campaign.hpp"
 #include "FontData.hpp"

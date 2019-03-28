@@ -12,9 +12,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>--columns 180 --rows 100 --window --window-scale 1 --skipintro --single-map "Map512"</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--window</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--window --window-scale 3 --random --campaign "Cannon Fodder" --skipbriefing --skipintro</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

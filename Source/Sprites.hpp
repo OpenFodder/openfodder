@@ -320,6 +320,12 @@ struct sSprite {
 	}
 
 	void Clear();
+
+	int getX() const { return field_0; }
+	void setX(int pX) { field_0 = pX; }
+
+	int getY() const { return field_4; }
+	void setY(int pY) { field_4 = pY; }
 };
 
 struct sWeaponData {

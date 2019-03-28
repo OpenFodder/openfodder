@@ -616,6 +616,7 @@ void cGraphics_PC::Mission_Intro_Load_Resources(const eTileTypes pTileset) {
 	// Copy the palette for the current map tileset, in from paraheli to the briefing intro images
 	uint8* si = mBriefing_ParaHeli->data() + 0xF00;
 	si += 0x30 * pTileset;
+
 	std::memcpy( (mImageMissionIntro.mData->data() + mImageMissionIntro.mData->size()) - 0x60, si, 0x30 );
 
 	// Copy the palette from mImagePStuff 

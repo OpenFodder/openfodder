@@ -24,7 +24,7 @@
 
 #define SpriteTableFunction(x, y) mSprite_Function[x] = &cFodder::y;
 
-#define SpriteFunction(name) mSprite_Function[eSprite_##name] = &cFodder::Sprite_Handle_##name;
+#define SpriteFunction(name) mSprite_Function[eSprite_##name] = &cFodder::Sprite_Handle_##name; mSprite_Names[eSprite_##name] = #name;
 
 
 void cFodder::Sprite_Table_Setup() {

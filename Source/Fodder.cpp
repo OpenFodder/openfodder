@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "Map/Random.hpp"
 
 #ifdef WIN32
 #include <windows.h>
@@ -4362,7 +4363,7 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite) {
     if (Data4 == eTerrainType_Jump)
         goto loc_23100;
 
-    if (Data4 == eTerrainType_BounceOff)
+    if (Data4 == eTerrainType_Block)
         goto Computer_Vehicle_SoftTerrain;
 
     if (Data4 == eTerrainType_Drop || Data4 == 0x0A)
@@ -4421,7 +4422,7 @@ Computer_Vehicle_SoftTerrain:;
     Data4 = 0x0F;
     Data0 = -10;
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
-    if (Data4 == eTerrainType_BounceOff)
+    if (Data4 == eTerrainType_Block)
         pSprite->field_38 = eSprite_Anim_Die1;
 
     Sprite_Animation_SlideOrDie(pSprite);
@@ -5048,7 +5049,7 @@ int16 cFodder::Sprite_Handle_Helicopter_Terrain_Check(sSprite* pSprite) {
         Data0 = 0x0C;
         break;
 
-    case eTerrainType_BounceOff:
+    case eTerrainType_Block:
         Data0 = 0x14;
         break;
     case eTerrainType_Rocky2:
@@ -9008,10 +9009,10 @@ void cFodder::Game_Load() {
     if (!File.size())
         return;
 
-	auto SaveData = g_ResourceMan->FileRead(g_ResourceMan->GetSave(File));
+	auto SaveData = g_ResourceMan->FileReadStr(g_ResourceMan->GetSave(File));
 
-    // Load the game data from the JSON
-    if (!mGame_Data.FromJson(std::string((char*)SaveData->data(), SaveData->size()))) {
+    // Load the game data from the JSONstd::string((char*)SaveData->data(), SaveData->size()))
+    if (!mGame_Data.FromJson(SaveData)) {
         return;
     }
 

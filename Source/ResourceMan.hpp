@@ -62,6 +62,8 @@ public:
 	std::string GetFilePath(const sGameVersion* pVersion, std::string pFile) const;
 
 	tSharedBuffer FileRead(const std::string& pFile);
+	std::string	FileReadStr(const std::string& pFile);
+
 	std::string PathGenerate(const std::string& pFile, eDataType pDataType) const;
 
 	std::string GetAboutFile() const;
@@ -74,6 +76,7 @@ public:
 	std::string GetSaveNewName() const;
 
 	std::string GetTestPath(const sGameVersion* pVersion, const std::string pFile) const;
+	std::string GetScriptPath(const std::string& pType) const;
 
 	std::vector<const sGameVersion*> GetAvailable() const;
 	std::vector<std::string> GetCampaigns() const;

@@ -49,7 +49,6 @@ protected:
 	int32 mTile_Ptr;
 
 	std::vector<sSprite> mSprites;
-private:
 
 protected:
 

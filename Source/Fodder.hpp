@@ -113,6 +113,7 @@ public:
     const sSpriteSheet**    mSprite_SheetPtr;
 
     void                    (cFodder::*mSprite_Function[118])(sSprite* pSprite);
+	std::string				mSprite_Names[118];
 
     std::stringstream       mWindowTitle;
 

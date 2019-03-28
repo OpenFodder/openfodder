@@ -19,6 +19,9 @@
     <Filter Include="Source\Map">
       <UniqueIdentifier>{53095f20-80bc-4b7b-a896-cfc3e7f0b34e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Utils\dukglue">
+      <UniqueIdentifier>{bc8f0a7c-11c4-4c1c-bc1c-edd49e424cdc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\stdafx.hpp">
@@ -187,6 +190,63 @@
     <ClInclude Include="..\..\Source\Map\Random.hpp">
       <Filter>Source\Map</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\duk_config.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\duktape.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_class_proto.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_constructor.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_function.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_method.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_primitive_types.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_refs.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_stack.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_traits.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_typeinfo.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\detail_types.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\dukexception.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\dukglue.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\dukvalue.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\public_util.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\register_class.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\register_function.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\dukglue\register_property.h">
+      <Filter>Source\Utils\dukglue</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -323,6 +383,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\MapData.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utils\duktape.cpp">
+      <Filter>Source\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

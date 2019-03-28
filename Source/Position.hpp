@@ -62,9 +62,18 @@ class cPosition {
             return cPosition(mX + pPosition.mX, mY + pPosition.mY);
         }
 
-		int getY() const { return (int) mY; }
-		int getX() const { return (int) mX; }
+		cPosition* operator*(const size_t pMultiplier)  {
+			mX *= pMultiplier;
+			mY *= pMultiplier;
 
+			return this;
+		}
+
+		int getY() const { return (int) mY; }
+		void setY(int pY) { mY = pY; }
+
+		int getX() const { return (int) mX; }
+		void setX(int pX) { mX = pX; }
         inline int16 x() const {
             return (int16)mX;
         }
