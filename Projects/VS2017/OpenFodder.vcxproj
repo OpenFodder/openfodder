@@ -209,6 +209,7 @@
     <ClInclude Include="..\..\Source\Recruits.hpp" />
     <ClInclude Include="..\..\Source\ResourceMan.hpp" />
     <ClInclude Include="..\..\Source\Resources.hpp" />
+    <ClInclude Include="..\..\Source\ScriptingEngine.hpp" />
     <ClInclude Include="..\..\Source\Sound.hpp" />
     <ClInclude Include="..\..\Source\Sprites.hpp" />
     <ClInclude Include="..\..\Source\SpriteSheet.hpp" />
@@ -281,6 +282,7 @@
     <ClCompile Include="..\..\Source\Recruits.cpp" />
     <ClCompile Include="..\..\Source\ResourceMan.cpp" />
     <ClCompile Include="..\..\Source\Resources.cpp" />
+    <ClCompile Include="..\..\Source\ScriptingEngine.cpp" />
     <ClCompile Include="..\..\Source\Sound.cpp" />
     <ClCompile Include="..\..\Source\Sprites.cpp" />
     <ClCompile Include="..\..\Source\SpriteSheet.cpp" />

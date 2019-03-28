@@ -215,6 +215,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     Phase_EngineReset();
 
     Sprite_Table_Setup();
+
 }
 
 cFodder::~cFodder() {
@@ -1760,6 +1761,8 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
     Map_Load_Resources();
 
 	if (pRandomise) {
+
+		g_ScriptingEngine->Randomise(std::dynamic_pointer_cast<cRandomMap>(mMapLoaded), "test.js");
 		mMapLoaded->Randomise();
 
 		Map_Load_Sprites();
@@ -3262,6 +3265,8 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
     mSurface2 = new cSurface(getSurfaceSize() );
 
 	Sprite_Clear_All();
+
+	g_ScriptingEngine = std::make_shared<cScriptingEngine>();
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {

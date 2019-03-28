@@ -27,6 +27,7 @@ std::shared_ptr<cWindow>    g_Window;
 std::shared_ptr<cFodder>    g_Fodder;
 std::shared_ptr<cDebugger>  g_Debugger;
 std::shared_ptr<cResourceMan> g_ResourceMan;
+std::shared_ptr<cScriptingEngine> g_ScriptingEngine;
 
 const char gPathSeperator = '/';
 

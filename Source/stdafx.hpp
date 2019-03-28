@@ -152,11 +152,14 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "About.hpp"
 #include "UnitTesting.hpp"
 
+#include "ScriptingEngine.hpp"
+
 extern std::shared_ptr<cResources> g_Resource;
 extern std::shared_ptr<cWindow>    g_Window;
 extern std::shared_ptr<cFodder>    g_Fodder;
 extern std::shared_ptr<cDebugger>  g_Debugger;
 extern std::shared_ptr<cResourceMan> g_ResourceMan;
+extern std::shared_ptr<cScriptingEngine> g_ScriptingEngine;
 
 extern const char gPathSeperator;
 

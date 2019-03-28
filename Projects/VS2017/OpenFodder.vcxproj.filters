@@ -247,6 +247,9 @@
     <ClInclude Include="..\..\Source\Utils\dukglue\register_property.h">
       <Filter>Source\Utils\dukglue</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ScriptingEngine.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -386,6 +389,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Utils\duktape.cpp">
       <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ScriptingEngine.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

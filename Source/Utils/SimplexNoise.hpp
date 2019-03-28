@@ -17,16 +17,16 @@
 class SimplexNoise {
 public:
     // 1D Perlin simplex noise
-    static float noise(float x);
+    float noiseX(float x) const;
     // 2D Perlin simplex noise
-    static float noise(float x, float y);
+    float noiseXY(float x, float y) const;
     // 3D Perlin simplex noise
-    static float noise(float x, float y, float z);
+    float noiseXYZ(float x, float y, float z) const;
 
     // Fractal/Fractional Brownian Motion (fBm) noise summation
-    float fractal(size_t octaves, float x) const;
-    float fractal(size_t octaves, float x, float y) const;
-    float fractal(size_t octaves, float x, float y, float z) const;
+    float fractalX(size_t octaves, float x) const;
+    float fractalXY(size_t octaves, float x, float y) const;
+    float fractalXYZ(size_t octaves, float x, float y, float z) const;
 
     /**
      * Constructor of to initialize a fractal noise summation

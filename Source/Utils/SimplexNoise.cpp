@@ -172,7 +172,7 @@ static float grad(int32_t hash, float x, float y, float z) {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noise(float x) {
+float SimplexNoise::noiseX(float x) const {
     float n0, n1;   // Noise contributions from the two "corners"
 
     // No need to skew the input space in 1D
@@ -211,7 +211,7 @@ float SimplexNoise::noise(float x) {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noise(float x, float y) {
+float SimplexNoise::noiseXY(float x, float y) const {
     float n0, n1, n2;   // Noise contributions from the three corners
 
     // Skewing/Unskewing factors for 2D
@@ -299,7 +299,7 @@ float SimplexNoise::noise(float x, float y) {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noise(float x, float y, float z) {
+float SimplexNoise::noiseXYZ(float x, float y, float z) const {
     float n0, n1, n2, n3; // Noise contributions from the four corners
 
     // Skewing/Unskewing factors for 3D
@@ -404,14 +404,14 @@ float SimplexNoise::noise(float x, float y, float z) {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractal(size_t octaves, float x) const {
+float SimplexNoise::fractalX(size_t octaves, float x) const {
     float output    = 0.f;
     float denom     = 0.f;
     float frequency = mFrequency;
     float amplitude = mAmplitude;
 
     for (size_t i = 0; i < octaves; i++) {
-        output += (amplitude * noise(x * frequency));
+        output += (amplitude * noiseX(x * frequency));
         denom += amplitude;
 
         frequency *= mLacunarity;
@@ -430,14 +430,14 @@ float SimplexNoise::fractal(size_t octaves, float x) const {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractal(size_t octaves, float x, float y) const {
+float SimplexNoise::fractalXY(size_t octaves, float x, float y) const {
     float output = 0.f;
     float denom  = 0.f;
     float frequency = mFrequency;
     float amplitude = mAmplitude;
 
     for (size_t i = 0; i < octaves; i++) {
-        output += (amplitude * noise(x * frequency, y * frequency));
+        output += (amplitude * noiseXY(x * frequency, y * frequency));
         denom += amplitude;
 
         frequency *= mLacunarity;
@@ -457,14 +457,14 @@ float SimplexNoise::fractal(size_t octaves, float x, float y) const {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractal(size_t octaves, float x, float y, float z) const {
+float SimplexNoise::fractalXYZ(size_t octaves, float x, float y, float z) const {
     float output = 0.f;
     float denom  = 0.f;
     float frequency = mFrequency;
     float amplitude = mAmplitude;
 
     for (size_t i = 0; i < octaves; i++) {
-        output += (amplitude * noise(x * frequency, y * frequency, z * frequency));
+        output += (amplitude * noiseXYZ(x * frequency, y * frequency, z * frequency));
         denom += amplitude;
 
         frequency *= mLacunarity;
