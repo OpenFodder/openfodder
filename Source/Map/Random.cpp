@@ -141,7 +141,7 @@ bool cRandomMap::CheckRadiusTerrain(eTerrainType pType, cPosition* pPosition, in
 
 	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
 
-		int32 yspan = (int32) (pRadius * std::sin(std::acos((pPosition->mX - x) / pRadius)));
+		int32 yspan = (int32) (pRadius * sin(acos((pPosition->mX - x) / pRadius)));
 
 		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
 			
