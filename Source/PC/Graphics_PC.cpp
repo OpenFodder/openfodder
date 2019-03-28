@@ -390,8 +390,6 @@ void cGraphics_PC::Video_Draw_8(cSurface *pTarget, const uint8* RowPallete) {
 	di += pTarget->GetWidth() * mFodder->mVideo_Draw_PosY;
 	di += mFodder->mVideo_Draw_PosX;
 
-	mFodder->word_42066 = di;
-
 	mFodder->mVideo_Draw_Columns >>= 1;
 	mFodder->mDraw_Source_SkipPixelsPerRow = 160 - mFodder->mVideo_Draw_Columns;
 	mFodder->mDraw_Dest_SkipPixelsPerRow = (uint16)(pTarget->GetWidth() - (mFodder->mVideo_Draw_Columns * 2));
@@ -431,8 +429,6 @@ void cGraphics_PC::Video_Draw_16(const uint8* RowPallete) {
 
 	di += mSurface->GetWidth() * mFodder->mVideo_Draw_PosY;
 	di += mFodder->mVideo_Draw_PosX;
-
-	mFodder->word_42066 = di;
 
 	mFodder->mDraw_Source_SkipPixelsPerRow = mFodder->mVideo_Draw_ColumnsMax - mFodder->mVideo_Draw_Columns;
 	mFodder->mDraw_Dest_SkipPixelsPerRow = mSurface->GetWidth() - mFodder->mVideo_Draw_Columns;

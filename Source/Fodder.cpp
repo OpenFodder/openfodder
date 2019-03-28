@@ -126,7 +126,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mMouseSpriteCurrent = 0;
     mService_ExitLoop = 0;
     mVideo_Draw_FrameDataPtr = 0;
-    word_42066 = 0;
     mVideo_Draw_PosX = 0;
     mVideo_Draw_PosY = 0;
     mVideo_Draw_Columns = 0;

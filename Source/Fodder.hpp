@@ -501,7 +501,6 @@ public:
     int16           mService_ExitLoop;
 
     uint8*          mVideo_Draw_FrameDataPtr;
-    uint8*          word_42066;
     int16           mVideo_Draw_PosX;
     int16           mVideo_Draw_PosY;
     int16           mVideo_Draw_Columns;
