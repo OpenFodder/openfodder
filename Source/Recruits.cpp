@@ -1246,7 +1246,7 @@ int16 cFodder::Recruit_Show() {
         Map_Load();
 
         // Show the intro for the briefing screen
-        Mission_Intro_Play();
+        Mission_Intro_Play( false, mMapLoaded->getTileType() );
     }
 
     mGraphics->Load_pStuff();
