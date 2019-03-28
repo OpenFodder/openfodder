@@ -172,7 +172,7 @@ static float grad(int32_t hash, float x, float y, float z) {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noiseX(float x) const {
+float SimplexNoise::noiseX(float x) {
     float n0, n1;   // Noise contributions from the two "corners"
 
     // No need to skew the input space in 1D
@@ -211,7 +211,7 @@ float SimplexNoise::noiseX(float x) const {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noiseXY(float x, float y) const {
+float SimplexNoise::noiseXY(float x, float y) {
     float n0, n1, n2;   // Noise contributions from the three corners
 
     // Skewing/Unskewing factors for 2D
@@ -299,7 +299,7 @@ float SimplexNoise::noiseXY(float x, float y) const {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noiseXYZ(float x, float y, float z) const {
+float SimplexNoise::noiseXYZ(float x, float y, float z) {
     float n0, n1, n2, n3; // Noise contributions from the four corners
 
     // Skewing/Unskewing factors for 3D
@@ -404,7 +404,7 @@ float SimplexNoise::noiseXYZ(float x, float y, float z) const {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractalX(size_t octaves, float x) const {
+float SimplexNoise::fractalX(size_t octaves, float x) {
     float output    = 0.f;
     float denom     = 0.f;
     float frequency = mFrequency;
@@ -430,7 +430,7 @@ float SimplexNoise::fractalX(size_t octaves, float x) const {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractalXY(size_t octaves, float x, float y) const {
+float SimplexNoise::fractalXY(size_t octaves, float x, float y) {
     float output = 0.f;
     float denom  = 0.f;
     float frequency = mFrequency;
@@ -457,7 +457,7 @@ float SimplexNoise::fractalXY(size_t octaves, float x, float y) const {
  *
  * @return Noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractalXYZ(size_t octaves, float x, float y, float z) const {
+float SimplexNoise::fractalXYZ(size_t octaves, float x, float y, float z) {
     float output = 0.f;
     float denom  = 0.f;
     float frequency = mFrequency;

@@ -23,7 +23,6 @@
 #include "stdafx.hpp"
 #include "Utils/dukglue/dukglue.h"
 #include "Utils/SimplexNoise.hpp"
-#include "Utils/diamondsquare.hpp"
 #include "Map/Random.hpp"
 
 namespace dukglue {
@@ -114,7 +113,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cScriptingEngine::scriptCall, "scriptCall");
 
 	// SimplexNoise
-	dukglue_register_constructor<SimplexNoise, float, float, float, float>(mContext, "SimplexNoise");
+	dukglue_register_constructor<SimplexNoise, float, float, float>(mContext, "SimplexNoise");
 	dukglue_register_method(mContext, &SimplexNoise::fractalX, "fractalX");
 	dukglue_register_method(mContext, &SimplexNoise::fractalXY, "fractalXY");
 	dukglue_register_method(mContext, &SimplexNoise::fractalXYZ, "fractalXYZ");
@@ -219,5 +218,6 @@ void cScriptingEngine::Randomise(std::shared_ptr<cRandomMap> pMap, const std::st
 	auto path = g_ResourceMan->GetScriptPath(pScript);
 	auto script = g_ResourceMan->FileReadStr(path);
 	scriptRun(script);
+
 
 }

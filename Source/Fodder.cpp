@@ -1762,7 +1762,7 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
 
 	if (pRandomise) {
 
-		g_ScriptingEngine->Randomise(std::dynamic_pointer_cast<cRandomMap>(mMapLoaded), "test.js");
+		//g_ScriptingEngine->Randomise(std::dynamic_pointer_cast<cRandomMap>(mMapLoaded), "test.js");
 		mMapLoaded->Randomise();
 
 		Map_Load_Sprites();

@@ -17,16 +17,16 @@
 class SimplexNoise {
 public:
     // 1D Perlin simplex noise
-    float noiseX(float x) const;
+    float noiseX(float x);
     // 2D Perlin simplex noise
-    float noiseXY(float x, float y) const;
+    float noiseXY(float x, float y);
     // 3D Perlin simplex noise
-    float noiseXYZ(float x, float y, float z) const;
+    float noiseXYZ(float x, float y, float z);
 
     // Fractal/Fractional Brownian Motion (fBm) noise summation
-    float fractalX(size_t octaves, float x) const;
-    float fractalXY(size_t octaves, float x, float y) const;
-    float fractalXYZ(size_t octaves, float x, float y, float z) const;
+    float fractalX(size_t octaves, float x);
+    float fractalXY(size_t octaves, float x, float y);
+    float fractalXYZ(size_t octaves, float x, float y, float z);
 
     /**
      * Constructor of to initialize a fractal noise summation
@@ -37,11 +37,10 @@ public:
      * @param[in] persistence  Persistence is the loss of amplitude between successive octaves (usually 1/lacunarity)
      */
     explicit SimplexNoise(float frequency = 1.0f,
-                          float amplitude = 1.0f,
                           float lacunarity = 2.0f,
                           float persistence = 0.5f) :
         mFrequency(frequency),
-        mAmplitude(amplitude),
+        mAmplitude(frequency),
         mLacunarity(lacunarity),
         mPersistence(persistence) {
     }

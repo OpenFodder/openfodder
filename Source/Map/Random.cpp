@@ -25,7 +25,6 @@
 #include "Random.hpp"
 
 #include "Utils/SimplexNoise.hpp"
-#include "Utils/diamondsquare.hpp"
 
 
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
@@ -112,91 +111,6 @@ void cRandomMap::Randomise_Sprites(const size_t pHumanCount) {
 	// Add some weapons
 	Sprite_Add(eSprite_RocketBox, MiddleX, MiddleY + DistanceY);
 	Sprite_Add(eSprite_GrenadeBox, MiddleX + DistanceX, MiddleY + DistanceY);
-}
-
-
-void cRandomMap::Randomise_Tiles_DS() {
-	int32 PowerOf = 0;
-	size_t Size;
-
-	if (mParams.mWidth < mParams.mHeight)
-		Size = mParams.mHeight;
-	else
-		Size = mParams.mWidth;
-	while (Size > 0) {
-		PowerOf++;
-		Size = Size >> 1;
-	}
-
-	cDiamondSquare DS(PowerOf, mParams.mRandom.getStartingSeed());
-	auto HeightMap = DS.generate();
-
-	int16* MapPtr = (int16*)(mData->data() + 0x60);
-
-	// Find the highest and lowest points in the height map
-	double HeightMin = 0;
-	double HeightMax = 0;
-	for (auto& Row : HeightMap) {
-		for (auto& Column : Row) {
-
-			if (Column > HeightMax) HeightMax = Column;
-			if (Column < HeightMin) HeightMin = Column;
-		}
-	}
-
-	// Calcukate the difference between top/bottom
-	double diff = HeightMax - HeightMin;
-	double flood = 0.3;
-	double mount = 0.7;
-
-	// Calculate the flood/moutain levels
-	flood *= diff;
-	mount *= diff;
-
-	// Jungle
-	int16 TileWater = 326;
-	int16 TileLand = 123;
-	int16 TileBounce = 82;
-	size_t X = 0;
-	size_t Y = 0;
-
-	switch (mParams.mTileType) {
-	case eTileTypes_Ice:
-		TileLand = 1;
-		break;
-	default:
-		break;
-	}
-
-	static bool Found = false;
-
-	// Loop each tile row
-	for (auto Row : HeightMap) {
-		X = 0;
-		// Loop each tile column
-		for (auto Column : Row) {
-			Column -= HeightMin;
-
-			if (Column < flood) {
-				//if(!Found)
-				*MapPtr = TileWater;
-				Found = true;
-			}
-			else if (Column > mount) {
-				*MapPtr = TileBounce;
-			}
-			else {
-				*MapPtr = TileLand;
-			}
-			++MapPtr;
-
-			if (++X >= mParams.mWidth)
-				break;
-		}
-
-		if (++Y >= mParams.mHeight)
-			break;
-	}
 }
 
 int32 cRandomMap::getSpriteTypeCount(size_t pSpriteType) {

@@ -27,7 +27,6 @@ class cRandomMap : public cOriginalMap {
 private:
 
 protected:
-	virtual void Randomise_Tiles_DS();
 
 	virtual void Randomise_Structures(const size_t pCount);
 	virtual void Randomise_Sprites(const size_t pHumanCount = 2);

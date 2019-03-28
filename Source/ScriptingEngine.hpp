@@ -43,5 +43,5 @@ public:
 
 	void init();
 
-	virtual void Randomise(std::shared_ptr<cRandomMap> pMap, const std::string& pScript);
+	void Randomise(std::shared_ptr<cRandomMap> pMap, const std::string& pScript);
 };
