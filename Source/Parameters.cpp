@@ -252,6 +252,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 
 			mRandomFilename = result["random-save"].as<std::string>();
 			mRandomSave = true;
+			mRandom = true;
 		}
 
 		mDisableSound = result["nosound"].as<bool>();
