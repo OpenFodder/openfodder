@@ -173,96 +173,99 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check() {
 }
 
 bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
-	int16 ax;
-    int16  drawColumns;
+    int16 ax;
+    int16 drawColumns;
 
     if (p16bit)
         drawColumns = (mFodder->mVideo_Draw_Columns);
     else
         drawColumns = (mFodder->mVideo_Draw_Columns << 3);
 
-	if (mFodder->mVideo_Draw_PosY < 0) {
-		ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-		--ax;
-		if (ax < 0)
-			return false;
+    if (mFodder->mVideo_Draw_PosY < 0) {
+        ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
+        --ax;
+        if (ax < 0)
+            return false;
 
-		ax -= 0;
-		ax -= mFodder->mVideo_Draw_Rows;
-		++ax;
-		ax = -ax;
-		mFodder->mVideo_Draw_PosY += ax;
-		mFodder->mVideo_Draw_Rows -= ax;
+        ax -= 0;
+        ax -= mFodder->mVideo_Draw_Rows;
+        ++ax;
+        ax = -ax;
+        mFodder->mVideo_Draw_PosY += ax;
+        mFodder->mVideo_Draw_Rows -= ax;
 
-		ax *= 40;
+        ax *= 40;
 
-		mFodder->mVideo_Draw_FrameDataPtr += ax;
-	}
+        mFodder->mVideo_Draw_FrameDataPtr += ax;
+    }
 
-	ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-	--ax;
+    ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
+    --ax;
 
     auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
-	if (ax > maxHeight) {
-		if (mFodder->mVideo_Draw_PosY > maxHeight)
-			return false;
+    if (ax > maxHeight) {
+        if (mFodder->mVideo_Draw_PosY > maxHeight)
+            return false;
 
-		ax -= maxHeight;
-		mFodder->mVideo_Draw_Rows -= ax;
+        ax -= maxHeight;
+        mFodder->mVideo_Draw_Rows -= ax;
+    }
 
-	}
-
-	if (mFodder->mVideo_Draw_PosX < 0) {
+    if (mFodder->mVideo_Draw_PosX < 0) {
 
         ax = mFodder->mVideo_Draw_PosX + drawColumns;
-		--ax;
-		if (ax < 0)
-			return false;
+        --ax;
+        if (ax < 0)
+            return false;
 
+        ax -= drawColumns;
+        ++ax;
+        ax = -ax;
+        --ax;
 
-		ax -= drawColumns;
-		++ax;
-		ax = -ax;
-		--ax;
-
-		mFodder->mVideo_Draw_PosX += ax;
         drawColumns -= ax;
         //mFodder->mVideo_Draw_Columns = drawColumns >> (p16bit ? 0 : 1);
 
-		if (!p16bit)
-			ax >>= 1;
-		else
-			ax >>= 3;
-		mFodder->mVideo_Draw_FrameDataPtr += ax;
-	}
+        if (!p16bit) {
+            ax >>= 1;
+            mFodder->mVideo_Draw_PosX += (ax << 1);
+            mFodder->mVideo_Draw_Columns -= (ax << 1);
+        }
+        else {
+            ax >>= 3;
+            mFodder->mVideo_Draw_PosX += (ax << 3);
+            mFodder->mVideo_Draw_Columns -= (ax << 3);
+        }
+
+        mFodder->mVideo_Draw_FrameDataPtr += ax;
+    }
 
     ax = mFodder->mVideo_Draw_PosX + drawColumns;
-	--ax;
+    --ax;
 
-	int16 maxWindowX = mFodder->getWindowWidth() + 31; // 351
+    int16 maxWindowX = mFodder->getWindowWidth() + 31; // 351
 
-	if (ax > maxWindowX) {
-		if (mFodder->mVideo_Draw_PosX > maxWindowX)
-			return false;
+    if (ax > maxWindowX) {
+        if (mFodder->mVideo_Draw_PosX > maxWindowX)
+            return false;
 
-		ax -= maxWindowX;
-		--ax;
+        ax -= maxWindowX;
+        --ax;
 
-		do {
-			++ax;
-		} while (ax & 8);
+        do {
+            ++ax;
+        } while (ax & 8);
 
+        mFodder->mVideo_Draw_Columns -= (ax >> 3);
+    }
 
-		mFodder->mVideo_Draw_Columns -= (ax >> 3);
-	}
+    if (mFodder->mVideo_Draw_Columns <= 0)
+        return false;
 
-	if (mFodder->mVideo_Draw_Columns <= 0)
-		return false;
+    if (mFodder->mVideo_Draw_Rows <= 0)
+        return false;
 
-	if (mFodder->mVideo_Draw_Rows <= 0)
-		return false;
-
-	return true;
+    return true;
 }
 
 void cGraphics_Amiga::Mission_Intro_DrawHelicopter( uint16 pID ) {
@@ -288,7 +291,7 @@ void cGraphics_Amiga::Mission_Intro_DrawHelicopter( uint16 pID ) {
 
 	if (Sprite_OnScreen_Check( true )) {
 		mFodder->mVideo_Draw_Columns >>= 3;
-		Video_Draw_16();
+		Video_Draw_8_Alt();
 	}
 }
 
@@ -936,6 +939,41 @@ void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget, const uint8* RowPallete) {
 	}
 }
 
+void cGraphics_Amiga::Video_Draw_8_Alt(const uint8* RowPallete) {
+
+    uint8*	di = mSurface->GetSurfaceBuffer();
+    uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
+
+    di += mSurface->GetWidth() * mFodder->mVideo_Draw_PosY;
+    di += mFodder->mVideo_Draw_PosX;
+
+    mFodder->mDraw_Source_SkipPixelsPerRow = (mBMHD_Current->mWidth >> 3) - mFodder->mVideo_Draw_Columns;
+    mFodder->mDraw_Dest_SkipPixelsPerRow = mSurface->GetWidth() - (mFodder->mVideo_Draw_Columns * 8);
+
+    // Height
+    for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+
+        uint8 Palette = mFodder->mVideo_Draw_PaletteIndex;
+        if (RowPallete) {
+            // TODO: palette should degrade closer to top/bottom of screen 
+            //int16 bx = mFodder->mVideo_Draw_PosY + dx;
+            //Palette = 1;// RowPallete[bx];
+        }
+
+        // Width
+        for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns; ++cx) {
+
+            DrawPixels_8(si, di);
+
+            di += 8;
+            si += 1;
+        }
+
+        si += mFodder->mDraw_Source_SkipPixelsPerRow;
+        di += mFodder->mDraw_Dest_SkipPixelsPerRow;
+    }
+}
+
 void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 	uint8* pDs = mFodder->mVideo_Draw_FrameDataPtr;
 	uint8* di = mSurface->GetSurfaceBuffer() + 16;
@@ -1499,16 +1537,18 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
             mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
             Mission_Intro_DrawHelicopter(204);
 
-            int16 Blade = 205 + BladeFrame;
+            if (mFodder->mVersionCurrent->isCannonFodder1()) {
+                int16 Blade = 205 + BladeFrame;
 
-            ++BladeFrame;
-            if (BladeFrame >= 3)
-                BladeFrame = 0;
+                ++BladeFrame;
+                if (BladeFrame >= 3)
+                    BladeFrame = 0;
 
-            // Blade
-            mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
-			mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16) - 3;
-            Mission_Intro_DrawHelicopter(Blade);
+                // Blade
+                mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
+                mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16) - 3;
+                Mission_Intro_DrawHelicopter(Blade);
+            }
         }
 
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);

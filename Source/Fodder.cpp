@@ -3513,7 +3513,10 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
 
 void cFodder::Mission_Intro_Helicopter_Start() {
     mHelicopterPosX = 0x01500000;
-    mHelicopterPosY = 0x00260000;
+    if (mVersionCurrent->isPC())
+        mHelicopterPosY = 0x00260000;
+    else
+        mHelicopterPosY = 0x00300000;
 
     mBriefing_Helicopter_Off1 = mBriefing_Helicopter_Offsets[0];
     mBriefing_Helicopter_Off2 = mBriefing_Helicopter_Offsets[1];

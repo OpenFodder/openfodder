@@ -91,8 +91,9 @@ protected:
 	virtual void		PaletteLoad( const uint8  *pBuffer, uint32 pColors, uint32 pColorID = 0 );
 
 	virtual void		Video_Draw_16_Offset( int16 pCx );
-	virtual void		Video_Draw_16(const uint8* RowPallete = 0);
-	virtual void		Video_Draw_8(cSurface *pTarget = 0, const uint8* RowPallete = 0);
+	virtual void		Video_Draw_16( const uint8* RowPallete = 0 );
+	virtual void		Video_Draw_8( cSurface *pTarget = 0, const uint8* RowPallete = 0 );
+    virtual void		Video_Draw_8_Alt( const uint8* RowPallete = 0 );
 
 	virtual void		SetActiveSpriteSheet(eGFX_Types pSpriteType );
 
