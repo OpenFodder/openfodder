@@ -71,46 +71,9 @@ void cRandomMap::Randomise_Structures(const size_t pCount) {
 	}
 }
 
-void cRandomMap::Randomise_Sprites(const size_t pHumanCount) {
-	int16 DistanceY = 8;
-	int16 DistanceX = 8;
+void cRandomMap::addBarracks(size_t pX, size_t pY) {
 
-	int16 MiddleX = 0;
-	int16 MiddleY = 0;
-
-	int16 TileLand = 123;
-
-	size_t Count = 0;
-	while (Count < 100000) {
-		int16 StartTileX = g_Fodder->tool_RandomGet(2, mParams.mWidth - 2);
-		int16 StartTileY = g_Fodder->tool_RandomGet(2, mParams.mHeight - 2);
-
-		// TODO: Check if we will overlap an existing structure,
-		//       or place on water
-		auto Tile = Tile_Get(StartTileX, StartTileY);
-		if (Tile != TileLand)
-			continue;
-
-		MiddleX = StartTileX * 16;
-		MiddleY = StartTileY * 16;
-		break;
-	}
-
-	// Add atleast two sprites
-	for (size_t x = 0; x < pHumanCount; ++x) {
-		if (g_Fodder->tool_RandomGet() % 2)
-			Sprite_Add(eSprite_Player, MiddleX - DistanceX, MiddleY + DistanceY);
-		else
-			Sprite_Add(eSprite_Player, MiddleX + DistanceX, MiddleY - DistanceY);
-
-		DistanceX += 6;
-		DistanceY += 6;
-	}
-
-
-	// Add some weapons
-	Sprite_Add(eSprite_RocketBox, MiddleX, MiddleY + DistanceY);
-	Sprite_Add(eSprite_GrenadeBox, MiddleX + DistanceX, MiddleY + DistanceY);
+	Structure_Add(mStructuresBarracksWithSoldier[mParams.mTileType], pX / 16, pY / 16);
 }
 
 int32 cRandomMap::getSpriteTypeCount(size_t pSpriteType) {

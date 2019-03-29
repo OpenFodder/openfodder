@@ -29,7 +29,6 @@ private:
 protected:
 
 	virtual void Randomise_Structures(const size_t pCount);
-	virtual void Randomise_Sprites(const size_t pHumanCount = 2);
 
 public:
 	cRandomMap(const sMapParams& pParams);
@@ -37,6 +36,7 @@ public:
 	
 	bool					CheckRadiusTerrain(eTerrainType pType, cPosition* pPosition, int32 pRadius);
 
+	void					addBarracks(size_t pX, size_t pY);
 	int32					getSpriteTypeCount(size_t pSpriteType);
 	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
 	float					getRandomFloat(float pMin, float pMax);

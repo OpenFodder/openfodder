@@ -135,6 +135,9 @@ void cScriptingEngine::init() {
 	// cMap
 	dukglue_set_base_class<cMap, cRandomMap>(mContext);
 	dukglue_register_constructor<cRandomMap, const sMapParams& >(mContext, "cRandomMap");
+
+	dukglue_register_method(mContext, &cRandomMap::addBarracks, "addBarracks");
+
 	dukglue_register_method(mContext, &cRandomMap::getTileType, "getTileType");
 	dukglue_register_method(mContext, &cRandomMap::getTileSub, "getTileSub");
 
