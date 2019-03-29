@@ -79,7 +79,7 @@ struct sService_Draw {
 
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
 extern const int16 mMap_Direction_Calculations[256];
-extern const int8 mMap_Distance_Calculations[];
+extern const int8 mMap_Distance_Calculations[1025];
 extern const int16 mMap_DirectionsBetweenPoints[];
 
 class cFodder {
@@ -1022,7 +1022,8 @@ public:
     int16           Map_PathCheck_CalculateTo(int16& pX1, int16& pY1, int16& pX2, int16& pY2);
     void            Map_PathCheck_Generate(int16& pX1, int16&  pY1, int16& pX2, int16& pY2, int16& pData18, int16& pData1C);
     int16           Map_PathCheck_CanPass(int16& pData0);
-    int16           Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2);
+    int16           Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistanceMax, int16& pPosY2);
+	int32			Map_Get_Distance_BetweenPositions(cPosition pPos1, cPosition pPos2, int32 pDistanceMax);
 
     int16           Map_Terrain_Get_Type_And_Walkable(int16& pY, int16& pX);
     int16           Map_Terrain_Get_Type_And_Walkable(sSprite* pSprite, int16& pY, int16& pX);

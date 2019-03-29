@@ -163,3 +163,8 @@ cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainType pType, size_t pRadi
 
 	return Position;
 }
+
+int32 cRandomMap::getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2) {
+
+	return g_Fodder->Map_Get_Distance_BetweenPositions(*pPos1, *pPos2, 1000);
+}

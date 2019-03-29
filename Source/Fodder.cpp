@@ -7469,24 +7469,24 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
  *
  * @return Distance between points
  */
-int16 cFodder::Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistance, int16& pPosY2) {
+int16 cFodder::Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistanceMax, int16& pPosY2) {
     const int8* Data24 = mMap_Distance_Calculations;
 
     pPosX2 -= pPosX;
     if (pPosX2 < 0)
         pPosX2 = -pPosX2;
 
-    if (pPosX2 >= pDistance)
+    if (pPosX2 >= pDistanceMax)
         goto loc_2A7DB;
 
     pPosY2 -= pPosY;
     if (pPosY2 < 0)
         pPosY2 = -pPosY2;
 
-    if (pPosY2 >= pDistance)
+    if (pPosY2 >= pDistanceMax)
         goto loc_2A7DB;
 
-    pDistance = 0;
+	pDistanceMax = 0;
     for (;;) {
         if (pPosX2 <= 0x1F)
             if (pPosY2 <= 0x1F)
@@ -7494,7 +7494,7 @@ int16 cFodder::Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16&
 
         pPosX2 >>= 1;
         pPosY2 >>= 1;
-        ++pDistance;
+        ++pDistanceMax;
     }
     //loc_2A7AD
     pPosY2 <<= 5;
@@ -7502,13 +7502,55 @@ int16 cFodder::Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16&
     pPosX = 0;
 
     pPosX = Data24[pPosY2];
-    pPosX <<= pDistance;
+    pPosX <<= pDistanceMax;
 
     return pPosX;
 
 loc_2A7DB:;
     pPosX = 0x3E8;
     return 0x3E8;
+}
+
+int32 cFodder::Map_Get_Distance_BetweenPositions(cPosition pPos1, cPosition pPos2, int32 pDistanceMax) {
+
+	pPos2.mX -= pPos1.mX;
+	if (pPos2.mX < 0)
+		pPos2.mX = -pPos2.mX;
+
+	if (pPos2.mX >= pDistanceMax)
+		goto loc_2A7DB;
+
+	pPos2.mY -= pPos1.mY;
+	if (pPos2.mY < 0)
+		pPos2.mY = -pPos2.mY;
+
+	if (pPos2.mY >= pDistanceMax)
+		goto loc_2A7DB;
+
+	pDistanceMax = 0;
+	for (;;) {
+		if (pPos2.mX <= 0x1F)
+			if (pPos2.mY <= 0x1F)
+				break;
+
+		pPos2.mX >>= 1;
+		pPos2.mY >>= 1;
+		++pDistanceMax;
+	}
+	//loc_2A7AD
+	pPos2.mY <<= 5;
+	pPos2.mY |= pPos2.mX;
+
+	if (pPos2.mY >= sizeof(mMap_Distance_Calculations) / sizeof(mMap_Distance_Calculations[0]) - 1)
+		goto loc_2A7DB;
+
+	pPos1.mX = mMap_Distance_Calculations[pPos2.mY];
+	pPos1.mX <<= pDistanceMax;
+
+	return pPos1.mX;
+
+loc_2A7DB:;
+	return 0x3E8;
 }
 
 /**

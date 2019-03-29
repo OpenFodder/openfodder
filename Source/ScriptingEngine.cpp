@@ -157,6 +157,8 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::getRandomInt, "getRandomInt");
 	dukglue_register_method(mContext, &cRandomMap::getRandomFloat, "getRandomFloat");
 
+	dukglue_register_method(mContext, &cRandomMap::getDistanceBetweenPositions, "getDistanceBetweenPositions");
+	
 	dukglue_register_global(mContext, this, "ScriptingEngine");
 }
 
@@ -192,7 +194,10 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 
 	for (auto scriptFile : scripts) {
 		auto script = g_ResourceMan->FileReadStr(pFolder + scriptFile);
-		scriptLoad(script);
+		
+		if (scriptLoad(script) == false) {
+			g_Debugger->Error(script + " Failed to execute");
+		}
 	}
 
 	return true;
@@ -220,7 +225,9 @@ void cScriptingEngine::Randomise(std::shared_ptr<cRandomMap> pMap, const std::st
 
 	auto path = g_ResourceMan->GetScriptPath(pScript);
 	auto script = g_ResourceMan->FileReadStr(path);
-	scriptRun(script);
+	if (scriptRun(script) == false) {
+		g_Debugger->Error(pScript + " Failed to execute");
+	}
 
 
 }

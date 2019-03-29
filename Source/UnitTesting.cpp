@@ -127,7 +127,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
             // And we have a resume cycle set
             if (g_Fodder->mStartParams->mDemoRecordResumeCycle) {
                 g_Debugger->Notice("Resuming " + MissionTitle);
-                g_Fodder->mParams->mSleepDelta = 0;
+                g_Fodder->mStartParams->mSleepDelta = 0;
             }
             else {
                 g_Fodder->mGame_Data.mDemoRecorded.clear();

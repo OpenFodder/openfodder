@@ -42,6 +42,6 @@ public:
 	float					getRandomFloat(float pMin, float pMax);
 	int32					getRandomInt(int32 pMin = 0, int32 pMax = 0);
 	cPosition*				getRandomXYByTerrainType(eTerrainType pType, size_t pRadius);
-
+	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);
 };
 
