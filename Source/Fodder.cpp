@@ -1760,8 +1760,11 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
     Map_Load_Resources();
 
 	if (pRandomise) {
+		if (mParams->mScriptRun.size() == 0)
+			mParams->mScriptRun = "test.js";
+
 		mMapLoaded->Randomise();
-		g_ScriptingEngine->Randomise(std::dynamic_pointer_cast<cRandomMap>(mMapLoaded), "test.js");
+		g_ScriptingEngine->Randomise(std::dynamic_pointer_cast<cRandomMap>(mMapLoaded), mParams->mScriptRun );
 		
 
 		Map_Load_Sprites();
@@ -6027,11 +6030,6 @@ loc_2500F:;
     Data8 += Data0;
 
 	DataC <<= 4;
-
-	// TODO: For later removal after re-recording all demos
-	if (mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
-		DataC >>= 4;
-
     Data0 = tool_RandomGet() & 0x0F;
     DataC += Data0;
 	
@@ -7095,15 +7093,11 @@ loc_29FC2:;
 }
 
 int16 cFodder::map_GetRandomX() {
-	if (mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
-		return tool_RandomGet() & 0x7F;
 
 	return tool_RandomGet(1, mMapLoaded->getWidth());
 }
 
 int16 cFodder::map_GetRandomY() {
-	if(mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
-		return tool_RandomGet() & 0x3F;
 
 	return tool_RandomGet(1, mMapLoaded->getHeight());
 }
@@ -7963,12 +7957,7 @@ int16 cFodder::Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, in
         return pMovementData[0];
 
     int16 Data0 = readLE<uint16>(mMap->data() + 0x60 + DataC);
-
-	// TODO: For later removal after re-recording all demos
-	if (mParams->mUnitTesting && mGame_Data.mDemoRecorded.mVersion < 3)
-		Data0 &= 0xFF;
-	else
-	    Data0 &= 0x1FF;
+	Data0 &= 0x1FF;
 
     int16 Data4 = mTile_Hit[Data0];
 
@@ -18258,6 +18247,7 @@ void cFodder::CreateRandom() {
 	if (mParams->mRandomFilename.find_first_of(".") == std::string::npos) {
 		mParams->mRandomFilename.append(".map");
 	}
+
 	sMapParams Params;
 	Params.Randomise(mRandom.get());
 

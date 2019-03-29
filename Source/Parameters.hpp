@@ -45,6 +45,8 @@ public:
 	bool mRandomSave;			// Create a random map
 	std::string mRandomFilename;// Name to save random map as
 
+	std::string mScriptRun;		// Name of a script to run
+
 	ePlatform mDefaultPlatform; // Default platform to use
 	eGame mDefaultGame;			// Default game to use for single/random
 

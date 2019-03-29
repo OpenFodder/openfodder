@@ -89,9 +89,10 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
     bool Retry = false;
     g_Fodder->Game_Setup();
 
-    if (g_Fodder->mStartParams->mUnitTesting && g_Fodder->mStartParams->mDemoPlayback)
-        g_Fodder->mStartParams->mSleepDelta = 0;
-
+	if (g_Fodder->mStartParams->mUnitTesting && g_Fodder->mStartParams->mDemoPlayback) {
+		g_Fodder->mStartParams->mSleepDelta = 0;
+		g_Fodder->mParams->mSleepDelta = 0;
+	}
 
     while (g_Fodder->mGame_Data.mMission_Current) {
         EngineSetup();
@@ -159,7 +160,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                 // If the phase was aborted (ESC key), don't replay it.. start over
                 if (!g_Fodder->mPhase_EscapeKeyAbort) {
 
-                    // Less than 10 cycles, player can start over
+                    // Less than 80 cycles, player can start over
                     if (g_Fodder->mGame_Data.mDemoRecorded.mTick > 80) {
                         g_Fodder->mStartParams->mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mDemoRecorded.mTick - 80);
                         g_Fodder->mStartParams->mDemoPlayback = true;

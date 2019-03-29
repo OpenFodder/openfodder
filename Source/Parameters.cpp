@@ -154,6 +154,7 @@ void sFodderParameters::PrepareOptions() {
 		("single-map", "Play a single map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
 		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
 		("random-save", "Generate and save a random map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
+		("script", "Name of script to execute", cxxopts::value<std::string>()->default_value(""), "\"script.js\"")
 		;
 }
 
@@ -272,6 +273,9 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		
 		if (result.count("columns"))
 			mWindowColumns = result["columns"].as<std::uint32_t>();
+
+		if (result.count("script"))
+			mScriptRun = result["script"].as<std::string>();
 
 		if (mSpritesMax < 16)
 			mSpritesMax = 16;
