@@ -18210,6 +18210,19 @@ void cFodder::About() {
     g_Fodder->mPhase_Aborted = false;
 }
 
+void cFodder::CreateRandom() {
+	VersionSwitch(mVersions->GetRetail(mParams->mDefaultPlatform, mParams->mDefaultGame));
+
+	if (mParams->mRandomFilename.find_first_of(".") == std::string::npos) {
+		mParams->mRandomFilename.append(".map");
+	}
+	sMapParams Params;
+	Params.Randomise(mRandom.get());
+
+	Map_Create(Params, true);
+	mMapLoaded->save(mParams->mRandomFilename, true);
+}
+
 void cFodder::Start() {
 
 	if (mParams->mShowAbout) {

@@ -43,7 +43,10 @@ int start(int argc, char *argv[]) {
 		cUnitTesting Testing;
 		return Testing.Start() ? 0 : -1;
 	}
-	else {
+	else if (g_Fodder->mStartParams->mRandomSave) {
+		g_Fodder->CreateRandom();
+	}
+	else	{
 		g_Fodder->Start();
 		g_Fodder->mGame_Data.mDemoRecorded.save();
 	}

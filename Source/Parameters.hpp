@@ -42,6 +42,9 @@ public:
 	size_t mWindowColumns;
 
 	bool mRandom;               // Start a random map
+	bool mRandomSave;			// Create a random map
+	std::string mRandomFilename;// Name to save random map as
+
 	ePlatform mDefaultPlatform; // Default platform to use
 	eGame mDefaultGame;			// Default game to use for single/random
 
@@ -102,6 +105,8 @@ public:
 		mWindowColumns = 0;
 
 		mRandom = false;
+		mRandomSave = false;
+
 		mDefaultPlatform = ePlatform::Any;
 		mDefaultGame = eGame::CF1;
 

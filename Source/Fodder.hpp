@@ -1284,7 +1284,8 @@ public:
     void            Playground();
 
     void            About();
-    virtual void    Start();
+	void			CreateRandom();
+	virtual void    Start();
     void            Exit(unsigned int pExitCode);
 
     void            WindowTitleSet(bool pInMission);
