@@ -179,9 +179,23 @@ std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves
 	return noise;
 }
 
-void cRandomMap::create(sMapParams *pParams) {
+void cRandomMap::create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub) {
 
-	mParams = *pParams;
+	mParams.mWidth = pWidth;
+	mParams.mHeight = pHeight;
+	mParams.mTileType = pTileType;
+	mParams.mTileSub = pTileSub;
+
+	ClearTiles(0);
+	saveHeader();
+}
+
+void cRandomMap::createRandom(size_t pSeed) {
+
+	if (!pSeed)
+		pSeed = mParams.mRandom.getu();
+
+	mParams.Randomise(pSeed);
 
 	ClearTiles(0);
 	saveHeader();

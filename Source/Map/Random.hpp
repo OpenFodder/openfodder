@@ -38,7 +38,9 @@ public:
 
 	void					addBarracks(size_t pX, size_t pY);
 
-	void					create(sMapParams* pParams);
+	void					create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub = eTileSub::eTileSub_0);
+	void					createRandom(size_t pSeed = 0);
+
 	int32					getSpriteTypeCount(size_t pSpriteType);
 	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
 	float					getRandomFloat(float pMin, float pMax);
