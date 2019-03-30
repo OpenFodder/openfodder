@@ -172,7 +172,7 @@ void cGraphics_Amiga2::Load_Service_Data() {
     mSpriteSheet_RankFont = GetImage("rankfont", 0);
 }
 
-void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigned int pColors, unsigned int pBackColor) {
+void cGraphics_Amiga2::Load_And_Draw_Image(const std::string &pFilename, unsigned int pColors, size_t pBackColor) {
     std::string	Filename = pFilename;
 
     // Try it as an IFF
