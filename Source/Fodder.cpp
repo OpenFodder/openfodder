@@ -7100,19 +7100,19 @@ loc_29FC2:;
 
 int16 cFodder::map_GetRandomX() {
 
-	return tool_RandomGet(1, mMapLoaded->getWidth());
+	return tool_RandomGet(1, mMapLoaded->getWidth() - 1);
 }
 
 int16 cFodder::map_GetRandomY() {
 
-	return tool_RandomGet(1, mMapLoaded->getHeight());
+	return tool_RandomGet(1, mMapLoaded->getHeight() - 1);
 }
 
 uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax) {
 	uint16 Rand = mRandom.getu();
 	uint16 Mod = (uint16) (pMax - pMin + 1);
 
-	return (Rand % Mod) + pMin;
+	return (uint16) (Rand % Mod) + pMin;
 }
 
 int16 cFodder::tool_RandomGet() {
