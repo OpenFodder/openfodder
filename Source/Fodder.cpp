@@ -7995,14 +7995,14 @@ void cFodder::Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, in
     if (pX2 < 0)
         pX2 = -pX2;
 
-    if (pX2 >= 640)
+    if (pX2 >= getWindowWidth() * 2)
         goto loc_2B403;
 
     pY2 -= pY;
     if (pY2 < 0)
         pY2 = -pY2;
 
-    if (pY2 >= 640)
+    if (pY2 >= getWindowWidth() * 2)
         goto loc_2B403;
 
     for (;;) {
