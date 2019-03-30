@@ -26,13 +26,8 @@
 
 using Json = nlohmann::json;
 
-const char*  DEMO_EXTENSION = ".ofd";
+const char* DEMO_EXTENSION = ".ofd";
 const size_t DEMO_CURRENT_VERSION = 3;
-
-// All version hacks are now removed. But this functionality can remain
-// Version 1 Demos didnt stop ticks 
-// Version 2 Demos stop ticks during image fadeout/fadein
-// Version 3 Demos have an greater number of sprites
 
 sGamePhaseData::sGamePhaseData() {
     Clear();
@@ -158,11 +153,16 @@ void sGameRecorded::playback() {
 }
 
 void sGameRecorded::DisableTicks() {
-    mTickDisabled = true;
+    // Version 1 Demos didnt stop ticks 
+    // Version 2 Demos stop ticks during image fadeout/fadein
+	// Version 3 Demos have an greater number of sprites
+    if (mVersion >= 2)
+        mTickDisabled = true;
 }
 
 void sGameRecorded::EnableTicks() {
-    mTickDisabled = false;
+    if(mVersion >= 2)
+        mTickDisabled = false;
 }
 
 void sGameRecorded::Tick() {

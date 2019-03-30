@@ -223,17 +223,27 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
         ax = -ax;
         --ax;
 
+        if (mFodder->mParams->mUnitTesting && mFodder->mGame_Data.mDemoRecorded.mVersion < 3) {
+            mFodder->mVideo_Draw_PosX += ax;
+        }
+
         drawColumns -= ax;
+        //mFodder->mVideo_Draw_Columns = drawColumns >> (p16bit ? 0 : 1);
 
         if (!p16bit) {
             ax >>= 1;
-            mFodder->mVideo_Draw_PosX += (ax << 1);
-            mFodder->mVideo_Draw_Columns -= (ax << 1);
+            if (!(mFodder->mParams->mUnitTesting && mFodder->mGame_Data.mDemoRecorded.mVersion < 3)) {
+                mFodder->mVideo_Draw_PosX += (ax << 1);
+                mFodder->mVideo_Draw_Columns -= (ax << 1);
+            }
+            
         }
         else {
             ax >>= 3;
-            mFodder->mVideo_Draw_PosX += (ax << 3);
-            mFodder->mVideo_Draw_Columns -= (ax << 3);
+            if (!(mFodder->mParams->mUnitTesting && mFodder->mGame_Data.mDemoRecorded.mVersion < 3)) {
+                mFodder->mVideo_Draw_PosX += (ax << 3);
+                mFodder->mVideo_Draw_Columns -= (ax << 3);
+            }
         }
 
         mFodder->mVideo_Draw_FrameDataPtr += ax;
@@ -290,7 +300,12 @@ void cGraphics_Amiga::Mission_Intro_DrawHelicopter( uint16 pID ) {
 
 	if (Sprite_OnScreen_Check( true )) {
 		mFodder->mVideo_Draw_Columns >>= 3;
-        Video_Draw_8_Alt();
+        if (mFodder->mParams->mUnitTesting && mFodder->mGame_Data.mDemoRecorded.mVersion < 3) {
+            Video_Draw_16();
+        }
+        else {
+            Video_Draw_8_Alt();
+        }
 	}
 }
 
