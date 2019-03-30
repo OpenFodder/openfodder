@@ -112,6 +112,15 @@ void cScriptingEngine::init() {
 
 	dukglue_register_method(mContext, &cScriptingEngine::scriptCall, "scriptCall");
 
+	// sMapParams
+	dukglue_register_constructor<sMapParams, size_t, size_t, eTileTypes, eTileSub>(mContext, "sMapParams");
+	dukglue_register_method(mContext, &sMapParams::Randomise, "Randomise");
+
+	dukglue_register_property(mContext, &sMapParams::getWidth, &sMapParams::setWidth, "Width");
+	dukglue_register_property(mContext, &sMapParams::getHeight, &sMapParams::setHeight, "Height");
+	dukglue_register_property(mContext, &sMapParams::getTiletype, &sMapParams::setTiletype, "TileType");
+	dukglue_register_property(mContext, &sMapParams::getTileSub, &sMapParams::setTileSub, "TileSub");
+
 	// SimplexNoise
 	dukglue_register_constructor<SimplexNoise, float, float, float>(mContext, "SimplexNoise");
 	dukglue_register_method(mContext, &SimplexNoise::fractalX, "fractalX");
@@ -137,7 +146,10 @@ void cScriptingEngine::init() {
 	dukglue_register_constructor<cRandomMap, const sMapParams& >(mContext, "cRandomMap");
 
 	dukglue_register_method(mContext, &cRandomMap::addBarracks, "addBarracks");
+	dukglue_register_method(mContext, &cRandomMap::create, "Create");
+	dukglue_register_method(mContext, &cRandomMap::createSimplexIslands, "SimplexIslands");
 
+	
 	dukglue_register_method(mContext, &cRandomMap::getTileType, "getTileType");
 	dukglue_register_method(mContext, &cRandomMap::getTileSub, "getTileSub");
 

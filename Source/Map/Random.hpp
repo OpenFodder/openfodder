@@ -37,11 +37,17 @@ public:
 	bool					CheckRadiusTerrain(eTerrainType pType, cPosition* pPosition, int32 pRadius);
 
 	void					addBarracks(size_t pX, size_t pY);
+
+	void					create(sMapParams* pParams);
 	int32					getSpriteTypeCount(size_t pSpriteType);
 	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
 	float					getRandomFloat(float pMin, float pMax);
 	int32					getRandomInt(int32 pMin = 0, int32 pMax = 0);
 	cPosition*				getRandomXYByTerrainType(eTerrainType pType, size_t pRadius);
 	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);
+
+
+	std::vector<std::vector<float>> createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled);
+
 };
 

@@ -25,7 +25,7 @@
 #include "Random.hpp"
 
 #include "Utils/SimplexNoise.hpp"
-
+#include "Utils/SimplexIslands.hpp"
 
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	mParams = pParams;
@@ -167,4 +167,22 @@ cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainType pType, size_t pRadi
 int32 cRandomMap::getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2) {
 
 	return g_Fodder->Map_Get_Distance_BetweenPositions(*pPos1, *pPos2, 1000);
+}
+
+
+std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled) {
+
+	SimplexIslands Islands;
+
+	auto noise = Islands.CreateArray(mParams.mWidth, mParams.mHeight, pOctaves, pRoughness, pScale, pSeed, pRadialEnabled);
+
+	return noise;
+}
+
+void cRandomMap::create(sMapParams *pParams) {
+
+	mParams = *pParams;
+
+	ClearTiles(0);
+	saveHeader();
 }

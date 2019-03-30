@@ -28,6 +28,7 @@ public:
     float fractalXY(size_t octaves, float x, float y);
     float fractalXYZ(size_t octaves, float x, float y, float z);
 
+
     /**
      * Constructor of to initialize a fractal noise summation
      *

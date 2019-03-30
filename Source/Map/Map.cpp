@@ -23,8 +23,6 @@
 #include "stdafx.hpp"
 
 sMapParams::sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub) {
-	mAlgorithm = eRandom_SimplexNoise;
-
 	mTileType = pTileType;
 	mTileSub = pTileSub;
 	mWidth = pWidth;
@@ -43,8 +41,6 @@ sMapParams::sMapParams(size_t pSeed) {
 
 void sMapParams::Randomise(const size_t pSeed) {
 	mRandom.setSeed((int16)pSeed);
-
-	mAlgorithm = (eRandom_Algorithms)(mRandom.getu() % eRandom_SimplexNoise);
 
 	do {
 		mTileType = (eTileTypes)(mRandom.getu() % eTileTypes_AFX);
