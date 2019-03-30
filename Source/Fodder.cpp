@@ -7630,8 +7630,7 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
 }
 
 int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
-	if (pX < 0 || pY < 0)
-		return -1;
+
     if ((pY >> 4) > mMapLoaded->getHeight() || (pX >> 4) > mMapLoaded->getWidth())
         return -1;
 
