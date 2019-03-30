@@ -1,6 +1,5 @@
 #include<vector>
 #include "SimplexIslands.hpp"
-#include <math.h>
 
 SimplexIslands::SimplexIslands() {
 
