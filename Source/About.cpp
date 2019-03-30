@@ -49,6 +49,7 @@ cAbout::cAbout() {
 
         { TEXTPOS_TEAM + 80, "TESTING" },
         { TEXTPOS_TEAM + 90, "ALESSANDRO PETRALIA" },
+		{ TEXTPOS_TEAM + 100, "STARWINDZ" },
 
         { TEXTPOS_THANKS + 0 , "THANKS TO" },
         { TEXTPOS_THANKS + 10, "SENSIBLE SOFTWARE"},
@@ -61,6 +62,8 @@ cAbout::cAbout() {
         { TEXTPOS_POWERED + 0,  "POWERED BY"},
         { TEXTPOS_POWERED + 10, "CPP14"},
         { TEXTPOS_POWERED + 20, "SDL2"},
+		{ TEXTPOS_POWERED + 30, "DUKTAPE"},
+		{ TEXTPOS_POWERED + 40, "DUKGLUE"},
 
         // Just for fun: loc_2B48E
         { 1100, "PUSH CX"},
