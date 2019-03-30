@@ -138,7 +138,7 @@ void cScriptingEngine::init() {
 
 	dukglue_register_method(mContext, &cRandomMap::addBarracks, "addBarracks");
 	dukglue_register_method(mContext, &cRandomMap::create, "Create");
-	dukglue_register_method(mContext, &cRandomMap::createRandom, "createRandom");
+	dukglue_register_method(mContext, &cRandomMap::createRandom, "CreateRandom");
 	
 	dukglue_register_method(mContext, &cRandomMap::createSimplexIslands, "SimplexIslands");
 

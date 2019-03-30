@@ -61,7 +61,7 @@ public:
 	SimplexIslands();
 
 	// This method is a *lot* faster than using (int)Math.floor(x)
-	static inline int32_t fastfloor(float fp) {
+	static inline int32_t fastfloor(double fp) {
 		int32_t i = static_cast<int32_t>(fp);
 		return (fp < i) ? (i - 1) : (i);
 	}
@@ -243,8 +243,8 @@ public:
 		}
 	}
 	void createRadialMask(std::vector<std::vector<float>>& pNoise) {
-		int centerX = pNoise.size() / 2;
-		int centerY = pNoise[0].size() / 2;
+		float centerX = (float) pNoise.size() / 2;
+		float centerY = (float) pNoise[0].size() / 2;
 
 		float furthestDistance = (float)sqrt((centerX * centerX) + (centerY * centerY));
 
