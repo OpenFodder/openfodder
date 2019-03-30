@@ -223,10 +223,7 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
         ax = -ax;
         --ax;
 
-       mFodder->mVideo_Draw_PosX += ax;
-
         drawColumns -= ax;
-        //mFodder->mVideo_Draw_Columns = drawColumns >> (p16bit ? 0 : 1);
 
         if (!p16bit) {
             ax >>= 1;
