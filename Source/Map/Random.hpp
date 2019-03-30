@@ -19,16 +19,25 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
+#include "Utils/micropather.h"
 
 class cScriptingEngine;
 
-class cRandomMap : public cOriginalMap {
+class cRandomMap : public cOriginalMap, public micropather::Graph {
 	friend class cScriptingEngine;
 private:
 
 protected:
+	const int8* mPathTilesNotTouchable;
+	size_t mPathSearchUnitType;
 
 	virtual void Randomise_Structures(const size_t pCount);
+
+	int Passable(int nx, int ny);
+
+	virtual float LeastCostEstimate(cPosition* nodeStart, cPosition* nodeEnd);
+	virtual void AdjacentCost(cPosition* node, std::vector< micropather::StateCost > *neighbors);
+	virtual void PrintStateInfo(cPosition* node);
 
 public:
 	cRandomMap(const sMapParams& pParams);
@@ -41,6 +50,7 @@ public:
 	void					create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub = eTileSub::eTileSub_0);
 	void					createRandom(size_t pSeed = 0);
 
+	std::vector<cPosition*>	calculatePath(size_t pSpriteType, cPosition* Pos1, cPosition* Pos2);
 	int32					getSpriteTypeCount(size_t pSpriteType);
 	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
 	float					getRandomFloat(float pMin, float pMax);

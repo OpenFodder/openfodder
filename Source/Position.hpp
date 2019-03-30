@@ -30,12 +30,18 @@ class cPosition {
 
 		void	Set( unsigned int pX, unsigned int pY ) { mX = pX; mY = pY; }
         void Clear() { mX = 0; mY = 0; }
+		
 		bool operator== (const cPosition& pPosition) const {
 
 			return pPosition.mX == mX && pPosition.mY == mY;
 
 		}
 
+		bool operator!= (const cPosition& pPosition) const {
+
+			return !(*this == pPosition);
+
+		}
 		cPosition& operator+= (const cPosition& pPosition) {
 
 			mX += pPosition.mX;
@@ -69,6 +75,13 @@ class cPosition {
 			return this;
 		}
 
+		bool operator<(const cPosition& pRight) const {
+
+			if (mY < pRight.mY)
+				return true;
+
+			return mX < pRight.mX;
+		}
 		int getY() const { return (int) mY; }
 		void setY(int pY) { mY = pY; }
 

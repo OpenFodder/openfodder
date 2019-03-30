@@ -27,6 +27,7 @@
 #include "Utils/SimplexNoise.hpp"
 #include "Utils/SimplexIslands.hpp"
 
+
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	mParams = pParams;
 
@@ -136,8 +137,8 @@ cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainType pType, size_t pRadi
 	int count = 0;
 
 	do {
-		Position->mX = (mParams.mRandom.getu() % (mParams.mWidth - pRadius)) * 16;
-		Position->mY = (mParams.mRandom.getu() % (mParams.mHeight - pRadius)) * 16;
+		Position->mX = ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
+		Position->mY = ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
 
 		if (count++ > 1000) {
 			Position->mX = -1;
@@ -150,9 +151,9 @@ cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainType pType, size_t pRadi
 	// Scan from top left to bottom right
 	if (Position->mX == -1 || Position->mY == -1) {
 
-		for (Position->mY = Radius; Position->mY < getHeightPixels() - 16; Position->mY += Radius) {
+		for (Position->mY = Radius; Position->mY < getHeightPixels() - 32; Position->mY += Radius) {
 
-			for (Position->mX = Radius; Position->mX < getWidthPixels() - 16; Position->mX += Radius) {
+			for (Position->mX = Radius; Position->mX < getWidthPixels() - 32; Position->mX += Radius) {
 
 				if (CheckRadiusTerrain(pType, Position, Radius))
 					return Position;
@@ -199,4 +200,137 @@ void cRandomMap::createRandom(size_t pSeed) {
 
 	ClearTiles(0);
 	saveHeader();
+}
+
+std::vector<cPosition*> cRandomMap::calculatePath(size_t pSpriteType, cPosition* Pos1, cPosition* Pos2) {
+	std::vector<cPosition> path;
+
+	mPathSearchUnitType = pSpriteType;
+
+	switch (pSpriteType) {
+	default:
+		mPathTilesNotTouchable = mTiles_NotWalkable;
+		break;
+
+	case eSprite_Tank_Enemy:
+	case eSprite_Tank_Human:
+		mPathTilesNotTouchable = mTiles_NotDriveable;
+		break;
+
+	case eSprite_Civilian:
+	case eSprite_Civilian2:
+	case eSprite_Hostage:
+	case eSprite_Enemy_Leader:
+		mPathTilesNotTouchable = mTiles_NotFlyable;
+		break;
+
+	}
+
+	auto pather = new micropather::MicroPather(this, 1000);
+	float totalCost;
+	auto result = pather->Solve(Pos1, Pos2, &path, &totalCost);
+
+	delete pather;
+
+	std::vector<cPosition*> paths;
+
+	for (auto p : path) {
+		paths.push_back(new cPosition(p));
+	}
+
+	return paths;
+}
+
+int cRandomMap::Passable(int nx, int ny)
+{
+	auto TerrainType = g_Fodder->Map_Terrain_Get(nx, ny);
+	if (TerrainType == -1)
+		return 0;
+
+	// Blocked
+	if (mPathTilesNotTouchable[TerrainType])
+		return 0;
+
+	switch (mPathSearchUnitType) {
+
+		default:
+			break;
+
+		case eSprite_Helicopter_Grenade_Enemy:
+		case eSprite_Helicopter_Grenade2_Enemy:
+		case eSprite_Helicopter_Missile_Enemy:
+		case eSprite_Helicopter_Homing_Enemy:
+		case eSprite_Helicopter_Grenade2_Human:
+		case eSprite_Helicopter_Grenade_Human:
+		case eSprite_Helicopter_Missile_Human:
+		case eSprite_Helicopter_Homing_Human:
+		case eSprite_Helicopter_Grenade2_Human_Called:
+		case eSprite_Helicopter_Grenade_Human_Called:
+		case eSprite_Helicopter_Missile_Human_Called:
+		case eSprite_Helicopter_Homing_Human_Called:
+		case eSprite_Helicopter_Homing_Enemy2:
+			return 1;
+	}
+
+	switch (TerrainType) {
+	default:
+		return 1;
+
+	case eTerrainType_Water:
+	case eTerrainType_WaterEdge:
+	case eTerrainType_QuickSand:
+
+		// Tanks cant drive through water/quicksand
+		if (mPathSearchUnitType == eSprite_Tank_Human || mPathSearchUnitType == eSprite_Tank_Enemy)
+			return 0;
+
+		return 2;
+	}
+
+	return 1;
+}
+
+float cRandomMap::LeastCostEstimate(cPosition* nodeStart, cPosition* nodeEnd) {
+
+	/* Compute the minimum path cost using distance measurement. It is possible
+	   to compute the exact minimum path using the fact that you can move only
+	   on a straight line or on a diagonal, and this will yield a better result.
+	*/
+	int dx = nodeStart->mX - nodeEnd->mX;
+	int dy = nodeStart->mY - nodeEnd->mY;
+	return (float)sqrt((double)(dx*dx) + (double)(dy*dy));
+}
+
+void cRandomMap::AdjacentCost(cPosition* node, std::vector< micropather::StateCost > *neighbors) {
+	const int dx[8] = { 8, 8, 0, -8, -8, -8, 0, 8 };
+	const int dy[8] = { 0, 8, 8, 8, 0, -8, -8, -8 };
+	const float cost[8] = { 1.0f, 1.41f, 1.0f, 1.41f, 1.0f, 1.41f, 1.0f, 1.41f };
+
+	for (int i = 0; i < 8; ++i) {
+		int nx = node->mX + dx[i];
+		int ny = node->mY + dy[i];
+
+		if (nx < 0 || ny < 0)
+			continue;
+
+		int pass = Passable(nx, ny);
+		if (pass > 0) {
+			if (pass == 1)
+			{
+				// Normal floor
+				micropather::StateCost nodeCost = { cPosition(nx, ny), cost[i] };
+				neighbors->push_back(nodeCost);
+			}
+			else
+			{
+				// Normal floor
+				micropather::StateCost nodeCost = { cPosition(nx, ny), cost[i] + pass };
+				neighbors->push_back(nodeCost);
+			}
+		}
+	}
+}
+
+void cRandomMap::PrintStateInfo(cPosition* node) {
+	printf("(%d,%d)", node->mX, node->mY);
 }

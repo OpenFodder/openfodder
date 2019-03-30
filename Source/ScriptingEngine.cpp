@@ -76,7 +76,7 @@ void cScriptingEngine::spritesCreateObject() {
 	// Setup the "SpriteTypes" object
 	duk_push_global_object(mContext);
 	duk_idx_t obj_idx = duk_push_object(mContext);
-	for (int x = 0; x < 118; ++x) {
+	for (size_t x = 0; x < 118; ++x) {
 		if (!g_Fodder->mSprite_Names[x].size())
 			continue;
 
@@ -97,7 +97,7 @@ void cScriptingEngine::spritesCreateObject() {
 
 	duk_push_global_object(mContext);
 	obj_idx = duk_push_object(mContext);
-	for (int x = 0; x < mTerrainTypeNames.size(); ++x) {
+	for (size_t x = 0; x < mTerrainTypeNames.size(); ++x) {
 
 		duk_push_int(mContext, (eTerrainType)x);
 		duk_put_prop_string(mContext, obj_idx, mTerrainTypeNames[x].c_str());
@@ -163,7 +163,8 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::getRandomFloat, "getRandomFloat");
 
 	dukglue_register_method(mContext, &cRandomMap::getDistanceBetweenPositions, "getDistanceBetweenPositions");
-	
+	dukglue_register_method(mContext, &cRandomMap::calculatePath, "calculatePathBetweenPositions");
+
 	dukglue_register_global(mContext, this, "ScriptingEngine");
 }
 
@@ -201,7 +202,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 		auto script = g_ResourceMan->FileReadStr(pFolder + scriptFile);
 		
 		if (scriptLoad(script) == false) {
-			g_Debugger->Error(script + " Failed to execute");
+			g_Debugger->Error(pFolder + scriptFile + " Failed to execute");
 		}
 	}
 
