@@ -105,10 +105,16 @@ bool cRandomMap::CheckRadiusTerrain(eTerrainType pType, cPosition* pPosition, in
 
 	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
 
+		if (x < 0)
+			continue;
+
 		int32 yspan = (int32) (pRadius * sin(acos((pPosition->mX - x) / pRadius)));
 
 		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
 			
+			if (y < 0)
+				continue;
+
 			if (g_Fodder->Map_Terrain_Get(x, y) != pType)
 				return false;
 		}
@@ -180,6 +186,24 @@ std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves
 	return noise;
 }
 
+std::vector<std::vector<float>> cRandomMap::createSimplexNoise(size_t pOctaves, float pFrequency, float pAmplitude, float pLacunarity, float pPersistence) {
+	SimplexNoise Noise(pFrequency, pAmplitude, pLacunarity, pPersistence);
+	std::vector<std::vector<float>> result;
+
+	for (size_t x = 0; x < mParams.mWidth; ++x) {
+
+		std::vector<float> row;
+		for (size_t y = 0; y < mParams.mHeight; ++y) {
+		
+			row.push_back(Noise.fractalXY(pOctaves, x, y));
+		}
+
+		result.push_back(row);
+	}
+
+	return result;
+
+}
 void cRandomMap::create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub) {
 
 	mParams.mWidth = pWidth;

@@ -127,9 +127,9 @@ public:
 
 	std::vector<std::vector<float>> generateOctavedSimplexNoise(int width, int height, int octaves, float roughness, float scale, short seed) {
 		std::vector<std::vector<float>> totalNoise;
-		totalNoise.resize(height);
+		totalNoise.resize(width);
 		for (auto& row : totalNoise)
-			row.resize(width);
+			row.resize(height);
 
 		// UTILISE THE SEED
 

@@ -112,15 +112,6 @@ void cScriptingEngine::init() {
 
 	dukglue_register_method(mContext, &cScriptingEngine::scriptCall, "scriptCall");
 
-	// SimplexNoise
-	dukglue_register_constructor<SimplexNoise, float, float, float>(mContext, "SimplexNoise");
-	dukglue_register_method(mContext, &SimplexNoise::fractalX, "fractalX");
-	dukglue_register_method(mContext, &SimplexNoise::fractalXY, "fractalXY");
-	dukglue_register_method(mContext, &SimplexNoise::fractalXYZ, "fractalXYZ");
-	dukglue_register_method(mContext, &SimplexNoise::noiseX, "noiseX");
-	dukglue_register_method(mContext, &SimplexNoise::noiseX, "noiseXY");
-	dukglue_register_method(mContext, &SimplexNoise::noiseX, "noiseXYZ");
-
 	// cPosition
 	dukglue_register_constructor<cPosition>(mContext, "cPosition");
 	dukglue_register_property(mContext, &cPosition::getX, &cPosition::setX, "x");
@@ -141,6 +132,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::createRandom, "CreateRandom");
 	
 	dukglue_register_method(mContext, &cRandomMap::createSimplexIslands, "SimplexIslands");
+	dukglue_register_method(mContext, &cRandomMap::createSimplexNoise, "SimplexNoise");
 
 	
 	dukglue_register_method(mContext, &cRandomMap::getTileType, "getTileType");

@@ -8024,7 +8024,7 @@ void cFodder::Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, in
     return;
 
 loc_2B403:;
-    pX = 640;
+    pX = getWindowWidth() * 2;
 }
 
 bool cFodder::MapTile_Update_Position() {
