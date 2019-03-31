@@ -120,9 +120,10 @@ void cScriptingEngine::init() {
 	// sSprite
 	dukglue_register_constructor<sSprite>(mContext, "sSprite");
 	dukglue_register_method(mContext, &sSprite::Clear, "Clear");
+	dukglue_register_method(mContext, &sSprite::getPosition, "getPosition");
 	dukglue_register_property(mContext, &sSprite::getX, &sSprite::setX, "x");
 	dukglue_register_property(mContext, &sSprite::getY, &sSprite::setY, "y");
-
+	
 	// cMap
 	dukglue_set_base_class<cMap, cRandomMap>(mContext);
 	dukglue_register_constructor<cRandomMap, const sMapParams& >(mContext, "cRandomMap");
@@ -177,6 +178,7 @@ bool cScriptingEngine::scriptLoad(const std::string& pJS) {
 	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
 		g_Debugger->Error("Compile failed: ");
 		g_Debugger->Error(duk_safe_to_string(mContext, -1));
+		duk_pop(mContext);
 		return false;
 	}
 	else {
@@ -223,6 +225,7 @@ void cScriptingEngine::Randomise(std::shared_ptr<cRandomMap> pMap, const std::st
 
 	auto path = g_ResourceMan->GetScriptPath(pScript);
 	auto script = g_ResourceMan->FileReadStr(path);
+
 	if (scriptRun(script) == false) {
 		g_Debugger->Error(pScript + " Failed to execute");
 	}

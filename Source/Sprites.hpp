@@ -321,6 +321,8 @@ struct sSprite {
 
 	void Clear();
 
+	cPosition *getPosition() { return new cPosition(field_0, field_4); }
+
 	int getX() const { return field_0; }
 	void setX(int pX) { field_0 = pX; }
 
