@@ -190,20 +190,25 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 }
 
 bool cScriptingEngine::scriptRun(const std::string& pJS) {
-	int success = DUK_EXEC_ERROR;
+	int success = DUK_EXEC_SUCCESS;
 
 	// Compile the JS into bytecode
 	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
 		g_Debugger->Error("Compile failed: ");
-	}
-	else {
+	} else {
 		success = duk_pcall(mContext, 0);
-		if(success == DUK_EXEC_ERROR)
+		if(success != DUK_EXEC_SUCCESS)
 			g_Debugger->Error("Execute failed: ");
 	}
 
-	if (success == DUK_EXEC_ERROR)
+	if (duk_is_error(mContext, -1)) {
+		duk_get_prop_string(mContext, -1, "stack");
 		g_Debugger->Error(std::string(duk_safe_to_string(mContext, -1)));
+	}
+	else {
+		if (success != DUK_EXEC_SUCCESS)
+			g_Debugger->Error(std::string(duk_safe_to_string(mContext, -1)));
+	}
 
 	duk_pop(mContext);
 	return (success == DUK_EXEC_SUCCESS);
