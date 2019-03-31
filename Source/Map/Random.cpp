@@ -143,8 +143,8 @@ cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainType pType, size_t pRadi
 	int count = 0;
 
 	do {
-		Position->mX = ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
-		Position->mY = ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
+		Position->mX = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
+		Position->mY = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
 
 		if (count++ > 1000) {
 			Position->mX = -1;

@@ -35,7 +35,8 @@ namespace dukglue {
 }
 
 void print(const std::string pString) {
-	std::cout << pString << "\n";
+
+	g_Debugger->Notice(pString);
 }
 
 cScriptingEngine::cScriptingEngine() {
@@ -114,6 +115,7 @@ void cScriptingEngine::init() {
 
 	// cPosition
 	dukglue_register_constructor<cPosition>(mContext, "cPosition");
+
 	dukglue_register_property(mContext, &cPosition::getX, &cPosition::setX, "x");
 	dukglue_register_property(mContext, &cPosition::getY, &cPosition::setY, "y");
 
@@ -167,26 +169,10 @@ bool cScriptingEngine::scriptCall(const std::string& pFilename) {
 
 	if (path.size()) {
 		auto script = g_ResourceMan->FileReadStr(path);
-		return scriptLoad(script);
+		return scriptRun(script);
 	}
 
 	return false;
-}
-
-bool cScriptingEngine::scriptLoad(const std::string& pJS) {
-	// Compile the JS into bytecode
-	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
-		g_Debugger->Error("Compile failed: ");
-		g_Debugger->Error(duk_safe_to_string(mContext, -1));
-		duk_pop(mContext);
-		return false;
-	}
-	else {
-		duk_pcall(mContext, 0);
-		//printf("program result: %s\n", duk_safe_to_string(mContext, -1));
-	}
-	duk_pop(mContext);
-	return true;
 }
 
 bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
@@ -195,7 +181,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 	for (auto scriptFile : scripts) {
 		auto script = g_ResourceMan->FileReadStr(pFolder + scriptFile);
 		
-		if (scriptLoad(script) == false) {
+		if (scriptRun(script) == false) {
 			g_Debugger->Error(pFolder + scriptFile + " Failed to execute");
 		}
 	}
@@ -204,19 +190,23 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 }
 
 bool cScriptingEngine::scriptRun(const std::string& pJS) {
-	bool success = false;
+	int success = DUK_EXEC_ERROR;
 
+	// Compile the JS into bytecode
 	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
 		g_Debugger->Error("Compile failed: ");
-		g_Debugger->Error(duk_safe_to_string(mContext, -1));
 	}
 	else {
-		duk_pcall(mContext, 0);
-		success = true;
-		printf("program result: %s\n", duk_safe_to_string(mContext, -1));
+		success = duk_pcall(mContext, 0);
+		if(success == DUK_EXEC_ERROR)
+			g_Debugger->Error("Execute failed: ");
 	}
+
+	if (success == DUK_EXEC_ERROR)
+		g_Debugger->Error(std::string(duk_safe_to_string(mContext, -1)));
+
 	duk_pop(mContext);
-	return success;
+	return (success == DUK_EXEC_SUCCESS);
 }
 
 void cScriptingEngine::Randomise(std::shared_ptr<cRandomMap> pMap, const std::string& pScript) {

@@ -30,10 +30,9 @@ class cScriptingEngine {
 protected:
 
 	bool scriptCall(const std::string& pFilename);
-	bool scriptLoad(const std::string& pJS);
+	bool scriptRun(const std::string& pJS);
 	bool scriptsLoadFolder(const std::string& pFolder);
 
-	bool scriptRun(const std::string& pJS);
 
 	void spritesCreateObject();
 public:
