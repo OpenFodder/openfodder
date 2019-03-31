@@ -186,8 +186,8 @@ std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves
 	return noise;
 }
 
-std::vector<std::vector<float>> cRandomMap::createSimplexNoise(size_t pOctaves, float pFrequency, float pAmplitude, float pLacunarity, float pPersistence) {
-	SimplexNoise Noise(pFrequency, pAmplitude, pLacunarity, pPersistence);
+std::vector<std::vector<float>> cRandomMap::createSimplexNoise(size_t pOctaves, float pFrequency, float pLacunarity, float pPersistence) {
+	SimplexNoise Noise(pFrequency, pLacunarity, pPersistence);
 	std::vector<std::vector<float>> result;
 
 	for (size_t x = 0; x < mParams.mWidth; ++x) {

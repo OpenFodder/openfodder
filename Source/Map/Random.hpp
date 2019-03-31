@@ -60,6 +60,6 @@ public:
 
 
 	std::vector<std::vector<float>> createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled);
-	std::vector<std::vector<float>> createSimplexNoise(size_t pOctaves, float pFrequency, float pAmplitude, float pLacunarity, float pPersistence);
+	std::vector<std::vector<float>> createSimplexNoise(size_t pOctaves, float pFrequency, float pLacunarity, float pPersistence);
 };
 
