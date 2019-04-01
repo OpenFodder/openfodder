@@ -75,7 +75,7 @@ cScriptingEngine::~cScriptingEngine() {
 void cScriptingEngine::spritesCreateObject() {
 
 	// Setup SpriteTypes.
-	duk_push_global_object(mContext);
+	/*duk_push_global_object(mContext);
 	duk_idx_t obj_idx = duk_push_object(mContext);
 	for (size_t x = 0; x < 118; ++x) {
 		if (!g_Fodder->mSprite_Names[x].size())
@@ -84,11 +84,11 @@ void cScriptingEngine::spritesCreateObject() {
 		duk_push_int(mContext, x);
 		duk_put_prop_string(mContext, obj_idx, g_Fodder->mSprite_Names[x].c_str());
 	}
-	duk_put_global_string(mContext, "SpriteTypes");
+	duk_put_global_string(mContext, "SpriteTypes");*/
 
 	// Setup TileTypes.
 	duk_push_global_object(mContext);
-	obj_idx = duk_push_object(mContext);
+	duk_idx_t obj_idx = duk_push_object(mContext);
 	for (auto &TileType : mTileTypes) {
 
 		duk_push_int(mContext, TileType.mType);

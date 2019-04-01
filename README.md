@@ -24,13 +24,21 @@ Open Fodder is an open source version of the Cannon Fodder engine, for modern op
 
 #### Play now
 
-You can play the demos in your browser via [here](https://s3.amazonaws.com/openfodder/OpenFodder.html).  
+You can play the demos in your browser [here](https://s3.amazonaws.com/openfodder/OpenFodder.html).  
 
  
 #### Map Editor
 
 See [OpenFodder Editor](https://github.com/OpenFodder/editor) for the campaign and map editor.
 
+
+#### Scripting
+
+Open Fodder includes a Javascript interpreter for the purposes of creating randomized maps, 
+a number of scripts are provided which implement various functionality, such as placing of random hostages, rescue tents,
+and a helicopter if required to rescue to hostages.
+
+Customisations and additions can be made to any of the scripts
 
 #### Media
 
@@ -92,8 +100,8 @@ Open Fodder supports six demos from the Amiga platform, and three retail release
 
       --single-map "MyMap"      Play a single map (default: )
   -r, --random                  Generate and play a random map
-
-	  
+      --random-save "MyMap"     Generate and save a random map (default: )
+      --script "script.js"      Name of script to execute (default: )				  
 ```
   
 ##### Hot Keys
@@ -142,10 +150,9 @@ Six Amiga magazine coverdisk demos and one PC demo are included in the data pack
 * Amiga Power   Issue #31: (Nov 1993) Cannon Fodder Plus
 * Amiga Action  Issue #51: (Dec 1993)
 * Amiga Format  Issue #54: (Dec 1993) Christmas Special (Cannon Soccer)
-* PC    Format  CD-ROM #1: (May 1994)
 * Amiga Power   Issue #45: (Jan 1995) Alien Levels
 * Amiga Format  Issue #68: (Feb 1995) Not Very Festive Fodder
-
+* PC    Format  CD-ROM #1: (May 1994)
   
 #### Thanks To
 
