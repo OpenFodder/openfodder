@@ -74,7 +74,7 @@ cScriptingEngine::~cScriptingEngine() {
 
 void cScriptingEngine::spritesCreateObject() {
 
-	// Setup the "SpriteTypes" object
+	// Setup SpriteTypes.
 	duk_push_global_object(mContext);
 	duk_idx_t obj_idx = duk_push_object(mContext);
 	for (size_t x = 0; x < 118; ++x) {
@@ -86,7 +86,7 @@ void cScriptingEngine::spritesCreateObject() {
 	}
 	duk_put_global_string(mContext, "SpriteTypes");
 
-	// Setup Tilesets
+	// Setup TileTypes.
 	duk_push_global_object(mContext);
 	obj_idx = duk_push_object(mContext);
 	for (auto &TileType : mTileTypes) {
@@ -96,6 +96,7 @@ void cScriptingEngine::spritesCreateObject() {
 	}
 	duk_put_global_string(mContext, "TileTypes");
 
+	// Setup TerrainType.
 	duk_push_global_object(mContext);
 	obj_idx = duk_push_object(mContext);
 	for (size_t x = 0; x < mTerrainTypeNames.size(); ++x) {
