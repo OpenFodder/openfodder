@@ -177,11 +177,11 @@ int32 cRandomMap::getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2
 }
 
 
-std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled) {
+std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled, float pEdgeFade) {
 
 	SimplexIslands Islands;
 
-	auto noise = Islands.CreateArray(mParams.mWidth, mParams.mHeight, pOctaves, pRoughness, pScale, pSeed, pRadialEnabled);
+	auto noise = Islands.CreateArray(mParams.mWidth, mParams.mHeight, pOctaves, pRoughness, pScale, pSeed, pRadialEnabled, pEdgeFade);
 
 	return noise;
 }

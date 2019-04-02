@@ -204,9 +204,9 @@ public:
 		pNoise = tempMap;
 	}
 
-	void createEdgeMask(std::vector<std::vector<float>>& pNoise) {
+	void createEdgeMask(std::vector<std::vector<float>>& pNoise, float pEdgeFade) {
 
-		float percentToGradient = 0.08f;
+		float percentToGradient = pEdgeFade;
 		// this is the percentage of the entire width/height from edge to fade in
 
 		for (size_t i = 0; i < pNoise.size(); i++) {
@@ -268,13 +268,13 @@ public:
 		}
 	}
 
-	std::vector<std::vector<float>> CreateArray( size_t pWidth, size_t pHeight, size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled) {
+	std::vector<std::vector<float>> CreateArray( size_t pWidth, size_t pHeight, size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled, float pEdgeFade) {
 
 		auto map = generateOctavedSimplexNoise(pWidth, pHeight, pOctaves, pRoughness, pScale, pSeed);
 
 		normalizeArray(map);
 		if (pRadialEnabled) createRadialMask(map);
-		createEdgeMask(map);
+		createEdgeMask(map, pEdgeFade);
 		flipVertically(map);
 
 		return map;

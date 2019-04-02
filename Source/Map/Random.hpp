@@ -59,7 +59,7 @@ public:
 	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);
 
 
-	std::vector<std::vector<float>> createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled);
+	std::vector<std::vector<float>> createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled, float pEdgeFade);
 	std::vector<std::vector<float>> createSimplexNoise(size_t pOctaves, float pFrequency, float pLacunarity, float pPersistence);
 };
 
