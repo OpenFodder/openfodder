@@ -215,28 +215,28 @@ public:
 				if (i < pNoise.size() / 2) { // left side of map
 					float percentIn = (float)i / pNoise.size(); // calculate how far in the map we are
 					if (percentIn < percentToGradient) {
-						pNoise[i][j] = pNoise[i][j] * (percentIn / percentToGradient);
+						pNoise[i][j] *= (percentIn / percentToGradient);
 					}
 				}
 
 				if (i > pNoise.size() / 2) { // right side of map
 					float percentIn = 1 - (float)i / pNoise.size();
 					if (percentIn < percentToGradient) {
-						pNoise[i][j] = pNoise[i][j] * (percentIn / percentToGradient);
+						pNoise[i][j] *= (percentIn / percentToGradient);
 					}
 				}
 
 				if (j < pNoise[i].size() / 2) { // top side of map
 					float percentIn = (float)j / pNoise[i].size();
 					if (percentIn < percentToGradient) {
-						pNoise[i][j] = pNoise[i][j] * (percentIn / percentToGradient);
+						pNoise[i][j] *= (percentIn / percentToGradient);
 					}
 				}
 
 				if (j > pNoise[i].size() / 2) { // top side of map
 					float percentIn = 1 - (float)j / pNoise[i].size();
 					if (percentIn < percentToGradient) {
-						pNoise[i][j] = pNoise[i][j] * (percentIn / percentToGradient);
+						pNoise[i][j] *= (percentIn / percentToGradient);
 					}
 				}
 
@@ -263,7 +263,7 @@ public:
 				//If you're not outputting this to an image, get the correct 1.0 white on the furthest edges by dividing by half the map size, in this case 64. You will get higher than 1.0 values, so clamp them!
 				distanceToCenter = distanceToCenter / furthestDistance;
 
-				pNoise[i][j] = pNoise[i][j] * (1 - distanceToCenter);
+				pNoise[i][j] *= (1 - distanceToCenter);
 			}
 		}
 	}

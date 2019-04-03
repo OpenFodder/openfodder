@@ -155,7 +155,7 @@ void cMap::Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTi
 void cMap::ClearTiles(const size_t pTileID) {
 
 	mData->resize(0x60 + ((mParams.mWidth * mParams.mHeight) * 2), (uint8)pTileID);
-	mTile_Ptr = (int32)((0x60 - 8) - (mParams.mWidth * 2));
+	mTile_Ptr = (int32)((0x60) - (mParams.mWidth * 2));
 }
 
 void cMap::Randomise() {

@@ -213,6 +213,7 @@ void cRandomMap::create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTi
 
 	ClearTiles(0);
 	saveHeader();
+	g_Fodder->Map_Load_Resources();
 }
 
 void cRandomMap::createRandom(size_t pSeed) {
@@ -224,6 +225,7 @@ void cRandomMap::createRandom(size_t pSeed) {
 
 	ClearTiles(0);
 	saveHeader();
+	g_Fodder->Map_Load_Resources();
 }
 
 std::vector<cPosition*> cRandomMap::calculatePath(size_t pSpriteType, cPosition* Pos1, cPosition* Pos2) {
