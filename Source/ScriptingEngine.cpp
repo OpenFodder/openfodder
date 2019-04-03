@@ -29,7 +29,7 @@ namespace dukglue {
 	namespace types {
 		DUKGLUE_SIMPLE_VALUE_TYPE(eTileTypes, duk_is_number, duk_get_uint, duk_push_uint, value);
 		DUKGLUE_SIMPLE_VALUE_TYPE(eTileSub, duk_is_number, duk_get_uint, duk_push_uint, value);
-		DUKGLUE_SIMPLE_VALUE_TYPE(eTerrainType, duk_is_number, duk_get_uint, duk_push_uint, value);
+		DUKGLUE_SIMPLE_VALUE_TYPE(eTerrainFeature, duk_is_number, duk_get_uint, duk_push_uint, value);
 
 	}
 }

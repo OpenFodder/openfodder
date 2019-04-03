@@ -599,8 +599,8 @@ public:
     void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
 
     bool			Tiles_Load_Data();
-    int16			Tile_FindType(const eTerrainType pType);
-    std::vector<int16> Tile_FindType(const eTerrainType pType, const eTerrainType pType2);
+    int16			Tile_FindType(const eTerrainFeature pType);
+    std::vector<int16> Tile_FindType(const eTerrainFeature pType, const eTerrainFeature pType2);
 
     void            Music_Play_Tileset();
 

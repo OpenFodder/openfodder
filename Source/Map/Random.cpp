@@ -101,7 +101,7 @@ std::vector<sSprite*> cRandomMap::getSpritesByType(size_t pSpriteType) {
 	return results;
 }
 
-bool cRandomMap::CheckRadiusTerrain(eTerrainType pType, cPosition* pPosition, int32 pRadius) {
+bool cRandomMap::CheckRadiusTerrain(eTerrainFeature pType, cPosition* pPosition, int32 pRadius) {
 
 	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
 
@@ -135,7 +135,7 @@ int32 cRandomMap::getRandomInt(int32 pMin, int32 pMax) {
 	return mParams.mRandom.getu();
 }
 
-cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainType pType, size_t pRadius) {
+cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainFeature pType, size_t pRadius) {
 	size_t Radius = pRadius * 16;
 
 	cPosition* Position = new cPosition();
@@ -302,9 +302,9 @@ int cRandomMap::Passable(int nx, int ny)
 	default:
 		return 1;
 
-	case eTerrainType_Water:
-	case eTerrainType_WaterEdge:
-	case eTerrainType_QuickSand:
+	case eTerrainFeature_Water:
+	case eTerrainFeature_WaterEdge:
+	case eTerrainFeature_QuickSand:
 
 		// Tanks cant drive through water/quicksand
 		if (mPathSearchUnitType == eSprite_Tank_Human || mPathSearchUnitType == eSprite_Tank_Enemy)

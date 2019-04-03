@@ -1067,7 +1067,7 @@ void cFodder::Sprite_Clear_All() {
     mSprite_SpareUsed = 0;
 }
 
-int16 cFodder::Tile_FindType(eTerrainType pType) {
+int16 cFodder::Tile_FindType(eTerrainFeature pType) {
 
     for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
 
@@ -1109,7 +1109,7 @@ int16 cFodder::Tile_FindType(eTerrainType pType) {
     return -1;
 }
 
-std::vector<int16> cFodder::Tile_FindType(const eTerrainType pType, const eTerrainType pType2) {
+std::vector<int16> cFodder::Tile_FindType(const eTerrainFeature pType, const eTerrainFeature pType2) {
     std::vector<int16> Results;
 
     for (int16 TileID = 0; TileID < sizeof(mTile_Hit) / sizeof(int16); ++TileID) {
@@ -4373,42 +4373,42 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite) {
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
 
     pSprite->field_60 = static_cast<int8>(Data4);
-    if (Data4 == eTerrainType_Rocky || Data4 == eTerrainType_Rocky2)
+    if (Data4 == eTerrainFeature_Rocky || Data4 == eTerrainFeature_Rocky2)
         goto loc_23056;
 
-    if (Data4 == eTerrainType_Jump)
+    if (Data4 == eTerrainFeature_Jump)
         goto loc_23100;
 
-    if (Data4 == eTerrainType_Block)
+    if (Data4 == eTerrainFeature_Block)
         goto Computer_Vehicle_SoftTerrain;
 
-    if (Data4 == eTerrainType_Drop || Data4 == 0x0A)
+    if (Data4 == eTerrainFeature_Drop || Data4 == 0x0A)
         goto loc_22F06;
 
     if (pSprite->field_56)
         pSprite->field_38 = eSprite_Anim_Die1;
 
-    if (Data4 == eTerrainType_Snow)
+    if (Data4 == eTerrainFeature_Snow)
         goto loc_22FA3;
 
     if (pSprite->field_22 == eSprite_PersonType_Human)
         goto Human_Vehicle;
 
-    if (Data4 == eTerrainType_QuickSand || Data4 == eTerrainType_WaterEdge
-        || Data4 == eTerrainType_Water || Data4 == eTerrainType_Sink)
+    if (Data4 == eTerrainFeature_QuickSand || Data4 == eTerrainFeature_WaterEdge
+        || Data4 == eTerrainFeature_Water || Data4 == eTerrainFeature_Sink)
         goto Computer_Vehicle_SoftTerrain;
 
     goto loc_22EEB;
 
 Human_Vehicle:;
 
-    if (Data4 == eTerrainType_QuickSand)
+    if (Data4 == eTerrainFeature_QuickSand)
         goto Human_Vehicle_Quicksand;
 
-    if (Data4 == eTerrainType_WaterEdge)
+    if (Data4 == eTerrainFeature_WaterEdge)
         goto Human_Vehicle_WaterEdge;
 
-    if (Data4 == eTerrainType_Water || Data4 == eTerrainType_Sink)
+    if (Data4 == eTerrainFeature_Water || Data4 == eTerrainFeature_Sink)
         goto AnimDie3;
 
 loc_22EEB:;
@@ -4438,7 +4438,7 @@ Computer_Vehicle_SoftTerrain:;
     Data4 = 0x0F;
     Data0 = -10;
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
-    if (Data4 == eTerrainType_Block)
+    if (Data4 == eTerrainFeature_Block)
         pSprite->field_38 = eSprite_Anim_Die1;
 
     Sprite_Animation_SlideOrDie(pSprite);
@@ -5057,20 +5057,20 @@ int16 cFodder::Sprite_Handle_Helicopter_Terrain_Check(sSprite* pSprite) {
 
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
     switch (Data4) {
-    case eTerrainType_Rocky:
-    case eTerrainType_QuickSand:
-    case eTerrainType_WaterEdge:
-    case eTerrainType_Water:
-    case eTerrainType_Sink:
+    case eTerrainFeature_Rocky:
+    case eTerrainFeature_QuickSand:
+    case eTerrainFeature_WaterEdge:
+    case eTerrainFeature_Water:
+    case eTerrainFeature_Sink:
         Data0 = 0x0C;
         break;
 
-    case eTerrainType_Block:
+    case eTerrainFeature_Block:
         Data0 = 0x14;
         break;
-    case eTerrainType_Rocky2:
-    case eTerrainType_Drop:
-    case eTerrainType_Drop2:
+    case eTerrainFeature_Rocky2:
+    case eTerrainFeature_Drop:
+    case eTerrainFeature_Drop2:
         Data0 = 0x0E;
         break;
 
@@ -7619,7 +7619,7 @@ int16 cFodder::Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pDat
     //  The bit being set, means we use the upper 4 bits as the terrain type
     //  Not being set, means we use the lower 4 bits
 
-    // eTerrainType
+    // eTerrainFeature
     int16 TerrainType = Tile_Terrain_Get(TileID, pData10, pData14);
 
     pY = mTiles_NotWalkable[TerrainType];
@@ -7642,7 +7642,7 @@ int16 cFodder::Map_Terrain_Get(int16 pX, int16 pY) {
 
     uint16 TileID = readLE<uint16>(mMap->data() + (0x60 + MapPtr)) & 0x1FF;
 
-    // eTerrainType
+    // eTerrainFeature
     return Tile_Terrain_Get(TileID, pX, pY);
 }
 
@@ -11475,7 +11475,7 @@ loc_1B35A:;
     Data0 = -3;
     Data4 = 8;
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
-    if (Data4 < eTerrainType_QuickSand || Data4 > eTerrainType_Water) {
+    if (Data4 < eTerrainFeature_QuickSand || Data4 > eTerrainFeature_Water) {
         pSprite->field_0 = mStoredSpriteX & 0xFFFF;
         pSprite->field_4 = mStoredSpriteY & 0xFFFF;
         pSprite->field_36 = 0;
@@ -14306,7 +14306,7 @@ loc_1E831:;
 
     Map_Terrain_Get_Type_And_Walkable(Data0, Data4);
 
-    if (Data4 == eTerrainType_Drop || Data4 == eTerrainType_Drop2) {
+    if (Data4 == eTerrainFeature_Drop || Data4 == eTerrainFeature_Drop2) {
         Data0 = pSprite->field_12;
         pSprite->field_28 += Data0;
         Data8 = pSprite->field_28;
@@ -14428,7 +14428,7 @@ loc_1EB87:;
     return -1;
 
 loc_1ECA6:;
-    if (pSprite->field_60 <= eTerrainType_Water && pSprite->field_60 >= eTerrainType_QuickSand) {
+    if (pSprite->field_60 <= eTerrainFeature_Water && pSprite->field_60 >= eTerrainFeature_QuickSand) {
         pSprite->field_38 = eSprite_Anim_None;
         return 0;
     }
@@ -14463,7 +14463,7 @@ loc_1ED5B:;
     if (pSprite->field_38 != eSprite_Anim_Slide2)
         goto loc_1EE3E;
 
-    if (pSprite->field_60 > eTerrainType_Water || pSprite->field_60 < eTerrainType_QuickSand) {
+    if (pSprite->field_60 > eTerrainFeature_Water || pSprite->field_60 < eTerrainFeature_QuickSand) {
         pSprite->field_36 -= 5;
         if (pSprite->field_36) {
             if (pSprite->field_36 >= 0)
@@ -14492,7 +14492,7 @@ loc_1EE3E:;
     return -1;
 
 loc_1EE59:;
-    if (pSprite->field_60 <= eTerrainType_Water && pSprite->field_60 >= eTerrainType_QuickSand) {
+    if (pSprite->field_60 <= eTerrainFeature_Water && pSprite->field_60 >= eTerrainFeature_QuickSand) {
         pSprite->field_38 = eSprite_Anim_None;
         return 0;
     }
@@ -14647,7 +14647,7 @@ int16 cFodder::Sprite_Handle_Player_MissionOver(sSprite* pSprite) {
 
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
 
-    if (Data4 == eTerrainType_Water) {
+    if (Data4 == eTerrainFeature_Water) {
         Data0 = pSprite->field_20;
         Data0 -= 8;
 
@@ -14964,15 +14964,15 @@ void cFodder::Sprite_Draw_Row_Update(sSprite* pSprite) {
     Sprite_Terrain_Check(pSprite, Data4);
 
     // Not leaving water?
-    if (PreviousTileType != eTerrainType_Water)
+    if (PreviousTileType != eTerrainFeature_Water)
         goto loc_1F75D;
 
     // Leaving water and into Quick sand?
-    if (pSprite->field_60 == eTerrainType_QuickSand)
+    if (pSprite->field_60 == eTerrainFeature_QuickSand)
         goto loc_1F753;
 
     // Leaving water for the edge/bank
-    if (pSprite->field_60 == eTerrainType_WaterEdge)
+    if (pSprite->field_60 == eTerrainFeature_WaterEdge)
         goto loc_1F75D;
 
     pSprite->field_52 = 5;
@@ -15081,7 +15081,7 @@ loc_1F7FF:;
         }
     }
 
-    if (pSprite->field_60 == eTerrainType_Water)
+    if (pSprite->field_60 == eTerrainFeature_Water)
         goto loc_1F9C0;
 
     //seg005:02A6
@@ -15357,7 +15357,7 @@ void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
     pSprite->field_50 = 0;
     pSprite->field_4F = 0;
 
-    if (pData4 == eTerrainType_Drop2) {
+    if (pData4 == eTerrainFeature_Drop2) {
         if (pSprite->field_18 == eSprite_Enemy)
             goto loc_20251;
 
@@ -15371,7 +15371,7 @@ void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
     }
 
     //loc_20044
-    if (pData4 == eTerrainType_Drop) {
+    if (pData4 == eTerrainFeature_Drop) {
 
         if (pSprite->field_18 == eSprite_Enemy)
             goto loc_20251;
@@ -15385,13 +15385,13 @@ void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
 
     //loc_20072
     pSprite->field_56 = 0;
-    if (pData4 == eTerrainType_QuickSandEdge)
+    if (pData4 == eTerrainFeature_QuickSandEdge)
         goto loc_201CC;
 
-    if (pData4 == eTerrainType_Rocky)
+    if (pData4 == eTerrainFeature_Rocky)
         goto loc_20108;
 
-    if (pData4 == eTerrainType_Rocky2)
+    if (pData4 == eTerrainFeature_Rocky2)
         goto loc_2014D;
 
     if (!pSprite->field_61)
@@ -15408,13 +15408,13 @@ loc_200B7:;
     pSprite->field_61 = 0;
 
 loc_200C0:;
-    if (pData4 == eTerrainType_QuickSand)
+    if (pData4 == eTerrainFeature_QuickSand)
         goto Soldier_InQuickSand;
 
-    if (pData4 == eTerrainType_WaterEdge)
+    if (pData4 == eTerrainFeature_WaterEdge)
         goto Soldier_WaterEdge;
 
-    if (pData4 != eTerrainType_Water)
+    if (pData4 != eTerrainFeature_Water)
         goto checkSinking;
 
     // Is a Native?
@@ -15464,7 +15464,7 @@ Soldier_WaterEdge:;
     return;
 
 checkSinking:;
-    if (pData4 == eTerrainType_Sink)
+    if (pData4 == eTerrainFeature_Sink)
         goto HumanSinking;
 
     pSprite->field_52 = 0;
@@ -15495,7 +15495,7 @@ HumanSinking:;
     return;
 
 CheckFalling:;
-    if (pData4 == eTerrainType_Drop || pData4 == eTerrainType_Drop2) {
+    if (pData4 == eTerrainFeature_Drop || pData4 == eTerrainFeature_Drop2) {
         pSprite->field_38 = eSprite_Anim_Hit2;
         return;
     }
@@ -15513,13 +15513,13 @@ loc_20251:;
     if (Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, pData4))
         goto loc_202E5;
 
-    if (pData4 == eTerrainType_Drop)
+    if (pData4 == eTerrainFeature_Drop)
         goto loc_202E5;
 
-    if (pData4 == eTerrainType_Drop2)
+    if (pData4 == eTerrainFeature_Drop2)
         goto loc_202E5;
 
-    if (pSprite->field_22 == eSprite_PersonType_Native && pData4 == eTerrainType_Water)
+    if (pSprite->field_22 == eSprite_PersonType_Native && pData4 == eTerrainFeature_Water)
         goto loc_202E5;
 
     Data0 = pSprite->field_10;
@@ -16782,7 +16782,7 @@ int16 cFodder::Sprite_Reached_Target(sSprite* pSprite) {
 void cFodder::Sprite_Movement_Speed_Update(sSprite* pSprite) {
     int16 Data0 = pSprite->field_10;
 
-    if (pSprite->field_60 != eTerrainType_D)
+    if (pSprite->field_60 != eTerrainFeature_D)
         goto loc_20FBB;
 
     //seg005:1843
@@ -16827,10 +16827,10 @@ loc_20F9B:;
     return;
 
 loc_20FBB:;
-    if (pSprite->field_60 == eTerrainType_Rocky)
+    if (pSprite->field_60 == eTerrainFeature_Rocky)
         goto loc_20FD1;
 
-    if (pSprite->field_60 != eTerrainType_Rocky2)
+    if (pSprite->field_60 != eTerrainFeature_Rocky2)
         goto loc_20FE3;
 
 loc_20FD1:;
@@ -16840,7 +16840,7 @@ loc_20FD9:;
     pSprite->field_36 >>= 1;
     return;
 loc_20FE3:;
-    if (pSprite->field_60 != eTerrainType_Snow)
+    if (pSprite->field_60 != eTerrainFeature_Snow)
         return;
 
     Data0 = pSprite->field_0;
@@ -17097,16 +17097,16 @@ loc_2132A:;
     if (pSprite->field_20)
         return;
 
-    if (Data4 == eTerrainType_WaterEdge)
+    if (Data4 == eTerrainFeature_WaterEdge)
         goto loc_21464;
 
-    if (Data4 == eTerrainType_Water)
+    if (Data4 == eTerrainFeature_Water)
         goto loc_21464;
 
-    if (Data4 == eTerrainType_Drop)
+    if (Data4 == eTerrainFeature_Drop)
         goto loc_21464;
 
-    if (Data4 == eTerrainType_Drop2)
+    if (Data4 == eTerrainFeature_Drop2)
         goto loc_21464;
 
     return;
@@ -17170,7 +17170,7 @@ void cFodder::Sprite_Handle_Grenade_Terrain_Check(sSprite* pSprite) {
     if (Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4))
         goto loc_21599;
 
-    if (Data4 == eTerrainType_Drop || Data4 == eTerrainType_Drop2) {
+    if (Data4 == eTerrainFeature_Drop || Data4 == eTerrainFeature_Drop2) {
 
         if (pSprite->field_20 <= 1) {
             pSprite->field_12 = 1;
@@ -17178,8 +17178,8 @@ void cFodder::Sprite_Handle_Grenade_Terrain_Check(sSprite* pSprite) {
         }
     }
     //loc_21561
-    if (Data4 == eTerrainType_QuickSand || Data4 == eTerrainType_WaterEdge
-        || Data4 == eTerrainType_Water) {
+    if (Data4 == eTerrainFeature_QuickSand || Data4 == eTerrainFeature_WaterEdge
+        || Data4 == eTerrainFeature_Water) {
 
         if (pSprite->field_20)
             return;
