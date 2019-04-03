@@ -43,7 +43,8 @@ public:
 	cRandomMap(const sMapParams& pParams);
 	virtual void Randomise();
 	
-	bool					CheckRadiusTerrain(eTerrainFeature pType, cPosition* pPosition, int32 pRadius);
+	bool					CheckRadiusTileID(std::vector<size_t> pTileIDs, cPosition* pPosition, int32 pRadius);
+	bool					CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition, int32 pRadius);
 
 	void					addBarracks(size_t pX, size_t pY);
 
@@ -55,7 +56,11 @@ public:
 	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
 	float					getRandomFloat(float pMin, float pMax);
 	int32					getRandomInt(int32 pMin = 0, int32 pMax = 0);
+
+	cPosition*				getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius);
+	cPosition*				getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius);
 	cPosition*				getRandomXYByTerrainType(eTerrainFeature pType, size_t pRadius);
+
 	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);
 
 

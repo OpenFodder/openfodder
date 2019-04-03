@@ -131,6 +131,9 @@ void cScriptingEngine::init() {
 
 	dukglue_register_method(mContext, &cRandomMap::getSpriteTypeCount, "getSpriteTypeCount");
 	dukglue_register_method(mContext, &cRandomMap::getSpritesByType, "getSpritesByType");
+
+	dukglue_register_method(mContext, &cRandomMap::getRandomXYByTileID, "getRandomXYByTileID");
+	dukglue_register_method(mContext, &cRandomMap::getRandomXYByFeatures, "getRandomXYByFeatures");
 	dukglue_register_method(mContext, &cRandomMap::getRandomXYByTerrainType, "getRandomXYByTerrainType");
 
 	dukglue_register_method(mContext, &cRandomMap::Sprite_Add, "SpriteAdd");

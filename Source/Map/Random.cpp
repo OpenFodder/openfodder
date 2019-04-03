@@ -101,17 +101,32 @@ std::vector<sSprite*> cRandomMap::getSpritesByType(size_t pSpriteType) {
 	return results;
 }
 
-bool cRandomMap::CheckRadiusTerrain(eTerrainFeature pType, cPosition* pPosition, int32 pRadius) {
-
+bool cRandomMap::CheckRadiusTileID(std::vector<size_t> pTileIDs, cPosition* pPosition, int32 pRadius) {
 	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
+		if (x < 0)
+			continue;
 
+		int32 yspan = (int32)(pRadius * sin(acos((pPosition->mX - x) / pRadius)));
+		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
+			if (y < 0)
+				continue;
+
+			int32 TileID = Tile_Get(pPosition->mX / 16, pPosition->mY / 16);
+			if (std::find(pTileIDs.begin(), pTileIDs.end(), TileID) == pTileIDs.end())
+				return false;
+		}
+	}
+
+	return true;
+}
+
+bool cRandomMap::CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition, int32 pRadius) {
+	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
 		if (x < 0)
 			continue;
 
 		int32 yspan = (int32) (pRadius * sin(acos((pPosition->mX - x) / pRadius)));
-
 		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
-			
 			if (y < 0)
 				continue;
 
@@ -135,40 +150,64 @@ int32 cRandomMap::getRandomInt(int32 pMin, int32 pMax) {
 	return mParams.mRandom.getu();
 }
 
-cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainFeature pType, size_t pRadius) {
-	size_t Radius = pRadius * 16;
 
+cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius) {
+	size_t Radius = pRadius * 16;
 	cPosition* Position = new cPosition();
 
-	int count = 0;
-
-	do {
+	for (int count = 0; count < 1000; ++count) {
 		Position->mX = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
 		Position->mY = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
 
-		if (count++ > 1000) {
-			Position->mX = -1;
-			Position->mY = -1;
-			break;
+		// Check land for one of the features
+		if (CheckRadiusTileID(pTiles, Position, Radius))
+			return Position;
+	}
+
+	Position->mX = -1;
+	Position->mY = -1;
+	return Position;
+}
+
+
+cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius) {
+	size_t Radius = pRadius * 16;
+	cPosition* Position = new cPosition();
+
+	for(int count = 0; count < 1000; ++count ) {
+		Position->mX = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
+		Position->mY = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
+
+		// Check land for one of the features
+		for (auto& Feature : pFeatures) {
+			if (CheckRadiusFeatures(Feature, Position, Radius))
+				return Position;
 		}
 
-	} while (!CheckRadiusTerrain(pType, Position, Radius));
+	}
 
 	// Scan from top left to bottom right
-	if (Position->mX == -1 || Position->mY == -1) {
+	for (Position->mY = Radius; Position->mY < getHeightPixels() - 32; Position->mY += Radius) {
 
-		for (Position->mY = Radius; Position->mY < getHeightPixels() - 32; Position->mY += Radius) {
+		for (Position->mX = Radius; Position->mX < getWidthPixels() - 32; Position->mX += Radius) {
 
-			for (Position->mX = Radius; Position->mX < getWidthPixels() - 32; Position->mX += Radius) {
-
-				if (CheckRadiusTerrain(pType, Position, Radius))
+			for (auto Feature : pFeatures) {
+				if (CheckRadiusFeatures(Feature, Position, Radius))
 					return Position;
 			}
 		}
-		// Fail
 	}
 
+	// Fail
+	Position->mX = -1;
+	Position->mY = -1;
+
 	return Position;
+}
+
+cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainFeature pType, size_t pRadius) {
+	
+	return getRandomXYByFeatures({ pType }, pRadius);
 }
 
 int32 cRandomMap::getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2) {
@@ -190,10 +229,10 @@ std::vector<std::vector<float>> cRandomMap::createSimplexNoise(size_t pOctaves, 
 	SimplexNoise Noise(pFrequency, pLacunarity, pPersistence);
 	std::vector<std::vector<float>> result;
 
-	for (size_t x = 0; x < mParams.mWidth; ++x) {
+	for (float x = 0; x < mParams.mWidth; ++x) {
 
 		std::vector<float> row;
-		for (size_t y = 0; y < mParams.mHeight; ++y) {
+		for (float y = 0; y < mParams.mHeight; ++y) {
 		
 			row.push_back(Noise.fractalXY(pOctaves, x, y));
 		}
