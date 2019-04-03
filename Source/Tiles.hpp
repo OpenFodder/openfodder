@@ -24,7 +24,7 @@ enum eTerrainType {
 	eTerrainType_Land = 0,
 	eTerrainType_Rocky = 1,
 	eTerrainType_Rocky2 = 2,
-	eTerrainType_BounceOff = 3,
+	eTerrainType_Block = 3,
 	eTerrainType_QuickSand = 4,
 	eTerrainType_WaterEdge = 5,
 	eTerrainType_Water = 6,
