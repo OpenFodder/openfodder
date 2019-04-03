@@ -32,10 +32,6 @@ const std::vector<sTileType> mTileTypes = {
 	{ eTileTypes_AFX,	 "afx", "AmigaFormat"	}		// Amiga Format Christmas Special
 };
 
-std::vector<std::string> mTerrainTypeNames = {
-	eTerrainTypes(CREATE_STRINGS)
-};
-
 const int16* mTiles_Indestructible[] = {
 	mTiles_Indestructible_Jungle,		// JUN       
 	mTiles_Indestructible_Desert,		// DES

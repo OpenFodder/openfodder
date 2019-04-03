@@ -20,42 +20,29 @@
 *
 */
 
-#define eTerrainTypes(operation) \
-	operation(Land) \
-	operation(Rocky) \
-	operation(Rocky2) \
-	operation(Block) \
-	operation(QuickSand) \
-	operation(WaterEdge) \
-	operation(Water) \
-	operation(Snow) \
-	operation(QuickSandEdge) \
-	operation(Drop) \
-	operation(Drop2) \
-	operation(Sink) \
-	operation(C) \
-	operation(D) \
-	operation(Jump)
-
-#define CREATE_ENUM(name) \
-  eTerrainType_##name,
-
-#define CREATE_STRINGS(name) \
-  #name,
-
 enum eTerrainType {
-	eTerrainTypes(CREATE_ENUM)
+	eTerrainType_Land = 0,
+	eTerrainType_Rocky = 1,
+	eTerrainType_Rocky2 = 2,
+	eTerrainType_BounceOff = 3,
+	eTerrainType_QuickSand = 4,
+	eTerrainType_WaterEdge = 5,
+	eTerrainType_Water = 6,
+	eTerrainType_Snow = 7,
+	eTerrainType_QuickSandEdge = 8,
+	eTerrainType_Drop = 9,
+	eTerrainType_Drop2 = 0x0A,
+	eTerrainType_Sink = 0x0B,
+	eTerrainType_C = 0x0C,
+	eTerrainType_D = 0x0D,
+	eTerrainType_Jump = 0x0E
 };
-
-extern std::vector<std::string> mTerrainTypeNames;
-
 
 struct sTileType {
 	eTileTypes  mType;
 	std::string mName;
 	std::string mFullName;
 };
-
 
 struct sStructureTile {
 	int16 mX;

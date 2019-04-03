@@ -74,6 +74,8 @@ cScriptingEngine::~cScriptingEngine() {
 
 void cScriptingEngine::spritesCreateObject() {
 
+	// This is left here incase similar functionality is needed later
+
 	// Setup SpriteTypes.
 	/*duk_push_global_object(mContext);
 	duk_idx_t obj_idx = duk_push_object(mContext);
@@ -85,26 +87,6 @@ void cScriptingEngine::spritesCreateObject() {
 		duk_put_prop_string(mContext, obj_idx, g_Fodder->mSprite_Names[x].c_str());
 	}
 	duk_put_global_string(mContext, "SpriteTypes");*/
-
-	// Setup TileTypes.
-	duk_push_global_object(mContext);
-	duk_idx_t obj_idx = duk_push_object(mContext);
-	for (auto &TileType : mTileTypes) {
-
-		duk_push_int(mContext, TileType.mType);
-		duk_put_prop_string(mContext, obj_idx, TileType.mFullName.c_str());
-	}
-	duk_put_global_string(mContext, "TileTypes");
-
-	// Setup TerrainType.
-	duk_push_global_object(mContext);
-	obj_idx = duk_push_object(mContext);
-	for (size_t x = 0; x < mTerrainTypeNames.size(); ++x) {
-
-		duk_push_int(mContext, (eTerrainType)x);
-		duk_put_prop_string(mContext, obj_idx, mTerrainTypeNames[x].c_str());
-	}
-	duk_put_global_string(mContext, "TerrainType");
 
 }
 
