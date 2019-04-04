@@ -147,7 +147,7 @@ void cMap::Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTi
 		auto Sheet = &mSpriteSheetTypes_InGame_Amiga[Sprite.mSpriteID][0];
 
 		// - 0x40 because no sidebar
-		Sprite_Add(Sprite.mSpriteID, ((pTileX) * 16) + (Sprite.mX - Sheet->mModX) - 0x40,
+		Sprite_Add(Sprite.mSpriteID, ((pTileX) * 16) + (Sprite.mX - Sheet->mModX),
 			((pTileY) * 16) + (Sprite.mY - Sheet->mModY));
 	}
 }
