@@ -23,6 +23,19 @@
 struct duk_hthread;
 class cRandomMap;
 
+class cScriptFileIO {
+	std::fstream mStream;
+
+public:
+	cScriptFileIO(std::string pFilename, bool pRead = false);
+	~cScriptFileIO();
+
+	bool isOpen();
+	void close();
+	std::string readLine();
+	void writeLine(std::string pStr);
+};
+
 class cScriptingEngine {
 	duk_hthread *mContext;
 	std::shared_ptr<cRandomMap> mMap;

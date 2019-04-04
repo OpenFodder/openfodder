@@ -39,6 +39,37 @@ void print(const std::string pString) {
 	g_Debugger->Notice(pString);
 }
 
+cScriptFileIO::cScriptFileIO(std::string pFilename, bool pRead) {
+
+	mStream.open(pFilename, (pRead == true) ? std::ios::in : std::ios::out);
+}
+
+cScriptFileIO::~cScriptFileIO() {
+
+	mStream.close();
+}
+
+std::string cScriptFileIO::readLine() {
+	std::string line;
+
+	std::getline(mStream, line);
+	return line;
+}
+
+void cScriptFileIO::writeLine(std::string pStr) {
+
+	if (isOpen())
+		mStream << pStr << "\n";
+}
+
+bool cScriptFileIO::isOpen() {
+	return mStream.is_open();
+}
+
+void cScriptFileIO::close() {
+	mStream.close();
+}
+
 cScriptingEngine::cScriptingEngine() {
 
 	mContext = duk_create_heap_default();
@@ -95,6 +126,13 @@ void cScriptingEngine::init() {
 	dukglue_register_function(mContext, print, "print");
 
 	dukglue_register_method(mContext, &cScriptingEngine::scriptCall, "scriptCall");
+
+	// cScriptFileIO
+	dukglue_register_constructor<cScriptFileIO, std::string, bool >(mContext, "FileIO");
+	dukglue_register_method(mContext, &cScriptFileIO::readLine, "readLine");
+	dukglue_register_method(mContext, &cScriptFileIO::writeLine, "writeLine");
+	dukglue_register_method(mContext, &cScriptFileIO::close, "close");
+	dukglue_register_method(mContext, &cScriptFileIO::isOpen, "isOpen");
 
 	// cPosition
 	dukglue_register_constructor<cPosition>(mContext, "cPosition");
