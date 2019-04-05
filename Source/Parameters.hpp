@@ -128,6 +128,7 @@ protected:
 	virtual bool ProcessCLI(int argc, char *argv[]);
 	bool ProcessINI();
 
+
 public:
 	std::string ToJson();
 	bool FromJson(const std::string& pJson);
@@ -136,4 +137,6 @@ public:
 		ProcessINI();
 		ProcessCLI(argc, argv);
 	}
+
+	bool isOriginalSpriteMax() const { return mSpritesMax == 45; }
 };

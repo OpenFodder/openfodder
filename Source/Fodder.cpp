@@ -5314,16 +5314,39 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
     mSprite_Find_Types[3] = pDataC;
     mSprite_Find_Types[4] = pData10;
 
-    // Check if Sprite @ field_5E sprite is one of the types
-    pData28 = &mSprites[pSprite->field_5E];
-    if (pData28->field_0 == -32768)
-        goto NextSprite;
+	// Check if Sprite @ field_5E sprite is one of the types
+	pData28 = &mSprites[pSprite->field_5E];
 
-    do {
-        pData0 = *Data2C++;
-        if (pData0 < 0)
-            goto NextSprite;
-    } while (pData0 != pData28->field_18);
+	// If we're not using the original sprite count, we skip all empty sprites
+	if (!mParams->isOriginalSpriteMax()) {
+
+		while (pData28->field_0 == -32768) {
+		NextSprite2:;
+
+			++pSprite->field_5E;
+			if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
+				pSprite->field_5E = 0;
+
+			pData28 = &mSprites[pSprite->field_5E];
+			Data2C = mSprite_Find_Types;
+
+			do {
+				pData0 = *Data2C++;
+				if (pData0 < 0)
+					goto NextSprite2;
+			} while (pData0 != pData28->field_18);
+		}
+
+	} else {
+		if (pData28->field_0 == -32768)
+			goto NextSprite;
+
+		do {
+			pData0 = *Data2C++;
+			if (pData0 < 0)
+				goto NextSprite;
+		} while (pData0 != pData28->field_18);
+	}
 
     // Found a type match
     pData0 = pSprite->field_0;
