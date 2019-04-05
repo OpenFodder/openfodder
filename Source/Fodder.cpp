@@ -5317,25 +5317,35 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
 	// Check if Sprite @ field_5E sprite is one of the types
 	pData28 = &mSprites[pSprite->field_5E];
 
-	// If we're not using the original sprite count, we skip all empty sprites
+	// The original engine checks 1 sprite per cycle, and we have a max of 43 sprites to check
+	// Meaning it takes 43 cycles to check all sprites, including empty sprite slots
+	// this becomes problematic when you increase maxsprites, especially insane high values like
+	//  1,000,000
 	if (!mParams->isOriginalSpriteMax()) {
 
-		while (pData28->field_0 == -32768) {
+		do {
 		NextSprite2:;
-
-			++pSprite->field_5E;
-			if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
-				pSprite->field_5E = 0;
-
 			pData28 = &mSprites[pSprite->field_5E];
-			Data2C = mSprite_Find_Types;
 
+			if (pSprite->field_5E >= (mParams->mSpritesMax - 2)) {
+				pSprite->field_5E = 0;
+				continue;
+			}
+
+			if (pData28->field_0 == -32768) {
+				++pSprite->field_5E;
+				continue;
+			}
+
+			Data2C = mSprite_Find_Types;
 			do {
 				pData0 = *Data2C++;
-				if (pData0 < 0)
+				if (pData0 < 0) {
+					++pSprite->field_5E;
 					goto NextSprite2;
+				}
 			} while (pData0 != pData28->field_18);
-		}
+		} while (pData28->field_0 == -32768);
 
 	} else {
 		if (pData28->field_0 == -32768)
