@@ -39,6 +39,15 @@ void print(const std::string pString) {
 	g_Debugger->Notice(pString);
 }
 
+void consoleLog(DukValue pValue) {
+	std::string json = duk_json_encode(pValue.context(), -1);
+	g_Debugger->Notice(json);
+}
+
+void consoleClear() {
+	g_Debugger->ClearConsole();
+}
+
 cScriptFileIO::cScriptFileIO(std::string pFilename, bool pRead) {
 
 	mStream.open(pFilename, (pRead == true) ? std::ios::in : std::ios::out);
@@ -124,6 +133,8 @@ void cScriptingEngine::spritesCreateObject() {
 void cScriptingEngine::init() {
 
 	dukglue_register_function(mContext, print, "print");
+	dukglue_register_function(mContext, consoleLog, "consoleLog");
+	dukglue_register_function(mContext, consoleClear, "consoleClear");
 
 	dukglue_register_method(mContext, &cScriptingEngine::scriptCall, "scriptCall");
 

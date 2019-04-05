@@ -55,5 +55,7 @@ public:
 
 	void init();
 
+	duk_hthread *getContext() { return mContext; }
+
 	void Randomise(std::shared_ptr<cRandomMap> pMap, const std::string& pScript);
 };

@@ -49,6 +49,15 @@ void cDebugger::ConsoleOpen() {
 #endif
 }
 
+void cDebugger::ClearConsole() {
+
+#ifdef WIN32
+	system("cls");
+#else
+	system("clear");
+#endif
+}
+
 void cDebugger::Notice(const std::string& pMessage) {
     ConsoleOpen();
 

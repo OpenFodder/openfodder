@@ -35,6 +35,8 @@ protected:
 public:
     cDebugger();
 
+	void ClearConsole();
+
     void Notice(const std::string& pMessage);
     void Error(const std::string& pMessage);
 
