@@ -46,6 +46,9 @@ public:
         mPersistence(persistence) {
     }
 
+	void normalizeArray(std::vector<std::vector<float>>& pNoise);
+	std::vector<std::vector<float>> create( size_t pWidth, size_t pHeight, size_t pOctaves );
+
 private:
     // Parameters of Fractional Brownian Motion (fBm) : sum of N "octaves" of noise
     float mFrequency;   ///< Frequency ("width") of the first octave of noise (default to 1.0)

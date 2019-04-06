@@ -85,8 +85,10 @@ const int16 mGUI_Squad_Split_Icons[] = {
 };
 
 const int16 mGUI_Squad_Active_Icons[] = {
-	149, 150, 151, 152, 153, 154, 155, 156, 157, 158,
-	158
+	149, 150, 151, 
+	152, 153, 154, 
+	155, 156, 157, 
+	158, 158
 };
 
 const int16 mGUI_Squad_Inactive_Icons[] = {

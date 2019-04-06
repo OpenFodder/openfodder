@@ -24,6 +24,7 @@
  * or copy at http://opensource.org/licenses/MIT)
  */
 
+#include "stdafx.hpp"
 #include "SimplexNoise.hpp"
 
 #include <cstdint>  // int32_t/uint8_t
@@ -472,4 +473,51 @@ float SimplexNoise::fractalXYZ(size_t octaves, float x, float y, float z) {
     }
 
     return (output / denom);
+}
+
+std::vector<std::vector<float>> SimplexNoise::create(size_t pWidth, size_t pHeight, size_t pOctaves) {
+
+	std::vector<std::vector<float>> result;
+
+	for (float x = 0; x < pWidth; ++x) {
+
+		std::vector<float> row;
+		for (float y = 0; y < pHeight; ++y) {
+
+			row.push_back(fractalXY(pOctaves, x, y));
+		}
+
+		result.push_back(row);
+	}
+
+	normalizeArray(result);
+	return result;
+}
+
+	
+void SimplexNoise::normalizeArray(std::vector<std::vector<float>>& pNoise) {
+	float min = 0;
+	float max = 0;
+
+	for (size_t i = 0; i < pNoise.size(); i++) {
+		for (size_t j = 0; j < pNoise[i].size(); j++) {
+
+			if (pNoise[i][j] < min) {
+				min = pNoise[i][j];
+			}
+			else if (pNoise[i][j] > max) {
+				max = pNoise[i][j];
+			}
+		}
+	}
+
+	float divisor = max - min;
+
+	for (size_t i = 0; i < pNoise.size(); i++) {
+		for (size_t j = 0; j < pNoise[i].size(); j++) {
+
+			pNoise[i][j] = (pNoise[i][j] - min) / divisor;
+
+		}
+	}
 }

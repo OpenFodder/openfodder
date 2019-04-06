@@ -227,20 +227,8 @@ std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves
 
 std::vector<std::vector<float>> cRandomMap::createSimplexNoise(size_t pOctaves, float pFrequency, float pLacunarity, float pPersistence) {
 	SimplexNoise Noise(pFrequency, pLacunarity, pPersistence);
-	std::vector<std::vector<float>> result;
 
-	for (float x = 0; x < mParams.mWidth; ++x) {
-
-		std::vector<float> row;
-		for (float y = 0; y < mParams.mHeight; ++y) {
-		
-			row.push_back(Noise.fractalXY(pOctaves, x, y));
-		}
-
-		result.push_back(row);
-	}
-
-	return result;
+	return Noise.create(mParams.mWidth, mParams.mHeight, pOctaves);
 
 }
 void cRandomMap::create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub) {

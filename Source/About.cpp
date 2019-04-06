@@ -47,9 +47,12 @@ cAbout::cAbout() {
         { TEXTPOS_TEAM + 20 , "PROJECT LEAD" },
         { TEXTPOS_TEAM + 30,  "ROBERT CROSSFIELD" },
 
-        { TEXTPOS_TEAM + 80, "TESTING" },
+        { TEXTPOS_TEAM + 80, "ENGINE" },
         { TEXTPOS_TEAM + 90, "ALESSANDRO PETRALIA" },
-		{ TEXTPOS_TEAM + 100, "STARWINDZ" },
+
+		{ TEXTPOS_TEAM + 110, "SCRIPTING" },
+		{ TEXTPOS_TEAM + 120, "STARWINDZ" },
+
 
         { TEXTPOS_THANKS + 0 , "THANKS TO" },
         { TEXTPOS_THANKS + 10, "SENSIBLE SOFTWARE"},
