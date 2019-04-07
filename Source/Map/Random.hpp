@@ -31,8 +31,6 @@ protected:
 	const int8* mPathTilesNotTouchable;
 	size_t mPathSearchUnitType;
 
-	virtual void Randomise_Structures(const size_t pCount);
-
 	int Passable(int nx, int ny);
 
 	virtual float LeastCostEstimate(cPosition* nodeStart, cPosition* nodeEnd);
@@ -45,6 +43,7 @@ public:
 	
 	bool					CheckRadiusTileID(std::vector<size_t> pTileIDs, cPosition* pPosition, int32 pRadius);
 	bool					CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition, int32 pRadius);
+	bool					CheckRadiusSprites(cPosition* pPosition, int32 pRadius);
 
 	void					addBarracks(size_t pX, size_t pY);
 
@@ -58,7 +57,7 @@ public:
 	int32					getRandomInt(int32 pMin = 0, int32 pMax = 0);
 
 	cPosition*				getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius);
-	cPosition*				getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius);
+	cPosition*				getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius, bool pIgnoreSprites);
 	cPosition*				getRandomXYByTerrainType(eTerrainFeature pType, size_t pRadius);
 
 	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);

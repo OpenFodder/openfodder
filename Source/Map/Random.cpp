@@ -40,36 +40,6 @@ cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 void cRandomMap::Randomise() {
 	ClearTiles(0);
 
-	//Randomise_Structures(2);
-	//Randomise_Sprites(2);
-}
-
-void cRandomMap::Randomise_Structures(const size_t pCount) {
-
-	size_t StructsCount = 0;
-
-	int16 TileLand = 123;
-
-	// This is very lame :)
-	while (StructsCount < pCount) {
-		auto Struct = mStructuresBarracksWithSoldier[mParams.mTileType];
-
-		size_t StartTileX = (size_t)g_Fodder->tool_RandomGet(Struct.MaxWidth() + 2, mParams.mWidth - Struct.MaxWidth());
-		size_t StartTileY = (size_t)g_Fodder->tool_RandomGet(Struct.MaxHeight() + 2, mParams.mHeight - Struct.MaxWidth());
-
-		// TODO: Check if we will overlap an existing structure,
-		//       or place on water
-		auto Tile = Tile_Get(StartTileX, StartTileY);
-		if (Tile != TileLand)
-			continue;
-
-		Structure_Add(Struct, StartTileX, StartTileY);
-
-		// Add an enemy below each building
-		//Sprite_Add(eSprite_Enemy, StartTileX * 16, (StartTileY + 3) * 16);
-
-		++StructsCount;
-	}
 }
 
 void cRandomMap::addBarracks(size_t pX, size_t pY) {
@@ -138,6 +108,29 @@ bool cRandomMap::CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition
 	return true;
 }
 
+bool cRandomMap::CheckRadiusSprites(cPosition* pPosition, int32 pRadius) {
+	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
+		if (x < 0)
+			continue;
+		int32 yspan = (int32)(pRadius * sin(acos((pPosition->mX - x) / pRadius)));
+		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
+			if (y < 0)
+				continue;
+
+			for (auto& Sprite : mSprites) {
+				if (Sprite.field_0 < 0 || Sprite.field_4 < 0)
+					continue;
+
+				if ((Sprite.field_0 / 16 == x && Sprite.field_4 / 16 == y))
+					return true;
+			}
+
+		}
+	}
+
+	return false;
+}
+
 float cRandomMap::getRandomFloat(float pMin, float pMax) {
 
 	return mParams.mRandom.getf(pMin, pMax);
@@ -170,13 +163,19 @@ cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pR
 }
 
 
-cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius) {
+cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius, bool pIgnoreSprites) {
 	size_t Radius = pRadius * 16;
 	cPosition* Position = new cPosition();
 
 	for(int count = 0; count < 1000; ++count ) {
 		Position->mX = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
 		Position->mY = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
+
+		// Found a sprite in this region?
+		if (!pIgnoreSprites) {
+			if (CheckRadiusSprites(Position, Radius))
+				continue;
+		}
 
 		// Check land for one of the features
 		for (auto& Feature : pFeatures) {
@@ -207,7 +206,7 @@ cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatu
 
 cPosition* cRandomMap::getRandomXYByTerrainType(eTerrainFeature pType, size_t pRadius) {
 	
-	return getRandomXYByFeatures({ pType }, pRadius);
+	return getRandomXYByFeatures({ pType }, pRadius, true);
 }
 
 int32 cRandomMap::getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2) {
