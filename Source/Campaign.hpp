@@ -20,18 +20,18 @@
  *
  */
 
-enum ePhaseGoals {
-    eGoal_None = 0,
-    eGoal_Kill_All_Enemy = 1,
-    eGoal_Destroy_Enemy_Buildings = 2,
-    eGoal_Rescue_Hostages = 3,
-    eGoal_Protect_Civilians = 4,
-    eGoal_Kidnap_Leader = 5,
-    eGoal_Destroy_Factory = 6,
-    eGoal_Destroy_Computer = 7,
-    eGoal_Get_Civilian_Home = 8,
-    eGoal_Activate_All_Switches = 9,        // CF2
-    eGoal_Rescue_Hostage = 10,              // CF2: The CF2 engine has this as goal 3 instead of 10, and vica versa
+enum ePhaseObjective {
+    eObjective_None = 0,
+    eObjective_Kill_All_Enemy = 1,
+    eObjective_Destroy_Enemy_Buildings = 2,
+    eObjective_Rescue_Hostages = 3,
+    eObjective_Protect_Civilians = 4,
+    eObjective_Kidnap_Leader = 5,
+    eObjective_Destroy_Factory = 6,
+    eObjective_Destroy_Computer = 7,
+    eObjective_Get_Civilian_Home = 8,
+    eObjective_Activate_All_Switches = 9,        // CF2
+    eObjective_Rescue_Hostage = 10,              // CF2: The CF2 engine has this as goal 3 instead of 10, and vica versa
 };
 
 struct sAggression {
@@ -51,6 +51,11 @@ struct sAggression {
 		mMin = pMin; 
 		mMax = pMax; 
 	}
+
+	int16 getMin() const { return mMin; }
+	void setMin(const int16& pMin) { mMin = pMin; }
+	int16 getMax() const { return mMax; }
+	void setMax(const int16& pMax) { mMax = pMax; }
 };
 
 class cPhase {
@@ -58,7 +63,7 @@ public:
     sAggression mAggression;
     std::string mName;
     std::string mMapFilename;
-    std::vector<ePhaseGoals> mGoals;
+    std::vector<ePhaseObjective> mGoals;
 
     int16       mGrenades;
     int16       mRockets;
@@ -68,31 +73,39 @@ public:
         mRockets = -1;
     }
 
+	void SetName(const std::string& pName) {
+		mName = pName;
+	}
+
     std::string GetName() const {
         std::string Name = mName;
         transform(Name.begin(), Name.end(), Name.begin(), toupper);
         return Name;
     }
 
-    void SetGoal(ePhaseGoals pGoal, int pValue) {
+    void SetGoal(ePhaseObjective pGoal, int pValue) {
         if (pValue)
             AddGoal(pGoal);
         else
             RemoveGoal(pGoal);
     }
-    void AddGoal(ePhaseGoals pGoal) {
+
+    void AddGoal(ePhaseObjective pGoal) {
 
         if (std::find(mGoals.begin(), mGoals.end(), pGoal) == mGoals.end())
             mGoals.push_back(pGoal);
-
     }
 
-    void RemoveGoal(ePhaseGoals pGoal) {
+    void RemoveGoal(ePhaseObjective pGoal) {
 
         auto Goal = std::find(mGoals.begin(), mGoals.end(), pGoal);
         if (Goal != mGoals.end())
             mGoals.erase(Goal);
     }
+
+	void ClearGoals() {
+		mGoals.clear();
+	}
 };
 
 class cMission {
@@ -105,6 +118,10 @@ public:
         transform(Name.begin(), Name.end(), Name.begin(), toupper);
         return Name;
     }
+
+	void SetName(const std::string &pName) {
+		mName = pName;
+	}
 
     std::shared_ptr<cPhase> GetPhase(size_t pPhase) {
         if (!pPhase)

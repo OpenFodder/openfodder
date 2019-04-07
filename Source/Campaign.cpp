@@ -110,7 +110,7 @@ bool cCampaign::LoadCustomMap(const std::string& pMapName) {
 
     // TODO: Try load these from file before using defaults
     Phase->mName = CustomMapName;
-    Phase->mGoals.push_back({ eGoal_Kill_All_Enemy });
+    Phase->mGoals.push_back({ eObjective_Kill_All_Enemy });
     Phase->mAggression = { 4, 8 };
 
     mIsCustomMap = true;
@@ -220,7 +220,7 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
                     for (const std::string& GoalTitle : mMissionGoal_Titles) {
                         ++x;
                         if (GoalTitle == ObjectiveName) {
-                            newPhase->mGoals.push_back(static_cast<ePhaseGoals>(x));
+                            newPhase->mGoals.push_back(static_cast<ePhaseObjective>(x));
                             break;
                         }
                     }

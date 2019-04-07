@@ -109,23 +109,24 @@ bool cRandomMap::CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition
 }
 
 bool cRandomMap::CheckRadiusSprites(cPosition* pPosition, int32 pRadius) {
-	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
-		if (x < 0)
+
+	int32 xLeft = pPosition->mX - pRadius;
+	int32 xRight = pPosition->mX + pRadius;
+
+	int32 yspan = (int32) (pRadius * sin(acos((pPosition->mX - pPosition->mX) / pRadius)));
+
+	int32 yTop = pPosition->mY - yspan;
+	int32 yBottom = pPosition->mY + yspan;
+
+
+	for (auto& Sprite : mSprites) {
+
+		if (Sprite.field_0 < 0 || Sprite.field_4 < 0)
 			continue;
-		int32 yspan = (int32)(pRadius * sin(acos((pPosition->mX - x) / pRadius)));
-		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
-			if (y < 0)
-				continue;
 
-			for (auto& Sprite : mSprites) {
-				if (Sprite.field_0 < 0 || Sprite.field_4 < 0)
-					continue;
-
-				if ((Sprite.field_0 / 16 == x && Sprite.field_4 / 16 == y))
-					return true;
-			}
-
-		}
+		if ((Sprite.field_0 >= xLeft && Sprite.field_0 <= xRight) && 
+			(Sprite.field_4 >= yTop && Sprite.field_4 <= yBottom))
+			return true;
 	}
 
 	return false;
@@ -176,7 +177,6 @@ cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatu
 			if (CheckRadiusSprites(Position, Radius))
 				continue;
 		}
-
 		// Check land for one of the features
 		for (auto& Feature : pFeatures) {
 			if (CheckRadiusFeatures(Feature, Position, Radius))
@@ -186,9 +186,12 @@ cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatu
 	}
 
 	// Scan from top left to bottom right
-	for (Position->mY = Radius; Position->mY < getHeightPixels() - 32; Position->mY += Radius) {
-
-		for (Position->mX = Radius; Position->mX < getWidthPixels() - 32; Position->mX += Radius) {
+	for (Position->mY = Radius; Position->mY < getHeightPixels() - 16; Position->mY += Radius) {
+		for (Position->mX = Radius; Position->mX < getWidthPixels() - 16; Position->mX += Radius) {
+			if (!pIgnoreSprites) {
+				if (CheckRadiusSprites(Position, Radius))
+					continue;
+			}
 
 			for (auto Feature : pFeatures) {
 				if (CheckRadiusFeatures(Feature, Position, Radius))
@@ -214,7 +217,6 @@ int32 cRandomMap::getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2
 	return g_Fodder->Map_Get_Distance_BetweenPositions(*pPos1, *pPos2, 1000);
 }
 
-
 std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves, float pRoughness, float pScale, short pSeed, bool pRadialEnabled, float pEdgeFade) {
 
 	SimplexIslands Islands;
@@ -228,8 +230,8 @@ std::vector<std::vector<float>> cRandomMap::createSimplexNoise(size_t pOctaves, 
 	SimplexNoise Noise(pFrequency, pLacunarity, pPersistence);
 
 	return Noise.create(mParams.mWidth, mParams.mHeight, pOctaves);
-
 }
+
 void cRandomMap::create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub) {
 
 	mParams.mWidth = pWidth;

@@ -1185,7 +1185,7 @@ int16 cFodder::Recruit_Show() {
             int16 Max = Min + (tool_RandomGet() % 5);
 
             Phase->mAggression = { Min, Max };
-            Phase->mGoals = { eGoal_Kill_All_Enemy, eGoal_Destroy_Enemy_Buildings };
+            Phase->mGoals = { eObjective_Kill_All_Enemy, eObjective_Destroy_Enemy_Buildings };
         }
         else {
             Custom_ShowMapSelection();

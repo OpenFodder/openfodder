@@ -30,7 +30,7 @@ namespace dukglue {
 		DUKGLUE_SIMPLE_VALUE_TYPE(eTileTypes, duk_is_number, duk_get_uint, duk_push_uint, value);
 		DUKGLUE_SIMPLE_VALUE_TYPE(eTileSub, duk_is_number, duk_get_uint, duk_push_uint, value);
 		DUKGLUE_SIMPLE_VALUE_TYPE(eTerrainFeature, duk_is_number, duk_get_uint, duk_push_uint, value);
-
+		DUKGLUE_SIMPLE_VALUE_TYPE(ePhaseObjective, duk_is_number, duk_get_uint, duk_push_uint, value);
 	}
 }
 
@@ -198,6 +198,20 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::getDistanceBetweenPositions, "getDistanceBetweenPositions");
 	dukglue_register_method(mContext, &cRandomMap::calculatePath, "calculatePathBetweenPositions");
 
+	// cPhase
+	dukglue_register_constructor<cPhase>(mContext, "cPhase");
+	dukglue_register_property(mContext, &cPhase::GetName, &cPhase::SetName, "name");
+	dukglue_register_method(mContext, &cPhase::AddGoal, "ObjectiveAdd");
+	dukglue_register_method(mContext, &cPhase::RemoveGoal, "ObjectiveRemove");
+	dukglue_register_method(mContext, &cPhase::ClearGoals, "ObjectivesClear");
+	
+
+	// cMission
+	dukglue_register_constructor<cMission>(mContext, "cMission");
+	dukglue_register_method(mContext, &cMission::NumberOfPhases, "NumberOfPhases");
+	dukglue_register_property(mContext, &cMission::GetName, &cMission::SetName, "name");
+	dukglue_register_method(mContext, &cMission::GetPhase, "GetPhase");
+
 	dukglue_register_global(mContext, this, "ScriptingEngine");
 }
 
@@ -255,6 +269,8 @@ bool cScriptingEngine::scriptRun(const std::string& pJS) {
 void cScriptingEngine::Randomise(std::shared_ptr<cRandomMap> pMap, const std::string& pScript) {
 	mMap = pMap;
 	dukglue_register_global(mContext, mMap, "Map");
+	dukglue_register_global(mContext, g_Fodder->mGame_Data.mPhase_Current, "Phase");
+	dukglue_register_global(mContext, g_Fodder->mGame_Data.mMission_Current, "Mission");
 
 	auto path = g_ResourceMan->GetScriptPath(pScript);
 	auto script = g_ResourceMan->FileReadStr(path);

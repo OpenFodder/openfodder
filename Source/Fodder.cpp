@@ -2268,19 +2268,19 @@ void cFodder::Phase_Goals_Check() {
     }
 
     mEnemy_BuildingCount = Buildings;
-    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Destroy_Enemy_Buildings - 1]) {
+    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Destroy_Enemy_Buildings - 1]) {
         if (Buildings)
             return;
     }
 
-    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Kill_All_Enemy - 1]) {
+    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Kill_All_Enemy - 1]) {
         if (Enemys)
             return;
     }
 
-    if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Kidnap_Leader - 1]) {
-        if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Rescue_Hostages - 1]) 
-            if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Rescue_Hostage - 1])
+    if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Kidnap_Leader - 1]) {
+        if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Rescue_Hostages - 1]) 
+            if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Rescue_Hostage - 1])
                 goto loc_126A6;
     }
 
@@ -2289,12 +2289,12 @@ void cFodder::Phase_Goals_Check() {
 
 loc_126A6:;
 
-    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Get_Civilian_Home - 1]) {
+    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Get_Civilian_Home - 1]) {
         if (!mSprite_Civilian_GotHome)
             return;
     }
 
-    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Activate_All_Switches - 1]) {
+    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Activate_All_Switches - 1]) {
         if (!mSwitchesActivated)
             return;
     }
@@ -5167,7 +5167,7 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     DataC = -1;
     Data10 = -1;
 
-    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Get_Civilian_Home - 1]) {
+    if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Get_Civilian_Home - 1]) {
         Data4 = eSprite_Civilian;
         Data8 = eSprite_Civilian2;
         DataC = eSprite_Civilian_Spear;
@@ -6277,10 +6277,10 @@ void cFodder::Sprite_Handle_Civilian_Death(sSprite* pSprite) {
     if (pSprite->field_8 != 0xD6) {
         word_3B2D1[2] = -1;
 
-        if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Protect_Civilians - 1])
+        if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Protect_Civilians - 1])
             mPhase_Aborted = true;
 
-        if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Get_Civilian_Home - 1])
+        if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Get_Civilian_Home - 1])
             mPhase_Aborted = true;
 
         pSprite->field_8 = 0xD6;
@@ -6802,7 +6802,7 @@ void cFodder::sub_264B0(sSprite* pSprite) {
     if (!sub_222A3(pSprite))
         goto loc_264CF;
 
-    if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eGoal_Protect_Civilians - 1])
+    if (!mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Protect_Civilians - 1])
         return;
 
     mPhase_Aborted = true;
