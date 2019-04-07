@@ -1178,15 +1178,8 @@ int16 cFodder::Recruit_Show() {
 			sMapParams Params;
 			Params.Randomise( mRandom.get() );
 
-			
             Map_Create(Params, true);
             mMapLoaded->save(RandomMapFile, true);
-
-            auto Phase = mGame_Data.mCampaign.getMission(0)->GetPhase(0);
-            int16 Min = (tool_RandomGet() % 5);
-            int16 Max = Min + (tool_RandomGet() % 5);
-
-            Phase->mAggression = { Min, Max };
         }
         else {
             Custom_ShowMapSelection();
