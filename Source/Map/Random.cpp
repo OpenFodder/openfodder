@@ -129,7 +129,7 @@ bool cRandomMap::CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition
 		for (int32 y = pPosition->mY - yspan; y < pPosition->mY + yspan; y++) {
 			if (y < 0)
 				continue;
-
+			
 			if (g_Fodder->Map_Terrain_Get(x, y) != pType)
 				return false;
 		}

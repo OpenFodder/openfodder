@@ -263,11 +263,6 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		mDisableSound = result["nosound"].as<bool>();
 		mPlayground = result["playground"].as<bool>();
 
-		if (result.count("max-sprite"))
-			mSpritesMax = result["max-sprite"].as<uint32_t>();
-		if (result.count("max-spawn"))
-			mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
-
 		mSleepDelta = result["sleep-delta"].as<uint32_t>();
 
 		mCheatsEnabled = result["cheats"].as<bool>();
@@ -280,6 +275,18 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 
 		if (result.count("script"))
 			mScriptRun = result["script"].as<std::string>();
+
+		// Random / Script mode increase default max sprites/spawn
+		if (mScriptRun.size() || mRandom) {
+
+			mSpritesMax = CUSTOM_DEFAULT_MAX_SPRITES;
+			mSpawnEnemyMax = CUSTOM_DEFAULT_MAX_SPAWN;
+		}
+
+		if (result.count("max-sprite"))
+			mSpritesMax = result["max-sprite"].as<uint32_t>();
+		if (result.count("max-spawn"))
+			mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
 
 		if (mSpritesMax < 16)
 			mSpritesMax = 16;
@@ -307,12 +314,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mWindowMode = true;
 		}
 
-		// Random / Script mode increase default max sprites/spawn
-		if (mScriptRun.size() || mRandom) {
 
-			mSpritesMax = CUSTOM_DEFAULT_MAX_SPRITES;
-			mSpawnEnemyMax = CUSTOM_DEFAULT_MAX_SPAWN;
-		}
 
 #ifdef _DEBUG
 		mWindowMode = true;
