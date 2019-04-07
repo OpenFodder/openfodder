@@ -39,12 +39,13 @@ void cDebugger::ConsoleOpen() {
 
 #ifdef WIN32
     static bool attached = AttachConsole(ATTACH_PARENT_PROCESS);
-    if (!attached)
-        attached = AllocConsole();
+	if (!attached) {
+		attached = AllocConsole();
 
-    FILE *stream, *stream2;
-    freopen_s(&stream, "CONIN$", "r", stdin);
-    freopen_s(&stream2, "CONOUT$", "w", stdout);
+		FILE *stream, *stream2;
+		freopen_s(&stream, "CONIN$", "r", stdin);
+		freopen_s(&stream2, "CONOUT$", "w", stdout);
+	}
 #endif
 }
 
