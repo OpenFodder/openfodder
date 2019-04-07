@@ -29,6 +29,10 @@ using Json = nlohmann::json;
 
 cxxopts::Options* sFodderParameters::mCliOptions = 0;
 
+/* These values override the original engine values, when in custom mode */
+const size_t CUSTOM_DEFAULT_MAX_SPRITES = 100000;
+const size_t CUSTOM_DEFAULT_MAX_SPAWN = 100;
+
 std::string sFodderParameters::ToJson() {
 	Json Save;
 
@@ -302,6 +306,14 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		if (mUnitTesting) {
 			mWindowMode = true;
 		}
+
+		// Random / Script mode increase default max sprites/spawn
+		if (mScriptRun.size() || mRandom) {
+
+			mSpritesMax = CUSTOM_DEFAULT_MAX_SPRITES;
+			mSpawnEnemyMax = CUSTOM_DEFAULT_MAX_SPAWN;
+		}
+
 #ifdef _DEBUG
 		mWindowMode = true;
 #endif
