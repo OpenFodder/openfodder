@@ -106,6 +106,14 @@ public:
 	void ClearGoals() {
 		mGoals.clear();
 	}
+
+	void SetMinAggression(const int16& pMin) {
+		mAggression.setMin(pMin);
+	}
+
+	void SetMaxAggression(const int16& pMax) {
+		mAggression.setMax(pMax);
+	}
 };
 
 class cMission {

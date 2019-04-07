@@ -171,8 +171,7 @@ struct sVersion {
 				mRelease == eRelease::AmigaTheOne ||
 				mRelease == eRelease::AmigaAction ||
 				mRelease == eRelease::AmigaNotVeryFestive ||
-				mRelease == eRelease::AmigaAlienLevels ||
-				mRelease == eRelease::Custom;
+				mRelease == eRelease::AmigaAlienLevels;
 	}
 
 	bool isCoverDisk() const {

@@ -162,6 +162,7 @@ void cScriptingEngine::init() {
 	dukglue_set_base_class<cMap, cRandomMap>(mContext);
 	dukglue_register_constructor<cRandomMap, const sMapParams& >(mContext, "cRandomMap");
 
+	dukglue_register_method(mContext, &cRandomMap::save, "save");
 	dukglue_register_method(mContext, &cRandomMap::addBarracks, "addBarracks");
 	dukglue_register_method(mContext, &cRandomMap::create, "Create");
 	dukglue_register_method(mContext, &cRandomMap::createRandom, "CreateRandom");
@@ -204,7 +205,8 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cPhase::AddGoal, "ObjectiveAdd");
 	dukglue_register_method(mContext, &cPhase::RemoveGoal, "ObjectiveRemove");
 	dukglue_register_method(mContext, &cPhase::ClearGoals, "ObjectivesClear");
-	
+	dukglue_register_method(mContext, &cPhase::SetMinAggression, "SetMinAggression");
+	dukglue_register_method(mContext, &cPhase::SetMaxAggression, "SetMaxAggression");
 
 	// cMission
 	dukglue_register_constructor<cMission>(mContext, "cMission");
