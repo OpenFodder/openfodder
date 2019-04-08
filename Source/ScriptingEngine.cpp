@@ -313,7 +313,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 }
 
 bool cScriptingEngine::scriptRun(const std::string& pJS) {
-	int success = DUK_EXEC_SUCCESS;
+	int success = DUK_EXEC_ERROR;
 
 	// Compile the JS into bytecode
 	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
