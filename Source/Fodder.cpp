@@ -7130,7 +7130,7 @@ uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax) {
 	uint16 Rand = mRandom.getu();
 	uint16 Mod = (uint16) (pMax - pMin + 1);
 
-	return (uint16) (Rand % Mod) + pMin;
+	return (uint16) ((Rand % Mod) + pMin);
 }
 
 int16 cFodder::tool_RandomGet() {

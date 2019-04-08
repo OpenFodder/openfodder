@@ -30,23 +30,39 @@ cDebugger::cDebugger() {
 
 }
 
-void cDebugger::ConsoleOpen() {
+bool cDebugger::ConsoleOpen() {
+	static bool Alloced = false;
+
+	if (Alloced)
+		return true;
+
 #ifdef _CONSOLE
-    return;
+    return true;
 #endif
     if (g_Fodder->mParams->mAppVeyor)
-        return;
+        return true;
 
 #ifdef WIN32
     static bool attached = AttachConsole(ATTACH_PARENT_PROCESS);
-	if (!attached) {
+	if (!attached)
 		attached = AllocConsole();
 
-		FILE *stream, *stream2;
-		freopen_s(&stream, "CONIN$", "r", stdin);
-		freopen_s(&stream2, "CONOUT$", "w", stdout);
-	}
+	FILE *stream, *stream2, *stream3;
+
+	freopen_s(&stream, "CONIN$", "r", stdin);
+	freopen_s(&stream2, "CONOUT$", "w", stdout);
+	freopen_s(&stream3, "CONOUT$", "w", stderr);
+
+	Alloced = true;
+	std::ios::sync_with_stdio(true);
+	std::wcout.clear();
+	std::cout.clear();
+	std::wcerr.clear();
+	std::cerr.clear();
+	std::wcin.clear();
+	std::cin.clear();
 #endif
+	return true;
 }
 
 void cDebugger::ClearConsole() {
@@ -56,6 +72,13 @@ void cDebugger::ClearConsole() {
 #else
 	system("clear");
 #endif
+}
+
+void cDebugger::Output(const std::string pMessage) {
+#ifdef WIN32
+	OutputDebugStringA(pMessage.c_str());
+#endif
+	std::cout << pMessage;
 }
 
 void cDebugger::Notice(const std::string& pMessage) {
@@ -68,8 +91,7 @@ void cDebugger::Notice(const std::string& pMessage) {
         system(Command.c_str());
     }
     else {
-
-        std::cout << pMessage << "\n";
+		Output(pMessage + "\n" );
     }
 
 }
@@ -83,7 +105,7 @@ void cDebugger::Error(const std::string& pMessage) {
         system(Command.c_str());
     }
     else {
-        std::cout << pMessage << "\n";
+		Output(pMessage + "\n");
     }
 }
 

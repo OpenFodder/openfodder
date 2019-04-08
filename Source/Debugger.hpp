@@ -30,7 +30,9 @@ enum eTestState {
 class cDebugger {
 
 protected:
-    void ConsoleOpen();
+    bool ConsoleOpen();
+
+	void Output(const std::string pMessage);
 
 public:
     cDebugger();
