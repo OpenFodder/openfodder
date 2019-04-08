@@ -38,10 +38,18 @@ public:
 
 class cScriptingEngine {
 	duk_hthread *mContext;
-	std::shared_ptr<cRandomMap> mMap;
 
 protected:
 
+	cCampaign* getCampaign();
+	std::shared_ptr<cRandomMap> getMap();
+	std::shared_ptr<cPhase> getPhase();
+	std::shared_ptr<cMission> getMission();
+
+	std::shared_ptr<cPhase> phaseCreate();
+	std::shared_ptr<cMission> missionCreate();
+
+	void mapSave();
 	bool scriptCall(const std::string& pFilename);
 	bool scriptRun(const std::string& pJS);
 	bool scriptsLoadFolder(const std::string& pFolder);
@@ -57,5 +65,5 @@ public:
 
 	duk_hthread *getContext() { return mContext; }
 
-	void Randomise(std::shared_ptr<cRandomMap> pMap, const std::string& pScript);
+	void Run(const std::string& pScript);
 };

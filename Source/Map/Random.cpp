@@ -37,11 +37,6 @@ cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	saveHeader();
 }
 
-void cRandomMap::Randomise() {
-	ClearTiles(0);
-
-}
-
 void cRandomMap::addBarracks(size_t pX, size_t pY) {
 
 	Structure_Add(mStructuresBarracksWithSoldier[mParams.mTileType], pX / 16, pY / 16);
@@ -239,6 +234,8 @@ void cRandomMap::create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTi
 	mParams.mTileType = pTileType;
 	mParams.mTileSub = pTileSub;
 
+	mSprites.clear();
+	g_Fodder->mSprites = mSprites;
 	ClearTiles(0);
 	saveHeader();
 	g_Fodder->Map_Load_Resources();
@@ -251,6 +248,8 @@ void cRandomMap::createRandom(size_t pSeed) {
 
 	mParams.Randomise(pSeed);
 
+	mSprites.clear();
+	g_Fodder->mSprites = mSprites;
 	ClearTiles(0);
 	saveHeader();
 	g_Fodder->Map_Load_Resources();

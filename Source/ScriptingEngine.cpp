@@ -82,13 +82,12 @@ void cScriptFileIO::close() {
 cScriptingEngine::cScriptingEngine() {
 
 	mContext = duk_create_heap_default();
-	mMap = 0;
 
 	init();
 	spritesCreateObject();
 
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/"));
-
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/Names/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Kill.All.Enemy/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Enemy.Buildings/"));
@@ -135,8 +134,6 @@ void cScriptingEngine::init() {
 	dukglue_register_function(mContext, print, "print");
 	dukglue_register_function(mContext, consoleLog, "consoleLog");
 	dukglue_register_function(mContext, consoleClear, "consoleClear");
-
-	dukglue_register_method(mContext, &cScriptingEngine::scriptCall, "scriptCall");
 
 	// cScriptFileIO
 	dukglue_register_constructor<cScriptFileIO, std::string, bool >(mContext, "FileIO");
@@ -187,8 +184,6 @@ void cScriptingEngine::init() {
 
 	dukglue_register_method(mContext, &cRandomMap::getRandomXYByTerrainType, "getRandomXYByTerrainType");
 
-	dukglue_register_method(mContext, &cRandomMap::CheckRadiusSprites, "checkRadiusForSprites");
-
 	dukglue_register_method(mContext, &cRandomMap::Sprite_Add, "SpriteAdd");
 	dukglue_register_method(mContext, &cRandomMap::Tile_Get, "TileGet");
 	dukglue_register_method(mContext, &cRandomMap::Tile_Set, "TileSet");
@@ -201,7 +196,9 @@ void cScriptingEngine::init() {
 
 	// cPhase
 	dukglue_register_constructor<cPhase>(mContext, "cPhase");
+	dukglue_register_property(mContext, &cPhase::GetMapFilename, &cPhase::SetMapFilename, "map");
 	dukglue_register_property(mContext, &cPhase::GetName, &cPhase::SetName, "name");
+
 	dukglue_register_method(mContext, &cPhase::AddGoal, "ObjectiveAdd");
 	dukglue_register_method(mContext, &cPhase::RemoveGoal, "ObjectiveRemove");
 	dukglue_register_method(mContext, &cPhase::ClearGoals, "ObjectivesClear");
@@ -210,11 +207,81 @@ void cScriptingEngine::init() {
 
 	// cMission
 	dukglue_register_constructor<cMission>(mContext, "cMission");
-	dukglue_register_method(mContext, &cMission::NumberOfPhases, "NumberOfPhases");
 	dukglue_register_property(mContext, &cMission::GetName, &cMission::SetName, "name");
-	dukglue_register_method(mContext, &cMission::GetPhase, "GetPhase");
+	dukglue_register_method(mContext, &cMission::NumberOfPhases, "NumberOfPhases");
+	dukglue_register_method(mContext, &cMission::PhaseGet, "PhaseGet");
 
-	dukglue_register_global(mContext, this, "ScriptingEngine");
+	// cCampaign
+	dukglue_register_constructor<cCampaign>(mContext, "cCampaign");
+	dukglue_register_property(mContext, &cCampaign::getName, &cCampaign::setName, "name");
+	dukglue_register_property(mContext, &cCampaign::getAuthor, &cCampaign::setAuthor, "author");
+	dukglue_register_method(mContext, &cCampaign::getMissions, "getMissions");
+	dukglue_register_method(mContext, &cCampaign::SetCustomCampaign, "SetCustomCampaign");
+	
+	// sGameData
+	dukglue_register_constructor<sGameData>(mContext, "sGameData");
+	dukglue_register_method(mContext, &sGameData::Phase_Start, "Phase_Start");
+	dukglue_register_method(mContext, &sGameData::Phase_Next, "Phase_Next");
+
+
+	// cScriptingEngine
+	dukglue_register_constructor<cScriptingEngine>(mContext, "cEngine");
+	dukglue_register_method(mContext, &cScriptingEngine::scriptCall, "scriptCall");
+	dukglue_register_method(mContext, &cScriptingEngine::mapSave, "mapSave");
+	dukglue_register_method(mContext, &cScriptingEngine::phaseCreate, "phaseCreate");
+	dukglue_register_method(mContext, &cScriptingEngine::missionCreate, "missionCreate");
+
+	dukglue_register_method(mContext, &cScriptingEngine::getCampaign, "getCampaign");
+	dukglue_register_method(mContext, &cScriptingEngine::getMap, "getMap");
+	dukglue_register_method(mContext, &cScriptingEngine::getPhase, "getPhase");
+	dukglue_register_method(mContext, &cScriptingEngine::getMission, "getMission");
+}
+
+std::shared_ptr<cPhase> cScriptingEngine::phaseCreate() {
+	auto phase = std::make_shared<cPhase>();
+	getMission()->mPhases.push_back(phase);
+	++g_Fodder->mGame_Data.mMission_Phases_Remaining;
+
+	mapSave();
+	g_Fodder->mCustom_Mode = eCustomMode_Set;
+	g_Fodder->mGame_Data.Phase_Next();
+	return phase;
+}
+
+std::shared_ptr<cMission> cScriptingEngine::missionCreate() {
+	auto mission = std::make_shared<cMission>();
+	auto phase = std::make_shared<cPhase>();
+	mission->mPhases.push_back(phase);
+	getCampaign()->missionAdd(mission);
+
+	mapSave();
+	g_Fodder->mCustom_Mode = eCustomMode_Set;
+	g_Fodder->mGame_Data.Phase_Next();
+	return mission;
+}
+
+cCampaign* cScriptingEngine::getCampaign() {
+	return &g_Fodder->mGame_Data.mCampaign;
+}
+
+std::shared_ptr<cRandomMap> cScriptingEngine::getMap() {
+	return std::dynamic_pointer_cast<cRandomMap>(g_Fodder->mMapLoaded);
+}
+
+std::shared_ptr<cPhase> cScriptingEngine::getPhase() {
+	return g_Fodder->mGame_Data.mPhase_Current;
+}
+std::shared_ptr<cMission> cScriptingEngine::getMission() {
+	return g_Fodder->mGame_Data.mMission_Current;
+}
+
+void cScriptingEngine::mapSave() {
+
+	if (getPhase()->GetMapFilename().size() == 0) {
+		getPhase()->SetMapFilename("random");
+	}
+
+	g_Fodder->mMapLoaded->save(getCampaign()->GetPathToFile(getPhase()->GetMapFilename()), true);
 }
 
 bool cScriptingEngine::scriptCall(const std::string& pFilename) {
@@ -268,18 +335,15 @@ bool cScriptingEngine::scriptRun(const std::string& pJS) {
 	return (success == DUK_EXEC_SUCCESS);
 }
 
-void cScriptingEngine::Randomise(std::shared_ptr<cRandomMap> pMap, const std::string& pScript) {
-	mMap = pMap;
-	dukglue_register_global(mContext, mMap, "Map");
-	dukglue_register_global(mContext, g_Fodder->mGame_Data.mPhase_Current, "Phase");
-	dukglue_register_global(mContext, g_Fodder->mGame_Data.mMission_Current, "Mission");
+void cScriptingEngine::Run(const std::string& pScript) {
+
+	dukglue_register_global(mContext, this, "Engine");
 
 	auto path = g_ResourceMan->GetScriptPath(pScript);
 	auto script = g_ResourceMan->FileReadStr(path);
 
 	if (scriptRun(script) == false) {
-		g_Debugger->Error(pScript + " Failed to execute");
+		g_Debugger->Error(path + " Failed to execute");
 	}
-
 
 }

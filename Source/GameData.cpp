@@ -431,7 +431,7 @@ bool sGameData::Phase_Start() {
     if (!mMission_Current)
         return false;
 
-    mPhase_Current = mMission_Current->GetPhase(mMission_Phase);
+    mPhase_Current = mMission_Current->PhaseGet(mMission_Phase);
     if (!mPhase_Current)
         return false;
 
@@ -471,7 +471,7 @@ bool sGameData::Phase_Next() {
     ++mMission_Phase;
     --mMission_Phases_Remaining;
 
-    mPhase_Current = mMission_Current->GetPhase(mMission_Phase);
+    mPhase_Current = mMission_Current->PhaseGet(mMission_Phase);
 
     // Still got phases to complete?
     if (mMission_Phases_Remaining)
@@ -490,7 +490,7 @@ bool sGameData::Phase_Next() {
 
     mMission_Phases_Remaining = (int16) mMission_Current->NumberOfPhases();
 
-    mPhase_Current = mMission_Current->GetPhase(mMission_Phase);
+    mPhase_Current = mMission_Current->PhaseGet(mMission_Phase);
     if (!mPhase_Current)
         return false;
 
@@ -636,7 +636,7 @@ bool sGameData::FromJson(const std::string& pJson) {
 
     mMission_Current = mCampaign.getMission(mMission_Number);
     if (mMission_Current) {
-        mPhase_Current = mMission_Current->GetPhase(0);
+        mPhase_Current = mMission_Current->PhaseGet(0);
         mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
     }
 	return true;

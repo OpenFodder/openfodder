@@ -39,8 +39,7 @@ protected:
 
 public:
 	cRandomMap(const sMapParams& pParams);
-	virtual void Randomise();
-	
+
 	bool					CheckRadiusTileID(std::vector<size_t> pTileIDs, cPosition* pPosition, int32 pRadius);
 	bool					CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition, int32 pRadius);
 	bool					CheckRadiusSprites(cPosition* pPosition, int32 pRadius);

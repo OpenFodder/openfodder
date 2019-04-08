@@ -83,6 +83,14 @@ public:
         return Name;
     }
 
+	void SetMapFilename(const std::string& pMapFilename) {
+		mMapFilename = pMapFilename;
+	}
+
+	std::string GetMapFilename() const {
+		return mMapFilename;
+	}
+
     void SetGoal(ePhaseObjective pGoal, int pValue) {
         if (pValue)
             AddGoal(pGoal);
@@ -131,7 +139,7 @@ public:
 		mName = pName;
 	}
 
-    std::shared_ptr<cPhase> GetPhase(size_t pPhase) {
+    std::shared_ptr<cPhase> PhaseGet(size_t pPhase) {
         if (!pPhase)
             pPhase = 1;
 
@@ -172,7 +180,7 @@ public:
     bool LoadCampaign(const std::string& pName, bool pCustom, bool pDirectPath = false);
     bool SaveCampaign();
 
-    const std::string getName() const;
+    
     std::string GetPathToCampaign() const;
     std::string GetPathToFile(const std::string& pName) const;
     std::string GetPath(const bool pTrailingSeperator = true) const;
@@ -182,10 +190,13 @@ public:
 	tSharedBuffer getMap(std::shared_ptr<cPhase> pPhase) const;
 	tSharedBuffer getSprites(std::shared_ptr<cPhase> pPhase) const;
 
-    std::vector<std::shared_ptr<cMission>> &getMissions() { return mMissions; }
+	void missionAdd(std::shared_ptr<cMission> pMission) { mMissions.push_back(pMission); }
+    std::vector<std::shared_ptr<cMission>> getMissions() { return mMissions; }
     std::shared_ptr<cMission> getMission(size_t pMissionNumber);
 
     void SetSingleMapCampaign();
+	void SetCustomCampaign();
+	void CreateCustomCampaign();
 
 	bool isCustom() const;
     bool isCustomMap() const { return mIsCustomMap; }
@@ -196,6 +207,9 @@ public:
 
     std::string getAuthor() { return mAuthor; }
     void setAuthor(const std::string& pAuthor) { mAuthor = pAuthor; }
+
+	std::string getName() const;
+	void setName(const std::string& pName) { mName = pName; }
 
 };
 

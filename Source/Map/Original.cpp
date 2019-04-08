@@ -140,8 +140,12 @@ bool cOriginalMap::load(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bo
 	return true;
 }
 
-bool cOriginalMap::save(const std::string& pFilename, const bool CF1) {
+bool cOriginalMap::save(std::string pFilename, const bool CF1) {
 	
+	if (pFilename.find(".map") == pFilename.npos) {
+		pFilename.append(".map");
+	}
+
 	saveHeader();
 	saveCF1Map(pFilename);
 	return saveCF1Sprites(pFilename);
@@ -163,8 +167,6 @@ bool cOriginalMap::saveCF1Map(const std::string& pFilename) {
 }
 
 bool cOriginalMap::saveCF1Sprites(std::string pFilename) {
-
-	mSprites = g_Fodder->mSprites;
 
 	// Replace .map with .spt
 	pFilename.replace(pFilename.length() - 3, pFilename.length(), "spt");

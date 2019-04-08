@@ -40,6 +40,6 @@ public:
 	cOriginalMap() : cMap() {};
 	cOriginalMap(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2);
 
-	virtual bool load(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2);
-	virtual bool save(const std::string& pFilename, const bool CF1);
+	virtual bool load(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2) override;
+	virtual bool save(std::string pFilename, const bool CF1) override;
 };

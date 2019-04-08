@@ -158,10 +158,6 @@ void cMap::ClearTiles(const size_t pTileID) {
 	mTile_Ptr = (int32)((0x60) - (mParams.mWidth * 2));
 }
 
-void cMap::Randomise() {
-
-}
-
 tSharedBuffer cMap::getData() const {
 	return mData;
 }
@@ -170,13 +166,4 @@ std::vector<sSprite> cMap::getSprites() const {
 	return mSprites;
 }
 
-bool cMap::load(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2) {
-
-	return false;
-}
-
-bool cMap::save(const std::string& pFilename, const bool CF1) {
-
-	return false;
-}
 

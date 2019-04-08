@@ -1730,7 +1730,7 @@ bool cFodder::Campaign_Load(std::string pName) {
     return true;
 }
 
-void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
+void cFodder::Map_Create(sMapParams pParams) {
     uint8 TileID = (pParams.mTileType == eTileTypes_Int) ? 4
                  : (pParams.mTileType == eTileTypes_AFX) ? 20
                  : 16;
@@ -1758,21 +1758,6 @@ void cFodder::Map_Create(sMapParams pParams, const bool pRandomise) {
 
     // Load the map specific resources
     Map_Load_Resources();
-
-	if (pRandomise) {
-		if (mParams->mScriptRun.size() == 0)
-			mParams->mScriptRun = "test.js";
-		
-		mMapLoaded->Randomise();
-		g_ScriptingEngine->Randomise(std::dynamic_pointer_cast<cRandomMap>(mMapLoaded), mParams->mScriptRun );
-		
-
-		Map_Load_Sprites();
-
-#ifndef _OFED
-        Map_Load_Sprites_Count();
-#endif
-    }
 
 #ifdef _OFED
     // Editor needs to render the surface now
@@ -18283,16 +18268,43 @@ void cFodder::About() {
 }
 
 void cFodder::CreateRandom() {
+	mGame_Data.mCampaign.CreateCustomCampaign();
+	mGame_Data.mCampaign.setRandom(true);
+	mGame_Data.mCampaign.setName("Random");
+
 	VersionSwitch(mVersions->GetRetail(mParams->mDefaultPlatform, mParams->mDefaultGame));
 
-	if (mParams->mRandomFilename.find_first_of(".") == std::string::npos) {
-		mParams->mRandomFilename.append(".map");
+	if (!mParams->mRandomFilename.size()) {
+		mParams->mRandomFilename = "random";
 	}
+
 	sMapParams Params;
 	Params.Randomise(mRandom.get());
 
-	Map_Create(Params, true);
-	mMapLoaded->save(mParams->mRandomFilename, true);
+	Map_Create(Params);
+
+	if (mParams->mScriptRun.size() == 0)
+		mParams->mScriptRun = "test.js";
+
+	mGame_Data.mMission_Phases_Remaining = 1;
+	mGame_Data.mMission_Number = 1;
+	mGame_Data.mMission_Phase = 1;
+	mGame_Data.Phase_Start();
+
+	mGame_Data.mPhase_Current->SetMapFilename(mParams->mRandomFilename);
+
+	// 
+	g_ScriptingEngine->Run(mParams->mScriptRun);
+
+	// Ensure final phase is saved
+	mMapLoaded->save(mGame_Data.mPhase_Current->GetMapFilename(), true);
+
+	Map_Load_Sprites();
+
+	// Back to mission 1 phase 1
+	mGame_Data.mMission_Number = 1;
+	mGame_Data.mMission_Phase = 1;
+	mGame_Data.Phase_Start();
 }
 
 void cFodder::Start() {

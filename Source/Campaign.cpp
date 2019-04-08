@@ -119,7 +119,7 @@ bool cCampaign::LoadCustomMap(const std::string& pMapName) {
 
 bool cCampaign::SaveCampaign() {
     Json Campaign;
-    Campaign["Author"] = "Sensible Software";
+    Campaign["Author"] = mAuthor;
     Campaign["Name"] = mName;
 
     // Each Mission
@@ -255,7 +255,6 @@ void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
 
 std::shared_ptr<cMap> cCampaign::getCMap(std::shared_ptr<cPhase> pPhase) const {
 
-	
 	auto map = std::make_shared<cOriginalMap>(getMap(pPhase), getSprites(pPhase), mName == "Cannon Fodder 2");
 
 	return map;
@@ -302,12 +301,25 @@ void cCampaign::SetSingleMapCampaign() {
     Clear("Single Map", false);
     mPath = "";
 
-    mMissions.clear();
     mMissions.push_back(std::make_shared<cMission>());
     mMissions.back()->mPhases.push_back(std::make_shared<cPhase>());
 }
 
-const std::string cCampaign::getName() const {
+void cCampaign::SetCustomCampaign() {
+	mIsCustomCampaign = true; 
+	mUseCustomPath = false;
+
+	Clear();
+}
+
+void cCampaign::CreateCustomCampaign() {
+	SetCustomCampaign();
+
+	mMissions.push_back(std::make_shared<cMission>());
+	mMissions.back()->mPhases.push_back(std::make_shared<cPhase>());
+}
+
+std::string cCampaign::getName() const {
     return mName;
 }
 

@@ -79,9 +79,8 @@ public:
 	int32 getWidthPixels() const { return static_cast<int32>(mParams.mWidth) << 4; }
 	int32 getHeightPixels() const { return static_cast<int32>(mParams.mHeight) << 4; }
 
-	virtual void Randomise();
-	virtual bool load(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2);
-	virtual bool save(const std::string& pFilename, const bool CF1);
+	virtual bool load(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2) = 0;
+	virtual bool save(std::string pFilename, const bool CF1) = 0;
 
 	tSharedBuffer			getData() const;
 	std::vector<sSprite>	getSprites() const;

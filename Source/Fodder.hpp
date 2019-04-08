@@ -590,7 +590,7 @@ public:
     bool            Campaign_Load(std::string pName);
 
     // Map Functions
-    void            Map_Create(sMapParams pParams, const bool pRandomise = false);
+    void            Map_Create(sMapParams pParams);
     void            Map_Load();
     void            Map_Load_Sprites();
     void			Map_Load_Sprites_Count();

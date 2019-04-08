@@ -1165,21 +1165,8 @@ int16 cFodder::Recruit_Show() {
     else {
         if (mVersionCurrent->mName == "Random Map") {
 
-			std::string RandomMapFile = mVersionCurrent->getDataFilePath("random.map");
-
-			mGame_Data.mCampaign.LoadCustomMapFromPath(RandomMapFile);
-			mGame_Data.mCampaign.setRandom(true);
-
-			mGame_Data.mMission_Phases_Remaining = 1;
-			mGame_Data.mMission_Number = 1;
-			mGame_Data.mMission_Phase = 1;
-			mGame_Data.Phase_Start();
-
-			sMapParams Params;
-			Params.Randomise( mRandom.get() );
-
-            Map_Create(Params, true);
-            mMapLoaded->save(RandomMapFile, true);
+			CreateRandom();
+			mGame_Data.mMission_Recruitment = 0;
         }
         else {
             Custom_ShowMapSelection();
