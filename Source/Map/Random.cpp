@@ -26,7 +26,7 @@
 
 #include "Utils/SimplexNoise.hpp"
 #include "Utils/SimplexIslands.hpp"
-
+#include "Utils/diamondsquare.hpp"
 
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	mParams = pParams;
@@ -219,6 +219,24 @@ std::vector<std::vector<float>> cRandomMap::createSimplexIslands(size_t pOctaves
 	auto noise = Islands.CreateArray(mParams.mWidth, mParams.mHeight, pOctaves, pRoughness, pScale, pSeed, pRadialEnabled, pEdgeFade);
 
 	return noise;
+}
+
+std::vector<std::vector<double>> cRandomMap::createDiamondSquare() {
+
+	int32 PowerOf = 0;
+	size_t Size;
+
+	if (mParams.mWidth < mParams.mHeight)
+		Size = mParams.mHeight;
+	else
+		Size = mParams.mWidth;
+	while (Size > 0) {
+		PowerOf++;
+		Size = Size >> 1;
+	}
+
+	cDiamondSquare DS(PowerOf, mParams.mRandom.getu());
+	return DS.generate();
 }
 
 std::vector<std::vector<float>> cRandomMap::createSimplexNoise(size_t pOctaves, float pFrequency, float pLacunarity, float pPersistence) {

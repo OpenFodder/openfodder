@@ -208,10 +208,37 @@ public:
 
 		runDiamondSquare(R, H, sigma, randomRangeReductionFactor, addition, PBC);
 
+		normalizeArray(R);
 		return R;
 	}
 
 
+	void normalizeArray(std::vector<std::vector<double>>& pNoise) {
+		double min = 0;
+		double max = 0;
+
+		for (size_t i = 0; i < pNoise.size(); i++) {
+			for (size_t j = 0; j < pNoise[i].size(); j++) {
+
+				if (pNoise[i][j] < min) {
+					min = pNoise[i][j];
+				}
+				else if (pNoise[i][j] > max) {
+					max = pNoise[i][j];
+				}
+			}
+		}
+
+		float divisor = max - min;
+
+		for (size_t i = 0; i < pNoise.size(); i++) {
+			for (size_t j = 0; j < pNoise[i].size(); j++) {
+
+				pNoise[i][j] = (pNoise[i][j] - min) / divisor;
+
+			}
+		}
+	}
 private:
 
 	void runDiamondSquare(

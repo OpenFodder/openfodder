@@ -115,6 +115,11 @@ public:
 		mGoals.clear();
 	}
 
+	void SetAggression(const int16& pMin, const int16& pMax) {
+		mAggression.setMin(pMin);
+		mAggression.setMax(pMax);
+	}
+
 	void SetMinAggression(const int16& pMin) {
 		mAggression.setMin(pMin);
 	}

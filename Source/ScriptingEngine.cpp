@@ -164,6 +164,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::create, "Create");
 	dukglue_register_method(mContext, &cRandomMap::createRandom, "CreateRandom");
 	
+	dukglue_register_method(mContext, &cRandomMap::createDiamondSquare, "DiamondSquare");
 	dukglue_register_method(mContext, &cRandomMap::createSimplexIslands, "SimplexIslands");
 	dukglue_register_method(mContext, &cRandomMap::createSimplexNoise, "SimplexNoise");
 
@@ -202,6 +203,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cPhase::AddGoal, "ObjectiveAdd");
 	dukglue_register_method(mContext, &cPhase::RemoveGoal, "ObjectiveRemove");
 	dukglue_register_method(mContext, &cPhase::ClearGoals, "ObjectivesClear");
+	dukglue_register_method(mContext, &cPhase::SetAggression, "SetAggression");
 	dukglue_register_method(mContext, &cPhase::SetMinAggression, "SetMinAggression");
 	dukglue_register_method(mContext, &cPhase::SetMaxAggression, "SetMaxAggression");
 
