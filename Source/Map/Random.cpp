@@ -37,11 +37,6 @@ cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	saveHeader();
 }
 
-void cRandomMap::addBarracks(size_t pX, size_t pY) {
-
-	Structure_Add(mStructuresBarracksWithSoldier[mParams.mTileType], pX / 16, pY / 16);
-}
-
 int32 cRandomMap::getSpriteTypeCount(size_t pSpriteType) {
 	int32 count = 0;
 

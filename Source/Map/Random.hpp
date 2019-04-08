@@ -44,8 +44,6 @@ public:
 	bool					CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition, int32 pRadius);
 	bool					CheckRadiusSprites(cPosition* pPosition, int32 pRadius);
 
-	void					addBarracks(size_t pX, size_t pY);
-
 	void					create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub = eTileSub::eTileSub_0);
 	void					createRandom(size_t pSeed = 0);
 

@@ -88,6 +88,7 @@ cScriptingEngine::cScriptingEngine() {
 
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/Names/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/Structures/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Kill.All.Enemy/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Enemy.Buildings/"));
@@ -160,7 +161,6 @@ void cScriptingEngine::init() {
 	dukglue_register_constructor<cRandomMap, const sMapParams& >(mContext, "cRandomMap");
 
 	dukglue_register_method(mContext, &cRandomMap::save, "save");
-	dukglue_register_method(mContext, &cRandomMap::addBarracks, "addBarracks");
 	dukglue_register_method(mContext, &cRandomMap::create, "Create");
 	dukglue_register_method(mContext, &cRandomMap::createRandom, "CreateRandom");
 	
