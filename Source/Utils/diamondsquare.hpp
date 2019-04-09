@@ -229,7 +229,7 @@ public:
 			}
 		}
 
-		float divisor = max - min;
+		double divisor = max - min;
 
 		for (size_t i = 0; i < pNoise.size(); i++) {
 			for (size_t j = 0; j < pNoise[i].size(); j++) {

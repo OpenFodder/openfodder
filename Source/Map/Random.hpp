@@ -41,7 +41,7 @@ public:
 	cRandomMap(const sMapParams& pParams);
 
 	bool					CheckRadiusTileID(std::vector<size_t> pTileIDs, cPosition* pPosition, int32 pRadius);
-	bool					CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition, int32 pRadius);
+	bool					CheckRadiusFeatures(const std::vector<eTerrainFeature>& pType, cPosition* pPosition, int32 pRadius);
 	bool					CheckRadiusSprites(cPosition* pPosition, int32 pRadius);
 
 	void					create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub = eTileSub::eTileSub_0);

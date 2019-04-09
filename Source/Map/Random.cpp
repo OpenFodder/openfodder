@@ -71,7 +71,7 @@ bool cRandomMap::CheckRadiusTileID(std::vector<size_t> pTileIDs, cPosition* pPos
 			if (y < 0)
 				continue;
 
-			int32 TileID = Tile_Get(pPosition->mX / 16, pPosition->mY / 16);
+			int32 TileID = Tile_Get(x, y);
 			if (std::find(pTileIDs.begin(), pTileIDs.end(), TileID) == pTileIDs.end())
 				return false;
 		}
@@ -80,7 +80,7 @@ bool cRandomMap::CheckRadiusTileID(std::vector<size_t> pTileIDs, cPosition* pPos
 	return true;
 }
 
-bool cRandomMap::CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition, int32 pRadius) {
+bool cRandomMap::CheckRadiusFeatures(const std::vector<eTerrainFeature> &pTypes, cPosition* pPosition, int32 pRadius) {
 	for (int32 x = pPosition->mX - pRadius; x < pPosition->mX + pRadius; x++) {
 		if (x < 0)
 			continue;
@@ -90,7 +90,8 @@ bool cRandomMap::CheckRadiusFeatures(eTerrainFeature pType, cPosition* pPosition
 			if (y < 0)
 				continue;
 			
-			if (g_Fodder->Map_Terrain_Get(x, y) != pType)
+			int32 Terrain = g_Fodder->Map_Terrain_Get(x, y);
+			if (std::find(pTypes.begin(), pTypes.end(), Terrain) == pTypes.end())
 				return false;
 		}
 	}
@@ -136,16 +137,38 @@ int32 cRandomMap::getRandomInt(int32 pMin, int32 pMax) {
 
 
 cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius) {
-	size_t Radius = pRadius * 16;
+	size_t Radius = pRadius;
 	cPosition* Position = new cPosition();
 
-	for (int count = 0; count < 1000; ++count) {
-		Position->mX = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
-		Position->mY = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
+	cPosition PosStart;
+	PosStart.mX = pRadius + (mParams.mRandom.getu() % (mParams.mWidth - pRadius));
+	PosStart.mY = pRadius + (mParams.mRandom.getu() % (mParams.mHeight - pRadius));
+	
+	// Move 1 tile each direction
+	for (Position->mY = PosStart.mY; Position->mY < getHeight(); Position->mY++) {
+		if (Position->mY != PosStart.mY)
+			PosStart.mX = 0;
 
-		// Check land for one of the features
-		if (CheckRadiusTileID(pTiles, Position, Radius))
-			return Position;
+		for (Position->mX = PosStart.mX; Position->mX < getWidth(); Position->mX++) {
+
+			if (CheckRadiusTileID(pTiles, Position, Radius)) {
+				Position->mX *= TILE_WIDTH_PIXELS;
+				Position->mY *= TILE_HEIGHT_PIXELS;
+				return Position;
+			}
+		}
+	}
+
+	// Return to start of map
+	for (Position->mY = 0; Position->mY < PosStart.mY; Position->mY++) {
+		for (Position->mX = 0; Position->mX <= getWidth(); Position->mX++) {
+
+			if (CheckRadiusTileID(pTiles, Position, Radius)) {
+				Position->mX *= TILE_WIDTH_PIXELS;
+				Position->mY *= TILE_HEIGHT_PIXELS;
+				return Position;
+			}
+		}
 	}
 
 	Position->mX = -1;
@@ -155,38 +178,42 @@ cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pR
 
 
 cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius, bool pIgnoreSprites) {
-	size_t Radius = pRadius * 16;
+	size_t Radius = pRadius * TILE_WIDTH_PIXELS;
 	cPosition* Position = new cPosition();
 
-	for(int count = 0; count < 1000; ++count ) {
-		Position->mX = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mWidth - pRadius)) * 16;
-		Position->mY = 16 + ((mParams.mRandom.getu() + pRadius) % (mParams.mHeight - pRadius)) * 16;
+	cPosition PosStart;
+	PosStart.mX = (pRadius + (mParams.mRandom.getu() % (mParams.mWidth - pRadius))) * TILE_HEIGHT_PIXELS;
+	PosStart.mY = (pRadius + (mParams.mRandom.getu() % (mParams.mHeight - pRadius))) * TILE_HEIGHT_PIXELS;
 
-		// Found a sprite in this region?
-		if (!pIgnoreSprites) {
-			if (CheckRadiusSprites(Position, Radius))
-				continue;
-		}
-		// Check land for one of the features
-		for (auto& Feature : pFeatures) {
-			if (CheckRadiusFeatures(Feature, Position, Radius))
-				return Position;
-		}
+	// Move 1 tile each direction
+	for (Position->mY = PosStart.mY; Position->mY <= getHeightPixels(); Position->mY += 1) {
+		if (Position->mY != PosStart.mY)
+			PosStart.mX = 0;
 
-	}
+		for (Position->mX = PosStart.mX; Position->mX <= getWidthPixels(); Position->mX += 16) {
 
-	// Scan from top left to bottom right
-	for (Position->mY = Radius; Position->mY < getHeightPixels() - 16; Position->mY += Radius) {
-		for (Position->mX = Radius; Position->mX < getWidthPixels() - 16; Position->mX += Radius) {
+
 			if (!pIgnoreSprites) {
 				if (CheckRadiusSprites(Position, Radius))
 					continue;
 			}
+			// Check land for one of the features
+			if (CheckRadiusFeatures(pFeatures, Position, Radius))
+				return Position;
+		}
+	}
 
-			for (auto Feature : pFeatures) {
-				if (CheckRadiusFeatures(Feature, Position, Radius))
-					return Position;
+	// Return to start of map
+	for (Position->mY = 0; Position->mY < PosStart.mY; Position->mY += 1) {
+		for (Position->mX = 0; Position->mX <= getWidthPixels(); Position->mX += 8) {
+
+			if (!pIgnoreSprites) {
+				if (CheckRadiusSprites(Position, Radius))
+					continue;
 			}
+			// Check land for one of the features
+			if (CheckRadiusFeatures(pFeatures, Position, Radius))
+				return Position;
 		}
 	}
 

@@ -107,3 +107,6 @@ extern const int16 mTiles_Indestructible_Internal[];
 extern const int16* mTiles_Indestructible[];
 
 extern const std::vector<sTileType> mTileTypes;
+
+extern const int16 TILE_WIDTH_PIXELS;
+extern const int16 TILE_HEIGHT_PIXELS;
