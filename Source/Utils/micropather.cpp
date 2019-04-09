@@ -721,7 +721,7 @@ int MicroPather::Solve( cPosition* startNode, cPosition* endNode, MP_VECTOR< cPo
 	{
 		PathNode* node = open.Pop();
 		
-		if ( node->state == *endNode )
+		if ( node->state == *endNode || node->state.distanceTo(*endNode) <= 8)
 		{
 			GoalReached( node, startNode, endNode, path );
 			*cost = node->costFromStart;

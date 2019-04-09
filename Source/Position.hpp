@@ -31,6 +31,19 @@ class cPosition {
 		void	Set( unsigned int pX, unsigned int pY ) { mX = pX; mY = pY; }
         void Clear() { mX = 0; mY = 0; }
 		
+		int32 distanceTo(const cPosition& pPosition) const {
+
+			int32 X = mX - pPosition.mX;
+			int32 Y = mY - pPosition.mY;
+
+			if (X < 0)
+				X = -X;
+			if (Y < 0)
+				Y = -Y;
+
+			return X + Y;
+		}
+
 		bool operator== (const cPosition& pPosition) const {
 
 			return pPosition.mX == mX && pPosition.mY == mY;
