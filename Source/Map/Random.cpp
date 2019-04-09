@@ -186,11 +186,11 @@ cPosition* cRandomMap::getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatu
 	PosStart.mY = 16 + (pRadius + (mParams.mRandom.getu() % (mParams.mHeight - pRadius))) * TILE_HEIGHT_PIXELS;
 
 	// Move 1 tile each direction
-	for (Position->mY = PosStart.mY; Position->mY <= getHeightPixels(); Position->mY += Radius) {
+	for (Position->mY = PosStart.mY; Position->mY <= getHeightPixels(); Position->mY += 16) {
 		if (Position->mY != PosStart.mY)
 			PosStart.mX = Radius;
 
-		for (Position->mX = PosStart.mX; Position->mX <= getWidthPixels(); Position->mX += Radius) {
+		for (Position->mX = PosStart.mX; Position->mX <= getWidthPixels(); Position->mX += 16) {
 
 
 			if (!pIgnoreSprites) {
