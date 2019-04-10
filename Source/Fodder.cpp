@@ -6244,6 +6244,7 @@ int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprit
     if (!Map_PathCheck_CalculateTo(Data0, Data4, Data8, DataC))
         return 0;
 
+	// Move toward top left
     Data0 = tool_RandomGet() & 0x3F;
     if (Data0)
         return 0;
@@ -7425,6 +7426,7 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
     int32 Data4 = mCheckPattern_Position.mY;
 
     uint8* MapTilePtr = mMap->data() + 0x60;
+	uint16 TileID = 0;
 
     Data4 *= mMapLoaded->getWidth();
     Data4 += mCheckPattern_Position.mX;
@@ -7441,11 +7443,11 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
         }
         //loc_2A6A1
         if (MapTilePtr > mMap->data() && MapTilePtr < mMap->data() + mMap->size()) {
-			pTileHit = readLE<uint16>(MapTilePtr);
+			TileID = readLE<uint16>(MapTilePtr);
         } else
-			pTileHit = 0;
+			TileID = 0;
 
-		pTileHit = mTile_Hit[pTileHit & 0x1FF];
+		pTileHit = mTile_Hit[TileID & 0x1FF];
 
         // Tile has hit?
         if (pTileHit >= 0) {
@@ -7463,7 +7465,7 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
 			pTileHit = 0;
             return 0;
         }
-		pTileHit = readLE<uint16>(CheckPatternPtr);
+		int16 Check = readLE<int16>(CheckPatternPtr);
 		CheckPatternPtr += 2;
         if (pTileHit == 0)
             goto loc_2A728;
@@ -7474,12 +7476,12 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
         if (readLE<uint16>(CheckPatternPtr) == 0)
             goto loc_2A728;
 
-        MapTilePtr += pTileHit;
-		pTileHit = readLE<uint16>(CheckPatternPtr);
+        MapTilePtr += Check;
+		Check = readLE<uint16>(CheckPatternPtr);
 		CheckPatternPtr += 2;
 
     loc_2A728:;
-        MapTilePtr += pTileHit;
+        MapTilePtr += Check;
 
     }
 }
@@ -13401,7 +13403,7 @@ void cFodder::Sprite_Handle_Explosion2(sSprite* pSprite) {
     Sprite_Handle_Explosion(pSprite);
 }
 
-void cFodder::Sprite_Handle_Civilian_Door(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Door_Civilian_Rescue(sSprite* pSprite) {
     mSprite_OpenCloseDoor_Ptr = pSprite;
 
     if (sub_222A3(pSprite)) {

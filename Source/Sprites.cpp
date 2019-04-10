@@ -168,7 +168,7 @@ void cFodder::Sprite_Table_Setup() {
 	/* 88 */
 	SpriteFunction( BuildingDoor3 );
 	SpriteFunction( Explosion2 );
-	SpriteFunction( Civilian_Door);
+	SpriteFunction( Door_Civilian_Rescue );
 	SpriteFunction( Seal_Mine);
 
 	/* 92 */

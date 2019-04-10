@@ -855,7 +855,7 @@ public:
     void            Sprite_Handle_BuildingDoor3(sSprite* pSprite);        // 88
     void            Sprite_Handle_Explosion2(sSprite* pSprite);           // 89
 
-    void            Sprite_Handle_Civilian_Door(sSprite* pSprite);                                        // 90
+    void            Sprite_Handle_Door_Civilian_Rescue(sSprite* pSprite);         // 90
     void            Sprite_Handle_Seal_Mine(sSprite* pSprite);                    // 91
     void            Sprite_Handle_Spider_Mine(sSprite* pSprite);                      // 92
     void            Sprite_Handle_Bonus_RankToGeneral(sSprite* pSprite);              // 93
