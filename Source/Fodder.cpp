@@ -5304,6 +5304,7 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
 	// this becomes problematic when you increase maxsprites, especially insane high values like
 	//  1,000,000
 	if (!mParams->isOriginalSpriteMax()) {
+		bool Looped = false;
 
 		do {
 		NextSprite2:;
@@ -5311,6 +5312,10 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
 
 			if (pSprite->field_5E >= (mParams->mSpritesMax - 2)) {
 				pSprite->field_5E = 0;
+				if (Looped == true)
+					return -1;
+
+				Looped = true;
 				continue;
 			}
 
@@ -7444,8 +7449,7 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
 		//loc_2A6A1
 		if (MapTilePtr > mMap->data() && MapTilePtr < mMap->data() + mMap->size()) {
 			TileID = readLE<uint16>(MapTilePtr);
-		}
-		else
+		} else
 			TileID = 0;
 
 		pTileHit = mTile_Hit[TileID & 0x1FF];
