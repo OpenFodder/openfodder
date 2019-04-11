@@ -1040,9 +1040,6 @@ void cFodder::Phase_SquadPrepare() {
 	mCheckPattern_Position.mX = 0;
 	mCheckPattern_Position.mY = 0;
 
-    for (uint16 x = 0; x < 200; ++x)
-        mMap_PathCheck[x] = 0;
-
     mCamera_StartPosition_X = 0;
     mCamera_StartPosition_Y = 0;
 
@@ -7354,40 +7351,36 @@ int16 cFodder::Map_PathCheck_CalculateTo(int16& pX1, int16& pY1, int16& pX2, int
 }
 
 void cFodder::Map_PathCheck_Generate(int16& pX1, int16&  pY1, int16& pX2, int16& pY2, int16& pColumnWidth, int16& pRowWidth) {
-    uint8* PathCheck = mMap_PathCheck;
+    int16 X = pX2 - pX1;
 
-    int16 X = pX2;
-	X -= pX1;
-
-    int16 Y = pY2;
-	Y -= pY1;
+    int16 Y = pY2 - pY1;
 
     int16 Data28 = pX2;
 
-    int16 WriteFinalValue, WriteValue;
+    int16 X_Move, Y_Move;
 
+	// Target to the left?
     if (X < 0) {
-		pColumnWidth = -pColumnWidth;
-        WriteFinalValue = pColumnWidth;
+        X_Move = -pColumnWidth;
 		X = -X;
 		pColumnWidth = -1;
     }
     else {
-        WriteFinalValue = pColumnWidth;
+        X_Move = pColumnWidth;
 		pColumnWidth = 1;
     }
-    //loc_2A56A
 
+    //loc_2A56A
+	// If target position is above us
     if (Y < 0) {
-		pRowWidth = -pRowWidth;
-        WriteValue = pRowWidth;
+        Y_Move = -pRowWidth;
 		Y = -Y;
 		pRowWidth = -1;
-    }
-    else {
-        WriteValue = pRowWidth;
+    } else {
+        Y_Move = pRowWidth;
 		pRowWidth = 1;
     }
+
     //loc_2A59D
 	pX2 = 0;
     if (Y == 0)
@@ -7397,27 +7390,27 @@ void cFodder::Map_PathCheck_Generate(int16& pX1, int16&  pY1, int16& pX2, int16&
 
 	pX2 = -pX2;
 
-loc_2A5BA:;
-    if (Data28 == pX1 && pY2 == pY1) {
-		PathCheck[0] = -1;
-		PathCheck[1] = -1;
-		PathCheck[2] = -1;
-		PathCheck[3] = -1;
-        return;
-    }
+	mMap_PathToDest.clear();
 
+loc_2A5BA:;
+
+	// Reached target?
+    if (Data28 == pX1 && pY2 == pY1)
+        return;
+
+	// Move up/down
     if (pX2 >= 0) {
 		pY1 += pRowWidth;
 		pX2 -= X;
-        writeLEWord(PathCheck, WriteValue);
-		PathCheck += 2;
+		mMap_PathToDest.push_back(Y_Move);
         goto loc_2A5BA;
     }
+
+	// Move left/right
     //loc_2A601
 	pX1 += pColumnWidth;
 	pX2 += Y;
-    writeLEWord(PathCheck, WriteFinalValue);
-	PathCheck += 2;
+	mMap_PathToDest.push_back(X_Move);
     goto loc_2A5BA;
 }
 
@@ -7432,58 +7425,45 @@ int16 cFodder::Map_PathCheck_CanPass(int16& pTileHit) {
     Data4 += mCheckPattern_Position.mX;
 
     MapTilePtr += (Data4 << 1);
+	
+	for (size_t x = 0; x < mMap_PathToDest.size(); ++x) {
+		int16 Movement = mMap_PathToDest[x];
 
-    uint8* CheckPatternPtr = mMap_PathCheck;
-    bool CheckPattern = true;
+        if (Movement == 0 || (x + 1) >= mMap_PathToDest.size())
+            goto loc_2A728;
 
-    for (;;) {
-        if (CheckPattern) {
-			CheckPattern = false;
-            goto loc_2A6D7;
-        }
-        //loc_2A6A1
-        if (MapTilePtr > mMap->data() && MapTilePtr < mMap->data() + mMap->size()) {
+		if(mMap_PathToDest[x+1] == 0)
+            goto loc_2A728;
+
+        MapTilePtr += Movement;
+		Movement = mMap_PathToDest[++x];
+
+    loc_2A728:;
+        MapTilePtr += Movement;
+
+		//loc_2A6A1
+		if (MapTilePtr > mMap->data() && MapTilePtr < mMap->data() + mMap->size()) {
 			TileID = readLE<uint16>(MapTilePtr);
-        } else
+		}
+		else
 			TileID = 0;
 
 		pTileHit = mTile_Hit[TileID & 0x1FF];
 
-        // Tile has hit?
-        if (pTileHit >= 0) {
+		// Tile has hit?
+		if (pTileHit >= 0) {
 			pTileHit &= 0x0F;
 
-            // Check if tile is passable
-            if (mTiles_NotWalkable[pTileHit]) {
+			// Check if tile is passable
+			if (mTiles_NotWalkable[pTileHit]) {
 				pTileHit = -1;
-                return -1;
-            }
-        }
-
-    loc_2A6D7:;
-        if (readLE<int32>(CheckPatternPtr) == -1) {
-			pTileHit = 0;
-            return 0;
-        }
-		int16 Check = readLE<int16>(CheckPatternPtr);
-		CheckPatternPtr += 2;
-        if (pTileHit == 0)
-            goto loc_2A728;
-
-        if (readLE<int32>(CheckPatternPtr) == -1)
-            goto loc_2A728;
-
-        if (readLE<uint16>(CheckPatternPtr) == 0)
-            goto loc_2A728;
-
-        MapTilePtr += Check;
-		Check = readLE<uint16>(CheckPatternPtr);
-		CheckPatternPtr += 2;
-
-    loc_2A728:;
-        MapTilePtr += Check;
-
+				return -1;
+			}
+		}
     }
+	
+	pTileHit = 0;
+	return 0;
 }
 
 /**
@@ -8364,8 +8344,6 @@ void cFodder::Squad_Troops_Count() {
 
     if (!TotalTroops)
         mPhase_TryAgain = true;
-
-    mMap_PathCheck[1] = 0;
 
     for (int16 Data0 = 2; Data0 >= 0; --Data0) {
         if (mSquads_TroopCount[Data0])

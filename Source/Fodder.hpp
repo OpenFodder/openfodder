@@ -232,7 +232,7 @@ public:
     std::vector<sSprite*> mSprite_DrawList_Third;
     std::vector<sSprite*> mSprite_DrawList_Final;
 
-    uint8           mMap_PathCheck[200];
+    std::vector<int16> mMap_PathToDest;
 
    
     int32           mStoredSpriteX;
