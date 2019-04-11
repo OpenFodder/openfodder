@@ -5306,6 +5306,9 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
 	if (!mParams->isOriginalSpriteMax()) {
 		bool Looped = false;
 
+		// So if we arnt using default max sprites,
+		// We counter the problem by searching all sprites in a single loop (we can do this, as we have faster CPUs than in 1993)
+		// 
 		do {
 		NextSprite2:;
 			pData28 = &mSprites[pSprite->field_5E];
