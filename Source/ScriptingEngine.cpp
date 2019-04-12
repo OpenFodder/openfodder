@@ -237,6 +237,8 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cScriptingEngine::getMap, "getMap");
 	dukglue_register_method(mContext, &cScriptingEngine::getPhase, "getPhase");
 	dukglue_register_method(mContext, &cScriptingEngine::getMission, "getMission");
+
+	dukglue_register_method(mContext, &cScriptingEngine::guiPrintString, "guiPrintString");
 }
 
 std::shared_ptr<cPhase> cScriptingEngine::phaseCreate() {
@@ -275,6 +277,27 @@ std::shared_ptr<cPhase> cScriptingEngine::getPhase() {
 }
 std::shared_ptr<cMission> cScriptingEngine::getMission() {
 	return g_Fodder->mGame_Data.mMission_Current;
+}
+
+void cScriptingEngine::guiPrintString(const std::string& pText, const size_t pX, const size_t pY, const bool pLarge, const bool pUnderline) {
+	g_Fodder->mWindow->SetScreenSize(g_Fodder->mVersionCurrent->GetScreenSize());
+	g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+	if (!pLarge) {
+		if (!pX)
+			g_Fodder->String_Print_Small(pText, pY);
+		else
+			g_Fodder->String_Print_Small(pText, pX, pY);
+	}
+	else {
+		if (!pX)
+			g_Fodder->String_Print_Large(pText, pUnderline, pY);
+		else
+			g_Fodder->String_Print_Large(pText, pUnderline, pX, pY);
+	}
+
+	g_Fodder->Video_SurfaceRender(false);
+	g_Fodder->Cycle_End();
+	g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 }
 
 void cScriptingEngine::mapSave() {

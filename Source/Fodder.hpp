@@ -1278,6 +1278,7 @@ public:
     void            String_Print_Small(std::string pText, const size_t pY);
     void            String_Print_Small(std::string pText, const size_t pX, const size_t pY);
     void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY);
+	void            String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pX, const uint16 pY);
 
 	void			DataNotFound();
     virtual void    Prepare(std::shared_ptr<sFodderParameters> pParams);

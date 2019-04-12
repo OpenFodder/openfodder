@@ -15620,6 +15620,13 @@ void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine
     String_Print(mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, mGUI_Temp_X, pY, pText);
 }
 
+void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pX, const uint16 pY) {
+	std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+
+	String_CalculateWidth(320, mFont_Underlined_Width, pText);
+	String_Print(mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, pX, pY, pText);
+}
+
 void cFodder::String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText) {
 
     String_Print(pWidths, pFontSpriteID, pParam08, pParamC, pText.c_str());
@@ -18280,6 +18287,7 @@ void cFodder::CreateRandom() {
 
 	mGame_Data.mPhase_Current->SetMapFilename(mParams->mRandomFilename);
 
+	Image_FadeIn();
 	// 
 	g_ScriptingEngine->Run(mParams->mScriptRun);
 

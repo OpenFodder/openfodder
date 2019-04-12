@@ -49,6 +49,8 @@ protected:
 	std::shared_ptr<cPhase> phaseCreate();
 	std::shared_ptr<cMission> missionCreate();
 
+	void guiPrintString(const std::string& pText, const size_t pX, const size_t pY, const bool pLarge, const bool pUnderline);
+
 	void mapSave();
 	bool scriptCall(const std::string& pFilename);
 	bool scriptRun(const std::string& pJS);
