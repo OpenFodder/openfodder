@@ -45,7 +45,6 @@ public:
 	bool					CheckRadiusSprites(cPosition* pPosition, int32 pRadius);
 
 	void					create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub = eTileSub::eTileSub_0);
-	void					createRandom(size_t pSeed = 0);
 
 	std::vector<cPosition*>	calculatePath(size_t pSpriteType, cPosition* Pos1, cPosition* Pos2);
 	int32					getSpriteTypeCount(size_t pSpriteType);

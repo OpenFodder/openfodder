@@ -162,8 +162,7 @@ void cScriptingEngine::init() {
 
 	dukglue_register_method(mContext, &cRandomMap::save, "save");
 	dukglue_register_method(mContext, &cRandomMap::create, "Create");
-	dukglue_register_method(mContext, &cRandomMap::createRandom, "CreateRandom");
-	
+
 	dukglue_register_method(mContext, &cRandomMap::createDiamondSquare, "DiamondSquare");
 	dukglue_register_method(mContext, &cRandomMap::createSimplexIslands, "SimplexIslands");
 	dukglue_register_method(mContext, &cRandomMap::createSimplexNoise, "SimplexNoise");
@@ -239,6 +238,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cScriptingEngine::getMission, "getMission");
 
 	dukglue_register_method(mContext, &cScriptingEngine::guiPrintString, "guiPrintString");
+	dukglue_register_method(mContext, &cScriptingEngine::reset, "reset");
 }
 
 std::shared_ptr<cPhase> cScriptingEngine::phaseCreate() {
@@ -300,6 +300,11 @@ void cScriptingEngine::guiPrintString(const std::string& pText, const size_t pX,
 	g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 }
 
+void cScriptingEngine::reset(const size_t pSeed) {
+
+	getMap()->mParams.mRandom.setSeed((int16)pSeed);
+}
+
 void cScriptingEngine::mapSave() {
 
 	if (getPhase()->GetMapFilename().size() == 0) {
@@ -329,6 +334,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 		
 		if (scriptRun(script) == false) {
 			g_Debugger->Error(pFolder + scriptFile + " Failed to execute");
+			return false;
 		}
 	}
 
@@ -360,7 +366,7 @@ bool cScriptingEngine::scriptRun(const std::string& pJS) {
 	return (success == DUK_EXEC_SUCCESS);
 }
 
-void cScriptingEngine::Run(const std::string& pScript) {
+bool cScriptingEngine::Run(const std::string& pScript) {
 
 	dukglue_register_global(mContext, this, "Engine");
 
@@ -369,6 +375,8 @@ void cScriptingEngine::Run(const std::string& pScript) {
 
 	if (scriptRun(script) == false) {
 		g_Debugger->Error(path + " Failed to execute");
+		return false;
 	}
 
+	return true;
 }

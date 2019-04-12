@@ -32,28 +32,11 @@ sMapParams::sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTil
 sMapParams::sMapParams(size_t pSeed) {
 	mTileType = eTileTypes_Jungle;
 	mTileSub = eTileSub_0;
-	mWidth = 0;
-	mHeight = 0;
+	mWidth = 30;
+	mHeight = 20;
 
 	if (pSeed)
-		Randomise(pSeed);
-}
-
-void sMapParams::Randomise(const size_t pSeed) {
-	mRandom.setSeed((int16)pSeed);
-
-	do {
-		mTileType = (eTileTypes)(mRandom.getu() % eTileTypes_AFX);
-	} while (mTileType == eTileTypes_Hid);
-
-	// HACK: While we only support jungle random
-	mTileType = eTileTypes_Jungle;
-	mTileSub = eTileSub_0;
-
-	mWidth = (mRandom.getu() % 100) + 0x15;
-	mHeight = (mRandom.getu() % 100) + 0x10;
-
-	// TODO: Normalise width/height
+		mRandom.setSeed((int16)pSeed);
 }
 
 cMap::cMap() {

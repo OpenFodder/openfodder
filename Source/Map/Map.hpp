@@ -31,7 +31,6 @@ struct sMapParams {
 
 	sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub = eTileSub::eTileSub_0);
 	sMapParams(size_t pSeed = 0);
-	void Randomise(const size_t pSeed = 0);
 
 	size_t getWidth() { return mWidth; }
 	void setWidth(const size_t pWidth) { mWidth = pWidth; }

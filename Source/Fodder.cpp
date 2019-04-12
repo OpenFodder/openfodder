@@ -15613,14 +15613,14 @@ void cFodder::String_Print_Small(std::string pText, const size_t pX, const size_
     String_Print(mFont_Briefing_Width, 0, pX, pY, pText);
 }
 
-void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pY) {
+void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const size_t pY) {
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
     String_CalculateWidth(320, mFont_Underlined_Width, pText);
     String_Print(mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, mGUI_Temp_X, pY, pText);
 }
 
-void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const uint16 pX, const uint16 pY) {
+void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine, const size_t pX, const size_t pY) {
 	std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
 	String_CalculateWidth(320, mFont_Underlined_Width, pText);
@@ -18272,8 +18272,7 @@ void cFodder::CreateRandom() {
 		mParams->mRandomFilename = "random";
 	}
 
-	sMapParams Params;
-	Params.Randomise(mRandom.get());
+	sMapParams Params(mRandom.get());
 
 	Map_Create(Params);
 
@@ -18290,13 +18289,14 @@ void cFodder::CreateRandom() {
 	// Fade in so text can be drawn
 	Image_FadeIn();
 
-	g_ScriptingEngine->Run(mParams->mScriptRun);
+	if (g_ScriptingEngine->Run(mParams->mScriptRun)) {
+
+		// Ensure final phase is saved
+		mMapLoaded->save(mGame_Data.mPhase_Current->GetMapFilename(), true);
+	}
 
 	// Fade out again
 	Image_FadeOut();
-
-	// Ensure final phase is saved
-	mMapLoaded->save(mGame_Data.mPhase_Current->GetMapFilename(), true);
 
 	Map_Load_Sprites();
 

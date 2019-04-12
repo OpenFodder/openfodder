@@ -55,9 +55,10 @@ protected:
 	bool scriptCall(const std::string& pFilename);
 	bool scriptRun(const std::string& pJS);
 	bool scriptsLoadFolder(const std::string& pFolder);
-
-
 	void spritesCreateObject();
+
+	void reset(const size_t pSeed);
+
 public:
 
 	cScriptingEngine();
@@ -67,5 +68,5 @@ public:
 
 	duk_hthread *getContext() { return mContext; }
 
-	void Run(const std::string& pScript);
+	bool Run(const std::string& pScript);
 };
