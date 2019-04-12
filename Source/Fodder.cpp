@@ -18287,9 +18287,13 @@ void cFodder::CreateRandom() {
 
 	mGame_Data.mPhase_Current->SetMapFilename(mParams->mRandomFilename);
 
+	// Fade in so text can be drawn
 	Image_FadeIn();
-	// 
+
 	g_ScriptingEngine->Run(mParams->mScriptRun);
+
+	// Fade out again
+	Image_FadeOut();
 
 	// Ensure final phase is saved
 	mMapLoaded->save(mGame_Data.mPhase_Current->GetMapFilename(), true);
