@@ -132,6 +132,9 @@ int32 cRandomMap::getRandomInt(int32 pMin, int32 pMax) {
 	if(pMin || pMax)
 		return mParams.mRandom.getu(pMin, pMax);
 
+	if (!pMin && !pMax)
+		return 0;
+
 	return mParams.mRandom.getu();
 }
 
