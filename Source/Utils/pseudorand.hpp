@@ -75,7 +75,7 @@ public:
 		pSeed3 = mRandom_3;
 	}
 
-	int16 getStartingSeed() {
+	int16 getStartingSeed() const {
 		return mStartingSeed;
 	}
 

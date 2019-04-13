@@ -138,6 +138,14 @@ int32 cRandomMap::getRandomInt(int32 pMin, int32 pMax) {
 	return mParams.mRandom.getu();
 }
 
+int16 cRandomMap::getSeed() const {
+	return mParams.mRandom.getStartingSeed();
+}
+
+void cRandomMap::setSeed(const int16 pSeed) {
+
+	return mParams.mRandom.setSeed(pSeed);
+}
 
 cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius) {
 	size_t Radius = pRadius;

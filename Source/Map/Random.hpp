@@ -51,6 +51,8 @@ public:
 	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
 	float					getRandomFloat(float pMin, float pMax);
 	int32					getRandomInt(int32 pMin = 0, int32 pMax = 0);
+	int16					getSeed() const;
+	void					setSeed(const int16 pSeed);
 
 	cPosition*				getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius);
 	cPosition*				getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius, bool pIgnoreSprites);

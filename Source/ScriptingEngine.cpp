@@ -188,6 +188,8 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::Tile_Get, "TileGet");
 	dukglue_register_method(mContext, &cRandomMap::Tile_Set, "TileSet");
 
+	dukglue_register_property(mContext, &cRandomMap::getSeed, &cRandomMap::setSeed, "seed");
+
 	dukglue_register_method(mContext, &cRandomMap::getRandomInt, "getRandomInt");
 	dukglue_register_method(mContext, &cRandomMap::getRandomFloat, "getRandomFloat");
 
@@ -238,7 +240,6 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cScriptingEngine::getMission, "getMission");
 
 	dukglue_register_method(mContext, &cScriptingEngine::guiPrintString, "guiPrintString");
-	dukglue_register_method(mContext, &cScriptingEngine::reset, "reset");
 }
 
 std::shared_ptr<cPhase> cScriptingEngine::phaseCreate() {
@@ -300,10 +301,6 @@ void cScriptingEngine::guiPrintString(const std::string& pText, const size_t pX,
 	g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 }
 
-void cScriptingEngine::reset(const size_t pSeed) {
-
-	getMap()->mParams.mRandom.setSeed((int16)pSeed);
-}
 
 void cScriptingEngine::mapSave() {
 

@@ -57,8 +57,6 @@ protected:
 	bool scriptsLoadFolder(const std::string& pFolder);
 	void spritesCreateObject();
 
-	void reset(const size_t pSeed);
-
 public:
 
 	cScriptingEngine();
