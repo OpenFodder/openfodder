@@ -105,6 +105,7 @@ cScriptingEngine::cScriptingEngine() {
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/Jungle/"));
 
+	Run("Settings.js");
 }
 
 cScriptingEngine::~cScriptingEngine() {
