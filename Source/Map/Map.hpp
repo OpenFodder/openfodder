@@ -72,9 +72,11 @@ public:
 	eTileTypes getTileType() const { return mParams.mTileType; }
 	eTileSub getTileSub() const { return mParams.mTileSub; }
 
+	int32 getArea() const { return mParams.mWidth * mParams.mHeight;  }
 	int32 getWidth() const { return static_cast<int32>(mParams.mWidth); }
 	int32 getHeight() const { return static_cast<int32>(mParams.mHeight); }
 
+	int32 getAreaPixels() const { return getWidthPixels() * getHeightPixels(); }
 	int32 getWidthPixels() const { return static_cast<int32>(mParams.mWidth) << 4; }
 	int32 getHeightPixels() const { return static_cast<int32>(mParams.mHeight) << 4; }
 

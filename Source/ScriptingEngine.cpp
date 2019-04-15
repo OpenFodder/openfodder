@@ -171,7 +171,10 @@ void cScriptingEngine::init() {
 	
 	dukglue_register_method(mContext, &cRandomMap::getTileType, "getTileType");
 	dukglue_register_method(mContext, &cRandomMap::getTileSub, "getTileSub");
-
+	
+	dukglue_register_method(mContext, &cRandomMap::getArea, "getArea");
+	dukglue_register_method(mContext, &cRandomMap::getAreaPixels, "getAreaPixels");
+	
 	dukglue_register_method(mContext, &cRandomMap::getWidth, "getWidth");
 	dukglue_register_method(mContext, &cRandomMap::getHeight, "getHeight");
 	dukglue_register_method(mContext, &cRandomMap::getWidthPixels, "getWidthPixels");
