@@ -31,7 +31,7 @@ cxxopts::Options* sFodderParameters::mCliOptions = 0;
 
 /* These values override the original engine values, when in custom mode */
 const size_t CUSTOM_DEFAULT_MAX_SPRITES = 100000;
-const size_t CUSTOM_DEFAULT_MAX_SPAWN = 100;
+const size_t CUSTOM_DEFAULT_MAX_SPAWN = 25;
 
 std::string sFodderParameters::ToJson() {
 	Json Save;
