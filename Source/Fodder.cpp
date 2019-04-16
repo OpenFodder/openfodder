@@ -9919,7 +9919,26 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
         //loc_18F12
         mSprite_FaceWeaponTarget = -1;
 
-        Data28 = &mSprites[pSprite->field_5E];
+		Data28 = &mSprites[pSprite->field_5E];
+
+		// The original engine checked 1 sprite per cycle, this is problematic 
+		// with max sprites gets bigger, especially at 100,000. So we check every sprite
+		//  every cycle, if not using the original parameters.
+		if (!mParams->isOriginalSpriteMax()) {
+			bool looped = false;
+
+			while (Data28->field_0 == -32768) {
+				++pSprite->field_5E;
+				if (pSprite->field_5E >= (mParams->mSpritesMax - 2)) {
+					pSprite->field_5E = 0;
+					if (looped)
+						break;
+
+					looped = true;
+				}
+				Data28 = &mSprites[pSprite->field_5E];
+			};
+		}
 
         if (Data28->field_0 != -32768) {
 
