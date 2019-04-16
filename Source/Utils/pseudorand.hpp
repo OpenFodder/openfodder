@@ -90,7 +90,7 @@ public:
 	}
 
 	uint16 getu(size_t pMin, size_t pMax) {
-		return (uint16) (get() % pMax + pMin);
+		return (uint16)(pMin + (getu() % static_cast<int>(pMax - pMin + 1)));
 	}
 
 	int16 get() {

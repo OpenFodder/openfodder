@@ -148,5 +148,3 @@ tSharedBuffer cMap::getData() const {
 std::vector<sSprite> cMap::getSprites() const {
 	return mSprites;
 }
-
-
