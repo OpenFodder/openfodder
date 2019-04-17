@@ -148,7 +148,7 @@ void cRandomMap::setSeed(const int16 pSeed) {
 }
 
 cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius) {
-	size_t Radius = pRadius;
+	int32 Radius = (int32) pRadius;
 	cPosition* Position = new cPosition();
 
 	cPosition PosStart;
@@ -156,13 +156,13 @@ cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pR
 	PosStart.mY = pRadius + (mParams.mRandom.getu() % (mParams.mHeight - pRadius));
 	
 	// Move 1 tile each direction
-	for (Position->mY = PosStart.mY; Position->mY < getHeight(); Position->mY++) {
+	for (Position->mY = PosStart.mY; Position->mY < getHeight() - Radius; Position->mY++) {
 		if (Position->mY != PosStart.mY)
 			PosStart.mX = 0;
 
-		for (Position->mX = PosStart.mX; Position->mX < getWidth(); Position->mX++) {
+		for (Position->mX = PosStart.mX; Position->mX < getWidth() - Radius; Position->mX++) {
 
-			if (CheckRadiusTileID(pTiles, Position, Radius)) {
+			if (CheckRadiusTileID(pTiles, Position, pRadius)) {
 				Position->mX *= TILE_WIDTH_PIXELS;
 				Position->mY *= TILE_HEIGHT_PIXELS;
 				return Position;
@@ -172,9 +172,9 @@ cPosition* cRandomMap::getRandomXYByTileID(std::vector<size_t> pTiles, size_t pR
 
 	// Return to start of map
 	for (Position->mY = 0; Position->mY < PosStart.mY; Position->mY++) {
-		for (Position->mX = 0; Position->mX <= getWidth(); Position->mX++) {
+		for (Position->mX = 0; Position->mX <= getWidth() - Radius; Position->mX++) {
 
-			if (CheckRadiusTileID(pTiles, Position, Radius)) {
+			if (CheckRadiusTileID(pTiles, Position, pRadius)) {
 				Position->mX *= TILE_WIDTH_PIXELS;
 				Position->mY *= TILE_HEIGHT_PIXELS;
 				return Position;
