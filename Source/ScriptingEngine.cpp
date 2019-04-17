@@ -86,9 +86,14 @@ cScriptingEngine::cScriptingEngine() {
 	init();
 	spritesCreateObject();
 
+
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/"));
+	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/Jungle/"));
+
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/Names/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/Structures/"));
+
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Kill.All.Enemy/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Enemy.Buildings/"));
@@ -102,8 +107,6 @@ cScriptingEngine::cScriptingEngine() {
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Activate.Switches/"));
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Rescue.Hostage/"));
 
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/Jungle/"));
 
 	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Scenarios/"));
 	Run("Settings.js");
