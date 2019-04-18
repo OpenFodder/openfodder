@@ -9,6 +9,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Release_JSDebug|Win32 = Release_JSDebug|Win32
+		Release_JSDebug|x64 = Release_JSDebug|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -17,6 +19,10 @@ Global
 		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Debug|Win32.Build.0 = Debug|Win32
 		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Debug|x64.ActiveCfg = Debug|x64
 		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Debug|x64.Build.0 = Debug|x64
+		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Release_JSDebug|Win32.ActiveCfg = Release_JSDebug|Win32
+		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Release_JSDebug|Win32.Build.0 = Release_JSDebug|Win32
+		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Release_JSDebug|x64.ActiveCfg = Release_JSDebug|x64
+		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Release_JSDebug|x64.Build.0 = Release_JSDebug|x64
 		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Release|Win32.ActiveCfg = Release|Win32
 		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Release|Win32.Build.0 = Release|Win32
 		{37C57A15-FFBF-41E2-9549-4E5CDB50C7D1}.Release|x64.ActiveCfg = Release|x64

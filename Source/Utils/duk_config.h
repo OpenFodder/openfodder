@@ -2986,6 +2986,32 @@ typedef struct duk_hthread duk_context;
 
 /* __OVERRIDE_DEFINES__ */
 
+#ifdef OF_JS_DEBUG
+#define DUK_USE_DEBUGGER_SUPPORT
+#define DUK_USE_INTERRUPT_COUNTER
+
+// To enable heap object inspection:
+// Note: If this option is not enabled, you will only
+//  be able to inspect local variables in the call stack.
+//  No object properties will be inspectble.
+#define DUK_USE_DEBUGGER_INSPECT
+
+// (Optional) To forward log calls to the client:
+//#define DUK_USE_DEBUGGER_FWD_LOGGING
+//#define DUK_USE_DEBUGGER_FWD_PRINTALERT
+
+// (Optional) To notify the client when an error is about to be thrown:
+#define DUK_USE_DEBUGGER_THROW_NOTIFY
+
+// (Optional) To pause on an uncaught errors:
+#define DUK_USE_DEBUGGER_PAUSE_UNCAUGHT
+
+
+// The following option to enable the 'DumpHeap' command is currently unsupported.
+#define DUK_USE_DEBUGGER_DUMPHEAP
+#endif
+
+
 /*
  *  Conditional includes
  */

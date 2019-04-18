@@ -24,6 +24,9 @@
 #include "Utils/dukglue/dukglue.h"
 #include "Utils/SimplexNoise.hpp"
 #include "Map/Random.hpp"
+#ifdef OF_JS_DEBUG
+#include "Utils/duk_trans_socket.h"
+#endif
 
 namespace dukglue {
 	namespace types {
@@ -79,6 +82,85 @@ void cScriptFileIO::close() {
 	mStream.close();
 }
 
+static duk_idx_t debugger_request(duk_context *ctx, void *udata, duk_idx_t nvalues) {
+	const char *cmd;
+	//int i;
+
+	(void)udata;
+
+	if (nvalues < 1) {
+		duk_push_string(ctx, "missing AppRequest argument(s)");
+		return -1;
+	}
+
+	cmd = duk_get_string(ctx, -nvalues + 0);
+	/*
+	if (cmd && strcmp(cmd, "CommandLine") == 0) {
+		if (!duk_check_stack(ctx, main_argc)) {
+			/* Callback should avoid errors for now, so use
+			 * duk_check_stack() rather than duk_require_stack().
+			 *
+			duk_push_string(ctx, "failed to extend stack");
+			return -1;
+		}
+		for (i = 0; i < main_argc; i++) {
+			duk_push_string(ctx, main_argv[i]);
+		}
+		return main_argc;
+	}*/
+	duk_push_sprintf(ctx, "command not supported");
+	return -1;
+}
+
+static void debugger_detached(duk_context *ctx, void *udata) {
+#ifdef OF_JS_DEBUG
+	fprintf(stderr, "Debugger detached, udata: %p\n", (void *)udata);
+	fflush(stderr);
+
+	/* Ensure socket is closed even when detach is initiated by Duktape
+	 * rather than debug client.
+	 */
+	duk_trans_socket_finish();
+	/*
+	if (debugger_reattach) {
+		// For automatic reattach testing.
+		duk_trans_socket_init();
+		duk_trans_socket_waitconn();
+		fprintf(stderr, "Debugger reconnected, call duk_debugger_attach()\n");
+		fflush(stderr);
+		duk_debugger_attach(ctx,
+			duk_trans_socket_read_cb,
+			duk_trans_socket_write_cb,
+			duk_trans_socket_peek_cb,
+			duk_trans_socket_read_flush_cb,
+			duk_trans_socket_write_flush_cb,
+			debugger_request,
+			debugger_detached,
+			NULL);
+	}*/
+#endif
+}
+
+void cScriptingEngine::debuggerEnable() {
+
+#ifdef OF_JS_DEBUG
+	g_Debugger->Error("Debugger enabled, create socket and wait for connection\n");
+	duk_trans_socket_init();
+	duk_trans_socket_waitconn();
+	g_Debugger->Error("Debugger connected\n");
+
+	duk_debugger_attach(mContext,
+		duk_trans_socket_read_cb,
+		duk_trans_socket_write_cb,
+		duk_trans_socket_peek_cb,
+		duk_trans_socket_read_flush_cb,
+		duk_trans_socket_write_flush_cb,
+		debugger_request,
+		debugger_detached,
+		NULL);
+#endif
+}
+
 cScriptingEngine::cScriptingEngine() {
 
 	mContext = duk_create_heap_default();
@@ -86,29 +168,28 @@ cScriptingEngine::cScriptingEngine() {
 	init();
 	spritesCreateObject();
 
+	scriptsLoadFolder("Terrain/");
+	scriptsLoadFolder("Terrain/Jungle/");
 
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Terrain/Jungle/"));
+	scriptsLoadFolder("General/");
+	scriptsLoadFolder("General/Names/");
+	scriptsLoadFolder("General/Structures/");
 
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/Names/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("General/Structures/"));
-
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Kill.All.Enemy/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Enemy.Buildings/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Rescue.Hostages/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Protect.Civilians/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Kidnap.Leader/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Factory/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Destroy.Computer/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Get.Civilian.Home/"));
+	scriptsLoadFolder("Objectives/");
+	scriptsLoadFolder("Objectives/Kill.All.Enemy/");
+	scriptsLoadFolder("Objectives/Destroy.Enemy.Buildings/");
+	scriptsLoadFolder("Objectives/Rescue.Hostages/");
+	scriptsLoadFolder("Objectives/Protect.Civilians/");
+	scriptsLoadFolder("Objectives/Kidnap.Leader/");
+	scriptsLoadFolder("Objectives/Destroy.Factory/");
+	scriptsLoadFolder("Objectives/Destroy.Computer/");
+	scriptsLoadFolder("Objectives/Get.Civilian.Home/");
 	// CF2 Engine
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Activate.Switches/"));
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Objectives/Rescue.Hostage/"));
+	scriptsLoadFolder("Objectives/Activate.Switches/");
+	scriptsLoadFolder("Objectives/Rescue.Hostage/");
 
 
-	scriptsLoadFolder(g_ResourceMan->GetScriptPath("Scenarios/"));
+	scriptsLoadFolder("Scenarios/");
 	Run("Settings.js");
 }
 
@@ -325,20 +406,24 @@ bool cScriptingEngine::scriptCall(const std::string& pFilename) {
 
 	if (path.size()) {
 		auto script = g_ResourceMan->FileReadStr(path);
-		return scriptRun(script);
+		return scriptRun(script, pFilename);
 	}
 
 	return false;
 }
 
 bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
-	auto scripts = g_ResourceMan->DirectoryList(pFolder, "js");
+
+	auto finalpath = g_ResourceMan->GetScriptPath(pFolder);
+	auto scripts = g_ResourceMan->DirectoryList(finalpath, "js");
 
 	for (auto scriptFile : scripts) {
-		auto script = g_ResourceMan->FileReadStr(pFolder + scriptFile);
+
+		auto finalName = pFolder + scriptFile;
+		auto script = g_ResourceMan->FileReadStr(finalpath + scriptFile);
 		
-		if (scriptRun(script) == false) {
-			g_Debugger->Error(pFolder + scriptFile + " Failed to execute");
+		if (scriptRun(script, finalName) == false) {
+			g_Debugger->Error(finalpath + scriptFile + " Failed to execute");
 			return false;
 		}
 	}
@@ -346,13 +431,15 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 	return true;
 }
 
-bool cScriptingEngine::scriptRun(const std::string& pJS) {
+bool cScriptingEngine::scriptRun(const std::string& pJS, const std::string& pFilename) {
 	int success = DUK_EXEC_ERROR;
 
 	// Compile the JS into bytecode
-	if (duk_pcompile_string(mContext, 0, pJS.c_str()) != 0) {
+	duk_push_string(mContext, pFilename.c_str());
+	if (duk_pcompile_string_filename(mContext, 0, pJS.c_str()) != 0) {
 		g_Debugger->Error("Compile failed: ");
 	} else {
+	
 		success = duk_pcall(mContext, 0);
 		if(success != DUK_EXEC_SUCCESS)
 			g_Debugger->Error("Execute failed: ");
@@ -378,7 +465,7 @@ bool cScriptingEngine::Run(const std::string& pScript) {
 	auto path = g_ResourceMan->GetScriptPath(pScript);
 	auto script = g_ResourceMan->FileReadStr(path);
 
-	if (scriptRun(script) == false) {
+	if (scriptRun(script, pScript) == false) {
 		g_Debugger->Error(path + " Failed to execute");
 		return false;
 	}

@@ -70,6 +70,8 @@ public:
 	bool mDisableVideo;             // Disable all video output
 	bool mDisableSound;             // Disable all sound
 
+	bool mDebugger;
+
 	size_t mSpritesMax;
 	size_t mSpawnEnemyMax;
 
@@ -83,6 +85,8 @@ public:
 	}
 
 	virtual void clear() {
+
+		mDebugger = false;
 
 		mShowHelp = false;
 		mShowAbout = false;

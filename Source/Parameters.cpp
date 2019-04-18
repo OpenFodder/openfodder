@@ -159,6 +159,7 @@ void sFodderParameters::PrepareOptions() {
 		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
 		("random-save", "Generate and save a random map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
 		("script", "Name of script to execute", cxxopts::value<std::string>()->default_value(""), "\"script.js\"")
+		("debugger", "Wait for debugger in scripts", cxxopts::value<bool>()->default_value("false"))
 		;
 }
 
@@ -282,6 +283,8 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mSpritesMax = CUSTOM_DEFAULT_MAX_SPRITES;
 			mSpawnEnemyMax = CUSTOM_DEFAULT_MAX_SPAWN;
 		}
+
+		mDebugger = result["debugger"].as<bool>();
 
 		if (result.count("max-sprite"))
 			mSpritesMax = result["max-sprite"].as<uint32_t>();

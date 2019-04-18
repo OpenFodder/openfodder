@@ -18308,6 +18308,9 @@ void cFodder::CreateRandom() {
 	// Fade in so text can be drawn
 	Image_FadeIn();
 
+	if (g_Fodder->mStartParams->mDebugger)
+		g_ScriptingEngine->debuggerEnable();
+
 	if (g_ScriptingEngine->Run(mParams->mScriptRun)) {
 
 		// Ensure final phase is saved

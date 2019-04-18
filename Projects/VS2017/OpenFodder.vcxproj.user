@@ -10,12 +10,20 @@
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_JSDebug|x64'">
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments />
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>--window --window-scale 2 --random --campaign "Cannon Fodder" --skipintro --columns 40 --rows 30</LocalDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_JSDebug|Win32'">
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>--window --window-scale 2 --random --campaign "Cannon Fodder" --skipintro --columns 40 --rows 30  --debugger</LocalDebuggerCommandArguments>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>--window --window-scale 2 --random --campaign "Cannon Fodder" --skipintro --columns 40 --rows 30</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--window --window-scale 2 --random --campaign "Cannon Fodder" --skipintro --columns 40 --rows 30 --debugger</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

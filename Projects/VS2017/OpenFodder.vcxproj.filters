@@ -256,6 +256,9 @@
     <ClInclude Include="..\..\Source\Utils\micropather.h">
       <Filter>Source\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Utils\duk_trans_socket.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\stdafx.cpp">
@@ -403,6 +406,9 @@
       <Filter>Source\Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utils\micropather.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utils\duk_trans_socket_windows.cpp">
       <Filter>Source\Utils</Filter>
     </ClCompile>
   </ItemGroup>

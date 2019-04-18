@@ -52,8 +52,10 @@ protected:
 	void guiPrintString(const std::string& pText, const size_t pX, const size_t pY, const bool pLarge, const bool pUnderline);
 
 	void mapSave();
+
+
 	bool scriptCall(const std::string& pFilename);
-	bool scriptRun(const std::string& pJS);
+	bool scriptRun(const std::string& pJS, const std::string& pFilename);
 	bool scriptsLoadFolder(const std::string& pFolder);
 	void spritesCreateObject();
 
@@ -63,7 +65,7 @@ public:
 	~cScriptingEngine();
 
 	void init();
-
+	void debuggerEnable();
 	duk_hthread *getContext() { return mContext; }
 
 	bool Run(const std::string& pScript);

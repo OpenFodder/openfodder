@@ -176,6 +176,11 @@
  */
 
 #define DUK_COMPILING_DUKTAPE
+
+#ifdef OF_JS_DEBUG
+#include "duk_trans_socket_windows.cpp"
+#endif
+
 #include "duktape.h"
 
 /*
