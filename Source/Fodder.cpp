@@ -8997,6 +8997,7 @@ void cFodder::Game_Save() {
         outfile.close();
     }
 
+	g_ResourceMan->refresh();
     mMouse_Exit_Loop = false;
 }
 
