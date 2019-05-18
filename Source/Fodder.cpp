@@ -18833,7 +18833,7 @@ void cFodder::Mission_Final_TimeToDie() {
         mSidebar_Screen_Buffer[Y] = 0;
     }
 
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x0F;
+    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 11;
 
     GUI_Sidebar_TroopList_Name_Draw(0, 0, 0xB7, "TIME TO DIE ");
 
