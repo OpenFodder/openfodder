@@ -66,18 +66,19 @@ void cResourceMan::addDefaultDirs() {
 	if (path.size())
 		addBaseDir(path + "/Documents/");
 #else
-	path = std::getenv("XDG_DATA_DIRS");
-	if (path.size()) {
+	char* path1 = std::getenv("XDG_DATA_DIRS");
+	if (path1) {
 		std::stringstream ss;
-		ss << path;
+		ss << path1;
 		while (ss.good()) {
 			std::string substr;
 			std::getline(ss, substr, ':');
 			addBaseDir(substr);
 		}
 	}
-	path = std::getenv("HOME");
-	if (path.size()) {
+	path1 = std::getenv("HOME");
+	if (path1) {
+		path = path1;
 		addBaseDir(path + "/.local/share/");
 	}
 	addBaseDir("/usr/local/share/");
