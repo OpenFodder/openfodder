@@ -55,8 +55,16 @@ cSound_PC::cSound_PC() {
 
 cSound_PC::~cSound_PC() {
 	
+	Mix_FreeMusic(mMusicPlaying);
+	SDL_Delay(100);
+
 	Mix_CloseAudio();
 	SDL_CloseAudio();
+
+	SDL_Delay(100);
+	for (std::vector<sChunkPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
+		Mix_FreeChunk(ChannelIT->mCurrentChunk);
+	}
 }
 
 void cSound_PC::Sound_Voc_Load() {

@@ -123,7 +123,19 @@ cSound_PC2::cSound_PC2() {
 
 cSound_PC2::~cSound_PC2() {
 	
+	Mix_FreeMusic(mMusicPlaying);
+	SDL_Delay(100);
+
 	Mix_CloseAudio();
+	SDL_CloseAudio();
+
+	SDL_Delay(100);
+	for (std::vector<sChunkPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
+		Mix_FreeChunk(ChannelIT->mCurrentChunk);
+	}
+	for (auto SoundEffect : mSoundEffects) {
+		Mix_FreeChunk(SoundEffect);
+	}
 }
 
 void cSound_PC2::Sound_Voc_Load() {

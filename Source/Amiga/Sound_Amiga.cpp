@@ -59,6 +59,7 @@ void cSound_AudioCallback(void *userdata, Uint8 *stream, int len) {
 
 cSound_Amiga::cSound_Amiga() {
 	
+	mVal = 0;
 	mLock = SDL_CreateMutex();
 
 	mAudioSpec = 0;
@@ -71,10 +72,12 @@ cSound_Amiga::~cSound_Amiga() {
 
 	Stop();
 
-	delete mAudioSpec;
-
+	SDL_Delay(100);
 	SDL_CloseAudioDevice(mVal);
 	SDL_DestroyMutex(mLock);
+	SDL_Delay(100);
+
+	delete mAudioSpec;
 }
 
 void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {

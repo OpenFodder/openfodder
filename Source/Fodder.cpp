@@ -18350,6 +18350,7 @@ void cFodder::Start() {
 
     Start:;
     mGame_Data.mCampaign.Clear();
+	mSound = 0;
     mVersionDefault = 0;
     mVersionCurrent = 0;
     VersionSwitch(mVersions->GetRetail( mParams->mDefaultPlatform, mParams->mDefaultGame ));
