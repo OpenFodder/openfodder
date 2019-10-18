@@ -387,6 +387,8 @@
     <ClCompile Include="..\..\Source\Utils\duktape.cpp" />
     <ClCompile Include="..\..\Source\Utils\duk_trans_socket_windows.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_JSDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utils\md5.cpp" />
     <ClCompile Include="..\..\Source\Utils\micropather.cpp" />
