@@ -38,17 +38,22 @@ namespace dukglue {
 }
 
 void print(const std::string pString) {
-
+#ifdef DEBUG
 	g_Debugger->Notice(pString);
+#endif
 }
 
 void consoleLog(DukValue pValue) {
+#ifdef DEBUG
 	std::string json = duk_json_encode(pValue.context(), -1);
 	g_Debugger->Notice(json);
+#endif
 }
 
 void consoleClear() {
+#ifdef DEBUG
 	g_Debugger->ClearConsole();
+#endif
 }
 
 cScriptFileIO::cScriptFileIO(std::string pFilename, bool pRead) {

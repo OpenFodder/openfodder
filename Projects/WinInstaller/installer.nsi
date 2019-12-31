@@ -43,7 +43,7 @@ SetCompressor lzma
   ; Welcome page
   !insertmacro MUI_PAGE_WELCOME
 
-  !insertmacro MUI_PAGE_LICENSE "..\..\gpl-3.0.txt"
+  !insertmacro MUI_PAGE_LICENSE "..\..\COPYING"
   ;!insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   
@@ -75,7 +75,7 @@ Section "Copy Files" drcreepInst
   
   File ".\openfodder.ini"
   File ".\packages\VC_redist.x86.exe"
-  File "..\..\gpl-3.0.txt"
+  File "..\..\COPYING*"
   File "..\..\Readme.md"
   File "..\VS2017\Release\OpenFodder.exe"
   File "..\VS2017\Release\SDL2.dll"
@@ -90,10 +90,12 @@ Section "Copy Files" drcreepInst
   CopyFilesLocal:
   
   SetOutPath "$DataDest"
+  File /r "..\..\Run\about.bmp"
   File /r "..\..\Run\Campaigns"
   File /r "..\..\Run\Data"
   File /r "..\..\Run\Saves"
-
+  File /r "..\..\Run\Scripts"
+  
   SetOutPath "$INSTDIR"
   
   ;Store installation folder

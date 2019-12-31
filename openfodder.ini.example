@@ -1,7 +1,7 @@
 ; OpenFodder
 ;
-; 
-
+; Example ini settings are the engine defaults 
+;
 
 [openfodder]
 
@@ -13,16 +13,16 @@ cheats=false
 
 ; Window size multipler by original game resolution (Amiga 320x225, Dos 320x200)
 ; auto finds a size approximately half your screen resolution
-; so values such as 1, 2 or 3
+; values such as 1, 2 or 3+ are multiples of the original resolution
 scale=auto
 
 ; Number of map tiles to draw horizontally (0 for platform default)
-columns=22
+columns=0
 
 ; Number of map tiles to draw vertically (0 for platform default)
-rows=16
+rows=0
 
-; Don't use mouse grab (this alters the behaviour of the in-game camera window) -- Useful of VMs
+; Don't use mouse grab (this alters the behaviour of the in-game camera window) -- Useful for VMs
 alternate-mouse=false
 
 [paths]
@@ -30,6 +30,7 @@ alternate-mouse=false
 ; There is no limit to the number paths in this section (eg, path1, path2... path10)
 ;path1=c:/games/openfodder
 ;path2=d:/games/openfodder
+;path3=d:/games/openfodder
 
 ;
 ;
@@ -38,7 +39,7 @@ alternate-mouse=false
 ; Default platform (amiga/pc)
 platform=amiga
 
-; Game engine to use in single/random maps
+; Game engine to use in single/random maps (cf1/cf2)
 game=cf1
 
 ; Maximum number of sprites in game (original engine is 45)

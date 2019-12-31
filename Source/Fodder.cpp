@@ -10031,9 +10031,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
                 if (mSquad_CurrentWeapon[pSprite->field_32] == eWeapon_Rocket) {
                     mTroop_Weapon_Grenade_Disabled = true;
                     mTroop_Weapon_Bullet_Disabled = true;
-
-                }
-                else {
+                } else {
                     if (mSquad_CurrentWeapon[pSprite->field_32] == eWeapon_Grenade) {
                         mTroop_Weapon_Rocket_Disabled = true;
                         mTroop_Weapon_Bullet_Disabled = true;
