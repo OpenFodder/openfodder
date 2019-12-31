@@ -160,6 +160,5 @@ Sensible Software, for the original game
 Alessandro Petralia, for his valuable testing  
 ScummVM, for the Amiga sound routines  
 
-
 #### License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FOpenFodder%2Fopenfodder.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FOpenFodder%2Fopenfodder?ref=badge_large)
