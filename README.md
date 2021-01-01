@@ -1,9 +1,9 @@
 # Open Fodder
 [![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder)
 [![Build status](https://ci.appveyor.com/api/projects/status/7pc2r2qe4niv4848?svg=true)](https://ci.appveyor.com/project/segrax/openfodder)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FOpenFodder%2Fopenfodder.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FOpenFodder%2Fopenfodder?ref=badge_shield)
+
   
-[Discord](https://discord.gg/4mX2wFM)  
+Come for a chat over at our [Discord](https://discord.gg/4mX2wFM)  
 
 ![image](https://user-images.githubusercontent.com/1327406/49718991-f1bd6e00-fcaf-11e8-88e3-68136828c2d1.png)
 
