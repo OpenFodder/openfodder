@@ -22,7 +22,7 @@
 
 class cPosition {
 	public:
-		int32 mX, mY;
+		int mX, mY;
 
 	public:
 				cPosition() : mX( 0 ), mY( 0 ) {}
@@ -31,10 +31,10 @@ class cPosition {
 		void	Set( unsigned int pX, unsigned int pY ) { mX = pX; mY = pY; }
         void Clear() { mX = 0; mY = 0; }
 		
-		int32 distanceTo(const cPosition& pPosition) const {
+		int distanceTo(const cPosition& pPosition) const {
 
-			int32 X = mX - pPosition.mX;
-			int32 Y = mY - pPosition.mY;
+			int X = mX - pPosition.mX;
+			int Y = mY - pPosition.mY;
 
 			if (X < 0)
 				X = -X;

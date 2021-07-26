@@ -38,10 +38,12 @@ Copy 'CF_ENG.DAT' from the CD (or the GOG install destination) to the OpenFodder
   
 #### Amiga
 
+Please be aware, Cannon Fodder 2 is a typical AmigaDOS disk (SOS Unpacker will not work). Use an ADF tool on your machine, such as Directory Opus on Windows with the firy plugin (https://github.com/segrax/directory_opus_firy_plugin)
+
 ##### Option1. SOS Unpacker  
   
-Use the [SOS Unpacker](https://github.com/OpenFodder/SOS_Unpacker) to unpack Kyroflux 'CT Raw' images of your Cannon Fodder disks, then copy the contents of 'out'  into the OpenFodder/Data/Amiga directory.  
-    
+Use the [SOS Unpacker](https://github.com/OpenFodder/SOS_Unpacker) to unpack Kyroflux 'CT Raw' images of your Cannon Fodder disks, then copy the contents of 'out' into the OpenFodder/Data/Amiga directory.  
+	
 ##### Option2. WHDLoad
   
 Use the [WHDLoad installer](http://www.whdload.de/games/CannonFodder.html) on an Amiga or an emulator (WinUAE/UAE) to extract the game files from the original floppy disks, then copy the contents of 'cf_data'  into the OpenFodder/Data/Amiga directory.  
