@@ -109,6 +109,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>packages\sdl2.nuget.2.0.9\build\native\lib\Win32\dynamic;packages\sdl2_mixer.nuget.2.0.4\build\native\lib\Win32\dynamic;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_JSDebug|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -182,6 +183,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PreBuildEvent>
       <Command>gitver.cmd</Command>
