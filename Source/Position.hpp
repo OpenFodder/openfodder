@@ -82,8 +82,8 @@ class cPosition {
         }
 
 		cPosition* operator*(const size_t pMultiplier)  {
-			mX *= pMultiplier;
-			mY *= pMultiplier;
+			mX *= (int)pMultiplier;
+			mY *= (int)pMultiplier;
 
 			return this;
 		}

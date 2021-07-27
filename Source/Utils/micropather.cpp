@@ -593,13 +593,13 @@ void MicroPather::GetNodeNeighbors( PathNode* node, MP_VECTOR< NodeCost >* pNode
 		#endif
 
 		pNodeCost->resize( stateCostVec.size() );
-		node->numAdjacent = stateCostVec.size();
+		node->numAdjacent = (int) stateCostVec.size();
 
 		if ( node->numAdjacent > 0 ) {
 			// Now convert to pathNodes.
 			// Note that the microsoft std library is actually pretty slow.
 			// Move things to temp vars to help.
-			const unsigned stateCostVecSize = stateCostVec.size();
+			const unsigned stateCostVecSize = (unsigned int)stateCostVec.size();
 			const StateCost* stateCostVecPtr = &stateCostVec[0];
 			NodeCost* pNodeCostPtr = &(*pNodeCost)[0];
 
@@ -611,7 +611,7 @@ void MicroPather::GetNodeNeighbors( PathNode* node, MP_VECTOR< NodeCost >* pNode
 
 			// Can this be cached?
 			int start = 0;
-			if ( pNodeCost->size() > 0 && pathNodePool.PushCache( pNodeCostPtr, pNodeCost->size(), &start ) ) {
+			if ( pNodeCost->size() > 0 && pathNodePool.PushCache( pNodeCostPtr, (int)pNodeCost->size(), &start ) ) {
 				node->cacheIndex = start;
 			}
 		}
