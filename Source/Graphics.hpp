@@ -34,17 +34,9 @@ struct sILBM_BMHD {
 	uint16	mPageWidth, mPageHeight;
 
 	sILBM_BMHD() {
-		mAspectX = 0;
-		mAspectY = 0;
-		mCompression = 0;
-		mMask = 0;
-		mX = mY = 0;
 		mWidth = 0;
 		mHeight = 0;
 		mPlanes = 0;
-		mReserved = 0;
-		mTransparentColor = 0;
-		mPageWidth = mPageHeight = 0;
 	}
 
 	uint16 ScreenSize() const {

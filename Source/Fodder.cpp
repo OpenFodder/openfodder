@@ -8464,7 +8464,7 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
 
     pData24 = mSprites.data();
 
-    for (size_t Data1C = mParams->mSpritesMax - 2; Data1C >= 0; --Data1C, ++pData24) {
+    for (int32 Data1C = mParams->getSpritesMax() - 2; Data1C >= 0; --Data1C, ++pData24) {
         int16 Data4 = pData24->field_18;
 
         if (!mSprite_Can_Be_RunOver[Data4])
@@ -9853,7 +9853,7 @@ void cFodder::Sprite_Frame_Modifier_Update() {
 void cFodder::Sprite_Handle_Loop() {
     sSprite* Data20 = mSprites.data();
 
-    for (size_t Data1C = mParams->mSpritesMax - 2; Data1C > 0; --Data1C, ++Data20) {
+    for (int32 Data1C = mParams->getSpritesMax() - 2; Data1C > 0; --Data1C, ++Data20) {
 
         if (Data20->field_0 == -32768)
             continue;
@@ -16962,7 +16962,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
             pData2C = mSprites.data();
 
             // Loop all sprites
-             for (size_t Data1C = mParams->mSpritesMax - 5; Data1C >= 0; --Data1C, ++pData2C) {
+             for (int32_t Data1C = mParams->getSpritesMax() - 5; Data1C >= 0; --Data1C, ++pData2C) {
 
                 // Sprite free?
                 if (pData2C->field_0 != -32768)
@@ -16987,7 +16987,7 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
             pData2C = mSprites.data();
 
             // Loop all sprites
-             for (size_t Data1C = mParams->mSpritesMax - 4; Data1C >= 0; --Data1C, ++pData2C) {
+             for (int32_t Data1C = mParams->getSpritesMax() - 4; Data1C >= 0; --Data1C, ++pData2C) {
 
                 // Sprite free?
                 if (pData2C->field_0 != -32768)
@@ -17006,9 +17006,9 @@ int16 cFodder::Sprite_Get_Free_Max42(int16& pData0, sSprite*& pData2C, sSprite*&
         }
         else {
             // Only looking for 1 sprite
-            pData2C = &mSprites[mParams->mSpritesMax - 3];
+            pData2C = &mSprites[mParams->getSpritesMax() - 3];
 
-            for (size_t Data1C = mParams->mSpritesMax - 3; Data1C >= 0; --Data1C) {
+            for (int32 Data1C = mParams->getSpritesMax() - 3; Data1C >= 0; --Data1C) {
 
                 // Free?
                 if (pData2C->field_0 == -32768) {
@@ -17037,8 +17037,8 @@ int16 cFodder::Sprite_Get_Free_Max29(int16& pData0, sSprite*& pData2C, sSprite*&
     if (pData0 == 2)
         goto loc_21B91;
 
-    pData2C = &mSprites[mParams->mSpritesMax - 16];
-     for (size_t Data1C = mParams->mSpritesMax - 16; Data1C >= 0; --Data1C, --pData2C) {
+    pData2C = &mSprites[mParams->getSpritesMax() - 16];
+     for (int32_t Data1C = mParams->getSpritesMax() - 16; Data1C >= 0; --Data1C, --pData2C) {
 
         if (pData2C->field_0 == -32768) {
             pData2C->Clear();
@@ -17057,7 +17057,7 @@ loc_21B4B:;
 loc_21B91:;
     pData2C = mSprites.data();
 
-     for (size_t Data1C = mParams->mSpritesMax - 17; Data1C >= 0; --Data1C, ++pData2C) {
+     for (int32_t Data1C = mParams->getSpritesMax() - 17; Data1C >= 0; --Data1C, ++pData2C) {
 
         if (pData2C->field_0 != -32768)
             continue;

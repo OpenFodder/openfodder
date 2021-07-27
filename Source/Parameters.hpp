@@ -143,4 +143,5 @@ public:
 	}
 
 	bool isOriginalSpriteMax() const { return mSpritesMax == 45; }
+	int32 getSpritesMax() const { return mSpritesMax; }
 };
