@@ -76,6 +76,7 @@ public:
 	size_t mSpawnEnemyMax;
 
 	bool mShowHelp;
+	bool mCopyProtection;
 
 	sFodderParameters() {
 		clear();
@@ -125,6 +126,8 @@ public:
 		mSinglePhase = false;
 		mSpritesMax = 45;
 		mSpawnEnemyMax = 10;
+
+		mCopyProtection = false;
 	}
 
 protected:
@@ -143,5 +146,5 @@ public:
 	}
 
 	bool isOriginalSpriteMax() const { return mSpritesMax == 45; }
-	int32 getSpritesMax() const { return mSpritesMax; }
+	int32 getSpritesMax() const { return (int32) mSpritesMax; }
 };

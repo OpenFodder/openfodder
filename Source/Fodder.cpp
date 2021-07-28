@@ -16273,7 +16273,7 @@ void cFodder::SetActiveSpriteSheetPtr(const sSpriteSheet** pSpriteSheet) {
 void cFodder::intro_Retail() {
 
     // Disabled: GOG CD Version doesn't require a manual check
-    //  CopyProtection();
+    CopyProtection();
     mGraphics->Load_Sprite_Font();
 
 	mSound->Music_Play(CANNON_BASED(16, 20));
