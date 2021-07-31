@@ -1728,19 +1728,9 @@ bool cFodder::Campaign_Load(std::string pName) {
 }
 
 void cFodder::Map_Create(sMapParams pParams) {
-    uint8 TileID = (pParams.mTileType == eTileTypes_Int) ? 4
-                 : (pParams.mTileType == eTileTypes_AFX) ? 20
-                 : 16;
 
     if (mVersionCurrent->isAmigaPower())
 		pParams.mTileSub = eTileSub_1;
-
-    // In OF, this will only ever get called from the campaign selection screen,
-    // so we pick a tile thats easy to read text on
-#ifndef _OFED
-    if (mVersionCurrent->isAmigaXmas())
-        TileID = 100;
-#endif
 
 	mMapLoaded = std::make_shared<cRandomMap>(pParams);
 	
@@ -1755,18 +1745,6 @@ void cFodder::Map_Create(sMapParams pParams) {
 
     // Load the map specific resources
     Map_Load_Resources();
-
-#ifdef _OFED
-    // Editor needs to render the surface now
-    // Draw the tiles
-    MapTiles_Draw();
-
-    Mission_Sprites_Handle();
-
-    // Refresh the palette
-    mGraphics->PaletteSet(mSurface);
-    mSurface->surfaceSetToPaletteNew();
-#endif
 
 }
 
@@ -18279,7 +18257,7 @@ void cFodder::About() {
     g_Fodder->mPhase_Aborted = false;
 }
 
-void cFodder::CreateRandom() {
+void cFodder::CreateRandom(sMapParams pParams) {
 	mGame_Data.mCampaign.CreateCustomCampaign();
 	mGame_Data.mCampaign.setRandom(true);
 	mGame_Data.mCampaign.setName("Random");
@@ -18290,9 +18268,7 @@ void cFodder::CreateRandom() {
 		mParams->mRandomFilename = "random";
 	}
 
-	sMapParams Params(mRandom.get());
-
-	Map_Create(Params);
+	Map_Create(pParams);
 
 	if (mParams->mScriptRun.size() == 0)
 		mParams->mScriptRun = "test.js";

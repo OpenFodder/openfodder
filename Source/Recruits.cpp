@@ -1164,8 +1164,8 @@ int16 cFodder::Recruit_Show() {
     }
     else {
         if (mVersionCurrent->mName == "Random Map") {
-
-			CreateRandom();
+			sMapParams Params(mRandom.get());
+			CreateRandom(Params);
 			mGame_Data.mMission_Recruitment = 0;
         }
         else {

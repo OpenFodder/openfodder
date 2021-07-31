@@ -44,7 +44,8 @@ int start(int argc, char *argv[]) {
 		return Testing.Start() ? 0 : -1;
 	}
 	else if (g_Fodder->mStartParams->mRandomSave) {
-		g_Fodder->CreateRandom();
+		sMapParams Params(g_Fodder->mRandom.get());
+		g_Fodder->CreateRandom(Params);
 	}
 	else	{
 		g_Fodder->Start();

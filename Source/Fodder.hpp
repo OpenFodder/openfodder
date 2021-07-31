@@ -1286,7 +1286,7 @@ public:
     void            Playground();
 
     void            About();
-	void			CreateRandom();
+	void			CreateRandom(sMapParams pParams);
 	virtual void    Start();
     void            Exit(unsigned int pExitCode);
 
