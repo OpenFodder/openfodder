@@ -226,7 +226,8 @@ void cSound_PC2::Music_PlayFile( const char* pFilename ) {
 }
 
 void cSound_PC2::Music_Stop() {
-	
+    mPlayingTrack = -1;
+
 	if (mSound == false)
 		return;
 
@@ -235,6 +236,11 @@ void cSound_PC2::Music_Stop() {
 
 void cSound_PC2::Music_Play( int16 pTrack ) {
     std::string filename;
+
+    if (mPlayingTrack == pTrack)
+        return;
+
+    mPlayingTrack = pTrack;
 
     switch (pTrack) {
         case 0:

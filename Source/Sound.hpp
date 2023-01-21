@@ -40,6 +40,9 @@ class cSound {
 
 	virtual bool		devicePrepare() = 0;
 
+protected:
+	int16				mPlayingTrack;
+
 	public:
 
 						cSound();

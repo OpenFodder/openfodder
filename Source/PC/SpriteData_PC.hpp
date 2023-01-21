@@ -2386,21 +2386,23 @@ const sSpriteSheet* mSpriteSheetTypes_InGame_PC[] = {
 	/* 0x32 */ stru_3368C,		// Start Right
 
 	/* 0x33 */ stru_336BC,
-	/* 0x34 */ stru_336EC,
+	/* 0x34 */ stru_336EC,		// Bones
 	/* 0x35 */ stru_3371C,
 	/* 0x36 */ stru_3374C,
 	/* 0x37 */ stru_3377C,
 	/* 0x38 */ stru_337AC,
-	/* 0x39 */ stru_3380C,
+
+	/* 0x39 */ stru_3380C,		// Soldier Fired Rocket
 	/* 0x3A */ stru_3383C,
 	/* 0x3B */ stru_3386C,
 	/* 0x3C */ stru_3389C,
 	/* 0x3D */ stru_338CC,
 	/* 0x3E */ stru_338FC,
 	/* 0x3F */ stru_3393C,
-
 	/* 0x40 */ stru_3396C,
+
 	/* 0x41 */ stru_3399C,
+
 	/* 0x42 */ stru_339FC,     // Enemy Soldier Walk Face Forward
 	/* 0x43 */ stru_33A2C,     // Enemy Soldier Walk Face Forward + Left
 	/* 0x44 */ stru_33A5C,     // Enemy Soldier Walk Face Left

@@ -174,9 +174,10 @@ int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 	}
 
 	if (pSound->mTrack != Track) {
-
-		pSound->mCurrentMusicSongData = g_Resource->fileGet( Track->mSongData );
-		pSound->mCurrentMusicInstrumentData = g_Resource->fileGet( Track->mInstrumentData );
+		if (Track) {
+			pSound->mCurrentMusicSongData = g_Resource->fileGet(Track->mSongData);
+			pSound->mCurrentMusicInstrumentData = g_Resource->fileGet(Track->mInstrumentData);
+		}
 		pSound->mTrack = Track;
 	}
 
@@ -202,9 +203,13 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
 
 void cSound_Amiga::Music_Play( int16 pTrack ) {
 	
+	if (mPlayingTrack == pTrack)
+		return;
+
 	int16 Number = Track_Load( &mSound_Music, pTrack );
 		
 	Music_Stop();
+	mPlayingTrack = pTrack;
 
     if (mSound_Music.mCurrentMusicSongData && mSound_Music.mCurrentMusicInstrumentData) {
         if (mSound_Music.mCurrentMusicSongData->size() && mSound_Music.mCurrentMusicInstrumentData->size())
@@ -215,6 +220,7 @@ void cSound_Amiga::Music_Play( int16 pTrack ) {
 }
 
 void cSound_Amiga::Music_Stop() {
+	mPlayingTrack = -1;
 
 	if (SDL_LockMutex( mLock ) == 0) {
 

@@ -906,9 +906,9 @@ public:
 
     void            Sprite_Handle_Player_Adjust_Movement_Speed(sSprite* pSprite);
     void            Sprite_Draw_Row_Update(sSprite* pSprite);
-    void            Sprite_Handle_Troop_FrameUnk(sSprite* pSprite);
-    void            sub_1FCF2(sSprite* pSprite);
-    void            sub_1FDE7(sSprite* pSprite);
+    void            Sprite_Handle_Troop_Animation(sSprite* pSprite);
+    void            Sprite_Handle_Troop_Speed(sSprite* pSprite);
+    void            Sprite_Handle_Troop_Direct_TowardWeaponTarget_WithRestore(sSprite* pSprite);
     void            Sprite_Create_Player_Shadow(sSprite* pSprite);
     int16           Sprite_Create_BloodTrail(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30);
     void            Sprite_Terrain_Check(sSprite* pSprite, int16& pData4);

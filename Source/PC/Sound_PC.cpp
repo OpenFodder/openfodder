@@ -159,7 +159,8 @@ void cSound_PC::Music_PlayFile( const std::string& pFilename ) {
 }
 
 void cSound_PC::Music_Stop() {
-	
+	mPlayingTrack = -1;
+
 	if (mSound == false)
 		return;
 
@@ -168,6 +169,11 @@ void cSound_PC::Music_Stop() {
 
 void cSound_PC::Music_Play( int16 pTrack ) {
 	
+	if (mPlayingTrack == pTrack)
+		return;
+
+	mPlayingTrack = pTrack;
+
 	static std::string Tracks[] = {
 		"rjp.JON(1)",
 		"rjp.JON(2)",

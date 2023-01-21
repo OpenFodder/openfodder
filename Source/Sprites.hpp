@@ -276,13 +276,13 @@ struct sSprite {
 	int8 field_4F;			// Player: -1 = In water
 	int16 field_50;
 	int16 field_52;			// Video: Number of rows not to draw
-	int8 field_54;			// Human: Fired Weapon
+	int8 field_54;			// Human: Fired Weapon (1 = Grenade, 2 = Bullet, 3 = Rocket)
 	int8 field_55;
 	int8 field_56;
 	int8 field_57;			// Human: Weapon Fired Cooldown
 	int8 field_58;          // Has Shadow
 	int8 field_59;
-	int8 field_5A;
+	int8 field_5A;			// Human: Turn towards enemy
 	int8 field_5B;			// Human: Is Sinking
 	int8 field_5C;			// 1 = Was Drawn
 

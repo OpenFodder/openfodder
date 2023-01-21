@@ -23,5 +23,5 @@
 #include "stdafx.hpp"
 
 cSound::cSound() {
-
+	mPlayingTrack = -1;
 }

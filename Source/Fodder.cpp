@@ -9813,7 +9813,7 @@ void cFodder::Sprite_Frame_Modifier_Update() {
             mSprite_Frame1_Modifier ^= -2;
 
         mSprite_Frame_2 += mSprite_Frame2_Modifier;
-        if (mSprite_Frame2_Modifier == 0 || mSprite_Frame2_Modifier == 2)
+        if (mSprite_Frame_2 == 0 || mSprite_Frame_2 == 2)
             mSprite_Frame2_Modifier ^= -2;
     }
 
@@ -9966,6 +9966,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
 
         goto loc_191C3;
 
+    // Enemy in range
     loc_1904A:;
         Data0 = tool_RandomGet() & 0x1F;
 
@@ -10108,7 +10109,7 @@ loc_1931E:;
         goto loc_19403;
 
     Sprite_Handle_Troop_Direct_TowardMouse(pSprite);
-    Sprite_Handle_Troop_FrameUnk(pSprite);
+    Sprite_Handle_Troop_Animation(pSprite);
     return;
 
 loc_19338:;
@@ -10116,7 +10117,7 @@ loc_19338:;
     mTmp_FrameNumber = pSprite->field_A;
     mSprite_Bumped_Into_SquadMember = 0;
 
-    sub_1FCF2(pSprite);
+    Sprite_Handle_Troop_Speed(pSprite);
     Data0 = pSprite->field_26;
     if (Data0 < 0)
         goto loc_1946D;
@@ -10158,7 +10159,7 @@ loc_193D6:;
 
 loc_19403:;
     pSprite->field_5A = 0;
-    sub_1FDE7(pSprite);
+    Sprite_Handle_Troop_Direct_TowardWeaponTarget_WithRestore(pSprite);
     return;
 
 loc_19414:;
@@ -10199,7 +10200,7 @@ loc_194A0:;
 
     if (!word_3AA1D) {
         mDirectionMod = 0;
-        Sprite_Handle_Troop_FrameUnk(pSprite);
+        Sprite_Handle_Troop_Animation(pSprite);
         pSprite->field_A = 0;
         return;
     }
@@ -10213,7 +10214,7 @@ loc_194A0:;
 
 loc_1957A:;
     pSprite->field_3A = 0;
-    Sprite_Handle_Troop_FrameUnk(pSprite);
+    Sprite_Handle_Troop_Animation(pSprite);
 
 }
 
@@ -10411,7 +10412,7 @@ void cFodder::Sprite_Handle_Enemy(sSprite* pSprite) {
     //loc_19A5D
     Sprite_XY_Store(pSprite);
     sub_2A3D4(pSprite);
-    sub_1FCF2(pSprite);
+    Sprite_Handle_Troop_Speed(pSprite);
 
     if (pSprite->field_45) {
         pSprite->field_45--;
@@ -10423,7 +10424,7 @@ void cFodder::Sprite_Handle_Enemy(sSprite* pSprite) {
 
 loc_19A89:;
     word_3ABB1 = 0;
-    sub_1FDE7(pSprite);
+    Sprite_Handle_Troop_Direct_TowardWeaponTarget_WithRestore(pSprite);
     goto loc_19A9C;
 
 loc_19A96:;
@@ -10431,7 +10432,7 @@ loc_19A96:;
 
 loc_19A9C:;
     pSprite->field_22 = eSprite_PersonType_AI;
-    Sprite_Handle_Troop_FrameUnk(pSprite);
+    Sprite_Handle_Troop_Animation(pSprite);
 
     if (word_3ABB1)
         return;
@@ -11798,7 +11799,7 @@ void cFodder::Sprite_Handle_Enemy_Rocket(sSprite* pSprite) {
     pSprite->field_55 = 0;
     pSprite->field_A = 0;
 
-    sub_1FDE7(pSprite);
+    Sprite_Handle_Troop_Direct_TowardWeaponTarget_WithRestore(pSprite);
     pSprite->field_A = 2;
 }
 
@@ -14122,7 +14123,7 @@ loc_1E3D2:;
         if (pSprite->field_59)
             pSprite->field_8 = Data28[(Data8 + 0x10) / 2];
 
-        // FIX: Added as only 2 frames exist for all sprites in mSprite_AnimationPtrs
+        // FIX: Added as only 2 frames exist for -most- sprites in mSprite_AnimationPtrs
         pSprite->field_A %= 2;
     }
     //loc_1E50A
@@ -14881,7 +14882,7 @@ void cFodder::Sprite_Handle_Troop_Direct_TowardWeaponTarget(sSprite* pSprite) {
 
     Sprite_Direction_Between_Points(pSprite, Data0, Data4);
     Sprite_Set_Direction_To_Next(pSprite);
-    Sprite_Handle_Troop_FrameUnk(pSprite);
+    Sprite_Handle_Troop_Animation(pSprite);
 }
 
 void cFodder::Sprite_Handle_Troop_Direct_TowardMouse(sSprite* pSprite) {
@@ -14896,11 +14897,27 @@ void cFodder::Sprite_Handle_Troop_Direct_TowardMouse(sSprite* pSprite) {
     Sprite_Direction_Between_Points(pSprite, Data0, Data4);
     Sprite_Set_Direction_To_Next(pSprite);
 
+    int StoredAnim = pSprite->field_8;
     mStoredSpriteFrame = pSprite->field_A;
-    Sprite_Handle_Troop_FrameUnk(pSprite);
+    Sprite_Handle_Troop_Animation(pSprite);
 
     if (!pSprite->field_43)
         return;
+
+    // FIX: This isn't original. and was added due to a case where the animation is changed
+    //      in Sprite_Handle_Troop_Animation, but the frame is pointing to a frame not
+    //      available in the new animation (issue 64)
+    if ((pSprite->field_8 >= 0x10 && pSprite->field_8 < 0x18) ||
+        (pSprite->field_8 >= 0x20 && pSprite->field_8 < 0x28)) {
+        if(mStoredSpriteFrame >= 1)
+            mStoredSpriteFrame = 0;
+    }
+
+    if ((pSprite->field_8 >= 0x18 && pSprite->field_8 < 0x20) ||
+        (pSprite->field_8 >= 0x28 && pSprite->field_8 < 0x30)) {
+        if (mStoredSpriteFrame >= 2)
+            mStoredSpriteFrame = 0;
+    }
 
     pSprite->field_A = mStoredSpriteFrame;
 }
@@ -14923,7 +14940,7 @@ void cFodder::Sprite_XY_Restore(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Player_Adjust_Movement_Speed(sSprite* pSprite) {
-    sub_1FCF2(pSprite);
+    Sprite_Handle_Troop_Speed(pSprite);
 
     if (pSprite->field_4F)
         return;
@@ -14973,7 +14990,7 @@ void cFodder::Sprite_Draw_Row_Update(sSprite* pSprite) {
         goto loc_1F753;
 
     // Leaving water for the edge/bank
-    if (pSprite->field_60 == eTerrainFeature_WaterEdge)
+    if (pSprite->field_60 != eTerrainFeature_WaterEdge)
         goto loc_1F75D;
 
     pSprite->field_52 = 5;
@@ -14986,12 +15003,11 @@ loc_1F75D:;
     Sprite_Handle_Player_Close_To_SquadMember(pSprite);
 }
 
-void cFodder::Sprite_Handle_Troop_FrameUnk(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Troop_Animation(sSprite* pSprite) {
     int16 Data0, Data8;
     sSprite* Dataa30 = 0;
     sMapTarget* Data30 = 0;
     const int16* Data28 = 0;
-    sMission_Troop* Data24 = 0;
 
     // Is Human
     if (pSprite->field_22 == eSprite_PersonType_Human)
@@ -15057,27 +15073,20 @@ loc_1F7FF:;
         //seg005:020C
         if (Dataa30 != pSprite) {
 
-            Data0 = Dataa30->field_0;
-
-            if (Data0 != Dataa30->field_26)
+            if (Dataa30->field_0 != Dataa30->field_26)
                 goto loc_1F9C0;
-
-            Data0 = Dataa30->field_4;
-            if (Data0 != Dataa30->field_28)
+            if (Dataa30->field_4 != Dataa30->field_28)
                 goto loc_1F9C0;
 
             if (!word_3B2F3)
                 goto loc_1F9C0;
         }
         else {
-
-            Data0 = pSprite->field_0;
-            if (Data0 != pSprite->field_26)
+            if (pSprite->field_0 != pSprite->field_26)
                 goto loc_1F9C0;
 
             //seg005:0246
-            Data0 = pSprite->field_4;
-            if (Data0 != pSprite->field_28)
+            if (pSprite->field_4 != pSprite->field_28)
                 goto loc_1F9C0;
         }
     }
@@ -15092,138 +15101,114 @@ loc_1F7FF:;
     return;
 
 loc_1F9C0:;
-    if (pSprite->field_54 != 2)
-        goto loc_1FA39;
+    // Fired Bullet
+    if (pSprite->field_54 == 2) {
 
-    if (word_3AA1D) {
-        if (word_3AA1D == 2) {
-            pSprite->field_8 = *(Data28 + Data8);
-            pSprite->field_A = mSprite_Frame_3;
-            // FIX: Added as only 2 frames exist for all sprites in mSprite_AnimationPtrs
-            pSprite->field_A %= 2;
+        if (word_3AA1D) {
+            if (word_3AA1D == 2) {
+                pSprite->field_8 = *(Data28 + Data8);
+                pSprite->field_A = mSprite_Frame_3 % 3;
+            }
+            else {
+                //loc_1F9FF
+                pSprite->field_8 = *(Data28 + Data8);
+                pSprite->field_A = 0;
+            }
         }
-        else {
-            //loc_1F9FF
-            pSprite->field_8 = *(Data28 + Data8);
-            pSprite->field_A = 0;
-        }
-    }
-    //loc_1FA20
-    --pSprite->field_57;
-    if (pSprite->field_57)
-        return;
+        //loc_1FA20
+        --pSprite->field_57;
+        if (pSprite->field_57)
+            return;
 
-    pSprite->field_54 = 0;
-    goto loc_1FB00;
-
-loc_1FA39:;
-    if (pSprite->field_54 != 1)
+        pSprite->field_54 = 0;
         goto loc_1FB00;
-
-    Data0 = *(Data28 + Data8 + 0x28);
-
-    if (Data0 != pSprite->field_8) {
-        pSprite->field_8 = *(Data28 + Data8 + 0x28);
-        pSprite->field_55 = 0;
-        pSprite->field_A = 0;
-        return;
     }
-    //loc_1FA93
-    pSprite->field_55++;
-    if (pSprite->field_55 != 2)
-        return;
-    pSprite->field_55 = 0;
-    pSprite->field_A++;
-    mStoredSpriteFrame = pSprite->field_A;
 
-    if (pSprite->field_A < 3)
-        return;
-    mStoredSpriteFrame = 0;
-    pSprite->field_A = 0;
-    pSprite->field_54 = 0;
-    pSprite->field_5A = 0;
-    pSprite->field_55 = 0;
+    // loc_1FA39: Chucked Grenade
+    if (pSprite->field_54 == 1) {
+        Data0 = *(Data28 + Data8 + 0x28);
+
+        if (Data0 != pSprite->field_8) {
+            pSprite->field_8 = Data0;
+            pSprite->field_55 = 0;
+            pSprite->field_A = 0;
+            return;
+        }
+        //loc_1FA93
+        pSprite->field_55++;
+        if (pSprite->field_55 != 2)
+            return;
+        pSprite->field_55 = 0;
+        pSprite->field_A++;
+        mStoredSpriteFrame = pSprite->field_A;
+
+        if (pSprite->field_A < 3)
+            return;
+
+        mStoredSpriteFrame = 0;
+        pSprite->field_A = 0;
+        pSprite->field_54 = 0;
+        pSprite->field_5A = 0;
+        pSprite->field_55 = 0;
+    }
 
 loc_1FB00:;
-    if (pSprite->field_54 != 3)
-        goto loc_1FBA4;
+    // Fired Rocket
+    if (pSprite->field_54 == 3) {
 
-    Data0 = *(Data28 + Data8 + 0x38);
-    if (Data0 != pSprite->field_8) {
-        pSprite->field_8 = Data0;
+        Data0 = *(Data28 + Data8 + 0x38);
+        if (Data0 != pSprite->field_8) {
+            pSprite->field_8 = Data0;
+            pSprite->field_55 = 0;
+            pSprite->field_A = 0;
+            return;
+        }
+        //loc_1FB5A
+        pSprite->field_55++;
+        if (pSprite->field_55 != 7)
+            return;
+
         pSprite->field_55 = 0;
         pSprite->field_A = 0;
-        return;
+        pSprite->field_54 = 0;
+        pSprite->field_5A = 0;
+        pSprite->field_55 = 0;
     }
-    //loc_1FB5A
-    pSprite->field_55++;
-    if (pSprite->field_55 != 7)
-        return;
 
-    pSprite->field_55 = 0;
-    pSprite->field_A = 0;
-    pSprite->field_54 = 0;
-    pSprite->field_5A = 0;
-    pSprite->field_55 = 0;
-
-loc_1FBA4:;
-    // If in water
+    // loc_1FBA4: If in water
     if (pSprite->field_4F) {
-
         pSprite->field_8 = *(Data28 + Data8 + 0x20);
-        Data0 = mSprite_Frame_1;
-
         // Reached another troop?
-        if (pSprite->field_43)
-            Data0 = mSprite_Frame_2;
-
-        Data0 &= 1;
-        pSprite->field_A = Data0;
-        goto loc_1FCD7;
+        pSprite->field_A = (pSprite->field_43) ? mSprite_Frame_2 : mSprite_Frame_1;
+        pSprite->field_A &= 1;
     }
-    //loc_1FBF8
-    if (!word_3AA1D) {
+    else if (!word_3AA1D) {
+        //loc_1FBF8
         pSprite->field_8 = *(Data28 + Data8 + 0x18);
         pSprite->field_A = mSprite_Frame_2;
-        goto loc_1FCD7;
     }
-    //loc_1FC29
-    if (pSprite->field_8 == *(Data28 + Data8 + 0x18) && pSprite->field_A) {
+    else if (pSprite->field_8 == *(Data28 + Data8 + 0x18) && pSprite->field_A) {
+        //loc_1FC29
         pSprite->field_A = 0;
-        goto loc_1FCD7;
+    }
+    else {
+        //loc_1FC61
+        Data0 = (pSprite->field_46_mission_troop) ? 
+                 pSprite->field_46_mission_troop->field_6 : 0x70;
+
+        pSprite->field_8 = (Data0 == 3) ? *(Data28 + Data8 + 0) : *(Data28 + Data8);
+        pSprite->field_A = (Data0 != 2) ? mSprite_Frame_1 : mSprite_Frame_3;
     }
 
-    //loc_1FC61
-    Data24 = pSprite->field_46_mission_troop;
-
-    if (Data24 == 0)
-        Data0 = 0x70;
-    else
-        Data0 = Data24->field_6;
-
-    if (Data0 == 3)
-        pSprite->field_8 = *(Data28 + Data8 + 0);
-    else
-        pSprite->field_8 = *(Data28 + Data8);
-
-    //loc_1FCB4
-    if (Data0 != 2)
-        pSprite->field_A = mSprite_Frame_1;
-    else
-        pSprite->field_A = mSprite_Frame_3;
-
-loc_1FCD7:;
-    // Bumped into other troop
-    if (!mSprite_Bumped_Into_SquadMember)
-        return;
-
-    // FIX: Added % as only 2 frames exist for all sprites in mSprite_AnimationPtrs
-    // There is one case where mTmp_FrameNumber isnt set by the current sprite
-    pSprite->field_A = mTmp_FrameNumber % 2;
-    mSprite_Bumped_Into_SquadMember = 0;
+    if (mSprite_Bumped_Into_SquadMember) {
+        // FIX: Added % as only 2 frames exist for -most- sprites in mSprite_AnimationPtrs
+        // There is also one case where mTmp_FrameNumber isnt set by the current sprite
+        pSprite->field_A = mTmp_FrameNumber % 2;
+        mSprite_Bumped_Into_SquadMember = 0;
+    }
 }
 
-void cFodder::sub_1FCF2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Troop_Speed(sSprite* pSprite) {
     int16 Data0;
 
     pSprite->field_36 = 0x10;
@@ -15273,7 +15258,7 @@ loc_1FDDC:;
     pSprite->field_36 = 6;
 }
 
-void cFodder::sub_1FDE7(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Troop_Direct_TowardWeaponTarget_WithRestore(sSprite* pSprite) {
 
     int16 Data0 = pSprite->field_2E;
     int16 Data4 = pSprite->field_30;
@@ -15283,7 +15268,7 @@ void cFodder::sub_1FDE7(sSprite* pSprite) {
 
     mStoredSpriteFrame = pSprite->field_A;
 
-    Sprite_Handle_Troop_FrameUnk(pSprite);
+    Sprite_Handle_Troop_Animation(pSprite);
     if (!pSprite->field_43)
         return;
 
