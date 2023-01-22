@@ -112,10 +112,10 @@ const sGameVersion KnownGameVersions[] = {
 	{ "Single Map", eGame::CF2, ePlatform::Amiga,   eRelease::Custom,	"Custom", { } },
 	{ "Single Map", eGame::CF2, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
 
-	{ "Random Map", eGame::CF1, ePlatform::Amiga,   eRelease::Custom,	"Custom", { } },
-	{ "Random Map", eGame::CF1, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
-	{ "Random Map", eGame::CF2, ePlatform::Amiga,   eRelease::Custom,	"Custom", { } },
-	{ "Random Map", eGame::CF2, ePlatform::PC,      eRelease::Custom,	"Custom", { } },
+	{ "Random Map", eGame::CF1, ePlatform::Amiga,   eRelease::eRandom,	"Custom", { } },
+	{ "Random Map", eGame::CF1, ePlatform::PC,      eRelease::eRandom,	"Custom", { } },
+	{ "Random Map", eGame::CF2, ePlatform::Amiga,   eRelease::eRandom,	"Custom", { } },
+	{ "Random Map", eGame::CF2, ePlatform::PC,      eRelease::eRandom,	"Custom", { } },
 
 };
 

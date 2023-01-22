@@ -36,7 +36,8 @@ enum eRelease {
 	AmigaNotVeryFestive,
 	AmigaAlienLevels,
 
-	Custom
+	Custom,
+	eRandom
 };
 
 enum eGame {
@@ -117,7 +118,11 @@ struct sVersion {
 	}
 
 	bool isCustom() const {
-		return mRelease == eRelease::Custom;
+		return mRelease == eRelease::Custom || isRandom();
+	}
+
+	bool isRandom() const {
+		return mRelease == eRelease::eRandom;
 	}
 
 	bool isRetail() const {

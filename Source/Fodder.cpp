@@ -3832,7 +3832,12 @@ void cFodder::Campaign_Selection() {
 
         // Single Map Mode?
         if (CampaignFile == "Single Map" || CampaignFile == "Random Map") {
-            
+
+            if (CampaignFile == "Random Map") {
+                mStartParams->mSkipRecruit = false;
+                mParams->mSkipRecruit = false;
+            }
+
             mGame_Data.mCampaign.SetSingleMapCampaign();
             mCustom_Mode = eCustomMode_Map;
             return;
@@ -18243,6 +18248,8 @@ void cFodder::About() {
 }
 
 void cFodder::CreateRandom(sMapParams pParams) {
+    mSurface->clearBuffer();
+
 	mGame_Data.mCampaign.CreateCustomCampaign();
 	mGame_Data.mCampaign.setRandom(true);
 	mGame_Data.mCampaign.setName("Random");
@@ -18400,14 +18407,18 @@ bool cFodder::GameOverCheck() {
 			// Demo / Custom Mission restart
 			if (mVersionCurrent->isDemo() && mCustom_Mode != eCustomMode_Set && !mVersionCurrent->isAmigaTheOne())
 				return false;
-
+            
 			// Reached last map in this mission set?
-			if (!mGame_Data.Phase_Next()) {
+			if (!mGame_Data.Phase_Next() && !mVersionDefault->isRandom() && mCustom_Mode != eCustomMode_Map) {
 
 				mGame_Data.mGameWon = true;
 				WonGame();
 				return true;
 			}
+
+            if (mVersionDefault->isRandom()) {
+                mGame_Data.mMission_Recruitment = -1;
+            }
 		}
 	}
 
