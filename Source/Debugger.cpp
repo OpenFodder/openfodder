@@ -35,10 +35,10 @@ bool cDebugger::ConsoleOpen() {
 
 	if (Alloced)
 		return true;
-
+/*
 #ifdef _CONSOLE
     return true;
-#endif
+#endif*/
     if (g_Fodder->mParams->mAppVeyor)
         return true;
 
