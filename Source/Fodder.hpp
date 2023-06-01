@@ -1236,7 +1236,7 @@ public:
     void            WonGame();
 
     void            Video_SurfaceRender( const bool pRestoreSurface = true );
-    void            Cycle_End();
+    void            Cycle_End(int64 pSleep = 40);
 
     void            sleepLoop(int64 pMilliseconds);
     int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration, size_t pBackColor = 0, bool pCanAbort = true);

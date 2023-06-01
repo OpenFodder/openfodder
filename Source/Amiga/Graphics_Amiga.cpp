@@ -1583,7 +1583,9 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
             mFodder->mPhase_Aborted = 0;
 		}
 
-        mFodder->Cycle_End();
+        mFodder->Cycle_End(45);
+		//mFodder->mWindow->Cycle();
+		//mFodder->eventsProcess();
 	} while (mFodder->word_428D8 || mFodder->mSurface->isPaletteAdjusting());
 
 	mFodder->mMouse_Exit_Loop = false;

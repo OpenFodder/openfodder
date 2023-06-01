@@ -16334,12 +16334,12 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
         mSurface->Restore();
 }
 
-void cFodder::Cycle_End() {
+void cFodder::Cycle_End(int64 pSleep) {
 #ifndef _OFED
     if (mParams->mSleepDelta) {
         mTicksDiff = SDL_GetTicks() - mTicksDiff;
-        mTicks = mTicksDiff * 40 / 1000;
-        sleepLoop(mParams->mSleepDelta * 1000 / 40 - mTicksDiff);
+        mTicks = mTicksDiff * pSleep / 1000;
+        sleepLoop(mParams->mSleepDelta * 1000 / pSleep - mTicksDiff);
         mTicksDiff = SDL_GetTicks();
     }
 #endif

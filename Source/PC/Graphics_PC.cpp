@@ -1013,7 +1013,7 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 
         mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-        mFodder->Cycle_End();
+        mFodder->Cycle_End(45);
 
 		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;
