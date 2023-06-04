@@ -1554,15 +1554,15 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		mFodder->mVideo_Draw_PosY = 163;
 		Video_Draw_16_Offset(word_4286F);
 
-		word_4286F += 8;
+		word_4286F += 3;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
-		word_42871 += 4;
+		word_42871 += 2;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
-		word_42873 += 2;
+		word_42873 += 1;
 		if (word_42873 >= 320)
 			word_42873 = 0;
 
@@ -1583,9 +1583,9 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
             mFodder->mPhase_Aborted = 0;
 		}
 
-        mFodder->Cycle_End(45);
-		//mFodder->mWindow->Cycle();
-		//mFodder->eventsProcess();
+        //mFodder->Cycle_End(45);
+		mFodder->mWindow->Cycle();
+		mFodder->eventsProcess();
 	} while (mFodder->word_428D8 || mFodder->mSurface->isPaletteAdjusting());
 
 	mFodder->mMouse_Exit_Loop = false;

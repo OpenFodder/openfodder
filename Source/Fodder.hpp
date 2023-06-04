@@ -513,10 +513,10 @@ public:
 
     int16           word_428B6;
     int16           word_428B8;
-    uint16          word_428BA;
+    int16          word_428BA;
 
-    uint32          mHelicopterPosX;
-    uint32          mHelicopterPosY;
+    int32          mHelicopterPosX;
+    int32          mHelicopterPosY;
     int16           mBriefing_Helicopter_Off1;
     int16           mBriefing_Helicopter_Off2;
     int16           mBriefing_Helicopter_Off3;

@@ -38,14 +38,32 @@ const int16 SIDEBAR_WIDTH = 48;
 
 const int16 mBriefing_Helicopter_Offsets[] =
 {
-    0x0180, 0x0040, 0x0004, 0x01A0,
-    0x0040, 0x000F, 0x01C0, 0x0040,
-    0x0007, 0x01E0, 0x0020, 0x0007,
-    0x0000, 0x0010, 0x000A, 0x0080,
-    0x0010, 0x001E, 0x0100, 0x0010,
-    0x000A, 0x01A0, 0x0008, 0x0019,
-    0x0170, 0x0064, 0x000A, -1,
-    -1, -1
+    0x0180, 0x0040, 0x0004, 
+    0x01A0, 0x0040, 0x000F, 
+    0x01C0, 0x0040, 0x0007, 
+    0x01E0, 0x0020, 0x0007, 
+    0x0000, 0x0010, 0x000A, 
+    0x0080, 0x0010, 0x001E, 
+    0x0100, 0x0010, 0x000A, 
+    0x01A0, 0x0008, 0x0019,
+    0x0170, 0x0064, 0x000A, 
+    -1, -1, -1
+};
+
+const int16 mBriefing_Helicopter_Offsets_Amiga[] =
+{
+  0x0180, 0x0020, 0x0005, 
+  0x01A0, 0x0020, 0x001E, 
+  0x01C0, 0x0020, 0x0014, 
+  0x01E0, 0x0010, 0x0014, 
+  0x0000, 0x0008, 0x0014,
+  0x0080, 0x0008, 0x003C, 
+  0x0100, 0x0008, 0x0014, 
+  0x01A0, 0x0004, 0x002E, 
+  0x0170, 0x0032, 0x0010,       // Originally this line is 0x170, 0x32, 0x46
+  0x0170, 0x0020, 0x0010,       //  and this one didnt exist
+
+  -1, -1, -1
 };
 
 cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
@@ -3485,17 +3503,27 @@ void cFodder::Mission_Intro_Helicopter_Start() {
     if (mVersionCurrent->isPC())
         mHelicopterPosY = 0x00260000;
     else
-        mHelicopterPosY = 0x00300000;
+        mHelicopterPosY = 0x001E0000;
 
-    mBriefing_Helicopter_Off1 = mBriefing_Helicopter_Offsets[0];
-    mBriefing_Helicopter_Off2 = mBriefing_Helicopter_Offsets[1];
-    mBriefing_Helicopter_Off3 = mBriefing_Helicopter_Offsets[2];
-    mBriefing_Helicopter_Off4 = &mBriefing_Helicopter_Offsets[3];
+    if (mVersionCurrent->isPC()) {
+        mBriefing_Helicopter_Off1 = mBriefing_Helicopter_Offsets[0];
+        mBriefing_Helicopter_Off2 = mBriefing_Helicopter_Offsets[1];
+        mBriefing_Helicopter_Off3 = mBriefing_Helicopter_Offsets[2];
+        mBriefing_Helicopter_Off4 = &mBriefing_Helicopter_Offsets[3];
+    }
+    else {
+        mBriefing_Helicopter_Off1 = mBriefing_Helicopter_Offsets_Amiga[0];
+        mBriefing_Helicopter_Off2 = mBriefing_Helicopter_Offsets_Amiga[1];
+        mBriefing_Helicopter_Off3 = mBriefing_Helicopter_Offsets_Amiga[2];
+        mBriefing_Helicopter_Off4 = &mBriefing_Helicopter_Offsets_Amiga[3];
+    }
+
     mBriefing_ParaHeli_Frame = 0;
     mBriefing_Helicopter_Moving = -1;
     word_428D8 = -1;
-
     sub_1594F();
+    mBriefing_Helicopter_Off1 = 0x180;
+
 }
 
 void cFodder::Briefing_Update_Helicopter() {
@@ -3528,9 +3556,9 @@ void cFodder::Briefing_Update_Helicopter() {
 
     if (mBriefing_Helicopter_Off2 != word_428B8) {
         if (word_428B8 >= mBriefing_Helicopter_Off2)
-            word_428B8 -= 4;
+            word_428B8 -= 1;
         else
-            word_428B8 += 4;
+            word_428B8 += 1;
     }
 
 	if (mVersionCurrent->isCannonFodder1() && mVersionCurrent->isPC())
