@@ -41,6 +41,7 @@ class cEvent {
 		unsigned int		mButtonCount;
 
 		cPosition			mPosition;
+		cPosition			mPositionRelative;
 
 	public:
 							cEvent( const eEventType& pType = eEvent_None );

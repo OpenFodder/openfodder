@@ -2635,26 +2635,31 @@ void cFodder::eventProcess(const cEvent& pEvent) {
 
     case eEvent_MouseLeftDown:
         mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastPositionRelative = pEvent.mPositionRelative;
         mMouse_EventLastButtonsPressed |= 1;
         break;
 
     case eEvent_MouseRightDown:
         mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastPositionRelative = pEvent.mPositionRelative;
         mMouse_EventLastButtonsPressed |= 2;
         break;
 
     case eEvent_MouseLeftUp:
         mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastPositionRelative = pEvent.mPositionRelative;
         mMouse_EventLastButtonsPressed &= ~1;
         break;
 
     case eEvent_MouseRightUp:
         mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastPositionRelative = pEvent.mPositionRelative;
         mMouse_EventLastButtonsPressed &= ~2;
         break;
 
     case eEvent_MouseMove:
         mMouse_EventLastPosition = pEvent.mPosition;
+        mMouse_EventLastPositionRelative = pEvent.mPositionRelative;
         break;
 
     case eEvent_MouseWheel:
@@ -2812,16 +2817,18 @@ void cFodder::Mouse_Setup() {
 
 void cFodder::Mouse_Cursor_Handle() {
 	static bool WasClicked = false;
-	static bool CursorGrabbed = false;
+
 	const cPosition WindowPos = mWindow->GetWindowPosition();
 	const cDimension ScreenSize = mWindow->GetScreenSize();
 	const cDimension WindowSize = mWindow->GetWindowSize();
 	const cDimension scale = mWindow->GetScale();
+    static bool CursorGrabbed = true;
 
 	mMouseButtonStatus = mMouse_EventLastButtonsPressed;
 
-	if (!mWindow->hasFocusEvent() && CursorGrabbed)
-		CursorGrabbed = false;
+    if (!mWindow->hasFocusEvent() && CursorGrabbed) {
+        CursorGrabbed = false;
+    }
 
 	if (mStartParams->mMouseAlternative) {
 		mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
@@ -2857,33 +2864,16 @@ void cFodder::Mouse_Cursor_Handle() {
                 else if (mInputMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
                     mInputMouseY = ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 2;
             }
+            mWindow->SetRelativeMouseMode(true);
         }
     } else {
-        cPosition BorderMouse;
-
         if (!mWindow->isFullscreen()) {
-            // Need to check if the game cursor is near an edge: top-left / top-right / bottom-left / bottom-right
-            if ((mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY <= MOUSE_POSITION_Y_ADJUST) ||
-                (mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY <= MOUSE_POSITION_Y_ADJUST) ||
-                (mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) ||
-                (mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)) {
-                BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
-                BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
-            }
-            // Need to check if the game cursor is near a border on X axis
-            else if (mMouseX <= MOUSE_POSITION_X_ADJUST || mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1) {
-                BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
-                BorderMouse.mY = WindowPos.mY + (mMouseY - MOUSE_POSITION_Y_ADJUST) * scale.getHeight();
-            } // Need to check if the game cursor is near a border Y axis
-            else if (mMouseY <= MOUSE_POSITION_Y_ADJUST || mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) {
-                BorderMouse.mX = WindowPos.mX + (mMouseX - MOUSE_POSITION_X_ADJUST) * scale.getWidth();
-                BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
-            }
+            cPosition BorderMouse = Mouse_GetOnBorderPosition();
 
-            //  if yes set system cursor outside the border
-            //  if yes set system cursor outside the border
+            // Cursor leaving window
             if (BorderMouse.mX || BorderMouse.mY) {
                 CursorGrabbed = false;
+                mWindow->SetRelativeMouseMode(false);
                 mWindow->SetMousePosition(BorderMouse);
                 return;
             }
@@ -2898,18 +2888,47 @@ void cFodder::Mouse_Cursor_Handle() {
                     WasClicked = false;
             } else {
                 // Calc the distance from the cursor to the centre of the window
-                const cPosition Diff = (mMouse_EventLastPosition - WindowSize.getCentre());
+                //const cPosition Diff = (mMouse_EventLastPosition - WindowSize.getCentre());
 
-                mInputMouseX = mMouseX + static_cast<int16>((Diff.mX / scale.getWidth()) * 1.5);
-                mInputMouseY = mMouseY + static_cast<int16>((Diff.mY / scale.getHeight()) * 1.5);
+                //mInputMouseX = mMouseX + static_cast<int16>((mMouse_EventLastPositionRelative.mX / scale.getWidth()) * 1.5);
+                //mInputMouseY = mMouseY + static_cast<int16>((mMouse_EventLastPositionRelative.mY / scale.getHeight()) * 1.5);
+                mInputMouseX = mMouseX + mMouse_EventLastPositionRelative.mX * 1.5;
+                mInputMouseY = mMouseY + mMouse_EventLastPositionRelative.mY * 1.5;
+                mMouse_EventLastPositionRelative = { 0,0 };
             }
         }
 
         // Set system cursor back to centre of window
-        mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
+        //mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
     }
 }
 
+cPosition cFodder::Mouse_GetOnBorderPosition() {
+    cPosition BorderMouse;
+    const cPosition WindowPos = mWindow->GetWindowPosition();
+    const cDimension ScreenSize = mWindow->GetScreenSize();
+    const cDimension WindowSize = mWindow->GetWindowSize();
+    const cDimension scale = mWindow->GetScale();
+
+    if ((mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY <= MOUSE_POSITION_Y_ADJUST) ||
+        (mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY <= MOUSE_POSITION_Y_ADJUST) ||
+        (mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) ||
+        (mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)) {
+        BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
+        BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
+    }
+    // Need to check if the game cursor is near a border on X axis
+    else if (mMouseX <= MOUSE_POSITION_X_ADJUST || mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1) {
+        BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
+        BorderMouse.mY = WindowPos.mY + (mMouseY - MOUSE_POSITION_Y_ADJUST) * scale.getHeight();
+    } // Need to check if the game cursor is near a border Y axis
+    else if (mMouseY <= MOUSE_POSITION_Y_ADJUST || mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) {
+        BorderMouse.mX = WindowPos.mX + (mMouseX - MOUSE_POSITION_X_ADJUST) * scale.getWidth();
+        BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
+    }
+
+    return BorderMouse;
+}
 void cFodder::Mouse_Inputs_Get() {
 
 	
@@ -18361,7 +18380,7 @@ void cFodder::Start() {
         mGame_Data.mDemoRecorded.mRecordedPlatform = mVersionCurrent->mPlatform;
 
     mGame_Data.mDemoRecorded.save();
-
+    Mouse_Setup();
     // Play the intro
 	Intro_OpenFodder();
 

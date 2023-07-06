@@ -158,6 +158,7 @@ public:
 
     int16           mMouse_Exit_Loop;
     cPosition       mMouse_EventLastPosition;
+    cPosition       mMouse_EventLastPositionRelative;
     uint32          mMouse_EventLastButtonsPressed;
     cPosition       mMouse_EventLastWheel;
     bool            mMouse_Locked;
@@ -1250,6 +1251,7 @@ public:
     virtual void    Mouse_Inputs_Get();
     void            Mouse_Inputs_Check();
     void            Mouse_Setup();
+    cPosition       Mouse_GetOnBorderPosition();
 
     void            eventProcess(const cEvent& pEvent);
     void            eventsProcess();
