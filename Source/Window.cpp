@@ -76,7 +76,6 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, 0 );
 	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
-	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	SetCursor();
 
@@ -89,6 +88,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
         ToggleFullscreen();
     }
 
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	return true;
 }
@@ -271,8 +271,6 @@ void cWindow::EventCheck() {
 		if ( Event.mType != eEvent_None )
 			mEvents.push_back( Event );
 	}
-
-    SDL_GetGlobalMouseState(&mMouseGlobal.mX, &mMouseGlobal.mY);
 }
 
 void cWindow::CalculateWindowSize() {
@@ -423,12 +421,7 @@ bool cWindow::isFullscreen() const {
 }
 
 bool cWindow::isMouseInside() const {
-    const cPosition MouseGlobalPos = GetMousePosition();
-    const cPosition WindowPos = GetWindowPosition();
-    const cDimension WindowSize = GetWindowSize();
-
-    return (MouseGlobalPos.mX >= WindowPos.mX && MouseGlobalPos.mX < WindowPos.mX + WindowSize.getWidth() &&
-            MouseGlobalPos.mY >= WindowPos.mY && MouseGlobalPos.mY < WindowPos.mY + WindowSize.getHeight());
+	return mWindow == SDL_GetMouseFocus();
 }
 
 bool cWindow::isResized() const {
@@ -439,8 +432,8 @@ bool cWindow::isResized() const {
  * Is either mouse button currently pressed
  */
 bool cWindow::isMouseButtonPressed_Global() const {
-    return  (SDL_GetGlobalMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) ||
-            (SDL_GetGlobalMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT));
+    return  (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) ||
+            (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT));
 }
 
 /**
@@ -470,13 +463,6 @@ void cWindow::ToggleFullscreen() {
 
 void cWindow::ClearResized() {
 	mResized = false;
-}
-
-cPosition cWindow::GetMousePosition( const bool pRelative ) const {
-    if(!pRelative)
-        return mMouseGlobal;
-
-    return (mMouseGlobal - GetWindowPosition());
 }
 
 void cWindow::SetMousePosition(const cPosition& pPosition) {
