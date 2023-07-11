@@ -229,7 +229,7 @@ void cWindow::EventCheck() {
 			}
 
 			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
-			Event.mPositionRelative = cPosition(SysEvent.motion.xrel, SysEvent.motion.yrel);
+			Event.mPositionRelative = { 0,0 };
 			Event.mButtonCount = SysEvent.button.clicks;
 			break;
 
@@ -249,7 +249,7 @@ void cWindow::EventCheck() {
 			}
 
 			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
-			Event.mPositionRelative = cPosition(SysEvent.motion.xrel, SysEvent.motion.yrel);
+			Event.mPositionRelative = { 0,0 };
 			Event.mButtonCount = SysEvent.button.clicks;
 			break;
 

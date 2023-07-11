@@ -2892,8 +2892,8 @@ void cFodder::Mouse_Cursor_Handle() {
 
                 //mInputMouseX = mMouseX + static_cast<int16>((mMouse_EventLastPositionRelative.mX / scale.getWidth()) * 1.5);
                 //mInputMouseY = mMouseY + static_cast<int16>((mMouse_EventLastPositionRelative.mY / scale.getHeight()) * 1.5);
-                mInputMouseX = mMouseX + mMouse_EventLastPositionRelative.mX * 1.5;
-                mInputMouseY = mMouseY + mMouse_EventLastPositionRelative.mY * 1.5;
+                mInputMouseX = mMouseX + static_cast<int16>(mMouse_EventLastPositionRelative.mX * 1.5);
+                mInputMouseY = mMouseY + static_cast<int16>(mMouse_EventLastPositionRelative.mY * 1.5);
                 mMouse_EventLastPositionRelative = { 0,0 };
             }
         }

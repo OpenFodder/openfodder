@@ -31,7 +31,6 @@ class cWindow {
 		cDimension			mOriginalResolution;
 
 		cDimension			mScreenSize;
-        cPosition           mMouseGlobal;
 
 		uint8				mScaler, mScalerPrevious;
 
@@ -76,7 +75,6 @@ class cWindow {
 
 		void				SetCursor();
 
-        cPosition           GetMousePosition(const bool pRelative = false) const;
         void				SetMousePosition(const cPosition& pPosition);
 
 		void				SetScreenSize( const cDimension& pDimension );
