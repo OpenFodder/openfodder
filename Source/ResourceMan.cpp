@@ -151,9 +151,9 @@ void cResourceMan::findVersions() {
 
 					// See if we match
 					if (baseFileLower == FileLower) {
-						std::string MD5 = FileMD5(base + File.mName);
+						std::string MD5 = FileMD5(base + baseFile);
 
-						ReleaseFiles.insert(std::make_pair(FileLower, base + File.mName));
+						ReleaseFiles.insert(std::make_pair(FileLower, base + baseFile));
 
 						if (MD5 != File.mChecksum) {
 							if (MD5.length() == 0) {
