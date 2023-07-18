@@ -195,7 +195,7 @@ namespace dukglue {
 				duk_pop(ctx);  // pop prototypes_array
 				return false;
 			}
-      
+
     };
   }
 }

@@ -26,7 +26,7 @@ namespace dukglue
 
 		// 2. Implement a self-balancing binary tree on top of a Duktape array
 		//    for the registry. Still fast - O(log(N)) - and no memory overhead.
-		
+
 		// 3. A sorted list would work too, though insertion speed might be worse
 		//    than a binary tree.
 

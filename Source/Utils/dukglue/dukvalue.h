@@ -19,7 +19,7 @@
 
 // One script object can have multiple, completely separate DukValues "pointing" to it - in this case, there will be
 // multiple entries in the "ref array" that point to the same object. This will happen if the same script object is
-// put on the stack and turned into a DukValue multiple times independently (copy-constructing/operator=-ing 
+// put on the stack and turned into a DukValue multiple times independently (copy-constructing/operator=-ing
 // DukValues will not do this!). This is okay, as we are only keeping track of these objects to prevent garbage
 // collection (and access them later). This could be changed to use a map structure to look up one canonical entry per
 // script object in the "ref array" (I guess it would be more like a ref map in this case), but this would require a map
@@ -336,7 +336,7 @@ public:
 	inline duk_int_t as_int() const {
 		if (mType != NUMBER)
 			throw DukException() << "Expected number, got " << type_name();
-		return static_cast<uint32_t>(mPOD.number);
+		return static_cast<int32_t>(mPOD.number);
 	}
 
 	inline duk_uint_t as_uint() const {
