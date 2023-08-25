@@ -9600,7 +9600,7 @@ void cFodder::Service_Draw_String(const std::string& pText, const uint8* pData28
         Data4 += 0x1A;
         goto loc_18259;
     loc_1823C:;
-        if (Data4 >= 0x5A) {
+        if (Data4 > 0x5A) {
             Data4 -= 0x61;
             Data4 += 0x39;
         }
