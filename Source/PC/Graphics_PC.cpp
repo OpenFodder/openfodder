@@ -945,6 +945,7 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 	int16 word_42871 = 0;
 	int16 word_42873 = 0;
 	int16 word_42875 = 0;
+	static int16 mouseCheck = 0;
 
 	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
 
@@ -1015,7 +1016,13 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-        mFodder->Mouse_Inputs_Get();
+		// This loop runs fast enough that the cursor can get stuck at the window border
+		// as focus events havnt been received for the mouse leaving the window
+		++mouseCheck;
+		if (mouseCheck % 5 == 0) {
+			mouseCheck = 0;
+			mFodder->Mouse_Inputs_Get();
+		}
         mFodder->Video_SurfaceRender();
 		mFodder->mWindow->Cycle();
 		mFodder->eventsProcess();
