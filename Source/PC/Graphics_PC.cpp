@@ -995,25 +995,30 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
         mMission_Intro_DrawY = pPositions[4].mY;
 		Mission_Intro_Render_2( mImageMissionIntro.mData, word_4286F );
 
-		word_4286F += 8;
+		// Front
+		word_4286F += 6;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
+		// Middle
 		word_42871 += 4;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
-		word_42873 += 2;
+		// Back
+		word_42873 += 3;
 		if (word_42873 >= 320)
 			word_42873 = 0;
 
-		++word_42875;
+		// Very Back
+		word_42875 += 2;
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
         mFodder->Mouse_Inputs_Get();
         mFodder->Video_SurfaceRender();
-        mFodder->Cycle_End(45);
+		mFodder->mWindow->Cycle();
+		mFodder->eventsProcess();
 
 		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
 			mFodder->word_428D8 = 0;

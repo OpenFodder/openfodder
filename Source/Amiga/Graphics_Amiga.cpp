@@ -1555,18 +1555,22 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		mFodder->mVideo_Draw_PosY = 163;
 		Video_Draw_16_Offset(word_4286F);
 
-		word_4286F += 3;
+		// Front
+		word_4286F += 4;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
-		word_42871 += 2;
+		// Middle
+		word_42871 += 3;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
-		word_42873 += 1;
+		// Back
+		word_42873 += 2;
 		if (word_42873 >= 320)
 			word_42873 = 0;
 
+		// Very Back
 		++word_42875;
 		if (word_42875 >= 320)
 			word_42875 = 0;
