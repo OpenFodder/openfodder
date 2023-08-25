@@ -38,7 +38,7 @@ cWindow::cWindow() {
 
 	mRenderer = 0;
 
-    mHasFocus = false;
+    mHasFocus = true;
 	mResized = false;
 }
 
@@ -103,26 +103,9 @@ std::vector<cEvent>* cWindow::EventGet() {
 }
 
 bool cWindow::Cycle() {
-    //cPosition Mouse;
 
     EventCheck();
 
-    // Update the mouse position over the window
-    /*for (auto& Event : mEvents) {
-        switch (Event.mType) {
-        default:
-            break;
-        case eEvent_MouseLeftDown:
-        case eEvent_MouseRightDown:
-        case eEvent_MouseLeftUp:
-        case eEvent_MouseRightUp:
-        case eEvent_MouseMove:
-            Mouse = Event.mPosition;
-            break;
-        }
-    }*/
-
-    // TODO: Move Cursor logic here
 
     return true;
 }

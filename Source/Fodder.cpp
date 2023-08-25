@@ -2813,6 +2813,8 @@ void cFodder::Mouse_Setup() {
 
     mMouseX = (getCameraWidth() / 2) - 9;
     mMouseY = (getCameraHeight() / 2) - 9;
+    mInputMouseX = mMouseX;
+    mInputMouseY = mMouseY;
 }
 
 void cFodder::Mouse_Cursor_Handle() {
@@ -2882,19 +2884,17 @@ void cFodder::Mouse_Cursor_Handle() {
         // hack to avoid moving cursor on window resizing
         if (mWindow->isResized()) {
             mWindow->ClearResized();
+
         } else {
             if (WasClicked) {
                 if (!mWindow->isMouseButtonPressed_Global())
                     WasClicked = false;
             } else {
                 // Calc the distance from the cursor to the centre of the window
-                //const cPosition Diff = (mMouse_EventLastPosition - WindowSize.getCentre());
-
-                //mInputMouseX = mMouseX + static_cast<int16>((mMouse_EventLastPositionRelative.mX / scale.getWidth()) * 1.5);
-                //mInputMouseY = mMouseY + static_cast<int16>((mMouse_EventLastPositionRelative.mY / scale.getHeight()) * 1.5);
                 mInputMouseX = mMouseX + static_cast<int16>(mMouse_EventLastPositionRelative.mX * 1.5);
                 mInputMouseY = mMouseY + static_cast<int16>(mMouse_EventLastPositionRelative.mY * 1.5);
                 mMouse_EventLastPositionRelative = { 0,0 };
+                
             }
         }
 
@@ -2931,10 +2931,7 @@ cPosition cFodder::Mouse_GetOnBorderPosition() {
 }
 void cFodder::Mouse_Inputs_Get() {
 
-	
     if (mParams->mDemoPlayback) {
-
-       // Window_UpdateScreenSize();
 
         auto State = mGame_Data.mDemoRecorded.GetState(mGame_Data.mDemoRecorded.mTick);
         if (State) {
@@ -2953,7 +2950,6 @@ void cFodder::Mouse_Inputs_Get() {
     }
 
     if (mParams->mDemoRecord)
-
         mGame_Data.mDemoRecorded.AddState(mGame_Data.mDemoRecorded.mTick, cStateRecorded{ mInputMouseX, mInputMouseY, mMouseButtonStatus });
 
     Mouse_ButtonCheck();
@@ -16078,6 +16074,8 @@ void cFodder::Intro_OpenFodder() {
 		if (CF2)
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder 2", mParams->mDefaultPlatform));
 
+        Mouse_Setup();
+
 		// Random intro
 		auto Tileset = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
 		Mission_Intro_Play(true, Tileset);
@@ -18366,8 +18364,9 @@ void cFodder::Start() {
 	mSound = 0;
     mVersionDefault = 0;
     mVersionCurrent = 0;
-    VersionSwitch(mVersions->GetRetail( mParams->mDefaultPlatform, mParams->mDefaultGame ));
 
+    VersionSwitch(mVersions->GetRetail( mParams->mDefaultPlatform, mParams->mDefaultGame ));
+    
     if (!mVersionCurrent) {
         VersionSwitch(mVersions->GetDemo());
 
@@ -18380,7 +18379,7 @@ void cFodder::Start() {
         mGame_Data.mDemoRecorded.mRecordedPlatform = mVersionCurrent->mPlatform;
 
     mGame_Data.mDemoRecorded.save();
-    Mouse_Setup();
+    
     // Play the intro
 	Intro_OpenFodder();
 
