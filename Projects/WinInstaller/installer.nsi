@@ -115,7 +115,7 @@ Section "Copy Files" drcreepInst
 
 	CreateShortCut "$DESKTOP\OpenFodder.lnk" "$INSTDIR\OpenFodder.exe"
 
-	MessageBox MB_YESNO|MB_ICONQUESTION "Install Microsoft Visual C++ 2017 64bit Redistributable Package?" IDNO NoRunVC
+	MessageBox MB_YESNO|MB_ICONQUESTION "Install Microsoft Visual C++ 2015-2022 32bit Redistributable Package?" IDNO NoRunVC
     Exec "$INSTDIR\VC_redist.x86.exe"
   NoRunVC:
   
