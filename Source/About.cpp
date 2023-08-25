@@ -48,10 +48,11 @@ cAbout::cAbout() {
         { TEXTPOS_TEAM + 30,  "ROBERT CROSSFIELD" },
 
         { TEXTPOS_TEAM + 80, "ENGINE" },
-        { TEXTPOS_TEAM + 90, "ALESSANDRO PETRALIA" },
+        { TEXTPOS_TEAM + 90,  "ROBERT CROSSFIELD" },
+        { TEXTPOS_TEAM + 100, "ALESSANDRO PETRALIA" },
 
-		{ TEXTPOS_TEAM + 110, "SCRIPTING" },
-		{ TEXTPOS_TEAM + 120, "STARWINDZ" },
+		{ TEXTPOS_TEAM + 120, "SCRIPTING" },
+		{ TEXTPOS_TEAM + 130, "STARWINDZ" },
 
 
         { TEXTPOS_THANKS + 0 , "THANKS TO" },
@@ -63,10 +64,11 @@ cAbout::cAbout() {
         { TEXTPOS_THANKS + 60, "SCUMMVM"},
 
         { TEXTPOS_POWERED + 0,  "POWERED BY"},
-        { TEXTPOS_POWERED + 10, "CPP14"},
+        { TEXTPOS_POWERED + 10, "CPP17"},
         { TEXTPOS_POWERED + 20, "SDL2"},
 		{ TEXTPOS_POWERED + 30, "DUKTAPE"},
 		{ TEXTPOS_POWERED + 40, "DUKGLUE"},
+        { TEXTPOS_POWERED + 50, "IDA"},
 
         // Just for fun: loc_2B48E
         { 1100, "PUSH CX"},
