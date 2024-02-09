@@ -1561,12 +1561,12 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 			word_4286F = 0;
 
 		// Middle
-		word_42871 += 3;
+		word_42871 += 2;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
 		// Back
-		word_42873 += 2;
+		word_42873 += 1;
 		if (word_42873 >= 320)
 			word_42873 = 0;
 
