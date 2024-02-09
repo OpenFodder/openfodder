@@ -1556,17 +1556,17 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		Video_Draw_16_Offset(word_4286F);
 
 		// Front
-		word_4286F += 4;
+		word_4286F += 5;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		// Middle
-		word_42871 += 2;
+		word_42871 += 4;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
 		// Back
-		word_42873 += 1;
+		word_42873 += 2;
 		if (word_42873 >= 320)
 			word_42873 = 0;
 
