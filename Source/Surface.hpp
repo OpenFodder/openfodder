@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2018 Open Fodder
+ *  Copyright (C) 2008-2024 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ public:
 	void			draw();						// Draw image to SDL Surface
     void            mergeSurfaceBuffer(const cSurface* pFrom);
 
-    bool            LoadBitmap(const std::string& pFile);
+	bool            LoadPng(const std::string &pFile);
 
 	void			Save();
 	void			Restore();

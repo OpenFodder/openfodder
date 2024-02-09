@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2018 Open Fodder
+ *  Copyright (C) 2008-2024 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,9 @@
  */
 
 #include "stdafx.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "Utils/stb_image.h"
 
 cSurface::cSurface( size_t pWidth, size_t pHeight ) {
     mIsLoadedImage = false;
@@ -283,11 +286,32 @@ void cSurface::clearBuffer(size_t pColor) {
 	clearSDLSurface();
 }
 
-bool cSurface::LoadBitmap(const std::string& pFile) {
-    auto Surface = SDL_LoadBMP(pFile.c_str());
+bool cSurface::LoadPng(const std::string& pFile) {
+    int32 width, height, bytesPerPixel;
+    void* data = stbi_load(pFile.c_str(), &width, &height, &bytesPerPixel, 0);
+
+    // Calculate pitch
+    int pitch;
+    pitch = width * bytesPerPixel;
+    pitch = (pitch + 3) & ~3;
+
+    // Setup relevance bitmask
+    uint32 Rmask, Gmask, Bmask, Amask;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    Rmask = 0x000000FF;
+    Gmask = 0x0000FF00;
+    Bmask = 0x00FF0000;
+    Amask = (bytesPerPixel == 4) ? 0xFF000000 : 0;
+#else
+    int s = (bytesPerPixel == 4) ? 0 : 8;
+    Rmask = 0xFF000000 >> s;
+    Gmask = 0x00FF0000 >> s;
+    Bmask = 0x0000FF00 >> s;
+    Amask = 0x000000FF >> s;
+#endif
+    auto Surface = SDL_CreateRGBSurfaceFrom(data, width, height, bytesPerPixel*8, pitch, Rmask, Gmask, Bmask, Amask);
     if (!Surface)
         return false;
-
     SDL_FreeSurface(mSDLSurface);
     mSDLSurface = Surface;
 
@@ -303,7 +327,7 @@ bool cSurface::LoadBitmap(const std::string& pFile) {
         SDL_SetTextureColorMod(mTexture, 0xFF, 0xFF, 0xFF);
     }
 
-    return mSDLSurface != 0;
+    return mSDLSurface != nullptr;
 }
 
 void cSurface::Save() {
