@@ -381,6 +381,9 @@ bool sFodderParameters::ProcessINI() {
 			if (ini.get("alternate-mouse", "false") == "true")
 				mMouseAlternative = true;
 
+			if (ini.get("mouse-locked", "false") == "true")
+				mMouseLocked = true;
+
 			if (ini.get("copyprotection", "false") == "true")
 				mCopyProtection = true;
 		}

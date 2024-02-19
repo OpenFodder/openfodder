@@ -2740,6 +2740,9 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
         mWindow->ToggleFullscreen();
 
+    if (pKeyCode == SDL_SCANCODE_F12 && pPressed)
+        mParams->mMouseLocked = !mParams->mMouseLocked;
+
     if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed && mPhase_Aborted)
         mPhase_Aborted2 = true;
 
@@ -2870,14 +2873,18 @@ void cFodder::Mouse_Cursor_Handle() {
         }
     } else {
         if (!mWindow->isFullscreen()) {
-            cPosition BorderMouse = Mouse_GetOnBorderPosition();
+            if (!mParams->mMouseLocked) {
+                cPosition BorderMouse = Mouse_GetOnBorderPosition();
 
-            // Cursor leaving window
-            if (BorderMouse.mX || BorderMouse.mY) {
-                CursorGrabbed = false;
-                mWindow->SetRelativeMouseMode(false);
-                mWindow->SetMousePosition(BorderMouse);
-                return;
+                // Cursor leaving window
+                if (BorderMouse.mX || BorderMouse.mY) {
+                    CursorGrabbed = false;
+
+                    mWindow->SetRelativeMouseMode(false);
+                    mWindow->SetMousePosition(BorderMouse);
+
+                    return;
+                }
             }
         }
 
@@ -2891,8 +2898,8 @@ void cFodder::Mouse_Cursor_Handle() {
                     WasClicked = false;
             } else {
                 // Calc the distance from the cursor to the centre of the window
-                mInputMouseX = mMouseX + static_cast<int16>(mMouse_EventLastPositionRelative.mX * 1.5);
-                mInputMouseY = mMouseY + static_cast<int16>(mMouse_EventLastPositionRelative.mY * 1.5);
+                mInputMouseX = mMouseX + static_cast<int16>(mMouse_EventLastPositionRelative.mX);
+                mInputMouseY = mMouseY + static_cast<int16>(mMouse_EventLastPositionRelative.mY);
                 mMouse_EventLastPositionRelative = { 0,0 };
                 
             }

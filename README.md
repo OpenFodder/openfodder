@@ -112,6 +112,7 @@ Open Fodder supports six demos from the Amiga platform, and three retail release
 * F9:    Make current squad invincible (with --cheats enabled)
 * F10:   Complete current map (with --cheats enabled)
 * F11:   Toggle full screen
+* F12:   Lock cursor to window
 * +:     Increase window size
 * -:     Decrease window size  
 
