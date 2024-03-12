@@ -39,6 +39,7 @@ public:
 	bool mMouseLocked;			// Mouse is locked to window
 
 	bool mWindowMode;           // Start in a window
+	bool mIntegerScaling;           // Use integer scaling in fullscreen mode
 	size_t mWindowScale;		// Start with window scaled at
 	size_t mWindowRows;
 	size_t mWindowColumns;
@@ -110,6 +111,7 @@ public:
 		mMouseLocked = false;
 
 		mWindowMode = false;
+		mIntegerScaling = true;
 		mWindowScale = 0;
 
 		mWindowRows = 0;

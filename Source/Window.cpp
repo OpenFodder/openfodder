@@ -74,7 +74,13 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 
-	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, 0 );
+    if (g_Fodder->mParams->mIntegerScaling || mWindowMode) {
+	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
+    }
+    else {
+	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
+    }
+
 	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
 
 	SetCursor();
@@ -348,8 +354,14 @@ void cWindow::RenderAt( cSurface* pImage ) {
 	Src.x = (int) 16;
 	Src.y = (int) 16;
 
-	Dest.w = GetWindowSize().mWidth;
-	Dest.h = GetWindowSize().mHeight;
+	if (g_Fodder->mParams->mIntegerScaling || mWindowMode) {
+		Dest.w = GetWindowSize().mWidth;
+		Dest.h = GetWindowSize().mHeight;
+	}
+	else {
+		SDL_GetWindowSize(mWindow, NULL, &Dest.h);
+		Dest.w = Dest.h*(float)(4.0/3.0);
+	}
 
 	if (mWindowMode) {
 		Dest.x = 0;
