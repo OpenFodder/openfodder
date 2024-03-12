@@ -73,6 +73,7 @@ Open Fodder supports six demos from the Amiga platform, and three retail release
       --rows 16                 Number of camera rows (default: 16)
   -w, --window                  Start in window mode
       --window-scale arg        Set the window scale (default: 0)
+      --integer-scaling         Set integer scaling (default: true)
       --cheats                  Enable cheat keys
 
       --max-sprite 45           Set the maximum sprites (default: 45)

@@ -288,7 +288,7 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
             }
         }
         catch (std::exception Exception) {
-            std::cout << "V1 Elements not found: " << Exception.what() << "\n";
+            std::cout << "sGameRecorded: V1 Elements not found: " << Exception.what() << "\n";
             return false;
         }
     }

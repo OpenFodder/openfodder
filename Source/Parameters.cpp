@@ -76,7 +76,6 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	mMissionNumber = LoadedData["mMissionNumber"];
 	mPhaseNumber = LoadedData["mPhaseNumber"];
 	mWindowMode = LoadedData["mWindowMode"];
-	mIntegerScaling = LoadedData["mIntegerScaling"];
 	mRandom = LoadedData["mRandom"];
 	mDefaultPlatform = LoadedData["mDefaultPlatform"];
 	mCampaignName = LoadedData["mCampaignName"];
@@ -107,6 +106,10 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	else
 		mCheatsEnabled = false;
 
+	if (LoadedData.count("mIntegerScaling") > 0) {
+		mIntegerScaling = LoadedData["mIntegerScaling"];
+	}
+
 	return true;
 }
 
@@ -130,6 +133,7 @@ void sFodderParameters::PrepareOptions() {
 		("alternate-mouse", "Play with non-original mouse behaviour", cxxopts::value<bool>()->default_value("false"))
 		("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 		("window-scale", "Set the window scale", cxxopts::value<std::uint32_t>()->default_value("0"))
+		("integer-scaling", "Use integer scaling", cxxopts::value<bool>()->default_value("true"))
 
 		("cheats", "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
 		("max-sprite", "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
@@ -258,7 +262,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mWindowScale = result["window-scale"].as<uint32>();
 
 		if (result.count("integer-scaling"))
-			mIntegerScaling = result["integer"].as<bool>();
+			mIntegerScaling = result["integer-scaling"].as<bool>();
 
 		mRandom = result["random"].as<bool>();
 		if (result["random-save"].count()) {
