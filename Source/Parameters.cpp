@@ -42,6 +42,7 @@ std::string sFodderParameters::ToJson() {
 	Save["mSkipService"] = mSkipService;
 
 	Save["mWindowMode"] = mWindowMode;
+	Save["mIntegerScaling"] = mIntegerScaling;
 	Save["mRandom"] = mRandom;
 	Save["mDefaultPlatform"] = mDefaultPlatform;
 	Save["mCampaignName"] = mCampaignName;
@@ -75,6 +76,7 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	mMissionNumber = LoadedData["mMissionNumber"];
 	mPhaseNumber = LoadedData["mPhaseNumber"];
 	mWindowMode = LoadedData["mWindowMode"];
+	mIntegerScaling = LoadedData["mIntegerScaling"];
 	mRandom = LoadedData["mRandom"];
 	mDefaultPlatform = LoadedData["mDefaultPlatform"];
 	mCampaignName = LoadedData["mCampaignName"];
@@ -255,6 +257,9 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		if(result.count("window-scale"))
 			mWindowScale = result["window-scale"].as<uint32>();
 
+		if (result.count("integer-scaling"))
+			mIntegerScaling = result["integer"].as<bool>();
+
 		mRandom = result["random"].as<bool>();
 		if (result["random-save"].count()) {
 
@@ -364,6 +369,12 @@ bool sFodderParameters::ProcessINI() {
 				mWindowScale = 0;
 			else {
 				mWindowScale = ini.get("scale", 0);
+			}
+
+			if (ini.get("integer", "true") == "true")
+				mIntegerScaling = true;
+			else {
+				mIntegerScaling = false;
 			}
 
 			if (ini.get("columns", "0") == "0")

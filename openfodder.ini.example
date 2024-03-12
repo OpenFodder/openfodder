@@ -16,6 +16,12 @@ cheats=false
 ; values such as 1, 2 or 3+ are multiples of the original resolution
 scale=auto
 
+; Use integer scaling (default), or use non-integer scaling to fit the image to display height
+; while preserving the original 4:3 aspect ratio.
+; When doing non-integer scaling in fullscreen mode, linear filtering is applied
+; to avoid ugly irregular pixels and shimmering artifacts. 
+integer=true
+
 ; Number of map tiles to draw horizontally (0 for platform default)
 columns=0
 
