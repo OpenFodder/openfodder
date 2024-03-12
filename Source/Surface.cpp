@@ -205,42 +205,41 @@ inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
  * Draw the Surface Buffer to SDLSurface, using the surface palette
  */
 void cSurface::draw() {
+	if (mIsLoadedImage)
+		return;
 
-    if (mIsLoadedImage)
-        return;
+	const uint8_t* bufferCurrent = mSurfaceBuffer;
+	const uint8_t* const bufferEnd = mSurfaceBuffer + mSurfaceBufferSize;
+	uint32_t* bufferTarget = reinterpret_cast<uint32_t*>(mSDLSurface->pixels);
+	const int width = mSDLSurface->w, height = mSDLSurface->h;
+	const int skipX = 16;
 
-	const uint8 *bufferCurrent = mSurfaceBuffer;
-	const uint8 *bufferCurrentMax = (mSurfaceBuffer + mSurfaceBufferSize);
-
-	uint32 *bufferTarget = (uint32*)mSDLSurface->pixels;
-	uint32 *bufferTargetMax = (uint32*) (((uint8*) mSDLSurface->pixels) + (mSDLSurface->h * mSDLSurface->pitch));
-	
 	clearSDLSurface(0);
 
-	// Loop until we reach the destination end
-	while( bufferTarget < bufferTargetMax ) {
-			
-		// Break out if we pass the source end
-		if( bufferCurrent >= bufferCurrentMax )
-			break;
+	for (int y = 0; y < height; ++y) {
+		if (bufferCurrent >= bufferEnd) break;
 
-		// Non zero value to draw
-		if (*bufferCurrent) {
+		// Skip first 'skipX' pixels
+		bufferCurrent += skipX;
+		bufferTarget += skipX;
 
-			// Value in palette range?
-			if (*bufferCurrent < g_MaxColors)
-				*bufferTarget = mPaletteSDL[*bufferCurrent];
-			else
-				*bufferTarget = 0;
+		// Process remaining pixels
+		for (int x = skipX; x < width; ++x) {
+			if (bufferCurrent >= bufferEnd) return;
+
+			uint8_t currentPixel = *bufferCurrent++;
+			if (currentPixel) {
+				*bufferTarget++ = (currentPixel < g_MaxColors) ? mPaletteSDL[currentPixel] : 0;
+			}
+			else {
+				++bufferTarget;
+			}
 		}
-
-		// Next Source/Destination
-		++bufferCurrent;
-		++bufferTarget;
 	}
 
-	if(mTexture)
+	if (mTexture) {
 		SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
+	}
 }
 
 /**
