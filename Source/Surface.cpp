@@ -213,27 +213,29 @@ void cSurface::draw() {
 	uint32_t* bufferTarget = reinterpret_cast<uint32_t*>(mSDLSurface->pixels);
 	const int width = mSDLSurface->w, height = mSDLSurface->h;
 	const int skipX = 16;
+	const int skipY = 16;
 
 	clearSDLSurface(0);
 
-	for (int y = 0; y < height; ++y) {
-		if (bufferCurrent >= bufferEnd) break;
+	// Skip 'skipY' rows of pixels
+	bufferCurrent += width * skipY;
+	bufferTarget += width * skipY;
 
+	for (int y = skipY; y < height; ++y) {
 		// Skip first 'skipX' pixels
 		bufferCurrent += skipX;
 		bufferTarget += skipX;
 
 		// Process remaining pixels
 		for (int x = skipX; x < width; ++x) {
-			if (bufferCurrent >= bufferEnd) return;
+			if (bufferCurrent >= bufferEnd) break;
 
 			uint8_t currentPixel = *bufferCurrent++;
 			if (currentPixel) {
-				*bufferTarget++ = (currentPixel < g_MaxColors) ? mPaletteSDL[currentPixel] : 0;
+				*bufferTarget = (currentPixel < g_MaxColors) ? mPaletteSDL[currentPixel] : 0;
 			}
-			else {
-				++bufferTarget;
-			}
+
+			++bufferTarget;
 		}
 	}
 
