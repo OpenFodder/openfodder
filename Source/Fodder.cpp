@@ -403,6 +403,7 @@ int16 cFodder::Phase_Cycle() {
 
 	//loc_10841
 	Sprite_Bullet_SetData();
+    Sound_Tick();
 	Squad_EnteredVehicle_TimerTick();
 	Squad_Set_CurrentVehicle();
 
@@ -946,6 +947,9 @@ void cFodder::Phase_EngineReset() {
     mGUI_Select_File_SelectedFileIndex = 0;
     mIntro_PlayTextDuration = 0;
     mSoundEffectToPlay_Set = 0;
+
+    memset(byte_81DF8, 0, sizeof(byte_81DF8));
+    memset(byte_81DFC, 0, sizeof(byte_81DFC));
 
     for (uint16 x = 0; x < 3; ++x)
         mSquad_EnteredVehicleTimer[x] = 0;
@@ -3487,10 +3491,40 @@ loc_14D66:;
     mSoundEffectToPlay = mSoundEffectToPlay_Set;
 }
 
+void cFodder::Sound_Tick() {
+    uint8_t* a4 = byte_81DFC;
+
+    for (int16 d3 = 3; d3 >= 0; --d3) {
+        if (a4[d3] != 0) {
+            a4[d3]--;
+        }
+    }
+
+}
 void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
 
     if (mSoundDisabled)
         return;
+
+    static uint16 word_81DF6 = 0;
+
+    uint16_t d0 = word_81DF6 + 1;
+    d0 = (d0 & 3) | 2;
+    word_81DF6 = d0;
+
+    uint8_t* a4 = byte_81DFC;
+    uint8_t* a6 = byte_81DF8;
+
+    if (a6[d0] <= pData8) {
+        a6[d0] = pData8;
+    }
+    else {
+        if (a4[d0] != 0) {
+            return;
+        }
+        a6[d0] = pData8;
+    }
+    a4[d0] = 0x0C;
 
     //loc_14BD4
     pData8 = mCameraX >> 16;
@@ -4021,7 +4055,7 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
 	mSurface->clearBuffer();
 	MapTiles_Draw();
 	Sprites_Draw();
-
+    Sound_Tick();
 	Campaign_Select_DrawMenu(pTitle, pSubTitle);
 
 

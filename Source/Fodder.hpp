@@ -394,6 +394,9 @@ public:
     int16           mSoundEffectToPlay_Set;
     int16           mSoundEffectToPlay;
 
+    unsigned char   byte_81DF8[4];
+    unsigned char   byte_81DFC[6];
+
     int16           mSquad_EnteredVehicleTimer[3];
     sSprite*        mSprite_OpenCloseDoor_Ptr;
     int16           mSprite_Civilian_GotHome;
@@ -678,6 +681,7 @@ public:
     void            Sprites_Draw();
     void            Sprite_Map_Sound_Play(int16& pData0);
 
+    void            Sound_Tick();
     void            Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8);
 
     // 14EAC
