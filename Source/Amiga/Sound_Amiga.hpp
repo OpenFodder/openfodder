@@ -61,7 +61,7 @@ public:
 	void				audioBufferFill( short *pBuffer, int pBufferSize );
 
 	int16				Track_Load( sSound* pSound, int16 pTrack );
-	void				Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume );
+	void				Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex);
 
 	void				Music_Play( int16 pTrack );
     void				Music_Stop();

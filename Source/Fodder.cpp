@@ -3528,13 +3528,13 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
 
     //loc_14BD4
     pData8 = mCameraX >> 16;
-    pData8 += (getCameraWidth() / 2) - 8;
+    pData8 += getCameraWidth() / 2;
 
     if (pSprite != INVALID_SPRITE_PTR)
         pData8 -= pSprite->field_0;
 
     int16 DataC = mCameraY >> 16;
-    DataC += (getCameraHeight() - 8) / 2;
+    DataC += getCameraHeight() / 2;
 
     if (pSprite != INVALID_SPRITE_PTR)
         DataC -= pSprite->field_4;
@@ -3551,7 +3551,7 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8) {
         return;
 
     if (!mStartParams->mDisableSound)
-        mSound->Sound_Play(mMapLoaded->getTileType(), pSoundEffect, Volume);
+        mSound->Sound_Play(mMapLoaded->getTileType(), pSoundEffect, Volume, d0);
 }
 
 void cFodder::Mission_Intro_Helicopter_Start() {
@@ -18586,24 +18586,53 @@ int16 cFodder::Mission_Loop() {
 
 		intro_main();
 
-        // Prepare a new game?
-        if (mGame_Data.mMission_Recruitment && !mParams->mSkipRecruit) {
-            mGame_Data.mMission_Recruitment = 0;
+        // Single / Random Map mode
+        if (mCustom_Mode == eCustomMode_Map) {
+            if (mVersionDefault->mName == "Random Map") {
+                sMapParams Params(mRandom.get());
+                CreateRandom(Params);
+                mGame_Data.mMission_Recruitment = 0;
+            }
+            else {
+                Custom_ShowMapSelection();
+            }
 
-            switch (Recruit_Show()) {
-            case 0:     // Start Mission
-                break;
-
-            case -1:    // Return to version select
+            if (mCustom_Mode == eCustomMode_None)
                 return -1;
+        }
+        else {
+            // Prepare a new game?
+            if (mGame_Data.mMission_Recruitment && !mParams->mSkipRecruit) {
+                mGame_Data.mMission_Recruitment = 0;
 
-            case -2:    // Custom set mode
-                return -2;
+                switch (Recruit_Show()) {
+                case 0:     // Start Mission
+                    break;
 
-            case -3:    // Load/Save pressed
-                continue;
+                case -1:    // Return to version select
+                    return -1;
+
+                case -2:    // Custom set mode
+                    return -2;
+
+                case -3:    // Load/Save pressed
+                    continue;
+                }
             }
         }
+
+        GameData_Backup();
+
+        // Retail or Custom Mode
+        if (mVersionCurrent->isRetail() ||
+            mCustom_Mode != eCustomMode_None) {
+            Map_Load();
+
+            // Show the intro for the briefing screen
+            Mission_Intro_Play(false, mMapLoaded->getTileType());
+        }
+
+        mGraphics->Load_pStuff();
 
         WindowTitleSet(true);
 

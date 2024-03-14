@@ -189,7 +189,7 @@ void cSound_PC2::MixerChannelFinished( int32 pChannel ) {
     mMixerChunks.erase(end, mMixerChunks.end());
 }
 
-void cSound_PC2::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume) {
+void cSound_PC2::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex) {
     Mix_Chunk* chunk = 0;
 
     if (pSoundEffect >= 65)

@@ -120,7 +120,7 @@ void cSound_PC::MixerChannelFinished( int32 pChannel ) {
 	}
 }
 
-void cSound_PC::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume ) {
+void cSound_PC::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex) {
 	sChunkPlaying Playing;
 	auto eax = word_42316[pTileset][pSoundEffect];
 	if (!eax || !eax->size() || mSound == false )

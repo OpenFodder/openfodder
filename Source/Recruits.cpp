@@ -1152,85 +1152,54 @@ const std::vector<sGravePosition> mGravePositions = {
 
 int16 cFodder::Recruit_Show() {
 
-    if (mCustom_Mode != eCustomMode_Map) {
-        Map_Load();
-        Map_Load_Sprites();
+    Map_Load();
+    Map_Load_Sprites();
 
-        Phase_Soldiers_Count();
-        mGame_Data.Soldier_Sort();
-        Phase_Soldiers_Prepare(true);
-        Phase_Soldiers_AttachToSprites();
-
-    }
-    else {
-        if (mVersionDefault->mName == "Random Map") {
-			sMapParams Params(mRandom.get());
-			CreateRandom(Params);
-			mGame_Data.mMission_Recruitment = 0;
-        }
-        else {
-            Custom_ShowMapSelection();
-        }
-
-        if (mCustom_Mode == eCustomMode_None)
-            return -1;
-    }
+    Phase_Soldiers_Count();
+    mGame_Data.Soldier_Sort();
+    Phase_Soldiers_Prepare(true);
+    Phase_Soldiers_AttachToSprites();
 
     WindowTitleSet(false);
 
-    // Single Map does not have a recruit screen
-    if (mCustom_Mode != eCustomMode_Map) {
+	if (!mStartParams->mDisableSound)
+		mSound->Music_Play(0);
 
-		if (!mStartParams->mDisableSound)
-			mSound->Music_Play(0);
+    // Retail / Custom set show the Recruitment Hill
+    if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat() || mVersionCurrent->isRandom() || mCustom_Mode == eCustomMode_Set) {
 
-        // Retail / Custom set show the Recruitment Hill
-        if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat() || mVersionCurrent->isRandom() || mCustom_Mode == eCustomMode_Set) {
+        // Recruit Screen
+        if (Recruit_Loop())
+            return -1;
 
-            // Recruit Screen
-            if (Recruit_Loop())
-                return -1;
+        Recruit_CheckLoadSaveButtons();
 
-            Recruit_CheckLoadSaveButtons();
-
-            // Did we just load/save a game?
-            if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
-                mRecruit_Mission_Restarting = true;
-                mGame_Data.mMission_Recruitment = -1;
-                mPhase_Aborted = true;
-                return -3;
-            }
+        // Did we just load/save a game?
+        if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed) {
+            mRecruit_Mission_Restarting = true;
+            mGame_Data.mMission_Recruitment = -1;
+            mPhase_Aborted = true;
+            return -3;
         }
-        else {
+    }
+    else {
 
-            // Amiga demos have a menu
-            if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
+        // Amiga demos have a menu
+        if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
 
-                // But not custom games
-                if (mCustom_Mode == eCustomMode_None) {
+            // But not custom games
+            if (mCustom_Mode == eCustomMode_None) {
 
-                    if (!mVersionCurrent->isAmigaTheOne()) {
-                        if (Demo_Amiga_ShowMenu())
-                            return -1;
-                    }
+                if (!mVersionCurrent->isAmigaTheOne()) {
+                    if (Demo_Amiga_ShowMenu())
+                        return -1;
                 }
             }
         }
     }
 
     mRecruit_Mission_Restarting = false;
-    GameData_Backup();
-
-    // Retail or Custom Mode
-    if (mVersionCurrent->isRetail() ||
-        mCustom_Mode != eCustomMode_None) {
-        Map_Load();
-
-        // Show the intro for the briefing screen
-        Mission_Intro_Play( false, mMapLoaded->getTileType() );
-    }
-
-    mGraphics->Load_pStuff();
+    
 
     return 0;
 }

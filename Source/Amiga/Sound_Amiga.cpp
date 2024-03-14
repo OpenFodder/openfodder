@@ -64,7 +64,7 @@ cSound_Amiga::cSound_Amiga() {
 
 	mAudioSpec = 0;
 	mCurrentMusic = 0;
-
+	mCurrentSfx.resize(5);
 	devicePrepare();
 }
 
@@ -90,6 +90,8 @@ void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
 
 		if (mCurrentSfx.size()) {
 			for ( auto SfxIT : mCurrentSfx) {
+				if (!SfxIT)
+					continue;
 
 				if (!SfxIT->endOfStream())
 					SfxIT->readBuffer( pBuffer, pBufferSize / 2 );
@@ -97,12 +99,11 @@ void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
 
 			for ( auto SfxIT = mCurrentSfx.begin(); SfxIT != mCurrentSfx.end();) {
 
-				if ((*SfxIT)->endOfStream()) {
+				if ((*SfxIT) && (*SfxIT)->endOfStream()) {
 					delete (*SfxIT);
 
-					mCurrentSfx.erase( SfxIT );
-					SfxIT = mCurrentSfx.begin();
-					continue;
+					*SfxIT = 0;
+					//SfxIT = mCurrentSfx.begin();
 				}
 
 				++SfxIT;
@@ -184,7 +185,7 @@ int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 	return Number;
 }
 
-void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume ) {
+void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex) {
 
 	Track_Load( &mSound_Sfx, pTileset + 0x32 );
 
@@ -193,7 +194,11 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
 			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, -pSoundEffect );
 			if (Sfx) {
 				Sfx->mVolume = pVolume;
-				mCurrentSfx.push_back(Sfx);
+				if (mCurrentSfx[pIndex]) {
+					delete mCurrentSfx[pIndex];
+					mCurrentSfx[pIndex] = 0;
+				}
+				mCurrentSfx[pIndex] = Sfx;
 			}
 		}
 
@@ -240,9 +245,10 @@ void cSound_Amiga::Sound_Stop() {
 		for (auto SfxIT : mCurrentSfx) {
 
 			delete SfxIT;
+			SfxIT = 0;
 		}
 
-		mCurrentSfx.clear();
+		//mCurrentSfx.clear();
 
 		SDL_UnlockMutex(mLock);
 	}

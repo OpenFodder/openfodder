@@ -165,6 +165,10 @@ struct sVersion {
 		return mPlatform == ePlatform::PC;
 	}
 
+	bool isSingle() const {
+		return mName == "Single Map";
+	}
+
 	/**
 	 * Is this version a demo?
 	 *
