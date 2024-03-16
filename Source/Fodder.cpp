@@ -3985,6 +3985,8 @@ void cFodder::Campaign_Select_Setup() {
 	}
 
 	Campaign_Select_Sprite_Prepare();
+    mSound->Music_Play(mMapLoaded->getTileType() + 0x32, 4);
+    mSound->Music_SetVolume(0, 0x10);
 
 	if (mGUI_SaveLoadAction != 3) {
 		mSurface->palette_FadeTowardNew();
@@ -4193,11 +4195,13 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
 
     word_3AA1D = word_3BED5[0];
 
+    mSoundDisabled = true;
     if(mMapLoaded->getTileType() == eTileTypes_Jungle)
         Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded->getTileType()], 4, 2);
 
     if(mMapLoaded->getTileType() == eTileTypes_AFX)
         Map_Add_Structure(mStructuresBarracksWithSoldier[mMapLoaded->getTileType()], 2, 5);
+    mSoundDisabled = false;
 }
 
 void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle) {
