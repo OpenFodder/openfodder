@@ -246,7 +246,7 @@ void cSound_Amiga::Music_Stop() {
 }
 
 void cSound_Amiga::Music_SetVolume(int16 pChannel, int16 pVolume) {
-	if (mCurrentMusic == 0)
+	if (!mCurrentMusic)
 		return;
 
 	mCurrentMusic->volumeMax = pVolume;
@@ -255,6 +255,9 @@ void cSound_Amiga::Music_SetVolume(int16 pChannel, int16 pVolume) {
 }
 
 int16 cSound_Amiga::Music_GetVolume(int16 pChannel) {
+	if (!mCurrentMusic)
+		return 0;
+
 	return mCurrentMusic->volumeMax;
 	//auto channel = mCurrentMusic->getChannel(pChannel);
 	//return channel->volume;
