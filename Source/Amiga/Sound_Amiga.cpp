@@ -62,6 +62,9 @@ cSound_Amiga::cSound_Amiga() {
 	mVal = 0;
 	mLock = SDL_CreateMutex();
 
+	mPlayingTrack = -1;
+	mPlayingSong = -1;
+
 	mAudioSpec = 0;
 	mCurrentMusic = 0;
 	mCurrentSfx.resize(5);
@@ -103,7 +106,6 @@ void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
 					delete (*SfxIT);
 
 					*SfxIT = 0;
-					//SfxIT = mCurrentSfx.begin();
 				}
 
 				++SfxIT;
@@ -148,7 +150,7 @@ bool cSound_Amiga::devicePrepare() {
 	return true;
 }
 
-int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
+int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack, int16 pSong = -1) {
 	int16 Number = 0;
     const sSoundData *Tracks = CANNON_BASED(Tracks1, Tracks2);
     const sSoundData *Track = 0;
@@ -165,7 +167,7 @@ int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 	// Mission
 	if (pTrack >= 0x32) {
 		Track = &Tracks[2 + (pTrack - 0x32)];
-		Number = 1;
+		Number = 2;
 	}
 
 	// Jon 
@@ -181,6 +183,9 @@ int16 cSound_Amiga::Track_Load( sSound* pSound, int16 pTrack ) {
 		}
 		pSound->mTrack = Track;
 	}
+
+	if (pSong >= 0)
+		Number = pSong;
 
 	return Number;
 }
@@ -208,15 +213,16 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
     SDL_PauseAudioDevice(mVal, 0);
 }
 
-void cSound_Amiga::Music_Play( int16 pTrack ) {
+void cSound_Amiga::Music_Play( int16 pTrack, int16 pSong) {
 	
-	if (mPlayingTrack == pTrack)
+	if (mPlayingTrack == pTrack && mPlayingSong == pSong)
 		return;
 
-	int16 Number = Track_Load( &mSound_Music, pTrack );
+	int16 Number = Track_Load( &mSound_Music, pTrack, pSong);
 		
 	Music_Stop();
 	mPlayingTrack = pTrack;
+	mPlayingSong = pSong;
 
     if (mSound_Music.mCurrentMusicSongData && mSound_Music.mCurrentMusicInstrumentData) {
         if (mSound_Music.mCurrentMusicSongData->size() && mSound_Music.mCurrentMusicInstrumentData->size())
@@ -228,6 +234,7 @@ void cSound_Amiga::Music_Play( int16 pTrack ) {
 
 void cSound_Amiga::Music_Stop() {
 	mPlayingTrack = -1;
+	mPlayingSong = -1;
 
 	if (SDL_LockMutex( mLock ) == 0) {
 
@@ -236,6 +243,21 @@ void cSound_Amiga::Music_Stop() {
 
 		SDL_UnlockMutex(mLock);
 	}
+}
+
+void cSound_Amiga::Music_SetVolume(int16 pChannel, int16 pVolume) {
+	if (mCurrentMusic == 0)
+		return;
+
+	mCurrentMusic->volumeMax = pVolume;
+//	auto channel = mCurrentMusic->getChannel(pChannel);
+//	channel->volume = pVolume;
+}
+
+int16 cSound_Amiga::Music_GetVolume(int16 pChannel) {
+	return mCurrentMusic->volumeMax;
+	//auto channel = mCurrentMusic->getChannel(pChannel);
+	//return channel->volume;
 }
 
 void cSound_Amiga::Sound_Stop() {

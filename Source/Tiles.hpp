@@ -44,6 +44,18 @@ struct sTileType {
 	std::string mFullName;
 };
 
+struct sTileTrack {
+	uint16_t X;
+	uint16_t Y;
+	uint8_t Track;
+
+	sTileTrack(uint16_t pX,uint16_t pY, uint8_t pTrack) {
+		X = pX;
+		Y = pY;
+		Track = pTrack;
+	}
+};
+
 struct sStructureTile {
 	int16 mX;
 	int16 mY;

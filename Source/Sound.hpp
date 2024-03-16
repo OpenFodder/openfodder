@@ -42,6 +42,7 @@ class cSound {
 
 protected:
 	int16				mPlayingTrack;
+	int16				mPlayingSong;
 
 	public:
 
@@ -51,9 +52,10 @@ protected:
 	virtual void		Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex ) = 0;
 	virtual void		Sound_Stop() { }
 
-	virtual void		Music_Play( int16 pTrack ) = 0;
+	virtual void		Music_Play( int16 pTrack, int16 pSong = -1) = 0;
 	virtual void		Music_Stop() = 0;
-
+	virtual void		Music_SetVolume(int16 pChannel, int16 pVolume) {};
+	virtual int16		Music_GetVolume(int16 pChannel) { return 0; }
 	virtual void		Stop() {
 		Music_Stop();
 		Sound_Stop();

@@ -234,7 +234,7 @@ void cSound_PC2::Music_Stop() {
 	Mix_FadeOutMusic(500);
 }
 
-void cSound_PC2::Music_Play( int16 pTrack ) {
+void cSound_PC2::Music_Play( int16 pTrack, int16 pSong) {
     std::string filename;
 
     if (mPlayingTrack == pTrack)

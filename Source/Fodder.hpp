@@ -182,6 +182,13 @@ public:
     int32           mMapTile_TargetX;
     int32           mMapTile_TargetY;
 
+    bool            mMapTile_Music_Play;
+    
+    int16           mMusicTrack_unk;
+    int16           mMusicCurrentTrack;
+    int16           mMusicTargetVolume;
+    int16           word_829F6;
+
     int16           mCamera_Panning_ToTarget;
     int32           mCamera_AccelerationX;
     int32           mCamera_AccelerationY;
@@ -359,6 +366,8 @@ public:
 
     sSprite*        mSquad_CurrentVehicles[3];
     sSprite*        mSquad_CurrentVehicle;
+
+    std::vector<sTileTrack> mMapTileTracks;
 
     bool           mSprite_HumanVehicles_Found;
     std::vector<sSprite*>        mSprites_HumanVehicles;
@@ -599,6 +608,9 @@ public:
     void            Map_Load_Sprites();
     void			Map_Load_Sprites_Count();
     void            Map_Load_Resources();
+    void            Map_Load_TileTracks();
+    void            sub_87774();
+    void            sub_878A2();
 
     void			Map_Add_Structure(const sStructure& pStructure, int16 pTileX, int16 pTileY);
 
@@ -606,7 +618,8 @@ public:
     int16			Tile_FindType(const eTerrainFeature pType);
     std::vector<int16> Tile_FindType(const eTerrainFeature pType, const eTerrainFeature pType2);
 
-    void            Music_Play_Tileset();
+    void            Music_Play_Tileset(int16_t pSong = -1);
+    void            Music_setup_track_unk(int16_t d0, int16_t d1);
 
     // Mission Functions
     void            Phase_Soldiers_Count();

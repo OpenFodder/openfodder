@@ -167,7 +167,7 @@ void cSound_PC::Music_Stop() {
 	Mix_FadeOutMusic(500);
 }
 
-void cSound_PC::Music_Play( int16 pTrack ) {
+void cSound_PC::Music_Play( int16 pTrack, int16 pSong) {
 	
 	if (mPlayingTrack == pTrack)
 		return;

@@ -406,6 +406,7 @@ int16 cFodder::Phase_Cycle() {
     Sound_Tick();
 	Squad_EnteredVehicle_TimerTick();
 	Squad_Set_CurrentVehicle();
+    sub_87774();
 
 	// No squad is selected, so set count down timer
 	if (mSquad_Selected < 0 && !mSquad_Select_Timer)
@@ -447,6 +448,7 @@ void cFodder::Phase_Prepare() {
 	//seg000:05D1
 
 	Phase_Goals_Set();
+    Map_Load_TileTracks();
 
 	Sprite_Bullet_SetData();
 	Sprite_Handle_Loop();
@@ -549,6 +551,9 @@ void cFodder::Game_Handle() {
         mPhase_Finished = true;
         return;
     }
+
+    //word_80618
+    sub_878A2();
 
     if (!mSoundEffectToPlay)
         return;
@@ -994,6 +999,10 @@ void cFodder::Phase_EngineReset() {
     mMapTile_Row_CurrentScreen = 0;
 
     mTroop_InRange_Callpad = 0;
+    mMusicTrack_unk = 0;
+    mMusicCurrentTrack = 0;
+    mMusicTargetVolume = 0;
+    word_829F6 = 0;
 }
 
 void cFodder::Phase_SquadPrepare() {
@@ -1780,6 +1789,145 @@ void cFodder::Map_Load() {
     Map_Load_Resources();
 }
 
+void cFodder::Map_Load_TileTracks() {
+    uint8* tilePtr = mMap->data() + 0x62;
+
+    uint16_t heightCount = 0, widthCount;
+
+    mMapTileTracks.clear();
+
+    while (heightCount < mMapLoaded->getHeight()) {
+        widthCount = 0;
+
+        while (widthCount < mMapLoaded->getWidth()) {
+            uint16_t tile = (readLE<uint16>(tilePtr) & 0xE000) >> 8;
+
+            if (tile != 0) {
+                mMapTileTracks.emplace_back( widthCount , heightCount, tile >> 5 );
+            }
+
+            tilePtr += 2;
+            widthCount++;
+        }
+
+        heightCount++;
+    }
+}
+
+
+void cFodder::sub_87774() {
+    if (mPhase_Completed_Timer != 0 || mGame_Data.mGamePhase_Data.mIsComplete || !mMapTile_Music_Play)
+        return;
+
+    if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0)
+        return;
+
+    int16_t spriteX = mSquad_Leader->field_0 >> 4;
+    int16_t spriteY = mSquad_Leader->field_4 >> 4;
+
+    int16_t BestDistance = 0x10;
+    int16_t PlaySong = 0;
+
+    for (const auto& tile : mMapTileTracks) {
+        if (tile.X < 0)
+            break;
+
+        if (tile.Track > 4)
+            continue;
+
+        // Call to sub_A10F2
+        int16_t d0 = spriteX;
+        int16_t d1 = spriteY;
+        int16_t d2 = tile.X;
+        int16_t d3 = tile.Y;
+        int16_t d4 = 0x0F;
+        int16_t result = Map_Get_Distance_BetweenPoints(d0, d1, d2, d4, d3);
+
+        if (result < BestDistance) {
+            BestDistance = result;
+            PlaySong = tile.Track;
+        }
+    }
+
+
+    int16_t d0, d1;
+
+    if (BestDistance > 4) {
+        if (BestDistance >= 0xA) {
+            d0 = 1;
+            d1 = (BestDistance - 8) << 1;
+            d1 = d1 < 0x30 ? d1 : 0x30;
+        }
+        else {
+            d0 = PlaySong;
+            d1 = (BestDistance - 5) << 3;
+            d1 = 0x38 - d1;
+        }
+    }
+    else {
+        d0 = PlaySong;
+        d1 = 0x40;
+    }
+
+    Music_setup_track_unk(d0, d1);
+}
+
+void cFodder::sub_878A2() {
+    int16_t d0 = mMusicTrack_unk;
+
+    if (d0 == 0)
+        return;
+
+    int8_t d1 = mSound->Music_GetVolume(0);// byte_A4B5E[0x28];
+
+    // Changing track?
+    if (mMusicCurrentTrack != d0) {
+        --d1;
+
+        // Once volume below 8, change to new song
+        if (d1 < 8) {
+            d1 = 8;
+            mMusicCurrentTrack = d0;
+            Music_Play_Tileset(d0);
+        }
+    } else {
+
+        if (d1 < mMusicTargetVolume) {
+            d1++;
+        } else {
+            d1 = mMusicTargetVolume;
+            mMusicTrack_unk = 0;
+        }
+    }
+
+    //loc_878F4
+    // 
+    mSound->Music_SetVolume(0, d1);
+    //byte_A4B5E[0x28] = d1;
+
+    if (word_829F6 == 0) {
+        //byte_A4B5E[0x29] = d1;
+    }
+}
+
+void cFodder::Music_setup_track_unk(int16_t d0, int16_t d1) {
+    if (mMusicTrack_unk != 0)
+        return;
+
+    if (mMusicCurrentTrack != d0) {
+        mMusicTargetVolume = d1;
+        mMusicTrack_unk = d0;
+    }
+    else {
+        //byte_A4B5E[0x28] = (uint8_t)d1;
+        mSound->Music_SetVolume(0, d1);
+
+        if (word_829F6 == 0) {
+           // byte_A4B5E[0x29] = (uint8_t)d1;
+        }
+    }
+}
+
 /**
  * Load the Base and Sub Tile BLK Files
  *
@@ -1883,9 +2031,16 @@ void cFodder::Map_Load_Resources() {
     mGraphics->PaletteSet();
 }
 
-void cFodder::Music_Play_Tileset() {
-    if (!mStartParams->mDisableSound)
-        mSound->Music_Play(mMapLoaded->getTileType() + 0x32);
+void cFodder::Music_Play_Tileset(int16_t pSong) {
+    mMapTile_Music_Play = true;
+
+    if (!mStartParams->mDisableSound) {
+        if (pSong == -1)
+            pSong = 2;
+
+        mSound->Music_Play(mMapLoaded->getTileType() + 0x32, pSong);
+        mSound->Music_SetVolume(0, 0);
+    }
 }
 
 void cFodder::Camera_Pan_To_Target() {
