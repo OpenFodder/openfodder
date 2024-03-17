@@ -60,7 +60,10 @@ Paula::Paula(bool stereo, int rate, uint32 interruptFreq, FilterMode filterMode,
 	_timerBase = 1;
 	_playing = false;
 	_end = true;
-	volumeMax = 0x40;
+	volumeMax[0] = 0x40;
+	volumeMax[1] = 0x40;
+	volumeMax[2] = 0x40;
+	volumeMax[3] = 0x40;
 }
 
 Paula::~Paula() {
@@ -218,7 +221,7 @@ int Paula::readBufferIntern(int16 *buffer, const int numSamples) {
 			// processing, to obtain the correct output 'rate'.
 			frac_t rate = doubleToFrac(_periodScale / _voice[voice].period);
 			// Cap the volume
-			_voice[voice].volume = std::min((uint8) volumeMax, _voice[voice].volume);
+			_voice[voice].volume = std::min((uint8) volumeMax[voice], _voice[voice].volume);
 
 
 			Channel &ch = _voice[voice];

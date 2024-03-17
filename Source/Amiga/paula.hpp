@@ -105,7 +105,7 @@ public:
 		float rc[NUM_VOICES][5];
 	};
 
-	uint8 volumeMax;
+	uint8 volumeMax[NUM_VOICES];
 
 	Paula(bool stereo = false, int rate = 44100, unsigned int interruptFreq = 0,
 	      FilterMode filterMode = kFilterModeDefault, int periodScaleDivisor = 1);

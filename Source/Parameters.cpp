@@ -312,7 +312,8 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		mCheatsEnabled = true;
 #endif
 
-		if (mMissionNumber || mPhaseNumber) {
+		// Skip intro and recruit screen if a campaign and mission/phase is provided
+		if (mCampaignName.length() && (mMissionNumber || mPhaseNumber)) {
 			mSkipRecruit = true;
 			mSkipIntro = true;
 		}

@@ -249,18 +249,25 @@ void cSound_Amiga::Music_SetVolume(int16 pChannel, int16 pVolume) {
 	if (!mCurrentMusic)
 		return;
 
-	mCurrentMusic->volumeMax = pVolume;
-//	auto channel = mCurrentMusic->getChannel(pChannel);
-//	channel->volume = pVolume;
+	if (pChannel == -1) {
+		for (int Ch = 0; Ch < mCurrentMusic->NUM_VOICES; ++Ch) {
+			mCurrentMusic->volumeMax[Ch] = pVolume;
+		}
+		return;
+	}
+
+	mCurrentMusic->volumeMax[pChannel] = pVolume;
 }
 
 int16 cSound_Amiga::Music_GetVolume(int16 pChannel) {
 	if (!mCurrentMusic)
 		return 0;
 
-	return mCurrentMusic->volumeMax;
-	//auto channel = mCurrentMusic->getChannel(pChannel);
-	//return channel->volume;
+	if (pChannel == -1) {
+		pChannel = 0;
+	}
+
+	return mCurrentMusic->volumeMax[pChannel];
 }
 
 void cSound_Amiga::Sound_Stop() {

@@ -956,9 +956,6 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 	mSurface->paletteSet(mPalette );
 
 	do {
-		if (mFodder->mBriefing_Helicopter_Moving == -1)
-			mFodder->Briefing_Update_Helicopter();
-
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
@@ -997,7 +994,7 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		Mission_Intro_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		// Front
-		word_4286F += 6;
+		word_4286F += 5;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
@@ -1016,6 +1013,9 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
+		mFodder->Briefing_Helicopter_Check();
+		++mFodder->mInterruptTick;
+
 		// This loop runs fast enough that the cursor can get stuck at the window border
 		// as focus events havnt been received for the mouse leaving the window
 		++mouseCheck;
@@ -1024,12 +1024,13 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 			mFodder->Mouse_Inputs_Get();
 		}
         mFodder->Video_SurfaceRender();
+
+		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->mBriefing_Helicopter_NotDone)) {
+			mFodder->mBriefing_Helicopter_NotDone = 0;
+			mSurface->paletteNew_SetToBlack();
+		}
 		mFodder->mWindow->Cycle();
 		mFodder->eventsProcess();
 
-		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->word_428D8)) {
-			mFodder->word_428D8 = 0;
-			mSurface->paletteNew_SetToBlack();
-		}
-	} while (mFodder->word_428D8 || mFodder->mSurface->isPaletteAdjusting());
+	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 }

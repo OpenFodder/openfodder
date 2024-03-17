@@ -290,6 +290,7 @@ void cGraphics_Amiga::Mission_Intro_DrawHelicopter( uint16 pID ) {
 
 	if (Sprite_OnScreen_Check( true )) {
 		mFodder->mVideo_Draw_Columns >>= 3;
+		mFodder->mVideo_Draw_PosY += 16;
         Video_Draw_8_Alt();
 	}
 }
@@ -938,40 +939,56 @@ void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget, const uint8* RowPallete) {
 	}
 }
 
-void cGraphics_Amiga::Video_Draw_8_Alt(const uint8* RowPallete) {
+void cGraphics_Amiga::Video_Draw_8_Alt(const uint8* RowPalette) {
 
-    uint8*	di = mSurface->GetSurfaceBuffer();
-    uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
+	uint8* di = mSurface->GetSurfaceBuffer();
+	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
 
-    di += mSurface->GetWidth() * mFodder->mVideo_Draw_PosY;
-    di += mFodder->mVideo_Draw_PosX;
+	int screenWidth = mSurface->GetWidth();
+	int screenHeight = mSurface->GetHeight();
 
-    mFodder->mDraw_Source_SkipPixelsPerRow = (mBMHD_Current->mWidth >> 3) - mFodder->mVideo_Draw_Columns;
-    mFodder->mDraw_Dest_SkipPixelsPerRow = mSurface->GetWidth() - (mFodder->mVideo_Draw_Columns * 8);
+	// Adjust start position
+	di += screenWidth * mFodder->mVideo_Draw_PosY;
+	di += mFodder->mVideo_Draw_PosX;
 
-    // Height
-    for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+	mFodder->mDraw_Source_SkipPixelsPerRow = (mBMHD_Current->mWidth >> 3) - mFodder->mVideo_Draw_Columns;
+	mFodder->mDraw_Dest_SkipPixelsPerRow = screenWidth - (mFodder->mVideo_Draw_Columns * 8);
 
-        uint8 Palette = mFodder->mVideo_Draw_PaletteIndex;
-        if (RowPallete) {
-            // TODO: palette should degrade closer to top/bottom of screen 
-            //int16 bx = mFodder->mVideo_Draw_PosY + dx;
-            //Palette = 1;// RowPallete[bx];
-        }
+	// Height
+	for (int16 dx = 0; dx < mFodder->mVideo_Draw_Rows; ++dx) {
 
-        // Width
-        for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns; ++cx) {
+		uint8 Palette = mFodder->mVideo_Draw_PaletteIndex;
+		if (RowPalette) {
+			// TODO: palette should degrade closer to top/bottom of screen 
+			//int16 bx = mFodder->mVideo_Draw_PosY + dx;
+			//Palette = 1;// RowPallete[bx];
+		}
 
-            DrawPixels_8(si, di);
+		int currentY = mFodder->mVideo_Draw_PosY + dx;
+		if (currentY >= 0 && currentY < screenHeight) {
 
-            di += 8;
-            si += 1;
-        }
+			// Width
+			for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns; ++cx) {
 
-        si += mFodder->mDraw_Source_SkipPixelsPerRow;
-        di += mFodder->mDraw_Dest_SkipPixelsPerRow;
-    }
+				int currentX = mFodder->mVideo_Draw_PosX + (cx * 8);
+				if (currentX >= 0 && currentX <= screenWidth) {
+					DrawPixels_8(si, di);
+				}
+
+				di += 8;
+				si += 1;
+			}
+		}
+		else {
+			// Skip entire row
+			si += mFodder->mVideo_Draw_Columns;
+		}
+
+		si += mFodder->mDraw_Source_SkipPixelsPerRow;
+		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
+	}
 }
+
 
 void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 	uint8* pDs = mFodder->mVideo_Draw_FrameDataPtr;
@@ -1523,9 +1540,6 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		mFodder->mVideo_Draw_PosY = 100;
 		Video_Draw_16_Offset(word_42871);
 
-		if (mFodder->mBriefing_Helicopter_Moving == -1)
-			mFodder->Briefing_Update_Helicopter();
-
         if (pShowHelicopter) {
             // Front
             mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;
@@ -1578,6 +1592,8 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		if (mSurface->isPaletteAdjusting())
 			mSurface->palette_FadeTowardNew();
 
+		mFodder->Briefing_Helicopter_Check();
+		++mFodder->mInterruptTick;
 		// This loop runs fast enough that the cursor can get stuck at the window border
 		// as focus events havnt been received for the mouse leaving the window
 		++mouseCheck;
@@ -1588,7 +1604,7 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
         mFodder->Video_SurfaceRender();
 
 		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
-			mFodder->word_428D8 = 0;
+			mFodder->mBriefing_Helicopter_NotDone = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mMouse_Exit_Loop = false;
             mFodder->mPhase_Aborted = 0;
@@ -1596,7 +1612,7 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 
 		mFodder->mWindow->Cycle();
 		mFodder->eventsProcess();
-	} while (mFodder->word_428D8 || mFodder->mSurface->isPaletteAdjusting());
+	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 
 	mFodder->mMouse_Exit_Loop = false;
 }
