@@ -75,7 +75,9 @@ public:
 
 	void			clearBuffer(size_t pColor = 0);
 
-	void			draw();						// Draw image to SDL Surface
+	void			draw(const int16 pSkipX = 16, const int16 pSkipY = 16);						// Draw image to SDL Surface
+	void			copyFrom(const cSurface* pFrom);
+	void            mergeFrom(const cSurface* pFrom);
     void            mergeSurfaceBuffer(const cSurface* pFrom);
 
 	bool            LoadPng(const std::string &pFile);

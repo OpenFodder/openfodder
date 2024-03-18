@@ -77,7 +77,7 @@ class cGraphics_PC : public cGraphics {
 	virtual void		Video_Draw_16(const uint8* RowPallete = 0);
 	virtual void		Video_Draw_8(cSurface *pTarget = 0, const uint8* RowPallete = 0);
 
-	virtual void		Sidebar_Copy_To_Surface( int16 pStartY );
+	virtual void		Sidebar_Copy_To_Surface( int16 pStartY, cSurface* pSurface = 0);
 	virtual void		Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, size_t pX, size_t pY );
 	virtual void		Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& Data20 );
 

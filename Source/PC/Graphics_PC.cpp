@@ -449,9 +449,12 @@ void cGraphics_PC::Video_Draw_16(const uint8* RowPallete) {
 	}
 }
 
-void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY ) {
-	
-	uint8*	Buffer = mSurface->GetSurfaceBuffer();
+void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY, cSurface* pSurface) {
+	uint8* Buffer = mSurface->GetSurfaceBuffer();
+
+	if (pSurface)
+		Buffer = pSurface->GetSurfaceBuffer();
+
 	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
 
 	Buffer += (16 * mSurface->GetWidth()) +     16;
@@ -1014,16 +1017,7 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 			word_42875 = 0;
 
 		mFodder->Briefing_Helicopter_Check();
-		++mFodder->mInterruptTick;
-
-		// This loop runs fast enough that the cursor can get stuck at the window border
-		// as focus events havnt been received for the mouse leaving the window
-		++mouseCheck;
-		if (mouseCheck % 5 == 0) {
-			mouseCheck = 0;
-			mFodder->Mouse_Inputs_Get();
-		}
-        mFodder->Video_SurfaceRender();
+		mFodder->Video_Sleep();
 
 		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->mBriefing_Helicopter_NotDone)) {
 			mFodder->mBriefing_Helicopter_NotDone = 0;

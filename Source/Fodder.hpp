@@ -130,7 +130,10 @@ public:
     cSurface*       mSurfaceMapOverview;
     cSurface*       mSurface;
     cSurface*       mSurface2;
+    cSurface*       mSurfaceFinal;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
+    std::mutex      mSurfaceMtx;
+    std::mutex      mSpriteMtx;
 
     uint8           mKeyCode;
 
@@ -141,14 +144,15 @@ public:
     tSharedBuffer   mTile_SubBlk;
 
     bool            mInput_Enabled;
-    uint16          mGame_InputTicks;
+
+    uint16          mPhase_InterruptTicks;
+    volatile bool   mVideo_Ticked;
+    int16           mInterruptTick;
+    bool            mExit;
 
     int16           mButtonPressLeft, mButtonPressRight;
 
     bool            mVehicle_Input_Disabled;
-
-
-
 
 
     int16           mMouse_Button_Left_Toggle;
@@ -473,7 +477,7 @@ public:
     int16           mMouseSpriteNew;
     int16           mMouseSetToCursor;
     int16           mMouseDisabled;
-    int16           mInterruptTick;
+
     int16           mPaletteLevel;
 
     uint16          mSquad_Grenade_SplitMode;
@@ -591,8 +595,10 @@ public:
 	virtual int16	Phase_Cycle();
     virtual int16   Phase_Loop();
 	void			Phase_Prepare();
+    void            Phase_Paused();
 
-    void            Game_Handle();
+    void            Interrupt_Sim();
+    void            Phase_Loop_Interrupt();
     void            Camera_Handle();
     void            Camera_PanTarget_AdjustToward_SquadLeader();
 
@@ -673,7 +679,7 @@ public:
     void            Mission_Sprites_Handle();
 
     void            Phase_GameOver();
-    void            Phase_Paused();
+    void            Draw_Phase_Paused();
 
     void            Phase_Show_Complete();
     void            Phase_Show_TryAgain();
@@ -1265,7 +1271,8 @@ public:
 
     void            WonGame();
 
-    void            Video_SurfaceRender( const bool pRestoreSurface = true );
+    void            Video_Sleep(cSurface* pSurface = 0, const bool pShrink = false);
+    void            Video_SurfaceRender( const bool pRestoreSurface = true, const bool pShrink = false, cSurface* pSurface = 0, const bool pSkip = true);
     void            Cycle_End(int64 pSleep = 40);
 
     void            sleepLoop(int64 pMilliseconds);

@@ -129,7 +129,7 @@ void sGameRecorded::clear() {
 
 	g_Fodder->mRandom.getSeeds(mSeed[0], mSeed[1], mSeed[2], mSeed[3]);
 
-    mInputTicks = g_Fodder->mGame_InputTicks;
+    mInputTicks = g_Fodder->mInterruptTick;
     mEngineTicks = g_Fodder->mMission_EngineTicks;
 
     if (g_Fodder->mVersionCurrent)
@@ -144,7 +144,7 @@ void sGameRecorded::playback() {
 
 	//
     g_Fodder->mMission_EngineTicks = mEngineTicks;
-    g_Fodder->mGame_InputTicks = mInputTicks;
+    g_Fodder->mInterruptTick = mInputTicks;
     mTick = 0;
     mTickDisabled = false;
     g_Fodder->mRandom.setSeed(mSeed[0], mSeed[1], mSeed[2], mSeed[3]);

@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include <thread>
 
 #ifndef _OFED
 #ifndef _OFBOT
@@ -38,6 +39,7 @@ int start(int argc, char *argv[]) {
 		return 0;
 
 	g_Fodder->Prepare(Params);
+	std::thread myThread(&cFodder::Interrupt_Sim, g_Fodder);
 
 	if (g_Fodder->mStartParams->mUnitTesting) {
 		cUnitTesting Testing;
@@ -52,6 +54,8 @@ int start(int argc, char *argv[]) {
 		g_Fodder->mGame_Data.mDemoRecorded.save();
 	}
 
+	g_Fodder->mExit = true;
+	myThread.join();
 	return 0;
 }
 

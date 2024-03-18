@@ -1298,8 +1298,9 @@ bool cFodder::Recruit_Loop() {
     while (mSurface->isPaletteAdjusting()) {
         Recruit_Cycle();
 
-        Video_SurfaceRender();
-        Cycle_End();
+        Video_Sleep();
+//        Video_SurfaceRender();
+//        Cycle_End();
     }
 
     return mPhase_Aborted;

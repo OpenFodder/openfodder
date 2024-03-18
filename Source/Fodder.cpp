@@ -82,6 +82,7 @@ const int16 mBriefing_Helicopter_Offsets_Amiga[] =
 
 cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
+    mExit = false;
     mVersions = std::make_shared<cVersions>();
     mVersionCurrent = 0;
     mVersionDefault = 0;
@@ -183,10 +184,16 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mGame_Data.mGamePhase_Data.mIsComplete = false;
     mSidebar_Draw_Y = 0;
     word_3A3BF = 0;
+    word_82176 = 0;
+    word_82178 = 0;
 
     mDebug_PhaseSkip = 0;
 
-    mGame_InputTicks = 0;
+    mVideo_Ticked = false;
+    mPhase_InterruptTicks = 0;
+    mInterruptTick = 0;
+    mInput_Enabled = false;
+
     mKeyControlPressed = 0;
     mVersionReturnAfterPhase = false;
 
@@ -212,7 +219,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mBriefing_Helicopter_Moving = 0;
     mBriefing_Helicopter_Pos = 0;
 
-    mInterruptTick = 0;
 
     mBriefing_ParaHeli_Frame = 0;
     mBriefing_Helicopter_Moving = 0;
@@ -289,6 +295,19 @@ void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
  */
 int16 cFodder::Phase_Cycle() {
 
+    do {
+        Video_Sleep();
+
+        if (mPhase_Paused) {
+            Phase_Paused();
+            continue;
+        }
+
+    } while(mPhase_InterruptTicks < 3);
+
+    ++mMission_EngineTicks;
+    mPhase_InterruptTicks = 0;
+
 	// If demo playback is enabled, and a record resume cycle is set
 	if (mStartParams->mDemoPlayback && mStartParams->mDemoRecordResumeCycle) {
 		// See if we hit the tick count
@@ -305,12 +324,6 @@ int16 cFodder::Phase_Cycle() {
 			Mouse_Setup();
 		}
 	}
-
-	MapTile_UpdateFromCamera();
-	MapTile_Update_Position();
-
-	Game_Handle();
-	++mMission_EngineTicks;
 
 	if (mCamera_Start_Adjust) {
 		Camera_SetTargetToStartPosition();
@@ -347,56 +360,11 @@ int16 cFodder::Phase_Cycle() {
 
 	Mission_Sprites_Handle();
 	Squad_Switch_Timer();
-	if (!mStartParams->mDisableVideo)
-		mGraphics->Sidebar_Copy_To_Surface();
 
-	// Game Paused
-	if (mPhase_Paused) {
-		Phase_Paused();
-
-		mSurface->Save();
-
-		// Fade the background out, and the 'mission paused' message in
-		mSurface->palette_FadeTowardNew();
-		mSurface->palette_FadeTowardNew();
-		mSurface->palette_FadeTowardNew();
-
-		while (mPhase_Paused) {
-
-			// Update mouse
-			Mouse_Inputs_Get();
-			Mouse_DrawCursor();
-			// Draw surface
-			mSurface->draw();
-
-			// Copy the rendered surface of the 'mission paused' message over the top of the main surface
-			mSurface->mergeSurfaceBuffer(mSurface2);
-
-			mWindow->RenderAt(mSurface);
-			mWindow->FrameEnd();
-			Cycle_End();
-
-			mSurface->Restore();
-		}
-
-		mGraphics->PaletteSet();
-		mSurface->palette_SetFromNew();
-		mSurface->surfaceSetToPalette();
-
-		mPhase_Aborted = false;
-
-		// Redraw the screen
-		mGraphics->MapTiles_Draw();
-		Sprites_Draw();
-		mGraphics->Sidebar_Copy_To_Surface();
-	}
-
-	Mouse_DrawCursor();
+	//Mouse_DrawCursor();
 
 	if (mSurface->isPaletteAdjusting())
 		mSurface->palette_FadeTowardNew();
-
-	Camera_Update_Mouse_Position_For_Pan();
 
 	if (mPhase_ShowMapOverview && mSurfaceMapOverview) {
 
@@ -434,8 +402,40 @@ int16 cFodder::Phase_Cycle() {
 	Sprite_HelicopterCallPad_Check();
 	Mission_Final_Timer();
 
-	Video_SurfaceRender();
 	return 1;
+}
+
+void cFodder::Phase_Paused() {
+    Draw_Phase_Paused();
+
+    // Fade the background out, and the 'mission paused' message in
+    mSurface->palette_FadeTowardNew();
+    mSurface->palette_FadeTowardNew();
+    mSurface->palette_FadeTowardNew();
+
+    while (mPhase_Paused) {
+
+        // Update mouse
+        //Mouse_Inputs_Get();
+        //Mouse_DrawCursor();
+        mSurface->draw();
+
+        // Copy the rendered surface of the 'mission paused' message over the top of the main surface
+        mSurface->mergeFrom(mSurface2);
+
+        Video_Sleep();
+    }
+
+    mGraphics->PaletteSet();
+    mSurface->palette_SetFromNew();
+    mSurface->surfaceSetToPalette();
+
+    mPhase_Aborted = false;
+
+    // Redraw the screen
+    mGraphics->MapTiles_Draw();
+    Sprites_Draw();
+    mGraphics->Sidebar_Copy_To_Surface();
 }
 
 void cFodder::Phase_Prepare() {
@@ -476,6 +476,9 @@ void cFodder::Phase_Prepare() {
 	mCamera_Start_Adjust = true;
 	mCamera_StartPosition_X = mSprites[0].field_0;
 	mCamera_StartPosition_Y = mSprites[0].field_4;
+
+    Music_Play_Tileset();
+    word_82176 = 0;
 
 	// Is map 17 x 12
 	{
@@ -526,34 +529,101 @@ int16 cFodder::Phase_Loop() {
 	//  1 = Phase Running
     for (result = 1; result == 1; result = Phase_Cycle()) {
 		
-        ++mInterruptTick;
-		Cycle_End();
+		//Cycle_End();
     }
 
     return result;
 }
 
-void cFodder::Game_Handle() {
+void cFodder::Video_Sleep(cSurface* pSurface, const bool pShrink) {
+    mVideo_Ticked = false;
+
+    if (!pSurface) {
+        pSurface = mSurface;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(mSurfaceMtx);
+
+        if (!mStartParams->mDisableVideo) {
+            if (!pShrink) {
+                mSurfaceFinal->copyFrom(mSurface);
+                Video_SurfaceRender(false, false);
+            }
+            else {
+                Video_SurfaceRender(false, true, pSurface, false);
+            }
+        }
+    }
+
+    mWindow->Cycle();
+    eventsProcess();
+
+    while (!mVideo_Ticked) {
+        SDL_Delay(1);
+    }
+}
+
+void cFodder::Interrupt_Sim() {
+    Uint32 startTick = SDL_GetTicks();
+
+    while (!mExit) {
+        Uint32 currentTick = SDL_GetTicks();
+
+        if (currentTick - startTick >= 20) {
+            startTick = currentTick;
+            
+            {
+                std::lock_guard<std::mutex> lock(mSurfaceMtx);
+                mSurface->Restore();
+
+                Phase_Loop_Interrupt();
+                if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
+                    Sprites_Draw();
+
+                    mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
+
+                    Mouse_DrawCursor();
+                }
+            }
+        }
+        else {
+            SDL_Delay(1);
+            //
+        }
+    }
+}
+
+void cFodder::Phase_Loop_Interrupt() {
+
+    if (mPhase_Paused) {
+        mVideo_Ticked = true;
+    }
 
     // Input disabled or Mission not paused?
     if (!mInput_Enabled || !mPhase_Paused) {
 
-        ++mGame_InputTicks;
+        ++mPhase_InterruptTicks;
+        ++mInterruptTick;
+        mVideo_Ticked = true;
 
         Mouse_Inputs_Get();
 
         if (mInput_Enabled) {
             Camera_Handle();
-            Camera_Handle();
-            Camera_Handle();
+            //Camera_Handle();
+            //Camera_Handle();
 
             if (!mPhase_Finished)
                 Mouse_Inputs_Check();
         }
     }
-
-    Music_Increase_Channel_Volume();
-
+    if (mSound) {
+        Music_Increase_Channel_Volume();
+    }
+    // sub_A3DBC
+    // sub_8A27A
+    // 
     //loc_108AE
     if (mSquad_SwitchWeapon) {
         --mSquad_SwitchWeapon;
@@ -569,12 +639,12 @@ void cFodder::Game_Handle() {
     if (!mPhase_In_Progress)
         return;
 
-    if (mPhase_Completed_Timer || mPhase_Complete || mPhase_TryAgain || mPhase_Aborted) {
+    if (mPhase_Completed_Timer || mMapTile_Music_Play || mPhase_Complete || mPhase_TryAgain || mPhase_Aborted) {
         mPhase_Finished = true;
         return;
     }
 
-    if(!(mInterruptTick & 3))
+    if (!(mInterruptTick & 3))
         Music_Fade_SwitchTrack();
 
     //sub_A3B14
@@ -584,6 +654,7 @@ void cFodder::Game_Handle() {
 
     Sound_Play(mSquad_Leader, mSoundEffectToPlay, 0);
     mSoundEffectToPlay = 0;
+    
 }
 
 void cFodder::Camera_Handle() {
@@ -593,6 +664,13 @@ void cFodder::Camera_Handle() {
         Camera_Speed_MaxSet();
         Camera_Speed_Calculate();
         Camera_TileSpeedX_Set();
+
+        MapTile_UpdateFromCamera();
+        MapTile_Update_Position();
+
+        Camera_Update_Mouse_Position_For_Pan();
+        Camera_Speed_Update_From_PanTarget();
+        //Mouse_DrawCursor();
         Camera_Speed_Update_From_PanTarget();
         Camera_PanTarget_AdjustToward_SquadLeader();
         Camera_Acceleration_Set();
@@ -695,7 +773,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
 void cFodder::GameData_Reset() {
     mDebug_PhaseSkip = 0;
     mInput_Enabled = false;
-    mGame_InputTicks = 0;
+    mPhase_InterruptTicks = 0;
     mMission_EngineTicks = 0;
     mRecruit_Mission_Restarting = false;
 
@@ -730,6 +808,7 @@ void cFodder::Phase_EngineReset() {
     mMouse_Button_LeftRight_Toggle = false;
     mMouse_Button_LeftRight_Toggle2 = false;
 
+    mMapTile_Music_Play = false;
     mVehicle_Input_Disabled = false;
     mMouse_Exit_Loop = false;
     mSquad_Member_Fire_CoolDown_Override = false;
@@ -1028,6 +1107,8 @@ void cFodder::Phase_EngineReset() {
     mMusic_TargetVolume = 0;
     mMusic_SlowVolumeDecrease = 0;
     word_829F6 = 0;
+
+    mSprite_DrawList_Final.clear();
 }
 
 void cFodder::Phase_SquadPrepare() {
@@ -1714,13 +1795,12 @@ void cFodder::Camera_SetTargetToStartPosition() {
     mCamera_PanTargetX = mCamera_StartPosition_X;
     mCamera_PanTargetY = mCamera_StartPosition_Y;
 
-    Music_Play_Tileset();
     return;
 
 loc_11D8A:;
 
     if (mPhase_Completed_Timer)
-        goto loc_11E5B;
+        return;
 
     mCamera_MovePauseX = 6;
     mCamera_MovePauseY = 6;
@@ -1754,13 +1834,12 @@ loc_11D8A:;
     mGraphics->Sidebar_Copy_To_Surface();
     Mouse_DrawCursor();
     Camera_Prepare();
+    Video_Sleep();
 
     mInput_Enabled = true;
 
     mGraphics->PaletteSet();
 
-loc_11E5B:;
-    Music_Play_Tileset();
 }
 
 bool cFodder::Campaign_Load(std::string pName) {
@@ -1841,7 +1920,7 @@ void cFodder::Map_Load_TileTracks() {
 
 
 void cFodder::Music_Check_MapTile_TrackChange() {
-    if (mPhase_Completed_Timer != 0 || mGame_Data.mGamePhase_Data.mIsComplete || !mMapTile_Music_Play)
+    if (mPhase_Completed_Timer != 0 || mGame_Data.mGamePhase_Data.mIsComplete || mMapTile_Music_Play)
         return;
 
     if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0)
@@ -1981,12 +2060,14 @@ void cFodder::Music_Increase_Channel_Volume() {
 
 bool cFodder::Music_Decrease_Channel_Volume() {
     bool ret = false;
+    if (mSound) {
 
-    for (int i = 0; i < 4; ++i) {
-        int16 v = mSound->Music_GetVolume(i);
-        if (v > 0) {
-            ret = true;
-            mSound->Music_SetVolume(i, --v);
+        for (int i = 0; i < 4; ++i) {
+            int16 v = mSound->Music_GetVolume(i);
+            if (v > 0) {
+                ret = true;
+                mSound->Music_SetVolume(i, --v);
+            }
         }
     }
     return ret;
@@ -2096,6 +2177,7 @@ void cFodder::Map_Load_Resources() {
 }
 
 void cFodder::Music_Play(int16 pTrack, int16 pSong) {
+    mMapTile_Music_Play = true;
 
     word_82176 = -1;
     word_82178 = 0;
@@ -2111,14 +2193,15 @@ void cFodder::Music_SetFullVolume() {
 }
 
 void cFodder::Music_Play_Tileset(int16_t pSong) {
-    mMapTile_Music_Play = true;
 
     if (!mStartParams->mDisableSound) {
         if (pSong == -1)
             pSong = 2;
 
-        Music_Play(mMapLoaded->getTileType() + 0x32, pSong);
+        mSound->Music_Play(mMapLoaded->getTileType() + 0x32, pSong);
+        mSound->Music_SetVolume(-1, 0);
     }
+    mMapTile_Music_Play = false;
 }
 
 void cFodder::Camera_Pan_To_Target() {
@@ -2376,7 +2459,7 @@ void cFodder::Mission_Sprites_Handle() {
     MapTile_UpdateFromCamera();
 
     Map_Destroy_Tiles();
-    Sprites_Draw();
+    //Sprites_Draw();
 }
 
 void cFodder::Sprite_Sort_DrawList() {
@@ -2774,6 +2857,9 @@ void cFodder::Phase_Map_Overview_Show() {
     mVideo_Draw_PosX = (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
     mVideo_Draw_PosY = (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
 	
+    mPhase_Paused = true;
+    mInput_Enabled = false;
+
 	if (mVideo_Draw_PosX < 0)
 		mVideo_Draw_PosX = 0;
 
@@ -2804,14 +2890,9 @@ void cFodder::Phase_Map_Overview_Show() {
                 mSurfaceMapOverview->Restore();
         }
 
-        Mouse_Inputs_Get();
-        if (!mStartParams->mDisableVideo) {
-            mWindow->RenderShrunk(mSurfaceMapOverview);
-            mWindow->FrameEnd();
-        }
         if (mPhase_Aborted)
             break;
-        Cycle_End();
+        Video_Sleep(mSurfaceMapOverview, true);
 
     } while (Mouse_Button_Left_Toggled() < 0);
 
@@ -2819,6 +2900,8 @@ void cFodder::Phase_Map_Overview_Show() {
     mGraphics->SetImageOriginal();
 
     mPhase_Aborted = false;
+    mPhase_Paused = false;
+    mInput_Enabled = true;
 }
 
 void cFodder::Map_Overview_Prepare() {
@@ -3512,6 +3595,7 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     mSurface = new cSurface( getSurfaceSize() );
     mSurface2 = new cSurface(getSurfaceSize() );
+    mSurfaceFinal = new cSurface(getSurfaceSize());
 
 	Sprite_Clear_All();
 
@@ -3601,7 +3685,7 @@ int16 cFodder::Sprite_Create_RandomExplosion() {
     return Data0;
 }
 
-void cFodder::Phase_Paused() {
+void cFodder::Draw_Phase_Paused() {
     mSurface2->clearBuffer();
 
     mGraphics->PaletteSet(mSurface2);
@@ -3808,10 +3892,8 @@ void cFodder::Mission_Intro_Helicopter_Start() {
     mBriefing_Helicopter_Moving = -1;
     mBriefing_Helicopter_NotDone = -1;
 
-    //Briefing_Helicopter_Check();
     word_428B6 = 0x180;
     mBriefing_Helicopter_Off1 = 0x180;
-
 }
 
 void cFodder::Briefing_Update_Helicopter() {
@@ -4361,8 +4443,7 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
 		GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
 	GUI_Button_Load_MouseWheel();
-	Video_SurfaceRender();
-	Cycle_End();
+    Video_Sleep();
 }
 
 void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle) {
@@ -4823,7 +4904,7 @@ loc_23056:;
     if (!pSprite->field_36)
         return;
 
-    Data0 = mGame_InputTicks;
+    Data0 = mInterruptTick;
     Data0 &= 1;
     Data0 += 3;
     pSprite->field_20 = Data0;
@@ -8722,7 +8803,7 @@ void cFodder::Squad_Member_Rotate_Can_Fire() {
     if (mSquad_Member_Fire_CoolDown_Override)
         mSquad_Member_Fire_CoolDown_Override = false;
     else {
-        mSquad_Member_Fire_CoolDown -= 2;
+        mSquad_Member_Fire_CoolDown -= 1;
         if (mSquad_Member_Fire_CoolDown >= 0)
             return;
     }
@@ -9481,7 +9562,7 @@ void cFodder::Menu_Loop(const std::function<void()> pButtonHandler) {
 
     for (;;) {
 
-        Cycle_End();
+        Video_Sleep();
 
         if (Menu_Draw(pButtonHandler))
             break;
@@ -9523,10 +9604,7 @@ void cFodder::Demo_Quiz_ShowScreen(const char* pFilename) {
     mSurface->palette_FadeTowardNew();
 
     for (;; ) {
-        Cycle_End();
-
-        Mouse_Inputs_Get();
-        Mouse_DrawCursor();
+        Video_Sleep();
 
         if (mButtonPressLeft || mPhase_Aborted)
             break;
@@ -9534,7 +9612,6 @@ void cFodder::Demo_Quiz_ShowScreen(const char* pFilename) {
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
-        Video_SurfaceRender();
     }
 
     Image_FadeOut();
@@ -9674,7 +9751,8 @@ void cFodder::Service_KIA_Loop() {
     mSurface->Save();
 
     do {
-        Mouse_Inputs_Get();
+        Video_Sleep();
+        Video_Sleep();
 
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
@@ -9686,10 +9764,8 @@ void cFodder::Service_KIA_Loop() {
             mSurface->palette_FadeTowardNew();
 
         Service_Draw_List();
-        Cycle_End();
-        Service_ScrollUp_DrawList();
-
-        Video_SurfaceRender();
+        if (mInterruptTick % 3 == 0)
+            Service_ScrollUp_DrawList();
 
     } while (mSurface->isPaletteAdjusting() || mService_ExitLoop == 0);
 }
@@ -9719,9 +9795,8 @@ void cFodder::Service_Promotion_Loop() {
     mSurface->Save();
 
     do {
-        ++mInterruptTick;
-        Music_Increase_Channel_Volume();
-        Mouse_Inputs_Get();
+        Video_Sleep();
+
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
@@ -9733,11 +9808,9 @@ void cFodder::Service_Promotion_Loop() {
 
         Service_Promotion_Check();
         Service_Draw_List();
-        Cycle_End();
         //sub_14445();
-        Service_ScrollUp_DrawList();
-
-        Video_SurfaceRender();
+        if (mInterruptTick % 3 == 0)
+            Service_ScrollUp_DrawList();
 
     } while (mSurface->isPaletteAdjusting() || mService_ExitLoop == 0);
 
@@ -9882,11 +9955,6 @@ void cFodder::Service_ScrollUp_DrawList() {
             mService_Promotion_Exit_Loop = 0;
 
     }
-
-    //auto remove = std::remove_if(mService_Draw_List.begin(), mService_Draw_List.end(), [](auto pVal) 
-    //{ return pVal.mY < -48; });
-
-    //mService_Draw_List.erase(remove, mService_Draw_List.end());
 }
 
 void cFodder::Service_Draw_String(const std::string& pText, const uint8* pData28, int16 pData0, int16 pData8, int16 pDataC) {
@@ -10077,11 +10145,10 @@ void cFodder::Briefing_Show_Ready() {
     Briefing_Draw_Phase();
     Briefing_Draw_With();
 
+    mSurface->Save();
     mMouse_Exit_Loop = false;
 
     do {
-        ++mInterruptTick;
-
         Music_Increase_Channel_Volume();
         Mouse_Inputs_Get();
 
@@ -10091,8 +10158,7 @@ void cFodder::Briefing_Show_Ready() {
             break;
         }
 
-        Video_SurfaceRender(false);
-        Cycle_End();
+        Video_Sleep();
 
     } while (!mMouse_Exit_Loop);
 
@@ -11436,7 +11502,7 @@ void cFodder::Sprite_Handle_Explosion(sSprite* pSprite) {
         pSprite->field_26 = 0;
     }
     //loc_1AB6F
-    int16 Data4 = 5 + (mGame_InputTicks & 3);
+    int16 Data4 = 5 + (mInterruptTick & 3);
 
     Sound_Play(pSprite, Data4, 0x1E);
     pSprite->field_8 = 0x8E;
@@ -15896,7 +15962,7 @@ loc_202E5:;
     pSprite->field_10 = 0x80;
 loc_20307:;
 
-    Data0 = mGame_InputTicks;
+    Data0 = mInterruptTick;
     Data0 >>= 2;
     Data0 &= 0x3F;
     Data0 -= 0x20;
@@ -15904,7 +15970,7 @@ loc_20307:;
     pSprite->field_10 += Data0;
     pSprite->field_4 = mStoredSpriteY;
 
-    Data0 = mGame_InputTicks;
+    Data0 = mInterruptTick;
     Data0 &= 0x1F;
     Data0 += 0x0C;
     pSprite->field_44 = (int8)Data0;
@@ -16439,8 +16505,7 @@ void cFodder::intro_LegionMessage() {
             }
         }
 
-        Video_SurfaceRender(false);
-        Cycle_End();
+        Video_Sleep();
     }
 }
 
@@ -16506,8 +16571,7 @@ int16 cFodder::intro_Play() {
                 DoBreak = true;
             }
 
-            Video_SurfaceRender(false);
-            Cycle_End();
+            Video_Sleep();
         }
 
 
@@ -16570,8 +16634,7 @@ void cFodder::Image_FadeIn() {
         mSurface->palette_FadeTowardNew();
         Mouse_Inputs_Get();
 
-        Video_SurfaceRender();
-        Cycle_End();
+        Video_Sleep();
     }
 
     mGame_Data.mDemoRecorded.EnableTicks();
@@ -16596,8 +16659,7 @@ void cFodder::Image_FadeOut() {
         } else 
             mSurface->palette_FadeTowardNew();
 
-        Video_SurfaceRender();
-        Cycle_End();
+        Video_Sleep();
 
     }
     mGame_Data.mDemoRecorded.EnableTicks();
@@ -16692,24 +16754,32 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
             DoBreak = true;
         }
 
-        Video_SurfaceRender(false);
-        Cycle_End();
+        Video_Sleep();
     }
 
     return mImage_Aborted;
 }
 
-void cFodder::Video_SurfaceRender(const bool pRestoreSurface) {
+void cFodder::Video_SurfaceRender(const bool pRestoreSurface, const bool pShrink, cSurface* pSurface, const bool pSkip) {
 
     if (mStartParams->mDisableVideo)
         return;
 
-    mSurface->draw();
-    mWindow->RenderAt(mSurface);
+    if (!pSurface) {
+        pSurface = mSurfaceFinal;
+    }
+       
+    pSurface->draw(pSkip == true ? 16 : 0, pSkip == true ? 16 : 0);
+    if (pShrink) {
+        mWindow->RenderShrunk(pSurface);
+    }
+    else {
+        mWindow->RenderAt(pSurface);
+    }
     mWindow->FrameEnd();
 
-    if(pRestoreSurface)
-        mSurface->Restore();
+    //if(pRestoreSurface)
+    //    mSurfaceFinal->Restore();
 }
 
 void cFodder::Cycle_End(int64 pSleep) {
@@ -16768,8 +16838,7 @@ void cFodder::WonGame() {
     Image_FadeIn();
 
     for (int count = 500; count >= 0; --count) {
-        Video_SurfaceRender();
-        Cycle_End();
+        Video_Sleep();
     }
 
     Image_FadeOut();
@@ -17731,7 +17800,7 @@ int16 cFodder::Sprite_Create_Building_Explosion(sSprite* pData2C, int16& pX, int
     pData2C->field_4 = pY;
     pData2C->field_4 += 0x10;
 
-    int16 Data4 = mGame_InputTicks;
+    int16 Data4 = mInterruptTick;
     Data4 &= 3;
     Data4 += 5;
 
@@ -18527,8 +18596,7 @@ void cFodder::Playground() {
         //Mouse_Inputs_Get();
         //Mouse_DrawCursor();
 
-       Video_SurfaceRender();
-       Cycle_End();
+       Video_Sleep();
 
         // Q
         if (mKeyCode == 0x14) {
@@ -18619,7 +18687,7 @@ void cFodder::About() {
 
         mWindow->RenderAt(mSurface);
         mWindow->FrameEnd();
-        Cycle_End();
+        Video_Sleep();
     }
 
     g_Fodder->mPhase_Aborted = false;
@@ -18827,7 +18895,6 @@ int16 cFodder::Briefing_Show() {
 
 		Map_Load();
 		Map_Load_Sprites();
-		Map_Overview_Prepare();
 
 		// Prepare Squads
 		Phase_Soldiers_Count();
@@ -19057,6 +19124,7 @@ void cFodder::MapTiles_Draw() {
 
     if (!mStartParams->mDisableVideo)
         mGraphics->MapTiles_Draw();
+    mSurface->Save();
 }
 
 void cFodder::Exit(unsigned int pExitCode) {

@@ -204,7 +204,7 @@ inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
 /**
  * Draw the Surface Buffer to SDLSurface, using the surface palette
  */
-void cSurface::draw() {
+void cSurface::draw(const int16 pSkipX, const int16 pSkipY) {
 	if (mIsLoadedImage)
 		return;
 
@@ -212,22 +212,20 @@ void cSurface::draw() {
 	const uint8_t* const bufferEnd = mSurfaceBuffer + mSurfaceBufferSize;
 	uint32_t* bufferTarget = reinterpret_cast<uint32_t*>(mSDLSurface->pixels);
 	const int width = mSDLSurface->w, height = mSDLSurface->h;
-	const int skipX = 16;
-	const int skipY = 16;
 
 	clearSDLSurface(0);
 
 	// Skip 'skipY' rows of pixels
-	bufferCurrent += width * skipY;
-	bufferTarget += width * skipY;
+	bufferCurrent += width * pSkipY;
+	bufferTarget += width * pSkipY;
 
-	for (int y = skipY; y < height; ++y) {
+	for (int y = pSkipY; y < height; ++y) {
 		// Skip first 'skipX' pixels
-		bufferCurrent += skipX;
-		bufferTarget += skipX;
+		bufferCurrent += pSkipX;
+		bufferTarget += pSkipX;
 
 		// Process remaining pixels
-		for (int x = skipX; x < width; ++x) {
+		for (int x = pSkipX; x < width; ++x) {
 			if (bufferCurrent >= bufferEnd) break;
 
 			uint8_t currentPixel = *bufferCurrent++;
@@ -243,6 +241,42 @@ void cSurface::draw() {
 		SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 	}
 }
+
+void cSurface::copyFrom(const cSurface* pFrom) {
+	
+	memcpy(mSurfaceBuffer, pFrom->mSurfaceBuffer, mSurfaceBufferSize);
+
+	for (size_t cx = 0; cx < g_MaxColors; ++cx) {
+		mPalette[cx] = pFrom->mPalette[cx];
+		mPaletteNew[cx] = pFrom->mPaletteNew[cx];
+		mPaletteSDL[cx] = pFrom->mPaletteSDL[cx];
+	}
+}
+
+void cSurface::mergeFrom(const cSurface* pFrom) {
+	auto SourceSurface = pFrom->GetSurfaceBuffer();
+	auto SourceSize = pFrom->GetSurfaceBufferSize();
+
+	uint32* bufferTarget = (uint32*)mSurfaceBuffer;
+	uint32* bufferTargetMax = (uint32*)((uint8*)mSurfaceBuffer + mSurfaceBufferSize);
+
+	const uint32* bufferCurrent = ((uint32*)SourceSurface);
+	const uint32* bufferCurrentMax = (uint32*)(((uint8*)SourceSurface) + SourceSize);
+
+	while (bufferTarget < bufferTargetMax) {
+
+		if (*bufferCurrent) {
+
+			// Value in palette range?
+			*bufferTarget = *bufferCurrent;
+		}
+
+		// Next Source/Destination
+		++bufferCurrent;
+		++bufferTarget;
+	}
+}
+
 
 /**
  * Merge another SDLsurface onto our rendered surface

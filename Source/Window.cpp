@@ -399,7 +399,6 @@ void cWindow::RenderShrunk( cSurface* pImage ) {
 		Dest.x = (current.w - Dest.w) / 2;
 		Dest.y = (current.h - Dest.h) / 2;
 	}
-	pImage->draw();
 
 	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, &Dest);
 }

@@ -32,6 +32,7 @@
 #include <cstring>
 #include <cassert>
 #include <map>
+#include <mutex>
 
 #include <SDL.h>
 #ifndef EMSCRIPTEN

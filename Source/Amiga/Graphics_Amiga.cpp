@@ -1059,9 +1059,12 @@ void cGraphics_Amiga::Video_Draw_16(const uint8* RowPallete) {
 	}
 }
 
-void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY ) {
+void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY, cSurface* pSurface) {
+	uint8* Buffer = mSurface->GetSurfaceBuffer();
 
-	uint8*	Buffer = mSurface->GetSurfaceBuffer();
+	if(pSurface)
+		Buffer = pSurface->GetSurfaceBuffer();
+	
 	uint8* 	si = (uint8*)mFodder->mSidebar_Screen_Buffer;
 
 	// Start 16 rows down
@@ -1570,12 +1573,12 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		Video_Draw_16_Offset(word_4286F);
 
 		// Front
-		word_4286F += 5;
+		word_4286F += 4;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		// Middle
-		word_42871 += 4;
+		word_42871 += 3;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
@@ -1593,15 +1596,7 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 			mSurface->palette_FadeTowardNew();
 
 		mFodder->Briefing_Helicopter_Check();
-		++mFodder->mInterruptTick;
-		// This loop runs fast enough that the cursor can get stuck at the window border
-		// as focus events havnt been received for the mouse leaving the window
-		++mouseCheck;
-		if (mouseCheck % 5 == 0) {
-			mouseCheck = 0;
-			mFodder->Mouse_Inputs_Get();
-		}
-        mFodder->Video_SurfaceRender();
+		mFodder->Video_Sleep();
 
 		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
 			mFodder->mBriefing_Helicopter_NotDone = 0;
@@ -1610,8 +1605,6 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
             mFodder->mPhase_Aborted = 0;
 		}
 
-		mFodder->mWindow->Cycle();
-		mFodder->eventsProcess();
 	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 
 	mFodder->mMouse_Exit_Loop = false;
