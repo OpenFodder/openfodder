@@ -415,9 +415,6 @@ void cFodder::Phase_Paused() {
 
     while (mPhase_Paused) {
 
-        // Update mouse
-        //Mouse_Inputs_Get();
-        //Mouse_DrawCursor();
         mSurface->draw();
 
         // Copy the rendered surface of the 'mission paused' message over the top of the main surface
@@ -578,13 +575,22 @@ void cFodder::Interrupt_Sim() {
                 mSurface->Restore();
 
                 Phase_Loop_Interrupt();
-                if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
-                    Sprites_Draw();
 
-                    mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
+                if (mInterruptCallback) {
+                    mInterruptCallback();
+                } else {
+                    if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
+                        if (!mStartParams->mDisableVideo) {
+                            mGraphics->MapTiles_Draw();
+                            Sprites_Draw();
+                        }
+                        
+                        mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
 
-                    Mouse_DrawCursor();
+                        Mouse_DrawCursor();
+                    }
                 }
+                mVideo_Ticked = true;
             }
         }
         else {
@@ -596,16 +602,11 @@ void cFodder::Interrupt_Sim() {
 
 void cFodder::Phase_Loop_Interrupt() {
 
-    if (mPhase_Paused) {
-        mVideo_Ticked = true;
-    }
-
     // Input disabled or Mission not paused?
     if (!mInput_Enabled || !mPhase_Paused) {
 
         ++mPhase_InterruptTicks;
         ++mInterruptTick;
-        mVideo_Ticked = true;
 
         Mouse_Inputs_Get();
 
@@ -2490,15 +2491,19 @@ void cFodder::Sprite_Sort_DrawList() {
     });
 
     //loc_124AF
-    mSprite_DrawList_Final.clear();
-    for (auto spriteptr : mSprite_DrawList_First) {
-        mSprite_DrawList_Final.push_back(spriteptr);
-    }
-    for (auto spriteptr : mSprite_DrawList_Second) {
-        mSprite_DrawList_Final.push_back(spriteptr);
-    }
-    for (auto spriteptr : mSprite_DrawList_Third) {
-        mSprite_DrawList_Final.push_back(spriteptr);
+    {
+        std::lock_guard<std::mutex> lock(mSpriteMtx);
+
+        mSprite_DrawList_Final.clear();
+        for (auto spriteptr : mSprite_DrawList_First) {
+            mSprite_DrawList_Final.push_back(spriteptr);
+        }
+        for (auto spriteptr : mSprite_DrawList_Second) {
+            mSprite_DrawList_Final.push_back(spriteptr);
+        }
+        for (auto spriteptr : mSprite_DrawList_Third) {
+            mSprite_DrawList_Final.push_back(spriteptr);
+        }
     }
 }
 
@@ -3781,6 +3786,8 @@ bool cFodder::Sprite_OnScreen_Check() {
 
 void cFodder::Sprites_Draw() {
 
+    std::lock_guard<std::mutex> lock(mSpriteMtx);
+
     for( auto& Sprite : mSprite_DrawList_Final) {
 
         if (Sprite->field_24) {
@@ -4199,11 +4206,24 @@ void cFodder::Campaign_Select_Setup() {
 	mDemo_ExitMenu = 0;
 
 	Camera_Reset();
+
 }
 
 std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData) {
 
 	Campaign_Select_Setup();
+    MapTiles_Draw();
+
+    mInterruptCallback = [this, pTitle, pSubTitle]() {
+        if (!mStartParams->mDisableVideo) {
+            mGraphics->MapTiles_Draw();
+            Sprites_Draw();
+        }
+        Campaign_Select_DrawMenu(pTitle, pSubTitle);
+        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+
+        Mouse_DrawCursor();
+    };
 
     do {
 
@@ -4211,6 +4231,8 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
 
     } while (mGUI_SaveLoadAction == 3);
 
+
+    mInterruptCallback = nullptr;
     mPhase_In_Progress = false;
 
     if (mGUI_SaveLoadAction == 1)
@@ -4405,22 +4427,16 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
 void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle) {
 	static int16 Timedown = 0;
 
-	mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
-	Sprite_Frame_Modifier_Update();
-	Mission_Sprites_Handle();
-
-	mSurface->clearBuffer();
-	MapTiles_Draw();
-	Sprites_Draw();
-    Sound_Tick();
-	Campaign_Select_DrawMenu(pTitle, pSubTitle);
-
+    if (mPhase_InterruptTicks >= 3) {
+        mPhase_InterruptTicks = 0;
+        Mission_Sprites_Handle();
+        Sound_Tick();
+        mInterruptCallback();
+    }
 
 	if (mSurface->isPaletteAdjusting())
 		mSurface->palette_FadeTowardNew();
 
-	Mouse_Inputs_Get();
-	Mouse_DrawCursor();
 
 	if (Timedown)
 		--Timedown;
@@ -4443,14 +4459,13 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
 		GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
 	GUI_Button_Load_MouseWheel();
-    Video_Sleep();
 }
 
 void cFodder::Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle) {
 
-
     do {
 		Campaign_Select_File_Cycle(pTitle, pSubTitle);
+        Video_Sleep();
 
     } while (mGUI_SaveLoadAction <= 0);
 
@@ -8483,8 +8498,8 @@ bool cFodder::MapTile_Update_Position() {
     }
 
     if (TileColumns || TileRows) {
-        if (!mStartParams->mDisableVideo)
-            mGraphics->MapTiles_Draw();
+        //if (!mStartParams->mDisableVideo)
+        //    mGraphics->MapTiles_Draw();
         return true;
     }
 
@@ -9376,8 +9391,8 @@ loc_2DFC7:;
 
     mVideo_Draw_Columns = 0x10;
     mVideo_Draw_Rows = 0x10;
-    if (!mStartParams->mDisableVideo)
-        mGraphics->MapTiles_Draw();
+    //if (!mStartParams->mDisableVideo)
+    //    mGraphics->MapTiles_Draw();
 }
 
 void cFodder::Map_Destroy_Tiles_Next() {
@@ -16478,7 +16493,7 @@ void cFodder::Intro_OpenFodder() {
 }
 
 void cFodder::intro_LegionMessage() {
-    int16 Duration = 325 / 4;
+    int16 Duration = 150;
     bool DoBreak = false;
 
     mSurface->clearBuffer();
@@ -16487,19 +16502,27 @@ void cFodder::intro_LegionMessage() {
     Intro_Print_String(&mVersionCurrent->getIntroData()->at(0).mText[0]);
 	Intro_Print_String(&mVersionCurrent->getIntroData()->at(0).mText[1]);
 	Intro_Print_String(&mVersionCurrent->getIntroData()->at(0).mText[2]);
+    mSurface->Save();
 
     while (mSurface->isPaletteAdjusting() || DoBreak == false) {
 
-        Mouse_Inputs_Get();
-
-       if (mSurface->isPaletteAdjusting())
+        if (mSurface->isPaletteAdjusting()) {
             mSurface->palette_FadeTowardNew();
 
-        if (Duration > 1)
+            if (!DoBreak) {
+                Video_Sleep();
+                Video_Sleep();
+                Video_Sleep();
+                continue;
+            }
+        }
+
+        if (Duration >= 0)
             --Duration;
         else {
             if (DoBreak == false) {
                 mSurface->paletteNew_SetToBlack();
+
                 Duration = 0;
                 DoBreak = true;
             }
@@ -16516,7 +16539,7 @@ int16 cFodder::intro_Play() {
 
     for (word_3B2CF = 1; mVersionCurrent->getIntroData()->at(word_3B2CF).mImageNumber != 0; ++word_3B2CF) {
 
-        mIntro_PlayTextDuration = 0x288 / 5;
+        mIntro_PlayTextDuration = 0x12C;
 
         mSurface->palette_SetToBlack();
 
@@ -16531,7 +16554,7 @@ int16 cFodder::intro_Play() {
             mGraphics->Load_And_Draw_Image(ImageName.str(), 0xD0);
         }
         else {
-            mIntro_PlayTextDuration = 0xAF / 2;
+            mIntro_PlayTextDuration = 0x96;
             mSurface->clearBuffer();
         }
 
@@ -16549,13 +16572,22 @@ int16 cFodder::intro_Play() {
         int16 Duration = mIntro_PlayTextDuration;
         bool DoBreak = false;
 
+        mSurface->Save();
+
         while (mSurface->isPaletteAdjusting() || DoBreak == false) {
-            --Duration;
+
+            if (mSurface->isPaletteAdjusting()) {
+                mSurface->palette_FadeTowardNew();
+                if (!DoBreak) {
+                    Video_Sleep();
+                    Video_Sleep();
+                    Video_Sleep();
+                    continue;
+                }
+            }
 
             if (Duration) {
-                mSurface->palette_FadeTowardNew();
-
-                Mouse_Inputs_Get();
+                --Duration;
                 if (mMouseButtonStatus) {
 
                     if (mVersionCurrent->getIntroData()->size() >= 2)
@@ -16567,8 +16599,10 @@ int16 cFodder::intro_Play() {
                 }
             }
             else {
-                mSurface->paletteNew_SetToBlack();
-                DoBreak = true;
+                if (DoBreak == false) {
+                    mSurface->paletteNew_SetToBlack();
+                    DoBreak = true;
+                }
             }
 
             Video_Sleep();
@@ -16632,8 +16666,9 @@ void cFodder::Image_FadeIn() {
     mGame_Data.mDemoRecorded.DisableTicks();
     while (mSurface->isPaletteAdjusting()) {
         mSurface->palette_FadeTowardNew();
-        Mouse_Inputs_Get();
 
+        Video_Sleep();
+        Video_Sleep();
         Video_Sleep();
     }
 
@@ -16688,7 +16723,7 @@ void cFodder::intro_Retail() {
 
     mPhase_Aborted = false;
 
-    if (ShowImage_ForDuration("cftitle", CANNON_BASED(0x1F8 / 3, 0x280 / 3)))
+    if (ShowImage_ForDuration("cftitle", CANNON_BASED(0x177, 0x280)))
         return;
 
     if (intro_Play()) {
@@ -16700,13 +16735,13 @@ void cFodder::intro_Retail() {
         return;
     }
 
-    if (ShowImage_ForDuration("virgpres", 0x2D0 / 3))
+    if (ShowImage_ForDuration("virgpres", 0x15E))
         return;
 
-    if (ShowImage_ForDuration("sensprod", 0x2D0 / 3))
+    if (ShowImage_ForDuration("sensprod", 0x15E))
         return;
 
-    if (ShowImage_ForDuration("cftitle", 0x318 / 3))
+    if (ShowImage_ForDuration("cftitle", 0x258))
         return;
 }
 
@@ -16733,14 +16768,21 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
 
     mGraphics->Load_And_Draw_Image(pFilename, 0x100, pBackColor);
     mGraphics->PaletteSet();
+    mSurface->Save();
 
     while (mSurface->isPaletteAdjusting() || DoBreak == false) {
-        Mouse_Inputs_Get();
         --pDuration;
 
         if (pDuration) {
-           if (mSurface->isPaletteAdjusting())
+            if (mSurface->isPaletteAdjusting()) {
                 mSurface->palette_FadeTowardNew();
+                if (!DoBreak) {
+                    Video_Sleep();
+                    Video_Sleep();
+                    Video_Sleep();
+                    continue;
+                }
+            }
 
             if (pCanAbort && (mMouseButtonStatus || mPhase_Aborted)) {
                 mPhase_Aborted = false;
@@ -16750,8 +16792,10 @@ int16 cFodder::ShowImage_ForDuration(const std::string& pFilename, uint16 pDurat
             }
         }
         else {
-            mSurface->paletteNew_SetToBlack();
-            DoBreak = true;
+            if (DoBreak == false) {
+                mSurface->paletteNew_SetToBlack();
+                DoBreak = true;
+            }
         }
 
         Video_Sleep();
@@ -18980,19 +19024,8 @@ int16 cFodder::Mission_Loop() {
             }
         }
 
-        GameData_Backup();
+
         mMusic_SlowVolumeDecrease = true;
-
-        // Retail or Custom Mode
-        if (mVersionCurrent->isRetail() ||
-            mCustom_Mode != eCustomMode_None) {
-            Map_Load();
-
-            // Show the intro for the briefing screen
-            Mission_Intro_Play(false, mMapLoaded->getTileType());
-        }
-
-        mGraphics->Load_pStuff();
 
         WindowTitleSet(true);
 
@@ -19105,7 +19138,6 @@ void cFodder::intro_main() {
 }
 
 void cFodder::MapTiles_Draw() {
-
     mMapTile_ColumnOffset = 0;
     mMapTile_RowOffset = 0;
 
@@ -19122,9 +19154,8 @@ void cFodder::MapTiles_Draw() {
     mMapTile_Column_CurrentScreen = 0;
     mMapTile_Row_CurrentScreen = 0;
 
-    if (!mStartParams->mDisableVideo)
-        mGraphics->MapTiles_Draw();
-    mSurface->Save();
+    //if (!mStartParams->mDisableVideo)
+    //    mGraphics->MapTiles_Draw();
 }
 
 void cFodder::Exit(unsigned int pExitCode) {

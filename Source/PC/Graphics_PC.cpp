@@ -275,6 +275,7 @@ void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, ui
 }
 
 void cGraphics_PC::MapTiles_Draw() {
+	std::lock_guard<std::mutex> lock(mFodder->mSurfaceMtx);
 
     uint8* Target = mSurface->GetSurfaceBuffer();
 

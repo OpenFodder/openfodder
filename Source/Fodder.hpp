@@ -148,6 +148,9 @@ public:
     uint16          mPhase_InterruptTicks;
     volatile bool   mVideo_Ticked;
     int16           mInterruptTick;
+
+    std::function<void()> mInterruptCallback;
+
     bool            mExit;
 
     int16           mButtonPressLeft, mButtonPressRight;
@@ -1272,6 +1275,7 @@ public:
     void            WonGame();
 
     void            Video_Sleep(cSurface* pSurface = 0, const bool pShrink = false);
+    void            Video_Sleep_Campaign(cSurface* pSurface = 0, const bool pShrink = false);
     void            Video_SurfaceRender( const bool pRestoreSurface = true, const bool pShrink = false, cSurface* pSurface = 0, const bool pSkip = true);
     void            Cycle_End(int64 pSleep = 40);
 

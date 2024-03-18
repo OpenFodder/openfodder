@@ -1199,7 +1199,18 @@ int16 cFodder::Recruit_Show() {
     }
 
     mRecruit_Mission_Restarting = false;
-    
+    GameData_Backup();
+
+    // Retail or Custom Mode
+    if (mVersionCurrent->isRetail() ||
+        mCustom_Mode != eCustomMode_None) {
+        Map_Load();
+
+        // Show the intro for the briefing screen
+        Mission_Intro_Play(false, mMapLoaded->getTileType());
+    }
+
+    mGraphics->Load_pStuff();
 
     return 0;
 }
@@ -1284,8 +1295,7 @@ bool cFodder::Recruit_Loop() {
 
         Recruit_Cycle();
 
-        Video_SurfaceRender();
-        Cycle_End();
+        Video_Sleep();
     }
 
     mRecruit_Screen_Active = false;
@@ -2043,15 +2053,12 @@ void cFodder::Recruit_Copy_Sprites() {
 }
 
 void cFodder::Recruit_Cycle() {
-    Mouse_Inputs_Get();
 
     Recruit_Update_Actors();
     mGraphics->Sidebar_Copy_To_Surface(0x18);
 
     if (mVersionCurrent->isPC())
         mGraphics->Recruit_Draw_HomeAway();
-
-    Mouse_DrawCursor();
 
     if (mSurface->isPaletteAdjusting())
         mSurface->palette_FadeTowardNew();
