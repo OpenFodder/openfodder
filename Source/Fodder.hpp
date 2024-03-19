@@ -132,8 +132,11 @@ public:
     cSurface*       mSurface2;
     cSurface*       mSurfaceFinal;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
+
     std::mutex      mSurfaceMtx;
     std::mutex      mSpriteMtx;
+    std::mutex      mVideoMtx;
+    std::mutex      mVideo2Mtx;
 
     uint8           mKeyCode;
 
@@ -147,6 +150,7 @@ public:
 
     uint16          mPhase_InterruptTicks;
     volatile bool   mVideo_Ticked;
+    volatile bool   mVideo_Done;
     int16           mInterruptTick;
 
     std::function<void()> mInterruptCallback;
@@ -271,13 +275,13 @@ public:
 
     bool            mPhase_Complete;
     int16           mPhase_Completed_Timer;
-    bool            mPhase_In_Progress;
+    volatile bool   mPhase_In_Progress;
     bool            mPhase_Paused;
     bool            mPhase_TryAgain;
     bool            mPhase_TryingAgain;
 
 	bool            mPhase_Finished;
-	int16           mPhase_ShowMapOverview;
+	volatile int16  mPhase_ShowMapOverview;
 
     int16           mEnemy_BuildingCount;
     int16           mSquad_SwitchWeapon;
@@ -414,8 +418,8 @@ public:
     int16           mSoundEffectToPlay_Set;
     int16           mSoundEffectToPlay;
 
-    unsigned char   byte_81DF8[4];
-    unsigned char   byte_81DFC[6];
+    int16           mSound_Priority[4];
+    int16           mSound_Timer[6];
 
     int16           mSquad_EnteredVehicleTimer[3];
     sSprite*        mSprite_OpenCloseDoor_Ptr;
@@ -475,7 +479,7 @@ public:
     int32           mCameraX;
     int32           mCameraY;
 
-    int16           mMouseCursor_Enabled;
+    volatile int16  mMouseCursor_Enabled;
 
     int16           mMouseSpriteNew;
     int16           mMouseSetToCursor;
@@ -601,6 +605,8 @@ public:
     void            Phase_Paused();
 
     void            Interrupt_Sim();
+    void            Interrupt_Sim_Demo();
+
     void            Phase_Loop_Interrupt();
     void            Camera_Handle();
     void            Camera_PanTarget_AdjustToward_SquadLeader();
@@ -1274,10 +1280,8 @@ public:
 
     void            WonGame();
 
-    void            Video_Sleep(cSurface* pSurface = 0, const bool pShrink = false);
-    void            Video_Sleep_Campaign(cSurface* pSurface = 0, const bool pShrink = false);
+    void            Video_Sleep(cSurface* pSurface = 0, const bool pShrink = false, const bool pVsync = false);
     void            Video_SurfaceRender( const bool pRestoreSurface = true, const bool pShrink = false, cSurface* pSurface = 0, const bool pSkip = true);
-    void            Cycle_End(int64 pSleep = 40);
 
     void            sleepLoop(int64 pMilliseconds);
     int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration, size_t pBackColor = 0, bool pCanAbort = true);

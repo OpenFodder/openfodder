@@ -97,6 +97,7 @@ class cWindow {
 		bool			    GetWindowMode() const { return mWindowMode; }
         bool                HasFocus();
         bool                hasFocusEvent() const { return mHasFocus; }
+		void				clearFocus() { mHasFocus = false; }
         cDimension          GetScale() const;
 
 		void				SetRelativeMouseMode(bool pEnable);

@@ -97,7 +97,7 @@ public:
 		mPlayground = false;
 		mDisableSound = false;
 		mDisableVideo = false;
-		mSleepDelta = 2;
+		mSleepDelta = 5;
 
 		mAppVeyor = false;
 		mSkipService = false;

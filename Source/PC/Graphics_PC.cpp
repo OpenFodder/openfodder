@@ -998,34 +998,34 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		Mission_Intro_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		// Front
-		word_4286F += 5;
+		word_4286F += 4;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		// Middle
-		word_42871 += 4;
+		word_42871 += 3;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
 		// Back
-		word_42873 += 3;
+		word_42873 += 2;
 		if (word_42873 >= 320)
 			word_42873 = 0;
 
 		// Very Back
-		word_42875 += 2;
+		word_42875 += 1;
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
 		mFodder->Briefing_Helicopter_Check();
-		mFodder->Video_Sleep();
+		mFodder->Video_Sleep(0, false, true);
 
-		if (mFodder->mMouseButtonStatus || (mFodder->mPhase_Aborted && mFodder->mBriefing_Helicopter_NotDone)) {
+		if (mFodder->mMouseButtonStatus || mFodder->mPhase_Aborted) {
 			mFodder->mBriefing_Helicopter_NotDone = 0;
 			mSurface->paletteNew_SetToBlack();
+			mFodder->mMouse_Exit_Loop = false;
+			mFodder->mPhase_Aborted = 0;
 		}
-		mFodder->mWindow->Cycle();
-		mFodder->eventsProcess();
 
 	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 }

@@ -40,10 +40,11 @@ int start(int argc, char *argv[]) {
 
 	g_Fodder->Prepare(Params);
 	std::thread myThread(&cFodder::Interrupt_Sim, g_Fodder);
-
+	int result = 0;
+	
 	if (g_Fodder->mStartParams->mUnitTesting) {
 		cUnitTesting Testing;
-		return Testing.Start() ? 0 : -1;
+		result = Testing.Start() ? 0 : -1;
 	}
 	else if (g_Fodder->mStartParams->mRandomSave) {
 		sMapParams Params(g_Fodder->mRandom.get());

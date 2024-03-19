@@ -274,7 +274,7 @@ void cSound_Amiga::Sound_Stop() {
 	
 	if (SDL_LockMutex( mLock ) == 0) {
 
-		for (auto SfxIT : mCurrentSfx) {
+		for (auto& SfxIT : mCurrentSfx) {
 
 			delete SfxIT;
 			SfxIT = 0;

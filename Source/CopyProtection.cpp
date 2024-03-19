@@ -173,8 +173,7 @@ void cFodder::CopyProtection() {
             if (mShow)
                 GUI_Draw_Frame_8(0x0F, 0x00, (mGUI_Temp_X + mGUI_Temp_Width), 0xA0);
 
-            Video_SurfaceRender();
-            Cycle_End();
+            Video_Sleep();
         }
 
         Image_FadeOut();

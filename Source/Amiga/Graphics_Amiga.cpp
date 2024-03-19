@@ -1531,6 +1531,9 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 	mFodder->mVideo_Draw_PosX = 16;
 
 	do {
+		if (mSurface->isPaletteAdjusting())
+			mSurface->palette_FadeTowardNew();
+
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING);
 		mFodder->mVideo_Draw_PosY = 40;
 		Video_Draw_16_Offset(word_42875);
@@ -1571,7 +1574,7 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);
 		mFodder->mVideo_Draw_PosY = 163;
 		Video_Draw_16_Offset(word_4286F);
-
+		
 		// Front
 		word_4286F += 4;
 		if (word_4286F >= 320)
@@ -1592,11 +1595,8 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		if (mSurface->isPaletteAdjusting())
-			mSurface->palette_FadeTowardNew();
-
 		mFodder->Briefing_Helicopter_Check();
-		mFodder->Video_Sleep();
+		mFodder->Video_Sleep(0, false, true);
 
 		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
 			mFodder->mBriefing_Helicopter_NotDone = 0;

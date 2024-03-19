@@ -66,6 +66,7 @@ sGameRecorded::sGameRecorded() {
     mRecordedPlatform = ePlatform::Any;
 	mParams = std::make_shared<sFodderParameters>();
 }
+
 void sGameRecorded::AddEvent(const uint64 pTicks, const cEvent& pEvent) {
     if (mTickDisabled)
         return;
@@ -116,6 +117,10 @@ void sGameRecorded::removeFrom(const uint64 pTicks) {
 
     auto fromEvent = mEvents.lower_bound(pTicks);
     mEvents.erase(fromEvent, mEvents.end());
+
+    auto fromTick = std::lower_bound(mVideoTicks.begin(), mVideoTicks.end(), pTicks);
+    mVideoTicks.erase(fromTick, mVideoTicks.end());
+
 }
 
 void sGameRecorded::clear() {
@@ -150,6 +155,14 @@ void sGameRecorded::playback() {
     g_Fodder->mRandom.setSeed(mSeed[0], mSeed[1], mSeed[2], mSeed[3]);
 
     *g_Fodder->mParams = *mParams;
+}
+
+void sGameRecorded::AddVideoTick(const uint64 pTick) {
+    mVideoTicks.push_back( pTick );
+}
+
+bool sGameRecorded::GetVideoTick(const uint64 pTick) {
+    return std::binary_search(mVideoTicks.begin(), mVideoTicks.end(), pTick);
 }
 
 void sGameRecorded::DisableTicks() {
@@ -233,6 +246,10 @@ std::string sGameRecorded::ToJson() {
         Save["mStates"].push_back(JsonHero);
     }
 
+    for (auto& val : mVideoTicks) {
+        Save["mVideoTicks"].push_back(val);
+    }
+
     return Save.dump(-1);
 }
 
@@ -286,6 +303,11 @@ bool sGameRecorded::FromJson(const std::string& pJson) {
 
                 mState.insert(mState.end(), std::make_pair( Ticks, StateRecorded ));
             }
+
+            for (auto& val : LoadedData["mVideoTicks"]) {
+                mVideoTicks.push_back(val);
+            }
+
         }
         catch (std::exception Exception) {
             std::cout << "sGameRecorded: V1 Elements not found: " << Exception.what() << "\n";

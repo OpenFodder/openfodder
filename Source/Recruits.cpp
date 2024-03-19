@@ -1282,6 +1282,13 @@ bool cFodder::Recruit_Loop() {
 
     mMouse_Exit_Loop = false;
 
+    mInterruptCallback = [this]() {
+        Recruit_Cycle();
+
+        if (mMouseCursor_Enabled)
+            Mouse_DrawCursor();
+    };
+
     for (;; ) {
         if (mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
@@ -1293,8 +1300,6 @@ bool cFodder::Recruit_Loop() {
         if (mPhase_Aborted)
             break;
 
-        Recruit_Cycle();
-
         Video_Sleep();
     }
 
@@ -1305,13 +1310,19 @@ bool cFodder::Recruit_Loop() {
 
     mSurface->paletteNew_SetToBlack();
 
-    while (mSurface->isPaletteAdjusting()) {
+    mInterruptCallback = [this]() {
         Recruit_Cycle();
 
+        if (mMouseCursor_Enabled)
+            Mouse_DrawCursor();
+    };
+
+    while (mSurface->isPaletteAdjusting()) {
+
         Video_Sleep();
-//        Video_SurfaceRender();
-//        Cycle_End();
     }
+
+    mInterruptCallback = nullptr;
 
     return mPhase_Aborted;
 }

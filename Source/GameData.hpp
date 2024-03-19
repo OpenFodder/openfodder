@@ -125,6 +125,7 @@ struct sGameRecorded {
 
     std::multimap< uint64, cEvent > mEvents;
     std::map< uint64, cStateRecorded > mState;
+    std::vector< uint64 > mVideoTicks;
 
     sGameRecorded();
     void AddEvent(const uint64 pTicks, const cEvent& pEvent);
@@ -132,6 +133,9 @@ struct sGameRecorded {
 
     void AddState(const uint64 pTicks, const cStateRecorded& pEvent);
     cStateRecorded* GetState(const uint64 pTicks);
+
+    void AddVideoTick(const uint64 pTick);
+    bool GetVideoTick(const uint64 pTick);
 
     void DisableTicks();
     void EnableTicks();

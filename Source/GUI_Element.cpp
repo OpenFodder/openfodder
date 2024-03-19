@@ -1243,9 +1243,6 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
         if (mShow)
             GUI_Draw_Frame_8(PLATFORM_BASED(0x0F, 0x18), 0x00, mGUI_Temp_X + mGUI_Temp_Width, 0x50);
 
-        Mouse_Inputs_Get();
-        Mouse_DrawCursor();
-
         if (mPhase_Aborted)
             GUI_Button_Load_Exit();
 

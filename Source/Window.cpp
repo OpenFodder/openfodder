@@ -67,7 +67,12 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		return false;
 	}
 
-	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+	size_t flags = SDL_RENDERER_ACCELERATED;
+
+	if (!g_Fodder->mParams->mUnitTesting || g_Fodder->mParams->mDemoRecord)
+		flags |= SDL_RENDERER_PRESENTVSYNC;
+
+	mRenderer = SDL_CreateRenderer(mWindow, -1, flags );
 	if (!mRenderer) {
         g_Debugger->Error("Failed to create rendered");
 		exit( 1 );

@@ -138,7 +138,7 @@ void sFodderParameters::PrepareOptions() {
 		("cheats", "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
 		("max-sprite", "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
 		("max-spawn", "Set the maximum spawn", cxxopts::value<std::uint32_t>()->default_value("10"), "10")
-		("sleep-delta", "Set the engine speed", cxxopts::value<std::uint32_t>()->default_value("2"), "2")
+		("sleep-delta", "Set the engine speed", cxxopts::value<std::uint32_t>()->default_value("20"), "20")
 
 		("demo-record", "Record Demo", cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
 		("demo-record-all", "Record Demo")
