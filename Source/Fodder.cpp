@@ -643,7 +643,7 @@ void cFodder::Interrupt_Sim() {
                 SDL_Delay(1);
             }
 
-            if(mParams->mDemoRecord)
+            if(mParams->mDemoPlayback || mParams->mDemoRecord)
                 mGame_Data.mDemoRecorded.Tick();
         }
         else {
