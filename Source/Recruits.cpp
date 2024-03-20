@@ -1303,10 +1303,7 @@ bool cFodder::Recruit_Loop() {
         if (mPhase_Aborted)
             break;
 
-        mSurface->copyFrom(mSurfaceRecruit);
-        Video_Sleep(0, false, false);
-        mSurface->copyFrom(mSurfaceRecruit);
-        Video_Sleep(0, false, false);
+        Video_Sleep(0, false, false);        
     }
 
     mRecruit_Screen_Active = false;
@@ -2076,6 +2073,9 @@ void cFodder::Recruit_Cycle() {
 
     if (mVersionCurrent->isPC())
         mGraphics->Recruit_Draw_HomeAway();
+
+    if (mMouseCursor_Enabled)
+        Mouse_DrawCursor();
 
     if (mSurface->isPaletteAdjusting())
         mSurface->palette_FadeTowardNew();

@@ -122,7 +122,6 @@ bool cWindow::Cycle() {
 }
 
 void cWindow::EventCheck() {
-
 	SDL_Event SysEvent;
 	
 	while (SDL_PollEvent(&SysEvent)) {
@@ -201,6 +200,13 @@ void cWindow::EventCheck() {
 			break;
 
 		case SDL_MOUSEMOTION:
+			if (SysEvent.motion.xrel < -100 || 
+				SysEvent.motion.yrel < -100 || 
+				SysEvent.motion.xrel > 100 || 
+				SysEvent.motion.yrel > 100) {
+				break;
+			}
+
 			Event.mType = eEvent_MouseMove;
 			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
 			Event.mPositionRelative = cPosition(SysEvent.motion.xrel, SysEvent.motion.yrel);

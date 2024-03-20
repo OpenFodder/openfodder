@@ -745,7 +745,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     mCamera_Scroll_Speed = CAMERA_TOWARD_SQUAD_SPEED;
 
     // Mouse near sidebar?
-    if (mMouseX <= 30) {
+    if (mMouseX <= 0x0F) {
 
         if (mCamera_Panning_ToTarget) {
 
@@ -2340,7 +2340,7 @@ void cFodder::Camera_Update_Mouse_Position_For_Pan() {
     if (!mMouse_Locked) {
 
         // Mouse in playfield?
-        if (mMouseX > 30) {
+        if (mMouseX > 0x0F) {
             mMouseX -= (mCameraX >> 16) - mCamera_TileX;
             mMouseY -= (mCameraY >> 16) - mCamera_TileY;
         }
@@ -3233,7 +3233,7 @@ void cFodder::Mouse_Cursor_Handle() {
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
 
-        if (!mWindow_Focus) {
+        if (!mWindow_Focus && mWindow->isMouseInside()) {
             // Register mouse position even when not focused but cursor on window
             mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
             mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
@@ -3241,7 +3241,7 @@ void cFodder::Mouse_Cursor_Handle() {
         
         // Check if the system cursor x/y is inside our window
         // and ensure the mouse button has been released before we focus
-        if (mWindow_Focus && mWindow->isMouseInside() && !mWindow->isMouseButtonPressed_Global()) {
+        if (mWindow_Focus && mWindow->isMouseInside() && !mMouseButtonStatus) {
             WasClicked = true;
             CursorGrabbed = true;
             

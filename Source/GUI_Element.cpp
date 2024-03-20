@@ -1255,6 +1255,8 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
         if (mGUI_Select_File_String_Input_Callback)
             (this->*mGUI_Select_File_String_Input_Callback)(0x50);
 
+        Mouse_DrawCursor();
+
         Video_Sleep();
 
     } while (mGUI_SaveLoadAction <= 0);
