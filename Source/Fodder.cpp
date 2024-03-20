@@ -252,6 +252,8 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
 
     mSprite_SheetPtr = 0;
 
+    mWindow_Focus = false;
+
     Sprite_Clear_All();
 
     Phase_EngineReset();
@@ -3005,6 +3007,10 @@ void cFodder::Map_Overview_Prepare() {
 void cFodder::eventProcess(const cEvent& pEvent) {
     switch (pEvent.mType) {
 
+    case eEvent_Focus:
+        mWindow_Focus = pEvent.mHasFocus;
+        break;
+
     case eEvent_KeyDown:
         keyProcess(pEvent.mButton, false);
         break;
@@ -3210,8 +3216,11 @@ void cFodder::Mouse_Cursor_Handle() {
     static bool CursorGrabbed = true;
 
 	mMouseButtonStatus = mMouse_EventLastButtonsPressed;
+    if (mMouseButtonStatus) {
+        mMouseButtonStatus = mMouseButtonStatus;
+    }
 
-    if (!mWindow->hasFocusEvent() && CursorGrabbed) {
+    if (!mWindow_Focus && CursorGrabbed) {
         CursorGrabbed = false;
     }
 
@@ -3224,7 +3233,7 @@ void cFodder::Mouse_Cursor_Handle() {
     // Check if the system mouse is grabbed
     if (!CursorGrabbed) {
 
-        if (!mWindow->hasFocusEvent() || mWindow->isMouseInside()) {
+        if (!mWindow_Focus) {
             // Register mouse position even when not focused but cursor on window
             mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
             mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
@@ -3232,10 +3241,10 @@ void cFodder::Mouse_Cursor_Handle() {
         
         // Check if the system cursor x/y is inside our window
         // and ensure the mouse button has been released before we focus
-        if (mWindow->hasFocusEvent() && mWindow->isMouseInside() && !mWindow->isMouseButtonPressed_Global()) {
+        if (mWindow_Focus && mWindow->isMouseInside() && !mWindow->isMouseButtonPressed_Global()) {
             WasClicked = true;
             CursorGrabbed = true;
-
+            
             if (!mWindow->isFullscreen()) {
                 // Ensure X not too close to a border
                 if (mInputMouseX <= MOUSE_POSITION_X_ADJUST)
@@ -3262,7 +3271,6 @@ void cFodder::Mouse_Cursor_Handle() {
 
                     mWindow->SetRelativeMouseMode(false);
                     mWindow->SetMousePosition(BorderMouse);
-                    //mWindow->clearFocus();
                     return;
                 }
             }
@@ -3281,7 +3289,6 @@ void cFodder::Mouse_Cursor_Handle() {
                 mInputMouseX = mMouseX + static_cast<int16>(mMouse_EventLastPositionRelative.mX);
                 mInputMouseY = mMouseY + static_cast<int16>(mMouse_EventLastPositionRelative.mY);
                 mMouse_EventLastPositionRelative = { 0,0 };
-                
             }
         }
 
@@ -3655,6 +3662,7 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     mSurface = new cSurface( getSurfaceSize() );
     mSurface2 = new cSurface(getSurfaceSize() );
+    mSurfaceRecruit = new cSurface(getSurfaceSize());
 
 	Sprite_Clear_All();
 
@@ -4485,7 +4493,8 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
         mPhase_InterruptTicks = 0;
         Mission_Sprites_Handle();
         Sound_Tick();
-        mInterruptCallback();
+        if(mInterruptCallback)
+            mInterruptCallback();
     }
 
 	if (mSurface->isPaletteAdjusting())
@@ -9629,6 +9638,11 @@ void cFodder::Menu_Loop(const std::function<void()> pButtonHandler) {
     mGraphics->PaletteSet();
     mSurface->palette_FadeTowardNew();
 
+    mInterruptCallback = [this]() {
+
+        Mouse_DrawCursor();
+    };
+
     for (;;) {
 
         Video_Sleep();
@@ -9637,6 +9651,7 @@ void cFodder::Menu_Loop(const std::function<void()> pButtonHandler) {
             break;
     }
 
+    mInterruptCallback = nullptr;
     Image_FadeOut();
     mSurface->clearBuffer();
 }

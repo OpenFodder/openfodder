@@ -61,6 +61,15 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = std::make_shared<std::vector<uint8>>();
 
     SetCursorPalette(0xE0);
+
+	Heli_VeryBack = 0;
+	Heli_Back = 0;
+	Heli_middle = 0;
+	Heli_Front = 0;
+
+	word_3292 = 0;
+	word_32D2 = 0;
+	word_3316 = 0;
 }
 
 cGraphics_Amiga::~cGraphics_Amiga() {
@@ -944,8 +953,8 @@ void cGraphics_Amiga::Video_Draw_8_Alt(const uint8* RowPalette) {
 	uint8* di = mSurface->GetSurfaceBuffer();
 	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
 
-	int screenWidth = mSurface->GetWidth();
-	int screenHeight = mSurface->GetHeight();
+	int screenWidth = (int) mSurface->GetWidth();
+	int screenHeight = (int) mSurface->GetHeight();
 
 	// Adjust start position
 	di += screenWidth * mFodder->mVideo_Draw_PosY;
@@ -1443,7 +1452,7 @@ void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD
 }
 
 void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSourceX, uint16 pSourceY, uint16 pX, uint16 pY) {
-	uint8	Planes[5];
+	uint8	Planes[5] = { 0, 0, 0, 0, 0 };
 
 	pSource += (pSourceX / 8);
 	pSource += (pSourceY * 40);
@@ -1517,10 +1526,6 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination, const 
 
 void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTileTypes pTileset) {
 
-	int16 word_4286F = 0;
-	int16 word_42871 = 0;
-	int16 word_42873 = 0;
-	int16 word_42875 = 0;
 	int16 BladeFrame = 0;
 	static int16 mouseCheck = 0;
 
@@ -1531,20 +1536,25 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 	mFodder->mVideo_Draw_PosX = 16;
 
 	do {
+		Briefing_Helicopter_Background_Unk();
+
 		if (mSurface->isPaletteAdjusting())
 			mSurface->palette_FadeTowardNew();
 
+		mFodder->Briefing_Helicopter_Check();
+		Briefing_Helicopter_Background_Unk_1();
+
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING);
 		mFodder->mVideo_Draw_PosY = 40;
-		Video_Draw_16_Offset(word_42875);
+		Video_Draw_16_Offset(320 - (Heli_VeryBack >> 16));
 
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_1);
 		mFodder->mVideo_Draw_PosY = 60;
-		Video_Draw_16_Offset(word_42873);
+		Video_Draw_16_Offset(320 - (Heli_Back >> 16));
 
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_2);
 		mFodder->mVideo_Draw_PosY = 100;
-		Video_Draw_16_Offset(word_42871);
+		Video_Draw_16_Offset(320 - (Heli_middle >> 16));
 
         if (pShowHelicopter) {
             // Front
@@ -1573,29 +1583,8 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);
 		mFodder->mVideo_Draw_PosY = 163;
-		Video_Draw_16_Offset(word_4286F);
-		
-		// Front
-		word_4286F += 4;
-		if (word_4286F >= 320)
-			word_4286F = 0;
+		Video_Draw_16_Offset(320 - (Heli_Front >> 16));
 
-		// Middle
-		word_42871 += 3;
-		if (word_42871 >= 320)
-			word_42871 = 0;
-
-		// Back
-		word_42873 += 2;
-		if (word_42873 >= 320)
-			word_42873 = 0;
-
-		// Very Back
-		++word_42875;
-		if (word_42875 >= 320)
-			word_42875 = 0;
-
-		mFodder->Briefing_Helicopter_Check();
 		mFodder->Video_Sleep(0, false, true);
 
 		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
@@ -1608,4 +1597,86 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 
 	mFodder->mMouse_Exit_Loop = false;
+}
+
+
+void cGraphics_Amiga::Briefing_Helicopter_Background_Unk() {
+	uint16_t d0, d1, d2;
+
+	//d0 = Briefing_Helicopter_TextPos & 0x0F;
+	//d0 = d0 ^ 0x0F;
+	//word_3252 = d0;
+
+	d0 = Heli_VeryBack & 0x0F;
+	d0 = d0 ^ 0x0F;
+	word_3292 = d0;
+
+	d0 = Heli_Back & 0x0F;
+	d0 = d0 ^ 0x0F;
+	d0 = d0 << 4;
+	word_3292 |= d0;
+
+	d1 = d0;
+
+	d0 = Heli_middle & 0x0F;
+	d0 = d0 ^ 0x0F;
+	d2 = d0;
+
+	d0 |= d1;
+	word_32D2 = d0;
+
+	d0 = Heli_Front & 0x0F;
+	d0 = d0 ^ 0x0F;
+	d0 = d0 << 4;
+
+	d0 |= d2;
+	word_3316 = d0;
+
+	//d0 = word_826C4 & 0x0F;
+	d0 = d0 ^ 0x0F;
+	//word_335A = d0;
+}
+
+
+void cGraphics_Amiga::Briefing_Helicopter_Background_Unk_1() {
+	int32 dword_826C8 = 0x8000;
+	int32 d0 = 0;
+
+	/*if (Briefing_Helicopter_TextPos == 0x0C) {
+		goto loc_A7A88;
+	}
+
+	Briefing_Helicopter_TextPos -= 4;
+
+	if (Briefing_Helicopter_TextPos > 0x0C) {
+		goto loc_A7A88;
+	}
+
+	Briefing_Helicopter_TextPos = 0x0C;
+	
+loc_A7A88:
+	uint16_t d0 = 344 - Briefing_Helicopter_TextPos;
+	word_826C4 = d0;
+	*/
+	d0 = dword_826C8;
+
+	Heli_VeryBack -= d0;
+	if ((int32_t)Heli_VeryBack < 0)
+		Heli_VeryBack += 320 << 16;
+
+	d0 <<= 1;
+	Heli_Back -= d0;
+	if ((int32_t)Heli_Back < 0)
+		Heli_Back += 320 << 16;
+
+	d0 <<= 1;
+	Heli_middle -= d0;
+	if ((int32_t)Heli_middle < 0)
+		Heli_middle += 320 << 16;
+
+	d0 <<= 1;
+	Heli_Front -= d0;
+	if ((int32_t)Heli_Front < 0) {
+		Heli_Front += 320 << 16;
+	}
 }

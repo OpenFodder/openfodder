@@ -31,6 +31,7 @@ enum eEventType {
 	eEvent_MouseRightUp		= 7,
 	eEvent_MouseWheel		= 8,
 	eEvent_Quit				= 10,
+	eEvent_Focus			= 11,
 };
 
 class cEvent {
@@ -42,6 +43,7 @@ class cEvent {
 
 		cPosition			mPosition;
 		cPosition			mPositionRelative;
+		bool				mHasFocus;
 
 	public:
 							cEvent( const eEventType& pType = eEvent_None );

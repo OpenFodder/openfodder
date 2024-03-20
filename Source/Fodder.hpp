@@ -130,7 +130,7 @@ public:
     cSurface*       mSurfaceMapOverview;
     cSurface*       mSurface;
     cSurface*       mSurface2;
-    cSurface*       mSurfaceFinal;
+    cSurface*       mSurfaceRecruit;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
     std::mutex      mSurfaceMtx;
@@ -171,6 +171,7 @@ public:
     uint32          mMouse_EventLastButtonsPressed;
     cPosition       mMouse_EventLastWheel;
     bool            mMouse_Locked;
+    bool            mWindow_Focus;
 
     bool            mSquad_Member_Fire_CoolDown_Override;
 

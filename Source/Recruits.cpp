@@ -1282,14 +1282,17 @@ bool cFodder::Recruit_Loop() {
 
     mMouse_Exit_Loop = false;
 
+    mSurfaceRecruit->copyFrom(mSurface);
     mInterruptCallback = [this]() {
-        Recruit_Cycle();
-
+        
         if (mMouseCursor_Enabled)
             Mouse_DrawCursor();
+
     };
 
     for (;; ) {
+        Recruit_Cycle();
+
         if (mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
 
@@ -1300,7 +1303,10 @@ bool cFodder::Recruit_Loop() {
         if (mPhase_Aborted)
             break;
 
-        Video_Sleep();
+        mSurface->copyFrom(mSurfaceRecruit);
+        Video_Sleep(0, false, false);
+        mSurface->copyFrom(mSurfaceRecruit);
+        Video_Sleep(0, false, false);
     }
 
     mRecruit_Screen_Active = false;
@@ -2073,6 +2079,8 @@ void cFodder::Recruit_Cycle() {
 
     if (mSurface->isPaletteAdjusting())
         mSurface->palette_FadeTowardNew();
+
+    mSurfaceRecruit->copyFrom(mSurface);
 }
 
 bool cFodder::Recruit_Check_Buttons_SaveLoad() {

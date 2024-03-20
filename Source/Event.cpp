@@ -24,6 +24,7 @@
 
 cEvent::cEvent( const eEventType& pType ) {
 
+	mHasFocus = false;
 	mType = pType;
 	mButton = 0;
 	mButtonCount = 0;

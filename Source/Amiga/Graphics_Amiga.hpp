@@ -46,6 +46,14 @@ struct sStruct0_Amiga {
 
 class cGraphics_Amiga : public cGraphics {
 protected:
+	int32 Heli_VeryBack;
+	int32 Heli_Back;
+	int32 Heli_middle;
+	int32 Heli_Front;
+
+	int16 word_3292;
+	int16 word_32D2;
+	int16 word_3316;
 
 	tSharedBuffer 		mBlkData;
 
@@ -109,6 +117,8 @@ protected:
 	virtual void		Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset);
 	virtual void		Mission_Intro_Load_Resources(const eTileTypes pTileset);
 	virtual void		Mission_Intro_DrawHelicopter( uint16 pID );
+	virtual void		Briefing_Helicopter_Background_Unk();
+	virtual void		Briefing_Helicopter_Background_Unk_1();
 
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();

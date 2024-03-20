@@ -134,10 +134,14 @@ void cWindow::EventCheck() {
 
 			switch (SysEvent.window.event) {
 			case SDL_WINDOWEVENT_FOCUS_LOST:
+				Event.mType = eEvent_Focus;
+				Event.mHasFocus = false;
 				mHasFocus = false;
 				break;
 
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
+				Event.mType = eEvent_Focus;
+				Event.mHasFocus = true;
 				mHasFocus = true;
 				break;
 			}
@@ -533,13 +537,6 @@ int32 cWindow::GetWindowWidth() const {
 
 int32 cWindow::GetWindowHeight() const {
 	return mOriginalResolution.mHeight * mScaler;
-}
-
-bool cWindow::HasFocus() {
-    if (SDL_GetWindowFlags(mWindow) & SDL_WINDOW_MOUSE_FOCUS)
-        return true;
-
-    return false;
 }
 
 cDimension cWindow::GetScale() const {
