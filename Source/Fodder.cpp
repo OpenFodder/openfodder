@@ -559,7 +559,7 @@ int16 cFodder::Phase_Loop() {
             }
 
             while (!mVideo_Ticked && !mExit) {
-                SDL_Delay(1);
+                SDL_Delay(0);
             }
         }
     }
@@ -640,7 +640,7 @@ void cFodder::Interrupt_Sim() {
 
             // wait for video_sleep call to finish
             while (!mVideo_Done && !mExit) {
-                SDL_Delay(1);
+                SDL_Delay(g_Fodder->mParams->mSleepDelta == 0 ? 0 : 1);
             }
 
             if(mParams->mDemoPlayback || mParams->mDemoRecord)
@@ -4092,6 +4092,27 @@ void cFodder::Mission_Intro_Draw_Mission_Name() {
         Mission_Intro_Draw_OpenFodder();
     else
         Briefing_Draw_Mission_Title(0xB5);
+}
+
+std::string cFodder::Briefing_Get_Mission_Title() {
+    std::stringstream Mission;
+
+    if (mGame_Data.mMission_Number == 0) {
+        Mission << "OPEN FODDER";
+    }
+    else {
+        Mission << "MISSION ";
+        Mission << tool_StripLeadingZero(std::to_string(mGame_Data.mMission_Number));
+    }
+
+    return Mission.str();
+}
+
+std::string cFodder::Briefing_Get_Phase_Name() {
+    if (mGame_Data.mMission_Number == 0)
+        return "";
+
+    return mGame_Data.mMission_Current->GetName();
 }
 
 /**
@@ -16701,7 +16722,7 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter, eTileTypes pTileset
     Music_Play(0x07);
     Mission_Intro_Helicopter_Start();
 
-    Mission_Intro_Draw_Mission_Name();
+    //Mission_Intro_Draw_Mission_Name();
     mSurface->Save();
 
 	// Prior to mission 4, the UFO is not shown on the mission intro
@@ -16709,9 +16730,8 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter, eTileTypes pTileset
     if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4 && !pShowHelicopter)
         ShowHelicopter = false;
 
-	
     mVersionPlatformSwitchDisabled = true;
-    mGraphics->Mission_Intro_Play(ShowHelicopter, pTileset);
+    mGraphics->Mission_Intro_Play(ShowHelicopter, pTileset, Briefing_Get_Mission_Title(), Briefing_Get_Phase_Name());
     mVersionPlatformSwitchDisabled = false;
 }
 

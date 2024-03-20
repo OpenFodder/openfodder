@@ -784,6 +784,10 @@ public:
 
 
 	void            Briefing_Update_Helicopter();
+    
+    std::string     Briefing_Get_Mission_Title();
+    std::string     Briefing_Get_Phase_Name();
+
 	void            Briefing_Draw_Mission_Title(int16 pDrawAtY);
 
     void            Briefing_Draw_Phase();

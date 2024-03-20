@@ -803,7 +803,7 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 	return true;
 }
 
-void cGraphics_PC::Mission_Intro_Play(const bool pShowHelicopter, const eTileTypes pTileset) {
+void cGraphics_PC::Mission_Intro_Play(const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom) {
 
 	switch (pTileset) {
 	case eTileTypes_Jungle:
@@ -811,7 +811,7 @@ void cGraphics_PC::Mission_Intro_Play(const bool pShowHelicopter, const eTileTyp
     case eTileTypes_Ice:
 	case eTileTypes_Moors:
 	case eTileTypes_Int:
-        Mission_Intro(BackgroundPositions[pTileset], pShowHelicopter);
+        Mission_Intro(BackgroundPositions[pTileset], pShowHelicopter, pTop, pBottom);
 
     default:
         return;
@@ -943,7 +943,7 @@ void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
 	}
 }
 
-void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter) {
+void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter, const std::string pTop, const std::string pBottom) {
 	
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;

@@ -88,8 +88,8 @@ class cGraphics_PC : public cGraphics {
 	virtual void		Mission_Intro_Load_Resources(const eTileTypes pTileset);
 	virtual void		Mission_Intro_DrawHelicopter( uint16 );
 
-	virtual void		Mission_Intro_Play( const bool pShowHelicopter,const eTileTypes pTileset);
-	void				Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter );
+	virtual void		Mission_Intro_Play( const bool pShowHelicopter,const eTileTypes pTileset, const std::string pTop, const std::string pBottom);
+	void				Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter, const std::string pTop, const std::string pBottom);
 
 	void				Mission_Intro_Render_2(tSharedBuffer pDs, int16 pCx);
 	void				Mission_Intro_Render_1(tSharedBuffer pDs, int16 pCx);

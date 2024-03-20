@@ -50,6 +50,8 @@ protected:
 	int32 Heli_Back;
 	int32 Heli_middle;
 	int32 Heli_Front;
+	int32 Heli_TextPos;
+	int32 Heli_TextPosBottom;
 
 	int16 word_3292;
 	int16 word_32D2;
@@ -112,9 +114,9 @@ protected:
 	virtual void		Recruit_Sprite_Draw(int16 pRows, int16 pColumns, int16 pData8, int16 pData10, int16 pData14, int16 pDataC, uint8* pData20 );
 
 	virtual bool		Sprite_OnScreen_Check(  );
-	virtual bool		Sprite_OnScreen_Check( bool p16bit = false );
+	virtual bool		Sprite_OnScreen_Check(bool p16bit = false);
 
-	virtual void		Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset);
+	virtual void		Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom);
 	virtual void		Mission_Intro_Load_Resources(const eTileTypes pTileset);
 	virtual void		Mission_Intro_DrawHelicopter( uint16 pID );
 	virtual void		Briefing_Helicopter_Background_Unk();

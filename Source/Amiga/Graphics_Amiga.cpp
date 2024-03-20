@@ -60,7 +60,7 @@ const sStruct0_Amiga stru_A918A[] = {
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = std::make_shared<std::vector<uint8>>();
 
-    SetCursorPalette(0xE0);
+	SetCursorPalette(0xE0);
 
 	Heli_VeryBack = 0;
 	Heli_Back = 0;
@@ -76,7 +76,7 @@ cGraphics_Amiga::~cGraphics_Amiga() {
 
 }
 
-uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
+uint8* cGraphics_Amiga::GetSpriteData(uint16 pSegment) {
 
 	switch (pSegment) {
 	case eGFX_IN_GAME:
@@ -89,7 +89,7 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		mFodder->mVideo_Draw_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_InGame2.GetHeader();
 		return mSpriteSheet_InGame2.mData->data();
-	
+
 	case eGFX_RANKFONT:
 		mFodder->mVideo_Draw_PaletteIndex = 0;
 		mBMHD_Current = mSpriteSheet_RankFont.GetHeader();
@@ -97,14 +97,14 @@ uint8* cGraphics_Amiga::GetSpriteData( uint16 pSegment ) {
 		return mSpriteSheet_RankFont.mData->data();
 
 	case eGFX_PSTUFF:
-		if (mFodder->mVersionCurrent->isAmigaXmas() || mFodder->mVersionCurrent->isAmigaNotVeryFestive() || mFodder->mVersionCurrent->isAmigaAlienLevels() )
+		if (mFodder->mVersionCurrent->isAmigaXmas() || mFodder->mVersionCurrent->isAmigaNotVeryFestive() || mFodder->mVersionCurrent->isAmigaAlienLevels())
 			mFodder->mVideo_Draw_PaletteIndex = (uint8)mCursorPalette;
-        else
+		else
 			mFodder->mVideo_Draw_PaletteIndex = 0xE0;
 
 		mBMHD_Current = mImagePStuff.GetHeader();
 		return mImagePStuff.mData->data();
-	
+
 	case eGFX_RECRUIT:
 		mFodder->mVideo_Draw_PaletteIndex = 0xD0;
 		mBMHD_Current = mImageHillBackground.GetHeader();
@@ -178,105 +178,105 @@ void cGraphics_Amiga::Mouse_DrawCursor() {
 
 bool cGraphics_Amiga::Sprite_OnScreen_Check() {
 
-	return Sprite_OnScreen_Check( false );
+	return Sprite_OnScreen_Check(false);
 }
 
-bool cGraphics_Amiga::Sprite_OnScreen_Check( bool p16bit ) {
-    int16 ax;
-    int16 drawColumns;
+bool cGraphics_Amiga::Sprite_OnScreen_Check(bool p16bit) {
+	int16 ax;
+	int16 drawColumns;
 
-    if (p16bit)
-        drawColumns = (mFodder->mVideo_Draw_Columns);
-    else
-        drawColumns = (mFodder->mVideo_Draw_Columns << 3);
+	if (p16bit)
+		drawColumns = (mFodder->mVideo_Draw_Columns);
+	else
+		drawColumns = (mFodder->mVideo_Draw_Columns << 3);
 
-    if (mFodder->mVideo_Draw_PosY < 0) {
-        ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-        --ax;
-        if (ax < 0)
-            return false;
+	if (mFodder->mVideo_Draw_PosY < 0) {
+		ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
+		--ax;
+		if (ax < 0)
+			return false;
 
-        ax -= 0;
-        ax -= mFodder->mVideo_Draw_Rows;
-        ++ax;
-        ax = -ax;
-        mFodder->mVideo_Draw_PosY += ax;
-        mFodder->mVideo_Draw_Rows -= ax;
+		ax -= 0;
+		ax -= mFodder->mVideo_Draw_Rows;
+		++ax;
+		ax = -ax;
+		mFodder->mVideo_Draw_PosY += ax;
+		mFodder->mVideo_Draw_Rows -= ax;
 
-        ax *= 40;
+		ax *= 40;
 
-        mFodder->mVideo_Draw_FrameDataPtr += ax;
-    }
+		mFodder->mVideo_Draw_FrameDataPtr += ax;
+	}
 
-    ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-    --ax;
+	ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
+	--ax;
 
-    auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
-    if (ax > maxHeight) {
-        if (mFodder->mVideo_Draw_PosY > maxHeight)
-            return false;
+	auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
+	if (ax > maxHeight) {
+		if (mFodder->mVideo_Draw_PosY > maxHeight)
+			return false;
 
-        ax -= maxHeight;
-        mFodder->mVideo_Draw_Rows -= ax;
-    }
+		ax -= maxHeight;
+		mFodder->mVideo_Draw_Rows -= ax;
+	}
 
-    if (mFodder->mVideo_Draw_PosX < 0) {
+	if (mFodder->mVideo_Draw_PosX < 0) {
 
-        ax = mFodder->mVideo_Draw_PosX + drawColumns;
-        --ax;
-        if (ax < 0)
-            return false;
+		ax = mFodder->mVideo_Draw_PosX + drawColumns;
+		--ax;
+		if (ax < 0)
+			return false;
 
-        ax -= drawColumns;
-        ++ax;
-        ax = -ax;
-        --ax;
+		ax -= drawColumns;
+		++ax;
+		ax = -ax;
+		--ax;
 
-        drawColumns -= ax;
+		drawColumns -= ax;
 
-        if (!p16bit) {
-            ax >>= 1;
-            mFodder->mVideo_Draw_PosX += (ax << 1);
-            mFodder->mVideo_Draw_Columns -= (ax << 1);
-        }
-        else {
-            ax >>= 3;
-            mFodder->mVideo_Draw_PosX += (ax << 3);
-            mFodder->mVideo_Draw_Columns -= (ax << 3);
-        }
+		if (!p16bit) {
+			ax >>= 1;
+			mFodder->mVideo_Draw_PosX += (ax << 1);
+			mFodder->mVideo_Draw_Columns -= (ax << 1);
+		}
+		else {
+			ax >>= 3;
+			mFodder->mVideo_Draw_PosX += (ax << 3);
+			mFodder->mVideo_Draw_Columns -= (ax << 3);
+		}
 
-        mFodder->mVideo_Draw_FrameDataPtr += ax;
-    }
+		mFodder->mVideo_Draw_FrameDataPtr += ax;
+	}
 
-    ax = mFodder->mVideo_Draw_PosX + drawColumns;
-    --ax;
+	ax = mFodder->mVideo_Draw_PosX + drawColumns;
+	--ax;
 
-    int16 maxWindowX = mFodder->getWindowWidth() + 31; // 351
+	int16 maxWindowX = mFodder->getWindowWidth() + 31; // 351
 
-    if (ax > maxWindowX) {
-        if (mFodder->mVideo_Draw_PosX > maxWindowX)
-            return false;
+	if (ax > maxWindowX) {
+		if (mFodder->mVideo_Draw_PosX > maxWindowX)
+			return false;
 
-        ax -= maxWindowX;
-        --ax;
+		ax -= maxWindowX;
+		--ax;
 
-        do {
-            ++ax;
-        } while (ax & 8);
+		do {
+			++ax;
+		} while (ax & 8);
 
-        mFodder->mVideo_Draw_Columns -= (ax >> 3);
-    }
+		mFodder->mVideo_Draw_Columns -= (ax >> 3);
+	}
 
-    if (mFodder->mVideo_Draw_Columns <= 0)
-        return false;
+	if (mFodder->mVideo_Draw_Columns <= 0)
+		return false;
 
-    if (mFodder->mVideo_Draw_Rows <= 0)
-        return false;
+	if (mFodder->mVideo_Draw_Rows <= 0)
+		return false;
 
-    return true;
+	return true;
 }
 
-void cGraphics_Amiga::Mission_Intro_DrawHelicopter( uint16 pID ) {
+void cGraphics_Amiga::Mission_Intro_DrawHelicopter(uint16 pID) {
 	const sSpriteSheet_pstuff* di = &mSpriteSheet_PStuff[pID];
 
 	mFodder->mVideo_Draw_Columns = di->mColumns;
@@ -297,10 +297,10 @@ void cGraphics_Amiga::Mission_Intro_DrawHelicopter( uint16 pID ) {
 		mFodder->mVideo_Draw_Rows++;
 	}
 
-	if (Sprite_OnScreen_Check( true )) {
+	if (Sprite_OnScreen_Check(true)) {
 		mFodder->mVideo_Draw_Columns >>= 3;
 		mFodder->mVideo_Draw_PosY += 16;
-        Video_Draw_8_Alt();
+		Video_Draw_8_Alt();
 	}
 }
 
@@ -317,7 +317,7 @@ void cGraphics_Amiga::Load_Hill_Data() {
 	if (!mImageHillBackground.mData->size())
 		return;
 
-	mImageHillBackground.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() *(mImageHillBackground.GetHeader()->mPlanes + 30));
+	mImageHillBackground.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() * (mImageHillBackground.GetHeader()->mPlanes + 30));
 
 	// We increase these buffers because the engine still writes to it
 	mImageHillSprites = Decode_Image("hills", 64);
@@ -355,9 +355,9 @@ void cGraphics_Amiga::Load_Hill_Data() {
 
 void cGraphics_Amiga::Load_Sprite_Font() {
 
-	mImageFonts.mData = g_Resource->fileGet( "FONT.RAW" );
-    if (!mImageFonts.mData->size())
-        return;
+	mImageFonts.mData = g_Resource->fileGet("FONT.RAW");
+	if (!mImageFonts.mData->size())
+		return;
 
 	// Load the palette
 	mImageFonts.LoadPalette_Amiga(mImageFonts.mData->data(), 16);
@@ -371,7 +371,7 @@ void cGraphics_Amiga::Load_Sprite_Font() {
 	mImageFonts.mDimension.mHeight = 0x100;
 	mImageFonts.mPlanes = 4;
 
-	SetActiveSpriteSheet( eGFX_FONT );
+	SetActiveSpriteSheet(eGFX_FONT);
 }
 
 sImage cGraphics_Amiga::Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset, const size_t pStartIndex) {
@@ -390,23 +390,23 @@ void cGraphics_Amiga::Load_Service_Data() {
 	mSpriteSheet_RankFont = DecodeIFF("rankfont.lbm");
 }
 
-void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, size_t pBackColor) {
+void cGraphics_Amiga::Load_And_Draw_Image(const std::string& pFilename, unsigned int pColors, size_t pBackColor) {
 	std::string	Filename = pFilename;
 
-	if (Filename.find( '.' ) == std::string::npos)
-		Filename.append( ".raw" );
+	if (Filename.find('.') == std::string::npos)
+		Filename.append(".raw");
 
 	// Try it as an IFF
-	auto Decoded = DecodeIFF( Filename );
+	auto Decoded = DecodeIFF(Filename);
 
 	// Did we decode an IFF?
 	if (!Decoded.mData->size()) {
 
 		// No, treat as a raw file
-		Decoded.mData = g_Resource->fileGet( Filename );
+		Decoded.mData = g_Resource->fileGet(Filename);
 
-        if (!Decoded.mData->size())
-            return;
+		if (!Decoded.mData->size())
+			return;
 
 		// Calculate planes based on file size
 		if (Decoded.mData->size() == 51464)
@@ -443,80 +443,80 @@ void cGraphics_Amiga::Load_And_Draw_Image( const std::string &pFilename, unsigne
 	mBMHD_Current = 0;
 }
 
-void cGraphics_Amiga::PaletteLoad( const uint8  *pBuffer, uint32 pColorID, uint32 pColors ) {
+void cGraphics_Amiga::PaletteLoad(const uint8* pBuffer, uint32 pColorID, uint32 pColors) {
 
 }
 
-void cGraphics_Amiga::SetCursorPalette( uint16 pIndex ) {
+void cGraphics_Amiga::SetCursorPalette(uint16 pIndex) {
 	mCursorPalette = pIndex;
 }
 
-void cGraphics_Amiga::SetActiveSpriteSheet(eGFX_Types pSpriteType ) {
+void cGraphics_Amiga::SetActiveSpriteSheet(eGFX_Types pSpriteType) {
 
 	switch (pSpriteType) {
 	case eGFX_IN_GAME:
-        if (mFodder->mVersionCurrent->isAmigaTheOne())
-            mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_InGame_Amiga_TheOne);
-        else
-    		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_InGame_Amiga );
+		if (mFodder->mVersionCurrent->isAmigaTheOne())
+			mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_InGame_Amiga_TheOne);
+		else
+			mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_InGame_Amiga);
 
 		return;
 
 	case eGFX_FONT:
-		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Font_Amiga );
+		mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_Font_Amiga);
 		return;
 
 	case eGFX_RECRUIT:
-		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Recruit_Amiga );
+		mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_Recruit_Amiga);
 		return;
 
 	case eGFX_HILL:
-		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Hill_Amiga );
+		mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_Hill_Amiga);
 		return;
 
 	case eGFX_BRIEFING:
-		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Briefing_Amiga );
+		mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_Briefing_Amiga);
 		return;
 
 	case eGFX_SERVICE:
-		mFodder->SetActiveSpriteSheetPtr( mSpriteSheetTypes_Service_Amiga );
+		mFodder->SetActiveSpriteSheetPtr(mSpriteSheetTypes_Service_Amiga);
 		return;
 
-    default:
-        std::cout << "Unknown sprite sheet\n";
-        exit(1);
+	default:
+		std::cout << "Unknown sprite sheet\n";
+		exit(1);
 	}
 }
 
 void cGraphics_Amiga::Tile_Prepare_Gfx() {
 
-	mBlkData->resize( mFodder->mTile_BaseBlk->size() + mFodder->mTile_SubBlk->size() );
+	mBlkData->resize(mFodder->mTile_BaseBlk->size() + mFodder->mTile_SubBlk->size());
 
 	// Load the palette for the graphic tile set
-	auto Palette = g_Resource->fileGet( mFodder->mFilenameBasePal );
+	auto Palette = g_Resource->fileGet(mFodder->mFilenameBasePal);
 	DecodePalette(Palette->data(), 0, Palette->size() / 2);
 
-	memcpy( mBlkData->data(), mFodder->mTile_BaseBlk->data(), mFodder->mTile_BaseBlk->size() );
-	memcpy( mBlkData->data() + mFodder->mTile_BaseBlk->size(), mFodder->mTile_SubBlk->data(), mFodder->mTile_SubBlk->size() );
+	memcpy(mBlkData->data(), mFodder->mTile_BaseBlk->data(), mFodder->mTile_BaseBlk->size());
+	memcpy(mBlkData->data() + mFodder->mTile_BaseBlk->size(), mFodder->mTile_SubBlk->data(), mFodder->mTile_SubBlk->size());
 }
 
 void cGraphics_Amiga::PaletteSetOverview() {
 
 	mFodder->mSurfaceMapOverview->paletteSet(mPalette, 0, 64);
-	mFodder->mSurfaceMapOverview->paletteSet(mImagePStuff.mPalette, 0xE0, 16 );
+	mFodder->mSurfaceMapOverview->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
 	mFodder->mSurfaceMapOverview->paletteSet(mImageHillBackground.mPalette, 0xD0, 16);
-	mFodder->mSurfaceMapOverview->paletteSet(mImageFonts.mPalette, 0xF0, 16 );
+	mFodder->mSurfaceMapOverview->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 
 	mFodder->mSurfaceMapOverview->surfaceSetToPaletteNew();
 }
 
 void cGraphics_Amiga::PaletteBriefingSet() {
 
-	mSurface->paletteSet(mImageMissionIntro.mPalette, 0, 0xFF );
+	mSurface->paletteSet(mImageMissionIntro.mPalette, 0, 0xFF);
 	mSurface->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
 
-void cGraphics_Amiga::PaletteSet(cSurface *pTarget) {
+void cGraphics_Amiga::PaletteSet(cSurface* pTarget) {
 	if (!pTarget)
 		pTarget = mSurface;
 
@@ -527,18 +527,18 @@ void cGraphics_Amiga::PaletteSet(cSurface *pTarget) {
 	pTarget->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
 
-sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
+sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 	sImage			Result;
-	auto			File = g_Resource->fileGet( pFilename );
+	auto			File = g_Resource->fileGet(pFilename);
 	auto			DataPtr = File->data();
 
-	if (!DataPtr || readBEDWord( DataPtr ) != 'FORM')
+	if (!DataPtr || readBEDWord(DataPtr) != 'FORM')
 		return Result;
 	DataPtr += 4;
-	size_t FileSize = readBEDWord( DataPtr );
+	size_t FileSize = readBEDWord(DataPtr);
 	DataPtr += 4;
 
-	if (readBEDWord( DataPtr ) != 'ILBM')
+	if (readBEDWord(DataPtr) != 'ILBM')
 		return Result;
 
 	DataPtr += 4;
@@ -548,15 +548,15 @@ sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
 	uint32 Size = 0;
 
 	while (FileSize > 8) {
-		Header = readBEDWord( DataPtr );
+		Header = readBEDWord(DataPtr);
 		DataPtr += 4; FileSize -= 4;
-		Size = readBEDWord( DataPtr );
+		Size = readBEDWord(DataPtr);
 		DataPtr += 4; FileSize -= 4;
 
 		switch (Header) {
 		case 'BMHD':
-			Result.mDimension.mWidth = readBEWord( DataPtr ); DataPtr += 2;
-			Result.mDimension.mHeight = readBEWord( DataPtr ); DataPtr += 2;
+			Result.mDimension.mWidth = readBEWord(DataPtr); DataPtr += 2;
+			Result.mDimension.mHeight = readBEWord(DataPtr); DataPtr += 2;
 			DataPtr += 2; DataPtr += 2;	// X, Y
 			Result.mPlanes = *DataPtr++;
 			DataPtr++;	// Mask
@@ -568,7 +568,7 @@ sImage cGraphics_Amiga::DecodeIFF( const std::string& pFilename ) {
 
 		case 'BODY': {
 			// + 2 is because the amiga does writing after the end of the image
-			Result.mData->resize( Result.mDimension.WidthByHeight() * (Result.mPlanes + 2) );
+			Result.mData->resize(Result.mDimension.WidthByHeight() * (Result.mPlanes + 2));
 
 			int16 Width = Result.mDimension.mWidth + 0x0F;
 			Width >>= 4;
@@ -682,14 +682,14 @@ void cGraphics_Amiga::DecodePalette(const uint8* pBuffer, size_t pColorID, const
 
 		// Extract each color from the word
 		//  X X X X   R3 R2 R1 R0     G3 G2 G1 G0   B3 B2 B1 B0
-		
+
 		mPalette[pColorID].mRed = ((color >> 8) & 0xF) << 2;
 		mPalette[pColorID].mGreen = ((color >> 4) & 0xF) << 2;
 		mPalette[pColorID].mBlue = ((color >> 0) & 0xF) << 2;
 	}
 }
 
-void cGraphics_Amiga::Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset) {
+void cGraphics_Amiga::Map_Tile_Draw(cSurface* pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset) {
 	uint8* Target = pTarget->GetSurfaceBuffer();
 
 	pX *= (16 + pOffset);
@@ -707,8 +707,8 @@ void cGraphics_Amiga::Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, 
 		// Each Tile Row
 		for (uint16 i = 0; i < 16; ++i) {
 
-            if (TilePtr > mBlkData->data() + mBlkData->size())
-                return;
+			if (TilePtr > mBlkData->data() + mBlkData->size())
+				return;
 
 			uint16 RowData = readBEWord(TilePtr);
 			TilePtr += 2;
@@ -749,16 +749,16 @@ void cGraphics_Amiga::MapTiles_Draw() {
 
 		if (CurrentMapPtr >= mFodder->mMap->data()) {
 
-            uint8* MapRowPtr = CurrentMapPtr;
+			uint8* MapRowPtr = CurrentMapPtr;
 
 			// X
 			for (uint16 cx2 = 0; cx2 <= g_Fodder->getWindowColumns() + 1; ++cx2) {
 				uint8* TargetTmp = TargetRow;
 
-                if (MapRowPtr >= mFodder->mMap->data() + mFodder->mMap->size())
-                    break;
+				if (MapRowPtr >= mFodder->mMap->data() + mFodder->mMap->size())
+					break;
 
-				uint16 Tile = readLE<uint16>( MapRowPtr ) & 0x1FF;
+				uint16 Tile = readLE<uint16>(MapRowPtr) & 0x1FF;
 				if (Tile > 0x1C0)
 					Tile = 0;
 
@@ -779,7 +779,7 @@ void cGraphics_Amiga::MapTiles_Draw() {
 						if (TilePtr > mBlkData->data() + mBlkData->size())
 							continue;
 
-						uint16 RowData = readBEWord( TilePtr );
+						uint16 RowData = readBEWord(TilePtr);
 						TilePtr += 2;
 						RowData <<= StartX;
 
@@ -845,13 +845,13 @@ void cGraphics_Amiga::Hill_Prepare_Overlays() {
 		do {
 
 			for (d2 = d1; d2 >= 0; --d2) {
-				
+
 				// Draw the overlay
-				writeBEWord(Dest, readBEWord(Source) );
-				writeBEWord(Dest + 0x2828, readBEWord(Source + 0x2800 ) );
-				writeBEWord(Dest + 0x5050, readBEWord(Source + 0x5000 ) );
-				writeBEWord(Dest + 0x7878, readBEWord(Source + 0x7800 ) );
-				
+				writeBEWord(Dest, readBEWord(Source));
+				writeBEWord(Dest + 0x2828, readBEWord(Source + 0x2800));
+				writeBEWord(Dest + 0x5050, readBEWord(Source + 0x5000));
+				writeBEWord(Dest + 0x7878, readBEWord(Source + 0x7800));
+
 				Source += 0x28;
 				Dest += 0x28;
 			}
@@ -863,7 +863,7 @@ void cGraphics_Amiga::Hill_Prepare_Overlays() {
 	}
 }
 
-void cGraphics_Amiga::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uint16 pDestY ) {
+void cGraphics_Amiga::MapOverview_Render_Tiles(uint16 pTile, uint16 pDestX, uint16 pDestY) {
 	uint8* Target = mFodder->mSurfaceMapOverview->GetSurfaceBuffer();
 
 	pDestX *= 16;
@@ -881,10 +881,10 @@ void cGraphics_Amiga::MapOverview_Render_Tiles( uint16 pTile, uint16 pDestX, uin
 		// Each Tile Row
 		for (uint16 i = 0; i < 16; ++i) {
 
-            if (TilePtr >= mBlkData->data() + mBlkData->size())
-                continue;
+			if (TilePtr >= mBlkData->data() + mBlkData->size())
+				continue;
 
-			uint16 RowData = readBEWord( TilePtr );
+			uint16 RowData = readBEWord(TilePtr);
 			TilePtr += 2;
 
 			// Each pixel of a Tile Row
@@ -909,18 +909,18 @@ void cGraphics_Amiga::Map_Load_Resources() {
 	mFodder->mFilenameCopt += ".lbm";
 	mFodder->mFilenameArmy += ".lbm";
 
-	mSpriteSheet_InGame2 = DecodeIFF( mFodder->mFilenameCopt );
-	mSpriteSheet_InGame1 = DecodeIFF( mFodder->mFilenameArmy );
+	mSpriteSheet_InGame2 = DecodeIFF(mFodder->mFilenameCopt);
+	mSpriteSheet_InGame1 = DecodeIFF(mFodder->mFilenameArmy);
 
-	SetActiveSpriteSheet( eGFX_IN_GAME );
+	SetActiveSpriteSheet(eGFX_IN_GAME);
 }
 
-void cGraphics_Amiga::Video_Draw_8(cSurface *pTarget, const uint8* RowPallete) {
+void cGraphics_Amiga::Video_Draw_8(cSurface* pTarget, const uint8* RowPallete) {
 	if (!pTarget)
 		pTarget = mSurface;
 
-	uint8*	di = pTarget->GetSurfaceBuffer();
-	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
+	uint8* di = pTarget->GetSurfaceBuffer();
+	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
 
 	di += pTarget->GetWidth() * mFodder->mVideo_Draw_PosY;
 	di += mFodder->mVideo_Draw_PosX;
@@ -953,8 +953,8 @@ void cGraphics_Amiga::Video_Draw_8_Alt(const uint8* RowPalette) {
 	uint8* di = mSurface->GetSurfaceBuffer();
 	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
 
-	int screenWidth = (int) mSurface->GetWidth();
-	int screenHeight = (int) mSurface->GetHeight();
+	int screenWidth = (int)mSurface->GetWidth();
+	int screenHeight = (int)mSurface->GetHeight();
 
 	// Adjust start position
 	di += screenWidth * mFodder->mVideo_Draw_PosY;
@@ -1013,14 +1013,14 @@ void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 		uint16 cx;
 		SourceX = 0;
 
-		for (cx = ax; cx < ( mSurface->GetWidth() - 32 ); cx++) {
+		for (cx = ax; cx < (mSurface->GetWidth() - 32); cx++) {
 
 			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
 
 			SourceX++;
 		}
 
-		for (cx = 0; cx < ax; cx ++) {
+		for (cx = 0; cx < ax; cx++) {
 
 			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
 
@@ -1034,8 +1034,8 @@ void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 
 void cGraphics_Amiga::Video_Draw_16(const uint8* RowPallete) {
 
-	uint8*	di = mSurface->GetSurfaceBuffer();
-	uint8* 	si = mFodder->mVideo_Draw_FrameDataPtr;
+	uint8* di = mSurface->GetSurfaceBuffer();
+	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
 
 	di += mSurface->GetWidth() * mFodder->mVideo_Draw_PosY;
 	di += mFodder->mVideo_Draw_PosX;
@@ -1057,7 +1057,7 @@ void cGraphics_Amiga::Video_Draw_16(const uint8* RowPallete) {
 		// Width
 		for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns; ++cx) {
 
-			DrawPixels_16( si, di, Palette );
+			DrawPixels_16(si, di, Palette);
 
 			di += 16;
 			si += 2;
@@ -1068,13 +1068,13 @@ void cGraphics_Amiga::Video_Draw_16(const uint8* RowPallete) {
 	}
 }
 
-void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY, cSurface* pSurface) {
+void cGraphics_Amiga::Sidebar_Copy_To_Surface(int16 pStartY, cSurface* pSurface) {
 	uint8* Buffer = mSurface->GetSurfaceBuffer();
 
-	if(pSurface)
+	if (pSurface)
 		Buffer = pSurface->GetSurfaceBuffer();
-	
-	uint8* 	si = (uint8*)mFodder->mSidebar_Screen_Buffer;
+
+	uint8* si = (uint8*)mFodder->mSidebar_Screen_Buffer;
 
 	// Start 16 rows down
 	Buffer += (16 * mSurface->GetWidth()) + 16;
@@ -1099,7 +1099,7 @@ void cGraphics_Amiga::Sidebar_Copy_To_Surface( int16 pStartY, cSurface* pSurface
 
 }
 
-void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, size_t pX, size_t pY ) {
+void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, size_t pX, size_t pY) {
 	const sSpriteSheet_pstuff* str2 = &mSpriteSheet_PStuff[pSpriteType];
 
 	mFodder->mVideo_Draw_Columns = str2->mColumns >> 3;
@@ -1128,7 +1128,7 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, si
 		// Width
 		for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns / 2; ++cx) {
 
-			DrawPixels_16( si, di, mFodder->mVideo_Draw_PaletteIndex);
+			DrawPixels_16(si, di, mFodder->mVideo_Draw_PaletteIndex);
 
 			di += 16;
 			si += 2;
@@ -1139,9 +1139,9 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr( int16 pSpriteType, si
 	}
 }
 
-void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) {
-    pRow += 8;
-    pRows *= 4;
+void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer(uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) {
+	pRow += 8;
+	pRows *= 4;
 	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
 	uint32* BuffPtr = (uint32*)(SptPtr + (0x30 * pRow));
 
@@ -1184,10 +1184,10 @@ void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16
 }
 
 void cGraphics_Amiga::Recruit_Draw_Hill() {
-	auto Grave = g_Resource->fileGet( "grave32.pal");
+	auto Grave = g_Resource->fileGet("grave32.pal");
 
 	mImagePStuff.LoadPalette_Amiga(Grave->data(), Grave->size() / 2);
-	
+
 	{
 		mFodder->mVideo_Draw_FrameDataPtr = mImageHillBackground.mData->data() + (29 * 40) + 6;
 
@@ -1209,29 +1209,29 @@ void cGraphics_Amiga::Recruit_Draw_Hill() {
 void cGraphics_Amiga::Recruit_Draw_HomeAway() {
 	const char* strHomeAndAway = "HOME                AWAY";
 
-	mFodder->GUI_Draw_Frame_8( 0x11, 0, 0xfe, 0 );
+	mFodder->GUI_Draw_Frame_8(0x11, 0, 0xfe, 0);
 	int16 Data4 = mFodder->mMission_Save_Blocked[(mFodder->mGame_Data.mMission_Number - 1)];
 
 	// Draw Icon
-	mFodder->GUI_Draw_Frame_8( 0x16, 0x0, 0x0, 0 );
+	mFodder->GUI_Draw_Frame_8(0x16, 0x0, 0x0, 0);
 	// Save Icon
-	mFodder->GUI_Draw_Frame_8( 0x17, Data4, 0x130, 0 );
+	mFodder->GUI_Draw_Frame_8(0x17, Data4, 0x130, 0);
 
-	mFodder->GUI_Draw_Frame_8( 0xE, 0, 0x9B, 0x0A );
+	mFodder->GUI_Draw_Frame_8(0xE, 0, 0x9B, 0x0A);
 
-	mFodder->String_CalculateWidth( 320, mFont_Recruit_Width, strHomeAndAway );
-	mFodder->String_Print( mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway );
+	mFodder->String_CalculateWidth(320, mFont_Recruit_Width, strHomeAndAway);
+	mFodder->String_Print(mFont_Recruit_Width, 0x0D, mFodder->mGUI_Temp_X, 0x0A, strHomeAndAway);
 
-	std::string Home = tool_StripLeadingZero( std::to_string( mFodder->mGame_Data.mScore_Kills_Home ) );
-	mFodder->Recruit_Draw_String( 0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home );
+	std::string Home = tool_StripLeadingZero(std::to_string(mFodder->mGame_Data.mScore_Kills_Home));
+	mFodder->Recruit_Draw_String(0x0D, 0x9A - (Home.length() * 0x0C), 0x0A, Home);
 
-	std::string Away = tool_StripLeadingZero( std::to_string( mFodder->mGame_Data.mScore_Kills_Away ) );
-	mFodder->Recruit_Draw_String( 0x0D, 0xAA, 0x0A, Away );
+	std::string Away = tool_StripLeadingZero(std::to_string(mFodder->mGame_Data.mScore_Kills_Away));
+	mFodder->Recruit_Draw_String(0x0D, 0xAA, 0x0A, Away);
 }
 
-void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
+void cGraphics_Amiga::Service_Draw(int16 pSpriteID, int16 pX, int16 pY) {
 
-	uint8*	di = mSurface->GetSurfaceBuffer() + 16;
+	uint8* di = mSurface->GetSurfaceBuffer() + 16;
 
 	pY += 16;
 	di += mSurface->GetWidth() * pY;
@@ -1261,7 +1261,7 @@ void cGraphics_Amiga::Service_Draw( int16 pSpriteID, int16 pX, int16 pY ) {
 		// Width
 		for (int16 cx = 0; cx < stru_A918A[pSpriteID].mWidth; ++cx) {
 
-			DrawPixels_16( si, di, mFodder->mVideo_Draw_PaletteIndex);
+			DrawPixels_16(si, di, mFodder->mVideo_Draw_PaletteIndex);
 
 			di += 16;
 			si += 2;
@@ -1304,7 +1304,7 @@ void cGraphics_Amiga::Mission_Intro_Load_Resources(const eTileTypes pTileset) {
 	mImageMissionIntro.LoadPalette_Amiga(Data->data(), 16, 0xE0);
 }
 
-void cGraphics_Amiga::Recruit_Sprite_Draw( int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pSource ) {
+void cGraphics_Amiga::Recruit_Sprite_Draw(int16 pRows, int16 pColumns, int16 pD2, int16 pD4, int16 pD5, int16 pD3, uint8* pSource) {
 	uint32 d0, d1, d2, d3, d4;
 	int32 d5, d6;
 
@@ -1456,7 +1456,7 @@ void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSou
 
 	pSource += (pSourceX / 8);
 	pSource += (pSourceY * 40);
-	
+
 	pDestination += pX;
 	pDestination += pY * mSurface->GetWidth();
 
@@ -1467,7 +1467,7 @@ void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSou
 
 	// Loop each pixel 
 
-	uint8 Bit = (0x80 >> (pSourceX %8));
+	uint8 Bit = (0x80 >> (pSourceX % 8));
 	uint8 Result = 0;
 
 	// Value for each plane
@@ -1477,10 +1477,10 @@ void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSou
 
 	if (Result)
 		*pDestination = mFodder->mVideo_Draw_PaletteIndex | Result;
-	
+
 }
 
-void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
+void cGraphics_Amiga::DrawPixels_8(uint8* pSource, uint8* pDestination) {
 	uint8	Planes[8];
 
 	// Load bits for all planes
@@ -1502,12 +1502,12 @@ void cGraphics_Amiga::DrawPixels_8( uint8* pSource, uint8* pDestination ) {
 	}
 }
 
-void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination, const uint8 pPalleteIndex) {
+void cGraphics_Amiga::DrawPixels_16(uint8* pSource, uint8* pDestination, const uint8 pPalleteIndex) {
 	uint16	Planes[8];
 
 	// Load bits for all planes
 	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
-		Planes[Plane] = readBEWord( pSource + ((mBMHD_Current->mHeight * 40) * Plane) );
+		Planes[Plane] = readBEWord(pSource + ((mBMHD_Current->mHeight * 40) * Plane));
 
 	// Loop each pixel 
 	for (uint8 X = 0; X < 16; ++X) {
@@ -1524,17 +1524,32 @@ void cGraphics_Amiga::DrawPixels_16( uint8* pSource, uint8* pDestination, const 
 	}
 }
 
-void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTileTypes pTileset) {
+void cGraphics_Amiga::Mission_Intro_Play(
+		const bool pShowHelicopter, const eTileTypes pTileset, 
+		 std::string pTop, std::string pBottom) {
 
 	int16 BladeFrame = 0;
 	static int16 mouseCheck = 0;
 
-    PaletteSet(mSurface);
+	PaletteSet(mSurface);
 	PaletteBriefingSet();
 	mSurface->palette_FadeTowardNew();
 
 	mFodder->mVideo_Draw_PosX = 16;
 
+	Heli_TextPos = 0;
+	Heli_TextPosBottom = 320;
+
+	mFodder->mString_GapCharID = 0x25;
+
+	//pTop = "MISSION 1";
+	//pBottom = "THE SENSIBLE INITIATION";
+	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pTop);
+	auto topTextPos = mFodder->mGUI_Temp_X;
+
+
+	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pBottom);
+	auto bottomTextPos = mFodder->mGUI_Temp_X - 4;
 	do {
 		Briefing_Helicopter_Background_Unk();
 
@@ -1543,6 +1558,9 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 
 		mFodder->Briefing_Helicopter_Check();
 		Briefing_Helicopter_Background_Unk_1();
+
+		mFodder->String_Print(mFont_Underlined_Width, 1,  -332 + (topTextPos + (Heli_TextPos)), 0x01, pTop);
+		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom) + bottomTextPos, 0xB5 + 0x16, pBottom);
 
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING);
 		mFodder->mVideo_Draw_PosY = 40;
@@ -1556,30 +1574,30 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 		mFodder->mVideo_Draw_PosY = 100;
 		Video_Draw_16_Offset(320 - (Heli_middle >> 16));
 
-        if (pShowHelicopter) {
-            // Front
-            mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;
-            mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;
-            Mission_Intro_DrawHelicopter(203);
+		if (pShowHelicopter) {
+			// Front
+			mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;
+			mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;
+			Mission_Intro_DrawHelicopter(203);
 
-            // Tail
-            mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16) + 48;
-            mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
-            Mission_Intro_DrawHelicopter(204);
+			// Tail
+			mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16) + 48;
+			mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
+			Mission_Intro_DrawHelicopter(204);
 
-            if (mFodder->mVersionCurrent->isCannonFodder1()) {
-                int16 Blade = 205 + BladeFrame;
+			if (mFodder->mVersionCurrent->isCannonFodder1()) {
+				int16 Blade = 205 + BladeFrame;
 
-                ++BladeFrame;
-                if (BladeFrame >= 3)
-                    BladeFrame = 0;
+				++BladeFrame;
+				if (BladeFrame >= 3)
+					BladeFrame = 0;
 
-                // Blade
-                mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
-                mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16) - 3;
-                Mission_Intro_DrawHelicopter(Blade);
-            }
-        }
+				// Blade
+				mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
+				mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16) - 3;
+				Mission_Intro_DrawHelicopter(Blade);
+			}
+		}
 
 		mFodder->mVideo_Draw_FrameDataPtr = GetSpriteData(eGFX_BRIEFING_AMIGA_3);
 		mFodder->mVideo_Draw_PosY = 163;
@@ -1591,7 +1609,7 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 			mFodder->mBriefing_Helicopter_NotDone = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mMouse_Exit_Loop = false;
-            mFodder->mPhase_Aborted = 0;
+			mFodder->mPhase_Aborted = 0;
 		}
 
 	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
@@ -1603,7 +1621,7 @@ void cGraphics_Amiga::Mission_Intro_Play(const bool pShowHelicopter, const eTile
 void cGraphics_Amiga::Briefing_Helicopter_Background_Unk() {
 	uint16_t d0, d1, d2;
 
-	//d0 = Briefing_Helicopter_TextPos & 0x0F;
+	//d0 = Heli_TextPos & 0x0F;
 	//d0 = d0 ^ 0x0F;
 	//word_3252 = d0;
 
@@ -1642,22 +1660,14 @@ void cGraphics_Amiga::Briefing_Helicopter_Background_Unk_1() {
 	int32 dword_826C8 = 0x8000;
 	int32 d0 = 0;
 
-	/*if (Briefing_Helicopter_TextPos == 0x0C) {
-		goto loc_A7A88;
+	if (Heli_TextPosBottom != 0x0C) {
+		Heli_TextPosBottom -= 4;
+
+		if (Heli_TextPosBottom <= 0x0C)
+			Heli_TextPosBottom = 0x0C;
 	}
+	Heli_TextPos = 344 - Heli_TextPosBottom;
 
-	Briefing_Helicopter_TextPos -= 4;
-
-	if (Briefing_Helicopter_TextPos > 0x0C) {
-		goto loc_A7A88;
-	}
-
-	Briefing_Helicopter_TextPos = 0x0C;
-	
-loc_A7A88:
-	uint16_t d0 = 344 - Briefing_Helicopter_TextPos;
-	word_826C4 = d0;
-	*/
 	d0 = dword_826C8;
 
 	Heli_VeryBack -= d0;
