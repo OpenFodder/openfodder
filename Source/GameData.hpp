@@ -126,8 +126,13 @@ struct sGameRecorded {
     std::multimap< uint64, cEvent > mEvents;
     std::map< uint64, cStateRecorded > mState;
     std::vector< uint64 > mVideoTicks;
+    std::mutex  mLockMtx;
+
 
     sGameRecorded();
+    sGameRecorded(const sGameRecorded& other);
+    sGameRecorded& operator=(const sGameRecorded& other);
+
     void AddEvent(const uint64 pTicks, const cEvent& pEvent);
     std::vector<cEvent> GetEvents(const uint64 pTicks);
 
@@ -141,7 +146,7 @@ struct sGameRecorded {
     void EnableTicks();
     void Tick();
 
-    uint64 GetTotalTicks() const;
+    uint64 GetTotalTicks();
     void removeFrom(const uint64 pTicks);
 
     void clear();

@@ -135,8 +135,6 @@ public:
 
     std::mutex      mSurfaceMtx;
     std::mutex      mSpriteMtx;
-    std::mutex      mVideoMtx;
-    std::mutex      mVideo2Mtx;
 
     uint8           mKeyCode;
 
@@ -471,8 +469,8 @@ public:
     int16               mRecruit_Truck_Reached;
     int16               mRecruit_Render_Name_SmallGap;
 
-    int16           mMouseX;
-    int16           mMouseY;
+    volatile int16           mMouseX;
+    volatile int16           mMouseY;
     int16           mMouseX_Offset;
     int16           mMouseY_Offset;
 
@@ -605,7 +603,7 @@ public:
     void            Phase_Paused();
 
     void            Interrupt_Sim();
-    void            Interrupt_Sim_Demo();
+    void            Interrupt_Redraw();
 
     void            Phase_Loop_Interrupt();
     void            Camera_Handle();

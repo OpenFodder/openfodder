@@ -67,7 +67,39 @@ sGameRecorded::sGameRecorded() {
 	mParams = std::make_shared<sFodderParameters>();
 }
 
+sGameRecorded::sGameRecorded(const sGameRecorded& other)
+    : mVersion(other.mVersion),
+    mInputTicks(other.mInputTicks),
+    mEngineTicks(other.mEngineTicks),
+    mRecordedPlatform(other.mRecordedPlatform),
+    mTick(other.mTick),
+    mTickDisabled(other.mTickDisabled),
+    mParams(new sFodderParameters(*other.mParams)),
+    mEvents(other.mEvents),
+    mState(other.mState),
+    mVideoTicks(other.mVideoTicks) {
+    std::copy(std::begin(other.mSeed), std::end(other.mSeed), std::begin(mSeed));
+}
+
+sGameRecorded& sGameRecorded::operator=(const sGameRecorded& other) {
+    if (this != &other) {
+        mVersion = other.mVersion;
+        std::copy(std::begin(other.mSeed), std::end(other.mSeed), std::begin(mSeed));
+        mInputTicks = other.mInputTicks;
+        mEngineTicks = other.mEngineTicks;
+        mRecordedPlatform = other.mRecordedPlatform;
+        mTick = other.mTick;
+        mTickDisabled = other.mTickDisabled;
+        mParams = std::make_shared<sFodderParameters>(*other.mParams);
+        mEvents = other.mEvents;
+        mState = other.mState;
+        mVideoTicks = other.mVideoTicks;
+    }
+    return *this;
+}
 void sGameRecorded::AddEvent(const uint64 pTicks, const cEvent& pEvent) {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     if (mTickDisabled)
         return;
 
@@ -75,6 +107,8 @@ void sGameRecorded::AddEvent(const uint64 pTicks, const cEvent& pEvent) {
 }
 
 std::vector<cEvent> sGameRecorded::GetEvents(const uint64 pTicks) {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     std::vector<cEvent> Events;
 
     if (mTickDisabled)
@@ -88,6 +122,8 @@ std::vector<cEvent> sGameRecorded::GetEvents(const uint64 pTicks) {
 }
 
 void sGameRecorded::AddState(const uint64 pTicks, const cStateRecorded& pEvent) {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     if (mTickDisabled)
         return;
 
@@ -95,6 +131,8 @@ void sGameRecorded::AddState(const uint64 pTicks, const cStateRecorded& pEvent) 
 }
 
 cStateRecorded* sGameRecorded::GetState(const uint64 pTicks) {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     if (mTickDisabled)
         return 0;
 
@@ -104,7 +142,9 @@ cStateRecorded* sGameRecorded::GetState(const uint64 pTicks) {
     return 0;
 }
 
-uint64 sGameRecorded::GetTotalTicks() const {
+uint64 sGameRecorded::GetTotalTicks() {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     if (!mState.size())
         return 0;
 
@@ -112,6 +152,8 @@ uint64 sGameRecorded::GetTotalTicks() const {
 }
 
 void sGameRecorded::removeFrom(const uint64 pTicks) {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     auto from = mState.lower_bound(pTicks);
     mState.erase(from, mState.end());
 
@@ -124,6 +166,8 @@ void sGameRecorded::removeFrom(const uint64 pTicks) {
 }
 
 void sGameRecorded::clear() {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     mVersion = DEMO_CURRENT_VERSION;
 
     mState.clear();
@@ -146,6 +190,7 @@ void sGameRecorded::clear() {
 }
 
 void sGameRecorded::playback() {
+    std::lock_guard<std::mutex> lock(mLockMtx);
 
 	//
     g_Fodder->mMission_EngineTicks = mEngineTicks;
@@ -158,10 +203,14 @@ void sGameRecorded::playback() {
 }
 
 void sGameRecorded::AddVideoTick(const uint64 pTick) {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     mVideoTicks.push_back( pTick );
 }
 
 bool sGameRecorded::GetVideoTick(const uint64 pTick) {
+    std::lock_guard<std::mutex> lock(mLockMtx);
+
     return std::binary_search(mVideoTicks.begin(), mVideoTicks.end(), pTick);
 }
 
@@ -184,6 +233,7 @@ void sGameRecorded::Tick() {
 }
 
 void sGameRecorded::save() {
+    std::lock_guard<std::mutex> lock(mLockMtx);
 
     if (g_Fodder->mParams->mDemoRecord) {
         std::string Filename = g_Fodder->mParams->mDemoFile;

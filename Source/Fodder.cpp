@@ -597,74 +597,52 @@ void cFodder::Video_Sleep(cSurface* pSurface, const bool pShrink, const bool pVs
 }
 
 /**
- * 
+ * Interrupt screen redraw
  */
-void cFodder::Interrupt_Sim_Demo() {
-    {
-        std::lock_guard<std::mutex> lock(mSurfaceMtx);
+void cFodder::Interrupt_Redraw() {
+    std::lock_guard<std::mutex> lock(mSurfaceMtx);
 
-        Phase_Loop_Interrupt();
+    Phase_Loop_Interrupt();
 
+    if (mInterruptCallback) {
+        mInterruptCallback();
+    }
+    else {
         if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
             if (!mStartParams->mDisableVideo) {
                 mGraphics->MapTiles_Draw();
             }
-
             Sprites_Draw();
             mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
             Mouse_DrawCursor();
         }
-
-        mVideo_Done = false;
-        mVideo_Ticked = true;
     }
-
-    while (!mVideo_Done && !mExit) {
-        SDL_Delay(1);
-    }
-    mGame_Data.mDemoRecorded.Tick();
+    mVideo_Done = false;
+    mVideo_Ticked = true;
 }
 
+/**
+ * Interrupt Simulation
+ */
 void cFodder::Interrupt_Sim() {
     Uint32 startTick = SDL_GetTicks();
     mVideo_Done = true;
 
     while (!mExit) {
-        if (mParams->mDemoPlayback) {
-            Interrupt_Sim_Demo();
-            continue;
-        }
-
         Uint32 currentTick = SDL_GetTicks();
 
         if (currentTick - startTick >= g_Fodder->mParams->mSleepDelta) {
             startTick = currentTick;
            
-            {
-                std::lock_guard<std::mutex> lock(mSurfaceMtx);
-                
-                Phase_Loop_Interrupt();
+            Interrupt_Redraw();
 
-                if (mInterruptCallback) {
-                    mInterruptCallback();
-                } else {
-                    if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
-                        if (!mStartParams->mDisableVideo) {
-                            mGraphics->MapTiles_Draw();
-                        }
-                        Sprites_Draw();
-                        mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
-                        Mouse_DrawCursor();
-                    }
-                }
-                mVideo_Done = false;
-                mVideo_Ticked = true;
-            }
-            
+            // wait for video_sleep call to finish
             while (!mVideo_Done && !mExit) {
                 SDL_Delay(1);
             }
-            mGame_Data.mDemoRecorded.Tick();
+
+            if(mParams->mDemoRecord)
+                mGame_Data.mDemoRecorded.Tick();
         }
         else {
             SDL_Delay(1);
@@ -741,9 +719,12 @@ void cFodder::Camera_Handle() {
         MapTile_Update_Position();
 
         Camera_Update_Mouse_Position_For_Pan();
+
         Camera_Speed_Update_From_PanTarget();
+        
         //Mouse_DrawCursor();
         Camera_Speed_Update_From_PanTarget();
+
         Camera_PanTarget_AdjustToward_SquadLeader();
         Camera_Acceleration_Set();
     }
@@ -762,7 +743,7 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     mCamera_Scroll_Speed = CAMERA_TOWARD_SQUAD_SPEED;
 
     // Mouse near sidebar?
-    if (mMouseX <= 0x0F) {
+    if (mMouseX <= 30) {
 
         if (mCamera_Panning_ToTarget) {
 
@@ -1904,7 +1885,6 @@ loc_11D8A:;
 	}
     Mission_Sprites_Handle();
     mGraphics->Sidebar_Copy_To_Surface();
-    Mouse_DrawCursor();
     Camera_Prepare();
     Video_Sleep();
 
@@ -2351,14 +2331,14 @@ void cFodder::Camera_Pan_Set_Speed() {
 }
 
 /**
- * Move the mouse position to follow the terrain as the camere pans
+ * Move the mouse position to follow the terrain as the camera pans
  */
 void cFodder::Camera_Update_Mouse_Position_For_Pan() {
 
     if (!mMouse_Locked) {
 
         // Mouse in playfield?
-        if (mMouseX > 0x0F) {
+        if (mMouseX > 30) {
             mMouseX -= (mCameraX >> 16) - mCamera_TileX;
             mMouseY -= (mCameraY >> 16) - mCamera_TileY;
         }
@@ -3125,7 +3105,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
     if (pKeyCode == SDL_SCANCODE_F3 && pPressed) {
         if (mParams->mDemoRecord) {
-            mStartParams->mDemoRecordResumeCycle = mGame_Data.mDemoRecorded.mTick - 80;
+            mStartParams->mDemoRecordResumeCycle = mGame_Data.mDemoRecorded.mTick - 400;
             mGame_Data.mGamePhase_Data.mIsComplete = true;
             mPhase_TryAgain = true;
         }
@@ -3282,7 +3262,7 @@ void cFodder::Mouse_Cursor_Handle() {
 
                     mWindow->SetRelativeMouseMode(false);
                     mWindow->SetMousePosition(BorderMouse);
-                    mWindow->clearFocus();
+                    //mWindow->clearFocus();
                     return;
                 }
             }
@@ -4667,7 +4647,7 @@ void cFodder::Mouse_Cursor_Update() {
     int16 Data0, Data4, Data8;
 
     // Sidebar
-    if (mMouseX < 0x10) {
+    if (mMouseX < 32) {
         mMouseSpriteNew = eSprite_pStuff_Mouse_Cursor;
         mMouseX_Offset = 0;
         mMouseY_Offset = 0;
@@ -18777,10 +18757,7 @@ void cFodder::About() {
     cAbout About;
     while (About.Cycle()) {
 
-
-        mWindow->RenderAt(mSurface);
-        mWindow->FrameEnd();
-        Video_Sleep();
+        Video_Sleep(0, true);
     }
 
     g_Fodder->mPhase_Aborted = false;

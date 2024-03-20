@@ -57,7 +57,7 @@ int start(int argc, char *argv[]) {
 
 	g_Fodder->mExit = true;
 	myThread.join();
-	return 0;
+	return result;
 }
 
 // Debug stuff

@@ -129,9 +129,6 @@ bool cAbout::Cycle() {
         g_Fodder->GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
     }
 
-    g_Fodder->Mouse_Inputs_Get();
-    g_Fodder->Mouse_DrawCursor();
-
     if (g_Fodder->mPhase_Aborted)
         g_Fodder->GUI_Button_Load_Exit();
 
@@ -146,9 +143,6 @@ bool cAbout::Cycle() {
 
     }
 
-    g_Fodder->mSurface->draw();
-    g_Window->RenderShrunk(mSurface);
-    
     if (g_Fodder->mGUI_SaveLoadAction == 1 && !g_Fodder->mSurface->isPaletteAdjusting())
         return false;
 
