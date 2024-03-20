@@ -243,13 +243,13 @@ bool Rjp1::executeSongSequenceOp(Rjp1Channel *channel, uint8 code, const uint8 *
 		setRelease(channel);
 		loop = false;
 		break;
-	case 2:
+	case 2: // loc_A423A
 		channel->loopSeqCount = *p++;
 		break;
-	case 3:
+	case 3:	// loc_A4240
 		channel->loopSeq2Count = *p++;
 		break;
-	case 4:
+	case 4: // loc_A4246
 		code = *p++;
 		if (code != 0) {
             if (code >= _vars.instrumentsCount)
@@ -389,7 +389,7 @@ void Rjp1::modulateVolumeEnvelope(Rjp1Channel *channel) {
 	if (channel->envelopeMode) {
 		int16 es = channel->envelopeScale;
 		if (es) {
-			int8 m = channel->envelopeEnd1;
+			uint8 m = channel->envelopeEnd1;
 			if (m == 0) {
 				es = 0;
 			} else {

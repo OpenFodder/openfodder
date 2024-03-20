@@ -9850,6 +9850,12 @@ void cFodder::Service_KIA_Loop() {
     mGraphics->PaletteSet();
     mSurface->Save();
 
+    mInterruptCallback = [this]() {
+        Service_Draw_List();
+        if (mInterruptTick % 2 == 0)
+            Service_ScrollUp_DrawList();
+    };
+
     do {
         Video_Sleep();
         Video_Sleep();
@@ -9863,11 +9869,9 @@ void cFodder::Service_KIA_Loop() {
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
-        Service_Draw_List();
-        if (mInterruptTick % 3 == 0)
-            Service_ScrollUp_DrawList();
-
     } while (mSurface->isPaletteAdjusting() || mService_ExitLoop == 0);
+
+    mInterruptCallback = nullptr;
 }
 
 void cFodder::Service_Promotion_Loop() {
@@ -9894,9 +9898,15 @@ void cFodder::Service_Promotion_Loop() {
     mGraphics->PaletteSet();
     mSurface->Save();
 
+    mInterruptCallback = [this]() {
+        Service_Draw_List();
+        if (mInterruptTick % 2 == 0)
+            Service_ScrollUp_DrawList();
+        Service_Promotion_Check();
+    };
     do {
         Video_Sleep();
-
+        Video_Sleep();
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
@@ -9906,13 +9916,9 @@ void cFodder::Service_Promotion_Loop() {
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
-        Service_Promotion_Check();
-        Service_Draw_List();
-        //sub_14445();
-        if (mInterruptTick % 3 == 0)
-            Service_ScrollUp_DrawList();
-
     } while (mSurface->isPaletteAdjusting() || mService_ExitLoop == 0);
+
+    mInterruptCallback = nullptr;
 
 loc_18001:;
 
