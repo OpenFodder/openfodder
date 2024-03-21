@@ -1542,11 +1542,8 @@ void cGraphics_Amiga::Mission_Intro_Play(
 
 	mFodder->mString_GapCharID = 0x25;
 
-	//pTop = "MISSION 1";
-	//pBottom = "THE SENSIBLE INITIATION";
 	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pTop);
 	auto topTextPos = mFodder->mGUI_Temp_X;
-
 
 	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pBottom);
 	auto bottomTextPos = mFodder->mGUI_Temp_X - 4;

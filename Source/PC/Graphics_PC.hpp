@@ -46,6 +46,13 @@ class cGraphics_PC : public cGraphics {
 	uint16          mMission_Intro_DrawX;
 	uint16          mMission_Intro_DrawY;
 
+	int32 Heli_VeryBack;
+	int32 Heli_Back;
+	int32 Heli_middle;
+	int32 Heli_Front;
+	int32 Heli_TextPos;
+	int32 Heli_TextPosBottom;
+
 	public:
 	virtual				~cGraphics_PC();
 
@@ -88,11 +95,12 @@ class cGraphics_PC : public cGraphics {
 	virtual void		Mission_Intro_Load_Resources(const eTileTypes pTileset);
 	virtual void		Mission_Intro_DrawHelicopter( uint16 );
 
-	virtual void		Mission_Intro_Play( const bool pShowHelicopter,const eTileTypes pTileset, const std::string pTop, const std::string pBottom);
-	void				Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter, const std::string pTop, const std::string pBottom);
+	void				Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom);
 
 	void				Mission_Intro_Render_2(tSharedBuffer pDs, int16 pCx);
 	void				Mission_Intro_Render_1(tSharedBuffer pDs, int16 pCx);
+
+	void				Briefing_Helicopter_Background_Unk_1();
 
 	void				sub_15B98(tSharedBuffer pDs, int16 pCx);
 

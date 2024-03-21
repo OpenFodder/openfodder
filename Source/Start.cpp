@@ -55,8 +55,10 @@ int start(int argc, char *argv[]) {
 		g_Fodder->mGame_Data.mDemoRecorded.save();
 	}
 
-	g_Fodder->mExit = true;
-	myThread.join();
+	{
+		g_Fodder->mExit = true;
+		myThread.join();
+	}
 	return result;
 }
 

@@ -330,6 +330,9 @@ int16 cFodder::Phase_Cycle() {
                 continue;
             }
 
+            if (mExit) {
+                return -1;
+            }
         } while (mPhase_InterruptTicks < 3);
     }
 
@@ -548,14 +551,15 @@ int16 cFodder::Phase_Loop() {
 
             {
                 std::lock_guard<std::mutex> lock(mSurfaceMtx);
+                mVideo_Ticked = false;
+                mVideo_Done = true;
+
                 //mStartParams->mDisableVideo = false;
                 Video_SurfaceRender(false, false);
                 mSurface->Restore();
+
                 mWindow->Cycle();
                 eventsProcess();
-
-                mVideo_Ticked = false;
-                mVideo_Done = true;
             }
 
             while (!mVideo_Ticked && !mExit) {
@@ -602,25 +606,30 @@ void cFodder::Video_Sleep(cSurface* pSurface, const bool pShrink, const bool pVs
  * Interrupt screen redraw
  */
 void cFodder::Interrupt_Redraw() {
-    std::lock_guard<std::mutex> lock(mSurfaceMtx);
+    {
+        std::lock_guard<std::mutex> lock(mSurfaceMtx);
 
-    Phase_Loop_Interrupt();
+        if (mParams->mDemoPlayback || mParams->mDemoRecord)
+            mGame_Data.mDemoRecorded.Tick();
 
-    if (mInterruptCallback) {
-        mInterruptCallback();
-    }
-    else {
-        if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
-            if (!mStartParams->mDisableVideo) {
-                mGraphics->MapTiles_Draw();
-            }
-            Sprites_Draw();
-            mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
-            Mouse_DrawCursor();
+        Phase_Loop_Interrupt();
+
+        if (mInterruptCallback) {
+            mInterruptCallback();
         }
+        else {
+            if (mPhase_In_Progress && !mPhase_ShowMapOverview) {
+                if (!mStartParams->mDisableVideo) {
+                    mGraphics->MapTiles_Draw();
+                }
+                Sprites_Draw();
+                mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
+                Mouse_DrawCursor();
+            }
+        }
+        mVideo_Done = false;
+        mVideo_Ticked = true;
     }
-    mVideo_Done = false;
-    mVideo_Ticked = true;
 }
 
 /**
@@ -628,23 +637,19 @@ void cFodder::Interrupt_Redraw() {
  */
 void cFodder::Interrupt_Sim() {
     Uint32 startTick = SDL_GetTicks();
-    mVideo_Done = true;
 
     while (!mExit) {
         Uint32 currentTick = SDL_GetTicks();
 
         if (currentTick - startTick >= g_Fodder->mParams->mSleepDelta) {
             startTick = currentTick;
-           
+
             Interrupt_Redraw();
 
             // wait for video_sleep call to finish
             while (!mVideo_Done && !mExit) {
                 SDL_Delay(g_Fodder->mParams->mSleepDelta == 0 ? 0 : 1);
             }
-
-            if(mParams->mDemoPlayback || mParams->mDemoRecord)
-                mGame_Data.mDemoRecorded.Tick();
         }
         else {
             SDL_Delay(1);
@@ -854,6 +859,7 @@ void cFodder::GameData_Restore() {
 
 void cFodder::Phase_EngineReset() {
     // Clear memory 2454 to 3B58
+
     mPhase_EscapeKeyAbort = false;
     mPhase_Aborted2 = false;
     mButtonPressLeft = 0;
@@ -2513,7 +2519,7 @@ void cFodder::Mission_Sprites_Handle() {
     MapTile_UpdateFromCamera();
 
     Map_Destroy_Tiles();
-    //Sprites_Draw();
+    Sprites_Draw(mSurfaceFinal);
 }
 
 void cFodder::Sprite_Sort_DrawList() {
@@ -3111,7 +3117,7 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
 
     if (pKeyCode == SDL_SCANCODE_F3 && pPressed) {
         if (mParams->mDemoRecord) {
-            mStartParams->mDemoRecordResumeCycle = mGame_Data.mDemoRecorded.mTick - 400;
+            mStartParams->mDemoRecordResumeCycle = mGame_Data.mDemoRecorded.mTick - 200;
             mGame_Data.mGamePhase_Data.mIsComplete = true;
             mPhase_TryAgain = true;
         }
@@ -3662,6 +3668,7 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     mSurface = new cSurface( getSurfaceSize() );
     mSurface2 = new cSurface(getSurfaceSize() );
+    mSurfaceFinal = new cSurface(getSurfaceSize());
     mSurfaceRecruit = new cSurface(getSurfaceSize());
 
 	Sprite_Clear_All();
@@ -3846,7 +3853,7 @@ bool cFodder::Sprite_OnScreen_Check() {
     return mGraphics->Sprite_OnScreen_Check();
 }
 
-void cFodder::Sprites_Draw() {
+void cFodder::Sprites_Draw(cSurface* pSurface) {
 
     std::lock_guard<std::mutex> lock(mSpriteMtx);
 
@@ -3861,7 +3868,7 @@ void cFodder::Sprites_Draw() {
         else {
             int16 Data0 = Sprite->field_8;
             int16 Data4 = Sprite->field_A;
-            Sprite_Draw_Frame(Sprite, Data0, Data4);
+            Sprite_Draw_Frame(Sprite, Data0, Data4, pSurface);
         }
     }
 }
@@ -4300,8 +4307,8 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     mInterruptCallback = [this, pTitle, pSubTitle]() {
         if (!mStartParams->mDisableVideo) {
             mGraphics->MapTiles_Draw();
-            Sprites_Draw();
         }
+        Sprites_Draw();
         Campaign_Select_DrawMenu(pTitle, pSubTitle);
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 
@@ -19111,6 +19118,12 @@ int16 cFodder::Mission_Loop() {
         while (Music_Decrease_Channel_Volume()) {
             sleepLoop(1);
         }
+
+        if (mStartParams->mDemoPlayback || mStartParams->mDemoRecord) {
+            std::lock_guard<std::mutex> lock(g_Fodder->mSurfaceMtx);
+            mVideo_Done = true;
+        }
+
 		Phase_Prepare();
         mMusic_SlowVolumeDecrease = false;
 

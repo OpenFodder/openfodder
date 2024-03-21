@@ -97,6 +97,7 @@ sGameRecorded& sGameRecorded::operator=(const sGameRecorded& other) {
     }
     return *this;
 }
+
 void sGameRecorded::AddEvent(const uint64 pTicks, const cEvent& pEvent) {
     std::lock_guard<std::mutex> lock(mLockMtx);
 
@@ -172,6 +173,7 @@ void sGameRecorded::clear() {
 
     mState.clear();
     mEvents.clear();
+    mVideoTicks.clear();
 
     mTick = 0;
     mTickDisabled = false;

@@ -131,6 +131,7 @@ public:
     cSurface*       mSurface;
     cSurface*       mSurface2;
     cSurface*       mSurfaceRecruit;
+    cSurface*       mSurfaceFinal;
     int32           mSurfaceMapTop, mSurfaceMapLeft;
 
     std::mutex      mSurfaceMtx;
@@ -149,11 +150,12 @@ public:
     uint16          mPhase_InterruptTicks;
     volatile bool   mVideo_Ticked;
     volatile bool   mVideo_Done;
+
     int16           mInterruptTick;
 
     std::function<void()> mInterruptCallback;
 
-    bool            mExit;
+    volatile bool   mExit;
 
     int16           mButtonPressLeft, mButtonPressRight;
 
@@ -717,7 +719,7 @@ public:
     void            Sprite_Draw_Frame(sSprite* pDi, int16 pSpriteType, int16 pFrame, cSurface *pDestination = 0);
 
     bool            Sprite_OnScreen_Check();
-    void            Sprites_Draw();
+    void            Sprites_Draw(cSurface* pSurface = 0);
     void            Sprite_Map_Sound_Play(int16& pData0);
 
     void            Sound_Tick();

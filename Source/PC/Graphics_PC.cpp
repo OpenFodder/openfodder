@@ -275,7 +275,6 @@ void cGraphics_PC::Map_Tile_Draw( cSurface *pTarget, uint16 pTile, uint16 pX, ui
 }
 
 void cGraphics_PC::MapTiles_Draw() {
-	std::lock_guard<std::mutex> lock(mFodder->mSurfaceMtx);
 
     uint8* Target = mSurface->GetSurfaceBuffer();
 
@@ -803,21 +802,6 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 	return true;
 }
 
-void cGraphics_PC::Mission_Intro_Play(const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom) {
-
-	switch (pTileset) {
-	case eTileTypes_Jungle:
-	case eTileTypes_Desert:
-    case eTileTypes_Ice:
-	case eTileTypes_Moors:
-	case eTileTypes_Int:
-        Mission_Intro(BackgroundPositions[pTileset], pShowHelicopter, pTop, pBottom);
-
-    default:
-        return;
-	}
-}
-
 void cGraphics_PC::Mission_Intro_Render_1(tSharedBuffer pDs, int16 pCx) {
 
 	if (mFodder->mBriefing_Render_1_Mode != 0)
@@ -943,8 +927,45 @@ void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
 	}
 }
 
-void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, const bool pShowHelicopter, const std::string pTop, const std::string pBottom) {
+void cGraphics_PC::Briefing_Helicopter_Background_Unk_1() {
+	int32 dword_826C8 = 0x12000;
+	int32 d0 = 0;
+
+	if (Heli_TextPosBottom != 0x0C) {
+		Heli_TextPosBottom -= 4;
+
+		if (Heli_TextPosBottom <= 0x0C)
+			Heli_TextPosBottom = 0x0C;
+	}
+	Heli_TextPos = 344 - Heli_TextPosBottom;
+
+	d0 = dword_826C8;
+
+	Heli_VeryBack -= d0;
+	if ((int32_t)Heli_VeryBack < 0)
+		Heli_VeryBack += 320 << 16;
+
+	d0 <<= 1;
+	Heli_Back -= d0;
+	if ((int32_t)Heli_Back < 0)
+		Heli_Back += 320 << 16;
+
+	d0 <<= 1;
+	Heli_middle -= d0;
+	if ((int32_t)Heli_middle < 0)
+		Heli_middle += 320 << 16;
+
+	d0 <<= 1;
+	Heli_Front -= d0;
+	if ((int32_t)Heli_Front < 0) {
+		Heli_Front += 320 << 16;
+	}
+}
+
+void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom) {
 	
+	const std::vector<cPosition>& pPositions = BackgroundPositions[pTileset];
+
 	int16 word_4286F = 0;
 	int16 word_42871 = 0;
 	int16 word_42873 = 0;
@@ -959,14 +980,30 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 
 	mSurface->paletteSet(mPalette );
 
+	Heli_TextPos = 0;
+	Heli_TextPosBottom = 320;
+	mFodder->mString_GapCharID = 0x25;
+
+	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pTop);
+	auto topTextPos = mFodder->mGUI_Temp_X;
+
+	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pBottom);
+	auto bottomTextPos = mFodder->mGUI_Temp_X - 4;
+
 	do {
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
+		mFodder->Briefing_Helicopter_Check();
+		Briefing_Helicopter_Background_Unk_1();
+
+		mFodder->String_Print(mFont_Underlined_Width, 1, -332 + (topTextPos + (Heli_TextPos)), 0x01, pTop);
+		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom)+bottomTextPos, 0xB5 + 0x16, pBottom);
+
 		// Clouds
 		mMission_Intro_DrawX = pPositions[0].mX;
 		mMission_Intro_DrawY = pPositions[0].mY;
-		Mission_Intro_Render_1( mMission_Intro_Gfx_Clouds3, word_42875 );
+		Mission_Intro_Render_1( mMission_Intro_Gfx_Clouds3, word_42875);
 
 		mMission_Intro_DrawX = pPositions[1].mX;
 		mMission_Intro_DrawY = pPositions[1].mY;
@@ -989,6 +1026,8 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		mFodder->mVideo_Draw_Rows = 0x18;
 
         if (pShowHelicopter) {
+			mFodder->mVideo_Draw_PaletteIndex = 0xE0;
+
             if (Sprite_OnScreen_Check())
                 Video_Draw_8();
         }
@@ -998,12 +1037,12 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		Mission_Intro_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		// Front
-		word_4286F += 4;
+		word_4286F += 8;
 		if (word_4286F >= 320)
 			word_4286F = 0;
 
 		// Middle
-		word_42871 += 3;
+		word_42871 += 4;
 		if (word_42871 >= 320)
 			word_42871 = 0;
 
@@ -1017,8 +1056,8 @@ void cGraphics_PC::Mission_Intro( const std::vector<cPosition>& pPositions, cons
 		if (word_42875 >= 320)
 			word_42875 = 0;
 
-		mFodder->Briefing_Helicopter_Check();
-		mFodder->Video_Sleep(0, false, true);
+
+		mFodder->Video_Sleep(0, false, false);
 
 		if (mFodder->mMouseButtonStatus || mFodder->mPhase_Aborted) {
 			mFodder->mBriefing_Helicopter_NotDone = 0;

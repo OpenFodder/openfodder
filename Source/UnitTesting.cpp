@@ -137,8 +137,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
         }
 
         // Reset demo status
-		//g_Fodder->mParams->mSleepDelta = g_Fodder->mStartParams->mSleepDelta;
-		g_Fodder->mParams->mDemoFile = g_Fodder->mStartParams->mDemoFile;
+        g_Fodder->mParams->mDemoFile = g_Fodder->mStartParams->mDemoFile;
         g_Fodder->mParams->mDemoRecord = g_Fodder->mStartParams->mDemoRecord;
         g_Fodder->mParams->mDemoPlayback = g_Fodder->mStartParams->mDemoPlayback;
         g_Fodder->mParams->mAppVeyor = g_Fodder->mStartParams->mAppVeyor;
@@ -146,6 +145,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
         g_Fodder->mGame_Data_Backup = g_Fodder->mGame_Data;
 
         // Run the phase
+        
         auto missionStartTime = std::chrono::steady_clock::now();
         g_Fodder->Mission_Loop();
         auto missionDuration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - missionStartTime);
@@ -160,9 +160,9 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
                 // If the phase was aborted (ESC key), don't replay it.. start over
                 if (!g_Fodder->mPhase_EscapeKeyAbort) {
 
-                    // Less than 80 cycles, player can start over
-                    if (g_Fodder->mGame_Data.mDemoRecorded.mTick > 400) {
-                        g_Fodder->mStartParams->mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mDemoRecorded.mTick - 400);
+                    // Less than 200 cycles, player can start over
+                    if (g_Fodder->mGame_Data.mDemoRecorded.mTick > 200) {
+                        g_Fodder->mStartParams->mDemoRecordResumeCycle = (g_Fodder->mGame_Data.mDemoRecorded.mTick - 200);
                         g_Fodder->mStartParams->mDemoPlayback = true;
                         
                         // Delete events occruing after resume cycle
