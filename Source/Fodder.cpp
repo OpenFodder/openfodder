@@ -3541,7 +3541,8 @@ void cFodder::VersionSwitch(const sGameVersion* pVersion) {
             GUI_Sidebar_Setup();
 
         mSurface->palette_FadeTowardNew();
-        Music_Play_Tileset();
+        mMusicTrack_unk = mMusic_CurrentTrack;
+        mMusic_CurrentTrack = 0;
     }
     
     if(mRecruit_Screen_Active && mVersionCurrent->hasGfx(eGFX_HILL)) {
@@ -16782,11 +16783,7 @@ void cFodder::Image_FadeOut() {
     mGame_Data.mDemoRecorded.DisableTicks();
     while (mSurface->isPaletteAdjusting()) {
 
-        // BUGFIX: Prevent a pallete bug when version switching
-        if (mRecruit_Screen_Active) {
-            Recruit_Cycle();
-        } else 
-            mSurface->palette_FadeTowardNew();
+        mSurface->palette_FadeTowardNew();
 
         Video_Sleep();
 

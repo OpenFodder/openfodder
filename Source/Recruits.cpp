@@ -2085,16 +2085,6 @@ void cFodder::Recruit_Copy_Sprites() {
     }
 }
 
-void cFodder::Recruit_Cycle() {
-    std::lock_guard<std::mutex> lock(mSurfaceMtx);
-    Recruit_Update_Actors();
-    //mGraphics->Sidebar_Copy_To_Surface(0x18);
-
-
-
-    mSurfaceRecruit->copyFrom(mSurface);
-}
-
 bool cFodder::Recruit_Check_Buttons_SaveLoad() {
     mRecruit_Button_Load_Pressed = 0;
     mRecruit_Button_Save_Pressed = 0;

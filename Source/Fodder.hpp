@@ -759,7 +759,6 @@ public:
     void            Recruit_Position_Troops();
     void            Recruit_Update_Truck();
     void            Recruit_Copy_Sprites();
-    void            Recruit_Cycle();
     void            Recruit_Draw_Graves();
     void            Recruit_Draw_Grave(int16 pSpriteType, const size_t pPosX, const size_t pPosY);
     bool            Recruit_Check_Buttons_SaveLoad();
