@@ -583,7 +583,7 @@ void cFodder::Video_Sleep(cSurface* pSurface, const bool pShrink, const bool pVs
 
         if (!mStartParams->mDisableVideo) {
             if (!pShrink) {
-                Video_SurfaceRender(false, false);
+                Video_SurfaceRender(false, false, pSurface);
             }
             else {
                 Video_SurfaceRender(false, true, pSurface, false);
@@ -592,6 +592,7 @@ void cFodder::Video_Sleep(cSurface* pSurface, const bool pShrink, const bool pVs
         }
     }
 
+    // If not in vsync mode, then wait for the Amiga 50Hz Interrupt
     if (!pVsync) {
         while (!mVideo_Ticked) {
             SDL_Delay(1);
@@ -16957,9 +16958,13 @@ void cFodder::WonGame() {
     }
 
     Image_FadeIn();
+    mMouse_Exit_Loop = false;
 
-    for (int count = 500; count >= 0; --count) {
+    for (int count = 10000; count >= 0; --count) {
         Video_Sleep();
+
+        if (mPhase_Aborted || mMouse_Exit_Loop)
+            break;
     }
 
     Image_FadeOut();

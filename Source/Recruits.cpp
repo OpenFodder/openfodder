@@ -1285,13 +1285,29 @@ bool cFodder::Recruit_Loop() {
     mSurfaceRecruit->copyFrom(mSurface);
     mInterruptCallback = [this]() {
         
+        int16 DataC = PLATFORM_BASED(0xB6, 0xBE);
+        GUI_Draw_Frame_8(0x22, mRecruit_Truck_Frame, 0x31, DataC);
+
+        Recruit_Draw_Soldiers();
+        mGraphics->Sidebar_Copy_To_Surface(0x18);
+
+        if (mVersionCurrent->isPC())
+            mGraphics->Recruit_Draw_HomeAway();
+
         if (mMouseCursor_Enabled)
             Mouse_DrawCursor();
 
+        if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
+
+        mSurfaceRecruit->copyFrom(mSurface);
     };
 
     for (;; ) {
-        Recruit_Cycle();
+        {
+            std::lock_guard<std::mutex> lock(mSurfaceMtx);
+            Recruit_Update_Actors();
+        }
 
         if (mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
@@ -1303,7 +1319,8 @@ bool cFodder::Recruit_Loop() {
         if (mPhase_Aborted)
             break;
 
-        Video_Sleep(0, false, false);        
+        Video_Sleep(mSurfaceRecruit, false, false);  
+        Video_Sleep(mSurfaceRecruit, false, false);
     }
 
     mRecruit_Screen_Active = false;
@@ -1313,16 +1330,14 @@ bool cFodder::Recruit_Loop() {
 
     mSurface->paletteNew_SetToBlack();
 
-    mInterruptCallback = [this]() {
-        Recruit_Cycle();
-
-        if (mMouseCursor_Enabled)
-            Mouse_DrawCursor();
-    };
-
     while (mSurface->isPaletteAdjusting()) {
+        {
+            std::lock_guard<std::mutex> lock(mSurfaceMtx);
+            Recruit_Update_Actors();
+        }
 
-        Video_Sleep();
+        Video_Sleep(mSurfaceRecruit, false, false);
+        Video_Sleep(mSurfaceRecruit, false, false);
     }
 
     mInterruptCallback = nullptr;
@@ -1786,16 +1801,7 @@ loc_17686:;
 
 }
 
-void cFodder::Recruit_Update_Soldiers() {
-
-    if (mRecruit_Truck_Animation_Play) {
-        sub_175C0();
-    }
-    else {
-        Recruit_Frame_Check();
-        Recruit_Position_Troops();
-    }
-
+void cFodder::Recruit_Draw_Soldiers() {
     sRecruit_Screen_Pos* Data20 = mRecruit_Screen_Positions;
     sRecruit_Screen_Pos* dword_3B1C7;
 
@@ -1864,6 +1870,19 @@ void cFodder::Recruit_Update_Soldiers() {
             GUI_Draw_Frame_8(Data0, Data4, Data8, DataC);
         }
     }
+}
+
+void cFodder::Recruit_Update_Soldiers() {
+
+    if (mRecruit_Truck_Animation_Play) {
+        sub_175C0();
+    }
+    else {
+        Recruit_Frame_Check();
+        Recruit_Position_Troops();
+    }
+
+    //Recruit_Draw_Soldiers();
 }
 
 void cFodder::Recruit_Prepare_Anims() {
@@ -2011,7 +2030,7 @@ loc_179B2:;
 void cFodder::Recruit_Update_Truck() {
     int16 DataC = PLATFORM_BASED(0xB6, 0xBE);
 
-    GUI_Draw_Frame_8(0x22, mRecruit_Truck_Frame, 0x31, DataC);
+   // GUI_Draw_Frame_8(0x22, mRecruit_Truck_Frame, 0x31, DataC);
 
     // If no troop has reached the truck, don't do animation
     if (!mRecruit_Truck_Animation_Play)
@@ -2067,18 +2086,11 @@ void cFodder::Recruit_Copy_Sprites() {
 }
 
 void cFodder::Recruit_Cycle() {
-
+    std::lock_guard<std::mutex> lock(mSurfaceMtx);
     Recruit_Update_Actors();
-    mGraphics->Sidebar_Copy_To_Surface(0x18);
+    //mGraphics->Sidebar_Copy_To_Surface(0x18);
 
-    if (mVersionCurrent->isPC())
-        mGraphics->Recruit_Draw_HomeAway();
 
-    if (mMouseCursor_Enabled)
-        Mouse_DrawCursor();
-
-    if (mSurface->isPaletteAdjusting())
-        mSurface->palette_FadeTowardNew();
 
     mSurfaceRecruit->copyFrom(mSurface);
 }

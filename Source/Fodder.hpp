@@ -752,6 +752,8 @@ public:
     void            Recruit_Update_Actors();
     void            sub_175C0();
     void            Recruit_Update_Soldiers();
+    void            Recruit_Draw_Soldiers();
+
     void            Recruit_Prepare_Anims();
     void            Recruit_Frame_Check();
     void            Recruit_Position_Troops();
