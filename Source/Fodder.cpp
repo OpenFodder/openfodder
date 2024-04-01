@@ -3019,11 +3019,11 @@ void cFodder::eventProcess(const cEvent& pEvent) {
         break;
 
     case eEvent_KeyDown:
-        keyProcess(pEvent.mButton, false);
+        keyProcess(pEvent.mButton, true);
         break;
 
     case eEvent_KeyUp:
-        keyProcess(pEvent.mButton, true);
+        keyProcess(pEvent.mButton, false);
         break;
 
     case eEvent_MouseLeftDown:
