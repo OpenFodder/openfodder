@@ -17,6 +17,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${openfodder_SOURCE_DIR}/cmake)
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2Mixer REQUIRED)
+find_package(Threads)
 
 # Locate git binary to provide information to the build environment
 find_package(Git)
@@ -46,4 +47,4 @@ target_include_directories(openfodder PRIVATE
     Source
     ${CMAKE_CURRENT_BINARY_DIR}/Source)
 
-target_link_libraries(openfodder SDL2::SDL2 SDL2_mixer::SDL2_mixer)
+target_link_libraries(openfodder SDL2::SDL2 SDL2_mixer::SDL2_mixer Threads::Threads)

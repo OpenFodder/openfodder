@@ -173,6 +173,7 @@ public:
     uint32          mMouse_EventLastButtonsPressed;
     cPosition       mMouse_EventLastWheel;
     bool            mMouse_Locked;
+    int16           mMouse_LeftWindow;
     bool            mWindow_Focus;
 
     bool            mSquad_Member_Fire_CoolDown_Override;

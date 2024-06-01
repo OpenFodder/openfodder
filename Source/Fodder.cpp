@@ -104,6 +104,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mMouseY = 0;
     mMouseX_Offset = 0;
     mMouseY_Offset = 0;
+    mMouse_LeftWindow = SDL_GetTicks();
 
     mIntroDone = false;
 
@@ -3087,8 +3088,6 @@ void cFodder::eventsProcess() {
     }
 
     mWindow->EventGet()->clear();
-
-    //mGame_Data.mDemoRecorded.Tick();
 }
 
 void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
@@ -3246,6 +3245,9 @@ void cFodder::Mouse_Cursor_Handle() {
             mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
         }
         
+        if (SDL_GetTicks() - mMouse_LeftWindow < 100)
+            return;
+
         // Check if the system cursor x/y is inside our window
         // and ensure the mouse button has been released before we focus
         if (mWindow_Focus && mWindow->isMouseInside() && !mMouseButtonStatus) {
@@ -3275,6 +3277,7 @@ void cFodder::Mouse_Cursor_Handle() {
                 // Cursor leaving window
                 if (BorderMouse.mX || BorderMouse.mY) {
                     CursorGrabbed = false;
+                    mMouse_LeftWindow = SDL_GetTicks();
 
                     mWindow->SetRelativeMouseMode(false);
                     mWindow->SetMousePosition(BorderMouse);
