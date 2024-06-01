@@ -17,7 +17,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${openfodder_SOURCE_DIR}/cmake)
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2Mixer REQUIRED)
-find_package(Threads)
+find_package(Threads REQUIRED)
 
 # Locate git binary to provide information to the build environment
 find_package(Git)
