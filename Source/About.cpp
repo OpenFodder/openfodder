@@ -87,6 +87,7 @@ cAbout::cAbout() {
 
     mSurface = new cSurface(0, 0);
     mSurface->LoadPng(g_ResourceMan->GetAboutFile());
+
     g_Fodder->mGraphics->PaletteSet();
     g_Fodder->Phase_EngineReset();
     g_Fodder->mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
@@ -118,7 +119,9 @@ bool cAbout::Cycle() {
 
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->Service_Draw_List();
-    g_Fodder->Service_ScrollUp_DrawList();
+
+    if (g_Fodder->mInterruptTick % 2 == 0)
+        g_Fodder->Service_ScrollUp_DrawList();
 
     {
         g_Fodder->mString_GapCharID = 0x25;
@@ -142,6 +145,13 @@ bool cAbout::Cycle() {
         }
 
     }
+
+    g_Fodder->Mouse_DrawCursor();
+
+    g_Fodder->mSurface->draw();
+    g_Fodder->Video_Sleep(mSurface, true);
+    g_Fodder->mWindow->RenderAt(g_Fodder->mSurface);
+    //g_Fodder->Video_SurfaceRender(false, false, 0, false);
 
     if (g_Fodder->mGUI_SaveLoadAction == 1 && !g_Fodder->mSurface->isPaletteAdjusting())
         return false;

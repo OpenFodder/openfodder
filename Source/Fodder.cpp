@@ -18810,7 +18810,7 @@ void cFodder::About() {
     cAbout About;
     while (About.Cycle()) {
 
-        Video_Sleep(0, true);
+        
     }
 
     g_Fodder->mPhase_Aborted = false;
