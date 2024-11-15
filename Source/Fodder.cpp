@@ -3132,8 +3132,12 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed) {
     if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
         mWindow->ToggleFullscreen();
 
-    if (pKeyCode == SDL_SCANCODE_F12 && pPressed)
+    if (pKeyCode == SDL_SCANCODE_F12 && pPressed) {
         mParams->mMouseLocked = !mParams->mMouseLocked;
+
+        if (mStartParams->mMouseAlternative)
+            mWindow->SetRelativeMouseMode(mParams->mMouseLocked);
+    }
 
     if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed && mPhase_Aborted)
         mPhase_Aborted2 = true;
@@ -3301,9 +3305,6 @@ void cFodder::Mouse_Cursor_Handle() {
                 mMouse_EventLastPositionRelative = { 0,0 };
             }
         }
-
-        // Set system cursor back to centre of window
-        //mWindow->SetMousePosition(WindowSize.getCentre() + WindowPos);
     }
 }
 

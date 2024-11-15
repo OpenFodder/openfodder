@@ -80,10 +80,10 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	}
 
     if (g_Fodder->mParams->mIntegerScaling || mWindowMode) {
-	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
+		SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
     }
     else {
-	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
+		SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
     }
 
 	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
@@ -99,7 +99,8 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
         ToggleFullscreen();
     }
 
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	if (!g_Fodder->mParams->mMouseAlternative || (g_Fodder->mParams->mMouseAlternative && g_Fodder->mParams->mMouseLocked))
+		SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	return true;
 }
