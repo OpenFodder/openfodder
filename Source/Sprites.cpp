@@ -96,7 +96,7 @@ void cFodder::Sprite_Table_Setup() {
 	/* 40 */
 	SpriteFunction( Helicopter_Grenade_Enemy );
 	SpriteFunction( Flashing_Light );
-	SpriteFunction( Helicopter_Grenade2_Enemy );
+	SpriteFunction( Helicopter_Unarmed_Enemy );
 	SpriteFunction( Helicopter_Missile_Enemy );
 	
 	/* 44 */
@@ -107,8 +107,8 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 48 */
 	SpriteFunction( FireTrail );
-	SpriteFunction( Helicopter_Grenade2_Human );
 	SpriteFunction( Helicopter_Grenade_Human );
+	SpriteFunction( Helicopter_Unarmed_Human );
 	SpriteFunction( Helicopter_Missile_Human );
 
 	/* 52 */
@@ -185,8 +185,8 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 100 */
 	SpriteFunction( BuildingDoor_Reinforced );
-	SpriteFunction( Helicopter_Grenade2_Human_Called );
 	SpriteFunction( Helicopter_Grenade_Human_Called );
+	SpriteFunction( Helicopter_Unarmed_Human_Called );
 	SpriteFunction( Helicopter_Missile_Human_Called );
 
 	/* 104 */
@@ -219,7 +219,7 @@ void cFodder::Sprite_Table_Setup() {
 
 // Types of units which are hostile towards the Player
 const int16 mEnemy_Unit_Types[] = {
-	eSprite_Enemy, eSprite_Enemy_Rocket,	eSprite_Helicopter_Grenade_Enemy,	eSprite_Helicopter_Grenade2_Enemy,
+	eSprite_Enemy, eSprite_Enemy_Rocket,	eSprite_Helicopter_Grenade_Enemy,	eSprite_Helicopter_Unarmed_Enemy,
 	eSprite_Helicopter_Missile_Enemy,		eSprite_Helicopter_Homing_Enemy,	eSprite_Tank_Enemy,
 	eSprite_VehicleNoGun_Enemy,				eSprite_VehicleGun_Enemy,			eSprite_Vehicle_Unk_Enemy,
 	eSprite_Turret_Missile_Enemy,			eSprite_Turret_Missile2_Enemy,		eSprite_Turret_HomingMissile_Enemy,

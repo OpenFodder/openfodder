@@ -6139,6 +6139,8 @@ void cFodder::Sprite_Handle_Helicopter_Human_Deploy_Weapon(sSprite* pSprite) {
     if (pSprite->field_6F == eVehicle_Helicopter_Homing)
         goto loc_24917;
 
+    return;
+
 loc_24905:;
     if (!Sprite_Create_Grenade2(pSprite))
         goto loc_2490D;
@@ -8768,7 +8770,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
         break;
 
     case eSprite_Helicopter_Grenade_Enemy:          // 3 Nulls
-    case eSprite_Helicopter_Grenade2_Enemy:
+    case eSprite_Helicopter_Unarmed_Enemy:
     case eSprite_Helicopter_Missile_Enemy:
     case eSprite_Helicopter_Homing_Enemy:
     case eSprite_Helicopter_Homing_Enemy2:
@@ -8790,12 +8792,12 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
         break;
 
         // Fall Through
-    case eSprite_Helicopter_Grenade2_Human:         // 2 Nulls
-    case eSprite_Helicopter_Grenade_Human:
+    case eSprite_Helicopter_Grenade_Human:         // 2 Nulls
+    case eSprite_Helicopter_Unarmed_Human:
     case eSprite_Helicopter_Missile_Human:
     case eSprite_Helicopter_Homing_Human:
-    case eSprite_Helicopter_Grenade2_Human_Called:
     case eSprite_Helicopter_Grenade_Human_Called:
+    case eSprite_Helicopter_Unarmed_Human_Called:
     case eSprite_Helicopter_Missile_Human_Called:
     case eSprite_Helicopter_Homing_Human_Called:
     case eSprite_Tank_Enemy:
@@ -12507,7 +12509,7 @@ void cFodder::Sprite_Handle_Flashing_Light(sSprite* pSprite) {
     pSprite->field_20 += 0x18;
 }
 
-void cFodder::Sprite_Handle_Helicopter_Grenade2_Enemy(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Helicopter_Unarmed_Enemy(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_Helicopter;
     Sprite_Handle_Helicopter_Enemy(pSprite);
@@ -12765,13 +12767,13 @@ void cFodder::Sprite_Handle_FireTrail(sSprite* pSprite) {
     Sprite_Destroy_Wrapper(pSprite);
 }
 
-void cFodder::Sprite_Handle_Helicopter_Grenade_Human(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Helicopter_Unarmed_Human(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_Helicopter;
     Sprite_Handle_Helicopter_Human(pSprite);
 }
 
-void cFodder::Sprite_Handle_Helicopter_Grenade2_Human(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Helicopter_Grenade_Human(sSprite* pSprite) {
 
     pSprite->field_6F = eVehicle_Helicopter_Grenade;
     Sprite_Handle_Helicopter_Human(pSprite);
@@ -14198,15 +14200,15 @@ void cFodder::Sprite_Handle_BuildingDoor_Reinforced(sSprite* pSprite) {
     Sprite_Handle_BuildingDoor3(pSprite);
 }
 
-void cFodder::Sprite_Handle_Helicopter_Grenade2_Human_Called(sSprite* pSprite) {
-    Sprite_Handle_Helicopter_Human_CallCheck(pSprite);
-    Sprite_Handle_Helicopter_Grenade2_Human(pSprite);
-
-}
-
 void cFodder::Sprite_Handle_Helicopter_Grenade_Human_Called(sSprite* pSprite) {
     Sprite_Handle_Helicopter_Human_CallCheck(pSprite);
     Sprite_Handle_Helicopter_Grenade_Human(pSprite);
+
+}
+
+void cFodder::Sprite_Handle_Helicopter_Unarmed_Human_Called(sSprite* pSprite) {
+    Sprite_Handle_Helicopter_Human_CallCheck(pSprite);
+    Sprite_Handle_Helicopter_Unarmed_Human(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Missile_Human_Called(sSprite* pSprite) {

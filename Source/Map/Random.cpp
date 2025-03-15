@@ -347,15 +347,15 @@ int cRandomMap::Passable(int nx, int ny)
 			break;
 
 		case eSprite_Helicopter_Grenade_Enemy:
-		case eSprite_Helicopter_Grenade2_Enemy:
+		case eSprite_Helicopter_Unarmed_Enemy:
 		case eSprite_Helicopter_Missile_Enemy:
 		case eSprite_Helicopter_Homing_Enemy:
-		case eSprite_Helicopter_Grenade2_Human:
 		case eSprite_Helicopter_Grenade_Human:
+		case eSprite_Helicopter_Unarmed_Human:
 		case eSprite_Helicopter_Missile_Human:
 		case eSprite_Helicopter_Homing_Human:
-		case eSprite_Helicopter_Grenade2_Human_Called:
 		case eSprite_Helicopter_Grenade_Human_Called:
+		case eSprite_Helicopter_Unarmed_Human_Called:
 		case eSprite_Helicopter_Missile_Human_Called:
 		case eSprite_Helicopter_Homing_Human_Called:
 		case eSprite_Helicopter_Homing_Enemy2:

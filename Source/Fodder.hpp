@@ -854,23 +854,23 @@ public:
 
     void            Sprite_Handle_Helicopter_Grenade_Enemy(sSprite* pSprite);             // 40
     void            Sprite_Handle_Flashing_Light(sSprite* pSprite);                       // 41
-    void            Sprite_Handle_Helicopter_Grenade2_Enemy(sSprite* pSprite);            // 42
+    void            Sprite_Handle_Helicopter_Unarmed_Enemy(sSprite* pSprite);             // 42
     void            Sprite_Handle_Helicopter_Missile_Enemy(sSprite* pSprite);             // 43
     void            Sprite_Handle_Helicopter_Homing_Enemy(sSprite* pSprite);              // 44
     void            Sprite_Handle_Missile(sSprite* pSprite);                              // 45
     void            Sprite_Handle_MissileHoming(sSprite* pSprite);                        // 46
-    void            Sprite_Handle_Sparks(sSprite* pSprite);                                           // 47
-    void            Sprite_Handle_FireTrail(sSprite* pSprite);                                            // 48
-    void            Sprite_Handle_Helicopter_Grenade2_Human(sSprite* pSprite);            // 49
+    void            Sprite_Handle_Sparks(sSprite* pSprite);                               // 47
+    void            Sprite_Handle_FireTrail(sSprite* pSprite);                            // 48
+    void            Sprite_Handle_Helicopter_Grenade_Human(sSprite* pSprite);             // 49
 
-    void            Sprite_Handle_Helicopter_Grenade_Human(sSprite* pSprite);             // 50
+    void            Sprite_Handle_Helicopter_Unarmed_Human(sSprite* pSprite);             // 50
     void            Sprite_Handle_Helicopter_Missile_Human(sSprite* pSprite);             // 51
     void            Sprite_Handle_Helicopter_Homing_Human(sSprite* pSprite);              // 52
     void            Sprite_Handle_Helicopter_PropCrash(sSprite* pSprite);                 // 53
     void            Sprite_Handle_Mine(sSprite* pSprite);                                 // 54
     void            Sprite_Handle_Mine2(sSprite* pSprite);                                // 55
     void            Sprite_Handle_Spike(sSprite* pSprite);                                // 56
-    void            Sprite_Handle_Smoke(sSprite* pSprite);                                            // 57
+    void            Sprite_Handle_Smoke(sSprite* pSprite);                                // 57
     void            Sprite_Handle_Text_Try(sSprite* pSprite);                             // 58
     void            Sprite_Handle_Text_Again(sSprite* pSprite);                           // 59
 
@@ -919,8 +919,8 @@ public:
     void            Sprite_Handle_Helicopter_CallPad(sSprite* pSprite);               // 99
 
     void            Sprite_Handle_BuildingDoor_Reinforced(sSprite* pSprite);                                      // 100
-    void            Sprite_Handle_Helicopter_Grenade2_Human_Called(sSprite* pSprite); // 101
-    void            Sprite_Handle_Helicopter_Grenade_Human_Called(sSprite* pSprite);  // 102
+    void            Sprite_Handle_Helicopter_Grenade_Human_Called(sSprite* pSprite); // 101
+    void            Sprite_Handle_Helicopter_Unarmed_Human_Called(sSprite* pSprite);  // 102
     void            Sprite_Handle_Helicopter_Missile_Human_Called(sSprite* pSprite);  // 103
     void            Sprite_Handle_Helicopter_Homing_Human_Called(sSprite* pSprite);   // 104
     void            Sprite_Handle_Turret_HomingMissile_Enemy(sSprite* pSprite);       // 105
