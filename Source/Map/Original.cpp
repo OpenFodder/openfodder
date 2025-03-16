@@ -183,7 +183,7 @@ bool cOriginalMap::saveCF1Sprites(std::string pFilename) {
 	uint8* SptPtr = MapSpt->data();
 
 	// Cheap way of writing human players first
-	for (const auto SpriteIT : mSprites) {
+	for (const auto& SpriteIT : mSprites) {
 
 		if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
 			continue;
@@ -199,7 +199,7 @@ bool cOriginalMap::saveCF1Sprites(std::string pFilename) {
 	}
 
 	// Now write out all other players
-	for (const auto SpriteIT : mSprites) {
+	for (const auto& SpriteIT : mSprites) {
 
 		if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
 			continue;
