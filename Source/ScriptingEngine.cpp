@@ -390,6 +390,7 @@ void cScriptingEngine::guiPrintString(const std::string& pText, const size_t pX,
 			g_Fodder->String_Print_Large(pText, pUnderline, pX, pY);
 	}
 
+	g_Fodder->mSurface->Save();
 	g_Fodder->Video_Sleep();
 	g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
 }

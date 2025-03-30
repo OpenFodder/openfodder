@@ -30,7 +30,8 @@
 
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	mParams = pParams;
-
+	mPathSearchUnitType = 0;
+	mPathTilesNotTouchable = 0;
 	mData = std::make_shared<std::vector<uint8_t>>();
 	ClearTiles(0);
 

@@ -41,6 +41,7 @@ sMapParams::sMapParams(size_t pSeed) {
 
 cMap::cMap() {
 	mData = std::make_shared<std::vector<uint8_t>>();
+	mTile_Ptr = 0;
 }
 
 int32 cMap::Tile_Get(const size_t pTileX, const size_t pTileY) {
