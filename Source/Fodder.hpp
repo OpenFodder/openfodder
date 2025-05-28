@@ -78,7 +78,7 @@ struct sService_Draw {
 };
 
 extern const sSpriteSheet_pstuff mSpriteSheet_PStuff[209];
-extern const int16 mMap_Direction_Calculations[256];
+extern const int16 mDirectionVectorTable[256];
 extern const int8 mMap_Distance_Calculations[1025];
 extern const int16 mMap_DirectionsBetweenPoints[];
 
@@ -542,21 +542,21 @@ public:
     size_t          mDraw_Dest_SkipPixelsPerRow;
     uint16          mVideo_Draw_ColumnsMax;
 
-    int32           word_85BE4;
-    int32           word_85BE6;
-    int16           word_428B6;
-    int16           word_428B8;
+    int32           mBriefingHelicopter_ScreenX;
+    int32           mBriefingHelicopter_ScreenY;
+    int16           mBriefingHelicopter_DirectionIndex;
+    int16           mBriefingHelicopter_Speed;
     int16          word_428BA;
 
     int32          mHelicopterPosX;
     int32          mHelicopterPosY;
-    int16           mBriefing_Helicopter_Off1;
-    int16           mBriefing_Helicopter_Off2;
-    int16           mBriefing_Helicopter_Off3;
-    int16           mBriefing_Helicopter_Pos;
-    uint16          mBriefing_ParaHeli_Frame;
-    int16           mBriefing_Helicopter_Moving;
-    int16           mBriefing_Helicopter_NotDone;
+    int16           mBriefingHelicopter_TargetDirection;
+    float           mBriefingHelicopter_TargetSpeed;
+    float           mBriefingHelicopter_NextUpdateCountdown;
+    int16           mHelicopterOffsetIndex;
+    uint16          mBriefingHelicopter_FrameCounter;
+    int16           mBriefingHelicopter_Moving;
+    int16           mBriefingHelicopter_NotDone;
 
     int16           mMouseButtonStatus;
     int16           mInputMouseX;

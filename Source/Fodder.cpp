@@ -36,37 +36,7 @@ const int16 MOUSE_POSITION_Y_ADJUST = 4;
 
 const int16 SIDEBAR_WIDTH = 48;
 
-const int16 mBriefing_Helicopter_Offsets[] =
-{
-    0x0180, 0x0040, 0x0004, 
-    0x01A0, 0x0040, 0x000F, 
-    0x01C0, 0x0040, 0x0007, 
-    0x01E0, 0x0020, 0x0007, 
-    0x0000, 0x0010, 0x000A, 
-    0x0080, 0x0010, 0x001E, 
-    0x0100, 0x0010, 0x000A, 
-    0x01A0, 0x0008, 0x0019,
-    0x0170, 0x0064, 0x000A, 
-    -1, -1, -1
-};
-/*
-const int16 mBriefing_Helicopter_Offsets_Amiga[] =
-{
-  0x0180, 0x0020, 0x0005,
-  0x01A0, 0x0020, 0x001E,
-  0x01C0, 0x0020, 0x0014,
-  0x01E0, 0x0010, 0x0014,
-  0x0000, 0x0008, 0x0014,
-  0x0080, 0x0008, 0x003C,
-  0x0100, 0x0008, 0x0014,
-  0x01A0, 0x0004, 0x002E,
-  0x0170, 0x0032, 0x0010,       // Originally this line is 0x170, 0x32, 0x46
-  0x0170, 0x0020, 0x0010,       //  and this one didnt exist
-
-  -1, -1, -1
-};*/
-
-const int16 mBriefing_Helicopter_Offsets_Amiga[] =
+const int16 mBriefing_Helicopter_Offsets_Amiga[30] =
 {
   0x0180, 0x0020, 0x0005, 
   0x01A0, 0x0020, 0x001E, 
@@ -201,28 +171,28 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mInput_LastKey = 0;
     mCustom_ExitMenu = 0;
 
-    mBriefing_Helicopter_NotDone = 0;
+    mBriefingHelicopter_NotDone = 0;
     word_3A05F = 0;
     byte_44AC0 = 0;
     mSoundDisabled = false;
     Squad_Walk_Target_SetAll(0);
     mPhase_Completed_Timer = 0;
     mVideo_Draw_ColumnsMax = 0;
-    word_428B6 = 0;
-    word_428B8 = 0;
+    mBriefingHelicopter_DirectionIndex = 0;
+    mBriefingHelicopter_Speed = 0;
     word_428BA = 0;
     mHelicopterPosX = 0;
     mHelicopterPosY = 0;
-    mBriefing_Helicopter_Off1 = 0;
-    mBriefing_Helicopter_Off2 = 0;
-    mBriefing_Helicopter_Off3 = 0;
+    mBriefingHelicopter_TargetDirection = 0;
+    mBriefingHelicopter_TargetSpeed = 0;
+    mBriefingHelicopter_NextUpdateCountdown = 0;
 
-    mBriefing_Helicopter_Moving = 0;
-    mBriefing_Helicopter_Pos = 0;
+    mBriefingHelicopter_Moving = 0;
+    mHelicopterOffsetIndex = 0;
 
 
-    mBriefing_ParaHeli_Frame = 0;
-    mBriefing_Helicopter_Moving = 0;
+    mBriefingHelicopter_FrameCounter = 0;
+    mBriefingHelicopter_Moving = 0;
     mTroop_InRange_Callpad = 0;
 
     for (unsigned int x = 0; x < 0x18; ++x) {
@@ -811,11 +781,11 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader() {
     if (Direction_Between_Points(Data0, Data4, SquadLeaderX, SquadLeaderY) < 0)
         return;
 
-    int32 DirectionX = mMap_Direction_Calculations[Data4 / 2];
+    int32 DirectionX = mDirectionVectorTable[Data4 / 2];
     Data4 += 0x80;
     Data4 &= 0X1FE;
 
-    int32 DirectionY = mMap_Direction_Calculations[Data4 / 2];
+    int32 DirectionY = mDirectionVectorTable[Data4 / 2];
 
     DirectionX = (DirectionX * word_3ABFD) >> 16;
     DirectionY = (DirectionY * word_3ABFD) >> 16;
@@ -1630,11 +1600,11 @@ void cFodder::Camera_Speed_Update_From_PanTarget() {
             return;
         Data4 = Data0;
 
-        Data8 = mMap_Direction_Calculations[Data4 / 2];
+        Data8 = mDirectionVectorTable[Data4 / 2];
         Data4 += 0x80;
         Data4 &= 0x1FE;
 
-        DataC = mMap_Direction_Calculations[Data4 / 2];
+        DataC = mDirectionVectorTable[Data4 / 2];
         Data8 >>= 2;
         DataC >>= 2;
 
@@ -3961,81 +3931,81 @@ void cFodder::Mission_Intro_Helicopter_Start() {
     mHelicopterPosX = 0x01500000;
     mHelicopterPosY = 0x001E0000;
 
-    word_428B8 = 0;
+    mBriefingHelicopter_Speed = 0;
     mPaletteLevel = 0;
-    word_85BE4 = 0xD0;
+    mBriefingHelicopter_ScreenX = 0xD0;
 
-    mBriefing_Helicopter_Moving = 0;
-    mBriefing_Helicopter_Pos = 0;
-    mBriefing_Helicopter_Off3 = 0;
+    mBriefingHelicopter_Moving = 0;
+    mHelicopterOffsetIndex = 0;
+    mBriefingHelicopter_NextUpdateCountdown = 0;
 
     Briefing_Update_Helicopter();
-    mBriefing_ParaHeli_Frame = 0;
-    mBriefing_Helicopter_Moving = -1;
-    mBriefing_Helicopter_NotDone = -1;
+    mBriefingHelicopter_FrameCounter = 0;
+    mBriefingHelicopter_Moving = -1;
+    mBriefingHelicopter_NotDone = -1;
 
-    word_428B6 = 0x180;
-    mBriefing_Helicopter_Off1 = 0x180;
+    mBriefingHelicopter_DirectionIndex = 0x180;
+    mBriefingHelicopter_TargetDirection = 0x180;
 }
 
 void cFodder::Briefing_Update_Helicopter() {
 
-    word_85BE4 = (mHelicopterPosX >> 16) - 0x20;
-    word_85BE6 = (mHelicopterPosY >> 16);
+    mBriefingHelicopter_ScreenX = (mHelicopterPosX >> 16) - 0x20;
+    mBriefingHelicopter_ScreenY = (mHelicopterPosY >> 16);
 
-    mBriefing_Helicopter_Off3--;
+    mBriefingHelicopter_NextUpdateCountdown--;
 
-    if (mBriefing_Helicopter_Off3 < 0) {
+    if (mBriefingHelicopter_NextUpdateCountdown < 0) {
 
-        mBriefing_Helicopter_Off1 = mBriefing_Helicopter_Offsets_Amiga[mBriefing_Helicopter_Pos];
-        mBriefing_Helicopter_Off2 = mBriefing_Helicopter_Offsets_Amiga[mBriefing_Helicopter_Pos + 1];
-        mBriefing_Helicopter_Off3 = mBriefing_Helicopter_Offsets_Amiga[mBriefing_Helicopter_Pos + 2];
+        mBriefingHelicopter_TargetDirection = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex];
+        mBriefingHelicopter_TargetSpeed = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 1];
+        mBriefingHelicopter_NextUpdateCountdown = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 2];
 
-        if (mBriefing_Helicopter_Off3 < 0)
+        if (mBriefingHelicopter_NextUpdateCountdown < 0)
             return;
         
-        mBriefing_Helicopter_Pos += 3; 
+        mHelicopterOffsetIndex += 3; 
     }
 
-    word_428B6 &= 0x1FE;
-    uint16 bx = word_428B6;
+    mBriefingHelicopter_DirectionIndex &= 0x1FE;
+    uint16 bx = mBriefingHelicopter_DirectionIndex;
 
-    int32 ax = mMap_Direction_Calculations[(bx / 2) & 0xFF];
+    int32 ax = mDirectionVectorTable[(bx / 2) & 0xFF];
 
     ax >>= 2;
 
-    mHelicopterPosX += ax * word_428B8;
+    mHelicopterPosX += ax * mBriefingHelicopter_Speed;
 
     bx += 0x80;
     bx &= 0x1FE;
 
-    ax = mMap_Direction_Calculations[(bx / 2) & 0xFF];
+    ax = mDirectionVectorTable[(bx / 2) & 0xFF];
     ax >>= 2;
-    mHelicopterPosY += ax * word_428B8;
+    mHelicopterPosY += ax * mBriefingHelicopter_Speed;
 
-    bx = mBriefing_Helicopter_Off1 - word_428B6;
+    bx = mBriefingHelicopter_TargetDirection - mBriefingHelicopter_DirectionIndex;
     bx >>= 5;
     --bx;
     bx ^= 0x0F;
     bx &= 0x0F;
 
-    int16 al = mSprite_Direction_Frame_Unk[bx];
+    int16 al = mDirectionStepTable[bx];
     al <<= 2;
-    word_428B6 += al;
-    word_428B6 &= 0x1FE;
+    mBriefingHelicopter_DirectionIndex += al;
+    mBriefingHelicopter_DirectionIndex &= 0x1FE;
 
-    if (mBriefing_Helicopter_Off2 != word_428B8) {
-        if (word_428B8 > mBriefing_Helicopter_Off2)
-            word_428B8 -= 1;
+    if (mBriefingHelicopter_TargetSpeed != mBriefingHelicopter_Speed) {
+        if (mBriefingHelicopter_Speed > mBriefingHelicopter_TargetSpeed)
+            mBriefingHelicopter_Speed -= 1;
         else
-            word_428B8 += 1;
+            mBriefingHelicopter_Speed += 1;
     }
 
 	if (mVersionCurrent->isCannonFodder1() && mVersionCurrent->isPC())
-		mBriefing_ParaHeli_Frame += 1;
+		mBriefingHelicopter_FrameCounter += 1;
 
-    if (mBriefing_ParaHeli_Frame == 4)
-        mBriefing_ParaHeli_Frame = 0;
+    if (mBriefingHelicopter_FrameCounter == 4)
+        mBriefingHelicopter_FrameCounter = 0;
 }
 
 void cFodder::Briefing_Helicopter_Check() {
@@ -4044,20 +4014,20 @@ void cFodder::Briefing_Helicopter_Check() {
     Music_Increase_Channel_Volume();
     if (!mMouse_Exit_Loop || !mPhase_Aborted) {
 
-        if (word_85BE4 > 0x30) {
+        if (mBriefingHelicopter_ScreenX > 0x30) {
 
             d0 = mInterruptTick & 0x1;
 
             if (d0 == 0) {
 
-                if (mBriefing_Helicopter_Moving < 0x10) {
-                    mBriefing_Helicopter_Moving++;
+                if (mBriefingHelicopter_Moving < 0x10) {
+                    mBriefingHelicopter_Moving++;
                     mPaletteLevel++;
                     return;
                 }
             }
 
-            if (mBriefing_Helicopter_Moving >= 0x10) {
+            if (mBriefingHelicopter_Moving >= 0x10) {
                 Briefing_Update_Helicopter();
             }
             return;
@@ -4067,14 +4037,14 @@ void cFodder::Briefing_Helicopter_Check() {
     d0 = mInterruptTick & 0x1;
 
     if (d0 == 0) {
-        if (mBriefing_Helicopter_Moving == 0 && mBriefing_Helicopter_NotDone) {
-            mBriefing_Helicopter_NotDone = 0;
+        if (mBriefingHelicopter_Moving == 0 && mBriefingHelicopter_NotDone) {
+            mBriefingHelicopter_NotDone = 0;
 
             mGraphics->mImageMissionIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
             //mSurface->paletteNew_SetToBlack();
         }
         else {
-            mBriefing_Helicopter_Moving--;
+            mBriefingHelicopter_Moving--;
             mPaletteLevel--;
             mSurface->paletteNew_SetToBlack();
         }
@@ -7690,11 +7660,11 @@ void cFodder::Sprite_Movement_Calculate(sSprite* pSprite) {
     pSprite->field_10 &= 0x1FE;
     int16 Data4 = pSprite->field_10;
 
-    int16 Data8 = mMap_Direction_Calculations[Data4 / 2];
+    int16 Data8 = mDirectionVectorTable[Data4 / 2];
 
     Data4 += 0x80;
     Data4 &= 0x1FE;
-    int16 DataC = mMap_Direction_Calculations[Data4 / 2];
+    int16 DataC = mDirectionVectorTable[Data4 / 2];
     Data8 >>= 2;
     DataC >>= 2;
     //seg007:064F
@@ -7860,7 +7830,7 @@ void cFodder::sub_2A3D4(sSprite* pSprite) {
     DataC -= Data4;
     DataC &= 0x0F;
     //seg007:0920
-    DataC = (int16)mSprite_Direction_Frame_Unk[DataC];
+    DataC = (int16)mDirectionStepTable[DataC];
     DataC <<= 1;
 
     mDirectionMod = DataC;
@@ -8448,7 +8418,7 @@ void cFodder::Sprite_SetDirectionMod(sSprite* pSprite) {
     int16 Data4 = Data0;
     Data4 &= 0x0F;
 
-    mDirectionMod = (int16)mSprite_Direction_Frame_Unk[Data4];
+    mDirectionMod = (int16)mDirectionStepTable[Data4];
 }
 
 void cFodder::Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C) {
@@ -8462,7 +8432,7 @@ void cFodder::Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C) 
     Data0 -= Data4;
     Data4 = Data0;
     Data4 &= 0x0F;
-    int16 DataC = mSprite_Direction_Frame_Unk[Data4];
+    int16 DataC = mDirectionStepTable[Data4];
     if (!DataC)
         return;
 
@@ -18211,10 +18181,10 @@ void cFodder::sub_21CD1(sSprite* pSprite) {
     Data8 *= 0x76;
     Data8 &= 0x1FE;
 
-    DataC = mMap_Direction_Calculations[Data8 / 2];
+    DataC = mDirectionVectorTable[Data8 / 2];
     Data8 += 0x80;
     Data8 &= 0x1FE;
-    Data10 = mMap_Direction_Calculations[Data8 / 2];
+    Data10 = mDirectionVectorTable[Data8 / 2];
 
     //seg005:29B2
     DataC >>= 8;

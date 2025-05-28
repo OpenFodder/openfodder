@@ -321,7 +321,7 @@ const int16 mSprite_Can_Be_RunOver[] = {
     0, 1, 1, 1, 1, 1, 1
 };
 
-const int16 mSprite_Direction_Frame_Unk[] = {
+const int16 mDirectionStepTable[] = {
 	0, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1
 };
 

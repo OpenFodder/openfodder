@@ -762,7 +762,9 @@ void cGraphics_Amiga::MapTiles_Draw() {
 				if (Tile > 0x1C0)
 					Tile = 0;
 
-				uint8* TilePtr = mBlkData->data() + (Tile << 7);
+				Tile <<= 7;
+
+				uint8* TilePtr = mBlkData->data() + Tile;
 				uint16 StartX = 0;
 
 				TilePtr += StartY * 2;
@@ -1603,13 +1605,13 @@ void cGraphics_Amiga::Mission_Intro_Play(
 		mFodder->Video_Sleep(0, false, true);
 
 		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
-			mFodder->mBriefing_Helicopter_NotDone = 0;
+			mFodder->mBriefingHelicopter_NotDone = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mMouse_Exit_Loop = false;
 			mFodder->mPhase_Aborted = 0;
 		}
 
-	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
+	} while (mFodder->mBriefingHelicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 
 	mFodder->mMouse_Exit_Loop = false;
 }

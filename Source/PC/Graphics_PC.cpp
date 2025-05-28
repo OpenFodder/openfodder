@@ -1018,7 +1018,7 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
         mMission_Intro_DrawY = pPositions[3].mY;
 		Mission_Intro_Render_1( mMission_Intro_Gfx_TreesMain, word_42871 );
 
-		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefing_ParaHeli_Frame];
+		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefingHelicopter_FrameCounter];
 
 		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;		// X
 		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;		// Y 
@@ -1060,11 +1060,11 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 		mFodder->Video_Sleep(0, false, false);
 
 		if (mFodder->mMouseButtonStatus || mFodder->mPhase_Aborted) {
-			mFodder->mBriefing_Helicopter_NotDone = 0;
+			mFodder->mBriefingHelicopter_NotDone = 0;
 			mSurface->paletteNew_SetToBlack();
 			mFodder->mMouse_Exit_Loop = false;
 			mFodder->mPhase_Aborted = 0;
 		}
 
-	} while (mFodder->mBriefing_Helicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
+	} while (mFodder->mBriefingHelicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 }

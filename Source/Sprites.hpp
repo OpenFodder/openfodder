@@ -363,7 +363,7 @@ extern const int16 mSprite_Seal_Frames[];
 extern const int16 mSprite_Computer_Frames[];
 extern const int8 mSprite_Civilian_Sound_Death[];
 extern const int8 mSprite_Soldier_Unk[];
-extern const int16 mSprite_Direction_Frame_Unk[];
+extern const int16 mDirectionStepTable[];
 extern const int16* mSprite_AnimationPtrs[];
 extern const int16 mSprite_Speed_Direction_Modifier[];
 extern const std::vector<std::vector<int16>> mSoldier_Squad_Fire_RotationOrder;
