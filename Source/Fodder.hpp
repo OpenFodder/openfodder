@@ -545,11 +545,11 @@ public:
     int32           mBriefingHelicopter_ScreenX;
     int32           mBriefingHelicopter_ScreenY;
     int16           mBriefingHelicopter_DirectionIndex;
-    int16           mBriefingHelicopter_Speed;
+    float           mBriefingHelicopter_Speed;
     int16          word_428BA;
 
-    int32          mHelicopterPosX;
-    int32          mHelicopterPosY;
+    float          mHelicopterPosX;
+    float          mHelicopterPosY;
     int16           mBriefingHelicopter_TargetDirection;
     float           mBriefingHelicopter_TargetSpeed;
     float           mBriefingHelicopter_NextUpdateCountdown;
@@ -557,6 +557,7 @@ public:
     uint16          mBriefingHelicopter_FrameCounter;
     int16           mBriefingHelicopter_Moving;
     int16           mBriefingHelicopter_NotDone;
+    float             mBriefingHelicopter_TimeScale;
 
     int16           mMouseButtonStatus;
     int16           mInputMouseX;

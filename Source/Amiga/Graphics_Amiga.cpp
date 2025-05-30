@@ -1575,13 +1575,13 @@ void cGraphics_Amiga::Mission_Intro_Play(
 
 		if (pShowHelicopter) {
 			// Front
-			mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;
-			mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;
+			mFodder->mVideo_Draw_PosX = mFodder->mBriefingHelicopter_ScreenX;
+			mFodder->mVideo_Draw_PosY = mFodder->mBriefingHelicopter_ScreenY;
 			Mission_Intro_DrawHelicopter(203);
 
 			// Tail
-			mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16) + 48;
-			mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16);
+			mFodder->mVideo_Draw_PosX = (mFodder->mBriefingHelicopter_ScreenX) + 48;
+			mFodder->mVideo_Draw_PosY = (mFodder->mBriefingHelicopter_ScreenY);
 			Mission_Intro_DrawHelicopter(204);
 
 			if (mFodder->mVersionCurrent->isCannonFodder1()) {
@@ -1592,8 +1592,8 @@ void cGraphics_Amiga::Mission_Intro_Play(
 					BladeFrame = 0;
 
 				// Blade
-				mFodder->mVideo_Draw_PosX = (mFodder->mHelicopterPosX >> 16);
-				mFodder->mVideo_Draw_PosY = (mFodder->mHelicopterPosY >> 16) - 3;
+				mFodder->mVideo_Draw_PosX = (mFodder->mBriefingHelicopter_ScreenX);
+				mFodder->mVideo_Draw_PosY = (mFodder->mBriefingHelicopter_ScreenY) - 3;
 				Mission_Intro_DrawHelicopter(Blade);
 			}
 		}
@@ -1654,38 +1654,36 @@ void cGraphics_Amiga::Briefing_Helicopter_Background_Unk() {
 	//word_335A = d0;
 }
 
-
 void cGraphics_Amiga::Briefing_Helicopter_Background_Unk_1() {
-	int32 dword_826C8 = 0x8000;
-	int32 d0 = 0;
+	const float scale = mFodder->mBriefingHelicopter_TimeScale;
 
 	if (Heli_TextPosBottom != 0x0C) {
-		Heli_TextPosBottom -= 4;
-
+		Heli_TextPosBottom -= static_cast<int32_t>(4 * scale);
 		if (Heli_TextPosBottom <= 0x0C)
 			Heli_TextPosBottom = 0x0C;
 	}
 	Heli_TextPos = 344 - Heli_TextPosBottom;
 
-	d0 = dword_826C8;
+	int32_t baseSpeed = static_cast<int32_t>(0x8000 * scale);
+
+	int32_t d0 = baseSpeed;
 
 	Heli_VeryBack -= d0;
-	if ((int32_t)Heli_VeryBack < 0)
+	if (Heli_VeryBack < 0)
 		Heli_VeryBack += 320 << 16;
 
 	d0 <<= 1;
 	Heli_Back -= d0;
-	if ((int32_t)Heli_Back < 0)
+	if (Heli_Back < 0)
 		Heli_Back += 320 << 16;
 
 	d0 <<= 1;
 	Heli_middle -= d0;
-	if ((int32_t)Heli_middle < 0)
+	if (Heli_middle < 0)
 		Heli_middle += 320 << 16;
 
 	d0 <<= 1;
 	Heli_Front -= d0;
-	if ((int32_t)Heli_Front < 0) {
+	if (Heli_Front < 0)
 		Heli_Front += 320 << 16;
-	}
 }

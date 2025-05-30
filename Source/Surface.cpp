@@ -40,7 +40,7 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 		exit(1);
 	}
     if (g_Window->GetRenderer()) {
-        mTexture = SDL_CreateTexture(g_Window->GetRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, (int)pWidth, (int)pHeight);
+        mTexture = SDL_CreateTexture((SDL_Renderer*)g_Window->GetRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, (int)pWidth, (int)pHeight);
 
         SDL_SetTextureBlendMode(mTexture, SDL_BLENDMODE_ADD);
         SDL_SetTextureAlphaMod(mTexture, 0xFF);
@@ -356,7 +356,7 @@ bool cSurface::LoadPng(const std::string& pFile) {
 
     if (g_Window->GetRenderer()) {
         SDL_DestroyTexture(mTexture);
-        mTexture = SDL_CreateTextureFromSurface(g_Window->GetRenderer(), mSDLSurface );
+        mTexture = SDL_CreateTextureFromSurface((SDL_Renderer*)g_Window->GetRenderer(), mSDLSurface );
         SDL_SetTextureBlendMode(mTexture, SDL_BLENDMODE_ADD);
         SDL_SetTextureAlphaMod(mTexture, 0xa0);
         SDL_SetTextureColorMod(mTexture, 0xFF, 0xFF, 0xFF);

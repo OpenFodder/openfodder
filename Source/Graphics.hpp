@@ -172,6 +172,8 @@ public:
 
 	virtual void		SetActiveSpriteSheet( eGFX_Types pSpriteType ) = 0;
 	virtual void		SetImage( cSurface* pImage );
+	virtual void		SetSurfaceOriginal(cSurface* pImage);
+
 	virtual void		SetImageOriginal();
 	virtual bool		Sprite_OnScreen_Check() = 0;
 

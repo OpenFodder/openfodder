@@ -3928,6 +3928,8 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pPriority) 
 }
 
 void cFodder::Mission_Intro_Helicopter_Start() {
+    mBriefingHelicopter_TimeScale = 60.0f / mWindow->GetRefreshRate();
+
     mHelicopterPosX = 0x01500000;
     mHelicopterPosY = 0x001E0000;
 
@@ -3941,47 +3943,48 @@ void cFodder::Mission_Intro_Helicopter_Start() {
 
     Briefing_Update_Helicopter();
     mBriefingHelicopter_FrameCounter = 0;
-    mBriefingHelicopter_Moving = -1;
+    mBriefingHelicopter_Moving = 1;
     mBriefingHelicopter_NotDone = -1;
 
     mBriefingHelicopter_DirectionIndex = 0x180;
     mBriefingHelicopter_TargetDirection = 0x180;
+
 }
 
 void cFodder::Briefing_Update_Helicopter() {
 
-    mBriefingHelicopter_ScreenX = (mHelicopterPosX >> 16) - 0x20;
-    mBriefingHelicopter_ScreenY = (mHelicopterPosY >> 16);
+    mBriefingHelicopter_ScreenX = (((int)mHelicopterPosX - 0x20) >> 16);
+    mBriefingHelicopter_ScreenY = (((int)mHelicopterPosY) >> 16);
 
-    mBriefingHelicopter_NextUpdateCountdown--;
+    mBriefingHelicopter_NextUpdateCountdown -= mBriefingHelicopter_TimeScale;
 
-    if (mBriefingHelicopter_NextUpdateCountdown < 0) {
+    if (mBriefingHelicopter_NextUpdateCountdown <= 0.0f) {
 
         mBriefingHelicopter_TargetDirection = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex];
         mBriefingHelicopter_TargetSpeed = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 1];
-        mBriefingHelicopter_NextUpdateCountdown = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 2];
+        mBriefingHelicopter_NextUpdateCountdown = (mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 2]);
 
-        if (mBriefingHelicopter_NextUpdateCountdown < 0)
+        if (mBriefingHelicopter_NextUpdateCountdown <= 0.0f)
             return;
-        
-        mHelicopterOffsetIndex += 3; 
+
+        mHelicopterOffsetIndex += 3;
     }
 
     mBriefingHelicopter_DirectionIndex &= 0x1FE;
     uint16 bx = mBriefingHelicopter_DirectionIndex;
 
     int32 ax = mDirectionVectorTable[(bx / 2) & 0xFF];
-
     ax >>= 2;
 
-    mHelicopterPosX += ax * mBriefingHelicopter_Speed;
+    mHelicopterPosX += (ax * mBriefingHelicopter_Speed * mBriefingHelicopter_TimeScale);
 
     bx += 0x80;
     bx &= 0x1FE;
 
     ax = mDirectionVectorTable[(bx / 2) & 0xFF];
     ax >>= 2;
-    mHelicopterPosY += ax * mBriefingHelicopter_Speed;
+
+    mHelicopterPosY += (ax * mBriefingHelicopter_Speed * mBriefingHelicopter_TimeScale);
 
     bx = mBriefingHelicopter_TargetDirection - mBriefingHelicopter_DirectionIndex;
     bx >>= 5;
@@ -3991,67 +3994,77 @@ void cFodder::Briefing_Update_Helicopter() {
 
     int16 al = mDirectionStepTable[bx];
     al <<= 2;
-    mBriefingHelicopter_DirectionIndex += al;
+    //mBriefingHelicopter_DirectionIndex += al;
+    mBriefingHelicopter_DirectionIndex += static_cast<int>(al * mBriefingHelicopter_TimeScale);
+
     mBriefingHelicopter_DirectionIndex &= 0x1FE;
 
     if (mBriefingHelicopter_TargetSpeed != mBriefingHelicopter_Speed) {
         if (mBriefingHelicopter_Speed > mBriefingHelicopter_TargetSpeed)
-            mBriefingHelicopter_Speed -= 1;
+            mBriefingHelicopter_Speed -= (1.0f * mBriefingHelicopter_TimeScale);
         else
-            mBriefingHelicopter_Speed += 1;
+            mBriefingHelicopter_Speed += (1.0f * mBriefingHelicopter_TimeScale);
     }
 
-	if (mVersionCurrent->isCannonFodder1() && mVersionCurrent->isPC())
-		mBriefingHelicopter_FrameCounter += 1;
+    if (mVersionCurrent->isCannonFodder1() && mVersionCurrent->isPC())
+        mBriefingHelicopter_FrameCounter += 1;
 
-    if (mBriefingHelicopter_FrameCounter == 4)
+    if (mBriefingHelicopter_FrameCounter >= 4)
         mBriefingHelicopter_FrameCounter = 0;
 }
 
-void cFodder::Briefing_Helicopter_Check() {
-    uint16_t d0;
+float mBriefingHelicopter_TransitionCounter = 0;
 
+void cFodder::Briefing_Helicopter_Check() {
     Music_Increase_Channel_Volume();
+
+    const float fadeDurationSeconds = 0.64f; // original 16 steps @ 50Hz every 2nd frame
+    const int targetSteps = static_cast<int>(16.0f / mBriefingHelicopter_TimeScale);
+
+    mBriefingHelicopter_TransitionCounter += mBriefingHelicopter_TimeScale;
+
     if (!mMouse_Exit_Loop || !mPhase_Aborted) {
 
         if (mBriefingHelicopter_ScreenX > 0x30) {
 
-            d0 = mInterruptTick & 0x1;
+            if (mBriefingHelicopter_TransitionCounter >= 2.0f) {
+                mBriefingHelicopter_TransitionCounter = 0.0f;
 
-            if (d0 == 0) {
-
-                if (mBriefingHelicopter_Moving < 0x10) {
+                if (mBriefingHelicopter_Moving < targetSteps) {
                     mBriefingHelicopter_Moving++;
                     mPaletteLevel++;
                     return;
                 }
             }
 
-            if (mBriefingHelicopter_Moving >= 0x10) {
+            if (mBriefingHelicopter_Moving >= targetSteps) {
                 Briefing_Update_Helicopter();
             }
             return;
         }
     }
 
-    d0 = mInterruptTick & 0x1;
+    if (mBriefingHelicopter_TransitionCounter >= 2.0f) {
+        mBriefingHelicopter_TransitionCounter = 0.0f;
 
-    if (d0 == 0) {
         if (mBriefingHelicopter_Moving == 0 && mBriefingHelicopter_NotDone) {
             mBriefingHelicopter_NotDone = 0;
-
             mGraphics->mImageMissionIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
-            //mSurface->paletteNew_SetToBlack();
         }
         else {
-            mBriefingHelicopter_Moving--;
-            mPaletteLevel--;
-            mSurface->paletteNew_SetToBlack();
+            if (mBriefingHelicopter_Moving > 0 || mPaletteLevel > 0) {
+                mBriefingHelicopter_Moving--;
+                mPaletteLevel--;
+                mSurface->paletteNew_SetToBlack();
+            }
+
         }
     }
 
     Briefing_Update_Helicopter();
 }
+
+
 
 void cFodder::Mission_Intro_Draw_OpenFodder() {
     // Draw OPEN FODDER
@@ -16721,9 +16734,11 @@ void cFodder::Mission_Intro_Play(const bool pShowHelicopter, eTileTypes pTileset
     if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4 && !pShowHelicopter)
         ShowHelicopter = false;
 
+    mWindow->ToggleVSync(true);
     mVersionPlatformSwitchDisabled = true;
     mGraphics->Mission_Intro_Play(ShowHelicopter, pTileset, Briefing_Get_Mission_Title(), Briefing_Get_Phase_Name());
     mVersionPlatformSwitchDisabled = false;
+    mWindow->ToggleVSync(false);
 }
 
 void cFodder::Intro_Print_String(const sIntroString* pString) {

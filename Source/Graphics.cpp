@@ -39,3 +39,7 @@ void cGraphics::SetImageOriginal() {
 
 	mSurface = mImageOriginal;
 }
+
+void cGraphics::SetSurfaceOriginal(cSurface* pImage) {
+	mImageOriginal = pImage;
+}

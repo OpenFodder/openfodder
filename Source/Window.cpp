@@ -69,8 +69,8 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 
 	size_t flags = SDL_RENDERER_ACCELERATED;
 
-	if (!g_Fodder->mParams->mUnitTesting || g_Fodder->mParams->mDemoRecord)
-		flags |= SDL_RENDERER_PRESENTVSYNC;
+	//if (!g_Fodder->mParams->mUnitTesting || g_Fodder->mParams->mDemoRecord)
+	//	flags |= SDL_RENDERER_PRESENTVSYNC;
 
 	mRenderer = SDL_CreateRenderer(mWindow, -1, flags );
 	if (!mRenderer) {
@@ -103,6 +103,10 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 		SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	return true;
+}
+
+void cWindow::ToggleVSync(bool pEnabled) {
+	SDL_RenderSetVSync(mRenderer, pEnabled ? 1 : 0);
 }
 
 void cWindow::SetRelativeMouseMode(bool pEnable) {
@@ -553,6 +557,15 @@ cDimension cWindow::GetScale() const {
     if (Result.mWidth == 0)
         Result.mWidth = 1;
     return Result;
+}
+
+int cWindow::GetRefreshRate() {
+	SDL_DisplayMode mode;
+	if (SDL_GetCurrentDisplayMode(0, &mode) != 0) {
+		std::cerr << "SDL_GetCurrentDisplayMode failed: " << SDL_GetError() << std::endl;
+		return 50; // Fallback to 50Hz if query fails
+	}
+	return mode.refresh_rate;
 }
 
 bool cWindowNull::InitWindow(const std::string& pWindowTitle) {

@@ -100,6 +100,9 @@ class cWindow {
         cDimension          GetScale() const;
 
 		void				SetRelativeMouseMode(bool pEnable);
+		void				ToggleVSync(bool pEnabled);
+		int				GetRefreshRate();
+
 
 };
 

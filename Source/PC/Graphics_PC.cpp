@@ -1020,8 +1020,8 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefingHelicopter_FrameCounter];
 
-		mFodder->mVideo_Draw_PosX = mFodder->mHelicopterPosX >> 16;		// X
-		mFodder->mVideo_Draw_PosY = mFodder->mHelicopterPosY >> 16;		// Y 
+		mFodder->mVideo_Draw_PosX = mFodder->mBriefingHelicopter_ScreenX;		// X
+		mFodder->mVideo_Draw_PosY = mFodder->mBriefingHelicopter_ScreenY;		// Y 
 		mFodder->mVideo_Draw_Columns = 0x40;
 		mFodder->mVideo_Draw_Rows = 0x18;
 
