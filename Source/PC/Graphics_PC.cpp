@@ -928,39 +928,39 @@ void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
 }
 
 void cGraphics_PC::Briefing_Helicopter_Background_Unk_1() {
-	int32 dword_826C8 = 0x12000;
-	int32 d0 = 0;
+	const float scale = mFodder->mBriefingHelicopter_TimeScale;
 
 	if (Heli_TextPosBottom != 0x0C) {
-		Heli_TextPosBottom -= 4;
+		Heli_TextPosBottom -= static_cast<int32_t>(4 * scale);
 
 		if (Heli_TextPosBottom <= 0x0C)
 			Heli_TextPosBottom = 0x0C;
 	}
 	Heli_TextPos = 344 - Heli_TextPosBottom;
 
-	d0 = dword_826C8;
+	int32_t baseSpeed = static_cast<int32_t>(0x12000 * scale);
+	int32_t d0 = baseSpeed;
 
 	Heli_VeryBack -= d0;
-	if ((int32_t)Heli_VeryBack < 0)
+	if (Heli_VeryBack < 0)
 		Heli_VeryBack += 320 << 16;
 
 	d0 <<= 1;
 	Heli_Back -= d0;
-	if ((int32_t)Heli_Back < 0)
+	if (Heli_Back < 0)
 		Heli_Back += 320 << 16;
 
 	d0 <<= 1;
 	Heli_middle -= d0;
-	if ((int32_t)Heli_middle < 0)
+	if (Heli_middle < 0)
 		Heli_middle += 320 << 16;
 
 	d0 <<= 1;
 	Heli_Front -= d0;
-	if ((int32_t)Heli_Front < 0) {
+	if (Heli_Front < 0)
 		Heli_Front += 320 << 16;
-	}
 }
+
 
 void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom) {
 	
@@ -1037,24 +1037,24 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 		Mission_Intro_Render_2( mImageMissionIntro.mData, word_4286F );
 
 		// Front
-		word_4286F += 8;
+		word_4286F += static_cast<int32_t>(8 * mFodder->mBriefingHelicopter_TimeScale);
 		if (word_4286F >= 320)
-			word_4286F = 0;
+			word_4286F -= 320;
 
 		// Middle
-		word_42871 += 4;
+		word_42871 += static_cast<int32_t>(4 * mFodder->mBriefingHelicopter_TimeScale);
 		if (word_42871 >= 320)
-			word_42871 = 0;
+			word_42871 -= 320;
 
 		// Back
-		word_42873 += 2;
+		word_42873 += static_cast<int32_t>(2 * mFodder->mBriefingHelicopter_TimeScale);
 		if (word_42873 >= 320)
-			word_42873 = 0;
+			word_42873 -= 320;
 
 		// Very Back
-		word_42875 += 1;
+		word_42875 += static_cast<int32_t>(1 * mFodder->mBriefingHelicopter_TimeScale);
 		if (word_42875 >= 320)
-			word_42875 = 0;
+			word_42875 -= 320;
 
 
 		mFodder->Video_Sleep(0, false, false);
