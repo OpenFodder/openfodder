@@ -428,7 +428,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 		auto script = g_ResourceMan->FileReadStr(finalpath + scriptFile);
 		
 		if (!script.size() || (scriptRun(script, finalName) == false)) {
-			g_Debugger->Error(finalpath + scriptFile + " Failed to execute");
+			g_Debugger->Error(finalpath + scriptFile + " Failed to execute script:" + scriptFile);
 			return false;
 		}
 	}
@@ -471,7 +471,7 @@ bool cScriptingEngine::Run(const std::string& pScript) {
 	auto script = g_ResourceMan->FileReadStr(path);
 
 	if (!script.size() || (scriptRun(script, pScript) == false)) {
-		g_Debugger->Error(path + " Failed to execute");
+		g_Debugger->Error(path + " Failed to execute: " + pScript);
 		return false;
 	}
 
