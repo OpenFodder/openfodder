@@ -66,7 +66,14 @@ void cResourceMan::addDefaultDirs() {
 	if (path.size())
 		addBaseDir(path + "/Documents/");
 #else
-	char* path1 = std::getenv("XDG_DATA_DIRS");
+	//Per-user data dir (Flatpak: ~/.var/app/<app-id>/data)
+	char* path1 = std::getenv("XDG_DATA_HOME");
+    if (path1 && *path1) {
+        addBaseDir(std::string(path1) + "/");
+    }
+
+	//XDG_DATA_DIRS
+	path1 = std::getenv("XDG_DATA_DIRS");
 	if (path1) {
 		std::stringstream ss;
 		ss << path1;
@@ -76,11 +83,13 @@ void cResourceMan::addDefaultDirs() {
 			addBaseDir(substr);
 		}
 	}
+	//HOME -> ~/.local/share
 	path1 = std::getenv("HOME");
 	if (path1) {
 		path = path1;
 		addBaseDir(path + "/.local/share/");
 	}
+	//Fallback to /usr/local/share
 	addBaseDir("/usr/local/share/");
 #endif
 }
