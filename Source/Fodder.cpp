@@ -125,7 +125,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     mBriefing_Aborted = 0;
     mGUI_Mouse_Modifier_X = 0;
     mGUI_Mouse_Modifier_Y = 0;
-    mBriefing_Render_1_Mode = 0;
 
     mMouseSpriteCurrent = 0;
     mService_ExitLoop = 0;
@@ -3639,8 +3638,6 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams) {
 
     memset(mSidebar_Back_Buffer, 0, mSidebar_Buffer_Size);
     memset(mSidebar_Screen_Buffer, 0, mSidebar_Buffer_Size);
-
-    mBriefing_Render_1_Mode = -1;
 
     mSurface = new cSurface( getSurfaceSize() );
     mSurface2 = new cSurface(getSurfaceSize() );

@@ -61,15 +61,6 @@ cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = std::make_shared<std::vector<uint8>>();
 
 	SetCursorPalette(0xE0);
-
-	Heli_VeryBack = 0;
-	Heli_Back = 0;
-	Heli_middle = 0;
-	Heli_Front = 0;
-
-	word_3292 = 0;
-	word_32D2 = 0;
-	word_3316 = 0;
 }
 
 cGraphics_Amiga::~cGraphics_Amiga() {
@@ -1550,13 +1541,12 @@ void cGraphics_Amiga::Mission_Intro_Play(
 	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pBottom);
 	auto bottomTextPos = mFodder->mGUI_Temp_X - 4;
 	do {
-		Briefing_Helicopter_Background_Unk();
 
 		if (mSurface->isPaletteAdjusting())
 			mSurface->palette_FadeTowardNew();
 
 		mFodder->Briefing_Helicopter_Check();
-		Briefing_Helicopter_Background_Unk_1();
+		HeliIntro_TickParallaxAndText();
 
 		mFodder->String_Print(mFont_Underlined_Width, 1,  -332 + (topTextPos + (Heli_TextPos)), 0x01, pTop);
 		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom) + bottomTextPos, 0xB5 + 0x16, pBottom);
@@ -1614,76 +1604,4 @@ void cGraphics_Amiga::Mission_Intro_Play(
 	} while (mFodder->mBriefingHelicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
 
 	mFodder->mMouse_Exit_Loop = false;
-}
-
-
-void cGraphics_Amiga::Briefing_Helicopter_Background_Unk() {
-	uint16_t d0, d1, d2;
-
-	//d0 = Heli_TextPos & 0x0F;
-	//d0 = d0 ^ 0x0F;
-	//word_3252 = d0;
-
-	d0 = Heli_VeryBack & 0x0F;
-	d0 = d0 ^ 0x0F;
-	word_3292 = d0;
-
-	d0 = Heli_Back & 0x0F;
-	d0 = d0 ^ 0x0F;
-	d0 = d0 << 4;
-	word_3292 |= d0;
-
-	d1 = d0;
-
-	d0 = Heli_middle & 0x0F;
-	d0 = d0 ^ 0x0F;
-	d2 = d0;
-
-	d0 |= d1;
-	word_32D2 = d0;
-
-	d0 = Heli_Front & 0x0F;
-	d0 = d0 ^ 0x0F;
-	d0 = d0 << 4;
-
-	d0 |= d2;
-	word_3316 = d0;
-
-	//d0 = word_826C4 & 0x0F;
-	d0 = d0 ^ 0x0F;
-	//word_335A = d0;
-}
-
-void cGraphics_Amiga::Briefing_Helicopter_Background_Unk_1() {
-	const float scale = mFodder->mBriefingHelicopter_TimeScale;
-
-	if (Heli_TextPosBottom != 0x0C) {
-		Heli_TextPosBottom -= static_cast<int32_t>(4 * scale);
-		if (Heli_TextPosBottom <= 0x0C)
-			Heli_TextPosBottom = 0x0C;
-	}
-	Heli_TextPos = 344 - Heli_TextPosBottom;
-
-	int32_t baseSpeed = static_cast<int32_t>(0x8000 * scale);
-
-	int32_t d0 = baseSpeed;
-
-	Heli_VeryBack -= d0;
-	if (Heli_VeryBack < 0)
-		Heli_VeryBack += 320 << 16;
-
-	d0 <<= 1;
-	Heli_Back -= d0;
-	if (Heli_Back < 0)
-		Heli_Back += 320 << 16;
-
-	d0 <<= 1;
-	Heli_middle -= d0;
-	if (Heli_middle < 0)
-		Heli_middle += 320 << 16;
-
-	d0 <<= 1;
-	Heli_Front -= d0;
-	if (Heli_Front < 0)
-		Heli_Front += 320 << 16;
 }

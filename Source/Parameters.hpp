@@ -58,7 +58,7 @@ public:
 	size_t mDemoRecordResumeCycle;  // Record a demo, after playing back the event queue up until this cycle
 	std::string mDemoFile;          // The Demo file to save/load to/from
 
-	int64 mSleepDelta;              // Engine sleep delta
+	size_t mSleepDelta;             // Engine sleep delta
 
 	std::string mSingleMap;			// Name of single map to load
 	std::string mCampaignName;      // Campaign to start

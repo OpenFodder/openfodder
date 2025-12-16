@@ -46,14 +46,8 @@ class cGraphics_PC : public cGraphics {
 	uint16          mMission_Intro_DrawX;
 	uint16          mMission_Intro_DrawY;
 
-	int32 Heli_VeryBack;
-	int32 Heli_Back;
-	int32 Heli_middle;
-	int32 Heli_Front;
-	int32 Heli_TextPos;
-	int32 Heli_TextPosBottom;
-
 	public:
+						 cGraphics_PC();
 	virtual				~cGraphics_PC();
 
 	virtual uint8*		GetSpriteData( uint16 pSegment );
@@ -97,12 +91,9 @@ class cGraphics_PC : public cGraphics {
 
 	void				Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom);
 
-	void				Mission_Intro_Render_2(tSharedBuffer pDs, int16 pCx);
-	void				Mission_Intro_Render_1(tSharedBuffer pDs, int16 pCx);
+	void				HeliIntro_BlitMaskedAlignedX(tSharedBuffer pDs, int16 pCx);
 
-	void				Briefing_Helicopter_Background_Unk_1();
-
-	void				sub_15B98(tSharedBuffer pDs, int16 pCx);
+	void				HeliIntroBlit_OpaqueAlignedX(tSharedBuffer pDs, int16 pCx);
 
 	virtual void		Recruit_Draw_Hill();
 	virtual void		Recruit_Draw_HomeAway();

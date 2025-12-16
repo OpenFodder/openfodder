@@ -24,6 +24,13 @@
 
 cGraphics::cGraphics() {
 
+	Heli_VeryBack = 0;
+	Heli_Back = 0;
+	Heli_middle = 0;
+	Heli_Front = 0;
+	Heli_TextPos = 0;
+	Heli_TextPosBottom = 0;
+
     mFodder = g_Fodder;
 	mSurface = g_Fodder->mSurface;
 	mImageOriginal = mSurface;
@@ -42,4 +49,39 @@ void cGraphics::SetImageOriginal() {
 
 void cGraphics::SetSurfaceOriginal(cSurface* pImage) {
 	mImageOriginal = pImage;
+}
+
+
+void cGraphics::HeliIntro_TickParallaxAndText() {
+	const float scale = mFodder->mBriefingHelicopter_TimeScale;
+
+	if (Heli_TextPosBottom != 0x0C) {
+		Heli_TextPosBottom -= static_cast<int32_t>(4 * scale);
+
+		if (Heli_TextPosBottom <= 0x0C)
+			Heli_TextPosBottom = 0x0C;
+	}
+	Heli_TextPos = 344 - Heli_TextPosBottom;
+
+	int32_t baseSpeed = static_cast<int32_t>(0x8000 * scale);
+	int32_t d0 = baseSpeed;
+
+	Heli_VeryBack -= d0;
+	if (Heli_VeryBack < 0)
+		Heli_VeryBack += 320 << 16;
+
+	d0 <<= 1;
+	Heli_Back -= d0;
+	if (Heli_Back < 0)
+		Heli_Back += 320 << 16;
+
+	d0 <<= 1;
+	Heli_middle -= d0;
+	if (Heli_middle < 0)
+		Heli_middle += 320 << 16;
+
+	d0 <<= 1;
+	Heli_Front -= d0;
+	if (Heli_Front < 0)
+		Heli_Front += 320 << 16;
 }

@@ -524,8 +524,6 @@ public:
 
     sGUI_Element    mSidebar_OverlayButtons[2];
 
-    int16           mBriefing_Render_1_Mode;
-
     int16           mDebug_PhaseSkip;
     int16           mKeyControlPressed;
 

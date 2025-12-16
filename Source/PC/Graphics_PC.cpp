@@ -61,6 +61,15 @@ std::vector<cPosition> BackgroundPositions[] = {
     }
 };
 
+cGraphics_PC::cGraphics_PC() : cGraphics() {
+
+	mMission_Intro_DrawX = 0;
+	mMission_Intro_DrawY = 0;
+	mRecruitDestY = mRecruitDestX = 0;
+	dword_44A3E = 0;
+	memset(mTile_Gfx_Ptrs, 0, 480);
+}
+
 cGraphics_PC::~cGraphics_PC() {
 
 }
@@ -802,99 +811,118 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 	return true;
 }
 
-void cGraphics_PC::Mission_Intro_Render_1(tSharedBuffer pDs, int16 pCx) {
-
-	if (mFodder->mBriefing_Render_1_Mode != 0)
-		sub_15B98(pDs, pCx);
-	//else
-	//	sub_15CE8(pDs, pCx);
-}
-
-
-void cGraphics_PC::Mission_Intro_Render_2(tSharedBuffer pSource, int16 pCx) {
-
+void cGraphics_PC::HeliIntro_BlitMaskedAlignedX(tSharedBuffer pSource, int16 pCx)
+{
 	uint8* pDs = pSource->data();
+	uint8* pDsEnd = pSource->data() + pSource->size();
 
-	int16 ax = pCx >> 2;
+	// Original works in 4-pixel groups
+	const int16 groupX = (pCx >> 2);
+	int16 ax = groupX;
 	int16 dx = ax;
 
 	ax -= 80;
 	int16 word_4285F = -ax;
 
-	uint8* destPtr = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (dx * 4);
+	const int planeShift = (pCx & 3); // <-- sub-pixel (0..3)
+
+	// first 4-pixel group for pCx
+	uint8* base = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (dx * 4);
 
 	++dx;
 
-	uint8* di = destPtr;
+	// Loop the 4 source planes, but map them to dest planes with shift
+	for (uint8 srcPlane = 0; srcPlane < 4; ++srcPlane)
+	{
+		const int dstPlane = (srcPlane + planeShift) & 3;
+		const int groupCarry = ((srcPlane + planeShift) >> 2) & 1;
 
-	// Loop the 4 planes
-	for (uint8 Plane = 0; Plane < 4; ++Plane) {
-		di = destPtr + Plane;
+		uint8* destPtr = base + (groupCarry * 4) + dstPlane;
+		uint8* di = destPtr;
 
-		for (int16 bx = mMission_Intro_DrawX; bx > 0; --bx) {
+		for (int16 bx = mMission_Intro_DrawX; bx > 0; --bx)
+		{
 			int16 cx;
-			for (cx = word_4285F; cx > 0; --cx) {
-                if (pDs >= pSource->data() + pSource->size())
-                    return;
+
+			for (cx = word_4285F; cx > 0; --cx)
+			{
+				if (pDs >= pDsEnd)
+					return;
 
 				uint8 al = *pDs;
 				if (al)
 					*di = al;
 
-                ++pDs;
+				++pDs;
 				di += 4;
 			}
 
-			// 28 difference
-
-			di -= mSurface->GetWidth() - 12 - 16; // (81 * 4) // 324;
+			di -= mSurface->GetWidth() - 12 - 16;
 			--pDs;
-			for (cx = dx; cx > 0; --cx) {
-                if (pDs >= pSource->data() + pSource->size())
-                    return;
+
+			for (cx = dx; cx > 0; --cx)
+			{
+				if (pDs >= pDsEnd)
+					return;
 
 				uint8 al = *pDs;
 				if (al)
 					*di = al;
 
-                ++pDs;
+				++pDs;
 				di += 4;
 			}
 
-			di += mSurface->GetWidth(); // (88 * 4) // 352;
+			di += mSurface->GetWidth();
 		}
 	}
 }
 
-void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
+void cGraphics_PC::HeliIntroBlit_OpaqueAlignedX(tSharedBuffer pDsSi, int16 pCx)
+{
+	uint8* Ds = pDsSi->data();
 
-    uint8* Ds = pDsSi->data();
-
-	int16 ax = pCx >> 2;
+	// Original logic works in 4-pixel groups (80 groups for 320px wide).
+	const int16 groupX = (pCx >> 2);
+	int16 ax = groupX;
 	int16 dx = ax;
 
 	ax -= 80;
 	int16 word_4285F = -ax;
 
-	uint8* destPtr = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (dx * 4);
+	const int planeShift = (pCx & 3); // <-- the bit the old code discards
+
+	// Base points at the first 4-pixel group for pCx, Y offset unchanged.
+	uint8* base = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (groupX * 4);
 
 	++dx;
 
-	uint8* di = destPtr;
+	for (uint8 srcPlane = 0; srcPlane < 4; ++srcPlane)
+	{
+		// Map source plane (0..3) to the correct destination plane for pixel-accurate X.
+		const int dstPlane = (srcPlane + planeShift) & 3;
 
-	for (uint8 Plane = 0; Plane < 4; ++Plane) {
-		di = destPtr + Plane;
+		// If the plane rotation wraps (e.g. planeShift=3, srcPlane=2 -> 5),
+		// that plane's pixels start one 4-pixel group later.
+		const int groupCarry = ((srcPlane + planeShift) >> 2) & 1;
 
-		for (int16 bx = mMission_Intro_DrawX; bx > 0; --bx) {
+		// we might start in the next group depending on carry.
+		uint8* destPtr = base + (groupCarry * 4) + dstPlane;
+		uint8* di = destPtr;
+
+		for (int16 bx = mMission_Intro_DrawX; bx > 0; --bx)
+		{
 			int16 cx = word_4285F;
 
-			if (cx & 1) {
+			if (cx & 1)
+			{
 				*di = *Ds++;
 				di += 4;
 			}
 
 			cx >>= 1;
-			while (cx > 0) {
+			while (cx > 0)
+			{
 				*di = *Ds++;
 				di += 4;
 
@@ -905,15 +933,19 @@ void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
 			}
 
 			cx = dx;
+
 			di -= mSurface->GetWidth() - 12 - 16;
 			--Ds;
-			if (cx & 1) {
+
+			if (cx & 1)
+			{
 				*di = *Ds++;
 				di += 4;
 			}
 
 			cx >>= 1;
-			while (cx > 0) {
+			while (cx > 0)
+			{
 				*di = *Ds++;
 				di += 4;
 
@@ -922,43 +954,10 @@ void cGraphics_PC::sub_15B98(tSharedBuffer pDsSi, int16 pCx) {
 
 				--cx;
 			}
+
 			di += mSurface->GetWidth();
 		}
 	}
-}
-
-void cGraphics_PC::Briefing_Helicopter_Background_Unk_1() {
-	const float scale = mFodder->mBriefingHelicopter_TimeScale;
-
-	if (Heli_TextPosBottom != 0x0C) {
-		Heli_TextPosBottom -= static_cast<int32_t>(4 * scale);
-
-		if (Heli_TextPosBottom <= 0x0C)
-			Heli_TextPosBottom = 0x0C;
-	}
-	Heli_TextPos = 344 - Heli_TextPosBottom;
-
-	int32_t baseSpeed = static_cast<int32_t>(0x12000 * scale);
-	int32_t d0 = baseSpeed;
-
-	Heli_VeryBack -= d0;
-	if (Heli_VeryBack < 0)
-		Heli_VeryBack += 320 << 16;
-
-	d0 <<= 1;
-	Heli_Back -= d0;
-	if (Heli_Back < 0)
-		Heli_Back += 320 << 16;
-
-	d0 <<= 1;
-	Heli_middle -= d0;
-	if (Heli_middle < 0)
-		Heli_middle += 320 << 16;
-
-	d0 <<= 1;
-	Heli_Front -= d0;
-	if (Heli_Front < 0)
-		Heli_Front += 320 << 16;
 }
 
 
@@ -966,10 +965,6 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 	
 	const std::vector<cPosition>& pPositions = BackgroundPositions[pTileset];
 
-	int16 word_4286F = 0;
-	int16 word_42871 = 0;
-	int16 word_42873 = 0;
-	int16 word_42875 = 0;
 	static int16 mouseCheck = 0;
 
 	mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data();
@@ -995,7 +990,7 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
             mSurface->palette_FadeTowardNew();
 
 		mFodder->Briefing_Helicopter_Check();
-		Briefing_Helicopter_Background_Unk_1();
+		HeliIntro_TickParallaxAndText();
 
 		mFodder->String_Print(mFont_Underlined_Width, 1, -332 + (topTextPos + (Heli_TextPos)), 0x01, pTop);
 		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom)+bottomTextPos, 0xB5 + 0x16, pBottom);
@@ -1003,20 +998,20 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 		// Clouds
 		mMission_Intro_DrawX = pPositions[0].mX;
 		mMission_Intro_DrawY = pPositions[0].mY;
-		Mission_Intro_Render_1( mMission_Intro_Gfx_Clouds3, word_42875);
+		HeliIntroBlit_OpaqueAlignedX( mMission_Intro_Gfx_Clouds3, 320 - (Heli_VeryBack >> 16));
 
 		mMission_Intro_DrawX = pPositions[1].mX;
 		mMission_Intro_DrawY = pPositions[1].mY;
-		Mission_Intro_Render_2( mMission_Intro_Gfx_Clouds2, word_42873 );
+		HeliIntro_BlitMaskedAlignedX( mMission_Intro_Gfx_Clouds2, 320 - (Heli_Back >> 16));
 
 		mMission_Intro_DrawX = pPositions[2].mX;
         mMission_Intro_DrawY = pPositions[2].mY;
-		Mission_Intro_Render_2( mMission_Intro_Gfx_Clouds1, word_42871 );
+		HeliIntro_BlitMaskedAlignedX( mMission_Intro_Gfx_Clouds1, 320 - (Heli_middle >> 16));
 
 		// Trees (Main)
 		mMission_Intro_DrawX = pPositions[3].mX;
         mMission_Intro_DrawY = pPositions[3].mY;
-		Mission_Intro_Render_1( mMission_Intro_Gfx_TreesMain, word_42871 );
+		HeliIntroBlit_OpaqueAlignedX( mMission_Intro_Gfx_TreesMain, 320 - (Heli_middle >> 16));
 
 		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefingHelicopter_FrameCounter];
 
@@ -1034,30 +1029,9 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 
 		mMission_Intro_DrawX = pPositions[4].mX;
         mMission_Intro_DrawY = pPositions[4].mY;
-		Mission_Intro_Render_2( mImageMissionIntro.mData, word_4286F );
+		HeliIntro_BlitMaskedAlignedX( mImageMissionIntro.mData, 320 - (Heli_Front >> 16));
 
-		// Front
-		word_4286F += static_cast<int32_t>(8 * mFodder->mBriefingHelicopter_TimeScale);
-		if (word_4286F >= 320)
-			word_4286F -= 320;
-
-		// Middle
-		word_42871 += static_cast<int32_t>(4 * mFodder->mBriefingHelicopter_TimeScale);
-		if (word_42871 >= 320)
-			word_42871 -= 320;
-
-		// Back
-		word_42873 += static_cast<int32_t>(2 * mFodder->mBriefingHelicopter_TimeScale);
-		if (word_42873 >= 320)
-			word_42873 -= 320;
-
-		// Very Back
-		word_42875 += static_cast<int32_t>(1 * mFodder->mBriefingHelicopter_TimeScale);
-		if (word_42875 >= 320)
-			word_42875 -= 320;
-
-
-		mFodder->Video_Sleep(0, false, false);
+		mFodder->Video_Sleep(0, false, true);
 
 		if (mFodder->mMouseButtonStatus || mFodder->mPhase_Aborted) {
 			mFodder->mBriefingHelicopter_NotDone = 0;
