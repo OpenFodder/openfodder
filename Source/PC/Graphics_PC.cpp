@@ -993,7 +993,7 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 		HeliIntro_TickParallaxAndText();
 
 		mFodder->String_Print(mFont_Underlined_Width, 1, -332 + (topTextPos + (Heli_TextPos)), 0x01, pTop);
-		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom)+bottomTextPos, 0xB5 + 0x16, pBottom);
+		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom)+bottomTextPos, 0xB5, pBottom);
 
 		// Clouds
 		mMission_Intro_DrawX = pPositions[0].mX;

@@ -380,7 +380,7 @@ void cWindow::RenderAt( cSurface* pImage ) {
 	}
 	else {
 		SDL_GetWindowSize(mWindow, NULL, &Dest.h);
-		Dest.w = Dest.h*(float)(4.0/3.0);
+		Dest.w = (int) (Dest.h*(float)(4.0/3.0));
 	}
 
 	if (mWindowMode) {
