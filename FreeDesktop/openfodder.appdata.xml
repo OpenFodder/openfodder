@@ -10,7 +10,7 @@
     <p>Open Fodder is an open source version of the Cannon Fodder engine, for modern operating systems.</p>
     <p>The game is military-themed and based on shooting action but with a strategy game-style control system. The player directs troops through numerous missions, battling enemy infantry, vehicles and installations.</p>
   </description>
-  <url type="homepage">http://openfodder.com/</url>
+  <url type="homepage">https://openfodder.com/</url>
   <url type="bugtracker">https://github.com/openfodder/openfodder/issues</url>
   <content_rating type="oars-1.1">
     <content_attribute id="violence-realistic">intense</content_attribute>
