@@ -22,13 +22,21 @@
 
 class cFodder;
 
+using GuiFn = void (*)(void* ctx, int16 action, int16 arg);
+
 struct sGUI_Element {
 	int16	(cFodder::*field_0)();
 	int16	mX;
 	int16	mWidth;
 	int16	mY;
 	int16	mHeight;
+
 	void	(cFodder::*mMouseInsideFuncPtr)();	// field_c
+
+	GuiFn  mOnClick{ 0 }; // OpenFodder add: what to do
+	void* mCtx{ 0 };
+	int16 mAction{ -1 };   // OpenFodder add: what to do
+	int16 mArg{ -1 };      // OpenFodder add: parameter for that action
 };
 
 struct sGUI_SquadVehicleIcon {

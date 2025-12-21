@@ -3970,8 +3970,8 @@ void cFodder::Briefing_Update_Helicopter() {
     mBriefingHelicopter_DirectionIndex &= 0x1FE;
     uint16 bx = mBriefingHelicopter_DirectionIndex;
 
-    int32 ax = mDirectionVectorTable[(bx / 2) & 0xFF];
-    ax >>= 2;
+    float ax = mDirectionVectorTable[(bx / 2) & 0xFF];
+    ax /= 4;
 
     mHelicopterPosX += (ax * mBriefingHelicopter_Speed * mBriefingHelicopter_TimeScale);
 
@@ -3979,7 +3979,7 @@ void cFodder::Briefing_Update_Helicopter() {
     bx &= 0x1FE;
 
     ax = mDirectionVectorTable[(bx / 2) & 0xFF];
-    ax >>= 2;
+    ax /= 4;
 
     mHelicopterPosY += (ax * mBriefingHelicopter_Speed * mBriefingHelicopter_TimeScale);
 
@@ -3989,10 +3989,10 @@ void cFodder::Briefing_Update_Helicopter() {
     bx ^= 0x0F;
     bx &= 0x0F;
 
-    int16 al = mDirectionStepTable[bx];
-    al <<= 2;
+    float al = mDirectionStepTable[bx];
+    al *= 4;
     //mBriefingHelicopter_DirectionIndex += al;
-    mBriefingHelicopter_DirectionIndex += static_cast<int>(al * mBriefingHelicopter_TimeScale);
+    mBriefingHelicopter_DirectionIndex += static_cast<int16>(al * mBriefingHelicopter_TimeScale);
 
     mBriefingHelicopter_DirectionIndex &= 0x1FE;
 
@@ -4159,17 +4159,17 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
 
     if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
         GUI_Button_Draw_Small("UP", 0x30);
-        GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Up);
+        GUI_Button_Setup(&cFodder::GUI_Button_Load_Up);
 
         GUI_Button_Draw_Small("DOWN", 0x99 + YOffset);
-        GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Down);
+        GUI_Button_Setup(&cFodder::GUI_Button_Load_Down);
     }
 
     GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
-    GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
+    GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
 
     GUI_Button_Draw_SmallAt("ABOUT", 0xA, 0xB3 + YOffset);
-    GUI_Button_Setup_Small(&cFodder::GUI_Button_Show_About);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_About);
 
 
     int16 ItemCount = 0;
@@ -4179,7 +4179,7 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     for (; ItemCount < mGUI_Select_File_ShownItems && FileIT != mCampaignList.end(); ++ItemCount) {
 
         GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (ItemCount * 0x15), 0xB2, 0xB3);
-        GUI_Button_Setup_Small(&cFodder::GUI_Button_Filename);
+        GUI_Button_Setup(&cFodder::GUI_Button_Filename);
         ++FileIT;
     }
 }
@@ -16144,9 +16144,83 @@ void cFodder::String_Print_Large(std::string pText, const bool pOverAndUnderLine
 	String_Print(mFont_Underlined_Width, pOverAndUnderLine == true ? 1 : 3, pX, pY, pText);
 }
 
+int32 cFodder::String_MeasureWidth(const uint8* pWidths, const char* pString) {
+    int32 w = 0;
+    for (const char* Text = pString; *Text; ++Text) {
+        uint8 Char = (uint8)(*Text);
+        if (Char == 0xFE || Char == 0xFD || Char == 0xFF)
+            break;
+        w += pWidths[Char];
+    }
+    return w;
+}
+
+int32 cFodder::String_MeasureWidth(const uint8* pWidths, const std::string& pString) {
+    return String_MeasureWidth(pWidths, pString.c_str());
+}
+
+void cFodder::String_Print_Small_Left(std::string pText, const size_t pX, const size_t pY) {
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+    String_Print(mFont_Briefing_Width, 0, (int32)pX, (int32)pY, pText);
+}
+
+void cFodder::String_Print_Small_Right(std::string pText, const size_t pRightX, const size_t pY) {
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+
+    const int32 w = String_MeasureWidth(mFont_Briefing_Width, pText);
+    int32 x = (int32)pRightX - w;
+    if (x < 0) x = 0;
+
+    String_Print(mFont_Briefing_Width, 0, x, (int32)pY, pText);
+}
+
+void cFodder::String_Print_Small_CentreInBox(std::string pText, const size_t x1, const size_t x2, const size_t y) {
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+
+    const int32 boxW = (int32)x2 - (int32)x1;
+    if (boxW <= 0) return;
+
+    const int32 textW = String_MeasureWidth(mFont_Briefing_Width, pText);
+    int32 x = (int32)x1 + (boxW - textW) / 2;
+    if (x < (int32)x1) x = (int32)x1;
+
+    String_Print(mFont_Briefing_Width, 0, x, (int32)y, pText);
+}
+
+void cFodder::String_Print_Small_LeftInBox(std::string pText, const size_t x1, const size_t x2, const size_t y, const size_t padPx) {
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+
+    int32 x = (int32)x1 + (int32)padPx;
+    if (x < 0) x = 0;
+
+    String_Print(mFont_Briefing_Width, 0, x, (int32)y, pText);
+}
+
+void cFodder::String_Print_Small_RightInBox(std::string pText, const size_t x1, const size_t x2, const size_t y, const size_t padPx) {
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+
+    const int32 textW = String_MeasureWidth(mFont_Briefing_Width, pText);
+    int32 x = (int32)x2 - (int32)padPx - textW;
+    if (x < (int32)x1) x = (int32)x1;
+
+    String_Print(mFont_Briefing_Width, 0, x, (int32)y, pText);
+}
 void cFodder::String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText) {
 
     String_Print(pWidths, pFontSpriteID, pParam08, pParamC, pText.c_str());
+}
+
+void cFodder::String_Print_Small_InBox(std::string pText, const size_t x1, const size_t x2, const size_t y) {
+    std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
+
+    const int32 boxW = (int32)x2 - (int32)x1;
+    if (boxW <= 0) return;
+
+    const int32 textW = String_MeasureWidth(mFont_Briefing_Width, pText);
+    int32 px = (int32)x1 + (boxW - textW) / 2;
+    if (px < (int32)x1) px = (int32)x1;
+
+    String_Print(mFont_Briefing_Width, 0, px, (int32)y, pText);
 }
 
 void cFodder::String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText) {

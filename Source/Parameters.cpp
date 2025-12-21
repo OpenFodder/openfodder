@@ -350,6 +350,67 @@ std::string str_to_lower(std::string pStr) {
 	return pStr;
 }
 
+bool sFodderParameters::SaveIni() {
+	INI<> ini("openfodder.ini", false);
+
+	ini.parse();
+
+	if (ini.select("openfodder")) {
+		ini.set("window", mWindowMode ? "true" : "false");
+		ini.set("cheats", mCheatsEnabled ? "true" : "false");
+
+		ini.set("scale", (mWindowScale == 0) ? "auto" : std::to_string(mWindowScale));
+		ini.set("integer", mIntegerScaling ? "true" : "false");
+
+		ini.set("columns", (mWindowColumns == 0) ? "0" : std::to_string(mWindowColumns));
+		ini.set("rows", (mWindowRows == 0) ? "0" : std::to_string(mWindowRows));
+
+		ini.set("alternate-mouse", mMouseAlternative ? "true" : "false");
+		ini.set("mouse-locked", mMouseLocked ? "true" : "false");
+		ini.set("copyprotection", mCopyProtection ? "true" : "false");
+	}
+	else {
+		return false;
+	}
+
+	if (ini.select("engine")) {
+
+		ini.set("platform",
+			(mDefaultPlatform == ePlatform::Amiga) ? "amiga" :
+			(mDefaultPlatform == ePlatform::PC) ? "pc" :
+			"");
+
+		ini.set("engine",
+			(mDefaultGame == eGame::CF2) ? "cf2" : "cf1");
+
+		ini.set("maxsprite", std::to_string(mSpritesMax));
+		ini.set("maxspawn", std::to_string(mSpawnEnemyMax));
+
+		ini.set("sleep-delta", std::to_string(mSleepDelta));
+	}
+
+	if (ini.select("skip")) {
+		ini.set("intro", mSkipIntro ? "true" : "false");
+		ini.set("briefing", mSkipBriefing ? "true" : "false");
+		ini.set("service", mSkipService ? "true" : "false");
+		ini.set("hill", mSkipRecruit ? "true" : "false");
+	}
+
+	// [paths]
+	// TODO Later
+	// 
+	// if (ini.select("paths")) {
+	//     ini["paths"].clear();
+	//     for (size_t i = 0; i < mResourcePaths.size(); ++i) {
+	//         ini["paths"][std::to_string(i)] = mResourcePaths[i];
+	//     }
+	// }
+	//
+
+	return ini.save();
+}
+
+
 bool sFodderParameters::ProcessINI() {
 
 	INI<> ini("openfodder.ini", false);

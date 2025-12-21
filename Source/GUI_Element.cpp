@@ -1077,6 +1077,10 @@ void cFodder::GUI_Element_Reset() {
         mGUI_Elements[x].mY = 0;
         mGUI_Elements[x].mHeight = 0;
         mGUI_Elements[x].mMouseInsideFuncPtr = 0;
+        mGUI_Elements[x].mCtx = 0;
+        mGUI_Elements[x].mAction = -1;
+        mGUI_Elements[x].mArg = -1;
+        mGUI_Elements[x].mOnClick = 0;
     }
 }
 
@@ -1114,7 +1118,7 @@ void cFodder::GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary
     Briefing_DrawBox(X - 3, Y - 3, Width + 4, Height + 5, (uint8)pColorShadow);
 }
 
-void cFodder::GUI_Button_Setup(void(cFodder::*pFunction)(void)) {
+sGUI_Element* cFodder::GUI_Button_Setup(void(cFodder::*pFunction)()) {
     sGUI_Element* Element = mGUI_NextFreeElement;
 
     Element->field_0 = &cFodder::GUI_Button_NoAction;
@@ -1124,26 +1128,24 @@ void cFodder::GUI_Button_Setup(void(cFodder::*pFunction)(void)) {
     Element->mY = mGUI_Temp_Y;
     Element->mHeight = mGUI_Draw_LastHeight + 5;
     Element->mMouseInsideFuncPtr = pFunction;
+    Element->mAction = -1;
+    Element->mArg = -1;
 
-    ++Element;
-    Element->field_0 = 0;
-    mGUI_NextFreeElement = Element;
+    auto nextEl = Element;
+    ++nextEl;
+    nextEl->field_0 = 0;
+    mGUI_NextFreeElement = nextEl;
+    return Element;
 }
 
-void cFodder::GUI_Button_Setup_Small(void(cFodder::*pFunction)(void)) {
-    sGUI_Element* Element = mGUI_NextFreeElement;
+sGUI_Element* cFodder::GUI_Button_Setup_New(GuiFn pFn, void* pCtx, int16 pAction, int16 pArg) {
+    sGUI_Element* Element = GUI_Button_Setup(0);
 
-    Element->field_0 = &cFodder::GUI_Button_NoAction;
-
-    Element->mX = mGUI_Temp_X - 3;
-    Element->mWidth = mGUI_Temp_Width + 4;
-    Element->mY = mGUI_Temp_Y;
-    Element->mHeight = mGUI_Draw_LastHeight + 5;
-    Element->mMouseInsideFuncPtr = pFunction;
-
-    ++Element;
-    Element->field_0 = 0;
-    mGUI_NextFreeElement = Element;
+    Element->mCtx = pCtx;
+    Element->mOnClick = pFn;
+    Element->mAction = pAction;
+    Element->mArg = pArg;
+    return Element;
 }
 
 std::string cFodder::GUI_Select_File(const char* pTitle, const std::vector<sSavedGame>& pSave, const std::vector<std::string> &pMaps) {
@@ -1292,7 +1294,12 @@ void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element* pLoop_Element) {
         if (Data0 < mMouseY)
             continue;
 
-        (*this.*pLoop_Element->mMouseInsideFuncPtr)();
+        if(pLoop_Element->mMouseInsideFuncPtr)
+            (*this.*pLoop_Element->mMouseInsideFuncPtr)();
+
+        if (pLoop_Element->mOnClick && pLoop_Element->mCtx) {
+            pLoop_Element->mOnClick(pLoop_Element->mCtx, pLoop_Element->mAction, pLoop_Element->mArg);
+        }
         return;
     }
 }
@@ -1710,3 +1717,52 @@ void cFodder::Sidebar_Render_To_ScreenBuffer() {
 
     mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 }
+
+void cFodder::GUI_Box_Draw_Range(const size_t x1, const size_t x2, const size_t y, const size_t pColorShadow, const size_t pColorPrimary) {
+    mGUI_Temp_X = (int16)x1;
+    mGUI_Temp_Y = (int16)y;
+
+    int32 w = (int32)x2 - (int32)x1;
+    if (w < 0) w = 0;
+    mGUI_Temp_Width = (int16)w;
+
+    GUI_Box_Draw(pColorShadow, pColorPrimary);
+}
+
+void cFodder::GUI_Button_Draw_SmallBoxAt(
+    const std::string& pText,
+    const size_t x1, const size_t x2,
+    const size_t y,
+    const size_t pColorShadow,
+    const size_t pColorPrimary,
+    const eTextAlign align,
+    const size_t padPx
+) {
+    // Set the box geometry up-front
+    mGUI_Temp_X = (int16)x1;
+    mGUI_Temp_Y = (int16)y;
+
+    int32 w = (int32)x2 - (int32)x1;
+    if (w < 0) w = 0;
+    mGUI_Temp_Width = (int16)w;
+
+    // Print first (String_Print updates mGUI_Draw_LastHeight)
+    switch (align) {
+    case eTextAlign::Left:
+        String_Print_Small_LeftInBox(pText, x1, x2, y, padPx);
+        break;
+    case eTextAlign::Right:
+        String_Print_Small_RightInBox(pText, x1, x2, y, padPx);
+        break;
+    case eTextAlign::Centre:
+    default:
+        String_Print_Small_CentreInBox(pText, x1, x2, y);
+        break;
+    }
+
+    if (!mGUI_Draw_LastHeight)
+        mGUI_Draw_LastHeight = 6;
+    // Now draw box using the correct last height
+    GUI_Box_Draw(pColorShadow, pColorPrimary);
+}
+

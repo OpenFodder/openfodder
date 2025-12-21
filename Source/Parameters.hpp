@@ -151,6 +151,8 @@ public:
 		ProcessCLI(argc, argv);
 	}
 
+	bool SaveIni();
+
 	bool isOriginalSpriteMax() const { return mSpritesMax == 45; }
 	int32 getSpritesMax() const { return (int32) mSpritesMax; }
 };

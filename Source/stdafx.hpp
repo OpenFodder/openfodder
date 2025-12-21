@@ -136,6 +136,8 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Sound.hpp"
 #include "GUI_Element.hpp"
 #include "SpriteSheet.hpp"
+#include "OptionsMenu.hpp"
+
 #include "Fodder.hpp"
 
 #include "Structures/Barracks.hpp"

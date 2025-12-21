@@ -285,6 +285,7 @@
     <ClInclude Include="..\..\Source\Map\Map.hpp" />
     <ClInclude Include="..\..\Source\Map\Original.hpp" />
     <ClInclude Include="..\..\Source\Map\Random.hpp" />
+	<ClInclude Include="..\..\Source\OptionsMenu.hpp" />
     <ClInclude Include="..\..\Source\Parameters.hpp" />
     <ClInclude Include="..\..\Source\PC\Graphics_PC.hpp" />
     <ClInclude Include="..\..\Source\PC\Resource_PC_CD.hpp" />
@@ -363,6 +364,7 @@
     <ClCompile Include="..\..\Source\Map\Map.cpp" />
     <ClCompile Include="..\..\Source\Map\Original.cpp" />
     <ClCompile Include="..\..\Source\Map\Random.cpp" />
+	<ClCompile Include="..\..\Source\OptionsMenu.cpp" />
     <ClCompile Include="..\..\Source\Parameters.cpp" />
     <ClCompile Include="..\..\Source\PC\Graphics_PC.cpp" />
     <ClCompile Include="..\..\Source\PC\IntroData_PC.cpp" />

@@ -129,7 +129,7 @@ bool cAbout::Cycle() {
         g_Fodder->mString_GapCharID = 0x00;
 
         g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + PLATFORM_BASED(0, 25));
-        g_Fodder->GUI_Button_Setup_Small(&cFodder::GUI_Button_Load_Exit);
+        g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
     }
 
     if (g_Fodder->mPhase_Aborted)

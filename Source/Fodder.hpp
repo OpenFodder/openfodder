@@ -38,6 +38,8 @@ enum eSquad_Weapon_SplitMode {
     eSquad_Weapon_Split_None = 2
 };
 
+enum class eTextAlign { Left, Centre, Right };
+
 struct sMapPosition {
     int16   mX;
     int16   mY;
@@ -1140,8 +1142,8 @@ public:
 
     void            GUI_Element_Reset();
 
-    void            GUI_Button_Setup(void(cFodder::*pFunction)(void));
-    void            GUI_Button_Setup_Small(void(cFodder::*pFunction)(void));
+    sGUI_Element*   GUI_Button_Setup(void(cFodder::*pFunction)());
+    sGUI_Element*   GUI_Button_Setup_New(GuiFn pFn, void* pCtx, int16 pAction = -1, int16 pArg = -1);
 
     void            GUI_Button_Draw(std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
     void            GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow = 0xBF, const size_t pColorPrimary = 0xBC);
@@ -1151,6 +1153,7 @@ public:
     void            GUI_Select_File_Loop(bool pShowCursor);
     std::string     GUI_Select_File(const char* pTitle, const std::vector<sSavedGame>& pSave, const std::vector<std::string> &pMaps);
 
+    bool            Options_Menu_Run();
 
     void            GUI_Input_CheckKey();
     void            GUI_Button_Load_MouseWheel();
@@ -1269,7 +1272,20 @@ public:
 
     void            String_CalculateWidth(int32 pPosX, const uint8* pWidths, const std::string& pString);
     void            String_CalculateWidth(int32 pPosX, const uint8* pWidths, const char* pString);
+    int32           String_MeasureWidth(const uint8* pWidths, const char* pString);
+    int32           String_MeasureWidth(const uint8* pWidths, const std::string& pString);
 
+    void            String_Print_Small_Left(std::string pText, const size_t pX, const size_t pY);
+    void            String_Print_Small_Right(std::string pText, const size_t pRightX, const size_t pY);
+    void            String_Print_Small_CentreInBox(std::string pText, const size_t x1, const size_t x2, const size_t y);
+    void            String_Print_Small_LeftInBox(std::string pText, const size_t x1, const size_t x2, const size_t y, const size_t padPx = 2);
+    void            String_Print_Small_RightInBox(std::string pText, const size_t x1, const size_t x2, const size_t y, const size_t padPx = 2);
+    void            String_Print_Small_InBox(std::string pText, const size_t x1, const size_t x2, const size_t y);
+
+    void            GUI_Box_Draw_Range(const size_t x1, const size_t x2, const size_t y, const size_t pColorShadow, const size_t pColorPrimary);
+
+    void            GUI_Button_Draw_SmallBoxAt( const std::string& pText, const size_t x1, const size_t x2, const size_t y,const size_t pColorShadow = 0xB2, const size_t pColorPrimary = 0xB3,const eTextAlign align = eTextAlign::Centre,const size_t padPx = 2
+    );
     void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText);
     void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText);
 
