@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Open Fodder
  *  ---------------
  *
@@ -22,6 +22,8 @@
 
 #include "stdafx.hpp"
 #include "PC/SpriteData_PC.hpp"
+#include <chrono>
+#include <algorithm>
 
 std::vector<cPosition> BackgroundPositions[] = {
     {   // eTileTypes_Jungle
@@ -984,13 +986,19 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 
 	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pBottom);
 	auto bottomTextPos = mFodder->mGUI_Temp_X - 4;
+	
+	auto last = std::chrono::steady_clock::now();
 
 	do {
-        if (mSurface->isPaletteAdjusting())
-            mSurface->palette_FadeTowardNew();
+		const auto now = std::chrono::steady_clock::now();
+		double dtSeconds = std::chrono::duration<double>(now - last).count();
+		last = now;
 
-		mFodder->Briefing_Helicopter_Check();
-		HeliIntro_TickParallaxAndText();
+		if (mSurface->isPaletteAdjusting())
+			mSurface->palette_FadeTowardNew();
+
+		mFodder->Briefing_Helicopter_Check(dtSeconds);
+		HeliIntro_TickParallaxAndText(dtSeconds);
 
 		mFodder->String_Print(mFont_Underlined_Width, 1, -332 + (topTextPos + (Heli_TextPos)), 0x01, pTop);
 		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom)+bottomTextPos, 0xB5, pBottom);
@@ -998,38 +1006,38 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 		// Clouds
 		mMission_Intro_DrawX = pPositions[0].mX;
 		mMission_Intro_DrawY = pPositions[0].mY;
-		HeliIntroBlit_OpaqueAlignedX( mMission_Intro_Gfx_Clouds3, 320 - (Heli_VeryBack >> 16));
+		HeliIntroBlit_OpaqueAlignedX(mMission_Intro_Gfx_Clouds3, 320 - (Heli_VeryBack >> 16));
 
 		mMission_Intro_DrawX = pPositions[1].mX;
 		mMission_Intro_DrawY = pPositions[1].mY;
-		HeliIntro_BlitMaskedAlignedX( mMission_Intro_Gfx_Clouds2, 320 - (Heli_Back >> 16));
+		HeliIntro_BlitMaskedAlignedX(mMission_Intro_Gfx_Clouds2, 320 - (Heli_Back >> 16));
 
 		mMission_Intro_DrawX = pPositions[2].mX;
-        mMission_Intro_DrawY = pPositions[2].mY;
-		HeliIntro_BlitMaskedAlignedX( mMission_Intro_Gfx_Clouds1, 320 - (Heli_middle >> 16));
+		mMission_Intro_DrawY = pPositions[2].mY;
+		HeliIntro_BlitMaskedAlignedX(mMission_Intro_Gfx_Clouds1, 320 - (Heli_middle >> 16));
 
 		// Trees (Main)
 		mMission_Intro_DrawX = pPositions[3].mX;
-        mMission_Intro_DrawY = pPositions[3].mY;
-		HeliIntroBlit_OpaqueAlignedX( mMission_Intro_Gfx_TreesMain, 320 - (Heli_middle >> 16));
+		mMission_Intro_DrawY = pPositions[3].mY;
+		HeliIntroBlit_OpaqueAlignedX(mMission_Intro_Gfx_TreesMain, 320 - (Heli_middle >> 16));
 
-		mFodder->mVideo_Draw_FrameDataPtr = mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefingHelicopter_FrameCounter];
+		mFodder->mVideo_Draw_FrameDataPtr =
+			mBriefing_ParaHeli->data() + mBriefing_ParaHeli_Frames[mFodder->mBriefingHelicopter_FrameCounter];
 
-		mFodder->mVideo_Draw_PosX = mFodder->mBriefingHelicopter_ScreenX;		// X
-		mFodder->mVideo_Draw_PosY = mFodder->mBriefingHelicopter_ScreenY;		// Y 
+		mFodder->mVideo_Draw_PosX = mFodder->mBriefingHelicopter_ScreenX;   // X
+		mFodder->mVideo_Draw_PosY = mFodder->mBriefingHelicopter_ScreenY;   // Y
 		mFodder->mVideo_Draw_Columns = 0x40;
 		mFodder->mVideo_Draw_Rows = 0x18;
 
-        if (pShowHelicopter) {
+		if (pShowHelicopter) {
 			mFodder->mVideo_Draw_PaletteIndex = 0xE0;
-
-            if (Sprite_OnScreen_Check())
-                Video_Draw_8();
-        }
+			if (Sprite_OnScreen_Check())
+				Video_Draw_8();
+		}
 
 		mMission_Intro_DrawX = pPositions[4].mX;
-        mMission_Intro_DrawY = pPositions[4].mY;
-		HeliIntro_BlitMaskedAlignedX( mImageMissionIntro.mData, 320 - (Heli_Front >> 16));
+		mMission_Intro_DrawY = pPositions[4].mY;
+		HeliIntro_BlitMaskedAlignedX(mImageMissionIntro.mData, 320 - (Heli_Front >> 16));
 
 		mFodder->Video_Sleep(0, false, true);
 
@@ -1041,4 +1049,5 @@ void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTy
 		}
 
 	} while (mFodder->mBriefingHelicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());
+	
 }

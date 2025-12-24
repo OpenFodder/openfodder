@@ -52,36 +52,66 @@ void cGraphics::SetSurfaceOriginal(cSurface* pImage) {
 }
 
 
-void cGraphics::HeliIntro_TickParallaxAndText() {
-	const float scale = mFodder->mBriefingHelicopter_TimeScale;
+void cGraphics::HeliIntro_TickParallaxAndText(double dtSeconds)
+{
+    // Old behaviour:
+    //   Heli_TextPosBottom -= 4 * scale  (scale = 60/refresh)
+    // At 60Hz that is exactly -4 px per frame => -240 px/sec.
+    // So velocity = 240 px/sec (toward 0x0C).
+    //
+    const double textVelPxPerSec = 240.0; // 4 px * 60 fps
 
-	if (Heli_TextPosBottom != 0x0C) {
-		Heli_TextPosBottom -= static_cast<int32_t>(4 * scale);
+    if (Heli_TextPosBottom != 0x0C) {
+        g_Fodder->mHeliText_SubPx += textVelPxPerSec * dtSeconds;
 
-		if (Heli_TextPosBottom <= 0x0C)
-			Heli_TextPosBottom = 0x0C;
-	}
-	Heli_TextPos = 344 - Heli_TextPosBottom;
+        // apply only whole pixels, keep remainder
+        const int32_t stepPx = (int32_t)std::floor(g_Fodder->mHeliText_SubPx);
+        if (stepPx > 0) {
+            g_Fodder->mHeliText_SubPx -= (double)stepPx;
+            Heli_TextPosBottom -= stepPx;
 
-	int32_t baseSpeed = static_cast<int32_t>(0x8000 * scale);
-	int32_t d0 = baseSpeed;
+            if (Heli_TextPosBottom <= 0x0C) {
+                Heli_TextPosBottom = 0x0C;
+                g_Fodder->mHeliText_SubPx = 0.0;
+            }
+        }
+    }
 
-	Heli_VeryBack -= d0;
-	if (Heli_VeryBack < 0)
-		Heli_VeryBack += 320 << 16;
+    Heli_TextPos = 344 - Heli_TextPosBottom;
 
-	d0 <<= 1;
-	Heli_Back -= d0;
-	if (Heli_Back < 0)
-		Heli_Back += 320 << 16;
+    // ----- Parallax scroll -----
+    //
+    // Old behaviour per 60Hz frame:
+    //   baseSpeed = 0x8000 (16.16 units) per frame
+    // So per-second speed = 0x8000 * 60 in 16.16 units/sec.
+    //
+    // Then each layer doubles: VeryBack *1, Back *2, middle *4, Front *8.
+    const double baseSpeed_16_16_per_sec = (double)0x8000 * 60.0;
 
-	d0 <<= 1;
-	Heli_middle -= d0;
-	if (Heli_middle < 0)
-		Heli_middle += 320 << 16;
+    // accumulate in 16.16 units
+    g_Fodder->mHeliParallax_SubPx += baseSpeed_16_16_per_sec * dtSeconds;
 
-	d0 <<= 1;
-	Heli_Front -= d0;
-	if (Heli_Front < 0)
-		Heli_Front += 320 << 16;
+    const int32_t baseStep = (int32_t)std::floor(g_Fodder->mHeliParallax_SubPx);
+    if (baseStep != 0) {
+        g_Fodder->mHeliParallax_SubPx -= (double)baseStep;
+
+        const int32_t wrap = 320 << 16;
+
+        int32_t d0 = baseStep;
+
+        Heli_VeryBack -= d0;
+        if (Heli_VeryBack < 0) Heli_VeryBack += wrap;
+
+        d0 <<= 1;
+        Heli_Back -= d0;
+        if (Heli_Back < 0) Heli_Back += wrap;
+
+        d0 <<= 1;
+        Heli_middle -= d0;
+        if (Heli_middle < 0) Heli_middle += wrap;
+
+        d0 <<= 1;
+        Heli_Front -= d0;
+        if (Heli_Front < 0) Heli_Front += wrap;
+    }
 }

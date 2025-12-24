@@ -177,6 +177,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow) {
     Squad_Walk_Target_SetAll(0);
     mPhase_Completed_Timer = 0;
     mVideo_Draw_ColumnsMax = 0;
+    mBriefingHelicopter_DirectionIndexF = 0;
     mBriefingHelicopter_DirectionIndex = 0;
     mBriefingHelicopter_Speed = 0;
     word_428BA = 0;
@@ -3925,7 +3926,12 @@ void cFodder::Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pPriority) 
 }
 
 void cFodder::Mission_Intro_Helicopter_Start() {
-    mBriefingHelicopter_TimeScale = 60.0f / mWindow->GetRefreshRate();
+
+    mBriefingHelicopter_TransitionCounterSeconds = 0;
+    mBriefingHelicopter_AccumSeconds = 0.0;
+    mBriefingHelicopter_StepSeconds = 1.0 / 60.0;
+    mHeliParallax_SubPx = 0;
+    mHeliText_SubPx = 0;
 
     mHelicopterPosX = 0x01500000;
     mHelicopterPosY = 0x001E0000;
@@ -3936,30 +3942,46 @@ void cFodder::Mission_Intro_Helicopter_Start() {
 
     mBriefingHelicopter_Moving = 0;
     mHelicopterOffsetIndex = 0;
+
     mBriefingHelicopter_NextUpdateCountdown = 0;
 
     Briefing_Update_Helicopter();
+
     mBriefingHelicopter_FrameCounter = 0;
     mBriefingHelicopter_Moving = 1;
     mBriefingHelicopter_NotDone = -1;
 
     mBriefingHelicopter_DirectionIndex = 0x180;
     mBriefingHelicopter_TargetDirection = 0x180;
-
 }
 
-void cFodder::Briefing_Update_Helicopter() {
+void cFodder::Briefing_Update_Helicopter_Frame(double dtSeconds)
+{
+    if (!mBriefingHelicopter_Moving)
+        return;
 
+    mBriefingHelicopter_AccumSeconds += dtSeconds;
+
+    while (mBriefingHelicopter_AccumSeconds >= mBriefingHelicopter_StepSeconds) {
+        Briefing_Update_Helicopter();
+        mBriefingHelicopter_AccumSeconds -= mBriefingHelicopter_StepSeconds;
+    }
+}
+
+void cFodder::Briefing_Update_Helicopter()
+{
     mBriefingHelicopter_ScreenX = (((int)mHelicopterPosX - 0x20) >> 16);
     mBriefingHelicopter_ScreenY = (((int)mHelicopterPosY) >> 16);
 
-    mBriefingHelicopter_NextUpdateCountdown -= mBriefingHelicopter_TimeScale;
+    // countdown is in 60Hz ticks now
+    mBriefingHelicopter_NextUpdateCountdown -= 1.0f;
 
     if (mBriefingHelicopter_NextUpdateCountdown <= 0.0f) {
 
         mBriefingHelicopter_TargetDirection = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex];
         mBriefingHelicopter_TargetSpeed = mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 1];
-        mBriefingHelicopter_NextUpdateCountdown = (mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 2]);
+        mBriefingHelicopter_NextUpdateCountdown =
+            (float)mBriefing_Helicopter_Offsets_Amiga[mHelicopterOffsetIndex + 2];
 
         if (mBriefingHelicopter_NextUpdateCountdown <= 0.0f)
             return;
@@ -3970,18 +3992,18 @@ void cFodder::Briefing_Update_Helicopter() {
     mBriefingHelicopter_DirectionIndex &= 0x1FE;
     uint16 bx = mBriefingHelicopter_DirectionIndex;
 
-    float ax = mDirectionVectorTable[(bx / 2) & 0xFF];
-    ax /= 4;
+    float ax = (float)mDirectionVectorTable[(bx / 2) & 0xFF];
+    ax /= 4.0f;
 
-    mHelicopterPosX += (ax * mBriefingHelicopter_Speed * mBriefingHelicopter_TimeScale);
+    mHelicopterPosX += (ax * mBriefingHelicopter_Speed);
 
     bx += 0x80;
     bx &= 0x1FE;
 
-    ax = mDirectionVectorTable[(bx / 2) & 0xFF];
-    ax /= 4;
+    ax = (float)mDirectionVectorTable[(bx / 2) & 0xFF];
+    ax /= 4.0f;
 
-    mHelicopterPosY += (ax * mBriefingHelicopter_Speed * mBriefingHelicopter_TimeScale);
+    mHelicopterPosY += (ax * mBriefingHelicopter_Speed);
 
     bx = mBriefingHelicopter_TargetDirection - mBriefingHelicopter_DirectionIndex;
     bx >>= 5;
@@ -3989,18 +4011,19 @@ void cFodder::Briefing_Update_Helicopter() {
     bx ^= 0x0F;
     bx &= 0x0F;
 
-    float al = mDirectionStepTable[bx];
-    al *= 4;
-    //mBriefingHelicopter_DirectionIndex += al;
-    mBriefingHelicopter_DirectionIndex += static_cast<int16>(al * mBriefingHelicopter_TimeScale);
+    int16 al = mDirectionStepTable[bx];
+    al <<= 2;
 
+    // RESTORE integer-per-tick direction change (no scaling)
+    mBriefingHelicopter_DirectionIndex += al;
     mBriefingHelicopter_DirectionIndex &= 0x1FE;
 
+    // RESTORE integer-per-tick speed ramp (no scaling)
     if (mBriefingHelicopter_TargetSpeed != mBriefingHelicopter_Speed) {
         if (mBriefingHelicopter_Speed > mBriefingHelicopter_TargetSpeed)
-            mBriefingHelicopter_Speed -= (1.0f * mBriefingHelicopter_TimeScale);
+            mBriefingHelicopter_Speed -= 1.0f;
         else
-            mBriefingHelicopter_Speed += (1.0f * mBriefingHelicopter_TimeScale);
+            mBriefingHelicopter_Speed += 1.0f;
     }
 
     if (mVersionCurrent->isCannonFodder1() && mVersionCurrent->isPC())
@@ -4010,40 +4033,50 @@ void cFodder::Briefing_Update_Helicopter() {
         mBriefingHelicopter_FrameCounter = 0;
 }
 
-float mBriefingHelicopter_TransitionCounter = 0;
 
-void cFodder::Briefing_Helicopter_Check() {
+void cFodder::Briefing_Helicopter_Check(double dtSeconds)
+{
     Music_Increase_Channel_Volume();
 
-    const float fadeDurationSeconds = 0.64f; // original 16 steps @ 50Hz every 2nd frame
-    const int targetSteps = static_cast<int>(16.0f / mBriefingHelicopter_TimeScale);
+    // Transition gate: original “every 2nd frame @ 50 Hz” => 25 steps/sec.
+    // That is a step period of 1/25 = 0.04s. Every time we pass it, we do one palette/moving step.
+    const double kTransitionStepSeconds = 1.0 / 25.0;
 
-    mBriefingHelicopter_TransitionCounter += mBriefingHelicopter_TimeScale;
+    mBriefingHelicopter_TransitionCounterSeconds += dtSeconds;
 
+    auto doTransitionStepIfDue = [&]() -> bool {
+        if (mBriefingHelicopter_TransitionCounterSeconds < kTransitionStepSeconds)
+            return false;
+        // keep remainder so it’s stable under varying dt
+        mBriefingHelicopter_TransitionCounterSeconds =
+            std::fmod(mBriefingHelicopter_TransitionCounterSeconds, kTransitionStepSeconds);
+        return true;
+        };
+
+    // ---- “Fade in until ready, then start heli movement” ----
     if (!mMouse_Exit_Loop || !mPhase_Aborted) {
 
         if (mBriefingHelicopter_ScreenX > 0x30) {
 
-            if (mBriefingHelicopter_TransitionCounter >= 2.0f) {
-                mBriefingHelicopter_TransitionCounter = 0.0f;
-
-                if (mBriefingHelicopter_Moving < targetSteps) {
+            if (doTransitionStepIfDue()) {
+                // Original: 16 steps total for fade-in.
+                if (mBriefingHelicopter_Moving < 16) {
                     mBriefingHelicopter_Moving++;
                     mPaletteLevel++;
                     return;
                 }
             }
 
-            if (mBriefingHelicopter_Moving >= targetSteps) {
-                Briefing_Update_Helicopter();
+            // Once fade-in complete, advance helicopter sim (60Hz tick wrapper)
+            if (mBriefingHelicopter_Moving >= 16) {
+                Briefing_Update_Helicopter_Frame(dtSeconds);
             }
             return;
         }
     }
 
-    if (mBriefingHelicopter_TransitionCounter >= 2.0f) {
-        mBriefingHelicopter_TransitionCounter = 0.0f;
-
+    // ---- “Fade out / exit path” ----
+    if (doTransitionStepIfDue()) {
         if (mBriefingHelicopter_Moving == 0 && mBriefingHelicopter_NotDone) {
             mBriefingHelicopter_NotDone = 0;
             mGraphics->mImageMissionIntro.CopyPalette(mGraphics->mPalette, 0x100, 0);
@@ -4054,14 +4087,12 @@ void cFodder::Briefing_Helicopter_Check() {
                 mPaletteLevel--;
                 mSurface->paletteNew_SetToBlack();
             }
-
         }
     }
 
-    Briefing_Update_Helicopter();
+    // Always keep heli sim running on the exit path too (matches your original behaviour)
+    Briefing_Update_Helicopter_Frame(dtSeconds);
 }
-
-
 
 void cFodder::Mission_Intro_Draw_OpenFodder() {
     // Draw OPEN FODDER

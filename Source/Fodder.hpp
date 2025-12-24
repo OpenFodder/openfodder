@@ -545,19 +545,25 @@ public:
     int32           mBriefingHelicopter_ScreenX;
     int32           mBriefingHelicopter_ScreenY;
     int16           mBriefingHelicopter_DirectionIndex;
+    float           mBriefingHelicopter_DirectionIndexF;
     float           mBriefingHelicopter_Speed;
     int16          word_428BA;
 
     float          mHelicopterPosX;
     float          mHelicopterPosY;
     int16           mBriefingHelicopter_TargetDirection;
-    float           mBriefingHelicopter_TargetSpeed;
+    float           mBriefingHelicopter_TargetSpeed;        // 60Hz Ticks
     float           mBriefingHelicopter_NextUpdateCountdown;
     int16           mHelicopterOffsetIndex;
     uint16          mBriefingHelicopter_FrameCounter;
     int16           mBriefingHelicopter_Moving;
     int16           mBriefingHelicopter_NotDone;
-    float             mBriefingHelicopter_TimeScale;
+
+    double          mBriefingHelicopter_AccumSeconds = 0.0;
+    double          mBriefingHelicopter_StepSeconds = 1.0 / 60.0;
+    double          mBriefingHelicopter_TransitionCounterSeconds = 0;
+    double          mHeliParallax_SubPx = 0.0;     // accumulates fractional scroll in 16.16 units
+    double          mHeliText_SubPx = 0.0;		// accumulates fractional text movement in pixels
 
     int16           mMouseButtonStatus;
     int16           mInputMouseX;
@@ -732,7 +738,7 @@ public:
     void            Mission_Intro_Helicopter_Start();
 	void            Mission_Intro_Draw_Mission_Name();
 
-    void            Briefing_Helicopter_Check();
+    void            Briefing_Helicopter_Check(double dtSeconds);
 
     void            CopyProtection();
     void            CopyProtection_EncodeInput();
@@ -787,7 +793,7 @@ public:
 
     int16           Squad_Join(sSprite* pSprite);
 
-
+    void            Briefing_Update_Helicopter_Frame(double dtSeconds);
 	void            Briefing_Update_Helicopter();
     
     std::string     Briefing_Get_Mission_Title();

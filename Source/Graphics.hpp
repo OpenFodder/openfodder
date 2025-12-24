@@ -163,7 +163,7 @@ public:
 
 	virtual void		Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, size_t pBackColor = 0) = 0;
 
-	virtual void		HeliIntro_TickParallaxAndText();
+	virtual void		HeliIntro_TickParallaxAndText(double dtSeconds);
 
 	virtual void		Map_Tile_Draw(cSurface *pTarget, uint16 pTile, uint16 pX, uint16 pY, uint16 pOffset) = 0;
 	virtual void		MapTiles_Draw() = 0;
