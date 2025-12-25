@@ -54,17 +54,16 @@ void cGraphics::SetSurfaceOriginal(cSurface* pImage) {
 
 void cGraphics::HeliIntro_TickParallaxAndText(double dtSeconds)
 {
-    // Old behaviour:
-    //   Heli_TextPosBottom -= 4 * scale  (scale = 60/refresh)
-    // At 60Hz that is exactly -4 px per frame => -240 px/sec.
-    // So velocity = 240 px/sec (toward 0x0C).
+    // ----- Text slide (PAL) -----
     //
-    const double textVelPxPerSec = 240.0; // 4 px * 60 fps
+    // Original Amiga PAL behaviour:
+    //   Each step moves 4 pixels
+    // => 4 * 50 = 200 px/sec toward 0x0C.
+    const double textVelPxPerSec = 200.0;
 
     if (Heli_TextPosBottom != 0x0C) {
         g_Fodder->mHeliText_SubPx += textVelPxPerSec * dtSeconds;
 
-        // apply only whole pixels, keep remainder
         const int32_t stepPx = (int32_t)std::floor(g_Fodder->mHeliText_SubPx);
         if (stepPx > 0) {
             g_Fodder->mHeliText_SubPx -= (double)stepPx;
@@ -79,16 +78,13 @@ void cGraphics::HeliIntro_TickParallaxAndText(double dtSeconds)
 
     Heli_TextPos = 344 - Heli_TextPosBottom;
 
-    // ----- Parallax scroll -----
+    // ----- Parallax scroll (PAL) -----
     //
-    // Old behaviour per 60Hz frame:
+    // Original behaviour per PAL frame (50Hz):
     //   baseSpeed = 0x8000 (16.16 units) per frame
-    // So per-second speed = 0x8000 * 60 in 16.16 units/sec.
-    //
-    // Then each layer doubles: VeryBack *1, Back *2, middle *4, Front *8.
-    const double baseSpeed_16_16_per_sec = (double)0x8000 * 60.0;
+    // => per-second speed = 0x8000 * 50 (16.16 units/sec)
+    const double baseSpeed_16_16_per_sec = (double)0x8000 * 50.0;
 
-    // accumulate in 16.16 units
     g_Fodder->mHeliParallax_SubPx += baseSpeed_16_16_per_sec * dtSeconds;
 
     const int32_t baseStep = (int32_t)std::floor(g_Fodder->mHeliParallax_SubPx);

@@ -3973,7 +3973,7 @@ void cFodder::Briefing_Update_Helicopter()
     mBriefingHelicopter_ScreenX = (((int)mHelicopterPosX - 0x20) >> 16);
     mBriefingHelicopter_ScreenY = (((int)mHelicopterPosY) >> 16);
 
-    // countdown is in 60Hz ticks now
+    // countdown is in 50Hz ticks now
     mBriefingHelicopter_NextUpdateCountdown -= 1.0f;
 
     if (mBriefingHelicopter_NextUpdateCountdown <= 0.0f) {
@@ -4014,11 +4014,9 @@ void cFodder::Briefing_Update_Helicopter()
     int16 al = mDirectionStepTable[bx];
     al <<= 2;
 
-    // RESTORE integer-per-tick direction change (no scaling)
     mBriefingHelicopter_DirectionIndex += al;
     mBriefingHelicopter_DirectionIndex &= 0x1FE;
 
-    // RESTORE integer-per-tick speed ramp (no scaling)
     if (mBriefingHelicopter_TargetSpeed != mBriefingHelicopter_Speed) {
         if (mBriefingHelicopter_Speed > mBriefingHelicopter_TargetSpeed)
             mBriefingHelicopter_Speed -= 1.0f;

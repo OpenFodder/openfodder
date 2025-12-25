@@ -552,7 +552,7 @@ public:
     float          mHelicopterPosX;
     float          mHelicopterPosY;
     int16           mBriefingHelicopter_TargetDirection;
-    float           mBriefingHelicopter_TargetSpeed;        // 60Hz Ticks
+    float           mBriefingHelicopter_TargetSpeed;        // 50Hz Ticks
     float           mBriefingHelicopter_NextUpdateCountdown;
     int16           mHelicopterOffsetIndex;
     uint16          mBriefingHelicopter_FrameCounter;
@@ -560,7 +560,7 @@ public:
     int16           mBriefingHelicopter_NotDone;
 
     double          mBriefingHelicopter_AccumSeconds = 0.0;
-    double          mBriefingHelicopter_StepSeconds = 1.0 / 60.0;
+    double          mBriefingHelicopter_StepSeconds = 1.0 / 50.0;
     double          mBriefingHelicopter_TransitionCounterSeconds = 0;
     double          mHeliParallax_SubPx = 0.0;     // accumulates fractional scroll in 16.16 units
     double          mHeliText_SubPx = 0.0;		// accumulates fractional text movement in pixels
