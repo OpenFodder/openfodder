@@ -1,6 +1,5 @@
 # Open Fodder
-[![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder)
-[![Build status](https://ci.appveyor.com/api/projects/status/7pc2r2qe4niv4848?svg=true)](https://ci.appveyor.com/project/segrax/openfodder)
+[![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder) [![Build status](https://ci.appveyor.com/api/projects/status/7pc2r2qe4niv4848?svg=true)](https://ci.appveyor.com/project/segrax/openfodder)
 
   
 Come for a chat over at our [Discord](https://discord.gg/4mX2wFM)  
@@ -16,7 +15,7 @@ control system. The player directs troops through numerous missions, battling en
 
 Open Fodder is an open source version of the Cannon Fodder engine, for modern operating systems.
   
-* Website: [http://openfodder.com](http://openfodder.com/)
+* Website: [https://openfodder.com](https://openfodder.com/)
 * Discord: [https://discord.gg/4mX2wFM](https://discord.gg/4mX2wFM)
 * Facebook:[https://www.facebook.com/openfodder/](https://www.facebook.com/openfodder/)
 * Twitter: [https://twitter.com/segrax](https://twitter.com/segrax)
@@ -34,11 +33,11 @@ See [OpenFodder Editor](https://github.com/OpenFodder/editor) for the campaign a
 
 #### Scripting
 
-Open Fodder includes a Javascript interpreter for the purposes of creating randomized maps, 
+Open Fodder includes a JavaScript interpreter for the purposes of creating randomized maps, 
 a number of scripts are provided which implement various functionality, such as placing of random hostages, rescue tents,
 and a helicopter if required to rescue to hostages.
 
-Customisations and additions can be made to any of the scripts
+Customisations and additions can be made to any of the scripts.
 
 #### Media
 
@@ -128,7 +127,7 @@ Open Fodder supports six demos from the Amiga platform, and three retail release
   
 #### Purchasing the retail release
 
-Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com), directly at [Cannon Fodder](http://www.gog.com/game/cannon_fodder) and [Cannon Fodder 2](http://www.gog.com/game/cannon_fodder_2)  
+Cannon Fodder can be purchased from [Good Old Games](https://www.gog.com), directly at [Cannon Fodder](https://www.gog.com/game/cannon_fodder) and [Cannon Fodder 2](https://www.gog.com/game/cannon_fodder_2)  
   
   
 #### Supported Versions
@@ -146,7 +145,7 @@ Cannon Fodder can be purchased from [Good Old Games](http://www.gog.com), direct
   
 ##### Demos
   
-Six Amiga magazine coverdisk demos and one PC demo are included in the data pack.  
+Six Amiga magazine cover disk demos and one PC demo are included in the data pack.  
   
 * Amiga The One Issue #68: (Jun 1993)
 * Amiga Power   Issue #31: (Nov 1993) Cannon Fodder Plus
