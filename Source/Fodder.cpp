@@ -18663,8 +18663,8 @@ int16 cFodder::Sprite_Homing_LockInRange(sSprite* pSprite, sSprite*& pFoundSprit
 
     MouseY += 0x08;
 
-	for( auto& Sprite : mSprites ) {
-		pFoundSprite = &Sprite;
+    for (auto& Sprite : mSprites) {
+        pFoundSprite = &Sprite;
 
         if (pFoundSprite->field_0 == -32768)
             continue;
@@ -18748,8 +18748,8 @@ void cFodder::Game_Setup() {
     mPhase_Complete = false;
 
     mGame_Data.mMission_Phases_Remaining = 1;
-    mGame_Data.mMission_Number = (uint16) (mParams->mMissionNumber);
-    mGame_Data.mMission_Phase = (uint16) (mParams->mPhaseNumber ? (mParams->mPhaseNumber) : 1);
+    mGame_Data.mMission_Number = (uint16)(mParams->mMissionNumber);
+    mGame_Data.mMission_Phase = (uint16)(mParams->mPhaseNumber ? (mParams->mPhaseNumber) : 1);
 
     if (!mGame_Data.Phase_Start()) {
         g_Debugger->Error("Invalid Mission!");
@@ -18763,22 +18763,29 @@ void cFodder::Game_Setup() {
 // This function is for viewing/iterating sprites
 void cFodder::Playground() {
     //return;
+    if (!Campaign_Load(mParams->mCampaignName)) {
+        g_Debugger->Error("Invalid Campaign!");
+        exit(1);
+    }
     mGame_Data.Phase_Start();
     Map_Load();
 
     mGraphics->PaletteSet();
 
     Recruit_Truck_Anim_Prepare();
+    mGraphics->Load_Hill_Data();
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
     //mGraphics->Recruit_Draw_Hill();
 
-    Recruit_Copy_Sprites();
+    // I think this functionality is useless anyway because theres no way to change between sprite sets at runtime
+    if (!mVersionCurrent->isDemo()) {
+        Recruit_Copy_Sprites();
 
-    if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
+        if (mVersionCurrent->mPlatform == ePlatform::Amiga) {
 
-        GetGraphics<cGraphics_Amiga>()->Hill_Prepare_Overlays();
+            GetGraphics<cGraphics_Amiga>()->Hill_Prepare_Overlays();
+        }
     }
-
     // Load Icon
     mSurface->clearBuffer();
     mSurface->palette_FadeTowardNew();
