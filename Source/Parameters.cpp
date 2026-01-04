@@ -206,6 +206,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		if (result["list-campaigns"].as<bool>() == true) {
 			g_Debugger->Notice("\nAvailable Campaigns\n\n");
 
+			g_ResourceMan->refresh();
 			for (auto& Name : g_Fodder->mVersions->GetCampaignNames())
 				g_Debugger->Notice(Name);
 

@@ -33,7 +33,9 @@ int start(int argc, char *argv[]) {
 	g_Fodder = std::make_shared<cFodder>(g_Window);
 
 	auto Params = std::make_shared<sFodderParameters>();
-	Params->Process(argc, argv);
+	
+	if (!Params->Process(argc, argv))
+		return 0;
 
 	if (Params->mShowHelp)
 		return 0;

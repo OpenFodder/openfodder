@@ -146,9 +146,9 @@ public:
 	std::string ToJson();
 	bool FromJson(const std::string& pJson);
 
-	void Process(int argc, char *argv[]) {
+	bool Process(int argc, char *argv[]) {
 		ProcessINI();
-		ProcessCLI(argc, argv);
+		return ProcessCLI(argc, argv);
 	}
 
 	bool SaveIni();
