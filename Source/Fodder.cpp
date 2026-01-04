@@ -18751,7 +18751,10 @@ void cFodder::Game_Setup() {
     mGame_Data.mMission_Number = (uint16) (mParams->mMissionNumber);
     mGame_Data.mMission_Phase = (uint16) (mParams->mPhaseNumber ? (mParams->mPhaseNumber) : 1);
 
-    mGame_Data.Phase_Start();
+    if (!mGame_Data.Phase_Start()) {
+        g_Debugger->Error("Invalid Campaign!");
+        exit(1);
+    }
 
     mPhase_TryAgain = true;
     mGraphics->Load_pStuff();

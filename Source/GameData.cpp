@@ -506,8 +506,11 @@ bool sGameData::Phase_Start() {
         return false;
 
     mPhase_Current = mMission_Current->PhaseGet(mMission_Phase);
-    if (!mPhase_Current)
-        return false;
+    if (!mPhase_Current) {
+        mMission_Phase = 1;
+
+        mMission_Current->PhaseGet(1);
+    }
 
     mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases() - (mMission_Phase-1);
 
