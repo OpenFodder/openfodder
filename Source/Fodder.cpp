@@ -18752,7 +18752,7 @@ void cFodder::Game_Setup() {
     mGame_Data.mMission_Phase = (uint16) (mParams->mPhaseNumber ? (mParams->mPhaseNumber) : 1);
 
     if (!mGame_Data.Phase_Start()) {
-        g_Debugger->Error("Invalid Campaign!");
+        g_Debugger->Error("Invalid Mission!");
         exit(1);
     }
 
