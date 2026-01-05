@@ -21,6 +21,7 @@
  */
  
 #include "stdafx.hpp"
+#include <cmath>
 
 cGraphics::cGraphics() {
 

@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include <cmath>
 #include "Map/Random.hpp"
 
 #ifdef WIN32
