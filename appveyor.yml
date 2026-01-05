@@ -13,6 +13,9 @@ environment:
       CMAKE_PLATFORM: Win32
       CONFIGURATION: Release
 
+cache:
+  - Projects\VS\_deps -> appveyor.yml
+
 build_script:
   - cmake -S . -B Projects\VS -G "Visual Studio 17 2022" -A %CMAKE_PLATFORM%
   - cmake --build Projects\VS --config %CONFIGURATION%
@@ -35,3 +38,23 @@ after_build:
 artifacts:
   - path: Run\openfodder.exe
     name: openfodder.exe
+
+deploy:
+  - provider: S3
+    access_key_id: %AWS_ACCESS_KEY_ID%
+    secret_access_key: %AWS_SECRET_ACCESS_KEY%
+    bucket: openfodder-builds
+    artifact: OpenFodder-%ARCH%-%CONFIGURATION%-latest.zip
+    set_public: true
+
+on_success:
+  - ps: >-
+      Invoke-RestMethod https://raw.githubusercontent.com/DiscordHooks/appveyor-discord-webhook/master/send.ps1 -o send.ps1
+
+      ./send.ps1 success $env:WEBHOOK_URL
+
+on_failure:
+  - ps: >-
+      Invoke-RestMethod https://raw.githubusercontent.com/DiscordHooks/appveyor-discord-webhook/master/send.ps1 -o send.ps1
+
+      ./send.ps1 failure $env:WEBHOOK_URL
