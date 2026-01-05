@@ -1,5 +1,5 @@
 # Open Fodder
-[![Build Status](https://api.travis-ci.com/OpenFodder/openfodder.svg?branch=master)](https://travis-ci.com/OpenFodder/openfodder) [![Build status](https://img.shields.io/appveyor/build/segrax/openfodder/master.svg?logo=appveyor)](https://ci.appveyor.com/project/segrax/openfodder)
+[![Build status](https://img.shields.io/appveyor/build/segrax/openfodder/master.svg?logo=appveyor)](https://ci.appveyor.com/project/segrax/openfodder)
   
 Come for a chat over at our [Discord](https://discord.gg/4mX2wFM)  
 
