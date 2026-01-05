@@ -46,26 +46,30 @@ const sSoundData Tracks2[] = {
     { "AFXBASE.SNG", "AFXBASE.INS" }
 };
 
-// Call back from Audio Device to fill audio output buffer
-void cSound_AudioCallback(void *userdata, Uint8 *stream, int len) {
+// Call back from Audio Stream to fill audio output buffer
+void SDLCALL cSound_AudioCallback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount) {
 	cSound_Amiga  *sound = (cSound_Amiga*) userdata;
-
-    try {
-        sound->audioBufferFill((short*)stream, len);
-    } catch (...) {
-
+    if (additional_amount <= 0) {
+        return;
     }
+
+    std::vector<Uint8> buffer((size_t) additional_amount);
+    try {
+        sound->audioBufferFill((short*)buffer.data(), (int) buffer.size());
+    } catch (...) {
+    }
+
+    SDL_PutAudioStreamData(stream, buffer.data(), (int) buffer.size());
 }
 
 cSound_Amiga::cSound_Amiga() {
 	
-	mVal = 0;
+	mAudioStream = nullptr;
 	mLock = SDL_CreateMutex();
 
 	mPlayingTrack = -1;
 	mPlayingSong = -1;
 
-	mAudioSpec = 0;
 	mCurrentMusic = 0;
 	mCurrentSfx.resize(5);
 	devicePrepare();
@@ -76,17 +80,19 @@ cSound_Amiga::~cSound_Amiga() {
 	Stop();
 
 	SDL_Delay(100);
-	SDL_CloseAudioDevice(mVal);
+    if (mAudioStream) {
+        SDL_DestroyAudioStream(mAudioStream);
+        mAudioStream = nullptr;
+    }
 	SDL_DestroyMutex(mLock);
 	SDL_Delay(100);
-
-	delete mAudioSpec;
 }
 
 void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
 	memset(pBuffer, 0, pBufferSize);
 	
-	if (SDL_LockMutex( mLock ) == 0) {
+	if (mLock) {
+		SDL_LockMutex(mLock);
 
 		if (mCurrentMusic && !mCurrentMusic->endOfData())
 			mCurrentMusic->readBuffer( pBuffer, pBufferSize / 2 );
@@ -111,37 +117,21 @@ void cSound_Amiga::audioBufferFill( short *pBuffer, int pBufferSize ) {
 				++SfxIT;
 			}
 		}
-		SDL_UnlockMutex( mLock );
+		SDL_UnlockMutex(mLock);
 	}
 }
 
 // Prepare the local audio device
 bool cSound_Amiga::devicePrepare() {
-	SDL_AudioSpec *desired;
+	SDL_AudioSpec desired;
+	desired.freq = 44100;
+	desired.format = SDL_AUDIO_S16LE;
+	desired.channels = 2;
 
-	desired = new SDL_AudioSpec();
-	mAudioSpec = new SDL_AudioSpec();
+    mAudioSpec = desired;
+    mAudioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, cSound_AudioCallback, this);
 
-	// FM Quality, 16Bit Signed, Mono
-	desired->freq=44100;
-	desired->format=AUDIO_S16LSB;
-	desired->channels=2;
-
-	// 2048 Samples, at 2 bytes per sample
-	desired->samples=0x800;
-
-	// Function to call when the audio playback buffer is empty
-	desired->callback = cSound_AudioCallback;
-
-	// Pass a ptr to this class
-	desired->userdata = this;
-
-	// Open the audio device
-    mVal = SDL_OpenAudioDevice(NULL, 0, desired, mAudioSpec, 0);
-
-	delete desired;
-
-	if(mVal < 0 ) {
+	if (!mAudioStream) {
 		std::cout << "Audio Device Initialization failed: " << SDL_GetError();
 		std::cout << std::endl;
 		return false;
@@ -194,7 +184,8 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
 
 	Track_Load( &mSound_Sfx, pTileset + 0x32 );
 
-	if (SDL_LockMutex( mLock ) == 0) {
+	if (mLock) {
+		SDL_LockMutex(mLock);
 		if (mSound_Sfx.mCurrentMusicSongData && mSound_Sfx.mCurrentMusicInstrumentData) {
 			Audio::AudioStream* Sfx = Audio::makeRjp1Stream( mSound_Sfx.mCurrentMusicSongData, mSound_Sfx.mCurrentMusicInstrumentData, -pSoundEffect );
 			if (Sfx) {
@@ -207,10 +198,12 @@ void cSound_Amiga::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume
 			}
 		}
 
-		SDL_UnlockMutex( mLock );
+		SDL_UnlockMutex(mLock);
 	}
 
-    SDL_PauseAudioDevice(mVal, 0);
+    if (mAudioStream) {
+        SDL_ResumeAudioStreamDevice(mAudioStream);
+    }
 }
 
 void cSound_Amiga::Music_Play( int16 pTrack, int16 pSong) {
@@ -229,14 +222,17 @@ void cSound_Amiga::Music_Play( int16 pTrack, int16 pSong) {
             mCurrentMusic = Audio::makeRjp1Stream(mSound_Music.mCurrentMusicSongData, mSound_Music.mCurrentMusicInstrumentData, Number);
     }
 
-    SDL_PauseAudioDevice(mVal, 0);
+    if (mAudioStream) {
+        SDL_ResumeAudioStreamDevice(mAudioStream);
+    }
 }
 
 void cSound_Amiga::Music_Stop() {
 	mPlayingTrack = -1;
 	mPlayingSong = -1;
 
-	if (SDL_LockMutex( mLock ) == 0) {
+	if (mLock) {
+		SDL_LockMutex(mLock);
 
 		delete mCurrentMusic;
 		mCurrentMusic = 0;
@@ -272,7 +268,8 @@ int16 cSound_Amiga::Music_GetVolume(int16 pChannel) {
 
 void cSound_Amiga::Sound_Stop() {
 	
-	if (SDL_LockMutex( mLock ) == 0) {
+	if (mLock) {
+		SDL_LockMutex(mLock);
 
 		for (auto& SfxIT : mCurrentSfx) {
 

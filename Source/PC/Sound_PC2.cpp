@@ -107,90 +107,148 @@ sSoundMap stru_496DB[] = {
   { -1, -1 },
 };
 
-void Mixer_ChannelFinished2(int32 pChannel) {
-
-    g_Fodder->GetSound<cSound_PC2>()->MixerChannelFinished( pChannel );
+static float ClampGain(float gain) {
+    if (gain < 0.0f) {
+        return 0.0f;
+    }
+    if (gain > 1.0f) {
+        return 1.0f;
+    }
+    return gain;
 }
 
 cSound_PC2::cSound_PC2() {
 
 	mSound = false;
-	mMusicPlaying = 0;
+    mMixer = nullptr;
+    mMusicTrack = nullptr;
+    mMusicAudio = nullptr;
 
     devicePrepare();
     Sound_Voc_Load();
 }
 
 cSound_PC2::~cSound_PC2() {
-	
-	Mix_FreeMusic(mMusicPlaying);
-	SDL_Delay(100);
+	Music_Stop();
 
-	Mix_CloseAudio();
-	SDL_CloseAudio();
+    if (mMixer) {
+        MIX_StopAllTracks(mMixer, 0);
+    }
 
-	SDL_Delay(100);
-	for (std::vector<sChunkPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
-		Mix_FreeChunk(ChannelIT->mCurrentChunk);
-	}
-	for (auto SoundEffect : mSoundEffects) {
-		Mix_FreeChunk(SoundEffect);
-	}
+    for (auto &track : mMixerTracks) {
+        if (track.mTrack) {
+            MIX_DestroyTrack(track.mTrack);
+        }
+        if (track.mAudio) {
+            MIX_DestroyAudio(track.mAudio);
+        }
+    }
+    mMixerTracks.clear();
+
+    if (mMusicTrack) {
+        MIX_DestroyTrack(mMusicTrack);
+        mMusicTrack = nullptr;
+    }
+    if (mMusicAudio) {
+        MIX_DestroyAudio(mMusicAudio);
+        mMusicAudio = nullptr;
+    }
+
+    for (auto soundEffect : mSoundEffects) {
+        MIX_DestroyAudio(soundEffect);
+    }
+    mSoundEffects.clear();
+
+    if (mMixer) {
+        MIX_DestroyMixer(mMixer);
+        mMixer = nullptr;
+    }
+
+    MIX_Quit();
 }
 
 void cSound_PC2::Sound_Voc_Load() {
+
+    if (!mMixer) {
+        return;
+    }
 
     for (auto File : gSoundEffects) {
 
         auto file = g_Resource->fileGet(File);
 
-        SDL_AudioCVT cvt;
-        SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, 8000, AUDIO_U8, 2, 22050);
-        SDL_assert(cvt.needed);
+        SDL_AudioSpec srcSpec;
+        srcSpec.format = SDL_AUDIO_U8;
+        srcSpec.channels = 1;
+        srcSpec.freq = 8000;
 
-        cvt.len = (int) file->size();
-        cvt.buf = (Uint8 *)SDL_malloc(cvt.len * cvt.len_mult);
+        SDL_AudioSpec dstSpec;
+        dstSpec.format = SDL_AUDIO_U8;
+        dstSpec.channels = 2;
+        dstSpec.freq = 22050;
 
-        memcpy(cvt.buf, file->data(), file->size());
+        Uint8 *converted = nullptr;
+        int convertedLen = 0;
+        if (!SDL_ConvertAudioSamples(&srcSpec, file->data(), (int) file->size(), &dstSpec, &converted, &convertedLen)) {
+            continue;
+        }
 
-        SDL_ConvertAudio(&cvt);
+        MIX_Audio *audio = MIX_LoadRawAudioNoCopy(mMixer, converted, (size_t) convertedLen, &dstSpec, true);
+        if (!audio) {
+            SDL_free(converted);
+            continue;
+        }
 
-        Mix_Chunk* chunk = Mix_QuickLoad_RAW(cvt.buf, cvt.len_cvt);
-        mSoundEffects.push_back(chunk);
-        //SDL_free(cvt.buf);
+        mSoundEffects.push_back(audio);
     }
 }
 
 // Prepare the local audio device
 bool cSound_PC2::devicePrepare() {
 
-	int audio_rate = 22050;
-	Uint16 audio_format = AUDIO_U8;
-	int audio_channels = 2;
-	int audio_buffers = 1024;
- 
-	if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
-		mSound = false;
-	}
-	else {
-		mSound = true;
-		Mix_ChannelFinished( Mixer_ChannelFinished2 );
-	}
+	SDL_AudioSpec spec;
+    spec.freq = 22050;
+    spec.format = SDL_AUDIO_U8;
+    spec.channels = 2;
+
+    if (!MIX_Init()) {
+        mSound = false;
+        return false;
+    }
+
+    mMixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+    if (!mMixer) {
+        mSound = false;
+        MIX_Quit();
+        return false;
+    }
+    mSound = true;
 
 	return true;
 }
 
-void cSound_PC2::MixerChannelFinished( int32 pChannel ) {
-
-    auto end = std::remove_if(mMixerChunks.begin(), mMixerChunks.end(), [pChannel](sChunkPlaying& a) {
-        return a.mChannel == pChannel;
-    });
-
-    mMixerChunks.erase(end, mMixerChunks.end());
+void cSound_PC2::CleanupFinishedTracks() {
+    for (auto it = mMixerTracks.begin(); it != mMixerTracks.end();) {
+        if (!it->mTrack || !MIX_TrackPlaying(it->mTrack)) {
+            if (it->mTrack) {
+                MIX_DestroyTrack(it->mTrack);
+            }
+            if (it->mAudio) {
+                MIX_DestroyAudio(it->mAudio);
+            }
+            it = mMixerTracks.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void cSound_PC2::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex) {
-    Mix_Chunk* chunk = 0;
+    MIX_Audio* audio = 0;
+
+    if (!mSound || !mMixer) {
+        return;
+    }
 
     if (pSoundEffect >= 65)
         return;
@@ -199,14 +257,31 @@ void cSound_PC2::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, 
     if (map.mEffectID == -1)
         return;
 
-    chunk = mSoundEffects[map.mEffectID];
-    if (!chunk) {
+    if (map.mEffectID < 0 || (size_t)map.mEffectID >= mSoundEffects.size()) {
         return;
     }
 
-    auto Channel = Mix_PlayChannel(-1, chunk, 0);
-    Mix_Volume(Channel, 100 - pVolume);
-    mMixerChunks.push_back({ Channel, chunk });
+    audio = mSoundEffects[map.mEffectID];
+    if (!audio) {
+        return;
+    }
+
+    CleanupFinishedTracks();
+
+    MIX_Track *track = MIX_CreateTrack(mMixer);
+    if (!track) {
+        return;
+    }
+
+    MIX_SetTrackAudio(track, audio);
+    MIX_SetTrackGain(track, ClampGain((100 - pVolume) / 128.0f));
+
+    if (!MIX_PlayTrack(track, 0)) {
+        MIX_DestroyTrack(track);
+        return;
+    }
+
+    mMixerTracks.push_back({ track, nullptr });
 }
 
 void cSound_PC2::Music_PlayFile( const char* pFilename ) {
@@ -215,14 +290,35 @@ void cSound_PC2::Music_PlayFile( const char* pFilename ) {
 		return;
 
     std::string Filename = g_Fodder->mVersionCurrent->getDataFilePath(std::string(pFilename) + ".AMF");
-    Mix_FreeMusic(mMusicPlaying);
-    SDL_Delay(100);
+    if (mMusicTrack) {
+        MIX_StopTrack(mMusicTrack, 0);
+    }
+    if (mMusicAudio) {
+        MIX_DestroyAudio(mMusicAudio);
+        mMusicAudio = nullptr;
+    }
 
-    mMusicPlaying = Mix_LoadMUS(Filename.c_str());
-    Mix_VolumeMusic(0x70);
-
-    if (mMusicPlaying)
-        Mix_PlayMusic(mMusicPlaying, -1);
+    mMusicAudio = MIX_LoadAudio(mMixer, Filename.c_str(), false);
+    if (mMusicAudio) {
+        if (!mMusicTrack) {
+            mMusicTrack = MIX_CreateTrack(mMixer);
+        }
+        if (mMusicTrack) {
+            SDL_PropertiesID options = SDL_CreateProperties();
+            MIX_SetTrackAudio(mMusicTrack, mMusicAudio);
+            MIX_SetTrackGain(mMusicTrack, 0x70 / 128.0f);
+            if (options) {
+                SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
+                MIX_PlayTrack(mMusicTrack, options);
+                SDL_DestroyProperties(options);
+            } else {
+                MIX_PlayTrack(mMusicTrack, 0);
+            }
+        } else {
+            MIX_DestroyAudio(mMusicAudio);
+            mMusicAudio = nullptr;
+        }
+    }
 }
 
 void cSound_PC2::Music_Stop() {
@@ -231,7 +327,9 @@ void cSound_PC2::Music_Stop() {
 	if (mSound == false)
 		return;
 
-	Mix_FadeOutMusic(500);
+    if (mMusicTrack) {
+        MIX_StopTrack(mMusicTrack, MIX_TrackMSToFrames(mMusicTrack, 500));
+    }
 }
 
 void cSound_PC2::Music_Play( int16 pTrack, int16 pSong) {

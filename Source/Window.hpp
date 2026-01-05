@@ -73,8 +73,6 @@ class cWindow {
 		bool				isResized() const;
         bool                isMouseButtonPressed_Global() const;
 
-		void				SetCursor();
-
         void				SetMousePosition(const cPosition& pPosition);
 
 		void				SetScreenSize( const cDimension& pDimension );

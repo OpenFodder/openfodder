@@ -65,7 +65,7 @@ cAbout::cAbout() {
 
         { TEXTPOS_POWERED + 0,  "POWERED BY"},
         { TEXTPOS_POWERED + 10, "CPP17"},
-        { TEXTPOS_POWERED + 20, "SDL2"},
+        { TEXTPOS_POWERED + 20, "SDL3"},
 		{ TEXTPOS_POWERED + 30, "DUKTAPE"},
 		{ TEXTPOS_POWERED + 40, "DUKGLUE"},
         { TEXTPOS_POWERED + 50, "IDA"},

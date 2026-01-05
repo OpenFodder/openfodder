@@ -280,15 +280,23 @@ bool sGameVersion::CanUseAmigaSound() const {
 
 std::shared_ptr<cSound> sGameVersion::GetSound() const {
 
+#ifdef OPENFODDER_NO_MIXER
+	return std::make_shared<cSound_Null>();
+#endif
+
 	// Check for JON.INS in the game data folder, this allows replacing PC audio with Amiga for both CF1 and CF2
 	if (CanUseAmigaSound())
 		return std::make_shared<cSound_Amiga>();
 
     if (isPC()) {
+#ifndef OPENFODDER_NO_MIXER
 		if (isCannonFodder2())
 			return std::make_shared<cSound_PC2>();
 
 		return std::make_shared<cSound_PC>();
+#else
+		return std::make_shared<cSound_Null>();
+#endif
     }
     else if (isAmiga()) {
         return std::make_shared<cSound_Amiga>();

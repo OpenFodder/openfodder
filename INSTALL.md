@@ -10,6 +10,14 @@ Download the [installer package](https://github.com/OpenFodder/openfodder/releas
 
 The Windows version of Open Fodder defaults to using and installing data to the location '%USERPROFILE%/Documents/OpenFodder'.  
 While the demos will be installed as part of the Windows installer package, you will be required to copy a full retail release into this folder (following the instructions below, or when prompted to select it during the installer)
+
+## Building (Windows, CMake + vcpkg)
+
+1. Install vcpkg and set `VCPKG_ROOT` to the vcpkg folder.
+2. From the repo root, run `vcpkg install` (manifest mode uses `vcpkg.json`).
+3. Configure and build:
+   - `cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake`
+   - `cmake --build build --config Release`
   
   
 ## Linux / Unix

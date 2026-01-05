@@ -52,7 +52,7 @@ cWindow::~cWindow() {
 
 bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         g_Debugger->Error("Failed to initialise SDL");
 		exit( 1 );
 		return false;
@@ -60,35 +60,24 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	
     ToggleFullscreen();
 
-	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, GetWindowSize().mWidth, GetWindowSize().mHeight, SDL_WINDOW_SHOWN );
+	mWindow = SDL_CreateWindow(pWindowTitle.c_str(), GetWindowSize().mWidth, GetWindowSize().mHeight, 0);
 	if (!mWindow) {
         g_Debugger->Error("Failed to create window");
 		exit( 1 );
 		return false;
 	}
 
-	size_t flags = SDL_RENDERER_ACCELERATED;
-
-	//if (!g_Fodder->mParams->mUnitTesting || g_Fodder->mParams->mDemoRecord)
-	//	flags |= SDL_RENDERER_PRESENTVSYNC;
-
-	mRenderer = SDL_CreateRenderer(mWindow, -1, flags );
+    PositionWindow();
+	mRenderer = SDL_CreateRenderer(mWindow, nullptr);
 	if (!mRenderer) {
         g_Debugger->Error("Failed to create rendered");
 		exit( 1 );
 		return false;
 	}
 
-    if (g_Fodder->mParams->mIntegerScaling || mWindowMode) {
-		SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
-    }
-    else {
-		SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "linear" );
-    }
+	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_WARP_MOTION, "1", SDL_HINT_OVERRIDE);
+	SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE, "3.0");
 
-	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
-
-	SetCursor();
 
     if (g_Fodder->mParams->mWindowMode) {
         ToggleFullscreen();
@@ -99,19 +88,30 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
         ToggleFullscreen();
     }
 
-	if (!g_Fodder->mParams->mMouseAlternative || (g_Fodder->mParams->mMouseAlternative && g_Fodder->mParams->mMouseLocked))
-		SDL_SetRelativeMouseMode(SDL_TRUE);
+	if (!g_Fodder->mParams->mMouseAlternative || (g_Fodder->mParams->mMouseAlternative && g_Fodder->mParams->mMouseLocked)) {
+		SDL_SetWindowRelativeMouseMode(mWindow, true);
 
+		// Warp mouse to 0,0 to fix an issue with the mouse cursor appearing on first click in the window
+		SDL_WarpMouseInWindow(mWindow, 0, 0);
+	}
+	
+	SDL_HideCursor();
+	
 	return true;
 }
 
 void cWindow::ToggleVSync(bool pEnabled) {
-	SDL_RenderSetVSync(mRenderer, pEnabled ? 1 : 0);
+	#ifdef EMSCRIPTEN
+	return;
+	#endif
+	SDL_SetRenderVSync(mRenderer, pEnabled ? 1 : 0);
 }
 
 void cWindow::SetRelativeMouseMode(bool pEnable) {
 
-	SDL_SetRelativeMouseMode(pEnable == true ? SDL_TRUE : SDL_FALSE);
+    if (mWindow) {
+        SDL_SetWindowRelativeMouseMode(mWindow, pEnable);
+    }
 }
 
 std::vector<cEvent>* cWindow::EventGet() {
@@ -128,75 +128,59 @@ bool cWindow::Cycle() {
 
 void cWindow::EventCheck() {
 	SDL_Event SysEvent;
-	
+
 	while (SDL_PollEvent(&SysEvent)) {
 
 		cEvent Event;
 
 		switch (SysEvent.type) {
-		case SDL_WINDOWEVENT:
-
-			switch (SysEvent.window.event) {
-			case SDL_WINDOWEVENT_FOCUS_LOST:
-				Event.mType = eEvent_Focus;
-				Event.mHasFocus = false;
-				mHasFocus = false;
-				break;
-
-			case SDL_WINDOWEVENT_FOCUS_GAINED:
-				Event.mType = eEvent_Focus;
-				Event.mHasFocus = true;
-				mHasFocus = true;
-				break;
-			}
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
+			Event.mType = eEvent_Focus;
+			Event.mHasFocus = false;
+			mHasFocus = false;
 			break;
 
-		case SDL_KEYDOWN:
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
+			Event.mType = eEvent_Focus;
+			Event.mHasFocus = true;
+			mHasFocus = true;
+			break;
+
+		case SDL_EVENT_KEY_DOWN:
 			Event.mType = eEvent_KeyDown;
-			Event.mButton = SysEvent.key.keysym.scancode;
+			Event.mButton = SysEvent.key.scancode;
 			break;
 
-		case SDL_KEYUP:
+		case SDL_EVENT_KEY_UP:
 			Event.mType = eEvent_KeyUp;
-			Event.mButton = SysEvent.key.keysym.scancode;
+			Event.mButton = SysEvent.key.scancode;
 			break;
 
-		case SDL_MULTIGESTURE:
-			Event.mType = eEvent_MouseRightDown;
-			Event.mButton = 3;
-
-			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
-										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
-
-			break;
-
-		case SDL_FINGERMOTION:
+		case SDL_EVENT_FINGER_MOTION:
 			Event.mType = eEvent_MouseMove;
 			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
 										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
-
-
 			break;
 
-		case SDL_FINGERDOWN:
+		case SDL_EVENT_FINGER_DOWN:
 			
 			Event.mType = eEvent_MouseLeftDown;
 			Event.mButton = 1;
 			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
 										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
 
-			Event.mButtonCount = SysEvent.button.clicks;
+			Event.mButtonCount = 1;
 
 			break;
 
-		case SDL_FINGERUP:
+		case SDL_EVENT_FINGER_UP:
 			Event.mType = eEvent_MouseLeftUp;
 			Event.mButton = 1;
 
 			Event.mPosition = cPosition((unsigned int)(SysEvent.tfinger.x * GetWindowWidth()),
 										(unsigned int)(SysEvent.tfinger.y * GetWindowHeight()));
 
-			Event.mButtonCount = SysEvent.button.clicks;
+			Event.mButtonCount = 1;
 			mEvents.push_back(Event);
 
 			Event.mType = eEvent_MouseRightUp;
@@ -204,7 +188,7 @@ void cWindow::EventCheck() {
 
 			break;
 
-		case SDL_MOUSEMOTION:
+		case SDL_EVENT_MOUSE_MOTION:
 			if (SysEvent.motion.xrel < -100 || 
 				SysEvent.motion.yrel < -100 || 
 				SysEvent.motion.xrel > 100 || 
@@ -213,16 +197,16 @@ void cWindow::EventCheck() {
 			}
 
 			Event.mType = eEvent_MouseMove;
-			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
-			Event.mPositionRelative = cPosition(SysEvent.motion.xrel, SysEvent.motion.yrel);
+			Event.mPosition = cPosition((int)SysEvent.motion.x, (int)SysEvent.motion.y);
+			Event.mPositionRelative = cPosition((int)SysEvent.motion.xrel, (int)SysEvent.motion.yrel);
 			break;
 
-		case SDL_MOUSEWHEEL:
-			Event.mType = Event.mType = eEvent_MouseWheel;
-			Event.mPosition = cPosition(SysEvent.wheel.x, SysEvent.wheel.y);
+		case SDL_EVENT_MOUSE_WHEEL:
+			Event.mType = eEvent_MouseWheel;
+			Event.mPosition = cPosition((int)SysEvent.wheel.x, (int)SysEvent.wheel.y);
 			break;
 
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 
 			switch (SysEvent.button.button) {
 
@@ -237,11 +221,11 @@ void cWindow::EventCheck() {
 				break;
 			}
 
-			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
+			Event.mPosition = cPosition((int)SysEvent.button.x, (int)SysEvent.button.y);
 			Event.mButtonCount = SysEvent.button.clicks;
 			break;
 
-		case SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
 
 			switch (SysEvent.button.button) {
 
@@ -256,20 +240,20 @@ void cWindow::EventCheck() {
 				break;
 			}
 
-			Event.mPosition = cPosition(SysEvent.motion.x, SysEvent.motion.y);
+			Event.mPosition = cPosition((int)SysEvent.button.x, (int)SysEvent.button.y);
 			Event.mButtonCount = SysEvent.button.clicks;
 			break;
 
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 			Event.mType = eEvent_Quit;
 			break;
 		}
 
 #ifdef EMSCRIPTEN
 		// Drop events which have no x/y
-		if (SysEvent.type == SDL_MOUSEMOTION || 
-			SysEvent.type == SDL_MOUSEBUTTONDOWN || 
-			SysEvent.type == SDL_MOUSEBUTTONUP) {
+		if (SysEvent.type == SDL_EVENT_MOUSE_MOTION || 
+			SysEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN || 
+			SysEvent.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 
 			if (Event.mPosition.mX == 0 || Event.mPosition.mY == 0)
 				continue;
@@ -281,11 +265,14 @@ void cWindow::EventCheck() {
 }
 
 void cWindow::CalculateWindowSize() {
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
+	SDL_DisplayID display = mWindow ? SDL_GetDisplayForWindow(mWindow) : SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode* current = SDL_GetCurrentDisplayMode(display);
+	if (!current) {
+		return;
+	}
 
-	while ((mOriginalResolution.mWidth * mScaler) <= (unsigned int) (current.w / 2) && 
-			(mOriginalResolution.mHeight * mScaler) <= (unsigned int) (current.h / 2) ) {
+	while ((mOriginalResolution.mWidth * mScaler) <= (unsigned int) (current->w / 2) && 
+			(mOriginalResolution.mHeight * mScaler) <= (unsigned int) (current->h / 2) ) {
 		++mScaler;
 	}
 
@@ -293,11 +280,14 @@ void cWindow::CalculateWindowSize() {
 }
 
 int16 cWindow::CalculateFullscreenSize() {
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
+	SDL_DisplayID display = mWindow ? SDL_GetDisplayForWindow(mWindow) : SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode* current = SDL_GetCurrentDisplayMode(display);
+	if (!current) {
+		return 1;
+	}
 	int16 Multiplier = 1;
 
-	while ((mOriginalResolution.mWidth * Multiplier) <= (unsigned int) current.w && (mOriginalResolution.mHeight * Multiplier) <= (unsigned int) current.h ) {
+	while ((mOriginalResolution.mWidth * Multiplier) <= (unsigned int) current->w && (mOriginalResolution.mHeight * Multiplier) <= (unsigned int) current->h ) {
 		++Multiplier;
 	}
 
@@ -305,11 +295,14 @@ int16 cWindow::CalculateFullscreenSize() {
 }
 
 bool cWindow::CanChangeToMultiplier( const int pNewMultiplier ) {
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
+	SDL_DisplayID display = mWindow ? SDL_GetDisplayForWindow(mWindow) : SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode* current = SDL_GetCurrentDisplayMode(display);
+	if (!current) {
+		return false;
+	}
 
-	if (	(mOriginalResolution.getWidth()  * pNewMultiplier >= current.w ||
-			mOriginalResolution.getHeight() * pNewMultiplier >= current.h) ||
+	if (	(mOriginalResolution.getWidth()  * pNewMultiplier >= current->w ||
+			mOriginalResolution.getHeight() * pNewMultiplier >= current->h) ||
 			pNewMultiplier <= 0 )
 		return false;
 
@@ -317,11 +310,14 @@ bool cWindow::CanChangeToMultiplier( const int pNewMultiplier ) {
 }
 
 void cWindow::FrameEnd() {
-    
+    #ifndef EMSCRIPTEN
 	SDL_RenderPresent( mRenderer );
-    SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
-#ifndef EMSCRIPTEN
+    
+	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
 	SDL_RenderClear( mRenderer );
+	#else
+	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
+	//SDL_RenderClear( mRenderer );
 #endif
 }
 
@@ -367,65 +363,71 @@ void cWindow::WindowDecrease() {
 }
 
 void cWindow::RenderAt( cSurface* pImage ) {
-	SDL_Rect Src, Dest;
+	SDL_FRect Src, Dest;
 
-	Src.w = mScreenSize.mWidth;
-	Src.h = mScreenSize.mHeight;
-	Src.x = (int) 16;
-	Src.y = (int) 16;
+	Src.w = (float)mScreenSize.mWidth;
+	Src.h = (float)mScreenSize.mHeight;
+	Src.x = 16.0f;
+	Src.y = 16.0f;
 
 	if (g_Fodder->mParams->mIntegerScaling || mWindowMode) {
-		Dest.w = GetWindowSize().mWidth;
-		Dest.h = GetWindowSize().mHeight;
+		Dest.w = (float)GetWindowSize().mWidth;
+		Dest.h = (float)GetWindowSize().mHeight;
 	}
 	else {
-		SDL_GetWindowSize(mWindow, NULL, &Dest.h);
-		Dest.w = (int) (Dest.h*(float)(4.0/3.0));
+		int windowW = 0;
+		int windowH = 0;
+		SDL_GetWindowSize(mWindow, &windowW, &windowH);
+		Dest.h = (float)windowH;
+		Dest.w = (float)(Dest.h * (float)(4.0/3.0));
 	}
 
 	if (mWindowMode) {
-		Dest.x = 0;
-		Dest.y = 0;
+		Dest.x = 0.0f;
+		Dest.y = 0.0f;
 	}
 	else {
-		SDL_DisplayMode current;
-		SDL_GetCurrentDisplayMode(0, &current);
-
-		Dest.x = (current.w - Dest.w) / 2;
-		Dest.y = (current.h - Dest.h) / 2;
+		SDL_DisplayID display = mWindow ? SDL_GetDisplayForWindow(mWindow) : SDL_GetPrimaryDisplay();
+		const SDL_DisplayMode* current = SDL_GetCurrentDisplayMode(display);
+		if (current) {
+			Dest.x = (float)((current->w - Dest.w) / 2.0f);
+			Dest.y = (float)((current->h - Dest.h) / 2.0f);
+		} else {
+			Dest.x = 0.0f;
+			Dest.y = 0.0f;
+		}
 	}
 
-	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, &Dest );
+	SDL_RenderTexture( mRenderer, pImage->GetTexture(), &Src, &Dest );
 }
 
 void cWindow::RenderShrunk( cSurface* pImage ) {
-	SDL_Rect Src, Dest;
-	Src.w = (int) pImage->GetWidth();
-	Src.h = (int) pImage->GetHeight();
-	Src.x = 0;
-	Src.y = 0;
+	SDL_FRect Src, Dest;
+	Src.w = (float)pImage->GetWidth();
+	Src.h = (float)pImage->GetHeight();
+	Src.x = 0.0f;
+	Src.y = 0.0f;
 
-	Dest.w = GetWindowSize().mWidth;
-	Dest.h = GetWindowSize().mHeight;
+	Dest.w = (float)GetWindowSize().mWidth;
+	Dest.h = (float)GetWindowSize().mHeight;
 
 	if (mWindowMode) {
-		Dest.x = 0;
-		Dest.y = 0;
+		Dest.x = 0.0f;
+		Dest.y = 0.0f;
 	}
 	else {
-		SDL_DisplayMode current;
-		SDL_GetCurrentDisplayMode(0, &current);
-
-		Dest.x = (current.w - Dest.w) / 2;
-		Dest.y = (current.h - Dest.h) / 2;
+		SDL_DisplayID display = mWindow ? SDL_GetDisplayForWindow(mWindow) : SDL_GetPrimaryDisplay();
+		const SDL_DisplayMode* current = SDL_GetCurrentDisplayMode(display);
+		if (current) {
+			Dest.x = (float)((current->w - Dest.w) / 2.0f);
+			Dest.y = (float)((current->h - Dest.h) / 2.0f);
+		} else {
+			Dest.x = 0.0f;
+			Dest.y = 0.0f;
+		}
 	}
 
-	SDL_RenderCopy( mRenderer, pImage->GetTexture(), &Src, &Dest);
-}
-
-void cWindow::SetCursor() {
-
-	SDL_ShowCursor(0);
+	SDL_RenderTexture( mRenderer, pImage->GetTexture(), &Src, &Dest);
 }
 
 bool cWindow::isFullscreen() const {
@@ -452,10 +454,10 @@ bool cWindow::isMouseButtonPressed_Global() const {
  * Is the window currently grabbed
  */
 bool cWindow::isGrabbed() const {
-    if (SDL_GetWindowGrab(mWindow) == SDL_TRUE)
-        return true;
-
-    return false;
+    if (!mWindow) {
+        return false;
+    }
+    return SDL_GetWindowMouseGrab(mWindow);
 }
 
 void cWindow::ToggleFullscreen() {
@@ -465,7 +467,9 @@ void cWindow::ToggleFullscreen() {
 		mScalerPrevious = mScaler;
 		SetWindowSize( CalculateFullscreenSize() );
 
-		SDL_SetWindowFullscreen( mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP );
+        if (mWindow) {
+		    SDL_SetWindowFullscreen( mWindow, true );
+        }
 		mWindowMode = false;
 	} else {
 		mWindowMode = true;
@@ -479,7 +483,7 @@ void cWindow::ClearResized() {
 
 void cWindow::SetMousePosition(const cPosition& pPosition) {
 
-    SDL_WarpMouseGlobal(pPosition.getX(), pPosition.getY());
+    SDL_WarpMouseGlobal((float)pPosition.getX(), (float)pPosition.getY());
 }
 
 void cWindow::SetScreenSize( const cDimension& pDimension ) {
@@ -521,7 +525,7 @@ void cWindow::SetWindowSize( const int pMultiplier ) {
 
 	if (mWindow) {
 		if (mWindowMode) {
-			SDL_SetWindowFullscreen( mWindow, 0 );
+			SDL_SetWindowFullscreen( mWindow, false );
 		}
 		SDL_SetWindowSize( mWindow, GetWindowSize().mWidth, GetWindowSize().mHeight );
 		PositionWindow();
@@ -560,12 +564,13 @@ cDimension cWindow::GetScale() const {
 }
 
 int cWindow::GetRefreshRate() {
-	SDL_DisplayMode mode;
-	if (SDL_GetCurrentDisplayMode(0, &mode) != 0) {
+	SDL_DisplayID display = mWindow ? SDL_GetDisplayForWindow(mWindow) : SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(display);
+	if (!mode) {
 		std::cerr << "SDL_GetCurrentDisplayMode failed: " << SDL_GetError() << std::endl;
 		return 50; // Fallback to 50Hz if query fails
 	}
-	return mode.refresh_rate;
+	return (int)mode->refresh_rate;
 }
 
 bool cWindowNull::InitWindow(const std::string& pWindowTitle) {

@@ -50,6 +50,8 @@ namespace dukglue {
 		DUKGLUE_SIMPLE_VALUE_TYPE(time_t, duk_is_number, duk_get_number, duk_push_number, value)
 //#elif defined(__arm__)
 //		DUKGLUE_SIMPLE_VALUE_TYPE(time_t, duk_is_number, duk_get_uint, duk_push_uint, value)
+#elif defined(EMSCRIPTEN)
+		DUKGLUE_SIMPLE_VALUE_TYPE(size_t, duk_is_number, duk_get_number, duk_push_number, value)
 #endif
 
 		// signed char and unsigned char are surprisingly *both* different from char, at least in MSVC

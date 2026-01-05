@@ -23,14 +23,22 @@
 #include "stdafx.hpp"
 #include "PC/VocTable.hpp"
 
-void Mixer_ChannelFinished(int32 pChannel) {
-    g_Fodder->GetSound<cSound_PC>()->MixerChannelFinished( pChannel );
+static float ClampGain(float gain) {
+    if (gain < 0.0f) {
+        return 0.0f;
+    }
+    if (gain > 1.0f) {
+        return 1.0f;
+    }
+    return gain;
 }
 
 cSound_PC::cSound_PC() {
 
 	mSound = false;
-	mMusicPlaying = 0;
+    mMixer = nullptr;
+    mMusicTrack = nullptr;
+    mMusicAudio = nullptr;
 
 	devicePrepare();
 
@@ -54,17 +62,37 @@ cSound_PC::cSound_PC() {
 }
 
 cSound_PC::~cSound_PC() {
-	
-	Mix_FreeMusic(mMusicPlaying);
-	SDL_Delay(100);
+	Music_Stop();
 
-	Mix_CloseAudio();
-	SDL_CloseAudio();
+    if (mMixer) {
+        MIX_StopAllTracks(mMixer, 0);
+    }
 
-	SDL_Delay(100);
-	for (std::vector<sChunkPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
-		Mix_FreeChunk(ChannelIT->mCurrentChunk);
-	}
+    for (auto &track : mMixerTracks) {
+        if (track.mTrack) {
+            MIX_DestroyTrack(track.mTrack);
+        }
+        if (track.mAudio) {
+            MIX_DestroyAudio(track.mAudio);
+        }
+    }
+    mMixerTracks.clear();
+
+    if (mMusicTrack) {
+        MIX_DestroyTrack(mMusicTrack);
+        mMusicTrack = nullptr;
+    }
+    if (mMusicAudio) {
+        MIX_DestroyAudio(mMusicAudio);
+        mMusicAudio = nullptr;
+    }
+
+    if (mMixer) {
+        MIX_DestroyMixer(mMixer);
+        mMixer = nullptr;
+    }
+
+    MIX_Quit();
 }
 
 void cSound_PC::Sound_Voc_Load() {
@@ -91,53 +119,76 @@ void cSound_PC::Sound_Voc_Load() {
 // Prepare the local audio device
 bool cSound_PC::devicePrepare() {
 
-	int audio_rate = 22050;
-	Uint16 audio_format = AUDIO_U8;
-	int audio_channels = 2;
-	int audio_buffers = 1024;
- 
-	if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
-		mSound = false;
-	}
-	else {
-		mSound = true;
-		Mix_ChannelFinished( Mixer_ChannelFinished );
-	}
+	SDL_AudioSpec spec;
+    spec.freq = 22050;
+    spec.format = SDL_AUDIO_U8;
+    spec.channels = 2;
+
+    if (!MIX_Init()) {
+        mSound = false;
+        return false;
+    }
+
+    mMixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+    if (!mMixer) {
+        mSound = false;
+        MIX_Quit();
+        return false;
+    }
+    mSound = true;
 
 	return true;
 }
 
-void cSound_PC::MixerChannelFinished( int32 pChannel ) {
-
-	for (std::vector<sChunkPlaying>::iterator ChannelIT = mMixerChunks.begin(); ChannelIT != mMixerChunks.end(); ++ChannelIT) {
-		
-		if (ChannelIT->mChannel == pChannel) {
-			Mix_FreeChunk( ChannelIT->mCurrentChunk );
-
-			mMixerChunks.erase( ChannelIT );
-			return;
-		}
-	}
+void cSound_PC::CleanupFinishedTracks() {
+    for (auto it = mMixerTracks.begin(); it != mMixerTracks.end();) {
+        if (!it->mTrack || !MIX_TrackPlaying(it->mTrack)) {
+            if (it->mTrack) {
+                MIX_DestroyTrack(it->mTrack);
+            }
+            if (it->mAudio) {
+                MIX_DestroyAudio(it->mAudio);
+            }
+            it = mMixerTracks.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void cSound_PC::Sound_Play( int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex) {
-	sChunkPlaying Playing;
 	auto eax = word_42316[pTileset][pSoundEffect];
 	if (!eax || !eax->size() || mSound == false )
 		return;
 
-	SDL_RWops *rw = SDL_RWFromMem( eax->data(), (int) eax->size() );
+    CleanupFinishedTracks();
 
-	Playing.mCurrentChunk = Mix_LoadWAV_RW( rw, 1 );
-	Playing.mChannel = Mix_PlayChannel( -1, Playing.mCurrentChunk , 0 );
-	Mix_Volume(Playing.mChannel, pVolume );
+	SDL_IOStream *io = SDL_IOFromMem( const_cast<uint8*>(eax->data()), (size_t) eax->size() );
+    if (!io) {
+        return;
+    }
 
-	if (Playing.mChannel == -1) {
-		Mix_FreeChunk( Playing.mCurrentChunk );
-		return;
-	}
+    MIX_Audio *audio = MIX_LoadAudio_IO(mMixer, io, true, true);
+    if (!audio) {
+        return;
+    }
 
-	mMixerChunks.push_back( Playing );
+    MIX_Track *track = MIX_CreateTrack(mMixer);
+    if (!track) {
+        MIX_DestroyAudio(audio);
+        return;
+    }
+
+    MIX_SetTrackAudio(track, audio);
+    MIX_SetTrackGain(track, ClampGain(pVolume / 128.0f));
+
+    if (!MIX_PlayTrack(track, 0)) {
+        MIX_DestroyTrack(track);
+        MIX_DestroyAudio(audio);
+        return;
+    }
+
+    mMixerTracks.push_back({ track, audio });
 }
 
 void cSound_PC::Music_PlayFile( const std::string& pFilename ) {
@@ -145,17 +196,42 @@ void cSound_PC::Music_PlayFile( const std::string& pFilename ) {
 	if (mSound == false)
 		return;
 
-	Mix_FreeMusic( mMusicPlaying );
-	SDL_Delay( 100 );
-	mMusicPlaying = 0;
+    if (mMusicTrack) {
+        MIX_StopTrack(mMusicTrack, 0);
+    }
+    if (mMusicAudio) {
+        MIX_DestroyAudio(mMusicAudio);
+        mMusicAudio = nullptr;
+    }
 
-	if(g_ResourceMan->FileExists(pFilename.c_str()))
-		mMusicPlaying = Mix_LoadMUS(pFilename.c_str());
+	if(g_ResourceMan->FileExists(pFilename.c_str())) {
+        mMusicAudio = MIX_LoadAudio(mMixer, pFilename.c_str(), false);
+    }
 
-	Mix_VolumeMusic( 0x70 );
-
-	if (mMusicPlaying)
-		Mix_PlayMusic( mMusicPlaying, -1 );
+    if (mMusicAudio) {
+        if (!mMusicTrack) {
+            mMusicTrack = MIX_CreateTrack(mMixer);
+        }
+        if (mMusicTrack) {
+            SDL_PropertiesID options = SDL_CreateProperties();
+            MIX_SetTrackAudio(mMusicTrack, mMusicAudio);
+            MIX_SetTrackGain(mMusicTrack, 0x70 / 128.0f);
+            if (options) {
+                SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
+                MIX_PlayTrack(mMusicTrack, options);
+                SDL_DestroyProperties(options);
+            } else {
+                MIX_PlayTrack(mMusicTrack, 0);
+            }
+        } else {
+            MIX_DestroyAudio(mMusicAudio);
+            mMusicAudio = nullptr;
+        }
+	}
+	else {
+		if(pFilename.size())
+			g_Debugger->Error(SDL_GetError());
+	}
 }
 
 void cSound_PC::Music_Stop() {
@@ -164,7 +240,9 @@ void cSound_PC::Music_Stop() {
 	if (mSound == false)
 		return;
 
-	Mix_FadeOutMusic(500);
+    if (mMusicTrack) {
+        MIX_StopTrack(mMusicTrack, MIX_TrackMSToFrames(mMusicTrack, 500));
+    }
 }
 
 void cSound_PC::Music_Play( int16 pTrack, int16 pSong) {

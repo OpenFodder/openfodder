@@ -32,7 +32,7 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 	mPaletteAdjusting = false;
 
 	// Create the screen buffer
-	mSDLSurface = SDL_CreateRGBSurface( 0, (int) pWidth, (int) pHeight, 32, 0xFF << 16, 0xFF << 8, 0xFF, 0 );
+	mSDLSurface = SDL_CreateSurface((int)pWidth, (int)pHeight, SDL_PIXELFORMAT_XRGB8888);
 	mTexture = 0;
 
 	if (!mSDLSurface) {
@@ -40,8 +40,14 @@ cSurface::cSurface( size_t pWidth, size_t pHeight ) {
 		exit(1);
 	}
     if (g_Window->GetRenderer()) {
-        mTexture = SDL_CreateTexture((SDL_Renderer*)g_Window->GetRenderer(), SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, (int)pWidth, (int)pHeight);
+        mTexture = SDL_CreateTexture((SDL_Renderer*)g_Window->GetRenderer(), SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, (int)pWidth, (int)pHeight);
 
+		
+		if (g_Fodder->mParams->mIntegerScaling || !g_Fodder->mWindow->isFullscreen()) {
+			SDL_SetTextureScaleMode(mTexture, SDL_SCALEMODE_NEAREST);
+		} else {
+			SDL_SetTextureScaleMode(mTexture, SDL_SCALEMODE_LINEAR);
+		}
         SDL_SetTextureBlendMode(mTexture, SDL_BLENDMODE_ADD);
         SDL_SetTextureAlphaMod(mTexture, 0xFF);
         SDL_SetTextureColorMod(mTexture, 0xFF, 0xFF, 0xFF);
@@ -62,7 +68,7 @@ cSurface::~cSurface() {
 	delete[] mSurfaceBuffer;
 	delete[] mSurfaceBufferSaved;
 
-	SDL_FreeSurface( mSDLSurface );
+	SDL_DestroySurface( mSDLSurface );
 
 	if(mTexture)
 		SDL_DestroyTexture( mTexture );
@@ -198,7 +204,8 @@ void cSurface::surfaceSetToPaletteNew() {
 inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
 
 	// Get the palette color for the provided RGB values
-	mPaletteSDL[id] = SDL_MapRGB (	mSDLSurface->format , pPalette->mRed << 2, pPalette->mGreen << 2, pPalette->mBlue << 2) ;
+	const SDL_PixelFormatDetails* format = SDL_GetPixelFormatDetails(mSDLSurface->format);
+	mPaletteSDL[id] = SDL_MapRGB(format, nullptr, pPalette->mRed << 2, pPalette->mGreen << 2, pPalette->mBlue << 2);
 }
 
 /**
@@ -344,10 +351,14 @@ bool cSurface::LoadPng(const std::string& pFile) {
     Bmask = 0x0000FF00 >> s;
     Amask = 0x000000FF >> s;
 #endif
-    auto Surface = SDL_CreateRGBSurfaceFrom(data, width, height, bytesPerPixel*8, pitch, Rmask, Gmask, Bmask, Amask);
+    SDL_PixelFormat format = SDL_GetPixelFormatForMasks(bytesPerPixel * 8, Rmask, Gmask, Bmask, Amask);
+    if (format == SDL_PIXELFORMAT_UNKNOWN) {
+        return false;
+    }
+    auto Surface = SDL_CreateSurfaceFrom(width, height, format, data, pitch);
     if (!Surface)
         return false;
-    SDL_FreeSurface(mSDLSurface);
+    SDL_DestroySurface(mSDLSurface);
     mSDLSurface = Surface;
 
     mIsLoadedImage = true;

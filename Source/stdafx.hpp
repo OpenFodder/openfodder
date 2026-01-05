@@ -34,12 +34,13 @@
 #include <map>
 #include <mutex>
 
-#include <SDL.h>
-#ifndef EMSCRIPTEN
-#include <SDL_mixer.h>
-#else
+#include <SDL3/SDL.h>
+#ifdef EMSCRIPTEN
 #include <emscripten.h>
-#include <SDL/SDL_mixer.h>
+#endif
+
+#ifndef OPENFODDER_NO_MIXER
+#include <SDL3_mixer/SDL_mixer.h>
 #endif
 
 #include "Types.hpp"
@@ -143,8 +144,12 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Structures/Barracks.hpp"
 
 #include "PC/Graphics_PC.hpp"
+#ifndef OPENFODDER_NO_MIXER
 #include "PC/Sound_PC.hpp"
 #include "PC/Sound_PC2.hpp"
+#else
+#include "Sound_Null.hpp"
+#endif
 
 #include "Amiga/paula.hpp"
 #include "Amiga/rjp1.hpp"

@@ -31,9 +31,16 @@ enum eSound_Effect {
 	eSound_Effect_Rocket			= 0x2E,
 };
 
-struct sChunkPlaying {
-    int32		mChannel;
-    Mix_Chunk*	mCurrentChunk;
+#ifndef OPENFODDER_NO_MIXER
+#include <SDL3_mixer/SDL_mixer.h>
+#else
+struct MIX_Track;
+struct MIX_Audio;
+#endif
+
+struct sTrackPlaying {
+    MIX_Track*  mTrack;
+    MIX_Audio*  mAudio;
 };
 
 class cSound {

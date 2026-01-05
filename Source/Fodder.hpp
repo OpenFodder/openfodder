@@ -614,6 +614,9 @@ public:
     void            Phase_Paused();
 
     void            Interrupt_Sim();
+#ifdef EMSCRIPTEN
+    void            Interrupt_Sim_Tick();
+#endif
     void            Interrupt_Redraw();
 
     void            Phase_Loop_Interrupt();

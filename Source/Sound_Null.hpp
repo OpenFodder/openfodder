@@ -20,33 +20,15 @@
  *
  */
 
-struct sSoundMap {
-    int16 mEffectID;
-    int16 mUnk;
-};
+class cSound_Null : public cSound {
+protected:
+	bool devicePrepare() override;
 
-class cSound_PC2 : public cSound {
-	bool					mSound;
+public:
+	cSound_Null();
+	~cSound_Null();
 
-    MIX_Mixer*                  mMixer;
-    MIX_Track*                  mMusicTrack;
-    MIX_Audio*                  mMusicAudio;
-    std::vector<sTrackPlaying>  mMixerTracks;
-    std::vector<MIX_Audio*>     mSoundEffects;
-
-	private:
-	bool					devicePrepare();
-	void					Sound_Voc_Load();
-    void                    CleanupFinishedTracks();
-
-	public:
-
-						cSound_PC2();
-						~cSound_PC2();
-
-	void				Sound_Play( int16 pBx, int16 pData4, int16 pData8, int16 pIndex);
-
-	void				Music_Play( int16 pTrack, int16 pSong);
-	void				Music_PlayFile( const char* pFilename );
-	void				Music_Stop();
+	void Sound_Play(int16 pTileset, int16 pSoundEffect, int16 pVolume, int16 pIndex) override;
+	void Music_Play(int16 pTrack, int16 pSong = -1) override;
+	void Music_Stop() override;
 };

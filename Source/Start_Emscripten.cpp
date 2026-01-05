@@ -22,18 +22,33 @@
 
 #ifdef EMSCRIPTEN
 #include "stdafx.hpp"
+
 cAbout* About = 0;
 
 void phase_loop();
 void menu_loop() {
+    g_Fodder->Interrupt_Sim_Tick();
+
 	static int16 result = -1;
 	if (result == -1) {
-
 		g_Fodder->VersionSwitch(g_Fodder->mVersions->GetForCampaign("Amiga Format Christmas Special"));
 		g_Fodder->mGame_Data.mCampaign.Clear();
 
 		result = 0;
 		g_Fodder->Campaign_Select_Setup();
+		g_Fodder->MapTiles_Draw();
+		g_Fodder->mInterruptCallback = []() {
+			
+			if (!g_Fodder->mStartParams->mDisableVideo) {
+				g_Fodder->mGraphics->MapTiles_Draw();
+			}
+			g_Fodder->Sprites_Draw();
+			g_Fodder->Campaign_Select_DrawMenu("OPEN FODDER", "SELECT CAMPAIGN");
+			g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+			g_Fodder->Mouse_DrawCursor();
+
+			
+		};
 		return;
 	}
 
@@ -42,7 +57,7 @@ void menu_loop() {
 		if (About->Cycle()) {
 			g_Fodder->mWindow->RenderAt(g_Fodder->mSurface);
 			g_Fodder->mWindow->FrameEnd();
-			g_Fodder->Cycle_End();
+			//g_Fodder->Cycle_End();
 			return;
 		}
 
@@ -52,13 +67,16 @@ void menu_loop() {
 		result = -1;
 		return;
 	}
-
 	g_Fodder->Campaign_Select_File_Cycle("OPEN FODDER", "SELECT CAMPAIGN");
+	g_Fodder->Video_Sleep();
+	Sleep(10);
+
 	if(g_Fodder->mGUI_SaveLoadAction == 3 || g_Fodder->mGUI_SaveLoadAction == 0) {
 		return;
 	}
 	if (g_Fodder->mGUI_SaveLoadAction == 4) {
 		g_Fodder->mGUI_SaveLoadAction = 0;
+		g_Fodder->mInterruptCallback = nullptr;
 		About = new cAbout();
 		return;
 	}
@@ -74,19 +92,22 @@ void menu_loop() {
 	g_Fodder->mGame_Data.mCampaign.LoadCampaign(Campaign, Campaign != g_Fodder->mVersionCurrent->mName);
 	g_Fodder->Game_Setup();
 
+	g_Fodder->mInterruptCallback = nullptr;
+	g_Fodder->mPhase_In_Progress = false;
 	result = -1;
 	emscripten_cancel_main_loop();
-	emscripten_set_main_loop(phase_loop, 24, 1);
+	emscripten_set_main_loop(phase_loop, 0, true);
 }
 
 void phase_loop() {
+    g_Fodder->Interrupt_Sim_Tick();
 	static int16 result = -1;
 
 	// No recruits left?
 	if (result != 1) {
 		if (!g_Fodder->mGame_Data.mRecruits_Available_Count) {
 			emscripten_cancel_main_loop();
-			emscripten_set_main_loop(menu_loop, 24, 1);
+			emscripten_set_main_loop(menu_loop, 0, true);
 
 			result = -1;
 		}
@@ -96,7 +117,7 @@ void phase_loop() {
 		// Game Won?
 		if (!g_Fodder->mGame_Data.Phase_Next()) {
 			emscripten_cancel_main_loop();
-			emscripten_set_main_loop(menu_loop, 24, 1);
+			emscripten_set_main_loop(menu_loop, 0, true);
 			// Break to version screen
 			return;
 		}
@@ -107,7 +128,7 @@ void phase_loop() {
 		if (g_Fodder->mPhase_Aborted2) {
 			g_Fodder->mPhase_Aborted2 = false;
 			emscripten_cancel_main_loop();
-			emscripten_set_main_loop(menu_loop, 24, 1);
+			emscripten_set_main_loop(menu_loop, 0, true);
 			return;
 		}
 		g_Fodder->Phase_EngineReset();
@@ -120,7 +141,8 @@ void phase_loop() {
 	//  1 = Phase Running
 
 	result = g_Fodder->Phase_Cycle();
-	g_Fodder->Cycle_End();
+	g_Fodder->Video_Sleep();
+	Sleep(10);
 }
 
 int start(int argc, char *argv[]) {
@@ -141,10 +163,9 @@ int start(int argc, char *argv[]) {
 	g_Fodder->Prepare(Params);
 	g_Fodder->Phase_SquadPrepare();
 
-	emscripten_set_main_loop(menu_loop, 24, 1);
+	emscripten_set_main_loop(menu_loop, 0, true);
 
 	//g_Fodder->Service_Show();
-
 	return 0;
 }
 

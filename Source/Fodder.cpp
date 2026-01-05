@@ -293,6 +293,16 @@ int16 cFodder::Phase_Cycle() {
         
     } else {
 
+        #ifdef EMSCRIPTEN
+            if(mPhase_InterruptTicks < 3) {
+                
+                return 1;
+            }
+            if (mExit) {
+                return -1;
+            }
+        #else
+        
         do {
             Video_Sleep();
 
@@ -305,6 +315,7 @@ int16 cFodder::Phase_Cycle() {
                 return -1;
             }
         } while (mPhase_InterruptTicks < 3);
+        #endif
     }
 
     ++mMission_EngineTicks;
@@ -352,9 +363,10 @@ int16 cFodder::Phase_Cycle() {
 
 	//Mouse_DrawCursor();
 
+#ifndef EMSCRIPTEN
 	if (mSurface->isPaletteAdjusting())
 		mSurface->palette_FadeTowardNew();
-
+#endif
 	if (mPhase_ShowMapOverview && mSurfaceMapOverview) {
 
 		// Dont show the map while recording
@@ -533,9 +545,13 @@ int16 cFodder::Phase_Loop() {
                 eventsProcess();
             }
 
+#ifdef EMSCRIPTEN
+            mVideo_Ticked = true;
+#else
             while (!mVideo_Ticked && !mExit) {
                 SDL_Delay(0);
             }
+#endif
         }
     }
 
@@ -564,11 +580,15 @@ void cFodder::Video_Sleep(cSurface* pSurface, const bool pShrink, const bool pVs
     }
 
     // If not in vsync mode, then wait for the Amiga 50Hz Interrupt
+#ifdef EMSCRIPTEN
+    mVideo_Ticked = true;
+#else
     if (!pVsync) {
         while (!mVideo_Ticked) {
             SDL_Delay(1);
         }
     }
+#endif
 
     mWindow->Cycle();
     eventsProcess();
@@ -628,6 +648,20 @@ void cFodder::Interrupt_Sim() {
         }
     }
 }
+
+#ifdef EMSCRIPTEN
+void cFodder::Interrupt_Sim_Tick() {
+    static Uint32 startTick = SDL_GetTicks();
+    Uint32 currentTick = SDL_GetTicks();
+
+    if (currentTick - startTick < mParams->mSleepDelta) {
+       // return;
+    }
+
+    startTick = currentTick;
+    Interrupt_Redraw();
+}
+#endif
 
 void cFodder::Phase_Loop_Interrupt() {
 
@@ -3196,9 +3230,6 @@ void cFodder::Mouse_Cursor_Handle() {
     static bool CursorGrabbed = true;
 
 	mMouseButtonStatus = mMouse_EventLastButtonsPressed;
-    if (mMouseButtonStatus) {
-        mMouseButtonStatus = mMouseButtonStatus;
-    }
 
     if (!mWindow_Focus && CursorGrabbed) {
         CursorGrabbed = false;

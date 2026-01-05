@@ -23,9 +23,11 @@
 class cSound_PC : public cSound {
 	bool					mSound;
 
-	Mix_Music*				mMusicPlaying;
-	
-	std::vector<sChunkPlaying> mMixerChunks;
+	MIX_Mixer*				mMixer;
+	MIX_Track*				mMusicTrack;
+	MIX_Audio*				mMusicAudio;
+
+	std::vector<sTrackPlaying> mMixerTracks;
 
 	tSharedBuffer *			word_42316[7];
 	tSharedBuffer 			dword_42320[0x3C];
@@ -37,6 +39,7 @@ class cSound_PC : public cSound {
 	private:
 	bool					devicePrepare();
 	void					Sound_Voc_Load();
+    void                    CleanupFinishedTracks();
 
 	public:
 
@@ -48,6 +51,4 @@ class cSound_PC : public cSound {
 	void				Music_Play( int16 pTrack, int16 pSong);
 	void				Music_PlayFile( const std::string& pFilename );
 	void				Music_Stop();
-
-	void				MixerChannelFinished( int32 pChannel );
 };

@@ -353,3 +353,7 @@ healthchecksdb
 
 # Ignore neatbeans projects.
 nbproject/
+/vcpkg_installed
+Projects/emscripten/build-ems/
+Projects/emscripten/.emsdk_cache/
+/Projects/VS
