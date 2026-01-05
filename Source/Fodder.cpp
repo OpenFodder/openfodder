@@ -581,7 +581,7 @@ void cFodder::Video_Sleep(cSurface* pSurface, const bool pShrink, const bool pVs
     }
 
     // If not in vsync mode, then wait for the Amiga 50Hz Interrupt
-#ifdef _OFED || EMSCRIPTEN
+#if defined(_OFED) || defined(EMSCRIPTEN)
     mVideo_Ticked = true;
 #else
     if (!pVsync) {
