@@ -446,8 +446,8 @@ bool cWindow::isResized() const {
  * Is either mouse button currently pressed
  */
 bool cWindow::isMouseButtonPressed_Global() const {
-    return  (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) ||
-            (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT));
+    return  (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) ||
+            (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT));
 }
 
 /**

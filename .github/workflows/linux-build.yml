@@ -10,7 +10,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install build tools
-        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build build-essential
+        run: >-
+          sudo apt-get update --allow-releaseinfo-change &&
+          sudo apt-get install -y
+          cmake ninja-build build-essential git pkg-config
+          libasound2-dev libpulse-dev libudev-dev libx11-dev libxext-dev
+          libxrandr-dev libxcursor-dev libxi-dev libxss-dev libxtst-dev
+          libwayland-dev libxkbcommon-dev libdrm-dev libgbm-dev
+          libegl1-mesa-dev libgl1-mesa-dev
+          libflac-dev libogg-dev libvorbis-dev libmpg123-dev libopusfile-dev
+          libxmp-dev
+      - name: Build SDL3
+        run: |
+          mkdir -p /tmp/sdl3
+          cd /tmp/sdl3
+          git clone --depth 1 --branch release-3.4.0 https://github.com/libsdl-org/SDL.git
+          cmake -S SDL -B SDL/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+          cmake --build SDL/build
+          sudo cmake --install SDL/build
+      - name: Build SDL3_mixer
+        run: |
+          mkdir -p /tmp/sdl3
+          cd /tmp/sdl3
+          git clone --depth 1 https://github.com/libsdl-org/SDL_mixer.git
+          cmake -S SDL_mixer -B SDL_mixer/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DSDLMIXER_VENDORED=OFF -DSDLMIXER_MOD_XMP=ON -DSDLMIXER_MOD_XMP_LITE=OFF -DSDLMIXER_MOD_XMP_SHARED=OFF
+          cmake --build SDL_mixer/build
+          sudo cmake --install SDL_mixer/build
       - name: Configure
         run: cmake -S . -B build -G Ninja
       - name: Build

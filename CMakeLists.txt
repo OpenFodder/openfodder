@@ -125,7 +125,6 @@ target_include_directories(openfodder PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/Source)
 
 target_compile_definitions(openfodder PRIVATE
-    SDL_ENABLE_OLD_NAMES
     UNICODE
     _UNICODE
     _USE_MATH_DEFINES)

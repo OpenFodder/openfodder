@@ -76,7 +76,7 @@ cSurface::~cSurface() {
 
 void cSurface::clearSDLSurface( uint32 pColor ) {
 
-	SDL_FillRect( mSDLSurface, 0, pColor );
+	SDL_FillSurfaceRect(mSDLSurface, nullptr, pColor);
 }
 
 void cSurface::palette_SetToBlack() {

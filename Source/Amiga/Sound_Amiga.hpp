@@ -44,7 +44,7 @@ class cSound_Amiga : public cSound {
 
 	SDL_AudioSpec						mAudioSpec;
 	SDL_AudioStream*					mAudioStream;
-	SDL_mutex*							mLock;
+	SDL_Mutex*							mLock;
 
 	std::vector<Audio::AudioStream*>	mCurrentSfx;
 
