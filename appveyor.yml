@@ -41,8 +41,8 @@ artifacts:
 
 deploy:
   - provider: S3
-    access_key_id: %AWS_ACCESS_KEY_ID%
-    secret_access_key: %AWS_SECRET_ACCESS_KEY%
+    access_key_id: "%AWS_ACCESS_KEY_ID%"
+    secret_access_key: "%AWS_SECRET_ACCESS_KEY%"
     bucket: openfodder-builds
     artifact: OpenFodder-%ARCH%-%CONFIGURATION%-latest.zip
     set_public: true
