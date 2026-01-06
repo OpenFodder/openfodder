@@ -1,6 +1,8 @@
 # Open Fodder
-[![Build status](https://img.shields.io/appveyor/build/segrax/openfodder/master.svg?logo=appveyor)](https://ci.appveyor.com/project/segrax/openfodder)
-  
+[![windows-build](https://github.com/OpenFodder/openfodder/actions/workflows/windows-build.yml/badge.svg)](https://github.com/OpenFodder/openfodder/actions/workflows/windows-build.yml)
+[![linux-build](https://github.com/OpenFodder/openfodder/actions/workflows/linux-build.yml/badge.svg)](https://github.com/OpenFodder/openfodder/actions/workflows/linux-build.yml)
+
+
 Come for a chat over at our [Discord](https://discord.gg/4mX2wFM)  
 
 ![image](https://user-images.githubusercontent.com/1327406/49718991-f1bd6e00-fcaf-11e8-88e3-68136828c2d1.png)
