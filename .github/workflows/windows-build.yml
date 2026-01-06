@@ -14,9 +14,11 @@ jobs:
           - arch: x64
             cmake_platform: x64
             configuration: Release
+            cmake_extra_args: ""
           - arch: x86
             cmake_platform: Win32
             configuration: Release
+            cmake_extra_args: -DFLAC__NO_ASM=ON
     steps:
       - uses: actions/checkout@v4
       - name: Cache CMake deps
@@ -25,7 +27,7 @@ jobs:
           path: Projects/VS/_deps
           key: ${{ runner.os }}-${{ matrix.arch }}-cmake-deps-${{ hashFiles('CMakeLists.txt') }}
       - name: Configure
-        run: cmake -S . -B Projects/VS -G "Visual Studio 17 2022" -A ${{ matrix.cmake_platform }}
+        run: cmake -S . -B Projects/VS -G "Visual Studio 17 2022" -A ${{ matrix.cmake_platform }} ${{ matrix.cmake_extra_args }}
       - name: Build
         run: cmake --build Projects/VS --config ${{ matrix.configuration }}
       - name: Test
