@@ -40,6 +40,14 @@ jobs:
         run: cmake -S . -B build -G Ninja
       - name: Build
         run: cmake --build build
+      - name: Package
+        run: python -m zipfile -c OpenFodder-linux-latest.zip build/openfodder README.md COPYING openfodder.ini.example
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        id: upload_artifact
+        with:
+          name: OpenFodder-linux-latest
+          path: OpenFodder-linux-latest.zip
       - name: Discord notification
         if: always() && env.DISCORD_WEBHOOK_URL != ''
         shell: pwsh
@@ -48,8 +56,13 @@ jobs:
         run: |
           $status = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failure" }
           $color = if ("${{ job.status }}" -eq "success") { 3066993 } else { 15158332 }
-          $title = "Linux build $status"
+          $title = "OpenFodder Ubuntu build $status"
           $runUrl = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          $artifactUrl = "${{ steps.upload_artifact.outputs.artifact-url }}"
+          if (-not $artifactUrl) { $artifactUrl = "N/A" }
+          $commitMessage = "${{ github.event.head_commit.message }}"
+          if (-not $commitMessage) { $commitMessage = "${{ github.event.pull_request.title }}" }
+          if (-not $commitMessage) { $commitMessage = "N/A" }
           $payload = @{
             username = "GitHub Actions"
             embeds = @(
@@ -60,6 +73,8 @@ jobs:
                 fields = @(
                   @{ name = "Commit"; value = "${{ github.sha }}"; inline = $true }
                   @{ name = "Branch"; value = "${{ github.ref_name }}"; inline = $true }
+                  @{ name = "Commit Message"; value = $commitMessage; inline = $false }
+                  @{ name = "Download"; value = $artifactUrl; inline = $false }
                 )
               }
             )

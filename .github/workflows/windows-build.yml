@@ -57,9 +57,21 @@ jobs:
           Compress-Archive -Path $items -DestinationPath $archive
       - name: Upload artifact
         uses: actions/upload-artifact@v4
+        id: upload_artifact
         with:
           name: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest
           path: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      - name: Upload build zip to S3
+        shell: pwsh
+        run: |
+          $zipName = "OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
+          aws s3 cp "$zipName" "s3://openfodder-builds/$zipName" --acl public-read
       - name: Discord notification
         if: always() && env.DISCORD_WEBHOOK_URL != ''
         shell: pwsh
@@ -68,8 +80,12 @@ jobs:
         run: |
           $status = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failure" }
           $color = if ("${{ job.status }}" -eq "success") { 3066993 } else { 15158332 }
-          $title = "Windows build $status (${{ matrix.arch }})"
+          $title = "OpenFodder Windows build $status (${{ matrix.arch }})"
           $runUrl = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          $artifactUrl = "https://s3.amazonaws.com/openfodder-builds/OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
+          $commitMessage = "${{ github.event.head_commit.message }}"
+          if (-not $commitMessage) { $commitMessage = "${{ github.event.pull_request.title }}" }
+          if (-not $commitMessage) { $commitMessage = "N/A" }
           $payload = @{
             username = "GitHub Actions"
             embeds = @(
@@ -81,6 +97,8 @@ jobs:
                   @{ name = "Commit"; value = "${{ github.sha }}"; inline = $true }
                   @{ name = "Branch"; value = "${{ github.ref_name }}"; inline = $true }
                   @{ name = "Config"; value = "${{ matrix.configuration }}"; inline = $true }
+                  @{ name = "Commit Message"; value = $commitMessage; inline = $false }
+                  @{ name = "Download"; value = $artifactUrl; inline = $false }
                 )
               }
             )
