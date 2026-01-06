@@ -145,6 +145,27 @@ protected:
 	int32 Heli_TextPos;
 	int32 Heli_TextPosBottom;
 
+protected:
+	std::string		EnsureExtension(const std::string& pFilename, const char* pExtension) const;
+	bool			Sprite_OnScreen_ClipY(int16 pRowStrideBytes);
+	bool			Sprite_OnScreen_ClipBottom();
+	void			Sidebar_Copy_To_Surface_Common(int16 pStartY, cSurface* pSurface, bool pOffsetSource);
+	void			Sidebar_Copy_ScreenBuffer_Common(uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer,
+						int pRowOffset, int pRowScale);
+
+	template <typename DrawFunc>
+	void Sidebar_Copy_Sprite_Loop(uint8* pSource, uint8* pDest, int16 pRows, int16 pColumnsHalf,
+		int16 pSourceSkip, int16 pDestSkip, DrawFunc pDraw) {
+		for (int16 dy = pRows; dy > 0; --dy) {
+			for (int16 dx = pColumnsHalf; dx > 0; --dx) {
+				pDraw(pSource, pDest);
+			}
+
+			pSource += pSourceSkip;
+			pDest += pDestSkip;
+		}
+	}
+
 public:
 						cGraphics();
 	virtual				~cGraphics() { };

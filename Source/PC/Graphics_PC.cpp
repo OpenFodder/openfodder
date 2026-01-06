@@ -461,24 +461,7 @@ void cGraphics_PC::Video_Draw_16(const uint8* RowPallete) {
 }
 
 void cGraphics_PC::Sidebar_Copy_To_Surface( int16 pStartY, cSurface* pSurface) {
-	uint8* Buffer = mSurface->GetSurfaceBuffer();
-
-	if (pSurface)
-		Buffer = pSurface->GetSurfaceBuffer();
-
-	uint8* 	si = (uint8*) mFodder->mSidebar_Screen_Buffer;
-
-	Buffer += (16 * mSurface->GetWidth()) +     16;
-
-	for (unsigned int Y = 17 + pStartY; Y < mSurface->GetHeight(); ++Y) {
-
-		for (unsigned int X = 0; X < 0x30; ++X) {
-
-			Buffer[X] = *si++;
-		}
-			
-		Buffer += mSurface->GetWidth();
-	}
+	Sidebar_Copy_To_Surface_Common(pStartY, pSurface, false);
 }
 
 void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, size_t pX, size_t pY) {
@@ -498,73 +481,28 @@ void cGraphics_PC::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, size_t
 	mFodder->mDraw_Source_SkipPixelsPerRow = 0xA0 - (mFodder->mVideo_Draw_Columns >> 1);
 	mFodder->mDraw_Dest_SkipPixelsPerRow = 48 - mFodder->mVideo_Draw_Columns;
 
-	for (uint16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+	auto drawNibble = [this](uint8*& src, uint8*& dst) {
+		uint8 ah = *src;
 
-		for (uint16 cx = (mFodder->mVideo_Draw_Columns / 2); cx > 0; --cx) {
-			
-			uint8 ah = *si;
+		uint8 al = ah >> 4;
+		if (al)
+			*dst = al | mFodder->mVideo_Draw_PaletteIndex;
 
-			uint8 al = ah >> 4;
-			if (al)
-				*di = al | mFodder->mVideo_Draw_PaletteIndex;
+		al = ah & 0x0F;
+		if (al)
+			*(dst + 1) = al | mFodder->mVideo_Draw_PaletteIndex;
 
-			al = ah & 0x0F;
-			if (al)
-				*(di + 1) = al | mFodder->mVideo_Draw_PaletteIndex;
+		++src;
+		dst += 2;
+	};
 
-			si++;
-			di += 2;
-		}
-
-		si += mFodder->mDraw_Source_SkipPixelsPerRow;
-		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
-	}
+	Sidebar_Copy_Sprite_Loop(
+		si, di, mFodder->mVideo_Draw_Rows, (mFodder->mVideo_Draw_Columns / 2),
+		mFodder->mDraw_Source_SkipPixelsPerRow, mFodder->mDraw_Dest_SkipPixelsPerRow, drawNibble);
 }
 
 void cGraphics_PC::Sidebar_Copy_ScreenBuffer( uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) {
-    pRow += 0x18;
-	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
-	uint32* BuffPtr = (uint32*)(SptPtr + (48 * pRow));
-
-	// Copying to pData20? or from it?
-	if (pCopyToScreen == 0) {
-
-		for (int16 cx = pRows; cx > 0; --cx) {
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-		}
-	}
-	else {
-
-		for (int16 cx = pRows; cx > 0; --cx) {
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-		}
-	}
+	Sidebar_Copy_ScreenBuffer_Common(pRow, pRows, pCopyToScreen, pBuffer, 0x18, 1);
 }
 
 void cGraphics_PC::Recruit_Draw_Hill( ) {
@@ -702,10 +640,7 @@ void cGraphics_PC::Recruit_Sprite_Draw( int16 pColumns, int16 pRows,
 }
 
 void cGraphics_PC::Load_And_Draw_Image( const std::string &pFilename, unsigned int pColors, size_t pBackColor) {
-	std::string Filename = pFilename;
-
-	if (Filename.find('.') == std::string::npos )
-		Filename.append( ".dat" );
+	std::string Filename = EnsureExtension(pFilename, ".dat");
 
 	auto fileBuffer = g_Resource->fileGet(Filename);
 	uint8* srcBuffer = fileBuffer->data();
@@ -739,35 +674,10 @@ void cGraphics_PC::Mission_Intro_DrawHelicopter( uint16 ) {
 bool cGraphics_PC::Sprite_OnScreen_Check() {
 	int16 ax;
 
-	if (mFodder->mVideo_Draw_PosY < 0) {
-		ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-		--ax;
-		if (ax < 0)
-			return false;
-
-		ax -= 0;
-		ax -= mFodder->mVideo_Draw_Rows;
-		++ax;
-		ax = -ax;
-		mFodder->mVideo_Draw_PosY += ax;
-		mFodder->mVideo_Draw_Rows -= ax;
-
-		ax *= 0xA0;
-
-		mFodder->mVideo_Draw_FrameDataPtr += ax;
-	}
-
-	ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-	--ax;
-
-    auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
-	if (ax > maxHeight) {
-		if (mFodder->mVideo_Draw_PosY > maxHeight)
-			return false;
-
-		ax -= maxHeight;
-		mFodder->mVideo_Draw_Rows -= ax;
-	}
+	if (!Sprite_OnScreen_ClipY(0xA0))
+		return false;
+	if (!Sprite_OnScreen_ClipBottom())
+		return false;
 
 	if (mFodder->mVideo_Draw_PosX < 0) {
 		ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;

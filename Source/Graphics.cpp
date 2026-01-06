@@ -52,6 +52,116 @@ void cGraphics::SetSurfaceOriginal(cSurface* pImage) {
 	mImageOriginal = pImage;
 }
 
+std::string cGraphics::EnsureExtension(const std::string& pFilename, const char* pExtension) const {
+	if (pFilename.find('.') != std::string::npos)
+		return pFilename;
+	return pFilename + pExtension;
+}
+
+bool cGraphics::Sprite_OnScreen_ClipY(int16 pRowStrideBytes) {
+	if (mFodder->mVideo_Draw_PosY >= 0)
+		return true;
+
+	int16 ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
+	--ax;
+	if (ax < 0)
+		return false;
+
+	ax -= mFodder->mVideo_Draw_Rows;
+	++ax;
+	ax = -ax;
+	mFodder->mVideo_Draw_PosY += ax;
+	mFodder->mVideo_Draw_Rows -= ax;
+
+	ax *= pRowStrideBytes;
+	mFodder->mVideo_Draw_FrameDataPtr += ax;
+	return true;
+}
+
+bool cGraphics::Sprite_OnScreen_ClipBottom() {
+	int16 ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
+	--ax;
+
+	auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
+	if (ax > maxHeight) {
+		if (mFodder->mVideo_Draw_PosY > maxHeight)
+			return false;
+
+		ax -= maxHeight;
+		mFodder->mVideo_Draw_Rows -= ax;
+	}
+
+	return true;
+}
+
+void cGraphics::Sidebar_Copy_To_Surface_Common(int16 pStartY, cSurface* pSurface, bool pOffsetSource) {
+	uint8* buffer = mSurface->GetSurfaceBuffer();
+	if (pSurface)
+		buffer = pSurface->GetSurfaceBuffer();
+
+	uint8* si = (uint8*)mFodder->mSidebar_Screen_Buffer;
+
+	buffer += (16 * mSurface->GetWidth()) + 16;
+
+	if (pOffsetSource && pStartY) {
+		buffer += (mSurface->GetWidth() * pStartY);
+		si += (0x30 * pStartY);
+	}
+
+	for (unsigned int y = 17 + pStartY; y < mSurface->GetHeight(); ++y) {
+		for (unsigned int x = 0; x < 0x30; ++x) {
+			buffer[x] = *si++;
+		}
+
+		buffer += mSurface->GetWidth();
+	}
+}
+
+void cGraphics::Sidebar_Copy_ScreenBuffer_Common(uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer,
+	int pRowOffset, int pRowScale) {
+	pRow += (uint16)pRowOffset;
+	pRows = (int16)(pRows * pRowScale);
+
+	uint8* sptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
+	uint32* buffPtr = (uint32*)(sptPtr + (0x30 * pRow));
+
+	if (pCopyToScreen == 0) {
+		for (int16 cx = pRows; cx > 0; --cx) {
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+			*pBuffer++ = *buffPtr++;
+		}
+	} else {
+		for (int16 cx = pRows; cx > 0; --cx) {
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+			*buffPtr++ = *pBuffer++;
+		}
+	}
+}
+
 
 void cGraphics::HeliIntro_TickParallaxAndText(double dtSeconds)
 {

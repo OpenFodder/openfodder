@@ -184,35 +184,10 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check(bool p16bit) {
 	else
 		drawColumns = (mFodder->mVideo_Draw_Columns << 3);
 
-	if (mFodder->mVideo_Draw_PosY < 0) {
-		ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-		--ax;
-		if (ax < 0)
-			return false;
-
-		ax -= 0;
-		ax -= mFodder->mVideo_Draw_Rows;
-		++ax;
-		ax = -ax;
-		mFodder->mVideo_Draw_PosY += ax;
-		mFodder->mVideo_Draw_Rows -= ax;
-
-		ax *= 40;
-
-		mFodder->mVideo_Draw_FrameDataPtr += ax;
-	}
-
-	ax = mFodder->mVideo_Draw_PosY + mFodder->mVideo_Draw_Rows;
-	--ax;
-
-	auto maxHeight = g_Window->GetScreenSize().getHeight() + 31;
-	if (ax > maxHeight) {
-		if (mFodder->mVideo_Draw_PosY > maxHeight)
-			return false;
-
-		ax -= maxHeight;
-		mFodder->mVideo_Draw_Rows -= ax;
-	}
+	if (!Sprite_OnScreen_ClipY(40))
+		return false;
+	if (!Sprite_OnScreen_ClipBottom())
+		return false;
 
 	if (mFodder->mVideo_Draw_PosX < 0) {
 
@@ -385,10 +360,7 @@ void cGraphics_Amiga::Load_Service_Data() {
 }
 
 void cGraphics_Amiga::Load_And_Draw_Image(const std::string& pFilename, unsigned int pColors, size_t pBackColor) {
-	std::string	Filename = pFilename;
-
-	if (Filename.find('.') == std::string::npos)
-		Filename.append(".raw");
+	std::string	Filename = EnsureExtension(pFilename, ".raw");
 
 	// Try it as an IFF
 	auto Decoded = DecodeIFF(Filename);
@@ -1065,33 +1037,7 @@ void cGraphics_Amiga::Video_Draw_16(const uint8* RowPallete) {
 }
 
 void cGraphics_Amiga::Sidebar_Copy_To_Surface(int16 pStartY, cSurface* pSurface) {
-	uint8* Buffer = mSurface->GetSurfaceBuffer();
-
-	if (pSurface)
-		Buffer = pSurface->GetSurfaceBuffer();
-
-	uint8* si = (uint8*)mFodder->mSidebar_Screen_Buffer;
-
-	// Start 16 rows down
-	Buffer += (16 * mSurface->GetWidth()) + 16;
-
-	// Start further in?
-	if (pStartY) {
-		Buffer += (mSurface->GetWidth() * pStartY);
-		si += (0x30 * pStartY);
-	}
-
-	// Entire Height of Sidebar
-	for (unsigned int Y = 17 + pStartY; Y < mSurface->GetHeight(); ++Y) {
-
-		// Width of Sidebar
-		for (unsigned int X = 0; X < 0x30; X++) {
-			Buffer[X] = *si++;
-		}
-
-		// Next Row
-		Buffer += mSurface->GetWidth();
-	}
+	Sidebar_Copy_To_Surface_Common(pStartY, pSurface, true);
 
 }
 
@@ -1118,65 +1064,19 @@ void cGraphics_Amiga::Sidebar_Copy_Sprite_To_ScreenBufPtr(int16 pSpriteType, siz
 	uint8* di = ((uint8*)mFodder->mSidebar_Screen_BufferPtr) + (0x30 * pY) + pX;
 	uint8* si = mFodder->mVideo_Draw_FrameDataPtr;
 
-	// Height
-	for (int16 dx = mFodder->mVideo_Draw_Rows; dx > 0; --dx) {
+	auto drawPixels = [this](uint8*& src, uint8*& dst) {
+		DrawPixels_16(src, dst, mFodder->mVideo_Draw_PaletteIndex);
+		dst += 16;
+		src += 2;
+	};
 
-		// Width
-		for (int16 cx = 0; cx < mFodder->mVideo_Draw_Columns / 2; ++cx) {
-
-			DrawPixels_16(si, di, mFodder->mVideo_Draw_PaletteIndex);
-
-			di += 16;
-			si += 2;
-		}
-
-		si += mFodder->mDraw_Source_SkipPixelsPerRow;
-		di += mFodder->mDraw_Dest_SkipPixelsPerRow;
-	}
+	Sidebar_Copy_Sprite_Loop(
+		si, di, mFodder->mVideo_Draw_Rows, (mFodder->mVideo_Draw_Columns / 2),
+		mFodder->mDraw_Source_SkipPixelsPerRow, mFodder->mDraw_Dest_SkipPixelsPerRow, drawPixels);
 }
 
 void cGraphics_Amiga::Sidebar_Copy_ScreenBuffer(uint16 pRow, int16 pRows, int16 pCopyToScreen, uint32*& pBuffer) {
-	pRow += 8;
-	pRows *= 4;
-	uint8* SptPtr = (uint8*)mFodder->mSidebar_Screen_Buffer;
-	uint32* BuffPtr = (uint32*)(SptPtr + (0x30 * pRow));
-
-	if (pCopyToScreen == 0) {
-		for (int16 cx = pRows; cx > 0; --cx) {
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-			*pBuffer++ = *BuffPtr++;
-		}
-	}
-	else {
-		for (int16 cx = pRows; cx > 0; --cx) {
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-			*BuffPtr++ = *pBuffer++;
-		}
-	}
+	Sidebar_Copy_ScreenBuffer_Common(pRow, pRows, pCopyToScreen, pBuffer, 8, 4);
 }
 
 void cGraphics_Amiga::Recruit_Draw_Hill() {
