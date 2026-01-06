@@ -18,7 +18,7 @@ jobs:
           - arch: x86
             cmake_platform: Win32
             configuration: Release
-            cmake_extra_args: -DFLAC__NO_ASM=ON
+            cmake_extra_args: -DWITH_ASM=OFF
     steps:
       - uses: actions/checkout@v4
       - name: Cache CMake deps
