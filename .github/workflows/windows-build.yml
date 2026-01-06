@@ -56,38 +56,27 @@ jobs:
         shell: pwsh
         run: |
           $runDir = "$env:GITHUB_WORKSPACE\Run"
-          $dataDir = "$runDir"
           $testsDir = "$runDir\Tests"
-          $buildExe = "$env:GITHUB_WORKSPACE\Projects\VS\${{ matrix.configuration }}\openfodder.exe"
-          $buildDir = "$env:GITHUB_WORKSPACE\Projects\VS\${{ matrix.configuration }}"
-          New-Item -ItemType Directory -Path $runDir -Force | Out-Null
-          if (-not (Test-Path $buildExe)) {
-            Write-Error "Built executable not found at $buildExe"
-            exit 1
-          }
-          Copy-Item $buildExe -Destination "$runDir\openfodder.exe" -Force
-          Copy-Item "$buildDir\SDL3.dll" -Destination $runDir -Force
-          Copy-Item "$buildDir\SDL3_mixer.dll" -Destination $runDir -Force
-          if (Test-Path "$dataDir\.git") {
-            git -C $dataDir pull
-          } else {
-            if (Test-Path $dataDir) { Remove-Item $dataDir -Recurse -Force }
-            git clone --single-branch https://github.com/OpenFodder/data.git $dataDir
-          }
-          if (Test-Path "$testsDir\.git") {
-            git -C $testsDir pull
-          } else {
-            if (Test-Path $testsDir) { Remove-Item $testsDir -Recurse -Force }
-            git clone https://github.com/OpenFodder/tests.git $testsDir
-          }
+          $stashDir = "$env:RUNNER_TEMP\openfodder-runtime"
           $ffmpegBin = "$env:GITHUB_WORKSPACE\vcpkg_installed\${{ matrix.vcpkg_triplet }}\bin"
+
           if (-not (Test-Path $ffmpegBin)) {
             $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
           }
-          if (-not (Test-Path $ffmpegBin)) {
-            Write-Error "FFmpeg binaries not found in vcpkg_installed or C:\vcpkg\installed for ${{ matrix.vcpkg_triplet }}."
-            exit 1
-          }
+
+          New-Item -ItemType Directory -Path $stashDir -Force | Out-Null
+          Copy-Item "$runDir\openfodder.exe" -Destination $stashDir -Force -ErrorAction SilentlyContinue
+          Copy-Item "$runDir\SDL3.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
+          Copy-Item "$runDir\SDL3_mixer.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
+
+          git clone --single-branch https://github.com/OpenFodder/data.git $runDir
+
+          Copy-Item "$stashDir\openfodder.exe" -Destination $runDir -Force
+          Copy-Item "$stashDir\SDL3.dll" -Destination $runDir -Force
+          Copy-Item "$stashDir\SDL3_mixer.dll" -Destination $runDir -Force
+
+          git clone https://github.com/OpenFodder/tests.git $testsDir
+
           Copy-Item "$ffmpegBin\avcodec*.dll" -Destination $runDir -Force
           Copy-Item "$ffmpegBin\avformat*.dll" -Destination $runDir -Force
           Copy-Item "$ffmpegBin\avutil*.dll" -Destination $runDir -Force
