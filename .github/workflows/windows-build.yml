@@ -1,0 +1,60 @@
+name: windows-build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            cmake_platform: x64
+            configuration: Release
+          - arch: x86
+            cmake_platform: Win32
+            configuration: Release
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache CMake deps
+        uses: actions/cache@v4
+        with:
+          path: Projects/VS/_deps
+          key: ${{ runner.os }}-${{ matrix.arch }}-cmake-deps-${{ hashFiles('CMakeLists.txt') }}
+      - name: Configure
+        run: cmake -S . -B Projects/VS -G "Visual Studio 17 2022" -A ${{ matrix.cmake_platform }}
+      - name: Build
+        run: cmake --build Projects/VS --config ${{ matrix.configuration }}
+      - name: Test
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path C:\built -Force | Out-Null
+          Set-Location C:\built
+          git clone --single-branch https://github.com/OpenFodder/data.git .
+          git clone https://github.com/OpenFodder/tests.git Tests
+          Copy-Item "$env:GITHUB_WORKSPACE\Run\openfodder.exe" -Destination C:\built -Force
+          Copy-Item "$env:GITHUB_WORKSPACE\Run\SDL3.dll" -Destination C:\built -Force
+          Copy-Item "$env:GITHUB_WORKSPACE\Run\SDL3_mixer.dll" -Destination C:\built -Force
+          .\openfodder.exe --appveyor --unit-test-headless
+      - name: Package
+        shell: pwsh
+        run: |
+          $archive = "OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
+          $items = @(
+            "$env:GITHUB_WORKSPACE\Run\openfodder.exe",
+            "$env:GITHUB_WORKSPACE\Run\SDL3.dll",
+            "$env:GITHUB_WORKSPACE\Run\SDL3_mixer.dll",
+            "$env:GITHUB_WORKSPACE\README.md",
+            "$env:GITHUB_WORKSPACE\COPYING",
+            "$env:GITHUB_WORKSPACE\openfodder.ini.example"
+          )
+          if (Test-Path $archive) { Remove-Item $archive -Force }
+          Compress-Archive -Path $items -DestinationPath $archive
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest
+          path: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip
