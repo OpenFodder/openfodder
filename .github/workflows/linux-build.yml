@@ -20,6 +20,7 @@ jobs:
           libegl1-mesa-dev libgl1-mesa-dev
           libflac-dev libogg-dev libvorbis-dev libmpg123-dev libopusfile-dev
           libxmp-dev
+          libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev
       - name: Build SDL3
         run: |
           mkdir -p /tmp/sdl3

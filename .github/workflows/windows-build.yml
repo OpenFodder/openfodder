@@ -66,7 +66,14 @@ jobs:
           } else {
             git clone https://github.com/OpenFodder/tests.git $testsDir
           }
-          $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
+          $ffmpegBin = "$env:GITHUB_WORKSPACE\vcpkg_installed\${{ matrix.vcpkg_triplet }}\bin"
+          if (-not (Test-Path $ffmpegBin)) {
+            $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
+          }
+          if (-not (Test-Path $ffmpegBin)) {
+            Write-Error "FFmpeg binaries not found in vcpkg_installed or C:\vcpkg\installed for ${{ matrix.vcpkg_triplet }}."
+            exit 1
+          }
           Copy-Item "$ffmpegBin\avcodec*.dll" -Destination $runDir -Force
           Copy-Item "$ffmpegBin\avformat*.dll" -Destination $runDir -Force
           Copy-Item "$ffmpegBin\avutil*.dll" -Destination $runDir -Force
@@ -79,7 +86,14 @@ jobs:
         shell: pwsh
         run: |
           $archive = "OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
-          $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
+          $ffmpegBin = "$env:GITHUB_WORKSPACE\vcpkg_installed\${{ matrix.vcpkg_triplet }}\bin"
+          if (-not (Test-Path $ffmpegBin)) {
+            $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
+          }
+          if (-not (Test-Path $ffmpegBin)) {
+            Write-Error "FFmpeg binaries not found in vcpkg_installed or C:\vcpkg\installed for ${{ matrix.vcpkg_triplet }}."
+            exit 1
+          }
           $ffmpegDlls = Get-ChildItem $ffmpegBin -Filter *.dll | Where-Object {
             $_.Name -match "^(avcodec|avformat|avutil|swscale|swresample)"
           } | Select-Object -ExpandProperty FullName
