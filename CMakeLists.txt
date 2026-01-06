@@ -12,6 +12,8 @@ endif()
 project(openfodder VERSION 1.5.4 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
+option(OPENFODDER_ENABLE_FFMPEG "Enable FFmpeg intro video playback" OFF)
+option(OPENFODDER_AUTO_FFMPEG "Auto-enable FFmpeg when found (non-Windows)" ON)
 
 if(EMSCRIPTEN)
     set(OPENFODDER_EMSCRIPTEN ON)
@@ -129,6 +131,18 @@ target_compile_definitions(openfodder PRIVATE
     _UNICODE
     _USE_MATH_DEFINES)
 
+if (OPENFODDER_ENABLE_FFMPEG OR (OPENFODDER_AUTO_FFMPEG AND NOT WIN32))
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+    find_package(FFmpeg)
+    if (FFmpeg_FOUND)
+        target_compile_definitions(openfodder PRIVATE OPENFODDER_ENABLE_FFMPEG)
+        target_include_directories(openfodder PRIVATE ${FFMPEG_INCLUDE_DIRS})
+        target_link_libraries(openfodder PRIVATE ${FFMPEG_LIBRARIES})
+    elseif(OPENFODDER_ENABLE_FFMPEG)
+        message(WARNING "FFmpeg not found; intro video playback disabled.")
+    endif()
+endif()
+
 if(EMSCRIPTEN)
     target_compile_definitions(openfodder PRIVATE EMSCRIPTEN OPENFODDER_NO_MIXER)
     target_compile_options(openfodder PRIVATE "-sUSE_SDL=3")
@@ -142,7 +156,7 @@ if(EMSCRIPTEN)
         "-sASSERTIONS=1"
         "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/Run@/")
 else()
-    target_link_libraries(openfodder SDL3::SDL3 SDL3_mixer::SDL3_mixer Threads::Threads)
+    target_link_libraries(openfodder PRIVATE SDL3::SDL3 SDL3_mixer::SDL3_mixer Threads::Threads)
 endif()
 
 if(WIN32)

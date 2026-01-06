@@ -52,8 +52,8 @@ Customisations and additions can be made to any of the scripts.
 #### Installation
 
 Please see [INSTALL.md](https://github.com/OpenFodder/openfodder/blob/master/INSTALL.md)
-  
-For the most recent Windows build, you may obtain the executable built during testing from [Here](https://s3.amazonaws.com/openfodder-builds/OpenFodder-latest.zip) 
+
+For the most recent Windows build, you may obtain the executable built during testing from [Here](https://s3.amazonaws.com/openfodder-builds/OpenFodder-x86-Release-latest.zip) 
   
 #### How to play
 

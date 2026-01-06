@@ -85,10 +85,7 @@ void cDebugger::Notice(const std::string& pMessage) {
     ConsoleOpen();
 
     if (g_Fodder->mParams->mAppVeyor) {
-        std::string Command = "appveyor AddMessage ";
-        Command += "\"" + pMessage + "\"";
-        Command += " -Category Information";
-        system(Command.c_str());
+        Output("::notice::" + pMessage + "\n");
     }
     else {
 		Output(pMessage + "\n" );
@@ -99,10 +96,7 @@ void cDebugger::Notice(const std::string& pMessage) {
 void cDebugger::Error(const std::string& pMessage) {
     ConsoleOpen();
     if (g_Fodder->mParams->mAppVeyor) {
-        std::string Command = "appveyor AddMessage ";
-        Command += "\"" + pMessage + "\"";
-        Command += " -Category Error";
-        system(Command.c_str());
+        Output("::error::" + pMessage + "\n");
     }
     else {
 		Output(pMessage + "\n");
@@ -112,12 +106,7 @@ void cDebugger::Error(const std::string& pMessage) {
 void cDebugger::TestStart(const std::string& pName, const std::string& pGroup) {
     ConsoleOpen();
     if (g_Fodder->mParams->mAppVeyor) {
-        std::string Command = "appveyor AddTest";
-
-        Command += " -Name \"" + pName + "\"";
-        Command += " -Framework NUnit -FileName \"" + pGroup + "\"";
-        Command += " -Outcome Running";
-        system(Command.c_str());
+        Output("::notice::Test start: " + pGroup + " - " + pName + "\n");
     }
     else {
         std::cout << "[Test] " << pName << ": starting\n";
@@ -127,31 +116,17 @@ void cDebugger::TestStart(const std::string& pName, const std::string& pGroup) {
 void cDebugger::TestComplete(const std::string& pName, const std::string& pGroup, const std::string& pMessage, const size_t pTime, eTestState pTestState) {
     ConsoleOpen();
     if (g_Fodder->mParams->mAppVeyor) {
-        std::string Command = "appveyor UpdateTest";
-        Command += " -Name \"" + pName + "\"";
-        Command += " -Framework NUnit -FileName \"" + pGroup +"\"";
-        if (pTestState == eTest_Failed)
-            Command += " -ErrorMessage \"" + pMessage + "\"";
-
-        Command += " -Duration " + std::to_string(pTime);
-        Command += " -Outcome ";
-
-        switch (pTestState) {
-        case eTest_Passed:
-            Command += "Passed";
-            break;
-        case eTest_Failed:
-            Command += "Failed";
-            break;
-        case eTest_Skipped:
-            Command += "Skipped";
-            break;
-        case eTest_Running:
-            Command += "Running";
-            break;
+        std::string message = "Test " + pGroup + " - " + pName + ": " + pMessage +
+            " (" + std::to_string(pTime) + "ms)";
+        if (pTestState == eTest_Failed) {
+            Output("::error::" + message + "\n");
+        } else if (pTestState == eTest_Skipped) {
+            Output("::notice::" + message + " [Skipped]\n");
+        } else if (pTestState == eTest_Running) {
+            Output("::notice::" + message + " [Running]\n");
+        } else {
+            Output("::notice::" + message + " [Passed]\n");
         }
-
-        system(Command.c_str());
     }
     else {
         if(pTestState == eTest_Passed)

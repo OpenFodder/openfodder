@@ -1302,10 +1302,10 @@ public:
     int16           intro_Play();
 
 	void			intro_main();
-
     void            intro_Retail();
     void            intro_AmigaTheOne();
 	void			Intro_OpenFodder();
+    void            Intro_PlayVideo();
 
     void            Sidebar_Clear_ScreenBufferPtr();
 

@@ -1,0 +1,16 @@
+{
+  "name": "openfodder",
+  "version-string": "0.0.0",
+  "dependencies": [
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "avcodec",
+        "avformat",
+        "swresample",
+        "swscale"
+      ]
+    }
+  ]
+}

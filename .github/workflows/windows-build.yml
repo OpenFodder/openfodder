@@ -15,36 +15,74 @@ jobs:
             cmake_platform: x64
             configuration: Release
             cmake_extra_args: ""
+            vcpkg_triplet: x64-windows
           - arch: x86
             cmake_platform: Win32
             configuration: Release
             cmake_extra_args: -DWITH_ASM=OFF
+            vcpkg_triplet: x86-windows
     steps:
       - uses: actions/checkout@v4
+      - name: Install FFmpeg (vcpkg)
+        shell: pwsh
+        run: |
+          $vcpkgRoot = "C:\vcpkg"
+          if (-not (Test-Path $vcpkgRoot)) {
+            git clone https://github.com/microsoft/vcpkg $vcpkgRoot
+          }
+          & "$vcpkgRoot\bootstrap-vcpkg.bat"
+          Push-Location $env:GITHUB_WORKSPACE
+          & "$vcpkgRoot\vcpkg.exe" install --triplet ${{ matrix.vcpkg_triplet }}
+          Pop-Location
       - name: Cache CMake deps
         uses: actions/cache@v4
         with:
           path: Projects/VS/_deps
           key: ${{ runner.os }}-${{ matrix.arch }}-cmake-deps-${{ hashFiles('CMakeLists.txt') }}
       - name: Configure
-        run: cmake -S . -B Projects/VS -G "Visual Studio 17 2022" -A ${{ matrix.cmake_platform }} ${{ matrix.cmake_extra_args }}
+        run: cmake -S . -B Projects/VS -G "Visual Studio 17 2022" -A ${{ matrix.cmake_platform }} ${{ matrix.cmake_extra_args }} -DOPENFODDER_ENABLE_FFMPEG=ON -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }}
       - name: Build
         run: cmake --build Projects/VS --config ${{ matrix.configuration }}
       - name: Test
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path C:\built -Force | Out-Null
-          Set-Location C:\built
-          git clone --single-branch https://github.com/OpenFodder/data.git .
-          git clone https://github.com/OpenFodder/tests.git Tests
-          Copy-Item "$env:GITHUB_WORKSPACE\Run\openfodder.exe" -Destination C:\built -Force
-          Copy-Item "$env:GITHUB_WORKSPACE\Run\SDL3.dll" -Destination C:\built -Force
-          Copy-Item "$env:GITHUB_WORKSPACE\Run\SDL3_mixer.dll" -Destination C:\built -Force
+          $runDir = "$env:GITHUB_WORKSPACE\Run"
+          $dataRepo = "$runDir\_data_repo"
+          $testsDir = "$runDir\Tests"
+          New-Item -ItemType Directory -Path $runDir -Force | Out-Null
+          if (Test-Path "$dataRepo\.git") {
+            git -C $dataRepo pull
+          } else {
+            if (Test-Path $dataRepo) { Remove-Item $dataRepo -Recurse -Force }
+            git clone --single-branch https://github.com/OpenFodder/data.git $dataRepo
+          }
+          if (Test-Path "$dataRepo\Data") {
+            Copy-Item "$dataRepo\Data" "$runDir\Data" -Recurse -Force
+          } else {
+            Copy-Item "$dataRepo\*" $runDir -Recurse -Force -Exclude ".git"
+          }
+          if (Test-Path "$testsDir\.git") {
+            git -C $testsDir pull
+          } else {
+            git clone https://github.com/OpenFodder/tests.git $testsDir
+          }
+          $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
+          Copy-Item "$ffmpegBin\avcodec*.dll" -Destination $runDir -Force
+          Copy-Item "$ffmpegBin\avformat*.dll" -Destination $runDir -Force
+          Copy-Item "$ffmpegBin\avutil*.dll" -Destination $runDir -Force
+          Copy-Item "$ffmpegBin\swscale*.dll" -Destination $runDir -Force
+          Copy-Item "$ffmpegBin\swresample*.dll" -Destination $runDir -Force
+          Push-Location $runDir
           .\openfodder.exe --appveyor --unit-test-headless
+          Pop-Location
       - name: Package
         shell: pwsh
         run: |
           $archive = "OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
+          $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
+          $ffmpegDlls = Get-ChildItem $ffmpegBin -Filter *.dll | Where-Object {
+            $_.Name -match "^(avcodec|avformat|avutil|swscale|swresample)"
+          } | Select-Object -ExpandProperty FullName
           $items = @(
             "$env:GITHUB_WORKSPACE\Run\openfodder.exe",
             "$env:GITHUB_WORKSPACE\Run\SDL3.dll",
@@ -52,7 +90,7 @@ jobs:
             "$env:GITHUB_WORKSPACE\README.md",
             "$env:GITHUB_WORKSPACE\COPYING",
             "$env:GITHUB_WORKSPACE\openfodder.ini.example"
-          )
+          ) + $ffmpegDlls
           if (Test-Path $archive) { Remove-Item $archive -Force }
           Compress-Archive -Path $items -DestinationPath $archive
       - name: Upload artifact

@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "VideoMPEG.hpp"
 #include <cmath>
 #include "Map/Random.hpp"
 
@@ -16712,6 +16713,53 @@ void cFodder::Intro_OpenFodder() {
 	}
 }
 
+#ifdef OPENFODDER_ENABLE_FFMPEG
+void cFodder::Intro_PlayVideo() {
+    if (!mVersionCurrent->isRetail() || !mVersionCurrent->isCannonFodder1()) {
+		return;
+	}
+
+	if (mStartParams && mStartParams->mDisableVideo)
+		return;
+
+	cVideoMPEG introVideo;
+	if (!introVideo.LoadIntroFromData())
+		return;
+
+	if (!introVideo.Play())
+		return;
+
+	mMouseButtonStatus = false;
+	mPhase_Aborted = false;
+
+    Mouse_Setup();
+
+	uint64 lastTick = SDL_GetTicks();
+	while (introVideo.isPlaying()) {
+		uint64 nowTick = SDL_GetTicks();
+		double deltaSeconds = (nowTick - lastTick) / 1000.0;
+		lastTick = nowTick;
+
+		introVideo.Update(deltaSeconds);
+		introVideo.Render();
+
+		mWindow->Cycle();
+		eventsProcess();
+
+		if (mMouseButtonStatus || mPhase_Aborted) {
+			break;
+		}
+
+		SDL_Delay(1);
+        mVideo_Done = true;
+	}
+
+	introVideo.Stop();
+	mMouseButtonStatus = false;
+	mPhase_Aborted = false;
+}
+#endif
+
 void cFodder::intro_LegionMessage() {
     int16 Duration = 150;
     bool DoBreak = false;
@@ -19333,6 +19381,10 @@ void cFodder::intro_main() {
 
 		if (!mParams->mSkipIntro) {
 			mWindow->SetScreenSize(mVersionCurrent->GetSecondScreenSize());
+
+#ifdef OPENFODDER_ENABLE_FFMPEG
+			Intro_PlayVideo();
+#endif
 
 			// Show the intro for retail releases (and the PC Format demo)
 			if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat()) {
