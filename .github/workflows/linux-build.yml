@@ -40,3 +40,29 @@ jobs:
         run: cmake -S . -B build -G Ninja
       - name: Build
         run: cmake --build build
+      - name: Discord notification
+        if: always() && env.DISCORD_WEBHOOK_URL != ''
+        shell: pwsh
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          $status = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failure" }
+          $color = if ("${{ job.status }}" -eq "success") { 3066993 } else { 15158332 }
+          $title = "Linux build $status"
+          $runUrl = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          $payload = @{
+            username = "GitHub Actions"
+            embeds = @(
+              @{
+                title = $title
+                url = $runUrl
+                color = $color
+                fields = @(
+                  @{ name = "Commit"; value = "${{ github.sha }}"; inline = $true }
+                  @{ name = "Branch"; value = "${{ github.ref_name }}"; inline = $true }
+                )
+              }
+            )
+          } | ConvertTo-Json -Depth 5
+
+          Invoke-RestMethod -Method Post -Uri $env:DISCORD_WEBHOOK_URL -ContentType "application/json" -Body $payload
