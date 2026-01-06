@@ -56,7 +56,7 @@ jobs:
         shell: pwsh
         run: |
           $runDir = "$env:GITHUB_WORKSPACE\Run"
-          $dataDir = "$runDir\Data"
+          $dataDir = "$runDir"
           $testsDir = "$runDir\Tests"
           New-Item -ItemType Directory -Path $runDir -Force | Out-Null
           if (Test-Path "$dataDir\.git") {
