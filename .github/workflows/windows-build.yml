@@ -56,23 +56,19 @@ jobs:
         shell: pwsh
         run: |
           $runDir = "$env:GITHUB_WORKSPACE\Run"
-          $dataRepo = "$runDir\Data"
+          $dataDir = "$runDir\Data"
           $testsDir = "$runDir\Tests"
           New-Item -ItemType Directory -Path $runDir -Force | Out-Null
-          if (Test-Path "$dataRepo\.git") {
-            git -C $dataRepo pull
+          if (Test-Path "$dataDir\.git") {
+            git -C $dataDir pull
           } else {
-            if (Test-Path $dataRepo) { Remove-Item $dataRepo -Recurse -Force }
-            git clone --single-branch https://github.com/OpenFodder/data.git $dataRepo
-          }
-          if (Test-Path "$dataRepo\Data") {
-            Copy-Item "$dataRepo\Data" "$runDir\Data" -Recurse -Force
-          } else {
-            Copy-Item "$dataRepo\*" $runDir -Recurse -Force -Exclude ".git"
+            if (Test-Path $dataDir) { Remove-Item $dataDir -Recurse -Force }
+            git clone --single-branch https://github.com/OpenFodder/data.git $dataDir
           }
           if (Test-Path "$testsDir\.git") {
             git -C $testsDir pull
           } else {
+            if (Test-Path $testsDir) { Remove-Item $testsDir -Recurse -Force }
             git clone https://github.com/OpenFodder/tests.git $testsDir
           }
           $ffmpegBin = "$env:GITHUB_WORKSPACE\vcpkg_installed\${{ matrix.vcpkg_triplet }}\bin"
