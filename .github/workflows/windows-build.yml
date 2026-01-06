@@ -23,6 +23,15 @@ jobs:
             vcpkg_triplet: x86-windows
     steps:
       - uses: actions/checkout@v4
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\vcpkg\downloads
+            C:\vcpkg\archives
+            C:\vcpkg\buildtrees
+            C:\vcpkg\packages
+          key: ${{ runner.os }}-${{ matrix.arch }}-vcpkg-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
       - name: Install FFmpeg (vcpkg)
         shell: pwsh
         run: |
@@ -81,6 +90,9 @@ jobs:
           Copy-Item "$ffmpegBin\swresample*.dll" -Destination $runDir -Force
           Push-Location $runDir
           .\openfodder.exe --appveyor --unit-test-headless
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
           Pop-Location
       - name: Package
         shell: pwsh
