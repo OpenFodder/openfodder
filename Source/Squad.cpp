@@ -202,9 +202,9 @@ void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquad
         if (Data28->mInVehicle)
             continue;
 
-        Data28->field_4C = 0;
+        Data28->mRetargetCooldown = 0;
         Data28->field_4D = 0;
-        Data28->field_45 = 0;
+        Data28->mActionCooldown = 0;
         Data28->field_43 = 0;
         Data28->mNextWalkTargetIndex = pData10;
         Data28->mNextWalkTargetIndex++;
@@ -463,11 +463,11 @@ void cFodder::Squad_Member_CanFire() {
 
     // Can the squad member use their weapon
     Data20 = mSquads[mSquad_Selected][Data4];
-    if (Data20->field_45)
+    if (Data20->mActionCooldown)
         return;
 
     // Soldier fires weapon
-    Data20->field_4A = -1;
+    Data20->mWeaponFireTimer = -1;
 }
 
 void cFodder::Squad_Prepare_Explosives() {
@@ -782,7 +782,7 @@ void cFodder::Squad_Member_Target_Set() {
         word_3A9B8 = 0x30;
 
         if (mSquad_Leader)
-            mSquad_Leader->field_4A = 0;
+            mSquad_Leader->mWeaponFireTimer = 0;
     }
 
     int16 TargetX = mMouseX + (mCameraX >> 16);

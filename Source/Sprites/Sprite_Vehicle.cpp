@@ -122,7 +122,7 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite) {
     if (Data4 == eTerrainFeature_Drop || Data4 == 0x0A)
         goto loc_22F06;
 
-    if (pSprite->field_56)
+    if (pSprite->mDelayCounter)
         pSprite->mAnimState = eSprite_Anim_Die1;
 
     if (Data4 == eTerrainFeature_Snow)
@@ -156,8 +156,8 @@ loc_22EEB:;
     return;
 
 loc_22F06:;
-    pSprite->field_56 += 4;
-    Data0 = pSprite->field_56;
+    pSprite->mDelayCounter += 4;
+    Data0 = pSprite->mDelayCounter;
     pSprite->mPosY += Data0;
     return;
 
@@ -205,7 +205,7 @@ Human_Vehicle_WaterEdge:;
     return;
 
 AnimDie3:;
-    if (pSprite->field_56)
+    if (pSprite->mDelayCounter)
         pSprite->mAnimState = eSprite_Anim_None;
     dword_3B24B = -1;
 
@@ -241,7 +241,7 @@ loc_23056:;
     Data0 += 3;
     pSprite->mHeight = Data0;
     Data0 = -Data0;
-    pSprite->field_1A = (((int64)pSprite->field_1A & 0xFFFF) | (Data0 << 16));
+    pSprite->mFixedPoint = (((int64)pSprite->mFixedPoint & 0xFFFF) | (Data0 << 16));
     return;
 
 loc_230B0:;
@@ -252,7 +252,7 @@ loc_230B0:;
     pSprite->mHeight = 1;
     Dataa0 = pSprite->mSpeed << 16;
     Dataa0 >>= 3;
-    pSprite->field_1A = Dataa0;
+    pSprite->mFixedPoint = Dataa0;
     return;
 
 loc_23100:;
@@ -262,7 +262,7 @@ loc_23100:;
     pSprite->mHeight = 1;
     Dataa0 = pSprite->mSpeed << 16;
     Dataa0 >>= 2;
-    pSprite->field_1A = Dataa0;
+    pSprite->mFixedPoint = Dataa0;
     pSprite->mSpeed <<= 1;
     pSprite->mSpeed <<= 1;
 
@@ -733,7 +733,7 @@ int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
     Data0 = 0x321;
 
     Data0 += pSprite->mAIAggression;
-    Data2C->field_4A = Data0;
+    Data2C->mWeaponFireTimer = Data0;
     Data0 = pSprite->mSpeed;
     Data0 += 0x50;
     Data2C->mSpeed = Data0;
@@ -746,13 +746,13 @@ int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
     Data0 <<= 5;
     Data2C->mDirection = Data0;
     Data2C->field_3A = 0;
-    Data2C->field_1A_sprite = pSprite;
+    Data2C->mOwnerSprite = pSprite;
     Data2C->field_2A = 2;
     Data2C->mProjectileOffsetX = 0;
     Data2C->mProjectileOffsetY = 2;
-    Data2C->field_34 = -1;
+    Data2C->mInitialDirection = -1;
     Data2C->field_50 = 0;
-    Data2C->field_59 = 0;
+    Data2C->mDirectionOverride = 0;
 
     int16 Data8 = 7;
     Data0 = tool_RandomGet();
@@ -830,7 +830,7 @@ loc_255DA:;
 
 void cFodder::Sprite_Apply_Gravity(sSprite* pSprite) {
 
-    int32 Data0 = pSprite->field_1A;
+    int32 Data0 = pSprite->mFixedPoint;
 
     pSprite->mHeightFixed += Data0;
 
@@ -841,7 +841,7 @@ void cFodder::Sprite_Apply_Gravity(sSprite* pSprite) {
     }
 
     Data0 -= 0x20000;
-    pSprite->field_1A = (int32)Data0;
+    pSprite->mFixedPoint = (int32)Data0;
 }
 
 void cFodder::Sprite_Vehicle_TurnTowardTarget(sSprite* pSprite, int16& pData0, int16& pData4) {
@@ -995,8 +995,8 @@ loc_245DA:;
     if (pSprite->mFiredWeaponType)
         goto loc_24617;
     pSprite->mFiredWeaponType = 0;
-    pSprite->field_55 = ~pSprite->field_55;
-    if (pSprite->field_55)
+    pSprite->mWeaponAnimTick = ~pSprite->mWeaponAnimTick;
+    if (pSprite->mWeaponAnimTick)
         return;
 
 loc_24617:;
@@ -1230,8 +1230,8 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
         return;
     }
 
-    if (pSprite->field_4C)
-        pSprite->field_4C--;
+    if (pSprite->mRetargetCooldown)
+        pSprite->mRetargetCooldown--;
 
     int16 Data1C = pSprite->field_5E_Squad;
     if (mSquads[Data1C / 9] == (sSprite**)INVALID_SPRITE_PTR)
@@ -1280,7 +1280,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
 
     pSprite->mWeaponTargetX = Data30->mPosX;
     pSprite->mWeaponTargetY = Data30->mPosY;
-    pSprite->field_4C = 0x5A;
+    pSprite->mRetargetCooldown = 0x5A;
 
     // If we have reached our current target
     if (pSprite->mPosX == pSprite->mTargetX && pSprite->mPosY == pSprite->mTargetY) {
@@ -1317,7 +1317,7 @@ loc_1CDA3:;
     mSprite_Helicopter_DestroyLight = 0;
 
     if (mSprite_Reached_Target) {
-        pSprite->field_4C = 0;
+        pSprite->mRetargetCooldown = 0;
         pSprite->mTargetX = pSprite->mPosX;
         pSprite->mTargetY = pSprite->mPosY;
     }

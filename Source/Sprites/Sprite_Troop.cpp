@@ -161,7 +161,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
         //loc_18F12
         mSprite_FaceWeaponTarget = -1;
 
-		Data28 = &mSprites[pSprite->field_5E];
+		Data28 = &mSprites[pSprite->mSpriteScanIndex];
 
 		// The original engine checked 1 sprite per cycle, this is problematic 
 		// with max sprites gets bigger, especially at 100,000. So we check every sprite
@@ -170,15 +170,15 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
 			bool looped = false;
 
 			while (Data28->mPosX == -32768) {
-				++pSprite->field_5E;
-				if (pSprite->field_5E >= (mParams->mSpritesMax - 2)) {
-					pSprite->field_5E = 0;
+				++pSprite->mSpriteScanIndex;
+				if (pSprite->mSpriteScanIndex >= (mParams->mSpritesMax - 2)) {
+					pSprite->mSpriteScanIndex = 0;
 					if (looped)
 						break;
 
 					looped = true;
 				}
-				Data28 = &mSprites[pSprite->field_5E];
+				Data28 = &mSprites[pSprite->mSpriteScanIndex];
 			};
 		}
 
@@ -222,10 +222,10 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
         }
 
     loc_1901C:;
-        pSprite->field_4A = 0;
-        pSprite->field_5E++;
-        if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
-			pSprite->field_5E = 0;
+        pSprite->mWeaponFireTimer = 0;
+        pSprite->mSpriteScanIndex++;
+        if (pSprite->mSpriteScanIndex >= (mParams->mSpritesMax - 2))
+			pSprite->mSpriteScanIndex = 0;
 
         goto loc_191C3;
 
@@ -245,11 +245,11 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
         pSprite->mWeaponTargetY = Data28->mPosY - 0x0E;
 
         // Fired Weapon?
-        if (pSprite->field_4A <= 0) {
+        if (pSprite->mWeaponFireTimer <= 0) {
             //loc_190B9
             Data0 = tool_RandomGet() & 0x0F;
             ++Data0;
-            pSprite->field_4A = Data0;
+            pSprite->mWeaponFireTimer = Data0;
 
             Data0 = tool_RandomGet() & 0x3F;
             if (Data0 == 0x2A)
@@ -282,7 +282,7 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
                         goto loc_19198;
                 }
             loc_1918C:;
-                pSprite->field_4A = 1;
+                pSprite->mWeaponFireTimer = 1;
                 goto loc_191BF;
             }
 
@@ -413,10 +413,10 @@ loc_193D6:;
     Sprite_Update_DirectionMod(pSprite);
 
     if (!pSprite->mTurnTowardEnemy) {
-        if (!pSprite->field_45)
+        if (!pSprite->mActionCooldown)
             goto loc_19424;
 
-        pSprite->field_45 -= 1;
+        pSprite->mActionCooldown -= 1;
         return;
     }
 
@@ -447,10 +447,10 @@ loc_1946D:;
     if (pSprite->mTurnTowardEnemy)
         goto loc_19403;
 
-    if (!pSprite->field_45)
+    if (!pSprite->mActionCooldown)
         goto loc_194A0;
 
-    pSprite->field_45 -= 1;
+    pSprite->mActionCooldown -= 1;
     goto loc_19414;
 
 loc_19490:;
@@ -514,9 +514,9 @@ void cFodder::Sprite_Handle_Enemy(sSprite* pSprite) {
     Sprite_Update_DirectionMod(pSprite);
     Sprite_Handle_Troop_Speed(pSprite);
 
-    if (pSprite->field_45) {
-        pSprite->field_45--;
-        if (pSprite->field_45)
+    if (pSprite->mActionCooldown) {
+        pSprite->mActionCooldown--;
+        if (pSprite->mActionCooldown)
             return;
     }
     Sprite_Draw_Row_Update(pSprite);
@@ -621,7 +621,7 @@ loc_1AF63:;
 }
 
 void cFodder::Sprite_Handle_Player_Shadow(sSprite* pSprite) {
-    sSprite* Data28 = pSprite->field_1A_sprite;
+    sSprite* Data28 = pSprite->mOwnerSprite;
     int16 Data0;
 
     if (Data28 != pSprite->mCurrentVehicle)
@@ -811,7 +811,7 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
         pSprite->mPosY = mMapLoaded->getHeightPixels();
 
     //loc_1E0A4
-    if (pSprite->field_56)
+    if (pSprite->mDelayCounter)
         goto loc_1E831;
 
     if (pSprite->mIsSinking == 1)
@@ -863,20 +863,20 @@ int16 cFodder::Sprite_Handle_Soldier_Animation(sSprite* pSprite) {
     Data28 = mSprite_AnimationPtrs[Data0];
     pSprite->mSheetIndex = Data28[(Data8 + 0x20) / 2];
 
-    if (pSprite->field_59)
+    if (pSprite->mDirectionOverride)
         pSprite->mSheetIndex = Data28[(Data8 + 0x10) / 2];
 
     //loc_1E1E9
     pSprite->mFrameIndex = 0;
     pSprite->field_2A = 0;
 
-    if (pSprite->field_1A < 0xB0000) {
+    if (pSprite->mFixedPoint < 0xB0000) {
         int32 Dataa0 = tool_RandomGet() & 0x07;
         Dataa0 += 2;
         Dataa0 = (Dataa0 << 16) | (Dataa0 >> 16);
-        Dataa0 += pSprite->field_1A;
+        Dataa0 += pSprite->mFixedPoint;
 
-        pSprite->field_1A = Dataa0;
+        pSprite->mFixedPoint = Dataa0;
     }
     //loc_1E232
     pSprite->field_12 = 2;
@@ -981,7 +981,7 @@ loc_1E3D2:;
         Data28 = mSprite_AnimationPtrs[pSprite->mPersonType];
         pSprite->mSheetIndex = Data28[(Data8 + 0x20) / 2];
 
-        if (pSprite->field_59)
+        if (pSprite->mDirectionOverride)
             pSprite->mSheetIndex = Data28[(Data8 + 0x10) / 2];
 
         // FIX: Added as only 2 frames exist for -most- sprites in mSprite_AnimationPtrs
@@ -1018,9 +1018,9 @@ loc_1E3D2:;
         }
     }
     //loc_1E5A7
-    Dataa4 = (int64)pSprite->field_1A;
+    Dataa4 = (int64)pSprite->mFixedPoint;
 
-    pSprite->mHeightFixed += pSprite->field_1A;
+    pSprite->mHeightFixed += pSprite->mFixedPoint;
 
     if (pSprite->mHeightFixed < 0) {
         pSprite->mHeightFixed = 0;
@@ -1035,7 +1035,7 @@ loc_1E3D2:;
     }
     //loc_1E619
     Dataa4 -= 0x18000;
-    pSprite->field_1A = Dataa4;
+    pSprite->mFixedPoint = Dataa4;
     if (pSprite->mSpeed) {
         pSprite->mSpeed -= 2;
 
@@ -1088,7 +1088,7 @@ loc_1E3D2:;
     pSprite->mAnimState = eSprite_Anim_Die2;
     pSprite->mDirection = pSprite->field_3E;
     pSprite->field_12 = 0;
-    pSprite->field_45 = 1;
+    pSprite->mActionCooldown = 1;
 
     return -1;
 
@@ -1118,7 +1118,7 @@ loc_1E74C:;
             pSprite->mAnimState = eSprite_Anim_Die2;
             pSprite->mDirection = pSprite->field_3E;
             pSprite->field_12 = 0;
-            pSprite->field_45 = 1;
+            pSprite->mActionCooldown = 1;
 
             goto loc_1E825;
         }
@@ -1134,7 +1134,7 @@ loc_1E825:;
     return -1;
 
 loc_1E831:;
-    if (pSprite->field_56 == 1) {
+    if (pSprite->mDelayCounter == 1) {
         pSprite->field_12 = 1;
         pSprite->mTargetY += 2;
     }
@@ -1191,7 +1191,7 @@ loc_1E831:;
 loc_1E9EC:; // Troop Falling?
     if (pSprite->field_12 < 0x0C) {
         pSprite->field_3E = 0;
-        pSprite->field_56 = 0;
+        pSprite->mDelayCounter = 0;
 
         return 0;
     }
@@ -1199,7 +1199,7 @@ loc_1E9EC:; // Troop Falling?
     pSprite->mAnimState = eSprite_Anim_Die2;
     pSprite->mDirection = pSprite->field_3E;
     pSprite->field_12 = 0;
-    pSprite->field_45 = 1;
+    pSprite->mActionCooldown = 1;
     return -1;
 
 loc_1EA3F:;
@@ -1226,7 +1226,7 @@ loc_1EA82:;
     Data28 = mSprite_AnimationPtrs[pSprite->mPersonType];
     pSprite->mSheetIndex = Data28[(Data8 + 0x20) / 2];
 
-    if (pSprite->field_59)
+    if (pSprite->mDirectionOverride)
         pSprite->mSheetIndex = Data28[(Data8 + 0x10) / 2];
 
     // FIX: Added as only 2 frames exist for all sprites in mSprite_AnimationPtrs
@@ -1272,7 +1272,7 @@ loc_1EB87:;
     Data28 = mSprite_AnimationPtrs[pSprite->mPersonType];
     pSprite->mSheetIndex = Data28[(Data8 + 0x20) / 2];
 
-    if (pSprite->field_59)
+    if (pSprite->mDirectionOverride)
         pSprite->mSheetIndex = Data28[(Data8 + 0x10) / 2];
 
     pSprite->mFrameIndex = 0;
@@ -1630,30 +1630,30 @@ void cFodder::Sprite_Handle_Troop_Weapon(sSprite* pSprite) {
     if (pSprite->mPersonType == eSprite_PersonType_Human) {
 
         // Fired Weapon?
-        if (!pSprite->field_4A)
+        if (!pSprite->mWeaponFireTimer)
             return;
 
         // Delay before weapon fires?
-        if (pSprite->field_4A >= 0) {
+        if (pSprite->mWeaponFireTimer >= 0) {
 
-            pSprite->field_4A--;
-            if (pSprite->field_4A)
+            pSprite->mWeaponFireTimer--;
+            if (pSprite->mWeaponFireTimer)
                 return;
         }
 
     }
     else {
         // No weapon firing?
-        if (!pSprite->field_4A)
+        if (!pSprite->mWeaponFireTimer)
             return;
 
-        if (pSprite->field_4A >= 0) {
+        if (pSprite->mWeaponFireTimer >= 0) {
 
-            pSprite->field_4A -= 1;
-            if (pSprite->field_4A)
+            pSprite->mWeaponFireTimer -= 1;
+            if (pSprite->mWeaponFireTimer)
                 return;
 
-            pSprite->field_4A = -1;
+            pSprite->mWeaponFireTimer = -1;
         }
     }
 
@@ -1695,12 +1695,12 @@ void cFodder::Sprite_Handle_Troop_Weapon(sSprite* pSprite) {
     if (!mTroop_Weapon_Bullet_Disabled) {
 
         if (Sprite_Create_Bullet(pSprite))
-            pSprite->field_4A = -1;
+            pSprite->mWeaponFireTimer = -1;
         else
-            pSprite->field_4A = 0;
+            pSprite->mWeaponFireTimer = 0;
 
         if (word_3AA1D != 2)
-            pSprite->field_45 = 0x0F;
+            pSprite->mActionCooldown = 0x0F;
     }
     mTroop_Weapon_Bullet_Disabled = false;
 
@@ -1708,12 +1708,12 @@ void cFodder::Sprite_Handle_Troop_Weapon(sSprite* pSprite) {
     if (!mTroop_Weapon_Grenade_Disabled) {
 
         if (!Sprite_Create_Grenade(pSprite))
-            pSprite->field_4A = 0;
+            pSprite->mWeaponFireTimer = 0;
         else
-            pSprite->field_4A = -1;
+            pSprite->mWeaponFireTimer = -1;
 
         if (word_3AA1D != 2)
-            pSprite->field_45 = 0x0C;
+            pSprite->mActionCooldown = 0x0C;
 
     }
     mTroop_Weapon_Grenade_Disabled = false;
@@ -1722,15 +1722,15 @@ void cFodder::Sprite_Handle_Troop_Weapon(sSprite* pSprite) {
     if (!mTroop_Weapon_Rocket_Disabled) {
 
         if (!Sprite_Create_Rocket(pSprite))
-            pSprite->field_4A = 0;
+            pSprite->mWeaponFireTimer = 0;
         else
-            pSprite->field_4A = -1;
+            pSprite->mWeaponFireTimer = -1;
 
         // 
-        if (pSprite->field_45 < 0x0A) {
+        if (pSprite->mActionCooldown < 0x0A) {
 
-            pSprite->field_45 += 5;
-            pSprite->field_44 = pSprite->field_45;
+            pSprite->mActionCooldown += 5;
+            pSprite->field_44 = pSprite->mActionCooldown;
         }
     }
     mTroop_Weapon_Rocket_Disabled = false;
@@ -1936,15 +1936,15 @@ loc_1F9C0:;
 
         if (Data0 != pSprite->mSheetIndex) {
             pSprite->mSheetIndex = Data0;
-            pSprite->field_55 = 0;
+            pSprite->mWeaponAnimTick = 0;
             pSprite->mFrameIndex = 0;
             return;
         }
         //loc_1FA93
-        pSprite->field_55++;
-        if (pSprite->field_55 != 2)
+        pSprite->mWeaponAnimTick++;
+        if (pSprite->mWeaponAnimTick != 2)
             return;
-        pSprite->field_55 = 0;
+        pSprite->mWeaponAnimTick = 0;
         pSprite->mFrameIndex++;
         mStoredSpriteFrame = pSprite->mFrameIndex;
 
@@ -1955,7 +1955,7 @@ loc_1F9C0:;
         pSprite->mFrameIndex = 0;
         pSprite->mFiredWeaponType = 0;
         pSprite->mTurnTowardEnemy = 0;
-        pSprite->field_55 = 0;
+        pSprite->mWeaponAnimTick = 0;
     }
 
 loc_1FB00:;
@@ -1965,20 +1965,20 @@ loc_1FB00:;
         Data0 = *(Data28 + Data8 + 0x38);
         if (Data0 != pSprite->mSheetIndex) {
             pSprite->mSheetIndex = Data0;
-            pSprite->field_55 = 0;
+            pSprite->mWeaponAnimTick = 0;
             pSprite->mFrameIndex = 0;
             return;
         }
         //loc_1FB5A
-        pSprite->field_55++;
-        if (pSprite->field_55 != 7)
+        pSprite->mWeaponAnimTick++;
+        if (pSprite->mWeaponAnimTick != 7)
             return;
 
-        pSprite->field_55 = 0;
+        pSprite->mWeaponAnimTick = 0;
         pSprite->mFrameIndex = 0;
         pSprite->mFiredWeaponType = 0;
         pSprite->mTurnTowardEnemy = 0;
-        pSprite->field_55 = 0;
+        pSprite->mWeaponAnimTick = 0;
     }
 
     // loc_1FBA4: If in water
@@ -2092,7 +2092,7 @@ void cFodder::Sprite_Create_Player_Shadow(sSprite* pSprite) {
     if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return;
 
-    Data2C->field_1A_sprite = pSprite;
+    Data2C->mOwnerSprite = pSprite;
     Data2C->mCurrentVehicle = pSprite;
 
     Data2C->mPosX = pSprite->mPosX;
@@ -2208,13 +2208,13 @@ int16 cFodder::Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C) {
     pData2C->mPosY = pSprite->mPosY;
     pData2C->mPosY += 4;
     pData2C->mSheetIndex = 0x7C;
-    pData2C->field_4A = 0;
+    pData2C->mWeaponFireTimer = 0;
     pData2C->mPersonType = eSprite_PersonType_AI;
 
     Data0 = tool_RandomGet() & 0xFF;
     Data0 += 0x78;
     Data0 = -Data0;
-    pData2C->field_5E = Data0;
+    pData2C->mSpriteScanIndex = Data0;
     Data0 = tool_RandomGet();
     int16 Data4 = Data0;
     Data0 &= 0x1E;

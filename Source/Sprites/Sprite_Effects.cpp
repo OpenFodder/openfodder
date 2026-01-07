@@ -375,7 +375,7 @@ void cFodder::Sprite_Handle_Text_GameOver(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Shadow(sSprite* pSprite) {
-    sSprite* Data28 = pSprite->field_1A_sprite;
+    sSprite* Data28 = pSprite->mOwnerSprite;
 
     if (Data28->mSpriteType == eSprite_Explosion) {
         Sprite_Destroy_Wrapper(pSprite);
@@ -629,7 +629,7 @@ void cFodder::Sprite_Create_Shadow(sSprite* pSprite) {
     if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return;
 
-    Data2C->field_1A_sprite = pSprite;
+    Data2C->mOwnerSprite = pSprite;
 
     Data2C->mPosX = pSprite->mPosX;
     Data2C->mPosXFrac = pSprite->mPosXFrac;

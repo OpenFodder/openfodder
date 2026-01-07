@@ -193,8 +193,8 @@ int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
     if (Dataa0 > 0xE0000)
         Dataa0 = 0xE0000;
 
-    Data2C->field_1A = Dataa0;
-    Data2C->field_1A = 0;
+    Data2C->mFixedPoint = Dataa0;
+    Data2C->mFixedPoint = 0;
     Data2C->mSpriteType = eSprite_Grenade;
     Data30->mSpriteType = eSprite_ShadowSmall;
 
@@ -259,7 +259,7 @@ int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, 
         return 0;
 
     //seg005:5672
-    pData2C->field_1A_sprite = pData34;
+    pData2C->mOwnerSprite = pData34;
     pData2C->mHeightFrac = pSprite->mHeightFrac;
     pData2C->mHeight = pSprite->mHeight;
     pData2C->mTargetX = pSprite->mWeaponTargetX;
@@ -310,11 +310,11 @@ void cFodder::Sprite_Handle_Grenade(sSprite* pSprite) {
     if (!pSprite->field_12)
         goto loc_1992D;
 
-    if (!pSprite->field_56)
+    if (!pSprite->mDelayCounter)
         goto loc_19701;
 
-    --pSprite->field_56;
-    if (!pSprite->field_56) {
+    --pSprite->mDelayCounter;
+    if (!pSprite->mDelayCounter) {
         // HACK: Disable grenade sound for cannon plus... it seems corrupted and causes a crash
         if (!mVersionCurrent->isCoverDisk())
             Sound_Play(pSprite, eSound_Effect_Grenade, 0x0F);
@@ -368,17 +368,17 @@ loc_19701:;
         }
     }
     //loc_197EA
-    a1 = (int16)(((int64)pSprite->field_1A) >> 16);
+    a1 = (int16)(((int64)pSprite->mFixedPoint) >> 16);
 
     if (a1 < 0)
         if (a1 < -8)
-            pSprite->field_1A = (((int32)pSprite->field_1A & 0xFFFF) | -0x80000);
+            pSprite->mFixedPoint = (((int32)pSprite->mFixedPoint & 0xFFFF) | -0x80000);
 
-    Dataa4 = pSprite->field_1A;
+    Dataa4 = pSprite->mFixedPoint;
     Dataa4 -= 0x18000;
 
-    pSprite->field_1A = Dataa4;
-    Dataa4 = pSprite->field_1A;
+    pSprite->mFixedPoint = Dataa4;
+    Dataa4 = pSprite->mFixedPoint;
 
     if (!pSprite->field_50)
         goto loc_19877;
@@ -410,10 +410,10 @@ loc_19877:;
         if (pSprite->field_50)
             goto loc_19855;
 
-        Dataa4 = (int64)pSprite->field_1A;
+        Dataa4 = (int64)pSprite->mFixedPoint;
         Dataa4 = -Dataa4;
         Dataa4 >>= 1;
-        pSprite->field_1A = Dataa4;
+        pSprite->mFixedPoint = Dataa4;
     }
 
 loc_198D3:;
@@ -461,8 +461,8 @@ void cFodder::Sprite_Handle_Bullet(sSprite* pSprite) {
     if (!pSprite->field_2A)
         goto loc_19BA8;
 
-    Data0 = pSprite->field_1A_sprite->mPosX;
-    Data4 = pSprite->field_1A_sprite->mPosY;
+    Data0 = pSprite->mOwnerSprite->mPosX;
+    Data4 = pSprite->mOwnerSprite->mPosY;
 
     Data0 += pSprite->mProjectileOffsetX;
     Data4 += pSprite->mProjectileOffsetY;
@@ -479,8 +479,8 @@ void cFodder::Sprite_Handle_Bullet(sSprite* pSprite) {
     if (pSprite->mPersonType != eSprite_PersonType_Human)
         pSprite->mFrameIndex = 3;
 
-    Data0 = pSprite->field_1A_sprite->mPosX;
-    Data4 = pSprite->field_1A_sprite->mPosY;
+    Data0 = pSprite->mOwnerSprite->mPosX;
+    Data4 = pSprite->mOwnerSprite->mPosY;
     Data0 += 7;
     Data4 += 5;
     pSprite->mPosX = Data0;
@@ -501,7 +501,7 @@ loc_19BA8:;
 
     Sprite_XY_Store(pSprite);
 
-    if (pSprite->field_59)
+    if (pSprite->mDirectionOverride)
         goto loc_19C6B;
 
     Data0 = pSprite->mWeaponTargetX;
@@ -513,12 +513,12 @@ loc_19BA8:;
     if (Data0) {
         pSprite->mDirection += Data0;
         pSprite->mDirection &= 0x1FE;
-        pSprite->field_59 = -1;
+        pSprite->mDirectionOverride = -1;
     }
     //loc_19C4D
 
-    if (pSprite->field_34 < 0) {
-        pSprite->field_34 = pSprite->mDirection;
+    if (pSprite->mInitialDirection < 0) {
+        pSprite->mInitialDirection = pSprite->mDirection;
     }
 
 loc_19C6B:;
@@ -526,9 +526,9 @@ loc_19C6B:;
     Sprite_Movement_Calculate(pSprite);
     if (mSprite_Bullet_Destroy)
         goto SpriteDestroy;
-    pSprite->mSpeed = pSprite->field_4A;
+    pSprite->mSpeed = pSprite->mWeaponFireTimer;
 
-    if (pSprite->field_59)
+    if (pSprite->mDirectionOverride)
         goto loc_19D3C;
 
     Data0 = pSprite->mPosX;
@@ -636,10 +636,10 @@ loc_19E50:;
 void cFodder::Sprite_Handle_Rocket(sSprite* pSprite) {
     sSprite* Data24 = 0;
 
-    if (pSprite->field_56) {
+    if (pSprite->mDelayCounter) {
 
-        pSprite->field_56 -= 1;
-        if (!pSprite->field_56) {
+        pSprite->mDelayCounter -= 1;
+        if (!pSprite->mDelayCounter) {
             if (mVersionCurrent->isCoverDisk())
                 Sound_Play(pSprite, 0x10, 0x0F);
             else
@@ -721,7 +721,7 @@ void cFodder::Sprite_Handle_Enemy_Rocket(sSprite* pSprite) {
 
     pSprite->mFiredWeaponType = 3;
     pSprite->mTurnTowardEnemy = -1;
-    pSprite->field_55 = 0;
+    pSprite->mWeaponAnimTick = 0;
     pSprite->mFrameIndex = 0;
 
     Sprite_Handle_Troop_Direct_TowardWeaponTarget_WithRestore(pSprite);
@@ -843,7 +843,7 @@ void cFodder::Sprite_Handle_MissileHoming(sSprite* pSprite) {
     Sprite_Create_FireTrail(pSprite);
 
     pSprite->mSheetIndex = 0xA3;
-    Data34 = pSprite->field_1A_sprite;
+    Data34 = pSprite->mOwnerSprite;
 
     if (!Data34 || Data34->mPosX == -32768) {
         pSprite->mSpeed += 2;
@@ -960,7 +960,7 @@ MissileExplode:;
 
 void cFodder::Sprite_Handle_Sparks(sSprite* pSprite) {
     Sprite_Movement_Calculate(pSprite);
-    int32 Data0 = (int32)pSprite->field_1A;
+    int32 Data0 = (int32)pSprite->mFixedPoint;
 
     Data0 += pSprite->mHeightFrac;
 
@@ -973,7 +973,7 @@ void cFodder::Sprite_Handle_Sparks(sSprite* pSprite) {
     }
 
     Data0 -= 0x22000;
-    pSprite->field_1A = Data0;
+    pSprite->mFixedPoint = Data0;
 
     Data0 = Data0 >> 16;
     if (!pSprite->mFrameIndex)
@@ -1255,7 +1255,7 @@ int16 cFodder::Sprite_Create_Bullet(sSprite* pSprite) {
 
     Data0 = mSprite_Weapon_Data.mSpeed;
     Data0 += mSprite_Bullet_Fire_Speed_Modifier;
-    Data2C->field_4A = Data0;
+    Data2C->mWeaponFireTimer = Data0;
 
     Data0 = tool_RandomGet() & 0x0F;
     Data0 <<= 3;
@@ -1266,7 +1266,7 @@ loc_2087D:;
     // AI Fire Speed
     Data0 = 0x3C;
     Data0 += pSprite->mAIAggression;
-    Data2C->field_4A = Data0;
+    Data2C->mWeaponFireTimer = Data0;
     Data2C->mSpeed = 0x18;
 
 loc_208A6:;
@@ -1282,7 +1282,7 @@ loc_208A6:;
     Data2C->mRowsToSkip = 0;
     Data2C->field_3A = 0;
 
-    Data2C->field_1A_sprite = pSprite;
+    Data2C->mOwnerSprite = pSprite;
     Data2C->field_2A = 2;
     Data2C->mProjectileOffsetX = 0;
     Data2C->mProjectileOffsetY = 2;
@@ -1290,9 +1290,9 @@ loc_208A6:;
     if (Data2C->mFrameIndex == 4)
         Data2C->mProjectileOffsetY = -1;
 
-    Data2C->field_34 = -1;
+    Data2C->mInitialDirection = -1;
     Data2C->field_50 = 0;
-    Data2C->field_59 = 0;
+    Data2C->mDirectionOverride = 0;
     Data8 = 7;
 
     // Is Human?
@@ -1389,7 +1389,7 @@ loc_20B0A:;
 loc_20B6E:;
 
     ++mSprite_Projectile_Counters[pSprite->mPersonType];
-    pSprite->field_55 = 1;
+    pSprite->mWeaponAnimTick = 1;
     pSprite->mTurnTowardEnemy = -1;
     pSprite->mFiredWeaponType = 1;
 
@@ -1448,7 +1448,7 @@ loc_20B6E:;
     if (Dataa0 > 0x0E0000)
         Dataa0 = 0x0E0000;
 
-    Data2C->field_1A = Dataa0;
+    Data2C->mFixedPoint = Dataa0;
     Data2C->mSpriteType = eSprite_Grenade;
     Data30->mSpriteType = eSprite_ShadowSmall;
     Data2C->mRowsToSkip = 0;
@@ -1462,7 +1462,7 @@ loc_20B6E:;
     Data2C->mAnimState = eSprite_Anim_None;
     if (pSprite->mSpriteType == eSprite_Enemy)
         Data2C->field_12 += 0x1C;
-    Data2C->field_56 = 4;
+    Data2C->mDelayCounter = 4;
     Data2C->mSourceSprite = pSprite;
 
     if (pSprite == mSquad_Leader)
@@ -1557,7 +1557,7 @@ int16 cFodder::Sprite_Projectile_Collision_Check(sSprite* pSprite) {
     if (Data24->mSpriteType == eSprite_Enemy) {
 
 		Data24->field_5E_Squad = pSprite->field_5E_Squad;
-        Data24->field_5E = pSprite->field_5E;
+        Data24->mSpriteScanIndex = pSprite->mSpriteScanIndex;
         Data24->mHasKillerTroop = pSprite->mHasKillerTroop;
     }
 
@@ -1598,7 +1598,7 @@ void cFodder::Sprite_Create_Sparks(sSprite* pSprite, int16 pData18) {
     Data2C->mAnimState = eSprite_Anim_None;
 
     Data2C->mDirection = pData18;
-    Data2C->field_1A = 0x0A8000;
+    Data2C->mFixedPoint = 0x0A8000;
 
 }
 
@@ -1685,7 +1685,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     }
 
     ++mSprite_Missile_Projectile_Counters[pSprite->mPersonType];
-    pSprite->field_55 = 1;
+    pSprite->mWeaponAnimTick = 1;
     pSprite->mTurnTowardEnemy = -1;
     pSprite->mFiredWeaponType = 3;
     Data30 = Data2C;
@@ -1727,7 +1727,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
         // Within lock on range?
         if (Sprite_Homing_LockInRange(pSprite, Data34)) {
 
-            Data2C->field_1A_sprite = Data34;
+            Data2C->mOwnerSprite = Data34;
             Data2C->mSpriteType = eSprite_MissileHoming2;
             Data2C->mHomingAccelFixed = 0x10000;
             Data2C->mTargetX = pSprite->mWeaponTargetX;
@@ -1758,7 +1758,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     Data2C->field_32 = pSprite->field_32;
     Data2C->mDrawOrder = eSprite_Draw_Second;
     Data30->mDrawOrder = eSprite_Draw_First;
-    Data2C->field_56 = 6;
+    Data2C->mDelayCounter = 6;
 
     if (pSprite == mSquad_Leader)
         mMouse_Button_LeftRight_Toggle = false;

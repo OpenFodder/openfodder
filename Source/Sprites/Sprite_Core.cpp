@@ -301,8 +301,8 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
     mSprite_Find_Types[3] = pDataC;
     mSprite_Find_Types[4] = pData10;
 
-	// Check if Sprite @ field_5E sprite is one of the types
-	pData28 = &mSprites[pSprite->field_5E];
+	// Check if Sprite @ mSpriteScanIndex sprite is one of the types
+	pData28 = &mSprites[pSprite->mSpriteScanIndex];
 
 	// The original engine checks 1 sprite per cycle, and we have a max of 43 sprites to check
 	// Meaning it takes 43 cycles to check all sprites, including empty sprite slots
@@ -316,10 +316,10 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
 		// 
 		do {
 		NextSprite2:;
-			pData28 = &mSprites[pSprite->field_5E];
+			pData28 = &mSprites[pSprite->mSpriteScanIndex];
 
-			if (pSprite->field_5E >= (mParams->mSpritesMax - 2)) {
-				pSprite->field_5E = 0;
+			if (pSprite->mSpriteScanIndex >= (mParams->mSpritesMax - 2)) {
+				pSprite->mSpriteScanIndex = 0;
 				if (Looped == true)
 					return -1;
 
@@ -328,7 +328,7 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
 			}
 
 			if (pData28->mPosX == -32768) {
-				++pSprite->field_5E;
+				++pSprite->mSpriteScanIndex;
 				continue;
 			}
 
@@ -336,7 +336,7 @@ int16 cFodder::Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pDat
 			do {
 				pData0 = *Data2C++;
 				if (pData0 < 0) {
-					++pSprite->field_5E;
+					++pSprite->mSpriteScanIndex;
 					goto NextSprite2;
 				}
 			} while (pData0 != pData28->mSpriteType);
@@ -384,9 +384,9 @@ loc_2439F:;
         goto FoundSprite;
 
 NextSprite:;
-    pSprite->field_5E++;
-    if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
-        pSprite->field_5E = 0;
+    pSprite->mSpriteScanIndex++;
+    if (pSprite->mSpriteScanIndex >= (mParams->mSpritesMax - 2))
+        pSprite->mSpriteScanIndex = 0;
 
     goto loc_243DD;
 FoundSprite:;
@@ -414,10 +414,10 @@ void cFodder::Sprite_Handle_Computer(sSprite* pSprite, int16 pData1C) {
     Data0 <<= 8;
     bool of = false;
 
-    if (((uint16)pSprite->field_5E) + Data0 > 0xFFFF)
+    if (((uint16)pSprite->mComputerAnimAccumulator) + Data0 > 0xFFFF)
         of = true;
 
-    pSprite->field_5E += Data0;
+    pSprite->mComputerAnimAccumulator += Data0;
     if (of)
         return;
 
@@ -808,14 +808,14 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
         pData8 += 0x368;
         pDataC += 0x468;
 
-        pData24->field_59 = 0;
+        pData24->mDirectionOverride = 0;
         if (pData8 < Data0)
             goto loc_2D6D2;
 
         if (pDataC > Data0)
             goto loc_2D6D2;
 
-        pData24->field_59 = -1;
+        pData24->mDirectionOverride = -1;
 
     loc_2D6D2:;
         if (pData8 < Data4)
@@ -824,7 +824,7 @@ int16 cFodder::Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 
         if (pDataC > Data4)
             goto loc_2D6ED;
 
-        pData24->field_59 = -1;
+        pData24->mDirectionOverride = -1;
 
     loc_2D6ED:;
         mSprites_Found_Count = -1;
@@ -1288,12 +1288,12 @@ void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
         if (pSprite->mPersonType == eSprite_PersonType_Native)
             goto loc_20251;
 
-        ++pSprite->field_56;
+        ++pSprite->mDelayCounter;
         return;
     }
 
     //loc_20072
-    pSprite->field_56 = 0;
+    pSprite->mDelayCounter = 0;
     if (pData4 == eTerrainFeature_QuickSandEdge)
         goto loc_201CC;
 
@@ -1500,7 +1500,7 @@ loc_2035C:;
     }
 
     pSprite->mNextWalkTargetIndex = pData4;
-    pSprite->field_4C = -1;
+    pSprite->mRetargetCooldown = -1;
 }
 
 void cFodder::Sprite_Reached_MapEdge(sSprite* pSprite) {
@@ -1807,7 +1807,7 @@ loc_2132A:;
 
     Sprite_Movement_Calculate(pSprite);
 
-    Dat0 = (int64)pSprite->field_1A;
+    Dat0 = (int64)pSprite->mFixedPoint;
     Dat4 = (pSprite->mHeightFrac & 0xFFFF) | (pSprite->mHeight << 16);
 
     Dat0 -= 0x28000;
@@ -1819,7 +1819,7 @@ loc_2132A:;
         Dat0 >>= 2;
     }
 
-    pSprite->field_1A = (int32)Dat0;
+    pSprite->mFixedPoint = (int32)Dat0;
     pSprite->mHeightFixed = Dat4;
 
     if (!(Dat4 >> 16)) {
@@ -1866,7 +1866,7 @@ loc_213F7:;
     Data0 += 0x14;
 
     pSprite->mSpeed = Data0;
-    pSprite->field_1A = 0x1C0000;
+    pSprite->mFixedPoint = 0x1C0000;
     Sprite_Create_Shadow(pSprite);
     return;
 
@@ -2103,7 +2103,7 @@ void cFodder::Sprite_Update_Follower_Target(sSprite* pSprite) {
 
         pSprite->mTargetX = pSprite->mPosX;
         pSprite->mTargetY = pSprite->mPosY;
-        pSprite->field_4A = 0;
+        pSprite->mWeaponFireTimer = 0;
 
         pSprite->field_5E_Squad += 1;
         if (pSprite->field_5E_Squad > 0x1E)
@@ -2183,7 +2183,7 @@ loc_22125:;
 
 void cFodder::Sprite_Reset_Move_Timer(sSprite* pSprite) {
 
-    if (pSprite->field_4A)
+    if (pSprite->mWeaponFireTimer)
         return;
 
     int16 Data0 = tool_RandomGet();
@@ -2204,7 +2204,7 @@ void cFodder::Sprite_Reset_Move_Timer(sSprite* pSprite) {
     if (Data0 < 5)
         Data0 = 5;
 
-    pSprite->field_4A = Data0;
+    pSprite->mWeaponFireTimer = Data0;
 }
 
 

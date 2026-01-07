@@ -93,7 +93,7 @@ void cFodder::Map_Count_Sprites()
         {
 
             ++HumanCount;
-            Sprite.field_4A = 0;
+            Sprite.mWeaponFireTimer = 0;
         }
         else
         {
@@ -113,7 +113,7 @@ void cFodder::Map_Count_Sprites()
             if (Sprite.mAIAggression > 4)
                 dword_37ABC = 0;
 
-            Sprite.field_4A = dword_37ABC;
+            Sprite.mWeaponFireTimer = dword_37ABC;
         }
     }
 }

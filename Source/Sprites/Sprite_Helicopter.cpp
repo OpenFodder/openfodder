@@ -321,20 +321,20 @@ void cFodder::Sprite_Handle_Helicopter_Enemy(sSprite* pSprite) {
     }
 
     if (!pSprite->field_43) {
-        pSprite->field_46 = (pSprite->mPosX << 16) | (pSprite->mPosY & 0xFFFF);
+        pSprite->mHomePosPacked = (pSprite->mPosX << 16) | (pSprite->mPosY & 0xFFFF);
         pSprite->field_43 = -1;
     }
 
-    if (pSprite->field_4C)
-        --pSprite->field_4C;
+    if (pSprite->mRetargetCooldown)
+        --pSprite->mRetargetCooldown;
 
     if (pSprite->mHeight)
         goto loc_250D2;
 
     Data0 = pSprite->mPosX;
     Data4 = pSprite->mPosY;
-    Data8 = ((int64)pSprite->field_46) >> 16;
-    DataC = ((int64)pSprite->field_46) & 0xFFFF;
+    Data8 = ((int64)pSprite->mHomePosPacked) >> 16;
+    DataC = ((int64)pSprite->mHomePosPacked) & 0xFFFF;
 
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 > 0x14)
@@ -368,7 +368,7 @@ loc_24FF1:;
     goto loc_25239;
 
 loc_2500F:;
-    if (pSprite->field_4C)
+    if (pSprite->mRetargetCooldown)
         goto loc_25239;
 
 	Data0 = map_GetRandomX();
@@ -398,7 +398,7 @@ loc_2500F:;
 
     pSprite->mTargetX = Data10;
     pSprite->mTargetY = Data14;
-    pSprite->field_4C = 0x5A;
+    pSprite->mRetargetCooldown = 0x5A;
     goto loc_25239;
 
 loc_250D2:;
@@ -447,8 +447,8 @@ loc_251D2:;
         --pSprite->mAIAggression;
     }
     else {
-        pSprite->mTargetX = ((int64)pSprite->field_46) >> 16;
-        pSprite->mTargetY = ((int64)pSprite->field_46) & 0xFFFF;
+        pSprite->mTargetX = ((int64)pSprite->mHomePosPacked) >> 16;
+        pSprite->mTargetY = ((int64)pSprite->mHomePosPacked) & 0xFFFF;
         goto loc_25239;
     }
 
@@ -636,7 +636,7 @@ loc_19EE5:;
     if (pSprite->mTargetX != 0x7171) {
 
         pSprite->mTargetX = 0x7171;
-        pSprite->field_1A = 0x10000;
+        pSprite->mFixedPoint = 0x10000;
 
         Data0 = tool_RandomGet() & 0x0F;
         Data0 += 0x13;
@@ -650,8 +650,8 @@ loc_19EE5:;
     Sprite_Create_Smoke(pSprite, Data2C);
     Sprite_Movement_Calculate(pSprite);
 
-    pSprite->field_1A = (((int64)pSprite->field_1A) + 0x2000);
-    Data0 = ((int64)pSprite->field_1A) >> 16;
+    pSprite->mFixedPoint = (((int64)pSprite->mFixedPoint) + 0x2000);
+    Data0 = ((int64)pSprite->mFixedPoint) >> 16;
     pSprite->mFrameIndex += Data0;
     pSprite->mFrameIndex &= 0x0F;
     pSprite->field_2A -= 1;

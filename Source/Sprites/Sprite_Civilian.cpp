@@ -41,9 +41,9 @@ void cFodder::Sprite_Handle_Civilian_Unk(sSprite* pSprite) {
 void cFodder::Sprite_Handle_Civilian_Movement(sSprite* pSprite) {
 
     // Destination change cool down
-    if (pSprite->field_4C) {
-        pSprite->field_4C -= 1;
-        if (pSprite->field_4C)
+    if (pSprite->mRetargetCooldown) {
+        pSprite->mRetargetCooldown -= 1;
+        if (pSprite->mRetargetCooldown)
             return;
     }
 
@@ -59,7 +59,7 @@ void cFodder::Sprite_Handle_Civilian_Movement(sSprite* pSprite) {
     // Random time until destination change
     int16 Data0 = tool_RandomGet() & 0x3F;
     Data0 += 0x14;
-    pSprite->field_4C = static_cast<int8>(Data0);
+    pSprite->mRetargetCooldown = static_cast<int8>(Data0);
 }
 
 int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprite) {
@@ -67,8 +67,8 @@ int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprit
     if (!mSprite_OpenCloseDoor_Ptr)
         return -1;
 
-    if (pSprite->field_4C) {
-        --pSprite->field_4C;
+    if (pSprite->mRetargetCooldown) {
+        --pSprite->mRetargetCooldown;
         return 0;
     }
 
@@ -117,7 +117,7 @@ int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprit
     pSprite->mTargetY = pSprite->mPosY;
     pSprite->mTargetX -= 0x10;
     pSprite->mTargetY -= 0x20;
-    pSprite->field_4C = 0x1E;
+    pSprite->mRetargetCooldown = 0x1E;
 
     return 0;
 }
@@ -287,9 +287,9 @@ void cFodder::Sprite_Hostage_Update_IdleFrame(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Advance_SearchIndex(sSprite* pSprite) {
-    ++pSprite->field_5E;
-    if (pSprite->field_5E >= (mParams->mSpritesMax - 2))
-		pSprite->field_5E = 0;
+    ++pSprite->mSpriteScanIndex;
+    if (pSprite->mSpriteScanIndex >= (mParams->mSpritesMax - 2))
+		pSprite->mSpriteScanIndex = 0;
 }
 
 void cFodder::Sprite_CivilianDoor_SpawnUpdate(sSprite* pSprite) {
@@ -398,7 +398,7 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
     Data0 = 0x32;
     Data0 += pSprite->mAIAggression;
 
-    Data2C->field_4A = Data0;
+    Data2C->mWeaponFireTimer = Data0;
     Data2C->mSpeed = 0x18;
     Data2C->field_43 = 0;
     Data2C->field_44 = 0;
@@ -407,7 +407,7 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
     Data2C->mWeaponTargetX += 7;
     Data2C->mRowsToSkip = 0;
     Data2C->field_3A = 0;
-    Data2C->field_1A_sprite = pSprite;
+    Data2C->mOwnerSprite = pSprite;
     Data2C->field_2A = 2;
     Data2C->mProjectileOffsetX = 0;
     Data2C->mProjectileOffsetY = 2;
@@ -415,9 +415,9 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
     if (Data2C->mFrameIndex == 4)
         Data2C->mProjectileOffsetY = -1;
 
-    Data2C->field_34 = -1;
+    Data2C->mInitialDirection = -1;
     Data2C->field_50 = 0;
-    Data2C->field_59 = 0;
+    Data2C->mDirectionOverride = 0;
 
     int16 Data8 = 7;
     Data0 = tool_RandomGet();
@@ -476,7 +476,7 @@ void cFodder::Sprite_Handle_Hostage_Movement(sSprite* pSprite) {
     // Distance to rescue tent < 127?
     Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
     if (Data10 < 0x7F)
-        pSprite->field_5E = (int16)(mHostage_Rescue_Tent - mSprites.data());
+        pSprite->mRescueTentIndex = (int16)(mHostage_Rescue_Tent - mSprites.data());
 
 loc_2608B:;
     word_3B2ED = 0;
@@ -621,7 +621,7 @@ loc_263E5:;
 }
 
 void cFodder::Sprite_Handle_Hostage_FrameUpdate2(sSprite* pSprite) {
-    int16 Data0 = pSprite->field_4A;
+    int16 Data0 = pSprite->mWeaponFireTimer;
 
     pSprite->field_2A += 1;
     pSprite->field_2A &= 1;
@@ -630,7 +630,7 @@ void cFodder::Sprite_Handle_Hostage_FrameUpdate2(sSprite* pSprite) {
 
     Data0 &= 6;
 
-    pSprite->field_4A = Data0;
+    pSprite->mWeaponFireTimer = Data0;
     pSprite->mFrameIndex = mSprite_Hostage_Frames[Data0 / 2];
 
 }
@@ -674,7 +674,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
     pData2C->mPosY = pSprite->mPosY;
     pData2C->mPosY += 4;
     pData2C->mSheetIndex = 0x7C;
-    pData2C->field_4A = 0;
+    pData2C->mWeaponFireTimer = 0;
     pData2C->mPersonType = eSprite_PersonType_Native;
 
     Data0 = tool_RandomGet();
@@ -987,7 +987,7 @@ void cFodder::Sprite_Handle_Civilian_Spear2(sSprite* pSprite) {
     Sprite_XY_Store(pSprite);
     Data1C = pSprite->mDirection;
 
-    if (pSprite->field_59)
+    if (pSprite->mDirectionOverride)
         goto loc_1CF3E;
 
     Data0 = pSprite->mWeaponTargetX;
@@ -999,19 +999,19 @@ void cFodder::Sprite_Handle_Civilian_Spear2(sSprite* pSprite) {
     if (Data0) {
         pSprite->mDirection += Data0;
         pSprite->mDirection &= 0x1FE;
-        pSprite->field_59 = -1;
+        pSprite->mDirectionOverride = -1;
     }
 
-    if (pSprite->field_34 < 0)
-        pSprite->field_34 = pSprite->mDirection;
+    if (pSprite->mInitialDirection < 0)
+        pSprite->mInitialDirection = pSprite->mDirection;
 
 loc_1CF3E:;
     Sprite_Movement_Calculate(pSprite);
     if (mSprite_Bullet_Destroy)
         goto loc_1D17A;
 
-    pSprite->mSpeed = pSprite->field_4A;
-    if (pSprite->field_59)
+    pSprite->mSpeed = pSprite->mWeaponFireTimer;
+    if (pSprite->mDirectionOverride)
         goto loc_1D00F;
 
     Data0 = pSprite->mPosX;
@@ -1156,7 +1156,7 @@ void cFodder::Sprite_Handle_Hostage(sSprite* pSprite) {
     Data24 = pSprite + 1;
 
     //seg004:4505
-    if (pSprite->field_5E) {
+    if (pSprite->mRescueTentIndex) {
         Data24->mSpriteType = eSprite_Null;
         Data24->mSheetIndex = 0x7C;
         Data24->mFrameIndex = 0;
@@ -1190,7 +1190,7 @@ void cFodder::Sprite_Handle_Hostage(sSprite* pSprite) {
 
 loc_1D349:;
     pSprite->mAnimState = eSprite_Anim_None;
-    sSprite* Data28 = &mSprites[pSprite->field_5E];
+    sSprite* Data28 = &mSprites[pSprite->mRescueTentIndex];
     if (Data28->mInVehicle)
         goto loc_1D44C;
 
