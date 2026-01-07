@@ -33,6 +33,7 @@
 #include <cassert>
 #include <map>
 #include <mutex>
+#include <cmath>
 
 #include <SDL3/SDL.h>
 #ifdef EMSCRIPTEN

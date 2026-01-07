@@ -21,7 +21,6 @@
  */
 
 #include "stdafx.hpp"
-#include <cmath>
 
 #ifdef WIN32
 #include <windows.h>
