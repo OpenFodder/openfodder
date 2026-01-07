@@ -31,15 +31,15 @@ void cFodder::Sprite_Find_HumanVehicles() {
 
     for(auto& Sprite : mSprites) {
 
-        if (Sprite.field_0 == -32768)
+        if (Sprite.mPosX == -32768)
             continue;
 
         // Is not Human?
-        if (Sprite.field_22 != eSprite_PersonType_Human)
+        if (Sprite.mPersonType != eSprite_PersonType_Human)
             continue;
 
         // Not Enabled?
-        if (!Sprite.field_65)
+        if (!Sprite.mVehicleEnabled)
             continue;
 
         mSprites_HumanVehicles.push_back(&Sprite);
@@ -58,19 +58,19 @@ void cFodder::Sprites_HumanVehicles_Remove(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Player_Enter_Vehicle(sSprite* pSprite) {
     // Have a target vehicle?
-    if (!pSprite->field_66)
+    if (!pSprite->mVehicleWalkTarget)
         return;
 
-    sSprite* Vehicle = pSprite->field_66;
+    sSprite* Vehicle = pSprite->mVehicleWalkTarget;
 
-    int16 VehicleX = Vehicle->field_0 + 0x10;
+    int16 VehicleX = Vehicle->mPosX + 0x10;
 
-    if (Vehicle->field_6F == eVehicle_Turret_Cannon || Vehicle->field_6F == eVehicle_Turret_Missile)
+    if (Vehicle->mVehicleType == eVehicle_Turret_Cannon || Vehicle->mVehicleType == eVehicle_Turret_Missile)
         VehicleX -= 0x0C;
 
-    int16 VehicleY = Vehicle->field_4 - 9;
-    int16 SoldierX = pSprite->field_0 + 4;
-    int16 SoldierY = pSprite->field_4;
+    int16 VehicleY = Vehicle->mPosY - 9;
+    int16 SoldierX = pSprite->mPosX + 4;
+    int16 SoldierY = pSprite->mPosY;
 
     // Is the sprite close enough to enter the vehicle?
     int16 Distance = 0x1F;
@@ -78,8 +78,8 @@ void cFodder::Sprite_Handle_Player_Enter_Vehicle(sSprite* pSprite) {
         return;
 
     // Enter the vehicle
-    pSprite->field_6A_sprite = Vehicle;
-    pSprite->field_6E = -1;
+    pSprite->mCurrentVehicle = Vehicle;
+    pSprite->mInVehicle = -1;
     sSprite* Data20 = 0;
 
     Squad_UpdateLeader(Data20);
@@ -98,9 +98,9 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite) {
     int16 Data4, Data0;
     int32 Dataa0;
 
-    pSprite->field_50 = pSprite->field_52;
+    pSprite->field_50 = pSprite->mRowsToSkip;
     if (!pSprite->field_50)
-        pSprite->field_52 = 0;
+        pSprite->mRowsToSkip = 0;
 
     if (Map_Sprite_Check_Around_Position(pSprite))
         goto Computer_Vehicle_SoftTerrain;
@@ -109,7 +109,7 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite) {
     Data0 = -10;
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
 
-    pSprite->field_60 = static_cast<int8>(Data4);
+    pSprite->mTerrainType = static_cast<int8>(Data4);
     if (Data4 == eTerrainFeature_Rocky || Data4 == eTerrainFeature_Rocky2)
         goto loc_23056;
 
@@ -123,12 +123,12 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite) {
         goto loc_22F06;
 
     if (pSprite->field_56)
-        pSprite->field_38 = eSprite_Anim_Die1;
+        pSprite->mAnimState = eSprite_Anim_Die1;
 
     if (Data4 == eTerrainFeature_Snow)
         goto loc_22FA3;
 
-    if (pSprite->field_22 == eSprite_PersonType_Human)
+    if (pSprite->mPersonType == eSprite_PersonType_Human)
         goto Human_Vehicle;
 
     if (Data4 == eTerrainFeature_QuickSand || Data4 == eTerrainFeature_WaterEdge
@@ -149,7 +149,7 @@ Human_Vehicle:;
         goto AnimDie3;
 
 loc_22EEB:;
-    pSprite->field_52 = 0;
+    pSprite->mRowsToSkip = 0;
     if (pSprite->field_50)
         goto loc_23056;
 
@@ -158,113 +158,113 @@ loc_22EEB:;
 loc_22F06:;
     pSprite->field_56 += 4;
     Data0 = pSprite->field_56;
-    pSprite->field_4 += Data0;
+    pSprite->mPosY += Data0;
     return;
 
 Computer_Vehicle_SoftTerrain:;
 
-    if (pSprite->field_22 != eSprite_PersonType_Human) {
-        pSprite->field_26 = pSprite->field_0;
-        pSprite->field_28 = pSprite->field_4;
+    if (pSprite->mPersonType != eSprite_PersonType_Human) {
+        pSprite->mTargetX = pSprite->mPosX;
+        pSprite->mTargetY = pSprite->mPosY;
     }
     //loc_22F5F
-    pSprite->field_36 = -pSprite->field_36;
-    pSprite->field_36 >>= 1;
+    pSprite->mSpeed = -pSprite->mSpeed;
+    pSprite->mSpeed >>= 1;
     Sprite_XY_Restore(pSprite);
 
     Data4 = 0x0F;
     Data0 = -10;
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
     if (Data4 == eTerrainFeature_Block)
-        pSprite->field_38 = eSprite_Anim_Die1;
+        pSprite->mAnimState = eSprite_Anim_Die1;
 
     Sprite_Animation_SlideOrDie(pSprite);
     return;
 
 loc_22FA3:;
 
-    if (!pSprite->field_36)
+    if (!pSprite->mSpeed)
         return;
 
-    pSprite->field_20 ^= 1;
-    if (!pSprite->field_20)
+    pSprite->mHeight ^= 1;
+    if (!pSprite->mHeight)
         return;
 
-    if (pSprite->field_36 <= 0x10)
+    if (pSprite->mSpeed <= 0x10)
         return;
 
-    pSprite->field_36 -= 2;
+    pSprite->mSpeed -= 2;
     return;
 
 Human_Vehicle_Quicksand:;
-    pSprite->field_52 = 1;
+    pSprite->mRowsToSkip = 1;
     return;
 
 Human_Vehicle_WaterEdge:;
-    pSprite->field_52 = 3;
+    pSprite->mRowsToSkip = 3;
     return;
 
 AnimDie3:;
     if (pSprite->field_56)
-        pSprite->field_38 = eSprite_Anim_None;
+        pSprite->mAnimState = eSprite_Anim_None;
     dword_3B24B = -1;
 
     Sprite_Handle_Vehicle_Sinking(pSprite);
-    if (pSprite->field_52 < 0x50)
+    if (pSprite->mRowsToSkip < 0x50)
         goto loc_23033;
 
-    pSprite->field_52 = 0x1E;
-    pSprite->field_38 = eSprite_Anim_Die3;
+    pSprite->mRowsToSkip = 0x1E;
+    pSprite->mAnimState = eSprite_Anim_Die3;
     return;
 
 loc_23033:;
-    pSprite->field_52 += 1;
-    pSprite->field_36 -= 0x0C;
-    if (pSprite->field_36 >= 0)
+    pSprite->mRowsToSkip += 1;
+    pSprite->mSpeed -= 0x0C;
+    if (pSprite->mSpeed >= 0)
         return;
 
-    pSprite->field_36 = 0;
+    pSprite->mSpeed = 0;
     return;
 
 loc_23056:;
-    if (pSprite->field_20)
+    if (pSprite->mHeight)
         return;
 
-    if (pSprite->field_36 >= 0x14)
+    if (pSprite->mSpeed >= 0x14)
         goto loc_230B0;
 
-    if (!pSprite->field_36)
+    if (!pSprite->mSpeed)
         return;
 
     Data0 = mInterruptTick;
     Data0 &= 1;
     Data0 += 3;
-    pSprite->field_20 = Data0;
+    pSprite->mHeight = Data0;
     Data0 = -Data0;
     pSprite->field_1A = (((int64)pSprite->field_1A & 0xFFFF) | (Data0 << 16));
     return;
 
 loc_230B0:;
     // Not Moving?
-    if (!pSprite->field_36)
+    if (!pSprite->mSpeed)
         return;
 
-    pSprite->field_20 = 1;
-    Dataa0 = pSprite->field_36 << 16;
+    pSprite->mHeight = 1;
+    Dataa0 = pSprite->mSpeed << 16;
     Dataa0 >>= 3;
     pSprite->field_1A = Dataa0;
     return;
 
 loc_23100:;
-    if (!pSprite->field_36)
+    if (!pSprite->mSpeed)
         return;
 
-    pSprite->field_20 = 1;
-    Dataa0 = pSprite->field_36 << 16;
+    pSprite->mHeight = 1;
+    Dataa0 = pSprite->mSpeed << 16;
     Dataa0 >>= 2;
     pSprite->field_1A = Dataa0;
-    pSprite->field_36 <<= 1;
-    pSprite->field_36 <<= 1;
+    pSprite->mSpeed <<= 1;
+    pSprite->mSpeed <<= 1;
 
 }
 
@@ -277,89 +277,89 @@ void cFodder::Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC,
 
 	// TODO: Fix counter
     for (int16 Count = 0x1D; Count >= 0; --Count, ++Sprite) {
-        if (Sprite->field_0 == -32768)
+        if (Sprite->mPosX == -32768)
             continue;
 
         if (Sprite == pSprite)
             continue;
 
-        if (!mSprite_Can_Be_RunOver[Sprite->field_18])
+        if (!mSprite_Can_Be_RunOver[Sprite->mSpriteType])
             continue;
 
-        if (pSprite->field_22 == Sprite->field_22)
+        if (pSprite->mPersonType == Sprite->mPersonType)
             continue;
 
-        if (Sprite->field_18 == eSprite_Hostage)
+        if (Sprite->mSpriteType == eSprite_Hostage)
             continue;
 
-        if (Sprite->field_18 == eSprite_Enemy_Leader)
+        if (Sprite->mSpriteType == eSprite_Enemy_Leader)
             continue;
 
-        if (pData8 > Sprite->field_0)
+        if (pData8 > Sprite->mPosX)
             continue;
 
-        if (pDataC < Sprite->field_0)
+        if (pDataC < Sprite->mPosX)
             continue;
 
-        if (pData10 > Sprite->field_4)
+        if (pData10 > Sprite->mPosY)
             continue;
 
-        if (pData14 < Sprite->field_4)
+        if (pData14 < Sprite->mPosY)
             continue;
 
-        int16 Data0 = Sprite->field_20;
+        int16 Data0 = Sprite->mHeight;
         if (pData1C < Data0)
             continue;
         Data0 += 0x0E;
         if (pData18 > Data0)
             continue;
 
-        if (Sprite->field_18 != eSprite_Player) {
-            if (Sprite->field_6E)
+        if (Sprite->mSpriteType != eSprite_Player) {
+            if (Sprite->mInVehicle)
                 continue;
         }
 
         // Run Over
-        Sprite->field_38 = eSprite_Anim_Die1;
-        if (!Sprite->field_65)
+        Sprite->mAnimState = eSprite_Anim_Die1;
+        if (!Sprite->mVehicleEnabled)
             return;
 
-        pSprite->field_38 = eSprite_Anim_Die1;
+        pSprite->mAnimState = eSprite_Anim_Die1;
         return;
     }
 }
 
 void cFodder::Sprite_Handle_Vehicle_Human(sSprite* pSprite) {
 
-    if (pSprite->field_38) {
+    if (pSprite->mAnimState) {
 
-        pSprite->field_22 = eSprite_PersonType_Human;
+        pSprite->mPersonType = eSprite_PersonType_Human;
         Sprite_Handle_Vehicle(pSprite);
-        pSprite->field_22 = eSprite_PersonType_Human;
+        pSprite->mPersonType = eSprite_PersonType_Human;
         return;
     }
 
-    if (pSprite->field_6F == eVehicle_JeepRocket)
+    if (pSprite->mVehicleType == eVehicle_JeepRocket)
         Vehicle_Handle_Cannon_Fire(pSprite);
 
     mSprite_Helicopter_DestroyLight = 0;
-    pSprite->field_22 = eSprite_PersonType_Human;
+    pSprite->mPersonType = eSprite_PersonType_Human;
     Sprite_Handle_Vehicle(pSprite);
-    pSprite->field_22 = eSprite_PersonType_Human;
+    pSprite->mPersonType = eSprite_PersonType_Human;
     mSprite_Helicopter_DestroyLight = 0;
 
     sSprite* Data24 = pSprite + 1;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
 }
 
 void cFodder::Sprite_Handle_Tank(sSprite* pSprite) {
     int16 Data0 = 2;
-    int16 Data4 = pSprite->field_36;
+    int16 Data4 = pSprite->mSpeed;
     int16 Data8, DataC, Data10, Data14, Data18, Data1C;
     sSprite* Data2C = 0;
 
     if (!Data4) {
-        if (pSprite->field_22 == eSprite_PersonType_Human) {
+        if (pSprite->mPersonType == eSprite_PersonType_Human) {
             if (pSprite != mSquad_CurrentVehicle)
                 goto loc_2356B;
         }
@@ -372,42 +372,42 @@ void cFodder::Sprite_Handle_Tank(sSprite* pSprite) {
     Sprite_Map_Sound_Play(Data0);
 
 loc_2356B:;
-    pSprite->field_6F = eVehicle_Tank;
-    pSprite->field_65 = -1;
+    pSprite->mVehicleType = eVehicle_Tank;
+    pSprite->mVehicleEnabled = -1;
     if (Sprite_Animation_SlideOrDie(pSprite))
         return;
 
-    pSprite->field_8 = 0xD1;
-    word_3B2F7 = pSprite->field_36 + 0x20;
+    pSprite->mSheetIndex = 0xD1;
+    word_3B2F7 = pSprite->mSpeed + 0x20;
 
-    Data0 = pSprite->field_26;
-    Data4 = pSprite->field_28;
+    Data0 = pSprite->mTargetX;
+    Data4 = pSprite->mTargetY;
 
     Sprite_Vehicle_TurnTowardTarget(pSprite, Data0, Data4);
-    Data0 = pSprite->field_26;
-    Data4 = pSprite->field_28;
+    Data0 = pSprite->mTargetX;
+    Data4 = pSprite->mTargetY;
 
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_4;
+    Data8 = pSprite->mPosX;
+    DataC = pSprite->mPosY;
 
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 >= 0x1E)
         goto loc_2361A;
 
-    if (Data0 >= pSprite->field_36)
+    if (Data0 >= pSprite->mSpeed)
         goto loc_23680;
 
-    pSprite->field_36 = Data0;
+    pSprite->mSpeed = Data0;
     goto loc_23680;
 
 loc_2361A:;
     dword_3B24B = -1;
     if (!Sprite_Create_Smoke(pSprite, Data2C))
-        Data2C->field_2C = eSprite_Draw_First;
+        Data2C->mDrawOrder = eSprite_Draw_First;
 
-    if (!pSprite->field_36) {
+    if (!pSprite->mSpeed) {
         if (mDirectionMod) {
-            pSprite->field_36 -= 4;
+            pSprite->mSpeed -= 4;
             goto loc_23680;
         }
     }
@@ -415,10 +415,10 @@ loc_2361A:;
     pSprite->field_2A += 1;
     pSprite->field_2A &= 1;
     if (!pSprite->field_2A) {
-        ++pSprite->field_36;
+        ++pSprite->mSpeed;
 
-        if (pSprite->field_36 >= 0x18)
-            pSprite->field_36 = 0x18;
+        if (pSprite->mSpeed >= 0x18)
+            pSprite->mSpeed = 0x18;
     }
 
 loc_23680:;
@@ -427,56 +427,56 @@ loc_23680:;
     Sprite_Movement_Calculate(pSprite);
     Sprite_Handle_Vehicle_Terrain_Check(pSprite);
 
-    pSprite->field_20 = 0;
+    pSprite->mHeight = 0;
     Sprite_Vehicle_Turret_Update(pSprite);
 
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_0 + 0x1E;
-    Data10 = pSprite->field_4 - 0x14;
-    Data14 = pSprite->field_4;
-    Data18 = pSprite->field_20;
+    Data8 = pSprite->mPosX;
+    DataC = pSprite->mPosX + 0x1E;
+    Data10 = pSprite->mPosY - 0x14;
+    Data14 = pSprite->mPosY;
+    Data18 = pSprite->mHeight;
     Data1C = Data18 + 0x0E;
 
     Sprite_Under_Vehicle(pSprite, Data8, DataC, Data10, Data14, Data18, Data1C);
 }
 
 void cFodder::Sprite_Handle_Tank_FireMissile(sSprite* pSprite) {
-    if (!pSprite->field_57)
-        if (!pSprite->field_54)
+    if (!pSprite->mWeaponCooldown)
+        if (!pSprite->mFiredWeaponType)
             return;
 
-    pSprite->field_54 = 0;
+    pSprite->mFiredWeaponType = 0;
     sSprite* Data24 = pSprite + 1;
 
-    Data24->field_2E = pSprite->field_2E;
-    Data24->field_30 = pSprite->field_30;
+    Data24->mWeaponTargetX = pSprite->mWeaponTargetX;
+    Data24->mWeaponTargetY = pSprite->mWeaponTargetY;
 
-    int16 Data24_Field_0 = Data24->field_0;
-    int16 Data24_Field_4 = Data24->field_4;
-    int16 Data0 = Data24->field_A << 1;
+    int16 Data24_Field_0 = Data24->mPosX;
+    int16 Data24_Field_4 = Data24->mPosY;
+    int16 Data0 = Data24->mFrameIndex << 1;
 
-    Data24->field_0 += mSprite_Turret_Positions[Data0];
-    Data24->field_4 += mSprite_Turret_Positions[Data0 + 1];
+    Data24->mPosX += mSprite_Turret_Positions[Data0];
+    Data24->mPosY += mSprite_Turret_Positions[Data0 + 1];
 
     mSprite_Missile_LaunchDistance_X = 0;
     mSprite_Missile_LaunchDistance_Y = 0;
     sSprite* Data2C = 0;
 
     if (!Sprite_Create_Missile(Data24, Data2C)) {
-        Data24->field_4 = Data24_Field_4;
-        Data24->field_0 = Data24_Field_0;
-        pSprite->field_57 = -1;
+        Data24->mPosY = Data24_Field_4;
+        Data24->mPosX = Data24_Field_0;
+        pSprite->mWeaponCooldown = -1;
         return;
     }
 
-    Data2C->field_20 += 0x11;
-    Data2C->field_36 = 0x3C;
+    Data2C->mHeight += 0x11;
+    Data2C->mSpeed = 0x3C;
     Sound_Play(Data24, 5, 0x1E);
     Sprite_Create_Smoke(Data24, Data2C);
 
-    Data24->field_4 = Data24_Field_4;
-    Data24->field_0 = Data24_Field_0;
-    pSprite->field_57 = 0;
+    Data24->mPosY = Data24_Field_4;
+    Data24->mPosX = Data24_Field_0;
+    pSprite->mWeaponCooldown = 0;
 }
 
 void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
@@ -488,17 +488,17 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     if (mVersionCurrent->isCannonFodder1()) {
         if (mMapLoaded->getTileType() == eTileTypes_Moors || mMapLoaded->getTileType() == eTileTypes_Int) {
 
-            if (pSprite->field_38 == eSprite_Anim_Die1)
-                pSprite->field_38 = eSprite_Anim_None;
+            if (pSprite->mAnimState == eSprite_Anim_Die1)
+                pSprite->mAnimState = eSprite_Anim_None;
         }
     }
 
-    if (pSprite->field_38 == eSprite_Anim_Die3 || pSprite->field_38 == eSprite_Anim_Die1) {
+    if (pSprite->mAnimState == eSprite_Anim_Die3 || pSprite->mAnimState == eSprite_Anim_Die1) {
 
-        pSprite->field_18 = eSprite_Explosion;
-        pSprite->field_26 = 0x1F45;
-        pSprite->field_28 = -2;
-        if (pSprite->field_22 == eSprite_PersonType_Human)
+        pSprite->mSpriteType = eSprite_Explosion;
+        pSprite->mTargetX = 0x1F45;
+        pSprite->mTargetY = -2;
+        if (pSprite->mPersonType == eSprite_PersonType_Human)
             return;
 
         Sprite_Destroy(pSprite + 1);
@@ -506,9 +506,9 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
     }
 
     //loc_23F70
-    pSprite->field_8 = 0xD2;
-    pSprite->field_65 = -1;
-    if (pSprite->field_22 == eSprite_PersonType_Human)
+    pSprite->mSheetIndex = 0xD2;
+    pSprite->mVehicleEnabled = -1;
+    if (pSprite->mPersonType == eSprite_PersonType_Human)
         goto loc_24075;
 
     mTurretFires_HomingMissile = 0;
@@ -537,30 +537,30 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
             Data0 &= 0x1F;
 
         if (Data0 == 4)
-            pSprite->field_54 = -1;
+            pSprite->mFiredWeaponType = -1;
     }
 
     // Fire a homing missile
     mTurretFires_HomingMissile = -1;
     Data34 = Data28;
 
-    Data0 = pSprite->field_0 + 8;
-    Data4 = pSprite->field_4 - 5;
-    Data8 = Data28->field_0;
-    DataC = Data28->field_4;
+    Data0 = pSprite->mPosX + 8;
+    Data4 = pSprite->mPosY - 5;
+    Data8 = Data28->mPosX;
+    DataC = Data28->mPosY;
 
-    pSprite->field_2E = Data8;
-    pSprite->field_30 = DataC;
+    pSprite->mWeaponTargetX = Data8;
+    pSprite->mWeaponTargetY = DataC;
 
-    word_3B4ED[1] = Data28->field_20;
+    word_3B4ED[1] = Data28->mHeight;
     goto loc_240C8;
 
 loc_24075:;
     if (pSprite != mSquad_CurrentVehicle)
         return;
 
-    Data0 = pSprite->field_0 + 8;
-    Data4 = pSprite->field_4 - 5;
+    Data0 = pSprite->mPosX + 8;
+    Data4 = pSprite->mPosY - 5;
     Data8 = mMouseX + (mCameraX >> 16);
     Data8 -= 0x10;
     DataC = mMouseY + (mCameraY >> 16);
@@ -573,25 +573,25 @@ loc_240C8:;
     Data4 ^= 0x0F;
     Data4 &= 0x0F;
 
-    pSprite->field_A = Data4;
+    pSprite->mFrameIndex = Data4;
 loc_240F3:;
 
     Sprite_Handle_Turret_Fire(pSprite, Data34);
 
-    if (pSprite->field_22 == eSprite_PersonType_Human)
+    if (pSprite->mPersonType == eSprite_PersonType_Human)
         return;
 
     sSprite* Data24 = pSprite + 1;
 
-    Data24->field_18 = eSprite_Flashing_Light;
-    Data4 = pSprite->field_0;
+    Data24->mSpriteType = eSprite_Flashing_Light;
+    Data4 = pSprite->mPosX;
     Data4 += 5;
-    Data24->field_0 = Data4;
-    Data4 = pSprite->field_4;
+    Data24->mPosX = Data4;
+    Data4 = pSprite->mPosY;
     Data4 -= 0x0F;
-    Data4 -= pSprite->field_52;
-    Data24->field_4 = Data4;
-    Data24->field_20 = pSprite->field_20;
+    Data4 -= pSprite->mRowsToSkip;
+    Data24->mPosY = Data4;
+    Data24->mHeight = pSprite->mHeight;
 }
 
 void cFodder::Sprite_Handle_Turret_Fire(sSprite* pSprite, sSprite* pData34) {
@@ -599,28 +599,28 @@ void cFodder::Sprite_Handle_Turret_Fire(sSprite* pSprite, sSprite* pData34) {
 
     sSprite* Data2C = 0;
 
-    if (!pSprite->field_57) {
-        if (!pSprite->field_54)
+    if (!pSprite->mWeaponCooldown) {
+        if (!pSprite->mFiredWeaponType)
             return;
     }
 
-    pSprite->field_54 = 0;
-    int16 Field_0 = pSprite->field_0;
-    int16 Field_4 = pSprite->field_4;
+    pSprite->mFiredWeaponType = 0;
+    int16 Field_0 = pSprite->mPosX;
+    int16 Field_4 = pSprite->mPosY;
 
-    int16 Data0 = pSprite->field_A;
+    int16 Data0 = pSprite->mFrameIndex;
     Data0 <<= 1;
 
     int16 Data4 = mSprite_Turret_Positions[Data0];
-    pSprite->field_0 += Data4;
+    pSprite->mPosX += Data4;
 
     Data4 = mSprite_Turret_Positions[Data0 + 1];
-    pSprite->field_4 += Data4;
+    pSprite->mPosY += Data4;
 
     mSprite_Missile_LaunchDistance_X = 0;
     mSprite_Missile_LaunchDistance_Y = 0;
 
-    if (pSprite->field_6F != eVehicle_Turret_Homing)
+    if (pSprite->mVehicleType != eVehicle_Turret_Homing)
         goto loc_2421D;
 
     if (!mTurretFires_HomingMissile)
@@ -631,7 +631,7 @@ void cFodder::Sprite_Handle_Turret_Fire(sSprite* pSprite, sSprite* pData34) {
 
 loc_2421D:;
 
-    if (pSprite->field_22 != eSprite_PersonType_Human)
+    if (pSprite->mPersonType != eSprite_PersonType_Human)
         if (word_3B4ED[1] > 9)
             goto loc_24275;
 
@@ -641,25 +641,25 @@ loc_24234:;
     if (!ax)
         goto loc_2426C;
 
-    Data2C->field_20 += 0x11;
-    Data2C->field_36 = 0x3C;
+    Data2C->mHeight += 0x11;
+    Data2C->mSpeed = 0x3C;
     Sound_Play(pSprite, eSound_Effect_Turret_Fire, 0x1E);
     Sprite_Create_Smoke(pSprite, Data2C);
-    pSprite->field_57 = 0;
+    pSprite->mWeaponCooldown = 0;
     goto loc_24275;
 
 loc_2426C:;
-    pSprite->field_57 = -1;
+    pSprite->mWeaponCooldown = -1;
 
 loc_24275:;
-    pSprite->field_4 = Field_4;
-    pSprite->field_0 = Field_0;
+    pSprite->mPosY = Field_4;
+    pSprite->mPosX = Field_0;
 }
 
 int16 cFodder::Sprite_Handle_Vehicle_Sinking(sSprite* pSprite) {
 
     Sound_Play(pSprite, eSound_Effect_Vehicle_Sinking, 0x0F);
-    if (!pSprite->field_5C)
+    if (!pSprite->mWasDrawn)
         return -1;
 
     int16 Data0 = 1;
@@ -668,36 +668,36 @@ int16 cFodder::Sprite_Handle_Vehicle_Sinking(sSprite* pSprite) {
     if (Sprite_Get_Free_Max42(Data0, Data2C, Data30))
         return -1;
 
-    Data2C->field_0 = pSprite->field_0;
-    Data2C->field_2 = pSprite->field_2;
-    Data2C->field_4 = pSprite->field_4;
-    Data2C->field_6 = pSprite->field_6;
+    Data2C->mPosX = pSprite->mPosX;
+    Data2C->mPosXFrac = pSprite->mPosXFrac;
+    Data2C->mPosY = pSprite->mPosY;
+    Data2C->mPosYFrac = pSprite->mPosYFrac;
 
     if (dword_3B24B) {
         Data0 = tool_RandomGet() & 0x1F;
         Data0 -= 5;
-        Data2C->field_0 += Data0;
+        Data2C->mPosX += Data0;
         Data0 >>= 4;
         Data0 &= 0x0F;
         Data0 -= 0x0A;
-        Data2C->field_4 -= Data0;
+        Data2C->mPosY -= Data0;
         dword_3B24B = 0;
     }
     //loc_24546
-    Data2C->field_20 = pSprite->field_20;
-    Data2C->field_52 = 0;
-    Data2C->field_2C = eSprite_Draw_OnTop;
+    Data2C->mHeight = pSprite->mHeight;
+    Data2C->mRowsToSkip = 0;
+    Data2C->mDrawOrder = eSprite_Draw_OnTop;
 
     Data0 = tool_RandomGet() & 1;
     if (!Data0) {
-        Data2C->field_8 = 0xDE;
-        Data2C->field_A = 4;
-        Data2C->field_18 = eSprite_Vehicle_Sinking_1;
+        Data2C->mSheetIndex = 0xDE;
+        Data2C->mFrameIndex = 4;
+        Data2C->mSpriteType = eSprite_Vehicle_Sinking_1;
     }
     else {
-        Data2C->field_8 = 0xDF;
-        Data2C->field_A = 0;
-        Data2C->field_18 = eSprite_Vehicle_Sinking_2;
+        Data2C->mSheetIndex = 0xDF;
+        Data2C->mFrameIndex = 0;
+        Data2C->mSpriteType = eSprite_Vehicle_Sinking_2;
     }
     return 0;
 }
@@ -716,40 +716,40 @@ int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
         return -1;
 
     ++mSprite_Projectile_Counters[2];
-    Data2C->field_0 = pSprite->field_0;
-    Data2C->field_2 = pSprite->field_2;
-    Data2C->field_4 = pSprite->field_4;
-    Data2C->field_6 = pSprite->field_6;
-    Data2C->field_8 = 0x7F;
-    Data2C->field_A = 3;
+    Data2C->mPosX = pSprite->mPosX;
+    Data2C->mPosXFrac = pSprite->mPosXFrac;
+    Data2C->mPosY = pSprite->mPosY;
+    Data2C->mPosYFrac = pSprite->mPosYFrac;
+    Data2C->mSheetIndex = 0x7F;
+    Data2C->mFrameIndex = 3;
     Data2C->field_12 = 9;
-    Data2C->field_18 = eSprite_Cannon;
+    Data2C->mSpriteType = eSprite_Cannon;
 
-    Data2C->field_1E_Big += 0x60000;
+    Data2C->mHeightFixed += 0x60000;
 
-    Data2C->field_52 = pSprite->field_52;
-    Data2C->field_22 = pSprite->field_22;
-    Data2C->field_2C = eSprite_Draw_Second;
+    Data2C->mRowsToSkip = pSprite->mRowsToSkip;
+    Data2C->mPersonType = pSprite->mPersonType;
+    Data2C->mDrawOrder = eSprite_Draw_Second;
     Data0 = 0x321;
 
-    Data0 += pSprite->field_62;
+    Data0 += pSprite->mAIAggression;
     Data2C->field_4A = Data0;
-    Data0 = pSprite->field_36;
+    Data0 = pSprite->mSpeed;
     Data0 += 0x50;
-    Data2C->field_36 = Data0;
+    Data2C->mSpeed = Data0;
     Data2C->field_43 = 0;
     Data2C->field_44 = 0;
-    Data0 = pSprite->field_A;
+    Data0 = pSprite->mFrameIndex;
     Data0 -= 1;
     Data0 ^= 0x0F;
     Data0 &= 0x0F;
     Data0 <<= 5;
-    Data2C->field_10 = Data0;
+    Data2C->mDirection = Data0;
     Data2C->field_3A = 0;
     Data2C->field_1A_sprite = pSprite;
     Data2C->field_2A = 2;
-    Data2C->field_16 = 0;
-    Data2C->field_14 = 2;
+    Data2C->mProjectileOffsetX = 0;
+    Data2C->mProjectileOffsetY = 2;
     Data2C->field_34 = -1;
     Data2C->field_50 = 0;
     Data2C->field_59 = 0;
@@ -762,7 +762,7 @@ int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
     if (Data4 < 0)
         Data0 = -Data0;
 
-    Data2C->field_10 += Data0;
+    Data2C->mDirection += Data0;
     Data2C->field_64 = 0;
     return 0;
 }
@@ -771,14 +771,14 @@ void cFodder::Sprite_Handle_Vehicle_Enemy(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC, Data10;
     sSprite* Data28 = 0;
 
-    if (pSprite->field_38) {
-        pSprite->field_22 = eSprite_PersonType_AI;
+    if (pSprite->mAnimState) {
+        pSprite->mPersonType = eSprite_PersonType_AI;
         Sprite_Handle_Vehicle(pSprite);
-        pSprite->field_22 = eSprite_PersonType_AI;
+        pSprite->mPersonType = eSprite_PersonType_AI;
         return;
     }
 
-    if (pSprite->field_6F == eVehicle_DontTargetPlayer)
+    if (pSprite->mVehicleType == eVehicle_DontTargetPlayer)
         goto loc_255DA;
 
     Data0 = eSprite_Player;
@@ -791,51 +791,51 @@ void cFodder::Sprite_Handle_Vehicle_Enemy(sSprite* pSprite) {
 
     Data0 = tool_RandomGet() & 3;
     if (!Data0)
-        pSprite->field_54 = -1;
+        pSprite->mFiredWeaponType = -1;
 
-    Data0 = pSprite->field_0;
+    Data0 = pSprite->mPosX;
     Data0 += 8;
-    Data4 = pSprite->field_4;
+    Data4 = pSprite->mPosY;
     Data4 -= 5;
-    Data8 = Data28->field_0;
-    pSprite->field_2E = Data8;
-    pSprite->field_26 = Data8;
-    DataC = Data28->field_4;
-    pSprite->field_30 = DataC;
-    pSprite->field_28 = DataC;
+    Data8 = Data28->mPosX;
+    pSprite->mWeaponTargetX = Data8;
+    pSprite->mTargetX = Data8;
+    DataC = Data28->mPosY;
+    pSprite->mWeaponTargetY = DataC;
+    pSprite->mTargetY = DataC;
 
 loc_255DA:;
-    pSprite->field_22 = eSprite_PersonType_AI;
+    pSprite->mPersonType = eSprite_PersonType_AI;
     Sprite_Handle_Vehicle(pSprite);
 
-    if (pSprite->field_6F == eVehicle_JeepRocket)
+    if (pSprite->mVehicleType == eVehicle_JeepRocket)
         Vehicle_Handle_Cannon_Fire(pSprite);
 
     sSprite* Data24 = pSprite + 1;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
 
     Data24 = pSprite + 2;
-    Data24->field_18 = eSprite_Flashing_Light;
-    Data4 = pSprite->field_0;
+    Data24->mSpriteType = eSprite_Flashing_Light;
+    Data4 = pSprite->mPosX;
     Data4 += 0x0D;
-    Data24->field_0 = Data4;
+    Data24->mPosX = Data4;
 
-    Data4 = pSprite->field_4;
+    Data4 = pSprite->mPosY;
     Data4 -= 0x13;
 
-    Data4 += pSprite->field_52;
-    Data24->field_4 = Data4;
-    Data24->field_20 = pSprite->field_20;
+    Data4 += pSprite->mRowsToSkip;
+    Data24->mPosY = Data4;
+    Data24->mHeight = pSprite->mHeight;
 }
 
 void cFodder::Sprite_Apply_Gravity(sSprite* pSprite) {
 
     int32 Data0 = pSprite->field_1A;
 
-    pSprite->field_1E_Big += Data0;
+    pSprite->mHeightFixed += Data0;
 
-    if (pSprite->field_1E_Big < 0) {
-        pSprite->field_1E_Big = 0;
+    if (pSprite->mHeightFixed < 0) {
+        pSprite->mHeightFixed = 0;
         Data0 = -Data0;
         Data0 >>= 1;
     }
@@ -848,19 +848,19 @@ void cFodder::Sprite_Vehicle_TurnTowardTarget(sSprite* pSprite, int16& pData0, i
 
     int16 Data1C;
 
-    pSprite->field_3C = pSprite->field_10;
+    pSprite->mFaceDirection = pSprite->mDirection;
 
     Sprite_Direction_Between_Points(pSprite, pData0, pData4);
 
-    mSprite_Field10_Saved = pSprite->field_10;
+    mSprite_Field10_Saved = pSprite->mDirection;
     pSprite->field_3E = 0;
 
     Sprite_SetDirectionMod(pSprite);
 
-    pSprite->field_10 = pSprite->field_3C;
+    pSprite->mDirection = pSprite->mFaceDirection;
 
     pData0 = word_3B2F7;
-    pData0 -= pSprite->field_36;
+    pData0 -= pSprite->mSpeed;
 
     pData0 *= mDirectionMod;
     int16 Data8 = 0;
@@ -878,26 +878,26 @@ void cFodder::Sprite_Vehicle_TurnTowardTarget(sSprite* pSprite, int16& pData0, i
             pData0 = -pData0;
     }
     //loc_22D7A
-    pSprite->field_10 += pData0;
-    pSprite->field_10 &= 0x1FE;
+    pSprite->mDirection += pData0;
+    pSprite->mDirection &= 0x1FE;
 
-    if (pSprite->field_6F == eVehicle_Jeep)
+    if (pSprite->mVehicleType == eVehicle_Jeep)
         goto loc_22DC4;
 
-    if (pSprite->field_6F == eVehicle_JeepRocket)
+    if (pSprite->mVehicleType == eVehicle_JeepRocket)
         goto loc_22DC4;
 
-    if (pSprite->field_6F == eVehicle_Tank)
+    if (pSprite->mVehicleType == eVehicle_Tank)
         goto loc_22DCF;
 
-    if (pSprite->field_36 <= 6)
+    if (pSprite->mSpeed <= 6)
         return;
 
     if (!(mMission_EngineTicks & 1))
         return;
 
 loc_22DC4:;
-    if (pSprite->field_36 <= 8)
+    if (pSprite->mSpeed <= 8)
         return;
 
 loc_22DCF:;
@@ -919,24 +919,24 @@ void cFodder::Sprite_Vehicle_Turret_Update(sSprite* pSprite) {
     sSprite* Data24 = pSprite + 1;
     int16 Data0, Data4, Data8, DataC;
 
-    Data24->field_8 = 0xD2;
-    Data24->field_0 = pSprite->field_0 + 0x0A;
-    Data24->field_4 = pSprite->field_4 + 1;
+    Data24->mSheetIndex = 0xD2;
+    Data24->mPosX = pSprite->mPosX + 0x0A;
+    Data24->mPosY = pSprite->mPosY + 1;
 
-    Data0 = pSprite->field_52;
-    Data24->field_4 += Data0;
-    Data24->field_20 = pSprite->field_20;
-    Data24->field_20 += 9;
-    Data0 = Data24->field_0 + 8;
-    Data4 = Data24->field_4 - 5;
+    Data0 = pSprite->mRowsToSkip;
+    Data24->mPosY += Data0;
+    Data24->mHeight = pSprite->mHeight;
+    Data24->mHeight += 9;
+    Data0 = Data24->mPosX + 8;
+    Data4 = Data24->mPosY - 5;
 
-    Data4 -= Data24->field_20;
-    Data24->field_52 = pSprite->field_52;
+    Data4 -= Data24->mHeight;
+    Data24->mRowsToSkip = pSprite->mRowsToSkip;
 
-    if (pSprite->field_22 == eSprite_PersonType_Human)
+    if (pSprite->mPersonType == eSprite_PersonType_Human)
         goto loc_23815;
 
-    Data8 = pSprite->field_2E;
+    Data8 = pSprite->mWeaponTargetX;
     if (Data8 >= 0)
         goto loc_23806;
 
@@ -948,12 +948,12 @@ void cFodder::Sprite_Vehicle_Turret_Update(sSprite* pSprite) {
     if (!Data0)
         Data0 -= 1;
 
-    Data24->field_A += Data0;
-    Data24->field_A &= 0x0F;
+    Data24->mFrameIndex += Data0;
+    Data24->mFrameIndex &= 0x0F;
     return;
 
 loc_23806:;
-    DataC = pSprite->field_30;
+    DataC = pSprite->mWeaponTargetY;
     goto loc_23843;
 
 loc_23815:;
@@ -972,15 +972,15 @@ loc_23843:;
     Data4 += 8;
     Data4 ^= 0x0F;
     Data4 &= 0x0F;
-    Data24->field_A = Data4;
+    Data24->mFrameIndex = Data4;
 }
 
 void cFodder::Vehicle_Handle_Cannon_Fire(sSprite* pSprite) {
 
-    if (pSprite->field_22 == eSprite_PersonType_Human)
+    if (pSprite->mPersonType == eSprite_PersonType_Human)
         goto loc_245DA;
 
-    if (pSprite->field_54)
+    if (pSprite->mFiredWeaponType)
         goto loc_24617;
 
     return;
@@ -992,40 +992,40 @@ loc_245DA:;
     if (!mButtonPressRight)
         return;
 
-    if (pSprite->field_54)
+    if (pSprite->mFiredWeaponType)
         goto loc_24617;
-    pSprite->field_54 = 0;
+    pSprite->mFiredWeaponType = 0;
     pSprite->field_55 = ~pSprite->field_55;
     if (pSprite->field_55)
         return;
 
 loc_24617:;
-    pSprite->field_54 = 0;
+    pSprite->mFiredWeaponType = 0;
 
-    int16 Field_0 = pSprite->field_0;
-    int16 Field_4 = pSprite->field_4;
+    int16 Field_0 = pSprite->mPosX;
+    int16 Field_4 = pSprite->mPosY;
 
-    int16 Data0 = pSprite->field_A;
+    int16 Data0 = pSprite->mFrameIndex;
 
     // seg005:4F58 
     Data0 <<= 1;
 
-    if (pSprite->field_5B < 0)
+    if (pSprite->mIsSinking < 0)
         Data0 += 2;
 
     int16 Data4 = mSprite_VehiclePosition_Mod[Data0];
-    pSprite->field_0 += Data4;
+    pSprite->mPosX += Data4;
     Data4 = mSprite_VehiclePosition_Mod[Data0 + 1];
-    pSprite->field_4 += Data4;
+    pSprite->mPosY += Data4;
 
     if (!Sprite_Create_Cannon(pSprite)) {
-        pSprite->field_5B = ~pSprite->field_5B;
+        pSprite->mIsSinking = ~pSprite->mIsSinking;
         Sound_Play(pSprite, 0x10, 0x1E);
     }
 
     //loc_246BC
-    pSprite->field_4 = Field_4;
-    pSprite->field_0 = Field_0;
+    pSprite->mPosY = Field_4;
+    pSprite->mPosX = Field_0;
 }
 
 void cFodder::Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C) {
@@ -1034,7 +1034,7 @@ void cFodder::Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C) 
     Data4 -= 1;
     Data4 ^= 0x0F;
 
-    int16 Data0 = pSprite->field_A;
+    int16 Data0 = pSprite->mFrameIndex;
 
     Data0 -= Data4;
     Data4 = Data0;
@@ -1052,18 +1052,18 @@ void cFodder::Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C) 
     DataC = pData1C;
 
 loc_2B21D:;
-    pSprite->field_A += DataC;
-    pSprite->field_A &= 0x0F;
+    pSprite->mFrameIndex += DataC;
+    pSprite->mFrameIndex &= 0x0F;
 
 }
 
 void cFodder::Sprite_Handle_Vehicle(sSprite* pSprite) {
     int16 Data0 = 2;
-    int16 Data4 = pSprite->field_36;
+    int16 Data4 = pSprite->mSpeed;
     int16 Data8, DataC;
 
     if (!Data4) {
-        if (pSprite->field_22 == eSprite_PersonType_Human) {
+        if (pSprite->mPersonType == eSprite_PersonType_Human) {
 
             if (pSprite != mSquad_CurrentVehicle)
                 goto loc_1B523;
@@ -1083,95 +1083,95 @@ void cFodder::Sprite_Handle_Vehicle(sSprite* pSprite) {
     Sprite_Map_Sound_Play(Data0);
 
 loc_1B523:;
-    pSprite->field_65 = -1;
+    pSprite->mVehicleEnabled = -1;
     if (Sprite_Animation_SlideOrDie(pSprite))
         return;
 
-    pSprite->field_8 = 0xA5;
+    pSprite->mSheetIndex = 0xA5;
     Sprite_Apply_Gravity(pSprite);
-    if (pSprite->field_20 < 3) {
+    if (pSprite->mHeight < 3) {
         word_3B2F7 = 0x48;
-        Data0 = pSprite->field_26;
-        Data4 = pSprite->field_28;
+        Data0 = pSprite->mTargetX;
+        Data4 = pSprite->mTargetY;
 
         Sprite_Vehicle_TurnTowardTarget(pSprite, Data0, Data4);
     }
 
-    Data0 = pSprite->field_26;
-    Data4 = pSprite->field_28;
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_4;
+    Data0 = pSprite->mTargetX;
+    Data4 = pSprite->mTargetY;
+    Data8 = pSprite->mPosX;
+    DataC = pSprite->mPosY;
 
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 >= 0x1E)
         goto loc_1B5D2;
 
-    if (Data0 >= pSprite->field_36)
+    if (Data0 >= pSprite->mSpeed)
         goto loc_1B655;
 
-    pSprite->field_36 = Data0;
+    pSprite->mSpeed = Data0;
     goto loc_1B655;
 
 loc_1B5D2:;
 
-    if (!pSprite->field_52) {
+    if (!pSprite->mRowsToSkip) {
         dword_3B24B = -1;
         sSprite* Data2C = 0;
 
         if (!Sprite_Create_Smoke(pSprite, Data2C))
-            Data2C->field_2C = eSprite_Draw_First;
+            Data2C->mDrawOrder = eSprite_Draw_First;
     }
 
-    if (!pSprite->field_36) {
+    if (!pSprite->mSpeed) {
         if (mDirectionMod)
             goto loc_1B655;
     }
 
     // Sinking? No, Then we can speed up
-    if (pSprite->field_52 < 4) {
+    if (pSprite->mRowsToSkip < 4) {
 
-        pSprite->field_36 += 3;
+        pSprite->mSpeed += 3;
 
         // This vehicle only moves at a single speed
-        if (pSprite->field_18 == eSprite_Vehicle_Unk_Enemy) {
+        if (pSprite->mSpriteType == eSprite_Vehicle_Unk_Enemy) {
 
-            pSprite->field_36 = 0x14;
+            pSprite->mSpeed = 0x14;
 
         }
         else {
-            if (pSprite->field_36 >= 0x32)
-                pSprite->field_36 = 0x32;
+            if (pSprite->mSpeed >= 0x32)
+                pSprite->mSpeed = 0x32;
         }
 
     }
 loc_1B655:;
     // VEhicle in the air, increase speed
-    if (pSprite->field_20 > 4)
-        pSprite->field_36 += 0x1C;
+    if (pSprite->mHeight > 4)
+        pSprite->mSpeed += 0x1C;
 
     Sprite_XY_Store(pSprite);
     Sprite_Movement_Calculate(pSprite);
 
-    if (pSprite->field_20 < 9) {
+    if (pSprite->mHeight < 9) {
         Sprite_Handle_Vehicle_Terrain_Check(pSprite);
 
-        if (pSprite->field_20 <= 4)
-            pSprite->field_20 = 0;
+        if (pSprite->mHeight <= 4)
+            pSprite->mHeight = 0;
     }
     else {
-        pSprite->field_36 += 0x40;
+        pSprite->mSpeed += 0x40;
     }
 
     Sprite_Shadow_Update_From_Height(pSprite);
 
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_0;
+    Data8 = pSprite->mPosX;
+    DataC = pSprite->mPosX;
     DataC += 0x1C;
-    int16 Data10 = pSprite->field_4;
+    int16 Data10 = pSprite->mPosY;
     Data10 -= 0x10;
-    int16 Data14 = pSprite->field_4;
+    int16 Data14 = pSprite->mPosY;
 
-    int16 Data18 = pSprite->field_20;
+    int16 Data18 = pSprite->mHeight;
     int16 Data1C = Data18;
     Data1C += 0x0E;
     Sprite_Under_Vehicle(pSprite, Data8, DataC, Data10, Data14, Data18, Data1C);
@@ -1180,51 +1180,51 @@ loc_1B655:;
 
 void cFodder::Sprite_Handle_VehicleNoGun_Human(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Jeep;
+    pSprite->mVehicleType = eVehicle_Jeep;
     Sprite_Handle_Vehicle_Human(pSprite);
 }
 
 void cFodder::Sprite_Handle_VehicleGun_Human(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_JeepRocket;
+    pSprite->mVehicleType = eVehicle_JeepRocket;
     Sprite_Handle_Vehicle_Human(pSprite);
 }
 
 void cFodder::Sprite_Handle_Tank_Human(sSprite* pSprite) {
 
-    if (pSprite->field_38 == eSprite_Anim_Die1)
-        pSprite->field_38 = eSprite_Anim_None;
+    if (pSprite->mAnimState == eSprite_Anim_Die1)
+        pSprite->mAnimState = eSprite_Anim_None;
 
-    if (pSprite->field_38) {
-        pSprite->field_22 = eSprite_PersonType_Human;
+    if (pSprite->mAnimState) {
+        pSprite->mPersonType = eSprite_PersonType_Human;
 
         Sprite_Handle_Tank(pSprite);
-        pSprite->field_22 = eSprite_PersonType_Human;
+        pSprite->mPersonType = eSprite_PersonType_Human;
         return;
     }
-    pSprite->field_22 = eSprite_PersonType_Human;
+    pSprite->mPersonType = eSprite_PersonType_Human;
     Sprite_Handle_Tank(pSprite);
-    pSprite->field_22 = eSprite_PersonType_Human;
+    pSprite->mPersonType = eSprite_PersonType_Human;
     Sprite_Handle_Tank_FireMissile(pSprite);
 
     sSprite* Data24 = pSprite + 1;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
 }
 
 void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC, Data10, Data14;
     sSprite* Data24 = 0, *Data30 = 0;
 
-    if (pSprite->field_38 == eSprite_Anim_Die1)
-        pSprite->field_38 = eSprite_Anim_None;
+    if (pSprite->mAnimState == eSprite_Anim_Die1)
+        pSprite->mAnimState = eSprite_Anim_None;
 
-    if (pSprite->field_38) {
-        pSprite->field_22 = eSprite_PersonType_AI;
+    if (pSprite->mAnimState) {
+        pSprite->mPersonType = eSprite_PersonType_AI;
         Sprite_Handle_Tank(pSprite);
-        pSprite->field_22 = eSprite_PersonType_AI;
+        pSprite->mPersonType = eSprite_PersonType_AI;
 
         Data24 = pSprite + 2;
-        if (Data24->field_18 == eSprite_Flashing_Light)
+        if (Data24->mSpriteType == eSprite_Flashing_Light)
             Sprite_Destroy(Data24);
 
         return;
@@ -1241,22 +1241,22 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     if (Data30 == INVALID_SPRITE_PTR)
         goto NextSquadMember;
 
-    if (Data30->field_52)
+    if (Data30->mRowsToSkip)
         goto NextSquadMember;
 
-    Data8 = Data30->field_0;
+    Data8 = Data30->mPosX;
     Data8 += 8;
 
-    DataC = Data30->field_4;
+    DataC = Data30->mPosY;
     DataC += -5;
 
     if (Map_Terrain_GetMoveable_WithCache(mTiles_NotDriveable, Data8, DataC, Data10, Data14))
         goto NextSquadMember;
 
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = Data30->field_0;
-    DataC = Data30->field_4;
+    Data0 = pSprite->mPosX;
+    Data4 = pSprite->mPosY;
+    Data8 = Data30->mPosX;
+    DataC = Data30->mPosY;
 
     mSprite_Tank_SpriteX = Data0;
     mSprite_Tank_SpriteY = Data4;
@@ -1278,16 +1278,16 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     if (Map_PathCheck_CalculateTo(Data0, Data4, Data8, DataC))
         goto NextSquadMember;
 
-    pSprite->field_2E = Data30->field_0;
-    pSprite->field_30 = Data30->field_4;
+    pSprite->mWeaponTargetX = Data30->mPosX;
+    pSprite->mWeaponTargetY = Data30->mPosY;
     pSprite->field_4C = 0x5A;
 
     // If we have reached our current target
-    if (pSprite->field_0 == pSprite->field_26 && pSprite->field_4 == pSprite->field_28) {
+    if (pSprite->mPosX == pSprite->mTargetX && pSprite->mPosY == pSprite->mTargetY) {
 
         if (!(tool_RandomGet() & 0x3F)) {
-            pSprite->field_26 = Data30->field_0;
-            pSprite->field_28 = Data30->field_4;
+            pSprite->mTargetX = Data30->mPosX;
+            pSprite->mTargetY = Data30->mPosY;
         }
     }
 
@@ -1298,7 +1298,7 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
     if (Data0 != 4)
         goto loc_1CDA3;
 
-    pSprite->field_54 = -1;
+    pSprite->mFiredWeaponType = -1;
     Sprite_Handle_Tank_FireMissile(pSprite);
     goto loc_1CDA3;
 
@@ -1306,30 +1306,30 @@ NextSquadMember:;
     pSprite->field_5E_Squad += 1;
     if (pSprite->field_5E_Squad >= 0x1E) {
         pSprite->field_5E_Squad = 0;
-        pSprite->field_2E = -1;
+        pSprite->mWeaponTargetX = -1;
     }
 
 loc_1CDA3:;
     mSprite_Helicopter_DestroyLight = -1;
-    pSprite->field_22 = eSprite_PersonType_AI;
+    pSprite->mPersonType = eSprite_PersonType_AI;
     Sprite_Handle_Tank(pSprite);
-    pSprite->field_22 = eSprite_PersonType_AI;
+    pSprite->mPersonType = eSprite_PersonType_AI;
     mSprite_Helicopter_DestroyLight = 0;
 
     if (mSprite_Reached_Target) {
         pSprite->field_4C = 0;
-        pSprite->field_26 = pSprite->field_0;
-        pSprite->field_28 = pSprite->field_4;
+        pSprite->mTargetX = pSprite->mPosX;
+        pSprite->mTargetY = pSprite->mPosY;
     }
 
     Data24 = pSprite + 1;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
 
     Data24 = pSprite + 2;
-    Data24->field_18 = eSprite_Flashing_Light;
-    Data24->field_0 = pSprite->field_0 + 0x0F;
-    Data24->field_4 = (pSprite->field_4 - 0x16) - pSprite->field_52;
-    Data24->field_20 = pSprite->field_20;
+    Data24->mSpriteType = eSprite_Flashing_Light;
+    Data24->mPosX = pSprite->mPosX + 0x0F;
+    Data24->mPosY = (pSprite->mPosY - 0x16) - pSprite->mRowsToSkip;
+    Data24->mHeight = pSprite->mHeight;
 }
 
 void cFodder::Sprite_Handle_Cannon(sSprite* pSprite) {
@@ -1346,33 +1346,33 @@ void cFodder::Sprite_Handle_Cannon(sSprite* pSprite) {
         goto loc_1D5B3;
 
     Sprite_XY_Store(pSprite);
-    Data1C = pSprite->field_10;
+    Data1C = pSprite->mDirection;
 
     Sprite_Movement_Calculate(pSprite);
 
     if (mSprite_Bullet_Destroy)
         goto loc_1D6CA;
 
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = pSprite->field_2E;
-    DataC = pSprite->field_30;
+    Data0 = pSprite->mPosX;
+    Data4 = pSprite->mPosY;
+    Data8 = pSprite->mWeaponTargetX;
+    DataC = pSprite->mWeaponTargetY;
 
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
 
-    Data4 = pSprite->field_36;
+    Data4 = pSprite->mSpeed;
     Data4 >>= 3;
 
     if (Data0 > Data4)
         goto loc_1D5CB;
 
-    pSprite->field_2C = eSprite_Draw_Second;
-    pSprite->field_0 = pSprite->field_2E;
-    pSprite->field_4 = pSprite->field_30;
+    pSprite->mDrawOrder = eSprite_Draw_Second;
+    pSprite->mPosX = pSprite->mWeaponTargetX;
+    pSprite->mPosY = pSprite->mWeaponTargetY;
     pSprite->field_44 = -1;
     goto loc_1D5CB;
 loc_1D5B3:;
-    pSprite->field_2C = eSprite_Draw_First;
+    pSprite->mDrawOrder = eSprite_Draw_First;
     Sprite_Movement_Calculate(pSprite);
 
     if (mSprite_Bullet_Destroy)
@@ -1393,19 +1393,19 @@ loc_1D5CB:;
         goto loc_1D65C;
 
     pSprite->field_43 = 1;
-    pSprite->field_2C = eSprite_Draw_OnTop;
-    pSprite->field_4 -= 5;
-    if (pSprite->field_4 < 0)
+    pSprite->mDrawOrder = eSprite_Draw_OnTop;
+    pSprite->mPosY -= 5;
+    if (pSprite->mPosY < 0)
         goto loc_1D6DD;
-    pSprite->field_8 = 0x96;
-    pSprite->field_A = 0;
+    pSprite->mSheetIndex = 0x96;
+    pSprite->mFrameIndex = 0;
     return;
 
 loc_1D633:;
-    pSprite->field_8 = 0x96;
+    pSprite->mSheetIndex = 0x96;
     pSprite->field_12 = 0;
-    pSprite->field_A += 1;
-    if (pSprite->field_A >= 4)
+    pSprite->mFrameIndex += 1;
+    if (pSprite->mFrameIndex >= 4)
         goto loc_1D6CA;
 
 loc_1D65C:;
@@ -1415,22 +1415,22 @@ loc_1D65C:;
 
     Sprite_Projectile_Collision_Check(pSprite);
     pSprite->field_43 = -1;
-    pSprite->field_2C = eSprite_Draw_First;
-    pSprite->field_4 -= 5;
-    if (pSprite->field_4 < 0)
+    pSprite->mDrawOrder = eSprite_Draw_First;
+    pSprite->mPosY -= 5;
+    if (pSprite->mPosY < 0)
         goto loc_1D6DD;
 
-    pSprite->field_A = 3;
+    pSprite->mFrameIndex = 3;
 
 loc_1D69F:;
     if (pSprite->field_43 >= 0)
         goto loc_1D633;
 
     pSprite->field_12 = 0;
-    pSprite->field_8 = 0x7F;
-    pSprite->field_A += 1;
+    pSprite->mSheetIndex = 0x7F;
+    pSprite->mFrameIndex += 1;
 
-    if (pSprite->field_8 >= 8)
+    if (pSprite->mSheetIndex >= 8)
         goto loc_1D6CA;
 
     return;
@@ -1442,197 +1442,197 @@ loc_1D6CA:;
     return;
 
 loc_1D6DD:;
-    pSprite->field_0 = 0;
-    pSprite->field_4 = 0x1000;
+    pSprite->mPosX = 0;
+    pSprite->mPosY = 0x1000;
     goto loc_1D6CA;
 
 }
 
 void cFodder::Sprite_Handle_VehicleNoGun_Enemy(sSprite* pSprite) {
-    pSprite->field_6F = eVehicle_Jeep;
+    pSprite->mVehicleType = eVehicle_Jeep;
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_VehicleGun_Enemy(sSprite* pSprite) {
-    pSprite->field_6F = eVehicle_JeepRocket;
+    pSprite->mVehicleType = eVehicle_JeepRocket;
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_DontTargetPlayer;
+    pSprite->mVehicleType = eVehicle_DontTargetPlayer;
     
-    pSprite->field_26 = pSprite->field_0;
-    pSprite->field_26 += 0x28;
+    pSprite->mTargetX = pSprite->mPosX;
+    pSprite->mTargetX += 0x28;
 
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Turret_Missile_Enemy(sSprite* pSprite) {
-    pSprite->field_22 = eSprite_PersonType_AI;
-    pSprite->field_6F = eVehicle_Turret_Cannon;
+    pSprite->mPersonType = eSprite_PersonType_AI;
+    pSprite->mVehicleType = eVehicle_Turret_Cannon;
 
     Sprite_Handle_Turret(pSprite);
 }
 
 void cFodder::Sprite_Handle_Turret_Missile2_Enemy(sSprite* pSprite) {
-    pSprite->field_22 = eSprite_PersonType_AI;
-    pSprite->field_6F = eVehicle_Turret_Missile;
+    pSprite->mPersonType = eSprite_PersonType_AI;
+    pSprite->mVehicleType = eVehicle_Turret_Missile;
 
     Sprite_Handle_Turret(pSprite);
 }
 
 void cFodder::Sprite_Handle_Turret_HomingMissile_Enemy(sSprite* pSprite) {
-    pSprite->field_22 = eSprite_PersonType_AI;
-    pSprite->field_6F = eVehicle_Turret_Homing;
+    pSprite->mPersonType = eSprite_PersonType_AI;
+    pSprite->mVehicleType = eVehicle_Turret_Homing;
 
     Sprite_Handle_Turret(pSprite);
 }
 
 void cFodder::Sprite_Handle_Turret_Missile_Human(sSprite* pSprite) {
-    pSprite->field_22 = eSprite_PersonType_Human;
-    pSprite->field_6F = eVehicle_Turret_Cannon;
+    pSprite->mPersonType = eSprite_PersonType_Human;
+    pSprite->mVehicleType = eVehicle_Turret_Cannon;
 
     Sprite_Handle_Turret(pSprite);
 }
 
 void cFodder::Sprite_Handle_Turret_Missile2_Human(sSprite* pSprite) {
-    pSprite->field_22 = eSprite_PersonType_Human;
-    pSprite->field_6F = eVehicle_Turret_Missile;
+    pSprite->mPersonType = eSprite_PersonType_Human;
+    pSprite->mVehicleType = eVehicle_Turret_Missile;
 
     Sprite_Handle_Turret(pSprite);
 }
 
 void cFodder::Sprite_Handle_Vehicle_Sinking_1(sSprite* pSprite) {
     Sound_Play(pSprite, eSound_Effect_Vehicle_Sinking, 0x0F);
-    pSprite->field_A -= 1;
+    pSprite->mFrameIndex -= 1;
 
-    if (pSprite->field_A < 0)
+    if (pSprite->mFrameIndex < 0)
         Sprite_Destroy_Wrapper(pSprite);
 }
 
 void cFodder::Sprite_Handle_Vehicle_Sinking_2(sSprite* pSprite) {
-    pSprite->field_A += 1;
+    pSprite->mFrameIndex += 1;
 
-    if (pSprite->field_A == 6)
+    if (pSprite->mFrameIndex == 6)
         Sprite_Destroy_Wrapper(pSprite);
 }
 
 void cFodder::Sprite_Handle_Turret_Cannon_Invulnerable(sSprite* pSprite) {
     
-    if (pSprite->field_38 == eSprite_Anim_Die1)
-        pSprite->field_38 = eSprite_Anim_None;
+    if (pSprite->mAnimState == eSprite_Anim_Die1)
+        pSprite->mAnimState = eSprite_Anim_None;
 
-    pSprite->field_22 = eSprite_PersonType_AI;
-    pSprite->field_6F = eVehicle_Turret_Cannon;
+    pSprite->mPersonType = eSprite_PersonType_AI;
+    pSprite->mVehicleType = eVehicle_Turret_Cannon;
 
     Sprite_Handle_Turret(pSprite);
 }
 
 void cFodder::Sprite_Handle_Turret_Missile_Invulnerable(sSprite* pSprite) {
     
-    if (pSprite->field_38 == eSprite_Anim_Die1)
-        pSprite->field_38 = eSprite_Anim_None;
+    if (pSprite->mAnimState == eSprite_Anim_Die1)
+        pSprite->mAnimState = eSprite_Anim_None;
 
-    pSprite->field_22 = eSprite_PersonType_AI;
-    pSprite->field_6F = eVehicle_Turret_Missile;
+    pSprite->mPersonType = eSprite_PersonType_AI;
+    pSprite->mVehicleType = eVehicle_Turret_Missile;
 
     Sprite_Handle_Turret(pSprite);
 }
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Left(sSprite* pSprite) {
     
-    pSprite->field_6F = eVehicle_DontTargetPlayer;
+    pSprite->mVehicleType = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_0 <= 6) {
-        pSprite->field_0 = mMapLoaded->getWidthPixels() - 4;
+    if (pSprite->mPosX <= 6) {
+        pSprite->mPosX = mMapLoaded->getWidthPixels() - 4;
         pSprite->field_75 = 0;
     }
 
-    pSprite->field_26 = pSprite->field_0 - 0x28;
+    pSprite->mTargetX = pSprite->mPosX - 0x28;
     Sprite_Handle_Vehicle_Enemy(pSprite);
 
     if (tool_RandomGet() & 0x0F)
         return;
 
-    int16 Saved_F0 = pSprite->field_0;
-    int16 Saved_F4 = pSprite->field_4;
+    int16 Saved_F0 = pSprite->mPosX;
+    int16 Saved_F4 = pSprite->mPosY;
 
     int16 Data0 = (tool_RandomGet() & 0x07) + 0x0A;
-    pSprite->field_0 += Data0;
-    pSprite->field_4 += -8;
-    if (pSprite->field_4 < 0)
-        pSprite->field_4 = 0;
+    pSprite->mPosX += Data0;
+    pSprite->mPosY += -8;
+    if (pSprite->mPosY < 0)
+        pSprite->mPosY = 0;
 
     if (!Sprite_Create_Cannon(pSprite)) {
         Sound_Play(pSprite, 0x10, 0x1E);
     }
 
-    pSprite->field_0 = Saved_F0;
-    pSprite->field_4 = Saved_F4;
+    pSprite->mPosX = Saved_F0;
+    pSprite->mPosY = Saved_F4;
 }
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Right(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_DontTargetPlayer;
+    pSprite->mVehicleType = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_0 >= mMapLoaded->getWidthPixels()) {
-        pSprite->field_0 = 0;
+    if (pSprite->mPosX >= mMapLoaded->getWidthPixels()) {
+        pSprite->mPosX = 0;
         pSprite->field_75 = 0;
     }
 
-    pSprite->field_26 = pSprite->field_0 + 0x28;
+    pSprite->mTargetX = pSprite->mPosX + 0x28;
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Up(sSprite* pSprite) {
     
-    pSprite->field_6F = eVehicle_DontTargetPlayer;
+    pSprite->mVehicleType = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_4 <= 6) {
-        pSprite->field_4 = mMapLoaded->getHeightPixels() - 4;
+    if (pSprite->mPosY <= 6) {
+        pSprite->mPosY = mMapLoaded->getHeightPixels() - 4;
         pSprite->field_75 = 0;
     }
 
-    pSprite->field_28 = pSprite->field_4 - 0x28;
+    pSprite->mTargetY = pSprite->mPosY - 0x28;
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Looping_Vehicle_Down(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_DontTargetPlayer;
+    pSprite->mVehicleType = eVehicle_DontTargetPlayer;
 
-    if (pSprite->field_4 >= mMapLoaded->getHeightPixels()) {
-        pSprite->field_4 = 0;
+    if (pSprite->mPosY >= mMapLoaded->getHeightPixels()) {
+        pSprite->mPosY = 0;
         pSprite->field_75 = 0;
     }
 
-    pSprite->field_28 = pSprite->field_4 + 0x28;
+    pSprite->mTargetY = pSprite->mPosY + 0x28;
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Player_InVehicle(sSprite* pSprite) {
-    pSprite->field_8 = 0x7C;
-    pSprite->field_A = 0;
-    pSprite->field_38 = eSprite_Anim_None;
+    pSprite->mSheetIndex = 0x7C;
+    pSprite->mFrameIndex = 0;
+    pSprite->mAnimState = eSprite_Anim_None;
 
-    sSprite* Data24 = pSprite->field_6A_sprite;
-    if (Data24->field_0 == -32768 || Data24->field_18 == eSprite_Explosion) {
+    sSprite* Data24 = pSprite->mCurrentVehicle;
+    if (Data24->mPosX == -32768 || Data24->mSpriteType == eSprite_Explosion) {
         //loc_22AEE
-        pSprite->field_6E = 0;
-        pSprite->field_66 = 0;
-        pSprite->field_6A_sprite = 0;
-        pSprite->field_38 = eSprite_Anim_Hit;
+        pSprite->mInVehicle = 0;
+        pSprite->mVehicleWalkTarget = 0;
+        pSprite->mCurrentVehicle = 0;
+        pSprite->mAnimState = eSprite_Anim_Hit;
         pSprite->field_64 = -1;
 
-        pSprite->field_10 = tool_RandomGet() & 0x1FE;
+        pSprite->mDirection = tool_RandomGet() & 0x1FE;
     }
 
     //loc_22B3C
 
-    pSprite->field_0 = Data24->field_0;
-    pSprite->field_4 = Data24->field_4;
-    pSprite->field_20 = Data24->field_20;
+    pSprite->mPosX = Data24->mPosX;
+    pSprite->mPosY = Data24->mPosY;
+    pSprite->mHeight = Data24->mHeight;
 }
 
 int16 cFodder::Vehicle_Try_Exit_On_Mouse() {
@@ -1656,14 +1656,14 @@ int16 cFodder::Vehicle_Try_Exit_On_Mouse() {
         goto loc_31692;
 
     Data20 = mSquad_CurrentVehicle;
-    if (Data20->field_0 == -32768)
+    if (Data20->mPosX == -32768)
         goto loc_31689;
 
-    if (Data20->field_22 != eSprite_PersonType_Human)
+    if (Data20->mPersonType != eSprite_PersonType_Human)
         goto loc_31689;
 
-    Data18 = Data20->field_18;
-    Data8 = Data20->field_0;
+    Data18 = Data20->mSpriteType;
+    Data8 = Data20->mPosX;
     if (Data0 < Data8)
         goto loc_31689;
 
@@ -1672,23 +1672,23 @@ int16 cFodder::Vehicle_Try_Exit_On_Mouse() {
         goto loc_31689;
 
     //seg011:29DA
-    Data8 = Data20->field_4;
-    Data8 -= Data20->field_20;
+    Data8 = Data20->mPosY;
+    Data8 -= Data20->mHeight;
 
     Data8 -= Data30[Data18];
     Data8 -= 0x14;
     if (Data4 < Data8)
         goto loc_31689;
 
-    Data8 = Data20->field_4;
-    Data8 -= Data20->field_20;
+    Data8 = Data20->mPosY;
+    Data8 -= Data20->mHeight;
     if (Data4 > Data8)
         goto loc_31689;
 
-    if (!Data20->field_20)
+    if (!Data20->mHeight)
         goto loc_31514;
 
-    Data20->field_6E = -1;
+    Data20->mInVehicle = -1;
     mVehicle_Input_Disabled = true;
     goto loc_3167D;
 
@@ -1715,45 +1715,45 @@ loc_31514:;
 
         sSprite* Sprite = *Dataa2C++;
 
-        if (!Sprite->field_6E)
+        if (!Sprite->mInVehicle)
             continue;
 
         //seg011:2AE9 
 
-        Sprite->field_6E = 0;
-        Dataa30 = Sprite->field_6A_sprite;
-        Sprite->field_6A_sprite = 0;
-        Sprite->field_66 = 0;
+        Sprite->mInVehicle = 0;
+        Dataa30 = Sprite->mCurrentVehicle;
+        Sprite->mCurrentVehicle = 0;
+        Sprite->mVehicleWalkTarget = 0;
 
-        Sprite->field_0 = Dataa30->field_0;
-        Sprite->field_4 = Dataa30->field_4;
+        Sprite->mPosX = Dataa30->mPosX;
+        Sprite->mPosY = Dataa30->mPosY;
 
-        if (Sprite->field_6F == eVehicle_Turret_Cannon)
+        if (Sprite->mVehicleType == eVehicle_Turret_Cannon)
             goto loc_3162B;
 
-        if (Sprite->field_6F == eVehicle_Turret_Missile)
+        if (Sprite->mVehicleType == eVehicle_Turret_Missile)
             goto loc_3162B;
 
-        Sprite->field_0 += 0x0F;
-        Sprite->field_4 += -10;
+        Sprite->mPosX += 0x0F;
+        Sprite->mPosY += -10;
 
     loc_3162B:;
-        Sprite->field_26 = Sprite->field_0;
-        Sprite->field_28 = Sprite->field_4;
-        Sprite->field_26 -= 6;
-        Sprite->field_28 += 0x10;
+        Sprite->mTargetX = Sprite->mPosX;
+        Sprite->mTargetY = Sprite->mPosY;
+        Sprite->mTargetX -= 6;
+        Sprite->mTargetY += 0x10;
     }
 
 loc_31668:;
     mVehicle_Input_Disabled = true;
-    Data20->field_6E = -1;
+    Data20->mInVehicle = -1;
     mMouse_Button_LeftRight_Toggle = false;
 loc_3167D:;
     Data0 = -1;
     return -1;
 
 loc_31689:;
-    Data20->field_6E = 0;
+    Data20->mInVehicle = 0;
 loc_31692:;
     Data0 = 0;
     return 0;
@@ -1765,7 +1765,7 @@ void cFodder::Vehicle_Target_Set() {
         return;
 
     sSprite* Vehicle = mSquad_CurrentVehicle;
-    Vehicle->field_54 = -1;
+    Vehicle->mFiredWeaponType = -1;
 
     int16 PosX = mMouseX;
     int16 PosY = mMouseY;
@@ -1777,8 +1777,8 @@ void cFodder::Vehicle_Target_Set() {
         PosX = 1;
 
     PosY -= 8;
-    Vehicle->field_2E = PosX;
-    Vehicle->field_30 = PosY;
+    Vehicle->mWeaponTargetX = PosX;
+    Vehicle->mWeaponTargetY = PosY;
 }
 
 void cFodder::Vehicle_Input_Handle() {
@@ -1813,7 +1813,7 @@ void cFodder::Vehicle_Input_Handle() {
     if (Data4 < 0x14)
         Data4 = 0x14;
 
-    if (Data20->field_6F >= eVehicle_Helicopter) {
+    if (Data20->mVehicleType >= eVehicle_Helicopter) {
         if (Data20->field_50 <= 8)
             Data4 += 0x20;
     }
@@ -1823,6 +1823,6 @@ void cFodder::Vehicle_Input_Handle() {
 
     mMouse_Locked = false;
 
-    Data20->field_26 = Data0;
-    Data20->field_28 = Data4;
+    Data20->mTargetX = Data0;
+    Data20->mTargetY = Data4;
 }

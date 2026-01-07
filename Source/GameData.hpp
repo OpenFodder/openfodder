@@ -28,7 +28,7 @@ struct sMission_Troop {
 
     sSprite*    mSprite;
 
-    uint16      field_6;            // Unknown: This value is referenced, but it has no effect
+    uint16      mAnimationVariant;  // Used to pick the troop animation sheet/frame variant
     int8        mSelected;
     uint16      mNumberOfKills;
 
@@ -46,7 +46,7 @@ struct sMission_Troop {
 
         mSprite = (sSprite*)-1;
 
-        field_6 = 0;
+        mAnimationVariant = 0;
         mSelected = 0;
     }
 

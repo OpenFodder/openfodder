@@ -43,7 +43,7 @@ int32 cRandomMap::getSpriteTypeCount(size_t pSpriteType) {
 
 	for (auto& Sprite : mSprites) {
 
-		if (Sprite.field_18 == pSpriteType)
+		if (Sprite.mSpriteType == pSpriteType)
 			++count;
 	}
 
@@ -55,7 +55,7 @@ std::vector<sSprite*> cRandomMap::getSpritesByType(size_t pSpriteType) {
 
 	for (auto& Sprite : mSprites) {
 		
-		if(Sprite.field_18 == pSpriteType)
+		if(Sprite.mSpriteType == pSpriteType)
 			results.push_back(&Sprite);
 	}
 
@@ -113,11 +113,11 @@ bool cRandomMap::CheckRadiusSprites(cPosition* pPosition, int32 pRadius) {
 
 	for (auto& Sprite : mSprites) {
 
-		if (Sprite.field_0 < 0 || Sprite.field_4 < 0)
+		if (Sprite.mPosX < 0 || Sprite.mPosY < 0)
 			continue;
 
-		if ((Sprite.field_0 >= xLeft && Sprite.field_0 <= xRight) && 
-			(Sprite.field_4 >= yTop && Sprite.field_4 <= yBottom))
+		if ((Sprite.mPosX >= xLeft && Sprite.mPosX <= xRight) && 
+			(Sprite.mPosY >= yTop && Sprite.mPosY <= yBottom))
 			return true;
 	}
 

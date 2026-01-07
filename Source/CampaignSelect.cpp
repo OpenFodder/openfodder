@@ -319,70 +319,70 @@ void cFodder::Campaign_Select_Sprite_Prepare() {
     Phase_SquadPrepare();
 
     mSquad_CurrentVehicle = &mSprites[x];
-    mSprites[x].field_0 = 0xe6;
-    mSprites[x].field_4 = 0xcd;
-    mSprites[x].field_8 = 0xD2;
-    mSprites[x].field_A = 5;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x].field_18 = eSprite_Turret_Missile_Human;
-    mSprites[x++].field_6F = eVehicle_Turret_Missile;
+    mSprites[x].mPosX = 0xe6;
+    mSprites[x].mPosY = 0xcd;
+    mSprites[x].mSheetIndex = 0xD2;
+    mSprites[x].mFrameIndex = 5;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x].mSpriteType = eSprite_Turret_Missile_Human;
+    mSprites[x++].mVehicleType = eVehicle_Turret_Missile;
 
-    mSprites[x].field_0 = tool_RandomGet() & 0xFF;
-    mSprites[x].field_4 = tool_RandomGet() & 0xff;
-    mSprites[x].field_8 = 6;
-    mSprites[x].field_A = 0;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_Civilian_Spear;
+    mSprites[x].mPosX = tool_RandomGet() & 0xFF;
+    mSprites[x].mPosY = tool_RandomGet() & 0xff;
+    mSprites[x].mSheetIndex = 6;
+    mSprites[x].mFrameIndex = 0;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x++].mSpriteType = eSprite_Civilian_Spear;
 
-    mSprites[x].field_0 = 0xff;
-    mSprites[x].field_4 = 16 + (tool_RandomGet() % 0x60);
-    mSprites[x].field_8 = 2;
-    mSprites[x].field_A = 0;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_Bird_Left;
+    mSprites[x].mPosX = 0xff;
+    mSprites[x].mPosY = 16 + (tool_RandomGet() % 0x60);
+    mSprites[x].mSheetIndex = 2;
+    mSprites[x].mFrameIndex = 0;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x++].mSpriteType = eSprite_Bird_Left;
 
-    mSprites[x].field_0 = 0;
-    mSprites[x].field_4 = 16 + (tool_RandomGet() % 0xc0);
-    mSprites[x].field_8 = 2;
-    mSprites[x].field_A = 0;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_Bird_Left;
+    mSprites[x].mPosX = 0;
+    mSprites[x].mPosY = 16 + (tool_RandomGet() % 0xc0);
+    mSprites[x].mSheetIndex = 2;
+    mSprites[x].mFrameIndex = 0;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x++].mSpriteType = eSprite_Bird_Left;
 
-    mSprites[x].field_0 = 185;
-    mSprites[x].field_4 = 19;
-    mSprites[x].field_8 = 2;
-    mSprites[x].field_A = 0;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_Hostage;
+    mSprites[x].mPosX = 185;
+    mSprites[x].mPosY = 19;
+    mSprites[x].mSheetIndex = 2;
+    mSprites[x].mFrameIndex = 0;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x++].mSpriteType = eSprite_Hostage;
 
-    mSprites[x].field_0 = 100;
-    mSprites[x].field_4 = 0xd0;
-    mSprites[x].field_8 = 2;
-    mSprites[x].field_A = 0;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_Floating_Dead_Soldier;
+    mSprites[x].mPosX = 100;
+    mSprites[x].mPosY = 0xd0;
+    mSprites[x].mSheetIndex = 2;
+    mSprites[x].mFrameIndex = 0;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x++].mSpriteType = eSprite_Floating_Dead_Soldier;
 
-    mSprites[x].field_0 = 220;
-    mSprites[x].field_4 = 60;
-    mSprites[x].field_8 = 2;
-    mSprites[x].field_A = 0;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_BoilingPot;
+    mSprites[x].mPosX = 220;
+    mSprites[x].mPosY = 60;
+    mSprites[x].mSheetIndex = 2;
+    mSprites[x].mFrameIndex = 0;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x++].mSpriteType = eSprite_BoilingPot;
 
-    mSprites[x].field_0 = 220;
-    mSprites[x].field_4 = 60;
-    mSprites[x].field_8 = 2;
-    mSprites[x].field_A = 0;
-    mSprites[x].field_52 = 0;
-    mSprites[x].field_20 = 0;
-    mSprites[x++].field_18 = eSprite_Null;
+    mSprites[x].mPosX = 220;
+    mSprites[x].mPosY = 60;
+    mSprites[x].mSheetIndex = 2;
+    mSprites[x].mFrameIndex = 0;
+    mSprites[x].mRowsToSkip = 0;
+    mSprites[x].mHeight = 0;
+    mSprites[x++].mSpriteType = eSprite_Null;
 
     mSquad_Leader = mSquad_CurrentVehicle;
 
@@ -419,9 +419,9 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
 		Vehicle_Input_Handle();
 
 		mMouse_Button_Left_Toggle = 0;
-		mSprites[0].field_57 = -1;
-		mSprites[0].field_2E = mSquad_Leader->field_26 + 10;
-		mSprites[0].field_30 = mSquad_Leader->field_28 - 18;
+		mSprites[0].mWeaponCooldown = -1;
+		mSprites[0].mWeaponTargetX = mSquad_Leader->mTargetX + 10;
+		mSprites[0].mWeaponTargetY = mSquad_Leader->mTargetY - 18;
 
 		Timedown = 10;
 	}

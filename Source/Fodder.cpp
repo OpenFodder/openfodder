@@ -451,8 +451,8 @@ void cFodder::Phase_Prepare()
     Sprite_Create_Rank();
 
     mCamera_Start_Adjust = true;
-    mCamera_StartPosition_X = mSprites[0].field_0;
-    mCamera_StartPosition_Y = mSprites[0].field_4;
+    mCamera_StartPosition_X = mSprites[0].mPosX;
+    mCamera_StartPosition_Y = mSprites[0].mPosY;
 
     Music_Play_Tileset();
     word_82176 = 0;
@@ -1237,10 +1237,10 @@ void cFodder::Phase_Soldiers_Count()
     // How many player sprites are on this map
     for (int16 mTmpCount = 0x1D; mTmpCount > 0; --mTmpCount, ++Sprite)
     {
-        if (Sprite->field_0 != -32768)
+        if (Sprite->mPosX != -32768)
         {
 
-            if (Sprite->field_18 == eSprite_Player)
+            if (Sprite->mSpriteType == eSprite_Player)
                 ++mGame_Data.mGamePhase_Data.mSoldiers_Required;
         }
     }
@@ -1373,7 +1373,7 @@ void cFodder::Mission_Troop_Prepare_Next_Recruits()
                 }
             }
 
-            Troop.field_6 = 3;
+            Troop.mAnimationVariant = 3;
             ++mGame_Data.mRecruit_NextID;
 
             return;
@@ -1393,19 +1393,19 @@ void cFodder::Phase_Soldiers_AttachToSprites()
     for (int16 Data18 = 0x1D; Data18 >= 0; --Data18, ++Sprite)
     {
 
-        if (Sprite->field_0 == -32768)
+        if (Sprite->mPosX == -32768)
             continue;
 
-        if (Sprite->field_18 != eSprite_Player)
+        if (Sprite->mSpriteType != eSprite_Player)
             continue;
 
         //
         if (--TroopsRemaining < 0)
         {
             Troop->mSprite = INVALID_SPRITE_PTR;
-            Sprite->field_0 = -32768;
-            Sprite->field_18 = eSprite_Null;
-            Sprite->field_8 = 0x7C;
+            Sprite->mPosX = -32768;
+            Sprite->mSpriteType = eSprite_Null;
+            Sprite->mSheetIndex = 0x7C;
             ++Troop;
         }
         else
@@ -1413,11 +1413,11 @@ void cFodder::Phase_Soldiers_AttachToSprites()
             // loc_1166B
 
             // Attach a Mission Troop to the sprite
-            Sprite->field_46_mission_troop = Troop;
+            Sprite->mMissionTroop = Troop;
 
             Troop->mSprite = Sprite;
-            Sprite->field_10 = 0x40;
-            Sprite->field_22 = eSprite_PersonType_Human;
+            Sprite->mDirection = 0x40;
+            Sprite->mPersonType = eSprite_PersonType_Human;
 
             ++Troop;
         }
@@ -1432,8 +1432,8 @@ void cFodder::Music_Check_MapTile_TrackChange()
     if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0)
         return;
 
-    int16_t spriteX = mSquad_Leader->field_0 >> 4;
-    int16_t spriteY = mSquad_Leader->field_4 >> 4;
+    int16_t spriteX = mSquad_Leader->mPosX >> 4;
+    int16_t spriteY = mSquad_Leader->mPosY >> 4;
 
     int16_t BestDistance = 0x10;
     int16_t PlaySong = 0;
@@ -1696,20 +1696,20 @@ void cFodder::Phase_Goals_Check()
     {
         sSprite *Data20 = &Sprite;
 
-        if (Data20->field_0 == -32768)
+        if (Data20->mPosX == -32768)
             continue;
 
-        int16 Data10 = Data20->field_18;
+        int16 Data10 = Data20->mSpriteType;
         if (Data10 == eSprite_Computer_1 || Data10 == eSprite_Computer_2 || Data10 == eSprite_Computer_3 || Data10 == eSprite_BuildingDoor3 || Data10 == eSprite_BuildingDoor_Reinforced)
             goto loc_12620;
 
         if (Data10 == eSprite_BuildingDoor2 || Data10 == eSprite_BuildingDoor)
         {
-            if (Data20->field_38 == eSprite_Anim_Die1)
+            if (Data20->mAnimState == eSprite_Anim_Die1)
                 continue;
 
         loc_12620:;
-            if (Data20->field_38 == eSprite_Anim_Die3)
+            if (Data20->mAnimState == eSprite_Anim_Die3)
                 continue;
 
             ++Buildings;
@@ -1864,10 +1864,10 @@ void cFodder::Phase_TextSprite_Create_Mission(sSprite *pData2C)
 {
     Phase_TextSprite_Prepare(pData2C);
 
-    pData2C->field_4 -= 0x14;
-    pData2C->field_0 += 0x12;
-    pData2C->field_8 = 0xA2;
-    pData2C->field_18 = eSprite_Text_Mission;
+    pData2C->mPosY -= 0x14;
+    pData2C->mPosX += 0x12;
+    pData2C->mSheetIndex = 0xA2;
+    pData2C->mSpriteType = eSprite_Text_Mission;
     if (!mStartParams->mDisableSound)
         Music_Play(6);
     Music_SetFullVolume();
@@ -1877,10 +1877,10 @@ void cFodder::Phase_TextSprite_Create_Phase(sSprite *pData2C)
 {
     Phase_TextSprite_Prepare(pData2C);
 
-    pData2C->field_4 -= 0x14;
-    pData2C->field_0 += 0x1B;
-    pData2C->field_8 = 0xA1;
-    pData2C->field_18 = eSprite_Text_Phase;
+    pData2C->mPosY -= 0x14;
+    pData2C->mPosX += 0x1B;
+    pData2C->mSheetIndex = 0xA1;
+    pData2C->mSpriteType = eSprite_Text_Phase;
 
     if (!mStartParams->mDisableSound)
         Music_Play(0x0C);
@@ -1892,24 +1892,24 @@ void cFodder::Phase_TextSprite_Create_Complete(sSprite *pData2C)
 {
     Phase_TextSprite_Prepare(pData2C);
 
-    pData2C->field_8 = 0xA0;
-    pData2C->field_18 = eSprite_Text_Complete;
+    pData2C->mSheetIndex = 0xA0;
+    pData2C->mSpriteType = eSprite_Text_Complete;
 }
 
 void cFodder::Phase_TextSprite_Prepare(sSprite *pData2C)
 {
 
-    pData2C->field_0 = mMapTile_TargetX >> 16;
-    pData2C->field_0 += (getCameraWidth() / 2) - 52;
+    pData2C->mPosX = mMapTile_TargetX >> 16;
+    pData2C->mPosX += (getCameraWidth() / 2) - 52;
 
-    pData2C->field_4 = mMapTile_TargetY >> 16;
-    pData2C->field_4 += getCameraHeight() + 10;
+    pData2C->mPosY = mMapTile_TargetY >> 16;
+    pData2C->mPosY += getCameraHeight() + 10;
 
-    pData2C->field_A = 0;
-    pData2C->field_20 = 0;
-    pData2C->field_52 = 0;
+    pData2C->mFrameIndex = 0;
+    pData2C->mHeight = 0;
+    pData2C->mRowsToSkip = 0;
     pData2C->field_32 = -1;
-    pData2C->field_2C = eSprite_Draw_OnTop;
+    pData2C->mDrawOrder = eSprite_Draw_OnTop;
 }
 
 void cFodder::Phase_Show_TryAgain()
@@ -1928,18 +1928,18 @@ void cFodder::Phase_Show_TryAgain()
 void cFodder::Phase_TextSprite_Create_Try(sSprite *pData2C)
 {
     Phase_TextSprite_Prepare(pData2C);
-    pData2C->field_4 -= 0x14;
-    pData2C->field_0 += 0x12;
-    pData2C->field_8 = 0xCA;
-    pData2C->field_18 = eSprite_Text_Try;
+    pData2C->mPosY -= 0x14;
+    pData2C->mPosX += 0x12;
+    pData2C->mSheetIndex = 0xCA;
+    pData2C->mSpriteType = eSprite_Text_Try;
 }
 
 void cFodder::Phase_TextSprite_Create_Again(sSprite *pData2C)
 {
     Phase_TextSprite_Prepare(pData2C);
 
-    pData2C->field_8 = 0xCB;
-    pData2C->field_18 = eSprite_Text_Again;
+    pData2C->mSheetIndex = 0xCB;
+    pData2C->mSpriteType = eSprite_Text_Again;
 }
 
 void cFodder::Phase_Map_Overview_Show()
@@ -1953,8 +1953,8 @@ void cFodder::Phase_Map_Overview_Show()
 #endif
 
     int16 word_3A016 = 0;
-    mVideo_Draw_PosX = (mSquad_Leader->field_0) + (mSurfaceMapLeft * 16);
-    mVideo_Draw_PosY = (mSquad_Leader->field_4 - 0x10) + (mSurfaceMapTop * 16);
+    mVideo_Draw_PosX = (mSquad_Leader->mPosX) + (mSurfaceMapLeft * 16);
+    mVideo_Draw_PosY = (mSquad_Leader->mPosY - 0x10) + (mSurfaceMapTop * 16);
 
     mPhase_Paused = true;
     mInput_Enabled = false;
@@ -2546,8 +2546,8 @@ void cFodder::Phase_GameOver()
 void cFodder::Phase_TextSprite_Create_GameOver(sSprite *pData2C)
 {
     Phase_TextSprite_Prepare(pData2C);
-    pData2C->field_8 = 0xC1;
-    pData2C->field_18 = eSprite_Text_GameOver;
+    pData2C->mSheetIndex = 0xC1;
+    pData2C->mSpriteType = eSprite_Text_GameOver;
 
     if (!mStartParams->mDisableSound)
         Music_Play(8);
@@ -2561,17 +2561,17 @@ void cFodder::Sprites_Draw(cSurface *pSurface)
     for (auto &Sprite : mSprite_DrawList_Final)
     {
 
-        if (Sprite->field_24)
+        if (Sprite->mPendingDestroy)
         {
-            Sprite->field_24 = 0;
-            Sprite->field_0 = -32768;
+            Sprite->mPendingDestroy = 0;
+            Sprite->mPosX = -32768;
             mSprite_SpareUsed = 0;
             mSprite_SpareUsed2 = 0;
         }
         else
         {
-            int16 Data0 = Sprite->field_8;
-            int16 Data4 = Sprite->field_A;
+            int16 Data0 = Sprite->mSheetIndex;
+            int16 Data4 = Sprite->mFrameIndex;
             Sprite_Draw_Frame(Sprite, Data0, Data4, pSurface);
         }
     }
@@ -2623,13 +2623,13 @@ void cFodder::Sound_Play(sSprite *pSprite, int16 pSoundEffect, int16 pPriority)
     Data8 += getCameraWidth() / 2;
 
     if (pSprite != INVALID_SPRITE_PTR)
-        Data8 -= pSprite->field_0;
+        Data8 -= pSprite->mPosX;
 
     int16 DataC = mCameraY >> 16;
     DataC += getCameraHeight() / 2;
 
     if (pSprite != INVALID_SPRITE_PTR)
-        DataC -= pSprite->field_4;
+        DataC -= pSprite->mPosY;
 
     int16 X = 0;
     int16 Y = 0;

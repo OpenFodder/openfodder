@@ -73,11 +73,11 @@ void cMapData::Tile_Set(const size_t pTileX, const size_t pTileY, const size_t p
 void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	sSprite First;
 
-	First.field_18 = static_cast<int16>(pSpriteID);
-	First.field_0 = static_cast<int16>(pSpriteX);
-	First.field_4 = static_cast<int16>(pSpriteY);
-	First.field_26 = static_cast<int16>(pSpriteX);
-	First.field_28 = static_cast<int16>(pSpriteY);
+	First.mSpriteType = static_cast<int16>(pSpriteID);
+	First.mPosX = static_cast<int16>(pSpriteX);
+	First.mPosY = static_cast<int16>(pSpriteY);
+	First.mTargetX = static_cast<int16>(pSpriteX);
+	First.mTargetY = static_cast<int16>(pSpriteY);
 	mSprites.push_back(First);
 
 	switch (pSpriteID) {
@@ -88,7 +88,7 @@ void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	case eSprite_VehicleNoGun_Enemy:
 	case eSprite_VehicleGun_Enemy:
 	case eSprite_Vehicle_Unk_Enemy:
-		First.field_18 = eSprite_Null;
+		First.mSpriteType = eSprite_Null;
 		mSprites.push_back(First);
 		break;
 
@@ -97,7 +97,7 @@ void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	case eSprite_Helicopter_Missile_Enemy:
 	case eSprite_Helicopter_Homing_Enemy:
 	case eSprite_Helicopter_Homing_Enemy2:
-		First.field_18 = eSprite_Null;
+		First.mSpriteType = eSprite_Null;
 		mSprites.push_back(First);
 		mSprites.push_back(First);
 		mSprites.push_back(First);
@@ -113,7 +113,7 @@ void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	case eSprite_Helicopter_Missile_Human_Called:
 	case eSprite_Helicopter_Homing_Human_Called:
 	case eSprite_Tank_Enemy:
-		First.field_18 = eSprite_Null;
+		First.mSpriteType = eSprite_Null;
 		mSprites.push_back(First);
 		mSprites.push_back(First);
 		break;

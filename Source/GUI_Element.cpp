@@ -239,11 +239,11 @@ loc_2F1BC:;
             continue;
 
         // If sliding, or entering a vehicle, or invincible
-        if (Data34->field_38 >= eSprite_Anim_Slide1 || (Data34->field_75 & eSprite_Flag_Invincibility))
+        if (Data34->mAnimState >= eSprite_Anim_Slide1 || (Data34->field_75 & eSprite_Flag_Invincibility))
             goto loc_2F25C;
 
         // If hit/dying, no longer render the troop name
-        if (Data34->field_38 != eSprite_Anim_None)
+        if (Data34->mAnimState != eSprite_Anim_None)
             continue;
 
     loc_2F25C:;
@@ -359,7 +359,7 @@ int16 cFodder::GUI_Sidebar_SquadIcon_Set()
         if (SquadIcon->mVehicleType < 0)
             goto loc_2F593;
 
-        if (Vehicle->field_6F == SquadIcon->mVehicleType)
+        if (Vehicle->mVehicleType == SquadIcon->mVehicleType)
             goto loc_2F586;
     }
 loc_2F586:;
@@ -924,10 +924,10 @@ loc_2FF79:;
             continue;
 
         Troop.mSprite->field_32 = Data14;
-        Troop.mSprite->field_40 = 0;
-        Troop.mSprite->field_42 = 0;
+        Troop.mSprite->mNextWalkTargetIndex = 0;
+        Troop.mSprite->mFinishedWalking = 0;
         Troop.mSprite->field_44 = 0;
-        Troop.mSprite->field_28 += 4;
+        Troop.mSprite->mTargetY += 4;
     }
 
     mSquad_Selected = Data14;

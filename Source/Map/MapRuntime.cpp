@@ -77,19 +77,19 @@ void cFodder::Map_Count_Sprites()
     for (auto &Sprite : mSprites)
     {
 
-        if (Sprite.field_0 == -1 || Sprite.field_0 == -32768)
+        if (Sprite.mPosX == -1 || Sprite.mPosX == -32768)
             continue;
 
-        Sprite.field_8 = 0x7C;
+        Sprite.mSheetIndex = 0x7C;
         Sprite.field_32 = (HumanCount / 8);
 
-        if (Sprite.field_18 == eSprite_Enemy_Leader || Sprite.field_18 == eSprite_Hostage)
+        if (Sprite.mSpriteType == eSprite_Enemy_Leader || Sprite.mSpriteType == eSprite_Hostage)
         {
 
             ++mHostage_Count;
         }
 
-        if (Sprite.field_18 == eSprite_Player)
+        if (Sprite.mSpriteType == eSprite_Player)
         {
 
             ++HumanCount;
@@ -98,19 +98,19 @@ void cFodder::Map_Count_Sprites()
         else
         {
 
-            if (Sprite.field_18 == eSprite_Enemy_Rocket)
+            if (Sprite.mSpriteType == eSprite_Enemy_Rocket)
             {
-                Sprite.field_22 = eSprite_PersonType_AI;
+                Sprite.mPersonType = eSprite_PersonType_AI;
                 ++mTroops_Enemy_Count;
             }
             else
             {
-                if (Sprite.field_18 == eSprite_Enemy)
+                if (Sprite.mSpriteType == eSprite_Enemy)
                     ++mTroops_Enemy_Count;
             }
 
             dword_37ABC += 0x0A;
-            if (Sprite.field_62 > 4)
+            if (Sprite.mAIAggression > 4)
                 dword_37ABC = 0;
 
             Sprite.field_4A = dword_37ABC;
@@ -351,11 +351,11 @@ int16 cFodder::Map_Sprite_Check_Around_Position(sSprite *pSprite)
 int16 cFodder::Map_Get_Distance_BetweenSprites_Within_Window(const sSprite *pSprite, const sSprite *pSprite2)
 {
 
-    auto X1 = pSprite->field_0;
-    auto Y1 = pSprite->field_4;
+    auto X1 = pSprite->mPosX;
+    auto Y1 = pSprite->mPosY;
 
-    auto X2 = pSprite2->field_0;
-    auto Y2 = pSprite2->field_4;
+    auto X2 = pSprite2->mPosX;
+    auto Y2 = pSprite2->mPosY;
 
     return Map_Get_Distance_BetweenPoints_Within_Window(X1, Y1, X2, Y2);
 }
@@ -671,12 +671,12 @@ int16 cFodder::Map_Terrain_Get_Type_And_Walkable(int16 &pY, int16 &pX)
 int16 cFodder::Map_Terrain_Get_Type_And_Walkable(sSprite *pSprite, int16 &pY, int16 &pX)
 {
 
-    pY += pSprite->field_4;
+    pY += pSprite->mPosY;
     if (pY >= 0)
     {
 
         int16 Data14 = pY;
-        pX += pSprite->field_0;
+        pX += pSprite->mPosX;
         if (pX >= 0)
         {
             int16 Data10 = pX;
@@ -1198,18 +1198,18 @@ int16 cFodder::Map_Get_Distance_Between_Sprite_And_Squadleader(sSprite *pSprite,
         return 1;
 
     // Vehicle?
-    if (mSquad_Leader->field_6E)
+    if (mSquad_Leader->mInVehicle)
         return 1;
 
     // Anim playing?
-    if (mSquad_Leader->field_38)
+    if (mSquad_Leader->mAnimState)
         return 1;
 
-    pData0 = pSprite->field_0;
+    pData0 = pSprite->mPosX;
 
-    Data4 = pSprite->field_4;
-    Data8 = mSquad_Leader->field_0;
-    DataC = mSquad_Leader->field_4;
+    Data4 = pSprite->mPosY;
+    Data8 = mSquad_Leader->mPosX;
+    DataC = mSquad_Leader->mPosY;
     Data10 = 0x20;
 
     DataC += 2;

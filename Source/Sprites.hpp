@@ -212,19 +212,19 @@ struct sMission_Troop;
 // Once this is done, we can name all the fields
 
 struct sSprite {
-	int16 field_0;		// X
-	int16 field_2;		
-	int16 field_4;		// Y
-	int16 field_6;
-	int16 field_8;		// Animation   mSprite_SheetPtr[field_8][field_a]
-	int16 field_A;		// FrameNumber mSprite_SheetPtr[field_8][field_a]
+	int16 mPosX;		// X
+	int16 mPosXFrac;
+	int16 mPosY;		// Y
+	int16 mPosYFrac;
+	int16 mSheetIndex;	// Animation   mSprite_SheetPtr[mSheetIndex][mFrameIndex]
+	int16 mFrameIndex;	// FrameNumber mSprite_SheetPtr[mSheetIndex][mFrameIndex]
 	int16 field_C;
 	int16 field_E;
-	int16 field_10;		// Next Direction
+	int16 mDirection;	// Next Direction
 	int16 field_12;
-	int16 field_14;     //  Projectile: Add to Y
-	int16 field_16;     //  Projectile: Add to X
-	int16 field_18;		// Sprite Type
+	int16 mProjectileOffsetY;     //  Projectile: Add to Y
+	int16 mProjectileOffsetX;     //  Projectile: Add to X
+	int16 mSpriteType;		// Sprite Type
 
 	union {
 		int32		field_1A;
@@ -234,30 +234,30 @@ struct sSprite {
 	union {
 
 		struct {
-			int16 field_1E;
-			int16 field_20;	// Height
+			int16 mHeightFrac;
+			int16 mHeight;	// Height
 		};
 
-		int32 field_1E_Big;
+		int32 mHeightFixed;
 	};
 
-	int16 field_22;		// Player: eSprite_PersonType
-	int16 field_24;
-	int16 field_26;		// Target X
-	int16 field_28;		// Target Y
+	int16 mPersonType;		// Player: eSprite_PersonType
+	int16 mPendingDestroy;
+	int16 mTargetX;		// Target X
+	int16 mTargetY;		// Target Y
 	int16 field_2A;
-	int16 field_2C;		// eSprite_DrawOrder
-	int16 field_2E;		// Weapon Target X
-	int16 field_30;		// Weapon Target Y
+	int16 mDrawOrder;		// eSprite_DrawOrder
+	int16 mWeaponTargetX;		// Weapon Target X
+	int16 mWeaponTargetY;		// Weapon Target Y
 	int16 field_32;		// Player: Squad Number
 	int16 field_34;
-	int16 field_36;		// Speed ?
-	int16 field_38;		// eSprite_Anim
+	int16 mSpeed;		// Speed ?
+	int16 mAnimState;		// eSprite_Anim
 	int16 field_3A;
-	int16 field_3C;		// Player: Face Direction
+	int16 mFaceDirection;		// Player: Face Direction
 	int16 field_3E;
-	int16 field_40; // Player: Next Squad Walk Target Index
-	int8 field_42;  // Player: Finished Walking
+	int16 mNextWalkTargetIndex; // Player: Next Squad Walk Target Index
+	int8 mFinishedWalking;  // Player: Finished Walking
 	int8 field_43;	// Player: Reached other Troop
 	int8 field_44;
 	int8 field_45;
@@ -265,54 +265,54 @@ struct sSprite {
 	// Eventually this should be replaced
 	union {
 		int32			field_46;
-		sMission_Troop*  field_46_mission_troop;
-		sSprite*		field_46_sprite;
+		sMission_Troop*  mMissionTroop;
+		sSprite*		mSourceSprite;
 	};
 
 	int16 field_4A;		// Player: Fire if mouse pressed
 	int8 field_4C;
 	int8 field_4D;
 	int8 field_4E;
-	int8 field_4F;			// Player: -1 = In water
+	int8 mInWater;			// Player: -1 = In water
 	int16 field_50;
-	int16 field_52;			// Video: Number of rows not to draw
-	int8 field_54;			// Human: Fired Weapon (1 = Grenade, 2 = Bullet, 3 = Rocket)
+	int16 mRowsToSkip;			// Video: Number of rows not to draw
+	int8 mFiredWeaponType;			// Human: Fired Weapon (1 = Grenade, 2 = Bullet, 3 = Rocket)
 	int8 field_55;
 	int8 field_56;
-	int8 field_57;			// Human: Weapon Fired Cooldown
-	int8 field_58;          // Has Shadow
+	int8 mWeaponCooldown;			// Human: Weapon Fired Cooldown
+	int8 mHasShadow;          // Has Shadow
 	int8 field_59;
-	int8 field_5A;			// Human: Turn towards enemy
-	int8 field_5B;			// Human: Is Sinking
-	int8 field_5C;			// 1 = Was Drawn
+	int8 mTurnTowardEnemy;			// Human: Turn towards enemy
+	int8 mIsSinking;			// Human: Is Sinking
+	int8 mWasDrawn;			// 1 = Was Drawn
 
-	int8 field_5D;          // 5E contains index into mGame_Data.mSoldiers_Allocated
+	int8 mHasKillerTroop;          // Flag: mKillerTroop holds killer attribution
 
     // Eventually this should be replaced
     // Perhaps a linked list could replace mSprite and we use an iterator here
     union {
 		int32 field_5E_Squad;
-        size_t field_5E;			// Index inside mSprites (if 5D == false)
-        sMission_Troop *field_5E_SoldierAllocated;  // Soldier Ptr who killed sprite
+        size_t field_5E;			// Index inside mSprites (if mHasKillerTroop == 0)
+        sMission_Troop *mKillerTroop;  // Soldier Ptr who killed sprite
     };
 
-	int8 field_60;			// Current Terrain Type
-	int8 field_61;
-	int16 field_62;         // AI: Aggression
-	int8 field_64;
-	int8 field_65;			// -1 = Enabled?
-	sSprite* field_66;		// Human-Player: Vehicle Walk Target
+	int8 mTerrainType;			// Current Terrain Type
+	int8 mRockyHeightActive; // Rocky terrain height adjustment active
+	int16 mAIAggression;         // AI: Aggression
+	int8 field_64;          // Per-sprite init/age flag; hit/death init and projectile collision delay
+	int8 mVehicleEnabled;			// -1 = Enabled?
+	sSprite* mVehicleWalkTarget;		// Human-Player: Vehicle Walk Target
     
                             // Eventually this should be replaced
 	union {
-		int64	 field_6A;
-		sSprite* field_6A_sprite;	// Human-Player: Current Vehicle
+		int64	 mHomingAccelFixed; // Homing missile accel (16.16 fixed-point)
+		sSprite* mCurrentVehicle;	// Human-Player: Current Vehicle
 	};
 
-	int8 field_6E;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
-	int8 field_6F;			// Vehicle Type
-	sSprite* field_70;		// Hostage: Following Sprite
-	int8 field_74;			// Helicopter: Restart Anim Frame Number
+	int8 mInVehicle;			// Human-Player: In Vehicle;  Non-Human Player: Can't be run over
+	int8 mVehicleType;			// Vehicle Type
+	sSprite* mFollowTarget;		// Hostage: Following Sprite
+	int8 mHeliRestartFrame;			// Helicopter: Restart Anim Frame Number
 	int8 field_75;			// Human-Player: 0x02 = invincibility, 0x01 = homing missiles
 
 	sSprite() {
@@ -321,13 +321,13 @@ struct sSprite {
 
 	void Clear();
 
-	cPosition *getPosition() { return new cPosition(field_0, field_4); }
+	cPosition *getPosition() { return new cPosition(mPosX, mPosY); }
 
-	int getX() const { return field_0; }
-	void setX(int pX) { field_0 = pX; }
+	int getX() const { return mPosX; }
+	void setX(int pX) { mPosX = pX; }
 
-	int getY() const { return field_4; }
-	void setY(int pY) { field_4 = pY; }
+	int getY() const { return mPosY; }
+	void setY(int pY) { mPosY = pY; }
 };
 
 struct sWeaponData {

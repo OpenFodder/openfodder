@@ -30,28 +30,28 @@ void cFodder::Sprite_Helicopter_Update_Direction(sSprite* pSprite, int16& pData0
             goto loc_23E2F;
     }
 
-    pSprite->field_3C = pSprite->field_10;
+    pSprite->mFaceDirection = pSprite->mDirection;
     Sprite_Direction_Between_Points(pSprite, pData0, pData4);
 
 loc_23E2F:;
     Sprite_SetDirectionMod(pSprite);
 
-    pSprite->field_10 = pSprite->field_3C;
+    pSprite->mDirection = pSprite->mFaceDirection;
     pData0 = mDirectionMod;
     pData0 <<= 3;
 
-    if (pSprite->field_36 > 0x18)
+    if (pSprite->mSpeed > 0x18)
         pData0 <<= 1;
-    pSprite->field_10 = pData0;
-    pSprite->field_10 &= 0x1FE;
+    pSprite->mDirection = pData0;
+    pSprite->mDirection &= 0x1FE;
 
     Sprite_Set_Direction_To_Next(pSprite);
 
-    int16 Data8 = pSprite->field_3C;
-    if (!pSprite->field_36)
+    int16 Data8 = pSprite->mFaceDirection;
+    if (!pSprite->mSpeed)
         return;
 
-    pSprite->field_A = Data8 >> 1;
+    pSprite->mFrameIndex = Data8 >> 1;
 }
 
 void cFodder::Sprite_Count_HelicopterCallPads() {
@@ -59,7 +59,7 @@ void cFodder::Sprite_Count_HelicopterCallPads() {
     int16 Data0 = 0;
     for(auto& Sprite : mSprites) {
 
-        if (Sprite.field_18 == eSprite_Helicopter_CallPad)
+        if (Sprite.mSpriteType == eSprite_Helicopter_CallPad)
             ++Data0;
     }
 
@@ -80,19 +80,19 @@ void cFodder::Sprite_HelicopterCallPad_Check() {
     if (!mTroop_InRange_Callpad || mTroop_InRange_Callpad == INVALID_SPRITE_PTR)
         return;
 
-    mHelicopterCall_X = mTroop_InRange_Callpad->field_0;
-    mHelicopterCall_Y = mTroop_InRange_Callpad->field_4;
+    mHelicopterCall_X = mTroop_InRange_Callpad->mPosX;
+    mHelicopterCall_Y = mTroop_InRange_Callpad->mPosY;
 
     mHelicopterCall_Y += 0x28;
 }
 
 void cFodder::Sprite_Handle_Helicopter_Human(sSprite* pSprite) {
 
-    if (pSprite->field_38) {
+    if (pSprite->mAnimState) {
 
-        pSprite->field_22 = eSprite_PersonType_Human;
+        pSprite->mPersonType = eSprite_PersonType_Human;
         Sprite_Handle_Helicopter(pSprite);
-        pSprite->field_22 = eSprite_PersonType_Human;
+        pSprite->mPersonType = eSprite_PersonType_Human;
 
         return;
     }
@@ -100,15 +100,15 @@ void cFodder::Sprite_Handle_Helicopter_Human(sSprite* pSprite) {
     Sprite_Handle_Helicopter_Human_Deploy_Weapon(pSprite);
 
     mSprite_Helicopter_DestroyLight = 0;
-    pSprite->field_22 = eSprite_PersonType_Human;
+    pSprite->mPersonType = eSprite_PersonType_Human;
     Sprite_Handle_Helicopter(pSprite);
-    pSprite->field_22 = eSprite_PersonType_Human;
+    pSprite->mPersonType = eSprite_PersonType_Human;
     mSprite_Helicopter_DestroyLight = 0;
 
     sSprite* Data24 = pSprite + 1;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
     Data24 = pSprite + 2;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
 }
 
 int16 cFodder::Sprite_Handle_Helicopter_Terrain_Check(sSprite* pSprite) {
@@ -138,33 +138,33 @@ int16 cFodder::Sprite_Handle_Helicopter_Terrain_Check(sSprite* pSprite) {
         return 0;   // Correct?
     }
 
-    Data4 = pSprite->field_20;
+    Data4 = pSprite->mHeight;
     if (Data4 >= Data0)
         return 0;
 
-    ++pSprite->field_20;
+    ++pSprite->mHeight;
     return -1;
 }
 
 void cFodder::Sprite_Handle_Helicopter_Human_Deploy_Weapon(sSprite* pSprite) {
     sSprite* Data2C = 0, *Data34 = 0;
 
-    if (!pSprite->field_57)
-        if (!pSprite->field_54)
+    if (!pSprite->mWeaponCooldown)
+        if (!pSprite->mFiredWeaponType)
             return;
 
-    pSprite->field_54 = 0;
+    pSprite->mFiredWeaponType = 0;
 
-    if (pSprite->field_20 <= 0x1F)
+    if (pSprite->mHeight <= 0x1F)
         return;
 
-    if (pSprite->field_6F == eVehicle_Helicopter_Grenade)
+    if (pSprite->mVehicleType == eVehicle_Helicopter_Grenade)
         goto loc_24905;
 
-    if (pSprite->field_6F == eVehicle_Helicopter_Missile)
+    if (pSprite->mVehicleType == eVehicle_Helicopter_Missile)
         goto loc_24917;
 
-    if (pSprite->field_6F == eVehicle_Helicopter_Homing)
+    if (pSprite->mVehicleType == eVehicle_Helicopter_Homing)
         goto loc_24917;
 
     return;
@@ -175,7 +175,7 @@ loc_24905:;
     goto loc_24942;
 
 loc_2490D:;
-    pSprite->field_57 = -1;
+    pSprite->mWeaponCooldown = -1;
     return;
 
 loc_24917:;
@@ -183,7 +183,7 @@ loc_24917:;
     mSprite_Missile_LaunchDistance_Y = -12;
 
     // Homing Missle and can get lock on a target?
-    if (pSprite->field_6F == eVehicle_Helicopter_Homing &&
+    if (pSprite->mVehicleType == eVehicle_Helicopter_Homing &&
         Sprite_Homing_LockInRange(pSprite, Data34)) {
 
         // Launch a homing missile
@@ -198,33 +198,33 @@ loc_24917:;
     }
 
 loc_24942:;
-    pSprite->field_57 = 0;
+    pSprite->mWeaponCooldown = 0;
 }
 
 int16 cFodder::Sprite_Handle_Helicopter_Enemy_Weapon(sSprite* pSprite, sSprite*& pData30) {
     int16 Data0;
     sSprite* Data2C = 0, *Data34 = 0;
 
-    if (pSprite->field_6F == eVehicle_Helicopter_Grenade)
+    if (pSprite->mVehicleType == eVehicle_Helicopter_Grenade)
         goto loc_25344;
 
-    if (pSprite->field_6F == eVehicle_Helicopter_Missile)
+    if (pSprite->mVehicleType == eVehicle_Helicopter_Missile)
         goto loc_253E7;
 
-    if (pSprite->field_6F == eVehicle_Helicopter_Homing)
+    if (pSprite->mVehicleType == eVehicle_Helicopter_Homing)
         goto loc_253E7;
 
 loc_25344:;
-    pSprite->field_26 = pData30->field_0;
-    pSprite->field_26 += 0x14;
-    pSprite->field_28 = pData30->field_4;
-    pSprite->field_26 -= 0x1E;
-    if (pSprite->field_26 < 0)
-        pSprite->field_26 = 0;
+    pSprite->mTargetX = pData30->mPosX;
+    pSprite->mTargetX += 0x14;
+    pSprite->mTargetY = pData30->mPosY;
+    pSprite->mTargetX -= 0x1E;
+    if (pSprite->mTargetX < 0)
+        pSprite->mTargetX = 0;
 
-    pSprite->field_2E = pData30->field_0;
-    pSprite->field_30 = pData30->field_4;
-    if (pSprite->field_20 <= 0x1F)
+    pSprite->mWeaponTargetX = pData30->mPosX;
+    pSprite->mWeaponTargetY = pData30->mPosY;
+    if (pSprite->mHeight <= 0x1F)
         goto loc_253D2;
 
     if (mMission_EngineTicks & 0x0F)
@@ -242,10 +242,10 @@ loc_253DE:;
     return 0;
 
 loc_253E7:;
-    pSprite->field_26 = pData30->field_0;
-    pSprite->field_28 = pData30->field_4;
-    pSprite->field_2E = pData30->field_0;
-    pSprite->field_30 = pData30->field_4;
+    pSprite->mTargetX = pData30->mPosX;
+    pSprite->mTargetY = pData30->mPosY;
+    pSprite->mWeaponTargetX = pData30->mPosX;
+    pSprite->mWeaponTargetY = pData30->mPosY;
 
     Data0 = mSprite_DistanceTo_Squad0;
     if (Data0 <= 0x3C)
@@ -253,16 +253,16 @@ loc_253E7:;
     if (Data0 >= 0x8C)
         goto loc_254E7;
 
-    if (pSprite->field_20 >= 0x19) {
+    if (pSprite->mHeight >= 0x19) {
         if (!(mMission_EngineTicks & 0x0F)) {
             mSprite_Missile_LaunchDistance_X = 0x0E;
             mSprite_Missile_LaunchDistance_Y = -12;
-            if (pSprite->field_6F == eVehicle_Helicopter_Homing) {
+            if (pSprite->mVehicleType == eVehicle_Helicopter_Homing) {
 
                 Data34 = pData30;
                 if (Sprite_Create_MissileHoming(pSprite, Data2C, Data34)) {
-                    Data2C->field_6A = 0x2000;
-                    Data2C->field_36 = 0x14;
+                    Data2C->mHomingAccelFixed = 0x2000;
+                    Data2C->mSpeed = 0x14;
                 }
             }
             else {
@@ -271,23 +271,23 @@ loc_253E7:;
         }
     }
 
-    if (pSprite->field_36 < 0)
+    if (pSprite->mSpeed < 0)
         goto loc_254E7;
 
-    pSprite->field_36 -= 4;
-    if (pSprite->field_36 < 0)
-        pSprite->field_36 = 0;
+    pSprite->mSpeed -= 4;
+    if (pSprite->mSpeed < 0)
+        pSprite->mSpeed = 0;
     goto loc_254E7;
 
 loc_254C7:;
 
-    if (pSprite->field_36 >= 0)
+    if (pSprite->mSpeed >= 0)
         goto loc_254DE;
 
-    if (pSprite->field_36 < -34)
+    if (pSprite->mSpeed < -34)
         goto loc_254E7;
 loc_254DE:;
-    pSprite->field_36 -= 3;
+    pSprite->mSpeed -= 3;
 
 loc_254E7:;
     Data0 = tool_RandomGet() & 0x0F;
@@ -306,33 +306,33 @@ void cFodder::Sprite_Handle_Helicopter_Enemy(sSprite* pSprite) {
     sSprite* Data24 = 0, *Data30 = 0;
 
     // Bullets don't hit choppers
-    if (pSprite->field_38 == eSprite_Anim_Hit)
-        pSprite->field_38 = eSprite_Anim_None;
+    if (pSprite->mAnimState == eSprite_Anim_Hit)
+        pSprite->mAnimState = eSprite_Anim_None;
 
-    if (pSprite->field_38) {
+    if (pSprite->mAnimState) {
         mSprite_Helicopter_DestroyLight = -1;
 
-        pSprite->field_22 = eSprite_PersonType_AI;
+        pSprite->mPersonType = eSprite_PersonType_AI;
         Sprite_Handle_Helicopter(pSprite);
-        pSprite->field_22 = eSprite_PersonType_AI;
+        pSprite->mPersonType = eSprite_PersonType_AI;
 
         mSprite_Helicopter_DestroyLight = 0;
         goto loc_25288;
     }
 
     if (!pSprite->field_43) {
-        pSprite->field_46 = (pSprite->field_0 << 16) | (pSprite->field_4 & 0xFFFF);
+        pSprite->field_46 = (pSprite->mPosX << 16) | (pSprite->mPosY & 0xFFFF);
         pSprite->field_43 = -1;
     }
 
     if (pSprite->field_4C)
         --pSprite->field_4C;
 
-    if (pSprite->field_20)
+    if (pSprite->mHeight)
         goto loc_250D2;
 
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
+    Data0 = pSprite->mPosX;
+    Data4 = pSprite->mPosY;
     Data8 = ((int64)pSprite->field_46) >> 16;
     DataC = ((int64)pSprite->field_46) & 0xFFFF;
 
@@ -340,9 +340,9 @@ void cFodder::Sprite_Handle_Helicopter_Enemy(sSprite* pSprite) {
     if (Data0 > 0x14)
         goto loc_250D2;
 
-    Data8 = pSprite->field_62;
+    Data8 = pSprite->mAIAggression;
     if ((uint16)Data8 >= 0x1F4) {
-        if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2)
+        if (pSprite->mSpriteType == eSprite_Helicopter_Homing_Enemy2)
             if (mHelicopterCall_X < 0)
                 goto loc_24FF1;
 
@@ -354,7 +354,7 @@ loc_24FF1:;
     if (mVersionCurrent->isDemo()) {
         Data8 += 0x20;
         if (Data8)
-            pSprite->field_62 = Data8;
+            pSprite->mAIAggression = Data8;
 
     }
     else {
@@ -362,7 +362,7 @@ loc_24FF1:;
         Data8 += mGame_Data.mGamePhase_Data.mSprite_Enemy_AggressionAverage;
 
         if (Data8 >= 0)
-            pSprite->field_62 = Data8;
+            pSprite->mAIAggression = Data8;
     }
 
     goto loc_25239;
@@ -396,14 +396,14 @@ loc_2500F:;
     if (Map_Terrain_GetMoveable_WithCache(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
         goto loc_25239;
 
-    pSprite->field_26 = Data10;
-    pSprite->field_28 = Data14;
+    pSprite->mTargetX = Data10;
+    pSprite->mTargetY = Data14;
     pSprite->field_4C = 0x5A;
     goto loc_25239;
 
 loc_250D2:;
 
-    if (pSprite->field_6F == eVehicle_Helicopter)
+    if (pSprite->mVehicleType == eVehicle_Helicopter)
         goto loc_251D2;
 
     Data1C = pSprite->field_5E_Squad;
@@ -415,21 +415,21 @@ loc_250D2:;
     if (Data30 == INVALID_SPRITE_PTR)
         goto loc_251B4;
 
-    if (Data30->field_52)
+    if (Data30->mRowsToSkip)
         goto loc_251B4;
 
-    Data8 = Data30->field_0;
+    Data8 = Data30->mPosX;
     Data8 += 8;
-    DataC = Data30->field_4;
+    DataC = Data30->mPosY;
     DataC += -5;
 
     if (Map_Terrain_GetMoveable_WithCache(mTiles_NotDriveable, Data8, DataC, Data10, Data14))
         goto loc_251B4;
 
-    Data0 = Data30->field_0;
-    Data4 = Data30->field_4;
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_4;
+    Data0 = Data30->mPosX;
+    Data4 = Data30->mPosY;
+    Data8 = pSprite->mPosX;
+    DataC = pSprite->mPosY;
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
 
     mSprite_DistanceTo_Squad0 = Data0;
@@ -443,12 +443,12 @@ loc_251B4:;
         pSprite->field_5E_Squad = 0;
 
 loc_251D2:;
-    if (pSprite->field_62) {
-        --pSprite->field_62;
+    if (pSprite->mAIAggression) {
+        --pSprite->mAIAggression;
     }
     else {
-        pSprite->field_26 = ((int64)pSprite->field_46) >> 16;
-        pSprite->field_28 = ((int64)pSprite->field_46) & 0xFFFF;
+        pSprite->mTargetX = ((int64)pSprite->field_46) >> 16;
+        pSprite->mTargetY = ((int64)pSprite->field_46) & 0xFFFF;
         goto loc_25239;
     }
 
@@ -456,7 +456,7 @@ loc_251D2:;
     if (!Data0)
         goto loc_2500F;
 
-    if (!pSprite->field_20) {
+    if (!pSprite->mHeight) {
         Data0 = tool_RandomGet() & 0x0F;
         if (!Data0) {
             sSprite* Data2C;
@@ -466,32 +466,32 @@ loc_251D2:;
 
 loc_25239:;
     mSprite_Helicopter_DestroyLight = -1;
-    pSprite->field_22 = eSprite_PersonType_AI;
+    pSprite->mPersonType = eSprite_PersonType_AI;
     Sprite_Handle_Helicopter(pSprite);
 
-    pSprite->field_22 = eSprite_PersonType_AI;
+    pSprite->mPersonType = eSprite_PersonType_AI;
     mSprite_Helicopter_DestroyLight = 0;
     Data24 = pSprite + 1;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
 
     ++Data24;
-    Data24->field_18 = eSprite_Null;
+    Data24->mSpriteType = eSprite_Null;
 
 loc_25288:;
 
     Data24 = pSprite + 3;
-    Data24->field_18 = eSprite_Flashing_Light;
-    Data0 = pSprite->field_A << 1;
+    Data24->mSpriteType = eSprite_Flashing_Light;
+    Data0 = pSprite->mFrameIndex << 1;
 
-    Data4 = pSprite->field_0;
+    Data4 = pSprite->mPosX;
     Data4 += mSprite_Helicopter_Light_Positions[Data0];
-    Data24->field_0 = Data4;
+    Data24->mPosX = Data4;
 
-    Data4 = pSprite->field_4;
+    Data4 = pSprite->mPosY;
     Data4 += mSprite_Helicopter_Light_Positions[Data0 + 1];
-    Data24->field_4 = Data4;
+    Data24->mPosY = Data4;
 
-    Data24->field_20 = pSprite->field_20;
+    Data24->mHeight = pSprite->mHeight;
 }
 
 int16 cFodder::Sprite_Handle_Helicopter_Callpad_InRange(sSprite* pSprite, sSprite*& pData2C) {
@@ -504,15 +504,15 @@ int16 cFodder::Sprite_Handle_Helicopter_Callpad_InRange(sSprite* pSprite, sSprit
 
         pData2C = *Data28++;
 
-        if (pData2C->field_6E)
+        if (pData2C->mInVehicle)
             continue;
-        if (pData2C->field_38)
+        if (pData2C->mAnimState)
             continue;
 
-        Data0 = pSprite->field_0 - 2;
-        int16 Data4 = pSprite->field_4 - 8;
-        int16 Data8 = pData2C->field_0;
-        int16 DataC = pData2C->field_4;
+        Data0 = pSprite->mPosX - 2;
+        int16 Data4 = pSprite->mPosY - 8;
+        int16 Data8 = pData2C->mPosX;
+        int16 DataC = pData2C->mPosY;
         int16 Data10 = 0x20;
 
         Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
@@ -529,24 +529,24 @@ void cFodder::Sprite_Handle_Helicopter_Human_CallCheck(sSprite* pSprite) {
     if (pSprite->field_75)
         return;
 
-    pSprite->field_26 = pSprite->field_0;
-    pSprite->field_28 = pSprite->field_4;
+    pSprite->mTargetX = pSprite->mPosX;
+    pSprite->mTargetY = pSprite->mPosY;
     if (mHelicopterCall_X < 0)
         return;
 
-    pSprite->field_26 = mHelicopterCall_X;
-    pSprite->field_28 = mHelicopterCall_Y;
-    int16 Data0 = pSprite->field_0;
-    int16 Data4 = pSprite->field_4;
-    int16 Data8 = pSprite->field_26;
-    int16 DataC = pSprite->field_28;
+    pSprite->mTargetX = mHelicopterCall_X;
+    pSprite->mTargetY = mHelicopterCall_Y;
+    int16 Data0 = pSprite->mPosX;
+    int16 Data4 = pSprite->mPosY;
+    int16 Data8 = pSprite->mTargetX;
+    int16 DataC = pSprite->mTargetY;
     int16 Data10 = 0x3F;
     Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
     if (Data0 >= 0x2C)
         return;
 
     pSprite->field_75 = -1;
-    pSprite->field_6E = -1;
+    pSprite->mInVehicle = -1;
 }
 
 void cFodder::Sprite_Handle_Helicopter(sSprite* pSprite) {
@@ -569,73 +569,73 @@ void cFodder::Sprite_Handle_Helicopter(sSprite* pSprite) {
     else
         Data0 = mSprite_Helicopter_Sounds[Data0 / 2];
 
-    if (pSprite->field_22 != eSprite_PersonType_Human) {
-        if (pSprite->field_20 <= 1)
+    if (pSprite->mPersonType != eSprite_PersonType_Human) {
+        if (pSprite->mHeight <= 1)
             goto loc_19EE5;
     }
     else {
 
         // Just off the ground?
-        if (pSprite->field_20 < 2) {
+        if (pSprite->mHeight < 2) {
             if (pSprite != mSquad_CurrentVehicle)
                 goto loc_19EE5;
         }
     }
 
     word_3B4ED[0] = -1;
-    Data4 = pSprite->field_20;
+    Data4 = pSprite->mHeight;
     if (Data4 < 0x10)
         Data4 = 0x10;
 
     Sprite_Map_Sound_Play(Data0);
 
 loc_19EE5:;
-    pSprite->field_65 = -1;
+    pSprite->mVehicleEnabled = -1;
 
-    if (pSprite->field_38 == eSprite_Anim_None)
+    if (pSprite->mAnimState == eSprite_Anim_None)
         goto loc_1A149;
 
-    if (pSprite->field_18 == eSprite_Helicopter_Homing_Enemy2) {
+    if (pSprite->mSpriteType == eSprite_Helicopter_Homing_Enemy2) {
 
         if (mHelicopterCall_X >= 0) {
 
             if (pSprite->field_75 != 0x71) {
                 pSprite->field_75 = 0x71;
-                pSprite->field_74 = static_cast<int8>(pSprite->field_A);
+                pSprite->mHeliRestartFrame = static_cast<int8>(pSprite->mFrameIndex);
             }
 
-            pSprite->field_A += 1;
-            pSprite->field_A &= 0x0F;
+            pSprite->mFrameIndex += 1;
+            pSprite->mFrameIndex &= 0x0F;
 
-            if (pSprite->field_A == pSprite->field_74) {
+            if (pSprite->mFrameIndex == pSprite->mHeliRestartFrame) {
                 pSprite->field_75 = 0;
-                pSprite->field_38 = eSprite_Anim_None;
+                pSprite->mAnimState = eSprite_Anim_None;
             }
 
             Data24 = pSprite + 1;
 
-            Data24->field_8 = 0x8C;
-            Data24->field_0 = pSprite->field_0;
-            Data24->field_4 = pSprite->field_4 + 1;
-            Data24->field_20 = pSprite->field_20 + 0x0E;
+            Data24->mSheetIndex = 0x8C;
+            Data24->mPosX = pSprite->mPosX;
+            Data24->mPosY = pSprite->mPosY + 1;
+            Data24->mHeight = pSprite->mHeight + 0x0E;
 
             if (!word_3B4ED[0])
-                if (!pSprite->field_1E && !pSprite->field_20)
+                if (!pSprite->mHeightFrac && !pSprite->mHeight)
                     return;
 
-            if (pSprite->field_20 < 0x0C)
+            if (pSprite->mHeight < 0x0C)
                 if (mMission_EngineTicks & 1)
                     return;
 
-            Data24->field_A += 1;
-            Data24->field_A &= 3;
+            Data24->mFrameIndex += 1;
+            Data24->mFrameIndex &= 3;
             return;
         }
     }
 
-    if (pSprite->field_26 != 0x7171) {
+    if (pSprite->mTargetX != 0x7171) {
 
-        pSprite->field_26 = 0x7171;
+        pSprite->mTargetX = 0x7171;
         pSprite->field_1A = 0x10000;
 
         Data0 = tool_RandomGet() & 0x0F;
@@ -652,30 +652,30 @@ loc_19EE5:;
 
     pSprite->field_1A = (((int64)pSprite->field_1A) + 0x2000);
     Data0 = ((int64)pSprite->field_1A) >> 16;
-    pSprite->field_A += Data0;
-    pSprite->field_A &= 0x0F;
+    pSprite->mFrameIndex += Data0;
+    pSprite->mFrameIndex &= 0x0F;
     pSprite->field_2A -= 1;
     if (pSprite->field_2A >= 0) {
 
-        pSprite->field_1E_Big -= 0x18000;
-        if (pSprite->field_1E_Big >= 0)
+        pSprite->mHeightFixed -= 0x18000;
+        if (pSprite->mHeightFixed >= 0)
             goto loc_1A404;
 
-        pSprite->field_1E_Big = 0;
+        pSprite->mHeightFixed = 0;
     }
 
-    pSprite->field_18 = eSprite_Explosion;
-    pSprite->field_26 = 0x1F50;
-    pSprite->field_28 = -9;
-    (pSprite + 1)->field_18 = eSprite_Helicopter_PropCrash;
+    pSprite->mSpriteType = eSprite_Explosion;
+    pSprite->mTargetX = 0x1F50;
+    pSprite->mTargetY = -9;
+    (pSprite + 1)->mSpriteType = eSprite_Helicopter_PropCrash;
 
     Data0 = tool_RandomGet() & 0x1FE;
-    (pSprite + 1)->field_10 = Data0;
-    (pSprite + 1)->field_36 = 0x60;
+    (pSprite + 1)->mDirection = Data0;
+    (pSprite + 1)->mSpeed = 0x60;
 
     Sprite_Destroy(pSprite + 2);
 
-    if (pSprite->field_22 == eSprite_PersonType_Human)
+    if (pSprite->mPersonType == eSprite_PersonType_Human)
         Sprites_HumanVehicles_Remove(pSprite);
 
     if (mSprite_Helicopter_DestroyLight)
@@ -684,14 +684,14 @@ loc_19EE5:;
     return;
 
 loc_1A149:;
-    pSprite->field_8 = 0x8B;
+    pSprite->mSheetIndex = 0x8B;
     if (pSprite->field_44)
         goto loc_1A217;
 
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = pSprite->field_26;
-    DataC = pSprite->field_28;
+    Data0 = pSprite->mPosX;
+    Data4 = pSprite->mPosY;
+    Data8 = pSprite->mTargetX;
+    DataC = pSprite->mTargetY;
 
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     dword_3B24B = Data0;
@@ -701,34 +701,34 @@ loc_1A149:;
 
     Data0 >>= 1;
 
-    if (Data0 > pSprite->field_36)
+    if (Data0 > pSprite->mSpeed)
         goto loc_1A217;
 
-    if (pSprite->field_22 != eSprite_PersonType_Human) {
-        pSprite->field_36 = Data0;
+    if (pSprite->mPersonType != eSprite_PersonType_Human) {
+        pSprite->mSpeed = Data0;
         if (!Data0) {
-            Data8 = pSprite->field_0;
-            DataC = pSprite->field_4;
+            Data8 = pSprite->mPosX;
+            DataC = pSprite->mPosY;
 
             if (Map_Terrain_GetMoveable_WithCache(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
                 goto loc_1A316;
 
-            Data8 = pSprite->field_0;
+            Data8 = pSprite->mPosX;
             Data8 -= 0x10;
-            DataC = pSprite->field_4;
+            DataC = pSprite->mPosY;
 
             if (Map_Terrain_GetMoveable_WithCache(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
                 goto loc_1A316;
 
-            Data8 = pSprite->field_0;
+            Data8 = pSprite->mPosX;
             Data8 += 0x10;
-            DataC = pSprite->field_4;
+            DataC = pSprite->mPosY;
 
             if (Map_Terrain_GetMoveable_WithCache(mTiles_NotFlyable, Data8, DataC, Data10, Data14))
                 goto loc_1A316;
 
-            if (pSprite->field_20) {
-                pSprite->field_1E_Big -= 0x8000;
+            if (pSprite->mHeight) {
+                pSprite->mHeightFixed -= 0x8000;
             }
             goto loc_1A316;
         }
@@ -736,129 +736,129 @@ loc_1A149:;
         goto loc_1A316;
     }
 
-    pSprite->field_36 = Data0;
-    if (!pSprite->field_6E)
+    pSprite->mSpeed = Data0;
+    if (!pSprite->mInVehicle)
         goto loc_1A316;
 
-    pSprite->field_1E_Big -= 0xC000;
+    pSprite->mHeightFixed -= 0xC000;
 
-    if (pSprite->field_1E_Big < 0) {
-        pSprite->field_1E_Big = 0;
+    if (pSprite->mHeightFixed < 0) {
+        pSprite->mHeightFixed = 0;
     }
     Sprite_Handle_Helicopter_Terrain_Check(pSprite);
     goto loc_1A316;
 
 loc_1A217:;
-    if (pSprite->field_20 < 0x20) {
-        pSprite->field_20++;
-        if (pSprite->field_20 < 0x12)
+    if (pSprite->mHeight < 0x20) {
+        pSprite->mHeight++;
+        if (pSprite->mHeight < 0x12)
             goto loc_1A316;
     }
     //loc_1A239
-    if (pSprite->field_36 >= 0x30)
+    if (pSprite->mSpeed >= 0x30)
         goto loc_1A316;
 
-    pSprite->field_36 += 2;
+    pSprite->mSpeed += 2;
     if (dword_3B24B >= 0x60)
         goto loc_1A316;
 
-    if (!pSprite->field_6E)
+    if (!pSprite->mInVehicle)
         goto loc_1A316;
 
-    pSprite->field_1E_Big -= 0xC000;
+    pSprite->mHeightFixed -= 0xC000;
 
-    if (pSprite->field_1E_Big < 0) {
-        pSprite->field_1E_Big = 0;
+    if (pSprite->mHeightFixed < 0) {
+        pSprite->mHeightFixed = 0;
     }
     goto loc_1A316;
 
 loc_1A316:;
-    if (pSprite->field_26 >= 0 && pSprite->field_28 >= 0) {
+    if (pSprite->mTargetX >= 0 && pSprite->mTargetY >= 0) {
 
-        if (pSprite->field_20)
+        if (pSprite->mHeight)
             Sprite_Movement_Calculate(pSprite);
     }
 
-    if (pSprite->field_22 == eSprite_PersonType_Human && !pSprite->field_36 &&
-        pSprite->field_20 >= 0x20) {
+    if (pSprite->mPersonType == eSprite_PersonType_Human && !pSprite->mSpeed &&
+        pSprite->mHeight >= 0x20) {
         Data0 = mMouseX + (mCameraX >> 16);
         Data0 -= 0x10;
 
         Data4 = mMouseY + (mCameraY >> 16);
         Data4 += 0x20;
-        pSprite->field_36 = 0x1E;
+        pSprite->mSpeed = 0x1E;
         Sprite_Helicopter_Update_Direction(pSprite, Data0, Data4);
-        pSprite->field_36 = 0;
+        pSprite->mSpeed = 0;
 
-        Data8 = pSprite->field_3C;
-        if (pSprite->field_22 != eSprite_PersonType_Human) {
-            if (!pSprite->field_36)
+        Data8 = pSprite->mFaceDirection;
+        if (pSprite->mPersonType != eSprite_PersonType_Human) {
+            if (!pSprite->mSpeed)
                 goto loc_1A404;
         }
-        pSprite->field_A = Data8;
+        pSprite->mFrameIndex = Data8;
     }
     else {
 
         word_3B2F7 = 0x3A;
-        Data0 = pSprite->field_26;
-        Data4 = pSprite->field_28;
+        Data0 = pSprite->mTargetX;
+        Data4 = pSprite->mTargetY;
         Sprite_Vehicle_TurnTowardTarget(pSprite, Data0, Data4);
     }
 
 loc_1A404:;
     Data24 = pSprite + 1;
-    Data24->field_8 = 0x8C;
-    Data24->field_0 = pSprite->field_0;
-    Data24->field_4 = pSprite->field_4;
-    Data24->field_4 += 1;
-    Data0 = pSprite->field_20;
+    Data24->mSheetIndex = 0x8C;
+    Data24->mPosX = pSprite->mPosX;
+    Data24->mPosY = pSprite->mPosY;
+    Data24->mPosY += 1;
+    Data0 = pSprite->mHeight;
     Data0 += 0x0E;
-    Data24->field_20 = Data0;
+    Data24->mHeight = Data0;
 
     if (!word_3B4ED[0])
-        if (!pSprite->field_1E_Big)
+        if (!pSprite->mHeightFixed)
             goto loc_1A49C;
 
-    if (pSprite->field_20 < 0x0C)
+    if (pSprite->mHeight < 0x0C)
         if (mMission_EngineTicks & 1)
             goto loc_1A49C;
 
-    Data24->field_A += 1;
-    Data24->field_A &= 3;
+    Data24->mFrameIndex += 1;
+    Data24->mFrameIndex &= 3;
 
 loc_1A49C:;
     Data24++;
-    Data24->field_8 = 0x8D;
+    Data24->mSheetIndex = 0x8D;
 
-    Data0 = pSprite->field_20;
+    Data0 = pSprite->mHeight;
     Data0 >>= 4;
     if (Data0 > 2)
         Data0 = 2;
 
-    Data24->field_A = Data0;
-    Data24->field_2C = eSprite_Draw_First;
+    Data24->mFrameIndex = Data0;
+    Data24->mDrawOrder = eSprite_Draw_First;
 
-    Data0 = pSprite->field_20;
+    Data0 = pSprite->mHeight;
     Data0 >>= 1;
     Data4 = Data0;
     Data0 += 9;
 
-    Data0 += pSprite->field_0;
-    Data24->field_0 = Data0;
+    Data0 += pSprite->mPosX;
+    Data24->mPosX = Data0;
     Data4 -= 1;
-    Data4 += pSprite->field_4;
-    Data24->field_4 = Data4;
+    Data4 += pSprite->mPosY;
+    Data24->mPosY = Data4;
 
-    if (pSprite->field_22 == eSprite_PersonType_Human) {
-        if (pSprite->field_20) {
+    if (pSprite->mPersonType == eSprite_PersonType_Human) {
+        if (pSprite->mHeight) {
 
-            Data8 = pSprite->field_0;
-            DataC = pSprite->field_0;
+            Data8 = pSprite->mPosX;
+            DataC = pSprite->mPosX;
             DataC += 0x1E;
-            Data10 = pSprite->field_4;
+            Data10 = pSprite->mPosY;
             Data10 -= 0x14;
-            Data14 = pSprite->field_4;
-            Data18 = pSprite->field_20;
+            Data14 = pSprite->mPosY;
+            Data18 = pSprite->mHeight;
             Data1C = Data18;
             Data1C += 0x0E;
 
@@ -866,85 +866,85 @@ loc_1A49C:;
         }
     }
 
-    pSprite->field_22 = eSprite_PersonType_Human;
+    pSprite->mPersonType = eSprite_PersonType_Human;
 }
 
 void cFodder::Sprite_Handle_Helicopter_Grenade_Enemy(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter_Grenade;
+    pSprite->mVehicleType = eVehicle_Helicopter_Grenade;
     Sprite_Handle_Helicopter_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Unarmed_Enemy(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter;
+    pSprite->mVehicleType = eVehicle_Helicopter;
     Sprite_Handle_Helicopter_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Missile_Enemy(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter_Missile;
+    pSprite->mVehicleType = eVehicle_Helicopter_Missile;
     Sprite_Handle_Helicopter_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Homing_Enemy(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter_Homing;
+    pSprite->mVehicleType = eVehicle_Helicopter_Homing;
     Sprite_Handle_Helicopter_Enemy(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Unarmed_Human(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter;
+    pSprite->mVehicleType = eVehicle_Helicopter;
     Sprite_Handle_Helicopter_Human(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Grenade_Human(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter_Grenade;
+    pSprite->mVehicleType = eVehicle_Helicopter_Grenade;
     Sprite_Handle_Helicopter_Human(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Missile_Human(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter_Missile;
+    pSprite->mVehicleType = eVehicle_Helicopter_Missile;
     Sprite_Handle_Helicopter_Human(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_Homing_Human(sSprite* pSprite) {
 
-    pSprite->field_6F = eVehicle_Helicopter_Homing;
+    pSprite->mVehicleType = eVehicle_Helicopter_Homing;
     Sprite_Handle_Helicopter_Human(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_PropCrash(sSprite* pSprite) {
-    pSprite->field_A += 1;
-    pSprite->field_A &= 3;
+    pSprite->mFrameIndex += 1;
+    pSprite->mFrameIndex &= 3;
 
     Sprite_Movement_Calculate(pSprite);
     if (mSprite_Bullet_Destroy)
         goto loc_1C321;
 
-    pSprite->field_36 -= 1;
-    if (pSprite->field_36 < 0)
-        pSprite->field_36 = 0;
+    pSprite->mSpeed -= 1;
+    if (pSprite->mSpeed < 0)
+        pSprite->mSpeed = 0;
 
-    pSprite->field_1E_Big -= 0x8000;
+    pSprite->mHeightFixed -= 0x8000;
 
-    if (pSprite->field_1E_Big < 0) {
-        pSprite->field_1E_Big = 0;
+    if (pSprite->mHeightFixed < 0) {
+        pSprite->mHeightFixed = 0;
     }
 
 loc_1C321:;
-    pSprite->field_18 = eSprite_Explosion;
+    pSprite->mSpriteType = eSprite_Explosion;
     Sprite_Create_FireTrail(pSprite);
 }
 
 void cFodder::Sprite_Handle_Helicopter_CallPad(sSprite* pSprite) {
     sSprite* Data2C = 0;
 
-    pSprite->field_8 = 0xE7;
-    pSprite->field_2C = eSprite_Draw_First;
+    pSprite->mSheetIndex = 0xE7;
+    pSprite->mDrawOrder = eSprite_Draw_First;
 
     // Find a troop inrange 
     if (Sprite_Handle_Helicopter_Callpad_InRange(pSprite, Data2C)) {
@@ -960,7 +960,7 @@ void cFodder::Sprite_Handle_Helicopter_CallPad(sSprite* pSprite) {
     }
 
     if (mHelicopterCall_X < 0) {
-        pSprite->field_A = 0;
+        pSprite->mFrameIndex = 0;
         return;
     }
 
@@ -968,7 +968,7 @@ void cFodder::Sprite_Handle_Helicopter_CallPad(sSprite* pSprite) {
     Data0 += 2;
     Data0 &= 6;
 
-    pSprite->field_A = mSprite_Helicopter_CallPad_Frames[Data0 / 2];
+    pSprite->mFrameIndex = mSprite_Helicopter_CallPad_Frames[Data0 / 2];
     pSprite->field_32 = Data0;
 }
 
@@ -1003,14 +1003,14 @@ void cFodder::Sprite_Handle_UFO_Callpad(sSprite* pSprite) {
     if (mHelicopterCall_X > 0) {
 
         mSwitchesActivated = true;
-        pSprite->field_8 = 0xE8;
-        pSprite->field_A = 0;
+        pSprite->mSheetIndex = 0xE8;
+        pSprite->mFrameIndex = 0;
 
         sSprite* Data24 = pSprite + 1;
-        Data24->field_8 = 0x8D;
-        Data24->field_A = 0x01;
-        if (pSprite->field_20 >= 0x14)
-            pSprite->field_1E_Big -= 0xC000;
+        Data24->mSheetIndex = 0x8D;
+        Data24->mFrameIndex = 0x01;
+        if (pSprite->mHeight >= 0x14)
+            pSprite->mHeightFixed -= 0xC000;
         
         int16 Data0 = mHelicopterCall_X;
         int16 Data4 = mHelicopterCall_Y - 0x28;
@@ -1019,8 +1019,8 @@ void cFodder::Sprite_Handle_UFO_Callpad(sSprite* pSprite) {
 
         Data0 = mHelicopterCall_X;
         Data4 = mHelicopterCall_Y - 0x28;
-        int16 Data8 = pSprite->field_0;
-        int16 DataC = pSprite->field_4;
+        int16 Data8 = pSprite->mPosX;
+        int16 DataC = pSprite->mPosY;
         int16 Data10 = 0x60;
 
         Data0 = Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
@@ -1029,25 +1029,25 @@ void cFodder::Sprite_Handle_UFO_Callpad(sSprite* pSprite) {
         if (Data0 < 8)
             Data0 = 8;
 
-        pSprite->field_36 = Data0;
+        pSprite->mSpeed = Data0;
         Sprite_Movement_Calculate(pSprite);
         Sprite_PositionNext_AdjustByHeight(pSprite);
     } else {
         // loc_2DBE8
-        pSprite->field_8 = 0x7C;
-        pSprite->field_A = 0;
+        pSprite->mSheetIndex = 0x7C;
+        pSprite->mFrameIndex = 0;
 
         sSprite* Data24 = pSprite + 1;
-        Data24->field_8 = 0x7C;
-        Data24->field_A = 0;
+        Data24->mSheetIndex = 0x7C;
+        Data24->mFrameIndex = 0;
 
         if (mSquad_Leader && mSquad_Leader != INVALID_SPRITE_PTR) {
  
-            pSprite->field_0 = mSquad_Leader->field_0 + 0x190;
-            pSprite->field_4 = mSquad_Leader->field_4;
+            pSprite->mPosX = mSquad_Leader->mPosX + 0x190;
+            pSprite->mPosY = mSquad_Leader->mPosY;
         }
 
-        pSprite->field_20 = 0x64;
+        pSprite->mHeight = 0x64;
         Sprite_PositionNext_AdjustByHeight(pSprite);
     }
 }

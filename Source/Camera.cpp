@@ -75,8 +75,8 @@ void cFodder::Camera_PanTarget_AdjustToward_SquadLeader()
     if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0)
         return;
 
-    int16 SquadLeaderX = mSquad_Leader->field_0 + 0x18;
-    int16 SquadLeaderY = mSquad_Leader->field_4;
+    int16 SquadLeaderX = mSquad_Leader->mPosX + 0x18;
+    int16 SquadLeaderY = mSquad_Leader->mPosY;
     int16 Data18 = SquadLeaderX;
     int16 Data1C = SquadLeaderY;
 
@@ -646,8 +646,8 @@ void cFodder::Camera_Acceleration_Set()
     if (mSquad_Leader == INVALID_SPRITE_PTR || mSquad_Leader == 0)
         return;
 
-    int16 DistanceX = mSquad_Leader->field_0 + 0x40;
-    int16 DistanceY = mSquad_Leader->field_4 + 0x10;
+    int16 DistanceX = mSquad_Leader->mPosX + 0x40;
+    int16 DistanceY = mSquad_Leader->mPosY + 0x10;
 
     DistanceX -= mCameraX >> 16;
     DistanceY -= mCameraY >> 16;

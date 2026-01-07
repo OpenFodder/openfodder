@@ -100,7 +100,7 @@ void cOriginalMap::loadCF1Spt(tSharedBuffer pSpriteData, bool pCF2) {
 
 	for (uint16 HumanCount = 0; SptPtr != SptFileEnd; ++Sprite) {
 		++SptPtr;
-		Sprite->field_8 = 0x7C;
+		Sprite->mSheetIndex = 0x7C;
 
 		uint16 ax = HumanCount / 8;
 		Sprite->field_32 = ax;
@@ -108,17 +108,17 @@ void cOriginalMap::loadCF1Spt(tSharedBuffer pSpriteData, bool pCF2) {
 
 		ax = SptPtr[0];
 		++SptPtr;
-		Sprite->field_0 = ax + 0x10;
-		Sprite->field_26 = ax + 0x10;
+		Sprite->mPosX = ax + 0x10;
+		Sprite->mTargetX = ax + 0x10;
 
 		ax = SptPtr[0];
 		++SptPtr;
-		Sprite->field_4 = ax;
-		Sprite->field_28 = ax;
+		Sprite->mPosY = ax;
+		Sprite->mTargetY = ax;
 
 		ax = SptPtr[0];
 		++SptPtr;
-		Sprite->field_18 = ax;
+		Sprite->mSpriteType = ax;
 
 		// 114B
 
@@ -126,7 +126,7 @@ void cOriginalMap::loadCF1Spt(tSharedBuffer pSpriteData, bool pCF2) {
 		//       This causes some sprites to be overwritten by null/lights on later missions in CF2
 		if (pCF2) {
 			if (Sprite > mSprites.data())
-				if (Sprite->field_18 == 4 && (Sprite - 1)->field_18 >= 114 && (Sprite - 1)->field_18 <= 117) {
+				if (Sprite->mSpriteType == 4 && (Sprite - 1)->mSpriteType >= 114 && (Sprite - 1)->mSpriteType <= 117) {
 					++Sprite;
 				}
 		}
@@ -174,7 +174,7 @@ bool cOriginalMap::saveCF1Sprites(std::string pFilename) {
 
 	// Number of sprites in use
 	size_t SpriteCount = std::count_if(std::begin(mSprites), std::end(mSprites), [](sSprite& l) {
-		return l.field_0 != -32768 && l.field_0 != -1;
+		return l.mPosX != -32768 && l.mPosX != -1;
 	});
 
 	auto MapSpt = tSharedBuffer(new std::vector<uint8>());
@@ -185,33 +185,33 @@ bool cOriginalMap::saveCF1Sprites(std::string pFilename) {
 	// Cheap way of writing human players first
 	for (const auto& SpriteIT : mSprites) {
 
-		if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
+		if (SpriteIT.mPosX == -1 || SpriteIT.mPosX == -32768)
 			continue;
 
-		if (SpriteIT.field_18 != eSprite_Player)
+		if (SpriteIT.mSpriteType != eSprite_Player)
 			continue;
 
 		writeBEWord(SptPtr, 0x7C);  SptPtr += 2;                        // Direction
 		writeBEWord(SptPtr, 0x00);  SptPtr += 2;                        // Ignored
-		writeBEWord(SptPtr, SpriteIT.field_0 - 0x10);  SptPtr += 2;    // X    
-		writeBEWord(SptPtr, SpriteIT.field_4);  SptPtr += 2;            // Y    
-		writeBEWord(SptPtr, SpriteIT.field_18); SptPtr += 2;            // Type 
+		writeBEWord(SptPtr, SpriteIT.mPosX - 0x10);  SptPtr += 2;    // X    
+		writeBEWord(SptPtr, SpriteIT.mPosY);  SptPtr += 2;            // Y    
+		writeBEWord(SptPtr, SpriteIT.mSpriteType); SptPtr += 2;            // Type 
 	}
 
 	// Now write out all other players
 	for (const auto& SpriteIT : mSprites) {
 
-		if (SpriteIT.field_0 == -1 || SpriteIT.field_0 == -32768)
+		if (SpriteIT.mPosX == -1 || SpriteIT.mPosX == -32768)
 			continue;
 
-		if (SpriteIT.field_18 == eSprite_Player)
+		if (SpriteIT.mSpriteType == eSprite_Player)
 			continue;
 
 		writeBEWord(SptPtr, 0x7C);  SptPtr += 2;                // Direction
 		writeBEWord(SptPtr, 0x00);  SptPtr += 2;                // Ignored
-		writeBEWord(SptPtr, SpriteIT.field_0 - 0x10);  SptPtr += 2;    // X    
-		writeBEWord(SptPtr, SpriteIT.field_4);  SptPtr += 2;    // Y    
-		writeBEWord(SptPtr, SpriteIT.field_18); SptPtr += 2;    // Type 
+		writeBEWord(SptPtr, SpriteIT.mPosX - 0x10);  SptPtr += 2;    // X    
+		writeBEWord(SptPtr, SpriteIT.mPosY);  SptPtr += 2;    // Y    
+		writeBEWord(SptPtr, SpriteIT.mSpriteType); SptPtr += 2;    // Type 
 	}
 	outfile.write((const char*)MapSpt->data(), MapSpt->size());
 	outfile.close();

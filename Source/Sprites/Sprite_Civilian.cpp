@@ -23,7 +23,7 @@
 #include "stdafx.hpp"
 
 void cFodder::Sprite_Handle_Civilian_Unk(sSprite* pSprite) {
-    if (!pSprite->field_5C)
+    if (!pSprite->mWasDrawn)
         return;
 
     if ((tool_RandomGet() & 0x3F) != 9)
@@ -32,8 +32,8 @@ void cFodder::Sprite_Handle_Civilian_Unk(sSprite* pSprite) {
     if (mSquad_Leader == INVALID_SPRITE_PTR)
         return;
 
-    pSprite->field_2E = mSquad_Leader->field_0;
-    pSprite->field_30 = mSquad_Leader->field_4;
+    pSprite->mWeaponTargetX = mSquad_Leader->mPosX;
+    pSprite->mWeaponTargetY = mSquad_Leader->mPosY;
 
     Sprite_Create_Civilian_Spear2(pSprite);
 }
@@ -47,9 +47,9 @@ void cFodder::Sprite_Handle_Civilian_Movement(sSprite* pSprite) {
             return;
     }
 
-    if (pSprite->field_18 == eSprite_Hostage || pSprite->field_18 == eSprite_Enemy_Leader) {
-        pSprite->field_26 = pSprite->field_0;
-        pSprite->field_28 = pSprite->field_4;
+    if (pSprite->mSpriteType == eSprite_Hostage || pSprite->mSpriteType == eSprite_Enemy_Leader) {
+        pSprite->mTargetX = pSprite->mPosX;
+        pSprite->mTargetY = pSprite->mPosY;
     }
     else {
         if (Sprite_Handle_Civilian_RandomMovement(pSprite) < 0)
@@ -74,13 +74,13 @@ int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprit
 
     sSprite* Data28 = mSprite_OpenCloseDoor_Ptr;
 
-    int16 Data0 = pSprite->field_0;
-    int16 Data4 = pSprite->field_4;
-    int16 Data8 = Data28->field_0;
-    int16 DataC = Data28->field_4;
+    int16 Data0 = pSprite->mPosX;
+    int16 Data4 = pSprite->mPosY;
+    int16 Data8 = Data28->mPosX;
+    int16 DataC = Data28->mPosY;
 
-    pSprite->field_26 = Data8;
-    pSprite->field_28 = DataC;
+    pSprite->mTargetX = Data8;
+    pSprite->mTargetY = DataC;
 
     mSprite_Civilian_Tmp_X = Data0;
     mSprite_Civilian_Tmp_Y = Data4;
@@ -113,10 +113,10 @@ int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprit
     if (Data0)
         return 0;
 
-    pSprite->field_26 = pSprite->field_0;
-    pSprite->field_28 = pSprite->field_4;
-    pSprite->field_26 -= 0x10;
-    pSprite->field_28 -= 0x20;
+    pSprite->mTargetX = pSprite->mPosX;
+    pSprite->mTargetY = pSprite->mPosY;
+    pSprite->mTargetX -= 0x10;
+    pSprite->mTargetY -= 0x20;
     pSprite->field_4C = 0x1E;
 
     return 0;
@@ -124,7 +124,7 @@ int16 cFodder::Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprit
 
 void cFodder::Sprite_Handle_Civilian_Death(sSprite* pSprite) {
 
-    if (pSprite->field_8 != 0xD6) {
+    if (pSprite->mSheetIndex != 0xD6) {
         word_3B2D1[2] = -1;
 
         if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Protect_Civilians - 1])
@@ -133,8 +133,8 @@ void cFodder::Sprite_Handle_Civilian_Death(sSprite* pSprite) {
         if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Get_Civilian_Home - 1])
             mPhase_Aborted = true;
 
-        pSprite->field_8 = 0xD6;
-        pSprite->field_A = 0;
+        pSprite->mSheetIndex = 0xD6;
+        pSprite->mFrameIndex = 0;
 
         int16 Data0 = tool_RandomGet() & 7;
         int16 Data4 = mSprite_Civilian_Sound_Death[Data0];
@@ -143,8 +143,8 @@ void cFodder::Sprite_Handle_Civilian_Death(sSprite* pSprite) {
     }
     else {
         //loc_2584A
-        pSprite->field_A += 1;
-        if (pSprite->field_A < 9)
+        pSprite->mFrameIndex += 1;
+        if (pSprite->mFrameIndex < 9)
             return;
 
         Sprite_Destroy_Wrapper(pSprite);
@@ -173,8 +173,8 @@ int16 cFodder::Sprite_Handle_Civilian_RandomMovement(sSprite* pSprite) {
     if (Map_Terrain_GetMoveable_WithCache(mTiles_NotFlyable, Data8, DataC, X, Y))
         return -1;
 
-    pSprite->field_26 = X;
-    pSprite->field_28 = Y;
+    pSprite->mTargetX = X;
+    pSprite->mTargetY = Y;
     return 0;
 }
 
@@ -184,22 +184,22 @@ void cFodder::Sprite_Civilian_Update_Movement(sSprite* pSprite) {
     if (pSprite->field_44)
         --pSprite->field_44;
     else {
-        int16 Data0 = pSprite->field_26;
-        int16 Data4 = pSprite->field_28;
+        int16 Data0 = pSprite->mTargetX;
+        int16 Data4 = pSprite->mTargetY;
 
         if (Sprite_Direction_Between_Points(pSprite, Data0, Data4) < 0)
             mSprite_Reached_Target = -1;
     }
 
-    if (pSprite->field_18 != eSprite_Seal) {
+    if (pSprite->mSpriteType != eSprite_Seal) {
         int16 Data0 = tool_RandomGet();
         int16 Data4 = Data0;
         Data0 &= 0x0E;
         if (Data4 < 0)
             Data0 = -Data0;
 
-        pSprite->field_10 += Data0;
-        pSprite->field_10 &= 0x1FE;
+        pSprite->mDirection += Data0;
+        pSprite->mDirection &= 0x1FE;
     }
     //loc_259BE
     if (!Sprite_Reached_Target(pSprite)) {
@@ -214,7 +214,7 @@ void cFodder::Sprite_Civilian_Update_Movement(sSprite* pSprite) {
     int16 Data4 = 0;
     Sprite_Terrain_Check(pSprite, Data4);
 
-    Data4 = pSprite->field_60;
+    Data4 = pSprite->mTerrainType;
 
     if (Data4 == 6) {
         Sprite_XY_Restore(pSprite);
@@ -225,11 +225,11 @@ void cFodder::Sprite_Civilian_Update_Movement(sSprite* pSprite) {
         if (Data4 != 5)
             return;
 
-        pSprite->field_52 = 5;
+        pSprite->mRowsToSkip = 5;
         return;
     }
 
-    pSprite->field_52 = 3;
+    pSprite->mRowsToSkip = 3;
 }
 
 void cFodder::Sprite_WalkAnim_Tick(sSprite* pSprite) {
@@ -242,40 +242,40 @@ void cFodder::Sprite_WalkAnim_Tick(sSprite* pSprite) {
     if (pSprite->field_2A)
         return;
 
-    pSprite->field_A += 1;
-    pSprite->field_A &= 1;
+    pSprite->mFrameIndex += 1;
+    pSprite->mFrameIndex &= 1;
 }
 
 void cFodder::Sprite_WalkFrame_From_Direction(sSprite* pSprite) {
-    int16 Data0 = pSprite->field_10;
+    int16 Data0 = pSprite->mDirection;
 
     Data0 >>= 5;
     Data0 -= 1;
     Data0 ^= 0x0F;
     Data0 &= 0x0E;
 
-    int16 Data4 = pSprite->field_A;
+    int16 Data4 = pSprite->mFrameIndex;
     Data4 &= 1;
     Data0 |= Data4;
-    pSprite->field_A = Data0;
+    pSprite->mFrameIndex = Data0;
 }
 
 void cFodder::Sprite_Hostage_Update_IdleFrame(sSprite* pSprite) {
 
     if (word_3B2ED) {
-        pSprite->field_8 = 0xD8;
-        pSprite->field_A = 1;
+        pSprite->mSheetIndex = 0xD8;
+        pSprite->mFrameIndex = 1;
         Sprite_XY_Restore(pSprite);
         return;
     }
 
-    if (word_3B2D1[2] != pSprite->field_0 || word_3B2D1[3] != pSprite->field_2)
+    if (word_3B2D1[2] != pSprite->mPosX || word_3B2D1[3] != pSprite->mPosXFrac)
         return;
 
-    if (word_3B2D1[4] != pSprite->field_4 || word_3B2D1[5] != pSprite->field_6)
+    if (word_3B2D1[4] != pSprite->mPosY || word_3B2D1[5] != pSprite->mPosYFrac)
         return;
 
-    pSprite->field_8 = 0xDA;
+    pSprite->mSheetIndex = 0xDA;
 
     int16 Data0 = mMission_EngineTicks & 0x0F;
     if (!Data0) {
@@ -283,7 +283,7 @@ void cFodder::Sprite_Hostage_Update_IdleFrame(sSprite* pSprite) {
         pSprite->field_32 = mSprite_Hostage_Frames[Data0 / 2];
     }
 
-    pSprite->field_A = pSprite->field_32;
+    pSprite->mFrameIndex = pSprite->field_32;
 }
 
 void cFodder::Sprite_Advance_SearchIndex(sSprite* pSprite) {
@@ -307,11 +307,11 @@ void cFodder::Sprite_CivilianDoor_SpawnUpdate(sSprite* pSprite) {
 loc_264CF:;
 
     if (mTroops_Enemy_Count >= mParams->mSpawnEnemyMax) {
-        pSprite->field_8 = 0x9B;
+        pSprite->mSheetIndex = 0x9B;
         return;
     }
 
-    pSprite->field_2C = eSprite_Draw_First;
+    pSprite->mDrawOrder = eSprite_Draw_First;
     if (pSprite->field_43 < 0)
         goto loc_26580;
 
@@ -320,11 +320,11 @@ loc_264CF:;
         goto loc_265B1;
 
     if (pSprite->field_43 >= 0) {
-        pSprite->field_8 = 0x7C;
+        pSprite->mSheetIndex = 0x7C;
         return;
     }
 
-    pSprite->field_8 = 0x9B;
+    pSprite->mSheetIndex = 0x9B;
     Sound_Play(pSprite, eSound_Effect_BuildingDoor2, 1);
 
     Data0 = tool_RandomGet() & 0x0F;
@@ -345,13 +345,13 @@ loc_26580:;
     Data0 = tool_RandomGet() & 0x0F;
     Data0 += 6;
     pSprite->field_43 = static_cast<int8>(Data0);
-    pSprite->field_8 = 0x7C;
+    pSprite->mSheetIndex = 0x7C;
 
 loc_265B1:;
     sSprite* Data2C = 0, *Data30 = 0;
 
     if (!Sprite_Create_Native(pSprite, Data2C, Data30)) {
-        Data2C->field_4 -= 4;
+        Data2C->mPosY -= 4;
         return;
     }
 
@@ -363,7 +363,7 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
     if (mPhase_Completed_Timer)
         return -1;
 
-    if (!pSprite->field_2E)
+    if (!pSprite->mWeaponTargetX)
         return -1;
 
     int16 Data0 = 1;
@@ -375,12 +375,12 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
         return -1;
 
     ++mSprite_Projectile_Counters[2];
-    Data2C->field_0 = pSprite->field_0;
-    Data2C->field_4 = pSprite->field_4;
-    Data2C->field_8 = 0xD7;
-    Data2C->field_A = 0;
+    Data2C->mPosX = pSprite->mPosX;
+    Data2C->mPosY = pSprite->mPosY;
+    Data2C->mSheetIndex = 0xD7;
+    Data2C->mFrameIndex = 0;
     Data2C->field_12 = 9;
-    Data0 = pSprite->field_62;
+    Data0 = pSprite->mAIAggression;
 
     Data0 >>= 3;
     Data0 += 8;
@@ -388,32 +388,32 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
         Data0 = 0x10;
 
     Data2C->field_12 = Data0;
-    Data2C->field_18 = eSprite_Civilian_Spear2;
-    Data2C->field_1E_Big = pSprite->field_1E_Big;
-    Data2C->field_1E_Big += 0x60000;
+    Data2C->mSpriteType = eSprite_Civilian_Spear2;
+    Data2C->mHeightFixed = pSprite->mHeightFixed;
+    Data2C->mHeightFixed += 0x60000;
 
-    Data2C->field_52 = pSprite->field_52;
-    Data2C->field_22 = pSprite->field_22;
-    Data2C->field_2C = eSprite_Draw_Second;
+    Data2C->mRowsToSkip = pSprite->mRowsToSkip;
+    Data2C->mPersonType = pSprite->mPersonType;
+    Data2C->mDrawOrder = eSprite_Draw_Second;
     Data0 = 0x32;
-    Data0 += pSprite->field_62;
+    Data0 += pSprite->mAIAggression;
 
     Data2C->field_4A = Data0;
-    Data2C->field_36 = 0x18;
+    Data2C->mSpeed = 0x18;
     Data2C->field_43 = 0;
     Data2C->field_44 = 0;
-    Data2C->field_2E = pSprite->field_2E;
-    Data2C->field_30 = pSprite->field_30;
-    Data2C->field_2E += 7;
-    Data2C->field_52 = 0;
+    Data2C->mWeaponTargetX = pSprite->mWeaponTargetX;
+    Data2C->mWeaponTargetY = pSprite->mWeaponTargetY;
+    Data2C->mWeaponTargetX += 7;
+    Data2C->mRowsToSkip = 0;
     Data2C->field_3A = 0;
     Data2C->field_1A_sprite = pSprite;
     Data2C->field_2A = 2;
-    Data2C->field_16 = 0;
-    Data2C->field_14 = 2;
+    Data2C->mProjectileOffsetX = 0;
+    Data2C->mProjectileOffsetY = 2;
 
-    if (Data2C->field_A == 4)
-        Data2C->field_14 = -1;
+    if (Data2C->mFrameIndex == 4)
+        Data2C->mProjectileOffsetY = -1;
 
     Data2C->field_34 = -1;
     Data2C->field_50 = 0;
@@ -452,25 +452,25 @@ void cFodder::Sprite_Handle_Hostage_Movement(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC, Data10;
     sSprite* Data28 = 0;
 
-    if (pSprite->field_18 == eSprite_Enemy_Leader)
+    if (pSprite->mSpriteType == eSprite_Enemy_Leader)
         goto CheckRescueTent;
 
     // No known rescue tent?
     if (!mHostage_Rescue_Tent)
         goto loc_2608B;
 
-    if (pSprite->field_74) {
-        pSprite->field_74 -= 1;
+    if (pSprite->mHeliRestartFrame) {
+        pSprite->mHeliRestartFrame -= 1;
         goto loc_2608B;
     }
     //loc_2600B
 
-    pSprite->field_74 = -56;
+    pSprite->mHeliRestartFrame = -56;
 
-    Data8 = mHostage_Rescue_Tent->field_0 + 10;
-    DataC = mHostage_Rescue_Tent->field_4 - 5;
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
+    Data8 = mHostage_Rescue_Tent->mPosX + 10;
+    DataC = mHostage_Rescue_Tent->mPosY - 5;
+    Data0 = pSprite->mPosX;
+    Data4 = pSprite->mPosY;
     Data10 = 0x80;
 
     // Distance to rescue tent < 127?
@@ -490,13 +490,13 @@ loc_2608B:;
     // Found Tent Nearby
     if (Data4 == eSprite_Hostage_Rescue_Tent) {
 
-        pSprite->field_26 = Data28->field_0 + 10;
-        pSprite->field_28 = Data28->field_4 - 5;
+        pSprite->mTargetX = Data28->mPosX + 10;
+        pSprite->mTargetY = Data28->mPosY - 5;
 
-        Data0 = pSprite->field_0;
-        Data4 = pSprite->field_4;
-        Data8 = pSprite->field_26;
-        DataC = pSprite->field_28;
+        Data0 = pSprite->mPosX;
+        Data4 = pSprite->mPosY;
+        Data8 = pSprite->mTargetX;
+        DataC = pSprite->mTargetY;
         Data10 = 0x10;
         Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
         if (Data10 >= 0x10)
@@ -512,32 +512,32 @@ loc_2608B:;
         // Found Enemy near by
     }
     else if (Data4 == eSprite_Enemy) {
-        Data28->field_70 = pSprite;
-        pSprite->field_26 = pSprite->field_0;
-        pSprite->field_28 = pSprite->field_4;
+        Data28->mFollowTarget = pSprite;
+        pSprite->mTargetX = pSprite->mPosX;
+        pSprite->mTargetY = pSprite->mPosY;
         word_3B2ED = -1;
         return;
     }
 
-    pSprite->field_26 = Data28->field_0 + 4;
-    pSprite->field_28 = Data28->field_4 - 6;
+    pSprite->mTargetX = Data28->mPosX + 4;
+    pSprite->mTargetY = Data28->mPosY - 6;
 
     // Not in vehicle?
-    if (!Data28->field_6E)
+    if (!Data28->mInVehicle)
         goto loc_2620F;
 
     // Vehicle Has Speed?
-    if (Data28->field_6A_sprite->field_36 > 2)
+    if (Data28->mCurrentVehicle->mSpeed > 2)
         goto loc_2620F;
 
     // Vehicle has height?
-    if (Data28->field_6A_sprite->field_20 > 3)
+    if (Data28->mCurrentVehicle->mHeight > 3)
         goto loc_2620F;
 
-    Data0 = Data28->field_6A_sprite->field_0;
-    Data4 = Data28->field_6A_sprite->field_4;
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_4;
+    Data0 = Data28->mCurrentVehicle->mPosX;
+    Data4 = Data28->mCurrentVehicle->mPosY;
+    Data8 = pSprite->mPosX;
+    DataC = pSprite->mPosY;
     Data10 = 0x10;
 
     Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
@@ -551,7 +551,7 @@ loc_2608B:;
         return;
     }
 
-    pSprite->field_6E = -1;
+    pSprite->mInVehicle = -1;
     return;
 
 CheckRescueTent:;
@@ -564,13 +564,13 @@ CheckRescueTent:;
 
     if (Data4 == eSprite_Hostage_Rescue_Tent) {
 
-        pSprite->field_26 = Data28->field_0 + 0x0A;
-        pSprite->field_28 = Data28->field_4 - 0x05;
+        pSprite->mTargetX = Data28->mPosX + 0x0A;
+        pSprite->mTargetY = Data28->mPosY - 0x05;
 
-        Data0 = pSprite->field_0;
-        Data4 = pSprite->field_4;
-        Data8 = pSprite->field_26;
-        DataC = pSprite->field_28;
+        Data0 = pSprite->mPosX;
+        Data4 = pSprite->mPosY;
+        Data8 = pSprite->mTargetX;
+        DataC = pSprite->mTargetY;
         Data10 = 0x10;
         Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
         if (Data0 >= 3)
@@ -584,31 +584,31 @@ CheckRescueTent:;
 
     // Another Player
     word_3B2ED = -1;
-    pSprite->field_8 = 0xD8;
-    pSprite->field_26 = Data28->field_0 + 4;
-    pSprite->field_28 = Data28->field_4 - 6;
+    pSprite->mSheetIndex = 0xD8;
+    pSprite->mTargetX = Data28->mPosX + 4;
+    pSprite->mTargetY = Data28->mPosY - 6;
 
     // Not in vehicle?
-    if (!Data28->field_6E)
+    if (!Data28->mInVehicle)
         goto loc_263E5;
 
     // Vehicle has speed?
-    if (Data28->field_6A_sprite->field_36 > 2)
+    if (Data28->mCurrentVehicle->mSpeed > 2)
         goto loc_263E5;
 
     // Vehicle has height
-    if (Data28->field_6A_sprite->field_20 > 3)
+    if (Data28->mCurrentVehicle->mHeight > 3)
         goto loc_263E5;
 
-    Data0 = Data28->field_6A_sprite->field_0;
-    Data4 = Data28->field_6A_sprite->field_4;
-    Data8 = pSprite->field_0;
-    DataC = pSprite->field_4;
+    Data0 = Data28->mCurrentVehicle->mPosX;
+    Data4 = Data28->mCurrentVehicle->mPosY;
+    Data8 = pSprite->mPosX;
+    DataC = pSprite->mPosY;
     Data10 = 0x10;
 
     Map_Get_Distance_BetweenPoints(Data0, Data4, Data8, Data10, DataC);
     if (Data0 <= 0x0F) {
-        pSprite->field_6E = -1;
+        pSprite->mInVehicle = -1;
         return;
     }
 
@@ -631,12 +631,12 @@ void cFodder::Sprite_Handle_Hostage_FrameUpdate2(sSprite* pSprite) {
     Data0 &= 6;
 
     pSprite->field_4A = Data0;
-    pSprite->field_A = mSprite_Hostage_Frames[Data0 / 2];
+    pSprite->mFrameIndex = mSprite_Hostage_Frames[Data0 / 2];
 
 }
 
 void cFodder::Sprite_Handle_Hostage_FrameUpdate(sSprite* pSprite) {
-    int16 Data0 = pSprite->field_10;
+    int16 Data0 = pSprite->mDirection;
     Data0 >>= 5;
     Data0 -= 1;
     Data0 ^= 0x0F;
@@ -646,13 +646,13 @@ void cFodder::Sprite_Handle_Hostage_FrameUpdate(sSprite* pSprite) {
     Data4 >>= 1;
     Data4 += Data0;
 
-    pSprite->field_A += Data4;
+    pSprite->mFrameIndex += Data4;
 }
 
 int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30) {
     int16 Data4;
 
-    if (!pSprite->field_5C)
+    if (!pSprite->mWasDrawn)
         return -1;
 
     if (mPhase_Complete)
@@ -668,14 +668,14 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
         return -1;
 
     pData2C->Clear();
-    pData2C->field_18 = mSpawnSpriteType;
-    pData2C->field_0 = pSprite->field_0;
-    pData2C->field_0 -= 6;
-    pData2C->field_4 = pSprite->field_4;
-    pData2C->field_4 += 4;
-    pData2C->field_8 = 0x7C;
+    pData2C->mSpriteType = mSpawnSpriteType;
+    pData2C->mPosX = pSprite->mPosX;
+    pData2C->mPosX -= 6;
+    pData2C->mPosY = pSprite->mPosY;
+    pData2C->mPosY += 4;
+    pData2C->mSheetIndex = 0x7C;
     pData2C->field_4A = 0;
-    pData2C->field_22 = eSprite_PersonType_Native;
+    pData2C->mPersonType = eSprite_PersonType_Native;
 
     Data0 = tool_RandomGet();
     Data4 = Data0;
@@ -684,7 +684,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
         Data0 = -Data0;
 
     Data0 += 0x1C0;
-    pData2C->field_10 = Data0;
+    pData2C->mDirection = Data0;
     Data4 &= 0x0F;
     Data4 += 8;
     pData2C->field_44 = static_cast<int8>(Data4);
@@ -693,26 +693,26 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
 
 void cFodder::Sprite_Handle_Bird2_Left(sSprite* pSprite) {
 
-    pSprite->field_8 = 0x98;
-    pSprite->field_2C = eSprite_Draw_OnTop;
+    pSprite->mSheetIndex = 0x98;
+    pSprite->mDrawOrder = eSprite_Draw_OnTop;
     pSprite->field_12 += 1;
     pSprite->field_12 &= 1;
     if (!pSprite->field_12)
-        pSprite->field_A ^= 1;
+        pSprite->mFrameIndex ^= 1;
 
-    pSprite->field_0 -= 2;
-    if (pSprite->field_0 < -64)
-        pSprite->field_0 = 0x7D0;
+    pSprite->mPosX -= 2;
+    if (pSprite->mPosX < -64)
+        pSprite->mPosX = 0x7D0;
 }
 
 void cFodder::Sprite_Handle_Civilian(sSprite* pSprite) {
-    if (pSprite->field_38) {
+    if (pSprite->mAnimState) {
         Sprite_Handle_Civilian_Death(pSprite);
         return;
     }
 
-    pSprite->field_22 = eSprite_PersonType_Native;
-    pSprite->field_8 = 0xD0;
+    pSprite->mPersonType = eSprite_PersonType_Native;
+    pSprite->mSheetIndex = 0xD0;
 
     int16 ax = Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(pSprite);
 
@@ -723,7 +723,7 @@ void cFodder::Sprite_Handle_Civilian(sSprite* pSprite) {
         Sprite_Handle_Civilian_Movement(pSprite);
     }
 
-    pSprite->field_36 = 6;
+    pSprite->mSpeed = 6;
     Sprite_Civilian_Update_Movement(pSprite);
     Sprite_WalkAnim_Tick(pSprite);
     Sprite_WalkFrame_From_Direction(pSprite);
@@ -731,13 +731,13 @@ void cFodder::Sprite_Handle_Civilian(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Civilian2(sSprite* pSprite) {
 
-    if (pSprite->field_38) {
+    if (pSprite->mAnimState) {
         Sprite_Handle_Civilian_Death(pSprite);
         return;
     }
 
-    pSprite->field_22 = eSprite_PersonType_Native;
-    pSprite->field_8 = 0xD0;
+    pSprite->mPersonType = eSprite_PersonType_Native;
+    pSprite->mSheetIndex = 0xD0;
 
     int16 ax = Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(pSprite);
     if (ax > 0)
@@ -745,7 +745,7 @@ void cFodder::Sprite_Handle_Civilian2(sSprite* pSprite) {
     if (ax < 0)
         Sprite_Handle_Civilian_Movement(pSprite);
 
-    pSprite->field_36 = 0x0A;
+    pSprite->mSpeed = 0x0A;
     Sprite_Civilian_Update_Movement(pSprite);
     Sprite_WalkAnim_Tick(pSprite);
     Sprite_WalkFrame_From_Direction(pSprite);
@@ -757,12 +757,12 @@ void cFodder::Sprite_Handle_Civilian2(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Bird_Left(sSprite* pSprite) {
 
-    pSprite->field_8 = 0xD3;
-    pSprite->field_2C = eSprite_Draw_OnTop;
+    pSprite->mSheetIndex = 0xD3;
+    pSprite->mDrawOrder = eSprite_Draw_OnTop;
 
     if (!pSprite->field_12) {
 
-        pSprite->field_57 = 8;
+        pSprite->mWeaponCooldown = 8;
         pSprite->field_12 = 1;
 
         int16 Data0 = tool_RandomGet();
@@ -770,16 +770,16 @@ void cFodder::Sprite_Handle_Bird_Left(sSprite* pSprite) {
         Data0 &= 3;
         Data0 += 1;
 
-        pSprite->field_A = Data0;
+        pSprite->mFrameIndex = Data0;
         if (Data4 < 0)
             pSprite->field_12 = -1;
     }
 
     int16 Data0 = pSprite->field_12;
-    pSprite->field_A += Data0;
+    pSprite->mFrameIndex += Data0;
 
-    if (pSprite->field_A) {
-        if (pSprite->field_A < 5)
+    if (pSprite->mFrameIndex) {
+        if (pSprite->mFrameIndex < 5)
             goto loc_1C82D;
     }
 
@@ -789,41 +789,41 @@ void cFodder::Sprite_Handle_Bird_Left(sSprite* pSprite) {
 loc_1C82D:;
     bool cf = false;
 
-    if (pSprite->field_2 >= 0 && pSprite->field_2 - 32768 < 0)
+    if (pSprite->mPosXFrac >= 0 && pSprite->mPosXFrac - 32768 < 0)
         cf = true;
 
-    pSprite->field_2 -= 32768;
-    pSprite->field_0 -= 1 + (cf == true ? 1 : 0);
+    pSprite->mPosXFrac -= 32768;
+    pSprite->mPosX -= 1 + (cf == true ? 1 : 0);
 
 
     if (Data0 < 0) {
-        if (pSprite->field_2 >= 0 && pSprite->field_2 - 32768 < 0)
+        if (pSprite->mPosXFrac >= 0 && pSprite->mPosXFrac - 32768 < 0)
             cf = true;
         else
             cf = false;
 
-        pSprite->field_2 -= 32768;
-        pSprite->field_0 -= 0 + (cf == true ? 1 : 0);
+        pSprite->mPosXFrac -= 32768;
+        pSprite->mPosX -= 0 + (cf == true ? 1 : 0);
     }
 
-    if (pSprite->field_5C)
+    if (pSprite->mWasDrawn)
         goto loc_1C8C5;
 
-    if (!pSprite->field_57)
+    if (!pSprite->mWeaponCooldown)
         goto loc_1C87E;
 
-    pSprite->field_57 -= 1;
+    pSprite->mWeaponCooldown -= 1;
     goto loc_1C8C5;
 
 loc_1C87E:;
 
-    pSprite->field_57 = 0x3F;
+    pSprite->mWeaponCooldown = 0x3F;
 
 	Data0 = (tool_RandomGet() & 0x3F) + (mMapTile_TargetX >> 16) + getWindowWidth();
-    pSprite->field_0 = Data0;
+    pSprite->mPosX = Data0;
 
     Data0 = (tool_RandomGet() & 0xFF) + (mMapTile_TargetY >> 16);
-    pSprite->field_4 = Data0;
+    pSprite->mPosY = Data0;
 
 loc_1C8C5:;
 
@@ -836,11 +836,11 @@ loc_1C8C5:;
 }
 
 void cFodder::Sprite_Handle_Bird_Right(sSprite* pSprite) {
-    pSprite->field_8 = 0xD4;
-    pSprite->field_2C = eSprite_Draw_OnTop;
+    pSprite->mSheetIndex = 0xD4;
+    pSprite->mDrawOrder = eSprite_Draw_OnTop;
 
     if (!pSprite->field_12) {
-        pSprite->field_57 = 8;
+        pSprite->mWeaponCooldown = 8;
         pSprite->field_12 = 1;
 
         int16 Data0 = tool_RandomGet();
@@ -848,56 +848,56 @@ void cFodder::Sprite_Handle_Bird_Right(sSprite* pSprite) {
         Data0 &= 3;
         Data0 += 1;
 
-        pSprite->field_A = Data0;
+        pSprite->mFrameIndex = Data0;
         if (Data4 < 0)
             pSprite->field_12 = -1;
     }
 
     //loc_1C950
     int16 Data0 = pSprite->field_12;
-    pSprite->field_A += Data0;
-    if (!pSprite->field_A || pSprite->field_A >= 5) {
+    pSprite->mFrameIndex += Data0;
+    if (!pSprite->mFrameIndex || pSprite->mFrameIndex >= 5) {
         Data0 = -Data0;
         pSprite->field_12 = Data0;
     }
 
     bool cf = false;
 
-    if (pSprite->field_2 < 0 && pSprite->field_2 + 32768 > 0)
+    if (pSprite->mPosXFrac < 0 && pSprite->mPosXFrac + 32768 > 0)
         cf = true;
 
-    pSprite->field_2 += 32768;
-    pSprite->field_0 += 1 + (cf == true ? 1 : 0);
+    pSprite->mPosXFrac += 32768;
+    pSprite->mPosX += 1 + (cf == true ? 1 : 0);
 
     if (Data0 < 0) {
-        if (pSprite->field_2 < 0 && pSprite->field_2 + 32768 > 0)
+        if (pSprite->mPosXFrac < 0 && pSprite->mPosXFrac + 32768 > 0)
             cf = true;
         else
             cf = false;
 
-        pSprite->field_2 += 32768;
-        pSprite->field_0 += 0 + (cf == true ? 1 : 0);
+        pSprite->mPosXFrac += 32768;
+        pSprite->mPosX += 0 + (cf == true ? 1 : 0);
     }
 
     //loc_1C9B0
-    if (pSprite->field_5C)
+    if (pSprite->mWasDrawn)
         goto loc_1CA20;
 
-    if (pSprite->field_57) {
-        pSprite->field_57 -= 1;
+    if (pSprite->mWeaponCooldown) {
+        pSprite->mWeaponCooldown -= 1;
         goto loc_1CA20;
     }
 
     //loc_1C9D3
-    pSprite->field_57 = 0x3F;
+    pSprite->mWeaponCooldown = 0x3F;
     Data0 = tool_RandomGet() & 0x3F;
     Data0 = -Data0;
     Data0 += mMapTile_TargetX >> 16;
 
-    pSprite->field_0 = Data0;
+    pSprite->mPosX = Data0;
     Data0 = tool_RandomGet() & 0xFF;
     Data0 += mMapTile_TargetY >> 16;
-    pSprite->field_4 = Data0;
+    pSprite->mPosY = Data0;
 
 loc_1CA20:;
     if (mMapLoaded->getTileType() == eTileTypes_Jungle)
@@ -911,21 +911,21 @@ void cFodder::Sprite_Handle_Seal(sSprite* pSprite) {
     if (Sprite_Update_Death_BloodOrSeal(pSprite))
         return;
 
-    pSprite->field_22 = eSprite_PersonType_Native;
-    pSprite->field_8 = 0xD5;
+    pSprite->mPersonType = eSprite_PersonType_Native;
+    pSprite->mSheetIndex = 0xD5;
 
-    if (!pSprite->field_2E) {
-        pSprite->field_2E = -1;
-        pSprite->field_54 = tool_RandomGet() & 0x0F;
+    if (!pSprite->mWeaponTargetX) {
+        pSprite->mWeaponTargetX = -1;
+        pSprite->mFiredWeaponType = tool_RandomGet() & 0x0F;
     }
 
     if (mMission_EngineTicks & 1)
-        ++pSprite->field_54;
+        ++pSprite->mFiredWeaponType;
 
-    int16 Data0 = pSprite->field_54 & 0x0F;
+    int16 Data0 = pSprite->mFiredWeaponType & 0x0F;
 
     Data0 = mSprite_Seal_AnimFrames[Data0];
-    pSprite->field_A = Data0;
+    pSprite->mFrameIndex = Data0;
 
     if (mMapLoaded->getTileType() == eTileTypes_Moors) {
         Data0 = tool_RandomGet() & 3;
@@ -941,14 +941,14 @@ void cFodder::Sprite_Handle_Seal(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Civilian_Spear(sSprite* pSprite) {
-    pSprite->field_22 = eSprite_PersonType_AI;
-    if (pSprite->field_38) {
+    pSprite->mPersonType = eSprite_PersonType_AI;
+    if (pSprite->mAnimState) {
         Sprite_Handle_Civilian_Death(pSprite);
         return;
     }
 
-    pSprite->field_22 = eSprite_PersonType_Native;
-    pSprite->field_8 = 0xD0;
+    pSprite->mPersonType = eSprite_PersonType_Native;
+    pSprite->mSheetIndex = 0xD0;
 
     if (mMapLoaded->getTileType() == eTileTypes_Moors)
         Sprite_Native_Sound_Play(pSprite, 0x26);
@@ -962,7 +962,7 @@ void cFodder::Sprite_Handle_Civilian_Spear(sSprite* pSprite) {
     if (ax)
         Sprite_Handle_Civilian_Movement(pSprite);
 
-    pSprite->field_36 = 0x0C;
+    pSprite->mSpeed = 0x0C;
 
     Sprite_Civilian_Update_Movement(pSprite);
     Sprite_WalkAnim_Tick(pSprite);
@@ -985,53 +985,53 @@ void cFodder::Sprite_Handle_Civilian_Spear2(sSprite* pSprite) {
         goto loc_1CFF7;
 
     Sprite_XY_Store(pSprite);
-    Data1C = pSprite->field_10;
+    Data1C = pSprite->mDirection;
 
     if (pSprite->field_59)
         goto loc_1CF3E;
 
-    Data0 = pSprite->field_2E;
-    Data4 = pSprite->field_30;
+    Data0 = pSprite->mWeaponTargetX;
+    Data4 = pSprite->mWeaponTargetY;
 
     Sprite_Direction_Between_Points(pSprite, Data0, Data4);
     Data0 = pSprite->field_50;
 
     if (Data0) {
-        pSprite->field_10 += Data0;
-        pSprite->field_10 &= 0x1FE;
+        pSprite->mDirection += Data0;
+        pSprite->mDirection &= 0x1FE;
         pSprite->field_59 = -1;
     }
 
     if (pSprite->field_34 < 0)
-        pSprite->field_34 = pSprite->field_10;
+        pSprite->field_34 = pSprite->mDirection;
 
 loc_1CF3E:;
     Sprite_Movement_Calculate(pSprite);
     if (mSprite_Bullet_Destroy)
         goto loc_1D17A;
 
-    pSprite->field_36 = pSprite->field_4A;
+    pSprite->mSpeed = pSprite->field_4A;
     if (pSprite->field_59)
         goto loc_1D00F;
 
-    Data0 = pSprite->field_0;
-    Data4 = pSprite->field_4;
-    Data8 = pSprite->field_2E;
-    DataC = pSprite->field_30;
+    Data0 = pSprite->mPosX;
+    Data4 = pSprite->mPosY;
+    Data8 = pSprite->mWeaponTargetX;
+    DataC = pSprite->mWeaponTargetY;
 
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
-    Data4 = pSprite->field_36;
+    Data4 = pSprite->mSpeed;
     Data4 >>= 3;
     if (Data0 > Data4)
         goto loc_1D00F;
 
-    pSprite->field_2C = eSprite_Draw_Second;
-    pSprite->field_0 = pSprite->field_2E;
-    pSprite->field_4 = pSprite->field_30;
+    pSprite->mDrawOrder = eSprite_Draw_Second;
+    pSprite->mPosX = pSprite->mWeaponTargetX;
+    pSprite->mPosY = pSprite->mWeaponTargetY;
     pSprite->field_44 = -1;
     goto loc_1D00F;
 loc_1CFF7:;
-    pSprite->field_2C = eSprite_Draw_First;
+    pSprite->mDrawOrder = eSprite_Draw_First;
     Sprite_Movement_Calculate(pSprite);
     if (mSprite_Bullet_Destroy)
         goto loc_1D17A;
@@ -1047,16 +1047,16 @@ loc_1D00F:;
     if (Sprite_Projectile_Collision_Check(pSprite))
         goto loc_1D07B;
 
-    if (pSprite->field_8 != 0xD7)
+    if (pSprite->mSheetIndex != 0xD7)
         return;
 
-    Data0 = pSprite->field_10;
+    Data0 = pSprite->mDirection;
     Data0 >>= 5;
     Data0 -= 1;
     Data0 ^= 0x0F;
     Data0 &= 0x0F;
     Data0 >>= 1;
-    pSprite->field_A = Data0;
+    pSprite->mFrameIndex = Data0;
     return;
 loc_1D07B:;
 
@@ -1064,21 +1064,21 @@ loc_1D07B:;
         goto loc_1D0F6;
 
     pSprite->field_43 = 1;
-    pSprite->field_2C = eSprite_Draw_OnTop;
-    pSprite->field_4 -= 5;
-    if (pSprite->field_4 < 0)
+    pSprite->mDrawOrder = eSprite_Draw_OnTop;
+    pSprite->mPosY -= 5;
+    if (pSprite->mPosY < 0)
         goto loc_1D18D;
-    pSprite->field_8 = 0x96;
-    pSprite->field_A = 0;
+    pSprite->mSheetIndex = 0x96;
+    pSprite->mFrameIndex = 0;
 
     Sound_Play(pSprite, eSound_Effect_Spear, 0x0F);
     return;
 
 loc_1D0CB:;
-    pSprite->field_8 = 0x96;
+    pSprite->mSheetIndex = 0x96;
     pSprite->field_12 = 0;
-    pSprite->field_A += 1;
-    if (pSprite->field_A >= 4)
+    pSprite->mFrameIndex += 1;
+    if (pSprite->mFrameIndex >= 4)
         goto loc_1D17A;
     return;
 
@@ -1087,21 +1087,21 @@ loc_1D0F6:;
         goto loc_1D14D;
 
     pSprite->field_43 = -1;
-    pSprite->field_2C = eSprite_Draw_First;
-    pSprite->field_4 -= 5;
-    if (pSprite->field_4 < 0)
+    pSprite->mDrawOrder = eSprite_Draw_First;
+    pSprite->mPosY -= 5;
+    if (pSprite->mPosY < 0)
         goto loc_1D18D;
 
-    pSprite->field_A = 3;
+    pSprite->mFrameIndex = 3;
     Sound_Play(pSprite, eSound_Effect_Spear, 0x0F);
 loc_1D14D:;
     if (pSprite->field_43 >= 0)
         goto loc_1D0CB;
 
     pSprite->field_12 = 0;
-    pSprite->field_8 = 0x7F;
-    pSprite->field_A += 1;
-    if (pSprite->field_A >= 8)
+    pSprite->mSheetIndex = 0x7F;
+    pSprite->mFrameIndex += 1;
+    if (pSprite->mFrameIndex >= 8)
         goto loc_1D17A;
     return;
 
@@ -1111,8 +1111,8 @@ loc_1D17A:;
     return;
 
 loc_1D18D:;
-    pSprite->field_0 = 0;
-    pSprite->field_4 = 0x1000;
+    pSprite->mPosX = 0;
+    pSprite->mPosY = 0x1000;
     goto loc_1D17A;
 }
 
@@ -1121,84 +1121,84 @@ void cFodder::Sprite_Handle_Hostage(sSprite* pSprite) {
     int16 Sprite_Field_10;
     sSprite* Data24 = 0;
 
-    if (pSprite->field_6E)
+    if (pSprite->mInVehicle)
         goto loc_1D349;
 
-    pSprite->field_22 = eSprite_PersonType_Native;
-    pSprite->field_8 = 0xD9;
+    pSprite->mPersonType = eSprite_PersonType_Native;
+    pSprite->mSheetIndex = 0xD9;
 
-    word_3B2D1[2] = pSprite->field_0;
-    word_3B2D1[3] = pSprite->field_2;
-    word_3B2D1[4] = pSprite->field_4;
-    word_3B2D1[5] = pSprite->field_6;
+    word_3B2D1[2] = pSprite->mPosX;
+    word_3B2D1[3] = pSprite->mPosXFrac;
+    word_3B2D1[4] = pSprite->mPosY;
+    word_3B2D1[5] = pSprite->mPosYFrac;
 
     Sprite_Handle_Hostage_Movement(pSprite);
     Sprite_Handle_Civilian_Movement(pSprite);
 
-    pSprite->field_36 = 0x0C;
+    pSprite->mSpeed = 0x0C;
     Sprite_Civilian_Update_Movement(pSprite);
-    pSprite->field_38 = eSprite_Anim_None;
+    pSprite->mAnimState = eSprite_Anim_None;
 
     Sprite_Handle_Hostage_FrameUpdate2(pSprite);
     //seg004:44B6
 
-    Sprite_Field_10 = pSprite->field_10;
-    pSprite->field_10 += 0x20;
-    pSprite->field_10 &= 0x1C0;
+    Sprite_Field_10 = pSprite->mDirection;
+    pSprite->mDirection += 0x20;
+    pSprite->mDirection &= 0x1C0;
 
     Sprite_Handle_Hostage_FrameUpdate(pSprite);
-    pSprite->field_10 = Sprite_Field_10;
+    pSprite->mDirection = Sprite_Field_10;
     Sprite_Hostage_Update_IdleFrame(pSprite);
 
-    if (pSprite->field_18 != eSprite_Enemy_Leader)
+    if (pSprite->mSpriteType != eSprite_Enemy_Leader)
         return;
 
     Data24 = pSprite + 1;
 
     //seg004:4505
     if (pSprite->field_5E) {
-        Data24->field_18 = eSprite_Null;
-        Data24->field_8 = 0x7C;
-        Data24->field_A = 0;
+        Data24->mSpriteType = eSprite_Null;
+        Data24->mSheetIndex = 0x7C;
+        Data24->mFrameIndex = 0;
     }
 
-    Data24->field_18 = eSprite_Flashing_Light;
+    Data24->mSpriteType = eSprite_Flashing_Light;
 
-    Data4 = pSprite->field_0;
+    Data4 = pSprite->mPosX;
     Data4 += 6;
 
-    Data24->field_0 = Data4;
-    Data4 = pSprite->field_4 - 0x0B;
-    Data4 += pSprite->field_52;
-    Data24->field_4 = Data4;
-    Data24->field_20 = pSprite->field_20;
+    Data24->mPosX = Data4;
+    Data4 = pSprite->mPosY - 0x0B;
+    Data4 += pSprite->mRowsToSkip;
+    Data24->mPosY = Data4;
+    Data24->mHeight = pSprite->mHeight;
 
-    if (pSprite->field_6E) {
-        Data24->field_18 = eSprite_Null;
-        Data24->field_8 = 0x7C;
-        Data24->field_A = 0;
+    if (pSprite->mInVehicle) {
+        Data24->mSpriteType = eSprite_Null;
+        Data24->mSheetIndex = 0x7C;
+        Data24->mFrameIndex = 0;
     }
 
-    Data0 = pSprite->field_0;
+    Data0 = pSprite->mPosX;
     if (Data0 == mStoredSpriteX) {
-        Data0 = pSprite->field_4;
+        Data0 = pSprite->mPosY;
         if (Data0 == mStoredSpriteY)
             return;
     }
-    pSprite->field_8 = 0xD8;
+    pSprite->mSheetIndex = 0xD8;
     return;
 
 loc_1D349:;
-    pSprite->field_38 = eSprite_Anim_None;
+    pSprite->mAnimState = eSprite_Anim_None;
     sSprite* Data28 = &mSprites[pSprite->field_5E];
-    if (Data28->field_6E)
+    if (Data28->mInVehicle)
         goto loc_1D44C;
 
-    pSprite->field_0 = Data28->field_0;
-    pSprite->field_4 = Data28->field_4;
-    pSprite->field_0 += 8;
-    pSprite->field_4 += 0x0A;
-    mStoredSpriteY = pSprite->field_4;
+    pSprite->mPosX = Data28->mPosX;
+    pSprite->mPosY = Data28->mPosY;
+    pSprite->mPosX += 8;
+    pSprite->mPosY += 0x0A;
+    mStoredSpriteY = pSprite->mPosY;
 
 loc_1D3C6:;
     Data0 = -3;
@@ -1206,45 +1206,45 @@ loc_1D3C6:;
     if (!Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4))
         goto loc_1D411;
 
-    pSprite->field_4 -= 1;
-    if (pSprite->field_4 >= 0)
+    pSprite->mPosY -= 1;
+    if (pSprite->mPosY >= 0)
         goto loc_1D3C6;
 
-    pSprite->field_4 = mStoredSpriteY;
-    pSprite->field_0 -= 1;
-    if (pSprite->field_0 >= 0)
+    pSprite->mPosY = mStoredSpriteY;
+    pSprite->mPosX -= 1;
+    if (pSprite->mPosX >= 0)
         goto loc_1D3C6;
 
-    pSprite->field_0 = 0;
-    pSprite->field_38 = eSprite_Anim_Die1;
+    pSprite->mPosX = 0;
+    pSprite->mAnimState = eSprite_Anim_Die1;
 
 loc_1D411:;
-    Data4 = pSprite->field_4;
+    Data4 = pSprite->mPosY;
     Data0 = mMapLoaded->getHeightPixels();
 
     if (Data4 < Data0)
         goto loc_1D441;
 
     Data0 -= 1;
-    pSprite->field_4 = Data0;
+    pSprite->mPosY = Data0;
 
 loc_1D441:;
-    pSprite->field_6E = 0;
+    pSprite->mInVehicle = 0;
     return;
 
 loc_1D44C:;
-    pSprite->field_8 = 0x7C;
-    pSprite->field_A = 0;
-    pSprite->field_0 = Data28->field_0;
-    pSprite->field_4 = Data28->field_4;
+    pSprite->mSheetIndex = 0x7C;
+    pSprite->mFrameIndex = 0;
+    pSprite->mPosX = Data28->mPosX;
+    pSprite->mPosY = Data28->mPosY;
 }
 
 void cFodder::Sprite_Handle_Hostage_Rescue_Tent(sSprite* pSprite) {
-    pSprite->field_8 = 0xDD;
+    pSprite->mSheetIndex = 0xDD;
 
     mHostage_Rescue_Tent = pSprite;
-    if (pSprite->field_38 == eSprite_Anim_Die3)
-        pSprite->field_18 = eSprite_Explosion2;
+    if (pSprite->mAnimState == eSprite_Anim_Die3)
+        pSprite->mSpriteType = eSprite_Explosion2;
 }
 
 void cFodder::Sprite_Handle_Door_Civilian(sSprite* pSprite) {
@@ -1267,7 +1267,7 @@ void cFodder::Sprite_Handle_Door_Civilian_Spear(sSprite* pSprite) {
 
 void cFodder::Sprite_Handle_Civilian_Invisible(sSprite* pSprite) {
 
-    if (!pSprite->field_38)
+    if (!pSprite->mAnimState)
         return;
 
     Sprite_Handle_Civilian_Death(pSprite);
@@ -1289,9 +1289,9 @@ void cFodder::Sprite_Handle_Door_Civilian_Rescue(sSprite* pSprite) {
         mPhase_Aborted = true;
         return;
     }
-    pSprite->field_2C = eSprite_Draw_First;
+    pSprite->mDrawOrder = eSprite_Draw_First;
     if (!pSprite->field_2A) {
-        pSprite->field_8 = 0x9B;
+        pSprite->mSheetIndex = 0x9B;
         return;
     }
 
@@ -1299,10 +1299,10 @@ void cFodder::Sprite_Handle_Door_Civilian_Rescue(sSprite* pSprite) {
     if (!pSprite->field_2A)
         Sound_Play(pSprite, eSound_Effect_DoorCloseDoor, 1);
 
-    if (pSprite->field_8 == 0x9B)
+    if (pSprite->mSheetIndex == 0x9B)
         Sound_Play(pSprite, eSound_Effect_DoorCloseDoor, 1);
 
-    pSprite->field_8 = 0x7C;
+    pSprite->mSheetIndex = 0x7C;
 }
 
 void cFodder::Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID) {

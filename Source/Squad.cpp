@@ -72,10 +72,10 @@ void cFodder::Squad_Set_CurrentVehicle() {
                 sSprite* Data24 = *Data20++;
 
                 // Sprite not in vehicle?
-                if (!Data24->field_6E)
+                if (!Data24->mInVehicle)
                     break;
 
-                mSquad_CurrentVehicle = Data24->field_6A_sprite;
+                mSquad_CurrentVehicle = Data24->mCurrentVehicle;
                 Data0 = -1;
                 continue;
 
@@ -113,7 +113,7 @@ void cFodder::Squad_EnteredVehicle_TimerTick() {
                 break;
 
             sSprite* Data30 = *Data2C++;
-            Data30->field_38 = eSprite_Anim_Vehicle_Enter;
+            Data30->mAnimState = eSprite_Anim_Vehicle_Enter;
         }
     }
 }
@@ -196,28 +196,28 @@ void cFodder::Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquad
         if (Data28 == INVALID_SPRITE_PTR)
             break;
 
-        if (Data28->field_5B)
+        if (Data28->mIsSinking)
             continue;
 
-        if (Data28->field_6E)
+        if (Data28->mInVehicle)
             continue;
 
         Data28->field_4C = 0;
         Data28->field_4D = 0;
         Data28->field_45 = 0;
         Data28->field_43 = 0;
-        Data28->field_40 = pData10;
-        Data28->field_40++;
+        Data28->mNextWalkTargetIndex = pData10;
+        Data28->mNextWalkTargetIndex++;
         pData10--;
 
-        mSquad_WalkTargets[pSquadNumber][pData10].mX = Data28->field_0;
-        mSquad_WalkTargets[pSquadNumber][pData10].mY = Data28->field_4;
+        mSquad_WalkTargets[pSquadNumber][pData10].mX = Data28->mPosX;
+        mSquad_WalkTargets[pSquadNumber][pData10].mY = Data28->mPosY;
 
-        Data28->field_26 = pTargetX;
-        Data28->field_28 = pTargetY;
+        Data28->mTargetX = pTargetX;
+        Data28->mTargetY = pTargetY;
 
-        pTargetX = Data28->field_0;
-        pTargetY = Data28->field_4;
+        pTargetX = Data28->mPosX;
+        pTargetY = Data28->mPosY;
     }
 
 loc_2ABF8:;
@@ -241,34 +241,34 @@ int16 cFodder::Squad_Members_Find_In_Region(sSprite* pSprite, int16 pData8, int1
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
 
-        if (pData8 > (Troop.mSprite->field_0 + 9))
+        if (pData8 > (Troop.mSprite->mPosX + 9))
             continue;
 
-        if (pDataC < Troop.mSprite->field_0)
+        if (pDataC < Troop.mSprite->mPosX)
             continue;
 
-        if (pData10 > (Troop.mSprite->field_4 - 6))
+        if (pData10 > (Troop.mSprite->mPosY - 6))
             continue;
 
-        if (pData14 < (Troop.mSprite->field_4 - 13))
+        if (pData14 < (Troop.mSprite->mPosY - 13))
             continue;
 
-        if (Troop.mSprite->field_20 >= 0x0B)
+        if (Troop.mSprite->mHeight >= 0x0B)
             continue;
 
         if (!word_3AA45)
             goto loc_2AD3D;
 
-        if (Troop.mSprite->field_6E)
+        if (Troop.mSprite->mInVehicle)
             continue;
 
         if (pSprite->field_3A <= 4)
             goto loc_2AD25;
 
-        if (Troop.mSprite->field_52 >= 5)
+        if (Troop.mSprite->mRowsToSkip >= 5)
             goto loc_2AD2D;
 
-        if (Troop.mSprite->field_4F)
+        if (Troop.mSprite->mInWater)
             goto loc_2AD2D;
 
 
@@ -300,18 +300,18 @@ int16 cFodder::Squad_Members_Find_In_Region(sSprite* pSprite, int16 pData8, int1
 
         Sprite_Direction_Between_Points(Troop.mSprite, Data0, Data4);
 
-        Troop.mSprite->field_10 += 0x100;
-        Troop.mSprite->field_10 &= 0x1FE;
+        Troop.mSprite->mDirection += 0x100;
+        Troop.mSprite->mDirection &= 0x1FE;
 
     loc_2ADC3:; // Hit
-        if (Troop.mSprite->field_18)
+        if (Troop.mSprite->mSpriteType)
             goto loc_2ADFF;
 
-        Troop.mSprite->field_10 = pSprite->field_10;
-        Troop.mSprite->field_12 = pSprite->field_10;
+        Troop.mSprite->mDirection = pSprite->mDirection;
+        Troop.mSprite->field_12 = pSprite->mDirection;
 
     loc_2ADFF:;
-        Troop.mSprite->field_38 = eSprite_Anim_Hit;
+        Troop.mSprite->mAnimState = eSprite_Anim_Hit;
         Troop.mSprite->field_64 = -1;
         mSprites_Found_Count += 1;
 
@@ -351,14 +351,14 @@ void cFodder::Squad_Rebuild() {
         if (!(Sprite->field_75 & eSprite_Flag_Invincibility)) {
 
             // Is dying
-            if (Sprite->field_38 < eSprite_Anim_Slide1) {
-                if (Sprite->field_38) {
+            if (Sprite->mAnimState < eSprite_Anim_Slide1) {
+                if (Sprite->mAnimState) {
 
                     // Not in vehicle
-                    if (!Sprite->field_6E)
+                    if (!Sprite->mInVehicle)
                         continue;
 
-                    Sprite->field_38 = eSprite_Anim_None;
+                    Sprite->mAnimState = eSprite_Anim_None;
                 }
             }
         }
@@ -407,7 +407,7 @@ void cFodder::Squad_Member_CanFire() {
     if (Data20 == INVALID_SPRITE_PTR || Data20 == 0)
         return;
 
-    sMission_Troop* Dataa20 = Data20->field_46_mission_troop;
+    sMission_Troop* Dataa20 = Data20->mMissionTroop;
     if (Dataa20 == 0)
         return;
 
@@ -521,7 +521,7 @@ int16 cFodder::Squad_Join(sSprite* pSprite) {
     if (mSquads_TroopCount[Data14] > 8)
         return -1;
 
-    sMission_Troop* Dataa24 = pSprite->field_46_mission_troop;
+    sMission_Troop* Dataa24 = pSprite->mMissionTroop;
     Dataa24->mSelected &= 0xFE;
 
     sMapTarget* Data24 = mSquad_WalkTargets[Data18];
@@ -536,7 +536,7 @@ int16 cFodder::Squad_Join(sSprite* pSprite) {
         Data0++;
     }
 
-    pSprite->field_40 = Data0;
+    pSprite->mNextWalkTargetIndex = Data0;
     pSprite->field_32 = Data18;
     Squad_Rebuild();
 
@@ -561,7 +561,7 @@ int16 cFodder::Squad_Join_Check(sSprite* pSprite) {
         return -1;
 
     sSprite* Dataa2C = mSquad_Join_TargetSprite[pSprite->field_32];
-    if (Dataa2C->field_18 != eSprite_Player)
+    if (Dataa2C->mSpriteType != eSprite_Player)
         return -1;
 
     sSprite** Data30 = mSquads[mSquad_Selected];
@@ -578,10 +578,10 @@ int16 cFodder::Squad_Join_Check(sSprite* pSprite) {
         MaxDistance += 8;
     }
 
-    int16 Data0 = Dataa2C->field_0;
-    int16 Data4 = Dataa2C->field_4;
-    int16 Data8 = pSprite->field_0;
-    int16 DataC = pSprite->field_4;
+    int16 Data0 = Dataa2C->mPosX;
+    int16 Data4 = Dataa2C->mPosY;
+    int16 Data8 = pSprite->mPosX;
+    int16 DataC = pSprite->mPosY;
     Map_Get_Distance_BetweenPoints_Within_Window(Data0, Data4, Data8, DataC);
     if (Data0 <= MaxDistance)
         return Squad_Join(pSprite);
@@ -600,9 +600,9 @@ void cFodder::Squad_Walk_Target_Reset(int16 pData0) {
             break;
 
         sSprite* Data28 = *Data24++;
-        Data28->field_40 = 0;
-        Data28->field_26 = Data28->field_0;
-        Data28->field_28 = Data28->field_4;
+        Data28->mNextWalkTargetIndex = 0;
+        Data28->mTargetX = Data28->mPosX;
+        Data28->mTargetY = Data28->mPosY;
     }
 
 }
@@ -623,8 +623,8 @@ void cFodder::Squad_Select(int16 pData4, bool pCheckMouse) {
         return;
 
     mCamera_Panning_ToTarget = false;
-    mCamera_StartPosition_X = Data20->field_0;
-    mCamera_StartPosition_Y = Data20->field_4;
+    mCamera_StartPosition_X = Data20->mPosX;
+    mCamera_StartPosition_Y = Data20->mPosY;
     mCamera_Start_Adjust = true;
     mSquad_Select_Timer = 1;
     mGUI_Sidebar_Setup = 0;
@@ -719,8 +719,8 @@ void cFodder::Squad_Member_Click_Check() {
         if (SquadMemberSprite->field_32 == mSquad_Selected)
             ++word_3A3BF;
 
-        int16 SquadMemberX = SquadMemberSprite->field_0 + 4;
-        int16 SquadMemberY = SquadMemberSprite->field_4 - SquadMemberSprite->field_20;
+        int16 SquadMemberX = SquadMemberSprite->mPosX + 4;
+        int16 SquadMemberY = SquadMemberSprite->mPosY - SquadMemberSprite->mHeight;
 
         // Clicked before/after troop?
         if (ClickedX < SquadMemberX)
@@ -737,7 +737,7 @@ void cFodder::Squad_Member_Click_Check() {
         // 
         if (mSquad_Selected == SquadMemberSprite->field_32) {
             mSquad_Member_Clicked_TroopInSameSquad = -1;
-            mSquad_Member_Clicked_TroopPtr = SquadMemberSprite->field_46_mission_troop;
+            mSquad_Member_Clicked_TroopPtr = SquadMemberSprite->mMissionTroop;
             return;
         }
 
@@ -807,8 +807,8 @@ void cFodder::Squad_Member_Target_Set() {
 
         sSprite* Data24 = *Data20++;
 
-        Data24->field_2E = TargetX;
-        Data24->field_30 = TargetY;
+        Data24->mWeaponTargetX = TargetX;
+        Data24->mWeaponTargetY = TargetY;
     }
 
 loc_30E05:;
@@ -846,8 +846,8 @@ void cFodder::Squad_Switch_To(int16 pData0) {
     sSprite* Data20 = 0;
 
     if (Squad_UpdateLeader(Data20) >= 0) {
-        mCamera_StartPosition_X = Data20->field_0;
-        mCamera_StartPosition_Y = Data20->field_4;
+        mCamera_StartPosition_X = Data20->mPosX;
+        mCamera_StartPosition_Y = Data20->mPosY;
         mCamera_Start_Adjust = true;
         mMouse_Locked = false;
     }
@@ -873,30 +873,30 @@ int16 cFodder::Squad_UpdateLeader(sSprite*& pData20) {
         pData20 = *Data30;
         ++Data30;
         //seg011:1B61
-        if (pData20->field_18 != eSprite_Player)
+        if (pData20->mSpriteType != eSprite_Player)
             continue;
 
         if (pData20->field_75 & eSprite_Flag_Invincibility)
             goto loc_3066E;
 
-        if (pData20->field_38) {
-            if (pData20->field_38 < eSprite_Anim_Slide1)
+        if (pData20->mAnimState) {
+            if (pData20->mAnimState < eSprite_Anim_Slide1)
                 goto loc_30662;
         }
         //loc_30656
-        if (!pData20->field_5B)
+        if (!pData20->mIsSinking)
             goto loc_30681;
 
     loc_30662:;
-        if (!pData20->field_6E)
+        if (!pData20->mInVehicle)
             continue;
 
     loc_3066E:;
-        pData20->field_38 = eSprite_Anim_None;
-        pData20->field_5B = 0;
+        pData20->mAnimState = eSprite_Anim_None;
+        pData20->mIsSinking = 0;
     loc_30681:;
 
-        if (!pData20->field_6E)
+        if (!pData20->mInVehicle)
             break;
 
     } while (*Data30 != INVALID_SPRITE_PTR);
@@ -928,7 +928,7 @@ void cFodder::Squad_Assign_Target_From_Mouse() {
         if (*Data24 == INVALID_SPRITE_PTR)
             break;
         sSprite* Data28 = *Data24++;
-        Data28->field_66 = 0;
+        Data28->mVehicleWalkTarget = 0;
     }
 
     int16 Data0 = mMouseX;
@@ -942,23 +942,23 @@ void cFodder::Squad_Assign_Target_From_Mouse() {
 
     for(auto& Sprite : mSprites) {
 
-        if (Sprite.field_0 == -32768)
+        if (Sprite.mPosX == -32768)
             continue;
 
-        if (!Sprite.field_65)
+        if (!Sprite.mVehicleEnabled)
             continue;
 
-        if (Sprite.field_22 != eSprite_PersonType_Human)
+        if (Sprite.mPersonType != eSprite_PersonType_Human)
             continue;
 
-        if (Sprite.field_20)
+        if (Sprite.mHeight)
             continue;
 
-        int16 Data18 = Sprite.field_18;
-        int16 Data8 = Sprite.field_0;
+        int16 Data18 = Sprite.mSpriteType;
+        int16 Data8 = Sprite.mPosX;
 
-        if (Sprite.field_6F == eVehicle_Turret_Cannon ||
-            Sprite.field_6F == eVehicle_Turret_Missile)
+        if (Sprite.mVehicleType == eVehicle_Turret_Cannon ||
+            Sprite.mVehicleType == eVehicle_Turret_Missile)
             Data8 -= 8;
 
         if (Data0 < Data8)
@@ -968,12 +968,12 @@ void cFodder::Squad_Assign_Target_From_Mouse() {
         if (Data0 > Data8)
             continue;
 
-        Data8 = Sprite.field_4 - mSprite_Height_Top[Data18];
+        Data8 = Sprite.mPosY - mSprite_Height_Top[Data18];
         Data8 -= 0x14;
         if (Data4 < Data8)
             continue;
 
-        Data8 = Sprite.field_4 + mSprite_Height_Bottom[Data18];
+        Data8 = Sprite.mPosY + mSprite_Height_Bottom[Data18];
         if (Data4 > Data8)
             continue;
 
@@ -986,7 +986,7 @@ void cFodder::Squad_Assign_Target_From_Mouse() {
                 goto loc_313C6;
 
             sSprite* Data28 = *Data24++;
-            Data28->field_66 = &Sprite;
+            Data28->mVehicleWalkTarget = &Sprite;
         }
     }
 

@@ -295,20 +295,20 @@ void cFodder::Mouse_UpdateCursor() {
         //loc_30B36
         for (auto& Vehicle : mSprites_HumanVehicles) {
 
-            if (Vehicle->field_0 < 0)
+            if (Vehicle->mPosX < 0)
                 continue;
 
-            if (!Vehicle->field_65)
+            if (!Vehicle->mVehicleEnabled)
                 continue;
 
             // If not human
-            if (Vehicle->field_22 != eSprite_PersonType_Human)
+            if (Vehicle->mPersonType != eSprite_PersonType_Human)
                 continue;
 
-            Data8 = Vehicle->field_0;
-            if (Vehicle->field_6F == eVehicle_Turret_Cannon)
+            Data8 = Vehicle->mPosX;
+            if (Vehicle->mVehicleType == eVehicle_Turret_Cannon)
                 goto loc_30BB9;
-            if (Vehicle->field_6F == eVehicle_Turret_Missile)
+            if (Vehicle->mVehicleType == eVehicle_Turret_Missile)
                 goto loc_30BBE;
 
         loc_30BB9:;
@@ -318,33 +318,33 @@ void cFodder::Mouse_UpdateCursor() {
             if (Data0 < Data8)
                 continue;
 
-            Data8 += mSprite_Width[Vehicle->field_18];
+            Data8 += mSprite_Width[Vehicle->mSpriteType];
             if (Data0 > Data8)
                 continue;
 
-            Data8 = Vehicle->field_4;
-            Data8 -= Vehicle->field_20;
-            Data8 -= mSprite_Height_Top[Vehicle->field_18];
+            Data8 = Vehicle->mPosY;
+            Data8 -= Vehicle->mHeight;
+            Data8 -= mSprite_Height_Top[Vehicle->mSpriteType];
             Data8 -= 0x14;
 
             if (Data4 < Data8)
                 continue;
 
-            Data8 = Vehicle->field_4;
-            Data8 -= Vehicle->field_20;
+            Data8 = Vehicle->mPosY;
+            Data8 -= Vehicle->mHeight;
             if (Data4 > Data8)
                 continue;
 
             mMouseSetToCursor = -1;
 
             // Is vehicle off ground
-            if (Vehicle->field_20) {
+            if (Vehicle->mHeight) {
 
                 // And is current
                 if (Vehicle != mSquad_CurrentVehicle)
                     return;
 
-                if (Vehicle->field_8 == 0xA5)
+                if (Vehicle->mSheetIndex == 0xA5)
                     return;
 
                 // Show the helicopter land icon
@@ -470,7 +470,7 @@ loc_30814:;
         return;
     }
 
-    if (Dataa24->field_6E)
+    if (Dataa24->mInVehicle)
         return;
 
     if (word_3B2F1)
@@ -517,11 +517,11 @@ loc_30814:;
             continue;
 
         Troop.mSprite->field_44 = 0;
-        Troop.mSprite->field_2 = 0;
-        Troop.mSprite->field_6 = 0;
+        Troop.mSprite->mPosXFrac = 0;
+        Troop.mSprite->mPosYFrac = 0;
     }
 
-    int16 Data10 = mSquad_Leader->field_0;
+    int16 Data10 = mSquad_Leader->mPosX;
     int16 Data8 = Data4;
     Data4 = Data0;
 

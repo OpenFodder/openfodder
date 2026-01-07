@@ -619,7 +619,7 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 		Json Troop;
 		Troop["mRecruitID"] = MissionTroop.mRecruitID;
 		Troop["mRank"] = MissionTroop.mRank;
-		Troop["field_6"] = MissionTroop.field_6;
+		Troop["field_6"] = MissionTroop.mAnimationVariant;
 		Troop["mNumberOfKills"] = MissionTroop.mNumberOfKills;
 
 		Save["mMission_Troops"].push_back(Troop);
@@ -686,7 +686,7 @@ bool sGameData::FromJson(const std::string& pJson) {
              for (auto& MissionTroop : LoadedData["mMission_Troops"]) {
                  mSoldiers_Allocated[x].mRecruitID = MissionTroop["mRecruitID"];
                  mSoldiers_Allocated[x].mRank = MissionTroop["mRank"];
-                 mSoldiers_Allocated[x].field_6 = MissionTroop["field_6"];
+                 mSoldiers_Allocated[x].mAnimationVariant = MissionTroop["field_6"];
                  mSoldiers_Allocated[x].mNumberOfKills = MissionTroop["mNumberOfKills"];
                  if (++x == 9)
                      break;
