@@ -31,6 +31,7 @@ jobs:
             C:\vcpkg\archives
             C:\vcpkg\buildtrees
             C:\vcpkg\packages
+            C:\vcpkg\binarycache
           key: ${{ runner.os }}-${{ matrix.arch }}-vcpkg-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
       - name: Install FFmpeg (vcpkg)
         shell: pwsh
@@ -40,6 +41,7 @@ jobs:
             git clone https://github.com/microsoft/vcpkg $vcpkgRoot
           }
           & "$vcpkgRoot\bootstrap-vcpkg.bat"
+          $env:VCPKG_BINARY_SOURCES = "clear;files,C:\vcpkg\binarycache,readwrite"
           Push-Location $env:GITHUB_WORKSPACE
           & "$vcpkgRoot\vcpkg.exe" install --triplet ${{ matrix.vcpkg_triplet }}
           Pop-Location
