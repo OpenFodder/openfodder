@@ -68,7 +68,6 @@ jobs:
           Copy-Item "$runDir\SDL3.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
           Copy-Item "$runDir\SDL3_mixer.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
 
-          git clone --single-branch https://github.com/OpenFodder/data.git $runDir/Data
 
           Copy-Item "$stashDir\openfodder.exe" -Destination $runDir -Force
           Copy-Item "$stashDir\SDL3.dll" -Destination $runDir -Force
