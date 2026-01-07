@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,94 +24,89 @@
 
 /* Amiga Format Menu Buttons */
 const sGUI_Element mAfx_Buttons[] = {
-	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2 },
-	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1 },
-	{ &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap0 },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap1 },
-	{ 0 }
-};
+    {&cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2},
+    {&cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0},
+    {&cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1},
+    {&cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap0},
+    {&cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap1},
+    {0}};
 
 /* Cannon Fodder Plus Menu Buttons */
 const sGUI_Element mPlus_Buttons[] = {
-	{ &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_SelectQuiz },
-	{ &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1 },
-	{ &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap2 },
-	{ &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3 },
+    {&cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_SelectQuiz},
+    {&cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0},
+    {&cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1},
+    {&cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap2},
+    {&cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3},
 };
 
 /* Amiga Action Menu Buttons */
 const sGUI_Element mAmigaAction_Buttons[] = {
-    { &cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2 },
-    { &cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0 },
-    { &cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1 },
-    { &cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap2 },
-    { &cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3 },
+    {&cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2},
+    {&cFodder::GUI_Button_NoAction, 0x01, 0x9E, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap0},
+    {&cFodder::GUI_Button_NoAction, 0xA1, 0x9C, 0x1B, 0x63, &cFodder::GUI_Button_SelectMap1},
+    {&cFodder::GUI_Button_NoAction, 0x02, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap2},
+    {&cFodder::GUI_Button_NoAction, 0xA1, 0x9D, 0x81, 0x63, &cFodder::GUI_Button_SelectMap3},
 };
 
 /* Cannon Fodder Plus Quiz Buttons */
 const sGUI_Element mPlusQuiz_Buttons[] = {
-	{ &cFodder::GUI_Button_NoAction, 0x0BD, 0x19, 0x5B, 0x48,	&cFodder::GUI_Button_ExitMenu },
-	{ &cFodder::GUI_Button_NoAction, 0x0B2, 0x1C, 0xA2, 0x33,	&cFodder::GUI_Button_ExitMenu },
-	{ &cFodder::GUI_Button_NoAction, 0x000, 0x31, 0x03, 0x1E,	&cFodder::GUI_Button_Quiz_2 },
-	{ &cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0x03, 0x1E,	&cFodder::GUI_Button_Quiz_3 },
-	{ &cFodder::GUI_Button_NoAction, 0x000, 0x31, 0xD6, 0x1E,	&cFodder::GUI_Button_Quiz_4 },
-	{ &cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0xD6, 0x1E,	&cFodder::GUI_Button_Quiz_5 },
-	{ &cFodder::GUI_Button_NoAction, 0x02A, 0x32, 0x10, 0xC9,	&cFodder::GUI_Button_Quiz_6 },
-	{ &cFodder::GUI_Button_NoAction, 0x05B, 0x27, 0x1F, 0xB4,	&cFodder::GUI_Button_Quiz_7 },
-	{ &cFodder::GUI_Button_NoAction, 0x081, 0x1E, 0x25, 0xA7,	&cFodder::GUI_Button_Quiz_8 },
-	{ &cFodder::GUI_Button_NoAction, 0x09E, 0x1F, 0x24, 0xB1,	&cFodder::GUI_Button_Quiz_9 },
-	{ &cFodder::GUI_Button_NoAction, 0x0BC, 0x2B, 0x21, 0xAA,	&cFodder::GUI_Button_Quiz_10 },
-	{ &cFodder::GUI_Button_NoAction, 0x0E6, 0x3B, 0x13, 0xCE,	&cFodder::GUI_Button_Quiz_11 },
+    {&cFodder::GUI_Button_NoAction, 0x0BD, 0x19, 0x5B, 0x48, &cFodder::GUI_Button_ExitMenu},
+    {&cFodder::GUI_Button_NoAction, 0x0B2, 0x1C, 0xA2, 0x33, &cFodder::GUI_Button_ExitMenu},
+    {&cFodder::GUI_Button_NoAction, 0x000, 0x31, 0x03, 0x1E, &cFodder::GUI_Button_Quiz_2},
+    {&cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0x03, 0x1E, &cFodder::GUI_Button_Quiz_3},
+    {&cFodder::GUI_Button_NoAction, 0x000, 0x31, 0xD6, 0x1E, &cFodder::GUI_Button_Quiz_4},
+    {&cFodder::GUI_Button_NoAction, 0x10C, 0x31, 0xD6, 0x1E, &cFodder::GUI_Button_Quiz_5},
+    {&cFodder::GUI_Button_NoAction, 0x02A, 0x32, 0x10, 0xC9, &cFodder::GUI_Button_Quiz_6},
+    {&cFodder::GUI_Button_NoAction, 0x05B, 0x27, 0x1F, 0xB4, &cFodder::GUI_Button_Quiz_7},
+    {&cFodder::GUI_Button_NoAction, 0x081, 0x1E, 0x25, 0xA7, &cFodder::GUI_Button_Quiz_8},
+    {&cFodder::GUI_Button_NoAction, 0x09E, 0x1F, 0x24, 0xB1, &cFodder::GUI_Button_Quiz_9},
+    {&cFodder::GUI_Button_NoAction, 0x0BC, 0x2B, 0x21, 0xAA, &cFodder::GUI_Button_Quiz_10},
+    {&cFodder::GUI_Button_NoAction, 0x0E6, 0x3B, 0x13, 0xCE, &cFodder::GUI_Button_Quiz_11},
 };
 
 const int8 mGUI_Sidebar_TroopList_Sprite_Modifier[] = {
-	0x29,	// Squad Selected (Normal)
-	0x4D,	// Selected		  (Gold/Yellow)
-	0x71	// Squad Not Selected (Grayed Out)
+    0x29, // Squad Selected (Normal)
+    0x4D, // Selected		  (Gold/Yellow)
+    0x71  // Squad Not Selected (Grayed Out)
 };
 
-const int16 mGUI_Squad_Icons[3] = { 
-	0, 
-	1, 
-	2
-};
+const int16 mGUI_Squad_Icons[3] = {
+    0,
+    1,
+    2};
 
 const int16 mGUI_Squad_Split_Icons[] = {
-	0, 3, 4, // Squad 0
-	6, 1, 5, // Squad 1
-	8, 7, 2  // Squad 2
+    0, 3, 4, // Squad 0
+    6, 1, 5, // Squad 1
+    8, 7, 2  // Squad 2
 };
 
 const int16 mGUI_Squad_Active_Icons[] = {
-	149, 150, 151, 
-	152, 153, 154, 
-	155, 156, 157, 
-	158, 158
-};
+    149, 150, 151,
+    152, 153, 154,
+    155, 156, 157,
+    158, 158};
 
 const int16 mGUI_Squad_Inactive_Icons[] = {
-	159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
-	168
-};
+    159, 160, 161, 162, 163, 164, 165, 166, 167, 168,
+    168};
 
 // Left value is vehicle ID type
 const sGUI_SquadVehicleIcon mGUI_Squad_Vehicle_Icons[] = {
-	{ eVehicle_Turret_Cannon,		 2 },
-	{ eVehicle_Turret_Missile,		 3 },
-	{ eVehicle_Jeep,				 4 },
-	{ eVehicle_JeepRocket,			 5 },
-	{ eVehicle_Tank,				 6 },
-	{ eVehicle_Helicopter,			 7 },
-	{ eVehicle_Helicopter_Grenade,	 8 },
-	{ eVehicle_Helicopter_Missile,	 9 },
-	{ eVehicle_Helicopter_Homing,	10 },
-    { -1 }
-};
+    {eVehicle_Turret_Cannon, 2},
+    {eVehicle_Turret_Missile, 3},
+    {eVehicle_Jeep, 4},
+    {eVehicle_JeepRocket, 5},
+    {eVehicle_Tank, 6},
+    {eVehicle_Helicopter, 7},
+    {eVehicle_Helicopter_Grenade, 8},
+    {eVehicle_Helicopter_Missile, 9},
+    {eVehicle_Helicopter_Homing, 10},
+    {-1}};
 
-
-void cFodder::GUI_Sidebar_Grenades_Draw() {
+void cFodder::GUI_Sidebar_Grenades_Draw()
+{
     int16 Data0 = mGUI_Loop_Squad_Current;
     int16 Data8, DataC, Data4, Data10;
 
@@ -121,11 +116,13 @@ void cFodder::GUI_Sidebar_Grenades_Draw() {
     if (mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] != eWeapon_Grenade)
         goto loc_2ED63;
 
-    if (!mGUI_Loop_Is_CurrentSquad) {
+    if (!mGUI_Loop_Is_CurrentSquad)
+    {
     loc_2ED63:;
         Data0 = 0xC4;
     }
-    else {
+    else
+    {
         Data0 = 0xC3;
     }
 
@@ -157,14 +154,14 @@ loc_2EDF7:;
 
 loc_2EDFD:;
     GUI_Sidebar_Number_Draw(Data0, Data4, Data8, DataC, Data10);
-
 }
 
-void cFodder::GUI_Prepare_Button_Grenade() {
+void cFodder::GUI_Prepare_Button_Grenade()
+{
     if (!mGUI_Loop_Is_CurrentSquad)
         return;
 
-    sGUI_Element* NewElement = mGUI_NextFreeElement;
+    sGUI_Element *NewElement = mGUI_NextFreeElement;
     NewElement->field_0 = &cFodder::GUI_Button_NoAction;
     NewElement->mX = 0;
     NewElement->mWidth = 0x0C;
@@ -176,12 +173,14 @@ void cFodder::GUI_Prepare_Button_Grenade() {
     GUI_ClearElement(NewElement);
 }
 
-void cFodder::GUI_Handle_Button_Grenades() {
+void cFodder::GUI_Handle_Button_Grenades()
+{
 
     if (Mouse_Button_Left_Toggled() < 0)
         return;
 
-    if (!GUI_Sidebar_SelectedTroops_Count()) {
+    if (!GUI_Sidebar_SelectedTroops_Count())
+    {
         Squad_Select_Grenades();
         return;
     }
@@ -190,12 +189,11 @@ void cFodder::GUI_Handle_Button_Grenades() {
     if (mSquad_Grenade_SplitMode >= (eSquad_Weapon_Split_None + 1))
         mSquad_Grenade_SplitMode = eSquad_Weapon_Split_All;
 
-    sub_303AE();
-
+    GUI_Sidebar_Grenades_Split_Draw();
 }
 
-
-void cFodder::GUI_Sidebar_TroopList_Draw() {
+void cFodder::GUI_Sidebar_TroopList_Draw()
+{
 
     int16 Data0 = 0;
     int8 Data4 = mSquads_TroopCount[mGUI_Loop_Squad_Current];
@@ -208,7 +206,8 @@ void cFodder::GUI_Sidebar_TroopList_Draw() {
     if (Data4 < 0)
         goto loc_2F1BC;
 
-    for (; Data4 >= 0; --Data4) {
+    for (; Data4 >= 0; --Data4)
+    {
 
         if (!mGUI_Loop_Is_CurrentSquad)
             Data0 = 0xAB;
@@ -228,9 +227,10 @@ loc_2F1BC:;
     mSidebar_Draw_Y = mGUI_Loop_Draw_Y + 0x22;
 
     // Loop the squad
-    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+    for (auto &Troop : mGame_Data.mSoldiers_Allocated)
+    {
 
-        sSprite* Data34 = Troop.mSprite;
+        sSprite *Data34 = Troop.mSprite;
 
         if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
             continue;
@@ -251,27 +251,30 @@ loc_2F1BC:;
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Troop.mRank + 9, 0x00, mSidebar_Draw_Y);
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Troop.mRank + 9, 0x23, mSidebar_Draw_Y);
 
-        const sRecruit* Data28 = &mRecruits[Troop.mRecruitID];
+        const sRecruit *Data28 = &mRecruits[Troop.mRecruitID];
         if (!mGUI_Loop_Is_CurrentSquad)
             Data0 = 2;
         else
             Data0 = Troop.mSelected & 1;
 
-        //loc_2F318
+        // loc_2F318
         GUI_Sidebar_TroopList_Name_Draw(Data0, 0x23, mSidebar_Draw_Y + 2, Data28->mName);
         mSidebar_Draw_Y += 0x0C;
     }
 }
 
-void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 pDataC, const char* pData28) {
+void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 pDataC, const char *pData28)
+{
 
     word_3AA21 = mGUI_Sidebar_TroopList_Sprite_Modifier[pData0];
 
     int16 Data14;
 
-    for (Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14) {
+    for (Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14)
+    {
 
-        if (mGUI_Sidebar_TroopList_Name_BreakOnSpace == 5) {
+        if (mGUI_Sidebar_TroopList_Name_BreakOnSpace == 5)
+        {
 
             if (pData28[Data14] == 0x20)
                 break;
@@ -279,7 +282,6 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 
 
         if (pData28[Data14] == 0)
             break;
-
     }
 
     Data14 <<= 2;
@@ -289,9 +291,11 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 
     Data18 >>= 1;
     word_3A05F = Data18;
 
-    for (Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14) {
+    for (Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14)
+    {
 
-        if (pData28[Data14] != 0x20) {
+        if (pData28[Data14] != 0x20)
+        {
             pData0 = pData28[Data14];
             pData0 -= 0x41;
             pData0 += word_3AA21;
@@ -305,17 +309,19 @@ void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 
     }
 }
 
-void cFodder::GUI_Sidebar_SquadIcon_Update() {
+void cFodder::GUI_Sidebar_SquadIcon_Update()
+{
 
     GUI_Sidebar_SquadIcon_Set();
     GUI_Sidebar_SquadIcon_Current_Draw();
 }
 
-void cFodder::GUI_Sidebar_SquadIcon_Current_Draw() {
+void cFodder::GUI_Sidebar_SquadIcon_Current_Draw()
+{
 
     int16 Data0 = mGUI_Squad_Icon[mGUI_Loop_Squad_Current];
 
-    const int16* Data20 = mGUI_Squad_Active_Icons;
+    const int16 *Data20 = mGUI_Squad_Active_Icons;
 
     if (!mGUI_Loop_Is_CurrentSquad)
         Data20 = mGUI_Squad_Inactive_Icons;
@@ -328,10 +334,11 @@ void cFodder::GUI_Sidebar_SquadIcon_Current_Draw() {
     mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, Data8, DataC);
 }
 
-int16 cFodder::GUI_Sidebar_SquadIcon_Set() {
+int16 cFodder::GUI_Sidebar_SquadIcon_Set()
+{
     int16 Data1C = 0;
-    sSprite* Vehicle = 0;
-    const sGUI_SquadVehicleIcon* SquadIcon = mGUI_Squad_Vehicle_Icons;
+    sSprite *Vehicle = 0;
+    const sGUI_SquadVehicleIcon *SquadIcon = mGUI_Squad_Vehicle_Icons;
 
     // No Troops in Squad?
     if (!mSquads_TroopCount[mGUI_Loop_Squad_Current])
@@ -345,10 +352,10 @@ int16 cFodder::GUI_Sidebar_SquadIcon_Set() {
     if (!mSquad_CurrentVehicles[mGUI_Loop_Squad_Current])
         goto loc_2F593;
 
-
     Vehicle = mSquad_CurrentVehicles[mGUI_Loop_Squad_Current];
 
-    for (;; ++SquadIcon) {
+    for (;; ++SquadIcon)
+    {
         if (SquadIcon->mVehicleType < 0)
             goto loc_2F593;
 
@@ -368,20 +375,22 @@ loc_2F593:;
     return -1;
 }
 
-void cFodder::GUI_Sidebar_Draw() {
+void cFodder::GUI_Sidebar_Draw()
+{
     Mission_Final_TimeToDie();
     GUI_Sidebar_SquadIcons_Draw();
 
     int16 Data0 = 2;
     int16 Data4 = 2;
 
-    int8* Data20 = &mGUI_RefreshSquadGrenades[2]; //byte_3AC35; 
-    int8* Data24 = &mGUI_RefreshSquadRockets[2]; //byte_3AC3B;
-    int16* Data28 = mSquad_Grenades;
-    int16* Data2C = mSquad_Rockets;
-    int16* Data30 = mSquad_CurrentWeapon;
+    int8 *Data20 = &mGUI_RefreshSquadGrenades[2]; // byte_3AC35;
+    int8 *Data24 = &mGUI_RefreshSquadRockets[2];  // byte_3AC3B;
+    int16 *Data28 = mSquad_Grenades;
+    int16 *Data2C = mSquad_Rockets;
+    int16 *Data30 = mSquad_CurrentWeapon;
 
-    for (Data0 = 2; Data0 >= 0; --Data0) {
+    for (Data0 = 2; Data0 >= 0; --Data0)
+    {
 
         if (!*Data20)
             goto loc_2F67A;
@@ -417,7 +426,8 @@ void cFodder::GUI_Sidebar_Draw() {
     Data20 = &mGUI_RefreshSquadGrenades[2];
     Data24 = &mGUI_RefreshSquadRockets[2];
 
-    for (int16 Data0 = 2; Data0 >= 0; --Data0, --Data20, --Data24) {
+    for (int16 Data0 = 2; Data0 >= 0; --Data0, --Data20, --Data24)
+    {
 
         if (!*Data20)
             goto loc_2F707;
@@ -437,11 +447,13 @@ void cFodder::GUI_Sidebar_Draw() {
     }
 }
 
-void cFodder::GUI_Sidebar_SquadIcons_Draw() {
+void cFodder::GUI_Sidebar_SquadIcons_Draw()
+{
 
     mGUI_Loop_Squad_Current = 0;
 
-    for (mGUI_Loop_Squad_Current = 0; mGUI_Loop_Squad_Current < 3; ++mGUI_Loop_Squad_Current) {
+    for (mGUI_Loop_Squad_Current = 0; mGUI_Loop_Squad_Current < 3; ++mGUI_Loop_Squad_Current)
+    {
 
         mGUI_Loop_Draw_Y = word_3AC2D[mGUI_Loop_Squad_Current];
 
@@ -458,11 +470,57 @@ void cFodder::GUI_Sidebar_SquadIcons_Draw() {
     }
 }
 
-void cFodder::GUI_Sidebar_Grenades_CurrentSquad_Draw() {
+void cFodder::GUI_Sidebar_Grenades_CurrentSquad_Draw()
+{
     GUI_Sidebar_Grenades_Draw(mSquad_Selected);
 }
 
-void cFodder::GUI_Sidebar_Grenades_Draw(int16 pData0) {
+void cFodder::GUI_Sidebar_Grenades_Split_Draw()
+{
+    GUI_Sidebar_Grenades_CurrentSquad_Draw();
+    GUI_Sidebar_Squad_Split_Icon_Draw();
+}
+
+void cFodder::Mission_Final_TimeToDie()
+{
+
+    // Retail CF1 only
+    if (!mVersionCurrent->isRetail() || !mVersionCurrent->isCannonFodder1())
+        return;
+
+    if (!(mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))
+        return;
+
+    ++mMission_Final_TimeToDie_Ticker;
+    if (mMission_Final_TimeToDie_Ticker < 40)
+        return;
+
+    mMission_Final_TimeToDie_Ticker = 0;
+
+    --mMission_Final_TimeRemain;
+    if (mMission_Final_TimeRemain < 0)
+        mMission_Final_TimeRemain = 0;
+
+    if (mParams->mDisableVideo)
+        return;
+
+    for (unsigned int Y = 0x1000; Y < 0x1500; ++Y)
+    {
+
+        mSidebar_Screen_Buffer[Y] = 0;
+    }
+
+    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 11;
+
+    GUI_Sidebar_TroopList_Name_Draw(0, 0, 0xB7, "TIME TO DIE ");
+
+    GUI_Sidebar_Number_Draw(mMission_Final_TimeRemain, 0, 0x30, 0xC0, 0xAF);
+
+    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x05;
+}
+
+void cFodder::GUI_Sidebar_Grenades_Draw(int16 pData0)
+{
 
     int16 Data4 = word_3AC2D[pData0];
 
@@ -492,12 +550,14 @@ void cFodder::GUI_Sidebar_Grenades_Draw(int16 pData0) {
     mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, Data8, DataC);
 }
 
-void cFodder::GUI_Sidebar_Rockets_CurrentSquad_Draw() {
+void cFodder::GUI_Sidebar_Rockets_CurrentSquad_Draw()
+{
 
     GUI_Sidebar_Rockets_Draw(mSquad_Selected);
 }
 
-void cFodder::GUI_Sidebar_Rockets_Draw(int16 pData0) {
+void cFodder::GUI_Sidebar_Rockets_Draw(int16 pData0)
+{
 
     int16 Data4 = word_3AC2D[pData0];
     GUI_Loop_Draw_Prepare(pData0, Data4);
@@ -525,10 +585,12 @@ void cFodder::GUI_Sidebar_Rockets_Draw(int16 pData0) {
     mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(pData0, Data8, DataC);
 }
 
-int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
+int16 cFodder::GUI_Sidebar_SelectedTroops_Count()
+{
 
     int16 Data10 = 0;
-    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+    for (auto &Troop : mGame_Data.mSoldiers_Allocated)
+    {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
@@ -553,32 +615,34 @@ int16 cFodder::GUI_Sidebar_SelectedTroops_Count() {
     return 0;
 }
 
-void cFodder::GUI_Sidebar_Setup() {
+void cFodder::GUI_Sidebar_Setup()
+{
 
     int16 Data0 = mGUI_Sidebar_Setup++;
 
-    switch (Data0) {
-    case 0: //loc_2FA05
-        sub_2FA05();
+    switch (Data0)
+    {
+    case 0: // loc_2FA05
+        GUI_Sidebar_Render_BackBufferOnce();
         break;
 
-    case 1: //loc_2FA1D
+    case 1: // loc_2FA1D
         GUI_Sidebar_MapButton_Prepare();
         break;
 
-    case 2: //loc_2FA44
+    case 2: // loc_2FA44
         GUI_Sidebar_Squad0_Prepare();
         break;
 
-    case 3: //loc_2FA5B
+    case 3: // loc_2FA5B
         GUI_Sidebar_Squad1_Prepare();
         break;
 
-    case 4: //loc_2FA75
+    case 4: // loc_2FA75
         GUI_Sidebar_Squad2_Prepare();
         break;
 
-    case 5: //loc_2FA8F
+    case 5: // loc_2FA8F
         GUI_Sidebar_Ready();
         break;
 
@@ -592,8 +656,8 @@ void cFodder::GUI_Sidebar_Setup() {
     }
 }
 
-
-void cFodder::sub_2FA05() {
+void cFodder::GUI_Sidebar_Render_BackBufferOnce()
+{
     mMouseDisabled = -1;
 
     if (word_3AC51)
@@ -603,8 +667,8 @@ void cFodder::sub_2FA05() {
     word_3AC51 = -1;
 }
 
-void cFodder::GUI_Sidebar_MapButton_Prepare() {
-
+void cFodder::GUI_Sidebar_MapButton_Prepare()
+{
     mGUI_NextFreeElement = mGUI_Elements;
 
     Sidebar_Clear_ScreenBufferPtr();
@@ -612,13 +676,15 @@ void cFodder::GUI_Sidebar_MapButton_Prepare() {
     GUI_Sidebar_MapButton_RenderWrapper();
 }
 
-void cFodder::GUI_Sidebar_Squad0_Prepare() {
+void cFodder::GUI_Sidebar_Squad0_Prepare()
+{
     mGUI_Squad_NextDraw_Y = 0;
 
     GUI_Sidebar_Prepare(0, 0);
 }
 
-void cFodder::GUI_Sidebar_Squad1_Prepare() {
+void cFodder::GUI_Sidebar_Squad1_Prepare()
+{
     int16 Data4 = mGUI_Squad_NextDraw_Y;
     if (Data4)
         Data4 += 5;
@@ -626,7 +692,8 @@ void cFodder::GUI_Sidebar_Squad1_Prepare() {
     GUI_Sidebar_Prepare(1, Data4);
 }
 
-void cFodder::GUI_Sidebar_Squad2_Prepare() {
+void cFodder::GUI_Sidebar_Squad2_Prepare()
+{
     int16 Data4 = mGUI_Squad_NextDraw_Y;
 
     if (Data4)
@@ -635,7 +702,8 @@ void cFodder::GUI_Sidebar_Squad2_Prepare() {
     GUI_Sidebar_Prepare(2, Data4);
 }
 
-void cFodder::GUI_Sidebar_Ready() {
+void cFodder::GUI_Sidebar_Ready()
+{
     GUI_Sidebar_Add_Sidebar_Overlay();
     Sidebar_Render_To_ScreenBuffer();
 
@@ -644,7 +712,8 @@ void cFodder::GUI_Sidebar_Ready() {
     mMouse_Button_LeftRight_Toggle = false;
 }
 
-void cFodder::GUI_Sidebar_Rockets_Draw() {
+void cFodder::GUI_Sidebar_Rockets_Draw()
+{
     int16 Data0, Data8, DataC, Data4, Data14, Data10;
 
     if (!mSquad_Rockets[mGUI_Loop_Squad_Current])
@@ -653,16 +722,17 @@ void cFodder::GUI_Sidebar_Rockets_Draw() {
     if (mSquad_CurrentWeapon[mGUI_Loop_Squad_Current] != eWeapon_Rocket)
         goto loc_2FAF6;
 
-
-    if (!mGUI_Loop_Is_CurrentSquad) {
+    if (!mGUI_Loop_Is_CurrentSquad)
+    {
     loc_2FAF6:;
         Data0 = 0xC6;
     }
-    else {
+    else
+    {
         Data0 = 0xC5;
     }
 
-    //loc_2FB04
+    // loc_2FB04
     Data8 = 0x20;
     DataC = mGUI_Loop_Draw_Y;
     DataC += 0x0E;
@@ -682,7 +752,8 @@ void cFodder::GUI_Sidebar_Rockets_Draw() {
         goto loc_2FB8A;
 
     Data10 = 0xAF;
-    if (!mGUI_Loop_Is_CurrentSquad) {
+    if (!mGUI_Loop_Is_CurrentSquad)
+    {
     loc_2FB8A:;
         Data10 = 0xB9;
     }
@@ -690,12 +761,13 @@ void cFodder::GUI_Sidebar_Rockets_Draw() {
     GUI_Sidebar_Number_Draw(Data0, Data4, Data8, DataC, Data10);
 }
 
-void cFodder::GUI_Prepare_Button_Rockets() {
+void cFodder::GUI_Prepare_Button_Rockets()
+{
 
     if (!mGUI_Loop_Is_CurrentSquad)
         return;
 
-    sGUI_Element* NewElement = mGUI_NextFreeElement;
+    sGUI_Element *NewElement = mGUI_NextFreeElement;
     NewElement->field_0 = &cFodder::GUI_Button_NoAction;
     NewElement->mX = 0x24;
     NewElement->mWidth = 0x0C;
@@ -707,12 +779,14 @@ void cFodder::GUI_Prepare_Button_Rockets() {
     GUI_ClearElement(NewElement);
 }
 
-void cFodder::GUI_Handle_Button_Rockets() {
+void cFodder::GUI_Handle_Button_Rockets()
+{
 
     if (Mouse_Button_Left_Toggled() < 0)
         return;
 
-    if (!GUI_Sidebar_SelectedTroops_Count()) {
+    if (!GUI_Sidebar_SelectedTroops_Count())
+    {
         Squad_Select_Rockets();
         return;
     }
@@ -725,35 +799,14 @@ void cFodder::GUI_Handle_Button_Rockets() {
     GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper();
 }
 
-
-void cFodder::Squad_Select_Grenades() {
-
-    if (mSquad_CurrentWeapon[mSquad_Selected] == eWeapon_Grenade)
-        return;
-
-    mSquad_CurrentWeapon[mSquad_Selected] = eWeapon_Grenade;
-    mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
-    mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
-}
-
-
-
-void cFodder::Squad_Select_Rockets() {
-
-    if (mSquad_CurrentWeapon[mSquad_Selected] == eWeapon_Rocket)
-        return;
-
-    mSquad_CurrentWeapon[mSquad_Selected] = eWeapon_Rocket;
-    mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
-    mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
-}
-
-void cFodder::GUI_Prepare_Button_TroopName() {
+void cFodder::GUI_Prepare_Button_TroopName()
+{
 
     if (mSquad_Selected != mGUI_Loop_Squad_Current)
         return;
 
-    for (int16 Data4 = 2; Data4 >= 0; --Data4) {
+    for (int16 Data4 = 2; Data4 >= 0; --Data4)
+    {
         if (!mSquads_TroopCount[Data4])
             goto loc_2FCF4;
     }
@@ -762,7 +815,7 @@ void cFodder::GUI_Prepare_Button_TroopName() {
 
 loc_2FCF4:;
     mGUI_TroopName_DrawOffset = mGUI_Loop_Draw_Y;
-    sGUI_Element* Element = mGUI_NextFreeElement;
+    sGUI_Element *Element = mGUI_NextFreeElement;
 
     Element->field_0 = &cFodder::GUI_Button_NoAction;
     Element->mX = 0;
@@ -776,9 +829,11 @@ loc_2FCF4:;
     GUI_ClearElement(Element);
 }
 
-void cFodder::GUI_Handle_Button_TroopName() {
+void cFodder::GUI_Handle_Button_TroopName()
+{
 
-    if (Mouse_Button_Left_Toggled() < 0) {
+    if (Mouse_Button_Left_Toggled() < 0)
+    {
         if (Mouse_Button_Right_Toggled() < 0)
             return;
     }
@@ -797,12 +852,13 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
     word_3A3BF = Data0;
 
-    sMission_Troop* Troop = mGame_Data.mSoldiers_Allocated;
+    sMission_Troop *Troop = mGame_Data.mSoldiers_Allocated;
     int16 Data8 = word_3A3BF;
 
-    for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Troop) {
+    for (int16 Data1C = 7; Data1C >= 0; --Data1C, ++Troop)
+    {
 
-        sSprite* Data34 = Troop->mSprite;
+        sSprite *Data34 = Troop->mSprite;
 
         if (Data34 == INVALID_SPRITE_PTR || Data34 == 0)
             continue;
@@ -817,7 +873,7 @@ void cFodder::GUI_Handle_Button_TroopName() {
 
     Troop->mSelected ^= 1;
 
-    const sRecruit* Data28 = &mRecruits[Troop->mRecruitID];
+    const sRecruit *Data28 = &mRecruits[Troop->mRecruitID];
     Data0 = Troop->mSelected & 1;
     Data8 = word_3A3BF;
     Data8 *= 0x0C;
@@ -828,18 +884,19 @@ void cFodder::GUI_Handle_Button_TroopName() {
     int16 DataC = Data8;
 
     GUI_Sidebar_TroopList_Name_Draw(Data0, Data8, DataC, Data28->mName);
-    sub_3049B();
-    sub_3037A();
+    GUI_Sidebar_RocketSplit_Refresh();
+    GUI_Sidebar_GrenadeSplit_Refresh();
 }
 
-
-int16 cFodder::sub_2FF41() {
+int16 cFodder::GUI_Squad_Split_SelectedTroops()
+{
 
     if (!GUI_Sidebar_SelectedTroops_Count())
         return 0;
 
     int16 Data0;
-    for (Data0 = 0; Data0 < 3; ++Data0) {
+    for (Data0 = 0; Data0 < 3; ++Data0)
+    {
         if (!mSquads_TroopCount[Data0])
             goto loc_2FF79;
     }
@@ -851,10 +908,11 @@ loc_2FF79:;
     mSquad_JoiningTo = mSquad_Selected;
     int16 Data10 = Data14;
 
-    sMapTarget* Dataa34 = mSquad_WalkTargets[Data10];
+    sMapTarget *Dataa34 = mSquad_WalkTargets[Data10];
     Dataa34->asInt = -1;
 
-    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+    for (auto &Troop : mGame_Data.mSoldiers_Allocated)
+    {
 
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
@@ -878,11 +936,12 @@ loc_2FF79:;
     return -1;
 }
 
-
-void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
+void cFodder::GUI_Sidebar_MapButton_RenderWrapper()
+{
 
     // Don't display the map button on the final map
-    if (mVersionCurrent->isRetail() && mVersionCurrent->isCannonFodder1()) {
+    if (mVersionCurrent->isRetail() && mVersionCurrent->isCannonFodder1())
+    {
         if ((mGame_Data.mMission_Number == 24 && mGame_Data.mMission_Phase == 6))
             return;
     }
@@ -895,7 +954,8 @@ void cFodder::GUI_Sidebar_MapButton_RenderWrapper() {
     GUI_Sidebar_MapButton_Render();
 }
 
-void cFodder::GUI_Sidebar_Number_Draw(int16 pNumber, int16 pX, int16 pData8, int16 pY, int16 pData10) {
+void cFodder::GUI_Sidebar_Number_Draw(int16 pNumber, int16 pX, int16 pData8, int16 pY, int16 pData10)
+{
     pData10 -= 0x1A;
 
     std::stringstream Tmp;
@@ -908,7 +968,8 @@ void cFodder::GUI_Sidebar_Number_Draw(int16 pNumber, int16 pX, int16 pData8, int
     mGUI_Print_String_To_Sidebar = 0;
 }
 
-int16 cFodder::Mouse_Button_Left_Toggled() {
+int16 cFodder::Mouse_Button_Left_Toggled()
+{
     if (mMouse_Button_Left_Toggle >= 0)
         return -1;
 
@@ -916,15 +977,17 @@ int16 cFodder::Mouse_Button_Left_Toggled() {
     return 1;
 }
 
-
-void cFodder::GUI_Sidebar_Squad_Split_Icon_Draw() {
+void cFodder::GUI_Sidebar_Squad_Split_Icon_Draw()
+{
     int16 EmptySquadID;
 
     // Loop each squad
-    for (EmptySquadID = 0; EmptySquadID < 3; ++EmptySquadID) {
+    for (EmptySquadID = 0; EmptySquadID < 3; ++EmptySquadID)
+    {
 
         // Find an empty squad
-        if (!mSquads_TroopCount[EmptySquadID]) {
+        if (!mSquads_TroopCount[EmptySquadID])
+        {
 
             if (mSquad_Selected < 0)
                 return;
@@ -943,8 +1006,8 @@ void cFodder::GUI_Sidebar_Squad_Split_Icon_Draw() {
     }
 }
 
-
-void cFodder::GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY) {
+void cFodder::GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPositionX, const size_t pPositionY)
+{
     auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
     mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
@@ -960,10 +1023,10 @@ void cFodder::GUI_Draw_Frame_8(int32 pSpriteType, int32 pFrame, const size_t pPo
 
     if (Sprite_OnScreen_Check())
         mGraphics->Video_Draw_8();
-
 }
 
-void cFodder::GUI_Draw_Frame_16(int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY) {
+void cFodder::GUI_Draw_Frame_16(int16 pSpriteType, int16 pFrame, const size_t pPosX, const size_t pPosY)
+{
     auto SheetData = Sprite_Get_Sheet(pSpriteType, pFrame);
 
     mVideo_Draw_PaletteIndex = SheetData->mPalleteIndex & 0xFF;
@@ -979,14 +1042,15 @@ void cFodder::GUI_Draw_Frame_16(int16 pSpriteType, int16 pFrame, const size_t pP
         mGraphics->Video_Draw_16();
 }
 
-void cFodder::GUI_Render_Text_Centred(const char* pText, const size_t pPosY) {
+void cFodder::GUI_Render_Text_Centred(const char *pText, const size_t pPosY)
+{
 
     String_CalculateWidth(320, mFont_Recruit_Width, pText);
     String_Print(mFont_Recruit_Width, 0x0D, mGUI_Temp_X, pPosY, pText);
 }
 
-
-void cFodder::GUI_Handle_Button_ShowOverview() {
+void cFodder::GUI_Handle_Button_ShowOverview()
+{
 
     if (mPhase_Finished)
         return;
@@ -997,15 +1061,17 @@ void cFodder::GUI_Handle_Button_ShowOverview() {
     mPhase_ShowMapOverview = -1;
 }
 
-void cFodder::sub_3037A() {
+void cFodder::GUI_Sidebar_GrenadeSplit_Refresh()
+{
 
-    if (GUI_Sidebar_SelectedTroops_Count()) {
+    if (GUI_Sidebar_SelectedTroops_Count())
+    {
 
         if (word_3AC4B < 0)
             return;
 
         word_3AC4B = -1;
-        sub_303AE();
+        GUI_Sidebar_Grenades_Split_Draw();
         return;
     }
 
@@ -1019,9 +1085,11 @@ void cFodder::sub_3037A() {
     Sidebar_Render_SquadIcon();
 }
 
-void cFodder::sub_3049B() {
+void cFodder::GUI_Sidebar_RocketSplit_Refresh()
+{
 
-    if (GUI_Sidebar_SelectedTroops_Count()) {
+    if (GUI_Sidebar_SelectedTroops_Count())
+    {
 
         if (word_3AC4D < 0)
             return;
@@ -1031,7 +1099,8 @@ void cFodder::sub_3049B() {
         return;
     }
 
-    if (word_3AC4D) {
+    if (word_3AC4D)
+    {
         word_3AC4D = 0;
         mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
 
@@ -1039,16 +1108,18 @@ void cFodder::sub_3049B() {
     }
 }
 
-void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper() {
+void cFodder::GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper()
+{
     GUI_Sidebar_Rockets_CurrentSquad_Draw();
 }
 
-void cFodder::GUI_Sidebar_MapButton_Render() {
+void cFodder::GUI_Sidebar_MapButton_Render()
+{
 
     if (mGUI_Sidebar_MapButton_Prepared)
         return;
 
-    sGUI_Element* Element = mGUI_NextFreeElement;
+    sGUI_Element *Element = mGUI_NextFreeElement;
     Element->field_0 = &cFodder::GUI_Button_NoAction;
     Element->mX = 0;
 
@@ -1063,14 +1134,15 @@ void cFodder::GUI_Sidebar_MapButton_Render() {
 
     GUI_ClearElement(Element);
     mGUI_Sidebar_MapButton_Prepared = -1;
-
 }
 
-void cFodder::GUI_Element_Reset() {
+void cFodder::GUI_Element_Reset()
+{
 
     mGUI_NextFreeElement = mGUI_Elements;
 
-    for (uint16 x = 0; x < 42; ++x) {
+    for (uint16 x = 0; x < 42; ++x)
+    {
         mGUI_Elements[x].field_0 = 0;
         mGUI_Elements[x].mX = 0;
         mGUI_Elements[x].mWidth = 0;
@@ -1084,22 +1156,25 @@ void cFodder::GUI_Element_Reset() {
     }
 }
 
-void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
+void cFodder::GUI_Button_Draw_Small(const std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary)
+{
     String_Print_Small(pText, pY);
 
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
 
-void cFodder::GUI_Button_Draw_SmallAt(const std::string pText, const size_t pX, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
+void cFodder::GUI_Button_Draw_SmallAt(const std::string pText, const size_t pX, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary)
+{
     String_Print_Small(pText, pX, pY);
 
-    mGUI_Temp_X = (int16) pX;
-    mGUI_Temp_Y = (int16) pY;
+    mGUI_Temp_X = (int16)pX;
+    mGUI_Temp_Y = (int16)pY;
 
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
 
-void cFodder::GUI_Button_Draw(std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary) {
+void cFodder::GUI_Button_Draw(std::string pText, const size_t pY, const size_t pColorShadow, const size_t pColorPrimary)
+{
     std::transform(pText.begin(), pText.end(), pText.begin(), ::toupper);
 
     GUI_Render_Text_Centred(pText.c_str(), pY);
@@ -1107,7 +1182,8 @@ void cFodder::GUI_Button_Draw(std::string pText, const size_t pY, const size_t p
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
 
-void cFodder::GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary) {
+void cFodder::GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary)
+{
 
     int16 X = mGUI_Temp_X;
     int16 Y = mGUI_Temp_Y;
@@ -1118,8 +1194,9 @@ void cFodder::GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary
     Briefing_DrawBox(X - 3, Y - 3, Width + 4, Height + 5, (uint8)pColorShadow);
 }
 
-sGUI_Element* cFodder::GUI_Button_Setup(void(cFodder::*pFunction)()) {
-    sGUI_Element* Element = mGUI_NextFreeElement;
+sGUI_Element *cFodder::GUI_Button_Setup(void (cFodder::*pFunction)())
+{
+    sGUI_Element *Element = mGUI_NextFreeElement;
 
     Element->field_0 = &cFodder::GUI_Button_NoAction;
 
@@ -1138,8 +1215,9 @@ sGUI_Element* cFodder::GUI_Button_Setup(void(cFodder::*pFunction)()) {
     return Element;
 }
 
-sGUI_Element* cFodder::GUI_Button_Setup_New(GuiFn pFn, void* pCtx, int16 pAction, int16 pArg) {
-    sGUI_Element* Element = GUI_Button_Setup(0);
+sGUI_Element *cFodder::GUI_Button_Setup_New(GuiFn pFn, void *pCtx, int16 pAction, int16 pArg)
+{
+    sGUI_Element *Element = GUI_Button_Setup(0);
 
     Element->mCtx = pCtx;
     Element->mOnClick = pFn;
@@ -1148,7 +1226,8 @@ sGUI_Element* cFodder::GUI_Button_Setup_New(GuiFn pFn, void* pCtx, int16 pAction
     return Element;
 }
 
-std::string cFodder::GUI_Select_File(const char* pTitle, const std::vector<sSavedGame>& pSave, const std::vector<std::string> &pMaps) {
+std::string cFodder::GUI_Select_File(const char *pTitle, const std::vector<sSavedGame> &pSave, const std::vector<std::string> &pMaps)
+{
     mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
@@ -1157,7 +1236,8 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const std::vector<sSave
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_Count = (pSave.size() == 0 ? (int16)pMaps.size() : (int16)pSave.size());
 
-    do {
+    do
+    {
         size_t YOffset = PLATFORM_BASED(0, 25);
 
         mSurface->clearBuffer();
@@ -1178,10 +1258,12 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const std::vector<sSave
         int16 DataC = 0;
 
         // Draw the raw files list?
-        if (!pSave.size()) {
+        if (!pSave.size())
+        {
             auto FileIT = pMaps.begin() + mGUI_Select_File_CurrentIndex;
 
-            for (; DataC < mGUI_Select_File_ShownItems && FileIT != pMaps.end(); ++DataC) {
+            for (; DataC < mGUI_Select_File_ShownItems && FileIT != pMaps.end(); ++DataC)
+            {
                 size_t Pos = FileIT->find_first_of(".");
 
                 GUI_Button_Draw(FileIT->substr(0, Pos), 0x3E + (DataC * 0x15), 0xB2, 0xB3);
@@ -1189,11 +1271,13 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const std::vector<sSave
                 ++FileIT;
             }
         }
-        else {
+        else
+        {
             // Or the save game list
             auto FileIT = pSave.begin() + mGUI_Select_File_CurrentIndex;
 
-            for (; DataC < mGUI_Select_File_ShownItems && FileIT != pSave.end(); ++DataC) {
+            for (; DataC < mGUI_Select_File_ShownItems && FileIT != pSave.end(); ++DataC)
+            {
 
                 GUI_Button_Draw(FileIT->mName, 0x3E + (DataC * 0x15), 0xB2, 0xB3);
                 GUI_Button_Setup(&cFodder::GUI_Button_Filename);
@@ -1215,9 +1299,11 @@ std::string cFodder::GUI_Select_File(const char* pTitle, const std::vector<sSave
     return pMaps[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
 }
 
-void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
+void cFodder::GUI_Select_File_Loop(bool pShowCursor)
+{
     int8 byte_44B49 = 0;
-    if (mGUI_SaveLoadAction != 3) {
+    if (mGUI_SaveLoadAction != 3)
+    {
 
         mSurface->palette_FadeTowardNew();
         Mouse_Setup();
@@ -1229,13 +1315,15 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
     mSurface->Save();
     bool mShow = false;
 
-    do {
+    do
+    {
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
         ++byte_44B49;
         byte_44B49 &= 0x0F;
-        if (!byte_44B49) {
+        if (!byte_44B49)
+        {
             if (pShowCursor)
                 mShow = !mShow;
             mMouse_Button_Left_Toggle = 0;
@@ -1271,9 +1359,11 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor) {
     Image_FadeOut();
 }
 
-void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element* pLoop_Element) {
+void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element *pLoop_Element)
+{
 
-    for (; pLoop_Element->field_0; ++pLoop_Element) {
+    for (; pLoop_Element->field_0; ++pLoop_Element)
+    {
 
         int16 Data0 = pLoop_Element->mX;
         int16 Data4 = mMouseX;
@@ -1294,32 +1384,38 @@ void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element* pLoop_Element) {
         if (Data0 < mMouseY)
             continue;
 
-        if(pLoop_Element->mMouseInsideFuncPtr)
+        if (pLoop_Element->mMouseInsideFuncPtr)
             (*this.*pLoop_Element->mMouseInsideFuncPtr)();
 
-        if (pLoop_Element->mOnClick && pLoop_Element->mCtx) {
+        if (pLoop_Element->mOnClick && pLoop_Element->mCtx)
+        {
             pLoop_Element->mOnClick(pLoop_Element->mCtx, pLoop_Element->mAction, pLoop_Element->mArg);
         }
         return;
     }
 }
 
-void cFodder::GUI_Button_Load_Exit() {
+void cFodder::GUI_Button_Load_Exit()
+{
     mGUI_Select_File_String_Input_Callback = 0;
     mGUI_SaveLoadAction = 1;
 }
 
-void cFodder::GUI_Button_Show_About() {
+void cFodder::GUI_Button_Show_About()
+{
     mGUI_Select_File_String_Input_Callback = 0;
     mGUI_SaveLoadAction = 4;
 }
 
-void cFodder::GUI_Input_CheckKey() {
+void cFodder::GUI_Input_CheckKey()
+{
 
-    if (mKeyCode != mInput_LastKey) {
+    if (mKeyCode != mInput_LastKey)
+    {
         mInput_LastKey = mKeyCode;
 
-        if (!(mInput_LastKey & 0x80)) {
+        if (!(mInput_LastKey & 0x80))
+        {
 
             if (mKeyCode >= SDL_SCANCODE_A && mKeyCode <= SDL_SCANCODE_Z)
                 mKeyCodeAscii = 'A' + (mKeyCode - 4);
@@ -1343,17 +1439,20 @@ void cFodder::GUI_Input_CheckKey() {
     mKeyCodeAscii = 0;
 }
 
-
-void cFodder::GUI_Button_Load_MouseWheel() {
-    if (mMouse_EventLastWheel.mY > 0) {
+void cFodder::GUI_Button_Load_MouseWheel()
+{
+    if (mMouse_EventLastWheel.mY > 0)
+    {
         GUI_Button_Load_Up();
     }
-    else if (mMouse_EventLastWheel.mY < 0) {
+    else if (mMouse_EventLastWheel.mY < 0)
+    {
         GUI_Button_Load_Down();
     }
 }
 
-void cFodder::GUI_Button_Load_Up() {
+void cFodder::GUI_Button_Load_Up()
+{
     mGUI_Select_File_CurrentIndex -= (mGUI_Select_File_ShownItems - 1);
     if (mGUI_Select_File_CurrentIndex < 0)
         mGUI_Select_File_CurrentIndex = 0;
@@ -1361,13 +1460,15 @@ void cFodder::GUI_Button_Load_Up() {
     mGUI_SaveLoadAction = 3;
 }
 
-void cFodder::GUI_Button_Load_Down() {
+void cFodder::GUI_Button_Load_Down()
+{
     mGUI_Select_File_CurrentIndex += (mGUI_Select_File_ShownItems - 1);
 
     int16 Data0 = mGUI_Select_File_CurrentIndex;
     Data0 += mGUI_Select_File_ShownItems;
 
-    if (Data0 >= mGUI_Select_File_Count) {
+    if (Data0 >= mGUI_Select_File_Count)
+    {
         Data0 = mGUI_Select_File_Count;
         Data0 -= mGUI_Select_File_ShownItems;
         if (Data0 < 0)
@@ -1379,7 +1480,8 @@ void cFodder::GUI_Button_Load_Down() {
     mGUI_SaveLoadAction = 3;
 }
 
-void cFodder::GUI_Button_Filename() {
+void cFodder::GUI_Button_Filename()
+{
     int16 Data0 = mMouseY;
 
     Data0 -= 0x3E;
@@ -1389,15 +1491,18 @@ void cFodder::GUI_Button_Filename() {
     mGUI_SaveLoadAction = 2;
 }
 
-int16 cFodder::GUI_Button_NoAction() {
+int16 cFodder::GUI_Button_NoAction()
+{
     return 0;
 }
 
-void cFodder::GUI_Button_NoAction2() {
+void cFodder::GUI_Button_NoAction2()
+{
     return;
 }
 
-void cFodder::GUI_Sidebar_Prepare_Squads() {
+void cFodder::GUI_Sidebar_Prepare_Squads()
+{
 
     mMouseDisabled = -1;
     Sidebar_Render_To_BackBuffer();
@@ -1436,9 +1541,11 @@ void cFodder::GUI_Sidebar_Prepare_Squads() {
     mMouse_Button_LeftRight_Toggle = false;
 }
 
-void cFodder::GUI_Element_Mouse_Over(const sGUI_Element *pElement) {
-    for (;; ++pElement) {
-        const sGUI_Element* Data20 = pElement;
+void cFodder::GUI_Element_Mouse_Over(const sGUI_Element *pElement)
+{
+    for (;; ++pElement)
+    {
+        const sGUI_Element *Data20 = pElement;
 
         if (Data20->field_0 == 0)
             break;
@@ -1471,98 +1578,114 @@ void cFodder::GUI_Element_Mouse_Over(const sGUI_Element *pElement) {
     }
 }
 
-void cFodder::GUI_Button_SelectMap0() {
+void cFodder::GUI_Button_SelectMap0()
+{
     mGame_Data.mMission_Number = 0;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
 
-void cFodder::GUI_Button_SelectMap1() {
+void cFodder::GUI_Button_SelectMap1()
+{
     mGame_Data.mMission_Number = 1;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
 
-void cFodder::GUI_Button_SelectQuiz() {
+void cFodder::GUI_Button_SelectQuiz()
+{
     Demo_Quiz();
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_SelectMap2() {
+void cFodder::GUI_Button_SelectMap2()
+{
     mGame_Data.mMission_Number = 2;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
 
-void cFodder::GUI_Button_SelectMap3() {
+void cFodder::GUI_Button_SelectMap3()
+{
     mGame_Data.mMission_Number = 3;
     mGame_Data.Phase_Next();
     mDemo_ExitMenu = 1;
 }
 
-void cFodder::GUI_Button_ExitMenu() {
+void cFodder::GUI_Button_ExitMenu()
+{
     mDemo_ExitMenu = 1;
 }
 
-void cFodder::GUI_Button_Quiz_2() {
+void cFodder::GUI_Button_Quiz_2()
+{
 
     Demo_Quiz_ShowScreen("2.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_3() {
+void cFodder::GUI_Button_Quiz_3()
+{
 
     Demo_Quiz_ShowScreen("3.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_4() {
+void cFodder::GUI_Button_Quiz_4()
+{
 
     Demo_Quiz_ShowScreen("4.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_5() {
+void cFodder::GUI_Button_Quiz_5()
+{
 
     Demo_Quiz_ShowScreen("5.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_6() {
+void cFodder::GUI_Button_Quiz_6()
+{
 
     Demo_Quiz_ShowScreen("6.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_7() {
+void cFodder::GUI_Button_Quiz_7()
+{
 
     Demo_Quiz_ShowScreen("7.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_8() {
+void cFodder::GUI_Button_Quiz_8()
+{
 
     Demo_Quiz_ShowScreen("8.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_9() {
+void cFodder::GUI_Button_Quiz_9()
+{
     Demo_Quiz_ShowScreen("9.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_10() {
+void cFodder::GUI_Button_Quiz_10()
+{
     Demo_Quiz_ShowScreen("10.lbm");
     mDemo_ExitMenu = -1;
 }
 
-void cFodder::GUI_Button_Quiz_11() {
+void cFodder::GUI_Button_Quiz_11()
+{
     Demo_Quiz_ShowScreen("11.lbm");
     mDemo_ExitMenu = -1;
 }
 
-
-void cFodder::GUI_Loop_Draw_Prepare(int16& pData0, int16& pData4) {
+void cFodder::GUI_Loop_Draw_Prepare(int16 &pData0, int16 &pData4)
+{
     mGUI_Loop_Squad_Current = pData0;
     mGUI_Loop_Draw_Y = pData4;
     mGUI_Loop_Is_CurrentSquad = 0;
@@ -1571,12 +1694,13 @@ void cFodder::GUI_Loop_Draw_Prepare(int16& pData0, int16& pData4) {
         mGUI_Loop_Is_CurrentSquad = -1;
 }
 
-void cFodder::GUI_Sidebar_Prepare(int16 pSquadNumber, int16 pData4) {
+void cFodder::GUI_Sidebar_Prepare(int16 pSquadNumber, int16 pData4)
+{
 
     GUI_Loop_Draw_Prepare(pSquadNumber, pData4);
 
     word_3AC2D[pSquadNumber] = pData4;
-    Squad_Troops_Count();
+    Squad_Rebuild();
 
     if (!mSquads_TroopCount[mGUI_Loop_Squad_Current])
         return;
@@ -1598,14 +1722,17 @@ void cFodder::GUI_Sidebar_Prepare(int16 pSquadNumber, int16 pData4) {
     GUI_Prepare_Button_TroopName();
 }
 
-void cFodder::GUI_Sidebar_Add_Sidebar_Overlay() {
+void cFodder::GUI_Sidebar_Add_Sidebar_Overlay()
+{
 
     GUI_SetElementsFrom(mGUI_NextFreeElement, mSidebar_OverlayButtons);
 }
 
-void cFodder::GUI_SetElementsFrom(sGUI_Element* pTo, sGUI_Element* pFrom) {
+void cFodder::GUI_SetElementsFrom(sGUI_Element *pTo, sGUI_Element *pFrom)
+{
 
-    while (pFrom->field_0 != 0) {
+    while (pFrom->field_0 != 0)
+    {
         *pTo = *pFrom;
 
         ++pTo;
@@ -1613,16 +1740,17 @@ void cFodder::GUI_SetElementsFrom(sGUI_Element* pTo, sGUI_Element* pFrom) {
     }
 
     GUI_ClearElement(pTo);
-
 }
 
-void cFodder::GUI_ClearElement(sGUI_Element *pData20) {
+void cFodder::GUI_ClearElement(sGUI_Element *pData20)
+{
 
     pData20->field_0 = 0;
     mGUI_NextFreeElement = pData20;
 }
 
-void cFodder::GUI_Sidebar_SplitButton_Draw() {
+void cFodder::GUI_Sidebar_SplitButton_Draw()
+{
 
     int16 Data0 = mGUI_Squad_Icons[mGUI_Loop_Squad_Current];
     int16 Data8 = 0;
@@ -1631,8 +1759,9 @@ void cFodder::GUI_Sidebar_SplitButton_Draw() {
     mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Data0, Data8, DataC);
 }
 
-void cFodder::GUI_Prepare_Button_Squad() {
-    sGUI_Element* Element = mGUI_NextFreeElement;
+void cFodder::GUI_Prepare_Button_Squad()
+{
+    sGUI_Element *Element = mGUI_NextFreeElement;
 
     Element->field_0 = &cFodder::GUI_Button_NoAction;
     Element->mX = 0;
@@ -1641,10 +1770,12 @@ void cFodder::GUI_Prepare_Button_Squad() {
     Element->mWidth = 0x2F;
     Element->mHeight = 0x0E;
 
-    if (mGUI_Loop_Squad_Current != mSquad_Selected) {
+    if (mGUI_Loop_Squad_Current != mSquad_Selected)
+    {
         Element->mMouseInsideFuncPtr = mGUI_Handle_Button_SelectSquad_Array[mGUI_Loop_Squad_Current];
     }
-    else {
+    else
+    {
         Element->mMouseInsideFuncPtr = &cFodder::GUI_Handle_Button_SplitSquad;
     }
 
@@ -1652,24 +1783,28 @@ void cFodder::GUI_Prepare_Button_Squad() {
     GUI_ClearElement(Element);
 }
 
-void cFodder::GUI_Handle_Button_SelectSquad_0() {
+void cFodder::GUI_Handle_Button_SelectSquad_0()
+{
     Squad_Select(0);
 }
 
-void cFodder::GUI_Handle_Button_SelectSquad_1() {
+void cFodder::GUI_Handle_Button_SelectSquad_1()
+{
     Squad_Select(1);
 }
 
-void cFodder::GUI_Handle_Button_SelectSquad_2() {
+void cFodder::GUI_Handle_Button_SelectSquad_2()
+{
     Squad_Select(2);
 }
 
-void cFodder::GUI_Handle_Button_SplitSquad() {
+void cFodder::GUI_Handle_Button_SplitSquad()
+{
 
     if (Mouse_Button_Left_Toggled() < 0)
         return;
 
-    if (!sub_2FF41())
+    if (!GUI_Squad_Split_SelectedTroops())
         return;
 
     Squad_Split_Assets();
@@ -1679,31 +1814,34 @@ void cFodder::GUI_Handle_Button_SplitSquad() {
     word_3AC4B = 0;
     word_3AC4D = 0;
 
-    Squad_Walk_Target_Update(mSquad_Selected);
-    Squad_Troops_Count();
+    Squad_Walk_Target_Reset(mSquad_Selected);
+    Squad_Rebuild();
 
-    sSprite* Data20 = 0;
-    sub_305D5(Data20);
+    sSprite *Data20 = 0;
+    Squad_UpdateLeader(Data20);
 
     mSquad_Select_Timer = 1;
     mGUI_Sidebar_Setup = 0;
 }
 
-void cFodder::Sidebar_Render_SquadIcon() {
+void cFodder::Sidebar_Render_SquadIcon()
+{
     if (mSquad_Selected < 0)
         return;
 
     mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(mSquad_Selected, 0, mGUI_Loop_Draw_Y);
 }
 
-void cFodder::Sidebar_Clear_ScreenBufferPtr() {
+void cFodder::Sidebar_Clear_ScreenBufferPtr()
+{
 
-	memset(mSidebar_Screen_BufferPtr, 0, mSidebar_Buffer_Size);
+    memset(mSidebar_Screen_BufferPtr, 0, mSidebar_Buffer_Size);
 }
 
-void cFodder::Sidebar_Render_To_BackBuffer() {
+void cFodder::Sidebar_Render_To_BackBuffer()
+{
 
-	memcpy(mSidebar_Back_Buffer, mSidebar_Screen_Buffer, mSidebar_Buffer_Size);
+    memcpy(mSidebar_Back_Buffer, mSidebar_Screen_Buffer, mSidebar_Buffer_Size);
 
     mSidebar_Screen_BufferPtr = mSidebar_Back_Buffer;
 }
@@ -1711,43 +1849,48 @@ void cFodder::Sidebar_Render_To_BackBuffer() {
 /**
  * Copy 'mSidebar_Back_Buffer' to the Screen Buffer, and set the Ptr to the Screen Buffer
  */
-void cFodder::Sidebar_Render_To_ScreenBuffer() {
+void cFodder::Sidebar_Render_To_ScreenBuffer()
+{
 
-	memcpy(mSidebar_Screen_Buffer, mSidebar_Back_Buffer, mSidebar_Buffer_Size);
+    memcpy(mSidebar_Screen_Buffer, mSidebar_Back_Buffer, mSidebar_Buffer_Size);
 
     mSidebar_Screen_BufferPtr = mSidebar_Screen_Buffer;
 }
 
-void cFodder::GUI_Box_Draw_Range(const size_t x1, const size_t x2, const size_t y, const size_t pColorShadow, const size_t pColorPrimary) {
+void cFodder::GUI_Box_Draw_Range(const size_t x1, const size_t x2, const size_t y, const size_t pColorShadow, const size_t pColorPrimary)
+{
     mGUI_Temp_X = (int16)x1;
     mGUI_Temp_Y = (int16)y;
 
     int32 w = (int32)x2 - (int32)x1;
-    if (w < 0) w = 0;
+    if (w < 0)
+        w = 0;
     mGUI_Temp_Width = (int16)w;
 
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
 
 void cFodder::GUI_Button_Draw_SmallBoxAt(
-    const std::string& pText,
+    const std::string &pText,
     const size_t x1, const size_t x2,
     const size_t y,
     const size_t pColorShadow,
     const size_t pColorPrimary,
     const eTextAlign align,
-    const size_t padPx
-) {
+    const size_t padPx)
+{
     // Set the box geometry up-front
     mGUI_Temp_X = (int16)x1;
     mGUI_Temp_Y = (int16)y;
 
     int32 w = (int32)x2 - (int32)x1;
-    if (w < 0) w = 0;
+    if (w < 0)
+        w = 0;
     mGUI_Temp_Width = (int16)w;
 
     // Print first (String_Print updates mGUI_Draw_LastHeight)
-    switch (align) {
+    switch (align)
+    {
     case eTextAlign::Left:
         String_Print_Small_LeftInBox(pText, x1, x2, y, padPx);
         break;
@@ -1765,4 +1908,3 @@ void cFodder::GUI_Button_Draw_SmallBoxAt(
     // Now draw box using the correct last height
     GUI_Box_Draw(pColorShadow, pColorPrimary);
 }
-

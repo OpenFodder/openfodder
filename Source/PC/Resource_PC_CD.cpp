@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -193,7 +193,7 @@ tSharedBuffer cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
 		}
 
 		// seg006:00BA
-		sub_26AA4();
+		Huffman_InitTables();
 
 		for( uint32 i = 0; i < 0xFC4; ++i )
 			byte_27EE6[i] = 0x20;
@@ -209,7 +209,7 @@ tSharedBuffer cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
 		if( ! word_26DBA )
 			break;
 
-		uint16 ax = sub_26C06();
+		uint16 ax = Huffman_DecodeSymbol();
 
 		if( (ax & 0xFF00) == 0 ) {
 
@@ -229,7 +229,7 @@ tSharedBuffer cResource_PC_CD::file_Get( cResource_File *pFile, bool pDecode ) {
 		// seg006:012C
 		uint16 saveAX = ax;
 	
-		ax = sub_26CDF();
+		ax = Bitstream_ReadByte();
 
 		uint16 si = word_26DB4;
 
@@ -292,7 +292,7 @@ tSharedBuffer cResource_PC_CD::fileGet( std::string pFilename ) {
 	return File;
 }
 
-uint16 cResource_PC_CD::sub_26CDF() {
+uint16 cResource_PC_CD::Bitstream_ReadByte() {
 
 	uint8 dl = byte_26DB0;
 	uint16 ax = 0;
@@ -403,7 +403,7 @@ uint8 cResource_PC_CD::data_Read() {
 	return al;
 }
 
-void cResource_PC_CD::sub_26AA4() {
+void cResource_PC_CD::Huffman_InitTables() {
 	uint16 cx = 0;
 
 	while( cx < 0x13A ) {
@@ -444,7 +444,7 @@ void cResource_PC_CD::sub_26AA4() {
 	word_26DBE[0x272] = 0;
 }
 
-uint16 cResource_PC_CD::sub_26C06() {
+uint16 cResource_PC_CD::Huffman_DecodeSymbol() {
 	uint8 dl = byte_26DB0;
 
 	uint16 si = word_27518[0x272];
@@ -488,7 +488,7 @@ uint16 cResource_PC_CD::sub_26C06() {
 			saveBP = bp;
 
 			if( word_279FE[0x272] == -32768 ) 
-				sub_26B11();
+				Huffman_RebuildTables();
 
 			//si <<= 1;
 			si = word_272A4[ si ];
@@ -555,7 +555,7 @@ uint16 cResource_PC_CD::sub_26C06() {
 	}
 }
 
-void cResource_PC_CD::sub_26B11() {
+void cResource_PC_CD::Huffman_RebuildTables() {
 	uint16 cx = 0;
 	uint16 dx = 0;
 

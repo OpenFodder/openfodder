@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ struct sMapParams {
 
 };
 
-class cMap {
+class cMapData {
 
 protected:
 	sMapParams mParams;
@@ -64,7 +64,7 @@ protected:
 	void  Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTileY);
 
 public:
-	cMap();
+	cMapData();
 
 	void ClearTiles(const size_t pTileID);
 

@@ -19,10 +19,10 @@ class cResource_PC_CD : public cResources {
 	
 	uint8							data_Read();
 
-	void							sub_26AA4();
-	void							sub_26B11();
-	uint16							sub_26C06();
-	uint16							sub_26CDF();
+	void							Huffman_InitTables();
+	void							Huffman_RebuildTables();
+	uint16							Huffman_DecodeSymbol();
+	uint16							Bitstream_ReadByte();
 	
 	uint8							byte_26DB0;
 

@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -56,15 +56,15 @@ std::string cCampaign::GetPathToFile(const std::string& pName) const {
 /**
  * Get the path to the current campaign
  */
-std::string cCampaign::GetPath( const bool pTrailingSeperator ) const {
+std::string cCampaign::GetPath(const bool pTrailingSeperator) const {
     std::string path;
 
-	if (mUseCustomPath)
-		path = mPath;
-	else
-		path = g_ResourceMan->GetCampaignData(mName);
+    if (mUseCustomPath)
+        path = mPath;
+    else
+        path = g_ResourceMan->GetCampaignData(mName);
 
-    if(pTrailingSeperator && path.size())
+    if (pTrailingSeperator && path.size())
         path += gPathSeperator;
 
     return path;
@@ -128,7 +128,7 @@ bool cCampaign::SaveCampaign() {
         Mission["Name"] = CurrentMission->mName;
 
         // Each Phase of a mission
-        for(auto CurrentPhase : CurrentMission->mPhases) {
+        for (auto CurrentPhase : CurrentMission->mPhases) {
             Json Phase;
             Phase["MapName"] = CurrentPhase->mMapFilename;
             Phase["Name"] = CurrentPhase->mName;
@@ -204,10 +204,10 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
                     newPhase->mAggression.mMax = Phase["Aggression"][1];
                 }
 
-                if(Phase["Grenades"].size())
+                if (Phase["Grenades"].size())
                     newPhase->mGrenades = Phase["Grenades"];
 
-                if(Phase["Rockets"].size())
+                if (Phase["Rockets"].size())
                     newPhase->mRockets = Phase["Rockets"];
 
 
@@ -253,11 +253,11 @@ void cCampaign::Clear(const std::string& pName, const bool pDirectPath) {
     mMissions.clear();
 }
 
-std::shared_ptr<cMap> cCampaign::getCMap(std::shared_ptr<cPhase> pPhase) const {
+std::shared_ptr<cMapData> cCampaign::getCMap(std::shared_ptr<cPhase> pPhase) const {
 
-	auto map = std::make_shared<cOriginalMap>(getMap(pPhase), getSprites(pPhase), mName == "Cannon Fodder 2");
+    auto map = std::make_shared<cOriginalMap>(getMap(pPhase), getSprites(pPhase), mName == "Cannon Fodder 2");
 
-	return map;
+    return map;
 }
 
 tSharedBuffer cCampaign::getMap(std::shared_ptr<cPhase> pPhase) const {
@@ -288,7 +288,7 @@ tSharedBuffer cCampaign::getSprites(std::shared_ptr<cPhase> pPhase) const {
  * Get the mission
  */
 std::shared_ptr<cMission> cCampaign::getMission(size_t pMissionNumber) {
-    if(!pMissionNumber)
+    if (!pMissionNumber)
         pMissionNumber = 1;
 
     if (!mMissions.size() || pMissionNumber > mMissions.size())
@@ -306,17 +306,17 @@ void cCampaign::SetSingleMapCampaign() {
 }
 
 void cCampaign::SetCustomCampaign() {
-	mIsCustomCampaign = true; 
-	mUseCustomPath = false;
+    mIsCustomCampaign = true;
+    mUseCustomPath = false;
 
-	Clear();
+    Clear();
 }
 
 void cCampaign::CreateCustomCampaign() {
-	SetCustomCampaign();
+    SetCustomCampaign();
 
-	mMissions.push_back(std::make_shared<cMission>());
-	mMissions.back()->mPhases.push_back(std::make_shared<cPhase>());
+    mMissions.push_back(std::make_shared<cMission>());
+    mMissions.back()->mPhases.push_back(std::make_shared<cPhase>());
 }
 
 std::string cCampaign::getName() const {

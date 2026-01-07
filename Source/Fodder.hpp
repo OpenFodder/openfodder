@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
+extern const int16 SIDEBAR_WIDTH;
 
 enum eWeaponSelected {
     eWeapon_None = 0,
@@ -142,7 +143,7 @@ public:
     uint8           mKeyCode;
 
     tSharedBuffer   mMap;
-	std::shared_ptr<cMap> mMapLoaded;
+	std::shared_ptr<cMapData> mMapLoaded;
 
     tSharedBuffer   mTile_BaseBlk;
     tSharedBuffer   mTile_SubBlk;
@@ -640,9 +641,9 @@ public:
     void            Map_Create(sMapParams pParams);
     void            Map_Load();
     void            Map_Load_Sprites();
-    void			Map_Load_Sprites_Count();
+    void			Map_Count_Sprites();
     void            Map_Load_Resources();
-    void            Map_Load_TileTracks();
+    void            Map_Collect_TileTracks();
 
     void            Music_Check_MapTile_TrackChange();
     void            Music_Fade_SwitchTrack();
@@ -667,14 +668,14 @@ public:
     void            Phase_Soldiers_AttachToSprites();
     void            Mission_Troops_Clear_Selected();
 
-    void            Camera_Speed_Update_From_PanTarget();
-    int16           sub_119E1(int16& pX1, int16& pY1, int16 pX2, int16 pY2);
+    void            Camera_UpdateSpeedFromPanTarget();
+    int16           Direction_Between_Points_LUT(int16& pX1, int16& pY1, int16 pX2, int16 pY2);
 
     void            Camera_Speed_Calculate();
     void            Camera_Prepare();
     void            Camera_SetTargetToStartPosition();
     void            Camera_Pan_To_Target();
-    void            Camera_Pan_Set_Speed();
+    void            Camera_Pan_ComputeSpeed();
     void            Camera_Update_Mouse_Position_For_Pan();
 
     void            MapTile_UpdateFromCamera();
@@ -737,9 +738,9 @@ public:
     void            Sound_Play(sSprite* pSprite, int16 pSoundEffect, int16 pData8);
 
     // 14EAC
-    void			Mission_Intro_Draw_OpenFodder();
-    void            Mission_Intro_Helicopter_Start();
-	void            Mission_Intro_Draw_Mission_Name();
+    void			Briefing_Intro_Helicopter_Draw_OpenFodder();
+    void            Briefing_Intro_Helicopter_Start();
+	void            Briefing_Intro_Helicopter_Draw_Mission_Name();
 
     void            Briefing_Helicopter_Check(double dtSeconds);
 
@@ -761,7 +762,7 @@ public:
     void            Recruit_Render_Names_UnusedSlots();
     void            Recruit_Sidebar_Render_SquadName();
     void            Recruit_Update_Actors();
-    void            sub_175C0();
+    void            Recruit_Truck_AdvanceQueue();
     void            Recruit_Update_Soldiers();
     void            Recruit_Draw_Soldiers();
 
@@ -816,7 +817,7 @@ public:
 	void            Briefing_Show_PreReady();
 	void            Briefing_Show_Ready();
 
-    void			Mission_Intro_Play(const bool pShowHelicopter = false, eTileTypes pTileset = eTileTypes_Jungle);
+    void			Briefing_Intro_Helicopter_Play(const bool pShowHelicopter = false, eTileTypes pTileset = eTileTypes_Jungle);
     void            Intro_Print_String(const sIntroString* pString);
 
     void            Sprite_Frame_Modifier_Update();
@@ -950,13 +951,13 @@ public:
     void            Sprite_Handle_Looping_Vehicle_Down(sSprite* pSprite);                                      // 117
 
     void            Sprite_PositionNext_AdjustByHeight(sSprite* pSprite);
-    int16           sub_1D92E(sSprite* pSprite);
+    int16           Sprite_Update_Die2_Explosion(sSprite* pSprite);
 
     void            Sprite_Native_Sound_Play(sSprite* pSprite, int16 pSoundID);
     int16           Sprite_Handle_Soldier_Animation(sSprite* pSprite);
     virtual int16   Sprite_Troop_Dies(sSprite* pSprite);
-    int16           loc_1F043(sSprite* pSprite);
-    void            loc_1F092(sSprite* pSprite, sSprite* pData24);
+    int16           Sprite_Troop_EnterVehicle_Finish(sSprite* pSprite);
+    void            Sprite_Troop_EnterVehicle_Position(sSprite* pSprite, sSprite* pData24);
 
     int16           Sprite_Handle_Player_MissionOver(sSprite* pSprite);
     void            Sprite_Handle_Troop_Weapon(sSprite* pSprite);
@@ -1002,12 +1003,12 @@ public:
     int16           Sprite_Create_Enemy(sSprite* pSprite, sSprite*& pData2C);
     void            Sprite_Enemy_Aggression_Update(sSprite* pData2C);
     void            Sprite_Create_Rank();
-    void            sub_21CD1(sSprite* pSprite);
+    void            Sprite_Update_Follower_Target(sSprite* pSprite);
 
-    void            sub_2212A(sSprite* pSprite);
+    void            Sprite_Reset_Move_Timer(sSprite* pSprite);
     int16           Sprite_Handle_BuildingDoor_Explode(sSprite* pSprite);
-    int16           sub_222A3(sSprite* pSprite);
-    void            sub_223B2(sSprite* pSprite);
+    int16           Sprite_Update_Die2_Explosion_IceAware(sSprite* pSprite);
+    void            Sprite_Update_Direction_Anim(sSprite* pSprite);
     int16           Map_Get_Distance_Between_Sprite_And_Squadleader(sSprite* pSprite, int16& pData0);
     int16           Sprite_Create_Rocket(sSprite* pSprite);
     int16           Sprite_Homing_LockInRange(sSprite* pSprite, sSprite*& pFoundSprite);
@@ -1016,29 +1017,29 @@ public:
     int16           Sprite_Destroy_Wrapper_2(sSprite* pSprite);
     void            Sprite_Handle_Player_InVehicle(sSprite* pSprite);
     void            Sprite_Handle_Player_Enter_Vehicle(sSprite* pSprite);
-    void            sub_22C87(sSprite* pSprite);
-    void            sub_22CD7(sSprite* pSprite, int16& Data0, int16& Data4);
+    void            Sprite_Apply_Gravity(sSprite* pSprite);
+    void            Sprite_Vehicle_TurnTowardTarget(sSprite* pSprite, int16& Data0, int16& Data4);
     void            Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite);
     void            Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14, int16 pData18, int16 pData1C);
     int16           Sprite_Animation_SlideOrDie(sSprite* pSprite);
     int16           Map_Sprite_Check_Around_Position(sSprite* pSprite);
     void            Sprite_Handle_Vehicle_Human(sSprite* pSprite);
     int16           Sprite_Create_Smoke(sSprite* pSprite, sSprite*& pData2C);
-    void            sub_23525(sSprite* pSprite);
-    void            sub_236F7(sSprite* pSprite);
+    void            Sprite_Handle_Tank(sSprite* pSprite);
+    void            Sprite_Vehicle_Turret_Update(sSprite* pSprite);
     void            Sprite_Handle_Tank_FireMissile(sSprite* pSprite);
     int16           Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C);
     void            Sprite_Enemy_Set_Target(sSprite* pData2C);
     void            Sprite_Handle_Helicopter_Human(sSprite* pSprite);
     int16           Sprite_Handle_Helicopter_Terrain_Check(sSprite* pSprite);
-    void            sub_23E01(sSprite* pSprite, int16& pData0, int16& pData4);
+    void            Sprite_Helicopter_Update_Direction(sSprite* pSprite, int16& pData0, int16& pData4);
     void            Sprites_HumanVehicles_Remove(sSprite* pSprite);
     void            Sprite_Handle_Turret(sSprite* pSprite);
     void            Sprite_Handle_Turret_Fire(sSprite* pSprite, sSprite* pData34);
     int16           Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28);
-    void            sub_243E9(sSprite* pSprite);
+    void            Sprite_Shadow_Update_From_Height(sSprite* pSprite);
     int16           Sprite_Handle_Vehicle_Sinking(sSprite* pSprite);
-    void            sub_245BF(sSprite* pSprite);
+    void            Vehicle_Handle_Cannon_Fire(sSprite* pSprite);
     int16           Sprite_Create_Cannon(sSprite* pSprite);
     void            Sprite_Handle_Helicopter_Human_Deploy_Weapon(sSprite* pSprite);
     int16           Sprite_Create_Grenade2(sSprite* pSprite);
@@ -1050,18 +1051,18 @@ public:
     void            Sprite_Handle_Civilian_Movement(sSprite* pSprite);
     int16           Sprite_Handle_Civilian_Within_Range_OpenCloseDoor(sSprite* pSprite);
     void            Sprite_Handle_Civilian_Death(sSprite* pSprite);
-    void            sub_2593D(sSprite* pSprite);
-    void            sub_25A31(sSprite* pSprite);
-    void            sub_25A66(sSprite* pSprite);
+    void            Sprite_Civilian_Update_Movement(sSprite* pSprite);
+    void            Sprite_WalkAnim_Tick(sSprite* pSprite);
+    void            Sprite_WalkFrame_From_Direction(sSprite* pSprite);
     int16           Sprite_Handle_Civilian_RandomMovement(sSprite* pSprite);
     int16           Sprite_Create_Civilian_Spear2(sSprite* pSprite);
-    int16           sub_25DCF(sSprite* pSprite);
-    void            sub_25F2B(sSprite* pSprite);
+    int16           Sprite_Update_Death_BloodOrSeal(sSprite* pSprite);
+    void            Sprite_Hostage_Update_IdleFrame(sSprite* pSprite);
     void            Sprite_Handle_Hostage_Movement(sSprite* pSprite);
     void            Sprite_Handle_Hostage_FrameUpdate2(sSprite* pSprite);
     void            Sprite_Handle_Hostage_FrameUpdate(sSprite* pSprite);
-    void            sub_26490(sSprite* pSprite);
-    void            sub_264B0(sSprite* pSprite);
+    void            Sprite_Advance_SearchIndex(sSprite* pSprite);
+    void            Sprite_CivilianDoor_SpawnUpdate(sSprite* pSprite);
     int16           Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30);
     int16           Sprite_Handle_Helicopter_Callpad_InRange(sSprite* pSprite, sSprite*& pData2C);
     void            Sprite_Handle_Helicopter_Human_CallCheck(sSprite* pSprite);
@@ -1079,11 +1080,11 @@ public:
 
     void            Sprite_Movement_Calculate(sSprite* pSprite);
     int16           Sprite_Direction_Between_Points(sSprite* pSprite, int16& pData0, int16& pData4);
-    void            sub_2A3D4(sSprite* pSprite);
+    void            Sprite_Update_DirectionMod(sSprite* pSprite);
     void            Squad_Walk_Steps_Decrease();
     int16           Map_PathCheck_CalculateTo(int16& pX1, int16& pY1, int16& pX2, int16& pY2);
-    void            Map_PathCheck_Generate(int16& pX1, int16&  pY1, int16& pX2, int16& pY2, int16& pData18, int16& pData1C);
-    int16           Map_PathCheck_CanPass(int16& pData0);
+    void            Map_PathCheck_BuildPath(int16& pX1, int16&  pY1, int16& pX2, int16& pY2, int16& pData18, int16& pData1C);
+    int16           Map_PathCheck_IsWalkable(int16& pData0);
     int16           Map_Get_Distance_BetweenPoints(int16& pPosX, int16& pPosY, int16& pPosX2, int16& pDistanceMax, int16& pPosY2);
 	int32			Map_Get_Distance_BetweenPositions(cPosition pPos1, cPosition pPos2, int32 pDistanceMax);
 
@@ -1091,23 +1092,23 @@ public:
     int16           Map_Terrain_Get_Type_And_Walkable(sSprite* pSprite, int16& pY, int16& pX);
     int16           Map_Terrain_Get(int16& pY, int16& pX, int16& pData10, int16& pData14);
     int16           Map_Terrain_Get(int16 pX, int16 pY);
-    int16           Tile_Terrain_Get(const int16 pTileID, int16 pX, int16 pY);
+    int16           Tile_GetTerrainFeature(const int16 pTileID, int16 pX, int16 pY);
 
     void            Squad_Walk_Target_SetAll(int16 pValue);
     void            Squad_Walk_Target_Set(int16 pTargetX, int16 pTargetY, int16 pSquadNumber, int16 pData10);
-    int16           Squad_Member_Sprite_Hit_In_Region(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14);
+    int16           Squad_Members_Find_In_Region(sSprite* pSprite, int16 pData8, int16 pDataC, int16 pData10, int16 pData14);
 
     const sSpriteSheet* Sprite_Get_Sheet(int16 pSpriteType, int16 pFrame);
 
-    void            sub_2AEB6(int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC);
+    void            Scale_Dimensions_Percent(int16 pColumns, int16 pRows, int16 *pData8, int16* pDataC);
 
     void            Sprite_SetDirectionMod(sSprite* pSprite);
     void            Sprite_Vehicle_Direction_Update(sSprite* pSprite, int16& pData1C);
 
-    int16           Map_Terrain_Get_Moveable_Wrapper(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14);
+    int16           Map_Terrain_GetMoveable_WithCache(const int8* pMovementData, int16& pX, int16& pY, int16& pData10, int16& pData14);
     int16           Map_Terrain_Get_Moveable(const int8* pMovementData, int16& pX, int16& pY);
 
-    void            Map_Get_Distance_BetweenPoints_Within_640(int16& pX, int16& pY, int16& pX2, int16& pY2);
+    void            Map_Distance_Within_DoubleWindow(int16& pX, int16& pY, int16& pX2, int16& pY2);
 
     bool            MapTile_Update_Position();
 
@@ -1123,18 +1124,18 @@ public:
     void            MapTile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID);
     sSprite*		Sprite_Add(const size_t pSpriteID, const int16 pTileX, const int16 pTileY);
 
-    void            Squad_Troops_Count();
+    void            Squad_Rebuild();
     int16           Mission_Troop_GetDeviatePotential(sMission_Troop* pSquadMember);
-    void            Squad_Member_Rotate_Can_Fire();
+    void            Squad_Member_CanFire();
     int16           Sprite_Find_In_Region(sSprite* pSprite, sSprite*& pData24, int16 pData8, int16 pDataC, int16 pData10, int16 pData14);
     void            Sprite_Handle_Player_DestroyAll();
     void            Sprite_Handle_Player_Destroy_Unk();
-    void            Squad_Prepare_GrenadesAndRockets();
+    void            Squad_Prepare_Explosives();
     void            Sprite_Aggression_Set();
     void            Sprite_Handle_Enemy_Aggression_Set(sSprite* pSprite);
     int16           Sprite_Next_WalkTarget_Set(sSprite* pSprite);
     int16           Squad_Join_Check(sSprite* pSprite);
-    void            Squad_Walk_Target_Update(int16 pData0);
+    void            Squad_Walk_Target_Reset(int16 pData0);
     void            Sprite_Handle_Explosion_MapTiles(sSprite* pSprite);
     void            Map_Destroy_Tiles();
     void            Map_Destroy_Tiles_Next();
@@ -1210,7 +1211,7 @@ public:
     void            GUI_Handle_Button_SplitSquad();
     void            Mission_Set_Initial_Weapon();
 
-    void            MapTiles_Draw();
+    void            MapTiles_ResetScrollState();
 
     void            Recruit_CheckLoadSaveButtons();
     void            GUI_Sidebar_Grenades_Draw();
@@ -1230,7 +1231,7 @@ public:
     void            GUI_Sidebar_Rockets_Draw(int16 pData0);
     int16           GUI_Sidebar_SelectedTroops_Count();
     void            GUI_Sidebar_Setup();
-    void            sub_2FA05();
+    void            GUI_Sidebar_Render_BackBufferOnce();
     void            GUI_Sidebar_MapButton_Prepare();
     void            GUI_Sidebar_Squad0_Prepare();
     void            GUI_Sidebar_Squad1_Prepare();
@@ -1248,7 +1249,7 @@ public:
     void            Squad_Select_Grenades();
     void            Squad_Select_Rockets();
 
-    int16           sub_2FF41();
+    int16           GUI_Squad_Split_SelectedTroops();
 
     void            Squad_Split_Assets();
 
@@ -1256,27 +1257,27 @@ public:
     void            GUI_Sidebar_Number_Draw(int16 pNumber, int16 pX, int16 pData8, int16 pY, int16 pData10);
     void            GUI_Sidebar_MapButton_Render();
     void            GUI_Handle_Button_ShowOverview();
-    void            sub_3037A();
-    void            sub_3049B();
+    void            GUI_Sidebar_GrenadeSplit_Refresh();
+    void            GUI_Sidebar_RocketSplit_Refresh();
     void            GUI_Sidebar_Rockets_Refresh_CurrentSquad_Wrapper();
     void            Squad_Member_Click_Check();
 
-    void            sub_303AE();
+    void            GUI_Sidebar_Grenades_Split_Draw();
     void            Sidebar_Render_SquadIcon();
     void            GUI_Sidebar_Squad_Split_Icon_Draw();
     void            Sidebar_Render_To_BackBuffer();
     void            Sidebar_Render_To_ScreenBuffer();
     void            Squad_Switch_Weapon();
     void            Mission_Final_TimeToDie();
-    int16           sub_305D5(sSprite*& pData20);
+    int16           Squad_UpdateLeader(sSprite*& pData20);
 
     void            Squad_Member_Target_Set();
 
     void            Squad_Switch_Timer();
     void            Squad_Switch_To(int16 pData0);
     void            Vehicle_Input_Handle();
-    void            sub_311A7();
-    int16           sub_313CD();
+    void            Squad_Assign_Target_From_Mouse();
+    int16           Vehicle_Try_Exit_On_Mouse();
     void            Vehicle_Target_Set();
 
     void            String_CalculateWidth(int32 pPosX, const uint8* pWidths, const std::string& pString);
@@ -1298,12 +1299,12 @@ public:
     void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText);
     void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText);
 
-    void            intro_LegionMessage();
-    int16           intro_Play();
+    void            Intro_LegionMessage();
+    int16           Intro_Play();
 
-	void			intro_main();
-    void            intro_Retail();
-    void            intro_AmigaTheOne();
+	void			Intro_Main();
+    void            Intro_Retail();
+    void            Intro_AmigaTheOne();
 	void			Intro_OpenFodder();
     void            Intro_PlayVideo();
 
@@ -1317,13 +1318,13 @@ public:
     void            sleepLoop(int64 pMilliseconds);
     int16           ShowImage_ForDuration(const std::string& pFilename, uint16 pDuration, size_t pBackColor = 0, bool pCanAbort = true);
 
-    void            Mouse_ButtonCheck();
+    void            Mouse_UpdateButtons();
     int16           Mouse_Button_Left_Toggled();
     int16           Mouse_Button_Right_Toggled();
     void            Mouse_Cursor_Handle();
-    void            Mouse_Cursor_Update();
+    void            Mouse_UpdateCursor();
     void            Mouse_DrawCursor();
-    virtual void    Mouse_Inputs_Get();
+    virtual void    Mouse_ReadInputs();
     void            Mouse_Inputs_Check();
     void            Mouse_Setup();
     cPosition       Mouse_GetOnBorderPosition();

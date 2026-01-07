@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -173,11 +173,11 @@ const unsigned char mGUI_Font_SpecialCharacters[] = {
 	/*	These are the ascii values in the table
 
 	'\'',	'.',	',',	'!',
-	'“',	'‚',	'‡',	'-',
-	'' ,	'',	'™',	'š',
-	'„',	'”',	'¤',	' ',
-	'£',	'¡',	'?',	'¨',
-	'¥',	-1,
+	'ï¿½',	'ï¿½',	'ï¿½',	'-',
+	'ï¿½' ,	'ï¿½',	'ï¿½',	'ï¿½',
+	'ï¿½',	'ï¿½',	'ï¿½',	'ï¿½',
+	'ï¿½',	'ï¿½',	'?',	'ï¿½',
+	'ï¿½',	-1,
 	*/
 	0x27, 0x2E, 0x2C, 0x21,
 	0x93, 0x82, 0x87, 0x2D,

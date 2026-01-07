@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -247,8 +247,8 @@ void cScriptingEngine::init() {
 	dukglue_register_property(mContext, &sSprite::getX, &sSprite::setX, "x");
 	dukglue_register_property(mContext, &sSprite::getY, &sSprite::setY, "y");
 	
-	// cMap
-	dukglue_set_base_class<cMap, cRandomMap>(mContext);
+	// cMapData
+	dukglue_set_base_class<cMapData, cRandomMap>(mContext);
 	dukglue_register_constructor<cRandomMap, const sMapParams& >(mContext, "cRandomMap");
 
 	dukglue_register_method(mContext, &cRandomMap::save, "save");

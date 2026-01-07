@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ void menu_loop() {
 
 		result = 0;
 		g_Fodder->Campaign_Select_Setup();
-		g_Fodder->MapTiles_Draw();
+		g_Fodder->MapTiles_ResetScrollState();
 		g_Fodder->mInterruptCallback = []() {
 			
 			if (!g_Fodder->mStartParams->mDisableVideo) {

@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,12 +39,12 @@ sMapParams::sMapParams(size_t pSeed) {
 		mRandom.setSeed((int16)pSeed);
 }
 
-cMap::cMap() {
+cMapData::cMapData() {
 	mData = std::make_shared<std::vector<uint8_t>>();
 	mTile_Ptr = 0;
 }
 
-int32 cMap::Tile_Get(const size_t pTileX, const size_t pTileY) {
+int32 cMapData::Tile_Get(const size_t pTileX, const size_t pTileY) {
 	if (pTileX > mParams.mWidth || pTileY > mParams.mHeight)
 		return -1;
 
@@ -57,7 +57,7 @@ int32 cMap::Tile_Get(const size_t pTileX, const size_t pTileY) {
 	return readLE<int16>(CurrentMapPtr);
 }
 
-void cMap::Tile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
+void cMapData::Tile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
 	if (pTileX > mParams.mWidth || pTileY > mParams.mHeight)
 		return;
 
@@ -70,7 +70,7 @@ void cMap::Tile_Set(const size_t pTileX, const size_t pTileY, const size_t pTile
 	writeLEWord(CurrentMapPtr, (uint16)pTileID);
 }
 
-void cMap::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
+void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	sSprite First;
 
 	First.field_18 = static_cast<int16>(pSpriteID);
@@ -120,7 +120,7 @@ void cMap::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	}
 }
 
-void cMap::Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTileY) {
+void cMapData::Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTileY) {
 
 	for (const auto& Piece : pStructure.mTiles) {
 		Tile_Set(pTileX + Piece.mX, pTileY + Piece.mY, Piece.mTileID);
@@ -136,16 +136,16 @@ void cMap::Structure_Add(const sStructure& pStructure, size_t pTileX, size_t pTi
 	}
 }
 
-void cMap::ClearTiles(const size_t pTileID) {
+void cMapData::ClearTiles(const size_t pTileID) {
 
 	mData->resize(0x60 + ((mParams.mWidth * mParams.mHeight) * 2), (uint8)pTileID);
 	mTile_Ptr = (int32)((0x60) - (mParams.mWidth * 2));
 }
 
-tSharedBuffer cMap::getData() const {
+tSharedBuffer cMapData::getData() const {
 	return mData;
 }
 
-std::vector<sSprite> cMap::getSprites() const {
+std::vector<sSprite> cMapData::getSprites() const {
 	return mSprites;
 }

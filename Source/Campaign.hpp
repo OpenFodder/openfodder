@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -57,6 +57,8 @@ struct sAggression {
 	int16 getMax() const { return mMax; }
 	void setMax(const int16& pMax) { mMax = pMax; }
 };
+
+class cMapData;
 
 class cPhase {
 public:
@@ -190,7 +192,7 @@ public:
     std::string GetPathToFile(const std::string& pName) const;
     std::string GetPath(const bool pTrailingSeperator = true) const;
 
-	std::shared_ptr<cMap> getCMap(std::shared_ptr<cPhase> pPhase) const;
+	std::shared_ptr<cMapData> getCMap(std::shared_ptr<cPhase> pPhase) const;
 
 	tSharedBuffer getMap(std::shared_ptr<cPhase> pPhase) const;
 	tSharedBuffer getSprites(std::shared_ptr<cPhase> pPhase) const;

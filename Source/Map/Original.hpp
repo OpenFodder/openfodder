@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-class cOriginalMap : public cMap {
+class cOriginalMap : public cMapData {
 
 private:
 
@@ -37,7 +37,7 @@ protected:
 	void SetTileTypeInHeader();
 
 public:
-	cOriginalMap() : cMap() {};
+	cOriginalMap() : cMapData() {};
 	cOriginalMap(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2);
 
 	virtual bool load(tSharedBuffer pMapFile, tSharedBuffer pSptFile, const bool pCF2) override;

@@ -2,7 +2,7 @@
 *  Open Fodder
 *  ---------------
 *
-*  Copyright (C) 2008-2024 Open Fodder
+*  Copyright (C) 2008-2026 Open Fodder
 *
 *  This program is free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
@@ -1420,7 +1420,7 @@ void cGraphics_Amiga::DrawPixels_16(uint8* pSource, uint8* pDestination, const u
 	}
 }
 
-void cGraphics_Amiga::Mission_Intro_Play(
+void cGraphics_Amiga::Briefing_Intro_Helicopter_Play(
 		const bool pShowHelicopter, const eTileTypes pTileset, 
 		 std::string pTop, std::string pBottom) {
 

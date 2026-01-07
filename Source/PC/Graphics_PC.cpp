@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -873,7 +873,7 @@ void cGraphics_PC::HeliIntroBlit_OpaqueAlignedX(tSharedBuffer pDsSi, int16 pCx)
 }
 
 
-void cGraphics_PC::Mission_Intro_Play( const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom) {
+void cGraphics_PC::Briefing_Intro_Helicopter_Play( const bool pShowHelicopter, const eTileTypes pTileset, const std::string pTop, const std::string pBottom) {
 	
 	const std::vector<cPosition>& pPositions = BackgroundPositions[pTileset];
 

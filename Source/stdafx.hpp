@@ -2,7 +2,7 @@
  *  Open Fodder
  *  ---------------
  *
- *  Copyright (C) 2008-2024 Open Fodder
+ *  Copyright (C) 2008-2026 Open Fodder
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "IntroData.hpp"
 #include "Tiles.hpp"
 
-#include "Map/Map.hpp"
+#include "Map/MapData.hpp"
 #include "Map/Original.hpp"
 //#include "Map/Random.hpp"
 
