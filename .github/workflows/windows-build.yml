@@ -68,11 +68,19 @@ jobs:
           Copy-Item "$runDir\SDL3.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
           Copy-Item "$runDir\SDL3_mixer.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
 
+          $dataRepoDir = "$env:RUNNER_TEMP\openfodder-data"
+          if (Test-Path $dataRepoDir) { Remove-Item $dataRepoDir -Recurse -Force }
+          git clone --single-branch https://github.com/OpenFodder/data.git $dataRepoDir
 
-          Copy-Item "$stashDir\openfodder.exe" -Destination $runDir -Force
-          Copy-Item "$stashDir\SDL3.dll" -Destination $runDir -Force
-          Copy-Item "$stashDir\SDL3_mixer.dll" -Destination $runDir -Force
+          if (Test-Path $runDir) { Remove-Item $runDir -Recurse -Force }
+          New-Item -ItemType Directory -Path $runDir -Force | Out-Null
+          Copy-Item "$dataRepoDir\*" $runDir -Recurse -Force
 
+          Copy-Item "$stashDir\openfodder.exe" -Destination $runDir -Force -ErrorAction SilentlyContinue
+          Copy-Item "$stashDir\SDL3.dll" -Destination $runDir -Force -ErrorAction SilentlyContinue
+          Copy-Item "$stashDir\SDL3_mixer.dll" -Destination $runDir -Force -ErrorAction SilentlyContinue
+
+          if (Test-Path "$runDir/Tests") { Remove-Item "$runDir/Tests" -Recurse -Force }
           git clone https://github.com/OpenFodder/tests.git $runDir/Tests
 
           Copy-Item "$ffmpegBin\avcodec*.dll" -Destination $runDir -Force
