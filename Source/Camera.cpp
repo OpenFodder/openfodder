@@ -288,7 +288,8 @@ void cFodder::Camera_Speed_Calculate()
 
     // loc_11B9C
     //  Calculate maximum right position of camera
-    Data0 = mMapLoaded->getWidthPixels() - getCameraWidth();
+    const int32 originXPixels = (int32)getMapVisibleOriginX() << 4;
+    Data0 = originXPixels + getMapVisibleWidthPixels() - getCameraWidth();
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     int32 Data4 = mCameraX + mCamera_Speed_X;
@@ -298,7 +299,8 @@ void cFodder::Camera_Speed_Calculate()
         mCamera_Speed_X = Data0;
     }
     // loc_11BE8
-    Data0 = mMapLoaded->getHeightPixels() - getCameraHeight();
+    const int32 originYPixels = (int32)getMapVisibleOriginY() << 4;
+    Data0 = originYPixels + getMapVisibleHeightPixels() - getCameraHeight();
     Data0 = (Data0 << 16) | (Data0 >> 16);
 
     Data4 = mCameraY + mCamera_Speed_Y;
@@ -353,23 +355,30 @@ void cFodder::Camera_SetTargetToStartPosition()
     int16 Data0 = mCameraX >> 16;
     int16 Data4 = mCameraY >> 16;
 
+    const int16 originXPixels = (int16)getMapVisibleOriginX() << 4;
+    const int16 originYPixels = (int16)getMapVisibleOriginY() << 4;
+
     int16 Data8 = mCamera_StartPosition_X;
     Data8 -= (getCameraWidth() / 2) - 8;
-    if (Data8 < 0)
-        Data8 = 0;
+    if (Data8 < originXPixels)
+        Data8 = originXPixels;
 
-    int16 Data10 = mMapLoaded->getWidthPixels();
+    int16 Data10 = originXPixels + (int16)getMapVisibleWidthPixels();
     Data10 -= (getCameraWidth() / 2) - 8;
+    if (Data10 < originXPixels)
+        Data10 = originXPixels;
     if (Data8 >= Data10)
         Data8 = Data10;
 
     int16 DataC = mCamera_StartPosition_Y;
     DataC -= (getCameraHeight() - 8) / 2;
-    if (DataC < 0)
-        DataC = 0;
+    if (DataC < originYPixels)
+        DataC = originYPixels;
 
-    Data10 = mMapLoaded->getHeightPixels();
+    Data10 = originYPixels + (int16)getMapVisibleHeightPixels();
     Data10 -= (getCameraHeight() - 8) / 2;
+    if (Data10 < originYPixels)
+        Data10 = originYPixels;
     if (DataC >= Data10)
         DataC = Data10;
 
@@ -465,21 +474,31 @@ void cFodder::Camera_Pan_ComputeSpeed()
 
     Data4 >>= 4;
 
-    int16 Data8 = mMapLoaded->getWidth();
-    Data8 -= (getCameraWidth() >> 4) + 1;
+    int16 MinTileX = getMapVisibleOriginX();
+    int16 MinTileY = getMapVisibleOriginY();
 
-    if (Data8 < 0)
-        Data8 = 0;
+    int16 Data8 = getMapVisibleOriginX() + getMapVisibleWidth();
+    const int16 cameraTiles = (getCameraWidth() >> 4);
+    const int16 rightPadding = isAmigaMapBounds() ? 0 : 1;
+    Data8 -= cameraTiles + rightPadding;
 
-    if (Data0 >= Data8)
+    if (Data8 < MinTileX)
+        Data8 = MinTileX;
+
+    if (Data0 < MinTileX)
+        Data0 = MinTileX;
+    if (Data0 > Data8)
         Data0 = Data8;
 
-    Data8 = mMapLoaded->getHeight();
-    Data8 -= (getCameraHeight() + 32) >> 4;
-    if (Data8 < 0)
-        Data8 = 0;
+    Data8 = getMapVisibleOriginY() + getMapVisibleHeight();
+    const int16 yPadPixels = isAmigaMapBounds() ? 16 : 32;
+    Data8 -= (getCameraHeight() + yPadPixels) >> 4;
+    if (Data8 < MinTileY)
+        Data8 = MinTileY;
 
-    if (Data4 >= Data8)
+    if (Data4 < MinTileY)
+        Data4 = MinTileY;
+    if (Data4 > Data8)
         Data4 = Data8;
 
     Data8 = mCameraX >> 16;
@@ -554,15 +573,13 @@ void cFodder::Camera_TileSpeedX_Set()
     mCamera_TileSpeed_Overflow = 0;
 
     int32 dword_39F5A = mCameraX;
+    const int32 minCameraX = ((int32)getMapVisibleOriginX() << 4) << 16;
 
     mCameraX += mCamera_Speed_X;
-    if (mCameraX < 0)
+    if (mCameraX < minCameraX)
     {
-        mCamera_Speed_X = dword_39F5A;
-        if (mCamera_Speed_X)
-            mCamera_Speed_X = -mCamera_Speed_X;
-
-        mCameraX = 0;
+        mCamera_Speed_X = 0;
+        mCameraX = minCameraX;
     }
     // loc_12147
     mCamera_TileSpeedX += mCamera_Speed_X;
@@ -596,16 +613,13 @@ void cFodder::Camera_TileSpeedY_Set()
 {
 
     int32 dword_39F5A = mCameraY;
+    const int32 minCameraY = ((int32)getMapVisibleOriginY() << 4) << 16;
 
     mCameraY += mCamera_Speed_Y;
-    if (mCameraY < 0)
+    if (mCameraY < minCameraY)
     {
-        mCamera_Speed_Y = dword_39F5A;
-
-        if (mCamera_Speed_Y)
-            mCamera_Speed_Y = -mCamera_Speed_Y;
-
-        mCameraY = 0;
+        mCamera_Speed_Y = 0;
+        mCameraY = minCameraY;
     }
 
     // loc_121F2

@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include <sstream>
 
 cWindow::cWindow() {
 
@@ -76,7 +77,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	}
 
 	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_WARP_MOTION, "1", SDL_HINT_OVERRIDE);
-	SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE, "3.0");
+	SetMouseSpeed(g_Fodder ? (float)g_Fodder->mStartParams->mMouseSpeed : 1.5f);
 
 
     if (g_Fodder->mParams->mWindowMode) {
@@ -114,6 +115,19 @@ void cWindow::SetRelativeMouseMode(bool pEnable) {
     }
 }
 
+void cWindow::SetMouseSpeed(float pSpeed) {
+	if (pSpeed < 1.0f)
+		pSpeed = 1.0f;
+	if (pSpeed > 10.0f)
+		pSpeed = 10.0f;
+
+	std::ostringstream speed;
+	speed.setf(std::ios::fixed);
+	speed.precision(1);
+	speed << pSpeed;
+	SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE, speed.str().c_str());
+}
+
 std::vector<cEvent>* cWindow::EventGet() {
     return &mEvents;
 }
@@ -128,6 +142,8 @@ bool cWindow::Cycle() {
 
 void cWindow::EventCheck() {
 	SDL_Event SysEvent;
+    static float sMouseMotionRemainderX = 0.0f;
+    static float sMouseMotionRemainderY = 0.0f;
 
 	while (SDL_PollEvent(&SysEvent)) {
 
@@ -189,18 +205,19 @@ void cWindow::EventCheck() {
 			break;
 
 		case SDL_EVENT_MOUSE_MOTION:
-			if (SysEvent.motion.xrel < -100 || 
-				SysEvent.motion.yrel < -100 || 
-				SysEvent.motion.xrel > 100 || 
-				SysEvent.motion.yrel > 100) {
-				break;
-			}
+		{
+            sMouseMotionRemainderX += SysEvent.motion.xrel;
+            sMouseMotionRemainderY += SysEvent.motion.yrel;
+            const int Xrel = (int)sMouseMotionRemainderX;
+            const int Yrel = (int)sMouseMotionRemainderY;
+            sMouseMotionRemainderX -= (float)Xrel;
+			sMouseMotionRemainderY -= (float)Yrel;
 
 			Event.mType = eEvent_MouseMove;
 			Event.mPosition = cPosition((int)SysEvent.motion.x, (int)SysEvent.motion.y);
-			Event.mPositionRelative = cPosition((int)SysEvent.motion.xrel, (int)SysEvent.motion.yrel);
+			Event.mPositionRelative = cPosition(Xrel, Yrel);
 			break;
-
+		}
 		case SDL_EVENT_MOUSE_WHEEL:
 			Event.mType = eEvent_MouseWheel;
 			Event.mPosition = cPosition((int)SysEvent.wheel.x, (int)SysEvent.wheel.y);

@@ -2132,13 +2132,19 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed)
     }
 
     if ((pKeyCode == SDL_SCANCODE_EQUALS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_PLUS && pPressed))
+    {
         mWindow->WindowIncrease();
+    }
 
     if ((pKeyCode == SDL_SCANCODE_MINUS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_MINUS && pPressed))
+    {
         mWindow->WindowDecrease();
+    }
 
     if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
+    {
         mWindow->ToggleFullscreen();
+    }
 
     if (pKeyCode == SDL_SCANCODE_F12 && pPressed)
     {
@@ -2392,7 +2398,6 @@ cDimension cFodder::getSurfaceSize() const
 
 cDimension cFodder::getWindowSize() const
 {
-
     if (!mParams->mWindowColumns || !mParams->mWindowRows)
     {
         if (mVersionCurrent)
@@ -2423,6 +2428,65 @@ int16 cFodder::getWindowColumns() const
         return 22;
     }
     return (int16)mParams->mWindowColumns;
+}
+
+bool cFodder::isAmigaMapBounds() const
+{
+    return mVersionCurrent && mVersionCurrent->isAmiga();
+}
+
+int16 cFodder::getMapVisibleOriginX() const
+{
+    if (isAmigaMapBounds())
+        return 1;
+    return 0;
+}
+
+int16 cFodder::getMapVisibleOriginY() const
+{
+    return 0;
+}
+
+int16 cFodder::getMapVisibleWidth() const
+{
+    if (!mMapLoaded)
+        return 0;
+
+    int16 width = static_cast<int16>(mMapLoaded->getWidth());
+    if (isAmigaMapBounds())
+    {
+        width -= 2;
+        if (width < 0)
+            width = 0;
+    }
+    return width;
+}
+
+int16 cFodder::getMapVisibleHeight() const
+{
+    if (!mMapLoaded)
+        return 0;
+
+    int16 height = static_cast<int16>(mMapLoaded->getHeight());
+    if (isAmigaMapBounds())
+    {
+        const int16 cameraTiles = (getCameraHeight() >> 4);
+        if (height == cameraTiles + 1)
+            height -= 1;
+        if (height < 0)
+            height = 0;
+    }
+    return height;
+}
+
+int32 cFodder::getMapVisibleWidthPixels() const
+{
+    return (int32)getMapVisibleWidth() << 4;
+}
+
+int32 cFodder::getMapVisibleHeightPixels() const
+{
+    return (int32)getMapVisibleHeight() << 4;
 }
 
 void cFodder::DataNotFound()

@@ -37,6 +37,7 @@ public:
 
 	bool mMouseAlternative;		// Use the alternate mouse behaviour
 	bool mMouseLocked;			// Mouse is locked to window
+	float mMouseSpeed;          // Mouse speed scale (SDL relative speed scale)
 
 	bool mWindowMode;           // Start in a window
 	bool mIntegerScaling;       // Use integer scaling in fullscreen mode
@@ -71,6 +72,7 @@ public:
 	bool mPlayground;               // Launch into the sprite playground
 
 	bool mDisableVideo;             // Disable all video output
+	bool mDisableIntroVideo;        // Disable intro video playback
 	bool mDisableSound;             // Disable all sound
 
 	bool mDebugger;
@@ -97,6 +99,7 @@ public:
 		mPlayground = false;
 		mDisableSound = false;
 		mDisableVideo = false;
+		mDisableIntroVideo = false;
 		mSleepDelta = 20;
 
 		mAppVeyor = false;
@@ -109,6 +112,7 @@ public:
 		mPhaseNumber = 0;
 		mMouseAlternative = false;
 		mMouseLocked = false;
+		mMouseSpeed = 1.5f;
 
 		mWindowMode = false;
 		mIntegerScaling = true;

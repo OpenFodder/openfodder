@@ -32,8 +32,17 @@ private:
         Spacer,
     };
 
+    enum class eOptSection : uint8_t {
+        Video,
+        Input,
+        Audio,
+        Skip,
+        Engine,
+    };
+
     struct sOptItem {
         eOptType type = eOptType::Spacer;
+        eOptSection section = eOptSection::Video;
         const char* label = "";
         int id = 0;
 
@@ -59,9 +68,12 @@ private:
         GUIACT_OPT_ROW_PRIMARY,   // click row => toggle/inc
         GUIACT_OPT_LEFT,          // decrement (hover arrow)
         GUIACT_OPT_RIGHT,         // increment (hover arrow)
+        GUIACT_OPT_TAB,           // arg = page index
+        GUIACT_OPT_SAVE,
+        GUIACT_OPT_CANCEL,
 
-        // Action rows (Defaults / Apply / Back)
-        GUIACT_OPT_ACTION,        // arg = OPT_DEFAULTS / OPT_APPLY / OPT_BACK
+        // Action rows (Defaults / Back)
+        GUIACT_OPT_ACTION,        // arg = OPT_DEFAULTS / OPT_BACK
     };
 
     enum eOptId : int {
@@ -72,6 +84,7 @@ private:
 
         OPT_ALTERNATE_MOUSE,
         OPT_MOUSE_LOCKED,
+        OPT_MOUSE_SPEED,
 
         OPT_DISABLE_SOUND,
         OPT_CHEATS,
@@ -81,7 +94,6 @@ private:
         OPT_MAX_SPAWN,
 
         OPT_DEFAULTS,
-        OPT_APPLY,
         OPT_BACK,
 
         // ---- add these ----
@@ -92,6 +104,7 @@ private:
         OPT_DEFAULT_GAME,
 
         OPT_SKIP_INTRO,
+        OPT_DISABLE_INTRO_VIDEO,
         OPT_SKIP_BRIEFING,
         OPT_SKIP_SERVICE,
         OPT_SKIP_RECRUIT,
@@ -101,6 +114,9 @@ private:
 private:
     // Build menu items from current parameters.
     void BuildItems();
+    void BuildPageItems();
+    void ChangePage(int pageIndex);
+    void RestoreSnapshot();
 
     // Value accessors (from sFodderParameters on cFodder)
     int  GetInt(int optId) const;
@@ -108,7 +124,6 @@ private:
 
     // Actions
     void ResetDefaults();
-    void Apply();
 
     // Formatting + interaction
     std::string FormatValue(const sOptItem& it) const;
@@ -141,6 +156,10 @@ private:
     int16_t  mLastInputArg = 0;
 
     std::vector<sOptItem> mItems;
+    std::vector<int> mPageItems;
+    int16_t mCurrentPage = 0;
+    sFodderParameters mSnapshot;
+    bool mSnapshotValid = false;
 
     // Keep drawn strings alive for GUI draw calls (c_str pointers)
     std::vector<std::string> mDrawStrings;

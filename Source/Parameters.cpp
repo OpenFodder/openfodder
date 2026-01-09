@@ -21,6 +21,7 @@
  */
 
 #include <stdafx.hpp>
+#include <sstream>
 #include "Utils/ini.hpp"
 #include "Utils/cxxopts.hpp"
 #include "Utils/json.hpp"
@@ -152,6 +153,7 @@ void sFodderParameters::PrepareOptions() {
 		("playground", "Sprite playground", cxxopts::value<bool>()->default_value("false"))
 
 		("skipintro", "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
+		("disable-intro-video", "Disable intro video playback", cxxopts::value<bool>()->default_value("false"))
 		("skipbriefing", "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
 		("skipservice", "Skip mission debriefing", cxxopts::value<bool>()->default_value("false"))
 		("skiphill", "Skip the hill", cxxopts::value<bool>()->default_value("false"))
@@ -232,6 +234,8 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 
 		if (result.count("skipintro"))
 			mSkipIntro = result["skipintro"].as<bool>();
+		if (result.count("disable-intro-video"))
+			mDisableIntroVideo = result["disable-intro-video"].as<bool>();
 		if (result.count("skipservice"))
 			mSkipService = result["skipservice"].as<bool>();
 		if (result.count("skipbriefing"))
@@ -368,6 +372,13 @@ bool sFodderParameters::SaveIni() {
 
 		ini.set("alternate-mouse", mMouseAlternative ? "true" : "false");
 		ini.set("mouse-locked", mMouseLocked ? "true" : "false");
+		{
+			std::ostringstream speed;
+			speed.setf(std::ios::fixed);
+			speed.precision(1);
+			speed << mMouseSpeed;
+			ini.set("mouse-speed", speed.str());
+		}
 		ini.set("copyprotection", mCopyProtection ? "true" : "false");
 	}
 	else {
@@ -392,6 +403,7 @@ bool sFodderParameters::SaveIni() {
 
 	if (ini.select("skip")) {
 		ini.set("intro", mSkipIntro ? "true" : "false");
+		ini.set("intro-video", mDisableIntroVideo ? "true" : "false");
 		ini.set("briefing", mSkipBriefing ? "true" : "false");
 		ini.set("service", mSkipService ? "true" : "false");
 		ini.set("hill", mSkipRecruit ? "true" : "false");
@@ -462,6 +474,12 @@ bool sFodderParameters::ProcessINI() {
 			if (ini.get("mouse-locked", "false") == "true")
 				mMouseLocked = true;
 
+			mMouseSpeed = (float)ini.get("mouse-speed", 1.5);
+			if (mMouseSpeed < 0.5f)
+				mMouseSpeed = 0.5f;
+			if (mMouseSpeed > 10.0f)
+				mMouseSpeed = 10.0f;
+
 			if (ini.get("copyprotection", "false") == "true")
 				mCopyProtection = true;
 		}
@@ -497,6 +515,9 @@ bool sFodderParameters::ProcessINI() {
 		if (ini.select("skip")) {
 			if (ini.get("intro", "false") == "true")
 				mSkipIntro = true;
+
+			if (ini.get("intro-video", "false") == "true")
+				mDisableIntroVideo = true;
 
 			if (ini.get("briefing", "false") == "true")
 				mSkipBriefing = true;

@@ -93,6 +93,7 @@ public:
     bool                    mSoundDisabled;
 
     bool                    mVersionPlatformSwitchDisabled;
+
     const sGameVersion*     mVersionDefault;		// Version to switch back to when looking for data
     const sGameVersion*     mVersionCurrent;		// Version currently being used
     bool                    mVersionReturnAfterPhase;   // Return to default data after phase
@@ -1171,6 +1172,7 @@ public:
     void            GUI_Button_Load_Down();
     void            GUI_Button_Load_Exit();
     void            GUI_Button_Show_About();
+    void            GUI_Button_Show_Options();
     void            GUI_Button_Filename();
 
     int16           GUI_Button_NoAction();
@@ -1386,6 +1388,13 @@ public:
 
 	int16			getWindowRows() const;
 	int16			getWindowColumns() const;
+	bool			isAmigaMapBounds() const;
+	int16			getMapVisibleOriginX() const;
+	int16			getMapVisibleOriginY() const;
+	int16			getMapVisibleWidth() const;
+	int16			getMapVisibleHeight() const;
+	int32			getMapVisibleWidthPixels() const;
+	int32			getMapVisibleHeightPixels() const;
 
 	int16			getCameraWidth() const;
 	int16			getCameraHeight() const;

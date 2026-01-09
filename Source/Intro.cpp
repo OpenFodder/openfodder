@@ -267,7 +267,7 @@ void cFodder::Intro_PlayVideo() {
 		return;
 	}
 
-	if (mStartParams && mStartParams->mDisableVideo)
+	if (mStartParams && (mStartParams->mDisableVideo || mStartParams->mDisableIntroVideo))
 		return;
 #ifdef OPENFODDER_ENABLE_FFMPEG
 	cVideoMPEG introVideo;

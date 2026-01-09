@@ -1407,6 +1407,12 @@ void cFodder::GUI_Button_Show_About()
     mGUI_SaveLoadAction = 4;
 }
 
+void cFodder::GUI_Button_Show_Options()
+{
+    mGUI_Select_File_String_Input_Callback = 0;
+    mGUI_SaveLoadAction = 5;
+}
+
 void cFodder::GUI_Input_CheckKey()
 {
 

@@ -103,6 +103,9 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     GUI_Button_Draw_SmallAt("ABOUT", 0xA, 0xB3 + YOffset);
     GUI_Button_Setup(&cFodder::GUI_Button_Show_About);
 
+    GUI_Button_Draw_SmallAt("OPTIONS", 0xA, 0x9C + YOffset);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_Options);
+
 
     int16 ItemCount = 0;
 
@@ -431,6 +434,15 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
 
 	if (mMouse_Button_Left_Toggle)
 		GUI_Handle_Element_Mouse_Check(mGUI_Elements);
+
+    if (mGUI_SaveLoadAction == 5) {
+        Options_Menu_Run();
+        mGUI_SaveLoadAction = 0;
+        mMouse_Button_Left_Toggle = 0;
+        mGraphics->PaletteSet();
+        mSurface->palette_FadeTowardNew();
+        mSurface->Save();
+    }
 
 	GUI_Button_Load_MouseWheel();
 }

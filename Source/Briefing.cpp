@@ -505,10 +505,10 @@ void cFodder::Briefing_Intro_Helicopter_Play(const bool pShowHelicopter, eTileTy
         return;
 
     mSurface->clearBuffer();
-	mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+    mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 
     if (pTileset >= eTileTypes_Hid)
-		pTileset = eTileTypes_Jungle;
+        pTileset = eTileTypes_Jungle;
 
     mGraphics->Mission_Intro_Load_Resources(pTileset);
     mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
@@ -520,7 +520,7 @@ void cFodder::Briefing_Intro_Helicopter_Play(const bool pShowHelicopter, eTileTy
     //Briefing_Intro_Helicopter_Draw_Mission_Name();
     mSurface->Save();
 
-	// Prior to mission 4, the UFO is not shown on the mission intro
+    // Prior to mission 4, the UFO is not shown on the mission intro
     bool ShowHelicopter = true;
     if (mVersionCurrent->isCannonFodder2() && mGame_Data.mMission_Number < 4 && !pShowHelicopter)
         ShowHelicopter = false;

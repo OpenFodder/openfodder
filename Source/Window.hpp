@@ -74,6 +74,7 @@ class cWindow {
         bool                isMouseButtonPressed_Global() const;
 
         void				SetMousePosition(const cPosition& pPosition);
+		void				SetMouseSpeed(float pSpeed);
 
 		void				SetScreenSize( const cDimension& pDimension );
 		void				SetOriginalRes( const cDimension& pDimension );
@@ -87,8 +88,9 @@ class cWindow {
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
 
         cPosition           GetWindowPosition() const;
-		int32				GetWindowWidth() const;
+        int32				GetWindowWidth() const;
 		int32				GetWindowHeight() const;
+        int                 GetScaler() const { return mScaler; }
 
 		cDimension	        GetWindowSize() const;
 		cDimension	        GetScreenSize() const { return mScreenSize; }

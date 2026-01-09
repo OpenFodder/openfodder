@@ -15,6 +15,13 @@ set(CMAKE_CXX_STANDARD 14)
 option(OPENFODDER_ENABLE_FFMPEG "Enable FFmpeg intro video playback" OFF)
 option(OPENFODDER_AUTO_FFMPEG "Auto-enable FFmpeg when found (non-Windows)" ON)
 
+if(MSVC)
+    # Enable Hot Reload (Edit and Continue) for Debug builds.
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<CONFIG:Debug>,EditAndContinue,ProgramDatabase>")
+    add_compile_options($<$<CONFIG:Debug>:/ZI>)
+    add_link_options($<$<CONFIG:Debug>:/INCREMENTAL>)
+endif()
+
 if(EMSCRIPTEN)
     set(OPENFODDER_EMSCRIPTEN ON)
 else()
