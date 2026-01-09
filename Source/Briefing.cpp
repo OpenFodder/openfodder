@@ -395,8 +395,11 @@ int16 cFodder::Briefing_Show() {
 	if (mVersionCurrent->isDemo() && mVersionDefault->isDemo())
 		return 1;
 
+
 	// Show the Briefing screen for Retail and Custom 
 	if (mVersionCurrent->hasBriefingScreen() || mCustom_Mode != eCustomMode_None || mGame_Data.mCampaign.isRandom()) {
+        
+        mBriefing_Screen_Active = true;
 
 		Window_UpdateScreenSize();
 
@@ -416,6 +419,8 @@ int16 cFodder::Briefing_Show() {
 
 		// Needs to split into cycle function
 		Briefing_Show_Ready();
+
+        mBriefing_Screen_Active = false;
 
 		// Aborted?
 		if (mBriefing_Aborted == -1) {

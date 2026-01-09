@@ -544,15 +544,15 @@ public:
     size_t          mDraw_Dest_SkipPixelsPerRow;
     uint16          mVideo_Draw_ColumnsMax;
 
+    bool            mBriefing_Screen_Active;
     int32           mBriefingHelicopter_ScreenX;
     int32           mBriefingHelicopter_ScreenY;
     int16           mBriefingHelicopter_DirectionIndex;
     float           mBriefingHelicopter_DirectionIndexF;
     float           mBriefingHelicopter_Speed;
-    int16          word_428BA;
 
-    float          mHelicopterPosX;
-    float          mHelicopterPosY;
+    float           mHelicopterPosX;
+    float           mHelicopterPosY;
     int16           mBriefingHelicopter_TargetDirection;
     float           mBriefingHelicopter_TargetSpeed;        // 50Hz Ticks
     float           mBriefingHelicopter_NextUpdateCountdown;

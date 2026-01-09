@@ -156,10 +156,12 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
     Squad_Walk_Target_SetAll(0);
     mPhase_Completed_Timer = 0;
     mVideo_Draw_ColumnsMax = 0;
+
+    mBriefing_Screen_Active = false;
     mBriefingHelicopter_DirectionIndexF = 0;
     mBriefingHelicopter_DirectionIndex = 0;
     mBriefingHelicopter_Speed = 0;
-    word_428BA = 0;
+
     mHelicopterPosX = 0;
     mHelicopterPosY = 0;
     mBriefingHelicopter_TargetDirection = 0;
@@ -1058,6 +1060,8 @@ void cFodder::Phase_EngineReset()
     word_3B4ED[1] = 0;
     mPhase_Finished = false;
     mImage_Aborted = 0;
+
+    mBriefing_Screen_Active = false;
     mBriefing_Aborted = 0;
     mHostage_Rescue_Tent = 0;
 
@@ -2367,6 +2371,15 @@ void cFodder::VersionSwitch(const sGameVersion *pVersion)
 
         if (!mStartParams->mDisableSound)
             Music_Play(0);
+    }
+
+    if (mBriefing_Screen_Active && mVersionCurrent->hasBriefingScreen())
+    {
+        Briefing_Show_PreReady();
+        Briefing_Draw_Mission_Title(0x2C);
+        Briefing_Draw_Phase();
+        Briefing_Draw_With();
+        mSurface->Save();
     }
 }
 
