@@ -109,6 +109,16 @@ void cSurface::paletteNew_SetToBlack() {
     mPaletteAdjusting = true;
 }
 
+void cSurface::paletteNew_SetDimmed(uint8 pScale) {
+	for (size_t cx = 0; cx < g_MaxColors; ++cx) {
+		mPaletteNew[cx].mRed = (uint8)((mPalette[cx].mRed * pScale) >> 8);
+		mPaletteNew[cx].mGreen = (uint8)((mPalette[cx].mGreen * pScale) >> 8);
+		mPaletteNew[cx].mBlue = (uint8)((mPalette[cx].mBlue * pScale) >> 8);
+	}
+
+	mPaletteAdjusting = true;
+}
+
 void cSurface::paletteSet( cPalette* pPalette, uint32 pColorID, uint32 pColors, bool pUseNow ) {
 
 	// immediately switch to this new palette?
@@ -261,26 +271,15 @@ void cSurface::copyFrom(const cSurface* pFrom) {
 }
 
 void cSurface::mergeFrom(const cSurface* pFrom) {
-	auto SourceSurface = pFrom->GetSurfaceBuffer();
-	auto SourceSize = pFrom->GetSurfaceBufferSize();
+	const uint8* source = pFrom->GetSurfaceBuffer();
+	const size_t sourceSize = pFrom->GetSurfaceBufferSize();
+	const size_t copySize = std::min(mSurfaceBufferSize, sourceSize);
 
-	uint32* bufferTarget = (uint32*)mSurfaceBuffer;
-	uint32* bufferTargetMax = (uint32*)((uint8*)mSurfaceBuffer + mSurfaceBufferSize);
-
-	const uint32* bufferCurrent = ((uint32*)SourceSurface);
-	const uint32* bufferCurrentMax = (uint32*)(((uint8*)SourceSurface) + SourceSize);
-
-	while (bufferTarget < bufferTargetMax) {
-
-		if (*bufferCurrent) {
-
-			// Value in palette range?
-			*bufferTarget = *bufferCurrent;
+	for (size_t i = 0; i < copySize; ++i) {
+		const uint8 value = source[i];
+		if (value) {
+			mSurfaceBuffer[i] = value;
 		}
-
-		// Next Source/Destination
-		++bufferCurrent;
-		++bufferTarget;
 	}
 }
 

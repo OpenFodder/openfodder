@@ -177,8 +177,9 @@ public:
     uint32          mMouse_EventLastButtonsPressed;
     cPosition       mMouse_EventLastWheel;
     bool            mMouse_Locked;
-    int16           mMouse_LeftWindow;
+    uint64          mMouse_LeftWindow;
     bool            mWindow_Focus;
+    bool            mWindow_MouseInside;
 
     bool            mSquad_Member_Fire_CoolDown_Override;
 
@@ -1329,7 +1330,7 @@ public:
     virtual void    Mouse_ReadInputs();
     void            Mouse_Inputs_Check();
     void            Mouse_Setup();
-    cPosition       Mouse_GetOnBorderPosition();
+    bool            Mouse_IsOnBorder() const;
 
     void            eventProcess(const cEvent& pEvent);
     void            eventsProcess();

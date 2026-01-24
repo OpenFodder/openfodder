@@ -205,6 +205,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
     mSprite_SheetPtr = 0;
 
     mWindow_Focus = false;
+    mWindow_MouseInside = false;
 
     Sprite_Clear_All();
 
@@ -239,7 +240,7 @@ int16 cFodder::Phase_Cycle()
             mStartParams->mDemoPlayback = false;
             mStartParams->mDemoRecord = true;
             mStartParams->mDemoRecordResumeCycle = 0;
-            mParams->mSleepDelta = 0;
+            mParams->mSleepDelta = mStartParams->mSleepDelta;
             mParams->mDemoRecord = mStartParams->mDemoRecord;
             mParams->mDemoPlayback = mStartParams->mDemoPlayback;
             mStartParams->mDisableVideo = false;
@@ -388,20 +389,22 @@ void cFodder::Phase_Paused()
 {
     Draw_Phase_Paused();
 
-    // Fade the background out, and the 'mission paused' message in
-    mSurface->palette_FadeTowardNew();
-    mSurface->palette_FadeTowardNew();
-    mSurface->palette_FadeTowardNew();
-
     while (mPhase_Paused)
     {
+        if (mSurface->isPaletteAdjusting())
+            mSurface->palette_FadeTowardNew();
 
+        // Draw background with faded palette, then overlay text using its own palette.
         mSurface->draw();
+        mSurface2->draw();
+        mSurface->mergeSurfaceBuffer(mSurface2);
 
-        // Copy the rendered surface of the 'mission paused' message over the top of the main surface
-        mSurface->mergeFrom(mSurface2);
+        mWindow->RenderAt(mSurface);
+        mWindow->FrameEnd();
 
-        Video_Sleep();
+        mWindow->Cycle();
+        eventsProcess();
+        SDL_Delay(1);
     }
 
     mGraphics->PaletteSet();
@@ -2019,6 +2022,14 @@ void cFodder::eventProcess(const cEvent &pEvent)
         mWindow_Focus = pEvent.mHasFocus;
         break;
 
+    case eEvent_MouseEnter:
+        mWindow_MouseInside = true;
+        break;
+
+    case eEvent_MouseLeave:
+        mWindow_MouseInside = false;
+        break;
+
     case eEvent_KeyDown:
         keyProcess(pEvent.mButton, true);
         break;
@@ -2137,12 +2148,14 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed)
 
     if ((pKeyCode == SDL_SCANCODE_EQUALS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_PLUS && pPressed))
     {
-        mWindow->WindowIncrease();
+        if(!mStartParams->mDemoPlayback)
+            mWindow->WindowIncrease();
     }
 
     if ((pKeyCode == SDL_SCANCODE_MINUS && pPressed) || (pKeyCode == SDL_SCANCODE_KP_MINUS && pPressed))
     {
-        mWindow->WindowDecrease();
+        if (!mStartParams->mDemoPlayback)
+            mWindow->WindowDecrease();
     }
 
     if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
@@ -2179,14 +2192,15 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed)
         }
 
         if (pKeyCode == SDL_SCANCODE_P && pPressed)
-            mPhase_Paused = !mPhase_Paused;
+            if(!mPhase_ShowMapOverview)
+                mPhase_Paused = !mPhase_Paused;
 
         if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
             ++mSquad_SwitchWeapon;
 
         if (pKeyCode == SDL_SCANCODE_M && pPressed)
         {
-            if (mPhase_Finished == false)
+            if (mPhase_Finished == false && !mPhase_Paused)
                 mPhase_ShowMapOverview = -1;
         }
 
@@ -2592,7 +2606,7 @@ void cFodder::Draw_Phase_Paused()
     mSurface2->surfaceSetToPaletteNew();
 
     // Dim the current surface
-    mSurface->paletteNew_SetToBlack();
+    mSurface->paletteNew_SetDimmed(64);
 
     // Draw to the secondary surface
     {

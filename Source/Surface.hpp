@@ -92,6 +92,7 @@ public:
 	void			paletteSet( cPalette* pPalette, uint32 pColorID = 0, uint32 pColors = g_MaxColors, bool pUseNow = false );
 
 	void			paletteNew_SetToBlack();
+	void			paletteNew_SetDimmed(uint8 pScale);
 
 	inline SDL_Surface* GetSurface() const { return mSDLSurface; }
 	inline SDL_Texture* GetTexture() const { return mTexture; };

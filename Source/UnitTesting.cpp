@@ -90,7 +90,7 @@ bool cUnitTesting::RunTests(const std::string pCampaign) {
     g_Fodder->Game_Setup();
 
 	if (g_Fodder->mStartParams->mUnitTesting && g_Fodder->mStartParams->mDemoPlayback) {
-		g_Fodder->mStartParams->mSleepDelta = 0;
+		//g_Fodder->mStartParams->mSleepDelta = 0;
 		g_Fodder->mParams->mSleepDelta = 0;
 	}
 

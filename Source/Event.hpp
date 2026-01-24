@@ -32,6 +32,8 @@ enum eEventType {
 	eEvent_MouseWheel		= 8,
 	eEvent_Quit				= 10,
 	eEvent_Focus			= 11,
+	eEvent_MouseEnter		= 12,
+	eEvent_MouseLeave		= 13,
 };
 
 class cEvent {

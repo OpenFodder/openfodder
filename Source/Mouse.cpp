@@ -39,19 +39,53 @@ void cFodder::Mouse_Setup() {
 }
 
 void cFodder::Mouse_Cursor_Handle() {
-	static bool WasClicked = false;
-
-	const cPosition WindowPos = mWindow->GetWindowPosition();
-	const cDimension ScreenSize = mWindow->GetScreenSize();
-	const cDimension WindowSize = mWindow->GetWindowSize();
+	static int32 CaptureBlockFrames = 0;
+    static bool MouseCapturedGlobal = false;
 	const cDimension scale = mWindow->GetScale();
-    static bool CursorGrabbed = true;
+    static bool CursorCaptured = true;
+    const int edgePadding = 2;
+    const uint64 recaptureDelayMs = 150;
 
 	mMouseButtonStatus = mMouse_EventLastButtonsPressed;
 
-    if (!mWindow_Focus && CursorGrabbed) {
-        CursorGrabbed = false;
-    }
+    auto UpdateInputFromWindowPos = [&]() {
+        float x = 0.0f;
+        float y = 0.0f;
+        SDL_GetMouseState(&x, &y);
+        mInputMouseX = (static_cast<int>(x) / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
+        mInputMouseY = (static_cast<int>(y) / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
+    };
+
+    auto ReleaseCursor = [&](bool pWarpToEdge) {
+        CursorCaptured = false;
+        mMouse_LeftWindow = static_cast<uint64>(SDL_GetTicks());
+        mWindow->SetRelativeMouseMode(false);
+        SDL_GetRelativeMouseState(nullptr, nullptr);
+        mMouse_EventLastPositionRelative = { 0, 0 };
+        SDL_ShowCursor();
+        mWindow_MouseInside = false;
+
+        if (MouseCapturedGlobal) {
+            SDL_CaptureMouse(false);
+            MouseCapturedGlobal = false;
+        }
+
+        if (!pWarpToEdge)
+            return;
+
+        const cDimension windowSize = mWindow->GetWindowSize();
+        int x = (mMouseX - MOUSE_POSITION_X_ADJUST) * scale.getWidth();
+        int y = (mMouseY - MOUSE_POSITION_Y_ADJUST) * scale.getHeight();
+        if (x < 0)
+            x = 0;
+        else if (x >= windowSize.getWidth())
+            x = windowSize.getWidth() - 1;
+        if (y < 0)
+            y = 0;
+        else if (y >= windowSize.getHeight())
+            y = windowSize.getHeight() - 1;
+        mWindow->SetMousePositionInWindow(static_cast<float>(x), static_cast<float>(y));
+    };
 
 	if (mStartParams->mMouseAlternative) {
 		mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
@@ -59,99 +93,94 @@ void cFodder::Mouse_Cursor_Handle() {
 		return;
 	}
 
-    // Check if the system mouse is grabbed
-    if (!CursorGrabbed) {
-
-        if (!mWindow_Focus && mWindow->isMouseInside()) {
+    if (!mWindow_Focus) {
+        if (CursorCaptured) {
+            CursorCaptured = false;
+            mWindow->SetRelativeMouseMode(false);
+            SDL_GetRelativeMouseState(nullptr, nullptr);
+            mMouse_EventLastPositionRelative = { 0, 0 };
+            SDL_ShowCursor();
+        }
+        mWindow_MouseInside = false;
+        if (MouseCapturedGlobal) {
+            SDL_CaptureMouse(false);
+            MouseCapturedGlobal = false;
+        }
+        if (mWindow->isMouseInside()) {
             // Register mouse position even when not focused but cursor on window
-            mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
-            mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
+            UpdateInputFromWindowPos();
         }
-        
-        if (SDL_GetTicks() - mMouse_LeftWindow < 100)
-            return;
+        return;
+    }
 
-        // Check if the system cursor x/y is inside our window
-        // and ensure the mouse button has been released before we focus
-        if (mWindow_Focus && mWindow->isMouseInside() && !mMouseButtonStatus) {
-            WasClicked = true;
-            CursorGrabbed = true;
-            
-            if (!mWindow->isFullscreen()) {
-                // Ensure X not too close to a border
-                if (mInputMouseX <= MOUSE_POSITION_X_ADJUST)
-                    mInputMouseX = MOUSE_POSITION_X_ADJUST + 1;
-                else if (mInputMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1)
-                    mInputMouseX = ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 2;
+    // Free cursor mode: wait for window mouse enter event to recapture.
+    if (!CursorCaptured) {
+        const uint64 now = static_cast<uint64>(SDL_GetTicks());
+        const bool canRecapture = (now - mMouse_LeftWindow) > recaptureDelayMs;
+        const bool inside = mWindow_MouseInside || mWindow->isMouseInside();
 
-                // Ensure Y not too close to a border
-                if (mInputMouseY <= MOUSE_POSITION_Y_ADJUST)
-                    mInputMouseY = MOUSE_POSITION_Y_ADJUST + 1;
-                else if (mInputMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
-                    mInputMouseY = ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 2;
-            }
+        if (canRecapture && inside) {
+            float wx = 0.0f, wy = 0.0f;
+            SDL_GetMouseState(&wx, &wy);
+            const cDimension windowSize = mWindow->GetWindowSize();
+            const bool awayFromEdge =
+                (wx > edgePadding) &&
+                (wy > edgePadding) &&
+                (wx < static_cast<float>(windowSize.getWidth() - edgePadding)) &&
+                (wy < static_cast<float>(windowSize.getHeight() - edgePadding));
+            if (!awayFromEdge)
+                return;
+
+            UpdateInputFromWindowPos();
+            mMouseX = mInputMouseX;
+            mMouseY = mInputMouseY;
+
+            CaptureBlockFrames = 1;
+            CursorCaptured = true;
             mWindow->SetRelativeMouseMode(true);
+            SDL_HideCursor();
+            SDL_GetRelativeMouseState(nullptr, nullptr);
+            mMouse_EventLastPositionRelative = { 0, 0 };
         }
+        return;
+    }
+
+    if (!mParams->mMouseLocked && !mWindow->isFullscreen()) {
+        if (Mouse_IsOnBorder() && !mMouseButtonStatus) {
+            ReleaseCursor(true);
+            return;
+        }
+    }
+
+    // hack to avoid moving cursor on window resizing
+    if (mWindow->isResized()) {
+        mWindow->ClearResized();
+
     } else {
-        if (!mWindow->isFullscreen()) {
-            if (!mParams->mMouseLocked) {
-                cPosition BorderMouse = Mouse_GetOnBorderPosition();
-
-                // Cursor leaving window
-                if (BorderMouse.mX || BorderMouse.mY) {
-                    CursorGrabbed = false;
-                    mMouse_LeftWindow = SDL_GetTicks();
-
-                    mWindow->SetRelativeMouseMode(false);
-                    mWindow->SetMousePosition(BorderMouse);
-                    return;
-                }
-            }
-        }
-
-        // hack to avoid moving cursor on window resizing
-        if (mWindow->isResized()) {
-            mWindow->ClearResized();
-
+        if (CaptureBlockFrames > 0) {
+            --CaptureBlockFrames;
         } else {
-            if (WasClicked) {
-                if (!mWindow->isMouseButtonPressed_Global())
-                    WasClicked = false;
-            } else {
-                // Calc the distance from the cursor to the centre of the window
-                mInputMouseX = mMouseX + static_cast<int16>(mMouse_EventLastPositionRelative.mX);
-                mInputMouseY = mMouseY + static_cast<int16>(mMouse_EventLastPositionRelative.mY);
-                mMouse_EventLastPositionRelative = { 0,0 };
-            }
+            // Calc the distance from the cursor to the centre of the window
+            mInputMouseX = mMouseX + static_cast<int16>(mMouse_EventLastPositionRelative.mX);
+            mInputMouseY = mMouseY + static_cast<int16>(mMouse_EventLastPositionRelative.mY);
+            mMouse_EventLastPositionRelative = { 0,0 };
         }
     }
 }
 
-cPosition cFodder::Mouse_GetOnBorderPosition() {
-    cPosition BorderMouse;
-    const cPosition WindowPos = mWindow->GetWindowPosition();
+bool cFodder::Mouse_IsOnBorder() const {
     const cDimension ScreenSize = mWindow->GetScreenSize();
-    const cDimension WindowSize = mWindow->GetWindowSize();
-    const cDimension scale = mWindow->GetScale();
 
-    if ((mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY <= MOUSE_POSITION_Y_ADJUST) ||
-        (mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY <= MOUSE_POSITION_Y_ADJUST) ||
-        (mMouseX <= MOUSE_POSITION_X_ADJUST && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) ||
-        (mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1 && mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)) {
-        BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
-        BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
-    }
-    // Need to check if the game cursor is near a border on X axis
-    else if (mMouseX <= MOUSE_POSITION_X_ADJUST || mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1) {
-        BorderMouse.mX = mMouseX <= MOUSE_POSITION_X_ADJUST ? WindowPos.mX - 1 : WindowPos.mX + WindowSize.getWidth() + 1;
-        BorderMouse.mY = WindowPos.mY + (mMouseY - MOUSE_POSITION_Y_ADJUST) * scale.getHeight();
-    } // Need to check if the game cursor is near a border Y axis
-    else if (mMouseY <= MOUSE_POSITION_Y_ADJUST || mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1) {
-        BorderMouse.mX = WindowPos.mX + (mMouseX - MOUSE_POSITION_X_ADJUST) * scale.getWidth();
-        BorderMouse.mY = mMouseY <= MOUSE_POSITION_Y_ADJUST ? WindowPos.mY - 1 : WindowPos.mY + WindowSize.getHeight() + 1;
-    }
+    if (mMouseX <= MOUSE_POSITION_X_ADJUST)
+        return true;
+    if (mMouseX >= ScreenSize.getWidth() + MOUSE_POSITION_X_ADJUST - 1)
+        return true;
+    if (mMouseY <= MOUSE_POSITION_Y_ADJUST)
+        return true;
+    if (mMouseY >= ScreenSize.getHeight() + MOUSE_POSITION_Y_ADJUST - 1)
+        return true;
 
-    return BorderMouse;
+    return false;
 }
 
 void cFodder::Mouse_ReadInputs() {

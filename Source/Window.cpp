@@ -97,7 +97,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	}
 	
 	SDL_HideCursor();
-	
+
 	return true;
 }
 
@@ -160,6 +160,12 @@ void cWindow::EventCheck() {
 			Event.mType = eEvent_Focus;
 			Event.mHasFocus = true;
 			mHasFocus = true;
+			break;
+		case SDL_EVENT_WINDOW_MOUSE_ENTER:
+			Event.mType = eEvent_MouseEnter;
+			break;
+		case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+			Event.mType = eEvent_MouseLeave;
 			break;
 
 		case SDL_EVENT_KEY_DOWN:
@@ -503,6 +509,13 @@ void cWindow::SetMousePosition(const cPosition& pPosition) {
     SDL_WarpMouseGlobal((float)pPosition.getX(), (float)pPosition.getY());
 }
 
+void cWindow::SetMousePositionInWindow(float pX, float pY) {
+    if (!mWindow) {
+        return;
+    }
+    SDL_WarpMouseInWindow(mWindow, pX, pY);
+}
+
 void cWindow::SetScreenSize( const cDimension& pDimension ) {
 
 	mScreenSize = pDimension;
@@ -531,6 +544,17 @@ void cWindow::SetOriginalRes( const cDimension& pDimension ) {
 void cWindow::SetWindowTitle( const std::string& pWindowTitle ) {
 
 	SDL_SetWindowTitle( mWindow, pWindowTitle.c_str() );
+}
+
+bool cWindow::GetWindowBordersSize(int* pTop, int* pLeft, int* pBottom, int* pRight) const {
+    if (!mWindow) {
+        if (pTop) *pTop = 0;
+        if (pLeft) *pLeft = 0;
+        if (pBottom) *pBottom = 0;
+        if (pRight) *pRight = 0;
+        return false;
+    }
+    return SDL_GetWindowBordersSize(mWindow, pTop, pLeft, pBottom, pRight);
 }
 
 void cWindow::SetWindowSize( const int pMultiplier ) {

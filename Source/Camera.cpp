@@ -532,10 +532,9 @@ void cFodder::Camera_Pan_ComputeSpeed()
 
 void cFodder::Camera_Update_Mouse_Position_For_Pan()
 {
-
+    // Keep the in-game cursor over the same world position while the camera pans.
     if (!mMouse_Locked)
     {
-
         // Mouse in playfield?
         if (mMouseX > 0x0F)
         {

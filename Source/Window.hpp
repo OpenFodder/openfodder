@@ -74,6 +74,7 @@ class cWindow {
         bool                isMouseButtonPressed_Global() const;
 
         void				SetMousePosition(const cPosition& pPosition);
+        void                SetMousePositionInWindow(float pX, float pY);
 		void				SetMouseSpeed(float pSpeed);
 
 		void				SetScreenSize( const cDimension& pDimension );
@@ -81,6 +82,7 @@ class cWindow {
 
 		void				SetWindowTitle( const std::string& pWindowTitle );
 		void				SetWindowSize(const int pMultiplier);
+        bool                GetWindowBordersSize(int* pTop, int* pLeft, int* pBottom, int* pRight) const;
 
 		void				ToggleFullscreen();
 		void				ClearResized();
