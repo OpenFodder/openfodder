@@ -61,8 +61,9 @@ jobs:
           $runUrl = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           $artifactUrl = "${{ steps.upload_artifact.outputs.artifact-url }}"
           if (-not $artifactUrl) { $artifactUrl = "N/A" }
-          $commitMessage = "${{ github.event.head_commit.message }}"
-          if (-not $commitMessage) { $commitMessage = "${{ github.event.pull_request.title }}" }
+          $event = Get-Content $env:GITHUB_EVENT_PATH -Raw | ConvertFrom-Json
+          $commitMessage = $event.head_commit.message
+          if (-not $commitMessage) { $commitMessage = $event.pull_request.title }
           if (-not $commitMessage) { $commitMessage = "N/A" }
           $payload = @{
             username = "GitHub Actions"

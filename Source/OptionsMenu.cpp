@@ -499,8 +499,6 @@ std::string cOptionsMenu::FormatValue(const sOptItem& it) const {
 }
 
 void cOptionsMenu::Draw() {
-    const size_t YOffset = PLATFORM_BASED(0, 25);
-
     g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
@@ -509,7 +507,8 @@ void cOptionsMenu::Draw() {
     g_Fodder->String_Print_Large("OPTIONS", false, 0x01);
     g_Fodder->mString_GapCharID = 0;
 
-    const int rowBaseY = 0x20 + (int)YOffset + 0x10;
+    const int tabY = PLATFORM_BASED(0x1A, 0x18);
+    const int rowBaseY = tabY + 0x18;
     const int rowH = RowH();
     const int16 pageCount = 4;
     const char* pageLabels[pageCount] = { "VID", "IN", "SKIP", "ENG" };
@@ -537,7 +536,6 @@ void cOptionsMenu::Draw() {
 
     // Top page tabs
     {
-        const size_t tabY = 0x10 + YOffset;
         const size_t tabGap = 6;
         const size_t totalW = xRowR - xRowL + 1;
         const size_t tabW = (totalW - (tabGap * (pageCount - 1))) / pageCount;

@@ -149,8 +149,9 @@ jobs:
           $title = "OpenFodder Windows build $status (${{ matrix.arch }})"
           $runUrl = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           $artifactUrl = "https://s3.amazonaws.com/openfodder-builds/OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
-          $commitMessage = "${{ github.event.head_commit.message }}"
-          if (-not $commitMessage) { $commitMessage = "${{ github.event.pull_request.title }}" }
+          $event = Get-Content $env:GITHUB_EVENT_PATH -Raw | ConvertFrom-Json
+          $commitMessage = $event.head_commit.message
+          if (-not $commitMessage) { $commitMessage = $event.pull_request.title }
           if (-not $commitMessage) { $commitMessage = "N/A" }
           $payload = @{
             username = "GitHub Actions"
