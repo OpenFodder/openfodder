@@ -562,11 +562,7 @@ public:
     int16           mBriefingHelicopter_Moving;
     int16           mBriefingHelicopter_NotDone;
 
-    double          mBriefingHelicopter_AccumSeconds = 0.0;
-    double          mBriefingHelicopter_StepSeconds = 1.0 / 50.0;
     double          mBriefingHelicopter_TransitionCounterSeconds = 0;
-    double          mHeliParallax_SubPx = 0.0;     // accumulates fractional scroll in 16.16 units
-    double          mHeliText_SubPx = 0.0;		// accumulates fractional text movement in pixels
     float           mBriefingHelicopter_TimeScale = 1.0f;
 
     int16           mMouseButtonStatus;
