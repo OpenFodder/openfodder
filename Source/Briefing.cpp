@@ -108,7 +108,7 @@ void cFodder::Briefing_Helicopter_Check()
         if (mBriefingHelicopter_ScreenX > 0x30) {
 
             if (mBriefingHelicopter_TransitionCounterSeconds >= 2.0f) {
-                mBriefingHelicopter_TransitionCounterSeconds = 0.0f;
+                mBriefingHelicopter_TransitionCounterSeconds -= 2.0f;
                 if (mBriefingHelicopter_Moving < targetSteps) {
                     mBriefingHelicopter_Moving++;
                     mPaletteLevel++;
@@ -124,7 +124,7 @@ void cFodder::Briefing_Helicopter_Check()
     }
 
     if (mBriefingHelicopter_TransitionCounterSeconds >= 2.0f) {
-        mBriefingHelicopter_TransitionCounterSeconds = 0.0f;
+        mBriefingHelicopter_TransitionCounterSeconds -= 2.0f;
 
         if (mBriefingHelicopter_Moving == 0 && mBriefingHelicopter_NotDone) {
             mBriefingHelicopter_NotDone = 0;
