@@ -1444,18 +1444,13 @@ void cGraphics_Amiga::Briefing_Intro_Helicopter_Play(
 	mFodder->String_CalculateWidth(320, mFont_Underlined_Width, pBottom);
 	auto bottomTextPos = mFodder->mGUI_Temp_X - 4;
 
-	auto last = std::chrono::steady_clock::now();
-
 	do {
-		const auto now = std::chrono::steady_clock::now();
-		double dtSeconds = std::chrono::duration<double>(now - last).count();
-		last = now;
 
 		if (mSurface->isPaletteAdjusting())
 			mSurface->palette_FadeTowardNew();
 
-		mFodder->Briefing_Helicopter_Check(dtSeconds);
-		HeliIntro_TickParallaxAndText(dtSeconds);
+		mFodder->Briefing_Helicopter_Check();
+		HeliIntro_TickParallaxAndText();
 
 		mFodder->String_Print(mFont_Underlined_Width, 1,  -332 + (topTextPos + (Heli_TextPos)), 0x01, pTop);
 		mFodder->String_Print(mFont_Underlined_Width, 1, (Heli_TextPosBottom) + bottomTextPos, 0xB5 + 0x16, pBottom);

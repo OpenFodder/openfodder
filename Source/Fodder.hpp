@@ -567,6 +567,7 @@ public:
     double          mBriefingHelicopter_TransitionCounterSeconds = 0;
     double          mHeliParallax_SubPx = 0.0;     // accumulates fractional scroll in 16.16 units
     double          mHeliText_SubPx = 0.0;		// accumulates fractional text movement in pixels
+    float           mBriefingHelicopter_TimeScale = 1.0f;
 
     int16           mMouseButtonStatus;
     int16           mInputMouseX;
@@ -744,7 +745,7 @@ public:
     void            Briefing_Intro_Helicopter_Start();
 	void            Briefing_Intro_Helicopter_Draw_Mission_Name();
 
-    void            Briefing_Helicopter_Check(double dtSeconds);
+    void            Briefing_Helicopter_Check();
 
     void            CopyProtection();
     void            CopyProtection_EncodeInput();
@@ -799,7 +800,6 @@ public:
 
     int16           Squad_Join(sSprite* pSprite);
 
-    void            Briefing_Update_Helicopter_Frame(double dtSeconds);
 	void            Briefing_Update_Helicopter();
     
     std::string     Briefing_Get_Mission_Title();
