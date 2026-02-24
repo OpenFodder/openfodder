@@ -604,14 +604,14 @@ cDimension cWindow::GetScale() const {
     return Result;
 }
 
-int cWindow::GetRefreshRate() {
+float cWindow::GetRefreshRate() {
 	SDL_DisplayID display = mWindow ? SDL_GetDisplayForWindow(mWindow) : SDL_GetPrimaryDisplay();
 	const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(display);
 	if (!mode) {
 		std::cerr << "SDL_GetCurrentDisplayMode failed: " << SDL_GetError() << std::endl;
 		return 50; // Fallback to 50Hz if query fails
 	}
-	return (int)mode->refresh_rate;
+	return mode->refresh_rate;
 }
 
 bool cWindowNull::InitWindow(const std::string& pWindowTitle) {

@@ -103,7 +103,7 @@ class cWindow {
 
 		void				SetRelativeMouseMode(bool pEnable);
 		void				ToggleVSync(bool pEnabled);
-		int				GetRefreshRate();
+		float				GetRefreshRate();
 
 
 };

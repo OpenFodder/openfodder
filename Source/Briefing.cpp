@@ -108,7 +108,7 @@ void cFodder::Briefing_Helicopter_Check()
         if (mBriefingHelicopter_ScreenX > 0x30) {
 
             if (mBriefingHelicopter_TransitionCounterSeconds >= 2.0f) {
-                mBriefingHelicopter_TransitionCounterSeconds -= 2.0f;
+                mBriefingHelicopter_TransitionCounterSeconds = 0.0f;
                 if (mBriefingHelicopter_Moving < targetSteps) {
                     mBriefingHelicopter_Moving++;
                     mPaletteLevel++;
@@ -124,7 +124,7 @@ void cFodder::Briefing_Helicopter_Check()
     }
 
     if (mBriefingHelicopter_TransitionCounterSeconds >= 2.0f) {
-        mBriefingHelicopter_TransitionCounterSeconds -= 2.0f;
+        mBriefingHelicopter_TransitionCounterSeconds = 0.0f;
 
         if (mBriefingHelicopter_Moving == 0 && mBriefingHelicopter_NotDone) {
             mBriefingHelicopter_NotDone = 0;
@@ -166,8 +166,6 @@ std::string cFodder::Briefing_Get_Phase_Name() {
 /**
  * Draw the Mission Name or the Map Name
  *  Drawing at 0xB5 will cause the Mission Name to be drawn.
- *
- * @param pDrawAtY
  */
 void cFodder::Briefing_Draw_Mission_Title(int16 pDrawAtY) {
 
@@ -415,9 +413,8 @@ int16 cFodder::Briefing_Show() {
 }
 
 void cFodder::Briefing_Intro_Helicopter_Start() {
-
     if (mWindow->GetRefreshRate() > 0)
-        mBriefingHelicopter_TimeScale = 60.0f / (float)mWindow->GetRefreshRate();
+        mBriefingHelicopter_TimeScale = 60.0f / mWindow->GetRefreshRate();
     else
         mBriefingHelicopter_TimeScale = 1.0f;
     mBriefingHelicopter_TransitionCounterSeconds = 0.0;
