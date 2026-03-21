@@ -686,6 +686,7 @@ public:
 	virtual int16	Phase_Cycle();
     virtual int16   Phase_Loop();
 	void			Phase_Prepare();
+    virtual void    Phase_Prepare_Network() {}  // overridden by cFodderMultiplayer
     void            Phase_Paused();
 
     void            Interrupt_Sim();
@@ -1245,6 +1246,7 @@ public:
     void            GUI_Button_Load_Exit();
     void            GUI_Button_Show_About();
     void            GUI_Button_Show_Options();
+    void            GUI_Button_Show_Multiplayer();
     void            GUI_Button_Filename();
 
     int16           GUI_Button_NoAction();
@@ -1406,66 +1408,6 @@ public:
     void            eventProcess(const cEvent& pEvent);
     void            eventsProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
-
-#ifdef OPENFODDER_ENABLE_NETWORK
-    // -----------------------------------------------------------------------
-    // Cooperative multiplayer – GGPO integration
-    // -----------------------------------------------------------------------
-
-    // Initialise the GGPO session from mStartParams network fields.
-    bool            Network_Start();
-
-    // Shut down the GGPO session.
-    void            Network_Stop();
-
-    // Split alive troops evenly between squad 0 (P1) and squad 1 (P2).
-    // Must be called after Phase_Prepare has built the sprite lists.
-    void            Network_RedistributeSquads();
-
-    // Called once per mission frame (every 3 interrupt ticks) instead of
-    // the normal Video_Sleep() / Phase_Cycle() pairing.
-    // Returns the same codes as Phase_Cycle(): 1 = running, 0 = won, -1 = abort.
-    int16           Network_Tick();
-
-    // Collect the local player's current hardware input into `out`.
-    void            Network_GatherLocalInput(sNetworkInput& out);
-
-    // Apply a pair of synchronized GGPO inputs to the game-state variables
-    // that Mouse_Inputs_Check() and keyProcess() normally read.
-    void            Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
-
-    // Run one complete simulation frame (3 interrupt ticks + mission logic)
-    // with the given pre-synchronized inputs.  Called both normally and by
-    // GGPO during rollback replay.
-    bool            Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
-
-    // Network-aware GUI_Sidebar_Draw (highlights local player's squad).
-    void            Network_GUI_Sidebar_Draw();
-
-    // Network-aware version of Recruit_Show (no interactive recruitment).
-    int16           Network_Recruit_Show();
-
-    // Network-aware version of Briefing_Show (click-to-ready sync).
-    int16           Network_Briefing_Show();
-
-    // UDP ready-exchange between peers on the briefing screen.
-    void            Network_Briefing_ReadySync();
-
-    // Force-draw sidebar squad icons into mSidebar_Screen_Buffer with local player's squad highlighted.
-    // Called at render time (50 Hz) to guarantee correct icons reach the display.
-    void            Network_Sidebar_ForceSquadIcons();
-
-    // Render "WAITING FOR PLAYER" overlay during GGPO peer sync.
-    void            Network_Draw_WaitingForPlayer();
-
-    // Render the remote player's cursor on top of the frame.
-    void            Network_DrawP2Cursor();
-
-    // GGPO save / load state callbacks (called indirectly from GGPOSession).
-    bool            Network_SaveState(uint8_t** buffer, int* len, int* checksum);
-    bool            Network_LoadState(const uint8_t* buffer, int len);
-    void            Network_FreeBuffer(void* buffer);
-#endif // OPENFODDER_ENABLE_NETWORK
 
     void            Game_Setup();
 

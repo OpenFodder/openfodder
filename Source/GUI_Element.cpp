@@ -1413,6 +1413,12 @@ void cFodder::GUI_Button_Show_Options()
     mGUI_SaveLoadAction = 5;
 }
 
+void cFodder::GUI_Button_Show_Multiplayer()
+{
+    mGUI_Select_File_String_Input_Callback = 0;
+    mGUI_SaveLoadAction = 6;
+}
+
 void cFodder::GUI_Input_CheckKey()
 {
 

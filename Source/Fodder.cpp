@@ -226,9 +226,6 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
 
 cFodder::~cFodder()
 {
-#ifdef OPENFODDER_ENABLE_NETWORK
-    Network_Stop();
-#endif
     delete mSurfaceMapOverview;
 }
 
@@ -521,179 +518,12 @@ void cFodder::Phase_Prepare()
 
     mSurface->Save();
 
-#ifdef OPENFODDER_ENABLE_NETWORK
-    if (mStartParams->mNetworkEnabled) {
-        // Always stop and restart the GGPO session between phases.
-        // GGPO's internal rollback buffer retains save states from the previous
-        // phase; if a rollback reaches into the old phase's states the game
-        // state (map, sprites, etc.) would be completely wrong and likely crash.
-        if (mNetSession) {
-            g_Debugger->Notice("[GGPO] Phase_Prepare: stopping previous session.");
-            Network_Stop();
-        }
-        {
-            g_Debugger->Notice("[GGPO] Phase_Prepare: starting network session...");
-            if (!Network_Start())
-                g_Debugger->Error("[GGPO] Warning: failed to start network session; reverting to single-player.");
-        }
-
-        // Redistribute squads every phase — troops are reassigned between
-        // phases so the split must be reapplied each time.
-        if (mNetSession && mNetSession->IsRunning()) {
-            Network_RedistributeSquads();
-            // Reset P2's camera so it re-centres on the new squad 1 position.
-            mNet_P2CamInitialised = false;
-            // Reset per-player walk target memory for the new phase.
-            memset(mNet_WalkTargetX, 0, sizeof(mNet_WalkTargetX));
-            memset(mNet_WalkTargetY, 0, sizeof(mNet_WalkTargetY));
-            memset(mNet_CameraPanTargetX, 0, sizeof(mNet_CameraPanTargetX));
-            memset(mNet_CameraPanTargetY, 0, sizeof(mNet_CameraPanTargetY));
-        }
-    }
-#endif
+    Phase_Prepare_Network();
 }
 
 int16 cFodder::Phase_Loop()
 {
     int16 result = 1;
-
-#ifdef OPENFODDER_ENABLE_NETWORK
-    // In network mode the simulation is driven entirely by GGPO.
-    // Network_Tick() replaces the normal Phase_Cycle() / Video_Sleep()
-    // pair: it pumps GGPO, synchronises inputs from both peers, advances
-    // the frame (with potential rollback), and returns the same status
-    // codes as Phase_Cycle().
-    if (mStartParams->mNetworkEnabled && mNetSession && mNetSession->IsRunning())
-    {
-        //GetGraphics<cGraphics_Amiga>()->LoadP2CursorPalette();
-
-        int netInterruptTicks = 0;
-        bool wasWaiting = true;
-        bool mouseReleasedForWait = false;
-
-        while (!mExit)
-        {
-            // Wait for the next interrupt tick (~20 ms at default mSleepDelta).
-            // This keeps the rendering and cursor at the same 50 Hz rate as the
-            // normal interrupt-driven path.
-            mVideo_Ticked = false;
-            mVideo_Done   = true;
-            while (!mVideo_Ticked && !mExit)
-                SDL_Delay(1);
-
-            // Pump GGPO during the waiting phase so handshake packets flow.
-            mNetSession->Idle(0);
-
-            // While waiting for peer synchronization, show "WAITING FOR PLAYER"
-            // overlay and skip cursor / simulation updates.
-            if (!mNetSession->IsSessionReady())
-            {
-                // Release the mouse grab so the cursor isn't trapped in the window.
-                if (!mouseReleasedForWait) {
-                    mWindow->SetRelativeMouseMode(false);
-                    SDL_ShowCursor();
-                    mouseReleasedForWait = true;
-                }
-                std::lock_guard<std::mutex> lock(mSurfaceMtx);
-                if (!mStartParams->mDisableVideo)
-                {
-                    mGraphics->MapTiles_Draw();
-                    Sprites_Draw();
-                    mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
-
-                    // Draw the waiting overlay on surface2, composited on top.
-                    Network_Draw_WaitingForPlayer();
-                    mSurface->draw();
-                    mSurface2->draw();
-                    mSurface->mergeSurfaceBuffer(mSurface2);
-                    mWindow->RenderAt(mSurface);
-                    mWindow->FrameEnd();
-                }
-                mWindow->Cycle();
-                eventsProcess();
-                continue;
-            }
-
-            // First frame after peer sync completes: restore palette and recapture mouse.
-            if (wasWaiting) {
-                wasWaiting = false;
-                mGraphics->PaletteSet();
-                mSurface->palette_SetFromNew();
-                mSurface->surfaceSetToPalette();
-                if (mouseReleasedForWait) {
-                    mouseReleasedForWait = false;
-                    SDL_HideCursor();
-                    mWindow->SetRelativeMouseMode(true);
-                }
-            }
-
-            // Update local cursor position at 50 Hz — matches the normal game
-            // where Interrupt_Redraw → Mouse_ReadInputs → Mouse_Cursor_Handle
-            // runs at interrupt rate.  We also maintain mNet_LocalCursorWorldX/Y
-            // which is the SDL-only cursor in world space, used exclusively by
-            // Network_GatherLocalInput to avoid feeding GGPO-derived positions
-            // back through the network.
-            Mouse_Cursor_Handle();
-            {
-                // Same clamping as Mouse_ReadInputs() (Mouse.cpp).
-                // MOUSE_POSITION_X_ADJUST = -32, MOUSE_POSITION_Y_ADJUST = 4
-                const int16 xAdj = -32, yAdj = 4;
-                int16 clampedX = mInputMouseX;
-                int16 clampedY = mInputMouseY;
-                const int16 minX = mSidebar_SmallMode ? (xAdj + 16) : xAdj;
-                const int16 maxX = static_cast<int16>(mWindow->GetScreenSize().getWidth() + xAdj - 1);
-                const int16 maxY = static_cast<int16>(mWindow->GetScreenSize().getHeight() + yAdj - 1);
-                if (clampedX < minX) clampedX = minX;
-                if (clampedX > maxX) clampedX = maxX;
-                if (clampedY < yAdj) clampedY = yAdj;
-                if (clampedY > maxY) clampedY = maxY;
-                mMouseX = clampedX;
-                mMouseY = clampedY;
-
-                // Only update the SDL world cursor when the window is focused.
-                // When unfocused, Mouse_Cursor_Handle picks up the OTHER
-                // player's physical mouse via SDL_GetMouseState (same-machine
-                // testing), which would corrupt mNet_LocalCursorWorldX and
-                // feed wrong positions into GGPO via Network_GatherLocalInput.
-                if (mWindow_Focus) {
-                    mNet_LocalCursorWorldX = static_cast<int16>(clampedX + static_cast<int16>(mCameraX >> 16));
-                    mNet_LocalCursorWorldY = static_cast<int16>(clampedY + static_cast<int16>(mCameraY >> 16));
-                }
-            }
-
-            // Render every interrupt tick (50 Hz).
-            {
-                std::lock_guard<std::mutex> lock(mSurfaceMtx);
-                if (!mStartParams->mDisableVideo)
-                {
-                    mGraphics->MapTiles_Draw();
-                    Sprites_Draw();
-                    //Network_DrawP2Cursor();
-                    Network_Sidebar_ForceSquadIcons();
-                    mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
-                    Mouse_DrawCursor();
-                    Video_SurfaceRender(false, false);
-                    mSurface->Restore();
-                }
-            }
-            mWindow->Cycle();
-            eventsProcess();
-
-            // Run the simulation every 3 interrupt ticks (~60 ms) — same
-            // cadence as the original Phase_Cycle which waits for
-            // mPhase_InterruptTicks >= 3.
-            if (++netInterruptTicks >= 3)
-            {
-                netInterruptTicks = 0;
-
-                result = Network_Tick();
-                if (result != 1)
-                    return result;
-            }
-        }
-        return -1;
-    }
-#endif // OPENFODDER_ENABLE_NETWORK
 
     // -1 = Phase Try Again
     //  0 = Phase Won
@@ -3967,11 +3797,6 @@ int16 cFodder::Mission_Loop()
             {
                 mGame_Data.mMission_Recruitment = 0;
 
-#ifdef OPENFODDER_ENABLE_NETWORK
-                if (mStartParams->mNetworkEnabled) {
-                    Network_Recruit_Show();
-                } else
-#endif
                 {
                     switch (Recruit_Show())
                     {
@@ -3995,11 +3820,6 @@ int16 cFodder::Mission_Loop()
 
         WindowTitleSet(true);
 
-#ifdef OPENFODDER_ENABLE_NETWORK
-        if (mStartParams->mNetworkEnabled) {
-            Network_Briefing_Show();
-        } else
-#endif
         {
             switch (Briefing_Show())
             {
@@ -4033,12 +3853,6 @@ int16 cFodder::Mission_Loop()
         {
             mKeyCode = 0;
             mPhase_In_Progress = false;
-#ifdef OPENFODDER_ENABLE_NETWORK
-            // Stop the GGPO session so the interrupt thread resumes normal
-            // operation for between-phase screens (service, recruit, briefing).
-            if (mStartParams->mNetworkEnabled)
-                Network_Stop();
-#endif
             Squad_Member_PhaseCount();
             mPhase_TryingAgain = true;
         }
@@ -4046,10 +3860,6 @@ int16 cFodder::Mission_Loop()
         {
             mKeyCode = 0;
             mPhase_In_Progress = false;
-#ifdef OPENFODDER_ENABLE_NETWORK
-            if (mStartParams->mNetworkEnabled)
-                Network_Stop();
-#endif
 
             // Game over?
             if (!mGame_Data.mRecruits_Available_Count)

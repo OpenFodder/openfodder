@@ -87,6 +87,11 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     String_Print_Large(pTitle, true, 0x01);
     mString_GapCharID = 0x00;
 
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled)
+        String_Print_Large("MULTIPLAYER", false, 0x18);
+    else
+#endif
     String_Print_Large(pSubTitle, false, 0x18);
 
     if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
@@ -106,6 +111,10 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     GUI_Button_Draw_SmallAt("OPTIONS", 0xA, 0x9C + YOffset);
     GUI_Button_Setup(&cFodder::GUI_Button_Show_Options);
 
+#ifdef OPENFODDER_ENABLE_NETWORK
+    GUI_Button_Draw_SmallAt("MULTIPLAYER", 0xA, 0x85 + YOffset);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_Multiplayer);
+#endif
 
     int16 ItemCount = 0;
 
@@ -443,6 +452,44 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
         mSurface->palette_FadeTowardNew();
         mSurface->Save();
     }
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mGUI_SaveLoadAction == 6) {
+        auto* mp = dynamic_cast<cFodderMultiplayer*>(this);
+        if (mp && mp->Multiplayer_Menu_Run()) {
+
+            if (mp->mLobby) {
+                // Network mode with lobby — enter lobby campaign selection
+                mp->Lobby_CampaignSelection();
+                mp->mLobby->Stop();
+                mp->mLobby.reset();
+
+                if (mStartParams->mNetworkEnabled) {
+                    // Campaign selected, both players agreed — exit with selection
+                    mGUI_SaveLoadAction = 2;
+                    return;
+                }
+            } else {
+                // Sync test mode — return to normal campaign selection
+                // with network enabled, user picks campaign normally
+                mGUI_SaveLoadAction = 0;
+                mMouse_Button_Left_Toggle = 0;
+                mGraphics->PaletteSet();
+                mSurface->palette_FadeTowardNew();
+                mSurface->Save();
+                return;
+            }
+        }
+
+        // Cancelled or failed — return to campaign selection
+        mStartParams->mNetworkEnabled = false;
+        mGUI_SaveLoadAction = 0;
+        mMouse_Button_Left_Toggle = 0;
+        mGraphics->PaletteSet();
+        mSurface->palette_FadeTowardNew();
+        mSurface->Save();
+    }
+#endif
 
 	GUI_Button_Load_MouseWheel();
 }

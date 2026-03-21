@@ -30,7 +30,11 @@ int start(int argc, char *argv[]) {
 	g_Debugger = std::make_shared<cDebugger>();
 	g_Window = std::make_shared<cWindow>();
 	g_ResourceMan = std::make_shared<cResourceMan>();
+#ifdef OPENFODDER_ENABLE_NETWORK
+	g_Fodder = std::make_shared<cFodderMultiplayer>(g_Window);
+#else
 	g_Fodder = std::make_shared<cFodder>(g_Window);
+#endif
 
 	auto Params = std::make_shared<sFodderParameters>();
 

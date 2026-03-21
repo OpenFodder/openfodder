@@ -19,6 +19,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
+#define NOMINMAX 
 
 #include <iostream>
 #include <string>
@@ -160,6 +161,10 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "About.hpp"
 #include "UnitTesting.hpp"
+
+#include "Network/NetworkLobby.hpp"
+#include "Network/MultiplayerMenu.hpp"
+#include "Network/FodderMultiplayer.hpp"
 
 #include "ScriptingEngine.hpp"
 

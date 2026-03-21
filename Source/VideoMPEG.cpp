@@ -511,7 +511,7 @@ void cVideoMPEG::Render() {
 
 	int window_w = 0;
 	int window_h = 0;
-	if (SDL_GetRenderOutputSize(renderer, &window_w, &window_h) < 0 || window_w <= 0 || window_h <= 0) {
+	if (!SDL_GetRenderOutputSize(renderer, &window_w, &window_h) || window_w <= 0 || window_h <= 0) {
 		cDimension window = g_Window->GetWindowSize();
 		window_w = (int)window.mWidth;
 		window_h = (int)window.mHeight;

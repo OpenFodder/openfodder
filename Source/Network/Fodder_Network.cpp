@@ -112,7 +112,7 @@ struct sReader {
 // Camera state save / restore helpers
 // ============================================================
 
-void cFodder::Network_CameraSave(sNetCameraState& s) {
+void cFodderMultiplayer::Network_CameraSave(sNetCameraState& s) {
     s.CameraX                        = mCameraX;
     s.CameraY                        = mCameraY;
     s.MapTile_Ptr                    = mMapTile_Ptr;
@@ -164,7 +164,7 @@ void cFodder::Network_CameraSave(sNetCameraState& s) {
     s.Mouse_Locked                   = mMouse_Locked;
 }
 
-void cFodder::Network_CameraRestore(const sNetCameraState& s) {
+void cFodderMultiplayer::Network_CameraRestore(const sNetCameraState& s) {
     mCameraX                          = s.CameraX;
     mCameraY                          = s.CameraY;
     mMapTile_Ptr                      = s.MapTile_Ptr;
@@ -220,7 +220,7 @@ void cFodder::Network_CameraRestore(const sNetCameraState& s) {
 // Network_Start
 // ============================================================
 
-bool cFodder::Network_Start() {
+bool cFodderMultiplayer::Network_Start() {
     g_Debugger->Notice("[GGPO] Network_Start: player=" + std::to_string(mStartParams->mNetworkPlayerIndex) +
                        " host=" + mStartParams->mNetworkRemoteHost +
                        " remotePort=" + std::to_string(mStartParams->mNetworkRemotePort) +
@@ -290,7 +290,7 @@ bool cFodder::Network_Start() {
 // Network_Stop
 // ============================================================
 
-void cFodder::Network_Stop() {
+void cFodderMultiplayer::Network_Stop() {
     if (mNetSession) {
         mNetSession->Stop();
         mNetSession.reset();
@@ -305,7 +305,7 @@ void cFodder::Network_Stop() {
 // that Sidebar_Copy_To_Surface reads from.
 // ============================================================
 
-void cFodder::Network_Sidebar_ForceSquadIcons() {
+void cFodderMultiplayer::Network_Sidebar_ForceSquadIcons() {
     // Ensure we draw directly into the screen buffer (the one
     // Sidebar_Copy_To_Surface_Common reads from).
     uint16* savedBufPtr = mSidebar_Screen_BufferPtr;
@@ -359,7 +359,7 @@ void cFodder::Network_Sidebar_ForceSquadIcons() {
 // highlight for whoever is playing on this machine.
 // ============================================================
 
-void cFodder::Network_GUI_Sidebar_Draw() {
+void cFodderMultiplayer::Network_GUI_Sidebar_Draw() {
     // --- Simulation logic (deterministic, mSquad_Selected = 0) ---
     Mission_Final_TimeToDie();
 
@@ -417,7 +417,7 @@ void cFodder::Network_GUI_Sidebar_Draw() {
 // Always returns 0 (success) — no abort path in network mode.
 // ============================================================
 
-int16 cFodder::Network_Recruit_Show() {
+int16 cFodderMultiplayer::Network_Recruit_Show() {
     Map_Load();
     Map_Load_Sprites();
 
@@ -431,7 +431,72 @@ int16 cFodder::Network_Recruit_Show() {
     if (!mStartParams->mDisableSound)
         mSound->Music_Play(0);
 
-    // Skip interactive Recruit_Loop — both machines use the default selection.
+    // Show the recruitment hill non-interactively.
+    // Both machines auto-select defaults — no interactive recruitment.
+    if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat() ||
+        mVersionCurrent->isRandom() || mCustom_Mode == eCustomMode_Set)
+    {
+        mRecruit_Screen_Active = true;
+        mSurface->clearBuffer();
+
+        if (mVersionCurrent->isDemo() && mCustom_Mode == eCustomMode_Set)
+            VersionSwitch(mVersionDefault);
+
+        if (!mVersionCurrent->isDemo()) {
+            mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
+            Mouse_Setup();
+            Sidebar_Clear_ScreenBufferPtr();
+            Recruit_Prepare();
+
+            mGUI_Mouse_Modifier_X = 0;
+            mGUI_Mouse_Modifier_Y = 0x1D;
+            mMouseCursor_Enabled = -1;
+
+            Recruit_Prepare_Anims();
+            Recruit_Update_Actors();
+            Recruit_Update_Actors();
+
+            mSurfaceRecruit->copyFrom(mSurface);
+
+            // Display the hill for a few seconds (non-interactive)
+            mInterruptCallback = [this]() {
+                int16 DataC = PLATFORM_BASED(0xB6, 0xBE);
+                GUI_Draw_Frame_8(0x22, mRecruit_Truck_Frame, 0x31, DataC);
+
+                Recruit_Draw_Soldiers();
+                mGraphics->Sidebar_Copy_To_Surface(0x18);
+
+                if (mVersionCurrent->isPC())
+                    mGraphics->Recruit_Draw_HomeAway();
+
+                if (mSurface->isPaletteAdjusting())
+                    mSurface->palette_FadeTowardNew();
+
+                mSurfaceRecruit->copyFrom(mSurface);
+            };
+
+            mMouse_Exit_Loop = false;
+            for (int frames = 0; frames < 100 && !mExit; ++frames) {
+                {
+                    std::lock_guard<std::mutex> lock(mSurfaceMtx);
+                    Recruit_Update_Actors();
+                }
+
+                if (mMouse_Exit_Loop) {
+                    mMouse_Exit_Loop = false;
+                    break;
+                }
+
+                Video_Sleep(mSurfaceRecruit, false, false);
+                Video_Sleep(mSurfaceRecruit, false, false);
+            }
+
+            mInterruptCallback = nullptr;
+            mMouseCursor_Enabled = 0;
+        }
+
+        mRecruit_Screen_Active = false;
+    }
 
     mRecruit_Mission_Restarting = false;
     GameData_Backup();
@@ -442,6 +507,12 @@ int16 cFodder::Network_Recruit_Show() {
     if (mVersionCurrent->isRetail() ||
         mCustom_Mode != eCustomMode_None)
     {
+        // Ensure any lingering palette fade from the recruit hill is
+        // fully resolved before the helicopter intro sets its own
+        // palette — otherwise the two palettes fight, causing flicker.
+        mSurface->palette_SetFromNew();
+        mSurface->surfaceSetToPalette();
+
         Map_Load();
         Briefing_Intro_Helicopter_Play(false, mMapLoaded->getTileType());
     }
@@ -462,7 +533,7 @@ int16 cFodder::Network_Recruit_Show() {
 // Always returns 1 (continue to phase).
 // ============================================================
 
-int16 cFodder::Network_Briefing_Show() {
+int16 cFodderMultiplayer::Network_Briefing_Show() {
     if (mVersionCurrent->isDemo() && mVersionDefault->isDemo())
         return 1;
 
@@ -529,7 +600,7 @@ int16 cFodder::Network_Briefing_Show() {
 // Shows "WAITING FOR PLAYER X" overlay while waiting.
 // ============================================================
 
-void cFodder::Network_Briefing_ReadySync() {
+void cFodderMultiplayer::Network_Briefing_ReadySync() {
     const uint32_t READY_MAGIC = 0x52445921; // "RDY!"
 
 #ifdef WIN32
@@ -672,7 +743,7 @@ void cFodder::Network_Briefing_ReadySync() {
 // Network_GatherLocalInput
 // ============================================================
 
-void cFodder::Network_GatherLocalInput(sNetworkInput& out) {
+void cFodderMultiplayer::Network_GatherLocalInput(sNetworkInput& out) {
     memset(&out, 0, sizeof(out));
 
     // Use the SDL-derived world cursor that the 50 Hz render loop maintains.
@@ -704,7 +775,7 @@ void cFodder::Network_GatherLocalInput(sNetworkInput& out) {
 // squad 0 (P1) and squad 1 (P2), then rebuilds the squad lists.
 // ============================================================
 
-void cFodder::Network_RedistributeSquads() {
+void cFodderMultiplayer::Network_RedistributeSquads() {
     int idx = 0;
     for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
@@ -747,7 +818,7 @@ void cFodder::Network_RedistributeSquads() {
 // Cursor/squad ordering is handled per-player in Network_AdvanceFrame.
 // ============================================================
 
-void cFodder::Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]) {
+void cFodderMultiplayer::Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]) {
     const sNetworkInput& p1 = inputs[eNetPlayer_1];
     const sNetworkInput& p2 = inputs[eNetPlayer_2];
 
@@ -791,7 +862,7 @@ void cFodder::Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS
 // advance_frame callback (during rollback replay).
 // ============================================================
 
-bool cFodder::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]) {
+bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]) {
     // --- Desync diagnostic: log RNG + sprite checksum at frame entry ---
     {
         FILE* sl = SyncLog_Get(mNetLocalPlayerIndex);
@@ -1151,7 +1222,7 @@ bool cFodder::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYER
 // Returns: 1 = running, 0 = phase won, -1 = phase aborted.
 // ============================================================
 
-int16 cFodder::Network_Tick() {
+int16 cFodderMultiplayer::Network_Tick() {
     if (!mNetSession || !mNetSession->IsRunning())
         return -1;
 
@@ -1282,7 +1353,7 @@ int16 cFodder::Network_Tick() {
 // first simulation frame).  Modelled on Draw_Phase_Paused.
 // ============================================================
 
-void cFodder::Network_Draw_WaitingForPlayer() {
+void cFodderMultiplayer::Network_Draw_WaitingForPlayer() {
     mSurface2->clearBuffer();
 
     mGraphics->PaletteSet(mSurface2);
@@ -1314,7 +1385,7 @@ void cFodder::Network_Draw_WaitingForPlayer() {
 // on top of the game surface.
 // ============================================================
 
-void cFodder::Network_DrawP2Cursor() {
+void cFodderMultiplayer::Network_DrawP2Cursor() {
     if (!mNetSession || !mNetSession->IsRunning()) return;
     if (!mSurface || !mPhase_In_Progress) return;
 
@@ -1377,7 +1448,7 @@ void cFodder::Network_DrawP2Cursor() {
 // GGPO will call Network_FreeBuffer when done with it.
 // ============================================================
 
-bool cFodder::Network_SaveState(uint8_t** buffer, int* len, int* checksum) {
+bool cFodderMultiplayer::Network_SaveState(uint8_t** buffer, int* len, int* checksum) {
     sWriter w;
 
     // --- Magic header ---
@@ -1705,7 +1776,7 @@ bool cFodder::Network_SaveState(uint8_t** buffer, int* len, int* checksum) {
 // Restore simulation state from a GGPO-managed buffer.
 // ============================================================
 
-bool cFodder::Network_LoadState(const uint8_t* buffer, int len) {
+bool cFodderMultiplayer::Network_LoadState(const uint8_t* buffer, int len) {
     sReader r(buffer, (size_t)len);
 
     // --- Header ---
@@ -2044,7 +2115,7 @@ bool cFodder::Network_LoadState(const uint8_t* buffer, int len) {
 // Network_FreeBuffer
 // ============================================================
 
-void cFodder::Network_FreeBuffer(void* buffer) {
+void cFodderMultiplayer::Network_FreeBuffer(void* buffer) {
     free(buffer);
 }
 
