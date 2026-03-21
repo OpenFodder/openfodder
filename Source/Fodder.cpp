@@ -102,6 +102,16 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
 
     mSoundEffectToPlay = 0;
     mBriefing_Aborted = 0;
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    mNetLocalPlayerIndex = 0;
+    mNetFrameCount       = 0;
+    mNet_P2_CursorX      = 0;
+    mNet_P2_CursorY      = 0;
+    mNet_RemoteCursorSprite = 0;
+    mNetKeyFlagsLocal    = 0;
+    memset(mNetInputs, 0, sizeof(mNetInputs));
+#endif
     mGUI_Mouse_Modifier_X = 0;
     mGUI_Mouse_Modifier_Y = 0;
 
@@ -216,7 +226,9 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
 
 cFodder::~cFodder()
 {
-
+#ifdef OPENFODDER_ENABLE_NETWORK
+    Network_Stop();
+#endif
     delete mSurfaceMapOverview;
 }
 
@@ -421,6 +433,12 @@ void cFodder::Phase_Paused()
 
 void cFodder::Phase_Prepare()
 {
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // Seed the RNG BEFORE any setup code so both machines produce identical
+    // enemy placement, aggression, and sprite initialisation.
+    if (mStartParams->mNetworkEnabled)
+        mRandom.setSeed(0x1337);
+#endif
 
     Map_Load();
     Map_Load_Sprites();
@@ -502,11 +520,180 @@ void cFodder::Phase_Prepare()
     Window_UpdateScreenSize();
 
     mSurface->Save();
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled) {
+        // Always stop and restart the GGPO session between phases.
+        // GGPO's internal rollback buffer retains save states from the previous
+        // phase; if a rollback reaches into the old phase's states the game
+        // state (map, sprites, etc.) would be completely wrong and likely crash.
+        if (mNetSession) {
+            g_Debugger->Notice("[GGPO] Phase_Prepare: stopping previous session.");
+            Network_Stop();
+        }
+        {
+            g_Debugger->Notice("[GGPO] Phase_Prepare: starting network session...");
+            if (!Network_Start())
+                g_Debugger->Error("[GGPO] Warning: failed to start network session; reverting to single-player.");
+        }
+
+        // Redistribute squads every phase — troops are reassigned between
+        // phases so the split must be reapplied each time.
+        if (mNetSession && mNetSession->IsRunning()) {
+            Network_RedistributeSquads();
+            // Reset P2's camera so it re-centres on the new squad 1 position.
+            mNet_P2CamInitialised = false;
+            // Reset per-player walk target memory for the new phase.
+            memset(mNet_WalkTargetX, 0, sizeof(mNet_WalkTargetX));
+            memset(mNet_WalkTargetY, 0, sizeof(mNet_WalkTargetY));
+            memset(mNet_CameraPanTargetX, 0, sizeof(mNet_CameraPanTargetX));
+            memset(mNet_CameraPanTargetY, 0, sizeof(mNet_CameraPanTargetY));
+        }
+    }
+#endif
 }
 
 int16 cFodder::Phase_Loop()
 {
     int16 result = 1;
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // In network mode the simulation is driven entirely by GGPO.
+    // Network_Tick() replaces the normal Phase_Cycle() / Video_Sleep()
+    // pair: it pumps GGPO, synchronises inputs from both peers, advances
+    // the frame (with potential rollback), and returns the same status
+    // codes as Phase_Cycle().
+    if (mStartParams->mNetworkEnabled && mNetSession && mNetSession->IsRunning())
+    {
+        //GetGraphics<cGraphics_Amiga>()->LoadP2CursorPalette();
+
+        int netInterruptTicks = 0;
+        bool wasWaiting = true;
+        bool mouseReleasedForWait = false;
+
+        while (!mExit)
+        {
+            // Wait for the next interrupt tick (~20 ms at default mSleepDelta).
+            // This keeps the rendering and cursor at the same 50 Hz rate as the
+            // normal interrupt-driven path.
+            mVideo_Ticked = false;
+            mVideo_Done   = true;
+            while (!mVideo_Ticked && !mExit)
+                SDL_Delay(1);
+
+            // Pump GGPO during the waiting phase so handshake packets flow.
+            mNetSession->Idle(0);
+
+            // While waiting for peer synchronization, show "WAITING FOR PLAYER"
+            // overlay and skip cursor / simulation updates.
+            if (!mNetSession->IsSessionReady())
+            {
+                // Release the mouse grab so the cursor isn't trapped in the window.
+                if (!mouseReleasedForWait) {
+                    mWindow->SetRelativeMouseMode(false);
+                    SDL_ShowCursor();
+                    mouseReleasedForWait = true;
+                }
+                std::lock_guard<std::mutex> lock(mSurfaceMtx);
+                if (!mStartParams->mDisableVideo)
+                {
+                    mGraphics->MapTiles_Draw();
+                    Sprites_Draw();
+                    mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
+
+                    // Draw the waiting overlay on surface2, composited on top.
+                    Network_Draw_WaitingForPlayer();
+                    mSurface->draw();
+                    mSurface2->draw();
+                    mSurface->mergeSurfaceBuffer(mSurface2);
+                    mWindow->RenderAt(mSurface);
+                    mWindow->FrameEnd();
+                }
+                mWindow->Cycle();
+                eventsProcess();
+                continue;
+            }
+
+            // First frame after peer sync completes: restore palette and recapture mouse.
+            if (wasWaiting) {
+                wasWaiting = false;
+                mGraphics->PaletteSet();
+                mSurface->palette_SetFromNew();
+                mSurface->surfaceSetToPalette();
+                if (mouseReleasedForWait) {
+                    mouseReleasedForWait = false;
+                    SDL_HideCursor();
+                    mWindow->SetRelativeMouseMode(true);
+                }
+            }
+
+            // Update local cursor position at 50 Hz — matches the normal game
+            // where Interrupt_Redraw → Mouse_ReadInputs → Mouse_Cursor_Handle
+            // runs at interrupt rate.  We also maintain mNet_LocalCursorWorldX/Y
+            // which is the SDL-only cursor in world space, used exclusively by
+            // Network_GatherLocalInput to avoid feeding GGPO-derived positions
+            // back through the network.
+            Mouse_Cursor_Handle();
+            {
+                // Same clamping as Mouse_ReadInputs() (Mouse.cpp).
+                // MOUSE_POSITION_X_ADJUST = -32, MOUSE_POSITION_Y_ADJUST = 4
+                const int16 xAdj = -32, yAdj = 4;
+                int16 clampedX = mInputMouseX;
+                int16 clampedY = mInputMouseY;
+                const int16 minX = mSidebar_SmallMode ? (xAdj + 16) : xAdj;
+                const int16 maxX = static_cast<int16>(mWindow->GetScreenSize().getWidth() + xAdj - 1);
+                const int16 maxY = static_cast<int16>(mWindow->GetScreenSize().getHeight() + yAdj - 1);
+                if (clampedX < minX) clampedX = minX;
+                if (clampedX > maxX) clampedX = maxX;
+                if (clampedY < yAdj) clampedY = yAdj;
+                if (clampedY > maxY) clampedY = maxY;
+                mMouseX = clampedX;
+                mMouseY = clampedY;
+
+                // Only update the SDL world cursor when the window is focused.
+                // When unfocused, Mouse_Cursor_Handle picks up the OTHER
+                // player's physical mouse via SDL_GetMouseState (same-machine
+                // testing), which would corrupt mNet_LocalCursorWorldX and
+                // feed wrong positions into GGPO via Network_GatherLocalInput.
+                if (mWindow_Focus) {
+                    mNet_LocalCursorWorldX = static_cast<int16>(clampedX + static_cast<int16>(mCameraX >> 16));
+                    mNet_LocalCursorWorldY = static_cast<int16>(clampedY + static_cast<int16>(mCameraY >> 16));
+                }
+            }
+
+            // Render every interrupt tick (50 Hz).
+            {
+                std::lock_guard<std::mutex> lock(mSurfaceMtx);
+                if (!mStartParams->mDisableVideo)
+                {
+                    mGraphics->MapTiles_Draw();
+                    Sprites_Draw();
+                    //Network_DrawP2Cursor();
+                    Network_Sidebar_ForceSquadIcons();
+                    mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
+                    Mouse_DrawCursor();
+                    Video_SurfaceRender(false, false);
+                    mSurface->Restore();
+                }
+            }
+            mWindow->Cycle();
+            eventsProcess();
+
+            // Run the simulation every 3 interrupt ticks (~60 ms) — same
+            // cadence as the original Phase_Cycle which waits for
+            // mPhase_InterruptTicks >= 3.
+            if (++netInterruptTicks >= 3)
+            {
+                netInterruptTicks = 0;
+
+                result = Network_Tick();
+                if (result != 1)
+                    return result;
+            }
+        }
+        return -1;
+    }
+#endif // OPENFODDER_ENABLE_NETWORK
 
     // -1 = Phase Try Again
     //  0 = Phase Won
@@ -598,6 +785,18 @@ void cFodder::Interrupt_Redraw()
     {
         std::lock_guard<std::mutex> lock(mSurfaceMtx);
 
+#ifdef OPENFODDER_ENABLE_NETWORK
+        // During active GGPO gameplay the main thread owns all rendering;
+        // the interrupt thread just signals Video_Sleep callers.
+        // Between phases the session is stopped (see Mission_Loop), so the
+        // normal interrupt path runs for scroll animations and palette fades.
+        if (mStartParams->mNetworkEnabled && mNetSession && mNetSession->IsRunning()) {
+            mVideo_Done    = false;
+            mVideo_Ticked  = true;
+            return;
+        }
+#endif
+
         if (mParams->mDemoPlayback || mParams->mDemoRecord)
             mGame_Data.mDemoRecorded.Tick();
 
@@ -673,6 +872,14 @@ void cFodder::Interrupt_Sim_Tick()
 
 void cFodder::Phase_Loop_Interrupt()
 {
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // During active GGPO gameplay, simulation and input handling are done
+    // inside Network_AdvanceFrame / Network_Tick.  Between phases the
+    // session is stopped (see Mission_Loop), so the normal interrupt path
+    // runs for input, scroll animations, and palette fades.
+    if (mStartParams->mNetworkEnabled && mNetSession && mNetSession->IsRunning())
+        return;
+#endif
 
     // Input disabled or Mission not paused?
     if (!mInput_Enabled || !mPhase_Paused)
@@ -2176,8 +2383,15 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed)
 
     if (pKeyCode == SDL_SCANCODE_ESCAPE && pPressed)
     {
-        mPhase_Aborted = true;
-        mPhase_EscapeKeyAbort = true;
+#ifdef OPENFODDER_ENABLE_NETWORK
+        if (mStartParams->mNetworkEnabled)
+            mNetKeyFlagsLocal |= eNetKey_Escape;
+        else
+#endif
+        {
+            mPhase_Aborted = true;
+            mPhase_EscapeKeyAbort = true;
+        }
     }
     // In Mission and not on map overview
     if (mPhase_In_Progress && !mPhase_ShowMapOverview)
@@ -2191,32 +2405,52 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed)
                 mKeyControlPressed = 0;
         }
 
-        if (pKeyCode == SDL_SCANCODE_P && pPressed)
+        if (pKeyCode == SDL_SCANCODE_P && pPressed) {
+#ifdef OPENFODDER_ENABLE_NETWORK
+            if (mStartParams->mNetworkEnabled)
+                mNetKeyFlagsLocal |= eNetKey_Pause;
+            else
+#endif
             if(!mPhase_ShowMapOverview)
                 mPhase_Paused = !mPhase_Paused;
+        }
 
         if (pKeyCode == SDL_SCANCODE_SPACE && pPressed)
             ++mSquad_SwitchWeapon;
 
         if (pKeyCode == SDL_SCANCODE_M && pPressed)
         {
+#ifdef OPENFODDER_ENABLE_NETWORK
+            if (mStartParams->mNetworkEnabled)
+                mNetKeyFlagsLocal |= eNetKey_Map;
+            else
+#endif
             if (mPhase_Finished == false && !mPhase_Paused)
                 mPhase_ShowMapOverview = -1;
         }
 
         if (pKeyCode == SDL_SCANCODE_1 && pPressed)
         {
+#ifdef OPENFODDER_ENABLE_NETWORK
+            if (!mStartParams->mNetworkEnabled)
+#endif
             if (mSquads_TroopCount[0])
                 Squad_Select(0, false);
         }
 
         if (pKeyCode == SDL_SCANCODE_2 && pPressed)
         {
+#ifdef OPENFODDER_ENABLE_NETWORK
+            if (!mStartParams->mNetworkEnabled)
+#endif
             if (mSquads_TroopCount[1])
                 Squad_Select(1, false);
         }
         if (pKeyCode == SDL_SCANCODE_3 && pPressed)
         {
+#ifdef OPENFODDER_ENABLE_NETWORK
+            if (!mStartParams->mNetworkEnabled)
+#endif
             if (mSquads_TroopCount[2])
                 Squad_Select(2, false);
         }
@@ -2916,6 +3150,7 @@ int16 cFodder::map_GetRandomY()
 
 uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax)
 {
+    ++mRandomCallCount;
     uint16 Rand = mRandom.getu();
     uint16 Mod = (uint16)(pMax - pMin + 1);
 
@@ -2924,7 +3159,7 @@ uint16 cFodder::tool_RandomGet(size_t pMin, size_t pMax)
 
 int16 cFodder::tool_RandomGet()
 {
-
+    ++mRandomCallCount;
     return mRandom.get();
 }
 
@@ -3732,19 +3967,26 @@ int16 cFodder::Mission_Loop()
             {
                 mGame_Data.mMission_Recruitment = 0;
 
-                switch (Recruit_Show())
+#ifdef OPENFODDER_ENABLE_NETWORK
+                if (mStartParams->mNetworkEnabled) {
+                    Network_Recruit_Show();
+                } else
+#endif
                 {
-                case 0: // Start Mission
-                    break;
+                    switch (Recruit_Show())
+                    {
+                    case 0: // Start Mission
+                        break;
 
-                case -1: // Return to version select
-                    return -1;
+                    case -1: // Return to version select
+                        return -1;
 
-                case -2: // Custom set mode
-                    return -2;
+                    case -2: // Custom set mode
+                        return -2;
 
-                case -3: // Load/Save pressed
-                    continue;
+                    case -3: // Load/Save pressed
+                        continue;
+                    }
                 }
             }
         }
@@ -3753,17 +3995,24 @@ int16 cFodder::Mission_Loop()
 
         WindowTitleSet(true);
 
-        switch (Briefing_Show())
+#ifdef OPENFODDER_ENABLE_NETWORK
+        if (mStartParams->mNetworkEnabled) {
+            Network_Briefing_Show();
+        } else
+#endif
         {
+            switch (Briefing_Show())
+            {
 
-        case -1:
-            return -1; // Return to version select
+            case -1:
+                return -1; // Return to version select
 
-        case 0: // Back to hill
-            continue;
+            case 0: // Back to hill
+                continue;
 
-        case 1: // Continue to phase
-            break;
+            case 1: // Continue to phase
+                break;
+            }
         }
 
         while (Music_Decrease_Channel_Volume())
@@ -3784,6 +4033,12 @@ int16 cFodder::Mission_Loop()
         {
             mKeyCode = 0;
             mPhase_In_Progress = false;
+#ifdef OPENFODDER_ENABLE_NETWORK
+            // Stop the GGPO session so the interrupt thread resumes normal
+            // operation for between-phase screens (service, recruit, briefing).
+            if (mStartParams->mNetworkEnabled)
+                Network_Stop();
+#endif
             Squad_Member_PhaseCount();
             mPhase_TryingAgain = true;
         }
@@ -3791,6 +4046,10 @@ int16 cFodder::Mission_Loop()
         {
             mKeyCode = 0;
             mPhase_In_Progress = false;
+#ifdef OPENFODDER_ENABLE_NETWORK
+            if (mStartParams->mNetworkEnabled)
+                Network_Stop();
+#endif
 
             // Game over?
             if (!mGame_Data.mRecruits_Available_Count)

@@ -157,7 +157,16 @@ void cFodder::Sprite_Handle_Player(sSprite *pSprite) {
     word_3AA1D = word_3BED5[pSprite->field_32];
     //seg004:0183
 
-    if (mSquad_Join_TargetSquad[pSprite->field_32] < 0 && pSprite->field_32 != mSquad_Selected) {
+    // In network mode squads 0 and 1 are both actively controlled, so
+    // neither should get the idle auto-fire AI that the original game
+    // applies to any squad that is not the currently selected one.
+#ifdef OPENFODDER_ENABLE_NETWORK
+    const bool netActive = mStartParams->mNetworkEnabled &&
+                           (pSprite->field_32 == 0 || pSprite->field_32 == 1);
+#else
+    const bool netActive = false;
+#endif
+    if (!netActive && mSquad_Join_TargetSquad[pSprite->field_32] < 0 && pSprite->field_32 != mSquad_Selected) {
         //loc_18F12
         mSprite_FaceWeaponTarget = -1;
 
@@ -469,8 +478,15 @@ loc_194A0:;
     }
 
     //loc_194CB
+    // In network mode both squads are active so always face-toward-cursor.
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mSquad_Selected == pSprite->field_32 ||
+        (mStartParams->mNetworkEnabled && (pSprite->field_32 == 0 || pSprite->field_32 == 1)))
+        goto loc_19490;
+#else
     if (mSquad_Selected == pSprite->field_32)
         goto loc_19490;
+#endif
 
     Sprite_Handle_Troop_Direct_TowardMouse(pSprite);
     return;
@@ -543,17 +559,31 @@ loc_19A9C:;
 }
 
 void cFodder::Sprite_Handle_Player_Rank(sSprite* pSprite) {
+    // In network mode each sprite uses its own squad's leader and walk
+    // target, not the globally selected squad.
+#ifdef OPENFODDER_ENABLE_NETWORK
+    const int16 spriteSquad = (mStartParams->mNetworkEnabled &&
+                               pSprite->field_32 >= 0 && pSprite->field_32 < NETWORK_MAX_PLAYERS)
+                              ? pSprite->field_32 : mSquad_Selected;
+    sSprite* Data24 = (mStartParams->mNetworkEnabled &&
+                       pSprite->field_32 >= 0 && pSprite->field_32 < NETWORK_MAX_PLAYERS &&
+                       mSquads[pSprite->field_32][0] != INVALID_SPRITE_PTR &&
+                       mSquads[pSprite->field_32][0] != nullptr)
+                      ? mSquads[pSprite->field_32][0] : mSquad_Leader;
+#else
+    const int16 spriteSquad = mSquad_Selected;
     sSprite* Data24 = mSquad_Leader;
+#endif
     int16 Data4, Data0;
 
-    if (mSquad_Selected < 0)
+    if (spriteSquad < 0)
         goto loc_1AF63;
 
     if (Data24 == INVALID_SPRITE_PTR)
         goto loc_1AF63;
 
     if (!mPhase_Completed_Timer) {
-        Data4 = mSquad_Selected;
+        Data4 = spriteSquad;
 
         if (mSquad_Walk_Target_Steps[Data4])
             goto loc_1AF63;
@@ -570,7 +600,22 @@ void cFodder::Sprite_Handle_Player_Rank(sSprite* pSprite) {
         goto loc_1AE76;
 
 loc_1AE64:;
-    Squad_UpdateLeader(Data24);
+    // Squad_UpdateLeader() reads mSquad_Selected internally.  In network mode
+    // mSquad_Selected is fixed to 0 during Mission_Sprites_Handle, so we must
+    // temporarily switch it to the sprite's own squad so that the correct
+    // squad leader is found and mSquad_Leader is not corrupted.
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled &&
+        pSprite->field_32 >= 0 && pSprite->field_32 < NETWORK_MAX_PLAYERS) {
+        const int16 savedSel = mSquad_Selected;
+        mSquad_Selected = pSprite->field_32;
+        Squad_UpdateLeader(Data24);
+        mSquad_Selected = savedSel;
+    } else
+#endif
+    {
+        Squad_UpdateLeader(Data24);
+    }
     goto loc_1AF63;
 
 loc_1AE76:;
@@ -1747,13 +1792,26 @@ void cFodder::Sprite_Handle_Troop_Direct_TowardWeaponTarget(sSprite* pSprite) {
 }
 
 void cFodder::Sprite_Handle_Troop_Direct_TowardMouse(sSprite* pSprite) {
+    int16 Data0, Data4;
 
-    int16 Data0 = mMouseX;
-    Data0 += mCameraX >> 16;
-    Data0 -= 0x18;
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // In network mode use the per-squad world-space cursor stored from
+    // synchronized inputs.  This is camera-independent so both machines
+    // compute the same facing direction for every troop.
+    if (mStartParams->mNetworkEnabled &&
+        pSprite && pSprite->field_32 >= 0 && pSprite->field_32 < NETWORK_MAX_PLAYERS) {
+        Data0 = mNetSquadCursorX[pSprite->field_32] - 0x18;
+        Data4 = mNetSquadCursorY[pSprite->field_32];
+    } else
+#endif
+    {
+        Data0 = mMouseX;
+        Data0 += mCameraX >> 16;
+        Data0 -= 0x18;
 
-    int16 Data4 = mMouseY;
-    Data4 += mCameraY >> 16;
+        Data4 = mMouseY;
+        Data4 += mCameraY >> 16;
+    }
 
     Sprite_Direction_Between_Points(pSprite, Data0, Data4);
     Sprite_Set_Direction_To_Next(pSprite);

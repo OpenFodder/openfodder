@@ -266,6 +266,8 @@ void cFodder::Briefing_Show_Ready() {
     mSurface->Save();
     mMouse_Exit_Loop = false;
 
+    int netAutoAdvanceTimer = 0;
+
     do {
         Music_Increase_Channel_Volume();
 
@@ -276,6 +278,11 @@ void cFodder::Briefing_Show_Ready() {
         }
 
         Video_Sleep();
+
+        // Network mode: auto-advance after ~3 seconds (150 ticks at 50 Hz).
+        // Both machines run the same timer so they stay in sync.
+        if (mStartParams->mNetworkEnabled && ++netAutoAdvanceTimer >= 150)
+            mMouse_Exit_Loop = true;
 
     } while (!mMouse_Exit_Loop);
 

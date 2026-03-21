@@ -49,6 +49,7 @@ struct sTileTrack {
 	uint16_t Y;
 	uint8_t Track;
 
+	sTileTrack() : X(0), Y(0), Track(0) {}
 	sTileTrack(uint16_t pX,uint16_t pY, uint8_t pTrack) {
 		X = pX;
 		Y = pY;

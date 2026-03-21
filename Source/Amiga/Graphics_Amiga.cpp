@@ -62,6 +62,8 @@ const sStruct0_Amiga stru_A918A[] = {
 
 cGraphics_Amiga::cGraphics_Amiga() : cGraphics() {
 	mBlkData = std::make_shared<std::vector<uint8>>();
+	mP2CursorPaletteLoaded = false;
+	memset(mP2CursorPalette, 0, sizeof(mP2CursorPalette));
 
 	SetCursorPalette(0xE0);
 }
@@ -94,7 +96,7 @@ uint8* cGraphics_Amiga::GetSpriteData(uint16 pSegment) {
 		if (mFodder->mVersionCurrent->isAmigaXmas() || mFodder->mVersionCurrent->isAmigaNotVeryFestive() || mFodder->mVersionCurrent->isAmigaAlienLevels())
 			mFodder->mVideo_Draw_PaletteIndex = (uint8)mCursorPalette;
 		else
-			mFodder->mVideo_Draw_PaletteIndex = 0xE0;
+			mFodder->mVideo_Draw_PaletteIndex = mCursorPalette > 0 ? mCursorPalette : 0xE0;
 
 		mBMHD_Current = mImagePStuff.GetHeader();
 		return mImagePStuff.mData->data();
@@ -417,6 +419,48 @@ void cGraphics_Amiga::SetCursorPalette(uint16 pIndex) {
 	mCursorPalette = pIndex;
 }
 
+void cGraphics_Amiga::LoadP2CursorPalette() {
+	if (mP2CursorPaletteLoaded)
+		return;
+
+	// Load the base tileset palette (afxbase.pal). Not all versions have it,
+	// so try the current version first, then search all installed versions.
+	tSharedBuffer palFile;
+	const std::string filename = "afxbase.pal";
+
+	// Fast path: current version
+	palFile = g_Resource->fileGet(filename);
+
+	// Fallback: search all installed versions
+	if (!palFile || palFile->empty()) {
+		auto versions = g_ResourceMan->GetAvailable();
+		for (auto* ver : versions) {
+			std::string path = g_ResourceMan->GetFilePath(ver, filename);
+			if (path.empty())
+				continue;
+			palFile = g_ResourceMan->FileRead(path);
+			if (palFile && !palFile->empty())
+				break;
+		}
+	}
+
+	if (!palFile || palFile->empty())
+		return;
+
+	size_t colors = palFile->size() / 2;
+	if (colors > 32) colors = 32;
+	const uint8* pBuffer = palFile->data();
+
+	for (size_t i = 0; i < colors; ++i) {
+		int16 color = readBEWord(pBuffer);
+		pBuffer += 2;
+		mP2CursorPalette[i].mRed   = ((color >> 8) & 0xF) << 2;
+		mP2CursorPalette[i].mGreen = ((color >> 4) & 0xF) << 2;
+		mP2CursorPalette[i].mBlue  = ((color >> 0) & 0xF) << 2;
+	}
+	mP2CursorPaletteLoaded = true;
+}
+
 void cGraphics_Amiga::SetActiveSpriteSheet(eGFX_Types pSpriteType) {
 
 	switch (pSpriteType) {
@@ -489,6 +533,10 @@ void cGraphics_Amiga::PaletteSet(cSurface* pTarget) {
 	pTarget->paletteSet(mPalette, 0, 64);
 	pTarget->paletteSet(mImagePStuff.mPalette, 0xE0, 16);
 	pTarget->paletteSet(mImageHillBackground.mPalette, 0xB0, 16);		// 0xB0 is used by save/load screen
+	if (mP2CursorPaletteLoaded) {
+		pTarget->paletteSet(mP2CursorPalette, 0x40, 32, true);		// into mPalette for immediate rendering
+		pTarget->paletteSet(mP2CursorPalette, 0x40, 32);			// into mPaletteNew so fade doesn't overwrite
+	}
 	pTarget->paletteSet(mImageHillBackground.mPalette, 0xD0, 16);
 	pTarget->paletteSet(mImageFonts.mPalette, 0xF0, 16);
 }
@@ -1498,11 +1546,15 @@ void cGraphics_Amiga::Briefing_Intro_Helicopter_Play(
 
 		mFodder->Video_Sleep(0, false, true);
 
-		if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
-			mFodder->mBriefingHelicopter_NotDone = 0;
-			mSurface->paletteNew_SetToBlack();
-			mFodder->mMouse_Exit_Loop = false;
-			mFodder->mPhase_Aborted = 0;
+		// In network mode, don't allow mouse/ESC to skip the animation —
+		// both machines must play the same duration to stay synchronised.
+		if (!mFodder->mStartParams->mNetworkEnabled) {
+			if (mFodder->mMouse_Exit_Loop || mFodder->mPhase_Aborted) {
+				mFodder->mBriefingHelicopter_NotDone = 0;
+				mSurface->paletteNew_SetToBlack();
+				mFodder->mMouse_Exit_Loop = false;
+				mFodder->mPhase_Aborted = 0;
+			}
 		}
 
 	} while (mFodder->mBriefingHelicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());

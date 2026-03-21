@@ -52,18 +52,20 @@ protected:
 	sILBM_BMHD*			mBMHD_Current;
 	uint16				mCursorPalette;
 
-
 	virtual void		DecodePalette(const uint8* pData, size_t pColorID, const size_t pColors);
 	virtual sImage		DecodeIFF(const std::string& pFilename);
 
 	public:
+	cPalette			mP2CursorPalette[32];
+	bool				mP2CursorPaletteLoaded;
 						cGraphics_Amiga();
 	virtual				~cGraphics_Amiga();
 
 	virtual sImage		Decode_Image(const std::string& pFilename, const size_t pCount, const size_t pPaletteOffset = 0, const size_t pStartIndex = 0);
 
 	virtual void		SetCursorPalette( uint16 pIndex );
-	
+	void				LoadP2CursorPalette();
+
 	virtual void		DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSourceX, uint16 pSourceY, uint16 pX, uint16 pY);
 	virtual void		DrawPixels_8( uint8* pSource, uint8* pDestination );
 	virtual void		DrawPixels_16( uint8* pSource, uint8* pDestination, const uint8 pPalleteIndex );

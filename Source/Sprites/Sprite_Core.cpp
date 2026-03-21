@@ -914,7 +914,20 @@ void cFodder::Sprite_Handle_Loop() {
         if (Data20->mPosX == -32768)
             continue;
 
+#ifdef OPENFODDER_ENABLE_NETWORK
+        uint32 rcBefore = mRandomCallCount;
+#endif
         (*this.*mSprite_Function[Data20->mSpriteType])(Data20);
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+        uint32 rcAfter = mRandomCallCount;
+        if (mNetSyncLogFile && rcAfter != rcBefore) {
+            int idx = static_cast<int>(Data20 - mSprites.data());
+            fprintf(mNetSyncLogFile, "  [RNG] f=%d spr=%d type=%d rc=%u (+%u)\n",
+                    mNetFrameCount, idx, Data20->mSpriteType,
+                    rcAfter, rcAfter - rcBefore);
+        }
+#endif
     }
 }
 

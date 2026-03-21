@@ -22,6 +22,10 @@
 
 #include "Sprites.hpp"
 #include "GameData.hpp"
+#include "Network/NetworkTypes.hpp"
+#ifdef OPENFODDER_ENABLE_NETWORK
+#include "Network/GGPOSession.hpp"
+#endif
 
 #define INVALID_SPRITE_PTR (sSprite*) -1
 
@@ -109,8 +113,79 @@ public:
 
     sGameData				mGame_Data;
     sGameData               mGame_Data_Backup;
-    
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // -----------------------------------------------------------------------
+    // GGPO cooperative multiplayer state
+    // -----------------------------------------------------------------------
+    std::unique_ptr<cGGPOSession>  mNetSession;
+
+    // Synchronized inputs for the current frame (both players).
+    sNetworkInput           mNetInputs[NETWORK_MAX_PLAYERS];
+
+    // Which player slot is local (0 = P1, 1 = P2).
+    int                     mNetLocalPlayerIndex;
+
+    // Frame counter used for GGPO bookkeeping.
+    int                     mNetFrameCount;
+
+    // Player-2 cursor position in screen/map coordinates (for rendering).
+    volatile int16          mNet_P2_CursorX;
+    volatile int16          mNet_P2_CursorY;
+
+    // Remote player's cursor sprite index (for drawing the correct cursor overlay).
+    int16                   mNet_RemoteCursorSprite;
+
+    // Accumulated key-flag state from SDL events, consumed each GGPO frame.
+    uint8_t                 mNetKeyFlagsLocal;
+
+    // Local SDL cursor in WORLD space — updated only from Mouse_Cursor_Handle
+    // (real SDL input), never from GGPO sync.  Used by Network_GatherLocalInput
+    // so the unfocused window doesn't feed back GGPO-derived positions.
+    int16                   mNet_LocalCursorWorldX;
+    int16                   mNet_LocalCursorWorldY;
+
+    // World-space cursor for each squad, derived from synchronized inputs
+    // before Mission_Sprites_Handle() so sprite AI is camera-independent.
+    int16                   mNetSquadCursorX[NETWORK_MAX_PLAYERS];
+    int16                   mNetSquadCursorY[NETWORK_MAX_PLAYERS];
+
+    // Per-player button/mouse toggle state — each player needs independent
+    // tracking so held buttons don't re-trigger and state doesn't bleed.
+    int16                   mNet_ButtonLeftToggle[NETWORK_MAX_PLAYERS];
+    int16                   mNet_ButtonRightToggle[NETWORK_MAX_PLAYERS];
+    bool                    mNet_ButtonLRToggle[NETWORK_MAX_PLAYERS];
+    bool                    mNet_ButtonLRToggle2[NETWORK_MAX_PLAYERS];
+
+    // Per-squad walk target memory — prevents Squad_Walk_Target_Set from
+    // injecting one player's last click as a waypoint for the other squad.
+    int16                   mNet_WalkTargetX[NETWORK_MAX_PLAYERS];
+    int16                   mNet_WalkTargetY[NETWORK_MAX_PLAYERS];
+
+    // Per-player camera pan target — prevents P2's click from moving the
+    // deterministic camera (which must follow P1 only).
+    int16                   mNet_CameraPanTargetX[NETWORK_MAX_PLAYERS];
+    int16                   mNet_CameraPanTargetY[NETWORK_MAX_PLAYERS];
+
+    // Deterministic camera backup — saved after GGPO state-save so we can
+    // override the camera for P2's local viewport and restore it before the
+    // next simulation step.
+    sNetCameraState         mNet_DetCam;
+
+    // P2's local viewport camera — persists across frames so scrolling is
+    // smooth.  Initialised from the deterministic camera on first use.
+    sNetCameraState         mNet_P2Cam;
+    bool                    mNet_P2CamInitialised;
+
+    void                    Network_CameraSave(sNetCameraState& out);
+    void                    Network_CameraRestore(const sNetCameraState& in);
+
+    // Diagnostic sync log — opened by Fodder_Network.cpp, used by Sprite_Core.cpp
+    FILE*                   mNetSyncLogFile = nullptr;
+#endif // OPENFODDER_ENABLE_NETWORK
+
 	cPseudorand				mRandom;
+	uint32					mRandomCallCount;
     sSprite                 mSprite_Spare;
     std::vector<sSprite>    mSprites;
 
@@ -1331,6 +1406,66 @@ public:
     void            eventProcess(const cEvent& pEvent);
     void            eventsProcess();
     void            keyProcess(uint8 pKeyCode, bool pPressed);
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // -----------------------------------------------------------------------
+    // Cooperative multiplayer – GGPO integration
+    // -----------------------------------------------------------------------
+
+    // Initialise the GGPO session from mStartParams network fields.
+    bool            Network_Start();
+
+    // Shut down the GGPO session.
+    void            Network_Stop();
+
+    // Split alive troops evenly between squad 0 (P1) and squad 1 (P2).
+    // Must be called after Phase_Prepare has built the sprite lists.
+    void            Network_RedistributeSquads();
+
+    // Called once per mission frame (every 3 interrupt ticks) instead of
+    // the normal Video_Sleep() / Phase_Cycle() pairing.
+    // Returns the same codes as Phase_Cycle(): 1 = running, 0 = won, -1 = abort.
+    int16           Network_Tick();
+
+    // Collect the local player's current hardware input into `out`.
+    void            Network_GatherLocalInput(sNetworkInput& out);
+
+    // Apply a pair of synchronized GGPO inputs to the game-state variables
+    // that Mouse_Inputs_Check() and keyProcess() normally read.
+    void            Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
+
+    // Run one complete simulation frame (3 interrupt ticks + mission logic)
+    // with the given pre-synchronized inputs.  Called both normally and by
+    // GGPO during rollback replay.
+    bool            Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
+
+    // Network-aware GUI_Sidebar_Draw (highlights local player's squad).
+    void            Network_GUI_Sidebar_Draw();
+
+    // Network-aware version of Recruit_Show (no interactive recruitment).
+    int16           Network_Recruit_Show();
+
+    // Network-aware version of Briefing_Show (click-to-ready sync).
+    int16           Network_Briefing_Show();
+
+    // UDP ready-exchange between peers on the briefing screen.
+    void            Network_Briefing_ReadySync();
+
+    // Force-draw sidebar squad icons into mSidebar_Screen_Buffer with local player's squad highlighted.
+    // Called at render time (50 Hz) to guarantee correct icons reach the display.
+    void            Network_Sidebar_ForceSquadIcons();
+
+    // Render "WAITING FOR PLAYER" overlay during GGPO peer sync.
+    void            Network_Draw_WaitingForPlayer();
+
+    // Render the remote player's cursor on top of the frame.
+    void            Network_DrawP2Cursor();
+
+    // GGPO save / load state callbacks (called indirectly from GGPOSession).
+    bool            Network_SaveState(uint8_t** buffer, int* len, int* checksum);
+    bool            Network_LoadState(const uint8_t* buffer, int len);
+    void            Network_FreeBuffer(void* buffer);
+#endif // OPENFODDER_ENABLE_NETWORK
 
     void            Game_Setup();
 

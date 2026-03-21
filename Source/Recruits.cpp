@@ -1185,20 +1185,23 @@ int16 cFodder::Recruit_Show()
     // Retail / Custom set show the Recruitment Hill
     if (mVersionCurrent->isRetail() || mVersionCurrent->isPCFormat() || mVersionCurrent->isRandom() || mCustom_Mode == eCustomMode_Set)
     {
+        // Network mode: skip interactive recruitment (auto-select defaults).
+        // Both machines must make identical choices to stay in sync.
+        if (!mStartParams->mNetworkEnabled) {
+            // Recruit Screen
+            if (Recruit_Loop())
+                return -1;
 
-        // Recruit Screen
-        if (Recruit_Loop())
-            return -1;
+            Recruit_CheckLoadSaveButtons();
 
-        Recruit_CheckLoadSaveButtons();
-
-        // Did we just load/save a game?
-        if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed)
-        {
-            mRecruit_Mission_Restarting = true;
-            mGame_Data.mMission_Recruitment = -1;
-            mPhase_Aborted = true;
-            return -3;
+            // Did we just load/save a game?
+            if (mRecruit_Button_Load_Pressed || mRecruit_Button_Save_Pressed)
+            {
+                mRecruit_Mission_Restarting = true;
+                mGame_Data.mMission_Recruitment = -1;
+                mPhase_Aborted = true;
+                return -3;
+            }
         }
     }
     else

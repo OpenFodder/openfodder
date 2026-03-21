@@ -83,6 +83,14 @@ public:
 	bool mShowHelp;
 	bool mCopyProtection;
 
+	// Cooperative network multiplayer (GGPO)
+	bool        mNetworkEnabled;        // Enable GGPO network session
+	bool        mNetworkSyncTest;       // Run GGPO sync-test instead of real network
+	int         mNetworkPlayerIndex;    // 0 = player 1 is local, 1 = player 2 is local
+	std::string mNetworkRemoteHost;     // Remote peer hostname / IP
+	uint16      mNetworkRemotePort;     // Remote peer UDP port
+	uint16      mNetworkLocalPort;      // Local UDP port to bind
+
 	sFodderParameters() {
 		clear();
 	}
@@ -138,6 +146,13 @@ public:
 		mSpawnEnemyMax = 10;
 
 		mCopyProtection = false;
+
+		mNetworkEnabled     = false;
+		mNetworkSyncTest    = false;
+		mNetworkPlayerIndex = 0;
+		mNetworkRemoteHost  = "";
+		mNetworkRemotePort  = 7001;
+		mNetworkLocalPort   = 7000;
 	}
 
 protected:

@@ -119,7 +119,7 @@ uint8* cGraphics_PC::GetSpriteData( uint16 pSegment ) {
 }
 
 void cGraphics_PC::Mouse_DrawCursor() {
-	
+
 	const sSpriteSheet_pstuff* di = &mSpriteSheet_PStuff[mFodder->mMouseSpriteCurrent];
 
 	mFodder->mVideo_Draw_Columns = di->mColumns;
@@ -130,7 +130,7 @@ void cGraphics_PC::Mouse_DrawCursor() {
 
 	mFodder->mVideo_Draw_FrameDataPtr = di->GetGraphicsPtr(ax +bx);
 	mFodder->mVideo_Draw_PaletteIndex = 0xF0;
-	
+
 	Video_Draw_8();
 }
 
@@ -946,11 +946,15 @@ void cGraphics_PC::Briefing_Intro_Helicopter_Play( const bool pShowHelicopter, c
 
 		mFodder->Video_Sleep(0, false, true);
 
-		if (mFodder->mMouseButtonStatus || mFodder->mPhase_Aborted) {
-			mFodder->mBriefingHelicopter_NotDone = 0;
-			mSurface->paletteNew_SetToBlack();
-			mFodder->mMouse_Exit_Loop = false;
-			mFodder->mPhase_Aborted = 0;
+		// In network mode, don't allow mouse/ESC to skip the animation —
+		// both machines must play the same duration to stay synchronised.
+		if (!mFodder->mStartParams->mNetworkEnabled) {
+			if (mFodder->mMouseButtonStatus || mFodder->mPhase_Aborted) {
+				mFodder->mBriefingHelicopter_NotDone = 0;
+				mSurface->paletteNew_SetToBlack();
+				mFodder->mMouse_Exit_Loop = false;
+				mFodder->mPhase_Aborted = 0;
+			}
 		}
 
 	} while (mFodder->mBriefingHelicopter_NotDone || mFodder->mSurface->isPaletteAdjusting());

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.18.0)
 
 if (POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW)
@@ -14,6 +14,7 @@ project(openfodder VERSION 1.5.4 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 option(OPENFODDER_ENABLE_FFMPEG "Enable FFmpeg intro video playback" OFF)
 option(OPENFODDER_AUTO_FFMPEG "Auto-enable FFmpeg when found (non-Windows)" ON)
+option(OPENFODDER_ENABLE_NETWORK "Enable GGPO rollback networking for cooperative multiplayer" ON)
 
 if(MSVC)
     # Enable Hot Reload (Edit and Continue) for Debug builds.
@@ -137,6 +138,60 @@ target_compile_definitions(openfodder PRIVATE
     UNICODE
     _UNICODE
     _USE_MATH_DEFINES)
+
+if(OPENFODDER_ENABLE_NETWORK AND NOT EMSCRIPTEN)
+    # Clone GGPO directly via git during configure so the source is
+    # immediately available for add_library (avoids FetchContent subbuild
+    # issues with CMake 4.x and GGPO's outdated CMakeLists.txt).
+    set(GGPO_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/ggpo-src")
+
+    # Use .git presence as the reliable "fully cloned" marker.
+    # If it's missing (never cloned or partial), wipe and re-clone.
+    if(NOT EXISTS "${GGPO_SOURCE_DIR}/.git")
+        find_package(Git REQUIRED)
+        file(REMOVE_RECURSE "${GGPO_SOURCE_DIR}")
+        message(STATUS "[GGPO] Cloning pond3r/ggpo...")
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" clone --depth 1
+                    "https://github.com/pond3r/ggpo.git"
+                    "${GGPO_SOURCE_DIR}"
+            RESULT_VARIABLE _ggpo_result
+            ERROR_VARIABLE  _ggpo_error
+        )
+        if(_ggpo_result)
+            message(FATAL_ERROR "Failed to clone GGPO (${_ggpo_result}): ${_ggpo_error}")
+        endif()
+    endif()
+
+    # Auto-discover all GGPO .cpp files (robust to repo layout changes).
+    set(GGPO_SRC_DIR "${GGPO_SOURCE_DIR}/src/lib/ggpo")
+    file(GLOB_RECURSE GGPO_SOURCES "${GGPO_SRC_DIR}/*.cpp")
+    if(WIN32)
+        list(FILTER GGPO_SOURCES EXCLUDE REGEX "platform_linux\\.cpp$")
+    endif()
+    if(NOT GGPO_SOURCES)
+        message(FATAL_ERROR
+            "No GGPO source files found under ${GGPO_SRC_DIR}.\n"
+            "Delete ${GGPO_SOURCE_DIR} and reconfigure to force a fresh clone.")
+    endif()
+
+    add_library(ggpo_static STATIC ${GGPO_SOURCES})
+    target_include_directories(ggpo_static
+        PUBLIC  "${GGPO_SOURCE_DIR}/src/include"
+        PRIVATE "${GGPO_SRC_DIR}"
+    )
+    if(WIN32)
+        target_link_libraries(ggpo_static PUBLIC ws2_32 winmm)
+    endif()
+    if(MSVC)
+        # Suppress warnings in GGPO that we don't own
+        target_compile_options(ggpo_static PRIVATE /W0)
+    endif()
+
+    target_compile_definitions(openfodder PRIVATE OPENFODDER_ENABLE_NETWORK)
+    target_link_libraries(openfodder PRIVATE ggpo_static)
+    target_include_directories(openfodder PRIVATE "${GGPO_SOURCE_DIR}/src/include")
+endif()
 
 if (OPENFODDER_ENABLE_FFMPEG OR (OPENFODDER_AUTO_FFMPEG AND NOT WIN32))
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")

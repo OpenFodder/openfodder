@@ -737,6 +737,31 @@ void cFodder::Sprite_Handle_GrenadeBox(sSprite* pSprite) {
 
     int16 Data0 = 0;
     pSprite->mSheetIndex = 0xC2;
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // In network mode check every active squad's leader for proximity,
+    // and credit whichever squad picks it up.
+    if (mStartParams->mNetworkEnabled) {
+        sSprite* savedLeader = mSquad_Leader;
+        for (int sq = 0; sq < NETWORK_MAX_PLAYERS; ++sq) {
+            if (mSquads[sq][0] == INVALID_SPRITE_PTR || mSquads[sq][0] == nullptr)
+                continue;
+            mSquad_Leader = mSquads[sq][0];
+            Data0 = 0;
+            if (!Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0)) {
+                mGUI_RefreshSquadGrenades[sq] = -1;
+                mGUI_RefreshSquadRockets[sq] = -1;
+                mSquad_Grenades[sq] += 4;
+                mSquad_Leader = savedLeader;
+                Sprite_Destroy_Wrapper(pSprite);
+                return;
+            }
+        }
+        mSquad_Leader = savedLeader;
+        return;
+    }
+#endif
+
     if (Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0))
         return;
 
@@ -755,6 +780,31 @@ void cFodder::Sprite_Handle_RocketBox(sSprite* pSprite) {
 
     int16 Data0 = 0;
     pSprite->mSheetIndex = 0xC3;
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled) {
+        sSprite* savedLeader = mSquad_Leader;
+        for (int sq = 0; sq < NETWORK_MAX_PLAYERS; ++sq) {
+            if (mSquads[sq][0] == INVALID_SPRITE_PTR || mSquads[sq][0] == nullptr)
+                continue;
+            mSquad_Leader = mSquads[sq][0];
+            Data0 = 0;
+            if (!Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0)) {
+                mGUI_RefreshSquadRockets[sq] = -1;
+                mGUI_RefreshSquadGrenades[sq] = -1;
+                mSquad_Rockets[sq] += 4;
+                if (mVersionCurrent->isCoverDisk())
+                    mSquad_Leader->field_75 |= eSprite_Flag_HomingMissiles;
+                mSquad_Leader = savedLeader;
+                Sprite_Destroy_Wrapper(pSprite);
+                return;
+            }
+        }
+        mSquad_Leader = savedLeader;
+        return;
+    }
+#endif
+
     if (Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0))
         return;
 

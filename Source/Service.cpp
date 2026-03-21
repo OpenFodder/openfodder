@@ -85,6 +85,9 @@ void cFodder::Service_KIA_Loop() {
         Video_Sleep();
         Video_Sleep();
 
+        // Allow exit when all names have scrolled off-screen OR on mouse click.
+        // Network_Stop() is called before Service_Show(), so there is no
+        // desync risk — both machines run these screens independently.
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();
@@ -102,7 +105,7 @@ void cFodder::Service_KIA_Loop() {
 void cFodder::Service_Promotion_Loop() {
     Mouse_Setup();
     mService_Promotion_Exit_Loop = 0;
-    
+
     if (Service_Promotion_Prepare_Draw() < 0)
         goto loc_18001;
 
@@ -132,6 +135,8 @@ void cFodder::Service_Promotion_Loop() {
     do {
         Video_Sleep();
         Video_Sleep();
+
+        // Allow exit when all names have scrolled off-screen OR on mouse click.
         if (mService_Promotion_Exit_Loop == -1 || mMouse_Exit_Loop) {
             mMouse_Exit_Loop = false;
             mSurface->paletteNew_SetToBlack();

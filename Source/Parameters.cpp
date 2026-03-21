@@ -145,6 +145,12 @@ void sFodderParameters::PrepareOptions() {
 		("demo-record-all", "Record Demo")
 		("demo-play", "Play Demo", cxxopts::value<std::string>()->default_value(""), "\"Demo File\"")
 
+		("net-player", "Cooperative multiplayer: local player index (1 or 2)", cxxopts::value<uint32_t>()->default_value("0"), "1")
+		("net-host",   "Cooperative multiplayer: remote peer hostname / IP",   cxxopts::value<std::string>()->default_value(""), "\"192.168.1.x\"")
+		("net-port",   "Cooperative multiplayer: remote peer UDP port",         cxxopts::value<uint32_t>()->default_value("7001"), "7001")
+		("net-local-port", "Cooperative multiplayer: local UDP port",           cxxopts::value<uint32_t>()->default_value("7000"), "7000")
+		("net-synctest","Run GGPO sync-test (local determinism check)",         cxxopts::value<bool>()->default_value("false"))
+
 		("unit-test", "Run Tests", cxxopts::value<bool>()->default_value("false"))
 		("unit-test-headless", "Run Tests, with no output", cxxopts::value<bool>()->default_value("false"))
 
@@ -280,6 +286,38 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		mDisableSound = result["nosound"].as<bool>();
 		mPlayground = result["playground"].as<bool>();
 		mSleepDelta = result["sleep-delta"].as<uint32_t>();
+
+		// Cooperative network multiplayer (GGPO)
+		if (result.count("net-player") && result["net-player"].as<uint32_t>() > 0) {
+			mNetworkPlayerIndex = (int)(result["net-player"].as<uint32_t>()) - 1; // 1-based CLI -> 0-based internal
+			mNetworkEnabled = true;
+		}
+		if (result.count("net-host")) {
+			mNetworkRemoteHost = result["net-host"].as<std::string>();
+			if (!mNetworkRemoteHost.empty())
+				mNetworkEnabled = true;
+		}
+		if (result.count("net-port"))
+			mNetworkRemotePort = (uint16_t)result["net-port"].as<uint32_t>();
+		if (result.count("net-local-port"))
+			mNetworkLocalPort = (uint16_t)result["net-local-port"].as<uint32_t>();
+		if (result.count("net-synctest") && result["net-synctest"].as<bool>()) {
+			mNetworkSyncTest = true;
+			mNetworkEnabled  = true;
+		}
+
+		// In network mode skip the intro (not relevant for co-op).
+		// Between-phase screens (recruit, briefing, service) are handled
+		// by Network_Recruit_Show / Network_Briefing_Show and network-aware
+		// service loops — see Fodder_Network.cpp.
+		if (mNetworkEnabled) {
+			mSkipIntro    = true;
+			if (mMissionNumber < 1)
+				mMissionNumber = 1;
+			// Default to the retail campaign so Campaign_Selection() is never shown.
+			if (mCampaignName.empty())
+				mCampaignName = "Cannon Fodder";
+		}
 
 		if (result.count("cheats"))
 			mCheatsEnabled = result["cheats"].as<bool>();
