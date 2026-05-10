@@ -3221,19 +3221,6 @@ void cFodder::Game_Save()
             continue;
         }
 
-        if (mGUI_SaveLoadAction == GUI_SAVELOAD_OVERWRITE)
-        {
-            if (!SelectedSave)
-                continue;
-
-            if (!GUI_Confirm_Dialog("OVERWRITE SAVE", SelectedSave->mName, "OVERWRITE"))
-                continue;
-
-            Game_Save_ToFile(g_ResourceMan->GetSave(SelectedSave->mFileName), SelectedSave->mName);
-            mMouse_Exit_Loop = false;
-            return;
-        }
-
         if (mGUI_SaveLoadAction != 2 || !mInput.size())
             continue;
 

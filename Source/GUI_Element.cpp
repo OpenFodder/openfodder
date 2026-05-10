@@ -1660,21 +1660,18 @@ std::string cFodder::GUI_Save_File(const char* pTitle, const std::vector<sSavedG
 
         if (mInput.size())
         {
-            GUI_SaveDialog_DrawBoxText(this, "SAVE", 0x12, 0x48, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+            GUI_SaveDialog_DrawBoxText(this, "SAVE", 0x26, 0x66, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
             GUI_Button_Setup(&cFodder::GUI_Button_Save_Current);
         }
 
         const bool HasSelectedSave = mGUI_Select_File_Count > 0 && mGUI_Select_File_SelectedFileIndex >= 0;
         if (HasSelectedSave)
         {
-            GUI_SaveDialog_DrawBoxText(this, "OVERWRITE", 0x50, 0xA2, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
-            GUI_Button_Setup(&cFodder::GUI_Button_Overwrite_Selected);
-
-            GUI_SaveDialog_DrawBoxText(this, "DELETE", 0xAA, 0xE2, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+            GUI_SaveDialog_DrawBoxText(this, "DELETE", 0x78, 0xC0, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
             GUI_Button_Setup(&cFodder::GUI_Button_Delete_Selected);
         }
 
-        GUI_SaveDialog_DrawBoxText(this, "BACK", 0xEA, 0x126, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+        GUI_SaveDialog_DrawBoxText(this, "BACK", 0xD2, 0x112, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
         GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
 
         if (mGUI_Select_File_Count > 0)
@@ -1743,7 +1740,7 @@ bool cFodder::GUI_Confirm_Dialog(const std::string& pTitle, const std::string& p
     GUI_SaveDialog_DrawBoxText(this, pConfirmText, 0x38, 0xA0, 0x82, 0xBF, 0xBC, eTextAlign::Centre, 2);
     GUI_Button_Setup(&cFodder::GUI_Button_Confirm_Yes);
 
-    GUI_SaveDialog_DrawBoxText(this, "CANCEL", 0xB0, 0xF8, 0x82, 0xBF, 0xBC, eTextAlign::Centre, 2);
+    GUI_SaveDialog_DrawBoxText(this, "CANCEL", 0xA8, 0x110, 0x82, 0xBF, 0xBC, eTextAlign::Centre, 2);
     GUI_Button_Setup(&cFodder::GUI_Button_Confirm_No);
 
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
@@ -1870,12 +1867,6 @@ void cFodder::GUI_Button_Save_Current()
 {
     if (mInput.size())
         mGUI_SaveLoadAction = 2;
-}
-
-void cFodder::GUI_Button_Overwrite_Selected()
-{
-    if (mGUI_Select_File_Count > 0 && mGUI_Select_File_SelectedFileIndex >= 0)
-        mGUI_SaveLoadAction = GUI_SAVELOAD_OVERWRITE;
 }
 
 void cFodder::GUI_Button_Confirm_Yes()

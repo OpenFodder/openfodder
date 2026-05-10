@@ -76,8 +76,7 @@ struct sSavedGame {
 };
 
 static const int16 GUI_SAVELOAD_DELETE = 7;
-static const int16 GUI_SAVELOAD_OVERWRITE = 8;
-static const int16 GUI_SAVELOAD_SELECT_SAVE = 9;
+static const int16 GUI_SAVELOAD_SELECT_SAVE = 8;
 
 struct sService_Draw {
     int16 mSpriteType;
@@ -1262,7 +1261,6 @@ public:
     void            GUI_Button_Load_Selected();
     void            GUI_Button_Delete_Selected();
     void            GUI_Button_Save_Current();
-    void            GUI_Button_Overwrite_Selected();
     void            GUI_Button_Confirm_Yes();
     void            GUI_Button_Confirm_No();
     void            GUI_Button_Show_About();
