@@ -160,6 +160,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Amiga/Graphics_Amiga2.hpp"
 
 #include "About.hpp"
+#include "KeyboardShortcuts.hpp"
 #include "UnitTesting.hpp"
 
 #include "Network/NetworkLobby.hpp"

@@ -116,6 +116,9 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     GUI_Button_Setup(&cFodder::GUI_Button_Show_Multiplayer);
 #endif
 
+    GUI_Button_Draw_SmallAt("KEYS", 0xA, 0x6E + YOffset);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_Shortcuts);
+
     int16 ItemCount = 0;
 
     auto FileIT = mCampaignList.begin() + mGUI_Select_File_CurrentIndex;
@@ -446,6 +449,15 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
 
     if (mGUI_SaveLoadAction == 5) {
         Options_Menu_Run();
+        mGUI_SaveLoadAction = 0;
+        mMouse_Button_Left_Toggle = 0;
+        mGraphics->PaletteSet();
+        mSurface->palette_FadeTowardNew();
+        mSurface->Save();
+    }
+
+    if (mGUI_SaveLoadAction == GUI_MENU_SHORTCUTS) {
+        KeyboardShortcuts();
         mGUI_SaveLoadAction = 0;
         mMouse_Button_Left_Toggle = 0;
         mGraphics->PaletteSet();

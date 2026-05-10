@@ -3743,6 +3743,20 @@ void cFodder::About()
     g_Fodder->mPhase_Aborted = false;
 }
 
+void cFodder::KeyboardShortcuts()
+{
+    const auto PreviousInterruptCallback = mInterruptCallback;
+    mInterruptCallback = []() {};
+
+    cKeyboardShortcuts KeyboardShortcuts;
+    while (KeyboardShortcuts.Cycle())
+    {
+    }
+
+    mInterruptCallback = PreviousInterruptCallback;
+    g_Fodder->mPhase_Aborted = false;
+}
+
 void cFodder::CreateRandom(sMapParams pParams)
 {
     mSurface->clearBuffer();

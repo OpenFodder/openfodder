@@ -77,6 +77,7 @@ struct sSavedGame {
 
 static const int16 GUI_SAVELOAD_DELETE = 7;
 static const int16 GUI_SAVELOAD_SELECT_SAVE = 8;
+static const int16 GUI_MENU_SHORTCUTS = 10;
 
 struct sService_Draw {
     int16 mSpriteType;
@@ -1266,6 +1267,7 @@ public:
     void            GUI_Button_Show_About();
     void            GUI_Button_Show_Options();
     void            GUI_Button_Show_Multiplayer();
+    void            GUI_Button_Show_Shortcuts();
     void            GUI_Button_Filename();
     void            GUI_Button_Save_Filename();
     void            GUI_Button_Save_Dialog_Filename();
@@ -1462,6 +1464,7 @@ public:
     void            Playground();
 
     void            About();
+    void            KeyboardShortcuts();
 	void			CreateRandom(sMapParams pParams);
 	virtual void    Start();
     void            Exit(unsigned int pExitCode);

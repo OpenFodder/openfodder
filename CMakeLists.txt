@@ -146,11 +146,11 @@ if(OPENFODDER_ENABLE_NETWORK AND NOT EMSCRIPTEN)
     # immediately available for add_library (avoids FetchContent subbuild
     # issues with CMake 4.x and GGPO's outdated CMakeLists.txt).
     set(GGPO_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/ggpo-src")
+    find_package(Git REQUIRED)
 
     # Use .git presence as the reliable "fully cloned" marker.
     # If it's missing (never cloned or partial), wipe and re-clone.
     if(NOT EXISTS "${GGPO_SOURCE_DIR}/.git")
-        find_package(Git REQUIRED)
         file(REMOVE_RECURSE "${GGPO_SOURCE_DIR}")
         message(STATUS "[GGPO] Cloning pond3r/ggpo...")
         execute_process(
@@ -165,11 +165,42 @@ if(OPENFODDER_ENABLE_NETWORK AND NOT EMSCRIPTEN)
         endif()
     endif()
 
+    if(NOT WIN32)
+        set(GGPO_LINUX_PATCH "${CMAKE_CURRENT_LIST_DIR}/cmake/ggpo-linux-compat.patch")
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" -C "${GGPO_SOURCE_DIR}" apply --check "${GGPO_LINUX_PATCH}"
+            RESULT_VARIABLE _ggpo_patch_check
+            ERROR_VARIABLE _ggpo_patch_error
+        )
+        if(_ggpo_patch_check EQUAL 0)
+            message(STATUS "[GGPO] Applying Linux compatibility patch...")
+            execute_process(
+                COMMAND "${GIT_EXECUTABLE}" -C "${GGPO_SOURCE_DIR}" apply "${GGPO_LINUX_PATCH}"
+                RESULT_VARIABLE _ggpo_patch_result
+                ERROR_VARIABLE _ggpo_patch_apply_error
+            )
+            if(_ggpo_patch_result)
+                message(FATAL_ERROR "Failed to apply GGPO Linux compatibility patch: ${_ggpo_patch_apply_error}")
+            endif()
+        else()
+            execute_process(
+                COMMAND "${GIT_EXECUTABLE}" -C "${GGPO_SOURCE_DIR}" apply --reverse --check "${GGPO_LINUX_PATCH}"
+                RESULT_VARIABLE _ggpo_patch_reverse_check
+                ERROR_QUIET
+            )
+            if(NOT _ggpo_patch_reverse_check EQUAL 0)
+                message(FATAL_ERROR "GGPO Linux compatibility patch no longer applies: ${_ggpo_patch_error}")
+            endif()
+        endif()
+    endif()
+
     # Auto-discover all GGPO .cpp files (robust to repo layout changes).
     set(GGPO_SRC_DIR "${GGPO_SOURCE_DIR}/src/lib/ggpo")
     file(GLOB_RECURSE GGPO_SOURCES "${GGPO_SRC_DIR}/*.cpp")
     if(WIN32)
         list(FILTER GGPO_SOURCES EXCLUDE REGEX "platform_linux\\.cpp$")
+    else()
+        list(FILTER GGPO_SOURCES EXCLUDE REGEX "platform_windows\\.cpp$")
     endif()
     if(NOT GGPO_SOURCES)
         message(FATAL_ERROR

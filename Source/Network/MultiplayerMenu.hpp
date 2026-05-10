@@ -59,8 +59,9 @@ public:
         ACT_SYNC_TEST,
         ACT_BACK,
         ACT_ROW,
-        ACT_IP_INPUT,
-        ACT_PORT_INPUT,
+        ACT_EDIT_REMOTE_HOST,
+        ACT_EDIT_REMOTE_PORT,
+        ACT_EDIT_LOCAL_PORT,
         ACT_START,
     };
 
@@ -68,6 +69,12 @@ private:
     void DrawMainMenu();
     void DrawHostMenu();
     void DrawJoinMenu();
+    void DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel);
+    void DrawField(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction, bool pActive);
+    void HandleTextInput();
+    void SelectField(int16 pAction);
+    bool CanStart() const;
+    void SyncPortValues();
 
     enum class eState {
         Main,
@@ -75,7 +82,15 @@ private:
         Join,
     };
 
+    enum class eEditField {
+        None,
+        RemoteHost,
+        RemotePort,
+        LocalPort,
+    };
+
     eState      mState = eState::Main;
+    eEditField  mEditField = eEditField::None;
     bool        mDone = false;
     bool        mStarted = false;
 
@@ -83,6 +98,8 @@ private:
     std::string mRemoteHost = "127.0.0.1";
     uint16      mRemotePort = 7001;
     uint16      mLocalPort  = 7000;
+    std::string mRemotePortText = "7001";
+    std::string mLocalPortText = "7000";
     bool        mSyncTest = false;
 
     // Keep drawn strings alive for GUI draw calls

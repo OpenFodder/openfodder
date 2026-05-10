@@ -1897,6 +1897,12 @@ void cFodder::GUI_Button_Show_Multiplayer()
     mGUI_SaveLoadAction = 6;
 }
 
+void cFodder::GUI_Button_Show_Shortcuts()
+{
+    mGUI_Select_File_String_Input_Callback = 0;
+    mGUI_SaveLoadAction = GUI_MENU_SHORTCUTS;
+}
+
 void cFodder::GUI_Input_CheckKey()
 {
     mKeyCodeAscii = 0;
