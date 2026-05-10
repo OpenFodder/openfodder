@@ -588,7 +588,8 @@ std::string sGameData::ToJson(const std::string& pSaveName) {
 	Json Save;
 
 	// Not used yet
-	Save["SaveVersion"] = 1;
+	Save["SaveVersion"] = 2;
+	Save["mMission_Phase"] = mMission_Phase;
     Save["Timestamp"] = in_time_t;
 
 	// Save the current game data version
@@ -654,16 +655,21 @@ bool sGameData::FromJson(const std::string& pJson) {
 
      Clear();
 
-     uint64 Version = LoadedData["SaveVersion"];
-     if (Version >= 2) {
-         try {
-             // Save["Timestamp"]
-         }
-         catch (std::exception Exception) {
-             std::cout << "V2 Elements not found: " << Exception.what() << "\n";
-             return false;
-         }
-     }
+    uint64 Version = LoadedData["SaveVersion"];
+    if (Version >= 2) {
+        try {
+            mMission_Phase = LoadedData["mMission_Phase"];
+        }
+        catch (std::exception Exception) {
+            try {
+                mMission_Phase = LoadedData["mMissionPhase"];
+            }
+            catch (std::exception) {
+                std::cout << "V2 Elements not found: " << Exception.what() << "\n";
+                mMission_Phase = 1;
+            }
+        }
+    }
 
      if (Version >= 1) {
          try {
@@ -701,8 +707,8 @@ bool sGameData::FromJson(const std::string& pJson) {
                  mHeroes.push_back(Heroes);
              }
 
-             mScore_Kills_Away = LoadedData["mTroops_Away"];
-             mScore_Kills_Home = LoadedData["mTroops_Home"];
+            mScore_Kills_Away = LoadedData["mTroops_Away"];
+            mScore_Kills_Home = LoadedData["mTroops_Home"];
 
          }
          catch (std::exception Exception) {
@@ -711,10 +717,17 @@ bool sGameData::FromJson(const std::string& pJson) {
          }
      }
 
+    if (mMission_Phase < 1)
+        mMission_Phase = 1;
+
     mMission_Current = mCampaign.getMission(mMission_Number);
     if (mMission_Current) {
-        mPhase_Current = mMission_Current->PhaseGet(0);
-        mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases();
+        mPhase_Current = mMission_Current->PhaseGet(mMission_Phase);
+        if (!mPhase_Current) {
+            mMission_Phase = 1;
+            mPhase_Current = mMission_Current->PhaseGet(mMission_Phase);
+        }
+        mMission_Phases_Remaining = (int16)mMission_Current->NumberOfPhases() - (mMission_Phase - 1);
     }
 	return true;
 }

@@ -4,6 +4,12 @@ if (POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW)
 endif ()
 
+if (POLICY CMP0091)
+  cmake_policy(SET CMP0091 NEW)
+endif ()
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "No build type selected, default to Release.")
     set(CMAKE_BUILD_TYPE "Release")
@@ -120,13 +126,9 @@ endif()
 
 if(MSVC)
     set_target_properties(openfodder PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Run"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/Run"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/Run"
-        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_SOURCE_DIR}/Run"
-        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_SOURCE_DIR}/Run")
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>")
     set_target_properties(openfodder PROPERTIES
-        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Run")
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>")
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT openfodder)
 endif()
 
@@ -239,7 +241,7 @@ if(WIN32)
         add_custom_command(TARGET openfodder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${_runtime_dlls}
-                "${CMAKE_SOURCE_DIR}/Run"
+                "$<TARGET_FILE_DIR:openfodder>"
             COMMENT "Copy SDL runtime DLLs to output directory")
     endif()
 endif()

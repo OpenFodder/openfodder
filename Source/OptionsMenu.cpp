@@ -156,7 +156,7 @@ void cOptionsMenu::BuildItems() {
     // -------------------------------------------------------------------------
     // Video / Window
     // -------------------------------------------------------------------------
-    mItems.push_back({ eOptType::Toggle, eOptSection::Video, "Window mode",     OPT_WINDOW_MODE });
+    mItems.push_back({ eOptType::Toggle, eOptSection::Video, "Display mode",     OPT_WINDOW_MODE });
     mItems.push_back({ eOptType::IntRange, eOptSection::Video, "Window scale",    OPT_WINDOW_SCALE, 0, 6, 1 });
     mItems.push_back({ eOptType::Toggle, eOptSection::Video, "Integer scaling", OPT_INTEGER_SCALING });
 
@@ -169,17 +169,18 @@ void cOptionsMenu::BuildItems() {
     // -------------------------------------------------------------------------
     mItems.push_back({ eOptType::Toggle, eOptSection::Input, "Alternate mouse", OPT_ALTERNATE_MOUSE });
     mItems.push_back({ eOptType::Toggle, eOptSection::Input, "Mouse locked",    OPT_MOUSE_LOCKED });
-    mItems.push_back({ eOptType::IntRange, eOptSection::Input, "Mouse speed x10", OPT_MOUSE_SPEED, 5, 100, 5 });
+    mItems.push_back({ eOptType::IntRange, eOptSection::Input, "Mouse speed", OPT_MOUSE_SPEED, 5, 100, 5 });
 
     // -------------------------------------------------------------------------
     // Audio (no separate page)
     // -------------------------------------------------------------------------
 
-    // Skip flags from INI
-    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Skip intro",    OPT_SKIP_INTRO });
-    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Skip briefing", OPT_SKIP_BRIEFING });
-    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Skip service",  OPT_SKIP_SERVICE });
-    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Skip hill",     OPT_SKIP_RECRUIT });
+    // Flow options are displayed as positive feature states even when backed by
+    // legacy skip flags in the INI.
+    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Intro sequence",    OPT_SKIP_INTRO });
+    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Mission briefing", OPT_SKIP_BRIEFING });
+    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Service screens",  OPT_SKIP_SERVICE });
+    mItems.push_back({ eOptType::Toggle, eOptSection::Skip, "Recruitment hill", OPT_SKIP_RECRUIT });
 
     // -------------------------------------------------------------------------
     // Engine
@@ -196,13 +197,13 @@ void cOptionsMenu::BuildItems() {
     }
 
     mItems.push_back({ eOptType::Toggle, eOptSection::Engine, "Copy protection", OPT_COPY_PROTECTION });
-    mItems.push_back({ eOptType::Toggle, eOptSection::Video, "Disable CF1 CD32 Video", OPT_DISABLE_INTRO_VIDEO });
+    mItems.push_back({ eOptType::Toggle, eOptSection::Video, "CF1 CD32 video", OPT_DISABLE_INTRO_VIDEO });
 
     //mItems.push_back({ eOptType::IntRange, eOptSection::Engine, "Engine speed", OPT_SLEEP_DELTA, 5, 40, 1 });
     //mItems.push_back({ eOptType::IntRange, eOptSection::Engine, "Max sprites",  OPT_MAX_SPRITES, 16, 100000, 1 });
     //mItems.push_back({ eOptType::IntRange, eOptSection::Engine, "Max spawn",    OPT_MAX_SPAWN,   0, 1000, 1 });
-    mItems.push_back({ eOptType::Toggle, eOptSection::Engine, "Disable sound", OPT_DISABLE_SOUND });
-    mItems.push_back({ eOptType::Toggle, eOptSection::Engine, "Enable cheats", OPT_CHEATS });
+    mItems.push_back({ eOptType::Toggle, eOptSection::Engine, "Sound", OPT_DISABLE_SOUND });
+    mItems.push_back({ eOptType::Toggle, eOptSection::Engine, "Cheat keys", OPT_CHEATS });
 
 
     mCount = (int16_t)mItems.size();
@@ -282,14 +283,14 @@ int cOptionsMenu::GetInt(int optId) const {
     case OPT_MOUSE_LOCKED:     return g_Fodder->mStartParams->mMouseLocked ? 1 : 0;
     case OPT_MOUSE_SPEED:      return (int)(g_Fodder->mStartParams->mMouseSpeed * 10.0f + 0.5f);
 
-    case OPT_DISABLE_SOUND:    return g_Fodder->mStartParams->mDisableSound ? 1 : 0;
+    case OPT_DISABLE_SOUND:    return g_Fodder->mStartParams->mDisableSound ? 0 : 1;
     case OPT_CHEATS:           return g_Fodder->mStartParams->mCheatsEnabled ? 1 : 0;
 
-    case OPT_SKIP_INTRO:       return g_Fodder->mStartParams->mSkipIntro ? 1 : 0;
-    case OPT_DISABLE_INTRO_VIDEO: return g_Fodder->mStartParams->mDisableIntroVideo ? 1 : 0;
-    case OPT_SKIP_BRIEFING:    return g_Fodder->mStartParams->mSkipBriefing ? 1 : 0;
-    case OPT_SKIP_SERVICE:     return g_Fodder->mStartParams->mSkipService ? 1 : 0;
-    case OPT_SKIP_RECRUIT:     return g_Fodder->mStartParams->mSkipRecruit ? 1 : 0;
+    case OPT_SKIP_INTRO:       return g_Fodder->mStartParams->mSkipIntro ? 0 : 1;
+    case OPT_DISABLE_INTRO_VIDEO: return g_Fodder->mStartParams->mDisableIntroVideo ? 0 : 1;
+    case OPT_SKIP_BRIEFING:    return g_Fodder->mStartParams->mSkipBriefing ? 0 : 1;
+    case OPT_SKIP_SERVICE:     return g_Fodder->mStartParams->mSkipService ? 0 : 1;
+    case OPT_SKIP_RECRUIT:     return g_Fodder->mStartParams->mSkipRecruit ? 0 : 1;
 
     case OPT_SLEEP_DELTA:      return (int)g_Fodder->mStartParams->mSleepDelta;
     case OPT_MAX_SPRITES:      return (int)g_Fodder->mStartParams->mSpritesMax;
@@ -397,7 +398,7 @@ void cOptionsMenu::SetInt(int optId, int v) {
     }
 
     case OPT_DISABLE_SOUND:
-        g_Fodder->mStartParams->mDisableSound = (v != 0);
+        g_Fodder->mStartParams->mDisableSound = (v == 0);
         break;
 
     case OPT_CHEATS:
@@ -405,23 +406,23 @@ void cOptionsMenu::SetInt(int optId, int v) {
         break;
 
     case OPT_SKIP_INTRO:
-        g_Fodder->mStartParams->mSkipIntro = (v != 0);
+        g_Fodder->mStartParams->mSkipIntro = (v == 0);
         break;
 
     case OPT_DISABLE_INTRO_VIDEO:
-        g_Fodder->mStartParams->mDisableIntroVideo = (v != 0);
+        g_Fodder->mStartParams->mDisableIntroVideo = (v == 0);
         break;
 
     case OPT_SKIP_BRIEFING:
-        g_Fodder->mStartParams->mSkipBriefing = (v != 0);
+        g_Fodder->mStartParams->mSkipBriefing = (v == 0);
         break;
 
     case OPT_SKIP_SERVICE:
-        g_Fodder->mStartParams->mSkipService = (v != 0);
+        g_Fodder->mStartParams->mSkipService = (v == 0);
         break;
 
     case OPT_SKIP_RECRUIT:
-        g_Fodder->mStartParams->mSkipRecruit = (v != 0);
+        g_Fodder->mStartParams->mSkipRecruit = (v == 0);
         break;
 
     case OPT_SLEEP_DELTA:
@@ -464,6 +465,9 @@ void cOptionsMenu::SetInt(int optId, int v) {
 
 std::string cOptionsMenu::FormatValue(const sOptItem& it) const {
     const int v = GetInt(it.id);
+
+    if (it.id == OPT_WINDOW_MODE)
+        return v ? "WINDOW" : "FULL";
 
     if (it.type == eOptType::Toggle)
         return v ? "ON" : "OFF";
@@ -511,7 +515,7 @@ void cOptionsMenu::Draw() {
     const int rowBaseY = tabY + 0x18;
     const int rowH = RowH();
     const int16 pageCount = 4;
-    const char* pageLabels[pageCount] = { "VID", "IN", "SKIP", "ENG" };
+    const char* pageLabels[pageCount] = { "VIDEO", "INPUT", "FLOW", "SYSTEM" };
 
     // Layout
     const size_t xRowL = 0x20;

@@ -1214,10 +1214,14 @@ public:
     void            Map_Destroy_Tiles();
     void            Map_Destroy_Tiles_Next();
 
+    bool					Game_Load_File(const std::string& pFile);
+    bool                    Game_Load_Latest();
     void					Game_Load();
     std::vector<sSavedGame>	Game_Load_Filter(const std::vector<std::string>& pFiles);
 
     void					Game_Save();
+    bool                    Game_Save_ToFile(const std::string& pFilename, const std::string& pSaveName);
+    void                    Game_Save_Autosave();
 	bool			GameOverCheck();
 
     void            GUI_Handle_Element_Mouse_Check(sGUI_Element* pData20);

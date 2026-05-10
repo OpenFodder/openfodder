@@ -24,9 +24,144 @@
 
 #ifdef WIN32
 #include <windows.h>
+#include <direct.h>
 #endif
+#include <cerrno>
+#include <sys/stat.h>
 
 const int16 SIDEBAR_WIDTH = 48;
+
+bool cFodder::Game_Save_ToFile(const std::string& pFilename, const std::string& pSaveName)
+{
+    std::ofstream outfile(pFilename, std::ios::binary | std::ios::trunc);
+    if (!outfile.is_open())
+        return false;
+
+    outfile << mGame_Data.ToJson(pSaveName);
+    outfile.close();
+
+    if (!outfile.good())
+        return false;
+
+    g_ResourceMan->refresh();
+    return true;
+}
+
+bool cFodder::Game_Load_File(const std::string& pFile)
+{
+    const std::string SaveData = g_ResourceMan->FileReadStr(g_ResourceMan->GetSave(pFile));
+    if (SaveData.empty())
+        return false;
+
+    sGameData SavedData;
+    if (!SavedData.FromJson(SaveData))
+        return false;
+
+    if (SavedData.mSavedVersion.mPlatform != mVersionCurrent->mPlatform)
+    {
+        VersionSwitch(mVersions->GetForCampaign(SavedData.mCampaignName, SavedData.mSavedVersion.mPlatform));
+    }
+
+    if (SavedData.mCampaignName.size())
+    {
+        if (SavedData.mCampaignName == mGame_Data.mCampaign.getName())
+        {
+            SavedData.mCampaign = mGame_Data.mCampaign;
+        }
+        else if (!SavedData.mCampaign.LoadCampaign(SavedData.mCampaignName, SavedData.mCampaignName != mVersionCurrent->mName))
+        {
+            return false;
+        }
+    }
+
+    mGame_Data = SavedData;
+    mMouse_Exit_Loop = false;
+
+    if (mGame_Data.mMission_Phase < 1)
+        mGame_Data.mMission_Phase = 1;
+
+    mGame_Data.mMission_Current = mGame_Data.mCampaign.getMission(mGame_Data.mMission_Number);
+    if (mGame_Data.mMission_Current)
+    {
+        mGame_Data.mPhase_Current = mGame_Data.mMission_Current->PhaseGet(mGame_Data.mMission_Phase);
+        if (!mGame_Data.mPhase_Current)
+        {
+            mGame_Data.mMission_Phase = 1;
+            mGame_Data.mPhase_Current = mGame_Data.mMission_Current->PhaseGet(mGame_Data.mMission_Phase);
+        }
+        mGame_Data.mMission_Phases_Remaining =
+            (int16)mGame_Data.mMission_Current->NumberOfPhases() - (mGame_Data.mMission_Phase - 1);
+    }
+    else
+    {
+        mGame_Data.mPhase_Current = 0;
+    }
+
+    for (int16 x = 0; x < 8; ++x)
+        mMission_Troops_SpritePtrs[x] = INVALID_SPRITE_PTR;
+
+    for (auto &Troop : mGame_Data.mSoldiers_Allocated)
+        Troop.mSprite = INVALID_SPRITE_PTR;
+
+    GameData_Backup();
+    GameData_Restore();
+    return true;
+}
+
+bool cFodder::Game_Load_Latest()
+{
+    auto Files = g_ResourceMan->GetSaves();
+    auto SaveFiles = Game_Load_Filter(Files);
+
+    if (!SaveFiles.size())
+        return false;
+
+    for (const auto& SaveFile : SaveFiles)
+    {
+        if (SaveFile.mFileName == "AUTOSAVE.ofg")
+        {
+            if (Game_Load_File(SaveFile.mFileName))
+                return true;
+        }
+    }
+
+    for (const auto& SaveFile : SaveFiles)
+    {
+        if (SaveFile.mFileName == "AUTOSAVE.ofg")
+            continue;
+
+        if (Game_Load_File(SaveFile.mFileName))
+            return true;
+    }
+
+    return false;
+}
+
+void cFodder::Game_Save_Autosave()
+{
+    if (!mParams->mCheatsEnabled)
+        return;
+
+    auto Paths = g_ResourceMan->getValidPaths();
+    if (Paths.size() == 0)
+        return;
+
+    const std::string SaveDir = Paths[0] + g_ResourceMan->PathGenerate("", eSave);
+    const std::string SaveDirName = SaveDir.back() == '/' || SaveDir.back() == '\\' ? SaveDir.substr(0, SaveDir.size() - 1) : SaveDir;
+    if (!g_ResourceMan->FileExists(SaveDirName))
+    {
+#ifdef WIN32
+        if (_mkdir(SaveDirName.c_str()) != 0 && errno != EEXIST)
+            return;
+#else
+        if (mkdir(SaveDirName.c_str(), 0777) != 0 && errno != EEXIST)
+            return;
+#endif
+    }
+
+    const std::string Filename = Paths[0] + g_ResourceMan->PathGenerate("AUTOSAVE.ofg", eSave);
+    Game_Save_ToFile(Filename, "AUTOSAVE");
+}
 
 cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
 {
@@ -2150,6 +2285,15 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed)
     else
         mKeyCode = 0;
 
+    if (mBriefing_Screen_Active && pPressed)
+    {
+        if (mParams->mCheatsEnabled && pKeyCode == SDL_SCANCODE_F5)
+            Game_Save_Autosave();
+
+        if (mParams->mCheatsEnabled && pKeyCode == SDL_SCANCODE_F9 && Game_Load_Latest())
+            mMouse_Exit_Loop = true;
+    }
+
     // Switch between platforms
     if (!mVersionPlatformSwitchDisabled)
     {
@@ -3048,14 +3192,21 @@ void cFodder::Game_Save()
         return;
     }
 
+    std::string Filename;
+    const std::vector<sSavedGame> SaveFiles = Game_Load_Filter(g_ResourceMan->GetSaves());
+    for (const auto& SaveFile : SaveFiles)
     {
-        std::string Filename = g_ResourceMan->GetSaveNewName();
-        std::ofstream outfile(Filename, std::ofstream::binary);
-        outfile << mGame_Data.ToJson(mInput);
-        outfile.close();
+        if (SaveFile.mName == mInput)
+        {
+            Filename = g_ResourceMan->GetSave(SaveFile.mFileName);
+            break;
+        }
     }
 
-    g_ResourceMan->refresh();
+    if (Filename.empty())
+        Filename = g_ResourceMan->GetSaveNewName();
+
+    Game_Save_ToFile(Filename, mInput);
     mMouse_Exit_Loop = false;
 }
 
@@ -3071,31 +3222,7 @@ void cFodder::Game_Load()
     if (!File.size())
         return;
 
-    auto SaveData = g_ResourceMan->FileReadStr(g_ResourceMan->GetSave(File));
-
-    // Load the game data from the JSONstd::string((char*)SaveData->data(), SaveData->size()))
-    if (!mGame_Data.FromJson(SaveData))
-    {
-        return;
-    }
-
-    // If the game was saved on a different platform, lets look for it and attempt to switch
-    if (mGame_Data.mSavedVersion.mPlatform != mVersionCurrent->mPlatform)
-    {
-
-        VersionSwitch(mVersions->GetForCampaign(mGame_Data.mCampaignName, mGame_Data.mSavedVersion.mPlatform));
-    }
-
-    mMouse_Exit_Loop = false;
-
-    for (int16 x = 0; x < 8; ++x)
-        mMission_Troops_SpritePtrs[x] = INVALID_SPRITE_PTR;
-
-    for (auto &Troop : mGame_Data.mSoldiers_Allocated)
-        Troop.mSprite = INVALID_SPRITE_PTR;
-
-    GameData_Backup();
-    GameData_Restore();
+    Game_Load_File(File);
 }
 
 std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string> &pFiles)
@@ -3738,6 +3865,9 @@ bool cFodder::GameOverCheck()
                 WonGame();
                 return true;
             }
+
+            if (mParams->mCheatsEnabled)
+                Game_Save_Autosave();
 
             if (mVersionDefault->isRandom())
             {
