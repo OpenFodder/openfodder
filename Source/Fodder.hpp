@@ -68,7 +68,16 @@ union sMapTarget {
 struct sSavedGame {
     std::string mFileName;
     std::string	mName;
+    uint64      mTimestamp = 0;
+    uint16      mMissionNumber = 0;
+    uint16      mMissionPhase = 0;
+    uint16      mTroopsAvailable = 0;
+    std::string mMissionName;
 };
+
+static const int16 GUI_SAVELOAD_DELETE = 7;
+static const int16 GUI_SAVELOAD_OVERWRITE = 8;
+static const int16 GUI_SAVELOAD_SELECT_SAVE = 9;
 
 struct sService_Draw {
     int16 mSpriteType;
@@ -1239,19 +1248,30 @@ public:
 
     void            GUI_Box_Draw(const size_t pColorShadow, const size_t pColorPrimary);
     void            GUI_Select_File_Loop(bool pShowCursor);
-    std::string     GUI_Select_File(const char* pTitle, const std::vector<sSavedGame>& pSave, const std::vector<std::string> &pMaps);
+    std::string     GUI_Select_File(const char* pTitle, const std::vector<sSavedGame>& pSave, const std::vector<std::string> &pMaps, bool pSaveDialog = false);
+    std::string     GUI_Save_File(const char* pTitle, const std::vector<sSavedGame>& pSave);
 
     bool            Options_Menu_Run();
 
     void            GUI_Input_CheckKey();
+    void            GUI_Save_Name_Input_Print(int16 pPosY);
     void            GUI_Button_Load_MouseWheel();
     void            GUI_Button_Load_Up();
     void            GUI_Button_Load_Down();
     void            GUI_Button_Load_Exit();
+    void            GUI_Button_Load_Selected();
+    void            GUI_Button_Delete_Selected();
+    void            GUI_Button_Save_Current();
+    void            GUI_Button_Overwrite_Selected();
+    void            GUI_Button_Confirm_Yes();
+    void            GUI_Button_Confirm_No();
     void            GUI_Button_Show_About();
     void            GUI_Button_Show_Options();
     void            GUI_Button_Show_Multiplayer();
     void            GUI_Button_Filename();
+    void            GUI_Button_Save_Filename();
+    void            GUI_Button_Save_Dialog_Filename();
+    bool            GUI_Confirm_Dialog(const std::string& pTitle, const std::string& pSubject, const std::string& pConfirmText);
 
     int16           GUI_Button_NoAction();
     void            GUI_Button_NoAction2();

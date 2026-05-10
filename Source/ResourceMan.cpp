@@ -24,6 +24,7 @@
 #include "Utils/md5.hpp"
 
 #include <chrono>
+#include <cstdio>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -420,6 +421,18 @@ std::string cResourceMan::GetSaveNewName() const {
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
 	return mValidPaths[0] + PathGenerate( std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave);
+}
+
+bool cResourceMan::DeleteSave(const std::string& pName) {
+	const std::string SavePath = GetSave(pName);
+	if (!SavePath.size())
+		return false;
+
+	if (std::remove(SavePath.c_str()) != 0)
+		return false;
+
+	refresh();
+	return true;
 }
 
 std::string cResourceMan::GetScriptPath(const std::string& pType) const {

@@ -22,6 +22,281 @@
 
 #include "stdafx.hpp"
 
+#include <cctype>
+
+static const size_t SAVE_DIALOG_ROW_Y = 0x3E;
+static const size_t SAVE_DIALOG_ROW_H = 0x15;
+static const size_t SAVE_SCREEN_ROW_Y = 0x48;
+static const size_t SAVE_SCREEN_ROW_H = 0x15;
+
+static std::string GUI_SaveDialog_SafeText(const std::string& pText)
+{
+    std::string Result;
+    bool LastWasSpace = false;
+
+    for (char RawChar : pText)
+    {
+        unsigned char Char = (unsigned char)RawChar;
+        Char = (unsigned char)std::toupper(Char);
+
+        if ((Char >= 'A' && Char <= 'Z') || (Char >= '0' && Char <= '9'))
+        {
+            Result.push_back((char)Char);
+            LastWasSpace = false;
+            continue;
+        }
+
+        if (!Result.empty() && !LastWasSpace)
+        {
+            Result.push_back(' ');
+            LastWasSpace = true;
+        }
+    }
+
+    if (!Result.empty() && Result.back() == ' ')
+        Result.pop_back();
+
+    return Result;
+}
+
+static std::string GUI_SaveDialog_FitText(cFodder* pFodder, const std::string& pText, int pMaxPx)
+{
+    std::string SafeText = GUI_SaveDialog_SafeText(pText);
+    if (!pFodder || pMaxPx <= 0)
+        return "";
+
+    std::string Result;
+    int Width = 0;
+    for (char RawChar : SafeText)
+    {
+        const unsigned char Char = (unsigned char)RawChar;
+        const int CharWidth = (int)mFont_Briefing_Width[Char];
+        if (Width + CharWidth > pMaxPx)
+            break;
+
+        Result.push_back((char)Char);
+        Width += CharWidth;
+    }
+
+    while (!Result.empty() && Result.back() == ' ')
+        Result.pop_back();
+
+    return Result;
+}
+
+static std::string GUI_SaveDialog_FormatDate(uint64 pTimestamp)
+{
+    if (!pTimestamp)
+        return "DATE UNKNOWN";
+
+    const char* Months[] = {
+        "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+        "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+    };
+
+    std::time_t Time = (std::time_t)pTimestamp;
+    std::tm LocalTime;
+#ifdef WIN32
+    if (localtime_s(&LocalTime, &Time) != 0)
+        return "DATE UNKNOWN";
+#else
+    std::tm* LocalTimePtr = std::localtime(&Time);
+    if (!LocalTimePtr)
+        return "DATE UNKNOWN";
+    LocalTime = *LocalTimePtr;
+#endif
+
+    std::ostringstream Result;
+    const int MonthIndex = (LocalTime.tm_mon >= 0 && LocalTime.tm_mon < 12) ? LocalTime.tm_mon : 0;
+    Result << LocalTime.tm_mday << " ";
+    Result << Months[MonthIndex] << " ";
+    Result << (LocalTime.tm_year + 1900) << " ";
+    if (LocalTime.tm_hour < 10)
+        Result << "0";
+    Result << LocalTime.tm_hour;
+    if (LocalTime.tm_min < 10)
+        Result << "0";
+    Result << LocalTime.tm_min;
+
+    return Result.str();
+}
+
+static void GUI_SaveDialog_PrintLine(cFodder* pFodder, const std::string& pText, size_t pX1, size_t pX2, size_t pY)
+{
+    const int MaxPx = (int)pX2 - (int)pX1 - 2;
+    pFodder->String_Print_Small_LeftInBox(GUI_SaveDialog_FitText(pFodder, pText, MaxPx), pX1, pX2, pY, 0);
+}
+
+static void GUI_SaveDialog_PrintCentre(cFodder* pFodder, const std::string& pText, size_t pX1, size_t pX2, size_t pY)
+{
+    const int MaxPx = (int)pX2 - (int)pX1 - 2;
+    const std::string Text = GUI_SaveDialog_FitText(pFodder, pText, MaxPx);
+    const int32 TextWidth = pFodder->String_MeasureWidth(mFont_Briefing_Width, Text);
+    int32 X = (int32)pX1 + (((int32)pX2 - (int32)pX1) - TextWidth) / 2;
+    if (X < (int32)pX1)
+        X = (int32)pX1;
+
+    pFodder->String_Print(mFont_Briefing_Width, 0, (size_t)X, pY, Text);
+}
+
+static void GUI_SaveDialog_DrawBoxText(cFodder* pFodder,
+    const std::string& pText,
+    size_t pX1,
+    size_t pX2,
+    size_t pY,
+    size_t pColorShadow,
+    size_t pColorPrimary,
+    eTextAlign pAlign,
+    size_t pPadPx)
+{
+    pFodder->mGUI_Temp_X = (int16)pX1;
+    pFodder->mGUI_Temp_Y = (int16)pY;
+    const int32 Width = (int32)pX2 - (int32)pX1;
+    pFodder->mGUI_Temp_Width = (int16)((Width > 0) ? Width : 0);
+
+    const int MaxPx = (int)pX2 - (int)pX1 - ((int)pPadPx * 2);
+    const std::string Text = GUI_SaveDialog_FitText(pFodder, pText, MaxPx);
+    const int32 TextWidth = pFodder->String_MeasureWidth(mFont_Briefing_Width, Text);
+
+    int32 TextX = (int32)pX1 + (int32)pPadPx;
+    if (pAlign == eTextAlign::Right)
+        TextX = (int32)pX2 - (int32)pPadPx - TextWidth;
+    else if (pAlign == eTextAlign::Centre)
+        TextX = (int32)pX1 + (Width - TextWidth) / 2;
+
+    if (TextX < (int32)pX1)
+        TextX = (int32)pX1;
+
+    pFodder->String_Print(mFont_Briefing_Width, 0, (size_t)TextX, pY, Text);
+
+    if (!pFodder->mGUI_Draw_LastHeight)
+        pFodder->mGUI_Draw_LastHeight = 6;
+
+    pFodder->GUI_Box_Draw(pColorShadow, pColorPrimary);
+}
+
+static void GUI_SaveDialog_DrawDetails(cFodder* pFodder, const sSavedGame* pSave, size_t pX1, size_t pX2, size_t pY1, const std::string& pEmptyText = "NO SAVES")
+{
+    const size_t BoxH = 0x60;
+    const size_t TextX1 = pX1 + 5;
+    const size_t TextX2 = pX2 - 5;
+
+    pFodder->Briefing_DrawBox((int16)pX1, (int16)pY1, (int16)(pX2 - pX1), (int16)BoxH, 0xF3);
+    pFodder->Briefing_DrawBox((int16)(pX1 - 1), (int16)(pY1 - 1), (int16)(pX2 - pX1), (int16)BoxH, 0xF2);
+
+    if (!pSave)
+    {
+        GUI_SaveDialog_PrintCentre(pFodder, pEmptyText, pX1, pX2, pY1 + 0x28);
+        return;
+    }
+
+    std::ostringstream Mission;
+    Mission << "MISSION " << pSave->mMissionNumber << " PHASE " << pSave->mMissionPhase;
+
+    std::ostringstream Troops;
+    Troops << "TROOPS " << pSave->mTroopsAvailable;
+
+    const std::string MissionName = pSave->mMissionName.size() ? pSave->mMissionName : Mission.str();
+
+    GUI_SaveDialog_PrintLine(pFodder, "SELECTED SAVE", TextX1, TextX2, pY1 + 0x06);
+    GUI_SaveDialog_PrintLine(pFodder, pSave->mName, TextX1, TextX2, pY1 + 0x16);
+    GUI_SaveDialog_PrintLine(pFodder, Mission.str(), TextX1, TextX2, pY1 + 0x28);
+    GUI_SaveDialog_PrintLine(pFodder, MissionName, TextX1, TextX2, pY1 + 0x38);
+    GUI_SaveDialog_PrintLine(pFodder, Troops.str(), TextX1, TextX2, pY1 + 0x4A);
+    GUI_SaveDialog_PrintLine(pFodder, GUI_SaveDialog_FormatDate(pSave->mTimestamp), TextX1, TextX2, pY1 + 0x58);
+}
+
+static int16 GUI_SaveDialog_VisibleCount(cFodder* pFodder)
+{
+    int16 VisibleCount = pFodder->mGUI_Select_File_Count - pFodder->mGUI_Select_File_CurrentIndex;
+    if (VisibleCount < 0)
+        VisibleCount = 0;
+    if (VisibleCount > pFodder->mGUI_Select_File_ShownItems)
+        VisibleCount = pFodder->mGUI_Select_File_ShownItems;
+
+    return VisibleCount;
+}
+
+static void GUI_SaveDialog_ClampSelectedIndex(cFodder* pFodder, bool pAllowNoSelection)
+{
+    const int16 VisibleCount = GUI_SaveDialog_VisibleCount(pFodder);
+    if (VisibleCount <= 0)
+    {
+        pFodder->mGUI_Select_File_SelectedFileIndex = pAllowNoSelection ? -1 : 0;
+        return;
+    }
+
+    if (pFodder->mGUI_Select_File_SelectedFileIndex < 0)
+    {
+        if (!pAllowNoSelection)
+            pFodder->mGUI_Select_File_SelectedFileIndex = 0;
+        return;
+    }
+
+    if (pFodder->mGUI_Select_File_SelectedFileIndex >= VisibleCount)
+        pFodder->mGUI_Select_File_SelectedFileIndex = VisibleCount - 1;
+}
+
+static int GUI_SaveDialog_SelectedIndex(cFodder* pFodder, const std::vector<sSavedGame>& pSave)
+{
+    if (pFodder->mGUI_Select_File_SelectedFileIndex < 0)
+        return -1;
+
+    const int SelectedIndex = pFodder->mGUI_Select_File_CurrentIndex + pFodder->mGUI_Select_File_SelectedFileIndex;
+    if (SelectedIndex < 0 || SelectedIndex >= (int)pSave.size())
+        return -1;
+
+    return SelectedIndex;
+}
+
+static const sSavedGame* GUI_SaveDialog_SelectedSave(cFodder* pFodder, const std::vector<sSavedGame>& pSave)
+{
+    const int SelectedIndex = GUI_SaveDialog_SelectedIndex(pFodder, pSave);
+    return (SelectedIndex >= 0) ? &pSave[(size_t)SelectedIndex] : 0;
+}
+
+static void GUI_SaveDialog_DrawRows(cFodder* pFodder,
+    const std::vector<sSavedGame>& pSave,
+    size_t pX1,
+    size_t pX2,
+    size_t pRowY,
+    size_t pRowH,
+    void(cFodder::*pButtonFunc)())
+{
+    auto FileIT = pSave.begin() + pFodder->mGUI_Select_File_CurrentIndex;
+    const int16 VisibleCount = GUI_SaveDialog_VisibleCount(pFodder);
+
+    for (int16 DataC = 0; DataC < VisibleCount && FileIT != pSave.end(); ++DataC, ++FileIT)
+    {
+        const bool Selected = (DataC == pFodder->mGUI_Select_File_SelectedFileIndex);
+        const size_t RowY = pRowY + (DataC * pRowH);
+        const size_t Shadow = Selected ? 0xF2 : 0xB2;
+        const size_t Primary = Selected ? 0xF3 : 0xB3;
+        const std::string SaveName = GUI_SaveDialog_FitText(pFodder, FileIT->mName, (int)(pX2 - pX1 - 8));
+
+        GUI_SaveDialog_DrawBoxText(pFodder, SaveName, pX1, pX2, RowY, Shadow, Primary, eTextAlign::Left, 4);
+        pFodder->GUI_Button_Setup(pButtonFunc);
+    }
+}
+
+static bool GUI_SaveDialog_SelectRow(cFodder* pFodder, size_t pRowY, size_t pRowH)
+{
+    int16 Data0 = pFodder->mMouseY;
+
+    Data0 -= (int16)pRowY;
+    if (Data0 < 0)
+        return false;
+
+    Data0 /= (int16)pRowH;
+
+    const int16 VisibleCount = GUI_SaveDialog_VisibleCount(pFodder);
+    if (Data0 >= VisibleCount)
+        return false;
+
+    pFodder->mGUI_Select_File_SelectedFileIndex = Data0;
+    return true;
+}
+
 /* Amiga Format Menu Buttons */
 const sGUI_Element mAfx_Buttons[] = {
     {&cFodder::GUI_Button_NoAction, 0x6B, 0x6B, 0x4A, 0x6B, &cFodder::GUI_Button_NoAction2},
@@ -1226,7 +1501,7 @@ sGUI_Element *cFodder::GUI_Button_Setup_New(GuiFn pFn, void *pCtx, int16 pAction
     return Element;
 }
 
-std::string cFodder::GUI_Select_File(const char *pTitle, const std::vector<sSavedGame> &pSave, const std::vector<std::string> &pMaps)
+std::string cFodder::GUI_Select_File(const char *pTitle, const std::vector<sSavedGame> &pSave, const std::vector<std::string> &pMaps, bool pSaveDialog)
 {
     mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
@@ -1234,7 +1509,8 @@ std::string cFodder::GUI_Select_File(const char *pTitle, const std::vector<sSave
     mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
 
     mGUI_Select_File_CurrentIndex = 0;
-    mGUI_Select_File_Count = (pSave.size() == 0 ? (int16)pMaps.size() : (int16)pSave.size());
+    mGUI_Select_File_SelectedFileIndex = 0;
+    mGUI_Select_File_Count = (pSaveDialog || pSave.size() != 0) ? (int16)pSave.size() : (int16)pMaps.size();
 
     do
     {
@@ -1250,15 +1526,56 @@ std::string cFodder::GUI_Select_File(const char *pTitle, const std::vector<sSave
         GUI_Button_Draw("DOWN", 0x99 + YOffset);
         GUI_Button_Setup(&cFodder::GUI_Button_Load_Down);
 
-        GUI_Button_Draw("CONTINUE GAME", 0xB3 + YOffset);
-        GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
+        if (pSaveDialog)
+        {
+            mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+
+            if (mGUI_Select_File_Count > 0)
+            {
+                GUI_SaveDialog_DrawBoxText(this, "LOAD", 0x26, 0x66, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+                GUI_Button_Setup(&cFodder::GUI_Button_Load_Selected);
+
+                GUI_SaveDialog_DrawBoxText(this, "DELETE", 0x78, 0xC0, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+                GUI_Button_Setup(&cFodder::GUI_Button_Delete_Selected);
+            }
+
+            GUI_SaveDialog_DrawBoxText(this, "BACK", 0xD2, 0x112, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+            GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
+        }
+        else
+        {
+            GUI_Button_Draw("CONTINUE GAME", 0xB3 + YOffset);
+            GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
+        }
 
         mSurface->Save();
 
         int16 DataC = 0;
 
+        if (pSaveDialog)
+        {
+            const size_t ListX1 = 0x12;
+            const size_t ListX2 = 0x94;
+            const size_t DetailX1 = 0xA2;
+            const size_t DetailX2 = 0x132;
+            const size_t DetailY = 0x36;
+
+            GUI_SaveDialog_ClampSelectedIndex(this, false);
+            if (mGUI_Select_File_Count > 0)
+            {
+                GUI_SaveDialog_DrawRows(this, pSave, ListX1, ListX2, SAVE_DIALOG_ROW_Y, SAVE_DIALOG_ROW_H, &cFodder::GUI_Button_Save_Filename);
+                GUI_SaveDialog_DrawDetails(this, GUI_SaveDialog_SelectedSave(this, pSave), DetailX1, DetailX2, DetailY);
+            }
+            else
+            {
+                GUI_SaveDialog_DrawDetails(this, 0, DetailX1, DetailX2, DetailY);
+                GUI_SaveDialog_PrintCentre(this, "NO SAVES FOUND", ListX1, ListX2, 0x66);
+            }
+
+            mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+        }
         // Draw the raw files list?
-        if (!pSave.size())
+        else if (!pSave.size())
         {
             auto FileIT = pMaps.begin() + mGUI_Select_File_CurrentIndex;
 
@@ -1293,10 +1610,146 @@ std::string cFodder::GUI_Select_File(const char *pTitle, const std::vector<sSave
     if (mGUI_SaveLoadAction == 1)
         return "";
 
-    if (pSave.size())
+    if (pSaveDialog || pSave.size())
+    {
+        if (!pSave.size())
+            return "";
+
         return pSave[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex].mFileName;
+    }
 
     return pMaps[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+}
+
+std::string cFodder::GUI_Save_File(const char* pTitle, const std::vector<sSavedGame>& pSave)
+{
+    mPhase_Aborted = false;
+    mGUI_SaveLoadAction = 0;
+    mGUI_Select_File_String_Input_Callback = 0;
+
+    mGUI_Select_File_CurrentIndex = 0;
+    mGUI_Select_File_SelectedFileIndex = -1;
+    mGUI_Select_File_Count = (int16)pSave.size();
+
+    const int16 OriginalShownItems = mGUI_Select_File_ShownItems;
+    if (mGUI_Select_File_ShownItems > 4)
+        mGUI_Select_File_ShownItems = 4;
+
+    do
+    {
+        size_t YOffset = PLATFORM_BASED(0, 25);
+
+        mSurface->clearBuffer();
+        GUI_Element_Reset();
+
+        mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+        GUI_Render_Text_Centred(pTitle, 0x0C);
+
+        mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+
+        const size_t ListX1 = 0x12;
+        const size_t ListX2 = 0x94;
+        const size_t DetailX1 = 0xA2;
+        const size_t DetailX2 = 0x132;
+
+        GUI_SaveDialog_PrintLine(this, "EXISTING SAVES", ListX1, ListX2, 0x30);
+        GUI_SaveDialog_PrintLine(this, "SAVE NAME", DetailX1 + 5, DetailX2 - 5, 0x28);
+        GUI_SaveDialog_DrawBoxText(this, mInput, DetailX1, DetailX2, 0x38, 0xBF, 0xBC, eTextAlign::Left, 4);
+
+        GUI_SaveDialog_ClampSelectedIndex(this, true);
+
+        if (mInput.size())
+        {
+            GUI_SaveDialog_DrawBoxText(this, "SAVE", 0x12, 0x48, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+            GUI_Button_Setup(&cFodder::GUI_Button_Save_Current);
+        }
+
+        const bool HasSelectedSave = mGUI_Select_File_Count > 0 && mGUI_Select_File_SelectedFileIndex >= 0;
+        if (HasSelectedSave)
+        {
+            GUI_SaveDialog_DrawBoxText(this, "OVERWRITE", 0x50, 0xA2, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+            GUI_Button_Setup(&cFodder::GUI_Button_Overwrite_Selected);
+
+            GUI_SaveDialog_DrawBoxText(this, "DELETE", 0xAA, 0xE2, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+            GUI_Button_Setup(&cFodder::GUI_Button_Delete_Selected);
+        }
+
+        GUI_SaveDialog_DrawBoxText(this, "BACK", 0xEA, 0x126, 0xB3 + YOffset, 0xBF, 0xBC, eTextAlign::Centre, 2);
+        GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
+
+        if (mGUI_Select_File_Count > 0)
+        {
+            GUI_SaveDialog_DrawRows(this, pSave, ListX1, ListX2, SAVE_SCREEN_ROW_Y, SAVE_SCREEN_ROW_H, &cFodder::GUI_Button_Save_Dialog_Filename);
+            GUI_SaveDialog_DrawDetails(this, GUI_SaveDialog_SelectedSave(this, pSave), DetailX1, DetailX2, 0x54, "SELECT A SAVE");
+
+            if (mGUI_Select_File_Count > mGUI_Select_File_ShownItems)
+            {
+                GUI_SaveDialog_DrawBoxText(this, "UP", 0x12, 0x40, 0x9E, 0xBF, 0xBC, eTextAlign::Centre, 2);
+                GUI_Button_Setup(&cFodder::GUI_Button_Load_Up);
+
+                GUI_SaveDialog_DrawBoxText(this, "DOWN", 0x48, 0x80, 0x9E, 0xBF, 0xBC, eTextAlign::Centre, 2);
+                GUI_Button_Setup(&cFodder::GUI_Button_Load_Down);
+            }
+        }
+        else
+        {
+            GUI_SaveDialog_PrintCentre(this, "NO SAVES FOUND", ListX1, ListX2, 0x66);
+            GUI_SaveDialog_DrawDetails(this, 0, DetailX1, DetailX2, 0x54);
+        }
+
+        mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+        mSurface->Save();
+
+        mGUI_Select_File_String_Input_Callback = &cFodder::GUI_Save_Name_Input_Print;
+        GUI_Select_File_Loop(false);
+        mGUI_Select_File_String_Input_Callback = 0;
+        mSurface->Restore();
+
+        if (mGUI_SaveLoadAction == GUI_SAVELOAD_SELECT_SAVE)
+        {
+            const sSavedGame* SelectedSave = GUI_SaveDialog_SelectedSave(this, pSave);
+            if (SelectedSave)
+                mInput = SelectedSave->mName;
+            mGUI_SaveLoadAction = 3;
+        }
+
+    } while (mGUI_SaveLoadAction == 3);
+
+    std::string SelectedFile;
+    if (mGUI_SaveLoadAction != 1 && pSave.size())
+    {
+        const sSavedGame* SelectedSave = GUI_SaveDialog_SelectedSave(this, pSave);
+        if (SelectedSave)
+            SelectedFile = SelectedSave->mFileName;
+    }
+
+    mGUI_Select_File_ShownItems = OriginalShownItems;
+    return (mGUI_SaveLoadAction == 1) ? "" : SelectedFile;
+}
+
+bool cFodder::GUI_Confirm_Dialog(const std::string& pTitle, const std::string& pSubject, const std::string& pConfirmText)
+{
+    mPhase_Aborted = false;
+    mGUI_SaveLoadAction = 0;
+    mGUI_Select_File_String_Input_Callback = 0;
+
+    mSurface->clearBuffer();
+    GUI_Element_Reset();
+
+    mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    GUI_SaveDialog_PrintCentre(this, pTitle, 0x20, 0x120, 0x34);
+    GUI_SaveDialog_PrintCentre(this, pSubject, 0x20, 0x120, 0x50);
+
+    GUI_SaveDialog_DrawBoxText(this, pConfirmText, 0x38, 0xA0, 0x82, 0xBF, 0xBC, eTextAlign::Centre, 2);
+    GUI_Button_Setup(&cFodder::GUI_Button_Confirm_Yes);
+
+    GUI_SaveDialog_DrawBoxText(this, "CANCEL", 0xB0, 0xF8, 0x82, 0xBF, 0xBC, eTextAlign::Centre, 2);
+    GUI_Button_Setup(&cFodder::GUI_Button_Confirm_No);
+
+    mGraphics->SetActiveSpriteSheet(eGFX_RECRUIT);
+    GUI_Select_File_Loop(false);
+
+    return mGUI_SaveLoadAction == 2;
 }
 
 void cFodder::GUI_Select_File_Loop(bool pShowCursor)
@@ -1353,7 +1806,7 @@ void cFodder::GUI_Select_File_Loop(bool pShowCursor)
 
     mPhase_Aborted = false;
 
-    if (mGUI_SaveLoadAction == 3)
+    if (mGUI_SaveLoadAction == 3 || mGUI_SaveLoadAction == GUI_SAVELOAD_SELECT_SAVE)
         return;
 
     Image_FadeOut();
@@ -1401,6 +1854,40 @@ void cFodder::GUI_Button_Load_Exit()
     mGUI_SaveLoadAction = 1;
 }
 
+void cFodder::GUI_Button_Load_Selected()
+{
+    if (mGUI_Select_File_Count > 0)
+        mGUI_SaveLoadAction = 2;
+}
+
+void cFodder::GUI_Button_Delete_Selected()
+{
+    if (mGUI_Select_File_Count > 0 && mGUI_Select_File_SelectedFileIndex >= 0)
+        mGUI_SaveLoadAction = GUI_SAVELOAD_DELETE;
+}
+
+void cFodder::GUI_Button_Save_Current()
+{
+    if (mInput.size())
+        mGUI_SaveLoadAction = 2;
+}
+
+void cFodder::GUI_Button_Overwrite_Selected()
+{
+    if (mGUI_Select_File_Count > 0 && mGUI_Select_File_SelectedFileIndex >= 0)
+        mGUI_SaveLoadAction = GUI_SAVELOAD_OVERWRITE;
+}
+
+void cFodder::GUI_Button_Confirm_Yes()
+{
+    mGUI_SaveLoadAction = 2;
+}
+
+void cFodder::GUI_Button_Confirm_No()
+{
+    mGUI_SaveLoadAction = 1;
+}
+
 void cFodder::GUI_Button_Show_About()
 {
     mGUI_Select_File_String_Input_Callback = 0;
@@ -1421,12 +1908,13 @@ void cFodder::GUI_Button_Show_Multiplayer()
 
 void cFodder::GUI_Input_CheckKey()
 {
+    mKeyCodeAscii = 0;
 
     if (mKeyCode != mInput_LastKey)
     {
         mInput_LastKey = mKeyCode;
 
-        if (!(mInput_LastKey & 0x80))
+        if (mKeyCode && !(mInput_LastKey & 0x80))
         {
 
             if (mKeyCode >= SDL_SCANCODE_A && mKeyCode <= SDL_SCANCODE_Z)
@@ -1447,8 +1935,44 @@ void cFodder::GUI_Input_CheckKey()
             return;
         }
     }
+}
 
-    mKeyCodeAscii = 0;
+void cFodder::GUI_Save_Name_Input_Print(int16 pPosY)
+{
+    (void)pPosY;
+
+    GUI_Input_CheckKey();
+
+    if (mKeyCodeAscii == 0x0D)
+    {
+        if (mInput.size())
+            mGUI_SaveLoadAction = 2;
+        return;
+    }
+
+    if (mKeyCodeAscii == 8)
+    {
+        if (mInput.size())
+        {
+            mInput.pop_back();
+            mGUI_Select_File_SelectedFileIndex = -1;
+            mGUI_SaveLoadAction = 3;
+        }
+        return;
+    }
+
+    if ((mKeyCodeAscii >= 0x30 && mKeyCodeAscii <= 0x39)
+        || (mKeyCodeAscii >= 0x41 && mKeyCodeAscii <= 0x5A))
+    {
+        if (mInput.size() < 12)
+        {
+            mInput.push_back((char)mKeyCodeAscii);
+            mGUI_Select_File_SelectedFileIndex = -1;
+            mGUI_SaveLoadAction = 3;
+        }
+    }
+
+    String_Input_Check();
 }
 
 void cFodder::GUI_Button_Load_MouseWheel()
@@ -1501,6 +2025,18 @@ void cFodder::GUI_Button_Filename()
 
     mGUI_Select_File_SelectedFileIndex = Data0;
     mGUI_SaveLoadAction = 2;
+}
+
+void cFodder::GUI_Button_Save_Filename()
+{
+    if (GUI_SaveDialog_SelectRow(this, SAVE_DIALOG_ROW_Y, SAVE_DIALOG_ROW_H))
+        mGUI_SaveLoadAction = 3;
+}
+
+void cFodder::GUI_Button_Save_Dialog_Filename()
+{
+    if (GUI_SaveDialog_SelectRow(this, SAVE_SCREEN_ROW_Y, SAVE_SCREEN_ROW_H))
+        mGUI_SaveLoadAction = GUI_SAVELOAD_SELECT_SAVE;
 }
 
 int16 cFodder::GUI_Button_NoAction()

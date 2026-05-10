@@ -189,6 +189,7 @@ struct sGameData {
     std::string		mCampaignName;
     std::string		mSavedName;
 	sVersion		mSavedVersion;
+    uint64          mSavedTimestamp;
 
     sGameData();
     sGameData(const std::string& pFromJson);

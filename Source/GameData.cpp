@@ -404,6 +404,7 @@ void sGameData::Clear() {
 
 	mScore_Kills_Away = 0;
 	mScore_Kills_Home = 0;
+    mSavedTimestamp = 0;
 
 	Soldier_Clear();
 	mHeroes.clear();
@@ -656,6 +657,9 @@ bool sGameData::FromJson(const std::string& pJson) {
      Clear();
 
     uint64 Version = LoadedData["SaveVersion"];
+    if (LoadedData.count("Timestamp") > 0)
+        mSavedTimestamp = LoadedData["Timestamp"];
+
     if (Version >= 2) {
         try {
             mMission_Phase = LoadedData["mMission_Phase"];

@@ -74,6 +74,7 @@ public:
 
 	std::string GetSave(const std::string &pName) const;
 	std::string GetSaveNewName() const;
+	bool DeleteSave(const std::string& pName);
 
 	std::string GetTestPath(const sGameVersion* pVersion, const std::string pFile) const;
 	std::string GetScriptPath(const std::string& pType) const;

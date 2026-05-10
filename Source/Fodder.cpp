@@ -31,6 +31,28 @@
 
 const int16 SIDEBAR_WIDTH = 48;
 
+static const sSavedGame* Game_FindSaveByFile(const std::vector<sSavedGame>& pSaves, const std::string& pFileName)
+{
+    for (const auto& SaveFile : pSaves)
+    {
+        if (SaveFile.mFileName == pFileName)
+            return &SaveFile;
+    }
+
+    return 0;
+}
+
+static const sSavedGame* Game_FindSaveByName(const std::vector<sSavedGame>& pSaves, const std::string& pSaveName)
+{
+    for (const auto& SaveFile : pSaves)
+    {
+        if (SaveFile.mName == pSaveName)
+            return &SaveFile;
+    }
+
+    return 0;
+}
+
 bool cFodder::Game_Save_ToFile(const std::string& pFilename, const std::string& pSaveName)
 {
     std::ofstream outfile(pFilename, std::ios::binary | std::ios::trunc);
@@ -3173,56 +3195,91 @@ void cFodder::Game_Save()
 {
     mInput.clear();
     mGUI_Select_File_String_Input_Callback = 0;
-    mSurface->clearBuffer();
 
-    GUI_Element_Reset();
-
-    GUI_Render_Text_Centred("TYPE A SAVE NAME IN", 0x32);
-
-    GUI_Button_Draw("EXIT", 0xA0);
-    GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
-
-    mGUI_Select_File_String_Input_Callback = &cFodder::String_Input_Print;
-    GUI_Select_File_Loop(true);
-    mGUI_Select_File_String_Input_Callback = 0;
-
-    if (mGUI_SaveLoadAction != 2)
+    for (;;)
     {
-        mGUI_SaveLoadAction = 1;
+        const std::vector<sSavedGame> SaveFiles = Game_Load_Filter(g_ResourceMan->GetSaves());
+        const std::string SelectedFile = GUI_Save_File("SAVE GAME", SaveFiles);
+
+        if (mGUI_SaveLoadAction == 1)
+            return;
+
+        const sSavedGame* SelectedSave = Game_FindSaveByFile(SaveFiles, SelectedFile);
+
+        if (mGUI_SaveLoadAction == GUI_SAVELOAD_DELETE)
+        {
+            if (!SelectedSave)
+                continue;
+
+            if (GUI_Confirm_Dialog("DELETE SAVE", SelectedSave->mName, "DELETE"))
+            {
+                g_ResourceMan->DeleteSave(SelectedFile);
+                if (mInput == SelectedSave->mName)
+                    mInput.clear();
+            }
+
+            continue;
+        }
+
+        if (mGUI_SaveLoadAction == GUI_SAVELOAD_OVERWRITE)
+        {
+            if (!SelectedSave)
+                continue;
+
+            if (!GUI_Confirm_Dialog("OVERWRITE SAVE", SelectedSave->mName, "OVERWRITE"))
+                continue;
+
+            Game_Save_ToFile(g_ResourceMan->GetSave(SelectedSave->mFileName), SelectedSave->mName);
+            mMouse_Exit_Loop = false;
+            return;
+        }
+
+        if (mGUI_SaveLoadAction != 2 || !mInput.size())
+            continue;
+
+        const sSavedGame* ExistingSave = Game_FindSaveByName(SaveFiles, mInput);
+
+        if (ExistingSave && !GUI_Confirm_Dialog("OVERWRITE SAVE", ExistingSave->mName, "OVERWRITE"))
+            continue;
+
+        const std::string Filename = ExistingSave
+            ? g_ResourceMan->GetSave(ExistingSave->mFileName)
+            : g_ResourceMan->GetSaveNewName();
+
+        Game_Save_ToFile(Filename, mInput);
+        mMouse_Exit_Loop = false;
         return;
     }
-
-    std::string Filename;
-    const std::vector<sSavedGame> SaveFiles = Game_Load_Filter(g_ResourceMan->GetSaves());
-    for (const auto& SaveFile : SaveFiles)
-    {
-        if (SaveFile.mName == mInput)
-        {
-            Filename = g_ResourceMan->GetSave(SaveFile.mFileName);
-            break;
-        }
-    }
-
-    if (Filename.empty())
-        Filename = g_ResourceMan->GetSaveNewName();
-
-    Game_Save_ToFile(Filename, mInput);
-    mMouse_Exit_Loop = false;
 }
 
 void cFodder::Game_Load()
 {
-    auto Files = g_ResourceMan->GetSaves();
-    std::vector<sSavedGame> SaveFiles;
+    for (;;)
+    {
+        auto Files = g_ResourceMan->GetSaves();
+        std::vector<sSavedGame> SaveFiles;
 
-    SaveFiles = Game_Load_Filter(Files);
-    Files.clear();
+        SaveFiles = Game_Load_Filter(Files);
+        Files.clear();
 
-    const std::string File = GUI_Select_File("SELECT SAVED GAME", SaveFiles, Files);
-    if (!File.size())
+        const std::string File = GUI_Select_File("SELECT SAVED GAME", SaveFiles, Files, true);
+        if (!File.size())
+            return;
+
+        if (mGUI_SaveLoadAction == GUI_SAVELOAD_DELETE)
+        {
+            const sSavedGame* SelectedSave = Game_FindSaveByFile(SaveFiles, File);
+            const std::string SaveName = SelectedSave ? SelectedSave->mName : File;
+
+            if (GUI_Confirm_Dialog("DELETE SAVE", SaveName, "DELETE"))
+                g_ResourceMan->DeleteSave(File);
+
+            continue;
+        }
+
+        Game_Load_File(File);
         return;
-
-    Game_Load_File(File);
+    }
 }
 
 std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string> &pFiles)
@@ -3247,7 +3304,24 @@ std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>
             if (NewData.mSavedVersion.mGame != mVersionCurrent->mGame)
                 continue;
 
-            Results.push_back({CurrentFile, NewData.mSavedName});
+            uint64 Timestamp = NewData.mSavedTimestamp;
+            if (!Timestamp)
+                Timestamp = (uint64)std::atoll(CurrentFile.c_str());
+
+            std::string MissionName;
+            auto Mission = mGame_Data.mCampaign.getMission(NewData.mMission_Number);
+            if (Mission)
+                MissionName = Mission->GetName();
+
+            Results.push_back({
+                CurrentFile,
+                NewData.mSavedName,
+                Timestamp,
+                NewData.mMission_Number,
+                NewData.mMission_Phase,
+                NewData.mRecruits_Available_Count,
+                MissionName
+            });
         }
         catch (...)
         {
@@ -3256,8 +3330,13 @@ std::vector<sSavedGame> cFodder::Game_Load_Filter(const std::vector<std::string>
     }
 
     // Sort newest first
-    std::sort(Results.begin(), Results.end(), [](sSavedGame &pLeft, sSavedGame &pRight)
-              { return std::atoll(pLeft.mFileName.c_str()) > std::atoll(pRight.mFileName.c_str()); });
+    std::sort(Results.begin(), Results.end(), [](const sSavedGame &pLeft, const sSavedGame &pRight)
+    {
+        if (pLeft.mTimestamp != pRight.mTimestamp)
+            return pLeft.mTimestamp > pRight.mTimestamp;
+
+        return std::atoll(pLeft.mFileName.c_str()) > std::atoll(pRight.mFileName.c_str());
+    });
 
     return Results;
 }
