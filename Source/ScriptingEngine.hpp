@@ -20,6 +20,10 @@
  *
  */
 
+#include <cstdint>
+
+#include "Network/NetworkTypes.hpp"
+
 struct duk_hthread;
 class cRandomMap;
 
@@ -58,6 +62,29 @@ protected:
 	bool scriptRun(const std::string& pJS, const std::string& pFilename);
 	bool scriptsLoadFolder(const std::string& pFolder);
 	void spritesCreateObject();
+
+	bool networkEnabled() const;
+	int networkGameMode() const;
+	uint32_t networkMapSeed() const;
+	int networkPlayerCount() const;
+	int networkTeamCount() const;
+	int networkTeamSize() const;
+	int networkKillLimit() const;
+	int networkTimeLimitSeconds() const;
+	bool networkFriendlyFire() const;
+	int networkMapSize() const;
+	int networkMapTerrain() const;
+	int networkVehicleSet() const;
+	int networkPickupDensity() const;
+	int networkCoverDensity() const;
+	bool randomMapOptionsEnabled() const;
+	uint32_t randomMapSeed() const;
+	int randomMapSize() const;
+	int randomMapTerrain() const;
+	int randomMapVehicleSet() const;
+	int randomMapPickupDensity() const;
+	int randomMapCoverDensity() const;
+	int randomMapProfile() const;
 
 public:
 

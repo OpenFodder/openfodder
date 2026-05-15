@@ -415,6 +415,9 @@ loc_250D2:;
     if (Data30 == INVALID_SPRITE_PTR)
         goto loc_251B4;
 
+    if (!Sprite_CanTargetSprite(pSprite, Data30))
+        goto loc_251B4;
+
     if (Data30->mRowsToSkip)
         goto loc_251B4;
 

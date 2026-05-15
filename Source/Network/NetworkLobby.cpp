@@ -24,6 +24,22 @@
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
+static uint32_t Lobby_GeneratePlayerId(uint16_t pLocalPort, bool pIsHost) {
+    uint32_t Id = 2166136261u;
+
+    auto Mix = [&Id](uint32_t pValue) {
+        Id ^= pValue;
+        Id *= 16777619u;
+    };
+
+    Mix((uint32_t)SDL_GetTicks());
+    Mix((uint32_t)pLocalPort);
+    Mix(pIsHost ? 0x484F5354u : 0x4A4F494Eu); // HOST / JOIN
+    Mix((uint32_t)(uintptr_t)&Id);
+
+    return Id ? Id : 1;
+}
+
 cNetworkLobby::cNetworkLobby() {
     memset(&mRemoteAddr, 0, sizeof(mRemoteAddr));
 }
@@ -35,6 +51,8 @@ cNetworkLobby::~cNetworkLobby() {
 bool cNetworkLobby::Start(uint16_t pLocalPort, const std::string& pRemoteHost, uint16_t pRemotePort, bool pIsHost) {
     Stop();
     mIsHost = pIsHost;
+    mLocalPlayerId = Lobby_GeneratePlayerId(pLocalPort, pIsHost);
+    mRemotePlayerId = 0;
 
 #ifdef WIN32
     WSADATA wsaData;
@@ -84,13 +102,22 @@ bool cNetworkLobby::Start(uint16_t pLocalPort, const std::string& pRemoteHost, u
     mRemoteStarted = false;
     mRemoteSelection = 0;
     mRemoteCampaign.clear();
+    mRemoteMatchSettings = sNetworkMatchSettings();
+    mRemoteSelectedTeam = 0;
+    mRemoteSelectedClass = 0;
+    mRemoteLockedIn = false;
     mLocalSelection = 0;
     mLocalCampaign.clear();
+    mLocalMatchSettings = sNetworkMatchSettings();
+    mLocalSelectedTeam = 0;
+    mLocalSelectedClass = 0;
+    mLocalLockedIn = false;
     mLocalReady = false;
     mLocalStarted = false;
 
     g_Debugger->Notice("[Lobby] Started on port " + std::to_string(pLocalPort) +
                        " -> " + pRemoteHost + ":" + std::to_string(pRemotePort) +
+                       " id=" + std::to_string(mLocalPlayerId) +
                        (pIsHost ? " (HOST)" : " (JOIN)"));
     return true;
 }
@@ -119,6 +146,26 @@ void cNetworkLobby::SetSelection(int16_t pIndex, const std::string& pCampaign) {
     mLocalCampaign = pCampaign;
 }
 
+void cNetworkLobby::SetMatchSettings(const sNetworkMatchSettings& pSettings) {
+    mLocalMatchSettings = pSettings;
+    mLocalMatchSettings.mGameMode = Network_NormalizeGameMode((uint8_t)pSettings.mGameMode);
+    mLocalMatchSettings.mMapSize = Network_NormalizeMapSize((uint8_t)pSettings.mMapSize);
+    mLocalMatchSettings.mMapTerrain = Network_NormalizeMapTerrain((uint8_t)pSettings.mMapTerrain);
+    mLocalMatchSettings.mVehicleSet = Network_NormalizeVehicleSet((uint8_t)pSettings.mVehicleSet);
+    mLocalMatchSettings.mPickupDensity = Network_NormalizePickupDensity((uint8_t)pSettings.mPickupDensity);
+    mLocalMatchSettings.mCoverDensity = Network_NormalizeCoverDensity((uint8_t)pSettings.mCoverDensity);
+    if (!mLocalMatchSettings.mTeamCount)
+        mLocalMatchSettings.mTeamCount = NETWORK_TEAM_COUNT_DEFAULT;
+    if (!mLocalMatchSettings.mTeamSize)
+        mLocalMatchSettings.mTeamSize = NETWORK_TEAM_SIZE_DEFAULT;
+}
+
+void cNetworkLobby::SetPlayerSelection(uint8_t pTeam, uint8_t pClass, bool pLockedIn) {
+    mLocalSelectedTeam = pTeam;
+    mLocalSelectedClass = pClass;
+    mLocalLockedIn = pLockedIn;
+}
+
 void cNetworkLobby::SetReady(bool pReady) {
     mLocalReady = pReady;
 }
@@ -127,15 +174,45 @@ void cNetworkLobby::SetStarted() {
     mLocalStarted = true;
 }
 
+std::string cNetworkLobby::GetRemoteHost() const {
+    char AddrText[INET_ADDRSTRLEN];
+    memset(AddrText, 0, sizeof(AddrText));
+    if (!inet_ntop(AF_INET, &mRemoteAddr.sin_addr, AddrText, sizeof(AddrText)))
+        return "";
+
+    return AddrText;
+}
+
+uint16_t cNetworkLobby::GetRemotePort() const {
+    return ntohs(mRemoteAddr.sin_port);
+}
+
 void cNetworkLobby::Send() {
     sLobbyPacket pkt;
     memset(&pkt, 0, sizeof(pkt));
     pkt.magic     = sLobbyPacket::MAGIC;
+    pkt.playerId  = mLocalPlayerId;
     pkt.type      = sLobbyPacket::LOBBY_STATE;
+    pkt.version   = sLobbyPacket::VERSION;
     pkt.ready     = mLocalReady ? 1 : 0;
     pkt.selection = mLocalSelection;
     pkt.started   = mLocalStarted ? 1 : 0;
     pkt.connected = 1;
+    pkt.gameMode = (uint8_t)mLocalMatchSettings.mGameMode;
+    pkt.teamCount = mLocalMatchSettings.mTeamCount;
+    pkt.teamSize = mLocalMatchSettings.mTeamSize;
+    pkt.friendlyFire = mLocalMatchSettings.mFriendlyFire ? 1 : 0;
+    pkt.mapSeed = mLocalMatchSettings.mMapSeed;
+    pkt.killLimit = mLocalMatchSettings.mKillLimit;
+    pkt.timeLimitSeconds = mLocalMatchSettings.mTimeLimitSeconds;
+    pkt.selectedTeam = mLocalSelectedTeam;
+    pkt.selectedClass = mLocalSelectedClass;
+    pkt.lockedIn = mLocalLockedIn ? 1 : 0;
+    pkt.mapSize = (uint8_t)mLocalMatchSettings.mMapSize;
+    pkt.mapTerrain = (uint8_t)mLocalMatchSettings.mMapTerrain;
+    pkt.vehicleSet = (uint8_t)mLocalMatchSettings.mVehicleSet;
+    pkt.pickupDensity = (uint8_t)mLocalMatchSettings.mPickupDensity;
+    pkt.coverDensity = (uint8_t)mLocalMatchSettings.mCoverDensity;
 
     // Copy campaign name (truncate if too long)
     size_t len = mLocalCampaign.size();
@@ -150,35 +227,75 @@ void cNetworkLobby::Send() {
 
 void cNetworkLobby::Receive() {
     sLobbyPacket pkt;
+    sLobbyPacket latestPkt;
+    memset(&latestPkt, 0, sizeof(latestPkt));
+
     struct sockaddr_in fromAddr;
+    memset(&fromAddr, 0, sizeof(fromAddr));
 #ifdef WIN32
-    int fromLen = sizeof(fromAddr);
+    int fromLen;
 #else
-    socklen_t fromLen = sizeof(fromAddr);
+    socklen_t fromLen;
 #endif
 
     // Drain all pending packets, keep the latest
     bool gotPacket = false;
     for (;;) {
+        fromLen = sizeof(fromAddr);
         int n = recvfrom(mSocket, (char*)&pkt, sizeof(pkt), 0,
                          (struct sockaddr*)&fromAddr, &fromLen);
         if (n != sizeof(pkt))
             break;
         if (pkt.magic != sLobbyPacket::MAGIC)
             continue;
+        if (pkt.version != sLobbyPacket::VERSION)
+            continue;
+        if (pkt.type != sLobbyPacket::LOBBY_STATE)
+            continue;
+        if (!pkt.playerId || pkt.playerId == mLocalPlayerId)
+            continue;
+        if (mRemotePlayerId && pkt.playerId != mRemotePlayerId)
+            continue;
+
+        if (!mRemotePlayerId)
+            mRemotePlayerId = pkt.playerId;
+
+        // The host learns the joiner's address from incoming lobby packets.
+        // Joiners already have the host endpoint from the menu/discovery; do
+        // not rewrite it from packet source addresses because loopback/LAN
+        // routes can alternate on the same machine and produce unstable
+        // gameplay endpoints.
+        if (mIsHost)
+            mRemoteAddr = fromAddr;
+        latestPkt = pkt;
         gotPacket = true;
     }
 
     if (!gotPacket)
         return;
 
-    mRemoteConnected = (pkt.connected != 0);
-    mRemoteReady     = (pkt.ready != 0);
-    mRemoteStarted   = (pkt.started != 0);
-    mRemoteSelection = pkt.selection;
+    mRemoteConnected = (latestPkt.connected != 0);
+    mRemoteReady     = (latestPkt.ready != 0);
+    mRemoteStarted   = (latestPkt.started != 0);
+    mRemoteSelection = latestPkt.selection;
 
-    pkt.campaign[sizeof(pkt.campaign) - 1] = '\0';
-    mRemoteCampaign = pkt.campaign;
+    latestPkt.campaign[sizeof(latestPkt.campaign) - 1] = '\0';
+    mRemoteCampaign = latestPkt.campaign;
+    mRemoteMatchSettings.mGameMode = Network_NormalizeGameMode(latestPkt.gameMode);
+    mRemoteMatchSettings.mTeamCount = latestPkt.teamCount ? latestPkt.teamCount : NETWORK_TEAM_COUNT_DEFAULT;
+    mRemoteMatchSettings.mTeamSize = latestPkt.teamSize ? latestPkt.teamSize : NETWORK_TEAM_SIZE_DEFAULT;
+    mRemoteMatchSettings.mFriendlyFire = latestPkt.friendlyFire ? 1 : 0;
+    mRemoteMatchSettings.mMapSeed = latestPkt.mapSeed;
+    mRemoteMatchSettings.mKillLimit = latestPkt.killLimit;
+    mRemoteMatchSettings.mTimeLimitSeconds = latestPkt.timeLimitSeconds;
+    mRemoteMatchSettings.mMapSize = Network_NormalizeMapSize(latestPkt.mapSize);
+    mRemoteMatchSettings.mMapTerrain = Network_NormalizeMapTerrain(latestPkt.mapTerrain);
+    mRemoteMatchSettings.mVehicleSet = Network_NormalizeVehicleSet(latestPkt.vehicleSet);
+    mRemoteMatchSettings.mPickupDensity = Network_NormalizePickupDensity(latestPkt.pickupDensity);
+    mRemoteMatchSettings.mCoverDensity = Network_NormalizeCoverDensity(latestPkt.coverDensity);
+    mRemoteSelectedTeam = latestPkt.selectedTeam;
+    mRemoteSelectedClass = latestPkt.selectedClass;
+    mRemoteLockedIn = (latestPkt.lockedIn != 0);
 }
 
 #endif // OPENFODDER_ENABLE_NETWORK

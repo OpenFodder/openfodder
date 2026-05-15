@@ -286,7 +286,7 @@ void cFodder::Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC,
         if (!mSprite_Can_Be_RunOver[Sprite->mSpriteType])
             continue;
 
-        if (pSprite->mPersonType == Sprite->mPersonType)
+        if (!Sprite_CanVehicleDamageTarget(pSprite, Sprite))
             continue;
 
         if (Sprite->mSpriteType == eSprite_Hostage)
@@ -320,6 +320,8 @@ void cFodder::Sprite_Under_Vehicle(sSprite* pSprite, int16 pData8, int16 pDataC,
         }
 
         // Run Over
+        Sprite_RecordDamage(pSprite, Sprite);
+
         Sprite->mAnimState = eSprite_Anim_Die1;
         if (!Sprite->mVehicleEnabled)
             return;
@@ -525,7 +527,7 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
         Data10 = -1;
     }
 
-    if (Sprite_Find_By_Types(pSprite, Data0, Data4, Data8, DataC, Data10, Data28))
+    if (Sprite_Find_Hostile_By_Types(pSprite, Data0, Data4, Data8, DataC, Data10, Data28))
         goto loc_240F3;
 
     if (mSprite_Find_Distance >= 0x28) {
@@ -747,6 +749,7 @@ int16 cFodder::Sprite_Create_Cannon(sSprite* pSprite) {
     Data2C->mDirection = Data0;
     Data2C->field_3A = 0;
     Data2C->mOwnerSprite = pSprite;
+    Sprite_SetDamageOwner(Data2C, pSprite);
     Data2C->field_2A = 2;
     Data2C->mProjectileOffsetX = 0;
     Data2C->mProjectileOffsetY = 2;
@@ -786,7 +789,7 @@ void cFodder::Sprite_Handle_Vehicle_Enemy(sSprite* pSprite) {
     Data8 = 0x3E;
     DataC = 0x46;
     Data10 = -1;
-    if (Sprite_Find_By_Types(pSprite, Data0, Data4, Data8, DataC, Data10, Data28))
+    if (Sprite_Find_Hostile_By_Types(pSprite, Data0, Data4, Data8, DataC, Data10, Data28))
         goto loc_255DA;
 
     Data0 = tool_RandomGet() & 3;
@@ -1239,6 +1242,9 @@ void cFodder::Sprite_Handle_Tank_Enemy(sSprite* pSprite) {
 
     Data30 = mSquads[Data1C / 9][Data1C % 9];
     if (Data30 == INVALID_SPRITE_PTR)
+        goto NextSquadMember;
+
+    if (!Sprite_CanTargetSprite(pSprite, Data30))
         goto NextSquadMember;
 
     if (Data30->mRowsToSkip)
@@ -1759,12 +1765,107 @@ loc_31692:;
     return 0;
 }
 
+static bool Vehicle_CanFirePlayerWeapon(const sSprite* pVehicle) {
+    if (!pVehicle)
+        return false;
+
+    switch (pVehicle->mSpriteType) {
+    case eSprite_VehicleGun_Human:
+    case eSprite_VehicleGun_Enemy:
+    case eSprite_Tank_Human:
+    case eSprite_Tank_Enemy:
+    case eSprite_Turret_Missile_Human:
+    case eSprite_Turret_Missile2_Human:
+    case eSprite_Turret_Missile_Enemy:
+    case eSprite_Turret_Missile2_Enemy:
+    case eSprite_Turret_HomingMissile_Enemy:
+    case eSprite_Turret_Cannon_Invulnerable:
+    case eSprite_Turret_Missile_Invulnerable:
+    case eSprite_Helicopter_Grenade_Human:
+    case eSprite_Helicopter_Missile_Human:
+    case eSprite_Helicopter_Homing_Human:
+    case eSprite_Helicopter_Grenade_Human_Called:
+    case eSprite_Helicopter_Missile_Human_Called:
+    case eSprite_Helicopter_Homing_Human_Called:
+    case eSprite_Helicopter_Grenade_Enemy:
+    case eSprite_Helicopter_Missile_Enemy:
+    case eSprite_Helicopter_Homing_Enemy:
+    case eSprite_Helicopter_Homing_Enemy2:
+        return true;
+
+    case eSprite_VehicleNoGun_Human:
+    case eSprite_VehicleNoGun_Enemy:
+    case eSprite_Vehicle_Unk_Enemy:
+    case eSprite_Helicopter_Unarmed_Human:
+    case eSprite_Helicopter_Unarmed_Human_Called:
+    case eSprite_Helicopter_Unarmed_Enemy:
+        return false;
+
+    default:
+        break;
+    }
+
+    switch (pVehicle->mVehicleType) {
+    case eVehicle_JeepRocket:
+    case eVehicle_Tank:
+    case eVehicle_Turret_Cannon:
+    case eVehicle_Turret_Missile:
+    case eVehicle_Turret_Homing:
+    case eVehicle_Helicopter_Grenade:
+    case eVehicle_Helicopter_Missile:
+    case eVehicle_Helicopter_Homing:
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+sSprite* cFodder::Vehicle_GetSelectedSquadVehicle() const {
+    if (Sprite_IsActiveSpritePointer(mSquad_CurrentVehicle))
+        return mSquad_CurrentVehicle;
+
+    if (mSquad_Selected < 0 || mSquad_Selected >= NETWORK_MAX_SQUADS)
+        return 0;
+
+    sSprite** Squad = mSquads[mSquad_Selected];
+    if (!Squad)
+        return 0;
+
+    for (int16 Index = 0; Index < 9; ++Index) {
+        sSprite* Member = Squad[Index];
+        if (Member == INVALID_SPRITE_PTR || Member == 0)
+            break;
+
+        if (!Sprite_IsActiveSpritePointer(Member))
+            continue;
+
+        if (!Member->mInVehicle)
+            continue;
+
+        if (Sprite_IsActiveSpritePointer(Member->mCurrentVehicle))
+            return Member->mCurrentVehicle;
+    }
+
+    return 0;
+}
+
 void cFodder::Vehicle_Target_Set() {
 
     if (Mouse_Button_Right_Toggled() < 0)
         return;
 
-    sSprite* Vehicle = mSquad_CurrentVehicle;
+    sSprite* Vehicle = Vehicle_GetSelectedSquadVehicle();
+    mMouse_Button_LeftRight_Toggle = false;
+    mMouse_Button_LeftRight_Toggle2 = false;
+    mSquad_Member_Fire_CoolDown_Override = false;
+
+    if (!Vehicle_CanFirePlayerWeapon(Vehicle)) {
+        if (Vehicle)
+            Vehicle->mFiredWeaponType = 0;
+        return;
+    }
+
     Vehicle->mFiredWeaponType = -1;
 
     int16 PosX = mMouseX;

@@ -23,6 +23,7 @@
 #include "stdafx.hpp"
 #include "Utils/md5.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <fcntl.h>
@@ -518,6 +519,10 @@ bool cResourceMan::FileExists(const std::string& pPath) const {
 	return false;
 }
 
+static void ResourceMan_SortDirectoryList(std::vector<std::string>& pResults) {
+	std::sort(pResults.begin(), pResults.end());
+}
+
 #ifdef WIN32
 #include "Windows.h"
 #include <direct.h>
@@ -550,11 +555,11 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 	pathFin[size] = 0;
 
 	if ((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
-		delete pathFin;
+		delete[] pathFin;
 		return results;
 	}
 
-	delete pathFin;
+	delete[] pathFin;
 	size_t tmp = 0;
 
 	{
@@ -563,7 +568,7 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 
 		wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
 		results.push_back(std::string(file));
-		delete file;
+		delete[] file;
 	}
 
 	while (1) {
@@ -573,7 +578,7 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 
 			wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
 			results.push_back(std::string(file));
-			delete file;
+			delete[] file;
 
 		}
 		else {
@@ -589,6 +594,7 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 
 	FindClose(dhandle);
 
+	ResourceMan_SortDirectoryList(results);
 	return results;
 }
 
@@ -632,7 +638,10 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 	for (int i = 0; i < count; ++i) {
 
 		results.push_back(std::string(directFiles[i]->d_name));
+		free(directFiles[i]);
 	}
+	if (count >= 0)
+		free(directFiles);
 
 	transform(findType.begin(), findType.end(), findType.begin(), ::tolower);
 
@@ -641,8 +650,12 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 	for (int i = 0; i < count; ++i) {
 
 		results.push_back(std::string(directFiles[i]->d_name));
+		free(directFiles[i]);
 	}
+	if (count >= 0)
+		free(directFiles);
 
+	ResourceMan_SortDirectoryList(results);
 	return results;
 }
 

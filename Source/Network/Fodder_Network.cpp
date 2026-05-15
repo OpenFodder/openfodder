@@ -31,6 +31,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstdint>
+#include <algorithm>
 
 #ifdef WIN32
 #  include <winsock2.h>
@@ -47,6 +48,59 @@
 #  define closesocket close
 #endif
 
+namespace {
+
+void Network_PutOverviewPixel(cSurface* pSurface, int pX, int pY, uint8_t pColour) {
+    if (!pSurface || pX < 0 || pY < 0)
+        return;
+
+    const int Width = static_cast<int>(pSurface->GetWidth());
+    const int Height = static_cast<int>(pSurface->GetHeight());
+    if (pX >= Width || pY >= Height)
+        return;
+
+    uint8_t* Buffer = pSurface->GetSurfaceBuffer();
+    Buffer[(pY * Width) + pX] = pColour;
+}
+
+uint8_t Network_SelectFlagForLocalSlot(int16 pLocalSlot) {
+    switch (pLocalSlot) {
+    case 0: return eNetKey_Squad0;
+    case 1: return eNetKey_Squad1;
+    case 2: return eNetKey_Squad2;
+    default: return eNetKey_None;
+    }
+}
+
+int16 Network_LocalSlotFromSelectFlags(uint8_t pFlags) {
+    if (pFlags & eNetKey_Squad0) return 0;
+    if (pFlags & eNetKey_Squad1) return 1;
+    if (pFlags & eNetKey_Squad2) return 2;
+    return -1;
+}
+
+uint8_t Network_ToggleTroopCommand(int16 pTroopRow) {
+    if (pTroopRow < 0 || pTroopRow > 7)
+        return eNetCommand_None;
+
+    return static_cast<uint8_t>(eNetCommand_ToggleTroop0 + pTroopRow);
+}
+
+int16 Network_TroopRowFromCommand(uint8_t pCommand) {
+    if (pCommand < eNetCommand_ToggleTroop0 || pCommand > eNetCommand_ToggleTroop7)
+        return -1;
+
+    return static_cast<int16>(pCommand - eNetCommand_ToggleTroop0);
+}
+
+const int16 Network_SquadSplitIcons[] = {
+    0, 3, 4,
+    6, 1, 5,
+    8, 7, 2
+};
+
+}
+
 // ============================================================
 // Desync diagnostic log — writes to sync_p1.log / sync_p2.log
 // ============================================================
@@ -58,6 +112,22 @@ static FILE* SyncLog_Get(int playerIndex) {
         sSyncLog = fopen(name, "w");
     }
     return sSyncLog;
+}
+
+static std::string Network_FormatMatchTime(uint16_t pSeconds) {
+    char Buffer[16];
+    const unsigned Minutes = pSeconds / 60;
+    const unsigned Seconds = pSeconds % 60;
+    snprintf(Buffer, sizeof(Buffer), "%02uM%02uS", Minutes, Seconds);
+    return Buffer;
+}
+
+static std::string Network_PlayerLabel(int16 pPlayer) {
+    if (pPlayer == eNetPlayer_1)
+        return "PLAYER 1";
+    if (pPlayer == eNetPlayer_2)
+        return "PLAYER 2";
+    return "PLAYER";
 }
 
 // ============================================================
@@ -224,20 +294,28 @@ bool cFodderMultiplayer::Network_Start() {
     g_Debugger->Notice("[GGPO] Network_Start: player=" + std::to_string(mStartParams->mNetworkPlayerIndex) +
                        " host=" + mStartParams->mNetworkRemoteHost +
                        " remotePort=" + std::to_string(mStartParams->mNetworkRemotePort) +
-                       " localPort=" + std::to_string(mStartParams->mNetworkLocalPort));
+                       " localPort=" + std::to_string(mStartParams->mNetworkLocalPort) +
+                       " mode=" + Network_GameModeName(mStartParams->mNetworkGameMode) +
+                       " seed=" + std::to_string(mStartParams->mNetworkMapSeed));
     mNetSession = std::make_unique<cGGPOSession>();
     mNetFrameCount = 0;
+    Network_ResetMatchState();
+    Network_ResetSquadOwnership();
     mInterruptTick = 0;          // Both machines must start with the same tick counter
     mNetKeyFlagsLocal = 0;
+    mSquad_SwitchWeapon = 0;
     mNet_P2_CursorX = 0;
     mNet_P2_CursorY = 0;
     mNet_RemoteCursorSprite = 0;
+    mNetMapOverlayActive = false;
+    mNetSidebarLeftWasDown = false;
+    mNet_LocalCamSquad = -1;
     mNet_LocalCursorWorldX = 0;
     mNet_LocalCursorWorldY = 0;
     mNetLocalPlayerIndex = mStartParams->mNetworkPlayerIndex;
-    mNet_P2CamInitialised = false;
+    mNet_LocalCamInitialised = false;
     memset(&mNet_DetCam, 0, sizeof(mNet_DetCam));
-    memset(&mNet_P2Cam,  0, sizeof(mNet_P2Cam));
+    memset(&mNet_LocalCam, 0, sizeof(mNet_LocalCam));
     memset(mNet_ButtonLeftToggle,  0, sizeof(mNet_ButtonLeftToggle));
     memset(mNet_ButtonRightToggle, 0, sizeof(mNet_ButtonRightToggle));
     memset(mNet_ButtonLRToggle,    0, sizeof(mNet_ButtonLRToggle));
@@ -250,7 +328,7 @@ bool cFodderMultiplayer::Network_Start() {
     // Both machines must use the same RNG state for determinism.
     // The default cPseudorand constructor seeds from time(), which differs
     // between machines.  Reset to a fixed seed so both start identical.
-    mRandom.setSeed(0x1337);
+    mRandom.setSeed((int16)mStartParams->mNetworkMapSeed);
     mRandomCallCount = 0;
 
     // Wire GGPO callbacks to member functions via lambdas.
@@ -291,6 +369,11 @@ bool cFodderMultiplayer::Network_Start() {
 // ============================================================
 
 void cFodderMultiplayer::Network_Stop() {
+    mNetMapOverlayActive = false;
+
+    if (mLobby)
+        mLobby->Stop();
+
     if (mNetSession) {
         mNetSession->Stop();
         mNetSession.reset();
@@ -321,24 +404,71 @@ void cFodderMultiplayer::Network_Sidebar_ForceSquadIcons() {
     const int16 savedLoopDrawY = mGUI_Loop_Draw_Y;
     const int16 savedLoopIsCurrentSquad = mGUI_Loop_Is_CurrentSquad;
 
-    const int16 localSq = static_cast<int16>(mNetLocalPlayerIndex);
+    const bool PrivateSidebar = Network_UsesPrivateSplitSquads();
+    const int16 localPlayer = static_cast<int16>(mNetLocalPlayerIndex);
+    const int16 localSelectedSq = Network_GetPlayerSelectedSquad(localPlayer);
+    int16 drawY = 0;
 
-    for (int16 sq = 0; sq < 3; ++sq) {
-        mGUI_Loop_Squad_Current = sq;
-        mGUI_Loop_Draw_Y = word_3AC2D[sq];
+    memset(mSidebar_Screen_Buffer, 0, mSidebar_Buffer_Size);
+    mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(0xD0, 0, getCameraHeight() - 0x0B);
+    for (int Slot = 0; Slot < 3; ++Slot)
+        word_3AC2D[Slot] = 0;
+
+    const int16 VisibleSlots = PrivateSidebar ? NETWORK_MAX_LOCAL_SQUADS : NETWORK_MAX_PLAYERS;
+    for (int16 slot = 0; slot < VisibleSlots; ++slot) {
+        const int16 sq = PrivateSidebar
+            ? Network_GetPlayerSquadForLocalSlot(localPlayer, slot)
+            : slot;
+
+        if (sq < 0 || sq >= NETWORK_MAX_SQUADS)
+            continue;
+
         if (!mSquads_TroopCount[sq])
             continue;
-        mGUI_Loop_Is_CurrentSquad = (sq == localSq) ? -1 : 0;
 
-        // Redraw the squad icon (active/inactive walking man).
+        if (drawY)
+            drawY += 5;
+
+        mGUI_Loop_Squad_Current = sq;
+        mGUI_Loop_Draw_Y = drawY;
+        mGUI_Loop_Is_CurrentSquad = (sq == localSelectedSq) ? -1 : 0;
+        if (slot < 3)
+            word_3AC2D[slot] = drawY;
+
+        if (PrivateSidebar) {
+            int16 HeaderIcon = slot;
+            if (sq == localSelectedSq && Network_PlayerCanSplitSelectedSquad(localPlayer)) {
+                const int16 EmptySquad = Network_FindEmptyOwnedSquad(localPlayer);
+                const int16 EmptySlot = Network_GetSquadLocalSlot(localPlayer, EmptySquad);
+                if (EmptySlot >= 0 && EmptySlot < NETWORK_MAX_LOCAL_SQUADS)
+                    HeaderIcon = Network_SquadSplitIcons[(slot * NETWORK_MAX_LOCAL_SQUADS) + EmptySlot];
+            }
+            mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(HeaderIcon, 0, drawY);
+        }
+        else if (sq < 3) {
+            GUI_Sidebar_SplitButton_Draw();
+        }
+        else {
+            mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(slot, 0, drawY);
+        }
+        GUI_Sidebar_Grenades_Draw();
+        GUI_Sidebar_Rockets_Draw();
         GUI_Sidebar_SquadIcon_Set();
         GUI_Sidebar_SquadIcon_Current_Draw();
-
-        // Redraw the troop list backgrounds and names.  In the original
-        // game these are only drawn during sidebar setup, which runs with
-        // mSquad_Selected = 0 (deterministic).  We must repaint them here
-        // so each player sees the correct active/inactive styling.
         GUI_Sidebar_TroopList_Draw();
+
+        drawY = mGUI_Squad_NextDraw_Y;
+    }
+
+    for (int Slot = VisibleSlots; Slot < 3; ++Slot)
+        word_3AC2D[Slot] = 0;
+
+    if (!PrivateSidebar) {
+        for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+            mSquads_TroopCount[Squad] = 0;
+            if (mSquads[Squad])
+                mSquads[Squad][0] = INVALID_SPRITE_PTR;
+        }
     }
 
     // Restore all side-effect state so simulation isn't corrupted.
@@ -363,28 +493,21 @@ void cFodderMultiplayer::Network_GUI_Sidebar_Draw() {
     // --- Simulation logic (deterministic, mSquad_Selected = 0) ---
     Mission_Final_TimeToDie();
 
-    // Weapon auto-switch: iterates all 3 squads by index,
-    // independent of mSquad_Selected.
+    // Weapon auto-switch: run over the global multiplayer squad range.
     {
-        int16 Data4 = 2;
-        int8 *Data20 = &mGUI_RefreshSquadGrenades[2];
-        int8 *Data24 = &mGUI_RefreshSquadRockets[2];
-        int16 *Data28 = mSquad_Grenades;
-        int16 *Data2C = mSquad_Rockets;
-        int16 *Data30 = mSquad_CurrentWeapon;
-
-        for (int16 Data0 = 2; Data0 >= 0; --Data0) {
-            if (*Data20 && !*(Data28 + Data4) && *(Data30 + Data4) == 1) {
-                *(Data30 + Data4) = 3;
-                *Data24 = -1;
+        for (int16 Squad = NETWORK_MAX_SQUADS - 1; Squad >= 0; --Squad) {
+            if (mGUI_RefreshSquadGrenades[Squad] &&
+                !mSquad_Grenades[Squad] &&
+                mSquad_CurrentWeapon[Squad] == eWeapon_Grenade) {
+                mSquad_CurrentWeapon[Squad] = eWeapon_Rocket;
+                mGUI_RefreshSquadRockets[Squad] = -1;
             }
-            if (*Data24 && !*(Data2C + Data4) && *(Data30 + Data4) == 3) {
-                *(Data30 + Data4) = 1;
-                *Data20 = -1;
+            if (mGUI_RefreshSquadRockets[Squad] &&
+                !mSquad_Rockets[Squad] &&
+                mSquad_CurrentWeapon[Squad] == eWeapon_Rocket) {
+                mSquad_CurrentWeapon[Squad] = eWeapon_Grenade;
+                mGUI_RefreshSquadGrenades[Squad] = -1;
             }
-            --Data20;
-            --Data24;
-            --Data4;
         }
     }
 
@@ -393,20 +516,195 @@ void cFodderMultiplayer::Network_GUI_Sidebar_Draw() {
 
     // Grenade/rocket refresh draws (still needed during simulation).
     {
-        int8 *Data20 = &mGUI_RefreshSquadGrenades[2];
-        int8 *Data24 = &mGUI_RefreshSquadRockets[2];
-
-        for (int16 Data0 = 2; Data0 >= 0; --Data0, --Data20, --Data24) {
-            if (*Data20) {
-                *Data20 = 0;
-                GUI_Sidebar_Grenades_Draw(Data0);
+        for (int16 Squad = NETWORK_MAX_SQUADS - 1; Squad >= 0; --Squad) {
+            if (mGUI_RefreshSquadGrenades[Squad]) {
+                mGUI_RefreshSquadGrenades[Squad] = 0;
+                if (Squad < 3)
+                    GUI_Sidebar_Grenades_Draw(Squad);
             }
-            if (*Data24) {
-                *Data24 = 0;
-                GUI_Sidebar_Rockets_Draw(Data0);
+            if (mGUI_RefreshSquadRockets[Squad]) {
+                mGUI_RefreshSquadRockets[Squad] = 0;
+                if (Squad < 3)
+                    GUI_Sidebar_Rockets_Draw(Squad);
             }
         }
     }
+}
+
+void cFodderMultiplayer::Network_DrawMatchOverlay() {
+    if (!Sprite_UseNetworkHostilityRules() || !mSurface)
+        return;
+
+    uint16_t TimeSeconds = mNetMatchState.mTimerSeconds;
+    std::string TimeLabel = "TIME ";
+    if (mStartParams->mNetworkTimeLimitSeconds) {
+        const uint16_t Limit = mStartParams->mNetworkTimeLimitSeconds;
+        TimeSeconds = (mNetMatchState.mTimerSeconds >= Limit)
+            ? 0
+            : static_cast<uint16_t>(Limit - mNetMatchState.mTimerSeconds);
+        TimeLabel = "LEFT ";
+    }
+
+    const std::string ScoreLine =
+        "P1 " + std::to_string(mNetMatchState.mKills[eNetPlayer_1]) +
+        "  P2 " + std::to_string(mNetMatchState.mKills[eNetPlayer_2]) +
+        "  " + TimeLabel + Network_FormatMatchTime(TimeSeconds);
+
+    const int16 SavedGapChar = mString_GapCharID;
+    const int16 SavedPrintToSidebar = mGUI_Print_String_To_Sidebar;
+
+    mGraphics->SetImage(mSurface);
+    mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    mString_GapCharID = 0;
+    mGUI_Print_String_To_Sidebar = 0;
+
+    auto DrawCentred = [&](const uint8* pFont, int32 pFontSprite, const std::string& pText, size_t pY) {
+        String_CalculateWidth(320 + SIDEBAR_WIDTH, pFont, pText);
+        String_Print(pFont, pFontSprite, mGUI_Temp_X, pY, pText);
+    };
+
+    DrawCentred(mFont_Briefing_Width, 0, ScoreLine, 0x06);
+
+    if (mStartParams->mNetworkGameMode == eNetworkGameMode_RescuePrisoner) {
+        std::string ObjectiveLine = "PRISONER ";
+        if (mNetMatchState.mObjectiveState == eNetworkObjectiveState_Extracted) {
+            ObjectiveLine += "EXTRACTED";
+        }
+        else if (mNetMatchState.mObjectiveCarrierPlayer >= 0 &&
+                 mNetMatchState.mObjectiveCarrierPlayer < NETWORK_MAX_PLAYERS) {
+            ObjectiveLine += Network_PlayerLabel(mNetMatchState.mObjectiveCarrierPlayer);
+        }
+        else {
+            ObjectiveLine += "FREE";
+        }
+
+        DrawCentred(mFont_Briefing_Width, 0, ObjectiveLine, 0x12);
+    }
+
+    if (mNetMatchState.mWinnerTeam != NETWORK_MATCH_NO_WINNER) {
+        std::string WinnerText;
+        if (mNetMatchState.mWinnerTeam == NETWORK_MATCH_DRAW)
+            WinnerText = "MATCH DRAW";
+        else
+            WinnerText = Network_PlayerLabel(mNetMatchState.mWinnerTeam) + " WINS";
+
+        DrawCentred(mFont_Underlined_Width, 1, WinnerText, 0x42);
+
+        auto DrawPlayerResult = [&](int16 pPlayer, size_t pY) {
+            const std::string DetailLine =
+                Network_PlayerLabel(pPlayer) +
+                "  KILLS " + std::to_string(mNetMatchState.mKills[pPlayer]) +
+                "  DEATHS " + std::to_string(mNetMatchState.mDeaths[pPlayer]);
+            DrawCentred(mFont_Briefing_Width, 0, DetailLine, pY);
+        };
+
+        DrawCentred(mFont_Briefing_Width, 0, "MATCH RESULTS", 0x5A);
+        DrawPlayerResult(eNetPlayer_1, 0x6C);
+        DrawPlayerResult(eNetPlayer_2, 0x7C);
+    }
+
+    mGUI_Print_String_To_Sidebar = SavedPrintToSidebar;
+    mString_GapCharID = SavedGapChar;
+    mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+    mGraphics->SetImageOriginal();
+}
+
+bool cFodderMultiplayer::Network_ShouldShowLiveMapMarker(const sSprite* pSprite) const {
+    if (!Sprite_IsActiveSpritePointer(pSprite))
+        return false;
+
+    const int16 Owner = Network_GetSpriteOwner(pSprite);
+    if (Owner < 0 || Owner >= NETWORK_MAX_PLAYERS)
+        return false;
+
+    if (Owner == mNetLocalPlayerIndex)
+        return true;
+
+    if (!mStartParams || !Network_IsPvPMode(mStartParams->mNetworkGameMode))
+        return true;
+
+    sSprite* LocalLeader = nullptr;
+    const int16 LocalSquad = Network_GetPlayerSelectedSquad(static_cast<int16>(mNetLocalPlayerIndex));
+    if (LocalSquad >= 0 &&
+        LocalSquad < NETWORK_MAX_SQUADS &&
+        mSquads[LocalSquad][0] != INVALID_SPRITE_PTR) {
+        LocalLeader = mSquads[LocalSquad][0];
+    }
+
+    const int16 LocalTeam = Network_GetSpriteTeam(LocalLeader);
+    const int16 SpriteTeam = Network_GetSpriteTeam(pSprite);
+    return LocalTeam >= 0 && SpriteTeam >= 0 && LocalTeam == SpriteTeam;
+}
+
+void cFodderMultiplayer::Network_DrawLiveMapMarker(const sSprite* pSprite, bool pLocalPlayer) {
+    if (!Sprite_IsActiveSpritePointer(pSprite) || !mSurfaceMapOverview)
+        return;
+
+    const int MarkerX = static_cast<int>(pSprite->mPosX + (mSurfaceMapLeft * 16));
+    const int MarkerY = static_cast<int>(pSprite->mPosY + (mSurfaceMapTop * 16));
+    const bool BrightFrame = ((SDL_GetTicks() / 180) & 1) == 0;
+
+    const uint8_t Shadow = pLocalPlayer ? 0xF1 : 0xE1;
+    const uint8_t Primary = pLocalPlayer
+        ? (BrightFrame ? 0xF3 : 0xF2)
+        : (BrightFrame ? 0xE3 : 0xE2);
+
+    for (int Offset = -4; Offset <= 4; ++Offset) {
+        Network_PutOverviewPixel(mSurfaceMapOverview, MarkerX + Offset + 1, MarkerY + 1, Shadow);
+        Network_PutOverviewPixel(mSurfaceMapOverview, MarkerX + 1, MarkerY + Offset + 1, Shadow);
+    }
+
+    for (int Offset = -4; Offset <= 4; ++Offset) {
+        Network_PutOverviewPixel(mSurfaceMapOverview, MarkerX + Offset, MarkerY, Primary);
+        Network_PutOverviewPixel(mSurfaceMapOverview, MarkerX, MarkerY + Offset, Primary);
+    }
+
+    for (int Y = -2; Y <= 2; ++Y) {
+        for (int X = -2; X <= 2; ++X) {
+            if (X == 0 || Y == 0 || std::abs(X) + std::abs(Y) <= 2)
+                Network_PutOverviewPixel(mSurfaceMapOverview, MarkerX + X, MarkerY + Y, Primary);
+        }
+    }
+}
+
+void cFodderMultiplayer::Network_DrawLiveMapOverlay() {
+    if (!mSurfaceMapOverview)
+        return;
+
+    mGraphics->PaletteSetOverview();
+    mSurfaceMapOverview->Restore();
+
+    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        sSprite* MarkerSprite = nullptr;
+
+        if (Sprite_IsActiveSpritePointer(mSquad_CurrentVehicles[Player]))
+            MarkerSprite = mSquad_CurrentVehicles[Player];
+        else if (mSquads[Player][0] != INVALID_SPRITE_PTR &&
+                 Sprite_IsActiveSpritePointer(mSquads[Player][0]))
+            MarkerSprite = mSquads[Player][0];
+
+        if (!Network_ShouldShowLiveMapMarker(MarkerSprite))
+            continue;
+
+        Network_DrawLiveMapMarker(MarkerSprite, Player == mNetLocalPlayerIndex);
+    }
+
+    Video_SurfaceRender(false, true, mSurfaceMapOverview, false);
+}
+
+void cFodderMultiplayer::Phase_Show_Complete() {
+    if (!Sprite_UseNetworkHostilityRules()) {
+        cFodder::Phase_Show_Complete();
+        return;
+    }
+
+    Sprite_Destroy(&mSprites[40]);
+    Sprite_Destroy(&mSprites[41]);
+    Sprite_Destroy(&mSprites[42]);
+
+    if (!mStartParams->mDisableSound)
+        Music_Play(6);
+    Music_SetFullVolume();
 }
 
 // ============================================================
@@ -756,12 +1054,85 @@ void cFodderMultiplayer::Network_GatherLocalInput(sNetworkInput& out) {
     out.mMouseX = static_cast<int16_t>(mNet_LocalCursorWorldX);
     out.mMouseY = static_cast<int16_t>(mNet_LocalCursorWorldY);
 
-    // Mouse buttons
-    if (mMouse_EventLastButtonsPressed & 1)  out.mMouseButtons |= 1; // left
-    if (mMouse_EventLastButtonsPressed & 2)  out.mMouseButtons |= 2; // right
+    uint8_t keyFlags = mNetKeyFlagsLocal;
+    uint8_t command = eNetCommand_None;
+
+    const bool leftDown = (mMouse_EventLastButtonsPressed & 1) != 0;
+    const bool leftPressed = leftDown && !mNetSidebarLeftWasDown;
+    mNetSidebarLeftWasDown = leftDown;
+
+    const int16 sidebarX = static_cast<int16>(mMouseX + 0x20);
+    const bool mouseOverSidebar =
+        sidebarX >= 0 &&
+        sidebarX < 0x30 &&
+        mMouseY >= 0 &&
+        mMouseY < getCameraHeight();
+
+    bool suppressWorldMouseButtons = mNetMapOverlayActive || mouseOverSidebar;
+
+    if (mouseOverSidebar && leftPressed) {
+        const int16 localPlayer = static_cast<int16>(mNetLocalPlayerIndex);
+        const int16 selectedSq = Network_GetPlayerSelectedSquad(localPlayer);
+
+        if (mMouseY >= getCameraHeight() - 0x0B) {
+            mNetMapOverlayActive = !mNetMapOverlayActive;
+        }
+        else {
+            const int16 VisibleSlots = Network_UsesPrivateSplitSquads()
+                ? NETWORK_MAX_LOCAL_SQUADS
+                : NETWORK_MAX_PLAYERS;
+
+            for (int16 Slot = 0; Slot < VisibleSlots; ++Slot) {
+                const int16 Squad = Network_UsesPrivateSplitSquads()
+                    ? Network_GetPlayerSquadForLocalSlot(localPlayer, Slot)
+                    : Slot;
+
+                if (Squad < 0 || Squad >= NETWORK_MAX_SQUADS || !mSquads_TroopCount[Squad])
+                    continue;
+
+                const int16 squadY = word_3AC2D[Slot];
+                const int16 weaponY = static_cast<int16>(squadY + 0x0E);
+
+                if (mMouseY >= squadY && mMouseY < squadY + 0x0E) {
+                    if (Squad == selectedSq && Network_PlayerCanSplitSelectedSquad(localPlayer))
+                        command = eNetCommand_SplitSelected;
+                    else
+                        keyFlags |= Network_SelectFlagForLocalSlot(Slot);
+                    break;
+                }
+
+                if (Squad == selectedSq && mMouseY >= weaponY && mMouseY < weaponY + 0x14) {
+                    if (sidebarX < 0x0C && mSquad_Grenades[Squad] > 0)
+                        keyFlags |= eNetKey_WeaponG;
+                    else if (sidebarX >= 0x24 && sidebarX < 0x30 && mSquad_Rockets[Squad] > 0)
+                        keyFlags |= eNetKey_WeaponR;
+                    break;
+                }
+
+                if (Squad == selectedSq) {
+                    const int16 TroopListY = static_cast<int16>(squadY + 0x22);
+                    const int16 TroopRow = static_cast<int16>((mMouseY - TroopListY) / 0x0C);
+                    if (mMouseY >= TroopListY &&
+                        TroopRow >= 0 &&
+                        TroopRow < mSquads_TroopCount[Squad]) {
+                        command = Network_ToggleTroopCommand(TroopRow);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Mouse buttons. While local UI is under the cursor, keep simulation
+    // inputs flowing but suppress world commands so clicks do not leak into play.
+    if (!suppressWorldMouseButtons) {
+        if (mMouse_EventLastButtonsPressed & 1)  out.mMouseButtons |= 1; // left
+        if (mMouse_EventLastButtonsPressed & 2)  out.mMouseButtons |= 2; // right
+    }
 
     // Keyboard flags accumulated since last frame
-    out.mKeyFlags = mNetKeyFlagsLocal;
+    out.mKeyFlags = keyFlags;
+    out.mCommand = command;
     mNetKeyFlagsLocal = 0;
 
     // Current cursor sprite so the remote player can draw the correct cursor
@@ -771,12 +1142,14 @@ void cFodderMultiplayer::Network_GatherLocalInput(sNetworkInput& out) {
 // ============================================================
 // Network_RedistributeSquads
 // Called once after Phase_Prepare when networking is enabled.
-// Re-assigns field_32 for all alive troops, alternating between
-// squad 0 (P1) and squad 1 (P2), then rebuilds the squad lists.
+// Re-assigns field_32 for all alive troops, then rebuilds the squad lists.
+// Co-op keeps the original alternating split. PvP random maps place team
+// spawn groups in order, so the first half belongs to P1 and the second to P2.
 // ============================================================
 
 void cFodderMultiplayer::Network_RedistributeSquads() {
-    int idx = 0;
+    std::vector<sSprite*> Troops;
+
     for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
         if (Troop.mSprite == INVALID_SPRITE_PTR || Troop.mSprite == 0)
             continue;
@@ -794,22 +1167,1035 @@ void cFodderMultiplayer::Network_RedistributeSquads() {
         if (Sprite->field_32 < 0)
             continue;
 
-        // Alternate between squad 0 (P1) and squad 1 (P2)
+        Troops.push_back(Sprite);
+    }
+
+    const bool SplitBySpawnGroup =
+        Network_IsPvPMode(mStartParams->mNetworkGameMode) &&
+        !Network_IsAvatarMode(mStartParams->mNetworkGameMode);
+    const size_t SplitIndex = (Troops.size() + 1) / NETWORK_MAX_PLAYERS;
+
+    for (size_t idx = 0; idx < Troops.size(); ++idx) {
+        sSprite* Sprite = Troops[idx];
         int16 oldSquad = Sprite->field_32;
-        Sprite->field_32 = (int16)(idx & 1);
+
+        if (SplitBySpawnGroup) {
+            const int16 Owner = (idx < SplitIndex) ? eNetPlayer_1 : eNetPlayer_2;
+            Sprite->field_32 = Network_GetPlayerPrimarySquad(Owner);
+        }
+        else
+            Sprite->field_32 = static_cast<int16>(idx & 1);
+
         g_Debugger->Notice("[GGPO] RedistributeSquads: troop idx=" + std::to_string(idx) +
                            " pos=(" + std::to_string(Sprite->mPosX) + "," + std::to_string(Sprite->mPosY) + ")" +
                            " squad " + std::to_string(oldSquad) + " -> " + std::to_string(Sprite->field_32));
-        ++idx;
     }
 
     Squad_Rebuild();
-    g_Debugger->Notice("[GGPO] RedistributeSquads: " + std::to_string(idx) + " troops split" +
+    Network_ValidateSelectedSquads();
+    Network_DistributeSquadExplosives();
+    g_Debugger->Notice("[GGPO] RedistributeSquads: " + std::to_string(Troops.size()) + " troops split" +
                        " squad0=" + std::to_string(mSquads_TroopCount[0]) +
                        " squad1=" + std::to_string(mSquads_TroopCount[1]));
 
     // Each player starts commanding their own squad
-    mSquad_Selected = (int16)mNetLocalPlayerIndex;
+    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        const int16 PrimarySquad = Network_GetPlayerPrimarySquad(static_cast<int16>(Player));
+        if (PrimarySquad >= 0)
+            mNetSelectedSquad[Player] = static_cast<int8>(PrimarySquad);
+    }
+    mSquad_Selected = Network_GetPlayerSelectedSquad(static_cast<int16>(mNetLocalPlayerIndex));
+}
+
+void cFodderMultiplayer::Network_NormalizeSquadAssignments() {
+    if (Network_UsesPrivateSplitSquads()) {
+        for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+            sSprite* Sprite = Troop.mSprite;
+            if (!Sprite_IsActiveSpritePointer(Sprite))
+                continue;
+
+            if (Network_GetSquadOwner(Sprite->field_32) >= 0)
+                continue;
+
+            const int16 FallbackOwner = (Sprite->field_32 == eNetPlayer_2) ? eNetPlayer_2 : eNetPlayer_1;
+            const int16 FallbackSquad = Network_GetPlayerPrimarySquad(FallbackOwner);
+            Sprite->field_32 = (FallbackSquad >= 0) ? FallbackSquad : eNetPlayer_1;
+        }
+
+        if (mSquad_Selected < 0 || mSquad_Selected >= NETWORK_MAX_SQUADS)
+            mSquad_Selected = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+
+        return;
+    }
+
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+        sSprite* Sprite = Troop.mSprite;
+        if (!Sprite_IsActiveSpritePointer(Sprite))
+            continue;
+
+        if (Sprite->field_32 >= NETWORK_MAX_PLAYERS)
+            Sprite->field_32 = eNetPlayer_2;
+    }
+
+    for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+        mSquad_Grenades[eNetPlayer_2] += mSquad_Grenades[Squad];
+        mSquad_Rockets[eNetPlayer_2] += mSquad_Rockets[Squad];
+        mSquad_Grenades[Squad] = 0;
+        mSquad_Rockets[Squad] = 0;
+        mSquad_CurrentWeapon[Squad] = eWeapon_None;
+        mGUI_RefreshSquadGrenades[Squad] = 0;
+        mGUI_RefreshSquadRockets[Squad] = 0;
+        mSquad_CurrentVehicles[Squad] = nullptr;
+    }
+
+    for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad)
+        mSquads_TroopCount[Squad] = 0;
+
+    for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+        if (mSquads[Squad])
+            mSquads[Squad][0] = INVALID_SPRITE_PTR;
+    }
+
+    if (mSquad_Selected >= NETWORK_MAX_PLAYERS)
+        mSquad_Selected = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+}
+
+void cFodderMultiplayer::Network_DistributeSquadExplosives() {
+    Network_NormalizeSquadAssignments();
+
+    const int16 Squad0Count = std::max<int16>(0, mSquads_TroopCount[eNetPlayer_1]);
+    const int16 Squad1Count = std::max<int16>(0, mSquads_TroopCount[eNetPlayer_2]);
+    const int16 TotalTroops = Squad0Count + Squad1Count;
+    if (TotalTroops <= 0 || Squad1Count <= 0)
+        return;
+
+    auto SplitByTroops = [&](int16* pValues) {
+        const int Total = pValues[eNetPlayer_1] + pValues[eNetPlayer_2];
+        if (Total <= 0)
+            return;
+
+        const int Squad0Share = (Total * Squad0Count + (TotalTroops - 1)) / TotalTroops;
+        pValues[eNetPlayer_1] = static_cast<int16>(Squad0Share);
+        pValues[eNetPlayer_2] = static_cast<int16>(Total - Squad0Share);
+    };
+
+    SplitByTroops(mSquad_Grenades);
+    SplitByTroops(mSquad_Rockets);
+
+    for (int Squad = 0; Squad < NETWORK_MAX_PLAYERS; ++Squad) {
+        if (mSquad_CurrentWeapon[Squad] == eWeapon_Grenade && mSquad_Grenades[Squad] > 0)
+            continue;
+        if (mSquad_CurrentWeapon[Squad] == eWeapon_Rocket && mSquad_Rockets[Squad] > 0)
+            continue;
+
+        if (mSquad_Grenades[Squad] > 0)
+            mSquad_CurrentWeapon[Squad] = eWeapon_Grenade;
+        else if (mSquad_Rockets[Squad] > 0)
+            mSquad_CurrentWeapon[Squad] = eWeapon_Rocket;
+        else
+            mSquad_CurrentWeapon[Squad] = eWeapon_None;
+
+        mGUI_RefreshSquadGrenades[Squad] = -1;
+        mGUI_RefreshSquadRockets[Squad] = -1;
+    }
+}
+
+void cFodderMultiplayer::Network_ResetMatchState() {
+    memset(&mNetMatchState, 0, sizeof(mNetMatchState));
+    mNetMatchState.mWinnerTeam = NETWORK_MATCH_NO_WINNER;
+    mNetMatchState.mObjectiveCarrierPlayer = -1;
+    mNetMatchState.mObjectiveState = eNetworkObjectiveState_None;
+
+    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player)
+        mNetMatchState.mLastDamageOwner[Player] = NETWORK_MATCH_NO_WINNER;
+}
+
+void cFodderMultiplayer::Network_SetActiveSquadContext(int16 pSquad) {
+    if (pSquad < 0 || pSquad >= NETWORK_MAX_SQUADS)
+        return;
+
+    mSquad_Selected = pSquad;
+    mSquad_CurrentVehicle = mSquad_CurrentVehicles[pSquad];
+
+    if (Sprite_IsActiveSpritePointer(mSquad_CurrentVehicle)) {
+        mSquad_Leader = mSquad_CurrentVehicle;
+        return;
+    }
+
+    if (mSquads[pSquad] &&
+        mSquads[pSquad][0] != INVALID_SPRITE_PTR &&
+        mSquads[pSquad][0] != nullptr) {
+        mSquad_Leader = mSquads[pSquad][0];
+        return;
+    }
+
+    mSquad_Leader = INVALID_SPRITE_PTR;
+}
+
+void cFodderMultiplayer::Network_ResetSquadOwnership() {
+    memset(mNetSquadOwner, NETWORK_INVALID_SQUAD_OWNER, sizeof(mNetSquadOwner));
+
+    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        mNetSquadOwner[Player] = static_cast<int8>(Player);
+        mNetSelectedSquad[Player] = static_cast<int8>(Player);
+    }
+
+    if (!Network_UsesPrivateSplitSquads())
+        return;
+
+    int16 NextExtraSquad = NETWORK_MAX_PLAYERS;
+    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        for (int LocalSlot = 1; LocalSlot < NETWORK_MAX_LOCAL_SQUADS; ++LocalSlot) {
+            if (NextExtraSquad >= NETWORK_MAX_SQUADS)
+                return;
+
+            mNetSquadOwner[NextExtraSquad++] = static_cast<int8>(Player);
+        }
+    }
+}
+
+bool cFodderMultiplayer::Network_UsesPrivateSplitSquads() const {
+    if (!mStartParams || !mStartParams->mNetworkEnabled)
+        return false;
+
+    if (!Network_IsPvPMode(mStartParams->mNetworkGameMode))
+        return false;
+
+    return !Network_IsAvatarMode(mStartParams->mNetworkGameMode);
+}
+
+int16 cFodderMultiplayer::Network_GetSquadOwner(int16 pSquad) const {
+    if (pSquad < 0 || pSquad >= NETWORK_MAX_SQUADS)
+        return -1;
+
+    const int16 Owner = mNetSquadOwner[pSquad];
+    if (Owner < 0 || Owner >= NETWORK_MAX_PLAYERS)
+        return -1;
+
+    return Owner;
+}
+
+bool cFodderMultiplayer::Network_PlayerOwnsSquad(int16 pPlayer, int16 pSquad) const {
+    if (pPlayer < 0 || pPlayer >= NETWORK_MAX_PLAYERS)
+        return false;
+
+    return Network_GetSquadOwner(pSquad) == pPlayer;
+}
+
+int16 cFodderMultiplayer::Network_GetPlayerPrimarySquad(int16 pPlayer) const {
+    if (pPlayer < 0 || pPlayer >= NETWORK_MAX_PLAYERS)
+        return -1;
+
+    if (Network_PlayerOwnsSquad(pPlayer, pPlayer))
+        return pPlayer;
+
+    return Network_GetPlayerSquadForLocalSlot(pPlayer, 0);
+}
+
+int16 cFodderMultiplayer::Network_GetPlayerSquadForLocalSlot(int16 pPlayer, int16 pLocalSlot) const {
+    if (pPlayer < 0 || pPlayer >= NETWORK_MAX_PLAYERS)
+        return -1;
+
+    if (pLocalSlot < 0 || pLocalSlot >= NETWORK_MAX_LOCAL_SQUADS)
+        return -1;
+
+    int16 Seen = 0;
+    for (int16 Squad = 0; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+        if (!Network_PlayerOwnsSquad(pPlayer, Squad))
+            continue;
+
+        if (Seen == pLocalSlot)
+            return Squad;
+
+        ++Seen;
+    }
+
+    return -1;
+}
+
+int16 cFodderMultiplayer::Network_GetSquadLocalSlot(int16 pPlayer, int16 pSquad) const {
+    if (pPlayer < 0 || pPlayer >= NETWORK_MAX_PLAYERS)
+        return -1;
+
+    int16 Slot = 0;
+    for (int16 Squad = 0; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+        if (!Network_PlayerOwnsSquad(pPlayer, Squad))
+            continue;
+
+        if (Squad == pSquad)
+            return Slot;
+
+        ++Slot;
+    }
+
+    return -1;
+}
+
+int16 cFodderMultiplayer::Network_FindAliveOwnedSquad(int16 pPlayer) const {
+    if (pPlayer < 0 || pPlayer >= NETWORK_MAX_PLAYERS)
+        return -1;
+
+    for (int16 Slot = 0; Slot < NETWORK_MAX_LOCAL_SQUADS; ++Slot) {
+        const int16 Squad = Network_GetPlayerSquadForLocalSlot(pPlayer, Slot);
+        if (Squad < 0 || Squad >= NETWORK_MAX_SQUADS)
+            continue;
+
+        if (mSquads_TroopCount[Squad] > 0)
+            return Squad;
+    }
+
+    return -1;
+}
+
+int16 cFodderMultiplayer::Network_GetPlayerSelectedSquad(int16 pPlayer) const {
+    if (pPlayer < 0 || pPlayer >= NETWORK_MAX_PLAYERS)
+        return -1;
+
+    const int16 Squad = mNetSelectedSquad[pPlayer];
+    const int16 AliveSquad = Network_FindAliveOwnedSquad(pPlayer);
+
+    if (Network_PlayerOwnsSquad(pPlayer, Squad) &&
+        (mSquads_TroopCount[Squad] > 0 || AliveSquad < 0)) {
+        return Squad;
+    }
+
+    if (AliveSquad >= 0)
+        return AliveSquad;
+
+    for (int16 Candidate = 0; Candidate < NETWORK_MAX_SQUADS; ++Candidate) {
+        if (Network_PlayerOwnsSquad(pPlayer, Candidate))
+            return Candidate;
+    }
+
+    return -1;
+}
+
+void cFodderMultiplayer::Network_SetPlayerSelectedSquad(int16 pPlayer, int16 pSquad) {
+    if (!Network_PlayerOwnsSquad(pPlayer, pSquad))
+        return;
+
+    mNetSelectedSquad[pPlayer] = static_cast<int8>(pSquad);
+}
+
+void cFodderMultiplayer::Network_ValidateSelectedSquads() {
+    bool Changed = false;
+
+    for (int16 Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        const int16 Selected = mNetSelectedSquad[Player];
+        if (Network_PlayerOwnsSquad(Player, Selected) &&
+            mSquads_TroopCount[Selected] > 0) {
+            continue;
+        }
+
+        const int16 Replacement = Network_FindAliveOwnedSquad(Player);
+        if (Replacement < 0 || Replacement == Selected)
+            continue;
+
+        mNetSelectedSquad[Player] = static_cast<int8>(Replacement);
+        mGUI_RefreshSquadGrenades[Replacement] = -1;
+        mGUI_RefreshSquadRockets[Replacement] = -1;
+        Changed = true;
+    }
+
+    if (!Changed)
+        return;
+
+    mSquad_Select_Timer = 1;
+    mGUI_Sidebar_Setup = 0;
+    mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
+    mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
+    word_3AC4B = 0;
+    word_3AC4D = 0;
+}
+
+int16 cFodderMultiplayer::Network_CountSelectedTroopsInSquad(int16 pSquad) const {
+    if (pSquad < 0 || pSquad >= NETWORK_MAX_SQUADS)
+        return 0;
+
+    int16 Selected = 0;
+    for (const auto& Troop : mGame_Data.mSoldiers_Allocated) {
+        const sSprite* Sprite = Troop.mSprite;
+        if (!Sprite_IsActiveSpritePointer(Sprite))
+            continue;
+
+        if (Sprite->field_32 != pSquad)
+            continue;
+
+        if (Troop.mSelected & 1)
+            ++Selected;
+    }
+
+    return Selected;
+}
+
+int16 cFodderMultiplayer::Network_FindEmptyOwnedSquad(int16 pPlayer) const {
+    if (pPlayer < 0 || pPlayer >= NETWORK_MAX_PLAYERS)
+        return -1;
+
+    for (int16 Slot = 0; Slot < NETWORK_MAX_LOCAL_SQUADS; ++Slot) {
+        const int16 Squad = Network_GetPlayerSquadForLocalSlot(pPlayer, Slot);
+        if (Squad < 0 || Squad >= NETWORK_MAX_SQUADS)
+            continue;
+
+        if (!mSquads_TroopCount[Squad])
+            return Squad;
+    }
+
+    return -1;
+}
+
+bool cFodderMultiplayer::Network_PlayerCanSplitSelectedSquad(int16 pPlayer) const {
+    if (!Network_UsesPrivateSplitSquads())
+        return false;
+
+    const int16 Squad = Network_GetPlayerSelectedSquad(pPlayer);
+    if (!Network_PlayerOwnsSquad(pPlayer, Squad))
+        return false;
+
+    const int16 TroopCount = std::max<int16>(0, mSquads_TroopCount[Squad]);
+    if (TroopCount <= 1)
+        return false;
+
+    const int16 SelectedCount = Network_CountSelectedTroopsInSquad(Squad);
+    if (SelectedCount <= 0 || SelectedCount >= TroopCount)
+        return false;
+
+    return Network_FindEmptyOwnedSquad(pPlayer) >= 0;
+}
+
+void cFodderMultiplayer::Network_ToggleSelectedTroop(int16 pPlayer, int16 pTroopRow) {
+    if (!Network_UsesPrivateSplitSquads())
+        return;
+
+    if (pTroopRow < 0 || pTroopRow > 7)
+        return;
+
+    const int16 Squad = Network_GetPlayerSelectedSquad(pPlayer);
+    if (!Network_PlayerOwnsSquad(pPlayer, Squad))
+        return;
+
+    if (mSquads_TroopCount[Squad] <= 1 || Network_FindEmptyOwnedSquad(pPlayer) < 0)
+        return;
+
+    int16 Row = pTroopRow;
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+        sSprite* Sprite = Troop.mSprite;
+        if (!Sprite_IsActiveSpritePointer(Sprite))
+            continue;
+
+        if (Sprite->field_32 != Squad)
+            continue;
+
+        if (Row-- > 0)
+            continue;
+
+        Troop.mSelected ^= 1;
+        mGUI_Sidebar_Setup = 0;
+        mGUI_RefreshSquadGrenades[Squad] = -1;
+        mGUI_RefreshSquadRockets[Squad] = -1;
+        return;
+    }
+}
+
+void cFodderMultiplayer::Network_SplitSelectedTroops(int16 pPlayer) {
+    if (!Network_PlayerCanSplitSelectedSquad(pPlayer))
+        return;
+
+    const int16 SourceSquad = Network_GetPlayerSelectedSquad(pPlayer);
+    const int16 TargetSquad = Network_FindEmptyOwnedSquad(pPlayer);
+    if (!Network_PlayerOwnsSquad(pPlayer, SourceSquad) ||
+        !Network_PlayerOwnsSquad(pPlayer, TargetSquad))
+        return;
+
+    mSquad_JoiningTo = SourceSquad;
+    mSquad_Selected = TargetSquad;
+    mSquad_WalkTargets[TargetSquad]->asInt = -1;
+
+    for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
+        sSprite* Sprite = Troop.mSprite;
+        if (!Sprite_IsActiveSpritePointer(Sprite))
+            continue;
+
+        if (Sprite->field_32 != SourceSquad)
+            continue;
+
+        if (!(Troop.mSelected & 1))
+            continue;
+
+        Sprite->field_32 = TargetSquad;
+        Sprite->mNextWalkTargetIndex = 0;
+        Sprite->mFinishedWalking = 0;
+        Sprite->field_44 = 0;
+        Sprite->mTargetY += 4;
+    }
+
+    Mission_Troops_Clear_Selected();
+
+    mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
+    mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
+    Squad_Split_Assets();
+    mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
+    mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
+    word_3AC4B = 0;
+    word_3AC4D = 0;
+
+    Squad_Walk_Target_Reset(TargetSquad);
+    Squad_Rebuild();
+
+    sSprite* Leader = nullptr;
+    Squad_UpdateLeader(Leader);
+
+    Network_SetPlayerSelectedSquad(pPlayer, TargetSquad);
+    mSquad_Select_Timer = 1;
+    mGUI_Sidebar_Setup = 0;
+    mGUI_RefreshSquadGrenades[SourceSquad] = -1;
+    mGUI_RefreshSquadRockets[SourceSquad] = -1;
+    mGUI_RefreshSquadGrenades[TargetSquad] = -1;
+    mGUI_RefreshSquadRockets[TargetSquad] = -1;
+}
+
+int16 cFodderMultiplayer::Network_GetSpriteOwner(const sSprite* pSprite) const {
+    if (!Sprite_IsActiveSpritePointer(pSprite))
+        return -1;
+
+    const sSprite* OwnerSprite = pSprite;
+
+    for (int16 Depth = 0; Depth < 4; ++Depth) {
+        if (!Sprite_IsActiveSpritePointer(OwnerSprite))
+            return -1;
+
+        if (OwnerSprite->mSpriteType == eSprite_Player)
+            break;
+
+        if (Sprite_IsVehicle(OwnerSprite)) {
+            OwnerSprite = Sprite_GetVehicleController(OwnerSprite);
+            continue;
+        }
+
+        const sSprite* DamageOwner = Sprite_GetDamageOwner(OwnerSprite);
+        if (!DamageOwner || DamageOwner == OwnerSprite)
+            return -1;
+
+        OwnerSprite = DamageOwner;
+    }
+
+    if (!OwnerSprite || OwnerSprite->mSpriteType != eSprite_Player)
+        return -1;
+
+    return Network_GetSquadOwner(OwnerSprite->field_32);
+}
+
+int16 cFodderMultiplayer::Network_GetSpriteTeam(const sSprite* pSprite) const {
+    const int16 Owner = Network_GetSpriteOwner(pSprite);
+    if (Owner < 0)
+        return -1;
+
+    // Current network modes are still limited to two players. Until a real
+    // team-assignment table exists, each player-owned squad is its own team.
+    return Owner;
+}
+
+bool cFodderMultiplayer::Sprite_UseNetworkHostilityRules() const {
+    return mStartParams &&
+           mStartParams->mNetworkEnabled &&
+           Network_IsPvPMode(mStartParams->mNetworkGameMode);
+}
+
+bool cFodderMultiplayer::Sprite_AreHostile(const sSprite* pLeft, const sSprite* pRight) const {
+    return Network_AreHostile(pLeft, pRight);
+}
+
+void cFodderMultiplayer::Sprite_RecordDamage(sSprite* pDamageSource, sSprite* pTarget) {
+    if (!Sprite_UseNetworkHostilityRules())
+        return;
+
+    const int16 TargetOwner = Network_GetSpriteOwner(pTarget);
+    const int16 DamageOwner = Network_GetSpriteOwner(pDamageSource);
+
+    if (TargetOwner < 0 || TargetOwner >= NETWORK_MAX_PLAYERS)
+        return;
+
+    if (DamageOwner < 0 || DamageOwner >= NETWORK_MAX_PLAYERS)
+        return;
+
+    mNetMatchState.mLastDamageOwner[TargetOwner] = static_cast<int8_t>(DamageOwner);
+}
+
+int16 cFodderMultiplayer::Sprite_Troop_Dies(sSprite* pSprite) {
+    bool MatchStateChanged = false;
+
+    if (Sprite_UseNetworkHostilityRules()) {
+        const int16 VictimOwner = Network_GetSpriteOwner(pSprite);
+        if (VictimOwner >= 0 && VictimOwner < NETWORK_MAX_PLAYERS) {
+            if (mNetMatchState.mDeaths[VictimOwner] < UINT16_MAX)
+                ++mNetMatchState.mDeaths[VictimOwner];
+
+            const int16 KillerOwner = mNetMatchState.mLastDamageOwner[VictimOwner];
+            mNetMatchState.mLastDamageOwner[VictimOwner] = NETWORK_MATCH_NO_WINNER;
+
+            if (KillerOwner >= 0 &&
+                KillerOwner < NETWORK_MAX_PLAYERS &&
+                KillerOwner != VictimOwner) {
+                if (mNetMatchState.mKills[KillerOwner] < UINT16_MAX)
+                    ++mNetMatchState.mKills[KillerOwner];
+            }
+
+            MatchStateChanged = true;
+        }
+    }
+
+    const int16 Result = cFodder::Sprite_Troop_Dies(pSprite);
+    if (MatchStateChanged)
+        Network_UpdateMatchRules();
+
+    return Result;
+}
+
+bool cFodderMultiplayer::Sprite_CanDamageTarget(const sSprite* pDamageSource, const sSprite* pTarget) const {
+    if (!Sprite_UseNetworkHostilityRules())
+        return cFodder::Sprite_CanDamageTarget(pDamageSource, pTarget);
+
+    const sSprite* Owner = Sprite_GetDamageOwner(pDamageSource);
+    if (!Owner)
+        return true;
+
+    if (Network_AreHostile(Owner, pTarget))
+        return true;
+
+    const int16 OwnerTeam = Network_GetSpriteTeam(Owner);
+    const int16 TargetTeam = Network_GetSpriteTeam(pTarget);
+    if (OwnerTeam >= 0 && TargetTeam >= 0 && OwnerTeam == TargetTeam)
+        return mStartParams->mNetworkFriendlyFire;
+
+    return false;
+}
+
+bool cFodderMultiplayer::Sprite_CanTargetSprite(const sSprite* pActor, const sSprite* pTarget) const {
+    if (!Sprite_UseNetworkHostilityRules())
+        return cFodder::Sprite_CanTargetSprite(pActor, pTarget);
+
+    return Sprite_AreHostile(pActor, pTarget);
+}
+
+bool cFodderMultiplayer::Sprite_CanVehicleDamageTarget(const sSprite* pVehicle, const sSprite* pTarget) const {
+    if (!Sprite_UseNetworkHostilityRules())
+        return cFodder::Sprite_CanVehicleDamageTarget(pVehicle, pTarget);
+
+    return Sprite_CanDamageTarget(pVehicle, pTarget);
+}
+
+bool cFodderMultiplayer::Sprite_ShouldDamagePlayerInRegion(const sSprite* pDamageSource, const sSprite* pTarget) const {
+    if (Sprite_UseNetworkHostilityRules()) {
+        const sSprite* DamageOwner = Sprite_GetDamageOwner(pDamageSource);
+        if (DamageOwner && Sprite_AreHostile(DamageOwner, pTarget))
+            return true;
+    }
+
+    return cFodder::Sprite_ShouldDamagePlayerInRegion(pDamageSource, pTarget);
+}
+
+bool cFodderMultiplayer::Sprite_IsIndependentlyControlledSquadMember(const sSprite* pSprite) const {
+    if (!mStartParams || !mStartParams->mNetworkEnabled || !pSprite)
+        return false;
+
+    const int16 Owner = Network_GetSquadOwner(pSprite->field_32);
+    if (Owner < 0 || Owner >= NETWORK_MAX_PLAYERS)
+        return false;
+
+    return Network_GetPlayerSelectedSquad(Owner) == pSprite->field_32;
+}
+
+void cFodderMultiplayer::Sprite_GetPlayerRankContext(sSprite* pSprite, int16& pSquad, sSprite*& pLeader) {
+    if (!Sprite_IsIndependentlyControlledSquadMember(pSprite)) {
+        cFodder::Sprite_GetPlayerRankContext(pSprite, pSquad, pLeader);
+        return;
+    }
+
+    pSquad = pSprite->field_32;
+    pLeader = mSquads[pSprite->field_32][0];
+    if (pLeader == INVALID_SPRITE_PTR || pLeader == nullptr)
+        pLeader = mSquad_Leader;
+}
+
+void cFodderMultiplayer::Sprite_UpdatePlayerRankLeader(sSprite* pSprite, sSprite* pLeader) {
+    if (!Sprite_IsIndependentlyControlledSquadMember(pSprite)) {
+        cFodder::Sprite_UpdatePlayerRankLeader(pSprite, pLeader);
+        return;
+    }
+
+    const int16 SavedSelectedSquad = mSquad_Selected;
+    mSquad_Selected = pSprite->field_32;
+    Squad_UpdateLeader(pLeader);
+    mSquad_Selected = SavedSelectedSquad;
+}
+
+void cFodderMultiplayer::Sprite_GetMouseDirectionTarget(sSprite* pSprite, int16& pTargetX, int16& pTargetY) {
+    if (!Sprite_IsIndependentlyControlledSquadMember(pSprite)) {
+        cFodder::Sprite_GetMouseDirectionTarget(pSprite, pTargetX, pTargetY);
+        return;
+    }
+
+    const int16 Owner = Network_GetSquadOwner(pSprite->field_32);
+    if (Owner < 0 || Owner >= NETWORK_MAX_PLAYERS) {
+        cFodder::Sprite_GetMouseDirectionTarget(pSprite, pTargetX, pTargetY);
+        return;
+    }
+
+    pTargetX = mNetSquadCursorX[Owner] - 0x18;
+    pTargetY = mNetSquadCursorY[Owner];
+}
+
+bool cFodderMultiplayer::Sprite_TryHandleSharedPickupBox(sSprite* pSprite, bool pRocketBox) {
+    if (!mStartParams || !mStartParams->mNetworkEnabled)
+        return cFodder::Sprite_TryHandleSharedPickupBox(pSprite, pRocketBox);
+
+    sSprite* SavedLeader = mSquad_Leader;
+    for (int Squad = 0; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+        if (Network_GetSquadOwner(static_cast<int16>(Squad)) < 0)
+            continue;
+
+        if (mSquads[Squad][0] == INVALID_SPRITE_PTR || mSquads[Squad][0] == nullptr)
+            continue;
+
+        mSquad_Leader = mSquads[Squad][0];
+        int16 Distance = 0;
+        if (Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Distance))
+            continue;
+
+        mGUI_RefreshSquadGrenades[Squad] = -1;
+        mGUI_RefreshSquadRockets[Squad] = -1;
+
+        if (pRocketBox) {
+            mSquad_Rockets[Squad] += 4;
+            Squad_Select_CollectedWeaponIfNeeded(Squad, eWeapon_Rocket);
+            if (mVersionCurrent->isCoverDisk())
+                mSquad_Leader->field_75 |= eSprite_Flag_HomingMissiles;
+        }
+        else {
+            mSquad_Grenades[Squad] += 4;
+            Squad_Select_CollectedWeaponIfNeeded(Squad, eWeapon_Grenade);
+        }
+
+        mSquad_Leader = SavedLeader;
+        Sprite_Destroy_Wrapper(pSprite);
+        return true;
+    }
+
+    mSquad_Leader = SavedLeader;
+    return true;
+}
+
+bool cFodderMultiplayer::Sprite_ShouldUseSelectedSquadWeapon(const sSprite* pSprite) const {
+    if (!mStartParams || !mStartParams->mNetworkEnabled)
+        return cFodder::Sprite_ShouldUseSelectedSquadWeapon(pSprite);
+
+    if (!Sprite_IsActiveSpritePointer(pSprite) || pSprite->mSpriteType != eSprite_Player)
+        return false;
+
+    const int16 Squad = pSprite->field_32;
+    if (Squad < 0 || Squad >= NETWORK_MAX_SQUADS)
+        return false;
+
+    if (pSprite->mInVehicle || Sprite_IsActiveSpritePointer(mSquad_CurrentVehicles[Squad]))
+        return false;
+
+    const int16 Owner = Network_GetSquadOwner(Squad);
+    if (Owner < 0 || Owner >= NETWORK_MAX_PLAYERS)
+        return false;
+
+    if (!mNet_ButtonLRToggle[Owner])
+        return false;
+
+    if (Network_GetPlayerSelectedSquad(Owner) != Squad)
+        return false;
+
+    return mSquads[Squad][0] == pSprite;
+}
+
+void cFodderMultiplayer::Sprite_ClearSelectedSquadWeaponUse(const sSprite* pSprite) {
+    if (!mStartParams || !mStartParams->mNetworkEnabled) {
+        cFodder::Sprite_ClearSelectedSquadWeaponUse(pSprite);
+        return;
+    }
+
+    if (!Sprite_IsActiveSpritePointer(pSprite))
+        return;
+
+    const int16 Squad = pSprite->field_32;
+    if (Squad < 0 || Squad >= NETWORK_MAX_SQUADS)
+        return;
+
+    const int16 Owner = Network_GetSquadOwner(Squad);
+    if (Owner < 0 || Owner >= NETWORK_MAX_PLAYERS)
+        return;
+
+    if (Network_GetPlayerSelectedSquad(Owner) != Squad)
+        return;
+
+    if (mSquads[Squad][0] != pSprite)
+        return;
+
+    mNet_ButtonLRToggle[Owner] = false;
+    if (pSprite == mSquad_Leader)
+        mMouse_Button_LeftRight_Toggle = false;
+}
+
+bool cFodderMultiplayer::Network_AreHostile(const sSprite* pLeft, const sSprite* pRight) const {
+    if (!pLeft || !pRight ||
+        pLeft == INVALID_SPRITE_PTR ||
+        pRight == INVALID_SPRITE_PTR ||
+        pLeft == pRight)
+        return false;
+
+    if (!Network_IsPvPMode(mStartParams->mNetworkGameMode))
+        return cFodder::Sprite_AreHostile(pLeft, pRight);
+
+    const int16 LeftTeam = Network_GetSpriteTeam(pLeft);
+    const int16 RightTeam = Network_GetSpriteTeam(pRight);
+    if (LeftTeam >= 0 && RightTeam >= 0)
+        return LeftTeam != RightTeam;
+
+    return cFodder::Sprite_AreHostile(pLeft, pRight);
+}
+
+int16 cFodderMultiplayer::Sprite_Find_Hostile_By_Types(sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28) {
+    if (!Sprite_UseNetworkHostilityRules())
+        return cFodder::Sprite_Find_Hostile_By_Types(pSprite, pData0, pData4, pData8, pDataC, pData10, pData28);
+
+    const size_t MaxChecks = (mParams && mParams->mSpritesMax > 2) ? (mParams->mSpritesMax - 2) : mSprites.size();
+
+    for (size_t Check = 0; Check < MaxChecks; ++Check) {
+        if (Sprite_Find_By_Types(pSprite, pData0, pData4, pData8, pDataC, pData10, pData28)) {
+            if (!mParams || !mParams->isOriginalSpriteMax())
+                return -1;
+
+            continue;
+        }
+
+        if (Sprite_AreHostile(pSprite, pData28))
+            return 0;
+
+        Sprite_Advance_SearchIndex(pSprite);
+    }
+
+    return -1;
+}
+
+int16 cFodderMultiplayer::Network_CountAliveOwnedTroops(int16 pOwner, const sSprite* pExclude) const {
+    int16 Count = 0;
+
+    for (const auto& Troop : mGame_Data.mSoldiers_Allocated) {
+        const sSprite* Sprite = Troop.mSprite;
+        if (!Sprite_IsActiveSpritePointer(Sprite))
+            continue;
+
+        if (Sprite == pExclude)
+            continue;
+
+        if (Network_GetSpriteOwner(Sprite) != pOwner)
+            continue;
+
+        if (!(Sprite->field_75 & eSprite_Flag_Invincibility)) {
+            if (Sprite->mAnimState < eSprite_Anim_Slide1) {
+                if (Sprite->mAnimState && !Sprite->mInVehicle)
+                    continue;
+            }
+        }
+
+        ++Count;
+    }
+
+    return Count;
+}
+
+void cFodderMultiplayer::Network_UpdateRescuePrisonerRules() {
+    if (mStartParams->mNetworkGameMode != eNetworkGameMode_RescuePrisoner)
+        return;
+
+    sSprite* Prisoner = nullptr;
+    sSprite* ExtractionZones[NETWORK_MAX_PLAYERS] = {};
+    int ExtractionCount = 0;
+
+    for (auto& Sprite : mSprites) {
+        if (!Sprite_IsActiveSpritePointer(&Sprite))
+            continue;
+
+        if (Sprite.mSpriteType == eSprite_Hostage && !Prisoner) {
+            Prisoner = &Sprite;
+        }
+        else if (Sprite.mSpriteType == eSprite_Hostage_Rescue_Tent &&
+                 ExtractionCount < NETWORK_MAX_PLAYERS) {
+            ExtractionZones[ExtractionCount++] = &Sprite;
+        }
+    }
+
+    const int16 PreviousCarrier =
+        (mNetMatchState.mObjectiveCarrierPlayer >= 0 &&
+         mNetMatchState.mObjectiveCarrierPlayer < NETWORK_MAX_PLAYERS)
+            ? static_cast<int16>(mNetMatchState.mObjectiveCarrierPlayer)
+            : NETWORK_MATCH_NO_WINNER;
+
+    auto TryExtractForCarrier = [&](int16 pCarrierOwner) -> bool {
+        if (pCarrierOwner < 0 || pCarrierOwner >= ExtractionCount)
+            return false;
+
+        sSprite* Zone = ExtractionZones[pCarrierOwner];
+        if (!Zone)
+            return false;
+
+        cPosition ZonePos((unsigned int)Zone->mPosX, (unsigned int)Zone->mPosY);
+
+        for (const auto& Troop : mGame_Data.mSoldiers_Allocated) {
+            const sSprite* Sprite = Troop.mSprite;
+            if (!Sprite_IsActiveSpritePointer(Sprite))
+                continue;
+
+            if (Network_GetSpriteOwner(Sprite) != pCarrierOwner)
+                continue;
+
+            cPosition TroopPos((unsigned int)Sprite->mPosX, (unsigned int)Sprite->mPosY);
+            if (Map_Get_Distance_BetweenPositions(TroopPos, ZonePos, 96) <= 48) {
+                mNetMatchState.mObjectiveState = eNetworkObjectiveState_Extracted;
+                mNetMatchState.mObjectiveCarrierPlayer = static_cast<int8_t>(pCarrierOwner);
+                Network_SetMatchWinner(pCarrierOwner);
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    if (!Prisoner) {
+        if (mNetMatchState.mObjectiveState == eNetworkObjectiveState_Carried &&
+            TryExtractForCarrier(PreviousCarrier)) {
+            return;
+        }
+
+        if (mNetMatchState.mObjectiveState == eNetworkObjectiveState_Extracted)
+            return;
+
+        mNetMatchState.mObjectiveState = eNetworkObjectiveState_Dropped;
+        mNetMatchState.mObjectiveCarrierPlayer = NETWORK_MATCH_NO_WINNER;
+        return;
+    }
+
+    cPosition PrisonerPos((unsigned int)Prisoner->mPosX, (unsigned int)Prisoner->mPosY);
+
+    for (int Team = 0; Team < ExtractionCount; ++Team) {
+        if (!ExtractionZones[Team])
+            continue;
+
+        cPosition ZonePos((unsigned int)ExtractionZones[Team]->mPosX, (unsigned int)ExtractionZones[Team]->mPosY);
+        if (Map_Get_Distance_BetweenPositions(PrisonerPos, ZonePos, 96) <= 48) {
+            mNetMatchState.mObjectiveState = eNetworkObjectiveState_Extracted;
+            mNetMatchState.mObjectiveCarrierPlayer = static_cast<int8_t>(Team);
+            Network_SetMatchWinner(Team);
+            return;
+        }
+    }
+
+    int16 Carrier = NETWORK_MATCH_NO_WINNER;
+    int32 BestDistance = 96;
+
+    for (const auto& Troop : mGame_Data.mSoldiers_Allocated) {
+        const sSprite* Sprite = Troop.mSprite;
+        if (!Sprite_IsActiveSpritePointer(Sprite))
+            continue;
+
+        const int16 Owner = Network_GetSpriteOwner(Sprite);
+        if (Owner < 0 || Owner >= NETWORK_MAX_PLAYERS)
+            continue;
+
+        cPosition TroopPos((unsigned int)Sprite->mPosX, (unsigned int)Sprite->mPosY);
+        const int32 Distance = Map_Get_Distance_BetweenPositions(PrisonerPos, TroopPos, 96);
+        if (Distance < BestDistance) {
+            BestDistance = Distance;
+            Carrier = Owner;
+        }
+    }
+
+    if (TryExtractForCarrier(Carrier))
+        return;
+
+    mNetMatchState.mObjectiveCarrierPlayer = static_cast<int8_t>(Carrier);
+    mNetMatchState.mObjectiveState = (Carrier >= 0)
+        ? eNetworkObjectiveState_Carried
+        : eNetworkObjectiveState_Dropped;
+}
+
+void cFodderMultiplayer::Network_SetMatchWinner(int16 pWinnerTeam) {
+    if (mNetMatchState.mWinnerTeam != NETWORK_MATCH_NO_WINNER)
+        return;
+
+    mNetMatchState.mWinnerTeam = static_cast<int8_t>(pWinnerTeam);
+    mPhase_TryAgain = false;
+    mPhase_Complete = true;
+}
+
+void cFodderMultiplayer::Network_UpdateMatchRules() {
+    if (!Sprite_UseNetworkHostilityRules())
+        return;
+
+    if (mNetFrameCount >= 0) {
+        mNetMatchState.mTimerSeconds = static_cast<uint16_t>(
+            std::min<int>(UINT16_MAX, mNetFrameCount / NETWORK_SIM_FRAMES_PER_SECOND));
+    }
+
+    if (mNetMatchState.mWinnerTeam != NETWORK_MATCH_NO_WINNER)
+        return;
+
+    Network_UpdateRescuePrisonerRules();
+    if (mNetMatchState.mWinnerTeam != NETWORK_MATCH_NO_WINNER)
+        return;
+
+    if (mStartParams->mNetworkKillLimit) {
+        for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+            if (mNetMatchState.mKills[Player] >= mStartParams->mNetworkKillLimit) {
+                Network_SetMatchWinner(Player);
+                return;
+            }
+        }
+    }
+
+    int16 AliveOwner = NETWORK_MATCH_NO_WINNER;
+    int16 AliveOwners = 0;
+    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        if (Network_CountAliveOwnedTroops(static_cast<int16>(Player), 0) <= 0)
+            continue;
+
+        AliveOwner = static_cast<int16>(Player);
+        ++AliveOwners;
+    }
+
+    if (AliveOwners == 1) {
+        Network_SetMatchWinner(AliveOwner);
+        return;
+    }
+
+    if (AliveOwners == 0) {
+        Network_SetMatchWinner(NETWORK_MATCH_DRAW);
+        return;
+    }
+
+    if (mStartParams->mNetworkTimeLimitSeconds &&
+        mNetMatchState.mTimerSeconds >= mStartParams->mNetworkTimeLimitSeconds) {
+        int16 LeadingPlayer = NETWORK_MATCH_DRAW;
+        uint16_t LeadingKills = 0;
+        bool Tied = false;
+
+        for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+            if (mNetMatchState.mKills[Player] > LeadingKills) {
+                LeadingKills = mNetMatchState.mKills[Player];
+                LeadingPlayer = static_cast<int16>(Player);
+                Tied = false;
+            }
+            else if (mNetMatchState.mKills[Player] == LeadingKills) {
+                Tied = true;
+            }
+        }
+
+        Network_SetMatchWinner(Tied ? NETWORK_MATCH_DRAW : LeadingPlayer);
+    }
 }
 
 // ============================================================
@@ -833,25 +2219,40 @@ void cFodderMultiplayer::Network_ApplyInputs(const sNetworkInput inputs[NETWORK_
     // Global key flags – either player can pause or abort
     uint8_t sharedFlags = p1.mKeyFlags | p2.mKeyFlags;
     if (sharedFlags & eNetKey_Pause)  mPhase_Paused  = !mPhase_Paused;
-    if (sharedFlags & eNetKey_Map)    mPhase_ShowMapOverview = 1;
     if (sharedFlags & eNetKey_Escape) mPhase_Aborted = true;
 
-    // Weapon keys apply to each player's own fixed squad
-    if (p1.mKeyFlags & eNetKey_WeaponG) {
-        mSquad_SwitchWeapon = 1;
-        mSquad_CurrentWeapon[0] = eWeapon_Grenade;
-    }
-    if (p1.mKeyFlags & eNetKey_WeaponR) {
-        mSquad_SwitchWeapon = 1;
-        mSquad_CurrentWeapon[0] = eWeapon_Rocket;
-    }
-    if (p2.mKeyFlags & eNetKey_WeaponG) {
-        mSquad_SwitchWeapon = 1;
-        mSquad_CurrentWeapon[1] = eWeapon_Grenade;
-    }
-    if (p2.mKeyFlags & eNetKey_WeaponR) {
-        mSquad_SwitchWeapon = 1;
-        mSquad_CurrentWeapon[1] = eWeapon_Rocket;
+    for (int16 Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        const uint8_t Flags = inputs[Player].mKeyFlags;
+        const int16 SelectedSlot = Network_LocalSlotFromSelectFlags(Flags);
+        if (SelectedSlot >= 0) {
+            const int16 Squad = Network_UsesPrivateSplitSquads()
+                ? Network_GetPlayerSquadForLocalSlot(Player, SelectedSlot)
+                : SelectedSlot;
+
+            if (Network_PlayerOwnsSquad(Player, Squad) && mSquads_TroopCount[Squad])
+                Network_SetPlayerSelectedSquad(Player, Squad);
+        }
+
+        const int16 TroopRow = Network_TroopRowFromCommand(inputs[Player].mCommand);
+        if (TroopRow >= 0)
+            Network_ToggleSelectedTroop(Player, TroopRow);
+        else if (inputs[Player].mCommand == eNetCommand_SplitSelected)
+            Network_SplitSelectedTroops(Player);
+
+        const int16 Squad = Network_GetPlayerSelectedSquad(Player);
+        if (Squad < 0 || Squad >= NETWORK_MAX_SQUADS)
+            continue;
+
+        if (Flags & eNetKey_WeaponG) {
+            mSquad_CurrentWeapon[Squad] = eWeapon_Grenade;
+            mGUI_RefreshSquadGrenades[Squad] = -1;
+            mGUI_RefreshSquadRockets[Squad] = -1;
+        }
+        if (Flags & eNetKey_WeaponR) {
+            mSquad_CurrentWeapon[Squad] = eWeapon_Rocket;
+            mGUI_RefreshSquadGrenades[Squad] = -1;
+            mGUI_RefreshSquadRockets[Squad] = -1;
+        }
     }
 }
 
@@ -897,15 +2298,15 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
                 fnv(&sp.field_44, sizeof(sp.field_44));
                 fnv(&sp.mFrameIndex, sizeof(sp.mFrameIndex));
             }
-            fprintf(sl, "[SYNC-ENTRY] f=%d rng=%04X%04X%04X%04X spr=%08X itick=%d ptick=%d p1=(%d,%d b%d k%d) p2=(%d,%d b%d k%d)\n",
+            fprintf(sl, "[SYNC-ENTRY] f=%d rng=%04X%04X%04X%04X spr=%08X itick=%d ptick=%d p1=(%d,%d b%d k%d c%d) p2=(%d,%d b%d k%d c%d)\n",
                     mNetFrameCount,
                     (uint16)rs0, (uint16)rs1, (uint16)rs2, (uint16)rs3,
                     sprHash,
                     (int)mInterruptTick, (int)mPhase_InterruptTicks,
                     (int)inputs[0].mMouseX, (int)inputs[0].mMouseY,
-                    (int)inputs[0].mMouseButtons, (int)inputs[0].mKeyFlags,
+                    (int)inputs[0].mMouseButtons, (int)inputs[0].mKeyFlags, (int)inputs[0].mCommand,
                     (int)inputs[1].mMouseX, (int)inputs[1].mMouseY,
-                    (int)inputs[1].mMouseButtons, (int)inputs[1].mKeyFlags);
+                    (int)inputs[1].mMouseButtons, (int)inputs[1].mKeyFlags, (int)inputs[1].mCommand);
             // Detailed per-sprite dump around the divergence frame
             {
                 int idx = 0;
@@ -931,6 +2332,7 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
 
     // Apply global (non-cursor) inputs: pause/abort/weapon keys
     Network_ApplyInputs(inputs);
+    Network_NormalizeSquadAssignments();
 
     // Camera + cursor handling (equivalent to 3× Phase_Loop_Interrupt
     // minus the hardware-input read).
@@ -939,13 +2341,10 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
         ++mInterruptTick;
 
         if (mInput_Enabled) {
-            // Camera must follow the SAME squad on both machines so that
+            // Camera must follow the same squad on both machines so that
             // mCameraX/Y (part of the saved state) are deterministic.
-            // We always follow squad 0 / P1 cursor for the simulation camera.
-            // P2's visual camera is handled separately after GGPO state-save.
-            mSquad_Selected = 0;
-            if (mSquads[0][0] != INVALID_SPRITE_PTR && mSquads[0][0] != nullptr)
-                mSquad_Leader = mSquads[0][0];
+            const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+            Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
             {
                 const int16 cX = static_cast<int16>(mCameraX >> 16);
                 const int16 cY = static_cast<int16>(mCameraY >> 16);
@@ -973,13 +2372,12 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
                 const int16 camY = static_cast<int16>(mCameraY >> 16);
 
                 for (int pl = 0; pl < NETWORK_MAX_PLAYERS; ++pl) {
-                    const int squad = pl; // P1 = squad 0, P2 = squad 1
+                    const int16 squad = Network_GetPlayerSelectedSquad(static_cast<int16>(pl));
+                    if (squad < 0 || squad >= NETWORK_MAX_SQUADS)
+                        continue;
 
                     // --- Squad pointers ---
-                    mSquad_Selected = static_cast<int16>(squad);
-                    if (mSquads[squad][0] != INVALID_SPRITE_PTR && mSquads[squad][0] != nullptr)
-                        mSquad_Leader = mSquads[squad][0];
-                    mSquad_CurrentVehicle = mSquad_CurrentVehicles[squad];
+                    Network_SetActiveSquadContext(squad);
 
                     // --- Cursor (world → screen) ---
                     mMouseX      = static_cast<int16>(inputs[pl].mMouseX - camX);
@@ -993,14 +2391,15 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
                     mMouse_Button_Right_Toggle     = mNet_ButtonRightToggle[pl];
                     mMouse_Button_LeftRight_Toggle = mNet_ButtonLRToggle[pl];
                     mMouse_Button_LeftRight_Toggle2= mNet_ButtonLRToggle2[pl];
+                    mButtonPressRight              = mNet_ButtonRightToggle[pl] ? -1 : 0;
 
                     // --- Per-squad walk target memory ---
                     // Squad_Walk_Target_Set stores the last click in shared
                     // globals mSquad_WalkTargetX/Y; we must isolate them so
                     // one player's click doesn't become a waypoint for the
                     // other squad.
-                    mSquad_WalkTargetX = mNet_WalkTargetX[pl];
-                    mSquad_WalkTargetY = mNet_WalkTargetY[pl];
+                    mSquad_WalkTargetX = mNet_WalkTargetX[squad];
+                    mSquad_WalkTargetY = mNet_WalkTargetY[squad];
 
                     // --- Per-player camera pan target ---
                     // Mouse_Inputs_Check sets mCamera_PanTargetX/Y on click;
@@ -1025,8 +2424,8 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
                     mNet_ButtonRightToggle[pl] = mMouse_Button_Right_Toggle;
                     mNet_ButtonLRToggle[pl]    = mMouse_Button_LeftRight_Toggle;
                     mNet_ButtonLRToggle2[pl]   = mMouse_Button_LeftRight_Toggle2;
-                    mNet_WalkTargetX[pl]       = mSquad_WalkTargetX;
-                    mNet_WalkTargetY[pl]       = mSquad_WalkTargetY;
+                    mNet_WalkTargetX[squad]    = mSquad_WalkTargetX;
+                    mNet_WalkTargetY[squad]    = mSquad_WalkTargetY;
                     mNet_CameraPanTargetX[pl]  = mCamera_PanTargetX;
                     mNet_CameraPanTargetY[pl]  = mCamera_PanTargetY;
 
@@ -1042,10 +2441,8 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
 
                 // Restore deterministic state (squad 0 / P1) so that
                 // saved state and sprite handling are identical on both machines.
-                mSquad_Selected       = 0;
-                if (mSquads[0][0] != INVALID_SPRITE_PTR && mSquads[0][0] != nullptr)
-                    mSquad_Leader = mSquads[0][0];
-                mSquad_CurrentVehicle = mSquad_CurrentVehicles[0];
+                const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+                Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
                 mMouseX      = static_cast<int16>(inputs[eNetPlayer_1].mMouseX - camX);
                 mMouseY      = static_cast<int16>(inputs[eNetPlayer_1].mMouseY - camY);
                 mInputMouseX = mMouseX;
@@ -1055,8 +2452,8 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
                 mMouse_Button_Right_Toggle     = mNet_ButtonRightToggle[0];
                 mMouse_Button_LeftRight_Toggle = mNet_ButtonLRToggle[0];
                 mMouse_Button_LeftRight_Toggle2= mNet_ButtonLRToggle2[0];
-                mSquad_WalkTargetX             = mNet_WalkTargetX[0];
-                mSquad_WalkTargetY             = mNet_WalkTargetY[0];
+                mSquad_WalkTargetX             = mNet_WalkTargetX[mSquad_Selected];
+                mSquad_WalkTargetY             = mNet_WalkTargetY[mSquad_Selected];
                 mCamera_PanTargetX             = mNet_CameraPanTargetX[0];
                 mCamera_PanTargetY             = mNet_CameraPanTargetY[0];
 
@@ -1115,15 +2512,19 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
 
         Sprite_Find_HumanVehicles();
 
-        // Mirror Phase_Cycle: check mission goals before sprite simulation.
-        Phase_Goals_Check();
+        // Campaign goals are not match rules. PvP modes use deterministic
+        // network match state for winner/scoring instead.
+        if (!Sprite_UseNetworkHostilityRules())
+            Phase_Goals_Check();
 
         // Decrement walk-target step counters and rebuild squad membership
         // arrays from sprite field_32 values.  Both are called every frame
         // in Phase_Cycle; omitting them here caused stale squad lists and
         // broken walk-target routing.
         Squad_Walk_Steps_Decrease();
+        Network_NormalizeSquadAssignments();
         Squad_Rebuild();
+        Network_ValidateSelectedSquads();
 
         // Store world-space cursors for per-squad sprite AI (Sprite_Handle_Troop_Direct_TowardMouse).
         mNetSquadCursorX[0] = inputs[eNetPlayer_1].mMouseX;
@@ -1137,9 +2538,10 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
         // was false (camera pan intro) and the 3-tick loop didn't set
         // mMouseX from synced inputs — without this, mMouseX would retain
         // whatever the 50 Hz SDL loop set, diverging between machines.
-        mSquad_Selected = 0;
-        if (mSquads[0][0] != INVALID_SPRITE_PTR && mSquads[0][0] != nullptr)
-            mSquad_Leader = mSquads[0][0];
+        {
+            const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+            Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
+        }
         {
             const int16 camX = static_cast<int16>(mCameraX >> 16);
             const int16 camY = static_cast<int16>(mCameraY >> 16);
@@ -1175,6 +2577,9 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
         }
 
         Mission_Sprites_Handle();
+        Network_NormalizeSquadAssignments();
+        Squad_Rebuild();
+        Network_ValidateSelectedSquads();
 
         // --- Desync diagnostic: log RNG state after sprite handling ---
         {
@@ -1195,12 +2600,19 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
         Sprite_Bullet_SetData();
         Squad_EnteredVehicle_TimerTick();
 
-        // Squad_Set_CurrentVehicle uses mSquad_Selected — run for both squads.
-        for (int sq = 0; sq < NETWORK_MAX_PLAYERS; ++sq) {
+        // Squad_Set_CurrentVehicle uses mSquad_Selected — run for all valid
+        // multiplayer squad slots.
+        for (int sq = 0; sq < NETWORK_MAX_SQUADS; ++sq) {
+            if (Network_GetSquadOwner(static_cast<int16>(sq)) < 0)
+                continue;
+
             mSquad_Selected = static_cast<int16>(sq);
             Squad_Set_CurrentVehicle();
         }
-        mSquad_Selected = 0;
+        {
+            const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+            Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
+        }
 
         // Keep deterministic state for GGPO save (mSquad_Selected = 0).
         // Local rendering state is set in Network_Tick after AdvanceFrame.
@@ -1210,6 +2622,8 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
     // Phase_Cycle does this; we must mirror it in the network path.
     if (mSurface->isPaletteAdjusting())
         mSurface->palette_FadeTowardNew();
+
+    Network_UpdateMatchRules();
 
     ++mNetFrameCount;
     return true;
@@ -1226,6 +2640,53 @@ int16 cFodderMultiplayer::Network_Tick() {
     if (!mNetSession || !mNetSession->IsRunning())
         return -1;
 
+    auto RestoreLocalViewForRender = [&]() {
+        const int16 localSq = Network_GetPlayerSelectedSquad(static_cast<int16>(mNetLocalPlayerIndex));
+        if (mNet_LocalCamInitialised)
+            Network_CameraRestore(mNet_LocalCam);
+
+        Network_SetActiveSquadContext((localSq >= 0) ? localSq : static_cast<int16>(mNetLocalPlayerIndex));
+
+        const int16 camX = static_cast<int16>(mCameraX >> 16);
+        const int16 camY = static_cast<int16>(mCameraY >> 16);
+        mMouseX      = static_cast<int16>(mNet_LocalCursorWorldX - camX);
+        mMouseY      = static_cast<int16>(mNet_LocalCursorWorldY - camY);
+        mInputMouseX = mMouseX;
+        mInputMouseY = mMouseY;
+    };
+
+    auto SnapCameraToSprite = [&](sSprite* pSprite) {
+        if (pSprite == INVALID_SPRITE_PTR || pSprite == nullptr)
+            return;
+
+        mCamera_PanTargetX = pSprite->mPosX;
+        mCamera_PanTargetY = pSprite->mPosY;
+        mCamera_StartPosition_X = pSprite->mPosX;
+        mCamera_StartPosition_Y = pSprite->mPosY;
+        mCamera_MovePauseX = 0;
+        mCamera_MovePauseY = 0;
+        mCamera_Speed_Reset_X = false;
+        mCamera_Speed_Reset_Y = false;
+        mCamera_AccelerationX &= 0x0000FFFF;
+        mCamera_AccelerationY &= 0x0000FFFF;
+
+        for (int Count = 0; Count < 10000000; ++Count) {
+            Camera_Pan_To_Target();
+            Camera_Pan_To_Target();
+
+            if (!mCamera_Reached_Target)
+                break;
+        }
+
+        Camera_Prepare();
+    };
+
+    // GGPO calls below can invoke rollback/advance callbacks. Make sure those
+    // callbacks always see deterministic camera state, not the local render
+    // camera left active after the previous frame.
+    if (mNet_LocalCamInitialised)
+        Network_CameraRestore(mNet_DetCam);
+
     // Allow GGPO to pump the network
     mNetSession->Idle(0);
 
@@ -1237,6 +2698,7 @@ int16 cFodderMultiplayer::Network_Tick() {
     // If GGPO rejects it (prediction threshold reached), stall until remote
     // inputs arrive so the rollback window never grows beyond MAX_PREDICTION_FRAMES.
     if (!mNetSession->AddLocalInput(localInput)) {
+        RestoreLocalViewForRender();
         return 1;
     }
 
@@ -1247,17 +2709,8 @@ int16 cFodderMultiplayer::Network_Tick() {
     int disconnectFlags = 0;
     if (!mNetSession->SynchronizeInput(syncInputs, disconnectFlags)) {
         // Remote input not yet available – wait next tick
+        RestoreLocalViewForRender();
         return 1;
-    }
-
-    // --- Restore deterministic camera before simulation ---
-    // After the previous frame we may have overridden the camera for the
-    // local player's viewport (P2 follows squad 1).  Restore the
-    // deterministic camera so the simulation produces identical results
-    // on both machines.  On the very first frame mNet_P2CamInitialised is
-    // false, so we skip the restore (camera is already deterministic).
-    if (mNet_P2CamInitialised && mNetLocalPlayerIndex != eNetPlayer_1) {
-        Network_CameraRestore(mNet_DetCam);
     }
 
     // Run one full simulation frame with the synchronised inputs
@@ -1270,46 +2723,60 @@ int16 cFodderMultiplayer::Network_Tick() {
     Network_CameraSave(mNet_DetCam);
 
     // --- Restore local view state for rendering ---
-    // The simulation kept mSquad_Selected = 0 for determinism.  Now that
-    // GGPO has saved the deterministic state, switch to the local player's
-    // squad so the sidebar, cursor, and camera show the right context.
+    // Now that GGPO has saved the deterministic state, switch to the local
+    // player's selected squad so the sidebar, cursor, and camera show the
+    // right context.
     {
-        const int16 localSq = static_cast<int16>(mNetLocalPlayerIndex);
-        mSquad_Selected = localSq;
-        if (mSquads[localSq][0] != INVALID_SPRITE_PTR && mSquads[localSq][0] != nullptr)
-            mSquad_Leader = mSquads[localSq][0];
+        const int16 localSq = Network_GetPlayerSelectedSquad(static_cast<int16>(mNetLocalPlayerIndex));
+        Network_SetActiveSquadContext((localSq >= 0) ? localSq : static_cast<int16>(mNetLocalPlayerIndex));
 
-        // --- P2 local camera: follow squad 1 with smooth scrolling ---
-        if (mNetLocalPlayerIndex != eNetPlayer_1) {
-            // During the camera-pan intro (mInput_Enabled == false) both
-            // players must see the same pan, so P2 just mirrors the
-            // deterministic camera.  Once gameplay begins we run P2's
-            // own independent camera following squad 1.
-            if (!mInput_Enabled) {
-                // Pan intro still running — mirror the deterministic camera.
-                // mNet_DetCam was just saved above so tile state is correct.
-                mNet_P2CamInitialised = false;
-            } else if (!mNet_P2CamInitialised) {
-                // First gameplay frame: seed P2's camera from the
-                // deterministic state (which has now panned to the soldiers).
-                mNet_P2Cam = mNet_DetCam;
-                mNet_P2CamInitialised = true;
-            } else {
-                // Subsequent frames: load P2's camera from previous frame
-                Network_CameraRestore(mNet_P2Cam);
+        if (!mInput_Enabled) {
+            // During the initial pan, both clients mirror the deterministic
+            // camera.  Start a private local camera only once gameplay input
+            // is enabled, otherwise the intro pan leaks into gameplay state.
+            mNet_LocalCamInitialised = false;
+            mNet_LocalCamSquad = -1;
+        } else {
+            if (!mNet_LocalCamInitialised) {
+                mNet_LocalCam = mNet_DetCam;
+                mNet_LocalCamInitialised = true;
 
-                const int16 camX = static_cast<int16>(mCameraX >> 16);
-                const int16 camY = static_cast<int16>(mCameraY >> 16);
-                mMouseX = static_cast<int16>(syncInputs[eNetPlayer_2].mMouseX - camX);
-                mMouseY = static_cast<int16>(syncInputs[eNetPlayer_2].mMouseY - camY);
+                Network_CameraRestore(mNet_LocalCam);
 
-                // Run Camera_Handle 3 times to match the tick rate
-                for (int tick = 0; tick < 3; ++tick)
-                    Camera_Handle();
+                Network_SetActiveSquadContext((localSq >= 0) ? localSq : static_cast<int16>(mNetLocalPlayerIndex));
 
-                // Save P2's updated camera for next frame
-                Network_CameraSave(mNet_P2Cam);
+                SnapCameraToSprite(mSquad_Leader);
+                mNet_LocalCursorWorldX = static_cast<int16>(mInputMouseX + static_cast<int16>(mCameraX >> 16));
+                mNet_LocalCursorWorldY = static_cast<int16>(mInputMouseY + static_cast<int16>(mCameraY >> 16));
+                mNet_LocalCamSquad = mSquad_Selected;
+                Network_CameraSave(mNet_LocalCam);
             }
+            else {
+                Network_CameraRestore(mNet_LocalCam);
+
+                Network_SetActiveSquadContext((localSq >= 0) ? localSq : static_cast<int16>(mNetLocalPlayerIndex));
+
+                if (mNet_LocalCamSquad != mSquad_Selected) {
+                    const int16 cursorScreenX = static_cast<int16>(mNet_LocalCursorWorldX - static_cast<int16>(mCameraX >> 16));
+                    const int16 cursorScreenY = static_cast<int16>(mNet_LocalCursorWorldY - static_cast<int16>(mCameraY >> 16));
+
+                    SnapCameraToSprite(mSquad_Leader);
+
+                    mNet_LocalCursorWorldX = static_cast<int16>(cursorScreenX + static_cast<int16>(mCameraX >> 16));
+                    mNet_LocalCursorWorldY = static_cast<int16>(cursorScreenY + static_cast<int16>(mCameraY >> 16));
+                    mNet_LocalCamSquad = mSquad_Selected;
+                }
+            }
+
+            const int16 camX = static_cast<int16>(mCameraX >> 16);
+            const int16 camY = static_cast<int16>(mCameraY >> 16);
+            mMouseX = static_cast<int16>(mNet_LocalCursorWorldX - camX);
+            mMouseY = static_cast<int16>(mNet_LocalCursorWorldY - camY);
+
+            for (int tick = 0; tick < 3; ++tick)
+                Camera_Handle();
+
+            Network_CameraSave(mNet_LocalCam);
         }
 
         // Restore the local cursor from SDL tracking (mNet_LocalCursorWorldX).
@@ -1455,6 +2922,7 @@ bool cFodderMultiplayer::Network_SaveState(uint8_t** buffer, int* len, int* chec
     const uint32_t MAGIC = 0x464F4444u; // "FODD"
     w.write(MAGIC);
     w.write((uint32_t)mNetFrameCount);
+    w.writeBytes(&mNetMatchState, sizeof(mNetMatchState));
 
     // --- RNG state (4 × int16) ---
     {
@@ -1561,6 +3029,8 @@ bool cFodderMultiplayer::Network_SaveState(uint8_t** buffer, int* len, int* chec
     w.writeBytes(mNet_CameraPanTargetY, sizeof(mNet_CameraPanTargetY));
     w.writeBytes(mNetSquadCursorX,      sizeof(mNetSquadCursorX));
     w.writeBytes(mNetSquadCursorY,      sizeof(mNetSquadCursorY));
+    w.writeBytes(mNetSquadOwner,        sizeof(mNetSquadOwner));
+    w.writeBytes(mNetSelectedSquad,     sizeof(mNetSelectedSquad));
     w.write(mSquad_Selected);
     w.write(mSquad_JoiningTo);
     w.write(mSquad_WalkTargetX);
@@ -1788,6 +3258,7 @@ bool cFodderMultiplayer::Network_LoadState(const uint8_t* buffer, int len) {
         return false;
     }
     mNetFrameCount = (int)frame;
+    r.readBytes(&mNetMatchState, sizeof(mNetMatchState));
 
     // --- RNG ---
     {
@@ -1887,6 +3358,8 @@ bool cFodderMultiplayer::Network_LoadState(const uint8_t* buffer, int len) {
     r.readBytes(mNet_CameraPanTargetY, sizeof(mNet_CameraPanTargetY));
     r.readBytes(mNetSquadCursorX,      sizeof(mNetSquadCursorX));
     r.readBytes(mNetSquadCursorY,      sizeof(mNetSquadCursorY));
+    r.readBytes(mNetSquadOwner,        sizeof(mNetSquadOwner));
+    r.readBytes(mNetSelectedSquad,     sizeof(mNetSelectedSquad));
     mSquad_Selected                   = r.read<int16>();
     mSquad_JoiningTo                  = r.read<int16>();
     mSquad_WalkTargetX                = r.read<int16>();
@@ -2100,7 +3573,9 @@ bool cFodderMultiplayer::Network_LoadState(const uint8_t* buffer, int len) {
     // restored sprite field_32 values.  These arrays are not serialised
     // because they are fully derivable from sprite state, but they must be
     // current before the next Mission_Sprites_Handle() call.
+    Network_NormalizeSquadAssignments();
     Squad_Rebuild();
+    Network_ValidateSelectedSquads();
 
     // Invalidate the sprite draw lists so they are rebuilt next render
     mSprite_DrawList_First.clear();

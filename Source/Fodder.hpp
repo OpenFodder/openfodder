@@ -23,6 +23,7 @@
 #include "Sprites.hpp"
 #include "GameData.hpp"
 #include "Network/NetworkTypes.hpp"
+#include "RandomMapOptionsMenu.hpp"
 #ifdef OPENFODDER_ENABLE_NETWORK
 #include "Network/GGPOSession.hpp"
 #endif
@@ -148,13 +149,19 @@ public:
     // Accumulated key-flag state from SDL events, consumed each GGPO frame.
     uint8_t                 mNetKeyFlagsLocal;
 
+    // Local-only multiplayer map overlay. This is render/input UI state and
+    // must not be included in GGPO snapshots.
+    bool                    mNetMapOverlayActive;
+    bool                    mNetSidebarLeftWasDown;
+    int16                   mNet_LocalCamSquad;
+
     // Local SDL cursor in WORLD space — updated only from Mouse_Cursor_Handle
     // (real SDL input), never from GGPO sync.  Used by Network_GatherLocalInput
     // so the unfocused window doesn't feed back GGPO-derived positions.
     int16                   mNet_LocalCursorWorldX;
     int16                   mNet_LocalCursorWorldY;
 
-    // World-space cursor for each squad, derived from synchronized inputs
+    // World-space cursor for each player, derived from synchronized inputs
     // before Mission_Sprites_Handle() so sprite AI is camera-independent.
     int16                   mNetSquadCursorX[NETWORK_MAX_PLAYERS];
     int16                   mNetSquadCursorY[NETWORK_MAX_PLAYERS];
@@ -166,25 +173,33 @@ public:
     bool                    mNet_ButtonLRToggle[NETWORK_MAX_PLAYERS];
     bool                    mNet_ButtonLRToggle2[NETWORK_MAX_PLAYERS];
 
-    // Per-squad walk target memory — prevents Squad_Walk_Target_Set from
+    // Per-global-squad walk target memory — prevents Squad_Walk_Target_Set from
     // injecting one player's last click as a waypoint for the other squad.
-    int16                   mNet_WalkTargetX[NETWORK_MAX_PLAYERS];
-    int16                   mNet_WalkTargetY[NETWORK_MAX_PLAYERS];
+    int16                   mNet_WalkTargetX[NETWORK_MAX_SQUADS];
+    int16                   mNet_WalkTargetY[NETWORK_MAX_SQUADS];
 
     // Per-player camera pan target — prevents P2's click from moving the
     // deterministic camera (which must follow P1 only).
     int16                   mNet_CameraPanTargetX[NETWORK_MAX_PLAYERS];
     int16                   mNet_CameraPanTargetY[NETWORK_MAX_PLAYERS];
 
+    // Deterministic squad ownership.  Sprite::field_32 remains the squad id;
+    // this table says which network player owns that squad.  Today it is
+    // initialised to the existing fixed mapping, but it lets PvP split squads
+    // grow without treating "squad id" as "player id".
+    int8                    mNetSquadOwner[NETWORK_MAX_SQUADS];
+    int8                    mNetSelectedSquad[NETWORK_MAX_PLAYERS];
+
     // Deterministic camera backup — saved after GGPO state-save so we can
-    // override the camera for P2's local viewport and restore it before the
+    // override the camera for the local viewport and restore it before the
     // next simulation step.
     sNetCameraState         mNet_DetCam;
 
-    // P2's local viewport camera — persists across frames so scrolling is
-    // smooth.  Initialised from the deterministic camera on first use.
-    sNetCameraState         mNet_P2Cam;
-    bool                    mNet_P2CamInitialised;
+    // Local viewport camera — persists across frames so scrolling is smooth.
+    // This is render-only; the simulation always restores mNet_DetCam before
+    // advancing a deterministic GGPO frame.
+    sNetCameraState         mNet_LocalCam;
+    bool                    mNet_LocalCamInitialised;
 
     void                    Network_CameraSave(sNetCameraState& out);
     void                    Network_CameraRestore(const sNetCameraState& in);
@@ -338,7 +353,7 @@ public:
     uint16          mSidebar_SmallMode;
     int32           dword_3A030;
 
-    int8            mSquads_TroopCount[4];
+    int8            mSquads_TroopCount[NETWORK_MAX_SQUADS];
     uint16          word_3A05F;
 
     std::vector<sSprite*> mSprite_DrawList_First;
@@ -377,8 +392,8 @@ public:
     int16           mEnemy_BuildingCount;
     int16           mSquad_SwitchWeapon;
     int16           word_3A9B8;
-    int16           mSquad_Walk_Target_Indexes[3];  // values here, seem to be a byte count originally.. now its an index
-    int16           mSquad_Walk_Target_Steps[3];
+    int16           mSquad_Walk_Target_Indexes[NETWORK_MAX_SQUADS];  // values here, seem to be a byte count originally.. now its an index
+    int16           mSquad_Walk_Target_Steps[NETWORK_MAX_SQUADS];
     int16           mSprite_Bumped_Into_SquadMember;
     int16           mSprite_Player_CheckWeapon;
 
@@ -389,10 +404,10 @@ public:
 
     int16           mSprites_Found_Count;
 
-    int16           mSquad_Grenades[3];
-    int16           mSquad_Rockets[3];
+    int16           mSquad_Grenades[NETWORK_MAX_SQUADS];
+    int16           mSquad_Rockets[NETWORK_MAX_SQUADS];
 
-    int16           mGUI_Squad_Icon[3];
+    int16           mGUI_Squad_Icon[NETWORK_MAX_SQUADS];
 
 	size_t           mTroops_Enemy_Count;
     int16           mHostage_Count;
@@ -427,9 +442,9 @@ public:
     int16           mGUI_Print_String_To_Sidebar;
     int16           mGUI_Squad_NextDraw_Y;
     int16           mGUI_Sidebar_Setup;
-    int8            mGUI_RefreshSquadGrenades[3];
-    int8            mGUI_RefreshSquadRockets[3];
-    int16           mSquad_CurrentWeapon[3];
+    int8            mGUI_RefreshSquadGrenades[NETWORK_MAX_SQUADS];
+    int8            mGUI_RefreshSquadRockets[NETWORK_MAX_SQUADS];
+    int16           mSquad_CurrentWeapon[NETWORK_MAX_SQUADS];
 
     int16           mGUI_Loop_Is_CurrentSquad;
     int16           word_3AC4B;
@@ -470,7 +485,7 @@ public:
     int16           mMission_Final_TimeToAbort;
     int16           mMission_Save_Blocked[0x18];
 
-    sSprite*        mSquad_CurrentVehicles[3];
+    sSprite*        mSquad_CurrentVehicles[NETWORK_MAX_SQUADS];
     sSprite*        mSquad_CurrentVehicle;
 
     std::vector<sTileTrack> mMapTileTracks;
@@ -512,7 +527,7 @@ public:
     int16           mSound_Priority[4];
     int16           mSound_Timer[6];
 
-    int16           mSquad_EnteredVehicleTimer[3];
+    int16           mSquad_EnteredVehicleTimer[NETWORK_MAX_SQUADS];
     sSprite*        mSprite_OpenCloseDoor_Ptr;
     int16           mSprite_Civilian_GotHome;
     bool            mSwitchesActivated;
@@ -587,19 +602,20 @@ public:
     sSprite*        mSquad_2_Sprites[9];
     sSprite*        mSquad_3_Sprites[9];
     sSprite*        mSquad_4_Sprites[9];
+    sSprite*        mSquad_5_Sprites[9];
 
-    sSprite**       mSquads[5];
+    sSprite**       mSquads[NETWORK_MAX_SQUADS];
     int16           mSprite_Frame1_Modifier;
     int16           mSprite_Frame2_Modifier;
     int16           mSprite_Frame_3_Modifier;
     int16           mGUI_Mouse_Modifier_X;
     int16           mGUI_Mouse_Modifier_Y;
 
-    uint16          word_3BED5[5];
+    uint16          word_3BED5[NETWORK_MAX_SQUADS];
 
     sMapTarget      mSquad_WalkTargets[10][30];
-    int8            mSquad_Join_TargetSquad[3];
-    sSprite*        mSquad_Join_TargetSprite[6];
+    int8            mSquad_Join_TargetSquad[NETWORK_MAX_SQUADS];
+    sSprite*        mSquad_Join_TargetSprite[NETWORK_MAX_SQUADS];
 
     bool            mIntroDone;
 
@@ -787,7 +803,7 @@ public:
     void            Phase_GameOver();
     void            Draw_Phase_Paused();
 
-    void            Phase_Show_Complete();
+    virtual void    Phase_Show_Complete();
     void            Phase_Show_TryAgain();
     void            Phase_TextSprite_Prepare(sSprite* pData2C);
     void            Phase_TextSprite_Create_Mission(sSprite* pData2C);
@@ -1055,6 +1071,25 @@ public:
     void            Sprite_Handle_Troop_Animation(sSprite* pSprite);
     void            Sprite_Handle_Troop_Speed(sSprite* pSprite);
     void            Sprite_Handle_Troop_Direct_TowardWeaponTarget_WithRestore(sSprite* pSprite);
+    bool            Sprite_IsActiveSpritePointer(const sSprite* pSprite) const;
+    bool            Sprite_IsVehicle(const sSprite* pSprite) const;
+    const sSprite*  Sprite_GetVehicleController(const sSprite* pVehicle) const;
+    virtual bool    Sprite_UseNetworkHostilityRules() const;
+    void            Sprite_SetDamageOwner(sSprite* pDamageSource, sSprite* pOwner);
+    const sSprite*  Sprite_GetDamageOwner(const sSprite* pSprite) const;
+    virtual void    Sprite_RecordDamage(sSprite* pDamageSource, sSprite* pTarget);
+    virtual bool    Sprite_CanDamageTarget(const sSprite* pDamageSource, const sSprite* pTarget) const;
+    virtual bool    Sprite_CanTargetSprite(const sSprite* pActor, const sSprite* pTarget) const;
+    virtual bool    Sprite_CanVehicleDamageTarget(const sSprite* pVehicle, const sSprite* pTarget) const;
+    virtual bool    Sprite_ShouldDamagePlayerInRegion(const sSprite* pDamageSource, const sSprite* pTarget) const;
+    virtual bool    Sprite_AreHostile(const sSprite* pLeft, const sSprite* pRight) const;
+    virtual bool    Sprite_IsIndependentlyControlledSquadMember(const sSprite* pSprite) const;
+    virtual void    Sprite_GetPlayerRankContext(sSprite* pSprite, int16& pSquad, sSprite*& pLeader);
+    virtual void    Sprite_UpdatePlayerRankLeader(sSprite* pSprite, sSprite* pLeader);
+    virtual void    Sprite_GetMouseDirectionTarget(sSprite* pSprite, int16& pTargetX, int16& pTargetY);
+    virtual bool    Sprite_TryHandleSharedPickupBox(sSprite* pSprite, bool pRocketBox);
+    virtual bool    Sprite_ShouldUseSelectedSquadWeapon(const sSprite* pSprite) const;
+    virtual void    Sprite_ClearSelectedSquadWeaponUse(const sSprite* pSprite);
     void            Sprite_Create_Player_Shadow(sSprite* pSprite);
     int16           Sprite_Create_BloodTrail(sSprite* pSprite, sSprite*& pData2C, sSprite*& pData30);
     void            Sprite_Terrain_Check(sSprite* pSprite, int16& pData4);
@@ -1120,6 +1155,7 @@ public:
     void            Sprite_Handle_Turret(sSprite* pSprite);
     void            Sprite_Handle_Turret_Fire(sSprite* pSprite, sSprite* pData34);
     int16           Sprite_Find_By_Types(sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28);
+    virtual int16   Sprite_Find_Hostile_By_Types(sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28);
     void            Sprite_Shadow_Update_From_Height(sSprite* pSprite);
     int16           Sprite_Handle_Vehicle_Sinking(sSprite* pSprite);
     void            Vehicle_Handle_Cannon_Fire(sSprite* pSprite);
@@ -1348,6 +1384,8 @@ public:
 
     void            Squad_Select_Grenades();
     void            Squad_Select_Rockets();
+    bool            Squad_HasSelectedSpecialWeapon(int16 pSquad) const;
+    void            Squad_Select_CollectedWeaponIfNeeded(int16 pSquad, eWeaponSelected pWeapon);
 
     int16           GUI_Squad_Split_SelectedTroops();
 
@@ -1378,6 +1416,7 @@ public:
     void            Vehicle_Input_Handle();
     void            Squad_Assign_Target_From_Mouse();
     int16           Vehicle_Try_Exit_On_Mouse();
+    sSprite*        Vehicle_GetSelectedSquadVehicle() const;
     void            Vehicle_Target_Set();
 
     void            String_CalculateWidth(int32 pPosX, const uint8* pWidths, const std::string& pString);
@@ -1465,6 +1504,8 @@ public:
 
     void            About();
     void            KeyboardShortcuts();
+    bool            RandomMapOptions_Run(sRandomMapOptions& pOptions, cRandomMapOptionsMenu::eContext pContext);
+    bool            RandomMapOptions_RunCampaign();
 	void			CreateRandom(sMapParams pParams);
 	virtual void    Start();
     void            Exit(unsigned int pExitCode);

@@ -38,6 +38,7 @@ public:
     int16   Mission_Loop() override;
     int16   Phase_Loop() override;
     void    Phase_Prepare_Network() override;
+    void    Phase_Show_Complete() override;
 
     // --- Network-specific functions ---
     // (moved from cFodder — previously in Fodder_Network.cpp)
@@ -50,6 +51,48 @@ public:
     void            Network_GatherLocalInput(sNetworkInput& out);
     void            Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
     bool            Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
+    int16           Sprite_Troop_Dies(sSprite* pSprite) override;
+    bool            Sprite_UseNetworkHostilityRules() const override;
+    void            Sprite_RecordDamage(sSprite* pDamageSource, sSprite* pTarget) override;
+    bool            Sprite_CanDamageTarget(const sSprite* pDamageSource, const sSprite* pTarget) const override;
+    bool            Sprite_CanTargetSprite(const sSprite* pActor, const sSprite* pTarget) const override;
+    bool            Sprite_CanVehicleDamageTarget(const sSprite* pVehicle, const sSprite* pTarget) const override;
+    bool            Sprite_ShouldDamagePlayerInRegion(const sSprite* pDamageSource, const sSprite* pTarget) const override;
+    bool            Sprite_AreHostile(const sSprite* pLeft, const sSprite* pRight) const override;
+    bool            Sprite_IsIndependentlyControlledSquadMember(const sSprite* pSprite) const override;
+    void            Sprite_GetPlayerRankContext(sSprite* pSprite, int16& pSquad, sSprite*& pLeader) override;
+    void            Sprite_UpdatePlayerRankLeader(sSprite* pSprite, sSprite* pLeader) override;
+    void            Sprite_GetMouseDirectionTarget(sSprite* pSprite, int16& pTargetX, int16& pTargetY) override;
+    bool            Sprite_TryHandleSharedPickupBox(sSprite* pSprite, bool pRocketBox) override;
+    bool            Sprite_ShouldUseSelectedSquadWeapon(const sSprite* pSprite) const override;
+    void            Sprite_ClearSelectedSquadWeaponUse(const sSprite* pSprite) override;
+    int16           Sprite_Find_Hostile_By_Types(sSprite* pSprite, int16& pData0, int16& pData4, int16& pData8, int16& pDataC, int16& pData10, sSprite*& pData28) override;
+    int16           Network_GetSpriteOwner(const sSprite* pSprite) const;
+    int16           Network_GetSpriteTeam(const sSprite* pSprite) const;
+    bool            Network_AreHostile(const sSprite* pLeft, const sSprite* pRight) const;
+    void            Network_ResetSquadOwnership();
+    bool            Network_UsesPrivateSplitSquads() const;
+    int16           Network_GetSquadOwner(int16 pSquad) const;
+    bool            Network_PlayerOwnsSquad(int16 pPlayer, int16 pSquad) const;
+    int16           Network_GetPlayerPrimarySquad(int16 pPlayer) const;
+    int16           Network_GetPlayerSquadForLocalSlot(int16 pPlayer, int16 pLocalSlot) const;
+    int16           Network_GetSquadLocalSlot(int16 pPlayer, int16 pSquad) const;
+    int16           Network_FindAliveOwnedSquad(int16 pPlayer) const;
+    int16           Network_GetPlayerSelectedSquad(int16 pPlayer) const;
+    void            Network_SetPlayerSelectedSquad(int16 pPlayer, int16 pSquad);
+    void            Network_ValidateSelectedSquads();
+    int16           Network_CountSelectedTroopsInSquad(int16 pSquad) const;
+    int16           Network_FindEmptyOwnedSquad(int16 pPlayer) const;
+    bool            Network_PlayerCanSplitSelectedSquad(int16 pPlayer) const;
+    void            Network_ToggleSelectedTroop(int16 pPlayer, int16 pTroopRow);
+    void            Network_SplitSelectedTroops(int16 pPlayer);
+    int16           Network_CountAliveOwnedTroops(int16 pOwner, const sSprite* pExclude) const;
+    void            Network_ResetMatchState();
+    void            Network_SetMatchWinner(int16 pWinnerTeam);
+    void            Network_UpdateMatchRules();
+    void            Network_UpdateRescuePrisonerRules();
+    void            Network_NormalizeSquadAssignments();
+    void            Network_DistributeSquadExplosives();
 
     void            Network_GUI_Sidebar_Draw();
 
@@ -58,8 +101,10 @@ public:
     void            Network_Briefing_ReadySync();
 
     void            Network_Sidebar_ForceSquadIcons();
+    void            Network_DrawMatchOverlay();
     void            Network_Draw_WaitingForPlayer();
     void            Network_DrawP2Cursor();
+    void            Network_DrawLiveMapOverlay();
 
     bool            Network_SaveState(uint8_t** buffer, int* len, int* checksum);
     bool            Network_LoadState(const uint8_t* buffer, int len);
@@ -70,13 +115,25 @@ public:
 
     // Multiplayer menu / lobby
     bool            Multiplayer_Menu_Run();
+    bool            Multiplayer_ReopenLobby();
     void            Lobby_CampaignSelection();
+    bool            ConsumeReturnToMultiplayerLobby();
 
     // Multiplayer menu object (parallel to mOptionsMenu on cFodder)
     std::unique_ptr<cMultiplayerMenu> mMultiplayerMenu;
 
+    // Deterministic match rules state for PvP/objective modes.
+    sNetworkMatchState      mNetMatchState;
+
     // UDP lobby for campaign selection sync
     std::unique_ptr<cNetworkLobby> mLobby;
+
+private:
+    void                    Network_SetActiveSquadContext(int16 pSquad);
+    bool                    Network_ShouldShowLiveMapMarker(const sSprite* pSprite) const;
+    void                    Network_DrawLiveMapMarker(const sSprite* pSprite, bool pLocalPlayer);
+
+    bool                    mReturnToMultiplayerLobby = false;
 };
 
 #endif // OPENFODDER_ENABLE_NETWORK

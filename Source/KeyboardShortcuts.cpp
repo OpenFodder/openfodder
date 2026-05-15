@@ -22,27 +22,62 @@
 
 #include "stdafx.hpp"
 
+#include <cctype>
+
 struct sShortcutLine {
     size_t mY;
     const char* mKey;
     const char* mAction;
 };
 
-static void KeyboardShortcuts_DrawHeading(const char* pText, size_t pX, size_t pY)
+static std::string KeyboardShortcuts_FitText(const char* pText, int pMaxPx)
 {
-    g_Fodder->String_Print_Small(pText, pX, pY);
+    std::string Result;
+    int Width = 0;
+
+    if (!pText || pMaxPx <= 0)
+        return Result;
+
+    for (const char* Text = pText; *Text; ++Text)
+    {
+        const unsigned char Char = (unsigned char)std::toupper((unsigned char)*Text);
+        const int CharWidth = (int)mFont_Briefing_Width[Char];
+
+        if (Width + CharWidth > pMaxPx)
+            break;
+
+        Result.push_back((char)Char);
+        Width += CharWidth;
+    }
+
+    while (!Result.empty() && Result.back() == ' ')
+        Result.pop_back();
+
+    return Result;
 }
 
-static void KeyboardShortcuts_DrawLine(size_t pX, const sShortcutLine& pLine)
+static void KeyboardShortcuts_PrintLeftInBox(const char* pText, size_t pX1, size_t pX2, size_t pY)
 {
-    g_Fodder->String_Print_Small_LeftInBox(pLine.mKey, pX, pX + 0x28, pLine.mY, 0);
-    g_Fodder->String_Print_Small_LeftInBox(pLine.mAction, pX + 0x2E, pX + 0x86, pLine.mY, 0);
+    const int MaxPx = (int)pX2 - (int)pX1;
+    g_Fodder->String_Print_Small_LeftInBox(KeyboardShortcuts_FitText(pText, MaxPx), pX1, pX2, pY, 0);
+}
+
+static void KeyboardShortcuts_DrawHeading(const char* pText, size_t pX1, size_t pX2, size_t pY)
+{
+    g_Fodder->String_Print_Small_CentreInBox(pText, pX1, pX2, pY);
+}
+
+static void KeyboardShortcuts_DrawLine(size_t pKeyX, size_t pActionX, size_t pRightX, const sShortcutLine& pLine)
+{
+    KeyboardShortcuts_PrintLeftInBox(pLine.mKey, pKeyX, pActionX - 0x08, pLine.mY);
+    KeyboardShortcuts_PrintLeftInBox(pLine.mAction, pActionX, pRightX, pLine.mY);
 }
 
 cKeyboardShortcuts::cKeyboardShortcuts()
 {
-    mSurface = new cSurface(0, 0);
-    mSurface->LoadPng(g_ResourceMan->GetAboutFile());
+    mSurface = new cSurface(g_Fodder->mWindow->GetScreenSize());
+    if (mSurface->GetTexture())
+        SDL_SetTextureBlendMode(mSurface->GetTexture(), SDL_BLENDMODE_NONE);
 
     g_Fodder->mGUI_SaveLoadAction = 0;
     g_Fodder->mMouse_Button_Left_Toggle = 0;
@@ -61,23 +96,23 @@ cKeyboardShortcuts::~cKeyboardShortcuts()
 bool cKeyboardShortcuts::Cycle()
 {
     static const sShortcutLine SystemLines[] = {
-        { 0x46, "F1", "AMIGA VERSION" },
-        { 0x54, "F2", "PC VERSION" },
+        { 0x46, "F1", "AMIGA" },
+        { 0x54, "F2", "PC" },
         { 0x62, "F11", "FULLSCREEN" },
         { 0x70, "F12", "MOUSE LOCK" },
-        { 0x7E, "PLUS", "WINDOW LARGER" },
-        { 0x8C, "MINUS", "WINDOW SMALLER" },
-        { 0x9A, "ESC", "BACK OR ABORT" }
+        { 0x7E, "PLUS", "SIZE UP" },
+        { 0x8C, "MINUS", "SIZE DOWN" },
+        { 0x9A, "ESC", "BACK ABORT" }
     };
 
     static const sShortcutLine MissionLines[] = {
         { 0x46, "P", "PAUSE" },
         { 0x54, "M", "MAP" },
-        { 0x62, "SPACE", "SWITCH WEAPON" },
-        { 0x70, "1 2 3", "SELECT SQUAD" },
-        { 0x8C, "F5", "AUTOSAVE CHEATS" },
-        { 0x9A, "F9", "LOAD OR INVINCIBLE" },
-        { 0xA8, "F10", "COMPLETE MISSION" }
+        { 0x62, "SPACE", "WEAPON" },
+        { 0x70, "1 2 3", "SQUAD" },
+        { 0x8C, "F5", "AUTOSAVE" },
+        { 0x9A, "F9", "LOAD INVINC" },
+        { 0xA8, "F10", "WIN MISSION" }
     };
 
     g_Fodder->GUI_Element_Reset();
@@ -91,18 +126,18 @@ bool cKeyboardShortcuts::Cycle()
     g_Fodder->String_Print_Large("Keyboard Shortcuts", true, 0x01);
     g_Fodder->mString_GapCharID = 0x00;
 
-    g_Fodder->Briefing_DrawBox(0x08, 0x2A, 0x88, 0x84, 0xF3);
-    g_Fodder->Briefing_DrawBox(0x07, 0x29, 0x88, 0x84, 0xF2);
-    g_Fodder->Briefing_DrawBox(0x9A, 0x2A, 0x98, 0x84, 0xF3);
-    g_Fodder->Briefing_DrawBox(0x99, 0x29, 0x98, 0x84, 0xF2);
+    g_Fodder->Briefing_DrawBox(0x04, 0x2A, 0x98, 0x84, 0xF3);
+    g_Fodder->Briefing_DrawBox(0x03, 0x29, 0x98, 0x84, 0xF2);
+    g_Fodder->Briefing_DrawBox(0xA4, 0x2A, 0x98, 0x84, 0xF3);
+    g_Fodder->Briefing_DrawBox(0xA3, 0x29, 0x98, 0x84, 0xF2);
 
-    KeyboardShortcuts_DrawHeading("SYSTEM", 0x30, 0x34);
+    KeyboardShortcuts_DrawHeading("SYSTEM", 0x04, 0x9C, 0x34);
     for (const auto& Line : SystemLines)
-        KeyboardShortcuts_DrawLine(0x18, Line);
+        KeyboardShortcuts_DrawLine(0x0C, 0x3D, 0x94, Line);
 
-    KeyboardShortcuts_DrawHeading("MISSION", 0xC0, 0x34);
+    KeyboardShortcuts_DrawHeading("MISSION", 0xA4, 0x13C, 0x34);
     for (const auto& Line : MissionLines)
-        KeyboardShortcuts_DrawLine(0xA8, Line);
+        KeyboardShortcuts_DrawLine(0xAC, 0xDD, 0x134, Line);
 
     g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + PLATFORM_BASED(0, 25));
     g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);

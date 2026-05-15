@@ -43,26 +43,46 @@
 #include <cstdint>
 #include <cstring>
 
+#include "NetworkTypes.hpp"
+
 // Lobby packet exchanged via UDP side-channel during campaign selection.
 // Sent periodically (~every frame) so both players stay in sync.
 struct sLobbyPacket {
-    static const uint32_t MAGIC = 0x4C4F4259; // "LOBY"
+    static const uint32_t MAGIC = 0x4C4F4232; // "LOB2"
+    static const uint8_t  VERSION = 4;
 
     uint32_t magic;
+    uint32_t playerId;       // per-lobby sender nonce; rejects looped/stale packets
     uint8_t  type;
+    uint8_t  version;
     uint8_t  ready;          // 1 = this player is ready
-    int16_t  selection;      // campaign list index the host is viewing
     uint8_t  started;        // 1 = host says GO, load this campaign
+    int16_t  selection;      // campaign list index the host is viewing
     uint8_t  connected;      // 1 = peer has received at least one packet
-    uint8_t  padding[2];
+    uint8_t  padding[1];
     char     campaign[64];   // campaign name string (null-terminated)
+    uint8_t  gameMode;       // eNetworkGameMode
+    uint8_t  teamCount;
+    uint8_t  teamSize;
+    uint8_t  friendlyFire;
+    uint32_t mapSeed;
+    uint16_t killLimit;
+    uint16_t timeLimitSeconds;
+    uint8_t  selectedTeam;
+    uint8_t  selectedClass;
+    uint8_t  lockedIn;
+    uint8_t  mapSize;
+    uint8_t  mapTerrain;
+    uint8_t  vehicleSet;
+    uint8_t  pickupDensity;
+    uint8_t  coverDensity;
 
     enum eType : uint8_t {
         LOBBY_STATE = 0x01,
     };
 };
 
-static_assert(sizeof(sLobbyPacket) == 76, "sLobbyPacket must be 76 bytes");
+static_assert(sizeof(sLobbyPacket) == 100, "sLobbyPacket must be 100 bytes");
 
 class cNetworkLobby {
 public:
@@ -77,6 +97,8 @@ public:
 
     // Local state setters (host sets selection, either player sets ready)
     void SetSelection(int16_t pIndex, const std::string& pCampaign);
+    void SetMatchSettings(const sNetworkMatchSettings& pSettings);
+    void SetPlayerSelection(uint8_t pTeam, uint8_t pClass, bool pLockedIn);
     void SetReady(bool pReady);
     void SetStarted();
 
@@ -86,6 +108,12 @@ public:
     bool        IsRemoteStarted() const { return mRemoteStarted; }
     int16_t     GetRemoteSelection() const { return mRemoteSelection; }
     std::string GetRemoteCampaign() const { return mRemoteCampaign; }
+    sNetworkMatchSettings GetRemoteMatchSettings() const { return mRemoteMatchSettings; }
+    uint8_t     GetRemoteSelectedTeam() const { return mRemoteSelectedTeam; }
+    uint8_t     GetRemoteSelectedClass() const { return mRemoteSelectedClass; }
+    bool        IsRemoteLockedIn() const { return mRemoteLockedIn; }
+    std::string GetRemoteHost() const;
+    uint16_t    GetRemotePort() const;
     bool        IsHost() const { return mIsHost; }
     bool        IsRunning() const { return mSocket != INVALID_SOCKET; }
 
@@ -96,10 +124,16 @@ private:
     SOCKET              mSocket = INVALID_SOCKET;
     struct sockaddr_in  mRemoteAddr;
     bool                mIsHost = false;
+    uint32_t            mLocalPlayerId = 0;
+    uint32_t            mRemotePlayerId = 0;
 
     // Local state (what we send)
     int16_t     mLocalSelection = 0;
     std::string mLocalCampaign;
+    sNetworkMatchSettings mLocalMatchSettings;
+    uint8_t     mLocalSelectedTeam = 0;
+    uint8_t     mLocalSelectedClass = 0;
+    bool        mLocalLockedIn = false;
     bool        mLocalReady = false;
     bool        mLocalStarted = false;
 
@@ -109,6 +143,10 @@ private:
     bool        mRemoteStarted = false;
     int16_t     mRemoteSelection = 0;
     std::string mRemoteCampaign;
+    sNetworkMatchSettings mRemoteMatchSettings;
+    uint8_t     mRemoteSelectedTeam = 0;
+    uint8_t     mRemoteSelectedClass = 0;
+    bool        mRemoteLockedIn = false;
 };
 
 #endif // OPENFODDER_ENABLE_NETWORK

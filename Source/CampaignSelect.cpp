@@ -215,11 +215,57 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
         Mouse_DrawCursor();
     };
 
-    do {
+    bool SelectionCompleted = false;
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (auto* mp = dynamic_cast<cFodderMultiplayer*>(this)) {
+        if (mp->ConsumeReturnToMultiplayerLobby()) {
+            if (mp->Multiplayer_ReopenLobby()) {
+                mGUI_SaveLoadAction = 2;
+                SelectionCompleted = true;
+            }
+            else {
+                mGUI_SaveLoadAction = 6;
+            }
+        }
+
+        if (!SelectionCompleted && mStartParams->mNetworkMenuStart != eNetworkMenuStart_None) {
+            if (mp->Multiplayer_Menu_Run()) {
+                if (mp->mLobby) {
+                    mp->Lobby_CampaignSelection();
+
+                    if (mStartParams->mNetworkEnabled) {
+                        mGUI_SaveLoadAction = 2;
+                        SelectionCompleted = true;
+                    }
+                }
+                else {
+                    mGUI_SaveLoadAction = 0;
+                    mMouse_Button_Left_Toggle = 0;
+                    mGraphics->PaletteSet();
+                    mSurface->palette_FadeTowardNew();
+                    mSurface->Save();
+                }
+            }
+
+            if (!SelectionCompleted) {
+                mStartParams->mNetworkEnabled = false;
+                mGUI_SaveLoadAction = 0;
+                mMouse_Button_Left_Toggle = 0;
+                mGraphics->PaletteSet();
+                mSurface->palette_FadeTowardNew();
+                mSurface->Save();
+            }
+        }
+    }
+#endif
+
+    while (!SelectionCompleted) {
 
         Campaign_Select_File_Loop(pTitle, pSubTitle);
 
-    } while (mGUI_SaveLoadAction == 3);
+        if (mGUI_SaveLoadAction != 3)
+            break;
+    }
 
 
     mInterruptCallback = nullptr;
@@ -250,7 +296,11 @@ void cFodder::Campaign_Selection() {
 
     mCustom_Mode = eCustomMode_None;
 
-    std::string CampaignFile = Campaign_Select_File("OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign);
+    std::string CampaignFile;
+
+SelectCampaign:;
+
+    CampaignFile = Campaign_Select_File("OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign);
 
     // Exit Pressed?
     if (mGUI_SaveLoadAction == 1 || mGUI_SaveLoadAction == 4 || !CampaignFile.size()) {
@@ -283,8 +333,10 @@ void cFodder::Campaign_Selection() {
         if (CampaignFile == "Single Map" || CampaignFile == "Random Map") {
 
             if (CampaignFile == "Random Map") {
-                mStartParams->mSkipRecruit = false;
-                mParams->mSkipRecruit = false;
+                if (!RandomMapOptions_RunCampaign()) {
+                    mGUI_SaveLoadAction = 0;
+                    goto SelectCampaign;
+                }
             }
 
             mGame_Data.mCampaign.SetSingleMapCampaign();
@@ -473,8 +525,6 @@ void cFodder::Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTit
             if (mp->mLobby) {
                 // Network mode with lobby — enter lobby campaign selection
                 mp->Lobby_CampaignSelection();
-                mp->mLobby->Stop();
-                mp->mLobby.reset();
 
                 if (mStartParams->mNetworkEnabled) {
                     // Campaign selected, both players agreed — exit with selection

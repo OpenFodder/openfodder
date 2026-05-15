@@ -969,6 +969,25 @@ void cFodder::GUI_Sidebar_Squad1_Prepare()
 
 void cFodder::GUI_Sidebar_Squad2_Prepare()
 {
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams && mStartParams->mNetworkEnabled)
+    {
+        const bool KeepPrivatePvPSquads =
+            Network_IsPvPMode(mStartParams->mNetworkGameMode) &&
+            !Network_IsAvatarMode(mStartParams->mNetworkGameMode);
+        if (KeepPrivatePvPSquads)
+            return;
+
+        word_3AC2D[2] = 0;
+        for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+            mSquads_TroopCount[Squad] = 0;
+            if (mSquads[Squad])
+                mSquads[Squad][0] = INVALID_SPRITE_PTR;
+        }
+        return;
+    }
+#endif
+
     int16 Data4 = mGUI_Squad_NextDraw_Y;
 
     if (Data4)
@@ -2055,27 +2074,20 @@ void cFodder::GUI_Sidebar_Prepare_Squads()
     mGUI_NextFreeElement = mGUI_Elements;
 
     Sidebar_Clear_ScreenBufferPtr();
-    int16 Data4 = 0;
-    {
-        // Squad 1
-        mGUI_Squad_NextDraw_Y = 0;
-        GUI_Sidebar_Prepare(0, Data4);
-    }
+    int16 SquadCount = 3;
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams && mStartParams->mNetworkEnabled)
+        SquadCount = NETWORK_MAX_PLAYERS;
+#endif
 
+    mGUI_Squad_NextDraw_Y = 0;
+    for (int16 Squad = 0; Squad < SquadCount; ++Squad)
     {
-        // Squad 2
-        Data4 = mGUI_Squad_NextDraw_Y;
-        if (Data4)
-            Data4 += 5;
-        GUI_Sidebar_Prepare(1, Data4);
-    }
+        int16 DrawY = (Squad == 0) ? 0 : mGUI_Squad_NextDraw_Y;
+        if (DrawY)
+            DrawY += 5;
 
-    {
-        // Squad 3
-        Data4 = mGUI_Squad_NextDraw_Y;
-        if (Data4)
-            Data4 += 5;
-        GUI_Sidebar_Prepare(2, Data4);
+        GUI_Sidebar_Prepare(Squad, DrawY);
     }
 
     GUI_Sidebar_Add_Sidebar_Overlay();
@@ -2330,21 +2342,37 @@ void cFodder::GUI_Prepare_Button_Squad()
 
 void cFodder::GUI_Handle_Button_SelectSquad_0()
 {
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled)
+        return;
+#endif
     Squad_Select(0);
 }
 
 void cFodder::GUI_Handle_Button_SelectSquad_1()
 {
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled)
+        return;
+#endif
     Squad_Select(1);
 }
 
 void cFodder::GUI_Handle_Button_SelectSquad_2()
 {
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled)
+        return;
+#endif
     Squad_Select(2);
 }
 
 void cFodder::GUI_Handle_Button_SplitSquad()
 {
+#ifdef OPENFODDER_ENABLE_NETWORK
+    if (mStartParams->mNetworkEnabled)
+        return;
+#endif
 
     if (Mouse_Button_Left_Toggled() < 0)
         return;

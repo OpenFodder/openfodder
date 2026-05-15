@@ -21,6 +21,7 @@
  */
 
 #include <stdafx.hpp>
+#include <cctype>
 #include <sstream>
 #include "Utils/ini.hpp"
 #include "Utils/cxxopts.hpp"
@@ -30,9 +31,113 @@ using Json = nlohmann::json;
 
 cxxopts::Options* sFodderParameters::mCliOptions = 0;
 
-/* These values override the original engine values, when in custom mode */
-const size_t CUSTOM_DEFAULT_MAX_SPRITES = 100000;
-const size_t CUSTOM_DEFAULT_MAX_SPAWN = 25;
+static std::string Parameters_ToLower(std::string pValue) {
+	std::transform(pValue.begin(), pValue.end(), pValue.begin(), [](unsigned char c) {
+		return (char)std::tolower(c);
+	});
+	return pValue;
+}
+
+static eNetworkGameMode Parameters_ParseNetworkMode(const std::string& pValue) {
+	const std::string Mode = Parameters_ToLower(pValue);
+
+	if (Mode == "coop" || Mode == "co-op" || Mode == "campaign" || Mode == "co-op-campaign")
+		return eNetworkGameMode_CoopCampaign;
+	if (Mode == "deathmatch" || Mode == "dm")
+		return eNetworkGameMode_Deathmatch;
+	if (Mode == "squad-deathmatch" || Mode == "squad_dm" || Mode == "squaddeathmatch")
+		return eNetworkGameMode_SquadDeathmatch;
+	if (Mode == "rescue-prisoner" || Mode == "rescue" || Mode == "ctf")
+		return eNetworkGameMode_RescuePrisoner;
+	if (Mode == "avatar-deathmatch" || Mode == "avatar_dm" || Mode == "avatardeathmatch")
+		return eNetworkGameMode_AvatarDeathmatch;
+	if (Mode == "team-avatar" || Mode == "teamavatar")
+		return eNetworkGameMode_TeamAvatar;
+
+	return eNetworkGameMode_CoopCampaign;
+}
+
+static eNetworkMapSize Parameters_ParseNetworkMapSize(const std::string& pValue) {
+	const std::string Size = Parameters_ToLower(pValue);
+
+	if (Size == "small" || Size == "s")
+		return eNetworkMapSize_Small;
+	if (Size == "large" || Size == "l")
+		return eNetworkMapSize_Large;
+
+	return eNetworkMapSize_Medium;
+}
+
+static eNetworkMapTerrain Parameters_ParseNetworkMapTerrain(const std::string& pValue) {
+	const std::string Terrain = Parameters_ToLower(pValue);
+
+	if (Terrain == "random" || Terrain == "rand")
+		return eNetworkMapTerrain_Random;
+	if (Terrain == "desert")
+		return eNetworkMapTerrain_Desert;
+	if (Terrain == "ice" || Terrain == "snow")
+		return eNetworkMapTerrain_Ice;
+	if (Terrain == "moors" || Terrain == "moor")
+		return eNetworkMapTerrain_Moors;
+
+	return eNetworkMapTerrain_Jungle;
+}
+
+static eNetworkVehicleSet Parameters_ParseNetworkVehicleSet(const std::string& pValue) {
+	const std::string Set = Parameters_ToLower(pValue);
+
+	if (Set == "light" || Set == "jeep" || Set == "jeeps")
+		return eNetworkVehicleSet_Light;
+	if (Set == "armed" || Set == "gun")
+		return eNetworkVehicleSet_Armed;
+	if (Set == "tanks" || Set == "tank" || Set == "heavy")
+		return eNetworkVehicleSet_Tanks;
+	if (Set == "mixed" || Set == "all")
+		return eNetworkVehicleSet_Mixed;
+
+	return eNetworkVehicleSet_None;
+}
+
+static eNetworkPickupDensity Parameters_ParseNetworkPickupDensity(const std::string& pValue) {
+	const std::string Density = Parameters_ToLower(pValue);
+
+	if (Density == "low")
+		return eNetworkPickupDensity_Low;
+	if (Density == "high")
+		return eNetworkPickupDensity_High;
+
+	return eNetworkPickupDensity_Normal;
+}
+
+static eNetworkCoverDensity Parameters_ParseNetworkCoverDensity(const std::string& pValue) {
+	const std::string Density = Parameters_ToLower(pValue);
+
+	if (Density == "sparse" || Density == "low")
+		return eNetworkCoverDensity_Sparse;
+	if (Density == "dense" || Density == "high")
+		return eNetworkCoverDensity_Dense;
+	if (Density == "heavy" || Density == "max")
+		return eNetworkCoverDensity_Heavy;
+
+	return eNetworkCoverDensity_Normal;
+}
+
+static eNetworkMenuStart Parameters_ParseNetworkMenuStart(const std::string& pValue) {
+	const std::string Menu = Parameters_ToLower(pValue);
+
+	if (Menu == "main" || Menu == "menu")
+		return eNetworkMenuStart_Main;
+	if (Menu == "host")
+		return eNetworkMenuStart_Host;
+	if (Menu == "host-map-options" || Menu == "map-options" || Menu == "map")
+		return eNetworkMenuStart_HostMapOptions;
+	if (Menu == "join" || Menu == "direct-connect" || Menu == "direct")
+		return eNetworkMenuStart_Join;
+	if (Menu == "find-lan" || Menu == "lan" || Menu == "browser")
+		return eNetworkMenuStart_FindLan;
+
+	return eNetworkMenuStart_Main;
+}
 
 std::string sFodderParameters::ToJson() {
 	Json Save;
@@ -45,6 +150,14 @@ std::string sFodderParameters::ToJson() {
 	Save["mWindowMode"] = mWindowMode;
 	Save["mIntegerScaling"] = mIntegerScaling;
 	Save["mRandom"] = mRandom;
+	Save["mRandomMapOptionsEnabled"] = mRandomMapOptionsEnabled;
+	Save["mRandomMapSeed"] = mRandomMapSeed;
+	Save["mRandomMapSize"] = mRandomMapSize;
+	Save["mRandomMapTerrain"] = mRandomMapTerrain;
+	Save["mRandomMapVehicleSet"] = mRandomMapVehicleSet;
+	Save["mRandomMapPickupDensity"] = mRandomMapPickupDensity;
+	Save["mRandomMapCoverDensity"] = mRandomMapCoverDensity;
+	Save["mRandomMapProfile"] = mRandomMapProfile;
 	Save["mDefaultPlatform"] = mDefaultPlatform;
 	Save["mCampaignName"] = mCampaignName;
 	Save["mMissionNumber"] = mMissionNumber;
@@ -78,6 +191,22 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	mPhaseNumber = LoadedData["mPhaseNumber"];
 	mWindowMode = LoadedData["mWindowMode"];
 	mRandom = LoadedData["mRandom"];
+	if (LoadedData.count("mRandomMapOptionsEnabled") > 0)
+		mRandomMapOptionsEnabled = LoadedData["mRandomMapOptionsEnabled"];
+	if (LoadedData.count("mRandomMapSeed") > 0)
+		mRandomMapSeed = LoadedData["mRandomMapSeed"];
+	if (LoadedData.count("mRandomMapSize") > 0)
+		mRandomMapSize = Network_NormalizeMapSize((uint8_t)LoadedData["mRandomMapSize"]);
+	if (LoadedData.count("mRandomMapTerrain") > 0)
+		mRandomMapTerrain = Network_NormalizeMapTerrain((uint8_t)LoadedData["mRandomMapTerrain"]);
+	if (LoadedData.count("mRandomMapVehicleSet") > 0)
+		mRandomMapVehicleSet = Network_NormalizeVehicleSet((uint8_t)LoadedData["mRandomMapVehicleSet"]);
+	if (LoadedData.count("mRandomMapPickupDensity") > 0)
+		mRandomMapPickupDensity = Network_NormalizePickupDensity((uint8_t)LoadedData["mRandomMapPickupDensity"]);
+	if (LoadedData.count("mRandomMapCoverDensity") > 0)
+		mRandomMapCoverDensity = Network_NormalizeCoverDensity((uint8_t)LoadedData["mRandomMapCoverDensity"]);
+	if (LoadedData.count("mRandomMapProfile") > 0)
+		mRandomMapProfile = Network_NormalizeMapProfile((uint8_t)LoadedData["mRandomMapProfile"]);
 	mDefaultPlatform = LoadedData["mDefaultPlatform"];
 	mCampaignName = LoadedData["mCampaignName"];
 	mUnitTesting = LoadedData["mUnitTesting"];
@@ -150,6 +279,18 @@ void sFodderParameters::PrepareOptions() {
 		("net-port",   "Cooperative multiplayer: remote peer UDP port",         cxxopts::value<uint32_t>()->default_value("7001"), "7001")
 		("net-local-port", "Cooperative multiplayer: local UDP port",           cxxopts::value<uint32_t>()->default_value("7000"), "7000")
 		("net-synctest","Run GGPO sync-test (local determinism check)",         cxxopts::value<bool>()->default_value("false"))
+		("net-menu", "Open multiplayer setup on startup: main, host, host-map-options, join, find-lan", cxxopts::value<std::string>()->default_value(""), "\"host-map-options\"")
+		("net-mode", "Multiplayer mode: coop, deathmatch, squad-deathmatch, rescue-prisoner, avatar-deathmatch, team-avatar", cxxopts::value<std::string>()->default_value(""), "\"coop\"")
+		("net-seed", "Multiplayer map seed", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_MAP_SEED_DEFAULT)), "4919")
+		("net-kill-limit", "Multiplayer kill limit", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_KILL_LIMIT_DEFAULT)), "10")
+		("net-time-limit", "Multiplayer time limit in seconds (0 = none)", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_TIME_LIMIT_DEFAULT)), "0")
+		("net-team-size", "Players per team for team modes", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_TEAM_SIZE_DEFAULT)), "1")
+		("net-friendly-fire", "Allow friendly fire in multiplayer team modes", cxxopts::value<bool>()->default_value("false"))
+		("net-map-size", "Multiplayer random map size: small, medium, large", cxxopts::value<std::string>()->default_value(""), "\"medium\"")
+		("net-terrain", "Multiplayer random map terrain: random, jungle, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"jungle\"")
+		("net-vehicles", "Multiplayer random map vehicles: none, light, armed, tanks, mixed", cxxopts::value<std::string>()->default_value(""), "\"none\"")
+		("net-pickups", "Multiplayer random map pickups: low, normal, high", cxxopts::value<std::string>()->default_value(""), "\"normal\"")
+		("net-cover", "Multiplayer random map cover density: sparse, normal, dense, heavy", cxxopts::value<std::string>()->default_value(""), "\"normal\"")
 
 		("unit-test", "Run Tests", cxxopts::value<bool>()->default_value("false"))
 		("unit-test-headless", "Run Tests, with no output", cxxopts::value<bool>()->default_value("false"))
@@ -171,7 +312,10 @@ void sFodderParameters::PrepareOptions() {
 
 		("single-map", "Play a single map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
 		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
+		("random-menu", "Open the create-random-map options screen on startup", cxxopts::value<bool>()->default_value("false"))
 		("random-save", "Generate and save a random map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
+		("random-seed", "Random map seed", cxxopts::value<uint32_t>()->default_value("0"), "123")
+		("random-tileset", "Random map tileset: random, jungle, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"ice\"")
 		("script", "Name of script to execute", cxxopts::value<std::string>()->default_value(""), "\"script.js\"")
 #ifdef OF_JS_DEBUG
 		("debugger", "Wait for debugger in scripts", cxxopts::value<bool>()->default_value("false"))
@@ -283,6 +427,26 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mRandom = true;
 		}
 
+		if (result["random-menu"].as<bool>()) {
+			mRandomMenuOnStart = true;
+			mRandom = true;
+			mSkipIntro = true;
+		}
+
+		if (result.count("random-seed") && result["random-seed"].as<uint32_t>() != 0) {
+			mRandomMapSeed = result["random-seed"].as<uint32_t>();
+			mRandomMapOptionsEnabled = true;
+			mRandomMapProfile = eNetworkMapProfile_Custom;
+		}
+		if (result.count("random-tileset")) {
+			std::string Tileset = result["random-tileset"].as<std::string>();
+			if (!Tileset.empty()) {
+				mRandomMapTerrain = Parameters_ParseNetworkMapTerrain(Tileset);
+				mRandomMapOptionsEnabled = true;
+				mRandomMapProfile = eNetworkMapProfile_Custom;
+			}
+		}
+
 		mDisableSound = result["nosound"].as<bool>();
 		mPlayground = result["playground"].as<bool>();
 		mSleepDelta = result["sleep-delta"].as<uint32_t>();
@@ -305,6 +469,55 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mNetworkSyncTest = true;
 			mNetworkEnabled  = true;
 		}
+		if (result.count("net-menu")) {
+			std::string NetMenu = result["net-menu"].as<std::string>();
+			if (!NetMenu.empty()) {
+				mNetworkMenuStart = Parameters_ParseNetworkMenuStart(NetMenu);
+				mNetworkEnabled = true;
+			}
+		}
+		if (result.count("net-mode")) {
+			std::string NetMode = result["net-mode"].as<std::string>();
+			if (!NetMode.empty()) {
+				mNetworkGameMode = Parameters_ParseNetworkMode(NetMode);
+				mNetworkEnabled = true;
+			}
+		}
+		if (result.count("net-seed"))
+			mNetworkMapSeed = result["net-seed"].as<uint32_t>();
+		if (result.count("net-kill-limit"))
+			mNetworkKillLimit = (uint16)std::min<uint32_t>(result["net-kill-limit"].as<uint32_t>(), 65535);
+		if (result.count("net-time-limit"))
+			mNetworkTimeLimitSeconds = (uint16)std::min<uint32_t>(result["net-time-limit"].as<uint32_t>(), 65535);
+		if (result.count("net-team-size"))
+			mNetworkTeamSize = (uint8)std::max<uint32_t>(1, std::min<uint32_t>(result["net-team-size"].as<uint32_t>(), NETWORK_MAX_PLAYERS));
+		if (result.count("net-friendly-fire"))
+			mNetworkFriendlyFire = result["net-friendly-fire"].as<bool>();
+		if (result.count("net-map-size")) {
+			std::string MapSize = result["net-map-size"].as<std::string>();
+			if (!MapSize.empty())
+				mNetworkMapSize = Parameters_ParseNetworkMapSize(MapSize);
+		}
+		if (result.count("net-terrain")) {
+			std::string Terrain = result["net-terrain"].as<std::string>();
+			if (!Terrain.empty())
+				mNetworkMapTerrain = Parameters_ParseNetworkMapTerrain(Terrain);
+		}
+		if (result.count("net-vehicles")) {
+			std::string Vehicles = result["net-vehicles"].as<std::string>();
+			if (!Vehicles.empty())
+				mNetworkVehicleSet = Parameters_ParseNetworkVehicleSet(Vehicles);
+		}
+		if (result.count("net-pickups")) {
+			std::string Pickups = result["net-pickups"].as<std::string>();
+			if (!Pickups.empty())
+				mNetworkPickupDensity = Parameters_ParseNetworkPickupDensity(Pickups);
+		}
+		if (result.count("net-cover")) {
+			std::string Cover = result["net-cover"].as<std::string>();
+			if (!Cover.empty())
+				mNetworkCoverDensity = Parameters_ParseNetworkCoverDensity(Cover);
+		}
 
 		// In network mode skip the intro (not relevant for co-op).
 		// Between-phase screens (recruit, briefing, service) are handled
@@ -314,8 +527,9 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mSkipIntro    = true;
 			if (mMissionNumber < 1)
 				mMissionNumber = 1;
-			// Default to the retail campaign so Campaign_Selection() is never shown.
-			if (mCampaignName.empty())
+			// Direct network launches keep the old immediate-match behaviour.
+			// Setup-menu launches leave the campaign empty so the lobby flow can run.
+			if (mCampaignName.empty() && mNetworkMenuStart == eNetworkMenuStart_None)
 				mCampaignName = "Cannon Fodder";
 		}
 

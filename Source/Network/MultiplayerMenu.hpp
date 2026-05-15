@@ -24,6 +24,10 @@
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
+#include "RandomMapOptionsMenu.hpp"
+
+class cNetworkDiscovery;
+
 class cMultiplayerMenu {
 public:
     cMultiplayerMenu();
@@ -51,17 +55,36 @@ public:
     uint16      GetRemotePort() const { return mRemotePort; }
     uint16      GetLocalPort() const { return mLocalPort; }
     bool        IsSyncTest() const { return mSyncTest; }
+    eNetworkGameMode GetGameMode() const { return mGameMode; }
+    uint32      GetMapSeed() const { return mMapSeed; }
+    uint16      GetKillLimit() const { return mKillLimit; }
+    uint16      GetTimeLimitSeconds() const { return mTimeLimitSeconds; }
+    uint8       GetTeamCount() const { return mTeamCount; }
+    uint8       GetTeamSize() const { return mTeamSize; }
+    bool        GetFriendlyFire() const { return mFriendlyFire; }
+    eNetworkMapSize GetMapSize() const { return mMapSize; }
+    eNetworkMapTerrain GetMapTerrain() const { return mMapTerrain; }
+    eNetworkVehicleSet GetVehicleSet() const { return mVehicleSet; }
+    eNetworkPickupDensity GetPickupDensity() const { return mPickupDensity; }
+    eNetworkCoverDensity GetCoverDensity() const { return mCoverDensity; }
 
     enum eAction : int16 {
         ACT_NONE = 0,
         ACT_HOST,
         ACT_JOIN,
+        ACT_FIND_LAN,
+        ACT_DIRECT_CONNECT,
+        ACT_JOIN_DISCOVERED,
+        ACT_REFRESH_LAN,
         ACT_SYNC_TEST,
         ACT_BACK,
         ACT_ROW,
         ACT_EDIT_REMOTE_HOST,
         ACT_EDIT_REMOTE_PORT,
         ACT_EDIT_LOCAL_PORT,
+        ACT_EDIT_MAP_SEED,
+        ACT_CYCLE_MODE,
+        ACT_MAP_OPTIONS,
         ACT_START,
     };
 
@@ -69,17 +92,28 @@ private:
     void DrawMainMenu();
     void DrawHostMenu();
     void DrawJoinMenu();
-    void DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel);
+    void DrawFindLanMenu();
+    void DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel, bool pHostSetup);
     void DrawField(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction, bool pActive);
+    void DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction);
     void HandleTextInput();
     void SelectField(int16 pAction);
+    void StartLanBrowser();
+    void RefreshLanBrowser();
+    void StopLanBrowser();
+    void SelectDiscoveredGame(size_t pIndex);
     bool CanStart() const;
     void SyncPortValues();
+    void OpenMapOptions();
+    void ApplyMapOptions(const sRandomMapOptions& pOptions);
+    sRandomMapOptions BuildMapOptions() const;
 
     enum class eState {
         Main,
         Host,
         Join,
+        FindLan,
+        MapOptions,
     };
 
     enum class eEditField {
@@ -87,6 +121,7 @@ private:
         RemoteHost,
         RemotePort,
         LocalPort,
+        MapSeed,
     };
 
     eState      mState = eState::Main;
@@ -101,6 +136,22 @@ private:
     std::string mRemotePortText = "7001";
     std::string mLocalPortText = "7000";
     bool        mSyncTest = false;
+    eNetworkGameMode mGameMode = eNetworkGameMode_CoopCampaign;
+    uint32      mMapSeed = NETWORK_MAP_SEED_DEFAULT;
+    std::string mMapSeedText = std::to_string(NETWORK_MAP_SEED_DEFAULT);
+    uint16      mKillLimit = NETWORK_KILL_LIMIT_DEFAULT;
+    uint16      mTimeLimitSeconds = NETWORK_TIME_LIMIT_DEFAULT;
+    uint8       mTeamCount = NETWORK_TEAM_COUNT_DEFAULT;
+    uint8       mTeamSize = NETWORK_TEAM_SIZE_DEFAULT;
+    bool        mFriendlyFire = false;
+    eNetworkMapSize mMapSize = NETWORK_MAP_SIZE_DEFAULT;
+    eNetworkMapTerrain mMapTerrain = NETWORK_MAP_TERRAIN_DEFAULT;
+    eNetworkVehicleSet mVehicleSet = NETWORK_VEHICLE_SET_DEFAULT;
+    eNetworkPickupDensity mPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
+    eNetworkCoverDensity mCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
+    bool        mDiscoveryFailed = false;
+    std::unique_ptr<cNetworkDiscovery> mDiscovery;
+    cRandomMapOptionsMenu mMapOptionsMenu;
 
     // Keep drawn strings alive for GUI draw calls
     std::vector<std::string> mDrawStrings;

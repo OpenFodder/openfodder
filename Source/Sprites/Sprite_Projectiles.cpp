@@ -114,6 +114,7 @@ int16 cFodder::Sprite_Create_Missile(sSprite* pSprite, sSprite*& pData2C) {
     Data30->mRowsToSkip = 0;
     pData2C->mPersonType = pSprite->mPersonType;
     Data30->mPersonType = pSprite->mPersonType;
+    Sprite_SetDamageOwner(pData2C, pSprite);
     pData2C->mDrawOrder = eSprite_Draw_Second;
     Data30->mDrawOrder = eSprite_Draw_First;
     pData2C->mAnimState = eSprite_Anim_None;
@@ -204,6 +205,7 @@ int16 cFodder::Sprite_Create_Grenade2(sSprite* pSprite) {
 
     Data2C->mPersonType = pSprite->mPersonType;
     Data30->mPersonType = pSprite->mPersonType;
+    Sprite_SetDamageOwner(Data2C, pSprite);
 
     Data2C->mDrawOrder = eSprite_Draw_Second;
     Data30->mDrawOrder = eSprite_Draw_First;
@@ -287,6 +289,7 @@ int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, 
     Data30->mRowsToSkip = 0;
     pData2C->mPersonType = pSprite->mPersonType;
     Data30->mPersonType = pSprite->mPersonType;
+    Sprite_SetDamageOwner(pData2C, pSprite);
     pData2C->mDrawOrder = eSprite_Draw_Second;
     Data30->mDrawOrder = eSprite_Draw_First;
     pData2C->mAnimState = eSprite_Anim_None;
@@ -738,29 +741,8 @@ void cFodder::Sprite_Handle_GrenadeBox(sSprite* pSprite) {
     int16 Data0 = 0;
     pSprite->mSheetIndex = 0xC2;
 
-#ifdef OPENFODDER_ENABLE_NETWORK
-    // In network mode check every active squad's leader for proximity,
-    // and credit whichever squad picks it up.
-    if (mStartParams->mNetworkEnabled) {
-        sSprite* savedLeader = mSquad_Leader;
-        for (int sq = 0; sq < NETWORK_MAX_PLAYERS; ++sq) {
-            if (mSquads[sq][0] == INVALID_SPRITE_PTR || mSquads[sq][0] == nullptr)
-                continue;
-            mSquad_Leader = mSquads[sq][0];
-            Data0 = 0;
-            if (!Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0)) {
-                mGUI_RefreshSquadGrenades[sq] = -1;
-                mGUI_RefreshSquadRockets[sq] = -1;
-                mSquad_Grenades[sq] += 4;
-                mSquad_Leader = savedLeader;
-                Sprite_Destroy_Wrapper(pSprite);
-                return;
-            }
-        }
-        mSquad_Leader = savedLeader;
+    if (Sprite_TryHandleSharedPickupBox(pSprite, false))
         return;
-    }
-#endif
 
     if (Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0))
         return;
@@ -768,6 +750,7 @@ void cFodder::Sprite_Handle_GrenadeBox(sSprite* pSprite) {
     mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
     mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
     mSquad_Grenades[mSquad_Selected] += 4;
+    Squad_Select_CollectedWeaponIfNeeded(mSquad_Selected, eWeapon_Grenade);
 
     Sprite_Destroy_Wrapper(pSprite);
 }
@@ -781,29 +764,8 @@ void cFodder::Sprite_Handle_RocketBox(sSprite* pSprite) {
     int16 Data0 = 0;
     pSprite->mSheetIndex = 0xC3;
 
-#ifdef OPENFODDER_ENABLE_NETWORK
-    if (mStartParams->mNetworkEnabled) {
-        sSprite* savedLeader = mSquad_Leader;
-        for (int sq = 0; sq < NETWORK_MAX_PLAYERS; ++sq) {
-            if (mSquads[sq][0] == INVALID_SPRITE_PTR || mSquads[sq][0] == nullptr)
-                continue;
-            mSquad_Leader = mSquads[sq][0];
-            Data0 = 0;
-            if (!Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0)) {
-                mGUI_RefreshSquadRockets[sq] = -1;
-                mGUI_RefreshSquadGrenades[sq] = -1;
-                mSquad_Rockets[sq] += 4;
-                if (mVersionCurrent->isCoverDisk())
-                    mSquad_Leader->field_75 |= eSprite_Flag_HomingMissiles;
-                mSquad_Leader = savedLeader;
-                Sprite_Destroy_Wrapper(pSprite);
-                return;
-            }
-        }
-        mSquad_Leader = savedLeader;
+    if (Sprite_TryHandleSharedPickupBox(pSprite, true))
         return;
-    }
-#endif
 
     if (Map_Get_Distance_Between_Sprite_And_Squadleader(pSprite, Data0))
         return;
@@ -811,6 +773,7 @@ void cFodder::Sprite_Handle_RocketBox(sSprite* pSprite) {
     mGUI_RefreshSquadRockets[mSquad_Selected] = -1;
     mGUI_RefreshSquadGrenades[mSquad_Selected] = -1;
     mSquad_Rockets[mSquad_Selected] += 4;
+    Squad_Select_CollectedWeaponIfNeeded(mSquad_Selected, eWeapon_Rocket);
 
     // Plus uses homing missiles
     if (mVersionCurrent->isCoverDisk())
@@ -1333,6 +1296,7 @@ loc_208A6:;
     Data2C->field_3A = 0;
 
     Data2C->mOwnerSprite = pSprite;
+    Sprite_SetDamageOwner(Data2C, pSprite);
     Data2C->field_2A = 2;
     Data2C->mProjectileOffsetX = 0;
     Data2C->mProjectileOffsetY = 2;
@@ -1419,8 +1383,7 @@ loc_20AC1:;
     return -1;
 
 loc_20ADE:;
-    if (pSprite == mSquad_Leader)
-        mMouse_Button_LeftRight_Toggle = false;
+    Sprite_ClearSelectedSquadWeaponUse(pSprite);
 
     return -1;
 
@@ -1513,10 +1476,9 @@ loc_20B6E:;
     if (pSprite->mSpriteType == eSprite_Enemy)
         Data2C->field_12 += 0x1C;
     Data2C->mDelayCounter = 4;
-    Data2C->mSourceSprite = pSprite;
+    Sprite_SetDamageOwner(Data2C, pSprite);
 
-    if (pSprite == mSquad_Leader)
-        mMouse_Button_LeftRight_Toggle = false;
+    Sprite_ClearSelectedSquadWeaponUse(pSprite);
 
     return 0;
 }
@@ -1691,8 +1653,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     if (mPhase_Completed_Timer) {
     loc_22592:;
 
-        if (pSprite == mSquad_Leader)
-            mMouse_Button_LeftRight_Toggle = false;
+        Sprite_ClearSelectedSquadWeaponUse(pSprite);
 
         return -1;
     }
@@ -1797,9 +1758,9 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     else {
 
         Data2C->mSpriteType = eSprite_Rocket;
-        Data2C->mSourceSprite = pSprite;
     }
 
+    Sprite_SetDamageOwner(Data2C, pSprite);
     Data30->mSpriteType = eSprite_ShadowSmall;
     Data2C->mRowsToSkip = 0;
     Data30->field_32 = 0;
@@ -1810,8 +1771,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
     Data30->mDrawOrder = eSprite_Draw_First;
     Data2C->mDelayCounter = 6;
 
-    if (pSprite == mSquad_Leader)
-        mMouse_Button_LeftRight_Toggle = false;
+    Sprite_ClearSelectedSquadWeaponUse(pSprite);
 
     return 0;
 }

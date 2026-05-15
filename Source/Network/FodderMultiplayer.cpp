@@ -33,6 +33,12 @@ cFodderMultiplayer::~cFodderMultiplayer() {
     Network_Stop();
 }
 
+bool cFodderMultiplayer::ConsumeReturnToMultiplayerLobby() {
+    const bool ReturnToLobby = mReturnToMultiplayerLobby;
+    mReturnToMultiplayerLobby = false;
+    return ReturnToLobby;
+}
+
 // ============================================================
 // Start() override
 // If network mode is active, show the multiplayer menu before
@@ -81,7 +87,10 @@ Start:;
 
     mGame_Data.mDemoRecorded.save();
 
-    Intro_OpenFodder();
+    if (Network_IsPvPMode(mStartParams->mNetworkGameMode))
+        mOpenFodder_Intro_Done = true;
+    else
+        Intro_OpenFodder();
 
     if (mParams->mPlayground) {
         Playground();
@@ -135,7 +144,7 @@ void cFodderMultiplayer::Phase_Prepare_Network() {
     // Redistribute squads every phase.
     if (mNetSession && mNetSession->IsRunning()) {
         Network_RedistributeSquads();
-        mNet_P2CamInitialised = false;
+        mNet_LocalCamInitialised = false;
         memset(mNet_WalkTargetX, 0, sizeof(mNet_WalkTargetX));
         memset(mNet_WalkTargetY, 0, sizeof(mNet_WalkTargetY));
         memset(mNet_CameraPanTargetX, 0, sizeof(mNet_CameraPanTargetX));
@@ -165,14 +174,41 @@ int16 cFodderMultiplayer::Mission_Loop() {
 
         mInput_Enabled = false;
 
-        Intro_Main();
+        const bool IsPvPMatch = Network_IsPvPMode(mStartParams->mNetworkGameMode);
+        if (IsPvPMatch) {
+            mIntroDone = true;
+            mGame_Data.mMission_Recruitment = 0;
+            mGraphics->Load_pStuff();
+        }
+        else {
+            Intro_Main();
+        }
 
+        if (IsPvPMatch) {
+            const std::string PreviousScriptRun = mParams->mScriptRun;
+            const std::string PreviousRandomFilename = mParams->mRandomFilename;
+
+            mParams->mScriptRun = "multiplayer.js";
+            mParams->mRandomFilename = "multiplayer";
+
+            sMapParams Params(mStartParams->mNetworkMapSeed);
+            CreateRandom(Params);
+
+            mParams->mScriptRun = PreviousScriptRun;
+            mParams->mRandomFilename = PreviousRandomFilename;
+            mGame_Data.mMission_Recruitment = 0;
+        }
         // Single / Random Map mode
-        if (mCustom_Mode == eCustomMode_Map) {
+        else if (mCustom_Mode == eCustomMode_Map) {
             if (mVersionDefault->mName == "Random Map") {
-                sMapParams Params(mRandom.get());
-                CreateRandom(Params);
-                mGame_Data.mMission_Recruitment = 0;
+                if (!mGame_Data.mCampaign.isRandom()) {
+                    const uint32 RandomSeed = mStartParams->mRandomMapOptionsEnabled
+                        ? mStartParams->mRandomMapSeed
+                        : (uint32)mRandom.get();
+                    sMapParams Params(RandomSeed);
+                    CreateRandom(Params);
+                    mGame_Data.mMission_Recruitment = 0;
+                }
             } else {
                 Custom_ShowMapSelection();
             }
@@ -204,16 +240,28 @@ int16 cFodderMultiplayer::Mission_Loop() {
         Phase_Prepare();
         mMusic_SlowVolumeDecrease = false;
 
-        if (!Phase_Loop()) {
+        const int16 PhaseResult = Phase_Loop();
+
+        if (!PhaseResult) {
             mKeyCode = 0;
             mPhase_In_Progress = false;
             Network_Stop();
             Squad_Member_PhaseCount();
             mPhase_TryingAgain = true;
+
+            if (IsPvPMatch) {
+                mReturnToMultiplayerLobby = true;
+                return -1;
+            }
         } else {
             mKeyCode = 0;
             mPhase_In_Progress = false;
             Network_Stop();
+
+            if (IsPvPMatch) {
+                mReturnToMultiplayerLobby = true;
+                return -1;
+            }
 
             // Game over?
             if (!mGame_Data.mRecruits_Available_Count) {
@@ -275,6 +323,25 @@ int16 cFodderMultiplayer::Phase_Loop() {
     bool mouseReleasedForWait = false;
     bool firstSimFrameDone = false;
 
+    auto RestoreLocalViewForRender = [&]() {
+        if (!mNet_LocalCamInitialised)
+            return;
+
+        const int16 localSq = static_cast<int16>(mNetLocalPlayerIndex);
+        if (localSq < 0 || localSq >= NETWORK_MAX_PLAYERS)
+            return;
+
+        Network_CameraRestore(mNet_LocalCam);
+        Network_SetActiveSquadContext(localSq);
+
+        const int16 camX = static_cast<int16>(mCameraX >> 16);
+        const int16 camY = static_cast<int16>(mCameraY >> 16);
+        mMouseX      = static_cast<int16>(mNet_LocalCursorWorldX - camX);
+        mMouseY      = static_cast<int16>(mNet_LocalCursorWorldY - camY);
+        mInputMouseX = mMouseX;
+        mInputMouseY = mMouseY;
+    };
+
     while (!mExit) {
         // Wait for the next interrupt tick (~20 ms at default mSleepDelta).
         mVideo_Ticked = false;
@@ -284,6 +351,7 @@ int16 cFodderMultiplayer::Phase_Loop() {
 
         // Pump GGPO during the waiting phase so handshake packets flow.
         mNetSession->Idle(0);
+        RestoreLocalViewForRender();
 
         // While waiting for peer synchronization, show "WAITING FOR PLAYER"
         if (!mNetSession->IsSessionReady()) {
@@ -348,13 +416,19 @@ int16 cFodderMultiplayer::Phase_Loop() {
         if (firstSimFrameDone) {
             std::lock_guard<std::mutex> lock(mSurfaceMtx);
             if (!mStartParams->mDisableVideo) {
-                mGraphics->MapTiles_Draw();
-                Sprites_Draw();
-                Network_Sidebar_ForceSquadIcons();
-                mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
-                Mouse_DrawCursor();
-                Video_SurfaceRender(false, false);
-                mSurface->Restore();
+                RestoreLocalViewForRender();
+                if (mNetMapOverlayActive && mSurfaceMapOverview) {
+                    Network_DrawLiveMapOverlay();
+                } else {
+                    mGraphics->MapTiles_Draw();
+                    Sprites_Draw();
+                    Network_Sidebar_ForceSquadIcons();
+                    mGraphics->Sidebar_Copy_To_Surface(0, mSurface);
+                    Network_DrawMatchOverlay();
+                    Mouse_DrawCursor();
+                    Video_SurfaceRender(false, false);
+                    mSurface->Restore();
+                }
             }
         }
         mWindow->Cycle();
@@ -367,8 +441,10 @@ int16 cFodderMultiplayer::Phase_Loop() {
             result = Network_Tick();
             if (!firstSimFrameDone)
                 firstSimFrameDone = true;
-            if (result != 1)
+            if (result != 1) {
+                mNetMapOverlayActive = false;
                 return result;
+            }
         }
     }
     return -1;
@@ -380,6 +456,57 @@ int16 cFodderMultiplayer::Phase_Loop() {
 // what's being selected. Host navigates, P2 sees selection
 // and can ready up. Both must agree before proceeding.
 // ============================================================
+
+static sNetworkMatchSettings Lobby_MatchSettingsFromParams(const std::shared_ptr<sFodderParameters>& pParams) {
+    sNetworkMatchSettings Settings;
+    Settings.mGameMode = pParams->mNetworkGameMode;
+    Settings.mMapSeed = pParams->mNetworkMapSeed;
+    Settings.mKillLimit = pParams->mNetworkKillLimit;
+    Settings.mTimeLimitSeconds = pParams->mNetworkTimeLimitSeconds;
+    Settings.mTeamCount = pParams->mNetworkTeamCount;
+    Settings.mTeamSize = pParams->mNetworkTeamSize;
+    Settings.mFriendlyFire = pParams->mNetworkFriendlyFire ? 1 : 0;
+    Settings.mMapSize = pParams->mNetworkMapSize;
+    Settings.mMapTerrain = pParams->mNetworkMapTerrain;
+    Settings.mVehicleSet = pParams->mNetworkVehicleSet;
+    Settings.mPickupDensity = pParams->mNetworkPickupDensity;
+    Settings.mCoverDensity = pParams->mNetworkCoverDensity;
+    return Settings;
+}
+
+static void Lobby_ApplyMatchSettingsToParams(const sNetworkMatchSettings& pSettings, const std::shared_ptr<sFodderParameters>& pParams) {
+    pParams->mNetworkGameMode = pSettings.mGameMode;
+    pParams->mNetworkMapSeed = pSettings.mMapSeed;
+    pParams->mNetworkKillLimit = pSettings.mKillLimit;
+    pParams->mNetworkTimeLimitSeconds = pSettings.mTimeLimitSeconds;
+    pParams->mNetworkTeamCount = pSettings.mTeamCount;
+    pParams->mNetworkTeamSize = pSettings.mTeamSize;
+    pParams->mNetworkFriendlyFire = (pSettings.mFriendlyFire != 0);
+    pParams->mNetworkMapSize = Network_NormalizeMapSize((uint8_t)pSettings.mMapSize);
+    pParams->mNetworkMapTerrain = Network_NormalizeMapTerrain((uint8_t)pSettings.mMapTerrain);
+    pParams->mNetworkVehicleSet = Network_NormalizeVehicleSet((uint8_t)pSettings.mVehicleSet);
+    pParams->mNetworkPickupDensity = Network_NormalizePickupDensity((uint8_t)pSettings.mPickupDensity);
+    pParams->mNetworkCoverDensity = Network_NormalizeCoverDensity((uint8_t)pSettings.mCoverDensity);
+}
+
+static void Lobby_ApplyPeerEndpointToParams(const cNetworkLobby& pLobby, const std::shared_ptr<sFodderParameters>& pParams) {
+    if (!pLobby.IsConnected())
+        return;
+
+    const std::string RemoteHost = pLobby.GetRemoteHost();
+    const uint16_t RemotePort = pLobby.GetRemotePort();
+    if (RemoteHost.empty() || !RemotePort)
+        return;
+
+    if (pParams->mNetworkRemoteHost == RemoteHost &&
+        pParams->mNetworkRemotePort == RemotePort) {
+        return;
+    }
+
+    pParams->mNetworkRemoteHost = RemoteHost;
+    pParams->mNetworkRemotePort = RemotePort;
+    g_Debugger->Notice("[Lobby] Gameplay endpoint set to " + RemoteHost + ":" + std::to_string(RemotePort));
+}
 
 void cFodderMultiplayer::Lobby_CampaignSelection() {
     if (!mLobby || !mLobby->IsRunning()) {
@@ -401,6 +528,9 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
     bool localReady = false;
     bool done = false;
     bool cancelled = false;
+    const uint32_t LobbyStartedTicks = (uint32_t)SDL_GetTicks();
+    cNetworkDiscovery Discovery;
+    const bool DiscoveryStarted = isHost && Discovery.StartHost();
 
     // Override the interrupt callback so the campaign select screen
     // doesn't draw over our lobby screen from the timer thread.
@@ -412,19 +542,44 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
     mMouse_Button_Left_Toggle = 0;
 
     while (!done && !mExit) {
-        // Poll the lobby
-        mLobby->Poll();
-
-        // Host sends current selection
         if (isHost) {
             if (selectedIndex >= (int16)mCampaignList.size())
                 selectedIndex = (int16)mCampaignList.size() - 1;
-            if (selectedIndex < 0) selectedIndex = 0;
+            if (selectedIndex < 0)
+                selectedIndex = 0;
+
             mLobby->SetSelection(selectedIndex, mCampaignList[selectedIndex]);
+            mLobby->SetMatchSettings(Lobby_MatchSettingsFromParams(mStartParams));
+        } else {
+            mLobby->SetPlayerSelection(
+                mStartParams->mNetworkSelectedTeam,
+                mStartParams->mNetworkSelectedClass,
+                mStartParams->mNetworkLockedIn
+            );
+            mLobby->SetReady(localReady);
+        }
+
+        // Poll the lobby
+        mLobby->Poll();
+        Lobby_ApplyPeerEndpointToParams(*mLobby, mStartParams);
+
+        if (DiscoveryStarted) {
+            sNetworkDiscoveryGame Game;
+            Game.mHostName = "OPENFODDER";
+            Game.mGameName = mCampaignList[selectedIndex];
+            Game.mSettings = Lobby_MatchSettingsFromParams(mStartParams);
+            Game.mLobbyPort = mStartParams->mNetworkLocalPort;
+            Game.mGameplayPort = mStartParams->mNetworkLocalPort;
+            Game.mCurrentPlayers = mLobby->IsConnected() ? 2 : 1;
+            Game.mMaxPlayers = NETWORK_MAX_PLAYERS;
+            Game.mState = mLobby->IsConnected() ? eNetworkDiscoveryState_Full : eNetworkDiscoveryState_Setup;
+            Discovery.Advertise(Game);
         }
 
         // P2 auto-follows host's selection
         if (!isHost && mLobby->IsConnected()) {
+            Lobby_ApplyMatchSettingsToParams(mLobby->GetRemoteMatchSettings(), mStartParams);
+
             std::string remoteCampaign = mLobby->GetRemoteCampaign();
             if (!remoteCampaign.empty()) {
                 // Find campaign in our list
@@ -463,7 +618,11 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
 
         // Connection status
         if (!mLobby->IsConnected()) {
-            String_Print_Small("WAITING FOR PEER", rowY);
+            const uint32_t Now = (uint32_t)SDL_GetTicks();
+            if (!isHost && Now - LobbyStartedTicks > 8000)
+                String_Print_Small("HOST NOT RESPONDING", rowY);
+            else
+                String_Print_Small("WAITING FOR PEER", rowY);
             rowY += 0x12;
         } else {
             if (isHost) {
@@ -478,15 +637,32 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
             rowY += 0x12;
         }
 
-        // Campaign list (show up to 5 items centered on selection)
         {
-            int16 startIdx = selectedIndex - 2;
+            std::string ModeText = std::string("MODE ") + Network_GameModeName(mStartParams->mNetworkGameMode);
+            String_Print_Small(ModeText.c_str(), rowY);
+            rowY += 0x12;
+
+            std::string SeedText = "SEED " + std::to_string(mStartParams->mNetworkMapSeed);
+            String_Print_Small(SeedText.c_str(), rowY);
+            rowY += 0x12;
+
+            std::string MapText = std::string("MAP ") +
+                Network_MapSizeName(mStartParams->mNetworkMapSize) + " " +
+                Network_MapTerrainName(mStartParams->mNetworkMapTerrain) + " COVER " +
+                Network_CoverDensityName(mStartParams->mNetworkCoverDensity);
+            String_Print_Small(MapText.c_str(), rowY);
+            rowY += 0x12;
+        }
+
+        // Campaign list (show up to 3 items centered on selection)
+        {
+            int16 startIdx = selectedIndex - 1;
             if (startIdx < 0) startIdx = 0;
-            int16 endIdx = startIdx + 5;
+            int16 endIdx = startIdx + 3;
             if (endIdx > (int16)mCampaignList.size())
                 endIdx = (int16)mCampaignList.size();
 
-            rowY = 0x48;
+            rowY = 0x66;
             for (int16 i = startIdx; i < endIdx; ++i) {
                 bool isSelected = (i == selectedIndex);
 
@@ -512,7 +688,7 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
         }
 
         // Scroll buttons for host (above and below campaign list)
-        if (isHost && (int16)mCampaignList.size() > 5) {
+        if (isHost && (int16)mCampaignList.size() > 3) {
             GUI_Button_Draw_Small("UP", 0x3C);
             GUI_Button_Setup_New(
                 [](void* ctx, int16, int16) {
@@ -551,7 +727,6 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
                     bool& r = *static_cast<bool*>(ctx);
                     r = !r;
                 }, &localReady);
-            mLobby->SetReady(localReady);
         }
 
         // BACK button
@@ -591,6 +766,8 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
 
         if (cancelled) {
             mInterruptCallback = prevInterruptCallback;
+            if (mLobby)
+                mLobby->Stop();
             mStartParams->mNetworkEnabled = false;
             return;
         }
@@ -604,8 +781,15 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
         // Send a few extra packets to ensure delivery
         for (int i = 0; i < 15; ++i) {
             mLobby->Poll();
+            Lobby_ApplyPeerEndpointToParams(*mLobby, mStartParams);
             SDL_Delay(5);
         }
+    }
+
+    if (mLobby) {
+        Lobby_ApplyPeerEndpointToParams(*mLobby, mStartParams);
+        mLobby->Stop();
+        g_Debugger->Notice("[Lobby] Closed before GGPO gameplay.");
     }
 
     mInterruptCallback = prevInterruptCallback;

@@ -105,8 +105,8 @@ endif()
 
 configure_file(cmake/gitver.hpp.in Source/gitver.hpp @ONLY)
 
-file(GLOB_RECURSE GAMEENGINE_HEADERS "Source/*.hpp")
-file(GLOB_RECURSE GAMEENGINE_SOURCE "Source/*.cpp")
+file(GLOB_RECURSE GAMEENGINE_HEADERS CONFIGURE_DEPENDS "Source/*.hpp")
+file(GLOB_RECURSE GAMEENGINE_SOURCE CONFIGURE_DEPENDS "Source/*.cpp")
 
 source_group(TREE "${CMAKE_SOURCE_DIR}/Source" FILES ${GAMEENGINE_HEADERS} ${GAMEENGINE_SOURCE})
 

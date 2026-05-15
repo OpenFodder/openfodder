@@ -39,6 +39,11 @@ const std::vector<std::string> mMissionGoal_Titles = {
     "RESCUE HOSTAGE"            // CF2
 };
 
+static bool Campaign_IsRootedPath(const std::string& pPath)
+{
+    return pPath.size() && (pPath[0] == '/' || pPath[0] == '\\' || (pPath.size() > 1 && pPath[1] == ':'));
+}
+
 cCampaign::cCampaign() {
     Clear();
 }
@@ -49,6 +54,15 @@ std::string cCampaign::GetPathToCampaign() const {
 }
 
 std::string cCampaign::GetPathToFile(const std::string& pName) const {
+    if (Campaign_IsRootedPath(pName))
+        return pName;
+
+    if (mIsRandom)
+    {
+        auto Paths = g_ResourceMan->getValidPaths();
+        if (Paths.size())
+            return Paths[0] + pName;
+    }
 
     return GetPath() + pName;
 }

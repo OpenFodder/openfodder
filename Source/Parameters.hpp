@@ -24,6 +24,21 @@ namespace cxxopts {
 	class Options;
 }
 
+#include "Network/NetworkTypes.hpp"
+
+/* These values override the original engine values, when in custom mode */
+static constexpr size_t CUSTOM_DEFAULT_MAX_SPRITES = 100000;
+static constexpr size_t CUSTOM_DEFAULT_MAX_SPAWN = 25;
+
+enum eNetworkMenuStart {
+	eNetworkMenuStart_None = 0,
+	eNetworkMenuStart_Main,
+	eNetworkMenuStart_Host,
+	eNetworkMenuStart_HostMapOptions,
+	eNetworkMenuStart_Join,
+	eNetworkMenuStart_FindLan,
+};
+
 class sFodderParameters {
 public:
 	static cxxopts::Options* mCliOptions;
@@ -47,7 +62,16 @@ public:
 
 	bool mRandom;               // Start a random map
 	bool mRandomSave;			// Create a random map
+	bool mRandomMenuOnStart;    // Open the create-random-map options menu on startup
 	std::string mRandomFilename;// Name to save random map as
+	bool mRandomMapOptionsEnabled; // Use explicit random-map options for campaign random maps
+	uint32 mRandomMapSeed;
+	eNetworkMapSize mRandomMapSize;
+	eNetworkMapTerrain mRandomMapTerrain;
+	eNetworkVehicleSet mRandomMapVehicleSet;
+	eNetworkPickupDensity mRandomMapPickupDensity;
+	eNetworkCoverDensity mRandomMapCoverDensity;
+	eNetworkMapProfile mRandomMapProfile;
 
 	std::string mScriptRun;		// Name of a script to run
 
@@ -86,10 +110,26 @@ public:
 	// Cooperative network multiplayer (GGPO)
 	bool        mNetworkEnabled;        // Enable GGPO network session
 	bool        mNetworkSyncTest;       // Run GGPO sync-test instead of real network
+	eNetworkMenuStart mNetworkMenuStart; // Optional multiplayer setup screen to show on startup
 	int         mNetworkPlayerIndex;    // 0 = player 1 is local, 1 = player 2 is local
 	std::string mNetworkRemoteHost;     // Remote peer hostname / IP
 	uint16      mNetworkRemotePort;     // Remote peer UDP port
 	uint16      mNetworkLocalPort;      // Local UDP port to bind
+	eNetworkGameMode mNetworkGameMode;  // Selected multiplayer mode
+	uint32      mNetworkMapSeed;        // Synced random-map seed for PvP modes
+	uint16      mNetworkKillLimit;      // Synced kill limit for PvP modes
+	uint16      mNetworkTimeLimitSeconds; // 0 = no time limit
+	uint8       mNetworkTeamCount;      // Number of teams in team modes
+	uint8       mNetworkTeamSize;       // Players per team
+	bool        mNetworkFriendlyFire;   // Allow same-team damage
+	eNetworkMapSize mNetworkMapSize;   // Random-map dimensions
+	eNetworkMapTerrain mNetworkMapTerrain; // Random-map terrain tileset
+	eNetworkVehicleSet mNetworkVehicleSet; // Random-map vehicle placement
+	eNetworkPickupDensity mNetworkPickupDensity; // Random-map pickup placement
+	eNetworkCoverDensity mNetworkCoverDensity; // Random-map tree and cover density
+	uint8       mNetworkSelectedTeam;   // Local team selection
+	uint8       mNetworkSelectedClass;  // Local character/class selection
+	bool        mNetworkLockedIn;       // Local lobby lock-in state
 
 	sFodderParameters() {
 		clear();
@@ -131,6 +171,15 @@ public:
 
 		mRandom = false;
 		mRandomSave = false;
+		mRandomMenuOnStart = false;
+		mRandomMapOptionsEnabled = false;
+		mRandomMapSeed = NETWORK_MAP_SEED_DEFAULT;
+		mRandomMapSize = NETWORK_MAP_SIZE_DEFAULT;
+		mRandomMapTerrain = NETWORK_MAP_TERRAIN_DEFAULT;
+		mRandomMapVehicleSet = NETWORK_VEHICLE_SET_DEFAULT;
+		mRandomMapPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
+		mRandomMapCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
+		mRandomMapProfile = NETWORK_MAP_PROFILE_DEFAULT;
 
 		mDefaultPlatform = ePlatform::Any;
 		mDefaultGame = eGame::CF1;
@@ -149,10 +198,26 @@ public:
 
 		mNetworkEnabled     = false;
 		mNetworkSyncTest    = false;
+		mNetworkMenuStart   = eNetworkMenuStart_None;
 		mNetworkPlayerIndex = 0;
 		mNetworkRemoteHost  = "";
 		mNetworkRemotePort  = 7001;
 		mNetworkLocalPort   = 7000;
+		mNetworkGameMode    = eNetworkGameMode_CoopCampaign;
+		mNetworkMapSeed     = NETWORK_MAP_SEED_DEFAULT;
+		mNetworkKillLimit   = NETWORK_KILL_LIMIT_DEFAULT;
+		mNetworkTimeLimitSeconds = NETWORK_TIME_LIMIT_DEFAULT;
+		mNetworkTeamCount   = NETWORK_TEAM_COUNT_DEFAULT;
+		mNetworkTeamSize    = NETWORK_TEAM_SIZE_DEFAULT;
+		mNetworkFriendlyFire = false;
+		mNetworkMapSize     = NETWORK_MAP_SIZE_DEFAULT;
+		mNetworkMapTerrain  = NETWORK_MAP_TERRAIN_DEFAULT;
+		mNetworkVehicleSet  = NETWORK_VEHICLE_SET_DEFAULT;
+		mNetworkPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
+		mNetworkCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
+		mNetworkSelectedTeam = 0;
+		mNetworkSelectedClass = 0;
+		mNetworkLockedIn    = false;
 	}
 
 protected:
