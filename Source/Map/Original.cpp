@@ -99,6 +99,10 @@ void cOriginalMap::loadCF1Spt(tSharedBuffer pSpriteData, bool pCF2) {
 
 
 	for (uint16 HumanCount = 0; SptPtr != SptFileEnd; ++Sprite) {
+		if (Sprite >= mSprites.data() + mSprites.size()) {
+			break;
+		}
+
 		++SptPtr;
 		Sprite->mSheetIndex = 0x7C;
 
@@ -127,6 +131,10 @@ void cOriginalMap::loadCF1Spt(tSharedBuffer pSpriteData, bool pCF2) {
 		if (pCF2) {
 			if (Sprite > mSprites.data())
 				if (Sprite->mSpriteType == 4 && (Sprite - 1)->mSpriteType >= 114 && (Sprite - 1)->mSpriteType <= 117) {
+					if ((Sprite + 1) >= (mSprites.data() + mSprites.size())) {
+						break;
+					}
+
 					++Sprite;
 				}
 		}
