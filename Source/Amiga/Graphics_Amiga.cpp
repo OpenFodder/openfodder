@@ -215,9 +215,6 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check(bool p16bit) {
 		}
 
 		mFodder->mVideo_Draw_FrameDataPtr += ax;
-
-		if (mFodder->mVideo_Draw_PosX < 0)
-			return false;
 	}
 
 	ax = mFodder->mVideo_Draw_PosX + drawColumns;
@@ -608,8 +605,11 @@ sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 			break;
 		}
 
-		case 'CMAP':
-			for (uint16 i = 0; i < Size / 3; ++i) {
+		case 'CMAP': {
+			size_t Colors = Size / 3;
+			size_t ColorsToRead = std::min(Colors, std::size(Result.mPalette));
+
+			for (size_t i = 0; i < ColorsToRead && FileSize >= 3; ++i) {
 				int16 d0 = (int16)*DataPtr++;
 				int16 Final = 0;
 
@@ -636,9 +636,14 @@ sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 				}
 
 				FileSize -= 3;
-
 			}
+
+			size_t BytesRead = ColorsToRead * 3;
+			size_t BytesRemaining = Size > BytesRead ? Size - BytesRead : 0;
+			DataPtr += BytesRemaining;
+			FileSize -= std::min(FileSize, BytesRemaining);
 			break;
+			}
 
 		default:
 			if (Size & 1)
