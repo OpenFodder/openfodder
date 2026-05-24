@@ -1348,7 +1348,12 @@ void cGraphics_Amiga::Recruit_Sprite_Draw(int16 pRows, int16 pColumns, int16 pD2
 }
 
 void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSourceX, uint16 pSourceY, uint16 pX, uint16 pY) {
-	uint8	Planes[5] = { 0, 0, 0, 0, 0 };
+	constexpr uint8 MaxSupportedPlanes = 5;
+	uint8	Planes[MaxSupportedPlanes] = { 0, 0, 0, 0, 0 };
+	uint8	PlaneCount = mBMHD_Current->mPlanes;
+
+	if (PlaneCount > MaxSupportedPlanes)
+		PlaneCount = MaxSupportedPlanes;
 
 	pSource += (pSourceX / 8);
 	pSource += (pSourceY * 40);
@@ -1358,7 +1363,7 @@ void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSou
 
 
 	// Load bits for all planes
-	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane)
+	for (uint8 Plane = 0; Plane < PlaneCount; ++Plane)
 		Planes[Plane] = *(pSource + ((mBMHD_Current->mHeight * 40) * Plane));
 
 	// Loop each pixel 
@@ -1367,7 +1372,7 @@ void cGraphics_Amiga::DrawPixel(uint8* pSource, uint8* pDestination, uint16 pSou
 	uint8 Result = 0;
 
 	// Value for each plane
-	for (uint8 Plane = 0; Plane < mBMHD_Current->mPlanes; ++Plane) {
+	for (uint8 Plane = 0; Plane < PlaneCount; ++Plane) {
 		Result |= Planes[Plane] & Bit ? (1 << Plane) : 0;
 	}
 
