@@ -694,6 +694,14 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 		mFodder->mVideo_Draw_Columns -= ax;
 		ax >>= 1;
 		mFodder->mVideo_Draw_FrameDataPtr += ax;
+
+		// Ensure the destination X never remains negative after clipping.
+		// A remaining -1 here would underflow the destination pointer in Video_Draw_8.
+		if (mFodder->mVideo_Draw_PosX < 0)
+		{
+			++mFodder->mVideo_Draw_PosX;
+			--mFodder->mVideo_Draw_Columns;
+		}
 	}
 
 	ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;
