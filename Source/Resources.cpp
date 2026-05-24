@@ -38,15 +38,29 @@ tSharedBuffer cResources::fileGet( std::string pFilename ) {
 }
 
 tSharedBuffer cResources::fileDeRNC(tSharedBuffer pBuffer) {
+	constexpr uint32 RNCHeaderSize = 18;
+	constexpr uint32 MaxUnpackedSize = 64 * 1024 * 1024;
+
+	if (pBuffer->size() < RNCHeaderSize)
+		return pBuffer;
+
 	uint32 Header = readBEDWord(pBuffer->data());
 	if (Header != 'RNC\01')
 		return pBuffer;
 
 	uint32 Size = readBEDWord(pBuffer->data() + 4);
+	uint32 PackedSize = readBEDWord(pBuffer->data() + 8);
+
+	if ((PackedSize > (pBuffer->size() - RNCHeaderSize)) || !Size || (Size > MaxUnpackedSize))
+		return pBuffer;
 
 	auto Unpacked = std::make_shared<std::vector<uint8>>();
 	Unpacked->resize(Size);
-	rnc_unpack(pBuffer->data(), Unpacked->data());
+
+	long Result = rnc_unpack(pBuffer->data(), Unpacked->data());
+	if (Result != static_cast<long>(Size))
+		return pBuffer;
+
 	return Unpacked;
 }
 
