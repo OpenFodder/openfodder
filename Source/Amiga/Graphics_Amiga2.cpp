@@ -98,10 +98,11 @@ tSharedBuffer cGraphics_Amiga2::GetPalette(const std::string pFilename) {
     auto Palette = g_Resource->fileGet(Filename);
 
     auto a0 = Palette->data();
-    for (; a0 < Palette->data() + Palette->size(); ++a0) {
+    auto a0End = Palette->data() + Palette->size();
+    for (; a0 + 2 < a0End; a0 += 3) {
 
-        uint16 d0 = *a0++;
-        uint16 d1 = *a0++;
+        uint16 d0 = a0[0];
+        uint16 d1 = a0[1];
 
         d0 &= 0xF0;
         d0 <<= 4;
@@ -109,7 +110,7 @@ tSharedBuffer cGraphics_Amiga2::GetPalette(const std::string pFilename) {
         d1 &= 0xF0;
         d0 |= d1;
 
-        d1 = *a0;
+        d1 = a0[2];
         d1 &= 0xF0;
         d1 >>= 4;
         d0 |= d1;

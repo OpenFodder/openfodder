@@ -98,7 +98,13 @@ public:
 
 		uint16 color;
 
-		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + pCount; ColorID++) {
+		if (pStartColorID >= 256)
+			return;
+
+		const size_t MaxColors = 256 - pStartColorID;
+		const size_t PaletteCount = std::min(pCount, MaxColors);
+
+		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + PaletteCount; ColorID++) {
 
 			// Get the next color codes
 			color = readBEWord(pFrom);
