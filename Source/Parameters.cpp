@@ -31,7 +31,7 @@ using Json = nlohmann::json;
 cxxopts::Options* sFodderParameters::mCliOptions = 0;
 
 /* These values override the original engine values, when in custom mode */
-const size_t CUSTOM_DEFAULT_MAX_SPRITES = 100000;
+const size_t CUSTOM_DEFAULT_MAX_SPRITES = sFodderParameters::MAX_SPRITES_MAX;
 const size_t CUSTOM_DEFAULT_MAX_SPAWN = 25;
 
 std::string sFodderParameters::ToJson() {
@@ -90,8 +90,10 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 		else
 			mSpritesMax = 45; // The original engine limit
 
-		if (mSpritesMax < 16)
-			mSpritesMax = 16;
+		if (mSpritesMax < MIN_SPRITES_MAX)
+			mSpritesMax = MIN_SPRITES_MAX;
+		if (mSpritesMax > MAX_SPRITES_MAX)
+			mSpritesMax = MAX_SPRITES_MAX;
 	}
 
 	// Max Spawned
@@ -309,8 +311,10 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		if (result.count("max-spawn"))
 			mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
 
-		if (mSpritesMax < 16)
-			mSpritesMax = 16;
+		if (mSpritesMax < MIN_SPRITES_MAX)
+			mSpritesMax = MIN_SPRITES_MAX;
+		if (mSpritesMax > MAX_SPRITES_MAX)
+			mSpritesMax = MAX_SPRITES_MAX;
 
 		// Cheats perm enabled in debug build
 #ifdef _DEBUG
@@ -507,6 +511,11 @@ bool sFodderParameters::ProcessINI() {
 			auto maxspawn = ini.get("maxspawn", 0);
 			if (maxspawn)
 				mSpawnEnemyMax = maxspawn;
+
+			if (mSpritesMax < MIN_SPRITES_MAX)
+				mSpritesMax = MIN_SPRITES_MAX;
+			if (mSpritesMax > MAX_SPRITES_MAX)
+				mSpritesMax = MAX_SPRITES_MAX;
 		}
 	}
 

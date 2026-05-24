@@ -80,6 +80,9 @@ public:
 	size_t mSpritesMax;
 	size_t mSpawnEnemyMax;
 
+	static constexpr size_t MIN_SPRITES_MAX = 45;
+	static constexpr size_t MAX_SPRITES_MAX = 100000;
+
 	bool mShowHelp;
 	bool mCopyProtection;
 
