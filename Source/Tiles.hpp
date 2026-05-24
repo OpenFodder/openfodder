@@ -21,21 +21,21 @@
 */
 
 enum eTerrainFeature {
-	eTerrainFeature_Land = 0,
-	eTerrainFeature_Rocky = 1,
-	eTerrainFeature_Rocky2 = 2,
-	eTerrainFeature_Block = 3,
-	eTerrainFeature_QuickSand = 4,
-	eTerrainFeature_WaterEdge = 5,
-	eTerrainFeature_Water = 6,
-	eTerrainFeature_Snow = 7,				// Reduce unit speed
-	eTerrainFeature_QuickSandEdge = 8,
-	eTerrainFeature_Drop = 9,
-	eTerrainFeature_Drop2 = 0x0A,
-	eTerrainFeature_Sink = 0x0B,
-	eTerrainFeature_C = 0x0C,
-	eTerrainFeature_D = 0x0D,
-	eTerrainFeature_Jump = 0x0E
+	eTerrainFeature_Ground = 0,
+	eTerrainFeature_RoughGround = 1,
+	eTerrainFeature_RaisedRoughGround = 2,
+	eTerrainFeature_SolidObstacle = 3,
+	eTerrainFeature_SoftHazard = 4,
+	eTerrainFeature_ShallowWater = 5,
+	eTerrainFeature_DeepWater = 6,
+	eTerrainFeature_SlowGround = 7,
+	eTerrainFeature_SlipperyGround = 8,
+	eTerrainFeature_LedgeDrop = 9,
+	eTerrainFeature_PitDrop = 0x0A,
+	eTerrainFeature_SinkingGround = 0x0B,
+	eTerrainFeature_NoFlyObstacle = 0x0C,
+	eTerrainFeature_DirectionalSlope = 0x0D,
+	eTerrainFeature_JumpRamp = 0x0E
 };
 
 struct sTileType {

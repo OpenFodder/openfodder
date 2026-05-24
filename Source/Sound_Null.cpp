@@ -19,7 +19,6 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifdef OPENFODDER_NO_MIXER
 #include "stdafx.hpp"
 
 cSound_Null::cSound_Null() {
@@ -40,4 +39,3 @@ void cSound_Null::Music_Play(int16, int16) {
 
 void cSound_Null::Music_Stop() {
 }
-#endif

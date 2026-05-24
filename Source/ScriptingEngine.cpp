@@ -211,6 +211,7 @@ cScriptingEngine::cScriptingEngine() {
 	scriptsLoadFolder("Common/");
 	scriptsLoadFolder("Common/Names/");
 	scriptsLoadFolder("Common/Structures/");
+	scriptsLoadFolder("Common/Generated/");
 
 	scriptsLoadFolder("Objectives/");
 	scriptsLoadFolder("Objectives/Kill.All.Enemy/");
@@ -226,6 +227,7 @@ cScriptingEngine::cScriptingEngine() {
 	scriptsLoadFolder("Objectives/Rescue.Hostage/");
 
 	scriptsLoadFolder("MapGen/");
+	scriptsLoadFolder("MapGen/Grammar/");
 	scriptsLoadFolder("MapGen/Layout/");
 	scriptsLoadFolder("MapGen/Layout/Templates/");
 	scriptsLoadFolder("MapGen/Terrain/");
@@ -386,6 +388,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cScriptingEngine::networkFriendlyFire, "networkFriendlyFire");
 	dukglue_register_method(mContext, &cScriptingEngine::networkMapSize, "networkMapSize");
 	dukglue_register_method(mContext, &cScriptingEngine::networkMapTerrain, "networkMapTerrain");
+	dukglue_register_method(mContext, &cScriptingEngine::networkMapTerrainSub, "networkMapTerrainSub");
 	dukglue_register_method(mContext, &cScriptingEngine::networkVehicleSet, "networkVehicleSet");
 	dukglue_register_method(mContext, &cScriptingEngine::networkPickupDensity, "networkPickupDensity");
 	dukglue_register_method(mContext, &cScriptingEngine::networkCoverDensity, "networkCoverDensity");
@@ -393,10 +396,12 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapSeed, "randomMapSeed");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapSize, "randomMapSize");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapTerrain, "randomMapTerrain");
+	dukglue_register_method(mContext, &cScriptingEngine::randomMapTerrainSub, "randomMapTerrainSub");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapVehicleSet, "randomMapVehicleSet");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapPickupDensity, "randomMapPickupDensity");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapCoverDensity, "randomMapCoverDensity");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapProfile, "randomMapProfile");
+	dukglue_register_method(mContext, &cScriptingEngine::randomMapProfileName, "randomMapProfileName");
 }
 
 std::shared_ptr<cPhase> cScriptingEngine::phaseCreate() {
@@ -511,6 +516,13 @@ int cScriptingEngine::networkMapTerrain() const {
 	return (int)g_Fodder->mStartParams->mNetworkMapTerrain;
 }
 
+int cScriptingEngine::networkMapTerrainSub() const {
+	if (!networkEnabled())
+		return 0;
+
+	return (int)g_Fodder->mStartParams->mNetworkMapTerrainSub;
+}
+
 int cScriptingEngine::networkVehicleSet() const {
 	if (!networkEnabled())
 		return (int)NETWORK_VEHICLE_SET_DEFAULT;
@@ -557,6 +569,13 @@ int cScriptingEngine::randomMapTerrain() const {
 	return (int)g_Fodder->mStartParams->mRandomMapTerrain;
 }
 
+int cScriptingEngine::randomMapTerrainSub() const {
+	if (!randomMapOptionsEnabled())
+		return 0;
+
+	return (int)g_Fodder->mStartParams->mRandomMapTerrainSub;
+}
+
 int cScriptingEngine::randomMapVehicleSet() const {
 	if (!randomMapOptionsEnabled())
 		return (int)NETWORK_VEHICLE_SET_DEFAULT;
@@ -583,6 +602,13 @@ int cScriptingEngine::randomMapProfile() const {
 		return (int)NETWORK_MAP_PROFILE_DEFAULT;
 
 	return (int)g_Fodder->mStartParams->mRandomMapProfile;
+}
+
+std::string cScriptingEngine::randomMapProfileName() const {
+	if (!randomMapOptionsEnabled())
+		return "";
+
+	return g_Fodder->mStartParams->mRandomMapProfileName;
 }
 
 void cScriptingEngine::guiPrintString(const std::string& pText, const size_t pX, const size_t pY, const bool pLarge, const bool pUnderline) {

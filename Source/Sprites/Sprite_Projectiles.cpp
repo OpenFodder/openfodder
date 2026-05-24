@@ -1490,7 +1490,7 @@ void cFodder::Sprite_Handle_Grenade_Terrain_Check(sSprite* pSprite) {
     if (Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4))
         goto loc_21599;
 
-    if (Data4 == eTerrainFeature_Drop || Data4 == eTerrainFeature_Drop2) {
+    if (Data4 == eTerrainFeature_LedgeDrop || Data4 == eTerrainFeature_PitDrop) {
 
         if (pSprite->mHeight <= 1) {
             pSprite->field_12 = 1;
@@ -1498,8 +1498,8 @@ void cFodder::Sprite_Handle_Grenade_Terrain_Check(sSprite* pSprite) {
         }
     }
     //loc_21561
-    if (Data4 == eTerrainFeature_QuickSand || Data4 == eTerrainFeature_WaterEdge
-        || Data4 == eTerrainFeature_Water) {
+    if (Data4 == eTerrainFeature_SoftHazard || Data4 == eTerrainFeature_ShallowWater
+        || Data4 == eTerrainFeature_DeepWater) {
 
         if (pSprite->mHeight)
             return;

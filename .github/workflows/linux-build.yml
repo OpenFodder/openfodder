@@ -4,11 +4,16 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Install build tools
         run: >-
           sudo apt-get update --allow-releaseinfo-change &&
@@ -50,11 +55,13 @@ jobs:
           name: OpenFodder-linux-latest
           path: OpenFodder-linux-latest.zip
       - name: Discord notification
-        if: always() && env.DISCORD_WEBHOOK_URL != ''
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
         shell: pwsh
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
+          if ([string]::IsNullOrWhiteSpace($env:DISCORD_WEBHOOK_URL)) { exit 0 }
+
           $status = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failure" }
           $color = if ("${{ job.status }}" -eq "success") { 3066993 } else { 15158332 }
           $title = "OpenFodder Ubuntu build $status"

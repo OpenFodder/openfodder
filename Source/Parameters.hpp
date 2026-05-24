@@ -68,10 +68,12 @@ public:
 	uint32 mRandomMapSeed;
 	eNetworkMapSize mRandomMapSize;
 	eNetworkMapTerrain mRandomMapTerrain;
+	uint32 mRandomMapTerrainSub;
 	eNetworkVehicleSet mRandomMapVehicleSet;
 	eNetworkPickupDensity mRandomMapPickupDensity;
 	eNetworkCoverDensity mRandomMapCoverDensity;
 	eNetworkMapProfile mRandomMapProfile;
+	std::string mRandomMapProfileName;
 
 	std::string mScriptRun;		// Name of a script to run
 
@@ -86,6 +88,11 @@ public:
 	size_t mSleepDelta;             // Engine sleep delta
 
 	std::string mSingleMap;			// Name of single map to load
+	std::string mMapGeneratePng;     // Render a map to a PNG and exit
+	std::string mMapPngOutput;       // Output path for map PNG rendering
+	bool mMapPngAddCoords;           // Overlay tile coordinates on generated map PNG
+	bool mMapPngAddTileIds;          // Overlay tile IDs on generated map PNG
+	size_t mMapPngScale;             // Nearest-neighbor output scale for map PNG rendering
 	std::string mCampaignName;      // Campaign to start
 	size_t mMissionNumber;          // Mission to start on
 	size_t mPhaseNumber;            // Phase to start on
@@ -124,6 +131,7 @@ public:
 	bool        mNetworkFriendlyFire;   // Allow same-team damage
 	eNetworkMapSize mNetworkMapSize;   // Random-map dimensions
 	eNetworkMapTerrain mNetworkMapTerrain; // Random-map terrain tileset
+	uint32      mNetworkMapTerrainSub; // Random-map terrain sub-tileset
 	eNetworkVehicleSet mNetworkVehicleSet; // Random-map vehicle placement
 	eNetworkPickupDensity mNetworkPickupDensity; // Random-map pickup placement
 	eNetworkCoverDensity mNetworkCoverDensity; // Random-map tree and cover density
@@ -176,10 +184,12 @@ public:
 		mRandomMapSeed = NETWORK_MAP_SEED_DEFAULT;
 		mRandomMapSize = NETWORK_MAP_SIZE_DEFAULT;
 		mRandomMapTerrain = NETWORK_MAP_TERRAIN_DEFAULT;
+		mRandomMapTerrainSub = 0;
 		mRandomMapVehicleSet = NETWORK_VEHICLE_SET_DEFAULT;
 		mRandomMapPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
 		mRandomMapCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
 		mRandomMapProfile = NETWORK_MAP_PROFILE_DEFAULT;
+		mRandomMapProfileName = "";
 
 		mDefaultPlatform = ePlatform::Any;
 		mDefaultGame = eGame::CF1;
@@ -187,6 +197,12 @@ public:
 		mDemoRecord = false;
 		mDemoPlayback = false;
 		mDemoRecordResumeCycle = 0;
+		mSingleMap = "";
+		mMapGeneratePng = "";
+		mMapPngOutput = "";
+		mMapPngAddCoords = false;
+		mMapPngAddTileIds = false;
+		mMapPngScale = 1;
 
 		mCheatsEnabled = false;
 		mUnitTesting = false;
@@ -212,6 +228,7 @@ public:
 		mNetworkFriendlyFire = false;
 		mNetworkMapSize     = NETWORK_MAP_SIZE_DEFAULT;
 		mNetworkMapTerrain  = NETWORK_MAP_TERRAIN_DEFAULT;
+		mNetworkMapTerrainSub = 0;
 		mNetworkVehicleSet  = NETWORK_VEHICLE_SET_DEFAULT;
 		mNetworkPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
 		mNetworkCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;

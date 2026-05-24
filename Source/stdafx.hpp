@@ -146,11 +146,10 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 #include "Structures/Barracks.hpp"
 
 #include "PC/Graphics_PC.hpp"
+#include "Sound_Null.hpp"
 #ifndef OPENFODDER_NO_MIXER
 #include "PC/Sound_PC.hpp"
 #include "PC/Sound_PC2.hpp"
-#else
-#include "Sound_Null.hpp"
 #endif
 
 #include "Amiga/paula.hpp"

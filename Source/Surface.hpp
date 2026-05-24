@@ -81,6 +81,7 @@ public:
     void            mergeSurfaceBuffer(const cSurface* pFrom);
 
 	bool            LoadPng(const std::string &pFile);
+	bool            SavePng(const std::string &pFile) const;
 
 	void			Save();
 	void			Restore();

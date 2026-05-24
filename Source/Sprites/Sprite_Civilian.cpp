@@ -216,13 +216,13 @@ void cFodder::Sprite_Civilian_Update_Movement(sSprite* pSprite) {
 
     Data4 = pSprite->mTerrainType;
 
-    if (Data4 == 6) {
+    if (Data4 == eTerrainFeature_DeepWater) {
         Sprite_XY_Restore(pSprite);
         return;
     }
 
-    if (Data4 != 4) {
-        if (Data4 != 5)
+    if (Data4 != eTerrainFeature_SoftHazard) {
+        if (Data4 != eTerrainFeature_ShallowWater)
             return;
 
         pSprite->mRowsToSkip = 5;

@@ -117,20 +117,20 @@ int16 cFodder::Sprite_Handle_Helicopter_Terrain_Check(sSprite* pSprite) {
 
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
     switch (Data4) {
-    case eTerrainFeature_Rocky:
-    case eTerrainFeature_QuickSand:
-    case eTerrainFeature_WaterEdge:
-    case eTerrainFeature_Water:
-    case eTerrainFeature_Sink:
+    case eTerrainFeature_RoughGround:
+    case eTerrainFeature_SoftHazard:
+    case eTerrainFeature_ShallowWater:
+    case eTerrainFeature_DeepWater:
+    case eTerrainFeature_SinkingGround:
         Data0 = 0x0C;
         break;
 
-    case eTerrainFeature_Block:
+    case eTerrainFeature_SolidObstacle:
         Data0 = 0x14;
         break;
-    case eTerrainFeature_Rocky2:
-    case eTerrainFeature_Drop:
-    case eTerrainFeature_Drop2:
+    case eTerrainFeature_RaisedRoughGround:
+    case eTerrainFeature_LedgeDrop:
+    case eTerrainFeature_PitDrop:
         Data0 = 0x0E;
         break;
 

@@ -367,9 +367,9 @@ int cRandomMap::Passable(int nx, int ny)
 	default:
 		return 1;
 
-	case eTerrainFeature_Water:
-	case eTerrainFeature_WaterEdge:
-	case eTerrainFeature_QuickSand:
+	case eTerrainFeature_DeepWater:
+	case eTerrainFeature_ShallowWater:
+	case eTerrainFeature_SoftHazard:
 
 		// Tanks cant drive through water/quicksand
 		if (mPathSearchUnitType == eSprite_Tank_Human || mPathSearchUnitType == eSprite_Tank_Enemy)

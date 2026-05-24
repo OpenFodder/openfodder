@@ -2610,7 +2610,9 @@ void cFodder::VersionSwitch(const sGameVersion *pVersion)
     mGraphics = mVersionCurrent->GetGraphics();
 
     if (!mSound)
-        mSound = mVersionCurrent->GetSound();
+        mSound = (mStartParams && mStartParams->mDisableSound)
+            ? std::make_shared<cSound_Null>()
+            : mVersionCurrent->GetSound();
 
     if (!mResources)
     {

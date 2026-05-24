@@ -23,6 +23,9 @@
 #include "stdafx.hpp"
 
 void cFodder::Image_FadeIn() {
+    if (mStartParams && mStartParams->mDisableVideo)
+        return;
+
     mSurface->Save();
     mGraphics->PaletteSet();
     mGame_Data.mDemoRecorded.DisableTicks();
@@ -38,6 +41,8 @@ void cFodder::Image_FadeIn() {
 }
 
 void cFodder::Image_FadeOut() {
+    if (mStartParams && mStartParams->mDisableVideo)
+        return;
 
     mSurface->Save();
     mSurface->paletteNew_SetToBlack();

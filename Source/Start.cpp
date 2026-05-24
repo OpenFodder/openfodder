@@ -44,26 +44,36 @@ int start(int argc, char *argv[]) {
 	if (Params->mShowHelp)
 		return 0;
 
-	g_Fodder->Prepare(Params);
-	std::thread myThread(&cFodder::Interrupt_Sim, g_Fodder);
 	int result = 0;
-	
-	if (g_Fodder->mStartParams->mUnitTesting) {
-		cUnitTesting Testing;
-		result = Testing.Start() ? 0 : -1;
+	if (Params->mMapGeneratePng.size()) {
+		result = g_Fodder->Map_RenderPng(
+			Params->mMapGeneratePng,
+			Params->mMapPngOutput,
+			Params->mMapPngAddCoords,
+			Params->mMapPngAddTileIds,
+			Params->mMapPngScale) ? 0 : -1;
 	}
-	else if (g_Fodder->mStartParams->mRandomSave) {
-		sMapParams Params(g_Fodder->mRandom.get());
-		g_Fodder->CreateRandom(Params);
-	}
-	else	{
-		g_Fodder->Start();
-		g_Fodder->mGame_Data.mDemoRecorded.save();
-	}
+	else {
+		g_Fodder->Prepare(Params);
+		std::thread myThread(&cFodder::Interrupt_Sim, g_Fodder);
 
-	{
-		g_Fodder->mExit = true;
-		myThread.join();
+		if (g_Fodder->mStartParams->mUnitTesting) {
+			cUnitTesting Testing;
+			result = Testing.Start() ? 0 : -1;
+		}
+		else if (g_Fodder->mStartParams->mRandomSave) {
+			sMapParams Params(g_Fodder->mRandom.get());
+			g_Fodder->CreateRandom(Params);
+		}
+		else	{
+			g_Fodder->Start();
+			g_Fodder->mGame_Data.mDemoRecorded.save();
+		}
+
+		{
+			g_Fodder->mExit = true;
+			myThread.join();
+		}
 	}
 	return result;
 }

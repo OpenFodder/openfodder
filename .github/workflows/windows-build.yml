@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: windows-latest
@@ -23,6 +26,8 @@ jobs:
             vcpkg_triplet: x86-windows
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
@@ -128,22 +133,26 @@ jobs:
           name: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest
           path: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip
       - name: Configure AWS credentials
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Upload build zip to S3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         shell: pwsh
         run: |
           $zipName = "OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
           aws s3 cp "$zipName" "s3://openfodder-builds/$zipName" --acl public-read
       - name: Discord notification
-        if: always() && env.DISCORD_WEBHOOK_URL != ''
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
         shell: pwsh
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
+          if ([string]::IsNullOrWhiteSpace($env:DISCORD_WEBHOOK_URL)) { exit 0 }
+
           $status = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failure" }
           $color = if ("${{ job.status }}" -eq "success") { 3066993 } else { 15158332 }
           $title = "OpenFodder Windows build $status (${{ matrix.arch }})"

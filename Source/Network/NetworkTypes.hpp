@@ -186,7 +186,7 @@ inline const char* Network_MapProfileName(eNetworkMapProfile pProfile) {
     case eNetworkMapProfile_DenseJungleTrails: return "DENSE TRAILS";
     case eNetworkMapProfile_JungleVillage:     return "JUNGLE VILLAGE";
     case eNetworkMapProfile_JungleBase:        return "JUNGLE BASE";
-    case eNetworkMapProfile_IslandAssault:     return "ISLAND ASSAULT";
+    case eNetworkMapProfile_IslandAssault:     return "RIVER ASSAULT";
     case eNetworkMapProfile_PvPBalancedJungle: return "PVP BALANCED";
     case eNetworkMapProfile_Random:            return "RANDOM";
     case eNetworkMapProfile_Custom:            return "CUSTOM";

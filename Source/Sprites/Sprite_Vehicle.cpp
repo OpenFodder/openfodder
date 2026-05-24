@@ -110,42 +110,42 @@ void cFodder::Sprite_Handle_Vehicle_Terrain_Check(sSprite* pSprite) {
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
 
     pSprite->mTerrainType = static_cast<int8>(Data4);
-    if (Data4 == eTerrainFeature_Rocky || Data4 == eTerrainFeature_Rocky2)
+    if (Data4 == eTerrainFeature_RoughGround || Data4 == eTerrainFeature_RaisedRoughGround)
         goto loc_23056;
 
-    if (Data4 == eTerrainFeature_Jump)
+    if (Data4 == eTerrainFeature_JumpRamp)
         goto loc_23100;
 
-    if (Data4 == eTerrainFeature_Block)
+    if (Data4 == eTerrainFeature_SolidObstacle)
         goto Computer_Vehicle_SoftTerrain;
 
-    if (Data4 == eTerrainFeature_Drop || Data4 == 0x0A)
+    if (Data4 == eTerrainFeature_LedgeDrop || Data4 == eTerrainFeature_PitDrop)
         goto loc_22F06;
 
     if (pSprite->mDelayCounter)
         pSprite->mAnimState = eSprite_Anim_Die1;
 
-    if (Data4 == eTerrainFeature_Snow)
+    if (Data4 == eTerrainFeature_SlowGround)
         goto loc_22FA3;
 
     if (pSprite->mPersonType == eSprite_PersonType_Human)
         goto Human_Vehicle;
 
-    if (Data4 == eTerrainFeature_QuickSand || Data4 == eTerrainFeature_WaterEdge
-        || Data4 == eTerrainFeature_Water || Data4 == eTerrainFeature_Sink)
+    if (Data4 == eTerrainFeature_SoftHazard || Data4 == eTerrainFeature_ShallowWater
+        || Data4 == eTerrainFeature_DeepWater || Data4 == eTerrainFeature_SinkingGround)
         goto Computer_Vehicle_SoftTerrain;
 
     goto loc_22EEB;
 
 Human_Vehicle:;
 
-    if (Data4 == eTerrainFeature_QuickSand)
+    if (Data4 == eTerrainFeature_SoftHazard)
         goto Human_Vehicle_Quicksand;
 
-    if (Data4 == eTerrainFeature_WaterEdge)
+    if (Data4 == eTerrainFeature_ShallowWater)
         goto Human_Vehicle_WaterEdge;
 
-    if (Data4 == eTerrainFeature_Water || Data4 == eTerrainFeature_Sink)
+    if (Data4 == eTerrainFeature_DeepWater || Data4 == eTerrainFeature_SinkingGround)
         goto AnimDie3;
 
 loc_22EEB:;
@@ -175,7 +175,7 @@ Computer_Vehicle_SoftTerrain:;
     Data4 = 0x0F;
     Data0 = -10;
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
-    if (Data4 == eTerrainFeature_Block)
+    if (Data4 == eTerrainFeature_SolidObstacle)
         pSprite->mAnimState = eSprite_Anim_Die1;
 
     Sprite_Animation_SlideOrDie(pSprite);

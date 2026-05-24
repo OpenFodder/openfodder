@@ -73,6 +73,8 @@ static eNetworkMapTerrain Parameters_ParseNetworkMapTerrain(const std::string& p
 
 	if (Terrain == "random" || Terrain == "rand")
 		return eNetworkMapTerrain_Random;
+	if (Terrain == "jungle-beach" || Terrain == "jungle_beach" || Terrain == "junsub1" || Terrain == "jungle-sub1" || Terrain == "jungle_sub1" || Terrain == "beach")
+		return eNetworkMapTerrain_Jungle;
 	if (Terrain == "desert")
 		return eNetworkMapTerrain_Desert;
 	if (Terrain == "ice" || Terrain == "snow")
@@ -81,6 +83,15 @@ static eNetworkMapTerrain Parameters_ParseNetworkMapTerrain(const std::string& p
 		return eNetworkMapTerrain_Moors;
 
 	return eNetworkMapTerrain_Jungle;
+}
+
+static uint32 Parameters_ParseNetworkMapTerrainSub(const std::string& pValue) {
+	const std::string Terrain = Parameters_ToLower(pValue);
+
+	if (Terrain == "jungle-beach" || Terrain == "jungle_beach" || Terrain == "junsub1" || Terrain == "jungle-sub1" || Terrain == "jungle_sub1" || Terrain == "beach")
+		return 1;
+
+	return 0;
 }
 
 static eNetworkVehicleSet Parameters_ParseNetworkVehicleSet(const std::string& pValue) {
@@ -154,10 +165,12 @@ std::string sFodderParameters::ToJson() {
 	Save["mRandomMapSeed"] = mRandomMapSeed;
 	Save["mRandomMapSize"] = mRandomMapSize;
 	Save["mRandomMapTerrain"] = mRandomMapTerrain;
+	Save["mRandomMapTerrainSub"] = mRandomMapTerrainSub;
 	Save["mRandomMapVehicleSet"] = mRandomMapVehicleSet;
 	Save["mRandomMapPickupDensity"] = mRandomMapPickupDensity;
 	Save["mRandomMapCoverDensity"] = mRandomMapCoverDensity;
 	Save["mRandomMapProfile"] = mRandomMapProfile;
+	Save["mRandomMapProfileName"] = mRandomMapProfileName;
 	Save["mDefaultPlatform"] = mDefaultPlatform;
 	Save["mCampaignName"] = mCampaignName;
 	Save["mMissionNumber"] = mMissionNumber;
@@ -199,6 +212,8 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 		mRandomMapSize = Network_NormalizeMapSize((uint8_t)LoadedData["mRandomMapSize"]);
 	if (LoadedData.count("mRandomMapTerrain") > 0)
 		mRandomMapTerrain = Network_NormalizeMapTerrain((uint8_t)LoadedData["mRandomMapTerrain"]);
+	if (LoadedData.count("mRandomMapTerrainSub") > 0)
+		mRandomMapTerrainSub = LoadedData["mRandomMapTerrainSub"];
 	if (LoadedData.count("mRandomMapVehicleSet") > 0)
 		mRandomMapVehicleSet = Network_NormalizeVehicleSet((uint8_t)LoadedData["mRandomMapVehicleSet"]);
 	if (LoadedData.count("mRandomMapPickupDensity") > 0)
@@ -207,6 +222,8 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 		mRandomMapCoverDensity = Network_NormalizeCoverDensity((uint8_t)LoadedData["mRandomMapCoverDensity"]);
 	if (LoadedData.count("mRandomMapProfile") > 0)
 		mRandomMapProfile = Network_NormalizeMapProfile((uint8_t)LoadedData["mRandomMapProfile"]);
+	if (LoadedData.count("mRandomMapProfileName") > 0)
+		mRandomMapProfileName = LoadedData["mRandomMapProfileName"];
 	mDefaultPlatform = LoadedData["mDefaultPlatform"];
 	mCampaignName = LoadedData["mCampaignName"];
 	mUnitTesting = LoadedData["mUnitTesting"];
@@ -296,6 +313,7 @@ void sFodderParameters::PrepareOptions() {
 		("unit-test-headless", "Run Tests, with no output", cxxopts::value<bool>()->default_value("false"))
 
 		("appveyor", "Output for appveyor", cxxopts::value<bool>()->default_value("false"))
+		("headless", "Run without video or audio output", cxxopts::value<bool>()->default_value("false"))
 		("nosound", "Disable sound output", cxxopts::value<bool>()->default_value("false"))
 		("playground", "Sprite playground", cxxopts::value<bool>()->default_value("false"))
 
@@ -311,11 +329,18 @@ void sFodderParameters::PrepareOptions() {
 		("p,phase", "Starting phase", cxxopts::value<std::uint32_t>()->default_value("0"), "2")
 
 		("single-map", "Play a single map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
+		("map-generate-png", "Render a .map file to PNG and exit", cxxopts::value<std::string>()->default_value(""), "\"Run/random.map\"")
+		("map-png-output", "Output path for --map-generate-png", cxxopts::value<std::string>()->default_value(""), "\"MapDumps/random.png\"")
+		("map-png-add-coords", "Overlay tile coordinates on --map-generate-png output", cxxopts::value<bool>()->default_value("false"))
+		("map-png-add-tileids", "Overlay tile IDs on --map-generate-png output", cxxopts::value<bool>()->default_value("false"))
+		("map-png-scale", "Nearest-neighbor output scale for --map-generate-png, 1-4", cxxopts::value<std::uint32_t>()->default_value("1"), "2")
 		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
 		("random-menu", "Open the create-random-map options screen on startup", cxxopts::value<bool>()->default_value("false"))
 		("random-save", "Generate and save a random map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
 		("random-seed", "Random map seed", cxxopts::value<uint32_t>()->default_value("0"), "123")
-		("random-tileset", "Random map tileset: random, jungle, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"ice\"")
+		("random-tileset", "Random map tileset: random, jungle, jungle-beach, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"ice\"")
+		("random-subtileset", "Random map terrain sub-tileset override (jungle: 0 inland, 1 beach)", cxxopts::value<uint32_t>()->default_value("0"), "1")
+		("random-profile", "Random MapGen profile name", cxxopts::value<std::string>()->default_value(""), "\"grammar_ice\"")
 		("script", "Name of script to execute", cxxopts::value<std::string>()->default_value(""), "\"script.js\"")
 #ifdef OF_JS_DEBUG
 		("debugger", "Wait for debugger in scripts", cxxopts::value<bool>()->default_value("false"))
@@ -403,6 +428,12 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mSinglePhase = true;
 		}
 
+		mMapGeneratePng = result["map-generate-png"].as<std::string>();
+		mMapPngOutput = result["map-png-output"].as<std::string>();
+		mMapPngAddCoords = result["map-png-add-coords"].as<bool>();
+		mMapPngAddTileIds = result["map-png-add-tileids"].as<bool>();
+		mMapPngScale = std::max<uint32>(1, std::min<uint32>(4, result["map-png-scale"].as<std::uint32_t>()));
+
 		mCampaignName = result["campaign"].as<std::string>();
 		mMissionNumber = result["mission"].as<std::uint32_t>();
 		mPhaseNumber = result["phase"].as<std::uint32_t>();
@@ -442,10 +473,25 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			std::string Tileset = result["random-tileset"].as<std::string>();
 			if (!Tileset.empty()) {
 				mRandomMapTerrain = Parameters_ParseNetworkMapTerrain(Tileset);
+				mRandomMapTerrainSub = Parameters_ParseNetworkMapTerrainSub(Tileset);
 				mRandomMapOptionsEnabled = true;
 				mRandomMapProfile = eNetworkMapProfile_Custom;
 			}
 		}
+		if (result.count("random-subtileset") && result["random-subtileset"].as<uint32_t>() != 0) {
+			mRandomMapTerrainSub = result["random-subtileset"].as<uint32_t>();
+			mRandomMapOptionsEnabled = true;
+			mRandomMapProfile = eNetworkMapProfile_Custom;
+		}
+		if (result.count("random-profile")) {
+			mRandomMapProfileName = result["random-profile"].as<std::string>();
+			if (!mRandomMapProfileName.empty()) {
+				mRandomMapOptionsEnabled = true;
+				mRandomMapProfile = eNetworkMapProfile_Custom;
+			}
+		}
+		if (mRandomMapTerrain != eNetworkMapTerrain_Jungle)
+			mRandomMapTerrainSub = 0;
 
 		mDisableSound = result["nosound"].as<bool>();
 		mPlayground = result["playground"].as<bool>();
@@ -500,9 +546,13 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		}
 		if (result.count("net-terrain")) {
 			std::string Terrain = result["net-terrain"].as<std::string>();
-			if (!Terrain.empty())
+			if (!Terrain.empty()) {
 				mNetworkMapTerrain = Parameters_ParseNetworkMapTerrain(Terrain);
+				mNetworkMapTerrainSub = Parameters_ParseNetworkMapTerrainSub(Terrain);
+			}
 		}
+		if (mNetworkMapTerrain != eNetworkMapTerrain_Jungle)
+			mNetworkMapTerrainSub = 0;
 		if (result.count("net-vehicles")) {
 			std::string Vehicles = result["net-vehicles"].as<std::string>();
 			if (!Vehicles.empty())
@@ -577,6 +627,23 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 
 		if (result["unit-test-headless"].as<bool>()) {
 			mUnitTesting = true;
+			mDisableVideo = true;
+			mDisableSound = true;
+
+			g_Window = std::make_shared<cWindowNull>();
+			g_Fodder->mWindow = g_Window;
+		}
+
+		if (result["headless"].as<bool>()) {
+			mDisableVideo = true;
+			mDisableSound = true;
+
+			g_Window = std::make_shared<cWindowNull>();
+			g_Fodder->mWindow = g_Window;
+		}
+
+		if (mMapGeneratePng.size()) {
+			mSkipIntro = true;
 			mDisableVideo = true;
 			mDisableSound = true;
 

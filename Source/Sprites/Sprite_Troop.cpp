@@ -696,7 +696,7 @@ loc_1B35A:;
     Data0 = -3;
     Data4 = 8;
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
-    if (Data4 < eTerrainFeature_QuickSand || Data4 > eTerrainFeature_Water) {
+    if (Data4 < eTerrainFeature_SoftHazard || Data4 > eTerrainFeature_DeepWater) {
         pSprite->mPosX = mStoredSpriteX & 0xFFFF;
         pSprite->mPosY = mStoredSpriteY & 0xFFFF;
         pSprite->mSpeed = 0;
@@ -1174,7 +1174,7 @@ loc_1E831:;
 
     Map_Terrain_Get_Type_And_Walkable(Data0, Data4);
 
-    if (Data4 == eTerrainFeature_Drop || Data4 == eTerrainFeature_Drop2) {
+    if (Data4 == eTerrainFeature_LedgeDrop || Data4 == eTerrainFeature_PitDrop) {
         Data0 = pSprite->field_12;
         pSprite->mTargetY += Data0;
         Data8 = pSprite->mTargetY;
@@ -1190,7 +1190,7 @@ loc_1E831:;
     if (pSprite->field_12 > 5)
         Sprite_Update_Direction_Anim(pSprite);
 
-    if (Data4 == 9)
+    if (Data4 == eTerrainFeature_LedgeDrop)
         return -1;
 
 loc_1E9EC:; // Troop Falling?
@@ -1296,7 +1296,7 @@ loc_1EB87:;
     return -1;
 
 loc_1ECA6:;
-    if (pSprite->mTerrainType <= eTerrainFeature_Water && pSprite->mTerrainType >= eTerrainFeature_QuickSand) {
+    if (pSprite->mTerrainType <= eTerrainFeature_DeepWater && pSprite->mTerrainType >= eTerrainFeature_SoftHazard) {
         pSprite->mAnimState = eSprite_Anim_None;
         return 0;
     }
@@ -1331,7 +1331,7 @@ loc_1ED5B:;
     if (pSprite->mAnimState != eSprite_Anim_Slide2)
         goto loc_1EE3E;
 
-    if (pSprite->mTerrainType > eTerrainFeature_Water || pSprite->mTerrainType < eTerrainFeature_QuickSand) {
+    if (pSprite->mTerrainType > eTerrainFeature_DeepWater || pSprite->mTerrainType < eTerrainFeature_SoftHazard) {
         pSprite->mSpeed -= 5;
         if (pSprite->mSpeed) {
             if (pSprite->mSpeed >= 0)
@@ -1360,7 +1360,7 @@ loc_1EE3E:;
     return -1;
 
 loc_1EE59:;
-    if (pSprite->mTerrainType <= eTerrainFeature_Water && pSprite->mTerrainType >= eTerrainFeature_QuickSand) {
+    if (pSprite->mTerrainType <= eTerrainFeature_DeepWater && pSprite->mTerrainType >= eTerrainFeature_SoftHazard) {
         pSprite->mAnimState = eSprite_Anim_None;
         return 0;
     }
@@ -1515,7 +1515,7 @@ int16 cFodder::Sprite_Handle_Player_MissionOver(sSprite* pSprite) {
 
     Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, Data4);
 
-    if (Data4 == eTerrainFeature_Water) {
+    if (Data4 == eTerrainFeature_DeepWater) {
         Data0 = pSprite->mHeight;
         Data0 -= 8;
 
@@ -1898,7 +1898,7 @@ loc_1F7FF:;
         }
     }
 
-    if (pSprite->mTerrainType == eTerrainFeature_Water)
+    if (pSprite->mTerrainType == eTerrainFeature_DeepWater)
         goto loc_1F9C0;
 
     //seg005:02A6

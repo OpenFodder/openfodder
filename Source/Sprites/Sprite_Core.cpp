@@ -1511,15 +1511,15 @@ void cFodder::Sprite_Draw_Row_Update(sSprite* pSprite) {
     Sprite_Terrain_Check(pSprite, Data4);
 
     // Not leaving water?
-    if (PreviousTileType != eTerrainFeature_Water)
+    if (PreviousTileType != eTerrainFeature_DeepWater)
         goto loc_1F75D;
 
     // Leaving water and into Quick sand?
-    if (pSprite->mTerrainType == eTerrainFeature_QuickSand)
+    if (pSprite->mTerrainType == eTerrainFeature_SoftHazard)
         goto loc_1F753;
 
     // Leaving water for the edge/bank
-    if (pSprite->mTerrainType != eTerrainFeature_WaterEdge)
+    if (pSprite->mTerrainType != eTerrainFeature_ShallowWater)
         goto loc_1F75D;
 
     pSprite->mRowsToSkip = 5;
@@ -1544,7 +1544,7 @@ void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
     pSprite->field_50 = 0;
     pSprite->mInWater = 0;
 
-    if (pData4 == eTerrainFeature_Drop2) {
+    if (pData4 == eTerrainFeature_PitDrop) {
         if (pSprite->mSpriteType == eSprite_Enemy)
             goto loc_20251;
 
@@ -1558,7 +1558,7 @@ void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
     }
 
     //loc_20044
-    if (pData4 == eTerrainFeature_Drop) {
+    if (pData4 == eTerrainFeature_LedgeDrop) {
 
         if (pSprite->mSpriteType == eSprite_Enemy)
             goto loc_20251;
@@ -1572,13 +1572,13 @@ void cFodder::Sprite_Terrain_Check(sSprite* pSprite, int16& pData4) {
 
     //loc_20072
     pSprite->mDelayCounter = 0;
-    if (pData4 == eTerrainFeature_QuickSandEdge)
+    if (pData4 == eTerrainFeature_SlipperyGround)
         goto loc_201CC;
 
-    if (pData4 == eTerrainFeature_Rocky)
+    if (pData4 == eTerrainFeature_RoughGround)
         goto loc_20108;
 
-    if (pData4 == eTerrainFeature_Rocky2)
+    if (pData4 == eTerrainFeature_RaisedRoughGround)
         goto loc_2014D;
 
     if (!pSprite->mRockyHeightActive)
@@ -1595,13 +1595,13 @@ loc_200B7:;
     pSprite->mRockyHeightActive = 0;
 
 loc_200C0:;
-    if (pData4 == eTerrainFeature_QuickSand)
+    if (pData4 == eTerrainFeature_SoftHazard)
         goto Soldier_InQuickSand;
 
-    if (pData4 == eTerrainFeature_WaterEdge)
+    if (pData4 == eTerrainFeature_ShallowWater)
         goto Soldier_WaterEdge;
 
-    if (pData4 != eTerrainFeature_Water)
+    if (pData4 != eTerrainFeature_DeepWater)
         goto checkSinking;
 
     // Is a Native?
@@ -1651,7 +1651,7 @@ Soldier_WaterEdge:;
     return;
 
 checkSinking:;
-    if (pData4 == eTerrainFeature_Sink)
+    if (pData4 == eTerrainFeature_SinkingGround)
         goto HumanSinking;
 
     pSprite->mRowsToSkip = 0;
@@ -1682,7 +1682,7 @@ HumanSinking:;
     return;
 
 CheckFalling:;
-    if (pData4 == eTerrainFeature_Drop || pData4 == eTerrainFeature_Drop2) {
+    if (pData4 == eTerrainFeature_LedgeDrop || pData4 == eTerrainFeature_PitDrop) {
         pSprite->mAnimState = eSprite_Anim_Hit2;
         return;
     }
@@ -1700,13 +1700,13 @@ loc_20251:;
     if (Map_Terrain_Get_Type_And_Walkable(pSprite, Data0, pData4))
         goto loc_202E5;
 
-    if (pData4 == eTerrainFeature_Drop)
+    if (pData4 == eTerrainFeature_LedgeDrop)
         goto loc_202E5;
 
-    if (pData4 == eTerrainFeature_Drop2)
+    if (pData4 == eTerrainFeature_PitDrop)
         goto loc_202E5;
 
-    if (pSprite->mPersonType == eSprite_PersonType_Native && pData4 == eTerrainFeature_Water)
+    if (pSprite->mPersonType == eSprite_PersonType_Native && pData4 == eTerrainFeature_DeepWater)
         goto loc_202E5;
 
     Data0 = pSprite->mDirection;
@@ -1867,7 +1867,7 @@ int16 cFodder::Sprite_Reached_Target(sSprite* pSprite) {
 void cFodder::Sprite_Movement_Speed_Update(sSprite* pSprite) {
     int16 Data0 = pSprite->mDirection;
 
-    if (pSprite->mTerrainType != eTerrainFeature_D)
+    if (pSprite->mTerrainType != eTerrainFeature_DirectionalSlope)
         goto loc_20FBB;
 
     //seg005:1843
@@ -1912,10 +1912,10 @@ loc_20F9B:;
     return;
 
 loc_20FBB:;
-    if (pSprite->mTerrainType == eTerrainFeature_Rocky)
+    if (pSprite->mTerrainType == eTerrainFeature_RoughGround)
         goto loc_20FD1;
 
-    if (pSprite->mTerrainType != eTerrainFeature_Rocky2)
+    if (pSprite->mTerrainType != eTerrainFeature_RaisedRoughGround)
         goto loc_20FE3;
 
 loc_20FD1:;
@@ -1925,7 +1925,7 @@ loc_20FD9:;
     pSprite->mSpeed >>= 1;
     return;
 loc_20FE3:;
-    if (pSprite->mTerrainType != eTerrainFeature_Snow)
+    if (pSprite->mTerrainType != eTerrainFeature_SlowGround)
         return;
 
     Data0 = pSprite->mPosX;
@@ -2113,16 +2113,16 @@ loc_2132A:;
     if (pSprite->mHeight)
         return;
 
-    if (Data4 == eTerrainFeature_WaterEdge)
+    if (Data4 == eTerrainFeature_ShallowWater)
         goto loc_21464;
 
-    if (Data4 == eTerrainFeature_Water)
+    if (Data4 == eTerrainFeature_DeepWater)
         goto loc_21464;
 
-    if (Data4 == eTerrainFeature_Drop)
+    if (Data4 == eTerrainFeature_LedgeDrop)
         goto loc_21464;
 
-    if (Data4 == eTerrainFeature_Drop2)
+    if (Data4 == eTerrainFeature_PitDrop)
         goto loc_21464;
 
     return;

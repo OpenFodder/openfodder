@@ -74,6 +74,7 @@ protected:
 	bool networkFriendlyFire() const;
 	int networkMapSize() const;
 	int networkMapTerrain() const;
+	int networkMapTerrainSub() const;
 	int networkVehicleSet() const;
 	int networkPickupDensity() const;
 	int networkCoverDensity() const;
@@ -81,10 +82,12 @@ protected:
 	uint32_t randomMapSeed() const;
 	int randomMapSize() const;
 	int randomMapTerrain() const;
+	int randomMapTerrainSub() const;
 	int randomMapVehicleSet() const;
 	int randomMapPickupDensity() const;
 	int randomMapCoverDensity() const;
 	int randomMapProfile() const;
+	std::string randomMapProfileName() const;
 
 public:
 

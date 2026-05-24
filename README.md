@@ -86,6 +86,7 @@ Open Fodder supports six demos from the Amiga platform, and three retail release
       --unit-test               Run Tests
       --unit-test-headless      Run Tests, with no output
 
+      --headless                Run without video or audio output
       --nosound                 Disable sound output
       --playground              Sprite playground
 	  

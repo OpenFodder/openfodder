@@ -25,6 +25,52 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "Utils/stb_image.h"
 
+static void SurfacePng_WriteBE32(std::vector<uint8>& pOut, uint32 pValue) {
+	pOut.push_back((uint8)((pValue >> 24) & 0xFF));
+	pOut.push_back((uint8)((pValue >> 16) & 0xFF));
+	pOut.push_back((uint8)((pValue >> 8) & 0xFF));
+	pOut.push_back((uint8)(pValue & 0xFF));
+}
+
+static uint32 SurfacePng_Crc32(const uint8* pData, size_t pSize) {
+	uint32 crc = 0xFFFFFFFF;
+
+	for (size_t i = 0; i < pSize; ++i) {
+		crc ^= pData[i];
+		for (int bit = 0; bit < 8; ++bit)
+			crc = (crc & 1) ? (0xEDB88320 ^ (crc >> 1)) : (crc >> 1);
+	}
+
+	return ~crc;
+}
+
+static uint32 SurfacePng_Adler32(const uint8* pData, size_t pSize) {
+	uint32 a = 1;
+	uint32 b = 0;
+
+	for (size_t i = 0; i < pSize; ++i) {
+		a = (a + pData[i]) % 65521;
+		b = (b + a) % 65521;
+	}
+
+	return (b << 16) | a;
+}
+
+static void SurfacePng_AppendChunk(std::vector<uint8>& pOut, const char* pType, const std::vector<uint8>& pData) {
+	SurfacePng_WriteBE32(pOut, (uint32)pData.size());
+
+	const size_t crcStart = pOut.size();
+	pOut.push_back((uint8)pType[0]);
+	pOut.push_back((uint8)pType[1]);
+	pOut.push_back((uint8)pType[2]);
+	pOut.push_back((uint8)pType[3]);
+
+	pOut.insert(pOut.end(), pData.begin(), pData.end());
+
+	const uint32 crc = SurfacePng_Crc32(pOut.data() + crcStart, pOut.size() - crcStart);
+	SurfacePng_WriteBE32(pOut, crc);
+}
+
 cSurface::cSurface( size_t pWidth, size_t pHeight ) {
     mIsLoadedImage = false;
 	mWidth = pWidth; 
@@ -373,6 +419,105 @@ bool cSurface::LoadPng(const std::string& pFile) {
     }
 
     return mSDLSurface != nullptr;
+}
+
+bool cSurface::SavePng(const std::string& pFile) const {
+	if (!mSDLSurface)
+		return false;
+
+	SDL_Surface* Surface = mSDLSurface;
+	SDL_Surface* Converted = 0;
+
+	if (Surface->format != SDL_PIXELFORMAT_XRGB8888) {
+		Converted = SDL_ConvertSurface(Surface, SDL_PIXELFORMAT_XRGB8888);
+		if (!Converted)
+			return false;
+
+		Surface = Converted;
+	}
+
+	if (!SDL_LockSurface(Surface)) {
+		if (Converted)
+			SDL_DestroySurface(Converted);
+		return false;
+	}
+
+	const int SurfaceWidth = Surface->w;
+	const int SurfaceHeight = Surface->h;
+	std::vector<uint8> Raw;
+	Raw.reserve(((size_t)SurfaceWidth * 3 + 1) * (size_t)SurfaceHeight);
+
+	const SDL_PixelFormatDetails* Format = SDL_GetPixelFormatDetails(Surface->format);
+	for (int y = 0; y < SurfaceHeight; ++y) {
+		Raw.push_back(0); // PNG filter type: none.
+
+		const uint32* Row = (const uint32*)((const uint8*)Surface->pixels + (y * Surface->pitch));
+		for (int x = 0; x < SurfaceWidth; ++x) {
+			uint8 r = 0;
+			uint8 g = 0;
+			uint8 b = 0;
+
+			SDL_GetRGB(Row[x], Format, 0, &r, &g, &b);
+			Raw.push_back(r);
+			Raw.push_back(g);
+			Raw.push_back(b);
+		}
+	}
+
+	SDL_UnlockSurface(Surface);
+
+	if (Converted)
+		SDL_DestroySurface(Converted);
+
+	std::vector<uint8> Png;
+	const uint8 Signature[] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+	Png.insert(Png.end(), Signature, Signature + sizeof(Signature));
+
+	std::vector<uint8> Ihdr;
+	SurfacePng_WriteBE32(Ihdr, (uint32)SurfaceWidth);
+	SurfacePng_WriteBE32(Ihdr, (uint32)SurfaceHeight);
+	Ihdr.push_back(8); // bit depth
+	Ihdr.push_back(2); // RGB
+	Ihdr.push_back(0); // compression
+	Ihdr.push_back(0); // filter
+	Ihdr.push_back(0); // interlace
+	SurfacePng_AppendChunk(Png, "IHDR", Ihdr);
+
+	std::vector<uint8> Idat;
+	Idat.reserve(Raw.size() + (Raw.size() / 65535 + 1) * 5 + 6);
+	Idat.push_back(0x78);
+	Idat.push_back(0x01);
+
+	size_t Offset = 0;
+	while (Offset < Raw.size()) {
+		const size_t Remaining = Raw.size() - Offset;
+		const uint16 BlockSize = (uint16)std::min<size_t>(Remaining, 65535);
+		const bool FinalBlock = Remaining == BlockSize;
+		const uint16 NLen = (uint16)~BlockSize;
+
+		Idat.push_back(FinalBlock ? 1 : 0);
+		Idat.push_back((uint8)(BlockSize & 0xFF));
+		Idat.push_back((uint8)((BlockSize >> 8) & 0xFF));
+		Idat.push_back((uint8)(NLen & 0xFF));
+		Idat.push_back((uint8)((NLen >> 8) & 0xFF));
+		Idat.insert(Idat.end(), Raw.begin() + Offset, Raw.begin() + Offset + BlockSize);
+
+		Offset += BlockSize;
+	}
+
+	SurfacePng_WriteBE32(Idat, SurfacePng_Adler32(Raw.data(), Raw.size()));
+	SurfacePng_AppendChunk(Png, "IDAT", Idat);
+
+	std::vector<uint8> Iend;
+	SurfacePng_AppendChunk(Png, "IEND", Iend);
+
+	std::ofstream OutFile(pFile, std::ofstream::binary);
+	if (!OutFile.is_open())
+		return false;
+
+	OutFile.write((const char*)Png.data(), Png.size());
+	OutFile.close();
+	return OutFile.good();
 }
 
 void cSurface::Save() {

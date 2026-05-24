@@ -740,6 +740,7 @@ public:
     // Map Functions
     void            Map_Create(sMapParams pParams);
     void            Map_Load();
+    bool            Map_RenderPng(const std::string& pMapPath, const std::string& pOutputPath, bool pAddCoords, bool pAddTileIds, size_t pScale);
     void            Map_Load_Sprites();
     void			Map_Count_Sprites();
     void            Map_Load_Resources();
