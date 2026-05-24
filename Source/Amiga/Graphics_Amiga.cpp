@@ -607,7 +607,7 @@ sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 
 		case 'CMAP': {
 			size_t Colors = Size / 3;
-			size_t ColorsToRead = std::min(Colors, std::size(Result.mPalette));
+			size_t ColorsToRead = std::min<size_t>(Colors,sizeof(Result.mPalette) / sizeof(Result.mPalette[0]));
 
 			for (size_t i = 0; i < ColorsToRead && FileSize >= 3; ++i) {
 				int16 d0 = (int16)*DataPtr++;
