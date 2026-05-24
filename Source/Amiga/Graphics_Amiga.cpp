@@ -506,31 +506,58 @@ void cGraphics_Amiga::PaletteSet(cSurface* pTarget) {
 sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 	sImage			Result;
 	auto			File = g_Resource->fileGet(pFilename);
-	auto			DataPtr = File->data();
+	if (!File || File->empty())
+		return Result;
 
-	if (!DataPtr || readBEDWord(DataPtr) != 'FORM')
+	const uint8*	DataBegin = File->data();
+	const uint8*	DataPtr = DataBegin;
+	const uint8*	DataEnd = DataBegin + File->size();
+
+	auto ReadAvailable = [&](size_t pSize) {
+		return (DataEnd >= DataPtr) && (static_cast<size_t>(DataEnd - DataPtr) >= pSize);
+	};
+
+	auto SkipBytes = [&](size_t pSize) {
+		if (!ReadAvailable(pSize))
+			return false;
+		DataPtr += pSize;
+		return true;
+	};
+
+	if (!ReadAvailable(12) || readBEDWord(DataPtr) != 'FORM')
 		return Result;
 	DataPtr += 4;
-	size_t FileSize = readBEDWord(DataPtr);
+	uint32 FormSize = readBEDWord(DataPtr);
 	DataPtr += 4;
 
 	if (readBEDWord(DataPtr) != 'ILBM')
 		return Result;
 
 	DataPtr += 4;
-	FileSize -= 4;
+	size_t FileSize = std::min<size_t>(FormSize >= 4 ? FormSize - 4 : 0, static_cast<size_t>(DataEnd - DataPtr));
 
 	uint32 Header = 0;
 	uint32 Size = 0;
+	bool GotHeader = false;
 
 	while (FileSize > 8) {
+		if (!ReadAvailable(8))
+			return Result;
+
 		Header = readBEDWord(DataPtr);
 		DataPtr += 4; FileSize -= 4;
 		Size = readBEDWord(DataPtr);
 		DataPtr += 4; FileSize -= 4;
+		size_t ChunkSize = static_cast<size_t>(Size);
+		size_t ChunkPaddedSize = ChunkSize + (ChunkSize & 1);
+		if (ChunkPaddedSize > FileSize || !ReadAvailable(ChunkPaddedSize))
+			return Result;
 
 		switch (Header) {
 		case 'BMHD':
+			if (ChunkSize < 20)
+				return Result;
+
 			Result.mDimension.mWidth = readBEWord(DataPtr); DataPtr += 2;
 			Result.mDimension.mHeight = readBEWord(DataPtr); DataPtr += 2;
 			DataPtr += 2; DataPtr += 2;	// X, Y
@@ -539,77 +566,85 @@ sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 			DataPtr++;	// Compression
 			DataPtr += 2; ++DataPtr; ++DataPtr; ++DataPtr;
 			DataPtr += 2; DataPtr += 2;
-			FileSize -= Size;
+			if (ChunkSize > 20)
+				DataPtr += ChunkSize - 20;
+			if (ChunkSize & 1)
+				++DataPtr;
+			FileSize -= ChunkPaddedSize;
+			GotHeader = true;
 			break;
 
 		case 'BODY': {
-			// + 2 is because the amiga does writing after the end of the image
-			Result.mData->resize(Result.mDimension.WidthByHeight() * (Result.mPlanes + 2));
+			if (!GotHeader || Result.mDimension.mWidth == 0 || Result.mDimension.mHeight == 0 || Result.mPlanes == 0)
+				return Result;
 
-			int16 Width = Result.mDimension.mWidth + 0x0F;
-			Width >>= 4;
-			Width <<= 1;
+			const size_t Width = ((static_cast<size_t>(Result.mDimension.mWidth) + 0x0F) >> 4) << 1;
+			const size_t Height = static_cast<size_t>(Result.mDimension.mHeight);
+			const size_t Planes = static_cast<size_t>(Result.mPlanes);
+			if (Planes > 8 || Width == 0 || Height == 0)
+				return Result;
+			if (Width > (SIZE_MAX / Height))
+				return Result;
+			size_t PlaneSize = Width * Height;
+			if (Planes > (SIZE_MAX / PlaneSize))
+				return Result;
+			size_t DataSize = PlaneSize * Planes;
+			Result.mData->assign(DataSize, 0);
 
-			int16 Height = Result.mDimension.mHeight - 1;
+			for (size_t Y = 0; Y < Height; ++Y) {
+				for (size_t Plane = 0; Plane < Planes; ++Plane) {
+					uint8* DataDest = Result.mData->data() + (Plane * PlaneSize) + (Y * Width);
+					size_t X = Width;
 
-			uint8* pDataDest = Result.mData->data();
+					while (X > 0) {
+						if (ChunkSize == 0 || !ReadAvailable(1))
+							return Result;
 
-			for (int16 Y = Height; Y >= 0; --Y) {
-				uint8* DataDest = pDataDest;
-
-				for (int8 Plane = 0; Plane < Result.mPlanes; ++Plane) {
-
-					for (int16 X = Width; X > 0;) {
-						--FileSize;
-						int8 d0 = *DataPtr++;
+						int8 d0 = static_cast<int8>(*DataPtr++);
+						--ChunkSize;
 
 						if (d0 < 0) {
 							if (d0 == -128)
 								continue;
 
-							int8 d1 = -d0;
+							size_t Count = static_cast<size_t>(-d0) + 1;
+							if (Count > X || ChunkSize == 0 || !ReadAvailable(1))
+								return Result;
 
-							--FileSize;
-							d0 = *DataPtr++;
-
-							do {
-								*DataDest++ = d0;
-								--X;
-							} while (d1-- > 0);
-
-							continue;
-
+							uint8 Fill = *DataPtr++;
+							--ChunkSize;
+							memset(DataDest, Fill, Count);
+							DataDest += Count;
+							X -= Count;
 						}
 						else {
-
-							do {
-								*DataDest++ = *DataPtr++;
-								--X;
-								--FileSize;
-							} while (d0-- > 0);
-
+							size_t Count = static_cast<size_t>(d0) + 1;
+							if (Count > X || ChunkSize < Count || !ReadAvailable(Count))
+								return Result;
+							memcpy(DataDest, DataPtr, Count);
+							DataDest += Count;
+							DataPtr += Count;
+							ChunkSize -= Count;
+							X -= Count;
 						}
 					}
-
-					// Move the destination back to start of row
-					DataDest -= Width;
-
-					// Move it to the next plane
-					DataDest += (Width * Result.mDimension.mHeight);
 				}
-
-				// Next Row
-				pDataDest += Width;
 			}
+
+			if (!SkipBytes(ChunkSize))
+				return Result;
+			if (Size & 1)
+				++DataPtr;
+			FileSize -= ChunkPaddedSize;
 
 			break;
 		}
 
 		case 'CMAP': {
 			size_t Colors = Size / 3;
-			size_t ColorsToRead = std::min<size_t>(Colors,sizeof(Result.mPalette) / sizeof(Result.mPalette[0]));
+			size_t ColorsToRead = std::min<size_t>(Colors, sizeof(Result.mPalette) / sizeof(Result.mPalette[0]));
 
-			for (size_t i = 0; i < ColorsToRead && FileSize >= 3; ++i) {
+			for (size_t i = 0; i < ColorsToRead; ++i) {
 				int16 d0 = (int16)*DataPtr++;
 				int16 Final = 0;
 
@@ -634,23 +669,20 @@ sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 					Result.mPalette[i].mGreen = ((Final >> 4) & 0xF) << 2;
 					Result.mPalette[i].mBlue = ((Final >> 0) & 0xF) << 2;
 				}
-
-				FileSize -= 3;
 			}
 
-			size_t BytesRead = ColorsToRead * 3;
-			size_t BytesRemaining = Size > BytesRead ? Size - BytesRead : 0;
-			DataPtr += BytesRemaining;
-			FileSize -= std::min(FileSize, BytesRemaining);
+			if (!SkipBytes(ChunkSize - ((ChunkSize / 3) * 3)))
+				return Result;
+			if (Size & 1)
+				++DataPtr;
+			FileSize -= ChunkPaddedSize;
 			break;
-			}
+		}
 
 		default:
-			if (Size & 1)
-				++Size;
-
-			DataPtr += Size;
-			FileSize -= Size;
+			if (!SkipBytes(ChunkPaddedSize))
+				return Result;
+			FileSize -= ChunkPaddedSize;
 			break;
 		}
 	}
