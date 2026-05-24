@@ -203,7 +203,8 @@ void cGraphics_PC::Load_Hill_Data() {
 
 	// Parts of this surface have the recruits from mImageRecruit copied onto it
 	mImageHillSprites = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
-	for (uint32 x = 0; x < 0xA000; ++x) {
+	const uint32 ClearCount = std::min<uint32>(0xA000, mImageHillSprites.mData->size());
+	for (uint32 x = 0; x < ClearCount; ++x) {
 		mImageHillSprites.mData->data()[x] = 0;
 	}
 }
