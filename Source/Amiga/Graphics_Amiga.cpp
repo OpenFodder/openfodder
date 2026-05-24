@@ -391,8 +391,11 @@ void cGraphics_Amiga::Load_And_Draw_Image(const std::string& pFilename, unsigned
 		Decoded.mDimension.mHeight = 0x101;
 	}
 
-	// Load the palette
-	Decoded.CopyPalette(mPalette, (1LL << Decoded.mPlanes));
+	// Load the palette (clamped to avoid overflow/UB from file-controlled plane counts)
+	const size_t PaletteCapacity = sizeof(mPalette) / sizeof(mPalette[0]);
+	const size_t PlaneCount = static_cast<size_t>(Decoded.mPlanes);
+	const size_t RequestedColors = (PlaneCount < (sizeof(size_t) * 8)) ? (1ULL << PlaneCount) : PaletteCapacity;
+	Decoded.CopyPalette(mPalette, std::min(RequestedColors, PaletteCapacity));
 
 	mBMHD_Current = Decoded.GetHeader();
 
