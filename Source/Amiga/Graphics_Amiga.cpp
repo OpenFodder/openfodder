@@ -215,6 +215,9 @@ bool cGraphics_Amiga::Sprite_OnScreen_Check(bool p16bit) {
 		}
 
 		mFodder->mVideo_Draw_FrameDataPtr += ax;
+
+		if (mFodder->mVideo_Draw_PosX < 0)
+			return false;
 	}
 
 	ax = mFodder->mVideo_Draw_PosX + drawColumns;
