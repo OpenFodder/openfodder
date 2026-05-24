@@ -292,6 +292,13 @@ void cGraphics_Amiga::Load_Hill_Data() {
 	mImageHillSprites = Decode_Image("hills", 64);
 	mImageHillSprites.mData->resize(mImageHillBackground.GetHeader()->ScreenSize() * (mImageHillBackground.GetHeader()->mPlanes + 30));
 
+	// Legacy code below writes to fixed offsets in the hill sprite buffer.
+	// Ensure the decoded image is large enough before using those offsets.
+	constexpr size_t kHillSpriteMinSize = 0x42A0E;
+	if (mImageHillSprites.mData->size() < kHillSpriteMinSize) {
+		return;
+	}
+
 	// A5A7E
 	uint8* a0 = mImageHillSprites.mData->data() + (29 * 40);
 	uint8* a1 = mImageHillSprites.mData->data() + 0x390EE + 0x3E8;
