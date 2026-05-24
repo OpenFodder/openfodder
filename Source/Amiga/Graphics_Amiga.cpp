@@ -628,7 +628,8 @@ sImage cGraphics_Amiga::DecodeIFF(const std::string& pFilename) {
 				d0 = (int16)d0;
 				Final += d0;
 
-				if (i < std::size(Result.mPalette)) {
+				const size_t PaletteCapacity = sizeof(Result.mPalette) / sizeof(Result.mPalette[0]);
+				if (i < PaletteCapacity) {
 					Result.mPalette[i].mRed = ((Final >> 8) & 0xF) << 2;
 					Result.mPalette[i].mGreen = ((Final >> 4) & 0xF) << 2;
 					Result.mPalette[i].mBlue = ((Final >> 0) & 0xF) << 2;
