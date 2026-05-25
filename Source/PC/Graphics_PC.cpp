@@ -203,7 +203,8 @@ void cGraphics_PC::Load_Hill_Data() {
 
 	// Parts of this surface have the recruits from mImageRecruit copied onto it
 	mImageHillSprites = Decode_Image("hill.dat", 0x50, 0xFA00, 0x00);
-	for (uint32 x = 0; x < 0xA000; ++x) {
+	const uint32 ClearCount = std::min<uint32>(0xA000, mImageHillSprites.mData->size());
+	for (uint32 x = 0; x < ClearCount; ++x) {
 		mImageHillSprites.mData->data()[x] = 0;
 	}
 }
@@ -694,6 +695,14 @@ bool cGraphics_PC::Sprite_OnScreen_Check() {
 		mFodder->mVideo_Draw_Columns -= ax;
 		ax >>= 1;
 		mFodder->mVideo_Draw_FrameDataPtr += ax;
+
+		// Ensure the destination X never remains negative after clipping.
+		// A remaining -1 here would underflow the destination pointer in Video_Draw_8.
+		if (mFodder->mVideo_Draw_PosX < 0)
+		{
+			++mFodder->mVideo_Draw_PosX;
+			--mFodder->mVideo_Draw_Columns;
+		}
 	}
 
 	ax = mFodder->mVideo_Draw_PosX + mFodder->mVideo_Draw_Columns;

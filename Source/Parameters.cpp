@@ -236,8 +236,10 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 		else
 			mSpritesMax = 45; // The original engine limit
 
-		if (mSpritesMax < 16)
-			mSpritesMax = 16;
+		if (mSpritesMax < MIN_SPRITES_MAX)
+			mSpritesMax = MIN_SPRITES_MAX;
+		if (mSpritesMax > MAX_SPRITES_MAX)
+			mSpritesMax = MAX_SPRITES_MAX;
 	}
 
 	// Max Spawned
@@ -572,7 +574,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		// In network mode skip the intro (not relevant for co-op).
 		// Between-phase screens (recruit, briefing, service) are handled
 		// by Network_Recruit_Show / Network_Briefing_Show and network-aware
-		// service loops â€” see Fodder_Network.cpp.
+		// service loops — see Fodder_Network.cpp.
 		if (mNetworkEnabled) {
 			mSkipIntro    = true;
 			if (mMissionNumber < 1)
@@ -611,8 +613,10 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		if (result.count("max-spawn"))
 			mSpawnEnemyMax = result["max-spawn"].as<uint32_t>();
 
-		if (mSpritesMax < 16)
-			mSpritesMax = 16;
+		if (mSpritesMax < MIN_SPRITES_MAX)
+			mSpritesMax = MIN_SPRITES_MAX;
+		if (mSpritesMax > MAX_SPRITES_MAX)
+			mSpritesMax = MAX_SPRITES_MAX;
 
 		// Cheats perm enabled in debug build
 #ifdef _DEBUG
@@ -826,6 +830,11 @@ bool sFodderParameters::ProcessINI() {
 			auto maxspawn = ini.get("maxspawn", 0);
 			if (maxspawn)
 				mSpawnEnemyMax = maxspawn;
+
+			if (mSpritesMax < MIN_SPRITES_MAX)
+				mSpritesMax = MIN_SPRITES_MAX;
+			if (mSpritesMax > MAX_SPRITES_MAX)
+				mSpritesMax = MAX_SPRITES_MAX;
 		}
 	}
 

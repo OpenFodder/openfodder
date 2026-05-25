@@ -77,6 +77,10 @@ public:
 	void LoadPalette(size_t pFrom, const size_t pCount, const size_t pStartColorID = 0) {
 
 		auto Buffer = mData->data();
+		const size_t BufferSize = mData->size();
+		const size_t PaletteBytes = pCount * 3;
+		if (pFrom >= BufferSize || (BufferSize - pFrom) < PaletteBytes)
+			return;
 
 		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + pCount; ColorID++) {
 
@@ -94,7 +98,13 @@ public:
 
 		uint16 color;
 
-		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + pCount; ColorID++) {
+		if (pStartColorID >= 256)
+			return;
+
+		const size_t MaxColors = 256 - pStartColorID;
+		const size_t PaletteCount = std::min(pCount, MaxColors);
+
+		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + PaletteCount; ColorID++) {
 
 			// Get the next color codes
 			color = readBEWord(pFrom);
