@@ -3865,6 +3865,7 @@ bool cFodder::RandomMapOptions_RunCampaign()
         : ((uint32)SDL_GetTicks() ^ (uint32)mRandom.getu());
     Options.mMapSize = mStartParams->mRandomMapSize;
     Options.mMapTerrain = mStartParams->mRandomMapTerrain;
+    Options.mMapTerrainSub = mStartParams->mRandomMapTerrainSub;
     Options.mVehicleSet = mStartParams->mRandomMapVehicleSet;
     Options.mPickupDensity = mStartParams->mRandomMapPickupDensity;
     Options.mCoverDensity = mStartParams->mRandomMapCoverDensity;
@@ -3877,19 +3878,23 @@ bool cFodder::RandomMapOptions_RunCampaign()
     mStartParams->mRandomMapSeed = Options.mSeed;
     mStartParams->mRandomMapSize = Options.mMapSize;
     mStartParams->mRandomMapTerrain = Options.mMapTerrain;
+    mStartParams->mRandomMapTerrainSub = Options.mMapTerrainSub;
     mStartParams->mRandomMapVehicleSet = Options.mVehicleSet;
     mStartParams->mRandomMapPickupDensity = Options.mPickupDensity;
     mStartParams->mRandomMapCoverDensity = Options.mCoverDensity;
     mStartParams->mRandomMapProfile = Options.mProfile;
+    mStartParams->mRandomMapProfileName = "";
 
     mParams->mRandomMapOptionsEnabled = true;
     mParams->mRandomMapSeed = Options.mSeed;
     mParams->mRandomMapSize = Options.mMapSize;
     mParams->mRandomMapTerrain = Options.mMapTerrain;
+    mParams->mRandomMapTerrainSub = Options.mMapTerrainSub;
     mParams->mRandomMapVehicleSet = Options.mVehicleSet;
     mParams->mRandomMapPickupDensity = Options.mPickupDensity;
     mParams->mRandomMapCoverDensity = Options.mCoverDensity;
     mParams->mRandomMapProfile = Options.mProfile;
+    mParams->mRandomMapProfileName = "";
 
     // Random maps lift the original 45-sprite cap so generated content (decor,
     // structures, pickups, vehicles) isn't truncated. Mirrors the --random CLI path.

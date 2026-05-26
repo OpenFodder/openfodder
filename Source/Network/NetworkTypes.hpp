@@ -169,12 +169,9 @@ inline eNetworkCoverDensity Network_NormalizeCoverDensity(uint8_t pDensity) {
 }
 
 enum eNetworkMapProfile : uint8_t {
-    eNetworkMapProfile_ClassicJungle = 0,
-    eNetworkMapProfile_DenseJungleTrails,
-    eNetworkMapProfile_JungleVillage,
-    eNetworkMapProfile_JungleBase,
-    eNetworkMapProfile_IslandAssault,
-    eNetworkMapProfile_PvPBalancedJungle,
+    eNetworkMapProfile_Jungle = 0,
+    eNetworkMapProfile_Beach,
+    eNetworkMapProfile_Ice,
     eNetworkMapProfile_Random,
     eNetworkMapProfile_Custom,
     eNetworkMapProfile_Count,
@@ -182,21 +179,18 @@ enum eNetworkMapProfile : uint8_t {
 
 inline const char* Network_MapProfileName(eNetworkMapProfile pProfile) {
     switch (pProfile) {
-    case eNetworkMapProfile_ClassicJungle:     return "CLASSIC JUNGLE";
-    case eNetworkMapProfile_DenseJungleTrails: return "DENSE TRAILS";
-    case eNetworkMapProfile_JungleVillage:     return "JUNGLE VILLAGE";
-    case eNetworkMapProfile_JungleBase:        return "JUNGLE BASE";
-    case eNetworkMapProfile_IslandAssault:     return "RIVER ASSAULT";
-    case eNetworkMapProfile_PvPBalancedJungle: return "PVP BALANCED";
-    case eNetworkMapProfile_Random:            return "RANDOM";
-    case eNetworkMapProfile_Custom:            return "CUSTOM";
-    default:                                   return "CUSTOM";
+    case eNetworkMapProfile_Jungle: return "JUNGLE";
+    case eNetworkMapProfile_Beach:  return "BEACH";
+    case eNetworkMapProfile_Ice:    return "ICE";
+    case eNetworkMapProfile_Random: return "RANDOM";
+    case eNetworkMapProfile_Custom: return "CUSTOM";
+    default:                        return "CUSTOM";
     }
 }
 
 inline eNetworkMapProfile Network_NormalizeMapProfile(uint8_t pProfile) {
     if (pProfile >= eNetworkMapProfile_Count)
-        return eNetworkMapProfile_ClassicJungle;
+        return eNetworkMapProfile_Jungle;
 
     return static_cast<eNetworkMapProfile>(pProfile);
 }
@@ -206,7 +200,7 @@ static const eNetworkMapTerrain NETWORK_MAP_TERRAIN_DEFAULT = eNetworkMapTerrain
 static const eNetworkVehicleSet NETWORK_VEHICLE_SET_DEFAULT = eNetworkVehicleSet_None;
 static const eNetworkPickupDensity NETWORK_PICKUP_DENSITY_DEFAULT = eNetworkPickupDensity_Normal;
 static const eNetworkCoverDensity NETWORK_COVER_DENSITY_DEFAULT = eNetworkCoverDensity_Normal;
-static const eNetworkMapProfile NETWORK_MAP_PROFILE_DEFAULT = eNetworkMapProfile_ClassicJungle;
+static const eNetworkMapProfile NETWORK_MAP_PROFILE_DEFAULT = eNetworkMapProfile_Jungle;
 
 enum eNetworkObjectiveState : uint8_t {
     eNetworkObjectiveState_None = 0,

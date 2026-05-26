@@ -45,28 +45,30 @@ cMapData::cMapData() {
 }
 
 int32 cMapData::Tile_Get(const size_t pTileX, const size_t pTileY) {
-	if (pTileX > mParams.mWidth || pTileY > mParams.mHeight)
+	if (pTileX >= mParams.mWidth || pTileY >= mParams.mHeight)
 		return -1;
 
 	size_t Tile = (((pTileY * mParams.mWidth) + pTileX)) + mParams.mWidth;
 
-	uint8* CurrentMapPtr = mData->data() + mTile_Ptr + (Tile * 2);
-	if (CurrentMapPtr > mData->data() + mData->size())
+	size_t TileByteOffset = mTile_Ptr + (Tile * 2);
+	if (TileByteOffset + sizeof(uint16) > mData->size())
 		return -1;
 
+	uint8* CurrentMapPtr = mData->data() + TileByteOffset;
 	return readLE<int16>(CurrentMapPtr);
 }
 
 void cMapData::Tile_Set(const size_t pTileX, const size_t pTileY, const size_t pTileID) {
-	if (pTileX > mParams.mWidth || pTileY > mParams.mHeight)
+	if (pTileX >= mParams.mWidth || pTileY >= mParams.mHeight)
 		return;
 
 	size_t Tile = (((pTileY *  mParams.mWidth) + pTileX)) + mParams.mWidth;
 
-	uint8* CurrentMapPtr = mData->data() + mTile_Ptr + (Tile * 2);
-	if (CurrentMapPtr > mData->data() + mData->size())
+	size_t TileByteOffset = mTile_Ptr + (Tile * 2);
+	if (TileByteOffset + sizeof(uint16) > mData->size())
 		return;
 
+	uint8* CurrentMapPtr = mData->data() + TileByteOffset;
 	writeLEWord(CurrentMapPtr, (uint16)pTileID);
 }
 

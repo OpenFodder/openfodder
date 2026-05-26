@@ -29,6 +29,7 @@ struct sRandomMapOptions {
     uint32                mSeed = NETWORK_MAP_SEED_DEFAULT;
     eNetworkMapSize       mMapSize = NETWORK_MAP_SIZE_DEFAULT;
     eNetworkMapTerrain    mMapTerrain = NETWORK_MAP_TERRAIN_DEFAULT;
+    uint32                mMapTerrainSub = 0;
     eNetworkVehicleSet    mVehicleSet = NETWORK_VEHICLE_SET_DEFAULT;
     eNetworkPickupDensity mPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
     eNetworkCoverDensity  mCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
@@ -106,6 +107,7 @@ private:
     void MarkProfileCustom();
     void InferProfile();
     const char* GetProfileName() const;
+    const char* GetTerrainName() const;
     const char* GetModeName() const;
     const char* GetModeShortName() const;
     bool IsPvPMode() const;

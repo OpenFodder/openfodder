@@ -132,6 +132,8 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
         mEditField = eEditField::None;
         MarkProfileCustom();
         mOptions.mMapTerrain = static_cast<eNetworkMapTerrain>(((uint8_t)mOptions.mMapTerrain + 1) % eNetworkMapTerrain_Count);
+        if (mOptions.mMapTerrain != eNetworkMapTerrain_Jungle)
+            mOptions.mMapTerrainSub = 0;
         break;
 
     case ACT_CYCLE_COVER:
@@ -220,7 +222,7 @@ void cRandomMapOptionsMenu::Draw()
         rowY += rowH;
         DrawValueButton("SIZE", Network_MapSizeName(mOptions.mMapSize), rowY, ACT_CYCLE_MAP_SIZE);
         rowY += rowH;
-        DrawValueButton("TERRAIN", Network_MapTerrainName(mOptions.mMapTerrain), rowY, ACT_CYCLE_MAP_TERRAIN);
+        DrawValueButton("TERRAIN", GetTerrainName(), rowY, ACT_CYCLE_MAP_TERRAIN);
         rowY += rowH;
         if (mContext == eContext::Multiplayer)
             DrawValueButton("MODE", GetModeName(), rowY, ACT_CYCLE_MODE);
@@ -229,19 +231,15 @@ void cRandomMapOptionsMenu::Draw()
         break;
 
     case eTab::Layout: {
-        const char* Layout = "CLASSIC";
-        if (mProfile == eNetworkMapProfile_DenseJungleTrails)
-            Layout = "TRAILS";
-        else if (mProfile == eNetworkMapProfile_JungleVillage)
-            Layout = "VILLAGE";
-        else if (mProfile == eNetworkMapProfile_JungleBase)
-            Layout = "BASE";
-        else if (mProfile == eNetworkMapProfile_IslandAssault)
-            Layout = "RIVER";
-        else if (mProfile == eNetworkMapProfile_PvPBalancedJungle)
-            Layout = "OPEN COMBAT";
+        const char* Layout = "STANDARD";
+        if (mProfile == eNetworkMapProfile_Beach)
+            Layout = "COAST";
+        else if (mProfile == eNetworkMapProfile_Ice)
+            Layout = "ICE";
         else if (mProfile == eNetworkMapProfile_Random)
             Layout = "RANDOM";
+        else if (mProfile == eNetworkMapProfile_Custom)
+            Layout = "CUSTOM";
 
         DrawStaticValue("LAYOUT", Layout, rowY);
         rowY += rowH;
@@ -257,18 +255,16 @@ void cRandomMapOptionsMenu::Draw()
 
     case eTab::Terrain: {
         const char* WaterStyle = "PROFILE DEFAULT";
-        if (mProfile == eNetworkMapProfile_DenseJungleTrails)
-            WaterStyle = "OPTIONAL RIVER";
-        else if (mProfile == eNetworkMapProfile_IslandAssault)
-            WaterStyle = "RIVER WETLAND";
-        else if (mProfile == eNetworkMapProfile_PvPBalancedJungle)
-            WaterStyle = "FAIR CROSSINGS";
+        if (mProfile == eNetworkMapProfile_Beach)
+            WaterStyle = "COASTAL";
+        else if (mProfile == eNetworkMapProfile_Ice)
+            WaterStyle = "ICE LAKES";
 
         DrawValueButton("COVER", Network_CoverDensityName(mOptions.mCoverDensity), rowY, ACT_CYCLE_COVER);
         rowY += rowH;
         DrawStaticValue("WATER", WaterStyle, rowY);
         rowY += rowH;
-        DrawStaticValue("JUNGLE WALL", "MATCH COVER", rowY);
+        DrawStaticValue("BLOCKERS", "MATCH COVER", rowY);
         rowY += rowH;
         DrawStaticValue("GROUND VAR", "PROFILE DEFAULT", rowY);
         rowY += rowH;
@@ -400,7 +396,7 @@ void cRandomMapOptionsMenu::DrawFooter()
     Summary += " ";
     Summary += Network_MapSizeName(mOptions.mMapSize);
     Summary += " ";
-    Summary += Network_MapTerrainName(mOptions.mMapTerrain);
+    Summary += GetTerrainName();
     Summary += " ";
     Summary += GetModeShortName();
 
@@ -502,49 +498,30 @@ void cRandomMapOptionsMenu::InferProfile()
     mProfile = eNetworkMapProfile_Custom;
     if (mOptions.mMapSize == eNetworkMapSize_Medium
         && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
+        && mOptions.mMapTerrainSub == 0
         && mOptions.mVehicleSet == eNetworkVehicleSet_None
         && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
         && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
-        mProfile = eNetworkMapProfile_ClassicJungle;
-    }
-    else if (mOptions.mMapSize == eNetworkMapSize_Large
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
-        && mOptions.mVehicleSet == eNetworkVehicleSet_None
-        && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Heavy) {
-        mProfile = eNetworkMapProfile_DenseJungleTrails;
+        mProfile = eNetworkMapProfile_Jungle;
     }
     else if (mOptions.mMapSize == eNetworkMapSize_Medium
         && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
+        && mOptions.mMapTerrainSub == 1
         && mOptions.mVehicleSet == eNetworkVehicleSet_None
         && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Heavy) {
-        mProfile = eNetworkMapProfile_JungleVillage;
-    }
-    else if (mOptions.mMapSize == eNetworkMapSize_Medium
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
-        && mOptions.mVehicleSet == eNetworkVehicleSet_Armed
-        && mOptions.mPickupDensity == eNetworkPickupDensity_High
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Dense) {
-        mProfile = eNetworkMapProfile_JungleBase;
-    }
-    else if (mOptions.mMapSize == eNetworkMapSize_Large
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
-        && mOptions.mVehicleSet == eNetworkVehicleSet_Mixed
-        && mOptions.mPickupDensity == eNetworkPickupDensity_High
         && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
-        mProfile = eNetworkMapProfile_IslandAssault;
+        mProfile = eNetworkMapProfile_Beach;
     }
     else if (mOptions.mMapSize == eNetworkMapSize_Medium
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
+        && mOptions.mMapTerrain == eNetworkMapTerrain_Ice
         && mOptions.mVehicleSet == eNetworkVehicleSet_None
         && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Dense) {
-        mProfile = eNetworkMapProfile_PvPBalancedJungle;
+        && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
+        mProfile = eNetworkMapProfile_Ice;
     }
     else if (mOptions.mMapSize == eNetworkMapSize_Medium
         && mOptions.mMapTerrain == eNetworkMapTerrain_Random
-        && mOptions.mVehicleSet == eNetworkVehicleSet_Mixed
+        && mOptions.mVehicleSet == eNetworkVehicleSet_None
         && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
         && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
         mProfile = eNetworkMapProfile_Random;
@@ -558,55 +535,42 @@ const char* cRandomMapOptionsMenu::GetProfileName() const
     return Network_MapProfileName(mProfile);
 }
 
+const char* cRandomMapOptionsMenu::GetTerrainName() const
+{
+    if (mOptions.mMapTerrain == eNetworkMapTerrain_Jungle && mOptions.mMapTerrainSub == 1)
+        return "BEACH";
+
+    return Network_MapTerrainName(mOptions.mMapTerrain);
+}
+
 void cRandomMapOptionsMenu::ApplyProfile()
 {
     mOptions.mProfile = mProfile;
 
     switch (mProfile) {
-    case eNetworkMapProfile_ClassicJungle:
+    case eNetworkMapProfile_Jungle:
         mOptions.mMapSize = eNetworkMapSize_Medium;
         mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
+        mOptions.mMapTerrainSub = 0;
         mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
         mOptions.mVehicleSet = eNetworkVehicleSet_None;
         mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
         break;
 
-    case eNetworkMapProfile_DenseJungleTrails:
-        mOptions.mMapSize = eNetworkMapSize_Large;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Heavy;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        break;
-
-    case eNetworkMapProfile_JungleVillage:
+    case eNetworkMapProfile_Beach:
         mOptions.mMapSize = eNetworkMapSize_Medium;
         mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Heavy;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        break;
-
-    case eNetworkMapProfile_JungleBase:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
-        mOptions.mVehicleSet = eNetworkVehicleSet_Armed;
-        mOptions.mPickupDensity = eNetworkPickupDensity_High;
-        break;
-
-    case eNetworkMapProfile_IslandAssault:
-        mOptions.mMapSize = eNetworkMapSize_Large;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
+        mOptions.mMapTerrainSub = 1;
         mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_Mixed;
-        mOptions.mPickupDensity = eNetworkPickupDensity_High;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
         break;
 
-    case eNetworkMapProfile_PvPBalancedJungle:
+    case eNetworkMapProfile_Ice:
         mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
+        mOptions.mMapTerrainSub = 0;
+        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
         mOptions.mVehicleSet = eNetworkVehicleSet_None;
         mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
         break;
@@ -614,8 +578,9 @@ void cRandomMapOptionsMenu::ApplyProfile()
     case eNetworkMapProfile_Random:
         mOptions.mMapSize = eNetworkMapSize_Medium;
         mOptions.mMapTerrain = eNetworkMapTerrain_Random;
+        mOptions.mMapTerrainSub = 0;
         mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_Mixed;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
         mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
         break;
 

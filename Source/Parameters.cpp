@@ -73,7 +73,7 @@ static eNetworkMapTerrain Parameters_ParseNetworkMapTerrain(const std::string& p
 
 	if (Terrain == "random" || Terrain == "rand")
 		return eNetworkMapTerrain_Random;
-	if (Terrain == "jungle-beach" || Terrain == "jungle_beach" || Terrain == "junsub1" || Terrain == "jungle-sub1" || Terrain == "jungle_sub1" || Terrain == "beach")
+	if (Terrain == "beach")
 		return eNetworkMapTerrain_Jungle;
 	if (Terrain == "desert")
 		return eNetworkMapTerrain_Desert;
@@ -88,7 +88,7 @@ static eNetworkMapTerrain Parameters_ParseNetworkMapTerrain(const std::string& p
 static uint32 Parameters_ParseNetworkMapTerrainSub(const std::string& pValue) {
 	const std::string Terrain = Parameters_ToLower(pValue);
 
-	if (Terrain == "jungle-beach" || Terrain == "jungle_beach" || Terrain == "junsub1" || Terrain == "jungle-sub1" || Terrain == "jungle_sub1" || Terrain == "beach")
+	if (Terrain == "beach")
 		return 1;
 
 	return 0;
@@ -340,7 +340,7 @@ void sFodderParameters::PrepareOptions() {
 		("random-menu", "Open the create-random-map options screen on startup", cxxopts::value<bool>()->default_value("false"))
 		("random-save", "Generate and save a random map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
 		("random-seed", "Random map seed", cxxopts::value<uint32_t>()->default_value("0"), "123")
-		("random-tileset", "Random map tileset: random, jungle, jungle-beach, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"ice\"")
+		("random-tileset", "Random map tileset: random, jungle, beach, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"ice\"")
 		("random-subtileset", "Random map terrain sub-tileset override (jungle: 0 inland, 1 beach)", cxxopts::value<uint32_t>()->default_value("0"), "1")
 		("random-profile", "Random MapGen profile name", cxxopts::value<std::string>()->default_value(""), "\"grammar_ice\"")
 		("script", "Name of script to execute", cxxopts::value<std::string>()->default_value(""), "\"script.js\"")
