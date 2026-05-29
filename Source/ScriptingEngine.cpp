@@ -236,6 +236,7 @@ cScriptingEngine::cScriptingEngine() {
 	scriptsLoadFolder("MapGen/Features/");
 	scriptsLoadFolder("MapGen/Encounters/");
 	scriptsLoadFolder("MapGen/Decor/");
+	scriptsLoadFolder("MapGen/Integration/");
 
 	scriptsLoadFolder("Scenarios/");
 	Run("Settings.js");
