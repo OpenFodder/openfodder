@@ -85,9 +85,6 @@ public:
     // Notify GGPO that the frame has been fully simulated.
     void AdvanceFrame();
 
-    // Frame number that GGPO is currently at.
-    int CurrentFrame() const;
-
     // True while GGPO is rolling back (replaying old frames).
     bool IsRollingBack() const { return mRollingBack; }
 

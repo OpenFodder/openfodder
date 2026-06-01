@@ -106,6 +106,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "Debugger.hpp"
 #include "Utils/pseudorand.hpp"
+#include "Utils/maprand32.hpp"
 
 #include "Position.hpp"
 #include "Dimension.hpp"

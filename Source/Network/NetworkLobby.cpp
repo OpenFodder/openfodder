@@ -210,6 +210,7 @@ void cNetworkLobby::Send() {
     pkt.lockedIn = mLocalLockedIn ? 1 : 0;
     pkt.mapSize = (uint8_t)mLocalMatchSettings.mMapSize;
     pkt.mapTerrain = (uint8_t)mLocalMatchSettings.mMapTerrain;
+    pkt.mapTerrainSub = mLocalMatchSettings.mMapTerrainSub;
     pkt.vehicleSet = (uint8_t)mLocalMatchSettings.mVehicleSet;
     pkt.pickupDensity = (uint8_t)mLocalMatchSettings.mPickupDensity;
     pkt.coverDensity = (uint8_t)mLocalMatchSettings.mCoverDensity;
@@ -290,6 +291,7 @@ void cNetworkLobby::Receive() {
     mRemoteMatchSettings.mTimeLimitSeconds = latestPkt.timeLimitSeconds;
     mRemoteMatchSettings.mMapSize = Network_NormalizeMapSize(latestPkt.mapSize);
     mRemoteMatchSettings.mMapTerrain = Network_NormalizeMapTerrain(latestPkt.mapTerrain);
+    mRemoteMatchSettings.mMapTerrainSub = latestPkt.mapTerrainSub;
     mRemoteMatchSettings.mVehicleSet = Network_NormalizeVehicleSet(latestPkt.vehicleSet);
     mRemoteMatchSettings.mPickupDensity = Network_NormalizePickupDensity(latestPkt.pickupDensity);
     mRemoteMatchSettings.mCoverDensity = Network_NormalizeCoverDensity(latestPkt.coverDensity);

@@ -119,6 +119,11 @@ public:
     void            Lobby_CampaignSelection();
     bool            ConsumeReturnToMultiplayerLobby();
 
+    // Lobby_CampaignSelection helpers (extracted for readability; pure glue).
+    void            Lobby_PushLocalState(bool pIsHost, int16 pSelectedIndex, bool pLocalReady);
+    void            Lobby_AdvertiseGame(cNetworkDiscovery& pDiscovery, int16 pSelectedIndex);
+    void            Lobby_SendStartReliable();
+
     // Multiplayer menu object (parallel to mOptionsMenu on cFodder)
     std::unique_ptr<cMultiplayerMenu> mMultiplayerMenu;
 

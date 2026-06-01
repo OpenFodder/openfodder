@@ -21,49 +21,7 @@
  */
 
 #include "stdafx.hpp"
-
-static bool RandomMapOptions_UInt32FromText(const std::string& pText, uint32& pValue)
-{
-    if (pText.empty())
-        return false;
-
-    uint64_t Value = 0;
-    for (char Char : pText) {
-        if (Char < '0' || Char > '9')
-            return false;
-
-        Value = (Value * 10) + (uint64_t)(Char - '0');
-        if (Value > 0xFFFFFFFFu)
-            return false;
-    }
-
-    pValue = (uint32)Value;
-    return true;
-}
-
-static std::string RandomMapOptions_FitText(const std::string& pText, int pMaxPx)
-{
-    std::string Result;
-    int Width = 0;
-
-    for (char RawChar : pText) {
-        unsigned char Char = (unsigned char)std::toupper((unsigned char)RawChar);
-        if (!((Char >= 'A' && Char <= 'Z') || (Char >= '0' && Char <= '9') || Char == ' '))
-            Char = ' ';
-
-        const int CharWidth = (int)mFont_Briefing_Width[Char];
-        if (Width + CharWidth > pMaxPx)
-            break;
-
-        Result.push_back((char)Char);
-        Width += CharWidth;
-    }
-
-    while (!Result.empty() && Result.back() == ' ')
-        Result.pop_back();
-
-    return Result;
-}
+#include "Network/NetworkMenuText.hpp"
 
 void cRandomMapOptionsMenu::Open(const sRandomMapOptions& pOptions, eContext pContext)
 {
@@ -344,7 +302,7 @@ void cRandomMapOptionsMenu::DrawValueButton(const char* pLabel, const std::strin
 {
     const size_t FieldX1 = 0x88;
     const size_t FieldX2 = 0x128;
-    const std::string FittedValue = RandomMapOptions_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
+    const std::string FittedValue = NetworkMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
 
     g_Fodder->String_Print_Small(pLabel, 0x20, pY);
     g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
@@ -364,7 +322,7 @@ void cRandomMapOptionsMenu::DrawField(const char* pLabel, const std::string& pVa
     const size_t FieldX1 = 0x88;
     const size_t FieldX2 = 0x128;
     const std::string Value = pValue.size() ? pValue : "ENTER";
-    const std::string FittedValue = RandomMapOptions_FitText(Value, (int)(FieldX2 - FieldX1 - 4));
+    const std::string FittedValue = NetworkMenu_FitText(Value, (int)(FieldX2 - FieldX1 - 4));
 
     g_Fodder->String_Print_Small(pLabel, 0x20, pY);
     g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
@@ -383,7 +341,7 @@ void cRandomMapOptionsMenu::DrawStaticValue(const char* pLabel, const std::strin
 {
     const size_t FieldX1 = 0x88;
     const size_t FieldX2 = 0x128;
-    const std::string FittedValue = RandomMapOptions_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
+    const std::string FittedValue = NetworkMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
 
     g_Fodder->String_Print_Small(pLabel, 0x20, pY);
     g_Fodder->GUI_Button_Draw_SmallBoxAt(FittedValue, FieldX1, FieldX2, pY, 0xF2, 0xF3, eTextAlign::Left);
@@ -400,7 +358,7 @@ void cRandomMapOptionsMenu::DrawFooter()
     Summary += " ";
     Summary += GetModeShortName();
 
-    Summary = RandomMapOptions_FitText(Summary, 246);
+    Summary = NetworkMenu_FitText(Summary, 246);
     g_Fodder->String_Print_Small_LeftInBox(Summary, 0x20, 0x128, 0xA7, 0);
 }
 
@@ -448,7 +406,7 @@ void cRandomMapOptionsMenu::HandleTextInput()
 
     std::string Candidate = mSeedText + (char)KeyAscii;
     uint32 ParsedSeed = 0;
-    if (!RandomMapOptions_UInt32FromText(Candidate, ParsedSeed))
+    if (!NetworkMenu_UInt32FromText(Candidate, ParsedSeed))
         return;
 
     mSeedText.push_back((char)KeyAscii);
@@ -466,13 +424,13 @@ void cRandomMapOptionsMenu::SelectField(int16 pAction)
 bool cRandomMapOptionsMenu::CanStart() const
 {
     uint32 ParsedSeed = 0;
-    return RandomMapOptions_UInt32FromText(mSeedText, ParsedSeed);
+    return NetworkMenu_UInt32FromText(mSeedText, ParsedSeed);
 }
 
 void cRandomMapOptionsMenu::SyncSeedValue()
 {
     uint32 ParsedSeed = 0;
-    if (RandomMapOptions_UInt32FromText(mSeedText, ParsedSeed))
+    if (NetworkMenu_UInt32FromText(mSeedText, ParsedSeed))
         mOptions.mSeed = ParsedSeed;
 }
 
@@ -487,6 +445,13 @@ void cRandomMapOptionsMenu::RandomizeSeed()
     mEditField = eEditField::None;
 }
 
+// NOTE (fragile, but display-only): when the incoming profile is Custom this
+// reverse-infers a named profile by exact-matching EVERY option field against one
+// hardcoded constant per profile. Any new option added to a profile, or any default
+// change, silently breaks the match and falls back to Custom. Impact is cosmetic
+// (drives the GetProfileName label only — not generation), so it is left as-is. A
+// drift-proof fix would derive each profile's canonical option-set from ApplyProfile
+// and compare against that, rather than re-hardcoding the constants here.
 void cRandomMapOptionsMenu::InferProfile()
 {
     mOptions.mProfile = Network_NormalizeMapProfile((uint8_t)mOptions.mProfile);

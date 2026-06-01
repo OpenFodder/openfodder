@@ -468,6 +468,7 @@ static sNetworkMatchSettings Lobby_MatchSettingsFromParams(const std::shared_ptr
     Settings.mFriendlyFire = pParams->mNetworkFriendlyFire ? 1 : 0;
     Settings.mMapSize = pParams->mNetworkMapSize;
     Settings.mMapTerrain = pParams->mNetworkMapTerrain;
+    Settings.mMapTerrainSub = (uint8_t)pParams->mNetworkMapTerrainSub;
     Settings.mVehicleSet = pParams->mNetworkVehicleSet;
     Settings.mPickupDensity = pParams->mNetworkPickupDensity;
     Settings.mCoverDensity = pParams->mNetworkCoverDensity;
@@ -484,6 +485,7 @@ static void Lobby_ApplyMatchSettingsToParams(const sNetworkMatchSettings& pSetti
     pParams->mNetworkFriendlyFire = (pSettings.mFriendlyFire != 0);
     pParams->mNetworkMapSize = Network_NormalizeMapSize((uint8_t)pSettings.mMapSize);
     pParams->mNetworkMapTerrain = Network_NormalizeMapTerrain((uint8_t)pSettings.mMapTerrain);
+    pParams->mNetworkMapTerrainSub = pSettings.mMapTerrainSub;
     pParams->mNetworkVehicleSet = Network_NormalizeVehicleSet((uint8_t)pSettings.mVehicleSet);
     pParams->mNetworkPickupDensity = Network_NormalizePickupDensity((uint8_t)pSettings.mPickupDensity);
     pParams->mNetworkCoverDensity = Network_NormalizeCoverDensity((uint8_t)pSettings.mCoverDensity);
@@ -506,6 +508,49 @@ static void Lobby_ApplyPeerEndpointToParams(const cNetworkLobby& pLobby, const s
     pParams->mNetworkRemoteHost = RemoteHost;
     pParams->mNetworkRemotePort = RemotePort;
     g_Debugger->Notice("[Lobby] Gameplay endpoint set to " + RemoteHost + ":" + std::to_string(RemotePort));
+}
+
+// Push this peer's per-frame state into the lobby: the host advertises its
+// campaign selection + match settings; the joiner advertises its team/class
+// pick + ready flag.
+void cFodderMultiplayer::Lobby_PushLocalState(bool pIsHost, int16 pSelectedIndex, bool pLocalReady) {
+    if (pIsHost) {
+        mLobby->SetSelection(pSelectedIndex, mCampaignList[pSelectedIndex]);
+        mLobby->SetMatchSettings(Lobby_MatchSettingsFromParams(mStartParams));
+    } else {
+        mLobby->SetPlayerSelection(
+            mStartParams->mNetworkSelectedTeam,
+            mStartParams->mNetworkSelectedClass,
+            mStartParams->mNetworkLockedIn
+        );
+        mLobby->SetReady(pLocalReady);
+    }
+}
+
+// Broadcast this host's game on the LAN discovery channel so browsers can find it.
+void cFodderMultiplayer::Lobby_AdvertiseGame(cNetworkDiscovery& pDiscovery, int16 pSelectedIndex) {
+    sNetworkDiscoveryGame Game;
+    Game.mHostName = "OPENFODDER";
+    Game.mGameName = mCampaignList[pSelectedIndex];
+    Game.mSettings = Lobby_MatchSettingsFromParams(mStartParams);
+    Game.mLobbyPort = mStartParams->mNetworkLocalPort;
+    Game.mGameplayPort = mStartParams->mNetworkLocalPort;
+    Game.mCurrentPlayers = mLobby->IsConnected() ? 2 : 1;
+    Game.mMaxPlayers = NETWORK_MAX_PLAYERS;
+    Game.mState = mLobby->IsConnected() ? eNetworkDiscoveryState_Full : eNetworkDiscoveryState_Setup;
+    pDiscovery.Advertise(Game);
+}
+
+// Deliver the host's START to the joiner. The lobby has no ACK/retransmit, so
+// we resend a handful of times to paper over UDP loss. (A real fix is a small
+// reliability layer in cNetworkLobby; this preserves the prior behaviour.)
+void cFodderMultiplayer::Lobby_SendStartReliable() {
+    mLobby->SetStarted();
+    for (int i = 0; i < 15; ++i) {
+        mLobby->Poll();
+        Lobby_ApplyPeerEndpointToParams(*mLobby, mStartParams);
+        SDL_Delay(5);
+    }
 }
 
 void cFodderMultiplayer::Lobby_CampaignSelection() {
@@ -547,34 +592,16 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
                 selectedIndex = (int16)mCampaignList.size() - 1;
             if (selectedIndex < 0)
                 selectedIndex = 0;
-
-            mLobby->SetSelection(selectedIndex, mCampaignList[selectedIndex]);
-            mLobby->SetMatchSettings(Lobby_MatchSettingsFromParams(mStartParams));
-        } else {
-            mLobby->SetPlayerSelection(
-                mStartParams->mNetworkSelectedTeam,
-                mStartParams->mNetworkSelectedClass,
-                mStartParams->mNetworkLockedIn
-            );
-            mLobby->SetReady(localReady);
         }
+
+        Lobby_PushLocalState(isHost, selectedIndex, localReady);
 
         // Poll the lobby
         mLobby->Poll();
         Lobby_ApplyPeerEndpointToParams(*mLobby, mStartParams);
 
-        if (DiscoveryStarted) {
-            sNetworkDiscoveryGame Game;
-            Game.mHostName = "OPENFODDER";
-            Game.mGameName = mCampaignList[selectedIndex];
-            Game.mSettings = Lobby_MatchSettingsFromParams(mStartParams);
-            Game.mLobbyPort = mStartParams->mNetworkLocalPort;
-            Game.mGameplayPort = mStartParams->mNetworkLocalPort;
-            Game.mCurrentPlayers = mLobby->IsConnected() ? 2 : 1;
-            Game.mMaxPlayers = NETWORK_MAX_PLAYERS;
-            Game.mState = mLobby->IsConnected() ? eNetworkDiscoveryState_Full : eNetworkDiscoveryState_Setup;
-            Discovery.Advertise(Game);
-        }
+        if (DiscoveryStarted)
+            Lobby_AdvertiseGame(Discovery, selectedIndex);
 
         // P2 auto-follows host's selection
         if (!isHost && mLobby->IsConnected()) {
@@ -776,15 +803,8 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
     }
 
     // Host tells P2 to start
-    if (isHost && done) {
-        mLobby->SetStarted();
-        // Send a few extra packets to ensure delivery
-        for (int i = 0; i < 15; ++i) {
-            mLobby->Poll();
-            Lobby_ApplyPeerEndpointToParams(*mLobby, mStartParams);
-            SDL_Delay(5);
-        }
-    }
+    if (isHost && done)
+        Lobby_SendStartReliable();
 
     if (mLobby) {
         Lobby_ApplyPeerEndpointToParams(*mLobby, mStartParams);

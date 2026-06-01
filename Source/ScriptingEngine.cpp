@@ -326,6 +326,18 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::Tile_Get, "TileGet");
 	dukglue_register_method(mContext, &cRandomMap::Tile_Set, "TileSet");
 
+	// Engine-authoritative terrain queries (HIT/BHT collision) so the generator
+	// can ask what a tile actually IS in-game instead of guessing from tile IDs.
+	dukglue_register_method(mContext, &cRandomMap::getTileTerrainFeature, "TileTerrainFeature");
+	dukglue_register_method(mContext, &cRandomMap::isTileWalkable, "TileIsWalkable");
+
+	// Native ice Wang-tile edge matcher (the hot ~47% of each ice render). The
+	// authored atlas + per-cell semantics stay in JS (Core.ApplyEdgeRule); these
+	// cache the atlas once and run the scoring loop.
+	dukglue_register_method(mContext, &cRandomMap::setIceEdgeAtlas, "SetIceEdgeAtlas");
+	dukglue_register_method(mContext, &cRandomMap::applyIceEdgeRule, "ApplyIceEdgeRule");
+	dukglue_register_method(mContext, &cRandomMap::applyIceEdgeRuleMasked, "ApplyIceEdgeRuleMasked");
+
 	dukglue_register_property(mContext, &cRandomMap::getSeed, &cRandomMap::setSeed, "seed");
 
 	dukglue_register_method(mContext, &cRandomMap::getRandomInt, "getRandomInt");

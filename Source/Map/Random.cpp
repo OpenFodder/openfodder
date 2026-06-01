@@ -27,6 +27,40 @@
 #include "Utils/SimplexNoise.hpp"
 #include "Utils/SimplexIslands.hpp"
 #include "Utils/diamondsquare.hpp"
+#include "IceEdgeMatcher.hpp"
+
+// Process-static so the authored atlas (pushed once from JS, guarded by a module
+// flag) survives across cRandomMap instances within a generation process.
+static IceEdge::Matcher gIceEdgeMatcher;
+
+static std::vector<int> parseTileCsv(const std::string& pText)
+{
+	std::vector<int> result;
+	int value = 0;
+	bool haveValue = false;
+	bool negative = false;
+
+	for (size_t i = 0; i <= pText.size(); ++i) {
+		char ch = (i < pText.size()) ? pText[i] : ',';
+		if (ch == '-' && !haveValue) {
+			negative = true;
+			continue;
+		}
+		if (ch >= '0' && ch <= '9') {
+			value = (value * 10) + (ch - '0');
+			haveValue = true;
+			continue;
+		}
+		if (ch == ',') {
+			result.push_back(negative ? -value : value);
+			value = 0;
+			haveValue = false;
+			negative = false;
+		}
+	}
+
+	return result;
+}
 
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
 	mParams = pParams;
@@ -139,11 +173,11 @@ int32 cRandomMap::getRandomInt(int32 pMin, int32 pMax) {
 	return mParams.mRandom.getu();
 }
 
-int16 cRandomMap::getSeed() const {
+uint32 cRandomMap::getSeed() const {
 	return mParams.mRandom.getStartingSeed();
 }
 
-void cRandomMap::setSeed(const int16 pSeed) {
+void cRandomMap::setSeed(const uint32 pSeed) {
 
 	return mParams.mRandom.setSeed(pSeed);
 }
@@ -330,6 +364,59 @@ std::vector<cPosition*> cRandomMap::calculatePath(size_t pSpriteType, cPosition*
 	}
 
 	return paths;
+}
+
+int16 cRandomMap::getTileTerrainFeature(int32 pTileX, int32 pTileY)
+{
+	if (pTileX < 0 || pTileY < 0 ||
+		(size_t)pTileX >= mParams.mWidth || (size_t)pTileY >= mParams.mHeight)
+		return -1;
+
+	// Sample at the tile centre (pixel coords); Map_Terrain_Get resolves the
+	// HIT/BHT sub-tile feature for the loaded map tileset.
+	int16 PixelX = (int16)(pTileX * TILE_WIDTH_PIXELS + (TILE_WIDTH_PIXELS / 2));
+	int16 PixelY = (int16)(pTileY * TILE_HEIGHT_PIXELS + (TILE_HEIGHT_PIXELS / 2));
+
+	return g_Fodder->Map_Terrain_Get(PixelX, PixelY);
+}
+
+bool cRandomMap::isTileWalkable(int32 pTileX, int32 pTileY)
+{
+	int16 TerrainType = getTileTerrainFeature(pTileX, pTileY);
+	if (TerrainType < 0)
+		return false;
+
+	// Same verdict the engine uses for foot units (see Passable / pathing).
+	return mTiles_NotWalkable[TerrainType] == 0;
+}
+
+void cRandomMap::setIceEdgeAtlas(std::vector<std::string> pTileRecords,
+	std::vector<std::string> pByCenter,
+	std::vector<std::string> pCharToClass)
+{
+	gIceEdgeMatcher.setAtlas(pTileRecords, pByCenter, pCharToClass);
+}
+
+std::vector<int> cRandomMap::applyIceEdgeRule(int32 pWidth, int32 pHeight,
+	std::string pChars, std::string pHints,
+	std::string pReqCenter, std::string pReqContents,
+	double pSeed)
+{
+	uint32_t seed = (uint32_t)pSeed;
+	return gIceEdgeMatcher.apply(pWidth, pHeight, pChars, pHints, pReqCenter, pReqContents, seed);
+}
+
+std::vector<int> cRandomMap::applyIceEdgeRuleMasked(int32 pWidth, int32 pHeight,
+	std::string pChars, std::string pHints,
+	std::string pReqCenter, std::string pReqContents,
+	std::string pDirtyMask, std::string pPreviousTiles,
+	double pSeed)
+{
+	uint32_t seed = (uint32_t)pSeed;
+	std::vector<int> previousTiles = parseTileCsv(pPreviousTiles);
+	return gIceEdgeMatcher.apply(
+		pWidth, pHeight, pChars, pHints, pReqCenter, pReqContents,
+		seed, &pDirtyMask, &previousTiles);
 }
 
 int cRandomMap::Passable(int nx, int ny)

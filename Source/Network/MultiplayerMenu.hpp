@@ -64,6 +64,7 @@ public:
     bool        GetFriendlyFire() const { return mFriendlyFire; }
     eNetworkMapSize GetMapSize() const { return mMapSize; }
     eNetworkMapTerrain GetMapTerrain() const { return mMapTerrain; }
+    uint8       GetMapTerrainSub() const { return mMapTerrainSub; }
     eNetworkVehicleSet GetVehicleSet() const { return mVehicleSet; }
     eNetworkPickupDensity GetPickupDensity() const { return mPickupDensity; }
     eNetworkCoverDensity GetCoverDensity() const { return mCoverDensity; }
@@ -146,6 +147,7 @@ private:
     bool        mFriendlyFire = false;
     eNetworkMapSize mMapSize = NETWORK_MAP_SIZE_DEFAULT;
     eNetworkMapTerrain mMapTerrain = NETWORK_MAP_TERRAIN_DEFAULT;
+    uint8       mMapTerrainSub = 0;
     eNetworkVehicleSet mVehicleSet = NETWORK_VEHICLE_SET_DEFAULT;
     eNetworkPickupDensity mPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
     eNetworkCoverDensity mCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;

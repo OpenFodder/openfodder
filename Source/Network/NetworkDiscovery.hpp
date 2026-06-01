@@ -70,7 +70,7 @@ struct sNetworkDiscoveryGame {
 
 struct sNetworkDiscoveryPacket {
     static const uint32_t MAGIC = 0x4F46444Cu; // "OFDL"
-    static const uint8_t VERSION = 4;
+    static const uint8_t VERSION = 5;
 
     uint32_t magic;
     uint8_t type;
@@ -85,6 +85,7 @@ struct sNetworkDiscoveryPacket {
     uint8_t networkCompatibilityVersion;
     uint8_t mapSize;
     uint8_t mapTerrain;
+    uint8_t mapTerrainSub;
     uint8_t vehicleSet;
     uint8_t pickupDensity;
     uint8_t coverDensity;

@@ -149,6 +149,7 @@ void cNetworkDiscovery::Advertise(const sNetworkDiscoveryGame& pGame) {
     Packet.networkCompatibilityVersion = pGame.mCompatibilityVersion;
     Packet.mapSize = (uint8_t)pGame.mSettings.mMapSize;
     Packet.mapTerrain = (uint8_t)pGame.mSettings.mMapTerrain;
+    Packet.mapTerrainSub = pGame.mSettings.mMapTerrainSub;
     Packet.vehicleSet = (uint8_t)pGame.mSettings.mVehicleSet;
     Packet.pickupDensity = (uint8_t)pGame.mSettings.mPickupDensity;
     Packet.coverDensity = (uint8_t)pGame.mSettings.mCoverDensity;
@@ -229,6 +230,7 @@ void cNetworkDiscovery::PollBrowser() {
         Game.mSettings.mTimeLimitSeconds = Packet.timeLimitSeconds;
         Game.mSettings.mMapSize = Network_NormalizeMapSize(Packet.mapSize);
         Game.mSettings.mMapTerrain = Network_NormalizeMapTerrain(Packet.mapTerrain);
+        Game.mSettings.mMapTerrainSub = Packet.mapTerrainSub;
         Game.mSettings.mVehicleSet = Network_NormalizeVehicleSet(Packet.vehicleSet);
         Game.mSettings.mPickupDensity = Network_NormalizePickupDensity(Packet.pickupDensity);
         Game.mSettings.mCoverDensity = Network_NormalizeCoverDensity(Packet.coverDensity);

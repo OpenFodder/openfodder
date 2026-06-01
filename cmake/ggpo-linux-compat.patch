@@ -1,0 +1,338 @@
+diff --git a/src/include/ggponet.h b/src/include/ggponet.h
+index f814607..3ae5397 100644
+--- a/src/include/ggponet.h
++++ b/src/include/ggponet.h
+@@ -14,6 +14,10 @@ extern "C" {
+ 
+ #include <stdarg.h>
+ 
++#if !defined(_WIN32) && !defined(__cdecl)
++#  define __cdecl
++#endif
++
+ // On windows, export at build time and import at runtime.
+ // ELF systems don't need an explicit export/import.
+ #ifdef _WIN32
+diff --git a/src/lib/ggpo/backends/synctest.cpp b/src/lib/ggpo/backends/synctest.cpp
+index 4af0426..c255b96 100644
+--- a/src/lib/ggpo/backends/synctest.cpp
++++ b/src/lib/ggpo/backends/synctest.cpp
+@@ -188,7 +188,7 @@ SyncTestBackend::BeginLog(int saving)
+ 
+    char filename[MAX_PATH];
+    CreateDirectoryA("synclogs", NULL);
+-   sprintf_s(filename, ARRAY_SIZE(filename), "synclogs\\%s-%04d-%s.log",
++   sprintf_s(filename, ARRAY_SIZE(filename), "synclogs/%s-%04d-%s.log",
+            saving ? "state" : "log",
+            _sync.GetFrameCount(),
+            _rollingback ? "replay" : "original");
+@@ -209,9 +209,9 @@ void
+ SyncTestBackend::LogSaveStates(SavedInfo &info)
+ {
+    char filename[MAX_PATH];
+-   sprintf_s(filename, ARRAY_SIZE(filename), "synclogs\\state-%04d-original.log", _sync.GetFrameCount());
++   sprintf_s(filename, ARRAY_SIZE(filename), "synclogs/state-%04d-original.log", _sync.GetFrameCount());
+    _callbacks.log_game_state(filename, (unsigned char *)info.buf, info.cbuf);
+ 
+-   sprintf_s(filename, ARRAY_SIZE(filename), "synclogs\\state-%04d-replay.log", _sync.GetFrameCount());
++   sprintf_s(filename, ARRAY_SIZE(filename), "synclogs/state-%04d-replay.log", _sync.GetFrameCount());
+    _callbacks.log_game_state(filename, _sync.GetLastSavedFrame().buf, _sync.GetLastSavedFrame().cbuf);
+ }
+diff --git a/src/lib/ggpo/main.cpp b/src/lib/ggpo/main.cpp
+index 01b6e6a..7d6856a 100644
+--- a/src/lib/ggpo/main.cpp
++++ b/src/lib/ggpo/main.cpp
+@@ -11,12 +11,23 @@
+ #include "backends/spectator.h"
+ #include "ggponet.h"
+ 
++#ifdef _WIN32
+ BOOL WINAPI
+ DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+ {
+    srand(Platform::GetCurrentTimeMS() + Platform::GetProcessID());
+    return TRUE;
+ }
++#else
++namespace {
++struct GGPOInitializer {
++   GGPOInitializer()
++   {
++      srand(Platform::GetCurrentTimeMS() + Platform::GetProcessID());
++   }
++} ggpo_initializer;
++}
++#endif
+ 
+ void
+ ggpo_log(GGPOSession *ggpo, const char *fmt, ...)
+diff --git a/src/lib/ggpo/network/udp.cpp b/src/lib/ggpo/network/udp.cpp
+index 5c22504..e2404f2 100644
+--- a/src/lib/ggpo/network/udp.cpp
++++ b/src/lib/ggpo/network/udp.cpp
+@@ -18,7 +18,9 @@ CreateSocket(uint16 bind_port, int retries)
+ 
+    s = socket(AF_INET, SOCK_DGRAM, 0);
+    setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof optval);
++#ifdef _WIN32
+    setsockopt(s, SOL_SOCKET, SO_DONTLINGER, (const char *)&optval, sizeof optval);
++#endif
+ 
+    // non-blocking...
+    u_long iMode = 1;
+@@ -83,7 +85,7 @@ Udp::OnLoopPoll(void *cookie)
+ {
+    uint8          recv_buf[MAX_UDP_PACKET_SIZE];
+    sockaddr_in    recv_addr;
+-   int            recv_addr_len;
++   socklen_t      recv_addr_len;
+ 
+    for (;;) {
+       recv_addr_len = sizeof(recv_addr);
+diff --git a/src/lib/ggpo/network/udp_proto.cpp b/src/lib/ggpo/network/udp_proto.cpp
+index 358b370..b5f831d 100644
+--- a/src/lib/ggpo/network/udp_proto.cpp
++++ b/src/lib/ggpo/network/udp_proto.cpp
+@@ -294,8 +294,13 @@ UdpProtocol::HandlesMsg(sockaddr_in &from,
+    if (!_udp) {
+       return false;
+    }
++#ifdef _WIN32
+    return _peer_addr.sin_addr.S_un.S_addr == from.sin_addr.S_un.S_addr &&
+           _peer_addr.sin_port == from.sin_port;
++#else
++   return _peer_addr.sin_addr.s_addr == from.sin_addr.s_addr &&
++          _peer_addr.sin_port == from.sin_port;
++#endif
+ }
+ 
+ void
+diff --git a/src/lib/ggpo/network/udp_proto.h b/src/lib/ggpo/network/udp_proto.h
+index 57699aa..c1aaa3b 100644
+--- a/src/lib/ggpo/network/udp_proto.h
++++ b/src/lib/ggpo/network/udp_proto.h
+@@ -53,7 +53,7 @@ public:
+          } network_interrupted;
+       } u;
+ 
+-      UdpProtocol::Event(Type t = Unknown) : type(t) { }
++      Event(Type t = Unknown) : type(t) { }
+    };
+ 
+ public:
+diff --git a/src/lib/ggpo/platform_linux.cpp b/src/lib/ggpo/platform_linux.cpp
+index 84f88c7..244937c 100644
+--- a/src/lib/ggpo/platform_linux.cpp
++++ b/src/lib/ggpo/platform_linux.cpp
+@@ -5,19 +5,37 @@
+  * in the LICENSE file.
+  */
+ 
+-#include "platform_linux.h"
++#include "types.h"
+ 
+-struct timespec start = { 0 }
++static struct timespec start = { 0, 0 };
+ 
+-uint32 Platform::GetCurrentTimeMS() {
+-    if (start.tv_sec == 0 && start.tv_nsec == 0) {
+-        clock_gettime(CLOCK_MONOTONIC, &start);
+-        return 0
+-    }
+-    struct timespec current;
+-    clock_gettime(CLOCK_MONOTONIC, &current);
++uint32
++Platform::GetCurrentTimeMS()
++{
++   if (start.tv_sec == 0 && start.tv_nsec == 0) {
++      clock_gettime(CLOCK_MONOTONIC, &start);
++      return 0;
++   }
++   struct timespec current;
++   clock_gettime(CLOCK_MONOTONIC, &current);
+ 
+-    return ((current.tv_sec - start.tv_sec) * 1000) +
+-           ((current.tv_nsec  - start.tv_nsec ) / 1000000) +
++   return (uint32)(((current.tv_sec - start.tv_sec) * 1000) +
++                   ((current.tv_nsec - start.tv_nsec) / 1000000));
+ }
+ 
++int
++Platform::GetConfigInt(const char *name)
++{
++   const char *value = getenv(name);
++   return value ? atoi(value) : 0;
++}
++
++bool
++Platform::GetConfigBool(const char *name)
++{
++   const char *value = getenv(name);
++   if (!value) {
++      return false;
++   }
++   return atoi(value) != 0 || strcasecmp(value, "true") == 0;
++}
+diff --git a/src/lib/ggpo/platform_linux.h b/src/lib/ggpo/platform_linux.h
+index b36e051..bb71981 100644
+--- a/src/lib/ggpo/platform_linux.h
++++ b/src/lib/ggpo/platform_linux.h
+@@ -10,18 +10,157 @@
+ 
+ #include <stdio.h>
+ #include <stdarg.h>
++#include <string.h>
++#include <strings.h>
++#include <errno.h>
++#include <limits.h>
++#include <time.h>
+ #include <sys/types.h>
++#include <sys/socket.h>
++#include <sys/ioctl.h>
++#include <sys/stat.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
+ #include <unistd.h>
+ #include <stdlib.h>
+ 
++#ifndef _TYPES_H
++typedef unsigned int uint32;
++#endif
++
++#if !defined(__cdecl)
++#  define __cdecl
++#endif
++#if !defined(__fastcall)
++#  define __fastcall
++#endif
++
++typedef int SOCKET;
++typedef int HANDLE;
++typedef unsigned long DWORD;
++
++#ifndef FALSE
++#  define FALSE 0
++#endif
++#ifndef TRUE
++#  define TRUE 1
++#endif
++#ifndef INVALID_SOCKET
++#  define INVALID_SOCKET (-1)
++#endif
++#ifndef SOCKET_ERROR
++#  define SOCKET_ERROR (-1)
++#endif
++#ifndef WSAEWOULDBLOCK
++#  define WSAEWOULDBLOCK EWOULDBLOCK
++#endif
++#ifndef INFINITE
++#  define INFINITE INT_MAX
++#endif
++#ifndef WAIT_OBJECT_0
++#  define WAIT_OBJECT_0 0
++#endif
++#ifndef WAIT_TIMEOUT
++#  define WAIT_TIMEOUT 258
++#endif
++#ifndef MAX_PATH
++#  define MAX_PATH 260
++#endif
++
++inline int
++sprintf_s(char *buffer, size_t size, const char *fmt, ...)
++{
++   va_list args;
++   va_start(args, fmt);
++   int result = vsnprintf(buffer, size, fmt, args);
++   va_end(args);
++   if (size > 0) {
++      buffer[size - 1] = '\0';
++   }
++   return result;
++}
++
++inline int
++vsprintf_s(char *buffer, size_t size, const char *fmt, va_list args)
++{
++   int result = vsnprintf(buffer, size, fmt, args);
++   if (size > 0) {
++      buffer[size - 1] = '\0';
++   }
++   return result;
++}
++
++inline int
++strcpy_s(char *dest, size_t destsz, const char *src)
++{
++   if (!dest || !src || destsz == 0) {
++      return EINVAL;
++   }
++   strncpy(dest, src, destsz - 1);
++   dest[destsz - 1] = '\0';
++   return 0;
++}
++
++template <size_t N>
++inline int
++strcpy_s(char (&dest)[N], const char *src)
++{
++   return strcpy_s(dest, N, src);
++}
++
++inline int
++strncat_s(char *dest, size_t destsz, const char *src, size_t count)
++{
++   if (!dest || !src || destsz == 0) {
++      return EINVAL;
++   }
++   size_t used = strlen(dest);
++   size_t available = destsz > used ? destsz - used : destsz;
++   if (available == 0) {
++      return ERANGE;
++   }
++   size_t copy = strnlen(src, count);
++   if (copy >= available) {
++      copy = available - 1;
++   }
++   memcpy(dest + used, src, copy);
++   dest[used + copy] = '\0';
++   return 0;
++}
++
++inline int
++fopen_s(FILE **fp, const char *filename, const char *mode)
++{
++   *fp = fopen(filename, mode);
++   return *fp ? 0 : errno;
++}
++
++inline int WSAGetLastError() { return errno; }
++inline int closesocket(SOCKET s) { return close(s); }
++inline int ioctlsocket(SOCKET s, long cmd, u_long *argp) { return ioctl(s, cmd, argp); }
++inline HANDLE CreateEvent(void *, bool, bool, const char *) { return -1; }
++inline DWORD WaitForMultipleObjects(int, HANDLE *, bool, int timeout)
++{
++   if (timeout > 0 && timeout != INFINITE) {
++      usleep((useconds_t)timeout * 1000);
++   }
++   return WAIT_TIMEOUT;
++}
++inline void Sleep(int ms) { if (ms > 0) usleep((useconds_t)ms * 1000); }
++inline void OutputDebugStringA(const char *msg) { fputs(msg, stderr); }
++inline void DebugBreak() { abort(); }
++inline int CreateDirectoryA(const char *path, void *) { return mkdir(path, 0755) == 0 || errno == EEXIST; }
++
+ class Platform {
+ public:  // types
+    typedef pid_t ProcessID;
+ 
+ public:  // functions
+    static ProcessID GetProcessID() { return getpid(); }
+-   static void AssertFailed(char *msg) { }
++   static void AssertFailed(char *msg) { fputs(msg, stderr); fputc('\n', stderr); }
+    static uint32 GetCurrentTimeMS();
++   static int GetConfigInt(const char *name);
++   static bool GetConfigBool(const char *name);
+ };
+ 
+ #endif

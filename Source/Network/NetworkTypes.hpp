@@ -267,6 +267,7 @@ struct sNetworkMatchSettings {
     eNetworkVehicleSet mVehicleSet = NETWORK_VEHICLE_SET_DEFAULT;
     eNetworkPickupDensity mPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
     eNetworkCoverDensity mCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
+    uint8_t          mMapTerrainSub = 0; // Random-map terrain sub-tileset (e.g. jungle beach = 1); synced host->joiner
 };
 
 static_assert(sizeof(sNetworkMatchSettings) == 20, "sNetworkMatchSettings must stay compact for lobby packets");

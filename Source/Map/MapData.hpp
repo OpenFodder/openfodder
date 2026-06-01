@@ -27,7 +27,9 @@ struct sMapParams {
 	size_t		mHeight;
 	eTileTypes	mTileType;
 	eTileSub	mTileSub;
-	cPseudorand mRandom;
+	// 32-bit map-generation RNG (NOT the int16 gameplay cFodder::mRandom, which
+	// stays cPseudorand for original-game fidelity). See Utils/maprand32.hpp.
+	cMapRandom32 mRandom;
 
 	sMapParams(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTileSub pTileSub = eTileSub::eTileSub_0);
 	sMapParams(size_t pSeed = 0);

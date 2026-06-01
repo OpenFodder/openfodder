@@ -36,7 +36,7 @@ sMapParams::sMapParams(size_t pSeed) {
 	mHeight = 20;
 
 	if (pSeed)
-		mRandom.setSeed((int16)pSeed);
+		mRandom.setSeed((uint32_t)pSeed);
 }
 
 cMapData::cMapData() {
@@ -90,6 +90,20 @@ void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	case eSprite_VehicleNoGun_Enemy:
 	case eSprite_VehicleGun_Enemy:
 	case eSprite_Vehicle_Unk_Enemy:
+	// Turrets need a trailing companion slot: Sprite_Handle_Turret writes a
+	// Flashing_Light into (turret + 1) every frame. Without the reserved Null the
+	// light clobbers whatever sprite follows (e.g. the next turret), so that
+	// sprite's gun never renders and only its 381/382 base tile shows. The runtime
+	// cFodder::Sprite_Add reserves this slot and shipped .spt files include a
+	// type-41 after each turret; cMapData::Sprite_Add (used when generating/saving
+	// random maps) was missing it.
+	case eSprite_Turret_Missile_Human:
+	case eSprite_Turret_Missile2_Human:
+	case eSprite_Turret_Missile_Enemy:
+	case eSprite_Turret_Missile2_Enemy:
+	case eSprite_Turret_HomingMissile_Enemy:
+	case eSprite_Turret_Cannon_Invulnerable:
+	case eSprite_Turret_Missile_Invulnerable:
 		First.mSpriteType = eSprite_Null;
 		mSprites.push_back(First);
 		break;

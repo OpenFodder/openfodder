@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "NetworkMenuText.hpp"
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
@@ -47,26 +48,6 @@ static bool MultiplayerMenu_PortFromText(const std::string& pText, uint16& pPort
     return true;
 }
 
-static bool MultiplayerMenu_UInt32FromText(const std::string& pText, uint32& pValue)
-{
-    if (pText.empty())
-        return false;
-
-    uint64_t Value = 0;
-    for (char Char : pText)
-    {
-        if (Char < '0' || Char > '9')
-            return false;
-
-        Value = (Value * 10) + (uint64_t)(Char - '0');
-        if (Value > 0xFFFFFFFFu)
-            return false;
-    }
-
-    pValue = (uint32)Value;
-    return true;
-}
-
 static std::string MultiplayerMenu_DisplayHost(std::string pHost)
 {
     for (char& Char : pHost)
@@ -76,31 +57,6 @@ static std::string MultiplayerMenu_DisplayHost(std::string pHost)
     }
 
     return pHost;
-}
-
-static std::string MultiplayerMenu_FitText(const std::string& pText, int pMaxPx)
-{
-    std::string Result;
-    int Width = 0;
-
-    for (char RawChar : pText)
-    {
-        unsigned char Char = (unsigned char)std::toupper((unsigned char)RawChar);
-        if (!((Char >= 'A' && Char <= 'Z') || (Char >= '0' && Char <= '9') || Char == ' '))
-            Char = ' ';
-
-        const int CharWidth = (int)mFont_Briefing_Width[Char];
-        if (Width + CharWidth > pMaxPx)
-            break;
-
-        Result.push_back((char)Char);
-        Width += CharWidth;
-    }
-
-    while (!Result.empty() && Result.back() == ' ')
-        Result.pop_back();
-
-    return Result;
 }
 
 static const char* MultiplayerMenu_ModeShortName(eNetworkGameMode pMode)
@@ -163,6 +119,7 @@ void cMultiplayerMenu::Open() {
     mFriendlyFire = g_Fodder->mStartParams->mNetworkFriendlyFire;
     mMapSize = g_Fodder->mStartParams->mNetworkMapSize;
     mMapTerrain = g_Fodder->mStartParams->mNetworkMapTerrain;
+    mMapTerrainSub = (uint8)g_Fodder->mStartParams->mNetworkMapTerrainSub;
     mVehicleSet = g_Fodder->mStartParams->mNetworkVehicleSet;
     mPickupDensity = g_Fodder->mStartParams->mNetworkPickupDensity;
     mCoverDensity = g_Fodder->mStartParams->mNetworkCoverDensity;
@@ -446,7 +403,7 @@ void cMultiplayerMenu::DrawFindLanMenu() {
             Label += " ";
             Label += std::to_string((int)AgeSeconds);
             Label += "S";
-            Label = MultiplayerMenu_FitText(Label, 190);
+            Label = NetworkMenu_FitText(Label, 190);
 
             g_Fodder->GUI_Button_Draw_Small(Label.c_str(), rowY, Joinable ? 0xB2 : 0xF2, Joinable ? 0xB3 : 0xF3);
             if (Joinable)
@@ -508,7 +465,7 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
 void cMultiplayerMenu::DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction) {
     const size_t FieldX1 = 0x88;
     const size_t FieldX2 = 0x128;
-    const std::string FittedValue = MultiplayerMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
+    const std::string FittedValue = NetworkMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
 
     g_Fodder->String_Print_Small(pLabel, 0x20, pY);
     g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
@@ -527,7 +484,7 @@ void cMultiplayerMenu::DrawField(const char* pLabel, const std::string& pValue, 
     const size_t FieldX1 = 0x88;
     const size_t FieldX2 = 0x128;
     const std::string Value = pValue.size() ? pValue : "ENTER";
-    const std::string FittedValue = MultiplayerMenu_FitText(Value, (int)(FieldX2 - FieldX1 - 4));
+    const std::string FittedValue = NetworkMenu_FitText(Value, (int)(FieldX2 - FieldX1 - 4));
 
     g_Fodder->String_Print_Small(pLabel, 0x20, pY);
     g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
@@ -627,7 +584,7 @@ void cMultiplayerMenu::HandleTextInput() {
         uint16 ParsedPort = 0;
         if (mEditField == eEditField::MapSeed) {
             uint32 ParsedSeed = 0;
-            if (!MultiplayerMenu_UInt32FromText(Candidate, ParsedSeed))
+            if (!NetworkMenu_UInt32FromText(Candidate, ParsedSeed))
                 return;
         }
         else if (!MultiplayerMenu_PortFromText(Candidate, ParsedPort)) {
@@ -709,6 +666,7 @@ void cMultiplayerMenu::SelectDiscoveredGame(size_t pIndex) {
     mFriendlyFire = (Game.mSettings.mFriendlyFire != 0);
     mMapSize = Network_NormalizeMapSize((uint8_t)Game.mSettings.mMapSize);
     mMapTerrain = Network_NormalizeMapTerrain((uint8_t)Game.mSettings.mMapTerrain);
+    mMapTerrainSub = Game.mSettings.mMapTerrainSub;
     mVehicleSet = Network_NormalizeVehicleSet((uint8_t)Game.mSettings.mVehicleSet);
     mPickupDensity = Network_NormalizePickupDensity((uint8_t)Game.mSettings.mPickupDensity);
     mCoverDensity = Network_NormalizeCoverDensity((uint8_t)Game.mSettings.mCoverDensity);
@@ -724,6 +682,7 @@ sRandomMapOptions cMultiplayerMenu::BuildMapOptions() const {
     Options.mSeed = mMapSeed;
     Options.mMapSize = mMapSize;
     Options.mMapTerrain = mMapTerrain;
+    Options.mMapTerrainSub = mMapTerrainSub;
     Options.mVehicleSet = mVehicleSet;
     Options.mPickupDensity = mPickupDensity;
     Options.mCoverDensity = mCoverDensity;
@@ -737,6 +696,7 @@ void cMultiplayerMenu::ApplyMapOptions(const sRandomMapOptions& pOptions) {
     mMapSeedText = std::to_string(mMapSeed);
     mMapSize = pOptions.mMapSize;
     mMapTerrain = pOptions.mMapTerrain;
+    mMapTerrainSub = (uint8)pOptions.mMapTerrainSub;
     mVehicleSet = pOptions.mVehicleSet;
     mPickupDensity = pOptions.mPickupDensity;
     mCoverDensity = pOptions.mCoverDensity;
@@ -755,7 +715,7 @@ bool cMultiplayerMenu::CanStart() const {
     return mRemoteHost.size()
         && MultiplayerMenu_PortFromText(mRemotePortText, ParsedRemotePort)
         && MultiplayerMenu_PortFromText(mLocalPortText, ParsedLocalPort)
-        && MultiplayerMenu_UInt32FromText(mMapSeedText, ParsedSeed);
+        && NetworkMenu_UInt32FromText(mMapSeedText, ParsedSeed);
 }
 
 void cMultiplayerMenu::SyncPortValues() {
@@ -767,7 +727,7 @@ void cMultiplayerMenu::SyncPortValues() {
         mLocalPort = ParsedPort;
 
     uint32 ParsedSeed = 0;
-    if (MultiplayerMenu_UInt32FromText(mMapSeedText, ParsedSeed))
+    if (NetworkMenu_UInt32FromText(mMapSeedText, ParsedSeed))
         mMapSeed = ParsedSeed;
 }
 
@@ -835,6 +795,7 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
         mStartParams->mNetworkFriendlyFire = mMultiplayerMenu->GetFriendlyFire();
         mStartParams->mNetworkMapSize     = mMultiplayerMenu->GetMapSize();
         mStartParams->mNetworkMapTerrain  = mMultiplayerMenu->GetMapTerrain();
+        mStartParams->mNetworkMapTerrainSub = mMultiplayerMenu->GetMapTerrainSub();
         mStartParams->mNetworkVehicleSet  = mMultiplayerMenu->GetVehicleSet();
         mStartParams->mNetworkPickupDensity = mMultiplayerMenu->GetPickupDensity();
         mStartParams->mNetworkCoverDensity = mMultiplayerMenu->GetCoverDensity();

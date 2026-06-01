@@ -51,12 +51,38 @@ public:
 	std::vector<sSprite*>	getSpritesByType(size_t pSpriteType);
 	float					getRandomFloat(float pMin, float pMax);
 	int32					getRandomInt(int32 pMin = 0, int32 pMax = 0);
-	int16					getSeed() const;
-	void					setSeed(const int16 pSeed);
+	uint32					getSeed() const;
+	void					setSeed(const uint32 pSeed);
 
 	cPosition*				getRandomXYByTileID(std::vector<size_t> pTiles, size_t pRadius);
 	cPosition*				getRandomXYByFeatures(std::vector<eTerrainFeature> pFeatures, size_t pRadius, bool pIgnoreSprites);
 	cPosition*				getRandomXYByTerrainType(eTerrainFeature pType, size_t pRadius);
+
+	// Engine-authoritative terrain queries, for the map generator to test what a
+	// tile actually IS in-game (HIT/BHT collision) instead of guessing from tile
+	// IDs. Coordinates are TILE coordinates; the feature is sampled at the tile
+	// centre. getTileTerrainFeature returns the eTerrainFeature (-1 out of bounds);
+	// isTileWalkable applies the engine's mTiles_NotWalkable verdict for foot units.
+	int16					getTileTerrainFeature(int32 pTileX, int32 pTileY);
+	bool					isTileWalkable(int32 pTileX, int32 pTileY);
+
+	// Native ice tile-art "Wang" edge matcher (the hot ~47% of each ice render).
+	// The authored atlas + all per-cell semantics stay in JS; these just cache
+	// the static atlas once (SetIceEdgeAtlas) and run the per-cell scoring loop
+	// (ApplyIceEdgeRule). See Source/Map/IceEdgeMatcher.{hpp,cpp}. This preserves
+	// the JS-facing ApplyEdgeRule contract while keeping the hot loop native.
+	void					setIceEdgeAtlas(std::vector<std::string> pTileRecords,
+								std::vector<std::string> pByCenter,
+								std::vector<std::string> pCharToClass);
+	std::vector<int>		applyIceEdgeRule(int32 pWidth, int32 pHeight,
+								std::string pChars, std::string pHints,
+								std::string pReqCenter, std::string pReqContents,
+								double pSeed);
+	std::vector<int>		applyIceEdgeRuleMasked(int32 pWidth, int32 pHeight,
+								std::string pChars, std::string pHints,
+								std::string pReqCenter, std::string pReqContents,
+								std::string pDirtyMask, std::string pPreviousTiles,
+								double pSeed);
 
 	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);
 

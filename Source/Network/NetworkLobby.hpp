@@ -49,7 +49,7 @@
 // Sent periodically (~every frame) so both players stay in sync.
 struct sLobbyPacket {
     static const uint32_t MAGIC = 0x4C4F4232; // "LOB2"
-    static const uint8_t  VERSION = 4;
+    static const uint8_t  VERSION = 5;
 
     uint32_t magic;
     uint32_t playerId;       // per-lobby sender nonce; rejects looped/stale packets
@@ -59,7 +59,7 @@ struct sLobbyPacket {
     uint8_t  started;        // 1 = host says GO, load this campaign
     int16_t  selection;      // campaign list index the host is viewing
     uint8_t  connected;      // 1 = peer has received at least one packet
-    uint8_t  padding[1];
+    uint8_t  mapTerrainSub;  // random-map terrain sub-tileset (was padding); synced host->joiner for map determinism
     char     campaign[64];   // campaign name string (null-terminated)
     uint8_t  gameMode;       // eNetworkGameMode
     uint8_t  teamCount;
