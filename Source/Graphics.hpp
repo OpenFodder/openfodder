@@ -97,14 +97,14 @@ public:
 	void LoadPalette_Amiga( const uint8 *pFrom, const size_t pCount, const size_t pStartColorID = 0 ) {
 
 		uint16 color;
+		const size_t PaletteLimit = sizeof(mPalette) / sizeof(mPalette[0]);
 
-		if (pStartColorID >= 256)
+		if (pStartColorID >= PaletteLimit)
 			return;
 
-		const size_t MaxColors = 256 - pStartColorID;
-		const size_t PaletteCount = std::min(pCount, MaxColors);
+		const size_t ColorsToRead = std::min(pCount, PaletteLimit - pStartColorID);
 
-		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + PaletteCount; ColorID++) {
+		for (size_t ColorID = pStartColorID; ColorID < pStartColorID + ColorsToRead; ColorID++) {
 
 			// Get the next color codes
 			color = readBEWord(pFrom);

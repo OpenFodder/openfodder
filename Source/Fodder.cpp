@@ -3870,6 +3870,7 @@ bool cFodder::RandomMapOptions_RunCampaign()
     Options.mPickupDensity = mStartParams->mRandomMapPickupDensity;
     Options.mCoverDensity = mStartParams->mRandomMapCoverDensity;
     Options.mProfile = mStartParams->mRandomMapProfile;
+    Options.mProfileName = mStartParams->mRandomMapProfileName;
 
     if (!RandomMapOptions_Run(Options, cRandomMapOptionsMenu::eContext::Campaign))
         return false;
@@ -3883,7 +3884,7 @@ bool cFodder::RandomMapOptions_RunCampaign()
     mStartParams->mRandomMapPickupDensity = Options.mPickupDensity;
     mStartParams->mRandomMapCoverDensity = Options.mCoverDensity;
     mStartParams->mRandomMapProfile = Options.mProfile;
-    mStartParams->mRandomMapProfileName = "";
+    mStartParams->mRandomMapProfileName = Options.mProfileName;
 
     mParams->mRandomMapOptionsEnabled = true;
     mParams->mRandomMapSeed = Options.mSeed;
@@ -3894,7 +3895,7 @@ bool cFodder::RandomMapOptions_RunCampaign()
     mParams->mRandomMapPickupDensity = Options.mPickupDensity;
     mParams->mRandomMapCoverDensity = Options.mCoverDensity;
     mParams->mRandomMapProfile = Options.mProfile;
-    mParams->mRandomMapProfileName = "";
+    mParams->mRandomMapProfileName = Options.mProfileName;
 
     // Random maps lift the original 45-sprite cap so generated content (decor,
     // structures, pickups, vehicles) isn't truncated. Mirrors the --random CLI path.
