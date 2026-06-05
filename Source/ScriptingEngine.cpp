@@ -337,6 +337,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::setIceEdgeAtlas, "SetIceEdgeAtlas");
 	dukglue_register_method(mContext, &cRandomMap::applyIceEdgeRule, "ApplyIceEdgeRule");
 	dukglue_register_method(mContext, &cRandomMap::applyIceEdgeRuleMasked, "ApplyIceEdgeRuleMasked");
+	dukglue_register_method(mContext, &cRandomMap::applyIceEdgeRuleMaskedRegion, "ApplyIceEdgeRuleMaskedRegion");
 
 	dukglue_register_property(mContext, &cRandomMap::getSeed, &cRandomMap::setSeed, "seed");
 

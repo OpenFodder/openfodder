@@ -34,6 +34,7 @@ struct sRandomMapOptions {
     eNetworkPickupDensity mPickupDensity = NETWORK_PICKUP_DENSITY_DEFAULT;
     eNetworkCoverDensity  mCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
     eNetworkMapProfile    mProfile = NETWORK_MAP_PROFILE_DEFAULT;
+    std::string           mProfileName;
 };
 
 class cRandomMapOptionsMenu {
@@ -72,10 +73,7 @@ private:
         ACT_CYCLE_PROFILE,
         ACT_RANDOMIZE_SEED,
         ACT_TAB_MAIN,
-        ACT_TAB_LAYOUT,
-        ACT_TAB_TERRAIN,
         ACT_TAB_SUPPORT,
-        ACT_TAB_FAIRNESS,
     };
 
     enum class eEditField {
@@ -85,10 +83,7 @@ private:
 
     enum class eTab {
         Main,
-        Layout,
-        Terrain,
         Support,
-        Fairness,
     };
 
     void DrawTabs(int16 pY);
@@ -106,7 +101,8 @@ private:
     void ApplyProfile();
     void MarkProfileCustom();
     void InferProfile();
-    const char* GetProfileName() const;
+    void ClearProfileName();
+    std::string GetProfileName() const;
     const char* GetTerrainName() const;
     const char* GetModeName() const;
     const char* GetModeShortName() const;

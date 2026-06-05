@@ -83,6 +83,12 @@ public:
 								std::string pReqCenter, std::string pReqContents,
 								std::string pDirtyMask, std::string pPreviousTiles,
 								double pSeed);
+	std::vector<int>		applyIceEdgeRuleMaskedRegion(int32 pWidth, int32 pHeight,
+								std::string pChars, std::string pHints,
+								std::string pReqCenter, std::string pReqContents,
+								std::string pDirtyMask, std::string pPreviousTiles,
+								double pSeed,
+								int32 pMinX, int32 pMinY, int32 pMaxX, int32 pMaxY);
 
 	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);
 

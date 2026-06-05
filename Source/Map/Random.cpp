@@ -419,6 +419,21 @@ std::vector<int> cRandomMap::applyIceEdgeRuleMasked(int32 pWidth, int32 pHeight,
 		seed, &pDirtyMask, &previousTiles);
 }
 
+std::vector<int> cRandomMap::applyIceEdgeRuleMaskedRegion(int32 pWidth, int32 pHeight,
+	std::string pChars, std::string pHints,
+	std::string pReqCenter, std::string pReqContents,
+	std::string pDirtyMask, std::string pPreviousTiles,
+	double pSeed,
+	int32 pMinX, int32 pMinY, int32 pMaxX, int32 pMaxY)
+{
+	uint32_t seed = (uint32_t)pSeed;
+	std::vector<int> previousTiles = parseTileCsv(pPreviousTiles);
+	return gIceEdgeMatcher.apply(
+		pWidth, pHeight, pChars, pHints, pReqCenter, pReqContents,
+		seed, &pDirtyMask, &previousTiles,
+		pMinX, pMinY, pMaxX, pMaxY);
+}
+
 int cRandomMap::Passable(int nx, int ny)
 {
 	auto TerrainType = g_Fodder->Map_Terrain_Get(nx, ny);

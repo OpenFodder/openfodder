@@ -75,7 +75,11 @@ public:
                            const std::string& pReqContents,
                            uint32_t pSeed,
                            const std::string* pDirtyMask = nullptr,
-                           const std::vector<int>* pPreviousTiles = nullptr) const;
+                           const std::vector<int>* pPreviousTiles = nullptr,
+                           int pMinX = 0,
+                           int pMinY = 0,
+                           int pMaxX = -1,
+                           int pMaxY = -1) const;
 
 private:
     bool mReady = false;

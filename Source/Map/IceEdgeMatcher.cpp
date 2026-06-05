@@ -223,7 +223,11 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                                 const std::string& pReqContents,
                                 uint32_t pSeed,
                                 const std::string* pDirtyMask,
-                                const std::vector<int>* pPreviousTiles) const {
+                                const std::vector<int>* pPreviousTiles,
+                                int pMinX,
+                                int pMinY,
+                                int pMaxX,
+                                int pMaxY) const {
     std::vector<int> tilesOut((size_t)pWidth * pHeight, 0);
     if(!mReady || pWidth <= 0 || pHeight <= 0)
         return tilesOut;
@@ -236,6 +240,28 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
     bool masked = pDirtyMask && pPreviousTiles &&
         pDirtyMask->size() >= cells && pPreviousTiles->size() >= cells;
     std::vector<int> placed(cells, -1);
+    if(masked) {
+        for(size_t i = 0; i < cells; ++i) {
+            int prev = (*pPreviousTiles)[i];
+            tilesOut[i] = prev;
+            placed[i] = prev;
+        }
+    }
+
+    int scanMinX = 0;
+    int scanMinY = 0;
+    int scanMaxX = pWidth - 1;
+    int scanMaxY = pHeight - 1;
+    if(pMaxX >= 0 && pMaxY >= 0) {
+        if(pMinX > pMaxX || pMinY > pMaxY ||
+            pMaxX < 0 || pMaxY < 0 ||
+            pMinX >= pWidth || pMinY >= pHeight)
+            return tilesOut;
+        scanMinX = pMinX < 0 ? 0 : pMinX;
+        scanMinY = pMinY < 0 ? 0 : pMinY;
+        scanMaxX = pMaxX >= pWidth ? pWidth - 1 : pMaxX;
+        scanMaxY = pMaxY >= pHeight ? pHeight - 1 : pMaxY;
+    }
 
     int maxTileId = 0;
     for(std::unordered_map<int, TileRec>::const_iterator it = mTiles.begin(); it != mTiles.end(); ++it)
@@ -253,15 +279,11 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
 
     std::unordered_map<int, std::vector<int>>::const_iterator byIce = mByCenter.find((int)'I');
 
-    for(int y = 0; y < pHeight; ++y) {
-        for(int x = 0; x < pWidth; ++x) {
+    for(int y = scanMinY; y <= scanMaxY; ++y) {
+        for(int x = scanMinX; x <= scanMaxX; ++x) {
             size_t idx = (size_t)y * pWidth + x;
-            if(masked && (*pDirtyMask)[idx] != '1') {
-                int prev = (*pPreviousTiles)[idx];
-                tilesOut[idx] = prev;
-                placed[idx] = prev;
+            if(masked && (*pDirtyMask)[idx] != '1')
                 continue;
-            }
 
             char cls = CLASS_AT(x, y);
 

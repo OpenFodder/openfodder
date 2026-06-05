@@ -126,24 +126,9 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
         mTab = eTab::Main;
         break;
 
-    case ACT_TAB_LAYOUT:
-        mEditField = eEditField::None;
-        mTab = eTab::Layout;
-        break;
-
-    case ACT_TAB_TERRAIN:
-        mEditField = eEditField::None;
-        mTab = eTab::Terrain;
-        break;
-
     case ACT_TAB_SUPPORT:
         mEditField = eEditField::None;
         mTab = eTab::Support;
-        break;
-
-    case ACT_TAB_FAIRNESS:
-        mEditField = eEditField::None;
-        mTab = eTab::Fairness;
         break;
 
     default:
@@ -182,53 +167,8 @@ void cRandomMapOptionsMenu::Draw()
         rowY += rowH;
         DrawValueButton("TERRAIN", GetTerrainName(), rowY, ACT_CYCLE_MAP_TERRAIN);
         rowY += rowH;
-        if (mContext == eContext::Multiplayer)
-            DrawValueButton("MODE", GetModeName(), rowY, ACT_CYCLE_MODE);
-        else
-            DrawStaticValue("MODE", GetModeName(), rowY);
-        break;
-
-    case eTab::Layout: {
-        const char* Layout = "STANDARD";
-        if (mProfile == eNetworkMapProfile_Beach)
-            Layout = "COAST";
-        else if (mProfile == eNetworkMapProfile_Ice)
-            Layout = "ICE";
-        else if (mProfile == eNetworkMapProfile_Random)
-            Layout = "RANDOM";
-        else if (mProfile == eNetworkMapProfile_Custom)
-            Layout = "CUSTOM";
-
-        DrawStaticValue("LAYOUT", Layout, rowY);
-        rowY += rowH;
-        DrawStaticValue("PATHS", "PROFILE DEFAULT", rowY);
-        rowY += rowH;
-        DrawStaticValue("CLEARINGS", "PROFILE DEFAULT", rowY);
-        rowY += rowH;
-        DrawStaticValue("SPAWNS", IsPvPMode() ? "TEAM REGIONS" : "PLAYER START", rowY);
-        rowY += rowH;
-        DrawStaticValue("RETRIES", "VALIDATE ON START", rowY);
-        break;
-    }
-
-    case eTab::Terrain: {
-        const char* WaterStyle = "PROFILE DEFAULT";
-        if (mProfile == eNetworkMapProfile_Beach)
-            WaterStyle = "COASTAL";
-        else if (mProfile == eNetworkMapProfile_Ice)
-            WaterStyle = "ICE LAKES";
-
         DrawValueButton("COVER", Network_CoverDensityName(mOptions.mCoverDensity), rowY, ACT_CYCLE_COVER);
-        rowY += rowH;
-        DrawStaticValue("WATER", WaterStyle, rowY);
-        rowY += rowH;
-        DrawStaticValue("BLOCKERS", "MATCH COVER", rowY);
-        rowY += rowH;
-        DrawStaticValue("GROUND VAR", "PROFILE DEFAULT", rowY);
-        rowY += rowH;
-        DrawStaticValue("DECOR", "PROFILE DEFAULT", rowY);
         break;
-    }
 
     case eTab::Support:
         DrawValueButton("VEHICLES", Network_VehicleSetName(mOptions.mVehicleSet), rowY, ACT_CYCLE_VEHICLES);
@@ -240,21 +180,7 @@ void cRandomMapOptionsMenu::Draw()
         else
             DrawStaticValue("OBJECTIVE", "CAMPAIGN", rowY);
         rowY += rowH;
-        DrawStaticValue("RULES", IsPvPMode() ? "MATCH RULES" : "CAMPAIGN", rowY);
-        rowY += rowH;
-        DrawStaticValue("SUPPORT", "PROFILE DEFAULT", rowY);
-        break;
-
-    case eTab::Fairness:
-        DrawStaticValue("SPAWNS", IsPvPMode() ? "OPPOSED" : "PLAYER START", rowY);
-        rowY += rowH;
-        DrawStaticValue("SYMMETRY", IsPvPMode() ? "SOFT" : "NOT REQUIRED", rowY);
-        rowY += rowH;
-        DrawStaticValue("PICKUPS", IsPvPMode() ? "SOFT" : "CAMPAIGN", rowY);
-        rowY += rowH;
-        DrawStaticValue("WATER", IsPvPMode() ? "FAIR CHECK" : "PROFILE DEFAULT", rowY);
-        rowY += rowH;
-        DrawStaticValue("QUALITY", "CHECK ON START", rowY);
+        DrawStaticValue("QUALITY", "VALIDATED", rowY);
         break;
     }
 
@@ -274,15 +200,12 @@ void cRandomMapOptionsMenu::DrawTabs(int16 pY)
     const size_t xRowL = 0x20;
     const size_t xRowR = 0x128;
     const size_t tabGap = 4;
-    const size_t tabCount = 5;
+    const size_t tabCount = 2;
     const size_t totalW = xRowR - xRowL + 1;
     const size_t tabW = (totalW - (tabGap * (tabCount - 1))) / tabCount;
 
     DrawTab("MAIN", ACT_TAB_MAIN, mTab == eTab::Main, xRowL + (0 * (tabW + tabGap)), xRowL + (0 * (tabW + tabGap)) + tabW - 1, pY);
-    DrawTab("LAYOUT", ACT_TAB_LAYOUT, mTab == eTab::Layout, xRowL + (1 * (tabW + tabGap)), xRowL + (1 * (tabW + tabGap)) + tabW - 1, pY);
-    DrawTab("TERRAIN", ACT_TAB_TERRAIN, mTab == eTab::Terrain, xRowL + (2 * (tabW + tabGap)), xRowL + (2 * (tabW + tabGap)) + tabW - 1, pY);
-    DrawTab("SUPPORT", ACT_TAB_SUPPORT, mTab == eTab::Support, xRowL + (3 * (tabW + tabGap)), xRowL + (3 * (tabW + tabGap)) + tabW - 1, pY);
-    DrawTab("FAIR", ACT_TAB_FAIRNESS, mTab == eTab::Fairness, xRowL + (4 * (tabW + tabGap)), xRowL + (4 * (tabW + tabGap)) + tabW - 1, pY);
+    DrawTab("SUPPORT", ACT_TAB_SUPPORT, mTab == eTab::Support, xRowL + (1 * (tabW + tabGap)), xRowL + (1 * (tabW + tabGap)) + tabW - 1, pY);
 }
 
 void cRandomMapOptionsMenu::DrawTab(const char* pLabel, int16 pAction, bool pActive, size_t pX1, size_t pX2, int16 pY)
@@ -344,7 +267,7 @@ void cRandomMapOptionsMenu::DrawStaticValue(const char* pLabel, const std::strin
     const std::string FittedValue = NetworkMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
 
     g_Fodder->String_Print_Small(pLabel, 0x20, pY);
-    g_Fodder->GUI_Button_Draw_SmallBoxAt(FittedValue, FieldX1, FieldX2, pY, 0xF2, 0xF3, eTextAlign::Left);
+    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
 }
 
 void cRandomMapOptionsMenu::DrawFooter()
@@ -445,16 +368,16 @@ void cRandomMapOptionsMenu::RandomizeSeed()
     mEditField = eEditField::None;
 }
 
-// NOTE (fragile, but display-only): when the incoming profile is Custom this
-// reverse-infers a named profile by exact-matching EVERY option field against one
-// hardcoded constant per profile. Any new option added to a profile, or any default
-// change, silently breaks the match and falls back to Custom. Impact is cosmetic
-// (drives the GetProfileName label only — not generation), so it is left as-is. A
-// drift-proof fix would derive each profile's canonical option-set from ApplyProfile
-// and compare against that, rather than re-hardcoding the constants here.
+// Display-only: if there is no explicit script profile name, reverse-infer the
+// named menu profile from the small option set the menu actually owns.
 void cRandomMapOptionsMenu::InferProfile()
 {
     mOptions.mProfile = Network_NormalizeMapProfile((uint8_t)mOptions.mProfile);
+    if (!mOptions.mProfileName.empty()) {
+        mProfile = mOptions.mProfile;
+        return;
+    }
+
     if (mOptions.mProfile != eNetworkMapProfile_Custom) {
         mProfile = mOptions.mProfile;
         return;
@@ -495,8 +418,11 @@ void cRandomMapOptionsMenu::InferProfile()
     mOptions.mProfile = mProfile;
 }
 
-const char* cRandomMapOptionsMenu::GetProfileName() const
+std::string cRandomMapOptionsMenu::GetProfileName() const
 {
+    if (!mOptions.mProfileName.empty() && mProfile == eNetworkMapProfile_Custom)
+        return mOptions.mProfileName;
+
     return Network_MapProfileName(mProfile);
 }
 
@@ -511,6 +437,7 @@ const char* cRandomMapOptionsMenu::GetTerrainName() const
 void cRandomMapOptionsMenu::ApplyProfile()
 {
     mOptions.mProfile = mProfile;
+    ClearProfileName();
 
     switch (mProfile) {
     case eNetworkMapProfile_Jungle:
@@ -520,6 +447,26 @@ void cRandomMapOptionsMenu::ApplyProfile()
         mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
         mOptions.mVehicleSet = eNetworkVehicleSet_None;
         mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+        break;
+
+    case eNetworkMapProfile_JungleMaze:
+        mOptions.mMapSize = eNetworkMapSize_Medium;
+        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
+        mOptions.mMapTerrainSub = 0;
+        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+        mOptions.mProfileName = "grammar_jungle_maze";
+        break;
+
+    case eNetworkMapProfile_JungleNeck:
+        mOptions.mMapSize = eNetworkMapSize_Medium;
+        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
+        mOptions.mMapTerrainSub = 0;
+        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+        mOptions.mProfileName = "grammar_jungle_neck";
         break;
 
     case eNetworkMapProfile_Beach:
@@ -540,6 +487,36 @@ void cRandomMapOptionsMenu::ApplyProfile()
         mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
         break;
 
+    case eNetworkMapProfile_IceMaze:
+        mOptions.mMapSize = eNetworkMapSize_Medium;
+        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
+        mOptions.mMapTerrainSub = 0;
+        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+        mOptions.mProfileName = "grammar_ice_maze";
+        break;
+
+    case eNetworkMapProfile_IceNeck:
+        mOptions.mMapSize = eNetworkMapSize_Medium;
+        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
+        mOptions.mMapTerrainSub = 0;
+        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+        mOptions.mProfileName = "grammar_ice_neck";
+        break;
+
+    case eNetworkMapProfile_IceSkidooJump:
+        mOptions.mMapSize = eNetworkMapSize_Medium;
+        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
+        mOptions.mMapTerrainSub = 0;
+        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
+        mOptions.mVehicleSet = eNetworkVehicleSet_Light;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+        mOptions.mProfileName = "grammar_ice_skidoo_jump";
+        break;
+
     case eNetworkMapProfile_Random:
         mOptions.mMapSize = eNetworkMapSize_Medium;
         mOptions.mMapTerrain = eNetworkMapTerrain_Random;
@@ -557,11 +534,28 @@ void cRandomMapOptionsMenu::ApplyProfile()
 
 void cRandomMapOptionsMenu::CycleProfile()
 {
-    int Next = (int)mProfile + 1;
-    if (Next >= (int)eNetworkMapProfile_Custom)
-        Next = 0;
+    const eNetworkMapProfile Profiles[] = {
+        eNetworkMapProfile_Jungle,
+        eNetworkMapProfile_JungleMaze,
+        eNetworkMapProfile_JungleNeck,
+        eNetworkMapProfile_Beach,
+        eNetworkMapProfile_Ice,
+        eNetworkMapProfile_IceMaze,
+        eNetworkMapProfile_IceNeck,
+        eNetworkMapProfile_IceSkidooJump,
+        eNetworkMapProfile_Random,
+    };
+    const size_t ProfileCount = sizeof(Profiles) / sizeof(Profiles[0]);
+    size_t Current = ProfileCount - 1;
 
-    mProfile = static_cast<eNetworkMapProfile>(Next);
+    for (size_t Index = 0; Index < ProfileCount; ++Index) {
+        if (Profiles[Index] == mProfile) {
+            Current = Index;
+            break;
+        }
+    }
+
+    mProfile = Profiles[(Current + 1) % ProfileCount];
     ApplyProfile();
 }
 
@@ -569,6 +563,12 @@ void cRandomMapOptionsMenu::MarkProfileCustom()
 {
     mProfile = eNetworkMapProfile_Custom;
     mOptions.mProfile = eNetworkMapProfile_Custom;
+    ClearProfileName();
+}
+
+void cRandomMapOptionsMenu::ClearProfileName()
+{
+    mOptions.mProfileName.clear();
 }
 
 const char* cRandomMapOptionsMenu::GetModeName() const

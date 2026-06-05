@@ -174,6 +174,11 @@ enum eNetworkMapProfile : uint8_t {
     eNetworkMapProfile_Ice,
     eNetworkMapProfile_Random,
     eNetworkMapProfile_Custom,
+    eNetworkMapProfile_IceMaze,
+    eNetworkMapProfile_IceNeck,
+    eNetworkMapProfile_IceSkidooJump,
+    eNetworkMapProfile_JungleMaze,
+    eNetworkMapProfile_JungleNeck,
     eNetworkMapProfile_Count,
 };
 
@@ -184,6 +189,11 @@ inline const char* Network_MapProfileName(eNetworkMapProfile pProfile) {
     case eNetworkMapProfile_Ice:    return "ICE";
     case eNetworkMapProfile_Random: return "RANDOM";
     case eNetworkMapProfile_Custom: return "CUSTOM";
+    case eNetworkMapProfile_IceMaze: return "ICE MAZE";
+    case eNetworkMapProfile_IceNeck: return "ICE NECK";
+    case eNetworkMapProfile_IceSkidooJump: return "SKIDOO";
+    case eNetworkMapProfile_JungleMaze: return "JUNGLE MAZE";
+    case eNetworkMapProfile_JungleNeck: return "JUNGLE NECK";
     default:                        return "CUSTOM";
     }
 }
