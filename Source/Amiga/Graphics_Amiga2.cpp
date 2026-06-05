@@ -154,11 +154,6 @@ sImage cGraphics_Amiga2::GetImage(const std::string& pFilename, const size_t pPa
     Decoded.mDimension.mWidth = 0x140;
     Decoded.mDimension.mHeight = 0x100;
 
-    const size_t RowStrideBytes = Decoded.mDimension.mWidth >> 3;
-    const size_t RequiredBytes = RowStrideBytes * Decoded.mDimension.mHeight * Decoded.mPlanes;
-    if (Decoded.mData->size() < RequiredBytes)
-        return sImage();
-
     Decoded.LoadPalette_Amiga((uint8*)Palette->data(), Palette->size() / 2, pPaletteIndex);
 
     return Decoded;
