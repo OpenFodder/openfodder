@@ -1,0 +1,1768 @@
+/* =============================================================
+   OPEN FODDER // OPS-2.0.0
+   assets/main.css  (refined — review pass 2)
+   Single-page tactical-HUD overhaul, GitHub Pages, no build step.
+   Mobile-first. Vanilla CSS. No frameworks.
+   ============================================================= */
+
+
+/* -------------------------------------------------------------
+   1. CUSTOM PROPERTIES // PALETTE, TYPE, SPACING
+   ------------------------------------------------------------- */
+:root {
+    /* Palette — locked to spec */
+    --bg: #0B0F14;
+    --surface: #141A22;
+    --surface-alt: #1B232D;
+    --ink: #E6EBF0;
+    --muted: #8A95A3;
+    --primary: #6B7A3A;          /* olive — borders / large display only */
+    --primary-bright: #8a9b48;
+    --primary-text: #C9D2A6;     /* olive-tinted text safe at small sizes (>= ~6.5:1 on bg) */
+    --accent: #FFB020;           /* amber — discipline: one per viewport */
+    --accent-ink: #2A1D05;       /* dark amber-brown — readable on amber fill */
+    --danger: #E5484D;
+
+    /* Surfaces & strokes
+       --hairline: decorative dividers only.
+       --hairline-strong: meaningful UI boundaries (>=3:1 on bg, WCAG 1.4.11).
+       --hairline-bright: hover/contrast lift on meaningful boundaries. */
+    --hairline: rgba(255, 255, 255, 0.06);
+    --hairline-strong: rgba(255, 255, 255, 0.18);
+    --hairline-bright: rgba(255, 255, 255, 0.28);
+    --hairline-amber: rgba(255, 176, 32, 0.6);
+    --shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.03), 0 12px 40px rgba(0, 0, 0, 0.45);
+    --shadow-tight: 0 1px 0 rgba(255, 255, 255, 0.04);
+    --inset-line: inset 0 0 0 1px var(--hairline-strong);
+
+    /* Type families */
+    --ff-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ff-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ff-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+    /* Fluid type ramp */
+    --fs-hero: clamp(2rem, 4.5vw, 3.5rem);
+    --fs-hero-tight: clamp(1.75rem, 7vw, 2.5rem);
+    --fs-section: clamp(1.75rem, 3.5vw, 2.75rem);
+    --fs-eyebrow: 0.75rem;
+    --fs-lede: clamp(1.05rem, 1.6vw, 1.25rem);
+    --fs-body: clamp(0.95rem, 1.1vw, 1rem);
+    --fs-small: 0.8125rem;
+    --fs-mono: 0.85rem;
+
+    /* Spacing scale */
+    --sp-1: 0.25rem;
+    --sp-2: 0.5rem;
+    --sp-3: 0.75rem;
+    --sp-4: 1rem;
+    --sp-5: 1.5rem;
+    --sp-6: 2rem;
+    --sp-7: 3rem;
+    --sp-8: 4rem;
+    --sp-9: 6rem;
+    --sp-10: 8rem;
+
+    /* Layout */
+    --container-max: 1280px;
+    --container-pad: clamp(1rem, 4vw, 2rem);
+    --section-pad-y: clamp(3rem, 8vw, 6rem);
+    --radius-xs: 2px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 14px;
+
+    /* Motion */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+    --dur-fast: 160ms;
+    --dur-base: 300ms;
+    --dur-slow: 600ms;
+    --dur-reveal: 700ms;
+
+    /* Hero parallax — JS sets --parallax-y on each [data-parallax] layer. */
+    --parallax-y: 0px;
+
+    /* Z-stack */
+    --z-skip: 1000;
+    --z-coord-bar: 50;
+    --z-header: 70;
+    --z-nav-mobile: 75;
+}
+
+
+/* -------------------------------------------------------------
+   2. RESET / BASE
+   ------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    overflow-x: clip;
+}
+
+/* Motion gate — applies to every animation and transition site-wide. */
+body.no-motion,
+body.no-motion *,
+body.no-motion *::before,
+body.no-motion *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--ff-body);
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+    min-height: 100vh;
+    width: 100%;
+    background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(107, 122, 58, 0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(0, 0, 0, 0.6) 0%, transparent 60%);
+    background-attachment: fixed;
+}
+
+img, svg, video, canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+a {
+    color: var(--ink);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out-cubic);
+}
+a:hover { color: var(--accent); }
+
+button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+}
+
+input, select, textarea {
+    font: inherit;
+    color: inherit;
+}
+
+ul, ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+p { margin: 0 0 var(--sp-4); }
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 var(--sp-4);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+}
+
+::selection {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+/* Two-tone focus ring — amber stroke + dark halo guarantees >=3:1
+   over any background, including hero photo and amber hovers. */
+:focus { outline: none; }
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--bg);
+    border-radius: var(--radius-xs);
+}
+
+
+/* -------------------------------------------------------------
+   3. UTILITIES
+   ------------------------------------------------------------- */
+.sr-only {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding-inline: var(--container-pad);
+}
+
+.skip-link {
+    position: fixed;
+    top: -100px;
+    left: var(--sp-4);
+    z-index: var(--z-skip);
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--ff-mono);
+    font-weight: 700;
+    font-size: var(--fs-small);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: top var(--dur-base) var(--ease-out-expo);
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+    top: var(--sp-4);
+    color: var(--accent-ink);
+    outline-offset: 4px;
+}
+
+
+/* -------------------------------------------------------------
+   5. SITE HEADER + NAV
+   ------------------------------------------------------------- */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: rgba(11, 15, 20, 0.78);
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+    border-bottom: 1px solid var(--hairline-strong);
+}
+
+.site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    min-height: 64px;
+    padding-block: var(--sp-3);
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    text-decoration: none;
+    color: var(--ink);
+}
+
+.brand__mark {
+    display: grid;
+    place-items: center;
+    width: 32px; height: 32px;
+    background: var(--surface-alt);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius-sm);
+    font-family: var(--ff-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+}
+
+.brand__text {
+    font-family: var(--ff-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+.brand__version {
+    font-family: var(--ff-mono);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-left: var(--sp-2);
+    padding: 2px 6px;
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius-xs);
+}
+
+/* Nav */
+.nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav__list {
+    display: none;
+    gap: var(--sp-1);
+}
+
+.nav__item { display: inline-flex; }
+
+.nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: var(--sp-2) var(--sp-3);
+    font-family: var(--ff-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid transparent;
+    border-radius: var(--radius-xs);
+    transition: color var(--dur-fast), border-color var(--dur-fast), background var(--dur-fast);
+}
+.nav__link:hover,
+.nav__link:focus-visible {
+    color: var(--ink);
+    border-color: var(--hairline-bright);
+}
+.nav__link[aria-current="true"] {
+    color: var(--accent);
+    border-color: var(--hairline-amber);
+    background: rgba(255, 176, 32, 0.06);
+}
+
+/* Hamburger */
+.nav__toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 40px; height: 40px;
+    padding: var(--sp-2);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+}
+.nav__toggle:hover { border-color: var(--accent); }
+
+.nav__toggle-bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--ink);
+    transition: transform var(--dur-base) var(--ease-out-expo),
+                opacity var(--dur-fast);
+}
+
+.nav[aria-expanded="true"] .nav__toggle-bar:nth-child(1),
+.nav--open .nav__toggle-bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+.nav[aria-expanded="true"] .nav__toggle-bar:nth-child(2),
+.nav--open .nav__toggle-bar:nth-child(2) {
+    opacity: 0;
+}
+.nav[aria-expanded="true"] .nav__toggle-bar:nth-child(3),
+.nav--open .nav__toggle-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Mobile drawer */
+@media (max-width: 879px) {
+    .nav__list {
+        position: fixed;
+        inset: 64px 0 auto 0;
+        z-index: var(--z-nav-mobile);
+        flex-direction: column;
+        gap: 0;
+        padding: var(--sp-4) var(--container-pad);
+        background: var(--surface);
+        border-bottom: 1px solid var(--hairline-strong);
+        transform: translateY(-110%);
+        transition: transform var(--dur-base) var(--ease-out-expo);
+    }
+    .nav--open .nav__list {
+        display: flex;
+        transform: translateY(0);
+    }
+    .nav__link {
+        width: 100%;
+        padding: var(--sp-3);
+        border-bottom: 1px solid var(--hairline);
+        border-radius: 0;
+    }
+}
+
+@media (min-width: 880px) {
+    .nav__toggle { display: none; }
+    .nav__list { display: inline-flex; }
+}
+
+
+/* -------------------------------------------------------------
+   6. SECTION SCAFFOLDING
+   ------------------------------------------------------------- */
+.section {
+    position: relative;
+    padding-block: var(--section-pad-y);
+    border-bottom: 1px solid var(--hairline-strong);
+}
+.section:last-of-type { border-bottom: 0; }
+
+.section__head {
+    display: grid;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-7);
+    max-width: 56rem;
+}
+
+.section__eyebrow {
+    font-family: var(--ff-mono);
+    font-size: var(--fs-eyebrow);
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin: 0;
+}
+
+/* Section glyph — amber-tinted SVG icon authored inline (original artwork,
+   not extracted from the game). */
+.section__eyebrow-icon {
+    flex: 0 0 auto;
+    color: var(--accent);
+    width: 14px;
+    height: 14px;
+    /* tiny vertical nudge so the optical centre lines up with mono-font caps */
+    transform: translateY(-1px);
+}
+
+.section__title {
+    font-family: var(--ff-display);
+    font-weight: 700;
+    font-size: var(--fs-section);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin: 0;
+}
+
+.section__lede {
+    font-size: var(--fs-lede);
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 48rem;
+}
+
+
+/* -------------------------------------------------------------
+   7. HERO
+   ------------------------------------------------------------- */
+.hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(3rem, 8vw, 5rem) clamp(2rem, 6vw, 4rem);
+    isolation: isolate;
+}
+
+/* Empty hero__bg div is decorative — never let it occupy flow space. */
+.hero__bg { display: none; }
+
+/* The poppy hero <img> is laid out as an absolute background layer. Without
+   this rule the global img { width:100% } makes it a giant flow image and
+   pushes everything else off-screen / off-centre. */
+.hero__bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center 30%;
+    z-index: -2;
+    opacity: 0.22;
+    filter: saturate(0.65) contrast(1.05);
+    /* Aligns with main.js which writes --parallax-y per layer. */
+    transform: translate3d(0, var(--parallax-y, 0px), 0);
+    will-change: transform;
+    pointer-events: none;
+}
+
+/* Wash overlay over the bg image — sits between bg and content. */
+.hero__wash {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        180deg,
+        rgba(11, 15, 20, 0.55) 0%,
+        rgba(11, 15, 20, 0.85) 60%,
+        var(--bg) 100%
+    );
+    pointer-events: none;
+}
+
+.hero__inner {
+    position: relative;
+    display: grid;
+    gap: var(--sp-6);
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+}
+
+/* Defensive: nothing inside the hero can blow past its grid track. */
+.hero__inner > * { min-width: 0; }
+
+@media (min-width: 960px) {
+    .hero__inner {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: var(--sp-8) var(--sp-7);
+        align-items: start;
+    }
+    /* Top row: copy on the left, art on the right. */
+    .hero__inner > .hero__copy { grid-column: 1; grid-row: 1; }
+    .hero__inner > .hero__art  {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+        max-width: 100%;
+    }
+}
+
+
+.hero__title {
+    font-family: var(--ff-display);
+    font-weight: 700;
+    font-size: var(--fs-hero);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--sp-4);
+    color: var(--ink);
+    /* Title is two clean lines via the .hero__title-sweep span below.
+       Words wrap normally — never split mid-word. */
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+    max-width: 100%;
+    text-wrap: balance;
+}
+
+/* Force the second chunk ("RECOMMISSIONED.") onto its own line at every
+   width. Cleaner break than letting CSS guess where to wrap. */
+@media (max-width: 419px) {
+    .hero__title {
+        font-size: var(--fs-hero-tight);
+    }
+}
+
+.hero__title-sweep {
+    position: relative;
+    /* Always its own line — keeps "RECOMMISSIONED." intact below "CANNON FODDER," */
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    color: var(--ink);
+}
+.hero__title-sweep::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0.05em;
+    width: 100%;
+    height: 0.08em;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: hero-sweep 900ms var(--ease-out-expo) 400ms forwards;
+}
+body.no-motion .hero__title-sweep::after {
+    animation: none;
+    transform: scaleX(1);
+}
+
+@keyframes hero-sweep {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+
+.hero__tagline {
+    font-size: var(--fs-lede);
+    color: var(--ink);
+    max-width: 38rem;
+    margin: 0 0 var(--sp-6);
+    line-height: 1.5;
+}
+
+.hero__art {
+    position: relative;
+    /* foreground parallax — same variable as bg, JS scales per layer */
+    transform: translate3d(0, var(--parallax-y), 0);
+    will-change: transform;
+}
+
+.hero__art-img {
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    display: block;
+}
+
+/* HUD frame around hero art */
+.hud-frame {
+    position: relative;
+    padding: var(--sp-3);
+    background: var(--surface);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius-md);
+}
+
+.hud-frame__viewport {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+}
+
+/* HUD corner strokes — meaningful UI boundaries, must clear 3:1.
+   Amber satisfies that against any dark surface. */
+.hud-frame__corner {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--accent);
+    pointer-events: none;
+    transition: width var(--dur-base) var(--ease-out-expo),
+                height var(--dur-base) var(--ease-out-expo);
+}
+.hud-frame__corner--tl { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.hud-frame__corner--tr { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+.hud-frame__corner--bl { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+.hud-frame__corner--br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+.hud-frame:focus-within .hud-frame__corner,
+.hud-frame:hover .hud-frame__corner {
+    width: 32px;
+    height: 32px;
+}
+
+/* draw-in animation when revealed */
+.reveal--in .hud-frame__corner {
+    animation: hud-corner-draw 700ms var(--ease-out-expo) both;
+}
+.reveal--in .hud-frame__corner--tr { animation-delay: 80ms; }
+.reveal--in .hud-frame__corner--bl { animation-delay: 160ms; }
+.reveal--in .hud-frame__corner--br { animation-delay: 240ms; }
+
+body.no-motion .hud-frame__corner { animation: none !important; }
+
+@keyframes hud-corner-draw {
+    from { transform: scale(0.4); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* CTAs */
+.hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-block: var(--sp-5);
+}
+
+/* Mobile hierarchy: primary owns the row, secondary halves underneath. */
+@media (max-width: 599px) {
+    .hero__ctas { gap: var(--sp-3); }
+    .hero__ctas .btn--primary {
+        flex: 1 0 100%;
+        min-height: 64px;
+        justify-content: center;
+        box-shadow: 0 10px 28px rgba(255, 176, 32, 0.32);
+        transform: scale(1.02);
+    }
+    .hero__ctas .btn--secondary,
+    .hero__ctas .btn--ghost {
+        flex: 1 1 calc(50% - var(--sp-2));
+        min-height: 48px;
+        justify-content: center;
+    }
+}
+
+/* Hero spec — caption-style facts list under the hero art, on the
+   right column at >=960px. Quiet body type; "Engines, Platforms,
+   Latest build" as a labelled dl, no uppercase / no letter-spacing
+   theatrics. */
+.hero__spec {
+    margin: var(--sp-4) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-2);
+    font-family: var(--ff-body);
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+.hero__spec-row {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    column-gap: var(--sp-3);
+    align-items: baseline;
+    margin: 0;
+}
+.hero__spec dt {
+    margin: 0;
+    color: var(--muted);
+    font-weight: 500;
+}
+.hero__spec dd {
+    margin: 0;
+    color: var(--ink);
+}
+@media (max-width: 540px) {
+    .hero__spec-row { grid-template-columns: 1fr; gap: 2px; }
+}
+
+
+/* -------------------------------------------------------------
+   8. CARDS (base + variants)
+   ------------------------------------------------------------- */
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    padding: var(--sp-5);
+    background: var(--surface);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-tight);
+    transition: border-color var(--dur-base) var(--ease-out-cubic),
+                transform var(--dur-base) var(--ease-out-cubic),
+                box-shadow var(--dur-base) var(--ease-out-cubic);
+}
+.card:hover,
+.card:focus-within {
+    border-color: var(--hairline-bright);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+.card--active,
+.card.card--active {
+    border-color: var(--hairline-amber);
+    box-shadow: 0 0 0 1px var(--hairline-amber), var(--shadow-soft);
+}
+
+.card__label {
+    font-family: var(--ff-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.card__title {
+    font-family: var(--ff-display);
+    font-weight: 700;
+    font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin: 0;
+}
+
+.card__body {
+    color: var(--ink);
+    font-size: var(--fs-body);
+    line-height: 1.55;
+    margin: 0;
+}
+
+.card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin-top: auto;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+    color: var(--muted);
+}
+
+.card__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    padding: 2px 8px;
+    font-family: var(--ff-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--surface-alt);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 999px;
+}
+
+/* .card--data — quiet "important note" variant: amber left rule. */
+.card--data {
+    border-left: 2px solid var(--accent);
+}
+
+
+/* Deploy card — single-line short button labels, CTA pinned to card foot. */
+.card--deploy {
+    gap: var(--sp-3);
+}
+.card--deploy .btn {
+    align-self: stretch;
+    justify-content: center;
+    margin-top: auto;
+}
+.card--deploy .card__meta {
+    flex-wrap: wrap;
+    row-gap: var(--sp-1);
+}
+
+/* Comms card — radio panel feel */
+.card--comms {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%);
+    text-align: left;
+}
+
+/* Footage card — flex layout, NOT aspect-locked.
+   Aspect-ratio belongs to the inner viewport so label/title/body
+   below the thumbnail render naturally. */
+.card--footage {
+    padding: var(--sp-4);
+    overflow: visible;
+}
+.card--footage .hud-frame__viewport,
+.card--footage > a:not(.btn) {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+}
+.card--footage img,
+.card--footage iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+/* Play-button overlay only renders on the thumbnail link, not the whole card. */
+.card--footage > a:not(.btn)::after,
+.card--footage .hud-frame__viewport > a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at center, rgba(11, 15, 20, 0.55) 0%, rgba(11, 15, 20, 0.15) 60%, transparent 100%);
+    transition: background var(--dur-base) var(--ease-out-cubic);
+}
+.card--footage > a:not(.btn)::before,
+.card--footage .hud-frame__viewport > a::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 64px; height: 64px;
+    transform: translate(-50%, -50%);
+    background: var(--accent);
+    clip-path: polygon(20% 15%, 85% 50%, 20% 85%);
+    box-shadow: 0 0 24px rgba(255, 176, 32, 0.4);
+    z-index: 2;
+    transition: transform var(--dur-base) var(--ease-out-expo);
+}
+.card--footage a:hover::before { transform: translate(-50%, -50%) scale(1.1); }
+.card--footage a:hover::after { background: rgba(11, 15, 20, 0.25); }
+
+
+/* -------------------------------------------------------------
+   9. BUTTONS
+   ------------------------------------------------------------- */
+.btn {
+    --btn-bg: var(--surface-alt);
+    --btn-fg: var(--ink);
+    --btn-border: var(--hairline-strong);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: var(--sp-3) var(--sp-5);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    border: 1px solid var(--btn-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--ff-mono);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--dur-fast), border-color var(--dur-fast),
+                color var(--dur-fast), transform var(--dur-fast);
+}
+.btn:hover,
+.btn:focus-visible {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.btn--primary {
+    --btn-bg: var(--accent);
+    --btn-fg: var(--accent-ink);
+    --btn-border: var(--accent);
+    box-shadow: 0 6px 20px rgba(255, 176, 32, 0.18);
+}
+.btn--primary:hover {
+    --btn-bg: #ffc049;
+    color: var(--accent-ink);
+}
+
+.btn--secondary {
+    --btn-bg: transparent;
+    --btn-border: var(--primary-bright);
+    --btn-fg: var(--ink);
+}
+.btn--secondary:hover {
+    --btn-bg: rgba(107, 122, 58, 0.18);
+    --btn-border: var(--primary-bright);
+}
+
+.btn--ghost {
+    --btn-bg: transparent;
+    --btn-border: var(--hairline-strong);
+    --btn-fg: var(--ink);
+}
+.btn--ghost:hover {
+    --btn-fg: var(--ink);
+    --btn-border: var(--hairline-bright);
+}
+
+/* Wax-seal stamp */
+.btn--seal { padding-right: 4.5rem; }
+.btn__seal-stamp {
+    position: absolute;
+    top: 50%;
+    right: var(--sp-2);
+    transform: translateY(-50%) rotate(-8deg);
+    display: grid;
+    place-items: center;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    font-family: var(--ff-mono);
+    font-size: 0.5rem;
+    line-height: 1.05;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.btn__label { display: inline-flex; flex-direction: column; line-height: 1.1; }
+
+/* btn__meta: discipline by variant.
+   - On primary (amber fill) the meta becomes dark amber-brown for AA contrast.
+   - On secondary/ghost (dark surface) it stays muted with opacity for hierarchy. */
+.btn__meta {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+.btn--primary .btn__meta {
+    color: var(--accent-ink);
+    opacity: 1;
+}
+.btn--secondary .btn__meta,
+.btn--ghost .btn__meta {
+    color: var(--muted);
+    opacity: 0.85;
+}
+
+.btn__tag {
+    display: inline-block;
+    margin-left: var(--sp-2);
+    padding: 1px 6px;
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border: 1px solid var(--hairline-amber);
+    border-radius: var(--radius-xs);
+}
+
+
+/* -------------------------------------------------------------
+   10. LED / CHIPS
+   ------------------------------------------------------------- */
+.led-pulse {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background var(--dur-fast);
+}
+.led-pulse--on {
+    background: var(--accent);
+    box-shadow: 0 0 6px rgba(255, 176, 32, 0.6);
+    animation: led-pulse 1s ease-in-out infinite;
+}
+
+@keyframes led-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+}
+
+body.no-motion .led-pulse--on { animation: none !important; }
+
+/* Chips — three distinct silhouettes so engine / platform / status read apart
+   in dense rosters and dossier panels. */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    padding: 2px 8px;
+    font-family: var(--ff-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius-xs);
+    line-height: 1.6;
+}
+/* Platform: outline only. */
+.chip--platform {
+    color: var(--ink);
+    background: transparent;
+    border-color: var(--hairline-bright);
+}
+/* Engine: olive fill, lighter olive text token (passes 4.5:1 against fill). */
+.chip--engine {
+    color: var(--primary-text);
+    background: rgba(107, 122, 58, 0.28);
+    border-color: rgba(107, 122, 58, 0.7);
+}
+/* Status: amber outline + tiny LED dot — operational signal. */
+.chip--status {
+    color: var(--accent);
+    background: transparent;
+    border-color: var(--hairline-amber);
+}
+.chip--status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px rgba(255, 176, 32, 0.6);
+    margin-right: 4px;
+    flex: 0 0 6px;
+}
+/* Alert: danger fill — kept distinct, used for REQUIRES DATA only. */
+.chip--alert {
+    color: var(--ink);
+    background: rgba(229, 72, 77, 0.2);
+    border-color: var(--danger);
+}
+
+
+/* -------------------------------------------------------------
+   11. ROSTER (tactical table)
+   ------------------------------------------------------------- */
+.roster {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+}
+
+.roster__head {
+    background: var(--surface-alt);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.6875rem;
+}
+.roster__head .roster__cell { padding: var(--sp-3) var(--sp-4); text-align: left; }
+
+.roster__row {
+    border-top: 1px solid var(--hairline-strong);
+    transition: background var(--dur-fast);
+}
+.roster__row:hover { background: rgba(255, 255, 255, 0.02); }
+
+.roster__cell {
+    padding: var(--sp-3) var(--sp-4);
+    color: var(--ink);
+    vertical-align: middle;
+}
+
+/* Campaign cell: floppy + name on one row */
+.roster__cell--campaign {
+    white-space: nowrap;
+}
+.roster__cell--campaign strong {
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+/* Source column — year + publisher line. */
+.roster__cell--source {
+    line-height: 1.4;
+}
+.roster__year {
+    display: block;
+    color: var(--ink);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+}
+.roster__publisher {
+    display: block;
+    color: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    margin-top: 2px;
+}
+
+/* Floppy-disk glyph — original CSS art, 28×28. Square body in olive,
+   metal shutter notch top, amber label centered with the campaign tag. */
+.floppy {
+    --floppy-size: 28px;
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    width: var(--floppy-size);
+    height: var(--floppy-size);
+    margin-right: var(--sp-3);
+    background: linear-gradient(135deg, #4a5630 0%, #3a4525 100%);
+    border: 1px solid var(--hairline-bright);
+    border-radius: 2px;
+    /* The notch + shutter rendered as inset gradients on the body. */
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+        0 1px 2px rgba(0, 0, 0, 0.4);
+    position: relative;
+    vertical-align: middle;
+}
+/* Shutter — the metal slider at the top of a 3.5" floppy. */
+.floppy__shutter {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 5px;
+    background: linear-gradient(180deg, #c0c0c0 0%, #888 60%, #555 100%);
+    border-radius: 1px 1px 0 0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.floppy__shutter::after {
+    /* slot opening */
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30%;
+    height: 2px;
+    background: var(--bg);
+    border-radius: 1px;
+}
+/* Label — amber rectangle with short campaign tag. */
+.floppy__label {
+    margin-top: 8px; /* push below shutter */
+    padding: 0 3px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--ff-mono);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+    border-radius: 1px;
+    min-width: 70%;
+    text-align: center;
+}
+
+/* Footnote under the roster table */
+.roster__footnote {
+    margin-top: var(--sp-4);
+    font-family: var(--ff-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.6;
+}
+.roster__footnote a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--hairline-amber);
+    text-underline-offset: 3px;
+}
+.roster__footnote a:hover { color: var(--accent); }
+
+/* Mobile: card-stack instead of an attr()-dependent table.
+   Each row becomes a labeled card; cells label themselves via class hooks
+   so meaning survives even without data-label on every <td>. */
+@media (max-width: 600px) {
+    .roster, .roster thead, .roster tbody, .roster tr, .roster td, .roster th {
+        display: block;
+    }
+    .roster__head { display: none; }
+    .roster__row {
+        padding: var(--sp-4);
+        border-top: 1px solid var(--hairline-strong);
+        background: var(--surface);
+    }
+    .roster__row:first-child { border-top: 0; }
+    .roster__cell {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--sp-3);
+        padding: var(--sp-2) 0;
+        border-bottom: 1px dashed var(--hairline);
+    }
+    .roster__cell:last-child { border-bottom: 0; }
+    /* Prefer markup-supplied data-label, but fall back to a class-based label
+       so no <td> renders unlabeled even if the markup forgets. */
+    .roster__cell::before {
+        content: attr(data-label);
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.625rem;
+        flex: 0 0 auto;
+    }
+    .roster__cell--campaign { justify-content: flex-start; }
+    .roster__cell--campaign::before { content: ""; }
+    .roster__cell--source::before    { content: "Source"; }
+    .roster__cell--engine::before    { content: "Engine"; }
+    .roster__cell--platforms::before { content: "Platforms"; }
+    /* Source column: stack year + publisher to the right. */
+    .roster__cell--source { align-items: flex-end; }
+    .roster__cell--source > .roster__year,
+    .roster__cell--source > .roster__publisher { display: block; text-align: right; }
+}
+
+
+/* -------------------------------------------------------------
+   12. MARQUEE (attract mode ticker)
+   ------------------------------------------------------------- */
+.marquee {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--sp-3);
+    background: var(--surface-alt);
+    border-block: 1px solid var(--hairline-strong);
+    margin-block: var(--sp-5);
+    mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+
+.marquee__track {
+    /* width: max-content keeps the entire track on a single horizontal line
+       regardless of how many items it holds — inline-flex doesn't reliably
+       guarantee that and was producing a two-row stack of items. */
+    display: flex;
+    width: max-content;
+    align-items: center;
+    gap: var(--sp-7);
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    animation: marquee-scroll 32s linear infinite;
+    will-change: transform;
+}
+.marquee:hover .marquee__track { animation-play-state: paused; }
+body.no-motion .marquee__track { animation: none !important; }
+
+@keyframes marquee-scroll {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.marquee__item {
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+}
+.marquee__item::after {
+    content: "//";
+    color: var(--primary-bright);
+    margin-left: var(--sp-3);
+}
+.marquee__item--coin {
+    color: var(--accent);
+}
+.marquee__item--coin::before {
+    content: "★";
+    margin-right: var(--sp-2);
+}
+
+
+/* -------------------------------------------------------------
+   13. DEPLOY GRID
+   ------------------------------------------------------------- */
+.deploy__grid {
+    display: grid;
+    gap: var(--sp-4);
+    grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+    .deploy__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 960px) {
+    .deploy__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+
+/* -------------------------------------------------------------
+   15. FOOTAGE GRID
+   ------------------------------------------------------------- */
+.footage__grid {
+    display: grid;
+    gap: var(--sp-4);
+    grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+    .footage__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+    .footage__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+
+/* -------------------------------------------------------------
+   16. COMMS GRID
+   ------------------------------------------------------------- */
+.comms__grid {
+    display: grid;
+    gap: var(--sp-4);
+    grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+    .comms__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.comms__freq {
+    font-family: var(--ff-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.comms__handle {
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+}
+
+
+/* 17. CREDITS — terminal-readout treatment.
+   The .section base already provides outer frame + padding + border-bottom;
+   the readout itself is unboxed (no card-on-card chrome). */
+
+.credits-readout {
+  margin-top: var(--sp-5);
+  max-width: 62ch;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-small);
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* Visually-hidden helper for tier labels exposed only to AT.
+   Scoped so we don't collide with any existing utility. */
+.credits-readout .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Status header — single honest line of orientation. */
+.credits-readout__status {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  column-gap: var(--sp-2);
+  align-items: baseline;
+  margin: 0 0 var(--sp-3);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--hairline-strong);
+  color: var(--muted);
+  font-size: var(--fs-small);
+}
+
+.credits-readout__status-text {
+  font-family: var(--ff-mono);
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Shared line geometry: prefix rail + content column.
+   Fixed-rem prefix column keeps the gutter optically constant
+   across viewports and harmonises with --sp-* tokens. */
+.credits-readout__line {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  column-gap: var(--sp-2);
+  align-items: baseline;
+  margin: 0;
+  padding: var(--sp-1) 0;
+}
+
+/* Crew list reset. */
+.credits-readout__crew {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Crew row: prefix via ::before, then handle (auto), role (fills). */
+.credits-readout__line--crew {
+  position: relative;
+  grid-template-columns: 1.25rem auto 1fr;
+}
+
+.credits-readout__line--crew::before {
+  content: "$";
+  color: var(--primary-bright);
+  font-family: var(--ff-mono);
+  user-select: none;
+  grid-column: 1;
+}
+
+/* Decorative prefix glyphs for non-crew rows.
+   Only two prefixes exist on the page: $ for live tier, # for footnote tier. */
+.credits-readout__prefix {
+  color: var(--primary-bright);
+  font-family: var(--ff-mono);
+  user-select: none;
+  text-align: left;
+  grid-column: 1;
+}
+
+/* Maintainer @handle — dramatis personae. Weight + color carry the register. */
+.credits-readout__handle {
+  font-family: var(--ff-mono);
+  font-weight: 700;
+  font-size: var(--fs-small);
+  color: var(--primary-text);
+}
+
+/* Role half — mono in --muted; family + color contrast is the register split. */
+.credits-readout__role {
+  margin-left: var(--sp-2);
+  color: var(--muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-small);
+  letter-spacing: 0.04em;
+}
+
+/* Operational links — list with // separators rendered via CSS pseudo. */
+.credits-readout__ops {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  column-gap: var(--sp-2);
+  row-gap: var(--sp-1);
+  color: var(--ink);
+}
+
+.credits-readout__ops > li {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--sp-2);
+}
+
+.credits-readout__ops > li::before {
+  content: "$";
+  color: var(--primary-bright);
+  font-family: var(--ff-mono);
+  user-select: none;
+  margin-left: calc((1.25rem + var(--sp-2)) * -1);
+  width: 1.25rem;
+  flex: 0 0 1.25rem;
+}
+
+.credits-readout__ops a {
+  color: var(--primary-text);
+  text-decoration: underline solid var(--primary-bright);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  display: inline-block;
+  padding: 2px 4px;
+  margin: 0 -4px;
+  min-height: 24px;
+}
+
+.credits-readout__ops a:hover,
+.credits-readout__ops a:focus-visible {
+  color: var(--accent);
+  text-decoration: underline solid var(--accent);
+  text-decoration-thickness: 2px;
+}
+
+.credits-readout__ops-desc {
+  color: var(--muted);
+  font-family: var(--ff-body);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+/* Footnote tier — license + IP disclaimer recede into muted comment lines.
+   The first note carries the tier-break as a top border, replacing the old <hr>. */
+.credits-readout__line--note {
+  color: var(--muted);
+}
+
+.credits-readout__line--note-first {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px dotted var(--hairline-bright);
+}
+
+.credits-readout__line--note a,
+.credits-readout__line--eof a {
+  color: var(--primary-text);
+  text-decoration: underline solid var(--primary-bright);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.credits-readout__line--note a:hover,
+.credits-readout__line--note a:focus-visible,
+.credits-readout__line--eof a:hover,
+.credits-readout__line--eof a:focus-visible {
+  color: var(--accent);
+  text-decoration: underline solid var(--accent);
+  text-decoration-thickness: 2px;
+}
+
+/* IP disclaimer: body font for legibility, capped to the same footnote
+   measure as the license line so the footnote band reads as a coherent
+   tier rather than a one-off indent step. */
+.credits-readout__line--eof {
+  color: var(--muted);
+  max-width: 50ch;
+  padding-top: var(--sp-1);
+}
+
+.credits-readout__line--eof small {
+  font-family: var(--ff-body);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Same body-font legibility for the license note's surrounding prose,
+   keeping the # prefix in mono via the prefix span itself. */
+.credits-readout__line--note > span:not(.credits-readout__prefix) {
+  font-family: var(--ff-body);
+}
+
+/* Focus rings honor the existing system; offset clears the prefix gutter. */
+.credits-readout a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+/* Forced-colors graceful degrade: olive rhythm collapses to system color,
+   links keep a visible underline. */
+@media (forced-colors: active) {
+  .credits-readout__prefix,
+  .credits-readout__line--crew::before,
+  .credits-readout__ops > li::before {
+    color: CanvasText;
+  }
+  .credits-readout__ops a,
+  .credits-readout__line--note a,
+  .credits-readout__line--eof a {
+    text-decoration: underline;
+  }
+}
+
+/* Narrow viewports: handle/role stack under one prefix; tracking relaxes
+   so the role label survives 360px column widths. */
+@media (max-width: 480px) {
+  .credits-readout {
+    font-size: var(--fs-small);
+  }
+
+  .credits-readout__line--crew {
+    grid-template-columns: 1.25rem 1fr;
+    row-gap: 2px;
+  }
+
+  .credits-readout__line--crew > .credits-readout__handle {
+    grid-column: 2;
+  }
+
+  .credits-readout__line--crew > .credits-readout__role {
+    grid-column: 2;
+    margin-left: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .credits-readout__ops > li {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+/* Wider viewports: anchor under the section title, prevent orphan whitespace. */
+@media (min-width: 960px) {
+  .credits-readout {
+    margin-top: var(--sp-6);
+  }
+}
+
+
+/* -------------------------------------------------------------
+   18. SITE FOOTER
+   ------------------------------------------------------------- */
+.site-footer {
+    border-top: 1px solid var(--hairline-strong);
+    padding-block: var(--sp-7);
+    background: var(--surface);
+}
+
+.site-footer__inner {
+    display: grid;
+    gap: var(--sp-5);
+    grid-template-columns: 1fr;
+    align-items: start;
+}
+@media (min-width: 720px) {
+    .site-footer__inner {
+        grid-template-columns: 1fr auto;
+    }
+}
+
+.site-footer__meta {
+    font-family: var(--ff-mono);
+    font-size: var(--fs-small);
+    color: var(--muted);
+    line-height: 1.7;
+}
+.site-footer__meta a { color: var(--ink); }
+.site-footer__meta a:hover { color: var(--accent); }
+
+
+/* -------------------------------------------------------------
+   19. COORD BAR (fixed bottom HUD readout)
+   ------------------------------------------------------------- */
+.coord-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-coord-bar);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: 6px var(--sp-4);
+    background: rgba(11, 15, 20, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid var(--hairline-strong);
+    font-family: var(--ff-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    pointer-events: none;
+}
+@media (max-width: 599px) {
+    .coord-bar { display: none; }
+}
+
+.coord-bar__label { color: var(--muted); }
+.coord-bar__value { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+
+/* -------------------------------------------------------------
+   21. PRINT
+   ------------------------------------------------------------- */
+@media print {
+    body {
+        background: #fff;
+        color: #000;
+    }
+    .coord-bar, .site-header, .nav__toggle,
+    .marquee {
+        display: none !important;
+    }
+    .section { page-break-inside: avoid; }
+    a { color: #000; text-decoration: underline; }
+}
+
+
+/* -------------------------------------------------------------
+   22. WIDE / ULTRA-WIDE TWEAKS
+   ------------------------------------------------------------- */
+@media (min-width: 1440px) {
+    .hero__inner { gap: var(--sp-9); }
+    .section__head { margin-bottom: var(--sp-8); }
+}
+
+@media (min-width: 1920px) {
+    :root { --container-max: 1440px; }
+}
+
+/* End of file */

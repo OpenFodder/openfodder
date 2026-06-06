@@ -1,7 +1,5 @@
 title: Open Fodder
 description: An open source port of Cannon Fodder
-google_analytics: 
-theme: jekyll-theme-midnight
-
-gems:
-  - jekyll-mentions
+theme: null
+plugins: []
+permalink: pretty

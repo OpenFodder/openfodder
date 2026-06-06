@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0F14">
+  <meta name="color-scheme" content="dark">
+
+  <title>Open Fodder — Cannon Fodder, modern and open source</title>
+  <meta name="description" content="Open Fodder is an open-source recommissioning of Sensible Software's 1993 Cannon Fodder. Faithful engine, retail and demo support, modern OS builds, scripting, modding, and an in-browser demo. v2.0.0, December 2025.">
+  <link rel="canonical" href="https://openfodder.com/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Open Fodder — Cannon Fodder, modern and open source">
+  <meta property="og:description" content="Mission control for an open-source classic. v2.0.0, December 2025.">
+  <meta property="og:url" content="https://openfodder.com/">
+  <meta property="og:image" content="https://openfodder.com/assets/hero-banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@segrax">
+  <meta name="twitter:title" content="Open Fodder — Cannon Fodder, modern and open source">
+  <meta name="twitter:description" content="Mission control for an open-source classic. v2.0.0, December 2025.">
+  <meta name="twitter:image" content="https://openfodder.com/assets/hero-banner.png">
+
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%224%22 fill=%22%230B0F14%22/><circle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23FFB020%22/><circle cx=%2216%22 cy=%2216%22 r=%224%22 fill=%22%230B0F14%22/></svg>'>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+  <link rel="stylesheet" href="assets/main.css">
+  <script src="assets/main.js" defer></script>
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="#main" data-smooth-scroll aria-label="Open Fodder home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28" focusable="false" aria-hidden="true">
+            <rect width="32" height="32" rx="4" fill="#0B0F14" stroke="#6B7A3A" stroke-width="1"></rect>
+            <text x="16" y="22" text-anchor="middle" font-family="Space Grotesk, Inter, system-ui, sans-serif" font-weight="700" font-size="14" letter-spacing="-0.03em" fill="#FFB020">OF</text>
+          </svg>
+        </span>
+        <span class="brand__text">OPEN FODDER</span>
+      </a>
+
+      <nav class="nav" id="primary-nav" aria-label="Primary">
+        <button class="nav__toggle" type="button" data-nav-toggle aria-label="Menu" aria-expanded="false" aria-controls="primary-nav-list">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="nav__toggle-bar" aria-hidden="true"></span>
+          <span class="nav__toggle-bar" aria-hidden="true"></span>
+          <span class="nav__toggle-bar" aria-hidden="true"></span>
+        </button>
+        <ul class="nav__list" id="primary-nav-list">
+          <li class="nav__item"><a class="nav__link" href="#about"     data-nav-target="about"     data-smooth-scroll>Sitrep</a></li>
+          <li class="nav__item"><a class="nav__link" href="#campaigns" data-nav-target="campaigns" data-smooth-scroll>Theatre</a></li>
+          <li class="nav__item"><a class="nav__link" href="#download"  data-nav-target="download"  data-smooth-scroll>Deploy</a></li>
+          <li class="nav__item"><a class="nav__link" href="#videos"    data-nav-target="videos"    data-smooth-scroll>Footage</a></li>
+          <li class="nav__item"><a class="nav__link" href="#community" data-nav-target="community" data-smooth-scroll>Comms</a></li>
+          <li class="nav__item"><a class="nav__link" href="#credits"   data-nav-target="credits"   data-smooth-scroll>Credits</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- ========== HERO ========== -->
+    <section class="section hero" id="hero" data-reveal>
+      <div class="hero__bg" aria-hidden="true"></div>
+      <img class="hero__bg-img"
+           src="assets/hero-banner.png"
+           alt="Open Fodder campaign select screen — pixel-art island map with the Cannon Fodder treehouse and river"
+           data-parallax="0.15" loading="eager" decoding="async">
+      <div class="hero__wash" aria-hidden="true"></div>
+
+      <div class="container hero__inner">
+
+        <div class="hero__copy">
+          <h1 class="hero__title">
+            CANNON FODDER,
+            <span class="hero__title-sweep">RECOMMISSIONED.</span>
+          </h1>
+
+          <p class="hero__tagline">
+            <span data-typewriter data-typewriter-delay="1100">Mission control for an open-source classic.</span>
+          </p>
+
+          <div class="hero__ctas">
+            <a class="btn btn--primary"
+               href="https://github.com/OpenFodder/openfodder/releases/download/2.0.0/OpenFodder-Installer.exe">
+              <span class="btn__label">
+                <span class="btn__label-main">DEPLOY v2.0.0 // WINDOWS</span>
+                <span class="btn__meta">~16 MB · 16-DEC-2025</span>
+              </span>
+              <svg class="btn__chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+            </a>
+            <a class="btn btn--secondary"
+               href="https://s3.amazonaws.com/openfodder/OpenFodder.html">
+              <span class="btn__label">
+                <span class="btn__label-main">LAUNCH BROWSER DEMO</span>
+                <span class="btn__meta">No install</span>
+              </span>
+            </a>
+            <a class="hero__source-link" href="https://github.com/OpenFodder/openfodder">
+              View source on GitHub <span aria-hidden="true">›</span>
+            </a>
+          </div>
+
+        </div>
+
+        <figure class="hero__art" data-parallax="0.08">
+          <div class="hud-frame" data-hud-frame>
+            <span class="hud-frame__corner hud-frame__corner--tl" aria-hidden="true"></span>
+            <span class="hud-frame__corner hud-frame__corner--tr" aria-hidden="true"></span>
+            <span class="hud-frame__corner hud-frame__corner--bl" aria-hidden="true"></span>
+            <span class="hud-frame__corner hud-frame__corner--br" aria-hidden="true"></span>
+            <div class="hud-frame__viewport">
+              <img class="hero__art-img" src="assets/about.png"
+                   alt="Pixel-art of two Cannon Fodder soldiers in a jungle hut, signed Joo 07/11/18"
+                   loading="eager" decoding="async">
+            </div>
+          </div>
+
+          <dl class="hero__spec">
+            <div class="hero__spec-row">
+              <dt>Engines</dt>
+              <dd>CF1 &amp; CF2</dd>
+            </div>
+            <div class="hero__spec-row">
+              <dt>Platforms</dt>
+              <dd>Windows, Linux, BSD, RetroPie, Web</dd>
+            </div>
+            <div class="hero__spec-row">
+              <dt>Latest build</dt>
+              <dd>v2.0.0 — 16 December 2025</dd>
+            </div>
+          </dl>
+        </figure>
+
+      </div>
+    </section>
+
+    <!-- ========== SITREP ========== -->
+    <section class="section" id="about" data-reveal>
+      <div class="container">
+        <header class="section__head">
+          <p class="section__eyebrow">
+            <svg class="section__eyebrow-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3 9c0-3 2-5 5-5s5 2 5 5v2H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M2.5 11h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/><path d="M8 4v3" stroke="currentColor" stroke-width="1.4"/></svg>
+            01 // SITUATION REPORT
+          </p>
+          <h2 class="section__title">What is Open Fodder?</h2>
+          <p class="section__lede">
+            Open Fodder is an open-source reimplementation of Sensible Software's 1993 squad shooter
+            Cannon Fodder. The engine is faithful to the original, runs natively on modern Windows,
+            Linux, OpenBSD and other *nix, and plays in a browser. It ships with seven playable
+            magazine cover-disk demos. Retail data is optional but supported: drop in your purchased
+            files and the full campaigns light up.
+          </p>
+        </header>
+
+        <ul class="deploy__grid" aria-label="Engine features">
+          <li class="card" data-reveal>
+            <span class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+            </span>
+            <h3 class="card__title">Faithful engine</h3>
+            <p class="card__body">Original timing, briefing pacing, soldier handling and weapon physics, reimplemented in modern C++.</p>
+          </li>
+          <li class="card" data-reveal data-reveal-delay="60">
+            <span class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>
+            </span>
+            <h3 class="card__title">Retail &amp; demo support</h3>
+            <p class="card__body">Plays original DOS, Amiga, CD and Plus data, plus seven bundled magazine cover-disk demos so you can launch on day zero.</p>
+          </li>
+          <li class="card" data-reveal data-reveal-delay="120">
+            <span class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M8 6h8M7 8l3 8M17 8l-3 8"/></svg>
+            </span>
+            <h3 class="card__title">Random map generator</h3>
+            <p class="card__body">A JavaScript-driven generator builds endless one-off maps — hostages with their rescue tents, jeeps, tanks, and helicopters when extraction calls for it.</p>
+          </li>
+          <li class="card" data-reveal data-reveal-delay="180">
+            <span class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4.5L18 21l-6-3-6 3 1.5-6.5L3 10l6-1z"/></svg>
+            </span>
+            <h3 class="card__title">Modding</h3>
+            <p class="card__body">Open Fodder Editor builds new campaigns, missions and tilesets that the engine consumes natively.</p>
+          </li>
+          <li class="card" data-reveal data-reveal-delay="240">
+            <span class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </span>
+            <h3 class="card__title">Modern OS support</h3>
+            <p class="card__body">Native Windows installer, Linux Flatpak, OpenBSD and RetroPie via source, plus a continuously-updated bleeding-edge build.</p>
+          </li>
+          <li class="card" data-reveal data-reveal-delay="300">
+            <span class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
+            </span>
+            <h3 class="card__title">Play in browser</h3>
+            <p class="card__body">A web build of the demos runs directly in your browser — share a URL and you are in the briefing room.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== THEATRE ========== -->
+    <section class="section" id="campaigns" data-reveal>
+      <div class="container">
+        <header class="section__head">
+          <p class="section__eyebrow">
+            <svg class="section__eyebrow-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 2v12" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/><path d="M4 3l8 1.5L4 7z" fill="currentColor"/></svg>
+            02 // THEATRE OF OPERATIONS
+          </p>
+          <h2 class="section__title">Tactical Roster</h2>
+          <p class="section__lede">Nine campaigns operational across two engines.</p>
+        </header>
+
+        <div class="marquee" data-marquee aria-hidden="true">
+          <div class="marquee__track">
+            <span class="marquee__item">CANNON FODDER</span>
+            <span class="marquee__item">CANNON FODDER 2</span>
+            <span class="marquee__item">CANNON FODDER PLUS</span>
+            <span class="marquee__item">AMIGA ACTION</span>
+            <span class="marquee__item">AMIGA FORMAT CHRISTMAS SPECIAL</span>
+            <span class="marquee__item">AMIGA FORMAT NOT VERY FESTIVE</span>
+            <span class="marquee__item">AMIGA POWER ALIEN LEVELS</span>
+            <span class="marquee__item">AMIGA THE ONE</span>
+            <span class="marquee__item">PC FORMAT</span>
+            <span class="marquee__item marquee__item--coin">WAR HAS NEVER BEEN SO MUCH FUN</span>
+            <!-- duplicate set for seamless loop -->
+            <span class="marquee__item" aria-hidden="true">CANNON FODDER</span>
+            <span class="marquee__item" aria-hidden="true">CANNON FODDER 2</span>
+            <span class="marquee__item" aria-hidden="true">CANNON FODDER PLUS</span>
+            <span class="marquee__item" aria-hidden="true">AMIGA ACTION</span>
+            <span class="marquee__item" aria-hidden="true">AMIGA FORMAT CHRISTMAS SPECIAL</span>
+            <span class="marquee__item" aria-hidden="true">AMIGA FORMAT NOT VERY FESTIVE</span>
+            <span class="marquee__item" aria-hidden="true">AMIGA POWER ALIEN LEVELS</span>
+            <span class="marquee__item" aria-hidden="true">AMIGA THE ONE</span>
+            <span class="marquee__item" aria-hidden="true">PC FORMAT</span>
+            <span class="marquee__item marquee__item--coin" aria-hidden="true">WAR HAS NEVER BEEN SO MUCH FUN</span>
+          </div>
+        </div>
+
+        <div class="roster">
+          <table>
+            <caption class="sr-only">Open Fodder campaign roster: campaign name, original release source, engine, and supported platforms.</caption>
+            <thead class="roster__head">
+              <tr>
+                <th scope="col">Campaign</th>
+                <th scope="col">Source</th>
+                <th scope="col">Engine</th>
+                <th scope="col">Platforms</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">CF1</span></span>
+                  <strong>Cannon Fodder</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1993</span><span class="roster__publisher">Virgin Interactive · retail</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF1</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">DOS</span> <span class="chip chip--platform">AMIGA</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">CF2</span></span>
+                  <strong>Cannon Fodder 2</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1994</span><span class="roster__publisher">Virgin Interactive · retail</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF2</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">DOS</span> <span class="chip chip--platform">AMIGA</span> <span class="chip chip--platform">CD</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">CF+</span></span>
+                  <strong>Cannon Fodder Plus</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1994</span><span class="roster__publisher">Amiga Power · cover-disk demo</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF1</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">AMIGA</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">AA</span></span>
+                  <strong>Amiga Action</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1994</span><span class="roster__publisher">Europress · cover-disk demo</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF1</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">AMIGA</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">AF</span></span>
+                  <strong>Amiga Format Christmas Special</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1993</span><span class="roster__publisher">Future Publishing · cover-disk demo</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF1</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">AMIGA</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">AF</span></span>
+                  <strong>Amiga Format Not Very Festive</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1995</span><span class="roster__publisher">Future Publishing · cover-disk demo</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF2</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">AMIGA</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">AP</span></span>
+                  <strong>Amiga Power Alien Levels</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1994</span><span class="roster__publisher">Future Publishing · cover-disk demo</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF1</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">AMIGA</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">T1</span></span>
+                  <strong>Amiga The One</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1993</span><span class="roster__publisher">EMAP · cover-disk demo</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF1</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">AMIGA</span></td>
+              </tr>
+
+              <tr class="roster__row">
+                <td class="roster__cell roster__cell--campaign">
+                  <span class="floppy" aria-hidden="true"><span class="floppy__shutter"></span><span class="floppy__label">PCF</span></span>
+                  <strong>PC Format</strong>
+                </td>
+                <td class="roster__cell roster__cell--source"><span class="roster__year">1994</span><span class="roster__publisher">Future Publishing · cover-disk demo</span></td>
+                <td class="roster__cell roster__cell--engine"><span class="chip chip--engine">CF1</span></td>
+                <td class="roster__cell roster__cell--platforms"><span class="chip chip--platform">DOS</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="roster__footnote">
+          Cover-disk attributions are best-known historical record;
+          corrections welcome via the
+          <a href="https://github.com/OpenFodder/openfodder/issues">issue tracker</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ========== DEPLOY ========== -->
+    <section class="section" id="download" data-reveal>
+      <div class="container">
+        <header class="section__head">
+          <p class="section__eyebrow">
+            <svg class="section__eyebrow-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><rect x="2" y="5" width="12" height="9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 5l3-2h6l3 2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 5v9M2 9h12" stroke="currentColor" stroke-width="1"/></svg>
+            03 // DEPLOY
+          </p>
+          <h2 class="section__title">Mission Equipment</h2>
+          <p class="section__lede">Choose your platform. The engine is free; bring your own retail data, or run the demos as supplied.</p>
+        </header>
+
+        <ul class="deploy__grid" aria-label="Download options">
+          <li class="card card--deploy" data-reveal>
+            <h3 class="card__title">Windows installer</h3>
+            <p class="card__body">Official Windows installer. Recommended for first deploy. ~16 MB.</p>
+            <p class="card__meta"><span class="chip chip--platform">WIN</span> <span class="chip chip--status">v2.0.0</span></p>
+            <a class="btn btn--primary" href="https://github.com/OpenFodder/openfodder/releases/download/2.0.0/OpenFodder-Installer.exe">Download</a>
+          </li>
+
+          <li class="card card--deploy" data-reveal data-reveal-delay="60">
+            <h3 class="card__title">Windows nightly build</h3>
+            <p class="card__body">Latest x86 release zip from continuous build. No installer; unzip and run.</p>
+            <p class="card__meta"><span class="chip chip--platform">WIN</span> <span class="chip chip--engine">CI</span></p>
+            <a class="btn btn--secondary" href="https://s3.amazonaws.com/openfodder-builds/OpenFodder-x86-Release-latest.zip">Get nightly</a>
+          </li>
+
+          <li class="card card--deploy" data-reveal data-reveal-delay="120">
+            <h3 class="card__title">Linux, BSD &amp; generic *nix</h3>
+            <p class="card__body">Build from source on Linux, OpenBSD, RetroPie or other *nix; or install the Flatpak. Instructions in INSTALL.md.</p>
+            <p class="card__meta"><span class="chip chip--platform">LINUX</span> <span class="chip chip--platform">BSD</span> <span class="chip chip--platform">RETROPIE</span> <span class="chip chip--platform">FLATPAK</span></p>
+            <a class="btn btn--secondary" href="https://github.com/OpenFodder/openfodder/blob/master/INSTALL.md">Read INSTALL.md</a>
+          </li>
+
+          <li class="card card--deploy" data-reveal data-reveal-delay="180">
+            <h3 class="card__title">Browser demo</h3>
+            <p class="card__body">Web build of the demos. No install, no download. Works on desktop browsers.</p>
+            <p class="card__meta"><span class="chip chip--platform">WEB</span> <span class="chip chip--status">DEMO</span></p>
+            <a class="btn btn--secondary" href="https://s3.amazonaws.com/openfodder/OpenFodder.html">Launch demo</a>
+          </li>
+
+          <li class="card card--deploy" data-reveal data-reveal-delay="240">
+            <h3 class="card__title">Open Fodder Editor 2.0</h3>
+            <p class="card__body">Campaign editor: build new missions, tilesets and scripts that the engine consumes natively.</p>
+            <p class="card__meta"><span class="chip chip--platform">WIN</span> <span class="chip chip--engine">EDITOR</span></p>
+            <a class="btn btn--secondary" href="https://github.com/OpenFodder/editor">Editor on GitHub</a>
+          </li>
+
+          <li class="card card--deploy" data-reveal data-reveal-delay="300">
+            <h3 class="card__title">Source code</h3>
+            <p class="card__body">Read it, fork it, build it. Open source under the GNU GPL. Pull requests welcome.</p>
+            <p class="card__meta"><span class="chip chip--engine">C++</span> <span class="chip chip--platform">GITHUB</span></p>
+            <a class="btn btn--ghost" href="https://github.com/OpenFodder/openfodder">View source</a>
+          </li>
+        </ul>
+
+        <aside class="card card--data" data-reveal>
+          <h3 class="card__title">Bring your own retail data</h3>
+          <p class="card__body">
+            Open Fodder ships seven playable demos (six Amiga magazine cover-disks and one PC demo).
+            To play the full retail campaigns you need original Cannon Fodder data, which isn't
+            redistributed. Three legitimate routes:
+          </p>
+          <ul class="card__meta">
+            <li><span class="chip chip--platform">PC</span> Buy on <a href="https://www.gog.com/game/cannon_fodder">GOG</a> — DRM-free; the engine reads the install directory directly.</li>
+            <li><span class="chip chip--platform">AMIGA</span> Use <a href="https://github.com/OpenFodder/SOS_Unpacker/releases">SOS_Unpacker</a> on an original Amiga floppy/ADF set.</li>
+            <li><span class="chip chip--platform">AMIGA</span> Use <a href="http://www.whdload.de/games/CannonFodder.html">WHDLoad</a> Cannon Fodder install slip with your own ROMs.</li>
+          </ul>
+          <p><span class="chip chip--alert"><svg class="chip__icon" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M8 2L1 14h14z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="miter"/><path d="M8 6v4M8 12v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>REQUIRES DATA</span></p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ========== FOOTAGE ========== -->
+    <section class="section" id="videos" data-reveal>
+      <div class="container">
+        <header class="section__head">
+          <p class="section__eyebrow">
+            <svg class="section__eyebrow-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="8" cy="3.5" r="0.9" fill="currentColor"/><circle cx="8" cy="12.5" r="0.9" fill="currentColor"/><circle cx="3.5" cy="8" r="0.9" fill="currentColor"/><circle cx="12.5" cy="8" r="0.9" fill="currentColor"/></svg>
+            04 // MISSION FOOTAGE
+          </p>
+          <h2 class="section__title">Operations Recovered</h2>
+          <p class="section__lede">Selected mission tapes. Click through to YouTube; embeds load on demand.</p>
+        </header>
+
+        <ul class="footage__grid" aria-label="Video gallery">
+          <li class="card card--footage" data-reveal>
+            <a class="card--footage__viewport" href="https://www.youtube.com/watch?v=f16FarouchY" target="_blank" rel="noopener noreferrer" aria-label="Watch Open Fodder 1.5 on YouTube (opens in new tab)">
+              <img src="https://img.youtube.com/vi/f16FarouchY/hqdefault.jpg" alt="" loading="lazy" decoding="async">
+              <span class="card__pill" aria-hidden="true">▶</span>
+            </a>
+            <h3 class="card__title">Open Fodder 1.5</h3>
+            <p class="card__body">Engine demonstration; mixed CF1 / CF2 mission rotation.</p>
+          </li>
+
+          <li class="card card--footage" data-reveal data-reveal-delay="80">
+            <a class="card--footage__viewport" href="https://www.youtube.com/watch?v=jb4TmM9zcr4" target="_blank" rel="noopener noreferrer" aria-label="Watch Open Fodder 1.4 on YouTube (opens in new tab)">
+              <img src="https://img.youtube.com/vi/jb4TmM9zcr4/hqdefault.jpg" alt="" loading="lazy" decoding="async">
+              <span class="card__pill" aria-hidden="true">▶</span>
+            </a>
+            <h3 class="card__title">Open Fodder 1.4</h3>
+            <p class="card__body">Pre-2.0 milestone build with scripting hooks.</p>
+          </li>
+
+          <li class="card card--footage" data-reveal data-reveal-delay="160">
+            <a class="card--footage__viewport" href="https://www.youtube.com/watch?v=aSGOTSw-LlI" target="_blank" rel="noopener noreferrer" aria-label="Watch Open Fodder 1.3 — Amiga Format on YouTube (opens in new tab)">
+              <img src="https://img.youtube.com/vi/aSGOTSw-LlI/hqdefault.jpg" alt="" loading="lazy" decoding="async">
+              <span class="card__pill" aria-hidden="true">▶</span>
+            </a>
+            <h3 class="card__title">1.3 — Amiga Format</h3>
+            <p class="card__body">Amiga Format Christmas Special running under the open engine.</p>
+          </li>
+
+          <li class="card card--footage" data-reveal data-reveal-delay="240">
+            <a class="card--footage__viewport" href="https://www.youtube.com/watch?v=7AjELdOzoaw" target="_blank" rel="noopener noreferrer" aria-label="Watch Open Fodder 0.8 on YouTube (opens in new tab)">
+              <img src="https://img.youtube.com/vi/7AjELdOzoaw/hqdefault.jpg" alt="" loading="lazy" decoding="async">
+              <span class="card__pill" aria-hidden="true">▶</span>
+            </a>
+            <h3 class="card__title">Open Fodder 0.8</h3>
+            <p class="card__body">Early-build archive. The first time it really felt like Cannon Fodder.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== COMMS ========== -->
+    <section class="section" id="community" data-reveal>
+      <div class="container">
+        <header class="section__head">
+          <p class="section__eyebrow">
+            <svg class="section__eyebrow-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M8 13a1 1 0 110-2 1 1 0 010 2z" fill="currentColor"/><path d="M5.5 9.5a3.5 3.5 0 015 0M3 7a7 7 0 0110 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            05 // COMMS CHANNELS
+          </p>
+          <h2 class="section__title">Frequencies Open</h2>
+          <p class="section__lede">Three channels are open. Pick one and identify yourself.</p>
+        </header>
+
+        <ul class="comms__grid" aria-label="Community channels">
+          <li class="card card--comms" data-reveal>
+            <p class="comms__freq"><span class="chip chip--engine">FREQ 01</span> <span class="comms__handle">discord.gg/4mX2wFM</span></p>
+            <span class="comms__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor" aria-hidden="true"><path d="M20.317 4.369A19.79 19.79 0 0016.558 3.2a.075.075 0 00-.079.037c-.21.375-.444.864-.608 1.249a18.27 18.27 0 00-5.487 0 12.5 12.5 0 00-.617-1.249.078.078 0 00-.079-.037A19.736 19.736 0 005.93 4.369a.07.07 0 00-.032.027C2.533 9.046 1.61 13.58 2.063 18.057a.082.082 0 00.031.056 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.105 13.1 13.1 0 01-1.872-.892.077.077 0 01-.008-.128c.126-.094.252-.192.371-.291a.074.074 0 01.077-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 01.078.009c.12.099.245.198.372.292a.077.077 0 01-.006.128 12.3 12.3 0 01-1.873.891.077.077 0 00-.04.106c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.548-13.66a.061.061 0 00-.031-.028zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.955 2.42-2.157 2.42zm7.974 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.946 2.42-2.157 2.42z"/></svg>
+            </span>
+            <h3 class="card__title">Discord</h3>
+            <p class="card__body">Live chat with the maintainers and the regulars. Best place for build help.</p>
+            <a class="btn btn--secondary" href="https://discord.gg/4mX2wFM" target="_blank" rel="noopener noreferrer">
+              <span class="btn__label"><span class="btn__label-main">JOIN DISCORD</span><span class="btn__meta">Chat</span></span>
+            </a>
+          </li>
+
+          <li class="card card--comms" data-reveal data-reveal-delay="80">
+            <p class="comms__freq"><span class="chip chip--engine">FREQ 02</span> <span class="comms__handle">/openfodder</span></p>
+            <span class="comms__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor" aria-hidden="true"><path d="M22 12a10 10 0 10-11.6 9.9V15H7.9v-3h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.7l-.4 3h-2.3v6.9A10 10 0 0022 12z"/></svg>
+            </span>
+            <h3 class="card__title">Facebook</h3>
+            <p class="card__body">Release announcements and the occasional lore drop.</p>
+            <a class="btn btn--secondary" href="https://www.facebook.com/openfodder/" target="_blank" rel="noopener noreferrer">
+              <span class="btn__label"><span class="btn__label-main">FOLLOW PAGE</span><span class="btn__meta">Facebook</span></span>
+            </a>
+          </li>
+
+          <li class="card card--comms" data-reveal data-reveal-delay="160">
+            <p class="comms__freq"><span class="chip chip--engine">FREQ 03</span> <span class="comms__handle">@segrax</span></p>
+            <span class="comms__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </span>
+            <h3 class="card__title">X (Twitter)</h3>
+            <p class="card__body">Maintainer's own channel; build progress and tactical thoughts.</p>
+            <a class="btn btn--secondary" href="https://x.com/segrax" target="_blank" rel="noopener noreferrer">
+              <span class="btn__label"><span class="btn__label-main">OPEN ON X</span><span class="btn__meta">@segrax</span></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== CREDITS ========== -->
+    <section class="section credits" id="credits" data-reveal>
+      <div class="container">
+        <header class="section__head">
+          <p class="section__eyebrow">
+            <svg class="section__eyebrow-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M5 3h6v3l-1 7H6L5 6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="miter"/><circle cx="8" cy="9" r="0.9" fill="currentColor"/><path d="M5 6h6" stroke="currentColor" stroke-width="1.2"/></svg>
+            06 // ORDER OF BATTLE
+          </p>
+          <h2 class="section__title">Credits</h2>
+          <p class="section__lede">A small team and a long tail of contributors.</p>
+        </header>
+
+        <div class="credits-readout">
+          <p class="credits-readout__status">
+            <span class="credits-readout__prefix" aria-hidden="true">$</span>
+            <code class="credits-readout__status-text">CREW MANIFEST &middot; OPEN FODDER</code>
+          </p>
+
+          <ul class="credits-readout__crew">
+            <li class="credits-readout__line credits-readout__line--crew">
+              <span class="credits-readout__handle">@segrax</span>
+              <span class="credits-readout__role">Lead engineer &middot; project maintainer</span>
+            </li>
+            <li class="credits-readout__line credits-readout__line--crew">
+              <span class="credits-readout__handle">@drnovice</span>
+              <span class="credits-readout__role">Co-author &middot; scripting and tooling</span>
+            </li>
+          </ul>
+
+          <ul class="credits-readout__line credits-readout__line--ops credits-readout__ops">
+            <li>
+              <a href="https://github.com/OpenFodder/openfodder/graphs/contributors">All GitHub contributors</a>
+              <span class="credits-readout__ops-desc">issues, patches, and ports</span>
+            </li>
+            <li>
+              <a href="https://github.com/OpenFodder/openfodder/wiki">Project wiki</a>
+              <span class="credits-readout__ops-desc">build notes, file formats, and scripting</span>
+            </li>
+          </ul>
+
+          <p class="credits-readout__line credits-readout__line--note credits-readout__line--note-first">
+            <span class="credits-readout__prefix" aria-hidden="true">#</span>
+            <span><span class="visually-hidden">License: </span>License &middot; GNU GPL. See the <a href="https://github.com/OpenFodder/openfodder">repository</a> for terms.</span>
+          </p>
+
+          <p class="credits-readout__line credits-readout__line--eof">
+            <span class="credits-readout__prefix" aria-hidden="true">#</span>
+            <small><span class="visually-hidden">Disclaimer: </span>Cannon Fodder is &copy; 1993 Sensible Software / Virgin Interactive. Open Fodder is a fan-made open-source engine port and is not affiliated with the original publisher.</small>
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer" id="footer">
+    <div class="container site-footer__inner">
+      <div class="site-footer__meta">
+        <p class="brand">
+          <span class="brand__text">OPEN FODDER</span>
+          <span class="brand__version">v2.0.0 — released <span data-current-build-date>16 Dec 2025</span></span>
+        </p>
+        <p>
+          Maintained by <a href="https://x.com/segrax">@segrax</a> &amp; @drnovice.
+          Source on <a href="https://github.com/OpenFodder/openfodder">GitHub</a>.
+          <a href="https://github.com/OpenFodder/openfodder/wiki">Wiki</a>.
+          <a href="https://github.com/OpenFodder/openfodder/blob/master/INSTALL.md">INSTALL.md</a>.
+        </p>
+        <p class="site-footer__legal">
+          Cannon Fodder ©1993 Sensible Software / Virgin Interactive.
+          Open Fodder is a fan-made open-source engine port, not affiliated with the original publisher.
+        </p>
+        <p><a href="#main" data-smooth-scroll>↑ Back to top</a></p>
+      </div>
+
+      <div class="site-footer__meta">
+        <p class="site-footer__legal">© <span data-current-year>2026</span> Open Fodder contributors.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="coord-bar" aria-hidden="true">
+    <span class="coord-bar__label">// END OF FILE</span>
+    <span class="coord-bar__value"><a href="https://github.com/OpenFodder/openfodder">github.com/OpenFodder/openfodder</a></span>
+    <span class="coord-bar__label">v2.0.0</span>
+  </div>
+
+</body>
+</html>
