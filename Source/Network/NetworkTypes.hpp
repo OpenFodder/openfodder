@@ -38,7 +38,7 @@ static const uint16_t NETWORK_KILL_LIMIT_DEFAULT = 10;
 static const uint16_t NETWORK_TIME_LIMIT_DEFAULT = 0;
 static const uint8_t NETWORK_TEAM_COUNT_DEFAULT = 2;
 static const uint8_t NETWORK_TEAM_SIZE_DEFAULT = 1;
-static const uint8_t NETWORK_COMPATIBILITY_VERSION = 3;
+static const uint8_t NETWORK_COMPATIBILITY_VERSION = 4;
 static const int8_t NETWORK_MATCH_NO_WINNER = -1;
 static const int8_t NETWORK_MATCH_DRAW = -2;
 static const uint16_t NETWORK_SIM_FRAMES_PER_SECOND = 17;
@@ -47,6 +47,7 @@ enum eNetworkMapSize : uint8_t {
     eNetworkMapSize_Small = 0,
     eNetworkMapSize_Medium,
     eNetworkMapSize_Large,
+    eNetworkMapSize_ExtraLarge,
     eNetworkMapSize_Count,
 };
 
@@ -55,6 +56,7 @@ inline const char* Network_MapSizeName(eNetworkMapSize pSize) {
     case eNetworkMapSize_Small:  return "SMALL";
     case eNetworkMapSize_Medium: return "MEDIUM";
     case eNetworkMapSize_Large:  return "LARGE";
+    case eNetworkMapSize_ExtraLarge: return "EXTRA LARGE";
     default:                     return "MEDIUM";
     }
 }
@@ -179,6 +181,7 @@ enum eNetworkMapProfile : uint8_t {
     eNetworkMapProfile_IceSkidooJump,
     eNetworkMapProfile_JungleMaze,
     eNetworkMapProfile_JungleNeck,
+    eNetworkMapProfile_IceMazeXL,
     eNetworkMapProfile_Count,
 };
 
@@ -194,6 +197,7 @@ inline const char* Network_MapProfileName(eNetworkMapProfile pProfile) {
     case eNetworkMapProfile_IceSkidooJump: return "SKIDOO";
     case eNetworkMapProfile_JungleMaze: return "JUNGLE MAZE";
     case eNetworkMapProfile_JungleNeck: return "JUNGLE NECK";
+    case eNetworkMapProfile_IceMazeXL: return "ICE MAZE XL";
     default:                        return "CUSTOM";
     }
 }

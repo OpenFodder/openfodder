@@ -64,7 +64,8 @@ static eNetworkMapSize Parameters_ParseNetworkMapSize(const std::string& pValue)
 		return eNetworkMapSize_Small;
 	if (Size == "large" || Size == "l")
 		return eNetworkMapSize_Large;
-
+	if (Size == "extra-large" || Size == "extra_large" || Size == "xlarge" || Size == "xl")
+		return eNetworkMapSize_ExtraLarge;
 	return eNetworkMapSize_Medium;
 }
 
@@ -146,6 +147,8 @@ static eNetworkMenuStart Parameters_ParseNetworkMenuStart(const std::string& pVa
 		return eNetworkMenuStart_Join;
 	if (Menu == "find-lan" || Menu == "lan" || Menu == "browser")
 		return eNetworkMenuStart_FindLan;
+	if (Menu == "find-internet" || Menu == "internet" || Menu == "hub")
+		return eNetworkMenuStart_FindInternet;
 
 	return eNetworkMenuStart_Main;
 }
@@ -298,14 +301,19 @@ void sFodderParameters::PrepareOptions() {
 		("net-port",   "Cooperative multiplayer: remote peer UDP port",         cxxopts::value<uint32_t>()->default_value("7001"), "7001")
 		("net-local-port", "Cooperative multiplayer: local UDP port",           cxxopts::value<uint32_t>()->default_value("7000"), "7000")
 		("net-synctest","Run GGPO sync-test (local determinism check)",         cxxopts::value<bool>()->default_value("false"))
-		("net-menu", "Open multiplayer setup on startup: main, host, host-map-options, join, find-lan", cxxopts::value<std::string>()->default_value(""), "\"host-map-options\"")
+		("net-menu", "Open multiplayer setup on startup: main, host, host-map-options, join, find-lan, find-internet", cxxopts::value<std::string>()->default_value(""), "\"host-map-options\"")
+		("net-internet", "Use relay hub for Internet multiplayer", cxxopts::value<bool>()->default_value("false"))
+		("net-hub-host", "Relay hub control hostname / IP", cxxopts::value<std::string>()->default_value("hub.openfodder.com"), "\"hub.openfodder.com\"")
+		("net-hub-port", "Relay hub control UDP port", cxxopts::value<uint32_t>()->default_value("27770"), "27770")
+		("net-room-code", "Relay room/session code to join", cxxopts::value<std::string>()->default_value(""), "\"ABC123\"")
+		("net-relay-token", "Relay data registration token", cxxopts::value<std::string>()->default_value(""), "\"TOKEN\"")
 		("net-mode", "Multiplayer mode: coop, deathmatch, squad-deathmatch, rescue-prisoner, avatar-deathmatch, team-avatar", cxxopts::value<std::string>()->default_value(""), "\"coop\"")
 		("net-seed", "Multiplayer map seed", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_MAP_SEED_DEFAULT)), "4919")
 		("net-kill-limit", "Multiplayer kill limit", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_KILL_LIMIT_DEFAULT)), "10")
 		("net-time-limit", "Multiplayer time limit in seconds (0 = none)", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_TIME_LIMIT_DEFAULT)), "0")
 		("net-team-size", "Players per team for team modes", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_TEAM_SIZE_DEFAULT)), "1")
 		("net-friendly-fire", "Allow friendly fire in multiplayer team modes", cxxopts::value<bool>()->default_value("false"))
-		("net-map-size", "Multiplayer random map size: small, medium, large", cxxopts::value<std::string>()->default_value(""), "\"medium\"")
+		("net-map-size", "Multiplayer random map size: small, medium, large, extra-large", cxxopts::value<std::string>()->default_value(""), "\"medium\"")
 		("net-terrain", "Multiplayer random map terrain: random, jungle, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"jungle\"")
 		("net-vehicles", "Multiplayer random map vehicles: none, light, armed, tanks, mixed", cxxopts::value<std::string>()->default_value(""), "\"none\"")
 		("net-pickups", "Multiplayer random map pickups: low, normal, high", cxxopts::value<std::string>()->default_value(""), "\"normal\"")
@@ -342,6 +350,7 @@ void sFodderParameters::PrepareOptions() {
 		("random-seed", "Random map seed", cxxopts::value<uint32_t>()->default_value("0"), "123")
 		("random-tileset", "Random map tileset: random, jungle, beach, desert, ice, moors", cxxopts::value<std::string>()->default_value(""), "\"ice\"")
 		("random-subtileset", "Random map terrain sub-tileset override (jungle: 0 inland, 1 beach)", cxxopts::value<uint32_t>()->default_value("0"), "1")
+		("random-map-size", "Random map size: small, medium, large, extra-large", cxxopts::value<std::string>()->default_value(""), "\"extra-large\"")
 		("random-profile", "Random MapGen profile name", cxxopts::value<std::string>()->default_value(""), "\"grammar_ice\"")
 		("script", "Name of script to execute", cxxopts::value<std::string>()->default_value(""), "\"script.js\"")
 #ifdef OF_JS_DEBUG
@@ -485,6 +494,14 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mRandomMapOptionsEnabled = true;
 			mRandomMapProfile = eNetworkMapProfile_Custom;
 		}
+		if (result.count("random-map-size")) {
+			std::string MapSize = result["random-map-size"].as<std::string>();
+			if (!MapSize.empty()) {
+				mRandomMapSize = Parameters_ParseNetworkMapSize(MapSize);
+				mRandomMapOptionsEnabled = true;
+				mRandomMapProfile = eNetworkMapProfile_Custom;
+			}
+		}
 		if (result.count("random-profile")) {
 			mRandomMapProfileName = result["random-profile"].as<std::string>();
 			if (!mRandomMapProfileName.empty()) {
@@ -517,12 +534,38 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mNetworkSyncTest = true;
 			mNetworkEnabled  = true;
 		}
-		if (result.count("net-menu")) {
+				if (result.count("net-menu")) {
 			std::string NetMenu = result["net-menu"].as<std::string>();
 			if (!NetMenu.empty()) {
 				mNetworkMenuStart = Parameters_ParseNetworkMenuStart(NetMenu);
 				mNetworkEnabled = true;
 			}
+		}
+		if (result.count("net-internet") && result["net-internet"].as<bool>()) {
+			mNetworkInternet = true;
+			mNetworkEnabled = true;
+		}
+		if (result.count("net-hub-host")) {
+			mNetworkHubHost = result["net-hub-host"].as<std::string>();
+			if (!mNetworkHubHost.empty() && mNetworkHubHost != "hub.openfodder.com" && mNetworkHubHost != "127.0.0.1")
+				mNetworkInternet = true;
+		}
+		if (result.count("net-hub-port")) {
+			mNetworkHubPort = (uint16)std::min<uint32_t>(result["net-hub-port"].as<uint32_t>(), 65535);
+			if (mNetworkHubPort != 27770)
+				mNetworkInternet = true;
+		}
+		if (result.count("net-room-code")) {
+			mNetworkRoomCode = result["net-room-code"].as<std::string>();
+			if (!mNetworkRoomCode.empty()) {
+				mNetworkInternet = true;
+				mNetworkEnabled = true;
+			}
+		}
+		if (result.count("net-relay-token")) {
+			mNetworkRelayToken = result["net-relay-token"].as<std::string>();
+			if (!mNetworkRelayToken.empty())
+				mNetworkInternet = true;
 		}
 		if (result.count("net-mode")) {
 			std::string NetMode = result["net-mode"].as<std::string>();

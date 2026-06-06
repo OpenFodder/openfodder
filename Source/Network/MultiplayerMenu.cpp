@@ -88,6 +88,39 @@ static bool MultiplayerMenu_DiscoveryStateJoinable(uint8_t pState)
     return pState == eNetworkDiscoveryState_Setup;
 }
 
+static std::string MultiplayerMenu_BuildMapLabel(eNetworkMapSize pSize, eNetworkMapTerrain pTerrain)
+{
+    return std::string(Network_MapSizeName(pSize)) + " " + Network_MapTerrainName(pTerrain);
+}
+
+static sNetworkHubMetadata MultiplayerMenu_BuildHubMetadata(
+    eNetworkGameMode pMode,
+    uint32 pMapSeed,
+    uint16 pKillLimit,
+    uint16 pTimeLimitSeconds,
+    uint8 pTeamCount,
+    uint8 pTeamSize,
+    bool pFriendlyFire,
+    eNetworkMapSize pMapSize,
+    eNetworkMapTerrain pMapTerrain,
+    eNetworkCoverDensity pCoverDensity)
+{
+    sNetworkHubMetadata Metadata;
+    Metadata.mGameName = "OpenFodder Lobby";
+    Metadata.mGameMode = Network_GameModeName(pMode);
+    Metadata.mMapName = Network_IsPvPMode(pMode) ? MultiplayerMenu_BuildMapLabel(pMapSize, pMapTerrain) : "Campaign Select";
+    Metadata.mVersion = "N" + std::to_string((int)NETWORK_COMPATIBILITY_VERSION);
+    Metadata.mOptions =
+        "seed=" + std::to_string(pMapSeed) +
+        ";kill=" + std::to_string((int)pKillLimit) +
+        ";time=" + std::to_string((int)pTimeLimitSeconds) +
+        ";teams=" + std::to_string((int)pTeamCount) +
+        ";size=" + std::to_string((int)pTeamSize) +
+        ";ff=" + std::to_string(pFriendlyFire ? 1 : 0) +
+        ";cover=" + std::string(Network_CoverDensityName(pCoverDensity));
+    return Metadata;
+}
+
 cMultiplayerMenu::cMultiplayerMenu() {
 }
 
@@ -109,6 +142,17 @@ void cMultiplayerMenu::Open() {
     mLocalPort = g_Fodder->mStartParams->mNetworkLocalPort;
     mRemotePortText = std::to_string(mRemotePort);
     mLocalPortText = std::to_string(mLocalPort);
+    mInternet = g_Fodder->mStartParams->mNetworkInternet;
+    mInternetHost = false;
+    mHubHost = g_Fodder->mStartParams->mNetworkHubHost.size()
+        ? g_Fodder->mStartParams->mNetworkHubHost
+        : NETWORK_HUB_DEFAULT_HOST;
+    mHubPort = g_Fodder->mStartParams->mNetworkHubPort
+        ? g_Fodder->mStartParams->mNetworkHubPort
+        : NETWORK_HUB_DEFAULT_PORT;
+    mHubPortText = std::to_string(mHubPort);
+    mRoomCode = g_Fodder->mStartParams->mNetworkRoomCode;
+    mRelayToken = g_Fodder->mStartParams->mNetworkRelayToken;
     mGameMode = g_Fodder->mStartParams->mNetworkGameMode;
     mMapSeed = g_Fodder->mStartParams->mNetworkMapSeed;
     mMapSeedText = std::to_string(mMapSeed);
@@ -145,6 +189,12 @@ void cMultiplayerMenu::Open() {
         mPlayerIndex = 1;
         StartLanBrowser();
         break;
+    case eNetworkMenuStart_FindInternet:
+        mState = eState::FindInternet;
+        mPlayerIndex = 1;
+        mInternet = true;
+        StartInternetBrowser();
+        break;
     case eNetworkMenuStart_Main:
     case eNetworkMenuStart_None:
     default:
@@ -154,6 +204,7 @@ void cMultiplayerMenu::Open() {
 
 void cMultiplayerMenu::Close() {
     StopLanBrowser();
+    StopInternetBrowser();
 }
 
 void cMultiplayerMenu::Tick() {
@@ -183,10 +234,12 @@ void cMultiplayerMenu::OnBack() {
 
     if (mState == eState::FindLan)
         StopLanBrowser();
+    if (mState == eState::FindInternet)
+        StopInternetBrowser();
 
     if (mState == eState::MapOptions) {
         mMapOptionsMenu.OnBack();
-    } else if (mState == eState::Host || mState == eState::Join || mState == eState::FindLan) {
+    } else if (mState == eState::Host || mState == eState::Join || mState == eState::FindLan || mState == eState::FindInternet) {
         mState = eState::Main;
     } else {
         mDone = true;
@@ -200,6 +253,10 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mState = eState::Host;
         mEditField = eEditField::None;
         mPlayerIndex = 0;
+        mInternet = false;
+        mInternetHost = false;
+        mRoomCode.clear();
+        mRelayToken.clear();
         mRemoteHost = "127.0.0.1";
         mLocalPort = 7000;
         mRemotePort = 7001;
@@ -207,11 +264,36 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mRemotePortText = std::to_string(mRemotePort);
         break;
 
+    case ACT_HOST_INTERNET:
+        mState = eState::Host;
+        mEditField = eEditField::None;
+        mPlayerIndex = 0;
+        mInternet = true;
+        mInternetHost = true;
+        mRoomCode.clear();
+        mRelayToken.clear();
+        mLocalPort = 7000;
+        mLocalPortText = std::to_string(mLocalPort);
+        break;
+
     case ACT_FIND_LAN:
         mState = eState::FindLan;
         mEditField = eEditField::None;
         mPlayerIndex = 1;
+        mInternet = false;
+        mInternetHost = false;
+        mRoomCode.clear();
+        mRelayToken.clear();
         StartLanBrowser();
+        break;
+
+    case ACT_FIND_INTERNET:
+        mState = eState::FindInternet;
+        mEditField = eEditField::None;
+        mPlayerIndex = 1;
+        mInternet = true;
+        mInternetHost = false;
+        StartInternetBrowser();
         break;
 
     case ACT_DIRECT_CONNECT:
@@ -219,6 +301,10 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mState = eState::Join;
         mEditField = eEditField::None;
         mPlayerIndex = 1;
+        mInternet = false;
+        mInternetHost = false;
+        mRoomCode.clear();
+        mRelayToken.clear();
         mLocalPort = 7001;
         mRemotePort = 7000;
         mLocalPortText = std::to_string(mLocalPort);
@@ -229,8 +315,20 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         SelectDiscoveredGame((size_t)pArg);
         break;
 
+    case ACT_JOIN_INTERNET:
+        SelectInternetGame((size_t)pArg);
+        break;
+
+    case ACT_JOIN_ROOM_CODE:
+        SelectInternetGame((size_t)-1);
+        break;
+
     case ACT_REFRESH_LAN:
         RefreshLanBrowser();
+        break;
+
+    case ACT_REFRESH_INTERNET:
+        RefreshInternetBrowser();
         break;
 
     case ACT_SYNC_TEST:
@@ -247,8 +345,10 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
     case ACT_START:
         SyncPortValues();
         if (CanStart()) {
-            mDone = true;
-            mStarted = true;
+            if (!mInternetHost || CreateInternetRoom()) {
+                mDone = true;
+                mStarted = true;
+            }
         }
         break;
 
@@ -256,6 +356,9 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
     case ACT_EDIT_REMOTE_PORT:
     case ACT_EDIT_LOCAL_PORT:
     case ACT_EDIT_MAP_SEED:
+    case ACT_EDIT_HUB_HOST:
+    case ACT_EDIT_HUB_PORT:
+    case ACT_EDIT_ROOM_CODE:
         SelectField(pAction);
         break;
 
@@ -286,6 +389,9 @@ void cMultiplayerMenu::Draw() {
         break;
     case eState::FindLan:
         DrawFindLanMenu();
+        break;
+    case eState::FindInternet:
+        DrawFindInternetMenu();
         break;
     case eState::MapOptions:
         mMapOptionsMenu.Draw();
@@ -320,6 +426,18 @@ void cMultiplayerMenu::DrawMainMenu() {
 
     rowY += rowH;
 
+    // HOST INTERNET GAME
+    g_Fodder->GUI_Button_Draw_Small("HOST INTERNET GAME", rowY, 0xB2, 0xB3);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_HOST_INTERNET);
+
+    rowY += rowH;
+
+    // FIND INTERNET GAME
+    g_Fodder->GUI_Button_Draw_Small("FIND INTERNET GAME", rowY, 0xB2, 0xB3);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_FIND_INTERNET);
+
+    rowY += rowH;
+
     // DIRECT CONNECT
     g_Fodder->GUI_Button_Draw_Small("DIRECT CONNECT", rowY, 0xB2, 0xB3);
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_DIRECT_CONNECT);
@@ -336,7 +454,7 @@ void cMultiplayerMenu::DrawMainMenu() {
 }
 
 void cMultiplayerMenu::DrawHostMenu() {
-    DrawConnectionMenu("HOST LAN GAME", "PEER IP", "PEER PORT", true);
+    DrawConnectionMenu(mInternetHost ? "HOST INTERNET GAME" : "HOST LAN GAME", "PEER IP", "PEER PORT", true);
 }
 
 void cMultiplayerMenu::DrawJoinMenu() {
@@ -388,9 +506,15 @@ void cMultiplayerMenu::DrawFindLanMenu() {
             const bool Joinable = MultiplayerMenu_DiscoveryStateJoinable(Game.mState) && Game.mLobbyPort;
             const uint8_t MaxPlayers = Game.mMaxPlayers ? Game.mMaxPlayers : NETWORK_MAX_PLAYERS;
             const uint32_t AgeSeconds = (Now - Game.mLastSeenTicks) / 1000;
-            std::string Label = Game.mHostName.size() ? Game.mHostName : Game.mHostAddress;
+            std::string Label = Game.mGameName.size() ? Game.mGameName : (Game.mHostName.size() ? Game.mHostName : Game.mHostAddress);
             Label += " ";
             Label += MultiplayerMenu_ModeShortName(Game.mSettings.mGameMode);
+            Label += " ";
+            Label += Network_IsPvPMode(Game.mSettings.mGameMode)
+                ? MultiplayerMenu_BuildMapLabel(
+                    Network_NormalizeMapSize((uint8_t)Game.mSettings.mMapSize),
+                    Network_NormalizeMapTerrain((uint8_t)Game.mSettings.mMapTerrain))
+                : "CAMPAIGN";
             Label += " ";
             Label += std::to_string((int)Game.mCurrentPlayers);
             Label += "/";
@@ -419,6 +543,70 @@ void cMultiplayerMenu::DrawFindLanMenu() {
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
 }
 
+void cMultiplayerMenu::DrawFindInternetMenu() {
+    mDrawStrings.clear();
+
+    g_Fodder->mSurface->clearBuffer();
+    g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    g_Fodder->GUI_Element_Reset();
+
+    g_Fodder->mString_GapCharID = 0x25;
+    g_Fodder->String_Print_Large("FIND INTERNET GAME", false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+
+    size_t YOffset = PLATFORM_BASED(0, 25);
+    int16 rowY = 0x32;
+
+    DrawField("HUB HOST", MultiplayerMenu_DisplayHost(mHubHost), rowY, ACT_EDIT_HUB_HOST, mEditField == eEditField::HubHost);
+    rowY += 0x12;
+    DrawField("HUB PORT", mHubPortText, rowY, ACT_EDIT_HUB_PORT, mEditField == eEditField::HubPort);
+    rowY += 0x12;
+    DrawField("ROOM CODE", mRoomCode, rowY, ACT_EDIT_ROOM_CODE, mEditField == eEditField::RoomCode);
+    rowY += 0x16;
+
+    g_Fodder->GUI_Button_Draw_Small("JOIN CODE", rowY, mRoomCode.size() ? 0xB2 : 0xF2, mRoomCode.size() ? 0xB3 : 0xF3);
+    if (mRoomCode.size())
+        g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_JOIN_ROOM_CODE);
+    rowY += 0x15;
+
+    if (mHubFailed) {
+        g_Fodder->String_Print_Small("HUB BROWSER FAILED", rowY);
+    }
+    else if (mInternetGames.empty()) {
+        g_Fodder->String_Print_Small("NO INTERNET GAMES FOUND", rowY);
+    }
+    else {
+        const size_t Count = std::min<size_t>(mInternetGames.size(), 2);
+        for (size_t Index = 0; Index < Count; ++Index) {
+            const auto& Game = mInternetGames[Index];
+            const bool Joinable = Game.mRelayPort && Game.mCurrentPlayers < Game.mMaxPlayers;
+            std::string Label = Game.mMetadata.mGameName.size() ? Game.mMetadata.mGameName : Game.mRoomCode;
+            Label += " ";
+            Label += Game.mMetadata.mGameMode.size() ? Game.mMetadata.mGameMode : "MODE";
+            Label += " ";
+            Label += Game.mMetadata.mMapName.size() ? Game.mMetadata.mMapName : "MAP";
+            Label += " ";
+            Label += std::to_string((int)Game.mCurrentPlayers);
+            Label += "/";
+            Label += std::to_string((int)Game.mMaxPlayers);
+            Label += " ";
+            Label += Game.mRoomCode;
+            Label = NetworkMenu_FitText(Label, 190);
+
+            g_Fodder->GUI_Button_Draw_Small(Label.c_str(), rowY, Joinable ? 0xB2 : 0xF2, Joinable ? 0xB3 : 0xF3);
+            if (Joinable)
+                g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_JOIN_INTERNET, (int16)Index);
+            rowY += 0x15;
+        }
+    }
+
+    g_Fodder->GUI_Button_Draw_Small("REFRESH", 0x9E + YOffset);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_REFRESH_INTERNET);
+
+    g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
+}
+
 void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel, bool pHostSetup) {
     mDrawStrings.clear();
     SyncPortValues();
@@ -432,9 +620,15 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
     g_Fodder->mString_GapCharID = 0;
 
     size_t YOffset = PLATFORM_BASED(0, 25);
-    int16 rowY = pHostSetup ? 0x34 : 0x44;
+    int16 rowY = pHostSetup ? (mInternetHost ? 0x24 : 0x34) : 0x44;
 
     if (pHostSetup) {
+        if (mInternetHost) {
+            DrawField("HUB HOST", MultiplayerMenu_DisplayHost(mHubHost), rowY, ACT_EDIT_HUB_HOST, mEditField == eEditField::HubHost);
+            rowY += 0x12;
+            DrawField("HUB PORT", mHubPortText, rowY, ACT_EDIT_HUB_PORT, mEditField == eEditField::HubPort);
+            rowY += 0x12;
+        }
         DrawValueButton("MODE", Network_GameModeName(mGameMode), rowY, ACT_CYCLE_MODE);
         rowY += 0x12;
         DrawField("MAP SEED", mMapSeedText, rowY, ACT_EDIT_MAP_SEED, mEditField == eEditField::MapSeed);
@@ -562,6 +756,19 @@ void cMultiplayerMenu::HandleTextInput() {
         MaxLength = 10;
         NumericOnly = true;
     }
+    else if (mEditField == eEditField::HubHost) {
+        Target = &mHubHost;
+        MaxLength = 63;
+    }
+    else if (mEditField == eEditField::HubPort) {
+        Target = &mHubPortText;
+        MaxLength = 5;
+        NumericOnly = true;
+    }
+    else if (mEditField == eEditField::RoomCode) {
+        Target = &mRoomCode;
+        MaxLength = 12;
+    }
 
     if (!Target)
         return;
@@ -601,6 +808,12 @@ void cMultiplayerMenu::HandleTextInput() {
         || KeyAscii == '.'
         || KeyAscii == '-';
 
+    if (mEditField == eEditField::RoomCode) {
+        if ((KeyAscii >= 'A' && KeyAscii <= 'Z') || (KeyAscii >= '0' && KeyAscii <= '9'))
+            Target->push_back((char)KeyAscii);
+        return;
+    }
+
     if (ValidHostChar)
         Target->push_back((char)std::tolower((unsigned char)KeyAscii));
 }
@@ -614,6 +827,12 @@ void cMultiplayerMenu::SelectField(int16 pAction) {
         mEditField = eEditField::LocalPort;
     else if (pAction == ACT_EDIT_MAP_SEED)
         mEditField = eEditField::MapSeed;
+    else if (pAction == ACT_EDIT_HUB_HOST)
+        mEditField = eEditField::HubHost;
+    else if (pAction == ACT_EDIT_HUB_PORT)
+        mEditField = eEditField::HubPort;
+    else if (pAction == ACT_EDIT_ROOM_CODE)
+        mEditField = eEditField::RoomCode;
 
     g_Fodder->mInput_LastKey = g_Fodder->mKeyCode;
 }
@@ -636,6 +855,63 @@ void cMultiplayerMenu::StopLanBrowser() {
     }
 }
 
+void cMultiplayerMenu::StartInternetBrowser() {
+    StopInternetBrowser();
+    SyncPortValues();
+
+    mHubClient = std::make_unique<cNetworkHubClient>();
+    mHubFailed = !mHubClient->Configure(mHubHost, mHubPort) || !mHubClient->List(mInternetGames);
+}
+
+void cMultiplayerMenu::RefreshInternetBrowser() {
+    StartInternetBrowser();
+}
+
+void cMultiplayerMenu::StopInternetBrowser() {
+    mInternetGames.clear();
+    mHubClient.reset();
+    mHubFailed = false;
+}
+
+bool cMultiplayerMenu::CreateInternetRoom() {
+    SyncPortValues();
+
+    cNetworkHubClient Hub;
+    if (!Hub.Configure(mHubHost, mHubPort)) {
+        mHubFailed = true;
+        return false;
+    }
+
+    const sNetworkHubMetadata Metadata = MultiplayerMenu_BuildHubMetadata(
+        mGameMode,
+        mMapSeed,
+        mKillLimit,
+        mTimeLimitSeconds,
+        mTeamCount,
+        mTeamSize,
+        mFriendlyFire,
+        mMapSize,
+        mMapTerrain,
+        mCoverDensity
+    );
+
+    sNetworkHubRoom Room;
+    if (!Hub.Create(NETWORK_MAX_PLAYERS, Metadata, true, Room)) {
+        mHubFailed = true;
+        return false;
+    }
+
+    mInternet = true;
+    mInternetHost = true;
+    mRemoteHost = Room.mRelayHost;
+    mRemotePort = Room.mRelayPort;
+    mRemotePortText = std::to_string(mRemotePort);
+    mRoomCode = Room.mRoomCode;
+    mRelayToken = Room.mToken;
+    mHubFailed = false;
+    return true;
+}
+
 void cMultiplayerMenu::SelectDiscoveredGame(size_t pIndex) {
     if (!mDiscovery)
         return;
@@ -651,6 +927,10 @@ void cMultiplayerMenu::SelectDiscoveredGame(size_t pIndex) {
     }
 
     mPlayerIndex = 1;
+    mInternet = false;
+    mInternetHost = false;
+    mRoomCode.clear();
+    mRelayToken.clear();
     mRemoteHost = Game.mHostAddress;
     mRemotePort = Game.mLobbyPort;
     mRemotePortText = std::to_string(mRemotePort);
@@ -672,6 +952,52 @@ void cMultiplayerMenu::SelectDiscoveredGame(size_t pIndex) {
     mCoverDensity = Network_NormalizeCoverDensity((uint8_t)Game.mSettings.mCoverDensity);
 
     StopLanBrowser();
+    mDone = true;
+    mStarted = true;
+}
+
+void cMultiplayerMenu::SelectInternetGame(size_t pIndex) {
+    const bool JoinByCode = (pIndex == (size_t)-1);
+    if (!JoinByCode && pIndex >= mInternetGames.size())
+        return;
+
+    SyncPortValues();
+
+    std::string RoomCode = mRoomCode;
+    if (!JoinByCode) {
+        const sNetworkHubGame Game = mInternetGames[pIndex];
+        if (!Game.mRelayPort || Game.mCurrentPlayers >= Game.mMaxPlayers)
+            return;
+        RoomCode = Game.mRoomCode;
+    }
+    if (RoomCode.empty())
+        return;
+
+    cNetworkHubClient Hub;
+    if (!Hub.Configure(mHubHost, mHubPort)) {
+        mHubFailed = true;
+        return;
+    }
+
+    sNetworkHubRoom Room;
+    if (!Hub.Join(RoomCode, Room)) {
+        mHubFailed = true;
+        return;
+    }
+
+    mInternet = true;
+    mInternetHost = false;
+    mPlayerIndex = 1;
+    mRemoteHost = Room.mRelayHost;
+    mRemotePort = Room.mRelayPort;
+    mRemotePortText = std::to_string(mRemotePort);
+    mLocalPort = 7001;
+    mLocalPortText = std::to_string(mLocalPort);
+    mRoomCode = Room.mRoomCode;
+    mRelayToken = Room.mToken;
+    mHubFailed = false;
+
+    StopInternetBrowser();
     mDone = true;
     mStarted = true;
 }
@@ -711,11 +1037,18 @@ void cMultiplayerMenu::OpenMapOptions() {
 bool cMultiplayerMenu::CanStart() const {
     uint16 ParsedRemotePort = 0;
     uint16 ParsedLocalPort = 0;
+    uint16 ParsedHubPort = 0;
     uint32 ParsedSeed = 0;
-    return mRemoteHost.size()
-        && MultiplayerMenu_PortFromText(mRemotePortText, ParsedRemotePort)
-        && MultiplayerMenu_PortFromText(mLocalPortText, ParsedLocalPort)
+    const bool CommonOk = MultiplayerMenu_PortFromText(mLocalPortText, ParsedLocalPort)
         && NetworkMenu_UInt32FromText(mMapSeedText, ParsedSeed);
+
+    if (!CommonOk)
+        return false;
+
+    if (mInternetHost)
+        return mHubHost.size() && MultiplayerMenu_PortFromText(mHubPortText, ParsedHubPort);
+
+    return mRemoteHost.size() && MultiplayerMenu_PortFromText(mRemotePortText, ParsedRemotePort);
 }
 
 void cMultiplayerMenu::SyncPortValues() {
@@ -725,6 +1058,8 @@ void cMultiplayerMenu::SyncPortValues() {
 
     if (MultiplayerMenu_PortFromText(mLocalPortText, ParsedPort))
         mLocalPort = ParsedPort;
+    if (MultiplayerMenu_PortFromText(mHubPortText, ParsedPort))
+        mHubPort = ParsedPort;
 
     uint32 ParsedSeed = 0;
     if (NetworkMenu_UInt32FromText(mMapSeedText, ParsedSeed))
@@ -786,6 +1121,11 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
         mStartParams->mNetworkRemotePort  = mMultiplayerMenu->GetRemotePort();
         mStartParams->mNetworkLocalPort   = mMultiplayerMenu->GetLocalPort();
         mStartParams->mNetworkSyncTest    = mMultiplayerMenu->IsSyncTest();
+        mStartParams->mNetworkInternet    = mMultiplayerMenu->IsInternet();
+        mStartParams->mNetworkHubHost     = mMultiplayerMenu->GetHubHost();
+        mStartParams->mNetworkHubPort     = mMultiplayerMenu->GetHubPort();
+        mStartParams->mNetworkRoomCode    = mMultiplayerMenu->GetRoomCode();
+        mStartParams->mNetworkRelayToken  = mMultiplayerMenu->GetRelayToken();
         mStartParams->mNetworkGameMode    = mMultiplayerMenu->GetGameMode();
         mStartParams->mNetworkMapSeed     = mMultiplayerMenu->GetMapSeed();
         mStartParams->mNetworkKillLimit   = mMultiplayerMenu->GetKillLimit();
@@ -807,7 +1147,9 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
                 mStartParams->mNetworkLocalPort,
                 mStartParams->mNetworkRemoteHost,
                 mStartParams->mNetworkRemotePort,
-                mStartParams->mNetworkPlayerIndex == 0  // host = player 0
+                mStartParams->mNetworkPlayerIndex == 0,  // host = player 0
+                mStartParams->mNetworkRelayToken,
+                mStartParams->mNetworkInternet
             );
             if (!lobbyOk) {
                 g_Debugger->Error("[Lobby] Failed to start lobby, aborting.");
@@ -844,7 +1186,9 @@ bool cFodderMultiplayer::Multiplayer_ReopenLobby() {
         mStartParams->mNetworkLocalPort,
         mStartParams->mNetworkRemoteHost,
         mStartParams->mNetworkRemotePort,
-        mStartParams->mNetworkPlayerIndex == 0
+        mStartParams->mNetworkPlayerIndex == 0,
+        mStartParams->mNetworkRelayToken,
+        mStartParams->mNetworkInternet
     );
 
     if (!LobbyOk) {

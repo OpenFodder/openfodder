@@ -165,6 +165,7 @@ inline void writeLEWord( const void *buffer, uint16 pValue ) {
 
 #include "Network/NetworkLobby.hpp"
 #include "Network/NetworkDiscovery.hpp"
+#include "Network/NetworkHubClient.hpp"
 #include "Network/MultiplayerMenu.hpp"
 #include "Network/FodderMultiplayer.hpp"
 

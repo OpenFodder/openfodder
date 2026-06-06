@@ -56,7 +56,8 @@ public:
     bool Start(int localPlayerIndex,
                unsigned short localPort,
                const std::string& remoteHost,
-               unsigned short remotePort);
+               unsigned short remotePort,
+               const std::string& relayToken = "");
 
     // Start a local sync-test session (no network, tests determinism).
     bool StartSyncTest(int checkDistance = 8);

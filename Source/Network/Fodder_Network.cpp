@@ -353,7 +353,8 @@ bool cFodderMultiplayer::Network_Start() {
             mStartParams->mNetworkPlayerIndex,
             mStartParams->mNetworkLocalPort,
             mStartParams->mNetworkRemoteHost,
-            mStartParams->mNetworkRemotePort
+            mStartParams->mNetworkRemotePort,
+            mStartParams->mNetworkInternet ? mStartParams->mNetworkRelayToken : std::string()
         );
     }
 
@@ -947,6 +948,15 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
     remoteAddr.sin_family = AF_INET;
     remoteAddr.sin_port   = htons(mStartParams->mNetworkRemotePort);
     inet_pton(AF_INET, mStartParams->mNetworkRemoteHost.c_str(), &remoteAddr.sin_addr);
+
+    if (mStartParams->mNetworkInternet && !mStartParams->mNetworkRelayToken.empty()) {
+        const std::string RegisterPacket = "OFHUB/1 REGISTER token=" + mStartParams->mNetworkRelayToken;
+        for (int i = 0; i < 3; ++i) {
+            sendto(sock, RegisterPacket.c_str(), (int)RegisterPacket.size(), 0,
+                   (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
+            SDL_Delay(5);
+        }
+    }
 
     bool remoteReady = false;
     const int remotePlayerNum = (mStartParams->mNetworkPlayerIndex == 0) ? 2 : 1;

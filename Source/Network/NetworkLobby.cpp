@@ -48,9 +48,18 @@ cNetworkLobby::~cNetworkLobby() {
     Stop();
 }
 
-bool cNetworkLobby::Start(uint16_t pLocalPort, const std::string& pRemoteHost, uint16_t pRemotePort, bool pIsHost) {
+bool cNetworkLobby::Start(
+    uint16_t pLocalPort,
+    const std::string& pRemoteHost,
+    uint16_t pRemotePort,
+    bool pIsHost,
+    const std::string& pRelayToken,
+    bool pPreserveRemoteEndpoint) {
     Stop();
     mIsHost = pIsHost;
+    mRelayToken = pRelayToken;
+    mPreserveRemoteEndpoint = pPreserveRemoteEndpoint;
+    mLastRelayRegisterTicks = 0;
     mLocalPlayerId = Lobby_GeneratePlayerId(pLocalPort, pIsHost);
     mRemotePlayerId = 0;
 
@@ -119,6 +128,7 @@ bool cNetworkLobby::Start(uint16_t pLocalPort, const std::string& pRemoteHost, u
                        " -> " + pRemoteHost + ":" + std::to_string(pRemotePort) +
                        " id=" + std::to_string(mLocalPlayerId) +
                        (pIsHost ? " (HOST)" : " (JOIN)"));
+    SendRelayRegistration();
     return true;
 }
 
@@ -188,6 +198,8 @@ uint16_t cNetworkLobby::GetRemotePort() const {
 }
 
 void cNetworkLobby::Send() {
+    SendRelayRegistration();
+
     sLobbyPacket pkt;
     memset(&pkt, 0, sizeof(pkt));
     pkt.magic     = sLobbyPacket::MAGIC;
@@ -223,6 +235,20 @@ void cNetworkLobby::Send() {
     pkt.campaign[len] = '\0';
 
     sendto(mSocket, (const char*)&pkt, sizeof(pkt), 0,
+           (struct sockaddr*)&mRemoteAddr, sizeof(mRemoteAddr));
+}
+
+void cNetworkLobby::SendRelayRegistration() {
+    if (mSocket == INVALID_SOCKET || mRelayToken.empty())
+        return;
+
+    const uint32_t Now = (uint32_t)SDL_GetTicks();
+    if (mLastRelayRegisterTicks && Now - mLastRelayRegisterTicks < 1000)
+        return;
+    mLastRelayRegisterTicks = Now;
+
+    const std::string Packet = "OFHUB/1 REGISTER token=" + mRelayToken;
+    sendto(mSocket, Packet.c_str(), (int)Packet.size(), 0,
            (struct sockaddr*)&mRemoteAddr, sizeof(mRemoteAddr));
 }
 
@@ -266,7 +292,7 @@ void cNetworkLobby::Receive() {
         // not rewrite it from packet source addresses because loopback/LAN
         // routes can alternate on the same machine and produce unstable
         // gameplay endpoints.
-        if (mIsHost)
+        if (mIsHost && !mPreserveRemoteEndpoint)
             mRemoteAddr = fromAddr;
         latestPkt = pkt;
         gotPacket = true;

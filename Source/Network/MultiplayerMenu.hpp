@@ -24,9 +24,11 @@
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
+#include "NetworkHubClient.hpp"
 #include "RandomMapOptionsMenu.hpp"
 
 class cNetworkDiscovery;
+class cNetworkHubClient;
 
 class cMultiplayerMenu {
 public:
@@ -68,15 +70,25 @@ public:
     eNetworkVehicleSet GetVehicleSet() const { return mVehicleSet; }
     eNetworkPickupDensity GetPickupDensity() const { return mPickupDensity; }
     eNetworkCoverDensity GetCoverDensity() const { return mCoverDensity; }
+    bool        IsInternet() const { return mInternet; }
+    std::string GetHubHost() const { return mHubHost; }
+    uint16      GetHubPort() const { return mHubPort; }
+    std::string GetRoomCode() const { return mRoomCode; }
+    std::string GetRelayToken() const { return mRelayToken; }
 
     enum eAction : int16 {
         ACT_NONE = 0,
         ACT_HOST,
+        ACT_HOST_INTERNET,
         ACT_JOIN,
         ACT_FIND_LAN,
+        ACT_FIND_INTERNET,
         ACT_DIRECT_CONNECT,
         ACT_JOIN_DISCOVERED,
+        ACT_JOIN_INTERNET,
+        ACT_JOIN_ROOM_CODE,
         ACT_REFRESH_LAN,
+        ACT_REFRESH_INTERNET,
         ACT_SYNC_TEST,
         ACT_BACK,
         ACT_ROW,
@@ -84,6 +96,9 @@ public:
         ACT_EDIT_REMOTE_PORT,
         ACT_EDIT_LOCAL_PORT,
         ACT_EDIT_MAP_SEED,
+        ACT_EDIT_HUB_HOST,
+        ACT_EDIT_HUB_PORT,
+        ACT_EDIT_ROOM_CODE,
         ACT_CYCLE_MODE,
         ACT_MAP_OPTIONS,
         ACT_START,
@@ -94,6 +109,7 @@ private:
     void DrawHostMenu();
     void DrawJoinMenu();
     void DrawFindLanMenu();
+    void DrawFindInternetMenu();
     void DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel, bool pHostSetup);
     void DrawField(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction, bool pActive);
     void DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction);
@@ -102,7 +118,12 @@ private:
     void StartLanBrowser();
     void RefreshLanBrowser();
     void StopLanBrowser();
+    void StartInternetBrowser();
+    void RefreshInternetBrowser();
+    void StopInternetBrowser();
+    bool CreateInternetRoom();
     void SelectDiscoveredGame(size_t pIndex);
+    void SelectInternetGame(size_t pIndex);
     bool CanStart() const;
     void SyncPortValues();
     void OpenMapOptions();
@@ -114,6 +135,7 @@ private:
         Host,
         Join,
         FindLan,
+        FindInternet,
         MapOptions,
     };
 
@@ -123,6 +145,9 @@ private:
         RemotePort,
         LocalPort,
         MapSeed,
+        HubHost,
+        HubPort,
+        RoomCode,
     };
 
     eState      mState = eState::Main;
@@ -137,6 +162,13 @@ private:
     std::string mRemotePortText = "7001";
     std::string mLocalPortText = "7000";
     bool        mSyncTest = false;
+    bool        mInternet = false;
+    bool        mInternetHost = false;
+    std::string mHubHost = NETWORK_HUB_DEFAULT_HOST;
+    uint16      mHubPort = NETWORK_HUB_DEFAULT_PORT;
+    std::string mHubPortText = std::to_string(NETWORK_HUB_DEFAULT_PORT);
+    std::string mRoomCode;
+    std::string mRelayToken;
     eNetworkGameMode mGameMode = eNetworkGameMode_CoopCampaign;
     uint32      mMapSeed = NETWORK_MAP_SEED_DEFAULT;
     std::string mMapSeedText = std::to_string(NETWORK_MAP_SEED_DEFAULT);
@@ -153,6 +185,9 @@ private:
     eNetworkCoverDensity mCoverDensity = NETWORK_COVER_DENSITY_DEFAULT;
     bool        mDiscoveryFailed = false;
     std::unique_ptr<cNetworkDiscovery> mDiscovery;
+    bool        mHubFailed = false;
+    std::unique_ptr<cNetworkHubClient> mHubClient;
+    std::vector<sNetworkHubGame> mInternetGames;
     cRandomMapOptionsMenu mMapOptionsMenu;
 
     // Keep drawn strings alive for GUI draw calls

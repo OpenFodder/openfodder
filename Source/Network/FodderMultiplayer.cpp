@@ -491,7 +491,28 @@ static void Lobby_ApplyMatchSettingsToParams(const sNetworkMatchSettings& pSetti
     pParams->mNetworkCoverDensity = Network_NormalizeCoverDensity((uint8_t)pSettings.mCoverDensity);
 }
 
+static sNetworkHubMetadata Lobby_BuildHubMetadata(const std::shared_ptr<sFodderParameters>& pParams, const std::string& pCampaign) {
+    sNetworkHubMetadata Metadata;
+    Metadata.mGameName = pCampaign.size() ? pCampaign : "OpenFodder Lobby";
+    Metadata.mGameMode = Network_GameModeName(pParams->mNetworkGameMode);
+    Metadata.mMapName = Network_IsPvPMode(pParams->mNetworkGameMode)
+        ? (std::string(Network_MapSizeName(pParams->mNetworkMapSize)) + " " + Network_MapTerrainName(pParams->mNetworkMapTerrain))
+        : "Campaign";
+    Metadata.mVersion = "N" + std::to_string((int)NETWORK_COMPATIBILITY_VERSION);
+    Metadata.mOptions =
+        "seed=" + std::to_string(pParams->mNetworkMapSeed) +
+        ";kill=" + std::to_string((int)pParams->mNetworkKillLimit) +
+        ";time=" + std::to_string((int)pParams->mNetworkTimeLimitSeconds) +
+        ";teams=" + std::to_string((int)pParams->mNetworkTeamCount) +
+        ";size=" + std::to_string((int)pParams->mNetworkTeamSize) +
+        ";ff=" + std::to_string(pParams->mNetworkFriendlyFire ? 1 : 0);
+    return Metadata;
+}
+
 static void Lobby_ApplyPeerEndpointToParams(const cNetworkLobby& pLobby, const std::shared_ptr<sFodderParameters>& pParams) {
+    if (pParams->mNetworkInternet)
+        return;
+
     if (!pLobby.IsConnected())
         return;
 
@@ -574,6 +595,7 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
     bool done = false;
     bool cancelled = false;
     const uint32_t LobbyStartedTicks = (uint32_t)SDL_GetTicks();
+    uint32_t LastHubUpdateTicks = 0;
     cNetworkDiscovery Discovery;
     const bool DiscoveryStarted = isHost && Discovery.StartHost();
 
@@ -602,6 +624,21 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
 
         if (DiscoveryStarted)
             Lobby_AdvertiseGame(Discovery, selectedIndex);
+        if (isHost && mStartParams->mNetworkInternet && !mStartParams->mNetworkRoomCode.empty()) {
+            const uint32_t Now = (uint32_t)SDL_GetTicks();
+            if (!LastHubUpdateTicks || Now - LastHubUpdateTicks > 2500) {
+                LastHubUpdateTicks = Now;
+                cNetworkHubClient Hub;
+                if (Hub.Configure(mStartParams->mNetworkHubHost, mStartParams->mNetworkHubPort)) {
+                    Hub.Update(
+                        mStartParams->mNetworkRoomCode,
+                        mStartParams->mNetworkRelayToken,
+                        Lobby_BuildHubMetadata(mStartParams, mCampaignList[selectedIndex]),
+                        true
+                    );
+                }
+            }
+        }
 
         // P2 auto-follows host's selection
         if (!isHost && mLobby->IsConnected()) {

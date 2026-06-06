@@ -189,7 +189,15 @@ if(OPENFODDER_ENABLE_NETWORK AND NOT EMSCRIPTEN)
                 ERROR_QUIET
             )
             if(NOT _ggpo_patch_reverse_check EQUAL 0)
-                message(FATAL_ERROR "GGPO Linux compatibility patch no longer applies: ${_ggpo_patch_error}")
+                file(READ "${GGPO_SOURCE_DIR}/src/include/ggponet.h" _ggpo_net_header)
+                file(READ "${GGPO_SOURCE_DIR}/src/lib/ggpo/platform_linux.h" _ggpo_linux_header)
+                if(_ggpo_net_header MATCHES "__cdecl" AND
+                   _ggpo_linux_header MATCHES "WSAGetLastError" AND
+                   _ggpo_linux_header MATCHES "CreateDirectoryA")
+                    message(STATUS "[GGPO] Linux compatibility patch appears to be already applied.")
+                else()
+                    message(FATAL_ERROR "GGPO Linux compatibility patch no longer applies: ${_ggpo_patch_error}")
+                endif()
             endif()
         endif()
     endif()

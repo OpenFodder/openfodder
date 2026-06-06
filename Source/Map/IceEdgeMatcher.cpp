@@ -104,23 +104,8 @@ static bool edgeGlyphsDisjoint(char a, char b) {
 
 // pNeighbourEdge == nullptr -> "no placed neighbour" (use the hint branch).
 // pHintGlyph == 0 -> "no hint".
-static double scoreEdgeMatch(const std::string& pCandidateEdge,
-                             const std::string* pNeighbourEdge,
-                             char pHintGlyph) {
-    if(pNeighbourEdge != nullptr) {
-        if(pCandidateEdge == *pNeighbourEdge)
-            return 100.0;
-        int same = 0;
-        int bad = 0;
-        for(int i = 0; i < 16; ++i) {
-            char cg = pCandidateEdge[i];
-            char ng = (*pNeighbourEdge)[i];
-            if(cg == ng) ++same;
-            else if(edgeGlyphsDisjoint(cg, ng)) ++bad;
-        }
-        return -50.0 + (double)(same * 150) / 16.0 - (double)(bad * 4);
-    }
-
+static double scoreEdgeHint(const std::string& pCandidateEdge,
+                            char pHintGlyph) {
     if(!pHintGlyph)
         return 0.0;
 
@@ -141,6 +126,31 @@ static double scoreEdgeMatch(const std::string& pCandidateEdge,
         else if(std::strchr(soft, c) && c) ++softCount;
     }
     return (double)(n * 4) - (double)(bad * 8) - (double)(softCount * 10);
+}
+
+static double scoreEdgeMatch(const std::string& pCandidateEdge,
+                             const std::string* pNeighbourEdge,
+                             char pHintGlyph) {
+    if(pNeighbourEdge != nullptr) {
+        double edgeScore = 0.0;
+        if(pCandidateEdge == *pNeighbourEdge) {
+            edgeScore = 100.0;
+        } else {
+            int same = 0;
+            int bad = 0;
+            for(int i = 0; i < 16; ++i) {
+                char cg = pCandidateEdge[i];
+                char ng = (*pNeighbourEdge)[i];
+                if(cg == ng) ++same;
+                else if(edgeGlyphsDisjoint(cg, ng)) ++bad;
+            }
+            edgeScore = -50.0 + (double)(same * 150) / 16.0 - (double)(bad * 4);
+        }
+
+        return edgeScore + scoreEdgeHint(pCandidateEdge, pHintGlyph);
+    }
+
+    return scoreEdgeHint(pCandidateEdge, pHintGlyph);
 }
 
 // --- atlas ----------------------------------------------------------------
@@ -363,10 +373,11 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                 std::unordered_map<int, TileRec>::const_iterator t = mTiles.find(westTileId);
                 if(t != mTiles.end()) westRec = &t->second;
             }
-            // northFacing = hint? null : northRec.edges.S ; westFacing = hint? null : westRec.edges.E
-            const std::string* northFacing = (!hN && northRec) ? &northRec->edges[2] : nullptr;
-            const std::string* westFacing  = (!hW && westRec)  ? &westRec->edges[1]  : nullptr;
+            const std::string* northFacing = northRec ? &northRec->edges[2] : nullptr;
+            const std::string* westFacing  = westRec  ? &westRec->edges[1]  : nullptr;
 
+            if(!hN) hN = CLASS_AT(x, y - 1);
+            if(!hW) hW = CLASS_AT(x - 1, y);
             if(!hS) hS = CLASS_AT(x, y + 1);
             if(!hE) hE = CLASS_AT(x + 1, y);
 

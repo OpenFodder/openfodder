@@ -89,7 +89,13 @@ public:
     cNetworkLobby();
     ~cNetworkLobby();
 
-    bool Start(uint16_t pLocalPort, const std::string& pRemoteHost, uint16_t pRemotePort, bool pIsHost);
+    bool Start(
+        uint16_t pLocalPort,
+        const std::string& pRemoteHost,
+        uint16_t pRemotePort,
+        bool pIsHost,
+        const std::string& pRelayToken = "",
+        bool pPreserveRemoteEndpoint = false);
     void Stop();
 
     // Call once per frame to send/receive
@@ -119,11 +125,15 @@ public:
 
 private:
     void Send();
+    void SendRelayRegistration();
     void Receive();
 
     SOCKET              mSocket = INVALID_SOCKET;
     struct sockaddr_in  mRemoteAddr;
     bool                mIsHost = false;
+    bool                mPreserveRemoteEndpoint = false;
+    std::string         mRelayToken;
+    uint32_t            mLastRelayRegisterTicks = 0;
     uint32_t            mLocalPlayerId = 0;
     uint32_t            mRemotePlayerId = 0;
 

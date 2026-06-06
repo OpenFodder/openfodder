@@ -71,9 +71,37 @@ cGGPOSession::~cGGPOSession() {
 bool cGGPOSession::Start(int localPlayerIndex,
                          unsigned short localPort,
                          const std::string& remoteHost,
-                         unsigned short remotePort)
+                         unsigned short remotePort,
+                         const std::string& relayToken)
 {
     mLocalPlayerIndex = localPlayerIndex;
+
+    if (!relayToken.empty()) {
+        SOCKET RegisterSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        if (RegisterSocket != INVALID_SOCKET) {
+            struct sockaddr_in LocalAddr;
+            memset(&LocalAddr, 0, sizeof(LocalAddr));
+            LocalAddr.sin_family = AF_INET;
+            LocalAddr.sin_addr.s_addr = INADDR_ANY;
+            LocalAddr.sin_port = htons(localPort);
+
+            if (bind(RegisterSocket, (struct sockaddr*)&LocalAddr, sizeof(LocalAddr)) == 0) {
+                struct sockaddr_in RemoteAddr;
+                memset(&RemoteAddr, 0, sizeof(RemoteAddr));
+                RemoteAddr.sin_family = AF_INET;
+                RemoteAddr.sin_port = htons(remotePort);
+                inet_pton(AF_INET, remoteHost.c_str(), &RemoteAddr.sin_addr);
+
+                const std::string RegisterPacket = "OFHUB/1 REGISTER token=" + relayToken;
+                for (int i = 0; i < 3; ++i) {
+                    sendto(RegisterSocket, RegisterPacket.c_str(), (int)RegisterPacket.size(), 0,
+                           (struct sockaddr*)&RemoteAddr, sizeof(RemoteAddr));
+                    SDL_Delay(5);
+                }
+            }
+            closesocket(RegisterSocket);
+        }
+    }
 
     GGPOSessionCallbacks cb;
     memset(&cb, 0, sizeof(cb));

@@ -37,6 +37,7 @@ enum eNetworkMenuStart {
 	eNetworkMenuStart_HostMapOptions,
 	eNetworkMenuStart_Join,
 	eNetworkMenuStart_FindLan,
+	eNetworkMenuStart_FindInternet,
 };
 
 class sFodderParameters {
@@ -121,6 +122,11 @@ public:
 	bool        mNetworkEnabled;        // Enable GGPO network session
 	bool        mNetworkSyncTest;       // Run GGPO sync-test instead of real network
 	eNetworkMenuStart mNetworkMenuStart; // Optional multiplayer setup screen to show on startup
+	bool        mNetworkInternet;       // Use relay hub instead of direct peer/LAN endpoint learning
+	std::string mNetworkHubHost;        // Relay hub control hostname / IP
+	uint16      mNetworkHubPort;        // Relay hub control UDP port
+	std::string mNetworkRoomCode;       // Relay room/session code
+	std::string mNetworkRelayToken;     // Per-peer relay data registration token
 	int         mNetworkPlayerIndex;    // 0 = player 1 is local, 1 = player 2 is local
 	std::string mNetworkRemoteHost;     // Remote peer hostname / IP
 	uint16      mNetworkRemotePort;     // Remote peer UDP port
@@ -218,6 +224,11 @@ public:
 		mNetworkEnabled     = false;
 		mNetworkSyncTest    = false;
 		mNetworkMenuStart   = eNetworkMenuStart_None;
+		mNetworkInternet    = false;
+		mNetworkHubHost     = "hub.openfodder.com";
+		mNetworkHubPort     = 27770;
+		mNetworkRoomCode    = "";
+		mNetworkRelayToken  = "";
 		mNetworkPlayerIndex = 0;
 		mNetworkRemoteHost  = "";
 		mNetworkRemotePort  = 7001;

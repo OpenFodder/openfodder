@@ -497,6 +497,16 @@ void cRandomMapOptionsMenu::ApplyProfile()
         mOptions.mProfileName = "grammar_ice_maze";
         break;
 
+    case eNetworkMapProfile_IceMazeXL:
+        mOptions.mMapSize = eNetworkMapSize_ExtraLarge;
+        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
+        mOptions.mMapTerrainSub = 0;
+        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+        mOptions.mProfileName = "grammar_ice_maze_xl";
+        break;
+
     case eNetworkMapProfile_IceNeck:
         mOptions.mMapSize = eNetworkMapSize_Medium;
         mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
@@ -541,6 +551,7 @@ void cRandomMapOptionsMenu::CycleProfile()
         eNetworkMapProfile_Beach,
         eNetworkMapProfile_Ice,
         eNetworkMapProfile_IceMaze,
+        eNetworkMapProfile_IceMazeXL,
         eNetworkMapProfile_IceNeck,
         eNetworkMapProfile_IceSkidooJump,
         eNetworkMapProfile_Random,
