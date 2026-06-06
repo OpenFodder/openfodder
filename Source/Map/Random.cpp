@@ -24,10 +24,14 @@
 #include "stdafx.hpp"
 #include "Random.hpp"
 
+#include <cstdint>
+#include <limits>
+
 #include "Utils/SimplexNoise.hpp"
 #include "Utils/SimplexIslands.hpp"
 #include "Utils/diamondsquare.hpp"
 #include "IceEdgeMatcher.hpp"
+#include "TerrainPathfinder.hpp"
 
 // Process-static so the authored atlas (pushed once from JS, guarded by a module
 // flag) survives across cRandomMap instances within a generation process.
@@ -60,6 +64,22 @@ static std::vector<int> parseTileCsv(const std::string& pText)
 	}
 
 	return result;
+}
+
+static inline int mapGenIndex(int32 pWidth, int32 pX, int32 pY)
+{
+	return (pY * pWidth) + pX;
+}
+
+static std::vector<int> mapGenSearchResult(bool pSuccess, int pExpanded, int pPushed, int pMaxOpen, int pPathLength = 0)
+{
+	return {
+		pSuccess ? 1 : 0,
+		pExpanded,
+		pPushed,
+		pMaxOpen,
+		pPathLength
+	};
 }
 
 cRandomMap::cRandomMap(const sMapParams& pParams) : cOriginalMap() {
@@ -328,8 +348,6 @@ void cRandomMap::create(size_t pWidth, size_t pHeight, eTileTypes pTileType, eTi
 }
 
 std::vector<cPosition*> cRandomMap::calculatePath(size_t pSpriteType, cPosition* Pos1, cPosition* Pos2) {
-	std::vector<cPosition> path;
-
 	mPathSearchUnitType = pSpriteType;
 
 	switch (pSpriteType) {
@@ -351,11 +369,11 @@ std::vector<cPosition*> cRandomMap::calculatePath(size_t pSpriteType, cPosition*
 
 	}
 
-	auto pather = new micropather::MicroPather(this, 1000);
-	float totalCost;
-	auto result = pather->Solve(Pos1, Pos2, &path, &totalCost);
-
-	delete pather;
+	cTerrainPathfinder pathfinder(
+		getWidthPixels(),
+		getHeightPixels(),
+		[this](int32 pX, int32 pY) { return Passable(pX, pY); });
+	std::vector<cPosition> path = pathfinder.findPath(Pos1, Pos2);
 
 	std::vector<cPosition*> paths;
 
@@ -434,6 +452,323 @@ std::vector<int> cRandomMap::applyIceEdgeRuleMaskedRegion(int32 pWidth, int32 pH
 		pMinX, pMinY, pMaxX, pMaxY);
 }
 
+void cRandomMap::setMapGenPathCostGrid(int32 pWidth, int32 pHeight, std::vector<double> pCosts)
+{
+	if (pWidth <= 0 || pHeight <= 0 || pCosts.size() != (size_t)(pWidth * pHeight)) {
+		mMapGenPathWidth = 0;
+		mMapGenPathHeight = 0;
+		mMapGenPathCosts.clear();
+		return;
+	}
+
+	mMapGenPathWidth = pWidth;
+	mMapGenPathHeight = pHeight;
+	mMapGenPathCosts = std::move(pCosts);
+}
+
+void cRandomMap::setMapGenPathCost(int32 pX, int32 pY, double pCost)
+{
+	if (pX < 0 || pY < 0 || pX >= mMapGenPathWidth || pY >= mMapGenPathHeight)
+		return;
+
+	const int index = mapGenIndex(mMapGenPathWidth, pX, pY);
+	if (index >= 0 && (size_t)index < mMapGenPathCosts.size())
+		mMapGenPathCosts[index] = pCost;
+}
+
+std::vector<int> cRandomMap::mapGenAstar(int32 pStartX, int32 pStartY, int32 pEndX, int32 pEndY)
+{
+	const int32 width = mMapGenPathWidth;
+	const int32 height = mMapGenPathHeight;
+	const int total = width * height;
+	int expanded = 0;
+	int pushed = 0;
+	int maxOpen = 0;
+
+	if (width <= 0 || height <= 0 || mMapGenPathCosts.size() != (size_t)total)
+		return mapGenSearchResult(false, expanded, pushed, maxOpen);
+	if (pStartX < 0 || pStartY < 0 || pStartX >= width || pStartY >= height)
+		return mapGenSearchResult(false, expanded, pushed, maxOpen);
+	if (pEndX < 0 || pEndY < 0 || pEndX >= width || pEndY >= height)
+		return mapGenSearchResult(false, expanded, pushed, maxOpen);
+
+	const int startIndex = mapGenIndex(width, pStartX, pStartY);
+	const int endIndex = mapGenIndex(width, pEndX, pEndY);
+	if (!std::isfinite(mMapGenPathCosts[startIndex]) || !std::isfinite(mMapGenPathCosts[endIndex]))
+		return mapGenSearchResult(false, expanded, pushed, maxOpen);
+
+	const double infinity = std::numeric_limits<double>::infinity();
+	std::vector<double> gScore(total, infinity);
+	std::vector<int> cameFrom(total, -1);
+	std::vector<uint8_t> closed(total, 0);
+
+	struct OpenNode {
+		int32 x;
+		int32 y;
+		double f;
+	};
+
+	const auto heuristic = [](int32 ax, int32 ay, int32 bx, int32 by) -> double {
+		const int32 dx = ax > bx ? ax - bx : bx - ax;
+		const int32 dy = ay > by ? ay - by : by - ay;
+		const int32 diagonal = dx < dy ? dx : dy;
+		const int32 straight = (dx + dy) - (2 * diagonal);
+		return straight + (1.41421356 * diagonal);
+	};
+
+	std::vector<OpenNode> open;
+	open.reserve(256);
+	gScore[startIndex] = 0.0;
+	open.push_back({ pStartX, pStartY, heuristic(pStartX, pStartY, pEndX, pEndY) });
+	pushed = 1;
+	maxOpen = 1;
+
+	const int32 dx[8] = { 1, -1, 0, 0, 1, 1, -1, -1 };
+	const int32 dy[8] = { 0, 0, 1, -1, 1, -1, 1, -1 };
+	const double stepCost[8] = { 1.0, 1.0, 1.0, 1.0, 1.41421356, 1.41421356, 1.41421356, 1.41421356 };
+
+	while (!open.empty()) {
+		size_t bestIndex = 0;
+		for (size_t i = 1; i < open.size(); ++i) {
+			if (open[i].f < open[bestIndex].f)
+				bestIndex = i;
+		}
+
+		const OpenNode current = open[bestIndex];
+		open.erase(open.begin() + bestIndex);
+		++expanded;
+
+		const int currentIndex = mapGenIndex(width, current.x, current.y);
+		if (current.x == pEndX && current.y == pEndY) {
+			std::vector<int> reversed;
+			for (int index = currentIndex; index >= 0; index = cameFrom[index]) {
+				reversed.push_back(index);
+			}
+
+			std::vector<int> result = mapGenSearchResult(true, expanded, pushed, maxOpen, (int)reversed.size());
+			result.reserve(5 + (reversed.size() * 2));
+			for (auto it = reversed.rbegin(); it != reversed.rend(); ++it) {
+				const int index = *it;
+				result.push_back(index % width);
+				result.push_back(index / width);
+			}
+			return result;
+		}
+
+		closed[currentIndex] = 1;
+
+		for (int direction = 0; direction < 8; ++direction) {
+			const int32 nx = current.x + dx[direction];
+			const int32 ny = current.y + dy[direction];
+			if (nx < 0 || ny < 0 || nx >= width || ny >= height)
+				continue;
+
+			const int nextIndex = mapGenIndex(width, nx, ny);
+			if (closed[nextIndex])
+				continue;
+
+			const double cellCost = mMapGenPathCosts[nextIndex];
+			if (!std::isfinite(cellCost))
+				continue;
+
+			if (dx[direction] != 0 && dy[direction] != 0) {
+				const int orthogonalA = mapGenIndex(width, current.x + dx[direction], current.y);
+				const int orthogonalB = mapGenIndex(width, current.x, current.y + dy[direction]);
+				if (!std::isfinite(mMapGenPathCosts[orthogonalA]) &&
+					!std::isfinite(mMapGenPathCosts[orthogonalB]))
+					continue;
+			}
+
+			const double tentative = gScore[currentIndex] + (stepCost[direction] * cellCost);
+			if (tentative >= gScore[nextIndex])
+				continue;
+
+			cameFrom[nextIndex] = currentIndex;
+			gScore[nextIndex] = tentative;
+			open.push_back({ nx, ny, tentative + heuristic(nx, ny, pEndX, pEndY) });
+			++pushed;
+			if ((int)open.size() > maxOpen)
+				maxOpen = (int)open.size();
+		}
+	}
+
+	return mapGenSearchResult(false, expanded, pushed, maxOpen);
+}
+
+void cRandomMap::setMapGenWalkabilityGrid(int32 pWidth, int32 pHeight, std::string pWalkableMask)
+{
+	if (pWidth <= 0 || pHeight <= 0 || pWalkableMask.size() != (size_t)(pWidth * pHeight)) {
+		mMapGenWalkWidth = 0;
+		mMapGenWalkHeight = 0;
+		mMapGenWalkable.clear();
+		return;
+	}
+
+	mMapGenWalkWidth = pWidth;
+	mMapGenWalkHeight = pHeight;
+	mMapGenWalkable.assign(pWalkableMask.size(), 0);
+	for (size_t index = 0; index < pWalkableMask.size(); ++index)
+		mMapGenWalkable[index] = pWalkableMask[index] == '1' ? 1 : 0;
+}
+
+std::vector<int> cRandomMap::mapGenShortestPath(int32 pStartX, int32 pStartY, int32 pEndX, int32 pEndY,
+	std::vector<int> pBlockedIndices)
+{
+	const int32 width = mMapGenWalkWidth;
+	const int32 height = mMapGenWalkHeight;
+	const int total = width * height;
+	int expanded = 0;
+	int pushed = 0;
+	int maxQueue = 0;
+
+	if (width <= 0 || height <= 0 || mMapGenWalkable.size() != (size_t)total)
+		return mapGenSearchResult(false, expanded, pushed, maxQueue);
+	if (pStartX < 0 || pStartY < 0 || pStartX >= width || pStartY >= height)
+		return mapGenSearchResult(false, expanded, pushed, maxQueue);
+	if (pEndX < 0 || pEndY < 0 || pEndX >= width || pEndY >= height)
+		return mapGenSearchResult(false, expanded, pushed, maxQueue);
+
+	const int startIndex = mapGenIndex(width, pStartX, pStartY);
+	const int endIndex = mapGenIndex(width, pEndX, pEndY);
+	if (!mMapGenWalkable[startIndex] || !mMapGenWalkable[endIndex])
+		return mapGenSearchResult(false, expanded, pushed, maxQueue);
+
+	std::vector<uint8_t> blocked;
+	if (!pBlockedIndices.empty()) {
+		blocked.assign(total, 0);
+		for (int index : pBlockedIndices) {
+			if (index >= 0 && index < total)
+				blocked[index] = 1;
+		}
+		if (blocked[startIndex] || blocked[endIndex])
+			return mapGenSearchResult(false, expanded, pushed, maxQueue);
+	}
+
+	std::vector<uint8_t> visited(total, 0);
+	std::vector<int> cameFrom(total, -1);
+	std::vector<int> queue;
+	queue.reserve(total);
+	size_t queueHead = 0;
+
+	queue.push_back(startIndex);
+	visited[startIndex] = 1;
+	pushed = 1;
+	maxQueue = 1;
+
+	const int32 dx[4] = { 1, -1, 0, 0 };
+	const int32 dy[4] = { 0, 0, 1, -1 };
+
+	while (queueHead < queue.size()) {
+		const int currentIndex = queue[queueHead++];
+		++expanded;
+
+		if (currentIndex == endIndex) {
+			std::vector<int> reversed;
+			for (int index = currentIndex; index >= 0; index = cameFrom[index])
+				reversed.push_back(index);
+
+			std::vector<int> result = mapGenSearchResult(true, expanded, pushed, maxQueue, (int)reversed.size());
+			result.reserve(5 + (reversed.size() * 2));
+			for (auto it = reversed.rbegin(); it != reversed.rend(); ++it) {
+				const int index = *it;
+				result.push_back(index % width);
+				result.push_back(index / width);
+			}
+			return result;
+		}
+
+		const int32 currentX = currentIndex % width;
+		const int32 currentY = currentIndex / width;
+		for (int direction = 0; direction < 4; ++direction) {
+			const int32 nx = currentX + dx[direction];
+			const int32 ny = currentY + dy[direction];
+			if (nx < 0 || ny < 0 || nx >= width || ny >= height)
+				continue;
+
+			const int nextIndex = mapGenIndex(width, nx, ny);
+			if (visited[nextIndex])
+				continue;
+			if (!blocked.empty() && blocked[nextIndex])
+				continue;
+			if (!mMapGenWalkable[nextIndex])
+				continue;
+
+			visited[nextIndex] = 1;
+			cameFrom[nextIndex] = currentIndex;
+			queue.push_back(nextIndex);
+			++pushed;
+			const int queueDepth = (int)(queue.size() - queueHead);
+			if (queueDepth > maxQueue)
+				maxQueue = queueDepth;
+		}
+	}
+
+	return mapGenSearchResult(false, expanded, pushed, maxQueue);
+}
+
+std::vector<int> cRandomMap::mapGenCanReach(int32 pStartX, int32 pStartY, int32 pEndX, int32 pEndY)
+{
+	const int32 width = mMapGenWalkWidth;
+	const int32 height = mMapGenWalkHeight;
+	const int total = width * height;
+	int expanded = 0;
+	int pushed = 1;
+	int maxQueue = 1;
+
+	if (width <= 0 || height <= 0 || mMapGenWalkable.size() != (size_t)total)
+		return mapGenSearchResult(false, 0, 0, 0);
+	if (pStartX < 0 || pStartY < 0 || pStartX >= width || pStartY >= height)
+		return mapGenSearchResult(false, expanded, pushed, maxQueue);
+	if (pEndX < 0 || pEndY < 0 || pEndX >= width || pEndY >= height)
+		return mapGenSearchResult(false, expanded, pushed, maxQueue);
+
+	const int startIndex = mapGenIndex(width, pStartX, pStartY);
+	const int endIndex = mapGenIndex(width, pEndX, pEndY);
+	if (!mMapGenWalkable[startIndex] || !mMapGenWalkable[endIndex])
+		return mapGenSearchResult(false, expanded, pushed, maxQueue);
+
+	std::vector<uint8_t> visited(total, 0);
+	std::vector<int> queue;
+	queue.reserve(total);
+	size_t queueHead = 0;
+
+	queue.push_back(startIndex);
+	visited[startIndex] = 1;
+
+	const int32 dx[4] = { 1, -1, 0, 0 };
+	const int32 dy[4] = { 0, 0, 1, -1 };
+
+	while (queueHead < queue.size()) {
+		const int currentIndex = queue[queueHead++];
+		++expanded;
+
+		if (currentIndex == endIndex)
+			return mapGenSearchResult(true, expanded, pushed, maxQueue);
+
+		const int32 currentX = currentIndex % width;
+		const int32 currentY = currentIndex / width;
+		for (int direction = 0; direction < 4; ++direction) {
+			const int32 nx = currentX + dx[direction];
+			const int32 ny = currentY + dy[direction];
+			if (nx < 0 || ny < 0 || nx >= width || ny >= height)
+				continue;
+
+			const int nextIndex = mapGenIndex(width, nx, ny);
+			if (visited[nextIndex] || !mMapGenWalkable[nextIndex])
+				continue;
+
+			visited[nextIndex] = 1;
+			queue.push_back(nextIndex);
+			++pushed;
+			const int queueDepth = (int)(queue.size() - queueHead);
+			if (queueDepth > maxQueue)
+				maxQueue = queueDepth;
+		}
+	}
+
+	return mapGenSearchResult(false, expanded, pushed, maxQueue);
+}
+
 int cRandomMap::Passable(int nx, int ny)
 {
 	auto TerrainType = g_Fodder->Map_Terrain_Get(nx, ny);
@@ -481,49 +816,4 @@ int cRandomMap::Passable(int nx, int ny)
 	}
 
 	return 1;
-}
-
-float cRandomMap::LeastCostEstimate(cPosition* nodeStart, cPosition* nodeEnd) {
-
-	/* Compute the minimum path cost using distance measurement. It is possible
-	   to compute the exact minimum path using the fact that you can move only
-	   on a straight line or on a diagonal, and this will yield a better result.
-	*/
-	int dx = nodeStart->mX - nodeEnd->mX;
-	int dy = nodeStart->mY - nodeEnd->mY;
-	return (float)sqrt((double)(dx*dx) + (double)(dy*dy));
-}
-
-void cRandomMap::AdjacentCost(cPosition* node, std::vector< micropather::StateCost > *neighbors) {
-	const int dx[8] = { 8, 8, 0, -8, -8, -8, 0, 8 };
-	const int dy[8] = { 0, 8, 8, 8, 0, -8, -8, -8 };
-	const float cost[8] = { 1.0f, 1.41f, 1.0f, 1.41f, 1.0f, 1.41f, 1.0f, 1.41f };
-
-	for (int i = 0; i < 8; ++i) {
-		int nx = node->mX + dx[i];
-		int ny = node->mY + dy[i];
-
-		if (nx < 0 || ny < 0)
-			continue;
-
-		int pass = Passable(nx, ny);
-		if (pass > 0) {
-			if (pass == 1)
-			{
-				// Normal floor
-				micropather::StateCost nodeCost = { cPosition(nx, ny), cost[i] };
-				neighbors->push_back(nodeCost);
-			}
-			else
-			{
-				// Normal floor
-				micropather::StateCost nodeCost = { cPosition(nx, ny), cost[i] + pass };
-				neighbors->push_back(nodeCost);
-			}
-		}
-	}
-}
-
-void cRandomMap::PrintStateInfo(cPosition* node) {
-	printf("(%d,%d)", node->mX, node->mY);
 }

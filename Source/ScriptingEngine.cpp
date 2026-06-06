@@ -339,6 +339,16 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cRandomMap::applyIceEdgeRuleMasked, "ApplyIceEdgeRuleMasked");
 	dukglue_register_method(mContext, &cRandomMap::applyIceEdgeRuleMaskedRegion, "ApplyIceEdgeRuleMaskedRegion");
 
+	// MapGen-native pathfinding over generator cost/walkability grids. The JS
+	// generator owns layer semantics and keeps a safe fallback; these methods only
+	// accelerate the hot deterministic search loops.
+	dukglue_register_method(mContext, &cRandomMap::setMapGenPathCostGrid, "SetMapGenPathCostGrid");
+	dukglue_register_method(mContext, &cRandomMap::setMapGenPathCost, "SetMapGenPathCost");
+	dukglue_register_method(mContext, &cRandomMap::mapGenAstar, "MapGenAstar");
+	dukglue_register_method(mContext, &cRandomMap::setMapGenWalkabilityGrid, "SetMapGenWalkabilityGrid");
+	dukglue_register_method(mContext, &cRandomMap::mapGenShortestPath, "MapGenShortestPath");
+	dukglue_register_method(mContext, &cRandomMap::mapGenCanReach, "MapGenCanReach");
+
 	dukglue_register_property(mContext, &cRandomMap::getSeed, &cRandomMap::setSeed, "seed");
 
 	dukglue_register_method(mContext, &cRandomMap::getRandomInt, "getRandomInt");

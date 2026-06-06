@@ -19,23 +19,23 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#include "Utils/micropather.h"
-
 class cScriptingEngine;
 
-class cRandomMap : public cOriginalMap, public micropather::Graph {
+class cRandomMap : public cOriginalMap {
 	friend class cScriptingEngine;
 private:
+	int32					mMapGenPathWidth = 0;
+	int32					mMapGenPathHeight = 0;
+	std::vector<double>		mMapGenPathCosts;
+	int32					mMapGenWalkWidth = 0;
+	int32					mMapGenWalkHeight = 0;
+	std::vector<uint8_t>	mMapGenWalkable;
 
 protected:
 	const int8* mPathTilesNotTouchable;
 	size_t mPathSearchUnitType;
 
 	int Passable(int nx, int ny);
-
-	virtual float LeastCostEstimate(cPosition* nodeStart, cPosition* nodeEnd);
-	virtual void AdjacentCost(cPosition* node, std::vector< micropather::StateCost > *neighbors);
-	virtual void PrintStateInfo(cPosition* node);
 
 public:
 	cRandomMap(const sMapParams& pParams);
@@ -89,6 +89,18 @@ public:
 								std::string pDirtyMask, std::string pPreviousTiles,
 								double pSeed,
 								int32 pMinX, int32 pMinY, int32 pMaxX, int32 pMaxY);
+
+	// MapGen-native pathfinding over generator-layer grids. These are separate
+	// from calculatePathBetweenPositions, which routes over rendered engine
+	// terrain. JS owns the layer semantics and pushes the flattened cost/mask
+	// grids whenever it rebuilds them; native code owns only the hot search loop.
+	void					setMapGenPathCostGrid(int32 pWidth, int32 pHeight, std::vector<double> pCosts);
+	void					setMapGenPathCost(int32 pX, int32 pY, double pCost);
+	std::vector<int>		mapGenAstar(int32 pStartX, int32 pStartY, int32 pEndX, int32 pEndY);
+	void					setMapGenWalkabilityGrid(int32 pWidth, int32 pHeight, std::string pWalkableMask);
+	std::vector<int>		mapGenShortestPath(int32 pStartX, int32 pStartY, int32 pEndX, int32 pEndY,
+								std::vector<int> pBlockedIndices);
+	std::vector<int>		mapGenCanReach(int32 pStartX, int32 pStartY, int32 pEndX, int32 pEndY);
 
 	int32					getDistanceBetweenPositions(cPosition* pPos1, cPosition* pPos2);
 
