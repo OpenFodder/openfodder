@@ -116,7 +116,8 @@ static double scoreEdgeHint(const std::string& pCandidateEdge,
     else if(pHintGlyph == 'W') disjoint = "SI";
 
     const char* soft = "";
-    if(pHintGlyph == 'e') soft = "I";
+    if(pHintGlyph == 'e') soft = "IW";
+    else if(pHintGlyph == 'I') soft = "e";
 
     int n = 0, bad = 0, softCount = 0;
     for(int j = 0; j < 16; ++j) {
@@ -126,6 +127,42 @@ static double scoreEdgeHint(const std::string& pCandidateEdge,
         else if(std::strchr(soft, c) && c) ++softCount;
     }
     return (double)(n * 4) - (double)(bad * 8) - (double)(softCount * 10);
+}
+
+static int countEdgeGlyphs(const std::string& pEdge, const char* pGlyphs) {
+    int n = 0;
+    for(size_t i = 0; i < pEdge.size(); ++i) {
+        if(std::strchr(pGlyphs, pEdge[i]))
+            ++n;
+    }
+    return n;
+}
+
+static double scoreEdgeContext(const std::string& pCandidateEdge,
+                               char pHintGlyph) {
+    if(!pHintGlyph)
+        return 0.0;
+
+    if(pHintGlyph == 'e') {
+        int deep = countEdgeGlyphs(pCandidateEdge, "W");
+        int ice = countEdgeGlyphs(pCandidateEdge, "I");
+        double score = deep > 3 ? (double)(deep - 3) * -80.0 : 0.0;
+        score += ice > 4 ? (double)(ice - 4) * -80.0 : 0.0;
+        return score;
+    }
+    if(pHintGlyph == 'I') {
+        int water = countEdgeGlyphs(pCandidateEdge, "We");
+        return water > 1 ? (double)(water - 1) * -90.0 : 0.0;
+    }
+    if(pHintGlyph == 'S') {
+        int water = countEdgeGlyphs(pCandidateEdge, "We");
+        return water > 1 ? (double)(water - 1) * -90.0 : 0.0;
+    }
+    if(pHintGlyph == 'W') {
+        int land = countEdgeGlyphs(pCandidateEdge, "SI");
+        return land > 3 ? (double)(land - 3) * -80.0 : 0.0;
+    }
+    return 0.0;
 }
 
 static double scoreEdgeMatch(const std::string& pCandidateEdge,
@@ -147,10 +184,27 @@ static double scoreEdgeMatch(const std::string& pCandidateEdge,
             edgeScore = -50.0 + (double)(same * 150) / 16.0 - (double)(bad * 4);
         }
 
-        return edgeScore + scoreEdgeHint(pCandidateEdge, pHintGlyph);
+        return edgeScore + scoreEdgeHint(pCandidateEdge, pHintGlyph) +
+            scoreEdgeContext(pCandidateEdge, pHintGlyph);
     }
 
-    return scoreEdgeHint(pCandidateEdge, pHintGlyph);
+    return scoreEdgeHint(pCandidateEdge, pHintGlyph) +
+        scoreEdgeContext(pCandidateEdge, pHintGlyph);
+}
+
+static double scoreStructuralBias(const TileRec& pRec) {
+    char centerGlyph = pRec.center;
+    if(!centerGlyph)
+        return 0.0;
+
+    int structural = 0;
+    for(int e = 0; e < 4; ++e) {
+        const std::string& edge = pRec.edges[e];
+        for(size_t i = 0; i < edge.size(); ++i)
+            if(edge[i] == centerGlyph) ++structural;
+    }
+
+    return structural < 4 ? -150.0 : 0.0;
 }
 
 // --- atlas ----------------------------------------------------------------
@@ -289,6 +343,157 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
 
     std::unordered_map<int, std::vector<int>>::const_iterator byIce = mByCenter.find((int)'I');
 
+    auto tileRec = [&](int pTileId) -> const TileRec* {
+        if(pTileId < 0)
+            return nullptr;
+        std::unordered_map<int, TileRec>::const_iterator t = mTiles.find(pTileId);
+        return t != mTiles.end() ? &t->second : nullptr;
+    };
+
+    auto tileRecAt = [&](const std::vector<int>& pTiles, int pX, int pY) -> const TileRec* {
+        if(pX < 0 || pY < 0 || pX >= pWidth || pY >= pHeight)
+            return nullptr;
+        return tileRec(pTiles[(size_t)pY * pWidth + pX]);
+    };
+
+    auto isAquatic = [](char pCls) -> bool {
+        return pCls == 'e' || pCls == 'W';
+    };
+
+    auto isAquaticShore = [&](int pX, int pY, char pCls) -> bool {
+        if(pCls != 'I')
+            return false;
+        return isAquatic(CLASS_AT(pX, pY - 1)) ||
+            isAquatic(CLASS_AT(pX + 1, pY)) ||
+            isAquatic(CLASS_AT(pX, pY + 1)) ||
+            isAquatic(CLASS_AT(pX - 1, pY));
+    };
+
+    auto shoreRepeatPenalty = [&](int pTileId, int pX, int pY, char pCls,
+                                  const std::vector<int>& pTiles) -> double {
+        if(!isAquaticShore(pX, pY, pCls))
+            return 0.0;
+
+        double penalty = 0.0;
+        if(pY > 0 && pTiles[(size_t)(pY - 1) * pWidth + pX] == pTileId)
+            penalty -= 64.0;
+        if(pX + 1 < pWidth && pTiles[(size_t)pY * pWidth + (pX + 1)] == pTileId)
+            penalty -= 64.0;
+        if(pY + 1 < pHeight && pTiles[(size_t)(pY + 1) * pWidth + pX] == pTileId)
+            penalty -= 64.0;
+        if(pX > 0 && pTiles[(size_t)pY * pWidth + (pX - 1)] == pTileId)
+            penalty -= 64.0;
+        return penalty;
+    };
+
+    auto buildCandidates = [&](int pX, int pY, size_t pIdx, char pCls,
+                               std::vector<int>& pCandidates) -> bool {
+        pCandidates.clear();
+        for(size_t k = 0; k < seen.size(); ++k) seen[k] = 0;
+
+        std::unordered_map<int, std::vector<int>>::const_iterator base = mByCenter.find((int)pCls);
+        if(base == mByCenter.end() || base->second.empty())
+            return false;
+
+        appendCandidates(pCandidates, seen, &base->second);
+
+        if(pCls == 'S') {
+            bool west  = CLASS_AT(pX - 1, pY) == 'e';
+            bool east  = CLASS_AT(pX + 1, pY) == 'e';
+            bool north = CLASS_AT(pX, pY - 1) == 'e';
+            bool south = CLASS_AT(pX, pY + 1) == 'e';
+            if((west || east) && (north || south) && byIce != mByCenter.end())
+                appendCandidates(pCandidates, seen, &byIce->second);
+        }
+
+        char hintList[4] = {
+            pHints[pIdx * 4 + 0],
+            pHints[pIdx * 4 + 1],
+            pHints[pIdx * 4 + 2],
+            pHints[pIdx * 4 + 3]
+        };
+        for(int h = 0; h < 4; ++h) {
+            char g = hintList[h];
+            if(g == '-')
+                g = 0;
+            char hc = (g == 'S' || g == 'I' || g == 'e' || g == 'W') ? g : 0;
+            if(hc && hc != pCls) {
+                std::unordered_map<int, std::vector<int>>::const_iterator hit = mByCenter.find((int)hc);
+                if(hit != mByCenter.end())
+                    appendCandidates(pCandidates, seen, &hit->second);
+            }
+        }
+
+        char reqC = pReqCenter[pIdx];
+        if(reqC != '-') {
+            std::vector<int> filtered;
+            for(size_t i = 0; i < pCandidates.size(); ++i) {
+                const TileRec* rec = tileRec(pCandidates[i]);
+                if(rec && rec->center == reqC)
+                    filtered.push_back(pCandidates[i]);
+            }
+            if(!filtered.empty())
+                pCandidates.swap(filtered);
+        }
+
+        char reqCt = pReqContents[pIdx];
+        if(reqCt != '-') {
+            int reqMask = reqCt - 'A';
+            std::vector<int> filtered;
+            for(size_t i = 0; i < pCandidates.size(); ++i) {
+                const TileRec* rec = tileRec(pCandidates[i]);
+                if(rec && rec->contentsMask == reqMask)
+                    filtered.push_back(pCandidates[i]);
+            }
+            if(!filtered.empty())
+                pCandidates.swap(filtered);
+        }
+
+        if(isAquaticShore(pX, pY, pCls)) {
+            std::vector<int> filtered;
+            for(size_t i = 0; i < pCandidates.size(); ++i) {
+                const TileRec* rec = tileRec(pCandidates[i]);
+                if(rec && (rec->contentsMask & (4 | 8)) && !(rec->contentsMask & 1))
+                    filtered.push_back(pCandidates[i]);
+            }
+            if(!filtered.empty())
+                pCandidates.swap(filtered);
+        }
+
+        return !pCandidates.empty();
+    };
+
+    auto scoreCandidateFinal = [&](int pTileId, int pX, int pY, size_t pIdx,
+                                   char pCls, const std::vector<int>& pTiles) -> double {
+        const TileRec* rec = tileRec(pTileId);
+        if(!rec)
+            return -1e9;
+
+        const TileRec* northRec = tileRecAt(pTiles, pX, pY - 1);
+        const TileRec* eastRec  = tileRecAt(pTiles, pX + 1, pY);
+        const TileRec* southRec = tileRecAt(pTiles, pX, pY + 1);
+        const TileRec* westRec  = tileRecAt(pTiles, pX - 1, pY);
+
+        char hN = pHints[pIdx * 4 + 0]; if(hN == '-') hN = 0;
+        char hW = pHints[pIdx * 4 + 1]; if(hW == '-') hW = 0;
+        char hS = pHints[pIdx * 4 + 2]; if(hS == '-') hS = 0;
+        char hE = pHints[pIdx * 4 + 3]; if(hE == '-') hE = 0;
+
+        if(!hN) hN = (pY > 0) ? CLASS_AT(pX, pY - 1) : pCls;
+        if(!hW) hW = (pX > 0) ? CLASS_AT(pX - 1, pY) : pCls;
+        if(!hS) hS = (pY + 1 < pHeight) ? CLASS_AT(pX, pY + 1) : pCls;
+        if(!hE) hE = (pX + 1 < pWidth) ? CLASS_AT(pX + 1, pY) : pCls;
+
+        double score = scoreEdgeMatch(rec->edges[0], northRec ? &northRec->edges[2] : nullptr, hN);
+        score += scoreEdgeMatch(rec->edges[1], eastRec ? &eastRec->edges[3] : nullptr, hE);
+        score += scoreEdgeMatch(rec->edges[2], southRec ? &southRec->edges[0] : nullptr, hS);
+        score += scoreEdgeMatch(rec->edges[3], westRec ? &westRec->edges[1] : nullptr, hW);
+        score += scoreStructuralBias(*rec);
+        score += shoreRepeatPenalty(pTileId, pX, pY, pCls, pTiles);
+        score += (double)(hashTile(pSeed, pX, pY, 4096 + pTileId) & 7) * 0.001;
+        return score;
+    };
+
     for(int y = scanMinY; y <= scanMaxY; ++y) {
         for(int x = scanMinX; x <= scanMaxX; ++x) {
             size_t idx = (size_t)y * pWidth + x;
@@ -296,24 +501,9 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                 continue;
 
             char cls = CLASS_AT(x, y);
-
-            std::unordered_map<int, std::vector<int>>::const_iterator base = mByCenter.find((int)cls);
-            if(base == mByCenter.end() || base->second.empty())
-                continue;  // unmatched: leave tilesOut[idx]=0, placed stays -1
-
-            // candidate assembly
             std::vector<int> candidates;
-            for(size_t k = 0; k < seen.size(); ++k) seen[k] = 0;
-            appendCandidates(candidates, seen, &base->second);
-
-            if(cls == 'S') {
-                bool west  = CLASS_AT(x - 1, y) == 'e';
-                bool east  = CLASS_AT(x + 1, y) == 'e';
-                bool north = CLASS_AT(x, y - 1) == 'e';
-                bool south = CLASS_AT(x, y + 1) == 'e';
-                if((west || east) && (north || south) && byIce != mByCenter.end())
-                    appendCandidates(candidates, seen, &byIce->second);
-            }
+            if(!buildCandidates(x, y, idx, cls, candidates))
+                continue;  // unmatched: leave tilesOut[idx]=0, placed stays -1
 
             // hints: packed N,W,S,E ; '-' = null
             char hN = pHints[idx * 4 + 0]; if(hN == '-') hN = 0;
@@ -321,65 +511,18 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
             char hS = pHints[idx * 4 + 2]; if(hS == '-') hS = 0;
             char hE = pHints[idx * 4 + 3]; if(hE == '-') hE = 0;
 
-            char hintList[4] = { hN, hW, hS, hE };
-            for(int h = 0; h < 4; ++h) {
-                char g = hintList[h];
-                // Hint glyphs are the compact class representation for S/I/e/W.
-                char hc = (g == 'S' || g == 'I' || g == 'e' || g == 'W') ? g : 0;
-                if(hc && hc != cls) {
-                    std::unordered_map<int, std::vector<int>>::const_iterator hit = mByCenter.find((int)hc);
-                    if(hit != mByCenter.end())
-                        appendCandidates(candidates, seen, &hit->second);
-                }
-            }
-
-            // filter by required center (soft: keep all if none match)
-            char reqC = pReqCenter[idx];
-            if(reqC != '-') {
-                std::vector<int> filtered;
-                for(size_t i = 0; i < candidates.size(); ++i) {
-                    std::unordered_map<int, TileRec>::const_iterator t = mTiles.find(candidates[i]);
-                    if(t != mTiles.end() && t->second.center == reqC)
-                        filtered.push_back(candidates[i]);
-                }
-                if(!filtered.empty())
-                    candidates.swap(filtered);
-            }
-
-            // filter by required contents (exact mask; soft)
-            char reqCt = pReqContents[idx];
-            if(reqCt != '-') {
-                int reqMask = reqCt - 'A';
-                std::vector<int> filtered;
-                for(size_t i = 0; i < candidates.size(); ++i) {
-                    std::unordered_map<int, TileRec>::const_iterator t = mTiles.find(candidates[i]);
-                    if(t != mTiles.end() && t->second.contentsMask == reqMask)
-                        filtered.push_back(candidates[i]);
-                }
-                if(!filtered.empty())
-                    candidates.swap(filtered);
-            }
-
             // placed neighbour facing edges
             int northTileId = (y > 0) ? placed[(size_t)(y - 1) * pWidth + x] : -1;
             int westTileId  = (x > 0) ? placed[(size_t)y * pWidth + (x - 1)] : -1;
-            const TileRec* northRec = nullptr;
-            const TileRec* westRec  = nullptr;
-            if(northTileId >= 0) {
-                std::unordered_map<int, TileRec>::const_iterator t = mTiles.find(northTileId);
-                if(t != mTiles.end()) northRec = &t->second;
-            }
-            if(westTileId >= 0) {
-                std::unordered_map<int, TileRec>::const_iterator t = mTiles.find(westTileId);
-                if(t != mTiles.end()) westRec = &t->second;
-            }
+            const TileRec* northRec = tileRec(northTileId);
+            const TileRec* westRec  = tileRec(westTileId);
             const std::string* northFacing = northRec ? &northRec->edges[2] : nullptr;
             const std::string* westFacing  = westRec  ? &westRec->edges[1]  : nullptr;
 
-            if(!hN) hN = CLASS_AT(x, y - 1);
-            if(!hW) hW = CLASS_AT(x - 1, y);
-            if(!hS) hS = CLASS_AT(x, y + 1);
-            if(!hE) hE = CLASS_AT(x + 1, y);
+            if(!hN) hN = (y > 0) ? CLASS_AT(x, y - 1) : cls;
+            if(!hW) hW = (x > 0) ? CLASS_AT(x - 1, y) : cls;
+            if(!hS) hS = (y + 1 < pHeight) ? CLASS_AT(x, y + 1) : cls;
+            if(!hE) hE = (x + 1 < pWidth) ? CLASS_AT(x + 1, y) : cls;
 
             int bestId = candidates.empty() ? 0 : candidates[0];
             double bestScore = -1e9;
@@ -394,17 +537,12 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                 score += scoreEdgeMatch(rec.edges[3], westFacing, hW);
                 score += scoreEdgeMatch(rec.edges[2], nullptr, hS);
                 score += scoreEdgeMatch(rec.edges[1], nullptr, hE);
-
-                char centerGlyph = rec.center;
-                if(centerGlyph) {
-                    int structural = 0;
-                    for(int e = 0; e < 4; ++e) {
-                        const std::string& edge = rec.edges[e];
-                        for(size_t ei = 0; ei < edge.size(); ++ei)
-                            if(edge[ei] == centerGlyph) ++structural;
-                    }
-                    if(structural < 4)
-                        score -= 150.0;
+                score += scoreStructuralBias(rec);
+                if(isAquaticShore(x, y, cls)) {
+                    if(northTileId == candId)
+                        score -= 64.0;
+                    if(westTileId == candId)
+                        score -= 64.0;
                 }
 
                 double jitter = (double)(hashTile(pSeed, x, y, 4096 + candId) & 7) * 0.001;
@@ -418,6 +556,50 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
             tilesOut[idx] = bestId;
             placed[idx] = bestId;
         }
+    }
+
+    const double relaxMinImprove = 64.0;
+    for(int pass = 0; pass < 2; ++pass) {
+        std::vector<int> nextTiles = tilesOut;
+        int changed = 0;
+
+        for(int y = scanMinY; y <= scanMaxY; ++y) {
+            for(int x = scanMinX; x <= scanMaxX; ++x) {
+                size_t idx = (size_t)y * pWidth + x;
+                if(masked && (*pDirtyMask)[idx] != '1')
+                    continue;
+
+                char cls = CLASS_AT(x, y);
+                std::vector<int> candidates;
+                if(!buildCandidates(x, y, idx, cls, candidates))
+                    continue;
+
+                int currentId = tilesOut[idx];
+                double currentScore = scoreCandidateFinal(currentId, x, y, idx, cls, tilesOut);
+                int bestId = currentId;
+                double bestScore = currentScore;
+
+                for(size_t i = 0; i < candidates.size(); ++i) {
+                    int candId = candidates[i];
+                    double score = scoreCandidateFinal(candId, x, y, idx, cls, tilesOut);
+                    if(score > bestScore) {
+                        bestScore = score;
+                        bestId = candId;
+                    }
+                }
+
+                if(bestId != currentId && bestScore > currentScore + relaxMinImprove) {
+                    nextTiles[idx] = bestId;
+                    ++changed;
+                }
+            }
+        }
+
+        if(changed <= 0)
+            break;
+
+        tilesOut.swap(nextTiles);
+        placed = tilesOut;
     }
 
     #undef CLASS_AT

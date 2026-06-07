@@ -26,6 +26,7 @@
 #include "Utils/ini.hpp"
 #include "Utils/cxxopts.hpp"
 #include "Utils/json.hpp"
+#include "Setup/Validation.hpp"
 
 using Json = nlohmann::json;
 
@@ -327,6 +328,9 @@ void sFodderParameters::PrepareOptions() {
 		("nosound", "Disable sound output", cxxopts::value<bool>()->default_value("false"))
 		("playground", "Sprite playground", cxxopts::value<bool>()->default_value("false"))
 
+		("setup", "Force the in-game first-run setup wizard, even if retail data is detected", cxxopts::value<bool>()->default_value("false"))
+		("probe-image", "Mount a disk image (.adf, .iso, ...) via firy, list its contents, and exit. Diagnostic use only.", cxxopts::value<std::string>()->default_value(""), "\"path/to/image.iso\"")
+
 		("skipintro", "Skip all game intros", cxxopts::value<bool>()->default_value("false"))
 		("disable-intro-video", "Disable intro video playback", cxxopts::value<bool>()->default_value("false"))
 		("skipbriefing", "Skip mission briefing", cxxopts::value<bool>()->default_value("false"))
@@ -401,6 +405,16 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			return false;
 		}
 
+		// --probe-image: mount a disk image via firy, list its contents, exit.
+		// Diagnostic / smoke-test only — not part of the normal launch path.
+		if (result.count("probe-image")) {
+			std::string isoPath = result["probe-image"].as<std::string>();
+			if (!isoPath.empty()) {
+				Setup::ProbeImage(isoPath);
+				return false;
+			}
+		}
+
 		if (result.count("demo-record-all")) {
 			mDemoRecord = true;
 			mDemoFile = "-";
@@ -428,6 +442,9 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mSkipBriefing = result["skipbriefing"].as<bool>();
 		if (result.count("skiphill"))
 			mSkipRecruit = result["skiphill"].as<bool>();
+
+		if (result.count("setup"))
+			mForceSetupWizard = result["setup"].as<bool>();
 
 		mUnitTesting = result["unit-test"].as<bool>();
 
@@ -617,7 +634,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		// In network mode skip the intro (not relevant for co-op).
 		// Between-phase screens (recruit, briefing, service) are handled
 		// by Network_Recruit_Show / Network_Briefing_Show and network-aware
-		// service loops � see Fodder_Network.cpp.
+		// service loops � see Fodder_Network.cpp.
 		if (mNetworkEnabled) {
 			mSkipIntro    = true;
 			if (mMissionNumber < 1)
@@ -775,16 +792,35 @@ bool sFodderParameters::SaveIni() {
 		ini.set("hill", mSkipRecruit ? "true" : "false");
 	}
 
-	// [paths]
-	// TODO Later
-	// 
-	// if (ini.select("paths")) {
-	//     ini["paths"].clear();
-	//     for (size_t i = 0; i < mResourcePaths.size(); ++i) {
-	//         ini["paths"][std::to_string(i)] = mResourcePaths[i];
-	//     }
-	// }
-	//
+	// [paths] — persist user-added search roots and currently-mounted disk
+	// images (both set via the in-game setup wizard or hand-edited). Implicit
+	// defaults (cwd, Documents/OpenFodder, XDG dirs) are NOT written back
+	// because they're recreated by addDefaultDirs() on every launch.
+	{
+		const auto userPaths = g_ResourceMan ? g_ResourceMan->getUserPaths()
+		                                     : std::vector<std::string>{};
+		const auto imagePaths = g_ResourceMan ? g_ResourceMan->getMountedImagePaths()
+		                                       : std::vector<std::string>{};
+
+		// Ensure the section exists, then clear and rewrite it.
+		if (!ini.select("paths"))
+			ini.create("paths");
+		ini["paths"].clear();
+
+		for (size_t i = 0; i < userPaths.size(); ++i) {
+			std::ostringstream key;
+			key << "path" << (i + 1);
+			ini.set(key.str(), userPaths[i]);
+		}
+
+		// imageN= keys distinct from pathN= so the read path can dispatch
+		// each kind to the right ResourceMan API.
+		for (size_t i = 0; i < imagePaths.size(); ++i) {
+			std::ostringstream key;
+			key << "image" << (i + 1);
+			ini.set(key.str(), imagePaths[i]);
+		}
+	}
 
 	return ini.save();
 }
@@ -903,9 +939,21 @@ bool sFodderParameters::ProcessINI() {
 
 	if (ini.select("paths")) {
 
-		for (auto& path : ini["paths"]) {
+		for (auto& entry : ini["paths"]) {
+			// Dispatch by key prefix:
+			//   imageN=...  →  mountImage (disk image, mounted via firy)
+			//   anything else → addUserDir (folder added to search roots)
+			//
+			// addUserDir round-trips: it tracks the path under mUserPaths so
+			// SaveIni writes it back instead of dropping it on the next quit.
+			const std::string& key = entry.first;
+			const std::string& value = entry.second;
 
-			g_ResourceMan->addDir(path.second);
+			if (key.size() >= 5 && key.compare(0, 5, "image") == 0) {
+				g_ResourceMan->mountImage(value);
+			} else {
+				g_ResourceMan->addUserDir(value);
+			}
 		}
 	}
 

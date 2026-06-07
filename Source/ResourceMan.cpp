@@ -22,6 +22,7 @@
 
 #include "stdafx.hpp"
 #include "Utils/md5.hpp"
+#include "Setup/MountedImage.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -42,6 +43,182 @@ cResourceMan::cResourceMan() {
 
 void cResourceMan::addDir(const std::string& pPath) {
 	mAllPaths.push_back(pPath);
+}
+
+bool cResourceMan::addDirOnce(const std::string& pPath) {
+	// Skip duplicates so the wizard can call refresh() repeatedly without
+	// piling up stale [paths] entries. Comparison is exact-string; the caller
+	// is responsible for canonicalising before passing in.
+	for (const auto& existing : mAllPaths) {
+		if (existing == pPath)
+			return false;
+	}
+	mAllPaths.push_back(pPath);
+	return true;
+}
+
+bool cResourceMan::addUserDir(const std::string& pPath) {
+	// Track the path under mUserPaths (so SaveIni writes it back) and also
+	// add it to the search-path list for refresh().
+	bool added = false;
+	bool inUser = false;
+	for (const auto& existing : mUserPaths) {
+		if (existing == pPath) { inUser = true; break; }
+	}
+	if (!inUser) {
+		mUserPaths.push_back(pPath);
+		added = true;
+	}
+	if (addDirOnce(pPath))
+		added = true;
+	return added;
+}
+
+bool cResourceMan::removeDir(const std::string& pPath) {
+	for (auto it = mAllPaths.begin(); it != mAllPaths.end(); ++it) {
+		if (*it == pPath) {
+			mAllPaths.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool cResourceMan::removeUserDir(const std::string& pPath) {
+	bool removed = false;
+	for (auto it = mUserPaths.begin(); it != mUserPaths.end(); ++it) {
+		if (*it == pPath) {
+			mUserPaths.erase(it);
+			removed = true;
+			break;
+		}
+	}
+	if (removeDir(pPath))
+		removed = true;
+	return removed;
+}
+
+int cResourceMan::mountImage(const std::string& pImagePath) {
+	auto img = std::make_shared<Setup::cMountedImage>();
+	if (!img->Open(pImagePath))
+		return 0;
+
+	const int id = Setup::MountedImageRegister(img);
+	if (id == 0)
+		return 0;
+
+	// Match the indexed image contents against the KnownGameVersions table.
+	// findVersions does the same job on a real folder; we duplicate the
+	// matching logic here because we want to point the version's file map at
+	// virtual paths ("firy://<id>/<file>") instead of host paths.
+	bool addedAnyVersion = false;
+	bool haveRetailRegistered = false;
+
+	for (size_t i = 0; i < 20; ++i) {
+		const sGameVersion& kv = ::KnownGameVersions[i];
+		if (kv.mFiles.empty())
+			continue;     // pseudo-versions (Custom/Random) — handled below
+
+		// Skip versions already registered (e.g. retail data is on disk AND
+		// we just mounted a CD with the same release files).
+		if (mReleaseFiles.find(&kv) != mReleaseFiles.end()) {
+			if (kv.mRelease == eRelease::Retail)
+				haveRetailRegistered = true;
+			continue;
+		}
+
+		tStringMap matched;
+		for (auto& kf : kv.mFiles) {
+			std::string wantLower = kf.mName;
+			std::transform(wantLower.begin(), wantLower.end(), wantLower.begin(), ::tolower);
+			std::string inImagePath = img->ResolveBasename(wantLower);
+			if (inImagePath.empty())
+				continue;
+			matched.emplace(wantLower, Setup::VirtualPathBuild(id, inImagePath));
+		}
+
+		if (matched.size() == kv.mFiles.size()) {
+			// Synthetic "release path" — never used as a host path because
+			// FileRead routes through the version's mReleaseFiles entries
+			// (which are already firy:// urls). Keeping it virtual avoids
+			// confusing diagnostic code that looks at mReleasePath.
+			std::string virtBase = "firy://" + std::to_string(id) + "/";
+			mReleasePath.emplace(&kv, virtBase);
+			mReleaseFiles.emplace(&kv, std::move(matched));
+
+			if (kv.mRelease == eRelease::Retail)
+				haveRetailRegistered = true;
+			addedAnyVersion = true;
+		}
+	}
+
+	// Custom/Random pseudo-versions need a retail of the same eGame to be
+	// registered first — mirrors the rule findVersions enforces.
+	if (haveRetailRegistered && g_Fodder && g_Fodder->mParams) {
+		for (size_t i = 0; i < 20; ++i) {
+			const sGameVersion& kv = ::KnownGameVersions[i];
+			if (!kv.isCustom())
+				continue;
+			if (kv.mGame != g_Fodder->mParams->mDefaultGame)
+				continue;
+			if (mReleasePath.find(&kv) != mReleasePath.end())
+				continue;
+			// Keep the same shape findVersions uses: a synthetic base path
+			// for Custom/Random.
+			mReleasePath.emplace(&kv, "firy://" + std::to_string(id) + "/");
+		}
+	}
+
+	if (!addedAnyVersion) {
+		// Image opened but didn't match any known version. Drop it — a
+		// stranded entry in the registry would survive forever.
+		Setup::MountedImageUnregister(id);
+		return 0;
+	}
+
+	return id;
+}
+
+bool cResourceMan::unmountImage(int pId) {
+	if (pId <= 0)
+		return false;
+
+	const std::string virtPrefix = "firy://" + std::to_string(pId) + "/";
+
+	// Drop any release entries that point at this image.
+	for (auto it = mReleasePath.begin(); it != mReleasePath.end(); ) {
+		if (it->second.size() >= virtPrefix.size() &&
+			it->second.compare(0, virtPrefix.size(), virtPrefix) == 0) {
+			it = mReleasePath.erase(it);
+		} else {
+			++it;
+		}
+	}
+
+	for (auto it = mReleaseFiles.begin(); it != mReleaseFiles.end(); ) {
+		bool any = false;
+		for (auto& kv : it->second) {
+			if (kv.second.size() >= virtPrefix.size() &&
+				kv.second.compare(0, virtPrefix.size(), virtPrefix) == 0) {
+				any = true;
+				break;
+			}
+		}
+		if (any)
+			it = mReleaseFiles.erase(it);
+		else
+			++it;
+	}
+
+	Setup::MountedImageUnregister(pId);
+	return true;
+}
+
+std::vector<std::string> cResourceMan::getMountedImagePaths() const {
+	std::vector<std::string> out;
+	for (auto& kv : Setup::MountedImagesAll())
+		out.push_back(kv.second->ImagePath());
+	return out;
 }
 
 void cResourceMan::addBaseDir(std::string pPath) {
@@ -135,8 +312,28 @@ void cResourceMan::findCampaigns() {
 void cResourceMan::findVersions() {
 	bool haveRetail = false;
 
-	mReleasePath.clear();
-	mReleaseFiles.clear();
+	// Clear release entries that came from disk-folder scans on a previous
+	// refresh, but PRESERVE entries that point at currently-mounted disk
+	// images — those are owned by mountImage() and would otherwise vanish
+	// every time the wizard or a save-options click triggers a refresh.
+	for (auto it = mReleasePath.begin(); it != mReleasePath.end(); ) {
+		if (Setup::VirtualPathIs(it->second)) {
+			++it;
+			continue;
+		}
+		// Keep mReleaseFiles in sync.
+		mReleaseFiles.erase(it->first);
+		it = mReleasePath.erase(it);
+	}
+
+	// If a mounted image already registered a retail version, the
+	// haveRetail gate further down should skip Custom/Random re-creation.
+	for (auto& kv : mReleasePath) {
+		if (kv.first->mRelease == eRelease::Retail) {
+			haveRetail = true;
+			break;
+		}
+	}
 
 	// Loop each path
 	for (auto& ValidPath : mValidPaths) {
@@ -348,6 +545,19 @@ std::string	cResourceMan::FileReadStr(const std::string& pFile) {
 }
 
 tSharedBuffer cResourceMan::FileRead(const std::string& pFile) {
+	// "firy://<id>/<inImagePath>" virtual paths are routed through the
+	// MountedImage registry instead of going through std::ifstream — they
+	// don't exist on the host filesystem at all.
+	if (Setup::VirtualPathIs(pFile)) {
+		int id = 0;
+		std::string inImagePath;
+		if (Setup::VirtualPathParse(pFile, id, inImagePath)) {
+			if (auto image = Setup::MountedImageGet(id))
+				return image->Read(inImagePath);
+		}
+		return std::make_shared<std::vector<uint8_t>>();
+	}
+
 	std::ifstream*	fileStream;
 	auto			fileBuffer = std::make_shared<std::vector<uint8_t>>();
 
@@ -505,6 +715,9 @@ std::vector<std::string> cResourceMan::getValidPaths() const {
 std::vector<std::string> cResourceMan::getAllPaths() const {
 	return mAllPaths;
 }
+std::vector<std::string> cResourceMan::getUserPaths() const {
+	return mUserPaths;
+}
 
 bool cResourceMan::FileExists(const std::string& pPath) const {
 	struct stat info;
@@ -517,6 +730,15 @@ bool cResourceMan::FileExists(const std::string& pPath) const {
 		return true;
 
 	return false;
+}
+
+bool cResourceMan::DirExists(const std::string& pPath) const {
+	// Stricter than FileExists — only returns true for a real directory.
+	struct stat info;
+
+	if (stat(pPath.c_str(), &info) != 0)
+		return false;
+	return (info.st_mode & S_IFDIR) != 0;
 }
 
 static void ResourceMan_SortDirectoryList(std::vector<std::string>& pResults) {
@@ -598,6 +820,55 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 	return results;
 }
 
+std::vector<std::string> cResourceMan::DirectoryListDirs(const std::string& pPath) {
+	WIN32_FIND_DATA fdata;
+	HANDLE dhandle;
+	std::vector<std::string> results;
+
+	std::stringstream finalPath;
+	if (pPath.size())
+		finalPath << pPath;
+	finalPath << "/*";
+
+	int wlen = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)finalPath.str().length(), 0, 0);
+	WCHAR* pathFin = new WCHAR[wlen + 1];
+	memset(pathFin, 0, sizeof(WCHAR) * (wlen + 1));
+	MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)finalPath.str().length(), pathFin, wlen);
+	pathFin[wlen] = 0;
+
+	if ((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
+		delete[] pathFin;
+		return results;
+	}
+	delete[] pathFin;
+
+	auto pushIfDir = [&results](const WIN32_FIND_DATA& f) {
+		if ((f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+			return;
+		// Skip "." and ".."
+		if (f.cFileName[0] == L'.' && (f.cFileName[1] == 0 ||
+			(f.cFileName[1] == L'.' && f.cFileName[2] == 0)))
+			return;
+
+		size_t tmp = 0;
+		size_t len = wcslen(f.cFileName);
+		char* file = new char[len + 1];
+		memset(file, 0, len + 1);
+		wcstombs_s(&tmp, file, len + 1, f.cFileName, len);
+		results.push_back(std::string(file));
+		delete[] file;
+	};
+
+	pushIfDir(fdata);
+	while (FindNextFile(dhandle, &fdata)) {
+		pushIfDir(fdata);
+	}
+
+	FindClose(dhandle);
+	ResourceMan_SortDirectoryList(results);
+	return results;
+}
+
 #else
 #include <dirent.h>
 std::string findType;
@@ -654,6 +925,43 @@ std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, c
 	}
 	if (count >= 0)
 		free(directFiles);
+
+	ResourceMan_SortDirectoryList(results);
+	return results;
+}
+
+std::vector<std::string> cResourceMan::DirectoryListDirs(const std::string& pPath) {
+	std::vector<std::string> results;
+	std::string base = pPath;
+	if (base.empty() || base.back() != '/')
+		base.append("/");
+
+	DIR* dir = opendir(base.c_str());
+	if (!dir)
+		return results;
+
+	while (struct dirent* entry = readdir(dir)) {
+		// Skip "." and ".."
+		if (entry->d_name[0] == '.' &&
+			(entry->d_name[1] == 0 || (entry->d_name[1] == '.' && entry->d_name[2] == 0)))
+			continue;
+
+		bool isDir = false;
+#ifdef DT_DIR
+		if (entry->d_type == DT_DIR) {
+			isDir = true;
+		} else if (entry->d_type == DT_UNKNOWN) {
+#endif
+			struct stat st;
+			if (::stat((base + entry->d_name).c_str(), &st) == 0 && (st.st_mode & S_IFDIR))
+				isDir = true;
+#ifdef DT_DIR
+		}
+#endif
+		if (isDir)
+			results.push_back(std::string(entry->d_name));
+	}
+	closedir(dir);
 
 	ResourceMan_SortDirectoryList(results);
 	return results;

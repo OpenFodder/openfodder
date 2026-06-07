@@ -27,7 +27,7 @@ namespace cxxopts {
 #include "Network/NetworkTypes.hpp"
 
 /* These values override the original engine values, when in custom mode */
-static constexpr size_t CUSTOM_DEFAULT_MAX_SPRITES = 100000;
+static constexpr size_t CUSTOM_DEFAULT_MAX_SPRITES = 1000;
 static constexpr size_t CUSTOM_DEFAULT_MAX_SPAWN = 25;
 
 enum eNetworkMenuStart {
@@ -117,6 +117,7 @@ public:
 
 	bool mShowHelp;
 	bool mCopyProtection;
+	bool mForceSetupWizard;     // --setup: force the in-game first-run wizard even if retail data is detected
 
 	// Cooperative network multiplayer (GGPO)
 	bool        mNetworkEnabled;        // Enable GGPO network session
@@ -220,6 +221,7 @@ public:
 		mSpawnEnemyMax = 10;
 
 		mCopyProtection = false;
+		mForceSetupWizard = false;
 
 		mNetworkEnabled     = false;
 		mNetworkSyncTest    = false;

@@ -17,7 +17,9 @@ endif()
 
 project(openfodder VERSION 1.5.4 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 option(OPENFODDER_ENABLE_FFMPEG "Enable FFmpeg intro video playback" OFF)
 option(OPENFODDER_AUTO_FFMPEG "Auto-enable FFmpeg when found (non-Windows)" ON)
 option(OPENFODDER_ENABLE_NETWORK "Enable GGPO rollback networking for cooperative multiplayer" ON)
@@ -116,7 +118,23 @@ if(EMSCRIPTEN)
     list(FILTER GAMEENGINE_SOURCE EXCLUDE REGEX "Source/Start.cpp$")
 endif()
 
+# segrax/firy — disk-image filesystem library (ADF/D64/FAT, soon ISO9660).
+# Pulled in as a git submodule under library/firy/. The setup wizard mounts
+# user-supplied disk images via firy at runtime instead of extracting them.
+# Skip on Emscripten — the setup wizard isn't part of the web build.
+if(NOT EMSCRIPTEN AND EXISTS "${CMAKE_SOURCE_DIR}/library/firy/CMakeLists.txt")
+    add_subdirectory(library/firy)
+    set(OPENFODDER_HAS_FIRY TRUE)
+else()
+    set(OPENFODDER_HAS_FIRY FALSE)
+endif()
+
 add_executable(openfodder ${GAMEENGINE_SOURCE} ${GAMEENGINE_HEADERS})
+
+if(OPENFODDER_HAS_FIRY)
+    target_link_libraries(openfodder PRIVATE firy)
+    target_compile_definitions(openfodder PRIVATE OPENFODDER_HAS_FIRY=1)
+endif()
 
 if(WIN32)
     target_sources(openfodder PRIVATE

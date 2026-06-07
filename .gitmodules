@@ -1,3 +1,6 @@
 [submodule "Run"]
 	path = Run
 	url = https://github.com/OpenFodder/data
+[submodule "library/firy"]
+	path = library/firy
+	url = https://github.com/segrax/firy

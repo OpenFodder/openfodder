@@ -26,6 +26,11 @@ class cResourceMan {
 	std::vector<std::string> mAllPaths;
 	std::vector<std::string> mValidPaths;
 
+	// Subset of mAllPaths added from [paths] ini section or the in-game setup
+	// wizard. Tracked separately so SaveIni() only writes back what the user
+	// chose, not the implicit defaults (cwd, Documents/OpenFodder, XDG dirs).
+	std::vector<std::string> mUserPaths;
+
 	std::map<const sGameVersion*, std::string> mReleasePath;
 	std::map<std::string, std::string> mCampaigns;
 
@@ -42,9 +47,6 @@ protected:
 	void addDefaultDirs();
 	void validatePaths();
 
-
-	std::string FileMD5(const std::string& pFile);
-
 	void findCampaigns();
 	void findVersions();
 	void findSaves();
@@ -55,6 +57,24 @@ public:
 	cResourceMan();
 
 	void addDir(const std::string& pPath);
+	bool addDirOnce(const std::string& pPath);
+	bool addUserDir(const std::string& pPath);
+	bool removeDir(const std::string& pPath);
+	bool removeUserDir(const std::string& pPath);
+
+	// Mount a disk image (.adf, .iso, ...) via firy and register every
+	// version it satisfies into mReleasePath / mReleaseFiles. Returns the
+	// MountedImage registry id (>0) on success, 0 on failure.
+	//
+	// Unlike addUserDir(), this does NOT add anything to the search-path
+	// list — the engine reaches the mounted files via the version table
+	// (sGameVersion::getDataFilePath → GetFilePath) rather than via the
+	// "<root>/Data/<release>/" filesystem walk.
+	int  mountImage(const std::string& pImagePath);
+	bool unmountImage(int pId);
+
+	// Round-trip support for openfodder.ini's [paths] section.
+	std::vector<std::string> getMountedImagePaths() const;
 
 	void refresh();
 
@@ -89,12 +109,16 @@ public:
 
 	std::vector<std::string> getValidPaths() const;
 	std::vector<std::string> getAllPaths() const;
+	std::vector<std::string> getUserPaths() const;
 
 	std::string getCustomMapPath() const { return mCustomMapPath;  }
 
 
 	std::vector<std::string> DirectoryList(const std::string& pPath, const std::string& pExtension);
+	std::vector<std::string> DirectoryListDirs(const std::string& pPath);
 	bool				FileExists(const std::string& pPath) const;
+	bool				DirExists(const std::string& pPath) const;
+	std::string			FileMD5(const std::string& pFile);
 
 	std::string			getcwd();
 

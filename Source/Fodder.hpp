@@ -1289,6 +1289,11 @@ public:
     std::string     GUI_Save_File(const char* pTitle, const std::vector<sSavedGame>& pSave);
 
     bool            Options_Menu_Run();
+    bool            Setup_Wizard_Run(bool pHaveAnyVersion);
+
+    // Drag-and-drop sink: paths arriving via SDL_EVENT_DROP_FILE land here
+    // and the active wizard / menu drains them on its own schedule.
+    std::vector<std::string> mDroppedPaths;
 
     void            GUI_Input_CheckKey();
     void            GUI_Save_Name_Input_Print(int16 pPosY);
@@ -1438,6 +1443,14 @@ public:
     );
     void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const char* pText);
     void            String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pParam08, size_t pParamC, const std::string& pText);
+
+    // Paint a hand-drawn 1-bit briefing-font glyph directly to mSurface.
+    // Used by String_Print for ASCII codepoints that don't ship as sprite
+    // frames in pstuff (':' '/' '\\' '(' ')' etc.). pPosX/pPosY are in the
+    // same coordinate system the existing GUI_Draw_Frame_8 uses (both add
+    // 0x10 to compensate for the mSurface 16-pixel border).
+    void            String_Print_DrawTinyGlyph(const struct sBriefingSpecialGlyph* pGlyph,
+                                                 size_t pPosX, size_t pPosY);
 
     void            Intro_LegionMessage();
     int16           Intro_Play();

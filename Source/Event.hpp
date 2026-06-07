@@ -34,6 +34,7 @@ enum eEventType {
 	eEvent_Focus			= 11,
 	eEvent_MouseEnter		= 12,
 	eEvent_MouseLeave		= 13,
+	eEvent_FileDrop			= 14,
 };
 
 class cEvent {
@@ -46,6 +47,10 @@ class cEvent {
 		cPosition			mPosition;
 		cPosition			mPositionRelative;
 		bool				mHasFocus;
+
+		// eEvent_FileDrop payload — the dropped path with platform-native
+		// separators preserved.
+		std::string			mDropPath;
 
 	public:
 							cEvent( const eEventType& pType = eEvent_None );

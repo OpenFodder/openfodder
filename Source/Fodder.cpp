@@ -2263,6 +2263,11 @@ void cFodder::eventProcess(const cEvent &pEvent)
     case eEvent_Quit:
         Exit(0);
         break;
+
+    case eEvent_FileDrop:
+        if (!pEvent.mDropPath.empty())
+            mDroppedPaths.push_back(pEvent.mDropPath);
+        break;
     }
 }
 
@@ -3999,6 +4004,33 @@ Start:;
         // This should never happen ,as a check in Prepare ensures atleast 1 ver is available
         if (!mVersionCurrent)
             return;
+    }
+
+    // First-run / "data missing" wizard. We trigger when:
+    //  - no retail data was found for either CF1 or CF2 (the engine fell back
+    //    to a demo or to nothing recognisable), OR
+    //  - the user passed --setup explicitly to re-run the wizard.
+    // The wizard runs over the demo background that VersionSwitch just
+    // loaded, so all the GUI primitives are already wired up.
+    if (!mParams->mDemoPlayback)
+    {
+        const bool noRetail = !mVersions->AnyRetailAvailable();
+        if (noRetail || mParams->mForceSetupWizard)
+        {
+            // mForceSetupWizard is one-shot: clear it so we don't loop on every
+            // restart of the Start: label.
+            mParams->mForceSetupWizard = false;
+            mStartParams->mForceSetupWizard = false;
+
+            if (Setup_Wizard_Run(/*pHaveAnyVersion*/ mVersionCurrent != nullptr))
+            {
+                // Wizard added new search roots and refresh()-ed. Re-pick the
+                // best version now that retail might be available.
+                const sGameVersion* retail = mVersions->GetRetail(mParams->mDefaultPlatform, mParams->mDefaultGame);
+                if (retail)
+                    VersionSwitch(retail);
+            }
+        }
     }
 
     if (mParams->mDemoRecord && mGame_Data.mDemoRecorded.mRecordedPlatform == ePlatform::Any)

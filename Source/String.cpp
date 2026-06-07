@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FontData_Special.hpp"
 
 void cFodder::String_Input_Print(int16 pPosY) {
     GUI_Input_CheckKey();
@@ -111,6 +112,52 @@ int32 cFodder::String_MeasureWidth(const uint8* pWidths, const char* pString) {
 
 int32 cFodder::String_MeasureWidth(const uint8* pWidths, const std::string& pString) {
     return String_MeasureWidth(pWidths, pString.c_str());
+}
+
+void cFodder::String_Print_DrawTinyGlyph(const sBriefingSpecialGlyph* pGlyph,
+                                           size_t pPosX, size_t pPosY) {
+    if (!pGlyph || !mSurface)
+        return;
+
+    // Match GUI_Draw_Frame_8's coordinate system: the engine prepends a
+    // 16-pixel border to mSurface (Sprite_OnScreen_Check / GUI_Draw_Frame_8
+    // both add 0x10 to incoming coordinates). Stay consistent so glyphs sit
+    // on the same baseline as A-Z neighbours.
+    const int32 baseX = (int32)pPosX + 0x10;
+    const int32 baseY = (int32)pPosY + 0x10;
+
+    const size_t surfW = mSurface->GetWidth();
+    const size_t surfH = mSurface->GetHeight();
+    uint8* buf = mSurface->GetSurfaceBuffer();
+    if (!buf)
+        return;
+
+    // Foreground colour matches the briefing font's chunky letters as
+    // rendered by stru_42928's sprite frames in pstuff. 0xB3 lines up with
+    // the palette slot used by GUI_Button_Draw_SmallBoxAt's "primary"
+    // colour, which itself was sampled to match in-game letter strokes.
+    const uint8 fg = 0xB3;
+
+    for (uint8 row = 0; row < pGlyph->mHeight; ++row) {
+        const uint8 bits = pGlyph->mRows[row];
+        if (bits == 0)
+            continue;
+
+        const int32 y = baseY + (int32)pGlyph->mYOffset + (int32)row;
+        if (y < 0 || (size_t)y >= surfH)
+            continue;
+
+        for (uint8 col = 0; col < pGlyph->mWidth; ++col) {
+            // MSB-first bit selection: bit (7-col).
+            if (col >= 8) break;
+            if (!(bits & (uint8)(0x80u >> col)))
+                continue;
+            const int32 x = baseX + (int32)col;
+            if (x < 0 || (size_t)x >= surfW)
+                continue;
+            buf[(size_t)y * surfW + (size_t)x] = fg;
+        }
+    }
 }
 
 void cFodder::String_Print_Small_Left(std::string pText, const size_t pX, const size_t pY) {
@@ -231,24 +278,59 @@ void cFodder::String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pPa
                 }
                 else {
                     //loc_29D07
-                    if (NextChar > 0x5A) {
+                    // Briefing-font: bracket-range chars (0x5B..0x60 = [\]^_`)
+                    // sit between Z and lowercase 'a' in ASCII, but the
+                    // original lowercase-mapping math (NextChar -= 0x61)
+                    // wraps them into bogus sprite slots (e.g. '[' was
+                    // rendering as digit '8'). Route these through the
+                    // small-font special-glyph fallback below, alongside
+                    // punctuation, instead of the lowercase gate.
+                    const bool isBracketRange = (NextChar >= 0x5B && NextChar <= 0x60);
+                    if (NextChar > 0x5A && !(pWidths == mFont_Briefing_Width && isBracketRange)) {
                         NextChar -= 0x61;
                         NextChar += PLATFORM_BASED(0x39, 0x28);
 
                         goto loc_29D71;
                     }
-                    else {
-                        if (NextChar >= 0x41) {
-                            NextChar -= 0x41;
-                            goto loc_29D71;
-                        }
+                    if (NextChar >= 0x41 && NextChar <= 0x5A) {
+                        NextChar -= 0x41;
+                        goto loc_29D71;
                     }
+                    // Fall through to the special-character handler.
                 }
             }
 
             // Must be a special character
             // 20D
             //loc_29D2D
+
+            // pstuff's small briefing font only ships one special glyph
+            // ('.' at slot 36); the shared mGUI_Font_SpecialCharacters
+            // table is authored for the larger fonts and would route
+            // small-font specials past the end of stru_42928 (37 entries),
+            // reading into the next sprite-sheet struct.
+            //
+            // For everything else (':', '/', '\\', '(', ')', etc.) we paint
+            // a hand-drawn 1-bit briefing-style glyph directly to the
+            // surface — see String_Print_DrawTinyGlyph + FontData_Special.
+            if (pWidths == mFont_Briefing_Width) {
+                if (NextChar == '.') {
+                    NextChar = 0x24;        // slot 36 = '.'
+                    goto loc_29D71;
+                }
+                if (NextChar == 0x20) {
+                    // Real space (no gap-char override) — width advances
+                    // via mFont_Briefing_Width[0x20]; nothing to draw.
+                    goto loc_29DC7;
+                }
+                if (auto* g = GetBriefingSpecialGlyph(NextChar)) {
+                    if (!mGUI_Print_String_To_Sidebar)
+                        String_Print_DrawTinyGlyph(g, pParam08, pParamC);
+                    goto loc_29DC7;
+                }
+                goto loc_29DC7;             // unknown char: still advance width
+            }
+
             unk14 = -1;
             ptr = mGUI_Font_SpecialCharacters;
             do {

@@ -141,6 +141,55 @@ const sGameVersion* cVersions::GetRetail(const ePlatform pPlatform, const eGame 
     return *RetailRelease;
 }
 
+bool cVersions::AnyRetailAvailable() const {
+    auto Available = g_ResourceMan->GetAvailable();
+    for (auto* v : Available) {
+        if (v->mRelease == eRelease::Retail)
+            return true;
+    }
+    return false;
+}
+
+bool cVersions::AnyRetailAvailable(const eGame pGame) const {
+    auto Available = g_ResourceMan->GetAvailable();
+    for (auto* v : Available) {
+        if (v->mRelease == eRelease::Retail && v->mGame == pGame)
+            return true;
+    }
+    return false;
+}
+
+const sGameVersion* cVersions::GetVersionForMenuChrome() const {
+    auto Available = g_ResourceMan->GetAvailable();
+    if (Available.empty())
+        return nullptr;
+
+    auto hasBriefing = [](const sGameVersion* v) {
+        if (!v) return false;
+        auto gfx = v->getGfxTypes();
+        const bool brief = std::find(gfx.begin(), gfx.end(), eGFX_BRIEFING) != gfx.end();
+        const bool font  = std::find(gfx.begin(), gfx.end(), eGFX_FONT)     != gfx.end();
+        return brief && font;
+    };
+
+    // 1) Any retail (best fidelity).
+    for (auto* v : Available)
+        if (v->mRelease == eRelease::Retail && hasBriefing(v))
+            return v;
+
+    // 2) PCFormat — ships in the repo and has the full PC briefing sheet.
+    for (auto* v : Available)
+        if (v->mRelease == eRelease::PCFormat && hasBriefing(v))
+            return v;
+
+    // 3) Any other release that happens to carry briefing data.
+    for (auto* v : Available)
+        if (hasBriefing(v))
+            return v;
+
+    return nullptr;
+}
+
 const sGameVersion* cVersions::GetDemo() const {
 	auto Available = g_ResourceMan->GetAvailable();
 

@@ -109,6 +109,16 @@ public:
     const sGameVersion* GetForTileset(eTileTypes pTileType, eTileSub pSub) const;
     const sGameVersion* GetRetail(const ePlatform pPlatform, const eGame pGame) const;
     const sGameVersion* GetDemo() const;
+
+    bool AnyRetailAvailable() const;
+    bool AnyRetailAvailable(const eGame pGame) const;
+
+    // Pick a version (retail or demo) whose getGfxTypes() includes
+    // eGFX_BRIEFING + eGFX_FONT — i.e. one that can draw menu chrome
+    // (briefing boxes, fonts, buttons). Used by the first-run setup wizard
+    // because most Amiga magazine demos ship without these sheets.
+    // Preference order: any retail → PCFormat → first demo with briefing → null.
+    const sGameVersion* GetVersionForMenuChrome() const;
 };
 
 extern const sGameVersion KnownGameVersions[20];

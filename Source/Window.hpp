@@ -88,6 +88,7 @@ class cWindow {
 		void				ClearResized();
 
 		SDL_Renderer*		GetRenderer() const { return mRenderer; };
+		SDL_Window*			GetWindow() const { return mWindow; }
 
         cPosition           GetWindowPosition() const;
         int32				GetWindowWidth() const;

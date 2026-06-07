@@ -270,6 +270,15 @@ void cWindow::EventCheck() {
 		case SDL_EVENT_QUIT:
 			Event.mType = eEvent_Quit;
 			break;
+
+		case SDL_EVENT_DROP_FILE:
+			// SDL3 drop events: SysEvent.drop.data is the path string,
+			// owned by SDL and only valid until the next SDL_PumpEvents.
+			// Copy it into the cEvent payload so we can defer processing.
+			Event.mType = eEvent_FileDrop;
+			if (SysEvent.drop.data)
+				Event.mDropPath = SysEvent.drop.data;
+			break;
 		}
 
 #ifdef EMSCRIPTEN
