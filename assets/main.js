@@ -19,22 +19,39 @@
 
   // ---------------------------------------------------------------------------
   // Shared state
+  //
+  // NOTE on hoisting: prefersReducedMotion and REDUCED_MOTION need to be
+  // available the moment boot() runs. boot() is called from line ~17 (in the
+  // readyState branch above) BEFORE this section is executed top-to-bottom.
+  // Function declarations (function foo() {}) are fully hoisted; var
+  // assignments (var foo = function () {}) are not — only the `var foo`
+  // hoists, the value stays undefined until the line is executed. So:
+  //   - prefersReducedMotion uses `function` declaration form (hoisted).
+  //   - REDUCED_MOTION is wrapped in a memoised lazy getter so the actual
+  //     matchMedia call happens at first use (after the IIFE has finished
+  //     initialising), not at the top-of-file evaluation order.
   // ---------------------------------------------------------------------------
-  var REDUCED_MOTION = window.matchMedia
-    ? window.matchMedia('(prefers-reduced-motion: reduce)')
-    : { matches: false, addEventListener: function () {}, addListener: function () {} };
+  var _REDUCED_MOTION = null;
+  function getReducedMotion() {
+    if (_REDUCED_MOTION) return _REDUCED_MOTION;
+    _REDUCED_MOTION = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : { matches: false, addEventListener: function () {}, addListener: function () {} };
+    return _REDUCED_MOTION;
+  }
 
-  var prefersReducedMotion = function () { return !!REDUCED_MOTION.matches; };
+  function prefersReducedMotion() { return !!getReducedMotion().matches; }
 
   // Cross-browser "media query change" subscription. Returns an unsubscribe fn.
   function onMotionChange(handler) {
-    if (REDUCED_MOTION.addEventListener) {
-      REDUCED_MOTION.addEventListener('change', handler);
-      return function () { REDUCED_MOTION.removeEventListener('change', handler); };
+    var mql = getReducedMotion();
+    if (mql.addEventListener) {
+      mql.addEventListener('change', handler);
+      return function () { mql.removeEventListener('change', handler); };
     }
-    if (REDUCED_MOTION.addListener) {
-      REDUCED_MOTION.addListener(handler);
-      return function () { REDUCED_MOTION.removeListener(handler); };
+    if (mql.addListener) {
+      mql.addListener(handler);
+      return function () { mql.removeListener(handler); };
     }
     return function () {};
   }

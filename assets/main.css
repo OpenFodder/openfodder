@@ -63,7 +63,7 @@
     --sp-10: 8rem;
 
     /* Layout */
-    --container-max: 1280px;
+    --container-max: 1440px;
     --container-pad: clamp(1rem, 4vw, 2rem);
     --section-pad-y: clamp(3rem, 8vw, 6rem);
     --radius-xs: 2px;
@@ -432,7 +432,7 @@ h1, h2, h3, h4, h5, h6 {
     display: grid;
     gap: var(--sp-3);
     margin-bottom: var(--sp-7);
-    max-width: 56rem;
+    max-width: 64rem;
 }
 
 .section__eyebrow {
@@ -473,7 +473,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: var(--fs-lede);
     line-height: 1.5;
     color: var(--ink);
-    max-width: 48rem;
+    max-width: 56rem;
 }
 
 
@@ -685,28 +685,55 @@ body.no-motion .hud-frame__corner { animation: none !important; }
 }
 
 /* CTAs */
+/* Hero CTA layout — three predictable patterns by viewport so buttons
+   don't pop in and out of side-by-side at random widths.
+   Default (mobile + tablet narrow): primary full-width, then a row
+   with the secondary CTA and the source link side-by-side. */
 .hero__ctas {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: var(--sp-3);
     margin-block: var(--sp-5);
+    align-items: center;
+}
+.hero__ctas .btn--primary {
+    grid-column: 1 / -1;
+    justify-content: center;
+    min-height: 56px;
+}
+.hero__ctas .btn--secondary {
+    justify-content: center;
+    min-height: 48px;
+}
+.hero__ctas .hero__source-link {
+    justify-self: center;
 }
 
-/* Mobile hierarchy: primary owns the row, secondary halves underneath. */
+/* Tiny mobile: primary gets a slight scale + heavier shadow so it reads
+   as the dominant action. Secondary + source link still share row 2. */
 @media (max-width: 599px) {
-    .hero__ctas { gap: var(--sp-3); }
     .hero__ctas .btn--primary {
-        flex: 1 0 100%;
         min-height: 64px;
-        justify-content: center;
         box-shadow: 0 10px 28px rgba(255, 176, 32, 0.32);
         transform: scale(1.02);
     }
-    .hero__ctas .btn--secondary,
-    .hero__ctas .btn--ghost {
-        flex: 1 1 calc(50% - var(--sp-2));
-        min-height: 48px;
-        justify-content: center;
+}
+
+/* Desktop (>=960px): hero copy column is wide enough for both pill
+   buttons side-by-side. Source link drops to its own row below. */
+@media (min-width: 960px) {
+    .hero__ctas {
+        grid-template-columns: auto auto 1fr;
+        gap: var(--sp-3) var(--sp-4);
+    }
+    .hero__ctas .btn--primary,
+    .hero__ctas .btn--secondary {
+        grid-column: auto;
+        min-height: 56px;
+    }
+    .hero__ctas .hero__source-link {
+        justify-self: start;
+        grid-column: 1 / -1;
     }
 }
 
@@ -1408,7 +1435,10 @@ body.no-motion .marquee__track { animation: none !important; }
 
 .credits-readout {
   margin-top: var(--sp-5);
-  max-width: 62ch;
+  /* No outer cap — the readout sits inside .container which already caps
+     it appropriately. The ops grid + crew rows below have their own
+     reading-friendly geometry. */
+  max-width: none;
   font-family: var(--ff-mono);
   font-size: var(--fs-small);
   line-height: 1.55;
@@ -1468,10 +1498,15 @@ body.no-motion .marquee__track { animation: none !important; }
   list-style: none;
 }
 
-/* Crew row: prefix via ::before, then handle (auto), role (fills). */
+/* Crew row: prefix · handle (fixed col so role aligns) · role (1fr).
+   On wider viewports the row breathes — role gets up to 36rem before
+   wrapping. Below the desktop breakpoint it just takes whatever
+   space remains. */
 .credits-readout__line--crew {
   position: relative;
-  grid-template-columns: 1.25rem auto 1fr;
+  grid-template-columns: 1.25rem minmax(14rem, 20rem) minmax(0, 1fr);
+  column-gap: var(--sp-5);
+  padding-block: var(--sp-2);
 }
 
 .credits-readout__line--crew::before {
@@ -1494,10 +1529,19 @@ body.no-motion .marquee__track { animation: none !important; }
 
 /* Maintainer @handle — dramatis personae. Weight + color carry the register. */
 .credits-readout__handle {
-  font-family: var(--ff-mono);
-  font-weight: 700;
+  font-family: var(--ff-body);
+  font-weight: 600;
   font-size: var(--fs-small);
-  color: var(--primary-text);
+  color: var(--ink);
+}
+/* Inline GitHub-handle tag next to the real name. Smaller, mono,
+   olive-tinted so it reads as secondary metadata. */
+.credits-readout__handle-tag {
+  margin-left: var(--sp-2);
+  font-family: var(--ff-mono);
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 
 /* Role half — mono in --muted; family + color contrast is the register split. */
@@ -1509,24 +1553,28 @@ body.no-motion .marquee__track { animation: none !important; }
   letter-spacing: 0.04em;
 }
 
-/* Operational links — list with // separators rendered via CSS pseudo. */
+/* Operational links — single column on mobile, two columns side-by-side
+   on >=720px so links + descriptors don't cramp into a narrow ribbon. */
 .credits-readout__ops {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: var(--sp-3) 0 0;
   display: grid;
-  grid-template-columns: 1.25rem 1fr;
-  column-gap: var(--sp-2);
-  row-gap: var(--sp-1);
+  grid-template-columns: 1fr;
+  column-gap: var(--sp-7);
+  row-gap: var(--sp-3);
   color: var(--ink);
+}
+@media (min-width: 720px) {
+  .credits-readout__ops { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .credits-readout__ops > li {
-  grid-column: 2;
+  position: relative;
+  padding-left: calc(1.25rem + var(--sp-2));
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 var(--sp-2);
+  flex-direction: column;
+  gap: 2px;
 }
 
 .credits-readout__ops > li::before {
@@ -1534,9 +1582,10 @@ body.no-motion .marquee__track { animation: none !important; }
   color: var(--primary-bright);
   font-family: var(--ff-mono);
   user-select: none;
-  margin-left: calc((1.25rem + var(--sp-2)) * -1);
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 1.25rem;
-  flex: 0 0 1.25rem;
 }
 
 .credits-readout__ops a {
@@ -1568,6 +1617,7 @@ body.no-motion .marquee__track { animation: none !important; }
    The first note carries the tier-break as a top border, replacing the old <hr>. */
 .credits-readout__line--note {
   color: var(--muted);
+  max-width: 75ch;
 }
 
 .credits-readout__line--note-first {
@@ -1593,12 +1643,12 @@ body.no-motion .marquee__track { animation: none !important; }
   text-decoration-thickness: 2px;
 }
 
-/* IP disclaimer: body font for legibility, capped to the same footnote
-   measure as the license line so the footnote band reads as a coherent
-   tier rather than a one-off indent step. */
+/* IP disclaimer: body font for legibility. Capped at 75ch so prose
+   never crosses a comfortable reading width, but no longer artificially
+   tighter than the rest of the readout. */
 .credits-readout__line--eof {
   color: var(--muted);
-  max-width: 50ch;
+  max-width: 75ch;
   padding-top: var(--sp-1);
 }
 
@@ -1761,8 +1811,11 @@ body.no-motion .marquee__track { animation: none !important; }
     .section__head { margin-bottom: var(--sp-8); }
 }
 
+@media (min-width: 1600px) {
+    :root { --container-max: 1600px; }
+}
 @media (min-width: 1920px) {
-    :root { --container-max: 1440px; }
+    :root { --container-max: 1760px; }
 }
 
 /* End of file */
