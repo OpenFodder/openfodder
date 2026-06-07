@@ -1,17 +1,29 @@
 name: linux-build
 
+# See windows-build.yml for the full security model — same rules apply
+# here. Third-party actions are pinned by commit SHA; the Discord webhook
+# only fires on master pushes from the canonical repo.
+
 on:
   push:
+    branches:
+      - master
+      - 'feature/**'
   pull_request:
 
 permissions:
   contents: read
 
+concurrency:
+  group: linux-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout@v4 — pinned by commit SHA.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
       - name: Install build tools
@@ -49,13 +61,16 @@ jobs:
       - name: Package
         run: python -m zipfile -c OpenFodder-linux-latest.zip build/openfodder README.md COPYING openfodder.ini.example
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        # actions/upload-artifact@v4 — pinned by commit SHA.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: upload_artifact
         with:
           name: OpenFodder-linux-latest
           path: OpenFodder-linux-latest.zip
+      # Same gate as windows-build.yml — never run secret-using steps from
+      # forks, feature branches, or pull requests.
       - name: Discord notification
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'OpenFodder/OpenFodder'
         shell: pwsh
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

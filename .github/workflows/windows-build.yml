@@ -1,11 +1,41 @@
 name: windows-build
 
+# ---------------------------------------------------------------------------
+# Per-push / per-PR Windows CI build.
+#
+# SECURITY MODEL
+#
+# The S3 mirror upload + Discord webhook only run when ALL of these are true:
+#   github.event_name == 'push'              (not pull_request)
+#   github.ref == 'refs/heads/master'        (not a feature branch, not a tag)
+#   github.repository == 'OpenFodder/OpenFodder'  (not a fork build)
+#
+# Without the repo-name guard, a fork's mirror of master-branch pushes
+# would also try to use secrets (which forks never receive — the run would
+# fail noisily — but adding the explicit gate makes the contract obvious to
+# anyone reading the file).
+#
+# Third-party actions are pinned to commit SHAs to defend against silent
+# tag retargeting. To bump, look up the commit for the tag (e.g.
+# `gh api repos/actions/checkout/git/ref/tags/v4`) and edit the SHA below.
+# ---------------------------------------------------------------------------
+
 on:
   push:
+    branches:
+      - master
+      - 'feature/**'
   pull_request:
 
 permissions:
   contents: read
+
+# Cancel an in-flight run on the same branch when a new commit lands —
+# the latest commit's status is the one that matters. Tagged release runs
+# go through release.yml, not this workflow, so they aren't affected.
+concurrency:
+  group: windows-build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -25,7 +55,8 @@ jobs:
             cmake_extra_args: -DWITH_ASM=OFF
             vcpkg_triplet: x86-windows
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout@v4 — pinned by commit SHA.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
       - name: Select Visual Studio generator
@@ -80,7 +111,8 @@ jobs:
           "vs_major=$major" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           Write-Host "Using CMake generator: $generator"
       - name: Cache vcpkg
-        uses: actions/cache@v4
+        # actions/cache@v4 — pinned by commit SHA.
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: |
             C:\vcpkg\downloads
@@ -102,7 +134,8 @@ jobs:
           & "$vcpkgRoot\vcpkg.exe" install --triplet ${{ matrix.vcpkg_triplet }}
           Pop-Location
       - name: Cache CMake deps
-        uses: actions/cache@v4
+        # actions/cache@v4 — pinned by commit SHA.
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: Projects/VS/_deps
           key: ${{ runner.os }}-${{ matrix.arch }}-vs${{ steps.vs_generator.outputs.vs_major }}-cmake-deps-${{ hashFiles('CMakeLists.txt') }}
@@ -178,26 +211,38 @@ jobs:
           if (Test-Path $archive) { Remove-Item $archive -Force }
           Compress-Archive -Path $items -DestinationPath $archive
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        # actions/upload-artifact@v4 — pinned by commit SHA.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: upload_artifact
         with:
           name: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest
           path: OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip
+      # ---------------------------------------------------------------------
+      # The S3 mirror + Discord notification consume secrets, so they're
+      # gated on three things:
+      #   1. event_name == 'push'                  — never on pull_request.
+      #   2. ref == 'refs/heads/master'            — never a feature branch.
+      #   3. repository == 'OpenFodder/OpenFodder' — never a fork build.
+      # GitHub already withholds secrets from forked-PR runs, but the
+      # explicit repo guard documents intent and protects against future
+      # config changes that might inadvertently expose secrets.
+      # ---------------------------------------------------------------------
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: aws-actions/configure-aws-credentials@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'OpenFodder/OpenFodder'
+        # aws-actions/configure-aws-credentials@v4 — pinned by commit SHA.
+        uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Upload build zip to S3
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'OpenFodder/OpenFodder'
         shell: pwsh
         run: |
           $zipName = "OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
           aws s3 cp "$zipName" "s3://openfodder-builds/$zipName" --acl public-read
       - name: Discord notification
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'OpenFodder/OpenFodder'
         shell: pwsh
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
