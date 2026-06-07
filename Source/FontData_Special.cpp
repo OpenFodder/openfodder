@@ -146,15 +146,18 @@ static const sBriefingSpecialGlyph kGlyphs[] = {
         G(00000000),
     } },
 
-    // '+' (0x2B) — 2-px crosshair, centred in the 6-row letter cell so
-    // the cross arms sit at the briefing-letter midline. Vertical bar
-    // doesn't reach cap or baseline (those are reserved for letters).
-    { 0x2B, 6, 6, 0, {
+    // '+' (0x2B) — 2-px crosshair, fully symmetric. 8-wide cell with
+    // 1 px padding on each side; vertical 2-px stem perfectly centred
+    // at cols 3-4; horizontal 6-px arms at cols 1-6 (extending 2 cols
+    // either side of the stem). Earlier 7-wide variant had stem at 2-3
+    // and arms at 1-5, which read as left-clipped because the arm only
+    // reached one col past the stem on the left but two on the right.
+    { 0x2B, 8, 6, 0, {
         G(00000000),
-        G(00110000),
-        G(11111100),
-        G(11111100),
-        G(00110000),
+        G(00011000),
+        G(01111110),
+        G(01111110),
+        G(00011000),
         G(00000000),
     } },
 
@@ -168,14 +171,15 @@ static const sBriefingSpecialGlyph kGlyphs[] = {
         G(00000000),
     } },
 
-    // '-' (0x2D) — 2-row dash on briefing letter midline. 6 px wide bar
-    // with 1 px of breathing room either side (advance = 7) so the dash
-    // doesn't kiss neighbouring letters in "AUTO-DETECTED".
-    { 0x2D, 7, 6, 0, {
+    // '-' (0x2D) — 2-row dash on briefing letter midline, 6 px wide
+    // (matching letter width) with no extra side padding. The earlier
+    // 7-px-advance variant left visible air on both sides of the dash
+    // in "AUTO-DETECTED".
+    { 0x2D, 6, 6, 0, {
         G(00000000),
         G(00000000),
-        G(01111110),
-        G(01111110),
+        G(11111100),
+        G(11111100),
         G(00000000),
         G(00000000),
     } },
@@ -193,14 +197,15 @@ static const sBriefingSpecialGlyph kGlyphs[] = {
 
     // '/' (0x2F) — 2-px-thick diagonal at briefing letter weight,
     // spanning all 6 rows so the slash reaches cap-line and baseline.
-    // 5-wide kern: drops the leading whitespace column the previous
-    // 6-wide variant added.
-    { 0x2F, 5, 6, 0, {
+    // Bitmap occupies cols 0-5 (6 px); advance is 7 to leave one pixel
+    // of breathing room on the right so the cap end of the slash
+    // doesn't kiss the next character.
+    { 0x2F, 6, 6, 0, {
+        G(00001100),
         G(00011000),
         G(00011000),
         G(00110000),
-        G(00110000),
-        G(11000000),
+        G(01100000),
         G(11000000),
     } },
 
@@ -282,7 +287,9 @@ static const sBriefingSpecialGlyph kGlyphs[] = {
     } },
 
     // ---------- structural / bracket / underscore (0x5B..0x60) ----------
-    // '[' (0x5B) — 2-px-thick square bracket.
+    // '[' (0x5B) — 2-px-thick square bracket. Bitmap occupies cols 0-3
+    // (4 px); advance is 5 to leave one pixel of breathing room on the
+    // right so the bracket doesn't kiss the next character.
     { 0x5B, 4, 6, 0, {
         G(11110000),
         G(11000000),

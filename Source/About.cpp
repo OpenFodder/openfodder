@@ -23,12 +23,8 @@
 #include "stdafx.hpp"
 #include "gitver.hpp"
 
-#include "Setup/DataRelease.hpp"
-#include "Setup/EngineVersion.hpp"
-#include "ResourceMan.hpp"
+#include "Setup/UpdateChecker.hpp"
 
-#include <SDL3/SDL.h>
-#include <filesystem>
 #include <string>
 
 static std::string compiled = std::string(__DATE__) + " AT " + std::string(__TIME__);
@@ -122,6 +118,13 @@ cAbout::~cAbout() {
 
 bool cAbout::Cycle() {
 
+    // Drive the async update worker before any UI work — Pump may pop a
+    // modal dialog (info, install prompt, error) when state transitions
+    // into a terminal value, and any dialog needs to happen before the
+    // surface is rendered or the back-buffer state diverges from what's
+    // on screen.
+    Setup::UpdateChecker::Instance().Pump();
+
     g_Fodder->GUI_Element_Reset();
 
     g_Fodder->mSurface->palette_FadeTowardNew();
@@ -147,6 +150,16 @@ bool cAbout::Cycle() {
 
         g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + PLATFORM_BASED(0, 25));
         g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
+
+        // Status line below the buttons — empty when no work is in
+        // flight, "CHECKING FOR UPDATES..." or "INSTALLING 45%" while
+        // the worker thread is busy. Painted via String_Print_Small
+        // (per-frame draw) rather than Service_Draw_String (which
+        // appends to mService_Draw_List and would unbounded-grow the
+        // list on every frame).
+        const std::string status = Setup::UpdateChecker::Instance().StatusLine();
+        if (!status.empty())
+            g_Fodder->String_Print_Small(status, 0xCA + PLATFORM_BASED(0, 25));
     }
 
     if (g_Fodder->mPhase_Aborted)
@@ -177,131 +190,16 @@ bool cAbout::Cycle() {
 }
 
 // ---------------------------------------------------------------------------
-// UPDATE button — query GitHub for newer compatible data + scripts releases
-// and, on confirmation, download + extract them into ./Data alongside the exe.
+// UPDATE button — kicks off an async query against GitHub for newer
+// compatible data + scripts releases. The Pump() call inside cAbout::Cycle
+// drives the state machine forward each frame: when the worker reports a
+// finished query, Pump shows either the "up to date" toast or the
+// "install?" prompt; on accept, Pump kicks the install worker; when that
+// finishes, Pump emits the success/failure toast and returns to Idle.
 //
-// TODO: async progress UI. The two QueryLatest calls and (when accepted) two
-// FetchAndInstall calls run on the main thread, so the About screen will
-// freeze for a few seconds at minimum. The CLI shows progress through stdout;
-// the GUI currently has no equivalent surface, so we just block.
+// Spamming the button is harmless — StartQuery is a CAS-guarded no-op when
+// a check is already in flight.
 // ---------------------------------------------------------------------------
 void cAbout::OnUpdateClicked() {
-    using Setup::DataRelease;
-    using Setup::ReleaseManifest;
-
-    // Each repo lands in its own subtree under the working dir (Run/ in dev,
-    // the install dir for shipped builds). Tracking installed.json *per repo*
-    // avoids the two installs clobbering each other's version record.
-    const std::filesystem::path cwd = std::filesystem::current_path();
-    const std::string dataTargetDir    = (cwd / "Data").string();
-    const std::string scriptsTargetDir = (cwd / "Scripts").string();
-
-    DataRelease release;
-    ReleaseManifest dataManifest;
-    ReleaseManifest scriptManifest;
-
-    auto showError = [](const std::string& pMessage) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-                                 "OpenFodder Update",
-                                 pMessage.c_str(),
-                                 nullptr);
-    };
-
-    if (!release.QueryLatest(DataRelease::DataRepoOwner(), DataRelease::DataRepoName(), dataManifest)) {
-        showError("Could not check for updates: " + release.LastError());
-        return;
-    }
-    if (!release.QueryLatest(DataRelease::ScriptsRepoOwner(), DataRelease::ScriptsRepoName(), scriptManifest)) {
-        showError("Could not check for updates: " + release.LastError());
-        return;
-    }
-
-    int installedDataVer = 0;
-    int installedScriptVer = 0;
-    // ReadInstalledManifest returns false when installed.json is missing or
-    // malformed, but it still zero-initialises the out-params — which is the
-    // behaviour we want (treat "no record" as "version 0", everything newer).
-    // Each tree carries its own manifest, so we read them independently. The
-    // ignored out-param on each call is the field that doesn't apply to that
-    // tree (Scripts/installed.json doesn't carry a dataVersion and vice
-    // versa); the caller below only consults the relevant one.
-    int dataIgnored = 0;
-    int scriptsIgnored = 0;
-    release.ReadInstalledManifest(dataTargetDir,    installedDataVer,   dataIgnored);
-    release.ReadInstalledManifest(scriptsTargetDir, scriptsIgnored,     installedScriptVer);
-
-    const bool dataNewer = (dataManifest.mDataVersion > installedDataVer)
-                         && Setup::IsDataVersionCompatible(dataManifest.mDataVersion);
-    const bool scriptNewer = (scriptManifest.mScriptVersion > installedScriptVer)
-                           && Setup::IsScriptVersionCompatible(scriptManifest.mScriptVersion);
-
-    if (!dataNewer && !scriptNewer) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
-                                 "OpenFodder Update",
-                                 "You have the latest compatible version.",
-                                 nullptr);
-        return;
-    }
-
-    std::string message = "Updates available:\n";
-    if (dataNewer)
-        message += "  data: v" + std::to_string(installedDataVer)
-                 + " \xE2\x86\x92 v" + std::to_string(dataManifest.mDataVersion) + "\n";
-    if (scriptNewer)
-        message += "  scripts: v" + std::to_string(installedScriptVer)
-                 + " \xE2\x86\x92 v" + std::to_string(scriptManifest.mScriptVersion) + "\n";
-    message += "\nInstall now?";
-
-    const SDL_MessageBoxButtonData buttons[2] = {
-        // returnKey-default | escapeKey-default — Install on Enter, Cancel on Esc.
-        { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Install" },
-        { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Cancel"  },
-    };
-    SDL_MessageBoxData prompt{};
-    prompt.flags       = SDL_MESSAGEBOX_INFORMATION;
-    prompt.window      = nullptr;
-    prompt.title       = "OpenFodder Update";
-    prompt.message     = message.c_str();
-    prompt.numbuttons  = 2;
-    prompt.buttons     = buttons;
-    prompt.colorScheme = nullptr;
-
-    int chosen = -1;
-    if (!SDL_ShowMessageBox(&prompt, &chosen) || chosen != 1)
-        return;
-
-    // Install whichever repos have updates; surface the first failure and
-    // bail rather than continuing into a half-installed state. Each repo
-    // lands in its own subtree so the two installs (and their installed.json
-    // records) don't collide.
-    if (dataNewer) {
-        if (!release.FetchAndInstall(dataManifest, dataTargetDir)) {
-            showError("Data install failed: " + release.LastError());
-            return;
-        }
-    }
-    if (scriptNewer) {
-        if (!release.FetchAndInstall(scriptManifest, scriptsTargetDir)) {
-            showError("Scripts install failed: " + release.LastError());
-            return;
-        }
-    }
-
-    // Pick up new files without restarting.
-    if (g_ResourceMan)
-        g_ResourceMan->refresh();
-
-    std::string done = "Updated to";
-    if (dataNewer)
-        done += " data v" + std::to_string(dataManifest.mDataVersion);
-    if (dataNewer && scriptNewer)
-        done += " /";
-    if (scriptNewer)
-        done += " scripts v" + std::to_string(scriptManifest.mScriptVersion);
-    done += ".";
-
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
-                             "OpenFodder Update",
-                             done.c_str(),
-                             nullptr);
+    Setup::UpdateChecker::Instance().StartQuery();
 }

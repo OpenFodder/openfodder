@@ -1176,7 +1176,7 @@ void cSetupWizard::DrawResult() {
         const size_t xActL  = xStart;                      const size_t xActR  = xActL + buttonW;
         const size_t xBackL = xActR + gap;                 const size_t xBackR = xBackL + buttonW;
 
-        const char* primaryLabel = anyRaw ? "COPY TO DATA" : "SAVE & CONTINUE";
+        const char* primaryLabel = anyRaw ? "COPY TO DATA" : "USE AS IS";
         const int16 primaryAction = anyRaw ? GUIACT_SW_COPY_TO_DATA : GUIACT_SW_SAVE_AND_CONTINUE;
 
         if (anyHit) {

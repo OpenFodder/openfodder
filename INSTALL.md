@@ -8,18 +8,37 @@ operating system.
 
 ## Windows
 
-Download the [installer package](https://github.com/OpenFodder/openfodder/releases).
+Download the latest portable archive (`OpenFodder-<version>-win64.zip`) from
+the [Releases page](https://github.com/OpenFodder/openfodder/releases) and
+unzip it anywhere — the executable runs in place. There's no installer to
+run and no admin rights required.
 
-Default data folder:
+On first launch, if OpenFodder cannot find any game data, it will offer to
+download the demo data and scripts from GitHub. You can also click the
+**UPDATE** button on the About screen at any time to check for newer
+compatible releases.
 
-```
-%USERPROFILE%\Documents\OpenFodder
-```
+Default data folders:
 
-The Windows installer includes the demo data. If you have a retail release, copy
-it into the folders below (or use the installer prompt).
+* **Portable** (the working directory contains `Data/`, `Scripts/`, `about.png`,
+  or `openfodder.ini.example`):
 
-Open Fodder also checks the current working directory for an `OpenFodder` folder.
+  ```
+  <unzipped folder>\Data
+  <unzipped folder>\Scripts
+  ```
+
+* **Per-user** (anywhere else, e.g. when the exe is installed under
+  `Program Files` and launched from elsewhere):
+
+  ```
+  %USERPROFILE%\Documents\OpenFodder\Data
+  %USERPROFILE%\Documents\OpenFodder\Scripts
+  ```
+
+If you have retail Cannon Fodder data, copy the files into the matching
+subfolders below. The in-game setup wizard can also locate retail folders or
+mount disk images at runtime.
 
 ## Linux / Unix
 
@@ -42,17 +61,66 @@ The [Flatpak](https://flathub.org/en/apps/org.openfodder.OpenFodder) package use
 Create the `OpenFodder` folder there, then place the campaign data pack and any
 retail data inside it.
 
+The in-app "Download data" prompt and the About-screen UPDATE button are both
+**disabled** under Flatpak. Updates flow through Flatpak itself:
+
+```
+flatpak update org.openfodder.OpenFodder
+```
+
+If your install is missing data files, prefer:
+
+```
+flatpak repair --user org.openfodder.OpenFodder
+```
+
+over a manual side-load — Flatpak's per-app data extension version is recorded
+in the manifest, and a side-load can put the runtime out of sync with it.
+
+## Auto-download (Windows / non-Flatpak Linux / macOS)
+
+When OpenFodder cannot find any data files on first launch, it offers to
+download the latest demo data and scripts from GitHub:
+
+* `github.com/OpenFodder/data`    → Data files (campaigns + demo content)
+* `github.com/OpenFodder/scripts` → JavaScript modules (random map, multiplayer)
+
+The About screen also has an UPDATE button that checks for newer compatible
+releases. Both download paths use the engine's hardcoded compatibility range
+(`Source/Setup/EngineVersion.hpp`) and refuse to install a release whose
+declared `dataVersion` / `scriptVersion` falls outside it.
+
+Install destination depends on whether the working directory looks portable:
+
+* **Portable** (cwd contains `Data/`, `Scripts/`, `about.png`, or
+  `openfodder.ini.example`, AND is writable):
+  installs into `<cwd>/Data` and `<cwd>/Scripts`. Used by dev checkouts and
+  the Windows `.zip` distribution.
+
+* **Per-user** (anywhere else, e.g. `/usr/bin/openfodder` with cwd `~`):
+  installs into the per-user OpenFodder data root —
+  `%USERPROFILE%/Documents/OpenFodder` on Windows,
+  `$HOME/Library/Application Support/OpenFodder` on macOS,
+  `$XDG_DATA_HOME/OpenFodder` (or `$HOME/.local/share/OpenFodder`) on Linux —
+  the same paths the engine's read-side scan checks.
+
 ## Data
 
 ### Campaign Data
 
-This data is packaged with the Windows installer, but is a required download if
-you're running on Linux/Unix or building from source.
-
-The campaign information was originally hardcoded in the executable. This is
-required to play and is downloadable alongside six demos from:
+The campaign information was originally hardcoded in the executable. It is
+required to play and is published — alongside six Amiga demos and one PC demo —
+in a separate repository:
 
 https://github.com/OpenFodder/data/releases/
+
+You don't normally need to download this manually: OpenFodder will offer to
+fetch it on first launch (see the auto-download note above), and the About
+screen's UPDATE button keeps it current. The portable Windows release also
+ships a copy bundled inside the .zip. Manual download is only necessary if
+you're running a Flatpak (which uses Flatpak's own update flow), running
+behind a network firewall that blocks GitHub, or building entirely from
+source on a system without network access.
 
   
 ### Retail Data

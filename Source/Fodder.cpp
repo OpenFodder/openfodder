@@ -3807,6 +3807,8 @@ void cFodder::About()
     mService_Draw_List.clear();
     VersionSwitch(mVersions->GetRetail(mParams->mDefaultPlatform, mParams->mDefaultGame));
     if (!mVersionCurrent)
+        VersionSwitch(mVersions->GetRetail(ePlatform::Any, mParams->mDefaultGame));
+    if (!mVersionCurrent)
         VersionSwitch(mVersions->GetDemo());
 
     cAbout About;
@@ -3938,6 +3940,10 @@ void cFodder::CreateRandom(sMapParams pParams)
     mGame_Data.mCampaign.setName("Random");
 
     VersionSwitch(mVersions->GetRetail(mParams->mDefaultPlatform, mParams->mDefaultGame));
+    if (!mVersionCurrent)
+        VersionSwitch(mVersions->GetRetail(ePlatform::Any, mParams->mDefaultGame));
+    if (!mVersionCurrent)
+        VersionSwitch(mVersions->GetDemo());
 
     if (!mParams->mRandomFilename.size())
     {

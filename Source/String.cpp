@@ -132,62 +132,108 @@ void cFodder::String_Print_DrawTinyGlyph(const sBriefingSpecialGlyph* pGlyph,
     if (!buf)
         return;
 
-    // Foreground colour: sample a pixel from a real briefing letter that
-    // has already been painted to the left of our position on the same
-    // line. The earlier hard-coded 0xB3 (a GUI-button primary) read as a
-    // visibly different green next to the briefing letter strokes — see
-    // the "OLDER: D:/PROJ" screenshot from the previous pass. By copying
-    // an existing letter pixel we follow whatever palette/stroke colour
-    // the surrounding letters use, including any per-row palette swap
-    // the engine applies through Video_Draw_8.
-    auto sampleNeighbourFg = [&]() -> uint8 {
-        // Scan a strip ending just left of baseX, covering the glyph's
-        // vertical extent. The briefing-font path renders letter pixels
-        // in palette range 0xF1..0xFF (palette index 0xF0 OR'd with a
-        // 1..F nibble; see Video_Draw_8). Pick the brightest pixel in
-        // that range — that's the strongest stroke shade, the same one
-        // the surrounding A-Z use.
-        const int32 scanW = 24;             // a few letters' worth left
-        const int32 scanX0 = baseX - scanW;
-        const int32 scanY0 = baseY;
-        const int32 scanY1 = baseY + (int32)pGlyph->mYOffset + (int32)pGlyph->mHeight;
-        uint8 best = 0;
-        for (int32 yy = scanY0; yy < scanY1; ++yy) {
-            if (yy < 0 || (size_t)yy >= surfH) continue;
-            for (int32 xx = scanX0; xx < baseX; ++xx) {
-                if (xx < 0 || (size_t)xx >= surfW) continue;
-                uint8 v = buf[(size_t)yy * surfW + (size_t)xx];
-                if (v >= 0xF1 && v > best) best = v;
+    // Sample the actual briefing-font sprite for letter 'A' (slot 0 in
+    // the briefing sheet — String_Print maps 'A' = 0x41 to NextChar 0).
+    // Every shipped briefing letter in pstuff is encoded with exactly
+    // two distinct nibble values: a STROKE nibble for the letter body
+    // and a BEVEL nibble for the bottom/right shadow that sits beneath
+    // it. We read those two nibbles straight off the sprite, so the
+    // colours we paint are always pixel-identical to what the engine
+    // paints for A-Z. Earlier attempts (sample-from-surface and
+    // histogram-based picks) kept getting fooled by the candidate-list
+    // box border (also in 0xF1..0xFF), the per-row palette swap, or by
+    // a glyph having more shadow than stroke pixels.
+    //
+    // Sprite frames decode as packed nibbles: each byte holds two
+    // pixels (high nibble first, low nibble second), zero is the
+    // transparent colour. Stride is `mPalleteIndex` bytes per row
+    // (240 / 0xF0 for pstuff). Once we have the two nibbles, the final
+    // surface colours are nibble | mPalleteIndex (0xF0) — exactly what
+    // Video_Draw_8 produces.
+    struct ColourPair { uint8 stroke; uint8 shadow; };
+    static ColourPair sCachedCol{ 0, 0 };
+    auto resolveBriefingColours = [&]() -> ColourPair {
+        if (sCachedCol.stroke) return sCachedCol;
+        if (!mSprite_SheetPtr) return ColourPair{ 0, 0 };
+        const sSpriteSheet* a = Sprite_Get_Sheet(0, 0);
+        if (!a || a->mColCount <= 0 || a->mRowCount <= 0)
+            return ColourPair{ 0, 0 };
+        const uint8* gp = a->GetGraphicsPtr();
+        if (!gp) return ColourPair{ 0, 0 };
+        // Histogram nibbles 1..15 across the full sprite cell.
+        uint16 hist[16] = { 0 };
+        const int32 cols = (int32)a->mColCount;       // pixels wide
+        const int32 rows = (int32)a->mRowCount;       // rows
+        const int32 stride = a->mPalleteIndex;         // bytes per row
+        for (int32 r = 0; r < rows; ++r) {
+            const uint8* row = gp + (size_t)r * (size_t)stride;
+            for (int32 c = 0; c < (cols >> 1); ++c) {
+                uint8 b = row[c];
+                uint8 hi = (uint8)(b >> 4);
+                uint8 lo = (uint8)(b & 0x0F);
+                if (hi) hist[hi]++;
+                if (lo) hist[lo]++;
             }
         }
-        return best;
+        // Top two populated bins by frequency.
+        int n1 = 0, n2 = 0; uint16 c1 = 0, c2 = 0;
+        for (int n = 1; n <= 15; ++n) {
+            if (hist[n] > c1) { c2 = c1; n2 = n1; c1 = hist[n]; n1 = n; }
+            else if (hist[n] > c2) { c2 = hist[n]; n2 = n; }
+        }
+        ColourPair r{ 0, 0 };
+        if (n1) r.stroke = (uint8)(0xF0 | n1);
+        if (n2) r.shadow = (uint8)(0xF0 | n2);
+        // Cache only when we got both — otherwise retry next frame.
+        if (r.stroke && r.shadow) sCachedCol = r;
+        return r;
     };
-    uint8 fg = sampleNeighbourFg();
-    if (fg == 0) {
-        // No briefing-range pixel found nearby (e.g. we're the first
-        // glyph on the line, or an Amiga-style render with a different
-        // palette layout). Fall back to the brightest grey/white slot.
-        fg = 0xFF;
+
+    ColourPair col = resolveBriefingColours();
+    if (!col.stroke) {
+        // Briefing sprite sheet not bound yet (shouldn't happen on the
+        // wizard, but defensively) — fall back to a hard-coded pair
+        // that lands in the briefing palette range.
+        col.stroke = 0xFD;
+        col.shadow = 0xF8;
+    }
+    if (!col.shadow) {
+        uint8 nibble = (uint8)(col.stroke & 0x0F);
+        uint8 dn = (nibble > 4) ? (uint8)(nibble - 4) : (uint8)1;
+        col.shadow = (uint8)(0xF0 | dn);
     }
 
-    for (uint8 row = 0; row < pGlyph->mHeight; ++row) {
-        const uint8 bits = pGlyph->mRows[row];
-        if (bits == 0)
-            continue;
+    auto setPixel = [&](int32 x, int32 y, uint8 c) {
+        if (x < 0 || (size_t)x >= surfW) return;
+        if (y < 0 || (size_t)y >= surfH) return;
+        buf[(size_t)y * surfW + (size_t)x] = c;
+    };
 
-        const int32 y = baseY + (int32)pGlyph->mYOffset + (int32)row;
-        if (y < 0 || (size_t)y >= surfH)
-            continue;
-
-        for (uint8 col = 0; col < pGlyph->mWidth; ++col) {
-            // MSB-first bit selection: bit (7-col).
-            if (col >= 8) break;
-            if (!(bits & (uint8)(0x80u >> col)))
-                continue;
-            const int32 x = baseX + (int32)col;
-            if (x < 0 || (size_t)x >= surfW)
-                continue;
-            buf[(size_t)y * surfW + (size_t)x] = fg;
+    // Two-pass paint with a thin bottom shadow.
+    //
+    // Pass 1 — shadow along the BOTTOM EDGE only (offset 0,+1), so the
+    // shadow doesn't extend past the glyph's right side. A previous
+    // attempt used a +1,+1 diagonal dilation which roughly doubled the
+    // visible area of small punctuation (':' '+' '-') and drew them
+    // chunkier than the surrounding A-Z. Bottom-only matches the way
+    // the briefing-font sprites bevel their letterforms vertically
+    // without changing the glyph's horizontal footprint.
+    //
+    // Pass 2 — stroke at 0,0, overwriting any shadow pixel where the
+    // glyph itself paints (the row directly below a stroke pixel that
+    // is also stroke).
+    for (int pass = 0; pass < 2; ++pass) {
+        const uint8 c = (pass == 0) ? col.shadow : col.stroke;
+        const int32 oy = (pass == 0) ? 1 : 0;
+        for (uint8 row = 0; row < pGlyph->mHeight; ++row) {
+            const uint8 bits = pGlyph->mRows[row];
+            if (bits == 0) continue;
+            const int32 y = baseY + (int32)pGlyph->mYOffset + (int32)row + oy;
+            for (uint8 col2 = 0; col2 < pGlyph->mWidth; ++col2) {
+                if (col2 >= 8) break;
+                if (!(bits & (uint8)(0x80u >> col2))) continue;
+                setPixel(baseX + (int32)col2, y, c);
+            }
         }
     }
 }

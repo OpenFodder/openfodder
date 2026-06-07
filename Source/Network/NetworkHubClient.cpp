@@ -31,6 +31,10 @@
 #  define closesocket close
 #endif
 
+#ifdef OPENFODDER_HAVE_SODIUM
+#  include <sodium.h>
+#endif
+
 #include <array>
 #include <sstream>
 
@@ -104,6 +108,15 @@ cNetworkHubClient::cNetworkHubClient() {
 #ifdef WIN32
     WSADATA WsaData;
     WSAStartup(MAKEWORD(2, 2), &WsaData);
+#endif
+
+#ifdef OPENFODDER_HAVE_SODIUM
+    // sodium_init() is idempotent and thread-safe; calling it from each hub
+    // client constructor is fine. Required before any libsodium primitive is
+    // used (cookie HMAC, Ed25519 JWT verify, randombytes_buf for nonces).
+    if (sodium_init() < 0) {
+        mLastError = "sodium_init failed";
+    }
 #endif
 }
 

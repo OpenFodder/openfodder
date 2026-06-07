@@ -288,6 +288,25 @@ if(OPENFODDER_ENABLE_NETWORK AND NOT EMSCRIPTEN)
     target_compile_definitions(openfodder PRIVATE OPENFODDER_ENABLE_NETWORK)
     target_link_libraries(openfodder PRIVATE ggpo_static)
     target_include_directories(openfodder PRIVATE "${GGPO_SOURCE_DIR}/src/include")
+
+    # libsodium — primitives for the OFHUB/2 hub client:
+    #   * HMAC-SHA256       stateless cookie + per-session data-plane MAC
+    #   * Ed25519 verify    bearer JWT signature check (we only verify; the
+    #                       hub holds the signing key and mints tokens)
+    #   * randombytes_buf   nonce + device-code generation
+    # Pulled via robinlinden/libsodium-cmake (the wrapper around upstream
+    # jedisct1/libsodium that adds CMake support). Pinned by SHA so a future
+    # upstream HEAD movement cannot silently change crypto behaviour. See
+    # the matching pin in openfodder-hub/CMakeLists.txt — keep them in sync.
+    set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
+    set(SODIUM_MINIMAL OFF CACHE BOOL "" FORCE)
+    FetchContent_Declare(Sodium
+        GIT_REPOSITORY https://github.com/robinlinden/libsodium-cmake.git
+        GIT_TAG cfebfd3da486d5a86c644c8b47067e5411c7599c
+        GIT_SHALLOW FALSE)
+    FetchContent_MakeAvailable(Sodium)
+    target_link_libraries(openfodder PRIVATE sodium)
+    target_compile_definitions(openfodder PRIVATE OPENFODDER_HAVE_SODIUM)
 endif()
 
 if (OPENFODDER_ENABLE_FFMPEG OR (OPENFODDER_AUTO_FFMPEG AND NOT WIN32))

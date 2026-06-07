@@ -35,9 +35,8 @@ public:
         // requires a void(cFodder::*)() member-function pointer, so this is the
         // closest we can get to "method on the About menu class").
         //
-        // Blocks the main loop while it hits the GitHub releases API and (on user
-        // confirmation) downloads + extracts the data and/or scripts archives.
-        // TODO: async progress UI — currently the window will appear unresponsive
-        // for the duration of the network round-trip and the install.
+        // Non-blocking: kicks Setup::UpdateChecker (a thread-pumped state machine
+        // drained from cAbout::Cycle each frame). The window stays responsive
+        // while the GitHub query and download+extract run on a worker thread.
         static void OnUpdateClicked();
 };

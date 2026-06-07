@@ -1,0 +1,330 @@
+name: release
+
+# ---------------------------------------------------------------------------
+# Tag-driven portable release pipeline.
+#
+# SECURITY MODEL
+#
+# 1. Trigger is `push.tags` only — no `pull_request`, no `pull_request_target`,
+#    no `workflow_dispatch`, no branch pushes. A fork or an unprivileged
+#    contributor cannot fire this pipeline; only someone with permission to
+#    push tags to this repo can. (GitHub fundamentally does not give secrets
+#    to workflow runs from forked PRs, but the larger guarantee here is that
+#    a malicious feature-branch commit can't reach this file at all because
+#    branch pushes don't trigger it.)
+#
+# 2. Top-level `permissions: contents: read`. Each job opts UP only when it
+#    needs to (the upload job has `contents: write` to attach assets to the
+#    GitHub Release, and nothing else does).
+#
+# 3. Third-party actions are pinned to commit SHAs, not floating tags. A tag
+#    can be moved silently by the action's owner (or by an attacker who
+#    compromises that owner's account); a SHA cannot. Bumps are explicit
+#    edits to this file with a recorded review.
+#
+# 4. Tag-version sanity gate: the tag (e.g. `v1.5.4`) must equal the engine's
+#    own `kEngineVersionString` constant. If they disagree the run fails
+#    BEFORE any build, before any upload, before any token use. Prevents
+#    "tagged release ships engine reporting a different version" footguns
+#    and prevents anyone with tag-push rights from quietly publishing a
+#    build that doesn't correspond to the source it was tagged from.
+#
+# 5. `concurrency` cancels superseded runs of the SAME tag, but cannot
+#    cancel across tags — two tags pushed in quick succession both build
+#    and ship in order.
+#
+# 6. No `secrets.AWS_*`, no `secrets.DISCORD_WEBHOOK_URL`, no S3 mirror —
+#    GitHub Releases is the canonical artefact host. The weekly CI
+#    workflow still mirrors a moving "latest" build to S3 for testers; this
+#    pipeline produces immutable per-tag artefacts.
+# ---------------------------------------------------------------------------
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Verify the pushed tag matches the engine version baked into the source.
+  # Cheap fail-fast — runs in seconds, before any build.
+  # ---------------------------------------------------------------------------
+  verify-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: Checkout (no credentials)
+        # actions/checkout@v4 — pinned to commit SHA, not the floating tag.
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify tag matches kEngineVersionString
+        id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF#refs/tags/}"
+          # Strip the leading 'v' from the tag so 'v1.5.4' → '1.5.4'.
+          tag_version="${tag#v}"
+
+          # Read the version constant from EngineVersion.hpp. Anchored regex —
+          # we don't want to grep a stray string literal elsewhere in the file.
+          src_version=$(grep -E '^\s*constexpr\s+const\s+char\*\s+kEngineVersionString' \
+            Source/Setup/EngineVersion.hpp \
+            | sed -E 's/.*"([^"]+)".*/\1/')
+
+          # Cross-check against CMakeLists.txt — three sources of truth must
+          # agree.
+          cmake_version=$(grep -E '^\s*project\s*\(\s*openfodder\s+VERSION' CMakeLists.txt \
+            | sed -E 's/.*VERSION\s+([0-9.]+).*/\1/')
+
+          echo "tag       = $tag ($tag_version)"
+          echo "header    = $src_version"
+          echo "cmake     = $cmake_version"
+
+          if [ "$tag_version" != "$src_version" ]; then
+            echo "::error::Tag $tag does not match Source/Setup/EngineVersion.hpp ($src_version). Refusing to build."
+            exit 1
+          fi
+          if [ "$tag_version" != "$cmake_version" ]; then
+            echo "::error::Tag $tag does not match CMakeLists.txt project VERSION ($cmake_version). Refusing to build."
+            exit 1
+          fi
+
+          echo "version=$tag_version" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  # Windows x64 portable build.
+  #
+  # Produces OpenFodder-<version>-win64.zip with:
+  #   openfodder.exe + SDL3.dll + SDL3_mixer.dll + about.png
+  #   Run/Data + Run/Scripts + Run/Campaigns + Run/Saves + Run/Tests
+  #   COPYING + README.md + openfodder.ini.example
+  #
+  # Note: FFmpeg is NOT bundled. Windows builds use the engine's built-in
+  # MPEG decoder; no avcodec*.dll dependency at runtime. Linux release does
+  # the same (system FFmpeg if installed, no-op fallback otherwise).
+  # ---------------------------------------------------------------------------
+  build-windows:
+    needs: verify-tag
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Select Visual Studio generator
+        id: vs_generator
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsInstance = @(& $vswhere -latest -products * -format json | ConvertFrom-Json)[0]
+          if ($null -eq $vsInstance) { Write-Error "No Visual Studio installation found."; exit 1 }
+          $major = [int]($vsInstance.installationVersion.Split(".")[0])
+          $generator = if ($major -ge 18) { "Visual Studio 18 2026" } elseif ($major -eq 17) { "Visual Studio 17 2022" } else { Write-Error "Unsupported VS major: $major"; exit 1 }
+          "cmake_generator=$generator" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Using CMake generator: $generator"
+
+      - name: Cache CMake _deps (SDL3, libcurl, …)
+        # actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: build/_deps
+          key: ${{ runner.os }}-x64-release-deps-${{ hashFiles('CMakeLists.txt') }}
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -G "${{ steps.vs_generator.outputs.cmake_generator }}" -A x64
+          -DCMAKE_BUILD_TYPE=Release
+          -DOPENFODDER_ENABLE_FFMPEG=OFF
+
+      - name: Build
+        run: cmake --build build --config Release -- /m
+
+      - name: Stage portable tree
+        id: stage
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = "${{ needs.verify-tag.outputs.version }}"
+          $stageRoot = "$env:RUNNER_TEMP\OpenFodder-$version-win64"
+          if (Test-Path $stageRoot) { Remove-Item $stageRoot -Recurse -Force }
+          New-Item -ItemType Directory -Path $stageRoot -Force | Out-Null
+
+          # Engine + SDL DLLs land at the root.
+          Copy-Item "Run\Release\openfodder.exe" $stageRoot -Force
+          Copy-Item "Run\Release\SDL3.dll"        $stageRoot -Force
+          Copy-Item "Run\Release\SDL3_mixer.dll"  $stageRoot -Force
+
+          # Game data tree.
+          @("Data", "Scripts", "Campaigns", "Saves", "Tests") | ForEach-Object {
+            $src = "Run\$_"
+            if (Test-Path $src) {
+              Copy-Item $src $stageRoot -Recurse -Force
+            }
+          }
+
+          # about.png lives in Run\.
+          if (Test-Path "Run\about.png") {
+            Copy-Item "Run\about.png" $stageRoot -Force
+          }
+
+          # Top-level docs.
+          Copy-Item "COPYING"                  $stageRoot -Force -ErrorAction SilentlyContinue
+          Copy-Item "README.md"                $stageRoot -Force -ErrorAction SilentlyContinue
+          Copy-Item "openfodder.ini.example"   $stageRoot -Force -ErrorAction SilentlyContinue
+
+          # Strip development cruft from the staged Run\Data tree (the dev
+          # checkout has *.map / *.spt scratch files alongside Data\; they
+          # don't belong in a release).
+          Get-ChildItem $stageRoot -Filter "ab_*.map" -ErrorAction SilentlyContinue | Remove-Item -Force
+          Get-ChildItem $stageRoot -Filter "ab_*.spt" -ErrorAction SilentlyContinue | Remove-Item -Force
+
+          $archive = "$env:RUNNER_TEMP\OpenFodder-$version-win64.zip"
+          if (Test-Path $archive) { Remove-Item $archive -Force }
+          Compress-Archive -Path "$stageRoot\*" -DestinationPath $archive
+
+          "archive=$archive" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "archive_name=OpenFodder-$version-win64.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Staged $archive"
+
+      - name: Upload to workflow artefacts (audit trail)
+        # actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ steps.stage.outputs.archive_name }}
+          path: ${{ steps.stage.outputs.archive }}
+          retention-days: 30
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Linux x64 portable build (system SDL3 via /usr/local; no FFmpeg).
+  # ---------------------------------------------------------------------------
+  build-linux:
+    needs: verify-tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Install build deps
+        run: |
+          sudo apt-get update --allow-releaseinfo-change
+          sudo apt-get install -y \
+            cmake ninja-build build-essential git pkg-config \
+            libasound2-dev libpulse-dev libudev-dev libx11-dev libxext-dev \
+            libxrandr-dev libxcursor-dev libxi-dev libxss-dev libxtst-dev \
+            libwayland-dev libxkbcommon-dev libdrm-dev libgbm-dev \
+            libegl1-mesa-dev libgl1-mesa-dev \
+            libflac-dev libogg-dev libvorbis-dev libmpg123-dev libopusfile-dev \
+            libxmp-dev
+
+      - name: Build SDL3 + SDL3_mixer
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sdl3 && cd /tmp/sdl3
+          git clone --depth 1 --branch release-3.4.0 https://github.com/libsdl-org/SDL.git
+          cmake -S SDL -B SDL/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+          cmake --build SDL/build
+          sudo cmake --install SDL/build
+          git clone --depth 1 https://github.com/libsdl-org/SDL_mixer.git
+          cmake -S SDL_mixer -B SDL_mixer/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DSDLMIXER_VENDORED=OFF -DSDLMIXER_MOD_XMP=ON -DSDLMIXER_MOD_XMP_LITE=OFF -DSDLMIXER_MOD_XMP_SHARED=OFF
+          cmake --build SDL_mixer/build
+          sudo cmake --install SDL_mixer/build
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENFODDER_ENABLE_FFMPEG=OFF
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Stage portable tree
+        id: stage
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${{ needs.verify-tag.outputs.version }}"
+          stage="${RUNNER_TEMP}/OpenFodder-${version}-linux-x64"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+
+          cp build/openfodder "$stage/"
+          for d in Data Scripts Campaigns Saves Tests; do
+            if [ -d "Run/$d" ]; then cp -r "Run/$d" "$stage/"; fi
+          done
+          [ -f Run/about.png ]                && cp Run/about.png "$stage/"
+          [ -f COPYING ]                       && cp COPYING "$stage/"
+          [ -f README.md ]                     && cp README.md "$stage/"
+          [ -f openfodder.ini.example ]        && cp openfodder.ini.example "$stage/"
+
+          # Strip dev scratch files
+          rm -f "$stage"/ab_*.map "$stage"/ab_*.spt 2>/dev/null || true
+
+          archive="${RUNNER_TEMP}/OpenFodder-${version}-linux-x64.tar.gz"
+          tar -czf "$archive" -C "${RUNNER_TEMP}" "OpenFodder-${version}-linux-x64"
+
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+          echo "archive_name=OpenFodder-${version}-linux-x64.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to workflow artefacts (audit trail)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ steps.stage.outputs.archive_name }}
+          path: ${{ steps.stage.outputs.archive }}
+          retention-days: 30
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Publish to GitHub Releases.
+  #
+  # Only this job has `contents: write`; everything above runs read-only.
+  # The job downloads the audit-trail artefacts (the archives the build jobs
+  # produced) and attaches them to the release without rebuilding.
+  # ---------------------------------------------------------------------------
+  publish:
+    needs: [verify-tag, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # required to attach assets to the Release
+    steps:
+      - name: Download all build artefacts
+        # actions/download-artifact@v4 — pinned by SHA.
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: artefacts
+          merge-multiple: true
+
+      - name: Show artefact tree (sanity)
+        run: |
+          ls -la artefacts/
+          file artefacts/* || true
+
+      - name: Create / update GitHub Release
+        # softprops/action-gh-release@v2 — pinned by SHA. Uses the workflow's
+        # GITHUB_TOKEN (no PAT required, scoped to this repo, expires when
+        # the run ends).
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: OpenFodder ${{ needs.verify-tag.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            artefacts/OpenFodder-*-win64.zip
+            artefacts/OpenFodder-*-linux-x64.tar.gz

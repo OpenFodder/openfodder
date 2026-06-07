@@ -34,19 +34,33 @@ public:
     // Called early in startup AFTER SDL_Init(SDL_INIT_VIDEO) but BEFORE
     // window creation. If g_ResourceMan->isDataAvailable() is already true,
     // returns Continue without showing any UI.
-    // If no data available: shows an SDL_ShowMessageBox asking
-    //   "OpenFodder cannot find any game data. Download it now?"
-    //   buttons: [Download] [Quit]
-    // On Download: runs DataRelease::QueryLatest + FetchAndInstall for the
-    // OpenFodder/data repo into <exe-dir>/Data/, calls
-    // g_ResourceMan->refresh(), then returns Download (caller proceeds).
-    // On Quit: returns Quit (caller should SDL_Quit + exit).
-    // On any error (network, install failure): shows an error message box
-    // and returns Quit.
+    //
+    // If no data available, shows an SDL_ShowMessageBox asking the user
+    // whether to download the latest demo data + scripts releases from
+    // GitHub. The two repos (OpenFodder/data, OpenFodder/scripts) are
+    // installed in tandem because installing data without scripts leaves
+    // the random-map and multiplayer menus broken — the engine references
+    // .js files from Run/Scripts at runtime.
+    //
+    // On Download success: refreshes ResourceMan and returns Download
+    //   (caller proceeds into the regular startup flow).
+    // On user-Cancel:       returns Quit (caller should SDL_Quit + exit).
+    // On any failure:       shows an error message box and returns Quit.
+    //
+    // Synchronous — runs before the window exists, so there's no UI to
+    // freeze; the SDL message box plus blocking install are exactly what
+    // the user expects in the cold-start case.
     static ColdStartChoice PromptIfNoData();
 
 private:
-    static bool RunDownload(const std::string& pTargetDir, std::string& pError);
+    // Installs both repos into the supplied target dirs. On any failure,
+    // pError is populated with a human-readable message and false is
+    // returned. The half-installed state (data succeeded, scripts failed)
+    // is acceptable — the caller will surface the error and quit; the
+    // user's next launch will see partial data and can retry.
+    static bool RunDownload(const std::string& pDataTargetDir,
+                            const std::string& pScriptsTargetDir,
+                            std::string& pError);
 };
 
 } // namespace Setup
