@@ -15,7 +15,7 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-project(openfodder VERSION 1.5.4 LANGUAGES CXX)
+project(openfodder VERSION 1.5.4 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -83,9 +83,42 @@ elseif(WIN32)
             endif()
         endif()
     endforeach()
+
+    # libcurl — used by the setup wizard / updater for HTTPS downloads of
+    # retail-data manifests, scripts, and engine update archives. On Windows
+    # we vendor it via FetchContent and pin TLS to Schannel so we don't
+    # have to ship an OpenSSL CA bundle. HTTP_ONLY plus the per-protocol
+    # disables strip out everything we don't need (LDAP, SMTP, etc.).
+    set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(CURL_USE_LIBPSL OFF CACHE BOOL "" FORCE)
+    set(CURL_USE_SCHANNEL ON CACHE BOOL "" FORCE)
+    set(CURL_USE_OPENSSL OFF CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_LDAP ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_LDAPS ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_TELNET ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_DICT ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_FILE ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_TFTP ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_RTSP ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_POP3 ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_IMAP ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_SMTP ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_GOPHER ON CACHE BOOL "" FORCE)
+    set(CURL_DISABLE_MQTT ON CACHE BOOL "" FORCE)
+    set(HTTP_ONLY ON CACHE BOOL "" FORCE)
+
+    set(LIBCURL_GIT_TAG "curl-8_5_0")
+    FetchContent_Declare(libcurl
+        GIT_REPOSITORY https://github.com/curl/curl.git
+        GIT_TAG ${LIBCURL_GIT_TAG}
+        GIT_SHALLOW TRUE)
+    FetchContent_MakeAvailable(libcurl)
 else()
     find_package(SDL3 CONFIG REQUIRED)
     find_package(SDL3_mixer CONFIG REQUIRED)
+    find_package(CURL REQUIRED)
 endif()
 
 # Locate git binary to provide information to the build environment
@@ -107,8 +140,13 @@ endif()
 
 configure_file(cmake/gitver.hpp.in Source/gitver.hpp @ONLY)
 
-file(GLOB_RECURSE GAMEENGINE_HEADERS CONFIGURE_DEPENDS "Source/*.hpp")
+file(GLOB_RECURSE GAMEENGINE_HEADERS CONFIGURE_DEPENDS "Source/*.hpp" "Source/*.h")
 file(GLOB_RECURSE GAMEENGINE_SOURCE CONFIGURE_DEPENDS "Source/*.cpp")
+
+# Vendored miniz is C, not C++. miniz.c contains both prototypes and
+# definitions and explodes when the compiler treats it as C++ (the static
+# table arrays end up emitted twice). Compile it as C explicitly.
+list(APPEND GAMEENGINE_SOURCE "${CMAKE_SOURCE_DIR}/Source/Utils/miniz.c")
 
 source_group(TREE "${CMAKE_SOURCE_DIR}/Source" FILES ${GAMEENGINE_HEADERS} ${GAMEENGINE_SOURCE})
 
@@ -278,6 +316,11 @@ if(EMSCRIPTEN)
         "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/Run@/")
 else()
     target_link_libraries(openfodder PRIVATE SDL3::SDL3 SDL3_mixer::SDL3_mixer Threads::Threads)
+    if(WIN32)
+        target_link_libraries(openfodder PRIVATE libcurl)
+    else()
+        target_link_libraries(openfodder PRIVATE CURL::libcurl)
+    endif()
 endif()
 
 if(WIN32)

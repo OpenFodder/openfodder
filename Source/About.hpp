@@ -21,7 +21,7 @@
  */
 
 class cAbout {
-    
+
     cSurface*    mSurface;
 
 public:
@@ -29,4 +29,15 @@ public:
         ~cAbout();
 
         bool Cycle();
+
+        // UPDATE button click handler. Invoked from cFodder::GUI_Button_About_Update,
+        // which is the trampoline registered with GUI_Button_Setup (the GUI dispatch
+        // requires a void(cFodder::*)() member-function pointer, so this is the
+        // closest we can get to "method on the About menu class").
+        //
+        // Blocks the main loop while it hits the GitHub releases API and (on user
+        // confirmation) downloads + extracts the data and/or scripts archives.
+        // TODO: async progress UI — currently the window will appear unresponsive
+        // for the duration of the network round-trip and the install.
+        static void OnUpdateClicked();
 };

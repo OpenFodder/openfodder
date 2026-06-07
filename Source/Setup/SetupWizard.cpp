@@ -943,10 +943,9 @@ void cSetupWizard::DrawLocate() {
             }
 
             // Pick ONE representative complete match (retail beats demo;
-            // Amiga beats PC if both retail; first hit wins otherwise) and
-            // append "+N" if there are additional matches in the same
-            // folder. Comma-joining every match overflowed when the wizard
-            // had to truncate.
+            // first hit wins otherwise) and use its short name as the
+            // prefix. Append "+N" if there are additional matches in the
+            // same folder.
             const sVersionMatch* best = nullptr;
             int totalComplete = 0;
             bool anyRaw = false;
@@ -956,20 +955,23 @@ void cSetupWizard::DrawLocate() {
                 ++totalComplete;
                 if (m.mIsRawFolder) anyRaw = true;
                 if (!best) { best = &m; continue; }
-                // Retail outranks non-retail.
                 if (m.IsRetail() && !best->IsRetail()) { best = &m; continue; }
                 if (!m.IsRetail() && best->IsRetail()) continue;
-                // Both retail or both non-retail — keep the first encountered.
             }
 
             if (best && best->mVersion) {
                 std::ostringstream prefix;
-                prefix << best->mVersion->mName;
-                std::string p = platformTag(best->mVersion);
-                if (!p.empty()) prefix << " (" << p << ")";
+                // Short name (≤12 chars) keeps the prefix compact so the
+                // path tail has room. Falls back to the long name if the
+                // short name is empty (shouldn't happen — every entry in
+                // KnownGameVersions[] has one).
+                if (!best->mVersion->mShortName.empty())
+                    prefix << best->mVersion->mShortName;
+                else
+                    prefix << best->mVersion->mName;
                 if (totalComplete > 1)
                     prefix << " +" << (totalComplete - 1);
-                if (anyRaw) prefix << " [RAW]";
+                if (anyRaw) prefix << " RAW";
                 return fitPrefixPath(prefix.str(), c.mPath);
             }
 
@@ -977,10 +979,11 @@ void cSetupWizard::DrawLocate() {
             for (auto& m : c.mResult.mMatches) {
                 if (!m.mVersion) continue;
                 std::ostringstream prefix;
-                prefix << m.mVersion->mName;
-                std::string p = platformTag(m.mVersion);
-                if (!p.empty()) prefix << " (" << p << ")";
-                prefix << " [" << m.mFilesFound << "/" << m.mFilesExpected << "]";
+                if (!m.mVersion->mShortName.empty())
+                    prefix << m.mVersion->mShortName;
+                else
+                    prefix << m.mVersion->mName;
+                prefix << " " << m.mFilesFound << "/" << m.mFilesExpected;
                 return fitPrefixPath(prefix.str(), c.mPath);
             }
             return fitPrefixPath("FOUND", c.mPath);

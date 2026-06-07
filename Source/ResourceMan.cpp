@@ -221,6 +221,57 @@ std::vector<std::string> cResourceMan::getMountedImagePaths() const {
 	return out;
 }
 
+std::vector<sSearchRoot> cResourceMan::getSearchRoots() const {
+	// Walk mAllPaths and classify each entry. Order matters:
+	//   1. Implicit defaults appear first (addDefaultDirs is run by ctor
+	//      before any addUserDir / mountImage call), so we can identify
+	//      them positionally.
+	//   2. User-configured paths follow (addUserDir was called for each
+	//      [paths] entry in ProcessINI).
+	//   3. Mounted-image search roots come from mountImage() — they don't
+	//      live in mAllPaths at all (they're indexed by id), so we append
+	//      them from the MountedImage registry.
+	std::vector<sSearchRoot> out;
+	out.reserve(mAllPaths.size() + 4);
+
+	// Build a quick lookup of which mAllPaths entries are also in mUserPaths.
+	for (auto& p : mAllPaths) {
+		sSearchRoot r;
+		r.mPath = p;
+
+		bool isUser = false;
+		for (auto& u : mUserPaths) {
+			if (u == p) { isUser = true; break; }
+		}
+		r.mKind = isUser ? ePathKind::UserConfigured : ePathKind::ImplicitDefault;
+
+		// Label heuristic: cwd → "Working dir"; %USERPROFILE%/Documents/...
+		// → "Documents"; user paths → just show the leaf so the wizard
+		// row stays compact.
+		if (r.mKind == ePathKind::ImplicitDefault) {
+			r.mLabel = "Default";
+		} else {
+			r.mLabel = "User";
+		}
+		out.push_back(std::move(r));
+	}
+
+	// Append mounted-image roots.
+	for (auto& kv : Setup::MountedImagesAll()) {
+		sSearchRoot r;
+		r.mKind = ePathKind::MountedImage;
+		r.mPath = "firy://" + std::to_string(kv.first) + "/";
+		// Label is the host filename (last path component) for human reading.
+		std::string p = kv.second->ImagePath();
+		std::replace(p.begin(), p.end(), '\\', '/');
+		size_t slash = p.find_last_of('/');
+		r.mLabel = "Image: " + ((slash == std::string::npos) ? p : p.substr(slash + 1));
+		out.push_back(std::move(r));
+	}
+
+	return out;
+}
+
 void cResourceMan::addBaseDir(std::string pPath) {
 	// Ensure trailing / on path
 	if(pPath.size())

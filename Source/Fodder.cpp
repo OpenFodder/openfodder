@@ -22,12 +22,16 @@
 
 #include "stdafx.hpp"
 
+#include "Setup/ColdStart.hpp"
+
 #ifdef WIN32
 #include <windows.h>
 #include <direct.h>
 #endif
 #include <cerrno>
 #include <sys/stat.h>
+
+#include <SDL3/SDL.h>
 
 const int16 SIDEBAR_WIDTH = 48;
 
@@ -2816,6 +2820,17 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams)
     mStartParams = std::make_shared<sFodderParameters>(*pParams);
 
     g_ResourceMan->refresh();
+
+    // Cold-start data probe: if no game data has been discovered, bring up
+    // SDL video early enough to host an SDL_ShowMessageBox prompt that
+    // offers to download the demo data from GitHub. SDL3 ref-counts the
+    // subsystem, so the later SDL_Init in cWindow::InitWindow is harmless.
+    SDL_InitSubSystem(SDL_INIT_VIDEO);
+    Setup::ColdStartChoice coldChoice = Setup::ColdStartPrompt::PromptIfNoData();
+    if (coldChoice == Setup::ColdStartChoice::Quit) {
+        SDL_Quit();
+        exit(0);
+    }
 
     if (!g_ResourceMan->isDataAvailable())
         DataNotFound();

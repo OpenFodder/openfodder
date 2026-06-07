@@ -32,11 +32,14 @@ class cSound;
 struct sGameVersion : public sVersion {
 
 	const std::string				mDataPath;
+	const std::string				mShortName;     // ≤12 chars, UI display ("CF1 AMIGA", "AP+", "NVF", "PCFORMAT")
 	const std::vector<sFile>		mFiles;
 
-	sGameVersion(const std::string& pName, eGame pGame, ePlatform pPlatform, eRelease pRelease, const std::string& pDataPath, const std::vector<sFile>& pFiles) :
-		sVersion(pName,pGame,pPlatform,pRelease), mDataPath(pDataPath), mFiles(pFiles) {
-	
+	sGameVersion(const std::string& pName, eGame pGame, ePlatform pPlatform, eRelease pRelease,
+	             const std::string& pDataPath, const std::string& pShortName,
+	             const std::vector<sFile>& pFiles) :
+		sVersion(pName,pGame,pPlatform,pRelease), mDataPath(pDataPath), mShortName(pShortName), mFiles(pFiles) {
+
 	}
 
 	bool hasGfx(eGFX_Types pGfxType) const {

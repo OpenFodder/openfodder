@@ -369,6 +369,8 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
             isAquatic(CLASS_AT(pX - 1, pY));
     };
 
+    const double shoreRepeatPenaltyValue = -512.0;
+
     auto shoreRepeatPenalty = [&](int pTileId, int pX, int pY, char pCls,
                                   const std::vector<int>& pTiles) -> double {
         if(!isAquaticShore(pX, pY, pCls))
@@ -376,13 +378,13 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
 
         double penalty = 0.0;
         if(pY > 0 && pTiles[(size_t)(pY - 1) * pWidth + pX] == pTileId)
-            penalty -= 64.0;
+            penalty += shoreRepeatPenaltyValue;
         if(pX + 1 < pWidth && pTiles[(size_t)pY * pWidth + (pX + 1)] == pTileId)
-            penalty -= 64.0;
+            penalty += shoreRepeatPenaltyValue;
         if(pY + 1 < pHeight && pTiles[(size_t)(pY + 1) * pWidth + pX] == pTileId)
-            penalty -= 64.0;
+            penalty += shoreRepeatPenaltyValue;
         if(pX > 0 && pTiles[(size_t)pY * pWidth + (pX - 1)] == pTileId)
-            penalty -= 64.0;
+            penalty += shoreRepeatPenaltyValue;
         return penalty;
     };
 
@@ -540,9 +542,9 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                 score += scoreStructuralBias(rec);
                 if(isAquaticShore(x, y, cls)) {
                     if(northTileId == candId)
-                        score -= 64.0;
+                        score += shoreRepeatPenaltyValue;
                     if(westTileId == candId)
-                        score -= 64.0;
+                        score += shoreRepeatPenaltyValue;
                 }
 
                 double jitter = (double)(hashTile(pSeed, x, y, 4096 + candId) & 7) * 0.001;

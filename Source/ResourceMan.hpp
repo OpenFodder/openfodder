@@ -20,6 +20,29 @@
 *
 */
 
+#pragma once
+
+// How a search root entered the engine's mAllPaths list. Drives:
+//   - Whether SaveIni writes it back (UserConfigured does; ImplicitDefault doesn't).
+//   - The wizard's display label ("Working dir" vs "[paths]" vs "image:cf1.iso").
+//   - Future per-kind behaviour (e.g. RawFolder = engine reads files directly,
+//     no <root>/Data/<release>/ wrapping needed).
+enum class ePathKind : uint8 {
+	ImplicitDefault,    // cwd / Documents/OpenFodder / XDG dirs — recreated each launch
+	UserConfigured,     // [paths] ini entry; writes back to ini on save
+	MountedImage,       // backed by firy via cMountedImage; virtual path
+	RawFolder,          // user pointed at a folder of raw release files (no Data/<x>/)
+};
+
+// Labelled search-root view for the wizard / AutoScan. Returned by
+// cResourceMan::getSearchRoots(); doesn't replace the underlying mAllPaths
+// vector (engine-internal code still iterates that), just augments it.
+struct sSearchRoot {
+	ePathKind   mKind = ePathKind::ImplicitDefault;
+	std::string mPath;          // host filesystem path or firy:// virtual
+	std::string mLabel;          // human-readable, ≤24 chars
+};
+
 class cResourceMan {
 	typedef std::map<std::string, std::string> tStringMap;
 
@@ -110,6 +133,11 @@ public:
 	std::vector<std::string> getValidPaths() const;
 	std::vector<std::string> getAllPaths() const;
 	std::vector<std::string> getUserPaths() const;
+
+	// Labelled view of every search root, classified by kind. Includes
+	// implicit defaults, user-configured paths, and currently-mounted
+	// images. The wizard / AutoScan use this for display and probing.
+	std::vector<sSearchRoot> getSearchRoots() const;
 
 	std::string getCustomMapPath() const { return mCustomMapPath;  }
 

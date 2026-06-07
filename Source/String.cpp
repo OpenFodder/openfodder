@@ -132,11 +132,43 @@ void cFodder::String_Print_DrawTinyGlyph(const sBriefingSpecialGlyph* pGlyph,
     if (!buf)
         return;
 
-    // Foreground colour matches the briefing font's chunky letters as
-    // rendered by stru_42928's sprite frames in pstuff. 0xB3 lines up with
-    // the palette slot used by GUI_Button_Draw_SmallBoxAt's "primary"
-    // colour, which itself was sampled to match in-game letter strokes.
-    const uint8 fg = 0xB3;
+    // Foreground colour: sample a pixel from a real briefing letter that
+    // has already been painted to the left of our position on the same
+    // line. The earlier hard-coded 0xB3 (a GUI-button primary) read as a
+    // visibly different green next to the briefing letter strokes — see
+    // the "OLDER: D:/PROJ" screenshot from the previous pass. By copying
+    // an existing letter pixel we follow whatever palette/stroke colour
+    // the surrounding letters use, including any per-row palette swap
+    // the engine applies through Video_Draw_8.
+    auto sampleNeighbourFg = [&]() -> uint8 {
+        // Scan a strip ending just left of baseX, covering the glyph's
+        // vertical extent. The briefing-font path renders letter pixels
+        // in palette range 0xF1..0xFF (palette index 0xF0 OR'd with a
+        // 1..F nibble; see Video_Draw_8). Pick the brightest pixel in
+        // that range — that's the strongest stroke shade, the same one
+        // the surrounding A-Z use.
+        const int32 scanW = 24;             // a few letters' worth left
+        const int32 scanX0 = baseX - scanW;
+        const int32 scanY0 = baseY;
+        const int32 scanY1 = baseY + (int32)pGlyph->mYOffset + (int32)pGlyph->mHeight;
+        uint8 best = 0;
+        for (int32 yy = scanY0; yy < scanY1; ++yy) {
+            if (yy < 0 || (size_t)yy >= surfH) continue;
+            for (int32 xx = scanX0; xx < baseX; ++xx) {
+                if (xx < 0 || (size_t)xx >= surfW) continue;
+                uint8 v = buf[(size_t)yy * surfW + (size_t)xx];
+                if (v >= 0xF1 && v > best) best = v;
+            }
+        }
+        return best;
+    };
+    uint8 fg = sampleNeighbourFg();
+    if (fg == 0) {
+        // No briefing-range pixel found nearby (e.g. we're the first
+        // glyph on the line, or an Amiga-style render with a different
+        // palette layout). Fall back to the brightest grey/white slot.
+        fg = 0xFF;
+    }
 
     for (uint8 row = 0; row < pGlyph->mHeight; ++row) {
         const uint8 bits = pGlyph->mRows[row];

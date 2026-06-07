@@ -348,20 +348,23 @@ std::string DescribeMatch(const sVersionMatch& pMatch) {
         return "(none)";
 
     std::ostringstream os;
-    os << pMatch.mVersion->mName;
-    if (pMatch.mVersion->mPlatform == ePlatform::Amiga)
-        os << " (Amiga)";
-    else if (pMatch.mVersion->mPlatform == ePlatform::PC)
-        os << " (PC)";
+    // Short name keeps the result-screen line under control; the long name
+    // would frequently push past the 320-px row content budget.
+    if (!pMatch.mVersion->mShortName.empty())
+        os << pMatch.mVersion->mShortName;
+    else
+        os << pMatch.mVersion->mName;
 
     if (pMatch.IsComplete()) {
         os << " - complete";
-        if (pMatch.mFilesMd5Match < pMatch.mFilesFound) {
-            os << ", " << pMatch.mFilesMd5Match << "/" << pMatch.mFilesFound << " MD5 match";
+        if (pMatch.mFilesMd5Checked > 0 && pMatch.mFilesMd5Match < pMatch.mFilesMd5Checked) {
+            os << " " << pMatch.mFilesMd5Match << "/" << pMatch.mFilesMd5Checked << " MD5";
         }
     } else {
         os << " - " << pMatch.mFilesFound << "/" << pMatch.mFilesExpected << " files";
     }
+    if (pMatch.mIsRawFolder)
+        os << " [RAW]";
     return os.str();
 }
 

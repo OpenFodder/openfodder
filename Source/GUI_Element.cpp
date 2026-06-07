@@ -1904,6 +1904,13 @@ void cFodder::GUI_Button_Show_About()
     mGUI_SaveLoadAction = 4;
 }
 
+// Trampoline: GUI_Button_Setup wants a void(cFodder::*)() pointer, but the
+// update logic is part of the About screen, so just forward.
+void cFodder::GUI_Button_About_Update()
+{
+    cAbout::OnUpdateClicked();
+}
+
 void cFodder::GUI_Button_Show_Options()
 {
     mGUI_Select_File_String_Input_Callback = 0;

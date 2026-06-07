@@ -1307,6 +1307,10 @@ public:
     void            GUI_Button_Confirm_Yes();
     void            GUI_Button_Confirm_No();
     void            GUI_Button_Show_About();
+    // Trampoline for the About screen's UPDATE button. GUI_Button_Setup needs
+    // a void(cFodder::*)() member-function pointer, so the actual logic lives
+    // in cAbout::OnUpdateClicked and this just forwards to it.
+    void            GUI_Button_About_Update();
     void            GUI_Button_Show_Options();
     void            GUI_Button_Show_Multiplayer();
     void            GUI_Button_Show_Shortcuts();
