@@ -24,6 +24,7 @@
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
+#include "HubAuth.hpp"
 #include "NetworkHubClient.hpp"
 #include "RandomMapOptionsMenu.hpp"
 
@@ -74,7 +75,15 @@ public:
     std::string GetHubHost() const { return mHubHost; }
     uint16      GetHubPort() const { return mHubPort; }
     std::string GetRoomCode() const { return mRoomCode; }
-    std::string GetRelayToken() const { return mRelayToken; }
+    // Host-side OFHUB/2 plumbing. After CreateInternetRoom or
+    // SelectInternetGame, the menu owns the binary 32-byte session key, the
+    // peer index it was issued for (0=host, 1=joiner), and — host only — the
+    // verified-host JWT used to mint the room. Joiners get an empty bearer
+    // (anonymous JOIN per spec § 4.4.2 doesn't require one).
+    const std::array<unsigned char, 32>& GetSessionKey() const { return mSessionKey; }
+    bool        HasSessionKey() const { return mHasSessionKey; }
+    uint8       GetPeerIndex() const { return mPeerIndex; }
+    const sHubAuthToken& GetHubBearer() const { return mHubBearer; }
 
     enum eAction : int16 {
         ACT_NONE = 0,
@@ -102,14 +111,46 @@ public:
         ACT_CYCLE_MODE,
         ACT_MAP_OPTIONS,
         ACT_START,
+        // Auth-prompt modal — shown when the user picks an internet flow but
+        // has no cached hub token. Confirm fires BeginPairing (opens browser
+        // + advances to the pair-code entry sub-screen); cancel returns to
+        // the main multiplayer menu.
+        ACT_AUTH_CONFIRM,
+        ACT_AUTH_CANCEL,
+        ACT_AUTH_PAIR,           // submit the typed pair code
+        ACT_AUTH_REOPEN,         // re-fire BeginPairing with a fresh device code
     };
 
 private:
+    enum class eState {
+        Main,
+        Host,
+        Join,
+        FindLan,
+        FindInternet,
+        MapOptions,
+        AuthPrompt,         // "open in browser?" modal before BeginPairing
+        AuthPairing,        // 6-char pair-code entry after BeginPairing
+    };
+
+    enum class eEditField {
+        None,
+        RemoteHost,
+        RemotePort,
+        LocalPort,
+        MapSeed,
+        HubHost,
+        HubPort,
+        RoomCode,
+    };
+
     void DrawMainMenu();
     void DrawHostMenu();
     void DrawJoinMenu();
     void DrawFindLanMenu();
     void DrawFindInternetMenu();
+    void DrawAuthPromptMenu();
+    void DrawAuthPairingMenu();
     void DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel, bool pHostSetup);
     void DrawField(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction, bool pActive);
     void DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction);
@@ -124,31 +165,22 @@ private:
     bool CreateInternetRoom();
     void SelectDiscoveredGame(size_t pIndex);
     void SelectInternetGame(size_t pIndex);
+
+    // Public-matchmaking auth gating. Returns true if the user already has a
+    // valid cached token and the caller may proceed; returns false and
+    // pivots the menu to AuthPrompt otherwise. pBlockOnFail controls the
+    // post-prompt behaviour: true (host flows) means "if pairing is skipped,
+    // do not enter the requested state"; false (join flows) means "let the
+    // user proceed even without a token — joining a room only needs the
+    // relay credentials, not a hub token".
+    bool RequireHubToken(eState pTarget, bool pBlockOnFail);
+    void HandleAuthTextInput();
+    void SubmitPairCode();
     bool CanStart() const;
     void SyncPortValues();
     void OpenMapOptions();
     void ApplyMapOptions(const sRandomMapOptions& pOptions);
     sRandomMapOptions BuildMapOptions() const;
-
-    enum class eState {
-        Main,
-        Host,
-        Join,
-        FindLan,
-        FindInternet,
-        MapOptions,
-    };
-
-    enum class eEditField {
-        None,
-        RemoteHost,
-        RemotePort,
-        LocalPort,
-        MapSeed,
-        HubHost,
-        HubPort,
-        RoomCode,
-    };
 
     eState      mState = eState::Main;
     eEditField  mEditField = eEditField::None;
@@ -168,7 +200,13 @@ private:
     uint16      mHubPort = NETWORK_HUB_DEFAULT_PORT;
     std::string mHubPortText = std::to_string(NETWORK_HUB_DEFAULT_PORT);
     std::string mRoomCode;
-    std::string mRelayToken;
+    // Binary copy of OFHUB/2 session_key returned by CREATEOK / JOINOK; raw
+    // bytes survive the round-trip through StartParams. Stays zeroed for
+    // LAN / direct-connect flows.
+    std::array<unsigned char, 32> mSessionKey{};
+    bool        mHasSessionKey = false;
+    uint8       mPeerIndex = 0;          // 0 host, 1 first joiner
+    sHubAuthToken mHubBearer;            // populated only on host CreateAuth path
     eNetworkGameMode mGameMode = eNetworkGameMode_CoopCampaign;
     uint32      mMapSeed = NETWORK_MAP_SEED_DEFAULT;
     std::string mMapSeedText = std::to_string(NETWORK_MAP_SEED_DEFAULT);
@@ -189,6 +227,16 @@ private:
     std::unique_ptr<cNetworkHubClient> mHubClient;
     std::vector<sNetworkHubGame> mInternetGames;
     cRandomMapOptionsMenu mMapOptionsMenu;
+
+    // Auth/pairing state — populated once the user picks an internet flow
+    // without a cached token.  mAuthTarget remembers which state to switch
+    // back to after a successful pairing (or after a skip when joining).
+    cHubAuth    mHubAuth;
+    eState      mAuthTarget = eState::Main;
+    bool        mAuthBlockOnFail = false;
+    std::string mDeviceCode;
+    std::string mPairCode;
+    std::string mPairingError;
 
     // Keep drawn strings alive for GUI draw calls
     std::vector<std::string> mDrawStrings;

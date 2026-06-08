@@ -152,7 +152,6 @@ void cMultiplayerMenu::Open() {
         : NETWORK_HUB_DEFAULT_PORT;
     mHubPortText = std::to_string(mHubPort);
     mRoomCode = g_Fodder->mStartParams->mNetworkRoomCode;
-    mRelayToken = g_Fodder->mStartParams->mNetworkRelayToken;
     mGameMode = g_Fodder->mStartParams->mNetworkGameMode;
     mMapSeed = g_Fodder->mStartParams->mNetworkMapSeed;
     mMapSeedText = std::to_string(mMapSeed);
@@ -221,6 +220,7 @@ void cMultiplayerMenu::Tick() {
     }
 
     HandleTextInput();
+    HandleAuthTextInput();
 
     if (mState == eState::FindLan && mDiscovery)
         mDiscovery->PollBrowser();
@@ -239,6 +239,12 @@ void cMultiplayerMenu::OnBack() {
 
     if (mState == eState::MapOptions) {
         mMapOptionsMenu.OnBack();
+    } else if (mState == eState::AuthPrompt) {
+        OnRowClick(ACT_AUTH_CANCEL, 0);
+    } else if (mState == eState::AuthPairing) {
+        // Treat Esc on the pair-code page the same as the modal's cancel —
+        // honours block-on-fail for hosting.
+        OnRowClick(ACT_AUTH_CANCEL, 0);
     } else if (mState == eState::Host || mState == eState::Join || mState == eState::FindLan || mState == eState::FindInternet) {
         mState = eState::Main;
     } else {
@@ -256,7 +262,6 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mInternet = false;
         mInternetHost = false;
         mRoomCode.clear();
-        mRelayToken.clear();
         mRemoteHost = "127.0.0.1";
         mLocalPort = 7000;
         mRemotePort = 7001;
@@ -265,13 +270,18 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         break;
 
     case ACT_HOST_INTERNET:
+        // Hosting on the public hub blocks until we have a token: the
+        // /room/create call requires Authorization. Joining is more
+        // permissive (the hub allows anonymous LIST/JOIN), so the cancel
+        // semantics differ between host and find — see RequireHubToken.
+        if (!RequireHubToken(eState::Host, /*pBlockOnFail=*/true))
+            break;
         mState = eState::Host;
         mEditField = eEditField::None;
         mPlayerIndex = 0;
         mInternet = true;
         mInternetHost = true;
         mRoomCode.clear();
-        mRelayToken.clear();
         mLocalPort = 7000;
         mLocalPortText = std::to_string(mLocalPort);
         break;
@@ -283,11 +293,15 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mInternet = false;
         mInternetHost = false;
         mRoomCode.clear();
-        mRelayToken.clear();
         StartLanBrowser();
         break;
 
     case ACT_FIND_INTERNET:
+        // Joining only needs anonymous LIST/JOIN, so we still prompt for
+        // pairing (the hub uses the token for moderation telemetry) but
+        // proceed if the user skips it.
+        if (!RequireHubToken(eState::FindInternet, /*pBlockOnFail=*/false))
+            break;
         mState = eState::FindInternet;
         mEditField = eEditField::None;
         mPlayerIndex = 1;
@@ -304,7 +318,6 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mInternet = false;
         mInternetHost = false;
         mRoomCode.clear();
-        mRelayToken.clear();
         mLocalPort = 7001;
         mRemotePort = 7000;
         mLocalPortText = std::to_string(mLocalPort);
@@ -371,6 +384,74 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         OpenMapOptions();
         break;
 
+    case ACT_AUTH_CONFIRM: {
+        // User clicked OPEN BROWSER on the auth modal. Fire BeginPairing
+        // (this opens the user's default browser to the Discord OAuth URL)
+        // and pivot to the pair-code entry sub-screen regardless of whether
+        // the browser open itself succeeded — the user can copy the URL
+        // manually if it didn't, and we still need somewhere to type the
+        // resulting pair code.
+        mPairCode.clear();
+        mPairingError.clear();
+        mDeviceCode.clear();
+        std::string fresh;
+        if (!mHubAuth.BeginPairing(fresh))
+            mPairingError = mHubAuth.GetLastError();
+        mDeviceCode = fresh;
+        mState = eState::AuthPairing;
+        mEditField = eEditField::None;
+        // Swallow the click's keycode so HandleAuthTextInput on the next
+        // tick doesn't see a stale Enter / Space.
+        g_Fodder->mInput_LastKey = g_Fodder->mKeyCode;
+        break;
+    }
+
+    case ACT_AUTH_CANCEL:
+        // User declined the auth modal. Block-on-fail means hosting can't
+        // proceed without a token, so we drop back to Main; for joining we
+        // honour the user's "no thanks" by entering the requested state
+        // anyway and let the hub answer with whatever its anonymous policy
+        // is.
+        mPairCode.clear();
+        mPairingError.clear();
+        mDeviceCode.clear();
+        if (mAuthBlockOnFail) {
+            mState = eState::Main;
+            mEditField = eEditField::None;
+        } else {
+            // Pretend the user re-clicked the original entry button so the
+            // existing path runs without re-asking (RequireHubToken guards
+            // against re-prompting because we leave the cache untouched
+            // — this branch is only reached when block-on-fail is false).
+            const eState target = mAuthTarget;
+            mAuthTarget = eState::Main;
+            mState = target;
+            mEditField = eEditField::None;
+            if (target == eState::FindInternet) {
+                mPlayerIndex = 1;
+                mInternet = true;
+                mInternetHost = false;
+                StartInternetBrowser();
+            }
+        }
+        break;
+
+    case ACT_AUTH_PAIR:
+        SubmitPairCode();
+        break;
+
+    case ACT_AUTH_REOPEN: {
+        // Re-fire BeginPairing with a fresh device code in case the user
+        // lost the browser tab or the prior code timed out server-side.
+        mPairCode.clear();
+        mPairingError.clear();
+        std::string fresh;
+        if (!mHubAuth.BeginPairing(fresh))
+            mPairingError = mHubAuth.GetLastError();
+        mDeviceCode = fresh;
+        break;
+    }
+
     default:
         break;
     }
@@ -395,6 +476,12 @@ void cMultiplayerMenu::Draw() {
         break;
     case eState::MapOptions:
         mMapOptionsMenu.Draw();
+        break;
+    case eState::AuthPrompt:
+        DrawAuthPromptMenu();
+        break;
+    case eState::AuthPairing:
+        DrawAuthPairingMenu();
         break;
     }
 }
@@ -860,7 +947,10 @@ void cMultiplayerMenu::StartInternetBrowser() {
     SyncPortValues();
 
     mHubClient = std::make_unique<cNetworkHubClient>();
-    mHubFailed = !mHubClient->Configure(mHubHost, mHubPort) || !mHubClient->List(mInternetGames);
+    // OFHUB/2 surface — drop the legacy List() shim. ListAnonymous and List
+    // are byte-identical today, but switching makes the OFHUB/2 boundary
+    // grep-able and lets us delete the shim once the four call sites land.
+    mHubFailed = !mHubClient->Configure(mHubHost, mHubPort) || !mHubClient->ListAnonymous(mInternetGames);
 }
 
 void cMultiplayerMenu::RefreshInternetBrowser() {
@@ -895,19 +985,51 @@ bool cMultiplayerMenu::CreateInternetRoom() {
         mCoverDensity
     );
 
+    // OFHUB/2 verified-host CREATE. The hub rejects /room/create without a
+    // bearer JWT; RequireHubToken (called from ACT_HOST_INTERNET with
+    // pBlockOnFail=true) should have warmed the cache by now, so this is
+    // belt-and-braces. Stash the bearer locally so HeartbeatHost / UpdateAuth
+    // can replay it without re-touching disk every tick.
+    sHubAuthToken Auth;
+    if (!mHubAuth.LoadCachedToken(Auth) || Auth.mJwt.empty()) {
+        // Cache miss here is a token-expiry race against RequireHubToken (the
+        // user paired, entered Host, then sat on the screen long enough for
+        // the JWT to lapse before hitting Start). Mirror RequireHubToken's
+        // pivot — re-prompt for pairing and bounce back to Host on success —
+        // rather than surface the generic "HUB BROWSER FAILED" banner, which
+        // misleads the user into thinking the hub is unreachable.
+        mAuthTarget = eState::Host;
+        mAuthBlockOnFail = true;
+        mDeviceCode.clear();
+        mPairCode.clear();
+        mPairingError.clear();
+        mState = eState::AuthPrompt;
+        mEditField = eEditField::None;
+        mHubFailed = false;
+        return false;
+    }
+
     sNetworkHubRoom Room;
-    if (!Hub.Create(NETWORK_MAX_PLAYERS, Metadata, true, Room)) {
+    if (!Hub.CreateAuth(Auth, NETWORK_MAX_PLAYERS, Metadata, true, Room)) {
         mHubFailed = true;
         return false;
     }
 
     mInternet = true;
     mInternetHost = true;
-    mRemoteHost = Room.mRelayHost;
+    // Spec § 4.4.1: CREATEOK returns host=<ipv4> as the Fargate task's public
+    // address. Gameplay traffic goes there, NOT to the hub. Fall back to the
+    // resolved hub host for older relays that don't include host=.
+    mRemoteHost = Room.mHostIp.size() ? Room.mHostIp : Room.mRelayHost;
     mRemotePort = Room.mRelayPort;
     mRemotePortText = std::to_string(mRemotePort);
     mRoomCode = Room.mRoomCode;
-    mRelayToken = Room.mToken;
+    // Capture the binary 32-byte session key + peer index for the data plane;
+    // keeping the raw bytes here avoids an extra decode at REGISTER time.
+    std::memcpy(mSessionKey.data(), Room.mSessionKey.data(), 32);
+    mHasSessionKey = true;
+    mPeerIndex = 0;             // host is always peer 0
+    mHubBearer = Auth;          // stashed for UpdateAuth / HeartbeatHost
     mHubFailed = false;
     return true;
 }
@@ -930,7 +1052,6 @@ void cMultiplayerMenu::SelectDiscoveredGame(size_t pIndex) {
     mInternet = false;
     mInternetHost = false;
     mRoomCode.clear();
-    mRelayToken.clear();
     mRemoteHost = Game.mHostAddress;
     mRemotePort = Game.mLobbyPort;
     mRemotePortText = std::to_string(mRemotePort);
@@ -979,8 +1100,15 @@ void cMultiplayerMenu::SelectInternetGame(size_t pIndex) {
         return;
     }
 
+    // OFHUB/2 anonymous JOIN. Spec § 4.4.2: bearer is OPTIONAL on JOIN —
+    // verified-tier just gets higher quota, anonymous joiners are first-class.
+    // Opportunistically warm the auth cache so future flows benefit, but fall
+    // through anonymous either way.
+    sHubAuthToken Auth;
+    (void)mHubAuth.LoadCachedToken(Auth);
+
     sNetworkHubRoom Room;
-    if (!Hub.Join(RoomCode, Room)) {
+    if (!Hub.JoinAnonymous(RoomCode, Room)) {
         mHubFailed = true;
         return;
     }
@@ -988,13 +1116,19 @@ void cMultiplayerMenu::SelectInternetGame(size_t pIndex) {
     mInternet = true;
     mInternetHost = false;
     mPlayerIndex = 1;
-    mRemoteHost = Room.mRelayHost;
+    // Same as the Create path: gameplay endpoint is the room's task IP, not
+    // the hub IP. JOINOK echoes host=<ipv4>; mRelayHost is the hub fallback.
+    mRemoteHost = Room.mHostIp.size() ? Room.mHostIp : Room.mRelayHost;
     mRemotePort = Room.mRelayPort;
     mRemotePortText = std::to_string(mRemotePort);
     mLocalPort = 7001;
     mLocalPortText = std::to_string(mLocalPort);
     mRoomCode = Room.mRoomCode;
-    mRelayToken = Room.mToken;
+    // Joiner gets its own per-peer session key from JOINOK; no bearer is
+    // recorded (anonymous tier) so mHubBearer stays default-constructed.
+    std::memcpy(mSessionKey.data(), Room.mSessionKey.data(), 32);
+    mHasSessionKey = true;
+    mPeerIndex = 1;
     mHubFailed = false;
 
     StopInternetBrowser();
@@ -1067,6 +1201,213 @@ void cMultiplayerMenu::SyncPortValues() {
 }
 
 // ============================================================
+// Public-matchmaking gating: token check + Discord pairing modal.
+// ============================================================
+
+bool cMultiplayerMenu::RequireHubToken(eState pTarget, bool pBlockOnFail) {
+    sHubAuthToken Existing;
+    if (mHubAuth.LoadCachedToken(Existing))
+        return true;        // happy path — caller continues
+
+    // Stash the redirect target + the host/join policy difference; the auth
+    // modal callback uses both.  Drawing happens out of DrawAuthPromptMenu.
+    mAuthTarget = pTarget;
+    mAuthBlockOnFail = pBlockOnFail;
+    mDeviceCode.clear();
+    mPairCode.clear();
+    mPairingError.clear();
+    mState = eState::AuthPrompt;
+    mEditField = eEditField::None;
+    return false;
+}
+
+void cMultiplayerMenu::SubmitPairCode() {
+    if (mDeviceCode.empty() || mPairCode.empty()) {
+        mPairingError = "MISSING DEVICE OR PAIR CODE";
+        return;
+    }
+
+    sHubAuthToken Token;
+    if (!mHubAuth.ClaimToken(mPairCode, mDeviceCode, Token)) {
+        mPairingError = mHubAuth.GetLastError();
+        return;
+    }
+
+    // ClaimToken already wrote the token to disk via SaveToken; do it again
+    // belt-and-braces so a soft-failure on the first save (e.g. transient
+    // permission glitch) is retried before we drop back into the menu.
+    if (Token.mExpiry > 0)
+        (void)mHubAuth.SaveToken(Token);
+
+    mPairCode.clear();
+    mPairingError.clear();
+    mDeviceCode.clear();
+
+    // Token in hand — enter the originally-requested state.  Mirrors what
+    // ACT_HOST_INTERNET / ACT_FIND_INTERNET would have done if the cache
+    // had been warm to begin with.
+    const eState Target = mAuthTarget;
+    mAuthTarget = eState::Main;
+    mState = Target;
+    if (Target == eState::Host) {
+        mPlayerIndex = 0;
+        mInternet = true;
+        mInternetHost = true;
+        mRoomCode.clear();
+        mLocalPort = 7000;
+        mLocalPortText = std::to_string(mLocalPort);
+    } else if (Target == eState::FindInternet) {
+        mPlayerIndex = 1;
+        mInternet = true;
+        mInternetHost = false;
+        StartInternetBrowser();
+    }
+}
+
+void cMultiplayerMenu::HandleAuthTextInput() {
+    if (mState != eState::AuthPairing)
+        return;
+
+    int16 KeyAscii = 0;
+    if (g_Fodder->mKeyCode != g_Fodder->mInput_LastKey) {
+        g_Fodder->mInput_LastKey = g_Fodder->mKeyCode;
+        const int Kc = g_Fodder->mKeyCode;
+        if (Kc >= SDL_SCANCODE_A && Kc <= SDL_SCANCODE_Z)
+            KeyAscii = 'A' + (Kc - SDL_SCANCODE_A);
+        else if (Kc >= SDL_SCANCODE_1 && Kc <= SDL_SCANCODE_9)
+            KeyAscii = '1' + (Kc - SDL_SCANCODE_1);
+        else if (Kc == SDL_SCANCODE_0)
+            KeyAscii = '0';
+        else if (Kc == SDL_SCANCODE_BACKSPACE)
+            KeyAscii = 8;
+        else if (Kc == SDL_SCANCODE_RETURN || Kc == SDL_SCANCODE_KP_ENTER)
+            KeyAscii = 0x0D;
+    }
+
+    if (!KeyAscii)
+        return;
+
+    if (KeyAscii == 0x0D) {
+        if (mPairCode.size() == 6 && !mDeviceCode.empty())
+            SubmitPairCode();
+        return;
+    }
+    if (KeyAscii == 8) {
+        if (!mPairCode.empty())
+            mPairCode.pop_back();
+        return;
+    }
+    if (mPairCode.size() < 6)
+        mPairCode.push_back((char)KeyAscii);
+}
+
+void cMultiplayerMenu::DrawAuthPromptMenu() {
+    mDrawStrings.clear();
+
+    g_Fodder->mSurface->clearBuffer();
+    g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    g_Fodder->GUI_Element_Reset();
+
+    g_Fodder->mString_GapCharID = 0x25;
+    g_Fodder->String_Print_Large("PUBLIC MATCHMAKING", false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+
+    // The "small modal" the task asks for is just a centred body block over
+    // the empty briefing background plus two buttons.  Single confirm/cancel
+    // pair, mouse-driven — the briefing renderer doesn't have z-ordered
+    // overlays so a real popup would clobber its own click targets.
+    int16 rowY = 0x40;
+
+    // Two-line wrapped explanation. Wording matches the task spec verbatim.
+    const char* Lines[] = {
+        "PUBLIC MATCHMAKING REQUIRES",
+        "A ONE TIME DISCORD PAIRING",
+        "",
+        "OPEN IN BROWSER ?",
+    };
+    for (auto* L : Lines) {
+        if (*L)
+            g_Fodder->String_Print_Small_CentreInBox(L, 0x10, 0x130, rowY);
+        rowY += 0x0E;
+    }
+
+    // OPEN BROWSER (confirm) + CANCEL.
+    const size_t yBottom = 0xA8;
+    const size_t buttonW = 0x60;
+    const size_t gap = 0x08;
+    const size_t totalW = (buttonW * 2) + gap;
+    const size_t xStart = 160 - (totalW / 2);
+    const size_t xConfirmL = xStart;                  const size_t xConfirmR = xConfirmL + buttonW;
+    const size_t xCancelL  = xConfirmR + gap;          const size_t xCancelR  = xCancelL + buttonW;
+
+    g_Fodder->GUI_Button_Draw_SmallBoxAt("OPEN BROWSER", xConfirmL, xConfirmR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_CONFIRM);
+
+    g_Fodder->GUI_Button_Draw_SmallBoxAt("CANCEL", xCancelL, xCancelR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_CANCEL);
+}
+
+void cMultiplayerMenu::DrawAuthPairingMenu() {
+    mDrawStrings.clear();
+
+    g_Fodder->mSurface->clearBuffer();
+    g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
+    g_Fodder->GUI_Element_Reset();
+
+    g_Fodder->mString_GapCharID = 0x25;
+    g_Fodder->String_Print_Large("ENTER PAIR CODE", false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+
+    int16 rowY = 0x32;
+    g_Fodder->String_Print_Small_CentreInBox(
+        "TYPE THE 6 CHARACTER CODE FROM THE WEB PAGE", 0x10, 0x130, rowY);
+    rowY += 0x18;
+
+    // Pair code field, centred and spaced for legibility.
+    std::string Display = mPairCode;
+    while (Display.size() < 6) Display.push_back('_');
+    if (Display.size() > 6) Display = Display.substr(0, 6);
+    std::string Spaced;
+    for (size_t i = 0; i < Display.size(); ++i) {
+        if (i) Spaced.push_back(' ');
+        Spaced.push_back(Display[i]);
+    }
+    g_Fodder->String_Print_Small_CentreInBox(Spaced, 0x60, 0xE0, rowY);
+    rowY += 0x18;
+
+    // Status / error line (visible only when there's something to say —
+    // collapses cleanly when empty so the layout doesn't jitter).
+    if (!mPairingError.empty()) {
+        g_Fodder->String_Print_Small_CentreInBox(mPairingError, 0x10, 0x130, rowY);
+    } else if (mDeviceCode.empty()) {
+        g_Fodder->String_Print_Small_CentreInBox(
+            "BROWSER DID NOT OPEN  USE REOPEN", 0x10, 0x130, rowY);
+    }
+
+    // PAIR / REOPEN / CANCEL.
+    const size_t yBottom = 0xB8;
+    const size_t buttonW = 0x4A;
+    const size_t gap = 0x06;
+    const size_t totalW = (buttonW * 3) + (gap * 2);
+    const size_t xStart = 160 - (totalW / 2);
+    const size_t xPairL   = xStart;                   const size_t xPairR   = xPairL + buttonW;
+    const size_t xRetryL  = xPairR + gap;              const size_t xRetryR  = xRetryL + buttonW;
+    const size_t xCancelL = xRetryR + gap;             const size_t xCancelR = xCancelL + buttonW;
+
+    const bool CanSubmit = (mPairCode.size() >= 4) && !mDeviceCode.empty();
+    g_Fodder->GUI_Button_Draw_SmallBoxAt("PAIR", xPairL, xPairR, yBottom,
+        CanSubmit ? 0xB2 : 0xC8, CanSubmit ? 0xB3 : 0xC8, eTextAlign::Centre);
+    if (CanSubmit)
+        g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_PAIR);
+
+    g_Fodder->GUI_Button_Draw_SmallBoxAt("REOPEN", xRetryL, xRetryR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_REOPEN);
+
+    g_Fodder->GUI_Button_Draw_SmallBoxAt("CANCEL", xCancelL, xCancelR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_CANCEL);
+}
+
+// ============================================================
 // Multiplayer_Menu_Run — hosted on cFodderMultiplayer
 // Follows the same pattern as Options_Menu_Run.
 // ============================================================
@@ -1125,7 +1466,15 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
         mStartParams->mNetworkHubHost     = mMultiplayerMenu->GetHubHost();
         mStartParams->mNetworkHubPort     = mMultiplayerMenu->GetHubPort();
         mStartParams->mNetworkRoomCode    = mMultiplayerMenu->GetRoomCode();
-        mStartParams->mNetworkRelayToken  = mMultiplayerMenu->GetRelayToken();
+        // OFHUB/2 plumbing into StartParams. The data plane (Fodder_Network.cpp,
+        // a different agent) reads the binary session key + peer index when
+        // building REGISTER/HEARTBEAT tags; the lobby loop replays the host
+        // bearer for UpdateAuth / HeartbeatHost. Joiner sessions leave the
+        // bearer empty (anonymous tier).
+        mStartParams->mNetworkSessionKey      = mMultiplayerMenu->GetSessionKey();
+        mStartParams->mNetworkSessionKeyValid = mMultiplayerMenu->HasSessionKey();
+        mStartParams->mNetworkPeerIndex       = mMultiplayerMenu->GetPeerIndex();
+        mStartParams->mNetworkHostBearer      = mMultiplayerMenu->GetHubBearer().mJwt;
         mStartParams->mNetworkGameMode    = mMultiplayerMenu->GetGameMode();
         mStartParams->mNetworkMapSeed     = mMultiplayerMenu->GetMapSeed();
         mStartParams->mNetworkKillLimit   = mMultiplayerMenu->GetKillLimit();
@@ -1148,7 +1497,8 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
                 mStartParams->mNetworkRemoteHost,
                 mStartParams->mNetworkRemotePort,
                 mStartParams->mNetworkPlayerIndex == 0,  // host = player 0
-                mStartParams->mNetworkRelayToken,
+                mStartParams->mNetworkSessionKey,
+                mStartParams->mNetworkPeerIndex,
                 mStartParams->mNetworkInternet
             );
             if (!lobbyOk) {
@@ -1187,7 +1537,8 @@ bool cFodderMultiplayer::Multiplayer_ReopenLobby() {
         mStartParams->mNetworkRemoteHost,
         mStartParams->mNetworkRemotePort,
         mStartParams->mNetworkPlayerIndex == 0,
-        mStartParams->mNetworkRelayToken,
+        mStartParams->mNetworkSessionKey,
+        mStartParams->mNetworkPeerIndex,
         mStartParams->mNetworkInternet
     );
 

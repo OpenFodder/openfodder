@@ -24,6 +24,7 @@
 
 #include "stdafx.hpp"
 #include "Network/GGPOSession.hpp"
+#include <algorithm>
 #include <cstring>
 
 #ifdef WIN32
@@ -72,11 +73,22 @@ bool cGGPOSession::Start(int localPlayerIndex,
                          unsigned short localPort,
                          const std::string& remoteHost,
                          unsigned short remotePort,
-                         const std::string& relayToken)
+                         const std::array<unsigned char, openfodder_hubframe::kSessionKeySize>& sessionKey,
+                         uint8_t peerIndex)
 {
     mLocalPlayerIndex = localPlayerIndex;
 
-    if (!relayToken.empty()) {
+    // Cache OFHUB/2 framing state. mUseRelayFraming gates both the REGISTER
+    // burst below and (eventually) the wrap/unwrap hook install. An all-zero
+    // key means the caller is on the LAN/direct path and skips framing.
+    mSessionKey      = sessionKey;
+    mPeerIndex       = peerIndex;
+    mUseRelayFraming = !std::all_of(sessionKey.begin(), sessionKey.end(),
+                                    [](unsigned char b) { return b == 0; });
+    mLocalSeq.store(1, std::memory_order_relaxed);
+    mReplay = openfodder_hubframe::ReplayWindow{};
+
+    if (mUseRelayFraming) {
         SOCKET RegisterSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
         if (RegisterSocket != INVALID_SOCKET) {
             struct sockaddr_in LocalAddr;
@@ -92,9 +104,22 @@ bool cGGPOSession::Start(int localPlayerIndex,
                 RemoteAddr.sin_port = htons(remotePort);
                 inet_pton(AF_INET, remoteHost.c_str(), &RemoteAddr.sin_addr);
 
-                const std::string RegisterPacket = "OFHUB/1 REGISTER token=" + relayToken;
+                // OFHUB/2 §6 binary REGISTER: type=0x02, seq=0, peer index,
+                // zero-length payload, 8-byte HMAC tag. Mirrors the briefing
+                // socket's pattern in Fodder_Network.cpp.
+                unsigned char RegisterFrame[openfodder_hubframe::kMinFrameSize];
+                const std::size_t RegisterFrameLen = openfodder_hubframe::BuildAndTag(
+                    openfodder_hubframe::FrameType::Register,
+                    /*seq=*/0,
+                    mPeerIndex,
+                    /*payload=*/nullptr,
+                    /*payloadLen=*/0,
+                    mSessionKey,
+                    RegisterFrame);
                 for (int i = 0; i < 3; ++i) {
-                    sendto(RegisterSocket, RegisterPacket.c_str(), (int)RegisterPacket.size(), 0,
+                    sendto(RegisterSocket,
+                           reinterpret_cast<const char*>(RegisterFrame),
+                           static_cast<int>(RegisterFrameLen), 0,
                            (struct sockaddr*)&RemoteAddr, sizeof(RemoteAddr));
                     SDL_Delay(5);
                 }
@@ -123,6 +148,21 @@ bool cGGPOSession::Start(int localPlayerIndex,
     if (!GGPO_SUCCEEDED(result)) {
         g_Debugger->Error("[GGPO] ggpo_start_session failed: " + std::to_string(result));
         return false;
+    }
+
+    // Install OFHUB/2 wrap/unwrap hooks on GGPO's Udp socket. Without
+    // this, GGPO's own data-plane packets would bypass OFHUB/2 framing
+    // (the lobby/briefing paths still tag correctly because they use
+    // their own sockets). The public `ggpo_p2p_install_ofhub_hooks` API
+    // lives in our vendored GGPO patch (cmake/ggpo-ofhub2-hooks.patch)
+    // and is only valid for peer-to-peer sessions.
+    if (mUseRelayFraming) {
+        GGPOErrorCode hookResult = ggpo_p2p_install_ofhub_hooks(
+            mSession, &OfhubWrap, &OfhubUnwrap, this);
+        if (!GGPO_SUCCEEDED(hookResult)) {
+            g_Debugger->Error("[GGPO] ggpo_p2p_install_ofhub_hooks failed: "
+                              + std::to_string(hookResult));
+        }
     }
 
     ggpo_set_disconnect_timeout(mSession, 3000);
@@ -334,6 +374,58 @@ bool __cdecl cGGPOSession::cb_OnEvent(GGPOEvent* info) {
             break;
     }
     return true;
+}
+
+// -----------------------------------------------------------------------
+// OFHUB/2 wrap/unwrap callbacks
+//
+// These are static C-style trampolines (signature dictated by the
+// ggpo-patch agent's planned ggpo_install_ofhub_hooks API). `ctx` is the
+// owning cGGPOSession*, recovered with a static_cast. Both functions
+// return the number of bytes written into outBuffer, or 0 on drop/error.
+// -----------------------------------------------------------------------
+
+int cGGPOSession::OfhubWrap(void* ctx, const char* in, int inLen,
+                            char* outBuffer, int capacity) {
+    auto* self = static_cast<cGGPOSession*>(ctx);
+    if (!self || inLen < 0 || !outBuffer) return 0;
+
+    const std::size_t needed =
+        openfodder_hubframe::kMinFrameSize + static_cast<std::size_t>(inLen);
+    if (capacity < 0 || static_cast<std::size_t>(capacity) < needed) return 0;
+
+    // mLocalSeq starts at 1 (REGISTER reserves seq=0). post-increment so the
+    // first DATA frame goes out as seq=1 and we monotonically advance.
+    const uint32_t seq = self->mLocalSeq.fetch_add(1, std::memory_order_relaxed);
+    const auto written = openfodder_hubframe::BuildAndTag(
+        openfodder_hubframe::FrameType::Data,
+        seq,
+        self->mPeerIndex,
+        reinterpret_cast<const unsigned char*>(in),
+        static_cast<std::size_t>(inLen),
+        self->mSessionKey,
+        reinterpret_cast<unsigned char*>(outBuffer));
+    return static_cast<int>(written);
+}
+
+int cGGPOSession::OfhubUnwrap(void* ctx, const char* in, int inLen,
+                              char* outBuffer, int capacity) {
+    auto* self = static_cast<cGGPOSession*>(ctx);
+    if (!self || inLen < 0 || !in || !outBuffer) return 0;
+
+    openfodder_hubframe::ParsedFrame f;
+    if (!openfodder_hubframe::VerifyAndParse(
+            reinterpret_cast<const unsigned char*>(in),
+            static_cast<std::size_t>(inLen),
+            self->mSessionKey,
+            &f)) {
+        return 0;
+    }
+    if (f.type != openfodder_hubframe::FrameType::Data) return 0;
+    if (!self->mReplay.AcceptAndAdvance(f.seq)) return 0;
+    if (capacity < 0 || static_cast<std::size_t>(capacity) < f.payloadLen) return 0;
+    std::memcpy(outBuffer, f.payload, f.payloadLen);
+    return static_cast<int>(f.payloadLen);
 }
 
 #endif // OPENFODDER_ENABLE_NETWORK

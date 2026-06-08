@@ -25,7 +25,11 @@
 #ifdef OPENFODDER_ENABLE_NETWORK
 
 #include "NetworkTypes.hpp"
+#include "HubFrame.hpp"
 #include <ggponet.h>
+#include <array>
+#include <atomic>
+#include <cstdint>
 #include <string>
 #include <functional>
 
@@ -57,7 +61,8 @@ public:
                unsigned short localPort,
                const std::string& remoteHost,
                unsigned short remotePort,
-               const std::string& relayToken = "");
+               const std::array<unsigned char, openfodder_hubframe::kSessionKeySize>& sessionKey = {},
+               uint8_t peerIndex = 0);
 
     // Start a local sync-test session (no network, tests determinism).
     bool StartSyncTest(int checkDistance = 8);
@@ -89,6 +94,16 @@ public:
     // True while GGPO is rolling back (replaying old frames).
     bool IsRollingBack() const { return mRollingBack; }
 
+    // OFHUB/2 wrap/unwrap callbacks. The ggpo-patch agent will install these
+    // on GGPO's internal Udp socket so every datagram GGPO emits/consumes is
+    // wrapped in the OFHUB/2 binary frame (HMAC-tagged with mSessionKey) when
+    // mUseRelayFraming is true. ctx is the cGGPOSession* so the static
+    // trampoline can reach instance state (seq counter, replay window, key).
+    static int OfhubWrap(void* ctx, const char* in, int inLen,
+                         char* outBuffer, int capacity);
+    static int OfhubUnwrap(void* ctx, const char* in, int inLen,
+                           char* outBuffer, int capacity);
+
 private:
     GGPOSession*    mSession;
     GGPOPlayerHandle mLocalHandle;
@@ -96,6 +111,13 @@ private:
     bool            mRollingBack;
     bool            mSessionReady;
     int             mLocalPlayerIndex;
+
+    // OFHUB/2 relay framing state (populated by Start()).
+    std::array<unsigned char, openfodder_hubframe::kSessionKeySize> mSessionKey{};
+    uint8_t                          mPeerIndex        = 0;
+    bool                             mUseRelayFraming  = false;
+    std::atomic<uint32_t>            mLocalSeq{1};
+    openfodder_hubframe::ReplayWindow mReplay;
 
     // -----------------------------------------------------------------------
     // Static trampoline functions – GGPO calls these; they delegate to the

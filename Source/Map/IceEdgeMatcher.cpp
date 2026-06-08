@@ -167,29 +167,47 @@ static double scoreEdgeContext(const std::string& pCandidateEdge,
 
 static double scoreEdgeMatch(const std::string& pCandidateEdge,
                              const std::string* pNeighbourEdge,
+                             const std::string& pCandidateTerrainEdge,
+                             const std::string* pNeighbourTerrainEdge,
                              char pHintGlyph) {
+    double visualContextBias = 0.0;
+    if(pHintGlyph && !pCandidateTerrainEdge.empty() &&
+        pCandidateTerrainEdge != pCandidateEdge) {
+        double visualContext = scoreEdgeContext(pCandidateEdge, pHintGlyph);
+        if(visualContext < 0.0)
+            visualContextBias = visualContext * 0.25;
+    }
+
     if(pNeighbourEdge != nullptr) {
         double edgeScore = 0.0;
         if(pCandidateEdge == *pNeighbourEdge) {
             edgeScore = 100.0;
         } else {
+            const std::string& candidateClassEdge = pCandidateTerrainEdge.empty() ?
+                pCandidateEdge : pCandidateTerrainEdge;
+            const std::string* neighbourClassEdge = pNeighbourTerrainEdge ?
+                pNeighbourTerrainEdge : pNeighbourEdge;
             int same = 0;
             int bad = 0;
             for(int i = 0; i < 16; ++i) {
-                char cg = pCandidateEdge[i];
-                char ng = (*pNeighbourEdge)[i];
+                char cg = candidateClassEdge[i];
+                char ng = (*neighbourClassEdge)[i];
                 if(cg == ng) ++same;
                 else if(edgeGlyphsDisjoint(cg, ng)) ++bad;
             }
             edgeScore = -50.0 + (double)(same * 150) / 16.0 - (double)(bad * 4);
         }
 
-        return edgeScore + scoreEdgeHint(pCandidateEdge, pHintGlyph) +
-            scoreEdgeContext(pCandidateEdge, pHintGlyph);
+        const std::string& hintEdge = pCandidateTerrainEdge.empty() ?
+            pCandidateEdge : pCandidateTerrainEdge;
+        return edgeScore + scoreEdgeHint(hintEdge, pHintGlyph) +
+            scoreEdgeContext(hintEdge, pHintGlyph) + visualContextBias;
     }
 
-    return scoreEdgeHint(pCandidateEdge, pHintGlyph) +
-        scoreEdgeContext(pCandidateEdge, pHintGlyph);
+    const std::string& hintEdge = pCandidateTerrainEdge.empty() ?
+        pCandidateEdge : pCandidateTerrainEdge;
+    return scoreEdgeHint(hintEdge, pHintGlyph) +
+        scoreEdgeContext(hintEdge, pHintGlyph) + visualContextBias;
 }
 
 static double scoreStructuralBias(const TileRec& pRec) {
@@ -199,7 +217,8 @@ static double scoreStructuralBias(const TileRec& pRec) {
 
     int structural = 0;
     for(int e = 0; e < 4; ++e) {
-        const std::string& edge = pRec.edges[e];
+        const std::string& edge = pRec.terrainEdges[e].empty() ?
+            pRec.edges[e] : pRec.terrainEdges[e];
         for(size_t i = 0; i < edge.size(); ++i)
             if(edge[i] == centerGlyph) ++structural;
     }
@@ -231,6 +250,17 @@ void Matcher::setAtlas(const std::vector<std::string>& pTileRecords,
         rec.edges[1] = f[4];  // E
         rec.edges[2] = f[5];  // S
         rec.edges[3] = f[6];  // W
+        if(f.size() >= 11) {
+            rec.terrainEdges[0] = f[7];
+            rec.terrainEdges[1] = f[8];
+            rec.terrainEdges[2] = f[9];
+            rec.terrainEdges[3] = f[10];
+        } else {
+            rec.terrainEdges[0] = rec.edges[0];
+            rec.terrainEdges[1] = rec.edges[1];
+            rec.terrainEdges[2] = rec.edges[2];
+            rec.terrainEdges[3] = rec.edges[3];
+        }
         mTiles[id] = rec;
     }
 
@@ -360,6 +390,14 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
         return pCls == 'e' || pCls == 'W';
     };
 
+    auto classContentBit = [](char pCls) -> int {
+        if(pCls == 'S') return 1;
+        if(pCls == 'I') return 2;
+        if(pCls == 'e') return 4;
+        if(pCls == 'W') return 8;
+        return 0;
+    };
+
     auto isAquaticShore = [&](int pX, int pY, char pCls) -> bool {
         if(pCls != 'I')
             return false;
@@ -369,23 +407,31 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
             isAquatic(CLASS_AT(pX - 1, pY));
     };
 
-    const double shoreRepeatPenaltyValue = -512.0;
+    auto aquaticIceContentOrientationAllowed = [&](const TileRec& pRec,
+                                                   int pX, int pY,
+                                                   char pCls) -> bool {
+        if(!isAquatic(pCls) || !(pRec.contentsMask & 2))
+            return true;
 
-    auto shoreRepeatPenalty = [&](int pTileId, int pX, int pY, char pCls,
-                                  const std::vector<int>& pTiles) -> double {
-        if(!isAquaticShore(pX, pY, pCls))
-            return 0.0;
+        static const int dx[4] = { 0, 1, 0, -1 };
+        static const int dy[4] = { -1, 0, 1, 0 };
+        const int minIceContact = 4;
+        const int maxIceStray = 2;
+        bool hasMatchingIceContact = false;
 
-        double penalty = 0.0;
-        if(pY > 0 && pTiles[(size_t)(pY - 1) * pWidth + pX] == pTileId)
-            penalty += shoreRepeatPenaltyValue;
-        if(pX + 1 < pWidth && pTiles[(size_t)pY * pWidth + (pX + 1)] == pTileId)
-            penalty += shoreRepeatPenaltyValue;
-        if(pY + 1 < pHeight && pTiles[(size_t)(pY + 1) * pWidth + pX] == pTileId)
-            penalty += shoreRepeatPenaltyValue;
-        if(pX > 0 && pTiles[(size_t)pY * pWidth + (pX - 1)] == pTileId)
-            penalty += shoreRepeatPenaltyValue;
-        return penalty;
+        for(int dir = 0; dir < 4; ++dir) {
+            const std::string& edge = pRec.terrainEdges[dir].empty() ?
+                pRec.edges[dir] : pRec.terrainEdges[dir];
+            int icePixels = countEdgeGlyphs(edge, "I");
+            if(CLASS_AT(pX + dx[dir], pY + dy[dir]) == 'I') {
+                if(icePixels >= minIceContact)
+                    hasMatchingIceContact = true;
+            } else if(icePixels > maxIceStray) {
+                return false;
+            }
+        }
+
+        return hasMatchingIceContact;
     };
 
     auto buildCandidates = [&](int pX, int pY, size_t pIdx, char pCls,
@@ -451,6 +497,41 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                 pCandidates.swap(filtered);
         }
 
+        int clsBit = classContentBit(pCls);
+        if(clsBit) {
+            std::vector<int> filtered;
+            for(size_t i = 0; i < pCandidates.size(); ++i) {
+                const TileRec* rec = tileRec(pCandidates[i]);
+                if(rec && (rec->contentsMask & clsBit))
+                    filtered.push_back(pCandidates[i]);
+            }
+            if(!filtered.empty())
+                pCandidates.swap(filtered);
+        }
+
+        if(isAquatic(pCls)) {
+            std::vector<int> filtered;
+            for(size_t i = 0; i < pCandidates.size(); ++i) {
+                const TileRec* rec = tileRec(pCandidates[i]);
+                if(rec && aquaticIceContentOrientationAllowed(*rec, pX, pY, pCls))
+                    filtered.push_back(pCandidates[i]);
+            }
+            if(!filtered.empty()) {
+                pCandidates.swap(filtered);
+            } else {
+                std::vector<int> fallback;
+                if(base != mByCenter.end()) {
+                    for(size_t i = 0; i < base->second.size(); ++i) {
+                        const TileRec* rec = tileRec(base->second[i]);
+                        if(rec && !(rec->contentsMask & 2) && (rec->contentsMask & clsBit))
+                            fallback.push_back(base->second[i]);
+                    }
+                }
+                if(!fallback.empty())
+                    pCandidates.swap(fallback);
+            }
+        }
+
         if(isAquaticShore(pX, pY, pCls)) {
             std::vector<int> filtered;
             for(size_t i = 0; i < pCandidates.size(); ++i) {
@@ -486,12 +567,15 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
         if(!hS) hS = (pY + 1 < pHeight) ? CLASS_AT(pX, pY + 1) : pCls;
         if(!hE) hE = (pX + 1 < pWidth) ? CLASS_AT(pX + 1, pY) : pCls;
 
-        double score = scoreEdgeMatch(rec->edges[0], northRec ? &northRec->edges[2] : nullptr, hN);
-        score += scoreEdgeMatch(rec->edges[1], eastRec ? &eastRec->edges[3] : nullptr, hE);
-        score += scoreEdgeMatch(rec->edges[2], southRec ? &southRec->edges[0] : nullptr, hS);
-        score += scoreEdgeMatch(rec->edges[3], westRec ? &westRec->edges[1] : nullptr, hW);
+        double score = scoreEdgeMatch(rec->edges[0], northRec ? &northRec->edges[2] : nullptr,
+            rec->terrainEdges[0], northRec ? &northRec->terrainEdges[2] : nullptr, hN);
+        score += scoreEdgeMatch(rec->edges[1], eastRec ? &eastRec->edges[3] : nullptr,
+            rec->terrainEdges[1], eastRec ? &eastRec->terrainEdges[3] : nullptr, hE);
+        score += scoreEdgeMatch(rec->edges[2], southRec ? &southRec->edges[0] : nullptr,
+            rec->terrainEdges[2], southRec ? &southRec->terrainEdges[0] : nullptr, hS);
+        score += scoreEdgeMatch(rec->edges[3], westRec ? &westRec->edges[1] : nullptr,
+            rec->terrainEdges[3], westRec ? &westRec->terrainEdges[1] : nullptr, hW);
         score += scoreStructuralBias(*rec);
-        score += shoreRepeatPenalty(pTileId, pX, pY, pCls, pTiles);
         score += (double)(hashTile(pSeed, pX, pY, 4096 + pTileId) & 7) * 0.001;
         return score;
     };
@@ -520,6 +604,8 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
             const TileRec* westRec  = tileRec(westTileId);
             const std::string* northFacing = northRec ? &northRec->edges[2] : nullptr;
             const std::string* westFacing  = westRec  ? &westRec->edges[1]  : nullptr;
+            const std::string* northTerrainFacing = northRec ? &northRec->terrainEdges[2] : nullptr;
+            const std::string* westTerrainFacing  = westRec  ? &westRec->terrainEdges[1]  : nullptr;
 
             if(!hN) hN = (y > 0) ? CLASS_AT(x, y - 1) : cls;
             if(!hW) hW = (x > 0) ? CLASS_AT(x - 1, y) : cls;
@@ -535,17 +621,15 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                     continue;
                 const TileRec& rec = t->second;
 
-                double score = scoreEdgeMatch(rec.edges[0], northFacing, hN);
-                score += scoreEdgeMatch(rec.edges[3], westFacing, hW);
-                score += scoreEdgeMatch(rec.edges[2], nullptr, hS);
-                score += scoreEdgeMatch(rec.edges[1], nullptr, hE);
+                double score = scoreEdgeMatch(rec.edges[0], northFacing,
+                    rec.terrainEdges[0], northTerrainFacing, hN);
+                score += scoreEdgeMatch(rec.edges[3], westFacing,
+                    rec.terrainEdges[3], westTerrainFacing, hW);
+                score += scoreEdgeMatch(rec.edges[2], nullptr,
+                    rec.terrainEdges[2], nullptr, hS);
+                score += scoreEdgeMatch(rec.edges[1], nullptr,
+                    rec.terrainEdges[1], nullptr, hE);
                 score += scoreStructuralBias(rec);
-                if(isAquaticShore(x, y, cls)) {
-                    if(northTileId == candId)
-                        score += shoreRepeatPenaltyValue;
-                    if(westTileId == candId)
-                        score += shoreRepeatPenaltyValue;
-                }
 
                 double jitter = (double)(hashTile(pSeed, x, y, 4096 + candId) & 7) * 0.001;
                 double total = score + jitter;

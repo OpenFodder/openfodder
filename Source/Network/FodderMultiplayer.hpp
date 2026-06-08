@@ -24,7 +24,10 @@
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
+#include "HubAuth.hpp"
+
 class cMultiplayerMenu;
+class cNetworkHubClient;
 
 class cFodderMultiplayer : public cFodder {
 public:
@@ -133,7 +136,28 @@ public:
     // UDP lobby for campaign selection sync
     std::unique_ptr<cNetworkLobby> mLobby;
 
+    // OFHUB/2 verified-host auth, used by the lobby loop to replay the cached
+    // bearer JWT for UpdateAuth + HeartbeatHost while the host stays parked
+    // on campaign select. The cache is populated by the multiplayer menu
+    // (cMultiplayerMenu::mHubAuth); having a parallel handle here lets the
+    // lobby refresh / re-load without going through the menu.
+    cHubAuth                       mHubAuth;
+
+    // Long-lived hub client used by Lobby_CampaignSelection so we amortize
+    // HELLO+COOKIE across UPDATE/HEARTBEATHOST (host) and HEARTBEATANON
+    // (joiner) ticks instead of re-handshaking every 2.5s/30s. The cookie
+    // cache + BADCOOKIE/STALE auto-invalidation already lives inside
+    // cNetworkHubClient (NetworkHubClient.cpp EnsureCookie / SendCommand);
+    // a stable instance lets that machinery actually do its job. Reset on
+    // lobby exit so a fresh resolve happens next session.
+    std::unique_ptr<cNetworkHubClient> mLobbyHub;
+
 private:
+    // Lazy-init / accessor for mLobbyHub. Returns nullptr when the underlying
+    // Configure() (resolve + socket bind) fails so the lobby loop can retry
+    // on its next throttled tick without partially-initialized state.
+    cNetworkHubClient*      AcquireLobbyHub();
+
     void                    Network_SetActiveSquadContext(int16 pSquad);
     bool                    Network_ShouldShowLiveMapMarker(const sSprite* pSprite) const;
     void                    Network_DrawLiveMapMarker(const sSprite* pSprite, bool pLocalPlayer);

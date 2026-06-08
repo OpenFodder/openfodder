@@ -30,6 +30,10 @@
 #include <string>
 #include <vector>
 
+#ifdef OPENFODDER_ENABLE_NETWORK
+#include "Network/HubAuth.hpp"
+#endif
+
 namespace Setup {
 
 // First-run / "data missing" wizard. Drawn over whatever VersionSwitch chose
@@ -44,6 +48,7 @@ public:
         Locate,         // Auto-scan results + "Browse..."
         Browse,         // FileBrowser is up
         Result,         // Validation outcome for the picked folder
+        Pairing,        // 6-digit pair code entry (post-Apply, only if matchmaking checkbox was on)
     };
 
     cSetupWizard();
@@ -128,9 +133,44 @@ private:
     void DrawLocate();
     void DrawBrowse();
     void DrawResult();
+    void DrawPairing();
 
     // Convenience: a centred, multi-line block of body text with auto wrapping.
     int DrawWrappedBody(const std::string& pText, int pStartY, int pMaxWidth);
+
+    // ----- Public-matchmaking pairing flow (post-Apply) -----
+    //
+    // The Result page exposes an "Enable public matchmaking" checkbox; on Apply
+    // (SAVE & CONTINUE / COPY TO DATA / KEEP MOUNTED) we kick off the Discord
+    // pairing handshake here instead of in OnRowClick to keep the click handler
+    // small. Begin* fires the browser; Submit* validates the typed code and
+    // calls cHubAuth::ClaimToken. Either step can soft-fail without blocking
+    // the rest of the wizard from completing — the user just won't have a
+    // public-matchmaking token.
+
+    // True iff the matchmaking checkbox is on. Toggled by clicking the
+    // checkbox row on the Result screen. Persists across screens within a
+    // single wizard session.
+    bool mEnableMatchmaking = false;
+
+    // Pending Apply action — captured when the user clicks the primary
+    // button on Result while the checkbox is on, replayed after the
+    // pairing flow completes (success OR cancel). 0 means "no pending
+    // apply".
+    int16 mPendingApplyAction = 0;
+    int16 mPendingApplyArg = 0;
+
+#ifdef OPENFODDER_ENABLE_NETWORK
+    void StartPairingFlow(int16 pNextAction, int16 pNextArg);
+    void SubmitPairCode();
+    void CompletePendingApply();    // dispatch mPendingApplyAction back through OnRowClick
+
+    cHubAuth     mHubAuth;
+    std::string  mDeviceCode;       // BeginPairing output; empty until pairing started
+    std::string  mPairCode;         // user-typed 6-char code
+    std::string  mPairingError;     // most recent error from BeginPairing/ClaimToken
+    bool         mPairingDone = false;     // true after a successful ClaimToken
+#endif
 
 private:
     bool mDone = false;

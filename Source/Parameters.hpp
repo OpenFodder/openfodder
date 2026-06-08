@@ -24,7 +24,12 @@ namespace cxxopts {
 	class Options;
 }
 
+#include <array>
+
 #include "Network/NetworkTypes.hpp"
+#ifdef OPENFODDER_ENABLE_NETWORK
+#include "Network/HubAuth.hpp"
+#endif
 
 /* These values override the original engine values, when in custom mode */
 static constexpr size_t CUSTOM_DEFAULT_MAX_SPRITES = 1000;
@@ -68,6 +73,7 @@ public:
 	bool mRandomMapOptionsEnabled; // Use explicit random-map options for campaign random maps
 	uint32 mRandomMapSeed;
 	eNetworkMapSize mRandomMapSize;
+	bool mRandomMapSizeExplicit;
 	eNetworkMapTerrain mRandomMapTerrain;
 	uint32 mRandomMapTerrainSub;
 	eNetworkVehicleSet mRandomMapVehicleSet;
@@ -127,7 +133,10 @@ public:
 	std::string mNetworkHubHost;        // Relay hub control hostname / IP
 	uint16      mNetworkHubPort;        // Relay hub control UDP port
 	std::string mNetworkRoomCode;       // Relay room/session code
-	std::string mNetworkRelayToken;     // Per-peer relay data registration token
+	std::string mNetworkHostBearer;     // OFHUB/2 verified-host bearer JWT (host only; empty for joiners). Loaded from cHubAuth token cache at host Start time.
+	std::array<unsigned char, 32> mNetworkSessionKey; // OFHUB/2 32-byte HMAC key, scoped to (room, peer); zero-init when not in internet mode.
+	uint8       mNetworkPeerIndex;      // OFHUB/2 sender peer index (host=0, joiner=1 in 2-player; range 0..7 per spec 6.1)
+	bool        mNetworkSessionKeyValid;// True once mNetworkSessionKey has been populated from the hub claim
 	int         mNetworkPlayerIndex;    // 0 = player 1 is local, 1 = player 2 is local
 	std::string mNetworkRemoteHost;     // Remote peer hostname / IP
 	uint16      mNetworkRemotePort;     // Remote peer UDP port
@@ -193,6 +202,7 @@ public:
 		mRandomMapOptionsEnabled = false;
 		mRandomMapSeed = NETWORK_MAP_SEED_DEFAULT;
 		mRandomMapSize = NETWORK_MAP_SIZE_DEFAULT;
+		mRandomMapSizeExplicit = false;
 		mRandomMapTerrain = NETWORK_MAP_TERRAIN_DEFAULT;
 		mRandomMapTerrainSub = 0;
 		mRandomMapVehicleSet = NETWORK_VEHICLE_SET_DEFAULT;
@@ -230,7 +240,10 @@ public:
 		mNetworkHubHost     = "hub.openfodder.com";
 		mNetworkHubPort     = 27770;
 		mNetworkRoomCode    = "";
-		mNetworkRelayToken  = "";
+		mNetworkHostBearer  = "";
+		mNetworkSessionKey.fill(0);
+		mNetworkPeerIndex   = 0;
+		mNetworkSessionKeyValid = false;
 		mNetworkPlayerIndex = 0;
 		mNetworkRemoteHost  = "";
 		mNetworkRemotePort  = 7001;

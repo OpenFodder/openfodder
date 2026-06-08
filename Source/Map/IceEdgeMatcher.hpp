@@ -26,18 +26,20 @@
 #include <vector>
 #include <unordered_map>
 
-// Native port of the JS ice tile-art "Wang" edge matcher
+// Native implementation of the JS ice tile-art "Wang" edge matcher
 // (MapGen.Terrain.Smoothing.Core.ApplyEdgeRule). The authored tile-edge atlas
 // (IceTileEdges) and all per-cell semantic decisions stay in JS; this only
 // runs the hot per-cell x per-candidate scoring loop. It is a PURE function of
-// its inputs (no engine state) and must reproduce the JS output BYTE-FOR-BYTE,
-// so every formula mirrors the JS exactly (including ECMAScript ToInt32 / lossy
-// double-multiply semantics in the HashTile tie-break).
+// its inputs (no engine state). Shared score primitives stay aligned with JS
+// polish scoring, while native placement also consumes semantic terrainEdges
+// and candidate filters that prevent visually valid but terrain-wrong shore
+// pieces from winning.
 //
 // A "class" is represented throughout by its single edge-glyph char:
 //   snow='S' ice='I' shallow='e' deep='W'  ('.'=other, no class).
-// Tile edges are 16-char glyph strings (N/E/S/W). Contents are a 4-bit mask:
-//   bit0 S, bit1 I, bit2 e, bit3 W.
+// Tile edges are 16-char glyph strings (N/E/S/W). `edges` are visual strips;
+// `terrainEdges` are semantic owner-class strips used for compatibility.
+// Contents are a 4-bit mask: bit0 S, bit1 I, bit2 e, bit3 W.
 namespace IceEdge {
 
 struct TileRec {
@@ -45,13 +47,14 @@ struct TileRec {
     char   center = 0;        // class glyph
     int    contentsMask = 0;  // 4-bit class set
     std::string edges[4];     // index 0=N 1=E 2=S 3=W ; each 16 chars
+    std::string terrainEdges[4];
 };
 
 class Matcher {
 public:
     // Cache the authored atlas (called once from JS). All inputs are flat
     // strings so dukglue marshals them cheaply:
-    //   pTileRecords[i] = "id|center|contents|edgeN|edgeE|edgeS|edgeW"
+    //   pTileRecords[i] = "id|center|contents|edgeN|edgeE|edgeS|edgeW|terrN|terrE|terrS|terrW"
     //                     (center = one class glyph, contents = glyph run e.g. "SI")
     //   pByCenter[i]    = "G:id,id,id"        (G = class glyph)
     //   pCharToClass[i] = "c=G"               (c = char-map char; "*" = default)

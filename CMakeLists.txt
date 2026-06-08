@@ -258,6 +258,43 @@ if(OPENFODDER_ENABLE_NETWORK AND NOT EMSCRIPTEN)
         endif()
     endif()
 
+    # OFHUB/2 wrap/unwrap hooks on the upstream Udp class. Unconditional:
+    # the hooks are platform-agnostic (typedefs + three pointer members +
+    # one accessor) and stay dormant until openfodder calls
+    # Udp::InstallOfhubHooks at runtime. The data-plane wiring lives in
+    # Source/Network/HubFrame.{cpp,hpp}.
+    set(GGPO_OFHUB2_PATCH "${CMAKE_CURRENT_LIST_DIR}/cmake/ggpo-ofhub2-hooks.patch")
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" -C "${GGPO_SOURCE_DIR}" apply --check "${GGPO_OFHUB2_PATCH}"
+        RESULT_VARIABLE _ggpo_ofhub2_check
+        ERROR_VARIABLE  _ggpo_ofhub2_error
+    )
+    if(_ggpo_ofhub2_check EQUAL 0)
+        message(STATUS "[GGPO] Applying OFHUB/2 wrap/unwrap hooks patch...")
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" -C "${GGPO_SOURCE_DIR}" apply "${GGPO_OFHUB2_PATCH}"
+            RESULT_VARIABLE _ggpo_ofhub2_result
+            ERROR_VARIABLE  _ggpo_ofhub2_apply_error
+        )
+        if(_ggpo_ofhub2_result)
+            message(FATAL_ERROR "Failed to apply GGPO OFHUB/2 hooks patch: ${_ggpo_ofhub2_apply_error}")
+        endif()
+    else()
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" -C "${GGPO_SOURCE_DIR}" apply --reverse --check "${GGPO_OFHUB2_PATCH}"
+            RESULT_VARIABLE _ggpo_ofhub2_reverse_check
+            ERROR_QUIET
+        )
+        if(NOT _ggpo_ofhub2_reverse_check EQUAL 0)
+            file(READ "${GGPO_SOURCE_DIR}/src/lib/ggpo/network/udp.h" _ggpo_udp_header)
+            if(_ggpo_udp_header MATCHES "OfhubWrapFn")
+                message(STATUS "[GGPO] OFHUB/2 hooks patch appears to be already applied.")
+            else()
+                message(FATAL_ERROR "GGPO OFHUB/2 hooks patch no longer applies: ${_ggpo_ofhub2_error}")
+            endif()
+        endif()
+    endif()
+
     # Auto-discover all GGPO .cpp files (robust to repo layout changes).
     set(GGPO_SRC_DIR "${GGPO_SOURCE_DIR}/src/lib/ggpo")
     file(GLOB_RECURSE GGPO_SOURCES "${GGPO_SRC_DIR}/*.cpp")

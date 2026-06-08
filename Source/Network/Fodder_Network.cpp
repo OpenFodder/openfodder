@@ -25,6 +25,7 @@
 #include "stdafx.hpp"
 // Fodder.hpp, Event.hpp, Parameters.hpp are already included via stdafx.hpp
 #include "Network/GGPOSession.hpp"
+#include "Network/HubFrame.hpp"
 #include "Network/NetworkTypes.hpp"
 
 #include <cstring>
@@ -349,12 +350,20 @@ bool cFodderMultiplayer::Network_Start() {
     if (mStartParams->mNetworkSyncTest) {
         ok = mNetSession->StartSyncTest();
     } else {
+        const std::array<unsigned char, openfodder_hubframe::kSessionKeySize> SessionKey =
+            mStartParams->mNetworkInternet
+                ? mStartParams->mNetworkSessionKey
+                : std::array<unsigned char, openfodder_hubframe::kSessionKeySize>{};
+        const uint8_t PeerIndex = mStartParams->mNetworkInternet
+                                      ? mStartParams->mNetworkPeerIndex
+                                      : uint8_t{0};
         ok = mNetSession->Start(
             mStartParams->mNetworkPlayerIndex,
             mStartParams->mNetworkLocalPort,
             mStartParams->mNetworkRemoteHost,
             mStartParams->mNetworkRemotePort,
-            mStartParams->mNetworkInternet ? mStartParams->mNetworkRelayToken : std::string()
+            SessionKey,
+            PeerIndex
         );
     }
 
@@ -949,10 +958,32 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
     remoteAddr.sin_port   = htons(mStartParams->mNetworkRemotePort);
     inet_pton(AF_INET, mStartParams->mNetworkRemoteHost.c_str(), &remoteAddr.sin_addr);
 
-    if (mStartParams->mNetworkInternet && !mStartParams->mNetworkRelayToken.empty()) {
-        const std::string RegisterPacket = "OFHUB/1 REGISTER token=" + mStartParams->mNetworkRelayToken;
+    // OFHUB/2 §6 binary data-plane framing. Internet-relayed peers must
+    // wrap every datagram (including REGISTER and the READY_MAGIC sync
+    // bursts below) in the binary frame format and HMAC-tag it with the
+    // per-(room,peer) session key delivered in CREATEOK/JOINOK. LAN-direct
+    // and SyncTest paths skip framing entirely.
+    const bool UseRelayFraming = mStartParams->mNetworkInternet;
+    const uint8_t LocalPeer = static_cast<uint8_t>(mStartParams->mNetworkPeerIndex);
+    const std::array<unsigned char, openfodder_hubframe::kSessionKeySize>& SessionKey =
+        mStartParams->mNetworkSessionKey;
+    uint32_t LocalSeq = 1;  // type=0x01 DATA frames; REGISTER reserves seq=0.
+    openfodder_hubframe::ReplayWindow Replay;
+
+    if (UseRelayFraming) {
+        // Type=0x02 REGISTER: zero-length payload, seq=0, peer index, 8-byte tag.
+        unsigned char RegisterFrame[openfodder_hubframe::kMinFrameSize];
+        const std::size_t RegisterFrameLen = openfodder_hubframe::BuildAndTag(
+            openfodder_hubframe::FrameType::Register,
+            /*seq=*/0,
+            LocalPeer,
+            /*payload=*/nullptr,
+            /*payloadLen=*/0,
+            SessionKey,
+            RegisterFrame);
         for (int i = 0; i < 3; ++i) {
-            sendto(sock, RegisterPacket.c_str(), (int)RegisterPacket.size(), 0,
+            sendto(sock, reinterpret_cast<const char*>(RegisterFrame),
+                   static_cast<int>(RegisterFrameLen), 0,
                    (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
             SDL_Delay(5);
         }
@@ -986,23 +1017,71 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
     mWindow->SetRelativeMouseMode(false);
     SDL_ShowCursor();
 
-    while (!remoteReady && !mExit) {
-        // Send our READY packet
-        sendto(sock, (const char*)&READY_MAGIC, sizeof(READY_MAGIC), 0,
-               (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
+    // Buffer sized for the largest READY frame plus headroom for any other
+    // framed datagram the relay may forward to us (e.g. re-registration ACK
+    // or a peer's READY) — kept small because READY payloads are 4 bytes.
+    constexpr std::size_t ReadyRecvBufSize = 256;
 
-        // Check for remote READY
-        uint32_t recvBuf = 0;
+    while (!remoteReady && !mExit) {
+        // Send our READY packet — wrap as a type=0x01 DATA frame on the
+        // relay path so the hub can verify our session-key tag and fan it
+        // out to the remote peer (§6.3). LAN path stays raw 4-byte magic.
+        if (UseRelayFraming) {
+            unsigned char ReadyFrame[openfodder_hubframe::kMinFrameSize + sizeof(READY_MAGIC)];
+            const std::size_t ReadyFrameLen = openfodder_hubframe::BuildAndTag(
+                openfodder_hubframe::FrameType::Data,
+                LocalSeq++,
+                LocalPeer,
+                reinterpret_cast<const unsigned char*>(&READY_MAGIC),
+                sizeof(READY_MAGIC),
+                SessionKey,
+                ReadyFrame);
+            sendto(sock, reinterpret_cast<const char*>(ReadyFrame),
+                   static_cast<int>(ReadyFrameLen), 0,
+                   (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
+        } else {
+            sendto(sock, (const char*)&READY_MAGIC, sizeof(READY_MAGIC), 0,
+                   (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
+        }
+
+        // Check for remote READY. On the relay path the inbound datagram is
+        // a fan-out frame re-tagged by the hub with OUR session key (§6.4),
+        // so verify with our own key, drop on tag mismatch, then run the seq
+        // through the 1024-bit replay window before reading the magic.
         struct sockaddr_in fromAddr;
 #ifdef WIN32
         int fromLen = sizeof(fromAddr);
 #else
         socklen_t fromLen = sizeof(fromAddr);
 #endif
-        int n = recvfrom(sock, (char*)&recvBuf, sizeof(recvBuf), 0,
-                         (struct sockaddr*)&fromAddr, &fromLen);
-        if (n == sizeof(recvBuf) && recvBuf == READY_MAGIC)
-            remoteReady = true;
+
+        if (UseRelayFraming) {
+            unsigned char RecvFrame[ReadyRecvBufSize];
+            int n = recvfrom(sock, reinterpret_cast<char*>(RecvFrame),
+                             static_cast<int>(sizeof(RecvFrame)), 0,
+                             (struct sockaddr*)&fromAddr, &fromLen);
+            if (n > 0) {
+                openfodder_hubframe::ParsedFrame Frame{};
+                if (openfodder_hubframe::VerifyAndParse(
+                        RecvFrame, static_cast<std::size_t>(n), SessionKey, &Frame)) {
+                    if (Frame.type == openfodder_hubframe::FrameType::Data &&
+                        Replay.AcceptAndAdvance(Frame.seq) &&
+                        Frame.payloadLen == sizeof(READY_MAGIC)) {
+                        uint32_t recvBuf = 0;
+                        std::memcpy(&recvBuf, Frame.payload, sizeof(recvBuf));
+                        if (recvBuf == READY_MAGIC)
+                            remoteReady = true;
+                    }
+                }
+                // Tag mismatch / replay / unknown type / bad framing: silent drop.
+            }
+        } else {
+            uint32_t recvBuf = 0;
+            int n = recvfrom(sock, (char*)&recvBuf, sizeof(recvBuf), 0,
+                             (struct sockaddr*)&fromAddr, &fromLen);
+            if (n == sizeof(recvBuf) && recvBuf == READY_MAGIC)
+                remoteReady = true;
+        }
 
         // Render the waiting overlay
         {
@@ -1024,10 +1103,28 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
         SDL_Delay(16);
     }
 
-    // Send a few extra READY packets so the remote is sure to receive ours
+    // Send a few extra READY packets so the remote is sure to receive ours.
+    // Each wrapped instance gets a fresh monotonic seq; the peer's replay
+    // window accepts each new seq exactly once and silently drops anything
+    // it has already seen.
     for (int i = 0; i < 10; ++i) {
-        sendto(sock, (const char*)&READY_MAGIC, sizeof(READY_MAGIC), 0,
-               (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
+        if (UseRelayFraming) {
+            unsigned char ReadyFrame[openfodder_hubframe::kMinFrameSize + sizeof(READY_MAGIC)];
+            const std::size_t ReadyFrameLen = openfodder_hubframe::BuildAndTag(
+                openfodder_hubframe::FrameType::Data,
+                LocalSeq++,
+                LocalPeer,
+                reinterpret_cast<const unsigned char*>(&READY_MAGIC),
+                sizeof(READY_MAGIC),
+                SessionKey,
+                ReadyFrame);
+            sendto(sock, reinterpret_cast<const char*>(ReadyFrame),
+                   static_cast<int>(ReadyFrameLen), 0,
+                   (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
+        } else {
+            sendto(sock, (const char*)&READY_MAGIC, sizeof(READY_MAGIC), 0,
+                   (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
+        }
         SDL_Delay(5);
     }
 

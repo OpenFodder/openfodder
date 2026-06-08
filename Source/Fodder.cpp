@@ -3900,6 +3900,7 @@ bool cFodder::RandomMapOptions_RunCampaign()
     mStartParams->mRandomMapOptionsEnabled = true;
     mStartParams->mRandomMapSeed = Options.mSeed;
     mStartParams->mRandomMapSize = Options.mMapSize;
+    mStartParams->mRandomMapSizeExplicit = true;
     mStartParams->mRandomMapTerrain = Options.mMapTerrain;
     mStartParams->mRandomMapTerrainSub = Options.mMapTerrainSub;
     mStartParams->mRandomMapVehicleSet = Options.mVehicleSet;
@@ -3911,6 +3912,7 @@ bool cFodder::RandomMapOptions_RunCampaign()
     mParams->mRandomMapOptionsEnabled = true;
     mParams->mRandomMapSeed = Options.mSeed;
     mParams->mRandomMapSize = Options.mMapSize;
+    mParams->mRandomMapSizeExplicit = true;
     mParams->mRandomMapTerrain = Options.mMapTerrain;
     mParams->mRandomMapTerrainSub = Options.mMapTerrainSub;
     mParams->mRandomMapVehicleSet = Options.mVehicleSet;

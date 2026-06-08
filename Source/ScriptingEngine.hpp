@@ -81,6 +81,7 @@ protected:
 	bool randomMapOptionsEnabled() const;
 	uint32_t randomMapSeed() const;
 	int randomMapSize() const;
+	bool randomMapSizeExplicit() const;
 	int randomMapTerrain() const;
 	int randomMapTerrainSub() const;
 	int randomMapVehicleSet() const;

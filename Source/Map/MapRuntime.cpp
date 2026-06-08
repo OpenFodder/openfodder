@@ -121,7 +121,7 @@ void cFodder::Map_Count_Sprites()
 void cFodder::Map_Create(sMapParams pParams)
 {
 
-    if (mVersionCurrent->isAmigaPower())
+    if (mVersionCurrent && mVersionCurrent->isAmigaPower())
         pParams.mTileSub = eTileSub_1;
 
     mMapLoaded = std::make_shared<cRandomMap>(pParams);

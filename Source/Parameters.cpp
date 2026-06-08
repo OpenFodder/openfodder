@@ -168,6 +168,7 @@ std::string sFodderParameters::ToJson() {
 	Save["mRandomMapOptionsEnabled"] = mRandomMapOptionsEnabled;
 	Save["mRandomMapSeed"] = mRandomMapSeed;
 	Save["mRandomMapSize"] = mRandomMapSize;
+	Save["mRandomMapSizeExplicit"] = mRandomMapSizeExplicit;
 	Save["mRandomMapTerrain"] = mRandomMapTerrain;
 	Save["mRandomMapTerrainSub"] = mRandomMapTerrainSub;
 	Save["mRandomMapVehicleSet"] = mRandomMapVehicleSet;
@@ -214,6 +215,8 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 		mRandomMapSeed = LoadedData["mRandomMapSeed"];
 	if (LoadedData.count("mRandomMapSize") > 0)
 		mRandomMapSize = Network_NormalizeMapSize((uint8_t)LoadedData["mRandomMapSize"]);
+	if (LoadedData.count("mRandomMapSizeExplicit") > 0)
+		mRandomMapSizeExplicit = LoadedData["mRandomMapSizeExplicit"];
 	if (LoadedData.count("mRandomMapTerrain") > 0)
 		mRandomMapTerrain = Network_NormalizeMapTerrain((uint8_t)LoadedData["mRandomMapTerrain"]);
 	if (LoadedData.count("mRandomMapTerrainSub") > 0)
@@ -307,7 +310,6 @@ void sFodderParameters::PrepareOptions() {
 		("net-hub-host", "Relay hub control hostname / IP", cxxopts::value<std::string>()->default_value("hub.openfodder.com"), "\"hub.openfodder.com\"")
 		("net-hub-port", "Relay hub control UDP port", cxxopts::value<uint32_t>()->default_value("27770"), "27770")
 		("net-room-code", "Relay room/session code to join", cxxopts::value<std::string>()->default_value(""), "\"ABC123\"")
-		("net-relay-token", "Relay data registration token", cxxopts::value<std::string>()->default_value(""), "\"TOKEN\"")
 		("net-mode", "Multiplayer mode: coop, deathmatch, squad-deathmatch, rescue-prisoner, avatar-deathmatch, team-avatar", cxxopts::value<std::string>()->default_value(""), "\"coop\"")
 		("net-seed", "Multiplayer map seed", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_MAP_SEED_DEFAULT)), "4919")
 		("net-kill-limit", "Multiplayer kill limit", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_KILL_LIMIT_DEFAULT)), "10")
@@ -515,6 +517,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			std::string MapSize = result["random-map-size"].as<std::string>();
 			if (!MapSize.empty()) {
 				mRandomMapSize = Parameters_ParseNetworkMapSize(MapSize);
+				mRandomMapSizeExplicit = true;
 				mRandomMapOptionsEnabled = true;
 				mRandomMapProfile = eNetworkMapProfile_Custom;
 			}
@@ -578,11 +581,6 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 				mNetworkInternet = true;
 				mNetworkEnabled = true;
 			}
-		}
-		if (result.count("net-relay-token")) {
-			mNetworkRelayToken = result["net-relay-token"].as<std::string>();
-			if (!mNetworkRelayToken.empty())
-				mNetworkInternet = true;
 		}
 		if (result.count("net-mode")) {
 			std::string NetMode = result["net-mode"].as<std::string>();

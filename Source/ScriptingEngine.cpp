@@ -419,6 +419,7 @@ void cScriptingEngine::init() {
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapOptionsEnabled, "randomMapOptionsEnabled");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapSeed, "randomMapSeed");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapSize, "randomMapSize");
+	dukglue_register_method(mContext, &cScriptingEngine::randomMapSizeExplicit, "randomMapSizeExplicit");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapTerrain, "randomMapTerrain");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapTerrainSub, "randomMapTerrainSub");
 	dukglue_register_method(mContext, &cScriptingEngine::randomMapVehicleSet, "randomMapVehicleSet");
@@ -584,6 +585,10 @@ int cScriptingEngine::randomMapSize() const {
 		return (int)NETWORK_MAP_SIZE_DEFAULT;
 
 	return (int)g_Fodder->mStartParams->mRandomMapSize;
+}
+
+bool cScriptingEngine::randomMapSizeExplicit() const {
+	return randomMapOptionsEnabled() && g_Fodder->mStartParams->mRandomMapSizeExplicit;
 }
 
 int cScriptingEngine::randomMapTerrain() const {

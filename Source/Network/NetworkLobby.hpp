@@ -39,10 +39,12 @@
 #  define closesocket close
 #endif
 
+#include <array>
 #include <string>
 #include <cstdint>
 #include <cstring>
 
+#include "HubFrame.hpp"
 #include "NetworkTypes.hpp"
 
 // Lobby packet exchanged via UDP side-channel during campaign selection.
@@ -94,7 +96,8 @@ public:
         const std::string& pRemoteHost,
         uint16_t pRemotePort,
         bool pIsHost,
-        const std::string& pRelayToken = "",
+        const std::array<unsigned char, openfodder_hubframe::kSessionKeySize>& pSessionKey = {},
+        uint8_t pPeerIndex = 0,
         bool pPreserveRemoteEndpoint = false);
     void Stop();
 
@@ -132,10 +135,20 @@ private:
     struct sockaddr_in  mRemoteAddr;
     bool                mIsHost = false;
     bool                mPreserveRemoteEndpoint = false;
-    std::string         mRelayToken;
     uint32_t            mLastRelayRegisterTicks = 0;
     uint32_t            mLocalPlayerId = 0;
     uint32_t            mRemotePlayerId = 0;
+
+    // OFHUB/2 binary frame plumbing. When mHasSessionKey is true the lobby
+    // wraps every outbound datagram in a type=0x01 DATA frame and verifies
+    // every inbound datagram with the same key (re-tagged by the hub on
+    // fan-out per OFHUB2.md §6.4). LAN/SyncTest paths leave mHasSessionKey
+    // false and exchange raw sLobbyPacket bytes as before.
+    std::array<unsigned char, openfodder_hubframe::kSessionKeySize> mSessionKey{};
+    uint8_t                          mPeerIndex = 0;
+    bool                             mHasSessionKey = false;
+    uint32_t                         mLocalSeq = 1;
+    openfodder_hubframe::ReplayWindow mReplay;
 
     // Local state (what we send)
     int16_t     mLocalSelection = 0;

@@ -36,7 +36,14 @@
 #endif
 
 #include <array>
+#include <chrono>
+#include <cstring>
+#include <ctime>
 #include <sstream>
+
+// ----------------------------------------------------------------------------
+// Local helpers
+// ----------------------------------------------------------------------------
 
 static std::vector<std::string> Hub_SplitWhitespace(const std::string& pText) {
     std::istringstream Stream(pText);
@@ -104,6 +111,14 @@ static bool Hub_SameEndpoint(const struct sockaddr_in& pA, const struct sockaddr
         pA.sin_addr.s_addr == pB.sin_addr.s_addr;
 }
 
+static int64_t Hub_UnixNow() {
+    return (int64_t)std::time(nullptr);
+}
+
+// ----------------------------------------------------------------------------
+// Construction / lifecycle
+// ----------------------------------------------------------------------------
+
 cNetworkHubClient::cNetworkHubClient() {
 #ifdef WIN32
     WSADATA WsaData;
@@ -113,7 +128,7 @@ cNetworkHubClient::cNetworkHubClient() {
 #ifdef OPENFODDER_HAVE_SODIUM
     // sodium_init() is idempotent and thread-safe; calling it from each hub
     // client constructor is fine. Required before any libsodium primitive is
-    // used (cookie HMAC, Ed25519 JWT verify, randombytes_buf for nonces).
+    // used (randombytes_buf for nonces, base64 helpers).
     if (sodium_init() < 0) {
         mLastError = "sodium_init failed";
     }
@@ -129,6 +144,8 @@ cNetworkHubClient::~cNetworkHubClient() {
 bool cNetworkHubClient::Configure(const std::string& pHubHost, uint16_t pHubPort) {
     mHubHost = pHubHost.size() ? pHubHost : NETWORK_HUB_DEFAULT_HOST;
     mHubPort = pHubPort ? pHubPort : NETWORK_HUB_DEFAULT_PORT;
+    mCookieValid = false;
+    mCookie.clear();
     return ResolveHub();
 }
 
@@ -154,7 +171,11 @@ bool cNetworkHubClient::ResolveHub() {
     return true;
 }
 
-bool cNetworkHubClient::SendRequest(const std::string& pRequest, std::string& pResponse) {
+// ----------------------------------------------------------------------------
+// UDP transport (one shot, single response)
+// ----------------------------------------------------------------------------
+
+bool cNetworkHubClient::SendRaw(const std::string& pRequest, std::string& pResponse) {
     if (mResolvedHost.empty() && !ResolveHub())
         return false;
     if (pRequest.size() > 1200) {
@@ -217,11 +238,13 @@ bool cNetworkHubClient::SendRequest(const std::string& pRequest, std::string& pR
     }
 
     pResponse.assign(Buffer.data(), (size_t)Received);
-    if (pResponse.find("ERR OFHUB/1") == 0) {
+
+    // OFHUB/2 envelopes: "OK OFHUB/2 <CMDOK> ..." or "ERR OFHUB/2 <CODE> ...".
+    if (pResponse.find("ERR OFHUB/2") == 0) {
         mLastError = pResponse;
         return false;
     }
-    if (pResponse.find("OK OFHUB/1") != 0) {
+    if (pResponse.find("OK OFHUB/2") != 0) {
         mLastError = "bad hub response";
         return false;
     }
@@ -229,6 +252,248 @@ bool cNetworkHubClient::SendRequest(const std::string& pRequest, std::string& pR
     mLastError.clear();
     return true;
 }
+
+bool cNetworkHubClient::SendCommand(const std::string& pCommand, const std::string& pTail,
+                                    std::string& pResponse) {
+    if (!EnsureCookie())
+        return false;
+
+    std::string Nonce;
+    if (!MakeNonce(Nonce))
+        return false;
+
+    std::string Request = "OFHUB/2 ";
+    Request += pCommand;
+    Request += " cookie=";
+    Request += mCookie;
+    Request += " nonce=";
+    Request += Nonce;
+    Request += " ts=";
+    Request += std::to_string(Hub_UnixNow());
+    if (!pTail.empty()) {
+        Request += ' ';
+        Request += pTail;
+    }
+
+    if (SendRaw(Request, pResponse))
+        return true;
+
+    // If the cookie went stale (clock skew, secret rotation), drop it and force
+    // a re-HELLO on the next call. The caller surfaces the error as-is.
+    if (mLastError.find("BADCOOKIE") != std::string::npos ||
+        mLastError.find("STALE") != std::string::npos) {
+        mCookieValid = false;
+        mCookie.clear();
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+// Cookie / nonce
+// ----------------------------------------------------------------------------
+
+bool cNetworkHubClient::EnsureCookie() {
+    if (mCookieValid) {
+        const auto Age = std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::steady_clock::now() - mCookieAcquiredAt).count();
+        if (Age < NETWORK_HUB_COOKIE_LIFETIME_SECONDS)
+            return true;
+        mCookieValid = false;
+        mCookie.clear();
+    }
+    return Hello();
+}
+
+bool cNetworkHubClient::MakeNonce(std::string& pOut) {
+#ifdef OPENFODDER_HAVE_SODIUM
+    unsigned char Random[16];
+    randombytes_buf(Random, sizeof(Random));
+    pOut = Base64UrlEncode(Random, sizeof(Random));
+    return pOut.size() == 22;
+#else
+    (void)pOut;
+    mLastError = "libsodium required for OFHUB/2 nonce generation";
+    return false;
+#endif
+}
+
+bool cNetworkHubClient::Hello() {
+    std::string Response;
+    if (!SendRaw("OFHUB/2 HELLO ver=2", Response))
+        return false;
+
+    const std::string Cookie = Hub_ResponseValue(Response, "val");
+    if (Cookie.size() != 22) {
+        mLastError = "hub HELLO returned malformed cookie";
+        mCookieValid = false;
+        return false;
+    }
+
+    mCookie = Cookie;
+    mCookieAcquiredAt = std::chrono::steady_clock::now();
+    mCookieValid = true;
+    return true;
+}
+
+// ----------------------------------------------------------------------------
+// Response parsing
+// ----------------------------------------------------------------------------
+
+bool cNetworkHubClient::ParseRoomResponse(const std::string& pResponse, sNetworkHubRoom& pRoom) {
+    pRoom = sNetworkHubRoom();
+    pRoom.mRelayHost = mResolvedHost;
+    pRoom.mRoomCode = Hub_ResponseValue(pResponse, "id");
+    pRoom.mHostIp = Hub_ResponseValue(pResponse, "host");
+
+    if (!Hub_ParseUint16(Hub_ResponseValue(pResponse, "port"), pRoom.mRelayPort))
+        return false;
+    Hub_ParseUint8(Hub_ResponseValue(pResponse, "capacity"), pRoom.mMaxPlayers);
+    Hub_ParseUint8(Hub_ResponseValue(pResponse, "peers"), pRoom.mCurrentPlayers);
+
+    const std::string SessionKeyB64 = Hub_ResponseValue(pResponse, "session_key");
+    std::vector<unsigned char> SessionKeyBytes;
+    if (!Base64UrlDecode(SessionKeyB64, SessionKeyBytes) || SessionKeyBytes.size() != 32) {
+        mLastError = "hub returned malformed session_key";
+        return false;
+    }
+    std::memcpy(pRoom.mSessionKey.data(), SessionKeyBytes.data(), 32);
+
+    PercentDecode(Hub_ResponseValue(pResponse, "name"), pRoom.mMetadata.mGameName);
+    PercentDecode(Hub_ResponseValue(pResponse, "mode"), pRoom.mMetadata.mGameMode);
+    PercentDecode(Hub_ResponseValue(pResponse, "map"), pRoom.mMetadata.mMapName);
+    PercentDecode(Hub_ResponseValue(pResponse, "options"), pRoom.mMetadata.mOptions);
+    PercentDecode(Hub_ResponseValue(pResponse, "version"), pRoom.mMetadata.mVersion);
+    return pRoom.mRoomCode.size() && pRoom.mRelayPort;
+}
+
+bool cNetworkHubClient::ParseListEntry(const std::string& pValue, sNetworkHubGame& pGame) {
+    // Per spec § 4.4.5:
+    //   r0=<id>,<host>,<port>,<peers>,<capacity>,<%-name>,<%-mode>,
+    //      <%-map>,<%-opts>,<%-ver>
+    const auto Parts = Hub_SplitChar(pValue, ',');
+    if (Parts.size() < 10)
+        return false;
+
+    pGame = sNetworkHubGame();
+    pGame.mRoomCode = Parts[0];
+    pGame.mRelayHost = Parts[1].size() ? Parts[1] : mResolvedHost;
+    if (!Hub_ParseUint16(Parts[2], pGame.mRelayPort))
+        return false;
+    Hub_ParseUint8(Parts[3], pGame.mCurrentPlayers);
+    Hub_ParseUint8(Parts[4], pGame.mMaxPlayers);
+    PercentDecode(Parts[5], pGame.mMetadata.mGameName);
+    PercentDecode(Parts[6], pGame.mMetadata.mGameMode);
+    PercentDecode(Parts[7], pGame.mMetadata.mMapName);
+    PercentDecode(Parts[8], pGame.mMetadata.mOptions);
+    PercentDecode(Parts[9], pGame.mMetadata.mVersion);
+    return pGame.mRoomCode.size() && pGame.mRelayPort;
+}
+
+// ----------------------------------------------------------------------------
+// Public API — OFHUB/2 commands
+// ----------------------------------------------------------------------------
+
+bool cNetworkHubClient::ListAnonymous(std::vector<sNetworkHubGame>& pOut) {
+    pOut.clear();
+
+    std::string Response;
+    if (!SendCommand("LIST", "", Response))
+        return false;
+
+    const auto Tokens = Hub_SplitWhitespace(Response);
+    for (const std::string& Token : Tokens) {
+        if (Token.size() < 4 || Token[0] != 'r')
+            continue;
+        const size_t Equals = Token.find('=');
+        if (Equals == std::string::npos)
+            continue;
+        // Only entries of the form rN=... where N is digit-only.
+        bool DigitsOnly = Equals > 1;
+        for (size_t i = 1; i < Equals && DigitsOnly; ++i) {
+            if (Token[i] < '0' || Token[i] > '9')
+                DigitsOnly = false;
+        }
+        if (!DigitsOnly)
+            continue;
+
+        sNetworkHubGame Game;
+        if (ParseListEntry(Token.substr(Equals + 1), Game))
+            pOut.push_back(Game);
+    }
+    return true;
+}
+
+bool cNetworkHubClient::JoinAnonymous(const std::string& pRoomCode, sNetworkHubRoom& pOut) {
+    std::string Response;
+    if (!SendCommand("JOIN", "id=" + pRoomCode, Response))
+        return false;
+    return ParseRoomResponse(Response, pOut);
+}
+
+bool cNetworkHubClient::CreateAuth(const sHubAuthToken& pAuth, uint8_t pCapacity,
+                                   const sNetworkHubMetadata& pMeta, bool pListed,
+                                   sNetworkHubRoom& pOut) {
+    if (pAuth.mJwt.empty()) {
+        mLastError = "CREATE requires bearer token";
+        return false;
+    }
+
+    std::string Tail;
+    Tail += "bearer=" + pAuth.mJwt;
+    Tail += " capacity=" + std::to_string((int)pCapacity);
+    Tail += pListed ? " listed=1" : " listed=0";
+    Tail += " name=" + PercentEncode(pMeta.mGameName);
+    Tail += " mode=" + PercentEncode(pMeta.mGameMode);
+    Tail += " map=" + PercentEncode(pMeta.mMapName);
+    Tail += " options=" + PercentEncode(pMeta.mOptions);
+    Tail += " version=" + PercentEncode(pMeta.mVersion);
+
+    std::string Response;
+    if (!SendCommand("CREATE", Tail, Response))
+        return false;
+    return ParseRoomResponse(Response, pOut);
+}
+
+bool cNetworkHubClient::UpdateAuth(const sHubAuthToken& pAuth, const std::string& pRoomCode,
+                                   const sNetworkHubMetadata& pMeta, bool pListed) {
+    if (pAuth.mJwt.empty()) {
+        mLastError = "UPDATE requires bearer token";
+        return false;
+    }
+
+    std::string Tail;
+    Tail += "bearer=" + pAuth.mJwt;
+    Tail += " id=" + pRoomCode;
+    Tail += pListed ? " listed=1" : " listed=0";
+    Tail += " name=" + PercentEncode(pMeta.mGameName);
+    Tail += " mode=" + PercentEncode(pMeta.mGameMode);
+    Tail += " map=" + PercentEncode(pMeta.mMapName);
+    Tail += " options=" + PercentEncode(pMeta.mOptions);
+    Tail += " version=" + PercentEncode(pMeta.mVersion);
+
+    std::string Response;
+    return SendCommand("UPDATE", Tail, Response);
+}
+
+bool cNetworkHubClient::HeartbeatAnonymous(const std::string& pRoomCode) {
+    std::string Response;
+    return SendCommand("HEARTBEAT", "id=" + pRoomCode, Response);
+}
+
+bool cNetworkHubClient::HeartbeatHost(const sHubAuthToken& pAuth, const std::string& pRoomCode) {
+    if (pAuth.mJwt.empty()) {
+        mLastError = "host HEARTBEAT requires bearer token";
+        return false;
+    }
+
+    std::string Tail = "bearer=" + pAuth.mJwt + " id=" + pRoomCode;
+    std::string Response;
+    return SendCommand("HEARTBEAT", Tail, Response);
+}
+
+// ----------------------------------------------------------------------------
+// Encoding helpers
+// ----------------------------------------------------------------------------
 
 std::string cNetworkHubClient::PercentEncode(const std::string& pValue) {
     static const char Hex[] = "0123456789ABCDEF";
@@ -276,99 +541,77 @@ bool cNetworkHubClient::PercentDecode(const std::string& pValue, std::string& pD
     return true;
 }
 
-bool cNetworkHubClient::ParseRoomResponse(const std::string& pResponse, sNetworkHubRoom& pRoom) {
-    pRoom = sNetworkHubRoom();
-    pRoom.mRelayHost = mResolvedHost;
-    pRoom.mRoomCode = Hub_ResponseValue(pResponse, "room");
-    pRoom.mToken = Hub_ResponseValue(pResponse, "token");
-    if (!Hub_ParseUint16(Hub_ResponseValue(pResponse, "port"), pRoom.mRelayPort))
-        return false;
-    Hub_ParseUint8(Hub_ResponseValue(pResponse, "capacity"), pRoom.mMaxPlayers);
-    Hub_ParseUint8(Hub_ResponseValue(pResponse, "peers"), pRoom.mCurrentPlayers);
+std::string cNetworkHubClient::Base64UrlEncode(const unsigned char* pData, size_t pLength) {
+    // Unpadded base64url. We emit our own table rather than rely on libsodium's
+    // sodium_bin2base64 (which would also work but pulls in a bigger surface
+    // and forces a specific padding variant per call).
+    static const char Alphabet[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-    PercentDecode(Hub_ResponseValue(pResponse, "name"), pRoom.mMetadata.mGameName);
-    PercentDecode(Hub_ResponseValue(pResponse, "mode"), pRoom.mMetadata.mGameMode);
-    PercentDecode(Hub_ResponseValue(pResponse, "map"), pRoom.mMetadata.mMapName);
-    PercentDecode(Hub_ResponseValue(pResponse, "options"), pRoom.mMetadata.mOptions);
-    PercentDecode(Hub_ResponseValue(pResponse, "version"), pRoom.mMetadata.mVersion);
-    return pRoom.mRoomCode.size() && pRoom.mRelayPort && pRoom.mToken.size();
-}
+    std::string Out;
+    Out.reserve(((pLength + 2) / 3) * 4);
 
-bool cNetworkHubClient::ParseListEntry(const std::string& pValue, sNetworkHubGame& pGame) {
-    const auto Parts = Hub_SplitChar(pValue, ',');
-    if (Parts.size() < 9)
-        return false;
-
-    pGame = sNetworkHubGame();
-    pGame.mRelayHost = mResolvedHost;
-    pGame.mRoomCode = Parts[0];
-    if (!Hub_ParseUint16(Parts[1], pGame.mRelayPort))
-        return false;
-    Hub_ParseUint8(Parts[2], pGame.mCurrentPlayers);
-    Hub_ParseUint8(Parts[3], pGame.mMaxPlayers);
-    PercentDecode(Parts[4], pGame.mMetadata.mGameName);
-    PercentDecode(Parts[5], pGame.mMetadata.mGameMode);
-    PercentDecode(Parts[6], pGame.mMetadata.mMapName);
-    PercentDecode(Parts[7], pGame.mMetadata.mOptions);
-    PercentDecode(Parts[8], pGame.mMetadata.mVersion);
-    return pGame.mRoomCode.size() && pGame.mRelayPort;
-}
-
-bool cNetworkHubClient::List(std::vector<sNetworkHubGame>& pGames) {
-    pGames.clear();
-    std::string Response;
-    if (!SendRequest("OFHUB/1 LIST", Response))
-        return false;
-
-    const auto Tokens = Hub_SplitWhitespace(Response);
-    for (const std::string& Token : Tokens) {
-        if (Token.size() < 4 || Token[0] != 'r')
-            continue;
-        const size_t Equals = Token.find('=');
-        if (Equals == std::string::npos)
-            continue;
-
-        sNetworkHubGame Game;
-        if (ParseListEntry(Token.substr(Equals + 1), Game))
-            pGames.push_back(Game);
+    size_t i = 0;
+    while (i + 3 <= pLength) {
+        const uint32_t Triplet = ((uint32_t)pData[i] << 16) |
+                                 ((uint32_t)pData[i + 1] << 8) |
+                                 (uint32_t)pData[i + 2];
+        Out.push_back(Alphabet[(Triplet >> 18) & 0x3F]);
+        Out.push_back(Alphabet[(Triplet >> 12) & 0x3F]);
+        Out.push_back(Alphabet[(Triplet >> 6) & 0x3F]);
+        Out.push_back(Alphabet[Triplet & 0x3F]);
+        i += 3;
     }
+
+    const size_t Remain = pLength - i;
+    if (Remain == 1) {
+        const uint32_t Triplet = (uint32_t)pData[i] << 16;
+        Out.push_back(Alphabet[(Triplet >> 18) & 0x3F]);
+        Out.push_back(Alphabet[(Triplet >> 12) & 0x3F]);
+    }
+    else if (Remain == 2) {
+        const uint32_t Triplet = ((uint32_t)pData[i] << 16) | ((uint32_t)pData[i + 1] << 8);
+        Out.push_back(Alphabet[(Triplet >> 18) & 0x3F]);
+        Out.push_back(Alphabet[(Triplet >> 12) & 0x3F]);
+        Out.push_back(Alphabet[(Triplet >> 6) & 0x3F]);
+    }
+    return Out;
+}
+
+bool cNetworkHubClient::Base64UrlDecode(const std::string& pInput, std::vector<unsigned char>& pOut) {
+    pOut.clear();
+    pOut.reserve((pInput.size() * 3) / 4);
+
+    auto DecodeChar = [](char Ch) -> int {
+        if (Ch >= 'A' && Ch <= 'Z') return Ch - 'A';
+        if (Ch >= 'a' && Ch <= 'z') return 26 + (Ch - 'a');
+        if (Ch >= '0' && Ch <= '9') return 52 + (Ch - '0');
+        if (Ch == '-') return 62;
+        if (Ch == '_') return 63;
+        return -1;
+    };
+
+    uint32_t Buffer = 0;
+    int BitCount = 0;
+    for (char Ch : pInput) {
+        if (Ch == '=')                     // tolerate, but unpadded is the norm
+            break;
+        const int Decoded = DecodeChar(Ch);
+        if (Decoded < 0)
+            return false;
+        Buffer = (Buffer << 6) | (uint32_t)Decoded;
+        BitCount += 6;
+        if (BitCount >= 8) {
+            BitCount -= 8;
+            pOut.push_back((unsigned char)((Buffer >> BitCount) & 0xFF));
+        }
+    }
+
+    // Any bits left in the buffer must be zero (canonical encoding).
+    if (BitCount > 0 && (Buffer & ((1u << BitCount) - 1u)) != 0)
+        return false;
+
     return true;
-}
-
-bool cNetworkHubClient::Create(uint8_t pCapacity, const sNetworkHubMetadata& pMetadata, bool pListed, sNetworkHubRoom& pRoom) {
-    std::string Request = "OFHUB/1 CREATE capacity=" + std::to_string((int)pCapacity);
-    Request += pListed ? " listed=1" : " listed=0";
-    Request += " name=" + PercentEncode(pMetadata.mGameName);
-    Request += " mode=" + PercentEncode(pMetadata.mGameMode);
-    Request += " map=" + PercentEncode(pMetadata.mMapName);
-    Request += " options=" + PercentEncode(pMetadata.mOptions);
-    Request += " version=" + PercentEncode(pMetadata.mVersion);
-
-    std::string Response;
-    return SendRequest(Request, Response) && ParseRoomResponse(Response, pRoom);
-}
-
-bool cNetworkHubClient::Join(const std::string& pRoomCode, sNetworkHubRoom& pRoom) {
-    std::string Response;
-    return SendRequest("OFHUB/1 JOIN room=" + pRoomCode, Response) && ParseRoomResponse(Response, pRoom);
-}
-
-bool cNetworkHubClient::Update(const std::string& pRoomCode, const std::string& pToken, const sNetworkHubMetadata& pMetadata, bool pListed) {
-    std::string Request = "OFHUB/1 UPDATE room=" + pRoomCode + " token=" + pToken;
-    Request += pListed ? " listed=1" : " listed=0";
-    Request += " name=" + PercentEncode(pMetadata.mGameName);
-    Request += " mode=" + PercentEncode(pMetadata.mGameMode);
-    Request += " map=" + PercentEncode(pMetadata.mMapName);
-    Request += " options=" + PercentEncode(pMetadata.mOptions);
-    Request += " version=" + PercentEncode(pMetadata.mVersion);
-
-    std::string Response;
-    return SendRequest(Request, Response);
-}
-
-bool cNetworkHubClient::Heartbeat(const std::string& pRoomCode, const std::string& pToken) {
-    std::string Response;
-    return SendRequest("OFHUB/1 HEARTBEAT room=" + pRoomCode + " token=" + pToken, Response);
 }
 
 #endif // OPENFODDER_ENABLE_NETWORK

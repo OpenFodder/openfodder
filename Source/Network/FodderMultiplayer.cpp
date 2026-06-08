@@ -31,6 +31,26 @@ cFodderMultiplayer::cFodderMultiplayer(std::shared_ptr<cWindow> pWindow)
 
 cFodderMultiplayer::~cFodderMultiplayer() {
     Network_Stop();
+    mLobbyHub.reset();
+}
+
+// Lazy hub client for the campaign-select lobby loop. Construction +
+// Configure (DNS resolve, socket bind) are not free, and the underlying
+// cookie cache only pays off if we keep the same instance across ticks —
+// so we build it once on first need and reuse it for the rest of the
+// lobby session. A null return means Configure failed; the caller skips
+// this tick and we'll try again on the next interval.
+cNetworkHubClient* cFodderMultiplayer::AcquireLobbyHub() {
+    if (mLobbyHub)
+        return mLobbyHub.get();
+
+    auto Hub = std::make_unique<cNetworkHubClient>();
+    if (!Hub->Configure(mStartParams->mNetworkHubHost, mStartParams->mNetworkHubPort)) {
+        // Leave mLobbyHub null so the next tick retries from scratch.
+        return nullptr;
+    }
+    mLobbyHub = std::move(Hub);
+    return mLobbyHub.get();
 }
 
 bool cFodderMultiplayer::ConsumeReturnToMultiplayerLobby() {
@@ -596,6 +616,12 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
     bool cancelled = false;
     const uint32_t LobbyStartedTicks = (uint32_t)SDL_GetTicks();
     uint32_t LastHubUpdateTicks = 0;
+    // Joiners hit OFHUB/2 anonymous HEARTBEAT on a much slower cadence than
+    // the host's UPDATE/HEARTBEATHOST ticker. The hub reaps anonymous peer
+    // slots near 90 s of silence; 30 s sits well inside that window without
+    // compounding cost with the 2.5 s host loop.
+    uint32_t LastHubJoinerHeartbeatTicks = 0;
+    static const uint32_t kHubJoinerHeartbeatIntervalMs = 30000;
     cNetworkDiscovery Discovery;
     const bool DiscoveryStarted = isHost && Discovery.StartHost();
 
@@ -628,14 +654,68 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
             const uint32_t Now = (uint32_t)SDL_GetTicks();
             if (!LastHubUpdateTicks || Now - LastHubUpdateTicks > 2500) {
                 LastHubUpdateTicks = Now;
-                cNetworkHubClient Hub;
-                if (Hub.Configure(mStartParams->mNetworkHubHost, mStartParams->mNetworkHubPort)) {
-                    Hub.Update(
-                        mStartParams->mNetworkRoomCode,
-                        mStartParams->mNetworkRelayToken,
-                        Lobby_BuildHubMetadata(mStartParams, mCampaignList[selectedIndex]),
-                        true
-                    );
+                // Reuse the lobby-scoped hub client. The cookie cache
+                // (NetworkHubClient EnsureCookie, ~9 min) and BADCOOKIE/STALE
+                // auto-invalidation in SendCommand only pay off if we hold a
+                // stable instance across ticks — Configure() resets cookie
+                // state, which is why the per-tick `cNetworkHubClient Hub`
+                // version was effectively re-HELLOing every 2.5 s.
+                cNetworkHubClient* Hub = AcquireLobbyHub();
+                if (Hub) {
+                    // OFHUB/2 verified-host UPDATE. The legacy Update() shim
+                    // unconditionally fails ("missing bearer"); UpdateAuth
+                    // carries the JWT we cached at room-create time. Prefer
+                    // the StartParams copy (zero-disk-IO replay) but fall
+                    // back to the auth cache if it has been blanked between
+                    // sessions — the host could have re-paired in another
+                    // process, and a stale empty string here would lock us
+                    // out for the rest of the lobby.
+                    sHubAuthToken Token;
+                    Token.mJwt = mStartParams->mNetworkHostBearer;
+                    if (Token.mJwt.empty())
+                        (void)mHubAuth.LoadCachedToken(Token);
+                    if (!Token.mJwt.empty()) {
+                        if (!Hub->UpdateAuth(
+                                Token,
+                                mStartParams->mNetworkRoomCode,
+                                Lobby_BuildHubMetadata(mStartParams, mCampaignList[selectedIndex]),
+                                true)) {
+                            // SendCommand already invalidated the cookie on
+                            // BADCOOKIE/STALE so the next call will re-HELLO
+                            // automatically; surface other failures (network,
+                            // bearer rejection) for dev visibility.
+                            g_Debugger->Notice(std::string("[hub] update failed: ") + Hub->GetLastError());
+                        }
+                        // Verified-host rooms idle out at 600 s; HEARTBEATHOST
+                        // resets that timer. Throttling alongside UPDATE keeps
+                        // the per-tick cost flat (one extra UDP round-trip
+                        // every ~2.5 s) and means the user can sit on the
+                        // campaign select screen indefinitely without the
+                        // hub reaping the room behind them.
+                        if (!Hub->HeartbeatHost(Token, mStartParams->mNetworkRoomCode)) {
+                            g_Debugger->Notice(std::string("[hub] heartbeat-host failed: ") + Hub->GetLastError());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Joiner-side anonymous heartbeat. Verified-host UPDATE keeps the
+        // room alive but the joiner's anonymous peer slot has its own
+        // shorter idle timer at the hub; without this ping it gets reaped
+        // (~90 s) and the next packet bounces with "unknown peer". On a
+        // BADCOOKIE/STALE response cNetworkHubClient drops the cached cookie
+        // so the next HEARTBEATANON re-HELLOs automatically — that's why we
+        // hand the same instance back through AcquireLobbyHub each tick.
+        if (!isHost && mStartParams->mNetworkInternet && !mStartParams->mNetworkRoomCode.empty()) {
+            const uint32_t Now = (uint32_t)SDL_GetTicks();
+            if (!LastHubJoinerHeartbeatTicks || Now - LastHubJoinerHeartbeatTicks > kHubJoinerHeartbeatIntervalMs) {
+                LastHubJoinerHeartbeatTicks = Now;
+                cNetworkHubClient* Hub = AcquireLobbyHub();
+                if (Hub) {
+                    if (!Hub->HeartbeatAnonymous(mStartParams->mNetworkRoomCode)) {
+                        g_Debugger->Notice(std::string("[hub] heartbeat-anon failed: ") + Hub->GetLastError());
+                    }
                 }
             }
         }
@@ -832,6 +912,7 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
             mInterruptCallback = prevInterruptCallback;
             if (mLobby)
                 mLobby->Stop();
+            mLobbyHub.reset();
             mStartParams->mNetworkEnabled = false;
             return;
         }
@@ -848,6 +929,10 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
         mLobby->Stop();
         g_Debugger->Notice("[Lobby] Closed before GGPO gameplay.");
     }
+
+    // Drop the lobby-scoped hub client; gameplay uses GGPO/the relay path.
+    // A fresh instance will be built next time the lobby opens.
+    mLobbyHub.reset();
 
     mInterruptCallback = prevInterruptCallback;
 

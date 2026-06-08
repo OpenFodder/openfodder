@@ -24,6 +24,9 @@
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
+#include <algorithm>
+#include "HubFrame.hpp"
+
 static uint32_t Lobby_GeneratePlayerId(uint16_t pLocalPort, bool pIsHost) {
     uint32_t Id = 2166136261u;
 
@@ -53,11 +56,21 @@ bool cNetworkLobby::Start(
     const std::string& pRemoteHost,
     uint16_t pRemotePort,
     bool pIsHost,
-    const std::string& pRelayToken,
+    const std::array<unsigned char, openfodder_hubframe::kSessionKeySize>& pSessionKey,
+    uint8_t pPeerIndex,
     bool pPreserveRemoteEndpoint) {
     Stop();
     mIsHost = pIsHost;
-    mRelayToken = pRelayToken;
+    mSessionKey = pSessionKey;
+    mPeerIndex = pPeerIndex;
+    // An all-zero key is the "no session" sentinel — Parameters.hpp resets
+    // mNetworkSessionKey to all zeros and only the hub claim populates it.
+    // OFHUB/2 §6.2 specifies the key is 32 random bytes, so any non-zero byte
+    // means we have a real key.
+    mHasSessionKey = std::any_of(pSessionKey.begin(), pSessionKey.end(),
+                                 [](unsigned char b) { return b != 0; });
+    mLocalSeq = 1; // type=0x01 DATA frames; REGISTER reserves seq=0.
+    mReplay = openfodder_hubframe::ReplayWindow();
     mPreserveRemoteEndpoint = pPreserveRemoteEndpoint;
     mLastRelayRegisterTicks = 0;
     mLocalPlayerId = Lobby_GeneratePlayerId(pLocalPort, pIsHost);
@@ -234,12 +247,29 @@ void cNetworkLobby::Send() {
     memcpy(pkt.campaign, mLocalCampaign.c_str(), len);
     pkt.campaign[len] = '\0';
 
-    sendto(mSocket, (const char*)&pkt, sizeof(pkt), 0,
-           (struct sockaddr*)&mRemoteAddr, sizeof(mRemoteAddr));
+    if (mHasSessionKey) {
+        // OFHUB/2 §6.1: type=0x01 DATA, monotonic per-peer seq, our peer
+        // index, sLobbyPacket as opaque payload, 8-byte HMAC-SHA256 tag.
+        unsigned char FrameBuf[openfodder_hubframe::kMinFrameSize + sizeof(pkt)];
+        const std::size_t FrameLen = openfodder_hubframe::BuildAndTag(
+            openfodder_hubframe::FrameType::Data,
+            mLocalSeq++,
+            mPeerIndex,
+            reinterpret_cast<const unsigned char*>(&pkt),
+            sizeof(pkt),
+            mSessionKey,
+            FrameBuf);
+        sendto(mSocket, reinterpret_cast<const char*>(FrameBuf),
+               static_cast<int>(FrameLen), 0,
+               (struct sockaddr*)&mRemoteAddr, sizeof(mRemoteAddr));
+    } else {
+        sendto(mSocket, (const char*)&pkt, sizeof(pkt), 0,
+               (struct sockaddr*)&mRemoteAddr, sizeof(mRemoteAddr));
+    }
 }
 
 void cNetworkLobby::SendRelayRegistration() {
-    if (mSocket == INVALID_SOCKET || mRelayToken.empty())
+    if (mSocket == INVALID_SOCKET || !mHasSessionKey)
         return;
 
     const uint32_t Now = (uint32_t)SDL_GetTicks();
@@ -247,8 +277,20 @@ void cNetworkLobby::SendRelayRegistration() {
         return;
     mLastRelayRegisterTicks = Now;
 
-    const std::string Packet = "OFHUB/1 REGISTER token=" + mRelayToken;
-    sendto(mSocket, Packet.c_str(), (int)Packet.size(), 0,
+    // OFHUB/2 §6.1 type=0x02 REGISTER: empty payload, seq=0 (reserved), peer
+    // index, 8-byte HMAC tag — same shape Fodder_Network.cpp's briefing
+    // handshake socket uses to register with the hub.
+    unsigned char RegisterFrame[openfodder_hubframe::kMinFrameSize];
+    const std::size_t RegisterFrameLen = openfodder_hubframe::BuildAndTag(
+        openfodder_hubframe::FrameType::Register,
+        /*seq=*/0,
+        mPeerIndex,
+        /*payload=*/nullptr,
+        /*payloadLen=*/0,
+        mSessionKey,
+        RegisterFrame);
+    sendto(mSocket, reinterpret_cast<const char*>(RegisterFrame),
+           static_cast<int>(RegisterFrameLen), 0,
            (struct sockaddr*)&mRemoteAddr, sizeof(mRemoteAddr));
 }
 
@@ -269,10 +311,36 @@ void cNetworkLobby::Receive() {
     bool gotPacket = false;
     for (;;) {
         fromLen = sizeof(fromAddr);
-        int n = recvfrom(mSocket, (char*)&pkt, sizeof(pkt), 0,
-                         (struct sockaddr*)&fromAddr, &fromLen);
-        if (n != sizeof(pkt))
-            break;
+
+        if (mHasSessionKey) {
+            // OFHUB/2 path. The hub re-tags fan-out frames with OUR session
+            // key (§6.4), so verify with our own key, drop on tag mismatch,
+            // drop non-Data types, then run the seq through the 1024-bit
+            // replay window before extracting the payload.
+            unsigned char RecvFrame[2048];
+            int n = recvfrom(mSocket, reinterpret_cast<char*>(RecvFrame),
+                             static_cast<int>(sizeof(RecvFrame)), 0,
+                             (struct sockaddr*)&fromAddr, &fromLen);
+            if (n <= 0)
+                break;
+            openfodder_hubframe::ParsedFrame Frame{};
+            if (!openfodder_hubframe::VerifyAndParse(
+                    RecvFrame, static_cast<std::size_t>(n), mSessionKey, &Frame))
+                continue;
+            if (Frame.type != openfodder_hubframe::FrameType::Data)
+                continue;
+            if (!mReplay.AcceptAndAdvance(Frame.seq))
+                continue;
+            if (Frame.payloadLen != sizeof(pkt))
+                continue;
+            memcpy(&pkt, Frame.payload, sizeof(pkt));
+        } else {
+            int n = recvfrom(mSocket, (char*)&pkt, sizeof(pkt), 0,
+                             (struct sockaddr*)&fromAddr, &fromLen);
+            if (n != sizeof(pkt))
+                break;
+        }
+
         if (pkt.magic != sLobbyPacket::MAGIC)
             continue;
         if (pkt.version != sLobbyPacket::VERSION)
