@@ -23,7 +23,10 @@
 #include "stdafx.hpp"
 #include "NetworkMenuText.hpp"
 
+#include <algorithm>
 #include <cctype>
+#include <sstream>
+#include <vector>
 
 bool NetworkMenu_UInt32FromText(const std::string& pText, uint32& pValue)
 {
@@ -66,4 +69,60 @@ std::string NetworkMenu_FitText(const std::string& pText, int pMaxPx)
         Result.pop_back();
 
     return Result;
+}
+
+int NetworkMenu_DrawWrappedBody(const std::string& pText, int pStartY, int pMaxWidth)
+{
+    // Trivial word-wrap: split on whitespace, build lines under pMaxWidth pixels
+    // using the briefing font width table. Lifted from cSetupWizard so the
+    // multiplayer host-setup error banner can wrap long curl messages instead
+    // of substr-truncating them.
+    auto wordWidth = [](const std::string& word) {
+        std::string upper = word;
+        std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
+        int w = 0;
+        for (unsigned char c : upper)
+            w += (int)mFont_Briefing_Width[c];
+        return w;
+    };
+
+    std::vector<std::string> lines;
+    std::string current;
+    int currentW = 0;
+    const int spaceW = wordWidth(" ");
+
+    auto flush = [&]() {
+        if (!current.empty()) {
+            lines.push_back(current);
+            current.clear();
+            currentW = 0;
+        }
+    };
+
+    std::stringstream ss(pText);
+    std::string word;
+    while (ss >> word) {
+        const int wW = wordWidth(word);
+        if (current.empty()) {
+            current = word;
+            currentW = wW;
+        } else if (currentW + spaceW + wW <= pMaxWidth) {
+            current += ' ';
+            current += word;
+            currentW += spaceW + wW;
+        } else {
+            flush();
+            current = word;
+            currentW = wW;
+        }
+    }
+    flush();
+
+    int y = pStartY;
+    const int lineH = 0x0A;
+    for (auto& line : lines) {
+        g_Fodder->String_Print_Small_CentreInBox(line, 8, 312, y);
+        y += lineH;
+    }
+    return y;
 }

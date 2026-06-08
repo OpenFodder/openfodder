@@ -83,6 +83,11 @@ public:
     const std::array<unsigned char, 32>& GetSessionKey() const { return mSessionKey; }
     bool        HasSessionKey() const { return mHasSessionKey; }
     uint8       GetPeerIndex() const { return mPeerIndex; }
+    // P1 A1: active peer count negotiated through the hub. Host picks from
+    // {2..kMaxRollbackPlayers} via the host menu PLAYERS field; CreateAuth
+    // forwards as room capacity; CREATEOK / JOINOK echo it back as
+    // Room.mMaxPlayers and we cache it here for StartParams plumbing.
+    uint8       GetNumPlayers() const { return mNumPlayers; }
     const sHubAuthToken& GetHubBearer() const { return mHubBearer; }
 
     enum eAction : int16 {
@@ -92,10 +97,15 @@ public:
         ACT_JOIN,
         ACT_FIND_LAN,
         ACT_FIND_INTERNET,
+        // Defensive: ACT_DIRECT_CONNECT and ACT_SYNC_TEST keep their enum
+        // slots (and OnRowClick handlers) so the eNetworkMenuStart->state
+        // switch and any external invocation paths still resolve cleanly.
+        // Their menu BUTTONS were removed (SYNC_TEST was a dev-only
+        // fault-injection mode reachable via --sync-test; DIRECT_CONNECT was
+        // a UI synonym for JOIN that confused players).
         ACT_DIRECT_CONNECT,
         ACT_JOIN_DISCOVERED,
         ACT_JOIN_INTERNET,
-        ACT_JOIN_ROOM_CODE,
         ACT_REFRESH_LAN,
         ACT_REFRESH_INTERNET,
         ACT_SYNC_TEST,
@@ -105,10 +115,8 @@ public:
         ACT_EDIT_REMOTE_PORT,
         ACT_EDIT_LOCAL_PORT,
         ACT_EDIT_MAP_SEED,
-        ACT_EDIT_HUB_HOST,
-        ACT_EDIT_HUB_PORT,
-        ACT_EDIT_ROOM_CODE,
         ACT_CYCLE_MODE,
+        ACT_CYCLE_PLAYERS, // P1 A1: bump host-side mInternetPlayerCount through {2,3,4}
         ACT_MAP_OPTIONS,
         ACT_START,
         // Auth-prompt modal — shown when the user picks an internet flow but
@@ -139,9 +147,11 @@ private:
         RemotePort,
         LocalPort,
         MapSeed,
-        HubHost,
-        HubPort,
-        RoomCode,
+        // HUB HOST / HUB PORT / ROOM CODE editors removed from the UI: hub
+        // host and port have one canonical value (hub.openfodder.com:27770,
+        // overrideable only via --net-hub-host / --net-hub-port for relay
+        // testing); room codes are surfaced via the games list (hub LIST)
+        // and accepted via --net-room-code on the CLI.
     };
 
     void DrawMainMenu();
@@ -152,8 +162,17 @@ private:
     void DrawAuthPromptMenu();
     void DrawAuthPairingMenu();
     void DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel, bool pHostSetup);
-    void DrawField(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction, bool pActive);
-    void DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction);
+    // Single form-row helper. Renders LABEL on the left and either a clickable
+    // text-edit field (pIsField=true) or a cycle button (pIsField=false) on
+    // the right. Empty pValue + pIsField renders the "ENTER" placeholder; the
+    // active-edit highlight uses 0xF2/0xF3 instead of 0xB2/0xB3.
+    void DrawFormRow(const char* pLabel, const std::string& pValue, int16 pY,
+                     int16 pAction, bool pIsField, bool pIsActive);
+    // Centred two-button bottom strip used by Host/Join/Find* screens. Mirrors
+    // SetupWizard's three-button shape (DrawWelcome/DrawLocate) but with two
+    // buttons. pPrimaryEnabled controls whether START is clickable.
+    void DrawBottomButtonRow(const char* pPrimaryLabel, int16 pPrimaryAction,
+                             bool pPrimaryEnabled);
     void HandleTextInput();
     void SelectField(int16 pAction);
     void StartLanBrowser();
@@ -196,9 +215,13 @@ private:
     bool        mSyncTest = false;
     bool        mInternet = false;
     bool        mInternetHost = false;
+    // Hub host/port stay as in-memory state (init from StartParams in Open(),
+    // overrideable via --net-hub-host / --net-hub-port CLI). The menu no
+    // longer exposes editors for them — every UI path uses the canonical
+    // hub.openfodder.com:27770 unless a developer launched with the override
+    // flags. mHubPortText was a UI-only buffer and is gone.
     std::string mHubHost = NETWORK_HUB_DEFAULT_HOST;
     uint16      mHubPort = NETWORK_HUB_DEFAULT_PORT;
-    std::string mHubPortText = std::to_string(NETWORK_HUB_DEFAULT_PORT);
     std::string mRoomCode;
     // Binary copy of OFHUB/2 session_key returned by CREATEOK / JOINOK; raw
     // bytes survive the round-trip through StartParams. Stays zeroed for
@@ -206,7 +229,15 @@ private:
     std::array<unsigned char, 32> mSessionKey{};
     bool        mHasSessionKey = false;
     uint8       mPeerIndex = 0;          // 0 host, 1 first joiner
+    // P1 A1: host-selected room capacity (PLAYERS field on the host menu) /
+    // joiner-observed room capacity (JOINOK echoes it back). Capped at
+    // kMaxRollbackPlayers because gameplay caps at 4 even though the hub
+    // accepts 1..8. mNumPlayers is what flows into StartParams; the host
+    // mInternetPlayerCount is the editable view of the same value.
+    uint8       mInternetPlayerCount = NETWORK_MAX_PLAYERS;
+    uint8       mNumPlayers = NETWORK_MAX_PLAYERS;
     sHubAuthToken mHubBearer;            // populated only on host CreateAuth path
+    std::string mLastHubError;           // captured from cNetworkHubClient::GetLastError() on the most recent control-plane failure; rendered on the host menu under the banner so the user can see what came back (NOAUTH / BADCOOKIE / STALE / curl / etc.).
     eNetworkGameMode mGameMode = eNetworkGameMode_CoopCampaign;
     uint32      mMapSeed = NETWORK_MAP_SEED_DEFAULT;
     std::string mMapSeedText = std::to_string(NETWORK_MAP_SEED_DEFAULT);

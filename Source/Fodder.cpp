@@ -206,7 +206,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
     mSound = 0;
     mWindow = pWindow;
 
-    mGUI_Select_File_ShownItems = 4;
+    mGUI_Select_File_ShownItems = 8;
     mTicksDiff = 0;
     mTicks = 0;
 
@@ -328,7 +328,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
     mCustom_ExitMenu = 0;
 
     mBriefingHelicopter_NotDone = 0;
-    word_3A05F = 0;
+    mSidebar_Name_CenterX = 0;
     byte_44AC0 = 0;
     mSoundDisabled = false;
     Squad_Walk_Target_SetAll(0);
@@ -1100,7 +1100,7 @@ void cFodder::Phase_EngineReset()
     mCamera_Start_Adjust = false;
     word_3AA1D = 0;
     mCamera_Reached_Target = 0;
-    word_3AA21 = 0;
+    mSidebar_Font_ColorBase = 0;
     mSprite_FaceWeaponTarget = 0;
     word_3AA45 = 0;
     mSquad_Select_Timer = 0;
@@ -1292,7 +1292,7 @@ void cFodder::Phase_SquadPrepare()
 {
     mSquad_Grenade_SplitMode = eSquad_Weapon_Split_Half;
     mSquad_Rocket_SplitMode = eSquad_Weapon_Split_Half;
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 5;
+    mSidebar_Name_TruncateAt = 5;
     // -1
     mSquads[0] = mSquad_0_Sprites;
     mSquads[1] = mSquad_1_Sprites;
@@ -2629,7 +2629,12 @@ void cFodder::VersionSwitch(const sGameVersion *pVersion)
         exit(1);
     }
 
-    mGUI_Select_File_ShownItems = PLATFORM_BASED(4, 5);
+    // Bumped from PLATFORM_BASED(4, 5) — Campaign_Select_DrawMenu now uses
+    // the sidebar (small) font for the list and 14 px row height (was 21),
+    // so 8 campaigns fit per page on both PC and Amiga without crashing
+    // into the bottom-row buttons. Save dialog clamps this at 4 anyway via
+    // the OriginalShownItems save/restore in GUI_Element.cpp.
+    mGUI_Select_File_ShownItems = 8;
 
     Window_UpdateScreenSize();
 

@@ -35,3 +35,11 @@ bool NetworkMenu_UInt32FromText(const std::string& pText, uint32& pValue);
 // Truncate pText (upper-cased, A-Z/0-9/space only) to fit within pMaxPx pixels
 // using the briefing font widths, trimming trailing spaces.
 std::string NetworkMenu_FitText(const std::string& pText, int pMaxPx);
+
+// Centred, word-wrapped body text. Splits pText on spaces and renders one
+// briefing-font line per output line via String_Print_Small_CentreInBox,
+// stacking down from pStartY. Returns the Y just below the last drawn line
+// (caller can chain blocks). Used by SetupWizard and the multiplayer-menu's
+// host-setup error banner — both want the same wrap behaviour, and keeping
+// it here avoids a second copy of the briefing font measurement logic.
+int NetworkMenu_DrawWrappedBody(const std::string& pText, int pStartY, int pMaxWidth);

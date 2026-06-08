@@ -57,5 +57,5 @@ extern const int16 mGUI_Squad_Inactive_Icons[];
 extern const int16 mGUI_Squad_Split_Icons[];
 extern const sGUI_SquadVehicleIcon mGUI_Squad_Vehicle_Icons[];
 
-extern const int8 mGUI_Sidebar_TroopList_Sprite_Modifier[];
+extern const int8 mSidebar_Font_ColorBases[];
 

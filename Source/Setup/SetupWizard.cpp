@@ -24,6 +24,7 @@
 #include "Setup/SetupWizard.hpp"
 #include "Setup/MountedImage.hpp"
 #include "Setup/CueSheet.hpp"
+#include "Network/NetworkMenuText.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -851,71 +852,19 @@ void cSetupWizard::Tick() {
 #endif
 }
 
-int cSetupWizard::DrawWrappedBody(const std::string& pText, int pStartY, int pMaxWidth) {
-    // Trivial word-wrap: split on spaces, build lines under pMaxWidth pixels
-    // using the briefing font width table.
-    std::vector<std::string> lines;
-    std::string current;
-    int currentW = 0;
-
-    auto flush = [&]() {
-        if (!current.empty()) {
-            lines.push_back(current);
-            current.clear();
-            currentW = 0;
-        }
-    };
-
-    auto wordWidth = [](const std::string& word) {
-        std::string upper = word;
-        std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
-        int w = 0;
-        for (unsigned char c : upper) w += (int)mFont_Briefing_Width[c];
-        return w;
-    };
-
-    std::stringstream ss(pText);
-    std::string word;
-    const int spaceW = wordWidth(" ");
-    while (ss >> word) {
-        const int wW = wordWidth(word);
-        if (current.empty()) {
-            current = word;
-            currentW = wW;
-        } else if (currentW + spaceW + wW <= pMaxWidth) {
-            current += ' ';
-            current += word;
-            currentW += spaceW + wW;
-        } else {
-            flush();
-            current = word;
-            currentW = wW;
-        }
-    }
-    flush();
-
-    int y = pStartY;
-    const int lineH = 0x0A;
-    for (auto& line : lines) {
-        g_Fodder->String_Print_Small_CentreInBox(line, 8, 312, y);
-        y += lineH;
-    }
-    return y;
-}
-
 void cSetupWizard::DrawWelcome() {
     g_Fodder->mString_GapCharID = 0x25;
     g_Fodder->String_Print_Large("OPEN FODDER", false, 0x01);
     g_Fodder->mString_GapCharID = 0;
 
     int y = 0x20;
-    y = DrawWrappedBody(
+    y = NetworkMenu_DrawWrappedBody(
         "Cannon Fodder retail data was not found in any of the searched locations "
         "You can play the bundled demos right now or point at a folder of retail files",
         y, 290);
     y += 6;
 
-    y = DrawWrappedBody(
+    y = NetworkMenu_DrawWrappedBody(
         "Drag and drop a folder onto this window or use Locate Data to browse for one",
         y, 290);
 
@@ -954,7 +903,7 @@ void cSetupWizard::DrawLocate() {
     int rowBaseY = 0x28;
 
     if (mCandidates.empty()) {
-        DrawWrappedBody(
+        NetworkMenu_DrawWrappedBody(
             "No retail data was found automatically Click BROWSE to pick a folder "
             "or drag and drop a folder onto this window",
             rowBaseY, 290);
@@ -1177,7 +1126,7 @@ void cSetupWizard::DrawResult() {
     y += 0x0E;
 
     if (mLastResult.mMatches.empty()) {
-        DrawWrappedBody(
+        NetworkMenu_DrawWrappedBody(
             isImage
                 ? "Image opened but no Cannon Fodder release was matched. The disk image's filenames "
                   "do not match any version we know about."
@@ -1293,7 +1242,6 @@ void cSetupWizard::DrawResult() {
         //   Raw extraction (any complete match has mIsRawFolder=true):
         //       COPY TO DATA — copy the matched manifest into
         //       <cwd>/Data/<release>/ so findVersions can see them.
-        //       SAVE & CONTINUE wouldn't help (engine looks for Data/...).
         bool anyRaw = false;
         for (auto& m : mLastResult.mMatches)
             if (m.IsComplete() && m.mIsRawFolder) { anyRaw = true; break; }
@@ -1327,11 +1275,11 @@ void cSetupWizard::DrawPairing() {
     g_Fodder->mString_GapCharID = 0;
 
     int y = 0x28;
-    y = DrawWrappedBody(
+    y = NetworkMenu_DrawWrappedBody(
         "Your browser was opened to authenticate with Discord at hub openfodder com",
         y, 290);
     y += 4;
-    y = DrawWrappedBody(
+    y = NetworkMenu_DrawWrappedBody(
         "Once the page shows a 6 character pair code type it below and press PAIR",
         y, 290);
     y += 6;
@@ -1368,7 +1316,7 @@ void cSetupWizard::DrawPairing() {
 
     // Error / status row.
     if (!mPairingError.empty()) {
-        DrawWrappedBody(mPairingError, y, 290);
+        NetworkMenu_DrawWrappedBody(mPairingError, y, 290);
     }
 
     // Three buttons: PAIR (commit) / RETRY (re-open browser) / SKIP (abandon).

@@ -26,6 +26,26 @@
 
 // Maximum number of players in a network session.
 static const int NETWORK_MAX_PLAYERS = 2;
+
+// -------------------------------------------------------------------------
+// OFHUB/2 N-player ceilings (P0 — per design decision 2026-06-08).
+//
+// kMaxRoomCapacity is the hub's advertised room size (spec § 4.4 caps at 8).
+// It governs lobby/UI/match-stats array sizes — the visible roster.
+//
+// kMaxRollbackPlayers is the GGPO rollback ceiling. Vendored GGPO hard-caps
+// at 4 (GGPO_MAX_PLAYERS in src/include/ggponet.h). Slots 5..8 in the lobby
+// are non-rollback observers in BRANCH B / lobby-only in BRANCH C; the
+// owner picked BRANCH C (cap gameplay at 4 forever, revisit later) so all
+// active gameplay state is sized at kMaxRollbackPlayers.
+//
+// Existing NETWORK_MAX_PLAYERS is left at 2 in this phase as a deprecated
+// alias so existing call sites keep compiling. Phase B migrates each
+// gameplay-layer site to the appropriate new constant.
+// -------------------------------------------------------------------------
+static const int kMaxRoomCapacity     = 8;
+static const int kMaxRollbackPlayers  = 4;
+
 static const int NETWORK_MAX_LOCAL_SQUADS = 3;
 static const int NETWORK_MAX_SQUADS = NETWORK_MAX_PLAYERS * NETWORK_MAX_LOCAL_SQUADS;
 static const int8_t NETWORK_INVALID_SQUAD_OWNER = -1;
@@ -38,7 +58,8 @@ static const uint16_t NETWORK_KILL_LIMIT_DEFAULT = 10;
 static const uint16_t NETWORK_TIME_LIMIT_DEFAULT = 0;
 static const uint8_t NETWORK_TEAM_COUNT_DEFAULT = 2;
 static const uint8_t NETWORK_TEAM_SIZE_DEFAULT = 1;
-static const uint8_t NETWORK_COMPATIBILITY_VERSION = 4;
+// [OFHUB/2 N-player P0 — drops legacy lobby playerId nonce in Phase B; bump prevents 2P-OFHUB1 clients from negotiating with N-ready peers]
+static const uint8_t NETWORK_COMPATIBILITY_VERSION = 5;
 static const int8_t NETWORK_MATCH_NO_WINNER = -1;
 static const int8_t NETWORK_MATCH_DRAW = -2;
 static const uint16_t NETWORK_SIM_FRAMES_PER_SECOND = 17;
@@ -287,17 +308,31 @@ struct sNetworkMatchSettings {
 static_assert(sizeof(sNetworkMatchSettings) == 20, "sNetworkMatchSettings must stay compact for lobby packets");
 
 struct sNetworkMatchState {
-    uint16_t mKills[NETWORK_MAX_PLAYERS] = {};
-    uint16_t mDeaths[NETWORK_MAX_PLAYERS] = {};
+    // [OFHUB/2 N-player P0 — per-player arrays widened from NETWORK_MAX_PLAYERS=2 to
+    //  kMaxRollbackPlayers=4. Production gameplay still runs at N=2; loop bounds
+    //  in Fodder_Network.cpp continue to use NETWORK_MAX_PLAYERS so slots 2..3 stay
+    //  zeroed at runtime. Indexing by owner id is bounds-safe at array size 4.]
+    uint16_t mKills[kMaxRollbackPlayers] = {};
+    uint16_t mDeaths[kMaxRollbackPlayers] = {};
     uint16_t mTimerSeconds = 0;
     int8_t   mWinnerTeam = NETWORK_MATCH_NO_WINNER;
     int8_t   mObjectiveCarrierPlayer = -1;
     uint8_t  mObjectiveState = 0;
-    int8_t   mLastDamageOwner[NETWORK_MAX_PLAYERS] = {NETWORK_MATCH_NO_WINNER, NETWORK_MATCH_NO_WINNER};
+    int8_t   mLastDamageOwner[kMaxRollbackPlayers] = {
+        NETWORK_MATCH_NO_WINNER, NETWORK_MATCH_NO_WINNER,
+        NETWORK_MATCH_NO_WINNER, NETWORK_MATCH_NO_WINNER
+    };
     uint8_t  mPadding[1] = {};
 };
 
-static_assert(sizeof(sNetworkMatchState) == 16, "sNetworkMatchState must stay compact for GGPO snapshots");
+// Layout: 4*2 (kills) + 4*2 (deaths) + 2 (timer) + 1 + 1 + 1 + 4 (lastDamageOwner) + 1 (pad)
+// = 26 bytes. Largest member alignment = 2 (uint16), 26 already aligned -> sizeof == 26.
+// [OFHUB/2 N-player P0 — sNetworkMatchState arrays widened from 2 to kMaxRollbackPlayers=4.
+//  Snapshot byte layout changed; cross-version peers are gated by NETWORK_COMPATIBILITY_VERSION
+//  (bumped to 5 in Phase A). No separate save-state version constant exists -- save buffers
+//  are in-process per-side and never traverse the wire (GGPO transmits inputs, not snapshots),
+//  so the compat-version handshake is the sole guard against layout-mismatched peers.]
+static_assert(sizeof(sNetworkMatchState) == 26, "sNetworkMatchState must stay compact for GGPO snapshots");
 
 // -----------------------------------------------------------------------
 // Per-frame input packet sent through GGPO (fixed size, POD).

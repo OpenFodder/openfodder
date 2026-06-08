@@ -22,6 +22,10 @@
 
 #include "stdafx.hpp"
 #include "FontData_Special.hpp"
+#include "SidebarFontGlyphs.hpp"
+
+#include <algorithm>
+#include <cctype>
 
 void cFodder::String_Input_Print(int16 pPosY) {
     GUI_Input_CheckKey();
@@ -236,6 +240,227 @@ void cFodder::String_Print_DrawTinyGlyph(const sBriefingSpecialGlyph* pGlyph,
             }
         }
     }
+}
+
+// ============================================================================
+// Sidebar (small) font on the main screen.
+//
+// The original game's sidebar A-Z lives in pstuff.lbm at sprite slots
+// 0x29..0x42 / 0x4D..0x66 / 0x71..0x8A (three colour variants), but the
+// existing render path (Sidebar_Copy_Sprite_To_ScreenBufPtr) only writes
+// into mSidebar_Screen_BufferPtr. Routing those slots to the main surface
+// would require new sprite-sheet entries on both PC and Amiga and a third
+// String_Print dispatch path.
+//
+// Simpler: paint hand-authored 1-bit glyphs from Source/SidebarFontGlyphs.cpp
+// directly to mSurface — same pattern as String_Print_DrawTinyGlyph for the
+// briefing-font specials. Stroke colour for each colour variant is sampled
+// from a real pstuff letter so we share palette with the rendered glyphs
+// across PC and Amiga without duplicating the variant tables.
+// ============================================================================
+
+namespace {
+
+// Pick the stroke colour for a sidebar-font variant by reading a real pstuff
+// letter from the pstuff sprite sheet. mSidebar_Font_ColorBases (in
+// GUI_Element.cpp) holds the slot bases — Normal=0x29, Selected=0x4D,
+// Inactive=0x71. The letter at those slots is 'A'; sampling its most-
+// frequent non-zero nibble gives the same colour the
+// in-game sidebar uses to paint the letter. Cached per (variant, sheet) for
+// the lifetime of one paint pass; pstuff is loaded once, so a static cache is
+// safe.
+
+struct SidebarStrokeCache {
+    uint8 normal = 0;
+    uint8 selected = 0;
+    uint8 inactive = 0;
+    bool primed = false;
+} static sStrokeCache;
+
+uint8 SampleSlotStroke(uint16 pSlot) {
+    if (!g_Fodder || !g_Fodder->mGraphics)
+        return 0;
+    // mSpriteSheet_PStuff (declared in Fodder.hpp) describes each pstuff
+    // sprite as (X, Y, Cols, Rows) inside the pstuff bitmap. Sample a
+    // histogram of non-zero nibbles inside the letter cell.
+    const sSpriteSheet_pstuff& sheet = mSpriteSheet_PStuff[pSlot];
+
+    // PC pstuff: 0xA0 bytes per row, 2 nibbles per byte (high-first); a
+    // histogram of non-zero nibbles inside the cell gives the stroke index.
+    // Amiga pstuff is planar (40 bytes per row, 4 bitplanes) — the same
+    // histogram trick doesn't directly apply, but both platforms decode
+    // pstuff into mImagePStuff via Decode_Image at boot, so reading from
+    // the unpacked sprite data via GetGraphicsPtr is uniform across
+    // platforms. If the byte stream is empty/uninitialised we return 0 and
+    // the caller falls back to a hard-coded colour pair.
+    const uint8* gp = sheet.GetGraphicsPtr((0xA0 * sheet.mY) + (sheet.mX >> 1));
+    if (!gp)
+        return 0;
+
+    uint16 hist[16] = { 0 };
+    const int rows = sheet.mRows;
+    const int colsHalf = sheet.mColumns >> 1;
+    const int srcSkip = 0xA0 - colsHalf;
+    const uint8* row = gp;
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < colsHalf; ++c) {
+            const uint8 b = row[c];
+            const uint8 hi = (uint8)(b >> 4);
+            const uint8 lo = (uint8)(b & 0x0F);
+            if (hi) hist[hi]++;
+            if (lo) hist[lo]++;
+        }
+        row += colsHalf + srcSkip;
+    }
+    int best = 0; uint16 bestC = 0;
+    for (int n = 1; n <= 15; ++n) {
+        if (hist[n] > bestC) { bestC = hist[n]; best = n; }
+    }
+    if (best)
+        return (uint8)(0xF0 | best);
+    return 0;
+}
+
+void PrimeStrokeCache() {
+    if (sStrokeCache.primed)
+        return;
+    // Only prime when we have something to read; otherwise let the next call
+    // try again. mSpriteSheet_PStuff is loaded by Load_pStuff at engine boot.
+    const uint8 normal   = SampleSlotStroke(0x29);
+    const uint8 selected = SampleSlotStroke(0x4D);
+    const uint8 inactive = SampleSlotStroke(0x71);
+    if (normal && selected && inactive) {
+        sStrokeCache.normal = normal;
+        sStrokeCache.selected = selected;
+        sStrokeCache.inactive = inactive;
+        sStrokeCache.primed = true;
+    }
+}
+
+uint8 ResolveStroke(eSidebarFontColor pColor) {
+    PrimeStrokeCache();
+    if (!sStrokeCache.primed) {
+        // Fallback: hard-coded colours that land in the pstuff palette range.
+        // Better than rendering invisibly if the sheet isn't bound yet.
+        switch (pColor) {
+        case eSidebarFontColor::Normal:   return 0xFD;
+        case eSidebarFontColor::Selected: return 0xFB;
+        case eSidebarFontColor::Inactive: return 0xF9;
+        }
+        return 0xFD;
+    }
+    switch (pColor) {
+    case eSidebarFontColor::Normal:   return sStrokeCache.normal;
+    case eSidebarFontColor::Selected: return sStrokeCache.selected;
+    case eSidebarFontColor::Inactive: return sStrokeCache.inactive;
+    }
+    return sStrokeCache.normal;
+}
+
+uint8 DeriveShadow(uint8 pStroke) {
+    // Step the palette index a couple of slots toward black; matches the
+    // briefing-font tiny-glyph fallback.
+    const uint8 nibble = (uint8)(pStroke & 0x0F);
+    const uint8 dn = (nibble > 4) ? (uint8)(nibble - 4) : (uint8)1;
+    return (uint8)(0xF0 | dn);
+}
+
+} // namespace
+
+void cFodder::String_Print_DrawSidebarGlyph(const sSidebarSpecialGlyph* pGlyph,
+                                             size_t pPosX, size_t pPosY,
+                                             eSidebarFontColor pColor) {
+    if (!pGlyph || !mSurface)
+        return;
+
+    // Surface coordinates: like GUI_Draw_Frame_8 / String_Print_DrawTinyGlyph,
+    // mSurface has a 16-px engine border on each axis. Add it so the small
+    // font lands on the same baseline as briefing-font neighbours when both
+    // are drawn at the same nominal Y.
+    const int32 baseX = (int32)pPosX + 0x10;
+    const int32 baseY = (int32)pPosY + 0x10;
+
+    const size_t surfW = mSurface->GetWidth();
+    const size_t surfH = mSurface->GetHeight();
+    uint8* buf = mSurface->GetSurfaceBuffer();
+    if (!buf)
+        return;
+
+    const uint8 stroke = ResolveStroke(pColor);
+    const uint8 shadow = DeriveShadow(stroke);
+
+    auto setPixel = [&](int32 x, int32 y, uint8 c) {
+        if (x < 0 || (size_t)x >= surfW) return;
+        if (y < 0 || (size_t)y >= surfH) return;
+        buf[(size_t)y * surfW + (size_t)x] = c;
+    };
+
+    // Two-pass paint: bottom shadow first, then stroke on top. Keeps small-
+    // glyph footprints visually identical to briefing-font specials.
+    for (int pass = 0; pass < 2; ++pass) {
+        const uint8 c = (pass == 0) ? shadow : stroke;
+        const int32 oy = (pass == 0) ? 1 : 0;
+        for (uint8 row = 0; row < pGlyph->mHeight; ++row) {
+            const uint8 bits = pGlyph->mRows[row];
+            if (bits == 0) continue;
+            const int32 y = baseY + (int32)pGlyph->mYOffset + (int32)row + oy;
+            // mWidth is the advance width; the bitmap-bit field is encoded
+            // MSB-first inside a 5-bit body. We scan up to 5 columns for
+            // body strokes (bits 0x10..0x01).
+            for (uint8 col = 0; col < 5; ++col) {
+                if (!(bits & (uint8)(0x10u >> col))) continue;
+                setPixel(baseX + (int32)col, y, c);
+            }
+        }
+    }
+}
+
+size_t cFodder::MainScreen_Print_Sidebar(const std::string& pText,
+                                          size_t pX, size_t pY,
+                                          eSidebarFontColor pColor) {
+    int32 x = (int32)pX;
+    for (char raw : pText) {
+        const uint8 ch = (uint8)std::toupper((unsigned char)raw);
+        const uint8 width = mFont_SidebarMain_Width[ch];
+        if (!width)
+            continue;
+        if (ch == 0x20) {
+            // Space: no glyph, just advance.
+            x += width;
+            continue;
+        }
+        if (auto* g = GetSidebarSpecialGlyph(ch))
+            String_Print_DrawSidebarGlyph(g, (size_t)x, pY, pColor);
+        // 1 px gap between glyphs (already baked into mFont_SidebarMain_Width
+        // for body-width-N glyphs as N+1 advance) — width is the advance.
+        x += width;
+    }
+    return (size_t)x;
+}
+
+void cFodder::MainScreen_Print_Sidebar_CentreInBox(const std::string& pText,
+                                                    size_t pX1, size_t pX2, size_t pY,
+                                                    eSidebarFontColor pColor) {
+    if (pX2 <= pX1)
+        return;
+    int32 width = 0;
+    for (char raw : pText) {
+        const uint8 ch = (uint8)std::toupper((unsigned char)raw);
+        width += (int32)mFont_SidebarMain_Width[ch];
+    }
+    const int32 boxW = (int32)pX2 - (int32)pX1;
+    int32 x = (int32)pX1 + (boxW - width) / 2;
+    if (x < (int32)pX1) x = (int32)pX1;
+    (void)MainScreen_Print_Sidebar(pText, (size_t)x, pY, pColor);
+}
+
+int32 cFodder::MainScreen_MeasureSidebarWidth(const std::string& pText) {
+    int32 width = 0;
+    for (char raw : pText) {
+        const uint8 ch = (uint8)std::toupper((unsigned char)raw);
+        width += (int32)mFont_SidebarMain_Width[ch];
+    }
+    return width;
 }
 
 void cFodder::String_Print_Small_Left(std::string pText, const size_t pX, const size_t pY) {

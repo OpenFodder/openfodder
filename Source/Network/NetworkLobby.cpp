@@ -27,22 +27,6 @@
 #include <algorithm>
 #include "HubFrame.hpp"
 
-static uint32_t Lobby_GeneratePlayerId(uint16_t pLocalPort, bool pIsHost) {
-    uint32_t Id = 2166136261u;
-
-    auto Mix = [&Id](uint32_t pValue) {
-        Id ^= pValue;
-        Id *= 16777619u;
-    };
-
-    Mix((uint32_t)SDL_GetTicks());
-    Mix((uint32_t)pLocalPort);
-    Mix(pIsHost ? 0x484F5354u : 0x4A4F494Eu); // HOST / JOIN
-    Mix((uint32_t)(uintptr_t)&Id);
-
-    return Id ? Id : 1;
-}
-
 cNetworkLobby::cNetworkLobby() {
     memset(&mRemoteAddr, 0, sizeof(mRemoteAddr));
 }
@@ -58,7 +42,8 @@ bool cNetworkLobby::Start(
     bool pIsHost,
     const std::array<unsigned char, openfodder_hubframe::kSessionKeySize>& pSessionKey,
     uint8_t pPeerIndex,
-    bool pPreserveRemoteEndpoint) {
+    bool pPreserveRemoteEndpoint,
+    std::atomic<uint32_t>* pSharedSeq) {
     Stop();
     mIsHost = pIsHost;
     mSessionKey = pSessionKey;
@@ -69,12 +54,21 @@ bool cNetworkLobby::Start(
     // means we have a real key.
     mHasSessionKey = std::any_of(pSessionKey.begin(), pSessionKey.end(),
                                  [](unsigned char b) { return b != 0; });
+    mSharedSeq = pSharedSeq;
+    if (mSharedSeq) {
+        mSharedSeq->store(1, std::memory_order_relaxed);
+    }
     mLocalSeq = 1; // type=0x01 DATA frames; REGISTER reserves seq=0.
-    mReplay = openfodder_hubframe::ReplayWindow();
     mPreserveRemoteEndpoint = pPreserveRemoteEndpoint;
     mLastRelayRegisterTicks = 0;
-    mLocalPlayerId = Lobby_GeneratePlayerId(pLocalPort, pIsHost);
-    mRemotePlayerId = 0;
+
+    // V6: zero out per-slot peer table; the local slot is the only one we
+    // can pre-bind (it never appears on the wire). Remote slots are bound
+    // on first sighting from a verified Data frame inside Receive().
+    for (auto& peer : mPeers)
+        peer = sLobbyPeerSlot{};
+    if (mPeerIndex < mPeers.size())
+        mPeers[mPeerIndex].bound = true;
 
 #ifdef WIN32
     WSADATA wsaData;
@@ -113,7 +107,8 @@ bool cNetworkLobby::Start(
     fcntl(mSocket, F_SETFL, flags | O_NONBLOCK);
 #endif
 
-    // Remote address
+    // Remote address — for OFHUB/2 this is the relay hub's UDP endpoint
+    // (the hub fans frames out by Frame.peer); for LAN it's the partner.
     memset(&mRemoteAddr, 0, sizeof(mRemoteAddr));
     mRemoteAddr.sin_family = AF_INET;
     mRemoteAddr.sin_port   = htons(pRemotePort);
@@ -139,7 +134,7 @@ bool cNetworkLobby::Start(
 
     g_Debugger->Notice("[Lobby] Started on port " + std::to_string(pLocalPort) +
                        " -> " + pRemoteHost + ":" + std::to_string(pRemotePort) +
-                       " id=" + std::to_string(mLocalPlayerId) +
+                       " peer=" + std::to_string((unsigned)mPeerIndex) +
                        (pIsHost ? " (HOST)" : " (JOIN)"));
     SendRelayRegistration();
     return true;
@@ -216,7 +211,6 @@ void cNetworkLobby::Send() {
     sLobbyPacket pkt;
     memset(&pkt, 0, sizeof(pkt));
     pkt.magic     = sLobbyPacket::MAGIC;
-    pkt.playerId  = mLocalPlayerId;
     pkt.type      = sLobbyPacket::LOBBY_STATE;
     pkt.version   = sLobbyPacket::VERSION;
     pkt.ready     = mLocalReady ? 1 : 0;
@@ -250,10 +244,13 @@ void cNetworkLobby::Send() {
     if (mHasSessionKey) {
         // OFHUB/2 §6.1: type=0x01 DATA, monotonic per-peer seq, our peer
         // index, sLobbyPacket as opaque payload, 8-byte HMAC-SHA256 tag.
+        const uint32_t seq = mSharedSeq
+            ? mSharedSeq->fetch_add(1, std::memory_order_relaxed)
+            : mLocalSeq++;
         unsigned char FrameBuf[openfodder_hubframe::kMinFrameSize + sizeof(pkt)];
         const std::size_t FrameLen = openfodder_hubframe::BuildAndTag(
             openfodder_hubframe::FrameType::Data,
-            mLocalSeq++,
+            seq,
             mPeerIndex,
             reinterpret_cast<const unsigned char*>(&pkt),
             sizeof(pkt),
@@ -296,8 +293,6 @@ void cNetworkLobby::SendRelayRegistration() {
 
 void cNetworkLobby::Receive() {
     sLobbyPacket pkt;
-    sLobbyPacket latestPkt;
-    memset(&latestPkt, 0, sizeof(latestPkt));
 
     struct sockaddr_in fromAddr;
     memset(&fromAddr, 0, sizeof(fromAddr));
@@ -307,16 +302,19 @@ void cNetworkLobby::Receive() {
     socklen_t fromLen;
 #endif
 
-    // Drain all pending packets, keep the latest
     bool gotPacket = false;
+
+    // Drain all pending packets, dispatching each to its peer slot.
     for (;;) {
         fromLen = sizeof(fromAddr);
+        uint8_t fromPeer = 0;
+        bool fromPeerKnown = false;
 
         if (mHasSessionKey) {
             // OFHUB/2 path. The hub re-tags fan-out frames with OUR session
             // key (§6.4), so verify with our own key, drop on tag mismatch,
-            // drop non-Data types, then run the seq through the 1024-bit
-            // replay window before extracting the payload.
+            // drop non-Data types, then run the seq through the per-sender
+            // 1024-bit replay window before extracting the payload.
             unsigned char RecvFrame[2048];
             int n = recvfrom(mSocket, reinterpret_cast<char*>(RecvFrame),
                              static_cast<int>(sizeof(RecvFrame)), 0,
@@ -329,69 +327,138 @@ void cNetworkLobby::Receive() {
                 continue;
             if (Frame.type != openfodder_hubframe::FrameType::Data)
                 continue;
-            if (!mReplay.AcceptAndAdvance(Frame.seq))
+
+            // Frame.peer is HMAC-authenticated by the hub on fan-out.
+            // Reject out-of-range peer ids, ignore self-loop fan-out (the
+            // hub never re-sends our own frames, but defence in depth), and
+            // dispatch the seq through the sender's own replay window so
+            // peers can't cross-poison each other's dedup state.
+            if (Frame.peer >= kMaxRoomCapacity)
+                continue;
+            if (Frame.peer == mPeerIndex)
+                continue;
+            sLobbyPeerSlot& peer = mPeers[Frame.peer];
+            if (!peer.replay.AcceptAndAdvance(Frame.seq))
                 continue;
             if (Frame.payloadLen != sizeof(pkt))
                 continue;
             memcpy(&pkt, Frame.payload, sizeof(pkt));
+
+            if (pkt.magic != sLobbyPacket::MAGIC)
+                continue;
+            if (pkt.version != sLobbyPacket::VERSION)
+                continue;
+            if (pkt.type != sLobbyPacket::LOBBY_STATE)
+                continue;
+
+            // First-sighting binds the peer's source endpoint. The relay's
+            // recvfrom address is always the hub itself (§6.4 fan-out), but
+            // we still record it so non-relay/LAN paths reusing this code
+            // can preserve their direct partner endpoint.
+            if (!peer.bound) {
+                peer.addr = fromAddr;
+                peer.bound = true;
+            }
+            fromPeer = Frame.peer;
+            fromPeerKnown = true;
         } else {
+            // LAN/SyncTest path: raw sLobbyPacket bytes, no Frame.peer.
+            // Two-player only — dispatch into a fixed remote slot opposite
+            // mPeerIndex to keep the per-slot bookkeeping consistent with
+            // the OFHUB/2 path. (The 3..N-player UI requires the OFHUB/2
+            // hub.)
             int n = recvfrom(mSocket, (char*)&pkt, sizeof(pkt), 0,
                              (struct sockaddr*)&fromAddr, &fromLen);
             if (n != sizeof(pkt))
                 break;
+
+            if (pkt.magic != sLobbyPacket::MAGIC)
+                continue;
+            if (pkt.version != sLobbyPacket::VERSION)
+                continue;
+            if (pkt.type != sLobbyPacket::LOBBY_STATE)
+                continue;
+
+            const uint8_t lanRemoteSlot = (mPeerIndex == 0) ? 1u : 0u;
+            sLobbyPeerSlot& peer = mPeers[lanRemoteSlot];
+            // The host learns the joiner's address from incoming lobby
+            // packets. Joiners already have the host endpoint from the
+            // menu/discovery; do not rewrite it from packet source
+            // addresses because loopback/LAN routes can alternate on the
+            // same machine and produce unstable gameplay endpoints.
+            if (!peer.bound) {
+                peer.addr = fromAddr;
+                peer.bound = true;
+            }
+            if (mIsHost && !mPreserveRemoteEndpoint)
+                mRemoteAddr = fromAddr;
+            fromPeer = lanRemoteSlot;
+            fromPeerKnown = true;
         }
 
-        if (pkt.magic != sLobbyPacket::MAGIC)
-            continue;
-        if (pkt.version != sLobbyPacket::VERSION)
-            continue;
-        if (pkt.type != sLobbyPacket::LOBBY_STATE)
-            continue;
-        if (!pkt.playerId || pkt.playerId == mLocalPlayerId)
-            continue;
-        if (mRemotePlayerId && pkt.playerId != mRemotePlayerId)
+        if (!fromPeerKnown)
             continue;
 
-        if (!mRemotePlayerId)
-            mRemotePlayerId = pkt.playerId;
+        // Apply packet to its sender slot.
+        sLobbyPeerSlot& peer = mPeers[fromPeer];
+        peer.connected = (pkt.connected != 0);
+        peer.ready     = (pkt.ready != 0);
+        peer.started   = (pkt.started != 0);
+        peer.selection = pkt.selection;
+        peer.team      = pkt.selectedTeam;
+        peer.klass     = pkt.selectedClass;
+        peer.lockedIn  = (pkt.lockedIn != 0);
 
-        // The host learns the joiner's address from incoming lobby packets.
-        // Joiners already have the host endpoint from the menu/discovery; do
-        // not rewrite it from packet source addresses because loopback/LAN
-        // routes can alternate on the same machine and produce unstable
-        // gameplay endpoints.
-        if (mIsHost && !mPreserveRemoteEndpoint)
-            mRemoteAddr = fromAddr;
-        latestPkt = pkt;
+        pkt.campaign[sizeof(pkt.campaign) - 1] = '\0';
+        peer.campaign = pkt.campaign;
+
+        peer.matchSettings.mGameMode         = Network_NormalizeGameMode(pkt.gameMode);
+        peer.matchSettings.mTeamCount        = pkt.teamCount ? pkt.teamCount : NETWORK_TEAM_COUNT_DEFAULT;
+        peer.matchSettings.mTeamSize         = pkt.teamSize ? pkt.teamSize : NETWORK_TEAM_SIZE_DEFAULT;
+        peer.matchSettings.mFriendlyFire     = pkt.friendlyFire ? 1 : 0;
+        peer.matchSettings.mMapSeed          = pkt.mapSeed;
+        peer.matchSettings.mKillLimit        = pkt.killLimit;
+        peer.matchSettings.mTimeLimitSeconds = pkt.timeLimitSeconds;
+        peer.matchSettings.mMapSize          = Network_NormalizeMapSize(pkt.mapSize);
+        peer.matchSettings.mMapTerrain       = Network_NormalizeMapTerrain(pkt.mapTerrain);
+        peer.matchSettings.mMapTerrainSub    = pkt.mapTerrainSub;
+        peer.matchSettings.mVehicleSet       = Network_NormalizeVehicleSet(pkt.vehicleSet);
+        peer.matchSettings.mPickupDensity    = Network_NormalizePickupDensity(pkt.pickupDensity);
+        peer.matchSettings.mCoverDensity     = Network_NormalizeCoverDensity(pkt.coverDensity);
+
         gotPacket = true;
     }
 
     if (!gotPacket)
         return;
 
-    mRemoteConnected = (latestPkt.connected != 0);
-    mRemoteReady     = (latestPkt.ready != 0);
-    mRemoteStarted   = (latestPkt.started != 0);
-    mRemoteSelection = latestPkt.selection;
+    RefreshRemoteAggregate();
+}
 
-    latestPkt.campaign[sizeof(latestPkt.campaign) - 1] = '\0';
-    mRemoteCampaign = latestPkt.campaign;
-    mRemoteMatchSettings.mGameMode = Network_NormalizeGameMode(latestPkt.gameMode);
-    mRemoteMatchSettings.mTeamCount = latestPkt.teamCount ? latestPkt.teamCount : NETWORK_TEAM_COUNT_DEFAULT;
-    mRemoteMatchSettings.mTeamSize = latestPkt.teamSize ? latestPkt.teamSize : NETWORK_TEAM_SIZE_DEFAULT;
-    mRemoteMatchSettings.mFriendlyFire = latestPkt.friendlyFire ? 1 : 0;
-    mRemoteMatchSettings.mMapSeed = latestPkt.mapSeed;
-    mRemoteMatchSettings.mKillLimit = latestPkt.killLimit;
-    mRemoteMatchSettings.mTimeLimitSeconds = latestPkt.timeLimitSeconds;
-    mRemoteMatchSettings.mMapSize = Network_NormalizeMapSize(latestPkt.mapSize);
-    mRemoteMatchSettings.mMapTerrain = Network_NormalizeMapTerrain(latestPkt.mapTerrain);
-    mRemoteMatchSettings.mMapTerrainSub = latestPkt.mapTerrainSub;
-    mRemoteMatchSettings.mVehicleSet = Network_NormalizeVehicleSet(latestPkt.vehicleSet);
-    mRemoteMatchSettings.mPickupDensity = Network_NormalizePickupDensity(latestPkt.pickupDensity);
-    mRemoteMatchSettings.mCoverDensity = Network_NormalizeCoverDensity(latestPkt.coverDensity);
-    mRemoteSelectedTeam = latestPkt.selectedTeam;
-    mRemoteSelectedClass = latestPkt.selectedClass;
-    mRemoteLockedIn = (latestPkt.lockedIn != 0);
+void cNetworkLobby::RefreshRemoteAggregate() {
+    // Collapse the per-slot table back into the legacy 2P getter shape:
+    // pick the first non-local bound peer that's emitted at least one
+    // packet (peer.connected) and surface its state through the existing
+    // mRemote* fields. Phase C will replace this with explicit per-slot
+    // accessors driven by the multi-player roster UI.
+    for (uint8_t i = 0; i < (uint8_t)mPeers.size(); ++i) {
+        if (i == mPeerIndex)
+            continue;
+        const sLobbyPeerSlot& peer = mPeers[i];
+        if (!peer.bound || !peer.connected)
+            continue;
+
+        mRemoteConnected     = peer.connected;
+        mRemoteReady         = peer.ready;
+        mRemoteStarted       = peer.started;
+        mRemoteSelection     = peer.selection;
+        mRemoteCampaign      = peer.campaign;
+        mRemoteMatchSettings = peer.matchSettings;
+        mRemoteSelectedTeam  = peer.team;
+        mRemoteSelectedClass = peer.klass;
+        mRemoteLockedIn      = peer.lockedIn;
+        return;
+    }
 }
 
 #endif // OPENFODDER_ENABLE_NETWORK

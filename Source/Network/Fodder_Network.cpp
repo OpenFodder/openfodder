@@ -109,7 +109,10 @@ static FILE* sSyncLog = nullptr;
 
 static FILE* SyncLog_Get(int playerIndex) {
     if (!sSyncLog) {
-        const char* name = (playerIndex == 0) ? "sync_p1.log" : "sync_p2.log";
+        // [P1: N-player generalisation — was binary "sync_p1.log" / "sync_p2.log".
+        //  Lens site Fodder_Network.cpp:112. At N>2 every peer needs its own log.]
+        char name[32];
+        snprintf(name, sizeof(name), "sync_p%d.log", playerIndex + 1);
         sSyncLog = fopen(name, "w");
     }
     return sSyncLog;
@@ -124,11 +127,12 @@ static std::string Network_FormatMatchTime(uint16_t pSeconds) {
 }
 
 static std::string Network_PlayerLabel(int16 pPlayer) {
-    if (pPlayer == eNetPlayer_1)
-        return "PLAYER 1";
-    if (pPlayer == eNetPlayer_2)
-        return "PLAYER 2";
-    return "PLAYER";
+    // [P1: N-player generalisation — was a 2-branch lookup that returned
+    //  "PLAYER 1" / "PLAYER 2" / "PLAYER". Lens site Fodder_Network.cpp:127-130.
+    //  Now spans the full kMaxRollbackPlayers range.]
+    if (pPlayer < 0 || pPlayer >= kMaxRollbackPlayers)
+        return "PLAYER";
+    return "PLAYER " + std::to_string(pPlayer + 1);
 }
 
 // ============================================================
@@ -308,6 +312,17 @@ bool cFodderMultiplayer::Network_Start() {
     mNet_P2_CursorX = 0;
     mNet_P2_CursorY = 0;
     mNet_RemoteCursorSprite = 0;
+    // [P1: N-player generalisation — per-peer remote-cursor caches replace
+    //  the single mNet_P2_CursorX/Y / mNet_RemoteCursorSprite scalars.
+    //  Local peer's slot stays zero.]
+    for (int i = 0; i < kMaxRollbackPlayers; ++i) {
+        mNet_RemoteCursorX[i] = 0;
+        mNet_RemoteCursorY[i] = 0;
+        mNet_RemoteCursorSpriteArr[i] = 0;
+    }
+    // [P1: deterministic camera anchor — defaults to player 0 (legacy P1).
+    //  Saved in the GGPO snapshot so rollback agrees on the anchor.]
+    mNetCameraAnchorPlayer = 0;
     mNetMapOverlayActive = false;
     mNetSidebarLeftWasDown = false;
     mNet_LocalCamSquad = -1;
@@ -363,7 +378,9 @@ bool cFodderMultiplayer::Network_Start() {
             mStartParams->mNetworkRemoteHost,
             mStartParams->mNetworkRemotePort,
             SessionKey,
-            PeerIndex
+            PeerIndex,
+            mStartParams->mNetworkNumPlayers,   // P1 A1: negotiated peer count flows from hub claim -> StartParams -> GGPO
+            mStartParams->mNetworkInternet ? &mRelaySeq : nullptr
         );
     }
 
@@ -555,10 +572,17 @@ void cFodderMultiplayer::Network_DrawMatchOverlay() {
         TimeLabel = "LEFT ";
     }
 
-    const std::string ScoreLine =
-        "P1 " + std::to_string(mNetMatchState.mKills[eNetPlayer_1]) +
-        "  P2 " + std::to_string(mNetMatchState.mKills[eNetPlayer_2]) +
-        "  " + TimeLabel + Network_FormatMatchTime(TimeSeconds);
+    // [P1: N-player generalisation — was hardcoded "P1 ... P2 ..." kill row.
+    //  Lens site Fodder_Network.cpp:559-560. Iterate active peer count.]
+    const int numPlayersForScore = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+    std::string ScoreLine;
+    for (int p = 0; p < numPlayersForScore; ++p) {
+        if (p > 0) ScoreLine += "  ";
+        ScoreLine += "P" + std::to_string(p + 1) + " " +
+                     std::to_string(mNetMatchState.mKills[p]);
+    }
+    ScoreLine += "  " + TimeLabel + Network_FormatMatchTime(TimeSeconds);
 
     const int16 SavedGapChar = mString_GapCharID;
     const int16 SavedPrintToSidebar = mGUI_Print_String_To_Sidebar;
@@ -609,8 +633,13 @@ void cFodderMultiplayer::Network_DrawMatchOverlay() {
         };
 
         DrawCentred(mFont_Briefing_Width, 0, "MATCH RESULTS", 0x5A);
-        DrawPlayerResult(eNetPlayer_1, 0x6C);
-        DrawPlayerResult(eNetPlayer_2, 0x7C);
+        // [P1: N-player generalisation — was unrolled DrawPlayerResult(P1, 0x6C); DrawPlayerResult(P2, 0x7C).
+        //  Lens site Fodder_Network.cpp:612-613. Now stride pY by row height across active peers.]
+        const int numPlayersForResults = std::max<int>(1,
+            std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+        for (int p = 0; p < numPlayersForResults; ++p) {
+            DrawPlayerResult(static_cast<int16>(p), static_cast<size_t>(0x6C + p * 0x10));
+        }
     }
 
     mGUI_Print_String_To_Sidebar = SavedPrintToSidebar;
@@ -684,7 +713,10 @@ void cFodderMultiplayer::Network_DrawLiveMapOverlay() {
     mGraphics->PaletteSetOverview();
     mSurfaceMapOverview->Restore();
 
-    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+    // [P1: N-player generalisation — walks active peer count instead of literal 2.]
+    const int numPlayersOverlay = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+    for (int Player = 0; Player < numPlayersOverlay; ++Player) {
         sSprite* MarkerSprite = nullptr;
 
         if (Sprite_IsActiveSpritePointer(mSquad_CurrentVehicles[Player]))
@@ -967,8 +999,17 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
     const uint8_t LocalPeer = static_cast<uint8_t>(mStartParams->mNetworkPeerIndex);
     const std::array<unsigned char, openfodder_hubframe::kSessionKeySize>& SessionKey =
         mStartParams->mNetworkSessionKey;
-    uint32_t LocalSeq = 1;  // type=0x01 DATA frames; REGISTER reserves seq=0.
-    openfodder_hubframe::ReplayWindow Replay;
+    // OFHUB/2 seq counter SHARED with the lobby socket and the GGPO socket
+    // (cFodderMultiplayer::mRelaySeq) — port-preservation NAT collapses all
+    // three sockets onto one (ip,port), so they share the hub's per-peer
+    // 1024-bit replay window. With independent counters briefing's seq=1
+    // collides with lobby's seq=1..N → REPLAY_DROP → joiner never sees the
+    // host's READY → "WAITING FOR PLAYER" deadlock.
+    // Per-peer replay windows: a single shared window collapses N peers into
+    // one seq stream and would reject legitimate frames as "stale" whenever
+    // peer A's seq trails peer B's. Index by Frame.peer (bounds-checked
+    // against kMaxRollbackPlayers below).
+    std::array<openfodder_hubframe::ReplayWindow, kMaxRollbackPlayers> Replay{};
 
     if (UseRelayFraming) {
         // Type=0x02 REGISTER: zero-length payload, seq=0, peer index, 8-byte tag.
@@ -989,7 +1030,19 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
         }
     }
 
-    bool remoteReady = false;
+    // Per-peer ready bitmask: bit i set once we've accepted a READY_MAGIC
+    // from peer index i (or, for the local peer, as soon as we send our own
+    // first READY). Single-bool `remoteReady` exited on the first inbound
+    // packet, which is broken at N>2 — we'd race ahead with one peer still
+    // unsynced. uint32_t supports up to 32 peers (we only need 4 today).
+    const uint32_t numPlayers = mStartParams->mNetworkNumPlayers; // P1 A1: hub-negotiated peer count (default 2 for legacy parity)
+    const uint32_t expectedMask = (1u << numPlayers) - 1u;
+    const uint32_t LocalPeerBit = (1u << LocalPeer);
+    uint32_t readyMask = LocalPeerBit;                   // local peer is ready as soon as we start sending
+    // [P1: N-player generalisation — was a 2P partner-index formula. Lens site
+    //  Fodder_Network.cpp:993. At N>2 the message is generic ("WAITING FOR PEERS")
+    //  since the local peer is waiting on >1 peer; at N=2 we keep the original
+    //  "WAITING FOR PLAYER 1/2" wording for production-identical behaviour.]
     const int remotePlayerNum = (mStartParams->mNetworkPlayerIndex == 0) ? 2 : 1;
 
     // Draw "WAITING FOR PLAYER X" on surface2 once
@@ -1003,7 +1056,9 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
         mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
         mString_GapCharID = 0x25;
 
-        std::string waitMsg = "WAITING FOR PLAYER " + std::to_string(remotePlayerNum);
+        const std::string waitMsg = (numPlayers > 2u)
+            ? std::string("WAITING FOR PEERS")
+            : ("WAITING FOR PLAYER " + std::to_string(remotePlayerNum));
         String_CalculateWidth(320, mFont_Underlined_Width, waitMsg);
         String_Print(mFont_Underlined_Width, 1, mGUI_Temp_X, 0x54, waitMsg);
 
@@ -1022,7 +1077,7 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
     // or a peer's READY) — kept small because READY payloads are 4 bytes.
     constexpr std::size_t ReadyRecvBufSize = 256;
 
-    while (!remoteReady && !mExit) {
+    while ((readyMask & expectedMask) != expectedMask && !mExit) {
         // Send our READY packet — wrap as a type=0x01 DATA frame on the
         // relay path so the hub can verify our session-key tag and fan it
         // out to the remote peer (§6.3). LAN path stays raw 4-byte magic.
@@ -1030,7 +1085,7 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
             unsigned char ReadyFrame[openfodder_hubframe::kMinFrameSize + sizeof(READY_MAGIC)];
             const std::size_t ReadyFrameLen = openfodder_hubframe::BuildAndTag(
                 openfodder_hubframe::FrameType::Data,
-                LocalSeq++,
+                mRelaySeq.fetch_add(1, std::memory_order_relaxed),
                 LocalPeer,
                 reinterpret_cast<const unsigned char*>(&READY_MAGIC),
                 sizeof(READY_MAGIC),
@@ -1064,23 +1119,32 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
                 openfodder_hubframe::ParsedFrame Frame{};
                 if (openfodder_hubframe::VerifyAndParse(
                         RecvFrame, static_cast<std::size_t>(n), SessionKey, &Frame)) {
+                    // Filter: must be a DATA frame carrying exactly READY_MAGIC,
+                    // from a peer index inside our rollback ceiling, with a
+                    // seq that hasn't already been seen on that peer's stream.
                     if (Frame.type == openfodder_hubframe::FrameType::Data &&
-                        Replay.AcceptAndAdvance(Frame.seq) &&
-                        Frame.payloadLen == sizeof(READY_MAGIC)) {
+                        Frame.payloadLen == sizeof(READY_MAGIC) &&
+                        Frame.peer < kMaxRollbackPlayers) {
                         uint32_t recvBuf = 0;
                         std::memcpy(&recvBuf, Frame.payload, sizeof(recvBuf));
-                        if (recvBuf == READY_MAGIC)
-                            remoteReady = true;
+                        if (recvBuf == READY_MAGIC &&
+                            Replay[Frame.peer].AcceptAndAdvance(Frame.seq)) {
+                            readyMask |= (1u << Frame.peer);
+                        }
                     }
                 }
                 // Tag mismatch / replay / unknown type / bad framing: silent drop.
             }
         } else {
+            // LAN-direct path: unframed 4-byte READY_MAGIC, no peer index on
+            // the wire and no replay protection. The LAN path is 2P-only by
+            // design; receiving any READY means the single remote peer is
+            // ready, so flip every non-local bit in the expected mask.
             uint32_t recvBuf = 0;
             int n = recvfrom(sock, (char*)&recvBuf, sizeof(recvBuf), 0,
                              (struct sockaddr*)&fromAddr, &fromLen);
             if (n == sizeof(recvBuf) && recvBuf == READY_MAGIC)
-                remoteReady = true;
+                readyMask |= (expectedMask & ~LocalPeerBit);
         }
 
         // Render the waiting overlay
@@ -1112,7 +1176,7 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
             unsigned char ReadyFrame[openfodder_hubframe::kMinFrameSize + sizeof(READY_MAGIC)];
             const std::size_t ReadyFrameLen = openfodder_hubframe::BuildAndTag(
                 openfodder_hubframe::FrameType::Data,
-                LocalSeq++,
+                mRelaySeq.fetch_add(1, std::memory_order_relaxed),
                 LocalPeer,
                 reinterpret_cast<const unsigned char*>(&READY_MAGIC),
                 sizeof(READY_MAGIC),
@@ -1277,21 +1341,41 @@ void cFodderMultiplayer::Network_RedistributeSquads() {
         Troops.push_back(Sprite);
     }
 
+    // [P1: N-player generalisation — was a 2-way split.
+    //  Lens sites Fodder_Network.cpp:1283 (SplitIndex), 1290 (Owner ternary),
+    //  1294 (idx & 1 alternation). Now distributes troops round-robin across
+    //  active peer count for co-op, and uses an N-way contiguous partition for
+    //  PvP spawn groups.]
     const bool SplitBySpawnGroup =
         Network_IsPvPMode(mStartParams->mNetworkGameMode) &&
         !Network_IsAvatarMode(mStartParams->mNetworkGameMode);
-    const size_t SplitIndex = (Troops.size() + 1) / NETWORK_MAX_PLAYERS;
+    const int numPlayers = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+    // Contiguous partition for spawn-group ordering: each player gets a
+    // ceil(N/Np)-sized chunk. PvP modes already sort the spawn list by team
+    // before this point, so contiguous chunks preserve "team A together,
+    // team B together, ..." even at N>2.
+    const size_t TotalTroops = Troops.size();
+    const size_t SplitChunk = (TotalTroops + static_cast<size_t>(numPlayers) - 1) /
+                              static_cast<size_t>(numPlayers);
 
-    for (size_t idx = 0; idx < Troops.size(); ++idx) {
+    for (size_t idx = 0; idx < TotalTroops; ++idx) {
         sSprite* Sprite = Troops[idx];
         int16 oldSquad = Sprite->field_32;
 
         if (SplitBySpawnGroup) {
-            const int16 Owner = (idx < SplitIndex) ? eNetPlayer_1 : eNetPlayer_2;
-            Sprite->field_32 = Network_GetPlayerPrimarySquad(Owner);
+            const int Owner = (SplitChunk > 0)
+                ? std::min<int>(numPlayers - 1, static_cast<int>(idx / SplitChunk))
+                : 0;
+            Sprite->field_32 = Network_GetPlayerPrimarySquad(static_cast<int16>(Owner));
         }
-        else
-            Sprite->field_32 = static_cast<int16>(idx & 1);
+        else {
+            // Round-robin: troop idx -> primary squad of (idx mod numPlayers).
+            // At numPlayers=2 this is bit-identical to the legacy `idx & 1`.
+            const int Owner = static_cast<int>(idx % static_cast<size_t>(numPlayers));
+            const int16 PrimarySquad = Network_GetPlayerPrimarySquad(static_cast<int16>(Owner));
+            Sprite->field_32 = (PrimarySquad >= 0) ? PrimarySquad : static_cast<int16>(Owner);
+        }
 
         g_Debugger->Notice("[GGPO] RedistributeSquads: troop idx=" + std::to_string(idx) +
                            " pos=(" + std::to_string(Sprite->mPosX) + "," + std::to_string(Sprite->mPosY) + ")" +
@@ -1301,12 +1385,20 @@ void cFodderMultiplayer::Network_RedistributeSquads() {
     Squad_Rebuild();
     Network_ValidateSelectedSquads();
     Network_DistributeSquadExplosives();
-    g_Debugger->Notice("[GGPO] RedistributeSquads: " + std::to_string(Troops.size()) + " troops split" +
-                       " squad0=" + std::to_string(mSquads_TroopCount[0]) +
-                       " squad1=" + std::to_string(mSquads_TroopCount[1]));
+
+    {
+        std::string countsLog;
+        for (int p = 0; p < numPlayers; ++p) {
+            const int16 PrimarySquad = Network_GetPlayerPrimarySquad(static_cast<int16>(p));
+            if (p > 0) countsLog += " ";
+            countsLog += "squad" + std::to_string(p) + "=" +
+                         std::to_string((PrimarySquad >= 0) ? mSquads_TroopCount[PrimarySquad] : 0);
+        }
+        g_Debugger->Notice("[GGPO] RedistributeSquads: " + std::to_string(TotalTroops) + " troops split " + countsLog);
+    }
 
     // Each player starts commanding their own squad
-    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+    for (int Player = 0; Player < numPlayers; ++Player) {
         const int16 PrimarySquad = Network_GetPlayerPrimarySquad(static_cast<int16>(Player));
         if (PrimarySquad >= 0)
             mNetSelectedSquad[Player] = static_cast<int8>(PrimarySquad);
@@ -1315,6 +1407,22 @@ void cFodderMultiplayer::Network_RedistributeSquads() {
 }
 
 void cFodderMultiplayer::Network_NormalizeSquadAssignments() {
+    // [P1: N-player generalisation — Lens sites 1327, 1329, 1333, 1343, 1366-67.
+    //  Was: snap-to-P1 fallback, "dump everything onto P2" bucket.
+    //
+    //  Determinism note: this function runs inside the rollback simulation, so
+    //  any per-machine value here causes a desync. The fallbacks pick the
+    //  deterministic camera anchor (mNetCameraAnchorPlayer, default 0 ==
+    //  legacy P1) and the last active player (numPlayers-1, == legacy P2 at
+    //  N=2). At N=2 with the default anchor the behaviour is bit-identical.]
+    const int numPlayers = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+    const int16 AnchorPlayer = static_cast<int16>(
+        std::min<int>(numPlayers - 1, static_cast<int>(mNetCameraAnchorPlayer)));
+    // "Last active player" generalises the legacy "dump onto P2" bucket.
+    // At numPlayers=2 this is eNetPlayer_2 — bit-identical.
+    const int16 LastPlayer = static_cast<int16>(numPlayers - 1);
+
     if (Network_UsesPrivateSplitSquads()) {
         for (auto& Troop : mGame_Data.mSoldiers_Allocated) {
             sSprite* Sprite = Troop.mSprite;
@@ -1324,13 +1432,20 @@ void cFodderMultiplayer::Network_NormalizeSquadAssignments() {
             if (Network_GetSquadOwner(Sprite->field_32) >= 0)
                 continue;
 
-            const int16 FallbackOwner = (Sprite->field_32 == eNetPlayer_2) ? eNetPlayer_2 : eNetPlayer_1;
+            // Legacy fallback at N=2: any non-1 field_32 -> P1, 1 -> P2.
+            // Generalise: trust field_32 as a peer index when in-range, else
+            // use the (deterministic) camera anchor.
+            const int16 NominalOwner = Sprite->field_32;
+            const int16 FallbackOwner =
+                (NominalOwner >= 0 && NominalOwner < numPlayers)
+                    ? NominalOwner
+                    : AnchorPlayer;
             const int16 FallbackSquad = Network_GetPlayerPrimarySquad(FallbackOwner);
-            Sprite->field_32 = (FallbackSquad >= 0) ? FallbackSquad : eNetPlayer_1;
+            Sprite->field_32 = (FallbackSquad >= 0) ? FallbackSquad : AnchorPlayer;
         }
 
         if (mSquad_Selected < 0 || mSquad_Selected >= NETWORK_MAX_SQUADS)
-            mSquad_Selected = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+            mSquad_Selected = Network_GetPlayerSelectedSquad(AnchorPlayer);
 
         return;
     }
@@ -1340,13 +1455,17 @@ void cFodderMultiplayer::Network_NormalizeSquadAssignments() {
         if (!Sprite_IsActiveSpritePointer(Sprite))
             continue;
 
-        if (Sprite->field_32 >= NETWORK_MAX_PLAYERS)
-            Sprite->field_32 = eNetPlayer_2;
+        // Legacy: any squad >= N was clamped to player 1 (`eNetPlayer_2`).
+        // Generalise to "clamp to the last active player" — bit-identical at N=2.
+        if (Sprite->field_32 >= numPlayers)
+            Sprite->field_32 = LastPlayer;
     }
 
-    for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad) {
-        mSquad_Grenades[eNetPlayer_2] += mSquad_Grenades[Squad];
-        mSquad_Rockets[eNetPlayer_2] += mSquad_Rockets[Squad];
+    // Pool any leftover squad explosives onto the last active player. At N=2
+    // this is identical to the legacy "merge into P2" path.
+    for (int Squad = numPlayers; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+        mSquad_Grenades[LastPlayer] += mSquad_Grenades[Squad];
+        mSquad_Rockets[LastPlayer] += mSquad_Rockets[Squad];
         mSquad_Grenades[Squad] = 0;
         mSquad_Rockets[Squad] = 0;
         mSquad_CurrentWeapon[Squad] = eWeapon_None;
@@ -1355,41 +1474,83 @@ void cFodderMultiplayer::Network_NormalizeSquadAssignments() {
         mSquad_CurrentVehicles[Squad] = nullptr;
     }
 
-    for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad)
+    for (int Squad = numPlayers; Squad < NETWORK_MAX_SQUADS; ++Squad)
         mSquads_TroopCount[Squad] = 0;
 
-    for (int Squad = NETWORK_MAX_PLAYERS; Squad < NETWORK_MAX_SQUADS; ++Squad) {
+    for (int Squad = numPlayers; Squad < NETWORK_MAX_SQUADS; ++Squad) {
         if (mSquads[Squad])
             mSquads[Squad][0] = INVALID_SPRITE_PTR;
     }
 
-    if (mSquad_Selected >= NETWORK_MAX_PLAYERS)
-        mSquad_Selected = Network_GetPlayerSelectedSquad(eNetPlayer_1);
+    if (mSquad_Selected >= numPlayers)
+        mSquad_Selected = Network_GetPlayerSelectedSquad(AnchorPlayer);
 }
 
 void cFodderMultiplayer::Network_DistributeSquadExplosives() {
+    // [P1: N-player generalisation — Lens sites 1373-74, 1380-86, 1392.
+    //  Was: 2-way proportional split between mSquad_Grenades[P1] and
+    //  mSquad_Grenades[P2]. Now distributes proportionally across the primary
+    //  squad of every active player. At numPlayers=2 the math is bit-identical:
+    //  same ceiling rounding for player 0, with player N-1 absorbing the
+    //  remainder.]
     Network_NormalizeSquadAssignments();
 
-    const int16 Squad0Count = std::max<int16>(0, mSquads_TroopCount[eNetPlayer_1]);
-    const int16 Squad1Count = std::max<int16>(0, mSquads_TroopCount[eNetPlayer_2]);
-    const int16 TotalTroops = Squad0Count + Squad1Count;
-    if (TotalTroops <= 0 || Squad1Count <= 0)
+    const int numPlayers = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+
+    int16 Counts[kMaxRollbackPlayers] = {};
+    int16 PrimarySquads[kMaxRollbackPlayers] = {};
+    int16 TotalTroops = 0;
+    int ActivePlayers = 0;
+    for (int p = 0; p < numPlayers; ++p) {
+        PrimarySquads[p] = static_cast<int16>(p);     // legacy invariant: squad id == player id for primary slot
+        Counts[p] = std::max<int16>(0, mSquads_TroopCount[p]);
+        TotalTroops = static_cast<int16>(TotalTroops + Counts[p]);
+        if (Counts[p] > 0)
+            ++ActivePlayers;
+    }
+
+    // Match legacy short-circuit: at N=2 we returned if Squad1Count<=0.
+    // Generalise to "at least 2 squads must have troops" for the split to
+    // make sense (otherwise the single non-empty squad keeps everything).
+    if (TotalTroops <= 0 || ActivePlayers < 2)
         return;
 
     auto SplitByTroops = [&](int16* pValues) {
-        const int Total = pValues[eNetPlayer_1] + pValues[eNetPlayer_2];
+        int Total = 0;
+        for (int p = 0; p < numPlayers; ++p)
+            Total += pValues[p];
         if (Total <= 0)
             return;
 
-        const int Squad0Share = (Total * Squad0Count + (TotalTroops - 1)) / TotalTroops;
-        pValues[eNetPlayer_1] = static_cast<int16>(Squad0Share);
-        pValues[eNetPlayer_2] = static_cast<int16>(Total - Squad0Share);
+        // Proportional ceiling-rounded split. Each player gets
+        // ceil(Total*count[p] / TotalTroops), and we hand the remainder
+        // (which can only ever be the full Total minus the sum of the
+        // earlier ceilings) to the LAST active player so the last-bucket
+        // semantics of the legacy 2P code are preserved.
+        int Assigned = 0;
+        int LastNonZeroPlayer = -1;
+        for (int p = 0; p < numPlayers - 1; ++p) {
+            const int Share = (Total * Counts[p] + (TotalTroops - 1)) / TotalTroops;
+            pValues[p] = static_cast<int16>(Share);
+            Assigned += Share;
+            if (Counts[p] > 0)
+                LastNonZeroPlayer = p;
+        }
+        pValues[numPlayers - 1] = static_cast<int16>(Total - Assigned);
+        // If the last player has no troops but the ceiling rounding gave
+        // them inventory, push it back to the last non-zero player to keep
+        // explosives with people who can use them.
+        if (Counts[numPlayers - 1] <= 0 && pValues[numPlayers - 1] > 0 && LastNonZeroPlayer >= 0) {
+            pValues[LastNonZeroPlayer] = static_cast<int16>(pValues[LastNonZeroPlayer] + pValues[numPlayers - 1]);
+            pValues[numPlayers - 1] = 0;
+        }
     };
 
     SplitByTroops(mSquad_Grenades);
     SplitByTroops(mSquad_Rockets);
 
-    for (int Squad = 0; Squad < NETWORK_MAX_PLAYERS; ++Squad) {
+    for (int Squad = 0; Squad < numPlayers; ++Squad) {
         if (mSquad_CurrentWeapon[Squad] == eWeapon_Grenade && mSquad_Grenades[Squad] > 0)
             continue;
         if (mSquad_CurrentWeapon[Squad] == eWeapon_Rocket && mSquad_Rockets[Squad] > 0)
@@ -1413,7 +1574,10 @@ void cFodderMultiplayer::Network_ResetMatchState() {
     mNetMatchState.mObjectiveCarrierPlayer = -1;
     mNetMatchState.mObjectiveState = eNetworkObjectiveState_None;
 
-    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player)
+    // [P1: N-player generalisation — mLastDamageOwner is sized at
+    //  kMaxRollbackPlayers; clear every slot so unused (but legal) peer
+    //  indices return NO_WINNER on lookup.]
+    for (int Player = 0; Player < kMaxRollbackPlayers; ++Player)
         mNetMatchState.mLastDamageOwner[Player] = NETWORK_MATCH_NO_WINNER;
 }
 
@@ -1442,7 +1606,14 @@ void cFodderMultiplayer::Network_SetActiveSquadContext(int16 pSquad) {
 void cFodderMultiplayer::Network_ResetSquadOwnership() {
     memset(mNetSquadOwner, NETWORK_INVALID_SQUAD_OWNER, sizeof(mNetSquadOwner));
 
-    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+    // [P1: N-player generalisation — primary squad table walks the runtime
+    //  peer count. Loop bound moved from NETWORK_MAX_PLAYERS=2 to
+    //  mNetworkNumPlayers; squad-id == player-index invariant preserved.
+    //  Lens sites 1445/1453/1454.]
+    const int numPlayers = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+
+    for (int Player = 0; Player < numPlayers; ++Player) {
         mNetSquadOwner[Player] = static_cast<int8>(Player);
         mNetSelectedSquad[Player] = static_cast<int8>(Player);
     }
@@ -1450,8 +1621,9 @@ void cFodderMultiplayer::Network_ResetSquadOwnership() {
     if (!Network_UsesPrivateSplitSquads())
         return;
 
-    int16 NextExtraSquad = NETWORK_MAX_PLAYERS;
-    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+    // "Extras start at numPlayers" — same invariant as before, just sized to N.
+    int16 NextExtraSquad = static_cast<int16>(numPlayers);
+    for (int Player = 0; Player < numPlayers; ++Player) {
         for (int LocalSlot = 1; LocalSlot < NETWORK_MAX_LOCAL_SQUADS; ++LocalSlot) {
             if (NextExtraSquad >= NETWORK_MAX_SQUADS)
                 return;
@@ -2255,8 +2427,14 @@ void cFodderMultiplayer::Network_UpdateMatchRules() {
     if (mNetMatchState.mWinnerTeam != NETWORK_MATCH_NO_WINNER)
         return;
 
+    // [P1: N-player generalisation — match-rule loops walk the runtime peer
+    //  count. mKills/mDeaths arrays are sized at kMaxRollbackPlayers in P0.
+    //  Lens sites 2259, 2269, 2293.]
+    const int numPlayersRules = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+
     if (mStartParams->mNetworkKillLimit) {
-        for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        for (int Player = 0; Player < numPlayersRules; ++Player) {
             if (mNetMatchState.mKills[Player] >= mStartParams->mNetworkKillLimit) {
                 Network_SetMatchWinner(Player);
                 return;
@@ -2266,7 +2444,7 @@ void cFodderMultiplayer::Network_UpdateMatchRules() {
 
     int16 AliveOwner = NETWORK_MATCH_NO_WINNER;
     int16 AliveOwners = 0;
-    for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+    for (int Player = 0; Player < numPlayersRules; ++Player) {
         if (Network_CountAliveOwnedTroops(static_cast<int16>(Player), 0) <= 0)
             continue;
 
@@ -2290,7 +2468,7 @@ void cFodderMultiplayer::Network_UpdateMatchRules() {
         uint16_t LeadingKills = 0;
         bool Tied = false;
 
-        for (int Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+        for (int Player = 0; Player < numPlayersRules; ++Player) {
             if (mNetMatchState.mKills[Player] > LeadingKills) {
                 LeadingKills = mNetMatchState.mKills[Player];
                 LeadingPlayer = static_cast<int16>(Player);
@@ -2311,24 +2489,48 @@ void cFodderMultiplayer::Network_UpdateMatchRules() {
 // Cursor/squad ordering is handled per-player in Network_AdvanceFrame.
 // ============================================================
 
-void cFodderMultiplayer::Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]) {
-    const sNetworkInput& p1 = inputs[eNetPlayer_1];
-    const sNetworkInput& p2 = inputs[eNetPlayer_2];
+void cFodderMultiplayer::Network_ApplyInputs(const sNetworkInput inputs[kMaxRollbackPlayers]) {
+    // [P1: N-player generalisation — Lens sites 2315-16, 2319-20, 2323-24, 2327.
+    //  Was: two named refs `p1`/`p2`, single P2 cursor cache, single remote
+    //  cursor sprite, two-way key-flag OR. Now: per-peer caches and a loop
+    //  over the active peer count.
+    //
+    //  Input bus note (P1 input-bus widening 2026-06-08): `inputs[]` is now
+    //  compile-time kMaxRollbackPlayers=4 (was NETWORK_MAX_PLAYERS=2). We
+    //  iterate up to numPlayersDeclared (the runtime active peer count from
+    //  StartParams, already clamped to [1..kMaxRollbackPlayers]). Inactive
+    //  tail slots of the bus are guaranteed zeroed by callers (GGPOSession
+    //  cb_AdvanceFrame memset, Network_Tick syncInputs memset) so reads
+    //  beyond the active count are safe but never reached.]
+    const int numPlayersInput = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
 
-    // Store player-2 cursor position for overlay rendering
-    mNet_P2_CursorX = p2.mMouseX;
-    mNet_P2_CursorY = p2.mMouseY;
+    // Store every remote cursor + sprite for overlay rendering. Local peer's
+    // own slot is intentionally also written (the local cursor never reads from
+    // these caches — it uses mNet_LocalCursorWorldX/Y — so the write is harmless).
+    for (int p = 0; p < numPlayersInput; ++p) {
+        mNet_RemoteCursorX[p] = inputs[p].mMouseX;
+        mNet_RemoteCursorY[p] = inputs[p].mMouseY;
+        mNet_RemoteCursorSpriteArr[p] = inputs[p].mCursorSprite;
+    }
+    // Legacy aliases — keep mNet_P2_CursorX/Y / mNet_RemoteCursorSprite in sync
+    // so the existing render path stays bit-identical at N=2.
+    if (numPlayersInput >= 2) {
+        const int legacyRemote = (mNetLocalPlayerIndex == eNetPlayer_1) ? eNetPlayer_2 : eNetPlayer_1;
+        mNet_P2_CursorX = inputs[eNetPlayer_2].mMouseX;
+        mNet_P2_CursorY = inputs[eNetPlayer_2].mMouseY;
+        mNet_RemoteCursorSprite = inputs[legacyRemote].mCursorSprite;
+    }
 
-    // Store the remote player's cursor sprite for the overlay
-    const int remote = (mNetLocalPlayerIndex == eNetPlayer_1) ? eNetPlayer_2 : eNetPlayer_1;
-    mNet_RemoteCursorSprite = inputs[remote].mCursorSprite;
-
-    // Global key flags – either player can pause or abort
-    uint8_t sharedFlags = p1.mKeyFlags | p2.mKeyFlags;
+    // Global key flags – any player can pause or abort. Loop replaces the
+    // unrolled `p1.mKeyFlags | p2.mKeyFlags`.
+    uint8_t sharedFlags = 0;
+    for (int p = 0; p < numPlayersInput; ++p)
+        sharedFlags |= inputs[p].mKeyFlags;
     if (sharedFlags & eNetKey_Pause)  mPhase_Paused  = !mPhase_Paused;
     if (sharedFlags & eNetKey_Escape) mPhase_Aborted = true;
 
-    for (int16 Player = 0; Player < NETWORK_MAX_PLAYERS; ++Player) {
+    for (int16 Player = 0; Player < static_cast<int16>(numPlayersInput); ++Player) {
         const uint8_t Flags = inputs[Player].mKeyFlags;
         const int16 SelectedSlot = Network_LocalSlotFromSelectFlags(Flags);
         if (SelectedSlot >= 0) {
@@ -2370,7 +2572,7 @@ void cFodderMultiplayer::Network_ApplyInputs(const sNetworkInput inputs[NETWORK_
 // advance_frame callback (during rollback replay).
 // ============================================================
 
-bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]) {
+bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[kMaxRollbackPlayers]) {
     // --- Desync diagnostic: log RNG + sprite checksum at frame entry ---
     {
         FILE* sl = SyncLog_Get(mNetLocalPlayerIndex);
@@ -2441,6 +2643,26 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
     Network_ApplyInputs(inputs);
     Network_NormalizeSquadAssignments();
 
+    // [P1: N-player generalisation — declared peer count drives the per-player
+    //  loops below. The camera anchor is `mNetCameraAnchorPlayer` (default 0
+    //  == legacy P1) and replaces the four hardcoded eNetPlayer_1 anchors at
+    //  lens sites 2453, 2551, 2649, 2720.
+    //
+    //  P1 input-bus widening 2026-06-08: the input bus is now sized at
+    //  kMaxRollbackPlayers=4, the same ceiling numPlayersFrame is already
+    //  clamped to. The previous A2 clamp (numPlayersInputFrame =
+    //  min(numPlayersFrame, NETWORK_MAX_PLAYERS=2)) became a defensive no-op
+    //  past the bus widening and was removed; numPlayersFrame is the single
+    //  authority for both per-player loop bounds and inputs[] indexing.
+    //  cameraAnchorInput collapses to cameraAnchor for the same reason
+    //  (anchor is already clamped into [0..numPlayersFrame-1]).]
+    const int numPlayersFrame = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
+    const int numPlayersInputFrame = numPlayersFrame;
+    const int16 cameraAnchor = static_cast<int16>(
+        std::min<int>(numPlayersFrame - 1, static_cast<int>(mNetCameraAnchorPlayer)));
+    const int16 cameraAnchorInput = cameraAnchor;
+
     // Camera + cursor handling (equivalent to 3× Phase_Loop_Interrupt
     // minus the hardware-input read).
     for (int tick = 0; tick < 3; ++tick) {
@@ -2450,24 +2672,25 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
         if (mInput_Enabled) {
             // Camera must follow the same squad on both machines so that
             // mCameraX/Y (part of the saved state) are deterministic.
-            const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
-            Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
+            // [P1: was eNetPlayer_1; now reads the deterministic camera anchor.]
+            const int16 anchorSquad = Network_GetPlayerSelectedSquad(cameraAnchor);
+            Network_SetActiveSquadContext((anchorSquad >= 0) ? anchorSquad : cameraAnchor);
             {
                 const int16 cX = static_cast<int16>(mCameraX >> 16);
                 const int16 cY = static_cast<int16>(mCameraY >> 16);
-                mMouseX = static_cast<int16>(inputs[eNetPlayer_1].mMouseX - cX);
-                mMouseY = static_cast<int16>(inputs[eNetPlayer_1].mMouseY - cY);
+                mMouseX = static_cast<int16>(inputs[cameraAnchorInput].mMouseX - cX);
+                mMouseY = static_cast<int16>(inputs[cameraAnchorInput].mMouseY - cY);
             }
             Camera_Handle();
 
             // Camera_Handle adjusted mCamera_PanTargetX/Y (via
             // Camera_PanTarget_AdjustToward_SquadLeader) to track
-            // the squad leader.  Propagate these to P1's per-player
-            // saved state so the per-player loop below doesn't
-            // overwrite them with stale values, which would cause
-            // the camera to bounce instead of smoothly following.
-            mNet_CameraPanTargetX[0] = mCamera_PanTargetX;
-            mNet_CameraPanTargetY[0] = mCamera_PanTargetY;
+            // the squad leader.  Propagate these to the anchor's
+            // per-player saved state so the per-player loop below
+            // doesn't overwrite them with stale values.
+            // [P1: was hardcoded slot 0; now uses cameraAnchor.]
+            mNet_CameraPanTargetX[cameraAnchor] = mCamera_PanTargetX;
+            mNet_CameraPanTargetY[cameraAnchor] = mCamera_PanTargetY;
 
             if (!mPhase_Finished) {
                 // Run Mouse_Inputs_Check for each player independently.
@@ -2478,7 +2701,9 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
                 const int16 camX = static_cast<int16>(mCameraX >> 16);
                 const int16 camY = static_cast<int16>(mCameraY >> 16);
 
-                for (int pl = 0; pl < NETWORK_MAX_PLAYERS; ++pl) {
+                // [P1: per-player loop bound now driven by the runtime peer
+                //  count clamped to the input-bus ceiling.]
+                for (int pl = 0; pl < numPlayersInputFrame; ++pl) {
                     const int16 squad = Network_GetPlayerSelectedSquad(static_cast<int16>(pl));
                     if (squad < 0 || squad >= NETWORK_MAX_SQUADS)
                         continue;
@@ -2546,30 +2771,31 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
                     }
                 }
 
-                // Restore deterministic state (squad 0 / P1) so that
+                // Restore deterministic state (anchor's squad) so that
                 // saved state and sprite handling are identical on both machines.
-                const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
-                Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
-                mMouseX      = static_cast<int16>(inputs[eNetPlayer_1].mMouseX - camX);
-                mMouseY      = static_cast<int16>(inputs[eNetPlayer_1].mMouseY - camY);
+                // [P1: was hardcoded eNetPlayer_1; now uses cameraAnchor.]
+                const int16 anchorSquadPost = Network_GetPlayerSelectedSquad(cameraAnchor);
+                Network_SetActiveSquadContext((anchorSquadPost >= 0) ? anchorSquadPost : cameraAnchor);
+                mMouseX      = static_cast<int16>(inputs[cameraAnchorInput].mMouseX - camX);
+                mMouseY      = static_cast<int16>(inputs[cameraAnchorInput].mMouseY - camY);
                 mInputMouseX = mMouseX;
                 mInputMouseY = mMouseY;
-                mMouseButtonStatus             = inputs[eNetPlayer_1].mMouseButtons;
-                mMouse_Button_Left_Toggle      = mNet_ButtonLeftToggle[0];
-                mMouse_Button_Right_Toggle     = mNet_ButtonRightToggle[0];
-                mMouse_Button_LeftRight_Toggle = mNet_ButtonLRToggle[0];
-                mMouse_Button_LeftRight_Toggle2= mNet_ButtonLRToggle2[0];
+                mMouseButtonStatus             = inputs[cameraAnchorInput].mMouseButtons;
+                mMouse_Button_Left_Toggle      = mNet_ButtonLeftToggle[cameraAnchor];
+                mMouse_Button_Right_Toggle     = mNet_ButtonRightToggle[cameraAnchor];
+                mMouse_Button_LeftRight_Toggle = mNet_ButtonLRToggle[cameraAnchor];
+                mMouse_Button_LeftRight_Toggle2= mNet_ButtonLRToggle2[cameraAnchor];
                 mSquad_WalkTargetX             = mNet_WalkTargetX[mSquad_Selected];
                 mSquad_WalkTargetY             = mNet_WalkTargetY[mSquad_Selected];
-                mCamera_PanTargetX             = mNet_CameraPanTargetX[0];
-                mCamera_PanTargetY             = mNet_CameraPanTargetY[0];
+                mCamera_PanTargetX             = mNet_CameraPanTargetX[cameraAnchor];
+                mCamera_PanTargetY             = mNet_CameraPanTargetY[cameraAnchor];
 
-                // Re-derive button press state from P1's button status.
-                // Mouse_UpdateButtons was already called for P1 inside the
-                // per-player loop; we just need to ensure the derived globals
-                // reflect P1's state (P2's call overwrote them).
-                mButtonPressLeft  = (inputs[eNetPlayer_1].mMouseButtons & 1) ? -1 : 0;
-                mButtonPressRight = (inputs[eNetPlayer_1].mMouseButtons & 2) ? -1 : 0;
+                // Re-derive button press state from the anchor's button status.
+                // Mouse_UpdateButtons was already called for the anchor inside
+                // the per-player loop; this just ensures the derived globals
+                // reflect the anchor's state (later peers' calls overwrote them).
+                mButtonPressLeft  = (inputs[cameraAnchorInput].mMouseButtons & 1) ? -1 : 0;
+                mButtonPressRight = (inputs[cameraAnchorInput].mMouseButtons & 2) ? -1 : 0;
             }
         }
 
@@ -2634,10 +2860,12 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
         Network_ValidateSelectedSquads();
 
         // Store world-space cursors for per-squad sprite AI (Sprite_Handle_Troop_Direct_TowardMouse).
-        mNetSquadCursorX[0] = inputs[eNetPlayer_1].mMouseX;
-        mNetSquadCursorY[0] = inputs[eNetPlayer_1].mMouseY;
-        mNetSquadCursorX[1] = inputs[eNetPlayer_2].mMouseX;
-        mNetSquadCursorY[1] = inputs[eNetPlayer_2].mMouseY;
+        // [P1: was unrolled `mNetSquadCursorX[0/1] = inputs[1/2]`. Lens site
+        //  Fodder_Network.cpp:2637-2640. Now a loop over numPlayersInputFrame.]
+        for (int p = 0; p < numPlayersInputFrame; ++p) {
+            mNetSquadCursorX[p] = inputs[p].mMouseX;
+            mNetSquadCursorY[p] = inputs[p].mMouseY;
+        }
 
         // Set a consistent mSquad_Selected and mMouseX for
         // Mission_Sprites_Handle so sprite AI produces identical results
@@ -2645,15 +2873,16 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
         // was false (camera pan intro) and the 3-tick loop didn't set
         // mMouseX from synced inputs — without this, mMouseX would retain
         // whatever the 50 Hz SDL loop set, diverging between machines.
+        // [P1: was eNetPlayer_1; now cameraAnchor.]
         {
-            const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
-            Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
+            const int16 anchorSquad2 = Network_GetPlayerSelectedSquad(cameraAnchor);
+            Network_SetActiveSquadContext((anchorSquad2 >= 0) ? anchorSquad2 : cameraAnchor);
         }
         {
             const int16 camX = static_cast<int16>(mCameraX >> 16);
             const int16 camY = static_cast<int16>(mCameraY >> 16);
-            mMouseX      = static_cast<int16>(inputs[eNetPlayer_1].mMouseX - camX);
-            mMouseY      = static_cast<int16>(inputs[eNetPlayer_1].mMouseY - camY);
+            mMouseX      = static_cast<int16>(inputs[cameraAnchorInput].mMouseX - camX);
+            mMouseY      = static_cast<int16>(inputs[cameraAnchorInput].mMouseY - camY);
             mInputMouseX = mMouseX;
             mInputMouseY = mMouseY;
         }
@@ -2716,9 +2945,11 @@ bool cFodderMultiplayer::Network_AdvanceFrame(const sNetworkInput inputs[NETWORK
             mSquad_Selected = static_cast<int16>(sq);
             Squad_Set_CurrentVehicle();
         }
+        // [P1: was eNetPlayer_1; now cameraAnchor — deterministic camera anchor
+        //  is the active squad context the GGPO snapshot is taken from.]
         {
-            const int16 p1Squad = Network_GetPlayerSelectedSquad(eNetPlayer_1);
-            Network_SetActiveSquadContext((p1Squad >= 0) ? p1Squad : eNetPlayer_1);
+            const int16 anchorSquad3 = Network_GetPlayerSelectedSquad(cameraAnchor);
+            Network_SetActiveSquadContext((anchorSquad3 >= 0) ? anchorSquad3 : cameraAnchor);
         }
 
         // Keep deterministic state for GGPO save (mSquad_Selected = 0).
@@ -2809,9 +3040,13 @@ int16 cFodderMultiplayer::Network_Tick() {
         return 1;
     }
 
-    // Synchronise inputs from both players.
+    // Synchronise inputs from all active peers.
     // This call may trigger rollback (save/load + advance_frame callbacks).
-    sNetworkInput syncInputs[NETWORK_MAX_PLAYERS];
+    // [P1 input-bus widening 2026-06-08: stack bus widened from
+    //  NETWORK_MAX_PLAYERS=2 to kMaxRollbackPlayers=4. GGPO writes only the
+    //  active peer slots; the memset zeroes the inactive tail so a 2P session
+    //  hands Network_AdvanceFrame the same {0}-tail input shape as before.]
+    sNetworkInput syncInputs[kMaxRollbackPlayers];
     memset(syncInputs, 0, sizeof(syncInputs));
     int disconnectFlags = 0;
     if (!mNetSession->SynchronizeInput(syncInputs, disconnectFlags)) {
@@ -2963,36 +3198,14 @@ void cFodderMultiplayer::Network_DrawP2Cursor() {
     if (!mNetSession || !mNetSession->IsRunning()) return;
     if (!mSurface || !mPhase_In_Progress) return;
 
-    // Determine which player's cursor is "remote" and needs an overlay.
-    int16 remoteWorldX, remoteWorldY;
-    if (mNetLocalPlayerIndex == eNetPlayer_1) {
-        remoteWorldX = mNet_P2_CursorX;
-        remoteWorldY = mNet_P2_CursorY;
-    } else {
-        // P2's screen: draw P1's cursor overlay using last known world pos.
-        remoteWorldX = mNetSquadCursorX[eNetPlayer_1];
-        remoteWorldY = mNetSquadCursorY[eNetPlayer_1];
-    }
+    // [P1: N-player generalisation — was a 2P "if local==P1 draw P2 else draw P1"
+    //  branch. Lens site Fodder_Network.cpp:2968-2974. Now loops over every
+    //  non-local peer and draws each remote cursor. At N=2 only one iteration
+    //  runs and the result is bit-identical to the legacy path.]
+    const int numPlayersDraw = std::max<int>(1,
+        std::min<int>(kMaxRollbackPlayers, mStartParams->mNetworkNumPlayers));
 
-    // No data yet (first frame before any simulation has run)
-    if (remoteWorldX == 0 && remoteWorldY == 0)
-        return;
-
-    // Convert world coords to screen coords
-    const int16 camX = static_cast<int16>(mCameraX >> 16);
-    const int16 camY = static_cast<int16>(mCameraY >> 16);
-    const int16 screenX = static_cast<int16>(remoteWorldX - camX);
-    const int16 screenY = static_cast<int16>(remoteWorldY - camY);
-
-    // Skip if off-screen or near edges.  Video_Draw_8 has no bounds checking
-    // and Mouse_DrawCursor adds SIDEBAR_WIDTH (48) to X and 12 to Y, so we
-    // need generous margins to prevent buffer overruns.
-    if (screenX < 0 || screenX > static_cast<int16>(getCameraWidth()) - 16 ||
-        screenY < 0 || screenY > static_cast<int16>(getCameraHeight()) - 16)
-        return;
-
-    // Draw the remote cursor with a distinct palette vs the local cursor.
-    // Save/restore all state that Mouse_DrawCursor and its callees touch.
+    // Save/restore all state that the cursor draw touches, around the loop.
     const int16 savedX      = mMouseX;
     const int16 savedY      = mMouseY;
     const int16 savedOffX   = mMouseX_Offset;
@@ -3000,14 +3213,49 @@ void cFodderMultiplayer::Network_DrawP2Cursor() {
     const int16 savedSprNew = mMouseSpriteNew;
     const int16 savedSprCur = mMouseSpriteCurrent;
 
-    mMouseX = screenX;
-    mMouseY = screenY;
-    mMouseX_Offset = 0;
-    mMouseY_Offset = 0;
-    mMouseSpriteCurrent = mNet_RemoteCursorSprite;
-    //GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0x40);
-    //Mouse_DrawCursor();
-    //GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0xE0);
+    const int16 camX = static_cast<int16>(mCameraX >> 16);
+    const int16 camY = static_cast<int16>(mCameraY >> 16);
+
+    for (int peer = 0; peer < numPlayersDraw; ++peer) {
+        if (peer == mNetLocalPlayerIndex)
+            continue;
+
+        // Pick the world cursor for this peer. mNetSquadCursorX/Y is updated
+        // by Network_AdvanceFrame at simulation time and is the canonical
+        // per-peer world cursor; mNet_RemoteCursorX/Y (set in Network_ApplyInputs)
+        // is a lower-latency fallback when the simulation hasn't tagged this
+        // peer's cursor yet (e.g. very first frame).
+        int16 remoteWorldX = mNetSquadCursorX[peer];
+        int16 remoteWorldY = mNetSquadCursorY[peer];
+        if (remoteWorldX == 0 && remoteWorldY == 0) {
+            remoteWorldX = mNet_RemoteCursorX[peer];
+            remoteWorldY = mNet_RemoteCursorY[peer];
+        }
+
+        // No data yet (first frame before any simulation has run)
+        if (remoteWorldX == 0 && remoteWorldY == 0)
+            continue;
+
+        const int16 screenX = static_cast<int16>(remoteWorldX - camX);
+        const int16 screenY = static_cast<int16>(remoteWorldY - camY);
+
+        // Skip if off-screen or near edges.  Video_Draw_8 has no bounds checking
+        // and Mouse_DrawCursor adds SIDEBAR_WIDTH (48) to X and 12 to Y, so we
+        // need generous margins to prevent buffer overruns.
+        if (screenX < 0 || screenX > static_cast<int16>(getCameraWidth()) - 16 ||
+            screenY < 0 || screenY > static_cast<int16>(getCameraHeight()) - 16)
+            continue;
+
+        mMouseX = screenX;
+        mMouseY = screenY;
+        mMouseX_Offset = 0;
+        mMouseY_Offset = 0;
+        mMouseSpriteCurrent = mNet_RemoteCursorSpriteArr[peer];
+        //GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0x40);
+        //Mouse_DrawCursor();
+        //GetGraphics<cGraphics_Amiga>()->SetCursorPalette(0xE0);
+    }
+
     mMouseX          = savedX;
     mMouseY          = savedY;
     mMouseX_Offset   = savedOffX;
@@ -3030,6 +3278,9 @@ bool cFodderMultiplayer::Network_SaveState(uint8_t** buffer, int* len, int* chec
     w.write(MAGIC);
     w.write((uint32_t)mNetFrameCount);
     w.writeBytes(&mNetMatchState, sizeof(mNetMatchState));
+    // [P1: deterministic camera anchor — must round-trip through GGPO so
+    //  rollback agrees with the live frame on which player drives the camera.]
+    w.write(mNetCameraAnchorPlayer);
 
     // --- RNG state (4 × int16) ---
     {
@@ -3221,10 +3472,10 @@ bool cFodderMultiplayer::Network_SaveState(uint8_t** buffer, int* len, int* chec
     w.write(word_3ABB1);
     w.writeBytes(word_3B2D1, sizeof(word_3B2D1));
     w.write(mMouse_Locked);
-    w.write(word_3A05F);
+    w.write(mSidebar_Name_CenterX);
     w.write(word_3A3BF);
     w.write(word_3AA1D);
-    w.write(word_3AA21);
+    w.write(mSidebar_Font_ColorBase);
     w.writeBytes(word_3AC2D, sizeof(word_3AC2D));
     w.write(word_3AC4B);
     w.write(word_3AC4D);
@@ -3366,6 +3617,8 @@ bool cFodderMultiplayer::Network_LoadState(const uint8_t* buffer, int len) {
     }
     mNetFrameCount = (int)frame;
     r.readBytes(&mNetMatchState, sizeof(mNetMatchState));
+    // [P1: deterministic camera anchor — see SaveState companion.]
+    mNetCameraAnchorPlayer = r.read<uint8_t>();
 
     // --- RNG ---
     {
@@ -3553,10 +3806,10 @@ bool cFodderMultiplayer::Network_LoadState(const uint8_t* buffer, int len) {
     word_3ABB1                     = r.read<int16>();
     r.readBytes(word_3B2D1, sizeof(word_3B2D1));
     mMouse_Locked                  = r.read<bool>();
-    word_3A05F                     = r.read<uint16>();
+    mSidebar_Name_CenterX                     = r.read<uint16>();
     word_3A3BF                     = r.read<int16>();
     word_3AA1D                     = r.read<int16>();
-    word_3AA21                     = r.read<int16>();
+    mSidebar_Font_ColorBase                     = r.read<int16>();
     r.readBytes(word_3AC2D, sizeof(word_3AC2D));
     word_3AC4B                     = r.read<int16>();
     word_3AC4D                     = r.read<int16>();

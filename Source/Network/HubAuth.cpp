@@ -62,7 +62,7 @@ static size_t HubAuth_WriteToString(char* pData, size_t pSize, size_t pNmemb, vo
 
 // ---------------------------------------------------------------------------
 // Tiny JSON helpers. The auth endpoints return small, well-known objects:
-// {"jwt":"...","expiry":1234,"subject":"discord:..."} — full nlohmann/json
+// {"jwt":"...","exp":1234,"subject":"discord:..."} — full nlohmann/json
 // would be overkill, especially as miniz/sodium/SDL3/duktape are already
 // bloating the dep tree. We do exact-match string lookups, then unescape
 // the standard six \-escapes plus \u00xx; anything else is a parse error
@@ -416,13 +416,17 @@ bool HubAuth_ParseTokenJson(const std::string& pJson, sHubAuthToken& pOut, std::
         pError = "auth response missing jwt";
         return false;
     }
-    if (!HubAuth_GetJsonInt64(pJson, "expiry", Parsed.mExpiry) || Parsed.mExpiry <= 0) {
-        pError = "auth response missing expiry";
+    if (!HubAuth_GetJsonInt64(pJson, "exp", Parsed.mExpiry) || Parsed.mExpiry <= 0) {
+        pError = "auth response missing exp";
         return false;
     }
     // subject is optional on refresh — server is allowed to omit it if it
     // hasn't changed.
     HubAuth_GetJsonString(pJson, "subject", Parsed.mSubject);
+    // Best-effort display name; absent on /auth/refresh and on cached files
+    // written by older clients. Callers that want a stable name across
+    // refreshes should preserve the previous mDisplayName when this is empty.
+    HubAuth_GetJsonString(pJson, "name", Parsed.mDisplayName);
     pOut = std::move(Parsed);
     return true;
 }
@@ -512,12 +516,17 @@ bool cHubAuth::SaveToken(const sHubAuthToken& pToken) {
             return false;
         }
 
-        // Minified JSON: {"jwt":"...","expiry":1234,"subject":"..."}
+        // Minified JSON: {"jwt":"...","exp":1234,"subject":"...","name":"..."}
+        // The "name" field is omitted entirely when empty so older clients
+        // (which used HubAuth_GetJsonString as best-effort) keep parsing.
         Out << '{'
             << "\"jwt\":"     << HubAuth_EncodeJsonString(pToken.mJwt) << ','
-            << "\"expiry\":"  << pToken.mExpiry << ','
-            << "\"subject\":" << HubAuth_EncodeJsonString(pToken.mSubject)
-            << '}';
+            << "\"exp\":"     << pToken.mExpiry << ','
+            << "\"subject\":" << HubAuth_EncodeJsonString(pToken.mSubject);
+        if (!pToken.mDisplayName.empty()) {
+            Out << ",\"name\":" << HubAuth_EncodeJsonString(pToken.mDisplayName);
+        }
+        Out << '}';
         Out.flush();
         if (!Out.good()) {
             mLastError = "write to temp file failed";
@@ -566,7 +575,7 @@ bool cHubAuth::BeginPairing(std::string& pDeviceCodeOut) {
         return false;
 
     const std::string Url = std::string(HUB_AUTH_BASE_URL)
-                          + "/auth/start?device="
+                          + "/auth/start?device_code="
                           + cNetworkHubClient::PercentEncode(pDeviceCodeOut);
 
     if (!HubAuth_OpenBrowser(Url)) {
@@ -681,6 +690,11 @@ bool cHubAuth::Refresh(sHubAuthToken& pInOut) {
     // Preserve the old subject if the server didn't echo a fresh one.
     if (Refreshed.mSubject.empty())
         Refreshed.mSubject = pInOut.mSubject;
+    // Same for display name — /auth/refresh has no Discord access token to
+    // re-fetch /users/@me, so it never includes "name". Carry the cached
+    // value forward so lobbies and host logs keep showing the human label.
+    if (Refreshed.mDisplayName.empty())
+        Refreshed.mDisplayName = pInOut.mDisplayName;
 
     pInOut = std::move(Refreshed);
     return true;

@@ -26,6 +26,9 @@
 
 #include "HubAuth.hpp"
 
+#include <atomic>
+#include <cstdint>
+
 class cMultiplayerMenu;
 class cNetworkHubClient;
 
@@ -52,8 +55,8 @@ public:
     int16           Network_Tick();
 
     void            Network_GatherLocalInput(sNetworkInput& out);
-    void            Network_ApplyInputs(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
-    bool            Network_AdvanceFrame(const sNetworkInput inputs[NETWORK_MAX_PLAYERS]);
+    void            Network_ApplyInputs(const sNetworkInput inputs[kMaxRollbackPlayers]);
+    bool            Network_AdvanceFrame(const sNetworkInput inputs[kMaxRollbackPlayers]);
     int16           Sprite_Troop_Dies(sSprite* pSprite) override;
     bool            Sprite_UseNetworkHostilityRules() const override;
     void            Sprite_RecordDamage(sSprite* pDamageSource, sSprite* pTarget) override;
@@ -135,6 +138,18 @@ public:
 
     // UDP lobby for campaign selection sync
     std::unique_ptr<cNetworkLobby> mLobby;
+
+    // Shared OFHUB/2 §6 outbound DATA-frame seq counter for ALL relay-framed
+    // sockets a single peer opens during one room session: lobby
+    // (cNetworkLobby::Send), briefing READY-sync (Network_Briefing_ReadySync),
+    // and GGPO (cGGPOSession::OfhubWrap). Port-preservation NAT collapses
+    // these three sockets onto one external (ip,port) pair, so the hub's
+    // 1024-bit per-(peer, session_key) replay window is shared across them.
+    // Without one monotonic counter, briefing's seq=1 collides with lobby's
+    // seq=1 → REPLAY_DROP → joiner never sees host's READY → "WAITING FOR
+    // PLAYER" deadlock. Reset to 1 on each fresh CREATEOK / JOINOK (new
+    // session_key implies a fresh hub-side replay window).
+    std::atomic<uint32_t>           mRelaySeq{1};
 
     // OFHUB/2 verified-host auth, used by the lobby loop to replay the cached
     // bearer JWT for UpdateAuth + HeartbeatHost while the host stays parked

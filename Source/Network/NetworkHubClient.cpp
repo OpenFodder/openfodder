@@ -35,6 +35,8 @@
 #  include <sodium.h>
 #endif
 
+#include <curl/curl.h>
+
 #include <array>
 #include <chrono>
 #include <cstring>
@@ -172,80 +174,102 @@ bool cNetworkHubClient::ResolveHub() {
 }
 
 // ----------------------------------------------------------------------------
-// UDP transport (one shot, single response)
+// HTTPS transport (one shot, single response).
+//
+// The deployed OFHUB/2 hub fronts the Fargate UDP control plane behind an
+// AWS API Gateway + Lambda HTTPS proxy. The Lambda re-emits the OFHUB/2
+// ASCII datagram as UDP toward whichever Fargate task owns the room and
+// returns the reply. Everything outside the data-plane game socket goes
+// over HTTPS POST to <host>/ofhub. (Spec § 1: "The serverless deployment
+// additionally exposes https://<host>/ofhub HTTPS POST UDP-bridged
+// control commands.") Self-hosted hubs that put the C++ relay binary
+// directly on the public Internet are NOT supported by this client; that
+// would need the prior UDP path back, gated on a cmake option.
 // ----------------------------------------------------------------------------
 
+namespace {
+
+size_t Hub_CurlWriteToString(char* pData, size_t pSize, size_t pNmemb, void* pUser) {
+    auto* Out = static_cast<std::string*>(pUser);
+    const size_t Bytes = pSize * pNmemb;
+    Out->append(pData, Bytes);
+    return Bytes;
+}
+
+} // namespace
+
 bool cNetworkHubClient::SendRaw(const std::string& pRequest, std::string& pResponse) {
-    if (mResolvedHost.empty() && !ResolveHub())
-        return false;
     if (pRequest.size() > 1200) {
         mLastError = "hub request too large";
         return false;
     }
 
-    SOCKET Socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (Socket == INVALID_SOCKET) {
-        mLastError = "hub socket failed";
+    pResponse.clear();
+
+    CURL* Curl = curl_easy_init();
+    if (!Curl) {
+        mLastError = "curl_easy_init failed";
         return false;
     }
 
-#ifdef WIN32
-    DWORD TimeoutMs = 1200;
-    setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&TimeoutMs, sizeof(TimeoutMs));
-#else
-    struct timeval Timeout;
-    Timeout.tv_sec = 1;
-    Timeout.tv_usec = 200000;
-    setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&Timeout, sizeof(Timeout));
-#endif
+    const std::string Url = "https://" + mHubHost + "/ofhub";
 
-    struct sockaddr_in RemoteAddr;
-    memset(&RemoteAddr, 0, sizeof(RemoteAddr));
-    RemoteAddr.sin_family = AF_INET;
-    RemoteAddr.sin_port = htons(mHubPort);
-    if (inet_pton(AF_INET, mResolvedHost.c_str(), &RemoteAddr.sin_addr) != 1) {
-        closesocket(Socket);
-        mLastError = "hub address invalid";
+    struct curl_slist* Headers = nullptr;
+    Headers = curl_slist_append(Headers, "Content-Type: text/plain");
+    Headers = curl_slist_append(Headers, "Accept: text/plain");
+
+    curl_easy_setopt(Curl, CURLOPT_URL,             Url.c_str());
+    curl_easy_setopt(Curl, CURLOPT_POST,            1L);
+    curl_easy_setopt(Curl, CURLOPT_POSTFIELDS,      pRequest.c_str());
+    curl_easy_setopt(Curl, CURLOPT_POSTFIELDSIZE,   (long)pRequest.size());
+    curl_easy_setopt(Curl, CURLOPT_HTTPHEADER,      Headers);
+    curl_easy_setopt(Curl, CURLOPT_FOLLOWLOCATION,  1L);
+    curl_easy_setopt(Curl, CURLOPT_MAXREDIRS,       3L);
+    curl_easy_setopt(Curl, CURLOPT_CONNECTTIMEOUT,  5L);
+    curl_easy_setopt(Curl, CURLOPT_TIMEOUT,         10L);
+    curl_easy_setopt(Curl, CURLOPT_SSL_VERIFYPEER,  1L);
+    curl_easy_setopt(Curl, CURLOPT_SSL_VERIFYHOST,  2L);
+    curl_easy_setopt(Curl, CURLOPT_NOSIGNAL,        1L);
+    curl_easy_setopt(Curl, CURLOPT_WRITEFUNCTION,   &Hub_CurlWriteToString);
+    curl_easy_setopt(Curl, CURLOPT_WRITEDATA,       &pResponse);
+
+    const CURLcode Rc = curl_easy_perform(Curl);
+    long HttpStatus = 0;
+    curl_easy_getinfo(Curl, CURLINFO_RESPONSE_CODE, &HttpStatus);
+
+    curl_slist_free_all(Headers);
+    curl_easy_cleanup(Curl);
+
+    if (Rc != CURLE_OK) {
+        std::ostringstream Os;
+        Os << "hub HTTPS error " << (int)Rc << ": " << curl_easy_strerror(Rc);
+        mLastError = Os.str();
         return false;
     }
 
-    const int Sent = sendto(Socket, pRequest.c_str(), (int)pRequest.size(), 0,
-                            (struct sockaddr*)&RemoteAddr, sizeof(RemoteAddr));
-    if (Sent == SOCKET_ERROR) {
-        closesocket(Socket);
-        mLastError = "hub send failed";
+    // The Lambda always returns 200 with the OFHUB/2 reply in the body
+    // (ERR responses are also delivered as 200 OK with "ERR OFHUB/2 ..."
+    // text, mirroring the UDP envelope shape).
+    if (HttpStatus != 200) {
+        std::ostringstream Os;
+        Os << "hub HTTPS status " << HttpStatus;
+        mLastError = Os.str();
         return false;
     }
 
-    std::array<char, 1400> Buffer;
-    struct sockaddr_in FromAddr;
-#ifdef WIN32
-    int FromLen = sizeof(FromAddr);
-#else
-    socklen_t FromLen = sizeof(FromAddr);
-#endif
-    const int Received = recvfrom(Socket, Buffer.data(), (int)Buffer.size(), 0,
-                                  (struct sockaddr*)&FromAddr, &FromLen);
-    closesocket(Socket);
-
-    if (Received <= 0) {
-        mLastError = "hub did not respond";
-        return false;
-    }
-    if (!Hub_SameEndpoint(FromAddr, RemoteAddr)) {
-        mLastError = "hub response source mismatch";
-        return false;
+    // Strip any trailing newline / whitespace the Lambda may have added.
+    while (!pResponse.empty() &&
+           (pResponse.back() == '\n' || pResponse.back() == '\r' ||
+            pResponse.back() == ' '  || pResponse.back() == '\t')) {
+        pResponse.pop_back();
     }
 
-    pResponse.assign(Buffer.data(), (size_t)Received);
-
-    // OFHUB/2 envelopes: "OK OFHUB/2 <CMDOK> ..." or "ERR OFHUB/2 <CODE> ...".
     if (pResponse.find("ERR OFHUB/2") == 0) {
         mLastError = pResponse;
         return false;
     }
     if (pResponse.find("OK OFHUB/2") != 0) {
-        mLastError = "bad hub response";
+        mLastError = "bad hub response: " + pResponse.substr(0, 80);
         return false;
     }
 

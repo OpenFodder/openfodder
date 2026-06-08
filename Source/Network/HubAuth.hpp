@@ -34,6 +34,12 @@ struct sHubAuthToken {
     std::string mJwt;
     int64_t     mExpiry  = 0;       // unix seconds, server-issued exp
     std::string mSubject;           // e.g. "discord:1234567890"
+    // Best-effort Discord display name (global_name, falling back to
+    // username) captured at /auth/callback time. Lobby UIs and host logs
+    // show this; auth never trusts it — only mSubject is identity. Empty
+    // when the field was missing from the auth response or when the cache
+    // predates the schema bump.
+    std::string mDisplayName;
 };
 
 class cHubAuth {

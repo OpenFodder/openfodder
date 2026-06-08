@@ -769,16 +769,37 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
                 String_Print_Small("WAITING FOR PEER", rowY);
             rowY += 0x12;
         } else {
+            // P1 A1: roster widening. Draw one row per remote peer slot up to
+            // mNetworkNumPlayers, showing each peer's connect/ready state.
+            // Joiner perspective stays summarized via "CONNECTED TO HOST"
+            // (its only remote is the host, and the host's ready state is
+            // implicit — the host drives the START button). Host perspective
+            // walks slots 1..N-1 (slot 0 is local) so a 4-player room shows
+            // three roster rows.
             if (isHost) {
-                if (mLobby->IsRemoteReady()) {
-                    String_Print_Small("PLAYER 2 READY", rowY);
-                } else {
-                    String_Print_Small("PLAYER 2 NOT READY", rowY);
+                const uint8_t LocalSlot = mLobby->GetLocalPeerIndex();
+                const uint8_t TotalPeers = mStartParams->mNetworkNumPlayers
+                    ? mStartParams->mNetworkNumPlayers
+                    : (uint8_t)NETWORK_MAX_PLAYERS;
+                for (uint8_t slot = 0; slot < TotalPeers; ++slot) {
+                    if (slot == LocalSlot)
+                        continue;
+                    const sLobbyPeerSlot& peer = mLobby->GetPeerSlot(slot);
+                    std::string label = "PLAYER " + std::to_string((int)slot + 1);
+                    if (!peer.connected) {
+                        label += " WAITING";
+                    } else if (peer.ready) {
+                        label += " READY";
+                    } else {
+                        label += " NOT READY";
+                    }
+                    String_Print_Small(label.c_str(), rowY);
+                    rowY += 0x12;
                 }
             } else {
                 String_Print_Small("CONNECTED TO HOST", rowY);
+                rowY += 0x12;
             }
-            rowY += 0x12;
         }
 
         {
@@ -852,7 +873,29 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
         rowY = 0xA6 + YOffset;
 
         if (isHost) {
-            if (mLobby->IsConnected() && mLobby->IsRemoteReady()) {
+            // P1 A1: at N>2 we need EVERY remote peer to be ready before
+            // START is enabled, not just the aggregate "first non-local
+            // peer" (mLobby->IsRemoteReady()). Walk the per-slot table to
+            // fold them. mLobby->IsConnected() stays as the cheap fast-out
+            // for the 2P path — at least one peer must be live before we
+            // bother polling the rest.
+            bool AllPeersReady = mLobby->IsConnected();
+            if (AllPeersReady) {
+                const uint8_t LocalSlot = mLobby->GetLocalPeerIndex();
+                const uint8_t TotalPeers = mStartParams->mNetworkNumPlayers
+                    ? mStartParams->mNetworkNumPlayers
+                    : (uint8_t)NETWORK_MAX_PLAYERS;
+                for (uint8_t slot = 0; slot < TotalPeers; ++slot) {
+                    if (slot == LocalSlot)
+                        continue;
+                    const sLobbyPeerSlot& peer = mLobby->GetPeerSlot(slot);
+                    if (!peer.connected || !peer.ready) {
+                        AllPeersReady = false;
+                        break;
+                    }
+                }
+            }
+            if (AllPeersReady) {
                 GUI_Button_Draw_Small("START GAME", rowY, 0xB2, 0xB3);
                 GUI_Button_Setup_New(
                     [](void* ctx, int16, int16) {

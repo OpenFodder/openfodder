@@ -135,9 +135,6 @@ private:
     void DrawResult();
     void DrawPairing();
 
-    // Convenience: a centred, multi-line block of body text with auto wrapping.
-    int DrawWrappedBody(const std::string& pText, int pStartY, int pMaxWidth);
-
     // ----- Public-matchmaking pairing flow (post-Apply) -----
     //
     // The Result page exposes an "Enable public matchmaking" checkbox; on Apply

@@ -103,10 +103,17 @@ static sNetworkHubMetadata MultiplayerMenu_BuildHubMetadata(
     bool pFriendlyFire,
     eNetworkMapSize pMapSize,
     eNetworkMapTerrain pMapTerrain,
-    eNetworkCoverDensity pCoverDensity)
+    eNetworkCoverDensity pCoverDensity,
+    const std::string& pHostDisplayName)
 {
     sNetworkHubMetadata Metadata;
-    Metadata.mGameName = "OpenFodder Lobby";
+    // Surface the host's Discord display name when we have one — falls back
+    // to the generic label so older clients (no auth cache yet) still show
+    // a sensible string in the lobby browser. Auth never trusts mGameName;
+    // this is purely cosmetic.
+    Metadata.mGameName = pHostDisplayName.empty()
+        ? std::string("OpenFodder Lobby")
+        : (pHostDisplayName + "'s Game");
     Metadata.mGameMode = Network_GameModeName(pMode);
     Metadata.mMapName = Network_IsPvPMode(pMode) ? MultiplayerMenu_BuildMapLabel(pMapSize, pMapTerrain) : "Campaign Select";
     Metadata.mVersion = "N" + std::to_string((int)NETWORK_COMPATIBILITY_VERSION);
@@ -150,7 +157,6 @@ void cMultiplayerMenu::Open() {
     mHubPort = g_Fodder->mStartParams->mNetworkHubPort
         ? g_Fodder->mStartParams->mNetworkHubPort
         : NETWORK_HUB_DEFAULT_PORT;
-    mHubPortText = std::to_string(mHubPort);
     mRoomCode = g_Fodder->mStartParams->mNetworkRoomCode;
     mGameMode = g_Fodder->mStartParams->mNetworkGameMode;
     mMapSeed = g_Fodder->mStartParams->mNetworkMapSeed;
@@ -332,10 +338,6 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         SelectInternetGame((size_t)pArg);
         break;
 
-    case ACT_JOIN_ROOM_CODE:
-        SelectInternetGame((size_t)-1);
-        break;
-
     case ACT_REFRESH_LAN:
         RefreshLanBrowser();
         break;
@@ -369,9 +371,6 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
     case ACT_EDIT_REMOTE_PORT:
     case ACT_EDIT_LOCAL_PORT:
     case ACT_EDIT_MAP_SEED:
-    case ACT_EDIT_HUB_HOST:
-    case ACT_EDIT_HUB_PORT:
-    case ACT_EDIT_ROOM_CODE:
         SelectField(pAction);
         break;
 
@@ -379,6 +378,21 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mEditField = eEditField::None;
         mGameMode = Network_NormalizeGameMode((uint8_t)mGameMode + 1);
         break;
+
+    case ACT_CYCLE_PLAYERS: {
+        // P1 A1: cycle 2->3->4->2. Capped at kMaxRollbackPlayers because
+        // gameplay caps at 4 (Branch C) even though the hub accepts up to
+        // kMaxRoomCapacity=8. mNumPlayers (the value plumbed into
+        // StartParams) is kept in lock-step with the host's pick so a
+        // mid-edit Start uses the displayed N.
+        mEditField = eEditField::None;
+        uint8 next = (uint8)(mInternetPlayerCount + 1);
+        if (next > kMaxRollbackPlayers || next < 2)
+            next = 2;
+        mInternetPlayerCount = next;
+        mNumPlayers = next;
+        break;
+    }
 
     case ACT_MAP_OPTIONS:
         OpenMapOptions();
@@ -525,15 +539,15 @@ void cMultiplayerMenu::DrawMainMenu() {
 
     rowY += rowH;
 
-    // DIRECT CONNECT
+    // DIRECT CONNECT — manual IP/port entry for LAN/private routing scenarios
+    // the auto-discovery browser can't reach (split-horizon DNS, VPN, etc.).
+    // Reaches the same Join screen as ACT_JOIN.
     g_Fodder->GUI_Button_Draw_Small("DIRECT CONNECT", rowY, 0xB2, 0xB3);
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_DIRECT_CONNECT);
 
-    rowY += rowH;
-
-    // SYNC TEST
-    g_Fodder->GUI_Button_Draw_Small("SYNC TEST", rowY, 0xB2, 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_SYNC_TEST);
+    // SYNC TEST removed from the menu — it's a developer GGPO fault-injection
+    // mode (sets mSyncTest, mPlayerIndex=0, mDone=true). Still reachable via
+    // --sync-test on the CLI.
 
     // BACK
     g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
@@ -642,19 +656,12 @@ void cMultiplayerMenu::DrawFindInternetMenu() {
     g_Fodder->mString_GapCharID = 0;
 
     size_t YOffset = PLATFORM_BASED(0, 25);
-    int16 rowY = 0x32;
 
-    DrawField("HUB HOST", MultiplayerMenu_DisplayHost(mHubHost), rowY, ACT_EDIT_HUB_HOST, mEditField == eEditField::HubHost);
-    rowY += 0x12;
-    DrawField("HUB PORT", mHubPortText, rowY, ACT_EDIT_HUB_PORT, mEditField == eEditField::HubPort);
-    rowY += 0x12;
-    DrawField("ROOM CODE", mRoomCode, rowY, ACT_EDIT_ROOM_CODE, mEditField == eEditField::RoomCode);
-    rowY += 0x16;
-
-    g_Fodder->GUI_Button_Draw_Small("JOIN CODE", rowY, mRoomCode.size() ? 0xB2 : 0xF2, mRoomCode.size() ? 0xB3 : 0xF3);
-    if (mRoomCode.size())
-        g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_JOIN_ROOM_CODE);
-    rowY += 0x15;
+    // Cleanup pass: HUB HOST / HUB PORT / ROOM CODE editors are gone; this
+    // screen is now structurally identical to DrawFindLanMenu — title +
+    // games list + REFRESH/BACK strip. Start the games list at the same
+    // 0x3E used by the LAN screen so both paths look the same.
+    int16 rowY = 0x3E;
 
     if (mHubFailed) {
         g_Fodder->String_Print_Small("HUB BROWSER FAILED", rowY);
@@ -663,7 +670,12 @@ void cMultiplayerMenu::DrawFindInternetMenu() {
         g_Fodder->String_Print_Small("NO INTERNET GAMES FOUND", rowY);
     }
     else {
-        const size_t Count = std::min<size_t>(mInternetGames.size(), 2);
+        // Pre-cleanup the cap was 2 because three editor rows ate the
+        // vertical budget; with those gone we have room for ~6 game rows
+        // before crashing into REFRESH at yBottom-0x14. (REFRESH/BACK live
+        // in the centred bottom-button row so the geometry tracks the
+        // SetupWizard layout discipline.)
+        const size_t Count = std::min<size_t>(mInternetGames.size(), 6);
         for (size_t Index = 0; Index < Count; ++Index) {
             const auto& Game = mInternetGames[Index];
             const bool Joinable = Game.mRelayPort && Game.mCurrentPlayers < Game.mMaxPlayers;
@@ -706,78 +718,123 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
     g_Fodder->String_Print_Large(pTitle, false, 0x01);
     g_Fodder->mString_GapCharID = 0;
 
-    size_t YOffset = PLATFORM_BASED(0, 25);
-    int16 rowY = pHostSetup ? (mInternetHost ? 0x24 : 0x34) : 0x44;
+    // Layout discipline matches Source/Setup/SetupWizard.cpp's screens: top-
+    // anchored form rows, fixed-Y bottom button strip, error banner sits
+    // BETWEEN the form and the bottom buttons so it can grow without pushing
+    // anything around. Pre-cleanup, the host screen calculated START's Y from
+    // the running rowY and pinned BACK at a fixed position — when the hub
+    // failure banner appeared, START walked into BACK. Now both buttons live
+    // on a fixed yBottom row and the banner has its own band above them.
+    constexpr int16 yTop      = 0x3A;     // first form row, just below the title
+    constexpr int16 rowH      = 0x12;     // briefing-font line + breathing room
+    constexpr int16 yBanner   = 0xA0;     // error-banner top — wraps via NetworkMenu_DrawWrappedBody
+    constexpr int16 yBottom   = 0xB8;     // SetupWizard convention for the bottom row
+
+    int16 rowY = yTop;
 
     if (pHostSetup) {
-        if (mInternetHost) {
-            DrawField("HUB HOST", MultiplayerMenu_DisplayHost(mHubHost), rowY, ACT_EDIT_HUB_HOST, mEditField == eEditField::HubHost);
-            rowY += 0x12;
-            DrawField("HUB PORT", mHubPortText, rowY, ACT_EDIT_HUB_PORT, mEditField == eEditField::HubPort);
-            rowY += 0x12;
-        }
-        DrawValueButton("MODE", Network_GameModeName(mGameMode), rowY, ACT_CYCLE_MODE);
-        rowY += 0x12;
-        DrawField("MAP SEED", mMapSeedText, rowY, ACT_EDIT_MAP_SEED, mEditField == eEditField::MapSeed);
-        rowY += 0x12;
-        DrawValueButton("MAP", std::string(Network_MapSizeName(mMapSize)) + " " + Network_MapTerrainName(mMapTerrain), rowY, ACT_MAP_OPTIONS);
-        rowY += 0x12;
+        // Single, layout-stable host form: MODE / PLAYERS / MAP SEED / MAP /
+        // LOCAL PORT. HUB HOST + HUB PORT no longer have UI editors (CLI
+        // overrides via --net-hub-host / --net-hub-port).
+        DrawFormRow("MODE", Network_GameModeName(mGameMode), rowY, ACT_CYCLE_MODE,
+                    /*pIsField=*/false, /*pIsActive=*/false);
+        rowY += rowH;
+        // P1 A1: PLAYERS picker — host-only knob that drives room capacity at
+        // CREATE time. Cycles 2->3->4->2 (kMaxRollbackPlayers cap; gameplay
+        // hard-caps at 4 even though the hub allows 8). LAN hosts also see the
+        // field so they can declare the active peer count up front; the LAN
+        // path doesn't go through CreateAuth but the value still flows into
+        // StartParams.mNetworkNumPlayers via the shared mInternetPlayerCount
+        // -> mNumPlayers wire below.
+        DrawFormRow("PLAYERS", std::to_string((int)mInternetPlayerCount), rowY, ACT_CYCLE_PLAYERS,
+                    /*pIsField=*/false, /*pIsActive=*/false);
+        rowY += rowH;
+        DrawFormRow("MAP SEED", mMapSeedText, rowY, ACT_EDIT_MAP_SEED,
+                    /*pIsField=*/true, mEditField == eEditField::MapSeed);
+        rowY += rowH;
+        DrawFormRow("MAP",
+                    std::string(Network_MapSizeName(mMapSize)) + " " + Network_MapTerrainName(mMapTerrain),
+                    rowY, ACT_MAP_OPTIONS,
+                    /*pIsField=*/false, /*pIsActive=*/false);
+        rowY += rowH;
+    } else {
+        DrawFormRow(pRemoteHostLabel, MultiplayerMenu_DisplayHost(mRemoteHost), rowY, ACT_EDIT_REMOTE_HOST,
+                    /*pIsField=*/true, mEditField == eEditField::RemoteHost);
+        rowY += rowH + 0x06;        // direct-connect screens get a touch more spacing
+        DrawFormRow(pRemotePortLabel, mRemotePortText, rowY, ACT_EDIT_REMOTE_PORT,
+                    /*pIsField=*/true, mEditField == eEditField::RemotePort);
+        rowY += rowH + 0x06;
     }
 
-    if (!pHostSetup) {
-        DrawField(pRemoteHostLabel, MultiplayerMenu_DisplayHost(mRemoteHost), rowY, ACT_EDIT_REMOTE_HOST, mEditField == eEditField::RemoteHost);
-        rowY += 0x18;
-        DrawField(pRemotePortLabel, mRemotePortText, rowY, ACT_EDIT_REMOTE_PORT, mEditField == eEditField::RemotePort);
-        rowY += 0x18;
+    DrawFormRow("LOCAL PORT", mLocalPortText, rowY, ACT_EDIT_LOCAL_PORT,
+                /*pIsField=*/true, mEditField == eEditField::LocalPort);
+
+    // mHubFailed surfaces hub control-plane failures from CreateInternetRoom
+    // (CreateAuth returned ERR or libcurl couldn't reach https://hub/ofhub).
+    // The banner now wraps via the shared NetworkMenu_DrawWrappedBody helper
+    // instead of substr(0,60), so a long curl error gets folded into multiple
+    // centred lines without overflowing.
+    if (mInternetHost && mHubFailed) {
+        int16 bannerY = yBanner;
+        bannerY = (int16)NetworkMenu_DrawWrappedBody("HUB CREATE FAILED", bannerY, 290);
+        if (!mLastHubError.empty())
+            (void)NetworkMenu_DrawWrappedBody(mLastHubError, bannerY, 290);
     }
 
-    DrawField("LOCAL PORT", mLocalPortText, rowY, ACT_EDIT_LOCAL_PORT, mEditField == eEditField::LocalPort);
-    rowY += pHostSetup ? 0x1E : 0x24;
+    DrawBottomButtonRow("START", ACT_START, CanStart());
+}
 
-    // START
-    g_Fodder->GUI_Button_Draw_Small("START", rowY, CanStart() ? 0xB2 : 0xF2, CanStart() ? 0xB3 : 0xF3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_START);
+void cMultiplayerMenu::DrawFormRow(const char* pLabel, const std::string& pValue, int16 pY,
+                                   int16 pAction, bool pIsField, bool pIsActive) {
+    // Single helper replacing the old DrawField + DrawValueButton pair (they
+    // were 95% identical — only difference was the ENTER placeholder for
+    // empty edit fields and the active-edit colour swap). Centralising the
+    // row geometry here means moving or adding rows is a one-line edit.
+    const size_t FieldX1 = 0x88;
+    const size_t FieldX2 = 0x128;
+    const std::string Display = (pIsField && pValue.empty()) ? std::string("ENTER") : pValue;
+    const std::string FittedValue = NetworkMenu_FitText(Display, (int)(FieldX2 - FieldX1 - 4));
 
-    // BACK
-    g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
+    g_Fodder->String_Print_Small(pLabel, 0x20, pY);
+    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
+
+    g_Fodder->mGUI_Temp_X = (int16)FieldX1;
+    g_Fodder->mGUI_Temp_Y = pY;
+    g_Fodder->mGUI_Temp_Width = (int16)(FieldX2 - FieldX1);
+    if (!g_Fodder->mGUI_Draw_LastHeight)
+        g_Fodder->mGUI_Draw_LastHeight = 6;
+
+    // Edit-field actively-being-typed-into uses the highlight palette
+    // (0xF2/0xF3); cycle buttons and inactive fields use the neutral one.
+    const size_t ColourShadow = pIsActive ? 0xF2 : 0xB2;
+    const size_t ColourPrimary = pIsActive ? 0xF3 : 0xB3;
+    g_Fodder->GUI_Box_Draw(ColourShadow, ColourPrimary);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pAction);
+}
+
+void cMultiplayerMenu::DrawBottomButtonRow(const char* pPrimaryLabel, int16 pPrimaryAction,
+                                           bool pPrimaryEnabled) {
+    // Centred two-button bottom strip — mirrors the SetupWizard layout
+    // (Source/Setup/SetupWizard.cpp DrawWelcome/DrawLocate). Buttons sit on a
+    // fixed Y so the form layout above can change without dragging them. The
+    // primary button colour-shifts to disabled (0xC8) when CanStart() is
+    // false, matching the wizard's KEEP MOUNTED treatment.
+    constexpr size_t yBottom = 0xB8;
+    constexpr size_t buttonW = 0x60;
+    constexpr size_t gap = 0x08;
+    constexpr size_t totalW = (buttonW * 2) + gap;
+    constexpr size_t xStart = 160 - (totalW / 2);
+    const size_t xPrimaryL = xStart;                        const size_t xPrimaryR = xPrimaryL + buttonW;
+    const size_t xBackL    = xPrimaryR + gap;               const size_t xBackR    = xBackL + buttonW;
+
+    const size_t Shadow  = pPrimaryEnabled ? 0xB2 : 0xC8;
+    const size_t Primary = pPrimaryEnabled ? 0xB3 : 0xC8;
+    g_Fodder->GUI_Button_Draw_SmallBoxAt(pPrimaryLabel, xPrimaryL, xPrimaryR, yBottom, Shadow, Primary, eTextAlign::Centre);
+    if (pPrimaryEnabled)
+        g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pPrimaryAction);
+
+    g_Fodder->GUI_Button_Draw_SmallBoxAt("BACK", xBackL, xBackR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
-}
-
-void cMultiplayerMenu::DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction) {
-    const size_t FieldX1 = 0x88;
-    const size_t FieldX2 = 0x128;
-    const std::string FittedValue = NetworkMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
-
-    g_Fodder->String_Print_Small(pLabel, 0x20, pY);
-    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
-
-    g_Fodder->mGUI_Temp_X = (int16)FieldX1;
-    g_Fodder->mGUI_Temp_Y = pY;
-    g_Fodder->mGUI_Temp_Width = (int16)(FieldX2 - FieldX1);
-    if (!g_Fodder->mGUI_Draw_LastHeight)
-        g_Fodder->mGUI_Draw_LastHeight = 6;
-
-    g_Fodder->GUI_Box_Draw(0xB2, 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pAction);
-}
-
-void cMultiplayerMenu::DrawField(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction, bool pActive) {
-    const size_t FieldX1 = 0x88;
-    const size_t FieldX2 = 0x128;
-    const std::string Value = pValue.size() ? pValue : "ENTER";
-    const std::string FittedValue = NetworkMenu_FitText(Value, (int)(FieldX2 - FieldX1 - 4));
-
-    g_Fodder->String_Print_Small(pLabel, 0x20, pY);
-    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
-
-    g_Fodder->mGUI_Temp_X = (int16)FieldX1;
-    g_Fodder->mGUI_Temp_Y = pY;
-    g_Fodder->mGUI_Temp_Width = (int16)(FieldX2 - FieldX1);
-    if (!g_Fodder->mGUI_Draw_LastHeight)
-        g_Fodder->mGUI_Draw_LastHeight = 6;
-
-    g_Fodder->GUI_Box_Draw(pActive ? 0xF2 : 0xB2, pActive ? 0xF3 : 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pAction);
 }
 
 void cMultiplayerMenu::HandleTextInput() {
@@ -843,19 +900,6 @@ void cMultiplayerMenu::HandleTextInput() {
         MaxLength = 10;
         NumericOnly = true;
     }
-    else if (mEditField == eEditField::HubHost) {
-        Target = &mHubHost;
-        MaxLength = 63;
-    }
-    else if (mEditField == eEditField::HubPort) {
-        Target = &mHubPortText;
-        MaxLength = 5;
-        NumericOnly = true;
-    }
-    else if (mEditField == eEditField::RoomCode) {
-        Target = &mRoomCode;
-        MaxLength = 12;
-    }
 
     if (!Target)
         return;
@@ -895,12 +939,6 @@ void cMultiplayerMenu::HandleTextInput() {
         || KeyAscii == '.'
         || KeyAscii == '-';
 
-    if (mEditField == eEditField::RoomCode) {
-        if ((KeyAscii >= 'A' && KeyAscii <= 'Z') || (KeyAscii >= '0' && KeyAscii <= '9'))
-            Target->push_back((char)KeyAscii);
-        return;
-    }
-
     if (ValidHostChar)
         Target->push_back((char)std::tolower((unsigned char)KeyAscii));
 }
@@ -914,12 +952,6 @@ void cMultiplayerMenu::SelectField(int16 pAction) {
         mEditField = eEditField::LocalPort;
     else if (pAction == ACT_EDIT_MAP_SEED)
         mEditField = eEditField::MapSeed;
-    else if (pAction == ACT_EDIT_HUB_HOST)
-        mEditField = eEditField::HubHost;
-    else if (pAction == ACT_EDIT_HUB_PORT)
-        mEditField = eEditField::HubPort;
-    else if (pAction == ACT_EDIT_ROOM_CODE)
-        mEditField = eEditField::RoomCode;
 
     g_Fodder->mInput_LastKey = g_Fodder->mKeyCode;
 }
@@ -968,28 +1000,18 @@ bool cMultiplayerMenu::CreateInternetRoom() {
 
     cNetworkHubClient Hub;
     if (!Hub.Configure(mHubHost, mHubPort)) {
+        mLastHubError = Hub.GetLastError();
         mHubFailed = true;
         return false;
     }
-
-    const sNetworkHubMetadata Metadata = MultiplayerMenu_BuildHubMetadata(
-        mGameMode,
-        mMapSeed,
-        mKillLimit,
-        mTimeLimitSeconds,
-        mTeamCount,
-        mTeamSize,
-        mFriendlyFire,
-        mMapSize,
-        mMapTerrain,
-        mCoverDensity
-    );
 
     // OFHUB/2 verified-host CREATE. The hub rejects /room/create without a
     // bearer JWT; RequireHubToken (called from ACT_HOST_INTERNET with
     // pBlockOnFail=true) should have warmed the cache by now, so this is
     // belt-and-braces. Stash the bearer locally so HeartbeatHost / UpdateAuth
-    // can replay it without re-touching disk every tick.
+    // can replay it without re-touching disk every tick. Load BEFORE building
+    // metadata so the host's Discord display name flows into mGameName for
+    // the lobby browser.
     sHubAuthToken Auth;
     if (!mHubAuth.LoadCachedToken(Auth) || Auth.mJwt.empty()) {
         // Cache miss here is a token-expiry race against RequireHubToken (the
@@ -1009,12 +1031,36 @@ bool cMultiplayerMenu::CreateInternetRoom() {
         return false;
     }
 
+    // P1 A1: clamp mInternetPlayerCount to [2..kMaxRollbackPlayers] before
+    // forwarding as room capacity. The hub accepts up to kMaxRoomCapacity (8)
+    // but gameplay caps at kMaxRollbackPlayers (4 — Branch C lock).
+    if (mInternetPlayerCount < 2)
+        mInternetPlayerCount = 2;
+    if (mInternetPlayerCount > kMaxRollbackPlayers)
+        mInternetPlayerCount = (uint8)kMaxRollbackPlayers;
+
+    const sNetworkHubMetadata Metadata = MultiplayerMenu_BuildHubMetadata(
+        mGameMode,
+        mMapSeed,
+        mKillLimit,
+        mTimeLimitSeconds,
+        mTeamCount,
+        mTeamSize,
+        mFriendlyFire,
+        mMapSize,
+        mMapTerrain,
+        mCoverDensity,
+        Auth.mDisplayName
+    );
+
     sNetworkHubRoom Room;
-    if (!Hub.CreateAuth(Auth, NETWORK_MAX_PLAYERS, Metadata, true, Room)) {
+    if (!Hub.CreateAuth(Auth, mInternetPlayerCount, Metadata, true, Room)) {
+        mLastHubError = Hub.GetLastError();
         mHubFailed = true;
         return false;
     }
 
+    mLastHubError.clear();
     mInternet = true;
     mInternetHost = true;
     // Spec § 4.4.1: CREATEOK returns host=<ipv4> as the Fargate task's public
@@ -1030,6 +1076,14 @@ bool cMultiplayerMenu::CreateInternetRoom() {
     mHasSessionKey = true;
     mPeerIndex = 0;             // host is always peer 0
     mHubBearer = Auth;          // stashed for UpdateAuth / HeartbeatHost
+    // P1 A1: cache the hub-acknowledged capacity. Prefer Room.mMaxPlayers
+    // (echoed by CREATEOK) so we round-trip through the hub for parity with
+    // the joiner; fall back to the requested count if the relay omits it.
+    mNumPlayers = Room.mMaxPlayers ? Room.mMaxPlayers : mInternetPlayerCount;
+    if (mNumPlayers < 2)
+        mNumPlayers = 2;
+    if (mNumPlayers > kMaxRollbackPlayers)
+        mNumPlayers = (uint8)kMaxRollbackPlayers;
     mHubFailed = false;
     return true;
 }
@@ -1078,19 +1132,20 @@ void cMultiplayerMenu::SelectDiscoveredGame(size_t pIndex) {
 }
 
 void cMultiplayerMenu::SelectInternetGame(size_t pIndex) {
-    const bool JoinByCode = (pIndex == (size_t)-1);
-    if (!JoinByCode && pIndex >= mInternetGames.size())
+    // Pre-cleanup this had a (size_t)-1 sentinel for "join by typed room code"
+    // (the JOIN CODE button on Find Internet). That UI was removed; the only
+    // remaining caller is ACT_JOIN_INTERNET with a real index into
+    // mInternetGames, so we just validate the index and resolve the room code
+    // from the games list.
+    if (pIndex >= mInternetGames.size())
         return;
 
     SyncPortValues();
 
-    std::string RoomCode = mRoomCode;
-    if (!JoinByCode) {
-        const sNetworkHubGame Game = mInternetGames[pIndex];
-        if (!Game.mRelayPort || Game.mCurrentPlayers >= Game.mMaxPlayers)
-            return;
-        RoomCode = Game.mRoomCode;
-    }
+    const sNetworkHubGame Game = mInternetGames[pIndex];
+    if (!Game.mRelayPort || Game.mCurrentPlayers >= Game.mMaxPlayers)
+        return;
+    const std::string RoomCode = Game.mRoomCode;
     if (RoomCode.empty())
         return;
 
@@ -1129,6 +1184,16 @@ void cMultiplayerMenu::SelectInternetGame(size_t pIndex) {
     std::memcpy(mSessionKey.data(), Room.mSessionKey.data(), 32);
     mHasSessionKey = true;
     mPeerIndex = 1;
+    // P1 A1: room capacity arrives in JOINOK (Room.mMaxPlayers). Cache it
+    // for StartParams plumbing so the joiner's GGPO session, briefing
+    // ReadySync, and roster UI all see the same N as the host. Clamp to
+    // [2..kMaxRollbackPlayers] (gameplay cap) defensively — older relays
+    // could echo 0 or >4.
+    mNumPlayers = Room.mMaxPlayers ? Room.mMaxPlayers : (uint8)NETWORK_MAX_PLAYERS;
+    if (mNumPlayers < 2)
+        mNumPlayers = 2;
+    if (mNumPlayers > kMaxRollbackPlayers)
+        mNumPlayers = (uint8)kMaxRollbackPlayers;
     mHubFailed = false;
 
     StopInternetBrowser();
@@ -1171,7 +1236,6 @@ void cMultiplayerMenu::OpenMapOptions() {
 bool cMultiplayerMenu::CanStart() const {
     uint16 ParsedRemotePort = 0;
     uint16 ParsedLocalPort = 0;
-    uint16 ParsedHubPort = 0;
     uint32 ParsedSeed = 0;
     const bool CommonOk = MultiplayerMenu_PortFromText(mLocalPortText, ParsedLocalPort)
         && NetworkMenu_UInt32FromText(mMapSeedText, ParsedSeed);
@@ -1179,21 +1243,25 @@ bool cMultiplayerMenu::CanStart() const {
     if (!CommonOk)
         return false;
 
+    // Internet host: hub host/port are no longer user-editable; trust the
+    // CLI/defaults (cNetworkHubClient::Configure normalises empty/zero to
+    // NETWORK_HUB_DEFAULT_HOST/PORT). The only thing left to validate on the
+    // host setup screen is the local port + map seed already checked above.
     if (mInternetHost)
-        return mHubHost.size() && MultiplayerMenu_PortFromText(mHubPortText, ParsedHubPort);
+        return true;
 
     return mRemoteHost.size() && MultiplayerMenu_PortFromText(mRemotePortText, ParsedRemotePort);
 }
 
 void cMultiplayerMenu::SyncPortValues() {
+    // Hub port no longer has a UI text buffer to parse — mHubPort holds the
+    // CLI/default value directly.
     uint16 ParsedPort = 0;
     if (MultiplayerMenu_PortFromText(mRemotePortText, ParsedPort))
         mRemotePort = ParsedPort;
 
     if (MultiplayerMenu_PortFromText(mLocalPortText, ParsedPort))
         mLocalPort = ParsedPort;
-    if (MultiplayerMenu_PortFromText(mHubPortText, ParsedPort))
-        mHubPort = ParsedPort;
 
     uint32 ParsedSeed = 0;
     if (NetworkMenu_UInt32FromText(mMapSeedText, ParsedSeed))
@@ -1474,6 +1542,9 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
         mStartParams->mNetworkSessionKey      = mMultiplayerMenu->GetSessionKey();
         mStartParams->mNetworkSessionKeyValid = mMultiplayerMenu->HasSessionKey();
         mStartParams->mNetworkPeerIndex       = mMultiplayerMenu->GetPeerIndex();
+        // P1 A1: hand the negotiated peer count to the game layer. GGPOSession::Start
+        // and Network_Briefing_ReadySync both read it from StartParams.
+        mStartParams->mNetworkNumPlayers      = mMultiplayerMenu->GetNumPlayers();
         mStartParams->mNetworkHostBearer      = mMultiplayerMenu->GetHubBearer().mJwt;
         mStartParams->mNetworkGameMode    = mMultiplayerMenu->GetGameMode();
         mStartParams->mNetworkMapSeed     = mMultiplayerMenu->GetMapSeed();
@@ -1499,7 +1570,8 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
                 mStartParams->mNetworkPlayerIndex == 0,  // host = player 0
                 mStartParams->mNetworkSessionKey,
                 mStartParams->mNetworkPeerIndex,
-                mStartParams->mNetworkInternet
+                mStartParams->mNetworkInternet,
+                mStartParams->mNetworkInternet ? &mRelaySeq : nullptr
             );
             if (!lobbyOk) {
                 g_Debugger->Error("[Lobby] Failed to start lobby, aborting.");
@@ -1539,7 +1611,8 @@ bool cFodderMultiplayer::Multiplayer_ReopenLobby() {
         mStartParams->mNetworkPlayerIndex == 0,
         mStartParams->mNetworkSessionKey,
         mStartParams->mNetworkPeerIndex,
-        mStartParams->mNetworkInternet
+        mStartParams->mNetworkInternet,
+        mStartParams->mNetworkInternet ? &mRelaySeq : nullptr
     );
 
     if (!LobbyOk) {

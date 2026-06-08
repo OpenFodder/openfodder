@@ -340,10 +340,18 @@ const sGUI_Element mPlusQuiz_Buttons[] = {
     {&cFodder::GUI_Button_NoAction, 0x0E6, 0x3B, 0x13, 0xCE, &cFodder::GUI_Button_Quiz_11},
 };
 
-const int8 mGUI_Sidebar_TroopList_Sprite_Modifier[] = {
-    0x29, // Squad Selected (Normal)
-    0x4D, // Selected		  (Gold/Yellow)
-    0x71  // Squad Not Selected (Grayed Out)
+// Sidebar (small) font colour-variant pstuff sprite-slot bases.
+//
+// pstuff.lbm carries 26 letter sprites per colour variant:
+//   [0] Normal:    slots 0x29..0x42  (white-ish)
+//   [1] Selected:  slots 0x4D..0x66  (gold/yellow — highlighted troop)
+//   [2] Inactive:  slots 0x71..0x8A  (grey — non-current squad)
+//
+// Reused by the campaign-select main-screen text path
+// (MainScreen_Print_Sidebar / String_Print_DrawSidebarGlyph in String.cpp);
+// see eSidebarFontColor in Fodder.hpp.
+const int8 mSidebar_Font_ColorBases[] = {
+    0x29, 0x4D, 0x71
 };
 
 const int16 mGUI_Squad_Icons[3] = {
@@ -538,49 +546,43 @@ loc_2F1BC:;
     }
 }
 
-void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pData0, int16 pData8, int16 pDataC, const char *pData28)
+void cFodder::GUI_Sidebar_TroopList_Name_Draw(int16 pColorVariant, int16 /*pData8*/, int16 pY, const char *pName)
 {
+    // pColorVariant indexes mSidebar_Font_ColorBases — 0=Normal, 1=Selected,
+    // 2=Inactive — and chooses the pstuff sprite-slot base for the letters.
+    // mSidebar_Font_ColorBase is captured in the network snapshot, so
+    // assigning it here keeps the rendered colour visible to the joiner.
+    mSidebar_Font_ColorBase = mSidebar_Font_ColorBases[pColorVariant];
 
-    word_3AA21 = mGUI_Sidebar_TroopList_Sprite_Modifier[pData0];
-
-    int16 Data14;
-
-    for (Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14)
-    {
-
-        if (mGUI_Sidebar_TroopList_Name_BreakOnSpace == 5)
-        {
-
-            if (pData28[Data14] == 0x20)
-                break;
-        }
-
-        if (pData28[Data14] == 0)
+    // Count drawable characters: stop at NUL, and additionally stop at the
+    // first space when truncation is set to the legacy 5-char troop-name
+    // limit. Longer truncation budgets (used by mission overlays such as
+    // "TIME TO DIE") run the loop full-length and only break on NUL.
+    int16 charCount = 0;
+    for (; charCount <= mSidebar_Name_TruncateAt; ++charCount) {
+        if (mSidebar_Name_TruncateAt == 5 && pName[charCount] == 0x20)
+            break;
+        if (pName[charCount] == 0)
             break;
     }
 
-    Data14 <<= 2;
+    // Centre the run inside the sidebar's 0x30-pixel column. Each sidebar-
+    // font letter is 4 px wide (`charCount << 2`), so the leading X offset
+    // is half the leftover column width. mSidebar_Name_CenterX is held on
+    // the class so the network snapshot replays the same offset on the
+    // joiner; Recruits.cpp's name-list draw uses the same member.
+    const int16 nameWidthPx = (int16)(charCount << 2);
+    mSidebar_Name_CenterX = (uint16)((0x30 - nameWidthPx) >> 1);
 
-    int16 Data18 = 0x30;
-    Data18 -= Data14;
-    Data18 >>= 1;
-    word_3A05F = Data18;
+    for (int16 i = 0; i <= mSidebar_Name_TruncateAt; ++i) {
+        const char ch = pName[i];
+        if (ch == 0 || ch == 0x20)
+            continue;
 
-    for (Data14 = 0; Data14 <= mGUI_Sidebar_TroopList_Name_BreakOnSpace; ++Data14)
-    {
+        const int16 spriteSlot = (int16)((ch - 0x41) + mSidebar_Font_ColorBase);
+        const int16 letterX    = (int16)((i << 2) + mSidebar_Name_CenterX);
 
-        if (pData28[Data14] != 0x20)
-        {
-            pData0 = pData28[Data14];
-            pData0 -= 0x41;
-            pData0 += word_3AA21;
-
-            pData8 = Data14;
-            pData8 <<= 2;
-            pData8 += word_3A05F;
-
-            mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(pData0, pData8, pDataC);
-        }
+        mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(spriteSlot, letterX, pY);
     }
 }
 
@@ -785,13 +787,13 @@ void cFodder::Mission_Final_TimeToDie()
         mSidebar_Screen_Buffer[Y] = 0;
     }
 
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 11;
+    mSidebar_Name_TruncateAt = 11;
 
     GUI_Sidebar_TroopList_Name_Draw(0, 0, 0xB7, "TIME TO DIE ");
 
     GUI_Sidebar_Number_Draw(mMission_Final_TimeRemain, 0, 0x30, 0xC0, 0xAF);
 
-    mGUI_Sidebar_TroopList_Name_BreakOnSpace = 0x05;
+    mSidebar_Name_TruncateAt = 0x05;
 }
 
 void cFodder::GUI_Sidebar_Grenades_Draw(int16 pData0)

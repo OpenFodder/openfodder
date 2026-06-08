@@ -46,6 +46,14 @@ enum eSquad_Weapon_SplitMode {
 
 enum class eTextAlign { Left, Centre, Right };
 
+// Sidebar (small) font colour variants. Mirrors the in-game sidebar troop-
+// name colours: Normal (white-ish, default text), Selected (gold/yellow,
+// highlighted entry), Inactive (grey, disabled / non-current squad). Used by
+// MainScreen_Print_Sidebar; the stroke colour is sampled at draw time from
+// the pstuff sprite slot the in-game sidebar would have used for the same
+// variant — see String.cpp's ResolveStroke / mSidebar_Font_ColorBases.
+enum class eSidebarFontColor { Normal, Selected, Inactive };
+
 struct sMapPosition {
     int16   mX;
     int16   mY;
@@ -130,21 +138,42 @@ public:
     // -----------------------------------------------------------------------
     std::unique_ptr<cGGPOSession>  mNetSession;
 
-    // Synchronized inputs for the current frame (both players).
-    sNetworkInput           mNetInputs[NETWORK_MAX_PLAYERS];
+    // Synchronized inputs for the current frame (all active peers).
+    // [P1 input-bus widening 2026-06-08: bus widened from NETWORK_MAX_PLAYERS=2
+    //  to kMaxRollbackPlayers=4 in lockstep with Network_ApplyInputs /
+    //  Network_AdvanceFrame / GGPOSession::SynchronizeInput. Inactive tail
+    //  slots stay {0} via the memset in Fodder.cpp's Network_Reset path.]
+    sNetworkInput           mNetInputs[kMaxRollbackPlayers];
 
-    // Which player slot is local (0 = P1, 1 = P2).
+    // Which player slot is local (0 = P1, 1 = P2, ...).
     int                     mNetLocalPlayerIndex;
 
     // Frame counter used for GGPO bookkeeping.
     int                     mNetFrameCount;
 
     // Player-2 cursor position in screen/map coordinates (for rendering).
+    // [P1: legacy 2P aliases retained for binary-identical N=2 behaviour and
+    //  to avoid touching Fodder.cpp init. The per-peer arrays below are the
+    //  N-player path; at N=2 they stay in lock-step with these scalars.]
     volatile int16          mNet_P2_CursorX;
     volatile int16          mNet_P2_CursorY;
 
     // Remote player's cursor sprite index (for drawing the correct cursor overlay).
     int16                   mNet_RemoteCursorSprite;
+
+    // [P1: N-player generalisation — per-peer remote cursor arrays.
+    //  Was: single mNet_P2_CursorX/Y (assumed exactly one remote peer).
+    //  Indexed by peer slot; the local peer's slot is unused.]
+    volatile int16          mNet_RemoteCursorX[kMaxRollbackPlayers];
+    volatile int16          mNet_RemoteCursorY[kMaxRollbackPlayers];
+    int16                   mNet_RemoteCursorSpriteArr[kMaxRollbackPlayers];
+
+    // Camera anchor — which player drives the deterministic (rollback) camera.
+    // Defaults to 0 (eNetPlayer_1), matching legacy 2P behaviour. Stored in
+    // GGPO save state so it stays consistent across rollback. UI to retarget
+    // is a P4 polish item; for P1 it stays fixed at 0.
+    // [P1: N-player generalisation — replaces hardcoded eNetPlayer_1 anchors.]
+    uint8_t                 mNetCameraAnchorPlayer;
 
     // Accumulated key-flag state from SDL events, consumed each GGPO frame.
     uint8_t                 mNetKeyFlagsLocal;
@@ -163,32 +192,35 @@ public:
 
     // World-space cursor for each player, derived from synchronized inputs
     // before Mission_Sprites_Handle() so sprite AI is camera-independent.
-    int16                   mNetSquadCursorX[NETWORK_MAX_PLAYERS];
-    int16                   mNetSquadCursorY[NETWORK_MAX_PLAYERS];
+    // [P1: widened from NETWORK_MAX_PLAYERS=2 to kMaxRollbackPlayers=4.]
+    int16                   mNetSquadCursorX[kMaxRollbackPlayers];
+    int16                   mNetSquadCursorY[kMaxRollbackPlayers];
 
     // Per-player button/mouse toggle state — each player needs independent
     // tracking so held buttons don't re-trigger and state doesn't bleed.
-    int16                   mNet_ButtonLeftToggle[NETWORK_MAX_PLAYERS];
-    int16                   mNet_ButtonRightToggle[NETWORK_MAX_PLAYERS];
-    bool                    mNet_ButtonLRToggle[NETWORK_MAX_PLAYERS];
-    bool                    mNet_ButtonLRToggle2[NETWORK_MAX_PLAYERS];
+    // [P1: widened to kMaxRollbackPlayers.]
+    int16                   mNet_ButtonLeftToggle[kMaxRollbackPlayers];
+    int16                   mNet_ButtonRightToggle[kMaxRollbackPlayers];
+    bool                    mNet_ButtonLRToggle[kMaxRollbackPlayers];
+    bool                    mNet_ButtonLRToggle2[kMaxRollbackPlayers];
 
     // Per-global-squad walk target memory — prevents Squad_Walk_Target_Set from
     // injecting one player's last click as a waypoint for the other squad.
     int16                   mNet_WalkTargetX[NETWORK_MAX_SQUADS];
     int16                   mNet_WalkTargetY[NETWORK_MAX_SQUADS];
 
-    // Per-player camera pan target — prevents P2's click from moving the
-    // deterministic camera (which must follow P1 only).
-    int16                   mNet_CameraPanTargetX[NETWORK_MAX_PLAYERS];
-    int16                   mNet_CameraPanTargetY[NETWORK_MAX_PLAYERS];
+    // Per-player camera pan target — prevents another player's click from moving
+    // the deterministic camera (which must follow the camera anchor only).
+    // [P1: widened to kMaxRollbackPlayers.]
+    int16                   mNet_CameraPanTargetX[kMaxRollbackPlayers];
+    int16                   mNet_CameraPanTargetY[kMaxRollbackPlayers];
 
     // Deterministic squad ownership.  Sprite::field_32 remains the squad id;
     // this table says which network player owns that squad.  Today it is
     // initialised to the existing fixed mapping, but it lets PvP split squads
     // grow without treating "squad id" as "player id".
     int8                    mNetSquadOwner[NETWORK_MAX_SQUADS];
-    int8                    mNetSelectedSquad[NETWORK_MAX_PLAYERS];
+    int8                    mNetSelectedSquad[kMaxRollbackPlayers];
 
     // Deterministic camera backup — saved after GGPO state-save so we can
     // override the camera for the local viewport and restore it before the
@@ -354,7 +386,7 @@ public:
     int32           dword_3A030;
 
     int8            mSquads_TroopCount[NETWORK_MAX_SQUADS];
-    uint16          word_3A05F;
+    uint16          mSidebar_Name_CenterX;
 
     std::vector<sSprite*> mSprite_DrawList_First;
     std::vector<sSprite*> mSprite_DrawList_Second;
@@ -416,7 +448,7 @@ public:
     bool            mCamera_Start_Adjust;
     int16           word_3AA1D;             // 2 = Use mSprite_Frame_3
     int16           mCamera_Reached_Target;
-    int16           word_3AA21;
+    int16           mSidebar_Font_ColorBase;
     int16           mSprite_FaceWeaponTarget;
     int16           word_3AA45;
     int16           mSquad_Select_Timer;
@@ -595,7 +627,7 @@ public:
 
     uint16          mSquad_Grenade_SplitMode;
     uint16          mSquad_Rocket_SplitMode;
-    uint16          mGUI_Sidebar_TroopList_Name_BreakOnSpace;
+    uint16          mSidebar_Name_TruncateAt;
 
     sSprite*        mSquad_0_Sprites[9];
     sSprite*        mSquad_1_Sprites[9];
@@ -701,6 +733,8 @@ public:
 	void            Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle);
     void            Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle);
     void			Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle);
+    void            Campaign_Select_DrawSideButton(const char* pLabel, int16 pY,
+                                                    void (cFodder::*pHandler)());
 
     void            Image_FadeIn();
     void            Image_FadeOut();
@@ -1455,6 +1489,31 @@ public:
     // 0x10 to compensate for the mSurface 16-pixel border).
     void            String_Print_DrawTinyGlyph(const struct sBriefingSpecialGlyph* pGlyph,
                                                  size_t pPosX, size_t pPosY);
+
+    // ===== Sidebar (small) font on the main screen =====
+    //
+    // The pstuff sidebar font (used in-game for troop names) is reused here
+    // for dense menu text — campaign-select list, multiplayer-menu side
+    // buttons. Painting goes through hand-authored 1-bit glyphs in
+    // Source/SidebarFontGlyphs.cpp so we can target mSurface directly
+    // without adding a new sprite-sheet path. Three colour variants mirror
+    // the in-game troop-name colours (Normal / Selected / Inactive). The
+    // stroke colour is sampled from a real pstuff letter at draw time so
+    // it matches across PC and Amiga without a per-platform table.
+
+    void            String_Print_DrawSidebarGlyph(const struct sSidebarSpecialGlyph* pGlyph,
+                                                   size_t pPosX, size_t pPosY,
+                                                   eSidebarFontColor pColor);
+
+    // Returns the next X just past the last painted glyph (caller can chain
+    // to draw a follow-on label inline).
+    size_t          MainScreen_Print_Sidebar(const std::string& pText,
+                                               size_t pX, size_t pY,
+                                               eSidebarFontColor pColor);
+    void            MainScreen_Print_Sidebar_CentreInBox(const std::string& pText,
+                                                          size_t pX1, size_t pX2, size_t pY,
+                                                          eSidebarFontColor pColor);
+    int32           MainScreen_MeasureSidebarWidth(const std::string& pText);
 
     void            Intro_LegionMessage();
     int16           Intro_Play();

@@ -25,11 +25,21 @@ namespace cxxopts {
 }
 
 #include <array>
+#include <vector>
 
 #include "Network/NetworkTypes.hpp"
 #ifdef OPENFODDER_ENABLE_NETWORK
 #include "Network/HubAuth.hpp"
 #endif
+
+// Per-peer remote endpoint, indexed by peer slot. mNetworkRemotePeers[i]
+// is peer i's address as advertised by the OFHUB/2 hub (or for LAN, the
+// direct partner address). Slot mNetworkPeerIndex is the local player and
+// has no entry here. Sized 0..kMaxRoomCapacity-1.
+struct sNetworkPeerEndpoint {
+    std::string host;
+    uint16      port = 0;
+};
 
 /* These values override the original engine values, when in custom mode */
 static constexpr size_t CUSTOM_DEFAULT_MAX_SPRITES = 1000;
@@ -136,10 +146,12 @@ public:
 	std::string mNetworkHostBearer;     // OFHUB/2 verified-host bearer JWT (host only; empty for joiners). Loaded from cHubAuth token cache at host Start time.
 	std::array<unsigned char, 32> mNetworkSessionKey; // OFHUB/2 32-byte HMAC key, scoped to (room, peer); zero-init when not in internet mode.
 	uint8       mNetworkPeerIndex;      // OFHUB/2 sender peer index (host=0, joiner=1 in 2-player; range 0..7 per spec 6.1)
+	uint8       mNetworkNumPlayers;     // P1 A1: active peer count for this session, 1..kMaxRollbackPlayers. Default 2 keeps legacy 2P behavior. Wired host->hub-claim->peers; consumed by GGPOSession::Start, briefing ReadySync, and the lobby roster UI.
 	bool        mNetworkSessionKeyValid;// True once mNetworkSessionKey has been populated from the hub claim
 	int         mNetworkPlayerIndex;    // 0 = player 1 is local, 1 = player 2 is local
-	std::string mNetworkRemoteHost;     // Remote peer hostname / IP
-	uint16      mNetworkRemotePort;     // Remote peer UDP port
+	std::string mNetworkRemoteHost;     // DEPRECATED — Phase C/P1 migrates consumers to mNetworkRemotePeers. 1-element legacy view of the partner endpoint.
+	uint16      mNetworkRemotePort;     // DEPRECATED — Phase C/P1 migrates consumers to mNetworkRemotePeers. 1-element legacy view of the partner endpoint.
+	std::vector<sNetworkPeerEndpoint> mNetworkRemotePeers; // OFHUB/2 N-player roster: peer i's host/port for i != mNetworkPeerIndex (filled by hub claim/menu); empty until claim arrives.
 	uint16      mNetworkLocalPort;      // Local UDP port to bind
 	eNetworkGameMode mNetworkGameMode;  // Selected multiplayer mode
 	uint32      mNetworkMapSeed;        // Synced random-map seed for PvP modes
@@ -243,10 +255,12 @@ public:
 		mNetworkHostBearer  = "";
 		mNetworkSessionKey.fill(0);
 		mNetworkPeerIndex   = 0;
+		mNetworkNumPlayers  = NETWORK_MAX_PLAYERS; // P1 A1: 2 by default; widens via host menu (CreateInternetRoom) and joiner JOINOK.
 		mNetworkSessionKeyValid = false;
 		mNetworkPlayerIndex = 0;
 		mNetworkRemoteHost  = "";
 		mNetworkRemotePort  = 7001;
+		mNetworkRemotePeers.clear();
 		mNetworkLocalPort   = 7000;
 		mNetworkGameMode    = eNetworkGameMode_CoopCampaign;
 		mNetworkMapSeed     = NETWORK_MAP_SEED_DEFAULT;
