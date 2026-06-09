@@ -346,10 +346,7 @@ const sGUI_Element mPlusQuiz_Buttons[] = {
 //   [0] Normal:    slots 0x29..0x42  (white-ish)
 //   [1] Selected:  slots 0x4D..0x66  (gold/yellow — highlighted troop)
 //   [2] Inactive:  slots 0x71..0x8A  (grey — non-current squad)
-//
-// Reused by the campaign-select main-screen text path
-// (MainScreen_Print_Sidebar / String_Print_DrawSidebarGlyph in String.cpp);
-// see eSidebarFontColor in Fodder.hpp.
+// Indexed via mSidebar_Font_ColorBase (set in GUI_Sidebar_TroopList_Name_Draw).
 const int8 mSidebar_Font_ColorBases[] = {
     0x29, 0x4D, 0x71
 };

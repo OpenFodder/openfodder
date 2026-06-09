@@ -63,6 +63,7 @@ static const char* MultiplayerMenu_ModeShortName(eNetworkGameMode pMode)
 {
     switch (pMode) {
     case eNetworkGameMode_CoopCampaign:     return "COOP";
+    case eNetworkGameMode_CoopRandom:       return "COOP RND";
     case eNetworkGameMode_Deathmatch:       return "DM";
     case eNetworkGameMode_SquadDeathmatch:  return "SQUAD DM";
     case eNetworkGameMode_RescuePrisoner:   return "RESCUE";
@@ -115,7 +116,7 @@ static sNetworkHubMetadata MultiplayerMenu_BuildHubMetadata(
         ? std::string("OpenFodder Lobby")
         : (pHostDisplayName + "'s Game");
     Metadata.mGameMode = Network_GameModeName(pMode);
-    Metadata.mMapName = Network_IsPvPMode(pMode) ? MultiplayerMenu_BuildMapLabel(pMapSize, pMapTerrain) : "Campaign Select";
+    Metadata.mMapName = Network_UsesGeneratedMap(pMode) ? MultiplayerMenu_BuildMapLabel(pMapSize, pMapTerrain) : "Campaign Select";
     Metadata.mVersion = "N" + std::to_string((int)NETWORK_COMPATIBILITY_VERSION);
     Metadata.mOptions =
         "seed=" + std::to_string(pMapSeed) +
@@ -276,11 +277,11 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         break;
 
     case ACT_HOST_INTERNET:
-        // Hosting on the public hub blocks until we have a token: the
-        // /room/create call requires Authorization. Joining is more
-        // permissive (the hub allows anonymous LIST/JOIN), so the cancel
-        // semantics differ between host and find — see RequireHubToken.
-        if (!RequireHubToken(eState::Host, /*pBlockOnFail=*/true))
+        // Hosting on the public hub requires a verified token (the
+        // /room/create call requires Authorization). Joining the LIST also
+        // hits the hub and we want consistent UX, so both prompt the same
+        // way and cancel uniformly returns to Main — see ACT_AUTH_CANCEL.
+        if (!RequireHubToken(eState::Host))
             break;
         mState = eState::Host;
         mEditField = eEditField::None;
@@ -303,10 +304,11 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         break;
 
     case ACT_FIND_INTERNET:
-        // Joining only needs anonymous LIST/JOIN, so we still prompt for
-        // pairing (the hub uses the token for moderation telemetry) but
-        // proceed if the user skips it.
-        if (!RequireHubToken(eState::FindInternet, /*pBlockOnFail=*/false))
+        // Joining (LIST/JOIN) prompts for pairing too — the hub uses the
+        // token for moderation telemetry, and a uniform "cancel returns to
+        // Main" UX beats the previous "cancel silently falls through to
+        // anonymous LIST" behaviour that surprised users.
+        if (!RequireHubToken(eState::FindInternet))
             break;
         mState = eState::FindInternet;
         mEditField = eEditField::None;
@@ -421,33 +423,19 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
     }
 
     case ACT_AUTH_CANCEL:
-        // User declined the auth modal. Block-on-fail means hosting can't
-        // proceed without a token, so we drop back to Main; for joining we
-        // honour the user's "no thanks" by entering the requested state
-        // anyway and let the hub answer with whatever its anonymous policy
-        // is.
+        // Cancel means cancel — go back to the multiplayer main menu
+        // regardless of which target prompted the modal. The previous
+        // "fall through to anonymous Find Internet on cancel" branch
+        // surprised users (clicking CANCEL still hit the hub for a LIST),
+        // so it's gone; the only way to reach the internet browser now is
+        // to either pair successfully or re-enter the flow with a cached
+        // token.
         mPairCode.clear();
         mPairingError.clear();
         mDeviceCode.clear();
-        if (mAuthBlockOnFail) {
-            mState = eState::Main;
-            mEditField = eEditField::None;
-        } else {
-            // Pretend the user re-clicked the original entry button so the
-            // existing path runs without re-asking (RequireHubToken guards
-            // against re-prompting because we leave the cache untouched
-            // — this branch is only reached when block-on-fail is false).
-            const eState target = mAuthTarget;
-            mAuthTarget = eState::Main;
-            mState = target;
-            mEditField = eEditField::None;
-            if (target == eState::FindInternet) {
-                mPlayerIndex = 1;
-                mInternet = true;
-                mInternetHost = false;
-                StartInternetBrowser();
-            }
-        }
+        mAuthTarget = eState::Main;
+        mState = eState::Main;
+        mEditField = eEditField::None;
         break;
 
     case ACT_AUTH_PAIR:
@@ -611,7 +599,7 @@ void cMultiplayerMenu::DrawFindLanMenu() {
             Label += " ";
             Label += MultiplayerMenu_ModeShortName(Game.mSettings.mGameMode);
             Label += " ";
-            Label += Network_IsPvPMode(Game.mSettings.mGameMode)
+            Label += Network_UsesGeneratedMap(Game.mSettings.mGameMode)
                 ? MultiplayerMenu_BuildMapLabel(
                     Network_NormalizeMapSize((uint8_t)Game.mSettings.mMapSize),
                     Network_NormalizeMapTerrain((uint8_t)Game.mSettings.mMapTerrain))
@@ -733,9 +721,15 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
     int16 rowY = yTop;
 
     if (pHostSetup) {
-        // Single, layout-stable host form: MODE / PLAYERS / MAP SEED / MAP /
-        // LOCAL PORT. HUB HOST + HUB PORT no longer have UI editors (CLI
-        // overrides via --net-hub-host / --net-hub-port).
+        // Single, layout-stable host form. Modes that play out on a
+        // generated map (PvP + Coop Random) need MAP SEED + MAP options;
+        // Coop Campaign uses the existing campaign-select flow for the
+        // actual map sequence, so MAP SEED / MAP are silently omitted there
+        // to avoid the UI lying about what's used. HUB HOST + HUB PORT no
+        // longer have UI editors (CLI overrides via --net-hub-host /
+        // --net-hub-port).
+        const bool ShowMapFields = Network_UsesGeneratedMap(mGameMode);
+
         DrawFormRow("MODE", Network_GameModeName(mGameMode), rowY, ACT_CYCLE_MODE,
                     /*pIsField=*/false, /*pIsActive=*/false);
         rowY += rowH;
@@ -749,14 +743,17 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
         DrawFormRow("PLAYERS", std::to_string((int)mInternetPlayerCount), rowY, ACT_CYCLE_PLAYERS,
                     /*pIsField=*/false, /*pIsActive=*/false);
         rowY += rowH;
-        DrawFormRow("MAP SEED", mMapSeedText, rowY, ACT_EDIT_MAP_SEED,
-                    /*pIsField=*/true, mEditField == eEditField::MapSeed);
-        rowY += rowH;
-        DrawFormRow("MAP",
-                    std::string(Network_MapSizeName(mMapSize)) + " " + Network_MapTerrainName(mMapTerrain),
-                    rowY, ACT_MAP_OPTIONS,
-                    /*pIsField=*/false, /*pIsActive=*/false);
-        rowY += rowH;
+
+        if (ShowMapFields) {
+            DrawFormRow("MAP SEED", mMapSeedText, rowY, ACT_EDIT_MAP_SEED,
+                        /*pIsField=*/true, mEditField == eEditField::MapSeed);
+            rowY += rowH;
+            DrawFormRow("MAP",
+                        std::string(Network_MapSizeName(mMapSize)) + " " + Network_MapTerrainName(mMapTerrain),
+                        rowY, ACT_MAP_OPTIONS,
+                        /*pIsField=*/false, /*pIsActive=*/false);
+            rowY += rowH;
+        }
     } else {
         DrawFormRow(pRemoteHostLabel, MultiplayerMenu_DisplayHost(mRemoteHost), rowY, ACT_EDIT_REMOTE_HOST,
                     /*pIsField=*/true, mEditField == eEditField::RemoteHost);
@@ -1006,9 +1003,9 @@ bool cMultiplayerMenu::CreateInternetRoom() {
     }
 
     // OFHUB/2 verified-host CREATE. The hub rejects /room/create without a
-    // bearer JWT; RequireHubToken (called from ACT_HOST_INTERNET with
-    // pBlockOnFail=true) should have warmed the cache by now, so this is
-    // belt-and-braces. Stash the bearer locally so HeartbeatHost / UpdateAuth
+    // bearer JWT; RequireHubToken (called from ACT_HOST_INTERNET) should
+    // have warmed the cache by now, so this is belt-and-braces. Stash the
+    // bearer locally so HeartbeatHost / UpdateAuth
     // can replay it without re-touching disk every tick. Load BEFORE building
     // metadata so the host's Discord display name flows into mGameName for
     // the lobby browser.
@@ -1016,12 +1013,10 @@ bool cMultiplayerMenu::CreateInternetRoom() {
     if (!mHubAuth.LoadCachedToken(Auth) || Auth.mJwt.empty()) {
         // Cache miss here is a token-expiry race against RequireHubToken (the
         // user paired, entered Host, then sat on the screen long enough for
-        // the JWT to lapse before hitting Start). Mirror RequireHubToken's
-        // pivot — re-prompt for pairing and bounce back to Host on success —
+        // the JWT to lapse before hitting Start). Re-prompt for pairing
         // rather than surface the generic "HUB BROWSER FAILED" banner, which
         // misleads the user into thinking the hub is unreachable.
         mAuthTarget = eState::Host;
-        mAuthBlockOnFail = true;
         mDeviceCode.clear();
         mPairCode.clear();
         mPairingError.clear();
@@ -1272,15 +1267,16 @@ void cMultiplayerMenu::SyncPortValues() {
 // Public-matchmaking gating: token check + Discord pairing modal.
 // ============================================================
 
-bool cMultiplayerMenu::RequireHubToken(eState pTarget, bool pBlockOnFail) {
+bool cMultiplayerMenu::RequireHubToken(eState pTarget) {
     sHubAuthToken Existing;
     if (mHubAuth.LoadCachedToken(Existing))
         return true;        // happy path — caller continues
 
-    // Stash the redirect target + the host/join policy difference; the auth
-    // modal callback uses both.  Drawing happens out of DrawAuthPromptMenu.
+    // Stash the redirect target for any future code that wants to know
+    // which entry triggered the prompt; cancel always returns to Main now,
+    // so we no longer need a per-call block-on-fail flag. Drawing happens
+    // out of DrawAuthPromptMenu.
     mAuthTarget = pTarget;
-    mAuthBlockOnFail = pBlockOnFail;
     mDeviceCode.clear();
     mPairCode.clear();
     mPairingError.clear();

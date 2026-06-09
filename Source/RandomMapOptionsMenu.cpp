@@ -597,6 +597,7 @@ const char* cRandomMapOptionsMenu::GetModeShortName() const
 
     switch (mOptions.mGameMode) {
     case eNetworkGameMode_CoopCampaign:     return "COOP";
+    case eNetworkGameMode_CoopRandom:       return "COOP RND";
     case eNetworkGameMode_Deathmatch:       return "DM";
     case eNetworkGameMode_SquadDeathmatch:  return "SQUAD DM";
     case eNetworkGameMode_RescuePrisoner:   return "RESCUE";

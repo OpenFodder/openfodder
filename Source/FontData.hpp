@@ -23,7 +23,6 @@
 const extern uint8 mFont_Briefing_Width[];
 const extern uint8 mFont_Recruit_Width[];
 const extern uint8 mFont_Sidebar_Width[];
-const extern uint8 mFont_SidebarMain_Width[];
 const extern uint8 mFont_Underlined_Width[];
 const extern uint8 mFont_Service_Width[];
 const extern uint8 mFont_Intro_Width[];

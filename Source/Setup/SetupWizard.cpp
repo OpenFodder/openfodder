@@ -58,12 +58,9 @@ enum eGuiAction : int16 {
     GUIACT_SW_SAVE_AND_CONTINUE,    // mounted image: persist imageN= and re-mount each launch
     GUIACT_SW_COPY_TO_DATA,         // mounted image: copy files into <cwd>/Data/<release>, unmount
     GUIACT_SW_TRY_AGAIN,
-    GUIACT_SW_TOGGLE_MATCHMAKING,   // Result page: flip the public-matchmaking checkbox
-
-    // Pairing sub-screen (only reached when matchmaking checkbox was on at Apply time)
-    GUIACT_SW_PAIR_SUBMIT,          // user clicked "PAIR" — runs ClaimToken with mPairCode
-    GUIACT_SW_PAIR_SKIP,            // user clicked "SKIP" — abandons pairing, continues Apply
-    GUIACT_SW_PAIR_RETRY,           // re-fire BeginPairing (re-opens browser, fresh device code)
+    // Public-matchmaking pairing has moved out of the wizard — see
+    // MultiplayerMenu's RequireHubToken (it prompts on demand the first
+    // time the user tries to host/find an internet game).
 };
 
 static uint32_t now_ms_u32() {
@@ -132,19 +129,6 @@ void cSetupWizard::OnBack() {
         break;
     case eScreen::Result:
         mScreen = eScreen::Locate;
-        break;
-    case eScreen::Pairing:
-        // Esc on the pairing screen abandons the pair attempt but still
-        // applies the resource pick (we don't want the user to lose their
-        // data-folder choice just because they couldn't paste a code).
-#ifdef OPENFODDER_ENABLE_NETWORK
-        mPairCode.clear();
-        mPairingError.clear();
-        mPairingDone = false;
-        CompletePendingApply();
-#else
-        mScreen = eScreen::Result;
-#endif
         break;
     }
 }
@@ -700,10 +684,6 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
         }
         return;
     }
-    case GUIACT_SW_TOGGLE_MATCHMAKING:
-        mEnableMatchmaking = !mEnableMatchmaking;
-        return;
-
     case GUIACT_SW_SAVE_AND_CONTINUE: {
         if (mLastResult.mResolvedRoot.empty())
             return;
@@ -714,15 +694,6 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
         }
         if (!any)
             return;
-
-#ifdef OPENFODDER_ENABLE_NETWORK
-        // Matchmaking checkbox gates Apply: jump to pair-code entry first,
-        // then replay this same action when pairing finishes (or is skipped).
-        if (mEnableMatchmaking && !mPairingDone) {
-            StartPairingFlow(GUIACT_SW_SAVE_AND_CONTINUE, 0);
-            return;
-        }
-#endif
 
         if (mLastMountedId > 0) {
             // Image is already mounted (DispatchPick did the mountImage()
@@ -737,12 +708,6 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
         return;
     }
     case GUIACT_SW_COPY_TO_DATA: {
-#ifdef OPENFODDER_ENABLE_NETWORK
-        if (mEnableMatchmaking && !mPairingDone) {
-            StartPairingFlow(GUIACT_SW_COPY_TO_DATA, 0);
-            return;
-        }
-#endif
         // Two flavours: image-mount (mLastMountedId > 0) or raw-extracted
         // folder match (mLastResult has any mIsRawFolder match). Both lead
         // to the same outcome: files land in <cwd>/Data/<release>/.
@@ -774,35 +739,6 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
         DiscardPendingCueTemp();
         mScreen = eScreen::Locate;
         return;
-
-#ifdef OPENFODDER_ENABLE_NETWORK
-    case GUIACT_SW_PAIR_SUBMIT:
-        SubmitPairCode();
-        return;
-
-    case GUIACT_SW_PAIR_SKIP:
-        // User aborts pairing but still wants their data-folder choice
-        // committed. Drop pairing state, replay the captured Apply action.
-        mPairCode.clear();
-        mPairingError.clear();
-        mPairingDone = false;
-        CompletePendingApply();
-        return;
-
-    case GUIACT_SW_PAIR_RETRY: {
-        // Re-fire BeginPairing — yields a fresh device code and re-opens the
-        // browser. Useful if the user lost the tab or the device code timed
-        // out on the server side.
-        mPairCode.clear();
-        mPairingError.clear();
-        std::string fresh;
-        if (mHubAuth.BeginPairing(fresh))
-            mDeviceCode = fresh;
-        else
-            mPairingError = mHubAuth.GetLastError();
-        return;
-    }
-#endif
     }
 }
 
@@ -818,38 +754,10 @@ void cSetupWizard::Tick() {
         }
     }
 
-#ifdef OPENFODDER_ENABLE_NETWORK
-    // Pair-code text capture. Same shape as MultiplayerMenu::HandleTextInput
-    // but pared down to the keys we actually accept (alnum + backspace +
-    // enter). 6-char hard cap mirrors the hub's pair-code format.
-    if (mScreen == eScreen::Pairing) {
-        int16 ascii = 0;
-        if (g_Fodder->mKeyCode != g_Fodder->mInput_LastKey) {
-            g_Fodder->mInput_LastKey = g_Fodder->mKeyCode;
-            const int kc = g_Fodder->mKeyCode;
-            if (kc >= SDL_SCANCODE_A && kc <= SDL_SCANCODE_Z)
-                ascii = 'A' + (kc - SDL_SCANCODE_A);
-            else if (kc >= SDL_SCANCODE_1 && kc <= SDL_SCANCODE_9)
-                ascii = '1' + (kc - SDL_SCANCODE_1);
-            else if (kc == SDL_SCANCODE_0)
-                ascii = '0';
-            else if (kc == SDL_SCANCODE_BACKSPACE)
-                ascii = 8;
-            else if (kc == SDL_SCANCODE_RETURN || kc == SDL_SCANCODE_KP_ENTER)
-                ascii = 0x0D;
-        }
-
-        if (ascii == 0x0D) {
-            if (mPairCode.size() == 6 && !mDeviceCode.empty())
-                SubmitPairCode();
-        } else if (ascii == 8) {
-            if (!mPairCode.empty())
-                mPairCode.pop_back();
-        } else if (ascii && mPairCode.size() < 6) {
-            mPairCode.push_back((char)ascii);
-        }
-    }
-#endif
+    // Public-matchmaking pair-code capture used to live here as a sub-screen
+    // text-input pump. Pairing is now handled on demand by MultiplayerMenu
+    // (see RequireHubToken / DrawAuthPairingMenu in
+    // Source/Network/MultiplayerMenu.cpp), so the wizard tick stays narrow.
 }
 
 void cSetupWizard::DrawWelcome() {
@@ -1160,36 +1068,11 @@ void cSetupWizard::DrawResult() {
 
     const size_t yBottom = 0xB8;
 
-#ifdef OPENFODDER_ENABLE_NETWORK
-    // Public-matchmaking opt-in checkbox. Sits one row above the Apply
-    // buttons so it can't be confused with the COPY/MOUNT decision but is
-    // still visible while the user is making it. Default OFF — no traffic
-    // leaves the machine unless the user explicitly opts in. Hidden when
-    // there's no successful match (anyHit=false), because Apply is
-    // disabled anyway.
-    if (anyHit) {
-        const size_t yCheckbox = yBottom - 0x14;
-        const size_t boxX = 0x18;
-        const size_t boxR = boxX + 8;
-        const size_t labelX = boxR + 4;
-        const size_t labelR = 0x130;
-
-        // ASCII-art checkbox (the briefing font has no proper checkmark):
-        // empty "[ ]" vs filled "[X]". The whole row is one button so the
-        // hit-target is generous — the user can click anywhere on the line.
-        const char* mark = mEnableMatchmaking ? "[X]" : "[ ]";
-        g_Fodder->String_Print_Small(mark, boxX, yCheckbox);
-        g_Fodder->String_Print_Small_LeftInBox(
-            "ENABLE PUBLIC MATCHMAKING (HUB.OPENFODDER.COM)",
-            labelX, labelR, yCheckbox);
-
-        g_Fodder->mGUI_Temp_X = (int16)boxX;
-        g_Fodder->mGUI_Temp_Y = (int16)yCheckbox;
-        g_Fodder->mGUI_Temp_Width = (int16)(labelR - boxX);
-        g_Fodder->mGUI_Draw_LastHeight = 8;
-        g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_TOGGLE_MATCHMAKING, 0);
-    }
-#endif
+    // The public-matchmaking opt-in checkbox used to live here. It's gone:
+    // pairing is now prompted on demand by MultiplayerMenu the first time
+    // the user tries to host or find an internet game (RequireHubToken in
+    // Source/Network/MultiplayerMenu.cpp), which is a more honest place for
+    // it than a checkbox below the data-locator's Apply buttons.
 
     if (isImage) {
         // Image picks: COPY (default, lands files on disk) + KEEP MOUNTED
@@ -1268,160 +1151,6 @@ void cSetupWizard::DrawResult() {
     }
 }
 
-void cSetupWizard::DrawPairing() {
-#ifdef OPENFODDER_ENABLE_NETWORK
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("PUBLIC MATCHMAKING", false, 0x01);
-    g_Fodder->mString_GapCharID = 0;
-
-    int y = 0x28;
-    y = NetworkMenu_DrawWrappedBody(
-        "Your browser was opened to authenticate with Discord at hub openfodder com",
-        y, 290);
-    y += 4;
-    y = NetworkMenu_DrawWrappedBody(
-        "Once the page shows a 6 character pair code type it below and press PAIR",
-        y, 290);
-    y += 6;
-
-    // Pair code field (centered, monospace-ish — String_Print_Small renders
-    // the briefing font which has fixed-ish glyph widths). 6 chars + a
-    // trailing cursor on the active position.
-    const size_t fieldW = 0x60;
-    const size_t fieldL = 160 - (fieldW / 2);
-    const size_t fieldR = fieldL + fieldW;
-
-    std::string display = mPairCode;
-    while (display.size() < 6)
-        display.push_back('_');
-    if (display.size() > 6)
-        display = display.substr(0, 6);
-
-    // Spaced for legibility: "A B C 1 2 3"
-    std::string spaced;
-    for (size_t i = 0; i < display.size(); ++i) {
-        if (i) spaced.push_back(' ');
-        spaced.push_back(display[i]);
-    }
-
-    g_Fodder->String_Print_Small_CentreInBox(spaced, fieldL, fieldR, y);
-
-    g_Fodder->mGUI_Temp_X = (int16)fieldL;
-    g_Fodder->mGUI_Temp_Y = (int16)y;
-    g_Fodder->mGUI_Temp_Width = (int16)fieldW;
-    g_Fodder->mGUI_Draw_LastHeight = 8;
-    g_Fodder->GUI_Box_Draw(0xF2, 0xF3);
-
-    y += 0x14;
-
-    // Error / status row.
-    if (!mPairingError.empty()) {
-        NetworkMenu_DrawWrappedBody(mPairingError, y, 290);
-    }
-
-    // Three buttons: PAIR (commit) / RETRY (re-open browser) / SKIP (abandon).
-    const size_t yBottom = 0xB8;
-    const size_t buttonW = 0x4A;
-    const size_t gap = 0x06;
-    const size_t totalW = (buttonW * 3) + (gap * 2);
-    const size_t xStart = 160 - (totalW / 2);
-    const size_t xPairL   = xStart;                   const size_t xPairR   = xPairL + buttonW;
-    const size_t xRetryL  = xPairR + gap;             const size_t xRetryR  = xRetryL + buttonW;
-    const size_t xSkipL   = xRetryR + gap;            const size_t xSkipR   = xSkipL + buttonW;
-
-    const bool canSubmit = (mPairCode.size() == 6) && !mDeviceCode.empty();
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("PAIR", xPairL, xPairR, yBottom,
-        canSubmit ? 0xB2 : 0xC8, canSubmit ? 0xB3 : 0xC8, eTextAlign::Centre);
-    if (canSubmit)
-        g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_PAIR_SUBMIT, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("REOPEN", xRetryL, xRetryR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_PAIR_RETRY, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("SKIP", xSkipL, xSkipR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_PAIR_SKIP, 0);
-#else
-    // Networking disabled at build time — the Pairing screen is unreachable
-    // (StartPairingFlow doesn't exist in this configuration), but the
-    // dispatcher still needs a definition for the case label, so just
-    // bounce back to Result if somehow reached.
-    mScreen = eScreen::Result;
-#endif
-}
-
-#ifdef OPENFODDER_ENABLE_NETWORK
-void cSetupWizard::StartPairingFlow(int16 pNextAction, int16 pNextArg) {
-    mPendingApplyAction = pNextAction;
-    mPendingApplyArg = pNextArg;
-    mPairCode.clear();
-    mPairingError.clear();
-    mPairingDone = false;
-
-    // If we already have a valid cached token from a previous wizard run,
-    // skip the browser bounce entirely and just dispatch Apply.
-    sHubAuthToken existing;
-    if (mHubAuth.LoadCachedToken(existing)) {
-        mPairingDone = true;
-        CompletePendingApply();
-        return;
-    }
-
-    std::string fresh;
-    if (!mHubAuth.BeginPairing(fresh)) {
-        mPairingError = mHubAuth.GetLastError();
-        // Still go to the Pairing screen so the user can retry / skip; the
-        // error row will show whatever BeginPairing reported.
-    }
-    mDeviceCode = fresh;
-    mScreen = eScreen::Pairing;
-
-    // Prevent the click that opened this screen from immediately registering
-    // as a pair-code keystroke (mouse buttons share the keycode pump on the
-    // briefing layer, and the previous Apply click is still in mKeyCode
-    // until the next event drain).
-    g_Fodder->mInput_LastKey = g_Fodder->mKeyCode;
-}
-
-void cSetupWizard::SubmitPairCode() {
-    if (mDeviceCode.empty() || mPairCode.empty()) {
-        mPairingError = "missing device or pair code";
-        return;
-    }
-
-    sHubAuthToken token;
-    if (!mHubAuth.ClaimToken(mPairCode, mDeviceCode, token)) {
-        mPairingError = mHubAuth.GetLastError();
-        // Do NOT advance — let the user re-enter or hit SKIP.
-        return;
-    }
-
-    // Token is already cached on disk by ClaimToken via SaveToken.
-    // Belt-and-braces: write again here in case ClaimToken was an in-memory
-    // success but the cache write soft-failed.
-    if (token.mExpiry > 0)
-        (void)mHubAuth.SaveToken(token);
-
-    mPairingDone = true;
-    mPairCode.clear();
-    mPairingError.clear();
-    CompletePendingApply();
-}
-
-void cSetupWizard::CompletePendingApply() {
-    const int16 act = mPendingApplyAction;
-    const int16 arg = mPendingApplyArg;
-    mPendingApplyAction = 0;
-    mPendingApplyArg = 0;
-    if (act == 0) {
-        // No queued Apply (Esc-out from Pairing). Fall back to Result so
-        // the user sees their match summary again.
-        mScreen = eScreen::Result;
-        return;
-    }
-    OnRowClick(act, arg);
-}
-#endif
-
 void cSetupWizard::Draw() {
     g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
@@ -1432,7 +1161,6 @@ void cSetupWizard::Draw() {
     case eScreen::Locate:  DrawLocate();  break;
     case eScreen::Browse:  DrawBrowse();  break;
     case eScreen::Result:  DrawResult();  break;
-    case eScreen::Pairing: DrawPairing(); break;
     }
 }
 

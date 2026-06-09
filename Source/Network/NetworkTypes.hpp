@@ -59,7 +59,10 @@ static const uint16_t NETWORK_TIME_LIMIT_DEFAULT = 0;
 static const uint8_t NETWORK_TEAM_COUNT_DEFAULT = 2;
 static const uint8_t NETWORK_TEAM_SIZE_DEFAULT = 1;
 // [OFHUB/2 N-player P0 — drops legacy lobby playerId nonce in Phase B; bump prevents 2P-OFHUB1 clients from negotiating with N-ready peers]
-static const uint8_t NETWORK_COMPATIBILITY_VERSION = 5;
+// [v6: eNetworkGameMode_CoopRandom inserted at index 1, shifts every other
+//   game-mode index by +1; cross-version games would interpret each other's
+//   modes as a different mode entirely.]
+static const uint8_t NETWORK_COMPATIBILITY_VERSION = 6;
 static const int8_t NETWORK_MATCH_NO_WINNER = -1;
 static const int8_t NETWORK_MATCH_DRAW = -2;
 static const uint16_t NETWORK_SIM_FRAMES_PER_SECOND = 17;
@@ -246,6 +249,7 @@ enum eNetworkObjectiveState : uint8_t {
 
 enum eNetworkGameMode : uint8_t {
     eNetworkGameMode_CoopCampaign = 0,
+    eNetworkGameMode_CoopRandom,    // Coop on a generated map (no campaign)
     eNetworkGameMode_Deathmatch,
     eNetworkGameMode_SquadDeathmatch,
     eNetworkGameMode_RescuePrisoner,
@@ -257,6 +261,7 @@ enum eNetworkGameMode : uint8_t {
 inline const char* Network_GameModeName(eNetworkGameMode pMode) {
     switch (pMode) {
     case eNetworkGameMode_CoopCampaign:     return "CO-OP CAMPAIGN";
+    case eNetworkGameMode_CoopRandom:       return "CO-OP RANDOM";
     case eNetworkGameMode_Deathmatch:       return "DEATHMATCH";
     case eNetworkGameMode_SquadDeathmatch:  return "SQUAD DEATHMATCH";
     case eNetworkGameMode_RescuePrisoner:   return "RESCUE PRISONER";
@@ -273,7 +278,20 @@ inline eNetworkGameMode Network_NormalizeGameMode(uint8_t pMode) {
     return static_cast<eNetworkGameMode>(pMode);
 }
 
+// "Players are fighting each other" — drives kill counters, friendly-fire
+// damage, PvP spawn logic. CoopRandom is NOT PvP (teammates cooperate vs
+// AI on a generated map), so it's excluded.
 inline bool Network_IsPvPMode(eNetworkGameMode pMode) {
+    return pMode != eNetworkGameMode_CoopCampaign &&
+           pMode != eNetworkGameMode_CoopRandom;
+}
+
+// "The match plays out on a procedurally generated map" — drives whether
+// the host setup screen exposes MAP/SEED fields, whether the lobby skips
+// campaign-select, and whether Mission_Loop calls CreateRandom + loads
+// multiplayer.js. True for every mode EXCEPT CoopCampaign (which uses the
+// picked campaign's bundled maps).
+inline bool Network_UsesGeneratedMap(eNetworkGameMode pMode) {
     return pMode != eNetworkGameMode_CoopCampaign;
 }
 
@@ -284,6 +302,7 @@ inline bool Network_IsAvatarMode(eNetworkGameMode pMode) {
 
 inline bool Network_IsTeamMode(eNetworkGameMode pMode) {
     return pMode == eNetworkGameMode_CoopCampaign ||
+           pMode == eNetworkGameMode_CoopRandom ||
            pMode == eNetworkGameMode_SquadDeathmatch ||
            pMode == eNetworkGameMode_RescuePrisoner ||
            pMode == eNetworkGameMode_TeamAvatar;

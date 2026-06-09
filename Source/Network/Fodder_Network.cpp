@@ -2978,6 +2978,19 @@ int16 cFodderMultiplayer::Network_Tick() {
     if (!mNetSession || !mNetSession->IsRunning())
         return -1;
 
+    // Tick the sound priority/timer slots once per simulation frame —
+    // mirrors the call Phase_Cycle (Source/Fodder.cpp:550) makes in the
+    // single-player path. Without this the slot timers never decrement,
+    // so once a high-priority sound takes a slot every subsequent
+    // lower-priority sound is dropped at Sound_Play's priority gate.
+    // Symptom: bullet rifle sounds (priority 0) go silent after the first
+    // priority-20 explosion / vehicle / map sound, with the trace showing
+    // both round-robin slots stuck at stored_pri=20 timer=12 forever.
+    // Runs in Network_Tick (one call per simulation step, like
+    // Phase_Cycle) rather than Network_AdvanceFrame which can be called
+    // multiple times during GGPO rollback replays.
+    Sound_Tick();
+
     auto RestoreLocalViewForRender = [&]() {
         const int16 localSq = Network_GetPlayerSelectedSquad(static_cast<int16>(mNetLocalPlayerIndex));
         if (mNet_LocalCamInitialised)

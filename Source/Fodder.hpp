@@ -46,14 +46,6 @@ enum eSquad_Weapon_SplitMode {
 
 enum class eTextAlign { Left, Centre, Right };
 
-// Sidebar (small) font colour variants. Mirrors the in-game sidebar troop-
-// name colours: Normal (white-ish, default text), Selected (gold/yellow,
-// highlighted entry), Inactive (grey, disabled / non-current squad). Used by
-// MainScreen_Print_Sidebar; the stroke colour is sampled at draw time from
-// the pstuff sprite slot the in-game sidebar would have used for the same
-// variant — see String.cpp's ResolveStroke / mSidebar_Font_ColorBases.
-enum class eSidebarFontColor { Normal, Selected, Inactive };
-
 struct sMapPosition {
     int16   mX;
     int16   mY;
@@ -733,8 +725,6 @@ public:
 	void            Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle);
     void            Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle);
     void			Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle);
-    void            Campaign_Select_DrawSideButton(const char* pLabel, int16 pY,
-                                                    void (cFodder::*pHandler)());
 
     void            Image_FadeIn();
     void            Image_FadeOut();
@@ -1490,30 +1480,25 @@ public:
     void            String_Print_DrawTinyGlyph(const struct sBriefingSpecialGlyph* pGlyph,
                                                  size_t pPosX, size_t pPosY);
 
-    // ===== Sidebar (small) font on the main screen =====
+    // ===== Sidebar (small) font on the main surface — for menu/lobby use =====
     //
-    // The pstuff sidebar font (used in-game for troop names) is reused here
-    // for dense menu text — campaign-select list, multiplayer-menu side
-    // buttons. Painting goes through hand-authored 1-bit glyphs in
-    // Source/SidebarFontGlyphs.cpp so we can target mSurface directly
-    // without adding a new sprite-sheet path. Three colour variants mirror
-    // the in-game troop-name colours (Normal / Selected / Inactive). The
-    // stroke colour is sampled from a real pstuff letter at draw time so
-    // it matches across PC and Amiga without a per-platform table.
+    // The pstuff sidebar A-Z font (used in-game for troop names) reused on
+    // out-of-mission menu surfaces. Internally rents a strip of the
+    // mSidebar_Screen_Buffer scratch buffer, paints into it via the proven
+    // Sidebar_Copy_Sprite_To_ScreenBufPtr in-game path, then blits that
+    // strip onto mSurface. This is safe because the in-game sidebar buffer
+    // sits idle when no mission is running.
+    //
+    // Limited to A-Z + space — pstuff carries no digits / punctuation in
+    // this font. Unsupported chars are skipped at draw time. pColor selects
+    // the colour variant (Normal=white, Selected=gold, Inactive=grey).
 
-    void            String_Print_DrawSidebarGlyph(const struct sSidebarSpecialGlyph* pGlyph,
-                                                   size_t pPosX, size_t pPosY,
-                                                   eSidebarFontColor pColor);
+    enum class eSidebarMenuColor { Normal = 0, Selected = 1, Inactive = 2 };
 
-    // Returns the next X just past the last painted glyph (caller can chain
-    // to draw a follow-on label inline).
-    size_t          MainScreen_Print_Sidebar(const std::string& pText,
-                                               size_t pX, size_t pY,
-                                               eSidebarFontColor pColor);
-    void            MainScreen_Print_Sidebar_CentreInBox(const std::string& pText,
-                                                          size_t pX1, size_t pX2, size_t pY,
-                                                          eSidebarFontColor pColor);
-    int32           MainScreen_MeasureSidebarWidth(const std::string& pText);
+    void            Sidebar_Menu_Print(const std::string& pText,
+                                        size_t pX, size_t pY,
+                                        eSidebarMenuColor pColor = eSidebarMenuColor::Normal);
+    int32           Sidebar_Menu_MeasureWidth(const std::string& pText);
 
     void            Intro_LegionMessage();
     int16           Intro_Play();

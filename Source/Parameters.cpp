@@ -44,6 +44,8 @@ static eNetworkGameMode Parameters_ParseNetworkMode(const std::string& pValue) {
 
 	if (Mode == "coop" || Mode == "co-op" || Mode == "campaign" || Mode == "co-op-campaign")
 		return eNetworkGameMode_CoopCampaign;
+	if (Mode == "coop-random" || Mode == "co-op-random" || Mode == "coop_random" || Mode == "random")
+		return eNetworkGameMode_CoopRandom;
 	if (Mode == "deathmatch" || Mode == "dm")
 		return eNetworkGameMode_Deathmatch;
 	if (Mode == "squad-deathmatch" || Mode == "squad_dm" || Mode == "squaddeathmatch")
@@ -310,7 +312,7 @@ void sFodderParameters::PrepareOptions() {
 		("net-hub-host", "Relay hub control hostname / IP", cxxopts::value<std::string>()->default_value("hub.openfodder.com"), "\"hub.openfodder.com\"")
 		("net-hub-port", "Relay hub control UDP port", cxxopts::value<uint32_t>()->default_value("27770"), "27770")
 		("net-room-code", "Relay room/session code to join", cxxopts::value<std::string>()->default_value(""), "\"ABC123\"")
-		("net-mode", "Multiplayer mode: coop, deathmatch, squad-deathmatch, rescue-prisoner, avatar-deathmatch, team-avatar", cxxopts::value<std::string>()->default_value(""), "\"coop\"")
+		("net-mode", "Multiplayer mode: coop, coop-random, deathmatch, squad-deathmatch, rescue-prisoner, avatar-deathmatch, team-avatar", cxxopts::value<std::string>()->default_value(""), "\"coop\"")
 		("net-seed", "Multiplayer map seed", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_MAP_SEED_DEFAULT)), "4919")
 		("net-kill-limit", "Multiplayer kill limit", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_KILL_LIMIT_DEFAULT)), "10")
 		("net-time-limit", "Multiplayer time limit in seconds (0 = none)", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_TIME_LIMIT_DEFAULT)), "0")

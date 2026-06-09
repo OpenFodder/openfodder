@@ -206,7 +206,7 @@ cFodder::cFodder(std::shared_ptr<cWindow> pWindow)
     mSound = 0;
     mWindow = pWindow;
 
-    mGUI_Select_File_ShownItems = 8;
+    mGUI_Select_File_ShownItems = 4;
     mTicksDiff = 0;
     mTicks = 0;
 
@@ -2629,12 +2629,12 @@ void cFodder::VersionSwitch(const sGameVersion *pVersion)
         exit(1);
     }
 
-    // Bumped from PLATFORM_BASED(4, 5) — Campaign_Select_DrawMenu now uses
-    // the sidebar (small) font for the list and 14 px row height (was 21),
-    // so 8 campaigns fit per page on both PC and Amiga without crashing
-    // into the bottom-row buttons. Save dialog clamps this at 4 anyway via
-    // the OriginalShownItems save/restore in GUI_Element.cpp.
-    mGUI_Select_File_ShownItems = 8;
+    // SP campaign-select uses the briefing font at 21 px row height — 4 rows
+    // on PC, 5 rows with the Amiga's 25 px Y-offset bonus. The MP campaign-
+    // select bumps this to 8 on entry (sidebar-font, 14 px rows fit more)
+    // and Campaign_Select_Setup restores it on exit. Save dialog clamps at
+    // 4 via the OriginalShownItems save/restore in GUI_Element.cpp.
+    mGUI_Select_File_ShownItems = PLATFORM_BASED(4, 5);
 
     Window_UpdateScreenSize();
 
@@ -2981,7 +2981,6 @@ void cFodder::Sound_Tick()
 }
 void cFodder::Sound_Play(sSprite *pSprite, int16 pSoundEffect, int16 pPriority)
 {
-
     if (mSoundDisabled)
         return;
 

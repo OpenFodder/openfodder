@@ -76,51 +76,6 @@ bool cFodder::Campaign_Load(std::string pName) {
     return true;
 }
 
-// Campaign-select layout helpers.
-//
-// Pre-cleanup this screen used the briefing (large) font for everything —
-// campaign-name buttons centred at full screen width, side-buttons (KEYS /
-// MULTIPLAYER / OPTIONS / ABOUT) at fixed X=0xA. Long campaign names like
-// "Cannon Fodder 2" centred at 320 px overlapped the side-button column on
-// the rows where their Y bands met, producing the "background text being
-// overwritten" effect.
-//
-// New layout: campaign list and side-buttons render in the small pstuff
-// sidebar font (Source/SidebarFontGlyphs.cpp + MainScreen_Print_Sidebar).
-// The list lives in a centred column from X=0x40..0xF0 — geometrically
-// disjoint from the side-button column at X=8..0x38 — and rows are 14 px
-// tall instead of 21, so 8 campaigns fit per page instead of 4.
-namespace {
-constexpr int16 kCampaignSideX        = 0x08;     // left-aligned column
-constexpr int16 kCampaignSideWidth    = 0x30;     // 48 px — fits "MULTIPLAYER"
-constexpr int16 kCampaignListX1       = 0x40;
-constexpr int16 kCampaignListX2       = 0xF0;
-constexpr int16 kCampaignListRowY0    = 0x40;
-constexpr int16 kCampaignListRowH     = 0x0E;     // 14 px (was 21)
-constexpr int16 kCampaignSideRowH     = 0x10;
-}
-
-void cFodder::Campaign_Select_DrawSideButton(const char* pLabel, int16 pY,
-                                              void (cFodder::*pHandler)())
-{
-    // Tight box around a sidebar-font label. Width auto-fits the longest
-    // label so KEYS (4 chars) and MULTIPLAYER (11 chars) share the column
-    // edge but don't waste space.
-    const int16 textWidth = (int16)MainScreen_MeasureSidebarWidth(pLabel);
-    const int16 boxW      = (int16)kCampaignSideWidth;
-    const int16 textX     = (int16)(kCampaignSideX + ((boxW - textWidth) / 2));
-
-    MainScreen_Print_Sidebar(pLabel, (size_t)textX, (size_t)pY,
-                             eSidebarFontColor::Normal);
-
-    mGUI_Temp_X = kCampaignSideX;
-    mGUI_Temp_Y = pY;
-    mGUI_Temp_Width = boxW;
-    mGUI_Draw_LastHeight = 8;
-    GUI_Box_Draw(0xB2, 0xB3);
-    GUI_Button_Setup(pHandler);
-}
-
 void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle) {
     size_t YOffset = PLATFORM_BASED(0, 25);
 
@@ -139,7 +94,6 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
 #endif
     String_Print_Large(pSubTitle, false, 0x18);
 
-    // ===== Top / bottom navigation (briefing font, full-width centred). =====
     if (mGUI_Select_File_Count != mGUI_Select_File_ShownItems) {
         GUI_Button_Draw_Small("UP", 0x30);
         GUI_Button_Setup(&cFodder::GUI_Button_Load_Up);
@@ -151,44 +105,28 @@ void cFodder::Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle
     GUI_Button_Draw_Small("EXIT", 0xB3 + YOffset);
     GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
 
-    // ===== Side-button column (sidebar font, narrow). =====
-    // KEYS / [MULTIPLAYER] / OPTIONS / ABOUT live in a column that's
-    // explicitly disjoint from the campaign list (X 0x08..0x38 vs
-    // 0x40..0xF0) so long campaign names can't overlap them.
-    int16 sideY = 0x6E + (int16)YOffset;
-    Campaign_Select_DrawSideButton("KEYS", sideY, &cFodder::GUI_Button_Show_Shortcuts);
-    sideY += kCampaignSideRowH;
+    GUI_Button_Draw_SmallAt("ABOUT", 0xA, 0xB3 + YOffset);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_About);
+
+    GUI_Button_Draw_SmallAt("OPTIONS", 0xA, 0x9C + YOffset);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_Options);
+
 #ifdef OPENFODDER_ENABLE_NETWORK
-    Campaign_Select_DrawSideButton("MULTIPLAYER", sideY, &cFodder::GUI_Button_Show_Multiplayer);
-    sideY += kCampaignSideRowH;
+    GUI_Button_Draw_SmallAt("MULTIPLAYER", 0xA, 0x85 + YOffset);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_Multiplayer);
 #endif
-    Campaign_Select_DrawSideButton("OPTIONS", sideY, &cFodder::GUI_Button_Show_Options);
-    sideY += kCampaignSideRowH;
-    Campaign_Select_DrawSideButton("ABOUT", sideY, &cFodder::GUI_Button_Show_About);
 
-    // ===== Campaign list (sidebar font, centred in its column). =====
+    GUI_Button_Draw_SmallAt("KEYS", 0xA, 0x6E + YOffset);
+    GUI_Button_Setup(&cFodder::GUI_Button_Show_Shortcuts);
+
     int16 ItemCount = 0;
+
     auto FileIT = mCampaignList.begin() + mGUI_Select_File_CurrentIndex;
+
     for (; ItemCount < mGUI_Select_File_ShownItems && FileIT != mCampaignList.end(); ++ItemCount) {
-        const int16 rowY = (int16)(kCampaignListRowY0 + (ItemCount * kCampaignListRowH));
-        const std::string& Name = *FileIT;
 
-        // Centre the name inside the campaign-list column.
-        MainScreen_Print_Sidebar_CentreInBox(Name,
-                                              (size_t)kCampaignListX1,
-                                              (size_t)kCampaignListX2,
-                                              (size_t)rowY,
-                                              eSidebarFontColor::Normal);
-
-        // Frame the row so it's clickable as a unit. Match the row height to
-        // the sidebar-font glyph height plus a small padding.
-        mGUI_Temp_X = kCampaignListX1;
-        mGUI_Temp_Y = rowY;
-        mGUI_Temp_Width = (int16)(kCampaignListX2 - kCampaignListX1);
-        mGUI_Draw_LastHeight = 8;
-        GUI_Box_Draw(0xB2, 0xB3);
+        GUI_Button_Draw_Small(FileIT->c_str(), 0x44 + (ItemCount * 0x15), 0xB2, 0xB3);
         GUI_Button_Setup(&cFodder::GUI_Button_Filename);
-
         ++FileIT;
     }
 }
@@ -201,9 +139,22 @@ void cFodder::Campaign_Select_Setup() {
 	mGUI_SaveLoadAction = 0;
 
 	{
+		// Single Map / Random Map are SP-only "campaign" placeholders that
+		// dispatch into Custom_ShowMapSelection / RandomMapOptions_RunCampaign.
+		// They have no MP equivalent — coop random is a network mode picked
+		// on the host setup screen, not a campaign — so hide them from the
+		// campaign list when network play is active. SP path unchanged.
+#ifdef OPENFODDER_ENABLE_NETWORK
+		const bool HideSinglePlayerOnly = mStartParams && mStartParams->mNetworkEnabled;
+#else
+		const bool HideSinglePlayerOnly = false;
+#endif
 		for (auto& Name : mVersions->GetCampaignNames()) {
 
-			if (g_ResourceMan->isCampaignAvailable(Name) || Name == "Single Map" || Name == "Random Map")
+			const bool IsBuiltinPlaceholder = (Name == "Single Map" || Name == "Random Map");
+			if (HideSinglePlayerOnly && IsBuiltinPlaceholder)
+				continue;
+			if (g_ResourceMan->isCampaignAvailable(Name) || IsBuiltinPlaceholder)
 				mCampaignList.push_back(Name);
 		}
 	}
@@ -336,7 +287,16 @@ std::string cFodder::Campaign_Select_File(const char* pTitle, const char* pSubTi
     if (mGUI_SaveLoadAction == 1)
         return "";
 
-	return mCampaignList[mGUI_Select_File_CurrentIndex + mGUI_Select_File_SelectedFileIndex];
+    // Generated-map MP modes (Coop Random / PvP) don't pick a campaign — the
+    // list may even be empty when no SP placeholders are visible. Return ""
+    // and let cFodder::Campaign_Selection's exit branch take over (the
+    // returned name is unused on the MP gameplay path; Mission_Loop reads
+    // mNetworkGameMode directly to route to CreateRandom).
+    const size_t pickIdx = (size_t)mGUI_Select_File_CurrentIndex + (size_t)mGUI_Select_File_SelectedFileIndex;
+    if (pickIdx >= mCampaignList.size())
+        return "";
+
+	return mCampaignList[pickIdx];
 }
 
 void cFodder::Campaign_Selection() {
@@ -364,13 +324,36 @@ SelectCampaign:;
 
     CampaignFile = Campaign_Select_File("OPEN FODDER", "SELECT CAMPAIGN", "", "*.ofc", eDataType::eCampaign);
 
+#ifdef OPENFODDER_ENABLE_NETWORK
+    // MP generated-map modes (Coop Random / PvP) come back from
+    // Campaign_Select_File with an empty CampaignFile — there's no
+    // campaign to pick, the gameplay surface is generated. Skip the
+    // exit-on-empty test and the version-lookup-by-campaign-name in those
+    // cases; Mission_Loop reads mNetworkGameMode directly to route to
+    // CreateRandom + multiplayer.js.
+    const bool MPSkipsCampaign = mStartParams && mStartParams->mNetworkEnabled &&
+                                 Network_UsesGeneratedMap(mStartParams->mNetworkGameMode);
+#else
+    const bool MPSkipsCampaign = false;
+#endif
+
     // Exit Pressed?
-    if (mGUI_SaveLoadAction == 1 || mGUI_SaveLoadAction == 4 || !CampaignFile.size()) {
+    if (mGUI_SaveLoadAction == 1 || mGUI_SaveLoadAction == 4 ||
+        (!MPSkipsCampaign && !CampaignFile.size())) {
 
         // Return to custom menu
         mDemo_ExitMenu = 1;
         mCustom_Mode = eCustomMode_None;
 
+        return;
+    }
+
+    if (MPSkipsCampaign) {
+        // No campaign to load — Mission_Loop will see UsesGeneratedMap and
+        // run CreateRandom instead. Set mVersionDefault so the rest of the
+        // engine has a reasonable starting version.
+        mVersionDefault = mVersionCurrent;
+        mCustom_Mode = eCustomMode_Map;
         return;
     }
 

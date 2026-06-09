@@ -187,12 +187,12 @@ private:
 
     // Public-matchmaking auth gating. Returns true if the user already has a
     // valid cached token and the caller may proceed; returns false and
-    // pivots the menu to AuthPrompt otherwise. pBlockOnFail controls the
-    // post-prompt behaviour: true (host flows) means "if pairing is skipped,
-    // do not enter the requested state"; false (join flows) means "let the
-    // user proceed even without a token — joining a room only needs the
-    // relay credentials, not a hub token".
-    bool RequireHubToken(eState pTarget, bool pBlockOnFail);
+    // pivots the menu to AuthPrompt otherwise. Cancel from the modal always
+    // returns to the multiplayer main menu — there's no "fall through to
+    // anonymous" branch — so callers don't need to distinguish host vs join
+    // policy. pTarget is purely informational state for any future code
+    // that wants to know which entry triggered the prompt.
+    bool RequireHubToken(eState pTarget);
     void HandleAuthTextInput();
     void SubmitPairCode();
     bool CanStart() const;
@@ -264,7 +264,6 @@ private:
     // back to after a successful pairing (or after a skip when joining).
     cHubAuth    mHubAuth;
     eState      mAuthTarget = eState::Main;
-    bool        mAuthBlockOnFail = false;
     std::string mDeviceCode;
     std::string mPairCode;
     std::string mPairingError;
