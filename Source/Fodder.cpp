@@ -2990,22 +2990,19 @@ void cFodder::Sound_Play(sSprite *pSprite, int16 pSoundEffect, int16 pPriority)
     d0 = (d0 & 3) | 2;
     word_81DF6 = d0;
 
-    int16 *a4 = mSound_Timer;
-    int16 *a6 = mSound_Priority;
-
-    if (a6[d0] <= pPriority)
+    if (mSound_Priority[d0] <= pPriority)
     {
-        a6[d0] = pPriority;
+        mSound_Priority[d0] = pPriority;
     }
     else
     {
-        if (a4[d0] != 0)
+        if (mSound_Timer[d0] != 0)
         {
             return;
         }
-        a6[d0] = pPriority;
+        mSound_Priority[d0] = pPriority;
     }
-    a4[d0] = 0x0C;
+    mSound_Timer[d0] = 0x0C;
 
     // loc_14BD4
     int32 ListenerCameraX = mCameraX;
