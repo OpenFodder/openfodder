@@ -187,4 +187,6 @@ if(WIN32)
                 "${CMAKE_SOURCE_DIR}/Run"
             COMMENT "Copy SDL runtime DLLs to output directory")
     endif()
+
+    target_link_libraries(openfodder PRIVATE ws2_32)
 endif()
