@@ -110,6 +110,8 @@ public:
 	bool mMapPngAddCoords;           // Overlay tile coordinates on generated map PNG
 	bool mMapPngAddTileIds;          // Overlay tile IDs on generated map PNG
 	size_t mMapPngScale;             // Nearest-neighbor output scale for map PNG rendering
+	std::string mMapRouteOracle;       // Run engine route/walkable oracle queries against a .map and exit
+	std::string mMapRouteOracleOutput; // Output path for --map-route-oracle results JSON
 	std::string mCampaignName;      // Campaign to start
 	size_t mMissionNumber;          // Mission to start on
 	size_t mPhaseNumber;            // Phase to start on
@@ -235,6 +237,8 @@ public:
 		mMapPngAddCoords = false;
 		mMapPngAddTileIds = false;
 		mMapPngScale = 1;
+		mMapRouteOracle = "";
+		mMapRouteOracleOutput = "";
 
 		mCheatsEnabled = false;
 		mUnitTesting = false;

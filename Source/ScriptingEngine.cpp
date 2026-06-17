@@ -227,6 +227,10 @@ cScriptingEngine::cScriptingEngine() {
 	scriptsLoadFolder("Objectives/Rescue.Hostage/");
 
 	scriptsLoadFolder("MapGen/");
+	// P1.2: v3 IntentMap skeleton folder — must load BEFORE Grammar so
+	// MapGen.Intent.* is available when Concepts register at module init.
+	scriptsLoadFolder("MapGen/Intent/");
+	scriptsLoadFolder("MapGen/Intent/Concepts/");
 	scriptsLoadFolder("MapGen/Grammar/");
 	scriptsLoadFolder("MapGen/Layout/");
 	scriptsLoadFolder("MapGen/Layout/Templates/");

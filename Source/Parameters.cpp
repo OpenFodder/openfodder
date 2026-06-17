@@ -352,6 +352,8 @@ void sFodderParameters::PrepareOptions() {
 		("map-png-add-coords", "Overlay tile coordinates on --map-generate-png output", cxxopts::value<bool>()->default_value("false"))
 		("map-png-add-tileids", "Overlay tile IDs on --map-generate-png output", cxxopts::value<bool>()->default_value("false"))
 		("map-png-scale", "Nearest-neighbor output scale for --map-generate-png, 1-4", cxxopts::value<std::uint32_t>()->default_value("1"), "2")
+		("map-route-oracle", "Run engine walkable/terrain/route oracle queries against a .map and exit", cxxopts::value<std::string>()->default_value(""), "\"queries.json\"")
+		("map-route-oracle-output", "Output path for --map-route-oracle results JSON (defaults to <input>.result.json)", cxxopts::value<std::string>()->default_value(""), "\"queries.result.json\"")
 		("r,random", "Generate and play a random map", cxxopts::value<bool>()->default_value("false"))
 		("random-menu", "Open the create-random-map options screen on startup", cxxopts::value<bool>()->default_value("false"))
 		("random-save", "Generate and save a random map", cxxopts::value<std::string>()->default_value(""), "\"MyMap\"")
@@ -465,6 +467,8 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		mMapPngAddCoords = result["map-png-add-coords"].as<bool>();
 		mMapPngAddTileIds = result["map-png-add-tileids"].as<bool>();
 		mMapPngScale = std::max<uint32>(1, std::min<uint32>(4, result["map-png-scale"].as<std::uint32_t>()));
+		mMapRouteOracle = result["map-route-oracle"].as<std::string>();
+		mMapRouteOracleOutput = result["map-route-oracle-output"].as<std::string>();
 
 		mCampaignName = result["campaign"].as<std::string>();
 		mMissionNumber = result["mission"].as<std::uint32_t>();

@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "Tools/RouteOracleReplay.hpp"
 #include <thread>
 
 #ifndef _OFED
@@ -52,6 +53,14 @@ int start(int argc, char *argv[]) {
 			Params->mMapPngAddCoords,
 			Params->mMapPngAddTileIds,
 			Params->mMapPngScale) ? 0 : -1;
+	}
+	else if (Params->mMapRouteOracle.size()) {
+		// MapGen v3 Phase 1 P1.5c: headless engine route/walkable oracle.
+		// Mirrors the --map-generate-png dispatch — load nothing more than
+		// the .map + tile collision tables and answer the query JSON.
+		result = RouteOracleReplay::Run(
+			Params->mMapRouteOracle,
+			Params->mMapRouteOracleOutput) ? 0 : -1;
 	}
 	else {
 		g_Fodder->Prepare(Params);
