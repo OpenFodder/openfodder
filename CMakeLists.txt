@@ -14,6 +14,7 @@ project(openfodder VERSION 1.5.4 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 option(OPENFODDER_ENABLE_FFMPEG "Enable FFmpeg intro video playback" OFF)
 option(OPENFODDER_AUTO_FFMPEG "Auto-enable FFmpeg when found (non-Windows)" ON)
+option(OPENFODDER_USE_SYSTEM_SDL3 "Use system SDL3 libraries (Windows-only)" OFF)
 
 if(MSVC)
     # Enable Hot Reload (Edit and Continue) for Debug builds.
@@ -29,7 +30,7 @@ else()
 endif()
 
 if(EMSCRIPTEN)
-elseif(WIN32)
+elseif(WIN32 AND NOT OPENFODDER_USE_SYSTEM_SDL3)
     include(FetchContent)
 
     set(SDL_INSTALL OFF CACHE BOOL "" FORCE)
