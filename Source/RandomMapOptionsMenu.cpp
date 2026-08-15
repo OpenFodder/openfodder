@@ -82,7 +82,8 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
 
     case ACT_CYCLE_MAP_SIZE:
         mEditField = eEditField::None;
-        MarkProfileCustom();
+        // Size and support settings override a profile; they do not replace
+        // its topology (maze, neck, checkpoint, and so on).
         mOptions.mMapSize = static_cast<eNetworkMapSize>(((uint8_t)mOptions.mMapSize + 1) % eNetworkMapSize_Count);
         break;
 
@@ -96,19 +97,16 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
 
     case ACT_CYCLE_COVER:
         mEditField = eEditField::None;
-        MarkProfileCustom();
         mOptions.mCoverDensity = static_cast<eNetworkCoverDensity>(((uint8_t)mOptions.mCoverDensity + 1) % eNetworkCoverDensity_Count);
         break;
 
     case ACT_CYCLE_VEHICLES:
         mEditField = eEditField::None;
-        MarkProfileCustom();
         mOptions.mVehicleSet = static_cast<eNetworkVehicleSet>(((uint8_t)mOptions.mVehicleSet + 1) % eNetworkVehicleSet_Count);
         break;
 
     case ACT_CYCLE_PICKUPS:
         mEditField = eEditField::None;
-        MarkProfileCustom();
         mOptions.mPickupDensity = static_cast<eNetworkPickupDensity>(((uint8_t)mOptions.mPickupDensity + 1) % eNetworkPickupDensity_Count);
         break;
 

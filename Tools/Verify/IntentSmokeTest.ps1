@@ -1,12 +1,13 @@
 # Tools/Verify/IntentSmokeTest.ps1
-# Phase 1 acceptance smoke per v3.4 §11 line 947.
+# DEPRECATED — Phase 1 acceptance harness. Phase 2 retires the flag-gated
+# diagnostic path that this script depends on (mapgen_intent_smoke.flag);
+# the v3 production path is now driven by profile.TerrainType==Ice. Use
+# Tools/Verify/Phase2SmokeTest.ps1 (campaign smoke across grammar_ice + jungle
+# + rollback flag) and Tools/Verify/IceBatchAcceptance.ps1 (200-seed gate)
+# instead.
 #
-# Verifies: with the v3 IntentMap skeleton loaded, MapGen.Intent.Diagnostic
-# can run ice_open_arena -> Composite -> Render -> apply, producing an
-# engine-loadable .map file with a player spawn + objective + walkable route.
-#
-# Spec: Documentation/Future/Phase0/D13_go_no_go.md §7 item 1, the Phase 1
-# minimal-valid-diagnostic-map gate.
+# Kept on disk as decision-trail evidence for Phase 1 closure; retired in
+# Phase 3 once Phase 2 acceptance is signed off.
 
 [CmdletBinding()]
 param(
