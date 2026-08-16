@@ -32,7 +32,7 @@ void cRandomMapOptionsMenu::Open(const sRandomMapOptions& pOptions, eContext pCo
     mEditField = eEditField::None;
     mTab = eTab::Main;
     mSeedText = std::to_string(mOptions.mSeed);
-    InferProfile();
+    InferMapType();
 }
 
 void cRandomMapOptionsMenu::Tick()
@@ -82,17 +82,13 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
 
     case ACT_CYCLE_MAP_SIZE:
         mEditField = eEditField::None;
-        // Size and support settings override a profile; they do not replace
-        // its topology (maze, neck, checkpoint, and so on).
+        // Size is independent from the selected terrain topology.
         mOptions.mMapSize = static_cast<eNetworkMapSize>(((uint8_t)mOptions.mMapSize + 1) % eNetworkMapSize_Count);
         break;
 
     case ACT_CYCLE_MAP_TERRAIN:
         mEditField = eEditField::None;
-        MarkProfileCustom();
-        mOptions.mMapTerrain = static_cast<eNetworkMapTerrain>(((uint8_t)mOptions.mMapTerrain + 1) % eNetworkMapTerrain_Count);
-        if (mOptions.mMapTerrain != eNetworkMapTerrain_Jungle)
-            mOptions.mMapTerrainSub = 0;
+        CycleTerrain();
         break;
 
     case ACT_CYCLE_COVER:
@@ -110,9 +106,9 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
         mOptions.mPickupDensity = static_cast<eNetworkPickupDensity>(((uint8_t)mOptions.mPickupDensity + 1) % eNetworkPickupDensity_Count);
         break;
 
-    case ACT_CYCLE_PROFILE:
+    case ACT_CYCLE_MAP_TYPE:
         mEditField = eEditField::None;
-        CycleProfile();
+        CycleMapType();
         break;
 
     case ACT_RANDOMIZE_SEED:
@@ -155,15 +151,15 @@ void cRandomMapOptionsMenu::Draw()
 
     switch (mTab) {
     case eTab::Main:
-        DrawValueButton("PROFILE", GetProfileName(), rowY, ACT_CYCLE_PROFILE);
+        DrawValueButton("TERRAIN", GetTerrainName(), rowY, ACT_CYCLE_MAP_TERRAIN);
+        rowY += rowH;
+        DrawValueButton("TYPE", GetMapTypeName(), rowY, ACT_CYCLE_MAP_TYPE);
         rowY += rowH;
         DrawField("SEED", mSeedText, rowY, ACT_EDIT_SEED, mEditField == eEditField::Seed);
         rowY += rowH;
         DrawValueButton("NEW SEED", "RANDOM", rowY, ACT_RANDOMIZE_SEED);
         rowY += rowH;
         DrawValueButton("SIZE", Network_MapSizeName(mOptions.mMapSize), rowY, ACT_CYCLE_MAP_SIZE);
-        rowY += rowH;
-        DrawValueButton("TERRAIN", GetTerrainName(), rowY, ACT_CYCLE_MAP_TERRAIN);
         rowY += rowH;
         DrawValueButton("COVER", Network_CoverDensityName(mOptions.mCoverDensity), rowY, ACT_CYCLE_COVER);
         break;
@@ -366,213 +362,195 @@ void cRandomMapOptionsMenu::RandomizeSeed()
     mEditField = eEditField::None;
 }
 
-// Display-only: if there is no explicit script profile name, reverse-infer the
-// named menu profile from the small option set the menu actually owns.
-void cRandomMapOptionsMenu::InferProfile()
+void cRandomMapOptionsMenu::InferMapType()
 {
     mOptions.mProfile = Network_NormalizeMapProfile((uint8_t)mOptions.mProfile);
-    if (!mOptions.mProfileName.empty()) {
-        mProfile = mOptions.mProfile;
-        return;
+    mOptions.mMapTerrain = Network_NormalizeMapTerrain((uint8_t)mOptions.mMapTerrain);
+    mMapType = eMapType::Random;
+
+    const std::string& ProfileName = mOptions.mProfileName;
+    if (ProfileName == "grammar_jungle_maze" || ProfileName == "grammar_ice_maze") {
+        mMapType = eMapType::Maze;
+    }
+    else if (ProfileName == "grammar_jungle_neck" || ProfileName == "grammar_ice_neck") {
+        mMapType = eMapType::Neck;
+    }
+    else if (ProfileName == "grammar_beach") {
+        mMapType = eMapType::Beach;
+    }
+    else if (ProfileName == "grammar_ice_skidoo_jump") {
+        mMapType = eMapType::SkidooJump;
+    }
+    else {
+        switch (mOptions.mProfile) {
+        case eNetworkMapProfile_JungleMaze:
+        case eNetworkMapProfile_IceMaze:
+            mMapType = eMapType::Maze;
+            break;
+        case eNetworkMapProfile_JungleNeck:
+        case eNetworkMapProfile_IceNeck:
+            mMapType = eMapType::Neck;
+            break;
+        case eNetworkMapProfile_Beach:
+            mMapType = eMapType::Beach;
+            break;
+        case eNetworkMapProfile_IceSkidooJump:
+            mMapType = eMapType::SkidooJump;
+            break;
+        default:
+            if (mOptions.mMapTerrain == eNetworkMapTerrain_Jungle && mOptions.mMapTerrainSub == 1)
+                mMapType = eMapType::Beach;
+            break;
+        }
     }
 
-    if (mOptions.mProfile != eNetworkMapProfile_Custom) {
-        mProfile = mOptions.mProfile;
-        return;
-    }
+    // Terrain and type are the complete UI model. A missing/invalid terrain
+    // opens at the default rather than exposing the old cross-terrain preset.
+    if (mOptions.mMapTerrain == eNetworkMapTerrain_Random)
+        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
+    if (!MapTypeSupported(mMapType, mOptions.mMapTerrain))
+        mMapType = eMapType::Random;
 
-    mProfile = eNetworkMapProfile_Custom;
-    if (mOptions.mMapSize == eNetworkMapSize_Medium
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
-        && mOptions.mMapTerrainSub == 0
-        && mOptions.mVehicleSet == eNetworkVehicleSet_None
-        && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
-        mProfile = eNetworkMapProfile_Jungle;
-    }
-    else if (mOptions.mMapSize == eNetworkMapSize_Medium
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Jungle
-        && mOptions.mMapTerrainSub == 1
-        && mOptions.mVehicleSet == eNetworkVehicleSet_None
-        && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
-        mProfile = eNetworkMapProfile_Beach;
-    }
-    else if (mOptions.mMapSize == eNetworkMapSize_Medium
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Ice
-        && mOptions.mVehicleSet == eNetworkVehicleSet_None
-        && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
-        mProfile = eNetworkMapProfile_Ice;
-    }
-    else if (mOptions.mMapSize == eNetworkMapSize_Medium
-        && mOptions.mMapTerrain == eNetworkMapTerrain_Random
-        && mOptions.mVehicleSet == eNetworkVehicleSet_None
-        && mOptions.mPickupDensity == eNetworkPickupDensity_Normal
-        && mOptions.mCoverDensity == eNetworkCoverDensity_Normal) {
-        mProfile = eNetworkMapProfile_Random;
-    }
-
-    mOptions.mProfile = mProfile;
-}
-
-std::string cRandomMapOptionsMenu::GetProfileName() const
-{
-    if (!mOptions.mProfileName.empty() && mProfile == eNetworkMapProfile_Custom)
-        return mOptions.mProfileName;
-
-    return Network_MapProfileName(mProfile);
+    ApplyTerrainAndType(false);
 }
 
 const char* cRandomMapOptionsMenu::GetTerrainName() const
 {
-    if (mOptions.mMapTerrain == eNetworkMapTerrain_Jungle && mOptions.mMapTerrainSub == 1)
-        return "BEACH";
-
     return Network_MapTerrainName(mOptions.mMapTerrain);
 }
 
-void cRandomMapOptionsMenu::ApplyProfile()
+const char* cRandomMapOptionsMenu::GetMapTypeName() const
 {
-    mOptions.mProfile = mProfile;
-    ClearProfileName();
-
-    switch (mProfile) {
-    case eNetworkMapProfile_Jungle:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        break;
-
-    case eNetworkMapProfile_JungleMaze:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        mOptions.mProfileName = "grammar_jungle_maze";
-        break;
-
-    case eNetworkMapProfile_JungleNeck:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        mOptions.mProfileName = "grammar_jungle_neck";
-        break;
-
-    case eNetworkMapProfile_Beach:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
-        mOptions.mMapTerrainSub = 1;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        break;
-
-    case eNetworkMapProfile_Ice:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        break;
-
-    case eNetworkMapProfile_IceMaze:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        mOptions.mProfileName = "grammar_ice_maze";
-        break;
-
-    case eNetworkMapProfile_IceMazeXL:
-        mOptions.mMapSize = eNetworkMapSize_ExtraLarge;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        mOptions.mProfileName = "grammar_ice_maze_xl";
-        break;
-
-    case eNetworkMapProfile_IceNeck:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        mOptions.mProfileName = "grammar_ice_neck";
-        break;
-
-    case eNetworkMapProfile_IceSkidooJump:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Ice;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_Light;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        mOptions.mProfileName = "grammar_ice_skidoo_jump";
-        break;
-
-    case eNetworkMapProfile_Random:
-        mOptions.mMapSize = eNetworkMapSize_Medium;
-        mOptions.mMapTerrain = eNetworkMapTerrain_Random;
-        mOptions.mMapTerrainSub = 0;
-        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
-        mOptions.mVehicleSet = eNetworkVehicleSet_None;
-        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
-        break;
-
-    case eNetworkMapProfile_Custom:
-    default:
-        break;
+    switch (mMapType) {
+    case eMapType::Maze:       return "MAZE";
+    case eMapType::Neck:       return "NECK";
+    case eMapType::Beach:      return "BEACH";
+    case eMapType::SkidooJump: return "SKIDOO JUMP";
+    default:                   return "RANDOM";
     }
 }
 
-void cRandomMapOptionsMenu::CycleProfile()
+bool cRandomMapOptionsMenu::MapTypeSupported(eMapType pType, eNetworkMapTerrain pTerrain) const
 {
-    const eNetworkMapProfile Profiles[] = {
-        eNetworkMapProfile_Jungle,
-        eNetworkMapProfile_JungleMaze,
-        eNetworkMapProfile_JungleNeck,
-        eNetworkMapProfile_Beach,
-        eNetworkMapProfile_Ice,
-        eNetworkMapProfile_IceMaze,
-        eNetworkMapProfile_IceMazeXL,
-        eNetworkMapProfile_IceNeck,
-        eNetworkMapProfile_IceSkidooJump,
-        eNetworkMapProfile_Random,
-    };
-    const size_t ProfileCount = sizeof(Profiles) / sizeof(Profiles[0]);
-    size_t Current = ProfileCount - 1;
+    if (pType == eMapType::Random)
+        return true;
+    if (mContext == eContext::Multiplayer)
+        return pTerrain == eNetworkMapTerrain_Jungle && pType == eMapType::Beach;
+    if (pTerrain == eNetworkMapTerrain_Jungle)
+        return pType == eMapType::Maze || pType == eMapType::Neck || pType == eMapType::Beach;
+    if (pTerrain == eNetworkMapTerrain_Ice)
+        return pType == eMapType::Maze || pType == eMapType::Neck || pType == eMapType::SkidooJump;
+    return false;
+}
 
-    for (size_t Index = 0; Index < ProfileCount; ++Index) {
-        if (Profiles[Index] == mProfile) {
+void cRandomMapOptionsMenu::CycleTerrain()
+{
+    const eNetworkMapTerrain Terrains[] = {
+        eNetworkMapTerrain_Jungle,
+        eNetworkMapTerrain_Ice,
+        eNetworkMapTerrain_Desert,
+        eNetworkMapTerrain_Moors,
+    };
+    const size_t TerrainCount = sizeof(Terrains) / sizeof(Terrains[0]);
+    size_t Current = TerrainCount - 1;
+    for (size_t Index = 0; Index < TerrainCount; ++Index) {
+        if (Terrains[Index] == mOptions.mMapTerrain) {
             Current = Index;
             break;
         }
     }
 
-    mProfile = Profiles[(Current + 1) % ProfileCount];
-    ApplyProfile();
+    mOptions.mMapTerrain = Terrains[(Current + 1) % TerrainCount];
+    if (!MapTypeSupported(mMapType, mOptions.mMapTerrain))
+        mMapType = eMapType::Random;
+    ApplyTerrainAndType(true);
 }
 
-void cRandomMapOptionsMenu::MarkProfileCustom()
+void cRandomMapOptionsMenu::CycleMapType()
 {
-    mProfile = eNetworkMapProfile_Custom;
-    mOptions.mProfile = eNetworkMapProfile_Custom;
+    const eMapType Types[] = {
+        eMapType::Random,
+        eMapType::Maze,
+        eMapType::Neck,
+        eMapType::Beach,
+        eMapType::SkidooJump,
+    };
+    const size_t TypeCount = sizeof(Types) / sizeof(Types[0]);
+    size_t Current = TypeCount - 1;
+    for (size_t Index = 0; Index < TypeCount; ++Index) {
+        if (Types[Index] == mMapType) {
+            Current = Index;
+            break;
+        }
+    }
+
+    do {
+        Current = (Current + 1) % TypeCount;
+    } while (!MapTypeSupported(Types[Current], mOptions.mMapTerrain));
+
+    mMapType = Types[Current];
+    ApplyTerrainAndType(true);
+}
+
+void cRandomMapOptionsMenu::ApplyTerrainAndType(bool pApplyDefaults)
+{
     ClearProfileName();
+    mOptions.mMapTerrainSub = 0;
+    mOptions.mProfile = eNetworkMapProfile_Custom;
+
+    if (pApplyDefaults) {
+        mOptions.mCoverDensity = eNetworkCoverDensity_Normal;
+        mOptions.mVehicleSet = eNetworkVehicleSet_None;
+        mOptions.mPickupDensity = eNetworkPickupDensity_Normal;
+    }
+
+    if (mOptions.mMapTerrain == eNetworkMapTerrain_Jungle) {
+        switch (mMapType) {
+        case eMapType::Maze:
+            mOptions.mProfile = eNetworkMapProfile_JungleMaze;
+            mOptions.mProfileName = "grammar_jungle_maze";
+            if (pApplyDefaults)
+                mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+            break;
+        case eMapType::Neck:
+            mOptions.mProfile = eNetworkMapProfile_JungleNeck;
+            mOptions.mProfileName = "grammar_jungle_neck";
+            if (pApplyDefaults)
+                mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+            break;
+        case eMapType::Beach:
+            mOptions.mProfile = eNetworkMapProfile_Beach;
+            mOptions.mProfileName = "grammar_beach";
+            mOptions.mMapTerrainSub = 1;
+            break;
+        default:
+            mOptions.mProfile = eNetworkMapProfile_Jungle;
+            break;
+        }
+    }
+    else if (mOptions.mMapTerrain == eNetworkMapTerrain_Ice) {
+        switch (mMapType) {
+        case eMapType::Maze:
+            mOptions.mProfile = eNetworkMapProfile_IceMaze;
+            mOptions.mProfileName = "grammar_ice_maze";
+            if (pApplyDefaults)
+                mOptions.mCoverDensity = eNetworkCoverDensity_Dense;
+            break;
+        case eMapType::Neck:
+            mOptions.mProfile = eNetworkMapProfile_IceNeck;
+            mOptions.mProfileName = "grammar_ice_neck";
+            break;
+        case eMapType::SkidooJump:
+            mOptions.mProfile = eNetworkMapProfile_IceSkidooJump;
+            mOptions.mProfileName = "grammar_ice_skidoo_jump";
+            if (pApplyDefaults)
+                mOptions.mVehicleSet = eNetworkVehicleSet_Light;
+            break;
+        default:
+            mOptions.mProfile = eNetworkMapProfile_Ice;
+            break;
+        }
+    }
 }
 
 void cRandomMapOptionsMenu::ClearProfileName()

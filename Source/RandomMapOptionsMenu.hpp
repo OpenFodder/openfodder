@@ -70,7 +70,7 @@ private:
         ACT_CYCLE_COVER,
         ACT_CYCLE_VEHICLES,
         ACT_CYCLE_PICKUPS,
-        ACT_CYCLE_PROFILE,
+        ACT_CYCLE_MAP_TYPE,
         ACT_RANDOMIZE_SEED,
         ACT_TAB_MAIN,
         ACT_TAB_SUPPORT,
@@ -86,6 +86,14 @@ private:
         Support,
     };
 
+    enum class eMapType : uint8_t {
+        Random = 0,
+        Maze,
+        Neck,
+        Beach,
+        SkidooJump,
+    };
+
     void DrawTabs(int16 pY);
     void DrawTab(const char* pLabel, int16 pAction, bool pActive, size_t pX1, size_t pX2, int16 pY);
     void DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction);
@@ -97,12 +105,13 @@ private:
     bool CanStart() const;
     void SyncSeedValue();
     void RandomizeSeed();
-    void CycleProfile();
-    void ApplyProfile();
-    void MarkProfileCustom();
-    void InferProfile();
+    void CycleTerrain();
+    void CycleMapType();
+    void ApplyTerrainAndType(bool pApplyDefaults);
+    void InferMapType();
+    bool MapTypeSupported(eMapType pType, eNetworkMapTerrain pTerrain) const;
     void ClearProfileName();
-    std::string GetProfileName() const;
+    const char* GetMapTypeName() const;
     const char* GetTerrainName() const;
     const char* GetModeName() const;
     const char* GetModeShortName() const;
@@ -112,7 +121,7 @@ private:
     eContext mContext = eContext::Campaign;
     eEditField mEditField = eEditField::None;
     eTab mTab = eTab::Main;
-    eNetworkMapProfile mProfile = NETWORK_MAP_PROFILE_DEFAULT;
+    eMapType mMapType = eMapType::Random;
     bool mDone = false;
     bool mAccepted = false;
     std::string mSeedText = std::to_string(NETWORK_MAP_SEED_DEFAULT);
