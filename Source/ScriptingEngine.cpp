@@ -24,6 +24,7 @@
 #include "Utils/dukglue/dukglue.h"
 #include "Utils/SimplexNoise.hpp"
 #include "Map/Random.hpp"
+#include "JitScripting.hpp"
 #ifdef OF_JS_DEBUG
 #include "Utils/duk_trans_socket.h"
 #endif
@@ -206,6 +207,15 @@ cScriptingEngine::cScriptingEngine() {
 	mContext = duk_create_heap_default();
 
 	init();
+    const bool requireJit = std::ifstream("mapgen_jit.flag").good();
+    if(!std::ifstream("mapgen_interpreter.flag").good() && !g_Fodder->mStartParams->mDebugger) {
+        auto jit = std::make_unique<cJitScripting>(mContext);
+        if(jit->available()) mJit = std::move(jit);
+    }
+    if(requireJit && !mJit) {
+        g_Debugger->Error("JIT scripting was requested but is unavailable");
+        mScriptsLoaded = false;
+    }
 	spritesCreateObject();
 
 	scriptsLoadFolder("Common/");
@@ -248,6 +258,7 @@ cScriptingEngine::cScriptingEngine() {
 
 cScriptingEngine::~cScriptingEngine() {
 
+    mJit.reset();
 	duk_destroy_heap(mContext);
 }
 
@@ -401,6 +412,8 @@ void cScriptingEngine::init() {
 
 	dukglue_register_method(mContext, &cScriptingEngine::getCampaign, "getCampaign");
 	dukglue_register_method(mContext, &cScriptingEngine::getMap, "getMap");
+    dukglue_register_method(mContext, &cScriptingEngine::scriptRuntime, "scriptRuntime");
+    dukglue_register_method(mContext, &cScriptingEngine::scriptRuntimeLibrary, "scriptRuntimeLibrary");
 	dukglue_register_method(mContext, &cScriptingEngine::getPhase, "getPhase");
 	dukglue_register_method(mContext, &cScriptingEngine::getMission, "getMission");
 
@@ -703,6 +716,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 		auto script = g_ResourceMan->FileReadStr(finalpath + scriptFile);
 		
 		if (!script.size() || (scriptRun(script, finalName) == false)) {
+            mScriptsLoaded = false;
 			g_Debugger->Error(finalpath + scriptFile + " Failed to execute script:" + scriptFile);
 			return false;
 		}
@@ -712,6 +726,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 }
 
 bool cScriptingEngine::scriptRun(const std::string& pJS, const std::string& pFilename) {
+    if(mJit) return mJit->run(pJS, pFilename);
 	int success = DUK_EXEC_ERROR;
 
 	// Compile the JS into bytecode
@@ -739,8 +754,10 @@ bool cScriptingEngine::scriptRun(const std::string& pJS, const std::string& pFil
 }
 
 bool cScriptingEngine::Run(const std::string& pScript) {
+    if(!mScriptsLoaded) return false;
 
 	dukglue_register_global(mContext, this, "Engine");
+    if(mJit) mJit->syncEngine();
 
 	auto path = g_ResourceMan->GetScriptPath(pScript);
 	auto script = g_ResourceMan->FileReadStr(path);
@@ -751,4 +768,11 @@ bool cScriptingEngine::Run(const std::string& pScript) {
 	}
 
 	return true;
+}
+
+std::string cScriptingEngine::scriptRuntime() const {
+    return mJit ? "chakra-jit" : "duktape";
+}
+std::string cScriptingEngine::scriptRuntimeLibrary() const {
+    return mJit ? mJit->libraryPath() : std::string();
 }

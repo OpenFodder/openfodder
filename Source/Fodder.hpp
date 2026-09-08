@@ -1568,7 +1568,7 @@ public:
     void            KeyboardShortcuts();
     bool            RandomMapOptions_Run(sRandomMapOptions& pOptions, cRandomMapOptionsMenu::eContext pContext);
     bool            RandomMapOptions_RunCampaign();
-	void			CreateRandom(sMapParams pParams);
+	bool			CreateRandom(sMapParams pParams);
 	virtual void    Start();
     void            Exit(unsigned int pExitCode);
 

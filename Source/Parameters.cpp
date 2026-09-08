@@ -500,7 +500,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 			mSkipIntro = true;
 		}
 
-		if (result.count("random-seed") && result["random-seed"].as<uint32_t>() != 0) {
+		if (result.count("random-seed")) {
 			mRandomMapSeed = result["random-seed"].as<uint32_t>();
 			mRandomMapOptionsEnabled = true;
 			mRandomMapProfile = eNetworkMapProfile_Custom;

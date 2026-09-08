@@ -3934,7 +3934,7 @@ bool cFodder::RandomMapOptions_RunCampaign()
     return true;
 }
 
-void cFodder::CreateRandom(sMapParams pParams)
+bool cFodder::CreateRandom(sMapParams pParams)
 {
     mSurface->clearBuffer();
 
@@ -3971,17 +3971,22 @@ void cFodder::CreateRandom(sMapParams pParams)
     if (g_Fodder->mStartParams->mDebugger)
         g_ScriptingEngine->debuggerEnable();
 
-    if (g_ScriptingEngine->Run(mParams->mScriptRun))
+    bool generated = g_ScriptingEngine->Run(mParams->mScriptRun);
+    if (generated)
     {
-
         // Ensure final phase is saved
         const std::string MapPath = mGame_Data.mCampaign.GetPathToFile(mGame_Data.mPhase_Current->GetMapFilename());
-        if (!mMapLoaded->save(MapPath, true))
+        generated = mMapLoaded->save(MapPath, true);
+        if (!generated)
             g_Debugger->Error("Failed to save generated map: " + MapPath);
     }
 
-    // Fade out again
+    // Failed generation must not enter gameplay with a partial map.
     Image_FadeOut();
+    if (!generated) {
+        mGame_Data.mCampaign.setRandom(false);
+        return false;
+    }
 
     Map_Load_Sprites();
 
@@ -3989,6 +3994,7 @@ void cFodder::CreateRandom(sMapParams pParams)
     mGame_Data.mMission_Number = 1;
     mGame_Data.mMission_Phase = 1;
     mGame_Data.Phase_Start();
+    return true;
 }
 
 void cFodder::Start()
@@ -4218,7 +4224,8 @@ int16 cFodder::Mission_Loop()
                         ? mStartParams->mRandomMapSeed
                         : (uint32)mRandom.get();
                     sMapParams Params(RandomSeed);
-                    CreateRandom(Params);
+                    if (!CreateRandom(Params))
+                        return -1;
                     mGame_Data.mMission_Recruitment = 0;
                 }
             }

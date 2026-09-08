@@ -33,7 +33,13 @@ const char gPathSeperator = '/';
 
 int main(int argc, char *argv[]) {
 	auto result = start(argc, argv);
-	if (result == -1) {
+    bool unattended = false;
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg(argv[i]);
+        if (arg == "--headless" || arg == "--appveyor" || arg == "--random-save" || arg == "--unit-test-headless")
+            unattended = true;
+    }
+	if (result == -1 && !unattended) {
 		std::cout << "Press enter to continue\n";
 		std::cin.get();
 	}

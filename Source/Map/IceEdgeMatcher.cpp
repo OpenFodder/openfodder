@@ -233,6 +233,9 @@ void Matcher::setAtlas(const std::vector<std::string>& pTileRecords,
                        const std::vector<std::string>& pCharToClass) {
     mTiles.clear();
     mByCenter.clear();
+    mReady = false;
+    mEdgeCompatibility.clear();
+    mEdgeHints.clear();
     for(int i = 0; i < 256; ++i)
         mCharToClass[i] = 0;
     mDefaultClass = 'S';
@@ -261,7 +264,13 @@ void Matcher::setAtlas(const std::vector<std::string>& pTileRecords,
             rec.terrainEdges[2] = rec.edges[2];
             rec.terrainEdges[3] = rec.edges[3];
         }
-        mTiles[id] = rec;
+        bool validEdges = true;
+        for(int d = 0; d < 4; ++d) {
+            if(rec.terrainEdges[d].empty()) rec.terrainEdges[d] = rec.edges[d];
+            if(rec.edges[d].size() != 16 || rec.terrainEdges[d].size() != 16)
+                validEdges = false;
+        }
+        if(validEdges) mTiles[id] = rec;
     }
 
     for(size_t i = 0; i < pByCenter.size(); ++i) {
@@ -290,7 +299,51 @@ void Matcher::setAtlas(const std::vector<std::string>& pTileRecords,
             mCharToClass[(unsigned char)key[0]] = glyph;
     }
 
+    std::vector<std::pair<std::string, std::string>> edges;
+    std::unordered_map<std::string, size_t> edgeIds;
+    for(auto& entry : mTiles) {
+        auto& rec = entry.second;
+        rec.structuralBias = scoreStructuralBias(rec);
+        for(int d = 0; d < 4; ++d) {
+            auto key = rec.edges[d] + "|" + rec.terrainEdges[d];
+            auto inserted = edgeIds.emplace(key, edges.size());
+            if(inserted.second) edges.emplace_back(rec.edges[d], rec.terrainEdges[d]);
+            rec.edgeIds[d] = inserted.first->second;
+        }
+    }
+    const char hints[] = {0, 'S', 'I', 'e', 'W', '.'};
+    mEdgeCompatibility.resize(edges.size() * edges.size());
+    mEdgeHints.resize(edges.size());
+    for(size_t a = 0; a < edges.size(); ++a) {
+        for(size_t h = 0; h < 6; ++h)
+            mEdgeHints[a][h] = scoreEdgeMatch(edges[a].first, nullptr,
+                edges[a].second, nullptr, hints[h]);
+        for(size_t b = 0; b < edges.size(); ++b)
+            mEdgeCompatibility[a * edges.size() + b] = scoreEdgeMatch(
+                edges[a].first, &edges[b].first, edges[a].second, &edges[b].second, 0);
+    }
     mReady = true;
+}
+
+double Matcher::scoreEdge(const TileRec& candidate, int direction,
+                         const TileRec* neighbour, int opposite, char hint) const {
+    int h;
+    switch(hint) {
+    case 0: h = 0; break;
+    case 'S': h = 1; break;
+    case 'I': h = 2; break;
+    case 'e': h = 3; break;
+    case 'W': h = 4; break;
+    case '.': h = 5; break;
+    default:
+        return scoreEdgeMatch(candidate.edges[direction], neighbour ? &neighbour->edges[opposite] : nullptr,
+            candidate.terrainEdges[direction], neighbour ? &neighbour->terrainEdges[opposite] : nullptr, hint);
+    }
+    size_t edge = candidate.edgeIds[direction];
+    // All score components are small exact binary fractions (multiples of 1/16),
+    // so this addition preserves the original score and candidate tie breaking.
+    return mEdgeHints[edge][h] + (neighbour ?
+        mEdgeCompatibility[edge * mEdgeHints.size() + neighbour->edgeIds[opposite]] : 0.0);
 }
 
 // --- matcher --------------------------------------------------------------
@@ -567,15 +620,11 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
         if(!hS) hS = (pY + 1 < pHeight) ? CLASS_AT(pX, pY + 1) : pCls;
         if(!hE) hE = (pX + 1 < pWidth) ? CLASS_AT(pX + 1, pY) : pCls;
 
-        double score = scoreEdgeMatch(rec->edges[0], northRec ? &northRec->edges[2] : nullptr,
-            rec->terrainEdges[0], northRec ? &northRec->terrainEdges[2] : nullptr, hN);
-        score += scoreEdgeMatch(rec->edges[1], eastRec ? &eastRec->edges[3] : nullptr,
-            rec->terrainEdges[1], eastRec ? &eastRec->terrainEdges[3] : nullptr, hE);
-        score += scoreEdgeMatch(rec->edges[2], southRec ? &southRec->edges[0] : nullptr,
-            rec->terrainEdges[2], southRec ? &southRec->terrainEdges[0] : nullptr, hS);
-        score += scoreEdgeMatch(rec->edges[3], westRec ? &westRec->edges[1] : nullptr,
-            rec->terrainEdges[3], westRec ? &westRec->terrainEdges[1] : nullptr, hW);
-        score += scoreStructuralBias(*rec);
+        double score = scoreEdge(*rec, 0, northRec, 2, hN);
+        score += scoreEdge(*rec, 1, eastRec, 3, hE);
+        score += scoreEdge(*rec, 2, southRec, 0, hS);
+        score += scoreEdge(*rec, 3, westRec, 1, hW);
+        score += rec->structuralBias;
         score += (double)(hashTile(pSeed, pX, pY, 4096 + pTileId) & 7) * 0.001;
         return score;
     };
@@ -602,10 +651,6 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
             int westTileId  = (x > 0) ? placed[(size_t)y * pWidth + (x - 1)] : -1;
             const TileRec* northRec = tileRec(northTileId);
             const TileRec* westRec  = tileRec(westTileId);
-            const std::string* northFacing = northRec ? &northRec->edges[2] : nullptr;
-            const std::string* westFacing  = westRec  ? &westRec->edges[1]  : nullptr;
-            const std::string* northTerrainFacing = northRec ? &northRec->terrainEdges[2] : nullptr;
-            const std::string* westTerrainFacing  = westRec  ? &westRec->terrainEdges[1]  : nullptr;
 
             if(!hN) hN = (y > 0) ? CLASS_AT(x, y - 1) : cls;
             if(!hW) hW = (x > 0) ? CLASS_AT(x - 1, y) : cls;
@@ -621,15 +666,11 @@ std::vector<int> Matcher::apply(int pWidth, int pHeight,
                     continue;
                 const TileRec& rec = t->second;
 
-                double score = scoreEdgeMatch(rec.edges[0], northFacing,
-                    rec.terrainEdges[0], northTerrainFacing, hN);
-                score += scoreEdgeMatch(rec.edges[3], westFacing,
-                    rec.terrainEdges[3], westTerrainFacing, hW);
-                score += scoreEdgeMatch(rec.edges[2], nullptr,
-                    rec.terrainEdges[2], nullptr, hS);
-                score += scoreEdgeMatch(rec.edges[1], nullptr,
-                    rec.terrainEdges[1], nullptr, hE);
-                score += scoreStructuralBias(rec);
+                double score = scoreEdge(rec, 0, northRec, 2, hN);
+                score += scoreEdge(rec, 3, westRec, 1, hW);
+                score += scoreEdge(rec, 2, nullptr, 0, hS);
+                score += scoreEdge(rec, 1, nullptr, 0, hE);
+                score += rec.structuralBias;
 
                 double jitter = (double)(hashTile(pSeed, x, y, 4096 + candId) & 7) * 0.001;
                 double total = score + jitter;

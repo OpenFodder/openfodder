@@ -72,7 +72,7 @@ int start(int argc, char *argv[]) {
 		}
 		else if (g_Fodder->mStartParams->mRandomSave) {
 			sMapParams Params(g_Fodder->mRandom.get());
-			g_Fodder->CreateRandom(Params);
+			result = g_Fodder->CreateRandom(Params) ? 0 : -1;
 		}
 		else	{
 			g_Fodder->Start();

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -48,6 +49,8 @@ struct TileRec {
     int    contentsMask = 0;  // 4-bit class set
     std::string edges[4];     // index 0=N 1=E 2=S 3=W ; each 16 chars
     std::string terrainEdges[4];
+    size_t edgeIds[4] = {};
+    double structuralBias = 0;
 };
 
 class Matcher {
@@ -90,6 +93,11 @@ private:
     char mDefaultClass = 'S';
     std::unordered_map<int, TileRec> mTiles;
     std::unordered_map<int, std::vector<int>> mByCenter;  // class glyph -> ordered tile ids
+    // Identical visual/semantic strips share compatibility and hint scores.
+    std::vector<double> mEdgeCompatibility;
+    std::vector<std::array<double, 6>> mEdgeHints;
+    double scoreEdge(const TileRec& candidate, int direction,
+                     const TileRec* neighbour, int opposite, char hint) const;
 };
 
 } // namespace IceEdge

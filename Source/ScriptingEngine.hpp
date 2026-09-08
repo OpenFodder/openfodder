@@ -21,11 +21,13 @@
  */
 
 #include <cstdint>
+#include <memory>
 
 #include "Network/NetworkTypes.hpp"
 
 struct duk_hthread;
 class cRandomMap;
+class cJitScripting;
 
 class cScriptFileIO {
 	std::fstream mStream;
@@ -42,6 +44,8 @@ public:
 
 class cScriptingEngine {
 	duk_hthread *mContext;
+    std::unique_ptr<cJitScripting> mJit;
+    bool mScriptsLoaded = true;
 
 protected:
 
@@ -59,6 +63,8 @@ protected:
 
 
 	bool scriptCall(const std::string& pFilename);
+    std::string scriptRuntime() const;
+    std::string scriptRuntimeLibrary() const;
 	bool scriptRun(const std::string& pJS, const std::string& pFilename);
 	bool scriptsLoadFolder(const std::string& pFolder);
 	void spritesCreateObject();
