@@ -1897,7 +1897,7 @@ void cFodder::Phase_Goals_Check()
             continue;
 
         int16 Data10 = Data20->mSpriteType;
-        if (Data10 == eSprite_Computer_1 || Data10 == eSprite_Computer_2 || Data10 == eSprite_Computer_3 || Data10 == eSprite_BuildingDoor3 || Data10 == eSprite_BuildingDoor_Reinforced)
+        if (Data10 == eSprite_Computer_1 || Data10 == eSprite_Computer_2 || Data10 == eSprite_Computer_3 || Data10 == eSprite_BunkerDoor_HeavyExplosionOnly || Data10 == eSprite_BunkerDoor_ReinforcedHeavyExplosionOnly)
             goto loc_12620;
 
         if (Data10 == eSprite_BuildingDoor2 || Data10 == eSprite_BuildingDoor)

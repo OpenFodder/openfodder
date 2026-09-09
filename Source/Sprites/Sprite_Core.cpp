@@ -1375,7 +1375,9 @@ loc_1B2B6:;
     pSprite->field_43 = -1;
 }
 
-void cFodder::Sprite_Handle_BuildingDoor3(sSprite* pSprite) {
+// Bunker doors ignore the Die1 state produced by ordinary grenades and
+// rockets. Only Explosion2 damage sets Die3 and reaches this destruction path.
+void cFodder::Sprite_Handle_BunkerDoor_HeavyExplosionOnly(sSprite* pSprite) {
     int16 Data0, Data4;
     sSprite* Data2C = 0;
 
@@ -1435,20 +1437,20 @@ loc_1D928:;
     Sprite_Create_Enemy(pSprite, Data2C);
 }
 
-void cFodder::Sprite_Handle_BuildingDoor_Reinforced(sSprite* pSprite) {
+void cFodder::Sprite_Handle_BunkerDoor_ReinforcedHeavyExplosionOnly(sSprite* pSprite) {
     if (pSprite->mAnimState != eSprite_Anim_Die3) {
-        Sprite_Handle_BuildingDoor3(pSprite);
+        Sprite_Handle_BunkerDoor_HeavyExplosionOnly(pSprite);
         return;
     }
 
     if (pSprite->mHeliRestartFrame >= 0x69) {
-        Sprite_Handle_BuildingDoor3(pSprite);
+        Sprite_Handle_BunkerDoor_HeavyExplosionOnly(pSprite);
         return;
     }
 
     pSprite->mHeliRestartFrame += 1;
     pSprite->mAnimState = eSprite_Anim_None;
-    Sprite_Handle_BuildingDoor3(pSprite);
+    Sprite_Handle_BunkerDoor_HeavyExplosionOnly(pSprite);
 }
 
 void cFodder::Sprite_Handle_Computer_1(sSprite* pSprite) {

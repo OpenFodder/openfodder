@@ -1039,7 +1039,7 @@ public:
     void            Sprite_Handle_Turret_Missile2_Enemy(sSprite* pSprite);// 85
     void            Sprite_Handle_Vehicle_Sinking_1(sSprite* pSprite);    // 86
     void            Sprite_Handle_Vehicle_Sinking_2(sSprite* pSprite);    // 87
-    void            Sprite_Handle_BuildingDoor3(sSprite* pSprite);        // 88
+    void            Sprite_Handle_BunkerDoor_HeavyExplosionOnly(sSprite* pSprite);       // 88
     void            Sprite_Handle_Explosion2(sSprite* pSprite);           // 89
 
     void            Sprite_Handle_Door_Civilian_Rescue(sSprite* pSprite);         // 90
@@ -1053,7 +1053,7 @@ public:
     void            Sprite_Handle_Bonus_RankHomingInvin_Squad(sSprite* pSprite);      // 98
     void            Sprite_Handle_Helicopter_CallPad(sSprite* pSprite);               // 99
 
-    void            Sprite_Handle_BuildingDoor_Reinforced(sSprite* pSprite);                                      // 100
+    void            Sprite_Handle_BunkerDoor_ReinforcedHeavyExplosionOnly(sSprite* pSprite);                      // 100
     void            Sprite_Handle_Helicopter_Grenade_Human_Called(sSprite* pSprite); // 101
     void            Sprite_Handle_Helicopter_Unarmed_Human_Called(sSprite* pSprite);  // 102
     void            Sprite_Handle_Helicopter_Missile_Human_Called(sSprite* pSprite);  // 103

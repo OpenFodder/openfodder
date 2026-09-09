@@ -1,23 +1,14 @@
+# Keep the convenience Make target on the supported CMake build path.
+# CMake owns dependency selection and requires SDL3/SDL3_mixer.
+CMAKE ?= cmake
+BUILD_DIR ?= build
+BUILD_TYPE ?= Release
 
-pathInc = -I/usr/include/directfb/direct -I/usr/include/directfb -I./Source/
-Libs = `sdl2-config --cflags`
-DLibs = `sdl2-config --libs` -L/usr/local/lib  -lSDL2_mixer
+.PHONY: all clean
 
-CC = clang++ $(CXXFLAGS) -c -Wall -std=c++14 -ferror-limit=100 $(pathInc) $(Libs)
-LD = clang++ $(LDFLAGS) obj/*.o -lpthread $(DLibs) 
-
-all : fodder
-
-fodder: 	main
-		mv *.o obj/
-		$(LD) -o Run/OpenFodder
-
-main:
-		git log -n 1 --pretty="const char* gitversion=\"%h\";" > ./Source/gitver.hpp
-		$(CC) Source/*.cpp Source/PC/*.cpp Source/Amiga/*.cpp Source/Structures/*.cpp Source/Utils/*.cpp Source/Map/*.cpp
-		mkdir -p obj
+all:
+	$(CMAKE) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+	$(CMAKE) --build $(BUILD_DIR) --config $(BUILD_TYPE)
 
 clean:
-		rm obj/*.o
-
-
+	$(CMAKE) --build $(BUILD_DIR) --target clean --config $(BUILD_TYPE)

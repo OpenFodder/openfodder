@@ -182,7 +182,11 @@ endif()
 
 if(MSVC)
     set_target_properties(openfodder PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>")
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>"
+        # A machine-wide `vcpkg integrate install` otherwise appends every
+        # classic-mode library (including an installed SDL2.lib) to the link.
+        # Dependencies in this project are linked explicitly by CMake.
+        VS_GLOBAL_VcpkgAutoLink false)
     set_target_properties(openfodder PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>")
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT openfodder)
@@ -380,6 +384,14 @@ else()
 endif()
 
 if(WIN32)
+    # SDL2 has not been a runtime dependency since the SDL3 migration. Remove
+    # stale copies left in an existing output directory so they cannot mask an
+    # accidental SDL2 link or be packaged with a new build.
+    add_custom_command(TARGET openfodder POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rm -f
+            "$<TARGET_FILE_DIR:openfodder>/SDL2.dll"
+        COMMENT "Remove obsolete SDL2 runtime DLL")
+
     set(_runtime_dlls "")
     if(TARGET SDL3::SDL3)
         list(APPEND _runtime_dlls $<TARGET_FILE:SDL3::SDL3>)

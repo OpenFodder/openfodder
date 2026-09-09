@@ -109,7 +109,7 @@ enum eSprites {
 	eSprite_Turret_Missile2_Enemy				= 85,
 	eSprite_Vehicle_Sinking_1					= 86,
 	eSprite_Vehicle_Sinking_2					= 87,
-	eSprite_BuildingDoor3						= 88,
+	eSprite_BunkerDoor_HeavyExplosionOnly		= 88,
 	eSprite_Explosion2							= 89,
 
 	eSprite_Door_Civilian_Rescue				= 90,
@@ -123,7 +123,7 @@ enum eSprites {
 	eSprite_Bonus_RankHomingInvin_Squad			= 98,
 	eSprite_Helicopter_CallPad					= 99,
 
-	eSprite_BuildingDoor_Reinforced				= 100,
+	eSprite_BunkerDoor_ReinforcedHeavyExplosionOnly = 100,
 	eSprite_Helicopter_Grenade_Human_Called		= 101,
 	eSprite_Helicopter_Unarmed_Human_Called		= 102,
 	eSprite_Helicopter_Missile_Human_Called		= 103,

@@ -166,7 +166,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Vehicle_Sinking_2 );
 
 	/* 88 */
-	SpriteFunction( BuildingDoor3 );
+	SpriteFunction( BunkerDoor_HeavyExplosionOnly );
 	SpriteFunction( Explosion2 );
 	SpriteFunction( Door_Civilian_Rescue );
 	SpriteFunction( Seal_Mine);
@@ -184,7 +184,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Helicopter_CallPad );
 
 	/* 100 */
-	SpriteFunction( BuildingDoor_Reinforced );
+	SpriteFunction( BunkerDoor_ReinforcedHeavyExplosionOnly );
 	SpriteFunction( Helicopter_Grenade_Human_Called );
 	SpriteFunction( Helicopter_Unarmed_Human_Called );
 	SpriteFunction( Helicopter_Missile_Human_Called );
