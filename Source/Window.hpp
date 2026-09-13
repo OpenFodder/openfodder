@@ -38,6 +38,10 @@ class cWindow {
         bool                mHasFocus;
 		bool				mResized;
 
+		// Bilinear filtering
+		bool				mBilinearFilter;
+		// Bilinear filtering
+
 	protected:
 
 
@@ -105,7 +109,7 @@ class cWindow {
 		void				ToggleVSync(bool pEnabled);
 		float				GetRefreshRate();
 
-
+		
 };
 
 class cWindowNull : public cWindow {

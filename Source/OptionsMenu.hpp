@@ -82,6 +82,10 @@ private:
         OPT_WINDOW_SCALE,
         OPT_INTEGER_SCALING,
 
+        // Bilinear filtering
+        OPT_BILINEAR_FILTERING,
+        // Bilinear filtering
+        
         OPT_ALTERNATE_MOUSE,
         OPT_MOUSE_LOCKED,
         OPT_MOUSE_SPEED,
