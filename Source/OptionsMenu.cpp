@@ -159,10 +159,7 @@ void cOptionsMenu::BuildItems() {
     mItems.push_back({ eOptType::Toggle, eOptSection::Video, "Window mode",     OPT_WINDOW_MODE });
     mItems.push_back({ eOptType::IntRange, eOptSection::Video, "Window scale",    OPT_WINDOW_SCALE, 0, 6, 1 });
     mItems.push_back({ eOptType::Toggle, eOptSection::Video, "Integer scaling", OPT_INTEGER_SCALING });
-
-    // Bilinear filtering
     mItems.push_back({ eOptType::Toggle, eOptSection::Video, "Bilinear filtering", OPT_BILINEAR_FILTERING });
-    // Bilinear filtering
 
     // These were in INI but missing from menu
     //mItems.push_back({ eOptType::IntRange, "Window columns",  OPT_WINDOW_COLUMNS, 0, 80, 1 }); // 0=AUTO
@@ -277,10 +274,7 @@ int cOptionsMenu::GetInt(int optId) const {
             return g_Fodder->mWindow->GetScaler();
         return (int)g_Fodder->mStartParams->mWindowScale;
     case OPT_INTEGER_SCALING:  return g_Fodder->mStartParams->mIntegerScaling ? 1 : 0;
-
-    // Bilinear filtering
     case OPT_BILINEAR_FILTERING: return g_Fodder->mStartParams->mBilinearFilter ? 1 : 0;
-    // Bilinear filtering
 
     case OPT_WINDOW_COLUMNS:   return (int)g_Fodder->mStartParams->mWindowColumns;
     case OPT_WINDOW_ROWS:      return (int)g_Fodder->mStartParams->mWindowRows;
@@ -349,14 +343,12 @@ void cOptionsMenu::SetInt(int optId, int v) {
         break;
     }
 
-    // Bilinear filtering
     case OPT_BILINEAR_FILTERING: {
         g_Fodder->mStartParams->mBilinearFilter = (v != 0);
        if (g_Fodder->mParams)
            g_Fodder->mParams->mBilinearFilter = g_Fodder->mStartParams->mBilinearFilter;
         break;
     }
-    // Bilinear filtering
 
     case OPT_WINDOW_COLUMNS: {
         const int clamped = clamp_int(v, 0, 80);
@@ -710,10 +702,9 @@ void cOptionsMenu::ResetDefaults() {
     mApplied = true;
     g_Fodder->mStartParams->SaveIni();
 
-    // Bilinear filtering - reset to default (false) for current parameters same as toggling the menu option but forcing false since bilinear filtering is OFF by default
+    // Reset bilinear filtering to false (default value) for current parameters same as toggling the menu option but forcing false since bilinear filtering is OFF by default
     if (g_Fodder->mParams)
         g_Fodder->mParams->mBilinearFilter = false;
-    // Bilinear filtering
 }
 
 void cOptionsMenu::OnRowClick(int16 action, int16 arg) {

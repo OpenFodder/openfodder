@@ -37,10 +37,7 @@ class cWindow {
 		bool				mWindowMode;
         bool                mHasFocus;
 		bool				mResized;
-
-		// Bilinear filtering
 		bool				mBilinearFilter;
-		// Bilinear filtering
 
 	protected:
 
