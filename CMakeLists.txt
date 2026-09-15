@@ -412,4 +412,6 @@ if(WIN32)
                 "$<TARGET_FILE_DIR:openfodder>"
             COMMENT "Copy SDL runtime DLLs to output directory")
     endif()
+
+    target_link_libraries(openfodder PRIVATE ws2_32)
 endif()
