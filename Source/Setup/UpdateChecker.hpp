@@ -56,7 +56,7 @@ public:
         QueryDoneNoUpdate,     // Worker done; we're up to date. Pump emits "latest" toast.
         QueryDoneNewer,        // Worker done; updates exist. Pump emits the install prompt.
         InstallRunning,        // User accepted. Worker downloading + extracting.
-        InstallDoneOk,         // Install succeeded. Pump emits success + g_ResourceMan->refresh.
+        InstallDoneOk,         // Pump refreshes resources and reloads installed scripts.
         InstallDoneFailed,     // Query OR install failed. Pump emits the captured error.
     };
 
@@ -81,7 +81,7 @@ public:
     // font's preferred casing.
     std::string StatusLine() const;
 
-    // True while a worker thread is running. The caller may want to gate
+    // True until a worker's result has been applied on the main thread. Gates
     // re-entry on this (we already do internally in StartQuery), but it's
     // also useful for "grey out the UPDATE button" affordances.
     bool IsBusy() const;
@@ -93,6 +93,8 @@ private:
     void RunQueryWorker();
     void RunInstallWorker();
     void JoinWorker();
+    void Fail(const std::string& pMessage);
+    bool ApplyInstalledContent();
 
     // ---------------------------------------------------------------------
     // State. mState is the only field touched by both threads — everything
@@ -116,6 +118,8 @@ private:
     int                mInstalledScriptVer = 0;
     bool               mDataNewer          = false;
     bool               mScriptNewer        = false;
+    bool               mDataInstalled      = false;
+    bool               mScriptsInstalled   = false;
     std::string        mDataTargetDir;
     std::string        mScriptsTargetDir;
 

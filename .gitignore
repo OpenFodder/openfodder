@@ -360,3 +360,6 @@ Projects/emscripten/.emsdk_cache/
 /Projects/VS32
 /Documentation
 /MapDumps
+/MapDumps_Originals
+/MapDumps
+/Tests

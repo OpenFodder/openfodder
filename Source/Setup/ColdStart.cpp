@@ -35,7 +35,12 @@ namespace Setup {
 
 ColdStartChoice ColdStartPrompt::PromptIfNoData()
 {
-    if (g_ResourceMan && g_ResourceMan->isDataAvailable())
+    const bool haveData = g_ResourceMan && g_ResourceMan->isDataAvailable();
+    const bool haveScripts = g_ResourceMan &&
+        !g_ResourceMan->GetScriptPath("Settings.js").empty() &&
+        !g_ResourceMan->GetScriptPath("Common/OpenFodder.js").empty() &&
+        !g_ResourceMan->GetScriptPath("random.js").empty();
+    if (haveData && haveScripts)
         return ColdStartChoice::Continue;
 
     // Flatpak sandbox: refuse the auto-download path. The Flatpak ships
@@ -45,7 +50,7 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
     // extension version. Tell the user how to fix it manually.
     if (InstallPaths::IsFlatpak()) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenFodder",
-            "OpenFodder cannot find any game data.\n\n"
+            "OpenFodder cannot find its game data or scripts.\n\n"
             "This Flatpak install is missing its data files.\n"
             "Try:  flatpak repair --user org.openfodder.OpenFodder\n\n"
             "Or reinstall from Flathub:\n"
@@ -60,12 +65,12 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
     };
     SDL_MessageBoxData mb = { SDL_MESSAGEBOX_INFORMATION, nullptr,
         "OpenFodder",
-        "OpenFodder cannot find any game data.\n\n"
+        "OpenFodder cannot find its game data or scripts.\n\n"
         "Download the latest demo data and scripts from GitHub now?\n\n"
         "(About 10-15 MB total; requires an internet connection.)",
         SDL_arraysize(buttons), buttons, nullptr };
     int picked = -1;
-    if (!SDL_ShowMessageBox(&mb, &picked) || picked == 0)
+    if (!SDL_ShowMessageBox(&mb, &picked) || picked != 1)
         return ColdStartChoice::Quit;
 
     // Per-platform install root. On a portable layout (dev checkout,
@@ -78,7 +83,7 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
     const InstallTargets targets = InstallPaths::Resolve();
 
     std::string err;
-    if (!RunDownload(targets.mDataDir, targets.mScriptsDir, err)) {
+    if (!RunDownload(targets.mDataDir, targets.mScriptsDir, err, !haveData)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenFodder",
             ("Download failed:\n\n" + err).c_str(), nullptr);
         return ColdStartChoice::Quit;
@@ -92,18 +97,18 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
 
 bool ColdStartPrompt::RunDownload(const std::string& pDataTargetDir,
                                   const std::string& pScriptsTargetDir,
-                                  std::string& pError)
+                                  std::string& pError, bool pNeedData)
 {
     DataRelease release;
 
     // Data repo — the on-disk file tree. Without this the engine has
     // nothing to render.
     ReleaseManifest dataManifest;
-    if (!release.QueryLatest(DataRelease::DataRepoOwner(), DataRelease::DataRepoName(), dataManifest)) {
+    if (pNeedData && !release.QueryLatest(DataRelease::DataRepoOwner(), DataRelease::DataRepoName(), dataManifest)) {
         pError = "data: " + release.LastError();
         return false;
     }
-    if (!release.FetchAndInstall(dataManifest, pDataTargetDir)) {
+    if (pNeedData && !release.FetchAndInstall(dataManifest, pDataTargetDir)) {
         pError = "data: " + release.LastError();
         return false;
     }
@@ -117,6 +122,17 @@ bool ColdStartPrompt::RunDownload(const std::string& pDataTargetDir,
     if (!release.QueryLatest(DataRelease::ScriptsRepoOwner(), DataRelease::ScriptsRepoName(), scriptManifest)) {
         pError = "scripts: " + release.LastError();
         return false;
+    }
+    // ResourceMan recognises a search root by its Data/ directory. When game
+    // data lives in a read-only system root, a scripts-only per-user repair
+    // still needs this empty directory so the installed scripts are discoverable.
+    if (!pNeedData) {
+        std::error_code error;
+        std::filesystem::create_directories(pDataTargetDir, error);
+        if (error) {
+            pError = "could not prepare script resource root: " + error.message();
+            return false;
+        }
     }
     if (!release.FetchAndInstall(scriptManifest, pScriptsTargetDir)) {
         pError = "scripts: " + release.LastError();

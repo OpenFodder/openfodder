@@ -25,6 +25,10 @@
 #include "Utils/SimplexNoise.hpp"
 #include "Map/Random.hpp"
 #include "JitScripting.hpp"
+#include "Setup/DataRelease.hpp"
+#include "Setup/EngineVersion.hpp"
+#include <filesystem>
+#include <stdexcept>
 #ifdef OF_JS_DEBUG
 #include "Utils/duk_trans_socket.h"
 #endif
@@ -207,6 +211,25 @@ cScriptingEngine::cScriptingEngine() {
 	mContext = duk_create_heap_default();
 
 	init();
+    // Legacy/manual script trees may lack a manifest. When a manifest is
+    // supplied, reject damaged or incompatible metadata before executing JS.
+    try {
+        const auto root = g_ResourceMan->GetScriptPath("");
+        if (root.empty())
+            throw std::runtime_error("Scripts directory is missing");
+        if (std::filesystem::exists(std::filesystem::path(root) / "installed.json")) {
+            Setup::DataRelease release;
+            int dv = 0, sv = 0;
+            if (!release.ReadInstalledManifest(root, dv, sv))
+                throw std::runtime_error(release.LastError());
+            if (!Setup::IsScriptVersionCompatible(sv))
+                throw std::runtime_error("Installed scripts are incompatible with this engine (version " + std::to_string(sv) + ")");
+        }
+    } catch (const std::exception& ex) {
+        mScriptsLoaded = false;
+        g_Debugger->Error(ex.what());
+        return;
+    }
     const bool requireJit = std::ifstream("mapgen_jit.flag").good();
     if(!std::ifstream("mapgen_interpreter.flag").good() && !g_Fodder->mStartParams->mDebugger) {
         auto jit = std::make_unique<cJitScripting>(mContext);
@@ -253,7 +276,8 @@ cScriptingEngine::cScriptingEngine() {
 	scriptsLoadFolder("MapGen/Integration/");
 
 	scriptsLoadFolder("Scenarios/");
-	Run("Settings.js");
+    if (!Run("Settings.js"))
+        mScriptsLoaded = false;
 }
 
 cScriptingEngine::~cScriptingEngine() {

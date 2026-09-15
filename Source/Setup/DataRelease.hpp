@@ -35,12 +35,12 @@ namespace Setup {
 //
 // Lifecycle:
 //   1. QueryLatest(owner, repo, &manifest)  — hits the GitHub releases API,
-//      identifies the .zip and (optional) compat.json assets, and populates
+//      identifies the .zip and required compat.json assets, and populates
 //      a ReleaseManifest with tag, notes, archive URL, and version numbers.
 //   2. FetchAndInstall(manifest, targetDir, ...) — version-gates the
 //      manifest against EngineVersion's [Min,Max] window, downloads the
-//      archive into targetDir/.openfodder_release.tmp.zip, extracts to
-//      targetDir, removes the temp file, and writes installed.json.
+//      archive into a sibling staging directory, validates the archive,
+//      and publishes the replacement tree with installed.json and rollback.
 //   3. ReadInstalledManifest(targetDir, &dv, &sv) — reads installed.json
 //      back so the setup wizard can show "currently installed: X" and
 //      decide whether an upgrade is needed.
@@ -55,7 +55,7 @@ struct ReleaseManifest {
     std::string mTagName;
     std::string mReleaseNotes;
     std::string mArchiveUrl;        // .zip asset URL
-    std::string mCompatUrl;         // compat.json asset URL (optional, may be empty)
+    std::string mCompatUrl;         // compat.json asset URL
     int         mDataVersion = 0;
     int         mScriptVersion = 0;
 };
@@ -69,12 +69,13 @@ public:
 
     // Hit GitHub's releases API for the given repo and populate pOut. Returns
     // false on network error, non-2xx status, malformed JSON, or a release
-    // that has no .zip asset attached. mDataVersion / mScriptVersion are 0
-    // if no compat.json asset is present — caller decides whether that's
-    // acceptable (FetchAndInstall treats 0 as "skip the gate").
+    // that has no .zip or compat.json asset. Metadata must contain a positive
+    // version for the requested repository; the other subtree may be zero.
     bool QueryLatest(const std::string& pOwner, const std::string& pRepo, ReleaseManifest& pOut);
 
-    // Version-gate, download, extract, and write installed.json.
+    // Version-gate, stage and validate the download, then replace the target.
+    // Existing local files are preserved. Failed publication restores the old
+    // tree; if restoration is blocked, LastError identifies the retained backup.
     bool FetchAndInstall(const ReleaseManifest& pManifest,
                          const std::string& pTargetDir,
                          ProgressCallback pHttpProgress = {},

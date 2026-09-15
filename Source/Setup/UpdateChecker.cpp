@@ -29,6 +29,8 @@
 #include <SDL3/SDL.h>
 
 #include <utility>
+#include <filesystem>
+#include <stdexcept>
 
 namespace Setup {
 
@@ -48,7 +50,7 @@ void UpdateChecker::JoinWorker() {
 
 bool UpdateChecker::IsBusy() const {
     const State s = mState.load(std::memory_order_acquire);
-    return s == State::QueryRunning || s == State::InstallRunning;
+    return s != State::Idle;
 }
 
 std::string UpdateChecker::StatusLine() const {
@@ -71,7 +73,7 @@ std::string UpdateChecker::StatusLine() const {
     return {};
 }
 
-void UpdateChecker::StartQuery() {
+void UpdateChecker::StartQuery() try {
     // Flatpak: refuse the in-app update path. Updates flow through the
     // Flatpak runtime (`flatpak update org.openfodder.OpenFodder`); a
     // direct GitHub fetch would put the data tree out of sync with the
@@ -111,30 +113,34 @@ void UpdateChecker::StartQuery() {
         mErrorMessage.clear();
     }
     mProgressPercent.store(0, std::memory_order_relaxed);
+    mDataInstalled = false;
+    mScriptsInstalled = false;
 
     JoinWorker(); // safe — last worker has fully exited if state was Idle.
     mWorker = std::thread([this] { RunQueryWorker(); });
+} catch (const std::exception& ex) {
+    Fail(std::string("Could not start update check: ") + ex.what());
 }
 
-void UpdateChecker::RunQueryWorker() {
-    auto fail = [this](const std::string& pMessage) {
-        {
-            std::lock_guard<std::mutex> lk(mStringMutex);
-            mErrorMessage = pMessage;
-        }
-        mState.store(State::InstallDoneFailed, std::memory_order_release);
-    };
+void UpdateChecker::Fail(const std::string& pMessage) {
+    {
+        std::lock_guard<std::mutex> lk(mStringMutex);
+        mErrorMessage = pMessage;
+    }
+    mState.store(State::InstallDoneFailed, std::memory_order_release);
+}
 
+void UpdateChecker::RunQueryWorker() try {
     if (!mRelease.QueryLatest(DataRelease::DataRepoOwner(),
                               DataRelease::DataRepoName(),
                               mDataManifest)) {
-        fail("Could not check data repo: " + mRelease.LastError());
+        Fail("Could not check data repo: " + mRelease.LastError());
         return;
     }
     if (!mRelease.QueryLatest(DataRelease::ScriptsRepoOwner(),
                               DataRelease::ScriptsRepoName(),
                               mScriptManifest)) {
-        fail("Could not check scripts repo: " + mRelease.LastError());
+        Fail("Could not check scripts repo: " + mRelease.LastError());
         return;
     }
 
@@ -144,8 +150,12 @@ void UpdateChecker::RunQueryWorker() {
     int scriptsIgnored = 0;
     mInstalledDataVer = 0;
     mInstalledScriptVer = 0;
-    mRelease.ReadInstalledManifest(mDataTargetDir,    mInstalledDataVer,   dataIgnored);
-    mRelease.ReadInstalledManifest(mScriptsTargetDir, scriptsIgnored,     mInstalledScriptVer);
+    const bool haveDataRecord = mRelease.ReadInstalledManifest(mDataTargetDir, mInstalledDataVer, dataIgnored);
+    if (!haveDataRecord && std::filesystem::exists(std::filesystem::path(mDataTargetDir) / "installed.json"))
+        throw std::runtime_error(mRelease.LastError());
+    const bool haveScriptRecord = mRelease.ReadInstalledManifest(mScriptsTargetDir, scriptsIgnored, mInstalledScriptVer);
+    if (!haveScriptRecord && std::filesystem::exists(std::filesystem::path(mScriptsTargetDir) / "installed.json"))
+        throw std::runtime_error(mRelease.LastError());
 
     mDataNewer   = (mDataManifest.mDataVersion > mInstalledDataVer)
                 && IsDataVersionCompatible(mDataManifest.mDataVersion);
@@ -158,17 +168,13 @@ void UpdateChecker::RunQueryWorker() {
         mState.store(State::QueryDoneNewer, std::memory_order_release);
     else
         mState.store(State::QueryDoneNoUpdate, std::memory_order_release);
+} catch (const std::exception& ex) {
+    Fail(std::string("Update check failed: ") + ex.what());
+} catch (...) {
+    Fail("Update check failed unexpectedly.");
 }
 
-void UpdateChecker::RunInstallWorker() {
-    auto fail = [this](const std::string& pMessage) {
-        {
-            std::lock_guard<std::mutex> lk(mStringMutex);
-            mErrorMessage = pMessage;
-        }
-        mState.store(State::InstallDoneFailed, std::memory_order_release);
-    };
-
+void UpdateChecker::RunInstallWorker() try {
     // Wire HTTP progress through to the status-line atomic. We never read
     // pTotal — releases sized in the tens of megabytes overflow our int
     // doubling check less than progress accuracy is worth.
@@ -183,19 +189,50 @@ void UpdateChecker::RunInstallWorker() {
     if (mDataNewer) {
         mProgressPercent.store(0, std::memory_order_relaxed);
         if (!mRelease.FetchAndInstall(mDataManifest, mDataTargetDir, httpProgress)) {
-            fail("Data install failed: " + mRelease.LastError());
+            Fail("Data install failed: " + mRelease.LastError());
             return;
         }
+        mDataInstalled = true;
     }
     if (mScriptNewer) {
         mProgressPercent.store(0, std::memory_order_relaxed);
         if (!mRelease.FetchAndInstall(mScriptManifest, mScriptsTargetDir, httpProgress)) {
-            fail("Scripts install failed: " + mRelease.LastError());
+            Fail("Scripts install failed: " + mRelease.LastError());
             return;
         }
     }
 
+    mScriptsInstalled = mScriptNewer;
     mState.store(State::InstallDoneOk, std::memory_order_release);
+} catch (const std::exception& ex) {
+    Fail(std::string("Update install failed: ") + ex.what());
+} catch (...) {
+    Fail("Update install failed unexpectedly.");
+}
+
+bool UpdateChecker::ApplyInstalledContent() {
+    if (!mDataInstalled && !mScriptsInstalled)
+        return true;
+    if (mScriptsInstalled && g_ScriptingEngine)
+        g_ScriptingEngine->Disable();
+    if (g_ResourceMan)
+        g_ResourceMan->refresh();
+    if (mScriptsInstalled) {
+        const auto activeRoot = g_ResourceMan ? g_ResourceMan->GetScriptPath("") : std::string{};
+        if (activeRoot.empty() || !std::filesystem::equivalent(activeRoot, mScriptsTargetDir))
+            throw std::runtime_error("Scripts were installed to " + mScriptsTargetDir +
+                ", but a different scripts folder is active. Check your configured resource paths before generating maps.");
+        // The worker has joined and About still owns the main thread. Drop
+        // all old bindings together; new entry points must never use old JS.
+        // On a load error the replacement stays disabled, so generation cannot
+        // fall back to a mismatched old runtime.
+        g_ScriptingEngine = std::make_shared<cScriptingEngine>();
+        mScriptsInstalled = false;
+        if (!g_ScriptingEngine->IsLoaded())
+            throw std::runtime_error("Scripts were installed but could not be loaded. Reinstall compatible scripts before generating maps.");
+    }
+    mDataInstalled = false;
+    return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -204,7 +241,7 @@ void UpdateChecker::RunInstallWorker() {
 // the worker thread (SDL message boxes must run on the main thread on
 // Windows or they spawn a window from the wrong queue).
 // ---------------------------------------------------------------------------
-void UpdateChecker::Pump() {
+void UpdateChecker::Pump() try {
     const State s = mState.load(std::memory_order_acquire);
 
     switch (s) {
@@ -266,8 +303,7 @@ void UpdateChecker::Pump() {
 
         case State::InstallDoneOk: {
             JoinWorker();
-            if (g_ResourceMan)
-                g_ResourceMan->refresh();
+            ApplyInstalledContent();
 
             std::string done = "Updated to";
             if (mDataNewer)
@@ -288,6 +324,9 @@ void UpdateChecker::Pump() {
 
         case State::InstallDoneFailed: {
             JoinWorker();
+            // A data update may have succeeded before the scripts download
+            // failed. Refresh that completed update even on the failure path.
+            ApplyInstalledContent();
             std::string err;
             {
                 std::lock_guard<std::mutex> lk(mStringMutex);
@@ -303,6 +342,14 @@ void UpdateChecker::Pump() {
             return;
         }
     }
+} catch (const std::exception& ex) {
+    mDataInstalled = false;
+    mScriptsInstalled = false;
+    Fail(std::string("Could not apply update: ") + ex.what());
+} catch (...) {
+    mDataInstalled = false;
+    mScriptsInstalled = false;
+    Fail("Could not apply update.");
 }
 
 } // namespace Setup

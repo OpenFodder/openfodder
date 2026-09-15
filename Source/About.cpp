@@ -148,8 +148,12 @@ bool cAbout::Cycle() {
         g_Fodder->GUI_Button_Draw_Small("UPDATE", 0x9C + PLATFORM_BASED(0, 25));
         g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_About_Update);
 
-        g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + PLATFORM_BASED(0, 25));
-        g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
+        // Do not resume gameplay while files are being published or before
+        // the main thread has reloaded the installed scripts.
+        if (!Setup::UpdateChecker::Instance().IsBusy()) {
+            g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + PLATFORM_BASED(0, 25));
+            g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
+        }
 
         // Status line below the buttons — empty when no work is in
         // flight, "CHECKING FOR UPDATES..." or "INSTALLING 45%" while
@@ -162,7 +166,7 @@ bool cAbout::Cycle() {
             g_Fodder->String_Print_Small(status, 0xCA + PLATFORM_BASED(0, 25));
     }
 
-    if (g_Fodder->mPhase_Aborted)
+    if (g_Fodder->mPhase_Aborted && !Setup::UpdateChecker::Instance().IsBusy())
         g_Fodder->GUI_Button_Load_Exit();
 
     if (g_Fodder->mMouse_Button_Left_Toggle) {
@@ -183,7 +187,8 @@ bool cAbout::Cycle() {
     g_Fodder->mWindow->RenderAt(g_Fodder->mSurface);
     //g_Fodder->Video_SurfaceRender(false, false, 0, false);
 
-    if (g_Fodder->mGUI_SaveLoadAction == 1 && !g_Fodder->mSurface->isPaletteAdjusting())
+    if (g_Fodder->mGUI_SaveLoadAction == 1 && !g_Fodder->mSurface->isPaletteAdjusting()
+        && !Setup::UpdateChecker::Instance().IsBusy())
         return false;
 
     return true;

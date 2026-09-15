@@ -106,4 +106,6 @@ public:
 	duk_hthread *getContext() { return mContext; }
 
 	bool Run(const std::string& pScript);
+    bool IsLoaded() const { return mScriptsLoaded; }
+    void Disable() { mScriptsLoaded = false; }
 };

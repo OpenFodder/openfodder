@@ -32,7 +32,7 @@ enum class ColdStartChoice : uint8_t { Continue, Download, Quit };
 class ColdStartPrompt {
 public:
     // Called early in startup AFTER SDL_Init(SDL_INIT_VIDEO) but BEFORE
-    // window creation. If g_ResourceMan->isDataAvailable() is already true,
+    // window creation. If game data and the essential scripts are available,
     // returns Continue without showing any UI.
     //
     // If no data available, shows an SDL_ShowMessageBox asking the user
@@ -57,10 +57,10 @@ private:
     // pError is populated with a human-readable message and false is
     // returned. The half-installed state (data succeeded, scripts failed)
     // is acceptable — the caller will surface the error and quit; the
-    // user's next launch will see partial data and can retry.
+    // user's next launch detects missing scripts and retries just that install.
     static bool RunDownload(const std::string& pDataTargetDir,
                             const std::string& pScriptsTargetDir,
-                            std::string& pError);
+                            std::string& pError, bool pNeedData);
 };
 
 } // namespace Setup
