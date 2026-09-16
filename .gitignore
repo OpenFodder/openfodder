@@ -358,8 +358,11 @@ Projects/emscripten/build-ems/
 Projects/emscripten/.emsdk_cache/
 /Projects/VS
 /Projects/VS32
+/Projects/VS-vcpkg-*
 /Documentation
 /MapDumps
 /MapDumps_Originals
 /MapDumps
-/Tests
+/Tests/*
+!/Tests/AudioMixer/
+!/Tests/VideoMPEG/

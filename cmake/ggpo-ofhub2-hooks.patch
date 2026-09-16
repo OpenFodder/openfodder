@@ -1,0 +1,252 @@
+diff --git a/src/include/ggponet.h b/src/include/ggponet.h
+index f814607..1464a2d 100644
+--- a/src/include/ggponet.h
++++ b/src/include/ggponet.h
+@@ -540,6 +540,46 @@ GGPO_API GGPOErrorCode __cdecl ggpo_set_disconnect_timeout(GGPOSession *,
+ GGPO_API GGPOErrorCode __cdecl ggpo_set_disconnect_notify_start(GGPOSession *,
+                                                                 int timeout);
+ 
++/*
++ * ggpo_p2p_install_ofhub_hooks --
++ *
++ * Install OFHUB/2 wrap/unwrap callbacks on the session's UDP socket.
++ * Every outbound packet is run through `wrap` before sendto(); every
++ * inbound datagram is run through `unwrap` before being delivered to
++ * the GGPO callbacks. Pass NULL for both wrap and unwrap to disable.
++ *
++ * The function-pointer types here are intentionally written out
++ * inline (rather than referencing OfhubWrapFn/OfhubUnwrapFn from the
++ * internal udp.h) so this public header has no dependency on the
++ * internal tree. They are structurally identical and assignment-
++ * compatible across the boundary.
++ *
++ * `unwrap` receives a mutable pointer to the recvfrom() sockaddr so
++ * the OFHUB/2 layer can rewrite source addresses to a per-peer
++ * synthetic value, preserving GGPO's "address == endpoint identity"
++ * invariant under hub fan-out (every datagram arrives from the shared
++ * hub address otherwise). `wrap` symmetrically receives a mutable
++ * pointer to the sendto() destination sockaddr so the OFHUB/2 layer
++ * can rewrite the per-peer synthetic destination back to the real hub
++ * address before the syscall (otherwise sendto() would deliver to
++ * 127.0.0.<i+1> instead of the hub). `struct sockaddr_in` is forward-
++ * declared so this public header still has no winsock/posix-sockets
++ * dependency; callers include the appropriate sockets header before
++ * defining the callback body.
++ *
++ * Returns GGPO_OK on success. Returns GGPO_ERRORCODE_INVALID_SESSION
++ * when `session` is NULL, or GGPO_ERRORCODE_INVALID_REQUEST when the
++ * session is not a peer-to-peer session (sync-test and spectator
++ * sessions either have no Udp instance or no remote peer to frame
++ * traffic to).
++ */
++struct sockaddr_in;
++GGPO_API GGPOErrorCode __cdecl ggpo_p2p_install_ofhub_hooks(
++        GGPOSession *session,
++        int (*wrap)(void *ctx, const char *in, int inLen, char *outBuffer, int capacity, struct sockaddr_in *dst_inout),
++        int (*unwrap)(void *ctx, const char *in, int inLen, char *outBuffer, int capacity, struct sockaddr_in *recv_addr_inout),
++        void *ctx);
++
+ /*
+  * ggpo_log --
+  *
+diff --git a/src/lib/ggpo/backends/p2p.h b/src/lib/ggpo/backends/p2p.h
+index f400f83..0289346 100644
+--- a/src/lib/ggpo/backends/p2p.h
++++ b/src/lib/ggpo/backends/p2p.h
+@@ -36,6 +36,11 @@ public:
+ public:
+    virtual void OnMsg(sockaddr_in &from, UdpMsg *msg, int len);
+ 
++   // OFHUB/2 hook installation: expose the internal Udp instance so
++   // the public ggpo_p2p_install_ofhub_hooks() entry point can wire
++   // wrap/unwrap callbacks without poking at private state.
++   Udp& GetUdp() { return _udp; }
++
+ protected:
+    GGPOErrorCode PlayerHandleToQueue(GGPOPlayerHandle player, int *queue);
+    GGPOPlayerHandle QueueToPlayerHandle(int queue) { return (GGPOPlayerHandle)(queue + 1); }
+diff --git a/src/lib/ggpo/main.cpp b/src/lib/ggpo/main.cpp
+index 01b6e6a..7451b3c 100644
+--- a/src/lib/ggpo/main.cpp
++++ b/src/lib/ggpo/main.cpp
+@@ -206,3 +206,20 @@ GGPOErrorCode ggpo_start_spectating(GGPOSession **session,
+    return GGPO_OK;
+ }
+ 
++GGPOErrorCode
++ggpo_p2p_install_ofhub_hooks(GGPOSession *ggpo,
++                             int (*wrap)(void *ctx, const char *in, int inLen, char *outBuffer, int capacity, struct sockaddr_in *dst_inout),
++                             int (*unwrap)(void *ctx, const char *in, int inLen, char *outBuffer, int capacity, struct sockaddr_in *recv_addr_inout),
++                             void *ctx)
++{
++   if (!ggpo) {
++      return GGPO_ERRORCODE_INVALID_SESSION;
++   }
++   Peer2PeerBackend *p2p = dynamic_cast<Peer2PeerBackend *>(ggpo);
++   if (!p2p) {
++      return GGPO_ERRORCODE_INVALID_REQUEST;
++   }
++   p2p->GetUdp().InstallOfhubHooks((OfhubWrapFn)wrap, (OfhubUnwrapFn)unwrap, ctx);
++   return GGPO_OK;
++}
++
+diff --git a/src/lib/ggpo/network/udp.cpp b/src/lib/ggpo/network/udp.cpp
+index 5c22504..ea605b0 100644
+--- a/src/lib/ggpo/network/udp.cpp
++++ b/src/lib/ggpo/network/udp.cpp
+@@ -39,7 +39,11 @@ CreateSocket(uint16 bind_port, int retries)
+ 
+ Udp::Udp() :
+    _socket(INVALID_SOCKET),
+-   _callbacks(NULL)
++   _callbacks(NULL),
++   _poll(NULL),
++   _ofhub_wrap(NULL),
++   _ofhub_unwrap(NULL),
++   _ofhub_ctx(NULL)
+ {
+ }
+ 
+@@ -68,14 +72,34 @@ Udp::SendTo(char *buffer, int len, int flags, struct sockaddr *dst, int destlen)
+ {
+    struct sockaddr_in *to = (struct sockaddr_in *)dst;
+ 
+-   int res = sendto(_socket, buffer, len, flags, dst, destlen);
++   char *send_buf = buffer;
++   int   send_len = len;
++   unsigned char wrap_buf[MAX_UDP_PACKET_SIZE + 64];
++   if (_ofhub_wrap) {
++      // Pass `to` (== sockaddr_in* aliased over dst) so the wrap
++      // callback can rewrite the sendto() destination to the real hub
++      // address. GGPO caches each UdpProtocol's _peer_addr from the
++      // synthetic 127.0.0.<i+1> address registered via ggpo_add_player
++      // (see OfhubUnwrapFn doc above and HandlesMsg spike §4 option
++      // (b)); without rewriting `dst` here, sendto() would deliver to
++      // localhost loopback instead of the hub.
++      int wrapped = _ofhub_wrap(_ofhub_ctx, buffer, len, (char *)wrap_buf, sizeof(wrap_buf), to);
++      if (wrapped <= 0) {
++         Log("ofhub wrap dropped outbound packet (len=%d).\n", len);
++         return;
++      }
++      send_buf = (char *)wrap_buf;
++      send_len = wrapped;
++   }
++
++   int res = sendto(_socket, send_buf, send_len, flags, dst, destlen);
+    if (res == SOCKET_ERROR) {
+       DWORD err = WSAGetLastError();
+       Log("unknown error in sendto (erro: %d  wsaerr: %d).\n", res, err);
+       ASSERT(FALSE && "Unknown error in sendto");
+    }
+    char dst_ip[1024];
+-   Log("sent packet length %d to %s:%d (ret:%d).\n", len, inet_ntop(AF_INET, (void *)&to->sin_addr, dst_ip, ARRAY_SIZE(dst_ip)), ntohs(to->sin_port), res);
++   Log("sent packet length %d to %s:%d (ret:%d).\n", send_len, inet_ntop(AF_INET, (void *)&to->sin_addr, dst_ip, ARRAY_SIZE(dst_ip)), ntohs(to->sin_port), res);
+ }
+ 
+ bool
+@@ -100,13 +124,37 @@ Udp::OnLoopPoll(void *cookie)
+       } else if (len > 0) {
+          char src_ip[1024];
+          Log("recvfrom returned (len:%d  from:%s:%d).\n", len, inet_ntop(AF_INET, (void*)&recv_addr.sin_addr, src_ip, ARRAY_SIZE(src_ip)), ntohs(recv_addr.sin_port) );
+-         UdpMsg *msg = (UdpMsg *)recv_buf;
+-         _callbacks->OnMsg(recv_addr, msg, len);
+-      } 
++         UdpMsg *msg     = (UdpMsg *)recv_buf;
++         int     msg_len = len;
++         unsigned char unwrap_buf[MAX_UDP_PACKET_SIZE];
++         if (_ofhub_unwrap) {
++            // Pass &recv_addr so the unwrap callback can rewrite the
++            // source address to a per-peer synthetic (see OfhubUnwrapFn
++            // doc in udp.h). Otherwise every endpoint shares the hub's
++            // sockaddr and Peer2PeerBackend::OnMsg's HandlesMsg loop
++            // misroutes traffic at N>2 peers.
++            int unwrapped = _ofhub_unwrap(_ofhub_ctx, (const char *)recv_buf, len, (char *)unwrap_buf, sizeof(unwrap_buf), &recv_addr);
++            if (unwrapped <= 0) {
++               Log("ofhub unwrap dropped inbound datagram (len=%d).\n", len);
++               continue;
++            }
++            msg     = (UdpMsg *)unwrap_buf;
++            msg_len = unwrapped;
++         }
++         _callbacks->OnMsg(recv_addr, msg, msg_len);
++      }
+    }
+    return true;
+ }
+ 
++void
++Udp::InstallOfhubHooks(OfhubWrapFn wrap, OfhubUnwrapFn unwrap, void *ctx)
++{
++   _ofhub_wrap   = wrap;
++   _ofhub_unwrap = unwrap;
++   _ofhub_ctx    = ctx;
++}
++
+ 
+ void
+ Udp::Log(const char *fmt, ...)
+diff --git a/src/lib/ggpo/network/udp.h b/src/lib/ggpo/network/udp.h
+index be9d975..ea75757 100644
+--- a/src/lib/ggpo/network/udp.h
++++ b/src/lib/ggpo/network/udp.h
+@@ -13,6 +13,38 @@
+ #include "ggponet.h"
+ #include "ring_buffer.h"
+ 
++// OFHUB/2 binary data-plane wrap/unwrap hooks (see openfodder-hub
++// docs/OFHUB2.md §6 and openfodder Source/Network/HubFrame.{cpp,hpp}).
++// When installed via Udp::InstallOfhubHooks(), every outbound packet is
++// passed through `wrap` before ::sendto and every inbound datagram is
++// passed through `unwrap` before being delivered to the GGPO callbacks.
++// Both functions take an opaque ctx, an input buffer + length, and a
++// caller-owned output buffer + capacity. `wrap` returns the framed
++// length on success or 0 to drop the packet. `unwrap` returns the
++// verified payload length on success or 0 to drop the datagram (replay,
++// bad MAC, malformed header). When the hooks are not installed
++// (default), Udp falls through to plain UDP behaviour.
++//
++// `unwrap` additionally receives a mutable pointer to the recvfrom()
++// sockaddr. Under OFHUB/2 fan-out every datagram arrives from the
++// shared hub address, which would collapse GGPO's per-endpoint demux
++// (Peer2PeerBackend::OnMsg picks the first endpoint whose HandlesMsg
++// matches the source addr -- see HandlesMsg in udp_proto.cpp). The
++// unwrap callback rewrites recv_addr to a deterministic synthetic
++// address per verified peer index, so GGPO's "address == endpoint"
++// invariant holds. Pass-through (no hook installed) leaves recv_addr
++// alone.
++//
++// `wrap` is the symmetric counterpart: GGPO caches the synthetic
++// address as each UdpProtocol's _peer_addr (because that's what the
++// app handed to ggpo_add_player), so without intervention sendto()
++// would deliver to 127.0.0.<i+1> instead of the hub. The wrap callback
++// receives a mutable pointer to the sendto() destination sockaddr and
++// rewrites it to the real hub address before the syscall fires. Pass-
++// through (no hook installed) leaves dst alone.
++typedef int (*OfhubWrapFn)(void* ctx, const char* in, int inLen, char* outBuffer, int capacity, struct sockaddr_in* dst_inout);
++typedef int (*OfhubUnwrapFn)(void* ctx, const char* in, int inLen, char* outBuffer, int capacity, struct sockaddr_in* recv_addr_inout);
++
+ #define MAX_UDP_ENDPOINTS     16
+ 
+ static const int MAX_UDP_PACKET_SIZE = 4096;
+@@ -44,6 +76,9 @@ public:
+ 
+    virtual bool OnLoopPoll(void *cookie);
+ 
++   // Install OFHUB/2 wrap/unwrap hooks. Pass NULL for both to disable.
++   void InstallOfhubHooks(OfhubWrapFn wrap, OfhubUnwrapFn unwrap, void *ctx);
++
+ public:
+    ~Udp(void);
+ 
+@@ -54,6 +89,11 @@ protected:
+    // state management
+    Callbacks      *_callbacks;
+    Poll           *_poll;
++
++   // OFHUB/2 wrap/unwrap hooks (NULL when not installed -> pass-through).
++   OfhubWrapFn    _ofhub_wrap;
++   OfhubUnwrapFn  _ofhub_unwrap;
++   void          *_ofhub_ctx;
+ };
+ 
+ #endif

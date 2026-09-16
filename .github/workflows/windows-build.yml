@@ -40,6 +40,7 @@ concurrency:
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -48,17 +49,18 @@ jobs:
             cmake_platform: x64
             configuration: Release
             cmake_extra_args: ""
-            vcpkg_triplet: x64-windows
+            vcpkg_triplet: x64-windows-release
           - arch: x86
             cmake_platform: Win32
             configuration: Release
             cmake_extra_args: -DWITH_ASM=OFF
-            vcpkg_triplet: x86-windows
+            vcpkg_triplet: x86-windows-release
     steps:
       # actions/checkout@v4 — pinned by commit SHA.
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
+          submodules: recursive
       - name: Select Visual Studio generator
         id: vs_generator
         shell: pwsh
@@ -109,30 +111,26 @@ jobs:
 
           "cmake_generator=$generator" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "vs_major=$major" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "toolchain_key=$vsVersion-$env:ImageVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "VCPKG_DOWNLOADS=$env:RUNNER_TEMP/vcpkg-downloads" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "VCPKG_BINARY_SOURCES=clear;files,$env:RUNNER_TEMP/vcpkg-binarycache,readwrite" | Out-File -FilePath $env:GITHUB_ENV -Append
           Write-Host "Using CMake generator: $generator"
       - name: Cache vcpkg
+        id: vcpkg-cache
         # actions/cache@v4 — pinned by commit SHA.
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: |
-            C:\vcpkg\downloads
-            C:\vcpkg\archives
-            C:\vcpkg\buildtrees
-            C:\vcpkg\packages
-            C:\vcpkg\binarycache
-          key: ${{ runner.os }}-${{ matrix.arch }}-vs${{ steps.vs_generator.outputs.vs_major }}-vcpkg-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
-      - name: Install FFmpeg (vcpkg)
+            ${{ runner.temp }}/vcpkg-downloads
+            ${{ runner.temp }}/vcpkg-binarycache
+          key: ${{ runner.os }}-${{ matrix.arch }}-vcpkg-${{ steps.vs_generator.outputs.toolchain_key }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/triplets/*.cmake', 'cmake/ports/**') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.arch }}-vcpkg-${{ steps.vs_generator.outputs.toolchain_key }}-
+            ${{ runner.os }}-${{ matrix.arch }}-vcpkg-
+      - name: Bootstrap pinned vcpkg
         shell: pwsh
         run: |
-          $vcpkgRoot = "C:\vcpkg"
-          if (-not (Test-Path $vcpkgRoot)) {
-            git clone https://github.com/microsoft/vcpkg $vcpkgRoot
-          }
-          & "$vcpkgRoot\bootstrap-vcpkg.bat"
-          $env:VCPKG_BINARY_SOURCES = "clear;files,C:\vcpkg\binarycache,readwrite"
-          Push-Location $env:GITHUB_WORKSPACE
-          & "$vcpkgRoot\vcpkg.exe" install --triplet ${{ matrix.vcpkg_triplet }}
-          Pop-Location
+          ./cmake/BootstrapVcpkg.ps1 -Root "$env:RUNNER_TEMP/vcpkg"
       - name: Cache CMake deps
         # actions/cache@v4 — pinned by commit SHA.
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
@@ -140,76 +138,72 @@ jobs:
           path: Projects/VS/_deps
           key: ${{ runner.os }}-${{ matrix.arch }}-vs${{ steps.vs_generator.outputs.vs_major }}-cmake-deps-${{ hashFiles('CMakeLists.txt') }}
       - name: Configure
-        run: cmake -S . -B Projects/VS -G "${{ steps.vs_generator.outputs.cmake_generator }}" -A ${{ matrix.cmake_platform }} ${{ matrix.cmake_extra_args }} -DOPENFODDER_ENABLE_FFMPEG=ON -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }}
+        run: >-
+          cmake -S . -B Projects/VS -G "${{ steps.vs_generator.outputs.cmake_generator }}"
+          -A ${{ matrix.cmake_platform }} ${{ matrix.cmake_extra_args }}
+          -DOPENFODDER_ENABLE_FFMPEG=ON
+          -DOPENFODDER_BUILD_MEDIA_TESTS=ON
+          "-DCMAKE_TOOLCHAIN_FILE=${{ runner.temp }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }}
+          "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/Projects/VS/bin"
+      - name: Save vcpkg packages before building the game
+        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ${{ runner.temp }}/vcpkg-downloads
+            ${{ runner.temp }}/vcpkg-binarycache
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
       - name: Build
-        run: cmake --build Projects/VS --config ${{ matrix.configuration }}
+        run: cmake --build Projects/VS --config ${{ matrix.configuration }} --parallel
+      - name: Check packaged audio decoders
+        if: matrix.arch == 'x64'
+        run: python Tests/AudioMixer/check.py --runtime "Projects/VS/bin/${{ matrix.configuration }}"
+      - name: Check MPEG video and audio decoding
+        run: ctest --test-dir Projects/VS -C ${{ matrix.configuration }} --output-on-failure --no-tests=error
       - name: Test
+        timeout-minutes: 30
         shell: pwsh
         run: |
-          $runDir = "$env:GITHUB_WORKSPACE\Run"
-          $stashDir = "$env:RUNNER_TEMP\openfodder-runtime"
-          $ffmpegBin = "$env:GITHUB_WORKSPACE\vcpkg_installed\${{ matrix.vcpkg_triplet }}\bin"
-
-          if (-not (Test-Path $ffmpegBin)) {
-            $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
+          $ErrorActionPreference = 'Stop'
+          $runtimeDir = "$env:GITHUB_WORKSPACE/Projects/VS/bin/${{ matrix.configuration }}"
+          $testRoot = Join-Path $env:RUNNER_TEMP ("openfodder-test-" + [Guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $testRoot | Out-Null
+          foreach ($folder in @('Data', 'Scripts', 'Campaigns', 'Saves')) {
+            Copy-Item "$env:GITHUB_WORKSPACE/Run/$folder" $testRoot -Recurse -Force
           }
-
-          New-Item -ItemType Directory -Path $stashDir -Force | Out-Null
-          Copy-Item "$runDir\openfodder.exe" -Destination $stashDir -Force -ErrorAction SilentlyContinue
-          Copy-Item "$runDir\SDL3.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
-          Copy-Item "$runDir\SDL3_mixer.dll" -Destination $stashDir -Force -ErrorAction SilentlyContinue
-
-          $dataRepoDir = "$env:RUNNER_TEMP\openfodder-data"
-          if (Test-Path $dataRepoDir) { Remove-Item $dataRepoDir -Recurse -Force }
-          git clone --single-branch https://github.com/OpenFodder/data.git $dataRepoDir
-
-          if (Test-Path $runDir) { Remove-Item $runDir -Recurse -Force }
-          New-Item -ItemType Directory -Path $runDir -Force | Out-Null
-          Copy-Item "$dataRepoDir\*" $runDir -Recurse -Force
-
-          Copy-Item "$stashDir\openfodder.exe" -Destination $runDir -Force -ErrorAction SilentlyContinue
-          Copy-Item "$stashDir\SDL3.dll" -Destination $runDir -Force -ErrorAction SilentlyContinue
-          Copy-Item "$stashDir\SDL3_mixer.dll" -Destination $runDir -Force -ErrorAction SilentlyContinue
-
-          if (Test-Path "$runDir/Tests") { Remove-Item "$runDir/Tests" -Recurse -Force }
-          git clone https://github.com/OpenFodder/tests.git $runDir/Tests
-
-          Copy-Item "$ffmpegBin\avcodec*.dll" -Destination $runDir -Force
-          Copy-Item "$ffmpegBin\avformat*.dll" -Destination $runDir -Force
-          Copy-Item "$ffmpegBin\avutil*.dll" -Destination $runDir -Force
-          Copy-Item "$ffmpegBin\swscale*.dll" -Destination $runDir -Force
-          Copy-Item "$ffmpegBin\swresample*.dll" -Destination $runDir -Force
-          Push-Location $runDir
-          .\openfodder.exe --appveyor --unit-test-headless
-          if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-          }
-          Pop-Location
+          Copy-Item "$runtimeDir/openfodder.exe" $testRoot
+          Copy-Item "$runtimeDir/*.dll" $testRoot
+          git clone --depth 1 https://github.com/OpenFodder/tests.git "$testRoot/Tests"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not fetch game tests' }
+          Push-Location $testRoot
+          try {
+            ./openfodder.exe --appveyor --unit-test-headless
+            if ($LASTEXITCODE -ne 0) { throw "Game tests failed: $LASTEXITCODE" }
+          } finally { Pop-Location }
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-${{ matrix.arch }}-failure-logs
+          path: |
+            Projects/VS/vcpkg-manifest-install.log
+            Projects/VS/CMakeFiles/CMakeConfigureLog.yaml
+            Projects/VS/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
       - name: Package
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
           $archive = "OpenFodder-${{ matrix.arch }}-${{ matrix.configuration }}-latest.zip"
-          $ffmpegBin = "$env:GITHUB_WORKSPACE\vcpkg_installed\${{ matrix.vcpkg_triplet }}\bin"
-          if (-not (Test-Path $ffmpegBin)) {
-            $ffmpegBin = "C:\vcpkg\installed\${{ matrix.vcpkg_triplet }}\bin"
-          }
-          if (-not (Test-Path $ffmpegBin)) {
-            Write-Error "FFmpeg binaries not found in vcpkg_installed or C:\vcpkg\installed for ${{ matrix.vcpkg_triplet }}."
-            exit 1
-          }
-          $ffmpegDlls = Get-ChildItem $ffmpegBin -Filter *.dll | Where-Object {
-            $_.Name -match "^(avcodec|avformat|avutil|swscale|swresample)"
-          } | Select-Object -ExpandProperty FullName
+          $runtimeDir = "$env:GITHUB_WORKSPACE/Projects/VS/bin/${{ matrix.configuration }}"
           $items = @(
-            "$env:GITHUB_WORKSPACE\Run\openfodder.exe",
-            "$env:GITHUB_WORKSPACE\Run\SDL3.dll",
-            "$env:GITHUB_WORKSPACE\Run\SDL3_mixer.dll",
-            "$env:GITHUB_WORKSPACE\README.md",
-            "$env:GITHUB_WORKSPACE\COPYING",
-            "$env:GITHUB_WORKSPACE\openfodder.ini.example"
-          ) + $ffmpegDlls
-          if (Test-Path $archive) { Remove-Item $archive -Force }
-          Compress-Archive -Path $items -DestinationPath $archive
+            "$runtimeDir/openfodder.exe",
+            "$env:GITHUB_WORKSPACE/README.md",
+            "$env:GITHUB_WORKSPACE/COPYING",
+            "$env:GITHUB_WORKSPACE/openfodder.ini.example"
+          ) + @(Get-ChildItem -LiteralPath $runtimeDir -Filter '*.dll' -File | Select-Object -ExpandProperty FullName)
+          Compress-Archive -Path $items -DestinationPath $archive -Force
       - name: Upload artifact
         # actions/upload-artifact@v4 — pinned by commit SHA.
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

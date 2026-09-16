@@ -106,17 +106,17 @@ jobs:
   # Windows x64 portable build.
   #
   # Produces OpenFodder-<version>-win64.zip with:
-  #   openfodder.exe + SDL3.dll + SDL3_mixer.dll + about.png
+  #   openfodder.exe + SDL/audio/FFmpeg runtime DLLs + about.png
   #   Run/Data + Run/Scripts + Run/Campaigns + Run/Saves + Run/Tests
   #   COPYING + README.md + openfodder.ini.example
   #
-  # Note: FFmpeg is NOT bundled. Windows builds use the engine's built-in
-  # MPEG decoder; no avcodec*.dll dependency at runtime. Linux release does
-  # the same (system FFmpeg if installed, no-op fallback otherwise).
+  # FFmpeg is required for MPEG intro playback. Windows bundles its DLLs;
+  # Linux links against the distribution's FFmpeg libraries.
   # ---------------------------------------------------------------------------
   build-windows:
     needs: verify-tag
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
@@ -134,9 +134,28 @@ jobs:
           $major = [int]($vsInstance.installationVersion.Split(".")[0])
           $generator = if ($major -ge 18) { "Visual Studio 18 2026" } elseif ($major -eq 17) { "Visual Studio 17 2022" } else { Write-Error "Unsupported VS major: $major"; exit 1 }
           "cmake_generator=$generator" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "toolchain_key=$($vsInstance.installationVersion)-$env:ImageVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "VCPKG_DOWNLOADS=$env:RUNNER_TEMP/vcpkg-downloads" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "VCPKG_BINARY_SOURCES=clear;files,$env:RUNNER_TEMP/vcpkg-binarycache,readwrite" | Out-File -FilePath $env:GITHUB_ENV -Append
           Write-Host "Using CMake generator: $generator"
 
-      - name: Cache CMake _deps (SDL3, libcurl, …)
+      - name: Cache vcpkg
+        id: vcpkg-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ${{ runner.temp }}/vcpkg-downloads
+            ${{ runner.temp }}/vcpkg-binarycache
+          key: ${{ runner.os }}-x64-vcpkg-${{ steps.vs_generator.outputs.toolchain_key }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/triplets/*.cmake', 'cmake/ports/**') }}
+          restore-keys: |
+            ${{ runner.os }}-x64-vcpkg-${{ steps.vs_generator.outputs.toolchain_key }}-
+            ${{ runner.os }}-x64-vcpkg-
+
+      - name: Bootstrap pinned vcpkg
+        shell: pwsh
+        run: ./cmake/BootstrapVcpkg.ps1 -Root "$env:RUNNER_TEMP/vcpkg"
+
+      - name: Cache CMake _deps (libcurl, libsodium)
         # actions/cache@v4
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
@@ -148,10 +167,40 @@ jobs:
           cmake -S . -B build
           -G "${{ steps.vs_generator.outputs.cmake_generator }}" -A x64
           -DCMAKE_BUILD_TYPE=Release
-          -DOPENFODDER_ENABLE_FFMPEG=OFF
+          -DOPENFODDER_ENABLE_FFMPEG=ON
+          -DOPENFODDER_BUILD_MEDIA_TESTS=ON
+          "-DCMAKE_TOOLCHAIN_FILE=${{ runner.temp }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-release
+          "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin"
+
+      - name: Save vcpkg packages before building the game
+        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ${{ runner.temp }}/vcpkg-downloads
+            ${{ runner.temp }}/vcpkg-binarycache
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       - name: Build
         run: cmake --build build --config Release -- /m
+
+      - name: Check packaged audio decoders
+        run: python Tests/AudioMixer/check.py --runtime build/bin/Release
+
+      - name: Check MPEG video and audio decoding
+        run: ctest --test-dir build -C Release --output-on-failure --no-tests=error
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-release-failure-logs
+          path: |
+            build/vcpkg-manifest-install.log
+            build/CMakeFiles/CMakeConfigureLog.yaml
+            build/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
 
       - name: Stage portable tree
         id: stage
@@ -163,10 +212,9 @@ jobs:
           if (Test-Path $stageRoot) { Remove-Item $stageRoot -Recurse -Force }
           New-Item -ItemType Directory -Path $stageRoot -Force | Out-Null
 
-          # Engine + SDL DLLs land at the root.
-          Copy-Item "Run\Release\openfodder.exe" $stageRoot -Force
-          Copy-Item "Run\Release\SDL3.dll"        $stageRoot -Force
-          Copy-Item "Run\Release\SDL3_mixer.dll"  $stageRoot -Force
+          # Include all deployed DLLs, including the dynamically loaded MOD decoder.
+          Copy-Item "build\bin\Release\openfodder.exe" $stageRoot -Force
+          Copy-Item "build\bin\Release\*.dll" $stageRoot -Force
 
           # Game data tree.
           @("Data", "Scripts", "Campaigns", "Saves", "Tests") | ForEach-Object {
@@ -210,11 +258,12 @@ jobs:
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
-  # Linux x64 portable build (system SDL3 via /usr/local; no FFmpeg).
+  # Linux x64 build (SDL3 via /usr/local and distribution FFmpeg libraries).
   # ---------------------------------------------------------------------------
   build-linux:
     needs: verify-tag
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
@@ -231,26 +280,40 @@ jobs:
             libwayland-dev libxkbcommon-dev libdrm-dev libgbm-dev \
             libegl1-mesa-dev libgl1-mesa-dev \
             libflac-dev libogg-dev libvorbis-dev libmpg123-dev libopusfile-dev \
-            libxmp-dev
+            libxmp-dev libcurl4-openssl-dev \
+            libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev
 
       - name: Build SDL3 + SDL3_mixer
         run: |
           set -euo pipefail
           mkdir -p /tmp/sdl3 && cd /tmp/sdl3
-          git clone --depth 1 --branch release-3.4.0 https://github.com/libsdl-org/SDL.git
+          git clone --depth 1 --branch release-3.4.10 https://github.com/libsdl-org/SDL.git
           cmake -S SDL -B SDL/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
-          cmake --build SDL/build
+          cmake --build SDL/build --parallel
           sudo cmake --install SDL/build
-          git clone --depth 1 https://github.com/libsdl-org/SDL_mixer.git
+          git clone --depth 1 --branch release-3.2.4 https://github.com/libsdl-org/SDL_mixer.git
           cmake -S SDL_mixer -B SDL_mixer/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DSDLMIXER_VENDORED=OFF -DSDLMIXER_MOD_XMP=ON -DSDLMIXER_MOD_XMP_LITE=OFF -DSDLMIXER_MOD_XMP_SHARED=OFF
-          cmake --build SDL_mixer/build
+          cmake --build SDL_mixer/build --parallel
           sudo cmake --install SDL_mixer/build
 
       - name: Configure
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENFODDER_ENABLE_FFMPEG=OFF
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENFODDER_ENABLE_FFMPEG=ON -DOPENFODDER_BUILD_MEDIA_TESTS=ON
 
       - name: Build
-        run: cmake --build build
+        run: cmake --build build --parallel
+
+      - name: Check MPEG video and audio decoding
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: linux-release-failure-logs
+          path: |
+            build/CMakeFiles/CMakeConfigureLog.yaml
+            build/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
 
       - name: Stage portable tree
         id: stage

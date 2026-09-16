@@ -2,15 +2,28 @@
   "name": "openfodder",
   "version-string": "0.0.0",
   "dependencies": [
+    { "name": "sdl3", "version>=": "3.4.0" },
     {
-      "name": "ffmpeg",
+      "name": "sdl3-mixer",
+      "version>=": "3.2.4",
+      "features": [ "libxmp", "libflac", "mpg123" ]
+    },
+    {
+      "name": "libxmp",
       "default-features": false,
-      "features": [
-        "avcodec",
-        "avformat",
-        "swresample",
-        "swscale"
+      "platform": "windows"
+    }
+  ],
+  "features": {
+    "ffmpeg": {
+      "description": "FFmpeg MPEG intro video and audio playback",
+      "dependencies": [
+        {
+          "name": "ffmpeg",
+          "default-features": false,
+          "features": [ "mpeg-intro" ]
+        }
       ]
     }
-  ]
+  }
 }

@@ -15,12 +15,19 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+# FFmpeg is the only MPEG video decoder. Builds without it omit MPEG playback.
+option(OPENFODDER_ENABLE_FFMPEG "Enable FFmpeg intro video playback" OFF)
+# vcpkg resolves manifest features during project(), before dependency discovery.
+list(REMOVE_ITEM VCPKG_MANIFEST_FEATURES ffmpeg)
+if(OPENFODDER_ENABLE_FFMPEG)
+    list(APPEND VCPKG_MANIFEST_FEATURES ffmpeg)
+endif()
+
 project(openfodder VERSION 1.5.4 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-option(OPENFODDER_ENABLE_FFMPEG "Enable FFmpeg intro video playback" OFF)
 option(OPENFODDER_AUTO_FFMPEG "Auto-enable FFmpeg when found (non-Windows)" ON)
 option(OPENFODDER_ENABLE_NETWORK "Enable GGPO rollback networking for cooperative multiplayer" ON)
 
@@ -37,52 +44,16 @@ else()
     find_package(Threads REQUIRED)
 endif()
 
+if(NOT EMSCRIPTEN)
+    include(FetchContent)
+    find_package(SDL3 3.4 CONFIG REQUIRED)
+    find_package(SDL3_mixer 3.2 CONFIG REQUIRED)
+endif()
+
 if(EMSCRIPTEN)
 elseif(WIN32)
-    include(FetchContent)
-
-    set(SDL_INSTALL OFF CACHE BOOL "" FORCE)
-    set(SDL_SHARED ON CACHE BOOL "" FORCE)
-    set(SDL_STATIC OFF CACHE BOOL "" FORCE)
-    set(SDL_TESTS OFF CACHE BOOL "" FORCE)
-
-    set(SDLMIXER_VENDORED ON CACHE BOOL "" FORCE)
-    set(SDLMIXER_MOD_XMP ON CACHE BOOL "" FORCE)
-    set(SDLMIXER_MOD_XMP_LITE ON CACHE BOOL "" FORCE)
-    set(SDLMIXER_MOD_XMP_SHARED OFF CACHE BOOL "" FORCE)
-    set(SDLMIXER_TESTS OFF CACHE BOOL "" FORCE)
-    set(SDLMIXER_INSTALL OFF CACHE BOOL "" FORCE)
-
-    set(SDL3_GIT_TAG "release-3.4.0")
-    set(SDL3_MIXER_GIT_TAG "3045b35335113e5e5ba258858cb403d8803bfbeb")
-
-    FetchContent_Declare(
-        SDL3
-        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG ${SDL3_GIT_TAG}
-        GIT_SHALLOW FALSE
-    )
-
-    FetchContent_Declare(
-        SDL3_mixer
-        GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
-        GIT_TAG ${SDL3_MIXER_GIT_TAG}
-        GIT_SHALLOW FALSE
-    )
-
-    FetchContent_MakeAvailable(SDL3)
-    FetchContent_MakeAvailable(SDL3_mixer)
-
-    set(_sdl_mixer_compat_header "${CMAKE_CURRENT_LIST_DIR}/cmake/sdl3_mixer_compat.h")
-    foreach(_sdl_mixer_target IN ITEMS SDL3_mixer SDL3_mixer-shared SDL3_mixer-static)
-        if(TARGET ${_sdl_mixer_target})
-            if(MSVC)
-                target_compile_options(${_sdl_mixer_target} PRIVATE "/FI${_sdl_mixer_compat_header}")
-            else()
-                target_compile_options(${_sdl_mixer_target} PRIVATE "-include" "${_sdl_mixer_compat_header}")
-            endif()
-        endif()
-    endforeach()
+    # The vcpkg mixer loads libxmp dynamically; deploy it explicitly below.
+    find_package(libxmp CONFIG REQUIRED)
 
     # libcurl — used by the setup wizard / updater for HTTPS downloads of
     # retail-data manifests, scripts, and engine update archives. On Windows
@@ -116,8 +87,6 @@ elseif(WIN32)
         GIT_SHALLOW TRUE)
     FetchContent_MakeAvailable(libcurl)
 else()
-    find_package(SDL3 CONFIG REQUIRED)
-    find_package(SDL3_mixer CONFIG REQUIRED)
     find_package(CURL REQUIRED)
 endif()
 
@@ -181,14 +150,17 @@ if(WIN32)
 endif()
 
 if(MSVC)
+    if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+        set_target_properties(openfodder PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>")
+    endif()
     set_target_properties(openfodder PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>"
         # A machine-wide `vcpkg integrate install` otherwise appends every
         # classic-mode library (including an installed SDL2.lib) to the link.
         # Dependencies in this project are linked explicitly by CMake.
         VS_GLOBAL_VcpkgAutoLink false)
     set_target_properties(openfodder PROPERTIES
-        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Run/$<CONFIG>")
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/Run")
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT openfodder)
 endif()
 
@@ -352,14 +324,25 @@ endif()
 
 if (OPENFODDER_ENABLE_FFMPEG OR (OPENFODDER_AUTO_FFMPEG AND NOT WIN32))
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-    find_package(FFmpeg)
+    if(OPENFODDER_ENABLE_FFMPEG)
+        find_package(FFmpeg REQUIRED)
+    else()
+        find_package(FFmpeg QUIET)
+    endif()
     if (FFmpeg_FOUND)
         target_compile_definitions(openfodder PRIVATE OPENFODDER_ENABLE_FFMPEG)
         target_include_directories(openfodder PRIVATE ${FFMPEG_INCLUDE_DIRS})
         target_link_libraries(openfodder PRIVATE ${FFMPEG_LIBRARIES})
-    elseif(OPENFODDER_ENABLE_FFMPEG)
-        message(WARNING "FFmpeg not found; intro video playback disabled.")
     endif()
+endif()
+
+option(OPENFODDER_BUILD_MEDIA_TESTS "Build offline MPEG video/audio decoder checks" OFF)
+if(OPENFODDER_BUILD_MEDIA_TESTS)
+    if(NOT FFmpeg_FOUND)
+        message(FATAL_ERROR "Media checks require FFmpeg. Set OPENFODDER_ENABLE_FFMPEG=ON.")
+    endif()
+    enable_testing()
+    add_subdirectory(Tests/VideoMPEG)
 endif()
 
 if(EMSCRIPTEN)
@@ -392,25 +375,25 @@ if(WIN32)
             "$<TARGET_FILE_DIR:openfodder>/SDL2.dll"
         COMMENT "Remove obsolete SDL2 runtime DLL")
 
+    # vcpkg's app-local deployment also copies linked transitive dependencies
+    # (including FFmpeg when enabled). libxmp uses SDL_LoadObject, so it is not
+    # discoverable from the executable's import table and must be copied here.
     set(_runtime_dlls "")
-    if(TARGET SDL3::SDL3)
-        list(APPEND _runtime_dlls $<TARGET_FILE:SDL3::SDL3>)
-    elseif(TARGET SDL3-shared)
-        list(APPEND _runtime_dlls $<TARGET_FILE:SDL3-shared>)
-    endif()
-
-    if(TARGET SDL3_mixer::SDL3_mixer)
-        list(APPEND _runtime_dlls $<TARGET_FILE:SDL3_mixer::SDL3_mixer>)
-    elseif(TARGET SDL3_mixer-shared)
-        list(APPEND _runtime_dlls $<TARGET_FILE:SDL3_mixer-shared>)
-    endif()
+    foreach(_runtime_target IN ITEMS SDL3::SDL3 SDL3_mixer::SDL3_mixer libxmp::xmp_shared)
+        if(TARGET ${_runtime_target})
+            get_target_property(_runtime_type ${_runtime_target} TYPE)
+            if(_runtime_type STREQUAL "SHARED_LIBRARY")
+                list(APPEND _runtime_dlls $<TARGET_FILE:${_runtime_target}>)
+            endif()
+        endif()
+    endforeach()
 
     if(_runtime_dlls)
         add_custom_command(TARGET openfodder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${_runtime_dlls}
                 "$<TARGET_FILE_DIR:openfodder>"
-            COMMENT "Copy SDL runtime DLLs to output directory")
+            COMMENT "Copy SDL and MOD decoder runtime DLLs to output directory")
     endif()
 
     target_link_libraries(openfodder PRIVATE ws2_32)
