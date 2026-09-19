@@ -45,6 +45,8 @@ public:
 	size_t mWindowRows;
 	size_t mWindowColumns;
 
+	bool mBilinearFilter;		// Use bilinear filtering
+
 	bool mRandom;               // Start a random map
 	bool mRandomSave;			// Create a random map
 	std::string mRandomFilename;// Name to save random map as
@@ -120,6 +122,7 @@ public:
 		mWindowMode = false;
 		mIntegerScaling = true;
 		mWindowScale = 0;
+		mBilinearFilter = false;
 
 		mWindowRows = 0;
 		mWindowColumns = 0;

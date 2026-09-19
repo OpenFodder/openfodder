@@ -44,6 +44,8 @@ std::string sFodderParameters::ToJson() {
 
 	Save["mWindowMode"] = mWindowMode;
 	Save["mIntegerScaling"] = mIntegerScaling;
+	Save["mBilinearFilter"] = mBilinearFilter;
+
 	Save["mRandom"] = mRandom;
 	Save["mDefaultPlatform"] = mDefaultPlatform;
 	Save["mCampaignName"] = mCampaignName;
@@ -77,6 +79,7 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	mMissionNumber = LoadedData["mMissionNumber"];
 	mPhaseNumber = LoadedData["mPhaseNumber"];
 	mWindowMode = LoadedData["mWindowMode"];
+	mBilinearFilter = LoadedData["mBilinearFilter"];
 	mRandom = LoadedData["mRandom"];
 	mDefaultPlatform = LoadedData["mDefaultPlatform"];
 	mCampaignName = LoadedData["mCampaignName"];
@@ -137,6 +140,7 @@ void sFodderParameters::PrepareOptions() {
 		("w,window", "Start in window mode", cxxopts::value<bool>()->default_value("false"))
 		("window-scale", "Set the window scale", cxxopts::value<std::uint32_t>()->default_value("0"))
 		("integer-scaling", "Use integer scaling", cxxopts::value<bool>()->default_value("true"))
+		("bilinear", "Apply bilinear filtering", cxxopts::value<bool>()->default_value("false"))
 
 		("cheats", "Enable cheat keys", cxxopts::value<bool>()->default_value("false"))
 		("max-sprite", "Set the maximum sprites", cxxopts::value<std::uint32_t>()->default_value("45"), "45")
@@ -271,6 +275,10 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		if (result.count("integer-scaling"))
 			mIntegerScaling = result["integer-scaling"].as<bool>();
 
+
+		if (result.count("bilinear"))
+			mBilinearFilter = result["bilinear"].as<bool>();
+
 		mRandom = result["random"].as<bool>();
 		if (result["random-save"].count()) {
 
@@ -370,6 +378,7 @@ bool sFodderParameters::SaveIni() {
 
 		ini.set("scale", (mWindowScale == 0) ? "auto" : std::to_string(mWindowScale));
 		ini.set("integer", mIntegerScaling ? "true" : "false");
+		ini.set("bilinear", mBilinearFilter ? "true" : "false");
 
 		ini.set("columns", (mWindowColumns == 0) ? "0" : std::to_string(mWindowColumns));
 		ini.set("rows", (mWindowRows == 0) ? "0" : std::to_string(mWindowRows));
@@ -442,6 +451,11 @@ bool sFodderParameters::ProcessINI() {
 				mWindowMode = true;
 			else
 				mWindowMode = false;
+
+			if (ini.get("bilinear", "false") == "true")
+				mBilinearFilter = true;
+			else
+				mBilinearFilter = false;
 
 			if (ini.get("cheats", "false") == "true")
 				mCheatsEnabled = true;
