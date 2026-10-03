@@ -37,6 +37,7 @@ class cWindow {
 		bool				mWindowMode;
         bool                mHasFocus;
 		bool				mResized;
+		bool				mBilinearFilter;
 
 	protected:
 
@@ -106,7 +107,7 @@ class cWindow {
 		void				ToggleVSync(bool pEnabled);
 		float				GetRefreshRate();
 
-
+		
 };
 
 class cWindowNull : public cWindow {

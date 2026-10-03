@@ -81,7 +81,8 @@ private:
         OPT_WINDOW_MODE = 1,
         OPT_WINDOW_SCALE,
         OPT_INTEGER_SCALING,
-
+        OPT_BILINEAR_FILTERING,
+        
         OPT_ALTERNATE_MOUSE,
         OPT_MOUSE_LOCKED,
         OPT_MOUSE_SPEED,

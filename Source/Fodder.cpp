@@ -2362,6 +2362,16 @@ void cFodder::keyProcess(uint8 pKeyCode, bool pPressed)
             mWindow->WindowDecrease();
     }
 
+    // Toggle Bilinear Filtering by pressing F8
+    if (pKeyCode == SDL_SCANCODE_F8 && pPressed)
+    {
+        if (g_Fodder->mParams)
+            if(!g_Fodder->mParams->mBilinearFilter)
+                g_Fodder->mParams->mBilinearFilter = true;
+            else
+                g_Fodder->mParams->mBilinearFilter = false;
+    }
+    
     if (pKeyCode == SDL_SCANCODE_F11 && pPressed)
     {
         mWindow->ToggleFullscreen();
