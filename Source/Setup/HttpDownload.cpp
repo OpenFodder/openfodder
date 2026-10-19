@@ -32,6 +32,25 @@
 #include <sstream>
 #include <string>
 
+#ifdef EMSCRIPTEN
+// Browser builds ship their data with the page. Native setup/updating is
+// unavailable; retain manifest-reading support without a libcurl dependency.
+namespace Setup {
+HttpClient::HttpClient() = default;
+HttpClient::~HttpClient() = default;
+void HttpClient::GlobalInit() {}
+void HttpClient::GlobalCleanup() {}
+bool HttpClient::Get(const std::string&, HttpResponse& pOut, ProgressCallback) {
+    pOut = {};
+    mLastError = "Downloads are unavailable in the browser build";
+    return false;
+}
+bool HttpClient::Download(const std::string&, const std::string&, ProgressCallback) {
+    mLastError = "Downloads are unavailable in the browser build";
+    return false;
+}
+}
+#else
 #include <curl/curl.h>
 
 namespace Setup {
@@ -294,3 +313,5 @@ bool HttpClient::Download(const std::string& pUrl, const std::string& pOutPath, 
 }
 
 } // namespace Setup
+
+#endif // EMSCRIPTEN

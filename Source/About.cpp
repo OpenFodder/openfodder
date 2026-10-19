@@ -123,7 +123,11 @@ bool cAbout::Cycle() {
     // into a terminal value, and any dialog needs to happen before the
     // surface is rendered or the back-buffer state diverges from what's
     // on screen.
+    bool updateBusy = false;
+#ifndef EMSCRIPTEN
     Setup::UpdateChecker::Instance().Pump();
+    updateBusy = Setup::UpdateChecker::Instance().IsBusy();
+#endif
 
     g_Fodder->GUI_Element_Reset();
 
@@ -145,12 +149,14 @@ bool cAbout::Cycle() {
         // layout note for the About screen). Forwarded to cAbout::OnUpdateClicked
         // via the cFodder trampoline because GUI_Button_Setup requires a
         // void(cFodder::*)() member-function pointer.
+#ifndef EMSCRIPTEN
         g_Fodder->GUI_Button_Draw_Small("UPDATE", 0x9C + PLATFORM_BASED(0, 25));
         g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_About_Update);
+#endif
 
         // Do not resume gameplay while files are being published or before
         // the main thread has reloaded the installed scripts.
-        if (!Setup::UpdateChecker::Instance().IsBusy()) {
+        if (!updateBusy) {
             g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + PLATFORM_BASED(0, 25));
             g_Fodder->GUI_Button_Setup(&cFodder::GUI_Button_Load_Exit);
         }
@@ -161,12 +167,14 @@ bool cAbout::Cycle() {
         // (per-frame draw) rather than Service_Draw_String (which
         // appends to mService_Draw_List and would unbounded-grow the
         // list on every frame).
+#ifndef EMSCRIPTEN
         const std::string status = Setup::UpdateChecker::Instance().StatusLine();
         if (!status.empty())
             g_Fodder->String_Print_Small(status, 0xCA + PLATFORM_BASED(0, 25));
+#endif
     }
 
-    if (g_Fodder->mPhase_Aborted && !Setup::UpdateChecker::Instance().IsBusy())
+    if (g_Fodder->mPhase_Aborted && !updateBusy)
         g_Fodder->GUI_Button_Load_Exit();
 
     if (g_Fodder->mMouse_Button_Left_Toggle) {
@@ -188,7 +196,7 @@ bool cAbout::Cycle() {
     //g_Fodder->Video_SurfaceRender(false, false, 0, false);
 
     if (g_Fodder->mGUI_SaveLoadAction == 1 && !g_Fodder->mSurface->isPaletteAdjusting()
-        && !Setup::UpdateChecker::Instance().IsBusy())
+        && !updateBusy)
         return false;
 
     return true;
@@ -206,5 +214,7 @@ bool cAbout::Cycle() {
 // a check is already in flight.
 // ---------------------------------------------------------------------------
 void cAbout::OnUpdateClicked() {
+#ifndef EMSCRIPTEN
     Setup::UpdateChecker::Instance().StartQuery();
+#endif
 }

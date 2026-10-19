@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Open Fodder</title>
+  <link rel="icon" href="data:,">
+  <style>
+    body { margin:0; background:#141819; color:#ddd; font:16px system-ui,sans-serif; text-align:center; }
+    main { margin:24px auto; max-width:1200px; padding:0 16px; }
+    h1 { font-size:24px; }
+    canvas { background:#000; max-width:100%; height:auto; image-rendering:pixelated; }
+    button { margin:8px; padding:8px 16px; font:inherit; cursor:pointer; }
+    #status { min-height:24px; }
+    details { text-align:left; margin:16px auto; max-width:960px; }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:200px; overflow:auto; font-size:12px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Open Fodder</h1>
+  <p id="status" role="status">Downloading game…</p>
+  <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+  <div><button id="fullscreen" type="button">Fullscreen</button></div>
+  <p>Click the game to play. Left click moves; right click fires. Esc opens the game menu.</p>
+  <details><summary>Game log</summary><pre id="output"></pre></details>
+</main>
+<script>
+  const canvas = document.getElementById('canvas');
+  const status = document.getElementById('status');
+  function log(message) {
+    const output = document.getElementById('output');
+    output.textContent = (output.textContent + message + '\n').slice(-40000);
+    output.scrollTop = output.scrollHeight;
+  }
+  var Module = {
+    canvas,
+    arguments: ['--skipintro', '--alternate-mouse', '--window'],
+    print: log,
+    printErr: log,
+    setStatus: text => { status.textContent = text || 'Ready — click the game to play'; },
+    onAbort: reason => { status.textContent = 'Unable to start the game. See the game log.'; log(reason); },
+    preRun: [function () {
+      FS.mkdirTree('/Saves');
+      FS.mount(IDBFS, {autoPersist:true}, '/Saves');
+      addRunDependency('load-saves');
+      FS.syncfs(true, function (error) {
+        if (error) log('Browser save storage is unavailable: ' + error);
+        removeRunDependency('load-saves');
+      });
+    }]
+  };
+  canvas.addEventListener('click', () => canvas.focus());
+  document.getElementById('fullscreen').addEventListener('click', () => {
+    canvas.requestFullscreen().catch(error => log(error.message));
+  });
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>

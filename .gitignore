@@ -350,6 +350,7 @@ healthchecksdb
 
 # Ignore any folder starting with build, use for cmake out of tree builds.
 /build*
+/RunE/
 
 # Ignore neatbeans projects.
 nbproject/

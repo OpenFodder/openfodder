@@ -281,16 +281,6 @@ void cWindow::EventCheck() {
 			break;
 		}
 
-#ifdef EMSCRIPTEN
-		// Drop events which have no x/y
-		if (SysEvent.type == SDL_EVENT_MOUSE_MOTION || 
-			SysEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN || 
-			SysEvent.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-
-			if (Event.mPosition.mX == 0 || Event.mPosition.mY == 0)
-				continue;
-		}
-#endif
 		if ( Event.mType != eEvent_None )
 			mEvents.push_back( Event );
 	}
@@ -342,15 +332,10 @@ bool cWindow::CanChangeToMultiplier( const int pNewMultiplier ) {
 }
 
 void cWindow::FrameEnd() {
-    #ifndef EMSCRIPTEN
 	SDL_RenderPresent( mRenderer );
     
 	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
 	SDL_RenderClear( mRenderer );
-	#else
-	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 0);
-	//SDL_RenderClear( mRenderer );
-#endif
 }
 
 void cWindow::PositionWindow() {

@@ -46,9 +46,6 @@ void cFodder::Image_FadeOut() {
 
     mSurface->Save();
     mSurface->paletteNew_SetToBlack();
-#ifdef EMSCRIPTEN
-	return;
-#endif
     mGame_Data.mDemoRecorded.DisableTicks();
     while (mSurface->isPaletteAdjusting()) {
 

@@ -437,18 +437,6 @@ int16 cFodder::Phase_Cycle()
     else
     {
 
-#ifdef EMSCRIPTEN
-        if (mPhase_InterruptTicks < 3)
-        {
-
-            return 1;
-        }
-        if (mExit)
-        {
-            return -1;
-        }
-#else
-
         do
         {
             Video_Sleep();
@@ -464,7 +452,6 @@ int16 cFodder::Phase_Cycle()
                 return -1;
             }
         } while (mPhase_InterruptTicks < 3);
-#endif
     }
 
     ++mMission_EngineTicks;
@@ -516,10 +503,8 @@ int16 cFodder::Phase_Cycle()
 
     // Mouse_DrawCursor();
 
-#ifndef EMSCRIPTEN
     if (mSurface->isPaletteAdjusting())
         mSurface->palette_FadeTowardNew();
-#endif
     if (mPhase_ShowMapOverview && mSurfaceMapOverview)
     {
 
@@ -718,14 +703,10 @@ int16 cFodder::Phase_Loop()
                 eventsProcess();
             }
 
-#ifdef EMSCRIPTEN
-            mVideo_Ticked = true;
-#else
             while (!mVideo_Ticked && !mExit)
             {
                 SDL_Delay(0);
             }
-#endif
         }
     }
 
@@ -759,9 +740,18 @@ void cFodder::Video_Sleep(cSurface *pSurface, const bool pShrink, const bool pVs
     }
 
     // If not in vsync mode, then wait for the Amiga 50Hz Interrupt
-#if defined(_OFED) || defined(EMSCRIPTEN)
+#if defined(_OFED)
     mVideo_Ticked = true;
 #else
+#ifdef EMSCRIPTEN
+    if (pVsync)
+    {
+        // SDL's browser swap interval controls the interrupt callback, not
+        // this synchronous flow. Pace briefing animation frames explicitly.
+        const float refreshRate = mWindow->GetRefreshRate();
+        emscripten_sleep(static_cast<unsigned int>(1000.0f / (refreshRate > 0 ? refreshRate : 60.0f)));
+    }
+#endif
     if (!pVsync)
     {
         while (!mVideo_Ticked)
@@ -858,9 +848,11 @@ void cFodder::Interrupt_Sim_Tick()
     static Uint32 startTick = SDL_GetTicks();
     Uint32 currentTick = SDL_GetTicks();
 
-    if (currentTick - startTick < mParams->mSleepDelta)
+    // Match Interrupt_Sim: redraw once per consumed frame, at the configured
+    // engine rate. Asyncify can also yield from audio or modal-screen delays.
+    if (!mVideo_Done || mExit || currentTick - startTick < mParams->mSleepDelta)
     {
-        // return;
+        return;
     }
 
     startTick = currentTick;
@@ -2831,11 +2823,13 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams)
     // offers to download the demo data from GitHub. SDL3 ref-counts the
     // subsystem, so the later SDL_Init in cWindow::InitWindow is harmless.
     SDL_InitSubSystem(SDL_INIT_VIDEO);
+#ifndef EMSCRIPTEN
     Setup::ColdStartChoice coldChoice = Setup::ColdStartPrompt::PromptIfNoData();
     if (coldChoice == Setup::ColdStartChoice::Quit) {
         SDL_Quit();
         exit(0);
     }
+#endif
 
     if (!g_ResourceMan->isDataAvailable())
         DataNotFound();
@@ -3574,6 +3568,7 @@ void cFodder::Video_SurfaceRender(const bool pRestoreSurface, const bool pShrink
 void cFodder::sleepLoop(int64 pMilliseconds)
 {
 #ifdef EMSCRIPTEN
+    emscripten_sleep(static_cast<unsigned int>(std::max<int64>(0, pMilliseconds)));
     return;
 #endif
     uint64 TimeStarted = SDL_GetTicks();
@@ -4042,6 +4037,7 @@ Start:;
     //  - the user passed --setup explicitly to re-run the wizard.
     // The wizard runs over the demo background that VersionSwitch just
     // loaded, so all the GUI primitives are already wired up.
+#ifndef EMSCRIPTEN
     if (!mParams->mDemoPlayback)
     {
         const bool noRetail = !mVersions->AnyRetailAvailable();
@@ -4063,6 +4059,7 @@ Start:;
         }
     }
 
+#endif
     if (mParams->mDemoRecord && mGame_Data.mDemoRecorded.mRecordedPlatform == ePlatform::Any)
         mGame_Data.mDemoRecorded.mRecordedPlatform = mVersionCurrent->mPlatform;
 

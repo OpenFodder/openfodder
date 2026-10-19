@@ -23,11 +23,18 @@
 #include "stdafx.hpp"
 #include "Tools/RouteOracleReplay.hpp"
 #include <thread>
+#ifdef __EMSCRIPTEN__
+#include <emscripten/eventloop.h>
+#endif
 
 #ifndef _OFED
 #ifndef _OFBOT
 
+#ifdef __EMSCRIPTEN__
+int startGame(int argc, char *argv[]) {
+#else
 int start(int argc, char *argv[]) {
+#endif
 	g_Debugger = std::make_shared<cDebugger>();
 	g_Window = std::make_shared<cWindow>();
 	g_ResourceMan = std::make_shared<cResourceMan>();
@@ -64,7 +71,14 @@ int start(int argc, char *argv[]) {
 	}
 	else {
 		g_Fodder->Prepare(Params);
+#ifndef EMSCRIPTEN
 		std::thread myThread(&cFodder::Interrupt_Sim, g_Fodder);
+#else
+        // Asyncify pauses emscripten_set_main_loop during sleeps, so use an
+        // independent timer for the native interrupt/redraw handshake.
+        const int interruptTimer = emscripten_set_interval(
+            [](void*) { g_Fodder->Interrupt_Sim_Tick(); }, 1.0, nullptr);
+#endif
 
 		if (g_Fodder->mStartParams->mUnitTesting) {
 			cUnitTesting Testing;
@@ -81,7 +95,11 @@ int start(int argc, char *argv[]) {
 
 		{
 			g_Fodder->mExit = true;
+#ifndef EMSCRIPTEN
 			myThread.join();
+#else
+            emscripten_clear_interval(interruptTimer);
+#endif
 		}
 	}
 	return result;

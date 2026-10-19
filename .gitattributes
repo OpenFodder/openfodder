@@ -1,6 +1,7 @@
 * text=auto
 
 *.cmd        text eol=crlf
+*.sh         text eol=lf
 *.sln        text eol=crlf
 *.vcxproj    text eol=crlf
 

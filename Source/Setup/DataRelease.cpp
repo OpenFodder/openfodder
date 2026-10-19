@@ -166,7 +166,7 @@ bool DataRelease::QueryLatest(const std::string& pOwner, const std::string& pRep
         HttpResponse response;
         if (!mHttp.Get(url, response) || response.mStatus != 200)
             throw std::runtime_error("GET " + url + " failed: " + mHttp.LastError());
-        const auto root = Json::parse(response.mBody.begin(), response.mBody.end());
+        const auto root = Json::parse(std::string(response.mBody.begin(), response.mBody.end()));
         if (!root.is_object())
             throw std::runtime_error("releases JSON is not an object");
         result.mTagName = TextField(root, "tag_name", true);
@@ -190,7 +190,7 @@ bool DataRelease::QueryLatest(const std::string& pOwner, const std::string& pRep
         HttpResponse compatResponse;
         if (!mHttp.Get(result.mCompatUrl, compatResponse) || compatResponse.mStatus != 200)
             throw std::runtime_error("GET compat.json failed: " + mHttp.LastError());
-        const auto compat = Json::parse(compatResponse.mBody.begin(), compatResponse.mBody.end());
+        const auto compat = Json::parse(std::string(compatResponse.mBody.begin(), compatResponse.mBody.end()));
         ReadVersions(compat, result.mDataVersion, result.mScriptVersion);
         RequireVersion(result);
         pOut = std::move(result); // Publish only a fully validated result.

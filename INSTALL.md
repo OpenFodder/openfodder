@@ -6,6 +6,51 @@ Open Fodder requires campaign/mission data plus files from a demo or retail rele
 of Cannon Fodder. The data must be placed in specific folders depending on your
 operating system.
 
+## Browser build (WSL / Linux)
+
+The browser target uses Emscripten, SDL3, and the regular game flow with
+Asyncify. Install CMake, Ninja, Python 3, and Emscripten 6.0.12 in WSL:
+
+```bash
+mkdir -p ~/.cache/openfodder
+git clone https://github.com/emscripten-core/emsdk.git ~/.cache/openfodder/emsdk
+~/.cache/openfodder/emsdk/emsdk install 6.0.12
+~/.cache/openfodder/emsdk/emsdk activate 6.0.12
+```
+
+From the repository root in Windows, run:
+
+```powershell
+git submodule update --init --recursive Run
+Projects\emscripten\build_emscripten.cmd
+python -m http.server 8080 --bind 127.0.0.1 --directory RunE
+```
+
+Open `http://localhost:8080/OpenFodder.html`. In WSL/Linux, the equivalent
+build command is `bash Projects/emscripten/build.sh`. The script finds the SDK
+above or uses an already activated SDK. `OPENFODDER_WEB_BUILD_DIR` overrides
+the intermediate build directory (default: `~/.cache/openfodder/web-build`).
+
+Serve the four generated `RunE/OpenFodder.{html,js,wasm,data}` files together
+over HTTP; opening the HTML as a local file does not work. The bundle contains
+the seven demo releases, their `.ofc` campaigns, and the runtime scripts.
+The standard build excludes retail data, disk images, local saves, desktop
+binaries, and diagnostic output. The desktop setup/updater, MPEG video, GGPO
+networking, and PC mixer audio are unavailable in this target. Amiga audio
+is supported. Saves use the browser's IndexedDB storage for the page's origin.
+
+For the browser integration checks, build with
+`-DOPENFODDER_WEB_DIAGNOSTICS=ON`, install Python's `playwright` package and
+its Chromium browser, then run:
+
+```bash
+python3 Projects/emscripten/smoke_test.py
+```
+
+The checks serve the build locally and verify all demo missions, campaign
+discovery, interrupt/engine timing, canvas edge input, and save persistence.
+Rebuild with `-DOPENFODDER_WEB_DIAGNOSTICS=OFF` for distribution.
+
 ## Windows
 
 Download the latest portable archive (`OpenFodder-<version>-win64.zip`) from
