@@ -82,6 +82,7 @@ Open Fodder supports six demos from the Amiga platform, and three retail release
   -w, --window                  Start in window mode
       --window-scale arg        Set the window scale (default: 0)
       --integer-scaling         Set integer scaling (default: true)
+      --bilinear                Apply bilinear filtering
       --cheats                  Enable cheat keys
 
       --max-sprite 45           Set the maximum sprites (default: 45)
@@ -119,6 +120,7 @@ Open Fodder supports six demos from the Amiga platform, and three retail release
 ```
 * F1:    Switch to Amiga version (if available)
 * F2:    Switch to PC version (if available)
+* F8:    Toggle bilinear filter
 * F9:    Make current squad invincible (with --cheats enabled)
 * F10:   Complete current map (with --cheats enabled)
 * F11:   Toggle full screen
