@@ -40,6 +40,7 @@ endif()
 
 if(EMSCRIPTEN)
     set(OPENFODDER_EMSCRIPTEN ON)
+    include(cmake/WebAudio.cmake)
 else()
     find_package(Threads REQUIRED)
 endif()
@@ -120,10 +121,8 @@ list(APPEND GAMEENGINE_SOURCE "${CMAKE_SOURCE_DIR}/Source/Utils/miniz.c")
 source_group(TREE "${CMAKE_SOURCE_DIR}/Source" FILES ${GAMEENGINE_HEADERS} ${GAMEENGINE_SOURCE})
 
 if(EMSCRIPTEN)
-    list(FILTER GAMEENGINE_SOURCE EXCLUDE REGEX "Source/PC/Sound_PC2.cpp$")
-    list(FILTER GAMEENGINE_SOURCE EXCLUDE REGEX "Source/PC/Sound_PC.cpp$")
     # The browser entry point schedules the shared game flow with Asyncify;
-    # only native setup/updating and the PC mixer are excluded.
+    # only native setup/updating is excluded.
     list(FILTER GAMEENGINE_SOURCE EXCLUDE REGEX "Source/Setup/(ColdStart|SetupWizard|UpdateChecker).cpp$")
 endif()
 
@@ -348,14 +347,14 @@ if(OPENFODDER_BUILD_MEDIA_TESTS)
 endif()
 
 if(EMSCRIPTEN)
-    target_compile_definitions(openfodder PRIVATE EMSCRIPTEN OPENFODDER_NO_MIXER)
-    option(OPENFODDER_WEB_DIAGNOSTICS "Export read-only state for browser smoke checks" OFF)
+    target_compile_definitions(openfodder PRIVATE EMSCRIPTEN)
+    target_link_libraries(openfodder PRIVATE SDL3::SDL3 SDL3_mixer::SDL3_mixer)
+    option(OPENFODDER_WEB_DIAGNOSTICS "Enable browser integration checks" OFF)
     if(OPENFODDER_WEB_DIAGNOSTICS)
         set_source_files_properties(Source/Tools/WebDiagnostics.cpp PROPERTIES
             COMPILE_DEFINITIONS OPENFODDER_WEB_DIAGNOSTICS)
         target_link_options(openfodder PRIVATE "-sEXPORTED_RUNTIME_METHODS=UTF8ToString")
     endif()
-    target_compile_options(openfodder PRIVATE "-sUSE_SDL=3")
     # C++ exceptions are used by the script engine and resource loaders.
     target_compile_options(openfodder PRIVATE "-fexceptions")
     set_target_properties(openfodder PROPERTIES
@@ -363,7 +362,6 @@ if(EMSCRIPTEN)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/RunE"
         SUFFIX ".html")
     target_link_options(openfodder PRIVATE
-        "-sUSE_SDL=3"
         "-fexceptions"
         "-sASYNCIFY=1"
         "-sASYNCIFY_STACK_SIZE=131072"

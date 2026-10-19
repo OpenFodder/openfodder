@@ -352,6 +352,15 @@ jobs:
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
+  # Browser build: reuse CI checks and produce a versioned, demo-only ZIP.
+  # ---------------------------------------------------------------------------
+  build-emscripten:
+    needs: verify-tag
+    uses: ./.github/workflows/emscripten-build.yml
+    with:
+      version: ${{ needs.verify-tag.outputs.version }}
+
+  # ---------------------------------------------------------------------------
   # Publish to GitHub Releases.
   #
   # Only this job has `contents: write`; everything above runs read-only.
@@ -359,7 +368,7 @@ jobs:
   # produced) and attaches them to the release without rebuilding.
   # ---------------------------------------------------------------------------
   publish:
-    needs: [verify-tag, build-windows, build-linux]
+    needs: [verify-tag, build-windows, build-linux, build-emscripten]
     runs-on: ubuntu-latest
     permissions:
       contents: write     # required to attach assets to the Release
@@ -391,3 +400,4 @@ jobs:
           files: |
             artefacts/OpenFodder-*-win64.zip
             artefacts/OpenFodder-*-linux-x64.tar.gz
+            artefacts/OpenFodder-*-emscripten.zip

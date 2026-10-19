@@ -1,0 +1,122 @@
+name: emscripten-build
+
+on:
+  push:
+    branches:
+      - master
+      - 'feature/**'
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: Version used in the downloadable ZIP filename
+        type: string
+        required: false
+        default: latest
+
+permissions:
+  contents: read
+
+concurrency:
+  # github.workflow is the caller's name for reusable runs, so release jobs
+  # cannot cancel the standalone CI build (or vice versa).
+  group: ${{ github.workflow }}-emscripten-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      EMSDK: ${{ github.workspace }}/.emsdk
+      CMAKE_BUILD_PARALLEL_LEVEL: '4'
+      WEB_VERSION: ${{ inputs.version || 'latest' }}
+    steps:
+      - name: Checkout game and runtime submodules
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Checkout pinned Emscripten SDK manager
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          repository: emscripten-core/emsdk
+          ref: 3b3963d86a5c97adaf6eaa845cdfe0b811c2f960
+          path: .emsdk
+          persist-credentials: false
+
+      - name: Install build and browser tools
+        run: |
+          echo "OPENFODDER_WEB_BUILD_DIR=$RUNNER_TEMP/openfodder-web-build" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build python3-venv
+          python3 -m venv "$RUNNER_TEMP/web-check-venv"
+          "$RUNNER_TEMP/web-check-venv/bin/pip" install playwright==1.64.0
+          "$RUNNER_TEMP/web-check-venv/bin/python" -m playwright install --with-deps chromium
+
+      - name: Install Emscripten 6.0.12
+        run: |
+          "$EMSDK/emsdk" install 6.0.12
+          "$EMSDK/emsdk" activate 6.0.12
+
+      - name: Build demo bundle with browser checks enabled
+        run: |
+          EMSDK_QUIET=1 source "$EMSDK/emsdk_env.sh"
+          bash Projects/emscripten/build.sh -DOPENFODDER_WEB_DIAGNOSTICS=ON
+
+      - name: Check demos, timing, input, saves, and PC audio
+        run: |
+          "$RUNNER_TEMP/web-check-venv/bin/python" Projects/emscripten/smoke_test.py \
+            --artifacts "$RUNNER_TEMP/web-smoke"
+
+      - name: Build distribution without diagnostics
+        run: |
+          EMSDK_QUIET=1 source "$EMSDK/emsdk_env.sh"
+          bash Projects/emscripten/build.sh -DOPENFODDER_WEB_DIAGNOSTICS=OFF
+
+      - name: Package demo-only web ZIP
+        id: package
+        run: |
+          python3 Projects/emscripten/package_build.py \
+            --build-dir "$OPENFODDER_WEB_BUILD_DIR" --version "$WEB_VERSION" \
+            --output-dir "$RUNNER_TEMP/web-dist"
+          echo "archive=$RUNNER_TEMP/web-dist/OpenFodder-$WEB_VERSION-emscripten.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Check the extracted ZIP
+        env:
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: |
+          python3 -m zipfile -e "$ARCHIVE" "$RUNNER_TEMP/web-extracted"
+          "$RUNNER_TEMP/web-check-venv/bin/python" Projects/emscripten/smoke_test.py \
+            --production-only --runtime "$RUNNER_TEMP/web-extracted" \
+            --artifacts "$RUNNER_TEMP/web-smoke"
+
+      - name: Upload web ZIP
+        id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: OpenFodder-${{ env.WEB_VERSION }}-emscripten
+          path: ${{ steps.package.outputs.archive }}
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Add download link to run summary
+        env:
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        run: |
+          printf '### Browser build\n\n[Download Emscripten ZIP](%s)\n\nDemo data only; PC audio enabled.\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: emscripten-failure-logs
+          path: |
+            ${{ runner.temp }}/openfodder-web-build/CMakeFiles/CMakeConfigureLog.yaml
+            ${{ runner.temp }}/openfodder-web-build/CMakeFiles/CMakeError.log
+            ${{ runner.temp }}/web-smoke
+          if-no-files-found: ignore
+          retention-days: 7

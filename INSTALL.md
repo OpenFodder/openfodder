@@ -8,6 +8,14 @@ operating system.
 
 ## Browser build (WSL / Linux)
 
+GitHub Actions builds the browser version on `master`, `feature/**`, pull
+requests, and manual runs of **emscripten-build**. Download
+`OpenFodder-latest-emscripten.zip` from the run's artifacts (retained for
+30 days). Tagged releases also attach `OpenFodder-<version>-emscripten.zip`
+to the GitHub Release alongside the native packages. Both include demo data
+only and support PC audio. Extract the ZIP and follow `README-web.txt` to
+serve it locally.
+
 The browser target uses Emscripten, SDL3, and the regular game flow with
 Asyncify. Install CMake, Ninja, Python 3, and Emscripten 6.0.12 in WSL:
 
@@ -35,9 +43,10 @@ Serve the four generated `RunE/OpenFodder.{html,js,wasm,data}` files together
 over HTTP; opening the HTML as a local file does not work. The bundle contains
 the seven demo releases, their `.ofc` campaigns, and the runtime scripts.
 The standard build excludes retail data, disk images, local saves, desktop
-binaries, and diagnostic output. The desktop setup/updater, MPEG video, GGPO
-networking, and PC mixer audio are unavailable in this target. Amiga audio
-is supported. Saves use the browser's IndexedDB storage for the page's origin.
+binaries, and diagnostic output. The desktop setup/updater, MPEG video, and GGPO
+networking are unavailable in this target. Amiga and PC audio are supported;
+the web build statically links SDL3_mixer with VOC, WAVE, and MOD/libxmp decoders.
+Saves use the browser's IndexedDB storage for the page's origin.
 
 For the browser integration checks, build with
 `-DOPENFODDER_WEB_DIAGNOSTICS=ON`, install Python's `playwright` package and
@@ -48,7 +57,8 @@ python3 Projects/emscripten/smoke_test.py
 ```
 
 The checks serve the build locally and verify all demo missions, campaign
-discovery, interrupt/engine timing, canvas edge input, and save persistence.
+discovery, interrupt/engine timing, canvas edge input, save persistence, and
+non-silent PC VOC/MOD output through the browser's Web Audio graph.
 Rebuild with `-DOPENFODDER_WEB_DIAGNOSTICS=OFF` for distribution.
 
 ## Windows
