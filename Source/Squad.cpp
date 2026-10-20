@@ -29,15 +29,6 @@ void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
         for (unsigned int y = 0; y < 30; ++y) {
 
             mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
-            mSquad_WalkTargets[x][y].asInt = pValue;
         }
     }
 
