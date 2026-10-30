@@ -479,6 +479,14 @@ void cFodder::Briefing_Intro_Helicopter_Play(const bool pShowHelicopter, eTileTy
     mSurface->clearBuffer();
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 
+    // Shrink the SDL window to the original 320-wide frame for the
+    // duration of this intro. Gameplay windows are wider when
+    // --columns is raised, but this animation was authored for 320
+    // pixels wide, so rendering it in a wide window stretches it.
+    // SetOriginalRes() resizes the SDL window (by the current scaler);
+    // SetScreenSize() alone only changes the cropped source rectangle.
+    mWindow->SetOriginalRes(mVersionCurrent->GetScreenSize());
+
     if (pTileset >= eTileTypes_Hid)
         pTileset = eTileTypes_Jungle;
 
@@ -502,4 +510,10 @@ void cFodder::Briefing_Intro_Helicopter_Play(const bool pShowHelicopter, eTileTy
     mGraphics->Briefing_Intro_Helicopter_Play(ShowHelicopter, pTileset, Briefing_Get_Mission_Title(), Briefing_Get_Phase_Name());
     mVersionPlatformSwitchDisabled = false;
     mWindow->ToggleVSync(false);
+
+    // Restore the gameplay window (wide again if --columns was raised).
+    // Callers also restore it in Phase_Prepare, but doing it here means
+    // the window is back to gameplay size immediately after the intro,
+    // not only once the next phase starts.
+    Window_UpdateScreenSize();
 }

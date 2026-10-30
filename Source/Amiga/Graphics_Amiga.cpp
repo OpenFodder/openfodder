@@ -1034,7 +1034,7 @@ void cGraphics_Amiga::Video_Draw_16_Offset(int16 pCx) {
 		uint16 cx;
 		SourceX = 0;
 
-		for (cx = ax; cx < (mSurface->GetWidth() - 32); cx++) {
+		for (cx = ax; cx < 320; cx++) { // Intro art is 320 wide; GetWidth() - 32 is only 320 at the default 352-wide surface.
 
 			DrawPixel(pDs, di, SourceX, SourceY, cx, bx);
 
