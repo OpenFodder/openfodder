@@ -748,7 +748,11 @@ void cGraphics_PC::HeliIntro_BlitMaskedAlignedX(tSharedBuffer pSource, int16 pCx
 	const int planeShift = (pCx & 3); // <-- sub-pixel (0..3)
 
 	// first 4-pixel group for pCx
-	uint8* base = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (dx * 4);
+	// mMission_Intro_DrawY is a byte offset into a 352-wide buffer
+	// (row * 352 + 16). Convert it to the current surface width so the
+	// layer starts on the same row/column when the surface is wider.
+	// At the default 352-wide surface this is identical to the old value.
+	uint8* base = mSurface->GetSurfaceBuffer() + ((mMission_Intro_DrawY / 352) * mSurface->GetWidth()) + 16 + (dx * 4);
 
 	++dx;
 
@@ -778,7 +782,7 @@ void cGraphics_PC::HeliIntro_BlitMaskedAlignedX(tSharedBuffer pSource, int16 pCx
 				di += 4;
 			}
 
-			di -= mSurface->GetWidth() - 12 - 16;
+			di -= 324; // 81 groups * 4 bytes. The +GetWidth() below then makes the row advance exactly GetWidth(), instead of a fixed 352.
 			--pDs;
 
 			for (cx = dx; cx > 0; --cx)
@@ -814,7 +818,9 @@ void cGraphics_PC::HeliIntroBlit_OpaqueAlignedX(tSharedBuffer pDsSi, int16 pCx)
 	const int planeShift = (pCx & 3); // <-- the bit the old code discards
 
 	// Base points at the first 4-pixel group for pCx, Y offset unchanged.
-	uint8* base = mSurface->GetSurfaceBuffer() + mMission_Intro_DrawY + (groupX * 4);
+	// See HeliIntro_BlitMaskedAlignedX: convert the 352-wide offset
+	// to the current surface width. Identical at the default width.
+	uint8* base = mSurface->GetSurfaceBuffer() + ((mMission_Intro_DrawY / 352) * mSurface->GetWidth()) + 16 + (groupX * 4);
 
 	++dx;
 
@@ -855,7 +861,7 @@ void cGraphics_PC::HeliIntroBlit_OpaqueAlignedX(tSharedBuffer pDsSi, int16 pCx)
 
 			cx = dx;
 
-			di -= mSurface->GetWidth() - 12 - 16;
+			di -= 324; // 81 groups * 4 bytes. The +GetWidth() below then makes the row advance exactly GetWidth(), instead of a fixed 352.
 			--Ds;
 
 			if (cx & 1)
