@@ -21,7 +21,9 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Setup/Validation.hpp"
+#include "Setup/MountedImage.hpp"
 #include "Utils/md5.hpp"
 
 #include <algorithm>
@@ -29,12 +31,6 @@
 #include <iostream>
 #include <sstream>
 
-#ifdef OPENFODDER_HAS_FIRY
-// firy.hpp transitively includes the filesystem/* and images/* helpers we
-// need; firy's headers don't have include guards, so don't pull them in
-// individually after firy.hpp.
-#include "firy.hpp"
-#endif
 
 namespace Setup {
 
@@ -139,7 +135,8 @@ static std::string ResolveRoot(const std::string& pInput, bool& pOutHasDataChild
     if (pInput.empty())
         return pInput;
 
-    std::string normalised = StripTrailingSlash(Canonicalise(pInput));
+    const auto resolved = FileSystem::Resolve(pInput);
+    std::string normalised = StripTrailingSlash(Canonicalise(resolved.empty() ? pInput : resolved.u8string()));
     if (normalised.empty() || normalised == "/")
         return pInput;
 
@@ -202,7 +199,9 @@ static sVersionMatch ScanFolderForVersion(const std::string& pFolder,
     if (m.mFilesExpected == 0)
         return m;     // Pseudo-versions (Custom / Random) have empty file lists; skip.
 
-    std::string base = pFolder;
+    const auto resolved = FileSystem::Resolve(pFolder);
+    if (resolved.empty()) return m;
+    std::string base = resolved.u8string();
     if (!base.empty() && base.back() != '/')
         base.push_back('/');
 
@@ -428,68 +427,26 @@ std::vector<std::string> MissingFiles(const sVersionMatch& pMatch) {
 // "what's in this thing?" — but ProbeImage is for any image type whereas
 // ValidateFolder is for already-extracted Cannon Fodder folders on disk.
 // ---------------------------------------------------------------------------
-#ifdef OPENFODDER_HAS_FIRY
-static void probe_DumpDir(std::shared_ptr<firy::filesystem::sDirectory> pDir,
-                            const std::string& pPrefix,
-                            int pDepth,
-                            int pMaxDepth) {
-    if (!pDir || pDepth > pMaxDepth) return;
-
-    auto& nodes = pDir->mNodes;
-    int shown = 0;
-    for (auto& node : nodes) {
-        if (++shown > 20) {
-            std::cout << pPrefix << "  (and " << (nodes.size() - 20) << " more)\n";
-            break;
-        }
-        if (node->isDirectory()) {
-            std::cout << pPrefix << "[" << node->nameGet() << "]\n";
-            auto sub = std::dynamic_pointer_cast<firy::filesystem::sDirectory>(node);
-            if (sub) {
-                if (!sub->entriesLoaded()) {
-                    auto fs = sub->filesystemGet().lock();
-                    if (fs) fs->filesystemDirectoryLoad(sub);
-                }
-                probe_DumpDir(sub, pPrefix + "  ", pDepth + 1, pMaxDepth);
-            }
-        } else {
-            std::cout << pPrefix << node->nameGet()
-                      << " (" << node->sizeInBytesGet() << " bytes)\n";
-        }
-    }
-}
-#endif
-
 int ProbeImage(const std::string& pPath) {
-#ifdef OPENFODDER_HAS_FIRY
-    if (!firy::gFiry) {
-        std::cout << "FAIL: firy global is null (link order?)\n";
+    cMountedImage image;
+    if (!image.Open(pPath)) {
+        std::cout << "FAIL: could not open image or disk set: " << pPath << "\n"
+                  << "      " << (image.LastError().empty() ?
+                      "File missing, unreadable member, or unsupported disk format." : image.LastError()) << "\n";
         return 1;
     }
-    auto image = firy::gFiry->openImage(pPath);
-    if (!image) {
-        std::cout << "FAIL: openImage(\"" << pPath << "\") returned null\n";
-        std::cout << "      (file missing? format unsupported?)\n";
-        return 1;
-    }
-
     std::cout << "OK: " << pPath << "\n"
-              << "    type=" << image->imageType() << "\n"
-              << "    label=\"" << image->filesystemNameGet() << "\"\n"
-              << "    contents:\n";
-
-    auto root = image->filesystemPath("/");
-    if (!root) {
-        std::cout << "    (no root directory)\n";
-        return 0;
+              << "    type=" << image.ImageTypeShort() << "\n"
+              << "    disks=" << image.DiskCount() << "\n";
+    for (const auto& name : image.ListBasenamesLower()) {
+        auto data = image.Read(image.ResolveBasename(name));
+        if (!data) {
+            std::cout << "FAIL: could not read " << name << "\n";
+            return 1;
+        }
+        std::cout << "    " << name << " (" << data->size() << " bytes)\n";
     }
-    probe_DumpDir(root, "      ", 0, 3);
     return 0;
-#else
-    (void)pPath;
-    std::cout << "FAIL: firy not compiled in (OPENFODDER_HAS_FIRY undefined)\n";
-    return 1;
-#endif
 }
 
 } // namespace Setup

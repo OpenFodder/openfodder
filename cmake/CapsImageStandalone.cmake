@@ -1,0 +1,13 @@
+# Build the unmodified native SPS SDK carried by SOS_Unpacker.
+cmake_minimum_required(VERSION 3.18)
+project(SOSNativeSDK CXX)
+set(CMAKE_CXX_STANDARD 17)
+file(GLOB sources capsimg/CAPSImg/*.cpp capsimg/Core/*.cpp capsimg/Codec/*.cpp)
+add_library(capsimage STATIC ${sources})
+target_include_directories(capsimage PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+if(WIN32)
+    target_compile_definitions(capsimage PRIVATE WIN32 NOMINMAX _CRT_SECURE_NO_WARNINGS)
+    set_target_properties(capsimage PROPERTIES VS_GLOBAL_VcpkgAutoLink false)
+else()
+    target_sources(capsimage PRIVATE stdafx.cpp)
+endif()

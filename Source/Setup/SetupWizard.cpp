@@ -21,9 +21,12 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Setup/SetupWizard.hpp"
 #include "Setup/MountedImage.hpp"
 #include "Setup/CueSheet.hpp"
+#include "Setup/DiskImageList.hpp"
+#include <filesystem>
 #include "Network/NetworkMenuText.hpp"
 
 #include <algorithm>
@@ -58,6 +61,7 @@ enum eGuiAction : int16 {
     GUIACT_SW_SAVE_AND_CONTINUE,    // mounted image: persist imageN= and re-mount each launch
     GUIACT_SW_COPY_TO_DATA,         // mounted image: copy files into <cwd>/Data/<release>, unmount
     GUIACT_SW_TRY_AGAIN,
+    GUIACT_SW_PREVIOUS, GUIACT_SW_NEXT,
     // Public-matchmaking pairing has moved out of the wizard — see
     // MultiplayerMenu's RequireHubToken (it prompts on demand the first
     // time the user tries to host/find an internet game).
@@ -75,6 +79,22 @@ static void Gui_SetupWizard_Click(void* ctx, int16 action, int16 arg) {
     cSetupWizard* w = static_cast<cSetupWizard*>(ctx);
     if (!w) return;
     w->OnRowClick(action, arg);
+}
+
+static std::string FitSetupText(std::string text, int width, bool tail = false) {
+    std::transform(text.begin(), text.end(), text.begin(), [](unsigned char c) { return char(std::toupper(c)); });
+    if (g_Fodder->String_MeasureWidth(mFont_Briefing_Width, text) <= width) return text;
+    while (!text.empty() && g_Fodder->String_MeasureWidth(mFont_Briefing_Width, ".." + text) > width) {
+        if (tail) text.erase(text.begin()); else text.pop_back();
+    }
+    return tail ? ".." + text : text + "..";
+}
+
+static std::string GameName(const sGameVersion* version) {
+    if (!version) return "GAME FILES";
+    const char* platform = version->mPlatform == ePlatform::Amiga ? " - AMIGA" :
+                           version->mPlatform == ePlatform::PC ? " - PC" : "";
+    return version->mName + platform;
 }
 
 cSetupWizard::cSetupWizard() = default;
@@ -107,6 +127,8 @@ void cSetupWizard::Close() {
 
 void cSetupWizard::RunAutoScan() {
     mCandidates = AutoScan();
+    mCandidateStart = 0;
+    mCandidateFolder.clear();
 }
 
 void cSetupWizard::OnBack() {
@@ -127,6 +149,11 @@ void cSetupWizard::OnBack() {
             }
         }
         break;
+    case eScreen::Checking:
+        mPendingPick.clear();
+        mCheckingDrawn = false;
+        mScreen = eScreen::Locate;
+        break;
     case eScreen::Result:
         mScreen = eScreen::Locate;
         break;
@@ -134,12 +161,14 @@ void cSetupWizard::OnBack() {
 }
 
 void cSetupWizard::OnScrollUp() {
+    if (mScreen == eScreen::Locate) mCandidateStart = std::max(0, mCandidateStart - 3);
     if (mScreen == eScreen::Browse && mBrowser) {
         mBrowser->OnScrollUp();
     }
 }
 
 void cSetupWizard::OnScrollDown() {
+    if (mScreen == eScreen::Locate && mCandidateStart + 3 < int(mCandidates.size())) mCandidateStart += 3;
     if (mScreen == eScreen::Browse && mBrowser) {
         mBrowser->OnScrollDown();
     }
@@ -149,8 +178,10 @@ void cSetupWizard::EnterBrowse() {
     mBrowser = std::make_unique<cFileBrowser>();
     // Pick the most useful starting point: an existing candidate's parent if
     // we have one, else the user profile, else the cwd.
-    std::string start;
-    if (!mCandidates.empty()) {
+    std::string start = mBrowsePath;
+    if (!start.empty()) {
+        // Continue where the user was browsing.
+    } else if (!mCandidates.empty()) {
         start = mCandidates.front().mPath;
     } else {
 #ifdef _WIN32
@@ -168,7 +199,7 @@ void cSetupWizard::EnterBrowse() {
 
     mBrowser->Open(start, cFileBrowser::eFilter::DirsAndImages,
         [this](const std::string& pPicked) {
-            DispatchPick(pPicked);
+            QueuePick(pPicked);
         },
         [this]() {
             mScreen = eScreen::Locate;
@@ -207,32 +238,56 @@ sValidationResult cSetupWizard::ResultFromMountedImage(int pId,
     if (pId <= 0)
         return r;
 
-    // Walk the version table; everything mountImage already registered for
-    // this image carries a matching firy://<id>/ prefix on its release path.
+    // Count across the whole set, including incomplete releases which the
+    // resource manager deliberately does not expose to the game picker.
     const std::string virtPrefix = "firy://" + std::to_string(pId) + "/";
-    auto available = g_ResourceMan->GetAvailable();
-    for (auto* v : available) {
-        if (!v) continue;
-        const std::string pathForVersion = g_ResourceMan->FindVersionPath(v);
-        if (pathForVersion.size() < virtPrefix.size())
-            continue;
-        if (pathForVersion.compare(0, virtPrefix.size(), virtPrefix) != 0)
-            continue;
-
+    auto image = MountedImageGet(pId);
+    if (!image) return r;
+    for (size_t i = 0; i < 20; ++i) {
+        const auto* v = &KnownGameVersions[i];
+        if (v->mFiles.empty()) continue;
         sVersionMatch m;
         m.mVersion = v;
-        m.mResolvedPath = pathForVersion;
+        m.mResolvedPath = virtPrefix;
         m.mFilesExpected = v->mFiles.size();
-        m.mFilesFound = v->mFiles.size();    // mountImage only registers complete sets
-        m.mFilesMd5Match = m.mFilesFound;    // we don't MD5 mounted images (cheap-fast)
-        r.mMatches.push_back(m);
+        for (const auto& file : v->mFiles) {
+            std::string name = file.mName;
+            std::transform(name.begin(), name.end(), name.begin(),
+                [](unsigned char c) { return (char)std::tolower(c); });
+            if (image->FileExists(name)) ++m.mFilesFound;
+        }
+        if (m.mFilesFound > 0) r.mMatches.push_back(m);
     }
+    std::stable_sort(r.mMatches.begin(), r.mMatches.end(), [](const sVersionMatch& a, const sVersionMatch& b) {
+        if (a.IsComplete() != b.IsComplete()) return a.IsComplete();
+        return a.mFilesFound * b.mFilesExpected > b.mFilesFound * a.mFilesExpected;
+    });
     return r;
+}
+
+void cSetupWizard::QueuePick(const std::string& path) {
+    if (path.empty()) return;
+    mPendingPick = path;
+    mCheckingDrawn = false;
+    mScreen = eScreen::Checking;
+    g_Fodder->mMouse_Button_Left_Toggle = 0;
 }
 
 bool cSetupWizard::DispatchPick(const std::string& pPath) {
     if (pPath.empty() || !g_ResourceMan)
         return false;
+
+    // Reject the previous uncommitted choice before registering another set.
+    // Otherwise its release entries could mask the newly mounted files.
+    if (mLastMountedId > 0) {
+        g_ResourceMan->unmountImage(mLastMountedId);
+        mLastMountedId = 0;
+        DiscardPendingCueTemp();
+    }
+
+    std::error_code pathError;
+    mBrowsePath = std::filesystem::is_directory(pPath, pathError) ? pPath :
+                  std::filesystem::path(pPath).parent_path().string();
 
     // .cue/.bin sheets: parse + extract track-1 to temp + mount.
     if (LooksLikeCueSheet(pPath))
@@ -257,7 +312,8 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
     if (LooksLikeImagePath(pPath)) {
         // Try to mount via firy. Success → registers versions and writes
         // synthesised release paths into mReleasePath/mReleaseFiles.
-        const int id = g_ResourceMan->mountImage(pPath);
+        std::string imageError;
+        const int id = g_ResourceMan->mountImage(pPath, &imageError);
         if (id > 0) {
             // If the wizard had a previous pending mount that the user
             // never committed, drop it before we adopt the new one.
@@ -274,6 +330,7 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
         // firy opened nothing usable. Build an empty "no match" result so
         // the user gets explicit feedback instead of staying in the browser.
         sValidationResult empty;
+        empty.mError = imageError;
         empty.mInputFolder = pPath;
         empty.mResolvedRoot = pPath;
         empty.mLooksLikeRoot = false;
@@ -283,10 +340,33 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
         return true;
     }
 
-    // Folder path → existing validation flow.
-    mLastMountedId = 0;
-    sValidationResult r = ValidateFolder(pPath);
-    EnterResult(r);
+    // Prefer already-extracted files. A directory of disk captures is a
+    // collection to choose from, rather than an unsuccessful loose-file scan.
+    auto result = ValidateFolder(pPath);
+    const bool complete = std::any_of(result.mMatches.begin(), result.mMatches.end(),
+        [](const sVersionMatch& m) { return m.IsComplete(); });
+    if (complete) { EnterResult(result); return true; }
+    std::string imageError;
+    const auto images = FindDiskImages(pPath, &imageError);
+    if (images.size() == 1) return DispatchPick(images.front().mPath);
+    if (!images.empty()) {
+        mCandidates.clear();
+        for (const auto& image : images) {
+            sScanCandidate choice;
+            choice.mPath = image.mPath;
+            choice.mLabel = image.mName;
+            choice.mFormat = image.mFormat;
+            choice.mDisks = image.mDisks;
+            choice.mIsImage = true;
+            mCandidates.push_back(std::move(choice));
+        }
+        mCandidateFolder = pPath;
+        mCandidateStart = 0;
+        mScreen = eScreen::Locate;
+        return true;
+    }
+    result.mError = imageError;
+    EnterResult(result);
     return true;
 }
 
@@ -472,52 +552,19 @@ int cSetupWizard::CommitCopyFromRawFolder() {
 
         std::string destDir = cwd + "Data/" + match.mVersion->mDataPath + "/";
 
-        // Make sure destDir exists. mkdir-p the chain.
-        {
-            std::string p;
-            for (size_t i = 0; i < destDir.size(); ++i) {
-                p.push_back(destDir[i]);
-                if (destDir[i] == '/') {
-                    if (p.size() > 1 && !(p.size() == 3 && p[1] == ':'))
-#ifdef _WIN32
-                        _mkdir(p.c_str());
-#else
-                        mkdir(p.c_str(), 0755);
-#endif
-                }
-            }
-        }
+        const auto destination = FileSystem::Resolve(destDir, true);
+        if (destination.empty()) return -1;
+        std::error_code copyError;
+        std::filesystem::create_directories(destination, copyError);
+        if (copyError) return -1;
 
-        // Copy each manifest file from src → dest. We trust ValidateFolder
-        // already proved every file is present, so any read failure here is
-        // an I/O issue (permissions, mid-copy disk full, etc.) and should
-        // surface as -1.
-        for (auto& kf : match.mVersion->mFiles) {
-            // We need the on-disk casing for the source — re-list once and
-            // build a lower→original map. Cheap: at most ~230 entries.
-            static thread_local std::map<std::string, std::string> caseMap;
-            static thread_local std::string lastDir;
-            if (lastDir != srcDir) {
-                lastDir = srcDir;
-                caseMap.clear();
-                auto entries = g_ResourceMan->DirectoryList(srcDir, "");
-                for (auto& e : entries) {
-                    std::string lo = e;
-                    std::transform(lo.begin(), lo.end(), lo.begin(), ::tolower);
-                    caseMap[lo] = e;
-                }
-            }
-            std::string wantLower = kf.mName;
-            std::transform(wantLower.begin(), wantLower.end(), wantLower.begin(), ::tolower);
-            auto it = caseMap.find(wantLower);
-            if (it == caseMap.end())
-                continue;       // shouldn't happen given IsComplete()
-
-            const std::string srcPath = srcDir + it->second;
-            const std::string destPath = destDir + it->second;
-
-            std::ifstream in(srcPath.c_str(), std::ios::binary);
-            std::ofstream out(destPath.c_str(), std::ios::binary | std::ios::trunc);
+        for (const auto& kf : match.mVersion->mFiles) {
+            const auto source = FileSystem::Resolve(srcDir + kf.mName);
+            if (source.empty()) return -1;
+            const auto target = FileSystem::Resolve((destination / source.filename()).u8string(), true);
+            if (target.empty()) return -1;
+            std::ifstream in(source, std::ios::binary);
+            std::ofstream out(target, std::ios::binary | std::ios::trunc);
             if (!in || !out)
                 return -1;
 
@@ -623,7 +670,19 @@ int cSetupWizard::CommitCopyFromImage() {
 
 void cSetupWizard::OnPathDropped(const std::string& pPath) {
     // Treat dropped folders/images as if the user picked them in the browser.
-    DispatchPick(pPath);
+    QueuePick(pPath);
+}
+
+void cSetupWizard::UseCurrentGame() {
+    if (mLastResult.mResolvedRoot.empty()) return;
+    const bool complete = std::any_of(mLastResult.mMatches.begin(), mLastResult.mMatches.end(),
+        [](const sVersionMatch& match) { return match.IsComplete(); });
+    if (!complete) return;
+    if (mLastMountedId > 0) {
+        // Keep the existing mount; Setup_Wizard_Run persists imageN= on exit.
+        mResourcesChanged = true;
+    } else CommitPick(mLastResult.mResolvedRoot);
+    mDone = true;
 }
 
 void cSetupWizard::OnRowClick(int16 action, int16 arg) {
@@ -641,6 +700,8 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
     mLastInputArg = arg;
 
     switch (action) {
+    case GUIACT_SW_PREVIOUS: OnScrollUp(); return;
+    case GUIACT_SW_NEXT: OnScrollDown(); return;
     case GUIACT_SW_LOCATE:
         mScreen = eScreen::Locate;
         return;
@@ -677,36 +738,12 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
         if (arg < 0 || arg >= (int16)mCandidates.size())
             return;
         const auto& c = mCandidates[(size_t)arg];
-        if (c.mIsImage) {
-            DispatchPick(c.mPath);
-        } else {
-            EnterResult(c.mResult);
-        }
+        QueuePick(c.mPath);
         return;
     }
-    case GUIACT_SW_SAVE_AND_CONTINUE: {
-        if (mLastResult.mResolvedRoot.empty())
-            return;
-        // Only save if at least one match is "real" (>=1 file found).
-        bool any = false;
-        for (auto& m : mLastResult.mMatches) {
-            if (m.mFilesFound > 0) { any = true; break; }
-        }
-        if (!any)
-            return;
-
-        if (mLastMountedId > 0) {
-            // Image is already mounted (DispatchPick did the mountImage()
-            // call); just confirm & exit. The Setup_Wizard_Run trampoline
-            // will SaveIni after we close.
-            mResourcesChanged = true;
-            mDone = true;
-        } else {
-            CommitPick(mLastResult.mResolvedRoot);
-            mDone = true;
-        }
+    case GUIACT_SW_SAVE_AND_CONTINUE:
+        UseCurrentGame();
         return;
-    }
     case GUIACT_SW_COPY_TO_DATA: {
         // Two flavours: image-mount (mLastMountedId > 0) or raw-extracted
         // folder match (mLastResult has any mIsRawFolder match). Both lead
@@ -743,6 +780,11 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
 }
 
 void cSetupWizard::Tick() {
+    if (mScreen == eScreen::Checking && mCheckingDrawn && !mPendingPick.empty()) {
+        std::string path;
+        path.swap(mPendingPick);
+        DispatchPick(path);
+    }
     if (mScreen == eScreen::Browse && mBrowser) {
         mBrowser->Tick();
         if (mBrowser->IsDone()) {
@@ -760,408 +802,158 @@ void cSetupWizard::Tick() {
     // Source/Network/MultiplayerMenu.cpp), so the wizard tick stays narrow.
 }
 
+// Transparent controls share the main menu's hover outline and text treatment.
+static void SetupButton(cSetupWizard* wizard, const std::string& label,
+                        int left, int right, int y, int action, int arg = 0) {
+    const bool hover = g_Fodder->mMouseX + 0x20 >= left && g_Fodder->mMouseX + 0x20 <= right &&
+        g_Fodder->mMouseY >= y && g_Fodder->mMouseY <= y + 15;
+    g_Fodder->String_Print_Small_CentreInBox(label, left, right, y + 5);
+    if (hover) g_Fodder->Briefing_DrawBox(left, y, right - left, 16, 0xF3);
+    g_Fodder->mGUI_Temp_X = left;
+    g_Fodder->mGUI_Temp_Y = y;
+    g_Fodder->mGUI_Temp_Width = right - left;
+    g_Fodder->mGUI_Draw_LastHeight = 10;
+    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, wizard, action, arg);
+}
+
+static void SetupCaption(const std::string& text, int y) {
+    // Paths, disk counts and format lists need punctuation and digits;
+    // the sidebar caption font only contains A-Z and spaces.
+    g_Fodder->String_Print_Small_CentreInBox(FitSetupText(text, 292), 14, 306, y);
+}
+
 void cSetupWizard::DrawWelcome() {
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("OPEN FODDER", false, 0x01);
-    g_Fodder->mString_GapCharID = 0;
-
-    int y = 0x20;
-    y = NetworkMenu_DrawWrappedBody(
-        "Cannon Fodder retail data was not found in any of the searched locations "
-        "You can play the bundled demos right now or point at a folder of retail files",
-        y, 290);
-    y += 6;
-
-    y = NetworkMenu_DrawWrappedBody(
-        "Drag and drop a folder onto this window or use Locate Data to browse for one",
-        y, 290);
-
-    // Three buttons across the bottom.
-    const size_t yBottom = 0xB8;
-    const size_t buttonW = 0x52;
-    const size_t gap = 0x06;
-    const size_t totalW = (buttonW * 3) + (gap * 2);
-    const size_t xStart = 160 - (totalW / 2);
-
-    const size_t xLocateL = xStart;                    const size_t xLocateR = xLocateL + buttonW;
-    const size_t xDemoL   = xLocateR + gap;            const size_t xDemoR   = xDemoL + buttonW;
-    const size_t xQuitL   = xDemoR + gap;              const size_t xQuitR   = xQuitL + buttonW;
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("LOCATE", xLocateL, xLocateR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_LOCATE, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("PLAY DEMO", xDemoL, xDemoR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_CONTINUE_DEMO, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("QUIT", xQuitL, xQuitR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_QUIT, 0);
+    const bool retail = g_Fodder->mVersions->AnyRetailAvailable();
+    g_Fodder->String_Print_Large(retail ? "ADD GAME DATA" : "WELCOME ABOARD", false, 19);
+    NetworkMenu_DrawWrappedBody(retail ? "Choose another game folder or disk set." :
+        "Play a demo, or add your own copy of Cannon Fodder.", 64, 272);
+    SetupButton(this, "FIND GAME DATA", 54, 266, 105, GUIACT_SW_LOCATE);
+    SetupButton(this, retail ? "BACK TO MENU" : "PLAY DEMO", 54, 266, 150, GUIACT_SW_CONTINUE_DEMO);
 }
 
 void cSetupWizard::DrawLocate() {
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("LOCATE DATA", false, 0x01);
-    g_Fodder->mString_GapCharID = 0;
-
-    const size_t xRowL = 0x10;
-    const size_t xRowR = 0x130;
-    // ONE briefing-font line per candidate, with breathing room above and
-    // below. Going to one line per row eliminated the label-vs-detect
-    // overlap the previous two-line layout produced.
-    const int rowH = 0x0E;
-    int rowBaseY = 0x28;
-
+    const int footer = 175 + PLATFORM_BASED(0, 25);
+    g_Fodder->String_Print_Large("FIND GAME DATA", false, 19);
     if (mCandidates.empty()) {
-        NetworkMenu_DrawWrappedBody(
-            "No retail data was found automatically Click BROWSE to pick a folder "
-            "or drag and drop a folder onto this window",
-            rowBaseY, 290);
+        NetworkMenu_DrawWrappedBody("Choose a game folder or disk image.", 76, 276);
+        SetupCaption("YOU CAN ALSO DROP IT ONTO THIS WINDOW", 117);
     } else {
-        g_Fodder->String_Print_Small("Auto-detected:", 0x10, rowBaseY);
-        rowBaseY += 0x0C;
-
-        // Locate's box sits between rowBaseY (~0x34=52) and the bottom
-        // button row (yBottom 0xB8=184), so vertical budget is ~130 px.
-        // With rowH=14 we can fit 9 visible candidates before crashing
-        // into the BROWSE/SYSTEM/BACK row; cap at 9 with a "(+N more)"
-        // tail row when there are extras.
-        const int16 maxRows = 9;
-        const int16 shown = (int16)std::min<size_t>(mCandidates.size(), (size_t)maxRows);
-
-        const int16 boxX = (int16)(xRowL - 2);
-        const int16 boxY = (int16)(rowBaseY - 4);
-        const int16 boxW = (int16)(xRowR - xRowL + 4);
-        const int16 boxH = (int16)((shown * rowH) + 8);
-        g_Fodder->Briefing_DrawBox(boxX, boxY, boxW, boxH, 0xF3);
-        g_Fodder->Briefing_DrawBox(boxX - 1, boxY - 1, boxW, boxH, 0xF2);
-
-        // Each candidate row gets ONE truncated line. Format priority:
-        //   1. Folder candidate that matched a complete release: show the
-        //      detected version + path.  ("CANNON FODDER (AMIGA): /path/...")
-        //   2. Folder candidate, partial match: same shape, with file count.
-        //   3. Folder candidate, no match: just the path (de-duplicated).
-        //   4. Image candidate: "<label>: <path>".
-        //
-        // Inner padding accounts for the box's stroke + a couple of pixels
-        // of breathing space so text doesn't kiss the border.
-        const int innerPadL = 6;
-        const int innerPadR = 6;
-        const int contentPx = (int)(xRowR - xRowL) - innerPadL - innerPadR;
-
-        // String_Print_Small upper-cases its input before drawing, but
-        // String_MeasureWidth does NOT. mFont_Briefing_Width has 0 widths
-        // for lowercase a-z, which would make any lowercase string measure
-        // as ~0 px wide and never trigger truncation. Pre-upper-case here
-        // so the measurement matches the rendered glyph stream.
-        auto measure = [](const std::string& s) {
-            std::string up = s;
-            std::transform(up.begin(), up.end(), up.begin(), ::toupper);
-            return g_Fodder->String_MeasureWidth(mFont_Briefing_Width, up);
-        };
-        auto platformTag = [](const sGameVersion* v) -> const char* {
-            if (!v) return "";
-            if (v->mPlatform == ePlatform::Amiga) return "AMIGA";
-            if (v->mPlatform == ePlatform::PC)    return "PC";
-            return "";
-        };
-
-        // Two-part truncation: keep the identifying prefix (version tag)
-        // intact and strip from the FRONT of the path tail with ".." prefix
-        // so the row looks like:
-        //     CANNON FODDER (AMIGA) [RAW] - ..PROJECTS/OPENFODDER/RUN
-        // rather than ".. (PC) - D:/PROJECTS/OPENFODDER/RUN" which loses
-        // the version name entirely (front-strip on the whole string).
-        auto fitPrefixPath = [&](const std::string& pPrefix, const std::string& pPath) -> std::string {
-            const std::string sep = " - ";
-            std::string full = pPrefix + sep + pPath;
-            if (measure(full) <= contentPx)
-                return full;
-
-            // Reserve room for prefix + sep + ".." + at-least-some-tail.
-            const int prefixPx = measure(pPrefix + sep + "..");
-            int tailBudget = contentPx - prefixPx;
-            if (tailBudget < 8) {
-                // Prefix alone overflows; fall back to whole-string front-trim.
-                std::string t = full;
-                while (!t.empty() && measure(".." + t) > contentPx)
-                    t.erase(t.begin());
-                return ".." + t;
-            }
-
-            std::string tail = pPath;
-            while (!tail.empty() && measure(tail) > tailBudget)
-                tail.erase(tail.begin());
-            return pPrefix + sep + ".." + tail;
-        };
-
-        auto formatCandidate = [&](const sScanCandidate& c) -> std::string {
-            if (c.mIsImage) {
-                std::string prefix = c.mLabel.empty() ? std::string("IMAGE") : c.mLabel;
-                return fitPrefixPath(prefix, c.mPath);
-            }
-
-            // Pick ONE representative complete match (retail beats demo;
-            // first hit wins otherwise) and use its short name as the
-            // prefix. Append "+N" if there are additional matches in the
-            // same folder.
+        SetupCaption("CHOOSE A GAME TO ADD", 44);
+        mCandidateStart = std::max(0, std::min(mCandidateStart, int(mCandidates.size()) - 1));
+        for (int row = 0; row < 3 && mCandidateStart + row < int(mCandidates.size()); ++row) {
+            const int index = mCandidateStart + row;
+            const auto& candidate = mCandidates[index];
+            const int y = 69 + row * 29;
             const sVersionMatch* best = nullptr;
-            int totalComplete = 0;
-            bool anyRaw = false;
-            for (auto& m : c.mResult.mMatches) {
-                if (!m.mVersion || !m.IsComplete())
-                    continue;
-                ++totalComplete;
-                if (m.mIsRawFolder) anyRaw = true;
-                if (!best) { best = &m; continue; }
-                if (m.IsRetail() && !best->IsRetail()) { best = &m; continue; }
-                if (!m.IsRetail() && best->IsRetail()) continue;
+            for (const auto& match : candidate.mResult.mMatches)
+                if (!best || (match.IsComplete() && !best->IsComplete())) best = &match;
+            const std::string title = best ? GameName(best->mVersion) : candidate.mLabel;
+            const bool hover = g_Fodder->mMouseX + 0x20 >= 14 && g_Fodder->mMouseX + 0x20 <= 306 &&
+                g_Fodder->mMouseY >= y - 3 && g_Fodder->mMouseY <= y + 23;
+            if (hover) g_Fodder->Briefing_DrawBox(14, y - 3, 292, 26, 0xF3);
+            g_Fodder->String_Print_Small(FitSetupText(title, 274), 22, y);
+            std::string detail;
+            if (candidate.mIsImage) {
+                detail = std::to_string(candidate.mDisks) + " " + candidate.mFormat +
+                    (candidate.mDisks == 1 ? " DISK" : " DISKS");
+                std::transform(detail.begin(), detail.end(), detail.begin(), [](unsigned char c) { return char(std::toupper(c)); });
+            } else detail = best && best->IsComplete() ? "READY" : "CHECK FILES";
+            // A single location on hover is enough; repeating paths in every
+            // row made the actual game names difficult to pick out.
+            if (hover) {
+                const auto location = candidate.mIsImage ?
+                    std::filesystem::u8path(candidate.mPath).filename().u8string() : candidate.mPath;
+                SetupCaption(FitSetupText(location, 284, true), 147);
             }
-
-            if (best && best->mVersion) {
-                std::ostringstream prefix;
-                // Short name (≤12 chars) keeps the prefix compact so the
-                // path tail has room. Falls back to the long name if the
-                // short name is empty (shouldn't happen — every entry in
-                // KnownGameVersions[] has one).
-                if (!best->mVersion->mShortName.empty())
-                    prefix << best->mVersion->mShortName;
-                else
-                    prefix << best->mVersion->mName;
-                if (totalComplete > 1)
-                    prefix << " +" << (totalComplete - 1);
-                if (anyRaw) prefix << " RAW";
-                return fitPrefixPath(prefix.str(), c.mPath);
-            }
-
-            // No complete match — fall back to a partial-match summary.
-            for (auto& m : c.mResult.mMatches) {
-                if (!m.mVersion) continue;
-                std::ostringstream prefix;
-                if (!m.mVersion->mShortName.empty())
-                    prefix << m.mVersion->mShortName;
-                else
-                    prefix << m.mVersion->mName;
-                prefix << " " << m.mFilesFound << "/" << m.mFilesExpected;
-                return fitPrefixPath(prefix.str(), c.mPath);
-            }
-            return fitPrefixPath("FOUND", c.mPath);
-        };
-
-        for (int16 i = 0; i < shown; ++i) {
-            const auto& c = mCandidates[(size_t)i];
-            const size_t y = (size_t)(rowBaseY + (i * rowH));
-
-            // formatCandidate already calls fitPrefixPath internally to fit
-            // contentPx — no outer trim needed.
-            g_Fodder->String_Print_Small_LeftInBox(
-                formatCandidate(c),
-                xRowL + (size_t)innerPadL, xRowR - (size_t)innerPadR, y);
-
-            g_Fodder->mGUI_Temp_X = (int16)xRowL;
-            g_Fodder->mGUI_Temp_Y = (int16)y;
-            g_Fodder->mGUI_Temp_Width = (int16)(xRowR - xRowL);
-            g_Fodder->mGUI_Draw_LastHeight = (int16)(rowH - 2);
-            g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_USE_CANDIDATE, i);
+            g_Fodder->String_Print_Small(detail, 24, y + 13);
+            g_Fodder->mGUI_Temp_X = 14;
+            g_Fodder->mGUI_Temp_Y = y - 3;
+            g_Fodder->mGUI_Temp_Width = 292;
+            g_Fodder->mGUI_Draw_LastHeight = 21;
+            g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_USE_CANDIDATE, index);
         }
+        if (mCandidateStart > 0) SetupButton(this, "PREVIOUS", 14, 98, 157, GUIACT_SW_PREVIOUS);
+        if (mCandidateStart + 3 < int(mCandidates.size())) SetupButton(this, "MORE", 222, 306, 157, GUIACT_SW_NEXT);
     }
-
-    // Bottom row: in-engine browse, native OS picker, back.
-    const size_t yBottom = 0xB8;
-    const size_t buttonW = 0x52;
-    const size_t gap = 0x06;
-    const size_t totalW = (buttonW * 3) + (gap * 2);
-    const size_t xStart = 160 - (totalW / 2);
-    const size_t xBrowseL  = xStart;                       const size_t xBrowseR  = xBrowseL + buttonW;
-    const size_t xSystemL  = xBrowseR + gap;               const size_t xSystemR  = xSystemL + buttonW;
-    const size_t xBackL    = xSystemR + gap;               const size_t xBackR    = xBackL + buttonW;
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("BROWSE...", xBrowseL, xBrowseR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_BROWSE, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("SYSTEM...", xSystemL, xSystemR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_BROWSE_NATIVE, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("BACK", xBackL, xBackR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_BACK_TO_WELCOME, 0);
+    SetupButton(this, "BROWSE", 165, 306, footer, GUIACT_SW_BROWSE);
+    SetupButton(this, "BACK", 14, 145, footer, GUIACT_SW_BACK_TO_WELCOME);
 }
 
 void cSetupWizard::DrawBrowse() {
-    if (mBrowser)
-        mBrowser->Draw();
+    if (mBrowser) mBrowser->Draw();
 }
 
 void cSetupWizard::DrawResult() {
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("RESULT", false, 0x01);
-    g_Fodder->mString_GapCharID = 0;
-
-    const bool isImage = (mLastMountedId > 0);
-
-    // Per-line content budget: leave 8 px on each side. String_Print_Small
-    // upper-cases internally; pre-upper-case for measurement so we don't
-    // under-count lowercase chars (their width-table entries are 0).
-    const int lineLeftPad  = 8;
-    const int lineRightPad = 8;
-    const int contentPx = 320 - lineLeftPad - lineRightPad;
-    auto measure = [](const std::string& s) {
-        std::string up = s;
-        std::transform(up.begin(), up.end(), up.begin(), ::toupper);
-        return g_Fodder->String_MeasureWidth(mFont_Briefing_Width, up);
-    };
-    auto trimRight = [&](const std::string& s) -> std::string {
-        if (measure(s) <= contentPx)
-            return s;
-        // Tail-strip with a trailing ".." marker so the user sees we cut.
-        std::string t = s;
-        while (!t.empty() && measure(t + "..") > contentPx)
-            t.pop_back();
-        return t + "..";
-    };
-    auto trimPathFront = [&](const std::string& pPrefix, const std::string& pPath) -> std::string {
-        std::string full = pPrefix + pPath;
-        if (measure(full) <= contentPx)
-            return full;
-        std::string t = pPath;
-        while (!t.empty() && measure(pPrefix + ".." + t) > contentPx)
-            t.erase(t.begin());
-        return pPrefix + ".." + t;
-    };
-
-    int y = 0x20;
-    {
-        const char* hdr = isImage ? "Image: " : "Folder: ";
-        g_Fodder->String_Print_Small(trimPathFront(hdr, mLastResult.mResolvedRoot), lineLeftPad, y);
-    }
-    y += 0x0E;
-
-    if (mLastResult.mMatches.empty()) {
-        NetworkMenu_DrawWrappedBody(
-            isImage
-                ? "Image opened but no Cannon Fodder release was matched. The disk image's filenames "
-                  "do not match any version we know about."
-                : "No Cannon Fodder data was recognised in this folder.",
-            y, 300);
+    const bool image = mLastMountedId > 0;
+    const sVersionMatch* best = nullptr;
+    for (const auto& match : mLastResult.mMatches)
+        if (!best || (match.IsComplete() && !best->IsComplete()) ||
+            (match.IsComplete() == best->IsComplete() && match.mFilesFound > best->mFilesFound)) best = &match;
+    const bool ready = best && best->IsComplete() && mLastResult.mError.empty();
+    const int footer = 175 + PLATFORM_BASED(0, 25);
+    g_Fodder->String_Print_Large(ready ? "GAME FOUND" : best ?
+        (image ? "DISK SET INCOMPLETE" : "GAME INCOMPLETE") : "NO GAME FOUND", false, 19);
+    if (best) SetupCaption(FitSetupText(GameName(best->mVersion), 292), 44);
+    if (ready) {
+        const bool install = image || best->mIsRawFolder;
+        const bool useDisks = image && mPendingCuePath.empty();
+        SetupCaption(useDisks ? "PLAY DIRECTLY FROM THESE DISKS" : "ADD THIS GAME TO YOUR MENU", 78);
+        SetupButton(this, install && !useDisks ? "COPY GAME FILES" : "ADD GAME", 54, 266, 105,
+            install && !useDisks ? GUIACT_SW_COPY_TO_DATA : GUIACT_SW_SAVE_AND_CONTINUE);
+        if (useDisks)
+            SetupButton(this, "COPY FILES INSTEAD", 54, 266, 143, GUIACT_SW_COPY_TO_DATA);
     } else {
-        bool anyComplete = false;
-        for (auto& m : mLastResult.mMatches)
-            if (m.IsComplete()) { anyComplete = true; break; }
-
-        const char* heading = anyComplete ? "Detected releases:" : "Partial detection:";
-        g_Fodder->String_Print_Small(heading, lineLeftPad, y);
-        y += 0x0C;
-
-        const int rowH = 0x0E;
-        const int maxRows = 9;
-        int shown = 0;
-        for (auto& m : mLastResult.mMatches) {
-            if (shown >= maxRows) break;
-            std::string line = "  " + DescribeMatch(m);
-            g_Fodder->String_Print_Small(trimRight(line), lineLeftPad, y);
-            y += rowH;
-            ++shown;
-        }
+        const char* message = best ? (image ?
+            "Keep all disks from the same set in one folder, then choose it again." :
+            "Choose a folder with the complete game, or try its original disks.") :
+            !mLastResult.mError.empty() ? "Could not read game data here. Try another folder or disk image." :
+            "No Cannon Fodder data was found here. Choose a game folder or original disks.";
+        NetworkMenu_DrawWrappedBody(message, 82, 276);
+        SetupButton(this, "BROWSE", 165, 306, footer, GUIACT_SW_BROWSE);
     }
-
-    // Buttons.
-    bool anyHit = false;
-    for (auto& m : mLastResult.mMatches)
-        if (m.mFilesFound > 0) { anyHit = true; break; }
-
-    const size_t yBottom = 0xB8;
-
-    // The public-matchmaking opt-in checkbox used to live here. It's gone:
-    // pairing is now prompted on demand by MultiplayerMenu the first time
-    // the user tries to host or find an internet game (RequireHubToken in
-    // Source/Network/MultiplayerMenu.cpp), which is a more honest place for
-    // it than a checkbox below the data-locator's Apply buttons.
-
-    if (isImage) {
-        // Image picks: COPY (default, lands files on disk) + KEEP MOUNTED
-        // (persist as imageN= and re-mount each launch) + TRY AGAIN.
-        // KEEP MOUNTED is suppressed for cue/bin pickups because the
-        // mounted source is a temp .iso we extracted from the cue — it
-        // wouldn't survive past Close().
-        const bool isCueMount = !mPendingCuePath.empty();
-        const int btnCount = isCueMount ? 2 : 3;
-        const size_t buttonW = 0x52;
-        const size_t gap = 0x06;
-        const size_t totalW = (buttonW * btnCount) + (gap * (btnCount - 1));
-        const size_t xStart = 160 - (totalW / 2);
-        const size_t xCopyL = xStart;                      const size_t xCopyR = xCopyL + buttonW;
-        size_t xMountL = 0, xMountR = 0;
-        size_t xBackL = 0, xBackR = 0;
-        if (isCueMount) {
-            xBackL  = xCopyR + gap;                        xBackR  = xBackL + buttonW;
-        } else {
-            xMountL = xCopyR + gap;                        xMountR = xMountL + buttonW;
-            xBackL  = xMountR + gap;                       xBackR  = xBackL + buttonW;
-        }
-
-        if (anyHit) {
-            g_Fodder->GUI_Button_Draw_SmallBoxAt("COPY TO DATA", xCopyL, xCopyR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-            g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_COPY_TO_DATA, 0);
-
-            if (!isCueMount) {
-                g_Fodder->GUI_Button_Draw_SmallBoxAt("KEEP MOUNTED", xMountL, xMountR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-                g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_SAVE_AND_CONTINUE, 0);
-            }
-        } else {
-            g_Fodder->GUI_Button_Draw_SmallBoxAt("COPY TO DATA", xCopyL, xCopyR, yBottom, 0xC8, 0xC8, eTextAlign::Centre);
-            if (!isCueMount)
-                g_Fodder->GUI_Button_Draw_SmallBoxAt("KEEP MOUNTED", xMountL, xMountR, yBottom, 0xC8, 0xC8, eTextAlign::Centre);
-        }
-
-        g_Fodder->GUI_Button_Draw_SmallBoxAt("TRY AGAIN", xBackL, xBackR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-        g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_TRY_AGAIN, 0);
-    } else {
-        // Folder picks: action depends on whether the matched files were
-        // found in the canonical engine layout (<root>/Data/<release>/) or
-        // raw-extracted directly in the picked folder.
-        //
-        //   Engine layout (mIsRawFolder=false on every complete match):
-        //       SAVE & CONTINUE — addUserDir(folder) + persist [paths].
-        //       The engine's findVersions will discover Data/<release>/
-        //       on its own.
-        //
-        //   Raw extraction (any complete match has mIsRawFolder=true):
-        //       COPY TO DATA — copy the matched manifest into
-        //       <cwd>/Data/<release>/ so findVersions can see them.
-        bool anyRaw = false;
-        for (auto& m : mLastResult.mMatches)
-            if (m.IsComplete() && m.mIsRawFolder) { anyRaw = true; break; }
-
-        const size_t buttonW = 0x60;
-        const size_t gap = 0x08;
-        const size_t totalW = (buttonW * 2) + gap;
-        const size_t xStart = 160 - (totalW / 2);
-        const size_t xActL  = xStart;                      const size_t xActR  = xActL + buttonW;
-        const size_t xBackL = xActR + gap;                 const size_t xBackR = xBackL + buttonW;
-
-        const char* primaryLabel = anyRaw ? "COPY TO DATA" : "USE AS IS";
-        const int16 primaryAction = anyRaw ? GUIACT_SW_COPY_TO_DATA : GUIACT_SW_SAVE_AND_CONTINUE;
-
-        if (anyHit) {
-            g_Fodder->GUI_Button_Draw_SmallBoxAt(primaryLabel, xActL, xActR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-            g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, primaryAction, 0);
-        } else {
-            g_Fodder->GUI_Button_Draw_SmallBoxAt(primaryLabel, xActL, xActR, yBottom, 0xC8, 0xC8, eTextAlign::Centre);
-        }
-
-        g_Fodder->GUI_Button_Draw_SmallBoxAt("TRY AGAIN", xBackL, xBackR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-        g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_TRY_AGAIN, 0);
-    }
+    SetupButton(this, "BACK", 14, 145, footer, GUIACT_SW_TRY_AGAIN);
 }
 
 void cSetupWizard::Draw() {
-    g_Fodder->mSurface->clearBuffer();
+    // The setup runner prepares the same demo-safe scene as the home menu.
+    // Drawing it here also keeps diagnostics and the browser on fresh pixels.
+    if (g_Fodder->mMapLoaded && !g_Fodder->mStartParams->mDisableVideo) {
+        g_Fodder->mGraphics->MapTiles_Draw();
+        g_Fodder->Sprites_Draw();
+    } else g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
+    if (mScreen == eScreen::Browse) { DrawBrowse(); return; }
 
+    auto* pixels = g_Fodder->mSurface->GetSurfaceBuffer();
+    const size_t size = g_Fodder->mSurface->GetSurfaceBufferSize();
+    const size_t stride = g_Fodder->mSurface->GetWidth();
+    const std::vector<uint8> background(pixels, pixels + size);
+    constexpr uint8 transparent = 0xFF;
+    std::fill(pixels, pixels + size, transparent);
+    g_Fodder->mString_GapCharID = 0;
     switch (mScreen) {
     case eScreen::Welcome: DrawWelcome(); break;
-    case eScreen::Locate:  DrawLocate();  break;
-    case eScreen::Browse:  DrawBrowse();  break;
-    case eScreen::Result:  DrawResult();  break;
+    case eScreen::Locate: DrawLocate(); break;
+    case eScreen::Browse: break;
+    case eScreen::Result: DrawResult(); break;
+    case eScreen::Checking:
+        g_Fodder->String_Print_Large("CHECKING YOUR GAME", false, 19);
+        SetupCaption("READING GAME FILES - PLEASE WAIT", 91);
+        mCheckingDrawn = true;
+        break;
     }
+    const std::vector<uint8> foreground(pixels, pixels + size);
+    std::copy(background.begin(), background.end(), pixels);
+    for (size_t y = 1; y + 1 < g_Fodder->mSurface->GetHeight(); ++y)
+        for (size_t x = 1; x + 1 < stride; ++x) {
+            if (foreground[y * stride + x] == transparent) continue;
+            for (int dy = -1; dy <= 1; ++dy)
+                for (int dx = -1; dx <= 1; ++dx)
+                    pixels[(y + dy) * stride + x + dx] = 0;
+        }
+    for (size_t i = 0; i < size; ++i)
+        if (foreground[i] != transparent) pixels[i] = foreground[i];
 }
 
 } // namespace Setup
@@ -1198,6 +990,12 @@ bool cFodder::Setup_Wizard_Run(bool pHaveAnyVersion) {
     // Engine prep — same shape About uses (Source/About.cpp:93-100).
     Phase_EngineReset();
     mService_Draw_List.clear();
+    MainMenu_CreateBackground();
+    MainMenu_PrepareScenery();
+    Camera_Reset();
+    MapTiles_ResetScrollState();
+    // Full-screen menus begin at map column zero after cropping the border.
+    mMapTile_Ptr += 3 * sizeof(uint16);
     mGraphics->PaletteSet();
     mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
     mMouseX_Offset = -8;
@@ -1205,6 +1003,18 @@ bool cFodder::Setup_Wizard_Run(bool pHaveAnyVersion) {
     Mouse_Setup();
     mMouse_Button_Left_Toggle = 0;
     mMap_Destroy_Tiles.clear();
+
+#ifdef OPENFODDER_SETUP_DIAGNOSTICS
+    static bool previewStarted = false;
+    const char* output = std::getenv("OPENFODDER_SETUP_PREVIEW_DIR");
+    if (output && *output && !previewStarted) {
+        previewStarted = true;
+        const char* folder = std::getenv("OPENFODDER_SETUP_PREVIEW_DISKS");
+        const bool ok = folder && wizard.VerifyScreens(output, folder);
+        wizard.Close();
+        std::exit(ok ? 0 : 1);
+    }
+#endif
 
     // Suppress the parent interrupt callback so it doesn't try to draw
     // background sprites on top of the wizard.  Same pattern as
@@ -1230,7 +1040,7 @@ bool cFodder::Setup_Wizard_Run(bool pHaveAnyVersion) {
             mMouse_EventLastWheel.mY = 0;
         }
 
-        if (mMouse_Button_Left_Toggle)
+        if (Mouse_Button_Left_Toggled() >= 0)
             GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
         if (mPhase_EscapeKeyAbort || mPhase_Aborted) {
@@ -1240,6 +1050,11 @@ bool cFodder::Setup_Wizard_Run(bool pHaveAnyVersion) {
         }
 
         wizard.Tick();
+        if (mPhase_InterruptTicks >= 3) {
+            mPhase_InterruptTicks = 0;
+            Mission_Sprites_Handle();
+            Sound_Tick();
+        }
 
         // Draw + present.  Reset the cursor sprite each frame so it doesn't
         // get clobbered by stray engine state.
@@ -1248,6 +1063,7 @@ bool cFodder::Setup_Wizard_Run(bool pHaveAnyVersion) {
 
         wizard.Draw();
         mMouseSpriteNew = eSprite_pStuff_Mouse_Target;
+        mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Mouse_DrawCursor();
 
         Video_Sleep();

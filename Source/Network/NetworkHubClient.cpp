@@ -42,6 +42,7 @@
 #include <cstring>
 #include <ctime>
 #include <sstream>
+#include <thread>
 
 // ----------------------------------------------------------------------------
 // Local helpers
@@ -223,12 +224,15 @@ bool cNetworkHubClient::SendRaw(const std::string& pRequest, std::string& pRespo
     curl_easy_setopt(Curl, CURLOPT_POSTFIELDS,      pRequest.c_str());
     curl_easy_setopt(Curl, CURLOPT_POSTFIELDSIZE,   (long)pRequest.size());
     curl_easy_setopt(Curl, CURLOPT_HTTPHEADER,      Headers);
-    curl_easy_setopt(Curl, CURLOPT_FOLLOWLOCATION,  1L);
+    // A control request contains credentials; never forward it to a redirect target.
+    curl_easy_setopt(Curl, CURLOPT_FOLLOWLOCATION,  0L);
     curl_easy_setopt(Curl, CURLOPT_MAXREDIRS,       3L);
     curl_easy_setopt(Curl, CURLOPT_CONNECTTIMEOUT,  5L);
     curl_easy_setopt(Curl, CURLOPT_TIMEOUT,         10L);
     curl_easy_setopt(Curl, CURLOPT_SSL_VERIFYPEER,  1L);
     curl_easy_setopt(Curl, CURLOPT_SSL_VERIFYHOST,  2L);
+    // Gameplay currently uses AF_INET; authorize the same address family.
+    curl_easy_setopt(Curl, CURLOPT_IPRESOLVE,       CURL_IPRESOLVE_V4);
     curl_easy_setopt(Curl, CURLOPT_NOSIGNAL,        1L);
     curl_easy_setopt(Curl, CURLOPT_WRITEFUNCTION,   &Hub_CurlWriteToString);
     curl_easy_setopt(Curl, CURLOPT_WRITEDATA,       &pResponse);
@@ -373,6 +377,12 @@ bool cNetworkHubClient::ParseRoomResponse(const std::string& pResponse, sNetwork
         return false;
     Hub_ParseUint8(Hub_ResponseValue(pResponse, "capacity"), pRoom.mMaxPlayers);
     Hub_ParseUint8(Hub_ResponseValue(pResponse, "peers"), pRoom.mCurrentPlayers);
+    if (!pRoom.mMaxPlayers || pRoom.mMaxPlayers > 8 ||
+        !Hub_ParseUint8(Hub_ResponseValue(pResponse, "peer"), pRoom.mPeerIndex) ||
+        pRoom.mPeerIndex >= pRoom.mMaxPlayers) {
+        mLastError = "hub returned malformed peer index";
+        return false;
+    }
 
     const std::string SessionKeyB64 = Hub_ResponseValue(pResponse, "session_key");
     std::vector<unsigned char> SessionKeyBytes;
@@ -473,8 +483,15 @@ bool cNetworkHubClient::CreateAuth(const sHubAuthToken& pAuth, uint8_t pCapacity
     Tail += " version=" + PercentEncode(pMeta.mVersion);
 
     std::string Response;
-    if (!SendCommand("CREATE", Tail, Response))
-        return false;
+    // Cold Fargate startup is asynchronous so each HTTPS call stays short.
+    // WARMING allocates no room; retrying it cannot lose a CREATE response.
+    const auto Deadline = std::chrono::steady_clock::now() + std::chrono::seconds(90);
+    while (!SendCommand("CREATE", Tail, Response)) {
+        if (mLastError.find("WARMING") == std::string::npos ||
+            std::chrono::steady_clock::now() >= Deadline)
+            return false;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     return ParseRoomResponse(Response, pOut);
 }
 
@@ -499,9 +516,11 @@ bool cNetworkHubClient::UpdateAuth(const sHubAuthToken& pAuth, const std::string
     return SendCommand("UPDATE", Tail, Response);
 }
 
-bool cNetworkHubClient::HeartbeatAnonymous(const std::string& pRoomCode) {
+bool cNetworkHubClient::HeartbeatAnonymous(const std::string& pRoomCode,
+                                           const std::array<unsigned char, 32>& pSessionKey) {
     std::string Response;
-    return SendCommand("HEARTBEAT", "id=" + pRoomCode, Response);
+    return SendCommand("HEARTBEAT", "id=" + pRoomCode + " session_key=" +
+                       Base64UrlEncode(pSessionKey.data(), pSessionKey.size()), Response);
 }
 
 bool cNetworkHubClient::HeartbeatHost(const sHubAuthToken& pAuth, const std::string& pRoomCode) {

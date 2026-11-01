@@ -28,12 +28,8 @@
 
 namespace Setup {
 
-// Hand-rolled in-engine 320x200 directory browser. Modelled on the scrollable-
-// list pattern in Source/CampaignSelect.cpp:97-131 — same draw primitives, same
-// fixed-height-row paging, same mouse-and-wheel input.
-//
-// The wizard uses this to let the player pick a retail-data folder (or, in
-// Phase 3, a disk-image file) without leaving the game's 320x200 viewport.
+// Full-screen browser drawn over the setup menu's background scene.
+// Disk sets appear once, with the same grouping used by setup discovery.
 class cFileBrowser {
 public:
     enum class eFilter : uint8_t {
@@ -43,6 +39,8 @@ public:
 
     struct sEntry {
         std::string mName;          // Just the leaf name; UI display
+        std::string mDisplayName;   // Friendly grouped-disk title, if available.
+        std::string mDetail;
         bool        mIsDir = true;
         bool        mIsParentLink = false; // ".." pseudo-entry
     };
@@ -64,6 +62,7 @@ public:
     void Tick();
 
     bool IsDone() const { return mDone; }
+    size_t EntryCount() const { return mEntries.size(); }
 
     // Public for the static GUI trampoline.
     void OnRowClick(int16 pAction, int16 pArg);
@@ -86,7 +85,6 @@ private:
     void NavigateAbsolute(const std::string& pPath);
 
     std::string ParentOf(const std::string& pPath) const;
-    bool IsRecognisedImage(const std::string& pName) const;
 
 private:
     bool mDone = false;
@@ -99,7 +97,7 @@ private:
     std::vector<sEntry>     mEntries;
 
     int16   mCurrentIndex = 0;          // Top of scroll window.
-    int16   mShownItems = 8;
+    int16   mShownItems = 4;
     int16   mSelectedItem = -1;         // Highlighted row, relative to mCurrentIndex.
 
     // Debounce, like cOptionsMenu::AllowInput.

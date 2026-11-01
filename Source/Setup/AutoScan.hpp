@@ -35,6 +35,8 @@ struct sScanCandidate {
     sValidationResult   mResult;        // ValidateFolder(mPath) — pre-computed (folders only)
     std::string         mLabel;         // Short human label, e.g. "GOG: Cannon Fodder"
     bool                mIsImage = false; // true → candidate is a disk image; click → mountImage
+    std::string         mFormat;
+    size_t              mDisks = 0;
 };
 
 // Probe a fixed list of likely retail-data locations and return the candidates

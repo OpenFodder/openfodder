@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Amiga/dernc.hpp"
 
 #if defined(_WIN32) || defined(WIN32)
@@ -35,7 +36,7 @@ static std::string MapPng_ToLower(std::string pValue) {
 }
 
 static bool MapPng_FileExists(const std::string& pPath) {
-	std::ifstream File(pPath.c_str(), std::ios::binary);
+	std::ifstream File(FileSystem::Resolve(pPath), std::ios::binary);
 	return File.is_open();
 }
 
@@ -86,12 +87,12 @@ static std::string MapPng_JoinPath(const std::string& pDir, const std::string& p
 
 static std::string MapPng_ResolveMapPath(const std::string& pPath) {
 	if (MapPng_FileExists(pPath))
-		return pPath;
+		return FileSystem::Resolve(pPath).u8string();
 
 	if (MapPng_ExtensionPos(pPath) == std::string::npos) {
 		const std::string WithMap = pPath + ".map";
 		if (MapPng_FileExists(WithMap))
-			return WithMap;
+			return FileSystem::Resolve(WithMap).u8string();
 	}
 
 	return pPath;
@@ -99,7 +100,7 @@ static std::string MapPng_ResolveMapPath(const std::string& pPath) {
 
 static tSharedBuffer MapPng_ReadFileRaw(const std::string& pPath) {
 	auto Buffer = std::make_shared<std::vector<uint8>>();
-	std::ifstream File(pPath.c_str(), std::ios::binary);
+	std::ifstream File(FileSystem::Resolve(pPath), std::ios::binary);
 	if (!File.is_open())
 		return Buffer;
 
@@ -161,17 +162,8 @@ static uint16 MapPng_ReadMapTileId(tSharedBuffer pMap, size_t pOffset, bool pLit
 		(readBEWord(pMap->data() + pOffset) & 0x1FF);
 }
 
-static std::string MapPng_UpperFileName(std::string pValue) {
-	std::transform(pValue.begin(), pValue.end(), pValue.begin(), [](unsigned char c) {
-		return (char)std::toupper(c);
-	});
-	return pValue;
-}
-
 static std::string MapPng_FindDataFile(const std::string& pMapPath, const std::string& pName) {
 	const std::string MapDir = MapPng_DirName(pMapPath);
-	const std::string Lower = MapPng_ToLower(pName);
-	const std::string Upper = MapPng_UpperFileName(pName);
 	std::vector<std::string> Dirs;
 	Dirs.push_back(MapDir);
 	Dirs.push_back(MapPng_JoinPath(MapDir, "Data/Amiga"));
@@ -180,15 +172,8 @@ static std::string MapPng_FindDataFile(const std::string& pMapPath, const std::s
 
 	for (size_t dirIndex = 0; dirIndex < Dirs.size(); ++dirIndex) {
 		const std::string& Dir = Dirs[dirIndex];
-		const std::string Direct = MapPng_JoinPath(Dir, pName);
-		if (MapPng_FileExists(Direct))
-			return Direct;
-		const std::string LowerPath = MapPng_JoinPath(Dir, Lower);
-		if (MapPng_FileExists(LowerPath))
-			return LowerPath;
-		const std::string UpperPath = MapPng_JoinPath(Dir, Upper);
-		if (MapPng_FileExists(UpperPath))
-			return UpperPath;
+        const auto path = FileSystem::Resolve(MapPng_JoinPath(Dir, pName));
+        if (!path.empty() && MapPng_FileExists(path.u8string())) return path.u8string();
 	}
 
 	return "";

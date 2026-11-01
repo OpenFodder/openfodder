@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 
 #include "Setup/ColdStart.hpp"
 
@@ -2631,11 +2632,8 @@ void cFodder::VersionSwitch(const sGameVersion *pVersion)
         exit(1);
     }
 
-    // SP campaign-select uses the briefing font at 21 px row height — 4 rows
-    // on PC, 5 rows with the Amiga's 25 px Y-offset bonus. The MP campaign-
-    // select bumps this to 8 on entry (sidebar-font, 14 px rows fit more)
-    // and Campaign_Select_Setup restores it on exit. Save dialog clamps at
-    // 4 via the OriginalShownItems save/restore in GUI_Element.cpp.
+    // Default for legacy file dialogs. MainMenu_Setup chooses the larger
+    // campaign picker capacity; save dialogs clamp and restore their own limit.
     mGUI_Select_File_ShownItems = PLATFORM_BASED(4, 5);
 
     Window_UpdateScreenSize();
@@ -3762,7 +3760,7 @@ void cFodder::Playground()
 bool cFodder::Demo_Load()
 {
 
-    std::ifstream DemoContent(mStartParams->mDemoFile, std::ios::binary);
+    std::ifstream DemoContent(FileSystem::Resolve(mStartParams->mDemoFile), std::ios::binary);
     if (DemoContent.is_open())
     {
 
@@ -3841,6 +3839,25 @@ void cFodder::KeyboardShortcuts()
 
 bool cFodder::RandomMapOptions_Run(sRandomMapOptions& pOptions, cRandomMapOptionsMenu::eContext pContext)
 {
+    const sGameVersion* originalVersion = mVersionCurrent;
+    // Custom versions replace the graphics object without loading map assets.
+    // A surviving map alone does not mean its background is ready to draw.
+    if (!mMapLoaded || !mMap || mMap->empty() ||
+        (mVersionCurrent && mVersionCurrent->getTileTypes().empty())) {
+        Phase_EngineReset();
+        // The Custom pseudo-version has no tilesets of its own.
+        if (mVersionCurrent && mVersionCurrent->getTileTypes().empty())
+            VersionSwitch(mVersions->GetRetail(mVersionCurrent->mPlatform, mVersionCurrent->mGame));
+        if (!mVersionCurrent || mVersionCurrent->getTileTypes().empty()) return false;
+        MainMenu_CreateBackground();
+        MainMenu_PrepareScenery();
+        Camera_Reset();
+        MapTiles_ResetScrollState();
+        mMapTile_Ptr += 3 * sizeof(uint16);
+        Mouse_Setup();
+    }
+    mMap_Destroy_Tiles.clear();
+    mMouse_Button_Left_Toggle = 0;
     cRandomMapOptionsMenu Menu;
     Menu.Open(pOptions, pContext);
 
@@ -3854,7 +3871,8 @@ bool cFodder::RandomMapOptions_Run(sRandomMapOptions& pOptions, cRandomMapOption
         Mouse_DrawCursor();
     };
 
-    while (!Menu.IsDone()) {
+    mInterruptCallback();
+    while (!Menu.IsDone() && !mExit) {
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 
@@ -3871,10 +3889,15 @@ bool cFodder::RandomMapOptions_Run(sRandomMapOptions& pOptions, cRandomMapOption
         Video_Sleep();
     }
 
-    const bool Accepted = Menu.WasAccepted();
+    const bool Accepted = !mExit && Menu.WasAccepted();
     if (Accepted)
         pOptions = Menu.GetOptions();
 
+    if (!mExit && mVersionCurrent != originalVersion) {
+        mInterruptCallback = []() {};
+        mPhase_In_Progress = false;
+        VersionSwitch(originalVersion);
+    }
     mInterruptCallback = PreviousInterruptCallback;
     mMouse_Button_Left_Toggle = 0;
     mMouse_EventLastButtonsPressed = 0;
@@ -4100,7 +4123,7 @@ Start:;
             mParams->mRandomMenuOnStart = false;
             mStartParams->mRandomMenuOnStart = false;
 
-            // Campaign_Select_Setup() normally primes the mouse cursor before
+            // MainMenu_Setup() normally primes the mouse cursor before
             // the options menu opens; replicate that here since we skipped it.
             Mouse_Setup();
             mMouseSpriteNew = eSprite_pStuff_Mouse_Target;

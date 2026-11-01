@@ -85,15 +85,17 @@ public:
 	bool removeDir(const std::string& pPath);
 	bool removeUserDir(const std::string& pPath);
 
-	// Mount a disk image (.adf, .iso, ...) via firy and register every
-	// version it satisfies into mReleasePath / mReleaseFiles. Returns the
+	// Mount an image (.adf, .iso, ...), numbered ADF set, or ADF folder via
+	// firy and register every complete release. Partial sets remain mounted
+	// for setup's file-count report, without becoming playable.
+	// Complete versions enter mReleasePath / mReleaseFiles. Returns the
 	// MountedImage registry id (>0) on success, 0 on failure.
 	//
 	// Unlike addUserDir(), this does NOT add anything to the search-path
 	// list — the engine reaches the mounted files via the version table
 	// (sGameVersion::getDataFilePath → GetFilePath) rather than via the
 	// "<root>/Data/<release>/" filesystem walk.
-	int  mountImage(const std::string& pImagePath);
+	int  mountImage(const std::string& pImagePath, std::string* pError = nullptr);
 	bool unmountImage(int pId);
 
 	// Round-trip support for openfodder.ini's [paths] section.

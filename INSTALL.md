@@ -207,6 +207,35 @@ OpenFodder/Data/Dos2_CD
   
 #### Amiga
 
+Amiga disk images can be played directly; extracting them into `Data/Amiga`
+is optional. Open **Options > Add game data > Browse files** (or use the
+first-run welcome screen), select a disk set, and choose **Play from disks**.
+OpenFodder remembers the images and reopens them on the next launch. Keep the
+images at their saved location, with all disks from the same release together.
+Each `imageN=` INI entry identifies a disk set; matching sibling disks are
+rediscovered on launch, so a three-disk set only needs one entry.
+
+Selecting a numbered image such as `Cannon Fodder 2 (Disk 1 of 3).adf` or
+`Cannon.Fodder.1of3.raw` also opens its matching disks. Selecting a folder
+supports arbitrary disk filenames; folders containing several sets offer a
+choice. ADF, IPF and CT RAW sets must contain all required game files before
+play is enabled. **Copy into OpenFodder** is available if you prefer a separate
+extracted installation; existing extracted data continues to work.
+
+This handles AmigaDOS filesystems (CF2) and the linked SOS files on CF1 CSL
+and FLT ADFs, including their different disk-side ordering. Original SOS IPF
+and CT RAW disks are decoded directly by SOS Unpacker's native SDK, compiled
+into OpenFodder. No CAPS DLL or external unpacking step is required. Tracks
+must pass their SOS checksums, and damaged file chains are rejected. Files
+can be read from mounted images or copied into the data folder.
+
+Native builds enable `OPENFODDER_ENABLE_CAPSIMAGE` by default. CMake fetches
+the pinned SDK sources carried by SOS Unpacker and links them statically.
+Existing build caches may need `-DOPENFODDER_ENABLE_CAPSIMAGE=ON` once.
+The SDK's own license and sources are included as `CAPSImage-LICENCE.txt` and
+`SOS-SDK-Source.zip`; the archive includes a standalone CMake rebuild project.
+The extraction methods below remain alternatives.
+
 Please be aware: Cannon Fodder 2 is a typical AmigaDOS disk (SOS Unpacker will
 not work). Use an ADF tool on your machine, such as Directory Opus on Windows
 with the firy plugin: https://github.com/segrax/directory_opus_firy_plugin

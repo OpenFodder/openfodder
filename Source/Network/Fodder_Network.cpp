@@ -1012,11 +1012,11 @@ void cFodderMultiplayer::Network_Briefing_ReadySync() {
     std::array<openfodder_hubframe::ReplayWindow, kMaxRollbackPlayers> Replay{};
 
     if (UseRelayFraming) {
-        // Type=0x02 REGISTER: zero-length payload, seq=0, peer index, 8-byte tag.
+        // REGISTER shares the monotonic counter with lobby, briefing and GGPO.
         unsigned char RegisterFrame[openfodder_hubframe::kMinFrameSize];
         const std::size_t RegisterFrameLen = openfodder_hubframe::BuildAndTag(
             openfodder_hubframe::FrameType::Register,
-            /*seq=*/0,
+            mRelaySeq.fetch_add(1, std::memory_order_relaxed),
             LocalPeer,
             /*payload=*/nullptr,
             /*payloadLen=*/0,

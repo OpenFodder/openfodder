@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Utils/json.hpp"
 
 using Json = nlohmann::json;
@@ -190,7 +191,7 @@ bool cCampaign::LoadCampaign(const std::string& pName, bool pCustom, bool pDirec
         mName = pName.substr(0, Final);
     }
 
-    std::ifstream MissionSetFile(GetPathToCampaign());
+    std::ifstream MissionSetFile(FileSystem::Resolve(GetPathToCampaign()));
     if (MissionSetFile.is_open()) {
         Json MissionSet = Json::parse(MissionSetFile);
 

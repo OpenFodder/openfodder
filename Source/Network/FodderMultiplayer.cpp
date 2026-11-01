@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "MenuPresentation.hpp"
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
@@ -631,12 +632,8 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
 
     const bool isHost = mLobby->IsHost();
 
-    // We're reusing the existing campaign list (mCampaignList) which was
-    // populated by Campaign_Select_Setup BEFORE network was enabled — so
-    // Campaign_Select_Setup's "hide SP placeholders when MP is active"
-    // gate didn't fire (mNetworkEnabled was still false at that point).
-    // Strip Single Map / Random Map here so the lobby's campaign list
-    // shows only real campaigns the host can actually pick for coop.
+    // MainMenu_Setup supplies real campaigns. Keep a defensive filter for
+    // callers returning from older lobby flows with SP mode placeholders.
     mCampaignList.erase(
         std::remove_if(mCampaignList.begin(), mCampaignList.end(),
             [](const std::string& Name) {
@@ -756,7 +753,8 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
                 LastHubJoinerHeartbeatTicks = Now;
                 cNetworkHubClient* Hub = AcquireLobbyHub();
                 if (Hub) {
-                    if (!Hub->HeartbeatAnonymous(mStartParams->mNetworkRoomCode)) {
+                    if (!Hub->HeartbeatAnonymous(mStartParams->mNetworkRoomCode,
+                                                 mStartParams->mNetworkSessionKey)) {
                         g_Debugger->Notice(std::string("[hub] heartbeat-anon failed: ") + Hub->GetLastError());
                     }
                 }
@@ -785,235 +783,193 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
             break;
         }
 
-        // Draw the lobby campaign selection screen.
-        //
-        //   Y=0x01  HOST / JOIN title (briefing, underlined)
-        //   Y=0x18  "SELECT CAMPAIGN" (briefing)
-        //   Y=0x32  Status band — pstuff sidebar (small) font, 0x09 row pitch.
-        //           Up to ~6 lines (3 roster + 3 info) fit in ~54 px between
-        //           Y=0x32 and Y=0x60 without crashing into the campaign list.
-        //   Y=0x66  Campaign list — briefing font, 3 rows (kept big: this is
-        //           the focal element + handles long custom names with
-        //           lower-case / digits which the sidebar font lacks).
-        //   Y=0x60 / Y=0xA0  UP / DOWN labels — sidebar font, immediately
-        //           flanking the list.
-        //   Y=0xA6  START / READY (briefing)
-        //   Y=0xB3  BACK         (briefing)
-        mSurface->clearBuffer();
-        mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
-        GUI_Element_Reset();
+        MenuPresentation::Animate(*this);
+        {
+            MenuPresentation::Frame frame(*this);
+            MenuPresentation::Title(*this, "MULTIPLAYER LOBBY",
+                isHost ? "HOST - CHOOSE A CAMPAIGN" : "JOIN - GET READY TO PLAY");
 
-        // Title
-        mString_GapCharID = 0x25;
-        if (isHost)
-            String_Print_Large("HOST", true, 0x01);
-        else
-            String_Print_Large("JOIN", true, 0x01);
-        mString_GapCharID = 0x00;
+            size_t YOffset = PLATFORM_BASED(0, 25);
 
-        // Title varies by mode: campaign-pick screen for Coop Campaign,
-        // pre-game lobby for generated-map modes.
-        String_Print_Large(
-            Network_UsesGeneratedMap(mStartParams->mNetworkGameMode)
-                ? "LOBBY"
-                : "SELECT CAMPAIGN",
-            false, 0x18);
+            // Connection and match details use the full font, including digits.
+            constexpr int16 kStatusLeftX = 0x10;
+            constexpr int16 kStatusRowY0 = 62;
+            constexpr int16 kStatusRowH  = 10;     // status row pitch
+            int16 statusY = kStatusRowY0;
 
-        size_t YOffset = PLATFORM_BASED(0, 25);
+            auto printStatus = [&](const std::string& s) {
+                String_Print_Small_Left(MenuPresentation::FitText(s, 284), kStatusLeftX, statusY);
+                statusY += kStatusRowH;
+            };
 
-        // ===== Status band (sidebar font). =====
-        constexpr int16 kStatusLeftX = 0x10;
-        constexpr int16 kStatusRowY0 = 0x32;
-        constexpr int16 kStatusRowH  = 0x09;     // sidebar-font row pitch
-        int16 statusY = kStatusRowY0;
-
-        auto printStatus = [&](const std::string& s) {
-            Sidebar_Menu_Print(s, kStatusLeftX, (size_t)statusY,
-                               eSidebarMenuColor::Normal);
-            statusY += kStatusRowH;
-        };
-
-        // Connection status
-        if (!mLobby->IsConnected()) {
-            const uint32_t Now = (uint32_t)SDL_GetTicks();
-            if (!isHost && Now - LobbyStartedTicks > 8000)
-                printStatus("HOST NOT RESPONDING");
-            else
-                printStatus("WAITING FOR PEER");
-        } else {
-            // P1 A1 roster: one row per remote peer with connected/ready state.
-            // Joiner perspective summarises to "CONNECTED TO HOST"; host walks
-            // its remote slots so a 4-player room shows three roster rows.
-            if (isHost) {
-                const uint8_t LocalSlot = mLobby->GetLocalPeerIndex();
-                const uint8_t TotalPeers = mStartParams->mNetworkNumPlayers
-                    ? mStartParams->mNetworkNumPlayers
-                    : (uint8_t)NETWORK_MAX_PLAYERS;
-                for (uint8_t slot = 0; slot < TotalPeers; ++slot) {
-                    if (slot == LocalSlot)
-                        continue;
-                    const sLobbyPeerSlot& peer = mLobby->GetPeerSlot(slot);
-                    std::string label = "PLAYER " + std::to_string((int)slot + 1);
-                    if (!peer.connected)
-                        label += " WAITING";
-                    else if (peer.ready)
-                        label += " READY";
-                    else
-                        label += " NOT READY";
-                    // Sidebar font lacks digits; the "PLAYER N" prefix needs
-                    // them. The Sidebar_Menu_Print path silently skips
-                    // unsupported chars, so "PLAYER 2" renders as "PLAYER ".
-                    // Acceptable for now — at most 3 host roster rows so the
-                    // visible difference (truncated number) is small. A
-                    // future iteration can author digit glyphs.
-                    printStatus(label);
-                }
-            } else {
-                printStatus("CONNECTED TO HOST");
-            }
-        }
-
-        // MODE always; SEED / MAP only for PvP modes where the surface is a
-        // generated map. Coop campaign uses the picked campaign's bundled
-        // maps, so seed/size/terrain/cover are unused — surfacing them here
-        // would show "MAP RANDOM" / "SEED ..." that doesn't track anything
-        // the game actually consumes.
-        printStatus(std::string("MODE ") + Network_GameModeName(mStartParams->mNetworkGameMode));
-        if (Network_UsesGeneratedMap(mStartParams->mNetworkGameMode)) {
-            // SEED has digits the sidebar font can't render — show only the
-            // word. Power users who want the seed value can use --net-seed.
-            printStatus("SEED");
-            printStatus(std::string("MAP ") +
-                        Network_MapSizeName(mStartParams->mNetworkMapSize) + " " +
-                        Network_MapTerrainName(mStartParams->mNetworkMapTerrain) +
-                        " COVER " + Network_CoverDensityName(mStartParams->mNetworkCoverDensity));
-        }
-
-        // ===== Campaign list (Coop Campaign only). =====
-        // Generated-map modes (PvP + Coop Random) don't have a campaign to
-        // pick — the host's MAP/SEED choices on the host setup screen drive
-        // the gameplay surface, so the campaign list and UP/DOWN scroll are
-        // hidden in those modes. Coop Campaign keeps the list since picking
-        // CF1 vs CF2 vs custom is the whole point of that flow.
-        const bool ShowCampaignList = !Network_UsesGeneratedMap(mStartParams->mNetworkGameMode);
-
-        constexpr int16 kListRowY0 = 0x66;
-        constexpr int16 kListRowH  = 0x15;
-        constexpr int16 kListVisible = 3;
-        int16 rowY = 0x30;
-        if (ShowCampaignList) {
-            int16 startIdx = selectedIndex - 1;
-            if (startIdx < 0) startIdx = 0;
-            int16 endIdx = startIdx + kListVisible;
-            if (endIdx > (int16)mCampaignList.size())
-                endIdx = (int16)mCampaignList.size();
-
-            rowY = kListRowY0;
-            for (int16 i = startIdx; i < endIdx; ++i) {
-                const bool isSelected = (i == selectedIndex);
-                if (isSelected)
-                    GUI_Button_Draw_Small(mCampaignList[i].c_str(), rowY, 0xB2, 0xB3);
+            // Connection status
+            if (!mLobby->IsConnected()) {
+                const uint32_t Now = (uint32_t)SDL_GetTicks();
+                if (!isHost && Now - LobbyStartedTicks > 8000)
+                    printStatus("HOST NOT RESPONDING");
                 else
-                    GUI_Button_Draw_Small(mCampaignList[i].c_str(), rowY);
-
+                    printStatus("WAITING FOR PEER");
+            } else {
+                // P1 A1 roster: one row per remote peer with connected/ready state.
+                // Joiner perspective summarises to "CONNECTED TO HOST"; host walks
+                // its remote slots so a 4-player room shows three roster rows.
                 if (isHost) {
-                    GUI_Button_Setup_New(
-                        [](void* ctx, int16 action, int16 arg) {
-                            *static_cast<int16*>(ctx) = arg;
-                        },
-                        &selectedIndex, 0, i
-                    );
-                }
-                rowY += kListRowH;
-            }
-        }
-
-        // ===== UP / DOWN labels (host only, paging campaign list). =====
-        // Hidden alongside the campaign list when the mode skips it.
-        if (ShowCampaignList && isHost && (int16)mCampaignList.size() > kListVisible) {
-            constexpr int16 kArrowX  = 0xF0;
-            constexpr int16 kArrowW  = 0x14;
-            const int16     kUpY     = kListRowY0 - 0x06;
-            const int16     kDownY   = kListRowY0 + (kListVisible * kListRowH);
-
-            Sidebar_Menu_Print("UP", kArrowX, (size_t)kUpY, eSidebarMenuColor::Normal);
-            mGUI_Temp_X = kArrowX - 2;
-            mGUI_Temp_Y = kUpY;
-            mGUI_Temp_Width = kArrowW;
-            mGUI_Draw_LastHeight = 8;
-            GUI_Box_Draw(0xB2, 0xB3);
-            GUI_Button_Setup_New(
-                [](void* ctx, int16, int16) {
-                    int16& idx = *static_cast<int16*>(ctx);
-                    if (idx > 0) --idx;
-                }, &selectedIndex);
-
-            Sidebar_Menu_Print("DOWN", kArrowX, (size_t)kDownY, eSidebarMenuColor::Normal);
-            mGUI_Temp_X = kArrowX - 2;
-            mGUI_Temp_Y = kDownY;
-            mGUI_Temp_Width = kArrowW;
-            mGUI_Draw_LastHeight = 8;
-            GUI_Box_Draw(0xB2, 0xB3);
-            GUI_Button_Setup_New(
-                [](void* ctx, int16 action, int16 arg) {
-                    int16& idx = *static_cast<int16*>(ctx);
-                    if (idx < arg) ++idx;
-                }, &selectedIndex, 0, (int16)(mCampaignList.size() - 1));
-        }
-
-        // Ready / Start buttons
-        rowY = (int16)(0xA6 + YOffset);
-
-        if (isHost) {
-            // P1 A1: at N>2 we need EVERY remote peer to be ready before
-            // START is enabled, not just the aggregate "first non-local
-            // peer" (mLobby->IsRemoteReady()). Walk the per-slot table to
-            // fold them. mLobby->IsConnected() stays as the cheap fast-out
-            // for the 2P path — at least one peer must be live before we
-            // bother polling the rest.
-            bool AllPeersReady = mLobby->IsConnected();
-            if (AllPeersReady) {
-                const uint8_t LocalSlot = mLobby->GetLocalPeerIndex();
-                const uint8_t TotalPeers = mStartParams->mNetworkNumPlayers
-                    ? mStartParams->mNetworkNumPlayers
-                    : (uint8_t)NETWORK_MAX_PLAYERS;
-                for (uint8_t slot = 0; slot < TotalPeers; ++slot) {
-                    if (slot == LocalSlot)
-                        continue;
-                    const sLobbyPeerSlot& peer = mLobby->GetPeerSlot(slot);
-                    if (!peer.connected || !peer.ready) {
-                        AllPeersReady = false;
-                        break;
+                    const uint8_t LocalSlot = mLobby->GetLocalPeerIndex();
+                    const uint8_t TotalPeers = mStartParams->mNetworkNumPlayers
+                        ? mStartParams->mNetworkNumPlayers
+                        : (uint8_t)NETWORK_MAX_PLAYERS;
+                    for (uint8_t slot = 0; slot < TotalPeers; ++slot) {
+                        if (slot == LocalSlot)
+                            continue;
+                        const sLobbyPeerSlot& peer = mLobby->GetPeerSlot(slot);
+                        std::string label = "PLAYER " + std::to_string((int)slot + 1);
+                        if (!peer.connected)
+                            label += " WAITING";
+                        else if (peer.ready)
+                            label += " READY";
+                        else
+                            label += " NOT READY";
+                        printStatus(label);
                     }
+                } else {
+                    printStatus("CONNECTED TO HOST");
                 }
             }
-            if (AllPeersReady) {
-                GUI_Button_Draw_Small("START GAME", rowY, 0xB2, 0xB3);
+
+            printStatus(std::string("MODE ") + Network_GameModeName(mStartParams->mNetworkGameMode));
+            if (Network_UsesGeneratedMap(mStartParams->mNetworkGameMode)) {
+                printStatus("SEED " + std::to_string(mStartParams->mNetworkMapSeed));
+                printStatus(std::string("MAP ") +
+                            Network_MapSizeName(mStartParams->mNetworkMapSize) + " " +
+                            Network_MapTerrainName(mStartParams->mNetworkMapTerrain) +
+                            " COVER " + Network_CoverDensityName(mStartParams->mNetworkCoverDensity));
+            }
+
+            // ===== Campaign list (Coop Campaign only). =====
+            // Generated-map modes (PvP + Coop Random) don't have a campaign to
+            // pick — the host's MAP/SEED choices on the host setup screen drive
+            // the gameplay surface, so the campaign list and UP/DOWN scroll are
+            // hidden in those modes. Coop Campaign keeps the list since picking
+            // CF1 vs CF2 vs custom is the whole point of that flow.
+            const bool ShowCampaignList = !Network_UsesGeneratedMap(mStartParams->mNetworkGameMode);
+
+            constexpr int16 kListRowY0 = 110;
+            constexpr int16 kListRowH  = 18;
+            constexpr int16 kListVisible = 3;
+            int16 rowY = 0x30;
+            if (ShowCampaignList) {
+                int16 startIdx = selectedIndex - 1;
+                if (startIdx < 0) startIdx = 0;
+                int16 endIdx = startIdx + kListVisible;
+                if (endIdx > (int16)mCampaignList.size())
+                    endIdx = (int16)mCampaignList.size();
+
+                rowY = kListRowY0;
+                for (int16 i = startIdx; i < endIdx; ++i) {
+                    const bool isSelected = (i == selectedIndex);
+                    MenuPresentation::Button(*this, mCampaignList[i], 22, 278, rowY, isSelected);
+
+                    if (isHost) {
+                        GUI_Button_Setup_New(
+                            [](void* ctx, int16 action, int16 arg) {
+                                *static_cast<int16*>(ctx) = arg;
+                            },
+                            &selectedIndex, 0, i
+                        );
+                    }
+                    rowY += kListRowH;
+                }
+            }
+
+            // ===== UP / DOWN labels (host only, paging campaign list). =====
+            // Hidden alongside the campaign list when the mode skips it.
+            if (ShowCampaignList && isHost && (int16)mCampaignList.size() > kListVisible) {
+                constexpr int16 kArrowX  = 280;
+                constexpr int16 kArrowW  = 30;
+                const int16     kUpY     = kListRowY0;
+                const int16     kDownY   = kListRowY0 + (kListVisible - 1) * kListRowH;
+
+                MenuPresentation::Button(*this, "UP", kArrowX, kArrowX + kArrowW, kUpY);
                 GUI_Button_Setup_New(
                     [](void* ctx, int16, int16) {
-                        *static_cast<bool*>(ctx) = true;
-                    }, &done);
+                        int16& idx = *static_cast<int16*>(ctx);
+                        if (idx > 0) --idx;
+                    }, &selectedIndex);
+
+                MenuPresentation::Button(*this, "DOWN", kArrowX, kArrowX + kArrowW, kDownY);
+                GUI_Button_Setup_New(
+                    [](void* ctx, int16 action, int16 arg) {
+                        int16& idx = *static_cast<int16*>(ctx);
+                        if (idx < arg) ++idx;
+                    }, &selectedIndex, 0, (int16)(mCampaignList.size() - 1));
             }
-        } else {
-            // P2: READY toggle
-            if (localReady) {
-                GUI_Button_Draw_Small("READY", rowY, 0xB2, 0xB3);
+
+            // Ready / Start buttons
+            rowY = (int16)(175 + YOffset);
+
+            if (isHost) {
+                // P1 A1: at N>2 we need EVERY remote peer to be ready before
+                // START is enabled, not just the aggregate "first non-local
+                // peer" (mLobby->IsRemoteReady()). Walk the per-slot table to
+                // fold them. mLobby->IsConnected() stays as the cheap fast-out
+                // for the 2P path — at least one peer must be live before we
+                // bother polling the rest.
+                bool AllPeersReady = mLobby->IsConnected();
+                if (AllPeersReady) {
+                    const uint8_t LocalSlot = mLobby->GetLocalPeerIndex();
+                    const uint8_t TotalPeers = mStartParams->mNetworkNumPlayers
+                        ? mStartParams->mNetworkNumPlayers
+                        : (uint8_t)NETWORK_MAX_PLAYERS;
+                    for (uint8_t slot = 0; slot < TotalPeers; ++slot) {
+                        if (slot == LocalSlot)
+                            continue;
+                        const sLobbyPeerSlot& peer = mLobby->GetPeerSlot(slot);
+                        if (!peer.connected || !peer.ready) {
+                            AllPeersReady = false;
+                            break;
+                        }
+                    }
+                }
+                if (AllPeersReady) {
+                    MenuPresentation::Button(*this, "START GAME", 165, 306, rowY);
+                    GUI_Button_Setup_New(
+                        [](void* ctx, int16, int16) {
+                            *static_cast<bool*>(ctx) = true;
+                        }, &done);
+                } else {
+                    MenuPresentation::Button(*this, "WAITING FOR TEAM", 165, 306, rowY, false, false);
+                }
             } else {
-                GUI_Button_Draw_Small("NOT READY", rowY);
+                // P2: READY toggle
+                if (localReady) {
+                    MenuPresentation::Button(*this, "READY", 165, 306, rowY, true);
+                } else {
+                    MenuPresentation::Button(*this, "NOT READY", 165, 306, rowY);
+                }
+                GUI_Button_Setup_New(
+                    [](void* ctx, int16, int16) {
+                        bool& r = *static_cast<bool*>(ctx);
+                        r = !r;
+                    }, &localReady);
             }
+
+            // BACK button
+            MenuPresentation::Button(*this, "BACK", 14, 145, 175 + YOffset);
             GUI_Button_Setup_New(
                 [](void* ctx, int16, int16) {
-                    bool& r = *static_cast<bool*>(ctx);
-                    r = !r;
-                }, &localReady);
+                    *static_cast<bool*>(ctx) = true;
+                }, &cancelled);
+        } // Composite menu before drawing the cursor.
+#ifdef OPENFODDER_SETUP_DIAGNOSTICS
+        if (const char* output = std::getenv("OPENFODDER_MENU_FAMILY_PREVIEW")) {
+            static bool captured = false;
+            if (!captured) {
+                captured = true;
+                mSurface->palette_SetFromNew(); mSurface->surfaceSetToPalette(); mSurface->draw();
+                mSurface->SavePng(std::string(output) + "/multiplayer-lobby.png");
+            }
         }
-
-        // BACK button
-        GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
-        GUI_Button_Setup_New(
-            [](void* ctx, int16, int16) {
-                *static_cast<bool*>(ctx) = true;
-            }, &cancelled);
+#endif
 
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Mouse_DrawCursor();
@@ -1082,7 +1038,7 @@ void cFodderMultiplayer::Lobby_CampaignSelection() {
 
     mInterruptCallback = prevInterruptCallback;
 
-    // Set the campaign selection result so Campaign_Select_File returns the right name
+    // Set the campaign selection result so MainMenu_Run returns the right name
     mGUI_Select_File_CurrentIndex = 0;
     mGUI_Select_File_SelectedFileIndex = selectedIndex;
 

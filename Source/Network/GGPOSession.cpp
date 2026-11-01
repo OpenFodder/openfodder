@@ -139,13 +139,13 @@ bool cGGPOSession::Start(int localPlayerIndex,
                 RemoteAddr.sin_port = htons(remotePort);
                 inet_pton(AF_INET, remoteHost.c_str(), &RemoteAddr.sin_addr);
 
-                // OFHUB/2 §6 binary REGISTER: type=0x02, seq=0, peer index,
-                // zero-length payload, 8-byte HMAC tag. Mirrors the briefing
-                // socket's pattern in Fodder_Network.cpp.
+                // Continue the session's replay-protected stream across the
+                // transition from briefing to the GGPO socket.
+                std::atomic<uint32_t>* RegisterCounter = mSharedSeq ? mSharedSeq : &mLocalSeq;
                 unsigned char RegisterFrame[openfodder_hubframe::kMinFrameSize];
                 const std::size_t RegisterFrameLen = openfodder_hubframe::BuildAndTag(
                     openfodder_hubframe::FrameType::Register,
-                    /*seq=*/0,
+                    RegisterCounter->fetch_add(1, std::memory_order_relaxed),
                     mPeerIndex,
                     /*payload=*/nullptr,
                     /*payloadLen=*/0,

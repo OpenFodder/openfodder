@@ -717,14 +717,21 @@ public:
     void            Custom_ShowMapSelection();
     void            Campaign_Selection();
 
-    void			Campaign_Select_Sprite_Prepare();
+    void            MainMenu_PrepareScenery();
 
-	void			Campaign_Select_Setup();
+    void            MainMenu_Setup();
 
-	std::string 	Campaign_Select_File(const char* pTitle, const char* pSubTitle, const char* pPath, const char* pType, eDataType pData = eData);
-	void            Campaign_Select_File_Cycle(const char* pTitle, const char* pSubTitle);
-    void            Campaign_Select_File_Loop(const char* pTitle, const char* pSubTitle);
-    void			Campaign_Select_DrawMenu(const char* pTitle, const char* pSubTitle);
+    enum class eMainMenuPage { Home, Campaigns, Help, Keys };
+    eMainMenuPage   mMainMenuPage = eMainMenuPage::Home;
+    std::string     mMainMenuSelection;
+    std::string     MainMenu_Run();
+    void            MainMenu_Draw();
+    void            MainMenu_CreateBackground();
+    void            MainMenu_Button(const std::string& pText, int16 pX, int16 pY,
+                                   int16 pWidth, int16 pAction, int16 pArg = -1);
+    void            MainMenu_OnAction(int16 pAction, int16 pArg);
+    void            MainMenu_Cycle();
+    void            MainMenu_Loop();
 
     void            Image_FadeIn();
     void            Image_FadeOut();

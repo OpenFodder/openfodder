@@ -55,10 +55,9 @@ bool cNetworkLobby::Start(
     mHasSessionKey = std::any_of(pSessionKey.begin(), pSessionKey.end(),
                                  [](unsigned char b) { return b != 0; });
     mSharedSeq = pSharedSeq;
-    if (mSharedSeq) {
-        mSharedSeq->store(1, std::memory_order_relaxed);
-    }
-    mLocalSeq = 1; // type=0x01 DATA frames; REGISTER reserves seq=0.
+    // A lobby restart can reuse the same hub session. The owner initializes
+    // its sequence once; resetting it here would replay old sequence numbers.
+    mLocalSeq = 1;
     mPreserveRemoteEndpoint = pPreserveRemoteEndpoint;
     mLastRelayRegisterTicks = 0;
 
@@ -274,13 +273,15 @@ void cNetworkLobby::SendRelayRegistration() {
         return;
     mLastRelayRegisterTicks = Now;
 
-    // OFHUB/2 §6.1 type=0x02 REGISTER: empty payload, seq=0 (reserved), peer
-    // index, 8-byte HMAC tag — same shape Fodder_Network.cpp's briefing
-    // handshake socket uses to register with the hub.
+    // REGISTER participates in the same replay-protected stream as DATA,
+    // including keepalives and transitions to a new UDP socket.
+    const uint32_t RegisterSeq = mSharedSeq
+        ? mSharedSeq->fetch_add(1, std::memory_order_relaxed)
+        : mLocalSeq++;
     unsigned char RegisterFrame[openfodder_hubframe::kMinFrameSize];
     const std::size_t RegisterFrameLen = openfodder_hubframe::BuildAndTag(
         openfodder_hubframe::FrameType::Register,
-        /*seq=*/0,
+        RegisterSeq,
         mPeerIndex,
         /*payload=*/nullptr,
         /*payloadLen=*/0,

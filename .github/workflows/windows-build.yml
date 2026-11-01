@@ -203,6 +203,8 @@ jobs:
             "$env:GITHUB_WORKSPACE/COPYING",
             "$env:GITHUB_WORKSPACE/openfodder.ini.example"
           ) + @(Get-ChildItem -LiteralPath $runtimeDir -Filter '*.dll' -File | Select-Object -ExpandProperty FullName)
+          $items += @(Get-ChildItem -LiteralPath $runtimeDir -Filter 'CAPSImage-LICENCE.txt' -File | Select-Object -ExpandProperty FullName)
+          $items += @(Get-ChildItem -LiteralPath $runtimeDir -Filter 'SOS-SDK-Source.zip' -File | Select-Object -ExpandProperty FullName)
           Compress-Archive -Path $items -DestinationPath $archive -Force
       - name: Upload artifact
         # actions/upload-artifact@v4 — pinned by commit SHA.

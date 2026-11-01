@@ -38,6 +38,11 @@ void cRandomMapOptionsMenu::Open(const sRandomMapOptions& pOptions, eContext pCo
 void cRandomMapOptionsMenu::Tick()
 {
     HandleTextInput();
+    if (g_Fodder->mPhase_InterruptTicks >= 3) {
+        g_Fodder->mPhase_InterruptTicks = 0;
+        g_Fodder->Mission_Sprites_Handle();
+        g_Fodder->Sound_Tick();
+    }
 }
 
 void cRandomMapOptionsMenu::OnBack()
@@ -97,11 +102,13 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
         break;
 
     case ACT_CYCLE_VEHICLES:
+        if (mContext == eContext::Campaign && mMapType == eMapType::SkidooJump) break;
         mEditField = eEditField::None;
         mOptions.mVehicleSet = static_cast<eNetworkVehicleSet>(((uint8_t)mOptions.mVehicleSet + 1) % eNetworkVehicleSet_Count);
         break;
 
     case ACT_CYCLE_PICKUPS:
+        if (mContext == eContext::Campaign && mMapType == eMapType::Maze) break;
         mEditField = eEditField::None;
         mOptions.mPickupDensity = static_cast<eNetworkPickupDensity>(((uint8_t)mOptions.mPickupDensity + 1) % eNetworkPickupDensity_Count);
         break;
@@ -132,151 +139,129 @@ void cRandomMapOptionsMenu::OnRowClick(int16 pAction, int16 pArg)
 
 void cRandomMapOptionsMenu::Draw()
 {
-    g_Fodder->mSurface->clearBuffer();
+    // This view is also embedded in multiplayer setup, whose other pages
+    // clear the surface. Repaint the scenery instead of inheriting that page.
+    if (g_Fodder->mMapLoaded && g_Fodder->mMap && !g_Fodder->mMap->empty()) {
+        if (!g_Fodder->mStartParams->mDisableVideo) g_Fodder->mGraphics->MapTiles_Draw();
+        g_Fodder->Sprites_Draw();
+    } else g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
+    auto* pixels = g_Fodder->mSurface->GetSurfaceBuffer();
+    const size_t size = g_Fodder->mSurface->GetSurfaceBufferSize();
+    const size_t stride = g_Fodder->mSurface->GetWidth();
+    const std::vector<uint8> background(pixels, pixels + size);
+    constexpr uint8 transparent = 0xFF;
+    std::fill(pixels, pixels + size, transparent);
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("RANDOM MAP", false, 0x01);
+    const int extra = PLATFORM_BASED(0, 25);
     g_Fodder->mString_GapCharID = 0;
-
-    const size_t YOffset = PLATFORM_BASED(0, 25);
-    DrawTabs(0x2C);
-
-    int16 rowY = 0x43;
-    const int16 rowH = 0x10;
-
-    g_Fodder->Briefing_DrawBox(0x1E, 0x3F, 0x10C, 0x63, 0xF3);
-    g_Fodder->Briefing_DrawBox(0x1D, 0x3E, 0x10C, 0x63, 0xF2);
-
-    switch (mTab) {
-    case eTab::Main:
-        DrawValueButton("TERRAIN", GetTerrainName(), rowY, ACT_CYCLE_MAP_TERRAIN);
-        rowY += rowH;
-        DrawValueButton("TYPE", GetMapTypeName(), rowY, ACT_CYCLE_MAP_TYPE);
-        rowY += rowH;
-        DrawField("SEED", mSeedText, rowY, ACT_EDIT_SEED, mEditField == eEditField::Seed);
-        rowY += rowH;
-        DrawValueButton("NEW SEED", "RANDOM", rowY, ACT_RANDOMIZE_SEED);
-        rowY += rowH;
-        DrawValueButton("SIZE", Network_MapSizeName(mOptions.mMapSize), rowY, ACT_CYCLE_MAP_SIZE);
-        rowY += rowH;
-        DrawValueButton("COVER", Network_CoverDensityName(mOptions.mCoverDensity), rowY, ACT_CYCLE_COVER);
-        break;
-
-    case eTab::Support:
-        DrawValueButton("VEHICLES", Network_VehicleSetName(mOptions.mVehicleSet), rowY, ACT_CYCLE_VEHICLES);
-        rowY += rowH;
-        DrawValueButton("PICKUPS", Network_PickupDensityName(mOptions.mPickupDensity), rowY, ACT_CYCLE_PICKUPS);
-        rowY += rowH;
+    g_Fodder->String_Print_Large("RANDOM MAP", false, 19);
+    DrawTabs(39);
+    const std::string description = mTab == eTab::Main ? "SHAPE YOUR NEXT MISSION" : "EQUIP YOUR NEXT MISSION";
+    const int width = g_Fodder->Sidebar_Menu_MeasureWidth(description);
+    g_Fodder->Sidebar_Menu_Print(description, (320 - width) / 2, 61,
+                                cFodder::eSidebarMenuColor::Inactive);
+    int16 y = 74 + extra / 2;
+    constexpr int16 rowH = 18;
+    if (mTab == eTab::Main) {
+        DrawValueButton("TERRAIN", GetTerrainName(), y, ACT_CYCLE_MAP_TERRAIN); y += rowH;
+        if (mContext == eContext::Campaign || mOptions.mMapTerrain == eNetworkMapTerrain_Jungle) {
+            DrawValueButton("MAP SHAPE", GetMapTypeName(), y, ACT_CYCLE_MAP_TYPE); y += rowH;
+        }
+        DrawValueButton("MAP SIZE", Network_MapSizeName(mOptions.mMapSize), y, ACT_CYCLE_MAP_SIZE); y += rowH;
+        DrawValueButton("COVER", Network_CoverDensityName(mOptions.mCoverDensity), y, ACT_CYCLE_COVER); y += rowH;
+        DrawField("SEED", mSeedText, y, ACT_EDIT_SEED, mEditField == eEditField::Seed);
+        DrawTab("NEW", ACT_RANDOMIZE_SEED, false, 264, 304, y);
+    } else {
+        if (mContext != eContext::Campaign || mMapType != eMapType::SkidooJump) {
+            DrawValueButton("VEHICLES", Network_VehicleSetName(mOptions.mVehicleSet), y, ACT_CYCLE_VEHICLES); y += rowH;
+        }
+        if (mContext != eContext::Campaign || mMapType != eMapType::Maze) {
+            DrawValueButton("PICKUPS", Network_PickupDensityName(mOptions.mPickupDensity), y, ACT_CYCLE_PICKUPS); y += rowH;
+        }
         if (mContext == eContext::Multiplayer)
-            DrawValueButton("MATCH", GetModeName(), rowY, ACT_CYCLE_MODE);
-        else
-            DrawStaticValue("OBJECTIVE", "CAMPAIGN", rowY);
-        rowY += rowH;
-        DrawStaticValue("QUALITY", "VALIDATED", rowY);
-        break;
+            DrawValueButton("MATCH TYPE", GetModeName(), y, ACT_CYCLE_MODE);
     }
-
     DrawFooter();
-
+    const int footer = 175 + extra;
     if (mContext == eContext::Campaign) {
-        g_Fodder->GUI_Button_Draw_Small("START", 0x9E + YOffset, CanStart() ? 0xB2 : 0xF2, CanStart() ? 0xB3 : 0xF3);
-        g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_START);
-    }
+        if (CanStart()) DrawTab("START MISSION", ACT_START, false, 165, 306, footer);
+        else g_Fodder->String_Print_Small_CentreInBox("ENTER A SEED", 165, 306, footer + 5);
+        DrawTab("BACK", ACT_BACK, false, 14, 145, footer);
+    } else DrawTab("DONE", ACT_BACK, false, 90, 230, footer);
 
-    g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
+    const std::vector<uint8> foreground(pixels, pixels + size);
+    std::copy(background.begin(), background.end(), pixels);
+    for (size_t row = 1; row + 1 < g_Fodder->mSurface->GetHeight(); ++row)
+        for (size_t col = 1; col + 1 < stride; ++col) {
+            if (foreground[row * stride + col] == transparent) continue;
+            for (int dy = -1; dy <= 1; ++dy)
+                for (int dx = -1; dx <= 1; ++dx)
+                    pixels[(row + dy) * stride + col + dx] = 0;
+        }
+    for (size_t index = 0; index < size; ++index)
+        if (foreground[index] != transparent) pixels[index] = foreground[index];
 }
 
 void cRandomMapOptionsMenu::DrawTabs(int16 pY)
 {
-    const size_t xRowL = 0x20;
-    const size_t xRowR = 0x128;
-    const size_t tabGap = 4;
-    const size_t tabCount = 2;
-    const size_t totalW = xRowR - xRowL + 1;
-    const size_t tabW = (totalW - (tabGap * (tabCount - 1))) / tabCount;
-
-    DrawTab("MAIN", ACT_TAB_MAIN, mTab == eTab::Main, xRowL + (0 * (tabW + tabGap)), xRowL + (0 * (tabW + tabGap)) + tabW - 1, pY);
-    DrawTab("SUPPORT", ACT_TAB_SUPPORT, mTab == eTab::Support, xRowL + (1 * (tabW + tabGap)), xRowL + (1 * (tabW + tabGap)) + tabW - 1, pY);
+    DrawTab("MAP", ACT_TAB_MAIN, mTab == eTab::Main, 24, 152, pY);
+    DrawTab("SUPPORT", ACT_TAB_SUPPORT, mTab == eTab::Support, 168, 296, pY);
 }
 
 void cRandomMapOptionsMenu::DrawTab(const char* pLabel, int16 pAction, bool pActive, size_t pX1, size_t pX2, int16 pY)
 {
-    g_Fodder->GUI_Button_Draw_SmallBoxAt(
-        pLabel,
-        pX1,
-        pX2,
-        pY,
-        pActive ? 0xF2 : 0xB2,
-        pActive ? 0xF3 : 0xB3,
-        eTextAlign::Centre);
+    const bool hover = g_Fodder->mMouseX + 0x20 >= int(pX1) && g_Fodder->mMouseX + 0x20 <= int(pX2) &&
+        g_Fodder->mMouseY >= pY && g_Fodder->mMouseY <= pY + 15;
+    g_Fodder->String_Print_Small_CentreInBox(pLabel, pX1, pX2, pY + 5);
+    if (hover || pActive) g_Fodder->Briefing_DrawBox(pX1, pY, pX2 - pX1, 16, 0xF3);
+    g_Fodder->mGUI_Temp_X = int16(pX1);
+    g_Fodder->mGUI_Temp_Y = pY;
+    g_Fodder->mGUI_Temp_Width = int16(pX2 - pX1);
+    g_Fodder->mGUI_Draw_LastHeight = 10;
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pAction);
 }
 
 void cRandomMapOptionsMenu::DrawValueButton(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction)
 {
-    const size_t FieldX1 = 0x88;
-    const size_t FieldX2 = 0x128;
-    const std::string FittedValue = NetworkMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
-
-    g_Fodder->String_Print_Small(pLabel, 0x20, pY);
-    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
-
-    g_Fodder->mGUI_Temp_X = (int16)FieldX1;
+    g_Fodder->String_Print_Small_Left(pLabel, 22, pY + 5);
+    const std::string value = NetworkMenu_FitText(pValue, 152);
+    g_Fodder->String_Print_Small_CentreInBox(value, 126, 286, pY + 5);
+    // Clicking the value or its chevron advances to the next choice.
+    g_Fodder->String_Print_Small(">", 292, pY + 5);
+    const bool hover = g_Fodder->mMouseX + 0x20 >= 124 && g_Fodder->mMouseX + 0x20 <= 304 &&
+        g_Fodder->mMouseY >= pY && g_Fodder->mMouseY <= pY + 15;
+    if (hover) g_Fodder->Briefing_DrawBox(124, pY, 180, 16, 0xF3);
+    g_Fodder->mGUI_Temp_X = 124;
     g_Fodder->mGUI_Temp_Y = pY;
-    g_Fodder->mGUI_Temp_Width = (int16)(FieldX2 - FieldX1);
-    if (!g_Fodder->mGUI_Draw_LastHeight)
-        g_Fodder->mGUI_Draw_LastHeight = 6;
-
-    g_Fodder->GUI_Box_Draw(0xB2, 0xB3);
+    g_Fodder->mGUI_Temp_Width = 180;
+    g_Fodder->mGUI_Draw_LastHeight = 10;
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pAction);
 }
 
 void cRandomMapOptionsMenu::DrawField(const char* pLabel, const std::string& pValue, int16 pY, int16 pAction, bool pActive)
 {
-    const size_t FieldX1 = 0x88;
-    const size_t FieldX2 = 0x128;
-    const std::string Value = pValue.size() ? pValue : "ENTER";
-    const std::string FittedValue = NetworkMenu_FitText(Value, (int)(FieldX2 - FieldX1 - 4));
-
-    g_Fodder->String_Print_Small(pLabel, 0x20, pY);
-    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
-
-    g_Fodder->mGUI_Temp_X = (int16)FieldX1;
-    g_Fodder->mGUI_Temp_Y = pY;
-    g_Fodder->mGUI_Temp_Width = (int16)(FieldX2 - FieldX1);
-    if (!g_Fodder->mGUI_Draw_LastHeight)
-        g_Fodder->mGUI_Draw_LastHeight = 6;
-
-    g_Fodder->GUI_Box_Draw(pActive ? 0xF2 : 0xB2, pActive ? 0xF3 : 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pAction);
+    g_Fodder->String_Print_Small_Left(pLabel, 22, pY + 5);
+    const std::string value = pValue.empty() ? "ENTER SEED" : pValue;
+    DrawTab(value.c_str(), pAction, pActive, 124, 258, pY);
 }
 
 void cRandomMapOptionsMenu::DrawStaticValue(const char* pLabel, const std::string& pValue, int16 pY)
 {
-    const size_t FieldX1 = 0x88;
-    const size_t FieldX2 = 0x128;
-    const std::string FittedValue = NetworkMenu_FitText(pValue, (int)(FieldX2 - FieldX1 - 4));
-
-    g_Fodder->String_Print_Small(pLabel, 0x20, pY);
-    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
+    g_Fodder->String_Print_Small_Left(pLabel, 22, pY + 5);
+    g_Fodder->String_Print_Small_CentreInBox(NetworkMenu_FitText(pValue, 174), 126, 304, pY + 5);
 }
 
 void cRandomMapOptionsMenu::DrawFooter()
 {
-    std::string Summary = "SEED ";
-    Summary += mSeedText;
-    Summary += " ";
-    Summary += Network_MapSizeName(mOptions.mMapSize);
-    Summary += " ";
-    Summary += GetTerrainName();
-    Summary += " ";
-    Summary += GetModeShortName();
-
-    Summary = NetworkMenu_FitText(Summary, 246);
-    g_Fodder->String_Print_Small_LeftInBox(Summary, 0x20, 0x128, 0xA7, 0);
+    const char* hint = mEditField == eEditField::Seed ? "TYPE A NUMBER, THEN PRESS ENTER" :
+        mTab == eTab::Main ? "CLICK SEED TO EDIT - NEW TO SHUFFLE" :
+        mContext == eContext::Campaign && mMapType == eMapType::Maze ? "MAZE LAYOUT SETS PICKUP LEVELS" :
+        mContext == eContext::Campaign && mMapType == eMapType::SkidooJump ? "THIS LAYOUT INCLUDES A REQUIRED SKIDOO" :
+        mContext == eContext::Campaign && mMapType == eMapType::Random ? "SOME LAYOUTS SET THEIR OWN SUPPORT" :
+        "CHANGES APPLY TO THE NEXT MAP";
+    g_Fodder->String_Print_Small_CentreInBox(hint, 14, 306, 165 + PLATFORM_BASED(0, 25) / 2);
 }
 
 void cRandomMapOptionsMenu::HandleTextInput()
@@ -406,7 +391,7 @@ void cRandomMapOptionsMenu::InferMapType()
 
     // Terrain and type are the complete UI model. A missing/invalid terrain
     // opens at the default rather than exposing the old cross-terrain preset.
-    if (mOptions.mMapTerrain == eNetworkMapTerrain_Random)
+    if (mOptions.mMapTerrain != eNetworkMapTerrain_Jungle && mOptions.mMapTerrain != eNetworkMapTerrain_Ice)
         mOptions.mMapTerrain = eNetworkMapTerrain_Jungle;
     if (!MapTypeSupported(mMapType, mOptions.mMapTerrain))
         mMapType = eMapType::Random;
@@ -426,7 +411,7 @@ const char* cRandomMapOptionsMenu::GetMapTypeName() const
     case eMapType::Neck:       return "NECK";
     case eMapType::Beach:      return "BEACH";
     case eMapType::SkidooJump: return "SKIDOO JUMP";
-    default:                   return "RANDOM";
+    default:                   return mContext == eContext::Multiplayer ? "BALANCED" : "RANDOM";
     }
 }
 
@@ -448,8 +433,6 @@ void cRandomMapOptionsMenu::CycleTerrain()
     const eNetworkMapTerrain Terrains[] = {
         eNetworkMapTerrain_Jungle,
         eNetworkMapTerrain_Ice,
-        eNetworkMapTerrain_Desert,
-        eNetworkMapTerrain_Moors,
     };
     const size_t TerrainCount = sizeof(Terrains) / sizeof(Terrains[0]);
     size_t Current = TerrainCount - 1;

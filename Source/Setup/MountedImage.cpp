@@ -20,14 +20,18 @@
  *
  */
 
-#include "stdafx.hpp"
 #include "Setup/MountedImage.hpp"
+#include "FileSystem.hpp"
+#include "Setup/CapsImageLoader.hpp"
 
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <cstring>
 #include <fstream>
+#include <filesystem>
 #include <mutex>
+#include <regex>
 #include <set>
 
 #ifdef _WIN32
@@ -61,6 +65,93 @@ cMountedImage::cMountedImage() = default;
 cMountedImage::~cMountedImage() = default;
 
 bool cMountedImage::Open(const std::string& pImagePath) {
+    namespace fs = std::filesystem;
+    mError.clear();
+    mFiles.clear();
+    mRawFiles.clear();
+    mDisks.clear();
+    mImage.reset();
+    mImagePath.clear();
+
+    // Only replace an explicit disk number. Keep publisher, language and
+    // revision tags intact so neighbouring editions never get mixed together.
+    const std::regex diskNumber("(disk|disc)[ _.-]*([0-9]+|[a-z])(?=[^a-z0-9]|$)",
+                                std::regex::icase);
+    const std::regex ofNumber("([0-9]+)([ _.-]*of[ _.-]*[0-9]+)", std::regex::icase);
+    const auto setName = [&](const fs::path& path) {
+        return std::regex_replace(std::regex_replace(toLower(path.stem().string()),
+            diskNumber, "$1#"), ofNumber, "#$2");
+    };
+    const auto isFloppy = [](const std::string& extension) {
+        return extension == ".adf" || extension == ".ipf" || extension == ".raw";
+    };
+    const fs::path selected = FileSystem::Resolve(pImagePath);
+    if (selected.empty()) { mError = "Disk image or folder not found."; return false; }
+    std::error_code ec;
+    const bool folder = fs::is_directory(selected, ec);
+    const std::string stem = toLower(selected.stem().string());
+    const std::string extension = toLower(selected.extension().string());
+    const bool numbered = isFloppy(extension) &&
+        (std::regex_search(stem, diskNumber) || std::regex_search(stem, ofNumber));
+    if (!folder && !numbered)
+        return OpenSingle(selected.u8string());
+
+    const fs::path parent = folder ? selected :
+        (selected.has_parent_path() ? selected.parent_path() : fs::path("."));
+    std::vector<fs::path> paths;
+    fs::directory_iterator end;
+    for (fs::directory_iterator it(parent, ec); !ec && it != end; it.increment(ec)) {
+        if (!it->is_regular_file(ec)) continue;
+        const auto& path = it->path();
+        const std::string candidateExtension = toLower(path.extension().string());
+        if (isFloppy(candidateExtension) &&
+            (folder || (candidateExtension == extension && setName(path) == setName(selected))))
+            paths.push_back(path);
+    }
+    if (ec || paths.empty() || (!folder && !fs::is_regular_file(selected, ec)))
+        return false;
+    if (folder) {
+        std::map<std::string, std::vector<fs::path>> numberedSets;
+        for (const auto& path : paths) {
+            const auto name = toLower(path.stem().string());
+            if (std::regex_search(name, diskNumber) || std::regex_search(name, ofNumber))
+                numberedSets[toLower(path.extension().string()) + setName(path)].push_back(path);
+        }
+        if (numberedSets.size() > 1) {
+            mError = "This folder contains several disk sets. Select one numbered disk to choose its matching set.";
+            return false;
+        }
+        // A save disk alongside one numbered game set is not a set member.
+        if (numberedSets.size() == 1) paths = numberedSets.begin()->second;
+    }
+    std::sort(paths.begin(), paths.end());
+
+    // Build transactionally: an unreadable member invalidates the set instead
+    // of silently leaving files from the remaining disks available.
+    std::vector<std::shared_ptr<cMountedImage>> disks;
+    std::map<std::string, std::string> files;
+    for (const auto& path : paths) {
+        auto disk = std::make_shared<cMountedImage>();
+        if (!disk->OpenSingle(path.u8string())) {
+            mError = disk->LastError();
+            if (mError.empty()) mError = "Could not read disk: " + path.filename().string();
+            return false;
+        }
+        const std::string prefix = "/@disk/" + std::to_string(disks.size()) + "/";
+        for (const auto& entry : disk->mFiles)
+            files.emplace(entry.first, prefix + entry.second);
+        disks.push_back(std::move(disk));
+    }
+    mImagePath = selected.u8string();
+    mDisks = std::move(disks);
+    mFiles = std::move(files);
+    return true;
+}
+
+bool cMountedImage::OpenSingle(const std::string& pImagePath) {
+    if (OpenSensibleDisk(pImagePath)) return true;
+    const auto extension = toLower(std::filesystem::path(pImagePath).extension().string());
+    if (extension == ".ipf" || extension == ".raw") return false;
 #ifdef OPENFODDER_HAS_FIRY
     if (!firy::gFiry)
         return false;
@@ -80,7 +171,90 @@ bool cMountedImage::Open(const std::string& pImagePath) {
 #endif
 }
 
+// SOS directory/block layout: https://github.com/OpenFodder/SOS_Unpacker
+bool cMountedImage::OpenSensibleDisk(const std::string& path) {
+    const std::string extension = toLower(std::filesystem::path(path).extension().string());
+    std::vector<std::vector<uint8_t>> tracks;
+    if (extension == ".adf") {
+        std::ifstream input(std::filesystem::u8path(path), std::ios::binary | std::ios::ate);
+        if (!input || input.tellg() != 901120) return false;
+        std::vector<uint8_t> bytes(901120);
+        input.seekg(0);
+        if (!input.read(reinterpret_cast<char*>(bytes.data()), bytes.size())) return false;
+        int swapped = -1;
+        for (int side = 0; side < 2; ++side)
+            if (std::memcmp(bytes.data() + (2 ^ side) * 5632, "Sensi disk", 10) == 0) swapped = side;
+        if (swapped < 0) return false;
+        tracks.resize(160);
+        for (size_t i = 0; i < tracks.size(); ++i) {
+            const size_t at = (i ^ swapped) * 5632;
+            tracks[i].assign(bytes.begin() + at, bytes.begin() + at + 5632);
+        }
+    } else if (extension == ".ipf" || extension == ".raw") {
+        if (!LoadSensibleTracks(path, tracks, mError)) return false;
+    } else return false;
+
+    const auto fail = [&](const std::string& detail = "") {
+        mError = "The Sensible disk directory or a required file chain is damaged or incomplete. " + detail;
+        return false;
+    };
+    // Original SOS volume labels differ from the cracked ADF labels. The
+    // preservation path already validated this track's SOS6 checksum.
+    if (tracks.size() < 3 || tracks[2].size() < 32) return fail();
+    const auto& directory = tracks[2];
+    const auto be32 = [&](size_t at) {
+        return (uint32_t(directory[at]) << 24) | (uint32_t(directory[at + 1]) << 16) |
+               (uint32_t(directory[at + 2]) << 8) | directory[at + 3];
+    };
+    const size_t count = be32(24);
+    if (!count || count > (directory.size() - 32) / 32) return fail();
+    std::map<std::string, tSharedBuffer> files;
+    std::map<std::string, std::string> names;
+    for (size_t i = 0; i < count; ++i) {
+        const size_t entry = 32 + i * 32;
+        std::string name;
+        for (size_t j = 0; j < 26 && directory[entry + j]; ++j) {
+            const uint8_t c = directory[entry + j];
+            if (c < 32 || c > 126 || c == '/' || c == '\\') return fail();
+            name.push_back(char(c));
+        }
+        if (name.empty() || name.size() == 26 || name == "." || name == "..") return fail();
+        const size_t size = be32(entry + 28);
+        if (size > tracks.size() * 6144) return fail();
+        size_t track = directory[entry + 26], block = directory[entry + 27];
+        auto data = std::make_shared<std::vector<uint8_t>>();
+        data->reserve(size);
+        std::set<size_t> visited;
+        while (data->size() < size) {
+            if (track >= tracks.size() || (block + 1) * 512 > tracks[track].size() ||
+                !visited.insert(track * 256 + block).second)
+                return fail(name + " track " + std::to_string(track) + " block " + std::to_string(block));
+            const auto& bytes = tracks[track];
+            const size_t at = block * 512;
+            const size_t take = std::min<size_t>(510, size - data->size());
+            data->insert(data->end(), bytes.begin() + at, bytes.begin() + at + take);
+            track = bytes[at + 510];
+            block = bytes[at + 511];
+        }
+        const std::string filePath = "/" + name;
+        const auto alias = names.find(toLower(name));
+        if (alias != names.end()) {
+            // Original disks contain distinct DISK2.RAW/disk2.raw markers.
+            // Match the regular image index's case-insensitive first-win rule.
+            continue;
+        }
+        names.emplace(toLower(name), filePath);
+        files.emplace(filePath, std::move(data));
+    }
+    mRawFiles = std::move(files);
+    mFiles = std::move(names);
+    mImagePath = path;
+    return true;
+}
+
 std::string cMountedImage::ImageTypeShort() const {
+    if (!mDisks.empty()) return mDisks.front()->ImageTypeShort();
+    if (!mRawFiles.empty()) return toLower(std::filesystem::path(mImagePath).extension().string()).substr(1) + "-sos";
 #ifdef OPENFODDER_HAS_FIRY
     return mImage ? mImage->imageTypeShort() : std::string{};
 #else
@@ -151,7 +325,7 @@ void cMountedImage::IndexTree() {
 }
 
 bool cMountedImage::FileExists(const std::string& pBasenameLower) const {
-    return mFiles.find(pBasenameLower) != mFiles.end();
+    return !ResolveBasename(pBasenameLower).empty();
 }
 
 std::vector<std::string> cMountedImage::ListBasenamesLower() const {
@@ -163,24 +337,46 @@ std::vector<std::string> cMountedImage::ListBasenamesLower() const {
 }
 
 std::string cMountedImage::ResolveBasename(const std::string& pBasenameLower) const {
-    auto it = mFiles.find(pBasenameLower);
-    if (it == mFiles.end())
-        return {};
-    return it->second;
+    auto it = mFiles.find(toLower(pBasenameLower));
+    if (it != mFiles.end()) return it->second;
+    for (const auto& entry : mFiles)
+        if (FileSystem::Equal(entry.first, pBasenameLower)) return entry.second;
+    return {};
 }
 
-std::shared_ptr<std::vector<uint8_t>> cMountedImage::Read(const std::string& pInImagePath) const {
+tSharedBuffer cMountedImage::Read(const std::string& requestedPath) const {
+    std::string pInImagePath = requestedPath;
+    std::replace(pInImagePath.begin(), pInImagePath.end(), '\\', '/');
+    // Use the indexed original spelling, including the disk routing prefix.
+    for (const auto& entry : mFiles) {
+        if (FileSystem::Equal(entry.second, pInImagePath)) {
+            pInImagePath = entry.second;
+            break;
+        }
+    }
+    const auto raw = mRawFiles.find(pInImagePath);
+    // Resource consumers may unpack or modify their buffer. Preserve the
+    // mounted disk's bytes for subsequent reads, just like the firy path.
+    if (raw != mRawFiles.end()) return std::make_shared<std::vector<uint8_t>>(*raw->second);
+    if (!mDisks.empty()) {
+        for (size_t i = 0; i < mDisks.size(); ++i) {
+            const std::string prefix = "/@disk/" + std::to_string(i) + "/";
+            if (pInImagePath.compare(0, prefix.size(), prefix) == 0)
+                return mDisks[i]->Read(pInImagePath.substr(prefix.size()));
+        }
+        return nullptr;
+    }
 #ifdef OPENFODDER_HAS_FIRY
     if (!mImage)
-        return std::make_shared<std::vector<uint8_t>>();
+        return nullptr;
 
     auto file = mImage->filesystemFile(pInImagePath);
     if (!file)
-        return std::make_shared<std::vector<uint8_t>>();
+        return nullptr;
 
     auto buf = file->read();
     if (!buf)
-        return std::make_shared<std::vector<uint8_t>>();
+        return nullptr;
 
     // firy's spBuffer is a wrapper around std::vector<uint8_t>; the engine
     // expects a bare std::vector<uint8_t>. Copy out — these reads happen at
@@ -191,50 +387,18 @@ std::shared_ptr<std::vector<uint8_t>> cMountedImage::Read(const std::string& pIn
     return out;
 #else
     (void)pInImagePath;
-    return std::make_shared<std::vector<uint8_t>>();
+    return nullptr;
 #endif
 }
 
-// Best-effort mkdir-p. Walks the path, creating intermediate dirs along the
-// way. Returns false only if the final directory could not be ensured.
+// Create and verify the destination without depending on engine globals.
 static bool ensureDirExists(const std::string& pPath) {
-    if (pPath.empty())
-        return false;
-
-    // Split on '/' (and '\' on Windows) and create progressively.
-    std::string current;
-    current.reserve(pPath.size());
-    for (size_t i = 0; i < pPath.size(); ++i) {
-        char c = pPath[i];
-        current.push_back(c);
-        const bool sep = (c == '/' || c == '\\');
-        const bool last = (i + 1 == pPath.size());
-        if (!sep && !last)
-            continue;
-
-        // Trim trailing slash for the mkdir call but leave it in `current`
-        // for the next iteration's path-building.
-        std::string tryDir = current;
-        if (sep && tryDir.size() > 1)
-            tryDir.pop_back();
-
-        // Skip drive roots ("C:") on Windows and the empty string for
-        // POSIX absolute paths starting with '/'.
-        if (tryDir.empty())
-            continue;
-        if (tryDir.size() == 2 && tryDir[1] == ':')
-            continue;
-
-#ifdef _WIN32
-        // _mkdir returns 0 on success; EEXIST on already-exists.
-        if (_mkdir(tryDir.c_str()) != 0 && errno != EEXIST)
-            return false;
-#else
-        if (mkdir(tryDir.c_str(), 0755) != 0 && errno != EEXIST)
-            return false;
-#endif
-    }
-    return g_ResourceMan ? g_ResourceMan->DirExists(pPath) : true;
+    if (pPath.empty()) return false;
+    std::error_code ec;
+    const auto path = FileSystem::Resolve(pPath, true);
+    if (path.empty()) return false;
+    std::filesystem::create_directories(path, ec);
+    return !ec && std::filesystem::is_directory(path, ec) && !ec;
 }
 
 int cMountedImage::CopyToFolder(const std::string& pDestDir,
@@ -246,7 +410,7 @@ int cMountedImage::CopyToFolder(const std::string& pDestDir,
     std::set<std::string> wanted;
     if (!pBasenamesLowerSubset.empty()) {
         for (auto& b : pBasenamesLowerSubset)
-            wanted.insert(b);
+            wanted.insert(toLower(b));
     }
 
     int written = 0;
@@ -275,7 +439,9 @@ int cMountedImage::CopyToFolder(const std::string& pDestDir,
             outPath.push_back('/');
         outPath += basename;
 
-        std::ofstream out(outPath.c_str(), std::ios::binary | std::ios::trunc);
+        const auto target = FileSystem::Resolve(outPath, true);
+        if (target.empty()) return -1;
+        std::ofstream out(target, std::ios::binary | std::ios::trunc);
         if (!out)
             return -1;
         if (!buf->empty()) {

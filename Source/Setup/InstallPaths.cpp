@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Setup/InstallPaths.hpp"
 
 #include <cstdlib>
@@ -105,10 +106,10 @@ bool LooksLikePortable(const std::filesystem::path& pCwd) {
         return false;
 
     std::error_code ec;
-    if (std::filesystem::is_directory(pCwd / "Data", ec))   return true;
-    if (std::filesystem::is_directory(pCwd / "Scripts", ec))return true;
-    if (std::filesystem::is_regular_file(pCwd / "about.png", ec)) return true;
-    if (std::filesystem::is_regular_file(pCwd / "openfodder.ini.example", ec)) return true;
+    if (std::filesystem::is_directory(FileSystem::Resolve((pCwd / "Data").u8string()), ec))   return true;
+    if (std::filesystem::is_directory(FileSystem::Resolve((pCwd / "Scripts").u8string()), ec))return true;
+    if (std::filesystem::is_regular_file(FileSystem::Resolve((pCwd / "about.png").u8string()), ec)) return true;
+    if (std::filesystem::is_regular_file(FileSystem::Resolve((pCwd / "openfodder.ini.example").u8string()), ec)) return true;
 
     return false;
 }

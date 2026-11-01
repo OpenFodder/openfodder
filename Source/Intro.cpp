@@ -39,9 +39,18 @@ void cFodder::Intro_OpenFodder() {
 
         Mouse_Setup();
 
-		// Random intro
-		auto Tileset = static_cast<eTileTypes>(((uint8)tool_RandomGet()) % eTileTypes_Hid);
-		Briefing_Intro_Helicopter_Play(true, Tileset);
+        // The setup wizard can leave a demo (notably PC Format) active.
+        // Its briefing sheet exists, but only its bundled terrain intros
+        // are available. Picking from all retail terrains exits in fileGet.
+        std::vector<eTileTypes> IntroTilesets;
+        for (const auto& Tileset : mVersionCurrent->getTileTypes()) {
+            if (Tileset.Type < eTileTypes_Hid)
+                IntroTilesets.push_back(Tileset.Type);
+        }
+        if (!IntroTilesets.empty()) {
+            const auto Tileset = IntroTilesets[((uint8)tool_RandomGet()) % IntroTilesets.size()];
+            Briefing_Intro_Helicopter_Play(true, Tileset);
+        }
 		mOpenFodder_Intro_Done = true;
 		if (CF2)
 			VersionSwitch(mVersions->GetForCampaign("Cannon Fodder", mParams->mDefaultPlatform));

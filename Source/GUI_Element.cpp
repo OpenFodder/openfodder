@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "MenuPresentation.hpp"
 
 #include <cctype>
 
@@ -1519,8 +1520,131 @@ sGUI_Element *cFodder::GUI_Button_Setup_New(GuiFn pFn, void *pCtx, int16 pAction
     return Element;
 }
 
+namespace {
+std::string SelectSingleMap(cFodder& game, const std::vector<std::string>& maps) {
+    const auto previousCallback = game.mInterruptCallback;
+    game.mInterruptCallback = []() {};
+    game.mPhase_In_Progress = false;
+    // Custom has no map graphics. Build the scene with its real retail data.
+    const auto* retail = game.mVersions->GetRetail(game.mVersionCurrent->mPlatform, game.mVersionCurrent->mGame);
+    if (!retail) { game.mInterruptCallback = previousCallback; return {}; }
+    game.VersionSwitch(retail);
+    game.Phase_EngineReset();
+    game.mPhase_Aborted = false;
+    game.MainMenu_CreateBackground();
+    game.MainMenu_PrepareScenery();
+    game.Camera_Reset();
+    game.MapTiles_ResetScrollState();
+    game.mMapTile_Ptr += 3 * sizeof(uint16);
+    game.Mouse_Setup();
+    game.mMouse_Button_Left_Toggle = 0;
+    game.mKeyCode = game.mInput_LastKey = 0;
+    struct Selection {
+        int selected = 0;
+        int page = 0;
+        int count = 0;
+        bool done = false;
+        bool cancelled = false;
+    } state;
+    state.count = (int)maps.size();
+    constexpr int pageSize = 5;
+    const int extra = game.mVersionCurrent->isAmiga() ? 25 : 0;
+    const auto pageBy = [&](int delta) {
+        state.page = std::max(0, std::min(state.page + delta * pageSize,
+                             state.count ? ((state.count - 1) / pageSize) * pageSize : 0));
+        state.selected = state.page;
+    };
+#ifdef OPENFODDER_SETUP_DIAGNOSTICS
+    std::string lastPreview;
+#endif
+    game.mInterruptCallback = [&]() {
+        {
+            MenuPresentation::Frame frame(game);
+            MenuPresentation::Title(game, "SINGLE MAP", "CHOOSE A MISSION TO PLAY");
+            if (maps.empty()) {
+                game.String_Print_Small_CentreInBox("NO CUSTOM MAPS FOUND", 14, 306, 89 + extra / 2);
+                game.String_Print_Small_CentreInBox("ADD .MAP FILES TO DATA/CUSTOM/MAPS", 14, 306, 110 + extra / 2);
+            }
+            for (int row = 0; row < pageSize && state.page + row < state.count; ++row) {
+                const int index = state.page + row;
+                const auto& file = maps[index];
+                const auto label = file.substr(0, file.find_last_of('.'));
+                MenuPresentation::Button(game, label, 22, 298, 62 + extra / 2 + row * 18,
+                                         index == state.selected);
+                game.GUI_Button_Setup_New([](void* ctx, int16, int16 index) {
+                    static_cast<Selection*>(ctx)->selected = index;
+                }, &state, 0, (int16)index);
+            }
+            if (state.count > pageSize) {
+                for (int direction : {-1, 1}) {
+                    const bool enabled = direction < 0 ? state.page > 0 : state.page + pageSize < state.count;
+                    if (!enabled) continue;
+                    MenuPresentation::Button(game, direction < 0 ? "PREVIOUS" : "NEXT",
+                        direction < 0 ? 22 : 170, direction < 0 ? 150 : 298, 155 + extra / 2);
+                    game.GUI_Button_Setup_New([](void* ctx, int16, int16 delta) {
+                        auto& state = *static_cast<Selection*>(ctx);
+                        state.page += delta * 5;
+                        state.selected = state.page;
+                    }, &state, 0, (int16)direction);
+                }
+            }
+            MenuPresentation::Button(game, "BACK", 14, 145, 175 + extra);
+            game.GUI_Button_Setup_New([](void* ctx, int16, int16) {
+                auto& state = *static_cast<Selection*>(ctx);
+                state.cancelled = state.done = true;
+            }, &state);
+            if (!maps.empty()) {
+                MenuPresentation::Button(game, "START MISSION", 165, 306, 175 + extra);
+                game.GUI_Button_Setup_New([](void* ctx, int16, int16) {
+                    static_cast<Selection*>(ctx)->done = true;
+                }, &state);
+            }
+        }
+#ifdef OPENFODDER_SETUP_DIAGNOSTICS
+        if (const char* output = std::getenv("OPENFODDER_MENU_FAMILY_PREVIEW")) {
+            const std::string name = maps.empty() ? "single-empty" : state.page ? "single-next" : "single-map";
+            if (lastPreview != name) {
+                game.mSurface->palette_SetFromNew();
+                game.mSurface->surfaceSetToPalette();
+                game.mSurface->draw();
+                game.mSurface->SavePng(std::string(output) + "/" + name + ".png");
+                lastPreview = name;
+            }
+        }
+#endif
+        game.mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
+        game.Mouse_DrawCursor();
+    };
+    game.mGraphics->PaletteSet();
+    game.mSurface->palette_FadeTowardNew();
+    game.mInterruptCallback();
+    while (!state.done && !game.mExit) {
+        if (game.mSurface->isPaletteAdjusting()) game.mSurface->palette_FadeTowardNew();
+        if (game.Mouse_Button_Left_Toggled() >= 0) game.GUI_Handle_Element_Mouse_Check(game.mGUI_Elements);
+        if (game.mPhase_EscapeKeyAbort || game.mPhase_Aborted) {
+            game.mPhase_EscapeKeyAbort = game.mPhase_Aborted = false;
+            state.cancelled = state.done = true;
+        }
+        if (game.mMouse_EventLastWheel.mY) {
+            pageBy(game.mMouse_EventLastWheel.mY > 0 ? -1 : 1);
+            game.mMouse_EventLastWheel.mY = 0;
+        }
+        MenuPresentation::Animate(game);
+        game.Video_Sleep();
+    }
+    game.mInterruptCallback = previousCallback;
+    game.mMouse_Button_Left_Toggle = 0;
+    game.mMouse_EventLastButtonsPressed = 0;
+    game.mKeyCode = game.mKeyCodeAscii = game.mInput_LastKey = 0;
+    game.mGUI_SaveLoadAction = state.cancelled || game.mExit ? 1 : 2;
+    return state.cancelled || game.mExit || maps.empty() ? std::string() : maps[state.selected];
+}
+}
+
 std::string cFodder::GUI_Select_File(const char *pTitle, const std::vector<sSavedGame> &pSave, const std::vector<std::string> &pMaps, bool pSaveDialog)
 {
+    if (!pSaveDialog && pSave.empty()) return SelectSingleMap(*this, pMaps);
+
     mPhase_Aborted = false;
     mGUI_SaveLoadAction = 0;
 
@@ -1857,6 +1981,11 @@ void cFodder::GUI_Handle_Element_Mouse_Check(sGUI_Element *pLoop_Element)
 
         if (pLoop_Element->mOnClick && pLoop_Element->mCtx)
         {
+#ifdef OPENFODDER_SETUP_DIAGNOSTICS
+            if (std::getenv("OPENFODDER_OPTIONS_DATA_CHECK"))
+                std::cerr << "GUI action=" << pLoop_Element->mAction << " arg=" << pLoop_Element->mArg
+                          << " at=" << pLoop_Element->mX << "," << pLoop_Element->mY << "\n";
+#endif
             pLoop_Element->mOnClick(pLoop_Element->mCtx, pLoop_Element->mAction, pLoop_Element->mArg);
         }
         return;

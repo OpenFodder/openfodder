@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Amiga/dernc.hpp"
 #include "Tools/RouteOracleReplay.hpp"
 #include "Utils/json.hpp"
@@ -48,7 +49,7 @@ namespace {
 // ---------------------------------------------------------------------------
 
 bool RO_FileExists(const std::string& pPath) {
-	std::ifstream File(pPath.c_str(), std::ios::binary);
+	std::ifstream File(FileSystem::Resolve(pPath), std::ios::binary);
 	return File.is_open();
 }
 
@@ -86,21 +87,14 @@ std::string RO_ToLower(std::string pValue) {
 	return pValue;
 }
 
-std::string RO_ToUpper(std::string pValue) {
-	std::transform(pValue.begin(), pValue.end(), pValue.begin(), [](unsigned char c) {
-		return (char)std::toupper(c);
-	});
-	return pValue;
-}
-
 std::string RO_ResolveMapPath(const std::string& pPath) {
 	if (RO_FileExists(pPath))
-		return pPath;
+		return FileSystem::Resolve(pPath).u8string();
 
 	if (RO_ExtensionPos(pPath) == std::string::npos) {
 		const std::string WithMap = pPath + ".map";
 		if (RO_FileExists(WithMap))
-			return WithMap;
+			return FileSystem::Resolve(WithMap).u8string();
 	}
 
 	return pPath;
@@ -108,7 +102,7 @@ std::string RO_ResolveMapPath(const std::string& pPath) {
 
 tSharedBuffer RO_ReadFileRaw(const std::string& pPath) {
 	auto Buffer = std::make_shared<std::vector<uint8>>();
-	std::ifstream File(pPath.c_str(), std::ios::binary);
+	std::ifstream File(FileSystem::Resolve(pPath), std::ios::binary);
 	if (!File.is_open())
 		return Buffer;
 
@@ -163,8 +157,6 @@ std::string RO_ReadAsciiAt(tSharedBuffer pBuffer, size_t pOffset, size_t pLength
 
 std::string RO_FindDataFile(const std::string& pMapPath, const std::string& pName) {
 	const std::string MapDir = RO_DirName(pMapPath);
-	const std::string Lower = RO_ToLower(pName);
-	const std::string Upper = RO_ToUpper(pName);
 	std::vector<std::string> Dirs;
 	Dirs.push_back(MapDir);
 	Dirs.push_back(RO_JoinPath(MapDir, "Data/Amiga"));
@@ -173,15 +165,8 @@ std::string RO_FindDataFile(const std::string& pMapPath, const std::string& pNam
 
 	for (size_t dirIndex = 0; dirIndex < Dirs.size(); ++dirIndex) {
 		const std::string& Dir = Dirs[dirIndex];
-		const std::string Direct = RO_JoinPath(Dir, pName);
-		if (RO_FileExists(Direct))
-			return Direct;
-		const std::string LowerPath = RO_JoinPath(Dir, Lower);
-		if (RO_FileExists(LowerPath))
-			return LowerPath;
-		const std::string UpperPath = RO_JoinPath(Dir, Upper);
-		if (RO_FileExists(UpperPath))
-			return UpperPath;
+        const auto path = FileSystem::Resolve(RO_JoinPath(Dir, pName));
+        if (!path.empty() && RO_FileExists(path.u8string())) return path.u8string();
 	}
 
 	return "";

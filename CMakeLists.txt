@@ -139,6 +139,11 @@ endif()
 
 add_executable(openfodder ${GAMEENGINE_SOURCE} ${GAMEENGINE_HEADERS})
 
+option(OPENFODDER_ENABLE_CAPSIMAGE "Build the native SOS SDK for IPF/CT RAW disks" ON)
+if(OPENFODDER_ENABLE_CAPSIMAGE AND NOT EMSCRIPTEN)
+    include(cmake/CapsImage.cmake)
+endif()
+
 if(OPENFODDER_HAS_FIRY)
     target_link_libraries(openfodder PRIVATE firy)
     target_compile_definitions(openfodder PRIVATE OPENFODDER_HAS_FIRY=1)
@@ -338,6 +343,17 @@ if (NOT EMSCRIPTEN AND (OPENFODDER_ENABLE_FFMPEG OR (OPENFODDER_AUTO_FFMPEG AND 
 endif()
 
 option(OPENFODDER_BUILD_MEDIA_TESTS "Build offline MPEG video/audio decoder checks" OFF)
+option(OPENFODDER_BUILD_DISK_TESTS "Build ADF disk-set checks" OFF)
+option(OPENFODDER_SETUP_DIAGNOSTICS "Enable setup-screen rendering checks" OFF)
+if(OPENFODDER_SETUP_DIAGNOSTICS AND NOT EMSCRIPTEN)
+    set_source_files_properties(Source/Setup/SetupWizard.cpp Source/Setup/SetupWizardPreview.cpp Source/GUI_Element.cpp
+        Source/Network/MultiplayerMenu.cpp Source/Network/FodderMultiplayer.cpp
+        PROPERTIES COMPILE_DEFINITIONS OPENFODDER_SETUP_DIAGNOSTICS=1)
+endif()
+if(OPENFODDER_BUILD_DISK_TESTS AND OPENFODDER_HAS_FIRY)
+    enable_testing()
+    add_subdirectory(Tests/DiskImages)
+endif()
 if(OPENFODDER_BUILD_MEDIA_TESTS)
     if(NOT FFmpeg_FOUND)
         message(FATAL_ERROR "Media checks require FFmpeg. Set OPENFODDER_ENABLE_FFMPEG=ON.")

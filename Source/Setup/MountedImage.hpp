@@ -22,7 +22,10 @@
 
 #pragma once
 
+#include "SharedBuffer.hpp"
+
 #include <map>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -49,10 +52,17 @@ public:
     cMountedImage();
     ~cMountedImage();
 
-    // Open pImagePath via firy and index every regular file. Returns false
+    // Open an image, a numbered ADF/IPF/CT RAW set, or a disk-set folder.
+    // Selecting any numbered disk discovers matching siblings in its folder.
+    // All files keep their source disk so reads and copies span the set.
+    // Returns false
     // if firy can't recognise the format. Idempotent — calling twice on the
     // same instance reopens.
     bool Open(const std::string& pImagePath);
+
+    const std::string& LastError() const { return mError; }
+
+    size_t DiskCount() const { return mDisks.empty() ? (mImage || !mRawFiles.empty() ? 1 : 0) : mDisks.size(); }
 
     // Path that was passed to Open(). Used for INI persistence and as the
     // human-readable label in the wizard.
@@ -70,7 +80,7 @@ public:
 
     // Read the file identified by an in-image absolute path (the value
     // returned by ResolveBasename). Returns null on miss.
-    std::shared_ptr<std::vector<uint8_t>> Read(const std::string& pInImagePath) const;
+    tSharedBuffer Read(const std::string& pInImagePath) const;
 
     // For a basename-lower we previously indexed, return the in-image
     // absolute path (e.g. "/CF_ENG.DAT"). Empty if missing.
@@ -92,7 +102,10 @@ public:
 
 private:
     std::string mImagePath;
+    std::string mError;
     firy::spImage mImage;
+    std::vector<std::shared_ptr<cMountedImage>> mDisks;
+    std::map<std::string, tSharedBuffer> mRawFiles;
 
     // basename-lower → in-image absolute path. Built once at Open() time so
     // every subsequent FileRead is a single hash lookup.
@@ -100,6 +113,8 @@ private:
 
     // Walk the in-image directory tree depth-first, populating mFiles.
     void IndexTree();
+    bool OpenSingle(const std::string& pImagePath);
+    bool OpenSensibleDisk(const std::string& pImagePath);
 };
 
 // -- Global registry ---------------------------------------------------------

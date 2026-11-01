@@ -58,6 +58,7 @@ struct sNetworkHubRoom {
     std::array<unsigned char, 32>   mSessionKey{};  // base64url-decoded session_key
     uint8_t                         mCurrentPlayers = 0;
     uint8_t                         mMaxPlayers = 0;
+    uint8_t                         mPeerIndex = 0;
     sNetworkHubMetadata             mMetadata;
 };
 
@@ -85,7 +86,8 @@ public:
                     const sNetworkHubMetadata& pMeta, bool pListed);
 
     // Heartbeats. Anonymous flavour is for joiners; the host flavour carries bearer=.
-    bool HeartbeatAnonymous(const std::string& pRoomCode);
+    bool HeartbeatAnonymous(const std::string& pRoomCode,
+                            const std::array<unsigned char, 32>& pSessionKey);
     bool HeartbeatHost(const sHubAuthToken& pAuth, const std::string& pRoomCode);
 
     const std::string& GetHubHost() const { return mHubHost; }

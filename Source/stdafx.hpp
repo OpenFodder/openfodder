@@ -47,7 +47,7 @@
 
 #include "Types.hpp"
 
-typedef std::shared_ptr<std::vector<uint8>> tSharedBuffer;
+#include "SharedBuffer.hpp"
 
 enum eDataType {
 	eData = 0,

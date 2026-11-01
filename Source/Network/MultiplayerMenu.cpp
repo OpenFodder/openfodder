@@ -22,6 +22,7 @@
 
 #include "stdafx.hpp"
 #include "NetworkMenuText.hpp"
+#include "MenuPresentation.hpp"
 
 #ifdef OPENFODDER_ENABLE_NETWORK
 
@@ -46,17 +47,6 @@ static bool MultiplayerMenu_PortFromText(const std::string& pText, uint16& pPort
 
     pPort = (uint16)Value;
     return true;
-}
-
-static std::string MultiplayerMenu_DisplayHost(std::string pHost)
-{
-    for (char& Char : pHost)
-    {
-        if (Char == '.' || Char == '-')
-            Char = ' ';
-    }
-
-    return pHost;
 }
 
 static const char* MultiplayerMenu_ModeShortName(eNetworkGameMode pMode)
@@ -226,6 +216,7 @@ void cMultiplayerMenu::Tick() {
         return;
     }
 
+    MenuPresentation::Animate(*g_Fodder);
     HandleTextInput();
     HandleAuthTextInput();
 
@@ -460,85 +451,66 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
 }
 
 void cMultiplayerMenu::Draw() {
-    switch (mState) {
-    case eState::Main:
-        DrawMainMenu();
-        break;
-    case eState::Host:
-        DrawHostMenu();
-        break;
-    case eState::Join:
-        DrawJoinMenu();
-        break;
-    case eState::FindLan:
-        DrawFindLanMenu();
-        break;
-    case eState::FindInternet:
-        DrawFindInternetMenu();
-        break;
-    case eState::MapOptions:
+    if (mState == eState::MapOptions) {
         mMapOptionsMenu.Draw();
-        break;
-    case eState::AuthPrompt:
-        DrawAuthPromptMenu();
-        break;
-    case eState::AuthPairing:
-        DrawAuthPairingMenu();
-        break;
+        return;
     }
+    {
+        MenuPresentation::Frame frame(*g_Fodder);
+        switch (mState) {
+        case eState::Main:
+            DrawMainMenu();
+            break;
+        case eState::Host:
+            DrawHostMenu();
+            break;
+        case eState::Join:
+            DrawJoinMenu();
+            break;
+        case eState::FindLan:
+            DrawFindLanMenu();
+            break;
+        case eState::FindInternet:
+            DrawFindInternetMenu();
+            break;
+        case eState::MapOptions:
+            // Handled before creating this page's frame.
+            break;
+        case eState::AuthPrompt:
+            DrawAuthPromptMenu();
+            break;
+        case eState::AuthPairing:
+            DrawAuthPairingMenu();
+            break;
+        }
+    }
+#ifdef OPENFODDER_SETUP_DIAGNOSTICS
+    if (const char* output = std::getenv("OPENFODDER_MENU_FAMILY_PREVIEW")) {
+        static int previousState = -1;
+        if (previousState != (int)mState) {
+            previousState = (int)mState;
+            g_Fodder->mSurface->palette_SetFromNew();
+            g_Fodder->mSurface->surfaceSetToPalette();
+            g_Fodder->mSurface->draw();
+            g_Fodder->mSurface->SavePng(std::string(output) + "/multiplayer-live-" + std::to_string((int)mState) + ".png");
+        }
+    }
+#endif
 }
 
 void cMultiplayerMenu::DrawMainMenu() {
     mDrawStrings.clear();
-
-    g_Fodder->mSurface->clearBuffer();
-    g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
-    g_Fodder->GUI_Element_Reset();
-
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("MULTIPLAYER", false, 0x01);
-    g_Fodder->mString_GapCharID = 0;
-
-    size_t YOffset = PLATFORM_BASED(0, 25);
-    int16 rowY = 0x36;
-    int16 rowH = 0x15;
-
-    // HOST LAN GAME
-    g_Fodder->GUI_Button_Draw_Small("HOST LAN GAME", rowY, 0xB2, 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_HOST);
-
-    rowY += rowH;
-
-    // FIND LAN GAME
-    g_Fodder->GUI_Button_Draw_Small("FIND LAN GAME", rowY, 0xB2, 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_FIND_LAN);
-
-    rowY += rowH;
-
-    // HOST INTERNET GAME
-    g_Fodder->GUI_Button_Draw_Small("HOST INTERNET GAME", rowY, 0xB2, 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_HOST_INTERNET);
-
-    rowY += rowH;
-
-    // FIND INTERNET GAME
-    g_Fodder->GUI_Button_Draw_Small("FIND INTERNET GAME", rowY, 0xB2, 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_FIND_INTERNET);
-
-    rowY += rowH;
-
-    // DIRECT CONNECT — manual IP/port entry for LAN/private routing scenarios
-    // the auto-discovery browser can't reach (split-horizon DNS, VPN, etc.).
-    // Reaches the same Join screen as ACT_JOIN.
-    g_Fodder->GUI_Button_Draw_Small("DIRECT CONNECT", rowY, 0xB2, 0xB3);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_DIRECT_CONNECT);
-
-    // SYNC TEST removed from the menu — it's a developer GGPO fault-injection
-    // mode (sets mSyncTest, mPlayerIndex=0, mDone=true). Still reachable via
-    // --sync-test on the CLI.
-
-    // BACK
-    g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
+    MenuPresentation::Title(*g_Fodder, "MULTIPLAYER", "CHOOSE HOW TO CONNECT");
+    int y = 62 + PLATFORM_BASED(0, 25) / 2;
+    const char* labels[] = { "HOST LAN GAME", "FIND LAN GAME", "HOST INTERNET GAME",
+                             "FIND INTERNET GAME", "DIRECT CONNECT" };
+    const int16 actions[] = { ACT_HOST, ACT_FIND_LAN, ACT_HOST_INTERNET,
+                              ACT_FIND_INTERNET, ACT_DIRECT_CONNECT };
+    for (int i = 0; i < 5; ++i, y += 21) {
+        MenuPresentation::Button(*g_Fodder, labels[i], 62, 258, y);
+        g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, actions[i]);
+    }
+    MenuPresentation::Button(*g_Fodder, "BACK", 14, 145, 175 + PLATFORM_BASED(0, 25));
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
 }
 
@@ -553,15 +525,13 @@ void cMultiplayerMenu::DrawJoinMenu() {
 void cMultiplayerMenu::DrawFindLanMenu() {
     mDrawStrings.clear();
 
-    g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("FIND LAN GAME", false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+    MenuPresentation::Title(*g_Fodder, "FIND LAN GAME", "GAMES ON YOUR LOCAL NETWORK");
     g_Fodder->mString_GapCharID = 0;
 
-    size_t YOffset = PLATFORM_BASED(0, 25);
     int16 rowY = 0x3E;
     const uint32_t Now = (uint32_t)SDL_GetTicks();
     const bool RecentVersionMismatch = mDiscovery &&
@@ -594,61 +564,39 @@ void cMultiplayerMenu::DrawFindLanMenu() {
             const auto& Game = Games[Index];
             const bool Joinable = MultiplayerMenu_DiscoveryStateJoinable(Game.mState) && Game.mLobbyPort;
             const uint8_t MaxPlayers = Game.mMaxPlayers ? Game.mMaxPlayers : NETWORK_MAX_PLAYERS;
-            const uint32_t AgeSeconds = (Now - Game.mLastSeenTicks) / 1000;
             std::string Label = Game.mGameName.size() ? Game.mGameName : (Game.mHostName.size() ? Game.mHostName : Game.mHostAddress);
-            Label += " ";
-            Label += MultiplayerMenu_ModeShortName(Game.mSettings.mGameMode);
-            Label += " ";
-            Label += Network_UsesGeneratedMap(Game.mSettings.mGameMode)
-                ? MultiplayerMenu_BuildMapLabel(
-                    Network_NormalizeMapSize((uint8_t)Game.mSettings.mMapSize),
-                    Network_NormalizeMapTerrain((uint8_t)Game.mSettings.mMapTerrain))
-                : "CAMPAIGN";
-            Label += " ";
-            Label += std::to_string((int)Game.mCurrentPlayers);
-            Label += "/";
-            Label += std::to_string((int)MaxPlayers);
-            Label += " ";
-            Label += MultiplayerMenu_DiscoveryStateName(Game.mState);
-            Label += " ";
-            Label += "N";
-            Label += std::to_string((int)Game.mCompatibilityVersion);
-            Label += " ";
-            Label += std::to_string((int)AgeSeconds);
-            Label += "S";
-            Label = NetworkMenu_FitText(Label, 190);
-
-            g_Fodder->GUI_Button_Draw_Small(Label.c_str(), rowY, Joinable ? 0xB2 : 0xF2, Joinable ? 0xB3 : 0xF3);
+            MenuPresentation::Button(*g_Fodder, Label, 18, 246, rowY, false, Joinable);
+            g_Fodder->String_Print_Small_Right(std::to_string((int)Game.mCurrentPlayers) + "/" +
+                std::to_string((int)MaxPlayers), 302, rowY + 5);
+            if (g_Fodder->mMouseY >= rowY && g_Fodder->mMouseY <= rowY + 15 &&
+                g_Fodder->mMouseX + 32 >= 18 && g_Fodder->mMouseX + 32 <= 302)
+                g_Fodder->String_Print_Small_CentreInBox(
+                    std::string(MultiplayerMenu_ModeShortName(Game.mSettings.mGameMode)) + " - " +
+                    MultiplayerMenu_DiscoveryStateName(Game.mState), 14, 306, 155);
+            g_Fodder->mGUI_Temp_X = 18;
+            g_Fodder->mGUI_Temp_Y = rowY;
+            g_Fodder->mGUI_Temp_Width = 284;
+            g_Fodder->mGUI_Draw_LastHeight = 10;
             if (Joinable)
                 g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_JOIN_DISCOVERED, (int16)Index);
-            rowY += 0x15;
+            rowY += 18;
         }
     }
 
-    g_Fodder->GUI_Button_Draw_Small("REFRESH", 0x9E + YOffset);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_REFRESH_LAN);
-
-    g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
+    DrawBottomButtonRow("REFRESH", ACT_REFRESH_LAN, true);
 }
 
 void cMultiplayerMenu::DrawFindInternetMenu() {
     mDrawStrings.clear();
 
-    g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("FIND INTERNET GAME", false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+    MenuPresentation::Title(*g_Fodder, "FIND INTERNET GAME", "CHOOSE A GAME TO JOIN");
     g_Fodder->mString_GapCharID = 0;
 
-    size_t YOffset = PLATFORM_BASED(0, 25);
 
-    // Cleanup pass: HUB HOST / HUB PORT / ROOM CODE editors are gone; this
-    // screen is now structurally identical to DrawFindLanMenu — title +
-    // games list + REFRESH/BACK strip. Start the games list at the same
-    // 0x3E used by the LAN screen so both paths look the same.
     int16 rowY = 0x3E;
 
     if (mHubFailed) {
@@ -658,65 +606,46 @@ void cMultiplayerMenu::DrawFindInternetMenu() {
         g_Fodder->String_Print_Small("NO INTERNET GAMES FOUND", rowY);
     }
     else {
-        // Pre-cleanup the cap was 2 because three editor rows ate the
-        // vertical budget; with those gone we have room for ~6 game rows
-        // before crashing into REFRESH at yBottom-0x14. (REFRESH/BACK live
-        // in the centred bottom-button row so the geometry tracks the
-        // SetupWizard layout discipline.)
-        const size_t Count = std::min<size_t>(mInternetGames.size(), 6);
+        const size_t Count = std::min<size_t>(mInternetGames.size(), 5);
         for (size_t Index = 0; Index < Count; ++Index) {
             const auto& Game = mInternetGames[Index];
             const bool Joinable = Game.mRelayPort && Game.mCurrentPlayers < Game.mMaxPlayers;
             std::string Label = Game.mMetadata.mGameName.size() ? Game.mMetadata.mGameName : Game.mRoomCode;
-            Label += " ";
-            Label += Game.mMetadata.mGameMode.size() ? Game.mMetadata.mGameMode : "MODE";
-            Label += " ";
-            Label += Game.mMetadata.mMapName.size() ? Game.mMetadata.mMapName : "MAP";
-            Label += " ";
-            Label += std::to_string((int)Game.mCurrentPlayers);
-            Label += "/";
-            Label += std::to_string((int)Game.mMaxPlayers);
-            Label += " ";
-            Label += Game.mRoomCode;
-            Label = NetworkMenu_FitText(Label, 190);
-
-            g_Fodder->GUI_Button_Draw_Small(Label.c_str(), rowY, Joinable ? 0xB2 : 0xF2, Joinable ? 0xB3 : 0xF3);
+            MenuPresentation::Button(*g_Fodder, Label, 18, 246, rowY, false, Joinable);
+            g_Fodder->String_Print_Small_Right(std::to_string((int)Game.mCurrentPlayers) + "/" +
+                std::to_string((int)Game.mMaxPlayers), 302, rowY + 5);
+            if (g_Fodder->mMouseY >= rowY && g_Fodder->mMouseY <= rowY + 15 &&
+                g_Fodder->mMouseX + 32 >= 18 && g_Fodder->mMouseX + 32 <= 302)
+                g_Fodder->String_Print_Small_CentreInBox(MenuPresentation::FitText(
+                    Joinable ? Game.mMetadata.mGameMode : "GAME FULL", 284), 14, 306, 155);
+            g_Fodder->mGUI_Temp_X = 18;
+            g_Fodder->mGUI_Temp_Y = rowY;
+            g_Fodder->mGUI_Temp_Width = 284;
+            g_Fodder->mGUI_Draw_LastHeight = 10;
             if (Joinable)
                 g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_JOIN_INTERNET, (int16)Index);
-            rowY += 0x15;
+            rowY += 18;
         }
     }
 
-    g_Fodder->GUI_Button_Draw_Small("REFRESH", 0x9E + YOffset);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_REFRESH_INTERNET);
-
-    g_Fodder->GUI_Button_Draw_Small("BACK", 0xB3 + YOffset);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
+    DrawBottomButtonRow("REFRESH", ACT_REFRESH_INTERNET, true);
 }
 
 void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemoteHostLabel, const char* pRemotePortLabel, bool pHostSetup) {
     mDrawStrings.clear();
     SyncPortValues();
 
-    g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large(pTitle, false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+    MenuPresentation::Title(*g_Fodder, pTitle, pHostSetup ? "SET UP YOUR NEXT GAME" : "ENTER THE HOST ADDRESS AND PORT");
     g_Fodder->mString_GapCharID = 0;
 
-    // Layout discipline matches Source/Setup/SetupWizard.cpp's screens: top-
-    // anchored form rows, fixed-Y bottom button strip, error banner sits
-    // BETWEEN the form and the bottom buttons so it can grow without pushing
-    // anything around. Pre-cleanup, the host screen calculated START's Y from
-    // the running rowY and pinned BACK at a fixed position — when the hub
-    // failure banner appeared, START walked into BACK. Now both buttons live
-    // on a fixed yBottom row and the banner has its own band above them.
-    constexpr int16 yTop      = 0x3A;     // first form row, just below the title
+    // Reserve five form rows above the status band and footer.
+    const int16 yTop = 62 + PLATFORM_BASED(0, 25) / 2;     // first form row, just below the title
     constexpr int16 rowH      = 0x12;     // briefing-font line + breathing room
-    constexpr int16 yBanner   = 0xA0;     // error-banner top — wraps via NetworkMenu_DrawWrappedBody
-    constexpr int16 yBottom   = 0xB8;     // SetupWizard convention for the bottom row
+    const int16 yBanner = 155 + PLATFORM_BASED(0, 25) / 2;     // error-banner top — wraps via NetworkMenu_DrawWrappedBody
 
     int16 rowY = yTop;
 
@@ -755,7 +684,7 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
             rowY += rowH;
         }
     } else {
-        DrawFormRow(pRemoteHostLabel, MultiplayerMenu_DisplayHost(mRemoteHost), rowY, ACT_EDIT_REMOTE_HOST,
+        DrawFormRow(pRemoteHostLabel, mRemoteHost, rowY, ACT_EDIT_REMOTE_HOST,
                     /*pIsField=*/true, mEditField == eEditField::RemoteHost);
         rowY += rowH + 0x06;        // direct-connect screens get a touch more spacing
         DrawFormRow(pRemotePortLabel, mRemotePortText, rowY, ACT_EDIT_REMOTE_PORT,
@@ -766,16 +695,11 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
     DrawFormRow("LOCAL PORT", mLocalPortText, rowY, ACT_EDIT_LOCAL_PORT,
                 /*pIsField=*/true, mEditField == eEditField::LocalPort);
 
-    // mHubFailed surfaces hub control-plane failures from CreateInternetRoom
-    // (CreateAuth returned ERR or libcurl couldn't reach https://hub/ofhub).
-    // The banner now wraps via the shared NetworkMenu_DrawWrappedBody helper
-    // instead of substr(0,60), so a long curl error gets folded into multiple
-    // centred lines without overflowing.
+    // Keep connection errors inside the status band above the footer.
     if (mInternetHost && mHubFailed) {
-        int16 bannerY = yBanner;
-        bannerY = (int16)NetworkMenu_DrawWrappedBody("HUB CREATE FAILED", bannerY, 290);
+        g_Fodder->String_Print_Small_CentreInBox("COULD NOT CREATE GAME", 14, 306, yBanner);
         if (!mLastHubError.empty())
-            (void)NetworkMenu_DrawWrappedBody(mLastHubError, bannerY, 290);
+            g_Fodder->String_Print_Small_CentreInBox(MenuPresentation::FitText(mLastHubError, 284), 14, 306, yBanner + 9);
     }
 
     DrawBottomButtonRow("START", ACT_START, CanStart());
@@ -783,55 +707,21 @@ void cMultiplayerMenu::DrawConnectionMenu(const char* pTitle, const char* pRemot
 
 void cMultiplayerMenu::DrawFormRow(const char* pLabel, const std::string& pValue, int16 pY,
                                    int16 pAction, bool pIsField, bool pIsActive) {
-    // Single helper replacing the old DrawField + DrawValueButton pair (they
-    // were 95% identical — only difference was the ENTER placeholder for
-    // empty edit fields and the active-edit colour swap). Centralising the
-    // row geometry here means moving or adding rows is a one-line edit.
-    const size_t FieldX1 = 0x88;
-    const size_t FieldX2 = 0x128;
-    const std::string Display = (pIsField && pValue.empty()) ? std::string("ENTER") : pValue;
-    const std::string FittedValue = NetworkMenu_FitText(Display, (int)(FieldX2 - FieldX1 - 4));
-
-    g_Fodder->String_Print_Small(pLabel, 0x20, pY);
-    g_Fodder->String_Print_Small_LeftInBox(FittedValue, FieldX1, FieldX2, pY, 2);
-
-    g_Fodder->mGUI_Temp_X = (int16)FieldX1;
-    g_Fodder->mGUI_Temp_Y = pY;
-    g_Fodder->mGUI_Temp_Width = (int16)(FieldX2 - FieldX1);
-    if (!g_Fodder->mGUI_Draw_LastHeight)
-        g_Fodder->mGUI_Draw_LastHeight = 6;
-
-    // Edit-field actively-being-typed-into uses the highlight palette
-    // (0xF2/0xF3); cycle buttons and inactive fields use the neutral one.
-    const size_t ColourShadow = pIsActive ? 0xF2 : 0xB2;
-    const size_t ColourPrimary = pIsActive ? 0xF3 : 0xB3;
-    g_Fodder->GUI_Box_Draw(ColourShadow, ColourPrimary);
+    const auto display = pValue.empty() && pIsField ? "CLICK TO ENTER" : pValue;
+    g_Fodder->String_Print_Small_Left(pLabel, 22, pY + 5);
+    MenuPresentation::Button(*g_Fodder, display, 124, 304, pY, pIsActive);
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pAction);
 }
 
 void cMultiplayerMenu::DrawBottomButtonRow(const char* pPrimaryLabel, int16 pPrimaryAction,
                                            bool pPrimaryEnabled) {
-    // Centred two-button bottom strip — mirrors the SetupWizard layout
-    // (Source/Setup/SetupWizard.cpp DrawWelcome/DrawLocate). Buttons sit on a
-    // fixed Y so the form layout above can change without dragging them. The
-    // primary button colour-shifts to disabled (0xC8) when CanStart() is
-    // false, matching the wizard's KEEP MOUNTED treatment.
-    constexpr size_t yBottom = 0xB8;
-    constexpr size_t buttonW = 0x60;
-    constexpr size_t gap = 0x08;
-    constexpr size_t totalW = (buttonW * 2) + gap;
-    constexpr size_t xStart = 160 - (totalW / 2);
-    const size_t xPrimaryL = xStart;                        const size_t xPrimaryR = xPrimaryL + buttonW;
-    const size_t xBackL    = xPrimaryR + gap;               const size_t xBackR    = xBackL + buttonW;
-
-    const size_t Shadow  = pPrimaryEnabled ? 0xB2 : 0xC8;
-    const size_t Primary = pPrimaryEnabled ? 0xB3 : 0xC8;
-    g_Fodder->GUI_Button_Draw_SmallBoxAt(pPrimaryLabel, xPrimaryL, xPrimaryR, yBottom, Shadow, Primary, eTextAlign::Centre);
+    const int y = 175 + PLATFORM_BASED(0, 25);
+    MenuPresentation::Button(*g_Fodder, "BACK", 14, 145, y);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
+    MenuPresentation::Button(*g_Fodder, pPrimaryEnabled ? pPrimaryLabel : "CHECK SETTINGS",
+                             165, 306, y, false, pPrimaryEnabled);
     if (pPrimaryEnabled)
         g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, pPrimaryAction);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("BACK", xBackL, xBackR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_BACK);
 }
 
 void cMultiplayerMenu::HandleTextInput() {
@@ -1069,7 +959,7 @@ bool cMultiplayerMenu::CreateInternetRoom() {
     // keeping the raw bytes here avoids an extra decode at REGISTER time.
     std::memcpy(mSessionKey.data(), Room.mSessionKey.data(), 32);
     mHasSessionKey = true;
-    mPeerIndex = 0;             // host is always peer 0
+    mPeerIndex = Room.mPeerIndex;
     mHubBearer = Auth;          // stashed for UpdateAuth / HeartbeatHost
     // P1 A1: cache the hub-acknowledged capacity. Prefer Room.mMaxPlayers
     // (echoed by CREATEOK) so we round-trip through the hub for parity with
@@ -1138,7 +1028,8 @@ void cMultiplayerMenu::SelectInternetGame(size_t pIndex) {
     SyncPortValues();
 
     const sNetworkHubGame Game = mInternetGames[pIndex];
-    if (!Game.mRelayPort || Game.mCurrentPlayers >= Game.mMaxPlayers)
+    if (!Game.mRelayPort || Game.mCurrentPlayers >= Game.mMaxPlayers ||
+        Game.mMaxPlayers > kMaxRollbackPlayers)
         return;
     const std::string RoomCode = Game.mRoomCode;
     if (RoomCode.empty())
@@ -1162,23 +1053,28 @@ void cMultiplayerMenu::SelectInternetGame(size_t pIndex) {
         mHubFailed = true;
         return;
     }
+    if (Room.mMaxPlayers > kMaxRollbackPlayers || Room.mPeerIndex >= kMaxRollbackPlayers) {
+        mLastHubError = "hub room exceeds this client's player limit";
+        mHubFailed = true;
+        return;
+    }
 
     mInternet = true;
     mInternetHost = false;
-    mPlayerIndex = 1;
+    mPlayerIndex = Room.mPeerIndex;
     // Same as the Create path: gameplay endpoint is the room's task IP, not
     // the hub IP. JOINOK echoes host=<ipv4>; mRelayHost is the hub fallback.
     mRemoteHost = Room.mHostIp.size() ? Room.mHostIp : Room.mRelayHost;
     mRemotePort = Room.mRelayPort;
     mRemotePortText = std::to_string(mRemotePort);
-    mLocalPort = 7001;
+    mLocalPort = static_cast<uint16>(7000 + Room.mPeerIndex);
     mLocalPortText = std::to_string(mLocalPort);
     mRoomCode = Room.mRoomCode;
     // Joiner gets its own per-peer session key from JOINOK; no bearer is
     // recorded (anonymous tier) so mHubBearer stays default-constructed.
     std::memcpy(mSessionKey.data(), Room.mSessionKey.data(), 32);
     mHasSessionKey = true;
-    mPeerIndex = 1;
+    mPeerIndex = Room.mPeerIndex;
     // P1 A1: room capacity arrives in JOINOK (Room.mMaxPlayers). Cache it
     // for StartParams plumbing so the joiner's GGPO session, briefing
     // ReadySync, and roster UI all see the same N as the host. Clamp to
@@ -1368,21 +1264,15 @@ void cMultiplayerMenu::HandleAuthTextInput() {
 void cMultiplayerMenu::DrawAuthPromptMenu() {
     mDrawStrings.clear();
 
-    g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("PUBLIC MATCHMAKING", false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+    g_Fodder->String_Print_Large("PUBLIC MATCHMAKING", false, 19);
     g_Fodder->mString_GapCharID = 0;
 
-    // The "small modal" the task asks for is just a centred body block over
-    // the empty briefing background plus two buttons.  Single confirm/cancel
-    // pair, mouse-driven — the briefing renderer doesn't have z-ordered
-    // overlays so a real popup would clobber its own click targets.
     int16 rowY = 0x40;
 
-    // Two-line wrapped explanation. Wording matches the task spec verbatim.
     const char* Lines[] = {
         "PUBLIC MATCHMAKING REQUIRES",
         "A ONE TIME DISCORD PAIRING",
@@ -1395,31 +1285,21 @@ void cMultiplayerMenu::DrawAuthPromptMenu() {
         rowY += 0x0E;
     }
 
-    // OPEN BROWSER (confirm) + CANCEL.
-    const size_t yBottom = 0xA8;
-    const size_t buttonW = 0x60;
-    const size_t gap = 0x08;
-    const size_t totalW = (buttonW * 2) + gap;
-    const size_t xStart = 160 - (totalW / 2);
-    const size_t xConfirmL = xStart;                  const size_t xConfirmR = xConfirmL + buttonW;
-    const size_t xCancelL  = xConfirmR + gap;          const size_t xCancelR  = xCancelL + buttonW;
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("OPEN BROWSER", xConfirmL, xConfirmR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_CONFIRM);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("CANCEL", xCancelL, xCancelR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
+    const int y = 175 + PLATFORM_BASED(0, 25);
+    MenuPresentation::Button(*g_Fodder, "CANCEL", 14, 145, y);
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_CANCEL);
+    MenuPresentation::Button(*g_Fodder, "OPEN BROWSER", 165, 306, y);
+    g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_CONFIRM);
 }
 
 void cMultiplayerMenu::DrawAuthPairingMenu() {
     mDrawStrings.clear();
 
-    g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("ENTER PAIR CODE", false, 0x01);
+    g_Fodder->mString_GapCharID = 0;
+    g_Fodder->String_Print_Large("ENTER PAIR CODE", false, 19);
     g_Fodder->mString_GapCharID = 0;
 
     int16 rowY = 0x32;
@@ -1442,14 +1322,14 @@ void cMultiplayerMenu::DrawAuthPairingMenu() {
     // Status / error line (visible only when there's something to say —
     // collapses cleanly when empty so the layout doesn't jitter).
     if (!mPairingError.empty()) {
-        g_Fodder->String_Print_Small_CentreInBox(mPairingError, 0x10, 0x130, rowY);
+        g_Fodder->String_Print_Small_CentreInBox(MenuPresentation::FitText(mPairingError, 284), 0x10, 0x130, rowY);
     } else if (mDeviceCode.empty()) {
         g_Fodder->String_Print_Small_CentreInBox(
             "BROWSER DID NOT OPEN  USE REOPEN", 0x10, 0x130, rowY);
     }
 
     // PAIR / REOPEN / CANCEL.
-    const size_t yBottom = 0xB8;
+    const size_t yBottom = 175 + PLATFORM_BASED(0, 25);
     const size_t buttonW = 0x4A;
     const size_t gap = 0x06;
     const size_t totalW = (buttonW * 3) + (gap * 2);
@@ -1459,15 +1339,14 @@ void cMultiplayerMenu::DrawAuthPairingMenu() {
     const size_t xCancelL = xRetryR + gap;             const size_t xCancelR = xCancelL + buttonW;
 
     const bool CanSubmit = (mPairCode.size() >= 4) && !mDeviceCode.empty();
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("PAIR", xPairL, xPairR, yBottom,
-        CanSubmit ? 0xB2 : 0xC8, CanSubmit ? 0xB3 : 0xC8, eTextAlign::Centre);
+    MenuPresentation::Button(*g_Fodder, "PAIR", xPairL, xPairR, (int)yBottom, false, CanSubmit);
     if (CanSubmit)
         g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_PAIR);
 
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("REOPEN", xRetryL, xRetryR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
+    MenuPresentation::Button(*g_Fodder, "REOPEN", xRetryL, xRetryR, (int)yBottom);
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_REOPEN);
 
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("CANCEL", xCancelL, xCancelR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
+    MenuPresentation::Button(*g_Fodder, "CANCEL", xCancelL, xCancelR, (int)yBottom);
     g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, ACT_AUTH_CANCEL);
 }
 
@@ -1493,13 +1372,13 @@ bool cFodderMultiplayer::Multiplayer_Menu_Run() {
     mSurface->palette_FadeTowardNew();
 
     mInterruptCallback = [this]() {
-        Sprites_Draw();
         mMultiplayerMenu->Draw();
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Mouse_DrawCursor();
     };
 
-    while (!mMultiplayerMenu->IsDone()) {
+    mInterruptCallback(); // Register this page before accepting the first click.
+    while (!mMultiplayerMenu->IsDone() && !mExit) {
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
 

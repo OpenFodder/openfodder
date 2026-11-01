@@ -71,6 +71,7 @@ enum eGUI_Action : int16 {
 
     // Action rows (Defaults / Back)
     GUIACT_OPT_ACTION,        // arg = OPT_DEFAULTS / OPT_BACK
+    GUIACT_OPT_ADD_DATA,
 };
 
 static inline bool IsAdjustAction(int16 action) {
@@ -93,6 +94,7 @@ cOptionsMenu::~cOptionsMenu() = default;
 void cOptionsMenu::Open() {
     mDone = false;
     mApplied = false;
+    mAddGameData = false;
     mCurrentIndex = 0;
     mCurrentPage = 0;
 
@@ -476,14 +478,14 @@ std::string cOptionsMenu::FormatValue(const sOptItem& it) const {
     const int v = GetInt(it.id);
 
     if (it.id == OPT_WINDOW_MODE)
-        return v ? "WINDOW" : "FULL";
+        return v ? "WINDOWED" : "FULLSCREEN";
 
     if (it.type == eOptType::Toggle)
         return v ? "ON" : "OFF";
 
     if (it.id == OPT_WINDOW_SCALE) {
         if (v == 0) return "AUTO";
-        return std::to_string(v);
+        return std::to_string(v) + "X";
     }
 
     if (it.id == OPT_WINDOW_COLUMNS) {
@@ -505,145 +507,106 @@ std::string cOptionsMenu::FormatValue(const sOptItem& it) const {
     }
 
     if (it.id == OPT_MOUSE_SPEED) {
-        return std::to_string(v);
+        return std::to_string(v / 10) + "." + std::to_string(v % 10) + "X";
     }
 
     return std::to_string(v);
 }
 
 void cOptionsMenu::Draw() {
-    g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("OPTIONS", false, 0x01);
-    g_Fodder->mString_GapCharID = 0;
+    // Match the main menu: outlined lettering over the running map, with
+    // outlines appearing around controls only when they are under the pointer.
+    auto* pixels = g_Fodder->mSurface->GetSurfaceBuffer();
+    const size_t size = g_Fodder->mSurface->GetSurfaceBufferSize();
+    const size_t stride = g_Fodder->mSurface->GetWidth();
+    const std::vector<uint8> background(pixels, pixels + size);
+    constexpr uint8 transparent = 0xFF;
+    std::fill(pixels, pixels + size, transparent);
 
-    const int tabY = PLATFORM_BASED(0x1A, 0x18);
-    const int rowBaseY = tabY + 0x18;
+    const int extraHeight = PLATFORM_BASED(0, 25);
+    const int rowBaseY = 71 + extraHeight / 2;
     const int rowH = RowH();
-    const int16 pageCount = 4;
-    const char* pageLabels[pageCount] = { "VIDEO", "INPUT", "FLOW", "SYSTEM" };
-
-    // Layout
-    const size_t xRowL = 0x20;
-    const size_t xRowR = 0x120;
-    const size_t gap = 2;
-
-    const size_t arrowW = 0x10;
-    const size_t valueW = 0x30;
-
-    const size_t xArrowRightR = xRowR - 2;
-    const size_t xArrowRightL = xArrowRightR - arrowW;
-    const size_t xValueR = xArrowRightL - gap;
-    const size_t xValueL = xValueR - valueW;
-    const size_t xArrowLeftR = xValueL - gap;
-    const size_t xArrowLeftL = xArrowLeftR - arrowW;
-    const size_t xLabelL = xRowL + 2;
-    const size_t xLabelR = (xArrowLeftL > gap) ? (xArrowLeftL - gap) : xLabelL;
-
-    int maxLabelPx = (int)xLabelR - (int)xLabelL - 6;
-    if (maxLabelPx < 0)
-        maxLabelPx = 0;
-
-    // Top page tabs
-    {
-        const size_t tabGap = 6;
-        const size_t totalW = xRowR - xRowL + 1;
-        const size_t tabW = (totalW - (tabGap * (pageCount - 1))) / pageCount;
-        for (int16 i = 0; i < pageCount; ++i) {
-            const size_t x1 = xRowL + (i * (tabW + tabGap));
-            const size_t x2 = x1 + tabW - 1;
-            const bool selected = (i == mCurrentPage);
-            const size_t shade = selected ? 0xF3 : 0xB2;
-            const size_t prim = selected ? 0xF2 : 0xB3;
-            g_Fodder->GUI_Button_Draw_SmallBoxAt(pageLabels[i], x1, x2, tabY, prim, shade, eTextAlign::Centre);
-            g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, GUIACT_OPT_TAB, i);
-        }
-    }
-
-    // Visible rows for current page
-    struct sVisibleRow {
-        int idx;
-        size_t y;
+    const char* pageLabels[] = { "VIDEO", "INPUT", "FLOW", "SYSTEM" };
+    const char* pageDescriptions[] = {
+        "DISPLAY AND WINDOW SETTINGS", "MOUSE AND POINTER SETTINGS",
+        "CHOOSE WHICH SCREENS TO SHOW", "GAME PREFERENCES AND SOUND"
     };
 
-    std::vector<sVisibleRow> visible;
-    visible.reserve(mShownItems);
+    auto button = [&](const std::string& text, int x1, int x2, int y,
+                      int16 action, int16 arg, bool selected = false) {
+        const bool hover = g_Fodder->mMouseX + 0x20 >= x1 &&
+            g_Fodder->mMouseX + 0x20 <= x2 &&
+            g_Fodder->mMouseY >= y && g_Fodder->mMouseY <= y + 15;
+        g_Fodder->String_Print_Small_CentreInBox(text, x1, x2, y + 5);
+        if (hover)
+            g_Fodder->Briefing_DrawBox(x1, y, x2 - x1, 16, 0xF3);
+        if (selected)
+            g_Fodder->Briefing_Draw_Horizontal_Line(x1 + 0x14, x2 + 0x0C, y + 0x20, 0xF3);
+        SetupRowHitbox(x1, x2, y, 16);
+        g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, action, arg);
+    };
 
-    for (int16_t vis = 0; vis < mShownItems; ++vis) {
-        const int pageIdx = (int)mCurrentIndex + vis;
-        if (pageIdx < 0 || pageIdx >= mCount) break;
-        const size_t y = (size_t)(rowBaseY + (vis * rowH));
-        visible.push_back({ mPageItems[(size_t)pageIdx], y });
-    }
+    g_Fodder->mString_GapCharID = 0;
+    g_Fodder->String_Print_Large("OPTIONS", false, 19);
+    for (int16 i = 0; i < 4; ++i)
+        button(pageLabels[i], 16 + i * 74, 82 + i * 74, 39,
+               GUIACT_OPT_TAB, i, i == mCurrentPage);
 
-    // Single group box for the page
-    if (!visible.empty()) {
-        const int groupPadTop = 4;
-        const int groupPadBottom = 5;
-        const int16 boxX = (int16)(xRowL - 2);
-        const int16 boxY = (int16)(visible.front().y - groupPadTop);
-        const int16 boxW = (int16)(xRowR - xRowL + 4);
-        const int16 boxH = (int16)((visible.back().y + rowH + groupPadBottom) - visible.front().y);
-        g_Fodder->Briefing_DrawBox(boxX, boxY, boxW, boxH, 0xF3);
-        g_Fodder->Briefing_DrawBox(boxX - 1, boxY - 1, boxW, boxH, 0xF2);
-    }
+    const std::string description = pageDescriptions[mCurrentPage];
+    const int descriptionWidth = g_Fodder->Sidebar_Menu_MeasureWidth(description);
+    g_Fodder->Sidebar_Menu_Print(description, (320 - descriptionWidth) / 2, 61,
+                                cFodder::eSidebarMenuColor::Inactive);
 
-    // Row separators inside the page box
-    for (size_t i = 0; i + 1 < visible.size(); ++i) {
-        const int16 yLine = (int16)(visible[i].y + rowH - 5);
-        g_Fodder->Briefing_Draw_Horizontal_Line((int16)xRowL + 0x10, (int16)xRowR + 0x10, (int16)(yLine + 0x10), 0xF2);
-    }
+    for (int16 vis = 0; vis < mShownItems; ++vis) {
+        const int pageIndex = mCurrentIndex + vis;
+        if (pageIndex >= mCount) break;
+        const int idx = mPageItems[pageIndex];
+        const sOptItem& item = mItems[idx];
+        const int y = rowBaseY + vis * rowH;
+        const bool hasArrows = item.type == eOptType::IntRange || item.type == eOptType::EnumCycle;
+        const std::string label = trunc_label_px(item.label, 180);
+        g_Fodder->String_Print_Small_Left(label, 22, y + 5);
 
-    for (size_t i = 0; i < visible.size(); ++i) {
-        const int idx = visible[i].idx;
-        const size_t y = visible[i].y;
-        const sOptItem& it = mItems[(size_t)idx];
-
-        const std::string label = trunc_label_px(it.label, maxLabelPx);
-        g_Fodder->String_Print_Small_LeftInBox(label, xLabelL, xLabelR, y);
-
-        g_Fodder->GUI_Button_Draw_SmallBoxAt(FormatValue(it), xValueL, xValueR, y, 0xB2, 0xB3, eTextAlign::Centre);
-
-        const bool hasArrows = (it.type == eOptType::IntRange || it.type == eOptType::EnumCycle);
         if (hasArrows) {
-            g_Fodder->GUI_Button_Draw_SmallBoxAt("N", xArrowLeftL, xArrowLeftR, y, 0xB2, 0xB3, eTextAlign::Centre);
-            g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, GUIACT_OPT_LEFT, (int16)idx);
-
-            g_Fodder->GUI_Button_Draw_SmallBoxAt("P", xArrowRightL, xArrowRightR, y, 0xB2, 0xB3, eTextAlign::Centre);
-            g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, GUIACT_OPT_RIGHT, (int16)idx);
+            // Use explicit direction glyphs rather than letter-like controls.
+            button("<", 208, 226, y, GUIACT_OPT_LEFT, (int16)idx);
+            g_Fodder->String_Print_Small_CentreInBox(FormatValue(item), 228, 280, y + 5);
+            button(">", 282, 300, y, GUIACT_OPT_RIGHT, (int16)idx);
+        }
+        else {
+            button(FormatValue(item), 208, 300, y, GUIACT_OPT_ROW_PRIMARY, (int16)idx);
         }
 
-        SetupRowHitbox(xRowL, xRowR, y, rowH);
+        // Register after the arrow controls so their narrower targets win.
+        SetupRowHitbox(18, 302, y, rowH);
         g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, GUIACT_OPT_ROW_PRIMARY, (int16)idx);
     }
 
-    // Bottom actions (fixed to bottom of the screen)
-    {
-        const size_t screenH = (size_t)g_Fodder->mWindow->GetScreenSize().getHeight();
-        const size_t yBottom = (screenH > 0x20) ? (screenH - 0x1C) : (rowBaseY + (mShownItems * rowH) + 6);
-        const size_t buttonW = 0x40;
-        const size_t gapW = 0x08;
-        const size_t totalW = (buttonW * 3) + (gapW * 2);
-        const size_t xStart = ((xRowL + xRowR) / 2) - (totalW / 2);
-        const size_t xDefaultsL = xStart;
-        const size_t xDefaultsR = xDefaultsL + buttonW;
-        const size_t xSaveL = xDefaultsR + gapW;
-        const size_t xSaveR = xSaveL + buttonW;
-        const size_t xCancelL = xSaveR + gapW;
-        const size_t xCancelR = xCancelL + buttonW;
+    const int footerY = 175 + extraHeight;
+#ifndef __EMSCRIPTEN__
+    button("ADD GAME DATA", 92, 228, footerY - 18, GUIACT_OPT_ADD_DATA, 0);
+#endif
+    button("DEFAULTS", 14, 100, footerY, GUIACT_OPT_ACTION, OPT_DEFAULTS);
+    button("SAVE", 114, 206, footerY, GUIACT_OPT_SAVE, 0);
+    button("CANCEL", 220, 306, footerY, GUIACT_OPT_CANCEL, 0);
 
-        g_Fodder->GUI_Button_Draw_SmallBoxAt("DEFAULTS", xDefaultsL, xDefaultsR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-        g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, GUIACT_OPT_ACTION, OPT_DEFAULTS);
-
-        g_Fodder->GUI_Button_Draw_SmallBoxAt("SAVE", xSaveL, xSaveR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-        g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, GUIACT_OPT_SAVE, 0);
-
-        g_Fodder->GUI_Button_Draw_SmallBoxAt("CANCEL", xCancelL, xCancelR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-        g_Fodder->GUI_Button_Setup_New(Gui_OptionsMenu_Click, this, GUIACT_OPT_CANCEL, 0);
+    const std::vector<uint8> foreground(pixels, pixels + size);
+    std::copy(background.begin(), background.end(), pixels);
+    for (size_t y = 1; y + 1 < g_Fodder->mSurface->GetHeight(); ++y) {
+        for (size_t x = 1; x + 1 < stride; ++x) {
+            const size_t index = y * stride + x;
+            if (foreground[index] == transparent) continue;
+            for (int dy = -1; dy <= 1; ++dy)
+                for (int dx = -1; dx <= 1; ++dx)
+                    pixels[(y + dy) * stride + x + dx] = 0;
+        }
     }
+    for (size_t index = 0; index < size; ++index)
+        if (foreground[index] != transparent)
+            pixels[index] = foreground[index];
 }
 
 void cOptionsMenu::Tick() {}
@@ -704,7 +667,6 @@ void cOptionsMenu::Adjust(sOptItem& it, int dir) {
 void cOptionsMenu::ResetDefaults() {
     g_Fodder->mStartParams->clear();
     mApplied = true;
-    g_Fodder->mStartParams->SaveIni();
 
     // Reset bilinear filtering to false (default value) for current parameters same as toggling the menu option but forcing false since bilinear filtering is OFF by default
     if (g_Fodder->mParams)
@@ -722,6 +684,11 @@ void cOptionsMenu::OnRowClick(int16 action, int16 arg) {
     if (action == GUIACT_OPT_TAB) { ChangePage(arg); return; }
     if (action == GUIACT_OPT_SAVE) { g_Fodder->mStartParams->SaveIni(); mApplied = true; mDone = true; return; }
     if (action == GUIACT_OPT_CANCEL) { RestoreSnapshot(); mApplied = false; mDone = true; return; }
+    if (action == GUIACT_OPT_ADD_DATA) {
+        // The outer loop owns the modal transition and retains these options.
+        mAddGameData = true;
+        return;
+    }
 
     if (action == GUIACT_OPT_ACTION) {
         const int actionId = (int)arg;
@@ -757,14 +724,25 @@ bool cFodder::Options_Menu_Run() {
     mGraphics->PaletteSet();
     mSurface->palette_FadeTowardNew();
 
-    mInterruptCallback = [this]() {
+    const auto optionsInterruptCallback = [this]() {
+        if (!mStartParams->mDisableVideo)
+            mGraphics->MapTiles_Draw();
         Sprites_Draw();
         mOptionsMenu->Draw();
         mGraphics->SetActiveSpriteSheet(eGFX_IN_GAME);
         Mouse_DrawCursor();
         };
+    mInterruptCallback = optionsInterruptCallback;
 
-    while (!mOptionsMenu->IsDone()) {
+    // Replace the home menu's hit targets before the first input is handled.
+    mInterruptCallback();
+    while (!mOptionsMenu->IsDone() && !mExit) {
+
+        if (mPhase_InterruptTicks >= 3) {
+            mPhase_InterruptTicks = 0;
+            Mission_Sprites_Handle();
+            Sound_Tick();
+        }
 
         if (mSurface->isPaletteAdjusting())
             mSurface->palette_FadeTowardNew();
@@ -779,8 +757,8 @@ bool cFodder::Options_Menu_Run() {
             mMouse_EventLastWheel.mY = 0;
         }
 
-        // Mouse click processing
-        if (mMouse_Button_Left_Toggle)
+        // Consume a press once, just as on the main menu.
+        if (Mouse_Button_Left_Toggled() >= 0)
             GUI_Handle_Element_Mouse_Check(mGUI_Elements);
 
         if (mPhase_EscapeKeyAbort || mPhase_Aborted) {
@@ -790,6 +768,41 @@ bool cFodder::Options_Menu_Run() {
         }
 
         mOptionsMenu->Tick();
+
+#ifndef __EMSCRIPTEN__
+        if (mOptionsMenu->ConsumeGameDataRequest() && !mExit) {
+            const sFodderParameters draft = *mStartParams;
+            const sFodderParameters runtimeDraft = *mParams;
+            const sGameVersion* optionsVersion = mVersionCurrent;
+
+            // Adding a resource saves [paths]. Keep unsaved option changes
+            // out of that write, then return to the same options page/draft.
+            *mStartParams = mOptionsMenu->SettingsSnapshot();
+            mInterruptCallback = []() {};
+            GUI_Element_Reset();
+            mMouseButtonStatus = 0;
+            mMouse_Button_Left_Toggle = 0;
+            mMouse_EventLastButtonsPressed = 0;
+            mPhase_In_Progress = false;
+            Setup_Wizard_Run(true);
+
+            *mStartParams = draft;
+            mPhase_In_Progress = false;
+            if (!mExit) {
+                VersionSwitch(optionsVersion);
+                *mParams = runtimeDraft;
+                MainMenu_Setup();
+                mInterruptCallback = optionsInterruptCallback;
+                mInterruptCallback();
+            }
+            mMouse_Button_Left_Toggle = 0;
+            mMouse_EventLastButtonsPressed = 0;
+            mMouseButtonStatus = 0;
+            mKeyCode = 0;
+            mKeyCodeAscii = 0;
+            mInput_LastKey = 0;
+        }
+#endif
 
         Video_Sleep();
     }

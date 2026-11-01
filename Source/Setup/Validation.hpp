@@ -70,6 +70,7 @@ struct sVersionMatch {
 };
 
 struct sValidationResult {
+    std::string                 mError;             // Image decoder/setup failure, if present.
     std::string                 mInputFolder;       // What the caller passed in
     std::string                 mResolvedRoot;      // The candidate <root> that contains Data/
     bool                        mLooksLikeRoot = false;     // <root>/Data exists

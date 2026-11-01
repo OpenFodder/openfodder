@@ -22,6 +22,7 @@
 
 #include "stdafx.hpp"
 #include "Utils/md5.hpp"
+#include "FileSystem.hpp"
 #include "Setup/MountedImage.hpp"
 
 #include <algorithm>
@@ -98,10 +99,13 @@ bool cResourceMan::removeUserDir(const std::string& pPath) {
 	return removed;
 }
 
-int cResourceMan::mountImage(const std::string& pImagePath) {
+int cResourceMan::mountImage(const std::string& pImagePath, std::string* pError) {
+	if (pError) pError->clear();
 	auto img = std::make_shared<Setup::cMountedImage>();
-	if (!img->Open(pImagePath))
+	if (!img->Open(pImagePath)) {
+		if (pError) *pError = img->LastError();
 		return 0;
+	}
 
 	const int id = Setup::MountedImageRegister(img);
 	if (id == 0)
@@ -111,21 +115,13 @@ int cResourceMan::mountImage(const std::string& pImagePath) {
 	// findVersions does the same job on a real folder; we duplicate the
 	// matching logic here because we want to point the version's file map at
 	// virtual paths ("firy://<id>/<file>") instead of host paths.
-	bool addedAnyVersion = false;
+	bool foundKnownFiles = false;
 	bool haveRetailRegistered = false;
 
 	for (size_t i = 0; i < 20; ++i) {
 		const sGameVersion& kv = ::KnownGameVersions[i];
 		if (kv.mFiles.empty())
 			continue;     // pseudo-versions (Custom/Random) — handled below
-
-		// Skip versions already registered (e.g. retail data is on disk AND
-		// we just mounted a CD with the same release files).
-		if (mReleaseFiles.find(&kv) != mReleaseFiles.end()) {
-			if (kv.mRelease == eRelease::Retail)
-				haveRetailRegistered = true;
-			continue;
-		}
 
 		tStringMap matched;
 		for (auto& kf : kv.mFiles) {
@@ -136,6 +132,7 @@ int cResourceMan::mountImage(const std::string& pImagePath) {
 				continue;
 			matched.emplace(wantLower, Setup::VirtualPathBuild(id, inImagePath));
 		}
+		foundKnownFiles = foundKnownFiles || !matched.empty();
 
 		if (matched.size() == kv.mFiles.size()) {
 			// Synthetic "release path" — never used as a host path because
@@ -148,7 +145,6 @@ int cResourceMan::mountImage(const std::string& pImagePath) {
 
 			if (kv.mRelease == eRelease::Retail)
 				haveRetailRegistered = true;
-			addedAnyVersion = true;
 		}
 	}
 
@@ -169,9 +165,9 @@ int cResourceMan::mountImage(const std::string& pImagePath) {
 		}
 	}
 
-	if (!addedAnyVersion) {
-		// Image opened but didn't match any known version. Drop it — a
-		// stranded entry in the registry would survive forever.
+	if (!foundKnownFiles) {
+		// Keep partial sets for setup's missing-files report, but discard
+		// images containing no recognised game files.
 		Setup::MountedImageUnregister(id);
 		return 0;
 	}
@@ -328,6 +324,9 @@ void cResourceMan::validatePaths() {
 
 	mValidPaths.clear();
 	for (auto path : mAllPaths) {
+        const auto resolved = FileSystem::Resolve(path);
+        if (resolved.empty()) continue;
+        path = resolved.u8string();
 
 		if (path[path.size() - 1] != '/')
 			path.append("/");
@@ -353,9 +352,9 @@ void cResourceMan::findCampaigns() {
 		auto files = DirectoryList(basepath, EXTENSION_CAMPAIGN);
 
 		for (auto& file : files) {
-			size_t Pos = file.find_first_of(".");
+			size_t Pos = file.find_last_of(".");
 			std::string FileName = file.substr(0, Pos);
-			mCampaigns.emplace(std::make_pair(FileName, basepath + FileName));
+			mCampaigns.emplace(std::make_pair(FileName, FileSystem::Resolve(basepath + file).replace_extension().u8string()));
 		}
 	}
 }
@@ -394,7 +393,9 @@ void cResourceMan::findVersions() {
 			if (mReleaseFiles.find(&KnownVersion) != mReleaseFiles.end())
 				continue;
 
-			std::string base = ValidPath + PathGenerate(KnownVersion.mDataPath, eData) + "/";
+			const auto resolved = FileSystem::Resolve(ValidPath + PathGenerate(KnownVersion.mDataPath, eData));
+            if (resolved.empty()) continue;
+            std::string base = resolved.u8string() + "/";
 			tStringMap ReleaseFiles;
 
 			// Loop all files in the data directory
@@ -465,7 +466,7 @@ void cResourceMan::findSaves() {
 		auto files = DirectoryList(basepath, EXTENSION_SAVEGAME);
 
 		for (auto& file : files) {
-			mSaves.emplace(std::make_pair(file, basepath + file));
+			mSaves.emplace(std::make_pair(file, FileSystem::Resolve(basepath + file).u8string()));
 		}
 	}
 }
@@ -478,12 +479,12 @@ void cResourceMan::findCustomMaps() {
 		auto basepath = ValidPath + PathGenerate("Custom/Maps/", eData);
 
 		if (FileExists(basepath)) {
-			mCustomMapPath = basepath;
+			mCustomMapPath = FileSystem::Resolve(basepath).u8string() + "/";
 
 			auto files = DirectoryList(basepath, EXTENSION_MAP);
 
 			for (auto& file : files) {
-				mMaps.emplace(std::make_pair(file, basepath + file));
+				mMaps.emplace(std::make_pair(file, FileSystem::Resolve(basepath + file).u8string()));
 			}
 		}
 	}
@@ -604,40 +605,30 @@ tSharedBuffer cResourceMan::FileRead(const std::string& pFile) {
 		std::string inImagePath;
 		if (Setup::VirtualPathParse(pFile, id, inImagePath)) {
 			if (auto image = Setup::MountedImageGet(id))
-				return image->Read(inImagePath);
+				{
+                auto buffer = image->Read(inImagePath);
+                if (buffer) return buffer;
+            }
 		}
 		return std::make_shared<std::vector<uint8_t>>();
 	}
 
-	std::ifstream*	fileStream;
-	auto			fileBuffer = std::make_shared<std::vector<uint8_t>>();
-
-	// Attempt to open the file
-	fileStream = new std::ifstream(pFile.c_str(), std::ios::binary);
-	if (fileStream->is_open() != false) {
-
-		// Get file size
-		fileStream->seekg(0, std::ios::end);
-		fileBuffer->resize(static_cast<const unsigned int>(fileStream->tellg()));
-		fileStream->seekg(std::ios::beg);
-
-		// Allocate buffer, and read the file into it
-		fileStream->read((char*)fileBuffer->data(), fileBuffer->size());
-		if (!(*fileStream))
-			fileBuffer->clear();
-	}
-
-	// Close the stream
-	fileStream->close();
-	delete fileStream;
-
-	// All done ;)
-	return fileBuffer;
+    auto buffer = std::make_shared<std::vector<uint8_t>>();
+    const auto path = FileSystem::Resolve(pFile);
+    if (path.empty()) return buffer;
+    std::ifstream stream(path, std::ios::binary | std::ios::ate);
+    if (!stream) return buffer;
+    const auto size = stream.tellg();
+    if (size <= 0) return buffer;
+    buffer->resize(static_cast<size_t>(size));
+    stream.seekg(0);
+    if (!stream.read(reinterpret_cast<char*>(buffer->data()), size)) buffer->clear();
+    return buffer;
 }
 
 std::string	cResourceMan::GetCampaignData(const std::string& pName) {
 	for (auto& Campaign : mCampaigns) {
-		if (Campaign.first == pName)
+		if (FileSystem::Equal(Campaign.first, pName))
 			return Campaign.second;
 	}
 
@@ -682,7 +673,7 @@ std::string cResourceMan::GetSaveNewName() const {
 	auto now = std::chrono::system_clock::now();
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
-	return mValidPaths[0] + PathGenerate( std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave);
+	return FileSystem::Resolve(mValidPaths[0] + PathGenerate(std::to_string(in_time_t) + EXTENSION_SAVEGAME, eSave), true).u8string();
 }
 
 bool cResourceMan::DeleteSave(const std::string& pName) {
@@ -698,20 +689,20 @@ bool cResourceMan::DeleteSave(const std::string& pName) {
 }
 
 std::string cResourceMan::GetScriptPath(const std::string& pType) const {
-	
-	for (auto& ValidPath : mValidPaths) {
-		auto basepath = ValidPath + PathGenerate(pType, eScript);
-		if (FileExists(basepath))
-			return basepath;
-	}
-	return "";
+    for (const auto& validPath : mValidPaths) {
+        const auto path = FileSystem::Resolve(validPath + PathGenerate(pType, eScript));
+        if (path.empty()) continue;
+        std::error_code ec;
+        return path.u8string() + (std::filesystem::is_directory(path, ec) ? "/" : "");
+    }
+    return "";
 }
 
 std::string cResourceMan::GetTestPath(const sGameVersion* pVersion, const std::string pFile) const {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate(pFile, eTest);
 		if (FileExists(basepath))
-			return basepath;
+			return FileSystem::Resolve(basepath).u8string();
 	}
 	return "";
 }
@@ -720,7 +711,7 @@ std::string cResourceMan::GetAboutFile() const {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + "about.png";
 		if (FileExists(basepath))
-			return basepath;
+			return FileSystem::Resolve(basepath).u8string();
 	}
 
 	return "";
@@ -730,7 +721,7 @@ std::string cResourceMan::GetWavPath(const std::string& pFile) const {
 	for (auto& ValidPath : mValidPaths) {
 		auto basepath = ValidPath + PathGenerate("WAV/" + pFile, eData);
 		if (FileExists(basepath))
-			return basepath;
+			return FileSystem::Resolve(basepath).u8string();
 	}
 
 	return "";
@@ -738,7 +729,7 @@ std::string cResourceMan::GetWavPath(const std::string& pFile) const {
 
 std::string cResourceMan::GetMapPath(const std::string& pName) const {
 	for (auto& Map : mMaps) {
-		if (Map.first == pName)
+		if (FileSystem::Equal(Map.first, pName))
 			return Map.second;
 	}
 	return "";
@@ -746,7 +737,7 @@ std::string cResourceMan::GetMapPath(const std::string& pName) const {
 
 std::string cResourceMan::GetSave(const std::string &pName) const {
 	for (auto& Save : mSaves) {
-		if (Save.first == pName)
+		if (FileSystem::Equal(Save.first, pName))
 			return Save.second;
 	}
 	return "";
@@ -757,7 +748,9 @@ bool cResourceMan::isDataAvailable() const {
 }
 
 bool cResourceMan::isCampaignAvailable(std::string pName) const {
-	return (mCampaigns.find(pName) != mCampaigns.end());
+	return std::any_of(mCampaigns.begin(), mCampaigns.end(), [&](const auto& campaign) {
+        return FileSystem::Equal(campaign.first, pName);
+    });
 }
 
 std::vector<std::string> cResourceMan::getValidPaths() const {
@@ -771,251 +764,32 @@ std::vector<std::string> cResourceMan::getUserPaths() const {
 }
 
 bool cResourceMan::FileExists(const std::string& pPath) const {
-	struct stat info;
-
-	if (stat(pPath.c_str(), &info) != 0)
-		return false;
-	else if (info.st_mode & S_IFDIR)
-		return true;
-	else if (info.st_mode & S_IFMT)
-		return true;
-
-	return false;
+    if (Setup::VirtualPathIs(pPath)) {
+        int id = 0;
+        std::string path;
+        if (!Setup::VirtualPathParse(pPath, id, path)) return false;
+        const auto image = Setup::MountedImageGet(id);
+        return image && bool(image->Read(path));
+    }
+    // Historical API includes directories; retain that contract.
+    return !FileSystem::Resolve(pPath).empty();
 }
 
 bool cResourceMan::DirExists(const std::string& pPath) const {
-	// Stricter than FileExists — only returns true for a real directory.
-	struct stat info;
-
-	if (stat(pPath.c_str(), &info) != 0)
-		return false;
-	return (info.st_mode & S_IFDIR) != 0;
+    const auto path = FileSystem::Resolve(pPath);
+    std::error_code ec;
+    return !path.empty() && std::filesystem::is_directory(path, ec);
 }
-
-static void ResourceMan_SortDirectoryList(std::vector<std::string>& pResults) {
-	std::sort(pResults.begin(), pResults.end());
-}
-
-#ifdef WIN32
-#include "Windows.h"
-#include <direct.h>
 
 std::string cResourceMan::getcwd() {
-	char buff[1024];
-	_getcwd(buff, 1024);
-	std::string cwd(buff);
-	return cwd;
+    std::error_code ec;
+    return std::filesystem::current_path(ec).u8string();
 }
 
 std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, const std::string& pExtension) {
-	WIN32_FIND_DATA fdata;
-	HANDLE dhandle;
-	std::vector<std::string> results;
-
-	// Build the file path
-	std::stringstream finalPath;
-
-	if (pPath.size())
-		finalPath << pPath;
-
-	finalPath << "/*" << pExtension;
-
-	size_t size = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)finalPath.str().length(), 0, 0);
-	WCHAR    *pathFin = new WCHAR[size + 1];
-	memset(pathFin, 0, size + 1);
-
-	size = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)size, pathFin, (int)size);
-	pathFin[size] = 0;
-
-	if ((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
-		delete[] pathFin;
-		return results;
-	}
-
-	delete[] pathFin;
-	size_t tmp = 0;
-
-	{
-		char *file = new char[wcslen(fdata.cFileName) + 1];
-		memset(file, 0, wcslen(fdata.cFileName) + 1);
-
-		wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
-		results.push_back(std::string(file));
-		delete[] file;
-	}
-
-	while (1) {
-		if (FindNextFile(dhandle, &fdata)) {
-			char *file = new char[wcslen(fdata.cFileName) + 1];
-			memset(file, 0, wcslen(fdata.cFileName) + 1);
-
-			wcstombs_s(&tmp, file, wcslen(fdata.cFileName) + 1, fdata.cFileName, wcslen(fdata.cFileName));
-			results.push_back(std::string(file));
-			delete[] file;
-
-		}
-		else {
-			if (GetLastError() == ERROR_NO_MORE_FILES) {
-				break;
-			}
-			else {
-				FindClose(dhandle);
-				return results;
-			}
-		}
-	}
-
-	FindClose(dhandle);
-
-	ResourceMan_SortDirectoryList(results);
-	return results;
+    return FileSystem::List(pPath, pExtension, false);
 }
 
 std::vector<std::string> cResourceMan::DirectoryListDirs(const std::string& pPath) {
-	WIN32_FIND_DATA fdata;
-	HANDLE dhandle;
-	std::vector<std::string> results;
-
-	std::stringstream finalPath;
-	if (pPath.size())
-		finalPath << pPath;
-	finalPath << "/*";
-
-	int wlen = MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)finalPath.str().length(), 0, 0);
-	WCHAR* pathFin = new WCHAR[wlen + 1];
-	memset(pathFin, 0, sizeof(WCHAR) * (wlen + 1));
-	MultiByteToWideChar(0, 0, finalPath.str().c_str(), (int)finalPath.str().length(), pathFin, wlen);
-	pathFin[wlen] = 0;
-
-	if ((dhandle = FindFirstFile(pathFin, &fdata)) == INVALID_HANDLE_VALUE) {
-		delete[] pathFin;
-		return results;
-	}
-	delete[] pathFin;
-
-	auto pushIfDir = [&results](const WIN32_FIND_DATA& f) {
-		if ((f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-			return;
-		// Skip "." and ".."
-		if (f.cFileName[0] == L'.' && (f.cFileName[1] == 0 ||
-			(f.cFileName[1] == L'.' && f.cFileName[2] == 0)))
-			return;
-
-		size_t tmp = 0;
-		size_t len = wcslen(f.cFileName);
-		char* file = new char[len + 1];
-		memset(file, 0, len + 1);
-		wcstombs_s(&tmp, file, len + 1, f.cFileName, len);
-		results.push_back(std::string(file));
-		delete[] file;
-	};
-
-	pushIfDir(fdata);
-	while (FindNextFile(dhandle, &fdata)) {
-		pushIfDir(fdata);
-	}
-
-	FindClose(dhandle);
-	ResourceMan_SortDirectoryList(results);
-	return results;
+    return FileSystem::List(pPath, "", true);
 }
-
-#else
-#include <dirent.h>
-std::string findType;
-
-std::string cResourceMan::getcwd() {
-	char buff[1024];
-	::getcwd(buff, 1024);
-	std::string cwd(buff);
-	return cwd;
-}
-
-int file_select(const struct dirent *entry) {
-	std::string name = entry->d_name;
-
-	transform(name.begin(), name.end(), name.begin(), ::toupper);
-
-	if (name.find(findType) == std::string::npos)
-		return false;
-
-	return true;
-}
-
-std::vector<std::string> cResourceMan::DirectoryList(const std::string& pPath, const std::string& pExtension) {
-	struct dirent		**directFiles;
-	std::vector<std::string>		  results;
-
-	// Build the file path
-	std::stringstream finalPath;
-
-	finalPath << pPath << "/";
-
-	findType = pExtension;
-
-	transform(findType.begin(), findType.end(), findType.begin(), ::toupper);
-
-	int count = scandir(finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0);
-
-	for (int i = 0; i < count; ++i) {
-
-		results.push_back(std::string(directFiles[i]->d_name));
-		free(directFiles[i]);
-	}
-	if (count >= 0)
-		free(directFiles);
-
-	transform(findType.begin(), findType.end(), findType.begin(), ::tolower);
-
-	count = scandir(finalPath.str().c_str(), (dirent***)&directFiles, file_select, 0);
-
-	for (int i = 0; i < count; ++i) {
-
-		results.push_back(std::string(directFiles[i]->d_name));
-		free(directFiles[i]);
-	}
-	if (count >= 0)
-		free(directFiles);
-
-	ResourceMan_SortDirectoryList(results);
-	return results;
-}
-
-std::vector<std::string> cResourceMan::DirectoryListDirs(const std::string& pPath) {
-	std::vector<std::string> results;
-	std::string base = pPath;
-	if (base.empty() || base.back() != '/')
-		base.append("/");
-
-	DIR* dir = opendir(base.c_str());
-	if (!dir)
-		return results;
-
-	while (struct dirent* entry = readdir(dir)) {
-		// Skip "." and ".."
-		if (entry->d_name[0] == '.' &&
-			(entry->d_name[1] == 0 || (entry->d_name[1] == '.' && entry->d_name[2] == 0)))
-			continue;
-
-		bool isDir = false;
-#ifdef DT_DIR
-		if (entry->d_type == DT_DIR) {
-			isDir = true;
-		} else if (entry->d_type == DT_UNKNOWN) {
-#endif
-			struct stat st;
-			if (::stat((base + entry->d_name).c_str(), &st) == 0 && (st.st_mode & S_IFDIR))
-				isDir = true;
-#ifdef DT_DIR
-		}
-#endif
-		if (isDir)
-			results.push_back(std::string(entry->d_name));
-	}
-	closedir(dir);
-
-	ResourceMan_SortDirectoryList(results);
-	return results;
-}
-
-#endif

@@ -22,6 +22,8 @@ public:
 
     bool IsDone() const { return mDone; }
     bool WasApplied() const { return mApplied; }
+    bool ConsumeGameDataRequest() { const bool pending = mAddGameData; mAddGameData = false; return pending; }
+    const sFodderParameters& SettingsSnapshot() const { return mSnapshot; }
 
 private:
     enum class eOptType : uint8_t {
@@ -74,6 +76,7 @@ private:
 
         // Action rows (Defaults / Back)
         GUIACT_OPT_ACTION,        // arg = OPT_DEFAULTS / OPT_BACK
+        GUIACT_OPT_ADD_DATA,
     };
 
     enum eOptId : int {
@@ -134,7 +137,7 @@ private:
 
     // Layout helpers (match your existing UI)
     int RowY0() const { return 0x44; }
-    int RowH()  const { return 0x15; }
+    int RowH()  const { return 17; }
     
     bool AllowInput(int16 action, int16 arg);
 
@@ -146,6 +149,7 @@ private:
 private:
     bool mDone = false;
     bool mApplied = false;
+    bool mAddGameData = false;
 
     int16_t mCurrentIndex = 0;
     int16_t mShownItems = 8;

@@ -123,7 +123,7 @@ bool cResource_PC_CD::headerLoad() {
 		std::string	filename = std::string( (char*) &Data[ptr+1], Data[ptr] );
 		++ptr;
 
-		std::transform( filename.begin(), filename.end(), filename.begin(), ::tolower );
+		std::transform( filename.begin(), filename.end(), filename.begin(), [](unsigned char c) { return (char)std::tolower(c); } );
 
 		cResource_File	File( filename, 0, 0 );
 
@@ -272,7 +272,7 @@ tSharedBuffer cResource_PC_CD::fileGet( std::string pFilename ) {
 	if (File->size())
 		return File;
 
-	std::transform(pFilename.begin(), pFilename.end(), pFilename.begin(), ::tolower);
+	std::transform(pFilename.begin(), pFilename.end(), pFilename.begin(), [](unsigned char c) { return (char)std::tolower(c); });
 
 	for (fileIT = mFiles.begin(); fileIT != mFiles.end(); ++fileIT) {
 

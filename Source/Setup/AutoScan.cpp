@@ -22,6 +22,7 @@
 
 #include "stdafx.hpp"
 #include "Setup/AutoScan.hpp"
+#include "Setup/DiskImageList.hpp"
 #include "Setup/Validation.hpp"
 
 #include <algorithm>
@@ -53,6 +54,8 @@ static std::string Norm(std::string p) {
     return p;
 }
 
+static void ProbeImageFiles(std::vector<sScanCandidate>&, const std::string&, const std::string&);
+
 static void TryCandidate(std::vector<sScanCandidate>& pOut,
                          const std::string& pLabel,
                          const std::string& pPath) {
@@ -66,8 +69,10 @@ static void TryCandidate(std::vector<sScanCandidate>& pOut,
     // to be helpful (e.g. user picked the release dir directly). Either way,
     // ValidateFolder is cheap — only MD5s files it has reason to hash.
     sValidationResult r = ValidateFolder(pPath);
-    if (r.mMatches.empty())
+    if (r.mMatches.empty()) {
+        ProbeImageFiles(pOut, pLabel, pPath);
         return;
+    }
 
     // De-dup against earlier candidates — same input folder, same matches.
     for (auto& existing : pOut) {
@@ -124,31 +129,19 @@ static void ProbeImageFiles(std::vector<sScanCandidate>& pOut,
     if (!g_ResourceMan->DirExists(pBase))
         return;
 
-    static const char* kExts[] = { ".adf", ".iso", ".ipf", ".img", ".ima",
-                                    ".fdi", ".hdf", ".d64", ".d71", ".d81" };
-
-    const std::string baseNorm = Norm(pBase);
-
-    for (auto* ext : kExts) {
-        auto files = g_ResourceMan->DirectoryList(pBase, ext);
-        for (auto& f : files) {
-            // DirectoryList returns names; build full path.
-            std::string full = baseNorm + f;
-
-            // Lower-case heuristic to surface CF-named files first via label.
-            std::string lower = f;
-            std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
-
-            sScanCandidate c;
-            c.mPath = full;
-            c.mIsImage = true;
-            c.mLabel = pLabelPrefix + ": " + f;
-            pOut.push_back(std::move(c));
-            // Cap per-extension to avoid drowning the wizard list with
-            // thousands of unrelated ISOs in a Downloads folder.
-            if (pOut.size() >= 64)
-                return;
-        }
+    for (const auto& image : FindDiskImages(pBase)) {
+        const bool duplicate = std::any_of(pOut.begin(), pOut.end(), [&](const sScanCandidate& c) {
+            return c.mPath == image.mPath;
+        });
+        if (duplicate) continue;
+        sScanCandidate c;
+        c.mPath = image.mPath;
+        c.mLabel = image.mName;
+        c.mFormat = image.mFormat;
+        c.mDisks = image.mDisks;
+        c.mIsImage = true;
+        pOut.push_back(std::move(c));
+        if (pOut.size() >= 64) return;
     }
 }
 

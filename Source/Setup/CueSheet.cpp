@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Setup/CueSheet.hpp"
 
 #include <algorithm>
@@ -137,10 +138,9 @@ namespace {
     }
 
     uint64_t fileSizeOnDisk(const std::string& pPath) {
-        struct stat info;
-        if (::stat(pPath.c_str(), &info) != 0)
-            return 0;
-        return (uint64_t)info.st_size;
+        std::error_code ec;
+        const auto size = std::filesystem::file_size(std::filesystem::u8path(pPath), ec);
+        return ec ? 0 : size;
     }
 
 } // namespace
@@ -166,7 +166,10 @@ bool ParseCueSheet(const std::string& pCuePath, sCueSheet& pOut) {
     pOut = {};
     pOut.mCuePath = pCuePath;
 
-    std::ifstream in(pCuePath.c_str(), std::ios::binary);
+    const auto cue = FileSystem::Resolve(pCuePath);
+    if (cue.empty()) return false;
+    pOut.mCuePath = cue.u8string();
+    std::ifstream in(cue, std::ios::binary);
     if (!in)
         return false;
 
@@ -207,7 +210,8 @@ bool ParseCueSheet(const std::string& pCuePath, sCueSheet& pOut) {
             nextToken(trimmed, pos, format);
 
             sCueFile f;
-            f.mPath = resolveAgainstCue(pCuePath, path);
+            std::replace(path.begin(), path.end(), '\\', '/');
+            f.mPath = FileSystem::Resolve(resolveAgainstCue(pOut.mCuePath, path)).u8string();
             f.mFormat = format.empty() ? "BINARY" : toUpper(format);
             f.mSizeBytes = fileSizeOnDisk(f.mPath);
 
@@ -308,7 +312,7 @@ int ExtractTrackTo(const sCueSheet& pSheet, int pTrackNumber, const std::string&
     if (file.mSizeBytes == 0)
         return -1;
 
-    std::ifstream in(file.mPath.c_str(), std::ios::binary);
+    std::ifstream in(FileSystem::Resolve(file.mPath), std::ios::binary);
     if (!in)
         return -1;
     in.seekg((std::streamoff)track->mStartByte, std::ios::beg);

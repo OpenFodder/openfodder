@@ -22,6 +22,7 @@
 
 #include <stdafx.hpp>
 #include <cctype>
+#include <cstdlib>
 #include <sstream>
 #include "Utils/ini.hpp"
 #include "Utils/cxxopts.hpp"
@@ -420,8 +421,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 		if (result.count("probe-image")) {
 			std::string isoPath = result["probe-image"].as<std::string>();
 			if (!isoPath.empty()) {
-				Setup::ProbeImage(isoPath);
-				return false;
+				std::exit(Setup::ProbeImage(isoPath));
 			}
 		}
 
@@ -754,6 +754,9 @@ bool sFodderParameters::SaveIni() {
 	INI<> ini("openfodder.ini", false);
 
 	ini.parse();
+    // First-run data registration must persist even without a preseeded INI.
+    for (const char* section : {"openfodder", "engine", "skip"})
+        if (!ini.select(section)) ini.create(section);
 
 	if (ini.select("openfodder")) {
 		ini.set("window", mWindowMode ? "true" : "false");

@@ -44,6 +44,7 @@ public:
         Locate,         // Auto-scan results + "Browse..."
         Browse,         // FileBrowser is up
         Result,         // Validation outcome for the picked folder
+        Checking,
     };
     // Pairing for the public-matchmaking hub used to live here as a sub-
     // screen, but the data-locator wizard has nothing to do with hub auth.
@@ -78,17 +79,18 @@ public:
     // calls g_ResourceMan->refresh() when this is set.
     bool ResourcesChanged() const { return mResourcesChanged; }
 
-    // Drag-and-drop sink: the engine loop drains cFodder::mDroppedPaths
-    // every frame and calls this. Treats a folder the same as a manual
-    // browse-pick; treats an image file the same (Phase 3 will wire the
-    // mount path; Phase 2 just validates as if it were a regular folder).
+    // Dropped folders and disk images follow the same checks as browser picks.
     void OnPathDropped(const std::string& pPath);
+#ifdef OPENFODDER_SETUP_DIAGNOSTICS
+    bool VerifyScreens(const std::string& pOutput, const std::string& pDiskFolder);
+#endif
 
 private:
     void RunAutoScan();
     void EnterBrowse();
     void EnterResult(const sValidationResult& pResult);
     void CommitPick(const std::string& pFolder);
+    void UseCurrentGame();
 
     // Copy every matched version's manifest from the currently-mounted
     // image into <cwd>/Data/<release>/. On success, unmounts the image
@@ -108,6 +110,7 @@ private:
     // (firy mountImage). Returns true if the path was recognised; false
     // means the wizard should leave its current screen unchanged.
     bool DispatchPick(const std::string& pPath);
+    void QueuePick(const std::string& pPath);
 
     // Handle a .cue/.bin pair: extract track 1 to a temp .iso, mount that,
     // remember any track-2 (CD32 intro video) for the COPY phase. Returns
@@ -142,6 +145,11 @@ private:
     eScreen mScreen = eScreen::Welcome;
 
     std::vector<sScanCandidate> mCandidates;
+    int mCandidateStart = 0;
+    std::string mCandidateFolder;
+    std::string mBrowsePath;
+    std::string mPendingPick;
+    bool mCheckingDrawn = false;
 
     sValidationResult mLastResult;       // Most recent ValidateFolder() outcome
     int mLastMountedId = 0;              // 0 = last pick was a folder, >0 = id in MountedImage registry

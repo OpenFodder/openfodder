@@ -22,6 +22,9 @@
 
 #include "stdafx.hpp"
 #include "Setup/FileBrowser.hpp"
+#include "Setup/DiskImageList.hpp"
+#include "FileSystem.hpp"
+#include <filesystem>
 
 #include <algorithm>
 #include <chrono>
@@ -40,6 +43,7 @@ enum eGuiAction : int16 {
     GUIACT_FB_USE_HERE,   // accept current directory
     GUIACT_FB_PARENT,
     GUIACT_FB_CANCEL,
+    GUIACT_FB_LIST_UP, GUIACT_FB_LIST_DOWN,
     GUIACT_FB_HOME,       // jump to user home
 };
 
@@ -60,8 +64,10 @@ static void Gui_FileBrowser_Click(void* ctx, int16 action, int16 arg) {
 
 static std::string NormalisePath(std::string p) {
     std::replace(p.begin(), p.end(), '\\', '/');
-    // Strip a single trailing slash unless the path is just "/".
-    while (p.size() > 1 && (p.back() == '/' || p.back() == '\\'))
+    // A bare Windows drive is drive-relative; retain the root slash so moving
+    // up to C:/ cannot quietly send the browser back to that drive's cwd.
+    if (p.size() == 2 && p[1] == ':') p.push_back('/');
+    while (p.size() > 1 && !(p.size() == 3 && p[1] == ':') && p.back() == '/')
         p.pop_back();
     return p;
 }
@@ -70,7 +76,7 @@ static std::string TruncToWidth(const std::string& s, int maxPx) {
     if (maxPx <= 0)
         return "";
     std::string upper = s;
-    std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
+    std::transform(upper.begin(), upper.end(), upper.begin(), [](unsigned char c) { return char(std::toupper(c)); });
 
     const int ellipsisW = g_Fodder->String_MeasureWidth(mFont_Briefing_Width, "...");
     if (ellipsisW >= maxPx)
@@ -122,13 +128,9 @@ void cFileBrowser::NavigateAbsolute(const std::string& pPath) {
             mCurrentPath = parent;
             RescanCurrent();
             // Try to highlight the file in the newly-loaded list.
-            std::string leaf = normalised.substr(parent.size() + 1);
-            std::string leafLower = leaf;
-            std::transform(leafLower.begin(), leafLower.end(), leafLower.begin(), ::tolower);
+            std::string leaf = std::filesystem::u8path(normalised).filename().u8string();
             for (size_t i = 0; i < mEntries.size(); ++i) {
-                std::string n = mEntries[i].mName;
-                std::transform(n.begin(), n.end(), n.begin(), ::tolower);
-                if (n == leafLower) {
+                if (FileSystem::Equal(mEntries[i].mName, leaf)) {
                     mSelectedItem = (int16)i;
                     if (mCurrentIndex + mShownItems <= (int16)i)
                         mCurrentIndex = (int16)i - mShownItems + 1;
@@ -173,21 +175,26 @@ void cFileBrowser::RescanCurrent() {
     }
 
     if (mFilter == eFilter::DirsAndImages) {
-        // Image / cue / video extensions — leaf-name match, listed after dirs.
-        static const char* kExts[] = {
-            ".adf", ".iso", ".ipf", ".raw", ".img", ".ima",
-            ".cue",                       // CD32 multi-track sheet
-            ".mpg", ".mp2", ".mpeg"        // Standalone CD32 intro video
-        };
-        for (auto* ext : kExts) {
-            auto files = g_ResourceMan->DirectoryList(mCurrentPath, ext);
-            for (auto& f : files) {
-                if (!IsRecognisedImage(f))
-                    continue;
-                sEntry e;
-                e.mName = f;
-                e.mIsDir = false;
-                mEntries.push_back(std::move(e));
+        for (const auto& image : FindDiskImages(mCurrentPath)) {
+            sEntry entry;
+            entry.mName = std::filesystem::u8path(image.mPath).filename().u8string();
+            entry.mDisplayName = image.mName;
+            entry.mDetail = std::to_string(image.mDisks) + " " + image.mFormat +
+                (image.mDisks == 1 ? " DISK" : " DISKS");
+            // Keep release/crack tags visible when several editions have the
+            // same friendly title, so the player can tell the sets apart.
+            const auto tag = entry.mName.find_first_of("([");
+            if (tag != std::string::npos) entry.mDetail += " - " + entry.mName.substr(tag);
+            entry.mIsDir = false;
+            mEntries.push_back(std::move(entry));
+        }
+        for (const char* ext : {".mpg", ".mp2", ".mpeg"}) {
+            for (const auto& file : g_ResourceMan->DirectoryList(mCurrentPath, ext)) {
+                sEntry entry;
+                entry.mName = file;
+                entry.mDetail = "INTRO VIDEO";
+                entry.mIsDir = false;
+                mEntries.push_back(std::move(entry));
             }
         }
     }
@@ -266,23 +273,6 @@ std::string cFileBrowser::ParentOf(const std::string& pPath) const {
     return parent;
 }
 
-bool cFileBrowser::IsRecognisedImage(const std::string& pName) const {
-    auto endsWith = [&](const char* ext) {
-        size_t L = std::strlen(ext);
-        if (pName.size() < L) return false;
-        for (size_t i = 0; i < L; ++i) {
-            char a = (char)std::tolower((unsigned char)pName[pName.size() - L + i]);
-            char b = (char)std::tolower((unsigned char)ext[i]);
-            if (a != b) return false;
-        }
-        return true;
-    };
-    return endsWith(".adf") || endsWith(".iso") || endsWith(".ipf") ||
-           endsWith(".raw") || endsWith(".img") || endsWith(".ima") ||
-           endsWith(".cue") ||      // CD32 multi-track cue/bin pair
-           endsWith(".mpg") || endsWith(".mp2") || endsWith(".mpeg");
-}
-
 void cFileBrowser::OnScrollUp() {
     if (mCurrentIndex > 0)
         --mCurrentIndex;
@@ -332,6 +322,13 @@ void cFileBrowser::OnRowClick(int16 action, int16 arg) {
     mLastInputArg = arg;
 
     switch (action) {
+    case GUIACT_FB_LIST_UP:
+        mCurrentIndex = std::max<int16>(0, mCurrentIndex - mShownItems);
+        return;
+    case GUIACT_FB_LIST_DOWN:
+        mCurrentIndex = std::min<int16>(std::max<int16>(0, (int16)mEntries.size() - mShownItems),
+                                       mCurrentIndex + mShownItems);
+        return;
     case GUIACT_FB_USE_HERE:
         if (mOnPicked)
             mOnPicked(mCurrentPath);
@@ -392,92 +389,103 @@ void cFileBrowser::Tick() {
 }
 
 void cFileBrowser::Draw() {
-    g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
 
-    g_Fodder->mString_GapCharID = 0x25;
-    g_Fodder->String_Print_Large("LOCATE DATA", false, 0x01);
-    g_Fodder->mString_GapCharID = 0;
+    auto* pixels = g_Fodder->mSurface->GetSurfaceBuffer();
+    const size_t size = g_Fodder->mSurface->GetSurfaceBufferSize();
+    const size_t stride = g_Fodder->mSurface->GetWidth();
+    const std::vector<uint8> background(pixels, pixels + size);
+    constexpr uint8 transparent = 0xFF;
+    std::fill(pixels, pixels + size, transparent);
+    const int extraHeight = PLATFORM_BASED(0, 25);
 
-    // Path strip across the top.
-    {
-        const size_t pathY = 0x18;
-        std::string shown = TruncToWidth(mCurrentPath, 320 - 16);
-        g_Fodder->String_Print_Small(shown, 8, pathY);
-    }
-
-    // List rows.
-    const int rowH = 0x10;
-    const int rowBaseY = 0x28;
-    const size_t xRowL = 0x10;
-    const size_t xRowR = 0x130;
-
-    int16 visibleCount = 0;
-    for (int16 v = 0; v < mShownItems; ++v) {
-        int16 idx = (int16)mCurrentIndex + v;
-        if (idx >= (int16)mEntries.size())
-            break;
-        ++visibleCount;
-    }
-
-    if (visibleCount > 0) {
-        const int16 boxX = (int16)(xRowL - 2);
-        const int16 boxY = (int16)(rowBaseY - 4);
-        const int16 boxW = (int16)(xRowR - xRowL + 4);
-        const int16 boxH = (int16)((visibleCount * rowH) + 8);
-        g_Fodder->Briefing_DrawBox(boxX, boxY, boxW, boxH, 0xF3);
-        g_Fodder->Briefing_DrawBox(boxX - 1, boxY - 1, boxW, boxH, 0xF2);
-    }
-
-    for (int16 v = 0; v < visibleCount; ++v) {
-        const int16 idx = (int16)mCurrentIndex + v;
-        const sEntry& e = mEntries[(size_t)idx];
-
-        const size_t y = (size_t)(rowBaseY + (v * rowH));
-
-        std::string label;
-        if (e.mIsParentLink)
-            label = "[..]";
-        else if (e.mIsDir)
-            label = "[" + e.mName + "]";
-        else
-            label = e.mName;
-
-        const std::string fitted = TruncToWidth(label, (int)(xRowR - xRowL - 8));
-        g_Fodder->String_Print_Small_LeftInBox(fitted, xRowL + 4, xRowR - 4, y);
-
-        // Hitbox on the row.
-        g_Fodder->mGUI_Temp_X = (int16)xRowL;
+    const auto hint = [&](const std::string& text, int x, int y) {
+        std::string fitted = text;
+        std::transform(fitted.begin(), fitted.end(), fitted.begin(), [](unsigned char c) { return char(std::toupper(c)); });
+        if (g_Fodder->String_MeasureWidth(mFont_Briefing_Width, fitted) > 300 - x) {
+            while (!fitted.empty() && g_Fodder->String_MeasureWidth(mFont_Briefing_Width, fitted + "...") > 300 - x)
+                fitted.pop_back();
+            fitted += "...";
+        }
+        g_Fodder->String_Print_Small(fitted, x, y);
+    };
+    const auto button = [&](const std::string& label, int left, int right, int y, int action) {
+        g_Fodder->String_Print_Small_CentreInBox(label, left, right, y + 5);
+        const bool hover = g_Fodder->mMouseX + 0x20 >= left &&
+            g_Fodder->mMouseX + 0x20 <= right &&
+            g_Fodder->mMouseY >= y && g_Fodder->mMouseY <= y + 15;
+        if (hover) g_Fodder->Briefing_DrawBox(left, y, right - left, 16, 0xF3);
+        g_Fodder->mGUI_Temp_X = (int16)left;
         g_Fodder->mGUI_Temp_Y = (int16)y;
-        g_Fodder->mGUI_Temp_Width = (int16)(xRowR - xRowL);
-        g_Fodder->mGUI_Draw_LastHeight = (int16)(rowH - 2);
+        g_Fodder->mGUI_Temp_Width = (int16)(right - left);
+        g_Fodder->mGUI_Draw_LastHeight = 10;
+        g_Fodder->GUI_Button_Setup_New(Gui_FileBrowser_Click, this, action, 0);
+    };
+
+    g_Fodder->mString_GapCharID = 0;
+    g_Fodder->String_Print_Large("CHOOSE GAME DATA", false, 19);
+    std::string shown = mCurrentPath;
+    std::transform(shown.begin(), shown.end(), shown.begin(), [](unsigned char c) { return char(std::toupper(c)); });
+    while (!shown.empty() && g_Fodder->String_MeasureWidth(mFont_Briefing_Width, ".." + shown) > 284)
+        shown.erase(shown.begin());
+    if (shown.size() < mCurrentPath.size()) shown = ".." + shown;
+    hint(shown, 18, 43);
+
+    const int rowH = 23;
+    const int rowBaseY = 58 + extraHeight / 3;
+    for (int16 v = 0; v < mShownItems; ++v) {
+        const int16 idx = mCurrentIndex + v;
+        if (idx >= (int16)mEntries.size()) break;
+        const sEntry& entry = mEntries[(size_t)idx];
+        const int y = rowBaseY + v * rowH;
+        const std::string label = entry.mIsParentLink ? "< PARENT FOLDER" :
+            entry.mDisplayName.empty() ? entry.mName : entry.mDisplayName;
+        const bool hover = g_Fodder->mMouseX + 0x20 >= 16 &&
+            g_Fodder->mMouseX + 0x20 <= 304 &&
+            g_Fodder->mMouseY >= y && g_Fodder->mMouseY <= y + rowH - 2;
+        g_Fodder->String_Print_Small_Left(TruncToWidth(label, entry.mIsDir ? 254 : 275), 22, y + 4);
+        if (entry.mIsDir && !entry.mIsParentLink)
+            g_Fodder->String_Print_Small_Right(">", 296, y + 4);
+        if (!entry.mIsDir && !entry.mDetail.empty()) {
+            // Edition tags distinguish otherwise identical sets when hovered;
+            // the usual list only needs the disk count and image format.
+            const auto tag = entry.mDetail.find(" - ");
+            hint(hover ? entry.mDetail : entry.mDetail.substr(0, tag), 23, y + 15);
+        }
+        if (hover) g_Fodder->Briefing_DrawBox(16, y - 1, 288, rowH - 1, 0xF3);
+        g_Fodder->mGUI_Temp_X = 16;
+        g_Fodder->mGUI_Temp_Y = (int16)y;
+        g_Fodder->mGUI_Temp_Width = 288;
+        g_Fodder->mGUI_Draw_LastHeight = rowH - 5;
         g_Fodder->GUI_Button_Setup_New(Gui_FileBrowser_Click, this, GUIACT_FB_ROW, idx);
     }
 
-    // Bottom action row.
-    const size_t yBottom = 0xB0;
-    const size_t buttonW = 0x40;
-    const size_t gap = 0x06;
-    const size_t totalW = (buttonW * 4) + (gap * 3);
-    const size_t xStart = 160 - (totalW / 2);
+    if (mEntries.empty() || (mEntries.size() == 1 && mEntries.front().mIsParentLink)) {
+        g_Fodder->String_Print_Small_CentreInBox("NO DISKS OR FOLDERS HERE", 16, 304, 86);
+        hint("CHOOSE ANOTHER FOLDER", 66, 106);
+    }
+    const int pagerY = 153 + extraHeight / 2;
+    if (mCurrentIndex > 0) button("PREVIOUS", 16, 100, pagerY, GUIACT_FB_LIST_UP);
+    if (mCurrentIndex + mShownItems < int(mEntries.size()))
+        button("NEXT", 220, 304, pagerY, GUIACT_FB_LIST_DOWN);
+    const int footerY = 175 + extraHeight;
+    button("BACK", 14, 145, footerY, GUIACT_FB_CANCEL);
+    button("USE THIS FOLDER", 165, 306, footerY, GUIACT_FB_USE_HERE);
 
-    const size_t xUseL = xStart;                      const size_t xUseR = xUseL + buttonW;
-    const size_t xParentL = xUseR + gap;              const size_t xParentR = xParentL + buttonW;
-    const size_t xHomeL = xParentR + gap;             const size_t xHomeR = xHomeL + buttonW;
-    const size_t xCancelL = xHomeR + gap;             const size_t xCancelR = xCancelL + buttonW;
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("USE HERE", xUseL, xUseR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_FileBrowser_Click, this, GUIACT_FB_USE_HERE, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("UP", xParentL, xParentR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_FileBrowser_Click, this, GUIACT_FB_PARENT, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("HOME", xHomeL, xHomeR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_FileBrowser_Click, this, GUIACT_FB_HOME, 0);
-
-    g_Fodder->GUI_Button_Draw_SmallBoxAt("CANCEL", xCancelL, xCancelR, yBottom, 0xB2, 0xB3, eTextAlign::Centre);
-    g_Fodder->GUI_Button_Setup_New(Gui_FileBrowser_Click, this, GUIACT_FB_CANCEL, 0);
+    const std::vector<uint8> foreground(pixels, pixels + size);
+    std::copy(background.begin(), background.end(), pixels);
+    for (size_t y = 1; y + 1 < g_Fodder->mSurface->GetHeight(); ++y) {
+        for (size_t x = 1; x + 1 < stride; ++x) {
+            const size_t index = y * stride + x;
+            if (foreground[index] == transparent) continue;
+            for (int dy = -1; dy <= 1; ++dy)
+                for (int dx = -1; dx <= 1; ++dx)
+                    pixels[(y + dy) * stride + x + dx] = 0;
+        }
+    }
+    for (size_t index = 0; index < size; ++index)
+        if (foreground[index] != transparent) pixels[index] = foreground[index];
 }
 
 } // namespace Setup

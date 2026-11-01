@@ -732,7 +732,7 @@ bool cScriptingEngine::scriptsLoadFolder(const std::string& pFolder) {
 	if (finalpath.empty())
 		return true;
 
-	auto scripts = g_ResourceMan->DirectoryList(finalpath, "js");
+	auto scripts = g_ResourceMan->DirectoryList(finalpath, ".js");
 
 	for (auto scriptFile : scripts) {
 
