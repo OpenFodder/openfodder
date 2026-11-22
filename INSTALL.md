@@ -135,10 +135,9 @@ in the manifest, and a side-load can put the runtime out of sync with it.
 ## Auto-download (Windows / non-Flatpak Linux / macOS)
 
 When OpenFodder cannot find any data files on first launch, it offers to
-download the latest demo data and scripts from GitHub:
-
-* `github.com/OpenFodder/data`    → Data files (campaigns + demo content)
-* `github.com/OpenFodder/scripts` → JavaScript modules (random map, multiplayer)
+download the complete runtime package from `github.com/OpenFodder/data`.
+The single ZIP includes demo data, campaigns, scripts for random maps,
+multiplayer and the editor, and `about.png`. No separate scripts release is needed.
 
 The About screen also has an UPDATE button that checks for newer compatible
 releases. Both download paths use the engine's hardcoded compatibility range
@@ -149,7 +148,7 @@ Install destination depends on whether the working directory looks portable:
 
 * **Portable** (cwd contains `Data/`, `Scripts/`, `about.png`, or
   `openfodder.ini.example`, AND is writable):
-  installs into `<cwd>/Data` and `<cwd>/Scripts`. Used by dev checkouts and
+  installs `Data/`, `Scripts/`, `Campaigns/` and `about.png` into `<cwd>`. Used by dev checkouts and
   the Windows `.zip` distribution.
 
 * **Per-user** (anywhere else, e.g. `/usr/bin/openfodder` with cwd `~`):
@@ -158,6 +157,16 @@ Install destination depends on whether the working directory looks portable:
   `$HOME/Library/Application Support/OpenFodder` on macOS,
   `$XDG_DATA_HOME/OpenFodder` (or `$HOME/.local/share/OpenFodder`) on Linux —
   the same paths the engine's read-side scan checks.
+
+Release maintainers: upload the complete ZIP and a separate `compat.json` asset
+containing `{"dataVersion":1,"scriptVersion":1}`. The ZIP has the runtime
+folders at its root, without a repository wrapper. Build it using
+`Tools/BuildRelease.py` in the data repository after initializing submodules;
+GitHub's automatic source archives omit bundled scripts. Compatibility integers
+are independent of release tags; the updater detects compatible fixes by tag.
+Installation preserves existing retail files and saves. Only managed resource
+folders and the About image are replaced, with rollback on publication failure.
+An interrupted install retains `<runtime>/.openfodder-update` for recovery.
 
 ## Data
 

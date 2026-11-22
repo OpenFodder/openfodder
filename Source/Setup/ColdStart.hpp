@@ -36,11 +36,8 @@ public:
     // returns Continue without showing any UI.
     //
     // If no data available, shows an SDL_ShowMessageBox asking the user
-    // whether to download the latest demo data + scripts releases from
-    // GitHub. The two repos (OpenFodder/data, OpenFodder/scripts) are
-    // installed in tandem because installing data without scripts leaves
-    // the random-map and multiplayer menus broken — the engine references
-    // .js files from Run/Scripts at runtime.
+    // whether to download the complete runtime bundle from OpenFodder/data.
+    // The bundle includes demo data, campaigns, scripts and the About image.
     //
     // On Download success: refreshes ResourceMan and returns Download
     //   (caller proceeds into the regular startup flow).
@@ -53,14 +50,8 @@ public:
     static ColdStartChoice PromptIfNoData();
 
 private:
-    // Installs both repos into the supplied target dirs. On any failure,
-    // pError is populated with a human-readable message and false is
-    // returned. The half-installed state (data succeeded, scripts failed)
-    // is acceptable — the caller will surface the error and quit; the
-    // user's next launch detects missing scripts and retries just that install.
-    static bool RunDownload(const std::string& pDataTargetDir,
-                            const std::string& pScriptsTargetDir,
-                            std::string& pError, bool pNeedData);
+    // Installs the complete data release at the runtime root.
+    static bool RunDownload(const std::string& pRuntimeRoot, std::string& pError);
 };
 
 } // namespace Setup

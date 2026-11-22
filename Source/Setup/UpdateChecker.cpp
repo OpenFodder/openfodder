@@ -137,13 +137,6 @@ void UpdateChecker::RunQueryWorker() try {
         Fail("Could not check data repo: " + mRelease.LastError());
         return;
     }
-    if (!mRelease.QueryLatest(DataRelease::ScriptsRepoOwner(),
-                              DataRelease::ScriptsRepoName(),
-                              mScriptManifest)) {
-        Fail("Could not check scripts repo: " + mRelease.LastError());
-        return;
-    }
-
     // Read installed records from each subtree independently; ignore the
     // out-param that doesn't apply to that subtree.
     int dataIgnored = 0;
@@ -157,14 +150,32 @@ void UpdateChecker::RunQueryWorker() try {
     if (!haveScriptRecord && std::filesystem::exists(std::filesystem::path(mScriptsTargetDir) / "installed.json"))
         throw std::runtime_error(mRelease.LastError());
 
-    mDataNewer   = (mDataManifest.mDataVersion > mInstalledDataVer)
-                && IsDataVersionCompatible(mDataManifest.mDataVersion);
-    mScriptNewer = (mScriptManifest.mScriptVersion > mInstalledScriptVer)
-                && IsScriptVersionCompatible(mScriptManifest.mScriptVersion);
+    if (!IsDataVersionCompatible(mDataManifest.mDataVersion) ||
+        !IsScriptVersionCompatible(mDataManifest.mScriptVersion))
+        throw std::runtime_error("The latest data package is incompatible with this engine.");
+    const auto root = std::filesystem::path(mDataTargetDir).parent_path();
+    int dv = 0, sv = 0;
+    std::string installedTag;
+    const bool haveBundle = mRelease.ReadInstalledManifest(root.string(), dv, sv, &installedTag);
+    if (!haveBundle && std::filesystem::exists(root / "installed.json"))
+        throw std::runtime_error(mRelease.LastError());
+    // Compatibility numbers describe APIs. A new tag can ship compatible fixes.
+    mDataNewer = !haveBundle || installedTag != mDataManifest.mTagName ||
+                 dv != mDataManifest.mDataVersion || sv != mDataManifest.mScriptVersion ||
+                 mInstalledDataVer != dv || mInstalledScriptVer != sv;
+    for (const auto* name : {"about.png", "Scripts/Settings.js", "Scripts/random.js",
+                            "Scripts/multiplayer.js", "Scripts/mapeditor.js",
+                            "Scripts/Common/Classes.js", "Scripts/Common/OpenFodder.js"})
+        if (!std::filesystem::is_regular_file(root / name)) mDataNewer = true;
+    bool haveCampaigns = false;
+    if (std::filesystem::is_directory(root / "Campaigns"))
+        for (const auto& entry : std::filesystem::directory_iterator(root / "Campaigns"))
+            if (entry.is_regular_file() && entry.path().extension() == ".ofc") haveCampaigns = true;
+    if (!haveCampaigns) mDataNewer = true;
 
     // Publish: result fields are visible to the main thread because of
     // the release-store on mState below.
-    if (mDataNewer || mScriptNewer)
+    if (mDataNewer)
         mState.store(State::QueryDoneNewer, std::memory_order_release);
     else
         mState.store(State::QueryDoneNoUpdate, std::memory_order_release);
@@ -186,23 +197,13 @@ void UpdateChecker::RunInstallWorker() try {
         return true; // never abort
     };
 
-    if (mDataNewer) {
-        mProgressPercent.store(0, std::memory_order_relaxed);
-        if (!mRelease.FetchAndInstall(mDataManifest, mDataTargetDir, httpProgress)) {
-            Fail("Data install failed: " + mRelease.LastError());
-            return;
-        }
-        mDataInstalled = true;
+    const auto root = std::filesystem::path(mDataTargetDir).parent_path();
+    if (!mRelease.FetchAndInstall(mDataManifest, root.string(), httpProgress)) {
+        Fail("Data package install failed: " + mRelease.LastError());
+        return;
     }
-    if (mScriptNewer) {
-        mProgressPercent.store(0, std::memory_order_relaxed);
-        if (!mRelease.FetchAndInstall(mScriptManifest, mScriptsTargetDir, httpProgress)) {
-            Fail("Scripts install failed: " + mRelease.LastError());
-            return;
-        }
-    }
-
-    mScriptsInstalled = mScriptNewer;
+    mDataInstalled = true;
+    mScriptsInstalled = true;
     mState.store(State::InstallDoneOk, std::memory_order_release);
 } catch (const std::exception& ex) {
     Fail(std::string("Update install failed: ") + ex.what());
@@ -263,14 +264,8 @@ void UpdateChecker::Pump() try {
         case State::QueryDoneNewer: {
             JoinWorker();
 
-            std::string message = "Updates available:\n";
-            if (mDataNewer)
-                message += "  data: v" + std::to_string(mInstalledDataVer)
-                         + " \xE2\x86\x92 v" + std::to_string(mDataManifest.mDataVersion) + "\n";
-            if (mScriptNewer)
-                message += "  scripts: v" + std::to_string(mInstalledScriptVer)
-                         + " \xE2\x86\x92 v" + std::to_string(mScriptManifest.mScriptVersion) + "\n";
-            message += "\nInstall now?";
+            std::string message = "Data package " + mDataManifest.mTagName +
+                " is available (includes campaigns and scripts).\n\nInstall now?";
 
             const SDL_MessageBoxButtonData buttons[2] = {
                 { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Install" },
@@ -305,14 +300,7 @@ void UpdateChecker::Pump() try {
             JoinWorker();
             ApplyInstalledContent();
 
-            std::string done = "Updated to";
-            if (mDataNewer)
-                done += " data v" + std::to_string(mDataManifest.mDataVersion);
-            if (mDataNewer && mScriptNewer)
-                done += " /";
-            if (mScriptNewer)
-                done += " scripts v" + std::to_string(mScriptManifest.mScriptVersion);
-            done += ".";
+            const std::string done = "Installed data package " + mDataManifest.mTagName + ".";
 
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
                                      "OpenFodder Update",
@@ -324,8 +312,6 @@ void UpdateChecker::Pump() try {
 
         case State::InstallDoneFailed: {
             JoinWorker();
-            // A data update may have succeeded before the scripts download
-            // failed. Refresh that completed update even on the failure path.
             ApplyInstalledContent();
             std::string err;
             {

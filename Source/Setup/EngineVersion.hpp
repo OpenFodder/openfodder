@@ -28,14 +28,12 @@
 // Engine + data/scripts compatibility constants.
 //
 // kEngineVersion* mirrors project(openfodder VERSION ...) in CMakeLists.txt.
-// Bump kDataVersionMax / kScriptVersionMax whenever a new compatible release
-// of the OpenFodder/data or OpenFodder/scripts repo ships. The "Update"
-// button refuses to install a release whose dataVersion / scriptVersion
-// falls outside [Min, Max] — this is the hard compatibility gate, not just
-// a soft warning.
-//
-// Both repos publish a "compat.json" alongside their main archive containing:
-//   { "dataVersion": <int>, "scriptVersion": <int>, "notes": "..." }
+// The complete OpenFodder/data runtime release declares both versions in its
+// separately uploaded compat.json asset:
+//   { "dataVersion": <int>, "scriptVersion": <int> }
+// These integers describe compatibility, independently of the release tag.
+// Change the accepted ranges when APIs/formats change; compatible content fixes
+// can retain their version numbers. The updater compares tags for new releases.
 // ---------------------------------------------------------------------------
 
 namespace Setup {

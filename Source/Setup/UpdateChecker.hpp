@@ -113,11 +113,9 @@ private:
     // happens-before edge.
     DataRelease        mRelease;
     ReleaseManifest    mDataManifest;
-    ReleaseManifest    mScriptManifest;
     int                mInstalledDataVer   = 0;
     int                mInstalledScriptVer = 0;
     bool               mDataNewer          = false;
-    bool               mScriptNewer        = false;
     bool               mDataInstalled      = false;
     bool               mScriptsInstalled   = false;
     std::string        mDataTargetDir;

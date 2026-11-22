@@ -9,7 +9,7 @@ namespace Setup {
 // tree until publication succeeds. A failed rollback keeps its backup for repair.
 class InstallTransaction {
 public:
-    explicit InstallTransaction(const std::filesystem::path& target);
+    explicit InstallTransaction(const std::filesystem::path& target, bool bundle = false);
     ~InstallTransaction();
     InstallTransaction(const InstallTransaction&) = delete;
     InstallTransaction& operator=(const InstallTransaction&) = delete;
@@ -23,6 +23,7 @@ private:
     std::filesystem::path mTarget, mWork, mStaging, mArchive, mBackup;
     bool mOwnWork = false;
     bool mKeepBackup = false;
+    bool mBundle = false;
 };
 
 } // namespace Setup

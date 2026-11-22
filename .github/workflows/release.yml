@@ -57,6 +57,7 @@ jobs:
   # Cheap fail-fast — runs in seconds, before any build.
   # ---------------------------------------------------------------------------
   verify-tag:
+    if: github.repository == 'OpenFodder/OpenFodder' && github.event.repository.fork == false
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.check.outputs.version }}
@@ -369,6 +370,7 @@ jobs:
   # ---------------------------------------------------------------------------
   publish:
     needs: [verify-tag, build-windows, build-linux, build-emscripten]
+    if: github.repository == 'OpenFodder/OpenFodder' && github.event.repository.fork == false && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       contents: write     # required to attach assets to the Release

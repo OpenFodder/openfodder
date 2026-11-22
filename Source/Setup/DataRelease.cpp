@@ -118,7 +118,7 @@ std::string TextField(const Json& record, const char* key, bool required = false
 void RequireVersion(const ReleaseManifest& manifest) {
     if (manifest.mDataVersion < 0 || manifest.mScriptVersion < 0)
         throw std::runtime_error("release versions must be non-negative");
-    if ((manifest.mRepo == kDataRepoName && manifest.mDataVersion == 0) ||
+    if ((manifest.mRepo == kDataRepoName && (manifest.mDataVersion == 0 || manifest.mScriptVersion == 0)) ||
         (manifest.mRepo == kScriptsRepoName && manifest.mScriptVersion == 0) ||
         (manifest.mDataVersion == 0 && manifest.mScriptVersion == 0))
         throw std::runtime_error("release is missing its compatibility version");
@@ -132,21 +132,31 @@ void ValidateLayout(const std::set<std::string>& files, const ReleaseManifest& m
                 throw std::runtime_error(std::string("scripts archive is missing root file ") + name);
         }
     } else {
-        // Data is installed into Data/, not the repository root. A wrapper
-        // directory or source-only archive must not count as a data install.
+        // The data repository ships one complete runtime bundle.
+        auto scripts = manifest;
+        scripts.mRepo = kScriptsRepoName;
+        std::set<std::string> scriptFiles;
+        bool hasCampaign = false;
         bool hasTiles = false;
         for (const auto& name : files) {
-            const auto slash = name.find('/');
+            if (name.rfind("Scripts/", 0) == 0) scriptFiles.insert(name.substr(8));
+            if (name.rfind("Campaigns/", 0) == 0 && name.size() > 4 && name.substr(name.size() - 4) == ".ofc")
+                hasCampaign = true;
             auto suffix = name.size() > 4 ? name.substr(name.size() - 4) : std::string{};
             std::transform(suffix.begin(), suffix.end(), suffix.begin(), [](unsigned char c) {
                 return c >= 'A' && c <= 'Z' ? char(c - 'A' + 'a') : char(c);
             });
-            if (slash != std::string::npos && name.find('/', slash + 1) == std::string::npos &&
+            const auto slash = name.find('/', 5);
+            if (name.rfind("Data/", 0) == 0 && slash != std::string::npos &&
+                name.find('/', slash + 1) == std::string::npos &&
                 suffix == ".blk")
                 hasTiles = true;
         }
+        ValidateLayout(scriptFiles, scripts);
+        if (!hasCampaign || !files.count("about.png"))
+            throw std::runtime_error("data bundle requires Campaigns/*.ofc and about.png at its root");
         if (!hasTiles)
-            throw std::runtime_error("data archive has no tilesets directly inside a release folder");
+            throw std::runtime_error("data bundle has no tilesets under Data/<release>/");
     }
 }
 
@@ -218,7 +228,8 @@ bool DataRelease::FetchAndInstall(const ReleaseManifest& pManifest,
         if (pManifest.mScriptVersion && !IsScriptVersionCompatible(pManifest.mScriptVersion))
             throw std::runtime_error("incompatible script version " + std::to_string(pManifest.mScriptVersion));
 
-        InstallTransaction transaction(pTargetDir);
+        const bool bundle = pManifest.mRepo == kDataRepoName;
+        InstallTransaction transaction(pTargetDir, bundle);
         transaction.Prepare();
         if (!mHttp.Download(pManifest.mArchiveUrl, transaction.Archive().string(), pHttpProgress))
             throw std::runtime_error("download failed: " + mHttp.LastError());
@@ -236,6 +247,10 @@ bool DataRelease::FetchAndInstall(const ReleaseManifest& pManifest,
                 std::replace(name.begin(), name.end(), '\\', '/');
                 if (!name.empty() && name.back() != '/') {
                     name = std::filesystem::path(name).lexically_normal().generic_string();
+                    if (bundle && name != "about.png" && name != "installed.json" &&
+                        name.rfind("Data/", 0) != 0 && name.rfind("Scripts/", 0) != 0 &&
+                        name.rfind("Campaigns/", 0) != 0)
+                        throw std::runtime_error("unexpected data bundle entry: " + name);
                     auto lower = name;
                     std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
                         return c >= 'A' && c <= 'Z' ? char(c - 'A' + 'a') : char(c);
@@ -260,6 +275,30 @@ bool DataRelease::FetchAndInstall(const ReleaseManifest& pManifest,
         }
         if (!WriteInstalledManifest(transaction.Staging().string(), pManifest))
             throw std::runtime_error(mLastError);
+        if (bundle) {
+            // Subtree records remain compatible with normal startup checks.
+            // Existing archives may contain the original separate repo records.
+            for (const auto* subtree : {"Data", "Scripts"}) {
+                const bool data = std::string(subtree) == "Data";
+                const auto directory = transaction.Staging() / subtree;
+                if (files.count(std::string(subtree) + "/installed.json")) {
+                    int dv = 0, sv = 0;
+                    if (!ReadInstalledManifest(directory.string(), dv, sv))
+                        throw std::runtime_error(mLastError);
+                    if ((data && (dv != pManifest.mDataVersion || sv != 0)) ||
+                        (!data && (sv != pManifest.mScriptVersion || dv != 0)))
+                        throw std::runtime_error(std::string(subtree) + "/installed.json disagrees with compat.json");
+                }
+                auto record = pManifest;
+                record.mRepo = data ? kDataRepoName : kScriptsRepoName;
+                if (data) record.mScriptVersion = 0;
+                else record.mDataVersion = 0;
+                if (!WriteInstalledManifest(directory.string(), record))
+                    throw std::runtime_error(mLastError);
+            }
+        }
+        if (bundle)
+            std::filesystem::create_directories(std::filesystem::path(pTargetDir) / "Saves");
         transaction.Commit();
         return true;
     } catch (const std::exception& ex) {
@@ -304,10 +343,11 @@ bool DataRelease::WriteInstalledManifest(const std::string& pTargetDir, const Re
     }
 }
 
-bool DataRelease::ReadInstalledManifest(const std::string& pTargetDir, int& pDataVersion, int& pScriptVersion) {
+bool DataRelease::ReadInstalledManifest(const std::string& pTargetDir, int& pDataVersion, int& pScriptVersion, std::string* pTag) {
     mLastError.clear();
     pDataVersion = 0;
     pScriptVersion = 0;
+    if (pTag) pTag->clear();
     try {
         const auto path = std::filesystem::path(pTargetDir) / kInstalledManifestFile;
         std::ifstream in(path, std::ios::binary);
@@ -315,6 +355,7 @@ bool DataRelease::ReadInstalledManifest(const std::string& pTargetDir, int& pDat
             throw std::runtime_error("cannot read " + path.string());
         const auto record = Json::parse(in);
         ReadVersions(record, pDataVersion, pScriptVersion);
+        if (pTag) *pTag = TextField(record, "tagName");
         return true;
     } catch (const std::exception& ex) {
         mLastError = std::string("read installed.json failed: ") + ex.what();

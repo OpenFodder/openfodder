@@ -27,7 +27,8 @@
 namespace Setup {
 
 // Where the cold-start prompt and the in-game Update button install the
-// downloaded data + scripts archives.
+// complete runtime data bundle. Campaigns/ and about.png are installed at
+// the common parent of the returned Data/ and Scripts/ paths.
 //
 // Two modes:
 //
