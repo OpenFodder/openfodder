@@ -168,7 +168,6 @@ std::string sFodderParameters::ToJson() {
 
 	Save["mWindowMode"] = mWindowMode;
 	Save["mIntegerScaling"] = mIntegerScaling;
-	Save["mBilinearFilter"] = mBilinearFilter;
 
 	Save["mRandom"] = mRandom;
 	Save["mRandomMapOptionsEnabled"] = mRandomMapOptionsEnabled;
@@ -214,7 +213,6 @@ bool sFodderParameters::FromJson(const std::string& pJson) {
 	mMissionNumber = LoadedData["mMissionNumber"];
 	mPhaseNumber = LoadedData["mPhaseNumber"];
 	mWindowMode = LoadedData["mWindowMode"];
-	mBilinearFilter = LoadedData["mBilinearFilter"];
 	mRandom = LoadedData["mRandom"];
 	if (LoadedData.count("mRandomMapOptionsEnabled") > 0)
 		mRandomMapOptionsEnabled = LoadedData["mRandomMapOptionsEnabled"];
