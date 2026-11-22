@@ -35,15 +35,28 @@ namespace Setup {
 
 ColdStartChoice ColdStartPrompt::PromptIfNoData()
 {
+    const bool headless = g_Fodder && g_Fodder->mStartParams &&
+        g_Fodder->mStartParams->mDisableVideo;
     const bool haveData = g_ResourceMan && g_ResourceMan->isDataAvailable();
     const bool haveScripts = g_ResourceMan &&
         !g_ResourceMan->GetScriptPath("Settings.js").empty() &&
         !g_ResourceMan->GetScriptPath("Common/OpenFodder.js").empty() &&
         !g_ResourceMan->GetScriptPath("random.js").empty();
-    const bool haveResources = g_ResourceMan && !g_ResourceMan->GetCampaigns().empty() &&
-        !g_ResourceMan->GetAboutFile().empty();
+    const bool haveCampaigns = g_ResourceMan && !g_ResourceMan->GetCampaigns().empty();
+    const bool haveAbout = g_ResourceMan && !g_ResourceMan->GetAboutFile().empty();
+    // UI artwork is irrelevant when no video will be displayed.
+    const bool haveResources = haveCampaigns && (headless || haveAbout);
     if (haveData && haveScripts && haveResources)
         return ColdStartChoice::Continue;
+
+    if (headless) {
+        std::string missing;
+        if (!haveData) missing += " game data;";
+        if (!haveScripts) missing += " required scripts;";
+        if (!haveCampaigns) missing += " campaigns;";
+        g_Debugger->Error("Cannot start headlessly. Missing runtime resources:" + missing);
+        return ColdStartChoice::Quit;
+    }
 
     // Flatpak sandbox: refuse the auto-download path. The Flatpak ships
     // its own data and updates flow through `flatpak update`. A direct

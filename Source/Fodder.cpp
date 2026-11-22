@@ -2835,7 +2835,7 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams)
     Setup::ColdStartChoice coldChoice = Setup::ColdStartPrompt::PromptIfNoData();
     if (coldChoice == Setup::ColdStartChoice::Quit) {
         SDL_Quit();
-        exit(0);
+        exit(mStartParams->mDisableVideo ? 1 : 0);
     }
 #endif
 

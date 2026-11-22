@@ -163,7 +163,7 @@ jobs:
         run: ctest --test-dir Projects/VS -C ${{ matrix.configuration }} --output-on-failure --no-tests=error
       - name: Test
         timeout-minutes: 30
-        shell: pwsh
+        shell: pwsh -NoLogo -NoProfile -NonInteractive -File {0}
         run: |
           $ErrorActionPreference = 'Stop'
           $runtimeDir = "$env:GITHUB_WORKSPACE/Projects/VS/bin/${{ matrix.configuration }}"
@@ -176,11 +176,15 @@ jobs:
           Copy-Item "$runtimeDir/*.dll" $testRoot
           git clone --depth 1 https://github.com/OpenFodder/tests.git "$testRoot/Tests"
           if ($LASTEXITCODE -ne 0) { throw 'Could not fetch game tests' }
-          Push-Location $testRoot
-          try {
-            ./openfodder.exe --appveyor --unit-test-headless
-            if ($LASTEXITCODE -ne 0) { throw "Game tests failed: $LASTEXITCODE" }
-          } finally { Pop-Location }
+          $stdoutLog = "$env:GITHUB_WORKSPACE/Projects/VS/replay-tests-stdout.log"
+          $stderrLog = "$env:GITHUB_WORKSPACE/Projects/VS/replay-tests-stderr.log"
+          $testProcess = Start-Process -FilePath "$testRoot/openfodder.exe" `
+            -WorkingDirectory $testRoot -ArgumentList '--appveyor', '--unit-test-headless' `
+            -WindowStyle Hidden -Wait -PassThru `
+            -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
+          Get-Content $stdoutLog
+          Get-Content $stderrLog
+          if ($testProcess.ExitCode -ne 0) { throw "Game tests failed: $($testProcess.ExitCode)" }
       - name: Upload failure logs
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -190,6 +194,8 @@ jobs:
             Projects/VS/vcpkg-manifest-install.log
             Projects/VS/CMakeFiles/CMakeConfigureLog.yaml
             Projects/VS/Testing/Temporary/LastTest.log
+            Projects/VS/replay-tests-stdout.log
+            Projects/VS/replay-tests-stderr.log
           if-no-files-found: ignore
       - name: Package
         shell: pwsh
