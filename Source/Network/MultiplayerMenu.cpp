@@ -185,12 +185,13 @@ void cMultiplayerMenu::Open() {
         mPlayerIndex = 1;
         StartLanBrowser();
         break;
-    case eNetworkMenuStart_FindInternet:
-        mState = eState::FindInternet;
-        mPlayerIndex = 1;
-        mInternet = true;
-        StartInternetBrowser();
-        break;
+    // Hub multiplayer is temporarily disabled.
+    // case eNetworkMenuStart_FindInternet:
+    //     mState = eState::FindInternet;
+    //     mPlayerIndex = 1;
+    //     mInternet = true;
+    //     StartInternetBrowser();
+    //     break;
     case eNetworkMenuStart_Main:
     case eNetworkMenuStart_None:
     default:
@@ -267,6 +268,7 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mRemotePortText = std::to_string(mRemotePort);
         break;
 
+    /* Hub multiplayer is temporarily disabled.
     case ACT_HOST_INTERNET:
         // Hosting on the public hub requires a verified token (the
         // /room/create call requires Authorization). Joining the LIST also
@@ -283,6 +285,7 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mLocalPort = 7000;
         mLocalPortText = std::to_string(mLocalPort);
         break;
+    */
 
     case ACT_FIND_LAN:
         mState = eState::FindLan;
@@ -294,6 +297,7 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         StartLanBrowser();
         break;
 
+    /* Hub multiplayer is temporarily disabled.
     case ACT_FIND_INTERNET:
         // Joining (LIST/JOIN) prompts for pairing too — the hub uses the
         // token for moderation telemetry, and a uniform "cancel returns to
@@ -308,6 +312,7 @@ void cMultiplayerMenu::OnRowClick(int16 pAction, int16 pArg) {
         mInternetHost = false;
         StartInternetBrowser();
         break;
+    */
 
     case ACT_DIRECT_CONNECT:
     case ACT_JOIN:
@@ -502,11 +507,14 @@ void cMultiplayerMenu::DrawMainMenu() {
     mDrawStrings.clear();
     MenuPresentation::Title(*g_Fodder, "MULTIPLAYER", "CHOOSE HOW TO CONNECT");
     int y = 62 + PLATFORM_BASED(0, 25) / 2;
-    const char* labels[] = { "HOST LAN GAME", "FIND LAN GAME", "HOST INTERNET GAME",
-                             "FIND INTERNET GAME", "DIRECT CONNECT" };
-    const int16 actions[] = { ACT_HOST, ACT_FIND_LAN, ACT_HOST_INTERNET,
-                              ACT_FIND_INTERNET, ACT_DIRECT_CONNECT };
-    for (int i = 0; i < 5; ++i, y += 21) {
+    // Hub multiplayer is temporarily disabled; keep its entries for later.
+    const char* labels[] = { "HOST LAN GAME", "FIND LAN GAME",
+                            /* "HOST INTERNET GAME", "FIND INTERNET GAME", */
+                            "DIRECT CONNECT" };
+    const int16 actions[] = { ACT_HOST, ACT_FIND_LAN,
+                             /* ACT_HOST_INTERNET, ACT_FIND_INTERNET, */
+                             ACT_DIRECT_CONNECT };
+    for (size_t i = 0; i < sizeof(actions) / sizeof(actions[0]); ++i, y += 21) {
         MenuPresentation::Button(*g_Fodder, labels[i], 62, 258, y);
         g_Fodder->GUI_Button_Setup_New(OnButtonClick, this, actions[i]);
     }

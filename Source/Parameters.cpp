@@ -151,8 +151,9 @@ static eNetworkMenuStart Parameters_ParseNetworkMenuStart(const std::string& pVa
 		return eNetworkMenuStart_Join;
 	if (Menu == "find-lan" || Menu == "lan" || Menu == "browser")
 		return eNetworkMenuStart_FindLan;
-	if (Menu == "find-internet" || Menu == "internet" || Menu == "hub")
-		return eNetworkMenuStart_FindInternet;
+	// Hub multiplayer is temporarily disabled.
+	// if (Menu == "find-internet" || Menu == "internet" || Menu == "hub")
+	// 	return eNetworkMenuStart_FindInternet;
 
 	return eNetworkMenuStart_Main;
 }
@@ -312,11 +313,13 @@ void sFodderParameters::PrepareOptions() {
 		("net-port",   "Cooperative multiplayer: remote peer UDP port",         cxxopts::value<uint32_t>()->default_value("7001"), "7001")
 		("net-local-port", "Cooperative multiplayer: local UDP port",           cxxopts::value<uint32_t>()->default_value("7000"), "7000")
 		("net-synctest","Run GGPO sync-test (local determinism check)",         cxxopts::value<bool>()->default_value("false"))
-		("net-menu", "Open multiplayer setup on startup: main, host, host-map-options, join, find-lan, find-internet", cxxopts::value<std::string>()->default_value(""), "\"host-map-options\"")
+		("net-menu", "Open multiplayer setup on startup: main, host, host-map-options, join, find-lan", cxxopts::value<std::string>()->default_value(""), "\"host-map-options\"")
+		/* Hub multiplayer is temporarily disabled.
 		("net-internet", "Use relay hub for Internet multiplayer", cxxopts::value<bool>()->default_value("false"))
 		("net-hub-host", "Relay hub control hostname / IP", cxxopts::value<std::string>()->default_value("hub.openfodder.com"), "\"hub.openfodder.com\"")
 		("net-hub-port", "Relay hub control UDP port", cxxopts::value<uint32_t>()->default_value("27770"), "27770")
 		("net-room-code", "Relay room/session code to join", cxxopts::value<std::string>()->default_value(""), "\"ABC123\"")
+		*/
 		("net-mode", "Multiplayer mode: coop, coop-random, deathmatch, squad-deathmatch, rescue-prisoner, avatar-deathmatch, team-avatar", cxxopts::value<std::string>()->default_value(""), "\"coop\"")
 		("net-seed", "Multiplayer map seed", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_MAP_SEED_DEFAULT)), "4919")
 		("net-kill-limit", "Multiplayer kill limit", cxxopts::value<uint32_t>()->default_value(std::to_string(NETWORK_KILL_LIMIT_DEFAULT)), "10")
@@ -575,6 +578,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 				mNetworkEnabled = true;
 			}
 		}
+		/* Hub multiplayer is temporarily disabled.
 		if (result.count("net-internet") && result["net-internet"].as<bool>()) {
 			mNetworkInternet = true;
 			mNetworkEnabled = true;
@@ -596,6 +600,7 @@ bool sFodderParameters::ProcessCLI(int argc, char *argv[]) {
 				mNetworkEnabled = true;
 			}
 		}
+		*/
 		if (result.count("net-mode")) {
 			std::string NetMode = result["net-mode"].as<std::string>();
 			if (!NetMode.empty()) {
