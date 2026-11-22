@@ -57,7 +57,7 @@ jobs:
           cmake --build SDL_mixer/build --parallel
           sudo cmake --install SDL_mixer/build
       - name: Configure
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENFODDER_ENABLE_FFMPEG=ON -DOPENFODDER_BUILD_MEDIA_TESTS=ON
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENFODDER_ENABLE_FFMPEG=ON -DOPENFODDER_BUILD_MEDIA_TESTS=ON -DOPENFODDER_BUILD_SETUP_TESTS=ON
       - name: Build
         run: cmake --build build --parallel
       - name: Check MPEG video and audio decoding

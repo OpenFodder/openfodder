@@ -24,6 +24,7 @@
 #include "Setup/UpdateChecker.hpp"
 #include "Setup/EngineVersion.hpp"
 #include "Setup/InstallPaths.hpp"
+#include "Setup/DownloadProgress.hpp"
 #include "ResourceMan.hpp"
 
 #include <SDL3/SDL.h>
@@ -185,20 +186,17 @@ void UpdateChecker::RunQueryWorker() try {
     Fail("Update check failed unexpectedly.");
 }
 
-void UpdateChecker::RunInstallWorker() try {
-    // Wire HTTP progress through to the status-line atomic. We never read
-    // pTotal — releases sized in the tens of megabytes overflow our int
-    // doubling check less than progress accuracy is worth.
-    auto httpProgress = [this](uint64_t pDone, uint64_t pTotal) -> bool {
-        if (pTotal > 0) {
-            const int pct = int((pDone * 100ULL) / pTotal);
-            mProgressPercent.store(pct, std::memory_order_relaxed);
-        }
-        return true; // never abort
+void UpdateChecker::RunInstallWorker(DownloadProgress& progress) try {
+    auto httpProgress = [&](uint64_t done, uint64_t total) -> bool {
+        if (!progress.Download(done, total)) return false;
+        mProgressPercent.store(progress.Read().Percent(), std::memory_order_relaxed);
+        return true;
     };
 
     const auto root = std::filesystem::path(mDataTargetDir).parent_path();
-    if (!mRelease.FetchAndInstall(mDataManifest, root.string(), httpProgress)) {
+    if (!mRelease.FetchAndInstall(mDataManifest, root.string(), httpProgress,
+            [&](size_t entry, size_t count, const std::string&) { return progress.Extract(entry, count); },
+            [&](InstallStage stage) { return progress.SetStage(stage); })) {
         Fail("Data package install failed: " + mRelease.LastError());
         return;
     }
@@ -286,13 +284,28 @@ void UpdateChecker::Pump() try {
                 return;
             }
 
-            // User accepted — kick the install worker. The transition
-            // QueryDoneNewer → InstallRunning is single-threaded (Pump is
-            // main-thread only and the previous worker has already
-            // joined), so a plain store is fine.
+            // Keep an independent progress window visible through download,
+            // extraction and publication. It owns the install worker while
+            // Pump stays on the main thread to process its SDL events.
             mState.store(State::InstallRunning, std::memory_order_release);
             mProgressPercent.store(0, std::memory_order_relaxed);
-            mWorker = std::thread([this] { RunInstallWorker(); });
+            std::string error;
+            const bool installed = RunDownloadWithProgress("OpenFodder - Install update",
+                [&](DownloadProgress& progress, std::string& taskError) {
+                    RunInstallWorker(progress);
+                    if (mState.load(std::memory_order_acquire) == State::InstallDoneOk)
+                        return true;
+                    std::lock_guard<std::mutex> lock(mStringMutex);
+                    taskError = mErrorMessage;
+                    return false;
+                }, error, g_Fodder && g_Fodder->mWindow ? g_Fodder->mWindow->GetWindow() : nullptr,
+                [this] { ApplyInstalledContent(); });
+            if (!installed) {
+                mDataInstalled = false;
+                mScriptsInstalled = false;
+                if (error.empty()) mState.store(State::Idle, std::memory_order_release);
+                else Fail(error);
+            }
             return;
         }
 

@@ -563,6 +563,13 @@ int cSetupWizard::CommitCopyFromRawFolder() {
             if (source.empty()) return -1;
             const auto target = FileSystem::Resolve((destination / source.filename()).u8string(), true);
             if (target.empty()) return -1;
+            // Selecting our own Data/<release> is valid, but opening the
+            // same file for output would truncate the source before reading.
+            copyError.clear();
+            if (std::filesystem::equivalent(source, target, copyError)) {
+                ++totalWritten;
+                continue;
+            }
             std::ifstream in(source, std::ios::binary);
             std::ofstream out(target, std::ios::binary | std::ios::trunc);
             if (!in || !out)

@@ -44,9 +44,8 @@ public:
     // On user-Cancel:       returns Quit (caller should SDL_Quit + exit).
     // On any failure:       shows an error message box and returns Quit.
     //
-    // Synchronous — runs before the window exists, so there's no UI to
-    // freeze; the SDL message box plus blocking install are exactly what
-    // the user expects in the cold-start case.
+    // Runs a responsive progress window while a worker queries, downloads
+    // and installs the package. No game data is required to draw the UI.
     static ColdStartChoice PromptIfNoData();
 
 private:

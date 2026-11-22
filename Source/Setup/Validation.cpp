@@ -67,117 +67,20 @@ static std::string Canonicalise(const std::string& pPath) {
     return out;
 }
 
-// File-presence check that doesn't lie about directories. Mirrors the test
-// cResourceMan::FileExists already does (stat-based) but kept local to avoid
-// pulling in the full ResourceMan API surface.
-static bool PathExists(const std::string& pPath) {
-    return g_ResourceMan && g_ResourceMan->FileExists(pPath);
-}
-
 static bool DirExists(const std::string& pPath) {
     return g_ResourceMan && g_ResourceMan->DirExists(pPath);
 }
 
-// "Fingerprint" files that uniquely identify a release subfolder if the user
-// picked the release dir itself rather than its parent. Maps to mDataPath.
-//
-// We deliberately keep this list short and only use files that appear in the
-// release as actual on-disk filenames (not in DAT containers).
-struct sFingerprint {
-    const char* mFile;         // case-insensitive match against directory listing
-    const char* mDataPath;     // matches sGameVersion::mDataPath
-};
-
-static const sFingerprint kFingerprints[] = {
-    { "CFTITLE.RAW",  "Amiga"     },     // Amiga retail CF1 (also several demos)
-    { "CF_ENG.DAT",   "Dos_CD"    },     // PC retail CF1 (treated as CF1; if CF2's CF_ENG.DAT we'll learn from full validation)
-    { "CFCOVER.DAT",  "PCFormat"  },     // PC Format demo
-    { "CANNON2.DAT",  "PCFormat"  },     // PC Format demo (alt name)
-};
-
-// True if pFolder itself has a known release-fingerprint filename in it.
-// If so, returns the matching mDataPath via pOutDataPath.
-static bool LooksLikeReleaseSubfolder(const std::string& pFolder, std::string& pOutDataPath) {
-    if (!g_ResourceMan)
-        return false;
-
-    auto files = g_ResourceMan->DirectoryList(pFolder, "");
-    for (auto& f : files) {
-        std::string lower = ToLower(f);
-        for (auto& fp : kFingerprints) {
-            if (lower == ToLower(fp.mFile)) {
-                pOutDataPath = fp.mDataPath;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-// Try to coerce pInput into a "<root>" the engine will accept — i.e. a folder
-// that has a "Data" subdirectory whose children include known release dirs.
-//
-// Strategy:
-//   1. If <pInput>/Data exists, pInput IS the root.
-//   2. Otherwise, test if pInput is itself a release subfolder (e.g. user
-//      pointed straight at a folder containing CFTITLE.RAW). If so, walk up
-//      twice to a synthetic root: pInput → <parent>/Data/<mDataPath> mapping.
-//      We can't synthesise on-disk dirs from here, so we expose this as an
-//      explicit "the user picked a release folder" hint and the wizard
-//      writes the parent as the [paths] entry.
-//   3. Otherwise, give up — the caller will report "no Data/ subfolder found".
-//
-// Returns the folder to USE as the <root> [paths] entry, plus a boolean
-// indicating whether we actually found a Data/ child there.
+// Keep validation rooted at the user's selection. In particular, choosing
+// Data/Amiga must never widen the search to its parent's other games.
 static std::string ResolveRoot(const std::string& pInput, bool& pOutHasDataChild) {
     pOutHasDataChild = false;
-
-    if (pInput.empty())
-        return pInput;
-
     const auto resolved = FileSystem::Resolve(pInput);
-    std::string normalised = StripTrailingSlash(Canonicalise(resolved.empty() ? pInput : resolved.u8string()));
-    if (normalised.empty() || normalised == "/")
-        return pInput;
-
-    // Case 1: pInput already has a Data/ subdirectory.
-    if (DirExists(normalised + "/Data")) {
-        pOutHasDataChild = true;
-        return normalised;
-    }
-
-    // Case 2: pInput IS a release subfolder. Try to walk up to a synthetic
-    // root, BUT only if a sibling chain "../Data/<dataPath>" makes sense.
-    // (User dragged the Amiga/ folder itself from somewhere.)
-    std::string releaseDataPath;
-    if (LooksLikeReleaseSubfolder(normalised, releaseDataPath)) {
-        // The release files are right here. The most useful behaviour is to
-        // tell the engine "this folder == the Data/<X>/ folder". We do that
-        // by going two parents up — but only if the path layout matches.
-        //
-        // E.g. C:/Games/CF/Data/Amiga/  → root = C:/Games/CF/
-        size_t lastSlash = normalised.find_last_of('/');
-        if (lastSlash != std::string::npos) {
-            std::string parent = normalised.substr(0, lastSlash);
-            // Is parent ".../Data"?
-            size_t parentSlash = parent.find_last_of('/');
-            if (parentSlash != std::string::npos) {
-                std::string parentLeaf = ToLower(parent.substr(parentSlash + 1));
-                if (parentLeaf == "data") {
-                    std::string grandparent = parent.substr(0, parentSlash);
-                    if (DirExists(grandparent + "/Data")) {
-                        pOutHasDataChild = true;
-                        return grandparent;
-                    }
-                }
-            }
-        }
-
-        // Fall through — caller will see mLooksLikeRoot=false and we still
-        // surface the matched fingerprint so the wizard can offer guidance.
-    }
-
-    return normalised;
+    if (resolved.empty() || !DirExists(resolved.u8string()))
+        return {};
+    const std::string root = Canonicalise(resolved.u8string());
+    pOutHasDataChild = !root.empty() && DirExists(root + "Data");
+    return root;
 }
 
 // Scan ONE folder against ONE known version's mFiles manifest. Returns a
@@ -262,6 +165,8 @@ sValidationResult ValidateFolder(const std::string& pFolder) {
     std::string root = ResolveRoot(pFolder, hasDataChild);
     result.mResolvedRoot = root;
     result.mLooksLikeRoot = hasDataChild;
+    if (root.empty())
+        return result;
 
     // Even when hasDataChild is false we still attempt scans so we can offer
     // useful diagnostics; ScanVersion bails fast on missing dirs.
@@ -270,18 +175,9 @@ sValidationResult ValidateFolder(const std::string& pFolder) {
     // Skip pseudo-versions (mFiles empty) — they're handled by the engine
     // via "any retail present implies Custom/Random can be used".
     //
-    // Two scan modes per version:
-    //   (a) Engine layout:    <root>/Data/<mDataPath>/<files>
-    //   (b) Raw extraction:   <root>/<files>           (the picked folder is itself the release)
-    //
-    // The user might point the wizard at either: a parent that contains a
-    // proper Data/ tree (typical of a previous OpenFodder install), OR a
-    // bare folder full of CFTITLE.RAW + 1.RAW + ... extracted directly from
-    // the original media. Both are valid inputs.
-    //
-    // If both scans hit for the same version, prefer the more-complete one;
-    // tie-break on engine layout (it matches what the engine reads at
-    // runtime, no copying needed).
+    // Try engine and extracted layouts without ever widening the search to
+    // an ancestor. Prefer the most complete authentic match, with engine
+    // layout winning ties because it can be used without copying files.
     // Filename-only matches are unreliable: CF1 and CF2 share many filenames
     // (1.RAW, FONT.RAW, ...) but the bytes differ. Same for retail-vs-demo,
     // and same between CF1 Amiga floppy and CF1 Amiga CD32 — they share
@@ -311,21 +207,21 @@ sValidationResult ValidateFolder(const std::string& pFolder) {
         if (kv.mFiles.empty())
             continue;
 
-        sVersionMatch engineMatch = ScanVersion(root, kv);
-        sVersionMatch rawMatch    = ScanFolderForVersion(root, kv, /*pIsRawFolder=*/true);
+        // All supported layouts stay inside the chosen folder: installation
+        // root, release files directly, an extracted Data/ folder, or the
+        // Data folder of an existing installation. Only the full engine
+        // layout can be registered as a search root without copying.
+        std::vector<sVersionMatch> candidates;
+        candidates.push_back(ScanVersion(root, kv));
+        candidates.push_back(ScanFolderForVersion(root, kv, true));
+        candidates.push_back(ScanFolderForVersion(root + "Data/", kv, true));
+        candidates.push_back(ScanFolderForVersion(root + kv.mDataPath + "/", kv, true));
 
-        const bool engineOk = looksAuthentic(engineMatch);
-        const bool rawOk    = looksAuthentic(rawMatch);
-
-        // Pick whichever found more files; prefer engine layout on a tie.
-        // Filter out filename-only collisions before comparing.
         sVersionMatch* keep = nullptr;
-        if (engineOk && rawOk) {
-            keep = (engineMatch.mFilesFound >= rawMatch.mFilesFound) ? &engineMatch : &rawMatch;
-        } else if (engineOk) {
-            keep = &engineMatch;
-        } else if (rawOk) {
-            keep = &rawMatch;
+        for (auto& candidate : candidates) {
+            if (looksAuthentic(candidate) &&
+                (!keep || candidate.mFilesFound > keep->mFilesFound))
+                keep = &candidate;
         }
         if (keep)
             result.mMatches.push_back(*keep);

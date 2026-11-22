@@ -41,6 +41,7 @@ struct sScanCandidate {
 
 // Probe a fixed list of likely retail-data locations and return the candidates
 // that match at least one known release with at least one file present.
+// Unverified disk images are only listed when explicitly browsing a folder.
 //
 // Cheap-ish (a handful of stat() calls per candidate, MD5 only on actual hits).
 // Safe to call with no engine running — uses g_ResourceMan for filesystem ops.

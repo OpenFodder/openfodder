@@ -32,14 +32,10 @@ namespace Setup {
 // a single arbitrary folder without mutating engine state — used by the setup
 // wizard to validate a user-picked folder before committing it to [paths].
 //
-// pFolder is interpreted the same way cResourceMan does: the folder must
-// contain a "Data" subdirectory whose layout matches one of the known
-// versions' mDataPath children (e.g. <pFolder>/Data/Amiga/, <pFolder>/Data/Dos_CD/).
-//
-// If the user picked a release-specific subfolder (e.g. dropped the Amiga/
-// folder itself rather than its parent), eDataParent::Auto detects it by
-// looking for known fingerprint files (CFTITLE.RAW, CF_ENG.DAT, CFCOVER.DAT,
-// CANNON2.DAT) and walks up so the engine's path-based scanner sees it.
+// Supports files directly in pFolder, pFolder/Data, or known release
+// subdirectories in pFolder and pFolder/Data. Never searches parent folders.
+// Directly selected release folders are imported rather than registering an
+// ancestor and exposing its sibling games.
 
 struct sVersionMatch {
     const sGameVersion* mVersion = nullptr;     // Pointer into KnownGameVersions[]

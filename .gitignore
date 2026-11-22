@@ -367,3 +367,5 @@ Projects/emscripten/.emsdk_cache/
 /Tests/*
 !/Tests/AudioMixer/
 !/Tests/VideoMPEG/
+!/Tests/DownloadProgress/
+!/Tests/SetupFolders/

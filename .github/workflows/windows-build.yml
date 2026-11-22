@@ -143,6 +143,7 @@ jobs:
           -A ${{ matrix.cmake_platform }} ${{ matrix.cmake_extra_args }}
           -DOPENFODDER_ENABLE_FFMPEG=ON
           -DOPENFODDER_BUILD_MEDIA_TESTS=ON
+          -DOPENFODDER_BUILD_SETUP_TESTS=ON
           "-DCMAKE_TOOLCHAIN_FILE=${{ runner.temp }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
           -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }}
           "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/Projects/VS/bin"

@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.18)
+project(DownloadProgressChecks LANGUAGES CXX)
+find_package(SDL3 3.4 CONFIG REQUIRED)
+find_package(Threads REQUIRED)
+add_executable(download_progress_check check.cpp ../../Source/Setup/DownloadProgress.cpp)
+target_compile_features(download_progress_check PRIVATE cxx_std_17)
+target_include_directories(download_progress_check PRIVATE ../../Source)
+target_link_libraries(download_progress_check PRIVATE SDL3::SDL3 Threads::Threads)
+if(WIN32)
+    add_custom_command(TARGET download_progress_check POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:SDL3::SDL3> $<TARGET_FILE_DIR:download_progress_check>)
+endif()
+enable_testing()
+add_test(NAME download_progress_model COMMAND download_progress_check --model)
+add_test(NAME download_progress_window COMMAND download_progress_check --window)
+set_tests_properties(download_progress_window PROPERTIES ENVIRONMENT "SDL_VIDEODRIVER=dummy" TIMEOUT 15)

@@ -62,6 +62,11 @@ struct ReleaseManifest {
     int         mScriptVersion = 0;
 };
 
+enum class InstallStage { Checking, Preparing, Downloading, Extracting, Publishing };
+// Return false to cancel before the next stage starts. Publishing is atomic
+// from the caller's perspective and cannot be canceled once it has begun.
+using InstallStageCallback = std::function<bool(InstallStage)>;
+
 class DataRelease {
 public:
     DataRelease() = default;
@@ -73,7 +78,8 @@ public:
     // false on network error, non-2xx status, malformed JSON, or a release
     // that has no .zip or compat.json asset. Metadata must contain a positive
     // data and script version for a complete data bundle.
-    bool QueryLatest(const std::string& pOwner, const std::string& pRepo, ReleaseManifest& pOut);
+    bool QueryLatest(const std::string& pOwner, const std::string& pRepo, ReleaseManifest& pOut,
+                     ProgressCallback pProgress = {});
 
     // Version-gate, stage and validate the download, then replace the target.
     // Existing local files are preserved. Failed publication restores the old
@@ -82,7 +88,8 @@ public:
     bool FetchAndInstall(const ReleaseManifest& pManifest,
                          const std::string& pTargetDir,
                          ProgressCallback pHttpProgress = {},
-                         ZipProgressCallback pZipProgress = {});
+                         ZipProgressCallback pZipProgress = {},
+                         InstallStageCallback pStage = {});
 
     // Persist a small JSON record of what was installed into
     // <pTargetDir>/installed.json so the wizard can compare against future

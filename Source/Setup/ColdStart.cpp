@@ -25,6 +25,7 @@
 #include "Setup/DataRelease.hpp"
 #include "Setup/EngineVersion.hpp"
 #include "Setup/InstallPaths.hpp"
+#include "Setup/DownloadProgress.hpp"
 #include "ResourceMan.hpp"
 
 #include <SDL3/SDL.h>
@@ -99,12 +100,11 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
 
     std::string err;
     if (!RunDownload(std::filesystem::path(targets.mDataDir).parent_path().string(), err)) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenFodder",
-            ("Download failed:\n\n" + err).c_str(), nullptr);
+        if (!err.empty())
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenFodder",
+                ("Download failed:\n\n" + err).c_str(), nullptr);
         return ColdStartChoice::Quit;
     }
-    if (g_ResourceMan)
-        g_ResourceMan->refresh();
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "OpenFodder",
         "Data and scripts installed. Continuing to OpenFodder...", nullptr);
     return ColdStartChoice::Download;
@@ -112,14 +112,23 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
 
 bool ColdStartPrompt::RunDownload(const std::string& pRuntimeRoot, std::string& pError)
 {
-    DataRelease release;
-    ReleaseManifest manifest;
-    if (!release.QueryLatest(DataRelease::DataRepoOwner(), DataRelease::DataRepoName(), manifest) ||
-        !release.FetchAndInstall(manifest, pRuntimeRoot)) {
-        pError = release.LastError();
-        return false;
-    }
-    return true;
+    return RunDownloadWithProgress("OpenFodder - Download game data",
+        [&](DownloadProgress& progress, std::string& error) {
+            DataRelease release;
+            ReleaseManifest manifest;
+            const auto queryProgress = [&](uint64_t, uint64_t) { return !progress.Read().canceled; };
+            if (!release.QueryLatest(DataRelease::DataRepoOwner(), DataRelease::DataRepoName(), manifest, queryProgress) ||
+                !release.FetchAndInstall(manifest, pRuntimeRoot,
+                    [&](uint64_t done, uint64_t total) { return progress.Download(done, total); },
+                    [&](size_t entry, size_t count, const std::string&) { return progress.Extract(entry, count); },
+                    [&](InstallStage stage) { return progress.SetStage(stage); })) {
+                error = release.LastError();
+                return false;
+            }
+            return true;
+        }, pError, nullptr, [] {
+            if (g_ResourceMan) g_ResourceMan->refresh();
+        });
 }
 
 } // namespace Setup

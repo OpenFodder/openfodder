@@ -31,14 +31,15 @@
 #include "Setup/DataRelease.hpp"
 
 namespace Setup {
+class DownloadProgress;
 
 // Async wrapper around DataRelease for the About-screen UPDATE button.
 //
 // DataRelease itself is synchronous: QueryLatest blocks on a GitHub API
 // round-trip; FetchAndInstall blocks on the download + the extract. Running
 // either of those from the SDL render loop freezes the window for several
-// seconds. UpdateChecker runs them on a worker thread and exposes a state
-// machine that the main loop polls each frame.
+// seconds. Queries run on a worker polled by the main loop. Installation uses
+// a modal progress window with its own worker, followed by main-thread reload.
 //
 // State transitions only happen on the main thread (via Pump()), so the
 // callsite never has to think about thread safety beyond "ask for status,
@@ -91,7 +92,7 @@ private:
     ~UpdateChecker();
 
     void RunQueryWorker();
-    void RunInstallWorker();
+    void RunInstallWorker(DownloadProgress& pProgress);
     void JoinWorker();
     void Fail(const std::string& pMessage);
     bool ApplyInstalledContent();

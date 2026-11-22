@@ -22,7 +22,6 @@
 
 #include "stdafx.hpp"
 #include "Setup/AutoScan.hpp"
-#include "Setup/DiskImageList.hpp"
 #include "Setup/Validation.hpp"
 
 #include <algorithm>
@@ -54,8 +53,6 @@ static std::string Norm(std::string p) {
     return p;
 }
 
-static void ProbeImageFiles(std::vector<sScanCandidate>&, const std::string&, const std::string&);
-
 static void TryCandidate(std::vector<sScanCandidate>& pOut,
                          const std::string& pLabel,
                          const std::string& pPath) {
@@ -69,10 +66,8 @@ static void TryCandidate(std::vector<sScanCandidate>& pOut,
     // to be helpful (e.g. user picked the release dir directly). Either way,
     // ValidateFolder is cheap — only MD5s files it has reason to hash.
     sValidationResult r = ValidateFolder(pPath);
-    if (r.mMatches.empty()) {
-        ProbeImageFiles(pOut, pLabel, pPath);
+    if (r.mMatches.empty())
         return;
-    }
 
     // De-dup against earlier candidates — same input folder, same matches.
     for (auto& existing : pOut) {
@@ -113,38 +108,8 @@ static void ProbeNamedSubfolders(std::vector<sScanCandidate>& pOut,
     }
 }
 
-// Add disk-image files in pBase as candidates. The wizard mounts on click,
-// not on scan, so we keep the auto-scan cheap (one DirectoryList call per
-// extension) and let the user opt in.
-//
-// Filename heuristic: include any matching file. The wizard's auto-scan
-// shouldn't try to be clever about "is this CF data?" — that's the mount's
-// job. False positives in this list cost nothing because the user has to
-// click.
-static void ProbeImageFiles(std::vector<sScanCandidate>& pOut,
-                            const std::string& pLabelPrefix,
-                            const std::string& pBase) {
-    if (pBase.empty() || !g_ResourceMan)
-        return;
-    if (!g_ResourceMan->DirExists(pBase))
-        return;
-
-    for (const auto& image : FindDiskImages(pBase)) {
-        const bool duplicate = std::any_of(pOut.begin(), pOut.end(), [&](const sScanCandidate& c) {
-            return c.mPath == image.mPath;
-        });
-        if (duplicate) continue;
-        sScanCandidate c;
-        c.mPath = image.mPath;
-        c.mLabel = image.mName;
-        c.mFormat = image.mFormat;
-        c.mDisks = image.mDisks;
-        c.mIsImage = true;
-        pOut.push_back(std::move(c));
-        if (pOut.size() >= 64) return;
-    }
-}
-
+// Automatic suggestions contain verified game folders only. Disk images
+// remain available in the file browser for the folder the user opens.
 std::vector<sScanCandidate> AutoScan() {
     std::vector<sScanCandidate> hits;
 
@@ -163,7 +128,6 @@ std::vector<sScanCandidate> AutoScan() {
     {
         for (auto& p : g_ResourceMan->getAllPaths()) {
             TryCandidate(hits, "Search path", Norm(p));
-            ProbeImageFiles(hits, "Image", Norm(p));
         }
     }
 
@@ -175,7 +139,6 @@ std::vector<sScanCandidate> AutoScan() {
     {
         std::string cwd = Norm(g_ResourceMan->getcwd());
         TryCandidate(hits, "Working directory", cwd);
-        ProbeImageFiles(hits, "Image", cwd);
         // ../  — useful when the binary lives in Run/Release/ but data is in Run/.
         if (cwd.size() > 1) {
             std::string parentPath = cwd.substr(0, cwd.size() - 1);
@@ -183,7 +146,6 @@ std::vector<sScanCandidate> AutoScan() {
             if (lastSlash != std::string::npos) {
                 std::string parent = parentPath.substr(0, lastSlash);
                 TryCandidate(hits, "Parent of working dir", Norm(parent));
-                ProbeImageFiles(hits, "Image", Norm(parent));
             }
         }
     }
@@ -202,9 +164,6 @@ std::vector<sScanCandidate> AutoScan() {
             // Desktop / Downloads — convenient for newcomers.
             ProbeNamedSubfolders(hits, "Desktop", Norm(user) + "Desktop");
             ProbeNamedSubfolders(hits, "Downloads", Norm(user) + "Downloads");
-            // And any disk images sitting in those landing zones.
-            ProbeImageFiles(hits, "Desktop", Norm(user) + "Desktop");
-            ProbeImageFiles(hits, "Downloads", Norm(user) + "Downloads");
         }
     }
 

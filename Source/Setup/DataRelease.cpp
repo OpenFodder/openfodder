@@ -165,7 +165,8 @@ void ValidateLayout(const std::set<std::string>& files, const ReleaseManifest& m
 // ---------------------------------------------------------------------------
 // QueryLatest
 // ---------------------------------------------------------------------------
-bool DataRelease::QueryLatest(const std::string& pOwner, const std::string& pRepo, ReleaseManifest& pOut) {
+bool DataRelease::QueryLatest(const std::string& pOwner, const std::string& pRepo, ReleaseManifest& pOut,
+                              ProgressCallback pProgress) {
     mLastError.clear();
     pOut = ReleaseManifest{};
     try {
@@ -174,7 +175,7 @@ bool DataRelease::QueryLatest(const std::string& pOwner, const std::string& pRep
         result.mRepo = pRepo;
         const std::string url = "https://api.github.com/repos/" + pOwner + "/" + pRepo + "/releases/latest";
         HttpResponse response;
-        if (!mHttp.Get(url, response) || response.mStatus != 200)
+        if (!mHttp.Get(url, response, pProgress) || response.mStatus != 200)
             throw std::runtime_error("GET " + url + " failed: " + mHttp.LastError());
         const auto root = Json::parse(std::string(response.mBody.begin(), response.mBody.end()));
         if (!root.is_object())
@@ -198,7 +199,7 @@ bool DataRelease::QueryLatest(const std::string& pOwner, const std::string& pRep
         if (result.mCompatUrl.empty())
             throw std::runtime_error("release '" + result.mTagName + "' has no compat.json asset");
         HttpResponse compatResponse;
-        if (!mHttp.Get(result.mCompatUrl, compatResponse) || compatResponse.mStatus != 200)
+        if (!mHttp.Get(result.mCompatUrl, compatResponse, pProgress) || compatResponse.mStatus != 200)
             throw std::runtime_error("GET compat.json failed: " + mHttp.LastError());
         const auto compat = Json::parse(std::string(compatResponse.mBody.begin(), compatResponse.mBody.end()));
         ReadVersions(compat, result.mDataVersion, result.mScriptVersion);
@@ -217,7 +218,8 @@ bool DataRelease::QueryLatest(const std::string& pOwner, const std::string& pRep
 bool DataRelease::FetchAndInstall(const ReleaseManifest& pManifest,
                                   const std::string& pTargetDir,
                                   ProgressCallback pHttpProgress,
-                                  ZipProgressCallback pZipProgress) {
+                                  ZipProgressCallback pZipProgress,
+                                  InstallStageCallback pStage) {
     mLastError.clear();
     try {
         if (pManifest.mArchiveUrl.empty())
@@ -229,8 +231,14 @@ bool DataRelease::FetchAndInstall(const ReleaseManifest& pManifest,
             throw std::runtime_error("incompatible script version " + std::to_string(pManifest.mScriptVersion));
 
         const bool bundle = pManifest.mRepo == kDataRepoName;
+        const auto stage = [&](InstallStage next) {
+            if (pStage && !pStage(next))
+                throw std::runtime_error("installation canceled");
+        };
         InstallTransaction transaction(pTargetDir, bundle);
+        stage(InstallStage::Preparing);
         transaction.Prepare();
+        stage(InstallStage::Downloading);
         if (!mHttp.Download(pManifest.mArchiveUrl, transaction.Archive().string(), pHttpProgress))
             throw std::runtime_error("download failed: " + mHttp.LastError());
 
@@ -260,6 +268,7 @@ bool DataRelease::FetchAndInstall(const ReleaseManifest& pManifest,
                     files.insert(name);
                 }
             }
+            stage(InstallStage::Extracting);
             if (!zip.ExtractAllTo(transaction.Staging().string(), pZipProgress))
                 throw std::runtime_error("extract failed: " + zip.LastError());
         }
@@ -299,6 +308,7 @@ bool DataRelease::FetchAndInstall(const ReleaseManifest& pManifest,
         }
         if (bundle)
             std::filesystem::create_directories(std::filesystem::path(pTargetDir) / "Saves");
+        stage(InstallStage::Publishing);
         transaction.Commit();
         return true;
     } catch (const std::exception& ex) {
