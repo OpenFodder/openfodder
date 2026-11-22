@@ -131,7 +131,7 @@ endif()
 # user-supplied disk images via firy at runtime instead of extracting them.
 # Skip on Emscripten — the setup wizard isn't part of the web build.
 if(NOT EMSCRIPTEN AND EXISTS "${CMAKE_SOURCE_DIR}/library/firy/CMakeLists.txt")
-    add_subdirectory(library/firy)
+    include(cmake/Firy.cmake)
     set(OPENFODDER_HAS_FIRY TRUE)
 else()
     set(OPENFODDER_HAS_FIRY FALSE)

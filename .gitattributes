@@ -2,6 +2,7 @@
 
 *.cmd        text eol=crlf
 *.sh         text eol=lf
+*.patch      text eol=lf -whitespace
 *.sln        text eol=crlf
 *.vcxproj    text eol=crlf
 

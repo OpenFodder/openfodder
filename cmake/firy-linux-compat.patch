@@ -1,0 +1,335 @@
+--- a/source/access/access.hpp
++++ b/source/access/access.hpp
+@@ -67,7 +67,7 @@
+ 			 */
+ 			inline void assertSource() const {
+ 				if (!mSource)
+-					throw std::exception("Source was not found");
++					throw std::runtime_error("Source was not found");
+ 			}
+ 
+ 			/**
+--- a/source/access/blocks.cpp
++++ b/source/access/blocks.cpp
+@@ -39,7 +39,7 @@
+ 			if (blocks.size() == 1) {
+ 				return blocks[0].mBlock;
+ 			}
+-			throw std::exception("not free block");
++			throw std::runtime_error("not free block");
+ 		}
+ 
+ 		size_t cBlocks::blockSize(const tBlock pBlock) const {
+--- a/source/buffer.cpp
++++ b/source/buffer.cpp
+@@ -69,7 +69,7 @@
+ 	 */
+ 	inline void cBuffer::assertOffset(const size_t pOffset, const size_t pBytes) const {
+ 		if ((pOffset + pBytes) > size())
+-			throw std::exception("Read past end of buffer");
++			throw std::runtime_error("Read past end of buffer");
+ 	}
+ 
+ 	/**
+--- a/source/console.hpp
++++ b/source/console.hpp
+@@ -47,7 +47,7 @@
+ 			if (mLevel >= 1)
+ 				outputTime("notice", pModule, pMessage, pRest...);
+ 
+-			return { true };
++			return;
+ 		}
+ 
+ 		/**
+--- a/source/firy.hpp
++++ b/source/firy.hpp
+@@ -21,6 +21,9 @@
+  */
+ 
+ #include <iostream>
++#include <cstdint>
++#include <cstring>
++#include <stdexcept>
+ #include <memory>
+ #include <vector>
+ #include <map>
+--- a/source/helpers/datetime.hpp
++++ b/source/helpers/datetime.hpp
+@@ -32,11 +32,15 @@
+ 			 * Default datetime to now
+ 			 */
+ 			sDateTime() {
+-				struct tm local;
++				struct tm local{};
+ 				time_t cal;
+ 
+ 				time(&cal);
++#ifdef _WIN32
+ 				localtime_s(&local, &cal);
++#else
++				localtime_r(&cal, &local);
++#endif
+ 
+ 				year = local.tm_year + 1900;         /* since 1900 */
+ 				month = local.tm_mon + 1;
+--- a/source/images/adf.cpp
++++ b/source/images/adf.cpp
+@@ -190,7 +190,7 @@
+ 				}
+ 
+ 				if (p != blockEndianSwapTable[mType][i + 1]) {
+-					throw std::exception("blockSwapEndian length");
++					throw std::runtime_error("blockSwapEndian length");
+ 				}
+ 			}
+ 
+@@ -204,10 +204,10 @@
+ 			void sFile::setBlock(std::shared_ptr<adf::sFileHeaderBlock> pHeader, spDir pParent) {
+ 				convertTimeToAmigaTime(mTimeWrite, &(pHeader->days), &(pHeader->mins), &(pHeader->ticks));
+ 
+-				pHeader->nameLen = (char)min(adf::gFilenameMaximumLength, nameGet().size());
++				pHeader->nameLen = (char)std::min<size_t>(adf::gFilenameMaximumLength, nameGet().size());
+ 				memcpy(pHeader->fileName, nameGet().data(), pHeader->nameLen);
+ 
+-				pHeader->commLen = (char)min(adf::gCommentMaximumLength, mComment.size());
++				pHeader->commLen = (char)std::min<size_t>(adf::gCommentMaximumLength, mComment.size());
+ 				memcpy(pHeader->comment, mComment.data(), pHeader->commLen);
+ 
+ 				pHeader->headerKey = (int32_t)mBlockNumber;
+@@ -231,10 +231,10 @@
+ 			void sDir::setBlock(std::shared_ptr<adf::sFileHeaderBlock> pHeader, spDir pParent) {
+ 				adf::convertTimeToAmigaTime(mTimeWrite, &(pHeader->days), &(pHeader->mins), &(pHeader->ticks));
+ 
+-				pHeader->nameLen = (char)min(adf::gFilenameMaximumLength, nameGet().size());
++				pHeader->nameLen = (char)std::min<size_t>(adf::gFilenameMaximumLength, nameGet().size());
+ 				memcpy(pHeader->fileName, nameGet().data(), pHeader->nameLen);
+ 
+-				pHeader->commLen = (char)min(adf::gCommentMaximumLength, mComment.size());
++				pHeader->commLen = (char)std::min<size_t>(adf::gCommentMaximumLength, mComment.size());
+ 				memcpy(pHeader->comment, mComment.data(), pHeader->commLen);
+ 
+ 				pHeader->headerKey = (int32_t)mBlockNumber;
+@@ -495,7 +495,7 @@
+ 		bool cADF::filesystemSaveNative() {
+ 			{
+ 				std::shared_ptr<adf::sRootBlock> block = blockLoad<adf::sRootBlock>(mBlockRoot);
+-				block->nameLen = (char)min(adf::gFilenameMaximumLength, mFsName.size());
++				block->nameLen = (char)std::min<size_t>(adf::gFilenameMaximumLength, mFsName.size());
+ 				memcpy(block->diskName, mFsName.data(), block->nameLen);
+ 				blockSaveChecksum(mBlockRoot, block);
+ 			}
+@@ -737,7 +737,7 @@
+ 
+ 				// Check if its the file we are trying to save
+ 				if (nextBlock->nameLen == pNode->nameGet().size()) {
+-					auto name = std::string(nextBlock->name, min(nextBlock->nameLen, adf::gFilenameMaximumLength));
++					auto name = std::string(nextBlock->name, std::min<size_t>(nextBlock->nameLen, adf::gFilenameMaximumLength));
+ 
+ 					if (pNode->nameGet() == name) {
+ 						return -2;
+@@ -849,7 +849,7 @@
+ 			entry->mType = blockEntry->secType;
+ 			entry->mParent = blockEntry->parent;
+ 
+-			node->nameSet(std::string(blockEntry->name, min(blockEntry->nameLen, adf::gFilenameMaximumLength)));
++			node->nameSet(std::string(blockEntry->name, std::min<size_t>(blockEntry->nameLen, adf::gFilenameMaximumLength)));
+ 			node->sizeInBytesSet(blockEntry->byteSize < 0 ? 0 : (size_t)blockEntry->byteSize);
+ 
+ 			helpers::sDateTime dt;
+@@ -1005,7 +1005,7 @@
+ 				if (nextBlock->nameLen == pFile->nameGet().size()) {
+ 					std::vector<sAccessUnit> free;
+ 
+-					auto name = std::string(nextBlock->name, min(nextBlock->nameLen, adf::gFilenameMaximumLength));
++					auto name = std::string(nextBlock->name, std::min<size_t>(nextBlock->nameLen, adf::gFilenameMaximumLength));
+ 
+ 					if (pFile->nameGet() == name) {
+ 						free.push_back(sect);
+@@ -1468,7 +1468,7 @@
+ 			if (!block)
+ 				return false;
+ 
+-			mFsName = std::string(block->diskName, min(adf::gFilenameMaximumLength, block->nameLen));
++			mFsName = std::string(block->diskName, std::min<size_t>(adf::gFilenameMaximumLength, block->nameLen));
+ 			
+ 			return true;
+ 		}
+--- a/source/images/adf.hpp
++++ b/source/images/adf.hpp
+@@ -25,7 +25,7 @@
+ 		namespace adf {
+ 
+ 			void convertDaysToDate(int32_t days, int* yy, int* mm, int* dd);
+-			void convertTimeToAmigaTime(struct sDateTime dt, int32_t* day, int32_t* min, int32_t* ticks);
++			void convertTimeToAmigaTime(struct helpers::sDateTime dt, int32_t* day, int32_t* min, int32_t* ticks);
+ 			
+ 			const size_t HT_SIZE = 72;
+ 			const size_t BM_SIZE = 25;
+@@ -73,7 +73,7 @@
+ 				int32_t	highSeq;
+ 				/*00c*/	int32_t	hashTableSize;
+ 				int32_t	firstData;
+-				/*014*/	ULONG	checkSum;
++				/*014*/	uint32_t	checkSum;
+ 				/*018*/	int32_t	hashTable[HT_SIZE];		/* hash table */
+ 				/*138*/	int32_t	bmFlag;				/* bitmap flag, -1 means VALID */
+ 				/*13c*/	int32_t	bmPages[BM_SIZE];
+@@ -129,7 +129,7 @@
+ 				/*008*/	int32_t	highSeq;	/* number of data block in this hdr block */
+ 				/*00c*/	int32_t	dataSize;	/* == 0 */
+ 				/*010*/	int32_t	firstData;
+-				/*014*/	ULONG	checkSum;
++				/*014*/	uint32_t	checkSum;
+ 				/*018*/	int32_t	dataBlocks[gDataBlocksMax];
+ 				/*138*/	int32_t	r1;
+ 				/*13c*/	int32_t	r2;
+@@ -159,7 +159,7 @@
+ 				/*008*/	int32_t	highSeq;
+ 				/*00c*/	int32_t	dataSize;	/* == 0 */
+ 				/*010*/	int32_t	firstData;	/* == 0 */
+-				/*014*/	ULONG	checkSum;
++				/*014*/	uint32_t	checkSum;
+ 				/*018*/	int32_t	dataBlocks[gDataBlocksMax];
+ 				int32_t	r[45];
+ 				int32_t	info;		/* == 0 */
+@@ -175,14 +175,14 @@
+ 				/*008*/	int32_t	seqNum;	/* file data block number */
+ 				/*00c*/	int32_t	dataSize;	/* <= 0x1e8 */
+ 				/*010*/	int32_t	nextData;	/* next data block */
+-				/*014*/	ULONG	checkSum;
+-				/*018*/	UCHAR	data[gBytesPerBlockOFS];
++				/*014*/	uint32_t	checkSum;
++				/*018*/	uint8_t	data[gBytesPerBlockOFS];
+ 				/*200*/
+ 			};
+ 
+ 			struct sBitmapBlock {
+-				/*000*/	ULONG	checkSum;
+-				/*004*/	ULONG	map[127];
++				/*000*/	uint32_t	checkSum;
++				/*004*/	uint32_t	map[127];
+ 			};
+ 
+ 
+@@ -197,7 +197,7 @@
+ 				/*008*/	int32_t	parent;
+ 				/*00c*/	int32_t	recordsNb;
+ 				/*010*/	int32_t	nextDirC;
+-				/*014*/	ULONG	checkSum;
++				/*014*/	uint32_t	checkSum;
+ 				/*018*/	uint8_t records[488];
+ 			};
+ 
+@@ -233,7 +233,7 @@
+ 					unsigned int i;
+ 					uint8_t upper;
+ 
+-					len = hash = min((uint32_t) pName.size(), gFilenameMaximumLength);
++					len = hash = std::min<size_t>((uint32_t) pName.size(), gFilenameMaximumLength);
+ 					for (i = 0; i < len; i++) {
+ 						if (pInternational)
+ 							upper = toUpperIntl(pName[i]);
+--- a/source/images/fat.cpp
++++ b/source/images/fat.cpp
+@@ -21,6 +21,8 @@
+  */
+ 
+ #include "firy.hpp"
++#include <codecvt>
++#include <locale>
+ #include "fat.hpp"
+ 
+ namespace firy {
+@@ -387,7 +389,7 @@
+ 			size_t remainbytes = totalbytes;
+ 
+ 			while (remainbytes) {
+-				auto size = min(remainbytes, mBootBlock->mBiosParams.mSectorsPerCluster * blockSize());
++				auto size = std::min<size_t>(remainbytes, mBootBlock->mBiosParams.mSectorsPerCluster * blockSize());
+ 				auto block = sourceBufferCopy(pStartBlock * blockSize(), size);
+ 				if (!block)
+ 					return 0;
+@@ -412,7 +414,7 @@
+ 			while (remainbytes) {
+ 				auto sector = clusterToBlock(pCluster);
+ 
+-				auto size = min(remainbytes, mBootBlock->mBiosParams.mSectorsPerCluster * blockSize());
++				auto size = std::min<size_t>(remainbytes, mBootBlock->mBiosParams.mSectorsPerCluster * blockSize());
+ 				auto block = sourceBufferCopy(sector * blockSize(), size);
+ 				if (!block)
+ 					return 0;
+@@ -561,26 +563,21 @@
+ 						return (lhs->mSequence & 0x3F) < rhs->mSequence;
+ 					});
+ 
++				// FAT stores bounded UTF-16 fields, independent of wchar_t width.
++				auto appendName = [&](const auto& chars) {
++					for (char16_t ch : chars) {
++						if (ch == 0 || ch == 0xFFFF)
++							return false;
++						entry->mUnicodeName += ch;
++					}
++					return true;
++				};
+ 				for (auto& lfn : pLongEntries) {
+-					entry->mUnicodeName.append((const wchar_t*)lfn->mName1, lstrlenW(lfn->mName1) > 5 ? 5 : lstrlenW(lfn->mName1));
+-
+-					if ((lfn->mName2[0] == 0xFFFF) && (lfn->mName2[1] == 0xFFFF)) {
++					if (!appendName(lfn->mName1) || !appendName(lfn->mName2) || !appendName(lfn->mName3))
+ 						break;
+-					}
+-					entry->mUnicodeName.append((const wchar_t*)lfn->mName2, lstrlenW(lfn->mName2) > 6 ? 6 : lstrlenW(lfn->mName2));
+-
+-					if ((lfn->mName3[0] == 0xFFFF) && (lfn->mName3[1] == 0xFFFF)) {
+-						break;
+-					}
+-					entry->mUnicodeName.append((const wchar_t*)lfn->mName3, lstrlenW(lfn->mName3) > 2 ? 2 : lstrlenW(lfn->mName3));
+-				}
+-				
+-				auto size = entry->mUnicodeName.size();
+-				std::string mbstr;
+-				mbstr.resize(size + 1);
+-				wcstombs_s(&size, (char*)mbstr.data(), mbstr.size(), entry->mUnicodeName.data(), size);
+-				mbstr.resize(mbstr.size()-1);
+-				result->nameSet(mbstr);
++				}
++				std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
++				result->nameSet(converter.to_bytes(entry->mUnicodeName));
+ 
+ 				pLongEntries.clear();
+ 			}
+--- a/source/images/fat.hpp
++++ b/source/images/fat.hpp
+@@ -163,25 +163,27 @@
+ 
+ 			struct sFileLongNameEntry {
+ 				uint8_t mSequence;
+-				wchar_t mName1[5];
++				char16_t mName1[5];
+ 				union {
+ 					sFileAttribute Attributes;
+ 					uint8_t Attribute;
+ 				};
+ 				uint8_t mReserved;
+ 				uint8_t mChecksum;
+-				wchar_t mName2[6];
++				char16_t mName2[6];
+ 				uint16_t mReserved2;
+-				wchar_t mName3[2];
++				char16_t mName3[2];
+ 			};
+ 
+ #pragma pack()
++
++			static_assert(sizeof(sFileLongNameEntry) == 32, "FAT long-name entries are 32 bytes");
+ 
+ 			struct sEntry {
+ 				tBlock mBlock;
+ 				tBlock mFirstCluster;
+ 				std::string mShortName;
+-				std::wstring mUnicodeName;
++				std::u16string mUnicodeName;
+ 			};
+ 
+ 			/**
