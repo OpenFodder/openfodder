@@ -92,7 +92,7 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
     }
 
 	if (!g_Fodder->mParams->mMouseAlternative || (g_Fodder->mParams->mMouseAlternative && g_Fodder->mParams->mMouseLocked)) {
-		SDL_SetWindowRelativeMouseMode(mWindow, true);
+		SetRelativeMouseMode(true);
 
 		// Warp mouse to 0,0 to fix an issue with the mouse cursor appearing on first click in the window
 		SDL_WarpMouseInWindow(mWindow, 0, 0);
@@ -113,6 +113,10 @@ void cWindow::ToggleVSync(bool pEnabled) {
 void cWindow::SetRelativeMouseMode(bool pEnable) {
 
     if (mWindow) {
+        // Cursor visibility survives relative-mode and focus changes in SDL.
+        // Hide it before capture so a previous release cannot leave it visible.
+        if (pEnable)
+            SDL_HideCursor();
         SDL_SetWindowRelativeMouseMode(mWindow, pEnable);
     }
 }

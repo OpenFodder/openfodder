@@ -62,7 +62,6 @@ void cFodder::Mouse_Cursor_Handle() {
         mWindow->SetRelativeMouseMode(false);
         SDL_GetRelativeMouseState(nullptr, nullptr);
         mMouse_EventLastPositionRelative = { 0, 0 };
-        SDL_ShowCursor();
         mWindow_MouseInside = false;
 
         if (MouseCapturedGlobal) {
@@ -70,8 +69,10 @@ void cFodder::Mouse_Cursor_Handle() {
             MouseCapturedGlobal = false;
         }
 
-        if (!pWarpToEdge)
+        if (!pWarpToEdge) {
+            SDL_ShowCursor();
             return;
+        }
 
         const cDimension windowSize = mWindow->GetWindowSize();
         int x = (mMouseX - MOUSE_POSITION_X_ADJUST) * scale.getWidth();
@@ -85,13 +86,18 @@ void cFodder::Mouse_Cursor_Handle() {
         else if (y >= windowSize.getHeight())
             y = windowSize.getHeight() - 1;
         mWindow->SetMousePositionInWindow(static_cast<float>(x), static_cast<float>(y));
+        SDL_ShowCursor();
     };
 
-	if (mStartParams->mMouseAlternative) {
-		mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
-		mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
-		return;
-	}
+    if (mStartParams->mMouseAlternative) {
+        if (mWindow_Focus)
+            SDL_HideCursor();
+        else
+            SDL_ShowCursor();
+        mInputMouseX = (mMouse_EventLastPosition.mX / scale.getWidth()) + MOUSE_POSITION_X_ADJUST;
+        mInputMouseY = (mMouse_EventLastPosition.mY / scale.getHeight()) + MOUSE_POSITION_Y_ADJUST;
+        return;
+    }
 
     if (!mWindow_Focus) {
         if (CursorCaptured) {
@@ -138,12 +144,15 @@ void cFodder::Mouse_Cursor_Handle() {
             CaptureBlockFrames = 1;
             CursorCaptured = true;
             mWindow->SetRelativeMouseMode(true);
-            SDL_HideCursor();
             SDL_GetRelativeMouseState(nullptr, nullptr);
             mMouse_EventLastPositionRelative = { 0, 0 };
         }
         return;
     }
+
+    // Other screens can release and show the native cursor without changing
+    // CursorCaptured. Restore visibility whenever gameplay owns the mouse.
+    SDL_HideCursor();
 
     if (!mParams->mMouseLocked && !mWindow->isFullscreen()) {
         if (Mouse_IsOnBorder() && !mMouseButtonStatus) {
