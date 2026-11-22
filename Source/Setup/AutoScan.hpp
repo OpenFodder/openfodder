@@ -39,12 +39,26 @@ struct sScanCandidate {
     size_t              mDisks = 0;
 };
 
+// Expand a folder result into one independently selectable entry per release.
+// Paths point to the matched release directories, keeping sibling games out
+// of the subsequent import when the user selects a single entry.
+std::vector<sScanCandidate> FolderCandidates(const sValidationResult& pResult,
+                                             const std::string& pLabel);
+
 // Probe a fixed list of likely retail-data locations and return the candidates
 // that match at least one known release with at least one file present.
 // Unverified disk images are only listed when explicitly browsing a folder.
 //
 // Cheap-ish (a handful of stat() calls per candidate, MD5 only on actual hits).
 // Safe to call with no engine running — uses g_ResourceMan for filesystem ops.
+struct sAutoScanInput {
+    std::vector<std::string> mPaths;
+    std::string mWorkingDirectory;
+    std::vector<const sGameVersion*> mAvailable;
+};
+// Capture paths and availability on the UI thread before starting a worker.
+std::vector<sScanCandidate> AutoScan(const sAutoScanInput& pInput, const CancelCheck& pCancelled = {});
 std::vector<sScanCandidate> AutoScan();
+std::vector<sScanCandidate> AutoScan(const std::vector<const sGameVersion*>& pAvailable, const CancelCheck& pCancelled = {});
 
 } // namespace Setup

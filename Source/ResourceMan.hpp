@@ -22,6 +22,8 @@
 
 #pragma once
 
+namespace Setup { class cMountedImage; struct sValidationResult; }
+
 // How a search root entered the engine's mAllPaths list. Drives:
 //   - Whether SaveIni writes it back (UserConfigured does; ImplicitDefault doesn't).
 //   - The wizard's display label ("Working dir" vs "[paths]" vs "image:cf1.iso").
@@ -96,6 +98,9 @@ public:
 	// (sGameVersion::getDataFilePath → GetFilePath) rather than via the
 	// "<root>/Data/<release>/" filesystem walk.
 	int  mountImage(const std::string& pImagePath, std::string* pError = nullptr);
+    // Attach an image opened and validated by setup's background worker.
+    int mountImage(std::shared_ptr<Setup::cMountedImage> pImage,
+                   const Setup::sValidationResult& pValidation, std::string* pError = nullptr);
 	bool unmountImage(int pId);
 
 	// Round-trip support for openfodder.ini's [paths] section.

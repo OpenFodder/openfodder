@@ -26,6 +26,10 @@
 #include "Setup/FileBrowser.hpp"
 #include "Setup/Validation.hpp"
 
+#include <atomic>
+#ifndef EMSCRIPTEN
+#include <future>
+#endif
 #include <memory>
 #include <string>
 #include <vector>
@@ -87,10 +91,12 @@ public:
 
 private:
     void RunAutoScan();
+    int CandidatePageSize() const;
     void EnterBrowse();
     void EnterResult(const sValidationResult& pResult);
     void CommitPick(const std::string& pFolder);
     void UseCurrentGame();
+    void ConfirmAllGames();
 
     // Copy every matched version's manifest from the currently-mounted
     // image into <cwd>/Data/<release>/. On success, unmounts the image
@@ -109,13 +115,15 @@ private:
     // Treat a path as either a folder (ValidateFolder) or a disk image
     // (firy mountImage). Returns true if the path was recognised; false
     // means the wizard should leave its current screen unchanged.
-    bool DispatchPick(const std::string& pPath);
+    struct sReadResult;
+    static std::shared_ptr<sReadResult> ReadPick(const std::string& pPath, const std::shared_ptr<std::atomic<bool>>& pCancelled);
+    bool DispatchPick(const std::string& pPath, std::shared_ptr<sReadResult> pRead = {});
     void QueuePick(const std::string& pPath);
 
     // Handle a .cue/.bin pair: extract track 1 to a temp .iso, mount that,
     // remember any track-2 (CD32 intro video) for the COPY phase. Returns
     // true on success.
-    bool DispatchCueSheet(const std::string& pCuePath);
+    bool DispatchCueSheet(const std::string& pCuePath, std::shared_ptr<sReadResult> pRead = {});
 
     // Standalone .mpg / .mp2 drop: copy to <cwd>/Data/Intro.mpg.
     bool DispatchStandaloneVideo(const std::string& pVideoPath);
@@ -150,6 +158,13 @@ private:
     std::string mBrowsePath;
     std::string mPendingPick;
     bool mCheckingDrawn = false;
+#ifndef EMSCRIPTEN
+    std::future<std::shared_ptr<sReadResult>> mReadTask;
+    std::future<std::vector<sScanCandidate>> mAutoScanTask;
+#endif
+    std::shared_ptr<std::atomic<bool>> mReadCancelled;
+    std::vector<const sGameVersion*> mAvailableAtOpen;
+    std::shared_ptr<std::atomic<bool>> mAutoScanCancelled;
 
     sValidationResult mLastResult;       // Most recent ValidateFolder() outcome
     int mLastMountedId = 0;              // 0 = last pick was a folder, >0 = id in MountedImage registry

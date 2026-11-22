@@ -343,16 +343,167 @@ bool cSetupWizard::VerifyScreens(const std::string& output, const std::string& f
     const auto require = [](bool value, const char* label) {
         if (!value) throw std::runtime_error(label);
     };
+    const auto waitForCheck = [&]() {
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(45);
+        while (mScreen == eScreen::Checking || mReadTask.valid() || mAutoScanTask.valid()) {
+            require(std::chrono::steady_clock::now() < deadline, "background check finishes");
+            Tick();
+            Draw();
+            SDL_PumpEvents();
+            SDL_Delay(1);
+        }
+    };
     try {
+        {
+            cSurface shade(2, 1);
+            cPalette colours[g_MaxColors]{};
+            colours[1].mRed = 32; colours[1].mGreen = 40; colours[1].mBlue = 60;
+            shade.paletteSet(colours, 0, (uint32)g_MaxColors, true);
+            shade.clearBuffer(1);
+            shade.dimBackdrop({0xFF, 1});
+            shade.draw(0, 0);
+            const auto rgb = [&](size_t pixel, uint8 red, uint8 green, uint8 blue) {
+                uint8 r, g, b;
+                const auto* values = static_cast<const uint32*>(shade.GetSurface()->pixels);
+                SDL_GetRGB(values[pixel], SDL_GetPixelFormatDetails(shade.GetSurface()->format), nullptr, &r, &g, &b);
+                return r == red && g == green && b == blue;
+            };
+            require(rgb(0, 64, 80, 120) && rgb(1, 128, 160, 240),
+                    "backdrop is dimmed without altering foreground or hue");
+            shade.draw(0, 0);
+            require(rgb(0, 128, 160, 240), "backdrop shading does not leak to the next screen");
+        }
         require(capture("welcome"), "welcome render");
+        waitForCheck();
+        for (const auto& candidate : mCandidates)
+            for (const auto& match : candidate.mResult.mMatches)
+                require(std::find(mAvailableAtOpen.begin(), mAvailableAtOpen.end(), match.mVersion) == mAvailableAtOpen.end(),
+                        "automatic suggestions exclude already playable games");
+        if (!mAvailableAtOpen.empty()) {
+            QueuePick(g_ResourceMan->getcwd() + "/Data");
+            require(capture("checking-own-data"), "own data check render");
+            waitForCheck();
+            require(mLastResult.mAlreadyAvailable && mLastResult.mMatches.empty(), "own data cannot be added again");
+            require(capture("already-added"), "already added render");
+        }
+        {
+            // Hold a worker open while normal UI frames continue. A blocking
+            // Tick regression fails this check instead of hiding behind fast disks.
+            auto released = std::make_shared<std::atomic<bool>>(false);
+            mReadCancelled = std::make_shared<std::atomic<bool>>(false);
+            mReadTask = std::async(std::launch::async, [released] {
+                const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+                while (!released->load() && std::chrono::steady_clock::now() < deadline) SDL_Delay(1);
+                return std::shared_ptr<sReadResult>{};
+            });
+            mScreen = eScreen::Checking;
+            mPendingPick.clear();
+            for (int frame = 0; frame < 3; ++frame) {
+                Tick();
+                require(mReadTask.valid(), "UI ticks without waiting for the file worker");
+                require(capture(("background-check-frame-" + std::to_string(frame)).c_str()), "live check frame render");
+                SDL_Delay(180);
+            }
+            mReadCancelled->store(true);
+            released->store(true);
+            OnBack();
+            waitForCheck();
+            require(mScreen == eScreen::Locate, "cancelled check does not publish a stale result");
+        }
+        // Simulate a fresh installation for the import and collection checks.
+        mAvailableAtOpen.clear();
         mScreen = eScreen::Locate;
+        if (FolderCandidates(ValidateFolderCollection(folder), "Preview").size() > 1) {
+            g_ResourceMan->addDir(folder);
+            RunAutoScan();
+        }
+        waitForCheck();
         require(capture("suggested-games"), "suggestions render");
+        if (FolderCandidates(ValidateFolderCollection(folder), "Preview").size() > 1) {
+            const auto group = std::find_if(mCandidates.begin(), mCandidates.end(), [](const sScanCandidate& c) {
+                return c.mResult.mMatches.size() > 1;
+            });
+            require(group != mCandidates.end(), "collection appears as a grouped suggestion");
+            if (group != mCandidates.end()) {
+                const auto expected = group->mResult.mMatches.size();
+                mCandidateStart = int(group - mCandidates.begin());
+                g_Fodder->mMouseX = 160 - 32;
+                g_Fodder->mMouseY = 70;
+                require(capture("game-collection"), "grouped folder render");
+                mLastInputMs = 0;
+                g_Fodder->GUI_Handle_Element_Mouse_Check(g_Fodder->mGUI_Elements);
+                require(mCandidates.size() == expected && !mCandidateFolder.empty(), "collection click expands its games");
+                OnBack();
+                require(mCandidateFolder.empty(), "back returns to grouped locations");
+            }
+            QueuePick(folder);
+            require(capture("checking-cancelled"), "cancel check render");
+            Tick();
+            OnBack();
+            require(mScreen == eScreen::Locate, "back is responsive during a file check");
+            waitForCheck();
+            require(mScreen == eScreen::Locate, "cancelled worker cannot replace the current screen");
+            QueuePick(folder);
+            require(capture("checking-folder"), "checking render");
+            waitForCheck();
+            require(mScreen == eScreen::Locate && mCandidates.size() > 1, "one choice per detected game");
+            g_Fodder->mMouseX = 160 - 32;
+            g_Fodder->mMouseY = 70;
+            require(capture("folder-games"), "folder game cards render");
+            require(CandidatePageSize() == 7, "names-only list fits seven games per page");
+            if (mCandidates.size() > size_t(CandidatePageSize())) {
+                const auto pageSize = CandidatePageSize();
+                OnScrollDown();
+                require(mCandidateStart == pageSize, "next page starts after all visible games");
+                require(capture("more-folder-games"), "second folder page render");
+                OnScrollUp();
+                require(mCandidateStart == 0, "previous folder page");
+            }
+            const auto count = std::count_if(mCandidates.begin(), mCandidates.end(), [](const sScanCandidate& c) {
+                return c.mResult.mMatches.front().IsComplete();
+            });
+            if (count > 1) {
+                g_Fodder->mMouseX = 256 - 32;
+                g_Fodder->mMouseY = 180 + PLATFORM_BASED(0, 25);
+                require(capture("collection-add-all"), "add all button render");
+                mLastInputMs = 0;
+                g_Fodder->GUI_Handle_Element_Mouse_Check(g_Fodder->mGUI_Elements);
+                require(mScreen == eScreen::Result && mLastResult.mMatches.size() == size_t(count) && !mDone,
+                        "add all offers confirmation for every complete game");
+                require(capture("confirm-all-games"), "bulk confirmation render");
+                require(CommitCopyFromRawFolder() > 0, "bulk import copies game files");
+                for (const auto& match : mLastResult.mMatches) {
+                    for (const auto& file : match.mVersion->mFiles) {
+                        const auto target = g_ResourceMan->getcwd() + "/Data/" + match.mVersion->mDataPath + "/" + file.mName;
+                        require(g_ResourceMan->FileMD5(target) == g_ResourceMan->FileMD5(match.mResolvedPath + file.mName),
+                                "all imported game files match their sources");
+                    }
+                }
+            }
+            const auto selected = mCandidates.front().mResult.mMatches.front().mVersion;
+            mScreen = eScreen::Locate;
+            mCandidateStart = 0;
+            g_Fodder->mMouseX = 160 - 32;
+            g_Fodder->mMouseY = 65;
+            require(capture("select-one-game"), "single game selection render");
+            mLastInputMs = 0;
+            g_Fodder->GUI_Handle_Element_Mouse_Check(g_Fodder->mGUI_Elements);
+            require(mScreen == eScreen::Result && mLastResult.mMatches.size() == 1 &&
+                    mLastResult.mMatches.front().mVersion == selected && mPendingPick.empty(),
+                    "selected release stays selected without rescanning its shared folder");
+            require(capture("folder-game-found"), "single game render");
+            mBrowsePath = folder;
+            EnterBrowse();
+            require(capture("browse-game-folders"), "folder browser render");
+            std::cout << "PASS: collection choices, paging, add-all confirmation, imported file checksums and browser rendering\n";
+            return true;
+        }
         QueuePick(folder);
         require(capture("checking-folder"), "checking render");
-        Tick();
+        waitForCheck();
         require(mScreen == eScreen::Locate && !mCandidates.empty(), "RAW folder opens a disk-set chooser");
         require(capture("disk-sets"), "disk-set choices render");
-        if (mCandidates.size() > 3) {
+        if (mCandidates.size() > size_t(CandidatePageSize())) {
             OnScrollDown();
             require(mCandidateStart > 0, "next choices page");
             require(capture("more-disk-sets"), "second choices page render");
@@ -368,7 +519,7 @@ bool cSetupWizard::VerifyScreens(const std::string& output, const std::string& f
         require(retail != choices.end(), "three-disk set discovered");
         QueuePick(retail->mPath);
         require(capture("checking-disks"), "checking disks render");
-        Tick();
+        waitForCheck();
         require(mScreen == eScreen::Result && mLastMountedId > 0, "disk set mounted");
         require(std::any_of(mLastResult.mMatches.begin(), mLastResult.mMatches.end(),
             [](const sVersionMatch& m) { return m.IsComplete(); }), "complete game detected");
@@ -393,7 +544,7 @@ bool cSetupWizard::VerifyScreens(const std::string& output, const std::string& f
         const bool hadExtractedData = fs::exists(fs::path(g_ResourceMan->getcwd()) / "Data" / "Amiga");
         QueuePick(retail->mPath);
         require(capture("checking-direct-play"), "direct play checking render");
-        Tick();
+        waitForCheck();
         require(capture("direct-play-ready"), "direct play result render");
         require(mLastMountedId > 0, "direct play mounted set");
         const auto version = std::find_if(mLastResult.mMatches.begin(), mLastResult.mMatches.end(),

@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -69,6 +70,7 @@ struct sValidationResult {
     std::string                 mError;             // Image decoder/setup failure, if present.
     std::string                 mInputFolder;       // What the caller passed in
     std::string                 mResolvedRoot;      // The candidate <root> that contains Data/
+    bool                        mAlreadyAvailable = false; // All recognised releases were already playable.
     bool                        mLooksLikeRoot = false;     // <root>/Data exists
     std::vector<sVersionMatch>  mMatches;            // One entry per known version that had ≥1 file present
 };
@@ -76,7 +78,21 @@ struct sValidationResult {
 // Validate a folder and return everything we found. Cheap: only scans the
 // folder the caller named, computes MD5 of each candidate file, and never
 // touches g_ResourceMan's internal state.
-sValidationResult ValidateFolder(const std::string& pFolder);
+using CancelCheck = std::function<bool()>;
+sValidationResult ValidateFolder(const std::string& pFolder, const CancelCheck& pCancelled = {});
+
+// Explicit folder picks also inspect immediate subfolders for collections of
+// extracted games. Does not recurse through arbitrary directory trees.
+sValidationResult ValidateFolderCollection(const std::string& pFolder, const CancelCheck& pCancelled = {});
+
+// Resolve partial overlaps and competing editions using checksum evidence.
+void RemoveOverlappingMatches(sValidationResult& pResult);
+
+// Remove releases that were playable before opening the wizard.
+void ExcludeAvailable(sValidationResult& pResult, const std::vector<const sGameVersion*>& pAvailable);
+
+class cMountedImage;
+sValidationResult ValidateImage(const cMountedImage& pImage, const CancelCheck& pCancelled = {});
 
 // Helpers for the wizard's UI — turn a result into something the player can read.
 std::string DescribeResult(const sValidationResult& pResult);

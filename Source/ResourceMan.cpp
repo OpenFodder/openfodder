@@ -24,6 +24,8 @@
 #include "Utils/md5.hpp"
 #include "FileSystem.hpp"
 #include "Setup/MountedImage.hpp"
+#include "Setup/Validation.hpp"
+#include "Setup/AutoScan.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -107,6 +109,22 @@ int cResourceMan::mountImage(const std::string& pImagePath, std::string* pError)
 		return 0;
 	}
 
+    auto validation = Setup::ValidateImage(*img);
+    const auto choices = Setup::FolderCandidates(validation, "Image");
+    validation.mMatches.clear();
+    for (const auto& choice : choices)
+        validation.mMatches.push_back(choice.mResult.mMatches.front());
+    return mountImage(std::move(img), validation, pError);
+}
+
+int cResourceMan::mountImage(std::shared_ptr<Setup::cMountedImage> img,
+                            const Setup::sValidationResult& validation, std::string* pError) {
+    if (pError) pError->clear();
+    if (!img || validation.mMatches.empty()) {
+        if (pError) *pError = "No recognised Cannon Fodder data in this image.";
+        return 0;
+    }
+
 	const int id = Setup::MountedImageRegister(img);
 	if (id == 0)
 		return 0;
@@ -118,8 +136,8 @@ int cResourceMan::mountImage(const std::string& pImagePath, std::string* pError)
 	bool foundKnownFiles = false;
 	bool haveRetailRegistered = false;
 
-	for (size_t i = 0; i < 20; ++i) {
-		const sGameVersion& kv = ::KnownGameVersions[i];
+    for (const auto& match : validation.mMatches) {
+        const sGameVersion& kv = *match.mVersion;
 		if (kv.mFiles.empty())
 			continue;     // pseudo-versions (Custom/Random) — handled below
 
@@ -134,7 +152,7 @@ int cResourceMan::mountImage(const std::string& pImagePath, std::string* pError)
 		}
 		foundKnownFiles = foundKnownFiles || !matched.empty();
 
-		if (matched.size() == kv.mFiles.size()) {
+		if (match.IsComplete() && matched.size() == kv.mFiles.size()) {
 			// Synthetic "release path" — never used as a host path because
 			// FileRead routes through the version's mReleaseFiles entries
 			// (which are already firy:// urls). Keeping it virtual avoids

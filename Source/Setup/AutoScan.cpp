@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FileSystem.hpp"
 #include "Setup/AutoScan.hpp"
 #include "Setup/Validation.hpp"
 
@@ -53,43 +54,67 @@ static std::string Norm(std::string p) {
     return p;
 }
 
+std::vector<sScanCandidate> FolderCandidates(const sValidationResult& pResult,
+                                             const std::string& pLabel) {
+    std::vector<sScanCandidate> candidates;
+    auto result = pResult;
+    RemoveOverlappingMatches(result);
+    for (const auto& match : result.mMatches) {
+        if (!match.mVersion || match.mResolvedPath.empty())
+            continue;
+        sScanCandidate candidate;
+        candidate.mPath = match.mResolvedPath;
+        candidate.mLabel = pLabel;
+        candidate.mResult.mInputFolder = match.mResolvedPath;
+        candidate.mResult.mResolvedRoot = match.mResolvedPath;
+        candidate.mResult.mMatches.push_back(match);
+        candidate.mResult.mMatches.back().mIsRawFolder = true;
+        candidates.push_back(std::move(candidate));
+    }
+    return candidates;
+}
+
+static bool IsDirectory(const std::string& path) {
+    std::error_code ec;
+    return std::filesystem::is_directory(FileSystem::Resolve(path), ec);
+}
+
 static void TryCandidate(std::vector<sScanCandidate>& pOut,
                          const std::string& pLabel,
-                         const std::string& pPath) {
-    if (pPath.empty() || !g_ResourceMan)
+                         const std::string& pPath, const std::vector<const sGameVersion*>& available, const CancelCheck& cancelled) {
+    if ((cancelled && cancelled()) || pPath.empty() || !IsDirectory(pPath))
         return;
 
-    if (!g_ResourceMan->DirExists(pPath))
-        return;
-
-    // Quick reject: if there's no Data/ child, ValidateFolder will still try
-    // to be helpful (e.g. user picked the release dir directly). Either way,
-    // ValidateFolder is cheap — only MD5s files it has reason to hash.
-    sValidationResult r = ValidateFolder(pPath);
-    if (r.mMatches.empty())
-        return;
-
-    // De-dup against earlier candidates — same input folder, same matches.
-    for (auto& existing : pOut) {
-        if (existing.mPath == r.mResolvedRoot)
-            return;
+    auto result = ValidateFolder(pPath, cancelled);
+    result.mMatches.erase(std::remove_if(result.mMatches.begin(), result.mMatches.end(),
+        [](const sVersionMatch& match) { return !match.IsComplete(); }), result.mMatches.end());
+    ExcludeAvailable(result, available);
+    auto choices = FolderCandidates(result, pLabel);
+    if (choices.empty()) return;
+    sScanCandidate candidate;
+    if (choices.size() == 1) {
+        candidate = std::move(choices.front());
+    } else {
+        candidate.mPath = result.mResolvedRoot;
+        candidate.mLabel = pLabel;
+        candidate.mResult = result;
+        candidate.mResult.mMatches.clear();
+        for (const auto& choice : choices)
+            candidate.mResult.mMatches.push_back(choice.mResult.mMatches.front());
     }
-
-    sScanCandidate c;
-    c.mPath = r.mResolvedRoot;
-    c.mLabel = pLabel;
-    c.mResult = std::move(r);
-    pOut.push_back(std::move(c));
+    const bool duplicate = std::any_of(pOut.begin(), pOut.end(), [&](const sScanCandidate& existing) {
+        return FileSystem::Equal(existing.mPath, candidate.mPath);
+    });
+    if (!duplicate)
+        pOut.push_back(std::move(candidate));
 }
 
 // Probe a set of subfolders that the user (or a scanner) might have created
 // inside a base directory like "Documents".
 static void ProbeNamedSubfolders(std::vector<sScanCandidate>& pOut,
                                  const std::string& pLabelPrefix,
-                                 const std::string& pBase) {
-    if (pBase.empty() || !g_ResourceMan)
-        return;
-    if (!g_ResourceMan->DirExists(pBase))
+                                 const std::string& pBase, const std::vector<const sGameVersion*>& available, const CancelCheck& cancelled) {
+    if (pBase.empty() || !IsDirectory(pBase))
         return;
 
     // Each entry: directory NAME we expect inside pBase.
@@ -104,17 +129,24 @@ static void ProbeNamedSubfolders(std::vector<sScanCandidate>& pOut,
 
     for (auto* n : kNames) {
         std::string sub = Norm(pBase) + n;
-        TryCandidate(pOut, pLabelPrefix + ": " + n, sub);
+        TryCandidate(pOut, pLabelPrefix + ": " + n, sub, available, cancelled);
     }
 }
 
 // Automatic suggestions contain verified game folders only. Disk images
 // remain available in the file browser for the folder the user opens.
 std::vector<sScanCandidate> AutoScan() {
-    std::vector<sScanCandidate> hits;
+    return AutoScan(g_ResourceMan ? g_ResourceMan->GetAvailable() : std::vector<const sGameVersion*>{});
+}
 
-    if (!g_ResourceMan)
-        return hits;
+std::vector<sScanCandidate> AutoScan(const std::vector<const sGameVersion*>& available, const CancelCheck& cancelled) {
+    if (!g_ResourceMan) return {};
+    return AutoScan(sAutoScanInput{g_ResourceMan->getAllPaths(), g_ResourceMan->getcwd(), available}, cancelled);
+}
+
+std::vector<sScanCandidate> AutoScan(const sAutoScanInput& input, const CancelCheck& cancelled) {
+    std::vector<sScanCandidate> hits;
+    const auto& available = input.mAvailable;
 
     // -----------------------------------------------------------------------
     // 0) Engine search-path list. cResourceMan::getAllPaths() includes:
@@ -126,8 +158,8 @@ std::vector<sScanCandidate> AutoScan() {
     //    registered via openfodder.ini sees it surface in the wizard.
     // -----------------------------------------------------------------------
     {
-        for (auto& p : g_ResourceMan->getAllPaths()) {
-            TryCandidate(hits, "Search path", Norm(p));
+        for (auto& p : input.mPaths) {
+            TryCandidate(hits, "Search path", Norm(p), available, cancelled);
         }
     }
 
@@ -137,15 +169,15 @@ std::vector<sScanCandidate> AutoScan() {
     //    explicitly to label the hit nicely.
     // -----------------------------------------------------------------------
     {
-        std::string cwd = Norm(g_ResourceMan->getcwd());
-        TryCandidate(hits, "Working directory", cwd);
+        std::string cwd = Norm(input.mWorkingDirectory);
+        TryCandidate(hits, "Working directory", cwd, available, cancelled);
         // ../  — useful when the binary lives in Run/Release/ but data is in Run/.
         if (cwd.size() > 1) {
             std::string parentPath = cwd.substr(0, cwd.size() - 1);
             size_t lastSlash = parentPath.find_last_of('/');
             if (lastSlash != std::string::npos) {
                 std::string parent = parentPath.substr(0, lastSlash);
-                TryCandidate(hits, "Parent of working dir", Norm(parent));
+                TryCandidate(hits, "Parent of working dir", Norm(parent), available, cancelled);
             }
         }
     }
@@ -158,12 +190,12 @@ std::vector<sScanCandidate> AutoScan() {
         std::string user = GetEnvPath("USERPROFILE");
         if (!user.empty()) {
             std::string docs = Norm(user) + "Documents";
-            ProbeNamedSubfolders(hits, "Documents", docs);
+            ProbeNamedSubfolders(hits, "Documents", docs, available, cancelled);
             // The current installer specifically uses Documents\OpenFodder.
-            TryCandidate(hits, "Documents: OpenFodder", Norm(docs) + "OpenFodder");
+            TryCandidate(hits, "Documents: OpenFodder", Norm(docs) + "OpenFodder", available, cancelled);
             // Desktop / Downloads — convenient for newcomers.
-            ProbeNamedSubfolders(hits, "Desktop", Norm(user) + "Desktop");
-            ProbeNamedSubfolders(hits, "Downloads", Norm(user) + "Downloads");
+            ProbeNamedSubfolders(hits, "Desktop", Norm(user) + "Desktop", available, cancelled);
+            ProbeNamedSubfolders(hits, "Downloads", Norm(user) + "Downloads", available, cancelled);
         }
     }
 
@@ -178,13 +210,13 @@ std::vector<sScanCandidate> AutoScan() {
             "C:/Games/GOG Games",
         };
         for (auto* r : kGogRoots) {
-            ProbeNamedSubfolders(hits, "GOG", r);
+            ProbeNamedSubfolders(hits, "GOG", r, available, cancelled);
         }
 
         // GOG Galaxy
         std::string lad = GetEnvPath("LOCALAPPDATA");
         if (!lad.empty()) {
-            ProbeNamedSubfolders(hits, "GOG Galaxy", Norm(lad) + "GOG.com/Galaxy/Games");
+            ProbeNamedSubfolders(hits, "GOG Galaxy", Norm(lad) + "GOG.com/Galaxy/Games", available, cancelled);
         }
     }
 
@@ -200,7 +232,7 @@ std::vector<sScanCandidate> AutoScan() {
             "D:/SteamLibrary/steamapps/common",
         };
         for (auto* r : kSteamRoots) {
-            ProbeNamedSubfolders(hits, "Steam", r);
+            ProbeNamedSubfolders(hits, "Steam", r, available, cancelled);
         }
     }
 #else
@@ -211,10 +243,10 @@ std::vector<sScanCandidate> AutoScan() {
     {
         std::string home = GetEnvPath("HOME");
         if (!home.empty()) {
-            ProbeNamedSubfolders(hits, "Home", home);
-            ProbeNamedSubfolders(hits, "Documents", Norm(home) + "Documents");
-            ProbeNamedSubfolders(hits, "Desktop", Norm(home) + "Desktop");
-            ProbeNamedSubfolders(hits, "Downloads", Norm(home) + "Downloads");
+            ProbeNamedSubfolders(hits, "Home", home, available, cancelled);
+            ProbeNamedSubfolders(hits, "Documents", Norm(home) + "Documents", available, cancelled);
+            ProbeNamedSubfolders(hits, "Desktop", Norm(home) + "Desktop", available, cancelled);
+            ProbeNamedSubfolders(hits, "Downloads", Norm(home) + "Downloads", available, cancelled);
         }
     }
 #endif

@@ -264,6 +264,12 @@ inline void cSurface::paletteSDLColorSet( size_t id, cPalette *pPalette ) {
 	mPaletteSDL[id] = SDL_MapRGB(format, nullptr, pPalette->mRed << 2, pPalette->mGreen << 2, pPalette->mBlue << 2);
 }
 
+void cSurface::dimBackdrop(const std::vector<uint8>& pForeground) {
+    mBackdropMask.resize(std::min(pForeground.size(), mSurfaceBufferSize));
+    for (size_t i = 0; i < mBackdropMask.size(); ++i)
+        mBackdropMask[i] = pForeground[i] == 0xFF;
+}
+
 /**
  * Draw the Surface Buffer to SDLSurface, using the surface palette
  */
@@ -294,6 +300,9 @@ void cSurface::draw(const int16 pSkipX, const int16 pSkipY) {
 			uint8_t currentPixel = *bufferCurrent++;
 			if (currentPixel) {
 				*bufferTarget = (currentPixel < g_MaxColors) ? mPaletteSDL[currentPixel] : 0;
+                const size_t pixel = size_t(bufferCurrent - mSurfaceBuffer - 1);
+                if (pixel < mBackdropMask.size() && mBackdropMask[pixel])
+                    *bufferTarget = (*bufferTarget & 0xFF000000) | ((*bufferTarget & 0x00FEFEFE) >> 1);
 			}
 
 			++bufferTarget;
@@ -303,6 +312,7 @@ void cSurface::draw(const int16 pSkipX, const int16 pSkipY) {
 	if (mTexture) {
 		SDL_UpdateTexture(mTexture, NULL, mSDLSurface->pixels, mSDLSurface->pitch);
 	}
+    mBackdropMask.clear();
 }
 
 void cSurface::copyFrom(const cSurface* pFrom) {

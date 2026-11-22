@@ -12,10 +12,13 @@
  */
 
 #include "dernc.hpp"
+#include <vector>
 
-typedef struct {
+typedef struct sRncBitStream {
     unsigned long bitbuf;	       /* holds between 16 and 32 bits */
     int bitcount;		       /* how many bits does bitbuf hold? */
+    unsigned char *end = nullptr;
+    bool failed = false;
 } bit_stream;
 
 typedef struct {
@@ -85,12 +88,12 @@ long rnc_ulen (void *packed) {
  * (which gets stored at offset 16 into the compressed-file header)
  * in `*leeway', if `leeway' isn't NULL.
  */
-long rnc_unpack (void *packed, void *unpacked) {
+static long rnc_unpack_internal(void *packed, void *unpacked, bool checked) {
     unsigned char *input = (unsigned char*) packed;
     unsigned char *output = (unsigned char*) unpacked;
     unsigned char *inputend, *outputend;
     bit_stream bs;
-    huf_table raw, dist, len;
+    huf_table raw{}, dist{}, len{};
     unsigned long ch_count;
     unsigned long ret_len;
     unsigned out_crc;
@@ -103,6 +106,8 @@ long rnc_unpack (void *packed, void *unpacked) {
     ret_len = blong (input+4);
     outputend = output + ret_len;
     inputend = input + 18 + blong(input+8);
+    bs.end = checked ? inputend + 8 : nullptr;
+    unsigned char *outputstart = output;
 
     input += 18;		       /* skip header */
 
@@ -128,13 +133,17 @@ long rnc_unpack (void *packed, void *unpacked) {
 	read_huftable (&dist, &bs, &input);
 	read_huftable (&len, &bs, &input);
 	ch_count = bit_read (&bs, 0xFFFF, 16, &input);
+        if (checked && (bs.failed || ch_count == 0)) return RNC_HUF_DECODE_ERROR;
 
 	while (1) {
 	    long length, posn;
 
 	    length = huf_read (&raw, &bs, &input);
-	    if (length == -1)
+	    if (length == -1 || (checked && bs.failed))
 		return RNC_HUF_DECODE_ERROR;
+            if (checked && (length > outputend - output ||
+                (length && (input > inputend || length > inputend - input))))
+                return RNC_FILE_SIZE_MISMATCH;
 	    if (length) {
 		while (length--)
 		    *output++ = *input++;
@@ -151,6 +160,8 @@ long rnc_unpack (void *packed, void *unpacked) {
 		return RNC_HUF_DECODE_ERROR;
 	    posn += 1;
 	    length += 2;
+            if (checked && (bs.failed || posn > output - outputstart || length > outputend - output))
+                return RNC_FILE_SIZE_MISMATCH;
 	    while (length--) {
 		*output = output[-posn];
 		output++;
@@ -178,6 +189,24 @@ long rnc_unpack (void *packed, void *unpacked) {
 	return RNC_UNPACKED_CRC_ERROR;
 
     return ret_len;
+}
+
+long rnc_unpack(void *packed, void *unpacked) {
+    return rnc_unpack_internal(packed, unpacked, false);
+}
+
+long rnc_unpack_checked(const void *packed, size_t packedSize, void *unpacked, size_t unpackedSize) {
+    if (!packed || !unpacked || packedSize < 18) return RNC_FILE_SIZE_MISMATCH;
+    auto *input = static_cast<unsigned char*>(const_cast<void*>(packed));
+    if (blong(input) != RNC_SIGNATURE) return RNC_FILE_IS_NOT_RNC;
+    if (blong(input + 8) > packedSize - 18 || blong(input + 4) > unpackedSize)
+        return RNC_FILE_SIZE_MISMATCH;
+    // RNC word prefetch can pass the logical end by a few unused bits.
+    // Supply zero lookahead, while literal copies still obey inputend.
+    const size_t used = 18 + blong(input + 8);
+    std::vector<unsigned char> bounded(input, input + used);
+    bounded.resize(used + 8, 0);
+    return rnc_unpack_internal(bounded.data(), unpacked, true);
 }
 
 /*
@@ -247,8 +276,14 @@ static unsigned long huf_read (huf_table *h, bit_stream *bs,
  * Initialises a bit stream with the first two bytes of the packed
  * data.
  */
+static unsigned long bit_word(bit_stream *bs, unsigned char *p) {
+    if (!bs->end) return lword(p);
+    if (p >= bs->end) return 0;
+    return p[0] | (p + 1 < bs->end ? static_cast<unsigned long>(p[1]) << 8 : 0);
+}
+
 static void bitread_init (bit_stream *bs, unsigned char **p) {
-    bs->bitbuf = lword (*p);
+    bs->bitbuf = bit_word(bs, *p);
     bs->bitcount = 16;
 }
 
@@ -259,7 +294,7 @@ static void bitread_init (bit_stream *bs, unsigned char **p) {
 static void bitread_fix (bit_stream *bs, unsigned char **p) {
     bs->bitcount -= 16;
     bs->bitbuf &= (1<<bs->bitcount)-1; /* remove the top 16 bits */
-    bs->bitbuf |= (lword(*p)<<bs->bitcount);/* replace with what's at *p */
+    bs->bitbuf |= (bit_word(bs, *p)<<bs->bitcount);/* replace with what's at *p */
     bs->bitcount += 16;
 }
 
@@ -274,11 +309,16 @@ static unsigned long bit_peek (bit_stream *bs, unsigned long mask) {
  * Advances the bit stream.
  */
 static void bit_advance (bit_stream *bs, int n, unsigned char **p) {
+    if (bs->failed) return;
     bs->bitbuf >>= n;
     bs->bitcount -= n;
     if (bs->bitcount < 16) {
+        if (bs->end && bs->end - *p < 2) {
+            bs->failed = true;
+            return;
+        }
 	(*p) += 2;
-	bs->bitbuf |= (lword(*p)<<bs->bitcount);
+	bs->bitbuf |= (bit_word(bs, *p)<<bs->bitcount);
 	bs->bitcount += 16;
     }
 }
@@ -288,6 +328,12 @@ static void bit_advance (bit_stream *bs, int n, unsigned char **p) {
  */
 static unsigned long bit_read (bit_stream *bs, unsigned long mask,
 			       int n, unsigned char **p) {
+    if (bs->failed) return 0;
+    if (bs->end && n > 16) {
+        const auto low = bit_read(bs, 0xFFFF, 16, p);
+        const auto high = bit_read(bs, (1UL << (n - 16)) - 1, n - 16, p);
+        return (low | (high << 16)) & mask;
+    }
     unsigned long result = bit_peek (bs, mask);
     bit_advance (bs, n, p);
     return result;

@@ -3,7 +3,7 @@ project(SetupFolderChecks LANGUAGES CXX)
 find_package(SDL3 3.4 CONFIG REQUIRED)
 enable_testing()
 add_executable(setup_folder_check check.cpp
-    ../../Source/Setup/Validation.cpp ../../Source/Setup/AutoScan.cpp
+    ../../Source/Setup/Validation.cpp ../../Source/Setup/AutoScan.cpp ../../Source/Utils/md5.cpp ../../Source/Amiga/dernc.cpp
     ../../Source/Setup/MountedImage.cpp ../../Source/Setup/CapsImageLoader.cpp)
 target_compile_features(setup_folder_check PRIVATE cxx_std_17)
 target_include_directories(setup_folder_check PRIVATE ../../Source)

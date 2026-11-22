@@ -25,6 +25,7 @@
 #include "Setup/Validation.hpp"
 #include "Setup/MountedImage.hpp"
 #include "Utils/md5.hpp"
+#include "Amiga/dernc.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -68,7 +69,8 @@ static std::string Canonicalise(const std::string& pPath) {
 }
 
 static bool DirExists(const std::string& pPath) {
-    return g_ResourceMan && g_ResourceMan->DirExists(pPath);
+    std::error_code ec;
+    return std::filesystem::is_directory(FileSystem::Resolve(pPath), ec);
 }
 
 // Keep validation rooted at the user's selection. In particular, choosing
@@ -83,6 +85,66 @@ static std::string ResolveRoot(const std::string& pInput, bool& pOutHasDataChild
     return root;
 }
 
+static std::string FileHash(const std::string& path, const CancelCheck& cancelled) {
+    std::ifstream input(FileSystem::Resolve(path), std::ios::binary);
+    if (!input) return {};
+    md5_context context;
+    md5_starts(&context);
+    uint8 buffer[65536];
+    while (input) {
+        if (cancelled && cancelled()) return {};
+        input.read(reinterpret_cast<char*>(buffer), sizeof(buffer));
+        md5_update(&context, buffer, (uint32)input.gcount());
+    }
+    if (!input.eof()) return {};
+    uint8 digest[16];
+    md5_finish(&context, digest);
+    std::string hash;
+    for (auto byte : digest) {
+        hash += "0123456789ABCDEF"[byte >> 4];
+        hash += "0123456789ABCDEF"[byte & 15];
+    }
+    return hash;
+}
+
+static std::string UnpackedHash(const std::vector<uint8>& packed, const CancelCheck& cancelled) {
+    if (packed.size() < 18 || std::memcmp(packed.data(), "RNC\1", 4) != 0 || (cancelled && cancelled())) return {};
+    const auto outputSize = readBEDWord(packed.data() + 4);
+    const auto packedSize = readBEDWord(packed.data() + 8);
+    if (!outputSize || outputSize > 32 * 1024 * 1024 || packedSize > packed.size() - 18) return {};
+    std::vector<uint8> output(outputSize);
+    if (rnc_unpack_checked(packed.data(), packed.size(), output.data(), output.size()) != (long)outputSize || (cancelled && cancelled())) return {};
+    md5_context context; uint8 digest[16];
+    md5_starts(&context);
+    md5_update(&context, output.data(), (uint32)output.size());
+    md5_finish(&context, digest);
+    std::string hash;
+    for (auto byte : digest) {
+        hash += "0123456789ABCDEF"[byte >> 4];
+        hash += "0123456789ABCDEF"[byte & 15];
+    }
+    return hash;
+}
+
+static std::string UnpackedFileHash(const std::string& path, const CancelCheck& cancelled) {
+    std::ifstream input(FileSystem::Resolve(path), std::ios::binary);
+    uint8 header[18];
+    if (!input.read(reinterpret_cast<char*>(header), 18) || std::memcmp(header, "RNC\1", 4) != 0) return {};
+    const auto packedSize = readBEDWord(header + 8);
+    if (packedSize > 32 * 1024 * 1024 || (cancelled && cancelled())) return {};
+    std::vector<uint8> bytes(18 + packedSize);
+    std::copy_n(header, 18, bytes.data());
+    if (!input.read(reinterpret_cast<char*>(bytes.data() + 18), packedSize)) return {};
+    return UnpackedHash(std::move(bytes), cancelled);
+}
+
+using HashCache = std::map<std::string, std::pair<std::string, std::string>>;
+
+static bool LooksAuthentic(const sVersionMatch& match) {
+    return match.mFilesFound > 0 && (match.mFilesMd5Checked == 0 ||
+        match.mFilesMd5Match * 2 > match.mFilesMd5Checked);
+}
+
 // Scan ONE folder against ONE known version's mFiles manifest. Returns a
 // match describing how many of the expected files were present (and how many
 // had matching MD5s). The folder argument is used verbatim — the caller
@@ -93,7 +155,7 @@ static std::string ResolveRoot(const std::string& pInput, bool& pOutHasDataChild
 //   2. <root>/ itself           — raw-extracted release files, no wrapping dirs
 static sVersionMatch ScanFolderForVersion(const std::string& pFolder,
                                            const sGameVersion& pVersion,
-                                           bool pIsRawFolder) {
+                                           bool pIsRawFolder, const CancelCheck& cancelled, HashCache& hashes) {
     sVersionMatch m;
     m.mVersion = &pVersion;
     m.mFilesExpected = pVersion.mFiles.size();
@@ -104,7 +166,7 @@ static sVersionMatch ScanFolderForVersion(const std::string& pFolder,
 
     const auto resolved = FileSystem::Resolve(pFolder);
     if (resolved.empty()) return m;
-    std::string base = resolved.u8string();
+    std::string base = resolved.generic_u8string();
     if (!base.empty() && base.back() != '/')
         base.push_back('/');
 
@@ -113,7 +175,7 @@ static sVersionMatch ScanFolderForVersion(const std::string& pFolder,
 
     m.mResolvedPath = base;
 
-    auto baseFiles = g_ResourceMan->DirectoryList(StripTrailingSlash(base), "");
+    auto baseFiles = FileSystem::List(StripTrailingSlash(base), "", false);
 
     // Build a lowercase index of files actually on disk for O(N+M) matching.
     std::vector<std::pair<std::string,std::string>> diskLower; // <lower,original>
@@ -122,6 +184,7 @@ static sVersionMatch ScanFolderForVersion(const std::string& pFolder,
         diskLower.emplace_back(ToLower(bf), bf);
 
     for (auto& kf : pVersion.mFiles) {
+        if (cancelled && cancelled()) return {};
         std::string wantLower = ToLower(kf.mName);
         const bool hasExpectedMd5 = (kf.mChecksum != nullptr) && (kf.mChecksum[0] != '\0');
 
@@ -131,8 +194,12 @@ static sVersionMatch ScanFolderForVersion(const std::string& pFolder,
                 if (hasExpectedMd5) {
                     ++m.mFilesMd5Checked;
                     std::string fullPath = base + d.second;
-                    std::string md5 = g_ResourceMan->FileMD5(fullPath);
-                    if (!md5.empty() && md5 == kf.mChecksum)
+                    auto hash = hashes.find(fullPath);
+                    if (hash == hashes.end()) {
+                        const auto raw = FileHash(fullPath, cancelled);
+                        hash = hashes.emplace(fullPath, std::make_pair(raw, UnpackedFileHash(fullPath, cancelled))).first;
+                    }
+                    if (hash->second.first == kf.mChecksum || hash->second.second == kf.mChecksum)
                         ++m.mFilesMd5Match;
                 }
                 break;
@@ -144,22 +211,19 @@ static sVersionMatch ScanFolderForVersion(const std::string& pFolder,
 }
 
 // Engine-layout shorthand: <root>/Data/<mDataPath>/.
-static sVersionMatch ScanVersion(const std::string& pRoot, const sGameVersion& pVersion) {
+static sVersionMatch ScanVersion(const std::string& pRoot, const sGameVersion& pVersion, const CancelCheck& cancelled, HashCache& hashes) {
     std::string base = pRoot;
     if (!base.empty() && base.back() != '/')
         base.push_back('/');
     base += "Data/";
     base += pVersion.mDataPath;
     base += '/';
-    return ScanFolderForVersion(base, pVersion, /*pIsRawFolder=*/false);
+    return ScanFolderForVersion(base, pVersion, false, cancelled, hashes);
 }
 
-sValidationResult ValidateFolder(const std::string& pFolder) {
+sValidationResult ValidateFolder(const std::string& pFolder, const CancelCheck& cancelled) {
     sValidationResult result;
     result.mInputFolder = pFolder;
-
-    if (!g_ResourceMan)
-        return result;
 
     bool hasDataChild = false;
     std::string root = ResolveRoot(pFolder, hasDataChild);
@@ -187,22 +251,9 @@ sValidationResult ValidateFolder(const std::string& pFolder) {
     // match the manifest. A few overlapping MD5s with another release is
     // not evidence — it's filename + identical-byte coincidence on a small
     // subset of files. Real data has near-100% MD5 match.
-    auto looksAuthentic = [](const sVersionMatch& m) -> bool {
-        if (m.mFilesFound == 0)
-            return false;
-        if (m.mFilesMd5Checked == 0)
-            return true;     // No checksums to verify against — trust filenames.
-
-        // Strict majority of MD5-checked files must match the manifest.
-        // CF1 Amiga floppy and CF1 Amiga CD32 share ~9 MD5s out of ~226
-        // files (the splash RAWs); requiring >50% rejects the wrong
-        // manifest cleanly while still accepting near-complete real data
-        // with a couple of legitimate MD5 mismatches (e.g. localised
-        // builds, minor patches).
-        return (m.mFilesMd5Match * 2) > m.mFilesMd5Checked;
-    };
-
+    HashCache hashes;
     for (size_t i = 0; i < 20; ++i) {
+        if (cancelled && cancelled()) return {};
         const sGameVersion& kv = ::KnownGameVersions[i];
         if (kv.mFiles.empty())
             continue;
@@ -212,14 +263,14 @@ sValidationResult ValidateFolder(const std::string& pFolder) {
         // Data folder of an existing installation. Only the full engine
         // layout can be registered as a search root without copying.
         std::vector<sVersionMatch> candidates;
-        candidates.push_back(ScanVersion(root, kv));
-        candidates.push_back(ScanFolderForVersion(root, kv, true));
-        candidates.push_back(ScanFolderForVersion(root + "Data/", kv, true));
-        candidates.push_back(ScanFolderForVersion(root + kv.mDataPath + "/", kv, true));
+        candidates.push_back(ScanVersion(root, kv, cancelled, hashes));
+        candidates.push_back(ScanFolderForVersion(root, kv, true, cancelled, hashes));
+        candidates.push_back(ScanFolderForVersion(root + "Data/", kv, true, cancelled, hashes));
+        candidates.push_back(ScanFolderForVersion(root + kv.mDataPath + "/", kv, true, cancelled, hashes));
 
         sVersionMatch* keep = nullptr;
         for (auto& candidate : candidates) {
-            if (looksAuthentic(candidate) &&
+            if (LooksAuthentic(candidate) &&
                 (!keep || candidate.mFilesFound > keep->mFilesFound))
                 keep = &candidate;
         }
@@ -235,6 +286,116 @@ sValidationResult ValidateFolder(const std::string& pFolder) {
     // between distinct releases are filtered out earlier by the MD5
     // looksAuthentic() rule.
 
+    return result;
+}
+
+sValidationResult ValidateFolderCollection(const std::string& pFolder, const CancelCheck& cancelled) {
+    auto result = ValidateFolder(pFolder, cancelled);
+    if (result.mResolvedRoot.empty())
+        return result;
+    // A picked release is already specific enough. Do not inspect its
+    // ancillary directories as if they were separate games.
+    for (const auto& match : result.mMatches)
+        if (match.IsComplete() && FileSystem::Equal(match.mResolvedPath, result.mResolvedRoot))
+            return result;
+
+    for (const auto& child : FileSystem::List(result.mResolvedRoot, "", true)) {
+        if (cancelled && cancelled()) return {};
+        const auto path = std::filesystem::u8path(result.mResolvedRoot) / std::filesystem::u8path(child);
+        std::error_code ec;
+        if (std::filesystem::is_symlink(path, ec) || ec)
+            continue;
+        for (auto match : ValidateFolder(path.u8string(), cancelled).mMatches) {
+            // Shared splash/terrain files in unrelated subfolders can look
+            // like partial demos. Broad discovery requires a complete game;
+            // selecting that folder directly still gives incomplete reports.
+            if (!match.IsComplete()) continue;
+            const bool duplicate = std::any_of(result.mMatches.begin(), result.mMatches.end(),
+                [&](const sVersionMatch& existing) {
+                    return existing.mVersion == match.mVersion &&
+                        FileSystem::Equal(existing.mResolvedPath, match.mResolvedPath);
+                });
+            if (!duplicate) {
+                match.mIsRawFolder = true;
+                result.mMatches.push_back(std::move(match));
+            }
+        }
+    }
+    // A collection offers complete games. Loose support files in sibling
+    // folders must not become extra games after installed releases are hidden.
+    if (std::any_of(result.mMatches.begin(), result.mMatches.end(),
+            [](const sVersionMatch& match) { return match.IsComplete(); }))
+        result.mMatches.erase(std::remove_if(result.mMatches.begin(), result.mMatches.end(),
+            [](const sVersionMatch& match) { return !match.IsComplete(); }), result.mMatches.end());
+    return result;
+}
+
+void RemoveOverlappingMatches(sValidationResult& result) {
+    const auto original = result.mMatches;
+    result.mMatches.erase(std::remove_if(result.mMatches.begin(), result.mMatches.end(),
+        [&](const sVersionMatch& match) {
+            if (!match.mVersion) return true;
+            return std::any_of(original.begin(), original.end(), [&](const sVersionMatch& other) {
+                if (!other.mVersion || !other.IsComplete() ||
+                    !FileSystem::Equal(other.mResolvedPath, match.mResolvedPath)) return false;
+                if (!match.IsComplete()) return true;
+                return match.mFilesMd5Checked && other.mFilesMd5Checked &&
+                    match.mVersion->mRelease == eRelease::Retail && other.mVersion->mRelease == eRelease::Retail &&
+                    match.mVersion->mGame == other.mVersion->mGame && match.mVersion->mPlatform == other.mVersion->mPlatform &&
+                    other.mFilesMd5Match * match.mFilesMd5Checked > match.mFilesMd5Match * other.mFilesMd5Checked;
+            });
+        }), result.mMatches.end());
+}
+
+void ExcludeAvailable(sValidationResult& result, const std::vector<const sGameVersion*>& available) {
+    RemoveOverlappingMatches(result);
+    const auto original = result.mMatches.size();
+    result.mMatches.erase(std::remove_if(result.mMatches.begin(), result.mMatches.end(),
+        [&](const sVersionMatch& match) {
+            return std::find(available.begin(), available.end(), match.mVersion) != available.end();
+        }), result.mMatches.end());
+    result.mAlreadyAvailable = original > 0 && result.mMatches.empty();
+}
+
+sValidationResult ValidateImage(const cMountedImage& image, const CancelCheck& cancelled) {
+    sValidationResult result;
+    result.mInputFolder = result.mResolvedRoot = image.ImagePath();
+    HashCache hashes;
+    for (const auto& version : KnownGameVersions) {
+        if (cancelled && cancelled()) return {};
+        if (version.mFiles.empty()) continue;
+        sVersionMatch match;
+        match.mVersion = &version;
+        match.mFilesExpected = version.mFiles.size();
+        match.mResolvedPath = image.ImagePath();
+        for (const auto& file : version.mFiles) {
+            if (cancelled && cancelled()) return {};
+            const auto name = ToLower(file.mName);
+            if (!image.FileExists(name)) continue;
+            ++match.mFilesFound;
+            if (!file.mChecksum || !*file.mChecksum) continue;
+            ++match.mFilesMd5Checked;
+            auto hash = hashes.find(name);
+            if (hash == hashes.end()) {
+                std::string value;
+                std::string unpacked;
+                if (const auto bytes = image.Read(image.ResolveBasename(name))) {
+                    unpacked = UnpackedHash(*bytes, cancelled);
+                    md5_context context;
+                    md5_starts(&context);
+                    md5_update(&context, const_cast<uint8*>(bytes->data()), (uint32)bytes->size());
+                    uint8 digest[16]; md5_finish(&context, digest);
+                    for (auto byte : digest) {
+                        value += "0123456789ABCDEF"[byte >> 4];
+                        value += "0123456789ABCDEF"[byte & 15];
+                    }
+                }
+                hash = hashes.emplace(name, std::make_pair(std::move(value), std::move(unpacked))).first;
+            }
+            if (hash->second.first == file.mChecksum || hash->second.second == file.mChecksum) ++match.mFilesMd5Match;
+        }
+        if (LooksAuthentic(match)) result.mMatches.push_back(match);
+    }
     return result;
 }
 
@@ -302,7 +463,7 @@ std::vector<std::string> MissingFiles(const sVersionMatch& pMatch) {
         return missing;
 
     // Re-list the resolved directory and find which of mFiles[] are absent.
-    auto disk = g_ResourceMan->DirectoryList(StripTrailingSlash(pMatch.mResolvedPath), "");
+    auto disk = FileSystem::List(StripTrailingSlash(pMatch.mResolvedPath), "", false);
     std::vector<std::string> diskLower;
     diskLower.reserve(disk.size());
     for (auto& d : disk)

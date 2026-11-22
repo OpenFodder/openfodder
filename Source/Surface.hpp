@@ -53,6 +53,7 @@ protected:
 	uint8*			mSurfaceBuffer;								// Loaded Image (uses palette indexs)
 	uint8*			mSurfaceBufferSaved;
 	size_t			mSurfaceBufferSize;
+    std::vector<uint8> mBackdropMask;
 
 	SDL_Surface*	mSDLSurface;
 	SDL_Texture*	mTexture;
@@ -79,6 +80,10 @@ public:
 	void			copyFrom(const cSurface* pFrom);
 	void            mergeFrom(const cSurface* pFrom);
     void            mergeSurfaceBuffer(const cSurface* pFrom);
+
+    // Dim scenery behind the supplied foreground on the next draw only.
+    // Foreground value 0xFF is transparent; text and controls stay full bright.
+    void            dimBackdrop(const std::vector<uint8>& pForeground);
 
 	bool            LoadPng(const std::string &pFile);
 	bool            SavePng(const std::string &pFile) const;

@@ -21,6 +21,7 @@
  */
 
 #include "stdafx.hpp"
+#include "FontData_Special.hpp"
 #include "FileSystem.hpp"
 #include "Setup/SetupWizard.hpp"
 #include "Setup/MountedImage.hpp"
@@ -55,6 +56,7 @@ enum eGuiAction : int16 {
     GUIACT_SW_BROWSE,
     GUIACT_SW_BROWSE_NATIVE,
     GUIACT_SW_BACK_TO_WELCOME,
+    GUIACT_SW_ADD_ALL,
     GUIACT_SW_USE_CANDIDATE,    // arg = index into mCandidates
 
     // Result screen
@@ -92,7 +94,9 @@ static std::string FitSetupText(std::string text, int width, bool tail = false) 
 
 static std::string GameName(const sGameVersion* version) {
     if (!version) return "GAME FILES";
-    const char* platform = version->mPlatform == ePlatform::Amiga ? " - AMIGA" :
+    const char* platform = version->mDataPath == "Amiga_CD" ? " - AMIGA CD32" :
+                           version->mDataPath == "Amiga" || version->mDataPath == "Amiga2" ? " - AMIGA DISKS" :
+                           version->mPlatform == ePlatform::Amiga ? " - AMIGA" :
                            version->mPlatform == ePlatform::PC ? " - PC" : "";
     return version->mName + platform;
 }
@@ -110,10 +114,22 @@ void cSetupWizard::Open(bool pHaveAnyVersion) {
     mLastInputArg = 0;
     mLastMountedId = 0;
     mCandidates.clear();
+    mAvailableAtOpen = g_ResourceMan ? g_ResourceMan->GetAvailable() : std::vector<const sGameVersion*>{};
     RunAutoScan();
 }
 
 void cSetupWizard::Close() {
+    if (mReadCancelled) mReadCancelled->store(true);
+    mPendingPick.clear();
+    if (mAutoScanCancelled) mAutoScanCancelled->store(true);
+#ifndef EMSCRIPTEN
+    if (mReadTask.valid()) {
+        try { mReadTask.get(); } catch (...) {}
+    }
+    if (mAutoScanTask.valid()) {
+        try { mAutoScanTask.get(); } catch (...) {}
+    }
+#endif
     // If the user backed out without confirming, drop any pending mount
     // so we don't leak it into the running engine state.
     if (mLastMountedId > 0 && !mResourcesChanged) {
@@ -126,9 +142,27 @@ void cSetupWizard::Close() {
 }
 
 void cSetupWizard::RunAutoScan() {
-    mCandidates = AutoScan();
+    mCandidates.clear();
     mCandidateStart = 0;
     mCandidateFolder.clear();
+#ifdef EMSCRIPTEN
+    // The web build has no native worker threads.
+    mCandidates = AutoScan(mAvailableAtOpen);
+#else
+    if (!mAutoScanTask.valid()) {
+        mAutoScanCancelled = std::make_shared<std::atomic<bool>>(false);
+        auto cancelled = mAutoScanCancelled;
+        sAutoScanInput input;
+        input.mAvailable = mAvailableAtOpen;
+        if (g_ResourceMan) {
+            input.mPaths = g_ResourceMan->getAllPaths();
+            input.mWorkingDirectory = g_ResourceMan->getcwd();
+        }
+        mAutoScanTask = std::async(std::launch::async, [input, cancelled] {
+            return AutoScan(input, [cancelled] { return cancelled->load(); });
+        });
+    }
+#endif
 }
 
 void cSetupWizard::OnBack() {
@@ -138,7 +172,8 @@ void cSetupWizard::OnBack() {
         mDone = true;
         break;
     case eScreen::Locate:
-        mScreen = eScreen::Welcome;
+        if (!mCandidateFolder.empty()) RunAutoScan();
+        else mScreen = eScreen::Welcome;
         break;
     case eScreen::Browse:
         if (mBrowser) {
@@ -150,25 +185,39 @@ void cSetupWizard::OnBack() {
         }
         break;
     case eScreen::Checking:
+        if (mReadCancelled) mReadCancelled->store(true);
         mPendingPick.clear();
         mCheckingDrawn = false;
         mScreen = eScreen::Locate;
         break;
     case eScreen::Result:
+        if (mLastMountedId > 0) {
+            g_ResourceMan->unmountImage(mLastMountedId);
+            mLastMountedId = 0;
+            DiscardPendingCueTemp();
+        }
         mScreen = eScreen::Locate;
         break;
     }
 }
 
+int cSetupWizard::CandidatePageSize() const {
+    const bool namesOnly = std::all_of(mCandidates.begin(), mCandidates.end(), [](const sScanCandidate& candidate) {
+        return !candidate.mIsImage && candidate.mResult.mMatches.size() == 1 &&
+            candidate.mResult.mMatches.front().IsComplete();
+    });
+    return namesOnly ? 7 : 3;
+}
+
 void cSetupWizard::OnScrollUp() {
-    if (mScreen == eScreen::Locate) mCandidateStart = std::max(0, mCandidateStart - 3);
+    if (mScreen == eScreen::Locate) mCandidateStart = std::max(0, mCandidateStart - CandidatePageSize());
     if (mScreen == eScreen::Browse && mBrowser) {
         mBrowser->OnScrollUp();
     }
 }
 
 void cSetupWizard::OnScrollDown() {
-    if (mScreen == eScreen::Locate && mCandidateStart + 3 < int(mCandidates.size())) mCandidateStart += 3;
+    if (mScreen == eScreen::Locate && mCandidateStart + CandidatePageSize() < int(mCandidates.size())) mCandidateStart += CandidatePageSize();
     if (mScreen == eScreen::Browse && mBrowser) {
         mBrowser->OnScrollDown();
     }
@@ -238,42 +287,95 @@ sValidationResult cSetupWizard::ResultFromMountedImage(int pId,
     if (pId <= 0)
         return r;
 
-    // Count across the whole set, including incomplete releases which the
-    // resource manager deliberately does not expose to the game picker.
-    const std::string virtPrefix = "firy://" + std::to_string(pId) + "/";
     auto image = MountedImageGet(pId);
     if (!image) return r;
-    for (size_t i = 0; i < 20; ++i) {
-        const auto* v = &KnownGameVersions[i];
-        if (v->mFiles.empty()) continue;
-        sVersionMatch m;
-        m.mVersion = v;
-        m.mResolvedPath = virtPrefix;
-        m.mFilesExpected = v->mFiles.size();
-        for (const auto& file : v->mFiles) {
-            std::string name = file.mName;
-            std::transform(name.begin(), name.end(), name.begin(),
-                [](unsigned char c) { return (char)std::tolower(c); });
-            if (image->FileExists(name)) ++m.mFilesFound;
-        }
-        if (m.mFilesFound > 0) r.mMatches.push_back(m);
+    r = ValidateImage(*image);
+    const auto choices = FolderCandidates(r, "Image");
+    r.mMatches.clear();
+    for (const auto& choice : choices) {
+        auto match = choice.mResult.mMatches.front();
+        match.mResolvedPath = "firy://" + std::to_string(pId) + "/";
+        r.mMatches.push_back(match);
     }
-    std::stable_sort(r.mMatches.begin(), r.mMatches.end(), [](const sVersionMatch& a, const sVersionMatch& b) {
-        if (a.IsComplete() != b.IsComplete()) return a.IsComplete();
-        return a.mFilesFound * b.mFilesExpected > b.mFilesFound * a.mFilesExpected;
-    });
+    r.mInputFolder = r.mResolvedRoot = pImagePath;
+    ExcludeAvailable(r, mAvailableAtOpen);
     return r;
+}
+
+struct cSetupWizard::sReadResult {
+    sValidationResult validation;
+    std::vector<sDiskImageChoice> images;
+    std::shared_ptr<cMountedImage> image;
+    sCueSheet cue;
+    std::string tempIso;
+    std::string error;
+    ~sReadResult() {
+        if (!tempIso.empty()) {
+            std::error_code ec;
+            std::filesystem::remove(std::filesystem::u8path(tempIso), ec);
+        }
+    }
+};
+
+std::shared_ptr<cSetupWizard::sReadResult> cSetupWizard::ReadPick(
+    const std::string& path, const std::shared_ptr<std::atomic<bool>>& cancelled) {
+    auto result = std::make_shared<sReadResult>();
+    try {
+        const auto isCancelled = [cancelled] { return cancelled->load(); };
+        std::string imagePath;
+        if (LooksLikeCueSheet(path)) {
+            if (!ParseCueSheet(path, result->cue)) {
+                result->error = "Could not read the CUE sheet.";
+                return result;
+            }
+            const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
+            result->tempIso = (std::filesystem::temp_directory_path() /
+                ("openfodder-setup-" + std::to_string(stamp) + ".iso")).u8string();
+            if (isCancelled() || ExtractTrackTo(result->cue, 1, result->tempIso) <= 0) {
+                result->error = "Could not read the data track.";
+                return result;
+            }
+            imagePath = result->tempIso;
+        } else if (LooksLikeImagePath(path)) {
+            imagePath = path;
+        }
+        if (!imagePath.empty()) {
+            if (isCancelled()) return result;
+            result->image = std::make_shared<cMountedImage>();
+            if (!result->image->Open(imagePath)) {
+                result->error = result->image->LastError();
+                result->image.reset();
+            } else {
+                result->validation = ValidateImage(*result->image, isCancelled);
+                const auto choices = FolderCandidates(result->validation, "Image");
+                result->validation.mMatches.clear();
+                for (const auto& choice : choices)
+                    result->validation.mMatches.push_back(choice.mResult.mMatches.front());
+            }
+        } else {
+            result->validation = ValidateFolderCollection(path, isCancelled);
+            if (!isCancelled() && !std::any_of(result->validation.mMatches.begin(), result->validation.mMatches.end(),
+                    [](const sVersionMatch& match) { return match.IsComplete(); }))
+                result->images = FindDiskImages(path, &result->error);
+        }
+    } catch (const std::exception& error) {
+        result->error = error.what();
+    } catch (...) {
+        result->error = "Could not check the selected data.";
+    }
+    return result;
 }
 
 void cSetupWizard::QueuePick(const std::string& path) {
     if (path.empty()) return;
+    if (mReadCancelled) mReadCancelled->store(true);
     mPendingPick = path;
     mCheckingDrawn = false;
     mScreen = eScreen::Checking;
     g_Fodder->mMouse_Button_Left_Toggle = 0;
 }
 
-bool cSetupWizard::DispatchPick(const std::string& pPath) {
+bool cSetupWizard::DispatchPick(const std::string& pPath, std::shared_ptr<sReadResult> read) {
     if (pPath.empty() || !g_ResourceMan)
         return false;
 
@@ -291,7 +393,7 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
 
     // .cue/.bin sheets: parse + extract track-1 to temp + mount.
     if (LooksLikeCueSheet(pPath))
-        return DispatchCueSheet(pPath);
+        return DispatchCueSheet(pPath, read);
 
     // Standalone .mpg / .mp2 — CD32 second-track intro videos that the user
     // has already extracted from the disc. Copy directly to Run/Data/Intro.mpg.
@@ -313,7 +415,9 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
         // Try to mount via firy. Success → registers versions and writes
         // synthesised release paths into mReleasePath/mReleaseFiles.
         std::string imageError;
-        const int id = g_ResourceMan->mountImage(pPath, &imageError);
+        const int id = read ? (read->image ? g_ResourceMan->mountImage(read->image, read->validation, &imageError) : 0) :
+                              g_ResourceMan->mountImage(pPath, &imageError);
+        if (read && !read->error.empty()) imageError = read->error;
         if (id > 0) {
             // If the wizard had a previous pending mount that the user
             // never committed, drop it before we adopt the new one.
@@ -322,7 +426,9 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
                 DiscardPendingCueTemp();
             }
             mLastMountedId = id;
-            mLastResult = ResultFromMountedImage(id, pPath);
+            mLastResult = read ? read->validation : ResultFromMountedImage(id, pPath);
+            mLastResult.mInputFolder = mLastResult.mResolvedRoot = pPath;
+            ExcludeAvailable(mLastResult, mAvailableAtOpen);
             mScreen = eScreen::Result;
             return true;
         }
@@ -342,13 +448,26 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
 
     // Prefer already-extracted files. A directory of disk captures is a
     // collection to choose from, rather than an unsuccessful loose-file scan.
-    auto result = ValidateFolder(pPath);
+    auto result = read ? read->validation : ValidateFolderCollection(pPath);
+    ExcludeAvailable(result, mAvailableAtOpen);
+    if (result.mAlreadyAvailable) { EnterResult(result); return true; }
+    auto folderChoices = FolderCandidates(result, "Selected folder");
+    if (folderChoices.size() > 1) {
+        mCandidates = std::move(folderChoices);
+        mCandidateFolder = pPath;
+        mCandidateStart = 0;
+        mScreen = eScreen::Locate;
+        return true;
+    }
+    if (folderChoices.size() == 1)
+        result = folderChoices.front().mResult;
     const bool complete = std::any_of(result.mMatches.begin(), result.mMatches.end(),
         [](const sVersionMatch& m) { return m.IsComplete(); });
     if (complete) { EnterResult(result); return true; }
     std::string imageError;
-    const auto images = FindDiskImages(pPath, &imageError);
-    if (images.size() == 1) return DispatchPick(images.front().mPath);
+    const auto images = read ? read->images : FindDiskImages(pPath, &imageError);
+    if (read) imageError = read->error;
+    if (images.size() == 1) { QueuePick(images.front().mPath); return true; }
     if (!images.empty()) {
         mCandidates.clear();
         for (const auto& image : images) {
@@ -370,9 +489,10 @@ bool cSetupWizard::DispatchPick(const std::string& pPath) {
     return true;
 }
 
-bool cSetupWizard::DispatchCueSheet(const std::string& pCuePath) {
+bool cSetupWizard::DispatchCueSheet(const std::string& pCuePath, std::shared_ptr<sReadResult> read) {
     sCueSheet sheet;
-    if (!ParseCueSheet(pCuePath, sheet)) {
+    if (read) sheet = read->cue;
+    if ((read && (!read->error.empty() || !read->image)) || (!read && !ParseCueSheet(pCuePath, sheet))) {
         // Surface a "no match" result so the user knows the sheet failed.
         sValidationResult empty;
         empty.mInputFolder = pCuePath;
@@ -400,8 +520,8 @@ bool cSetupWizard::DispatchCueSheet(const std::string& pCuePath) {
     // Extract track-1 to a temp .iso alongside the cue. We use a fixed
     // suffix so re-running the wizard with the same cue overwrites
     // gracefully instead of accumulating stale temp files.
-    std::string tempIso = pCuePath + ".track1.iso.tmp";
-    const int wrote = ExtractTrackTo(sheet, 1, tempIso);
+    std::string tempIso = read ? read->tempIso : pCuePath + ".track1.iso.tmp";
+    const int wrote = read ? 1 : ExtractTrackTo(sheet, 1, tempIso);
     if (wrote <= 0) {
         sValidationResult empty;
         empty.mInputFolder = pCuePath;
@@ -417,7 +537,7 @@ bool cSetupWizard::DispatchCueSheet(const std::string& pCuePath) {
         g_ResourceMan->unmountImage(mLastMountedId);
     DiscardPendingCueTemp();
 
-    const int id = g_ResourceMan->mountImage(tempIso);
+    const int id = read ? g_ResourceMan->mountImage(read->image, read->validation) : g_ResourceMan->mountImage(tempIso);
     if (id <= 0) {
         // Track-1 extracted OK but firy can't recognise it as ISO9660.
         // Drop the temp file so we don't litter.
@@ -435,6 +555,7 @@ bool cSetupWizard::DispatchCueSheet(const std::string& pCuePath) {
     mLastMountedId = id;
     mPendingCuePath = pCuePath;
     mPendingTempIsoPath = tempIso;
+    if (read) read->tempIso.clear();
 
     // If the cue has a track 2, remember it so COPY TO DATA can extract it
     // to Run/Data/Intro.mpg as the CD32 intro video.
@@ -443,7 +564,9 @@ bool cSetupWizard::DispatchCueSheet(const std::string& pCuePath) {
     else
         mPendingCueTrack2 = 0;
 
-    mLastResult = ResultFromMountedImage(id, pCuePath);
+    mLastResult = read ? read->validation : ResultFromMountedImage(id, pCuePath);
+    mLastResult.mInputFolder = mLastResult.mResolvedRoot = pCuePath;
+    ExcludeAvailable(mLastResult, mAvailableAtOpen);
     mScreen = eScreen::Result;
     return true;
 }
@@ -680,6 +803,29 @@ void cSetupWizard::OnPathDropped(const std::string& pPath) {
     QueuePick(pPath);
 }
 
+void cSetupWizard::ConfirmAllGames() {
+    sValidationResult selected;
+    selected.mInputFolder = selected.mResolvedRoot = mCandidateFolder;
+    for (const auto& candidate : mCandidates) {
+        if (candidate.mIsImage || candidate.mResult.mMatches.size() != 1)
+            continue;
+        auto match = candidate.mResult.mMatches.front();
+        if (!match.IsComplete()) continue;
+        match.mIsRawFolder = true;
+        selected.mMatches.push_back(std::move(match));
+    }
+    if (selected.mMatches.size() > 1) {
+        // A folder import must not inherit a disk mount from a previous
+        // unconfirmed result reached through Escape.
+        if (mLastMountedId > 0) {
+            g_ResourceMan->unmountImage(mLastMountedId);
+            mLastMountedId = 0;
+            DiscardPendingCueTemp();
+        }
+        EnterResult(selected);
+    }
+}
+
 void cSetupWizard::UseCurrentGame() {
     if (mLastResult.mResolvedRoot.empty()) return;
     const bool complete = std::any_of(mLastResult.mMatches.begin(), mLastResult.mMatches.end(),
@@ -739,15 +885,28 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
         return;
     }
     case GUIACT_SW_BACK_TO_WELCOME:
-        mScreen = eScreen::Welcome;
+        OnBack();
         return;
     case GUIACT_SW_USE_CANDIDATE: {
         if (arg < 0 || arg >= (int16)mCandidates.size())
             return;
-        const auto& c = mCandidates[(size_t)arg];
-        QueuePick(c.mPath);
+        const auto c = mCandidates[(size_t)arg];
+        if (!c.mIsImage && c.mResult.mMatches.size() > 1) {
+            mCandidates = FolderCandidates(c.mResult, "Collection");
+            mCandidateFolder = c.mPath;
+            mCandidateStart = 0;
+            return;
+        }
+        if (!c.mIsImage && c.mResult.mMatches.size() == 1) {
+            auto selected = c.mResult;
+            ExcludeAvailable(selected, mAvailableAtOpen);
+            EnterResult(selected);
+        } else QueuePick(c.mPath);
         return;
     }
+    case GUIACT_SW_ADD_ALL:
+        ConfirmAllGames();
+        return;
     case GUIACT_SW_SAVE_AND_CONTINUE:
         UseCurrentGame();
         return;
@@ -787,10 +946,56 @@ void cSetupWizard::OnRowClick(int16 action, int16 arg) {
 }
 
 void cSetupWizard::Tick() {
-    if (mScreen == eScreen::Checking && mCheckingDrawn && !mPendingPick.empty()) {
+    bool checkingInProgress = false;
+#ifndef EMSCRIPTEN
+    if (mAutoScanTask.valid() && mAutoScanTask.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+        try {
+            auto candidates = mAutoScanTask.get();
+            if (mCandidateFolder.empty())
+                mCandidates = std::move(candidates);
+        } catch (...) {
+            // Browsing remains available if an automatic suggestion fails.
+        }
+    }
+    if (mReadTask.valid() && mReadTask.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+        try {
+            auto read = mReadTask.get();
+            if (read && !mReadCancelled->load() && mScreen == eScreen::Checking)
+                DispatchPick(read->validation.mInputFolder, read);
+        } catch (const std::exception& error) {
+            if (!mReadCancelled->load() && mScreen == eScreen::Checking) {
+                sValidationResult failed;
+                failed.mError = error.what();
+                EnterResult(failed);
+            }
+        }
+    }
+    checkingInProgress = mReadTask.valid();
+#endif
+    if (mScreen == eScreen::Checking && mCheckingDrawn && !mPendingPick.empty() && !checkingInProgress) {
         std::string path;
         path.swap(mPendingPick);
-        DispatchPick(path);
+        if (mLastMountedId > 0) {
+            g_ResourceMan->unmountImage(mLastMountedId);
+            mLastMountedId = 0;
+            DiscardPendingCueTemp();
+        }
+        mReadCancelled = std::make_shared<std::atomic<bool>>(false);
+        auto cancelled = mReadCancelled;
+        // Validation reads host files only. Retain resources until the worker
+        // retires; all UI and resource-registration changes stay on this thread.
+        auto resources = g_ResourceMan;
+#ifdef EMSCRIPTEN
+        auto read = ReadPick(path, cancelled);
+        read->validation.mInputFolder = path;
+        DispatchPick(path, read);
+#else
+        mReadTask = std::async(std::launch::async, [path, cancelled, resources] {
+            auto read = ReadPick(path, cancelled);
+            read->validation.mInputFolder = path;
+            return read;
+        });
+#endif
     }
     if (mScreen == eScreen::Browse && mBrowser) {
         mBrowser->Tick();
@@ -829,6 +1034,66 @@ static void SetupCaption(const std::string& text, int y) {
     g_Fodder->String_Print_Small_CentreInBox(FitSetupText(text, 292), 14, 306, y);
 }
 
+// Compact 4x5 lettering for collection locations. Use the existing briefing
+// glyph painter so its palette and shadow match the rest of the menu.
+static void SetupCollectionPath(std::string path, int x, int y) {
+    static const uint8 letters[][5] = {
+        {6,9,15,9,9}, {14,9,14,9,14}, {7,8,8,8,7}, {14,9,9,9,14},
+        {15,8,14,8,15}, {15,8,14,8,8}, {7,8,11,9,7}, {9,9,15,9,9},
+        {7,2,2,2,7}, {1,1,1,9,6}, {9,10,12,10,9}, {8,8,8,8,15},
+        {9,15,15,9,9}, {9,13,11,9,9}, {6,9,9,9,6}, {14,9,14,8,8},
+        {6,9,9,11,7}, {14,9,14,10,9}, {7,8,6,1,14}, {7,2,2,2,2},
+        {9,9,9,9,6}, {9,9,9,6,6}, {9,9,15,15,9}, {9,9,6,9,9},
+        {5,5,2,2,2}, {15,1,6,8,15},
+        {6,9,9,9,6}, {2,6,2,2,7}, {6,9,2,4,15}, {14,1,6,1,14},
+        {9,9,15,1,1}, {15,8,14,1,14}, {7,8,14,9,6}, {15,1,2,4,4},
+        {6,9,6,9,6}, {6,9,7,1,14}
+    };
+    const std::string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::string text;
+    for (unsigned char c : path) {
+        if ((c & 0xC0) == 0x80) continue;
+        text += c < 128 ? char(std::toupper(c)) : '?';
+    }
+    constexpr size_t maxLetters = 54; // 270 pixels including character spacing.
+    if (text.size() > maxLetters)
+        text = ".." + text.substr(text.size() - (maxLetters - 2));
+    for (unsigned char c : text) {
+        uint8 rows[5]{};
+        const auto index = alphabet.find(char(c));
+        if (index != std::string::npos) {
+            std::copy_n(letters[index], 5, rows);
+        } else {
+            const char* pattern = nullptr;
+            switch (c) {
+            case ':': pattern = "02020"; break;
+            case '/': pattern = "11248"; break;
+            case '\\': pattern = "88421"; break;
+            case '.': pattern = "00002"; break;
+            case '-': pattern = "00600"; break;
+            case '_': pattern = "0000F"; break;
+            case '(': pattern = "24442"; break;
+            case ')': pattern = "42224"; break;
+            case '[': pattern = "64446"; break;
+            case ']': pattern = "62226"; break;
+            case ' ': break;
+            default: pattern = "69202"; break;
+            }
+            if (pattern)
+                for (size_t row = 0; row < 5; ++row)
+                    rows[row] = pattern[row] == 'F' ? 15 : uint8(pattern[row] - '0');
+        }
+        sBriefingSpecialGlyph glyph{};
+        glyph.mAscii = c;
+        glyph.mWidth = 4;
+        glyph.mHeight = 5;
+        for (size_t row = 0; row < 5; ++row)
+            glyph.mRows[row] = rows[row] << 4;
+        g_Fodder->String_Print_DrawTinyGlyph(&glyph, x, y);
+        x += 5;
+    }
+}
+
 void cSetupWizard::DrawWelcome() {
     const bool retail = g_Fodder->mVersions->AnyRetailAvailable();
     g_Fodder->String_Print_Large(retail ? "ADD GAME DATA" : "WELCOME ABOARD", false, 19);
@@ -842,48 +1107,75 @@ void cSetupWizard::DrawLocate() {
     const int footer = 175 + PLATFORM_BASED(0, 25);
     g_Fodder->String_Print_Large("FIND GAME DATA", false, 19);
     if (mCandidates.empty()) {
-        NetworkMenu_DrawWrappedBody("Choose a game folder or disk image.", 76, 276);
+        bool searching = false;
+#ifndef EMSCRIPTEN
+        searching = mAutoScanTask.valid();
+#endif
+        NetworkMenu_DrawWrappedBody(searching ? "Looking for new game data..." :
+            "Choose a game folder or disk image.", 76, 276);
         SetupCaption("YOU CAN ALSO DROP IT ONTO THIS WINDOW", 117);
     } else {
-        SetupCaption("CHOOSE A GAME TO ADD", 44);
+        SetupCaption(mCandidateFolder.empty() ? "CHOOSE A GAME OR FOLDER" :
+            std::to_string(mCandidates.size()) + " FOUND IN THIS FOLDER", 44);
+        const int pageSize = CandidatePageSize();
+        const int rowSpacing = pageSize == 7 ? 12 : 30;
         mCandidateStart = std::max(0, std::min(mCandidateStart, int(mCandidates.size()) - 1));
-        for (int row = 0; row < 3 && mCandidateStart + row < int(mCandidates.size()); ++row) {
+        for (int row = 0; row < pageSize && mCandidateStart + row < int(mCandidates.size()); ++row) {
             const int index = mCandidateStart + row;
             const auto& candidate = mCandidates[index];
-            const int y = 69 + row * 29;
+            const int y = 62 + row * rowSpacing;
             const sVersionMatch* best = nullptr;
             for (const auto& match : candidate.mResult.mMatches)
                 if (!best || (match.IsComplete() && !best->IsComplete())) best = &match;
-            const std::string title = best ? GameName(best->mVersion) : candidate.mLabel;
+            const bool collection = !candidate.mIsImage && candidate.mResult.mMatches.size() > 1;
+            auto folder = std::filesystem::u8path(candidate.mPath).lexically_normal();
+            if (folder.filename().empty()) folder = folder.parent_path();
+            const std::string title = collection ? folder.filename().u8string() + " - " +
+                std::to_string(candidate.mResult.mMatches.size()) + " GAMES" :
+                best ? GameName(best->mVersion) : candidate.mLabel;
+            const bool extraLine = collection || candidate.mIsImage || (best && !best->IsComplete());
+            const int rowHeight = extraLine ? 26 : 11;
             const bool hover = g_Fodder->mMouseX + 0x20 >= 14 && g_Fodder->mMouseX + 0x20 <= 306 &&
-                g_Fodder->mMouseY >= y - 3 && g_Fodder->mMouseY <= y + 23;
-            if (hover) g_Fodder->Briefing_DrawBox(14, y - 3, 292, 26, 0xF3);
+                g_Fodder->mMouseY >= y - 3 && g_Fodder->mMouseY <= y - 3 + rowHeight;
+            if (hover) g_Fodder->Briefing_DrawBox(14, y - 3, 292, rowHeight, 0xF3);
             g_Fodder->String_Print_Small(FitSetupText(title, 274), 22, y);
             std::string detail;
             if (candidate.mIsImage) {
                 detail = std::to_string(candidate.mDisks) + " " + candidate.mFormat +
                     (candidate.mDisks == 1 ? " DISK" : " DISKS");
                 std::transform(detail.begin(), detail.end(), detail.begin(), [](unsigned char c) { return char(std::toupper(c)); });
-            } else detail = best && best->IsComplete() ? "READY" : "CHECK FILES";
-            // A single location on hover is enough; repeating paths in every
-            // row made the actual game names difficult to pick out.
-            if (hover) {
-                const auto location = candidate.mIsImage ?
-                    std::filesystem::u8path(candidate.mPath).filename().u8string() : candidate.mPath;
-                SetupCaption(FitSetupText(location, 284, true), 147);
+            } else if (!collection && best && !best->IsComplete()) {
+                detail = "FILES MISSING";
             }
-            g_Fodder->String_Print_Small(detail, 24, y + 13);
+            if (collection)
+                SetupCollectionPath(candidate.mPath, 22, y + 13);
+            else if (!detail.empty())
+                g_Fodder->String_Print_Small(FitSetupText(detail, 274), 22, y + 13);
             g_Fodder->mGUI_Temp_X = 14;
             g_Fodder->mGUI_Temp_Y = y - 3;
             g_Fodder->mGUI_Temp_Width = 292;
-            g_Fodder->mGUI_Draw_LastHeight = 21;
+            g_Fodder->mGUI_Draw_LastHeight = rowHeight - 5;
             g_Fodder->GUI_Button_Setup_New(Gui_SetupWizard_Click, this, GUIACT_SW_USE_CANDIDATE, index);
         }
-        if (mCandidateStart > 0) SetupButton(this, "PREVIOUS", 14, 98, 157, GUIACT_SW_PREVIOUS);
-        if (mCandidateStart + 3 < int(mCandidates.size())) SetupButton(this, "MORE", 222, 306, 157, GUIACT_SW_NEXT);
+        if (mCandidateStart > 0) SetupButton(this, "PREVIOUS", 14, 98, 153, GUIACT_SW_PREVIOUS);
+        if (mCandidateStart + pageSize < int(mCandidates.size())) SetupButton(this, "NEXT", 222, 306, 153, GUIACT_SW_NEXT);
+        g_Fodder->String_Print_Small_Right(std::to_string(mCandidateStart + 1) + " - " +
+            std::to_string(std::min(mCandidateStart + pageSize, int(mCandidates.size()))), 157, 158);
+        g_Fodder->String_Print_Small_Left("OF " + std::to_string(mCandidates.size()), 169, 158);
     }
-    SetupButton(this, "BROWSE", 165, 306, footer, GUIACT_SW_BROWSE);
-    SetupButton(this, "BACK", 14, 145, footer, GUIACT_SW_BACK_TO_WELCOME);
+    const bool addAll = !mCandidateFolder.empty() && std::count_if(mCandidates.begin(), mCandidates.end(),
+        [](const sScanCandidate& candidate) {
+            return !candidate.mIsImage && candidate.mResult.mMatches.size() == 1 &&
+                candidate.mResult.mMatches.front().IsComplete();
+        }) > 1;
+    if (addAll) {
+        SetupButton(this, "BACK", 14, 94, footer, GUIACT_SW_BACK_TO_WELCOME);
+        SetupButton(this, "BROWSE", 105, 195, footer, GUIACT_SW_BROWSE);
+        SetupButton(this, "ADD ALL", 206, 306, footer, GUIACT_SW_ADD_ALL);
+    } else {
+        SetupButton(this, "BROWSE", 165, 306, footer, GUIACT_SW_BROWSE);
+        SetupButton(this, "BACK", 14, 145, footer, GUIACT_SW_BACK_TO_WELCOME);
+    }
 }
 
 void cSetupWizard::DrawBrowse() {
@@ -898,19 +1190,23 @@ void cSetupWizard::DrawResult() {
             (match.IsComplete() == best->IsComplete() && match.mFilesFound > best->mFilesFound)) best = &match;
     const bool ready = best && best->IsComplete() && mLastResult.mError.empty();
     const int footer = 175 + PLATFORM_BASED(0, 25);
-    g_Fodder->String_Print_Large(ready ? "GAME FOUND" : best ?
+    const bool bulk = !image && ready && mLastResult.mMatches.size() > 1;
+    const std::string heading = bulk ? std::to_string(mLastResult.mMatches.size()) + " GAMES FOUND" : "GAME FOUND";
+    g_Fodder->String_Print_Large(mLastResult.mAlreadyAvailable ? "ALREADY ADDED" : ready ? heading.c_str() : best ?
         (image ? "DISK SET INCOMPLETE" : "GAME INCOMPLETE") : "NO GAME FOUND", false, 19);
-    if (best) SetupCaption(FitSetupText(GameName(best->mVersion), 292), 44);
+    if (best) SetupCaption(bulk ? "ADD ALL GAMES FROM THIS FOLDER" : FitSetupText(GameName(best->mVersion), 292), 44);
     if (ready) {
         const bool install = image || best->mIsRawFolder;
         const bool useDisks = image && mPendingCuePath.empty();
-        SetupCaption(useDisks ? "PLAY DIRECTLY FROM THESE DISKS" : "ADD THIS GAME TO YOUR MENU", 78);
-        SetupButton(this, install && !useDisks ? "COPY GAME FILES" : "ADD GAME", 54, 266, 105,
+        SetupCaption(bulk ? "ALL COMPLETE GAMES WILL BE ADDED" :
+            useDisks ? "PLAY DIRECTLY FROM THESE DISKS" : "ADD THIS GAME TO YOUR MENU", 78);
+        SetupButton(this, bulk ? "ADD ALL " + std::to_string(mLastResult.mMatches.size()) + " GAMES" :
+            install && !useDisks ? "COPY GAME FILES" : "ADD GAME", 54, 266, 105,
             install && !useDisks ? GUIACT_SW_COPY_TO_DATA : GUIACT_SW_SAVE_AND_CONTINUE);
         if (useDisks)
             SetupButton(this, "COPY FILES INSTEAD", 54, 266, 143, GUIACT_SW_COPY_TO_DATA);
     } else {
-        const char* message = best ? (image ?
+        const char* message = mLastResult.mAlreadyAvailable ? "These games are already available in your game menu." : best ? (image ?
             "Keep all disks from the same set in one folder, then choose it again." :
             "Choose a folder with the complete game, or try its original disks.") :
             !mLastResult.mError.empty() ? "Could not read game data here. Try another folder or disk image." :
@@ -930,8 +1226,6 @@ void cSetupWizard::Draw() {
     } else g_Fodder->mSurface->clearBuffer();
     g_Fodder->mGraphics->SetActiveSpriteSheet(eGFX_BRIEFING);
     g_Fodder->GUI_Element_Reset();
-    if (mScreen == eScreen::Browse) { DrawBrowse(); return; }
-
     auto* pixels = g_Fodder->mSurface->GetSurfaceBuffer();
     const size_t size = g_Fodder->mSurface->GetSurfaceBufferSize();
     const size_t stride = g_Fodder->mSurface->GetWidth();
@@ -942,11 +1236,12 @@ void cSetupWizard::Draw() {
     switch (mScreen) {
     case eScreen::Welcome: DrawWelcome(); break;
     case eScreen::Locate: DrawLocate(); break;
-    case eScreen::Browse: break;
+    case eScreen::Browse: DrawBrowse(); break;
     case eScreen::Result: DrawResult(); break;
     case eScreen::Checking:
         g_Fodder->String_Print_Large("CHECKING YOUR GAME", false, 19);
-        SetupCaption("READING GAME FILES - PLEASE WAIT", 91);
+        SetupCaption("READING GAME FILES" + std::string((now_ms_u32() / 350) % 4, '.'), 91);
+        SetupButton(this, "CANCEL", 54, 266, 150, GUIACT_SW_BACK_TO_WELCOME);
         mCheckingDrawn = true;
         break;
     }
@@ -961,6 +1256,7 @@ void cSetupWizard::Draw() {
         }
     for (size_t i = 0; i < size; ++i)
         if (foreground[i] != transparent) pixels[i] = foreground[i];
+    g_Fodder->mSurface->dimBackdrop(foreground);
 }
 
 } // namespace Setup
