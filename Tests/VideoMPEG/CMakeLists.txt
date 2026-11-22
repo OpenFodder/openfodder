@@ -1,0 +1,12 @@
+add_executable(openfodder_video_check check.cpp)
+target_include_directories(openfodder_video_check PRIVATE ${FFMPEG_INCLUDE_DIRS})
+target_link_libraries(openfodder_video_check PRIVATE ${FFMPEG_LIBRARIES})
+if(WIN32 AND VCPKG_MANIFEST_MODE)
+    target_compile_definitions(openfodder_video_check PRIVATE OPENFODDER_CHECK_MINIMAL_FFMPEG)
+endif()
+if(MSVC)
+    set_target_properties(openfodder_video_check PROPERTIES VS_GLOBAL_VcpkgAutoLink false)
+endif()
+add_test(NAME mpeg_video_audio_decode
+    COMMAND openfodder_video_check "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/test.mpg")
+set_tests_properties(mpeg_video_audio_decode PROPERTIES TIMEOUT 30)
