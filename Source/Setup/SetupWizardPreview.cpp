@@ -375,6 +375,173 @@ bool cSetupWizard::VerifyScreens(const std::string& output, const std::string& f
         }
         require(capture("welcome"), "welcome render");
         waitForCheck();
+#ifdef _WIN32
+        if (std::getenv("OPENFODDER_BROWSER_CHECK")) {
+            const auto root = fs::absolute(output).root_path().u8string();
+            std::string picked;
+            bool cancelled = false;
+            mBrowser = std::make_unique<cFileBrowser>();
+            auto& browser = *mBrowser;
+            mScreen = eScreen::Browse;
+            const auto open = [&](const std::string& path) {
+                browser.Open(path, cFileBrowser::eFilter::DirectoriesOnly,
+                    [&](const std::string& value) { picked = value; },
+                    [&]() { cancelled = true; });
+            };
+            const auto render = [&](const char* name) {
+                Draw();
+                g_Fodder->mSurface->palette_SetFromNew();
+                g_Fodder->mSurface->surfaceSetToPalette();
+                g_Fodder->mSurface->draw();
+                require(g_Fodder->mSurface->SavePng((fs::path(output) / name).u8string()), name);
+            };
+            open(root);
+            render("browser-drive-root.png");
+            browser.OnRowClick(1, 0); // Parent row at a drive root.
+            require(!browser.IsDone() && browser.EntryCount() > 0, "drive list opens from root");
+            render("browser-drives.png");
+            browser.OnRowClick(2, 0); // Virtual drive list cannot be picked.
+            require(picked.empty() && !browser.IsDone(), "drive list is not a folder");
+            SDL_Delay(130);
+            browser.OnRowClick(1, 0); // First available drive.
+            SDL_Delay(130);
+            browser.OnRowClick(2, 0);
+            require(browser.IsDone() && picked.size() == 3 && picked[1] == ':' && picked[2] == '/',
+                    "drive entry opens an absolute root");
+            open(output);
+            browser.OnBack(); // Parent directory, not cancellation.
+            require(!browser.IsDone() && !cancelled, "back navigates to parent");
+            open(root);
+            browser.OnBack();
+            require(!browser.IsDone() && !cancelled, "back from drive root opens drives");
+            browser.OnBack();
+            require(browser.IsDone() && cancelled, "back from drives cancels");
+            const auto names = fs::path(output) / "browser-names";
+            fs::create_directories(names / "$RECYCLE.BIN");
+            fs::create_directories(names / "A$B");
+            open(names.u8string());
+            render("browser-dollar-names.png");
+            std::cout << "PASS: drive-root parent, drive selection, back navigation and dollar names\n";
+            return true;
+        }
+#endif
+        if (std::getenv("OPENFODDER_SQUAD_JOIN_CHECK")) {
+            auto& game = *g_Fodder;
+            for (auto& troop : game.mGame_Data.mSoldiers_Allocated) troop.Clear();
+            auto& source = game.mSprites[0];
+            auto& target = game.mSprites[1];
+            auto& enemy = game.mSprites[2];
+            source.Clear(); target.Clear(); enemy.Clear();
+            source.mSpriteType = target.mSpriteType = eSprite_Player;
+            enemy.mSpriteType = eSprite_Enemy;
+            source.field_32 = enemy.field_32 = 0;
+            target.field_32 = 1;
+            source.mPosX = target.mPosX = enemy.mPosX = 100;
+            source.mPosY = target.mPosY = enemy.mPosY = 100;
+            source.mMissionTroop = &game.mGame_Data.mSoldiers_Allocated[0];
+            target.mMissionTroop = &game.mGame_Data.mSoldiers_Allocated[1];
+            enemy.mMissionTroop = nullptr;
+            source.mMissionTroop->mSprite = &source;
+            target.mMissionTroop->mSprite = &target;
+            source.mMissionTroop->mSelected = 1;
+            game.Squad_Rebuild();
+            game.mSquad_Selected = 0;
+            game.mSquad_Join_TargetSquad[0] = 1;
+            game.mSquad_Join_TargetSprite[0] = &target;
+            game.mSquad_WalkTargets[1][0].asInt = -1;
+            game.mSquad_Grenades[0] = 3; game.mSquad_Grenades[1] = 2;
+            game.mSquad_Rockets[0] = 1; game.mSquad_Rockets[1] = 1;
+            require(game.Squad_Join_Check(&enemy) == -1 && game.mSquad_Join_TargetSquad[0] == 1,
+                    "nearby enemy using squad zero cannot consume or cancel the player's join order");
+            require(game.Squad_Join(&enemy) == -1 && enemy.field_32 == 0,
+                    "enemy cannot enter the merge routine or dereference a player troop record");
+            enemy.mSpriteType = eSprite_Enemy_Rocket;
+            require(game.Squad_Join_Check(&enemy) == -1 && game.mSquad_Join_TargetSquad[0] == 1,
+                    "rocket enemies cannot join player squads");
+            require(game.Squad_Join_Check(nullptr) == -1 && game.Squad_Join(nullptr) == -1,
+                    "null source is rejected");
+            source.field_32 = -1;
+            require(game.Squad_Join_Check(&source) == -1 && game.Squad_Join(&source) == -1,
+                    "negative source squad is rejected before indexing");
+            source.field_32 = NETWORK_MAX_SQUADS;
+            require(game.Squad_Join_Check(&source) == -1 && game.Squad_Join(&source) == -1,
+                    "out-of-range source squad is rejected before indexing");
+            source.field_32 = 0;
+            game.mSquad_Join_TargetSprite[0] = nullptr;
+            require(game.Squad_Join_Check(&source) == -1, "missing join target is rejected");
+            game.mSquad_Join_TargetSprite[0] = INVALID_SPRITE_PTR;
+            require(game.Squad_Join_Check(&source) == -1, "invalidated join target is rejected");
+            game.mSquad_Join_TargetSprite[0] = &target;
+            game.mSquad_Join_TargetSquad[0] = NETWORK_MAX_SQUADS;
+            require(game.Squad_Join_Check(&source) == -1 && game.Squad_Join(&source) == -1,
+                    "out-of-range destination squad is rejected");
+            game.mSquad_Join_TargetSquad[0] = 1;
+            game.mSquad_Selected = -1;
+            require(game.Squad_Join_Check(&source) == -1, "no selected squad cannot index the squad list");
+            game.mSquad_Selected = 0;
+            source.mPosX = 300;
+            require(game.Squad_Join_Check(&source) == 0 && source.field_32 == 0,
+                    "player troop keeps approaching its target before merging");
+            source.mPosX = 100;
+            source.mPersonType = eSprite_PersonType_AI; // Player sprites can be AI controlled.
+            require(game.Squad_Join_Check(&source) == -1 && source.field_32 == 1 &&
+                    game.mSquads_TroopCount[0] == 0 && game.mSquads_TroopCount[1] == 2,
+                    "real player troop still joins the destination squad");
+            require(game.mSquad_Grenades[0] == 0 && game.mSquad_Grenades[1] == 5 &&
+                    game.mSquad_Rockets[0] == 0 && game.mSquad_Rockets[1] == 2 &&
+                    (source.mMissionTroop->mSelected & 1) == 0,
+                    "legitimate join transfers ammunition and clears troop selection");
+            std::cout << "PASS: enemy squad-zero join regression, invalid targets and normal player squad merge\n";
+            return true;
+        }
+        if (std::getenv("OPENFODDER_CURSOR_TRANSITION_CHECK")) {
+            const auto wasAlternative = g_Fodder->mStartParams->mMouseAlternative;
+            const auto hadFocus = g_Fodder->mWindow_Focus;
+            const auto wasInputEnabled = g_Fodder->mInput_Enabled;
+            const auto wasPaused = g_Fodder->mPhase_Paused;
+            const auto mission = g_Fodder->mGame_Data.mMission_Number;
+            SDL_ShowCursor();
+            g_Fodder->mWindow->SetRelativeMouseMode(false);
+            require(!SDL_CursorVisible(), "releasing relative capture keeps native cursor hidden");
+            g_Fodder->mWindow_Focus = false;
+            g_Fodder->mStartParams->mMouseAlternative = false;
+            SDL_ShowCursor();
+            g_Fodder->Mouse_Cursor_Handle();
+            g_Fodder->mWindow->Cycle();
+            require(!SDL_CursorVisible(), "focus loss does not enable the Windows arrow");
+            g_Fodder->mStartParams->mMouseAlternative = true;
+            SDL_ShowCursor();
+            g_Fodder->Mouse_Cursor_Handle();
+            g_Fodder->mWindow->Cycle();
+            require(!SDL_CursorVisible(), "alternative mouse mode keeps the native cursor hidden");
+            g_Fodder->mStartParams->mMouseAlternative = wasAlternative;
+            g_Fodder->mWindow_Focus = hadFocus;
+            // Pause interrupt input updates, so the intro must establish
+            // cursor visibility itself rather than relying on Mouse_ReadInputs.
+            g_Fodder->mInput_Enabled = true;
+            g_Fodder->mPhase_Paused = true;
+            SDL_ShowCursor();
+            std::thread skipIntro([] {
+                SDL_Delay(500);
+                SDL_Event event{};
+                event.type = SDL_EVENT_KEY_DOWN;
+                event.key.scancode = SDL_SCANCODE_ESCAPE;
+                SDL_PushEvent(&event);
+                SDL_Delay(40);
+                event.type = SDL_EVENT_KEY_UP;
+                SDL_PushEvent(&event);
+            });
+            const auto tiles = g_Fodder->mVersionCurrent->getTileTypes();
+            g_Fodder->mGame_Data.mMission_Number = 0; // Same setup as Intro_OpenFodder.
+            g_Fodder->Briefing_Intro_Helicopter_Play(true, tiles.front().Type);
+            skipIntro.join();
+            require(!SDL_CursorVisible(), "helicopter transition hides the native cursor without input ticks");
+            g_Fodder->mInput_Enabled = wasInputEnabled;
+            g_Fodder->mPhase_Paused = wasPaused;
+            g_Fodder->mGame_Data.mMission_Number = mission;
+            std::cout << "PASS: native cursor remains hidden across capture release, focus loss, alternative input and helicopter intro\n";
+            return true;
+        }
         for (const auto& candidate : mCandidates)
             for (const auto& match : candidate.mResult.mMatches)
                 require(std::find(mAvailableAtOpen.begin(), mAvailableAtOpen.end(), match.mVersion) == mAvailableAtOpen.end(),

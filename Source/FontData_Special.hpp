@@ -33,11 +33,11 @@
 //
 // Dimensions (mWidth/mHeight) include any internal whitespace; the engine's
 // String_Print advances pPosX by mFont_Briefing_Width[ASCII], not by these
-// values, so the two MUST stay in sync.
+// values. The advance must cover the bitmap plus any trailing spacing.
 
 struct sBriefingSpecialGlyph {
     uint8 mAscii;       // ASCII codepoint, e.g. ':' = 0x3A
-    uint8 mWidth;       // Pixel width 1..7 (must match mFont_Briefing_Width[mAscii])
+    uint8 mWidth;       // Bitmap pixel width; advance may include trailing spacing.
     uint8 mHeight;      // Pixel height (always 6 for now; matches A-Z baseline)
     uint8 mYOffset;     // Top-padding rows before the first drawn row
     uint8 mRows[8];     // 1-bit pattern, MSB = leftmost pixel; rows 0..(mHeight-1) used

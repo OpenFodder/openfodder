@@ -41,6 +41,7 @@ public:
         std::string mName;          // Just the leaf name; UI display
         std::string mDisplayName;   // Friendly grouped-disk title, if available.
         std::string mDetail;
+        std::string mTargetPath;    // Absolute destination for a drive entry.
         bool        mIsDir = true;
         bool        mIsParentLink = false; // ".." pseudo-entry
     };
@@ -71,7 +72,7 @@ public:
     void OnScrollUp();
     void OnScrollDown();
 
-    // Esc / right-click: pop one level, or cancel if at root.
+    // Esc / right-click: pop one level, then cancel from the top level.
     void OnBack();
 
     // The Drop handler can synthesise a "user picked this path" without a
@@ -83,6 +84,7 @@ private:
     void NavigateInto(const std::string& pLeafName);
     void NavigateToParent();
     void NavigateAbsolute(const std::string& pPath);
+    bool HasParent() const;
 
     std::string ParentOf(const std::string& pPath) const;
 
@@ -93,7 +95,8 @@ private:
     std::function<void(const std::string&)> mOnPicked;
     std::function<void()> mOnCancel;
 
-    std::string             mCurrentPath;       // Always normalised, forward slashes, NO trailing slash.
+    bool                    mShowingDrives = false;
+    std::string             mCurrentPath;       // Normalised, forward slashes; drive roots retain their slash.
     std::vector<sEntry>     mEntries;
 
     int16   mCurrentIndex = 0;          // Top of scroll window.

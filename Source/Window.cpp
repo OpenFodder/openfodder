@@ -23,6 +23,16 @@
 #include "stdafx.hpp"
 #include <sstream>
 
+// Native SDL dialogs (such as download progress) own their own cursor.
+// A missing SDL focus means the pointer is outside SDL, where the desktop
+// supplies it; keeping SDL's game cursor hidden also prevents an entry flash.
+static bool GameOwnsCursor(SDL_Window* window) {
+    if (!window) return false;
+    const auto keyboard = SDL_GetKeyboardFocus();
+    const auto mouse = SDL_GetMouseFocus();
+    return (!keyboard || keyboard == window) && (!mouse || mouse == window);
+}
+
 cWindow::cWindow() {
 
 	mOriginalResolution.mWidth = 320;
@@ -79,6 +89,9 @@ bool cWindow::InitWindow( const std::string& pWindowTitle ) {
 	}
 
 	SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_WARP_MOTION, "1", SDL_HINT_OVERRIDE);
+    // Capture is explicit. Hidden edge warps must not activate SDL's automatic
+    // warp-to-relative emulation when the player releases the mouse.
+    SDL_SetHintWithPriority(SDL_HINT_MOUSE_EMULATE_WARP_WITH_RELATIVE, "0", SDL_HINT_OVERRIDE);
 	SetMouseSpeed(g_Fodder ? (float)g_Fodder->mStartParams->mMouseSpeed : 1.5f);
 
 
@@ -113,9 +126,9 @@ void cWindow::ToggleVSync(bool pEnabled) {
 void cWindow::SetRelativeMouseMode(bool pEnable) {
 
     if (mWindow) {
-        // Cursor visibility survives relative-mode and focus changes in SDL.
-        // Hide it before capture so a previous release cannot leave it visible.
-        if (pEnable)
+        // Capture and native cursor visibility are independent. Neither
+        // entering nor leaving relative mode should show an arrow in the game.
+        if (SDL_IsMainThread() && GameOwnsCursor(mWindow))
             SDL_HideCursor();
         SDL_SetWindowRelativeMouseMode(mWindow, pEnable);
     }
@@ -290,6 +303,11 @@ void cWindow::EventCheck() {
 		if ( Event.mType != eEvent_None )
 			mEvents.push_back( Event );
 	}
+    if (GameOwnsCursor(mWindow)) {
+        SDL_HideCursor();
+        if (SDL_GetMouseFocus() == mWindow)
+            SDL_SetCursor(nullptr);
+    }
 }
 
 void cWindow::CalculateWindowSize() {

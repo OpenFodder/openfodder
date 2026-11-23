@@ -31,8 +31,8 @@
 //
 // Glyphs for non-A..Z/0..9 entries are NOT in pstuff's sprite sheet — they
 // are drawn at runtime by cFodder::String_Print_DrawTinyGlyph (engine-wide,
-// matches the briefing font's stroke weight). The widths declared here MUST
-// match the kBriefingTinyGlyph data in FontData.cpp's special-glyph table.
+// matches the briefing font's stroke weight). Advances must cover the bitmaps
+// in FontData_Special.cpp, including any trailing space before the next glyph.
 const uint8 mFont_Briefing_Width[] = {
   // 0x00..0x1F: control characters — never drawn, all zero (32 entries)
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -44,7 +44,8 @@ const uint8 mFont_Briefing_Width[] = {
   // carry 2-px-thick strokes that match A-Z weight; '.' stays 6 — that
   // glyph is still drawn from pstuff slot 36, the special-glyph entry is
   // fallback-only and shouldn't change advance.)
-  0x06, 0x04, 0x06, 0x07, 0x06, 0x07, 0x07, 0x04, 0x04, 0x04, 0x06, 0x08, 0x04, 0x06, 0x06, 0x07,
+  // '$' needs two pixels of trailing space after its six-pixel bitmap.
+  0x06, 0x04, 0x06, 0x07, 0x08, 0x07, 0x07, 0x04, 0x04, 0x04, 0x06, 0x08, 0x04, 0x06, 0x06, 0x07,
   // 0x30..0x39: '0'..'9'  (real sprite glyphs in pstuff — widths from original game)
   0x08, 0x04, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08,
   // 0x3A..0x40: ':' ';' '<' '=' '>' '?' '@'

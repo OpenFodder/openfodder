@@ -483,6 +483,10 @@ void cFodder::Briefing_Intro_Helicopter_Play(const bool pShowHelicopter, eTileTy
     if (!mVersionCurrent->hasGfx(eGFX_BRIEFING))
         return;
 
+    // This transition can run without the normal mouse-input updates.
+    // Hide a cursor left by a modal/focus change before resizing or fading.
+    SDL_HideCursor();
+
     mSurface->clearBuffer();
     mWindow->SetScreenSize(mVersionCurrent->GetScreenSize());
 

@@ -116,6 +116,7 @@ void cFileBrowser::Open(const std::string& pInitialPath, eFilter pFilter,
 }
 
 void cFileBrowser::NavigateAbsolute(const std::string& pPath) {
+    mShowingDrives = false;
     std::string normalised = NormalisePath(pPath);
     if (normalised.empty())
         normalised = NormalisePath(g_ResourceMan->getcwd());
@@ -155,9 +156,22 @@ void cFileBrowser::RescanCurrent() {
     if (!g_ResourceMan)
         return;
 
-    // Synthetic ".." parent link unless we're already at a root.
-    std::string parent = ParentOf(mCurrentPath);
-    if (!parent.empty() && parent != mCurrentPath) {
+#ifdef _WIN32
+    if (mShowingDrives) {
+        const DWORD mask = GetLogicalDrives();
+        for (char letter = 'A'; letter <= 'Z'; ++letter) {
+            if (!(mask & (1u << (letter - 'A')))) continue;
+            sEntry entry;
+            entry.mName = std::string(1, letter) + ":";
+            entry.mTargetPath = entry.mName + "/";
+            mEntries.push_back(std::move(entry));
+        }
+        return;
+    }
+#endif
+
+    // Drive roots have the virtual drive list as their parent.
+    if (HasParent()) {
         sEntry e;
         e.mName = "..";
         e.mIsDir = true;
@@ -199,42 +213,9 @@ void cFileBrowser::RescanCurrent() {
         }
     }
 
-#ifdef _WIN32
-    // On Windows, when we're "at root" (e.g. C:/), additionally inject all
-    // available drive letters at the parent-link slot so the user can flick
-    // between drives without typing.
-    if (parent.empty() || parent == mCurrentPath) {
-        DWORD mask = GetLogicalDrives();
-        for (char l = 'A'; l <= 'Z'; ++l) {
-            if (mask & (1u << (l - 'A'))) {
-                std::string driveName;
-                driveName.push_back(l);
-                driveName.push_back(':');
-                // Skip the drive we're already on.
-                if (mCurrentPath.size() >= 2 &&
-                    (char)std::toupper((unsigned char)mCurrentPath[0]) == l && mCurrentPath[1] == ':')
-                    continue;
-                sEntry e;
-                e.mName = driveName + " (drive)";
-                e.mIsDir = true;
-                // Stash the drive root in the leaf name; Tick() handles "(drive)" suffix.
-                mEntries.push_back(std::move(e));
-            }
-        }
-    }
-#endif
 }
 
 void cFileBrowser::NavigateInto(const std::string& pLeafName) {
-    // Special handling for "<X>: (drive)" leaves we synthesised at root.
-    auto driveSuffix = std::string(" (drive)");
-    if (pLeafName.size() > driveSuffix.size() &&
-        pLeafName.compare(pLeafName.size() - driveSuffix.size(), driveSuffix.size(), driveSuffix) == 0) {
-        std::string drive = pLeafName.substr(0, pLeafName.size() - driveSuffix.size());
-        NavigateAbsolute(drive + "/");
-        return;
-    }
-
     std::string next = mCurrentPath;
     if (!next.empty() && next.back() != '/')
         next.push_back('/');
@@ -243,10 +224,23 @@ void cFileBrowser::NavigateInto(const std::string& pLeafName) {
 }
 
 void cFileBrowser::NavigateToParent() {
+    if (!HasParent()) return;
     std::string parent = ParentOf(mCurrentPath);
-    if (parent.empty())
+    if (parent.empty()) {
+        mShowingDrives = true;
+        RescanCurrent();
         return;
+    }
     NavigateAbsolute(parent);
+}
+
+bool cFileBrowser::HasParent() const {
+    if (mShowingDrives) return false;
+#ifdef _WIN32
+    if (mCurrentPath.size() == 3 && mCurrentPath[1] == ':' && mCurrentPath[2] == '/')
+        return true;
+#endif
+    return !ParentOf(mCurrentPath).empty();
 }
 
 std::string cFileBrowser::ParentOf(const std::string& pPath) const {
@@ -286,12 +280,9 @@ void cFileBrowser::OnScrollDown() {
 }
 
 void cFileBrowser::OnBack() {
-    if (!mCurrentPath.empty()) {
-        std::string parent = ParentOf(mCurrentPath);
-        if (!parent.empty()) {
-            NavigateToParent();
-            return;
-        }
+    if (HasParent()) {
+        NavigateToParent();
+        return;
     }
     if (mOnCancel)
         mOnCancel();
@@ -330,6 +321,7 @@ void cFileBrowser::OnRowClick(int16 action, int16 arg) {
                                        mCurrentIndex + mShownItems);
         return;
     case GUIACT_FB_USE_HERE:
+        if (mShowingDrives) return;
         if (mOnPicked)
             mOnPicked(mCurrentPath);
         mDone = true;
@@ -340,9 +332,7 @@ void cFileBrowser::OnRowClick(int16 action, int16 arg) {
         return;
 
     case GUIACT_FB_CANCEL:
-        if (mOnCancel)
-            mOnCancel();
-        mDone = true;
+        OnBack();
         return;
 
     case GUIACT_FB_HOME: {
@@ -368,7 +358,10 @@ void cFileBrowser::OnRowClick(int16 action, int16 arg) {
             return;
         }
         if (e.mIsDir) {
-            NavigateInto(e.mName);
+            if (!e.mTargetPath.empty())
+                NavigateAbsolute(e.mTargetPath);
+            else
+                NavigateInto(e.mName);
             return;
         }
         // Image file (DirsAndImages mode).
@@ -425,11 +418,11 @@ void cFileBrowser::Draw() {
 
     g_Fodder->mString_GapCharID = 0;
     g_Fodder->String_Print_Large("CHOOSE GAME DATA", false, 19);
-    std::string shown = mCurrentPath;
+    std::string shown = mShowingDrives ? "DRIVES" : mCurrentPath;
     std::transform(shown.begin(), shown.end(), shown.begin(), [](unsigned char c) { return char(std::toupper(c)); });
     while (!shown.empty() && g_Fodder->String_MeasureWidth(mFont_Briefing_Width, ".." + shown) > 284)
         shown.erase(shown.begin());
-    if (shown.size() < mCurrentPath.size()) shown = ".." + shown;
+    if (!mShowingDrives && shown.size() < mCurrentPath.size()) shown = ".." + shown;
     hint(shown, 18, 43);
 
     const int rowH = 23;
@@ -439,7 +432,8 @@ void cFileBrowser::Draw() {
         if (idx >= (int16)mEntries.size()) break;
         const sEntry& entry = mEntries[(size_t)idx];
         const int y = rowBaseY + v * rowH;
-        const std::string label = entry.mIsParentLink ? "< PARENT FOLDER" :
+        const std::string label = entry.mIsParentLink ?
+            (ParentOf(mCurrentPath).empty() ? "< DRIVES" : "< PARENT FOLDER") :
             entry.mDisplayName.empty() ? entry.mName : entry.mDisplayName;
         const bool hover = g_Fodder->mMouseX + 0x20 >= 16 &&
             g_Fodder->mMouseX + 0x20 <= 304 &&
@@ -471,7 +465,8 @@ void cFileBrowser::Draw() {
         button("NEXT", 220, 304, pagerY, GUIACT_FB_LIST_DOWN);
     const int footerY = 175 + extraHeight;
     button("BACK", 14, 145, footerY, GUIACT_FB_CANCEL);
-    button("USE THIS FOLDER", 165, 306, footerY, GUIACT_FB_USE_HERE);
+    if (!mShowingDrives)
+        button("USE THIS FOLDER", 165, 306, footerY, GUIACT_FB_USE_HERE);
 
     const std::vector<uint8> foreground(pixels, pixels + size);
     std::copy(background.begin(), background.end(), pixels);

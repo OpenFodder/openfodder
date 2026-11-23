@@ -22,6 +22,15 @@
 
 #include "stdafx.hpp"
 
+namespace {
+bool IsPlayerSquadTroop(const sSprite* sprite) {
+    // Enemy sprites reuse field_32 and the mission-troop union for other data.
+    // A squad number alone is not evidence that this is a player troop.
+    return sprite && sprite != INVALID_SPRITE_PTR && sprite->mSpriteType == eSprite_Player &&
+        sprite->mMissionTroop && sprite->field_32 >= 0 && sprite->field_32 < NETWORK_MAX_SQUADS;
+}
+}
+
 void cFodder::Squad_Walk_Target_SetAll(int16 pValue) {
 
     for (unsigned int x = 0; x < 10; ++x) {
@@ -513,11 +522,14 @@ void cFodder::Squad_Prepare_Explosives() {
 }
 
 int16 cFodder::Squad_Join(sSprite* pSprite) {
+    if (!IsPlayerSquadTroop(pSprite))
+        return -1;
+
     int16 Data14 = pSprite->field_32;
     int16 Data0;
 
     int16 Data18 = mSquad_Join_TargetSquad[Data14];
-    if (Data18 < 0)
+    if (Data18 < 0 || Data18 >= NETWORK_MAX_SQUADS)
         return -1;
 
     Data18 &= 0xFF;
@@ -580,12 +592,15 @@ int16 cFodder::Squad_Join(sSprite* pSprite) {
 }
 
 int16 cFodder::Squad_Join_Check(sSprite* pSprite) {
+    if (!IsPlayerSquadTroop(pSprite))
+        return -1;
 
-    if (mSquad_Join_TargetSquad[pSprite->field_32] < 0)
+    const int16 targetSquad = mSquad_Join_TargetSquad[pSprite->field_32];
+    if (targetSquad < 0 || targetSquad >= NETWORK_MAX_SQUADS)
         return -1;
 
     sSprite* Dataa2C = mSquad_Join_TargetSprite[pSprite->field_32];
-    if (Dataa2C->mSpriteType != eSprite_Player)
+    if (!IsPlayerSquadTroop(Dataa2C) || mSquad_Selected < 0 || mSquad_Selected >= NETWORK_MAX_SQUADS)
         return -1;
 
     if (Sprite_AreHostile(pSprite, Dataa2C)) {
