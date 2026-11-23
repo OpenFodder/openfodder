@@ -375,6 +375,15 @@ bool cSetupWizard::VerifyScreens(const std::string& output, const std::string& f
         }
         require(capture("welcome"), "welcome render");
         waitForCheck();
+        if (std::getenv("OPENFODDER_INSTALLED_FOLDER_CHECK")) {
+            QueuePick(folder);
+            waitForCheck();
+            require(mLastResult.mAlreadyAvailable && !mLastResult.mAvailableMatches.empty(),
+                    "installed child games retain their discovered locations");
+            require(capture("already-added-locations"), "installed child locations render");
+            std::cout << "PASS: installed child games explain their discovered locations\n";
+            return true;
+        }
 #ifdef _WIN32
         if (std::getenv("OPENFODDER_BROWSER_CHECK")) {
             const auto root = fs::absolute(output).root_path().u8string();
@@ -418,9 +427,16 @@ bool cSetupWizard::VerifyScreens(const std::string& output, const std::string& f
             require(browser.IsDone() && cancelled, "back from drives cancels");
             const auto names = fs::path(output) / "browser-names";
             fs::create_directories(names / "$RECYCLE.BIN");
+            fs::create_directories(names / "$$TEST");
             fs::create_directories(names / "A$B");
             open(names.u8string());
             render("browser-dollar-names.png");
+            const auto punctuation = fs::path(output) / "browser-punctuation";
+            fs::create_directories(punctuation / "$WINDOWS.~BT");
+            fs::create_directories(punctuation / "$WINDOWS.~WS");
+            fs::create_directories(punctuation / "BRACES{}[TEST]~");
+            open(punctuation.u8string());
+            render("browser-punctuation.png");
             std::cout << "PASS: drive-root parent, drive selection, back navigation and dollar names\n";
             return true;
         }

@@ -489,15 +489,12 @@ void cFodder::String_Print(const uint8* pWidths, int32 pFontSpriteID, size_t pPa
                 }
                 else {
                     //loc_29D07
-                    // Briefing-font: bracket-range chars (0x5B..0x60 = [\]^_`)
-                    // sit between Z and lowercase 'a' in ASCII, but the
-                    // original lowercase-mapping math (NextChar -= 0x61)
-                    // wraps them into bogus sprite slots (e.g. '[' was
-                    // rendering as digit '8'). Route these through the
-                    // small-font special-glyph fallback below, alongside
-                    // punctuation, instead of the lowercase gate.
-                    const bool isBracketRange = (NextChar >= 0x5B && NextChar <= 0x60);
-                    if (NextChar > 0x5A && !(pWidths == mFont_Briefing_Width && isBracketRange)) {
+                    // Only lowercase letters may use the briefing font's
+                    // lowercase sprite mapping. Punctuation on either side
+                    // of a-z (including ~ in Windows folder names) otherwise
+                    // indexes unrelated sprites beyond the font frames.
+                    const bool isLowercase = NextChar >= 'a' && NextChar <= 'z';
+                    if (NextChar > 0x5A && (pWidths != mFont_Briefing_Width || isLowercase)) {
                         NextChar -= 0x61;
                         NextChar += PLATFORM_BASED(0x39, 0x28);
 

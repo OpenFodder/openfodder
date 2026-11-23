@@ -45,9 +45,10 @@ static std::string ToLower(const std::string& s) {
     return out;
 }
 
-// Strip a single trailing '/' or '\' if present. Don't strip if it's the only
-// character (e.g. unix root, or "/").
+// Keep root separators: "D:" means the drive's current directory, not "D:/".
 static std::string StripTrailingSlash(const std::string& pPath) {
+    const auto path = std::filesystem::u8path(pPath);
+    if (path == path.root_path()) return pPath;
     if (pPath.size() > 1) {
         char c = pPath.back();
         if (c == '/' || c == '\\')
@@ -299,28 +300,38 @@ sValidationResult ValidateFolderCollection(const std::string& pFolder, const Can
         if (match.IsComplete() && FileSystem::Equal(match.mResolvedPath, result.mResolvedRoot))
             return result;
 
-    for (const auto& child : FileSystem::List(result.mResolvedRoot, "", true)) {
-        if (cancelled && cancelled()) return {};
-        const auto path = std::filesystem::u8path(result.mResolvedRoot) / std::filesystem::u8path(child);
-        std::error_code ec;
-        if (std::filesystem::is_symlink(path, ec) || ec)
-            continue;
-        for (auto match : ValidateFolder(path.u8string(), cancelled).mMatches) {
-            // Shared splash/terrain files in unrelated subfolders can look
-            // like partial demos. Broad discovery requires a complete game;
-            // selecting that folder directly still gives incomplete reports.
-            if (!match.IsComplete()) continue;
-            const bool duplicate = std::any_of(result.mMatches.begin(), result.mMatches.end(),
-                [&](const sVersionMatch& existing) {
-                    return existing.mVersion == match.mVersion &&
-                        FileSystem::Equal(existing.mResolvedPath, match.mResolvedPath);
-                });
-            if (!duplicate) {
-                match.mIsRawFolder = true;
-                result.mMatches.push_back(std::move(match));
+    const auto scanChildren = [&](const auto& self, const std::filesystem::path& folder, int depth) -> bool {
+        if (cancelled && cancelled()) return false;
+        if (depth == 2) return true;
+        for (const auto& child : FileSystem::List(folder.u8string(), "", true)) {
+            if (cancelled && cancelled()) return false;
+            const auto path = folder / std::filesystem::u8path(child);
+            std::error_code ec;
+            if (std::filesystem::is_symlink(path, ec) || ec) continue;
+            auto found = ValidateFolder(path.u8string(), cancelled);
+            bool releaseFolder = false;
+            for (auto match : found.mMatches) {
+                // Shared splash/terrain files in unrelated subfolders can look
+                // like partial demos. Broad discovery requires a complete game;
+                // selecting that folder directly still gives incomplete reports.
+                if (!match.IsComplete()) continue;
+                if (FileSystem::Equal(match.mResolvedPath, found.mResolvedRoot)) releaseFolder = true;
+                const bool duplicate = std::any_of(result.mMatches.begin(), result.mMatches.end(),
+                    [&](const sVersionMatch& existing) {
+                        return existing.mVersion == match.mVersion &&
+                            FileSystem::Equal(existing.mResolvedPath, match.mResolvedPath);
+                    });
+                if (!duplicate) {
+                    match.mIsRawFolder = true;
+                    result.mMatches.push_back(std::move(match));
+                }
             }
+            // A release's support directories are not another collection.
+            if (!releaseFolder && !self(self, path, depth + 1)) return false;
         }
-    }
+        return true;
+    };
+    if (!scanChildren(scanChildren, std::filesystem::u8path(result.mResolvedRoot), 0)) return {};
     // A collection offers complete games. Loose support files in sibling
     // folders must not become extra games after installed releases are hidden.
     if (std::any_of(result.mMatches.begin(), result.mMatches.end(),
@@ -349,12 +360,18 @@ void RemoveOverlappingMatches(sValidationResult& result) {
 
 void ExcludeAvailable(sValidationResult& result, const std::vector<const sGameVersion*>& available) {
     RemoveOverlappingMatches(result);
-    const auto original = result.mMatches.size();
     result.mMatches.erase(std::remove_if(result.mMatches.begin(), result.mMatches.end(),
         [&](const sVersionMatch& match) {
-            return std::find(available.begin(), available.end(), match.mVersion) != available.end();
+            if (std::find(available.begin(), available.end(), match.mVersion) == available.end()) return false;
+            const bool recorded = std::any_of(result.mAvailableMatches.begin(), result.mAvailableMatches.end(),
+                [&](const sVersionMatch& existing) {
+                    return existing.mVersion == match.mVersion &&
+                        FileSystem::Equal(existing.mResolvedPath, match.mResolvedPath);
+                });
+            if (!recorded) result.mAvailableMatches.push_back(match);
+            return true;
         }), result.mMatches.end());
-    result.mAlreadyAvailable = original > 0 && result.mMatches.empty();
+    result.mAlreadyAvailable = !result.mAvailableMatches.empty() && result.mMatches.empty();
 }
 
 sValidationResult ValidateImage(const cMountedImage& image, const CancelCheck& cancelled) {

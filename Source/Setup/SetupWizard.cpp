@@ -636,10 +636,10 @@ void cSetupWizard::CommitPick(const std::string& pFolder) {
     if (pFolder.empty() || !g_ResourceMan)
         return;
 
-    // Normalise: forward slashes, no trailing slash.
+    // Normalise separators and trim trailing slashes except at drive roots.
     std::string p = pFolder;
     std::replace(p.begin(), p.end(), '\\', '/');
-    while (p.size() > 1 && p.back() == '/')
+    while (p.size() > 1 && !(p.size() == 3 && p[1] == ':') && p.back() == '/')
         p.pop_back();
 
     if (g_ResourceMan->addUserDir(p)) {
@@ -1195,7 +1195,23 @@ void cSetupWizard::DrawResult() {
     g_Fodder->String_Print_Large(mLastResult.mAlreadyAvailable ? "ALREADY ADDED" : ready ? heading.c_str() : best ?
         (image ? "DISK SET INCOMPLETE" : "GAME INCOMPLETE") : "NO GAME FOUND", false, 19);
     if (best) SetupCaption(bulk ? "ADD ALL GAMES FROM THIS FOLDER" : FitSetupText(GameName(best->mVersion), 292), 44);
-    if (ready) {
+    if (mLastResult.mAlreadyAvailable) {
+        const auto count = mLastResult.mAvailableMatches.size();
+        SetupCaption(std::to_string(count) + (count == 1 ? " GAME FOUND" : " GAMES FOUND"), 48);
+        NetworkMenu_DrawWrappedBody("Already available in your game menu.", 74, 276);
+        SetupCaption("FOUND IN THESE FOLDERS", 108);
+        std::vector<std::string> paths;
+        for (const auto& match : mLastResult.mAvailableMatches)
+            if (std::none_of(paths.begin(), paths.end(), [&](const std::string& path) {
+                return FileSystem::Equal(path, match.mResolvedPath);
+            })) paths.push_back(match.mResolvedPath);
+        const size_t shown = std::min<size_t>(3, paths.size());
+        for (size_t i = 0; i < shown; ++i)
+            SetupCollectionPath(paths[i], 22, 126 + int(i) * 12);
+        if (paths.size() > shown)
+            SetupCollectionPath("AND " + std::to_string(paths.size() - shown) + " MORE FOLDERS", 22, 162);
+        SetupButton(this, "BROWSE", 165, 306, footer, GUIACT_SW_BROWSE);
+    } else if (ready) {
         const bool install = image || best->mIsRawFolder;
         const bool useDisks = image && mPendingCuePath.empty();
         SetupCaption(bulk ? "ALL COMPLETE GAMES WILL BE ADDED" :
@@ -1206,7 +1222,7 @@ void cSetupWizard::DrawResult() {
         if (useDisks)
             SetupButton(this, "COPY FILES INSTEAD", 54, 266, 143, GUIACT_SW_COPY_TO_DATA);
     } else {
-        const char* message = mLastResult.mAlreadyAvailable ? "These games are already available in your game menu." : best ? (image ?
+        const char* message = best ? (image ?
             "Keep all disks from the same set in one folder, then choose it again." :
             "Choose a folder with the complete game, or try its original disks.") :
             !mLastResult.mError.empty() ? "Could not read game data here. Try another folder or disk image." :

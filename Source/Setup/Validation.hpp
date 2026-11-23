@@ -73,6 +73,7 @@ struct sValidationResult {
     bool                        mAlreadyAvailable = false; // All recognised releases were already playable.
     bool                        mLooksLikeRoot = false;     // <root>/Data exists
     std::vector<sVersionMatch>  mMatches;            // One entry per known version that had ≥1 file present
+    std::vector<sVersionMatch>  mAvailableMatches;   // Hidden installed releases, retained to explain where they were found.
 };
 
 // Validate a folder and return everything we found. Cheap: only scans the
@@ -81,8 +82,8 @@ struct sValidationResult {
 using CancelCheck = std::function<bool()>;
 sValidationResult ValidateFolder(const std::string& pFolder, const CancelCheck& pCancelled = {});
 
-// Explicit folder picks also inspect immediate subfolders for collections of
-// extracted games. Does not recurse through arbitrary directory trees.
+// Explicit folder picks inspect two levels of child folders for collections.
+// Each candidate also supports the usual Data/ and installation layouts.
 sValidationResult ValidateFolderCollection(const std::string& pFolder, const CancelCheck& pCancelled = {});
 
 // Resolve partial overlaps and competing editions using checksum evidence.

@@ -207,6 +207,12 @@ int main() {
         auto ownFolder = Setup::ValidateFolder((testRoot / "Data/Amiga").u8string());
         Setup::ExcludeAvailable(ownFolder, available);
         require(ownFolder.mMatches.empty() && ownFolder.mAlreadyAvailable, "explicit installed folder is already added");
+        require(ownFolder.mAvailableMatches.size() == 1 &&
+                fs::equivalent(fs::u8path(ownFolder.mAvailableMatches.front().mResolvedPath), testRoot / "Data/Amiga"),
+                "already-added feedback retains the actual discovered location");
+        Setup::ExcludeAvailable(ownFolder, available);
+        require(ownFolder.mAlreadyAvailable && ownFolder.mAvailableMatches.size() == 1,
+                "repeated filtering preserves already-added feedback without duplicates");
         available.push_back(&KnownGameVersions[1]);
         require(Setup::AutoScan().empty(), "own data folder is not offered when all games are installed");
         available.clear();
@@ -225,10 +231,21 @@ int main() {
             require(choice.mResult.mMatches.front().IsComplete(), "only validated child games in collection");
         require(Setup::FolderCandidates(Setup::ValidateFolderCollection((testRoot / "Data").u8string()), "Data").size() == 2,
                 "collection scanning does not duplicate canonical release subfolders");
-        fs::create_directories(testRoot / "deep/outer/inner");
         game(testRoot / "deep/outer/inner", "one");
-        require(Setup::ValidateFolderCollection((testRoot / "deep").u8string()).mMatches.empty(),
-                "collection discovery does not recurse through arbitrary nested folders");
+        game(testRoot / "deep/other", "two");
+        game(testRoot / "deep/too/far/away", "one");
+        const auto nested = Setup::ValidateFolderCollection((testRoot / "deep").u8string());
+        require(nested.mMatches.size() == 2,
+                "collection discovery finds children and grandchildren, but stops before the third level");
+        require(std::any_of(nested.mMatches.begin(), nested.mMatches.end(), [&](const Setup::sVersionMatch& match) {
+            return fs::equivalent(fs::u8path(match.mResolvedPath), testRoot / "deep/outer/inner");
+        }), "grandchild release is found at its actual path");
+        require(Setup::ValidateFolderCollection((testRoot / "deep/too").u8string()).mMatches.size() == 1,
+                "depth is measured from any selected folder");
+        game(testRoot / "release-with-support", "one");
+        game(testRoot / "release-with-support/support/other", "two");
+        require(Setup::ValidateFolderCollection((testRoot / "release-with-support").u8string()).mMatches.size() == 1,
+                "a specific release does not scan its support folders as more games");
         std::ofstream(testRoot / "raw/cftitle.raw") << "wrong";
         std::ofstream(testRoot / "raw/1.raw") << "wrong";
         require(Setup::ValidateFolder((testRoot / "raw").u8string()).mMatches.empty(),
