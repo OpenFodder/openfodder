@@ -97,10 +97,10 @@ void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	// cFodder::Sprite_Add reserves this slot and shipped .spt files include a
 	// type-41 after each turret; cMapData::Sprite_Add (used when generating/saving
 	// random maps) was missing it.
+	case eSprite_Turret_Cannon_Human:
 	case eSprite_Turret_Missile_Human:
-	case eSprite_Turret_Missile2_Human:
+	case eSprite_Turret_Cannon_Enemy:
 	case eSprite_Turret_Missile_Enemy:
-	case eSprite_Turret_Missile2_Enemy:
 	case eSprite_Turret_HomingMissile_Enemy:
 	case eSprite_Turret_Cannon_Invulnerable:
 	case eSprite_Turret_Missile_Invulnerable:

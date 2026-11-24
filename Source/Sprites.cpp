@@ -150,8 +150,8 @@ void cFodder::Sprite_Table_Setup() {
 	/* 76 */
 	SpriteFunction( Door_Civilian_Spear );
 	SpriteFunction( Cannon );
+	SpriteFunction( Turret_Cannon_Human );
 	SpriteFunction( Turret_Missile_Human );
-	SpriteFunction( Turret_Missile2_Human );
 
 	/* 80 */
 	SpriteFunction( VehicleNoGun_Enemy );
@@ -160,8 +160,8 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Civilian_Invisible );
 
 	/* 84 */
+	SpriteFunction( Turret_Cannon_Enemy );
 	SpriteFunction( Turret_Missile_Enemy );
-	SpriteFunction( Turret_Missile2_Enemy );
 	SpriteFunction( Vehicle_Sinking_1 );
 	SpriteFunction( Vehicle_Sinking_2 );
 
@@ -222,7 +222,7 @@ const int16 mEnemy_Unit_Types[] = {
 	eSprite_Enemy, eSprite_Enemy_Rocket,	eSprite_Helicopter_Grenade_Enemy,	eSprite_Helicopter_Unarmed_Enemy,
 	eSprite_Helicopter_Missile_Enemy,		eSprite_Helicopter_Homing_Enemy,	eSprite_Tank_Enemy,
 	eSprite_VehicleNoGun_Enemy,				eSprite_VehicleGun_Enemy,			eSprite_Vehicle_Unk_Enemy,
-	eSprite_Turret_Missile_Enemy,			eSprite_Turret_Missile2_Enemy,		eSprite_Turret_HomingMissile_Enemy,
+	eSprite_Turret_Cannon_Enemy,			eSprite_Turret_Missile_Enemy,		eSprite_Turret_HomingMissile_Enemy,
 	eSprite_Computer_1,						eSprite_Computer_2,					eSprite_Computer_3,
    
     // CF2 sprites

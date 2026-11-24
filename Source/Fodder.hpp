@@ -1035,15 +1035,15 @@ public:
     void            Sprite_Handle_Door2_Civilian(sSprite* pSprite);     // 75
     void            Sprite_Handle_Door_Civilian_Spear(sSprite* pSprite);// 76
     void            Sprite_Handle_Cannon(sSprite* pSprite);               // 77
-    void            Sprite_Handle_Turret_Missile_Human(sSprite* pSprite); // 78
-    void            Sprite_Handle_Turret_Missile2_Human(sSprite* pSprite);// 79
+    void            Sprite_Handle_Turret_Cannon_Human(sSprite* pSprite); // 78
+    void            Sprite_Handle_Turret_Missile_Human(sSprite* pSprite);// 79
 
     void            Sprite_Handle_VehicleNoGun_Enemy(sSprite* pSprite);   // 80
     void            Sprite_Handle_VehicleGun_Enemy(sSprite* pSprite);     // 81
     void            Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite);    // 82
     void            Sprite_Handle_Civilian_Invisible(sSprite* pSprite); // 83
-    void            Sprite_Handle_Turret_Missile_Enemy(sSprite* pSprite); // 84
-    void            Sprite_Handle_Turret_Missile2_Enemy(sSprite* pSprite);// 85
+    void            Sprite_Handle_Turret_Cannon_Enemy(sSprite* pSprite); // 84
+    void            Sprite_Handle_Turret_Missile_Enemy(sSprite* pSprite);// 85
     void            Sprite_Handle_Vehicle_Sinking_1(sSprite* pSprite);    // 86
     void            Sprite_Handle_Vehicle_Sinking_2(sSprite* pSprite);    // 87
     void            Sprite_Handle_BunkerDoor_HeavyExplosionOnly(sSprite* pSprite);       // 88

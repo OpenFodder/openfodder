@@ -34,8 +34,8 @@ bool Sprite_IsHumanCombatantType(int16 pSpriteType) {
     case eSprite_VehicleNoGun_Human:
     case eSprite_VehicleGun_Human:
     case eSprite_Tank_Human:
+    case eSprite_Turret_Cannon_Human:
     case eSprite_Turret_Missile_Human:
-    case eSprite_Turret_Missile2_Human:
     case eSprite_Helicopter_Grenade_Human_Called:
     case eSprite_Helicopter_Unarmed_Human_Called:
     case eSprite_Helicopter_Missile_Human_Called:
@@ -59,8 +59,8 @@ bool Sprite_IsEnemyCombatantType(int16 pSpriteType) {
     case eSprite_VehicleNoGun_Enemy:
     case eSprite_VehicleGun_Enemy:
     case eSprite_Vehicle_Unk_Enemy:
+    case eSprite_Turret_Cannon_Enemy:
     case eSprite_Turret_Missile_Enemy:
-    case eSprite_Turret_Missile2_Enemy:
     case eSprite_Turret_HomingMissile_Enemy:
     case eSprite_Enemy_Leader:
     case eSprite_Helicopter_Homing_Enemy2:
@@ -106,13 +106,13 @@ bool cFodder::Sprite_IsVehicle(const sSprite* pSprite) const {
     case eSprite_VehicleGun_Human:
     case eSprite_Tank_Human:
     case eSprite_Tank_Enemy:
+    case eSprite_Turret_Cannon_Human:
     case eSprite_Turret_Missile_Human:
-    case eSprite_Turret_Missile2_Human:
     case eSprite_VehicleNoGun_Enemy:
     case eSprite_VehicleGun_Enemy:
     case eSprite_Vehicle_Unk_Enemy:
+    case eSprite_Turret_Cannon_Enemy:
     case eSprite_Turret_Missile_Enemy:
-    case eSprite_Turret_Missile2_Enemy:
     case eSprite_Helicopter_Grenade_Human_Called:
     case eSprite_Helicopter_Unarmed_Human_Called:
     case eSprite_Helicopter_Missile_Human_Called:

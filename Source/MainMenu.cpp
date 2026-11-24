@@ -355,7 +355,7 @@ void cFodder::MainMenu_PrepareScenery() {
     mSprites[x].mFrameIndex = 5;
     mSprites[x].mRowsToSkip = 0;
     mSprites[x].mHeight = 0;
-    mSprites[x].mSpriteType = HasTurretBase ? eSprite_Turret_Missile_Human : eSprite_Null;
+    mSprites[x].mSpriteType = HasTurretBase ? eSprite_Turret_Cannon_Human : eSprite_Null;
     mSprites[x++].mVehicleType = eVehicle_Turret_Missile;
 
     mSprites[x].mPosX = tool_RandomGet() & 0xFF;

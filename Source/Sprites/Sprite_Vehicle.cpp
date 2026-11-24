@@ -1474,14 +1474,14 @@ void cFodder::Sprite_Handle_Vehicle_Unk_Enemy(sSprite* pSprite) {
     Sprite_Handle_Vehicle_Enemy(pSprite);
 }
 
-void cFodder::Sprite_Handle_Turret_Missile_Enemy(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Turret_Cannon_Enemy(sSprite* pSprite) {
     pSprite->mPersonType = eSprite_PersonType_AI;
     pSprite->mVehicleType = eVehicle_Turret_Cannon;
 
     Sprite_Handle_Turret(pSprite);
 }
 
-void cFodder::Sprite_Handle_Turret_Missile2_Enemy(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Turret_Missile_Enemy(sSprite* pSprite) {
     pSprite->mPersonType = eSprite_PersonType_AI;
     pSprite->mVehicleType = eVehicle_Turret_Missile;
 
@@ -1495,14 +1495,14 @@ void cFodder::Sprite_Handle_Turret_HomingMissile_Enemy(sSprite* pSprite) {
     Sprite_Handle_Turret(pSprite);
 }
 
-void cFodder::Sprite_Handle_Turret_Missile_Human(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Turret_Cannon_Human(sSprite* pSprite) {
     pSprite->mPersonType = eSprite_PersonType_Human;
     pSprite->mVehicleType = eVehicle_Turret_Cannon;
 
     Sprite_Handle_Turret(pSprite);
 }
 
-void cFodder::Sprite_Handle_Turret_Missile2_Human(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Turret_Missile_Human(sSprite* pSprite) {
     pSprite->mPersonType = eSprite_PersonType_Human;
     pSprite->mVehicleType = eVehicle_Turret_Missile;
 
@@ -1774,10 +1774,10 @@ static bool Vehicle_CanFirePlayerWeapon(const sSprite* pVehicle) {
     case eSprite_VehicleGun_Enemy:
     case eSprite_Tank_Human:
     case eSprite_Tank_Enemy:
+    case eSprite_Turret_Cannon_Human:
     case eSprite_Turret_Missile_Human:
-    case eSprite_Turret_Missile2_Human:
+    case eSprite_Turret_Cannon_Enemy:
     case eSprite_Turret_Missile_Enemy:
-    case eSprite_Turret_Missile2_Enemy:
     case eSprite_Turret_HomingMissile_Enemy:
     case eSprite_Turret_Cannon_Invulnerable:
     case eSprite_Turret_Missile_Invulnerable:
