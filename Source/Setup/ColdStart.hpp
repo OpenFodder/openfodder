@@ -35,14 +35,14 @@ public:
     // window creation. If game data and the essential scripts are available,
     // returns Continue without showing any UI.
     //
-    // If no data available, shows an SDL_ShowMessageBox asking the user
+    // If no data available, shows the built-in download window asking the user
     // whether to download the complete runtime bundle from OpenFodder/data.
     // The bundle includes demo data, campaigns, scripts and the About image.
     //
     // On Download success: refreshes ResourceMan and returns Download
     //   (caller proceeds into the regular startup flow).
     // On user-Cancel:       returns Quit (caller should SDL_Quit + exit).
-    // On any failure:       shows an error message box and returns Quit.
+    // On any failure:       shows details in the same window and returns Quit.
     //
     // Runs a responsive progress window while a worker queries, downloads
     // and installs the package. No game data is required to draw the UI.

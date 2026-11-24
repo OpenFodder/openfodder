@@ -2827,7 +2827,7 @@ void cFodder::Prepare(std::shared_ptr<sFodderParameters> pParams)
     g_ResourceMan->refresh();
 
     // Cold-start data probe: if no game data has been discovered, bring up
-    // SDL video early enough to host an SDL_ShowMessageBox prompt that
+    // SDL video early enough to host the asset-free download window that
     // offers to download the demo data from GitHub. SDL3 ref-counts the
     // subsystem, so the later SDL_Init in cWindow::InitWindow is harmless.
     SDL_InitSubSystem(SDL_INIT_VIDEO);

@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
+#include <atomic>
 
 using namespace Setup;
 static void require(bool ok, const char* message) {
@@ -43,9 +44,102 @@ static void closeWindow() {
     SDL_PushEvent(&event);
 }
 
+struct PromptInput {
+    std::atomic<SDL_WindowID> id{0};
+    std::atomic<SDL_WindowID> shownId{0};
+    std::atomic<int> screens{0}, windows{0};
+    std::atomic<bool> timedOut{false};
+    std::thread thread;
+    static bool SDLCALL watch(void* context, SDL_Event* event) {
+        auto& input = *static_cast<PromptInput*>(context);
+        if (event->type == SDL_EVENT_WINDOW_SHOWN &&
+            input.shownId.exchange(event->window.windowID) != event->window.windowID) ++input.windows;
+        if (event->type == SDL_EVENT_WINDOW_RESIZED && event->window.data2 == 360) {
+            input.id = event->window.windowID;
+            ++input.screens;
+        }
+        return true;
+    }
+    PromptInput(SDL_Keycode key, bool errorScreen = false, bool mouseCancel = false, int delay = 50) {
+        SDL_AddEventWatch(watch, this);
+        thread = std::thread([this, key, errorScreen, mouseCancel, delay] {
+            const auto wait = [&](int screen) {
+                const auto deadline = SDL_GetTicks() + 4000;
+                while (screens < screen && SDL_GetTicks() < deadline) SDL_Delay(5);
+                if (screens < screen) { timedOut = true; closeWindow(); return false; }
+                SDL_Delay(delay);
+                return true;
+            };
+            const auto press = [&](SDL_Keycode value) {
+                SDL_Event event{};
+                event.type = SDL_EVENT_KEY_DOWN;
+                event.key.windowID = id;
+                event.key.key = value;
+                SDL_PushEvent(&event);
+            };
+            if (!wait(1)) return;
+            if (mouseCancel) {
+                SDL_Event event{};
+                event.type = SDL_EVENT_MOUSE_BUTTON_UP;
+                event.button.windowID = id;
+                event.button.button = SDL_BUTTON_LEFT;
+                event.button.x = 134; event.button.y = 326;
+                SDL_PushEvent(&event);
+            } else press(key);
+            if (errorScreen && wait(2)) press(SDLK_RETURN);
+        });
+    }
+    void Join() { if (thread.joinable()) thread.join(); }
+    ~PromptInput() { Join(); SDL_RemoveEventWatch(watch, this); }
+};
+
+static void promptChecks() {
+    const DownloadPrompt prompt{"GAME FILES NEEDED",
+        "OpenFodder cannot find its game data or scripts.\n\n"
+        "Download the complete demos, campaigns and scripts from GitHub?\n\n"
+        "An internet connection is required."};
+    std::string error;
+    bool started = false;
+    for (bool mouse : {false, true}) {
+        PromptInput input(SDLK_ESCAPE, false, mouse);
+        const bool result = RunDownloadWithProgress("Startup decline", [&](DownloadProgress&, std::string&) {
+            started = true; return true;
+        }, error, nullptr, {}, &prompt);
+        input.Join();
+        require(!result && !started && error.empty() && !input.timedOut,
+            "Declining the startup prompt must not start a download");
+    }
+    {
+        PromptInput input(SDLK_RETURN);
+        const bool result = RunDownloadWithProgress("Startup accept", [&](DownloadProgress&, std::string&) {
+            started = true; return true;
+        }, error, nullptr, {}, &prompt);
+        input.Join();
+        require(result && started && input.windows == 1 && !input.timedOut,
+            "Confirmation must transition to progress in the same window");
+    }
+    {
+        PromptInput input(SDLK_RETURN, true);
+        const bool result = RunDownloadWithProgress("Startup failure", [](DownloadProgress&, std::string& error) {
+            error = "Fixture download failed. Check your internet connection and try again.";
+            return false;
+        }, error, nullptr, {}, &prompt);
+        input.Join();
+        require(!result && error.find("Fixture download failed") == 0 && input.windows == 1 && !input.timedOut,
+            "Failure details must use the same window");
+    }
+    {
+        PromptInput input(SDLK_RETURN);
+        ShowDownloadNotice("Startup notice", "This install is missing its data files.\nPlease repair the installation.");
+        input.Join();
+        require(!input.timedOut, "Asset-free notice did not respond to confirmation");
+    }
+}
+
 static void windowChecks() {
     require(SDL_Init(SDL_INIT_VIDEO), SDL_GetError());
     std::string error;
+    promptChecks();
     const auto mainThread = std::this_thread::get_id();
     bool activated = false;
     require(RunDownloadWithProgress("Progress test", [](DownloadProgress& progress, std::string&) {
@@ -98,6 +192,22 @@ int main(int argc, char** argv) try {
     const std::string mode = argc > 1 ? argv[1] : "--model";
     if (mode == "--model") modelChecks();
     else if (mode == "--window") windowChecks();
+    else if (mode == "--preview-prompt") {
+        require(SDL_Init(SDL_INIT_VIDEO), SDL_GetError());
+        const bool failed = argc > 2 && std::string(argv[2]) == "failure";
+        const DownloadPrompt prompt{"GAME FILES NEEDED",
+            "OpenFodder cannot find its game data or scripts.\n\n"
+            "Download the complete demos, campaigns and scripts from GitHub?\n\n"
+            "An internet connection is required."};
+        PromptInput input(failed ? SDLK_RETURN : SDLK_ESCAPE, failed, false, 300);
+        std::string error;
+        RunDownloadWithProgress("OpenFodder - Download game data", [](DownloadProgress&, std::string& error) {
+            error = "Could not download the data package. Please check your internet connection and try again.";
+            return false;
+        }, error, nullptr, {}, &prompt);
+        input.Join();
+        SDL_Quit();
+    }
     else if (mode == "--preview") {
         require(SDL_Init(SDL_INIT_VIDEO), SDL_GetError());
         const std::string stage = argc > 2 ? argv[2] : "download";

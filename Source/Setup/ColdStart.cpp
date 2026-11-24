@@ -65,29 +65,14 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
     // installed tree out of sync with the manifest's recorded data
     // extension version. Tell the user how to fix it manually.
     if (InstallPaths::IsFlatpak()) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenFodder",
+        ShowDownloadNotice("OpenFodder",
             "OpenFodder cannot find its game data or scripts.\n\n"
             "This Flatpak install is missing its data files.\n"
             "Try:  flatpak repair --user org.openfodder.OpenFodder\n\n"
             "Or reinstall from Flathub:\n"
-            "  flatpak install flathub org.openfodder.OpenFodder",
-            nullptr);
+            "  flatpak install flathub org.openfodder.OpenFodder");
         return ColdStartChoice::Quit;
     }
-
-    SDL_MessageBoxButtonData buttons[] = {
-        { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Download" },
-        { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Quit" }
-    };
-    SDL_MessageBoxData mb = { SDL_MESSAGEBOX_INFORMATION, nullptr,
-        "OpenFodder",
-        "OpenFodder cannot find its game data or scripts.\n\n"
-        "Download the complete demo data package from GitHub now?\n\n"
-        "(Includes campaigns and scripts; requires an internet connection.)",
-        SDL_arraysize(buttons), buttons, nullptr };
-    int picked = -1;
-    if (!SDL_ShowMessageBox(&mb, &picked) || picked != 1)
-        return ColdStartChoice::Quit;
 
     // Per-platform install root. On a portable layout (dev checkout,
     // Windows .zip, sibling-of-exe install) this is <cwd>/Data and
@@ -100,18 +85,18 @@ ColdStartChoice ColdStartPrompt::PromptIfNoData()
 
     std::string err;
     if (!RunDownload(std::filesystem::path(targets.mDataDir).parent_path().string(), err)) {
-        if (!err.empty())
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenFodder",
-                ("Download failed:\n\n" + err).c_str(), nullptr);
+        if (!err.empty()) g_Debugger->Error("Download failed: " + err);
         return ColdStartChoice::Quit;
     }
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "OpenFodder",
-        "Data and scripts installed. Continuing to OpenFodder...", nullptr);
     return ColdStartChoice::Download;
 }
 
 bool ColdStartPrompt::RunDownload(const std::string& pRuntimeRoot, std::string& pError)
 {
+    const DownloadPrompt prompt{"GAME FILES NEEDED",
+        "OpenFodder cannot find its game data or scripts.\n\n"
+        "Download the complete demos, campaigns and scripts from GitHub?\n\n"
+        "An internet connection is required."};
     return RunDownloadWithProgress("OpenFodder - Download game data",
         [&](DownloadProgress& progress, std::string& error) {
             DataRelease release;
@@ -128,7 +113,7 @@ bool ColdStartPrompt::RunDownload(const std::string& pRuntimeRoot, std::string& 
             return true;
         }, pError, nullptr, [] {
             if (g_ResourceMan) g_ResourceMan->refresh();
-        });
+        }, &prompt);
 }
 
 } // namespace Setup

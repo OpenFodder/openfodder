@@ -87,6 +87,134 @@ DownloadProgress::Snapshot DownloadProgress::Read() const {
 namespace {
 const SDL_FRect cancelButton{220, 84, 68, 18};
 
+// Both startup prompts and progress use this asset-free window. Keep it alive
+// across the confirmation, download and failure screens.
+struct ProgressWindow {
+    std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window{nullptr, SDL_DestroyWindow};
+    std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer{nullptr, SDL_DestroyRenderer};
+    std::vector<SDL_Event> deferred;
+    SDL_Window* parent;
+    bool savedMouse = false, wasVisible = false, wasRelative = false;
+
+    ProgressWindow(const std::string& title, SDL_Window* owner, std::string& error) : parent(owner) {
+        window.reset(SDL_CreateWindow(title.c_str(), 600, 220, SDL_WINDOW_HIGH_PIXEL_DENSITY));
+        if (!window) { error = std::string("Could not open download window: ") + SDL_GetError(); return; }
+        renderer.reset(SDL_CreateRenderer(window.get(), nullptr));
+        if (!renderer) { error = std::string("Could not draw download window: ") + SDL_GetError(); return; }
+        Resize(220);
+        SDL_SetWindowPosition(window.get(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        if (parent) {
+            SDL_SetWindowParent(window.get(), parent);
+            SDL_SetWindowModal(window.get(), true);
+        }
+        wasVisible = SDL_CursorVisible();
+        wasRelative = parent && SDL_GetWindowRelativeMouseMode(parent);
+        savedMouse = true;
+        if (wasRelative) SDL_SetWindowRelativeMouseMode(parent, false);
+        SDL_ShowCursor();
+    }
+
+    ~ProgressWindow() {
+        renderer.reset();
+        window.reset();
+        if (savedMouse) {
+            if (wasRelative) SDL_SetWindowRelativeMouseMode(parent, true);
+            if (!wasVisible) SDL_HideCursor();
+        }
+        for (auto& event : deferred) SDL_PushEvent(&event);
+    }
+
+    void Resize(int height) {
+        SDL_SetWindowSize(window.get(), 600, height);
+        SDL_SetRenderLogicalPresentation(renderer.get(), 600, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+        SDL_SetRenderScale(renderer.get(), 2, 2);
+    }
+
+    bool Prompt(const DownloadPrompt& prompt) {
+        Resize(360);
+        std::vector<std::string> lines;
+        std::istringstream paragraphs(prompt.message);
+        std::string paragraph;
+        while (std::getline(paragraphs, paragraph)) {
+            if (paragraph.empty()) { lines.emplace_back(); continue; }
+            while (paragraph.size() > 34) {
+                auto split = paragraph.rfind(' ', 34);
+                if (split == std::string::npos || split == 0) split = 34;
+                lines.push_back(paragraph.substr(0, split));
+                paragraph.erase(0, split);
+                if (!paragraph.empty() && paragraph.front() == ' ') paragraph.erase(0, 1);
+            }
+            lines.push_back(paragraph);
+        }
+        constexpr size_t pageLines = 10;
+        const size_t maxTop = lines.size() > pageLines ? lines.size() - pageLines : 0;
+        size_t top = 0;
+        bool acceptSelected = true;
+        const SDL_FRect accept{170, 154, 118, 18}, cancel{12, 154, 110, 18};
+        const auto id = SDL_GetWindowID(window.get());
+#ifdef OPENFODDER_DOWNLOAD_DIAGNOSTICS
+        bool captured = false;
+#endif
+        for (;;) {
+            SDL_SetRenderDrawColor(renderer.get(), 19, 27, 24, 255);
+            SDL_RenderClear(renderer.get());
+            SDL_SetRenderDrawColor(renderer.get(), 231, 239, 232, 255);
+            SDL_RenderDebugText(renderer.get(), 12, 12, "OPENFODDER");
+            SDL_RenderDebugText(renderer.get(), 12, 26, prompt.heading.c_str());
+            SDL_SetRenderDrawColor(renderer.get(), 188, 204, 192, 255);
+            for (size_t i = top; i < std::min(lines.size(), top + pageLines); ++i)
+                SDL_RenderDebugText(renderer.get(), 12, 42 + float(i - top) * 10, lines[i].c_str());
+            if (maxTop) SDL_RenderDebugText(renderer.get(), 12, 142, "UP/DOWN TO SCROLL");
+            const auto button = [&](const SDL_FRect& rect, const std::string& label, bool selected) {
+                SDL_SetRenderDrawColor(renderer.get(), selected ? 100 : 76, selected ? 127 : 94, selected ? 87 : 73, 255);
+                SDL_RenderFillRect(renderer.get(), &rect);
+                SDL_SetRenderDrawColor(renderer.get(), 231, 239, 232, 255);
+                SDL_RenderDebugText(renderer.get(), rect.x + (rect.w - float(label.size()) * 8) / 2,
+                    rect.y + 5, label.c_str());
+            };
+            button(accept, prompt.accept, acceptSelected);
+            if (!prompt.cancel.empty()) button(cancel, prompt.cancel, !acceptSelected);
+#ifdef OPENFODDER_DOWNLOAD_DIAGNOSTICS
+            if (!captured) {
+                if (const char* path = SDL_getenv("OPENFODDER_DOWNLOAD_PREVIEW")) {
+                    if (auto* pixels = SDL_RenderReadPixels(renderer.get(), nullptr)) {
+                        SDL_SaveBMP(pixels, path);
+                        SDL_DestroySurface(pixels);
+                    }
+                }
+                captured = true;
+            }
+#endif
+            SDL_RenderPresent(renderer.get());
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_EVENT_QUIT || event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+                    if (event.type == SDL_EVENT_QUIT || event.window.windowID != id) deferred.push_back(event);
+                    return false;
+                }
+                if (event.type == SDL_EVENT_KEY_DOWN && event.key.windowID == id) {
+                    if (event.key.key == SDLK_ESCAPE) return false;
+                    if (event.key.key == SDLK_RETURN || event.key.key == SDLK_KP_ENTER) return acceptSelected;
+                    if ((event.key.key == SDLK_TAB || event.key.key == SDLK_LEFT || event.key.key == SDLK_RIGHT) &&
+                        !prompt.cancel.empty()) acceptSelected = !acceptSelected;
+                    if (event.key.key == SDLK_UP && top) --top;
+                    if (event.key.key == SDLK_DOWN && top < maxTop) ++top;
+                } else if (event.type == SDL_EVENT_MOUSE_WHEEL && event.wheel.windowID == id) {
+                    if (event.wheel.y > 0 && top) --top;
+                    if (event.wheel.y < 0 && top < maxTop) ++top;
+                } else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.windowID == id &&
+                           event.button.button == SDL_BUTTON_LEFT) {
+                    SDL_ConvertEventToRenderCoordinates(renderer.get(), &event);
+                    const SDL_FPoint point{event.button.x, event.button.y};
+                    if (SDL_PointInRectFloat(&point, &accept)) return true;
+                    if (!prompt.cancel.empty() && SDL_PointInRectFloat(&point, &cancel)) return false;
+                }
+            }
+            SDL_Delay(16);
+        }
+    }
+};
+
 void Draw(SDL_Renderer* renderer, const DownloadProgress::Snapshot& progress) {
     SDL_SetRenderDrawColor(renderer, 19, 27, 24, 255);
     SDL_RenderClear(renderer);
@@ -123,40 +251,23 @@ void Draw(SDL_Renderer* renderer, const DownloadProgress::Snapshot& progress) {
 
 bool RunDownloadWithProgress(const std::string& title,
     const std::function<bool(DownloadProgress&, std::string&)>& task,
-    std::string& error, SDL_Window* parent, const std::function<void()>& complete) {
+    std::string& error, SDL_Window* parent, const std::function<void()>& complete, const DownloadPrompt* prompt) {
     error.clear();
 #ifdef EMSCRIPTEN
     error = "Native downloads are unavailable in the browser build";
     return false;
 #else
-    std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window(
-        SDL_CreateWindow(title.c_str(), 600, 220, SDL_WINDOW_HIGH_PIXEL_DENSITY), SDL_DestroyWindow);
-    if (!window) {
-        error = std::string("Could not open download progress: ") + SDL_GetError();
-        return false;
-    }
-    std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer(
-        SDL_CreateRenderer(window.get(), nullptr), SDL_DestroyRenderer);
-    if (!renderer) {
-        error = std::string("Could not draw download progress: ") + SDL_GetError();
-        return false;
-    }
-    SDL_SetRenderLogicalPresentation(renderer.get(), 600, 220, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    SDL_SetRenderScale(renderer.get(), 2, 2);
-    SDL_SetWindowPosition(window.get(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-    if (parent) {
-        SDL_SetWindowParent(window.get(), parent);
-        SDL_SetWindowModal(window.get(), true);
-    }
-    const bool wasVisible = SDL_CursorVisible();
-    const bool wasRelative = parent && SDL_GetWindowRelativeMouseMode(parent);
-    if (wasRelative) SDL_SetWindowRelativeMouseMode(parent, false);
-    SDL_ShowCursor();
+    ProgressWindow view(title, parent, error);
+    if (!view.renderer) return false;
+    if (prompt && !view.Prompt(*prompt)) return false;
+    view.Resize(220);
+    auto& window = view.window;
+    auto& renderer = view.renderer;
     DownloadProgress progress;
     Draw(renderer.get(), progress.Read()); // Visible before even the release query starts.
     std::atomic<bool> finished{false};
     bool result = false;
-    std::vector<SDL_Event> deferred;
+    auto& deferred = view.deferred;
     std::thread worker;
     try {
         worker = std::thread([&] {
@@ -214,12 +325,18 @@ bool RunDownloadWithProgress(const std::string& title,
     }
     if (!result && progress.Read().canceled) error.clear();
     if (!result && !progress.Read().canceled && error.empty()) error = "The download failed.";
-    renderer.reset();
-    window.reset();
-    if (wasRelative) SDL_SetWindowRelativeMouseMode(parent, true);
-    if (!wasVisible) SDL_HideCursor();
-    for (auto& event : deferred) SDL_PushEvent(&event);
+    if (prompt && !result && !error.empty())
+        view.Prompt({"DOWNLOAD FAILED", error, "QUIT", ""});
     return result;
+#endif
+}
+
+void ShowDownloadNotice(const std::string& title, const std::string& message) {
+#ifndef EMSCRIPTEN
+    std::string error;
+    ProgressWindow view(title, nullptr, error);
+    if (view.renderer) view.Prompt({"MISSING GAME FILES", message, "QUIT", ""});
+    else SDL_Log("%s: %s", title.c_str(), error.c_str());
 #endif
 }
 
