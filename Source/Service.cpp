@@ -226,7 +226,7 @@ void cFodder::Service_Draw_Troop_And_Rank(int16 pRecruitID, int16 pRank) {
     mService_Draw_List.emplace_back(2, pRank, 0xCC, mVideo_Draw_PosY + 4);
 
     //seg003:3237
-    const char* si = mRecruits[pRecruitID].mName;
+    const char* si = Recruit_Get(pRecruitID)->mName;
     std::stringstream tmpString;
 
     for (int16 cx = 5; cx >= 0; --cx) {

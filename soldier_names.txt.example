@@ -1,0 +1,25 @@
+# Custom soldier names for OpenFodder — example file.
+#
+# Copy this file to soldier_names.txt in your game resources folder
+# (the folder holding that version's data files, e.g. Data/CF1/ for the
+# PC CD version, next to files like junarmy.dat) and edit the names.
+# The names in the file replace the original soldier names (JOOLS, JOPS,
+# STOO, ...). Delete or rename the file to go back to the originals.
+#
+# Rules:
+# - One name per line.
+# - Letters A-Z only, up to 6 letters; anything else is dropped and
+#   longer names are cut to 6 characters (that is all the name displays
+#   show). Lower-case is fine, it is upper-cased for you.
+# - Blank lines and lines starting with '#' are ignored.
+# - Fewer names than soldiers just cycles through the list, so a short
+#   list still renames every recruit.
+#
+# Each version can have its own soldier_names.txt in its own folder.
+
+SEAN
+LIZ
+OLIVER
+ISLA
+AMELIA
+ANN

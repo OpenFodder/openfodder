@@ -532,7 +532,7 @@ loc_2F1BC:;
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Troop.mRank + 9, 0x00, mSidebar_Draw_Y);
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Troop.mRank + 9, 0x23, mSidebar_Draw_Y);
 
-        const sRecruit *Data28 = &mRecruits[Troop.mRecruitID];
+        const sRecruit *Data28 = Recruit_Get(Troop.mRecruitID);
         if (!mGUI_Loop_Is_CurrentSquad)
             Data0 = 2;
         else
@@ -1167,7 +1167,7 @@ void cFodder::GUI_Handle_Button_TroopName()
 
     Troop->mSelected ^= 1;
 
-    const sRecruit *Data28 = &mRecruits[Troop->mRecruitID];
+    const sRecruit *Data28 = Recruit_Get(Troop->mRecruitID);
     Data0 = Troop->mSelected & 1;
     Data8 = word_3A3BF;
     Data8 *= 0x0C;

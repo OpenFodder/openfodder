@@ -385,6 +385,129 @@ const struct sRecruit mRecruits[] = {
     {"LOSER ", 2, -1, 0},
     {"FODDER", 2, -1, 0}};
 
+// Custom soldier names (soldier_names.txt).
+//
+// The original 360 names live in mRecruits above. If a soldier_names.txt
+// file is present in the current version's game resources folder (the
+// folder holding that version's data files), its names replace the
+// originals: one name per line, letters A-Z only, up to 6 letters. Blank
+// lines and lines starting with '#' are ignored, names are upper-cased,
+// and anything that isn't A-Z is dropped. Fewer names than recruits just
+// cycles through the list; without the file (or with no usable names in
+// it) the original names are used unchanged.
+//
+// The file is read through the resource manager, so it is found the same
+// way as the other loose data files. A missing file simply falls back to
+// the originals; fileGet() is deliberately not used here, as the CD
+// resource's fileGet() exits the process for a missing file. Loading is
+// lazy, on first name lookup, and repeats when the version changes, so
+// each version can have its own name list.
+
+namespace {
+
+    // Effective recruit table built from soldier_names.txt, one entry per
+    // original recruit. Empty when no custom list is loaded.
+    std::vector<sRecruit> sRecruits_Custom;
+
+    // Version the custom table was loaded for.
+    const sGameVersion* sRecruits_CustomVersion = nullptr;
+
+    void Recruit_LoadCustomNames() {
+
+        sRecruits_Custom.clear();
+        sRecruits_CustomVersion = g_Fodder->mVersionCurrent;
+
+        if (!g_Fodder->mVersionCurrent)
+            return;
+
+        std::string Content = g_ResourceMan->FileReadStr(
+            g_Fodder->mVersionCurrent->getDataFilePath("soldier_names.txt"));
+
+        if (Content.empty())
+            return;
+
+        std::vector<std::string> Names;
+        std::stringstream Stream(Content);
+        std::string Line;
+
+        while (std::getline(Stream, Line)) {
+
+            // Strip a trailing carriage return (CRLF files)
+            if (!Line.empty() && Line.back() == '\r')
+                Line.pop_back();
+
+            // Trim leading/trailing spaces and tabs
+            size_t First = Line.find_first_not_of(" \t");
+            if (First == std::string::npos)
+                continue;
+
+            size_t Last = Line.find_last_not_of(" \t");
+            Line = Line.substr(First, Last - First + 1);
+
+            // Comment lines
+            if (Line[0] == '#')
+                continue;
+
+            // The name font only has A-Z; anything else is dropped, and
+            // names are cut to the 6 characters the name displays use.
+            std::string Name;
+            for (size_t i = 0; i < Line.size() && Name.size() < 6; ++i) {
+
+                char c = Line[i];
+                if (c >= 'a' && c <= 'z')
+                    Name += (char)(c - 'a' + 'A');
+                else if (c >= 'A' && c <= 'Z')
+                    Name += c;
+            }
+
+            if (!Name.empty())
+                Names.push_back(Name);
+        }
+
+        if (Names.empty())
+            return;
+
+        // Build a full table, cycling the custom names, keeping each
+        // recruit's original non-name fields untouched.
+        const size_t Count = sizeof(mRecruits) / sizeof(mRecruits[0]);
+        sRecruits_Custom.reserve(Count);
+
+        for (size_t i = 0; i < Count; ++i) {
+
+            sRecruit Recruit = mRecruits[i];
+
+            const std::string& Name = Names[i % Names.size()];
+            std::memset(Recruit.mName, ' ', 6);
+            std::memcpy(Recruit.mName, Name.c_str(), Name.size());
+            Recruit.mName[6] = '\0';
+
+            sRecruits_Custom.push_back(Recruit);
+        }
+    }
+}
+
+const sRecruit* Recruit_Get(int16 pRecruitID) {
+
+    // Names are only looked up in-game, once a version is selected; the
+    // lazy load also picks up a version switch.
+    if (g_Fodder && g_Fodder->mVersionCurrent != sRecruits_CustomVersion)
+        Recruit_LoadCustomNames();
+
+    const size_t Count = sizeof(mRecruits) / sizeof(mRecruits[0]);
+
+    // Recruit ids run 0..359; anything else is clamped rather than
+    // reading out of bounds.
+    if (pRecruitID < 0)
+        pRecruitID = 0;
+    if ((size_t)pRecruitID >= Count)
+        pRecruitID = (int16)(Count - 1);
+
+    if (!sRecruits_Custom.empty())
+        return &sRecruits_Custom[pRecruitID];
+
+    return &mRecruits[pRecruitID];
+}
+
 int16 word_35DFE[] = {
     0x21,
     0x32,
@@ -1578,7 +1701,7 @@ void cFodder::Recruit_Render_Squad_Names()
         if (mSquad_Selected != Troop.mSprite->field_32)
             continue;
 
-        const sRecruit *Data28 = &mRecruits[Troop.mRecruitID];
+        const sRecruit *Data28 = Recruit_Get(Troop.mRecruitID);
         int16 Data14;
 
         for (Data14 = 0; Data14 <= 5; ++Data14)
@@ -1706,7 +1829,7 @@ void cFodder::Recruit_Render_HeroList()
 
         mGraphics->Sidebar_Copy_Sprite_To_ScreenBufPtr(Hero.mRank + 9, Data8, DataC);
 
-        const sRecruit *Troop = &mRecruits[Hero.mRecruitID];
+        const sRecruit *Troop = Recruit_Get(Hero.mRecruitID);
         int16 Position;
         for (Position = 0; Position <= 5; ++Position)
         {
