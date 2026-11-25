@@ -23,7 +23,6 @@
 #include "stdafx.hpp"
 
 const struct sRecruit mRecruits[] = {
-    //{ "SEGRA ", 2, -1, 4 },
     {"JOOLS ", 2, -1, 4},
     {"JOPS  ", 2, -1, 6},
     {"STOO  ", 2, -1, 0},
@@ -390,18 +389,7 @@ const struct sRecruit mRecruits[] = {
 // The original 360 names live in mRecruits above. If a soldier_names.txt
 // file is present in the current version's game resources folder (the
 // folder holding that version's data files), its names replace the
-// originals: one name per line, letters A-Z only, up to 6 letters. Blank
-// lines and lines starting with '#' are ignored, names are upper-cased,
-// and anything that isn't A-Z is dropped. Fewer names than recruits just
-// cycles through the list; without the file (or with no usable names in
-// it) the original names are used unchanged.
-//
-// The file is read through the resource manager, so it is found the same
-// way as the other loose data files. A missing file simply falls back to
-// the originals; fileGet() is deliberately not used here, as the CD
-// resource's fileGet() exits the process for a missing file. Loading is
-// lazy, on first name lookup, and repeats when the version changes, so
-// each version can have its own name list.
+// originals
 
 namespace {
 
