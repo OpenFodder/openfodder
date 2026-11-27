@@ -361,7 +361,7 @@ std::vector<cPosition*> cRandomMap::calculatePath(size_t pSpriteType, cPosition*
 		break;
 
 	case eSprite_Civilian:
-	case eSprite_Civilian2:
+	case eSprite_Civilian_Fast:
 	case eSprite_Hostage:
 	case eSprite_Enemy_Leader:
 		mPathTilesNotTouchable = mTiles_NotFlyable;
@@ -796,7 +796,7 @@ int cRandomMap::Passable(int nx, int ny)
 		case eSprite_Helicopter_Unarmed_Human_Called:
 		case eSprite_Helicopter_Missile_Human_Called:
 		case eSprite_Helicopter_Homing_Human_Called:
-		case eSprite_Helicopter_Homing_Enemy2:
+		case eSprite_Helicopter_Homing_Enemy_Called:
 			return 1;
 	}
 

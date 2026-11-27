@@ -1018,7 +1018,7 @@ public:
 
     void            Sprite_Handle_BoilingPot(sSprite* pSprite);           // 60
     void            Sprite_Handle_Civilian(sSprite* pSprite);           // 61
-    void            Sprite_Handle_Civilian2(sSprite* pSprite);          // 62
+    void            Sprite_Handle_Civilian_Fast(sSprite* pSprite);          // 62
     void            Sprite_Handle_VehicleNoGun_Human(sSprite* pSprite);   // 63
     void            Sprite_Handle_VehicleGun_Human(sSprite* pSprite);     // 64
     void            Sprite_Handle_Tank_Human(sSprite* pSprite);           // 65
@@ -1067,7 +1067,7 @@ public:
     void            Sprite_Handle_Helicopter_Homing_Human_Called(sSprite* pSprite);   // 104
     void            Sprite_Handle_Turret_HomingMissile_Enemy(sSprite* pSprite);       // 105
     void            Sprite_Handle_Enemy_Leader(sSprite* pSprite);                        // 106
-    void            Sprite_Handle_Helicopter_Homing_Enemy2(sSprite* pSprite);         // 107
+    void            Sprite_Handle_Helicopter_Homing_Enemy_Called(sSprite* pSprite);         // 107
     void            Sprite_Handle_Computer_1(sSprite* pSprite);                       // 108
     void            Sprite_Handle_Computer_2(sSprite* pSprite);                       // 109
     void            Sprite_Handle_Computer_3(sSprite* pSprite);                       // 110

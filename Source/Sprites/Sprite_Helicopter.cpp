@@ -342,7 +342,7 @@ void cFodder::Sprite_Handle_Helicopter_Enemy(sSprite* pSprite) {
 
     Data8 = pSprite->mAIAggression;
     if ((uint16)Data8 >= 0x1F4) {
-        if (pSprite->mSpriteType == eSprite_Helicopter_Homing_Enemy2)
+        if (pSprite->mSpriteType == eSprite_Helicopter_Homing_Enemy_Called)
             if (mHelicopterCall_X < 0)
                 goto loc_24FF1;
 
@@ -598,7 +598,7 @@ loc_19EE5:;
     if (pSprite->mAnimState == eSprite_Anim_None)
         goto loc_1A149;
 
-    if (pSprite->mSpriteType == eSprite_Helicopter_Homing_Enemy2) {
+    if (pSprite->mSpriteType == eSprite_Helicopter_Homing_Enemy_Called) {
 
         if (mHelicopterCall_X >= 0) {
 
@@ -996,7 +996,7 @@ void cFodder::Sprite_Handle_Helicopter_Homing_Human_Called(sSprite* pSprite) {
     Sprite_Handle_Helicopter_Homing_Human(pSprite);
 }
 
-void cFodder::Sprite_Handle_Helicopter_Homing_Enemy2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Helicopter_Homing_Enemy_Called(sSprite* pSprite) {
 
     Sprite_Handle_Helicopter_Homing_Enemy(pSprite);
 }

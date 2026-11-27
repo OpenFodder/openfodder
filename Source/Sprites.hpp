@@ -81,7 +81,7 @@ enum eSprites {
 
 	eSprite_BoilingPot							= 60,
 	eSprite_Civilian							= 61,
-	eSprite_Civilian2							= 62,
+	eSprite_Civilian_Fast							= 62,
 	eSprite_VehicleNoGun_Human					= 63,		// Skidu
 	eSprite_VehicleGun_Human					= 64,
 	eSprite_Tank_Human							= 65,
@@ -130,7 +130,7 @@ enum eSprites {
 	eSprite_Helicopter_Homing_Human_Called		= 104,
 	eSprite_Turret_HomingMissile_Enemy			= 105,
 	eSprite_Enemy_Leader						= 106,
-	eSprite_Helicopter_Homing_Enemy2			= 107,
+	eSprite_Helicopter_Homing_Enemy_Called			= 107,
 	eSprite_Computer_1							= 108,
 	eSprite_Computer_2							= 109,
 	eSprite_Computer_3							= 110,

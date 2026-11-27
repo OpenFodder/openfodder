@@ -112,7 +112,7 @@ void cMapData::Sprite_Add(size_t pSpriteID, size_t pSpriteX, size_t pSpriteY) {
 	case eSprite_Helicopter_Unarmed_Enemy:
 	case eSprite_Helicopter_Missile_Enemy:
 	case eSprite_Helicopter_Homing_Enemy:
-	case eSprite_Helicopter_Homing_Enemy2:
+	case eSprite_Helicopter_Homing_Enemy_Called:
 		First.mSpriteType = eSprite_Null;
 		mSprites.push_back(First);
 		mSprites.push_back(First);

@@ -730,7 +730,7 @@ void cFodder::Sprite_Handle_Civilian(sSprite* pSprite) {
     Sprite_WalkFrame_From_Direction(pSprite);
 }
 
-void cFodder::Sprite_Handle_Civilian2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Fast(sSprite* pSprite) {
 
     if (pSprite->mAnimState) {
         Sprite_Handle_Civilian_Death(pSprite);

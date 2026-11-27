@@ -522,7 +522,7 @@ void cFodder::Sprite_Handle_Turret(sSprite* pSprite) {
 
     if (mGame_Data.mGamePhase_Data.mGoals_Remaining[eObjective_Get_Civilian_Home - 1]) {
         Data4 = eSprite_Civilian;
-        Data8 = eSprite_Civilian2;
+        Data8 = eSprite_Civilian_Fast;
         DataC = eSprite_Civilian_Spear;
         Data10 = -1;
     }
@@ -1790,7 +1790,7 @@ static bool Vehicle_CanFirePlayerWeapon(const sSprite* pVehicle) {
     case eSprite_Helicopter_Grenade_Enemy:
     case eSprite_Helicopter_Missile_Enemy:
     case eSprite_Helicopter_Homing_Enemy:
-    case eSprite_Helicopter_Homing_Enemy2:
+    case eSprite_Helicopter_Homing_Enemy_Called:
         return true;
 
     case eSprite_VehicleNoGun_Human:

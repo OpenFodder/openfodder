@@ -126,7 +126,7 @@ void cFodder::Sprite_Table_Setup() {
 	/* 60 */
 	SpriteFunction( BoilingPot );
 	SpriteFunction( Civilian );
-	SpriteFunction( Civilian2 );
+	SpriteFunction( Civilian_Fast );
 	SpriteFunction( VehicleNoGun_Human );
 
 	/* 64 */
@@ -193,7 +193,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Helicopter_Homing_Human_Called );
 	SpriteFunction( Turret_HomingMissile_Enemy );
 	SpriteFunction( Enemy_Leader );
-	SpriteFunction( Helicopter_Homing_Enemy2 );
+	SpriteFunction( Helicopter_Homing_Enemy_Called );
 
 	/* 108 */
 	SpriteFunction( Computer_1 );

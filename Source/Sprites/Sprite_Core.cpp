@@ -63,7 +63,7 @@ bool Sprite_IsEnemyCombatantType(int16 pSpriteType) {
     case eSprite_Turret_Missile_Enemy:
     case eSprite_Turret_HomingMissile_Enemy:
     case eSprite_Enemy_Leader:
-    case eSprite_Helicopter_Homing_Enemy2:
+    case eSprite_Helicopter_Homing_Enemy_Called:
     case eSprite_Turret_Cannon_Invulnerable:
     case eSprite_Turret_Missile_Invulnerable:
     case eSprite_Looping_Vehicle_Left:
@@ -118,7 +118,7 @@ bool cFodder::Sprite_IsVehicle(const sSprite* pSprite) const {
     case eSprite_Helicopter_Missile_Human_Called:
     case eSprite_Helicopter_Homing_Human_Called:
     case eSprite_Turret_HomingMissile_Enemy:
-    case eSprite_Helicopter_Homing_Enemy2:
+    case eSprite_Helicopter_Homing_Enemy_Called:
     case eSprite_Turret_Cannon_Invulnerable:
     case eSprite_Turret_Missile_Invulnerable:
     case eSprite_Looping_Vehicle_Left:
@@ -915,7 +915,7 @@ sSprite* cFodder::Sprite_Add(size_t pSpriteID, int16 pSpriteX, int16 pSpriteY) {
     case eSprite_Helicopter_Unarmed_Enemy:
     case eSprite_Helicopter_Missile_Enemy:
     case eSprite_Helicopter_Homing_Enemy:
-    case eSprite_Helicopter_Homing_Enemy2:
+    case eSprite_Helicopter_Homing_Enemy_Called:
         Second->mSpriteType = eSprite_Null;
         Second->mPosX = pSpriteX;
         Second->mPosY = pSpriteY;
