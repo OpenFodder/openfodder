@@ -1,7 +1,7 @@
 # Custom soldier names for OpenFodder — example file.
 #
 # Copy this file to soldier_names.txt in your game resources folder
-# (the folder holding that version's data files, e.g. Data/CF1/ for the
+# (the folder holding that version's data files, e.g. Data/Dos_CD/ for the
 # PC CD version, next to files like junarmy.dat) and edit the names.
 # Or copy it to Data/soldier_names.txt instead, for one list shared by
 # every version. A per-version file always wins over the shared one.
