@@ -111,6 +111,8 @@ public:
 	std::string	FindVersionPath(const sGameVersion* pVersion) const;
 	std::string GetFilePath(const sGameVersion* pVersion, std::string pFile) const;
 
+	std::string GetGlobalDataFilePath(std::string pFile) const;
+
 	tSharedBuffer FileRead(const std::string& pFile);
 	std::string	FileReadStr(const std::string& pFile);
 

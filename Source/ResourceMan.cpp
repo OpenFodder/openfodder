@@ -549,6 +549,23 @@ std::string cResourceMan::GetFilePath(const sGameVersion* pVersion, std::string 
 	return "";
 }
 
+std::string cResourceMan::GetGlobalDataFilePath(std::string pFile) const {
+
+	// A file in the Data/ folder at the root of an install, shared by all
+	// versions (e.g. a single soldier_names.txt for every version).
+	for (auto& ValidPath : mValidPaths) {
+
+		const auto resolved = FileSystem::Resolve(ValidPath + PathGenerate(pFile, eData));
+		if (resolved.empty())
+			continue;
+
+		if (FileExists(resolved.u8string()))
+			return resolved.u8string();
+	}
+
+	return "";
+}
+
 std::string cResourceMan::PathGenerate(const std::string& pFile, eDataType pDataType) const {
 	std::stringstream	 filePathFinal;
 

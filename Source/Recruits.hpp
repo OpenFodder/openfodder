@@ -59,6 +59,8 @@ struct sGravePosition {
 
 extern const std::vector<sGravePosition> mGravePositions;
 extern const struct sRecruit mRecruits[];
+
+const sRecruit* Recruit_Get(int16 pRecruitID);
 extern const struct sRecruit_Sprites mRecruitSprite[34];
 extern struct sRecruit_Screen_Pos mRecruit_Screen_Positions[294];
 

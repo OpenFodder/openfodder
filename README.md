@@ -62,7 +62,13 @@ UPDATE button that checks for newer compatible releases.
 * Linux distros / macOS: see [INSTALL.md](https://github.com/OpenFodder/openfodder/blob/master/INSTALL.md) for system data-dir conventions and Flatpak notes
 * Retail data (Cannon Fodder 1/2): [INSTALL.md](https://github.com/OpenFodder/openfodder/blob/master/INSTALL.md#retail-data) covers Amiga ADF, DOS CD, and CD32 layouts
 * Latest CI build (a moving "head" snapshot for testers): [Windows x86 zip](https://s3.amazonaws.com/openfodder-builds/OpenFodder-x86-Release-latest.zip)
-  
+
+#### Mods
+
+##### Custom Soldier Names
+
+All 360 original soldier names can be overridden by placing a `soldier_names.txt` in a game resources folder, or a single `soldier_names.txt` in the `Data/` folder shared by all versions. See [soldier_names.txt.example](https://github.com/OpenFodder/openfodder/blob/master/soldier_names.txt.example). One name per line, letters A-Z only, up to six letters long. Currently if fewer than 360 names are provided, the list will recycle at the top. Game folder takes priority. Place a blank soldier_names.txt in a game resource folder to revert only that game to the defaults.
+
 #### How to play
 
 Open Fodder supports six demos from the Amiga platform, and three retail releases (See below for supported versions).
