@@ -111,6 +111,10 @@ public:
 	std::string	FindVersionPath(const sGameVersion* pVersion) const;
 	std::string GetFilePath(const sGameVersion* pVersion, std::string pFile) const;
 
+	// Resolve a file in the global Data/ folder shared by all versions.
+	// Returns the full path, or "" when the file is not present.
+	std::string GetGlobalDataFilePath(std::string pFile) const;
+
 	tSharedBuffer FileRead(const std::string& pFile);
 	std::string	FileReadStr(const std::string& pFile);
 

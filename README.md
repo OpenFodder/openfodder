@@ -67,7 +67,7 @@ UPDATE button that checks for newer compatible releases.
 
 ##### Custom Soldier Names
 
-All 360 original soldier names can be overridden by placing a `soldier_names.txt` in each game resources folder. See [soldier_names.txt.example](https://github.com/OpenFodder/openfodder/blob/master/soldier_names.txt.example). One name per line, letters A-Z only, up to six letters long. Currently if fewer than 360 names are provided, the list will recycle at the top.
+All 360 original soldier names can be overridden by placing a `soldier_names.txt` in a game resources folder, or a single `soldier_names.txt` in the `Data/` folder shared by all versions. See [soldier_names.txt.example](https://github.com/OpenFodder/openfodder/blob/master/soldier_names.txt.example). One name per line, letters A-Z only, up to six letters long. Currently if fewer than 360 names are provided, the list will recycle at the top.
 
 #### How to play
 

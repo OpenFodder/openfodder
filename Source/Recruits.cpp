@@ -389,7 +389,10 @@ const struct sRecruit mRecruits[] = {
 // The original 360 names live in mRecruits above. If a soldier_names.txt
 // file is present in the current version's game resources folder (the
 // folder holding that version's data files), its names replace the
-// originals
+// originals. If the version has no soldier_names.txt of its own, a single
+// global list in the Data/ folder (Data/soldier_names.txt) is used
+// instead, so one file covers every version. A per-version file always
+// wins over the global one, even if it is empty.
 
 namespace {
 
@@ -408,8 +411,21 @@ namespace {
         if (!g_Fodder->mVersionCurrent)
             return;
 
-        std::string Content = g_ResourceMan->FileReadStr(
-            g_Fodder->mVersionCurrent->getDataFilePath("soldier_names.txt"));
+        // Per-version list first; if this version has no soldier_names.txt,
+        // fall back to a single global list in Data/ shared by all versions.
+        // A per-version file that exists always wins, even if it is empty.
+        std::string VersionPath =
+            g_Fodder->mVersionCurrent->getDataFilePath("soldier_names.txt");
+
+        std::string Content;
+        if (g_ResourceMan->FileExists(VersionPath)) {
+            Content = g_ResourceMan->FileReadStr(VersionPath);
+        } else {
+            std::string GlobalPath =
+                g_ResourceMan->GetGlobalDataFilePath("soldier_names.txt");
+            if (!GlobalPath.empty())
+                Content = g_ResourceMan->FileReadStr(GlobalPath);
+        }
 
         if (Content.empty())
             return;
