@@ -372,7 +372,7 @@ void cFodder::MainMenu_PrepareScenery() {
     mSprites[x].mFrameIndex = 0;
     mSprites[x].mRowsToSkip = 0;
     mSprites[x].mHeight = 0;
-    mSprites[x++].mSpriteType = eSprite_Bird_Left;
+    mSprites[x++].mSpriteType = eSprite_Bird_Left_CameraRespawn;
 
     mSprites[x].mPosX = 0;
     mSprites[x].mPosY = 16 + (tool_RandomGet() % 0xc0);
@@ -380,7 +380,7 @@ void cFodder::MainMenu_PrepareScenery() {
     mSprites[x].mFrameIndex = 0;
     mSprites[x].mRowsToSkip = 0;
     mSprites[x].mHeight = 0;
-    mSprites[x++].mSpriteType = eSprite_Bird_Left;
+    mSprites[x++].mSpriteType = eSprite_Bird_Left_CameraRespawn;
 
     mSprites[x].mPosX = 185;
     mSprites[x].mPosY = 19;

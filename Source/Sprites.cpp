@@ -61,7 +61,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Snowman );
 	SpriteFunction( Shrub2 );
 	SpriteFunction( Waterfall );
-	SpriteFunction( Bird2_Left );
+	SpriteFunction( Bird_Left_Wraparound );
 
 	/* 20 */
 	SpriteFunction( BuildingDoor );
@@ -71,7 +71,7 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 24 */
 	SpriteFunction( GroundHole );
-	SpriteFunction( BuildingDoor2 );
+	SpriteFunction( BuildingDoor_Hut );
 	SpriteTableFunction( 26,						Sprite_Handle_Null );
 	SpriteFunction( Floating_Dead_Soldier );
 	
@@ -115,7 +115,7 @@ void cFodder::Sprite_Table_Setup() {
 	SpriteFunction( Helicopter_Homing_Human );
 	SpriteFunction( Helicopter_PropCrash );
 	SpriteFunction( Mine );
-	SpriteFunction( Mine2 );
+	SpriteFunction( Mine_SlideTrigger );
 
 	/* 56 */
 	SpriteFunction( Spike );
@@ -132,20 +132,20 @@ void cFodder::Sprite_Table_Setup() {
 	/* 64 */
 	SpriteFunction( VehicleGun_Human );
 	SpriteFunction( Tank_Human );
-	SpriteFunction( Bird_Left );
-	SpriteFunction( Bird_Right );
+	SpriteFunction( Bird_Left_CameraRespawn );
+	SpriteFunction( Bird_Right_CameraRespawn );
 
 	/* 68 */
 	SpriteFunction( Seal );
 	SpriteFunction( Tank_Enemy );
 	SpriteFunction( Civilian_Spear );
-	SpriteFunction( Civilian_Spear2 );
+	SpriteFunction( Civilian_Spear_Projectile );
 
 	/* 72 */
 	SpriteFunction( Hostage );
 	SpriteFunction( Hostage_Rescue_Tent );
 	SpriteFunction( Door_Civilian );
-	SpriteFunction( Door2_Civilian );
+	SpriteFunction( Door_Civilian_Fast );
 
 	/* 76 */
 	SpriteFunction( Door_Civilian_Spear );
@@ -179,7 +179,7 @@ void cFodder::Sprite_Table_Setup() {
 
 	/* 96 */
 	SpriteFunction( Bonus_RankHomingInvin_SquadLeader );
-	SpriteFunction( MissileHoming2 );
+	SpriteFunction( MissileHoming_Human );
 	SpriteFunction( Bonus_RankHomingInvin_Squad );
 	SpriteFunction( Helicopter_CallPad );
 

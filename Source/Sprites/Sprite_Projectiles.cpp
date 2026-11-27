@@ -281,7 +281,7 @@ int16 cFodder::Sprite_Create_MissileHoming(sSprite* pSprite, sSprite*& pData2C, 
     Data30->mHeight = 0;
     pData2C->mPosY += 1;
     pData2C->mPosX += 3;
-    pData2C->mSpriteType = eSprite_MissileHoming2;
+    pData2C->mSpriteType = eSprite_MissileHoming_Human;
     if (pSprite->mPersonType != eSprite_PersonType_Human)
         pData2C->mSpriteType = eSprite_MissileHoming;
     Data30->mSpriteType = eSprite_ShadowSmall;
@@ -1035,7 +1035,7 @@ void cFodder::Sprite_Handle_Mine(sSprite* pSprite) {
     }
 }
 
-void cFodder::Sprite_Handle_Mine2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Mine_SlideTrigger(sSprite* pSprite) {
     int16 Data0;
 
     pSprite->mDrawOrder = eSprite_Draw_First;
@@ -1195,7 +1195,7 @@ void cFodder::Sprite_Handle_Bonus_Rockets(sSprite* pSprite) {
     Sprite_Destroy_Wrapper(pSprite);
 }
 
-void cFodder::Sprite_Handle_MissileHoming2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_MissileHoming_Human(sSprite* pSprite) {
 
     Sprite_Handle_MissileHoming(pSprite);
 }
@@ -1739,7 +1739,7 @@ int16 cFodder::Sprite_Create_Rocket(sSprite* pSprite) {
         if (Sprite_Homing_LockInRange(pSprite, Data34)) {
 
             Data2C->mOwnerSprite = Data34;
-            Data2C->mSpriteType = eSprite_MissileHoming2;
+            Data2C->mSpriteType = eSprite_MissileHoming_Human;
             Data2C->mHomingAccelFixed = 0x10000;
             Data2C->mTargetX = pSprite->mWeaponTargetX;
             Data2C->mTargetY = pSprite->mWeaponTargetY;

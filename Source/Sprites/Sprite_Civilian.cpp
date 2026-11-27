@@ -35,7 +35,7 @@ void cFodder::Sprite_Handle_Civilian_Unk(sSprite* pSprite) {
     pSprite->mWeaponTargetX = mSquad_Leader->mPosX;
     pSprite->mWeaponTargetY = mSquad_Leader->mPosY;
 
-    Sprite_Create_Civilian_Spear2(pSprite);
+    Sprite_Create_Civilian_Spear_Projectile(pSprite);
 }
 
 void cFodder::Sprite_Handle_Civilian_Movement(sSprite* pSprite) {
@@ -359,7 +359,7 @@ loc_265B1:;
     pSprite->field_43 = -1;
 }
 
-int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
+int16 cFodder::Sprite_Create_Civilian_Spear_Projectile(sSprite* pSprite) {
     if (mPhase_Completed_Timer)
         return -1;
 
@@ -388,7 +388,7 @@ int16 cFodder::Sprite_Create_Civilian_Spear2(sSprite* pSprite) {
         Data0 = 0x10;
 
     Data2C->field_12 = Data0;
-    Data2C->mSpriteType = eSprite_Civilian_Spear2;
+    Data2C->mSpriteType = eSprite_Civilian_Spear_Projectile;
     Data2C->mHeightFixed = pSprite->mHeightFixed;
     Data2C->mHeightFixed += 0x60000;
 
@@ -692,7 +692,7 @@ int16 cFodder::Sprite_Create_Native(sSprite* pSprite, sSprite*& pData2C, sSprite
     return 0;
 }
 
-void cFodder::Sprite_Handle_Bird2_Left(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Bird_Left_Wraparound(sSprite* pSprite) {
 
     pSprite->mSheetIndex = 0x98;
     pSprite->mDrawOrder = eSprite_Draw_OnTop;
@@ -756,7 +756,7 @@ void cFodder::Sprite_Handle_Civilian2(sSprite* pSprite) {
     Sprite_Handle_Civilian_Unk(pSprite);
 }
 
-void cFodder::Sprite_Handle_Bird_Left(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Bird_Left_CameraRespawn(sSprite* pSprite) {
 
     pSprite->mSheetIndex = 0xD3;
     pSprite->mDrawOrder = eSprite_Draw_OnTop;
@@ -836,7 +836,7 @@ loc_1C8C5:;
 
 }
 
-void cFodder::Sprite_Handle_Bird_Right(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Bird_Right_CameraRespawn(sSprite* pSprite) {
     pSprite->mSheetIndex = 0xD4;
     pSprite->mDrawOrder = eSprite_Draw_OnTop;
 
@@ -971,7 +971,7 @@ void cFodder::Sprite_Handle_Civilian_Spear(sSprite* pSprite) {
     Sprite_Handle_Civilian_Unk(pSprite);
 }
 
-void cFodder::Sprite_Handle_Civilian_Spear2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Civilian_Spear_Projectile(sSprite* pSprite) {
     int16 Data0, Data4, Data8, DataC, Data1C;
 
     ++pSprite->field_64;
@@ -1254,7 +1254,7 @@ void cFodder::Sprite_Handle_Door_Civilian(sSprite* pSprite) {
     Sprite_CivilianDoor_SpawnUpdate(pSprite);
 }
 
-void cFodder::Sprite_Handle_Door2_Civilian(sSprite* pSprite) {
+void cFodder::Sprite_Handle_Door_Civilian_Fast(sSprite* pSprite) {
     mSpawnSpriteType = 0x3E;
 
     Sprite_CivilianDoor_SpawnUpdate(pSprite);

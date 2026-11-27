@@ -171,7 +171,7 @@ const sSprite* cFodder::Sprite_GetDamageOwner(const sSprite* pSprite) const {
     switch (pSprite->mSpriteType) {
     case eSprite_Bullet:
     case eSprite_Cannon:
-    case eSprite_Civilian_Spear2:
+    case eSprite_Civilian_Spear_Projectile:
         Candidate = pSprite->mSourceSprite;
         if (Sprite_IsActiveSpritePointer(Candidate))
             return Candidate;
@@ -183,7 +183,7 @@ const sSprite* cFodder::Sprite_GetDamageOwner(const sSprite* pSprite) const {
     case eSprite_Rocket:
     case eSprite_Missile:
     case eSprite_MissileHoming:
-    case eSprite_MissileHoming2:
+    case eSprite_MissileHoming_Human:
     case eSprite_Explosion:
     case eSprite_Explosion2:
     case eSprite_Building_Explosion:
@@ -1312,7 +1312,7 @@ loc_1AD86:;
     pSprite->field_43 = -1;
 }
 
-void cFodder::Sprite_Handle_BuildingDoor2(sSprite* pSprite) {
+void cFodder::Sprite_Handle_BuildingDoor_Hut(sSprite* pSprite) {
     int16 Data0, Data4;
     sSprite* Data2C = 0;
 
